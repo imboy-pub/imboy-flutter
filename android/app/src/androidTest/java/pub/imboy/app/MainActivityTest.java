@@ -15,7 +15,7 @@ import pl.leancode.patrol.PatrolJUnitRunner;
  * JUnit 参数化 case 在独立进程中运行（配合 build.gradle.kts 的
  * ANDROIDX_TEST_ORCHESTRATOR + clearPackageData）。
  *
- * <p>MainActivity 与本类同包（imboy.chat），故可直接引用。
+ * <p>MainActivity 与本类同包（pub.imboy.app），故可直接引用。
  */
 @RunWith(Parameterized.class)
 public class MainActivityTest {
