@@ -45,7 +45,7 @@ final class PersonalInfoNotifierProvider
 }
 
 String _$personalInfoNotifierHash() =>
-    r'19add9c3875993d2f11073938ed3dbac79fb6db1';
+    r'b46e644aa60aba2c763bbb55c9bfcf3bd0eb120f';
 
 /// 个人信息 Provider
 

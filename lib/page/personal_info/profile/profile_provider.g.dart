@@ -44,7 +44,7 @@ final class ProfileNotifierProvider
   }
 }
 
-String _$profileNotifierHash() => r'35b6f5e442db992fc60d96310c5d99a2c01cb95b';
+String _$profileNotifierHash() => r'9e4c1cf1189569cc1cb50c16945fc98bec3f4965';
 
 /// 个人资料 Provider
 

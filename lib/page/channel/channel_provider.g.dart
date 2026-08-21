@@ -45,7 +45,7 @@ final class ChannelListNotifierProvider
 }
 
 String _$channelListNotifierHash() =>
-    r'ccc9b3113e45e00e1c3c3777d41cd4bb16cd1a15';
+    r'2c2f553d14e65f3bd94d04d29455412dc27494ae';
 
 /// 频道列表 Notifier
 
@@ -104,7 +104,7 @@ final class ChannelDetailNotifierProvider
 }
 
 String _$channelDetailNotifierHash() =>
-    r'f20eeb30fd19ac1b44c2f03b99c36cdc6b262f00';
+    r'06281cee0aef3666f071d4da616f28b638d58a5b';
 
 /// 频道详情 Notifier
 

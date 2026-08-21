@@ -104,7 +104,7 @@ final class NewFriendRemindNotifierProvider
 }
 
 String _$newFriendRemindNotifierHash() =>
-    r'522fe339b361fdb0f89078fd945ee93ec9725e4b';
+    r'90af5524b44cf667e6ab6cbe4281f9dc9375b89a';
 
 /// 新好友提醒计数器提供者
 

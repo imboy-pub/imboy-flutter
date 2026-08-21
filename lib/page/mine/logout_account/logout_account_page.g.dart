@@ -42,7 +42,7 @@ final class LogoutAccountNotifierProvider
 }
 
 String _$logoutAccountNotifierHash() =>
-    r'ed6f963a678e4771a156b5b763c14fd5b73d93fc';
+    r'a39b7625d762b4161d78cabe4b3980b3ec3f1c16';
 
 abstract class _$LogoutAccountNotifier extends $Notifier<LogoutAccountState> {
   LogoutAccountState build();

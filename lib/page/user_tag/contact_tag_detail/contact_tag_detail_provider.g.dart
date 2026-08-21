@@ -42,7 +42,7 @@ final class ContactTagDetailNotifierProvider
 }
 
 String _$contactTagDetailNotifierHash() =>
-    r'e5b11dad1b4a293067a98637cdb6ab65f410cb14';
+    r'c3454cdf85131ab30c37be4f6da5349a657fc861';
 
 abstract class _$ContactTagDetailNotifier
     extends $Notifier<ContactTagDetailState> {

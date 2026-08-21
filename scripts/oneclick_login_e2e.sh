@@ -3,7 +3,7 @@
 # 用法: bash oneclick_login_e2e.sh
 # 断言链: JCore注册 → 认证SDK init(8000) → 授权页拉起 → [人工/自动]点授权页登录 → 6000 loginToken → 服务端200 → 首页
 set -u
-PKG=pub.imboy.apk
+PKG=pub.imboy.app
 PASS=0; FAIL=0
 wait_text() { # 轮询等文本元素出现 $1=text $2=timeout_s
   local t=0

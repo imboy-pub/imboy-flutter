@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 使用方法: ./rename_package.sh <新包名>
-# 示例: ./rename_package.sh pub.imboy.apk
+# 示例: ./rename_package.sh pub.imboy.app
 
 # 脚本功能
 #1. 修改包名目录结构（Java/Kotlin 源码路径）
@@ -16,8 +16,8 @@ set -e
 
 # ========== 参数校验 ==========
 if [ -z "$1" ]; then
-    echo "❌ 错误: 请输入新的包名参数，例如 pub.imboy.apk"
-    echo "✅ 用法: ./rename_package.sh pub.imboy.apk"
+    echo "❌ 错误: 请输入新的包名参数，例如 pub.imboy.app"
+    echo "✅ 用法: ./rename_package.sh pub.imboy.app"
     exit 1
 fi
 

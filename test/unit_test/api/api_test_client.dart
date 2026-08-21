@@ -149,11 +149,11 @@ class ApiTestClient {
         ? 'macos'
         : 'linux';
     final pkg = Platform.isAndroid
-        ? 'imboy.chat'
+        ? 'pub.imboy.app'
         : Platform.isMacOS
-        ? 'pub.imboy.macos'
+        ? 'pub.imboy.app'
         : Platform.isIOS
-        ? 'pub.imboy.2'
+        ? 'pub.imboy.app'
         : 'pub.imboy.app';
     const vsn = '0.8.0';
     final raw = '$_deviceId|$vsn|$cos|$pkg';
