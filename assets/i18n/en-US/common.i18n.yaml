@@ -1011,6 +1011,21 @@ e2eeBackupCloudPwdHint: Enter your backup passphrase
 e2eeBackupErrNoCloudBackup: No cloud backup found
 e2eeBackupErrCloudPwd: Wrong passphrase or corrupted backup
 e2eeBackupErrCloudRestoreFailed: Cloud restore failed, please retry
+e2eeBackupUrlImportTitle: Or import from a link
+e2eeBackupUrlImportHint: Paste the backup file URL (HTTPS only); it will be downloaded and verified automatically
+e2eeBackupUrlFieldLabel: Backup file URL
+e2eeBackupUrlFieldHint: https://...
+e2eeBackupUrlImportBtn: Download and verify
+e2eeBackupUrlDownloading: Downloading…
+e2eeBackupErrUrlInvalid: Invalid URL, HTTPS only
+e2eeBackupErrUrlDownload: Download failed, please check the URL and network
+e2eeBackupErrUrlTimeout: Download timed out, please retry
+e2eeBackupErrUrlTls: Secure connection failed, unable to verify server certificate
+e2eeBackupErrUrlHttp: Server returned an error
+e2eeBackupErrUrlEmpty: Server returned empty content
+e2eeBackupErrUrlTooLarge: File too large (exceeds 10MB limit)
+e2eeBackupOpenFromExternal: Received an external backup file, verifying…
+e2eeBackupErrOpenExternal: Unable to read this file, please use "import from link" or "select file" instead
 e2eeSocialShardSettings: Shard settings
 e2eeSocialShardStoredNote: Shards will be stored on proxy devices; the server stores nothing
 e2eeSocialAddProxy: Add proxy

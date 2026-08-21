@@ -112,6 +112,21 @@
                 <data android:scheme="imboy"/>
             </intent-filter>
 
+            <!-- E2EE 备份导入：从邮件/文件管理器等外部 App 打开 .enc 文件 -->
+            <!-- pathPattern 的 . 需转义为 \.；多个 data 元素做笛卡尔积，
+                 因此 scheme + pathPattern 必须在同一个 data 元素内 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content" android:mimeType="application/octet-stream" android:pathPattern=".*\\.enc"/>
+                <data android:scheme="file" android:mimeType="application/octet-stream" android:pathPattern=".*\\.enc"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/octet-stream"/>
+            </intent-filter>
+
         </activity>
         <!-- Plugin 注册 -->
         <meta-data android:name="flutterEmbedding" android:value="2"/>

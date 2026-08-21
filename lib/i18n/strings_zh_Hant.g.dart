@@ -1709,6 +1709,21 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrNoCloudBackup => '雲端暫無備份';
 	@override String get e2eeBackupErrCloudPwd => '口令錯誤或備份損壞';
 	@override String get e2eeBackupErrCloudRestoreFailed => '雲端恢復失敗，請重試';
+	@override String get e2eeBackupUrlImportTitle => '或從連結匯入';
+	@override String get e2eeBackupUrlImportHint => '貼上備份檔所在連結（僅支援 HTTPS），下載後自動校驗';
+	@override String get e2eeBackupUrlFieldLabel => '備份檔連結';
+	@override String get e2eeBackupUrlFieldHint => 'https://...';
+	@override String get e2eeBackupUrlImportBtn => '下載並校驗';
+	@override String get e2eeBackupUrlDownloading => '下載中…';
+	@override String get e2eeBackupErrUrlInvalid => '連結無效，僅支援 HTTPS';
+	@override String get e2eeBackupErrUrlDownload => '下載失敗，請檢查連結與網路';
+	@override String get e2eeBackupErrUrlTimeout => '下載逾時，請重試';
+	@override String get e2eeBackupErrUrlTls => '安全連線失敗，無法驗證伺服器憑證';
+	@override String get e2eeBackupErrUrlHttp => '伺服器回傳錯誤';
+	@override String get e2eeBackupErrUrlEmpty => '伺服器回傳的內容為空';
+	@override String get e2eeBackupErrUrlTooLarge => '檔案過大（超過 10MB 上限）';
+	@override String get e2eeBackupOpenFromExternal => '已收到外部備份檔，正在校驗…';
+	@override String get e2eeBackupErrOpenExternal => '無法讀取該檔案，請改用「從連結匯入」或「選擇檔案」';
 	@override String get e2eeSocialShardSettings => '分片設定';
 	@override String get e2eeSocialShardStoredNote => '說明：分片將儲存在代理裝置上，服務端不儲存任何分片';
 	@override String get e2eeSocialAddProxy => '新增代理';
@@ -4207,6 +4222,21 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrNoCloudBackup' => '雲端暫無備份',
 			'common.e2eeBackupErrCloudPwd' => '口令錯誤或備份損壞',
 			'common.e2eeBackupErrCloudRestoreFailed' => '雲端恢復失敗，請重試',
+			'common.e2eeBackupUrlImportTitle' => '或從連結匯入',
+			'common.e2eeBackupUrlImportHint' => '貼上備份檔所在連結（僅支援 HTTPS），下載後自動校驗',
+			'common.e2eeBackupUrlFieldLabel' => '備份檔連結',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => '下載並校驗',
+			'common.e2eeBackupUrlDownloading' => '下載中…',
+			'common.e2eeBackupErrUrlInvalid' => '連結無效，僅支援 HTTPS',
+			'common.e2eeBackupErrUrlDownload' => '下載失敗，請檢查連結與網路',
+			'common.e2eeBackupErrUrlTimeout' => '下載逾時，請重試',
+			'common.e2eeBackupErrUrlTls' => '安全連線失敗，無法驗證伺服器憑證',
+			'common.e2eeBackupErrUrlHttp' => '伺服器回傳錯誤',
+			'common.e2eeBackupErrUrlEmpty' => '伺服器回傳的內容為空',
+			'common.e2eeBackupErrUrlTooLarge' => '檔案過大（超過 10MB 上限）',
+			'common.e2eeBackupOpenFromExternal' => '已收到外部備份檔，正在校驗…',
+			'common.e2eeBackupErrOpenExternal' => '無法讀取該檔案，請改用「從連結匯入」或「選擇檔案」',
 			'common.e2eeSocialShardSettings' => '分片設定',
 			'common.e2eeSocialShardStoredNote' => '說明：分片將儲存在代理裝置上，服務端不儲存任何分片',
 			'common.e2eeSocialAddProxy' => '新增代理',
@@ -4655,6 +4685,8 @@ extension on TranslationsZhHant {
 			'main.liveRoomListView' => '直播間列表視圖',
 			'main.publisherPage' => '推流頁面',
 			'main.subscriber' => '訂閱者',
+			_ => null,
+		} ?? switch (path) {
 			'main.loggingOut' => '正在登出...',
 			'main.loudspeaker' => '擴音器',
 			'main.makeYourselfInvisible' => '讓自己不可見',
@@ -4670,8 +4702,6 @@ extension on TranslationsZhHant {
 			'main.multiSelect' => '多選',
 			'main.multiSelectMode' => '多選模式',
 			'main.myFavorites' => '我的收藏',
-			_ => null,
-		} ?? switch (path) {
 			'main.myLive' => '我的直播',
 			'main.name' => '名稱',
 			'main.numUnit' => ({required Object param}) => '${param}個',

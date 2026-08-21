@@ -1014,6 +1014,21 @@ e2eeBackupCloudPwdHint: أدخل عبارة مرور النسخة الاحتيا
 e2eeBackupErrNoCloudBackup: لا توجد نسخة سحابية
 e2eeBackupErrCloudPwd: عبارة المرور خاطئة أو النسخة تالفة
 e2eeBackupErrCloudRestoreFailed: فشلت الاستعادة من السحابة، يرجى المحاولة مرة أخرى
+e2eeBackupUrlImportTitle: أو الاستيراد من رابط
+e2eeBackupUrlImportHint: الصق رابط ملف النسخة الاحتياطية (HTTPS فقط)؛ سيتم تنزيله والتحقق منه تلقائيًا
+e2eeBackupUrlFieldLabel: رابط ملف النسخة الاحتياطية
+e2eeBackupUrlFieldHint: https://...
+e2eeBackupUrlImportBtn: تنزيل وتحقق
+e2eeBackupUrlDownloading: جارٍ التنزيل…
+e2eeBackupErrUrlInvalid: رابط غير صالح، HTTPS فقط
+e2eeBackupErrUrlDownload: فشل التنزيل، تحقق من الرابط والشبكة
+e2eeBackupErrUrlTimeout: انتهت مهلة التنزيل، أعد المحاولة
+e2eeBackupErrUrlTls: فشل الاتصال الآمن، تعذر التحقق من شهادة الخادم
+e2eeBackupErrUrlHttp: أرجع الخادم خطأ
+e2eeBackupErrUrlEmpty: أرجع الخادم محتوى فارغًا
+e2eeBackupErrUrlTooLarge: الملف كبير جدًا (يتجاوز حد 10 ميجابايت)
+e2eeBackupOpenFromExternal: تم استلام ملف نسخة احتياطية خارجي، جارٍ التحقق…
+e2eeBackupErrOpenExternal: تعذرت قراءة هذا الملف، استخدم «الاستيراد من رابط» أو «تحديد ملف»
 e2eeSocialShardSettings: إعدادات الشظايا
 e2eeSocialShardStoredNote: تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية
 e2eeSocialAddProxy: إضافة وكيل

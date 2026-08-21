@@ -1017,6 +1017,21 @@ e2eeBackupCloudPwdHint: Saisissez la phrase secrète de sauvegarde
 e2eeBackupErrNoCloudBackup: Aucune sauvegarde cloud
 e2eeBackupErrCloudPwd: Phrase secrète incorrecte ou sauvegarde corrompue
 e2eeBackupErrCloudRestoreFailed: Échec de la restauration cloud, veuillez réessayer
+e2eeBackupUrlImportTitle: Ou importer depuis un lien
+e2eeBackupUrlImportHint: Collez l'URL du fichier de sauvegarde (HTTPS uniquement) ; il sera téléchargé et vérifié automatiquement
+e2eeBackupUrlFieldLabel: URL du fichier de sauvegarde
+e2eeBackupUrlFieldHint: https://...
+e2eeBackupUrlImportBtn: Télécharger et vérifier
+e2eeBackupUrlDownloading: Téléchargement…
+e2eeBackupErrUrlInvalid: URL invalide, HTTPS uniquement
+e2eeBackupErrUrlDownload: Échec du téléchargement, vérifiez l'URL et le réseau
+e2eeBackupErrUrlTimeout: Délai de téléchargement dépassé, réessayez
+e2eeBackupErrUrlTls: Échec de la connexion sécurisée, impossible de vérifier le certificat du serveur
+e2eeBackupErrUrlHttp: Le serveur a renvoyé une erreur
+e2eeBackupErrUrlEmpty: Le serveur a renvoyé un contenu vide
+e2eeBackupErrUrlTooLarge: Fichier trop volumineux (dépasse la limite de 10 Mo)
+e2eeBackupOpenFromExternal: Fichier de sauvegarde externe reçu, vérification…
+e2eeBackupErrOpenExternal: Impossible de lire ce fichier, utilisez « importer depuis un lien » ou « sélectionner un fichier »
 e2eeSocialShardSettings: Paramètres des fragments
 e2eeSocialShardStoredNote: Les fragments sont stockés chez les dépositaires, le serveur n'en conserve aucun
 e2eeSocialAddProxy: Ajouter un dépositaire

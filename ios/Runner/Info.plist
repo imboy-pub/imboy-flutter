@@ -56,6 +56,17 @@
 				<string>alipay</string>
 			</array>
 		</dict>
+		<!-- share_handler：ShareExtension 跳回主 App 的回跳 scheme -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>pub.imboy.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ShareMedia-pub.imboy.app</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
@@ -73,6 +84,46 @@
 		<string>alipay</string>
 		<string>alipayshare</string>
 		<string>alipays</string>
+	</array>
+	<!-- E2EE 备份导入：注册 .enc 文件类型，支持从邮件/文件管理器「Open In」 -->
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>IMBoy E2EE Backup</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>pub.imboy.e2ee-backup</string>
+			</array>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>pub.imboy.e2ee-backup</string>
+			<key>UTTypeDescription</key>
+			<string>IMBoy E2EE Encrypted Backup</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>enc</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/octet-stream</string>
+				</array>
+			</dict>
+		</dict>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

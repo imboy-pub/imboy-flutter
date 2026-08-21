@@ -1014,6 +1014,21 @@ e2eeBackupCloudPwdHint: バックアップのパスフレーズを入力して�
 e2eeBackupErrNoCloudBackup: クラウドバックアップがありません
 e2eeBackupErrCloudPwd: パスフレーズが間違っているか、バックアップが破損しています
 e2eeBackupErrCloudRestoreFailed: クラウドからの復元に失敗しました。再試行してください
+e2eeBackupUrlImportTitle: またはリンクからインポート
+e2eeBackupUrlImportHint: バックアップファイルの URL を貼り付けてください（HTTPSのみ）。ダウンロード後に自動検証します
+e2eeBackupUrlFieldLabel: バックアップファイルの URL
+e2eeBackupUrlFieldHint: https://...
+e2eeBackupUrlImportBtn: ダウンロードして検証
+e2eeBackupUrlDownloading: ダウンロード中…
+e2eeBackupErrUrlInvalid: URLが無効です、HTTPSのみ対応
+e2eeBackupErrUrlDownload: ダウンロード失敗、URLとネットワークを確認してください
+e2eeBackupErrUrlTimeout: ダウンロードがタイムアウトしました、再試行してください
+e2eeBackupErrUrlTls: 安全な接続に失敗しました、サーバー証明書を検証できません
+e2eeBackupErrUrlHttp: サーバーがエラーを返しました
+e2eeBackupErrUrlEmpty: サーバーが空のコンテンツを返しました
+e2eeBackupErrUrlTooLarge: ファイルが大きすぎます（10MB制限を超過）
+e2eeBackupOpenFromExternal: 外部バックアップファイルを受信しました、検証中…
+e2eeBackupErrOpenExternal: このファイルを読み取れません、「リンクからインポート」または「ファイルを選択」を使用してください
 e2eeSocialShardSettings: シャード設定
 e2eeSocialShardStoredNote: 説明：シャードは代理デバイスに保存され、サーバーには一切保存されません
 e2eeSocialAddProxy: 代理者を追加

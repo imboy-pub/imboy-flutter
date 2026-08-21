@@ -1696,6 +1696,21 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrNoCloudBackup => 'Nessun backup cloud';
 	@override String get e2eeBackupErrCloudPwd => 'Passphrase errata o backup danneggiato';
 	@override String get e2eeBackupErrCloudRestoreFailed => 'Ripristino cloud non riuscito, riprova';
+	@override String get e2eeBackupUrlImportTitle => 'Oppure importa da un link';
+	@override String get e2eeBackupUrlImportHint => 'Incolla l\'URL del file di backup (solo HTTPS); verrà scaricato e verificato automaticamente';
+	@override String get e2eeBackupUrlFieldLabel => 'URL del file di backup';
+	@override String get e2eeBackupUrlFieldHint => 'https://...';
+	@override String get e2eeBackupUrlImportBtn => 'Scarica e verifica';
+	@override String get e2eeBackupUrlDownloading => 'Download in corso…';
+	@override String get e2eeBackupErrUrlInvalid => 'URL non valido, solo HTTPS';
+	@override String get e2eeBackupErrUrlDownload => 'Download non riuscito, controlla URL e rete';
+	@override String get e2eeBackupErrUrlTimeout => 'Timeout del download, riprova';
+	@override String get e2eeBackupErrUrlTls => 'Connessione sicura non riuscita, impossibile verificare il certificato del server';
+	@override String get e2eeBackupErrUrlHttp => 'Il server ha restituito un errore';
+	@override String get e2eeBackupErrUrlEmpty => 'Il server ha restituito contenuto vuoto';
+	@override String get e2eeBackupErrUrlTooLarge => 'File troppo grande (supera il limite di 10 MB)';
+	@override String get e2eeBackupOpenFromExternal => 'Ricevuto file di backup esterno, verifica in corso…';
+	@override String get e2eeBackupErrOpenExternal => 'Impossibile leggere il file, usa «importa da link» o «seleziona file»';
 	@override String get e2eeSocialShardSettings => 'Impostazioni frammenti';
 	@override String get e2eeSocialShardStoredNote => 'I frammenti sono conservati dai garanti, il server non ne trattiene alcuno';
 	@override String get e2eeSocialAddProxy => 'Aggiungi garante';
@@ -4172,6 +4187,21 @@ extension on TranslationsItIt {
 			'common.e2eeBackupErrNoCloudBackup' => 'Nessun backup cloud',
 			'common.e2eeBackupErrCloudPwd' => 'Passphrase errata o backup danneggiato',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'Ripristino cloud non riuscito, riprova',
+			'common.e2eeBackupUrlImportTitle' => 'Oppure importa da un link',
+			'common.e2eeBackupUrlImportHint' => 'Incolla l\'URL del file di backup (solo HTTPS); verrà scaricato e verificato automaticamente',
+			'common.e2eeBackupUrlFieldLabel' => 'URL del file di backup',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => 'Scarica e verifica',
+			'common.e2eeBackupUrlDownloading' => 'Download in corso…',
+			'common.e2eeBackupErrUrlInvalid' => 'URL non valido, solo HTTPS',
+			'common.e2eeBackupErrUrlDownload' => 'Download non riuscito, controlla URL e rete',
+			'common.e2eeBackupErrUrlTimeout' => 'Timeout del download, riprova',
+			'common.e2eeBackupErrUrlTls' => 'Connessione sicura non riuscita, impossibile verificare il certificato del server',
+			'common.e2eeBackupErrUrlHttp' => 'Il server ha restituito un errore',
+			'common.e2eeBackupErrUrlEmpty' => 'Il server ha restituito contenuto vuoto',
+			'common.e2eeBackupErrUrlTooLarge' => 'File troppo grande (supera il limite di 10 MB)',
+			'common.e2eeBackupOpenFromExternal' => 'Ricevuto file di backup esterno, verifica in corso…',
+			'common.e2eeBackupErrOpenExternal' => 'Impossibile leggere il file, usa «importa da link» o «seleziona file»',
 			'common.e2eeSocialShardSettings' => 'Impostazioni frammenti',
 			'common.e2eeSocialShardStoredNote' => 'I frammenti sono conservati dai garanti, il server non ne trattiene alcuno',
 			'common.e2eeSocialAddProxy' => 'Aggiungi garante',
@@ -4636,6 +4666,8 @@ extension on TranslationsItIt {
 			'main.or' => 'Oppure',
 			'main.otherParty' => 'Altra parte',
 			'main.packageSize' => 'Dimensione pacchetto',
+			_ => null,
+		} ?? switch (path) {
 			'main.peerHasHungUp' => 'L\'altra parte ha riagganciato',
 			'main.play' => 'Riproduci',
 			'main.pleaseInputParam' => ({required Object param}) => 'Inserisci ${param}',
@@ -4651,8 +4683,6 @@ extension on TranslationsItIt {
 			'main.replied' => 'Risposto',
 			'main.ringing' => 'Sta squillando...',
 			'main.ruRu' => 'Russo (Russia)',
-			_ => null,
-		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => 'Selezionato (${count})',
 			'main.selected' => 'Selezionato',
 			'main.sent' => 'Inviato',

@@ -1693,6 +1693,21 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrNoCloudBackup => 'クラウドバックアップがありません';
 	@override String get e2eeBackupErrCloudPwd => 'パスフレーズが間違っているか、バックアップが破損しています';
 	@override String get e2eeBackupErrCloudRestoreFailed => 'クラウドからの復元に失敗しました。再試行してください';
+	@override String get e2eeBackupUrlImportTitle => 'またはリンクからインポート';
+	@override String get e2eeBackupUrlImportHint => 'バックアップファイルの URL を貼り付けてください（HTTPSのみ）。ダウンロード後に自動検証します';
+	@override String get e2eeBackupUrlFieldLabel => 'バックアップファイルの URL';
+	@override String get e2eeBackupUrlFieldHint => 'https://...';
+	@override String get e2eeBackupUrlImportBtn => 'ダウンロードして検証';
+	@override String get e2eeBackupUrlDownloading => 'ダウンロード中…';
+	@override String get e2eeBackupErrUrlInvalid => 'URLが無効です、HTTPSのみ対応';
+	@override String get e2eeBackupErrUrlDownload => 'ダウンロード失敗、URLとネットワークを確認してください';
+	@override String get e2eeBackupErrUrlTimeout => 'ダウンロードがタイムアウトしました、再試行してください';
+	@override String get e2eeBackupErrUrlTls => '安全な接続に失敗しました、サーバー証明書を検証できません';
+	@override String get e2eeBackupErrUrlHttp => 'サーバーがエラーを返しました';
+	@override String get e2eeBackupErrUrlEmpty => 'サーバーが空のコンテンツを返しました';
+	@override String get e2eeBackupErrUrlTooLarge => 'ファイルが大きすぎます（10MB制限を超過）';
+	@override String get e2eeBackupOpenFromExternal => '外部バックアップファイルを受信しました、検証中…';
+	@override String get e2eeBackupErrOpenExternal => 'このファイルを読み取れません、「リンクからインポート」または「ファイルを選択」を使用してください';
 	@override String get e2eeSocialShardSettings => 'シャード設定';
 	@override String get e2eeSocialShardStoredNote => '説明：シャードは代理デバイスに保存され、サーバーには一切保存されません';
 	@override String get e2eeSocialAddProxy => '代理者を追加';
@@ -4169,6 +4184,21 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupErrNoCloudBackup' => 'クラウドバックアップがありません',
 			'common.e2eeBackupErrCloudPwd' => 'パスフレーズが間違っているか、バックアップが破損しています',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'クラウドからの復元に失敗しました。再試行してください',
+			'common.e2eeBackupUrlImportTitle' => 'またはリンクからインポート',
+			'common.e2eeBackupUrlImportHint' => 'バックアップファイルの URL を貼り付けてください（HTTPSのみ）。ダウンロード後に自動検証します',
+			'common.e2eeBackupUrlFieldLabel' => 'バックアップファイルの URL',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => 'ダウンロードして検証',
+			'common.e2eeBackupUrlDownloading' => 'ダウンロード中…',
+			'common.e2eeBackupErrUrlInvalid' => 'URLが無効です、HTTPSのみ対応',
+			'common.e2eeBackupErrUrlDownload' => 'ダウンロード失敗、URLとネットワークを確認してください',
+			'common.e2eeBackupErrUrlTimeout' => 'ダウンロードがタイムアウトしました、再試行してください',
+			'common.e2eeBackupErrUrlTls' => '安全な接続に失敗しました、サーバー証明書を検証できません',
+			'common.e2eeBackupErrUrlHttp' => 'サーバーがエラーを返しました',
+			'common.e2eeBackupErrUrlEmpty' => 'サーバーが空のコンテンツを返しました',
+			'common.e2eeBackupErrUrlTooLarge' => 'ファイルが大きすぎます（10MB制限を超過）',
+			'common.e2eeBackupOpenFromExternal' => '外部バックアップファイルを受信しました、検証中…',
+			'common.e2eeBackupErrOpenExternal' => 'このファイルを読み取れません、「リンクからインポート」または「ファイルを選択」を使用してください',
 			'common.e2eeSocialShardSettings' => 'シャード設定',
 			'common.e2eeSocialShardStoredNote' => '説明：シャードは代理デバイスに保存され、サーバーには一切保存されません',
 			'common.e2eeSocialAddProxy' => '代理者を追加',
@@ -4633,6 +4663,8 @@ extension on TranslationsJaJp {
 			'main.or' => 'または',
 			'main.otherParty' => '相手',
 			'main.packageSize' => 'パッケージサイズ',
+			_ => null,
+		} ?? switch (path) {
 			'main.peerHasHungUp' => '相手が切断しました',
 			'main.play' => '再生',
 			'main.pleaseInputParam' => ({required Object param}) => '${param}を入力してください',
@@ -4648,8 +4680,6 @@ extension on TranslationsJaJp {
 			'main.replied' => '返信しました',
 			'main.ringing' => '呼び出し中...',
 			'main.ruRu' => 'ロシア語（ロシア）',
-			_ => null,
-		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => '選択済み (${count})',
 			'main.selected' => '選択済み',
 			'main.sent' => '送信済み',

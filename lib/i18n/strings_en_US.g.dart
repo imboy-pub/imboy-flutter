@@ -1708,6 +1708,21 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrNoCloudBackup => 'No cloud backup found';
 	@override String get e2eeBackupErrCloudPwd => 'Wrong passphrase or corrupted backup';
 	@override String get e2eeBackupErrCloudRestoreFailed => 'Cloud restore failed, please retry';
+	@override String get e2eeBackupUrlImportTitle => 'Or import from a link';
+	@override String get e2eeBackupUrlImportHint => 'Paste the backup file URL (HTTPS only); it will be downloaded and verified automatically';
+	@override String get e2eeBackupUrlFieldLabel => 'Backup file URL';
+	@override String get e2eeBackupUrlFieldHint => 'https://...';
+	@override String get e2eeBackupUrlImportBtn => 'Download and verify';
+	@override String get e2eeBackupUrlDownloading => 'Downloading…';
+	@override String get e2eeBackupErrUrlInvalid => 'Invalid URL, HTTPS only';
+	@override String get e2eeBackupErrUrlDownload => 'Download failed, please check the URL and network';
+	@override String get e2eeBackupErrUrlTimeout => 'Download timed out, please retry';
+	@override String get e2eeBackupErrUrlTls => 'Secure connection failed, unable to verify server certificate';
+	@override String get e2eeBackupErrUrlHttp => 'Server returned an error';
+	@override String get e2eeBackupErrUrlEmpty => 'Server returned empty content';
+	@override String get e2eeBackupErrUrlTooLarge => 'File too large (exceeds 10MB limit)';
+	@override String get e2eeBackupOpenFromExternal => 'Received an external backup file, verifying…';
+	@override String get e2eeBackupErrOpenExternal => 'Unable to read this file, please use "import from link" or "select file" instead';
 	@override String get e2eeSocialShardSettings => 'Shard settings';
 	@override String get e2eeSocialShardStoredNote => 'Shards will be stored on proxy devices; the server stores nothing';
 	@override String get e2eeSocialAddProxy => 'Add proxy';
@@ -4236,6 +4251,21 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupErrNoCloudBackup' => 'No cloud backup found',
 			'common.e2eeBackupErrCloudPwd' => 'Wrong passphrase or corrupted backup',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'Cloud restore failed, please retry',
+			'common.e2eeBackupUrlImportTitle' => 'Or import from a link',
+			'common.e2eeBackupUrlImportHint' => 'Paste the backup file URL (HTTPS only); it will be downloaded and verified automatically',
+			'common.e2eeBackupUrlFieldLabel' => 'Backup file URL',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => 'Download and verify',
+			'common.e2eeBackupUrlDownloading' => 'Downloading…',
+			'common.e2eeBackupErrUrlInvalid' => 'Invalid URL, HTTPS only',
+			'common.e2eeBackupErrUrlDownload' => 'Download failed, please check the URL and network',
+			'common.e2eeBackupErrUrlTimeout' => 'Download timed out, please retry',
+			'common.e2eeBackupErrUrlTls' => 'Secure connection failed, unable to verify server certificate',
+			'common.e2eeBackupErrUrlHttp' => 'Server returned an error',
+			'common.e2eeBackupErrUrlEmpty' => 'Server returned empty content',
+			'common.e2eeBackupErrUrlTooLarge' => 'File too large (exceeds 10MB limit)',
+			'common.e2eeBackupOpenFromExternal' => 'Received an external backup file, verifying…',
+			'common.e2eeBackupErrOpenExternal' => 'Unable to read this file, please use "import from link" or "select file" instead',
 			'common.e2eeSocialShardSettings' => 'Shard settings',
 			'common.e2eeSocialShardStoredNote' => 'Shards will be stored on proxy devices; the server stores nothing',
 			'common.e2eeSocialAddProxy' => 'Add proxy',
@@ -4679,6 +4709,8 @@ extension on TranslationsEnUs {
 			'main.iAm' => 'I am',
 			'main.itIt' => 'Italian (Italy)',
 			'main.jaJp' => 'Japanese (Japan)',
+			_ => null,
+		} ?? switch (path) {
 			'main.keepSecret' => 'Private',
 			'main.lastActiveTime' => 'Last active time',
 			'main.lastSeenHide' => 'Hide online status',
@@ -4694,8 +4726,6 @@ extension on TranslationsEnUs {
 			'main.loudspeaker' => 'Speaker',
 			'main.makeYourselfInvisible' => 'Make yourself invisible',
 			'main.makeYourselfVisible' => 'Make yourself visible',
-			_ => null,
-		} ?? switch (path) {
 			'main.male' => 'Male',
 			'main.manage' => 'Manage',
 			'main.markImportant' => 'Important',

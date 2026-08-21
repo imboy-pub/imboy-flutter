@@ -1017,6 +1017,21 @@ e2eeBackupCloudPwdHint: Inserisci la passphrase di backup
 e2eeBackupErrNoCloudBackup: Nessun backup cloud
 e2eeBackupErrCloudPwd: Passphrase errata o backup danneggiato
 e2eeBackupErrCloudRestoreFailed: Ripristino cloud non riuscito, riprova
+e2eeBackupUrlImportTitle: Oppure importa da un link
+e2eeBackupUrlImportHint: Incolla l'URL del file di backup (solo HTTPS); verrà scaricato e verificato automaticamente
+e2eeBackupUrlFieldLabel: URL del file di backup
+e2eeBackupUrlFieldHint: https://...
+e2eeBackupUrlImportBtn: Scarica e verifica
+e2eeBackupUrlDownloading: Download in corso…
+e2eeBackupErrUrlInvalid: URL non valido, solo HTTPS
+e2eeBackupErrUrlDownload: Download non riuscito, controlla URL e rete
+e2eeBackupErrUrlTimeout: Timeout del download, riprova
+e2eeBackupErrUrlTls: Connessione sicura non riuscita, impossibile verificare il certificato del server
+e2eeBackupErrUrlHttp: Il server ha restituito un errore
+e2eeBackupErrUrlEmpty: Il server ha restituito contenuto vuoto
+e2eeBackupErrUrlTooLarge: File troppo grande (supera il limite di 10 MB)
+e2eeBackupOpenFromExternal: Ricevuto file di backup esterno, verifica in corso…
+e2eeBackupErrOpenExternal: Impossibile leggere il file, usa «importa da link» o «seleziona file»
 e2eeSocialShardSettings: Impostazioni frammenti
 e2eeSocialShardStoredNote: I frammenti sono conservati dai garanti, il server non ne trattiene alcuno
 e2eeSocialAddProxy: Aggiungi garante

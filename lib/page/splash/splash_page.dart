@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/web_shell/web_shell_breakpoint.dart';
+import 'package:imboy/service/incoming_backup_handler.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -147,6 +148,17 @@ class _SplashPageState extends ConsumerState<SplashPage>
       if (!mounted) return;
       if (!isLoggedIn) {
         context.go('/welcome');
+        return;
+      }
+      // 冷启动时若收到外部 App 打开的 E2EE 备份文件，优先跳转到导入页。
+      // 未登录不处理（导入 E2EE 备份需要已登录的账号承载密钥）。
+      final incomingPath = await IncomingBackupHandler.consumeInitialFile();
+      if (!mounted) return;
+      if (incomingPath != null) {
+        context.go(
+          '/e2ee_backup_import',
+          extra: {'initialFilePath': incomingPath},
+        );
         return;
       }
       // 宽屏/桌面/Web 走三栏壳（内部按 resolveShellLayout 再降级到 mobile），

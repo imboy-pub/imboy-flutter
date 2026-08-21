@@ -1030,6 +1030,21 @@ e2eeBackupCloudPwdHint: 请输入备份口令
 e2eeBackupErrNoCloudBackup: 云端暂无备份
 e2eeBackupErrCloudPwd: 口令错误或备份损坏
 e2eeBackupErrCloudRestoreFailed: 云端恢复失败，请重试
+e2eeBackupUrlImportTitle: 或从链接导入
+e2eeBackupUrlImportHint: 粘贴备份文件所在链接（仅支持 HTTPS），下载后自动校验
+e2eeBackupUrlFieldLabel: 备份文件链接
+e2eeBackupUrlFieldHint: https://...
+e2eeBackupUrlImportBtn: 下载并校验
+e2eeBackupUrlDownloading: 正在下载…
+e2eeBackupErrUrlInvalid: 链接无效，仅支持 HTTPS
+e2eeBackupErrUrlDownload: 下载失败，请检查链接与网络
+e2eeBackupErrUrlTimeout: 下载超时，请重试
+e2eeBackupErrUrlTls: 安全连接失败，无法验证服务器证书
+e2eeBackupErrUrlHttp: 服务器返回错误
+e2eeBackupErrUrlEmpty: 服务器返回的内容为空
+e2eeBackupErrUrlTooLarge: 文件过大（超过 10MB 上限）
+e2eeBackupOpenFromExternal: 已收到外部备份文件，正在校验…
+e2eeBackupErrOpenExternal: 无法读取该文件，请改用「从链接导入」或「选择文件」
 e2eeSocialShardSettings: 分片设置
 e2eeSocialShardStoredNote: 说明：分片将存储在代理设备上，服务端不保存任何分片
 e2eeSocialAddProxy: 添加代理

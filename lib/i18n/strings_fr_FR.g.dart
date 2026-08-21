@@ -1696,6 +1696,21 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrNoCloudBackup => 'Aucune sauvegarde cloud';
 	@override String get e2eeBackupErrCloudPwd => 'Phrase secrète incorrecte ou sauvegarde corrompue';
 	@override String get e2eeBackupErrCloudRestoreFailed => 'Échec de la restauration cloud, veuillez réessayer';
+	@override String get e2eeBackupUrlImportTitle => 'Ou importer depuis un lien';
+	@override String get e2eeBackupUrlImportHint => 'Collez l\'URL du fichier de sauvegarde (HTTPS uniquement) ; il sera téléchargé et vérifié automatiquement';
+	@override String get e2eeBackupUrlFieldLabel => 'URL du fichier de sauvegarde';
+	@override String get e2eeBackupUrlFieldHint => 'https://...';
+	@override String get e2eeBackupUrlImportBtn => 'Télécharger et vérifier';
+	@override String get e2eeBackupUrlDownloading => 'Téléchargement…';
+	@override String get e2eeBackupErrUrlInvalid => 'URL invalide, HTTPS uniquement';
+	@override String get e2eeBackupErrUrlDownload => 'Échec du téléchargement, vérifiez l\'URL et le réseau';
+	@override String get e2eeBackupErrUrlTimeout => 'Délai de téléchargement dépassé, réessayez';
+	@override String get e2eeBackupErrUrlTls => 'Échec de la connexion sécurisée, impossible de vérifier le certificat du serveur';
+	@override String get e2eeBackupErrUrlHttp => 'Le serveur a renvoyé une erreur';
+	@override String get e2eeBackupErrUrlEmpty => 'Le serveur a renvoyé un contenu vide';
+	@override String get e2eeBackupErrUrlTooLarge => 'Fichier trop volumineux (dépasse la limite de 10 Mo)';
+	@override String get e2eeBackupOpenFromExternal => 'Fichier de sauvegarde externe reçu, vérification…';
+	@override String get e2eeBackupErrOpenExternal => 'Impossible de lire ce fichier, utilisez « importer depuis un lien » ou « sélectionner un fichier »';
 	@override String get e2eeSocialShardSettings => 'Paramètres des fragments';
 	@override String get e2eeSocialShardStoredNote => 'Les fragments sont stockés chez les dépositaires, le serveur n\'en conserve aucun';
 	@override String get e2eeSocialAddProxy => 'Ajouter un dépositaire';
@@ -4172,6 +4187,21 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupErrNoCloudBackup' => 'Aucune sauvegarde cloud',
 			'common.e2eeBackupErrCloudPwd' => 'Phrase secrète incorrecte ou sauvegarde corrompue',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'Échec de la restauration cloud, veuillez réessayer',
+			'common.e2eeBackupUrlImportTitle' => 'Ou importer depuis un lien',
+			'common.e2eeBackupUrlImportHint' => 'Collez l\'URL du fichier de sauvegarde (HTTPS uniquement) ; il sera téléchargé et vérifié automatiquement',
+			'common.e2eeBackupUrlFieldLabel' => 'URL du fichier de sauvegarde',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => 'Télécharger et vérifier',
+			'common.e2eeBackupUrlDownloading' => 'Téléchargement…',
+			'common.e2eeBackupErrUrlInvalid' => 'URL invalide, HTTPS uniquement',
+			'common.e2eeBackupErrUrlDownload' => 'Échec du téléchargement, vérifiez l\'URL et le réseau',
+			'common.e2eeBackupErrUrlTimeout' => 'Délai de téléchargement dépassé, réessayez',
+			'common.e2eeBackupErrUrlTls' => 'Échec de la connexion sécurisée, impossible de vérifier le certificat du serveur',
+			'common.e2eeBackupErrUrlHttp' => 'Le serveur a renvoyé une erreur',
+			'common.e2eeBackupErrUrlEmpty' => 'Le serveur a renvoyé un contenu vide',
+			'common.e2eeBackupErrUrlTooLarge' => 'Fichier trop volumineux (dépasse la limite de 10 Mo)',
+			'common.e2eeBackupOpenFromExternal' => 'Fichier de sauvegarde externe reçu, vérification…',
+			'common.e2eeBackupErrOpenExternal' => 'Impossible de lire ce fichier, utilisez « importer depuis un lien » ou « sélectionner un fichier »',
 			'common.e2eeSocialShardSettings' => 'Paramètres des fragments',
 			'common.e2eeSocialShardStoredNote' => 'Les fragments sont stockés chez les dépositaires, le serveur n\'en conserve aucun',
 			'common.e2eeSocialAddProxy' => 'Ajouter un dépositaire',
@@ -4636,6 +4666,8 @@ extension on TranslationsFrFr {
 			'main.or' => 'Ou',
 			'main.otherParty' => 'Votre interlocuteur',
 			'main.packageSize' => 'Taille du paquet',
+			_ => null,
+		} ?? switch (path) {
 			'main.peerHasHungUp' => 'Votre interlocuteur a raccroché.',
 			'main.play' => 'Lire',
 			'main.pleaseInputParam' => ({required Object param}) => 'Entrez ${param}',
@@ -4651,8 +4683,6 @@ extension on TranslationsFrFr {
 			'main.replied' => 'Répondu',
 			'main.ringing' => 'Sonnerie...',
 			'main.ruRu' => 'Russe (Russie)',
-			_ => null,
-		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => 'Sélectionné (${count})',
 			'main.selected' => 'Sélectionné',
 			'main.sent' => 'Envoyé',

@@ -1696,6 +1696,21 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrNoCloudBackup => 'Kein Cloud-Backup vorhanden';
 	@override String get e2eeBackupErrCloudPwd => 'Falsche Passphrase oder beschädigtes Backup';
 	@override String get e2eeBackupErrCloudRestoreFailed => 'Cloud-Wiederherstellung fehlgeschlagen, bitte erneut versuchen';
+	@override String get e2eeBackupUrlImportTitle => 'Oder über einen Link importieren';
+	@override String get e2eeBackupUrlImportHint => 'Fügen Sie die URL der Backupdatei ein (nur HTTPS); sie wird automatisch heruntergeladen und verifiziert';
+	@override String get e2eeBackupUrlFieldLabel => 'URL der Backupdatei';
+	@override String get e2eeBackupUrlFieldHint => 'https://...';
+	@override String get e2eeBackupUrlImportBtn => 'Herunterladen und verifizieren';
+	@override String get e2eeBackupUrlDownloading => 'Wird heruntergeladen…';
+	@override String get e2eeBackupErrUrlInvalid => 'Ungültige URL, nur HTTPS';
+	@override String get e2eeBackupErrUrlDownload => 'Download fehlgeschlagen, bitte URL und Netzwerk prüfen';
+	@override String get e2eeBackupErrUrlTimeout => 'Download-Zeitüberschreitung, bitte erneut versuchen';
+	@override String get e2eeBackupErrUrlTls => 'Sichere Verbindung fehlgeschlagen, Serverzertifikat konnte nicht verifiziert werden';
+	@override String get e2eeBackupErrUrlHttp => 'Server hat einen Fehler zurückgegeben';
+	@override String get e2eeBackupErrUrlEmpty => 'Server hat leeren Inhalt zurückgegeben';
+	@override String get e2eeBackupErrUrlTooLarge => 'Datei zu groß (10MB-Limit überschritten)';
+	@override String get e2eeBackupOpenFromExternal => 'Externe Backupdatei empfangen, wird verifiziert…';
+	@override String get e2eeBackupErrOpenExternal => 'Diese Datei konnte nicht gelesen werden, bitte „über Link importieren“ oder „Datei auswählen“ verwenden';
 	@override String get e2eeSocialShardSettings => 'Fragment-Einstellungen';
 	@override String get e2eeSocialShardStoredNote => 'Fragmente werden bei Treuhändern gespeichert, Server speichert nichts';
 	@override String get e2eeSocialAddProxy => 'Treuhänder hinzufügen';
@@ -4172,6 +4187,21 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupErrNoCloudBackup' => 'Kein Cloud-Backup vorhanden',
 			'common.e2eeBackupErrCloudPwd' => 'Falsche Passphrase oder beschädigtes Backup',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'Cloud-Wiederherstellung fehlgeschlagen, bitte erneut versuchen',
+			'common.e2eeBackupUrlImportTitle' => 'Oder über einen Link importieren',
+			'common.e2eeBackupUrlImportHint' => 'Fügen Sie die URL der Backupdatei ein (nur HTTPS); sie wird automatisch heruntergeladen und verifiziert',
+			'common.e2eeBackupUrlFieldLabel' => 'URL der Backupdatei',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => 'Herunterladen und verifizieren',
+			'common.e2eeBackupUrlDownloading' => 'Wird heruntergeladen…',
+			'common.e2eeBackupErrUrlInvalid' => 'Ungültige URL, nur HTTPS',
+			'common.e2eeBackupErrUrlDownload' => 'Download fehlgeschlagen, bitte URL und Netzwerk prüfen',
+			'common.e2eeBackupErrUrlTimeout' => 'Download-Zeitüberschreitung, bitte erneut versuchen',
+			'common.e2eeBackupErrUrlTls' => 'Sichere Verbindung fehlgeschlagen, Serverzertifikat konnte nicht verifiziert werden',
+			'common.e2eeBackupErrUrlHttp' => 'Server hat einen Fehler zurückgegeben',
+			'common.e2eeBackupErrUrlEmpty' => 'Server hat leeren Inhalt zurückgegeben',
+			'common.e2eeBackupErrUrlTooLarge' => 'Datei zu groß (10MB-Limit überschritten)',
+			'common.e2eeBackupOpenFromExternal' => 'Externe Backupdatei empfangen, wird verifiziert…',
+			'common.e2eeBackupErrOpenExternal' => 'Diese Datei konnte nicht gelesen werden, bitte „über Link importieren“ oder „Datei auswählen“ verwenden',
 			'common.e2eeSocialShardSettings' => 'Fragment-Einstellungen',
 			'common.e2eeSocialShardStoredNote' => 'Fragmente werden bei Treuhändern gespeichert, Server speichert nichts',
 			'common.e2eeSocialAddProxy' => 'Treuhänder hinzufügen',
@@ -4636,6 +4666,8 @@ extension on TranslationsDeDe {
 			'main.or' => 'Oder',
 			'main.otherParty' => 'Gegenüber',
 			'main.packageSize' => 'Paketgröße',
+			_ => null,
+		} ?? switch (path) {
 			'main.peerHasHungUp' => 'Gesprächspartner hat aufgelegt',
 			'main.play' => 'Abspielen',
 			'main.pleaseInputParam' => ({required Object param}) => 'Bitte ${param} eingeben',
@@ -4651,8 +4683,6 @@ extension on TranslationsDeDe {
 			'main.replied' => 'Geantwortet',
 			'main.ringing' => 'Klingelt...',
 			'main.ruRu' => 'Russisch (Russland)',
-			_ => null,
-		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => 'Ausgewählt (${count})',
 			'main.selected' => 'Ausgewählt',
 			'main.sent' => 'Gesendet',

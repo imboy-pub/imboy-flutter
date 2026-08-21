@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderFlex;
 import 'package:flutter/services.dart';
@@ -30,6 +30,7 @@ import 'package:imboy/theme/theme_manager.dart';
 
 import 'config/init.dart';
 import 'config/router/app_router.dart';
+import 'service/incoming_backup_handler.dart';
 import 'service/message.dart';
 
 /// 应用级共享 ProviderContainer
@@ -206,6 +207,7 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
   AppLocale _currentLocale = LocaleSettings.currentLocale;
   late final GoRouter _router;
   StreamSubscription<AppLocale>? _localeSubscription;
+  StreamSubscription<String>? _incomingBackupSub;
 
   @override
   void initState() {
@@ -219,11 +221,35 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
         });
       }
     });
+    // 热启动：App 已在前台时收到外部 App 打开/分享的 E2EE 备份文件，
+    // 直接跳导入页。用全局 navigatorKey 避免 Riverpod ref 生命周期问题。
+    _incomingBackupSub = IncomingBackupHandler.watchIncomingFiles().listen(
+      (path) {
+        final ctx = navigatorKey.currentContext;
+        // navigatorKey 是全局 key（config/init.dart），生命周期长于任何 widget；
+        // 非 null 即可安全导航。linter 无法识别这点，故显式忽略。
+        if (ctx != null) {
+          // ignore: use_build_context_synchronously
+          ctx.go(
+            '/e2ee_backup_import',
+            extra: {'initialFilePath': path},
+          );
+        }
+      },
+      onError: (Object e) {
+        // 非备份文件的分享会被 stream 内部 handleError 吞掉；
+        // 走到这里的都是意外异常，调试时打印即可。
+        if (kDebugMode) {
+          debugPrint('[IMBoyApp] incoming backup stream error: $e');
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
     _localeSubscription?.cancel();
+    _incomingBackupSub?.cancel();
     super.dispose();
   }
 

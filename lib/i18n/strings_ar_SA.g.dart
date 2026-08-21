@@ -1693,6 +1693,21 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrNoCloudBackup => 'لا توجد نسخة سحابية';
 	@override String get e2eeBackupErrCloudPwd => 'عبارة المرور خاطئة أو النسخة تالفة';
 	@override String get e2eeBackupErrCloudRestoreFailed => 'فشلت الاستعادة من السحابة، يرجى المحاولة مرة أخرى';
+	@override String get e2eeBackupUrlImportTitle => 'أو الاستيراد من رابط';
+	@override String get e2eeBackupUrlImportHint => 'الصق رابط ملف النسخة الاحتياطية (HTTPS فقط)؛ سيتم تنزيله والتحقق منه تلقائيًا';
+	@override String get e2eeBackupUrlFieldLabel => 'رابط ملف النسخة الاحتياطية';
+	@override String get e2eeBackupUrlFieldHint => 'https://...';
+	@override String get e2eeBackupUrlImportBtn => 'تنزيل وتحقق';
+	@override String get e2eeBackupUrlDownloading => 'جارٍ التنزيل…';
+	@override String get e2eeBackupErrUrlInvalid => 'رابط غير صالح، HTTPS فقط';
+	@override String get e2eeBackupErrUrlDownload => 'فشل التنزيل، تحقق من الرابط والشبكة';
+	@override String get e2eeBackupErrUrlTimeout => 'انتهت مهلة التنزيل، أعد المحاولة';
+	@override String get e2eeBackupErrUrlTls => 'فشل الاتصال الآمن، تعذر التحقق من شهادة الخادم';
+	@override String get e2eeBackupErrUrlHttp => 'أرجع الخادم خطأ';
+	@override String get e2eeBackupErrUrlEmpty => 'أرجع الخادم محتوى فارغًا';
+	@override String get e2eeBackupErrUrlTooLarge => 'الملف كبير جدًا (يتجاوز حد 10 ميجابايت)';
+	@override String get e2eeBackupOpenFromExternal => 'تم استلام ملف نسخة احتياطية خارجي، جارٍ التحقق…';
+	@override String get e2eeBackupErrOpenExternal => 'تعذرت قراءة هذا الملف، استخدم «الاستيراد من رابط» أو «تحديد ملف»';
 	@override String get e2eeSocialShardSettings => 'إعدادات الشظايا';
 	@override String get e2eeSocialShardStoredNote => 'تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية';
 	@override String get e2eeSocialAddProxy => 'إضافة وكيل';
@@ -4169,6 +4184,21 @@ extension on TranslationsArSa {
 			'common.e2eeBackupErrNoCloudBackup' => 'لا توجد نسخة سحابية',
 			'common.e2eeBackupErrCloudPwd' => 'عبارة المرور خاطئة أو النسخة تالفة',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'فشلت الاستعادة من السحابة، يرجى المحاولة مرة أخرى',
+			'common.e2eeBackupUrlImportTitle' => 'أو الاستيراد من رابط',
+			'common.e2eeBackupUrlImportHint' => 'الصق رابط ملف النسخة الاحتياطية (HTTPS فقط)؛ سيتم تنزيله والتحقق منه تلقائيًا',
+			'common.e2eeBackupUrlFieldLabel' => 'رابط ملف النسخة الاحتياطية',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => 'تنزيل وتحقق',
+			'common.e2eeBackupUrlDownloading' => 'جارٍ التنزيل…',
+			'common.e2eeBackupErrUrlInvalid' => 'رابط غير صالح، HTTPS فقط',
+			'common.e2eeBackupErrUrlDownload' => 'فشل التنزيل، تحقق من الرابط والشبكة',
+			'common.e2eeBackupErrUrlTimeout' => 'انتهت مهلة التنزيل، أعد المحاولة',
+			'common.e2eeBackupErrUrlTls' => 'فشل الاتصال الآمن، تعذر التحقق من شهادة الخادم',
+			'common.e2eeBackupErrUrlHttp' => 'أرجع الخادم خطأ',
+			'common.e2eeBackupErrUrlEmpty' => 'أرجع الخادم محتوى فارغًا',
+			'common.e2eeBackupErrUrlTooLarge' => 'الملف كبير جدًا (يتجاوز حد 10 ميجابايت)',
+			'common.e2eeBackupOpenFromExternal' => 'تم استلام ملف نسخة احتياطية خارجي، جارٍ التحقق…',
+			'common.e2eeBackupErrOpenExternal' => 'تعذرت قراءة هذا الملف، استخدم «الاستيراد من رابط» أو «تحديد ملف»',
 			'common.e2eeSocialShardSettings' => 'إعدادات الشظايا',
 			'common.e2eeSocialShardStoredNote' => 'تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية',
 			'common.e2eeSocialAddProxy' => 'إضافة وكيل',
@@ -4633,6 +4663,8 @@ extension on TranslationsArSa {
 			'main.or' => 'أو',
 			'main.otherParty' => 'الطرف الآخر',
 			'main.packageSize' => 'حجم الحزمة',
+			_ => null,
+		} ?? switch (path) {
 			'main.peerHasHungUp' => 'قام الطرف الآخر بإنهاء المكالمة',
 			'main.play' => 'تشغيل',
 			'main.pleaseInputParam' => ({required Object param}) => 'يرجى إدخال ${param}',
@@ -4648,8 +4680,6 @@ extension on TranslationsArSa {
 			'main.replied' => 'تم الرد',
 			'main.ringing' => 'جارٍ الرنين...',
 			'main.ruRu' => 'الروسية (روسيا)',
-			_ => null,
-		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => 'تم التحديد (${count})',
 			'main.selected' => 'تم التحديد',
 			'main.sent' => 'تم الإرسال',

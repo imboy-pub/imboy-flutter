@@ -5139,6 +5139,51 @@ class Translations$common$zh_CN {
 	/// zh-CN: '云端恢复失败，请重试'
 	String get e2eeBackupErrCloudRestoreFailed => '云端恢复失败，请重试';
 
+	/// zh-CN: '或从链接导入'
+	String get e2eeBackupUrlImportTitle => '或从链接导入';
+
+	/// zh-CN: '粘贴备份文件所在链接（仅支持 HTTPS），下载后自动校验'
+	String get e2eeBackupUrlImportHint => '粘贴备份文件所在链接（仅支持 HTTPS），下载后自动校验';
+
+	/// zh-CN: '备份文件链接'
+	String get e2eeBackupUrlFieldLabel => '备份文件链接';
+
+	/// zh-CN: 'https://...'
+	String get e2eeBackupUrlFieldHint => 'https://...';
+
+	/// zh-CN: '下载并校验'
+	String get e2eeBackupUrlImportBtn => '下载并校验';
+
+	/// zh-CN: '正在下载…'
+	String get e2eeBackupUrlDownloading => '正在下载…';
+
+	/// zh-CN: '链接无效，仅支持 HTTPS'
+	String get e2eeBackupErrUrlInvalid => '链接无效，仅支持 HTTPS';
+
+	/// zh-CN: '下载失败，请检查链接与网络'
+	String get e2eeBackupErrUrlDownload => '下载失败，请检查链接与网络';
+
+	/// zh-CN: '下载超时，请重试'
+	String get e2eeBackupErrUrlTimeout => '下载超时，请重试';
+
+	/// zh-CN: '安全连接失败，无法验证服务器证书'
+	String get e2eeBackupErrUrlTls => '安全连接失败，无法验证服务器证书';
+
+	/// zh-CN: '服务器返回错误'
+	String get e2eeBackupErrUrlHttp => '服务器返回错误';
+
+	/// zh-CN: '服务器返回的内容为空'
+	String get e2eeBackupErrUrlEmpty => '服务器返回的内容为空';
+
+	/// zh-CN: '文件过大（超过 10MB 上限）'
+	String get e2eeBackupErrUrlTooLarge => '文件过大（超过 10MB 上限）';
+
+	/// zh-CN: '已收到外部备份文件，正在校验…'
+	String get e2eeBackupOpenFromExternal => '已收到外部备份文件，正在校验…';
+
+	/// zh-CN: '无法读取该文件，请改用「从链接导入」或「选择文件」'
+	String get e2eeBackupErrOpenExternal => '无法读取该文件，请改用「从链接导入」或「选择文件」';
+
 	/// zh-CN: '分片设置'
 	String get e2eeSocialShardSettings => '分片设置';
 
@@ -9393,6 +9438,21 @@ extension on Translations {
 			'common.e2eeBackupErrNoCloudBackup' => '云端暂无备份',
 			'common.e2eeBackupErrCloudPwd' => '口令错误或备份损坏',
 			'common.e2eeBackupErrCloudRestoreFailed' => '云端恢复失败，请重试',
+			'common.e2eeBackupUrlImportTitle' => '或从链接导入',
+			'common.e2eeBackupUrlImportHint' => '粘贴备份文件所在链接（仅支持 HTTPS），下载后自动校验',
+			'common.e2eeBackupUrlFieldLabel' => '备份文件链接',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => '下载并校验',
+			'common.e2eeBackupUrlDownloading' => '正在下载…',
+			'common.e2eeBackupErrUrlInvalid' => '链接无效，仅支持 HTTPS',
+			'common.e2eeBackupErrUrlDownload' => '下载失败，请检查链接与网络',
+			'common.e2eeBackupErrUrlTimeout' => '下载超时，请重试',
+			'common.e2eeBackupErrUrlTls' => '安全连接失败，无法验证服务器证书',
+			'common.e2eeBackupErrUrlHttp' => '服务器返回错误',
+			'common.e2eeBackupErrUrlEmpty' => '服务器返回的内容为空',
+			'common.e2eeBackupErrUrlTooLarge' => '文件过大（超过 10MB 上限）',
+			'common.e2eeBackupOpenFromExternal' => '已收到外部备份文件，正在校验…',
+			'common.e2eeBackupErrOpenExternal' => '无法读取该文件，请改用「从链接导入」或「选择文件」',
 			'common.e2eeSocialShardSettings' => '分片设置',
 			'common.e2eeSocialShardStoredNote' => '说明：分片将存储在代理设备上，服务端不保存任何分片',
 			'common.e2eeSocialAddProxy' => '添加代理',
@@ -9749,6 +9809,8 @@ extension on Translations {
 			'groupSchedule.reminder' => '提醒',
 			'groupSchedule.noReminder' => '不提醒',
 			'groupSchedule.noSchedule' => '暂无日程',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.scheduleCreated' => '日程创建成功',
 			'groupSchedule.scheduleUpdated' => '日程更新成功',
 			'groupSchedule.reminder15min' => '提前15分钟',
@@ -9764,8 +9826,6 @@ extension on Translations {
 			'groupSchedule.cancelSuccess' => '日程已取消',
 			'groupSchedule.cancelFailed' => '取消失败，请稍后重试',
 			'groupSchedule.confirmAttend' => '确认参加',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.declineAttend' => '不参加',
 			'groupSchedule.cancelSchedule' => '取消日程',
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，无法查看详情',

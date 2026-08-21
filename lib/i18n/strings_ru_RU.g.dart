@@ -1693,6 +1693,21 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrNoCloudBackup => 'Облачная копия отсутствует';
 	@override String get e2eeBackupErrCloudPwd => 'Неверная парольная фраза или копия повреждена';
 	@override String get e2eeBackupErrCloudRestoreFailed => 'Не удалось восстановить из облака, повторите попытку';
+	@override String get e2eeBackupUrlImportTitle => 'Или импорт по ссылке';
+	@override String get e2eeBackupUrlImportHint => 'Вставьте URL файла резервной копии (только HTTPS); он будет загружен и проверен автоматически';
+	@override String get e2eeBackupUrlFieldLabel => 'URL файла резервной копии';
+	@override String get e2eeBackupUrlFieldHint => 'https://...';
+	@override String get e2eeBackupUrlImportBtn => 'Скачать и проверить';
+	@override String get e2eeBackupUrlDownloading => 'Загрузка…';
+	@override String get e2eeBackupErrUrlInvalid => 'Недействительный URL, только HTTPS';
+	@override String get e2eeBackupErrUrlDownload => 'Ошибка загрузки, проверьте URL и сеть';
+	@override String get e2eeBackupErrUrlTimeout => 'Время загрузки истекло, повторите';
+	@override String get e2eeBackupErrUrlTls => 'Ошибка защищённого соединения, не удалось проверить сертификат сервера';
+	@override String get e2eeBackupErrUrlHttp => 'Сервер вернул ошибку';
+	@override String get e2eeBackupErrUrlEmpty => 'Сервер вернул пустое содержимое';
+	@override String get e2eeBackupErrUrlTooLarge => 'Файл слишком велик (превышает лимит 10 МБ)';
+	@override String get e2eeBackupOpenFromExternal => 'Получен внешний файл резервной копии, проверка…';
+	@override String get e2eeBackupErrOpenExternal => 'Не удалось прочитать файл, используйте «импорт по ссылке» или «выбор файла»';
 	@override String get e2eeSocialShardSettings => 'Настройки фрагментов';
 	@override String get e2eeSocialShardStoredNote => 'Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного';
 	@override String get e2eeSocialAddProxy => 'Добавить посредника';
@@ -4169,6 +4184,21 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupErrNoCloudBackup' => 'Облачная копия отсутствует',
 			'common.e2eeBackupErrCloudPwd' => 'Неверная парольная фраза или копия повреждена',
 			'common.e2eeBackupErrCloudRestoreFailed' => 'Не удалось восстановить из облака, повторите попытку',
+			'common.e2eeBackupUrlImportTitle' => 'Или импорт по ссылке',
+			'common.e2eeBackupUrlImportHint' => 'Вставьте URL файла резервной копии (только HTTPS); он будет загружен и проверен автоматически',
+			'common.e2eeBackupUrlFieldLabel' => 'URL файла резервной копии',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => 'Скачать и проверить',
+			'common.e2eeBackupUrlDownloading' => 'Загрузка…',
+			'common.e2eeBackupErrUrlInvalid' => 'Недействительный URL, только HTTPS',
+			'common.e2eeBackupErrUrlDownload' => 'Ошибка загрузки, проверьте URL и сеть',
+			'common.e2eeBackupErrUrlTimeout' => 'Время загрузки истекло, повторите',
+			'common.e2eeBackupErrUrlTls' => 'Ошибка защищённого соединения, не удалось проверить сертификат сервера',
+			'common.e2eeBackupErrUrlHttp' => 'Сервер вернул ошибку',
+			'common.e2eeBackupErrUrlEmpty' => 'Сервер вернул пустое содержимое',
+			'common.e2eeBackupErrUrlTooLarge' => 'Файл слишком велик (превышает лимит 10 МБ)',
+			'common.e2eeBackupOpenFromExternal' => 'Получен внешний файл резервной копии, проверка…',
+			'common.e2eeBackupErrOpenExternal' => 'Не удалось прочитать файл, используйте «импорт по ссылке» или «выбор файла»',
 			'common.e2eeSocialShardSettings' => 'Настройки фрагментов',
 			'common.e2eeSocialShardStoredNote' => 'Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного',
 			'common.e2eeSocialAddProxy' => 'Добавить посредника',
@@ -4633,6 +4663,8 @@ extension on TranslationsRuRu {
 			'main.or' => 'Или',
 			'main.otherParty' => 'Собеседник',
 			'main.packageSize' => 'Размер пакета',
+			_ => null,
+		} ?? switch (path) {
 			'main.peerHasHungUp' => 'Собеседник завершил вызов',
 			'main.play' => 'Воспроизвести',
 			'main.pleaseInputParam' => ({required Object param}) => 'Введите ${param}',
@@ -4648,8 +4680,6 @@ extension on TranslationsRuRu {
 			'main.replied' => 'Ответлено',
 			'main.ringing' => 'Звонок...',
 			'main.ruRu' => 'Русский (Россия)',
-			_ => null,
-		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => 'Выбрано (${count})',
 			'main.selected' => 'Выбрано',
 			'main.sent' => 'Отправлено',

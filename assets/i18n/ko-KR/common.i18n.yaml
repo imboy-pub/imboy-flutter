@@ -1014,6 +1014,21 @@ e2eeBackupCloudPwdHint: 백업 암호를 입력하세요
 e2eeBackupErrNoCloudBackup: 클라우드 백업이 없습니다
 e2eeBackupErrCloudPwd: 암호가 틀렸거나 백업이 손상되었습니다
 e2eeBackupErrCloudRestoreFailed: 클라우드 복원 실패, 다시 시도하세요
+e2eeBackupUrlImportTitle: 또는 링크에서 가져오기
+e2eeBackupUrlImportHint: 백업 파일 URL을 붙여넣으세요 (HTTPS만 지원); 다운로드 후 자동으로 검증합니다
+e2eeBackupUrlFieldLabel: 백업 파일 URL
+e2eeBackupUrlFieldHint: https://...
+e2eeBackupUrlImportBtn: 다운로드 및 검증
+e2eeBackupUrlDownloading: 다운로드 중…
+e2eeBackupErrUrlInvalid: 잘못된 URL, HTTPS만 지원
+e2eeBackupErrUrlDownload: 다운로드 실패, URL과 네트워크를 확인하세요
+e2eeBackupErrUrlTimeout: 다운로드 시간 초과, 다시 시도하세요
+e2eeBackupErrUrlTls: 보안 연결 실패, 서버 인증서를 검증할 수 없습니다
+e2eeBackupErrUrlHttp: 서버에서 오류를 반환했습니다
+e2eeBackupErrUrlEmpty: 서버에서 빈 콘텐츠를 반환했습니다
+e2eeBackupErrUrlTooLarge: 파일이 너무 큽니다 (10MB 제한 초과)
+e2eeBackupOpenFromExternal: 외부 백업 파일을 수신했습니다, 검증 중…
+e2eeBackupErrOpenExternal: 이 파일을 읽을 수 없습니다, 「링크에서 가져오기」 또는 「파일 선택」을 사용하세요
 e2eeSocialShardSettings: 샤드 설정
 e2eeSocialShardStoredNote: '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다'
 e2eeSocialAddProxy: 대리자 추가

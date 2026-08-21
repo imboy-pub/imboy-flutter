@@ -173,6 +173,7 @@ dependencies:
   equatable: ^2.0.7                  # Object equality comparisons
   synchronized: ^3.4.0               # Synchronization primitives
   share_plus: ^13.2.0                # Sharing functionality (updated: 13.0.0 → 13.2.0)
+  share_handler: ^0.0.25             # Receive files opened from external apps (E2EE backup import)
   wakelock_plus: 1.6.1               # Keep screen on; 1.7.0 is incompatible with current Kotlin APIs
   r_upgrade:                          # App upgrade utility
     #path: plugin/r_upgrade

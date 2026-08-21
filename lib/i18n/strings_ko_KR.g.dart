@@ -1693,6 +1693,21 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrNoCloudBackup => '클라우드 백업이 없습니다';
 	@override String get e2eeBackupErrCloudPwd => '암호가 틀렸거나 백업이 손상되었습니다';
 	@override String get e2eeBackupErrCloudRestoreFailed => '클라우드 복원 실패, 다시 시도하세요';
+	@override String get e2eeBackupUrlImportTitle => '또는 링크에서 가져오기';
+	@override String get e2eeBackupUrlImportHint => '백업 파일 URL을 붙여넣으세요 (HTTPS만 지원); 다운로드 후 자동으로 검증합니다';
+	@override String get e2eeBackupUrlFieldLabel => '백업 파일 URL';
+	@override String get e2eeBackupUrlFieldHint => 'https://...';
+	@override String get e2eeBackupUrlImportBtn => '다운로드 및 검증';
+	@override String get e2eeBackupUrlDownloading => '다운로드 중…';
+	@override String get e2eeBackupErrUrlInvalid => '잘못된 URL, HTTPS만 지원';
+	@override String get e2eeBackupErrUrlDownload => '다운로드 실패, URL과 네트워크를 확인하세요';
+	@override String get e2eeBackupErrUrlTimeout => '다운로드 시간 초과, 다시 시도하세요';
+	@override String get e2eeBackupErrUrlTls => '보안 연결 실패, 서버 인증서를 검증할 수 없습니다';
+	@override String get e2eeBackupErrUrlHttp => '서버에서 오류를 반환했습니다';
+	@override String get e2eeBackupErrUrlEmpty => '서버에서 빈 콘텐츠를 반환했습니다';
+	@override String get e2eeBackupErrUrlTooLarge => '파일이 너무 큽니다 (10MB 제한 초과)';
+	@override String get e2eeBackupOpenFromExternal => '외부 백업 파일을 수신했습니다, 검증 중…';
+	@override String get e2eeBackupErrOpenExternal => '이 파일을 읽을 수 없습니다, 「링크에서 가져오기」 또는 「파일 선택」을 사용하세요';
 	@override String get e2eeSocialShardSettings => '샤드 설정';
 	@override String get e2eeSocialShardStoredNote => '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다';
 	@override String get e2eeSocialAddProxy => '대리자 추가';
@@ -4169,6 +4184,21 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupErrNoCloudBackup' => '클라우드 백업이 없습니다',
 			'common.e2eeBackupErrCloudPwd' => '암호가 틀렸거나 백업이 손상되었습니다',
 			'common.e2eeBackupErrCloudRestoreFailed' => '클라우드 복원 실패, 다시 시도하세요',
+			'common.e2eeBackupUrlImportTitle' => '또는 링크에서 가져오기',
+			'common.e2eeBackupUrlImportHint' => '백업 파일 URL을 붙여넣으세요 (HTTPS만 지원); 다운로드 후 자동으로 검증합니다',
+			'common.e2eeBackupUrlFieldLabel' => '백업 파일 URL',
+			'common.e2eeBackupUrlFieldHint' => 'https://...',
+			'common.e2eeBackupUrlImportBtn' => '다운로드 및 검증',
+			'common.e2eeBackupUrlDownloading' => '다운로드 중…',
+			'common.e2eeBackupErrUrlInvalid' => '잘못된 URL, HTTPS만 지원',
+			'common.e2eeBackupErrUrlDownload' => '다운로드 실패, URL과 네트워크를 확인하세요',
+			'common.e2eeBackupErrUrlTimeout' => '다운로드 시간 초과, 다시 시도하세요',
+			'common.e2eeBackupErrUrlTls' => '보안 연결 실패, 서버 인증서를 검증할 수 없습니다',
+			'common.e2eeBackupErrUrlHttp' => '서버에서 오류를 반환했습니다',
+			'common.e2eeBackupErrUrlEmpty' => '서버에서 빈 콘텐츠를 반환했습니다',
+			'common.e2eeBackupErrUrlTooLarge' => '파일이 너무 큽니다 (10MB 제한 초과)',
+			'common.e2eeBackupOpenFromExternal' => '외부 백업 파일을 수신했습니다, 검증 중…',
+			'common.e2eeBackupErrOpenExternal' => '이 파일을 읽을 수 없습니다, 「링크에서 가져오기」 또는 「파일 선택」을 사용하세요',
 			'common.e2eeSocialShardSettings' => '샤드 설정',
 			'common.e2eeSocialShardStoredNote' => '안내: 샤드는 대리자 기기에 저장되며 서버에는 어떤 샤드도 저장되지 않습니다',
 			'common.e2eeSocialAddProxy' => '대리자 추가',
@@ -4633,6 +4663,8 @@ extension on TranslationsKoKr {
 			'main.or' => '또는',
 			'main.otherParty' => '상대방',
 			'main.packageSize' => '패키지 크기',
+			_ => null,
+		} ?? switch (path) {
 			'main.peerHasHungUp' => '상대방이 전화를 끊었습니다',
 			'main.play' => '재생',
 			'main.pleaseInputParam' => ({required Object param}) => '${param}을(를) 입력해 주세요',
@@ -4648,8 +4680,6 @@ extension on TranslationsKoKr {
 			'main.replied' => '답장됨',
 			'main.ringing' => '벨 울림...',
 			'main.ruRu' => '러시아어',
-			_ => null,
-		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => '선택됨 (${count})',
 			'main.selected' => '선택됨',
 			'main.sent' => '전송됨',

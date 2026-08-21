@@ -59,6 +59,33 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
+# E2EE 备份导入：ShareExtension 依赖 share_handler_ios_models 提供
+# ShareHandlerIosViewController 基类（ShareViewController.swift 继承它）。
+# 从 pubspec.lock 动态读取 share_handler_ios 版本，拼出 pub-cache 路径，
+# 避免硬编码版本号导致 flutter pub upgrade 后路径失效。
+def share_handler_ios_models_path
+  pubspec_lock = File.expand_path(File.join('..', 'pubspec.lock'), __dir__)
+  unless File.exist?(pubspec_lock)
+    raise "#{pubspec_lock} not found. Run 'flutter pub get' first."
+  end
+  require 'yaml'
+  lock = YAML.load_file(pubspec_lock)
+  version = lock.dig('packages', 'share_handler_ios', 'version')
+  raise "share_handler_ios not found in pubspec.lock. Run 'flutter pub get' first." unless version
+  # pubspec.lock 的 version 字段对 hosted 包不含来源前缀
+  cache_dir = File.expand_path(File.join('~', '.pub-cache', 'hosted', 'pub.dev'))
+  path = File.join(cache_dir, "share_handler_ios-#{version}", 'ios', 'Models')
+  unless File.exist?(path)
+    raise "share_handler_ios_models not found at #{path}. Run 'flutter pub get' to populate pub-cache."
+  end
+  path
+end
+
+target 'ShareExtension' do
+  use_frameworks!
+  pod 'share_handler_ios_models', :path => share_handler_ios_models_path
+end
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)

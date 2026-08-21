@@ -1014,6 +1014,21 @@ e2eeBackupCloudPwdHint: Введите парольную фразу резер�
 e2eeBackupErrNoCloudBackup: Облачная копия отсутствует
 e2eeBackupErrCloudPwd: Неверная парольная фраза или копия повреждена
 e2eeBackupErrCloudRestoreFailed: Не удалось восстановить из облака, повторите попытку
+e2eeBackupUrlImportTitle: Или импорт по ссылке
+e2eeBackupUrlImportHint: Вставьте URL файла резервной копии (только HTTPS); он будет загружен и проверен автоматически
+e2eeBackupUrlFieldLabel: URL файла резервной копии
+e2eeBackupUrlFieldHint: https://...
+e2eeBackupUrlImportBtn: Скачать и проверить
+e2eeBackupUrlDownloading: Загрузка…
+e2eeBackupErrUrlInvalid: Недействительный URL, только HTTPS
+e2eeBackupErrUrlDownload: Ошибка загрузки, проверьте URL и сеть
+e2eeBackupErrUrlTimeout: Время загрузки истекло, повторите
+e2eeBackupErrUrlTls: Ошибка защищённого соединения, не удалось проверить сертификат сервера
+e2eeBackupErrUrlHttp: Сервер вернул ошибку
+e2eeBackupErrUrlEmpty: Сервер вернул пустое содержимое
+e2eeBackupErrUrlTooLarge: Файл слишком велик (превышает лимит 10 МБ)
+e2eeBackupOpenFromExternal: Получен внешний файл резервной копии, проверка…
+e2eeBackupErrOpenExternal: Не удалось прочитать файл, используйте «импорт по ссылке» или «выбор файла»
 e2eeSocialShardSettings: Настройки фрагментов
 e2eeSocialShardStoredNote: Фрагменты хранятся на устройствах посредников, сервер не хранит ни одного
 e2eeSocialAddProxy: Добавить посредника

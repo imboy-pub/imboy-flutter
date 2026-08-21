@@ -1017,6 +1017,21 @@ e2eeBackupCloudPwdHint: Backup-Passphrase eingeben
 e2eeBackupErrNoCloudBackup: Kein Cloud-Backup vorhanden
 e2eeBackupErrCloudPwd: Falsche Passphrase oder beschädigtes Backup
 e2eeBackupErrCloudRestoreFailed: Cloud-Wiederherstellung fehlgeschlagen, bitte erneut versuchen
+e2eeBackupUrlImportTitle: Oder über einen Link importieren
+e2eeBackupUrlImportHint: Fügen Sie die URL der Backupdatei ein (nur HTTPS); sie wird automatisch heruntergeladen und verifiziert
+e2eeBackupUrlFieldLabel: URL der Backupdatei
+e2eeBackupUrlFieldHint: https://...
+e2eeBackupUrlImportBtn: Herunterladen und verifizieren
+e2eeBackupUrlDownloading: Wird heruntergeladen…
+e2eeBackupErrUrlInvalid: Ungültige URL, nur HTTPS
+e2eeBackupErrUrlDownload: Download fehlgeschlagen, bitte URL und Netzwerk prüfen
+e2eeBackupErrUrlTimeout: Download-Zeitüberschreitung, bitte erneut versuchen
+e2eeBackupErrUrlTls: Sichere Verbindung fehlgeschlagen, Serverzertifikat konnte nicht verifiziert werden
+e2eeBackupErrUrlHttp: Server hat einen Fehler zurückgegeben
+e2eeBackupErrUrlEmpty: Server hat leeren Inhalt zurückgegeben
+e2eeBackupErrUrlTooLarge: Datei zu groß (10MB-Limit überschritten)
+e2eeBackupOpenFromExternal: Externe Backupdatei empfangen, wird verifiziert…
+e2eeBackupErrOpenExternal: Diese Datei konnte nicht gelesen werden, bitte „über Link importieren“ oder „Datei auswählen“ verwenden
 e2eeSocialShardSettings: Fragment-Einstellungen
 e2eeSocialShardStoredNote: Fragmente werden bei Treuhändern gespeichert, Server speichert nichts
 e2eeSocialAddProxy: Treuhänder hinzufügen
