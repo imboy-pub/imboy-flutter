@@ -1,4 +1,4 @@
-package imboy.chat
+package pub.imboy.app
 
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity

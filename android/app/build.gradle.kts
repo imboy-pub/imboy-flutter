@@ -17,7 +17,7 @@ val localNdkVersion = localProperties.getProperty("flutter.ndkVersion") ?: "28.2
 //val flutterEngineVersion = "18818009497c581ede5d8a3b8b833b81d00cebb7"
 
 android {
-    namespace = "imboy.chat"
+    namespace = "pub.imboy.app"
     // permission_handler_android 14.x requires API 37; keep this explicit so
     // the release build does not silently fall back to Flutter's older default.
     compileSdk = maxOf(flutter.compileSdkVersion, 37)
@@ -34,8 +34,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "pub.imboy.apk"
+        // 三端统一应用标识（Android/iOS/macOS）：pub.imboy.app
+        applicationId = "pub.imboy.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -54,7 +54,7 @@ android {
         // Manifest 占位符
         manifestPlaceholders.putAll(
             mutableMapOf(
-                "JPUSH_PKGNAME" to "imboy.chat",
+                "JPUSH_PKGNAME" to "pub.imboy.app",
                 "JPUSH_CHANNEL" to "developer-default"
             ).apply {
                 localProperties.getProperty("jpush.appKey")?.let {

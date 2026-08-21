@@ -134,7 +134,7 @@
             android:name=".wxapi.WXPayEntryActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:taskAffinity="imboy.chat"
+            android:taskAffinity="pub.imboy.app"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
     </application>

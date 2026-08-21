@@ -1,4 +1,4 @@
-package imboy.chat;
+package pub.imboy.app;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;

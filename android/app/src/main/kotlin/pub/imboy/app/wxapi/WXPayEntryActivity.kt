@@ -1,4 +1,4 @@
-package imboy.chat.wxapi
+package pub.imboy.app.wxapi
 
 import com.jarvan.fluwx.wxapi.FluwxWXEntryActivity
 
