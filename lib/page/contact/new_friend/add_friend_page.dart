@@ -37,7 +37,7 @@ class AddFriendPage extends ConsumerWidget {
                 color: AppColors.iosBlue,
                 title: t.discovery.peopleNearby,
                 subtitle: t.common.nearbyPeopleTips,
-                onTap: () => context.push('/people_nearby'),
+                onTap: () => context.push('/contact/people_nearby'),
               ),
               _buildFeatureTile(
                 context,
@@ -61,7 +61,7 @@ class AddFriendPage extends ConsumerWidget {
                 color: AppColors.iosOrange,
                 title: t.account.newlyRegisteredPeople,
                 subtitle: t.common.allowedBeSearched,
-                onTap: () => context.push('/recently_registered_user'),
+                onTap: () => context.push('/contact/recently_registered_user'),
               ),
             ],
           ),

@@ -83,7 +83,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                   padding: EdgeInsets.zero,
                   child: const Icon(CupertinoIcons.ellipsis, size: 22),
                   onPressed: () => context.push(
-                    '/contact_setting/$id',
+                    '/contact/contact_setting/$id',
                     // 统一走 go_router（路由已注册，extra 传参对齐原生构造）：
                     // 原生 push 时页内「删除联系人」成功后 context.go 失灵。
                     // 这里曾把除 peerId 外的 10 个参数全传空串，下游
@@ -199,7 +199,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                     color: AppColors.iosGray,
                     size: 20,
                   ),
-                  onTap: () => context.push('/people_info_more/$id'),
+                  onTap: () => context.push('/contact/people_info_more/$id'),
                 ),
               ],
             ),

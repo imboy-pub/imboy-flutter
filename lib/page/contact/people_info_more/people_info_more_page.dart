@@ -174,7 +174,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
               ? () {
                   // 统一走 go_router：原生 push 时页内点群进聊天会失灵
                   context.push(
-                    '/people_info_same_group',
+                    '/contact/people_info_same_group',
                     extra: {'groupList': state.sameGroupList},
                   );
                 }
