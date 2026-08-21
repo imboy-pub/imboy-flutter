@@ -10,10 +10,10 @@
 | 无待办 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 权限被拒时提示获取失败 | 已通过 | 批次106 | 0 | 0 | 0 | 批次106 真机验证：拒权后_checkPermission返回denied+弹窗保留（强制更新），但无snackbar/toast反馈（UX缺陷） |
 | 无待办 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 下载中展示进度条与百分比 | 已通过 | 批次106 | 0 | 0 | 0 | 批次106 真机验证：DownloadStatus(2)持续流式推送+进度条渲染（约500ms间隔） |
 | 无待办 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 下载中展示速度剩余时间与包大小 | 已通过 | 批次106 | 0 | 0 | 0 | 批次106 真机验证：下载状态流含maxLength/currentLength/speed/planTime字段 |
-| 待复验 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 点击暂停下载中止当前任务 | 待重验 | 批次106 | 0 | 0 | 0 | 批次106 部分验证：下载进行中，暂停/续传待下轮交互测试（电话中断） |
-| 待复验 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 点击继续下载恢复断点任务 | 待重验 | 批次106 | 0 | 0 | 0 | 批次106 部分验证：同暂停逻辑，待下轮真机交互测试 |
+| 待复验 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 点击暂停下载中止当前任务 | 待重验 | 批次106 | 0 | 0 | 0 | 批次107 部分验证：下载中RUpgrade.stream持续推送，但用户点立即更新后弹窗被覆盖（onboarding在前），暂停按钮无法定位；需构造无onboarding场景（已登录态） |
+| 待复验 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 点击继续下载恢复断点任务 | 待重验 | 批次106 | 0 | 0 | 0 | 批次107 同上：暂停后继续下载需先完成暂停交互，待下次真机交互测试 |
 | 阻塞 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 下载失败后可重新发起下载 | 未测 | 批次106 | 0 | 0 | 0 | 批次106 评估：需构造网络失败场景（飞行模式/断网），当前无自动构造手段 |
 | 无待办 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 下载完成校验哈希后触发安装 | 已通过 | 批次106 | 0 | 0 | 0 | 批次106 真机验证：DownloadStatus(3)完成→verify_ok→install触发→app resumed |
 | 阻塞 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 校验失败删除文件并重试两次 | 未测 | 批次106 | 0 | 0 | 0 | 批次106 评估：需file_hash错误场景（当前DB file_hash正确），可临时改DB构造 |
-| 待复验 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 点击稍后提醒关闭并取消下载 | 待重验 | 批次106 | 0 | 0 | 0 | 批次106 部分验证：强制更新模式无稍后提醒按钮（符合预期）；recommend模式待测 |
+| 无待办 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 点击稍后提醒关闭并取消下载 | 已通过 | 批次107 | 0 | 0 | 0 | 批次107 真机验证：recommend弹窗出现「下次再说」按钮(190,1044)+「立即更新」(531,1044)，点击下次再说后弹窗关闭回到onboarding 1/3页 |
 | 无待办 | 待真机（服务端1.0.1已就绪） | `page/single/upgrade_page.dart` | 强制更新时禁止返回键关闭弹窗 | 已通过 | 批次106 | 0 | 0 | 0 | 批次106 真机验证：BACK键按下后弹窗仍保留（force_update=true），UI树无变化 |
