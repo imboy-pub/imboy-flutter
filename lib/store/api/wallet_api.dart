@@ -162,6 +162,22 @@ class WalletApi extends HttpClient {
     );
   }
 
+  /// 主动确认充值订单（支付回跳后调用）。
+  ///
+  /// 服务端向网关查单（alipay.trade.query），已付款则幂等入账，
+  /// 弥补异步回调（notify）丢失时订单永远待支付的问题。
+  /// 返回 `{order_no, status, balance?}`；status 语义同 [RechargeOrderStatus]。
+  Future<Map<String, dynamic>?> confirmRechargeOrder(String orderNo) async {
+    IMBoyHttpResponse resp = await post(
+      API.walletRechargeConfirm,
+      data: {'order_no': orderNo},
+    );
+    if (!resp.ok || resp.payload is! Map) {
+      return null;
+    }
+    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+  }
+
   /// 发送红包
   /// [amount] 总金额（分）
   /// [count] 红包个数

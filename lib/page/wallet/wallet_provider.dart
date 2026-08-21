@@ -81,7 +81,10 @@ class WalletState {
 }
 
 class WalletNotifier extends Notifier<WalletState> {
-  final _api = WalletApi();
+  final WalletApi _api;
+
+  /// [api] 测试注入用；生产走默认构造。
+  WalletNotifier({WalletApi? api}) : _api = api ?? WalletApi();
   PaymentLauncher _launcher = PaymentLauncher();
 
   /// 测试注入第三方支付唤起器（隔离原生 SDK）。
@@ -228,8 +231,10 @@ class WalletNotifier extends Notifier<WalletState> {
     return result;
   }
 
-  /// 轮询充值订单状态。
+  /// 轮询确认充值订单（主动查单）。
   ///
+  /// 每轮调 confirm：服务端向网关查单（alipay.trade.query），已付款则
+  /// 幂等入账——异步回调（notify）丢失时仅靠被动查询订单会永远待支付。
   /// 最多轮询 [maxAttempts] 次，每次间隔 [intervalMs] 毫秒。
   /// 命中已支付返回 `true`；命中取消/退款/过期等终态或超时返回 `false`。
   Future<bool> _pollRechargeOrder(
@@ -238,14 +243,16 @@ class WalletNotifier extends Notifier<WalletState> {
     int intervalMs = 800,
   }) async {
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
-      final order = await _api.getRechargeOrder(orderNo);
-      if (order != null) {
-        if (order.isPaid) return true;
+      final result = await _api.confirmRechargeOrder(orderNo);
+      if (result != null) {
+        final status =
+            (result['status'] as num?)?.toInt() ?? RechargeOrderStatus.pending;
+        if (status == RechargeOrderStatus.paid) return true;
         // 终态：取消/退款/过期，均无需继续轮询
         // （2026-08-20 对齐后端枚举：3=已退款、4=已过期，此前 3/4 含义颠倒）
-        if (order.status == RechargeOrderStatus.cancelled ||
-            order.status == RechargeOrderStatus.refunded ||
-            order.status == RechargeOrderStatus.expired) {
+        if (status == RechargeOrderStatus.cancelled ||
+            status == RechargeOrderStatus.refunded ||
+            status == RechargeOrderStatus.expired) {
           return false;
         }
       }

@@ -326,9 +326,12 @@ class API {
   static const walletTransferAccept = '/api/v1/wallet/transfer/accept';
   static const walletWithdraw = '/api/v1/wallet/withdraw';
 
-  // 钱包充值（真实链路：创建订单 → 拉起支付 → 查询状态）
+  // 钱包充值（真实链路：创建订单 → 拉起支付 → 确认/查询状态）
   static const walletRechargeOrder = '/api/v1/wallet/recharge/order';
   static const walletRechargePay = '/api/v1/wallet/recharge/pay';
+  // 支付回跳后主动确认：服务端向网关查单（alipay.trade.query），
+  // TRADE_SUCCESS 幂等入账——弥补异步回调丢失时"已付款余额不涨"
+  static const walletRechargeConfirm = '/api/v1/wallet/recharge/confirm';
   static String walletRechargeOrderStatus(String orderNo) =>
       '/api/v1/wallet/recharge/$orderNo';
 
