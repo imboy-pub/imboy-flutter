@@ -30,7 +30,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.9'
+          # 与 ci.yml FLUTTER_VERSION 保持一致，避免分析基线跨版本漂移
+          flutter-version: '3.44.8'
           channel: 'stable'
           cache: true
 

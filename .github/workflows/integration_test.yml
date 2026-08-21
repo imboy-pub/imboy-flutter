@@ -96,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: imboyapp/coverage/
+          path: coverage/
           retention-days: 7
 
   # ── Job 3: 集成测试（需要后端 + 测试账号） ──
@@ -147,7 +147,7 @@ jobs:
         with:
           name: integration-test-output
           path: |
-            imboyapp/test_output/
+            test_output/
           retention-days: 14
 
       - name: Check integration result
