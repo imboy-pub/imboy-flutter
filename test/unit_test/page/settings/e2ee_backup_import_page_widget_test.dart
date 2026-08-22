@@ -104,7 +104,9 @@ void main() {
       expect(find.text(t.common.e2eeBackupFileValid), findsOneWidget);
 
       // 密码框启用（L11 的启用侧）
-      final pwdField = tester.widget<TextField>(find.byType(TextField));
+      final pwdField = tester
+          .widgetList<TextField>(find.byType(TextField))
+          .first;
       expect(pwdField.enabled, isTrue, reason: '选中合法文件后密码框应启用');
     });
 
@@ -144,14 +146,18 @@ void main() {
       // 无元信息卡（_backupInfo 置 null）
       expect(find.text(t.common.e2eeBackupInfoTitle), findsNothing);
       // 密码框保持禁用（_backupInfo == null）
-      final pwdField = tester.widget<TextField>(find.byType(TextField));
+      final pwdField = tester
+          .widgetList<TextField>(find.byType(TextField))
+          .first;
       expect(pwdField.enabled, isFalse, reason: '校验失败后密码框应保持禁用');
     });
 
     testWidgets('L11 未选文件时密码框禁用、导入按钮禁用', (tester) async {
       await pumpPage(tester, wrap(const E2EEBackupImportPage()));
 
-      final pwdField = tester.widget<TextField>(find.byType(TextField));
+      final pwdField = tester
+          .widgetList<TextField>(find.byType(TextField))
+          .first;
       expect(pwdField.enabled, isFalse, reason: '未选合法文件时密码框应禁用');
 
       final btn = tester.widget<ElevatedButton>(
