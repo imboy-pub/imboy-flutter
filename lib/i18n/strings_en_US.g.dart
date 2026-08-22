@@ -211,6 +211,8 @@ class _Translations$agent$en_US extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => 'Official';
 	@override String get badgeAiA11y => 'AI assistant';
 	@override String get badgeOfficialA11y => 'Official account';
+	@override String get legacyBotMigrated => 'This bot entry has been upgraded. Chat with AI assistants in the plaza instead';
+	@override String get legacyBotGoPlaza => 'Go to Assistant Plaza';
 }
 
 // Path: billing
@@ -397,6 +399,9 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get continueEditing => 'Continue Editing';
 	@override String get publishFirstContent => 'Publish first content';
 	@override String get noSubscribersDesc => 'No subscribers yet, share it with your friends!';
+	@override String get allCategories => 'All';
+	@override String get sortPopular => 'Popular';
+	@override String get sortNewest => 'Newest';
 }
 
 // Path: chat
@@ -2809,6 +2814,8 @@ extension on TranslationsEnUs {
 			'agent.badgeOfficial' => 'Official',
 			'agent.badgeAiA11y' => 'AI assistant',
 			'agent.badgeOfficialA11y' => 'Official account',
+			'agent.legacyBotMigrated' => 'This bot entry has been upgraded. Chat with AI assistants in the plaza instead',
+			'agent.legacyBotGoPlaza' => 'Go to Assistant Plaza',
 			'billing.title' => 'Subscriptions',
 			'billing.planPeriodMonthly' => 'Monthly',
 			'billing.planPeriodYearly' => 'Yearly',
@@ -2977,6 +2984,9 @@ extension on TranslationsEnUs {
 			'channel.continueEditing' => 'Continue Editing',
 			'channel.publishFirstContent' => 'Publish first content',
 			'channel.noSubscribersDesc' => 'No subscribers yet, share it with your friends!',
+			'channel.allCategories' => 'All',
+			'channel.sortPopular' => 'Popular',
+			'channel.sortNewest' => 'Newest',
 			'chat.bankCard' => 'Bank Card',
 			'chat.cards' => 'cards',
 			'chat.jdShopping' => 'JD Shopping',
@@ -3179,13 +3189,13 @@ extension on TranslationsEnUs {
 			'chat.chatStatusSentDesc' => 'Message sent',
 			'chat.chatStatusDeliveredDesc' => 'Message delivered',
 			'chat.chatStatusSeenDesc' => 'Message seen',
+			_ => null,
+		} ?? switch (path) {
 			'chat.messageMute' => _root.chat.chatSettingMute,
 			'chat.sendingVoice' => 'Sending voice...',
 			'chat.deletingMessage' => 'Deleting...',
 			'chat.deletingLocalMessage' => 'Deleting local message...',
 			'chat.quickReplyReceived' => 'Received',
-			_ => null,
-		} ?? switch (path) {
 			'chat.quickReplyThanks' => 'Thanks',
 			'chat.quickReplyWait' => 'Wait a moment',
 			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} groups',
@@ -3693,13 +3703,13 @@ extension on TranslationsEnUs {
 			'common.version' => 'Version',
 			'common.videoCall' => 'Video call',
 			'common.viewAllGroupMember' => 'View all group members',
+			_ => null,
+		} ?? switch (path) {
 			'common.voiceCall' => 'Voice call',
 			'common.groupCall' => 'Group call',
 			'common.callDisconnected' => 'Call disconnected',
 			'common.connecting' => 'Connecting…',
 			'common.voiceInputNotImplemented' => 'Voice input feature not implemented',
-			_ => null,
-		} ?? switch (path) {
 			'common.waitingDownload' => 'Waiting for download',
 			'common.waitingPeerAccept' => 'Waiting for the other party to accept invite...',
 			'common.warning' => 'Warning:',
@@ -4207,13 +4217,13 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupPwdStrengthLabel' => 'Password strength',
 			'common.e2eeBackupPwdWeak' => 'Weak - add more complexity',
 			'common.e2eeBackupPwdMedium' => 'Medium - add more length or complexity',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdStrong' => 'Strong - acceptable',
 			'common.e2eeBackupPwdVeryStrong' => 'Very strong - secure',
 			'common.e2eeBackupGenerateBtn' => 'Generate backup file',
 			'common.e2eeBackupFileGenerated' => 'Backup file generated!',
 			'common.e2eeBackupShareBtn' => 'Share via email / cloud',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupShareContent' => 'This is my Imboy E2EE key backup file. Keep it safe and do not share with others.',
 			'common.e2eeBackupErrPwdMismatch' => 'Passwords do not match',
 			'common.e2eeBackupErrNoKeyData' => 'Unable to retrieve key data',
@@ -4721,13 +4731,13 @@ extension on TranslationsEnUs {
 			'main.extraItem' => 'Extra item',
 			'main.faceToFaceLogic' => 'Face to face',
 			'main.favorites' => 'Favorite',
+			_ => null,
+		} ?? switch (path) {
 			'main.female' => 'Female',
 			'main.followSystem' => 'Follow system',
 			'main.frFr' => 'French (France)',
 			'main.from' => 'From',
 			'main.goClean' => 'Go to clean',
-			_ => null,
-		} ?? switch (path) {
 			'main.good' => 'Great',
 			'main.hangup' => 'Hang up',
 			'main.haveSet' => 'Set',

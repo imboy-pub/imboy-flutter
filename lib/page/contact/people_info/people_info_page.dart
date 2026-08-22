@@ -160,6 +160,62 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
           ),
         ),
 
+        // 旧 bot_* 机器人升级引导（bot_* C2S 已废弃，指向 AI 助手广场）
+        if (isBot)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.regular,
+                AppSpacing.small,
+                AppSpacing.regular,
+                0,
+              ),
+              child: Container(
+                padding: AppSpacing.allRegular,
+                decoration: BoxDecoration(
+                  color: AppColors.getIosBlue(
+                    brightness,
+                  ).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.sparkles,
+                      color: AppColors.getIosBlue(brightness),
+                      size: 20,
+                      semanticLabel: t.agent.legacyBotGoPlaza,
+                    ),
+                    AppSpacing.horizontalSmall,
+                    Expanded(
+                      child: Text(
+                        t.agent.legacyBotMigrated,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                        ),
+                      ),
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () => context.push('/contact/assistant_plaza'),
+                      child: Text(
+                        t.agent.legacyBotGoPlaza,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
+                          color: AppColors.getIosBlue(brightness),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
         // 标签设置 Section
         if (!isSelf && !isBot)
           SliverToBoxAdapter(

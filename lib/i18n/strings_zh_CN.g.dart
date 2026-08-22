@@ -489,6 +489,12 @@ class Translations$agent$zh_CN {
 
 	/// zh-CN: '官方账号'
 	String get badgeOfficialA11y => '官方账号';
+
+	/// zh-CN: '此机器人入口已升级，请到 AI 助手广场与助手对话'
+	String get legacyBotMigrated => '此机器人入口已升级，请到 AI 助手广场与助手对话';
+
+	/// zh-CN: '去助手广场'
+	String get legacyBotGoPlaza => '去助手广场';
 }
 
 // Path: agentTask
@@ -1167,6 +1173,15 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '还没有订阅者，分享给好友吧'
 	String get noSubscribersDesc => '还没有订阅者，分享给好友吧';
+
+	/// zh-CN: '全部'
+	String get allCategories => '全部';
+
+	/// zh-CN: '热门'
+	String get sortPopular => '热门';
+
+	/// zh-CN: '最新'
+	String get sortNewest => '最新';
 }
 
 // Path: chat
@@ -7930,6 +7945,8 @@ extension on Translations {
 			'agent.badgeOfficial' => '官方',
 			'agent.badgeAiA11y' => 'AI 助手',
 			'agent.badgeOfficialA11y' => '官方账号',
+			'agent.legacyBotMigrated' => '此机器人入口已升级，请到 AI 助手广场与助手对话',
+			'agent.legacyBotGoPlaza' => '去助手广场',
 			'agentTask.title' => 'AI 任务',
 			'agentTask.working' => '执行中',
 			'agentTask.submitted' => '已提交',
@@ -8147,6 +8164,9 @@ extension on Translations {
 			'channel.continueEditing' => '继续编辑',
 			'channel.publishFirstContent' => '发布第一条内容',
 			'channel.noSubscribersDesc' => '还没有订阅者，分享给好友吧',
+			'channel.allCategories' => '全部',
+			'channel.sortPopular' => '热门',
+			'channel.sortNewest' => '最新',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.cards' => '张',
@@ -8293,13 +8313,13 @@ extension on Translations {
 			'chat.sureOpenTheFile' => '确定要打开文件吗？',
 			'chat.textMessage' => '文本消息',
 			'chat.titleMessage' => '消息',
+			_ => null,
+		} ?? switch (path) {
 			'chat.topChat' => '置顶聊天',
 			'chat.unpin' => '取消置顶',
 			'chat.unsupportedFileType' => '不支持的文件类型',
 			'chat.userData' => '用户数据',
 			'chat.video' => '视频',
-			_ => null,
-		} ?? switch (path) {
 			'chat.videoMessage' => '[视频]',
 			'chat.viewAttachments' => '浏览附件',
 			'chat.viewLargeImage' => '查看大图',
@@ -8807,13 +8827,13 @@ extension on Translations {
 			'common.mutedCannotSend' => '禁言期间无法发送消息',
 			'common.resendCodeSuccess' => '已发送新邮件。',
 			'common.resetFilters' => '重置筛选',
+			_ => null,
+		} ?? switch (path) {
 			'common.saveQrCode' => '保存二维码',
 			'common.saveSuccess' => '保存成功',
 			'common.scanQrcodeAddFriend' => '扫一扫上面的二维码图案，加我为朋友',
 			'common.search' => '搜索',
 			'common.searchScope' => '搜索范围',
-			_ => null,
-		} ?? switch (path) {
 			'common.searchAll' => '全部消息',
 			'common.searchChatContent' => '查找聊天内容',
 			'common.searchChatRecord' => '查找聊天记录',
@@ -9321,13 +9341,13 @@ extension on Translations {
 			'common.removeReaction' => '移除反应',
 			'common.removeReactionConfirm' => ({required Object emoji}) => '确定要移除 ${emoji} 反应吗？',
 			'common.fileOpenFailed' => '无法打开该文件',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeLocalBackup' => '本地备份',
 			'common.e2eeLocalBackupDesc' => '导出加密备份文件到本地或云端',
 			'common.e2eeDeleteKey' => '删除密钥',
 			'common.e2eeDeleteKeyDesc' => '删除本地存储的密钥（无法恢复）',
 			'common.e2eeCurrentKeyInfo' => '当前密钥信息',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeE2EEEnabled' => '端到端加密已启用',
 			'common.e2eeNoKeyDetected' => '未检测到 E2EE 密钥',
 			'common.e2eeNoKeyDesc' => '您需要先生成密钥对或从备份中恢复',
@@ -9835,13 +9855,13 @@ extension on Translations {
 			'groupDiscovery.searchEmpty' => '无匹配的公开群',
 			'groupList.attrAll' => '全部',
 			'groupList.attrOwner' => '我创建',
+			_ => null,
+		} ?? switch (path) {
 			'groupList.attrManager' => '我管理',
 			'groupList.attrJoin' => '我加入',
 			'groupList.refresh' => '刷新',
 			'groupSchedule.title' => '群日程',
 			'groupSchedule.createSchedule' => '创建日程',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.scheduleTitle' => '日程标题',
 			'groupSchedule.selectDate' => '选择日期',
 			'groupSchedule.selectTime' => '选择时间',

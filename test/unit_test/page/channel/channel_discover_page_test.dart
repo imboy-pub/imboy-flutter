@@ -56,16 +56,14 @@ void main() {
       () => service.getSubscribedChannels(limit: any(named: 'limit')),
     ).thenAnswer((_) async => const []);
     when(
-      () => service.discoverChannels(limit: any(named: 'limit')),
+      () => service.discoverChannels(size: any(named: 'size')),
     ).thenAnswer((_) async => const []);
 
     await tester.pumpWidget(_buildTestApp(service));
     await tester.pumpAndSettle();
 
     // 注入的 mock 被调用，证明 channelServiceProvider override 生效
-    verify(
-      () => service.discoverChannels(limit: any(named: 'limit')),
-    ).called(1);
+    verify(() => service.discoverChannels(size: any(named: 'size'))).called(1);
     expect(find.text(t.channel.noRecommendedChannels), findsOneWidget);
   });
 
@@ -76,7 +74,7 @@ void main() {
       () => service.getSubscribedChannels(limit: any(named: 'limit')),
     ).thenAnswer((_) async => const []);
     when(
-      () => service.discoverChannels(limit: any(named: 'limit')),
+      () => service.discoverChannels(size: any(named: 'size')),
     ).thenAnswer((_) async => [_makeChannel(id: 201, name: '推荐频道A')]);
 
     await tester.pumpWidget(_buildTestApp(service));

@@ -1143,12 +1143,24 @@ class ChannelService {
     return await _api.searchChannels(keyword);
   }
 
-  /// 发现频道（推荐）
+  /// 发现频道（分类/排序/分页，channel_discovery_handler 契约）
   Future<List<ChannelModel>> discoverChannels({
-    String? category,
-    int limit = 20,
+    int? categoryId,
+    String sort = 'popular',
+    int page = 1,
+    int size = 20,
   }) async {
-    return await _api.discoverChannels(category: category, limit: limit);
+    return await _api.discoverChannels(
+      categoryId: categoryId,
+      sort: sort,
+      page: page,
+      size: size,
+    );
+  }
+
+  /// 频道分类列表
+  Future<List<Map<String, dynamic>>> channelCategories() {
+    return _api.channelCategories();
   }
 
   // ==================== 辅助方法 ====================

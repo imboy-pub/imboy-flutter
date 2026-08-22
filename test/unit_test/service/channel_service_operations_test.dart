@@ -282,8 +282,10 @@ class _FakeChannelApi extends ChannelApi {
 
   @override
   Future<List<ChannelModel>> discoverChannels({
-    String? category,
-    int limit = 20,
+    int? categoryId,
+    String sort = 'popular',
+    int page = 1,
+    int size = 20,
   }) async {
     discoverChannelsCalls++;
     return discoverChannelsResult;
@@ -2687,8 +2689,10 @@ class _ThrowingChannelApi extends ChannelApi {
 
   @override
   Future<List<ChannelModel>> discoverChannels({
-    String? category,
-    int limit = 20,
+    int? categoryId,
+    String sort = 'popular',
+    int page = 1,
+    int size = 20,
   }) => Future.error(Exception('network error'));
 }
 

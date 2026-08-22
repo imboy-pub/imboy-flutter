@@ -406,13 +406,15 @@ class ChannelApi extends HttpClient {
         .toList();
   }
 
-  /// 发现频道（推荐）
+  /// 发现频道（channel_discovery_handler 新契约：分类/排序/分页）
   Future<List<ChannelModel>> discoverChannels({
-    String? category,
-    int limit = 20,
+    int? categoryId,
+    String sort = 'popular',
+    int page = 1,
+    int size = 20,
   }) async {
-    final params = <String, dynamic>{'limit': limit};
-    if (category != null) params['category'] = category;
+    final params = <String, dynamic>{'page': page, 'size': size, 'sort': sort};
+    if (categoryId != null) params['category_id'] = categoryId;
 
     final resp = await get(
       '/api/v1/channels/discover',
@@ -428,6 +430,15 @@ class ChannelApi extends HttpClient {
 
     return list
         .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// 频道分类列表 GET /api/v1/channels/categories
+  Future<List<Map<String, dynamic>>> channelCategories() async {
+    final resp = await get('/api/v1/channels/categories');
+    if (!resp.ok || resp.payload == null) return [];
+    return (resp.payload['list'] as List? ?? [])
+        .map((e) => Map<String, dynamic>.from(e as Map))
         .toList();
   }
 

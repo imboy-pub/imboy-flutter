@@ -33,6 +33,10 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   List<ChannelModel> _searchResults = [];
   List<ChannelModel> _recommendedChannels = [];
   final Set<String> _subscribedChannelIds = <String>{};
+  // 发现页新能力：分类过滤 + 排序（channel_discovery_handler 契约）
+  List<Map<String, dynamic>> _categories = [];
+  int? _selectedCategoryId;
+  String _sort = 'popular';
   bool _isSearching = false;
   bool _hasSearched = false;
   bool _isLoadingRecommended = true;
@@ -55,7 +59,21 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     await Future.wait<void>([
       _loadSubscribedChannelIds(),
       _loadRecommendedChannels(),
+      _loadCategories(),
     ]);
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categories = await ref
+          .read(channelServiceProvider)
+          .channelCategories();
+      if (mounted) {
+        setState(() => _categories = categories);
+      }
+    } catch (_) {
+      // 分类拉取失败不阻塞主列表
+    }
   }
 
   Future<void> _loadSubscribedChannelIds() async {
@@ -88,7 +106,11 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     try {
       final channels = await ref
           .read(channelServiceProvider)
-          .discoverChannels(limit: 50);
+          .discoverChannels(
+            categoryId: _selectedCategoryId,
+            sort: _sort,
+            size: 50,
+          );
       if (mounted) {
         setState(() {
           _recommendedChannels = channels;
@@ -200,6 +222,12 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
             ),
           ),
 
+          // 分类条 + 排序（浏览态显示；搜索态隐藏——FTS 自带相关性排序）
+          if (!_hasSearched) ...[
+            if (_categories.isNotEmpty) _buildCategoryBar(),
+            _buildSortBar(),
+          ],
+
           // 内容区域
           Expanded(
             child: _hasSearched
@@ -207,6 +235,101 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
                 : _buildRecommendedChannels(),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 分类横向过滤条：全部 + 平台分类
+  Widget _buildCategoryBar() {
+    final t = context.t;
+    final brightness = Theme.of(context).brightness;
+    final items = [
+      <String, dynamic>{'id': 0, 'name': t.channel.allCategories},
+      ..._categories,
+    ];
+    final selectedId = _selectedCategoryId ?? 0;
+    return SizedBox(
+      height: 44,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+        itemCount: items.length,
+        separatorBuilder: (_, _) => AppSpacing.horizontalSmall,
+        itemBuilder: (context, index) {
+          final cat = items[index];
+          final catId = (cat['id'] as num).toInt();
+          final selected = catId == selectedId;
+          return CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
+              setState(() => _selectedCategoryId = catId == 0 ? null : catId);
+              _loadRecommendedChannels();
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.medium,
+                vertical: AppSpacing.small,
+              ),
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppColors.getIosBlue(brightness)
+                    : (brightness == Brightness.dark
+                          ? AppColors.darkSurface
+                          : AppColors.lightSurface),
+                borderRadius: AppRadius.button,
+                border: Border.all(
+                  color: AppColors.getIosSeparator(
+                    brightness,
+                  ).withValues(alpha: 0.3),
+                  width: 0.33,
+                ),
+              ),
+              child: Text(
+                cat['name'] as String? ?? '',
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: selected
+                      ? AppColors.lightTextPrimary
+                      : (brightness == Brightness.dark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary),
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// 排序切换（热门=订阅数，最新=创建时间）
+  Widget _buildSortBar() {
+    final t = context.t;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        AppSpacing.small,
+        AppSpacing.regular,
+        0,
+      ),
+      child: CupertinoSlidingSegmentedControl<String>(
+        groupValue: _sort,
+        children: {
+          'popular': Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Text(t.channel.sortPopular),
+          ),
+          'newest': Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Text(t.channel.sortNewest),
+          ),
+        },
+        onValueChanged: (sort) {
+          if (sort == null) return;
+          setState(() => _sort = sort);
+          _loadRecommendedChannels();
+        },
       ),
     );
   }
