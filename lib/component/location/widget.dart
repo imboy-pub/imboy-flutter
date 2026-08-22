@@ -130,7 +130,6 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   void _initWebViewMap() {
     _webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.transparent)
       ..addJavaScriptChannel(
         'FlutterBridge',
         onMessageReceived: _onWebViewMessage,
