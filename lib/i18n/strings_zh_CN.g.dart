@@ -54,6 +54,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$error$zh_CN error = Translations$error$zh_CN.internal(_root);
 	late final Translations$group$zh_CN group = Translations$group$zh_CN.internal(_root);
 	late final Translations$groupCategory$zh_CN groupCategory = Translations$groupCategory$zh_CN.internal(_root);
+	late final Translations$groupDiscovery$zh_CN groupDiscovery = Translations$groupDiscovery$zh_CN.internal(_root);
 	late final Translations$groupList$zh_CN groupList = Translations$groupList$zh_CN.internal(_root);
 	late final Translations$groupSchedule$zh_CN groupSchedule = Translations$groupSchedule$zh_CN.internal(_root);
 	late final Translations$groupTag$zh_CN groupTag = Translations$groupTag$zh_CN.internal(_root);
@@ -6274,6 +6275,36 @@ class Translations$groupCategory$zh_CN {
 	String get categoryDetailTip => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理';
 }
 
+// Path: groupDiscovery
+class Translations$groupDiscovery$zh_CN {
+	Translations$groupDiscovery$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '发现群组'
+	String get title => '发现群组';
+
+	/// zh-CN: '搜索公开群'
+	String get searchHint => '搜索公开群';
+
+	/// zh-CN: '全部'
+	String get allCategories => '全部';
+
+	/// zh-CN: '热门'
+	String get sortPopular => '热门';
+
+	/// zh-CN: '最新'
+	String get sortNewest => '最新';
+
+	/// zh-CN: '暂无公开群，稍后再来看看'
+	String get emptyTitle => '暂无公开群，稍后再来看看';
+
+	/// zh-CN: '无匹配的公开群'
+	String get searchEmpty => '无匹配的公开群';
+}
+
 // Path: groupList
 class Translations$groupList$zh_CN {
 	Translations$groupList$zh_CN.internal(this._root);
@@ -9795,6 +9826,13 @@ extension on Translations {
 			'groupCategory.renameFailed' => '重命名失败，请重试',
 			'groupCategory.deleteFailed' => '删除失败，请重试',
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
+			'groupDiscovery.title' => '发现群组',
+			'groupDiscovery.searchHint' => '搜索公开群',
+			'groupDiscovery.allCategories' => '全部',
+			'groupDiscovery.sortPopular' => '热门',
+			'groupDiscovery.sortNewest' => '最新',
+			'groupDiscovery.emptyTitle' => '暂无公开群，稍后再来看看',
+			'groupDiscovery.searchEmpty' => '无匹配的公开群',
 			'groupList.attrAll' => '全部',
 			'groupList.attrOwner' => '我创建',
 			'groupList.attrManager' => '我管理',
@@ -9802,6 +9840,8 @@ extension on Translations {
 			'groupList.refresh' => '刷新',
 			'groupSchedule.title' => '群日程',
 			'groupSchedule.createSchedule' => '创建日程',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.scheduleTitle' => '日程标题',
 			'groupSchedule.selectDate' => '选择日期',
 			'groupSchedule.selectTime' => '选择时间',
@@ -9809,8 +9849,6 @@ extension on Translations {
 			'groupSchedule.reminder' => '提醒',
 			'groupSchedule.noReminder' => '不提醒',
 			'groupSchedule.noSchedule' => '暂无日程',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.scheduleCreated' => '日程创建成功',
 			'groupSchedule.scheduleUpdated' => '日程更新成功',
 			'groupSchedule.reminder15min' => '提前15分钟',

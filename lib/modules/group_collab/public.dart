@@ -28,3 +28,4 @@ export '../../page/group/album/group_album_photo_detail_page.dart';
 export '../../service/group_schedule_service.dart';
 export '../../service/group_task_service.dart';
 export '../../service/group_vote_service.dart';
+export '../../page/group/group_discovery/group_discovery_page.dart';

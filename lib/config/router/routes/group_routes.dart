@@ -18,6 +18,15 @@ List<RouteBase> groupRoutes() => [
         pageBuilder: (context, state) =>
             CupertinoPage(key: state.pageKey, child: const GroupListPage()),
       ),
+      // 群组发现（公开群检索/浏览，group_discovery_handler）
+      GoRoute(
+        path: '/discover',
+        name: 'group_discovery',
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const GroupDiscoveryPage(),
+        ),
+      ),
       GoRoute(
         path: '/detail/:groupId',
         name: 'group_detail',

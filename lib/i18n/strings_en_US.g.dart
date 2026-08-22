@@ -52,6 +52,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$error$en_US error = _Translations$error$en_US._(_root);
 	@override late final _Translations$group$en_US group = _Translations$group$en_US._(_root);
 	@override late final _Translations$groupCategory$en_US groupCategory = _Translations$groupCategory$en_US._(_root);
+	@override late final _Translations$groupDiscovery$en_US groupDiscovery = _Translations$groupDiscovery$en_US._(_root);
 	@override late final _Translations$groupList$en_US groupList = _Translations$groupList$en_US._(_root);
 	@override late final _Translations$groupSchedule$en_US groupSchedule = _Translations$groupSchedule$en_US._(_root);
 	@override late final _Translations$groupTag$en_US groupTag = _Translations$groupTag$en_US._(_root);
@@ -2087,6 +2088,22 @@ class _Translations$groupCategory$en_US extends Translations$groupCategory$zh_CN
 	@override String get renameFailed => 'Rename failed, please retry';
 	@override String get deleteFailed => 'Delete failed, please retry';
 	@override String get categoryDetailTip => 'Groups under this category can be managed via "Move to Category" in the group list.';
+}
+
+// Path: groupDiscovery
+class _Translations$groupDiscovery$en_US extends Translations$groupDiscovery$zh_CN {
+	_Translations$groupDiscovery$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Discover Groups';
+	@override String get searchHint => 'Search public groups';
+	@override String get allCategories => 'All';
+	@override String get sortPopular => 'Popular';
+	@override String get sortNewest => 'Newest';
+	@override String get emptyTitle => 'No public groups yet, come back later';
+	@override String get searchEmpty => 'No matching public groups';
 }
 
 // Path: groupList
@@ -4567,6 +4584,13 @@ extension on TranslationsEnUs {
 			'groupCategory.renameFailed' => 'Rename failed, please retry',
 			'groupCategory.deleteFailed' => 'Delete failed, please retry',
 			'groupCategory.categoryDetailTip' => 'Groups under this category can be managed via "Move to Category" in the group list.',
+			'groupDiscovery.title' => 'Discover Groups',
+			'groupDiscovery.searchHint' => 'Search public groups',
+			'groupDiscovery.allCategories' => 'All',
+			'groupDiscovery.sortPopular' => 'Popular',
+			'groupDiscovery.sortNewest' => 'Newest',
+			'groupDiscovery.emptyTitle' => 'No public groups yet, come back later',
+			'groupDiscovery.searchEmpty' => 'No matching public groups',
 			'groupList.attrAll' => 'All',
 			'groupList.attrOwner' => 'Created by me',
 			'groupList.attrManager' => 'I manage',
@@ -4702,6 +4726,8 @@ extension on TranslationsEnUs {
 			'main.frFr' => 'French (France)',
 			'main.from' => 'From',
 			'main.goClean' => 'Go to clean',
+			_ => null,
+		} ?? switch (path) {
 			'main.good' => 'Great',
 			'main.hangup' => 'Hang up',
 			'main.haveSet' => 'Set',
@@ -4709,8 +4735,6 @@ extension on TranslationsEnUs {
 			'main.iAm' => 'I am',
 			'main.itIt' => 'Italian (Italy)',
 			'main.jaJp' => 'Japanese (Japan)',
-			_ => null,
-		} ?? switch (path) {
 			'main.keepSecret' => 'Private',
 			'main.lastActiveTime' => 'Last active time',
 			'main.lastSeenHide' => 'Hide online status',

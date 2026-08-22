@@ -133,6 +133,15 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
+          onPressed: () => context.push('/group/discover'),
+          child: Icon(
+            CupertinoIcons.search,
+            size: 22,
+            semanticLabel: t.groupDiscovery.title,
+          ),
+        ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
           onPressed: () async {
             // 不在外层手动 setLoading(true)：initData 内部已用 try/finally
             // 统一管理 loading，外层再置一次且无 finally 兜底，一旦 selfHeal

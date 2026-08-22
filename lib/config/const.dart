@@ -125,6 +125,13 @@ class API {
   static const groupDetail = '/api/v1/group/detail';
   static const groupDissolve = '/api/v1/group/dissolve';
   static const groupPage = '/api/v1/group/page';
+  // 群组发现（group_discovery_handler；公开群 type=1 且 status=1）
+  static const groupSearch = '/api/v1/group/search';
+  static const groupDiscover = '/api/v1/group/discover';
+  static const groupFeatured = '/api/v1/group/featured';
+  static const groupHot = '/api/v1/group/hot';
+  static const groupCategories = '/api/v1/group/categories';
+  static const groupPreview = '/api/v1/group/preview';
   static const groupMemberPage = '/api/v1/group_member/page';
   static const groupMemberJoin = '/api/v1/group_member/join';
   static const groupMemberLeave = '/api/v1/group_member/leave';
