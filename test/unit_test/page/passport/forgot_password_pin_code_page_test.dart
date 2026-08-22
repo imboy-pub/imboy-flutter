@@ -9,6 +9,8 @@ import 'package:imboy/component/ui/password.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/forgot_password_pin_code_page.dart';
+import 'package:imboy/page/passport/passport_notifier.dart';
+import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 
 /// PinCodeVerificationPage widget test (path: /forgot_password/pin_code)
@@ -24,6 +26,17 @@ import 'package:imboy/page/passport/widget/passport_title.dart';
 ///   - "设置密码" ElevatedButton (setParam(param: password))
 ///   - "重发验证码" (resendCode) 按钮
 ///   - "登录" 链接 → /sign_in
+
+/// 跳过 JVerify SDK 初始化的假 Notifier——避免 platform channel 回调
+/// timer 泄漏触发 !timersPending 断言（无头测试与 SDK 不兼容）
+class _FakePassportNotifier extends PassportNotifier {
+  @override
+  PassportState build() {
+    // 不调 initPlatformState()，避免 SDK 回调 timer 泄漏
+    return PassportState(loginAccountCtl: TextEditingController());
+  }
+}
+
 GoRouter _stubRouter({
   String account = 'user@example.com',
   String accountType = 'email',
@@ -57,6 +70,7 @@ Future<void> _pump(
 
   await tester.pumpWidget(
     ProviderScope(
+      overrides: [passportProvider.overrideWith(() => _FakePassportNotifier())],
       child: TranslationProvider(
         child: MaterialApp.router(
           routerConfig: _stubRouter(account: account, accountType: accountType),
