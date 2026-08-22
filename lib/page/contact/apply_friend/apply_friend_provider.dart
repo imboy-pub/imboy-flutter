@@ -136,7 +136,18 @@ class ApplyFriendNotifier extends _$ApplyFriendNotifier {
         }
         return true;
       } else {
-        AppLoading.showError(t.common.networkFailureTryAgain);
+        // 服务端业务错误须透出真实信息：如 already_requested（申请实际已送达，
+        // 网络抖动重试时常见）；统一显示「网络故障」会误导用户反复重试。
+        // friend_handler 约定：msg=英文错误码，人类可读中文消息在 payload.field。
+        final field = resp.payload is Map
+            ? (resp.payload as Map)['field']
+            : null;
+        final serverMsg = field is String && field.isNotEmpty
+            ? field
+            : (resp.msg.isNotEmpty
+                  ? resp.msg
+                  : t.common.networkFailureTryAgain);
+        AppLoading.showError(serverMsg);
         return false;
       }
     } catch (e) {

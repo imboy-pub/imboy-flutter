@@ -17,7 +17,7 @@ class DefaultHttpTransformer extends HttpTransformer {
     final data = response.data as Map;
     final code = _normalizeCode(data['code']);
     final msg = '${data['msg'] ?? 'error'}';
-    final payload = data['payload'];
+    final payload = _enrichPayload(data);
 
     if (code == 0) {
       return IMBoyHttpResponse.success(payload);
@@ -33,6 +33,29 @@ class DefaultHttpTransformer extends HttpTransformer {
     if (raw is int) return raw;
     if (raw is num) return raw.toInt();
     return int.tryParse('$raw') ?? 1;
+  }
+
+  /// 服务端 elib_response 会把 extra options（如 field=人类可读错误消息，
+  /// friend_handler 统一约定 msg=英文错误码、中文消息在 field）合并到顶层
+  /// JSON 而非 payload 内。这里把非 envelope 键合入 payload，供上层统一读取。
+  static dynamic _enrichPayload(Map<dynamic, dynamic> data) {
+    final payload = data['payload'];
+    final extras = Map.fromEntries(
+      data.entries.where(
+        (e) =>
+            e.key != 'code' &&
+            e.key != 'msg' &&
+            e.key != 'sv_ts' &&
+            e.key != 'payload',
+      ),
+    );
+    if (extras.isEmpty) {
+      return payload;
+    }
+    if (payload is Map) {
+      return {...extras, ...Map<String, dynamic>.from(payload)};
+    }
+    return extras;
   }
 
   /// 单例对象
