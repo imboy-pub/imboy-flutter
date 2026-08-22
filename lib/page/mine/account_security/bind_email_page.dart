@@ -51,7 +51,6 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
     return IosPageTemplate(
       title: hasBound ? t.account.changeEmail : t.account.bindEmail,
       useLargeTitle: false,
-      bottomWidget: _buildSubmitButton(context, ref, asyncState, hasBound, t),
       child: Column(
         children: [
           // 当前状态 Section
@@ -212,6 +211,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               ),
             ),
           ),
+          _buildSubmitButton(context, ref, asyncState, hasBound, t),
         ],
       ),
     );
@@ -251,6 +251,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
               style: context.textStyle(
                 FontSizeType.small,
                 fontWeight: FontWeight.w600,
+                color: canSend ? AppColors.onPrimary : AppColors.iosGray,
               ),
             ),
     );
@@ -264,12 +265,7 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
     Translations t,
   ) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: SizedBox(
         width: double.infinity,
         height: 50,

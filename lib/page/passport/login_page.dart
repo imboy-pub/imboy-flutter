@@ -337,7 +337,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
               AppSpacing.horizontalMedium,
               CupertinoButton(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.getIosBlue(
+                  isDark ? Brightness.dark : Brightness.light,
+                ).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
                 onPressed: _isLoading
                     ? null
@@ -356,7 +358,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
                   t.common.getVerificationCode,
                   style: context.textStyle(
                     FontSizeType.footnote,
-                    color: AppColors.primary,
+                    color: AppColors.getIosBlue(
+                      isDark ? Brightness.dark : Brightness.light,
+                    ),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -430,7 +434,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
               AppSpacing.horizontalMedium,
               CupertinoButton(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.getIosBlue(
+                  isDark ? Brightness.dark : Brightness.light,
+                ).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
                 onPressed: _isLoading
                     ? null
@@ -453,7 +459,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
                   t.passport.getVerifyCode,
                   style: context.textStyle(
                     FontSizeType.footnote,
-                    color: AppColors.primary,
+                    color: AppColors.getIosBlue(
+                      isDark ? Brightness.dark : Brightness.light,
+                    ),
                     fontWeight: FontWeight.w600,
                   ),
                 ),

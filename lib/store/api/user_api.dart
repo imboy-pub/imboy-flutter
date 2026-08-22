@@ -140,6 +140,14 @@ class UserApi extends HttpClient {
     return resp.ok;
   }
 
+  Future<bool> updateField(String field, String value) async {
+    IMBoyHttpResponse resp = await put(
+      API.userUpdate,
+      data: {"field": field, "value": value},
+    );
+    return resp.ok;
+  }
+
   /// 用户允许被搜索 1 是  2 否
   Future<bool> allowSearch(int val) async {
     IMBoyHttpResponse resp = await put(

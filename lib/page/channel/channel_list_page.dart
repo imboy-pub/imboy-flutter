@@ -59,6 +59,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     } else {
       notifier.loadManagedChannels();
     }
+    setState(() {}); // 同步重绘，支持滑动和位移
   }
 
   @override
@@ -68,7 +69,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     final brightness = Theme.of(context).brightness;
 
     return Scaffold(
-      backgroundColor: AppColors.getBackgroundColor(brightness),
+      backgroundColor: AppColors.getSurfaceGrouped(brightness),
       appBar: AppBar(
         backgroundColor: AppColors.getBackgroundColor(brightness),
         elevation: 0,
@@ -105,23 +106,73 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       ),
       body: Column(
         children: [
-          // TabBar 极简风格
+          // 苹果 App Store 极奢风格：滑动胶囊分段选择器
           Container(
-            color: AppColors.getBackgroundColor(brightness),
-            child: TabBar(
-              controller: _tabController,
-              tabs: [
-                Tab(text: t.channel.subscribed),
-                Tab(text: t.channel.managed),
-              ],
-              labelColor: AppColors.primary,
-              unselectedLabelColor: AppColors.getTextColor(
-                brightness,
-                isSecondary: true,
+            width: double.infinity,
+            color: AppColors.getSurfaceGrouped(
+              brightness,
+            ), // 使用浅灰，与 AppBar 纯白背景拉开完美对比
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            child: Center(
+              child: CupertinoSlidingSegmentedControl<int>(
+                groupValue: _tabController.index,
+                backgroundColor: brightness == Brightness.dark
+                    ? AppColors.darkSurface
+                    : AppColors.iosGray.withValues(alpha: 0.12), // 灰色底框
+                thumbColor: brightness == Brightness.dark
+                    ? AppColors.darkSurfaceGroupedTertiary
+                    : AppColors.lightSurface, // 滑动白胶囊
+                children: {
+                  0: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 6,
+                      horizontal: 16,
+                    ),
+                    child: Text(
+                      t.channel.subscribed,
+                      style: context.textStyle(
+                        FontSizeType.normal,
+                        fontWeight: _tabController.index == 0
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: _tabController.index == 0
+                            ? AppColors.getTextColor(brightness)
+                            : AppColors.getTextColor(
+                                brightness,
+                                isSecondary: true,
+                              ),
+                      ),
+                    ),
+                  ),
+                  1: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 6,
+                      horizontal: 16,
+                    ),
+                    child: Text(
+                      t.channel.managed,
+                      style: context.textStyle(
+                        FontSizeType.normal,
+                        fontWeight: _tabController.index == 1
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: _tabController.index == 1
+                            ? AppColors.getTextColor(brightness)
+                            : AppColors.getTextColor(
+                                brightness,
+                                isSecondary: true,
+                              ),
+                      ),
+                    ),
+                  ),
+                },
+                onValueChanged: (val) {
+                  if (val != null) {
+                    _tabController.animateTo(val);
+                    setState(() {});
+                  }
+                },
               ),
-              indicatorColor: AppColors.primary,
-              indicatorSize: TabBarIndicatorSize.label,
-              dividerColor: Colors.transparent,
             ),
           ),
           // TabBarView
@@ -229,9 +280,23 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
           ref.read(channelListProvider.notifier).loadMoreSubscribedChannels();
           return false;
         },
-        child: ListView.builder(
+        child: ListView.separated(
           itemCount:
               state.channels.length + (isSubscribed && state.hasMore ? 1 : 0),
+          separatorBuilder: (context, index) {
+            if (isSubscribed && index >= state.channels.length) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.only(left: 80),
+              child: Divider(
+                height: 0.5,
+                color: AppColors.getIosSeparator(
+                  Theme.of(context).brightness,
+                ).withValues(alpha: 0.3),
+              ),
+            );
+          },
           itemBuilder: (context, index) {
             if (isSubscribed && index >= state.channels.length) {
               return const Padding(
@@ -334,86 +399,94 @@ class _ChannelListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.t;
     final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+    final itemBgColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
 
-    return FlatListTile(
-      onTap: () {
-        context.push('/channel/${_detailRouteId(channel)}');
-      },
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      leading: _buildAvatar(),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              channel.name,
-              style: context.textStyle(
-                FontSizeType.medium,
-                fontWeight: FontWeight.w600,
-                color: AppColors.getTextColor(brightness),
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          // 角色标签（仅"我管理的"标签页显示）
-          if (showRole && channel.userRole != ChannelUserRole.none) ...[
-            Container(
-              margin: const EdgeInsets.only(left: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: _getRoleColor(channel.userRole).withValues(alpha: 0.1),
-                borderRadius: AppRadius.borderRadiusTiny,
-              ),
-              child: Text(
-                _getRoleLabel(channel.userRole, t),
-                style: context.textStyle(
-                  FontSizeType.tiny,
-                  fontWeight: FontWeight.w600,
-                  color: _getRoleColor(channel.userRole),
-                ),
-              ),
-            ),
-          ],
-          if (channel.isVerified)
-            const Padding(
-              padding: EdgeInsets.only(left: 4),
-              child: Icon(Icons.verified, size: 16, color: AppColors.primary),
-            ),
-        ],
-      ),
-      subtitle: Row(
-        children: [
-          Icon(
-            Icons.people_outline,
-            size: 14,
-            color: AppColors.getTextColor(brightness, isSecondary: true),
-          ),
-          AppSpacing.horizontalTiny,
-          Text(
-            '${channel.subscriberCount} ${t.channel.subscribers}',
-            style: context.textStyle(
-              FontSizeType.small,
-              color: AppColors.getTextColor(brightness, isSecondary: true),
-            ),
-          ),
-          if (channel.tags != null && channel.tags!.isNotEmpty) ...[
-            AppSpacing.horizontalSmall,
+    return ColoredBox(
+      color: itemBgColor,
+      child: FlatListTile(
+        onTap: () {
+          context.push('/channel/${_detailRouteId(channel)}');
+        },
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        leading: _buildAvatar(),
+        title: Row(
+          children: [
             Expanded(
               child: Text(
-                channel.tags!.take(2).join(' · '),
+                channel.name,
                 style: context.textStyle(
-                  FontSizeType.small,
-                  color: AppColors.getTextColor(brightness, isSecondary: true),
+                  FontSizeType.medium,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.getTextColor(brightness),
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            // 角色标签（仅"我管理的"标签页显示）
+            if (showRole && channel.userRole != ChannelUserRole.none) ...[
+              Container(
+                margin: const EdgeInsets.only(left: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _getRoleColor(channel.userRole).withValues(alpha: 0.1),
+                  borderRadius: AppRadius.borderRadiusTiny,
+                ),
+                child: Text(
+                  _getRoleLabel(channel.userRole, t),
+                  style: context.textStyle(
+                    FontSizeType.tiny,
+                    fontWeight: FontWeight.w600,
+                    color: _getRoleColor(channel.userRole),
+                  ),
+                ),
+              ),
+            ],
+            if (channel.isVerified)
+              const Padding(
+                padding: EdgeInsets.only(left: 4),
+                child: Icon(Icons.verified, size: 16, color: AppColors.primary),
+              ),
           ],
-        ],
-      ),
-      trailing: const Icon(
-        CupertinoIcons.chevron_right,
-        size: 16,
-        color: AppColors.iosGray,
+        ),
+        subtitle: Row(
+          children: [
+            Icon(
+              Icons.people_outline,
+              size: 14,
+              color: AppColors.getTextColor(brightness, isSecondary: true),
+            ),
+            AppSpacing.horizontalTiny,
+            Text(
+              '${channel.subscriberCount} ${t.channel.subscribers}',
+              style: context.textStyle(
+                FontSizeType.small,
+                color: AppColors.getTextColor(brightness, isSecondary: true),
+              ),
+            ),
+            if (channel.tags != null && channel.tags!.isNotEmpty) ...[
+              AppSpacing.horizontalSmall,
+              Expanded(
+                child: Text(
+                  channel.tags!.take(2).join(' · '),
+                  style: context.textStyle(
+                    FontSizeType.small,
+                    color: AppColors.getTextColor(
+                      brightness,
+                      isSecondary: true,
+                    ),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ],
+        ),
+        trailing: const Icon(
+          CupertinoIcons.chevron_right,
+          size: 16,
+          color: AppColors.iosGray,
+        ),
       ),
     );
   }

@@ -8,12 +8,15 @@ part of 'account_security_page.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// AccountSecurity 模块的状态
 
 @ProviderFor(AccountSecurityNotifier)
 final accountSecurityProvider = AccountSecurityNotifierProvider._();
 
+/// AccountSecurity 模块的状态
 final class AccountSecurityNotifierProvider
-    extends $NotifierProvider<AccountSecurityNotifier, AccountSecurityState> {
+    extends $NotifierProvider<AccountSecurityNotifier, int> {
+  /// AccountSecurity 模块的状态
   AccountSecurityNotifierProvider._()
     : super(
         from: null,
@@ -33,29 +36,30 @@ final class AccountSecurityNotifierProvider
   AccountSecurityNotifier create() => AccountSecurityNotifier();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(AccountSecurityState value) {
+  Override overrideWithValue(int value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<AccountSecurityState>(value),
+      providerOverride: $SyncValueProvider<int>(value),
     );
   }
 }
 
 String _$accountSecurityNotifierHash() =>
-    r'58bb23e4a734f7329ad5fe1fc58c75a9ef42db5a';
+    r'd3ad9ca7406f33d322cb8274c50ac2ea88a2dedb';
 
-abstract class _$AccountSecurityNotifier
-    extends $Notifier<AccountSecurityState> {
-  AccountSecurityState build();
+/// AccountSecurity 模块的状态
+
+abstract class _$AccountSecurityNotifier extends $Notifier<int> {
+  int build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<AccountSecurityState, AccountSecurityState>;
+    final ref = this.ref as $Ref<int, int>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AccountSecurityState, AccountSecurityState>,
-              AccountSecurityState,
+              AnyNotifier<int, int>,
+              int,
               Object?,
               Object?
             >;

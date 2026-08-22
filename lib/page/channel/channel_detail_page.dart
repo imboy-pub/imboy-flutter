@@ -141,7 +141,15 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     final channelId = _resolveChannelId(channel);
 
+    // 计算感知的背景色，使内容区与底部的灰色发布栏拉开对比
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scaffoldBgColor = isDark
+        ? AppColors
+              .darkBackground // 暗色下用纯黑背景
+        : AppColors.lightSurface; // 亮色下用纯白背景
+
     return Scaffold(
+      backgroundColor: scaffoldBgColor, // 设置背景色以拉开层次
       appBar: GlassAppBar(
         titleWidget: channel != null
             ? Row(

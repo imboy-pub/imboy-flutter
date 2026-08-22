@@ -54,7 +54,6 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
     return IosPageTemplate(
       title: hasBound ? t.account.changeMobile : t.account.bindMobile,
       useLargeTitle: false,
-      bottomWidget: _buildSubmitButton(context, ref, asyncState, hasBound, t),
       child: Column(
         children: [
           // 当前状态 Section
@@ -216,6 +215,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
               ),
             ),
           ),
+          _buildSubmitButton(context, ref, asyncState, hasBound, t),
         ],
       ),
     );
@@ -254,6 +254,9 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
               style: context.textStyle(
                 FontSizeType.small,
                 fontWeight: FontWeight.w600,
+                color: state.canSendCode
+                    ? AppColors.onPrimary
+                    : AppColors.iosGray,
               ),
             ),
     );
@@ -267,12 +270,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
     Translations t,
   ) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: SizedBox(
         width: double.infinity,
         height: 50,

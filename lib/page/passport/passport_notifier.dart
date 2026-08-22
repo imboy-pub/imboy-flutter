@@ -1123,7 +1123,7 @@ class PassportNotifier extends _$PassportNotifier {
     /// 步骤 2：调用一键登录接口
     jv.loginAuthSyncApi2(
       autoDismiss: true,
-      enableSms: true,
+      enableSms: false,
       loginAuthcallback: (event) {
         if (event.code == 6000) {
           unawaited(

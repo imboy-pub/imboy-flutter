@@ -553,164 +553,202 @@ class UpgradeCardState extends State<UpgradeCard> {
   Widget build(BuildContext context) {
     final t = context.t;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Center(
-      child: Container(
-        width: MediaQuery.of(context).size.width - 20,
-        padding: const EdgeInsets.only(bottom: 20),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-          borderRadius: AppRadius.borderRadiusSmall,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ///标题
-            Visibility(
-              visible: widget.title.isNotEmpty,
-              child: Container(
-                padding: const EdgeInsets.only(top: 25),
-                child: Text(
-                  widget.title,
-                  style: context
-                      .textStyle(
-                        FontSizeType.large,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.upgradeBackground,
-                      )
-                      .copyWith(decoration: TextDecoration.none),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+
+    final titleColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.upgradeBackground;
+
+    return Scaffold(
+      backgroundColor: AppColors.darkBackground.withValues(alpha: 0.4),
+      body: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width - 40,
+          padding: const EdgeInsets.only(bottom: 20),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            borderRadius: AppRadius.borderRadiusMedium,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.darkBackground.withValues(alpha: 0.15),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
-            ),
-
-            ///更新内容
-            Flexible(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height - 200,
-                ),
-                child: Container(
-                  width: MediaQuery.of(context).size.width - 40,
-                  margin: AppSpacing.allSmall,
-                  child: Scrollbar(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SelectableText.rich(
-                        TextSpan(
-                          text: widget.message.isEmpty
-                              ? t.common.noUpdateDescription
-                              : widget.message,
-                        ),
-                        textAlign: widget.message.isEmpty
-                            ? TextAlign.center
-                            : TextAlign.left,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 44,
-              width: MediaQuery.of(context).size.width - 40,
-              child: widget.planTime == null
-                  ? const SizedBox.shrink()
-                  : Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              "${t.main.packageSize} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB",
-                            ),
-                            const Spacer(),
-                            Text(
-                              "${t.main.stillNeeded} ${(widget.planTime!).toStringAsFixed(3)}${t.common.seconds}",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              "${t.common.downloaded} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB",
-                            ),
-                            const Spacer(),
-                            Text(t.main.speed + widget.speed!),
-                          ],
-                        ),
-                      ],
-                    ),
-            ),
-
-            // 进度条
-            Container(
-              height: 8,
-              width: MediaQuery.of(context).size.width - 40,
-              margin: const EdgeInsets.only(bottom: 20),
-              child: widget.hasLinearProgress
-                  ? ClipRRect(
-                      borderRadius: AppRadius.borderRadiusSmall,
-                      child: LinearProgressIndicator(
-                        value: widget.progress,
-                        backgroundColor:
-                            Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkSurfaceContainer
-                            : AppColors.lightSurfaceContainer,
-                        valueColor: const AlwaysStoppedAnimation(
-                          AppColors.iosBlue,
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-
-            ///按钮列表
-            SizedBox(
-              height: 44,
-              child: Row(
-                children: <Widget>[
-                  Visibility(
-                    visible: widget.negativeBtn.isNotEmpty,
-                    child: Expanded(
-                      child: TextButton(
-                        onPressed: widget.negativeCallback,
-                        child: Text(
-                          widget.negativeBtn,
-                          style: context.textStyle(
-                            FontSizeType.medium,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.iosGray,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 44,
-                    width: 0.5,
-                    color: isDark
-                        ? AppColors.darkDivider
-                        : AppColors.lightDivider,
-                  ),
-                  Visibility(
-                    visible: widget.positiveBtn.isNotEmpty,
-                    child: Expanded(
-                      child: TextButton(
-                        onPressed: widget.positiveCallback,
-                        child: Text(
-                          widget.positiveBtn,
-                          style: context.textStyle(
-                            FontSizeType.medium,
+            ],
+          ),
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ///标题
+                Visibility(
+                  visible: widget.title.isNotEmpty,
+                  child: Container(
+                    padding: const EdgeInsets.only(top: 25),
+                    child: Text(
+                      widget.title,
+                      style: context
+                          .textStyle(
+                            FontSizeType.large,
                             fontWeight: FontWeight.w600,
+                            color: titleColor,
+                          )
+                          .copyWith(decoration: TextDecoration.none),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+
+                ///更新内容
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height - 200,
+                    ),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width - 40,
+                      margin: AppSpacing.allSmall,
+                      child: Scrollbar(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: SelectableText.rich(
+                            TextSpan(
+                              text: widget.message.isEmpty
+                                  ? t.common.noUpdateDescription
+                                  : widget.message,
+                            ),
+                            textAlign: widget.message.isEmpty
+                                ? TextAlign.center
+                                : TextAlign.left,
                           ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                widget.planTime == null
+                    ? const SizedBox.shrink()
+                    : Container(
+                        width: MediaQuery.of(context).size.width - 40,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    "${t.main.packageSize} ${(widget.maxLength / 1024 / 1024).toStringAsFixed(3)}MB",
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Flexible(
+                                  child: Text(
+                                    "${t.main.stillNeeded} ${(widget.planTime!).toStringAsFixed(3)}${t.common.seconds}",
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    "${t.common.downloaded} ${(widget.currentLength / 1024 / 1024).toStringAsFixed(3)}MB",
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Flexible(
+                                  child: Text(
+                                    t.main.speed + widget.speed!,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                // 进度条
+                Container(
+                  height: 8,
+                  width: MediaQuery.of(context).size.width - 40,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  child: widget.hasLinearProgress
+                      ? ClipRRect(
+                          borderRadius: AppRadius.borderRadiusSmall,
+                          child: LinearProgressIndicator(
+                            value: widget.progress,
+                            backgroundColor:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.darkSurfaceContainer
+                                : AppColors.lightSurfaceContainer,
+                            valueColor: const AlwaysStoppedAnimation(
+                              AppColors.iosBlue,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+
+                ///按钮列表
+                SizedBox(
+                  height: 44,
+                  child: Row(
+                    children: <Widget>[
+                      Visibility(
+                        visible: widget.negativeBtn.isNotEmpty,
+                        child: Expanded(
+                          child: TextButton(
+                            onPressed: widget.negativeCallback,
+                            child: Text(
+                              widget.negativeBtn,
+                              style: context.textStyle(
+                                FontSizeType.medium,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.iosGray,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        height: 44,
+                        width: 0.5,
+                        color: isDark
+                            ? AppColors.darkDivider
+                            : AppColors.lightDivider,
+                      ),
+                      Visibility(
+                        visible: widget.positiveBtn.isNotEmpty,
+                        child: Expanded(
+                          child: TextButton(
+                            onPressed: widget.positiveCallback,
+                            child: Text(
+                              widget.positiveBtn,
+                              style: context.textStyle(
+                                FontSizeType.medium,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
