@@ -7,6 +7,8 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/login_page.dart';
+import 'package:imboy/page/passport/passport_notifier.dart';
+import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 
 /// LoginPage widget test
@@ -17,6 +19,16 @@ import 'package:imboy/page/passport/widget/passport_title.dart';
 ///   - 默认在第 0 个 Tab（账号登录）渲染输入框
 ///   - "忘记密码？" 链接渲染
 ///   - tab 切换 → TabBarView 切换
+
+/// 跳过 JVerify SDK 初始化的假 Notifier——避免 platform channel 回调
+/// timer 泄漏触发 !timersPending 断言
+class _FakePassportNotifier extends PassportNotifier {
+  @override
+  PassportState build() {
+    return PassportState(loginAccountCtl: TextEditingController());
+  }
+}
+
 GoRouter _stubRouter() {
   Widget stub(String label) => Scaffold(body: Center(child: Text(label)));
   return GoRouter(
@@ -40,6 +52,7 @@ Future<void> _pump(WidgetTester tester) async {
 
   await tester.pumpWidget(
     ProviderScope(
+      overrides: [passportProvider.overrideWith(() => _FakePassportNotifier())],
       child: TranslationProvider(
         child: MaterialApp.router(routerConfig: _stubRouter()),
       ),
