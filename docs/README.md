@@ -56,3 +56,16 @@
 2. 计划完成后移入 `archive/`；只有仍可执行、仍会被查阅的内容留在稳定目录。
 3. 修改协议、数据库、构建流程或用户隐私行为时，同步更新受影响文档和根 README。
 4. 不提交生产数据、真实密钥、设备标识或其他个人信息。
+
+## 其他
+
+```agsl
+flutter build apk --release \
+        --obfuscate \
+        --split-debug-info=debugInfo \
+        --target-platform=android-arm,android-arm64 \
+        --split-per-abi \
+        -t lib/main.dart \
+        --dart-define=APP_ENV=pro --dart-define=ALIPAY_APP_ID=2021004142626807
+
+```

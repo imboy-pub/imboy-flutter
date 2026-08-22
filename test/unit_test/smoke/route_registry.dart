@@ -90,6 +90,7 @@ const Set<String> leakyRoutesQuarantine = {
   'group_add_member',
   'group_category',
   'group_detail',
+  'group_discovery',
   'group_file',
   'group_launch_chat',
   'group_remove_member',
@@ -213,6 +214,7 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   // ==================== 群组（嵌套） ====================
   const SmokeRoute(name: 'group', location: '/group'),
   const SmokeRoute(name: 'group_list', location: '/group/list'),
+  const SmokeRoute(name: 'group_discovery', location: '/group/discover'),
   const SmokeRoute(name: 'group_detail', location: '/group/detail/2001'),
   const SmokeRoute(name: 'group_member', location: '/group/member'),
   const SmokeRoute(
