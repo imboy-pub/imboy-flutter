@@ -179,8 +179,8 @@ lib/i18n/                ← 生成物目录（slang output_directory），勿�
 |---------|------|------|
 | `lib/modules/messaging/` | 消息（充血领域 + 四层架构） | [messaging/CLAUDE.md](./lib/modules/messaging/CLAUDE.md) |
 | `lib/modules/social_graph/` | 好友关系与社交图谱 | — |
-| `lib/modules/group_collab/` | 群组协作（任务/投票/日程） | — |
-| `lib/modules/channel_content/` | 频道内容订阅 | — |
+| `lib/modules/group_collab/` | 群组协作（任务/投票/日程/群发现） | — |
+| `lib/modules/channel_content/` | 频道内容订阅（含频道发现分类/排序） | — |
 | `lib/modules/moment_social/` | 朋友圈与动态 | — |
 | `lib/modules/identity/` | 身份认证与账户 | — |
 | `lib/modules/security_privacy/` | 安全与隐私（E2EE/DND） | — |
