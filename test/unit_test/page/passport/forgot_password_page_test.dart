@@ -7,6 +7,8 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/forgot_password_page.dart';
+import 'package:imboy/page/passport/passport_notifier.dart';
+import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 
 /// ForgotPasswordPage widget test
@@ -18,6 +20,16 @@ import 'package:imboy/page/passport/widget/passport_title.dart';
 ///   - 默认 Tab 0 (email) 显示 1 个 TextField + "下一步" 按钮
 ///   - email hint "请输入邮箱"（pleaseInputParam param=email）
 ///   - tab 切换 mobile
+
+/// 跳过 JVerify SDK 初始化的假 Notifier——避免 platform channel 回调
+/// timer 泄漏触发 !timersPending 断言（无头测试与 SDK 不兼容）
+class _FakePassportNotifier extends PassportNotifier {
+  @override
+  PassportState build() {
+    return PassportState(loginAccountCtl: TextEditingController());
+  }
+}
+
 GoRouter _stubRouter() {
   Widget stub(String label) => Scaffold(body: Center(child: Text(label)));
   return GoRouter(
@@ -46,6 +58,7 @@ Future<void> _pump(WidgetTester tester) async {
 
   await tester.pumpWidget(
     ProviderScope(
+      overrides: [passportProvider.overrideWith(() => _FakePassportNotifier())],
       child: TranslationProvider(
         child: MaterialApp.router(routerConfig: _stubRouter()),
       ),

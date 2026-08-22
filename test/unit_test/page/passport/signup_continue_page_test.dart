@@ -8,6 +8,8 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/signup_continue_page.dart';
+import 'package:imboy/page/passport/passport_notifier.dart';
+import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 
 /// SignupContinuePage widget test
@@ -27,6 +29,15 @@ import 'package:imboy/page/passport/widget/passport_title.dart';
 ///     .clearSignupData()`，不能在 ProviderScope 销毁后再 dispose；
 ///     因此 _unmount 通过 router.go('/_blank') 路由到空页让 page 在 Scope 还活着的时候 dispose。
 late GoRouter _router;
+
+/// 跳过 JVerify SDK 初始化的假 Notifier——避免 platform channel 回调
+/// timer 泄漏触发 !timersPending 断言（无头测试与 SDK 不兼容）
+class _FakePassportNotifier extends PassportNotifier {
+  @override
+  PassportState build() {
+    return PassportState(loginAccountCtl: TextEditingController());
+  }
+}
 
 GoRouter _stubRouter({
   String? account,
@@ -76,6 +87,7 @@ Future<void> _pump(
 
   await tester.pumpWidget(
     ProviderScope(
+      overrides: [passportProvider.overrideWith(() => _FakePassportNotifier())],
       child: TranslationProvider(
         child: MaterialApp.router(
           routerConfig: _stubRouter(
