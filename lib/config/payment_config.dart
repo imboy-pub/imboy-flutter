@@ -1,15 +1,16 @@
-/// 第三方支付（微信 / 支付宝）编译期配置。
+import 'env.dart';
+
+/// 第三方支付（微信 / 支付宝）配置。
+/// **支付宝**走 env 配置体系（`.env.pro` 的 `ALIPAY_APP_ID` /
+/// `ALIPAY_UNIVERSAL_LINK`，公开值非密钥），`--dart-define` 同名注入仅作
+/// 显式覆盖（测试用）。配置缺失时返回空串，由 [PaymentLauncher] 降级为
+/// "即将开通"提示，不崩溃。
 ///
-/// appId / universalLink 等**非密钥**配置项通过 `--dart-define` 在编译期注入，
-/// 缺失时返回空串，由 [PaymentLauncher] 降级为"即将开通"提示，不崩溃。
-///
-/// 注入示例：
+/// **微信**尚未接入，暂仅支持 `--dart-define` 注入：
 /// ```
 /// flutter build apk \
 ///   --dart-define=WECHAT_APP_ID=wxxxxxxxxxxxxxxxx \
-///   --dart-define=WECHAT_UNIVERSAL_LINK=https://imboy.pub/app/ \
-///   --dart-define=ALIPAY_APP_ID=2021xxxxxxxxxxxx \
-///   --dart-define=ALIPAY_UNIVERSAL_LINK=https://imboy.pub/app/
+///   --dart-define=WECHAT_UNIVERSAL_LINK=https://imboy.pub/app/
 /// ```
 ///
 /// 商户密钥、二次签名等机密**严禁**下发到客户端，全部由后端持有；前端仅持有
@@ -24,12 +25,20 @@ abstract final class PaymentConfig {
   );
 
   /// 支付宝 appId（公开值，非密钥）。
-  static const String alipayAppId = String.fromEnvironment('ALIPAY_APP_ID');
+  ///
+  /// 优先 `--dart-define=ALIPAY_APP_ID`（显式覆盖），
+  /// 缺省回落 env 配置——构建忘传参不再降级「即将开通」。
+  static String get alipayAppId {
+    const injected = String.fromEnvironment('ALIPAY_APP_ID');
+    return injected.isNotEmpty ? injected : Env().alipayAppId;
+  }
 
   /// 支付宝 iOS Universal Link（iOS 唤起 SDK 必需，非密钥）。
-  static const String alipayUniversalLink = String.fromEnvironment(
-    'ALIPAY_UNIVERSAL_LINK',
-  );
+  /// 来源优先级同 [alipayAppId]。
+  static String get alipayUniversalLink {
+    const injected = String.fromEnvironment('ALIPAY_UNIVERSAL_LINK');
+    return injected.isNotEmpty ? injected : Env().alipayUniversalLink;
+  }
 
   /// 运行环境（`--dart-define=APP_ENV`）。缺省 `pro` —— 判不出来时按生产处理。
   static const String _appEnv = String.fromEnvironment(

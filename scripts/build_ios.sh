@@ -25,7 +25,8 @@ if [[ -z "$BUILD_NAME" ]]; then
 fi
 
 # 支付宝 App 支付的公开 appId（非密钥；商户密钥全部在服务端）。
-# 不注入则 PaymentConfig.isAlipayConfigured=false，客户端充值降级为「即将开通」。
+# 2026-08-22 起支付宝配置已进 env 体系（.env.pro 的 ALIPAY_APP_ID /
+# ALIPAY_UNIVERSAL_LINK），不传 --dart-define 也能用；此处注入仅作显式覆盖。
 # universal link：支付宝新版只认 UL 回跳。配套 AASA 已部署在
 # https://pro.imboy.pub/apple-app-site-association（appID=JUYGWVJJ4C.pub.imboy.app，
 # paths=["/app/*"]），entitlements 已配 applinks:pro.imboy.pub。

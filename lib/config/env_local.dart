@@ -61,6 +61,18 @@ final class EnvLocal implements Env, EnvField {
   @EnviedField(varName: 'JPUSH_APPKEY', obfuscate: false)
   final String jiguangAppKey = _Env.jiguangAppKey;
 
+  @override
+  @EnviedField(defaultValue: '', varName: 'ALIPAY_APP_ID', obfuscate: false)
+  final String alipayAppId = _Env.alipayAppId;
+
+  @override
+  @EnviedField(
+    defaultValue: '',
+    varName: 'ALIPAY_UNIVERSAL_LINK',
+    obfuscate: false,
+  )
+  final String alipayUniversalLink = _Env.alipayUniversalLink;
+
   // ┌─────────────────────────────────────────────────────────────┐
   // │ 🤖 AI 测试框架配置                                           │
   // └─────────────────────────────────────────────────────────────┘

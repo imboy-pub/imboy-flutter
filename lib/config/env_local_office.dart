@@ -50,6 +50,18 @@ final class EnvLocalOffice implements Env, EnvField {
   final String jiguangAppKey = _Env.jiguangAppKey;
 
   @override
+  @EnviedField(defaultValue: '', varName: 'ALIPAY_APP_ID', obfuscate: false)
+  final String alipayAppId = _Env.alipayAppId;
+
+  @override
+  @EnviedField(
+    defaultValue: '',
+    varName: 'ALIPAY_UNIVERSAL_LINK',
+    obfuscate: false,
+  )
+  final String alipayUniversalLink = _Env.alipayUniversalLink;
+
+  @override
   @EnviedField(defaultValue: '', varName: 'WS_URL', obfuscate: false)
   final String wsUrl = _wsUrlOverride.isNotEmpty ? _wsUrlOverride : _Env.wsUrl;
 

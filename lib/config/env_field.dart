@@ -9,6 +9,12 @@ abstract interface class EnvField {
   abstract final String aMapWebKey;
   abstract final String jiguangAppKey;
 
+  /// 支付宝 App 支付 appId（公开值，非密钥；缺失时支付入口降级「即将开通」）
+  abstract final String alipayAppId;
+
+  /// 支付宝 iOS Universal Link（公开值；新版支付宝 SDK 回跳必需）
+  abstract final String alipayUniversalLink;
+
   /// WebSocket URL (optional, for development environments)
   /// If null, will be fetched from server config
   String? get wsUrl;
