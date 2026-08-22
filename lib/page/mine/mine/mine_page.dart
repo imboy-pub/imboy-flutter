@@ -45,84 +45,102 @@ class _MinePageState extends ConsumerState<MinePage> {
     final userRepo = ref.watch(userRepoProvider);
     final user = userRepo.currentUser;
     final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+    final topPadding = MediaQuery.of(context).padding.top + 16.0;
 
-    return IosPageTemplate(
-      title: t.main.titleMine,
-      slivers: [
-        // 顶部名片 - 采用 iOS 17 系统级质感
-        SliverToBoxAdapter(
-          child: _buildSystemHeader(context, user, brightness),
-        ),
-
-        // 核心功能宫格
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.only(
-              top: AppSpacing.small,
-              bottom: AppSpacing.tiny,
-            ),
-            child: _buildQuickActions(context),
+    return Scaffold(
+      backgroundColor: isDark
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
+      body: SafeArea(
+        top: false, // 顶衬直接渗透到状态栏，实现高奢沉浸式一体化底色
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
           ),
-        ),
+          slivers: [
+            // 沉浸式顶部安全间距，像素级避开刘海屏并保持呼吸感
+            SliverToBoxAdapter(child: SizedBox(height: topPadding)),
 
-        // 功能组
-        SliverToBoxAdapter(
-          child: ImBoySettingsSection(
-            margin: const EdgeInsets.fromLTRB(
-              AppSpacing.regular,
-              AppSpacing.small,
-              AppSpacing.regular,
-              AppSpacing.none,
+            // 顶部名片 - 采用 iOS 17 系统级质感
+            SliverToBoxAdapter(
+              child: _buildSystemHeader(context, user, brightness),
             ),
-            children: [
-              // 「收藏」已由顶部圆形快捷入口提供，此处移除重复项
-              ImBoySettingsTile(
-                title: Text(t.main.storageSpace),
-                leading: _buildIcon(
-                  CupertinoIcons.circle_grid_hex_fill,
-                  AppColors.iosSkyBlue,
-                ),
-                onTap: () => context.push('/storage_space'),
-              ),
-              ImBoySettingsTile(
-                title: Text(t.account.loginDeviceManagement),
-                leading: _buildIcon(
-                  CupertinoIcons.device_phone_portrait,
-                  AppColors.iosPurple,
-                ),
-                onTap: () => context.push('/devices'),
-              ),
-            ],
-          ),
-        ),
 
-        // 设置组
-        SliverToBoxAdapter(
-          child: ImBoySettingsSection(
-            margin: const EdgeInsets.fromLTRB(
-              AppSpacing.regular,
-              AppSpacing.xLarge,
-              AppSpacing.regular,
-              AppSpacing.xxxLarge,
-            ),
-            children: [
-              ImBoySettingsTile(
-                title: Text(t.main.setting),
-                leading: _buildIcon(CupertinoIcons.settings, AppColors.iosGray),
-                onTap: () => context.push('/mine/setting'),
-              ),
-              ImBoySettingsTile(
-                title: Text(t.common.feedback),
-                leading: _buildIcon(
-                  CupertinoIcons.hand_thumbsup_fill,
-                  AppColors.iosGreen,
+            // 核心功能宫格
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.small,
+                  bottom: AppSpacing.tiny,
                 ),
-                onTap: () => context.push('/feedback'),
+                child: _buildQuickActions(context),
               ),
-            ],
-          ),
+            ),
+
+            // 功能组
+            SliverToBoxAdapter(
+              child: ImBoySettingsSection(
+                margin: const EdgeInsets.fromLTRB(
+                  AppSpacing.regular,
+                  AppSpacing.small,
+                  AppSpacing.regular,
+                  AppSpacing.none,
+                ),
+                children: [
+                  // 「收藏」已由顶部圆形快捷入口提供，此处移除重复项
+                  ImBoySettingsTile(
+                    title: Text(t.main.storageSpace),
+                    leading: _buildIcon(
+                      CupertinoIcons.circle_grid_hex_fill,
+                      AppColors.iosSkyBlue,
+                    ),
+                    onTap: () => context.push('/storage_space'),
+                  ),
+                  ImBoySettingsTile(
+                    title: Text(t.account.loginDeviceManagement),
+                    leading: _buildIcon(
+                      CupertinoIcons.device_phone_portrait,
+                      AppColors.iosPurple,
+                    ),
+                    onTap: () => context.push('/devices'),
+                  ),
+                ],
+              ),
+            ),
+
+            // 设置组
+            SliverToBoxAdapter(
+              child: ImBoySettingsSection(
+                margin: const EdgeInsets.fromLTRB(
+                  AppSpacing.regular,
+                  AppSpacing.xLarge,
+                  AppSpacing.regular,
+                  AppSpacing.xxxLarge,
+                ),
+                children: [
+                  ImBoySettingsTile(
+                    title: Text(t.main.setting),
+                    leading: _buildIcon(
+                      CupertinoIcons.settings,
+                      AppColors.iosGray,
+                    ),
+                    onTap: () => context.push('/mine/setting'),
+                  ),
+                  ImBoySettingsTile(
+                    title: Text(t.common.feedback),
+                    leading: _buildIcon(
+                      CupertinoIcons.hand_thumbsup_fill,
+                      AppColors.iosGreen,
+                    ),
+                    onTap: () => context.push('/feedback'),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -269,14 +287,6 @@ class _MinePageState extends ConsumerState<MinePage> {
           onTap: () => context.push('/channel'),
           color: AppColors.primary,
         ),
-      // 套餐订阅：FeatureKeys 无 billing 相关 key，按最小改动直接展示
-      //（不新增本地 flag；后端 plan/list 空即显示"暂无可售套餐"空态）
-      QuickActionItem(
-        icon: const Icon(CupertinoIcons.rosette),
-        label: t.billing.title,
-        onTap: () => context.push('/billing/plans'),
-        color: AppColors.iosYellow,
-      ),
       QuickActionItem(
         icon: const Icon(CupertinoIcons.bookmark_fill),
         label: t.main.favorites,

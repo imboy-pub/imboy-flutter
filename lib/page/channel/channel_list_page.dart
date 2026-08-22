@@ -14,6 +14,7 @@ import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 
 import 'channel_provider.dart';
 
@@ -68,110 +69,97 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     final state = ref.watch(channelListProvider);
     final brightness = Theme.of(context).brightness;
 
-    return Scaffold(
-      backgroundColor: AppColors.getSurfaceGrouped(brightness),
-      appBar: AppBar(
-        backgroundColor: AppColors.getBackgroundColor(brightness),
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(
-          t.channel.title,
-          style: context.textStyle(
-            FontSizeType.extraLarge,
-            fontWeight: FontWeight.w700,
-            color: AppColors.getTextColor(brightness),
-          ),
-        ),
-        actions: [
-          if (AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover))
-            IconButton(
-              icon: const Icon(CupertinoIcons.search, size: 22),
-              onPressed: () {
-                context.push('/channel/discover');
-              },
-              tooltip: t.channel.search,
-              color: AppColors.getTextColor(brightness),
-            ),
-          IconButton(
-            icon: const Icon(CupertinoIcons.add, size: 22),
+    return IosPageTemplate(
+      title: t.channel.title,
+      actions: [
+        if (AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover))
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: const Icon(CupertinoIcons.search, size: 22),
             onPressed: () {
-              context.push('/channel/create');
+              context.push('/channel/discover');
             },
-            tooltip: t.channel.create,
-            color: AppColors.getTextColor(brightness),
           ),
-          ..._buildOverflowMenu(t, brightness),
-          AppSpacing.horizontalSmall,
-        ],
-      ),
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.add, size: 22),
+          onPressed: () {
+            context.push('/channel/create');
+          },
+        ),
+        ..._buildOverflowMenu(t, brightness),
+        AppSpacing.horizontalSmall,
+      ],
       body: Column(
         children: [
-          // 苹果 App Store 极奢风格：滑动胶囊分段选择器
+          // 行业顶级精品：悬浮胶囊卡片分段选择器 (Floating Pill TabBar)
           Container(
             width: double.infinity,
             color: AppColors.getSurfaceGrouped(
               brightness,
-            ), // 使用浅灰，与 AppBar 纯白背景拉开完美对比
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            ), // 使用大底座灰色背景，与 AppBar 的纯白色形成完美的立体分层
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
             child: Center(
-              child: CupertinoSlidingSegmentedControl<int>(
-                groupValue: _tabController.index,
-                backgroundColor: brightness == Brightness.dark
-                    ? AppColors.darkSurface
-                    : AppColors.iosGray.withValues(alpha: 0.12), // 灰色底框
-                thumbColor: brightness == Brightness.dark
-                    ? AppColors.darkSurfaceGroupedTertiary
-                    : AppColors.lightSurface, // 滑动白胶囊
-                children: {
-                  0: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 6,
-                      horizontal: 16,
-                    ),
-                    child: Text(
-                      t.channel.subscribed,
-                      style: context.textStyle(
-                        FontSizeType.normal,
-                        fontWeight: _tabController.index == 0
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: _tabController.index == 0
-                            ? AppColors.getTextColor(brightness)
-                            : AppColors.getTextColor(
-                                brightness,
-                                isSecondary: true,
-                              ),
-                      ),
-                    ),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 340),
+                decoration: BoxDecoration(
+                  color: brightness == Brightness.dark
+                      ? AppColors
+                            .darkSurfaceGroupedTertiary // 悬浮框深色：高级碳灰
+                      : AppColors.lightSurface, // 悬浮框浅色：洁白卡片
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: AppColors.getIosSeparator(
+                      brightness,
+                    ).withValues(alpha: 0.15),
+                    width: 0.5,
                   ),
-                  1: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 6,
-                      horizontal: 16,
+                  boxShadow: [
+                    BoxShadow(
+                      color: brightness == Brightness.dark
+                          ? AppColors.lightTextPrimary.withValues(alpha: 0.3)
+                          : AppColors.lightTextPrimary.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 4),
                     ),
-                    child: Text(
-                      t.channel.managed,
-                      style: context.textStyle(
-                        FontSizeType.normal,
-                        fontWeight: _tabController.index == 1
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: _tabController.index == 1
-                            ? AppColors.getTextColor(brightness)
-                            : AppColors.getTextColor(
-                                brightness,
-                                isSecondary: true,
-                              ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(4),
+                child: TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    color: AppColors.primary, // 选中项采用高对比度的主色蓝，彰显尊贵品牌基因
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.25),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
                       ),
-                    ),
+                    ],
                   ),
-                },
-                onValueChanged: (val) {
-                  if (val != null) {
-                    _tabController.animateTo(val);
-                    setState(() {});
-                  }
-                },
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  labelColor: AppColors.onPrimary, // 选中文字纯白，保证最严苛的对比度与可读性
+                  unselectedLabelColor: AppColors.getTextColor(
+                    brightness,
+                    isSecondary: true,
+                  ),
+                  labelStyle: context.textStyle(
+                    FontSizeType.normal,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  unselectedLabelStyle: context.textStyle(
+                    FontSizeType.normal,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  dividerColor: AppColors.transparent,
+                  splashBorderRadius: BorderRadius.circular(20),
+                  tabs: [
+                    Tab(height: 36, child: Text(t.channel.subscribed)),
+                    Tab(height: 36, child: Text(t.channel.managed)),
+                  ],
+                ),
               ),
             ),
           ),
@@ -214,11 +202,14 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     ];
     if (items.isEmpty) return const [];
     return [
-      PopupMenuButton<String>(
-        icon: const Icon(Icons.more_vert),
-        iconColor: AppColors.getTextColor(brightness),
-        onSelected: (route) => context.push(route),
-        itemBuilder: (context) => items,
+      Material(
+        color: Colors.transparent,
+        child: PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert),
+          iconColor: AppColors.getTextColor(brightness),
+          onSelected: (route) => context.push(route),
+          itemBuilder: (context) => items,
+        ),
       ),
     ];
   }

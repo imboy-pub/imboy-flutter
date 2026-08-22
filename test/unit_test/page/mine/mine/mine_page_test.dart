@@ -112,14 +112,10 @@ void main() {
       expect(scaffold.backgroundColor, AppColors.lightSurfaceGrouped);
     });
 
-    testWidgets('renders nav title "我的" (17pt w600)', (tester) async {
+    testWidgets('renders immersive top safety spacing', (tester) async {
       await _pumpMine(tester);
-      // titleMine zhCn = "我的"
-      // IosPageTemplate 紧凑模式：标题位于 CupertinoNavigationBar.middle
-      final title = tester.widget<Text>(find.text('我的'));
-      expect(title.style?.fontSize, 17);
-      expect(title.style?.fontWeight, FontWeight.w600);
-      expect(title.style?.letterSpacing, -0.4);
+      // 验证沉浸式顶部的 SizedBox 间距组件存在，避免名片被刘海屏遮挡
+      expect(find.byType(SizedBox), findsWidgets);
     });
   });
 

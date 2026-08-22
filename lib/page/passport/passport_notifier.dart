@@ -48,6 +48,7 @@ class PassportNotifier extends _$PassportNotifier {
   final String fMsgKey = "message";
   final String fOprKey = "operator";
   Jverify? jverify;
+  Completer<bool>? _sdkSetupCompleter;
 
   @override
   PassportState build() {
@@ -801,16 +802,35 @@ class PassportNotifier extends _$PassportNotifier {
   }
 
   /// 初始化极光认证SDK
-  Future<void> initPlatformState() async {
+  Future<bool> initPlatformState() async {
     // Web 平台不支持 JVerify 一键登录
     if (kIsWeb) {
-      return;
+      return false;
     }
+    // 已初始化成功
+    if (jverify != null) return true;
+    // 初始化正在进行中，等待其完成
+    if (_sdkSetupCompleter != null && !_sdkSetupCompleter!.isCompleted) {
+      await _sdkSetupCompleter!.future;
+      return jverify != null;
+    }
+
+    final completer = Completer<bool>();
+    _sdkSetupCompleter = completer;
 
     try {
       final jv = Jverify();
       jv.addSDKSetupCallBackListener((JVSDKSetupEvent event) {
         iPrint("receive sdk setup call back event :${event.toMap()}");
+        if (!completer.isCompleted) {
+          // 在回调中直接设置 jverify，消除竞态：
+          // 第二个 initPlatformState() 等待 completer 返回时 jverify 已就位
+          final ok = event.code == 8000;
+          if (ok) {
+            jverify = jv;
+          }
+          completer.complete(ok);
+        }
       });
 
       jv.setDebugMode(kDebugMode);
@@ -820,10 +840,26 @@ class PassportNotifier extends _$PassportNotifier {
       jv.addAuthPageEventListener((JVAuthPageEvent event) {
         if (kDebugMode) {}
       });
-      // 全部初始化步骤成功后才赋值给字段，避免半初始化对象被后续代码当作可用。
-      jverify = jv;
+
+      // 等待 SDK 初始化回调，超时 10s
+      final success = await completer.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          iPrint("JVerify SDK setup timed out");
+          return false;
+        },
+      );
+
+      if (success) {
+        // jverify 已在回调中设置，此处仅兜底
+        jverify ??= jv;
+      }
+      return success;
     } catch (e) {
-      if (kDebugMode) {}
+      if (kDebugMode) {
+        debugPrint("JVerify init error: $e");
+      }
+      return false;
     }
   }
 
@@ -1011,7 +1047,11 @@ class PassportNotifier extends _$PassportNotifier {
     }
 
     if (jverify == null) {
-      await initPlatformState();
+      final ok = await initPlatformState();
+      if (!ok) {
+        snackBar('一键登录服务初始化失败，请稍后重试');
+        return null;
+      }
     }
 
     // 用局部变量捕获非空快照：避免函数内多个 await 之间 jverify 字段
