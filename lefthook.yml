@@ -20,8 +20,10 @@ pre-commit:
     # 该文件头写着"由脚本自动生成、请勿手动修改"，实测却被手工补过常量
     # （ERR_ERROR=1 当时不在 hrl 里）—— 于是没人再敢跑生成器，漂移了 7 个月。
     # 只在**并排存在 imboy 仓**时校验：独立 clone 下没有真源，跳过而不是误拦。
-    # 跨仓校验做不进 GitHub CI（两仓各自 checkout 且三仓 origin 指向 gitee），
-    # 本机钩子是当前唯一真实生效的门禁。
+    # 远端门禁：.github/workflows/contract.yml（P3-C1，双仓 checkout + --check，
+    # GitHub 每次 push/PR 跑）；本机钩子定位为提交前的快速反馈层。
+    # pre-push 段另有一份兜底：覆盖"hrl 已改但本仓未重新生成"（本段 glob
+    # 不命中的漂移场景）。
     error-code-sync:
       glob: "lib/config/error_code.dart"
       run: |
@@ -63,6 +65,8 @@ commit-msg:
 
 # pre-push 门控：合并到 main 前的最后一道防线
 #   - dart-analyze-full: 总是跑，快（~10s），零依赖
+#   - error-code-sync: 并排仓时跑 --check；覆盖"后端 hrl 已改、本仓生成物
+#     未同步"的漂移（该场景不触碰 error_code.dart，pre-commit glob 不命中）
 #   - api-contract-tests: 后端可达时跑 Tier 1 契约测试；不可达/未配置凭证时优雅跳过
 # 紧急跳过：IMBOY_SKIP_PRE_PUSH=1 git push ...
 pre-push:
@@ -71,6 +75,16 @@ pre-push:
     dart-analyze-full:
       tags: quality
       run: dart analyze lib --no-fatal-warnings
+    error-code-sync:
+      tags: quality
+      run: |
+        [ "${IMBOY_SKIP_PRE_PUSH:-0}" = "1" ] && exit 0
+        hrl="${IMBOY_ERROR_CODE_HRL:-../imboy/include/error_code.hrl}"
+        if [ ! -f "$hrl" ]; then
+          echo "⚠️  未找到 $hrl，跳过错误码同步校验（独立 clone 属正常）" >&2
+          exit 0
+        fi
+        dart run scripts/generate_error_code.dart --check --source="$hrl"
     api-contract-tests:
       tags: test
       run: bash scripts/pre_push_gate.sh

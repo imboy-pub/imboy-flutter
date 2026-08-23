@@ -1,0 +1,55 @@
+# imboyapp 契约门 — Golden Gates 计划 P3-C1（2026-08-22）
+#
+# 断言：lib/config/error_code.dart（生成物，入仓）与后端真源
+#       imboy/include/error_code.hrl 逐字一致 —— 漂移当场拦截。
+#
+# 真源在后端仓（imboy-pub/imboy），生成物在本仓：双 checkout 是标准做法
+# （第二个 checkout 用 repository: 指向同 owner 的后端仓）。owner 一律取
+# ${{ github.repository_owner }}（pull_request 事件下即 base 仓 owner，
+# fork PR 也不会解析到 fork 名下），不硬编码。
+#
+# 不加 paths 过滤：漂移不只来自"有人手改 error_code.dart"（那会被 paths
+# 命中），更来自"后端 hrl 已改、本仓生成物未同步"（本仓可能零文件变更，
+# paths 过滤会漏检）。每次 push/PR 都断言，本 job 全程 <1min。
+#
+# 后续（计划 §2.3 C2）admin 枚举/EntityId 契约 job 预留并入本 workflow。
+
+name: imboyapp Contract Gate
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  error-code-contract:
+    name: Error code contract (hrl ↔ generated dart)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout imboyapp（生成物所在仓）
+        uses: actions/checkout@v4
+
+      - name: Checkout imboy backend（错误码真源仓）
+        uses: actions/checkout@v4
+        with:
+          # 同 owner 跨仓：owner 从运行上下文剥离，不硬编码
+          repository: ${{ github.repository_owner }}/imboy
+          path: backend-imboy
+          fetch-depth: 1
+
+      - name: Setup Dart
+        # 生成器纯 dart:io 标准库（无 package: 依赖、无需 pub get、
+        # 无需 Flutter SDK），固定 3.8.0 对齐 pubspec sdk: ^3.8.0 下限
+        uses: dart-lang/setup-dart@v2
+        with:
+          sdk-version: '3.8.0'
+
+      - name: Verify generated error_code.dart matches error_code.hrl
+        # 退出码 0 = 生成物与真源一致；1 = 漂移（红门禁，无 continue-on-error）
+        run: dart run scripts/generate_error_code.dart --check --source=backend-imboy/include/error_code.hrl
