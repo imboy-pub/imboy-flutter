@@ -106,6 +106,7 @@ void main() {
       // 密码框启用（L11 的启用侧）
       final pwdField = tester
           .widgetList<TextField>(find.byType(TextField))
+          .where((w) => w.obscureText)
           .first;
       expect(pwdField.enabled, isTrue, reason: '选中合法文件后密码框应启用');
     });
@@ -148,6 +149,7 @@ void main() {
       // 密码框保持禁用（_backupInfo == null）
       final pwdField = tester
           .widgetList<TextField>(find.byType(TextField))
+          .where((w) => w.obscureText)
           .first;
       expect(pwdField.enabled, isFalse, reason: '校验失败后密码框应保持禁用');
     });
@@ -157,6 +159,7 @@ void main() {
 
       final pwdField = tester
           .widgetList<TextField>(find.byType(TextField))
+          .where((w) => w.obscureText)
           .first;
       expect(pwdField.enabled, isFalse, reason: '未选合法文件时密码框应禁用');
 

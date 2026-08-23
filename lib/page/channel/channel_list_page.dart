@@ -75,14 +75,22 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
         if (AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover))
           CupertinoButton(
             padding: EdgeInsets.zero,
-            child: const Icon(CupertinoIcons.search, size: 22),
+            child: Icon(
+              CupertinoIcons.search,
+              size: 22,
+              semanticLabel: t.channel.discover,
+            ),
             onPressed: () {
               context.push('/channel/discover');
             },
           ),
         CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.add, size: 22),
+          child: Icon(
+            CupertinoIcons.add,
+            size: 22,
+            semanticLabel: t.channel.create,
+          ),
           onPressed: () {
             context.push('/channel/create');
           },

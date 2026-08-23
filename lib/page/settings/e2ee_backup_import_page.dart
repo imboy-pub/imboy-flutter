@@ -531,6 +531,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                     : (_urlController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(CupertinoIcons.clear_thick),
+                              tooltip: t.common.clear,
                               onPressed: _isDownloading
                                   ? null
                                   : () {
