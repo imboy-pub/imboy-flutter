@@ -6,8 +6,9 @@ class WalletTransaction {
   final int id;
   final int amount; // 金额（分），正数=收入，负数=支出（后端借记腿写负数）
   // 流水类型（后端 wallet_transaction.chk_wallet_tx_type 值域）：
-  // 1充值 2充值退款 3订单退款 5转账转出 6转账转入 7发红包 8领红包
-  // 9红包/转账退回 10提现 11提现退款 20 agent支付借记 21 agent支付贷记
+  // 1充值 2频道订单支付(消费扣减,写负数出账) 3订单退款 4保留(未使用)
+  // 5转账转出 6转账转入 7发红包 8领红包 9红包/转账退回 10提现
+  // 11提现退款 20 agent支付借记 21 agent支付贷记
   final int txType;
   final String remark;
   final String createdAt;
