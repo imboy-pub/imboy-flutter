@@ -128,10 +128,23 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
 
         return true;
       } else {
-        AppLoading.showError(t.common.networkFailureTryAgain);
+        // 服务端业务错误须透出真实信息：如 no_pending_request（申请已被确认/
+        // 网络抖动重试时常见）；统一显示「网络故障」会误导用户反复重试。
+        // friend_handler 约定：msg=英文错误码，人类可读中文消息在 payload.field。
+        // 同 apply_friend_provider 的 else 分支契约，避免 DRY 漂移。
+        final field = resp.payload is Map
+            ? (resp.payload as Map)['field']
+            : null;
+        final serverMsg = field is String && field.isNotEmpty
+            ? field
+            : (resp.msg.isNotEmpty
+                  ? resp.msg
+                  : t.common.networkFailureTryAgain);
+        AppLoading.showError(serverMsg);
         return false;
       }
     } catch (e) {
+      iPrint("❌ [CONFIRM_FRIEND] 好友确认失败 from=$from to=$to error=$e");
       AppLoading.showError(t.common.networkFailureTryAgain);
       return false;
     }
