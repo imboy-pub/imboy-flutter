@@ -1,24 +1,11 @@
 name: YAML Automation Pipeline
 
+# 自动触发已停用（2026-08-23）：本流水线唯一入口 test_automation/scripts/
+# run_yaml_mapped_suite.sh 已随 c60cf09e（2026-06-05「remove dead E2E test
+# artifacts」）删除——push/PR 触发面覆盖 test/** 等高频路径，每次触发必
+# 以 missing-script 失败。workflow_dispatch 保留供历史参考；恢复套件或删除
+# 本文件由仓主决定。
 on:
-  push:
-    branches: [ main, dev ]
-    paths:
-      - 'test_automation/**'
-      - 'integration_test/**'
-      - 'test/**'
-      - '.github/workflows/core-automation.yml'
-      - 'pubspec.yaml'
-      - 'pubspec.lock'
-  pull_request:
-    branches: [ main, dev ]
-    paths:
-      - 'test_automation/**'
-      - 'integration_test/**'
-      - 'test/**'
-      - '.github/workflows/core-automation.yml'
-      - 'pubspec.yaml'
-      - 'pubspec.lock'
   workflow_dispatch:
     inputs:
       run_mode:
