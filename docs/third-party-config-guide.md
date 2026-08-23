@@ -6,7 +6,7 @@
 > **通用前提**：三处工作区——
 > - 客户端仓 `~/project/imboy.pub/imboyapp/`（Flutter App）
 > - 服务端仓 `~/project/imboy.pub/imboy/`（Erlang 后端，配置文件 `config/sys.pro.config`）
-> - 生产服务器 `ssh -p 32 root@106.53.76.53`
+> - 生产服务器 `ssh -p <SSH_PORT> root@<PROD_HOST>`
 
 ---
 
@@ -26,16 +26,16 @@
      - 支付宝根证书 `alipayRootCert.crt`
 5. 记下账户中心里的 **PID**（2088 开头）。AES 密钥可不配（留空）。
 
-### 第 2 步：服务器（生产 root@106.53.76.53）
+### 第 2 步：服务器（生产 root@<PROD_HOST>）
 
 1. 上传文件（私钥 + 三张证书）：
 
    ```bash
    # 本地执行
-   scp -P 32 应用私钥.pem root@106.53.76.53:/etc/imboy/keys/alipay_private_key.pem
-   ssh -p 32 root@106.53.76.53 "mkdir -p /etc/imboy/keys/alipay_certs"
-   scp -P 32 appCertPublicKey_<APPID>.crt alipayCertPublicKey_RSA2.crt alipayRootCert.crt \
-     root@106.53.76.53:/etc/imboy/keys/alipay_certs/
+   scp -P <SSH_PORT> 应用私钥.pem root@<PROD_HOST>:/etc/imboy/keys/alipay_private_key.pem
+   ssh -p <SSH_PORT> root@<PROD_HOST> "mkdir -p /etc/imboy/keys/alipay_certs"
+   scp -P <SSH_PORT> appCertPublicKey_<APPID>.crt alipayCertPublicKey_RSA2.crt alipayRootCert.crt \
+     root@<PROD_HOST>:/etc/imboy/keys/alipay_certs/
    ```
 
 2. **重算两张证书的 SN**（关键！SN 配错 = 收银台报「商家订单参数异常」）。
@@ -43,10 +43,10 @@
    直接用服务器上 imboy 的代码算（`cert_sn` 单证书、`root_cert_sn` 根证书链，结果 hex 即填配置的值）：
 
    ```bash
-   ssh -p 32 root@106.53.76.53 "echo 'io:format(\"~s~n~s~n\", [imboy_lib:cert_sn(\"/etc/imboy/keys/alipay_certs/appCertPublicKey_<APPID>.crt\"), alipay_openapi:root_cert_sn(\"/etc/imboy/keys/alipay_certs/alipayRootCert.crt\")]).' | /usr/local/imboy-*/releases/*/erts*/bin/erl_call -r -c imboycookie -address 127.0.0.1:42943 -e -fetch_stdout"
+   ssh -p <SSH_PORT> root@<PROD_HOST> "echo 'io:format(\"~s~n~s~n\", [imboy_lib:cert_sn(\"/etc/imboy/keys/alipay_certs/appCertPublicKey_<APPID>.crt\"), alipay_openapi:root_cert_sn(\"/etc/imboy/keys/alipay_certs/alipayRootCert.crt\")]).' | /usr/local/imboy-*/releases/*/erts*/bin/erl_call -r -c <ERLANG_COOKIE> -address 127.0.0.1:<NODE_PORT> -e -fetch_stdout"
    ```
 
-   > 端口 42943 以 `epmd -names` 实查为准。SN 计算的权威实现在 `imboy/src/lib/alipay_openapi.erl`。
+   > 端口 <NODE_PORT> 以 `epmd -names` 实查为准。SN 计算的权威实现在 `imboy/src/lib/alipay_openapi.erl`。
 
 3. 改 `imboy/config/sys.pro.config` 中 7 个键（本地仓 + 服务器双写）：
 
@@ -63,8 +63,8 @@
 4. 生产节点**热改**（立即生效，不用重启）+ `sys.config` 持久化（重启后仍生效）：
 
    ```bash
-   # 热改（erl_call 通道，cookie imboycookie）
-   ssh -p 32 root@106.53.76.53 "echo 'application:set_env(imboy, alipay_app_id, <<\"新APPID\">>), application:set_env(imboy, alipay_pid, <<\"新PID\">>), application:set_env(imboy, alipay_app_cert_sn, <<\"新SN\">>), application:set_env(imboy, alipay_root_cert_sn, <<\"新根SN\">>).' | erl_call -r -c imboycookie -address 127.0.0.1:42943 -e"
+   # 热改（erl_call 通道，cookie 用 <ERLANG_COOKIE>）
+   ssh -p <SSH_PORT> root@<PROD_HOST> "echo 'application:set_env(imboy, alipay_app_id, <<\"新APPID\">>), application:set_env(imboy, alipay_pid, <<\"新PID\">>), application:set_env(imboy, alipay_app_cert_sn, <<\"新SN\">>), application:set_env(imboy, alipay_root_cert_sn, <<\"新根SN\">>).' | erl_call -r -c <ERLANG_COOKIE> -address 127.0.0.1:<NODE_PORT> -e"
    # 持久化：sed 替换 release 目录下 sys.config 里的旧值（先备份！）
    ```
 
@@ -98,7 +98,7 @@
 真机充值 **0.01 元**，然后查生产 DB（三表全绿才算成功）：
 
 ```bash
-ssh -p 32 root@106.53.76.53 "docker exec prod_imboy_pg18 psql -U imboy_user -d imboy_pro \
+ssh -p <SSH_PORT> root@<PROD_HOST> "docker exec prod_imboy_pg18 psql -U imboy_user -d imboy_pro \
   -c 'SELECT order_no,amount,status,payment_no,paid_at FROM recharge_order ORDER BY id DESC LIMIT 1;' \
   -c 'SELECT user_id,balance FROM wallet ORDER BY updated_at DESC LIMIT 1;' \
   -c 'SELECT amount,tx_type,reference_no FROM wallet_transaction ORDER BY id DESC LIMIT 1;'"
