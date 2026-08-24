@@ -131,25 +131,21 @@ void main() {
       timeout: const Timeout(Duration(minutes: 2)),
     );
 
-    test(
-      '无群会话时段为空但字段存在（与 v1 旧包可区分）',
-      () async {
-        final bytes = await E2EELocalBackupService.packBackupBytes(
-          password: _pw,
-          privateKey: _priv,
-          publicKey: _pub,
-          deviceId: 'dev-EXAMPLE',
-          keyId: 'key-EXAMPLE',
-          secureEntriesForTest: const {'e2ee_private_key': 'rsa'},
-        );
-        final restored = await E2EELocalBackupService.unpackBackupBytes(
-          bytes: bytes,
-          password: _pw,
-        );
-        expect(restored[kMegolmSectionKey], isEmpty);
-        expect(restored['private_key'], _priv);
-      },
-      timeout: const Timeout(Duration(minutes: 2)),
-    );
+    test('无群会话时段为空但字段存在（与 v1 旧包可区分）', () async {
+      final bytes = await E2EELocalBackupService.packBackupBytes(
+        password: _pw,
+        privateKey: _priv,
+        publicKey: _pub,
+        deviceId: 'dev-EXAMPLE',
+        keyId: 'key-EXAMPLE',
+        secureEntriesForTest: const {'e2ee_private_key': 'rsa'},
+      );
+      final restored = await E2EELocalBackupService.unpackBackupBytes(
+        bytes: bytes,
+        password: _pw,
+      );
+      expect(restored[kMegolmSectionKey], isEmpty);
+      expect(restored['private_key'], _priv);
+    }, timeout: const Timeout(Duration(minutes: 2)));
   });
 }
