@@ -96,52 +96,60 @@ void main() {
   });
 
   group('pack/unpack 往返（正向可用性）', () {
-    test('Megolm 段逐条保真，且 Olm pickle 不出现在包内任何位置', () async {
-      final bytes = await E2EELocalBackupService.packBackupBytes(
-        password: _pw,
-        privateKey: _priv,
-        publicKey: _pub,
-        deviceId: 'dev-EXAMPLE',
-        keyId: 'key-EXAMPLE',
-        secureEntriesForTest: const {
-          'megolm_inbound_c2c:sess-A': 'exported-key-A',
-          'megolm_inbound_1900000000000:sess-B': 'exported-key-B',
-          'olm_account_pickle': 'must-not-appear',
-        },
-      );
+    test(
+      'Megolm 段逐条保真，且 Olm pickle 不出现在包内任何位置',
+      () async {
+        final bytes = await E2EELocalBackupService.packBackupBytes(
+          password: _pw,
+          privateKey: _priv,
+          publicKey: _pub,
+          deviceId: 'dev-EXAMPLE',
+          keyId: 'key-EXAMPLE',
+          secureEntriesForTest: const {
+            'megolm_inbound_c2c:sess-A': 'exported-key-A',
+            'megolm_inbound_1900000000000:sess-B': 'exported-key-B',
+            'olm_account_pickle': 'must-not-appear',
+          },
+        );
 
-      final restored = await E2EELocalBackupService.unpackBackupBytes(
-        bytes: bytes,
-        password: _pw,
-      );
+        final restored = await E2EELocalBackupService.unpackBackupBytes(
+          bytes: bytes,
+          password: _pw,
+        );
 
-      // 既有字段不回归
-      expect(restored['private_key'], _priv);
-      expect(restored['key_id'], 'key-EXAMPLE');
+        // 既有字段不回归
+        expect(restored['private_key'], _priv);
+        expect(restored['key_id'], 'key-EXAMPLE');
 
-      final section = restored[kMegolmSectionKey] as Map<String, String>;
-      expect(section, {
-        'c2c:sess-A': 'exported-key-A',
-        '1900000000000:sess-B': 'exported-key-B',
-      });
-      expect(jsonEncode(restored).contains('must-not-appear'), isFalse);
-    }, timeout: const Timeout(Duration(minutes: 2)));
+        final section = restored[kMegolmSectionKey] as Map<String, String>;
+        expect(section, {
+          'c2c:sess-A': 'exported-key-A',
+          '1900000000000:sess-B': 'exported-key-B',
+        });
+        expect(jsonEncode(restored).contains('must-not-appear'), isFalse);
+      },
+      timeout: const Timeout(Duration(minutes: 2)),
+    );
 
-    test('无群会话时段为空但字段存在（与 v1 旧包可区分）', () async {
-      final bytes = await E2EELocalBackupService.packBackupBytes(
-        password: _pw,
-        privateKey: _priv,
-        publicKey: _pub,
-        deviceId: 'dev-EXAMPLE',
-        keyId: 'key-EXAMPLE',
-        secureEntriesForTest: const {'e2ee_private_key': 'rsa'},
-      );
-      final restored = await E2EELocalBackupService.unpackBackupBytes(
-        bytes: bytes,
-        password: _pw,
-      );
-      expect(restored[kMegolmSectionKey], isEmpty);
-      expect(restored['private_key'], _priv);
-    }, timeout: const Timeout(Duration(minutes: 2)));
+    test(
+      '无群会话时段为空但字段存在（与 v1 旧包可区分）',
+      () async {
+        final bytes = await E2EELocalBackupService.packBackupBytes(
+          password: _pw,
+          privateKey: _priv,
+          publicKey: _pub,
+          deviceId: 'dev-EXAMPLE',
+          keyId: 'key-EXAMPLE',
+          secureEntriesForTest: const {'e2ee_private_key': 'rsa'},
+        );
+        final restored = await E2EELocalBackupService.unpackBackupBytes(
+          bytes: bytes,
+          password: _pw,
+        );
+        expect(restored[kMegolmSectionKey], isEmpty);
+        expect(restored['private_key'], _priv);
+      },
+      timeout: const Timeout(Duration(minutes: 2)),
+    );
   });
 }
