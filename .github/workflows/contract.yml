@@ -33,10 +33,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout imboyapp（生成物所在仓）
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Checkout imboy backend（错误码真源仓）
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # 同 owner 跨仓：owner 从运行上下文剥离，不硬编码
           repository: ${{ github.repository_owner }}/imboy
