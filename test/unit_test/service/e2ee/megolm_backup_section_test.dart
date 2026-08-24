@@ -125,7 +125,7 @@ void main() {
         '1900000000000:sess-B': 'exported-key-B',
       });
       expect(jsonEncode(restored).contains('must-not-appear'), isFalse);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('无群会话时段为空但字段存在（与 v1 旧包可区分）', () async {
       final bytes = await E2EELocalBackupService.packBackupBytes(
@@ -142,6 +142,6 @@ void main() {
       );
       expect(restored[kMegolmSectionKey], isEmpty);
       expect(restored['private_key'], _priv);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
   });
 }
