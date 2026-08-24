@@ -60,7 +60,13 @@ jobs:
           # ':!plugin/'=vendored 第三方插件源码不归本仓风格约束。
           # 暂排 chat_page_utils_test.dart（X17）：HEAD 版旧格式，别线工作树已改好
           # 未提交，其提交落仓后须撤销该排除。
-          git ls-files -z '*.dart' ':!plugin/' ':!test/unit_test/page/chat/chat/chat_page_utils_test.dart' | xargs -0 dart format --output=show --set-exit-if-changed
+          git ls-files -z '*.dart' ':!plugin/' ':!test/unit_test/page/chat/chat/chat_page_utils_test.dart' | xargs -0 dart format --output=write
+          if ! git diff --quiet -- '*.dart'; then
+            echo '::error::受版本控制的 Dart 文件未按当前 CI SDK 格式化'
+            git diff --name-only -- '*.dart'
+            git diff -- '*.dart'
+            exit 1
+          fi
 
       - name: Analyze code
         # errors 仍然阻断；warnings/infos 的 ratchet 计数由 quality.yml 负责，
