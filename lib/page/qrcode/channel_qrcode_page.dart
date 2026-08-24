@@ -64,6 +64,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
               child: _buildQrCard(
                 context,
                 isDark,
+                avatar: channelAvatar,
                 header: Column(
                   children: [
                     Container(
@@ -122,7 +123,17 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
     required Widget header,
     required String qrcodeData,
     required String footerText,
+    String? avatar,
   }) {
+    final ImageProvider embeddedImageProvider;
+    if (avatar != null &&
+        avatar.isNotEmpty &&
+        !avatar.contains("def_avatar.png")) {
+      embeddedImageProvider = avatarImageProvider(avatar, w: 100);
+    } else {
+      embeddedImageProvider = const AssetImage('assets/images/imboy_logo0.png');
+    }
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -150,26 +161,45 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
             padding: AppSpacing.allXXLarge,
             child: Column(
               children: [
-                QrImageView(
-                  data: qrcodeData,
-                  version: QrVersions.auto,
-                  errorCorrectionLevel: QrErrorCorrectLevel.H,
-                  size: 220,
-                  gapless: true,
-                  eyeStyle: const QrEyeStyle(
-                    eyeShape: QrEyeShape.square,
-                    color: Colors.black,
-                  ),
-                  dataModuleStyle: const QrDataModuleStyle(
-                    dataModuleShape: QrDataModuleShape.square,
-                    color: Colors.black,
-                  ),
-                  embeddedImage: const AssetImage(
-                    'assets/images/imboy_logo0.png',
-                  ),
-                  embeddedImageStyle: const QrEmbeddedImageStyle(
-                    size: Size.square(40),
-                  ),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    QrImageView(
+                      data: qrcodeData,
+                      version: QrVersions.auto,
+                      errorCorrectionLevel: QrErrorCorrectLevel.H,
+                      size: 220,
+                      gapless: true,
+                      eyeStyle: const QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: Colors.black,
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Colors.black,
+                      ),
+                      embeddedImage: embeddedImageProvider,
+                      embeddedImageStyle: const QrEmbeddedImageStyle(
+                        size: Size.square(40),
+                      ),
+                    ),
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.all(2),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image(
+                          image: embeddedImageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 AppSpacing.verticalXLarge,
                 Text(

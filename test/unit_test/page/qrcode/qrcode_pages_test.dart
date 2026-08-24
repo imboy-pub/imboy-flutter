@@ -101,6 +101,57 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('CQ-4 有头像时渲染包含 avatarImageProvider 的 QrImageView', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          const ChannelQrCodePage(
+            channelData: {
+              'id': 'ch123',
+              'name': '测试频道',
+              'avatar': 'test_channel_avatar.png',
+            },
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final qrImage = tester.widget<QrImageView>(find.byType(QrImageView));
+      expect(qrImage.embeddedImage, isNotNull);
+    });
+
+    testWidgets('CQ-5 有头像时渲染圆角 Avatar 叠加层', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const ChannelQrCodePage(
+            channelData: {
+              'id': 'ch123',
+              'name': '测试频道',
+              'avatar': 'test_channel_avatar.png',
+            },
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(Stack), findsWidgets);
+      final containerFinder = find.byType(Container);
+      final list = tester.widgetList<Container>(containerFinder);
+      final hasRoundedAvatarOverlay = list.any((c) {
+        final boxDec = c.decoration as BoxDecoration?;
+        return boxDec != null &&
+            boxDec.color == Colors.white &&
+            boxDec.borderRadius != null &&
+            c.child is ClipRRect;
+      });
+      expect(
+        hasRoundedAvatarOverlay,
+        isTrue,
+        reason: '应该渲染含有 ClipRRect 的白底圆角头像 Container 叠加层',
+      );
+    });
   });
 
   group('GroupQrCodePage', () {
@@ -144,6 +195,67 @@ void main() {
       // 群名写死 Colors.black（L90 同注释意图）
       final title = tester.widget<Text>(find.textContaining('周末羽毛球'));
       expect(title.style?.color, Colors.black, reason: '群名应为黑字，不随暗色主题');
+    });
+
+    testWidgets('GQ-4 有头像时渲染包含 avatarImageProvider 的 QrImageView', (
+      tester,
+    ) async {
+      final group = GroupModel(
+        groupId: 100,
+        type: 1,
+        joinLimit: 1,
+        contentLimit: 1,
+        userIdSum: 0,
+        ownerUid: 1,
+        creatorUid: 1,
+        memberMax: 100,
+        memberCount: 3,
+        title: '测试群',
+        avatar: 'test_group_avatar.png',
+        createdAt: 0,
+      );
+
+      await tester.pumpWidget(wrap(GroupQrCodePage(group: group)));
+      await tester.pump();
+
+      final qrImage = tester.widget<QrImageView>(find.byType(QrImageView));
+      expect(qrImage.embeddedImage, isNotNull);
+    });
+
+    testWidgets('GQ-5 有头像时渲染圆角 Avatar 叠加层', (tester) async {
+      final group = GroupModel(
+        groupId: 100,
+        type: 1,
+        joinLimit: 1,
+        contentLimit: 1,
+        userIdSum: 0,
+        ownerUid: 1,
+        creatorUid: 1,
+        memberMax: 100,
+        memberCount: 3,
+        title: '测试群',
+        avatar: 'test_group_avatar.png',
+        createdAt: 0,
+      );
+
+      await tester.pumpWidget(wrap(GroupQrCodePage(group: group)));
+      await tester.pump();
+
+      expect(find.byType(Stack), findsWidgets);
+      final containerFinder = find.byType(Container);
+      final list = tester.widgetList<Container>(containerFinder);
+      final hasRoundedAvatarOverlay = list.any((c) {
+        final boxDec = c.decoration as BoxDecoration?;
+        return boxDec != null &&
+            boxDec.color == Colors.white &&
+            boxDec.borderRadius != null &&
+            c.child is ClipRRect;
+      });
+      expect(
+        hasRoundedAvatarOverlay,
+        isTrue,
+        reason: '应该渲染含有 ClipRRect 的白底圆角头像 Container 叠加层',
+      );
     });
   });
 }
