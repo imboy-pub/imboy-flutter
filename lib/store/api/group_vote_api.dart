@@ -1,5 +1,6 @@
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 
 /// 群投票 API 客户端
@@ -79,7 +80,9 @@ class GroupVoteApi extends HttpClient {
       return null;
     }
 
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 获取投票列表
@@ -120,7 +123,9 @@ class GroupVoteApi extends HttpClient {
       return null;
     }
 
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 投票
@@ -140,7 +145,12 @@ class GroupVoteApi extends HttpClient {
         'option_ids': optionIdsText,
       },
     );
-    return resp.ok;
+    if (!resp.ok) {
+      // 透出后端中文原因（如"投票已结束"），页面层不再叠兜底文案
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   /// 更新投票
@@ -159,7 +169,11 @@ class GroupVoteApi extends HttpClient {
     };
 
     final resp = await post(API.groupVoteUpdate, data: data);
-    return resp.ok;
+    if (!resp.ok) {
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   /// 取消投票
@@ -173,7 +187,11 @@ class GroupVoteApi extends HttpClient {
       API.groupVoteCancel,
       data: {'gid': groupId, 'vote_id': voteIdText},
     );
-    return resp.ok;
+    if (!resp.ok) {
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   /// 结束投票
@@ -187,7 +205,11 @@ class GroupVoteApi extends HttpClient {
       API.groupVoteClose,
       data: {'gid': groupId, 'vote_id': voteIdText},
     );
-    return resp.ok;
+    if (!resp.ok) {
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   /// 获取我参与的投票列表。
@@ -214,7 +236,9 @@ class GroupVoteApi extends HttpClient {
       if (resp.ok) {
         if (resp.payload == null) return [];
         return [
-          Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+          Map<String, dynamic>.from(
+            IMBoyHttpResponse.payloadAsMap(resp.payload),
+          ),
         ];
       }
       if (resp.msg.contains('未投票') ||

@@ -116,7 +116,9 @@ class E2EEApi extends HttpClient {
   Future<Map<String, dynamic>?> getComplianceKey() async {
     IMBoyHttpResponse resp = await get(API.e2eeComplianceKey);
     if (!resp.ok) return null;
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// GET /api/v1/e2ee/key/status — 查询当前设备密钥的服务端注册状态

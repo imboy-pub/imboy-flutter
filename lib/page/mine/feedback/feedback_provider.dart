@@ -1,4 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/store/model/feedback_reply_model.dart';
@@ -65,10 +67,8 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     if (payload == null) {
       return [];
     }
-    for (var json in (payload['list'] as List)) {
-      FeedbackModel model = FeedbackModel.fromJson(
-        json as Map<String, dynamic>,
-      );
+    for (var json in IMBoyHttpResponse.payloadList(payload)) {
+      FeedbackModel model = FeedbackModel.fromJson(json);
       list.add(model);
     }
     return list;
@@ -80,7 +80,8 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     try {
       var list = await this.page(page: page, size: size);
       state = state.copyWith(itemList: list, isLoading: false);
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[Feedback] 加载反馈列表失败: $e');
       state = state.copyWith(
         isLoading: false,
         error: t.common.operationFailedAgainLater,
@@ -124,10 +125,8 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     if (payload == null) {
       return [];
     }
-    for (var json in (payload['list'] as List)) {
-      FeedbackReplyModel model = FeedbackReplyModel.fromJson(
-        json as Map<String, dynamic>,
-      );
+    for (var json in IMBoyHttpResponse.payloadList(payload)) {
+      FeedbackReplyModel model = FeedbackReplyModel.fromJson(json);
       list.add(model);
     }
     return list;
@@ -143,7 +142,8 @@ class FeedbackPageNotifier extends _$FeedbackPageNotifier {
     try {
       var list = await pageReply(feedbackId, page: page, size: size);
       state = state.copyWith(pageReplyList: list, isLoading: false);
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[Feedback] 加载反馈回复失败: $e');
       state = state.copyWith(
         isLoading: false,
         error: t.common.operationFailedAgainLater,

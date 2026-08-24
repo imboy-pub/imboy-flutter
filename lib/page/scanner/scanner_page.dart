@@ -217,10 +217,12 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         AppLoading.showError(resp.msg);
         return;
       }
-      Map<String, dynamic> payload = resp.payload as Map<String, dynamic>;
+      Map<String, dynamic> payload = IMBoyHttpResponse.payloadAsMap(
+        resp.payload,
+      );
       if (kDebugMode) debugPrint("> on qrcode: type=${payload['type']}");
-      String result = payload['result'] as String? ?? '';
-      String type = payload['type'] as String? ?? 'user';
+      String result = IMBoyHttpResponse.payloadStr(payload, 'result') ?? '';
+      String type = IMBoyHttpResponse.payloadStr(payload, 'type') ?? 'user';
       if (result == '' && type == 'user') {
         if (!mounted) return;
         // 统一走 go_router：原生 push 的 PeopleInfoPage 内
@@ -230,7 +232,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         );
       } else if (result == '' && type == 'group') {
         await GroupMemberRepo().save(
-          payload['group_member'] as Map<String, dynamic>,
+          IMBoyHttpResponse.payloadAsMap(payload['group_member']),
         );
         if (!mounted) return;
         // 统一走 go_router：原生 push 的 ChatPage 内 go_router 调用会失灵
@@ -238,8 +240,8 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
           '/chat/${parseModelString(payload['id'])}',
           extra: {
             'type': 'C2G',
-            'title': payload['title'] as String,
-            'avatar': payload['avatar'] as String,
+            'title': IMBoyHttpResponse.payloadStr(payload, 'title') ?? '',
+            'avatar': IMBoyHttpResponse.payloadStr(payload, 'avatar') ?? '',
             'options': {'memberCount': payload['member_count']},
           },
         );

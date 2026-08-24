@@ -367,7 +367,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                                   writeBool: (k, val) async =>
                                       StorageService.to.setBool(k, val),
                                 );
-                              } catch (_) {
+                              } catch (e) {
+                                iPrint('[GroupDetail] 设置消息免打扰失败: $e');
                                 if (mounted) {
                                   setState(() => _noticeDisabled = prev);
                                   AppLoading.showError(t.common.tipFailed);

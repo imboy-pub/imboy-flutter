@@ -169,9 +169,13 @@ class QRLogin extends _$QRLogin {
           }
           _startExpireTimer();
         case QrCreateFailure():
+          // 优先透出服务端中文错误消息（如频率限制/设备数上限），
+          // 仅在 msg 为空时回退到兜底文案，避免吞掉真实失败原因。
           state = QRLoginState(
             status: QRLoginStatus.failed,
-            errorMessage: t.common.webQRGenerateFailed,
+            errorMessage: response.msg.isNotEmpty
+                ? response.msg
+                : t.common.webQRGenerateFailed,
           );
       }
     } catch (e) {

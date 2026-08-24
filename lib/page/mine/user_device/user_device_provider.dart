@@ -5,6 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/extension/device_ext.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -158,6 +159,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
+      // 离线短路不经过 API 层，需自行提示，否则页面层无任何反馈
+      AppLoading.showError(t.common.tipConnectDesc);
       return false;
     }
 
@@ -377,6 +380,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
     // 检查网络状态
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
+      // 离线短路不经过 API 层，需自行提示，否则页面层无任何反馈
+      AppLoading.showError(t.common.tipConnectDesc);
       return false;
     }
 
@@ -398,6 +403,8 @@ class UserDeviceNotifier extends _$UserDeviceNotifier {
       debugPrint(
         '[user_device_provider] forceOffline: deviceType is empty for $deviceId',
       );
+      // 本地数据缺失（内存列表与本地库均无此设备），不经过 API 层，需自行提示
+      AppLoading.showError(t.common.tipFailed);
       return false;
     }
 

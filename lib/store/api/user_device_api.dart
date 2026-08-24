@@ -1,6 +1,7 @@
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 class UserDeviceApi extends HttpClient {
   /// 获取设备分页列表
@@ -12,7 +13,9 @@ class UserDeviceApi extends HttpClient {
     // 链路：user_device_page(_error)
     resp.throwIfFailed();
 
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 修改设备名称（简化版，仅返回成功/失败）
@@ -43,6 +46,10 @@ class UserDeviceApi extends HttpClient {
       API.userDeviceDelete,
       data: {"did": deviceId},
     );
+    // 透出服务端中文错误消息，页面层不再重复兜底
+    if (!resp.ok && resp.msg.isNotEmpty) {
+      AppLoading.showBackendError(resp.msg);
+    }
     return resp.ok ? true : false;
   }
 
@@ -53,7 +60,9 @@ class UserDeviceApi extends HttpClient {
     // 链路：user_device_page(_error)
     resp.throwIfFailed();
 
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 检查登录冲突
@@ -74,7 +83,9 @@ class UserDeviceApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 踢出指定设备
@@ -92,9 +103,15 @@ class UserDeviceApi extends HttpClient {
       data: {"device_type": deviceType, "device_id": deviceId},
     );
     if (!resp.ok) {
+      // 透出服务端中文错误消息，页面层不再重复兜底
+      if (resp.msg.isNotEmpty) {
+        AppLoading.showBackendError(resp.msg);
+      }
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 踢出所有其他设备
@@ -112,8 +129,14 @@ class UserDeviceApi extends HttpClient {
       data: {"device_type": deviceType, "device_id": deviceId},
     );
     if (!resp.ok) {
+      // 透出服务端中文错误消息，页面层不再重复兜底
+      if (resp.msg.isNotEmpty) {
+        AppLoading.showBackendError(resp.msg);
+      }
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 }

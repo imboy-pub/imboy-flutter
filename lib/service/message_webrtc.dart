@@ -104,6 +104,12 @@ class MessageWebrtc {
         );
       }
     } else {
+      // 被叫尚未接听时没有通话页订阅事件总线；候选不能丢失，否则公网
+      // 环境下 TURN/relay 候选无法在接听后补回 PeerConnection。
+      if (type == 'WEBRTC_CANDIDATE' && p2pCallScreenOn && p2pEntry == null) {
+        queuePendingWebRTCSignal(data);
+        return;
+      }
       if (['WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
         // 批量更新本地消息状态为结束/忙碌
         // Batch update local WebRTC message state
@@ -121,6 +127,7 @@ class MessageWebrtc {
         gTimer?.cancel();
         gTimer = null;
         p2pCallScreenOn = false;
+        clearPendingWebRTCSignals(data['from']?.toString() ?? '');
       }
       // WRTC-00 修复：answer/candidate/ringing/busy/bye 必须 fire
       // WebRTCSignalingEvent（通话页 page:245 订阅的类型），此前误发
@@ -244,8 +251,7 @@ class MessageWebrtc {
     if (msg == null) return;
     webrtcMsgIds.clear();
 
-    final metadata =
-        (msg.payload as Map<String, dynamic>?)?.cast<String, dynamic>() ?? {};
+    final metadata = msg.payloadMap;
     final msgType = metadata['msg_type'] ?? '';
     if (![MessageType.webrtcVideo, MessageType.webrtcAudio].contains(msgType)) {
       return;

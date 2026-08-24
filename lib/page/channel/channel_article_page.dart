@@ -322,16 +322,17 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
             .read(channelDetailProvider.notifier)
             .updateMessageReaction(messageId, _liked, totalLikes + _likeDelta);
       } else {
-        // 失败回滚
+        // 失败回滚；后端中文原因已由 ChannelApi.addReaction/removeReaction 透出，
+        // 不再叠 operationFailedAgainLater 兜底（EasyLoading 后弹会覆盖先弹）。
         if (mounted) {
           setState(() {
             _liked = previousLiked;
             _likeDelta = previousDelta;
           });
-          AppLoading.showToast(context.t.common.operationFailedAgainLater);
         }
       }
-    } catch (_) {
+    } catch (e) {
+      iPrint('[ChannelArticle] 反应操作失败: $e');
       if (mounted) {
         setState(() {
           _liked = previousLiked;

@@ -414,9 +414,8 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         );
         await userRepo.changeSetting(newSetting);
         ref.invalidate(userRepoProvider);
-      } else {
-        AppLoading.showError(t.common.tipFailed);
       }
+      // 失败分支不再叠兜底文案：后端中文原因已由 UserApi.allowSearch 透出
     } finally {
       if (mounted) setState(() => _isUpdatingAllowSearch = false);
     }
@@ -434,6 +433,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       }
       AppLoading.showSuccess(t.account.deviceKeyRefreshed);
     } catch (e) {
+      iPrint('[Setting] 刷新设备密钥失败: $e');
       AppLoading.showError(t.common.tipFailed);
     } finally {
       if (mounted) setState(() => _isRefreshingKeys = false);
@@ -494,6 +494,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 AppLoading.showInfo(t.common.nowNewVersion);
               }
             } catch (e) {
+              iPrint('[Setting] 检查更新失败: $e');
               AppLoading.showError(t.common.errorNetwork);
             } finally {
               AppLoading.dismiss();

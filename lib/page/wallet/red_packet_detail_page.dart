@@ -79,6 +79,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
         AppLoading.showError(t.common.redPacketFetchFailed);
       }
     } catch (e) {
+      iPrint('[RedPacketDetail] 加载红包详情失败: $e');
       setState(() => _isLoading = false);
       AppLoading.showError(t.common.redPacketFetchError);
     }

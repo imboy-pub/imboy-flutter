@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/location/amap_helper.dart';
@@ -100,6 +102,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       }
       return true;
     } catch (e) {
+      iPrint('[PeopleNearby] 坐标解析失败: $e');
       return false;
     }
   }
@@ -176,11 +179,11 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       }
 
       List<PeopleModel> l = [];
-      for (var json in (payload['list'] as List)) {
+      for (var json in IMBoyHttpResponse.payloadList(payload)) {
         json['unit'] = payload['unit'];
         // 后端 id 以 JSON integer(TSID) 返回，统一按 String 比较（排除自己 + isFriend）
         final String pid = (json['uid'] ?? json['id']).toString();
-        PeopleModel model = PeopleModel.fromJson(json as Map<String, dynamic>);
+        PeopleModel model = PeopleModel.fromJson(json);
         if (pid != UserRepoLocal.to.currentUid) {
           model.isFriend = friendUidList.contains(pid);
           l.add(model);

@@ -148,6 +148,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   bool _closing = false;
 
   MediaStream? _localStream;
+  final Map<String, MediaStream> _remoteStreams = <String, MediaStream>{};
   final List<RTCRtpSender> _senders = <RTCRtpSender>[];
   VideoSource _videoSource = VideoSource.camera;
 
@@ -506,20 +507,50 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
     pc.onAddStream = (stream) async {
       iPrint('> rtc pc onAddStream: ${stream.id.toString()}');
+      if (_closing || stream.getTracks().isEmpty) return;
+      // Plan-B/部分桌面端实现仍通过 onAddStream 交付远端媒体；与
+      // Unified Plan 的 onTrack 走同一 UI 回调，避免只建立连接却没有画面。
+      onAddRemoteStream?.call(newSession, stream);
+      onCallStateChange?.call(newSession, WebRTCCallState.callStateConnected);
     };
 
-    pc.onTrack = (RTCTrackEvent event) {
+    pc.onTrack = (RTCTrackEvent event) async {
       iPrint("> rtc onTrack ${event.track.enabled}");
-      if ((event.track.kind == 'audio' || event.track.kind == 'video') &&
-          event.streams.isNotEmpty) {
-        onAddRemoteStream?.call(newSession, event.streams.first);
+      if (_closing ||
+          (event.track.kind != 'audio' && event.track.kind != 'video')) {
+        return;
+      }
+
+      // Unified Plan 在部分 Android/macOS 组合上会返回裸 track，streams
+      // 为空。若只读取 streams[0]，ICE/SDP 虽然已连接，渲染器却永远收不到
+      // 远端音视频，表现就是“接通后黑屏/无声”。把同一 session 的裸 track
+      // 合并到一个远端流，保证音频和视频都能绑定到现有 renderer。
+      MediaStream remoteStream;
+      if (event.streams.isNotEmpty) {
+        remoteStream = event.streams.first;
+      } else {
+        remoteStream = _remoteStreams[newSession.sid] ??=
+            await createLocalMediaStream('remote-${newSession.sid}');
+        final trackId = event.track.id;
+        if (trackId == null || remoteStream.getTrackById(trackId) == null) {
+          await remoteStream.addTrack(event.track);
+        }
+      }
+
+      if (!_closing) {
+        onAddRemoteStream?.call(newSession, remoteStream);
         onCallStateChange?.call(newSession, WebRTCCallState.callStateConnected);
       }
     };
 
-    _localStream?.getTracks().forEach((track) async {
-      _senders.add(await pc.addTrack(track, _localStream!));
-    });
+    // 必须等待所有本地轨道加入 PeerConnection，再创建 offer/answer；
+    // async forEach 会让 SDP 先生成，导致公网两端“已连接但无音视频”。
+    final localStream = _localStream;
+    if (localStream != null) {
+      for (final track in localStream.getTracks()) {
+        _senders.add(await pc.addTrack(track, localStream));
+      }
+    }
 
     pc.onIceCandidate = (RTCIceCandidate candidate) async {
       iPrint('> rtc candidate pc onIceCandidate: ${DateTime.now()}');
@@ -722,15 +753,13 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   Future<void> _stopLocalStream() async {
     iPrint("> rtc _stopLocalStream start ${_localStream.toString()}");
-    if (_localStream == null) {
+    final stream = _localStream;
+    if (stream == null) {
       return;
     }
-    _localStream?.getTracks().forEach((element) async {
-      await element.stop();
-    });
-    if (_localStream?.id != null) {
-      await _localStream?.dispose();
-    }
+
+    await Future.wait(stream.getTracks().map((track) => track.stop()));
+    await stream.dispose();
     _localStream = null;
   }
 
@@ -745,6 +774,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         await sess.dc?.close();
       }),
     );
+    final remoteStreams = _remoteStreams.values.toList();
+    _remoteStreams.clear();
+    await Future.wait(remoteStreams.map((stream) => stream.dispose()));
     webRTCSessions.clear();
   }
 
@@ -763,17 +795,18 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   Future<void> _closeSession(WebRTCSession session) async {
     iPrint("> rtc closeSession start ${session.sid}");
-    if (_localStream != null) {
-      _localStream?.getTracks().forEach((element) async {
-        await element.stop();
-      });
-      await _localStream?.dispose();
+    final localStream = _localStream;
+    if (localStream != null) {
+      await Future.wait(localStream.getTracks().map((track) => track.stop()));
+      await localStream.dispose();
       _localStream = null;
     }
 
     await session.pc?.close();
     await session.pc?.dispose();
     await session.dc?.close();
+    final remoteStream = _remoteStreams.remove(session.sid);
+    await remoteStream?.dispose();
     _senders.clear();
     _videoSource = VideoSource.camera;
     webRTCSessions.remove(session.sid);
@@ -1003,7 +1036,15 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }) async {
     // 使用 userApiProvider 调用 API
     final userApi = ref.read(userApiProvider);
-    Map<String, dynamic> turnCredential = await userApi.turnCredential();
+    Map<String, dynamic> turnCredential;
+    try {
+      turnCredential = await userApi.turnCredential();
+    } catch (e) {
+      // TURN 接口暂时不可达时仍允许走 STUN/直连；不能让异常直接打断
+      // 通话页初始化，否则用户看到的只是“无法呼出”，没有重试路径。
+      iPrint('> rtc _getIceConf: TURN 凭证请求失败，回退纯 STUN 配置: $e');
+      return _stunOnlyIceConf();
+    }
     // 不在日志中输出 TURN 凭证（含 username/credential）
     if (turnCredential.isEmpty) {
       // TURN 凭证获取失败时不再返回 null（会导致下游 `iceConf!` 强制解包崩溃），

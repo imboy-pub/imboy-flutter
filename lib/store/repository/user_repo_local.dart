@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
@@ -201,9 +202,11 @@ class UserRepoLocal {
       (payload['user_id'] ?? payload['uid']).toString(),
     );
 
-    await SecureTokenStorageService.saveToken(payload['token'] as String);
+    await SecureTokenStorageService.saveToken(
+      IMBoyHttpResponse.payloadStr(payload, 'token') ?? '',
+    );
     await SecureTokenStorageService.saveRefreshToken(
-      payload['refreshtoken'] as String,
+      IMBoyHttpResponse.payloadStr(payload, 'refreshtoken') ?? '',
     );
 
     payload.remove('token');

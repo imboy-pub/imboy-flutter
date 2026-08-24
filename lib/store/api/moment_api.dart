@@ -1,4 +1,6 @@
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
@@ -84,12 +86,20 @@ class MomentApi extends HttpClient {
     }
 
     final resp = await post(API.momentCreate, data: body);
-    if (!resp.ok ||
-        resp.payload == null ||
-        resp.payload is! Map<String, dynamic>) {
+    if (!resp.ok) {
+      // fail-open 改造：发布页无 catch 分支，不能抛异常；
+      // 透出后端错误消息（如敏感词/限流），null 由页面转通用「发布失败」。
+      if (resp.msg.isNotEmpty) {
+        AppLoading.showBackendError(resp.msg);
+      }
       return null;
     }
-    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    if (resp.payload == null || resp.payload is! Map<String, dynamic>) {
+      return null;
+    }
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   Future<Map<String, dynamic>?> getPost(String momentId) async {
@@ -99,7 +109,9 @@ class MomentApi extends HttpClient {
         resp.payload is! Map<String, dynamic>) {
       return null;
     }
-    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   Future<bool> deletePost(String momentId) async {
@@ -119,7 +131,11 @@ class MomentApi extends HttpClient {
       params['cursor'] = cursor;
     }
     final resp = await get(API.momentsFeed, queryParameters: params);
-    if (!resp.ok || resp.payload is! Map<String, dynamic>) {
+    // 失败必须抛出（fail-open 改造）：return empty 会把网络失败压成
+    // 「空时间线」并清掉已展示缓存；feed 页 _fetchFirstPage/_loadMore
+    // 均有 catch，失败时回退缓存并提示。
+    resp.throwIfFailed();
+    if (resp.payload is! Map<String, dynamic>) {
       return MomentPageResult.empty;
     }
     return MomentPageResult.fromPayload(
@@ -138,7 +154,9 @@ class MomentApi extends HttpClient {
       params['cursor'] = cursor;
     }
     final resp = await get(API.momentsUser(uid), queryParameters: params);
-    if (!resp.ok || resp.payload is! Map<String, dynamic>) {
+    // 同 getFeedPage：失败必须抛出，由调用方 catch 渲染失败态。
+    resp.throwIfFailed();
+    if (resp.payload is! Map<String, dynamic>) {
       return MomentPageResult.empty;
     }
     return MomentPageResult.fromPayload(
@@ -178,12 +196,20 @@ class MomentApi extends HttpClient {
     }
 
     final resp = await post(API.momentComment(momentId), data: body);
-    if (!resp.ok ||
-        resp.payload == null ||
-        resp.payload is! Map<String, dynamic>) {
+    if (!resp.ok) {
+      // fail-open 改造：详情页 _addComment 无 catch 分支，不能抛异常；
+      // 透出后端错误消息，null 由页面转通用「评论失败」提示。
+      if (resp.msg.isNotEmpty) {
+        AppLoading.showBackendError(resp.msg);
+      }
       return null;
     }
-    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    if (resp.payload == null || resp.payload is! Map<String, dynamic>) {
+      return null;
+    }
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   Future<MomentPageResult<Map<String, dynamic>>> listComments(
@@ -199,7 +225,10 @@ class MomentApi extends HttpClient {
       API.momentComments(momentId),
       queryParameters: params,
     );
-    if (!resp.ok || resp.payload is! Map<String, dynamic>) {
+    // 失败必须抛出（fail-open 改造）：详情页 _loadAll/_loadMoreComments
+    // 均有 catch 并渲染失败态；return empty 会把网络失败压成「无评论」。
+    resp.throwIfFailed();
+    if (resp.payload is! Map<String, dynamic>) {
       return MomentPageResult.empty;
     }
     return MomentPageResult.fromPayload(

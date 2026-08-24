@@ -227,6 +227,48 @@ final class E2EEPeerKeyChangedEvent extends AppEvent {
   }
 }
 
+/// E2EE 设备信任状态变更事件。
+///
+/// S2C `e2ee_trust_changed` 经格式校验后发布。UI 可据此刷新安全码/设备
+/// 验证状态；发送侧同时会驱逐受影响设备的公钥缓存与 Olm 会话，避免继续
+/// 使用已被撤销或重新确认前的旧状态。
+final class E2EETrustChangedEvent extends AppEvent {
+  @override
+  List<Object?> get props => [
+    actorUid,
+    targetUid,
+    targetDeviceId,
+    toState,
+    method,
+    eventId,
+    issuedAt,
+  ];
+
+  const E2EETrustChangedEvent({
+    required this.actorUid,
+    required this.targetUid,
+    required this.targetDeviceId,
+    required this.toState,
+    required this.method,
+    required this.eventId,
+    required this.issuedAt,
+  });
+
+  final String actorUid;
+  final String targetUid;
+  final String targetDeviceId;
+  final String toState;
+  final String method;
+  final String eventId;
+  final int issuedAt;
+
+  @override
+  String toString() {
+    return 'E2EETrustChangedEvent(actorUid: $actorUid, targetUid: $targetUid, '
+        'targetDeviceId: $targetDeviceId, toState: $toState, eventId: $eventId)';
+  }
+}
+
 /// 消息状态变更事件
 ///
 /// 当消息状态发生变化时触发（如：发送中 → 已发送 → 已送达 → 已读）

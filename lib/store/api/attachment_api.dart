@@ -202,8 +202,8 @@ class AttachmentApi {
       );
     }
     final dynamic pp = presignResp.payload;
-    final String? putUrl = (pp is Map ? pp['put_url'] : null) as String?;
-    final String? objectKey = (pp is Map ? pp['object_key'] : null) as String?;
+    final String? putUrl = IMBoyHttpResponse.payloadStr(pp, 'put_url');
+    final String? objectKey = IMBoyHttpResponse.payloadStr(pp, 'object_key');
     if (putUrl == null ||
         putUrl.isEmpty ||
         objectKey == null ||
@@ -308,7 +308,10 @@ class AttachmentApi {
         scope: scope,
         scopeRef: scopeRef,
       );
-      await callback(compatResp(meta), meta['object_key'] as String);
+      await callback(
+        compatResp(meta),
+        IMBoyHttpResponse.payloadStr(meta, 'object_key') ?? '',
+      );
     } on Object catch (e, s) {
       // 上传失败此前静默吞异常，导致线上（尤其真机直传）无法定位根因。
       // 打印 scope + 具体异常 + 前三行栈，覆盖文件读取/presign/PUT garage 各步。
@@ -352,7 +355,10 @@ class AttachmentApi {
         scopeRef: scopeRef,
         seal: seal,
       );
-      await callback(compatResp(meta), meta['object_key'] as String);
+      await callback(
+        compatResp(meta),
+        IMBoyHttpResponse.payloadStr(meta, 'object_key') ?? '',
+      );
     } on Object catch (e) {
       errorCallback(e);
     }
@@ -555,10 +561,11 @@ class AttachmentApi {
     );
 
     final EntityImage thumb = EntityImage(
-      fileHash256: thumbMeta['file_hash256'] as String,
+      fileHash256:
+          IMBoyHttpResponse.payloadStr(thumbMeta, 'file_hash256') ?? '',
       name: thumbName,
-      uri: thumbMeta['object_key'] as String,
-      size: thumbMeta['size'] as int,
+      uri: IMBoyHttpResponse.payloadStr(thumbMeta, 'object_key') ?? '',
+      size: IMBoyHttpResponse.payloadInt(thumbMeta, 'size') ?? 0,
       width: width,
       height: height,
     );
@@ -642,7 +649,8 @@ class AttachmentApi {
       await VideoCompress.deleteAllCache();
       return <String, dynamic>{
         'video_uri': videoObjKey,
-        'thumb_uri': thumbMeta['object_key'] as String,
+        'thumb_uri':
+            IMBoyHttpResponse.payloadStr(thumbMeta, 'object_key') ?? '',
         'size': info?.filesize ?? videoBytes.length,
         'duration': durationMs,
         'width': width,

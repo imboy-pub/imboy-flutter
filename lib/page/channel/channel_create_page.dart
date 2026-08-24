@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -94,7 +95,8 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
       final file = File(media.path);
       setState(() => _avatarFile = file);
       await _uploadAvatar(file);
-    } catch (_) {
+    } catch (e) {
+      iPrint('[ChannelCreate] 上传头像失败: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,

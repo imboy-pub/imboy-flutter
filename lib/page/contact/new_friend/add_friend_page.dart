@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -111,7 +112,8 @@ class AddFriendPage extends ConsumerWidget {
                     '/people_info/${model.id}',
                     extra: {'scene': 'user_search'},
                   );
-                } on Exception {
+                } on Exception catch (e) {
+                  iPrint('[AddFriend] 搜索用户失败: $e');
                   AppLoading.dismiss();
                   AppLoading.showError(t.common.errorNetwork);
                 }

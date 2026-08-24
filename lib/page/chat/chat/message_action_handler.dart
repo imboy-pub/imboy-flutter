@@ -247,9 +247,12 @@ class MessageActionHandler {
     String tb = MessageRepo.getTableName(_chatType);
     final collectNotifier = UserCollectNotifier();
     bool res = await collectNotifier.add(tb: tb, msg: msg);
-    AppLoading.showToast(
-      res ? t.main.collected : t.common.operationFailedAgainLater,
-    );
+    // B1#16：失败时错误文案由 UserCollectApi.add 的
+    // AppLoading.showError(resp.msg) 透出后端中文消息，页面层不再叠加
+    // 兜底文案，避免双提示覆盖。
+    if (res) {
+      AppLoading.showToast(t.main.collected);
+    }
   }
 
   /// 撤回消息
@@ -288,6 +291,7 @@ class MessageActionHandler {
         );
       }
     } catch (e) {
+      iPrint('[MessageActionHandler] 撤回消息失败: $e');
       AppLoading.dismiss();
       AppLoading.showError(t.common.operationFailedAgainLater);
     }

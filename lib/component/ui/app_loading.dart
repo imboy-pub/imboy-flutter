@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart' as el;
 
@@ -50,6 +52,21 @@ class AppLoading {
 
   static Future<void> showError(String status, {Duration? duration}) =>
       el.EasyLoading.showError(status, duration: duration);
+
+  /// 显示后端返回的业务错误消息（fire-and-forget）。
+  ///
+  /// 供 API/Service 层在 `!resp.ok` 时调用，把后端中文错误原因直接透给用户；
+  /// 页面层不要再叠「操作失败，请稍后再试」式兜底——EasyLoading 单例后弹覆盖
+  /// 先弹，兜底文案会把真正的原因盖掉（B1 报告 #16「双提示覆盖」）。
+  ///
+  /// - 空消息直接忽略，避免弹空 toast；
+  /// - fire-and-forget：单测未挂载 EasyLoading host 时底层返回 error future
+  ///   （StateError: EasyLoading is not initialized），在此吞掉，避免未处理
+  ///   异步异常打红测试；生产环境 host 已由 [init] 挂载，正常弹出。
+  static void showBackendError(String msg) {
+    if (msg.isEmpty) return;
+    unawaited(showError(msg).catchError((_) {}));
+  }
 
   static Future<void> showInfo(String status, {Duration? duration}) =>
       el.EasyLoading.showInfo(status, duration: duration);

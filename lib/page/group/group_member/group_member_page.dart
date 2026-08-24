@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -171,13 +173,11 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
       );
 
       if (payload != null && payload['list'] != null) {
-        List<dynamic> list = payload['list'] as List<dynamic>;
+        final list = IMBoyHttpResponse.payloadList(payload);
         List<GroupMemberModel> newMembers = [];
 
         for (var item in list) {
-          GroupMemberModel member = await repo.save(
-            item as Map<String, dynamic>,
-          );
+          GroupMemberModel member = await repo.save(item);
           newMembers.add(member);
         }
 
@@ -188,7 +188,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         }
 
         // 检查是否还有更多数据
-        int total = payload['total'] as int? ?? 0;
+        int total = IMBoyHttpResponse.payloadInt(payload, 'total') ?? 0;
         _hasMore = _memberList.length < total;
       }
 
@@ -196,6 +196,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         setState(() {});
       }
     } catch (e) {
+      iPrint('[GroupMember] 加载成员失败: $e');
       AppLoading.showError(t.common.loadError);
       // 分页失败回滚页码，否则被跳过的那一页成员永久丢失（下次 _loadMore
       // 直接跳到再下一页），直到手动下拉刷新才自愈。

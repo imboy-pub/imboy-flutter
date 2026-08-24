@@ -61,6 +61,47 @@ class IMBoyHttpResponse {
     ok = false;
   }
 
+  /// 安全地将 payload 转为 `Map<String, dynamic>`。
+  /// payload 为 Map 时返回 cast 结果，否则返回空 Map。
+  /// 用于替代 `resp.payload as Map<String, dynamic>` 裸 cast。
+  static Map<String, dynamic> payloadAsMap(dynamic payload) =>
+      payload is Map<String, dynamic> ? payload : <String, dynamic>{};
+
+  /// 安全地将 payload 中的字段转为 `List<Map<String, dynamic>>`。
+  /// 字段缺失或类型不匹配时返回空列表。
+  /// 非 Map 元素（如 E2EE 密文消息的 String payload）会被过滤，
+  /// 这是有意的防御行为。用于替代 `payload['list'] as List?` 裸 cast。
+  static List<Map<String, dynamic>> payloadList(
+    dynamic payload, [
+    String key = 'list',
+  ]) {
+    if (payload is! Map) return [];
+    final raw = payload[key];
+    if (raw is! List) return [];
+    return raw.whereType<Map<String, dynamic>>().toList();
+  }
+
+  /// 安全地将 payload 中的字段转为 int。
+  /// 字段缺失或类型不匹配时返回 null；String 会尝试解析。
+  /// 用于替代 `payload['count'] as int` 裸 cast。
+  static int? payloadInt(dynamic payload, String key) {
+    if (payload is! Map) return null;
+    final raw = payload[key];
+    if (raw is int) return raw;
+    if (raw is String) return int.tryParse(raw);
+    return null;
+  }
+
+  /// 安全地将 payload 中的字段转为 String。
+  /// 字段缺失或类型不匹配时返回 null；非 String 值走 toString。
+  /// 用于替代 `payload['token'] as String` 裸 cast。
+  static String? payloadStr(dynamic payload, String key) {
+    if (payload is! Map) return null;
+    final raw = payload[key];
+    if (raw is String) return raw;
+    return raw?.toString();
+  }
+
   /// 请求失败时抛出，把失败信号从"返回值"变回"异常"。
   ///
   /// HttpClient 从不抛异常（`on Exception catch (e) => handleException(...)`，

@@ -6,7 +6,9 @@ TEST_FILE="integration_test/e2ee_cross_platform_group_interop_test.dart"
 COMMON=(--no-pub --no-test-assets)
 
 echo "[1/3] Android sender: 生成 Megolm 密文并用 Olm 分发 room key"
-sender_output="$(flutter test "$TEST_FILE" -d "$ANDROID_DEVICE_ID" "${COMMON[@]}" \
+sender_output="$(patrol test --target "$TEST_FILE" --device "$ANDROID_DEVICE_ID" \
+  --no-uninstall \
+  --dart-define=PATROL_INTEROP=true \
   --dart-define=TEST_INTEROP_ROLE=sender 2>&1)"
 sender_vector="$(printf '%s\n' "$sender_output" | sed -n 's/^.*E2EE_INTEROP_VECTOR_B64:\(.*\)$/\1/p' | tail -n 1)"
 test -n "$sender_vector"
@@ -25,7 +27,9 @@ if [ -z "$receiver_vector" ]; then
 fi
 
 echo "[3/3] Android final: 解包 macOS room key 并解密回复"
-final_output="$(flutter test "$TEST_FILE" -d "$ANDROID_DEVICE_ID" "${COMMON[@]}" \
+final_output="$(patrol test --target "$TEST_FILE" --device "$ANDROID_DEVICE_ID" \
+  --no-uninstall \
+  --dart-define=PATROL_INTEROP=true \
   --dart-define=TEST_INTEROP_ROLE=final \
   --dart-define=TEST_INTEROP_VECTOR_B64="$receiver_vector" 2>&1)"
 printf '%s\n' "$final_output" | tail -n 20

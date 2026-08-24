@@ -247,6 +247,16 @@ class AMapHelper {
 }
 
 class AMapApi {
+  /// 与定位链路 15s 超时保护（startLocation 内 Future.delayed 15s）保持一致，
+  /// 避免 POI/静态图请求在弱网下无超时悬挂。
+  static final Dio _dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+      sendTimeout: const Duration(seconds: 15),
+    ),
+  );
+
   /// 获取城市名称，高德地图的adCode
   static String getCityNameByGaoDe(String code) {
     // 检查 code 是否为空或长度不足
@@ -272,7 +282,7 @@ class AMapApi {
       "page_size": page.toString(),
       "page_num": size.toString(),
     };
-    return await Dio().get(
+    return await _dio.get(
       "https://restapi.amap.com/v5/place/around",
       queryParameters: queryParameters,
     );
@@ -296,7 +306,7 @@ class AMapApi {
       "page_num": size.toString(),
     };
     // https://lbs.amap.com/api/webservice/guide/api/newpoisearch
-    return await Dio().get(
+    return await _dio.get(
       "https://restapi.amap.com/v5/place/text",
       queryParameters: queryParameters,
     );
@@ -333,7 +343,7 @@ class AMapApi {
     required double longitude,
   }) async {
     try {
-      final resp = await Dio().get<List<int>>(
+      final resp = await _dio.get<List<int>>(
         staticMapUrl(latitude: latitude, longitude: longitude),
         options: Options(responseType: ResponseType.bytes),
       );

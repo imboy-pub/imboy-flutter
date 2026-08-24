@@ -439,8 +439,10 @@ class AppInitializer {
       // res_v2 = AES-256-GCM 自包含密文（AEAD 有认证 + 每次随机 IV）；
       // res = 旧的 AES-256-CBC + 固定 IV + 无认证标签，仅在后端
       // init_config_legacy_cbc=on 的过渡期还会下发。优先吃 v2。
-      final encryptedV2 = (resp1.payload['res_v2'] ?? '') as String;
-      final encrypted = (resp1.payload['res'] ?? '') as String;
+      final encryptedV2 =
+          IMBoyHttpResponse.payloadStr(resp1.payload, 'res_v2') ?? '';
+      final encrypted =
+          IMBoyHttpResponse.payloadStr(resp1.payload, 'res') ?? '';
       final bool useGcm = encryptedV2.isNotEmpty;
       if (kDebugMode) {
         debugPrint(
@@ -508,7 +510,7 @@ class AppInitializer {
       // 直接 `as String` 遇 null 会抛 TypeError(Error 子类)，无法被 on Exception 捕获，导致 init 硬崩
       await StorageService.to.setString(
         Keys.uploadUrl,
-        (payload['upload_url'] as String?) ?? '',
+        IMBoyHttpResponse.payloadStr(payload, 'upload_url') ?? '',
       );
       // H8: upload_key 改用加密安全存储，同时更新内存缓存供同步访问。
       // macOS 桌面 ad-hoc 签名（project.pbxproj: CODE_SIGN_IDENTITY="-"、
@@ -519,7 +521,7 @@ class AppInitializer {
       try {
         await StorageSecureService.to.write(
           key: Keys.uploadKey,
-          value: (payload['upload_key'] as String?) ?? '',
+          value: IMBoyHttpResponse.payloadStr(payload, 'upload_key') ?? '',
         );
         await Env.getUploadKey(); // populate in-memory cache
       } on Exception catch (e) {
@@ -527,19 +529,19 @@ class AppInitializer {
       }
       await StorageService.to.setString(
         Keys.uploadScene,
-        (payload['upload_scene'] as String?) ?? '',
+        IMBoyHttpResponse.payloadStr(payload, 'upload_scene') ?? '',
       );
 
       await StorageService.to.setString(
         Keys.apiPublicKey,
-        (payload['login_rsa_pub_key'] as String?) ?? '',
+        IMBoyHttpResponse.payloadStr(payload, 'login_rsa_pub_key') ?? '',
       );
 
       // 公开资源直读基址（scope=public，如头像）：缺失时存空串，
       // Env.publicBaseUrl 读取时回退到内置默认（见 resource-access-control.md §9）。
       await StorageService.to.setString(
         Keys.publicBaseUrl,
-        (payload['public_base_url'] as String?) ?? '',
+        IMBoyHttpResponse.payloadStr(payload, 'public_base_url') ?? '',
       );
 
       // 4. 缓存结果并完成

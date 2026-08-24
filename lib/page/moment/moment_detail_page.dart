@@ -407,7 +407,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
     final text = content.isEmpty ? displayName : '$displayName: $content';
     try {
       await SharePlus.instance.share(ShareParams(text: text));
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[MomentDetail] 分享失败: $e');
       if (mounted) AppLoading.showError(t.common.shareFailed);
     }
   }

@@ -10,12 +10,13 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 class ContactApi extends HttpClient {
   Future<List<dynamic>> listFriend() async {
     IMBoyHttpResponse resp = await get(API.friendList);
+    // 失败必须抛出（fail-open 改造）：HttpClient 从不抛异常，静默 return []
+    // 会把网络失败压成「没有好友」。唯一调用方
+    // contact_provider._syncFriendFromServer 有 catch 并留日志。
+    resp.throwIfFailed();
     // [DIAG #19] API 层：响应形状与 friend 数组长度
     final payload = resp.payload;
     final friendRaw = (payload is Map) ? payload['friend'] : null;
-    if (!resp.ok) {
-      return [];
-    }
     if (friendRaw is! List) {
       return [];
     }
@@ -32,8 +33,9 @@ class ContactApi extends HttpClient {
     if (kDebugMode) {}
     if (resp.ok && resp.payload.isNotEmpty == true) {
       try {
-        await (ContactRepo()).save(resp.payload as Map<String, dynamic>);
-        ct = ContactModel.fromMap(resp.payload as Map<String, dynamic>);
+        final payload = IMBoyHttpResponse.payloadAsMap(resp.payload);
+        await (ContactRepo()).save(payload);
+        ct = ContactModel.fromMap(payload);
       } on Exception {
         if (kDebugMode) {}
       }

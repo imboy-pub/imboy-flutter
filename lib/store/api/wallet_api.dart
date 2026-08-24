@@ -73,7 +73,7 @@ class WalletApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return WalletBalance.fromJson(resp.payload as Map<String, dynamic>);
+    return WalletBalance.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
   /// 分页查询流水记录
@@ -89,7 +89,9 @@ class WalletApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 充值（旧版 mock 内循环，保留以兼容回退）
@@ -126,7 +128,7 @@ class WalletApi extends HttpClient {
       return null;
     }
     return RechargeOrder.fromJson(
-      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      Map<String, dynamic>.from(IMBoyHttpResponse.payloadAsMap(resp.payload)),
     );
   }
 
@@ -158,7 +160,7 @@ class WalletApi extends HttpClient {
       return null;
     }
     return RechargeOrder.fromJson(
-      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      Map<String, dynamic>.from(IMBoyHttpResponse.payloadAsMap(resp.payload)),
     );
   }
 
@@ -227,7 +229,7 @@ class WalletApi extends HttpClient {
       AppLoading.showError(resp.msg);
       return null;
     }
-    return (resp.payload['grab_amount'] as num?)?.toInt();
+    return IMBoyHttpResponse.payloadInt(resp.payload, 'grab_amount');
   }
 
   /// 查询红包领取详情
@@ -236,7 +238,9 @@ class WalletApi extends HttpClient {
     if (!resp.ok || resp.payload == null) {
       return null;
     }
-    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   /// 发起单聊转账

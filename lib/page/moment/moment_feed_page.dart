@@ -252,7 +252,8 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
     final text = content.isEmpty ? displayName : '$displayName: $content';
     try {
       await SharePlus.instance.share(ShareParams(text: text));
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[MomentFeed] 分享失败: $e');
       if (mounted) AppLoading.showError(t.common.shareFailed);
     }
   }

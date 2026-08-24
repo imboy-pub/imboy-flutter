@@ -44,7 +44,7 @@ class UserApi extends HttpClient {
     if (!resp.ok) {
       return {};
     }
-    return resp.payload as Map<String, dynamic>;
+    return IMBoyHttpResponse.payloadAsMap(resp.payload);
   }
 
   Future<String> refreshAccessTokenApi(
@@ -92,7 +92,9 @@ class UserApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   Future<Map<String, dynamic>?> userSearch({
@@ -109,7 +111,9 @@ class UserApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   Future<bool> changeEmail({
@@ -145,7 +149,12 @@ class UserApi extends HttpClient {
       API.userUpdate,
       data: {"field": field, "value": value},
     );
-    return resp.ok;
+    if (!resp.ok) {
+      // 透出后端中文原因，页面层不再叠兜底文案
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   /// 用户允许被搜索 1 是  2 否
@@ -154,7 +163,11 @@ class UserApi extends HttpClient {
       API.userUpdate,
       data: {"field": "allow_search", "value": val},
     );
-    return resp.ok;
+    if (!resp.ok) {
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   Future<bool> changePassword({
@@ -230,7 +243,9 @@ class UserApi extends HttpClient {
         AppLoading.showError(resp.msg);
         return null;
       }
-      return resp.payload as Map<String, dynamic>?;
+      return resp.payload is Map<String, dynamic>
+          ? resp.payload as Map<String, dynamic>
+          : null;
     } on Object catch (e) {
       iPrint("> on UserApi/exportUserData error: $e");
       AppLoading.showError(t.common.operationFailedAgainLater);

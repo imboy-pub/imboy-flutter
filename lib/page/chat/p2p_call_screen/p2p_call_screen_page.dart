@@ -11,6 +11,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/enum.dart';
+import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/media_permission.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
@@ -288,6 +289,14 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           payload: widget.option,
         ),
       );
+      for (final data in takePendingWebRTCSignals(
+        widget.peer.peerId.toString(),
+      )) {
+        await notifier.onMessageP2P(
+          updatedSession,
+          WebRTCSignalingModel.fromJson(data),
+        );
+      }
     }
   }
 
@@ -944,7 +953,13 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           onTap: _swapVideoLayout,
           onPanStart: (_) => _startVideoDrag(state),
           onPanUpdate: _updateVideoDrag,
-          onPanEnd: (_) => _finishVideoDrag(state),
+          onPanEnd: (details) {
+            _finishVideoDrag(state);
+            // 小窗也支持上下滑动交换，避免用户必须把手指移到主画面。
+            if (shouldSwapVideoLayout(details.velocity.pixelsPerSecond.dy)) {
+              _swapVideoLayout();
+            }
+          },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14),
             child: Container(

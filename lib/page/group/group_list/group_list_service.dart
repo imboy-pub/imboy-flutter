@@ -5,6 +5,7 @@ import 'package:sqflite_sqlcipher/sqflite.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -265,9 +266,9 @@ class GroupListService {
     );
     if (payload != null && payload['list'] != null) {
       GroupMemberRepo repo = GroupMemberRepo();
-      for (var item in (payload['list'] as List)) {
-        unawaited(repo.save(item as Map<String, dynamic>));
-        String t = item['avatar'] as String? ?? '';
+      for (var item in IMBoyHttpResponse.payloadList(payload)) {
+        unawaited(repo.save(item));
+        String t = IMBoyHttpResponse.payloadStr(item, 'avatar') ?? '';
         if (t.trim().isNotEmpty) {
           li.add(t);
         }
@@ -343,15 +344,13 @@ class GroupListService {
         GroupMemberRepo repo = GroupMemberRepo();
         final rows = <Map<String, dynamic>>[];
 
-        for (var item in (payload['list'] as List)) {
-          if (item is Map<String, dynamic>) {
-            await repo.save(item);
-            // 与本地分支同一条约定：排除自己
-            if (item[GroupMemberRepo.userId]?.toString() == currentUid) {
-              continue;
-            }
-            rows.add(item);
+        for (var item in IMBoyHttpResponse.payloadList(payload)) {
+          await repo.save(item);
+          // 与本地分支同一条约定：排除自己
+          if (item[GroupMemberRepo.userId]?.toString() == currentUid) {
+            continue;
           }
+          rows.add(item);
         }
 
         final names = pickMemberNames(rows);
@@ -419,8 +418,8 @@ class GroupListService {
     if (payload == null) {
       return [];
     }
-    for (var json in (payload['list'] as List)) {
-      GroupModel m = await repo.save('', json as Map<String, dynamic>);
+    for (var json in IMBoyHttpResponse.payloadList(payload)) {
+      GroupModel m = await repo.save('', json);
       await _syncSelfMembershipShadow(attr: normalizedAttr, group: m);
       list.add(m);
     }

@@ -351,7 +351,7 @@ class ChatNetworkService {
 
     final int clientSendTs = DateTimeHelper.millisecond();
     final Map<String, dynamic> payloadWithTs = Map<String, dynamic>.from(
-      obj.payload as Map<dynamic, dynamic>,
+      obj.payloadMap,
     );
     payloadWithTs['client_send_ts'] = clientSendTs;
 
@@ -388,7 +388,7 @@ class ChatNetworkService {
         final encrypted = await encryptPayload(
           chatType: obj.type ?? 'C2C',
           toId: obj.toId.toString(),
-          plaintextMap: obj.payload as Map<String, dynamic>,
+          plaintextMap: obj.payloadMap,
           action: action,
           // 必须与下方外层 msg 的 'id' / 'msg_type' 同源，否则接收侧
           // context binding 比对失败，整条消息不可读。
@@ -742,16 +742,20 @@ class ChatNetworkService {
       // `protocol_metadata.session_id == protected_header.session_ref`，
       // 这里若留空，整条消息会被判 context_mismatch_session_id 而不可读。
       //
-      // 设备列表来自 user_keys（RSA 全量），混有从未注册 Olm 身份的设备——
-      // 对它们 claim 必得 device_not_registered，而它们本来也解不开 Olm
-      // 密文。跳过而非让整条消息失败；全部不可用才视为无接收者（fail-closed）。
+      // 每一个活跃收件设备都必须拥有可用的 Olm 身份和会话。
+      //
+      // 不能跳过 `device_not_registered`：那会让发送者看到「发送成功」，
+      // 但对端的另一台活跃设备永远收不到该消息，破坏 per-device fan-out
+      // 的完整投递语义。strict E2EE 下宁可拒发并要求该设备完成密钥注册，
+      // 也不能产出一条不完整的密文消息。
       final String sessionRef;
       try {
         sessionRef = await OlmSessionService.to.ensureSessionId(toId, peerDid);
       } on Exception catch (e) {
-        if (!e.toString().contains('device_not_registered')) rethrow;
-        iPrint('⏭️ [E2EE] 对端设备未注册 Olm，跳过 fan-out: uid=$toId, did=$peerDid');
-        continue;
+        if (e.toString().contains('device_not_registered')) {
+          throw E2eeDecryptException('recipient_device_not_olm_ready:$peerDid');
+        }
+        rethrow;
       }
 
       final encrypted = await E2eeOutboundRouter.encryptV3(
@@ -858,6 +862,7 @@ class ChatNetworkService {
       return t.error.e2eeErrNetwork;
     }
     if (errorStr.contains('no_recipient_keys') ||
+        errorStr.contains('recipient_device_not_olm_ready') ||
         errorStr.contains('设备密钥') ||
         errorStr.contains('device.*key')) {
       return t.common.e2eeErrNoRecipientKey;

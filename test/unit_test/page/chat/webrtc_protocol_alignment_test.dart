@@ -16,7 +16,12 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/component/webrtc/func.dart' show buildWebRtcRequest;
+import 'package:imboy/component/webrtc/func.dart'
+    show
+        buildWebRtcRequest,
+        clearPendingWebRTCSignals,
+        queuePendingWebRTCSignal,
+        takePendingWebRTCSignals;
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
 
 /// 客户端发起 / 接收的全部信令事件（与 onMessageP2P 的 switch 分支对齐）。
@@ -140,6 +145,27 @@ void main() {
         'payload': <String, dynamic>{},
       });
       expect(model.webRtcType, 'offer');
+    });
+  });
+
+  group('E. 来电接听前 ICE 候选缓存', () {
+    test('按对端取出并保持候选顺序，取出后清空', () {
+      const peerId = 'pending-peer-1';
+      clearPendingWebRTCSignals(peerId);
+      queuePendingWebRTCSignal(const {
+        'id': 'candidate-1',
+        'from': peerId,
+        'type': 'WEBRTC_CANDIDATE',
+      });
+      queuePendingWebRTCSignal(const {
+        'id': 'candidate-2',
+        'from': peerId,
+        'type': 'WEBRTC_CANDIDATE',
+      });
+
+      final pending = takePendingWebRTCSignals(peerId);
+      expect(pending.map((data) => data['id']), ['candidate-1', 'candidate-2']);
+      expect(takePendingWebRTCSignals(peerId), isEmpty);
     });
   });
 }

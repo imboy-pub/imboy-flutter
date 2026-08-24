@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -252,7 +253,8 @@ class ChangePasswordPage extends ConsumerWidget {
                     await ref
                         .read(changeLoginPasswordProvider.notifier)
                         .submit();
-                  } on Exception catch (_) {
+                  } on Exception catch (e) {
+                    iPrint('[ChangePassword] 修改密码失败: $e');
                     if (context.mounted) {
                       AppLoading.showError(t.common.operationFailed);
                     }

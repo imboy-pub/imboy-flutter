@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_export_page.dart';
@@ -918,7 +919,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           ),
         );
       }
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[E2EEKeyRecovery] 生成密钥失败: $e');
       // 关闭加载对话框
       if (mounted) Navigator.of(context).pop();
 
@@ -955,7 +957,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
           backgroundColor: AppColors.iosGreen,
         ),
       );
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[E2EEKeyRecovery] 删除密钥失败: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

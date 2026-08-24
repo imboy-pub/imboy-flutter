@@ -13,7 +13,9 @@ class LiveRoomApi extends HttpClient {
       queryParameters: {'page': page, 'size': size},
     );
     if (!resp.ok) return null;
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 获取我的直播间列表
@@ -23,7 +25,9 @@ class LiveRoomApi extends HttpClient {
       queryParameters: {'page': page, 'size': size},
     );
     if (!resp.ok) return null;
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 创建直播间
@@ -41,7 +45,7 @@ class LiveRoomApi extends HttpClient {
       AppLoading.showError(resp.msg);
       return null;
     }
-    return LiveRoomModel.fromJson(resp.payload as Map<String, dynamic>);
+    return LiveRoomModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
   /// 开始直播
@@ -75,6 +79,6 @@ class LiveRoomApi extends HttpClient {
       queryParameters: {'room_id': roomId},
     );
     if (!resp.ok) return null;
-    return LiveRoomModel.fromJson(resp.payload as Map<String, dynamic>);
+    return LiveRoomModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 }

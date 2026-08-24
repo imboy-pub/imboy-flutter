@@ -16,7 +16,9 @@ class UserCollectApi extends HttpClient {
     // resp.ok == false。必须显式抛出，provider.page() 的 on Exception
     // 分支才能置 loadFailed 标记，页面才会渲染错误横幅而不是静默空态。
     resp.throwIfFailed();
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 删除收藏

@@ -21,6 +21,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
@@ -256,7 +257,8 @@ class _MomentFriendPickerPageState
       entry.loading = false;
       if (mounted) setState(() {});
       return uids;
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[MomentFriendPicker] 加载标签用户失败: $e');
       entry.loading = false;
       if (mounted) {
         AppLoading.showToast(t.momentFriendPicker.tagLoadFailed);

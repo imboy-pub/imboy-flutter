@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -349,7 +350,8 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         errorMessage: t.common.searchDisabledByEncryption,
         searchDisabled: true,
       );
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[MessageSearch] 搜索消息失败: $e');
       state = state.copyWith(
         isLoading: false,
         isSearching: false,

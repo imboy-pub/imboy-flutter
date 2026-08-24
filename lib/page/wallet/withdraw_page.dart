@@ -67,7 +67,10 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
       ref.invalidate(walletProvider);
       if (mounted) Navigator.pop(context);
     } else {
-      AppLoading.showError(t.common.operationFailedAgainLater);
+      // B1#16：失败时错误文案由 WalletApi.withdraw 的
+      // AppLoading.showError(resp.msg) 透出后端中文消息，页面层不再叠加
+      // 兜底文案，避免双提示覆盖。
+      AppLoading.dismiss();
     }
   }
 

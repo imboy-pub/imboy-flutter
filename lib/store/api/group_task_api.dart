@@ -1,4 +1,5 @@
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
 /// 群作业/任务 API 客户端
@@ -62,7 +63,7 @@ class GroupTaskApi extends HttpClient {
     }
 
     if (resp.payload is! Map) return null;
-    return _normalizeTask(resp.payload as Map<dynamic, dynamic>);
+    return _normalizeTask(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
   /// 更新任务
@@ -195,7 +196,7 @@ class GroupTaskApi extends HttpClient {
     }
 
     if (resp.payload is! Map) return null;
-    return _normalizeTask(resp.payload as Map<dynamic, dynamic>);
+    return _normalizeTask(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
   /// 获取我的任务

@@ -260,9 +260,7 @@ class MessageActions {
         return;
       }
 
-      final newPayload = Map<String, dynamic>.from(
-        msg.payload as Map<dynamic, dynamic>,
-      );
+      final newPayload = Map<String, dynamic>.from(msg.payloadMap);
       final reactionsRaw = newPayload['reactions'];
       final reactions = reactionsRaw is Map<String, dynamic>
           ? reactionsRaw.cast<String, dynamic>()
@@ -506,9 +504,7 @@ class MessageActions {
 
     if (isMyEdit) {
       // 自己编辑的确认
-      final newPayload = Map<String, dynamic>.from(
-        originalMsg.payload as Map<dynamic, dynamic>,
-      );
+      final newPayload = Map<String, dynamic>.from(originalMsg.payloadMap);
       newPayload['text'] = newContent;
       newPayload['edited_at'] =
           payload['edited_at'] ?? DateTimeHelper.millisecond();
@@ -614,9 +610,7 @@ class MessageActions {
       final payload = parseModelJsonMap(data['payload']) ?? {};
 
       // 构建新的payload
-      final newPayload = Map<String, dynamic>.from(
-        msg.payload as Map<dynamic, dynamic>,
-      );
+      final newPayload = Map<String, dynamic>.from(msg.payloadMap);
       newPayload['text'] = newContent;
       newPayload['edited_at'] =
           payload['edited_at'] ?? DateTimeHelper.millisecond();

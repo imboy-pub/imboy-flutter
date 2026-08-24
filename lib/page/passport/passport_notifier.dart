@@ -537,7 +537,7 @@ class PassportNotifier extends _$PassportNotifier {
         if (status == 1 || status == 2) {
           await UserRepoLocal.to.loginAfter(
             account,
-            resp2.payload as Map<String, dynamic>,
+            IMBoyHttpResponse.payloadAsMap(resp2.payload),
           );
 
           // 上报 E2EE 公钥到服务器；仅当确属换设备/重装（本地新生成密钥
@@ -607,7 +607,7 @@ class PassportNotifier extends _$PassportNotifier {
         if (status == 1 || status == 2) {
           await UserRepoLocal.to.loginAfter(
             account,
-            resp2.payload as Map<String, dynamic>,
+            IMBoyHttpResponse.payloadAsMap(resp2.payload),
           );
 
           // 步骤 5.5: 上报 E2EE 公钥到服务器；仅当确属换设备/重装（本地新
@@ -917,7 +917,7 @@ class PassportNotifier extends _$PassportNotifier {
       return state.error;
     } else {
       return _onThirdLoginSuccess(
-        resp2.payload as Map<String, dynamic>,
+        IMBoyHttpResponse.payloadAsMap(resp2.payload),
         from: 'quickLogin',
       );
     }
@@ -929,8 +929,8 @@ class PassportNotifier extends _$PassportNotifier {
     Map<String, dynamic> payload, {
     required String from,
   }) async {
-    int status = (payload['status'] ?? 1) as int;
-    String account = payload['account'] as String? ?? '';
+    int status = IMBoyHttpResponse.payloadInt(payload, 'status') ?? 1;
+    String account = IMBoyHttpResponse.payloadStr(payload, 'account') ?? '';
     if (account.isNotEmpty) {
       await StorageService.to.setString(Keys.lastLoginAccount, account);
     }
@@ -940,7 +940,7 @@ class PassportNotifier extends _$PassportNotifier {
       WebSocketService.to.openSocket(from: from);
       unawaited(AppInitializer.triggerGroupMembershipSelfHeal(source: from));
     }
-    String action = payload['action'] as String? ?? '';
+    String action = IMBoyHttpResponse.payloadStr(payload, 'action') ?? '';
     if (action == 'need_set_password') {
       await StorageService.to.setBool(Keys.needSetPwd, true);
       final context = navigatorKey.currentContext;
@@ -982,7 +982,8 @@ class PassportNotifier extends _$PassportNotifier {
       );
       return state.error;
     }
-    final authinfo = infoResp.payload['authinfo'] as String? ?? '';
+    final authinfo =
+        IMBoyHttpResponse.payloadStr(infoResp.payload, 'authinfo') ?? '';
     if (authinfo.isEmpty) {
       state = state.copyWith(error: '支付宝授权串获取失败');
       return state.error;
@@ -1017,7 +1018,7 @@ class PassportNotifier extends _$PassportNotifier {
         return state.error;
       }
       return await _onThirdLoginSuccess(
-        resp2.payload as Map<String, dynamic>,
+        IMBoyHttpResponse.payloadAsMap(resp2.payload),
         from: 'alipayLogin',
       );
     } finally {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -353,7 +354,8 @@ class PrivacySettingsPage extends ConsumerWidget {
                 await _clearAllChatHistory();
                 AppLoading.dismiss();
                 AppLoading.showSuccess(t.common.chatHistoryCleared);
-              } on Exception {
+              } on Exception catch (e) {
+                iPrint('[PrivacySettings] 清空聊天记录失败: $e');
                 AppLoading.dismiss();
                 AppLoading.showError(t.common.operationFailedAgainLater);
               }
@@ -391,16 +393,14 @@ class PrivacySettingsPage extends ConsumerWidget {
 
   /// 更新隐私开关。Switch 的显示值完全由 profileState 驱动（受控组件），
   /// 更新失败时 provider 状态不变 → 开关自动保持原位，无需手动回滚；
-  /// 这里只需在失败时给出可见的错误提示。
+  /// 失败原因（后端 msg）已由 UserProfileService.updateField 统一透出，
+  /// 这里不再叠「操作失败」式兜底（EasyLoading 后弹会覆盖先弹）。
   Future<void> _updatePrivacySwitch(
     ProfileNotifier notifier,
     String field,
     bool value,
   ) async {
-    final ok = await notifier.updateUserInfo(field, value);
-    if (!ok) {
-      AppLoading.showError(t.common.operationFailedAgainLater);
-    }
+    await notifier.updateUserInfo(field, value);
   }
 
   /// 显示注销账号对话框

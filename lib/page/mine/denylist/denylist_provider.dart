@@ -1,5 +1,6 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/store/api/denylist_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -107,12 +108,10 @@ class DenylistNotifier extends _$DenylistNotifier {
     if (payload == null) {
       return [];
     }
-    for (var json in (payload['list'] as List)) {
+    for (var json in IMBoyHttpResponse.payloadList(payload)) {
       json[ContactRepo.isFriend] = 1;
       // checkIsFriend = true 的时候，保留旧的 isFriend 值
-      DenylistModel model = DenylistModel.fromJson(
-        json as Map<String, dynamic>,
-      );
+      DenylistModel model = DenylistModel.fromJson(json);
       await repo.insert(model);
       list.add(model);
     }
@@ -166,7 +165,8 @@ class DenylistNotifier extends _$DenylistNotifier {
     bool res = payload == null ? false : true;
     if (res) {
       model.createdAt =
-          payload['created_at'] as int? ?? DateTimeHelper.millisecond();
+          IMBoyHttpResponse.payloadInt(payload, 'created_at') ??
+          DateTimeHelper.millisecond();
       await repo.insert(model);
       // 隐藏联系人
       await ContactRepo().update({

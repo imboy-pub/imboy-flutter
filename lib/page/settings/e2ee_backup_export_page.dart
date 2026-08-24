@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
@@ -418,7 +419,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       if (!mounted) return;
       setState(() => _generatedFilePath = filePath);
       _showSuccessDialog();
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[E2EEBackupExport] 导出备份失败: $e');
       if (mounted) _showError(t.common.e2eeBackupErrExportFailed);
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -457,10 +459,13 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         _showSuccess(
           t.common.e2eeBackupCloudUploadSuccess(version: result.backupVersion),
         );
-      } else {
+      } else if (result.versionConflict) {
+        // 409 版本冲突重试耗尽：putBackup 对 409 不透出 toast（避免重试中闪错误），
+        // 此处必须兜底；其余失败形态的服务端 msg 已由 putBackup 透出。
         _showError(t.common.e2eeBackupErrCloudUploadFailed);
       }
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[E2EEBackupExport] 云端上传失败: $e');
       if (mounted) _showError(t.common.e2eeBackupErrCloudUploadFailed);
     } finally {
       if (mounted) setState(() => _isCloudUploading = false);
@@ -494,7 +499,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         _generatedFilePath!,
         shareText: t.common.e2eeBackupShareContent,
       );
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[E2EEBackupExport] 分享备份失败: $e');
       _showError(t.common.e2eeBackupErrShareFailed);
     }
   }

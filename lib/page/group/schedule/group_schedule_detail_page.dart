@@ -142,9 +142,8 @@ class _GroupScheduleDetailPageState
       if (success) {
         AppLoading.showSuccess(t.common.operationSuccessful);
         await _loadDetail();
-      } else {
-        AppLoading.showError(t.common.operationFailedAgainLater);
       }
+      // 失败分支不再叠兜底文案：后端中文原因已由 GroupScheduleApi.confirmSchedule 透出
     } finally {
       // 没有 finally 时，只要上面任何一步抛出（哪怕是 mounted 检查后的
       // setState），_isSubmitting 就永久卡在 true，此后每一次点击都会被

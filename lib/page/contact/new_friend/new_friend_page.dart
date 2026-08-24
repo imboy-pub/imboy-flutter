@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -100,7 +101,8 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
                     '/people_info/${model.id}',
                     extra: {'scene': 'user_search'},
                   );
-                } on Exception {
+                } on Exception catch (e) {
+                  iPrint('[NewFriend] 搜索用户失败: $e');
                   AppLoading.dismiss();
                   AppLoading.showError(t.common.errorNetwork);
                 }

@@ -21,7 +21,9 @@ class UserTagApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 添加标签、移除标签功能
@@ -111,7 +113,9 @@ class UserTagApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   Future<bool> removeRelation({

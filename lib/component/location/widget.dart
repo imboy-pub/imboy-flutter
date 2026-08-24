@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -141,8 +142,9 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     if (!mounted) return;
     try {
       final payload = jsonDecode(message.message) as Map<String, dynamic>;
-      final type = payload['type'] as String?;
-      final data = payload['data'] as Map<String, dynamic>?;
+      final type = IMBoyHttpResponse.payloadStr(payload, 'type');
+      final rawData = payload['data'];
+      final data = rawData is Map<String, dynamic> ? rawData : null;
       if (type == 'moveend' && data != null) {
         final lat = (data['lat'] as num).toDouble();
         final lng = (data['lng'] as num).toDouble();

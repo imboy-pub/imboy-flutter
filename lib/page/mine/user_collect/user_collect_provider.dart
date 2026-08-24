@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
 import 'package:imboy/page/single/video_viewer_page.dart';
@@ -147,11 +148,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       // 请求成功（含空列表），清除失败标记，后续 return 路径都保持 false
       state = state.copyWith(loadFailed: false);
 
-      for (var json in (payload['list'] as List)) {
+      for (var json in IMBoyHttpResponse.payloadList(payload)) {
         json['user_id'] = json['user_id'] ?? UserRepoLocal.to.currentUid;
-        final UserCollectModel model = UserCollectModel.fromJson(
-          json as Map<String, dynamic>,
-        );
+        final UserCollectModel model = UserCollectModel.fromJson(json);
         await repo.save(json);
         result.add(model);
       }
@@ -1079,7 +1078,10 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           isAuthor: msg.authorId == UserRepoLocal.to.currentUid ? 1 : 0,
           conversationUk3: "", // 可能为空，因为我们是直接收藏消息
           status: 10, // 假设为已发送状态
-          msgType: payload['msg_type'] as String?, // ✅ 修复：从 payload 提取 msg_type
+          msgType: IMBoyHttpResponse.payloadStr(
+            payload,
+            'msg_type',
+          ), // ✅ 修复：从 payload 提取 msg_type
         );
       } on Exception {
         if (kDebugMode) {}

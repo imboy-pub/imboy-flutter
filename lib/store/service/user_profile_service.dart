@@ -1,5 +1,6 @@
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -47,7 +48,13 @@ class UserProfileService {
     }
 
     final resp = await put({'field': field, 'value': value});
-    if (!resp.ok) return false;
+    if (!resp.ok) {
+      // 透出后端中文原因（隐私开关链路：privacy_settings_page 只拿到 bool，
+      // 不在这里弹出，用户只能看到与原因无关的兜底文案）。
+      // showBackendError 内部已做空串与单测无 host 保护。
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
 
     final payload = readCur();
     if (settingFields.contains(field)) {

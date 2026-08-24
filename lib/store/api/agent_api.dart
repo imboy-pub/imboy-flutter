@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 
 /// AI 助手 API 提供者的 Riverpod Provider
@@ -35,8 +36,16 @@ class AgentApi extends HttpClient {
 
     iPrint("> on AgentApi/agentList resp: ${resp.payload.toString()}");
     if (!resp.ok) {
+      // fail-open 改造：页面层（assistant_plaza_provider）无 catch 分支，
+      // 不能抛异常（会变成未捕获崩溃）；透出后端错误消息，
+      // null 返回驱动页面 error 态（load_failed）。
+      if (resp.msg.isNotEmpty) {
+        AppLoading.showBackendError(resp.msg);
+      }
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 }

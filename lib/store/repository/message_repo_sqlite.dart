@@ -330,7 +330,7 @@ class MessageRepo implements MessageRepository {
           id: msg.id,
           conversationUk3: msg.conversationUk3,
           msgTypeField: msg.msgType ?? '',
-          payload: msg.payload as Map<String, dynamic>,
+          payload: msg.payloadMap,
         ),
       );
     } else {

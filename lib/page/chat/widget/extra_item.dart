@@ -170,7 +170,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
     await AppLoading.dismiss();
     if (!context.mounted) return;
     if (res == null) {
-      AppLoading.showError(context.t.common.operationFailedAgainLater);
+      // 失败原因已由 RtcRoomApi.joinRoom 透出（后端 msg），不再叠兜底文案
       return;
     }
     await Navigator.of(context).push(

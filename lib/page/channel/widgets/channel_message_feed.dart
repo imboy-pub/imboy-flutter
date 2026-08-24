@@ -111,10 +111,10 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
       if (success) {
         await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
         widget.onReactionChanged?.call();
-      } else {
-        AppLoading.showError(context.t.channel.subscribeFailed);
       }
-    } catch (_) {
+      // 失败分支不再叠兜底文案：后端中文原因已由 ChannelApi.subscribe 透出
+    } catch (e) {
+      iPrint('[ChannelMessageFeed] 订阅失败: $e');
       if (mounted) {
         AppLoading.showError(context.t.channel.subscribeFailed);
       }

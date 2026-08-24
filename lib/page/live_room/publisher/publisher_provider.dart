@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:dio/dio.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/api/live_room_api.dart';
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -188,8 +189,8 @@ class PublisherNotifier extends _$PublisherNotifier {
     if (_resourceUrl != null) {
       try {
         await Dio().delete<void>(_resourceUrl!);
-      } on Exception {
-        if (kDebugMode) {}
+      } on Exception catch (e) {
+        iPrint('[LivePublisher] 停止推流 DELETE 失败: $e');
       }
       _resourceUrl = null;
     }

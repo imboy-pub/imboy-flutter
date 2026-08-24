@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 
 /// 群组发现 API Provider
@@ -60,8 +61,15 @@ class GroupDiscoveryApi extends HttpClient {
     IMBoyHttpResponse resp = await get(path, queryParameters: params);
     iPrint("> on GroupDiscoveryApi $path resp: ${resp.payload.toString()}");
     if (!resp.ok) {
+      // fail-open 改造：页面层（group_discovery_provider）无 catch 分支，
+      // 不能抛异常；透出后端错误消息，null 返回驱动页面 error 态。
+      if (resp.msg.isNotEmpty) {
+        AppLoading.showBackendError(resp.msg);
+      }
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 }

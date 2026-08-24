@@ -288,7 +288,8 @@ class SetPasswordPage extends ConsumerWidget {
                     }
                     // res == false 时 setPassword() 内部已通过
                     // AppLoading.showError 提示具体失败原因，此处无需重复提示。
-                  } on Exception catch (_) {
+                  } on Exception catch (e) {
+                    iPrint('[SetPassword] 设置密码失败: $e');
                     if (context.mounted) {
                       AppLoading.showError(t.common.operationFailed);
                     }

@@ -1,4 +1,5 @@
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 
 /// 音视频房间（LiveKit SFU）API 客户端
@@ -21,7 +22,12 @@ class RtcRoomApi extends HttpClient {
     if (did != null && did.isNotEmpty) data['did'] = did;
 
     final resp = await post(API.rtcRoomJoin, data: data);
-    if (!resp.ok || resp.payload is! Map) return null;
+    if (!resp.ok) {
+      // 透出后端中文原因（如"不是群成员，无法加入通话"），调用方不再叠兜底文案
+      AppLoading.showBackendError(resp.msg);
+      return null;
+    }
+    if (resp.payload is! Map) return null;
 
     final payload = resp.payload as Map;
     final wsUrl = '${payload['ws_url'] ?? ''}';

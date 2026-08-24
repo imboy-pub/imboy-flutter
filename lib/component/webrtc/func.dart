@@ -14,6 +14,27 @@ import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+/// 被叫还在来电页等待接听时，暂存主叫提前发送的 ICE 信令。
+///
+/// 来电页没有 PeerConnection 事件订阅；如果此时直接 fire 到事件总线，
+/// candidate 会被丢弃，公网环境下尤其容易只剩 host candidate，最终表现
+/// 为接听后黑屏、无声或 ICE 超时。接听后由通话页取出并按原顺序消费。
+final Map<String, List<Map<String, dynamic>>> _pendingWebRTCSignals = {};
+
+void queuePendingWebRTCSignal(Map<String, dynamic> data) {
+  final peerId = data['from']?.toString();
+  if (peerId == null || peerId.isEmpty) return;
+  (_pendingWebRTCSignals[peerId] ??= <Map<String, dynamic>>[]).add(data);
+}
+
+List<Map<String, dynamic>> takePendingWebRTCSignals(String peerId) {
+  return _pendingWebRTCSignals.remove(peerId) ?? <Map<String, dynamic>>[];
+}
+
+void clearPendingWebRTCSignals(String peerId) {
+  _pendingWebRTCSignals.remove(peerId);
+}
+
 /// 发送WebRTC消息
 /// 构造 WebRTC 信令请求（纯函数，便于协议对齐测试）。
 ///
@@ -112,6 +133,7 @@ Future<void> incomingCallScreen(
   );
 
   gTimer = Timer(const Duration(seconds: 60), () {
+    clearPendingWebRTCSignals(peer.peerId.toString());
     MessagingFacade.instance.changeLocalMsgState(msgId, 5);
     // Check if dialog is still open and close it
     if (navigatorKey.currentState?.overlay != null) {
@@ -145,6 +167,7 @@ Future<void> incomingCallScreen(
           msgId,
         ]);
         MessagingFacade.instance.changeLocalMsgState(msgId, 5);
+        clearPendingWebRTCSignals(peer.peerId.toString());
         gTimer?.cancel();
         gTimer = null;
         await sendWebRTCMsg(

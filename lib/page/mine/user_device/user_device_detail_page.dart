@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/config/init.dart';
@@ -435,10 +436,10 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       AppLoading.dismiss();
       if (ok) {
         AppLoading.showSuccess(t.common.forceOfflineCommandSent);
-      } else {
-        AppLoading.showError(t.common.tipFailed);
       }
+      // 失败提示已由 API 层透传服务端 msg（离线场景由 provider 提示），无需兜底文案
     } catch (e) {
+      iPrint('[UserDeviceDetail] 强制下线失败: $e');
       AppLoading.dismiss();
       AppLoading.showError(t.common.tipFailed);
     }
@@ -508,6 +509,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                 return false;
               }
             } catch (e) {
+              iPrint('[UserDeviceDetail] 修改设备名失败: $e');
               AppLoading.dismiss();
               AppLoading.showError(t.common.tipFailed);
               return false;
@@ -558,10 +560,10 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       if (res) {
         AppLoading.showSuccess(t.common.tipSuccess);
         navigator.pop(); // 返回设备列表页
-      } else {
-        AppLoading.showError(t.common.tipFailed);
       }
+      // 失败提示已由 API 层透传服务端 msg（离线场景由 provider 提示），无需兜底文案
     } catch (e) {
+      iPrint('[UserDeviceDetail] 删除设备失败: $e');
       AppLoading.dismiss();
       AppLoading.showError(t.common.tipFailed);
     }

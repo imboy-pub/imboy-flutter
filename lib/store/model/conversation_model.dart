@@ -245,8 +245,8 @@ class ConversationModel {
       type: parseModelString(json[ConversationRepo.type]),
       msgType: parseModelString(msgTypeRaw),
       isShow: parseModelInt(json[ConversationRepo.isShow], defaultValue: 1),
-      payload: payload != null
-          ? Map<String, dynamic>.from(payload as Map<dynamic, dynamic>)
+      payload: payload is Map<String, dynamic>
+          ? Map<String, dynamic>.from(payload)
           : null,
     );
   }

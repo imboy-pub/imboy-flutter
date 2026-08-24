@@ -58,7 +58,7 @@ void main() {
   });
 
   group('真机 E2EE Olm 验收', () {
-    test('vodozemac 初始化 + Account 创建', () async {
+    testWidgets('vodozemac 初始化 + Account 创建', (_) async {
       final account = vod.Account();
       expect(account.identityKeys.curve25519, isNotNull);
       expect(account.identityKeys.ed25519, isNotNull);
@@ -70,7 +70,7 @@ void main() {
       expect(ed25519.isNotEmpty, isTrue);
     });
 
-    test('X3DH 密钥协商 + Olm 会话建立 + 双向加解密', () async {
+    testWidgets('X3DH 密钥协商 + Olm 会话建立 + 双向加解密', (_) async {
       final alice = vod.Account();
       final bob = vod.Account();
 
@@ -138,7 +138,7 @@ void main() {
       }
     });
 
-    test('Ed25519 签名/验签（identity 绑定）', () async {
+    testWidgets('Ed25519 签名/验签（identity 绑定）', (_) async {
       final account = vod.Account();
       final message = account.identityKeys.curve25519.toBase64();
 
@@ -165,7 +165,7 @@ void main() {
       );
     });
 
-    test('OTK 生成 + 消费后不重复', () async {
+    testWidgets('OTK 生成 + 消费后不重复', (_) async {
       final account = vod.Account();
       account.generateOneTimeKeys(5);
       final keys = account.oneTimeKeys;
@@ -180,7 +180,7 @@ void main() {
       expect(account.oneTimeKeys.isEmpty, isTrue);
     });
 
-    test('Session pickle 加密/恢复（密钥持久化模拟）', () async {
+    testWidgets('Session pickle 加密/恢复（密钥持久化模拟）', (_) async {
       final alice = vod.Account();
       final bob = vod.Account();
       bob.generateOneTimeKeys(1);

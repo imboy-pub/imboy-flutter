@@ -124,7 +124,7 @@ class ChatBurnService {
     required int nowMs,
     required Future<void> Function(ConversationModel, String) onDelete,
   }) async {
-    final payload = item.payload as Map<String, dynamic>;
+    final payload = item.payloadMap;
     if (!isBurnPayload(payload)) return;
     if (isBurnTombstonePayload(payload)) return;
     final int burnAfter = burnAfterMsFromPayload(payload);
@@ -228,9 +228,7 @@ class ChatBurnService {
       final MessageRepo repo = MessageRepo(tableName: tb);
       final MessageModel? m = await repo.find(messageId);
       if (m == null) return;
-      final payload = Map<String, dynamic>.from(
-        m.payload as Map<dynamic, dynamic>,
-      );
+      final payload = Map<String, dynamic>.from(m.payloadMap);
       if (!isBurnPayload(payload)) return;
 
       final int burnAfter = burnAfterMsFromPayload(payload);
@@ -309,9 +307,7 @@ class ChatBurnService {
         return;
       }
 
-      final payload = Map<String, dynamic>.from(
-        m.payload as Map<dynamic, dynamic>,
-      );
+      final payload = Map<String, dynamic>.from(m.payloadMap);
       if (!isBurnPayload(payload)) {
         await onRemoveMessage(conversation, await m.toTypeMessage());
         return;
@@ -361,7 +357,7 @@ class ChatBurnService {
     if (items.isEmpty) return null;
 
     for (final item in items) {
-      final payload = item.payload as Map<String, dynamic>;
+      final payload = item.payloadMap;
       if (isBurnTombstonePayload(payload)) continue;
       if (isBurnExpired(
         payload,

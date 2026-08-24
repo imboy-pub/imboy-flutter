@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -74,7 +75,8 @@ class _ChangeNamePageState extends ConsumerState<ChangeNamePage> {
       if (res && mounted) {
         Navigator.of(context).pop();
       }
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[ChangeName] 修改名称失败: $e');
       if (mounted) AppLoading.showError(t.common.tipFailed);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

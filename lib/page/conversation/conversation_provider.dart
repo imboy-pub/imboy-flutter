@@ -786,7 +786,7 @@ class ConversationNotifier extends _$ConversationNotifier {
         final MessageModel? lastMsg = await mRepo.find(cm.lastMsgId.toString());
         if (lastMsg == null) continue;
 
-        if (!isBurnExpiredPayload(lastMsg.payload as Map<String, dynamic>?)) {
+        if (!isBurnExpiredPayload(lastMsg.payloadMap)) {
           continue;
         }
 

@@ -1,4 +1,5 @@
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -32,7 +33,8 @@ class GroupDetailService {
     }
     g = await GroupRepo().save(gid, payload);
     if (payload.containsKey('member_count')) {
-      g.memberCount = payload['member_count'] as int;
+      g.memberCount =
+          IMBoyHttpResponse.payloadInt(payload, 'member_count') ?? 0;
     }
     DateTime e = DateTime.now();
     iPrint("detail time diff: ${e.difference(s)} gid=$gid");
@@ -106,8 +108,8 @@ class GroupDetailService {
     );
     iPrint("GroupMemberApi/page count=${payload?['list']?.length}");
     if (payload != null && payload['list'] != null) {
-      for (var item in (payload['list'] as List)) {
-        GroupMemberModel obj2 = await repo.save(item as Map<String, dynamic>);
+      for (var item in IMBoyHttpResponse.payloadList(payload)) {
+        GroupMemberModel obj2 = await repo.save(item);
         list2.add(
           PeopleModel(
             id: obj2.userId,

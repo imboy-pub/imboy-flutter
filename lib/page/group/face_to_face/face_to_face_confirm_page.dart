@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/avatar_list.dart' show AvatarList;
@@ -317,7 +318,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                         },
                       );
                     }
-                  } catch (_) {
+                  } catch (e) {
+                    iPrint('[FaceToFaceConfirm] 入群失败: $e');
                     AppLoading.showError(t.common.tipFailed);
                   } finally {
                     AppLoading.dismiss();

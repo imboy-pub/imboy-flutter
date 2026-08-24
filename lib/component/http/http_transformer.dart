@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'http_response.dart';
+import 'package:imboy/component/helper/func.dart';
 
 /// `Response<dynamic>` 解析
 abstract class HttpTransformer {
@@ -20,6 +21,13 @@ class DefaultHttpTransformer extends HttpTransformer {
     final payload = _enrichPayload(data);
 
     if (code == 0) {
+      // 协议侧断言：payload 应为 Map（elib_response:success 签名已收紧为 map()）。
+      // 若后端返回 list，说明协议契约被违反，记录日志提前发现漂移。
+      if (payload is! Map && payload != null) {
+        iPrint(
+          '[HttpTransformer] payload type drift: expected Map, got ${payload.runtimeType} uri=$uri',
+        );
+      }
       return IMBoyHttpResponse.success(payload);
     }
     return IMBoyHttpResponse.failure(

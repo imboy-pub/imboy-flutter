@@ -14,7 +14,7 @@ void main() {
 
   setUpAll(fvod.init);
 
-  test('Megolm GroupSession 导出/导入、双消息解密和轮换隔离', () {
+  testWidgets('Megolm GroupSession 导出/导入、双消息解密和轮换隔离', (_) async {
     final outbound = vod.GroupSession();
     final sessionId = outbound.sessionId;
     final exported = outbound.toInbound().exportAt(0);

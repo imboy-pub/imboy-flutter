@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart'
@@ -337,7 +338,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
         currentState.copyWith(items: updatedItems.reversed.toList()),
       );
       _exitMultiSelect();
-    } catch (_) {
+    } catch (e) {
+      iPrint('[UserCollect] 批量删除收藏失败: $e');
       AppLoading.dismiss();
       AppLoading.showError(t.common.tipFailed);
     }
@@ -411,7 +413,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 AppLoading.dismiss();
                 AppLoading.showSuccess(t.common.tipSuccess);
                 _exitMultiSelect();
-              } catch (_) {
+              } catch (e) {
+                iPrint('[UserCollect] 批量打标签失败: $e');
                 AppLoading.dismiss();
                 AppLoading.showError(t.common.tipFailed);
               }

@@ -837,9 +837,7 @@ class ChatNotifier extends _$ChatNotifier {
       if (msg == null) return null;
       final String currentUid = UserRepoLocal.to.currentUid;
 
-      final newPayload = Map<String, dynamic>.from(
-        msg.payload as Map<dynamic, dynamic>,
-      );
+      final newPayload = Map<String, dynamic>.from(msg.payloadMap);
       final reactionsRaw = newPayload['reactions'];
       final reactions = reactionsRaw is Map<String, dynamic>
           ? reactionsRaw.cast<String, dynamic>()
@@ -934,7 +932,7 @@ class ChatNotifier extends _$ChatNotifier {
     final repo = MessageRepo(tableName: tableName);
     MessageModel? msg = await repo.find(msgId);
     if (msg == null) return;
-    Map<String, dynamic> payload = msg.payload as Map<String, dynamic>;
+    Map<String, dynamic> payload = msg.payloadMap;
     payload['msg_type'] = msg.msgType ?? 'text';
     payload['sys_prompt'] = sysPrompt;
 
@@ -1059,7 +1057,7 @@ class ChatNotifier extends _$ChatNotifier {
         prevAutoId: state.prevAutoId,
         pageSize: state.pageSize,
         isBurnExpired: (item, nowMs) => _burnService.isBurnExpired(
-          item.payload as Map<String, dynamic>,
+          item.payloadMap,
           nowMs,
           // BUG#139：发送方自己的阅后即焚消息从发送时间起算
           fallbackStartMs: item.isAuthor == 1 ? item.createdAt : 0,

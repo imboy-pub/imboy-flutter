@@ -1,6 +1,7 @@
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 class LocationApi extends HttpClient {
   Future<Map<String, dynamic>?> peopleNearby({
@@ -22,9 +23,16 @@ class LocationApi extends HttpClient {
       },
     );
     if (!resp.ok) {
+      // fail-open 改造：页面层（people_nearby_provider）只有 try/finally
+      // 没有 catch，不能抛异常；透出后端错误消息，null 返回即失败。
+      if (resp.msg.isNotEmpty) {
+        AppLoading.showBackendError(resp.msg);
+      }
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 让自己可见

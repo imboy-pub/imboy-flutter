@@ -590,11 +590,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             context,
           ).showSnackBar(SnackBar(content: Text(t.common.tipSuccess)));
         }
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.common.operationFailedAgainLater)),
-        );
       }
+      // 失败分支不再叠兜底文案：后端中文原因已由 ChannelApi.unsubscribe 透出
     } else {
       // 未订阅 → 订阅
       final success = await ref
@@ -609,11 +606,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.subscribeSuccess)));
         }
-      } else if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(t.channel.subscribeFailed)));
       }
+      // 失败分支不再叠兜底文案：后端中文原因已由 ChannelApi.subscribe 透出
     }
   }
 

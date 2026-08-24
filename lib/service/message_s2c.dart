@@ -19,6 +19,7 @@ import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
@@ -35,6 +36,7 @@ import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/e2ee/trust_event_client.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/group_member_mute_s2c.dart';
 import 'package:imboy/service/group_edit_s2c.dart';
@@ -290,6 +292,9 @@ class MessageS2CService {
           // E2EE 设备密钥变更通知
           await _handleE2EEDeviceKeyChanged(payloadMap);
           break;
+        case 'e2ee_trust_changed':
+          await _handleE2EETrustChanged(payloadMap);
+          break;
         // ==================== 频道消息处理 ====================
         case 'channel_message':
           // 频道消息推送
@@ -445,7 +450,8 @@ class MessageS2CService {
     String from,
     String to,
   ) async {
-    final revokeMsgId = (payload['old_msg_id'] ?? '') as String;
+    final revokeMsgId =
+        IMBoyHttpResponse.payloadStr(payload, 'old_msg_id') ?? '';
 
     iPrint("收到对端撤回消息: revokeMsgId=$revokeMsgId");
 
@@ -466,7 +472,7 @@ class MessageS2CService {
         originalMsg: oldMsg,
         repo: messageRepo,
         revokeUserId: from,
-        originalText: payload['text'] as String?,
+        originalText: IMBoyHttpResponse.payloadStr(payload, 'text'),
       );
     } else {
       iPrint("未找到要撤回的消息: $revokeMsgId");
@@ -900,6 +906,41 @@ class MessageS2CService {
         E2EEPeerKeyChangedEvent(uid: uid, deviceId: deviceId, keyId: keyId),
       );
     }
+  }
+
+  /// 处理带签名审计链路产生的设备信任变更广播。
+  ///
+  /// 服务端只会把非撤销事件发给决策发起者；撤销事件还会送达被撤销
+  /// 设备的 owner。只有本机作为 actor、且目标是其他用户时，旧会话才是
+  /// 可安全驱逐的对象。target owner 收到撤销通知时只发布事件，不能把
+  /// 自己的身份/会话误当成对端状态删除。
+  static Future<void> _handleE2EETrustChanged(
+    Map<String, dynamic> payload,
+  ) async {
+    final event = TrustChangedEvent.fromBroadcast(payload);
+    final actorUid = event.actorUid.toString();
+    final targetUid = event.targetUid.toString();
+    final currentUid = UserRepoLocal.to.currentUid;
+
+    if (actorUid == currentUid && targetUid != currentUid) {
+      E2EEService.clearUserKeyCache(targetUid);
+      await OlmSessionService.to.invalidatePeerSession(
+        peerUid: targetUid,
+        peerDeviceId: event.targetDeviceId,
+      );
+    }
+
+    AppEventBus.fire(
+      E2EETrustChangedEvent(
+        actorUid: actorUid,
+        targetUid: targetUid,
+        targetDeviceId: event.targetDeviceId,
+        toState: event.toState,
+        method: event.method,
+        eventId: event.eventId,
+        issuedAt: event.issuedAt,
+      ),
+    );
   }
 
   /// 处理用户被禁言通知

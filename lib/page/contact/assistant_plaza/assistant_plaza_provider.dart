@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/agent_api.dart';
 import 'package:imboy/store/model/people_model.dart';
 
@@ -67,13 +68,13 @@ class AssistantPlazaNotifier extends Notifier<AssistantPlazaState> {
       return null;
     }
     return [
-      for (final json in (payload['list'] as List? ?? []))
+      for (final json in IMBoyHttpResponse.payloadList(payload))
         PeopleModel(
-          id: (json as Map<String, dynamic>)['id'] as int? ?? 0,
+          id: IMBoyHttpResponse.payloadInt(json, 'id') ?? 0,
           account: '',
-          nickname: json['name'] as String? ?? '',
-          avatar: json['avatar'] as String? ?? '',
-          sign: json['description'] as String? ?? '',
+          nickname: IMBoyHttpResponse.payloadStr(json, 'name') ?? '',
+          avatar: IMBoyHttpResponse.payloadStr(json, 'avatar') ?? '',
+          sign: IMBoyHttpResponse.payloadStr(json, 'description') ?? '',
           accountType: 1,
         ),
     ];

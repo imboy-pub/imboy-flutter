@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/enum.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
@@ -53,6 +54,7 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
       final items = await listNewFriend(UserRepoLocal.to.currentUid);
       state = state.copyWith(items: items, isLoading: false);
     } catch (e) {
+      iPrint('[NewFriend] 加载新好友列表失败: $e');
       state = state.copyWith(isLoading: false);
     }
   }
@@ -197,8 +199,8 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
       return [];
     }
     List<PeopleModel> list = [];
-    for (var vo in (payload?['list'] as List)) {
-      list.add(PeopleModel.fromJson(vo as Map<String, dynamic>));
+    for (var vo in IMBoyHttpResponse.payloadList(payload)) {
+      list.add(PeopleModel.fromJson(vo));
     }
     return list;
   }

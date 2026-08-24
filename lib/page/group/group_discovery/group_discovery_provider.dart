@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/group_discovery_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
@@ -136,8 +137,8 @@ class GroupDiscoveryNotifier extends Notifier<GroupDiscoveryState> {
       return null;
     }
     return [
-      for (final json in (payload['list'] as List? ?? []))
-        GroupDiscoveryItem.fromJson(Map<String, dynamic>.from(json as Map)),
+      for (final json in IMBoyHttpResponse.payloadList(payload))
+        GroupDiscoveryItem.fromJson(json),
     ];
   }
 

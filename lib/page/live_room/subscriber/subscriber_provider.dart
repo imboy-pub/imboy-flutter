@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:dio/dio.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -158,8 +159,8 @@ class SubscriberNotifier extends _$SubscriberNotifier {
     if (_resourceUrl != null) {
       try {
         await Dio().delete<void>(_resourceUrl!);
-      } on Exception {
-        if (kDebugMode) {}
+      } on Exception catch (e) {
+        iPrint('[LiveSubscriber] 停止拉流 DELETE 失败: $e');
       }
       _resourceUrl = null;
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:imboy/page/chat/rtc_room/rtc_room_page.dart';
 import 'package:imboy/page/chat/rtc_room/rtc_room_provider.dart';
@@ -37,21 +38,80 @@ class _FakeRtcRoomNotifier extends RtcRoomNotifier {
   }
 }
 
+class _FailedRtcRoomNotifier extends RtcRoomNotifier {
+  @override
+  Future<bool> connect({required String wsUrl, required String token}) async {
+    state = state.copyWith(status: RtcRoomStatus.failed);
+    return false;
+  }
+}
+
 Widget _buildPage() {
   return ProviderScope(
     overrides: [rtcRoomProvider.overrideWith(_FakeRtcRoomNotifier.new)],
-    child: const MaterialApp(
-      home: RtcRoomPage(
+    child: MaterialApp(
+      home: const RtcRoomPage(
         wsUrl: 'wss://rtc.example.com',
         token: 'jwt-token',
         roomName: 'rtc_group_123',
         title: '测试群',
       ),
+      builder: EasyLoading.init(),
+    ),
+  );
+}
+
+Widget _buildFailedPage() {
+  return ProviderScope(
+    overrides: [rtcRoomProvider.overrideWith(_FailedRtcRoomNotifier.new)],
+    child: MaterialApp(
+      home: const RtcRoomPage(
+        wsUrl: 'wss://rtc.example.com',
+        token: 'jwt-token',
+        roomName: 'rtc_group_123',
+        title: '测试群',
+      ),
+      builder: EasyLoading.init(),
     ),
   );
 }
 
 void main() {
+  test('群通话状态支持重连标记且不影响媒体开关', () {
+    const state = RtcRoomState();
+    final reconnecting = state.copyWith(reconnecting: true);
+
+    expect(reconnecting.reconnecting, isTrue);
+    expect(reconnecting.status, RtcRoomStatus.idle);
+    expect(reconnecting.micOn, isTrue);
+    expect(reconnecting.cameraOn, isTrue);
+  });
+
+  test('群通话副画面上下滑动超过阈值才交换', () {
+    expect(shouldSwapRtcVideoLayout(null), isFalse);
+    expect(shouldSwapRtcVideoLayout(280), isFalse);
+    expect(shouldSwapRtcVideoLayout(-281), isTrue);
+  });
+
+  test('群通话副画面松手吸附到左右边缘', () {
+    expect(
+      snapRtcThumbnailLeft(
+        currentLeft: 20,
+        thumbnailWidth: 120,
+        stageWidth: 400,
+      ),
+      12,
+    );
+    expect(
+      snapRtcThumbnailLeft(
+        currentLeft: 280,
+        thumbnailWidth: 120,
+        stageWidth: 400,
+      ),
+      268,
+    );
+  });
+
   testWidgets('renders title and full control bar', (tester) async {
     await tester.pumpWidget(_buildPage());
     await tester.pump(); // post-frame connect
@@ -61,6 +121,14 @@ void main() {
     expect(find.byIcon(Icons.videocam), findsOneWidget);
     expect(find.byIcon(Icons.cameraswitch), findsOneWidget);
     expect(find.byIcon(Icons.call_end), findsOneWidget);
+  });
+
+  testWidgets('群通话初次连接失败时保留页面并提供重试', (tester) async {
+    await tester.pumpWidget(_buildFailedPage());
+    await tester.pump();
+
+    expect(find.text('重试'), findsOneWidget);
+    expect(find.byIcon(Icons.wifi_off), findsOneWidget);
   });
 
   testWidgets('mic button toggles icon between mic and mic_off', (

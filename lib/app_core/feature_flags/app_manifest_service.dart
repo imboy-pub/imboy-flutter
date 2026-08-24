@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/service/storage.dart';
 
 /// Manifest data returned by /api/v1/app/manifest.
@@ -86,8 +87,12 @@ class AppManifestService {
         validateStatus: (s) => s == 200 || s == 304,
         headers: _etag != null ? {'if-none-match': _etag} : null,
       );
+      // 显式拼接完整 URL，不依赖 Dio 实例的 baseUrl：
+      // HttpClient._setDefaultConfig 只在走 get/post/... 包装方法时才回填
+      // baseUrl，这里直接调 .dio.get 会绕过该逻辑，若这是本 Dio 实例的
+      // 首个请求 baseUrl 仍是空串，相对路径会被当成 host 直接失败。
       final response = await HttpClient.client.dio.get<dynamic>(
-        API.appManifest,
+        '${Env().apiBaseUrl}${API.appManifest}',
         options: options,
       );
 

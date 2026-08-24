@@ -143,12 +143,9 @@ class BillingApi extends HttpClient {
     if (!resp.ok || resp.payload == null) {
       return null;
     }
-    final payload = resp.payload as Map<String, dynamic>;
-    final rawList = payload['list'] as List<dynamic>? ?? [];
-    return rawList
-        .whereType<Map<dynamic, dynamic>>()
-        .map((e) => BillingPlan.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return IMBoyHttpResponse.payloadList(
+      resp.payload,
+    ).map((e) => BillingPlan.fromJson(e)).toList();
   }
 
   /// 订阅套餐。成功返回 subscription_id，失败返回 null。
@@ -162,7 +159,7 @@ class BillingApi extends HttpClient {
       AppLoading.showError(resp.msg);
       return null;
     }
-    return (resp.payload['subscription_id'] as num?)?.toInt();
+    return IMBoyHttpResponse.payloadInt(resp.payload, 'subscription_id');
   }
 
   /// 按订阅当前周期生成账单（幂等，已生成视为成功）。
@@ -188,12 +185,9 @@ class BillingApi extends HttpClient {
     if (!resp.ok || resp.payload == null) {
       return null;
     }
-    final payload = resp.payload as Map<String, dynamic>;
-    final rawList = payload['list'] as List<dynamic>? ?? [];
-    return rawList
-        .whereType<Map<dynamic, dynamic>>()
-        .map((e) => BillingInvoice.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return IMBoyHttpResponse.payloadList(
+      resp.payload,
+    ).map((e) => BillingInvoice.fromJson(e)).toList();
   }
 
   /// 支付账单。

@@ -209,7 +209,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       final file = File(media.path);
       setState(() => _avatarFile = file);
       await _uploadAvatar(file);
-    } catch (_) {
+    } catch (e) {
+      iPrint('[ChannelEdit] 上传头像失败: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,

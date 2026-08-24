@@ -211,15 +211,11 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
             SnackBar(content: Text(t.channel.removeSubscriberSuccess)),
           );
           unawaited(_loadSubscribers(refresh: true));
-        } else {
-          // success=false 代表 API 返回非 ok（例如权限不足、订阅者不存在），
-          // 旧实现在此分支静默无反馈，用户点了按钮以为成功；补齐失败提示
-          // 与 catch 分支行为一致。
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.channel.removeSubscriberFailed)),
-          );
         }
+        // 失败提示已由 ChannelApi.removeSubscriber 透传服务端 msg
+        //（AppLoading.showError），此处不再 SnackBar 兜底，避免双提示。
       } catch (e) {
+        iPrint('[ChannelSubscriber] 移除订阅者失败: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(t.channel.removeSubscriberFailed)),
@@ -317,13 +313,16 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
           .read(channelServiceProvider)
           .sendInvitation(channelId: widget.channelId, inviteeUid: inviteeUid);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(ok ? t.channel.inviteSuccess : t.channel.inviteFailed),
-        ),
-      );
-      if (ok) unawaited(_loadSubscribers(refresh: true));
-    } catch (_) {
+      // 失败提示已由 ChannelApi.createInvitation 透传服务端 msg
+      //（AppLoading.showError），仅成功时弹 SnackBar，避免双提示。
+      if (ok) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.channel.inviteSuccess)));
+        unawaited(_loadSubscribers(refresh: true));
+      }
+    } catch (e) {
+      iPrint('[ChannelSubscriber] 邀请失败: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
 /// 群相册 API 客户端
@@ -44,7 +45,7 @@ class GroupAlbumApi extends HttpClient {
     }
 
     final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
     );
     final list = _normalizeList(payload['list'] ?? payload['items']);
     final total = _toInt(payload['total'], fallback: list.length);
@@ -80,7 +81,9 @@ class GroupAlbumApi extends HttpClient {
       return null;
     }
 
-    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   /// 重命名群相册
@@ -129,7 +132,9 @@ class GroupAlbumApi extends HttpClient {
       return null;
     }
 
-    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   /// 获取相册图片列表
@@ -166,7 +171,7 @@ class GroupAlbumApi extends HttpClient {
     }
 
     final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
     );
     final list = _normalizeList(payload['list'] ?? payload['items']);
     final total = _toInt(payload['total'], fallback: list.length);
@@ -193,7 +198,9 @@ class GroupAlbumApi extends HttpClient {
       return null;
     }
 
-    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   /// 删除相册图片

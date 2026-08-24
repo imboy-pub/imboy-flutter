@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -79,7 +80,8 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
       await file.writeAsString(jsonStr);
       state = state.copyWith(isLoading: false);
       return file.path;
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[LogoutAccount] 导出用户数据失败: $e');
       state = state.copyWith(
         isLoading: false,
         error: t.common.operationFailedAgainLater,
@@ -106,7 +108,8 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
       }
       state = state.copyWith(isLoading: false);
       return true;
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[LogoutAccount] 注销申请失败: $e');
       state = state.copyWith(
         isLoading: false,
         error: t.common.operationFailedAgainLater,

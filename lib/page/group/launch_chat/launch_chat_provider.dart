@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/api/group_api.dart';
@@ -184,13 +185,12 @@ class LaunchChatService {
       final groupRepo = GroupRepo();
       final group = await groupRepo.save(
         '',
-        payload['group'] as Map<String, dynamic>,
+        IMBoyHttpResponse.payloadAsMap(payload['group']),
       );
 
       final gmRepo = GroupMemberRepo();
-      final memberList = payload['member_list'] ?? <Map<String, dynamic>>[];
-      for (var json in (memberList as List)) {
-        await gmRepo.save(json as Map<String, dynamic>);
+      for (var json in IMBoyHttpResponse.payloadList(payload, 'member_list')) {
+        await gmRepo.save(json);
       }
 
       if (group.title.isEmpty) {

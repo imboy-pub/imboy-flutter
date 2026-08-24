@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/i18n/strings.g.dart' show t;
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -610,8 +611,8 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
 
     switch (event.action) {
       case 'message_ack':
-        final localId = event.payload['local_id'] as int?;
-        final realId = event.payload['real_id'] as int?;
+        final localId = IMBoyHttpResponse.payloadInt(event.payload, 'local_id');
+        final realId = IMBoyHttpResponse.payloadInt(event.payload, 'real_id');
         if (localId != null && realId != null) {
           final updated = state.messages
               .map((m) => m.id == localId ? m.copyWith(id: realId) : m)

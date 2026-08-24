@@ -17,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:flutter_vodozemac/flutter_vodozemac.dart' as fvod;
 import 'package:integration_test/integration_test.dart';
+import 'package:patrol/patrol.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart' show deviceId;
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
@@ -55,8 +56,20 @@ final Uint8List _pickleKey = Uint8List.fromList(
   List<int>.generate(32, (index) => (index * 19 + 7) % 256),
 );
 
+const _usePatrolRunner = bool.fromEnvironment('PATROL_INTEROP');
+
+void _registerInteropTest(String description, Future<void> Function() body) {
+  if (_usePatrolRunner) {
+    patrolTest(description, (_) async => body());
+    return;
+  }
+  testWidgets(description, (_) async => body());
+}
+
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  if (!_usePatrolRunner) {
+    IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  }
 
   const secureStorageChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
@@ -101,7 +114,7 @@ void main() {
         .setMockMethodCallHandler(secureStorageChannel, null);
   });
 
-  test('Android/macOS C2C Olm/PFv3 双向互解', () async {
+  _registerInteropTest('Android/macOS C2C Olm/PFv3 双向互解', () async {
     switch (_role) {
       case 'sender':
         await _runSender(secureStore);

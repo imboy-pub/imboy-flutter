@@ -11,12 +11,14 @@ enum RtcRoomStatus { idle, connecting, connected, failed, disconnected }
 /// 群通话页状态（媒体面由 LiveKit Room 自管，这里只留 UI 需要的开关）
 class RtcRoomState {
   final RtcRoomStatus status;
+  final bool reconnecting;
   final bool micOn;
   final bool cameraOn;
   final bool speakerOn;
 
   const RtcRoomState({
     this.status = RtcRoomStatus.idle,
+    this.reconnecting = false,
     this.micOn = true,
     this.cameraOn = true,
     this.speakerOn = true,
@@ -24,17 +26,40 @@ class RtcRoomState {
 
   RtcRoomState copyWith({
     RtcRoomStatus? status,
+    bool? reconnecting,
     bool? micOn,
     bool? cameraOn,
     bool? speakerOn,
   }) {
     return RtcRoomState(
       status: status ?? this.status,
+      reconnecting: reconnecting ?? this.reconnecting,
       micOn: micOn ?? this.micOn,
       cameraOn: cameraOn ?? this.cameraOn,
       speakerOn: speakerOn ?? this.speakerOn,
     );
   }
+}
+
+/// 群通话副画面上下滑动交换主次位置的阈值。
+bool shouldSwapRtcVideoLayout(
+  double? verticalVelocity, {
+  double threshold = 280,
+}) {
+  return (verticalVelocity ?? 0).abs() > threshold;
+}
+
+/// 群通话副画面松手后吸附到舞台左右边缘。
+double snapRtcThumbnailLeft({
+  required double currentLeft,
+  required double thumbnailWidth,
+  required double stageWidth,
+  double margin = 12,
+}) {
+  final center = currentLeft + thumbnailWidth / 2;
+  return center < stageWidth / 2
+      ? margin
+      : stageWidth - thumbnailWidth - margin;
 }
 
 @riverpod
@@ -64,13 +89,35 @@ class RtcRoomNotifier extends _$RtcRoomNotifier {
       await room.connect(wsUrl, token);
       _room = room;
       _listener = room.createListener()
+        ..on<RoomReconnectingEvent>((_) {
+          state = state.copyWith(
+            status: RtcRoomStatus.connected,
+            reconnecting: true,
+          );
+        })
+        ..on<RoomResumingEvent>((_) {
+          state = state.copyWith(
+            status: RtcRoomStatus.connected,
+            reconnecting: true,
+          );
+        })
+        ..on<RoomReconnectedEvent>((_) {
+          state = state.copyWith(
+            status: RtcRoomStatus.connected,
+            reconnecting: false,
+          );
+        })
         ..on<RoomDisconnectedEvent>((_) {
-          state = state.copyWith(status: RtcRoomStatus.disconnected);
+          state = state.copyWith(
+            status: RtcRoomStatus.disconnected,
+            reconnecting: false,
+          );
         });
       await room.localParticipant?.setMicrophoneEnabled(true);
       await room.localParticipant?.setCameraEnabled(true);
       state = state.copyWith(
         status: RtcRoomStatus.connected,
+        reconnecting: false,
         micOn: true,
         cameraOn: true,
       );
@@ -79,7 +126,7 @@ class RtcRoomNotifier extends _$RtcRoomNotifier {
       iPrint('RtcRoom connect failed: $e');
       await room.dispose();
       _room = null;
-      state = state.copyWith(status: RtcRoomStatus.failed);
+      state = state.copyWith(status: RtcRoomStatus.failed, reconnecting: false);
       return false;
     }
   }

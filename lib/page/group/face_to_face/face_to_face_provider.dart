@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/ui/numeric_keypad.dart';
@@ -120,22 +121,19 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     );
 
     // 解析成员列表
-    List<dynamic> memberList = payload['member_list'] as List<dynamic>? ?? [];
+    final memberList = IMBoyHttpResponse.payloadList(payload, 'member_list');
     List<PeopleModel> memberList2 = [];
-    for (var item in memberList) {
-      if (item is Map) {
-        final itemMap = Map<String, dynamic>.from(item);
-        memberList2.add(
-          PeopleModel(
-            id: itemMap['user_id'] as int,
-            account: itemMap['account'] as String? ?? '',
-            avatar: itemMap['avatar'] as String? ?? '',
-            nickname:
-                itemMap['alias'] as String? ??
-                (itemMap['nickname'] as String? ?? ''),
-          ),
-        );
-      }
+    for (var itemMap in memberList) {
+      memberList2.add(
+        PeopleModel(
+          id: IMBoyHttpResponse.payloadInt(itemMap, 'user_id') ?? 0,
+          account: IMBoyHttpResponse.payloadStr(itemMap, 'account') ?? '',
+          avatar: IMBoyHttpResponse.payloadStr(itemMap, 'avatar') ?? '',
+          nickname:
+              IMBoyHttpResponse.payloadStr(itemMap, 'alias') ??
+              (IMBoyHttpResponse.payloadStr(itemMap, 'nickname') ?? ''),
+        ),
+      );
     }
 
     iPrint('[面对面建群] 解析后成员数量: ${memberList2.length}');
@@ -157,22 +155,19 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
       "faceToFaceSave memberCount=${(payload['member_list'] ?? <dynamic>[]).length}",
     );
 
-    List<dynamic> memberList = payload['member_list'] as List<dynamic>? ?? [];
+    final memberList = IMBoyHttpResponse.payloadList(payload, 'member_list');
     List<PeopleModel> memberList2 = [];
-    for (var item in memberList) {
-      if (item is Map) {
-        final itemMap = Map<String, dynamic>.from(item);
-        memberList2.add(
-          PeopleModel(
-            id: itemMap['user_id'] as int,
-            account: itemMap['account'] as String? ?? '',
-            avatar: itemMap['avatar'] as String? ?? '',
-            nickname:
-                itemMap['alias'] as String? ??
-                (itemMap['nickname'] as String? ?? ''),
-          ),
-        );
-      }
+    for (var itemMap in memberList) {
+      memberList2.add(
+        PeopleModel(
+          id: IMBoyHttpResponse.payloadInt(itemMap, 'user_id') ?? 0,
+          account: IMBoyHttpResponse.payloadStr(itemMap, 'account') ?? '',
+          avatar: IMBoyHttpResponse.payloadStr(itemMap, 'avatar') ?? '',
+          nickname:
+              IMBoyHttpResponse.payloadStr(itemMap, 'alias') ??
+              (IMBoyHttpResponse.payloadStr(itemMap, 'nickname') ?? ''),
+        ),
+      );
     }
 
     return {

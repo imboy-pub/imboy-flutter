@@ -1,6 +1,7 @@
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/api/user_tag_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -104,9 +105,9 @@ class ContactTagDetailNotifier extends _$ContactTagDetailNotifier {
       scene: 'friend',
       kwd: kwd,
     );
-    List<dynamic> items = resp?['list'] as List<dynamic>? ?? [];
+    final items = IMBoyHttpResponse.payloadList(resp);
     for (var json in items) {
-      ContactModel model = ContactModel.fromMap(json as Map<String, dynamic>);
+      ContactModel model = ContactModel.fromMap(json);
       iPrint("pageRelation item isFriend: ${model.isFriend}");
       if (model.isFriend == 1) {
         contact.insert(0, model);

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
 /// 群文件 API 客户端
@@ -57,7 +58,7 @@ class GroupFileApi extends HttpClient {
     }
 
     final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
     );
     final list = _normalizeList(payload['list'] ?? payload['items']);
     final total = _toInt(payload['total'], fallback: list.length);
@@ -91,7 +92,7 @@ class GroupFileApi extends HttpClient {
     }
 
     final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
     );
     return _normalizeCategoryStats(payload['items'] ?? payload['list']);
   }
@@ -132,7 +133,7 @@ class GroupFileApi extends HttpClient {
     }
 
     final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
     );
     final list = _normalizeList(payload['items'] ?? payload['list']);
     final total = _toInt(payload['total'], fallback: list.length);
@@ -176,7 +177,9 @@ class GroupFileApi extends HttpClient {
     if (!resp.ok || resp.payload == null) {
       return null;
     }
-    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   /// 删除群文件

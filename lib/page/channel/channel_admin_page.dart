@@ -123,12 +123,10 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           context,
         ).showSnackBar(SnackBar(content: Text(t.channel.addAdminSuccess)));
         unawaited(_loadAdmins());
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(t.channel.addAdminFailed)));
       }
+      // 失败提示已由 ChannelApi.addAdmin 透传服务端 msg（AppLoading.showError），无需兜底文案
     } catch (e) {
+      iPrint('[ChannelAdmin] 添加管理员失败: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -183,12 +181,10 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.updateRoleSuccess)));
           unawaited(_loadAdmins());
-        } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.channel.updateRoleFailed)));
         }
+        // 失败提示已由 ChannelApi.updateAdminRole 透传服务端 msg，无需兜底文案
       } catch (e) {
+        iPrint('[ChannelAdmin] 更新角色失败: $e');
         if (mounted) {
           ScaffoldMessenger.of(
             context,
@@ -242,12 +238,10 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
             context,
           ).showSnackBar(SnackBar(content: Text(t.channel.removeAdminSuccess)));
           unawaited(_loadAdmins());
-        } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.channel.removeAdminFailed)));
         }
+        // 失败提示已由 ChannelApi.removeAdmin 透传服务端 msg，无需兜底文案
       } catch (e) {
+        iPrint('[ChannelAdmin] 移除管理员失败: $e');
         if (mounted) {
           ScaffoldMessenger.of(
             context,

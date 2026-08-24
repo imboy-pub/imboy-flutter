@@ -25,7 +25,7 @@ class ChannelOrderApi extends HttpClient {
       return null;
     }
     return ChannelOrderModel.fromJson(
-      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      Map<String, dynamic>.from(IMBoyHttpResponse.payloadAsMap(resp.payload)),
     );
   }
 
@@ -72,7 +72,7 @@ class ChannelOrderApi extends HttpClient {
       return null;
     }
     return ChannelOrderModel.fromJson(
-      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      Map<String, dynamic>.from(IMBoyHttpResponse.payloadAsMap(resp.payload)),
     );
   }
 
@@ -85,7 +85,9 @@ class ChannelOrderApi extends HttpClient {
     if (!resp.ok || resp.payload == null) {
       return null;
     }
-    return Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>);
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   /// 申请退款。仅已支付订单可退；成功后端置为已退款并返回空对象。

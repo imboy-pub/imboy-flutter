@@ -1,4 +1,5 @@
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
 /// @提及 API 客户端
@@ -22,7 +23,9 @@ class MentionApi extends HttpClient {
       return null;
     }
 
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 获取未读@提及数量
@@ -36,7 +39,7 @@ class MentionApi extends HttpClient {
       return 0;
     }
 
-    return (resp.payload['count'] as int?) ?? 0;
+    return IMBoyHttpResponse.payloadInt(resp.payload, 'count') ?? 0;
   }
 
   /// 标记@提及为已读
@@ -72,9 +75,6 @@ class MentionApi extends HttpClient {
       return [];
     }
 
-    final list = resp.payload['items'] as List?;
-    if (list == null) return [];
-
-    return List<Map<String, dynamic>>.from(list);
+    return IMBoyHttpResponse.payloadList(resp.payload, 'items');
   }
 }

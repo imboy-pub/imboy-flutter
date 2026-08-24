@@ -11,7 +11,9 @@ class DenylistApi extends HttpClient {
     // 链路：denylist_page(_error → AsyncStateView)
     resp.throwIfFailed();
 
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 加入黑名单
@@ -20,7 +22,11 @@ class DenylistApi extends HttpClient {
       API.denylistAdd,
       data: {"denied_user_id": deniedUserUid},
     );
-    return resp.ok ? resp.payload as Map<String, dynamic>? : null;
+    return resp.ok
+        ? (resp.payload is Map<String, dynamic>
+              ? resp.payload as Map<String, dynamic>
+              : null)
+        : null;
   }
 
   /// 移除黑名单

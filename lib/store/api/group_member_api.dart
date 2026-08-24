@@ -1,6 +1,7 @@
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 class GroupMemberApi extends HttpClient {
   Future<Map<String, dynamic>?> page({
@@ -15,10 +16,12 @@ class GroupMemberApi extends HttpClient {
 
     // debugPrint("GroupMemberApi/page resp: ${resp.payload.toString()}");
     if (!resp.ok) {
-      // AppLoading.showError(resp.msg);
+      // AppLoading.showBackendError(resp.msg);
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   Future<Map<String, dynamic>?> join({
@@ -33,7 +36,9 @@ class GroupMemberApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   Future<Map<String, dynamic>?> leave({
@@ -46,9 +51,15 @@ class GroupMemberApi extends HttpClient {
     );
 
     if (!resp.ok) {
+      // 透出服务端中文错误消息（如"仅群主可踢出管理员"），页面层不再重复兜底
+      if (resp.msg.isNotEmpty) {
+        AppLoading.showBackendError(resp.msg);
+      }
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   Future<bool> changeAlias(String gid, String alias) async {
@@ -68,7 +79,9 @@ class GroupMemberApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 更新群成员角色
@@ -85,6 +98,10 @@ class GroupMemberApi extends HttpClient {
       data: {'gid': gid, 'user_id': userId, 'role': role},
     );
 
+    // 透出服务端中文错误消息（如"仅群主可设置管理员"），页面层不再重复兜底
+    if (!resp.ok && resp.msg.isNotEmpty) {
+      AppLoading.showBackendError(resp.msg);
+    }
     return resp.ok;
   }
 
@@ -115,6 +132,10 @@ class GroupMemberApi extends HttpClient {
       data: {'gid': gid, 'user_id': userId, 'duration': duration},
     );
 
+    // 透出服务端中文错误消息（如"禁言时长必须大于0"），页面层不再重复兜底
+    if (!resp.ok && resp.msg.isNotEmpty) {
+      AppLoading.showBackendError(resp.msg);
+    }
     return resp.ok;
   }
 
@@ -131,6 +152,10 @@ class GroupMemberApi extends HttpClient {
       data: {'gid': gid, 'user_id': userId},
     );
 
+    // 透出服务端中文错误消息，页面层不再重复兜底
+    if (!resp.ok && resp.msg.isNotEmpty) {
+      AppLoading.showBackendError(resp.msg);
+    }
     return resp.ok;
   }
 }

@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -81,8 +82,8 @@ class RecentlyRegisteredUserNotifier
 
     ContactRepo repo = ContactRepo();
     List<PeopleModel> list = [];
-    for (var json in (payload['list'] as List)) {
-      PeopleModel model = PeopleModel.fromJson(json as Map<String, dynamic>);
+    for (var json in IMBoyHttpResponse.payloadList(payload)) {
+      PeopleModel model = PeopleModel.fromJson(json);
       await repo.update({
         'id': json['id'],
         ContactRepo.isFriend: json['is_friend'],

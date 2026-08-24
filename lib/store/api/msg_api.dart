@@ -1,4 +1,5 @@
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
 /// 消息 API 客户端
@@ -42,6 +43,8 @@ class MsgApi extends HttpClient {
       },
     );
     if (!resp.ok || resp.payload == null) return null;
-    return Map<String, dynamic>.from(resp.payload as Map);
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 }

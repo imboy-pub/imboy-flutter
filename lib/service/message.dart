@@ -1375,7 +1375,7 @@ class MessageService with EventSubscriptionManager {
   String _getNotificationContent(MessageModel msg) {
     return _messageTypeLabel(
       msg.msgType ?? '',
-      msg.payload as Map<String, dynamic>,
+      msg.payloadMap,
       fallback: '[新消息]',
     );
   }

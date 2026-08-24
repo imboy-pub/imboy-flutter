@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
@@ -148,14 +149,15 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               totalLikes + _likeDelta,
             );
       } else if (!success && isLike) {
+        // 失败回滚；后端中文原因已由 ChannelApi 反应接口透出，不再叠兜底 toast
         setState(() {
           _liked = previousLiked;
           _likeDelta = previousDelta;
         });
         widget.onReactionChanged?.call();
-        AppLoading.showToast(t.common.operationFailedAgainLater);
       }
-    } catch (_) {
+    } catch (e) {
+      iPrint('[ChannelMessageItem] 反应操作失败: $e');
       if (mounted && isLike) {
         setState(() {
           _liked = previousLiked;
@@ -208,14 +210,15 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               totalLikes + _likeDelta,
             );
       } else if (!success && isLike) {
+        // 失败回滚；后端中文原因已由 ChannelApi 反应接口透出，不再叠兜底 toast
         setState(() {
           _liked = previousLiked;
           _likeDelta = previousDelta;
         });
         widget.onReactionChanged?.call();
-        AppLoading.showToast(t.common.operationFailedAgainLater);
       }
-    } catch (_) {
+    } catch (e) {
+      iPrint('[ChannelMessageItem] 反应操作失败: $e');
       if (mounted && isLike) {
         setState(() {
           _liked = previousLiked;
@@ -814,7 +817,8 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
 
   Widget _buildAudioContent(Color textColor) {
     final payload = widget.message.payload ?? {};
-    final durationMs = (payload['duration_ms'] as num?)?.toInt() ?? 0;
+    final durationMs =
+        IMBoyHttpResponse.payloadInt(payload, 'duration_ms') ?? 0;
     final durationSec = (durationMs / 1000).round();
     final uri = payload['uri']?.toString() ?? '';
 

@@ -411,7 +411,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         });
         await _verifyFile();
       }
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[E2EEBackupImport] 选择备份文件失败: $e');
       _showError(t.common.e2eeBackupErrSelectFile);
     }
   }
@@ -447,11 +448,13 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       });
       await _verifyFile();
     } on E2EEBackupUrlDownloadException catch (e) {
+      iPrint('[E2EEBackupImport] URL 下载失败: ${e.code} $e');
       if (mounted) _showError(_mapUrlDownloadError(e.code));
-    } on Object {
+    } on Object catch (e) {
       // _verifyFile 内部已捕获校验失败（on Object）并自行 _showError，不会 rethrow。
       // 走到这里只可能是 downloadToTemp 之后、_verifyFile 之前的意外异常
       // （如 mounted 检查与 File 构造之间的极小窗口），用通用下载失败文案兜底。
+      iPrint('[E2EEBackupImport] URL 下载未知异常: $e');
       if (mounted) _showError(t.common.e2eeBackupErrUrlDownload);
     } finally {
       if (mounted) setState(() => _isDownloading = false);
@@ -578,11 +581,12 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         _selectedFile!.path,
       );
       setState(() => _backupInfo = info);
-    } on Object {
+    } on Object catch (e) {
       // verifyBackupFile 的格式错误均为 ArgumentError——当前 Dart SDK 中
       // ArgumentError 仅 implements Error（不 implements Exception），
       // 用 on Exception 会捕获不到而静默冒泡（用户无任何提示）。
       // 校验失败一律清空元信息并提示。
+      iPrint('[E2EEBackupImport] 校验备份文件失败: $e');
       setState(() {
         _backupInfo = null;
       });
@@ -602,7 +606,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       );
 
       await _applyRestoredKeys(result);
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[E2EEBackupImport] 导入备份失败: $e');
       if (mounted) _showError(t.common.e2eeBackupErrImportFailed);
     } finally {
       if (mounted) setState(() => _isImporting = false);
@@ -672,7 +677,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       if (mounted) _showError(t.common.e2eeBackupErrNoCloudBackup);
     } on ArgumentError {
       if (mounted) _showError(t.common.e2eeBackupErrCloudPwd);
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[E2EEBackupImport] 云端恢复失败: $e');
       if (mounted) _showError(t.common.e2eeBackupErrCloudRestoreFailed);
     } finally {
       if (mounted) setState(() => _isCloudRestoring = false);

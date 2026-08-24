@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/api/user_tag_api.dart';
@@ -91,11 +92,11 @@ class ContactTagListNotifier extends _$ContactTagListNotifier {
       return [];
     }
 
-    for (var json in (payload['list'] as List)) {
+    for (var json in IMBoyHttpResponse.payloadList(payload)) {
       json['user_id'] = json['user_id'] ?? UserRepoLocal.to.currentUid;
       // 标签应用场景 1  用户收藏记录标签  2 用户朋友标签
       json[UserTagRepo.scene] = 2;
-      UserTagModel model = UserTagModel.fromJson(json as Map<String, dynamic>);
+      UserTagModel model = UserTagModel.fromJson(json);
       await repo.save(json);
       list.add(model);
     }

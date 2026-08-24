@@ -359,9 +359,12 @@ class MessageHandlingService {
 
     _msgLogger.d("collectMessage: 收藏结果: $res");
 
-    AppLoading.showToast(
-      res ? t.main.collected : t.common.operationFailedAgainLater,
-    );
+    // B1#16：失败时错误文案由 UserCollectApi.add 的
+    // AppLoading.showError(resp.msg) 透出后端中文消息，页面层不再叠加
+    // 兜底文案，避免双提示覆盖。
+    if (res) {
+      AppLoading.showToast(t.main.collected);
+    }
   }
 
   /// 撤回消息（使用新的action机制）

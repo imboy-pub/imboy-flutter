@@ -4,6 +4,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/init.dart';
@@ -314,10 +315,10 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           .read(userDeviceProvider.notifier)
           .deleteDevice(model.deviceId)) {
         AppLoading.showSuccess(t.common.tipSuccess);
-      } else {
-        AppLoading.showError(t.common.tipFailed);
       }
-    } catch (_) {
+      // 失败提示已由 API 层透传服务端 msg（离线场景由 provider 提示），无需兜底文案
+    } catch (e) {
+      iPrint('[UserDevice] 删除设备失败: $e');
       AppLoading.dismiss();
       AppLoading.showError(t.common.tipFailed);
     }
@@ -354,10 +355,10 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
           .read(userDeviceProvider.notifier)
           .forceOffline(model.deviceId)) {
         AppLoading.showSuccess(t.common.forceOfflineCommandSent);
-      } else {
-        AppLoading.showError(t.common.tipFailed);
       }
-    } catch (_) {
+      // 失败提示已由 API 层透传服务端 msg（离线场景由 provider 提示），无需兜底文案
+    } catch (e) {
+      iPrint('[UserDevice] 强制下线失败: $e');
       AppLoading.dismiss();
       AppLoading.showError(t.common.tipFailed);
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/config/init.dart' show currentFontSize;
@@ -277,6 +278,7 @@ class FontSizePage extends ConsumerWidget {
                       .applyFontSize(value);
                   AppLoading.showSuccess(t.common.fontSizeSettingUpdated);
                 } catch (e) {
+                  iPrint('[FontSize] 应用字号失败: $e');
                   AppLoading.showError(t.common.settingFailedPleaseTryAgain);
                 }
               },

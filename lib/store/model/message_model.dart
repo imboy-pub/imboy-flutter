@@ -404,6 +404,15 @@ class MessageModel {
   ///   // 处理语音消息
   /// }
   /// ```
+  /// payload 的安全 Map 访问。
+  ///
+  /// `payload` 为 dynamic（Map 或 String），E2EE PFv3 消息外层 payload
+  /// 固定为空串 String。使用此 getter 替代 `payload as Map` 裸 cast，
+  /// 防止 TypeError 崩溃。
+  Map<String, dynamic> get payloadMap => payload is Map<String, dynamic>
+      ? payload as Map<String, dynamic>
+      : <String, dynamic>{};
+
   String get effectiveMsgType {
     // 使用 MessageTypeNormalizer 进行类型归一化
     return MessageTypeNormalizer.normalize(

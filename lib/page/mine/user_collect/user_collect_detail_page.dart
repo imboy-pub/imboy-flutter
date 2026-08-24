@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -185,6 +186,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                     notifier.change(obj.kindId.toString());
                   });
                 } catch (e) {
+                  iPrint('[UserCollectDetail] 收藏操作失败: $e');
                   AppLoading.showError(t.common.operationFailedAgainLater);
                 }
               },

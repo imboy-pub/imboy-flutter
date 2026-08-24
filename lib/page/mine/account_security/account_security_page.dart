@@ -266,9 +266,8 @@ class AccountSecurityPage extends ConsumerWidget {
                   await UserRepoLocal.to.changeInfo(user.toMap());
                   AppLoading.showSuccess('解绑成功');
                   ref.read(accountSecurityProvider.notifier).refresh();
-                } else {
-                  AppLoading.showError('解绑失败');
                 }
+                // 失败分支不再叠兜底文案：后端中文原因已由 UserApi.updateField 透出
               } catch (e) {
                 AppLoading.showError('发生错误: $e');
               }
@@ -320,9 +319,8 @@ class AccountSecurityPage extends ConsumerWidget {
                     await UserRepoLocal.to.changeInfo(user.toMap());
                     AppLoading.showSuccess('绑定成功');
                     ref.read(accountSecurityProvider.notifier).refresh();
-                  } else {
-                    AppLoading.showError('绑定失败');
                   }
+                  // 失败分支不再叠兜底文案：后端中文原因已由 UserApi.updateField 透出
                 } catch (e) {
                   AppLoading.showError('发生错误: $e');
                 }

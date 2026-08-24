@@ -12,7 +12,9 @@ class FeedbackApi extends HttpClient {
     // 链路：feedback_page(_error)
     resp.throwIfFailed();
 
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   /// 添加用户反馈
@@ -49,6 +51,8 @@ class FeedbackApi extends HttpClient {
     // 链路：feedback_detail_page(_error)
     resp.throwIfFailed();
 
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 }

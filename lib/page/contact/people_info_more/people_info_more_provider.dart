@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/api/group_member_api.dart';
@@ -88,15 +89,15 @@ class PeopleInfoMoreNotifier extends _$PeopleInfoMoreNotifier {
       return;
     }
 
-    final count = (p['count'] ?? 0) as int;
+    final count = IMBoyHttpResponse.payloadInt(p, 'count') ?? 0;
     state = state.copyWith(groupCount: count, sameGroupFailed: false);
 
     if (count > 0) {
       List<GroupModel> list = [];
       var repo = GroupRepo();
 
-      for (var json in (p['list'] as List)) {
-        GroupModel m = await repo.save('', json as Map<String, dynamic>);
+      for (var json in IMBoyHttpResponse.payloadList(p)) {
+        GroupModel m = await repo.save('', json);
         list.add(m);
       }
 

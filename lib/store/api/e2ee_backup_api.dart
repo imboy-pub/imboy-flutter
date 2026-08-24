@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 
 /// 上传备份的结构化结果。
@@ -66,6 +67,12 @@ class E2EEBackupApi extends HttpClient {
         version = payload['backup_version'] as int;
       }
       return E2EEBackupPutResult(ok: true, backupVersion: version);
+    }
+    // 透出服务端中文错误消息；409 版本冲突除外——调用方（E2EEServerBackupService）
+    // 会自动刷新版本号重试一次，此处弹错误 toast 会造成"失败闪一下又成功"的假象。
+    // 重试耗尽的 409 由页面层按 versionConflict 兜底提示。
+    if (resp.code != 409 && resp.msg.isNotEmpty) {
+      AppLoading.showBackendError(resp.msg);
     }
     return E2EEBackupPutResult(ok: false, versionConflict: resp.code == 409);
   }

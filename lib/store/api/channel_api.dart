@@ -1,4 +1,6 @@
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_comment_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
@@ -46,7 +48,7 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelModel.fromJson(resp.payload as Map<String, dynamic>);
+    return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
   /// 获取频道信息
@@ -57,7 +59,7 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelModel.fromJson(resp.payload as Map<String, dynamic>);
+    return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
   /// 通过自定义 ID 获取频道
@@ -68,7 +70,7 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelModel.fromJson(resp.payload as Map<String, dynamic>);
+    return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
   /// 更新频道信息
@@ -102,7 +104,7 @@ class ChannelApi extends HttpClient {
       );
     }
 
-    return ChannelModel.fromJson(resp.payload as Map<String, dynamic>);
+    return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
   /// 删除频道
@@ -122,7 +124,12 @@ class ChannelApi extends HttpClient {
       '/api/v1/channel/$channelId/subscribe',
       data: <String, dynamic>{},
     );
-    return resp.ok;
+    if (!resp.ok) {
+      // 透出后端中文原因（如"私有频道需要邀请"），页面层不再叠兜底文案
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   /// 取消订阅
@@ -131,7 +138,11 @@ class ChannelApi extends HttpClient {
       '/api/v1/channel/$channelId/unsubscribe',
       data: <String, dynamic>{},
     );
-    return resp.ok;
+    if (!resp.ok) {
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   /// 获取我订阅的频道列表
@@ -172,18 +183,9 @@ class ChannelApi extends HttpClient {
       );
     }
 
-    final list = resp.payload['list'] as List?;
-    if (list == null) {
-      return const ChannelPageResult(
-        list: [],
-        nextCursor: null,
-        hasMore: false,
-      );
-    }
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
 
-    final channels = list
-        .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
-        .toList();
+    final channels = list.map((json) => ChannelModel.fromJson(json)).toList();
     // 只认「下一页游标」字段，绝不回落到 `cursor` —— 那是**请求参数的回显**。
     // /channels/subscribed 目前把入参原样返回（channel_handler.erl:219
     // `#{list => .., cursor => Cursor, ..}`），首屏 Cursor=undefined 又被
@@ -253,7 +255,7 @@ class ChannelApi extends HttpClient {
     }
 
     final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
     );
     final rawChannels = payload['channels'];
     final channels = rawChannels is List
@@ -284,12 +286,9 @@ class ChannelApi extends HttpClient {
       return [];
     }
 
-    final list = resp.payload['list'] as List?;
-    if (list == null) return [];
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
 
-    return list
-        .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
-        .toList();
+    return list.map((json) => ChannelModel.fromJson(json)).toList();
   }
 
   /// 获取频道订阅者列表
@@ -310,10 +309,9 @@ class ChannelApi extends HttpClient {
       return [];
     }
 
-    final list = resp.payload['list'] as List?;
-    if (list == null) return [];
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
 
-    return List<Map<String, dynamic>>.from(list);
+    return list;
   }
 
   // ==================== 消息操作 ====================
@@ -342,7 +340,9 @@ class ChannelApi extends HttpClient {
       throw Exception('publish response payload is empty');
     }
 
-    return ChannelMessageModel.fromJson(resp.payload as Map<String, dynamic>);
+    return ChannelMessageModel.fromJson(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   /// 获取频道消息列表
@@ -363,14 +363,9 @@ class ChannelApi extends HttpClient {
       return [];
     }
 
-    final list = resp.payload['list'] as List?;
-    if (list == null) return [];
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
 
-    return list
-        .map(
-          (json) => ChannelMessageModel.fromJson(json as Map<String, dynamic>),
-        )
-        .toList();
+    return list.map((json) => ChannelMessageModel.fromJson(json)).toList();
   }
 
   /// 标记已读
@@ -398,12 +393,9 @@ class ChannelApi extends HttpClient {
       return [];
     }
 
-    final list = resp.payload['list'] as List?;
-    if (list == null) return [];
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
 
-    return list
-        .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
-        .toList();
+    return list.map((json) => ChannelModel.fromJson(json)).toList();
   }
 
   /// 发现频道（channel_discovery_handler 新契约：分类/排序/分页）
@@ -425,21 +417,16 @@ class ChannelApi extends HttpClient {
       return [];
     }
 
-    final list = resp.payload['list'] as List?;
-    if (list == null) return [];
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
 
-    return list
-        .map((json) => ChannelModel.fromJson(json as Map<String, dynamic>))
-        .toList();
+    return list.map((json) => ChannelModel.fromJson(json)).toList();
   }
 
   /// 频道分类列表 GET /api/v1/channels/categories
   Future<List<Map<String, dynamic>>> channelCategories() async {
     final resp = await get('/api/v1/channels/categories');
     if (!resp.ok || resp.payload == null) return [];
-    return (resp.payload['list'] as List? ?? [])
-        .map((e) => Map<String, dynamic>.from(e as Map))
-        .toList();
+    return IMBoyHttpResponse.payloadList(resp.payload);
   }
 
   // ==================== 管理员操作 ====================
@@ -450,12 +437,20 @@ class ChannelApi extends HttpClient {
       '/api/v1/channel/$channelId/admin',
       data: {'user_id': userId, 'role': role},
     );
+    // 透出服务端中文错误消息（如权限不足/用户不存在），页面层不再重复兜底
+    if (!resp.ok && resp.msg.isNotEmpty) {
+      AppLoading.showBackendError(resp.msg);
+    }
     return resp.ok;
   }
 
   /// 移除管理员
   Future<bool> removeAdmin(String channelId, String userId) async {
     final resp = await delete('/api/v1/channel/$channelId/admin/$userId');
+    // 透出服务端中文错误消息，页面层不再重复兜底
+    if (!resp.ok && resp.msg.isNotEmpty) {
+      AppLoading.showBackendError(resp.msg);
+    }
     return resp.ok;
   }
 
@@ -467,10 +462,9 @@ class ChannelApi extends HttpClient {
       return [];
     }
 
-    final list = resp.payload['list'] as List?;
-    if (list == null) return [];
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
 
-    return List<Map<String, dynamic>>.from(list);
+    return list;
   }
 
   /// 更新管理员角色
@@ -483,12 +477,20 @@ class ChannelApi extends HttpClient {
       '/api/v1/channel/$channelId/admin/$userId/role',
       data: {'role': role},
     );
+    // 透出服务端中文错误消息，页面层不再重复兜底
+    if (!resp.ok && resp.msg.isNotEmpty) {
+      AppLoading.showBackendError(resp.msg);
+    }
     return resp.ok;
   }
 
   /// 移除订阅者
   Future<bool> removeSubscriber(String channelId, String userId) async {
     final resp = await delete('/api/v1/channel/$channelId/subscriber/$userId');
+    // 透出服务端中文错误消息，页面层不再重复兜底
+    if (!resp.ok && resp.msg.isNotEmpty) {
+      AppLoading.showBackendError(resp.msg);
+    }
     return resp.ok;
   }
 
@@ -527,7 +529,9 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   // ==================== 统计相关 API ====================
@@ -540,7 +544,9 @@ class ChannelApi extends HttpClient {
       return null;
     }
 
-    return ChannelStatsModel.fromJson(resp.payload as Map<String, dynamic>);
+    return ChannelStatsModel.fromJson(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
   }
 
   /// 获取频道每日统计数据
@@ -557,15 +563,9 @@ class ChannelApi extends HttpClient {
       return [];
     }
 
-    final list = resp.payload['list'] as List?;
-    if (list == null) return [];
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
 
-    return list
-        .map(
-          (json) =>
-              ChannelDailyStatsModel.fromJson(json as Map<String, dynamic>),
-        )
-        .toList();
+    return list.map((json) => ChannelDailyStatsModel.fromJson(json)).toList();
   }
 
   /// 记录消息阅读
@@ -590,7 +590,12 @@ class ChannelApi extends HttpClient {
       '/api/v1/channel/$channelId/message/$messageId/reaction',
       data: {'reaction_type': reactionType},
     );
-    return resp.ok;
+    if (!resp.ok) {
+      // 透出后端中文原因（如"消息已删除"），页面层不再叠兜底文案
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   /// 移除消息反应
@@ -602,7 +607,11 @@ class ChannelApi extends HttpClient {
     final resp = await delete(
       '/api/v1/channel/$channelId/message/$messageId/reaction/$reactionType',
     );
-    return resp.ok;
+    if (!resp.ok) {
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 
   // ==================== 邀请相关（私有频道） ====================
@@ -616,8 +625,14 @@ class ChannelApi extends HttpClient {
       '/api/v1/channel/$channelId/invitation',
       data: {'invitee_uid': inviteeUid},
     );
-    if (!resp.ok || resp.payload == null) return null;
-    return resp.payload as Map<String, dynamic>;
+    if (!resp.ok || resp.payload == null) {
+      // 透出服务端中文错误消息（如已邀请/权限不足），页面层不再重复兜底
+      if (!resp.ok && resp.msg.isNotEmpty) {
+        AppLoading.showBackendError(resp.msg);
+      }
+      return null;
+    }
+    return IMBoyHttpResponse.payloadAsMap(resp.payload);
   }
 
   /// 接受频道邀请
@@ -645,8 +660,7 @@ class ChannelApi extends HttpClient {
     resp.throwIfFailed();
 
     if (resp.payload == null) return [];
-    final list = resp.payload['list'] as List?;
-    return list?.cast<Map<String, dynamic>>() ?? [];
+    return IMBoyHttpResponse.payloadList(resp.payload);
   }
 
   /// 获取我发出的邀请列表
@@ -656,8 +670,7 @@ class ChannelApi extends HttpClient {
     resp.throwIfFailed();
 
     if (resp.payload == null) return [];
-    final list = resp.payload['list'] as List?;
-    return list?.cast<Map<String, dynamic>>() ?? [];
+    return IMBoyHttpResponse.payloadList(resp.payload);
   }
 
   // ==================== 订单相关（付费频道） ====================
@@ -674,7 +687,7 @@ class ChannelApi extends HttpClient {
     }
 
     return ChannelOrderModel.fromJson(
-      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      Map<String, dynamic>.from(IMBoyHttpResponse.payloadAsMap(resp.payload)),
     );
   }
 
@@ -708,14 +721,8 @@ class ChannelApi extends HttpClient {
       return [];
     }
 
-    final list = resp.payload['list'] as List?;
-    if (list == null) return [];
-    return list
-        .whereType<Map<String, dynamic>>()
-        .map(
-          (json) => ChannelOrderModel.fromJson(Map<String, dynamic>.from(json)),
-        )
-        .toList();
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
+    return list.map((json) => ChannelOrderModel.fromJson(json)).toList();
   }
 
   /// 获取订单详情
@@ -727,7 +734,7 @@ class ChannelApi extends HttpClient {
     }
 
     return ChannelOrderModel.fromJson(
-      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      Map<String, dynamic>.from(IMBoyHttpResponse.payloadAsMap(resp.payload)),
     );
   }
 
@@ -745,15 +752,8 @@ class ChannelApi extends HttpClient {
       queryParameters: {'cursor': cursor, 'limit': limit},
     );
     if (!resp.ok || resp.payload == null) return [];
-    final list = resp.payload['list'] as List?;
-    if (list == null) return [];
-    return list
-        .whereType<Map<dynamic, dynamic>>()
-        .map(
-          (json) =>
-              ChannelCommentModel.fromJson(Map<String, dynamic>.from(json)),
-        )
-        .toList();
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
+    return list.map((json) => ChannelCommentModel.fromJson(json)).toList();
   }
 
   /// 创建评论
@@ -769,7 +769,7 @@ class ChannelApi extends HttpClient {
     );
     if (!resp.ok || resp.payload == null) return null;
     return ChannelCommentModel.fromJson(
-      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      Map<String, dynamic>.from(IMBoyHttpResponse.payloadAsMap(resp.payload)),
     );
   }
 

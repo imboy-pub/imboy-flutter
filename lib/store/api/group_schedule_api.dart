@@ -1,4 +1,6 @@
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 
 /// 群日程 API 客户端
@@ -83,7 +85,7 @@ class GroupScheduleApi extends HttpClient {
     }
 
     return _normalizeSchedule(
-      Map<String, dynamic>.from(resp.payload as Map<dynamic, dynamic>),
+      Map<String, dynamic>.from(IMBoyHttpResponse.payloadAsMap(resp.payload)),
     );
   }
 
@@ -152,7 +154,7 @@ class GroupScheduleApi extends HttpClient {
     }
 
     final payload = Map<String, dynamic>.from(
-      resp.payload as Map<dynamic, dynamic>,
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
     );
     final schedule = payload['schedule'];
     if (schedule is Map<String, dynamic>) {
@@ -232,6 +234,11 @@ class GroupScheduleApi extends HttpClient {
         'accept': confirm,
       },
     );
-    return resp.ok;
+    if (!resp.ok) {
+      // 透出后端中文原因（如"日程已取消"），页面层不再叠兜底文案
+      AppLoading.showBackendError(resp.msg);
+      return false;
+    }
+    return true;
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_detail/remove_member_provider.dart';
@@ -71,6 +72,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
         });
       }
     } catch (e) {
+      iPrint('[GroupMemberDetail] 加载成员详情失败: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         AppLoading.showError(t.common.loadError);
@@ -107,9 +109,12 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
         case MuteValidationError():
           AppLoading.showError(t.common.muteMemberFailed);
         case MuteApiFailure():
-          AppLoading.showError(t.common.muteMemberFailed);
+          // 服务端中文错误消息已由 GroupMemberApi.mute 透传（AppLoading.showError(resp.msg)），
+          // 此处不再覆盖为兜底文案，避免吞掉真实原因。
+          break;
       }
     } catch (e) {
+      iPrint('[GroupMemberDetail] 禁言失败: $e');
       AppLoading.dismiss();
       if (mounted) AppLoading.showError(t.common.muteMemberFailed);
     }
@@ -141,9 +146,11 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
         case UnmuteValidationError():
           AppLoading.showError(t.common.unmuteMemberFailed);
         case UnmuteApiFailure():
-          AppLoading.showError(t.common.unmuteMemberFailed);
+          // 服务端中文错误消息已由 GroupMemberApi.unmute 透传，此处不再覆盖兜底文案。
+          break;
       }
     } catch (e) {
+      iPrint('[GroupMemberDetail] 解除禁言失败: $e');
       AppLoading.dismiss();
       if (mounted) AppLoading.showError(t.common.unmuteMemberFailed);
     }
@@ -553,14 +560,10 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
               ? t.common.removeAdminSuccess
               : t.common.setAdminSuccess,
         );
-      } else {
-        AppLoading.showError(
-          isCurrentlyAdmin
-              ? t.common.removeAdminFailed
-              : t.common.setAdminFailed,
-        );
       }
-    } on Exception {
+      // 失败提示已由 GroupMemberApi.updateRole 透传服务端 msg，无需兜底文案。
+    } on Exception catch (e) {
+      iPrint('[GroupMemberDetail] 设置管理员失败: $e');
       AppLoading.dismiss();
       if (mounted) {
         AppLoading.showError(
@@ -606,10 +609,10 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
         _anyChange = true;
         AppLoading.showSuccess(t.common.kickMemberSuccess);
         if (mounted) context.pop(true);
-      } else {
-        AppLoading.showError(t.common.kickMemberFailed);
       }
-    } on Exception {
+      // 失败提示已由 GroupMemberApi.leave 透传服务端 msg，无需兜底文案。
+    } on Exception catch (e) {
+      iPrint('[GroupMemberDetail] 踢出成员失败: $e');
       AppLoading.dismiss();
       if (mounted) AppLoading.showError(t.common.kickMemberFailed);
     }

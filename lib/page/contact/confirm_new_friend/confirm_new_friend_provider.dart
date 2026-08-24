@@ -116,7 +116,11 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
         await _receivedConfirmFriend({"from": to, "to": from});
 
         // 存储好友信息
-        _storeContactInfo(resp.payload as Map<String, dynamic>?);
+        _storeContactInfo(
+          resp.payload is Map<String, dynamic>
+              ? resp.payload as Map<String, dynamic>
+              : null,
+        );
 
         // 同步触发新好友提醒计数重新计算。
         // ⚠️ 不能再用 Future.delayed：confirmNewFriendProvider 是 autoDispose，

@@ -20,7 +20,9 @@ class GroupApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   Future<Map<String, dynamic>> detail({required String gid}) async {
@@ -32,7 +34,7 @@ class GroupApi extends HttpClient {
       AppLoading.showError(resp.msg);
     }
     if (!resp.ok) return <String, dynamic>{};
-    final payload = resp.payload as Map<String, dynamic>;
+    final payload = IMBoyHttpResponse.payloadAsMap(resp.payload);
     // P0-B B4：群详情携带 e2ee_mode（后端 SELECT *），此处同步本地旗标——
     // 覆盖开关广播之后才入群、没收到 group_e2ee_mode S2C 的成员
     final e2eeMode =
@@ -54,7 +56,7 @@ class GroupApi extends HttpClient {
       queryParameters: {'gid': gid},
     );
     if (!resp.ok) return null;
-    return resp.payload['remark'] as String?;
+    return IMBoyHttpResponse.payloadStr(resp.payload, 'remark');
   }
 
   /// 更新群备注（仅自己可见）
@@ -92,7 +94,11 @@ class GroupApi extends HttpClient {
     if (resp.ok == false) {
       AppLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload as Map<String, dynamic>? : null;
+    return resp.ok
+        ? (resp.payload is Map<String, dynamic>
+              ? resp.payload as Map<String, dynamic>
+              : null)
+        : null;
   }
 
   /// 面对面建群
@@ -112,7 +118,9 @@ class GroupApi extends HttpClient {
     if (resp.ok == false) {
       AppLoading.showError(resp.msg);
     }
-    return resp.ok ? resp.payload as Map<String, dynamic> : <String, dynamic>{};
+    return resp.ok
+        ? IMBoyHttpResponse.payloadAsMap(resp.payload)
+        : <String, dynamic>{};
   }
 
   Future<Map<String, dynamic>> groupFace2faceSave({
@@ -127,7 +135,7 @@ class GroupApi extends HttpClient {
       AppLoading.showError(resp.msg);
     }
     return resp.ok
-        ? (resp.payload as Map<String, dynamic>)
+        ? IMBoyHttpResponse.payloadAsMap(resp.payload)
         : <String, dynamic>{};
   }
 
@@ -138,7 +146,11 @@ class GroupApi extends HttpClient {
       API.groupAdd,
       data: {"member_uids": memberUserIds},
     );
-    return resp.ok ? resp.payload as Map<String, dynamic>? : null;
+    return resp.ok
+        ? (resp.payload is Map<String, dynamic>
+              ? resp.payload as Map<String, dynamic>
+              : null)
+        : null;
   }
 
   Future<bool> groupEdit({
@@ -191,7 +203,9 @@ class GroupApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
-    return resp.payload as Map<String, dynamic>?;
+    return resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : null;
   }
 
   Future<bool> removeRelation({

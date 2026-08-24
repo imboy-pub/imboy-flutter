@@ -169,19 +169,13 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     if (!mounted) return;
     setState(() => _isSubmitting = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? context.t.groupVote.voteSuccess
-              : context.t.common.operationFailedAgainLater,
-        ),
-      ),
-    );
-
     if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t.groupVote.voteSuccess)));
       await _loadVoteDetail();
     }
+    // 失败分支不再叠兜底文案：后端中文原因已由 GroupVoteApi 透出
   }
 
   Future<void> _cancelVote() async {
@@ -193,18 +187,13 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? context.t.groupVote.cancelVoteSuccess
-              : context.t.groupVote.cancelVoteFailed,
-        ),
-      ),
-    );
     if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.t.groupVote.cancelVoteSuccess)),
+      );
       await _loadVoteDetail();
     }
+    // 失败分支不再叠兜底文案：后端中文原因已由 GroupVoteApi 透出
   }
 
   Future<void> _closeVote() async {
@@ -216,18 +205,13 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     );
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? context.t.groupVote.voteEnded
-              : context.t.groupVote.endVoteFailed,
-        ),
-      ),
-    );
     if (success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t.groupVote.voteEnded)));
       await _loadVoteDetail();
     }
+    // 失败分支不再叠兜底文案：后端中文原因已由 GroupVoteApi 透出
   }
 
   Widget _buildOptionItem(

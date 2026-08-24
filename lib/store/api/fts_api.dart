@@ -183,30 +183,27 @@ class FtsApi extends HttpClient {
       queryParams['end_date'] = _msToDateString(endTime);
     }
 
-    try {
-      final IMBoyHttpResponse resp = await get(
-        API.ftsMessage,
-        queryParameters: queryParams,
-      );
+    final IMBoyHttpResponse resp = await get(
+      API.ftsMessage,
+      queryParameters: queryParams,
+    );
 
-      if (!resp.ok) {
-        if (resp.code == _kErrFeatureDisabled) {
-          throw FtsFeatureDisabledException();
-        }
-        return null;
+    if (!resp.ok) {
+      if (resp.code == _kErrFeatureDisabled) {
+        throw FtsFeatureDisabledException();
       }
-
-      final payload = resp.payload;
-      if (payload is Map<String, dynamic>) {
-        return MessageSearchResponse.fromJson(payload);
-      }
-
-      return null;
-    } on FtsFeatureDisabledException {
-      rethrow;
-    } on Exception {
-      return null;
+      // 失败必须抛出（fail-open 改造）：调用方（message_search_provider /
+      // search_chat_page / web_search_page）均有 catch 并渲染错误态，
+      // return null 会把网络失败压成「搜索无结果」。
+      resp.throwIfFailed();
     }
+
+    final payload = resp.payload;
+    if (payload is Map<String, dynamic>) {
+      return MessageSearchResponse.fromJson(payload);
+    }
+
+    return null;
   }
 
   /// 搜索指定会话的消息
@@ -240,30 +237,25 @@ class FtsApi extends HttpClient {
 
     queryParams.addAll(buildConversationFilter(conversationUk3));
 
-    try {
-      final IMBoyHttpResponse resp = await get(
-        API.ftsMessage,
-        queryParameters: queryParams,
-      );
+    final IMBoyHttpResponse resp = await get(
+      API.ftsMessage,
+      queryParameters: queryParams,
+    );
 
-      if (!resp.ok) {
-        if (resp.code == _kErrFeatureDisabled) {
-          throw FtsFeatureDisabledException();
-        }
-        return null;
+    if (!resp.ok) {
+      if (resp.code == _kErrFeatureDisabled) {
+        throw FtsFeatureDisabledException();
       }
-
-      final payload = resp.payload;
-      if (payload is Map<String, dynamic>) {
-        return MessageSearchResponse.fromJson(payload);
-      }
-
-      return null;
-    } on FtsFeatureDisabledException {
-      rethrow;
-    } on Exception {
-      return null;
+      // 同 searchMessages：失败必须抛出，调用方均有 catch 渲染错误态。
+      resp.throwIfFailed();
     }
+
+    final payload = resp.payload;
+    if (payload is Map<String, dynamic>) {
+      return MessageSearchResponse.fromJson(payload);
+    }
+
+    return null;
   }
 
   /// 由 conversationUk3 推导后端可用的过滤参数。
