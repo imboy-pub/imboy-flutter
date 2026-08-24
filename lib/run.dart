@@ -230,10 +230,7 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
         // 非 null 即可安全导航。linter 无法识别这点，故显式忽略。
         if (ctx != null) {
           // ignore: use_build_context_synchronously
-          ctx.go(
-            '/e2ee_backup_import',
-            extra: {'initialFilePath': path},
-          );
+          ctx.go('/e2ee_backup_import', extra: {'initialFilePath': path});
         }
       },
       onError: (Object e) {
