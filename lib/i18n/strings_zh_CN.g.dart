@@ -1114,6 +1114,9 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '订单已取消'
 	String get cancelOrderSuccess => '订单已取消';
 
+	/// zh-CN: '继续支付'
+	String get orderContinuePay => '继续支付';
+
 	/// zh-CN: '评论'
 	String get comment => '评论';
 
@@ -4918,6 +4921,18 @@ class Translations$common$zh_CN {
 	/// zh-CN: '对方的安全码已变更（可能因对方重装应用或更换设备）。若你重视安全，请通过其他渠道与对方核实身份。'
 	String get e2eePeerKeyChanged => '对方的安全码已变更（可能因对方重装应用或更换设备）。若你重视安全，请通过其他渠道与对方核实身份。';
 
+	/// zh-CN: '合规审计密钥已变更'
+	String get complianceKeyChangedTitle => '合规审计密钥已变更';
+
+	/// zh-CN: '服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。'
+	String get complianceKeyChangedBody => '服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。';
+
+	/// zh-CN: '确认轮换'
+	String get complianceKeyChangedActionConfirm => '确认轮换';
+
+	/// zh-CN: '暂不确认'
+	String get complianceKeyChangedActionKeep => '暂不确认';
+
 	/// zh-CN: '重新创建密钥（推荐）'
 	String get e2eeDecryptActionRecreateKey => '重新创建密钥（推荐）';
 
@@ -7342,6 +7357,72 @@ class Translations$main$zh_CN {
 	/// zh-CN: '端到端加密失败，消息未发送'
 	String get e2eeErrDefault => '端到端加密失败，消息未发送';
 
+	/// zh-CN: '合规审计密钥已变更，消息未发送，请确认轮换后重试'
+	String get e2eeErrComplianceChanged => '合规审计密钥已变更，消息未发送，请确认轮换后重试';
+
+	/// zh-CN: '合规审计密钥'
+	String get complianceKeyInfoTitle => '合规审计密钥';
+
+	/// zh-CN: '服务端下发的公钥'
+	String get complianceKeyInfoServerKey => '服务端下发的公钥';
+
+	/// zh-CN: '本地固定（TOFU）'
+	String get complianceKeyInfoLocalPin => '本地固定（TOFU）';
+
+	/// zh-CN: '密钥 ID'
+	String get complianceKeyInfoKeyId => '密钥 ID';
+
+	/// zh-CN: '算法'
+	String get complianceKeyInfoAlgorithm => '算法';
+
+	/// zh-CN: '公钥指纹'
+	String get complianceKeyInfoFingerprint => '公钥指纹';
+
+	/// zh-CN: '获取时间'
+	String get complianceKeyInfoFetchedAt => '获取时间';
+
+	/// zh-CN: '固定时间'
+	String get complianceKeyInfoPinnedAt => '固定时间';
+
+	/// zh-CN: '尚未固定（下次获取时自动固定）'
+	String get complianceKeyInfoPinnedNone => '尚未固定（下次获取时自动固定）';
+
+	/// zh-CN: '⚠️ 服务端下发的合规公钥与本地固定不一致！若这不是管理员有意的轮换，请立即联系管理员，并停止发送加密消息。'
+	String get complianceKeyInfoChangedWarning => '⚠️ 服务端下发的合规公钥与本地固定不一致！若这不是管理员有意的轮换，请立即联系管理员，并停止发送加密消息。';
+
+	/// zh-CN: '获取失败，请检查网络后重试'
+	String get complianceKeyInfoRefreshFailed => '获取失败，请检查网络后重试';
+
+	/// zh-CN: '合规审计密钥用于 compliance_e2ee 模式的双重加密。若上方指纹与管理员公布的指纹不一致，说明服务端可能被篡改。'
+	String get complianceKeyInfoHint => '合规审计密钥用于 compliance_e2ee 模式的双重加密。若上方指纹与管理员公布的指纹不一致，说明服务端可能被篡改。';
+
+	/// zh-CN: '安全码验证'
+	String get safetyNumberTitle => '安全码验证';
+
+	/// zh-CN: '请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。'
+	String get safetyNumberHint => '请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。';
+
+	/// zh-CN: '复制'
+	String get safetyNumberCopy => '复制';
+
+	/// zh-CN: '已复制'
+	String get safetyNumberCopied => '已复制';
+
+	/// zh-CN: '标记为已验证'
+	String get safetyNumberMarkVerified => '标记为已验证';
+
+	/// zh-CN: '已标记为已验证'
+	String get safetyNumberMarkedVerified => '已标记为已验证';
+
+	/// zh-CN: '对方设备'
+	String get safetyNumberPeerDevice => '对方设备';
+
+	/// zh-CN: '对方尚未启用端到端加密'
+	String get safetyNumberNoDevices => '对方尚未启用端到端加密';
+
+	/// zh-CN: '获取安全码失败，请稍后重试'
+	String get safetyNumberVerifyFailed => '获取安全码失败，请稍后重试';
+
 	/// zh-CN: '总分片数'
 	String get e2eeSocialTotalShards => '总分片数';
 
@@ -8144,6 +8225,7 @@ extension on Translations {
 			'channel.cancelOrderConfirmTitle' => '确认取消订单',
 			'channel.cancelOrderConfirmMessage' => '确定要取消该待支付订单吗？取消后不能继续支付。',
 			'channel.cancelOrderSuccess' => '订单已取消',
+			'channel.orderContinuePay' => '继续支付',
 			'channel.comment' => '评论',
 			'channel.readFull' => '阅读全文',
 			'channel.noComments' => '暂无评论',
@@ -8312,9 +8394,9 @@ extension on Translations {
 			'chat.storageSpaceData' => '存储空间和数据',
 			'chat.sureOpenTheFile' => '确定要打开文件吗？',
 			'chat.textMessage' => '文本消息',
-			'chat.titleMessage' => '消息',
 			_ => null,
 		} ?? switch (path) {
+			'chat.titleMessage' => '消息',
 			'chat.topChat' => '置顶聊天',
 			'chat.unpin' => '取消置顶',
 			'chat.unsupportedFileType' => '不支持的文件类型',
@@ -8826,9 +8908,9 @@ extension on Translations {
 			'common.throttleRetryAfter' => ({required Object seconds}) => '操作频率过高，请 ${seconds} 秒后再试',
 			'common.mutedCannotSend' => '禁言期间无法发送消息',
 			'common.resendCodeSuccess' => '已发送新邮件。',
-			'common.resetFilters' => '重置筛选',
 			_ => null,
 		} ?? switch (path) {
+			'common.resetFilters' => '重置筛选',
 			'common.saveQrCode' => '保存二维码',
 			'common.saveSuccess' => '保存成功',
 			'common.scanQrcodeAddFriend' => '扫一扫上面的二维码图案，加我为朋友',
@@ -9340,9 +9422,9 @@ extension on Translations {
 			'common.orderStatusUnknown' => '未知',
 			'common.removeReaction' => '移除反应',
 			'common.removeReactionConfirm' => ({required Object emoji}) => '确定要移除 ${emoji} 反应吗？',
-			'common.fileOpenFailed' => '无法打开该文件',
 			_ => null,
 		} ?? switch (path) {
+			'common.fileOpenFailed' => '无法打开该文件',
 			'common.e2eeLocalBackup' => '本地备份',
 			'common.e2eeLocalBackupDesc' => '导出加密备份文件到本地或云端',
 			'common.e2eeDeleteKey' => '删除密钥',
@@ -9410,6 +9492,10 @@ extension on Translations {
 			'common.e2eeDecryptChooseSolution' => '请选择解决方案：',
 			'common.e2eeDecryptRecreateHint' => '提示：重建后，对方需重新获取你的新密钥；重建期间未送达的加密消息可能不会自动重发。历史消息不受影响。',
 			'common.e2eePeerKeyChanged' => '对方的安全码已变更（可能因对方重装应用或更换设备）。若你重视安全，请通过其他渠道与对方核实身份。',
+			'common.complianceKeyChangedTitle' => '合规审计密钥已变更',
+			'common.complianceKeyChangedBody' => '服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。',
+			'common.complianceKeyChangedActionConfirm' => '确认轮换',
+			'common.complianceKeyChangedActionKeep' => '暂不确认',
 			'common.e2eeDecryptActionRecreateKey' => '重新创建密钥（推荐）',
 			'common.e2eeDecryptActionRelogin' => '重新登录',
 			'common.e2eeDecryptActionRemindLater' => '稍后提醒我',
@@ -9850,13 +9936,13 @@ extension on Translations {
 			'groupDiscovery.searchHint' => '搜索公开群',
 			'groupDiscovery.allCategories' => '全部',
 			'groupDiscovery.sortPopular' => '热门',
+			_ => null,
+		} ?? switch (path) {
 			'groupDiscovery.sortNewest' => '最新',
 			'groupDiscovery.emptyTitle' => '暂无公开群，稍后再来看看',
 			'groupDiscovery.searchEmpty' => '无匹配的公开群',
 			'groupList.attrAll' => '全部',
 			'groupList.attrOwner' => '我创建',
-			_ => null,
-		} ?? switch (path) {
 			'groupList.attrManager' => '我管理',
 			'groupList.attrJoin' => '我加入',
 			'groupList.refresh' => '刷新',
@@ -10178,6 +10264,28 @@ extension on Translations {
 			'main.webQRRefresh' => '刷新二维码',
 			'main.webSwitchToQR' => '使用 QR 码登录',
 			'main.e2eeErrDefault' => '端到端加密失败，消息未发送',
+			'main.e2eeErrComplianceChanged' => '合规审计密钥已变更，消息未发送，请确认轮换后重试',
+			'main.complianceKeyInfoTitle' => '合规审计密钥',
+			'main.complianceKeyInfoServerKey' => '服务端下发的公钥',
+			'main.complianceKeyInfoLocalPin' => '本地固定（TOFU）',
+			'main.complianceKeyInfoKeyId' => '密钥 ID',
+			'main.complianceKeyInfoAlgorithm' => '算法',
+			'main.complianceKeyInfoFingerprint' => '公钥指纹',
+			'main.complianceKeyInfoFetchedAt' => '获取时间',
+			'main.complianceKeyInfoPinnedAt' => '固定时间',
+			'main.complianceKeyInfoPinnedNone' => '尚未固定（下次获取时自动固定）',
+			'main.complianceKeyInfoChangedWarning' => '⚠️ 服务端下发的合规公钥与本地固定不一致！若这不是管理员有意的轮换，请立即联系管理员，并停止发送加密消息。',
+			'main.complianceKeyInfoRefreshFailed' => '获取失败，请检查网络后重试',
+			'main.complianceKeyInfoHint' => '合规审计密钥用于 compliance_e2ee 模式的双重加密。若上方指纹与管理员公布的指纹不一致，说明服务端可能被篡改。',
+			'main.safetyNumberTitle' => '安全码验证',
+			'main.safetyNumberHint' => '请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。',
+			'main.safetyNumberCopy' => '复制',
+			'main.safetyNumberCopied' => '已复制',
+			'main.safetyNumberMarkVerified' => '标记为已验证',
+			'main.safetyNumberMarkedVerified' => '已标记为已验证',
+			'main.safetyNumberPeerDevice' => '对方设备',
+			'main.safetyNumberNoDevices' => '对方尚未启用端到端加密',
+			'main.safetyNumberVerifyFailed' => '获取安全码失败，请稍后重试',
 			'main.e2eeSocialTotalShards' => '总分片数',
 			'main.e2eeSocialThreshold' => '恢复阈值',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '恢复密钥时需要 ${count} 个代理协助',

@@ -229,6 +229,28 @@ webQRExpired: QR code expired
 webQRRefresh: Refresh QR Code
 webSwitchToQR: Login with QR code
 e2eeErrDefault: "End-to-end encryption failed, message not sent"
+e2eeErrComplianceChanged: "Compliance audit key changed, message not sent. Confirm rotation and retry"
+complianceKeyInfoTitle: "Compliance Audit Key"
+complianceKeyInfoServerKey: "Public key from server"
+complianceKeyInfoLocalPin: "Local pin (TOFU)"
+complianceKeyInfoKeyId: "Key ID"
+complianceKeyInfoAlgorithm: "Algorithm"
+complianceKeyInfoFingerprint: "Public key fingerprint"
+complianceKeyInfoFetchedAt: "Fetched at"
+complianceKeyInfoPinnedAt: "Pinned at"
+complianceKeyInfoPinnedNone: "Not pinned yet (will be pinned on next fetch)"
+complianceKeyInfoChangedWarning: "Warning: the compliance public key from the server does not match the locally pinned value! If this is not an intentional rotation by your administrator, stop sending encrypted messages and contact your administrator."
+complianceKeyInfoRefreshFailed: "Failed to fetch. Check your network and retry"
+complianceKeyInfoHint: "The compliance audit key is used for double encryption in compliance_e2ee mode. If the fingerprint above differs from the one published by your administrator, the server may have been compromised."
+safetyNumberTitle: "Safety Number"
+safetyNumberHint: "Compare this safety number with your contact in person or over the phone. If they match, your conversation is not being intercepted by a man-in-the-middle. If they do not match, stop the conversation immediately and verify identity through another channel. Verification status is stored locally only."
+safetyNumberCopy: "Copy"
+safetyNumberCopied: "Copied"
+safetyNumberMarkVerified: "Mark as verified"
+safetyNumberMarkedVerified: "Marked as verified"
+safetyNumberPeerDevice: "Contact device"
+safetyNumberNoDevices: "This contact has not enabled end-to-end encryption yet"
+safetyNumberVerifyFailed: "Failed to get safety number, please retry later"
 e2eeSocialTotalShards: Total shards
 e2eeSocialThreshold: Recovery threshold
 e2eeSocialThresholdHint(count): Need $count proxies to recover key

@@ -39,21 +39,24 @@ import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart
 /// 附件上传回调
 typedef AttachmentUploadedCallback = Future<bool> Function(Message message);
 
-/// E2EE-061 附件封装的**分阶段开关**，默认 `false`。
+/// E2EE-061 附件封装的**发布开关**。
 ///
-/// ⚠️⚠️ **打开它之前必须先有 Slice 6（下载侧解密 + 完整性门）。**
-/// 今天的读取链路（`cachedImageProvider` / `IMBoyCacheManager.getSingleFile`）
-/// 直接把对象字节交给渲染器，**没有任何一处会调用
-/// [AttachmentEncryptor.open]**。此时开启封装的后果不是「更安全」，而是
-/// E2EE 会话里**所有新附件对谁都打不开**——包括发送者自己。
+/// Slice 6（下载侧解密 + 完整性门）已合入读取链路：
+/// `AttachmentOpenRegistry.materialize`（`IMBoyCacheManager.getSingleFile`
+/// 下载后、落盘前）调用 [AttachmentEncryptor.open]，descriptor 经
+/// `message_model_mapper` 登记、随加密 payload 落库。后端 `attachment.cipher`
+/// 列（migration 00000052）与 `normalize_cipher` fail-closed 校验均已就绪，
+/// 密文 confirm 只上报密文哈希/大小。
 ///
-/// 消息侧不会丢：descriptor 随加密 payload 落库，Slice 6 上线后旧密文仍可解。
-/// 但那扇窗口期内用户看到的是坏图。故按裁决规则选 fail-closed 的那个默认值。
+/// 因此开关翻开后：
+/// - 旧明文附件不受影响（payload 无 descriptor → 照旧直读）；
+/// - 新密文被旧客户端读到只是坏图/坏文件，不泄漏；
+/// - registry 冷启动空窗靠图片魔数校验自愈（多一次重下）。
 ///
-/// 翻开时只改这一行；`ChatAttachmentHandler.sealRollout` 会跟着变。
+/// 翻开关就是这一行；`ChatAttachmentHandler.sealRollout` 会跟着变。
 // ponytail: 单个 const 而非 feature flag 服务——它只会翻一次，翻的条件是
 // Slice 6 合入，不需要远端下发也不需要按用户灰度。
-const bool kAttachmentSealRolloutEnabled = false;
+const bool kAttachmentSealRolloutEnabled = true;
 
 /// 附件处理器
 ///

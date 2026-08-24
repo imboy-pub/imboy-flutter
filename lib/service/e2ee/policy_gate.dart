@@ -8,6 +8,8 @@ library;
 import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/e2ee_settings.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 
 /// 出站加密的 typed 安全异常（fail-closed）。
 ///
@@ -93,5 +95,28 @@ class PolicyGate {
       throw const E2eeSecurityException('compliance_key_expired');
     }
     return key;
+  }
+
+  /// Compliance 模式下取合规公钥并做 TOFU pin 校验（审计 P1-1）。
+  ///
+  /// 与 [requireComplianceKey] 的区别：这里先过 [ComplianceKeyService] 的
+  /// 锚定检查——key_id/指纹与本地固定不一致时 fire [ComplianceKeyChangedEvent]
+  /// 交由 UI 确认轮换，并向发送路径抛 `compliance_key_changed` 拒发
+  /// （绝不带未确认的新钥继续加密，也绝不回退旧缓存）。
+  static Future<ComplianceKeyInfo> checkedComplianceKey() async {
+    try {
+      final ck = await ComplianceKeyService.instance.getComplianceKey();
+      return requireComplianceKey(ck);
+    } on ComplianceKeyChangedException catch (e) {
+      AppEventBus.fire(
+        ComplianceKeyChangedEvent(
+          pinnedKeyId: e.pinnedKeyId,
+          pinnedFingerprint: e.pinnedFingerprint,
+          observedKeyId: e.observedKeyId,
+          observedFingerprint: e.observedFingerprint,
+        ),
+      );
+      throw const E2eeSecurityException('compliance_key_changed');
+    }
   }
 }

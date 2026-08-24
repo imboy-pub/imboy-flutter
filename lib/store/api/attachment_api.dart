@@ -173,7 +173,7 @@ class AttachmentApi {
 
     /// 非 null 时上传**密文**：明文经 [AttachmentEncryptor.seal] 分块 AEAD 后直传，
     /// confirm 上报的是**密文**哈希与大小（拍板 ①：明文哈希永不到达服务端），
-    /// 并带上 `cipher` 判别位（后端迁移 000050）。
+    /// 并带上 `cipher` 判别位（后端迁移 00000052）。
     /// 为 null 时行为**逐字节不变**——这是本刀零风险接线的前提。
     AttachmentSealRequest? seal,
   }) async {

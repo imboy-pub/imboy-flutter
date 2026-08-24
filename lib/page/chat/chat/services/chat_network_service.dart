@@ -861,6 +861,11 @@ class ChatNetworkService {
       // 把"能做什么"也说清楚。
       return t.error.e2eeErrNetwork;
     }
+    if (errorStr.contains('compliance_key_changed')) {
+      // 合规审计密钥与本地 TOFU 固定不一致（审计 P1-1）：fail-closed 拒发，
+      // 用户需在弹窗中确认管理员轮换后才可继续发送加密消息。
+      return t.main.e2eeErrComplianceChanged;
+    }
     if (errorStr.contains('no_recipient_keys') ||
         errorStr.contains('recipient_device_not_olm_ready') ||
         errorStr.contains('设备密钥') ||

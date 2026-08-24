@@ -220,4 +220,37 @@ void main() {
       expect(AttachmentSealPolicy.carriesContentKey(null), isFalse);
     });
   });
+
+  group('6. 发布开关（P0 启用回归门）', () {
+    test('kAttachmentSealRolloutEnabled 生产默认必须为 true', () {
+      // E2EE-061 P0：开关是附件 E2EE 的唯一功能性闸门。读取侧 Slice 6
+      // （AttachmentOpenRegistry.materialize）与后端 cipher 列均已就绪，
+      // 该常量被改回 false 即附件明文回归，必须在此被钉住。
+      expect(
+        kAttachmentSealRolloutEnabled,
+        isTrue,
+        reason: '附件 E2EE 发布开关被关回 false——见审计 P0 附件明文',
+      );
+    });
+
+    test('handler 生产默认实例化路径（不传 sealRollout）恒走发布开关值', () {
+      final h = ChatAttachmentHandler(
+        peerId: 'peer-1',
+        conversationUk3: ConversationUk3Generator.generateSmart(
+          type: 'C2C',
+          currentUserId: '1001',
+          peerId: 'peer-1',
+        ),
+        currentUserOverride: User(id: '1001', name: 'self'),
+        onMessageCreated: (Message m) async => true,
+      );
+      expect(
+        h.sealRollout,
+        equals(kAttachmentSealRolloutEnabled),
+        reason:
+            '生产唯一实例化点（chat_page.dart）不传 sealRollout，'
+            '若默认参数与常量脱钩，翻开关将不生效',
+      );
+    });
+  });
 }

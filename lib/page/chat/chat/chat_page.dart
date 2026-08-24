@@ -59,6 +59,7 @@ import 'package:imboy/service/storage.dart';
 
 // 显式导入 E2EE 事件（barrel 用 show 白名单未含 E2EEPeerKeyChangedEvent）
 import 'package:imboy/service/events/message_events.dart';
+import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'e2ee_peer_key_warning_rule.dart';
 
@@ -579,6 +580,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   StreamSubscription<AppErrorEvent>? _ssAppErrorLocal;
   StreamSubscription<E2EEKeyMismatchEvent>? _ssE2EEKeyMismatch;
   StreamSubscription<E2EEPeerKeyChangedEvent>? _ssE2EEPeerKeyChanged;
+  StreamSubscription<ComplianceKeyChangedEvent>? _ssComplianceKeyChanged;
   // 禁言事件监听
   StreamSubscription<UserMutedEvent>? _ssUserMuted;
   StreamSubscription<UserUnmutedEvent>? _ssUserUnmuted;
@@ -652,6 +654,14 @@ class ChatPageState extends ConsumerState<ChatPage>
         }
         AppLoading.showToast(t.common.e2eePeerKeyChanged);
       }, onError: (Object error) {});
+
+      // 合规审计密钥与本地 TOFU 固定不一致（审计 P1-1）：fail-closed 拒发已由
+      // PolicyGate 完成，这里弹确认框让用户决定是管理员轮换还是疑似偷换。
+      _ssComplianceKeyChanged = AppEventBus.on<ComplianceKeyChangedEvent>()
+          .listen((event) {
+            if (!mounted) return;
+            _showComplianceKeyChangedDialog(event);
+          }, onError: (Object error) {});
 
       // 监听禁言事件
       _ssUserMuted = AppEventBus.on<UserMutedEvent>().listen((event) {
@@ -796,6 +806,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 取消 E2EE密钥不匹配事件监听器
     _ssE2EEKeyMismatch?.cancel();
     _ssE2EEPeerKeyChanged?.cancel();
+    _ssComplianceKeyChanged?.cancel();
 
     // 取消禁言事件监听
     _ssUserMuted?.cancel();
@@ -2410,6 +2421,77 @@ class ChatPageState extends ConsumerState<ChatPage>
         ],
       ),
     );
+  }
+
+  /// 合规审计密钥变更确认对话框（审计 P1-1）。
+  ///
+  /// 服务端下发的合规公钥与本地 TOFU 固定不一致时，发送已被 fail-closed 拒发；
+  /// 这里让用户区分"管理员有意轮换"（确认 → re-pin，可继续发送）与
+  /// "疑似服务端偷换"（拒绝 → 保持旧 pin，加密发送继续被拦）。
+  void _showComplianceKeyChangedDialog(ComplianceKeyChangedEvent event) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.security, color: AppColors.iosOrange),
+            AppSpacing.horizontalMedium,
+            Text(t.common.complianceKeyChangedTitle),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.common.complianceKeyChangedBody),
+            AppSpacing.verticalRegular,
+            Text(
+              'key_id: ${event.pinnedKeyId ?? '-'} → ${event.observedKeyId}',
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.alipaySimTextGrey,
+              ),
+            ),
+            Text(
+              'fingerprint: ${_shortFingerprint(event.pinnedFingerprint) ?? '-'}'
+              ' → ${_shortFingerprint(event.observedFingerprint)}',
+              style: TextStyle(
+                fontSize: FontSizeType.small.size,
+                color: AppColors.alipaySimTextGrey,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              // 拒绝：保持旧 pin，后续发送继续 fail-closed。
+              await ComplianceKeyService.instance.confirmRotation(
+                accept: false,
+              );
+            },
+            child: Text(t.common.complianceKeyChangedActionKeep),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              final ok = await ComplianceKeyService.instance.confirmRotation(
+                accept: true,
+              );
+              AppLoading.showToast(ok ? t.main.e2eeErrComplianceChanged : '');
+            },
+            child: Text(t.common.complianceKeyChangedActionConfirm),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 指纹前 8 位展示（足够区分，避免整串过长）。
+  String? _shortFingerprint(String? fp) {
+    if (fp == null || fp.isEmpty) return null;
+    return fp.length > 8 ? fp.substring(0, 8) : fp;
   }
 
   /// 重新创建 E2EE 密钥

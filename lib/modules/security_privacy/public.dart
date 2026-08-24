@@ -4,6 +4,7 @@
 library;
 
 export '../../page/settings/e2ee_key_recovery_page.dart';
+export '../../page/settings/compliance_key_page.dart';
 export '../../page/settings/e2ee_backup_export_page.dart';
 export '../../page/settings/e2ee_backup_import_page.dart';
 export '../../service/e2ee_local_backup_service.dart';

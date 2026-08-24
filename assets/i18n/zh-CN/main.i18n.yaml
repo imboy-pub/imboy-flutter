@@ -230,6 +230,28 @@ webQRExpired: 二维码已过期
 webQRRefresh: 刷新二维码
 webSwitchToQR: 使用 QR 码登录
 e2eeErrDefault: 端到端加密失败，消息未发送
+e2eeErrComplianceChanged: 合规审计密钥已变更，消息未发送，请确认轮换后重试
+complianceKeyInfoTitle: 合规审计密钥
+complianceKeyInfoServerKey: 服务端下发的公钥
+complianceKeyInfoLocalPin: 本地固定（TOFU）
+complianceKeyInfoKeyId: 密钥 ID
+complianceKeyInfoAlgorithm: 算法
+complianceKeyInfoFingerprint: 公钥指纹
+complianceKeyInfoFetchedAt: 获取时间
+complianceKeyInfoPinnedAt: 固定时间
+complianceKeyInfoPinnedNone: 尚未固定（下次获取时自动固定）
+complianceKeyInfoChangedWarning: ⚠️ 服务端下发的合规公钥与本地固定不一致！若这不是管理员有意的轮换，请立即联系管理员，并停止发送加密消息。
+complianceKeyInfoRefreshFailed: 获取失败，请检查网络后重试
+complianceKeyInfoHint: 合规审计密钥用于 compliance_e2ee 模式的双重加密。若上方指纹与管理员公布的指纹不一致，说明服务端可能被篡改。
+safetyNumberTitle: 安全码验证
+safetyNumberHint: 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。
+safetyNumberCopy: 复制
+safetyNumberCopied: 已复制
+safetyNumberMarkVerified: 标记为已验证
+safetyNumberMarkedVerified: 已标记为已验证
+safetyNumberPeerDevice: 对方设备
+safetyNumberNoDevices: 对方尚未启用端到端加密
+safetyNumberVerifyFailed: 获取安全码失败，请稍后重试
 e2eeSocialTotalShards: 总分片数
 e2eeSocialThreshold: 恢复阈值
 e2eeSocialThresholdHint(count): 恢复密钥时需要 $count 个代理协助

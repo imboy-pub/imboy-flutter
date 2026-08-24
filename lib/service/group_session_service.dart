@@ -277,13 +277,14 @@ class GroupSessionService {
 
   /// compliance_e2ee 模式：room key 额外用合规公钥包裹一份（审计侧可导入解密）；
   /// 获取失败、过期或为 null 都必须 fail-closed 抛异常阻断发送，决不降级（ADR 14 §S1.1 / CB-09/10）。
+  /// checkedComplianceKey 额外做 TOFU pin 校验（审计 P1-1）：与本地固定不一致
+  /// → fire ComplianceKeyChangedEvent + 抛 compliance_key_changed。
   Future<Map<String, dynamic>?> _complianceKeyEntry(String exportedKey) async {
     if (EncryptionModeService.current != EncryptionMode.complianceE2ee) {
       return null;
     }
     try {
-      final ck = await ComplianceKeyService.instance.getComplianceKey();
-      final verifiedKey = PolicyGate.requireComplianceKey(ck);
+      final verifiedKey = await PolicyGate.checkedComplianceKey();
       return complianceEntryFor(exportedKey: exportedKey, key: verifiedKey);
     } on E2eeSecurityException {
       rethrow;

@@ -11,6 +11,36 @@ export 'user_events.dart';
 export 'channel_events.dart';
 export 'message_operation_events.dart';
 
+/// 合规审计密钥与本地 TOFU 固定不一致（疑似被服务端偷换，或管理员有意的轮换）。
+///
+/// 发送路径检测到后 fire 本事件并由 UI 层弹确认对话框：
+/// 确认轮换 → [ComplianceKeyService.confirmRotation(accept: true)] re-pin；
+/// 拒绝 → 保持旧 pin，后续发送继续 fail-closed。
+final class ComplianceKeyChangedEvent extends AppEvent {
+  /// 本地已固定的旧 key_id / 指纹（可能为 null = 从未固定）
+  final String? pinnedKeyId;
+  final String? pinnedFingerprint;
+
+  /// 服务端刚下发的新 key_id / 指纹
+  final String observedKeyId;
+  final String observedFingerprint;
+
+  const ComplianceKeyChangedEvent({
+    this.pinnedKeyId,
+    this.pinnedFingerprint,
+    required this.observedKeyId,
+    required this.observedFingerprint,
+  });
+
+  @override
+  List<Object> get props => [
+    ?pinnedKeyId,
+    ?pinnedFingerprint,
+    observedKeyId,
+    observedFingerprint,
+  ];
+}
+
 // ============================================================================
 // 消息相关事件
 // ============================================================================

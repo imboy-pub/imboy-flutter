@@ -262,6 +262,31 @@ class OlmSessionService {
     );
   }
 
+  /// 本端 Olm identity curve25519 公钥（base64）。
+  ///
+  /// 供 Safety Number 计算等"展示本端身份"场景使用；内部走
+  /// [_loadOrCreateAccount]（与建会话同一权威副本），不新建账号。
+  Future<String> localCurve25519Identity() async {
+    await ensureInitialized();
+    return _accountLock.synchronized(() async {
+      final account = await _loadOrCreateAccount();
+      return account.identityKeys.curve25519.toBase64();
+    });
+  }
+
+  /// 对端指定设备的 Olm identity curve25519 公钥（base64）。
+  ///
+  /// 供 Safety Number 计算使用。内部走 [_lookupPeerIdentityKey]——
+  /// 与 X3DH 建会话同一条已验证路径（Ed25519 自签核验 + TOFU pin），
+  /// 禁止裸调 [OlmApi.getIdentity] 后直接展示，否则展示层会成为新的 MITM 面。
+  Future<String> peerCurve25519Identity(
+    String peerUid,
+    String peerDeviceId,
+  ) async {
+    await ensureInitialized();
+    return _lookupPeerIdentityKey(peerUid, peerDeviceId);
+  }
+
   /// 上报设备 Olm 身份键 + 首批 prekey 到服务端（登录/换设备后调用）。
   Future<void> publishIdentityAndPrekeys({
     String? deviceType,

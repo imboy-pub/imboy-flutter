@@ -1640,6 +1640,10 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeDecryptChooseSolution => 'Please choose a solution:';
 	@override String get e2eeDecryptRecreateHint => 'Note: after recreating, the other party needs to fetch your new key; encrypted messages not yet delivered during the change may not be resent automatically. Message history is not affected.';
 	@override String get e2eePeerKeyChanged => 'This contact\'s safety number has changed (they may have reinstalled the app or switched devices). If security matters to you, verify their identity through another channel.';
+	@override String get complianceKeyChangedTitle => 'Compliance audit key has changed';
+	@override String get complianceKeyChangedBody => 'The compliance audit public key from the server does not match the locally pinned value. If this is an intentional key rotation by your administrator, tap "Confirm rotation". Otherwise, do not send encrypted messages and contact your administrator.';
+	@override String get complianceKeyChangedActionConfirm => 'Confirm rotation';
+	@override String get complianceKeyChangedActionKeep => 'Not now';
 	@override String get e2eeDecryptActionRecreateKey => 'Recreate key (recommended)';
 	@override String get e2eeDecryptActionRelogin => 'Log in again';
 	@override String get e2eeDecryptActionRemindLater => 'Remind me later';
@@ -2485,6 +2489,28 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get webQRRefresh => 'Refresh QR Code';
 	@override String get webSwitchToQR => 'Login with QR code';
 	@override String get e2eeErrDefault => 'End-to-end encryption failed, message not sent';
+	@override String get e2eeErrComplianceChanged => 'Compliance audit key changed, message not sent. Confirm rotation and retry';
+	@override String get complianceKeyInfoTitle => 'Compliance Audit Key';
+	@override String get complianceKeyInfoServerKey => 'Public key from server';
+	@override String get complianceKeyInfoLocalPin => 'Local pin (TOFU)';
+	@override String get complianceKeyInfoKeyId => 'Key ID';
+	@override String get complianceKeyInfoAlgorithm => 'Algorithm';
+	@override String get complianceKeyInfoFingerprint => 'Public key fingerprint';
+	@override String get complianceKeyInfoFetchedAt => 'Fetched at';
+	@override String get complianceKeyInfoPinnedAt => 'Pinned at';
+	@override String get complianceKeyInfoPinnedNone => 'Not pinned yet (will be pinned on next fetch)';
+	@override String get complianceKeyInfoChangedWarning => 'Warning: the compliance public key from the server does not match the locally pinned value! If this is not an intentional rotation by your administrator, stop sending encrypted messages and contact your administrator.';
+	@override String get complianceKeyInfoRefreshFailed => 'Failed to fetch. Check your network and retry';
+	@override String get complianceKeyInfoHint => 'The compliance audit key is used for double encryption in compliance_e2ee mode. If the fingerprint above differs from the one published by your administrator, the server may have been compromised.';
+	@override String get safetyNumberTitle => 'Safety Number';
+	@override String get safetyNumberHint => 'Compare this safety number with your contact in person or over the phone. If they match, your conversation is not being intercepted by a man-in-the-middle. If they do not match, stop the conversation immediately and verify identity through another channel. Verification status is stored locally only.';
+	@override String get safetyNumberCopy => 'Copy';
+	@override String get safetyNumberCopied => 'Copied';
+	@override String get safetyNumberMarkVerified => 'Mark as verified';
+	@override String get safetyNumberMarkedVerified => 'Marked as verified';
+	@override String get safetyNumberPeerDevice => 'Contact device';
+	@override String get safetyNumberNoDevices => 'This contact has not enabled end-to-end encryption yet';
+	@override String get safetyNumberVerifyFailed => 'Failed to get safety number, please retry later';
 	@override String get e2eeSocialTotalShards => 'Total shards';
 	@override String get e2eeSocialThreshold => 'Recovery threshold';
 	@override String e2eeSocialThresholdHint({required Object count}) => 'Need ${count} proxies to recover key';
@@ -4202,6 +4228,10 @@ extension on TranslationsEnUs {
 			'common.e2eeDecryptChooseSolution' => 'Please choose a solution:',
 			'common.e2eeDecryptRecreateHint' => 'Note: after recreating, the other party needs to fetch your new key; encrypted messages not yet delivered during the change may not be resent automatically. Message history is not affected.',
 			'common.e2eePeerKeyChanged' => 'This contact\'s safety number has changed (they may have reinstalled the app or switched devices). If security matters to you, verify their identity through another channel.',
+			'common.complianceKeyChangedTitle' => 'Compliance audit key has changed',
+			'common.complianceKeyChangedBody' => 'The compliance audit public key from the server does not match the locally pinned value. If this is an intentional key rotation by your administrator, tap "Confirm rotation". Otherwise, do not send encrypted messages and contact your administrator.',
+			'common.complianceKeyChangedActionConfirm' => 'Confirm rotation',
+			'common.complianceKeyChangedActionKeep' => 'Not now',
 			'common.e2eeDecryptActionRecreateKey' => 'Recreate key (recommended)',
 			'common.e2eeDecryptActionRelogin' => 'Log in again',
 			'common.e2eeDecryptActionRemindLater' => 'Remind me later',
@@ -4213,12 +4243,12 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupConfirmPwdLabel' => 'Confirm Password *',
 			'common.e2eeBackupConfirmPwdHint' => 'Enter password again',
 			'common.e2eeBackupNoteLabel' => 'Note (optional)',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupNoteHint' => 'e.g. Main phone backup - Jan 2026',
 			'common.e2eeBackupPwdStrengthLabel' => 'Password strength',
 			'common.e2eeBackupPwdWeak' => 'Weak - add more complexity',
 			'common.e2eeBackupPwdMedium' => 'Medium - add more length or complexity',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupPwdStrong' => 'Strong - acceptable',
 			'common.e2eeBackupPwdVeryStrong' => 'Very strong - secure',
 			'common.e2eeBackupGenerateBtn' => 'Generate backup file',
@@ -4727,12 +4757,12 @@ extension on TranslationsEnUs {
 			'main.enUs' => 'English (US)',
 			'main.enable' => 'Enable',
 			'main.example' => 'Example:',
+			_ => null,
+		} ?? switch (path) {
 			'main.expired' => 'Expired',
 			'main.extraItem' => 'Extra item',
 			'main.faceToFaceLogic' => 'Face to face',
 			'main.favorites' => 'Favorite',
-			_ => null,
-		} ?? switch (path) {
 			'main.female' => 'Female',
 			'main.followSystem' => 'Follow system',
 			'main.frFr' => 'French (France)',
@@ -4925,6 +4955,28 @@ extension on TranslationsEnUs {
 			'main.webQRRefresh' => 'Refresh QR Code',
 			'main.webSwitchToQR' => 'Login with QR code',
 			'main.e2eeErrDefault' => 'End-to-end encryption failed, message not sent',
+			'main.e2eeErrComplianceChanged' => 'Compliance audit key changed, message not sent. Confirm rotation and retry',
+			'main.complianceKeyInfoTitle' => 'Compliance Audit Key',
+			'main.complianceKeyInfoServerKey' => 'Public key from server',
+			'main.complianceKeyInfoLocalPin' => 'Local pin (TOFU)',
+			'main.complianceKeyInfoKeyId' => 'Key ID',
+			'main.complianceKeyInfoAlgorithm' => 'Algorithm',
+			'main.complianceKeyInfoFingerprint' => 'Public key fingerprint',
+			'main.complianceKeyInfoFetchedAt' => 'Fetched at',
+			'main.complianceKeyInfoPinnedAt' => 'Pinned at',
+			'main.complianceKeyInfoPinnedNone' => 'Not pinned yet (will be pinned on next fetch)',
+			'main.complianceKeyInfoChangedWarning' => 'Warning: the compliance public key from the server does not match the locally pinned value! If this is not an intentional rotation by your administrator, stop sending encrypted messages and contact your administrator.',
+			'main.complianceKeyInfoRefreshFailed' => 'Failed to fetch. Check your network and retry',
+			'main.complianceKeyInfoHint' => 'The compliance audit key is used for double encryption in compliance_e2ee mode. If the fingerprint above differs from the one published by your administrator, the server may have been compromised.',
+			'main.safetyNumberTitle' => 'Safety Number',
+			'main.safetyNumberHint' => 'Compare this safety number with your contact in person or over the phone. If they match, your conversation is not being intercepted by a man-in-the-middle. If they do not match, stop the conversation immediately and verify identity through another channel. Verification status is stored locally only.',
+			'main.safetyNumberCopy' => 'Copy',
+			'main.safetyNumberCopied' => 'Copied',
+			'main.safetyNumberMarkVerified' => 'Mark as verified',
+			'main.safetyNumberMarkedVerified' => 'Marked as verified',
+			'main.safetyNumberPeerDevice' => 'Contact device',
+			'main.safetyNumberNoDevices' => 'This contact has not enabled end-to-end encryption yet',
+			'main.safetyNumberVerifyFailed' => 'Failed to get safety number, please retry later',
 			'main.e2eeSocialTotalShards' => 'Total shards',
 			'main.e2eeSocialThreshold' => 'Recovery threshold',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Need ${count} proxies to recover key',

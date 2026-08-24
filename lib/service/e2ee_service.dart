@@ -8,7 +8,6 @@ import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
-import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
@@ -257,9 +256,10 @@ class E2EEService {
     // 却被当作发送成功。异常向上传播由发送路径拒发。
     final policyMode = EncryptionModeService.current;
     if (policyMode == EncryptionMode.complianceE2ee) {
-      final complianceKey = PolicyGate.requireComplianceKey(
-        await ComplianceKeyService.instance.getComplianceKey(),
-      );
+      // checkedComplianceKey：TOFU pin 校验（审计 P1-1）。key_id/指纹与本地
+      // 固定不一致 → fire ComplianceKeyChangedEvent + 抛
+      // compliance_key_changed，由发送路径拒发并弹确认框。
+      final complianceKey = await PolicyGate.checkedComplianceKey();
       final wrappedCompliance = await _wrapAESKey(
         aesKey: aesKey,
         publicKeyPem: complianceKey.publicKey,

@@ -17,6 +17,7 @@ import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 import 'contact_setting_provider.dart';
 import '../contact_setting_tag/contact_setting_tag_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/settings/safety_number_page.dart';
 
 /// 联系人设置页面 - 像素级对齐 iOS 17 Premium 风格
 class ContactSettingPage extends ConsumerStatefulWidget {
@@ -122,6 +123,16 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                   value: state.isInDenylist,
                   activeTrackColor: AppColors.getIosRed(brightness),
                   onChanged: (val) => _showDenylistConfirmation(context, val),
+                ),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.main.safetyNumberTitle),
+                leading: _buildIcon(CupertinoIcons.shield, AppColors.iosGreen),
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute<void>(
+                    builder: (_) => SafetyNumberPage(peerUid: widget.peerId),
+                  ),
                 ),
               ),
               ImBoySettingsTile(

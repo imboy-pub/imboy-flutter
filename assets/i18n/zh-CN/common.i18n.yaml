@@ -951,6 +951,10 @@ e2eeDecryptReasonDataCorrupt: • 应用数据损坏
 e2eeDecryptChooseSolution: 请选择解决方案：
 e2eeDecryptRecreateHint: 提示：重建后，对方需重新获取你的新密钥；重建期间未送达的加密消息可能不会自动重发。历史消息不受影响。
 e2eePeerKeyChanged: 对方的安全码已变更（可能因对方重装应用或更换设备）。若你重视安全，请通过其他渠道与对方核实身份。
+complianceKeyChangedTitle: 合规审计密钥已变更
+complianceKeyChangedBody: 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。
+complianceKeyChangedActionConfirm: 确认轮换
+complianceKeyChangedActionKeep: 暂不确认
 e2eeDecryptActionRecreateKey: 重新创建密钥（推荐）
 e2eeDecryptActionRelogin: 重新登录
 e2eeDecryptActionRemindLater: 稍后提醒我

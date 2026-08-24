@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/page/settings/safety_number_page.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/page/chat/widget/chat_background_manager.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -377,6 +378,23 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
             : t.common.msgNotEncrypted,
         isFirst: true,
       ),
+      // 安全码验证（审计 P1-2）：仅 C2C 单聊提供带外身份比对。
+      // 群聊 peerId 为群 id，成员级安全码属后续扩展（见台账 IMB-2026-006）。
+      if (widget.type == 'C2C')
+        _buildSettingTile(
+          title: t.main.safetyNumberTitle,
+          icon: CupertinoIcons.shield,
+          iconColor: Theme.of(context).colorScheme.primary,
+          subtitle: t.main.safetyNumberHint,
+          onTap: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute<void>(
+                builder: (_) => SafetyNumberPage(peerUid: widget.peerId),
+              ),
+            );
+          },
+        ),
       // C7-α-2: 本地消息免打扰开关
       _buildSwitchTile(
         t.common.muteNotifications,

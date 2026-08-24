@@ -192,6 +192,18 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   ),
                 ),
               ),
+              // 合规审计密钥信息（compliance_e2ee 模式锚定核验，审计 P1-1）
+              ImBoySettingsTile(
+                title: Text(t.main.complianceKeyInfoTitle),
+                subtitle: Text(t.main.complianceKeyInfoHint),
+                leading: _buildIcon(CupertinoIcons.shield, AppColors.iosBlue),
+                onTap: () => Navigator.push(
+                  context,
+                  CupertinoPageRoute<void>(
+                    builder: (_) => const ComplianceKeyPage(),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
