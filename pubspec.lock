@@ -1979,8 +1979,8 @@ packages:
     description:
       path: "."
       ref: leeyi
-      resolved-ref: "3bfe371466023305cc56f07203fe3b141be2f598"
-      url: "git@gitee.com:imboy-tripartite-deps/r_upgrade.git"
+      resolved-ref: "29d33393b32a64d7312b44023dc92ec94942dd91"
+      url: "https://gitee.com/imboy-tripartite-deps/r_upgrade.git"
     source: git
     version: "0.4.3"
   recase:

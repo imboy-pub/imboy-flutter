@@ -178,7 +178,7 @@ dependencies:
   r_upgrade:                          # App upgrade utility
     #path: plugin/r_upgrade
     git:
-      url: git@gitee.com:imboy-tripartite-deps/r_upgrade.git
+      url: https://gitee.com/imboy-tripartite-deps/r_upgrade.git
       ref: leeyi
   ic_storage_space:                   # Storage space information
     git:
