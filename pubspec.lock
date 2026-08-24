@@ -31,7 +31,7 @@ packages:
       path: "."
       ref: main
       resolved-ref: d140b2f93b41f625496ce6fef5f8a527b66d46a2
-      url: "git@gitee.com:imboy-tripartite-deps/amap_flutter_location_plus.git"
+      url: "https://gitee.com/imboy-tripartite-deps/amap_flutter_location_plus.git"
     source: git
     version: "3.1.2"
   analyzer:
@@ -104,7 +104,7 @@ packages:
       path: "."
       ref: leeyi
       resolved-ref: "1d932e159ea703a8e13dfa122c630150d356ec8c"
-      url: "git@gitee.com:imboy-tripartite-deps/audio_waveforms.git"
+      url: "https://gitee.com/imboy-tripartite-deps/audio_waveforms.git"
     source: git
     version: "2.0.2"
   azlistview:

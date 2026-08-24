@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # CI 专用：本地插件或 SSH Git 依赖在 GitHub-hosted runner 不可用时，切换到
-# 可匿名读取的同一公开 Git 来源，确保 cleanroom 能解析依赖。
+# 可匿名读取的同一公开 HTTPS Git 来源，确保 cleanroom 能解析依赖。
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
@@ -28,3 +28,10 @@ fi
 
 echo "[ci_patch_path_deps] 已将 r_upgrade 切换为公开 HTTPS 来源："
 grep -A3 '^  r_upgrade:' pubspec.yaml
+
+perl -pi -e 's{git\@gitee\.com:imboy-tripartite-deps/}{https://gitee.com/imboy-tripartite-deps/}' pubspec.yaml
+
+if grep -q 'git@gitee.com:' pubspec.yaml; then
+  echo "[ci_patch_path_deps] pubspec.yaml 仍含 SSH Git 来源" >&2
+  exit 1
+fi
