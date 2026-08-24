@@ -5,8 +5,11 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-    // Google Services plugin for Firebase
-    id("com.google.gms.google-services")
+}
+
+// 仅在实际有 Firebase 配置时应用插件；CI 未配置 secret 时仍可构建可验证的 APK。
+if (file("google-services.json").isFile) {
+    apply(plugin = "com.google.gms.google-services")
 }
 val localProperties = gradleLocalProperties(rootDir, providers)
 val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toIntOrNull() ?: 1

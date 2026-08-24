@@ -4,6 +4,22 @@ val localProperties = java.util.Properties().apply {
 val flutterSdkPath = localProperties.getProperty("flutter.sdk")
     ?: error("Flutter SDK path not found in local.properties")
 
+// Firebase 配置只在开发机或 CI 注入 google-services.json 后启用。无配置的
+// 开源/契约构建不应为了一个未使用的插件访问 Google Maven，避免网络波动阻断 APK。
+if (file("app/google-services.json").isFile) {
+    buildscript {
+        repositories {
+            maven { url = uri("https://maven.aliyun.com/repository/public") }
+            maven { url = uri("https://maven.aliyun.com/repository/google") }
+            google()
+            mavenCentral()
+        }
+        dependencies {
+            classpath("com.google.gms:google-services:4.4.2")
+        }
+    }
+}
+
 
 allprojects {
     repositories {
