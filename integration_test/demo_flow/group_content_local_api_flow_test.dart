@@ -184,115 +184,111 @@ void main() {
     expect(gid, isNotEmpty);
   });
 
-  test(
-    '群文件闭环：上传 1KB 代码生成文本 → 列表回读 → view_url 授权访问',
-    () async {
-      final fileName = '$_prefix-FILE-$_runTs.txt';
-      final content =
-          'DEMO-FLOW-20260819 local group file upload probe '
-          'run=$_runTs ${List.filled(24, '0123456789').join()}';
-      final bytes = utf8.encode(content);
-      _log('上传文件 $fileName bytes=${bytes.length}');
+  test('群文件闭环：上传 1KB 代码生成文本 → 列表回读 → view_url 授权访问', () async {
+    final fileName = '$_prefix-FILE-$_runTs.txt';
+    final content =
+        'DEMO-FLOW-20260819 local group file upload probe '
+        'run=$_runTs ${List.filled(24, '0123456789').join()}';
+    final bytes = utf8.encode(content);
+    _log('上传文件 $fileName bytes=${bytes.length}');
 
-      final dio = Dio(
-        BaseOptions(
-          connectTimeout: const Duration(seconds: 30),
-          receiveTimeout: const Duration(seconds: 60),
-          validateStatus: (status) => status != null,
-        ),
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 60),
+        validateStatus: (status) => status != null,
+      ),
+    );
+    final headers = _signHeaders('e2e-dart-test-001');
+    headers['authorization'] = 'Bearer ${client.accessToken}';
+    dynamic resp;
+    Map<String, dynamic> body;
+    try {
+      resp = await dio.post<dynamic>(
+        '${ApiTestConfig.apiBaseUrl}/api/v1/group/file/upload',
+        data: FormData.fromMap({
+          'gid': gid,
+          'file_name': fileName,
+          'file': MultipartFile.fromBytes(bytes, filename: fileName),
+        }),
+        options: Options(headers: headers),
       );
-      final headers = _signHeaders('e2e-dart-test-001');
-      headers['authorization'] = 'Bearer ${client.accessToken}';
-      dynamic resp;
-      Map<String, dynamic> body;
-      try {
-        resp = await dio.post<dynamic>(
-          '${ApiTestConfig.apiBaseUrl}/api/v1/group/file/upload',
-          data: FormData.fromMap({
-            'gid': gid,
-            'file_name': fileName,
-            'file': MultipartFile.fromBytes(bytes, filename: fileName),
-          }),
-          options: Options(headers: headers),
-        );
-        body = resp.data is Map<String, dynamic>
-            ? resp.data as Map<String, dynamic>
-            : resp.data is String
-            ? (jsonDecode(resp.data as String) as Map<String, dynamic>)
-            : <String, dynamic>{'code': resp.statusCode, 'msg': 'non_json'};
-        _log(
-          '上传响应 http=${resp.statusCode} code=${body['code']} '
-          'msg=${body['msg']}',
-        );
-      } on DioException catch (e) {
-        // 后端中转 Garage 挂起：连接/接收超时归入对象存储阻塞（受控记录），
-        // 不算业务断言失败。
-        _log('上传请求异常: ${e.type} ${e.message}');
-        markTestSkipped('对象存储链路不可用：上传请求超时（${e.type}）');
-        return;
-      }
-      if (body['code'] != 0) {
-        expect(
-          _isObjectStorageFailure(body),
-          isTrue,
-          reason: '上传失败且非对象存储类错误（业务回归）: $body',
-        );
-        markTestSkipped(
-          '对象存储不可用，上传被阻塞: code=${body['code']} '
-          'msg=${body['msg']}',
-        );
-        return;
-      }
-      final payload = body['payload'];
-      _log('上传成功 payload=${payload is Map ? payload.keys.toList() : payload}');
-
-      final listResp = await client.get(
-        '/api/v1/group/file/list',
-        queryParameters: {'gid': gid, 'page': 1, 'size': 20},
-      );
-      ApiAssert.success(listResp, context: '群文件列表');
-      final file = _findByName(_asList(listResp['payload']), [
-        'file_name',
-        'name',
-        'title',
-      ], fileName);
-      expect(file, isNotNull, reason: '文件列表回读必须包含新上传文件');
-      // group_file 表无 object_key 列（file_url 为 Garage 私桶裸 URL）；
-      // BUG#137 修复后上传时补写 attachment 记录，其 path = "<file_id>/<file_name>"，
-      // 按该格式构造 object_key 走 view_url presign 签发。
-      var objectKey = '${file?['object_key'] ?? ''}';
-      if (objectKey.isEmpty || objectKey.startsWith('http')) {
-        final fid = '${file?['file_id'] ?? file?['id'] ?? ''}';
-        final fname =
-            '${file?['file_name'] ?? file?['name'] ?? file?['title'] ?? ''}';
-        if (fid.isNotEmpty && fname.isNotEmpty) objectKey = '$fid/$fname';
-      }
+      body = resp.data is Map<String, dynamic>
+          ? resp.data as Map<String, dynamic>
+          : resp.data is String
+          ? (jsonDecode(resp.data as String) as Map<String, dynamic>)
+          : <String, dynamic>{'code': resp.statusCode, 'msg': 'non_json'};
       _log(
-        '列表回读命中 file_id=${file?['file_id'] ?? file?['id']} '
-        'object_key=${objectKey.isEmpty ? '<无>' : objectKey}',
+        '上传响应 http=${resp.statusCode} code=${body['code']} '
+        'msg=${body['msg']}',
       );
+    } on DioException catch (e) {
+      // 后端中转 Garage 挂起：连接/接收超时归入对象存储阻塞（受控记录），
+      // 不算业务断言失败。
+      _log('上传请求异常: ${e.type} ${e.message}');
+      markTestSkipped('对象存储链路不可用：上传请求超时（${e.type}）');
+      return;
+    }
+    if (body['code'] != 0) {
+      expect(
+        _isObjectStorageFailure(body),
+        isTrue,
+        reason: '上传失败且非对象存储类错误（业务回归）: $body',
+      );
+      markTestSkipped(
+        '对象存储不可用，上传被阻塞: code=${body['code']} '
+        'msg=${body['msg']}',
+      );
+      return;
+    }
+    final payload = body['payload'];
+    _log('上传成功 payload=${payload is Map ? payload.keys.toList() : payload}');
 
-      if (objectKey.isNotEmpty && !objectKey.startsWith('http')) {
-        final view = await client.get(
-          '/api/v1/attachment/view_url',
-          queryParameters: {'object_key': objectKey},
-        );
-        ApiAssert.success(view, context: 'view_url 签发');
-        final url = (view['payload'] as Map)['url'] as String?;
-        expect(url, isNotNull, reason: 'view_url 响应缺少 url');
-        final download = await Dio().get<List<int>>(
-          url!,
-          options: Options(responseType: ResponseType.bytes),
-        );
-        expect(download.statusCode, 200, reason: '签发 URL 下载失败');
-        expect(utf8.decode(download.data!), content, reason: '下载内容与上传不一致');
-        _log('view_url 授权访问通过，内容回读一致 bytes=${download.data!.length}');
-      } else {
-        _log('文件记录无 object_key（url=$objectKey），跳过 view_url 授权访问段');
-      }
-    },
-    timeout: const Timeout(Duration(minutes: 3)),
-  );
+    final listResp = await client.get(
+      '/api/v1/group/file/list',
+      queryParameters: {'gid': gid, 'page': 1, 'size': 20},
+    );
+    ApiAssert.success(listResp, context: '群文件列表');
+    final file = _findByName(_asList(listResp['payload']), [
+      'file_name',
+      'name',
+      'title',
+    ], fileName);
+    expect(file, isNotNull, reason: '文件列表回读必须包含新上传文件');
+    // group_file 表无 object_key 列（file_url 为 Garage 私桶裸 URL）；
+    // BUG#137 修复后上传时补写 attachment 记录，其 path = "<file_id>/<file_name>"，
+    // 按该格式构造 object_key 走 view_url presign 签发。
+    var objectKey = '${file?['object_key'] ?? ''}';
+    if (objectKey.isEmpty || objectKey.startsWith('http')) {
+      final fid = '${file?['file_id'] ?? file?['id'] ?? ''}';
+      final fname =
+          '${file?['file_name'] ?? file?['name'] ?? file?['title'] ?? ''}';
+      if (fid.isNotEmpty && fname.isNotEmpty) objectKey = '$fid/$fname';
+    }
+    _log(
+      '列表回读命中 file_id=${file?['file_id'] ?? file?['id']} '
+      'object_key=${objectKey.isEmpty ? '<无>' : objectKey}',
+    );
+
+    if (objectKey.isNotEmpty && !objectKey.startsWith('http')) {
+      final view = await client.get(
+        '/api/v1/attachment/view_url',
+        queryParameters: {'object_key': objectKey},
+      );
+      ApiAssert.success(view, context: 'view_url 签发');
+      final url = (view['payload'] as Map)['url'] as String?;
+      expect(url, isNotNull, reason: 'view_url 响应缺少 url');
+      final download = await Dio().get<List<int>>(
+        url!,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      expect(download.statusCode, 200, reason: '签发 URL 下载失败');
+      expect(utf8.decode(download.data!), content, reason: '下载内容与上传不一致');
+      _log('view_url 授权访问通过，内容回读一致 bytes=${download.data!.length}');
+    } else {
+      _log('文件记录无 object_key（url=$objectKey），跳过 view_url 授权访问段');
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
 
   test('群相册闭环：创建 → 列表回读 → 照片上传 → 照片列表回读', () async {
     final albumName = '$_prefix-ALBUM-$_runTs';

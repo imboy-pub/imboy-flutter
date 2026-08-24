@@ -51,7 +51,17 @@ jobs:
       - name: Install dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
+          for attempt in 1 2 3; do
+            if flutter pub get; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::flutter pub get failed after ${attempt} attempts"
+              exit 1
+            fi
+            echo "flutter pub get failed; retrying in $((attempt * 10)) seconds"
+            sleep $((attempt * 10))
+          done
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
 
@@ -86,7 +96,17 @@ jobs:
       - name: Install dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
+          for attempt in 1 2 3; do
+            if flutter pub get; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::flutter pub get failed after ${attempt} attempts"
+              exit 1
+            fi
+            echo "flutter pub get failed; retrying in $((attempt * 10)) seconds"
+            sleep $((attempt * 10))
+          done
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
 
@@ -123,7 +143,17 @@ jobs:
       - name: Install dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
+          for attempt in 1 2 3; do
+            if flutter pub get; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::flutter pub get failed after ${attempt} attempts"
+              exit 1
+            fi
+            echo "flutter pub get failed; retrying in $((attempt * 10)) seconds"
+            sleep $((attempt * 10))
+          done
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
 
