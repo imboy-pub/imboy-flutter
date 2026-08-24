@@ -38,6 +38,9 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Materialize CI environment
+        run: bash .github/scripts/ci_gen_env.sh
+
       - name: Run tests with coverage（best-effort）
         run: |
           set -euxo pipefail

@@ -1395,7 +1395,7 @@ packages:
       path: "."
       ref: "dev-3.x"
       resolved-ref: d31487ba2823b6643d54e0e6a860ac0beda244f9
-      url: "git@gitee.com:imboy-tripartite-deps/jverify-flutter-plugin.git"
+      url: "https://gitee.com/imboy-tripartite-deps/jverify-flutter-plugin.git"
     source: git
     version: "3.1.9"
   leak_tracker:

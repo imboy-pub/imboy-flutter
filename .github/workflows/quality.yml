@@ -39,6 +39,9 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Materialize CI environment
+        run: bash .github/scripts/ci_gen_env.sh
+
       - name: Analyze (ratchet — errors==0 / warnings<=830 / infos<=703)
         run: |
           set -euo pipefail
