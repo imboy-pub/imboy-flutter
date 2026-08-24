@@ -55,8 +55,10 @@ jobs:
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
 
-      - name: Dart analyze
-        run: dart analyze --fatal-infos
+      - name: Flutter analyze (zero-error gate)
+        # warning/info 的数量由 quality.yml 的 ratchet 统一约束；集成工作流
+        # 只阻断实际 error，避免与该基线策略互相矛盾。
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Dart format check
         # 与 ci.yml 同款：范围必须是 git ls-files 而不是目录扫描 `.`。
