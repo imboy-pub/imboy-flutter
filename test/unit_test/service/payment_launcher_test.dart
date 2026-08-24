@@ -210,21 +210,15 @@ void main() {
       expect(r, PaymentLaunchResult.notConfigured);
     });
 
-    test(
-      'alipay without dart-define falls back to env config and launches',
-      () async {
-        // PaymentConfig.alipayAppId 无 --dart-define 时回落 env 配置：env_*.g.dart
-        // 已内置 appId（「构建忘传参不再降级」是有意设计，见 payment_config.dart
-        // 注释）——不再走 notConfigured，正常分发到网关。
-        // 注：isAlipayConfigured=false 的分支现仅当 env 配置也为空才可达，
-        // 测试环境无注入钩子无法构造；order_str 为空的降级分支另有覆盖。
-        final r = await launcher.launch('alipay', {
-          'order_str': 'app_id=2021...&biz_content=...',
-        });
-        expect(r, PaymentLaunchResult.success);
-        expect(gateway.aliPayCalls, 1);
-      },
-    );
+    test('alipay without configuration degrades to notConfigured', () async {
+      // CI 生成的 env 配置不含商户 appId；支付配置缺失时必须安全降级，
+      // 不能调用三方网关或把订单串交给未配置的 SDK。
+      final r = await launcher.launch('alipay', {
+        'order_str': 'app_id=2021...&biz_content=...',
+      });
+      expect(r, PaymentLaunchResult.notConfigured);
+      expect(gateway.aliPayCalls, 0);
+    });
 
     test('wechat without appId config degrades to notConfigured', () async {
       final r = await launcher.launch('wechat', {

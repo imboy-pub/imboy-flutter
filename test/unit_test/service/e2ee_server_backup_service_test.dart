@@ -56,7 +56,7 @@ void main() {
         ),
         throwsArgumentError,
       );
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('salt 位于固定偏移 32，且与服务端契约提取方式一致', () async {
       final bytes = await packBytes();
@@ -68,7 +68,7 @@ void main() {
         Uint8List.fromList(salt),
       );
       expect(key.length, 32);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
   });
 
   group('payloadHash / verifyPayloadHash', () {

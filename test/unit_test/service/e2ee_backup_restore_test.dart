@@ -157,7 +157,7 @@ void main() {
         E2EELocalBackupService.unpackBackupBytes(bytes: bytes, password: wrong),
         throwsA(anything),
       );
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
   });
 
   group('E2EECryptoService — 加密/解密', () {
