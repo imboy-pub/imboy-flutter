@@ -49,5 +49,20 @@ write_env .env.local_office
 # ③ 生成 .g.dart（全量 build，禁用 --build-filter）
 flutter pub run build_runner build --delete-conflicting-outputs
 
+# build_runner 还会重写已入库的 provider 等生成物；这些文件不是本脚本
+# 的职责，且不同 Dart 版本的纯格式变化会让后续格式门禁产生假失败。CI
+# cleanroom 仅保留被忽略的 env_*.g.dart，恢复其余已跟踪 Dart 生成物。
+# 本地开发不能恢复，以免覆盖开发者未提交的改动。
+if [[ -n "${CI:-}" ]]; then
+  generated_tracked_dart="$(git diff --name-only -- '*.dart')"
+  if [[ -n "$generated_tracked_dart" ]]; then
+    while IFS= read -r generated_file; do
+      git restore -- "$generated_file"
+    done <<< "$generated_tracked_dart"
+    generated_count="$(printf '%s\n' "$generated_tracked_dart" | wc -l | tr -d ' ')"
+    echo "[ci_gen_env] 已恢复 ${generated_count} 个非 env 已跟踪 Dart 生成物"
+  fi
+fi
+
 echo "[ci_gen_env] 生成的 env .g.dart："
 ls lib/config/*.g.dart
