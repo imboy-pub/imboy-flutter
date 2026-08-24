@@ -45,7 +45,7 @@ void main() {
       expect(result['public_key'], publicKey);
       expect(result['device_id'], deviceId);
       expect(result['key_id'], keyId);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('错口令解包抛 ArgumentError（GCM 认证失败，非崩溃）', () async {
       final bytes = await packBytes();

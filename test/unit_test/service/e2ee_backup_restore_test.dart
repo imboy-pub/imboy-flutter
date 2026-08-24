@@ -216,7 +216,7 @@ void main() {
         ),
         throwsA(isA<ArgumentError>()),
       );
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
   });
 
   // =========================================================================

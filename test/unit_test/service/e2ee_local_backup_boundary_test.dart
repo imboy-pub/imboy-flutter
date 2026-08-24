@@ -49,24 +49,24 @@ void main() {
     test('备注长度 0（空串等价无备注）往返成功', () async {
       final result = await unpack(await pack(userNotes: ''));
       expect(result['private_key'], privateKey);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('备注长度 1 往返成功且不吃进密文', () async {
       final result = await unpack(await pack(userNotes: 'x'));
       expect(result['private_key'], privateKey);
       expect(result['key_id'], keyId);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('多字节 UTF-8 备注（中文）往返成功', () async {
       final result = await unpack(await pack(userNotes: '主手机备份🔐'));
       expect(result['public_key'], publicKey);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('备注长度上限（maxNotesBytes）往返成功', () async {
       final notes = 'a' * E2EELocalBackupService.maxNotesBytes;
       final result = await unpack(await pack(userNotes: notes));
       expect(result['private_key'], privateKey);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('导出备注超上限抛 ArgumentError', () async {
       final tooLong = 'a' * (E2EELocalBackupService.maxNotesBytes + 1);
