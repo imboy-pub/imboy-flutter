@@ -113,128 +113,140 @@ void main() {
     clientB.close();
   });
 
-  test('DF-17 本地转账闭环：topup → send → accept → 双方余额/流水回读', () async {
-    if (gate != null) return markTestSkipped(gate!);
-    final reason = ApiTestConfig.skipReasonIfNoRealNetwork;
-    if (reason != null) return markTestSkipped(reason);
+  test(
+    'DF-17 本地转账闭环：topup → send → accept → 双方余额/流水回读',
+    () async {
+      if (gate != null) return markTestSkipped(gate!);
+      final reason = ApiTestConfig.skipReasonIfNoRealNetwork;
+      if (reason != null) return markTestSkipped(reason);
 
-    // A：本地契约账号（mobile 登录）；B：smoke_bob（account 登录）
-    final loginA = await clientA.login(
-      account: ApiTestConfig.testPhone,
-      password: ApiTestConfig.testPassword,
-    );
-    expect(loginA['code'], 0, reason: '付款方 A 登录失败: ${loginA['msg']}');
-    final loginB = await clientB.login(
-      account: ApiTestConfig.testPhone2,
-      password: ApiTestConfig.testPassword2,
-      type: 'account',
-    );
-    expect(loginB['code'], 0, reason: '收款方 B 登录失败: ${loginB['msg']}');
-    final uidA = clientA.currentUid!;
-    final uidB = clientB.currentUid!;
-    _ev('登录成功 A(uid=$uidA) B(uid=$uidB)');
-
-    // 1. 转账前双方余额
-    final bBefore = _balanceOf(await clientA.get('/api/v1/wallet/balance'));
-    final cBefore = _balanceOf(await clientB.get('/api/v1/wallet/balance'));
-    _ev('转账前余额 A=$bBefore 分, B=$cBefore 分');
-
-    // 2. mock topup 最小金额 100 分（仅本地环境可用）
-    final topup = await clientA.post(
-      '/api/v1/wallet/topup',
-      data: {'amount': 100},
-    );
-    expect(topup['code'], 0, reason: '本地 mock topup 失败: ${topup['msg']}');
-    _ev('topup 100 分成功 reference_no=${_payloadMap(topup)['reference_no']}');
-
-    // 3. A 余额回读（充值后）
-    final bAfterTopup = _balanceOf(await clientA.get('/api/v1/wallet/balance'));
-    expect(
-      bAfterTopup - bBefore,
-      100,
-      reason: 'topup 后余额应 +100 分：$bBefore → $bAfterTopup',
-    );
-    _ev('topup 后 A 余额=$bAfterTopup 分（+100）');
-
-    // 4. A → B 转账最小金额 100 分（带 DEMO-FLOW 标记）
-    final send = await clientA.post(
-      '/api/v1/wallet/transfer/send',
-      data: {'receiver_uid': uidB, 'amount': 100, 'remark': '$_marker 转账验收'},
-    );
-    expect(send['code'], 0, reason: '转账发送失败: ${send['msg']}');
-    final transferId = '${_payloadMap(send)['transfer_id'] ?? ''}';
-    expect(transferId.isNotEmpty, isTrue, reason: '缺少 transfer_id');
-    _ev('transfer/send 成功 transfer_id=$transferId amount=100 分');
-
-    // 5. A 余额回读（转账扣款即时发生）
-    final bAfterSend = _balanceOf(await clientA.get('/api/v1/wallet/balance'));
-    expect(
-      bAfterTopup - bAfterSend,
-      100,
-      reason: '转账后 A 余额应 -100 分：$bAfterTopup → $bAfterSend',
-    );
-    _ev('send 后 A 余额=$bAfterSend 分（-100）');
-
-    // 6. A 流水回读（含 -100 分转账转出条目）
-    //    注：历史 BUG-A（transfer/accept 恒报「转账订单不存在」）已在 alpha.36
-    //    修复（transfer_repo accept 事务内 SELECT 改用 elib_pg:query），2026-08-18
-    //    复验通过，详见 test/demo_flow/wallet_flow.md 第 6.1 节。
-    final txA = _txList(
-      await clientA.get(
-        '/api/v1/wallet/transactions',
-        queryParameters: {'page': 1, 'size': 20},
-      ),
-    );
-    final outEntry = txA.where((e) {
-      final amt = (e['amount'] as num?)?.toInt();
-      return amt == -100;
-    }).toList();
-    expect(outEntry.isNotEmpty, isTrue, reason: 'A 流水缺 -100 分转账条目');
-    _ev(
-      'A 流水含 -100 分转账条目 remark=${outEntry.first['remark'] ?? ''} '
-      'tx_type=${outEntry.first['tx_type'] ?? '?'}',
-    );
-
-    final cAfterSend = _balanceOf(await clientB.get('/api/v1/wallet/balance'));
-    expect(
-      cAfterSend,
-      cBefore,
-      reason: 'accept 前 B 余额应不变（pending 语义）：$cBefore → $cAfterSend',
-    );
-    _ev('send 后 B 余额=$cAfterSend 分（accept 前未入账，符合 pending 语义）');
-
-    // 7. gate 打开时由 B accept 回收本笔转账，避免套件遗留悬挂 pending。
-    //    （BUG-A 已修复，2026-08-18 复验；门禁保留以显式标记 accept 写入意图。）
-    if (_expectAcceptFixed) {
-      final accept = await clientB.post(
-        '/api/v1/wallet/transfer/accept',
-        data: {'transfer_id': transferId},
+      // A：本地契约账号（mobile 登录）；B：smoke_bob（account 登录）
+      final loginA = await clientA.login(
+        account: ApiTestConfig.testPhone,
+        password: ApiTestConfig.testPassword,
       );
-      expect(accept['code'], 0, reason: '收款方 accept 失败: ${accept['msg']}');
-      final cAfterAccept = _balanceOf(
+      expect(loginA['code'], 0, reason: '付款方 A 登录失败: ${loginA['msg']}');
+      final loginB = await clientB.login(
+        account: ApiTestConfig.testPhone2,
+        password: ApiTestConfig.testPassword2,
+        type: 'account',
+      );
+      expect(loginB['code'], 0, reason: '收款方 B 登录失败: ${loginB['msg']}');
+      final uidA = clientA.currentUid!;
+      final uidB = clientB.currentUid!;
+      _ev('登录成功 A(uid=$uidA) B(uid=$uidB)');
+
+      // 1. 转账前双方余额
+      final bBefore = _balanceOf(await clientA.get('/api/v1/wallet/balance'));
+      final cBefore = _balanceOf(await clientB.get('/api/v1/wallet/balance'));
+      _ev('转账前余额 A=$bBefore 分, B=$cBefore 分');
+
+      // 2. mock topup 最小金额 100 分（仅本地环境可用）
+      final topup = await clientA.post(
+        '/api/v1/wallet/topup',
+        data: {'amount': 100},
+      );
+      expect(topup['code'], 0, reason: '本地 mock topup 失败: ${topup['msg']}');
+      _ev('topup 100 分成功 reference_no=${_payloadMap(topup)['reference_no']}');
+
+      // 3. A 余额回读（充值后）
+      final bAfterTopup = _balanceOf(
+        await clientA.get('/api/v1/wallet/balance'),
+      );
+      expect(
+        bAfterTopup - bBefore,
+        100,
+        reason: 'topup 后余额应 +100 分：$bBefore → $bAfterTopup',
+      );
+      _ev('topup 后 A 余额=$bAfterTopup 分（+100）');
+
+      // 4. A → B 转账最小金额 100 分（带 DEMO-FLOW 标记）
+      final send = await clientA.post(
+        '/api/v1/wallet/transfer/send',
+        data: {'receiver_uid': uidB, 'amount': 100, 'remark': '$_marker 转账验收'},
+      );
+      expect(send['code'], 0, reason: '转账发送失败: ${send['msg']}');
+      final transferId = '${_payloadMap(send)['transfer_id'] ?? ''}';
+      expect(transferId.isNotEmpty, isTrue, reason: '缺少 transfer_id');
+      _ev('transfer/send 成功 transfer_id=$transferId amount=100 分');
+
+      // 5. A 余额回读（转账扣款即时发生）
+      final bAfterSend = _balanceOf(
+        await clientA.get('/api/v1/wallet/balance'),
+      );
+      expect(
+        bAfterTopup - bAfterSend,
+        100,
+        reason: '转账后 A 余额应 -100 分：$bAfterTopup → $bAfterSend',
+      );
+      _ev('send 后 A 余额=$bAfterSend 分（-100）');
+
+      // 6. A 流水回读（含 -100 分转账转出条目）
+      //    注：历史 BUG-A（transfer/accept 恒报「转账订单不存在」）已在 alpha.36
+      //    修复（transfer_repo accept 事务内 SELECT 改用 elib_pg:query），2026-08-18
+      //    复验通过，详见 test/demo_flow/wallet_flow.md 第 6.1 节。
+      final txA = _txList(
+        await clientA.get(
+          '/api/v1/wallet/transactions',
+          queryParameters: {'page': 1, 'size': 20},
+        ),
+      );
+      final outEntry = txA.where((e) {
+        final amt = (e['amount'] as num?)?.toInt();
+        return amt == -100;
+      }).toList();
+      expect(outEntry.isNotEmpty, isTrue, reason: 'A 流水缺 -100 分转账条目');
+      _ev(
+        'A 流水含 -100 分转账条目 remark=${outEntry.first['remark'] ?? ''} '
+        'tx_type=${outEntry.first['tx_type'] ?? '?'}',
+      );
+
+      final cAfterSend = _balanceOf(
         await clientB.get('/api/v1/wallet/balance'),
       );
       expect(
-        cAfterAccept - cBefore,
-        100,
-        reason: 'accept 后 B 余额应 +100 分：$cBefore → $cAfterAccept',
+        cAfterSend,
+        cBefore,
+        reason: 'accept 前 B 余额应不变（pending 语义）：$cBefore → $cAfterSend',
       );
-      final reAccept = await clientB.post(
-        '/api/v1/wallet/transfer/accept',
-        data: {'transfer_id': transferId},
-      );
-      expect(reAccept['code'], isNot(0), reason: '重复 accept 不应成功');
-      final cAfterRe = _balanceOf(await clientB.get('/api/v1/wallet/balance'));
-      expect(cAfterRe, cAfterAccept, reason: '重复 accept 不得改变余额');
-      _ev(
-        'accept 回收 transfer_id=$transferId：B $cBefore→$cAfterAccept（+100），'
-        '重复 accept 拒绝 code=${reAccept['code']} msg=${reAccept['msg']}，'
-        'B 余额保持 $cAfterRe 分',
-      );
-    } else {
-      _ev('accept 门禁未开：本笔 transfer_id=$transferId 留为 pending（历史行为）');
-    }
-  }, timeout: const Timeout(Duration(minutes: 5)));
+      _ev('send 后 B 余额=$cAfterSend 分（accept 前未入账，符合 pending 语义）');
+
+      // 7. gate 打开时由 B accept 回收本笔转账，避免套件遗留悬挂 pending。
+      //    （BUG-A 已修复，2026-08-18 复验；门禁保留以显式标记 accept 写入意图。）
+      if (_expectAcceptFixed) {
+        final accept = await clientB.post(
+          '/api/v1/wallet/transfer/accept',
+          data: {'transfer_id': transferId},
+        );
+        expect(accept['code'], 0, reason: '收款方 accept 失败: ${accept['msg']}');
+        final cAfterAccept = _balanceOf(
+          await clientB.get('/api/v1/wallet/balance'),
+        );
+        expect(
+          cAfterAccept - cBefore,
+          100,
+          reason: 'accept 后 B 余额应 +100 分：$cBefore → $cAfterAccept',
+        );
+        final reAccept = await clientB.post(
+          '/api/v1/wallet/transfer/accept',
+          data: {'transfer_id': transferId},
+        );
+        expect(reAccept['code'], isNot(0), reason: '重复 accept 不应成功');
+        final cAfterRe = _balanceOf(
+          await clientB.get('/api/v1/wallet/balance'),
+        );
+        expect(cAfterRe, cAfterAccept, reason: '重复 accept 不得改变余额');
+        _ev(
+          'accept 回收 transfer_id=$transferId：B $cBefore→$cAfterAccept（+100），'
+          '重复 accept 拒绝 code=${reAccept['code']} msg=${reAccept['msg']}，'
+          'B 余额保持 $cAfterRe 分',
+        );
+      } else {
+        _ev('accept 门禁未开：本笔 transfer_id=$transferId 留为 pending（历史行为）');
+      }
+    },
+    timeout: const Timeout(Duration(minutes: 5)),
+  );
 
   test(
     'DF-17 收款方 accept 入账闭环（独立用例：TEST_EXPECT_TRANSFER_ACCEPT_FIXED 门禁）',

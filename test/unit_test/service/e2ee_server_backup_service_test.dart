@@ -47,16 +47,20 @@ void main() {
       expect(result['key_id'], keyId);
     });
 
-    test('错口令解包抛 ArgumentError（GCM 认证失败，非崩溃）', () async {
-      final bytes = await packBytes();
-      await expectLater(
-        E2EELocalBackupService.unpackBackupBytes(
-          bytes: bytes,
-          password: 'Wrong-Passw0rd!',
-        ),
-        throwsArgumentError,
-      );
-    }, timeout: const Timeout(Duration(minutes: 2)));
+    test(
+      '错口令解包抛 ArgumentError（GCM 认证失败，非崩溃）',
+      () async {
+        final bytes = await packBytes();
+        await expectLater(
+          E2EELocalBackupService.unpackBackupBytes(
+            bytes: bytes,
+            password: 'Wrong-Passw0rd!',
+          ),
+          throwsArgumentError,
+        );
+      },
+      timeout: const Timeout(Duration(minutes: 2)),
+    );
 
     test('salt 位于固定偏移 32，且与服务端契约提取方式一致', () async {
       final bytes = await packBytes();

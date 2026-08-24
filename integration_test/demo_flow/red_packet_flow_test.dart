@@ -93,175 +93,185 @@ void main() {
     clientB.close();
   });
 
-  test('DF-18 本地红包闭环：send → open → 重复领取拒绝 → 详情与双方余额一致', () async {
-    if (gate != null) return markTestSkipped(gate!);
-    final reason = ApiTestConfig.skipReasonIfNoRealNetwork;
-    if (reason != null) return markTestSkipped(reason);
+  test(
+    'DF-18 本地红包闭环：send → open → 重复领取拒绝 → 详情与双方余额一致',
+    () async {
+      if (gate != null) return markTestSkipped(gate!);
+      final reason = ApiTestConfig.skipReasonIfNoRealNetwork;
+      if (reason != null) return markTestSkipped(reason);
 
-    final loginA = await clientA.login(
-      account: ApiTestConfig.testPhone,
-      password: ApiTestConfig.testPassword,
-    );
-    expect(loginA['code'], 0, reason: '发送方 A 登录失败: ${loginA['msg']}');
-    final loginB = await clientB.login(
-      account: ApiTestConfig.testPhone2,
-      password: ApiTestConfig.testPassword2,
-      type: 'account',
-    );
-    expect(loginB['code'], 0, reason: '领取方 B 登录失败: ${loginB['msg']}');
-    final uidA = clientA.currentUid!;
-    final uidB = clientB.currentUid!;
-    _ev('登录成功 A(uid=$uidA) B(uid=$uidB)');
+      final loginA = await clientA.login(
+        account: ApiTestConfig.testPhone,
+        password: ApiTestConfig.testPassword,
+      );
+      expect(loginA['code'], 0, reason: '发送方 A 登录失败: ${loginA['msg']}');
+      final loginB = await clientB.login(
+        account: ApiTestConfig.testPhone2,
+        password: ApiTestConfig.testPassword2,
+        type: 'account',
+      );
+      expect(loginB['code'], 0, reason: '领取方 B 登录失败: ${loginB['msg']}');
+      final uidA = clientA.currentUid!;
+      final uidB = clientB.currentUid!;
+      _ev('登录成功 A(uid=$uidA) B(uid=$uidB)');
 
-    // 0. 确保发送方余额（mock topup 100 分，仅本地可用）
-    final bBefore = _balanceOf(await clientA.get('/api/v1/wallet/balance'));
-    final topup = await clientA.post(
-      '/api/v1/wallet/topup',
-      data: {'amount': 100},
-    );
-    expect(topup['code'], 0, reason: '本地 mock topup 失败: ${topup['msg']}');
-    final bAfterTopup = _balanceOf(await clientA.get('/api/v1/wallet/balance'));
-    expect(bAfterTopup - bBefore, 100, reason: 'topup 后 A 余额应 +100 分');
-    _ev('topup 后 A 余额=$bAfterTopup 分');
+      // 0. 确保发送方余额（mock topup 100 分，仅本地可用）
+      final bBefore = _balanceOf(await clientA.get('/api/v1/wallet/balance'));
+      final topup = await clientA.post(
+        '/api/v1/wallet/topup',
+        data: {'amount': 100},
+      );
+      expect(topup['code'], 0, reason: '本地 mock topup 失败: ${topup['msg']}');
+      final bAfterTopup = _balanceOf(
+        await clientA.get('/api/v1/wallet/balance'),
+      );
+      expect(bAfterTopup - bBefore, 100, reason: 'topup 后 A 余额应 +100 分');
+      _ev('topup 后 A 余额=$bAfterTopup 分');
 
-    // 1. A 发最小红包（100 分 1 个，DEMO-FLOW 标记祝福语）
-    final cBefore = _balanceOf(await clientB.get('/api/v1/wallet/balance'));
-    final send = await clientA.post(
-      '/api/v1/wallet/red_packet/send',
-      data: {
-        'amount': 100,
-        'count': 1,
-        'type': 'fixed',
-        'greeting': '$_marker 红包验收',
-      },
-    );
-    expect(send['code'], 0, reason: '红包发送失败: ${send['msg']}');
-    final packetId = '${_payloadMap(send)['red_packet_id'] ?? ''}';
-    expect(packetId.isNotEmpty, isTrue, reason: '缺少 red_packet_id');
-    _ev('red_packet/send 成功 red_packet_id=$packetId amount=100 分 count=1');
+      // 1. A 发最小红包（100 分 1 个，DEMO-FLOW 标记祝福语）
+      final cBefore = _balanceOf(await clientB.get('/api/v1/wallet/balance'));
+      final send = await clientA.post(
+        '/api/v1/wallet/red_packet/send',
+        data: {
+          'amount': 100,
+          'count': 1,
+          'type': 'fixed',
+          'greeting': '$_marker 红包验收',
+        },
+      );
+      expect(send['code'], 0, reason: '红包发送失败: ${send['msg']}');
+      final packetId = '${_payloadMap(send)['red_packet_id'] ?? ''}';
+      expect(packetId.isNotEmpty, isTrue, reason: '缺少 red_packet_id');
+      _ev('red_packet/send 成功 red_packet_id=$packetId amount=100 分 count=1');
 
-    // 2. 发送后 A 余额即时扣减
-    final bAfterSend = _balanceOf(await clientA.get('/api/v1/wallet/balance'));
-    expect(
-      bAfterTopup - bAfterSend,
-      100,
-      reason: '发红包后 A 余额应 -100 分：$bAfterTopup → $bAfterSend',
-    );
-    _ev('send 后 A 余额=$bAfterSend 分（-100）');
+      // 2. 发送后 A 余额即时扣减
+      final bAfterSend = _balanceOf(
+        await clientA.get('/api/v1/wallet/balance'),
+      );
+      expect(
+        bAfterTopup - bAfterSend,
+        100,
+        reason: '发红包后 A 余额应 -100 分：$bAfterTopup → $bAfterSend',
+      );
+      _ev('send 后 A 余额=$bAfterSend 分（-100）');
 
-    // 3. B 领取红包
-    final open = await clientB.post(
-      '/api/v1/wallet/red_packet/open',
-      data: {'red_packet_id': packetId},
-    );
-    expect(open['code'], 0, reason: '红包领取失败: ${open['msg']}');
-    final grabAmount =
-        (_payloadMap(open)['grab_amount'] as num?)?.toInt() ?? -1;
-    expect(grabAmount, 100, reason: '单个固定红包领取金额应为 100 分');
-    _ev('red_packet/open 成功 grab_amount=$grabAmount 分');
+      // 3. B 领取红包
+      final open = await clientB.post(
+        '/api/v1/wallet/red_packet/open',
+        data: {'red_packet_id': packetId},
+      );
+      expect(open['code'], 0, reason: '红包领取失败: ${open['msg']}');
+      final grabAmount =
+          (_payloadMap(open)['grab_amount'] as num?)?.toInt() ?? -1;
+      expect(grabAmount, 100, reason: '单个固定红包领取金额应为 100 分');
+      _ev('red_packet/open 成功 grab_amount=$grabAmount 分');
 
-    // 4. B 余额回读
-    final cAfterOpen = _balanceOf(await clientB.get('/api/v1/wallet/balance'));
-    expect(
-      cAfterOpen - cBefore,
-      100,
-      reason: '领取后 B 余额应 +100 分：$cBefore → $cAfterOpen',
-    );
-    _ev('open 后 B 余额=$cAfterOpen 分（+100）');
+      // 4. B 余额回读
+      final cAfterOpen = _balanceOf(
+        await clientB.get('/api/v1/wallet/balance'),
+      );
+      expect(
+        cAfterOpen - cBefore,
+        100,
+        reason: '领取后 B 余额应 +100 分：$cBefore → $cAfterOpen',
+      );
+      _ev('open 后 B 余额=$cAfterOpen 分（+100）');
 
-    // 5. B 重复领取被结构化拒绝，余额不变
-    final reopen = await clientB.post(
-      '/api/v1/wallet/red_packet/open',
-      data: {'red_packet_id': packetId},
-    );
-    expect(reopen['code'], isNot(0), reason: '重复领取不应成功');
-    final cAfterReopen = _balanceOf(
-      await clientB.get('/api/v1/wallet/balance'),
-    );
-    expect(cAfterReopen, cAfterOpen, reason: '重复领取不得改变余额');
-    _ev(
-      '重复 open 拒绝 code=${reopen['code']} msg=${reopen['msg']}，'
-      'B 余额保持 $cAfterReopen 分',
-    );
+      // 5. B 重复领取被结构化拒绝，余额不变
+      final reopen = await clientB.post(
+        '/api/v1/wallet/red_packet/open',
+        data: {'red_packet_id': packetId},
+      );
+      expect(reopen['code'], isNot(0), reason: '重复领取不应成功');
+      final cAfterReopen = _balanceOf(
+        await clientB.get('/api/v1/wallet/balance'),
+      );
+      expect(cAfterReopen, cAfterOpen, reason: '重复领取不得改变余额');
+      _ev(
+        '重复 open 拒绝 code=${reopen['code']} msg=${reopen['msg']}，'
+        'B 余额保持 $cAfterReopen 分',
+      );
 
-    // 6. 红包详情回读：发送方视角 + 领取方视角一致
-    final detailA = await clientA.get(
-      '/api/v1/wallet/red_packet/$packetId/detail',
-    );
-    ApiAssert.success(detailA, context: '发送方红包详情');
-    final detailB = await clientB.get(
-      '/api/v1/wallet/red_packet/$packetId/detail',
-    );
-    ApiAssert.success(detailB, context: '领取方红包详情');
-    final packetA = _payloadMap(detailA)['packet'];
-    final packetB = _payloadMap(detailB)['packet'];
-    final pktA = packetA is Map
-        ? Map<String, dynamic>.from(packetA)
-        : const <String, dynamic>{};
-    final pktB = packetB is Map
-        ? Map<String, dynamic>.from(packetB)
-        : const <String, dynamic>{};
-    final recvA = _payloadMap(detailA)['receivers'];
-    final recvList = recvA is List
-        ? [
-            for (final e in recvA)
-              if (e is Map) Map<String, dynamic>.from(e),
-          ]
-        : const <Map<String, dynamic>>[];
-    expect(pktB['status'], pktA['status'], reason: '发送方与领取方详情 status 不一致');
-    expect(pktB['amount'], pktA['amount'], reason: '发送方与领取方详情 amount 不一致');
-    expect(
-      '${pktA['id'] ?? pktA['red_packet_id'] ?? ''}'.contains(packetId) ||
-          packetId.contains('${pktA['id'] ?? ''}'),
-      isTrue,
-      reason: '详情 packet.id 与发送返回 id 不一致: ${pktA['id']}',
-    );
-    expect(
-      '${pktA['sender_uid']}',
-      contains(uidA),
-      reason: '详情 sender_uid=$uidA 不一致',
-    );
-    expect(
-      ((pktA['amount'] as num?)?.toInt() ?? -1),
-      100,
-      reason: '详情 amount 应为 100 分',
-    );
-    expect(recvList.length, 1, reason: '领取记录应为 1 条');
-    expect(
-      '${recvList.first['receiver_uid'] ?? recvList.first['uid'] ?? ''}',
-      contains(uidB),
-      reason: '领取记录应含领取方 B($uidB)：${recvList.first}',
-    );
-    _ev(
-      '详情一致：sender=$uidA amount=100 receivers=1(B=$uidB) '
-      'status=${pktA['status']}',
-    );
+      // 6. 红包详情回读：发送方视角 + 领取方视角一致
+      final detailA = await clientA.get(
+        '/api/v1/wallet/red_packet/$packetId/detail',
+      );
+      ApiAssert.success(detailA, context: '发送方红包详情');
+      final detailB = await clientB.get(
+        '/api/v1/wallet/red_packet/$packetId/detail',
+      );
+      ApiAssert.success(detailB, context: '领取方红包详情');
+      final packetA = _payloadMap(detailA)['packet'];
+      final packetB = _payloadMap(detailB)['packet'];
+      final pktA = packetA is Map
+          ? Map<String, dynamic>.from(packetA)
+          : const <String, dynamic>{};
+      final pktB = packetB is Map
+          ? Map<String, dynamic>.from(packetB)
+          : const <String, dynamic>{};
+      final recvA = _payloadMap(detailA)['receivers'];
+      final recvList = recvA is List
+          ? [
+              for (final e in recvA)
+                if (e is Map) Map<String, dynamic>.from(e),
+            ]
+          : const <Map<String, dynamic>>[];
+      expect(pktB['status'], pktA['status'], reason: '发送方与领取方详情 status 不一致');
+      expect(pktB['amount'], pktA['amount'], reason: '发送方与领取方详情 amount 不一致');
+      expect(
+        '${pktA['id'] ?? pktA['red_packet_id'] ?? ''}'.contains(packetId) ||
+            packetId.contains('${pktA['id'] ?? ''}'),
+        isTrue,
+        reason: '详情 packet.id 与发送返回 id 不一致: ${pktA['id']}',
+      );
+      expect(
+        '${pktA['sender_uid']}',
+        contains(uidA),
+        reason: '详情 sender_uid=$uidA 不一致',
+      );
+      expect(
+        ((pktA['amount'] as num?)?.toInt() ?? -1),
+        100,
+        reason: '详情 amount 应为 100 分',
+      );
+      expect(recvList.length, 1, reason: '领取记录应为 1 条');
+      expect(
+        '${recvList.first['receiver_uid'] ?? recvList.first['uid'] ?? ''}',
+        contains(uidB),
+        reason: '领取记录应含领取方 B($uidB)：${recvList.first}',
+      );
+      _ev(
+        '详情一致：sender=$uidA amount=100 receivers=1(B=$uidB) '
+        'status=${pktA['status']}',
+      );
 
-    // 7. 双方流水回读（±100 分红包条目）
-    final txA = _txList(
-      await clientA.get(
-        '/api/v1/wallet/transactions',
-        queryParameters: {'page': 1, 'size': 20},
-      ),
-    );
-    final txB = _txList(
-      await clientB.get(
-        '/api/v1/wallet/transactions',
-        queryParameters: {'page': 1, 'size': 20},
-      ),
-    );
-    expect(
-      txA.any((e) => (e['amount'] as num?)?.toInt() == -100),
-      isTrue,
-      reason: 'A 流水缺 -100 分红包条目',
-    );
-    expect(
-      txB.any((e) => (e['amount'] as num?)?.toInt() == 100),
-      isTrue,
-      reason: 'B 流水缺 +100 分领取条目',
-    );
-    _ev('双方流水均含 ±100 分红包条目');
-  }, timeout: const Timeout(Duration(minutes: 5)));
+      // 7. 双方流水回读（±100 分红包条目）
+      final txA = _txList(
+        await clientA.get(
+          '/api/v1/wallet/transactions',
+          queryParameters: {'page': 1, 'size': 20},
+        ),
+      );
+      final txB = _txList(
+        await clientB.get(
+          '/api/v1/wallet/transactions',
+          queryParameters: {'page': 1, 'size': 20},
+        ),
+      );
+      expect(
+        txA.any((e) => (e['amount'] as num?)?.toInt() == -100),
+        isTrue,
+        reason: 'A 流水缺 -100 分红包条目',
+      );
+      expect(
+        txB.any((e) => (e['amount'] as num?)?.toInt() == 100),
+        isTrue,
+        reason: 'B 流水缺 +100 分领取条目',
+      );
+      _ev('双方流水均含 ±100 分红包条目');
+    },
+    timeout: const Timeout(Duration(minutes: 5)),
+  );
 
   group('DF-18 红包错误分支（本地）', () {
     test('低于最低总额 99 分被拒绝且不崩溃', () async {
