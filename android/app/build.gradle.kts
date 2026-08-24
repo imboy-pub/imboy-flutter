@@ -58,12 +58,11 @@ android {
         manifestPlaceholders.putAll(
             mutableMapOf(
                 "JPUSH_PKGNAME" to "pub.imboy.app",
-                "JPUSH_CHANNEL" to "developer-default"
-            ).apply {
-                localProperties.getProperty("jpush.appKey")?.let {
-                    this["JPUSH_APPKEY"] = it
-                }
-            }
+                "JPUSH_CHANNEL" to "developer-default",
+                // 未配置极光推送时仍须完成 Manifest 占位替换，社区/CI Release
+                // 使用空值；真实应用密钥继续由 local.properties 覆盖。
+                "JPUSH_APPKEY" to (localProperties.getProperty("jpush.appKey") ?: "")
+            )
         )
     }
 
