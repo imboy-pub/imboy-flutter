@@ -143,3 +143,6 @@ plugin/audio_waveforms
 plugin/r_upgrade
 # Widget Preview related
 .widget_preview/
+
+# spike 实验区：Rust 构建产物不入库（源码可重建，见 ~/.pub-cache flutter_vodozemac）
+spikes/**/target/
