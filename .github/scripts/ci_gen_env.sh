@@ -47,7 +47,7 @@ write_env .env.local_home
 write_env .env.local_office
 
 # ③ 生成 .g.dart（全量 build，禁用 --build-filter）
-dart run build_runner build --delete-conflicting-outputs
+flutter pub run build_runner build --delete-conflicting-outputs
 
 echo "[ci_gen_env] 生成的 env .g.dart："
 ls lib/config/*.g.dart

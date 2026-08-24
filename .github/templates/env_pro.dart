@@ -39,6 +39,18 @@ final class EnvPro implements Env, EnvField {
   final String jiguangAppKey = _Env.jiguangAppKey;
 
   @override
+  @EnviedField(defaultValue: '', varName: 'ALIPAY_APP_ID', obfuscate: false)
+  final String alipayAppId = _Env.alipayAppId;
+
+  @override
+  @EnviedField(
+    defaultValue: '',
+    varName: 'ALIPAY_UNIVERSAL_LINK',
+    obfuscate: false,
+  )
+  final String alipayUniversalLink = _Env.alipayUniversalLink;
+
+  @override
   String? get wsUrl => null; // 从服务器配置获取
 
   // ┌─────────────────────────────────────────────────────────────┐

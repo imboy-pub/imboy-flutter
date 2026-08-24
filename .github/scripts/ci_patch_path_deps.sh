@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# CI 专用：jverify 是 .gitignore 的本地插件（plugin/jverify），CI 检出无此目录，
-# pub get 必败（"depends on jverify from path which doesn't exist"）。
-# 本地 plugin/jverify 即官方 3.1.7（与 hosted 版本一致），故 CI 检出缺目录时
-# 把 dependency_overrides 的 path 覆写改回 hosted。本地开发目录存在则跳过。
+# CI 专用：本地插件或私有 Git 依赖在 GitHub-hosted runner 不可用时，切换到
+# 与本地插件一致的公开 jverify 3.1.7，确保 cleanroom 能解析依赖。
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
@@ -11,6 +9,12 @@ if [ -f plugin/jverify/pubspec.yaml ]; then
   exit 0
 fi
 
-perl -0777 -pi -e 's/  jverify:\n    path: plugin\/jverify/  jverify: ^3.1.7/' pubspec.yaml
-echo "[ci_patch_path_deps] 已将 jverify path 覆写改回 hosted ^3.1.7："
-grep -n "jverify" pubspec.yaml | head -3
+perl -0777 -pi -e 's{  jverify:(?:\h*#.*)?\n(?:    path: plugin/jverify|    git:\n      url: git\@gitee\.com:imboy-tripartite-deps/jverify-flutter-plugin\.git\n      ref: dev-3\.x)}{  jverify: ^3.1.7}' pubspec.yaml
+
+if ! grep -q '^  jverify: \^3\.1\.7$' pubspec.yaml; then
+  echo "[ci_patch_path_deps] 未找到可替换的 jverify 本地或私有 Git 依赖" >&2
+  exit 1
+fi
+
+echo "[ci_patch_path_deps] 已将 jverify 切换为公开 hosted ^3.1.7："
+grep -n '^  jverify:' pubspec.yaml
