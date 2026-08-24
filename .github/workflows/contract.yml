@@ -46,7 +46,7 @@ jobs:
       - name: Setup Dart
         # 生成器纯 dart:io 标准库（无 package: 依赖、无需 pub get、
         # 无需 Flutter SDK），固定 3.8.0 对齐 pubspec sdk: ^3.8.0 下限
-        uses: dart-lang/setup-dart@v2
+        uses: dart-lang/setup-dart@v1
         with:
           sdk-version: '3.8.0'
 
