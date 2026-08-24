@@ -107,4 +107,7 @@ abstract class ChannelOrderStatus {
   static const int refunded = 2;
   static const int cancelled = 3;
   static const int expired = 4;
+
+  /// 退款中（CAS 抢占态，非终态）。对应后端 migration 00000057。
+  static const int refunding = 5;
 }

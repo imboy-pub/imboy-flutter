@@ -170,8 +170,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
     });
     _animController.repeat(); // 开始 3D 旋转
 
-    // 延迟 1 秒模拟真实感，发起抢红包
-    await Future<void>.delayed(const Duration(milliseconds: 1000));
+    // 立即发起抢红包，不引入伪等待
     final amount = await WalletApi().openRedPacket(widget.packetId);
 
     if (amount != null) {
@@ -182,8 +181,8 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
       setState(() {
         _isOpening = false;
       });
-      // 抢失败了（如已抢完），直接允许查看详情
-      widget.onViewDetail();
+      // 失败时 Toast 已由 WalletApi.openRedPacket 透出，不再自动跳转详情页。
+      // 用户可手动关闭弹窗后通过聊天消息再次查看。
     }
   }
 

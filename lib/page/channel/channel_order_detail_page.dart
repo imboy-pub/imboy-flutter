@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -185,6 +186,14 @@ class _OrderDetailBody extends ConsumerWidget {
         ],
         if (order.status == ChannelOrderStatus.pending) ...[
           AppSpacing.verticalXLarge,
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => context.go('/channel/${order.channelId}'),
+              child: Text(t.channel.orderContinuePay),
+            ),
+          ),
+          AppSpacing.verticalMedium,
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(

@@ -27,17 +27,23 @@ class ChannelPurchaseState {
   /// 最近一次第三方支付唤起结果；钱包支付或未发起时为 `null`。
   final PaymentLaunchResult? lastLaunchResult;
 
+  /// 轮询超时标志：SDK 成功但服务端回调未确认，用户应稍后查看订单。
+  final bool isPollTimedOut;
+
   const ChannelPurchaseState({
     this.isPurchasing = false,
     this.lastLaunchResult,
+    this.isPollTimedOut = false,
   });
 
   ChannelPurchaseState copyWith({
     bool? isPurchasing,
     PaymentLaunchResult? lastLaunchResult,
+    bool? isPollTimedOut,
   }) => ChannelPurchaseState(
     isPurchasing: isPurchasing ?? this.isPurchasing,
     lastLaunchResult: lastLaunchResult ?? this.lastLaunchResult,
+    isPollTimedOut: isPollTimedOut ?? this.isPollTimedOut,
   );
 }
 
@@ -128,15 +134,18 @@ class ChannelPurchaseNotifier extends Notifier<ChannelPurchaseState> {
 
   /// 轮询订单状态。
   ///
-  /// 最多轮询 [maxAttempts] 次，每次间隔 [intervalMs] 毫秒。
+  /// 退避间隔 [1, 2, 3, 5, 8] 秒 = 19s 总窗口（替代固定 6×800ms=4.8s），
+  /// 给支付宝回调留出合理的入账时间。超时后做一次最终查询，防止恰恰在
+  /// 最后间隔入账的订单被错过。
+  ///
   /// 命中已支付返回该订单；命中退款/取消/过期或超时返回 `null`。
+  /// 超时同时设置 `isPollTimedOut = true` 供 UI 区分"等待回调"和"支付失败"。
   /// 钱包/模拟支付后端即时置为已支付，首轮即命中（无 delay）。
-  Future<ChannelOrderModel?> _pollOrder(
-    String orderNo, {
-    int maxAttempts = 6,
-    int intervalMs = 800,
-  }) async {
-    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+  Future<ChannelOrderModel?> _pollOrder(String orderNo) async {
+    // ponytail: 固定退避序列，无需引入指数退避库。
+    // 上限：19s 总窗口仍不够时，用户可手动刷新订单详情页确认。
+    const intervals = [1000, 2000, 3000, 5000, 8000];
+    for (var attempt = 0; attempt < intervals.length; attempt++) {
       final order = await _api.getOrder(orderNo);
       if (order != null) {
         if (order.status == ChannelOrderStatus.paid) return order;
@@ -147,10 +156,17 @@ class ChannelPurchaseNotifier extends Notifier<ChannelPurchaseState> {
           return null;
         }
       }
-      if (attempt < maxAttempts - 1) {
-        await Future<void>.delayed(Duration(milliseconds: intervalMs));
+      if (attempt < intervals.length - 1) {
+        await Future<void>.delayed(Duration(milliseconds: intervals[attempt]));
       }
     }
+
+    // 超时：做一次最终查询，然后标记超时
+    final lastOrder = await _api.getOrder(orderNo);
+    if (lastOrder != null && lastOrder.status == ChannelOrderStatus.paid) {
+      return lastOrder;
+    }
+    state = state.copyWith(isPollTimedOut: true);
     return null;
   }
 }

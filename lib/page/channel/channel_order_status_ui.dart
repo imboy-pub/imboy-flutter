@@ -24,5 +24,9 @@ import 'package:imboy/i18n/strings.g.dart';
         t.channel.orderStatusExpired,
         AppColors.slateText,
       ),
+      ChannelOrderStatus.refunding => (
+        t.channel.orderStatusRefunding,
+        AppColors.warning,
+      ),
       _ => (t.channel.orderStatusPending, AppColors.slateText),
     };

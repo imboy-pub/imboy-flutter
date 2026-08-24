@@ -1177,6 +1177,8 @@ redPacketReceiverLabel(uid): 用户：$uid
 redPacketNotFound: 红包不存在或已被删除
 redPacketFetchFailed: 获取红包详情失败
 redPacketFetchError: 获取红包详情异常
+redPacketAmountTooSmall: 总金额至少为份数 × 0.01 元
+purchaseConfirming: 支付确认中，请稍后查看订单状态
 payReceiveSuccess: 收款成功！
 timeNowShort: now
 timeDaysShort(count): "${count}d"

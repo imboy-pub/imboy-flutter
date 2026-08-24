@@ -106,6 +106,31 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
     }
   }
 
+  /// 红包状态摘要文案，区分 active / finished / expired / refunded。
+  String _packetStatusSummary() {
+    final p = _packet!;
+    final grabbed = p.amount - p.remainAmount;
+    final grabbedYuan = (grabbed / 100.0).toStringAsFixed(2);
+    final totalYuan = p.amountYuan.toStringAsFixed(2);
+
+    switch (p.status) {
+      case 'active':
+        return '已抢 ${_receivers.length}/${p.count} 个，'
+            '共 $grabbedYuan/$totalYuan 元';
+      case 'finished':
+        return '共 $totalYuan 元，${p.count} 个红包已抢光';
+      case 'expired':
+        if (p.remainAmount > 0) {
+          return '已过期，剩余 ${p.remainAmountYuan.toStringAsFixed(2)} 元已退回';
+        }
+        return '已过期，共 $totalYuan 元';
+      case 'refunded':
+        return '已退款，共 $totalYuan 元';
+      default:
+        return '已抢 ${_receivers.length}/${p.count} 个，共 $grabbedYuan/$totalYuan 元';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
@@ -243,9 +268,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               color: isDark ? colorScheme.surface : AppColors.lightSurface,
               child: Text(
-                _packet!.isFinished
-                    ? '共 ${_packet!.amountYuan.toStringAsFixed(2)} 元，${_packet!.count} 个红包已抢光'
-                    : '已抢 ${_receivers.length}/${_packet!.count} 个，共 ${((_packet!.amount - _packet!.remainAmount) / 100.0).toStringAsFixed(2)}/${_packet!.amountYuan.toStringAsFixed(2)} 元',
+                _packetStatusSummary(),
                 style: context.textStyle(
                   FontSizeType.normal,
                   color: AppColors.iosGray,

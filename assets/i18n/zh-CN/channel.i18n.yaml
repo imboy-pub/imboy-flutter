@@ -152,6 +152,7 @@ orderStatusPending: 待支付
 orderStatusPaid: 已支付
 orderStatusRefunded: 已退款
 orderStatusCancelled: 已取消
+orderStatusRefunding: 退款中
 orderStatusExpired: 已过期
 # 订单详情 + 退款
 orderDetail: 订单详情

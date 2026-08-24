@@ -208,6 +208,14 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
 
       if (order == null) {
         final result = ref.read(channelPurchaseProvider).lastLaunchResult;
+        final isTimedOut = ref.read(channelPurchaseProvider).isPollTimedOut;
+        if (isTimedOut) {
+          // SDK 成功但服务端回调未确认——提示查看订单，不误报"购买失败"
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.t.common.purchaseConfirming)),
+          );
+          return;
+        }
         _handleThirdPartyFailure(result);
         return;
       }

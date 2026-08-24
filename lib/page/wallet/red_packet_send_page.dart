@@ -73,13 +73,18 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
       AppLoading.showError(t.common.rechargeAmountError);
       return;
     }
+    final count = _isGroup ? (int.tryParse(_countController.text) ?? 1) : 1;
+    // 金额下限：每个红包至少 0.01 元
+    if (amountFen < count) {
+      AppLoading.showError(t.common.redPacketAmountTooSmall);
+      return;
+    }
     if (amountFen > maxBalanceFen) {
       AppLoading.showError(t.common.insufficientBalance);
       return;
     }
 
     final amountYuan = fenToYuan(amountFen);
-    final count = _isGroup ? (int.tryParse(_countController.text) ?? 1) : 1;
     final greeting = _greetingController.text.trim().isNotEmpty
         ? _greetingController.text.trim()
         : t.common.greetingDefault;

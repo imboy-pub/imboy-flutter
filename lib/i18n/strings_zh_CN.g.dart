@@ -1051,6 +1051,9 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '已取消'
 	String get orderStatusCancelled => '已取消';
 
+	/// zh-CN: '退款中'
+	String get orderStatusRefunding => '退款中';
+
 	/// zh-CN: '已过期'
 	String get orderStatusExpired => '已过期';
 
@@ -5599,6 +5602,12 @@ class Translations$common$zh_CN {
 	/// zh-CN: '获取红包详情异常'
 	String get redPacketFetchError => '获取红包详情异常';
 
+	/// zh-CN: '总金额至少为份数 × 0.01 元'
+	String get redPacketAmountTooSmall => '总金额至少为份数 × 0.01 元';
+
+	/// zh-CN: '支付确认中，请稍后查看订单状态'
+	String get purchaseConfirming => '支付确认中，请稍后查看订单状态';
+
 	/// zh-CN: '收款成功！'
 	String get payReceiveSuccess => '收款成功！';
 
@@ -8204,6 +8213,7 @@ extension on Translations {
 			'channel.orderStatusPaid' => '已支付',
 			'channel.orderStatusRefunded' => '已退款',
 			'channel.orderStatusCancelled' => '已取消',
+			'channel.orderStatusRefunding' => '退款中',
 			'channel.orderStatusExpired' => '已过期',
 			'channel.orderDetail' => '订单详情',
 			'channel.orderNo' => '订单号',
@@ -8393,9 +8403,9 @@ extension on Translations {
 			'chat.status' => '状态',
 			'chat.storageSpaceData' => '存储空间和数据',
 			'chat.sureOpenTheFile' => '确定要打开文件吗？',
-			'chat.textMessage' => '文本消息',
 			_ => null,
 		} ?? switch (path) {
+			'chat.textMessage' => '文本消息',
 			'chat.titleMessage' => '消息',
 			'chat.topChat' => '置顶聊天',
 			'chat.unpin' => '取消置顶',
@@ -8907,9 +8917,9 @@ extension on Translations {
 			'common.throttleWarning' => '操作频率过高，请稍后再试',
 			'common.throttleRetryAfter' => ({required Object seconds}) => '操作频率过高，请 ${seconds} 秒后再试',
 			'common.mutedCannotSend' => '禁言期间无法发送消息',
-			'common.resendCodeSuccess' => '已发送新邮件。',
 			_ => null,
 		} ?? switch (path) {
+			'common.resendCodeSuccess' => '已发送新邮件。',
 			'common.resetFilters' => '重置筛选',
 			'common.saveQrCode' => '保存二维码',
 			'common.saveSuccess' => '保存成功',
@@ -9421,9 +9431,9 @@ extension on Translations {
 			'common.orderStatusCancelled' => '已取消',
 			'common.orderStatusUnknown' => '未知',
 			'common.removeReaction' => '移除反应',
-			'common.removeReactionConfirm' => ({required Object emoji}) => '确定要移除 ${emoji} 反应吗？',
 			_ => null,
 		} ?? switch (path) {
+			'common.removeReactionConfirm' => ({required Object emoji}) => '确定要移除 ${emoji} 反应吗？',
 			'common.fileOpenFailed' => '无法打开该文件',
 			'common.e2eeLocalBackup' => '本地备份',
 			'common.e2eeLocalBackupDesc' => '导出加密备份文件到本地或云端',
@@ -9718,6 +9728,8 @@ extension on Translations {
 			'common.redPacketNotFound' => '红包不存在或已被删除',
 			'common.redPacketFetchFailed' => '获取红包详情失败',
 			'common.redPacketFetchError' => '获取红包详情异常',
+			'common.redPacketAmountTooSmall' => '总金额至少为份数 × 0.01 元',
+			'common.purchaseConfirming' => '支付确认中，请稍后查看订单状态',
 			'common.payReceiveSuccess' => '收款成功！',
 			'common.timeNowShort' => 'now',
 			'common.timeDaysShort' => ({required Object count}) => '${count}d',
@@ -9933,11 +9945,11 @@ extension on Translations {
 			'groupCategory.deleteFailed' => '删除失败，请重试',
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupDiscovery.title' => '发现群组',
+			_ => null,
+		} ?? switch (path) {
 			'groupDiscovery.searchHint' => '搜索公开群',
 			'groupDiscovery.allCategories' => '全部',
 			'groupDiscovery.sortPopular' => '热门',
-			_ => null,
-		} ?? switch (path) {
 			'groupDiscovery.sortNewest' => '最新',
 			'groupDiscovery.emptyTitle' => '暂无公开群，稍后再来看看',
 			'groupDiscovery.searchEmpty' => '无匹配的公开群',
