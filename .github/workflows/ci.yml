@@ -186,7 +186,7 @@ jobs:
           cp coverage/lcov.test_integration.info coverage/lcov.integration_test.info
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           files: coverage/lcov.test_integration.info,coverage/lcov.integration_test.info
           flags: integration-tests
