@@ -76,7 +76,7 @@ jobs:
 
       - name: Upload smoke artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: yaml-automation-smoke-${{ github.run_id }}
           path: |
@@ -131,7 +131,7 @@ jobs:
 
       - name: Upload real artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: yaml-automation-real-${{ github.run_id }}
           path: |
