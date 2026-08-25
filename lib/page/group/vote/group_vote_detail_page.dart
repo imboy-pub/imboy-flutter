@@ -299,15 +299,26 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                 ),
               ],
             ),
-            // 进度条
+            // 进度条（Cupertino 风格）
             const SizedBox(height: AppSpacing.small),
             ClipRRect(
               borderRadius: AppRadius.borderRadiusTiny,
-              child: LinearProgressIndicator(
-                value: percent,
-                minHeight: 6,
-                backgroundColor: accent.withValues(alpha: 0.12),
-                valueColor: AlwaysStoppedAnimation<Color>(accent),
+              child: Container(
+                height: 6,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.12),
+                  borderRadius: AppRadius.borderRadiusTiny,
+                ),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: percent.clamp(0.0, 1.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: accent,
+                      borderRadius: AppRadius.borderRadiusTiny,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.tiny),

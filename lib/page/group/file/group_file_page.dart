@@ -523,7 +523,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
     return Column(
       children: [
-        if (_isUploading) const LinearProgressIndicator(minHeight: 2),
+        if (_isUploading) const CupertinoActivityIndicator(),
         _buildSearchBar(),
         _buildCategoryFilters(),
         Expanded(child: _buildFileList()),

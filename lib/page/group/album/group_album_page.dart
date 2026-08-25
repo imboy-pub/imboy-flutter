@@ -303,7 +303,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
 
     return Column(
       children: [
-        if (_isUploadingPhoto) const LinearProgressIndicator(minHeight: 2),
+        if (_isUploadingPhoto) const CupertinoActivityIndicator(),
         Expanded(
           child: _loadFailed
               ? NoDataView(
