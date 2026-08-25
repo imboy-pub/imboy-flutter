@@ -203,17 +203,18 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     required String title,
     required String content,
   }) async {
-    return showDialog<bool>(
+    return showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(title),
         content: Text(content),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
               t.common.confirm,
