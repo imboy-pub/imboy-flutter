@@ -377,7 +377,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.delete_sweep_outlined),
+                  : const Icon(CupertinoIcons.delete),
             ),
           ]
         : null;
@@ -411,7 +411,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     if (_loadFailed) {
       return NoDataView(
         text: t.common.loadError,
-        icon: Icons.cloud_off,
+        icon: CupertinoIcons.cloud_bolt,
         onTop: () => _loadPhotos(refresh: true),
       );
     }
@@ -496,18 +496,18 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                   image: cachedImageProvider(url),
                   fit: BoxFit.cover,
                   errorBuilder: (_, _, _) =>
-                      const Center(child: Icon(Icons.broken_image_outlined)),
+                      const Center(child: Icon(CupertinoIcons.photo_fill)),
                 )
               else
-                const Center(child: Icon(Icons.image_not_supported_outlined)),
+                const Center(child: Icon(CupertinoIcons.photo_fill)),
               if (_isSelectionMode)
                 Positioned(
                   left: 2,
                   top: 2,
                   child: Icon(
                     isSelected
-                        ? Icons.check_circle
-                        : Icons.radio_button_unchecked,
+                        ? CupertinoIcons.check_mark_circled_solid
+                        : CupertinoIcons.circle,
                     color: isSelected
                         ? AppColors.iosSkyBlue
                         : AppColors.onPrimary.withValues(alpha: 0.7),
@@ -530,7 +530,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                       child: const Padding(
                         padding: EdgeInsets.all(AppSpacing.tiny),
                         child: Icon(
-                          Icons.delete_outline,
+                          CupertinoIcons.delete,
                           size: 16,
                           color: AppColors.onPrimary,
                         ),

@@ -314,7 +314,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
           child: _loadFailed
               ? NoDataView(
                   text: t.common.loadError,
-                  icon: Icons.cloud_off,
+                  icon: CupertinoIcons.cloud_bolt,
                   onTop: _loadAlbums,
                 )
               : _albums.isEmpty
@@ -385,7 +385,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
             ),
             IconButton(
               visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.add_photo_alternate_outlined),
+              icon: const Icon(CupertinoIcons.add),
               tooltip: t.common.groupAlbumUploadTooltip,
               onPressed: _isUploadingPhoto
                   ? null
