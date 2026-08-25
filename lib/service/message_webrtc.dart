@@ -75,20 +75,36 @@ class MessageWebrtc {
   /// Lock to prevent duplicate message addition
   bool _addMessageLock = false;
 
-  /// 正在进行的 WebRTC 消息 ID 集合，用于去重和批量操作
-  /// Track ongoing WebRTC message IDs for dedupe and batch state changes.
-  final Set<String> webrtcMsgIds = <String>{};
+  /// 正在进行的 WebRTC 消息记录：msgId → 对端 uid。
+  /// 用于 busy/bye 到达时只改写同一对端的通话记录（旧实现是全局 Set，
+  /// 任一通话结束会把其他会话的历史 offer 记录一并改写状态）。
+  final Map<String, String> webrtcMsgFrom = <String, String>{};
 
   /// Handle WebRTC-specific messages
   /// 处理 WebRTC 信令：OFFER, BUSY, BYE 等
   Future<void> handleWebRTC(String type, Map<String, dynamic> data) async {
     final msgId = data['id'];
-    if (['WEBRTC_OFFER', 'WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
-      webrtcMsgIds.add(msgId as String);
+    final fromUid = data['from']?.toString() ?? '';
+    if (msgId is String && fromUid.isNotEmpty) {
+      webrtcMsgFrom[msgId] = fromUid;
     }
 
     if (type == 'WEBRTC_OFFER') {
       final peerId = data['from'];
+      // 通话进行中收到同一会话对端的 re-offer（ICE restart / renegotiation）：
+      // 必须转交通话页按协商流程处理。若走 incomingCallScreen 的占线逻辑回
+      // busy，会对端收到 busy 后挂断——正在进行的通话被自己的 re-offer 杀死。
+      if (p2pCallScreenOn) {
+        final sid = sessionId(peerId.toString());
+        if (webRTCSessions[sid]?.pc != null) {
+          if (p2pCallSignalingReady) {
+            AppEventBus.fire(WebRTCSignalingEvent(data: data));
+          } else {
+            queuePendingWebRTCSignal(data);
+          }
+          return;
+        }
+      }
       final contact = await _contactRepo.findByUid(peerId as String);
       if (contact != null && navigatorKey.currentContext != null) {
         await incomingCallScreen(
@@ -104,6 +120,13 @@ class MessageWebrtc {
         );
       }
     } else {
+      // 通话页 overlay 已插入但信令订阅尚未就绪（getUserMedia + TURN 请求
+      // 可达数秒）：窗口内到达的 answer/candidate/bye 全部入队，由订阅建立
+      // 后按序回放，否则会被 fire 到无监听者的事件总线而永久丢失。
+      if (p2pEntry != null && !p2pCallSignalingReady) {
+        queuePendingWebRTCSignal(data);
+        return;
+      }
       // 被叫尚未接听时没有通话页订阅事件总线；候选不能丢失，否则公网
       // 环境下 TURN/relay 候选无法在接听后补回 PeerConnection。
       if (type == 'WEBRTC_CANDIDATE' && p2pCallScreenOn && p2pEntry == null) {
@@ -111,23 +134,25 @@ class MessageWebrtc {
         return;
       }
       if (['WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
-        // 批量更新本地消息状态为结束/忙碌
-        // Batch update local WebRTC message state
-        for (var id in webrtcMsgIds) {
-          changeLocalMsgState(id, 4);
-        }
-        webrtcMsgIds.clear();
+        // busy=对方拒接/占线(5)；bye=对方挂断(3)。
+        // 只改写同一对端的通话记录，避免跨会话污染。
+        final endState = type == 'WEBRTC_BUSY' ? 5 : 3;
+        webrtcMsgFrom.removeWhere((k, v) {
+          if (v != fromUid) return false;
+          changeLocalMsgState(k, endState);
+          return true;
+        });
         // 关闭来电对话框（incomingCallScreen 是 showDialog 路由）。
-        // ⚠️ 必须用 canPop 守卫：通话已进入 OverlayEntry（非路由）时无对话框
-        // 可弹，裸 pop 会弹掉最后一个 go_router 页面并触发断言崩溃；
-        // 此时通话页 overlay 由其自身 BYE 处理（closePage）负责关闭。
-        if (navigatorKey.currentState?.canPop() ?? false) {
+        // ⚠️ 仅在来电弹窗还开着（无通话 overlay）时才允许 pop：通话页以
+        // OverlayEntry 呈现时导航栈顶是业务页面，裸 pop 会弹掉它。
+        if (p2pEntry == null &&
+            (navigatorKey.currentState?.canPop() ?? false)) {
           navigatorKey.currentState?.pop();
         }
         gTimer?.cancel();
         gTimer = null;
         p2pCallScreenOn = false;
-        clearPendingWebRTCSignals(data['from']?.toString() ?? '');
+        clearPendingWebRTCSignals(fromUid);
       }
       // WRTC-00 修复：answer/candidate/ringing/busy/bye 必须 fire
       // WebRTCSignalingEvent（通话页 page:245 订阅的类型），此前误发
@@ -249,7 +274,7 @@ class MessageWebrtc {
     final repo = MessageRepo(tableName: MessageRepo.c2cTable);
     final msg = await repo.find(msgId);
     if (msg == null) return;
-    webrtcMsgIds.clear();
+    webrtcMsgFrom.remove(msgId);
 
     final metadata = msg.payloadMap;
     final msgType = metadata['msg_type'] ?? '';

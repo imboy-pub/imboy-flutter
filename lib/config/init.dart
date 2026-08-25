@@ -57,6 +57,12 @@ IMBoyCacheManager cacheManager = IMBoyCacheManager();
 
 bool p2pCallScreenOn = false;
 
+/// 通话页的信令订阅是否已就绪。
+/// openCallScreen 插入 overlay 后到页面 _initData 建立事件订阅之间存在数秒窗口
+/// （getUserMedia + TURN 凭证请求），期间到达的 answer/candidate/bye 若直接
+/// fire 事件总线会因无监听者而永久丢失；此窗口内信令一律入 pending 队列。
+bool p2pCallSignalingReady = false;
+
 var logger = Logger();
 
 /// initConfig 缓存（避免重复请求）

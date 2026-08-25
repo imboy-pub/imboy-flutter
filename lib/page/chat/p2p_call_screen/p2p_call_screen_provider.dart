@@ -68,6 +68,10 @@ class P2pCallScreenState {
 
   /// 网络重连中（ICE Disconnected/Failed）。用于顶部“网络不佳”横幅。
   final bool reconnecting;
+
+  /// 对端已关闭摄像头（远端视频轨 mute）。用于主画面占位提示，
+  /// 否则对端关摄像头后本端只看到黑屏、无从分辨。
+  final bool remoteVideoOff;
   final String errorMessage;
   final MediaPermissionTarget? permissionTarget;
 
@@ -86,6 +90,7 @@ class P2pCallScreenState {
     this.floatX = 0.0,
     this.floatY = 0.0,
     this.reconnecting = false,
+    this.remoteVideoOff = false,
     this.errorMessage = '',
     this.permissionTarget,
   });
@@ -105,6 +110,7 @@ class P2pCallScreenState {
     double? floatX,
     double? floatY,
     bool? reconnecting,
+    bool? remoteVideoOff,
     String? errorMessage,
     MediaPermissionTarget? permissionTarget,
     bool clearPermissionTarget = false,
@@ -124,6 +130,7 @@ class P2pCallScreenState {
       floatX: floatX ?? this.floatX,
       floatY: floatY ?? this.floatY,
       reconnecting: reconnecting ?? this.reconnecting,
+      remoteVideoOff: remoteVideoOff ?? this.remoteVideoOff,
       errorMessage: errorMessage ?? this.errorMessage,
       permissionTarget: clearPermissionTarget
           ? null
@@ -142,6 +149,10 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   bool makingOffer = false;
   bool makingAnswer = false;
+
+  /// 已成功 setRemoteDescription（首轮协商完成）。此后 ICE restart 触发的
+  /// onRenegotiationNeeded 允许任意一方发起新 offer；首轮 offer 只能由主叫发。
+  bool _remoteDescSet = false;
 
   // 页面 dispose 期间置位：阻止仍在飞行中的信令回调继续操作正在被
   // cleanUpP2P() 关闭的 PeerConnection（两者并发访问同一个 pc 有崩溃风险）。
@@ -214,6 +225,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     makingOffer = false;
     makingAnswer = false;
     _closing = false;
+    _remoteDescSet = false;
     _callSeconds = 0;
   }
 
@@ -222,6 +234,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     makingOffer = false;
     makingAnswer = false;
     _closing = false;
+    _remoteDescSet = false;
   }
 
   Future<void> onMessageP2P(WebRTCSession s, WebRTCSignalingModel msg) async {
@@ -284,6 +297,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
           sd['type'] as String,
         );
         await s2.pc!.setRemoteDescription(sd2);
+        _remoteDescSet = true;
 
         // ICE candidate 必须在 remoteDescription 设置成功后再消费，
         // 提前 addCandidate 可能被底层拒绝导致候选丢失。
@@ -307,9 +321,23 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         final s2 = webRTCSessions[sid];
 
         makingOffer = false;
-        await s2!.pc?.setRemoteDescription(
+        // stale answer（bye 已清理 / sid 不匹配 / 重复 answer）防御：
+        // 旧实现在这里 s2! 强制解包，会话已关闭时直接空指针崩溃。
+        if (s2 == null || s2.pc == null) {
+          iPrint('> rtc answer: no live session for sid $sid, dropping');
+          return;
+        }
+        // 重复 answer 幂等：只在 have-local-offer 状态消费，二次
+        // setRemoteDescription 会抛 wrong-state 异常打进事件总线监听器。
+        if (s2.pc!.signalingState !=
+            RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
+          iPrint('> rtc answer: not in have-local-offer state, dropping');
+          return;
+        }
+        await s2.pc?.setRemoteDescription(
           RTCSessionDescription(sd['sdp'] as String, sd['type'] as String),
         );
+        _remoteDescSet = true;
         // 主叫方在等待 answer 期间到达的 ICE candidate 会被 _receiveCandidate
         // 缓冲进 remoteCandidates；remoteDescription 设置成功后必须在此消费，
         // 否则会静默丢失，导致 NAT 穿透失败。
@@ -337,14 +365,27 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         onCallStateChange?.call(s, WebRTCCallState.callStateBusy);
         break;
       case 'bye':
-        final sid = msg.payload['sid'];
-        final s2 = webRTCSessions.remove(sid);
-        if (s2 != null) {
+        final sid = msg.payload['sid'] as String? ?? s.sid;
+        final s2 = webRTCSessions[sid];
+        // 幽灵 bye 防御：sid 只由双方 uid 派生（func.dart sessionId），挂断后
+        // 立即回拨的新会话 sid 相同。双方共用同一 msgId（主叫生成、随 offer
+        // 传递），用它可以区分迟到 bye 属于哪一通通话。
+        if (s2 != null && msg.msgId == msgId) {
+          webRTCSessions.remove(sid);
           onCallStateChange?.call(s2, WebRTCCallState.callStateBye);
           _closeSession(s2);
+        } else {
+          iPrint('> rtc bye: stale bye for sid $sid (msgId mismatch), ignored');
         }
         break;
       case 'heartbeat':
+        break;
+      case 'track_state':
+        // 对端摄像头开关的信令同步：驱动本端 remoteVideoOff 占位 UI。
+        if (ref.mounted && !_closing) {
+          final videoOn = msg.payload['video'] as bool? ?? true;
+          state = state.copyWith(remoteVideoOff: !videoOn);
+        }
         break;
       default:
         break;
@@ -492,6 +533,12 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     required bool screenSharing,
   }) async {
     iPrint("> rtc createSession media $media, sid ${newSession.sid}");
+    // 接听瞬间挂断竞态：页面 dispose 已触发 cleanUpP2P 时不再创建新连接，
+    // 否则会在清理流程中插入新的 pc/媒体流（随后成为孤儿资源）。
+    if (_closing) {
+      iPrint('> rtc createSession: closing in progress, abort');
+      return newSession;
+    }
     if (media != 'data') {
       _localStream ??= await _createStream(media, screenSharing);
       // 权限/设备失败时不要继续创建“无本地轨道”的连接；否则对端只会
@@ -654,7 +701,11 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
     pc.onRenegotiationNeeded = () async {
       iPrint('> rtc pc onRenegotiationNeeded');
-      if (caller) {
+      if (_closing) return;
+      // 首轮 offer 只能由主叫发起（caller 接线自 initSession）；被叫侧若也
+      // 主动发 offer，主叫通话中的占线逻辑会回 busy，把正在进行的通话杀死。
+      // 首轮协商完成后（_remoteDescSet），ICE restart 需要任一方都能补发 offer。
+      if (caller || _remoteDescSet) {
         _createOffer(msgId, media);
       }
     };
@@ -705,7 +756,10 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     }
     makingOffer = true;
     try {
-      _privDcConstraint['mandatory']['OfferToReceiveVideo'] = media == 'video'
+      // ⚠️ 用参数 m（调用方传入的媒体类型），不能用实例字段 media：
+      // 接听路径实例 media 在 initSession 接线前是默认值 'video'，音频通话
+      // 会错误地在 SDP 里保留 OfferToReceiveVideo=true。
+      _privDcConstraint['mandatory']['OfferToReceiveVideo'] = m == 'video'
           ? true
           : false;
       RTCSessionDescription sd = await currentSession.pc!.createOffer(
@@ -781,20 +835,29 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }
 
   void closeSessionByPeerId(String peerId) {
-    WebRTCSession? session;
+    WebRTCSession? matched;
     webRTCSessions.removeWhere((String key, WebRTCSession sess) {
       var ids = key.split('-');
-      session = sess;
-      return peerId == ids[0] || peerId == ids[1];
+      // 谓词对每个元素都会执行：只在真正匹配时记录，否则循环结束后
+      // matched 恒为 map 最后一个条目，会误关无辜会话。
+      final hit = peerId == ids[0] || peerId == ids[1];
+      if (hit) matched = sess;
+      return hit;
     });
-    if (session != null) {
-      _closeSession(session!);
-      onCallStateChange?.call(session!, WebRTCCallState.callStateBye);
+    if (matched != null) {
+      _closeSession(matched!);
+      onCallStateChange?.call(matched!, WebRTCCallState.callStateBye);
     }
   }
 
   Future<void> _closeSession(WebRTCSession session) async {
     iPrint("> rtc closeSession start ${session.sid}");
+    // 先摘除回调再关闭：close 后原生层仍可能派发飞行中的事件，
+    // 回调残留会操作已 dispose 的 pc（对比 cleanSessions 已做同样处理）。
+    session.pc?.onIceCandidate = null;
+    session.pc?.onTrack = null;
+    session.pc?.onIceConnectionState = null;
+    session.pc?.onAddStream = null;
     final localStream = _localStream;
     if (localStream != null) {
       await Future.wait(localStream.getTracks().map((track) => track.stop()));
@@ -822,7 +885,8 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       //
     }
     await _stopLocalStream();
-    initState();
+    // ⚠️ 不在此处复位 _closing：关闭流程是异步的，飞行中的原生回调可能
+    // 随后到达；复位由下一通通话的 initSession/initState 完成。
     p2pCallScreenOn = false;
   }
 
@@ -856,6 +920,13 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       _iceRestartCount++;
       iPrint('> rtc ICE restart attempt $_iceRestartCount/$_maxIceRestarts');
       currentSession!.pc!.restartIce();
+      // restartIce() 只重置本地 ICE 状态，重启后的候选必须随新 offer（带
+      // iceRestart）发给对端才生效；不能只依赖 onRenegotiationNeeded——
+      // 部分平台在 restartIce 后不触发该回调，导致重连永远不完成、3 次
+      // 后被误判 failed 挂断。
+      if (caller || _remoteDescSet) {
+        _createOffer(msgId, media);
+      }
     } else {
       iPrint('> rtc ICE restart max attempts reached, connection failed');
       // 超过重试次数：这是链路故障，不是对端挂断。原来复用 callStateBye
@@ -915,10 +986,26 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     }
   }
 
+  /// 通话建立时应用初始音频路由：视频通话默认扬声器、音频通话默认听筒。
+  /// 必须在本地轨道就绪后调用一次，否则 iOS 上 UI 显示"扩音开"而实际
+  /// 音频仍从听筒出（首态与真实路由不符）。
+  void setInitialSpeaker(bool speakerOn) {
+    state = state.copyWith(speakerOn: speakerOn);
+    applyInitialAudioRoute();
+  }
+
+  void applyInitialAudioRoute() {
+    final tracks = _localStream?.getAudioTracks() ?? <MediaStreamTrack>[];
+    if (tracks.isEmpty) return;
+    Helper.setSpeakerphoneOn(state.speakerOn);
+  }
+
   void switchSpeaker(bool speakerOn) {
     final tracks = _localStream?.getAudioTracks() ?? <MediaStreamTrack>[];
     if (tracks.isEmpty) return;
-    tracks.first.enableSpeakerphone(speakerOn);
+    // enableSpeakerphone 在 flutter_webrtc 1.6.0 已废弃；macOS/Windows 无
+    // 扬声器/听筒概念，setSpeakerphoneOn 内部会忽略。
+    Helper.setSpeakerphoneOn(speakerOn);
     state = state.copyWith(speakerOn: speakerOn);
   }
 
@@ -938,6 +1025,17 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     final muted = !state.cameraOff;
     state = state.copyWith(cameraOff: muted);
     tracks.first.enabled = !muted;
+    // 摄像头开关通过信令同步给对端（后端对 webrtc_* 整包透传，无需改动），
+    // 对端据此显示"对方已关闭摄像头"占位，而不是无差别黑屏。
+    final currentSession = session;
+    if (currentSession != null) {
+      sendWebRTCMsg(
+        'track_state',
+        {'video': !muted},
+        msgId: msgId,
+        to: currentSession.peerId,
+      );
+    }
   }
 
   /// 用信令/本地事件驱动状态机，返回迁移后的状态（页面据此决定收尾动作）。
@@ -973,6 +1071,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }
 
   void setReconnecting(bool v) {
+    // ICE 状态回调来自原生层：provider 已释放（页面关闭）后写 state 会抛
+    // "Cannot use Ref after disposed"。
+    if (!ref.mounted) return;
     state = state.copyWith(reconnecting: v);
   }
 

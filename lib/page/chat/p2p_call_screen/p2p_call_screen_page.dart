@@ -12,6 +12,8 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/func.dart';
+import 'package:imboy/component/webrtc/func.dart' as webrtc_func;
+import 'package:imboy/config/init.dart' show p2pCallSignalingReady;
 import 'package:imboy/component/webrtc/media_permission.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
@@ -84,6 +86,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   // 在 initState 缓存 notifier 引用，供 dispose 安全调用。
   late final P2pCallScreenNotifier _notifier;
 
+  /// 已通过挂断路径发过 bye 的闩：dispose 不再补发。旧实现每次本地挂断
+  /// 双发 bye（按钮一次 + dispose 一次），冗余流量且迟到 bye 有干扰风险。
+  bool _byeSent = false;
+
   // 连接态头像“呼吸光环”动画
   late final AnimationController _pulse;
 
@@ -109,6 +115,15 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       curve: Curves.easeOut,
     );
     msgId = widget.option['msgId'] as String? ?? Xid().toString();
+
+    // Android 系统返回键 = 最小化通话（见 func.dart 的哑路由说明），
+    // 而不是弹掉通话页下方的业务路由。
+    webrtc_func.p2pCallSystemBackHandler = () {
+      if (!mounted) return;
+      final size = MediaQuery.sizeOf(context);
+      _notifier.enterFloating(size.width - 118, 70);
+    };
+
     _initData();
   }
 
@@ -136,10 +151,13 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
   @override
   void dispose() {
-    // 在 dispose 之前发送 bye 消息通知对方（用缓存的 notifier，勿用 ref）
-    if (msgId.isNotEmpty) {
+    // 在 dispose 之前发送 bye 消息通知对方（用缓存的 notifier，勿用 ref）；
+    // 挂断按钮路径已发过（_byeSent）则跳过，避免双发。
+    if (msgId.isNotEmpty && !_byeSent) {
       _notifier.sendBye(msgId);
     }
+    // 复位信令就绪标志，为下一通通话恢复 pending 排队语义。
+    p2pCallSignalingReady = false;
 
     // 同步清理：必须在 super.dispose() 之前完成
     msgId = '';
@@ -183,6 +201,16 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     await remoteRenderer.initialize();
 
     final notifier = _notifier;
+
+    // 会话角色接线：provider.caller/media/msgId 实例字段此前从未初始化
+    // （initSession 是死代码），caller 恒为 true —— 被叫侧
+    // onRenegotiationNeeded 也会主动发 offer，通话会被自己的 re-offer 杀死。
+    notifier.initSession(
+      newSession: widget.session,
+      newMedia: media,
+      isCaller: widget.caller,
+      newMsgId: msgId,
+    );
 
     // 设置回调
     notifier.onSignalingStateChange = (RTCSignalingState state) {};
@@ -255,6 +283,10 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       return;
     }
 
+    // 视频通话默认扬声器、音频通话默认听筒：必须在轨道就绪后立刻应用到
+    // 硬件，否则 iOS 上 UI 显示“扩音开”而声音仍从听筒出。
+    notifier.setInitialSpeaker(media == 'video');
+
     // 订阅信令消息
     subscription = AppEventBus.on<WebRTCSignalingEvent>().listen((
       WebRTCSignalingEvent obj,
@@ -264,6 +296,20 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
         WebRTCSignalingModel.fromJson(obj.data),
       );
     });
+    // 订阅就绪：此后 handleWebRTC 不再排队信令。就绪前的窗口期
+    // （getUserMedia + TURN 请求可达数秒）到达的 answer/candidate/bye
+    // 在此按序回放，此前它们会被 fire 到无监听者的事件总线而永久丢失。
+    p2pCallSignalingReady = true;
+    for (final data in takePendingWebRTCSignals(
+      widget.peer.peerId.toString(),
+    )) {
+      if (!mounted) return;
+      await notifier.onMessageP2P(
+        updatedSession,
+        WebRTCSignalingModel.fromJson(data),
+      );
+    }
+    if (!mounted) return;
 
     // 发起或接听通话
     if (widget.caller) {
@@ -289,14 +335,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           payload: widget.option,
         ),
       );
-      for (final data in takePendingWebRTCSignals(
-        widget.peer.peerId.toString(),
-      )) {
-        await notifier.onMessageP2P(
-          updatedSession,
-          WebRTCSignalingModel.fromJson(data),
-        );
-      }
+      // 接听前弹窗期排队的候选已在上面统一回放（takePendingWebRTCSignals
+      // 为 remove 语义，此处无需重复消费）。
     }
   }
 
@@ -350,6 +390,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
   void _hangUp({bool sendBye = true, int callState = 0, int endAt = 0}) {
     if (sendBye) {
+      _byeSent = true;
       _notifier.sendBye(msgId);
     }
     if (callState > 0) {
@@ -917,7 +958,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     required P2pCallScreenState state,
     required bool isLocal,
   }) {
-    if (isLocal && state.cameraOff) {
+    final videoOff = isLocal ? state.cameraOff : state.remoteVideoOff;
+    if (videoOff) {
       return const ColoredBox(
         color: CallTokens.bg1A1A1A,
         child: Center(

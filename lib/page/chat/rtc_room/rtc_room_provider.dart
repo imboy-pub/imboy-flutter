@@ -68,6 +68,19 @@ class RtcRoomNotifier extends _$RtcRoomNotifier {
   EventsListener<RoomEvent>? _listener;
   CameraPosition _cameraPosition = CameraPosition.front;
 
+  /// provider 已释放（页面 pop 触发 autoDispose）。
+  /// connect() 的 await 返回后必须检查：弱网下 room.connect 挂起数秒、
+  /// 用户已退出页面，若继续赋值 _room/开麦开摄像头会"复活"已释放的 Room，
+  /// 并在已 dispose 的 notifier 上写 state 抛 StateError（Error 不会被
+  /// on Exception 捕获）。
+  bool _disposed = false;
+
+  /// 用户主动挂断：页面据此区分「自己挂断」（直接退页）与
+  /// 「异常断开」（toast 提示后退页），避免主动挂断也弹"通话已断开"。
+  bool _userHangup = false;
+
+  bool get userHangup => _userHangup;
+
   /// LiveKit Room（ChangeNotifier），页面用 ListenableBuilder 监听参与者变化
   Room? get room => _room;
 
@@ -84,48 +97,100 @@ class RtcRoomNotifier extends _$RtcRoomNotifier {
       return true;
     }
     state = state.copyWith(status: RtcRoomStatus.connecting);
+    _userHangup = false;
     final room = Room();
+    // await 前先登记：connecting 中页面 pop 触发 _teardown 时才能拿到
+    // 这个 room 去取消连接/释放，否则竞态窗口内 teardown 摸到 null、
+    // connect 完成后反而把已释放的 Room 复活。
+    _room = room;
     try {
       await room.connect(wsUrl, token);
-      _room = room;
-      _listener = room.createListener()
+      if (_disposed) {
+        // 页面已退出：彻底释放本地资源，不写 state。
+        await room.disconnect();
+        await room.dispose();
+        return false;
+      }
+      final listener = room.createListener()
         ..on<RoomReconnectingEvent>((_) {
+          if (!ref.mounted || _disposed) return;
           state = state.copyWith(
             status: RtcRoomStatus.connected,
             reconnecting: true,
           );
         })
         ..on<RoomResumingEvent>((_) {
+          if (!ref.mounted || _disposed) return;
           state = state.copyWith(
             status: RtcRoomStatus.connected,
             reconnecting: true,
           );
         })
         ..on<RoomReconnectedEvent>((_) {
+          if (!ref.mounted || _disposed) return;
           state = state.copyWith(
             status: RtcRoomStatus.connected,
             reconnecting: false,
           );
         })
-        ..on<RoomDisconnectedEvent>((_) {
+        ..on<RoomDisconnectedEvent>((e) {
+          if (!ref.mounted || _disposed) return;
+          // 区分被踢/房间关闭/重连失败，便于诊断（UI 文案统一）。
+          iPrint('RtcRoom disconnected: reason=${e.reason}');
           state = state.copyWith(
             status: RtcRoomStatus.disconnected,
             reconnecting: false,
           );
         });
-      await room.localParticipant?.setMicrophoneEnabled(true);
-      await room.localParticipant?.setCameraEnabled(true);
+      if (_disposed) {
+        await listener.dispose();
+        await room.disconnect();
+        await room.dispose();
+        return false;
+      }
+      _listener = listener;
+
+      // 麦克风/摄像头分别降级：权限被拒或设备被占用只关闭对应能力，
+      // 不能把整场通话判死（旧实现两者任一失败即 failed，无摄像头的
+      // 用户永远进不了群通话）。
+      var micOn = true;
+      try {
+        await room.localParticipant?.setMicrophoneEnabled(true);
+      } on Exception catch (e) {
+        micOn = false;
+        iPrint('RtcRoom mic enable failed: $e');
+      }
+      var cameraOn = true;
+      try {
+        await room.localParticipant?.setCameraEnabled(true);
+      } on Exception catch (e) {
+        cameraOn = false;
+        iPrint('RtcRoom camera enable failed: $e');
+      }
+      // 初始音频路由与 UI 状态对齐：iOS playAndRecord 默认走听筒，
+      // 不显式应用会出现"图标显示扩音开、实际听筒出声"的首态错位。
+      try {
+        await AudioManager.instance.setSpeakerOutputPreferred(state.speakerOn);
+      } on Exception catch (_) {
+        // 桌面平台无扬声器/听筒概念，忽略。
+      }
+      if (!ref.mounted || _disposed) return false;
       state = state.copyWith(
         status: RtcRoomStatus.connected,
         reconnecting: false,
-        micOn: true,
-        cameraOn: true,
+        micOn: micOn,
+        cameraOn: cameraOn,
       );
       return true;
     } on Exception catch (e) {
       iPrint('RtcRoom connect failed: $e');
+      if (_disposed) {
+        await room.dispose();
+        return false;
+      }
       await room.dispose();
-      _room = null;
+      if (_room == room) _room = null;
+      if (!ref.mounted) return false;
       state = state.copyWith(status: RtcRoomStatus.failed, reconnecting: false);
       return false;
     }
@@ -135,16 +200,26 @@ class RtcRoomNotifier extends _$RtcRoomNotifier {
     final lp = _room?.localParticipant;
     if (lp == null) return;
     final next = !state.micOn;
-    await lp.setMicrophoneEnabled(next);
-    state = state.copyWith(micOn: next);
+    try {
+      await lp.setMicrophoneEnabled(next);
+      if (ref.mounted) state = state.copyWith(micOn: next);
+    } on Exception catch (e) {
+      // 失败时保持图标与实际状态一致（旧实现 state 只在成功后更新，
+      // 异常路径下 UI 与真实能力失同步）。
+      iPrint('RtcRoom toggleMic failed: $e');
+    }
   }
 
   Future<void> toggleCamera() async {
     final lp = _room?.localParticipant;
     if (lp == null) return;
     final next = !state.cameraOn;
-    await lp.setCameraEnabled(next);
-    state = state.copyWith(cameraOn: next);
+    try {
+      await lp.setCameraEnabled(next);
+      if (ref.mounted) state = state.copyWith(cameraOn: next);
+    } on Exception catch (e) {
+      iPrint('RtcRoom toggleCamera failed: $e');
+    }
   }
 
   Future<void> toggleSpeaker() async {
@@ -169,11 +244,15 @@ class RtcRoomNotifier extends _$RtcRoomNotifier {
 
   /// 挂断：断开并释放 Room，页面据 status==disconnected 退出
   Future<void> hangup() async {
+    _userHangup = true;
     await _teardown();
-    state = state.copyWith(status: RtcRoomStatus.disconnected);
+    if (ref.mounted) {
+      state = state.copyWith(status: RtcRoomStatus.disconnected);
+    }
   }
 
   Future<void> _teardown() async {
+    _disposed = true;
     final listener = _listener;
     final room = _room;
     _listener = null;

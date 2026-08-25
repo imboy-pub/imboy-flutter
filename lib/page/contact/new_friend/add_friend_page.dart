@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,11 +15,24 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'new_friend_provider.dart';
 
 /// 添加朋友页面 - iOS 17 Premium 风格重构
-class AddFriendPage extends ConsumerWidget {
+class AddFriendPage extends ConsumerStatefulWidget {
   const AddFriendPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AddFriendPage> createState() => _AddFriendPageState();
+}
+
+class _AddFriendPageState extends ConsumerState<AddFriendPage> {
+  Timer? _searchDebounce;
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
 
     return IosPageTemplate(
@@ -71,6 +85,27 @@ class AddFriendPage extends ConsumerWidget {
     );
   }
 
+  Future<void> _doSearch(String v, WidgetRef ref) async {
+    if (v.trim().length < 2) return;
+    try {
+      final results = await ref
+          .read(newFriendProvider.notifier)
+          .userSearch(kwd: v);
+      if (!mounted || !context.mounted) return;
+      if (results.isEmpty) {
+        AppLoading.showInfo(t.common.searchNoResults);
+        return;
+      }
+      final model = results.first as PeopleModel;
+      context.push(
+        '/people_info/\${model.id}',
+        extra: {'scene': 'user_search'},
+      );
+    } on Exception catch (e) {
+      iPrint('[AddFriend] 搜索用户失败: \$e');
+    }
+  }
+
   Widget _buildSearchSection(
     BuildContext context,
     WidgetRef ref,
@@ -92,6 +127,12 @@ class AddFriendPage extends ConsumerWidget {
             CupertinoSearchTextField(
               key: const Key('add_friend_search_input'),
               placeholder: t.account.hintLoginAccount,
+              onChanged: (v) {
+                _searchDebounce?.cancel();
+                _searchDebounce = Timer(const Duration(milliseconds: 600), () {
+                  _doSearch(v, ref);
+                });
+              },
               onSubmitted: (v) async {
                 if (v.trim().isEmpty) return;
                 // 同 new_friend_page：async 回调自带 try/catch + loading，

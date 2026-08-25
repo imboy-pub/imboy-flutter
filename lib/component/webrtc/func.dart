@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/webrtc/session.dart';
 
 import 'package:imboy/config/init.dart';
@@ -34,6 +35,15 @@ List<Map<String, dynamic>> takePendingWebRTCSignals(String peerId) {
 void clearPendingWebRTCSignals(String peerId) {
   _pendingWebRTCSignals.remove(peerId);
 }
+
+/// 通话 overlay 期间的系统返回键（Android）处理器：由通话页注册，
+/// 行为 = 最小化为悬浮窗（与微信/FaceTime 一致），而不是弹掉底层业务路由。
+void Function()? p2pCallSystemBackHandler;
+
+/// 通话页的返回键吸收层：通话页是 OverlayEntry 而非路由，Android 系统返回
+/// 会直接 pop 底层 go_router 路由。推一个透明哑路由拦截返回并转发给上面的
+/// 处理器；通话页关闭时随 overlay 一起移除。
+Route<void>? _p2pCallBackdropRoute;
 
 /// 发送WebRTC消息
 /// 构造 WebRTC 信令请求（纯函数，便于协议对齐测试）。
@@ -207,7 +217,14 @@ Future<void> openCallScreen(
   bool caller = true,
 }) async {
   if (p2pEntry != null) return;
+  // 来电弹窗还开着（p2pCallScreenOn 已置位但尚未接听）时禁止再发起呼出：
+  // overlay 会盖死来电弹窗使其失去关闭路径，只剩 60s 超时兜底。
+  if (p2pCallScreenOn && caller) {
+    iPrint('> rtc openCallScreen: 来电待接听中，忽略新的呼出请求');
+    return;
+  }
   p2pCallScreenOn = true;
+  p2pCallSignalingReady = false;
 
   final sid = sessionId(peer.peerId.toString());
   session ??= WebRTCSession(
@@ -232,9 +249,37 @@ Future<void> openCallScreen(
         p2pEntry = null;
         // Get.delete removed - cleanup is handled by closePage callback
         p2pCallScreenOn = false;
+        p2pCallSignalingReady = false;
+        p2pCallSystemBackHandler = null;
+        final route = _p2pCallBackdropRoute;
+        _p2pCallBackdropRoute = null;
+        if (route != null && route.isActive) {
+          navigatorKey.currentState?.removeRoute(route);
+        }
       },
     ),
   );
 
   navigatorKey.currentState?.overlay?.insert(p2pEntry!);
+
+  // 返回键吸收层（见 _p2pCallBackdropRoute 注释）。透明、不参与布局，
+  // 仅把系统返回转为"最小化通话"。
+  final nav = navigatorKey.currentState;
+  if (nav != null) {
+    _p2pCallBackdropRoute = RawDialogRoute<void>(
+      barrierColor: null,
+      barrierDismissible: false,
+      transitionDuration: Duration.zero,
+      pageBuilder: (_, _, _) => PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) {
+            p2pCallSystemBackHandler?.call();
+          }
+        },
+        child: const SizedBox.shrink(),
+      ),
+    );
+    nav.push(_p2pCallBackdropRoute!);
+  }
 }

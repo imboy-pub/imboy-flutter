@@ -40,10 +40,13 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:node="remove" />
 
-    <!-- 蓝牙权限 - 移除（应用无蓝牙功能） -->
-    <uses-permission android:name="android.permission.BLUETOOTH" tools:node="remove"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" tools:node="remove"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" tools:node="remove"/>
+    <!-- 蓝牙权限：音视频通话的音频路由（蓝牙耳机 SCO）在 Android 12+ 需要
+         BLUETOOTH_CONNECT（运行时权限，flutter_webrtc 的 AudioSwitch 会在
+         启动音频设备扫描时请求）；Android 11 及以下使用旧版 install-time 权限。
+         此前曾整体移除，导致 Android 12+ 蓝牙耳机通话不可用。 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
 
     <!-- 厂商扩展 -->
     <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE"/>
@@ -54,9 +57,10 @@
     <application
         android:label="IMBoy"
         android:name="${applicationName}"
-        android:icon="@drawable/ic_launcher"
-        android:roundIcon="@drawable/ic_launcher_round"
-        android:enableOnBackInvokedCallback="true">
+        android:icon="@mipmap/ic_launcher"
+                android:enableOnBackInvokedCallback="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false">
         <activity
             android:name=".MainActivity"
             android:exported="true"

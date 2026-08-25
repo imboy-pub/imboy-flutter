@@ -71,8 +71,13 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
 
     ref.listen(rtcRoomProvider, (prev, next) {
       if (next.status == RtcRoomStatus.disconnected &&
-          prev?.status == RtcRoomStatus.connected) {
-        AppLoading.showToast(t.common.callDisconnected);
+          prev?.status != RtcRoomStatus.disconnected) {
+        // 页面退出统一收口在这里：自己挂断不弹"通话已断开"、也由这里
+        // 一次性 pop（旧实现按钮回调再 pop 一次，会把通话页下面的聊天页
+        // 也弹掉）。
+        if (!ref.read(rtcRoomProvider.notifier).userHangup) {
+          AppLoading.showToast(t.common.callDisconnected);
+        }
         if (mounted) Navigator.of(context).pop();
       }
     });
@@ -525,8 +530,10 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
             label: t.main.hangup,
             background: AppColors.getIosRed(Theme.of(context).brightness),
             onPressed: () async {
+              // pop 由 ref.listen 统一收口（hangup 置 status=disconnected
+              // 触发 listen），此处不再手动 pop，否则双重 pop 会把通话页
+              // 下面的聊天页也弹掉。
               await notifier.hangup();
-              if (mounted) Navigator.of(context).pop();
             },
           ),
         ],
