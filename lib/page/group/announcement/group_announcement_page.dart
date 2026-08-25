@@ -192,7 +192,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                   IconButton(
                     tooltip: t.common.groupAnnouncementDelete,
                     icon: Icon(
-                      Icons.delete_outline,
+                      CupertinoIcons.delete,
                       size: 20,
                       color: AppColors.getIosRed(
                         Theme.of(context).brightness,
@@ -234,7 +234,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.event_busy_outlined,
+                      CupertinoIcons.bell_slash,
                       size: 14,
                       color: Theme.of(
                         context,
@@ -266,7 +266,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
   Widget _buildEmptyView(BuildContext context) {
     return NoDataView(
       text: t.common.noGroupAnnouncement,
-      icon: Icons.announcement_outlined,
+      icon: CupertinoIcons.speaker_2,
     );
   }
 

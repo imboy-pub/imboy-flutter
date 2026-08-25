@@ -89,40 +89,38 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     final titleController = TextEditingController();
     final descController = TextEditingController();
 
-    final result = await showDialog<bool>(
+    final result = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        key: const Key('create_task_dialog'),
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.groupTask.createTask),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            const SizedBox(height: 8),
+            CupertinoTextField(
               key: const Key('task_title_field'),
               controller: titleController,
-              decoration: InputDecoration(labelText: t.groupTask.taskTitle),
+              placeholder: t.groupTask.taskTitle,
             ),
             const SizedBox(height: AppSpacing.regular),
-            TextField(
+            CupertinoTextField(
               controller: descController,
               maxLines: 3,
-              decoration: InputDecoration(
-                labelText: t.groupTask.taskDescription,
-              ),
+              placeholder: t.groupTask.taskDescription,
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
             key: const Key('create_task_confirm'),
+            isDefaultAction: true,
             onPressed: () {
-              // 标题为空时阻止关闭 / Prevent close when title is empty
               if (titleController.text.isNotEmpty) {
-                Navigator.pop(context, true);
+                Navigator.pop(ctx, true);
               }
             },
             child: Text(t.common.confirm),

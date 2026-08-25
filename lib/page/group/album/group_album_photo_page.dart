@@ -361,8 +361,8 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
               onPressed: _isBatchDeleting ? null : _toggleSelectAll,
               icon: Icon(
                 _selectedPhotoIds.length == _photos.length && _photos.isNotEmpty
-                    ? Icons.remove_done
-                    : Icons.select_all,
+                    ? CupertinoIcons.clear
+                    : CupertinoIcons.square_on_square,
               ),
             ),
             IconButton(

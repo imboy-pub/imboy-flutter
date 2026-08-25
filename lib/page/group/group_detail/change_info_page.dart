@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
@@ -185,7 +186,7 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                         ref.read(changeInfoProvider.notifier).clearText();
                       },
                       child: Icon(
-                        Icons.cancel,
+                        CupertinoIcons.xmark_circle_fill,
                         color: colorScheme.outline.withValues(alpha: 0.5),
                         size: 20,
                       ),

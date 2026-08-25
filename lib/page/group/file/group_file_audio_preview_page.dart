@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -111,7 +112,7 @@ class _GroupFileAudioPreviewPageState extends State<GroupFileAudioPreviewPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.audiotrack, size: 56),
+              const Icon(CupertinoIcons.music_note, size: 56),
               AppSpacing.verticalRegular,
               if (_isPreparing) ...[
                 const CircularProgressIndicator(),
@@ -132,7 +133,11 @@ class _GroupFileAudioPreviewPageState extends State<GroupFileAudioPreviewPage> {
                 AppSpacing.verticalSmall,
                 FilledButton.icon(
                   onPressed: _togglePlay,
-                  icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+                  icon: Icon(
+                    _isPlaying
+                        ? CupertinoIcons.pause
+                        : CupertinoIcons.play_arrow,
+                  ),
                   label: Text(
                     _isPlaying
                         ? t.chat.groupFileMediaPause

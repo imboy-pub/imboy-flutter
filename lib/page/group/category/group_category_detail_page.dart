@@ -199,7 +199,7 @@ class _GroupCategoryDetailPageState extends State<GroupCategoryDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(
-                    Icons.info_outline,
+                    CupertinoIcons.info_circle,
                     size: 20,
                     color: AppColors.iosGray,
                   ),

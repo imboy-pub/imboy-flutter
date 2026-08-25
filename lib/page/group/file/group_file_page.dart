@@ -382,7 +382,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
                       errorBuilder: (ctx, _, _) => Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.broken_image_outlined, size: 36),
+                          const Icon(CupertinoIcons.photo_fill, size: 36),
                           AppSpacing.verticalSmall,
                           Text(ctx.t.common.groupFileImageLoadFailed),
                         ],
@@ -562,19 +562,19 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         onSubmitted: (_) => _applySearch(),
         decoration: InputDecoration(
           hintText: t.common.groupFileSearch,
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: const Icon(CupertinoIcons.search),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (_searchController.text.isNotEmpty || _keyword.isNotEmpty)
                 IconButton(
                   tooltip: t.common.groupFileSearchClear,
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(CupertinoIcons.clear),
                   onPressed: _clearSearch,
                 ),
               IconButton(
                 tooltip: t.common.groupFileSearchAction,
-                icon: const Icon(Icons.arrow_forward),
+                icon: const Icon(CupertinoIcons.chevron_right),
                 onPressed: _applySearch,
               ),
             ],
@@ -636,7 +636,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
           children: [
             const SizedBox(height: 120),
             NoDataView(
-              icon: Icons.error_outline,
+              icon: CupertinoIcons.exclamationmark_circle,
               text: _error!,
               onTop: _refreshAll,
             ),

@@ -136,7 +136,7 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                             child: IconButton(
                               tooltip: t.channel.viewProfile,
                               icon: Icon(
-                                Icons.info_outline,
+                                CupertinoIcons.info_circle,
                                 color: AppColors.primary,
                               ),
                               padding: const EdgeInsets.only(

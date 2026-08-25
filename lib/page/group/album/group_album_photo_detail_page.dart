@@ -267,13 +267,10 @@ class _GroupAlbumPhotoDetailPageState
                       backgroundDecoration: const BoxDecoration(
                         color: Colors.transparent,
                       ),
-                      errorBuilder: (_, _, _) => const Center(
-                        child: Icon(Icons.broken_image_outlined),
-                      ),
+                      errorBuilder: (_, _, _) =>
+                          const Center(child: Icon(CupertinoIcons.photo_fill)),
                     )
-                  : const Center(
-                      child: Icon(Icons.image_not_supported_outlined),
-                    ),
+                  : const Center(child: Icon(CupertinoIcons.photo_fill)),
             ),
           ),
         ),
@@ -296,7 +293,7 @@ class _GroupAlbumPhotoDetailPageState
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: _openExternal,
-                icon: const Icon(Icons.open_in_new),
+                icon: const Icon(CupertinoIcons.forward),
                 label: Text(t.common.groupAlbumPhotoOpenExternal),
               ),
             ),
@@ -311,7 +308,7 @@ class _GroupAlbumPhotoDetailPageState
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.photo_size_select_large_outlined),
+                    : const Icon(CupertinoIcons.photo_fill),
                 label: Text(t.group.groupAlbumPhotoSetCover),
               ),
             ),
@@ -327,7 +324,7 @@ class _GroupAlbumPhotoDetailPageState
                   foregroundColor: AppColors.onPrimary,
                 ),
                 onPressed: _isDeleting ? null : _deletePhoto,
-                icon: const Icon(Icons.delete_outline),
+                icon: const Icon(CupertinoIcons.delete),
                 label: Text(t.common.groupAlbumPhotoDeleteTitle),
               ),
             ),
