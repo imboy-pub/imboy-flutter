@@ -352,46 +352,40 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   }
 
   Future<void> _showImagePreview(String url, String fileName) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.85,
-          child: Column(
-            children: [
-              ListTile(
-                title: Text(
-                  fileName.isEmpty ? t.chat.groupFileImagePreview : fileName,
-                ),
-                trailing: IconButton(
-                  tooltip: t.common.groupFileClosePreview,
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(CupertinoIcons.xmark),
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(
-                child: InteractiveViewer(
-                  minScale: 0.8,
-                  maxScale: 4.0,
-                  child: Center(
-                    child: Image(
-                      image: cachedImageProvider(url),
-                      fit: BoxFit.contain,
-                      errorBuilder: (ctx, _, _) => Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(CupertinoIcons.photo_fill, size: 36),
-                          AppSpacing.verticalSmall,
-                          Text(ctx.t.common.groupFileImageLoadFailed),
-                        ],
-                      ),
-                    ),
+    // 使用 CupertinoPageRoute 全屏预览替代 Material showModalBottomSheet
+    await Navigator.of(context).push(
+      CupertinoPageRoute<void>(
+        builder: (ctx) => Scaffold(
+          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+          appBar: CupertinoNavigationBar(
+            middle: Text(
+              fileName.isEmpty ? t.chat.groupFileImagePreview : fileName,
+            ),
+            trailing: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Icon(CupertinoIcons.xmark, size: 22),
+            ),
+          ),
+          body: SafeArea(
+            child: InteractiveViewer(
+              minScale: 0.8,
+              maxScale: 4.0,
+              child: Center(
+                child: Image(
+                  image: cachedImageProvider(url),
+                  fit: BoxFit.contain,
+                  errorBuilder: (ctx, _, _) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(CupertinoIcons.photo_fill, size: 36),
+                      AppSpacing.verticalSmall,
+                      Text(ctx.t.common.groupFileImageLoadFailed),
+                    ],
                   ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
