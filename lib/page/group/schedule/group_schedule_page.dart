@@ -81,50 +81,68 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
     DateTime selectedDate = DateTime.now();
     TimeOfDay selectedTime = TimeOfDay.now();
 
-    final result = await showDialog<bool>(
+    final result = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.groupSchedule.createSchedule),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
+            CupertinoTextField(
               controller: titleController,
-              decoration: InputDecoration(
-                labelText: t.groupSchedule.scheduleTitle,
-              ),
+              placeholder: t.groupSchedule.scheduleTitle,
             ),
             const SizedBox(height: AppSpacing.regular),
             Row(
               children: [
                 Expanded(
-                  child: TextButton.icon(
-                    icon: const Icon(Icons.calendar_today),
-                    label: Text(t.groupSchedule.selectDate),
+                  child: CupertinoButton(
+                    padding: EdgeInsets.zero,
                     onPressed: () async {
                       final date = await _pickCupertinoDate(
-                        context,
+                        ctx,
                         initial: selectedDate,
                       );
                       if (date != null) {
                         selectedDate = date;
                       }
                     },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(CupertinoIcons.calendar, size: 18),
+                        const SizedBox(width: 4),
+                        Text(
+                          t.groupSchedule.selectDate,
+                          style: context.textStyle(FontSizeType.normal),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(
-                  child: TextButton.icon(
-                    icon: const Icon(Icons.access_time),
-                    label: Text(t.groupSchedule.selectTime),
+                  child: CupertinoButton(
+                    padding: EdgeInsets.zero,
                     onPressed: () async {
                       final time = await _pickCupertinoTime(
-                        context,
+                        ctx,
                         initial: selectedTime,
                       );
                       if (time != null) {
                         selectedTime = time;
                       }
                     },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(CupertinoIcons.clock, size: 18),
+                        const SizedBox(width: 4),
+                        Text(
+                          t.groupSchedule.selectTime,
+                          style: context.textStyle(FontSizeType.normal),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -132,12 +150,13 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.common.confirm),
           ),
         ],

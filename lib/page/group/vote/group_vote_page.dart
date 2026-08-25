@@ -180,7 +180,7 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
     if (_loadFailed && _votes.isEmpty) {
       return NoDataView(
         text: t.common.loadError,
-        icon: Icons.cloud_off,
+        icon: CupertinoIcons.cloud_bolt,
         onTop: () => _loadVotes(refresh: true),
       );
     }

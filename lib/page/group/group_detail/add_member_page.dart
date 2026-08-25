@@ -325,7 +325,7 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.people_outline,
+                        CupertinoIcons.group,
                         size: 16,
                         color: Theme.of(context).colorScheme.primary,
                       ),

@@ -352,7 +352,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     if (_loadFailed) {
       return NoDataView(
         text: context.t.common.loadError,
-        icon: Icons.cloud_off,
+        icon: CupertinoIcons.cloud_bolt,
         onTop: _loadVoteDetail,
       );
     }
