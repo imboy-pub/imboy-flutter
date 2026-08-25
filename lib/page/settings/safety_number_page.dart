@@ -21,6 +21,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/safety_number_service.dart';
+import 'package:imboy/service/trust_record_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -89,13 +90,32 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
   }
 
   Future<void> _markVerified() async {
-    await StorageSecureService.to.write(
-      key: _verifiedPrefix + widget.peerUid,
-      value: DateTime.now().toIso8601String(),
+    final result = _result;
+    if (result == null) return;
+    // 阶段 B：比对一致后，把「已验证」作为签名信任事件上报服务端
+    // （POST /api/v1/e2ee/trust/record，ADR 16）。上报成功才标记本地，
+    // 失败则不标记——本地标记必须与服务端审计一致，避免"自认为已验证"
+    // 但服务端/对端无记录。
+    AppLoading.show(status: t.main.safetyNumberReporting);
+    final outcome = await TrustRecordService.recordVerified(
+      peerUid: widget.peerUid,
+      peerDeviceId: result.peerDeviceId,
     );
+    AppLoading.dismiss();
     if (!mounted) return;
-    setState(() => _verified = true);
-    AppLoading.showToast(t.main.safetyNumberMarkedVerified);
+    switch (outcome) {
+      case TrustRecordOutcome.recorded:
+        await StorageSecureService.to.write(
+          key: _verifiedPrefix + widget.peerUid,
+          value: DateTime.now().toIso8601String(),
+        );
+        setState(() => _verified = true);
+        AppLoading.showToast(t.main.safetyNumberMarkedVerified);
+      case TrustRecordOutcome.rejected:
+        AppLoading.showToast(t.main.safetyNumberReportRejected);
+      case TrustRecordOutcome.unavailable:
+        AppLoading.showToast(t.main.safetyNumberReportUnavailable);
+    }
   }
 
   Future<void> _copy() async {

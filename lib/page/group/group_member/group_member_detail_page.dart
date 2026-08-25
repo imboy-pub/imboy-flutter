@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/settings/safety_number_page.dart';
 import 'package:imboy/page/group/group_detail/remove_member_provider.dart';
 import 'package:imboy/page/group/group_member/group_member_mute_rules.dart';
 import 'package:imboy/page/group/group_member/mute_duration_rules.dart';
@@ -316,6 +317,22 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
               nowMs: DateTime.now().millisecondsSinceEpoch,
             ),
             colorScheme: colorScheme,
+          ),
+          AppSpacing.verticalRegular,
+
+          // ── 安全码验证（群成员级 E2EE 身份校验，审计阶段 2） ──
+          // 每个成员详情页独立入口，复用 C2C 安全码页（对端取主设备 identity）。
+          _buildActionButton(
+            label: t.main.safetyNumberTitle,
+            color: colorScheme.primary,
+            isDestructive: false,
+            onTap: () => Navigator.push(
+              context,
+              CupertinoPageRoute<void>(
+                builder: (_) =>
+                    SafetyNumberPage(peerUid: member.userId.toString()),
+              ),
+            ),
           ),
           AppSpacing.verticalRegular,
 

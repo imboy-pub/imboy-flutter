@@ -2511,6 +2511,9 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get safetyNumberPeerDevice => 'Contact device';
 	@override String get safetyNumberNoDevices => 'This contact has not enabled end-to-end encryption yet';
 	@override String get safetyNumberVerifyFailed => 'Failed to get safety number, please retry later';
+	@override String get safetyNumberReporting => 'Reporting verification result...';
+	@override String get safetyNumberReportRejected => 'The server rejected this verification event (signature/expiry mismatch); not marked';
+	@override String get safetyNumberReportUnavailable => 'Could not get device info; not reported';
 	@override String get e2eeSocialTotalShards => 'Total shards';
 	@override String get e2eeSocialThreshold => 'Recovery threshold';
 	@override String e2eeSocialThresholdHint({required Object count}) => 'Need ${count} proxies to recover key';
@@ -4977,6 +4980,9 @@ extension on TranslationsEnUs {
 			'main.safetyNumberPeerDevice' => 'Contact device',
 			'main.safetyNumberNoDevices' => 'This contact has not enabled end-to-end encryption yet',
 			'main.safetyNumberVerifyFailed' => 'Failed to get safety number, please retry later',
+			'main.safetyNumberReporting' => 'Reporting verification result...',
+			'main.safetyNumberReportRejected' => 'The server rejected this verification event (signature/expiry mismatch); not marked',
+			'main.safetyNumberReportUnavailable' => 'Could not get device info; not reported',
 			'main.e2eeSocialTotalShards' => 'Total shards',
 			'main.e2eeSocialThreshold' => 'Recovery threshold',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Need ${count} proxies to recover key',

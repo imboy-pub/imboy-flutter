@@ -296,6 +296,8 @@ class API {
   static const olmGetIdentity = '/api/v1/e2ee/olm/get_identity';
   static const olmClaimKey = '/api/v1/e2ee/olm/claim';
   static const olmPrekeyCount = '/api/v1/e2ee/olm/prekey_count';
+  static const olmDevices = '/api/v1/e2ee/devices';
+  static const e2eeTrustRecord = '/api/v1/e2ee/trust/record';
 
   // 推送通知
   static const pushRegister = '/api/v1/push/register';

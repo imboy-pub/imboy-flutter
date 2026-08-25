@@ -252,6 +252,9 @@ safetyNumberMarkedVerified: 已标记为已验证
 safetyNumberPeerDevice: 对方设备
 safetyNumberNoDevices: 对方尚未启用端到端加密
 safetyNumberVerifyFailed: 获取安全码失败，请稍后重试
+safetyNumberReporting: 正在上报验证结果...
+safetyNumberReportRejected: 服务端拒绝了该验证事件（签名/时效不符），未标记
+safetyNumberReportUnavailable: 无法获取设备信息，未上报
 e2eeSocialTotalShards: 总分片数
 e2eeSocialThreshold: 恢复阈值
 e2eeSocialThresholdHint(count): 恢复密钥时需要 $count 个代理协助

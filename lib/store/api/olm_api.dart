@@ -138,6 +138,26 @@ class OlmApi extends HttpClient {
     return <String, dynamic>{};
   }
 
+  /// `GET /api/v1/e2ee/devices?uid=` — 列出对端全部活跃 Olm 设备。
+  ///
+  /// 返回 `{user_id, devices: [{device_id, device_type, trust_state,
+  /// device_generation, identity_version, ed25519_key, curve25519_key, ...}]}`。
+  /// `device_generation`/`identity_version` 供 trust/record 上报（审计阶段 B）：
+  /// 本端设备代数与对端身份版本必须在事件签名中被服务端核验。
+  Future<List<Map<String, dynamic>>> listDevices({required String uid}) async {
+    final IMBoyHttpResponse resp = await get(
+      API.olmDevices,
+      queryParameters: {'uid': uid},
+    );
+    if (!resp.ok) return const [];
+    final payload = resp.payload;
+    final devices = payload is Map ? payload['devices'] : null;
+    if (devices is List) {
+      return devices.map((e) => (e as Map).cast<String, dynamic>()).toList();
+    }
+    return const [];
+  }
+
   /// E2EE-062：`GET /api/v1/e2ee/olm/prekey_count` 的响应解析。
   ///
   /// **`null` 表示「未知」，不是 0。** 0 是「该补传了」的有效信号；把查询失败
@@ -208,6 +228,15 @@ class OlmApi extends HttpClient {
       return Map<String, dynamic>.from(payload);
     }
     throw Exception('olm claim_key: invalid payload');
+  }
+
+  /// `POST /api/v1/e2ee/trust/record` — 上报一条信任决策事件（ADR 16）。
+  ///
+  /// [body] 为 [buildTrustRecordRequest] 的 13 字段产物。成功返回 true；
+  /// 服务端拒绝（签名/新鲜度/状态机/版本单调）返回 false。
+  Future<bool> recordTrust(Map<String, dynamic> body) async {
+    final IMBoyHttpResponse resp = await post(API.e2eeTrustRecord, data: body);
+    return resp.ok;
   }
 }
 

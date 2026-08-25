@@ -167,7 +167,14 @@ class OlmSessionService {
 
   /// 获取 CryptoStore 实例（懒初始化）。DB 不可用返回 null。
   Future<CryptoStore?> get cryptoStore async {
-    if (_cryptoStore != null) return _cryptoStore;
+    // 登出旁路防御：底层 DB 已被关闭（purgeAll/迁移回滚）而本缓存未清时，
+    // 丢弃缓存让下次访问走 SqliteService.to.db 的 isOpen 自动重开——
+    // 否则登出→登入后首次加密抛 database_closed（真机黑盒实测 2026-08-25）。
+    final cached = _cryptoStore;
+    if (cached != null) {
+      if (cached.isOpen) return cached;
+      _cryptoStore = null;
+    }
     final db = await SqliteService.to.db;
     if (db == null) return null;
     _cryptoStore = CryptoStore(db);
@@ -285,6 +292,20 @@ class OlmSessionService {
   ) async {
     await ensureInitialized();
     return _lookupPeerIdentityKey(peerUid, peerDeviceId);
+  }
+
+  /// 用本端 Olm 身份私钥对 trust-event canonical 字节签名（trust/record 上报）。
+  ///
+  /// [message] 为 `TrustEventCanonicalFields.canonicalBytes()` 的 UTF-8 字节；
+  /// 返回 base64 签名。服务端用本端上报的 ed25519 公钥逐字节复算验签，
+  /// 故 canonical 编码必须与后端 `e2ee_trust_logic:canonical_payload/1` 完全一致
+  /// （wire 契约见 `trust_event_canonical.dart`）。
+  Future<String> signTrustCanonical(List<int> message) async {
+    await ensureInitialized();
+    return _accountLock.synchronized(() async {
+      final account = await _loadOrCreateAccount();
+      return account.sign(utf8.decode(message)).toBase64();
+    });
   }
 
   /// 上报设备 Olm 身份键 + 首批 prekey 到服务端（登录/换设备后调用）。
@@ -885,6 +906,19 @@ class OlmSessionService {
     String peerUid,
     String peerDeviceId,
   ) async {
+    final identity = await _lookupPeerIdentity(peerUid, peerDeviceId);
+    return identity['curve25519_key'] as String;
+  }
+
+  /// 查询对端已验证 identity（ed25519 + curve25519 + signature）。
+  ///
+  /// 与 [_lookupPeerIdentityKey] 同一条安全路径：Ed25519 自签核验 + TOFU pin。
+  /// trust/record 上报需要 `target_ed25519`（签进 canonical 的对方身份快照），
+  /// 必须与本路径同源，禁止裸调 [OlmApi.getIdentity]。
+  Future<Map<String, dynamic>> _lookupPeerIdentity(
+    String peerUid,
+    String peerDeviceId,
+  ) async {
     final identity = await OlmApi().getIdentity(
       uid: peerUid,
       deviceId: peerDeviceId,
@@ -894,7 +928,19 @@ class OlmSessionService {
     final curve25519 = identity['curve25519_key'] as String;
     // S3 TOFU: 入站同样执行 fingerprint 比对
     await _enforceTofu(peerUid, peerDeviceId, curve25519);
-    return curve25519;
+    return identity;
+  }
+
+  /// 对端已验证 identity 的公开入口（trust/record 上报用）。
+  ///
+  /// 返回 `{device_id, ed25519_key, curve25519_key, signature}`，
+  /// 全部经过 Ed25519 自签核验与 TOFU pin（与建会话同路径）。
+  Future<Map<String, dynamic>> peerIdentityKeys(
+    String peerUid,
+    String peerDeviceId,
+  ) async {
+    await ensureInitialized();
+    return _lookupPeerIdentity(peerUid, peerDeviceId);
   }
 
   // ===== 清理 =====
@@ -908,6 +954,12 @@ class OlmSessionService {
     // DB 不可用时不阻断登出——SQLCipher 主钥同时被销毁，残留行不可读。
     final store = await cryptoStore;
     await store?.deleteAllSessions();
+    // ⚠️ 登出后必须丢弃缓存的 CryptoStore：SqliteService 在登出时会 close
+    // 底层 Database（E2eeSecretInventory.purgeAll），而本缓存仍持有已关闭
+    // 句柄——下一账号登录后首次加密会抛 database_closed（真机黑盒实测，
+    // 2026-08-25）。置 null 后下次访问经 cryptoStore getter 走
+    // SqliteService.to.db 的 isOpen 检查自动重开。
+    _cryptoStore = null;
     await StorageSecureService.to.delete(key: _accountPickleStorageKey);
     await StorageSecureService.to.delete(key: _pickleKeyStorageKey);
     // 升级前版本遗留的 `olm_session_*` 明面副本由 E2eeSecretInventory 的

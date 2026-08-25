@@ -37,6 +37,13 @@ class CryptoStore {
 
   final Database _db;
 
+  /// 底层 SQLCipher 句柄是否仍打开。
+  ///
+  /// 登出流程（E2eeSecretInventory.purgeAll）会关闭 SqliteService 的数据库，
+  /// 而 OlmSessionService 可能仍持有本实例的缓存——调用方据此丢弃缓存走
+  /// 自动重开（真机黑盒实测 database_closed，2026-08-25）。
+  bool get isOpen => _db.isOpen;
+
   /// 幂等建表。生产路径在 DB onUpgrade 中调用；测试路径在 setUp 中调用。
   Future<void> ensureSchema() async {
     await _db.execute('''

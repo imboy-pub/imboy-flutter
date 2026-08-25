@@ -7432,6 +7432,15 @@ class Translations$main$zh_CN {
 	/// zh-CN: '获取安全码失败，请稍后重试'
 	String get safetyNumberVerifyFailed => '获取安全码失败，请稍后重试';
 
+	/// zh-CN: '正在上报验证结果...'
+	String get safetyNumberReporting => '正在上报验证结果...';
+
+	/// zh-CN: '服务端拒绝了该验证事件（签名/时效不符），未标记'
+	String get safetyNumberReportRejected => '服务端拒绝了该验证事件（签名/时效不符），未标记';
+
+	/// zh-CN: '无法获取设备信息，未上报'
+	String get safetyNumberReportUnavailable => '无法获取设备信息，未上报';
+
 	/// zh-CN: '总分片数'
 	String get e2eeSocialTotalShards => '总分片数';
 
@@ -10298,6 +10307,9 @@ extension on Translations {
 			'main.safetyNumberPeerDevice' => '对方设备',
 			'main.safetyNumberNoDevices' => '对方尚未启用端到端加密',
 			'main.safetyNumberVerifyFailed' => '获取安全码失败，请稍后重试',
+			'main.safetyNumberReporting' => '正在上报验证结果...',
+			'main.safetyNumberReportRejected' => '服务端拒绝了该验证事件（签名/时效不符），未标记',
+			'main.safetyNumberReportUnavailable' => '无法获取设备信息，未上报',
 			'main.e2eeSocialTotalShards' => '总分片数',
 			'main.e2eeSocialThreshold' => '恢复阈值',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '恢复密钥时需要 ${count} 个代理协助',

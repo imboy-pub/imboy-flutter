@@ -6,15 +6,22 @@ val flutterSdkPath = localProperties.getProperty("flutter.sdk")
 
 // Firebase 配置只在开发机或 CI 注入 google-services.json 后启用。无配置的
 // 开源/契约构建不应为了一个未使用的插件访问 Google Maven，避免网络波动阻断 APK。
-if (file("app/google-services.json").isFile) {
-    buildscript {
-        repositories {
+// ⚠️ Kotlin DSL 限制：buildscript 块必须是脚本顶层块，不能放在 if 里
+// （org.gradle.kotlin.dsl 会抛 InternalError "This should not happen"），
+// 且 buildscript 作用域无法引用脚本顶层 val——条件判断须块内内联；
+// 插件的实际 apply 由 app/build.gradle.kts 按同一条件执行。
+buildscript {
+    val hasGoogleServicesJson = java.io.File(rootDir, "app/google-services.json").isFile
+    repositories {
+        if (hasGoogleServicesJson) {
             maven { url = uri("https://maven.aliyun.com/repository/public") }
             maven { url = uri("https://maven.aliyun.com/repository/google") }
             google()
             mavenCentral()
         }
-        dependencies {
+    }
+    dependencies {
+        if (hasGoogleServicesJson) {
             classpath("com.google.gms:google-services:4.4.2")
         }
     }
