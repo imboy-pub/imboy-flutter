@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -282,8 +283,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return InkWell(
+    return GestureDetector(
       onTap: () async {
+        HapticFeedback.selectionClick();
         final result = await context.push<bool>(
           '/group/member_detail',
           extra: {'groupId': widget.groupId, 'userId': member.userId},

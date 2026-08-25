@@ -462,9 +462,8 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
               CustomSemanticsAction(label: t.main.multiSelect): () =>
                   _enterSelectionMode(photo),
             },
-      child: InkWell(
+      child: GestureDetector(
         key: Key('group_album_photo_cell_$index'),
-        borderRadius: AppRadius.borderRadiusSmall,
         onTap: () {
           if (_isSelectionMode) {
             _togglePhotoSelection(photo);
