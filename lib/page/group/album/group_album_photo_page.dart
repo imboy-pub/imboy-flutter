@@ -385,11 +385,13 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
 
     return Scaffold(
       appBar: GlassAppBar(
-        title: _isSelectionMode
-            ? t.group.groupAlbumPhotoSelectedCount(
-                count: _selectedPhotoIds.length,
-              )
-            : '$title${_total > 0 ? ' ($_total)' : ''}',
+        titleWidget: Text(
+          _isSelectionMode
+              ? t.group.groupAlbumPhotoSelectedCount(
+                  count: _selectedPhotoIds.length,
+                )
+              : '$title${_total > 0 ? ' ($_total)' : ''}',
+        ),
         automaticallyImplyLeading: !_isSelectionMode,
         leading: _isSelectionMode
             ? IconButton(
@@ -487,11 +489,14 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                     ? AppColors.darkSurface
                     : AppColors.lightSurfaceContainer,
               ),
-              // 选中态压暗蒙层（叠在照片上，固定深色蒙层语义）
-              if (isSelected)
-                Container(
+              // 选中态压暗蒙层（叠在照片上，固定深色蒙层语义，带动画）
+              AnimatedOpacity(
+                opacity: isSelected ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 150),
+                child: Container(
                   color: AppColors.darkBackground.withValues(alpha: 0.102),
                 ),
+              ),
               if (url.isNotEmpty)
                 Image(
                   image: cachedImageProvider(url),
@@ -505,14 +510,18 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                 Positioned(
                   left: 2,
                   top: 2,
-                  child: Icon(
-                    isSelected
-                        ? CupertinoIcons.check_mark_circled_solid
-                        : CupertinoIcons.circle,
-                    color: isSelected
-                        ? AppColors.iosSkyBlue
-                        : AppColors.onPrimary.withValues(alpha: 0.7),
-                    size: 20,
+                  child: AnimatedOpacity(
+                    opacity: _isSelectionMode ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 150),
+                    child: Icon(
+                      isSelected
+                          ? CupertinoIcons.check_mark_circled_solid
+                          : CupertinoIcons.circle,
+                      color: isSelected
+                          ? AppColors.iosSkyBlue
+                          : AppColors.onPrimary.withValues(alpha: 0.7),
+                      size: 20,
+                    ),
                   ),
                 ),
               // SR-4：删除仅上传者本人 / 管理员 / 群主可见（隐藏而非报错）
