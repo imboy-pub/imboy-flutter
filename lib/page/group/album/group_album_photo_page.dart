@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -473,6 +474,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
         },
         onLongPress: () {
           if (_isSelectionMode) return;
+          HapticFeedback.mediumImpact();
           _enterSelectionMode(photo);
         },
         child: ClipRRect(
@@ -519,21 +521,19 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                 Positioned(
                   right: 2,
                   top: 2,
-                  child: Material(
-                    // 删除按钮叠在照片上，固定深色半透明底以保证可读
-                    color: AppColors.darkBackground.withValues(alpha: 0.54),
-                    borderRadius: AppRadius.borderRadiusRegular,
-                    child: InkWell(
-                      key: Key('group_album_photo_delete_$index'),
-                      borderRadius: AppRadius.borderRadiusRegular,
-                      onTap: () => _deletePhoto(photo),
-                      child: const Padding(
-                        padding: EdgeInsets.all(AppSpacing.tiny),
-                        child: Icon(
-                          CupertinoIcons.delete,
-                          size: 16,
-                          color: AppColors.onPrimary,
-                        ),
+                  child: GestureDetector(
+                    key: Key('group_album_photo_delete_$index'),
+                    onTap: () => _deletePhoto(photo),
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.tiny),
+                      decoration: BoxDecoration(
+                        color: AppColors.darkBackground.withValues(alpha: 0.54),
+                        borderRadius: AppRadius.borderRadiusRegular,
+                      ),
+                      child: const Icon(
+                        CupertinoIcons.delete,
+                        size: 16,
+                        color: AppColors.onPrimary,
                       ),
                     ),
                   ),
