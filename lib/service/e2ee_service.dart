@@ -398,15 +398,19 @@ class E2EEService {
       return _decryptFailedPayload(payload, reason: 'invalid_e2ee');
     }
 
-    // C2G Megolm v2：群消息使用扁平 metadata（meta_version=2），正文是
-    // Megolm ciphertext；它不带 C2C PFv3 的 per-device envelope，也没有
-    // legacy RSA `keys`。必须先按 protocol/suite 路由，否则会误落到下面
-    // 的 RSA 兼容分支并返回 invalid_keys，导致真实群消息在入站被吞掉。
+    // C2G Megolm v2/v3：群消息可以是扁平 metadata（meta_version=2）或
+    // PFv3 信封（meta_version=3）。PFv3 时 ciphertext 在 e2ee 元数据内，
+    // 外层 payload 为空串；v2 时 ciphertext 在顶层 payload。
+    // 统一路由到此，按协议解密后 JSON 解码。
     final isMegolmGroup =
         e2eeData['protocol'] == 'megolm' &&
         (e2eeData['gid']?.toString() ?? '').isNotEmpty;
     if (isMegolmGroup) {
-      final ciphertext = payload['payload']?.toString() ?? '';
+      // PFv3: ciphertext 在 e2ee 元数据；v2: 在顶层 payload
+      final ciphertext =
+          e2eeData['ciphertext']?.toString() ??
+          payload['payload']?.toString() ??
+          '';
       if (ciphertext.isEmpty) {
         return _decryptFailedPayload(payload, reason: 'missing_ciphertext');
       }

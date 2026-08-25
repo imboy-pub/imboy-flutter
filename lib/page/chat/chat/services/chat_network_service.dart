@@ -664,11 +664,31 @@ class ChatNetworkService {
     // 默认路径：Megolm（C2G 群聊；C2C 已全部走 Olm fan-out）
     await E2eeBootstrap.ensureReady();
     final context = E2eeContext(gid: toId, scope: 'c2g');
-    final encrypted = await E2eeOutboundRouter.encrypt(
+    // PFv3 升级：C2G 群消息统一使用 Protected Frame v3 信封，
+    // 将路由字段（gid/msg_type/action 等）纳入认证加密范围。
+    // 与 C2C PFv3 同一套 inner_frame + outer envelope 结构，
+    // 差异仅在于协议套件（Megolm vs Olm）与扇出方式（单次 vs per-device）。
+    final myUid = UserRepoLocal.to.currentUid.toString();
+    final now = DateTime.now().millisecondsSinceEpoch;
+    // 先加密获取 Megolm session_id，再包装 PFv3 信封
+    final megolmRes = await GroupSessionService.to.encryptGroupMessage(
+      gid: toId,
+      plaintext: plaintext,
+    );
+    final encrypted = await E2eeOutboundRouter.encryptV3(
       suite: ProtocolSuite.megolm,
       plaintext: plaintext,
       recipients: const [],
       context: context,
+      messageId: messageId,
+      senderUid: myUid,
+      senderDid: deviceId,
+      destination: toId,
+      messageType: messageType,
+      action: action.isEmpty ? 'message' : action,
+      sessionRef: megolmRes.sessionId,
+      createdAtMs: now,
+      persistOutbox: false,
     );
     return _addEditRoutingMetadata(
       {'e2ee': encrypted.metadata, 'payload': encrypted.ciphertext},
