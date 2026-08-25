@@ -157,14 +157,11 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     }
   }
 
-  // ── 底部弹出时长选择器 ──────────────────────────────────────────────────────
+  // ── 底部弹出时长选择器（Cupertino 风格） ─────────────────────────────────────
 
   Future<int?> _showDurationPicker() async {
-    return showModalBottomSheet<int>(
+    return showCupertinoModalPopup<int>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (ctx) {
         return SafeArea(
           child: Column(
@@ -183,12 +180,16 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
                 ),
               ),
               ...muteDurationOptions.map(
-                (opt) => ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
+                (opt) => CupertinoButton(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.xLarge,
+                    vertical: AppSpacing.medium,
                   ),
-                  title: Text(_labelForKey(opt.labelKey)),
-                  onTap: () => Navigator.of(ctx).pop(opt.seconds),
+                  onPressed: () => Navigator.of(ctx).pop(opt.seconds),
+                  child: Text(
+                    _labelForKey(opt.labelKey),
+                    style: context.textStyle(FontSizeType.body),
+                  ),
                 ),
               ),
               AppSpacing.verticalSmall,
