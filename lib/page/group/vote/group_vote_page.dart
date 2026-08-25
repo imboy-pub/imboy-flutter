@@ -174,7 +174,7 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
 
   Widget _buildBody() {
     if (_isLoading && _votes.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
 
     if (_loadFailed && _votes.isEmpty) {

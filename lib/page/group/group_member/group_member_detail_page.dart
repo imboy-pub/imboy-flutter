@@ -280,7 +280,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
           ),
         ),
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator.adaptive())
+            ? const Center(child: CupertinoActivityIndicator())
             : _buildBody(colorScheme),
       ),
     );
@@ -450,36 +450,40 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
 
   Widget _buildActionButton({
     required String label,
+    required VoidCallback? onTap,
     required Color color,
-    required VoidCallback onTap,
     bool isDestructive = false,
   }) {
     return SizedBox(
       width: double.infinity,
       height: 48,
       child: isDestructive
-          ? OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: color,
-                side: BorderSide(color: color.withValues(alpha: 0.3)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.borderRadiusMedium,
+          ? CupertinoButton(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              borderRadius: AppRadius.borderRadiusMedium,
+              color: color.withValues(alpha: 0.1),
+              onPressed: onTap,
+              child: Text(
+                label,
+                style: context.textStyle(
+                  FontSizeType.body,
+                  fontWeight: FontWeight.w600,
+                  color: color,
                 ),
               ),
-              onPressed: onTap,
-              child: Text(label),
             )
-          : ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                foregroundColor: AppColors.onPrimary,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.borderRadiusMedium,
+          : CupertinoButton.filled(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              borderRadius: AppRadius.borderRadiusMedium,
+              onPressed: onTap,
+              child: Text(
+                label,
+                style: context.textStyle(
+                  FontSizeType.body,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onPrimary,
                 ),
               ),
-              onPressed: onTap,
-              child: Text(label),
             ),
     );
   }

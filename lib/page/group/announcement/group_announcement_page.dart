@@ -91,7 +91,7 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     return const Center(
                       child: Padding(
                         padding: EdgeInsets.all(AppSpacing.regular),
-                        child: CircularProgressIndicator(),
+                        child: CupertinoActivityIndicator(),
                       ),
                     );
                   }

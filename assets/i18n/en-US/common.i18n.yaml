@@ -103,6 +103,8 @@ copy: Copy
 coupon: Coupons
 createGroupF2fConfirmTips: These friends will also join the group chat
 createGroupF2fTips: Enter the same four digits as friends nearby to join the same group chat
+f2fSecretCode: Secret Code
+f2fEnteringGroup(count): $count people about to join the group chat
 delete: "@:common.buttonDelete"
 deleteCollectConfirmDesc: "Cannot be recovered after deletion, are you sure you want to delete this favorite?"
 deleteContact: Delete contact

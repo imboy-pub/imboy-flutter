@@ -224,9 +224,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     final fileBytes = file.bytes;
     if (fileName.isEmpty || fileBytes == null || fileBytes.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.common.groupFileReadFailed)));
+      AppLoading.showToast(t.common.groupFileReadFailed);
       return;
     }
 
@@ -240,14 +238,10 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       );
       if (!mounted) return;
       final success = created != null;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            success
-                ? t.common.groupFileUploadSuccess
-                : t.common.groupFileUploadFailed,
-          ),
-        ),
+      AppLoading.showToast(
+        success
+            ? t.common.groupFileUploadSuccess
+            : t.common.groupFileUploadFailed,
       );
       if (success) {
         await _refreshAll();
@@ -450,18 +444,14 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     final url = _resolveFileUrl(file);
     if (url.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.chat.groupFileUrlMissing)));
+      AppLoading.showToast(t.chat.groupFileUrlMissing);
       return;
     }
 
     final uri = Uri.tryParse(url);
     if (uri == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.chat.groupFileUrlInvalid)));
+      AppLoading.showToast(t.chat.groupFileUrlInvalid);
       return;
     }
 
@@ -480,9 +470,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!opened) {
         final openedExternal = await _openExternal(uri);
         if (!openedExternal && mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.common.groupFileOpenFailed)));
+          AppLoading.showToast(t.common.groupFileOpenFailed);
         }
       }
       return;
@@ -497,9 +485,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       if (!opened) {
         final openedExternal = await _openExternal(uri);
         if (!openedExternal && mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.common.groupFileOpenFailed)));
+          AppLoading.showToast(t.common.groupFileOpenFailed);
         }
       }
       return;
@@ -507,9 +493,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
     if (!await _openExternal(uri)) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.common.groupFileOpenFailed)));
+      AppLoading.showToast(t.common.groupFileOpenFailed);
     }
   }
 

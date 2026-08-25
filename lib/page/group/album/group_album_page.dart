@@ -249,9 +249,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final photoBytes = file.bytes;
     if (photoName.isEmpty || photoBytes == null || photoBytes.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.common.groupAlbumPhotoReadFailed)),
-      );
+      AppLoading.showToast(t.common.groupAlbumPhotoReadFailed);
       return;
     }
 
@@ -265,14 +263,10 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
       );
       if (!mounted) return;
       final success = uploaded != null;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            success
-                ? t.common.groupAlbumPhotoUploaded
-                : t.common.groupAlbumPhotoUploadFailed,
-          ),
-        ),
+      AppLoading.showToast(
+        success
+            ? t.common.groupAlbumPhotoUploaded
+            : t.common.groupAlbumPhotoUploadFailed,
       );
       if (success) {
         await _loadAlbums();
@@ -304,7 +298,7 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
 
     return Column(

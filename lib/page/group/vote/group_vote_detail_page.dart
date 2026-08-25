@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -170,9 +171,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     setState(() => _isSubmitting = false);
 
     if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.groupVote.voteSuccess)));
+      AppLoading.showToast(context.t.groupVote.voteSuccess);
       await _loadVoteDetail();
     }
     // 失败分支不再叠兜底文案：后端中文原因已由 GroupVoteApi 透出
@@ -188,9 +187,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     if (!mounted) return;
     setState(() => _isSubmitting = false);
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.t.groupVote.cancelVoteSuccess)),
-      );
+      AppLoading.showToast(context.t.groupVote.cancelVoteSuccess);
       await _loadVoteDetail();
     }
     // 失败分支不再叠兜底文案：后端中文原因已由 GroupVoteApi 透出
@@ -206,9 +203,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     if (!mounted) return;
     setState(() => _isSubmitting = false);
     if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.groupVote.voteEnded)));
+      AppLoading.showToast(context.t.groupVote.voteEnded);
       await _loadVoteDetail();
     }
     // 失败分支不再叠兜底文案：后端中文原因已由 GroupVoteApi 透出
@@ -346,7 +341,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
 
     if (_loadFailed) {
@@ -409,16 +404,13 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
           if (_voteStatus == 1)
             SizedBox(
               height: 44,
-              child: ElevatedButton(
+              child: CupertinoButton.filled(
+                borderRadius: BorderRadius.circular(12),
                 onPressed: (_selectedOptionIds.isEmpty || _isSubmitting)
                     ? null
                     : _submitVote,
                 child: _isSubmitting
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                    ? const CupertinoActivityIndicator()
                     : Text(
                         _hasVoted
                             ? context.t.groupVote.updateVote
@@ -431,7 +423,12 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: CupertinoButton(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.darkSurface
+                        : AppColors.lightSurfaceContainer,
                     onPressed: _isSubmitting ? null : _cancelVote,
                     child: Text(context.t.groupVote.cancelMyVote),
                   ),
@@ -440,7 +437,12 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                 if (_canCloseVote) ...[
                   const SizedBox(width: AppSpacing.medium),
                   Expanded(
-                    child: OutlinedButton(
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.darkSurface
+                          : AppColors.lightSurfaceContainer,
                       onPressed: _isSubmitting ? null : _closeVote,
                       child: Text(context.t.groupVote.voteEnded),
                     ),

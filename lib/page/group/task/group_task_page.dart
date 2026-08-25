@@ -237,7 +237,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     // find.byType(CircularProgressIndicator) 改成按 Key/AsyncStateView 查找后，
     // 本页即可直接切 AsyncStateView，本注释一并删。
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
 
     if (_error != null) {
@@ -280,9 +280,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     return GestureDetector(
       onTap: () async {
         if (taskId.isEmpty) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.groupTask.taskIdMissing)));
+          AppLoading.showToast(t.groupTask.taskIdMissing);
           return;
         }
         final encodedId = Uri.encodeComponent(taskId);
@@ -312,11 +310,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                   : () async {
                       final submitTaskId = _resolveTaskSubmitId(task);
                       if (submitTaskId.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(t.groupTask.taskIdMissingSubmit),
-                          ),
-                        );
+                        AppLoading.showToast(t.groupTask.taskIdMissingSubmit);
                         return;
                       }
                       await GroupTaskService.to.submitTask(

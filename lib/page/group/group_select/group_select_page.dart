@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
-import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/group/group_select/group_select_provider.dart';
@@ -43,19 +42,12 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(groupSelectProvider);
 
-    return Scaffold(
-      backgroundColor: isDark
-          ? Theme.of(context).colorScheme.surface
-          : AppColors.lightPageBackground,
-      appBar: GlassAppBar(
-        title: t.group.selectGroup,
-        automaticallyImplyLeading: true,
-      ),
+    return IosPageTemplate(
+      title: t.group.selectGroup,
       body: state.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CupertinoActivityIndicator())
           : state.items.isEmpty
           ? NoDataView(text: t.common.noData)
           : ListView.builder(
@@ -94,7 +86,7 @@ class _GroupSelectPageState extends ConsumerState<GroupSelectPage> {
                             'peerAvatar': model.avatar,
                             'peerSign': '',
                             'type': 'C2G',
-                            'options': const {'popTime': 2, 'memberCount': 0},
+                            'options': {'popTime': 2, 'memberCount': 0},
                           },
                         );
                       },

@@ -175,13 +175,17 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
         title: t.common.removeMember,
         leading: Padding(
           padding: const EdgeInsets.only(top: AppSpacing.small),
-          child: TextButton(
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: () {
               context.pop();
             },
             child: Text(
               t.common.buttonCancel,
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              style: context.textStyle(
+                FontSizeType.medium,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ),
         ),

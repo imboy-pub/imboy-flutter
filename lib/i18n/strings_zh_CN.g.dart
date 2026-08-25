@@ -2422,6 +2422,12 @@ class Translations$common$zh_CN {
 	/// zh-CN: '和身边的朋友输入同样的四个数字，进入同一个群聊'
 	String get createGroupF2fTips => '和身边的朋友输入同样的四个数字，进入同一个群聊';
 
+	/// zh-CN: '暗号'
+	String get f2fSecretCode => '暗号';
+
+	/// zh-CN: '$count 人即将进入群聊'
+	String f2fEnteringGroup({required Object count}) => '${count} 人即将进入群聊';
+
 	/// zh-CN: '删除'
 	String get delete => _root.common.buttonDelete;
 
@@ -8675,6 +8681,8 @@ extension on Translations {
 			'common.coupon' => '卡券',
 			'common.createGroupF2fConfirmTips' => '这些朋友也将进入群聊',
 			'common.createGroupF2fTips' => '和身边的朋友输入同样的四个数字，进入同一个群聊',
+			'common.f2fSecretCode' => '暗号',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} 人即将进入群聊',
 			'common.delete' => _root.common.buttonDelete,
 			'common.deleteCollectConfirmDesc' => '删除后无法恢复，确定要删除这条收藏吗？',
 			'common.deleteContact' => '删除联系人',
@@ -8924,10 +8932,10 @@ extension on Translations {
 			'common.muteDuration30days' => '30天',
 			'common.muteUnitSeconds' => ({required Object count}) => '${count} 秒',
 			'common.throttleWarning' => '操作频率过高，请稍后再试',
-			'common.throttleRetryAfter' => ({required Object seconds}) => '操作频率过高，请 ${seconds} 秒后再试',
-			'common.mutedCannotSend' => '禁言期间无法发送消息',
 			_ => null,
 		} ?? switch (path) {
+			'common.throttleRetryAfter' => ({required Object seconds}) => '操作频率过高，请 ${seconds} 秒后再试',
+			'common.mutedCannotSend' => '禁言期间无法发送消息',
 			'common.resendCodeSuccess' => '已发送新邮件。',
 			'common.resetFilters' => '重置筛选',
 			'common.saveQrCode' => '保存二维码',
@@ -9438,10 +9446,10 @@ extension on Translations {
 			'common.orderDetailLoadFailed' => '订单详情加载失败',
 			'common.orderNoLabel' => ({required Object no}) => '订单号: ${no}',
 			'common.orderStatusCancelled' => '已取消',
-			'common.orderStatusUnknown' => '未知',
-			'common.removeReaction' => '移除反应',
 			_ => null,
 		} ?? switch (path) {
+			'common.orderStatusUnknown' => '未知',
+			'common.removeReaction' => '移除反应',
 			'common.removeReactionConfirm' => ({required Object emoji}) => '确定要移除 ${emoji} 反应吗？',
 			'common.fileOpenFailed' => '无法打开该文件',
 			'common.e2eeLocalBackup' => '本地备份',
@@ -9952,10 +9960,10 @@ extension on Translations {
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
 			'groupCategory.deleteFailed' => '删除失败，请重试',
-			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
-			'groupDiscovery.title' => '发现群组',
 			_ => null,
 		} ?? switch (path) {
+			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
+			'groupDiscovery.title' => '发现群组',
 			'groupDiscovery.searchHint' => '搜索公开群',
 			'groupDiscovery.allCategories' => '全部',
 			'groupDiscovery.sortPopular' => '热门',

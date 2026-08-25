@@ -4,6 +4,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -11,6 +12,7 @@ import 'package:imboy/service/group_album_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// 群相册图片详情页
@@ -96,23 +98,17 @@ class _GroupAlbumPhotoDetailPageState
     if (photo == null) return;
     final url = _resolvePhotoUrl(photo);
     if (url.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.group.groupAlbumPhotoUrlMissing)),
-      );
+      AppLoading.showToast(t.group.groupAlbumPhotoUrlMissing);
       return;
     }
     final uri = Uri.tryParse(url);
     if (uri == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.group.groupAlbumPhotoUrlInvalid)),
-      );
+      AppLoading.showToast(t.group.groupAlbumPhotoUrlInvalid);
       return;
     }
     if (!await canLaunchUrl(uri)) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.common.groupAlbumPhotoOpenFailed)),
-      );
+      AppLoading.showToast(t.common.groupAlbumPhotoOpenFailed);
       return;
     }
     await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -146,14 +142,10 @@ class _GroupAlbumPhotoDetailPageState
     try {
       final ok = await GroupAlbumService.to.deletePhoto(_currentPhotoId);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            ok
-                ? t.common.groupAlbumPhotoDeleted
-                : t.common.groupAlbumPhotoDeleteFailed,
-          ),
-        ),
+      AppLoading.showToast(
+        ok
+            ? t.common.groupAlbumPhotoDeleted
+            : t.common.groupAlbumPhotoDeleteFailed,
       );
       if (ok) {
         Navigator.pop(context, true);
@@ -174,14 +166,10 @@ class _GroupAlbumPhotoDetailPageState
         photoId: _currentPhotoId,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            ok
-                ? t.common.groupAlbumPhotoCoverUpdated
-                : t.common.groupAlbumPhotoCoverFailed,
-          ),
-        ),
+      AppLoading.showToast(
+        ok
+            ? t.common.groupAlbumPhotoCoverUpdated
+            : t.common.groupAlbumPhotoCoverFailed,
       );
     } finally {
       if (mounted) {
@@ -221,7 +209,7 @@ class _GroupAlbumPhotoDetailPageState
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
 
     final photo = _photo;
@@ -278,54 +266,74 @@ class _GroupAlbumPhotoDetailPageState
         if (name.isNotEmpty)
           Text(
             name,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: context.textStyle(
+              FontSizeType.body,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         if (createdAt.isNotEmpty) ...[
           AppSpacing.verticalSmall,
-          Text(createdAt, style: Theme.of(context).textTheme.bodySmall),
+          Text(createdAt, style: context.textStyle(FontSizeType.small)),
         ],
         AppSpacing.verticalRegular,
         Column(
           children: [
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton.icon(
+              child: CupertinoButton(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                borderRadius: BorderRadius.circular(12),
+                color: isDark
+                    ? AppColors.darkSurface
+                    : AppColors.lightSurfaceContainer,
                 onPressed: _openExternal,
-                icon: const Icon(CupertinoIcons.forward),
-                label: Text(t.common.groupAlbumPhotoOpenExternal),
-              ),
-            ),
-            AppSpacing.verticalSmall,
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: _isUpdatingCover ? null : _setAsAlbumCover,
-                icon: _isUpdatingCover
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(CupertinoIcons.photo_fill),
-                label: Text(t.group.groupAlbumPhotoSetCover),
-              ),
-            ),
-            AppSpacing.verticalSmall,
-            SizedBox(
-              width: double.infinity,
-              // 破坏性操作按 DESIGN.md 必须用 iosRed —— 确认弹窗（本文件 L123）
-              // 早就是 isDestructiveAction 了，按钮本身漏了，结果页面上唯一的
-              // 实心高对比按钮是"删除图片"，看起来像本页的推荐操作。
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.iosRed,
-                  foregroundColor: AppColors.onPrimary,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(CupertinoIcons.forward, size: 18),
+                    AppSpacing.horizontalSmall,
+                    Text(t.common.groupAlbumPhotoOpenExternal),
+                  ],
                 ),
+              ),
+            ),
+            AppSpacing.verticalSmall,
+            SizedBox(
+              width: double.infinity,
+              child: CupertinoButton(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                borderRadius: BorderRadius.circular(12),
+                color: isDark
+                    ? AppColors.darkSurface
+                    : AppColors.lightSurfaceContainer,
+                onPressed: _isUpdatingCover ? null : _setAsAlbumCover,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _isUpdatingCover
+                        ? const CupertinoActivityIndicator()
+                        : const Icon(CupertinoIcons.photo_fill, size: 18),
+                    AppSpacing.horizontalSmall,
+                    Text(t.group.groupAlbumPhotoSetCover),
+                  ],
+                ),
+              ),
+            ),
+            AppSpacing.verticalSmall,
+            SizedBox(
+              width: double.infinity,
+              child: CupertinoButton.filled(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                borderRadius: BorderRadius.circular(12),
                 onPressed: _isDeleting ? null : _deletePhoto,
-                icon: const Icon(CupertinoIcons.delete),
-                label: Text(t.common.groupAlbumPhotoDeleteTitle),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(CupertinoIcons.delete, size: 18),
+                    AppSpacing.horizontalSmall,
+                    Text(t.common.groupAlbumPhotoDeleteTitle),
+                  ],
+                ),
               ),
             ),
           ],
@@ -349,6 +357,7 @@ class _GroupAlbumPhotoDetailPageState
   }
 
   Widget _buildInfoTile(String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.small),
       padding: const EdgeInsets.symmetric(
@@ -356,16 +365,14 @@ class _GroupAlbumPhotoDetailPageState
         vertical: 10,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? AppColors.darkSurface
-            : AppColors.lightSurfaceContainer,
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurfaceContainer,
         borderRadius: AppRadius.borderRadiusSmall,
       ),
       child: Row(
         children: [
           SizedBox(
             width: 72,
-            child: Text(label, style: Theme.of(context).textTheme.bodySmall),
+            child: Text(label, style: context.textStyle(FontSizeType.small)),
           ),
           Expanded(child: Text(value, textAlign: TextAlign.end)),
         ],

@@ -804,6 +804,8 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get coupon => 'Coupons';
 	@override String get createGroupF2fConfirmTips => 'These friends will also join the group chat';
 	@override String get createGroupF2fTips => 'Enter the same four digits as friends nearby to join the same group chat';
+	@override String get f2fSecretCode => 'Secret Code';
+	@override String f2fEnteringGroup({required Object count}) => '${count} people about to join the group chat';
 	@override String get delete => _root.common.buttonDelete;
 	@override String get deleteCollectConfirmDesc => 'Cannot be recovered after deletion, are you sure you want to delete this favorite?';
 	@override String get deleteContact => 'Delete contact';
@@ -3402,6 +3404,8 @@ extension on TranslationsEnUs {
 			'common.coupon' => 'Coupons',
 			'common.createGroupF2fConfirmTips' => 'These friends will also join the group chat',
 			'common.createGroupF2fTips' => 'Enter the same four digits as friends nearby to join the same group chat',
+			'common.f2fSecretCode' => 'Secret Code',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} people about to join the group chat',
 			'common.delete' => _root.common.buttonDelete,
 			'common.deleteCollectConfirmDesc' => 'Cannot be recovered after deletion, are you sure you want to delete this favorite?',
 			'common.deleteContact' => 'Delete contact',
@@ -3730,10 +3734,10 @@ extension on TranslationsEnUs {
 			'common.userTagSaveView' => 'Save tags',
 			'common.verificationMessageSentByPeerIs' => ({required Object param}) => 'Verification message from the other party: ${param}',
 			'common.version' => 'Version',
-			'common.videoCall' => 'Video call',
-			'common.viewAllGroupMember' => 'View all group members',
 			_ => null,
 		} ?? switch (path) {
+			'common.videoCall' => 'Video call',
+			'common.viewAllGroupMember' => 'View all group members',
 			'common.voiceCall' => 'Voice call',
 			'common.groupCall' => 'Group call',
 			'common.callDisconnected' => 'Call disconnected',
@@ -4244,10 +4248,10 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupPwdLabel' => 'Backup Password *',
 			'common.e2eeBackupPwdHint' => 'At least 12 chars, with upper/lowercase letters, numbers and special symbols',
 			'common.e2eeBackupConfirmPwdLabel' => 'Confirm Password *',
-			'common.e2eeBackupConfirmPwdHint' => 'Enter password again',
-			'common.e2eeBackupNoteLabel' => 'Note (optional)',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupConfirmPwdHint' => 'Enter password again',
+			'common.e2eeBackupNoteLabel' => 'Note (optional)',
 			'common.e2eeBackupNoteHint' => 'e.g. Main phone backup - Jan 2026',
 			'common.e2eeBackupPwdStrengthLabel' => 'Password strength',
 			'common.e2eeBackupPwdWeak' => 'Weak - add more complexity',
@@ -4758,10 +4762,10 @@ extension on TranslationsEnUs {
 			'main.earlier' => 'Earlier',
 			'main.enGb' => 'English (UK)',
 			'main.enUs' => 'English (US)',
-			'main.enable' => 'Enable',
-			'main.example' => 'Example:',
 			_ => null,
 		} ?? switch (path) {
+			'main.enable' => 'Enable',
+			'main.example' => 'Example:',
 			'main.expired' => 'Expired',
 			'main.extraItem' => 'Extra item',
 			'main.faceToFaceLogic' => 'Face to face',

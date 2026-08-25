@@ -7,6 +7,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -259,9 +260,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
 
     setState(() => _isBatchDeleting = false);
     if (successCount == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.common.groupAlbumPhotoDeleteFailed)),
-      );
+      AppLoading.showToast(t.common.groupAlbumPhotoDeleteFailed);
       return;
     }
 
@@ -272,9 +271,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
             success: successCount,
             fail: failCount,
           );
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    AppLoading.showToast(message);
     _exitSelectionMode();
     await _loadPhotos(refresh: true);
   }
@@ -305,14 +302,10 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
 
     final success = await GroupAlbumService.to.deletePhoto(photoId);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? t.common.groupAlbumPhotoDeleted
-              : t.common.groupAlbumPhotoDeleteFailed,
-        ),
-      ),
+    AppLoading.showToast(
+      success
+          ? t.common.groupAlbumPhotoDeleted
+          : t.common.groupAlbumPhotoDeleteFailed,
     );
     if (success) {
       await _loadPhotos(refresh: true);
@@ -326,9 +319,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
   Future<void> _openPhotoDetail(Map<String, dynamic> photo, int index) async {
     final photoId = _resolveDeletePhotoId(photo);
     if (photoId.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.group.groupAlbumPhotoIdMissing)));
+      AppLoading.showToast(t.group.groupAlbumPhotoIdMissing);
       return;
     }
 
@@ -373,11 +364,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
                   ? null
                   : _deleteSelectedPhotos,
               icon: _isBatchDeleting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const CupertinoActivityIndicator()
                   : const Icon(CupertinoIcons.delete),
             ),
           ]
@@ -408,7 +395,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
 
     if (_loadFailed) {
@@ -438,9 +425,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
         itemCount: _photos.length + (_isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= _photos.length) {
-            return const Center(
-              child: CircularProgressIndicator(strokeWidth: 2),
-            );
+            return const Center(child: CupertinoActivityIndicator());
           }
           return _buildPhotoCell(_photos[index], index);
         },

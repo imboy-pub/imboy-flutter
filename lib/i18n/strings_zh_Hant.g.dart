@@ -803,6 +803,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get coupon => '票券';
 	@override String get createGroupF2fConfirmTips => '這些朋友也將進入群組聊天';
 	@override String get createGroupF2fTips => '和身邊的朋友輸入同樣的四個數字，進入同一個群組聊天';
+	@override String get f2fSecretCode => '暗號';
+	@override String f2fEnteringGroup({required Object count}) => '${count} 人即將進入群組聊天';
 	@override String get delete => _root.common.buttonDelete;
 	@override String get deleteCollectConfirmDesc => '刪除後無法恢復，確定要刪除這則收藏嗎？';
 	@override String get deleteContact => '刪除聯絡人';
@@ -3318,6 +3320,8 @@ extension on TranslationsZhHant {
 			'common.coupon' => '票券',
 			'common.createGroupF2fConfirmTips' => '這些朋友也將進入群組聊天',
 			'common.createGroupF2fTips' => '和身邊的朋友輸入同樣的四個數字，進入同一個群組聊天',
+			'common.f2fSecretCode' => '暗號',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} 人即將進入群組聊天',
 			'common.delete' => _root.common.buttonDelete,
 			'common.deleteCollectConfirmDesc' => '刪除後無法恢復，確定要刪除這則收藏嗎？',
 			'common.deleteContact' => '刪除聯絡人',
@@ -3655,10 +3659,10 @@ extension on TranslationsZhHant {
 			'common.callDisconnected' => '通話已斷開',
 			'common.connecting' => '連接中…',
 			'common.voiceInputNotImplemented' => '語音輸入功能暫無實現',
-			'common.waitingDownload' => '等待下載',
-			'common.waitingPeerAccept' => '等待對方接受邀請...',
 			_ => null,
 		} ?? switch (path) {
+			'common.waitingDownload' => '等待下載',
+			'common.waitingPeerAccept' => '等待對方接受邀請...',
 			'common.warning' => '警告：',
 			'common.webpageLoading' => '網頁載入中...',
 			'common.whatYourFeedback' => '您的回饋是什麼?',
@@ -4169,10 +4173,10 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupShareContent' => '這是我的 Imboy E2EE 金鑰備份檔案，請妥善保管，切勿洩露給他人。',
 			'common.e2eeBackupErrPwdMismatch' => '兩次輸入的密碼不一致',
 			'common.e2eeBackupErrNoKeyData' => '無法獲取金鑰資料',
-			'common.e2eeBackupErrExportFailed' => '匯出失敗，請重試',
-			'common.e2eeBackupErrShareFailed' => '分享失敗，請重試',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupErrExportFailed' => '匯出失敗，請重試',
+			'common.e2eeBackupErrShareFailed' => '分享失敗，請重試',
 			'common.e2eeBackupExportSuccessTitle' => '備份匯出成功',
 			'common.e2eeBackupExportSuccessBody' => '您的 E2EE 金鑰備份已成功生成。',
 			'common.e2eeBackupImportantNoteColon' => '重要提示：',
@@ -4683,10 +4687,10 @@ extension on TranslationsZhHant {
 			'main.licenseAgreement' => '《軟體許可及服務協議》',
 			'main.liveBroadcast' => '直播',
 			'main.liveRoomListView' => '直播間列表視圖',
-			'main.publisherPage' => '推流頁面',
-			'main.subscriber' => '訂閱者',
 			_ => null,
 		} ?? switch (path) {
+			'main.publisherPage' => '推流頁面',
+			'main.subscriber' => '訂閱者',
 			'main.loggingOut' => '正在登出...',
 			'main.loudspeaker' => '擴音器',
 			'main.makeYourselfInvisible' => '讓自己不可見',

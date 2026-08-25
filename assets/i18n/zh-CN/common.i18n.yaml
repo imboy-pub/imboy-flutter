@@ -115,6 +115,8 @@ copy: 复制
 coupon: 卡券
 createGroupF2fConfirmTips: 这些朋友也将进入群聊
 createGroupF2fTips: 和身边的朋友输入同样的四个数字，进入同一个群聊
+f2fSecretCode: 暗号
+f2fEnteringGroup(count): $count 人即将进入群聊
 delete: "@:common.buttonDelete"
 deleteCollectConfirmDesc: 删除后无法恢复，确定要删除这条收藏吗？
 deleteContact: 删除联系人

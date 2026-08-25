@@ -372,9 +372,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
     return GestureDetector(
       onTap: () async {
         if (scheduleId.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.groupSchedule.scheduleIdMissing)),
-          );
+          AppLoading.showToast(t.groupSchedule.scheduleIdMissing);
           return;
         }
         final encodedId = Uri.encodeComponent(scheduleId);

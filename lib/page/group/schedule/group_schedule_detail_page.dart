@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_schedule_service.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -297,14 +298,20 @@ class _GroupScheduleDetailPageState
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
+                  child: CupertinoButton.filled(
+                    borderRadius: BorderRadius.circular(12),
                     onPressed: _isSubmitting ? null : () => _confirm(true),
                     child: Text(context.t.groupSchedule.confirmAttend),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.medium),
                 Expanded(
-                  child: OutlinedButton(
+                  child: CupertinoButton(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.darkSurface
+                        : AppColors.lightSurfaceContainer,
                     onPressed: _isSubmitting ? null : () => _confirm(false),
                     child: Text(context.t.groupSchedule.declineAttend),
                   ),
@@ -313,9 +320,21 @@ class _GroupScheduleDetailPageState
             ),
           if (isActionable) const SizedBox(height: AppSpacing.medium),
           if (isActionable)
-            OutlinedButton(
-              onPressed: _isSubmitting ? null : _cancelSchedule,
-              child: Text(context.t.groupSchedule.cancelSchedule),
+            SizedBox(
+              width: double.infinity,
+              child: CupertinoButton(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                borderRadius: BorderRadius.circular(12),
+                color: AppColors.iosRed.withValues(alpha: 0.1),
+                onPressed: _isSubmitting ? null : _cancelSchedule,
+                child: Text(
+                  context.t.groupSchedule.cancelSchedule,
+                  style: context.textStyle(
+                    FontSizeType.body,
+                    color: AppColors.iosRed,
+                  ),
+                ),
+              ),
             ),
         ],
       ),

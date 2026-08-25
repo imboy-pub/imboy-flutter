@@ -181,7 +181,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
         leadingWidth: 72,
         leading: Padding(
           padding: const EdgeInsets.only(top: AppSpacing.small),
-          child: TextButton(
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               t.common.buttonCancel,

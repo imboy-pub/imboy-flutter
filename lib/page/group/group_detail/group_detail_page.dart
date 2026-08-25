@@ -436,23 +436,12 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   ),
                   child: SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(50),
-                        backgroundColor: AppColors.getIosRed(
-                          brightness,
-                        ).withValues(alpha: 0.1),
-                        foregroundColor: AppColors.getIosRed(brightness),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          side: BorderSide(
-                            color: AppColors.getIosRed(
-                              brightness,
-                            ).withValues(alpha: 0.2),
-                          ),
-                        ),
-                      ),
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      borderRadius: BorderRadius.circular(14),
+                      color: AppColors.getIosRed(
+                        brightness,
+                      ).withValues(alpha: 0.1),
                       onPressed: () => _confirmExitGroup(state),
                       child: Text(
                         isGroupOwner(state.role)
@@ -461,6 +450,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         style: context.textStyle(
                           FontSizeType.body,
                           fontWeight: FontWeight.w600,
+                          color: AppColors.getIosRed(brightness),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

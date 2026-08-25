@@ -192,7 +192,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
           Icon(CupertinoIcons.lock_fill, size: 12, color: AppColors.primary),
           const SizedBox(width: 4),
           Text(
-            '暗号',
+            t.common.f2fSecretCode,
             style: context.textStyle(
               FontSizeType.footnote,
               color: AppColors.primary,
@@ -250,7 +250,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
         const _LiveDot(),
         const SizedBox(width: 6),
         Text(
-          '$count 人即将进入群聊',
+          t.common.f2fEnteringGroup(count: count),
           style: context.textStyle(
             FontSizeType.footnote,
             color: AppColors.getIosGreen(brightness),
@@ -272,15 +272,9 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       child: SizedBox(
         width: double.infinity,
         height: 50,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
+        child: CupertinoButton.filled(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          borderRadius: BorderRadius.circular(14),
           onPressed: _isJoiningGroup
               ? null
               : () async {
@@ -333,6 +327,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                   style: context.textStyle(
                     FontSizeType.body,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.onPrimary,
                   ),
                 ),
         ),

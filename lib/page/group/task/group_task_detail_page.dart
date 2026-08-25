@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -104,14 +106,10 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? context.t.groupTask.taskSubmitted
-              : context.t.groupTask.submitFailed,
-        ),
-      ),
+    AppLoading.showToast(
+      success
+          ? context.t.groupTask.taskSubmitted
+          : context.t.groupTask.submitFailed,
     );
     if (success) {
       await _loadDetail();
@@ -188,18 +186,16 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
           ),
           const SizedBox(height: AppSpacing.regular),
           if (!isCompleted)
-            ElevatedButton(
-              onPressed: _isSubmitting ? null : _submitTask,
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  // 这里要的是**动作**标签，不是结果文案。原先复用了
-                  // taskSubmitted（"任务已提交"，L111 的成功 toast），
-                  // 按钮上写着"任务已提交"却是用来提交的。
-                  : Text(context.t.groupTask.submitTask),
+            SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: CupertinoButton.filled(
+                borderRadius: BorderRadius.circular(12),
+                onPressed: _isSubmitting ? null : _submitTask,
+                child: _isSubmitting
+                    ? const CupertinoActivityIndicator()
+                    : Text(context.t.groupTask.submitTask),
+              ),
             ),
         ],
       ),

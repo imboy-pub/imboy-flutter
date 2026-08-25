@@ -416,7 +416,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           // 列表
           Expanded(
             child: _isLoading && _memberList.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CupertinoActivityIndicator())
                 : _memberList.isEmpty
                 ? NoDataView(text: t.common.noData)
                 : filtered.isEmpty

@@ -115,13 +115,13 @@ class _GroupFileAudioPreviewPageState extends State<GroupFileAudioPreviewPage> {
               const Icon(CupertinoIcons.music_note, size: 56),
               AppSpacing.verticalRegular,
               if (_isPreparing) ...[
-                const CircularProgressIndicator(),
+                const CupertinoActivityIndicator(),
                 AppSpacing.verticalMedium,
                 Text(t.common.groupFileAudioLoading),
               ] else if (_errorText != null) ...[
                 Text(_errorText!),
               ] else ...[
-                Slider(
+                CupertinoSlider(
                   value: positionMs.toDouble(),
                   max: maxMs.toDouble(),
                   onChanged: (value) =>
@@ -131,17 +131,24 @@ class _GroupFileAudioPreviewPageState extends State<GroupFileAudioPreviewPage> {
                   '${_formatDuration(_position)} / ${_formatDuration(_duration)}',
                 ),
                 AppSpacing.verticalSmall,
-                FilledButton.icon(
+                CupertinoButton.filled(
                   onPressed: _togglePlay,
-                  icon: Icon(
-                    _isPlaying
-                        ? CupertinoIcons.pause
-                        : CupertinoIcons.play_arrow,
-                  ),
-                  label: Text(
-                    _isPlaying
-                        ? t.chat.groupFileMediaPause
-                        : t.chat.groupFileMediaPlay,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _isPlaying
+                            ? CupertinoIcons.pause
+                            : CupertinoIcons.play_arrow,
+                        size: 18,
+                      ),
+                      AppSpacing.horizontalSmall,
+                      Text(
+                        _isPlaying
+                            ? t.chat.groupFileMediaPause
+                            : t.chat.groupFileMediaPlay,
+                      ),
+                    ],
                   ),
                 ),
               ],

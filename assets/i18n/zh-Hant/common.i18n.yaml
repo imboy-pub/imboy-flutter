@@ -110,6 +110,8 @@ copy: 複製
 coupon: 票券
 createGroupF2fConfirmTips: 這些朋友也將進入群組聊天
 createGroupF2fTips: 和身邊的朋友輸入同樣的四個數字，進入同一個群組聊天
+f2fSecretCode: 暗號
+f2fEnteringGroup(count): $count 人即將進入群組聊天
 delete: '@:common.buttonDelete'
 deleteCollectConfirmDesc: 刪除後無法恢復，確定要刪除這則收藏嗎？
 deleteContact: 刪除聯絡人
