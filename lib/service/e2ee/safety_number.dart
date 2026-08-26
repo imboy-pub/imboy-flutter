@@ -85,7 +85,7 @@ class SafetyNumber {
     // 构建 hash 输入：version + sum(utf8(uid) + base64Decode(pub))
     final builder = BytesBuilder();
     builder.addByte(_kVersion);
-    for (final (uid, _deviceId, pub) in allEntries) {
+    for (final (uid, _, pub) in allEntries) {
       builder.add(utf8.encode(uid));
       builder.add(base64Decode(pub));
     }
@@ -114,11 +114,11 @@ class SafetyNumber {
     return generateAggregate(
       localUid: localUid,
       localDevices: [
-        DeviceIdentity(deviceId: '', identityPub: localIdentityPub),
+        DeviceIdentity(deviceId: '_', identityPub: localIdentityPub),
       ],
       remoteUid: remoteUid,
       remoteDevices: [
-        DeviceIdentity(deviceId: '', identityPub: remoteIdentityPub),
+        DeviceIdentity(deviceId: '_', identityPub: remoteIdentityPub),
       ],
     );
   }
