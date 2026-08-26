@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
-import 'package:url_launcher/url_launcher.dart';
+import 'package:imboy/component/helper/safe_launcher.dart';
+import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 
 /// 需要用户在系统设置中恢复的媒体权限。
 enum MediaPermissionTarget { microphone, camera }
@@ -18,7 +19,7 @@ Future<bool> openMediaPermissionSettings(MediaPermissionTarget target) async {
           : 'Privacy_Microphone';
       // 显式 await：try 内隐式 return future 会让异常落入本地 catch 且
       // 触发 unawaited_return_in_try_block（语义上此处确实想就地消化）
-      return await launchUrl(
+      return await SafeLauncher.safeLaunchUrl(
         Uri.parse(
           'x-apple.systempreferences:com.apple.preference.security?$pane',
         ),

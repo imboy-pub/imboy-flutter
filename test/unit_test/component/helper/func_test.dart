@@ -77,8 +77,14 @@ void main() {
     test('returns true for valid URLs', () {
       expect(isUrl('http://example.com'), isTrue);
       expect(isUrl('https://example.com/path'), isTrue);
-      expect(isUrl('ftp://files.example.com'), isTrue);
-      expect(isUrl('rtsp://stream.example.com'), isTrue);
+    });
+
+    test('returns false for dangerous or unsupported schemes', () {
+      // 收紧后仅允许 http/https，拒绝 ftp/rtsp/mms 等 scheme
+      expect(isUrl('ftp://files.example.com'), isFalse);
+      expect(isUrl('rtsp://stream.example.com'), isFalse);
+      expect(isUrl('mms://media.example.com'), isFalse);
+      expect(isUrl('javascript://alert(1)'), isFalse);
     });
 
     test('returns false for non-URLs', () {

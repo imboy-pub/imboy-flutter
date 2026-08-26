@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, kIsWeb;
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:imboy/component/ui/icon_image_provider.dart';
 import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 
@@ -58,9 +58,9 @@ String getOperatingSystem() {
   }
 }
 
-///验证网页URl
+///验证网页URl（仅允许 http/https，拒绝 ftp/rtsp/mms 等危险 scheme）
 bool isUrl(String value) {
-  RegExp url = RegExp(r"^((https|http|ftp|rtsp|mms)?://)\S+");
+  RegExp url = RegExp(r"^https?://\S+");
   return url.hasMatch(value);
 }
 
@@ -367,7 +367,7 @@ bool isEmail(String value) {
 
 ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
   if (url.isEmpty) {
-    return IconImageProvider(Icons.broken_image);
+    return IconImageProvider(CupertinoIcons.photo);
   }
   if (url.contains("def_avatar.png", 0)) {
     return IconImageProvider(CupertinoIcons.person);
@@ -384,7 +384,7 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
     String finalUrl = w > 0 ? "${u.toString()}&width=$w" : u.toString();
     return IMBoyCachedImageProvider(finalUrl, headers);
   } on FormatException {
-    return IconImageProvider(Icons.broken_image);
+    return IconImageProvider(CupertinoIcons.photo);
   }
 }
 
@@ -432,7 +432,8 @@ DecorationImage dynamicAvatar(String? avatar, {double w = 400}) {
 Widget genderIcon(int gender) {
   Widget icon;
   if (gender == 1) {
-    icon = const Icon(Icons.male, color: Colors.lightBlueAccent);
+    // 男/女使用不同形状图标（非仅靠颜色区分，色盲可辨）
+    icon = const Icon(Icons.male, color: CupertinoColors.systemBlue);
   } else if (gender == 2) {
     icon = const Icon(Icons.female, color: AppColors.iosPink);
   } else if (gender == 3) {
@@ -441,7 +442,7 @@ Widget genderIcon(int gender) {
       color: AppColors.lightTextPrimary,
     );
   } else {
-    icon = const Icon(Icons.battery_unknown, color: AppColors.iosGray);
+    icon = const Icon(CupertinoIcons.battery_0, color: AppColors.iosGray);
   }
   return icon;
 }
