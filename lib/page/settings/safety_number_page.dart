@@ -1,12 +1,11 @@
-/// 安全码（Safety Number）验证页（审计 P1-2 接线）
+/// 安全码（Safety Number）验证页（审计 P1-2 接线 + 多设备聚合）
 ///
-/// Signal 风格带外身份验证：双方各自在手机/电脑上看到同一串 60 位安全码，
-/// 通过面对面/电话/视频比对。一致 → 无中间人；不一致 → 停止对话并核实。
+/// Signal 风格跨设备指纹：双方全部设备的 identity key 参与聚合计算。
+/// 本端和对端分别显示参与聚合的设备数量。任一新设备加入/移除，聚合码都会变化。
 ///
 /// 实现：
 /// - 本端 identity：OlmSessionService.localCurve25519Identity（权威副本）；
-/// - 对端 identity：OlmSessionService.peerCurve25519Identity（已验证路径，
-///   Ed25519 自签核验 + TOFU pin）；
+/// - 对端 identity：E2EEService.getUserDevicePublicKeys 返回全部设备；
 /// - "已验证"状态仅本地持久化（SecureStorage per-peer）。
 ///
 /// TODO（阶段 B）：比对一致后上报 `POST /api/v1/e2ee/trust/record`
@@ -92,14 +91,13 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
   Future<void> _markVerified() async {
     final result = _result;
     if (result == null) return;
-    // 阶段 B：比对一致后，把「已验证」作为签名信任事件上报服务端
-    // （POST /api/v1/e2ee/trust/record，ADR 16）。上报成功才标记本地，
-    // 失败则不标记——本地标记必须与服务端审计一致，避免"自认为已验证"
-    // 但服务端/对端无记录。
+    // 阶段 B：比对一致后，把「已验证」作为签名信任事件上报服务端。
+    // peerDeviceId 传首个远程设备 ID——多设备聚合码已验证即信任该用户全部设备，
+    // 后端 trust/record 的 device 级粒度是阶段 B 的扩展点。
     AppLoading.show(status: t.main.safetyNumberReporting);
     final outcome = await TrustRecordService.recordVerified(
       peerUid: widget.peerUid,
-      peerDeviceId: result.peerDeviceId,
+      peerDeviceId: result.remoteDeviceId,
     );
     AppLoading.dismiss();
     if (!mounted) return;
@@ -206,7 +204,8 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
                               ),
                         AppSpacing.verticalSmall,
                         Text(
-                          '${t.main.safetyNumberPeerDevice}: ${result.peerDeviceId}',
+                          '${t.main.safetyNumberPeerDevice}: '
+                          '${result.localDeviceCount}台设备 ↔ ${result.remoteDeviceCount}台设备',
                           style: TextStyle(
                             color: AppColors.alipaySimTextGrey,
                             fontSize: FontSizeType.small.size,

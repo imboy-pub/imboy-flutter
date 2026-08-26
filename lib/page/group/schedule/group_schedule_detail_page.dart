@@ -249,16 +249,15 @@ class _GroupScheduleDetailPageState
             ),
           ),
           const SizedBox(height: AppSpacing.small),
-          Chip(
-            label: Text(
-              isCancelled
-                  ? context.t.groupSchedule.statusCancelled
-                  : isEnded
-                  ? context.t.groupSchedule.statusEnded
-                  : isNotStarted
-                  ? context.t.groupSchedule.statusNotStarted
-                  : context.t.groupSchedule.statusInProgress,
-            ),
+          _iosChip(
+            isCancelled
+                ? context.t.groupSchedule.statusCancelled
+                : isEnded
+                ? context.t.groupSchedule.statusEnded
+                : isNotStarted
+                ? context.t.groupSchedule.statusNotStarted
+                : context.t.groupSchedule.statusInProgress,
+            isDark: Theme.of(context).brightness == Brightness.dark,
           ),
           const SizedBox(height: AppSpacing.medium),
           _InfoLine(label: context.t.groupSchedule.startTime, value: startTime),
@@ -359,8 +358,9 @@ class _InfoLine extends StatelessWidget {
             width: 88,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
+              style: context.textStyle(
+                FontSizeType.body,
+                color: AppColors.iosGray,
               ),
             ),
           ),
@@ -369,4 +369,24 @@ class _InfoLine extends StatelessWidget {
       ),
     );
   }
+}
+
+/// iOS 风格信息标签
+Widget _iosChip(String label, {required bool isDark}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(
+      color: isDark ? AppColors.darkSurface : AppColors.lightSurfaceContainer,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(
+        fontSize: FontSizeType.footnote.size,
+        color: isDark
+            ? AppColors.darkTextSecondary
+            : AppColors.lightTextSecondary,
+      ),
+    ),
+  );
 }

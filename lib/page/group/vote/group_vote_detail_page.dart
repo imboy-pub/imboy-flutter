@@ -394,15 +394,15 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
           Wrap(
             spacing: AppSpacing.small,
             children: [
-              Chip(
-                label: Text(
-                  _voteStatus == 1
-                      ? context.t.groupVote.statusInProgress
-                      : context.t.groupVote.voteEnded,
-                ),
+              _iosChip(
+                _voteStatus == 1
+                    ? context.t.groupVote.statusInProgress
+                    : context.t.groupVote.voteEnded,
+                isDark: Theme.of(context).brightness == Brightness.dark,
               ),
-              Chip(
-                label: Text(context.t.groupVote.totalVotes(count: totalVotes)),
+              _iosChip(
+                context.t.groupVote.totalVotes(count: totalVotes),
+                isDark: Theme.of(context).brightness == Brightness.dark,
               ),
             ],
           ),
@@ -465,4 +465,24 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
       ),
     );
   }
+}
+
+/// iOS 风格信息标签
+Widget _iosChip(String label, {required bool isDark}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(
+      color: isDark ? AppColors.darkSurface : AppColors.lightSurfaceContainer,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(
+        fontSize: FontSizeType.footnote.size,
+        color: isDark
+            ? AppColors.darkTextSecondary
+            : AppColors.lightTextSecondary,
+      ),
+    ),
+  );
 }

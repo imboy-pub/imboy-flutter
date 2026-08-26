@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_task_service.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -161,12 +162,11 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
             ),
           ),
           const SizedBox(height: AppSpacing.small),
-          Chip(
-            label: Text(
-              isCompleted
-                  ? context.t.groupTask.completed
-                  : context.t.groupTask.pending,
-            ),
+          _iosChip(
+            isCompleted
+                ? context.t.groupTask.completed
+                : context.t.groupTask.pending,
+            isDark: Theme.of(context).brightness == Brightness.dark,
           ),
           const SizedBox(height: AppSpacing.medium),
           if (_toText(_task!['description']).isNotEmpty)
@@ -220,8 +220,9 @@ class _InfoLine extends StatelessWidget {
             width: 88,
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
+              style: context.textStyle(
+                FontSizeType.body,
+                color: AppColors.iosGray,
               ),
             ),
           ),
@@ -230,4 +231,24 @@ class _InfoLine extends StatelessWidget {
       ),
     );
   }
+}
+
+/// iOS 风格信息标签
+Widget _iosChip(String label, {required bool isDark}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(
+      color: isDark ? AppColors.darkSurface : AppColors.lightSurfaceContainer,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(
+        fontSize: FontSizeType.footnote.size,
+        color: isDark
+            ? AppColors.darkTextSecondary
+            : AppColors.lightTextSecondary,
+      ),
+    ),
+  );
 }

@@ -2,7 +2,10 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -566,11 +569,45 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   Widget _buildCategoryChip(String category, String label) {
     final isSelected = _selectedCategory == category;
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (_) => _selectCategory(category),
-      showCheckmark: false,
+    final brightness = Theme.of(context).brightness;
+    return Padding(
+      padding: const EdgeInsets.only(right: AppSpacing.small),
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => _selectCategory(category),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.medium,
+            vertical: AppSpacing.small,
+          ),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.getIosBlue(brightness)
+                : (brightness == Brightness.dark
+                      ? AppColors.darkSurface
+                      : AppColors.lightSurface),
+            borderRadius: AppRadius.button,
+            border: Border.all(
+              color: AppColors.getIosSeparator(
+                brightness,
+              ).withValues(alpha: 0.3),
+              width: 0.33,
+            ),
+          ),
+          child: Text(
+            label,
+            style: context.textStyle(
+              FontSizeType.footnote,
+              color: isSelected
+                  ? AppColors.lightTextPrimary
+                  : (brightness == Brightness.dark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary),
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
