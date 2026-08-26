@@ -34,6 +34,50 @@
 -- PRAGMA user_version = 9;
 
 -- ============================================================
+-- VERSION: 31
+-- DESC: 从 v31 降级到 v30（移除 channel 表 visibility/access_type/join_policy
+--       三列，恢复 type 列为唯一权威与 idx_channel_type 索引）
+-- ============================================================
+
+CREATE TABLE channel_v30 (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    avatar TEXT,
+    type INTEGER DEFAULT 0,
+    custom_id TEXT UNIQUE,
+    creator_id INTEGER NOT NULL,
+    subscriber_count INTEGER DEFAULT 0,
+    is_verified INTEGER DEFAULT 0,
+    tags TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    user_role INTEGER DEFAULT 0,
+    is_subscribed INTEGER DEFAULT 0,
+    has_purchased INTEGER DEFAULT 0
+);
+
+INSERT INTO channel_v30 (
+    id, name, description, avatar, type, custom_id, creator_id,
+    subscriber_count, is_verified, tags, created_at, updated_at,
+    user_role, is_subscribed, has_purchased
+)
+SELECT
+    id, name, description, avatar, type, custom_id, creator_id,
+    subscriber_count, is_verified, tags, created_at, updated_at,
+    user_role, is_subscribed, has_purchased
+FROM channel;
+
+DROP TABLE channel;
+ALTER TABLE channel_v30 RENAME TO channel;
+
+CREATE INDEX IF NOT EXISTS idx_channel_custom_id ON channel(custom_id);
+CREATE INDEX IF NOT EXISTS idx_channel_creator_id ON channel(creator_id);
+CREATE INDEX IF NOT EXISTS idx_channel_type ON channel(type);
+
+PRAGMA user_version = 30;
+
+-- ============================================================
 -- VERSION: 29
 -- DESC: 从 v29 降级到 v28（删除频道消息发布 outbox）
 -- ============================================================

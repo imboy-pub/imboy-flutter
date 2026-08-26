@@ -1847,6 +1847,34 @@ PRAGMA user_version = 29;
 ALTER TABLE channel ADD COLUMN has_purchased INTEGER DEFAULT 0;
 
 PRAGMA user_version = 30;
+
+-- ============================================================
+-- VERSION: 31
+-- DESC: 频道访问模型正交化 — channel 新增 visibility/access_type/join_policy
+--       三列，并从旧 type 列回填（与后端 00000072 迁移的映射及幂等守卫一致）：
+--         type=0 公开免费 → (0,0,0)；type=1 私有 → (1,0,1)；type=2 付费 → (0,1,3)；
+--         非法 type 置 (-1,-1,-1) 哨兵，ChannelModel 对其 fail-closed 锁定。
+--       旧 type 列保留为兼容列（不再读写），勿删。
+-- ============================================================
+
+ALTER TABLE channel ADD COLUMN visibility INTEGER DEFAULT 0;
+ALTER TABLE channel ADD COLUMN access_type INTEGER DEFAULT 0;
+ALTER TABLE channel ADD COLUMN join_policy INTEGER DEFAULT 0;
+
+-- 幂等守卫（AND 三字段 = 0）：重复执行不覆盖已漂移/已修正的数据
+UPDATE channel SET visibility = 0, access_type = 0, join_policy = 0
+ WHERE type = 0 AND visibility = 0 AND access_type = 0 AND join_policy = 0;
+UPDATE channel SET visibility = 1, access_type = 0, join_policy = 1
+ WHERE type = 1 AND visibility = 0 AND access_type = 0 AND join_policy = 0;
+UPDATE channel SET visibility = 0, access_type = 1, join_policy = 3
+ WHERE type = 2 AND visibility = 0 AND access_type = 0 AND join_policy = 0;
+UPDATE channel SET visibility = -1, access_type = -1, join_policy = -1
+ WHERE type NOT IN (0, 1, 2)
+   AND visibility = 0 AND access_type = 0 AND join_policy = 0;
+
+DROP INDEX IF EXISTS idx_channel_type;
+
+PRAGMA user_version = 31;
 """;
 
 /// 与 assets/migrations/downgrade.sql 内容保持同步（同上）。
@@ -1885,6 +1913,50 @@ const String kDowngradeScriptSql = r"""
 --
 -- 当前版本无需降级，此块留空
 -- PRAGMA user_version = 9;
+
+-- ============================================================
+-- VERSION: 31
+-- DESC: 从 v31 降级到 v30（移除 channel 表 visibility/access_type/join_policy
+--       三列，恢复 type 列为唯一权威与 idx_channel_type 索引）
+-- ============================================================
+
+CREATE TABLE channel_v30 (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    avatar TEXT,
+    type INTEGER DEFAULT 0,
+    custom_id TEXT UNIQUE,
+    creator_id INTEGER NOT NULL,
+    subscriber_count INTEGER DEFAULT 0,
+    is_verified INTEGER DEFAULT 0,
+    tags TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    user_role INTEGER DEFAULT 0,
+    is_subscribed INTEGER DEFAULT 0,
+    has_purchased INTEGER DEFAULT 0
+);
+
+INSERT INTO channel_v30 (
+    id, name, description, avatar, type, custom_id, creator_id,
+    subscriber_count, is_verified, tags, created_at, updated_at,
+    user_role, is_subscribed, has_purchased
+)
+SELECT
+    id, name, description, avatar, type, custom_id, creator_id,
+    subscriber_count, is_verified, tags, created_at, updated_at,
+    user_role, is_subscribed, has_purchased
+FROM channel;
+
+DROP TABLE channel;
+ALTER TABLE channel_v30 RENAME TO channel;
+
+CREATE INDEX IF NOT EXISTS idx_channel_custom_id ON channel(custom_id);
+CREATE INDEX IF NOT EXISTS idx_channel_creator_id ON channel(creator_id);
+CREATE INDEX IF NOT EXISTS idx_channel_type ON channel(type);
+
+PRAGMA user_version = 30;
 
 -- ============================================================
 -- VERSION: 29

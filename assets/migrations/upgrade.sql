@@ -1462,3 +1462,31 @@ PRAGMA user_version = 29;
 ALTER TABLE channel ADD COLUMN has_purchased INTEGER DEFAULT 0;
 
 PRAGMA user_version = 30;
+
+-- ============================================================
+-- VERSION: 31
+-- DESC: 频道访问模型正交化 — channel 新增 visibility/access_type/join_policy
+--       三列，并从旧 type 列回填（与后端 00000072 迁移的映射及幂等守卫一致）：
+--         type=0 公开免费 → (0,0,0)；type=1 私有 → (1,0,1)；type=2 付费 → (0,1,3)；
+--         非法 type 置 (-1,-1,-1) 哨兵，ChannelModel 对其 fail-closed 锁定。
+--       旧 type 列保留为兼容列（不再读写），勿删。
+-- ============================================================
+
+ALTER TABLE channel ADD COLUMN visibility INTEGER DEFAULT 0;
+ALTER TABLE channel ADD COLUMN access_type INTEGER DEFAULT 0;
+ALTER TABLE channel ADD COLUMN join_policy INTEGER DEFAULT 0;
+
+-- 幂等守卫（AND 三字段 = 0）：重复执行不覆盖已漂移/已修正的数据
+UPDATE channel SET visibility = 0, access_type = 0, join_policy = 0
+ WHERE type = 0 AND visibility = 0 AND access_type = 0 AND join_policy = 0;
+UPDATE channel SET visibility = 1, access_type = 0, join_policy = 1
+ WHERE type = 1 AND visibility = 0 AND access_type = 0 AND join_policy = 0;
+UPDATE channel SET visibility = 0, access_type = 1, join_policy = 3
+ WHERE type = 2 AND visibility = 0 AND access_type = 0 AND join_policy = 0;
+UPDATE channel SET visibility = -1, access_type = -1, join_policy = -1
+ WHERE type NOT IN (0, 1, 2)
+   AND visibility = 0 AND access_type = 0 AND join_policy = 0;
+
+DROP INDEX IF EXISTS idx_channel_type;
+
+PRAGMA user_version = 31;
