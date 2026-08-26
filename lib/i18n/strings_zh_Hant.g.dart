@@ -2030,6 +2030,15 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get groupAdmin => 'Admin';
 	@override String get groupGuest => '嘉賓';
 	@override String get groupMember => 'Member';
+	@override String get groupInfo => '群組資訊';
+	@override String get groupMemberRoleLabel => '成員';
+	@override String noMemberWithRole({required Object roleName}) => '暫無${roleName}';
+	@override String get moreActions => '更多操作';
+	@override String get touchContactAddMember => '點擊聯絡人新增為群組成員';
+	@override String get groupCreated => '群組已建立';
+	@override String get groupCreatedSuccess => '群組建立成功，邀請你完善群組資訊或直接進入群組';
+	@override String get enterGroupChat => '進入群組';
+	@override String get perfectionGroupInfo => '完善群組資訊';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get transferGroup => 'Transfer Ownership';
 	@override String get joinTime => 'Join Time';
@@ -4491,6 +4500,15 @@ extension on TranslationsZhHant {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => '嘉賓',
 			'group.groupMember' => 'Member',
+			'group.groupInfo' => '群組資訊',
+			'group.groupMemberRoleLabel' => '成員',
+			'group.noMemberWithRole' => ({required Object roleName}) => '暫無${roleName}',
+			'group.moreActions' => '更多操作',
+			'group.touchContactAddMember' => '點擊聯絡人新增為群組成員',
+			'group.groupCreated' => '群組已建立',
+			'group.groupCreatedSuccess' => '群組建立成功，邀請你完善群組資訊或直接進入群組',
+			'group.enterGroupChat' => '進入群組',
+			'group.perfectionGroupInfo' => '完善群組資訊',
 			'group.setAdmin' => 'Set as Admin',
 			'group.transferGroup' => 'Transfer Ownership',
 			'group.joinTime' => 'Join Time',
@@ -4678,6 +4696,8 @@ extension on TranslationsZhHant {
 			'main.iAm' => '我是',
 			'main.itIt' => '義大利語（義大利）',
 			'main.jaJp' => '日語（日本）',
+			_ => null,
+		} ?? switch (path) {
 			'main.keepSecret' => '保密',
 			'main.lastActiveTime' => '最近活躍時間',
 			'main.lastSeenHide' => '隱藏上線狀態',
@@ -4687,8 +4707,6 @@ extension on TranslationsZhHant {
 			'main.licenseAgreement' => '《軟體許可及服務協議》',
 			'main.liveBroadcast' => '直播',
 			'main.liveRoomListView' => '直播間列表視圖',
-			_ => null,
-		} ?? switch (path) {
 			'main.publisherPage' => '推流頁面',
 			'main.subscriber' => '訂閱者',
 			'main.loggingOut' => '正在登出...',

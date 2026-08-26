@@ -14,6 +14,15 @@ groupOwner: Owner
 groupAdmin: Admin
 groupGuest: 嘉賓
 groupMember: Member
+groupInfo: 群組資訊
+groupMemberRoleLabel: 成員
+noMemberWithRole(roleName): 暫無$roleName
+moreActions: 更多操作
+touchContactAddMember: 點擊聯絡人新增為群組成員
+groupCreated: 群組已建立
+groupCreatedSuccess: 群組建立成功，邀請你完善群組資訊或直接進入群組
+enterGroupChat: 進入群組
+perfectionGroupInfo: 完善群組資訊
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time

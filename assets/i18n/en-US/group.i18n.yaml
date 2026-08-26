@@ -14,6 +14,15 @@ groupOwner: Owner
 groupAdmin: Admin
 groupGuest: Guest
 groupMember: Member
+groupInfo: Group Info
+groupMemberRoleLabel: Member
+noMemberWithRole(roleName): No $roleName yet
+moreActions: More Actions
+touchContactAddMember: Tap contacts to add group members
+groupCreated: Group created
+groupCreatedSuccess: "Group created successfully! Invite members or enter the group now"
+enterGroupChat: Enter Group
+perfectionGroupInfo: Complete Group Info
 setAdmin: Set as Admin
 transferGroup: Transfer Ownership
 joinTime: Join Time

@@ -14,6 +14,15 @@ groupOwner: 群主
 groupAdmin: 管理员
 groupGuest: 嘉宾
 groupMember: 普通成员
+groupInfo: 群聊信息
+groupMemberRoleLabel: 成员
+noMemberWithRole(roleName): 暂无$roleName
+moreActions: 更多操作
+touchContactAddMember: 点击联系人添加为群成员
+groupCreated: 群聊已创建
+groupCreatedSuccess: 群聊创建成功，邀请你完善群信息或直接进入群聊
+enterGroupChat: 进入群聊
+perfectionGroupInfo: 完善群信息
 setAdmin: 设为管理员
 transferGroup: 转让群主
 joinTime: 加入时间

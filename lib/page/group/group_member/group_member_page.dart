@@ -405,7 +405,10 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
                   4: _segmentLabel(t.group.groupOwner, _roleFilter == 4),
                   3: _segmentLabel(t.group.groupAdmin, _roleFilter == 3),
                   // TODO(i18n): t.group.memberOrdinary
-                  1: _segmentLabel('成员', _roleFilter == 1),
+                  1: _segmentLabel(
+                    t.group.groupMemberRoleLabel,
+                    _roleFilter == 1,
+                  ),
                 },
                 onValueChanged: (v) {
                   if (v != null) setState(() => _roleFilter = v);
@@ -487,7 +490,7 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
     };
     return NoDataView(
       // TODO(i18n): 补充 t.group.noMemberInRole(key: roleName)
-      text: '暂无$roleName',
+      text: t.group.noMemberWithRole(roleName: roleName),
       icon: CupertinoIcons.person_2,
     );
   }

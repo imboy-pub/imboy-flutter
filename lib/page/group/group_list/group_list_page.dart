@@ -393,7 +393,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
               );
             },
             // TODO(i18n): 补充 t.chat.groupInfo key 后替换字面量
-            child: const Text('群聊信息'),
+            child: Text(t.group.groupInfo),
           ),
           CupertinoActionSheetAction(
             onPressed: () {

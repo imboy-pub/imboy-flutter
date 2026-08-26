@@ -356,7 +356,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             // 更多管理操作（设管理员 / 移出群聊）
             _buildActionButton(
               // TODO(i18n): t.common.moreActions
-              label: '更多操作',
+              label: t.group.moreActions,
               color: colorScheme.onSurface.withValues(alpha: 0.7),
               isDestructive: false,
               onTap: () => _showManageSheet(member),

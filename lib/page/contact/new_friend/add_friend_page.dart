@@ -97,12 +97,9 @@ class _AddFriendPageState extends ConsumerState<AddFriendPage> {
         return;
       }
       final model = results.first as PeopleModel;
-      context.push(
-        '/people_info/\${model.id}',
-        extra: {'scene': 'user_search'},
-      );
+      context.push('/people_info/${model.id}', extra: {'scene': 'user_search'});
     } on Exception catch (e) {
-      iPrint('[AddFriend] 搜索用户失败: \$e');
+      iPrint('[AddFriend] 搜索用户失败: $e');
     }
   }
 

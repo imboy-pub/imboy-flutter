@@ -130,7 +130,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
         child: Center(
           child: Text(
             // TODO(i18n): t.chat.noSelectedMember
-            '点击联系人添加为群成员',
+            t.group.touchContactAddMember,
             style: context.textStyle(
               FontSizeType.footnote,
               color: AppColors.iosGray,
@@ -387,8 +387,8 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
       context: context,
       builder: (ctx) => CupertinoActionSheet(
         // TODO(i18n): groupCreated/groupCreatedDesc/enterGroupChat/editGroupInfo
-        title: const Text('群聊已创建'),
-        message: const Text('群聊创建成功，邀请你完善群信息或直接进入群聊'),
+        title: Text(t.group.groupCreated),
+        message: Text(t.group.groupCreatedSuccess),
         actions: [
           CupertinoActionSheetAction(
             isDefaultAction: true,
@@ -396,7 +396,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
               Navigator.pop(ctx);
               _enterChat(m, memberCount);
             },
-            child: const Text('进入群聊'),
+            child: Text(t.group.enterGroupChat),
           ),
           CupertinoActionSheetAction(
             onPressed: () {
@@ -410,7 +410,7 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
                 },
               );
             },
-            child: const Text('完善群信息'),
+            child: Text(t.group.perfectionGroupInfo),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(

@@ -6175,6 +6175,33 @@ class Translations$group$zh_CN {
 	/// zh-CN: '普通成员'
 	String get groupMember => '普通成员';
 
+	/// zh-CN: '群聊信息'
+	String get groupInfo => '群聊信息';
+
+	/// zh-CN: '成员'
+	String get groupMemberRoleLabel => '成员';
+
+	/// zh-CN: '暂无$roleName'
+	String noMemberWithRole({required Object roleName}) => '暂无${roleName}';
+
+	/// zh-CN: '更多操作'
+	String get moreActions => '更多操作';
+
+	/// zh-CN: '点击联系人添加为群成员'
+	String get touchContactAddMember => '点击联系人添加为群成员';
+
+	/// zh-CN: '群聊已创建'
+	String get groupCreated => '群聊已创建';
+
+	/// zh-CN: '群聊创建成功，邀请你完善群信息或直接进入群聊'
+	String get groupCreatedSuccess => '群聊创建成功，邀请你完善群信息或直接进入群聊';
+
+	/// zh-CN: '进入群聊'
+	String get enterGroupChat => '进入群聊';
+
+	/// zh-CN: '完善群信息'
+	String get perfectionGroupInfo => '完善群信息';
+
 	/// zh-CN: '设为管理员'
 	String get setAdmin => '设为管理员';
 
@@ -9916,6 +9943,15 @@ extension on Translations {
 			'group.groupAdmin' => '管理员',
 			'group.groupGuest' => '嘉宾',
 			'group.groupMember' => '普通成员',
+			'group.groupInfo' => '群聊信息',
+			'group.groupMemberRoleLabel' => '成员',
+			'group.noMemberWithRole' => ({required Object roleName}) => '暂无${roleName}',
+			'group.moreActions' => '更多操作',
+			'group.touchContactAddMember' => '点击联系人添加为群成员',
+			'group.groupCreated' => '群聊已创建',
+			'group.groupCreatedSuccess' => '群聊创建成功，邀请你完善群信息或直接进入群聊',
+			'group.enterGroupChat' => '进入群聊',
+			'group.perfectionGroupInfo' => '完善群信息',
 			'group.setAdmin' => '设为管理员',
 			'group.transferGroup' => '转让群主',
 			'group.joinTime' => '加入时间',
@@ -9951,6 +9987,8 @@ extension on Translations {
 			'groupCategory.noCategory' => '暂无分组',
 			'groupCategory.createFirst' => '创建第一个分组吧',
 			'groupCategory.addGroup' => '添加群聊到分组',
+			_ => null,
+		} ?? switch (path) {
 			'groupCategory.removeGroup' => '从分组移除',
 			'groupCategory.deleteCategory' => '删除分组',
 			'groupCategory.deleteCategoryConfirm' => '确定要删除该分组吗？群聊不会被删除。',
@@ -9960,8 +9998,6 @@ extension on Translations {
 			'groupCategory.categoryRenamed' => '分组重命名成功',
 			'groupCategory.renameFailed' => '重命名失败，请重试',
 			'groupCategory.deleteFailed' => '删除失败，请重试',
-			_ => null,
-		} ?? switch (path) {
 			'groupCategory.categoryDetailTip' => '该分组下的群聊可以在群组列表中通过「移入分组」进行管理',
 			'groupDiscovery.title' => '发现群组',
 			'groupDiscovery.searchHint' => '搜索公开群',

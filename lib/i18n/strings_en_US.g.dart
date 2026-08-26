@@ -2045,6 +2045,15 @@ class _Translations$group$en_US extends Translations$group$zh_CN {
 	@override String get groupAdmin => 'Admin';
 	@override String get groupGuest => 'Guest';
 	@override String get groupMember => 'Member';
+	@override String get groupInfo => 'Group Info';
+	@override String get groupMemberRoleLabel => 'Member';
+	@override String noMemberWithRole({required Object roleName}) => 'No ${roleName} yet';
+	@override String get moreActions => 'More Actions';
+	@override String get touchContactAddMember => 'Tap contacts to add group members';
+	@override String get groupCreated => 'Group created';
+	@override String get groupCreatedSuccess => 'Group created successfully! Invite members or enter the group now';
+	@override String get enterGroupChat => 'Enter Group';
+	@override String get perfectionGroupInfo => 'Complete Group Info';
 	@override String get setAdmin => 'Set as Admin';
 	@override String get transferGroup => 'Transfer Ownership';
 	@override String get joinTime => 'Join Time';
@@ -4586,6 +4595,15 @@ extension on TranslationsEnUs {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Guest',
 			'group.groupMember' => 'Member',
+			'group.groupInfo' => 'Group Info',
+			'group.groupMemberRoleLabel' => 'Member',
+			'group.noMemberWithRole' => ({required Object roleName}) => 'No ${roleName} yet',
+			'group.moreActions' => 'More Actions',
+			'group.touchContactAddMember' => 'Tap contacts to add group members',
+			'group.groupCreated' => 'Group created',
+			'group.groupCreatedSuccess' => 'Group created successfully! Invite members or enter the group now',
+			'group.enterGroupChat' => 'Enter Group',
+			'group.perfectionGroupInfo' => 'Complete Group Info',
 			'group.setAdmin' => 'Set as Admin',
 			'group.transferGroup' => 'Transfer Ownership',
 			'group.joinTime' => 'Join Time',
@@ -4753,6 +4771,8 @@ extension on TranslationsEnUs {
 			'main.clean' => 'Clean',
 			'main.codeSentToParam' => ({required Object param}) => 'Verification code sent to ${param}',
 			'main.codeSentToType' => ({required Object param}) => 'Verification code sent to ${param}',
+			_ => null,
+		} ?? switch (path) {
 			'main.collected' => 'Favorited',
 			'main.completed' => 'Completed',
 			'main.copied' => 'Copied',
@@ -4762,8 +4782,6 @@ extension on TranslationsEnUs {
 			'main.earlier' => 'Earlier',
 			'main.enGb' => 'English (UK)',
 			'main.enUs' => 'English (US)',
-			_ => null,
-		} ?? switch (path) {
 			'main.enable' => 'Enable',
 			'main.example' => 'Example:',
 			'main.expired' => 'Expired',
