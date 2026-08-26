@@ -7,12 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/config/const.dart';
+import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/web_shell/web_shell_breakpoint.dart';
 import 'package:imboy/service/incoming_backup_handler.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:flutter/cupertino.dart';
 
 /// 启动页（克制化版本，DESIGN.md §1 Clarity / Deference 原则）
 ///
@@ -147,6 +151,13 @@ class _SplashPageState extends ConsumerState<SplashPage>
       await Future<void>.delayed(hold);
       if (!mounted) return;
       if (!isLoggedIn) {
+        // 支付宝授权切换期间进程被系统杀死：loginByAlipay 前置位标记残留。
+        // 直达登录页让其「登录被中断」恢复提示露出，而不是落在欢迎页让
+        // 用户误以为「授权成功却回到了起点」。标记由 LoginPage 检测后清除。
+        if (StorageService.to.getBool(Keys.alipayLoginInProgress) == true) {
+          context.go(AppRoutes.signIn);
+          return;
+        }
         context.go('/welcome');
         return;
       }
@@ -200,8 +211,8 @@ class _SplashPageState extends ConsumerState<SplashPage>
         ? AppColors.overlayLight
         : AppColors.overlayLightStrong;
 
-    return Scaffold(
-      body: Container(
+    return CupertinoPageScaffold(
+      child: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(

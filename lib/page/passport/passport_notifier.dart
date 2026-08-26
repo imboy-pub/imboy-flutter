@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'dart:io';
 
@@ -250,7 +251,8 @@ class PassportNotifier extends _$PassportNotifier {
   /// 返回按钮组件
   Widget backButton({Color? color}) {
     Color c = color ?? AppColors.onPrimary;
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         final context = navigatorKey.currentContext;
         if (context != null && context.mounted) {
@@ -274,7 +276,8 @@ class PassportNotifier extends _$PassportNotifier {
           children: [
             Container(
               padding: const EdgeInsets.only(left: 0, top: 10, bottom: 10),
-              child: Icon(Icons.keyboard_arrow_left, color: c),
+              // 圆形返回图标（设计拍板：返回键用圆形）
+              child: Icon(CupertinoIcons.chevron_left_circle, color: c),
             ),
             Text(
               t.common.buttonBack,
@@ -368,7 +371,7 @@ class PassportNotifier extends _$PassportNotifier {
     if (context == null) return;
     showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.common.cancelLogoutTitle),
         content: SizedBox(
           height: 108,
@@ -379,11 +382,11 @@ class PassportNotifier extends _$PassportNotifier {
           ),
         ),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(t.common.buttonCancel),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () async {
               await ref.read(userApiProvider).cancelLogout();
               if (!ctx.mounted) return;
@@ -780,19 +783,16 @@ class PassportNotifier extends _$PassportNotifier {
       return;
     }
 
+    if (message is String) {
+      AppLoading.showError(message);
+      return;
+    }
+
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: message is String
-              ? Text(
-                  message,
-                  style: context.textStyle(
-                    FontSizeType.medium,
-                    color: AppColors.onPrimary,
-                  ),
-                )
-              : message as Widget,
+          content: message as Widget,
           backgroundColor: AppColors.iosRed,
           duration: const Duration(seconds: 5),
           behavior: SnackBarBehavior.fixed,

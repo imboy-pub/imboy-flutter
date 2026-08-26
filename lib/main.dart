@@ -1,5 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart'
+    show
+        debugPaintBaselinesEnabled,
+        debugPaintLayerBordersEnabled,
+        debugPaintSizeEnabled,
+        debugPaintTextLayoutBoxes;
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'config/init.dart';
@@ -14,6 +20,17 @@ const String appEnv = String.fromEnvironment('APP_ENV', defaultValue: 'pro');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 防止 Inspector 的渲染辅助线遗留到真机调试会话中：启动时归零一次即可。
+  // 每帧重置会让 DevTools 的对应开关永久失效，故不用 persistentFrameCallback。
+  // assert 在 profile/release 构建中不会执行，因此不改变正式包行为。
+  assert(() {
+    debugPaintBaselinesEnabled = false;
+    debugPaintSizeEnabled = false;
+    debugPaintTextLayoutBoxes = false;
+    debugPaintLayerBordersEnabled = false;
+    return true;
+  }());
 
   await bootstrap();
 }

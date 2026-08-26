@@ -73,9 +73,8 @@ class _SignupPageState extends ConsumerState<SignupPage>
     final notifier = ref.read(passportProvider.notifier);
     final height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      backgroundColor: _isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      body: Stack(
+    return CupertinoPageScaffold(
+      child: Stack(
         children: [
           Positioned(
             top: -height * .15,
@@ -120,14 +119,14 @@ class _SignupPageState extends ConsumerState<SignupPage>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TextButton(
+                      CupertinoButton(
                         onPressed: () => context.go(AppRoutes.signIn),
                         child: Text(
                           t.main.siginQ,
                           style: const TextStyle(color: AppColors.iosGray),
                         ),
                       ),
-                      TextButton(
+                      CupertinoButton(
                         onPressed: () => context.go(AppRoutes.signIn),
                         child: Text(
                           t.account.login,
@@ -197,6 +196,8 @@ class _SignupPageState extends ConsumerState<SignupPage>
       child: Column(
         children: [
           TextField(
+            enableSuggestions: false,
+            autocorrect: false,
             controller: _nicknameController,
             style: TextStyle(
               color: _isDark
@@ -209,11 +210,13 @@ class _SignupPageState extends ConsumerState<SignupPage>
             autofillHints: const [AutofillHints.nickname],
             decoration: _getInputDecoration(
               hintText: t.account.nicknameHint,
-              prefixIcon: Icons.person_outline,
+              prefixIcon: CupertinoIcons.person,
             ),
           ),
           const SizedBox(height: 15),
           TextField(
+            enableSuggestions: false,
+            autocorrect: false,
             controller: _emailController,
             style: TextStyle(
               color: _isDark
@@ -226,11 +229,13 @@ class _SignupPageState extends ConsumerState<SignupPage>
             autofillHints: const [AutofillHints.email],
             decoration: _getInputDecoration(
               hintText: t.passport.hintEmail,
-              prefixIcon: Icons.email,
+              prefixIcon: CupertinoIcons.mail,
             ),
           ),
           const SizedBox(height: 15),
           TextField(
+            enableSuggestions: false,
+            autocorrect: false,
             controller: _passwordController,
             style: TextStyle(
               color: _isDark
@@ -242,15 +247,15 @@ class _SignupPageState extends ConsumerState<SignupPage>
             autofillHints: const [AutofillHints.newPassword],
             decoration: _getInputDecoration(
               hintText: t.passport.hintPassword,
-              prefixIcon: Icons.lock,
+              prefixIcon: CupertinoIcons.lock,
               suffixIcon: IconButton(
                 tooltip: state.loginPwdObscure
                     ? t.common.showPassword
                     : t.common.hidePassword,
                 icon: Icon(
                   state.loginPwdObscure
-                      ? Icons.visibility
-                      : Icons.visibility_off,
+                      ? CupertinoIcons.eye
+                      : CupertinoIcons.eye_slash,
                 ),
                 onPressed: () => notifier.toggleLoginPwdObscure(),
               ),
@@ -260,7 +265,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
+            child: CupertinoButton.filled(
               onPressed: (_isLoading || !isEnabled)
                   ? null
                   : () async {
@@ -321,6 +326,8 @@ class _SignupPageState extends ConsumerState<SignupPage>
       child: Column(
         children: [
           TextField(
+            enableSuggestions: false,
+            autocorrect: false,
             controller: _nicknameController,
             style: TextStyle(
               color: _isDark
@@ -333,7 +340,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
             autofillHints: const [AutofillHints.nickname],
             decoration: _getInputDecoration(
               hintText: t.account.nicknameHint,
-              prefixIcon: Icons.person_outline,
+              prefixIcon: CupertinoIcons.person,
             ),
           ),
           const SizedBox(height: 15),
@@ -361,6 +368,8 @@ class _SignupPageState extends ConsumerState<SignupPage>
           ),
           const SizedBox(height: 15),
           TextField(
+            enableSuggestions: false,
+            autocorrect: false,
             controller: _passwordController,
             style: TextStyle(
               color: _isDark
@@ -372,15 +381,15 @@ class _SignupPageState extends ConsumerState<SignupPage>
             autofillHints: const [AutofillHints.newPassword],
             decoration: _getInputDecoration(
               hintText: t.passport.hintPassword,
-              prefixIcon: Icons.lock,
+              prefixIcon: CupertinoIcons.lock,
               suffixIcon: IconButton(
                 tooltip: state.loginPwdObscure
                     ? t.common.showPassword
                     : t.common.hidePassword,
                 icon: Icon(
                   state.loginPwdObscure
-                      ? Icons.visibility
-                      : Icons.visibility_off,
+                      ? CupertinoIcons.eye
+                      : CupertinoIcons.eye_slash,
                 ),
                 onPressed: () => notifier.toggleLoginPwdObscure(),
               ),
@@ -390,7 +399,7 @@ class _SignupPageState extends ConsumerState<SignupPage>
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
+            child: CupertinoButton.filled(
               onPressed: (_isLoading || !isEnabled)
                   ? null
                   : () async {

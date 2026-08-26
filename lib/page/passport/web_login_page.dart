@@ -10,13 +10,13 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:imboy/component/ui/debounce_button.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -460,7 +460,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             Row(
               children: [
                 const Icon(
-                  Icons.chat_bubble_outline,
+                  CupertinoIcons.chat_bubble,
                   size: 48,
                   color: AppColors.primary,
                 ),
@@ -478,25 +478,25 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             const SizedBox(height: 60),
             // 功能说明
             _buildFeatureItem(
-              Icons.devices,
+              CupertinoIcons.device_phone_portrait,
               t.chat.webFeatureMultiDevice,
               t.chat.webFeatureMultiDeviceDesc,
             ),
             AppSpacing.verticalXXLarge,
             _buildFeatureItem(
-              Icons.lock_outline,
+              CupertinoIcons.lock,
               t.chat.webFeatureE2EE,
               t.chat.webFeatureE2EEDesc,
             ),
             AppSpacing.verticalXXLarge,
             _buildFeatureItem(
-              Icons.notifications_outlined,
+              CupertinoIcons.bell,
               t.common.webFeatureNotification,
               t.common.webFeatureNotificationDesc,
             ),
             AppSpacing.verticalXXLarge,
             _buildFeatureItem(
-              Icons.attach_file,
+              CupertinoIcons.paperclip,
               t.chat.webFeatureFileTransfer,
               t.chat.webFeatureFileTransferDesc,
             ),
@@ -573,7 +573,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               _buildQRLoginSection(qrState),
               AppSpacing.verticalXLarge,
               // 切换到密码登录
-              TextButton(
+              CupertinoButton(
                 onPressed: () {
                   // 停止二维码轮询
                   ref.read(qRLoginProvider.notifier)._stopPolling();
@@ -592,7 +592,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               _buildPasswordLoginSection(passportState, passportNotifier),
               AppSpacing.verticalXLarge,
               // 切换回 QR 码登录
-              TextButton(
+              CupertinoButton(
                 onPressed: () {
                   setState(() => _showPasswordLogin = false);
                   ref.read(qRLoginProvider.notifier).generateQRCode();
@@ -652,16 +652,17 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         // 刷新按钮（过期时显示）
         if (qrState.status == QRLoginStatus.expired ||
             qrState.status == QRLoginStatus.failed)
-          ElevatedButton.icon(
+          CupertinoButton(
             onPressed: () => ref.read(qRLoginProvider.notifier).refresh(),
-            icon: const Icon(Icons.refresh),
-            label: Text(t.main.webQRRefresh),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
+            borderRadius: BorderRadius.circular(24),
+            color: AppColors.primary,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(CupertinoIcons.arrow_clockwise),
+                const SizedBox(width: 8),
+                Text(t.main.webQRRefresh),
+              ],
             ),
           ),
         // 倒计时
@@ -682,9 +683,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
     switch (qrState.status) {
       case QRLoginStatus.waiting:
         if (qrState.qrData == null) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
+          return const Center(child: CupertinoActivityIndicator());
         }
         // 私有 scheme 包装，便于手机端 scanner 通过 detectQrLoginIntent 识别
         // 为 web 登录 QR（与 user/group/channel HTTP URL 名片命名空间隔离）。
@@ -705,7 +704,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.smartphone,
+                  CupertinoIcons.device_phone_portrait,
                   size: 64,
                   color: AppColors.primary,
                 ),
@@ -735,7 +734,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(color: AppColors.primary),
+              const CupertinoActivityIndicator(),
               AppSpacing.verticalRegular,
               Text(
                 t.main.webQRLoggingIn,
@@ -756,7 +755,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.qr_code_scanner,
+                  CupertinoIcons.qrcode_viewfinder,
                   size: 64,
                   color: AppColors.lightTextDisabled,
                 ),
@@ -781,7 +780,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.error_outline,
+                  CupertinoIcons.exclamationmark_circle,
                   size: 64,
                   color: AppColors.iosRed,
                 ),
@@ -805,7 +804,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(
-                Icons.check_circle,
+                CupertinoIcons.checkmark_circle,
                 size: 64,
                 color: AppColors.primary,
               ),
@@ -831,22 +830,22 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
     switch (qrState.status) {
       case QRLoginStatus.waiting:
         text = t.chat.webQRStatusWaiting;
-        icon = Icons.qr_code_scanner;
+        icon = CupertinoIcons.qrcode_viewfinder;
       case QRLoginStatus.scanned:
         text = t.chat.webQRStatusScanned;
-        icon = Icons.smartphone;
+        icon = CupertinoIcons.device_phone_portrait;
       case QRLoginStatus.confirming:
         text = t.chat.webQRStatusVerifying;
-        icon = Icons.hourglass_empty;
+        icon = CupertinoIcons.clock;
       case QRLoginStatus.expired:
         text = t.chat.webQRStatusExpired;
-        icon = Icons.refresh;
+        icon = CupertinoIcons.arrow_clockwise;
       case QRLoginStatus.failed:
         text = qrState.errorMessage ?? t.common.webQRStatusFailed;
-        icon = Icons.error_outline;
+        icon = CupertinoIcons.exclamationmark_circle;
       case QRLoginStatus.success:
         text = t.common.webQRStatusSuccess;
-        icon = Icons.check_circle;
+        icon = CupertinoIcons.checkmark_circle;
     }
 
     return Row(
@@ -887,12 +886,17 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         AppSpacing.verticalXXLarge,
         // 账号输入
         TextField(
+          enableSuggestions: false,
+          autocorrect: false,
           controller: _accountController,
           style: TextStyle(color: AppColors.darkTextPrimary),
           decoration: InputDecoration(
             hintText: t.account.webAccountHint,
             hintStyle: const TextStyle(color: AppColors.darkTextDisabled),
-            prefixIcon: Icon(Icons.person, color: AppColors.darkTextDisabled),
+            prefixIcon: Icon(
+              CupertinoIcons.person,
+              color: AppColors.darkTextDisabled,
+            ),
             filled: true,
             fillColor: AppColors.darkSurfaceContainerHighest,
             border: OutlineInputBorder(
@@ -904,6 +908,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         AppSpacing.verticalRegular,
         // 密码输入
         TextField(
+          enableSuggestions: false,
+          autocorrect: false,
           controller: _passwordController,
           obscureText: passportState.loginPwdObscure,
           style: TextStyle(color: AppColors.darkTextPrimary),
@@ -911,7 +917,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             hintText: t.account.webPasswordHint,
             hintStyle: const TextStyle(color: AppColors.darkTextDisabled),
             prefixIcon: const Icon(
-              Icons.lock,
+              CupertinoIcons.lock,
               color: AppColors.darkTextDisabled,
             ),
             suffixIcon: IconButton(
@@ -920,8 +926,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
                   : t.common.hidePassword,
               icon: Icon(
                 passportState.loginPwdObscure
-                    ? Icons.visibility
-                    : Icons.visibility_off,
+                    ? CupertinoIcons.eye
+                    : CupertinoIcons.eye_slash,
                 color: AppColors.darkTextDisabled,
               ),
               onPressed: () => passportNotifier.toggleLoginPwdObscure(),
@@ -939,18 +945,15 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         SizedBox(
           width: double.infinity,
           height: 48,
-          child: DebounceButton(
-            text: t.account.login,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
+          child: CupertinoButton.filled(
+            borderRadius: BorderRadius.circular(24),
+            child: Text(
+              t.account.login,
+              style: context.textStyle(
+                FontSizeType.medium,
+                color: AppColors.onPrimary,
+                fontWeight: FontWeight.w600,
               ),
-            ),
-            textStyle: context.textStyle(
-              FontSizeType.medium,
-              color: AppColors.onPrimary,
-              fontWeight: FontWeight.w600,
             ),
             onPressed: () async {
               final account = _accountController.text;
@@ -982,7 +985,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         ),
         AppSpacing.verticalRegular,
         // 忘记密码
-        TextButton(
+        CupertinoButton(
           onPressed: () => context.push(AppRoutes.forgotPassword),
           child: Text(
             t.account.forgotPassword,

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,9 +52,8 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
     final notifier = ref.read(passportProvider.notifier);
     final height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      backgroundColor: _isDark ? AppColors.darkSurface : null,
-      body: SizedBox(
+    return CupertinoPageScaffold(
+      child: SizedBox(
         height: height,
         child: Stack(
           children: [
@@ -128,6 +128,8 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
     return Column(
       children: [
         TextField(
+          enableSuggestions: false,
+          autocorrect: false,
           controller: _emailController,
           style: TextStyle(
             color: _isDark
@@ -137,7 +139,10 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
             hintText: t.main.pleaseInputParam(param: t.account.email),
-            prefixIcon: const Icon(Icons.email, color: AppColors.primary),
+            prefixIcon: const Icon(
+              CupertinoIcons.mail,
+              color: AppColors.primary,
+            ),
             filled: true,
             fillColor: _inputFill,
             border: OutlineInputBorder(
@@ -152,14 +157,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
         SizedBox(
           width: double.infinity,
           height: 50,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
+          child: CupertinoButton(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(8),
             onPressed: () async {
               FocusScope.of(context).unfocus();
               final email = _emailController.text;
@@ -229,14 +229,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
         SizedBox(
           width: double.infinity,
           height: 50,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
+          child: CupertinoButton(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(8),
             onPressed: () async {
               FocusScope.of(context).unfocus();
               if (_fullMobile.isEmpty) {

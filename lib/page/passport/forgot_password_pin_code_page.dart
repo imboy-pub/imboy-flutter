@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,9 +66,6 @@ class _PinCodeVerificationPageState
     final notifier = ref.read(passportProvider.notifier);
     final t = context.t;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark
-        ? AppColors.darkSurface
-        : AppColors.lightSurface;
     final surfaceContainerColor = isDark
         ? AppColors.darkSurfaceContainer
         : AppColors.lightSurfaceContainer;
@@ -80,9 +78,8 @@ class _PinCodeVerificationPageState
     final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
     final errorColor = isDark ? AppColors.darkError : AppColors.lightError;
 
-    return Scaffold(
-      backgroundColor: surfaceColor,
-      body: SizedBox(
+    return CupertinoPageScaffold(
+      child: SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Stack(
           children: [
@@ -101,9 +98,7 @@ class _PinCodeVerificationPageState
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 0),
-                      decoration: BoxDecoration(
-                        borderRadius: AppRadius.borderRadiusSmall,
-                      ),
+                      decoration: BoxDecoration(),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -144,7 +139,7 @@ class _PinCodeVerificationPageState
                               pinController: _pinController,
                               obscureText: true,
                               obscuringWidget: Icon(
-                                Icons.safety_check,
+                                CupertinoIcons.shield,
                                 color: AppColors.primary,
                                 size: 24,
                               ),
@@ -200,7 +195,7 @@ class _PinCodeVerificationPageState
                                 ),
                               ),
                               Expanded(
-                                child: TextButton(
+                                child: CupertinoButton(
                                   onPressed: () async {
                                     String? res = await notifier.sendCode(
                                       widget.accountType,
@@ -221,7 +216,7 @@ class _PinCodeVerificationPageState
                                           ),
                                         ),
                                         icon: const Icon(
-                                          Icons.check_circle,
+                                          CupertinoIcons.checkmark_circle,
                                           color: AppColors.onPrimary,
                                         ),
                                       );
@@ -321,7 +316,8 @@ class _PinCodeVerificationPageState
                             child: SizedBox(
                               width: double.infinity,
                               height: 52,
-                              child: ElevatedButton(
+                              child: CupertinoButton(
+                                color: AppColors.primary,
                                 onPressed: () async {
                                   FocusScope.of(context).unfocus();
                                   if (currentText.length != 6) {
@@ -359,14 +355,6 @@ class _PinCodeVerificationPageState
                                     });
                                   }
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: AppColors.onPrimary,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: AppRadius.borderRadiusRegular,
-                                  ),
-                                ),
                                 child: Text(
                                   t.main.setParam(param: t.account.password),
                                   style: context.textStyle(
