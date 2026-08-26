@@ -511,12 +511,12 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+					TARGETED_DEVICE_FAMILY = "1,2";
+					VALIDATE_PRODUCT = YES;
+				};
+				name = Profile;
 			};
-			name = Profile;
-		};
 		249021D4217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
@@ -651,11 +651,11 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+					TARGETED_DEVICE_FAMILY = "1,2";
+					VALIDATE_PRODUCT = YES;
+				};
+				name = Release;
 		};
 		97C147061CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;
