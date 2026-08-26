@@ -194,13 +194,6 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     await _loadFiles();
   }
 
-  Future<void> _clearSearch() async {
-    if (_searchController.text.isEmpty && _keyword.isEmpty) return;
-    _searchController.clear();
-    setState(() => _keyword = '');
-    await _loadFiles();
-  }
-
   Future<void> _selectCategory(String category) async {
     if (_selectedCategory == category) return;
     setState(() => _selectedCategory = category);
@@ -534,32 +527,10 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   Widget _buildSearchBar() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: TextField(
+      child: CupertinoSearchTextField(
         controller: _searchController,
-        textInputAction: TextInputAction.search,
+        placeholder: t.common.groupFileSearch,
         onSubmitted: (_) => _applySearch(),
-        decoration: InputDecoration(
-          hintText: t.common.groupFileSearch,
-          prefixIcon: const Icon(CupertinoIcons.search),
-          suffixIcon: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (_searchController.text.isNotEmpty || _keyword.isNotEmpty)
-                IconButton(
-                  tooltip: t.common.groupFileSearchClear,
-                  icon: const Icon(CupertinoIcons.clear),
-                  onPressed: _clearSearch,
-                ),
-              IconButton(
-                tooltip: t.common.groupFileSearchAction,
-                icon: const Icon(CupertinoIcons.chevron_right),
-                onPressed: _applySearch,
-              ),
-            ],
-          ),
-          border: const OutlineInputBorder(),
-          isDense: true,
-        ),
         onChanged: (_) {
           if (mounted) {
             setState(() {});
