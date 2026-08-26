@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
-import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
@@ -15,7 +14,7 @@ import 'package:imboy/theme/default/font_types.dart';
 
 import 'change_info_provider.dart';
 
-/// 修改群信息页面
+/// 修改群信息页面 - iOS 风格
 class ChangeInfoPage extends ConsumerStatefulWidget {
   const ChangeInfoPage({
     super.key,
@@ -118,17 +117,6 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
               decoration: BoxDecoration(
                 color: isDark ? colorScheme.surface : AppColors.lightSurface,
                 borderRadius: AppRadius.borderRadiusMedium,
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: AppColors.darkBackground.withValues(
-                            alpha: 0.05,
-                          ),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
               ),
               child: Row(
                 children: [
@@ -152,65 +140,61 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                   ),
                   const SizedBox(width: AppSpacing.medium),
                   Expanded(
-                    child: TextField(
+                    child: CupertinoTextField(
                       focusNode: _inputFocusNode,
                       controller: _textController,
                       autofocus: true,
                       maxLines: 1,
                       maxLength: 80,
+                      placeholder: widget.group.title.isEmpty
+                          ? t.main.unnamed
+                          : '',
+                      placeholderStyle: context.textStyle(
+                        FontSizeType.medium,
+                        color: colorScheme.outline.withValues(alpha: 0.5),
+                      ),
                       style: context.textStyle(
                         FontSizeType.medium,
                         color: colorScheme.onSurface,
                       ),
-                      decoration: InputDecoration(
-                        counterText: '',
-                        border: InputBorder.none,
-                        hintText: widget.group.title.isEmpty
-                            ? t.main.unnamed
-                            : '',
-                        hintStyle: TextStyle(
-                          color: colorScheme.outline.withValues(alpha: 0.5),
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                      ),
+                      clearButtonMode: OverlayVisibilityMode.editing,
                       onChanged: (value) {
                         ref.read(changeInfoProvider.notifier).updateText(value);
                       },
-                    ),
-                  ),
-                  Visibility(
-                    visible: state.text.isNotEmpty,
-                    child: GestureDetector(
-                      onTap: () {
-                        _textController.text = '';
-                        ref.read(changeInfoProvider.notifier).clearText();
-                      },
-                      child: Icon(
-                        CupertinoIcons.xmark_circle_fill,
-                        color: colorScheme.outline.withValues(alpha: 0.5),
-                        size: 20,
-                      ),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 40),
-            RoundedElevatedButton(
-              text: t.common.buttonAccomplish,
-              highlighted: state.valueChanged,
-              onPressed: () async {
-                FocusScope.of(context).unfocus();
-                // 提前保存 context 引用
-                final navigator = Navigator.of(context);
-                GroupModel? g = await ref
-                    .read(changeInfoProvider.notifier)
-                    .saveGroupInfo(widget.group.groupId.toString());
-                if (g != null && mounted) {
-                  AppLoading.showSuccess(t.common.tipSuccess);
-                  navigator.pop(g);
-                }
-              },
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: CupertinoButton.filled(
+                borderRadius: BorderRadius.circular(25),
+                onPressed: state.valueChanged
+                    ? () async {
+                        FocusScope.of(context).unfocus();
+                        // 提前保存 context 引用
+                        final navigator = Navigator.of(context);
+                        GroupModel? g = await ref
+                            .read(changeInfoProvider.notifier)
+                            .saveGroupInfo(widget.group.groupId.toString());
+                        if (g != null && mounted) {
+                          AppLoading.showSuccess(t.common.tipSuccess);
+                          navigator.pop(g);
+                        }
+                      }
+                    : null,
+                child: Text(
+                  t.common.buttonAccomplish,
+                  style: context.textStyle(
+                    FontSizeType.body,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.onPrimary,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
