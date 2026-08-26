@@ -18,6 +18,10 @@ class Keys {
   static const String uploadScene = "upload_scene";
   // 公开资源（scope=public，如头像/表情）直读基址，由 /api/v1/init 下发
   static const String publicBaseUrl = "public_base_url";
+  // 产品体验（chat|workspace），由 /api/v1/init 的 effective_product_experience
+  // 字段下发（T1）；缺失/未知值由消费方 experience_provider 降级 chat
+  static const String effectiveProductExperience =
+      "effective_product_experience";
   static const String appFeatures = "app_features";
   static const String appManifest = "app_manifest";
   static const String appManifestEtag = "app_manifest_etag";

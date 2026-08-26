@@ -224,12 +224,17 @@ GoRouter createAppRouter({
       ),
 
       // ==================== 主框架 ====================
+      // T2 (WP1)：Chat 体验壳挂载点——experience=chat（/api/v1/init 的
+      // effective_product_experience，缺失/未知值降级 chat）时渲染现状首页：
+      // 移动端 BottomNavigationPage / 桌面端 WebShellBootstrap，宽度自适应。
+      // experience=workspace 是 WP5 (T8) WorkspaceShell 的扩展点（本期不落 UI）。
+      // 路由 path/name 不变，仅包壳，既有导航入口零改动。
       GoRoute(
         path: '/bottom_navigation',
         name: 'bottom_navigation',
         pageBuilder: (context, state) => CupertinoPage(
           key: state.pageKey,
-          child: const BottomNavigationPage(),
+          child: const ChatShellBootstrap(),
         ),
       ),
       // Web Shell 三栏壳（Phase 1.1.h.1+i）— Web 登录成功后跳转的入口

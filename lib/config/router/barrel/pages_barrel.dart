@@ -16,6 +16,8 @@ export 'package:imboy/modules/identity/public.dart';
 export 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 // Web Shell 三栏壳（Phase 1.1.h.1+i）— 桌面 IM 入口
 export 'package:imboy/page/web_shell/web_shell.dart';
+// Chat 体验壳（T2）— experience=chat 的现状包壳入口（/bottom_navigation 挂载）
+export 'package:imboy/page/chat_shell/chat_shell.dart';
 
 // ============================================================================
 // 会话和聊天
