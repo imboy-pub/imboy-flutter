@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -83,19 +84,7 @@ class ChannelOrderDetailPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(brightness),
-      appBar: AppBar(
-        backgroundColor: AppColors.getBackgroundColor(brightness),
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(
-          t.channel.orderDetail,
-          style: context.textStyle(
-            FontSizeType.extraLarge,
-            fontWeight: FontWeight.w700,
-            color: AppColors.getTextColor(brightness),
-          ),
-        ),
-      ),
+      appBar: GlassAppBar(title: t.channel.orderDetail),
       body: async.when(
         loading: () => const ShimmerList(),
         error: (_, _) => NoDataView(
@@ -234,17 +223,17 @@ class _OrderDetailBody extends ConsumerWidget {
 
   Future<void> _onRefund(BuildContext context, WidgetRef ref) async {
     final t = context.t;
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.channel.refundConfirmTitle),
         content: Text(t.channel.refundConfirmMessage),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(t.common.buttonCancel),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(t.common.buttonConfirm),
           ),
@@ -267,17 +256,17 @@ class _OrderDetailBody extends ConsumerWidget {
 
   Future<void> _onCancel(BuildContext context, WidgetRef ref) async {
     final t = context.t;
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.channel.cancelOrderConfirmTitle),
         content: Text(t.channel.cancelOrderConfirmMessage),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(t.common.buttonCancel),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(t.common.buttonConfirm),
           ),

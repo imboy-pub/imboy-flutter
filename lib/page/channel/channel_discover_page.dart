@@ -186,13 +186,15 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
           Container(
             padding: const EdgeInsets.all(AppSpacing.regular),
             child: TextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: t.channel.searchHint,
                 prefixIcon: const Icon(CupertinoIcons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: const Icon(CupertinoIcons.xmark_circle_fill),
                         tooltip: t.common.clear,
                         onPressed: () {
                           _debounceTimer?.cancel();
@@ -344,7 +346,7 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
     if (_recommendedChannels.isEmpty) {
       return NoDataView(
-        icon: Icons.campaign_outlined,
+        icon: CupertinoIcons.speaker_2,
         text: t.channel.noRecommendedChannels,
       );
     }
@@ -375,11 +377,11 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     final t = context.t;
 
     if (_isSearching) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
 
     if (_searchResults.isEmpty) {
-      return NoDataView(icon: Icons.search_off, text: t.channel.noResults);
+      return NoDataView(icon: CupertinoIcons.search, text: t.channel.noResults);
     }
 
     return ListView.builder(
@@ -427,17 +429,17 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     final t = context.t;
     final channelIdStr = channel.id.toString();
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.channel.unsubscribeConfirm),
         content: Text(t.channel.unsubscribeConfirmDesc),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(t.common.buttonCancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.common.confirm),
           ),
@@ -545,7 +547,7 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
               ? cachedImageProvider(widget.channel.avatar!, w: 96)
               : null,
           child: widget.channel.avatar == null || widget.channel.avatar!.isEmpty
-              ? const Icon(Icons.campaign, size: 24)
+              ? const Icon(CupertinoIcons.speaker_2, size: 24)
               : null,
         ),
         title: Row(
@@ -561,7 +563,7 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
               Container(
                 margin: const EdgeInsets.only(left: AppSpacing.tiny),
                 child: const Icon(
-                  Icons.verified,
+                  CupertinoIcons.checkmark_seal_fill,
                   size: 16,
                   color: AppColors.primary,
                 ),
@@ -584,7 +586,11 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
             AppSpacing.verticalTiny,
             Row(
               children: [
-                Icon(Icons.people_outline, size: 14, color: AppColors.iosGray),
+                Icon(
+                  CupertinoIcons.person_2,
+                  size: 14,
+                  color: AppColors.iosGray,
+                ),
                 AppSpacing.horizontalTiny,
                 Text(
                   '$displayCount ${t.channel.subscribers}',
@@ -645,11 +651,9 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
                           ? const SizedBox(
                               width: 12,
                               height: 12,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.5,
-                              ),
+                              child: CupertinoActivityIndicator(),
                             )
-                          : const Icon(Icons.check, size: 14),
+                          : const Icon(CupertinoIcons.checkmark, size: 14),
                       label: Text(t.channel.subscribed),
                     )
                   : FilledButton(
@@ -670,11 +674,10 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
                         visualDensity: VisualDensity.compact,
                       ),
                       child: _isSubmitting
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 12,
                               height: 12,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.5,
+                              child: CupertinoActivityIndicator(
                                 color: AppColors.onPrimary,
                               ),
                             )

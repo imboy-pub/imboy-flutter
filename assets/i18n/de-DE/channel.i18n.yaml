@@ -134,3 +134,14 @@ noMessagesSubscribedDesc: Erfolgreich abonniert! Bitte warte auf neue Beiträge 
 continueEditing: Weiter bearbeiten
 publishFirstContent: Ersten Inhalt veröffentlichen
 noSubscribersDesc: Noch keine Abonnenten. Teile den Kanal mit deinen Freunden
+emoji: "Emoji"
+justNow: "Gerade eben"
+minutesAgo: "Min."
+hoursAgo: "Std."
+weeksAgo: "Wo."
+visibilityLabel: "Sichtbarkeit"
+accessTypeLabel: "Preismodell"
+accessTypeFree: "Kostenlos"
+accessTypePaid: "Kostenpflichtig"
+typePublicPaidDesc: "Jeder kann den Kanal entdecken und nach dem Kauf abonnieren"
+typePrivatePaidDesc: "Nur eingeladene Nutzer können den Kaufvorgang starten und nach Zahlung abonnieren"

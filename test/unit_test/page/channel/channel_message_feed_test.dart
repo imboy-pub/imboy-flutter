@@ -37,6 +37,10 @@ ChannelModel _channel({
   userRole: role,
   isSubscribed: subscribed,
   hasPurchased: hasPurchased,
+  // 正交访问模型：公开免费组合（C1），缺省 -1 哨兵会 fail-closed 落访客分支
+  visibility: 0,
+  accessType: 0,
+  joinPolicy: 0,
   creatorId: 1,
   createdAt: DateTime(2024, 1, 1),
   updatedAt: DateTime(2024, 1, 1),

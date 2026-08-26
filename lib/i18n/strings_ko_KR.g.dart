@@ -379,6 +379,17 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get continueEditing => '편집 계속하기';
 	@override String get publishFirstContent => '첫 콘텐츠 게시';
 	@override String get noSubscribersDesc => '아직 구독자가 없습니다. 친구에게 채널을 공유해 보세요';
+	@override String get emoji => '이모지';
+	@override String get justNow => '방금';
+	@override String get minutesAgo => '분 전';
+	@override String get hoursAgo => '시간 전';
+	@override String get weeksAgo => '주 전';
+	@override String get visibilityLabel => '공개 범위';
+	@override String get accessTypeLabel => '유료 설정';
+	@override String get accessTypeFree => '무료';
+	@override String get accessTypePaid => '유료';
+	@override String get typePublicPaidDesc => '누구나 채널을 찾을 수 있으며 구매 후 구독할 수 있습니다';
+	@override String get typePrivatePaidDesc => '초대된 사용자만 구매 절차를 진행할 수 있으며 결제 후 구독됩니다';
 }
 
 // Path: chat
@@ -2888,6 +2899,17 @@ extension on TranslationsKoKr {
 			'channel.continueEditing' => '편집 계속하기',
 			'channel.publishFirstContent' => '첫 콘텐츠 게시',
 			'channel.noSubscribersDesc' => '아직 구독자가 없습니다. 친구에게 채널을 공유해 보세요',
+			'channel.emoji' => '이모지',
+			'channel.justNow' => '방금',
+			'channel.minutesAgo' => '분 전',
+			'channel.hoursAgo' => '시간 전',
+			'channel.weeksAgo' => '주 전',
+			'channel.visibilityLabel' => '공개 범위',
+			'channel.accessTypeLabel' => '유료 설정',
+			'channel.accessTypeFree' => '무료',
+			'channel.accessTypePaid' => '유료',
+			'channel.typePublicPaidDesc' => '누구나 채널을 찾을 수 있으며 구매 후 구독할 수 있습니다',
+			'channel.typePrivatePaidDesc' => '초대된 사용자만 구매 절차를 진행할 수 있으며 결제 후 구독됩니다',
 			'chat.bankCard' => '은행 카드',
 			'chat.cards' => '장',
 			'chat.jdShopping' => 'JD 쇼핑',
@@ -3110,6 +3132,8 @@ extension on TranslationsKoKr {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '결제 시간: ${time}',
 			'chat.orderStatusPending' => '결제 대기',
 			'chat.orderStatusPaid' => '결제 완료',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderStatusRefunded' => '환불됨',
 			'chat.orderStatusExpired' => '만료됨',
 			'chat.defaultFileName' => '파일',
@@ -3121,8 +3145,6 @@ extension on TranslationsKoKr {
 			'chat.e2eeCreatedAtLabel' => '생성 시간',
 			'chat.e2eeGeneratingKey' => '키를 생성하는 중입니다. 잠시만 기다려 주세요...',
 			'chat.e2eeNewKeyGenerated' => '새 E2EE 키 쌍이 생성되었습니다!',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeReady' => '준비 완료',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '준비 완료 (샤드 ${count}개)',
 			'chat.webFeatureMultiDevice' => '다중 기기 동기화',
@@ -3624,6 +3646,8 @@ extension on TranslationsKoKr {
 			'common.whatYourFeedback' => '피드백은 무엇입니까?',
 			'common.yesterday' => '어제',
 			'common.yourContactInformation' => '연락처 정보',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmRemove' => '제거 확인',
 			'common.confirmRemoveFromDenylist' => '이 사용자를 차단 목록에서 제거하시겠습니까?',
 			'common.buttonRemove' => '제거',
@@ -3635,8 +3659,6 @@ extension on TranslationsKoKr {
 			'common.confirmChange' => '변경 확인',
 			'common.verificationCodeSentToEmail' => '인증 코드가 이 이메일로 전송됩니다. 유효 기간 내에 확인을 완료해 주세요.',
 			'common.verificationCodeSentToMobile' => '인증 코드가 이 휴대폰으로 전송됩니다. 유효 기간 내에 확인을 완료해 주세요.',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => '올바른 이메일 주소를 입력해 주세요',
 			'common.pleaseEnter6DigitVerificationCode' => '6자리 인증 코드를 입력해 주세요',
 			'common.verificationCodeSent' => '인증 코드가 전송되었습니다',
@@ -4138,6 +4160,8 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupImportantNoteColon' => '중요 안내',
 			'common.e2eeBackupKeepSafe' => '• 백업 파일과 비밀번호를 안전하게 보관하세요',
 			'common.e2eeBackupStoreMultipleLoc' => '• 파일을 여러 안전한 위치에 보관하세요',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• 비밀번호는 복구할 수 없으니 반드시 기억해주세요',
 			'common.e2eeBackupImportTitle' => 'E2EE 백업 가져오기',
 			'common.e2eeBackupImportGuide' => '가져오기 안내',
@@ -4149,8 +4173,6 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupVersionLabel' => '버전',
 			'common.e2eeBackupAlgorithmLabel' => '알고리즘',
 			'common.e2eeBackupFileSizeLabel' => '파일 크기',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ 파일 형식이 유효합니다',
 			'common.e2eeBackupImportPwdHint' => '백업 시 설정한 비밀번호를 입력하세요',
 			'common.e2eeBackupImportBtn' => '키 가져오기',
@@ -4652,6 +4674,8 @@ extension on TranslationsKoKr {
 			'main.markStar' => '즐겨찾기',
 			'main.markStarDesc' => '이 메시지를 즐겨찾기에 추가',
 			'main.markTodo' => '할 일',
+			_ => null,
+		} ?? switch (path) {
 			'main.markTodoDesc' => '할 일로 표시',
 			'main.multiSelect' => '다중 선택',
 			'main.multiSelectMode' => '다중 선택 모드',
@@ -4663,8 +4687,6 @@ extension on TranslationsKoKr {
 			'main.or' => '또는',
 			'main.otherParty' => '상대방',
 			'main.packageSize' => '패키지 크기',
-			_ => null,
-		} ?? switch (path) {
 			'main.peerHasHungUp' => '상대방이 전화를 끊었습니다',
 			'main.play' => '재생',
 			'main.pleaseInputParam' => ({required Object param}) => '${param}을(를) 입력해 주세요',

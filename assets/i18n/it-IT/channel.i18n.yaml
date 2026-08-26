@@ -134,3 +134,14 @@ noMessagesSubscribedDesc: Iscrizione completata! Attendi i nuovi contenuti dell'
 continueEditing: Continua a modificare
 publishFirstContent: Pubblica il primo contenuto
 noSubscribersDesc: Nessun iscritto, condividi il canale con i tuoi amici
+emoji: "Emoji"
+justNow: "Proprio ora"
+minutesAgo: "min fa"
+hoursAgo: "ore fa"
+weeksAgo: "settimane fa"
+visibilityLabel: "Visibilità"
+accessTypeLabel: "Prezzo"
+accessTypeFree: "Gratuito"
+accessTypePaid: "A pagamento"
+typePublicPaidDesc: "Chiunque può scoprire il canale e abbonarsi dopo l'acquisto"
+typePrivatePaidDesc: "Solo gli utenti invitati possono accedere all'acquisto e abbonarsi dopo il pagamento"

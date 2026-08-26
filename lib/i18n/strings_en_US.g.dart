@@ -402,6 +402,17 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get allCategories => 'All';
 	@override String get sortPopular => 'Popular';
 	@override String get sortNewest => 'Newest';
+	@override String get emoji => 'Emoji';
+	@override String get justNow => 'Just now';
+	@override String get minutesAgo => 'min ago';
+	@override String get hoursAgo => 'hours ago';
+	@override String get weeksAgo => 'weeks ago';
+	@override String get visibilityLabel => 'Visibility';
+	@override String get accessTypeLabel => 'Pricing';
+	@override String get accessTypeFree => 'Free';
+	@override String get accessTypePaid => 'Paid';
+	@override String get typePublicPaidDesc => 'Anyone can discover the channel and subscribe after purchase';
+	@override String get typePrivatePaidDesc => 'Only invited users can enter the purchase flow and subscribe after payment';
 }
 
 // Path: chat
@@ -3027,6 +3038,17 @@ extension on TranslationsEnUs {
 			'channel.allCategories' => 'All',
 			'channel.sortPopular' => 'Popular',
 			'channel.sortNewest' => 'Newest',
+			'channel.emoji' => 'Emoji',
+			'channel.justNow' => 'Just now',
+			'channel.minutesAgo' => 'min ago',
+			'channel.hoursAgo' => 'hours ago',
+			'channel.weeksAgo' => 'weeks ago',
+			'channel.visibilityLabel' => 'Visibility',
+			'channel.accessTypeLabel' => 'Pricing',
+			'channel.accessTypeFree' => 'Free',
+			'channel.accessTypePaid' => 'Paid',
+			'channel.typePublicPaidDesc' => 'Anyone can discover the channel and subscribe after purchase',
+			'channel.typePrivatePaidDesc' => 'Only invited users can enter the purchase flow and subscribe after payment',
 			'chat.bankCard' => 'Bank Card',
 			'chat.cards' => 'cards',
 			'chat.jdShopping' => 'JD Shopping',
@@ -3218,6 +3240,8 @@ extension on TranslationsEnUs {
 			'chat.setSignature' => 'Set Signature',
 			'chat.setAvatar' => 'Set Avatar',
 			'chat.fastForward' => ({required Object seconds}) => 'Fast Forward ${seconds}',
+			_ => null,
+		} ?? switch (path) {
 			'chat.messageId' => 'Message ID',
 			'chat.chatType' => 'Chat type',
 			'chat.voiceFileEmptyPleaseTryAgain' => 'Voice file is empty, please try again',
@@ -3229,8 +3253,6 @@ extension on TranslationsEnUs {
 			'chat.chatStatusSentDesc' => 'Message sent',
 			'chat.chatStatusDeliveredDesc' => 'Message delivered',
 			'chat.chatStatusSeenDesc' => 'Message seen',
-			_ => null,
-		} ?? switch (path) {
 			'chat.messageMute' => _root.chat.chatSettingMute,
 			'chat.sendingVoice' => 'Sending voice...',
 			'chat.deletingMessage' => 'Deleting...',
@@ -3732,6 +3754,8 @@ extension on TranslationsEnUs {
 			'common.unknownMessage' => 'Unknown message',
 			'common.updateLog' => 'Update log',
 			'common.updateNow' => 'Update now',
+			_ => null,
+		} ?? switch (path) {
 			'common.uploading' => 'Uploading',
 			'common.uploadSuccess' => 'Upload successful',
 			'common.uploadFailed' => 'Upload failed',
@@ -3743,8 +3767,6 @@ extension on TranslationsEnUs {
 			'common.userTagSaveView' => 'Save tags',
 			'common.verificationMessageSentByPeerIs' => ({required Object param}) => 'Verification message from the other party: ${param}',
 			'common.version' => 'Version',
-			_ => null,
-		} ?? switch (path) {
 			'common.videoCall' => 'Video call',
 			'common.viewAllGroupMember' => 'View all group members',
 			'common.voiceCall' => 'Voice call',
@@ -4246,6 +4268,8 @@ extension on TranslationsEnUs {
 			'common.e2eePeerKeyChanged' => 'This contact\'s safety number has changed (they may have reinstalled the app or switched devices). If security matters to you, verify their identity through another channel.',
 			'common.complianceKeyChangedTitle' => 'Compliance audit key has changed',
 			'common.complianceKeyChangedBody' => 'The compliance audit public key from the server does not match the locally pinned value. If this is an intentional key rotation by your administrator, tap "Confirm rotation". Otherwise, do not send encrypted messages and contact your administrator.',
+			_ => null,
+		} ?? switch (path) {
 			'common.complianceKeyChangedActionConfirm' => 'Confirm rotation',
 			'common.complianceKeyChangedActionKeep' => 'Not now',
 			'common.e2eeDecryptActionRecreateKey' => 'Recreate key (recommended)',
@@ -4257,8 +4281,6 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupPwdLabel' => 'Backup Password *',
 			'common.e2eeBackupPwdHint' => 'At least 12 chars, with upper/lowercase letters, numbers and special symbols',
 			'common.e2eeBackupConfirmPwdLabel' => 'Confirm Password *',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupConfirmPwdHint' => 'Enter password again',
 			'common.e2eeBackupNoteLabel' => 'Note (optional)',
 			'common.e2eeBackupNoteHint' => 'e.g. Main phone backup - Jan 2026',
@@ -4760,6 +4782,8 @@ extension on TranslationsEnUs {
 			'main.arSa' => 'Arabic (Saudi Arabia)',
 			'main.audio' => 'Audio',
 			'main.barcodeFound' => 'QR code detected',
+			_ => null,
+		} ?? switch (path) {
 			'main.botQianFan' => 'Qianfan Bot',
 			'main.liveRoomWhipLabel' => 'WHIP Stream URL',
 			'main.liveRoomWhepLabel' => 'WHEP Stream URL',
@@ -4771,8 +4795,6 @@ extension on TranslationsEnUs {
 			'main.clean' => 'Clean',
 			'main.codeSentToParam' => ({required Object param}) => 'Verification code sent to ${param}',
 			'main.codeSentToType' => ({required Object param}) => 'Verification code sent to ${param}',
-			_ => null,
-		} ?? switch (path) {
 			'main.collected' => 'Favorited',
 			'main.completed' => 'Completed',
 			'main.copied' => 'Copied',

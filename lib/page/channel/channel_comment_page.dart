@@ -15,6 +15,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 
 /// 频道消息评论页
 ///
@@ -276,7 +277,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
     final t = context.t;
 
     return Scaffold(
-      appBar: AppBar(title: Text('${t.channel.comment} (${_comments.length})')),
+      appBar: GlassAppBar(title: '${t.channel.comment} (${_comments.length})'),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -294,18 +295,18 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
 
   Widget _buildCommentList() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
     if (_loadError != null) {
       return NoDataView(
-        icon: Icons.cloud_off_outlined,
+        icon: CupertinoIcons.cloud,
         text: context.t.common.loadError,
         onTop: _loadComments,
       );
     }
     if (_comments.isEmpty) {
       return NoDataView(
-        icon: Icons.chat_bubble_outline,
+        icon: CupertinoIcons.chat_bubble,
         text: context.t.channel.noComments,
       );
     }
@@ -373,7 +374,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
                       GestureDetector(
                         onTap: _cancelReply,
                         child: Icon(
-                          Icons.close,
+                          CupertinoIcons.xmark_circle_fill,
                           size: 16,
                           color: AppColors.iosGray,
                         ),
@@ -429,9 +430,9 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CupertinoActivityIndicator(),
                 )
-              : const Icon(Icons.arrow_upward_rounded, size: 20),
+              : const Icon(CupertinoIcons.chevron_up, size: 20),
         ),
       ),
     );

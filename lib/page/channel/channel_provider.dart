@@ -756,7 +756,9 @@ class CreateChannelNotifier extends _$CreateChannelNotifier {
     required String name,
     String? description,
     String? avatar,
-    int type = 0,
+    int visibility = 0,
+    int accessType = 0,
+    int joinPolicy = 0,
     String? customId,
     List<String>? tags,
   }) async {
@@ -771,7 +773,9 @@ class CreateChannelNotifier extends _$CreateChannelNotifier {
         name: name,
         description: description,
         avatar: avatar,
-        type: type,
+        visibility: visibility,
+        accessType: accessType,
+        joinPolicy: joinPolicy,
         customId: customId,
         tags: tags,
       );

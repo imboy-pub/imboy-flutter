@@ -2,12 +2,27 @@ import 'dart:convert';
 
 import 'package:imboy/store/model/model_parse_utils.dart';
 
-/// 频道类型
-enum ChannelType {
-  public, // 公开频道 (0)
-  private, // 私有频道 (1)
-  paid, // 付费频道 (2)
-}
+/// 正交频道访问模型字段含义：
+///
+/// visibility  (谁能发现)
+///   0 = public    公开可发现
+///   1 = private   私有不可发现
+///
+/// access_type (是否付费，语义别名 monetization)
+///   0 = free      免费
+///   1 = paid      付费
+///
+/// join_policy (怎么加入)
+///   0 = open      直接加入
+///   1 = invite    邀请加入
+///   2 = approval  审批加入（v1 fail-closed，未实现）
+///   3 = purchase  购买加入
+///
+/// 组合矩阵：
+///   C1: public  + free  + open     → 公开免费
+///   C2: private + free  + invite   → 私有免费（邀请制）
+///   C3: public  + paid  + purchase → 公开付费
+///   C4: private + paid  + purchase → 私有付费
 
 /// 用户在频道中的角色
 enum ChannelUserRole {
@@ -81,14 +96,28 @@ enum ChannelUserRole {
 /// Channel（频道）是一种单向关注型消息订阅机制
 /// - 消息流向：单向（管理员 → 订阅者）
 /// - 成员上限：无限制
-/// - 加入方式：关注/订阅
+/// - 加入方式：visibility/access_type/join_policy 正交三字段决定
 /// - 发言权限：仅管理员/指定编辑
+///
+/// 后端 API 已从单个 type 列迁移为三个正交字段（迁移 00000072）：
+/// visibility, access_type, join_policy。后端不再返回 type 字段。
 class ChannelModel {
+  /// 服务端没有返回完整访问策略时使用的哨兵值。
+  ///
+  /// `channel.type` 已删除，不能再把缺失字段猜成公开免费；调用方必须
+  /// 将未知或未支持组合按 fail-closed 处理。
+  static const int unknownAccessPolicy = -1;
+
   final int id;
   final String name;
   final String? description;
   final String? avatar;
-  final ChannelType type;
+
+  // 正交访问模型三字段（替代旧 type 枚举）
+  final int visibility; // 0=public, 1=private
+  final int accessType; // 0=free, 1=paid
+  final int joinPolicy; // 0=open, 1=invite, 2=approval, 3=purchase
+
   final String? customId;
   final int creatorId;
   final int subscriberCount;
@@ -104,7 +133,7 @@ class ChannelModel {
   /// 付费频道内容权益：只由服务端购买订单状态决定，不等同于订阅关系。
   final bool hasPurchased;
 
-  // 付费频道价格字段（仅 type == paid 时有意义）
+  // 付费频道价格字段（仅 access_type == paid 时有意义）
   // price 单位：分（与钱包余额一致），currency 默认 CNY。
   // 后端通过 channel_price LEFT JOIN 返回，DB 存「元」，接口已转换为「分」。
   final int price;
@@ -115,7 +144,9 @@ class ChannelModel {
     required this.name,
     this.description,
     this.avatar,
-    this.type = ChannelType.public,
+    this.visibility = unknownAccessPolicy,
+    this.accessType = unknownAccessPolicy,
+    this.joinPolicy = unknownAccessPolicy,
     this.customId,
     required this.creatorId,
     this.subscriberCount = 0,
@@ -130,6 +161,8 @@ class ChannelModel {
     this.currency = 'CNY',
   });
 
+  // ---- 计算属性 ----
+
   /// 是否是管理中的频道（用户有管理权限）
   bool get isManaged => userRole.isAdmin;
 
@@ -137,10 +170,30 @@ class ChannelModel {
   bool get canPublish => userRole.canPublish;
 
   /// 是否为付费频道且后端已返回有效价格
-  bool get hasPrice => type == ChannelType.paid && price > 0;
+  bool get hasPrice => accessType == 1 && price > 0;
+
+  /// 是否为当前 v1 支持的访问组合（C1-C4）。
+  bool get hasSupportedAccessPolicy {
+    if (visibility != 0 && visibility != 1) return false;
+    return (accessType == 0 &&
+            ((visibility == 0 && joinPolicy == 0) ||
+                (visibility == 1 && joinPolicy == 1))) ||
+        (accessType == 1 && joinPolicy == 3);
+  }
+
+  /// 是否公开可见。未知策略绝不按公开展示。
+  bool get isPublic => hasSupportedAccessPolicy && visibility == 0;
+
+  /// 是否私有
+  bool get isPrivate => hasSupportedAccessPolicy && visibility == 1;
+
+  /// 是否付费
+  bool get isPaid => hasSupportedAccessPolicy && accessType == 1;
 
   /// 价格（元），便于 UI 展示
   double get priceYuan => price / 100.0;
+
+  // ---- 工厂方法 ----
 
   factory ChannelModel.fromJson(Map<String, dynamic> json) {
     final parsedCustomId = parseModelNullableString(json['custom_id']);
@@ -150,7 +203,18 @@ class ChannelModel {
       name: parseModelString(json['name']),
       description: parseModelNullableString(json['description']),
       avatar: parseModelNullableString(json['avatar']),
-      type: _parseChannelType(json['type']),
+      visibility: parseModelInt(
+        json['visibility'],
+        defaultValue: unknownAccessPolicy,
+      ),
+      accessType: parseModelInt(
+        json['access_type'],
+        defaultValue: unknownAccessPolicy,
+      ),
+      joinPolicy: parseModelInt(
+        json['join_policy'],
+        defaultValue: unknownAccessPolicy,
+      ),
       customId: parsedCustomId,
       // 后端返回 creator_uid 或 creator_id
       creatorId: parseModelInt(json['creator_uid'] ?? json['creator_id']),
@@ -177,7 +241,9 @@ class ChannelModel {
       'name': name,
       'description': description,
       'avatar': avatar,
-      'type': type.index,
+      'visibility': visibility,
+      'access_type': accessType,
+      'join_policy': joinPolicy,
       'custom_id': customId,
       'creator_id': creatorId,
       'subscriber_count': subscriberCount,
@@ -202,7 +268,18 @@ class ChannelModel {
       name: parseModelString(map['name']),
       description: parseModelNullableString(map['description']),
       avatar: parseModelNullableString(map['avatar']),
-      type: _parseChannelType(map['type']),
+      visibility: parseModelInt(
+        map['visibility'],
+        defaultValue: unknownAccessPolicy,
+      ),
+      accessType: parseModelInt(
+        map['access_type'],
+        defaultValue: unknownAccessPolicy,
+      ),
+      joinPolicy: parseModelInt(
+        map['join_policy'],
+        defaultValue: unknownAccessPolicy,
+      ),
       customId: parsedCustomId,
       creatorId: parseModelInt(map['creator_id']),
       subscriberCount: parseModelInt(map['subscriber_count']),
@@ -219,14 +296,6 @@ class ChannelModel {
     );
   }
 
-  static ChannelType _parseChannelType(dynamic value) {
-    final index = parseModelInt(value);
-    if (index < 0 || index >= ChannelType.values.length) {
-      return ChannelType.public;
-    }
-    return ChannelType.values[index];
-  }
-
   /// 转换为 SQLite Map
   Map<String, dynamic> toMap() {
     return {
@@ -234,7 +303,9 @@ class ChannelModel {
       'name': name,
       'description': description,
       'avatar': avatar,
-      'type': type.index,
+      'visibility': visibility,
+      'access_type': accessType,
+      'join_policy': joinPolicy,
       'custom_id': customId,
       'creator_id': creatorId,
       'subscriber_count': subscriberCount,
@@ -255,7 +326,9 @@ class ChannelModel {
     String? name,
     String? description,
     String? avatar,
-    ChannelType? type,
+    int? visibility,
+    int? accessType,
+    int? joinPolicy,
     String? customId,
     int? creatorId,
     int? subscriberCount,
@@ -274,7 +347,9 @@ class ChannelModel {
       name: name ?? this.name,
       description: description ?? this.description,
       avatar: avatar ?? this.avatar,
-      type: type ?? this.type,
+      visibility: visibility ?? this.visibility,
+      accessType: accessType ?? this.accessType,
+      joinPolicy: joinPolicy ?? this.joinPolicy,
       customId: customId ?? this.customId,
       creatorId: creatorId ?? this.creatorId,
       subscriberCount: subscriberCount ?? this.subscriberCount,
@@ -292,7 +367,9 @@ class ChannelModel {
 
   @override
   String toString() {
-    return 'ChannelModel(id: $id, name: $name, type: $type, subscribers: $subscriberCount, role: $userRole)';
+    return 'ChannelModel(id: $id, name: $name, '
+        'v:$visibility at:$accessType jp:$joinPolicy, '
+        'subscribers: $subscriberCount, role: $userRole)';
   }
 
   @override

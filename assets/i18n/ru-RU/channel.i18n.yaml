@@ -134,3 +134,14 @@ noMessagesSubscribedDesc: Подписка оформлена! Дождитес�
 continueEditing: Продолжить редактирование
 publishFirstContent: Опубликовать первый материал
 noSubscribersDesc: Подписчиков пока нет, поделитесь каналом с друзьями
+emoji: "Эмодзи"
+justNow: "Только что"
+minutesAgo: "мин. назад"
+hoursAgo: "ч. назад"
+weeksAgo: "нед. назад"
+visibilityLabel: "Видимость"
+accessTypeLabel: "Платность"
+accessTypeFree: "Бесплатно"
+accessTypePaid: "Платно"
+typePublicPaidDesc: "Любой может найти канал и подписаться после покупки"
+typePrivatePaidDesc: "Только приглашённые пользователи могут перейти к покупке и подписаться после оплаты"

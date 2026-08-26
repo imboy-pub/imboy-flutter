@@ -44,7 +44,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   bool _isSaving = false;
   bool _isUploadingAvatar = false;
   ChannelModel? _channel;
-  int _selectedType = 0;
+  int _visibility = 0;
+  int _accessType = 0;
   String? _avatarUrl;
   File? _avatarFile;
   final List<String> _tags = [];
@@ -60,7 +61,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     _customIdController = TextEditingController(
       text: widget.channel?.customId ?? '',
     );
-    _selectedType = widget.channel?.type.index ?? 0;
+    _visibility = widget.channel?.visibility ?? 0;
+    _accessType = widget.channel?.accessType ?? 0;
     _avatarUrl = widget.channel?.avatar;
     _tags
       ..clear()
@@ -94,7 +96,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
           _nameController.text = latest.name;
           _descriptionController.text = latest.description ?? '';
           _customIdController.text = latest.customId ?? '';
-          _selectedType = latest.type.index;
+          _visibility = latest.visibility;
+          _accessType = latest.accessType;
           _avatarUrl = latest.avatar;
           _avatarFile = null;
           _tags
@@ -212,9 +215,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     } catch (e) {
       iPrint('[ChannelEdit] 上传头像失败: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.common.uploadFailed)));
+      AppLoading.showToast(context.t.common.uploadFailed);
     }
   }
 
@@ -255,14 +256,12 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     });
 
     if (!success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.common.uploadFailed)));
+      AppLoading.showToast(context.t.common.uploadFailed);
     }
   }
 
   void _showAvatarPicker() {
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -297,9 +296,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
       return;
     }
     if (_tags.length >= _maxTags) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.contact.channelMaxTagsCount)));
+      AppLoading.showToast(t.contact.channelMaxTagsCount);
       return;
     }
     setState(() => _tags.add(tag));
@@ -317,7 +314,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
     if (_isLoading) {
       return Scaffold(
         appBar: GlassAppBar(title: t.channel.editChannel),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(child: CupertinoActivityIndicator()),
       );
     }
 
@@ -358,11 +355,10 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
             ),
             AppSpacing.verticalSmall,
             Center(
-              child: InkWell(
+              child: GestureDetector(
                 onTap: (_isSaving || _isUploadingAvatar)
                     ? null
                     : _showAvatarPicker,
-                borderRadius: BorderRadius.circular(48),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -377,7 +373,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                       child:
                           (_avatarFile == null &&
                               (_avatarUrl == null || _avatarUrl!.isEmpty))
-                          ? const Icon(Icons.camera_alt_outlined, size: 30)
+                          ? const Icon(CupertinoIcons.camera, size: 30)
                           : null,
                     ),
                     if (_isUploadingAvatar)
@@ -394,7 +390,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                           child: SizedBox(
                             width: 24,
                             height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CupertinoActivityIndicator(),
                           ),
                         ),
                       ),
@@ -409,7 +405,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: const Icon(
-                          Icons.edit,
+                          CupertinoIcons.pencil,
                           size: 16,
                           color: AppColors.onPrimary,
                         ),
@@ -423,12 +419,14 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
 
             // 频道名称
             TextFormField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _nameController,
               decoration: InputDecoration(
                 labelText: t.channel.nameLabel,
                 hintText: t.channel.nameHint,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.campaign),
+                prefixIcon: const Icon(CupertinoIcons.speaker_2),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -445,12 +443,14 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
 
             // 频道描述
             TextFormField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _descriptionController,
               decoration: InputDecoration(
                 labelText: t.channel.descriptionLabel,
                 hintText: t.channel.descriptionHint,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.description_outlined),
+                prefixIcon: const Icon(CupertinoIcons.doc_text),
                 alignLabelWithHint: true,
               ),
               maxLines: 3,
@@ -460,12 +460,14 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
 
             // 自定义 ID
             TextFormField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _customIdController,
               decoration: InputDecoration(
                 labelText: t.channel.customIdLabel,
                 hintText: t.channel.customIdHint,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.alternate_email),
+                prefixIcon: const Icon(CupertinoIcons.at),
                 helperText: _isCustomIdEditable
                     ? t.channel.customIdHelper
                     : '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
@@ -488,6 +490,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
               children: [
                 Expanded(
                   child: TextField(
+                    enableSuggestions: false,
+                    autocorrect: false,
                     controller: _tagController,
                     decoration: InputDecoration(
                       hintText: t.groupTag.tagName,
@@ -498,7 +502,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 ),
                 IconButton(
                   onPressed: () => _addTag(),
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: const Icon(CupertinoIcons.add_circled),
                   tooltip: t.groupTag.addTag,
                 ),
               ],
@@ -520,9 +524,9 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
             ],
             AppSpacing.verticalRegular,
 
-            // 频道类型（只读显示）
+            // 频道属性（只读显示）
             Text(
-              t.channel.typeLabel,
+              t.channel.visibilityLabel,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             AppSpacing.verticalSmall,
@@ -537,24 +541,31 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
               child: Row(
                 children: [
                   Icon(
-                    _selectedType == 0 ? Icons.public : Icons.lock_outline,
+                    _visibility == 0
+                        ? CupertinoIcons.globe
+                        : CupertinoIcons.lock,
                     color: AppColors.iosGray,
                   ),
                   AppSpacing.horizontalSmall,
                   Text(
-                    _selectedType == 0
+                    _visibility == 0
                         ? t.channel.typePublic
                         : t.channel.typePrivate,
                     style: const TextStyle(color: AppColors.iosGray),
                   ),
-                  const Spacer(),
-                  Text(
-                    t.channel.typeCannotChange,
-                    style: context.textStyle(
-                      FontSizeType.small,
-                      color: AppColors.iosGray,
+                  if (_accessType == 1) ...[
+                    AppSpacing.horizontalSmall,
+                    Icon(
+                      CupertinoIcons.money_dollar,
+                      color: AppColors.iosOrange,
+                      size: 16,
                     ),
-                  ),
+                    AppSpacing.horizontalTiny,
+                    Text(
+                      t.channel.accessTypePaid,
+                      style: const TextStyle(color: AppColors.iosOrange),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -576,7 +587,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
                 child: Column(
                   children: [
                     _buildStatRow(
-                      Icons.people_outline,
+                      CupertinoIcons.person_2,
                       t.channel.subscribers,
                       _channel!.subscriberCount.toString(),
                     ),

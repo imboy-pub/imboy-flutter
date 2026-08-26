@@ -150,3 +150,14 @@ noMessagesSubscribedDesc: 訂閱成功！請耐心等待作者發布新內容
 continueEditing: 繼續編輯
 publishFirstContent: 發布第一條內容
 noSubscribersDesc: 還沒有訂閱者，分享給好友吧
+emoji: "表情"
+justNow: "剛剛"
+minutesAgo: "分鐘前"
+hoursAgo: "小時前"
+weeksAgo: "週前"
+visibilityLabel: "可見性"
+accessTypeLabel: "付費屬性"
+accessTypeFree: "免費"
+accessTypePaid: "付費"
+typePublicPaidDesc: "任何人都可以發現頻道，購買後即可訂閱"
+typePrivatePaidDesc: "僅受邀用戶可進入購買流程，付款後即可訂閱"

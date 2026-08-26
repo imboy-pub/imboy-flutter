@@ -379,6 +379,17 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get continueEditing => 'Weiter bearbeiten';
 	@override String get publishFirstContent => 'Ersten Inhalt veröffentlichen';
 	@override String get noSubscribersDesc => 'Noch keine Abonnenten. Teile den Kanal mit deinen Freunden';
+	@override String get emoji => 'Emoji';
+	@override String get justNow => 'Gerade eben';
+	@override String get minutesAgo => 'Min.';
+	@override String get hoursAgo => 'Std.';
+	@override String get weeksAgo => 'Wo.';
+	@override String get visibilityLabel => 'Sichtbarkeit';
+	@override String get accessTypeLabel => 'Preismodell';
+	@override String get accessTypeFree => 'Kostenlos';
+	@override String get accessTypePaid => 'Kostenpflichtig';
+	@override String get typePublicPaidDesc => 'Jeder kann den Kanal entdecken und nach dem Kauf abonnieren';
+	@override String get typePrivatePaidDesc => 'Nur eingeladene Nutzer können den Kaufvorgang starten und nach Zahlung abonnieren';
 }
 
 // Path: chat
@@ -2891,6 +2902,17 @@ extension on TranslationsDeDe {
 			'channel.continueEditing' => 'Weiter bearbeiten',
 			'channel.publishFirstContent' => 'Ersten Inhalt veröffentlichen',
 			'channel.noSubscribersDesc' => 'Noch keine Abonnenten. Teile den Kanal mit deinen Freunden',
+			'channel.emoji' => 'Emoji',
+			'channel.justNow' => 'Gerade eben',
+			'channel.minutesAgo' => 'Min.',
+			'channel.hoursAgo' => 'Std.',
+			'channel.weeksAgo' => 'Wo.',
+			'channel.visibilityLabel' => 'Sichtbarkeit',
+			'channel.accessTypeLabel' => 'Preismodell',
+			'channel.accessTypeFree' => 'Kostenlos',
+			'channel.accessTypePaid' => 'Kostenpflichtig',
+			'channel.typePublicPaidDesc' => 'Jeder kann den Kanal entdecken und nach dem Kauf abonnieren',
+			'channel.typePrivatePaidDesc' => 'Nur eingeladene Nutzer können den Kaufvorgang starten und nach Zahlung abonnieren',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.cards' => 'Stück',
 			'chat.jdShopping' => 'JD Einkaufen',
@@ -3113,6 +3135,8 @@ extension on TranslationsDeDe {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => 'Bezahlt: ${time}',
 			'chat.orderStatusPending' => 'Offen',
 			'chat.orderStatusPaid' => 'Bezahlt',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderStatusRefunded' => 'Erstattet',
 			'chat.orderStatusExpired' => 'Abgelaufen',
 			'chat.defaultFileName' => 'Datei',
@@ -3124,8 +3148,6 @@ extension on TranslationsDeDe {
 			'chat.e2eeCreatedAtLabel' => 'Erstellt am',
 			'chat.e2eeGeneratingKey' => 'Schlüssel wird erstellt, bitte warten...',
 			'chat.e2eeNewKeyGenerated' => 'Neues E2EE-Schlüsselpaar erstellt!',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeReady' => 'Bereit',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Bereit (${count} Fragmente)',
 			'chat.webFeatureMultiDevice' => 'Multi-Geräte-Sync',
@@ -3627,6 +3649,8 @@ extension on TranslationsDeDe {
 			'common.whatYourFeedback' => 'Was ist Ihr Feedback?',
 			'common.yesterday' => 'Gestern',
 			'common.yourContactInformation' => 'Ihre Kontaktdaten',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmRemove' => 'Entfernen bestätigen',
 			'common.confirmRemoveFromDenylist' => 'Diesen Benutzer wirklich aus der Sperrliste entfernen?',
 			'common.buttonRemove' => 'Entfernen',
@@ -3638,8 +3662,6 @@ extension on TranslationsDeDe {
 			'common.confirmChange' => 'Änderung bestätigen',
 			'common.verificationCodeSentToEmail' => 'Bestätigungscode an diese E-Mail gesendet, bitte innerhalb Gültigkeitsdauer bestätigen',
 			'common.verificationCodeSentToMobile' => 'Bestätigungscode an diese Mobilfunknummer gesendet, bitte innerhalb Gültigkeitsdauer bestätigen',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => 'Bitte geben Sie die korrekte E-Mail-Adresse ein',
 			'common.pleaseEnter6DigitVerificationCode' => 'Bitte geben Sie den 6-stelligen Bestätigungscode ein',
 			'common.verificationCodeSent' => 'Bestätigungscode gesendet',
@@ -4141,6 +4163,8 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupImportantNoteColon' => 'Wichtig:',
 			'common.e2eeBackupKeepSafe' => '• Backup und Passwort sicher aufbewahren',
 			'common.e2eeBackupStoreMultipleLoc' => '• An mehreren Orten speichern',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• Passwort nicht wiederherstellbar',
 			'common.e2eeBackupImportTitle' => 'E2EE-Backup importieren',
 			'common.e2eeBackupImportGuide' => 'Hinweise',
@@ -4152,8 +4176,6 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupVersionLabel' => 'Version',
 			'common.e2eeBackupAlgorithmLabel' => 'Algorithmus',
 			'common.e2eeBackupFileSizeLabel' => 'Dateigröße',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ Format gültig',
 			'common.e2eeBackupImportPwdHint' => 'Backup-Passwort eingeben',
 			'common.e2eeBackupImportBtn' => 'Schlüssel importieren',
@@ -4655,6 +4677,8 @@ extension on TranslationsDeDe {
 			'main.markStar' => 'Favorit',
 			'main.markStarDesc' => 'Diese Nachricht als Favorit markieren',
 			'main.markTodo' => 'Aufgabe',
+			_ => null,
+		} ?? switch (path) {
 			'main.markTodoDesc' => 'Als Aufgabe markieren',
 			'main.multiSelect' => 'Mehrfachauswahl',
 			'main.multiSelectMode' => 'Mehrfachauswahl-Modus',
@@ -4666,8 +4690,6 @@ extension on TranslationsDeDe {
 			'main.or' => 'Oder',
 			'main.otherParty' => 'Gegenüber',
 			'main.packageSize' => 'Paketgröße',
-			_ => null,
-		} ?? switch (path) {
 			'main.peerHasHungUp' => 'Gesprächspartner hat aufgelegt',
 			'main.play' => 'Abspielen',
 			'main.pleaseInputParam' => ({required Object param}) => 'Bitte ${param} eingeben',

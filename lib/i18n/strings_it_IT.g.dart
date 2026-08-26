@@ -379,6 +379,17 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get continueEditing => 'Continua a modificare';
 	@override String get publishFirstContent => 'Pubblica il primo contenuto';
 	@override String get noSubscribersDesc => 'Nessun iscritto, condividi il canale con i tuoi amici';
+	@override String get emoji => 'Emoji';
+	@override String get justNow => 'Proprio ora';
+	@override String get minutesAgo => 'min fa';
+	@override String get hoursAgo => 'ore fa';
+	@override String get weeksAgo => 'settimane fa';
+	@override String get visibilityLabel => 'Visibilità';
+	@override String get accessTypeLabel => 'Prezzo';
+	@override String get accessTypeFree => 'Gratuito';
+	@override String get accessTypePaid => 'A pagamento';
+	@override String get typePublicPaidDesc => 'Chiunque può scoprire il canale e abbonarsi dopo l\'acquisto';
+	@override String get typePrivatePaidDesc => 'Solo gli utenti invitati possono accedere all\'acquisto e abbonarsi dopo il pagamento';
 }
 
 // Path: chat
@@ -2891,6 +2902,17 @@ extension on TranslationsItIt {
 			'channel.continueEditing' => 'Continua a modificare',
 			'channel.publishFirstContent' => 'Pubblica il primo contenuto',
 			'channel.noSubscribersDesc' => 'Nessun iscritto, condividi il canale con i tuoi amici',
+			'channel.emoji' => 'Emoji',
+			'channel.justNow' => 'Proprio ora',
+			'channel.minutesAgo' => 'min fa',
+			'channel.hoursAgo' => 'ore fa',
+			'channel.weeksAgo' => 'settimane fa',
+			'channel.visibilityLabel' => 'Visibilità',
+			'channel.accessTypeLabel' => 'Prezzo',
+			'channel.accessTypeFree' => 'Gratuito',
+			'channel.accessTypePaid' => 'A pagamento',
+			'channel.typePublicPaidDesc' => 'Chiunque può scoprire il canale e abbonarsi dopo l\'acquisto',
+			'channel.typePrivatePaidDesc' => 'Solo gli utenti invitati possono accedere all\'acquisto e abbonarsi dopo il pagamento',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.cards' => 'pz',
 			'chat.jdShopping' => 'Shopping JD',
@@ -3113,6 +3135,8 @@ extension on TranslationsItIt {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => 'Pagato: ${time}',
 			'chat.orderStatusPending' => 'Da pagare',
 			'chat.orderStatusPaid' => 'Pagato',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderStatusRefunded' => 'Rimborsato',
 			'chat.orderStatusExpired' => 'Scaduto',
 			'chat.defaultFileName' => 'File',
@@ -3124,8 +3148,6 @@ extension on TranslationsItIt {
 			'chat.e2eeCreatedAtLabel' => 'Creato il',
 			'chat.e2eeGeneratingKey' => 'Generazione chiave, attendi...',
 			'chat.e2eeNewKeyGenerated' => 'Nuova coppia di chiavi E2EE creata !',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeReady' => 'Pronto',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Pronto (${count} frammenti)',
 			'chat.webFeatureMultiDevice' => 'Multi-dispositivo',
@@ -3627,6 +3649,8 @@ extension on TranslationsItIt {
 			'common.whatYourFeedback' => 'Qual è il tuo feedback?',
 			'common.yesterday' => 'Ieri',
 			'common.yourContactInformation' => 'Le tue informazioni di contatto',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmRemove' => 'Conferma rimozione',
 			'common.confirmRemoveFromDenylist' => 'Sei sicuro di voler rimuovere questo utente dalla lista bloccati?',
 			'common.buttonRemove' => 'Rimuovi',
@@ -3638,8 +3662,6 @@ extension on TranslationsItIt {
 			'common.confirmChange' => 'Conferma modifica',
 			'common.verificationCodeSentToEmail' => 'Il codice di verifica sarà inviato a questa email, completa la verifica entro il periodo di validità',
 			'common.verificationCodeSentToMobile' => 'Il codice di verifica sarà inviato a questo numero di telefono, completa la verifica entro il periodo di validità',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => 'Inserisci l\'indirizzo email corretto',
 			'common.pleaseEnter6DigitVerificationCode' => 'Inserisci il codice di verifica a 6 cifre',
 			'common.verificationCodeSent' => 'Codice di verifica inviato',
@@ -4141,6 +4163,8 @@ extension on TranslationsItIt {
 			'common.e2eeBackupImportantNoteColon' => 'Importante:',
 			'common.e2eeBackupKeepSafe' => '• Backup e password al sicuro',
 			'common.e2eeBackupStoreMultipleLoc' => '• Conserva in più posti',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• Password irreversibile',
 			'common.e2eeBackupImportTitle' => 'Importa backup E2EE',
 			'common.e2eeBackupImportGuide' => 'Istruzioni',
@@ -4152,8 +4176,6 @@ extension on TranslationsItIt {
 			'common.e2eeBackupVersionLabel' => 'Versione',
 			'common.e2eeBackupAlgorithmLabel' => 'Algoritmo',
 			'common.e2eeBackupFileSizeLabel' => 'Dimensione',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ Formato valido',
 			'common.e2eeBackupImportPwdHint' => 'Password del backup',
 			'common.e2eeBackupImportBtn' => 'Importa chiave',
@@ -4655,6 +4677,8 @@ extension on TranslationsItIt {
 			'main.markStar' => 'Preferito',
 			'main.markStarDesc' => 'Aggiungi questo messaggio ai preferiti',
 			'main.markTodo' => 'Da fare',
+			_ => null,
+		} ?? switch (path) {
 			'main.markTodoDesc' => 'Segna come attività',
 			'main.multiSelect' => 'Selezione multipla',
 			'main.multiSelectMode' => 'Modalità selezione multipla',
@@ -4666,8 +4690,6 @@ extension on TranslationsItIt {
 			'main.or' => 'Oppure',
 			'main.otherParty' => 'Altra parte',
 			'main.packageSize' => 'Dimensione pacchetto',
-			_ => null,
-		} ?? switch (path) {
 			'main.peerHasHungUp' => 'L\'altra parte ha riagganciato',
 			'main.play' => 'Riproduci',
 			'main.pleaseInputParam' => ({required Object param}) => 'Inserisci ${param}',

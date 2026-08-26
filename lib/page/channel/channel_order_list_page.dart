@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,19 +56,7 @@ class ChannelOrderListPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(brightness),
-      appBar: AppBar(
-        backgroundColor: AppColors.getBackgroundColor(brightness),
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(
-          t.channel.myOrders,
-          style: context.textStyle(
-            FontSizeType.extraLarge,
-            fontWeight: FontWeight.w700,
-            color: AppColors.getTextColor(brightness),
-          ),
-        ),
-      ),
+      appBar: GlassAppBar(title: t.channel.myOrders),
       body: async.when(
         loading: () => const ShimmerList(),
         error: (_, _) => NoDataView(
@@ -131,7 +120,7 @@ class _OrderTile extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.campaign_outlined,
+                CupertinoIcons.speaker_2,
                 size: 22,
                 color: AppColors.primary,
               ),

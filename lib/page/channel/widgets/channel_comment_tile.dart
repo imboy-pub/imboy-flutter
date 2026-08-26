@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:imboy/component/helper/func.dart' show cachedImageProvider;
 import 'package:imboy/component/ui/avatar_fallback.dart';
@@ -144,7 +145,7 @@ class ChannelCommentTile extends StatelessWidget {
                     const Spacer(),
                     _actionChip(
                       context,
-                      icon: Icons.reply,
+                      icon: CupertinoIcons.arrow_turn_up_left,
                       label: context.t.channel.reply,
                       onTap: onReply,
                     ),
@@ -152,8 +153,8 @@ class ChannelCommentTile extends StatelessWidget {
                     _actionChip(
                       context,
                       icon: comment.isLiked
-                          ? Icons.favorite
-                          : Icons.favorite_border,
+                          ? CupertinoIcons.heart_fill
+                          : CupertinoIcons.heart,
                       label: comment.likeCount > 0
                           ? '${comment.likeCount}'
                           : context.t.channel.like,
@@ -163,7 +164,7 @@ class ChannelCommentTile extends StatelessWidget {
                       AppSpacing.horizontalSmall,
                       _actionChip(
                         context,
-                        icon: Icons.delete_outline,
+                        icon: CupertinoIcons.delete,
                         label: '',
                         onTap: onDelete,
                         color: AppColors.iosRed,
@@ -189,9 +190,8 @@ class ChannelCommentTile extends StatelessWidget {
     final c =
         color ??
         AppColors.getTextColor(Theme.of(context).brightness, isSecondary: true);
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Row(

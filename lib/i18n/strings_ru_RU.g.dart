@@ -379,6 +379,17 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get continueEditing => 'Продолжить редактирование';
 	@override String get publishFirstContent => 'Опубликовать первый материал';
 	@override String get noSubscribersDesc => 'Подписчиков пока нет, поделитесь каналом с друзьями';
+	@override String get emoji => 'Эмодзи';
+	@override String get justNow => 'Только что';
+	@override String get minutesAgo => 'мин. назад';
+	@override String get hoursAgo => 'ч. назад';
+	@override String get weeksAgo => 'нед. назад';
+	@override String get visibilityLabel => 'Видимость';
+	@override String get accessTypeLabel => 'Платность';
+	@override String get accessTypeFree => 'Бесплатно';
+	@override String get accessTypePaid => 'Платно';
+	@override String get typePublicPaidDesc => 'Любой может найти канал и подписаться после покупки';
+	@override String get typePrivatePaidDesc => 'Только приглашённые пользователи могут перейти к покупке и подписаться после оплаты';
 }
 
 // Path: chat
@@ -2888,6 +2899,17 @@ extension on TranslationsRuRu {
 			'channel.continueEditing' => 'Продолжить редактирование',
 			'channel.publishFirstContent' => 'Опубликовать первый материал',
 			'channel.noSubscribersDesc' => 'Подписчиков пока нет, поделитесь каналом с друзьями',
+			'channel.emoji' => 'Эмодзи',
+			'channel.justNow' => 'Только что',
+			'channel.minutesAgo' => 'мин. назад',
+			'channel.hoursAgo' => 'ч. назад',
+			'channel.weeksAgo' => 'нед. назад',
+			'channel.visibilityLabel' => 'Видимость',
+			'channel.accessTypeLabel' => 'Платность',
+			'channel.accessTypeFree' => 'Бесплатно',
+			'channel.accessTypePaid' => 'Платно',
+			'channel.typePublicPaidDesc' => 'Любой может найти канал и подписаться после покупки',
+			'channel.typePrivatePaidDesc' => 'Только приглашённые пользователи могут перейти к покупке и подписаться после оплаты',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.cards' => 'шт.',
 			'chat.jdShopping' => 'Покупки на JD',
@@ -3110,6 +3132,8 @@ extension on TranslationsRuRu {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => 'Оплачено: ${time}',
 			'chat.orderStatusPending' => 'Ожидает оплаты',
 			'chat.orderStatusPaid' => 'Оплачено',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderStatusRefunded' => 'Возврат оформлен',
 			'chat.orderStatusExpired' => 'Истекло',
 			'chat.defaultFileName' => 'Файл',
@@ -3121,8 +3145,6 @@ extension on TranslationsRuRu {
 			'chat.e2eeCreatedAtLabel' => 'Создан',
 			'chat.e2eeGeneratingKey' => 'Создание ключа, подождите...',
 			'chat.e2eeNewKeyGenerated' => 'Новая пара ключей E2EE создана!',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeReady' => 'Готово',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Готово (фрагментов: ${count})',
 			'chat.webFeatureMultiDevice' => 'Синхронизация устройств',
@@ -3624,6 +3646,8 @@ extension on TranslationsRuRu {
 			'common.whatYourFeedback' => 'Что вы думаете?',
 			'common.yesterday' => 'Вчера',
 			'common.yourContactInformation' => 'Ваша контактная информация',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmRemove' => 'Подтвердить удаление',
 			'common.confirmRemoveFromDenylist' => 'Удалить этого пользователя из чёрного списка?',
 			'common.buttonRemove' => 'Удалить',
@@ -3635,8 +3659,6 @@ extension on TranslationsRuRu {
 			'common.confirmChange' => 'Подтвердить изменение',
 			'common.verificationCodeSentToEmail' => 'Код подтверждения будет отправлен на эл. почту',
 			'common.verificationCodeSentToMobile' => 'Код подтверждения будет отправлен на телефон',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => 'Введите корректный адрес эл. почты',
 			'common.pleaseEnter6DigitVerificationCode' => 'Введите 6-значный код',
 			'common.verificationCodeSent' => 'Код подтверждения отправлен',
@@ -4138,6 +4160,8 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupImportantNoteColon' => 'Важно:',
 			'common.e2eeBackupKeepSafe' => '• Храните файл копии и пароль в безопасности',
 			'common.e2eeBackupStoreMultipleLoc' => '• Храните файл в нескольких надёжных местах',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• Пароль нельзя восстановить, обязательно запомните его',
 			'common.e2eeBackupImportTitle' => 'Импорт резервной копии E2EE',
 			'common.e2eeBackupImportGuide' => 'Инструкция по импорту',
@@ -4149,8 +4173,6 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupVersionLabel' => 'Версия',
 			'common.e2eeBackupAlgorithmLabel' => 'Алгоритм',
 			'common.e2eeBackupFileSizeLabel' => 'Размер файла',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ Формат файла корректен',
 			'common.e2eeBackupImportPwdHint' => 'Введите пароль, заданный при создании копии',
 			'common.e2eeBackupImportBtn' => 'Импортировать ключ',
@@ -4652,6 +4674,8 @@ extension on TranslationsRuRu {
 			'main.markStar' => 'Избранное',
 			'main.markStarDesc' => 'Добавить в избранное',
 			'main.markTodo' => 'Сделать',
+			_ => null,
+		} ?? switch (path) {
 			'main.markTodoDesc' => 'Пометить как задачу',
 			'main.multiSelect' => 'Множественный выбор',
 			'main.multiSelectMode' => 'Режим множественного выбора',
@@ -4663,8 +4687,6 @@ extension on TranslationsRuRu {
 			'main.or' => 'Или',
 			'main.otherParty' => 'Собеседник',
 			'main.packageSize' => 'Размер пакета',
-			_ => null,
-		} ?? switch (path) {
 			'main.peerHasHungUp' => 'Собеседник завершил вызов',
 			'main.play' => 'Воспроизвести',
 			'main.pleaseInputParam' => ({required Object param}) => 'Введите ${param}',

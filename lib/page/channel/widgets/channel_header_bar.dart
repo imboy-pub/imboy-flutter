@@ -12,6 +12,7 @@ import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/service/channel_service.dart';
 
 import '../channel_detail_rules.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 频道头部信息条（对标 WhatsApp 频道详情设计）
 ///
@@ -103,13 +104,8 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
         setState(() {
           _isMuted = nextMute;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              nextMute ? t.chat.chatSettingMuted : t.chat.chatSettingUnmuted,
-            ),
-            duration: const Duration(seconds: 2),
-          ),
+        AppLoading.showToast(
+          nextMute ? t.chat.chatSettingMuted : t.chat.chatSettingUnmuted,
         );
       }
     } catch (_) {
@@ -168,7 +164,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                   const Padding(
                     padding: EdgeInsets.only(left: 6),
                     child: Icon(
-                      Icons.verified,
+                      CupertinoIcons.checkmark_seal_fill,
                       size: 20,
                       color: Color(0xFF25D366), // WhatsApp 标志性绿色安全徽标
                     ),
@@ -241,7 +237,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                 child: AvatarFallbackContent(
                   name: widget.channel.name,
                   color: AppColors.primary,
-                  emptyIcon: Icons.campaign_outlined,
+                  emptyIcon: CupertinoIcons.speaker_2,
                   iconSize: 44,
                   textStyle: context.textStyle(
                     FontSizeType.extraLarge,
@@ -254,7 +250,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
               child: AvatarFallbackContent(
                 name: widget.channel.name,
                 color: AppColors.primary,
-                emptyIcon: Icons.campaign_outlined,
+                emptyIcon: CupertinoIcons.speaker_2,
                 iconSize: 44,
                 textStyle: context.textStyle(
                   FontSizeType.extraLarge,
@@ -291,17 +287,14 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.12)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             role == ChannelUserRole.creator
-                ? Icons.star_rounded
-                : Icons.admin_panel_settings_rounded,
+                ? CupertinoIcons.star_fill
+                : CupertinoIcons.shield_lefthalf_fill,
             size: 14,
             color: color,
           ),
@@ -387,12 +380,11 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
+                          child: CupertinoActivityIndicator(
                             color: AppColors.onPrimary,
                           ),
                         )
-                      : const Icon(Icons.add, size: 18),
+                      : const Icon(CupertinoIcons.add, size: 18),
                   label: Text(
                     t.channel.subscribe,
                     semanticsLabel: t.channel.subscribe,
@@ -400,9 +392,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    shape: RoundedRectangleBorder(),
                   ),
                 ),
               ),
@@ -470,9 +460,8 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themePrimary = AppColors.primary;
 
-    return InkWell(
+    return GestureDetector(
       onTap: isPending ? null : onTap,
-      borderRadius: BorderRadius.circular(12),
       child: Container(
         width: 64,
         padding: const EdgeInsets.symmetric(vertical: 6),
@@ -497,7 +486,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                     ? const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: CupertinoActivityIndicator(),
                       )
                     : Icon(
                         icon,
@@ -679,10 +668,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
           Container(
             width: 80,
             height: 12,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(6),
-            ),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12)),
           ),
         ],
       ),

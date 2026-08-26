@@ -395,6 +395,17 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get continueEditing => '繼續編輯';
 	@override String get publishFirstContent => '發布第一條內容';
 	@override String get noSubscribersDesc => '還沒有訂閱者，分享給好友吧';
+	@override String get emoji => '表情';
+	@override String get justNow => '剛剛';
+	@override String get minutesAgo => '分鐘前';
+	@override String get hoursAgo => '小時前';
+	@override String get weeksAgo => '週前';
+	@override String get visibilityLabel => '可見性';
+	@override String get accessTypeLabel => '付費屬性';
+	@override String get accessTypeFree => '免費';
+	@override String get accessTypePaid => '付費';
+	@override String get typePublicPaidDesc => '任何人都可以發現頻道，購買後即可訂閱';
+	@override String get typePrivatePaidDesc => '僅受邀用戶可進入購買流程，付款後即可訂閱';
 }
 
 // Path: chat
@@ -2937,6 +2948,17 @@ extension on TranslationsZhHant {
 			'channel.continueEditing' => '繼續編輯',
 			'channel.publishFirstContent' => '發布第一條內容',
 			'channel.noSubscribersDesc' => '還沒有訂閱者，分享給好友吧',
+			'channel.emoji' => '表情',
+			'channel.justNow' => '剛剛',
+			'channel.minutesAgo' => '分鐘前',
+			'channel.hoursAgo' => '小時前',
+			'channel.weeksAgo' => '週前',
+			'channel.visibilityLabel' => '可見性',
+			'channel.accessTypeLabel' => '付費屬性',
+			'channel.accessTypeFree' => '免費',
+			'channel.accessTypePaid' => '付費',
+			'channel.typePublicPaidDesc' => '任何人都可以發現頻道，購買後即可訂閱',
+			'channel.typePrivatePaidDesc' => '僅受邀用戶可進入購買流程，付款後即可訂閱',
 			'chat.bankCard' => '銀行卡',
 			'chat.cards' => '張',
 			'chat.jdShopping' => '京東購物',
@@ -3143,6 +3165,8 @@ extension on TranslationsZhHant {
 			'chat.deletingMessage' => '正在刪除...',
 			'chat.deletingLocalMessage' => '正在刪除本地訊息...',
 			'chat.quickReplyReceived' => '收到',
+			_ => null,
+		} ?? switch (path) {
 			'chat.quickReplyThanks' => '謝謝',
 			'chat.quickReplyWait' => '稍等',
 			'chat.messageMute' => _root.chat.chatSettingMute,
@@ -3154,8 +3178,6 @@ extension on TranslationsZhHant {
 			'chat.createdAtLabel' => ({required Object time}) => '建立時間: ${time}',
 			'chat.expiredAtLabel' => ({required Object time}) => '過期時間: ${time}',
 			'chat.myReceivedTab' => '我收到的',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderStatusLabel' => ({required Object status}) => '狀態: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '建立時間: ${time}',
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付時間: ${time}',
@@ -3657,6 +3679,8 @@ extension on TranslationsZhHant {
 			'common.userDisabledOrDeleted' => '用家被停用或已刪除',
 			'common.userNotExist' => '用家不存在',
 			'common.userOnlineStatusWidget' => '用家上線狀態小部件',
+			_ => null,
+		} ?? switch (path) {
 			'common.userTagRelationView' => '用家標籤關係視圖',
 			'common.userTagSaveView' => '用家標籤儲存視圖',
 			'common.verificationMessageSentByPeerIs' => ({required Object param}) => '對方發來的驗證訊息為：${param}',
@@ -3668,8 +3692,6 @@ extension on TranslationsZhHant {
 			'common.callDisconnected' => '通話已斷開',
 			'common.connecting' => '連接中…',
 			'common.voiceInputNotImplemented' => '語音輸入功能暫無實現',
-			_ => null,
-		} ?? switch (path) {
 			'common.waitingDownload' => '等待下載',
 			'common.waitingPeerAccept' => '等待對方接受邀請...',
 			'common.warning' => '警告：',
@@ -4171,6 +4193,8 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupConfirmPwdHint' => '再次輸入密碼',
 			'common.e2eeBackupNoteLabel' => '備註（可選）',
 			'common.e2eeBackupNoteHint' => '例如：主手機備份 - 2026年1月',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdStrengthLabel' => '密碼強度',
 			'common.e2eeBackupPwdWeak' => '弱 - 建議增加複雜度',
 			'common.e2eeBackupPwdMedium' => '中等 - 建議增加長度或複雜度',
@@ -4182,8 +4206,6 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupShareContent' => '這是我的 Imboy E2EE 金鑰備份檔案，請妥善保管，切勿洩露給他人。',
 			'common.e2eeBackupErrPwdMismatch' => '兩次輸入的密碼不一致',
 			'common.e2eeBackupErrNoKeyData' => '無法獲取金鑰資料',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupErrExportFailed' => '匯出失敗，請重試',
 			'common.e2eeBackupErrShareFailed' => '分享失敗，請重試',
 			'common.e2eeBackupExportSuccessTitle' => '備份匯出成功',
@@ -4685,6 +4707,8 @@ extension on TranslationsZhHant {
 			'main.faceToFaceLogic' => '面對面建群邏輯',
 			'main.favorites' => '收藏',
 			'main.female' => '女',
+			_ => null,
+		} ?? switch (path) {
 			'main.followSystem' => '跟隨系統',
 			'main.frFr' => '法語（法國）',
 			'main.from' => '來自',
@@ -4696,8 +4720,6 @@ extension on TranslationsZhHant {
 			'main.iAm' => '我是',
 			'main.itIt' => '義大利語（義大利）',
 			'main.jaJp' => '日語（日本）',
-			_ => null,
-		} ?? switch (path) {
 			'main.keepSecret' => '保密',
 			'main.lastActiveTime' => '最近活躍時間',
 			'main.lastSeenHide' => '隱藏上線狀態',

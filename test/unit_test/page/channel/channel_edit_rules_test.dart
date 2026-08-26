@@ -21,7 +21,9 @@ ChannelModel _ch({
 }) => ChannelModel(
   id: 1,
   name: name,
-  type: ChannelType.public,
+  visibility: 0,
+  accessType: 0,
+  joinPolicy: 0,
   creatorId: 0,
   createdAt: _epoch,
   updatedAt: _epoch,
