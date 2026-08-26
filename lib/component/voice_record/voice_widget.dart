@@ -319,10 +319,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       }
 
       // 3. 展开精致、磨砂质感的转文字预览与二次编辑底栏
-      showModalBottomSheet<void>(
+      showCupertinoModalPopup<void>(
         context: this.context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
         builder: (context) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
           final textController = TextEditingController(text: transcribedMock);
@@ -359,7 +357,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                       ),
                       IconButton(
                         tooltip: t.common.buttonClose,
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(CupertinoIcons.xmark_circle_fill),
                         onPressed: () => Navigator.pop(context),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
@@ -385,6 +383,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                       vertical: 8,
                     ),
                     child: TextField(
+                      enableSuggestions: false,
+                      autocorrect: false,
                       controller: textController,
                       maxLines: 5,
                       minLines: 2,
@@ -908,7 +908,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.mic,
+                CupertinoIcons.mic_fill,
                 color: _isPressed
                     ? primaryColor
                     : onSurfaceColor.withValues(alpha: 0.65),

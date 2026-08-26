@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -115,7 +116,7 @@ class PrivacySettingsPage extends ConsumerWidget {
                   context: context,
                   title: t.common.clearChatRecords,
                   subtitle: t.common.clearChatRecordsDesc,
-                  icon: Icons.delete_sweep,
+                  icon: CupertinoIcons.delete,
                   iconColor: AppColors.iosOrange,
                   onTap: () => _showClearChatDialog(context),
                 ),
@@ -124,7 +125,7 @@ class PrivacySettingsPage extends ConsumerWidget {
                   context: context,
                   title: t.common.deleteAccountAction,
                   subtitle: t.common.deleteAccountActionDesc,
-                  icon: Icons.warning,
+                  icon: CupertinoIcons.exclamationmark_triangle,
                   iconColor: AppColors.iosRed,
                   onTap: () => _showDeleteAccountDialog(context),
                 ),
@@ -273,7 +274,7 @@ class PrivacySettingsPage extends ConsumerWidget {
   }) {
     return Material(
       color: AppColors.transparent,
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -320,7 +321,7 @@ class PrivacySettingsPage extends ConsumerWidget {
                 ),
               ),
               Icon(
-                Icons.navigate_next,
+                CupertinoIcons.chevron_right,
                 color: AppColors.getTextColor(
                   Theme.of(context).brightness,
                   isSecondary: true,
@@ -336,17 +337,17 @@ class PrivacySettingsPage extends ConsumerWidget {
 
   /// 显示清除聊天记录对话框
   void _showClearChatDialog(BuildContext context) {
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.common.privacyClearChatHistory),
         content: Text(t.common.privacyClearChatHistoryConfirm),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.pop(context),
             child: Text(t.common.buttonCancel),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () async {
               Navigator.pop(context);
               AppLoading.show(status: t.common.loading);
@@ -405,17 +406,17 @@ class PrivacySettingsPage extends ConsumerWidget {
 
   /// 显示注销账号对话框
   void _showDeleteAccountDialog(BuildContext parentContext) {
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: parentContext,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => CupertinoAlertDialog(
         title: Text(t.account.privacyLogoutAccount),
         content: Text(t.common.privacyLogoutAccountConfirm),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.pop(dialogContext),
             child: Text(t.common.buttonCancel),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () {
               Navigator.pop(dialogContext);
               parentContext.push('/logout_account');

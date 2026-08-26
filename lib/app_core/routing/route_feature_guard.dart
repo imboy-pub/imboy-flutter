@@ -6,6 +6,7 @@ import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// Describes why a route was blocked.
 enum RouteBlockReason { featureFlag, appEntry }
@@ -171,9 +172,7 @@ class RouteFeatureGuard {
       final message = detail == null || detail.name.isEmpty
           ? t.common.featureNotEnabled
           : t.common.featureDisabledName(name: detail.name);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
-      );
+      AppLoading.showToast(message);
     });
   }
 }

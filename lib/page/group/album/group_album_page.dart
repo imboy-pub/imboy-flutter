@@ -110,6 +110,8 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
           children: [
             const SizedBox(height: AppSpacing.small),
             CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: controller,
               autofocus: true,
               placeholder: t.group.groupAlbumNameHint,
@@ -189,6 +191,8 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
           children: [
             const SizedBox(height: AppSpacing.small),
             CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: controller,
               autofocus: true,
               placeholder: t.group.groupAlbumNameHint,
@@ -313,15 +317,16 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
                 )
               : _albums.isEmpty
               ? NoDataView(text: t.common.groupAlbumNoAlbum)
-              : RefreshIndicator(
-                  onRefresh: _loadAlbums,
-                  child: ListView.builder(
-                    itemCount: _albums.length,
-                    itemBuilder: (context, index) {
-                      final album = _albums[index];
-                      return _buildAlbumItem(album);
-                    },
-                  ),
+              : CustomScrollView(
+                  slivers: [
+                    CupertinoSliverRefreshControl(onRefresh: _loadAlbums),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final album = _albums[index];
+                        return _buildAlbumItem(album);
+                      }, childCount: _albums.length),
+                    ),
+                  ],
                 ),
         ),
       ],

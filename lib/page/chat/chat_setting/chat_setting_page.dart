@@ -132,9 +132,8 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
     // controller 提升到 builder 外：bottom sheet rebuild 时复用同一实例，
     // 滚动位置不跳回 initialItem（与 _burnPickerIndex 同源修复）。
     final controller = FixedExtentScrollController(initialItem: selectedIndex);
-    await showModalBottomSheet<void>(
+    await showCupertinoModalPopup<void>(
       context: context,
-      backgroundColor: AppColors.transparent,
       builder: (ctx) {
         return Container(
           decoration: BoxDecoration(
@@ -157,12 +156,14 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                     ),
                     child: Row(
                       children: [
-                        TextButton(
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
                           onPressed: () => Navigator.of(ctx).pop(),
                           child: Text(t.common.buttonCancel),
                         ),
                         const Spacer(),
-                        TextButton(
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
                           onPressed: () async {
                             // 先 setState 再 pop：pop 后页面 State 可能在动画
                             // 完成前已 dispose，setState 顺序放前面最稳。
@@ -294,7 +295,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                   trailing
                 else
                   Icon(
-                    Icons.chevron_right_rounded,
+                    CupertinoIcons.chevron_right,
                     size: 20,
                     color: Theme.of(
                       context,
@@ -353,11 +354,11 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   IconData _encryptionIcon(EncryptionMode mode) {
     switch (mode) {
       case EncryptionMode.plaintext:
-        return Icons.lock_open_outlined;
+        return CupertinoIcons.lock_open;
       case EncryptionMode.complianceE2ee:
-        return Icons.admin_panel_settings_outlined;
+        return CupertinoIcons.lock_shield;
       case EncryptionMode.strictE2ee:
-        return Icons.lock_outlined;
+        return CupertinoIcons.lock;
     }
   }
 
@@ -404,7 +405,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           await _persistMuteSetting(v);
           AppLoading.showToast(v ? t.common.enabled : t.common.disabled);
         },
-        icon: Icons.notifications_off_outlined,
+        icon: CupertinoIcons.bell_slash,
         iconColor: Theme.of(context).colorScheme.primary,
         subtitle: t.common.muteNotificationsHint,
       ),
@@ -416,7 +417,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           await _persistBurnSetting();
           AppLoading.showToast(v ? t.common.enabled : t.common.disabled);
         },
-        icon: Icons.local_fire_department_outlined,
+        icon: CupertinoIcons.flame,
         iconColor: AppColors.getIosRed(Theme.of(context).brightness),
         subtitle: _burnEnabled
             ? t.common.burnEnabledMessage(
@@ -427,7 +428,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
       if (_burnEnabled)
         _buildSettingTile(
           title: t.main.destroyTime,
-          icon: Icons.timer_outlined,
+          icon: CupertinoIcons.timer,
           subtitle: _formatBurnAfterMs(_burnAfterMs),
           onTap: _selectBurnDuration,
           trailing: Text(
@@ -462,7 +463,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
       ),
       _buildSettingTile(
         title: t.common.chatSettingBackground,
-        icon: Icons.wallpaper_outlined,
+        icon: CupertinoIcons.photo_on_rectangle,
         isFirst: true,
         onTap: () {
           Navigator.push(
@@ -475,19 +476,14 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
       ),
       _buildSettingTile(
         title: t.common.clearChatRecord,
-        icon: Icons.delete_sweep_outlined,
+        icon: CupertinoIcons.delete,
         isDestructive: true,
         isFirst: true,
         onTap: () {
           String tips = t.common.confirmDeleteChatRecord;
-          showDialog<void>(
+          showCupertinoDialog<void>(
             context: context,
-            barrierDismissible: true,
-            builder: (dialogContext) => AlertDialog(
-              backgroundColor: Theme.of(dialogContext).colorScheme.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: AppRadius.borderRadiusRegular,
-              ),
+            builder: (dialogContext) => CupertinoAlertDialog(
               title: Text(
                 t.common.warning,
                 style: TextStyle(
@@ -497,27 +493,15 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              content: Text(
-                tips,
-                style: TextStyle(
-                  color: Theme.of(dialogContext).colorScheme.onSurface,
-                ),
-              ),
+              content: Text(tips),
               actions: [
-                TextButton(
+                CupertinoDialogAction(
+                  isDestructiveAction: false,
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 8,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.borderRadiusSmall,
-                    ),
-                  ),
                   child: Text(t.common.buttonCancel),
                 ),
-                ElevatedButton(
+                CupertinoDialogAction(
+                  isDestructiveAction: true,
                   onPressed: () async {
                     Navigator.of(dialogContext).pop();
                     final logic = ref.read(chatSettingProvider);
@@ -532,18 +516,6 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                       AppLoading.showError(t.common.tipFailed);
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.getIosRed(
-                      Theme.of(dialogContext).brightness,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 8,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.borderRadiusSmall,
-                    ),
-                  ),
                   child: Text(t.common.buttonConfirm),
                 ),
               ],
@@ -561,16 +533,20 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: GlassAppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        leading: IconButton(
-          icon: Icon(
-            CupertinoIcons.back,
-            color: Theme.of(context).colorScheme.primary,
-            size: 22,
-          ),
-          onPressed: () {
+        leading: GestureDetector(
+          onTap: () {
             Navigator.pop(context, backDoRefresh);
           },
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          child: Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            child: Icon(
+              CupertinoIcons.back,
+              color: Theme.of(context).colorScheme.primary,
+              size: 22,
+            ),
+          ),
         ),
         titleWidget: Text(
           t.common.chatSettings,

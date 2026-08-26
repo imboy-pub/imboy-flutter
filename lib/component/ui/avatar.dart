@@ -141,12 +141,11 @@ class Avatar extends StatelessWidget {
       avatarContent = Hero(tag: heroTag!, child: avatarContent);
     }
 
-    return InkWell(
+    return GestureDetector(
       // 默认行为：点击头像放大预览（双指缩放）。传了自定义 onTap 则优先用调用方的。
       onTap:
           onTap ??
           (imgUri.isNotEmpty ? () => zoomInPhotoView(context, imgUri) : null),
-      borderRadius: BorderRadius.circular(radius),
       // ponytail: 用 Wrap 而非 Column —— Wrap 空间不足时静默换行/裁剪，
       // 不会像 RenderFlex 那样在紧/松有界高度下抛 "RenderFlex OVERFLOWING"
       // 条纹。Avatar 会被塞进各种约束（含横向已选条、窄窗成员网格），

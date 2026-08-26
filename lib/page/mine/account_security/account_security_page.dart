@@ -348,5 +348,17 @@ String _maskAlipay(String alipay) {
   if (v.contains('@')) {
     return _maskEmail(v);
   }
-  return hiddenPhone(v);
+  // 纯数字（手机号 / 支付宝 user_id）→ hiddenPhone 脱敏
+  if (RegExp(r'^\d+$').hasMatch(v)) {
+    return hiddenPhone(v);
+  }
+  // 不含数字 → 支付宝昵称（自动绑定），原样显示
+  if (!RegExp(r'\d').hasMatch(v)) {
+    return v;
+  }
+  // 字母数字混合串不是昵称（可能是账号），脱敏：保留前2后2
+  if (v.length <= 4) {
+    return '****';
+  }
+  return '${v.substring(0, 2)}****${v.substring(v.length - 2)}';
 }

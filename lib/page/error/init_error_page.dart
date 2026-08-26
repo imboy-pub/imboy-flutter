@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:imboy/theme/default/app_colors.dart';
@@ -46,8 +47,8 @@ class _InitErrorPageState extends State<InitErrorPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: SafeArea(
+      home: CupertinoPageScaffold(
+        child: SafeArea(
           child: Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -56,7 +57,7 @@ class _InitErrorPageState extends State<InitErrorPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Icon(
-                    Icons.error_outline,
+                    CupertinoIcons.exclamationmark_circle,
                     size: 64,
                     color: AppColors.iosRed,
                   ),
@@ -96,9 +97,9 @@ class _InitErrorPageState extends State<InitErrorPage> {
                         ? const SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CupertinoActivityIndicator(),
                           )
-                        : const Icon(Icons.refresh),
+                        : const Icon(CupertinoIcons.arrow_clockwise),
                     label: Text(_retrying ? '重试中…' : '重试'),
                   ),
                 ],

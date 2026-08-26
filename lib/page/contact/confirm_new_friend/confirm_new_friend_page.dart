@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_provider.dart';
@@ -96,6 +95,8 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                     ),
                     Expanded(
                       child: CupertinoTextField(
+                        enableSuggestions: false,
+                        autocorrect: false,
                         controller: _remarkC,
                         placeholder: t.contact.enterRemark,
                         maxLength: 80,
@@ -165,15 +166,9 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
       child: SizedBox(
         width: double.infinity,
         height: 50,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
+        child: CupertinoButton(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(14),
           onPressed: _isSubmitting
               ? null
               : () async {

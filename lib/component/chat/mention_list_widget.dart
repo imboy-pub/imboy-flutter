@@ -3,6 +3,7 @@
 /// 在群聊输入框中显示可 @ 的成员列表。
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:imboy/component/chat/mention_model.dart';
@@ -202,7 +203,7 @@ class MentionListWidget extends StatelessWidget {
           color: colorScheme.primary.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: Icon(Icons.group, size: 24, color: colorScheme.primary),
+        child: Icon(CupertinoIcons.group, size: 24, color: colorScheme.primary),
       );
     }
 

@@ -77,34 +77,38 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
       ),
       body: state.announcements.isEmpty && !state.isLoading
           ? _buildEmptyView(context)
-          : RefreshIndicator(
-              onRefresh: () => notifier.onRefresh(),
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.regular,
+          : CustomScrollView(
+              slivers: [
+                CupertinoSliverRefreshControl(
+                  onRefresh: () => notifier.onRefresh(),
                 ),
-                itemCount: state.announcements.length + (state.hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  // 加载更多指示器
-                  if (index == state.announcements.length) {
-                    notifier.onLoadMore();
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(AppSpacing.regular),
-                        child: CupertinoActivityIndicator(),
-                      ),
-                    );
-                  }
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      // 加载更多指示器
+                      if (index == state.announcements.length) {
+                        notifier.onLoadMore();
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(AppSpacing.regular),
+                            child: CupertinoActivityIndicator(),
+                          ),
+                        );
+                      }
 
-                  final announcement = state.announcements[index];
-                  return _buildAnnouncementItem(
-                    context,
-                    announcement,
-                    notifier,
-                    canManage: canManageAnnouncement(state.currentUserRole),
-                  );
-                },
-              ),
+                      final announcement = state.announcements[index];
+                      return _buildAnnouncementItem(
+                        context,
+                        announcement,
+                        notifier,
+                        canManage: canManageAnnouncement(state.currentUserRole),
+                      );
+                    },
+                    childCount:
+                        state.announcements.length + (state.hasMore ? 1 : 0),
+                  ),
+                ),
+              ],
             ),
     );
   }
@@ -288,6 +292,8 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
             children: [
               const SizedBox(height: AppSpacing.small),
               CupertinoTextField(
+                enableSuggestions: false,
+                autocorrect: false,
                 controller: contentController,
                 maxLines: 5,
                 placeholder: t.common.pleaseEnterAnnouncementContent,

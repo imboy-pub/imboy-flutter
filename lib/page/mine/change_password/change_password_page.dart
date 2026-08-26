@@ -188,6 +188,8 @@ class ChangePasswordPage extends ConsumerWidget {
             children: [
               Expanded(
                 child: CupertinoTextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   placeholder: hint,
                   obscureText: obscure,
                   onChanged: onChanged,
@@ -236,16 +238,9 @@ class ChangePasswordPage extends ConsumerWidget {
       child: SizedBox(
         width: double.infinity,
         height: 50,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
+        child: CupertinoButton(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(14),
           onPressed: state.canSubmit
               ? () async {
                   FocusScope.of(context).unfocus();

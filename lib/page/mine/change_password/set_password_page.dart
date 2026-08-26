@@ -62,7 +62,7 @@ class SetPasswordPage extends ConsumerWidget {
                           borderRadius: AppRadius.borderRadiusMedium,
                         ),
                         child: Icon(
-                          Icons.shield_outlined,
+                          CupertinoIcons.checkmark_shield,
                           color: colorScheme.primary,
                           size: 24,
                         ),
@@ -156,7 +156,7 @@ class SetPasswordPage extends ConsumerWidget {
                         Row(
                           children: [
                             Icon(
-                              Icons.lock_open,
+                              CupertinoIcons.lock_open,
                               color: colorScheme.primary,
                               size: 20,
                             ),
@@ -210,7 +210,7 @@ class SetPasswordPage extends ConsumerWidget {
                         Row(
                           children: [
                             Icon(
-                              Icons.lock_clock,
+                              CupertinoIcons.clock,
                               color: colorScheme.primary,
                               size: 20,
                             ),
@@ -257,7 +257,7 @@ class SetPasswordPage extends ConsumerWidget {
                 bottom: bottomPadding > 0 ? bottomPadding : 20,
               ),
               width: double.infinity,
-              child: RoundedElevatedButton(
+              child: RoundedCupertinoButton(
                 text: t.common.buttonConfirm,
                 onPressed: () async {
                   FocusScope.of(context).unfocus();

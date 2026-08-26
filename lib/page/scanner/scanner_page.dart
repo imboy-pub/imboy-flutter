@@ -263,15 +263,12 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
   }
 
   Future<void> _showResult(String txt) {
-    return showModalBottomSheet(
+    return showCupertinoModalPopup(
       context: context,
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? AppColors.darkSurfaceGrouped
-          : AppColors.lightSurfaceGrouped,
       builder: (context) {
         final brightness = Theme.of(context).brightness;
         final isDark = brightness == Brightness.dark;
-        return InkWell(
+        return GestureDetector(
           onTap: () {
             Navigator.pop(context);
           },
@@ -297,8 +294,6 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
           ),
         );
       },
-      isScrollControlled: true,
-      enableDrag: false,
     );
   }
 
@@ -360,7 +355,9 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                             return IconButton(
                               color: AppColors.onPrimary,
                               icon: Icon(
-                                isTorchOn ? Icons.flash_on : Icons.flash_off,
+                                isTorchOn
+                                    ? CupertinoIcons.lightbulb_fill
+                                    : CupertinoIcons.lightbulb_slash,
                                 color: isTorchOn
                                     ? AppColors.iosYellow
                                     : AppColors.onPrimary.withValues(
@@ -378,8 +375,8 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                         IconButton(
                           color: AppColors.onPrimary,
                           icon: scannerState.isStarted
-                              ? const Icon(Icons.stop)
-                              : const Icon(Icons.play_arrow),
+                              ? const Icon(CupertinoIcons.pause_circle_fill)
+                              : const Icon(CupertinoIcons.play_arrow),
                           iconSize: 32.0,
                           tooltip: scannerState.isStarted
                               ? t.common.pauseScan
@@ -418,10 +415,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                                   child,
                                 ) {
                                   final iconData =
-                                      cameraFacing.cameraDirection ==
-                                          CameraFacing.front
-                                      ? Icons.camera_front
-                                      : Icons.camera_rear;
+                                      CupertinoIcons.camera_rotate_fill;
                                   return Icon(iconData);
                                 },
                           ),
@@ -431,13 +425,10 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                         ),
                         IconButton(
                           color: AppColors.onPrimary,
-                          icon: const Icon(Icons.image),
+                          icon: const Icon(CupertinoIcons.photo),
                           iconSize: 32.0,
                           tooltip: t.common.buttonSelectFromAlbum,
                           onPressed: () async {
-                            ScaffoldMessengerState state = ScaffoldMessenger.of(
-                              context,
-                            );
                             if (!scannerState.isStarted) {
                               controller.start();
                             }
@@ -452,23 +443,9 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
                             if (kDebugMode) {}
                             if (!context.mounted) return;
                             if (res == null) {
-                              state.showSnackBar(
-                                SnackBar(
-                                  content: Text(t.common.noBarcodeFound),
-                                  backgroundColor: AppColors.getIosRed(
-                                    Theme.of(context).brightness,
-                                  ),
-                                ),
-                              );
+                              AppLoading.showError(t.common.noBarcodeFound);
                             } else {
-                              state.showSnackBar(
-                                SnackBar(
-                                  content: Text(t.main.barcodeFound),
-                                  backgroundColor: AppColors.getIosGreen(
-                                    Theme.of(context).brightness,
-                                  ),
-                                ),
-                              );
+                              AppLoading.showSuccess(t.main.barcodeFound);
                               onDetect(res);
                             }
                           },

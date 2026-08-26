@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -157,7 +158,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
 
     return Scaffold(
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
-      appBar: AppBar(title: Text(t.common.withdraw)),
+      appBar: GlassAppBar(title: t.common.withdraw),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Form(
@@ -241,7 +242,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                       label: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.payment, size: 20),
+                          const Icon(CupertinoIcons.money_dollar, size: 20),
                           AppSpacing.horizontalSmall,
                           Text(t.common.withdrawAlipay),
                         ],
@@ -260,7 +261,7 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
                       label: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.chat_bubble_outline, size: 20),
+                          const Icon(CupertinoIcons.chat_bubble, size: 20),
                           AppSpacing.horizontalSmall,
                           Text(t.common.withdrawWechat),
                         ],
@@ -280,6 +281,8 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
               // 提现账号
               WalletFieldCard(
                 child: TextFormField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   controller: _accountController,
                   decoration: walletInputDecoration(
                     hint: _selectedMethod == 'alipay'

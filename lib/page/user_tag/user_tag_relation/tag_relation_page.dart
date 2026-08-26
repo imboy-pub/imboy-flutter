@@ -234,26 +234,19 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
     IconData icon,
     VoidCallback? onPressed,
   ) {
-    return TextButton.icon(
+    final color = onPressed != null
+        ? Theme.of(context).colorScheme.onSurface
+        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3);
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
       onPressed: onPressed,
-      icon: Icon(
-        icon,
-        size: 16,
-        color: onPressed != null
-            ? Theme.of(context).colorScheme.onSurface
-            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-      ),
-      label: Text(
-        label,
-        style: TextStyle(
-          color: onPressed != null
-              ? Theme.of(context).colorScheme.onSurface
-              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-        ),
-      ),
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        minimumSize: const Size(44, 44),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 4),
+          Text(label, style: TextStyle(color: color)),
+        ],
       ),
     );
   }
@@ -293,7 +286,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CupertinoActivityIndicator())
           : Column(
               children: [
                 // 键盘弹起后 body 高度骤减，而统计卡 + 快捷操作栏 + 底部保存按钮
@@ -377,15 +370,9 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                         ),
                       ],
                     ),
-                    child: ElevatedButton(
+                    child: CupertinoButton.filled(
                       onPressed: _isSaving ? null : _saveTags,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppRadius.borderRadiusMedium,
-                        ),
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       child: _isSaving
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -393,11 +380,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                                 SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.onPrimary,
-                                    ),
+                                  child: CupertinoActivityIndicator(
+                                    color: AppColors.onPrimary,
                                   ),
                                 ),
                                 AppSpacing.horizontalMedium,
@@ -473,7 +457,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                   borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: const Icon(
-                  Icons.analytics_outlined,
+                  CupertinoIcons.chart_bar,
                   color: AppColors.onPrimary,
                   size: 20,
                 ),
@@ -496,14 +480,14 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                 child: _buildStatItem(
                   t.main.selectedCount(count: selectedCount),
                   '$selectedCount',
-                  Icons.check_circle,
+                  CupertinoIcons.checkmark_circle,
                 ),
               ),
               Expanded(
                 child: _buildStatItem(
                   t.main.availableCount,
                   '$totalTags',
-                  Icons.label_outline,
+                  CupertinoIcons.tag,
                 ),
               ),
               if (mostUsedTag.isNotEmpty)
@@ -511,7 +495,7 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                   child: _buildStatItem(
                     t.main.mostUsed,
                     mostUsedTag,
-                    Icons.star_outline,
+                    CupertinoIcons.star,
                   ),
                 ),
             ],
@@ -553,13 +537,13 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
           const Spacer(),
           _buildQuickActionButton(
             t.common.reset,
-            Icons.refresh,
+            CupertinoIcons.arrow_clockwise,
             _hasChanges() ? _resetTags : null,
           ),
           AppSpacing.horizontalSmall,
           _buildQuickActionButton(
             t.common.clear,
-            Icons.clear_all,
+            CupertinoIcons.clear,
             _currentTags.isNotEmpty ? _clearAllTags : null,
           ),
         ],

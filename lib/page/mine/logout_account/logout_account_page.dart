@@ -242,18 +242,9 @@ class LogoutAccountPage extends ConsumerWidget {
       child: SizedBox(
         width: double.infinity,
         height: 50,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.getIosRed(brightness),
-            foregroundColor: AppColors.onPrimary,
-            disabledBackgroundColor: AppColors.getIosRed(
-              brightness,
-            ).withValues(alpha: 0.3),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
+        child: CupertinoButton(
+          color: AppColors.getIosRed(brightness),
+          borderRadius: BorderRadius.circular(14),
           onPressed: agreed && !state.isLoading
               ? () async {
                   // 注销不可逆：删除按钮前必须二次确认，勿绕过。

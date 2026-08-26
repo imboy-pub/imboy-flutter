@@ -45,14 +45,10 @@ class _MinePageState extends ConsumerState<MinePage> {
     final userRepo = ref.watch(userRepoProvider);
     final user = userRepo.currentUser;
     final brightness = Theme.of(context).brightness;
-    final isDark = brightness == Brightness.dark;
     final topPadding = MediaQuery.of(context).padding.top + 16.0;
 
-    return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.darkSurfaceGrouped
-          : AppColors.lightSurfaceGrouped,
-      body: SafeArea(
+    return CupertinoPageScaffold(
+      child: SafeArea(
         top: false, // 顶衬直接渗透到状态栏，实现高奢沉浸式一体化底色
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(

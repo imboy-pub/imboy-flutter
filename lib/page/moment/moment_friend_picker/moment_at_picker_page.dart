@@ -164,7 +164,7 @@ class _MomentAtPickerPageState extends ConsumerState<MomentAtPickerPage> {
 
   Widget _buildFriendList() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
     if (_friends.isEmpty) {
       return Center(

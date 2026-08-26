@@ -1062,6 +1062,8 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                     ),
                     child: Center(
                       child: TextField(
+                        enableSuggestions: false,
+                        autocorrect: false,
                         controller: _commentController,
                         focusNode: _commentFocusNode,
                         textInputAction: TextInputAction.send,
@@ -1371,10 +1373,7 @@ class _DetailSkeleton extends StatelessWidget {
   Widget _bar(double width, double height) => Container(
     width: width,
     height: height,
-    decoration: BoxDecoration(
-      color: AppColors.mediaScrimWhite,
-      borderRadius: AppRadius.borderRadiusTiny,
-    ),
+    decoration: BoxDecoration(color: AppColors.mediaScrimWhite),
   );
 
   @override
@@ -1426,18 +1425,12 @@ class _DetailSkeleton extends StatelessWidget {
           Container(
             width: double.infinity,
             height: screenW * 0.45,
-            decoration: BoxDecoration(
-              color: AppColors.mediaScrimWhite,
-              borderRadius: AppRadius.borderRadiusMedium,
-            ),
+            decoration: BoxDecoration(color: AppColors.mediaScrimWhite),
           ),
           const SizedBox(height: 28),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.mediaScrimWhite,
-              borderRadius: AppRadius.borderRadiusMedium,
-            ),
+            decoration: BoxDecoration(color: AppColors.mediaScrimWhite),
             child: Column(
               children: List.generate(3, (i) {
                 return Padding(

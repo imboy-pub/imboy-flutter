@@ -45,7 +45,7 @@ final class PeopleInfoMoreNotifierProvider
 }
 
 String _$peopleInfoMoreNotifierHash() =>
-    r'd0f46809e0bc06ac905633cd4c642692bdd412a6';
+    r'5f7d5ec007035f29fd9481af38727e131e11f98e';
 
 /// 更多个人信息状态通知器
 

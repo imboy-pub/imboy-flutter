@@ -197,19 +197,15 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
   }
 
   void _showAddTagSheet(BuildContext context) {
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
       builder: (context) => UserTagSavePage(scene: 'friend'),
     );
   }
 
   void _showRenameSheet(BuildContext context, UserTagModel obj) {
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
       builder: (context) => UserTagSavePage(tag: obj, scene: 'friend'),
     );
   }

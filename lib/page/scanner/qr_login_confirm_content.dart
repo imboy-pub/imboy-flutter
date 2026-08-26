@@ -11,6 +11,7 @@
 ///   - 页面水平 padding 16pt
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -49,8 +50,8 @@ class QrLoginConfirmContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
+    return CupertinoPageScaffold(
+      child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
           child: Center(child: _buildBody(context)),
@@ -74,12 +75,12 @@ class QrLoginConfirmContent extends StatelessWidget {
       QrLoginConfirmSuccess() => _success(context),
       QrLoginConfirmExpired() => _terminal(
         context,
-        icon: Icons.timer_off_outlined,
+        icon: CupertinoIcons.timer,
         message: t.passport.qrCodeExpired,
       ),
       QrLoginConfirmAlreadyUsed() => _terminal(
         context,
-        icon: Icons.error_outline,
+        icon: CupertinoIcons.exclamationmark_circle,
         message: t.passport.qrCodeUsed,
       ),
       QrLoginConfirmCancelledByMe() => _info(
@@ -88,12 +89,12 @@ class QrLoginConfirmContent extends StatelessWidget {
       ),
       QrLoginConfirmCancelledByOther() => _terminal(
         context,
-        icon: Icons.cancel_outlined,
+        icon: CupertinoIcons.xmark_circle,
         message: t.passport.qrLoginCancelled,
       ),
       QrLoginConfirmFailed(:final errorMessage) => _terminal(
         context,
-        icon: Icons.error_outline,
+        icon: CupertinoIcons.exclamationmark_circle,
         message: errorMessage,
       ),
     };
@@ -107,7 +108,7 @@ class QrLoginConfirmContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const CircularProgressIndicator(color: AppColors.primary),
+        const CupertinoActivityIndicator(),
         AppSpacing.verticalXLarge,
         Text(hint, style: context.textStyle(FontSizeType.medium)),
       ],
@@ -126,7 +127,11 @@ class QrLoginConfirmContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.computer_outlined, size: 80, color: AppColors.primary),
+        const Icon(
+          CupertinoIcons.desktopcomputer,
+          size: 80,
+          color: AppColors.primary,
+        ),
         AppSpacing.verticalXLarge,
         Text(
           t.passport.qrWebLoginTitle,
@@ -151,15 +156,10 @@ class QrLoginConfirmContent extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           height: 48,
-          child: ElevatedButton(
+          child: CupertinoButton(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(24),
             onPressed: onConfirm,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-            ),
             child: Text(
               t.passport.qrLoginAction,
               style: context.textStyle(
@@ -173,7 +173,7 @@ class QrLoginConfirmContent extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           height: 48,
-          child: TextButton(
+          child: CupertinoDialogAction(
             onPressed: onCancel,
             child: Text(
               t.common.buttonCancel,
@@ -193,7 +193,7 @@ class QrLoginConfirmContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const Icon(
-          Icons.check_circle_outline,
+          CupertinoIcons.checkmark_circle,
           size: 80,
           color: AppColors.primary,
         ),

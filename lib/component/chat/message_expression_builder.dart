@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -78,7 +79,7 @@ class ExpressionMessageBuilder extends StatelessWidget {
               color: isDark
                   ? AppColors.placeholderSurfaceDark
                   : AppColors.placeholderSurfaceLight,
-              child: const Icon(Icons.broken_image, color: AppColors.iosGray),
+              child: const Icon(CupertinoIcons.photo, color: AppColors.iosGray),
             ),
           ),
         ),

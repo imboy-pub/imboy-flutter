@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -98,7 +99,7 @@ class CustomOverlay extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  Icons.delete_outline,
+                                  CupertinoIcons.delete,
                                   color: errorColor,
                                   size: 36,
                                 ),
@@ -123,7 +124,7 @@ class CustomOverlay extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
-                                  Icons.translate,
+                                  CupertinoIcons.globe,
                                   color: Colors.amber,
                                   size: 32,
                                 ),
@@ -170,7 +171,7 @@ class CustomOverlay extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  Icons.mic,
+                                  CupertinoIcons.mic_fill,
                                   color: primaryColor,
                                   size: 36,
                                 ),
@@ -227,7 +228,7 @@ class CustomOverlay extends StatelessWidget {
               bottom: 160,
               child: _buildActionTarget(
                 context: context,
-                icon: Icons.close,
+                icon: CupertinoIcons.xmark_circle_fill,
                 label: t.common.buttonCancel,
                 activeColor: errorColor,
                 isActive: actionState == VoiceActionState.cancel,
@@ -241,7 +242,7 @@ class CustomOverlay extends StatelessWidget {
               bottom: 160,
               child: _buildActionTarget(
                 context: context,
-                icon: Icons.translate,
+                icon: CupertinoIcons.globe,
                 label: t.chat.convertToText,
                 activeColor: AppColors.iosYellow, // 金黄色/琥珀色对齐转文字的温馨视觉
                 isActive: actionState == VoiceActionState.convert,

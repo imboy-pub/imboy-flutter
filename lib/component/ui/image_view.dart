@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -52,7 +53,7 @@ class ImageView extends StatelessWidget {
             borderRadius: AppRadius.borderRadiusTiny,
             color: Colors.black26.withValues(alpha: 0.1),
           ),
-          child: const Icon(Icons.error),
+          child: const Icon(CupertinoIcons.exclamationmark_circle),
         ),
       );
     } else if (File(uri).existsSync()) {

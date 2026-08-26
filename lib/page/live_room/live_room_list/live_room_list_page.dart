@@ -59,11 +59,13 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
   /// 弹出创建直播间对话框，成功后跳转到推流页
   Future<void> _showCreateRoomDialog() async {
     final titleController = TextEditingController();
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.chat.liveRoomCreateTitle),
         content: TextField(
+          enableSuggestions: false,
+          autocorrect: false,
           controller: titleController,
           decoration: InputDecoration(
             labelText: t.main.liveRoomTitleLabel,
@@ -73,11 +75,11 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
           maxLength: 100,
         ),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(t.common.buttonCancel),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(t.common.buttonCreate),
           ),
@@ -125,7 +127,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
       body: RefreshIndicator(
         onRefresh: () => ref.read(liveRoomListProvider.notifier).loadFirst(),
         child: state.isLoading && state.items.isEmpty
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: CupertinoActivityIndicator())
             : state.items.isEmpty
             ? NoDataView(text: t.common.noData)
             : ListView.separated(
@@ -137,7 +139,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
                   if (index == state.items.length) {
                     return const Padding(
                       padding: EdgeInsets.all(AppSpacing.regular),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: CupertinoActivityIndicator()),
                     );
                   }
                   return _buildRoomTile(context, state.items[index]);
@@ -157,10 +159,10 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
                 width: 56,
                 height: 56,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => const Icon(Icons.live_tv),
+                errorBuilder: (_, _, _) => const Icon(CupertinoIcons.videocam),
               ),
             )
-          : const Icon(Icons.live_tv, size: 40),
+          : const Icon(CupertinoIcons.videocam, size: 40),
       title: Text(
         room.title.isNotEmpty ? room.title : 'Live Room',
         maxLines: 1,
@@ -172,7 +174,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
           return Row(
             children: [
               Icon(
-                Icons.circle,
+                CupertinoIcons.circle,
                 size: 8,
                 color: room.isLive
                     ? AppColors.getIosRed(Theme.of(context).brightness)
@@ -181,7 +183,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
               AppSpacing.horizontalTiny,
               Text(room.isLive ? 'LIVE' : 'Idle'),
               AppSpacing.horizontalMedium,
-              Icon(Icons.remove_red_eye, size: 12, color: secondaryColor),
+              Icon(CupertinoIcons.eye, size: 12, color: secondaryColor),
               const SizedBox(width: 2),
               Text(
                 '${room.viewerCount}',
@@ -204,7 +206,7 @@ class _LiveRoomListPageState extends ConsumerState<LiveRoomListPage> {
               onPressed: () =>
                   context.push('/live_room/subscriber', extra: room),
             ),
-          const Icon(Icons.navigate_next),
+          const Icon(CupertinoIcons.chevron_right),
         ],
       ),
       onTap: () {

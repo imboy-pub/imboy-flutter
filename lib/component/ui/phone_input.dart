@@ -153,6 +153,8 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
         // 电话号码输入框
         Expanded(
           child: TextField(
+            enableSuggestions: false,
+            autocorrect: false,
             controller: _controller,
             keyboardType: TextInputType.phone,
             decoration: widget.decoration ?? defaultDecoration,

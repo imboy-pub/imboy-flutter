@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 
 class RightButton extends StatefulWidget {
   const RightButton({super.key});
@@ -150,9 +149,8 @@ class RightButtonList extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: AppRadius.borderRadiusTiny,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

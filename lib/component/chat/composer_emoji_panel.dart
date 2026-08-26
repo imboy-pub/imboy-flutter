@@ -1,4 +1,5 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -216,7 +217,7 @@ class _BrandSearchViewState extends SearchViewState<_BrandSearchView> {
             onPressed: widget.showEmojiView,
             color: config.buttonIconColor,
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+            icon: const Icon(CupertinoIcons.chevron_left, size: 18),
           ),
           Expanded(
             child: Container(
@@ -232,10 +233,16 @@ class _BrandSearchViewState extends SearchViewState<_BrandSearchView> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.search, size: 18, color: AppColors.iosGray),
+                  Icon(
+                    CupertinoIcons.search,
+                    size: 18,
+                    color: AppColors.iosGray,
+                  ),
                   AppSpacing.horizontalTiny,
                   Expanded(
                     child: TextField(
+                      enableSuggestions: false,
+                      autocorrect: false,
                       controller: _controller,
                       focusNode: focusNode,
                       onChanged: _onChanged,
@@ -267,7 +274,7 @@ class _BrandSearchViewState extends SearchViewState<_BrandSearchView> {
                         _onChanged('');
                       },
                       child: Icon(
-                        Icons.cancel,
+                        CupertinoIcons.xmark_circle_fill,
                         size: 18,
                         color: AppColors.iosGray3,
                       ),

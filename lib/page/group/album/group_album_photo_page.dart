@@ -411,25 +411,30 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
       return NoDataView(text: t.group.groupAlbumPhotoEmpty);
     }
 
-    return RefreshIndicator(
-      onRefresh: () => _loadPhotos(refresh: true),
-      child: GridView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(AppSpacing.medium),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 1,
+    return CustomScrollView(
+      controller: _scrollController,
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () => _loadPhotos(refresh: true),
         ),
-        itemCount: _photos.length + (_isLoadingMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index >= _photos.length) {
-            return const Center(child: CupertinoActivityIndicator());
-          }
-          return _buildPhotoCell(_photos[index], index);
-        },
-      ),
+        SliverPadding(
+          padding: const EdgeInsets.all(AppSpacing.medium),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 1,
+            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              if (index >= _photos.length) {
+                return const Center(child: CupertinoActivityIndicator());
+              }
+              return _buildPhotoCell(_photos[index], index);
+            }, childCount: _photos.length + (_isLoadingMore ? 1 : 0)),
+          ),
+        ),
+      ],
     );
   }
 

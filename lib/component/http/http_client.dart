@@ -14,7 +14,6 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/service/network_monitor.dart';
 
@@ -29,6 +28,7 @@ import 'http_transformer.dart';
 import 'http_retry_interceptor.dart';
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 构造底层 HttpClient：统一挂证书校验，可选走代理。
 io.HttpClient _buildHttpClient({String? proxy}) {
@@ -307,13 +307,7 @@ class HttpClient {
         await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(t.chat.loginExpiredMessage),
-              duration: const Duration(seconds: 2),
-              backgroundColor: AppColors.iosOrange,
-            ),
-          );
+          AppLoading.showToast(t.chat.loginExpiredMessage);
         }
       }
 

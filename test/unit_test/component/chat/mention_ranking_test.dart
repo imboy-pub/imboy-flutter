@@ -203,11 +203,13 @@ void main() {
         [alice, d, bob, e, carol],
         {'uid_alice': 5, 'uid_bob': 5, 'uid_carol': 5, 'uid_d': 1, 'uid_e': 1},
       );
-      expect(
-        ids(out),
-        ['uid_alice', 'uid_bob', 'uid_carol', 'uid_d', 'uid_e'],
-        reason: 'within each frequency tier the original order is preserved',
-      );
+      expect(ids(out), [
+        'uid_alice',
+        'uid_bob',
+        'uid_carol',
+        'uid_d',
+        'uid_e',
+      ], reason: 'within each frequency tier the original order is preserved');
     });
 
     test('negative counts sort below zero/positive counts (numeric desc)', () {

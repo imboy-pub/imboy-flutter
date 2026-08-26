@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -170,31 +171,31 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
 
     switch (_gestureType) {
       case 'forward':
-        icon = Icons.fast_forward_rounded;
+        icon = CupertinoIcons.forward;
         text = t.chat.fastForward(
           seconds: (_dragDelta.abs() / 100 * 10).round().toString(),
         );
         color = AppColors.iosBlue;
         break;
       case 'backward':
-        icon = Icons.fast_rewind_rounded;
+        icon = CupertinoIcons.backward;
         text = t.main.fastRewind(
           seconds: (_dragDelta.abs() / 100 * 10).round().toString(),
         );
         color = AppColors.iosBlue;
         break;
       case 'volume_up':
-        icon = Icons.volume_up_rounded;
+        icon = CupertinoIcons.volume_up;
         text = t.main.volumeUp;
         color = AppColors.iosGreen;
         break;
       case 'volume_down':
-        icon = Icons.volume_down_rounded;
+        icon = CupertinoIcons.volume_down;
         text = t.main.volumeDown;
         color = AppColors.iosOrange;
         break;
       default:
-        icon = Icons.info_outline_rounded;
+        icon = CupertinoIcons.info_circle;
         text = '';
         color = AppColors.onPrimary; // on dark video overlay
     }
@@ -312,7 +313,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                             context,
                           ).backButtonTooltip,
                           icon: const Icon(
-                            Icons.arrow_back,
+                            CupertinoIcons.back,
                             color: AppColors.mediaScrimWhite,
                           ),
                           onPressed: () => Navigator.of(context).pop(),
@@ -324,8 +325,8 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                               : t.common.enterFullscreen,
                           icon: Icon(
                             widget.isFullScreen
-                                ? Icons.fullscreen_exit
-                                : Icons.fullscreen,
+                                ? CupertinoIcons.fullscreen_exit
+                                : CupertinoIcons.fullscreen,
                             color: AppColors.mediaScrimWhite,
                           ),
                           onPressed: widget.onFullScreenPressed,
@@ -430,7 +431,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                             IconButton(
                               tooltip: t.main.fastRewind(seconds: '10'),
                               icon: const Icon(
-                                Icons.replay_10,
+                                CupertinoIcons.arrow_counterclockwise,
                                 color: AppColors.mediaScrimWhite,
                                 size: 28,
                               ),
@@ -455,8 +456,8 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                                           : t.main.play,
                                       icon: Icon(
                                         value.isPlaying
-                                            ? Icons.pause
-                                            : Icons.play_arrow,
+                                            ? CupertinoIcons.pause
+                                            : CupertinoIcons.play_arrow,
                                         color: AppColors.mediaScrimWhite,
                                         size: 36,
                                       ),
@@ -476,7 +477,7 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                             IconButton(
                               tooltip: t.chat.fastForward(seconds: '10'),
                               icon: const Icon(
-                                Icons.forward_10,
+                                CupertinoIcons.arrow_clockwise,
                                 color: AppColors.mediaScrimWhite,
                                 size: 28,
                               ),
@@ -507,7 +508,9 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                         opacity: value.isPlaying ? 0.0 : 1.0,
                         duration: const Duration(milliseconds: 300),
                         child: Icon(
-                          value.isPlaying ? Icons.pause : Icons.play_arrow,
+                          value.isPlaying
+                              ? CupertinoIcons.pause
+                              : CupertinoIcons.play_arrow,
                           color: AppColors.mediaScrimWhite.withValues(
                             alpha: 0.8,
                           ),

@@ -1,8 +1,15 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
-/// 圆角 elevated 按钮 - 使用优化后的主题系统
-class RoundedElevatedButton extends StatelessWidget {
+/// 圆角 Cupertino 按钮 - 使用 iOS 风格
+///
+/// [highlighted] = true：主色填充 + 白字 + 投影；
+/// false：浅色底 + 主色描边 + 主色文字（secondary 样式）。
+/// [size] 为「最小外框尺寸」语义（与旧 RoundedElevatedButton 的
+/// ElevatedButton.minimumSize 一致），长文本可继续撑大不溢出。
+class RoundedCupertinoButton extends StatelessWidget {
   final String text;
   final bool highlighted;
   final VoidCallback? onPressed;
@@ -11,7 +18,7 @@ class RoundedElevatedButton extends StatelessWidget {
   final IconData? icon;
   final bool isLoading;
 
-  const RoundedElevatedButton({
+  const RoundedCupertinoButton({
     super.key,
     required this.text,
     required this.highlighted,
@@ -22,13 +29,28 @@ class RoundedElevatedButton extends StatelessWidget {
     this.isLoading = false,
   });
 
+  static const double _kHorizontalPadding = 24;
+  static const double _kVerticalPadding = 12;
+
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final radius = borderRadius ?? BorderRadius.circular(25);
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
+    final bgColor = highlighted
+        ? AppColors.primary
+        : (isDark ? AppColors.darkSurface : AppColors.lightSurface);
+    // 前景色与背景始终对比：加载指示器/图标/文字同色处理
+    final fgColor = highlighted ? AppColors.onPrimary : AppColors.primary;
+    // 最小外框尺寸 → 内容区最小约束（减去按钮 padding）
+    final minContentWidth = ((size?.width ?? 88) - _kHorizontalPadding * 2)
+        .clamp(0.0, double.infinity);
+    final minContentHeight = ((size?.height ?? 48) - _kVerticalPadding * 2)
+        .clamp(0.0, double.infinity);
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: borderRadius ?? BorderRadius.circular(25),
+        borderRadius: radius,
+        border: highlighted ? null : Border.all(color: AppColors.primary),
         boxShadow: highlighted && onPressed != null
             ? [
                 BoxShadow(
@@ -39,73 +61,44 @@ class RoundedElevatedButton extends StatelessWidget {
               ]
             : null,
       ),
-      child: ElevatedButton(
+      child: CupertinoButton(
         onPressed: isLoading ? null : onPressed,
-        style: highlighted
-            ? _primaryButtonStyle(context, size)
-            : _secondaryButtonStyle(context, size),
-        child: isLoading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    highlighted ? AppColors.onPrimary : AppColors.primary,
-                  ),
-                ),
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 18),
-                    const SizedBox(width: 8),
-                  ],
-                  Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+        padding: const EdgeInsets.symmetric(
+          horizontal: _kHorizontalPadding,
+          vertical: _kVerticalPadding,
+        ),
+        borderRadius: radius,
+        color: bgColor,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: minContentWidth,
+            minHeight: minContentHeight,
+          ),
+          child: isLoading
+              ? Center(child: CupertinoActivityIndicator(color: fgColor))
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, size: 18, color: fgColor),
+                      AppSpacing.horizontalSmall,
+                    ],
+                    Flexible(
+                      child: Text(
+                        text,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: FontSizeType.medium.size,
+                          color: fgColor,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-
-  /// 主要按钮样式
-  ButtonStyle _primaryButtonStyle(BuildContext context, Size? size) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: AppColors.primary,
-      foregroundColor: AppColors.onPrimary,
-      minimumSize: size ?? const Size(88, 48),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius ?? BorderRadius.circular(25),
-      ),
-      elevation: 2,
-      shadowColor: AppColors.primary.withValues(alpha: 0.3),
-    );
-  }
-
-  /// 次要按钮样式
-  ButtonStyle _secondaryButtonStyle(BuildContext context, Size? size) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      foregroundColor: AppColors.primary,
-      minimumSize: size ?? const Size(88, 48),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius ?? BorderRadius.circular(25),
-        side: BorderSide(
-          color: AppColors.primary.withValues(alpha: 0.3),
-          width: 1,
+                  ],
+                ),
         ),
       ),
-      elevation: 0,
     );
   }
 }

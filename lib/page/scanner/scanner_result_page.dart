@@ -42,7 +42,7 @@ class ScannerResultPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Icon(Icons.keyboard_arrow_left),
+                  child: const Icon(CupertinoIcons.chevron_left),
                 ),
                 // copy
                 FloatingActionButton(
@@ -53,7 +53,7 @@ class ScannerResultPage extends StatelessWidget {
                     Clipboard.setData(ClipboardData(text: scanResult));
                     AppLoading.showToast(t.main.copied);
                   },
-                  child: const Icon(Icons.copy_all),
+                  child: const Icon(CupertinoIcons.doc_on_doc),
                 ),
                 // open in browser
                 FloatingActionButton(
@@ -79,7 +79,7 @@ class ScannerResultPage extends StatelessWidget {
                           );
                         }
                       : null,
-                  child: const Icon(Icons.open_in_browser),
+                  child: const Icon(CupertinoIcons.arrow_up_right),
                 ),
                 const Space(width: 40),
               ],
@@ -109,12 +109,9 @@ class ScannerResultPage extends StatelessWidget {
   }
 
   Future<void> _showResult(BuildContext context, String txt) {
-    return showModalBottomSheet(
+    return showCupertinoModalPopup(
       context: context,
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? AppColors.darkSurfaceGrouped
-          : AppColors.lightSurfaceGrouped,
-      builder: (context) => InkWell(
+      builder: (context) => GestureDetector(
         onTap: () {
           Navigator.pop(context);
         },
@@ -137,8 +134,6 @@ class ScannerResultPage extends StatelessWidget {
           ),
         ),
       ),
-      isScrollControlled: true,
-      enableDrag: false,
     );
   }
 }

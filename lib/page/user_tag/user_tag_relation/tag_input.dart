@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 增强的标签输入组件
 /// 提供更好的标签编辑体验，包括：
@@ -145,13 +147,7 @@ class _TagInputState extends State<TagInput> {
 
   /// 显示错误提示
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.iosRed,
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    AppLoading.showToast(message);
   }
 
   /// 构建当前标签列表
@@ -170,7 +166,7 @@ class _TagInputState extends State<TagInput> {
         children: [
           Row(
             children: [
-              Icon(Icons.local_offer, size: 16, color: AppColors.primary),
+              Icon(CupertinoIcons.tag, size: 16, color: AppColors.primary),
               AppSpacing.horizontalSmall,
               Text(
                 t.contact.selectedTags(
@@ -214,8 +210,7 @@ class _TagInputState extends State<TagInput> {
       ),
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusLarge,
+        child: GestureDetector(
           onTap: () {
             if (isSelected) {
               _removeTag(tag);
@@ -264,7 +259,11 @@ class _TagInputState extends State<TagInput> {
                 ],
                 if (isSelected) ...[
                   AppSpacing.horizontalTiny,
-                  Icon(Icons.close, size: 16, color: AppColors.onPrimary),
+                  Icon(
+                    CupertinoIcons.xmark_circle_fill,
+                    size: 16,
+                    color: AppColors.onPrimary,
+                  ),
                 ],
               ],
             ),
@@ -288,6 +287,8 @@ class _TagInputState extends State<TagInput> {
         ),
       ),
       child: TextField(
+        enableSuggestions: false,
+        autocorrect: false,
         controller: _controller,
         focusNode: _focusNode,
         decoration: InputDecoration(
@@ -301,7 +302,7 @@ class _TagInputState extends State<TagInput> {
           contentPadding: AppSpacing.allRegular,
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.add_circle),
+                  icon: const Icon(CupertinoIcons.add_circled),
                   color: AppColors.primary,
                   onPressed: () => _addTag(_controller.text.trim()),
                   tooltip: t.common.buttonAdd,
@@ -349,7 +350,7 @@ class _TagInputState extends State<TagInput> {
             child: Row(
               children: [
                 Icon(
-                  Icons.lightbulb_outline,
+                  CupertinoIcons.lightbulb,
                   size: 16,
                   color: AppColors.iosOrange,
                 ),

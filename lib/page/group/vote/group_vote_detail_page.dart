@@ -312,12 +312,7 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,
                   widthFactor: percent.clamp(0.0, 1.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: accent,
-                      borderRadius: AppRadius.borderRadiusTiny,
-                    ),
-                  ),
+                  child: Container(decoration: BoxDecoration(color: accent)),
                 ),
               ),
             ),
@@ -375,78 +370,63 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     final isMultiple = voteType == 2;
     final totalVotes = _toInt(_vote!['total_votes']);
 
-    return RefreshIndicator(
-      onRefresh: _loadVoteDetail,
-      child: ListView(
-        padding: const EdgeInsets.all(AppSpacing.regular),
-        children: [
-          Text(
-            _toText(_vote!['title']),
-            style: context.textStyle(
-              FontSizeType.extraLarge,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.small),
-          if (_toText(_vote!['description']).isNotEmpty)
-            Text(_toText(_vote!['description'])),
-          const SizedBox(height: AppSpacing.small),
-          Wrap(
-            spacing: AppSpacing.small,
-            children: [
-              _iosChip(
-                _voteStatus == 1
-                    ? context.t.groupVote.statusInProgress
-                    : context.t.groupVote.voteEnded,
-                isDark: Theme.of(context).brightness == Brightness.dark,
-              ),
-              _iosChip(
-                context.t.groupVote.totalVotes(count: totalVotes),
-                isDark: Theme.of(context).brightness == Brightness.dark,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.regular),
-          ...options.map(
-            (option) =>
-                _buildOptionItem(option, isMultiple, totalVotes: totalVotes),
-          ),
-          const SizedBox(height: AppSpacing.regular),
-          if (_voteStatus == 1)
-            SizedBox(
-              height: 44,
-              child: CupertinoButton.filled(
-                borderRadius: BorderRadius.circular(12),
-                onPressed: (_selectedOptionIds.isEmpty || _isSubmitting)
-                    ? null
-                    : _submitVote,
-                child: _isSubmitting
-                    ? const CupertinoActivityIndicator()
-                    : Text(
-                        _hasVoted
-                            ? context.t.groupVote.updateVote
-                            : context.t.common.confirm,
-                      ),
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(onRefresh: _loadVoteDetail),
+        SliverList(
+          delegate: SliverChildListDelegate([
+            Text(
+              _toText(_vote!['title']),
+              style: context.textStyle(
+                FontSizeType.extraLarge,
+                fontWeight: FontWeight.w700,
               ),
             ),
-          if (_voteStatus == 1) const SizedBox(height: AppSpacing.medium),
-          if (_voteStatus == 1)
-            Row(
+            const SizedBox(height: AppSpacing.small),
+            if (_toText(_vote!['description']).isNotEmpty)
+              Text(_toText(_vote!['description'])),
+            const SizedBox(height: AppSpacing.small),
+            Wrap(
+              spacing: AppSpacing.small,
               children: [
-                Expanded(
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    borderRadius: BorderRadius.circular(12),
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.darkSurface
-                        : AppColors.lightSurfaceContainer,
-                    onPressed: _isSubmitting ? null : _cancelVote,
-                    child: Text(context.t.groupVote.cancelMyVote),
-                  ),
+                _iosChip(
+                  _voteStatus == 1
+                      ? context.t.groupVote.statusInProgress
+                      : context.t.groupVote.voteEnded,
+                  isDark: Theme.of(context).brightness == Brightness.dark,
                 ),
-                // SR-4：结束投票仅发起人 / 管理员 / 群主可见（隐藏而非报错）
-                if (_canCloseVote) ...[
-                  const SizedBox(width: AppSpacing.medium),
+                _iosChip(
+                  context.t.groupVote.totalVotes(count: totalVotes),
+                  isDark: Theme.of(context).brightness == Brightness.dark,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.regular),
+            ...options.map(
+              (option) =>
+                  _buildOptionItem(option, isMultiple, totalVotes: totalVotes),
+            ),
+            const SizedBox(height: AppSpacing.regular),
+            if (_voteStatus == 1)
+              SizedBox(
+                height: 44,
+                child: CupertinoButton.filled(
+                  onPressed: (_selectedOptionIds.isEmpty || _isSubmitting)
+                      ? null
+                      : _submitVote,
+                  child: _isSubmitting
+                      ? const CupertinoActivityIndicator()
+                      : Text(
+                          _hasVoted
+                              ? context.t.groupVote.updateVote
+                              : context.t.common.confirm,
+                        ),
+                ),
+              ),
+            if (_voteStatus == 1) const SizedBox(height: AppSpacing.medium),
+            if (_voteStatus == 1)
+              Row(
+                children: [
                   Expanded(
                     child: CupertinoButton(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -454,15 +434,29 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
                       color: Theme.of(context).brightness == Brightness.dark
                           ? AppColors.darkSurface
                           : AppColors.lightSurfaceContainer,
-                      onPressed: _isSubmitting ? null : _closeVote,
-                      child: Text(context.t.groupVote.voteEnded),
+                      onPressed: _isSubmitting ? null : _cancelVote,
+                      child: Text(context.t.groupVote.cancelMyVote),
                     ),
                   ),
+                  // SR-4：结束投票仅发起人 / 管理员 / 群主可见（隐藏而非报错）
+                  if (_canCloseVote) ...[
+                    const SizedBox(width: AppSpacing.medium),
+                    Expanded(
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? AppColors.darkSurface
+                            : AppColors.lightSurfaceContainer,
+                        onPressed: _isSubmitting ? null : _closeVote,
+                        child: Text(context.t.groupVote.voteEnded),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
-            ),
-        ],
-      ),
+              ),
+          ]),
+        ),
+      ],
     );
   }
 }

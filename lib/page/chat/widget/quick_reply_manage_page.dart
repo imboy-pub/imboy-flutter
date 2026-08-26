@@ -13,6 +13,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/chat_input_types.dart';
 import 'package:imboy/service/quick_reply_service.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -114,7 +115,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
   /// 方法作用域手动 dispose 会早于退出动画，动画帧重建 TextField 时
   /// 触发 "used after being disposed"。
   Future<String?> _promptText({required String title, String initial = ''}) {
-    return showDialog<String>(
+    return showCupertinoDialog<String>(
       context: context,
       builder: (_) => _PromptDialog(title: title, initial: initial),
     );
@@ -122,17 +123,12 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(t.chat.quickReplyManage)),
-      floatingActionButton: _uid.isEmpty
-          ? null
-          : FloatingActionButton(
-              onPressed: _handleAdd,
-              tooltip: t.common.buttonAdd,
-              child: const Icon(CupertinoIcons.add),
-            ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(t.chat.quickReplyManage),
+      ),
+      child: _loading
+          ? const Center(child: CupertinoActivityIndicator())
           : _replies.isEmpty
           ? Center(
               child: Padding(
@@ -140,69 +136,99 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                 child: Text(
                   t.chat.quickReplyEmpty,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: context.textStyle(
+                    FontSizeType.body,
+                    color: CupertinoColors.systemGrey,
+                  ),
                 ),
               ),
             )
-          : ReorderableListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: _replies.length,
-              onReorderItem: _handleReorder,
-              // 关键：关闭默认长按拖拽，避免和 Dismissible 的滑动手势冲突；
-              // 拖拽通过显式的 ReorderableDragStartListener handle 触发。
-              buildDefaultDragHandles: false,
-              itemBuilder: (context, index) {
-                final text = _replies[index];
-                final itemKey = ValueKey('quickReply-$index-$text');
-                return Dismissible(
-                  key: itemKey,
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    color: AppColors.getIosRed(Theme.of(context).brightness),
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: const Icon(
-                      Icons.delete_outline,
-                      color: AppColors.onPrimary,
-                    ),
-                  ),
-                  onDismissed: (_) => _handleDelete(index),
-                  child: ListTile(
-                    title: Text(
-                      text,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(CupertinoIcons.pencil, size: 20),
-                          tooltip: t.common.edit,
-                          onPressed: () => _handleEdit(index),
+          : Stack(
+              children: [
+                ReorderableListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: _replies.length,
+                  onReorderItem: _handleReorder,
+                  buildDefaultDragHandles: false,
+                  itemBuilder: (context, index) {
+                    final text = _replies[index];
+                    final itemKey = ValueKey('quickReply-$index-$text');
+                    return Dismissible(
+                      key: itemKey,
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: AppColors.getIosRed(
+                          Theme.of(context).brightness,
                         ),
-                        // S2-c: 拖拽手柄，仅在此图标上长按/拖动才触发 reorder
-                        ReorderableDragStartListener(
-                          index: index,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Icon(
-                              Icons.drag_handle,
-                              size: 20,
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.color
-                                  ?.withValues(alpha: 0.6),
-                            ),
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(
+                          CupertinoIcons.delete,
+                          color: AppColors.onPrimary,
+                        ),
+                      ),
+                      onDismissed: (_) => _handleDelete(index),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => _handleEdit(index),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  text,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () => _handleEdit(index),
+                                child: const Icon(
+                                  CupertinoIcons.pencil,
+                                  size: 20,
+                                ),
+                              ),
+                              ReorderableDragStartListener(
+                                index: index,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                  child: Icon(
+                                    CupertinoIcons.line_horizontal_3,
+                                    size: 20,
+                                    color: CupertinoColors.systemGrey,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                    onTap: () => _handleEdit(index),
-                  ),
-                );
-              },
+                      ),
+                    );
+                  },
+                ),
+                // FAB positioned manually
+                Positioned(
+                  right: 16,
+                  bottom: 16,
+                  child: _uid.isEmpty
+                      ? const SizedBox.shrink()
+                      : CupertinoButton(
+                          onPressed: _handleAdd,
+                          color: CupertinoColors.activeBlue,
+                          child: const Icon(
+                            CupertinoIcons.add,
+                            color: CupertinoColors.white,
+                          ),
+                        ),
+                ),
+              ],
             ),
     );
   }
@@ -239,20 +265,22 @@ class _PromptDialogState extends State<_PromptDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return CupertinoAlertDialog(
       title: Text(widget.title),
-      content: TextField(
+      content: CupertinoTextField(
+        enableSuggestions: false,
+        autocorrect: false,
         controller: _controller,
         autofocus: true,
         maxLength: QuickReplyService.maxTextLength,
-        decoration: InputDecoration(hintText: t.chat.quickReplyHint),
+        placeholder: t.chat.quickReplyHint,
       ),
       actions: [
-        TextButton(
+        CupertinoButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(t.common.buttonCancel),
         ),
-        TextButton(
+        CupertinoButton(
           onPressed: () => Navigator.of(context).pop(_controller.text),
           child: Text(t.common.buttonConfirm),
         ),

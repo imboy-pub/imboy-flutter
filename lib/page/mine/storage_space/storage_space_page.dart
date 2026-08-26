@@ -53,7 +53,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
         error: _error,
         isEmpty: storageState.totalDiskSpace == 0,
         onRetry: _load,
-        emptyIcon: Icons.storage,
+        emptyIcon: CupertinoIcons.tray,
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.regular,
@@ -257,7 +257,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           title: appName + t.main.cache,
           value: state.cacheBytes,
           description: t.common.cacheTips,
-          icon: Icons.cached,
+          icon: CupertinoIcons.arrow_clockwise,
           iconColor: AppColors.iosOrange,
           action: CupertinoButton(
             padding: const EdgeInsets.symmetric(
@@ -288,7 +288,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           title: t.chat.userData,
           value: state.dataBytes,
           description: t.common.userDataTips,
-          icon: Icons.folder,
+          icon: CupertinoIcons.folder,
           iconColor: AppColors.iosBlue,
         ),
         const SizedBox(height: AppSpacing.medium),
@@ -297,7 +297,7 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           title: t.main.appSize,
           value: state.appBytes,
           description: t.common.appSizeTips,
-          icon: Icons.apps,
+          icon: CupertinoIcons.rectangle_3_offgrid,
           iconColor: AppColors.iosGreen,
         ),
       ],

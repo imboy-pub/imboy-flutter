@@ -8,6 +8,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 联系人名片组件 - iOS 17 Premium 风格
 class ContactCard extends StatelessWidget {
@@ -58,9 +59,7 @@ class ContactCard extends StatelessWidget {
               if (isNetWorkImg(avatar ?? '')) {
                 zoomInPhotoView(context, avatar!);
               } else {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(t.common.noAvatar)));
+                AppLoading.showToast(t.common.noAvatar);
               }
             },
             child: Avatar(

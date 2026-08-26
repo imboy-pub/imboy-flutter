@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -185,7 +186,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
       backgroundColor: AppColors.getSurfaceGrouped(
         Theme.of(context).brightness,
       ),
-      appBar: AppBar(title: Text(t.common.redPacketSend)),
+      appBar: GlassAppBar(title: t.common.redPacketSend),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Form(
@@ -213,7 +214,7 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        TextButton(
+                        CupertinoButton(
                           onPressed: () => setState(() {
                             _selectedType = _isLucky ? 'fixed' : 'random';
                           }),
@@ -255,6 +256,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
               if (_isGroup) ...[
                 WalletFieldCard(
                   child: TextFormField(
+                    enableSuggestions: false,
+                    autocorrect: false,
                     controller: _countController,
                     keyboardType: TextInputType.number,
                     decoration: walletInputDecoration(
@@ -279,6 +282,8 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
               // 祝福语
               WalletFieldCard(
                 child: TextFormField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   controller: _greetingController,
                   decoration: walletInputDecoration(
                     hint: t.common.redPacketGreetingLabel,

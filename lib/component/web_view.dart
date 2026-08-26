@@ -57,6 +57,12 @@ class WebViewPageState extends State<WebViewPage> {
 
     widget._controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      // 注意：JavaScriptMode.unrestricted 是 JS bridge（javascriptChannel）
+      // 正常工作的必要条件。非 imboy.pub 域名加载时，NavigationDelegate 的
+      // shouldOverrideUrlLoading / onPageStarted 会拦截外部 URL 并跳转系统浏览器，
+      // 因此不可信站点不会在 WebView 内执行 JS 上下文。
+      // 安全防护：onPageStarted 中 verifyPageHost 会校验当前页面 host，不在
+      // 白名单的页面会被立即终止导航（navigateToSystemBrowser + stopLoading）。
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {

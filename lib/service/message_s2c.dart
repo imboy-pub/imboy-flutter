@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show showDialog, AlertDialog, TextButton;
+import 'package:flutter/material.dart' show showDialog;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -749,13 +749,13 @@ class MessageS2CService {
         await showDialog<bool>(
           context: context,
           barrierDismissible: true,
-          builder: (ctx) => AlertDialog(
+          builder: (ctx) => CupertinoAlertDialog(
             title: Text(t.common.offlineNotification),
             content: Text(
               t.common.forcedOfflineByDevice(device: byName as Object),
             ),
             actions: [
-              TextButton(
+              CupertinoButton(
                 onPressed: () => Navigator.of(ctx).pop(true),
                 child: Text(t.common.buttonOk),
               ),

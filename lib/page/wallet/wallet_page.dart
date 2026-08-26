@@ -65,6 +65,8 @@ class _WalletPageState extends ConsumerState<WalletPage> {
               ),
               AppSpacing.verticalMedium,
               CupertinoTextField(
+                enableSuggestions: false,
+                autocorrect: false,
                 controller: controller,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,

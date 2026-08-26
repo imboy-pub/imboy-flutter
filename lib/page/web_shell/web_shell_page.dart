@@ -17,10 +17,10 @@
 /// 注：本 slice 不修改 app_router / 其他业务代码。集成入路由是 1.1.i 切片的工作。
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'web_shell.dart';
+import 'package:flutter/cupertino.dart';
 
 /// Web Shell 三栏整合页面
 class WebShellPage extends ConsumerWidget {
@@ -120,12 +120,10 @@ class WebShellPage extends ConsumerWidget {
       channelBadgeCount: channelBadgeCount,
     );
 
-    final colorScheme = Theme.of(context).colorScheme;
     final notifier = ref.read(webShellProvider.notifier);
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: Row(
+    return CupertinoPageScaffold(
+      child: Row(
         children: [
           // 左栏：NavRail（72px）
           WebNavRail(

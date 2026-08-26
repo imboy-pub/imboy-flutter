@@ -644,6 +644,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         content: Padding(
           padding: const EdgeInsets.only(top: 12),
           child: CupertinoTextField(
+            enableSuggestions: false,
+            autocorrect: false,
             controller: controller,
             maxLength: 100,
             maxLines: 3,
@@ -752,6 +754,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         content: Padding(
           padding: const EdgeInsets.only(top: 12),
           child: CupertinoTextField(
+            enableSuggestions: false,
+            autocorrect: false,
             controller: controller,
             maxLines: maxLines,
             placeholder: title,

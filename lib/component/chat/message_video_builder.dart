@@ -83,7 +83,7 @@ class MessageVideoBuilder extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: AppColors.mediaScrimBlack.withValues(alpha: 0.26),
                   child: const Icon(
-                    Icons.video_library,
+                    CupertinoIcons.videocam,
                     color: AppColors.mediaScrimWhite,
                   ),
                 ),

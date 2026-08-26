@@ -56,9 +56,8 @@ class NoDataView extends StatelessWidget {
     // 而 LayoutBuilder 明确不支持 intrinsic，会直接 assert 崩掉。
     return Center(
       child: SingleChildScrollView(
-        child: InkWell(
+        child: GestureDetector(
           onTap: onTop,
-          borderRadius: AppRadius.borderRadiusMedium, // 添加圆角点击效果
           child: Container(
             padding: const EdgeInsets.all(AppSpacing.xLarge),
             child: Column(

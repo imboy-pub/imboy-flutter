@@ -186,7 +186,7 @@ class _ChatPanelHeader extends StatelessWidget {
           ),
           if (onClose != null)
             IconButton(
-              icon: const Icon(Icons.close),
+              icon: const Icon(CupertinoIcons.xmark_circle_fill),
               tooltip: closeTooltip,
               onPressed: onClose,
               color: colorScheme.onSurfaceVariant,
@@ -210,7 +210,7 @@ class _ChatPanelPlaceholder extends StatelessWidget {
 
     return Center(
       child: Icon(
-        chatType == 'C2G' ? Icons.group_outlined : Icons.chat_bubble_outline,
+        chatType == 'C2G' ? CupertinoIcons.group : CupertinoIcons.chat_bubble,
         size: 64,
         color: colorScheme.onSurfaceVariant.withAlpha(76),
       ),

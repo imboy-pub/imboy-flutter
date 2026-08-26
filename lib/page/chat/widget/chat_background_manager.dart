@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
@@ -442,7 +443,10 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
       case 'solid_color':
         return Container(
           color: AppColors.iosGray4,
-          child: const Icon(Icons.color_lens, color: AppColors.iosGray),
+          child: const Icon(
+            CupertinoIcons.paintbrush,
+            color: AppColors.iosGray,
+          ),
         );
       case 'custom_image':
         final path = state.customImagePath;
@@ -455,14 +459,14 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
         return Container(
           color: AppColors.iosGray5,
           child: const Icon(
-            Icons.add_photo_alternate,
+            CupertinoIcons.photo_on_rectangle,
             color: AppColors.iosGray,
           ),
         );
       default:
         return Container(
           color: AppColors.iosGray5,
-          child: const Icon(Icons.wallpaper, color: AppColors.iosGray),
+          child: const Icon(CupertinoIcons.photo, color: AppColors.iosGray),
         );
     }
   }
@@ -484,12 +488,11 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
           ),
         ),
         AppSpacing.verticalMedium,
-        Slider(
+        CupertinoSlider(
           value: state.backgroundOpacity,
           min: 0.1,
           max: 1.0,
           divisions: 9,
-          label: '${(state.backgroundOpacity * 100).round()}%',
           onChanged: (value) => manager.setBackgroundOpacity(value),
         ),
       ],
@@ -513,11 +516,38 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
           ),
         ),
         AppSpacing.verticalMedium,
-        SwitchListTile(
-          title: Text(t.common.backgroundUseCustomColor),
-          subtitle: Text(t.common.backgroundOnlySolidColor),
-          value: state.useCustomColor,
-          onChanged: (value) => manager.setUseCustomColor(value),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemBackground,
+            borderRadius: AppRadius.borderRadiusRegular,
+            border: Border.all(
+              color: CupertinoColors.separator.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(t.common.backgroundUseCustomColor),
+                    Text(
+                      t.common.backgroundOnlySolidColor,
+                      style: TextStyle(
+                        fontSize: FontSizeType.small.size,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              CupertinoSwitch(
+                value: state.useCustomColor,
+                onChanged: (value) => manager.setUseCustomColor(value),
+              ),
+            ],
+          ),
         ),
         if (state.useCustomColor) ...[
           AppSpacing.verticalMedium,
@@ -549,9 +579,9 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
 
   /// 显示颜色选择器
   void _showColorPicker(BuildContext context, ChatBackgroundManager manager) {
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.common.backgroundSelectColor),
         content: SizedBox(
           width: 300,
@@ -582,7 +612,7 @@ class ChatBackgroundSettingsPage extends ConsumerWidget {
           ),
         ),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(t.common.buttonCancel),
           ),

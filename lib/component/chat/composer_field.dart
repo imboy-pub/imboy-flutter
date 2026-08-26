@@ -1,4 +1,5 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/chat/composer_emoji_panel.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -161,7 +162,7 @@ class ComposerFieldState extends State<ComposerField> {
       tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
       onPressed: widget.enabled ? _toggleEmoji : null,
       icon: Icon(
-        _emojiOpen ? Icons.keyboard_outlined : Icons.emoji_emotions_outlined,
+        _emojiOpen ? CupertinoIcons.keyboard : CupertinoIcons.smiley,
         size: 24,
         color: AppColors.iosGray,
       ),
@@ -226,6 +227,8 @@ class ComposerFieldState extends State<ComposerField> {
             // 并排会让按钮独占整条 44pt 右列、把填充区切掉一块，改为浮在右下角。
             child: _wrapWithEmoji(
               field: TextField(
+                enableSuggestions: false,
+                autocorrect: false,
                 key: const Key('composer_text_field'),
                 controller: _controller,
                 focusNode: _focusNode,

@@ -1,7 +1,6 @@
 library;
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import '../barrel/pages_barrel.dart';
@@ -149,7 +148,9 @@ List<RouteBase> groupFeatureRoutes() => [
       if (scheduleId.isEmpty) {
         return CupertinoPage(
           key: state.pageKey,
-          child: Scaffold(body: Center(child: Text(t.common.dataNotFound))),
+          child: CupertinoPageScaffold(
+            child: Center(child: Text(t.common.dataNotFound)),
+          ),
         );
       }
       return CupertinoPage(
@@ -183,7 +184,9 @@ List<RouteBase> groupFeatureRoutes() => [
       if (taskId.isEmpty) {
         return CupertinoPage(
           key: state.pageKey,
-          child: Scaffold(body: Center(child: Text(t.common.dataNotFound))),
+          child: CupertinoPageScaffold(
+            child: Center(child: Text(t.common.dataNotFound)),
+          ),
         );
       }
       return CupertinoPage(

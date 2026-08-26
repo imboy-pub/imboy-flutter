@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -125,7 +126,7 @@ class PasswordTextField extends StatelessWidget {
 
         // 前缀图标 - 锁
         prefixIcon: Icon(
-          Icons.lock_rounded,
+          CupertinoIcons.lock,
           color: effectiveIconColor,
           size: AppSizes.iconSizeSmall,
         ),
@@ -136,13 +137,11 @@ class PasswordTextField extends StatelessWidget {
         ),
 
         // 后缀图标 - 显示/隐藏密码
-        suffixIcon: InkWell(
+        suffixIcon: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.small),
           child: Icon(
-            obscureText
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
+            obscureText ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
             color: effectiveIconColor,
             size: AppSizes.iconSizeSmall,
           ),

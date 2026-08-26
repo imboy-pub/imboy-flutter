@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,13 +82,12 @@ class _MessageTransferBuilderState
       ),
       child: Material(
         color: AppColors.transparent,
-        child: InkWell(
+        child: GestureDetector(
           onTap: () {
             if (isPending && !isSender) {
               _handleAcceptTransfer(transferId);
             }
           },
-          borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
@@ -100,10 +100,10 @@ class _MessageTransferBuilderState
                   children: [
                     Icon(
                       isAccepted
-                          ? Icons.check_circle_outline
+                          ? CupertinoIcons.checkmark_circle
                           : isRefunded
-                          ? Icons.replay
-                          : Icons.swap_horiz,
+                          ? CupertinoIcons.arrow_counterclockwise
+                          : CupertinoIcons.arrow_left_right,
                       color: AppColors.onPrimary,
                       size: 36,
                     ),

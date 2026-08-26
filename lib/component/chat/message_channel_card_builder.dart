@@ -106,7 +106,7 @@ class ChannelCardMessageBuilderState extends State<ChannelCardMessageBuilder> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                InkWell(
+                GestureDetector(
                   onTap: () {
                     if (channelId.isEmpty) return;
                     context.push('/channel/$channelId');
@@ -163,7 +163,6 @@ class _ChannelCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ShimmerBox(
       baseColor: AppColors.shimmerBase,
-      highlightColor: AppColors.shimmerHighlight,
       child: Container(
         width: 240,
         height: 116,

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
@@ -65,6 +64,8 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
             children: [
               CupertinoListTile.notched(
                 title: CupertinoTextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   controller: _msgC,
                   placeholder: t.common.pleaseEnterVerificationMessage,
                   minLines: 3,
@@ -96,6 +97,8 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
                     ),
                     Expanded(
                       child: CupertinoTextField(
+                        enableSuggestions: false,
+                        autocorrect: false,
                         controller: _remarkC,
                         placeholder: t.contact.pleaseEnterRemark,
                         maxLength: 80,
@@ -158,15 +161,9 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
       child: SizedBox(
         width: double.infinity,
         height: 50,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
+        child: CupertinoButton(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(14),
           onPressed: _isSubmitting
               ? null
               : () async {

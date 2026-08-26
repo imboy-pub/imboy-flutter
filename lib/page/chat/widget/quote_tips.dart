@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -205,13 +204,13 @@ class QuoteTipsWidget extends StatelessWidget {
           vertical: AppSpacing.small,
         ),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark
+          color: MediaQuery.platformBrightnessOf(context) == Brightness.dark
               ? AppColors.darkSurface
               : AppColors.lightSurface,
           border: Border(
             top: BorderSide(
               color: AppColors.getIosSeparator(
-                Theme.of(context).brightness,
+                MediaQuery.platformBrightnessOf(context),
               ).withValues(alpha: 0.2),
               width: 0.5,
             ),
@@ -238,7 +237,9 @@ class QuoteTipsWidget extends StatelessWidget {
                     style: context.textStyle(
                       FontSizeType.footnote,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.getIosBlue(Theme.of(context).brightness),
+                      color: AppColors.getIosBlue(
+                        MediaQuery.platformBrightnessOf(context),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 2),

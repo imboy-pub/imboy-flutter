@@ -98,12 +98,16 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
           children: [
             const SizedBox(height: 8),
             CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
               key: const Key('task_title_field'),
               controller: titleController,
               placeholder: t.groupTask.taskTitle,
             ),
             const SizedBox(height: AppSpacing.regular),
             CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: descController,
               maxLines: 3,
               placeholder: t.groupTask.taskDescription,
@@ -257,15 +261,16 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: _loadTasks,
-      child: ListView.builder(
-        itemCount: _tasks.length,
-        itemBuilder: (context, index) {
-          final task = _tasks[index];
-          return _buildTaskItem(task);
-        },
-      ),
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(onRefresh: _loadTasks),
+        SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final task = _tasks[index];
+            return _buildTaskItem(task);
+          }, childCount: _tasks.length),
+        ),
+      ],
     );
   }
 

@@ -4,6 +4,7 @@
 library;
 
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -142,14 +143,8 @@ class _BurnBadgeState extends State<BurnBadge>
             child: Stack(
               alignment: Alignment.center,
               children: [
-                CircularProgressIndicator(
-                  value: fraction,
-                  strokeWidth: 1.6,
-                  color: color,
-                  backgroundColor: color.withValues(alpha: 0.15),
-                  strokeCap: StrokeCap.round,
-                ),
-                Icon(Icons.local_fire_department, size: 8, color: color),
+                CupertinoActivityIndicator(color: color),
+                Icon(CupertinoIcons.flame, size: 8, color: color),
               ],
             ),
           ),

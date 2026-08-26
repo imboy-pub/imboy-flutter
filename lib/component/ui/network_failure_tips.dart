@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
@@ -27,7 +28,7 @@ class NetworkFailureTips extends StatelessWidget {
           children: [
             const Padding(
               padding: EdgeInsets.only(left: 10),
-              child: Icon(Icons.info_sharp, color: AppColors.iosRed),
+              child: Icon(CupertinoIcons.info_circle, color: AppColors.iosRed),
             ),
             Expanded(
               child: Text(
@@ -38,7 +39,7 @@ class NetworkFailureTips extends StatelessWidget {
               ),
             ),
             const Icon(
-              Icons.chevron_right_rounded,
+              CupertinoIcons.chevron_right,
               // color: AppColors.LabelTextColor,
             ),
           ],

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/rendering.dart';
@@ -205,7 +206,7 @@ class _Avatar extends StatelessWidget {
         color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
       ),
       child: Icon(
-        Icons.person,
+        CupertinoIcons.person,
         size: 20,
         color: Theme.of(context).primaryColor,
       ),
@@ -222,7 +223,11 @@ class _MessageStatusIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(Icons.done_all, size: 16, color: _deliveredColor);
+    return const Icon(
+      CupertinoIcons.checkmark_alt,
+      size: 16,
+      color: _deliveredColor,
+    );
   }
 }
 

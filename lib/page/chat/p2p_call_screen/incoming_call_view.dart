@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:imboy/theme/default/app_spacing.dart';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/component/ui/avatar.dart';
@@ -11,9 +11,6 @@ import 'package:imboy/theme/default/call_tokens.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// 全屏来电界面（FaceTime / iOS 风格）。
-///
-/// 纯表现层：仅负责呈现与动效，接听 / 拒接的信令逻辑由调用方通过
-/// [onAccept] / [onDecline] 回调注入（见 component/webrtc/func.dart）。
 class IncomingCallView extends StatefulWidget {
   final String avatar;
   final String nickname;
@@ -52,7 +49,6 @@ class _IncomingCallViewState extends State<IncomingCallView>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // 尊重系统“减弱动态效果”(WCAG 2.3.3): 关闭无限呼吸动画，定格稳态光环。
     final reduceMotion = MediaQuery.of(context).disableAnimations;
     if (reduceMotion && _pulse.isAnimating) {
       _pulse.stop();
@@ -73,100 +69,101 @@ class _IncomingCallViewState extends State<IncomingCallView>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final brightness = Theme.of(context).brightness;
 
-    return Material(
-      color: CallTokens.black,
-      child: SizedBox(
-        width: size.width,
-        height: size.height,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            _buildBlurredBackground(),
-            // 顶部信息：大头像（呼吸光环）+ 昵称 + 来电类型
-            Positioned.fill(
-              child: Padding(
-                padding: EdgeInsets.only(top: size.height * 0.18),
-                child: Column(
-                  children: [
-                    _buildPulsingAvatar(),
-                    const SizedBox(height: 26),
-                    Text(
-                      widget.nickname,
-                      style: context
-                          .textStyle(
-                            // fs28(28) 最近档位 extraLargeTitle(28)
-                            FontSizeType.extraLargeTitle,
-                            fontWeight: FontWeight.w600,
-                            color: CallTokens.white,
-                          )
-                          .copyWith(letterSpacing: 0.5),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    AppSpacing.verticalMedium,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _isVideo ? Icons.videocam : Icons.call,
-                          size: 17,
+    return SizedBox(
+      width: size.width,
+      height: size.height,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          _buildBlurredBackground(),
+          // 顶部信息
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsets.only(top: size.height * 0.18),
+              child: Column(
+                children: [
+                  _buildPulsingAvatar(),
+                  const SizedBox(height: 26),
+                  Text(
+                    widget.nickname,
+                    style: context
+                        .textStyle(
+                          FontSizeType.extraLargeTitle,
+                          fontWeight: FontWeight.w600,
+                          color: CallTokens.white,
+                        )
+                        .copyWith(letterSpacing: 0.5),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  AppSpacing.verticalMedium,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _isVideo
+                            ? CupertinoIcons.videocam
+                            : CupertinoIcons.phone,
+                        size: 17,
+                        color: CallTokens.white70,
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        t.common.incomingCall(
+                          param: _isVideo ? t.chat.video : t.main.audio,
+                        ),
+                        style: context.textStyle(
+                          FontSizeType.subheadline,
                           color: CallTokens.white70,
                         ),
-                        const SizedBox(width: 7),
-                        Text(
-                          t.common.incomingCall(
-                            param: _isVideo ? t.chat.video : t.main.audio,
-                          ),
-                          style: context.textStyle(
-                            // fs15(15) 精确匹配 subheadline(15)
-                            FontSizeType.subheadline,
-                            color: CallTokens.white70,
-                          ),
-                        ),
-                      ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // 底部接听 / 拒接
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(48, 0, 48, 48),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildAction(
+                      icon: CupertinoIcons.phone_down_circle_fill,
+                      label: t.common.declineCall,
+                      background: AppColors.getIosRed(
+                        MediaQuery.of(context).platformBrightness,
+                      ),
+                      onTap: widget.onDecline,
+                    ),
+                    _buildAction(
+                      icon: _isVideo
+                          ? CupertinoIcons.videocam
+                          : CupertinoIcons.phone,
+                      label: t.common.answer,
+                      background: AppColors.getIosGreen(
+                        MediaQuery.of(context).platformBrightness,
+                      ),
+                      onTap: widget.onAccept,
                     ),
                   ],
                 ),
               ),
             ),
-            // 底部接听 / 拒接
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(48, 0, 48, 48),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildAction(
-                        icon: Icons.call_end,
-                        label: t.common.declineCall,
-                        background: AppColors.getIosRed(brightness),
-                        onTap: widget.onDecline,
-                      ),
-                      _buildAction(
-                        icon: _isVideo ? Icons.videocam : Icons.phone,
-                        label: t.common.answer,
-                        background: AppColors.getIosGreen(brightness),
-                        onTap: widget.onAccept,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  /// 对方头像高斯模糊铺底 + 深色压暗，营造景深（FaceTime 观感）。
   Widget _buildBlurredBackground() {
     return Stack(
       fit: StackFit.expand,
@@ -226,7 +223,6 @@ class _IncomingCallViewState extends State<IncomingCallView>
     );
   }
 
-  /// 大号实心圆形动作按钮（72pt）+ 文字标签，带触感反馈与无障碍语义。
   Widget _buildAction({
     required IconData icon,
     required String label,
@@ -239,18 +235,24 @@ class _IncomingCallViewState extends State<IncomingCallView>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Material(
-            color: background,
-            shape: const CircleBorder(),
+          Container(
+            decoration: BoxDecoration(
+              color: background,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: background.withValues(alpha: 0.6),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
             clipBehavior: Clip.antiAlias,
-            elevation: 8,
-            shadowColor: background.withValues(alpha: 0.6),
-            child: InkWell(
+            child: GestureDetector(
               onTap: () {
                 HapticFeedback.mediumImpact();
                 onTap();
               },
-              customBorder: const CircleBorder(),
               child: SizedBox(
                 width: 72,
                 height: 72,
@@ -262,7 +264,6 @@ class _IncomingCallViewState extends State<IncomingCallView>
           Text(
             label,
             style: context.textStyle(
-              // fs13(13) 精确匹配 footnote(13)
               FontSizeType.footnote,
               color: CallTokens.white70,
             ),

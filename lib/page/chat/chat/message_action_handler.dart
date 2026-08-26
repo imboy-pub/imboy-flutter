@@ -4,9 +4,8 @@
 library;
 
 import 'dart:convert';
-import 'package:imboy/theme/default/app_colors.dart';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -117,16 +116,10 @@ class MessageActionHandler {
           );
       if (!context.mounted) return;
       if (res == null) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            res
-                ? '${t.common.reactionAdded} $emoji'
-                : '${t.common.reactionCancelled} $emoji',
-          ),
-          duration: const Duration(seconds: 1),
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppLoading.showToast(
+        res
+            ? '${t.common.reactionAdded} $emoji'
+            : '${t.common.reactionCancelled} $emoji',
       );
     } catch (e) {
       iPrint('[message_action_handler] Duration error: $e');
@@ -299,12 +292,8 @@ class MessageActionHandler {
 
   /// 转发消息
   void forwardMessage(BuildContext context, Message msg) {
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? AppColors.darkSurfaceGrouped
-          : AppColors.lightSurfaceGrouped,
-      isScrollControlled: true,
       builder: (context) => Padding(
         padding: const EdgeInsets.only(top: AppSpacing.xLarge),
         child: SendToPage(msg: msg),

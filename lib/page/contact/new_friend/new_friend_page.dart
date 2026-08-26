@@ -274,7 +274,7 @@ class _NewFriendPageState extends ConsumerState<NewFriendPage> {
     return NoDataView(
       text: t.common.noNewFriends,
       description: t.common.noNewFriendRequests,
-      icon: Icons.person_add_outlined,
+      icon: CupertinoIcons.person_badge_plus,
     );
   }
 }

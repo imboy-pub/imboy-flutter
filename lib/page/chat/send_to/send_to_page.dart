@@ -8,7 +8,6 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -62,10 +61,14 @@ class _SendToPageState extends ConsumerState<SendToPage> {
           ),
         ),
         backgroundColor: colorScheme.surface,
-        leading: IconButton(
-          icon: Icon(CupertinoIcons.back, color: colorScheme.primary, size: 22),
+        leading: CupertinoButton(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           onPressed: () => context.pop(),
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          child: Icon(
+            CupertinoIcons.back,
+            color: colorScheme.primary,
+            size: 22,
+          ),
         ),
         rightDMActions: [
           CupertinoButton(
@@ -87,26 +90,17 @@ class _SendToPageState extends ConsumerState<SendToPage> {
           // 搜索框
           Padding(
             padding: const EdgeInsets.all(AppSpacing.regular),
-            child: TextField(
+            child: CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: t.common.search,
-                hintStyle: TextStyle(
+              placeholder: t.common.search,
+              prefix: Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Icon(
+                  CupertinoIcons.search,
                   color: colorScheme.onSurfaceVariant,
-                  fontSize:
-                      textTheme.bodyMedium?.fontSize ??
-                      FontSizeType.normal.size,
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: colorScheme.onSurfaceVariant,
-                  size: textTheme.bodyMedium?.fontSize ?? 14,
-                ),
-                filled: true,
-                fillColor: colorScheme.surfaceContainerHighest,
-                border: OutlineInputBorder(
-                  borderRadius: AppRadius.borderRadiusXLarge,
-                  borderSide: BorderSide.none,
+                  size: 20,
                 ),
               ),
               style: TextStyle(
@@ -148,46 +142,70 @@ class _SendToPageState extends ConsumerState<SendToPage> {
                     final isSelected = selectedContacts.any(
                       (element) => element.id == contact.id,
                     );
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: avatarImageProvider(contact.avatar),
-                        backgroundColor: colorScheme.primaryContainer,
-                        child: null,
-                      ),
-                      title: Text(
-                        // 必须走 displayTitle：裸 title 对群会话可能是空串，
-                        // 本页因此整行没有标题（批次27 真机实测），
-                        // 而会话列表页有兜底 —— 同一份数据两种呈现。
-                        contact.displayTitle,
-                        style: TextStyle(
-                          color: colorScheme.onSurface,
-                          fontSize:
-                              textTheme.titleMedium?.fontSize ??
-                              FontSizeType.medium.size,
-                        ),
-                      ),
-                      subtitle: Text(
-                        contact.subtitle,
-                        style: TextStyle(
-                          color: colorScheme.onSurfaceVariant,
-                          fontSize:
-                              textTheme.bodySmall?.fontSize ??
-                              FontSizeType.small.size,
-                        ),
-                      ),
-                      trailing: Icon(
-                        isSelected
-                            ? CupertinoIcons.checkmark_circle
-                            : CupertinoIcons.circle,
-                        color: isSelected
-                            ? colorScheme.primary
-                            : colorScheme.onSurfaceVariant,
-                      ),
+                    return GestureDetector(
                       onTap: () {
                         ref
                             .read(sendToProvider.notifier)
                             .toggleContactSelection(contact);
                       },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        child: Row(
+                          children: [
+                            ClipOval(
+                              child: Image(
+                                image: avatarImageProvider(contact.avatar),
+                                width: 48,
+                                height: 48,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Container(
+                                  width: 48,
+                                  height: 48,
+                                  color: colorScheme.primaryContainer,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    contact.displayTitle,
+                                    style: TextStyle(
+                                      color: colorScheme.onSurface,
+                                      fontSize:
+                                          textTheme.titleMedium?.fontSize ??
+                                          FontSizeType.medium.size,
+                                    ),
+                                  ),
+                                  if (contact.subtitle.isNotEmpty)
+                                    Text(
+                                      contact.subtitle,
+                                      style: TextStyle(
+                                        color: colorScheme.onSurfaceVariant,
+                                        fontSize:
+                                            textTheme.bodySmall?.fontSize ??
+                                            FontSizeType.small.size,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              isSelected
+                                  ? CupertinoIcons.checkmark_circle
+                                  : CupertinoIcons.circle,
+                              color: isSelected
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 );

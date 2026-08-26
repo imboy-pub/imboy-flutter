@@ -17,7 +17,7 @@
 /// - **零业务依赖**：纯函数，可独立单元测试
 library;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'web_nav_rail.dart' show WebNavItem;
 
@@ -53,26 +53,26 @@ List<WebNavItem> buildWebNavItems({
 }) {
   return [
     WebNavItem(
-      icon: Icons.chat_bubble_outline,
-      activeIcon: Icons.chat_bubble,
+      icon: CupertinoIcons.chat_bubble,
+      activeIcon: CupertinoIcons.chat_bubble_fill,
       label: messageLabel,
       badgeCount: messageBadgeCount,
     ),
     WebNavItem(
-      icon: Icons.people_alt_outlined,
-      activeIcon: Icons.people_alt,
+      icon: CupertinoIcons.person_2,
+      activeIcon: CupertinoIcons.person_2_fill,
       label: contactLabel,
       badgeCount: contactBadgeCount,
     ),
     WebNavItem(
-      icon: Icons.campaign_outlined,
-      activeIcon: Icons.campaign,
+      icon: CupertinoIcons.speaker_2,
+      activeIcon: CupertinoIcons.speaker_2,
       label: channelLabel,
       badgeCount: channelBadgeCount,
     ),
     WebNavItem(
-      icon: Icons.person_outline,
-      activeIcon: Icons.person,
+      icon: CupertinoIcons.person,
+      activeIcon: CupertinoIcons.person_fill,
       label: mineLabel,
       // mine tab 不显示 unread badge：连接状态等其他指示器走 NavRail 外的 layer
     ),

@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,7 +38,7 @@ class WebMineMinPanel extends ConsumerWidget {
             radius: 40,
             backgroundColor: colorScheme.primaryContainer,
             child: Icon(
-              Icons.person,
+              CupertinoIcons.person,
               size: 40,
               color: colorScheme.onPrimaryContainer,
             ),
@@ -66,15 +68,13 @@ class WebMineMinPanel extends ConsumerWidget {
                     if (ok) {
                       context.go(AppRoutes.signIn);
                     } else {
-                      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-                        SnackBar(
-                          content: Text(t.common.logoutFailed),
-                          duration: const Duration(seconds: 2),
-                        ),
+                      AppLoading.showToast(
+                        t.common.logoutFailed,
+                        duration: const Duration(seconds: 2),
                       );
                     }
                   },
-            icon: const Icon(Icons.logout),
+            icon: const Icon(CupertinoIcons.arrow_uturn_left),
             label: Text(logoutLabel),
             style: OutlinedButton.styleFrom(minimumSize: const Size(180, 44)),
           ),
@@ -101,7 +101,7 @@ class PlaceholderPanel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.construction,
+            CupertinoIcons.hammer,
             size: 64,
             color: colorScheme.onSurfaceVariant,
           ),

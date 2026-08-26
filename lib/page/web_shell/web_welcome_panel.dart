@@ -10,6 +10,7 @@
 /// - **最大宽度约束**：长文案在大屏不会撑满，居中阅读体验更佳
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -31,7 +32,7 @@ class WebWelcomePanel extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
-    this.icon = Icons.chat_bubble_outline,
+    this.icon = CupertinoIcons.chat_bubble,
     this.maxWidth = 420,
   });
 

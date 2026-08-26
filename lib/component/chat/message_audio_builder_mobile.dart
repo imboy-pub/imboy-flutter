@@ -17,6 +17,7 @@ import 'package:imboy/component/chat/message_spacing.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 class AudioMessageBuilder extends StatefulWidget {
   final String type;
@@ -291,10 +292,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       child: Center(
         child: Padding(
           padding: MessageSpacing.bubblePaddingAll,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.0,
-            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
-          ),
+          child: CupertinoActivityIndicator(color: colorScheme.primary),
         ),
       ),
     );
@@ -308,7 +306,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
         color: colorScheme.surfaceContainerLow,
         borderRadius: AppRadius.borderRadiusLarge,
       ),
-      child: InkWell(
+      child: GestureDetector(
         onTap: () {
           // 重试加载音频
           setState(() {
@@ -317,14 +315,13 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
             _initAudioPath();
           });
         },
-        borderRadius: AppRadius.borderRadiusLarge,
         child: Padding(
           padding: MessageSpacing.bubblePaddingAll,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                Icons.error_outline,
+                CupertinoIcons.exclamationmark_circle,
                 size: 20,
                 color: AppColors.getIosRed(Theme.of(context).brightness),
               ),
@@ -391,73 +388,64 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
         borderRadius: BorderRadius.circular(MessageSpacing.bubbleBorderRadius),
         // DESIGN.md §9.1：聊天气泡（含语音气泡）不带阴影
       ),
-      child: Material(
-        color: AppColors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(
-            MessageSpacing.bubbleBorderRadius,
-          ),
-          onTap: () => _handlePlayPause(audioPath, msg, duration),
-          child: Padding(
-            padding: MessageSpacing.bubblePaddingSymmetric,
-            child: Builder(
-              builder: (context) {
-                final bool isPlayingUI = widget.isPlaying;
-                final bool isPausedUI = widget.isPaused;
-                final int currentMs = widget.currentPositionMs;
-                final int totalMs = widget.currentDurationMs > 0
-                    ? widget.currentDurationMs
-                    : (duration.inMilliseconds > 0
-                          ? duration.inMilliseconds
-                          : _totalDuration.inMilliseconds);
+      child: GestureDetector(
+        onTap: () => _handlePlayPause(audioPath, msg, duration),
+        child: Padding(
+          padding: MessageSpacing.bubblePaddingSymmetric,
+          child: Builder(
+            builder: (context) {
+              final bool isPlayingUI = widget.isPlaying;
+              final bool isPausedUI = widget.isPaused;
+              final int currentMs = widget.currentPositionMs;
+              final int totalMs = widget.currentDurationMs > 0
+                  ? widget.currentDurationMs
+                  : (duration.inMilliseconds > 0
+                        ? duration.inMilliseconds
+                        : _totalDuration.inMilliseconds);
 
-                // 控制脉冲动画
-                if (isPlayingUI) {
-                  if (!_animationController.isAnimating) {
-                    _animationController.forward();
-                  }
-                } else {
-                  if (_animationController.isAnimating) {
-                    _animationController.stop();
-                    _animationController.reset();
-                  }
+              // 控制脉冲动画
+              if (isPlayingUI) {
+                if (!_animationController.isAnimating) {
+                  _animationController.forward();
                 }
+              } else {
+                if (_animationController.isAnimating) {
+                  _animationController.stop();
+                  _animationController.reset();
+                }
+              }
 
-                return ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minWidth: 200,
-                    maxWidth: 350,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 播放按钮
-                      _buildPlayButton(iconColor, isPlayingUI, isPausedUI),
-                      SizedBox(width: MessageSpacing.playButtonSpacing),
-                      // 波形显示区域
-                      Expanded(
-                        child: _buildWaveformView(
-                          audioPath,
-                          userIsAuthor,
-                          waveformColor,
-                        ),
+              return ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 200, maxWidth: 350),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 播放按钮
+                    _buildPlayButton(iconColor, isPlayingUI, isPausedUI),
+                    SizedBox(width: MessageSpacing.playButtonSpacing),
+                    // 波形显示区域
+                    Expanded(
+                      child: _buildWaveformView(
+                        audioPath,
+                        userIsAuthor,
+                        waveformColor,
                       ),
-                      SizedBox(width: MessageSpacing.waveformSpacing),
-                      // 时长显示
-                      _buildDurationDisplay(
-                        textColor,
-                        Duration(milliseconds: currentMs),
-                        Duration(milliseconds: totalMs),
-                        isPlayingUI || isPausedUI,
-                      ),
-                      // 未读提示
-                      if (msg.metadata?['played'] != true && !userIsAuthor)
-                        _buildUnreadIndicator(),
-                    ],
-                  ),
-                );
-              },
-            ),
+                    ),
+                    SizedBox(width: MessageSpacing.waveformSpacing),
+                    // 时长显示
+                    _buildDurationDisplay(
+                      textColor,
+                      Duration(milliseconds: currentMs),
+                      Duration(milliseconds: totalMs),
+                      isPlayingUI || isPausedUI,
+                    ),
+                    // 未读提示
+                    if (msg.metadata?['played'] != true && !userIsAuthor)
+                      _buildUnreadIndicator(),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -667,14 +655,7 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           final t = context.t;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(t.common.audioPlayFailed),
-              backgroundColor: AppColors.getIosRed(
-                Theme.of(context).brightness,
-              ),
-            ),
-          );
+          AppLoading.showToast(t.common.audioPlayFailed);
         }
       });
     }

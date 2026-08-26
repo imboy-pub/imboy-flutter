@@ -17,6 +17,7 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// E2EE 备份导入页面
 ///
@@ -195,7 +196,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                   ? const SizedBox(
                       height: AppSpacing.large,
                       width: AppSpacing.large,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CupertinoActivityIndicator(),
                     )
                   : const Icon(CupertinoIcons.cloud_download),
               label: Text(t.common.e2eeBackupCloudRestoreBtn),
@@ -221,7 +222,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             AppSpacing.verticalMedium,
-            InkWell(
+            GestureDetector(
               onTap: _selectFile,
               child: Container(
                 width: double.infinity,
@@ -346,6 +347,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   Widget _buildPasswordSection() {
     return TextField(
+      enableSuggestions: false,
+      autocorrect: false,
       controller: _passwordController,
       obscureText: true,
       decoration: InputDecoration(
@@ -357,7 +360,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CupertinoActivityIndicator(),
               )
             : null,
       ),
@@ -371,19 +374,19 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         _backupInfo != null &&
         !_isImporting;
 
-    return ElevatedButton(
-      onPressed: isEnabled ? _handleImport : null,
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 48),
-        backgroundColor: isEnabled ? null : AppColors.iosGray,
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: CupertinoButton.filled(
+        onPressed: isEnabled ? _handleImport : null,
+        child: _isImporting
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CupertinoActivityIndicator(),
+              )
+            : Text(t.common.e2eeBackupImportBtn),
       ),
-      child: _isImporting
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : Text(t.common.e2eeBackupImportBtn),
     );
   }
 
@@ -514,11 +517,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             ),
             AppSpacing.verticalMedium,
             TextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _urlController,
               enabled: !_isDownloading,
               keyboardType: TextInputType.url,
-              autocorrect: false,
-              enableSuggestions: false,
               textCapitalization: TextCapitalization.none,
               decoration: InputDecoration(
                 labelText: t.common.e2eeBackupUrlFieldLabel,
@@ -529,7 +532,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: CupertinoActivityIndicator(),
                       )
                     : (_urlController.text.isNotEmpty
                           ? IconButton(
@@ -555,7 +558,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                   ? const SizedBox(
                       height: AppSpacing.large,
                       width: AppSpacing.large,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CupertinoActivityIndicator(),
                     )
                   : const Icon(CupertinoIcons.cloud_download),
               label: Text(
@@ -640,6 +643,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             Text(t.common.e2eeBackupCloudRestoreConfirmNote),
             AppSpacing.verticalSmall,
             CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _cloudPasswordController,
               obscureText: true,
               autofocus: true,
@@ -767,12 +772,6 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.getIosRed(Theme.of(context).brightness),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    AppLoading.showToast(message);
   }
 }

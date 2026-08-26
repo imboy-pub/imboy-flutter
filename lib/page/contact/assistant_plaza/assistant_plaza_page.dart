@@ -248,7 +248,7 @@ class _AssistantCard extends StatelessWidget {
                 AppSpacing.verticalSmall,
                 Align(
                   alignment: Alignment.centerRight,
-                  child: RoundedElevatedButton(
+                  child: RoundedCupertinoButton(
                     text: t.agent.sendMessage,
                     highlighted: true,
                     size: const Size(96, 44),

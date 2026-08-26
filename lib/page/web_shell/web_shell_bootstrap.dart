@@ -19,6 +19,7 @@
 ///   ConversationPage 等 ProviderScope 重链路做无价值 mock）
 library;
 
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -274,7 +275,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
 
     final ctx = context;
     final t = Translations.of(ctx);
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: ctx,
       builder: (sheetCtx) {
         return SafeArea(
@@ -290,11 +291,9 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
                     Navigator.of(sheetCtx).pop();
                     await Clipboard.setData(ClipboardData(text: copyable));
                     if (!ctx.mounted) return;
-                    ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
-                      SnackBar(
-                        content: Text(t.main.copied),
-                        duration: const Duration(seconds: 1),
-                      ),
+                    AppLoading.showToast(
+                      t.main.copied,
+                      duration: const Duration(seconds: 1),
                     );
                   },
                 ),
@@ -334,19 +333,15 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
         widget.selection.chatType,
       );
       if (!ctx.mounted) return;
-      ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
-        SnackBar(
-          content: Text(ok ? t.common.revokeSuccess : t.common.revokeFailed),
-          duration: const Duration(seconds: 2),
-        ),
+      AppLoading.showToast(
+        ok ? t.common.revokeSuccess : t.common.revokeFailed,
+        duration: const Duration(seconds: 2),
       );
     } catch (e) {
       if (!ctx.mounted) return;
-      ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
-        SnackBar(
-          content: Text('${t.common.revokeFailed}: $e'),
-          duration: const Duration(seconds: 2),
-        ),
+      AppLoading.showToast(
+        '${t.common.revokeFailed}: $e',
+        duration: const Duration(seconds: 2),
       );
     }
   }
@@ -456,6 +451,8 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
         children: [
           Expanded(
             child: TextField(
+              enableSuggestions: false,
+              autocorrect: false,
               key: const ValueKey('web-chat-input-field'),
               controller: _controller,
               minLines: 1,
@@ -483,9 +480,9 @@ class _WebChatInputState extends ConsumerState<_WebChatInput> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CupertinoActivityIndicator(),
                   )
-                : const Icon(Icons.send),
+                : const Icon(CupertinoIcons.arrow_up_circle),
             tooltip: 'Send',
             onPressed: canSend ? _send : null,
             color: canSend ? colorScheme.primary : colorScheme.onSurfaceVariant,
@@ -589,7 +586,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
           // 主体
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CupertinoActivityIndicator())
                 : c == null
                 ? _buildUnsyncedBody(theme, colorScheme)
                 : _buildContactBody(theme, colorScheme, c),
@@ -615,7 +612,7 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
-              Icons.cloud_off_outlined,
+              CupertinoIcons.cloud,
               size: 56,
               color: colorScheme.onSurfaceVariant,
             ),
@@ -630,12 +627,18 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
               textAlign: TextAlign.center,
             ),
             AppSpacing.verticalXLarge,
-            ElevatedButton.icon(
+            CupertinoButton(
               key: const ValueKey('web-contact-unsynced-send-msg-btn'),
               onPressed: widget.onSendMessage,
-              icon: const Icon(Icons.message_outlined),
-              label: Text(widget.sendButtonLabel),
-              style: ElevatedButton.styleFrom(minimumSize: const Size(200, 44)),
+              minimumSize: const Size(200, 44),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(CupertinoIcons.chat_bubble),
+                  const SizedBox(width: 8),
+                  Text(widget.sendButtonLabel),
+                ],
+              ),
             ),
           ],
         ),
@@ -706,12 +709,18 @@ class _WebContactInfoPanelState extends ConsumerState<_WebContactInfoPanel> {
           ],
           AppSpacing.verticalXXLarge,
           // "发消息"按钮
-          ElevatedButton.icon(
+          CupertinoButton(
             key: const ValueKey('web-contact-send-msg-btn'),
             onPressed: widget.onSendMessage,
-            icon: const Icon(Icons.message_outlined),
-            label: Text(widget.sendButtonLabel),
-            style: ElevatedButton.styleFrom(minimumSize: const Size(200, 44)),
+            minimumSize: const Size(200, 44),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(CupertinoIcons.chat_bubble),
+                const SizedBox(width: 8),
+                Text(widget.sendButtonLabel),
+              ],
+            ),
           ),
         ],
       ),

@@ -3,6 +3,7 @@
 // 此文件是条件导入的存根，用于不支持 audio_waveforms 的平台（如 Web）
 // 实际的 AudioMessageBuilder 不会在这些平台使用
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/component/chat/message_spacing.dart';
@@ -61,7 +62,7 @@ class _AudioMessageBuilderStubState extends State<AudioMessageBuilder> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.audiotrack, size: 24),
+            const Icon(CupertinoIcons.music_note, size: 24),
             const SizedBox(width: 12),
             Text(
               t.common.webAudioNotSupported,

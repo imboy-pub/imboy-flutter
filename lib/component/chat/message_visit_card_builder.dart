@@ -103,7 +103,7 @@ class VisitCardMessageBuilderState extends State<VisitCardMessageBuilder> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                InkWell(
+                GestureDetector(
                   onTap: () {
                     final uid = parseModelString(msg.metadata?['uid']);
                     if (uid.isEmpty) return;
@@ -169,7 +169,6 @@ class _VisitCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ShimmerBox(
       baseColor: AppColors.shimmerBase,
-      highlightColor: AppColors.shimmerHighlight,
       child: Container(
         width: 240,
         height: 116,

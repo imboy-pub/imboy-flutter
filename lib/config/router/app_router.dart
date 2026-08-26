@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:go_router/go_router.dart';
@@ -7,6 +6,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
 import 'package:xid/xid.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/config/routes.dart';
@@ -117,12 +117,7 @@ GoRouter createAppRouter({
         Future<dynamic>.delayed(const Duration(seconds: 1), () {
           if (context.mounted) {
             final t = context.t;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(t.chat.loginExpiredMessage),
-                duration: const Duration(seconds: 2),
-              ),
-            );
+            AppLoading.showToast(t.chat.loginExpiredMessage);
           }
         });
 
@@ -662,7 +657,9 @@ GoRouter createAppRouter({
           if (group == null) {
             return CupertinoPage(
               key: state.pageKey,
-              child: Scaffold(body: Center(child: Text(t.common.dataNotFound))),
+              child: CupertinoPageScaffold(
+                child: Center(child: Text(t.common.dataNotFound)),
+              ),
             );
           }
           return CupertinoPage(
@@ -680,7 +677,9 @@ GoRouter createAppRouter({
           if (extra == null) {
             return CupertinoPage(
               key: state.pageKey,
-              child: Scaffold(body: Center(child: Text(t.common.dataNotFound))),
+              child: CupertinoPageScaffold(
+                child: Center(child: Text(t.common.dataNotFound)),
+              ),
             );
           }
           return CupertinoPage(
@@ -867,12 +866,17 @@ GoRouter createAppRouter({
       ),
     ],
 
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(
+    errorBuilder: (context, state) => CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(middle: Text('imboy')),
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.iosRed),
+            const Icon(
+              CupertinoIcons.exclamationmark_triangle,
+              size: 48,
+              color: AppColors.iosRed,
+            ),
             const SizedBox(height: 16),
             Text(
               'Page not found',
@@ -888,7 +892,7 @@ GoRouter createAppRouter({
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
+            CupertinoButton.filled(
               onPressed: () => context.go(AppRoutes.initial),
               child: Text(t.common.buttonBackHome),
             ),

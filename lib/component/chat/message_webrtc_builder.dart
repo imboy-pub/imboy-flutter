@@ -115,7 +115,7 @@ class WebRTCMessageBuilder extends StatelessWidget {
     if (title.isEmpty) {
       title = t.common.callEnded;
     }
-    return InkWell(
+    return GestureDetector(
       onTap: peerId.isEmpty
           ? null
           : () async {

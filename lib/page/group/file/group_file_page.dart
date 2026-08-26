@@ -615,44 +615,51 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     // 失败态优先于空态：此前 service fail-open 返回空列表，网络失败会渲染
     // "暂无文件"，用户以为群文件被清空了。现在失败有独立文案和重试入口。
     if (_error != null && _files.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _refreshAll,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            const SizedBox(height: 120),
-            NoDataView(
-              icon: CupertinoIcons.exclamationmark_circle,
-              text: _error!,
-              onTop: _refreshAll,
+      return CustomScrollView(
+        slivers: [
+          CupertinoSliverRefreshControl(onRefresh: _refreshAll),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                const SizedBox(height: 120),
+                NoDataView(
+                  icon: CupertinoIcons.exclamationmark_circle,
+                  text: _error!,
+                  onTop: _refreshAll,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
     if (_files.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _refreshAll,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            const SizedBox(height: 120),
-            NoDataView(text: _emptyText()),
-          ],
-        ),
+      return CustomScrollView(
+        slivers: [
+          CupertinoSliverRefreshControl(onRefresh: _refreshAll),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                const SizedBox(height: 120),
+                NoDataView(text: _emptyText()),
+              ],
+            ),
+          ),
+        ],
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: _refreshAll,
-      child: ListView.builder(
-        itemCount: _files.length,
-        itemBuilder: (context, index) {
-          final file = _files[index];
-          return _buildFileItem(file);
-        },
-      ),
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(onRefresh: _refreshAll),
+        SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final file = _files[index];
+            return _buildFileItem(file);
+          }, childCount: _files.length),
+        ),
+      ],
     );
   }
 

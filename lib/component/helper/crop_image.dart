@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:crop_your_image/crop_your_image.dart';
 
@@ -46,8 +47,8 @@ class _CropImageRouteState extends State<CropImageRoute> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Container(
+    return CupertinoPageScaffold(
+      child: Container(
         height: size.height,
         width: size.width,
         color: Colors.black,
@@ -56,7 +57,9 @@ class _CropImageRouteState extends State<CropImageRoute> {
             Expanded(
               child: _imageBytes == null
                   ? const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
+                      child: CupertinoActivityIndicator(
+                        color: CupertinoColors.white,
+                      ),
                     )
                   : Crop(
                       image: _imageBytes!,
@@ -67,7 +70,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
             ),
             Row(
               children: [
-                TextButton(
+                CupertinoButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
                     t.common.buttonCancel,
@@ -76,7 +79,7 @@ class _CropImageRouteState extends State<CropImageRoute> {
                   ),
                 ),
                 const Expanded(child: SizedBox.shrink()),
-                TextButton(
+                CupertinoButton(
                   onPressed: (_imageBytes == null || _isCropping)
                       ? null
                       : _startCrop,
@@ -86,9 +89,8 @@ class _CropImageRouteState extends State<CropImageRoute> {
                         ? const SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                            child: CupertinoActivityIndicator(
+                              color: CupertinoColors.white,
                             ),
                           )
                         : Text(

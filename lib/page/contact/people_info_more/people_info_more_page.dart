@@ -112,7 +112,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     ),
                     if (onTap != null)
                       Icon(
-                        Icons.chevron_right,
+                        CupertinoIcons.chevron_right,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         size: 20,
                       ),
@@ -197,7 +197,9 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     borderRadius: AppRadius.borderRadiusRegular,
                   ),
                   child: Icon(
-                    failed ? Icons.error_outline : Icons.groups_outlined,
+                    failed
+                        ? CupertinoIcons.exclamationmark_circle
+                        : CupertinoIcons.person_2,
                     color: failed
                         ? Theme.of(context).colorScheme.error
                         : hasGroup
@@ -246,7 +248,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     button: true,
                     label: t.common.buttonRetry,
                     child: Icon(
-                      Icons.refresh,
+                      CupertinoIcons.arrow_clockwise,
                       color: Theme.of(context).colorScheme.error,
                       size: 20,
                     ),
@@ -274,13 +276,13 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                   ),
                   AppSpacing.horizontalSmall,
                   Icon(
-                    Icons.chevron_right,
+                    CupertinoIcons.chevron_right,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
                 ] else ...[
                   Icon(
-                    Icons.remove_circle_outline,
+                    CupertinoIcons.minus_circle,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
@@ -300,7 +302,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
     return NoDataView(
       text: t.common.noMoreInfo,
       description: t.common.noDetailedInfo,
-      icon: Icons.info_outline,
+      icon: CupertinoIcons.info_circle,
       iconBgSize: 80,
       iconSize: 40,
     );
@@ -313,7 +315,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
       child: Column(
         children: [
           Icon(
-            Icons.error_outline,
+            CupertinoIcons.exclamationmark_circle,
             size: 40,
             color: Theme.of(context).colorScheme.error,
           ),
@@ -382,7 +384,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     context: context,
                     title: t.account.signature,
                     content: state.sign,
-                    icon: Icons.format_quote_outlined,
+                    icon: CupertinoIcons.quote_bubble,
                     maxLines: 8,
                   ),
 
@@ -392,7 +394,7 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                     context: context,
                     title: t.main.source,
                     content: '${state.sourcePrefix} ${state.source}',
-                    icon: Icons.source_outlined,
+                    icon: CupertinoIcons.doc,
                     maxLines: 3,
                   ),
 

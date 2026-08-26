@@ -375,9 +375,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 不能通过 context.mounted 读取已卸载 State 的 context。
       if (mounted) {
         // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${t.common.chatInitFailed}: $e')),
-        );
+        AppLoading.showToast('${t.common.chatInitFailed}: $e');
       }
     }
   }
@@ -1559,7 +1557,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.history_rounded, size: 48, color: AppColors.textSecondary),
+          Icon(CupertinoIcons.clock, size: 48, color: AppColors.textSecondary),
           SizedBox(height: AppSpacing.small),
           Text(
             t.chat.historyUnavailable,
@@ -1578,7 +1576,10 @@ class ChatPageState extends ConsumerState<ChatPage>
             ),
           ),
           SizedBox(height: AppSpacing.medium),
-          TextButton(onPressed: onRetry, child: Text(t.common.buttonRetry)),
+          CupertinoButton(
+            onPressed: onRetry,
+            child: Text(t.common.buttonRetry),
+          ),
         ],
       ),
     );
@@ -1594,7 +1595,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.cloud_off_rounded,
+            CupertinoIcons.exclamationmark_circle,
             size: 48,
             color: AppColors.textSecondary,
           ),
@@ -1607,7 +1608,10 @@ class ChatPageState extends ConsumerState<ChatPage>
             ),
           ),
           SizedBox(height: AppSpacing.medium),
-          TextButton(onPressed: onRetry, child: Text(t.common.buttonRetry)),
+          CupertinoButton(
+            onPressed: onRetry,
+            child: Text(t.common.buttonRetry),
+          ),
         ],
       ),
     );
@@ -1629,7 +1633,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       IconButton(
         onPressed: _navigateToChatSettings,
         icon: Icon(
-          Icons.more_horiz,
+          CupertinoIcons.ellipsis,
           color: themeNotifier.getThemeColor('textPrimary'),
         ),
         tooltip: t.common.chatSettings,
@@ -1979,7 +1983,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       ),
       emptyChatListBuilder: (ctx) {
         if (chatState.isLoading && chatState.hasMoreMessage) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CupertinoActivityIndicator());
         }
         final bool isEmpty =
             ref.read(chatProvider.notifier).chatService?.messages.isEmpty ??
@@ -2376,10 +2380,10 @@ class ChatPageState extends ConsumerState<ChatPage>
   void _showE2EEKeyMismatchDialog() {
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Row(
           children: [
-            Icon(Icons.lock_outline, color: AppColors.iosOrange),
+            Icon(CupertinoIcons.lock, color: AppColors.iosOrange),
             AppSpacing.horizontalMedium,
             Text(t.common.e2eeDecryptFailed),
           ],
@@ -2400,21 +2404,21 @@ class ChatPageState extends ConsumerState<ChatPage>
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () {
               Navigator.of(context).pop();
               _refreshE2EEKeys();
             },
             child: Text(t.common.e2eeDecryptActionRecreateKey),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () {
               Navigator.of(context).pop();
               _relogin();
             },
             child: Text(t.common.e2eeDecryptActionRelogin),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(t.common.e2eeDecryptActionRemindLater),
           ),
@@ -2431,10 +2435,10 @@ class ChatPageState extends ConsumerState<ChatPage>
   void _showComplianceKeyChangedDialog(ComplianceKeyChangedEvent event) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => CupertinoAlertDialog(
         title: Row(
           children: [
-            Icon(Icons.security, color: AppColors.iosOrange),
+            Icon(CupertinoIcons.shield, color: AppColors.iosOrange),
             AppSpacing.horizontalMedium,
             Text(t.common.complianceKeyChangedTitle),
           ],
@@ -2463,7 +2467,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               // 拒绝：保持旧 pin，后续发送继续 fail-closed。
@@ -2473,7 +2477,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             },
             child: Text(t.common.complianceKeyChangedActionKeep),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               final ok = await ComplianceKeyService.instance.confirmRotation(

@@ -257,12 +257,12 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                       borderRadius: AppRadius.borderRadiusLarge,
                     ),
                     child: Icon(
-                      Icons.broken_image_outlined,
+                      CupertinoIcons.photo,
                       color: AppColors.primary.withValues(alpha: 0.5),
                     ),
                   ),
                 )
-              : InkWell(
+              : GestureDetector(
                   onTap: () async {
                     zoomInPhotoView(context, uri);
                   },
@@ -279,7 +279,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                         borderRadius: AppRadius.borderRadiusLarge,
                       ),
                       child: Icon(
-                        Icons.broken_image_outlined,
+                        CupertinoIcons.photo,
                         color: AppColors.primary.withValues(alpha: 0.5),
                       ),
                     ),
@@ -340,7 +340,11 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 ),
                 const Expanded(
                   flex: 1,
-                  child: Column(children: [Icon(Icons.graphic_eq, size: 28)]),
+                  child: Column(
+                    children: [
+                      Icon(CupertinoIcons.slider_horizontal_3, size: 28),
+                    ],
+                  ),
                 ),
               ],
             )
@@ -388,7 +392,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 image: cachedImageProvider(uri, w: screenWidth * 0.5),
               ),
               Positioned.fill(
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
                     final String uri =
                         (_payload(obj)['video'] as Map? ?? const {})['uri']
@@ -418,7 +422,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     height: 100,
                     child: Center(
                       child: Icon(
-                        Icons.video_library,
+                        CupertinoIcons.play_rectangle,
                         color: AppColors.onPrimary,
                         size: 40,
                       ),
@@ -592,7 +596,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 const Expanded(
                   flex: 1,
                   child: Column(
-                    children: [Icon(Icons.location_on_outlined, size: 28)],
+                    children: [Icon(CupertinoIcons.location, size: 28)],
                   ),
                 ),
               ],
@@ -615,7 +619,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                         Row(
                           children: [
                             Icon(
-                              Icons.location_on,
+                              CupertinoIcons.location,
                               color: AppColors.primary,
                               size: 24,
                             ),
@@ -688,7 +692,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                             borderRadius: AppRadius.borderRadiusLarge,
                           ),
                           child: Icon(
-                            Icons.person,
+                            CupertinoIcons.person,
                             color: AppColors.primary,
                             size: 24,
                           ),
@@ -750,14 +754,14 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     state.items = list;
 
     state.searchTrailing = [
-      InkWell(
+      GestureDetector(
         onTap: () {
           if (state.kwd.isEmpty) {
             return;
           }
           doSearch(state.kwd);
         },
-        child: const Icon(Icons.search),
+        child: const Icon(CupertinoIcons.search),
       ),
     ].map((e) => e).toList();
 
@@ -765,7 +769,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(
-          child: ElevatedButton(
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: () {
               state.searchLeading = null;
               state.searchTrailing = null;
@@ -776,16 +781,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
               state.kind = 'all';
               callback();
             },
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.resolveWith<Color>((
-                Set<WidgetState> states,
-              ) {
-                if (states.contains(WidgetState.pressed)) {
-                  return ThemeData().colorScheme.surface.withAlpha(191);
-                }
-                return ThemeData().colorScheme.surface;
-              }),
-            ),
             child: IntrinsicWidth(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -795,7 +790,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     child: Transform.scale(
                       scaleX: -1,
                       child: Icon(
-                        Icons.local_offer,
+                        CupertinoIcons.bookmark,
                         size: 18,
                         color: ThemeData().colorScheme.onPrimary.withAlpha(191),
                       ),
@@ -812,7 +807,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   ),
                   AppSpacing.horizontalMedium,
                   Icon(
-                    Icons.close,
+                    CupertinoIcons.xmark_circle_fill,
                     size: 16,
                     color: Theme.of(
                       // ignore: use_build_context_synchronously resolveWith 同步回调,paint 时 context 有效
@@ -844,14 +839,14 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     state.items = list;
 
     state.searchTrailing = [
-      InkWell(
+      GestureDetector(
         onTap: () {
           if (state.kwd.isEmpty) {
             return;
           }
           doSearch(state.kwd);
         },
-        child: const Icon(Icons.search),
+        child: const Icon(CupertinoIcons.search),
       ),
     ].map((e) => e).toList();
 
@@ -859,7 +854,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(
-          child: ElevatedButton(
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: () {
               state.searchLeading = null;
               state.searchTrailing = null;
@@ -870,16 +866,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
               state.kind = 'all';
               callback();
             },
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.resolveWith<Color>((
-                Set<WidgetState> states,
-              ) {
-                if (states.contains(WidgetState.pressed)) {
-                  return ThemeData().colorScheme.surface.withAlpha(191);
-                }
-                return ThemeData().colorScheme.surface;
-              }),
-            ),
             child: IntrinsicWidth(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -889,7 +875,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     child: Transform.scale(
                       scaleX: -1,
                       child: Icon(
-                        Icons.grid_view,
+                        CupertinoIcons.rectangle_3_offgrid,
                         size: 18,
                         color: Theme.of(
                           // ignore: use_build_context_synchronously resolveWith 同步回调,paint 时 context 有效
@@ -909,7 +895,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                   ),
                   AppSpacing.horizontalMedium,
                   Icon(
-                    Icons.close,
+                    CupertinoIcons.xmark_circle_fill,
                     size: 16,
                     color: Theme.of(
                       // ignore: use_build_context_synchronously resolveWith 同步回调,paint 时 context 有效
@@ -1264,7 +1250,11 @@ class UserCollectNotifier extends _$UserCollectNotifier {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.local_offer, size: 12, color: AppColors.info),
+                  Icon(
+                    CupertinoIcons.bookmark,
+                    size: 12,
+                    color: AppColors.info,
+                  ),
                   AppSpacing.horizontalTiny,
                   Text(
                     tag,

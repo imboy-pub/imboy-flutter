@@ -39,9 +39,8 @@ class MessageRedPacketBuilder extends ConsumerWidget {
       ),
       child: Material(
         color: AppColors.transparent,
-        child: InkWell(
+        child: GestureDetector(
           onTap: () => _handleOpenRedPacket(context, ref, packetId),
-          borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
@@ -52,7 +51,11 @@ class MessageRedPacketBuilder extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.redeem, color: Colors.yellow, size: 36),
+                    const Icon(
+                      CupertinoIcons.gift,
+                      color: AppColors.warning,
+                      size: 36,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -297,7 +300,7 @@ class _RedPacketOpenDialogState extends State<_RedPacketOpenDialog>
                 child: IconButton(
                   tooltip: t.common.buttonClose,
                   icon: const Icon(
-                    Icons.close,
+                    CupertinoIcons.xmark_circle_fill,
                     color: AppColors.overlayWhite70,
                   ),
                   onPressed: () => Navigator.pop(context),

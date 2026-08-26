@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -24,7 +24,11 @@ ContactMenuDecoration? contactMenuDecorationOf(int peerId) {
       return const ContactMenuDecoration(
         bgColor: AppColors.iosOrange,
         iconData: Center(
-          child: Icon(Icons.dynamic_feed, size: 24, color: AppColors.onPrimary),
+          child: Icon(
+            CupertinoIcons.rectangle_stack,
+            size: 24,
+            color: AppColors.onPrimary,
+          ),
         ),
       );
     case kPeerIdPeopleNearby:
@@ -32,7 +36,7 @@ ContactMenuDecoration? contactMenuDecorationOf(int peerId) {
         bgColor: AppColors.iosOrange,
         iconData: Center(
           child: Icon(
-            Icons.person_pin_circle,
+            CupertinoIcons.person_crop_circle,
             size: 24,
             color: AppColors.onPrimary,
           ),
@@ -41,22 +45,36 @@ ContactMenuDecoration? contactMenuDecorationOf(int peerId) {
     case kPeerIdNewFriend:
       return const ContactMenuDecoration(
         bgColor: AppColors.iosOrange,
-        iconData: Center(child: Icon(Icons.person_add, size: 24)),
+        iconData: Center(
+          child: Icon(CupertinoIcons.person_badge_plus, size: 24),
+        ),
       );
     case kPeerIdGroup:
       return const ContactMenuDecoration(
         bgColor: AppColors.iosGreen,
-        iconData: Icon(Icons.people, size: 24, color: AppColors.onPrimary),
+        iconData: Icon(
+          CupertinoIcons.person_2,
+          size: 24,
+          color: AppColors.onPrimary,
+        ),
       );
     case kPeerIdTag:
       return const ContactMenuDecoration(
         bgColor: AppColors.iosBlue,
-        iconData: Icon(Icons.local_offer, size: 24, color: AppColors.onPrimary),
+        iconData: Icon(
+          CupertinoIcons.tag,
+          size: 24,
+          color: AppColors.onPrimary,
+        ),
       );
     case kPeerIdAssistantPlaza:
       return const ContactMenuDecoration(
         bgColor: AppColors.tertiary,
-        iconData: Icon(Icons.smart_toy, size: 24, color: AppColors.onPrimary),
+        iconData: Icon(
+          CupertinoIcons.rectangle_stack_badge_person_crop,
+          size: 24,
+          color: AppColors.onPrimary,
+        ),
       );
     default:
       return null;
