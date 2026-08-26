@@ -110,7 +110,7 @@ Map<String, String> _parseBrand(File f) {
 String _require(Map<String, String> m, String k) {
   final v = m[k];
   if (v == null || v.isEmpty) _fail('brand.yaml 缺少必填项: $k');
-  return v!;
+  return v;
 }
 
 /// 替换文件中正则命中处；必须恰好命中一次，否则 fail-fast。
