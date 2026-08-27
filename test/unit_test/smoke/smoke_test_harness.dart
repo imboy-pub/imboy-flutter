@@ -251,9 +251,11 @@ class _SmokeHttpClientRequest implements HttpClientRequest {
   final HttpHeaders headers = _SmokeHttpHeaders();
 
   @override
-  Future<HttpClientResponse> close() async => _SmokeHttpClientResponse();
+  Future<HttpClientResponse> close() async => _SmokeHttpClientResponse(
+    body: _isImageUri(uri) ? _kOnePxTransparentPng : const <int>[],
+  );
   @override
-  Future<HttpClientResponse> get done async => _SmokeHttpClientResponse();
+  Future<HttpClientResponse> get done async => close();
 
   @override
   void add(List<int> data) {}
@@ -293,14 +295,97 @@ class _SmokeHttpClientRequest implements HttpClientRequest {
   void abort([Object? exception, StackTrace? stackTrace]) {}
 }
 
+/// 1×1 透明 PNG：图片类 URL 返回它，让 cached_network_image 一次解码成功，
+/// 避免「空 200 → 解码失败 → 内部重试 Timer」在 testWidgets 结束时挂起。
+const List<int> _kOnePxTransparentPng = <int>[
+  0x89,
+  0x50,
+  0x4E,
+  0x47,
+  0x0D,
+  0x0A,
+  0x1A,
+  0x0A,
+  0x00,
+  0x00,
+  0x00,
+  0x0D,
+  0x49,
+  0x48,
+  0x44,
+  0x52,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x08,
+  0x06,
+  0x00,
+  0x00,
+  0x00,
+  0x1F,
+  0x15,
+  0xC4,
+  0x89,
+  0x00,
+  0x00,
+  0x00,
+  0x0D,
+  0x49,
+  0x44,
+  0x41,
+  0x54,
+  0x78,
+  0x9C,
+  0x62,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x05,
+  0x00,
+  0x01,
+  0x0D,
+  0x0A,
+  0x2D,
+  0xB4,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x49,
+  0x45,
+  0x4E,
+  0x44,
+  0xAE,
+  0x42,
+  0x60,
+  0x82,
+];
+
+bool _isImageUri(Uri url) {
+  final path = url.path.toLowerCase();
+  return path.endsWith('.png') ||
+      path.endsWith('.jpg') ||
+      path.endsWith('.jpeg') ||
+      path.endsWith('.gif') ||
+      path.endsWith('.webp');
+}
+
 class _SmokeHttpClientResponse extends Stream<List<int>>
     implements HttpClientResponse {
+  _SmokeHttpClientResponse({this.body = const <int>[]});
+  final List<int> body;
   @override
   int statusCode = 200;
   @override
   String reasonPhrase = 'OK';
   @override
-  int contentLength = 0;
+  int get contentLength => body.length;
   @override
   final HttpHeaders headers = _SmokeHttpHeaders();
   @override
@@ -326,8 +411,16 @@ class _SmokeHttpClientResponse extends Stream<List<int>>
     void Function()? onDone,
     bool? cancelOnError,
   }) {
-    // 空响应体，立即 done
-    return const Stream<List<int>>.empty().listen(
+    // 图片占位响应体流出 PNG 字节；其余仍为空响应体
+    if (body.isEmpty) {
+      return const Stream<List<int>>.empty().listen(
+        onData,
+        onError: onError,
+        onDone: onDone,
+        cancelOnError: cancelOnError,
+      );
+    }
+    return Stream<List<int>>.fromIterable(<List<int>>[body]).listen(
       onData,
       onError: onError,
       onDone: onDone,

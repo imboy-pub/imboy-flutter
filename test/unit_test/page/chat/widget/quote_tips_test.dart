@@ -130,6 +130,10 @@ void main() {
       await _pump(tester, title: 'Reply', message: image);
 
       expect(find.byIcon(CupertinoIcons.photo), findsOneWidget);
+      // ImageView 走 cross_cache/Dio 异步拉缩略图：pump 冲掉其 0ms 调度
+      // Timer，避免用例收尾报 pending timers
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump(const Duration(milliseconds: 100));
       // title 仍渲染
       expect(find.text('Reply'), findsOneWidget);
     });
