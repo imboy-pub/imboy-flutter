@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,6 +38,11 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
         }
       });
 
+  // path_provider 的 platform-interface 直调层（PathProviderPlatform.instance）
+  // 不走 method channel，上面的 channel mock 盖不住它。sqlite 新链路
+  // （migration/database_snapshot 等）会经此查询目录，缺省即 MissingPlugin。
+  PathProviderPlatform.instance = _FakePathProviderPlatform();
+
   SharedPreferences.setMockInitialValues(<String, Object>{});
   await StorageService.init();
 
@@ -46,4 +52,30 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(pathProviderChannel, null);
   }
+}
+
+/// 目录全部指向系统临时区，避免污染真实用户目录。
+class _FakePathProviderPlatform extends PathProviderPlatform {
+  String get _tmp => Directory.systemTemp.path;
+
+  @override
+  Future<String?> getApplicationSupportPath() async =>
+      Directory.systemTemp.createTempSync('imboy_support').path;
+
+  @override
+  Future<String?> getApplicationDocumentsPath() async =>
+      Directory.systemTemp.createTempSync('imboy_docs').path;
+
+  @override
+  Future<String?> getTemporaryPath() async => _tmp;
+
+  @override
+  Future<String?> getLibraryPath() async =>
+      Directory.systemTemp.createTempSync('imboy_library').path;
+
+  @override
+  Future<String?> getExternalStoragePath() async => _tmp;
+
+  @override
+  Future<String?> getDownloadsPath() async => _tmp;
 }
