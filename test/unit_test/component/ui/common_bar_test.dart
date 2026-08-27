@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -21,7 +22,7 @@ void main() {
         );
 
         // 验证：默认情况下不应该显示返回按钮
-        expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
+        expect(find.byIcon(CupertinoIcons.chevron_left), findsNothing);
       });
 
       testWidgets(
@@ -53,7 +54,7 @@ void main() {
           await tester.pumpAndSettle();
 
           // 验证：应该显示返回按钮
-          expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
+          expect(find.byIcon(CupertinoIcons.chevron_left), findsOneWidget);
         },
       );
 
@@ -70,7 +71,7 @@ void main() {
         );
 
         // 验证：即使 automaticallyImplyLeading = true，但不能返回时也不显示返回按钮
-        expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
+        expect(find.byIcon(CupertinoIcons.chevron_left), findsNothing);
       });
 
       testWidgets('自定义 leading 优先级高于 automaticallyImplyLeading', (
@@ -92,7 +93,7 @@ void main() {
 
         // 验证：应该显示自定义 leading，而不是默认返回按钮
         expect(find.text('Custom'), findsOneWidget);
-        expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
+        expect(find.byIcon(CupertinoIcons.chevron_left), findsNothing);
       });
     });
 
@@ -131,19 +132,19 @@ void main() {
         await tester.pumpAndSettle();
 
         // 验证：第二个页面的返回按钮存在
-        expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
+        expect(find.byIcon(CupertinoIcons.chevron_left), findsOneWidget);
 
         // 点击返回按钮（使用更精确的选择器）
         final backButton = find.widgetWithIcon(
           GestureDetector,
-          Icons.arrow_back_ios_new,
+          CupertinoIcons.chevron_left,
         );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
 
         // 验证：应该返回到第一个页面
         expect(find.text('Page 1'), findsOneWidget);
-        expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
+        expect(find.byIcon(CupertinoIcons.chevron_left), findsNothing);
       });
 
       testWidgets('popTime > 1 时返回多层', (WidgetTester tester) async {
@@ -191,7 +192,7 @@ void main() {
         // 点击返回按钮（应该返回两层到第 1 页）
         final backButton = find.widgetWithIcon(
           GestureDetector,
-          Icons.arrow_back_ios_new,
+          CupertinoIcons.chevron_left,
         );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
@@ -370,7 +371,7 @@ void main() {
         // 点击返回按钮（popTime=10 但只有 2 层，应该安全返回）
         final backButton = find.widgetWithIcon(
           GestureDetector,
-          Icons.arrow_back_ios_new,
+          CupertinoIcons.chevron_left,
         );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
@@ -409,7 +410,7 @@ void main() {
         // 点击返回按钮
         final backButton = find.widgetWithIcon(
           GestureDetector,
-          Icons.arrow_back_ios_new,
+          CupertinoIcons.chevron_left,
         );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
@@ -452,7 +453,7 @@ void main() {
         // 点击返回按钮
         final backButton = find.widgetWithIcon(
           GestureDetector,
-          Icons.arrow_back_ios_new,
+          CupertinoIcons.chevron_left,
         );
         await tester.tap(backButton);
         await tester.pumpAndSettle();
@@ -497,7 +498,7 @@ void main() {
         );
 
         // 验证：根页面没有返回按钮（因为不能 pop）
-        expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
+        expect(find.byIcon(CupertinoIcons.chevron_left), findsNothing);
       });
 
       testWidgets('快速连续点击返回按钮', (WidgetTester tester) async {
@@ -529,7 +530,7 @@ void main() {
         // 快速点击两次返回按钮
         final backButton = find.widgetWithIcon(
           GestureDetector,
-          Icons.arrow_back_ios_new,
+          CupertinoIcons.chevron_left,
         );
         await tester.tap(backButton);
         // 不等待动画完成就点击第二次

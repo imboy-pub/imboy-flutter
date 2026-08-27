@@ -10,6 +10,7 @@
 ///   4. 终态（Success / 错误状态）显示关闭按钮且语义清晰
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/scanner/qr_login_confirm_content.dart';
@@ -35,12 +36,12 @@ void main() {
   group('QrLoginConfirmContent — 渲染（按状态）', () {
     testWidgets('Idle → 显示加载指示器', (tester) async {
       await tester.pumpWidget(wrap(build(const QrLoginConfirmIdle())));
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
     });
 
     testWidgets('Scanning → 显示加载指示器', (tester) async {
       await tester.pumpWidget(wrap(build(const QrLoginConfirmScanning())));
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
     });
 
     testWidgets('AwaitingConfirm（无 deviceInfo）→ 显示标题 + 确认按钮 + 取消按钮', (
@@ -73,12 +74,12 @@ void main() {
 
     testWidgets('Confirming → 显示加载指示器（登录中）', (tester) async {
       await tester.pumpWidget(wrap(build(const QrLoginConfirmConfirming())));
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
     });
 
     testWidgets('Success → 显示成功 icon + 文案', (tester) async {
       await tester.pumpWidget(wrap(build(const QrLoginConfirmSuccess())));
-      expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.checkmark_circle), findsOneWidget);
     });
 
     testWidgets('Expired → 显示"已过期"文案 + 关闭按钮', (tester) async {
@@ -192,7 +193,7 @@ void main() {
       final btnSize = tester.getSize(
         find.ancestor(
           of: find.text('确认登录'),
-          matching: find.byType(ElevatedButton),
+          matching: find.byType(CupertinoButton),
         ),
       );
       expect(btnSize.height, greaterThanOrEqualTo(44.0));
