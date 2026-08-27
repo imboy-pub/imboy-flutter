@@ -86,9 +86,8 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
     final t = context.t;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
+    return CupertinoPageScaffold(
+      child: Stack(
         children: [
           // Underlying backdrop dim/tint
           _buildBackdrop(),
@@ -164,7 +163,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 22),
+                    icon: const Icon(CupertinoIcons.xmark, size: 22),
                     tooltip: t.common.buttonClose,
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
@@ -176,7 +175,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
             // Alipay row (Selected)
             ListTile(
               leading: const Icon(
-                Icons.payment,
+                CupertinoIcons.creditcard,
                 color: AppColors.alipaySimBlue,
                 size: 28,
               ),
@@ -199,7 +198,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
             // Huabei row
             ListTile(
               leading: const Icon(
-                Icons.credit_card,
+                CupertinoIcons.creditcard,
                 color: AppColors.alipaySimSuccessGreen,
                 size: 28,
               ),
@@ -228,15 +227,9 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
               child: SizedBox(
                 width: double.infinity,
                 height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors
-                        .alipaySimRed, // Alipay Red confirmation button style
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    elevation: 0,
-                  ),
+                child: CupertinoButton(
+                  color: AppColors.alipaySimRed,
+                  borderRadius: BorderRadius.circular(24),
                   onPressed: () {
                     setState(() {
                       _currentStep = AlipaySimStep.confirmPay;
@@ -284,7 +277,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.close, size: 22),
+                    icon: const Icon(CupertinoIcons.xmark, size: 22),
                     tooltip: t.common.buttonClose,
                     onPressed: () {
                       setState(() {
@@ -292,7 +285,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                       });
                     },
                   ),
-                  TextButton(
+                  CupertinoButton(
                     onPressed: () {
                       setState(() {
                         _currentStep = AlipaySimStep.pinVerification;
@@ -320,7 +313,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                 color: AppColors.alipaySimBlue.withValues(alpha: 0.1),
               ),
               child: const Icon(
-                Icons.store,
+                CupertinoIcons.cart,
                 color: AppColors.alipaySimBlue,
                 size: 32,
               ),
@@ -368,7 +361,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
               child: Row(
                 children: [
                   const Icon(
-                    Icons.energy_savings_leaf,
+                    CupertinoIcons.sparkles,
                     color: AppColors.alipaySimSuccessGreen,
                     size: 18,
                   ),
@@ -395,14 +388,9 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
               child: SizedBox(
                 width: double.infinity,
                 height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.alipaySimBlue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 0,
-                  ),
+                child: CupertinoButton(
+                  color: AppColors.alipaySimBlue,
+                  borderRadius: BorderRadius.circular(8),
                   onPressed: () {
                     setState(() {
                       _currentStep = AlipaySimStep.pinVerification;
@@ -448,7 +436,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                     top: 4,
                     left: 4,
                     child: IconButton(
-                      icon: const Icon(Icons.close, size: 20),
+                      icon: const Icon(CupertinoIcons.xmark, size: 20),
                       tooltip: t.common.buttonClose,
                       onPressed: () {
                         setState(() {
@@ -520,8 +508,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                           const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                            child: CupertinoActivityIndicator(
                               color: AppColors.alipaySimBlue,
                             ),
                           ),
@@ -561,7 +548,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
         }
         final isBackspace = key == 'backspace';
         return Expanded(
-          child: InkWell(
+          child: GestureDetector(
             onTap: () => _onKeyPress(key),
             child: Container(
               margin: const EdgeInsets.all(4),
@@ -615,7 +602,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                   color: AppColors.lightSurface,
                 ),
                 child: const Icon(
-                  Icons.check,
+                  CupertinoIcons.checkmark,
                   color: AppColors.alipaySimBlue,
                   size: 42,
                 ),
@@ -669,15 +656,9 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
           child: SizedBox(
             width: double.infinity,
             height: 48,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.lightSurface,
-                foregroundColor: AppColors.alipaySimBlue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 0,
-              ),
+            child: CupertinoButton(
+              color: AppColors.lightSurface,
+              borderRadius: BorderRadius.circular(8),
               onPressed: () {
                 setState(() {
                   _currentStep = AlipaySimStep.merchantSuccess;
@@ -777,7 +758,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                   child: Column(
                     children: [
                       const Icon(
-                        Icons.check_circle,
+                        CupertinoIcons.check_mark_circled,
                         color: AppColors.alipaySimSuccessGreen,
                         size: 54,
                       ),
@@ -794,7 +775,7 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(
-                            Icons.payment,
+                            CupertinoIcons.creditcard,
                             size: 16,
                             color: AppColors.alipaySimBlue,
                           ),
@@ -814,15 +795,9 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                       SizedBox(
                         width: double.infinity,
                         height: 48,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors
-                                .alipaySimRed, // Red merchant completion button
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            elevation: 0,
-                          ),
+                        child: CupertinoButton(
+                          color: AppColors.alipaySimRed,
+                          borderRadius: BorderRadius.circular(24),
                           onPressed: () {
                             Navigator.of(context).pop(true);
                           },

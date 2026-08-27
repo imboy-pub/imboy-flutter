@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -37,7 +38,7 @@ void main() {
       _app(ChannelHeaderBar(channel: _channel(), onActionTap: () {})),
     );
 
-    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byType(CupertinoActivityIndicator), findsNothing);
     expect(find.textContaining('0'), findsNothing);
     expect(find.textContaining(t.channel.subscribers), findsNothing);
   });
@@ -53,7 +54,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(button.onPressed, isNull);
   });

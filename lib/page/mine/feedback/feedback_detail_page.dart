@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -75,10 +76,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
             Container(
               width: double.infinity,
               padding: AppSpacing.allLarge,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-              ),
+              decoration: BoxDecoration(color: Theme.of(context).cardColor),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -92,7 +90,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                           borderRadius: AppRadius.borderRadiusMedium,
                         ),
                         child: Icon(
-                          Icons.feedback,
+                          CupertinoIcons.exclamationmark_bubble,
                           color: colorScheme.primary,
                           size: 24,
                         ),
@@ -160,8 +158,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                       Expanded(
                         child: Material(
                           color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: AppRadius.borderRadiusSmall,
+                          child: GestureDetector(
                             onTap: () {
                               zoomInPhotoViewGallery(
                                 context,
@@ -183,7 +180,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    Icons.screenshot,
+                                    CupertinoIcons.photo_on_rectangle,
                                     color: colorScheme.secondary,
                                     size: 20,
                                   ),
@@ -215,16 +212,17 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
               Container(
                 width: double.infinity,
                 padding: AppSpacing.allLarge,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: AppRadius.borderRadiusRegular,
-                ),
+                decoration: BoxDecoration(color: Theme.of(context).cardColor),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.star, color: AppColors.iosYellow, size: 20),
+                        Icon(
+                          CupertinoIcons.star_fill,
+                          color: AppColors.iosYellow,
+                          size: 20,
+                        ),
                         AppSpacing.horizontalSmall,
                         Text(
                           t.chat.rating,
@@ -256,8 +254,10 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         itemPadding: const EdgeInsets.symmetric(
                           horizontal: 4.0,
                         ),
-                        itemBuilder: (context, _) =>
-                            const Icon(Icons.star, color: AppColors.iosYellow),
+                        itemBuilder: (context, _) => const Icon(
+                          CupertinoIcons.star_fill,
+                          color: AppColors.iosYellow,
+                        ),
                         onRatingUpdate: (rating) {},
                         ignoreGestures: true,
                       ),
@@ -272,17 +272,14 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
             Container(
               width: double.infinity,
               padding: AppSpacing.allLarge,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-              ),
+              decoration: BoxDecoration(color: Theme.of(context).cardColor),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Icon(
-                        Icons.description,
+                        CupertinoIcons.doc_text,
                         color: colorScheme.primary,
                         size: 20,
                       ),
@@ -325,16 +322,17 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
             Container(
               width: double.infinity,
               padding: AppSpacing.allLarge,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: AppRadius.borderRadiusRegular,
-              ),
+              decoration: BoxDecoration(color: Theme.of(context).cardColor),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.reply, color: colorScheme.secondary, size: 20),
+                      Icon(
+                        CupertinoIcons.arrowshape_turn_up_left,
+                        color: colorScheme.secondary,
+                        size: 20,
+                      ),
                       AppSpacing.horizontalSmall,
                       Text(
                         t.common.officialReply,
@@ -408,7 +406,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                   borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: Icon(
-                  Icons.support_agent,
+                  CupertinoIcons.person,
                   color: colorScheme.secondary,
                   size: 16,
                 ),

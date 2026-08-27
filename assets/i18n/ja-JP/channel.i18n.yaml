@@ -134,3 +134,14 @@ noMessagesSubscribedDesc: 購読しました！投稿者の新しいコンテン
 continueEditing: 編集を続ける
 publishFirstContent: 最初のコンテンツを公開
 noSubscribersDesc: まだ購読者はいません。友達にチャンネルを共有しましょう
+emoji: "絵文字"
+justNow: "たった今"
+minutesAgo: "分前"
+hoursAgo: "時間前"
+weeksAgo: "週間前"
+visibilityLabel: "公開範囲"
+accessTypeLabel: "有料設定"
+accessTypeFree: "無料"
+accessTypePaid: "有料"
+typePublicPaidDesc: "誰でもチャンネルを見つけられ、購入後に登録できます"
+typePrivatePaidDesc: "招待されたユーザーのみ購入フローに進み、支払い後に登録できます"

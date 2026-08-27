@@ -89,6 +89,8 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: titleController,
               placeholder: t.groupSchedule.scheduleTitle,
             ),
@@ -349,16 +351,16 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
       isEmpty: _schedules.isEmpty,
       onRetry: _loadSchedules,
       emptyText: t.groupSchedule.noSchedule,
-      child: RefreshIndicator(
-        onRefresh: _loadSchedules,
-        child: ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-          itemCount: _schedules.length,
-          itemBuilder: (context, index) {
-            final schedule = _schedules[index];
-            return _buildScheduleItem(schedule);
-          },
-        ),
+      child: CustomScrollView(
+        slivers: [
+          CupertinoSliverRefreshControl(onRefresh: _loadSchedules),
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final schedule = _schedules[index];
+              return _buildScheduleItem(schedule);
+            }, childCount: _schedules.length),
+          ),
+        ],
       ),
     );
   }

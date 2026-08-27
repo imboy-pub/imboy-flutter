@@ -30,7 +30,6 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 
 import 'web_search_state.dart';
 
@@ -368,7 +367,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           // 返回按钮
           IconButton(
             icon: Icon(
-              Icons.arrow_back,
+              CupertinoIcons.back,
               color: isDark
                   ? AppColors.chatWebSecondaryDark
                   : AppColors.chatWebSecondaryLight,
@@ -380,6 +379,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           // 搜索输入框
           Expanded(
             child: TextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _searchController,
               focusNode: _searchFocusNode,
               onChanged: _onSearchChanged,
@@ -401,10 +402,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 fillColor: isDark
                     ? AppColors.chatWebSurfaceDark
                     : AppColors.lightSurface,
-                border: OutlineInputBorder(
-                  borderRadius: AppRadius.borderRadiusSmall,
-                  borderSide: BorderSide.none,
-                ),
+                border: OutlineInputBorder(borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 10,
@@ -412,7 +410,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: Icon(
-                          Icons.clear,
+                          CupertinoIcons.clear,
                           color: isDark
                               ? AppColors.chatWebSecondaryDark
                               : AppColors.chatWebSecondaryLight,
@@ -439,7 +437,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: AppColors.chatWebBrand),
+          const CupertinoActivityIndicator(),
           AppSpacing.verticalRegular,
           Text(
             t.common.search,
@@ -463,7 +461,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.search,
+              CupertinoIcons.search,
               size: 64,
               color: isDark
                   ? AppColors.chatWebDividerDark
@@ -503,7 +501,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                       : AppColors.chatWebSecondaryLight,
                 ),
               ),
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: _clearSearchHistory,
                 child: Text(
                   t.common.clear,
@@ -573,7 +571,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.error_outline,
+              CupertinoIcons.exclamationmark_circle,
               size: 64,
               color: isDark ? AppColors.iosRedDark : AppColors.iosRed,
             ),
@@ -596,7 +594,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.search_off,
+              CupertinoIcons.slash_circle,
               size: 64,
               color: isDark
                   ? AppColors.chatWebDividerDark
@@ -690,7 +688,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       );
     }
 
-    return InkWell(
+    return GestureDetector(
       onTap: () => _onItemTap(item),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -767,13 +765,13 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     IconData iconData;
     switch (item.type) {
       case SearchItemType.conversation:
-        iconData = Icons.chat_bubble_outline;
+        iconData = CupertinoIcons.chat_bubble;
       case SearchItemType.message:
-        iconData = Icons.message_outlined;
+        iconData = CupertinoIcons.chat_bubble_fill;
       case SearchItemType.contact:
-        iconData = Icons.person_outline;
+        iconData = CupertinoIcons.person;
       case SearchItemType.group:
-        iconData = Icons.group_outlined;
+        iconData = CupertinoIcons.group;
     }
 
     return Container(

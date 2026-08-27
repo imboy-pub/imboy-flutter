@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -86,7 +87,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
     // 设备可用的地图（含已安装原生 app 与支持 universal link 的地图）。
     final request = MapLauncher.marker(LocationCoords(lat, lng, title: title));
 
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (context) => Container(
         color: Theme.of(context).colorScheme.surface,
@@ -94,7 +95,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
           future: request.getSupportedMaps(MapApp.all),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: CupertinoActivityIndicator());
             }
             final maps = snapshot.data!;
             if (maps.isEmpty) {
@@ -157,7 +158,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InkWell(
+          GestureDetector(
             onTap: () => _showMapsSheet(context, msg),
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -193,7 +194,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
             ),
           ),
           Expanded(
-            child: InkWell(
+            child: GestureDetector(
               onTap: () async {
                 zoomInPhotoView(context, thumb);
               },
@@ -211,7 +212,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                           ? AppColors.placeholderSurfaceDark
                           : AppColors.placeholderSurfaceLight,
                       child: Icon(
-                        Icons.map,
+                        CupertinoIcons.map,
                         color: isDark
                             ? AppColors.mediaScrimWhite.withValues(alpha: 0.3)
                             : AppColors.mediaScrimBlack.withValues(alpha: 0.26),
@@ -221,7 +222,7 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
                   ),
                   Center(
                     child: Icon(
-                      Icons.location_on,
+                      CupertinoIcons.location,
                       color: AppColors.getIosRed(theme.brightness),
                       size: 32,
                     ),

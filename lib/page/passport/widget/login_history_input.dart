@@ -142,6 +142,8 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
     return CompositedTransformTarget(
       link: _layerLink,
       child: TextField(
+        enableSuggestions: false,
+        autocorrect: false,
         controller: widget.controller,
         focusNode: _focusNode,
         obscureText: widget.obscureText,
@@ -154,7 +156,7 @@ class _LoginHistoryInputState extends State<LoginHistoryInput> {
               widget.suffixIcon ??
               (widget.historyList.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.arrow_drop_down),
+                      icon: const Icon(CupertinoIcons.chevron_down),
                       tooltip: t.passport.loginHistoryToggle,
                       onPressed: _toggleOverlay,
                     )

@@ -352,12 +352,8 @@ class ChatAttachmentHandler {
     // 移动端专用)。提示用户改用 + 号选文件（file_picker 已在 Web 工作）。
     if (kIsWeb) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Camera not supported on Web. Use file picker instead.',
-            ),
-          ),
+        AppLoading.showToast(
+          'Camera not supported on Web. Use file picker instead.',
         );
       }
       return;
@@ -378,9 +374,7 @@ class ChatAttachmentHandler {
       await uploadCameraAsset(context, entity);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${t.common.cameraShootFailed}: $e')),
-        );
+        AppLoading.showToast('${t.common.cameraShootFailed}: $e');
       }
     }
   }

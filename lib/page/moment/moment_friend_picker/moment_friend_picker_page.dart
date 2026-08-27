@@ -36,7 +36,6 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 
 /// 单页确认后的结果：可见性 code + 允许/排除名单。
 class MomentVisibilityResult {
@@ -385,7 +384,7 @@ class _MomentFriendPickerPageState
 
   Widget _buildVisibilityRow({required int code, required String label}) {
     final selected = _visibility == code;
-    return InkWell(
+    return GestureDetector(
       onTap: () => _onVisibilitySelected(code),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -429,7 +428,7 @@ class _MomentFriendPickerPageState
           child: SizedBox(
             width: 16,
             height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
+            child: CupertinoActivityIndicator(),
           ),
         ),
       );
@@ -464,15 +463,11 @@ class _MomentFriendPickerPageState
         ? theme.colorScheme.onPrimary
         : theme.colorScheme.onSurface;
 
-    return InkWell(
-      borderRadius: AppRadius.borderRadiusRegular,
+    return GestureDetector(
       onTap: entry.loading ? null : () => _onTagTap(entry),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: AppRadius.borderRadiusRegular,
-        ),
+        decoration: BoxDecoration(color: bg),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -480,15 +475,15 @@ class _MomentFriendPickerPageState
               SizedBox(
                 width: 12,
                 height: 12,
-                child: CircularProgressIndicator(strokeWidth: 1.6, color: fg),
+                child: CupertinoActivityIndicator(),
               )
             else
               Icon(
                 selected
-                    ? Icons.check_circle
+                    ? CupertinoIcons.checkmark_circle
                     : partial
-                    ? Icons.remove_circle
-                    : Icons.circle_outlined,
+                    ? CupertinoIcons.minus_circle
+                    : CupertinoIcons.circle,
                 size: 14,
                 color: fg,
               ),
@@ -509,7 +504,7 @@ class _MomentFriendPickerPageState
 
   Widget _buildFriendList() {
     if (_loadingFriends) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
     if (_friends.isEmpty) {
       return Center(
@@ -568,7 +563,7 @@ class _MomentFriendPickerPageState
   Widget _buildFriendRow(ContactModel c) {
     final uid = c.peerId.toString();
     final checked = _activePicked.contains(uid);
-    return InkWell(
+    return GestureDetector(
       onTap: () => _onFriendToggle(c),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

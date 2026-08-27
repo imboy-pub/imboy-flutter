@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -77,7 +78,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
               padding: const EdgeInsets.only(right: AppSpacing.small),
               child: Row(
                 children: [
-                  const Icon(Icons.remove_red_eye, size: 14),
+                  const Icon(CupertinoIcons.eye, size: 14),
                   const SizedBox(width: 2),
                   Text(
                     '${widget.room!.viewerCount}',
@@ -136,6 +137,8 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
               children: [
                 // 服务器地址输入
                 TextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   controller: _serverController,
                   decoration: InputDecoration(
                     labelText: t.main.liveRoomWhepLabel,
@@ -150,7 +153,7 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                 ),
                 AppSpacing.verticalMedium,
                 // 播放/停止按钮
-                ElevatedButton.icon(
+                CupertinoButton(
                   onPressed: state.isConnecting
                       ? null
                       : () async {
@@ -164,23 +167,26 @@ class _SubscriberPageState extends ConsumerState<SubscriberPage> {
                                 .startSubscribe(_remoteRenderer);
                           }
                         },
-                  icon: Icon(
-                    state.stateStr == 'playing'
-                        ? Icons.stop_circle_outlined
-                        : Icons.play_circle_outlined,
-                  ),
-                  label: Text(
-                    state.isConnecting
-                        ? '连接中...'
-                        : state.stateStr == 'playing'
-                        ? '停止播放'
-                        : '开始播放',
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: state.stateStr == 'playing'
-                        ? AppColors.getIosRed(Theme.of(context).brightness)
-                        : AppColors.primary,
-                    foregroundColor: AppColors.onPrimary,
+                  color: state.stateStr == 'playing'
+                      ? AppColors.getIosRed(Theme.of(context).brightness)
+                      : AppColors.primary,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        state.stateStr == 'playing'
+                            ? CupertinoIcons.pause_circle_fill
+                            : CupertinoIcons.play_circle,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        state.isConnecting
+                            ? '连接中...'
+                            : state.stateStr == 'playing'
+                            ? '停止播放'
+                            : '开始播放',
+                      ),
+                    ],
                   ),
                 ),
               ],

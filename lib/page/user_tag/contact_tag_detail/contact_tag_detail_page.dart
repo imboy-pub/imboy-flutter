@@ -17,7 +17,6 @@ import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -69,7 +68,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
     final menuDecoration = model.isMenuEntry
         ? contactMenuDecorationOf(model.peerId)
         : null;
-    return InkWell(
+    return GestureDetector(
       onTap: model.onPressed,
       onLongPress: model.onLongPressed,
       child: Container(
@@ -158,7 +157,6 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
   @override
   Widget build(BuildContext context) {
     final detailState = ref.watch(contactTagDetailProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: GlassAppBar(
@@ -167,19 +165,10 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
           '${detailState.tagName} (${detailState.refererTime})',
         ),
         rightDMActions: [
-          InkWell(
+          GestureDetector(
             onTap: () {
-              showModalBottomSheet<void>(
+              showCupertinoModalPopup<void>(
                 context: context,
-                backgroundColor: isDark
-                    ? AppColors.darkSurfaceGroupedTertiary
-                    : AppColors.lightSurfaceGrouped,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(AppRadius.large),
-                    topRight: Radius.circular(AppRadius.large),
-                  ),
-                ),
                 builder: (context) => SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: 172,
@@ -190,7 +179,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                     child: Column(
                       children: [
                         Center(
-                          child: TextButton(
+                          child: CupertinoButton(
                             child: Text(
                               t.main.changeParam(param: t.contact.tags),
                               textAlign: TextAlign.center,
@@ -200,11 +189,8 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                             ),
                             onPressed: () async {
                               Navigator.of(context).pop();
-                              showModalBottomSheet<void>(
+                              showCupertinoModalPopup<void>(
                                 context: context,
-                                backgroundColor: isDark
-                                    ? AppColors.darkSurfaceGroupedTertiary
-                                    : AppColors.lightSurfaceGrouped,
                                 builder: (context) => UserTagSavePage(
                                   tag: widget.tag,
                                   scene: 'friend',
@@ -215,7 +201,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                         ),
                         const Divider(),
                         Center(
-                          child: TextButton(
+                          child: CupertinoButton(
                             onPressed: () async {
                               Navigator.of(context).pop();
                               // 显示删除确认
@@ -288,7 +274,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                         ),
                         const HorizontalLine(height: 6),
                         Center(
-                          child: TextButton(
+                          child: CupertinoButton(
                             onPressed: () => Navigator.of(context).pop(),
                             child: Text(
                               t.common.buttonCancel,
@@ -308,7 +294,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Icon(
-                Icons.more_horiz,
+                CupertinoIcons.ellipsis,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
@@ -328,7 +314,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                 ),
                 child: searchBar(
                   context,
-                  leading: InkWell(
+                  leading: GestureDetector(
                     onTap: () {
                       ref
                           .read(contactTagDetailProvider.notifier)
@@ -342,7 +328,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                   ),
                   trailing: _kwd.isEmpty
                       ? [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               addContact(context);
                             },
@@ -350,7 +336,7 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                           ),
                         ]
                       : [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               setState(() {
                                 _kwd = '';
@@ -597,18 +583,12 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
                 children: [
                   if (widget.tag.refererTime == 0)
                     NoDataView(text: t.common.noMembersInCurrentTag),
-                  ElevatedButton(
+                  CupertinoButton(
+                    color: Theme.of(context).colorScheme.surface,
+                    padding: EdgeInsets.zero,
                     onPressed: () async {
                       addContact(context);
                     },
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all<Color>(
-                        Theme.of(context).colorScheme.surface,
-                      ),
-                      minimumSize: WidgetStateProperty.all(const Size(60, 40)),
-                      visualDensity: VisualDensity.compact,
-                      padding: WidgetStateProperty.all(EdgeInsets.zero),
-                    ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(

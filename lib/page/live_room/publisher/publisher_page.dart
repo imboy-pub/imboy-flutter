@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -154,6 +155,8 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
               children: [
                 // 服务器地址输入
                 TextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   controller: _serverController,
                   decoration: InputDecoration(
                     labelText: t.main.liveRoomWhipLabel,
@@ -167,7 +170,7 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                 ),
                 AppSpacing.verticalMedium,
                 // 推流/停止按钮
-                ElevatedButton.icon(
+                CupertinoButton(
                   onPressed: state.isConnecting
                       ? null
                       : () async {
@@ -181,23 +184,26 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
                                 .startPublish(_localRenderer);
                           }
                         },
-                  icon: Icon(
-                    state.stateStr == 'publishing'
-                        ? Icons.stop_circle_outlined
-                        : Icons.play_circle_outlined,
-                  ),
-                  label: Text(
-                    state.isConnecting
-                        ? '连接中...'
-                        : state.stateStr == 'publishing'
-                        ? '停止推流'
-                        : '开始推流',
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: state.stateStr == 'publishing'
-                        ? AppColors.getIosRed(Theme.of(context).brightness)
-                        : AppColors.primary,
-                    foregroundColor: AppColors.onPrimary,
+                  color: state.stateStr == 'publishing'
+                      ? AppColors.getIosRed(Theme.of(context).brightness)
+                      : AppColors.primary,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        state.stateStr == 'publishing'
+                            ? CupertinoIcons.stop_circle
+                            : CupertinoIcons.play_circle,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        state.isConnecting
+                            ? '连接中...'
+                            : state.stateStr == 'publishing'
+                            ? '停止推流'
+                            : '开始推流',
+                      ),
+                    ],
                   ),
                 ),
               ],

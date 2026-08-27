@@ -5,7 +5,7 @@
 /// 颜色解析留给调用方的 themeNotifier，保持纯函数无 Widget 依赖。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -42,27 +42,27 @@ class MessageStatusIconSpec {
 MessageStatusIconSpec resolveMessageStatusIcon(MessageStatus? status) {
   return switch (status) {
     MessageStatus.sending => MessageStatusIconSpec(
-      iconData: Icons.access_time,
+      iconData: CupertinoIcons.clock,
       colorKey: 'textSecondary',
       semanticLabel: t.chat.chatStatusSending,
     ),
     MessageStatus.sent => MessageStatusIconSpec(
-      iconData: Icons.done_all,
+      iconData: CupertinoIcons.checkmark_alt,
       colorKey: 'primary',
       semanticLabel: t.chat.chatStatusSent,
     ),
     MessageStatus.delivered => MessageStatusIconSpec(
-      iconData: Icons.done_all,
+      iconData: CupertinoIcons.checkmark_alt,
       colorKey: 'primary',
       semanticLabel: t.chat.chatStatusDelivered,
     ),
     MessageStatus.seen => MessageStatusIconSpec(
-      iconData: Icons.done_all,
+      iconData: CupertinoIcons.checkmark_alt,
       colorKey: 'sendMessageBg',
       semanticLabel: t.chat.chatStatusSeen,
     ),
     MessageStatus.error => MessageStatusIconSpec(
-      iconData: Icons.error_outline,
+      iconData: CupertinoIcons.exclamationmark_circle,
       colorKey: 'error',
       semanticLabel: t.common.chatStatusFailed,
     ),

@@ -1189,6 +1189,39 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '最新'
 	String get sortNewest => '最新';
+
+	/// zh-CN: '表情'
+	String get emoji => '表情';
+
+	/// zh-CN: '刚刚'
+	String get justNow => '刚刚';
+
+	/// zh-CN: '分钟前'
+	String get minutesAgo => '分钟前';
+
+	/// zh-CN: '小时前'
+	String get hoursAgo => '小时前';
+
+	/// zh-CN: '周前'
+	String get weeksAgo => '周前';
+
+	/// zh-CN: '可见性'
+	String get visibilityLabel => '可见性';
+
+	/// zh-CN: '付费属性'
+	String get accessTypeLabel => '付费属性';
+
+	/// zh-CN: '免费'
+	String get accessTypeFree => '免费';
+
+	/// zh-CN: '付费'
+	String get accessTypePaid => '付费';
+
+	/// zh-CN: '任何人都可以发现频道，购买后即可订阅'
+	String get typePublicPaidDesc => '任何人都可以发现频道，购买后即可订阅';
+
+	/// zh-CN: '仅受邀用户可进入购买流程，付款后即可订阅'
+	String get typePrivatePaidDesc => '仅受邀用户可进入购买流程，付款后即可订阅';
 }
 
 // Path: chat
@@ -8722,6 +8755,17 @@ extension on Translations {
 			'channel.allCategories' => '全部',
 			'channel.sortPopular' => '热门',
 			'channel.sortNewest' => '最新',
+			'channel.emoji' => '表情',
+			'channel.justNow' => '刚刚',
+			'channel.minutesAgo' => '分钟前',
+			'channel.hoursAgo' => '小时前',
+			'channel.weeksAgo' => '周前',
+			'channel.visibilityLabel' => '可见性',
+			'channel.accessTypeLabel' => '付费属性',
+			'channel.accessTypeFree' => '免费',
+			'channel.accessTypePaid' => '付费',
+			'channel.typePublicPaidDesc' => '任何人都可以发现频道，购买后即可订阅',
+			'channel.typePrivatePaidDesc' => '仅受邀用户可进入购买流程，付款后即可订阅',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.cards' => '张',
@@ -8855,6 +8899,8 @@ extension on Translations {
 			'chat.releaseConvertToText' => '松开 转文字',
 			'chat.voiceReleaseCancelSend' => '松开 取消发送',
 			'chat.voiceReleaseCancel' => '松开 取消',
+			_ => null,
+		} ?? switch (path) {
 			'chat.voiceSlideHint' => '上滑 取消 / 转文字',
 			'chat.convertToText' => '转文字',
 			'chat.sender' => '发送者',
@@ -8866,8 +8912,6 @@ extension on Translations {
 			'chat.status' => '状态',
 			'chat.storageSpaceData' => '存储空间和数据',
 			'chat.sureOpenTheFile' => '确定要打开文件吗？',
-			_ => null,
-		} ?? switch (path) {
 			'chat.textMessage' => '文本消息',
 			'chat.titleMessage' => '消息',
 			'chat.topChat' => '置顶聊天',
@@ -9369,6 +9413,8 @@ extension on Translations {
 			'common.muteDuration' => '禁言时长',
 			'common.muteDuration1hour' => '1小时',
 			'common.muteDuration6hours' => '6小时',
+			_ => null,
+		} ?? switch (path) {
 			'common.muteDuration12hours' => '12小时',
 			'common.muteDuration1day' => '1天',
 			'common.muteDuration3days' => '3天',
@@ -9380,8 +9426,6 @@ extension on Translations {
 			'common.muteDuration30days' => '30天',
 			'common.muteUnitSeconds' => ({required Object count}) => '${count} 秒',
 			'common.throttleWarning' => '操作频率过高，请稍后再试',
-			_ => null,
-		} ?? switch (path) {
 			'common.throttleRetryAfter' => ({required Object seconds}) => '操作频率过高，请 ${seconds} 秒后再试',
 			'common.mutedCannotSend' => '禁言期间无法发送消息',
 			'common.resendCodeSuccess' => '已发送新邮件。',
@@ -9883,6 +9927,8 @@ extension on Translations {
 			'common.invitationStatusCancelled' => '已取消',
 			'common.invitationStatusUnknown' => '未知',
 			'common.noReceivedInvitations' => '暂无收到的邀请',
+			_ => null,
+		} ?? switch (path) {
 			'common.noSentInvitations' => '暂无发出的邀请',
 			'common.processingDots' => '处理中...',
 			'common.purchaseFailed' => '购买失败，请稍后重试',
@@ -9894,8 +9940,6 @@ extension on Translations {
 			'common.orderDetailLoadFailed' => '订单详情加载失败',
 			'common.orderNoLabel' => ({required Object no}) => '订单号: ${no}',
 			'common.orderStatusCancelled' => '已取消',
-			_ => null,
-		} ?? switch (path) {
 			'common.orderStatusUnknown' => '未知',
 			'common.removeReaction' => '移除反应',
 			'common.removeReactionConfirm' => ({required Object emoji}) => '确定要移除 ${emoji} 反应吗？',
@@ -10397,6 +10441,8 @@ extension on Translations {
 			'group.groupAlbumPhotoCommentCount' => '评论数',
 			'group.groupAlbumPhotoMyLike' => '我的点赞',
 			'group.groupAlbumPhotoIdLabel' => '图片ID',
+			_ => null,
+		} ?? switch (path) {
 			'group.e2eeKeyManagement' => 'E2EE 密钥管理',
 			'group.e2eeKeyManagementSubtitle' => '备份、恢复和管理端到端加密密钥',
 			'group.e2eeTitle' => '端到端加密',
@@ -10408,8 +10454,6 @@ extension on Translations {
 			'groupCategory.noCategory' => '暂无分组',
 			'groupCategory.createFirst' => '创建第一个分组吧',
 			'groupCategory.addGroup' => '添加群聊到分组',
-			_ => null,
-		} ?? switch (path) {
 			'groupCategory.removeGroup' => '从分组移除',
 			'groupCategory.deleteCategory' => '删除分组',
 			'groupCategory.deleteCategoryConfirm' => '确定要删除该分组吗？群聊不会被删除。',

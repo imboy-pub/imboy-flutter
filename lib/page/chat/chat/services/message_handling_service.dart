@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -15,6 +14,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
+import 'package:flutter/cupertino.dart';
 
 // 日志记录器
 final _msgLogger = Logger(printer: PrettyPrinter(methodCount: 0));
@@ -263,20 +263,20 @@ class MessageHandlingService {
     Message msg,
     Future<bool> Function(ConversationModel, Message) deleteFn,
   ) {
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text(t.common.chatDeleteFailed),
           content: Text(t.common.chatNetworkErrorDeleteLocal),
           actions: <Widget>[
-            TextButton(
+            CupertinoButton(
               child: Text(t.common.buttonCancel),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            TextButton(
+            CupertinoButton(
               child: Text(t.common.chatDeleteLocalOnly),
               onPressed: () async {
                 Navigator.of(context).pop();

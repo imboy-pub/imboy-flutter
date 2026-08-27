@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +17,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
 
@@ -61,6 +63,10 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   bool _isUploadingMedia = false;
   bool _showVoiceInput = false;
 
+  /// 输入框是否获焦：控制附件栏展开/收起（附件栏在输入 Row 下方，
+  /// 不参与行宽分配，与发送按钮显示条件无关）。
+  bool _isInputFocused = false;
+
   /// build 时缓存的草稿 key：dispose 阶段 ref 已失效不能 read，
   /// 故在 build（channel 加载后会重建）时把 key 存下来，退出落盘时用它。
   String _cachedDraftKey = '';
@@ -68,11 +74,21 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   @override
   void initState() {
     super.initState();
+    widget.focusNode.addListener(_onFocusChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _restoreDraft());
+  }
+
+  void _onFocusChanged() {
+    if (!mounted) return;
+    final focused = widget.focusNode.hasFocus;
+    if (focused != _isInputFocused) {
+      setState(() => _isInputFocused = focused);
+    }
   }
 
   @override
   void dispose() {
+    widget.focusNode.removeListener(_onFocusChanged);
     _persistDraftOnExit();
     _messageController.dispose();
     _emojiOpen.dispose();
@@ -140,9 +156,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       widget.onMessageSent?.call();
       return;
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.t.channel.publishFailed)));
+    AppLoading.showToast(context.t.channel.publishFailed);
   }
 
   /// 频道附件上传的 scope_ref：后端 attach_logic:can_upload 拿它查订阅关系，
@@ -489,10 +503,6 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final separator = isDark
         ? AppColors.iosTertiaryLabel
         : AppColors.iosSeparator;
-    final secondaryText = AppColors.getTextColor(
-      Theme.of(context).brightness,
-      isSecondary: true,
-    );
 
     final state = ref.watch(channelDetailProvider);
     final isBusy = state.isPublishing || _isUploadingMedia;
@@ -519,48 +529,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
                 vertical: AppSpacing.small,
               ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  // 三个前导图标统一 26pt/紧凑内边距，视觉不拥挤
-                  IconButton(
-                    icon: const Icon(Icons.article_outlined, size: 26),
-                    color: secondaryText,
-                    visualDensity: VisualDensity.compact,
-                    onPressed: isBusy ? null : _openCompose,
-                    tooltip: context.t.channel.writeArticle,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle_outline, size: 26),
-                    color: secondaryText,
-                    visualDensity: VisualDensity.compact,
-                    onPressed: isBusy ? null : _pickAndSendMedia,
-                    tooltip: context.t.common.momentsAddMedia,
-                  ),
-                  IconButton(
-                    tooltip: _showVoiceInput
-                        ? context.t.chat.switchToKeyboardInput
-                        : context.t.chat.switchToVoiceInput,
-                    icon: Icon(
-                      _showVoiceInput
-                          ? Icons.keyboard_alt_outlined
-                          : Icons.mic_none,
-                      size: 26,
-                    ),
-                    color: secondaryText,
-                    visualDensity: VisualDensity.compact,
-                    onPressed: isBusy
-                        ? null
-                        : () {
-                            setState(() {
-                              _showVoiceInput = !_showVoiceInput;
-                              if (_showVoiceInput) {
-                                widget.focusNode.unfocus();
-                              } else {
-                                widget.focusNode.requestFocus();
-                              }
-                            });
-                          },
-                  ),
                   Expanded(
                     child: _showVoiceInput
                         ? VoiceWidget(
@@ -574,8 +544,6 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
                             focusNode: widget.focusNode,
                             enabled: !isBusy,
                             hintText: context.t.channel.writeMessage,
-                            // 上限放宽但在折叠阈值(消费侧 channel_message_item:397
-                            // content.length > 280)处变警示色，提示作者"超过将被折叠"。
                             maxLength: 2000,
                             warnThreshold: 280,
                             maxLines: 6,
@@ -588,9 +556,6 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
                           ),
                   ),
                   if (!_showVoiceInput)
-                    // 发送按钮：36pt 圆形视觉 + ≥44 命中区；有文字/发送中才显示。
-                    // 用 AnimatedSize 而非 AnimatedScale —— 后者缩到 0 仍占着
-                    // 52pt 布局位，空输入时右侧白留一条死列。
                     AnimatedSize(
                       duration: const Duration(milliseconds: 180),
                       curve: Curves.easeOutCubic,
@@ -616,8 +581,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
                                     ? const SizedBox(
                                         width: 20,
                                         height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
+                                        child: CupertinoActivityIndicator(
                                           color: AppColors.onPrimary,
                                         ),
                                       )
@@ -628,7 +592,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
                                           minHeight: 44,
                                         ),
                                         icon: const Icon(
-                                          Icons.arrow_upward_rounded,
+                                          CupertinoIcons.chevron_up,
                                           size: 22,
                                           color: AppColors.onPrimary,
                                         ),
@@ -639,12 +603,14 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
                                       ),
                               ),
                             )
-                          // 隐藏态保持 48pt 行高，避免发送后整条输入栏抖一下。
                           : const SizedBox(height: 48),
                     ),
                 ],
               ),
             ),
+            // 附件栏：输入框聚焦时展开（语音模式不显示）
+            if (_isInputFocused && !_showVoiceInput && !isBusy)
+              _buildAttachmentBar(context),
             // 表情面板：整条 Row 之下，铺满整宽（语音态不显示）。
             ValueListenableBuilder<bool>(
               valueListenable: _emojiOpen,
@@ -656,6 +622,102 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
                       onChanged: (_) => setState(() {}),
                     )
                   : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 附件栏：输入框聚焦时展开，提供快捷操作入口
+  Widget _buildAttachmentBar(BuildContext context) {
+    final t = context.t;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.iosTertiaryLabel : AppColors.iosSeparator,
+            width: 0.33,
+          ),
+        ),
+      ),
+      child: SizedBox(
+        height: 48,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          children: [
+            _attachmentButton(
+              icon: CupertinoIcons.photo,
+              label: t.chat.image,
+              onTap: () => _pickAndSendMedia(),
+            ),
+            _attachmentButton(
+              icon: CupertinoIcons.videocam,
+              label: t.chat.video,
+              onTap: () => _pickAndSendMedia(),
+            ),
+            _attachmentButton(
+              icon: CupertinoIcons.mic,
+              label: t.chat.voice,
+              onTap: () {
+                setState(() {
+                  _showVoiceInput = !_showVoiceInput;
+                  if (_showVoiceInput) {
+                    widget.focusNode.unfocus();
+                  } else {
+                    widget.focusNode.requestFocus();
+                  }
+                });
+              },
+            ),
+            _attachmentButton(
+              icon: CupertinoIcons.doc_text,
+              label: t.channel.writeArticle,
+              onTap: _openCompose,
+            ),
+            _attachmentButton(
+              icon: CupertinoIcons.smiley,
+              label: t.channel.emoji,
+              onTap: () {
+                _emojiOpen.value = !_emojiOpen.value;
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 附件栏单个按钮：图标+文字
+  Widget _attachmentButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final textColor = AppColors.getTextColor(
+      Theme.of(context).brightness,
+      isSecondary: true,
+    );
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 64,
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 22, color: textColor),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: context.textStyle(FontSizeType.tiny, color: textColor),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

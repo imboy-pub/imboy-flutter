@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -167,16 +168,10 @@ class WalletPrimaryButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: 50,
-      child: ElevatedButton(
+      child: CupertinoButton(
+        color: color,
+        borderRadius: AppRadius.borderRadiusMedium,
         onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: AppColors.onPrimary,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: AppRadius.borderRadiusMedium,
-          ),
-        ),
         child: Text(
           label,
           style: context.textStyle(

@@ -93,7 +93,7 @@ class UserCollectDetailPage extends ConsumerWidget {
             if (obj.kind == 1)
               _buildActionButton(
                 context: context,
-                icon: Icons.copy,
+                icon: CupertinoIcons.doc_on_doc,
                 title: t.common.buttonCopy,
                 subtitle: t.common.copyTextContent,
                 onTap: () async {
@@ -111,7 +111,7 @@ class UserCollectDetailPage extends ConsumerWidget {
             // 转发给朋友
             _buildActionButton(
               context: context,
-              icon: Icons.share,
+              icon: CupertinoIcons.share,
               title: t.chat.forwardToFriend,
               subtitle: t.common.shareWithOtherFriends,
               onTap: () async {
@@ -196,7 +196,7 @@ class UserCollectDetailPage extends ConsumerWidget {
             // 编辑标签
             _buildActionButton(
               context: context,
-              icon: Icons.local_offer,
+              icon: CupertinoIcons.bookmark,
               title: t.common.editTag,
               subtitle: t.common.addTagsToFavorites,
               onTap: () {
@@ -243,7 +243,7 @@ class UserCollectDetailPage extends ConsumerWidget {
             // 设置备注
             _buildActionButton(
               context: context,
-              icon: Icons.edit_note,
+              icon: CupertinoIcons.pencil,
               title: t.main.setParam(param: t.contact.remark),
               subtitle: t.common.addRemarkToFavorites,
               onTap: () {
@@ -293,7 +293,7 @@ class UserCollectDetailPage extends ConsumerWidget {
             // 删除
             _buildActionButton(
               context: context,
-              icon: Icons.delete_outline,
+              icon: CupertinoIcons.delete,
               title: t.common.buttonDelete,
               subtitle: t.common.deleteThisCollection,
               onTap: () async {
@@ -333,13 +333,9 @@ class UserCollectDetailPage extends ConsumerWidget {
               margin: const EdgeInsets.symmetric(horizontal: 24),
               width: double.infinity,
               height: 48,
-              child: TextButton(
+              child: CupertinoButton(
+                borderRadius: AppRadius.borderRadiusMedium,
                 onPressed: () => Navigator.pop(context),
-                style: TextButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: AppRadius.borderRadiusMedium,
-                  ),
-                ),
                 child: Text(
                   t.common.buttonCancel,
                   style: context.textStyle(
@@ -444,24 +440,18 @@ class UserCollectDetailPage extends ConsumerWidget {
             width: 48,
             height: 48,
             margin: const EdgeInsets.only(right: 8),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: AppRadius.borderRadiusXLarge,
-                onTap: () {
-                  // 使用 showModalBottomSheet 替代 Get.bottomSheet
-                  showModalBottomSheet<void>(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) =>
-                        _buildActionMenu(context, ref, current),
-                  );
-                },
-                child: Icon(
-                  Icons.more_horiz,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  size: 24,
-                ),
+            child: GestureDetector(
+              onTap: () {
+                // 使用 showCupertinoModalPopup 替代 Get.bottomSheet
+                showCupertinoModalPopup<void>(
+                  context: context,
+                  builder: (context) => _buildActionMenu(context, ref, current),
+                );
+              },
+              child: Icon(
+                CupertinoIcons.ellipsis,
+                color: Theme.of(context).colorScheme.onSurface,
+                size: 24,
               ),
             ),
           ),
@@ -481,7 +471,7 @@ class UserCollectDetailPage extends ConsumerWidget {
               child: Row(
                 children: [
                   Icon(
-                    Icons.info_outline,
+                    CupertinoIcons.info_circle,
                     color: isDark
                         ? Theme.of(context).colorScheme.primary
                         : AppColors.primary,
@@ -534,7 +524,7 @@ class UserCollectDetailPage extends ConsumerWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.edit_note,
+                          CupertinoIcons.pencil,
                           color: isDark
                               ? Theme.of(context).colorScheme.primary
                               : AppColors.primary,

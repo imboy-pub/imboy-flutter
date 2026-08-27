@@ -3,13 +3,13 @@
 /// 提供右键/辅助点击时的快捷操作菜单
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -23,33 +23,35 @@ class MessageQuickActionMenu {
     required VoidCallback onRetry,
     required VoidCallback onDelete,
   }) {
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      backgroundColor: AppColors.transparent,
       builder: (BuildContext context) {
-        return Material(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
+        return Container(
+          decoration: const BoxDecoration(
+            color: CupertinoColors.systemBackground,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: Icon(
-                  CupertinoIcons.refresh,
-                  color: AppColors.iosOrange,
-                ),
-                title: Text(t.chat.chatResend),
+              _buildListTile(
+                context: context,
+                icon: CupertinoIcons.refresh,
+                iconColor: AppColors.iosOrange,
+                title: t.chat.chatResend,
                 onTap: () {
                   Navigator.pop(context);
                   onRetry();
                 },
               ),
-              ListTile(
-                leading: Icon(CupertinoIcons.delete, color: AppColors.iosRed),
-                title: Text(t.common.chatDeleteMessage),
+              _buildListTile(
+                context: context,
+                icon: CupertinoIcons.delete,
+                iconColor: AppColors.iosRed,
+                title: t.common.chatDeleteMessage,
                 onTap: () {
                   Navigator.pop(context);
                   onDelete();
@@ -75,9 +77,8 @@ class MessageQuickActionMenu {
     required VoidCallback onRevoke,
     required VoidCallback onDelete,
   }) {
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      backgroundColor: AppColors.transparent,
       builder: (BuildContext context) {
         final isMe = message.authorId == UserRepoLocal.to.currentUid;
         // 检查是否在撤回有效期内（例如2分钟）
@@ -90,11 +91,13 @@ class MessageQuickActionMenu {
                 ) <
                 const Duration(minutes: 2);
 
-        return Material(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
+        return Container(
+          decoration: const BoxDecoration(
+            color: CupertinoColors.systemBackground,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
           ),
           child: SafeArea(
             child: Column(
@@ -114,9 +117,10 @@ class MessageQuickActionMenu {
 
                 // 复制 (仅文本)
                 if (message is TextMessage)
-                  ListTile(
-                    leading: const Icon(CupertinoIcons.doc_on_doc),
-                    title: Text(t.common.buttonCopy),
+                  _buildListTile(
+                    context: context,
+                    icon: CupertinoIcons.doc_on_doc,
+                    title: t.common.buttonCopy,
                     onTap: () {
                       Navigator.pop(context);
                       onCopy();
@@ -124,9 +128,10 @@ class MessageQuickActionMenu {
                   ),
 
                 // 转发
-                ListTile(
-                  leading: const Icon(CupertinoIcons.forward),
-                  title: Text(t.chat.forward),
+                _buildListTile(
+                  context: context,
+                  icon: CupertinoIcons.forward,
+                  title: t.chat.forward,
                   onTap: () {
                     Navigator.pop(context);
                     onForward();
@@ -134,9 +139,10 @@ class MessageQuickActionMenu {
                 ),
 
                 // 收藏
-                ListTile(
-                  leading: const Icon(CupertinoIcons.heart),
-                  title: Text(t.main.favorites),
+                _buildListTile(
+                  context: context,
+                  icon: CupertinoIcons.heart,
+                  title: t.main.favorites,
                   onTap: () {
                     Navigator.pop(context);
                     onCollect();
@@ -144,9 +150,10 @@ class MessageQuickActionMenu {
                 ),
 
                 // 回复
-                ListTile(
-                  leading: const Icon(CupertinoIcons.reply),
-                  title: Text(t.chat.reply),
+                _buildListTile(
+                  context: context,
+                  icon: CupertinoIcons.reply,
+                  title: t.chat.reply,
                   onTap: () {
                     Navigator.pop(context);
                     onReply();
@@ -157,9 +164,10 @@ class MessageQuickActionMenu {
                 if (message is ImageMessage ||
                     message is FileMessage ||
                     message is VideoMessage)
-                  ListTile(
-                    leading: const Icon(CupertinoIcons.arrow_down_to_line),
-                    title: Text(t.common.chatSaveImage), // 这里可能需要通用的 save 文本
+                  _buildListTile(
+                    context: context,
+                    icon: CupertinoIcons.arrow_down_to_line,
+                    title: t.common.chatSaveImage,
                     onTap: () async {
                       Navigator.pop(context);
                       await onSaveFile(
@@ -175,16 +183,20 @@ class MessageQuickActionMenu {
                     },
                   ),
 
-                const Divider(),
+                // 分割线
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  color: CupertinoColors.separator.withValues(alpha: 0.3),
+                ),
 
                 // 撤回 (仅限自己且在有效期内)
                 if (canRevoke)
-                  ListTile(
-                    leading: Icon(
-                      CupertinoIcons.arrow_uturn_left,
-                      color: AppColors.iosOrange,
-                    ),
-                    title: Text(t.chat.revoke),
+                  _buildListTile(
+                    context: context,
+                    icon: CupertinoIcons.arrow_uturn_left,
+                    iconColor: AppColors.iosOrange,
+                    title: t.chat.revoke,
                     onTap: () {
                       Navigator.pop(context);
                       onRevoke();
@@ -192,9 +204,11 @@ class MessageQuickActionMenu {
                   ),
 
                 // 删除
-                ListTile(
-                  leading: Icon(CupertinoIcons.delete, color: AppColors.iosRed),
-                  title: Text(t.common.buttonDelete),
+                _buildListTile(
+                  context: context,
+                  icon: CupertinoIcons.delete,
+                  iconColor: AppColors.iosRed,
+                  title: t.common.buttonDelete,
                   onTap: () {
                     Navigator.pop(context);
                     onDelete();
@@ -207,6 +221,30 @@ class MessageQuickActionMenu {
           ),
         );
       },
+    );
+  }
+
+  /// 构建列表项（替代 Material ListTile）
+  static Widget _buildListTile({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? iconColor,
+  }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, color: iconColor ?? AppColors.primary, size: 24),
+            const SizedBox(width: 16),
+            Text(title, style: TextStyle(fontSize: FontSizeType.body.size)),
+          ],
+        ),
+      ),
     );
   }
 }

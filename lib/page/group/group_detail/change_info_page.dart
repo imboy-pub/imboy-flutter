@@ -141,6 +141,8 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
                   const SizedBox(width: AppSpacing.medium),
                   Expanded(
                     child: CupertinoTextField(
+                      enableSuggestions: false,
+                      autocorrect: false,
                       focusNode: _inputFocusNode,
                       controller: _textController,
                       autofocus: true,

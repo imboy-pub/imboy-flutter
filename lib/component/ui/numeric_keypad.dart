@@ -1,5 +1,6 @@
 // NumericKeypad
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -98,7 +99,7 @@ class NumericKeypad extends StatelessWidget {
         ),
         child: keyboardDataBean.type == PayKeyboardType.delete
             ? Icon(
-                Icons.backspace,
+                CupertinoIcons.delete,
                 color: isDark
                     ? Colors.white60
                     : colorScheme.onSurface.withValues(alpha: 0.6),

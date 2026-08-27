@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -156,7 +157,7 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
     if (!hasLoaded) {
       return Scaffold(
         floatingActionButton: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(CupertinoIcons.xmark_circle_fill),
           tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -189,17 +190,10 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
+                    return Center(child: CupertinoActivityIndicator());
                   },
                   errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.error),
+                      const Icon(CupertinoIcons.exclamationmark_circle),
                 );
               },
             ),
@@ -207,14 +201,14 @@ class _VideoViewerPageState extends ConsumerState<VideoViewerPage> {
               child: _error != null
                   ? NoDataView(
                       text: t.common.loadError,
-                      icon: Icons.error_outline,
+                      icon: CupertinoIcons.exclamationmark_circle,
                       onTop: initializePlayer,
                     )
                   : Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const CircularProgressIndicator(),
+                          const CupertinoActivityIndicator(),
                           AppSpacing.verticalSmall,
                           Text("${t.common.loading}..."),
                         ],

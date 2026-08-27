@@ -1190,7 +1190,7 @@ class _SingleImagePreviewState extends State<_SingleImagePreview> {
           child: OctoImage(
             image: cachedImageProvider(url),
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+            errorBuilder: (_, _, _) => const Icon(CupertinoIcons.photo),
           ),
         ),
       ),
@@ -1319,7 +1319,7 @@ class _MomentMediaCellState extends State<_MomentMediaCell> {
           child: OctoImage(
             image: cachedImageProvider(previewUrl),
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
+            errorBuilder: (_, _, _) => const Icon(CupertinoIcons.photo),
           ),
         ),
       );
@@ -1425,10 +1425,7 @@ class _MomentNotifyEntry extends ConsumerWidget {
                     horizontal: 5,
                     vertical: 2,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppColors.iosRed,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  decoration: BoxDecoration(color: AppColors.iosRed),
                   child: Text(
                     unread > 99 ? '99+' : '$unread',
                     style: context.textStyle(

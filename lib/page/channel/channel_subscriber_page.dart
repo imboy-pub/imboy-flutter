@@ -23,6 +23,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 订阅者信息模型
 class SubscriberInfo {
@@ -179,19 +180,19 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
 
   Future<void> _removeSubscriber(SubscriberInfo subscriber) async {
     final t = context.t;
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.channel.removeSubscriber),
         content: Text(t.channel.removeSubscriberConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
+            isDestructiveAction: true,
             child: Text(t.common.confirm),
           ),
         ],
@@ -207,9 +208,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
         );
         if (!mounted) return;
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.channel.removeSubscriberSuccess)),
-          );
+          AppLoading.showToast(t.channel.removeSubscriberSuccess);
           unawaited(_loadSubscribers(refresh: true));
         }
         // 失败提示已由 ChannelApi.removeSubscriber 透传服务端 msg
@@ -217,9 +216,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
       } catch (e) {
         iPrint('[ChannelSubscriber] 移除订阅者失败: $e');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.channel.removeSubscriberFailed)),
-          );
+          AppLoading.showToast(t.channel.removeSubscriberFailed);
         }
       }
     }
@@ -227,27 +224,29 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
 
   void _showSearchDialog() {
     final controller = TextEditingController(text: _searchKeyword);
-    showDialog<String?>(
+    showCupertinoDialog<String?>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(context.t.channel.searchSubscribers),
         content: TextField(
+          enableSuggestions: false,
+          autocorrect: false,
           controller: controller,
           decoration: InputDecoration(
             hintText: context.t.channel.subscriberSearchHint,
             border: const OutlineInputBorder(),
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(CupertinoIcons.search),
           ),
           onSubmitted: (value) {
             Navigator.pop(context, value);
           },
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, null),
             child: Text(context.t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, controller.text),
             child: Text(context.t.common.search),
           ),
@@ -296,10 +295,8 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
 
       if (!mounted) return;
 
-      final inviteeUid = await showModalBottomSheet<String>(
+      final inviteeUid = await showCupertinoModalPopup<String>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: AppColors.transparent,
         builder: (_) => _InviteContactPickerSheet(
           channelId: widget.channelId,
           pendingInviteeIds: pendingIds,
@@ -316,17 +313,13 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
       // 失败提示已由 ChannelApi.createInvitation 透传服务端 msg
       //（AppLoading.showError），仅成功时弹 SnackBar，避免双提示。
       if (ok) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(t.channel.inviteSuccess)));
+        AppLoading.showToast(t.channel.inviteSuccess);
         unawaited(_loadSubscribers(refresh: true));
       }
     } catch (e) {
       iPrint('[ChannelSubscriber] 邀请失败: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t.channel.inviteFailed)));
+        AppLoading.showToast(context.t.channel.inviteFailed);
       }
     } finally {
       if (mounted) {
@@ -342,7 +335,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     final t = context.t;
     final shareLink = '$webBaseUrl/channel/${channel.id}';
 
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
@@ -365,9 +358,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
               onTap: () {
                 Clipboard.setData(ClipboardData(text: shareLink));
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.main.copiedToClipboard)),
-                );
+                AppLoading.showToast(t.main.copiedToClipboard);
               },
             ),
             ListTile(
@@ -428,7 +419,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
           ),
           if (_searchKeyword != null)
             IconButton(
-              icon: const Icon(Icons.clear, size: 22),
+              icon: const Icon(CupertinoIcons.xmark_circle_fill, size: 22),
               onPressed: () {
                 setState(() => _searchKeyword = null);
                 _loadSubscribers(refresh: true);
@@ -445,12 +436,11 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
                   ? const SizedBox(
                       width: 22,
                       height: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
+                      child: CupertinoActivityIndicator(
                         color: AppColors.onPrimary,
                       ),
                     )
-                  : const Icon(Icons.person_add_outlined),
+                  : const Icon(CupertinoIcons.person_badge_plus),
             )
           : null,
       body: _buildBody(),
@@ -467,7 +457,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
 
     if (_error != null) {
       return NoDataView(
-        icon: Icons.error_outline,
+        icon: CupertinoIcons.exclamationmark_circle,
         text: _error!,
         onTop: () => _loadSubscribers(refresh: true),
       );
@@ -476,7 +466,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     if (_subscribers.isEmpty) {
       final channel = ref.read(channelDetailProvider).channel;
       return NoDataView(
-        icon: Icons.people_outline,
+        icon: CupertinoIcons.person_2,
         text: _searchKeyword != null
             ? t.channel.noSearchResults
             : t.channel.noSubscribers,
@@ -500,7 +490,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(),
+                child: CupertinoActivityIndicator(),
               ),
             );
           }
@@ -671,10 +661,12 @@ class _InviteContactPickerSheetState extends State<_InviteContactPickerSheet> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: TextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _searchCtrl,
               decoration: InputDecoration(
                 hintText: t.channel.inviteSearchHint,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(CupertinoIcons.search),
                 border: const OutlineInputBorder(),
                 isDense: true,
               ),
@@ -682,7 +674,7 @@ class _InviteContactPickerSheetState extends State<_InviteContactPickerSheet> {
           ),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CupertinoActivityIndicator())
                 : _filtered.isEmpty
                 ? Center(child: Text(t.channel.noContactsToInvite))
                 : ListView.builder(

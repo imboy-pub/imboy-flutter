@@ -59,7 +59,7 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
       resizeToAvoidBottomInset: true,
       appBar: GlassAppBar(
         automaticallyImplyLeading: true,
-        leading: InkWell(
+        leading: GestureDetector(
           onTap: () {
             Navigator.of(context).pop();
           },
@@ -81,6 +81,8 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: TextFormField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   autofocus: true,
                   focusNode: _inputFocusNode,
                   controller: _textController,
@@ -138,7 +140,7 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  RoundedElevatedButton(
+                  RoundedCupertinoButton(
                     text: t.common.buttonAccomplish,
                     highlighted: _valueChanged && !_isSaving,
                     onPressed: _isSaving

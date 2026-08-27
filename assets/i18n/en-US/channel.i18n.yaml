@@ -156,3 +156,14 @@ noSubscribersDesc: No subscribers yet, share it with your friends!
 allCategories: All
 sortPopular: Popular
 sortNewest: Newest
+emoji: "Emoji"
+justNow: "Just now"
+minutesAgo: "min ago"
+hoursAgo: "hours ago"
+weeksAgo: "weeks ago"
+visibilityLabel: "Visibility"
+accessTypeLabel: "Pricing"
+accessTypeFree: "Free"
+accessTypePaid: "Paid"
+typePublicPaidDesc: "Anyone can discover the channel and subscribe after purchase"
+typePrivatePaidDesc: "Only invited users can enter the purchase flow and subscribe after payment"

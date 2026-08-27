@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 /// 头像缺省内容：有名称显示首字，无名称显示语义图标。
 ///
@@ -9,7 +9,7 @@ class AvatarFallbackContent extends StatelessWidget {
     super.key,
     this.name,
     required this.color,
-    this.emptyIcon = Icons.person_outline_rounded,
+    this.emptyIcon = CupertinoIcons.person,
     this.iconSize = 20,
     this.textStyle,
   });

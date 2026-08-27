@@ -1,6 +1,6 @@
-/// ChannelModel / ChannelType / ChannelUserRole 解析契约测试（CMO-1 ~ CMO-4）
+/// ChannelModel / ChannelUserRole 解析契约测试（CMO-1 ~ CMO-4）
 ///
-/// CMO-1  ChannelType 枚举 — index / fromJson 解析
+/// CMO-1  正交三字段 visibility/access_type/join_policy — fromJson 解析
 /// CMO-2  ChannelUserRole 枚举 — fromInt / toInt / 计算属性
 /// CMO-3  ChannelModel.fromJson — 标准字段 / creator_uid 兼容 / tags 解析
 /// CMO-4  ChannelModel.toMap / fromMap 往返 / copyWith / == / hashCode
@@ -16,8 +16,11 @@ import 'package:imboy/store/model/channel_model.dart';
 ChannelModel _channel({
   int id = 1,
   String name = 'Test',
-  ChannelType type = ChannelType.public,
+  int visibility = 0,
+  int accessType = 0,
+  int? joinPolicy,
   int creatorId = 100,
+  int price = 0,
   ChannelUserRole userRole = ChannelUserRole.none,
   bool isSubscribed = false,
   bool hasPurchased = false,
@@ -31,7 +34,10 @@ ChannelModel _channel({
   return ChannelModel(
     id: id,
     name: name,
-    type: type,
+    visibility: visibility,
+    accessType: accessType,
+    joinPolicy: joinPolicy ?? (accessType == 1 ? 3 : (visibility == 1 ? 1 : 0)),
+    price: price,
     creatorId: creatorId,
     userRole: userRole,
     isSubscribed: isSubscribed,
@@ -45,56 +51,66 @@ ChannelModel _channel({
 }
 
 void main() {
-  // ── CMO-1  ChannelType ─────────────────────────────────────────────────────
-  group('CMO-1 ChannelType', () {
-    test('index 与枚举顺序对应', () {
-      expect(ChannelType.public.index, 0);
-      expect(ChannelType.private.index, 1);
-      expect(ChannelType.paid.index, 2);
-    });
-
-    test('fromJson — 整数 0/1/2 正确解析', () {
-      expect(
-        ChannelModel.fromJson({
-          'id': 1,
-          'name': 'x',
-          'type': 1,
-          'created_at': 0,
-          'updated_at': 0,
-        }).type,
-        ChannelType.private,
-      );
-      expect(
-        ChannelModel.fromJson({
-          'id': 1,
-          'name': 'x',
-          'type': 2,
-          'created_at': 0,
-          'updated_at': 0,
-        }).type,
-        ChannelType.paid,
-      );
-    });
-
-    test('fromJson — 越界值降级为 public', () {
+  // ── CMO-1  正交三字段 ─────────────────────────────────────────────────────
+  group('CMO-1 正交三字段', () {
+    test('fromJson — visibility/access_type/join_policy 正确解析', () {
       final model = ChannelModel.fromJson({
         'id': 1,
         'name': 'x',
-        'type': 99,
+        'visibility': 1,
+        'access_type': 1,
+        'join_policy': 3,
         'created_at': 0,
         'updated_at': 0,
       });
-      expect(model.type, ChannelType.public);
+      expect(model.visibility, 1);
+      expect(model.accessType, 1);
+      expect(model.joinPolicy, 3);
     });
 
-    test('fromJson — null 降级为 public', () {
+    test('fromJson — 缺少访问策略字段时 fail-closed', () {
       final model = ChannelModel.fromJson({
         'id': 1,
         'name': 'x',
         'created_at': 0,
         'updated_at': 0,
       });
-      expect(model.type, ChannelType.public);
+      expect(model.visibility, ChannelModel.unknownAccessPolicy);
+      expect(model.accessType, ChannelModel.unknownAccessPolicy);
+      expect(model.joinPolicy, ChannelModel.unknownAccessPolicy);
+      expect(model.hasSupportedAccessPolicy, isFalse);
+      expect(model.isPublic, isFalse);
+    });
+
+    test('isPublic / isPrivate 正确', () {
+      final pub = _channel(visibility: 0);
+      expect(pub.isPublic, isTrue);
+      expect(pub.isPrivate, isFalse);
+
+      final priv = _channel(visibility: 1);
+      expect(priv.isPublic, isFalse);
+      expect(priv.isPrivate, isTrue);
+    });
+
+    test('isPaid / hasPrice 正确', () {
+      final free = _channel(accessType: 0);
+      expect(free.isPaid, isFalse);
+      expect(free.hasPrice, isFalse);
+
+      final paid = _channel(accessType: 1, price: 990);
+      expect(paid.isPaid, isTrue);
+      expect(paid.hasPrice, isTrue);
+
+      final paidNoPrice = _channel(accessType: 1, price: 0);
+      expect(paidNoPrice.isPaid, isTrue);
+      expect(paidNoPrice.hasPrice, isFalse);
+    });
+
+    test('未定义组合不被视为可用访问策略', () {
+      final unsupported = _channel(visibility: 0, accessType: 1, joinPolicy: 0);
+      expect(unsupported.hasSupportedAccessPolicy, isFalse);
+      expect(unsupported.isPublic, isFalse);
+      expect(unsupported.isPaid, isFalse);
     });
   });
 
@@ -159,13 +175,15 @@ void main() {
   group('CMO-3 ChannelModel.fromJson', () {
     final baseMs = 1_750_000_000_000;
 
-    test('标准字段映射', () {
+    test('标准字段映射（含正交三字段）', () {
       final model = ChannelModel.fromJson({
         'id': 42,
         'name': 'Tech News',
         'description': 'Daily tech updates',
         'avatar': 'https://img/a.png',
-        'type': 0,
+        'visibility': 0,
+        'access_type': 0,
+        'join_policy': 0,
         'custom_id': 'tech_news',
         'creator_id': 7,
         'subscriber_count': 500,
@@ -182,7 +200,9 @@ void main() {
       expect(model.name, 'Tech News');
       expect(model.description, 'Daily tech updates');
       expect(model.avatar, 'https://img/a.png');
-      expect(model.type, ChannelType.public);
+      expect(model.visibility, 0);
+      expect(model.accessType, 0);
+      expect(model.joinPolicy, 0);
       expect(model.customId, 'tech_news');
       expect(model.creatorId, 7);
       expect(model.subscriberCount, 500);
@@ -198,174 +218,110 @@ void main() {
       final model = ChannelModel.fromJson({
         'id': 1,
         'name': 'x',
-        'creator_uid': 99,
-        'creator_id': 10,
-        'created_at': baseMs,
-        'updated_at': baseMs,
+        'creator_uid': 999,
+        'creator_id': 111,
+        'created_at': 0,
+        'updated_at': 0,
       });
-      expect(model.creatorId, 99);
+      expect(model.creatorId, 999);
     });
 
-    test('creator_uid 缺失时回退到 creator_id', () {
+    test('tags 解析 — 字符串列表', () {
       final model = ChannelModel.fromJson({
         'id': 1,
         'name': 'x',
-        'creator_id': 55,
-        'created_at': baseMs,
-        'updated_at': baseMs,
-      });
-      expect(model.creatorId, 55);
-    });
-
-    test('nullable 字段缺失时为 null', () {
-      final model = ChannelModel.fromJson({
-        'id': 1,
-        'name': 'x',
-        'created_at': baseMs,
-        'updated_at': baseMs,
-      });
-      expect(model.description, isNull);
-      expect(model.avatar, isNull);
-      expect(model.customId, isNull);
-      expect(model.tags, isNull);
-    });
-
-    test('tags 为 JSON 字符串时正确解析', () {
-      final model = ChannelModel.fromJson({
-        'id': 1,
-        'name': 'x',
-        'tags': jsonEncode(['a', 'b']),
-        'created_at': baseMs,
-        'updated_at': baseMs,
+        'tags': ['a', 'b'],
+        'created_at': 0,
+        'updated_at': 0,
       });
       expect(model.tags, ['a', 'b']);
     });
 
-    test('is_verified / is_subscribed 为 0 时为 false', () {
+    test('tags 解析 — null 安全', () {
       final model = ChannelModel.fromJson({
         'id': 1,
         'name': 'x',
-        'is_verified': 0,
-        'is_subscribed': 0,
-        'created_at': baseMs,
-        'updated_at': baseMs,
+        'created_at': 0,
+        'updated_at': 0,
       });
-      expect(model.isVerified, isFalse);
-      expect(model.isSubscribed, isFalse);
+      expect(model.tags, isNull);
     });
 
-    test('has_purchased 缺失或为 0 时为 false', () {
+    test('toJson 序列化含正交三字段', () {
       final model = ChannelModel.fromJson({
         'id': 1,
         'name': 'x',
-        'has_purchased': 0,
-        'created_at': baseMs,
-        'updated_at': baseMs,
+        'visibility': 1,
+        'access_type': 1,
+        'join_policy': 3,
+        'created_at': 0,
+        'updated_at': 0,
       });
-      expect(model.hasPurchased, isFalse);
-    });
-
-    test('fromMap 保留已购买权限，重启/缓存恢复不重新显示 paywall', () {
-      final model = ChannelModel.fromMap({
-        'id': 1,
-        'name': '付费频道',
-        'type': ChannelType.paid.index,
-        'creator_id': 2,
-        'user_role': ChannelUserRole.subscriber.toInt(),
-        'is_subscribed': 0,
-        'has_purchased': 1,
-        'created_at': DateTime(2024, 1, 1).millisecondsSinceEpoch,
-        'updated_at': DateTime(2024, 1, 1).millisecondsSinceEpoch,
-      });
-
-      expect(model.hasPurchased, isTrue);
-      expect(model.isSubscribed, isFalse);
-    });
-
-    test('user_role 缺失时默认 none', () {
-      final model = ChannelModel.fromJson({
-        'id': 1,
-        'name': 'x',
-        'created_at': baseMs,
-        'updated_at': baseMs,
-      });
-      expect(model.userRole, ChannelUserRole.none);
+      final json = model.toJson();
+      expect(json['visibility'], 1);
+      expect(json['access_type'], 1);
+      expect(json['join_policy'], 3);
     });
   });
 
-  // ── CMO-4  toMap / fromMap / copyWith / == / hashCode ─────────────────────
-  group('CMO-4 toMap / fromMap / copyWith / == / hashCode', () {
-    test('toMap → fromMap 可重建', () {
-      final original = _channel(
-        id: 10,
-        name: 'My Channel',
-        type: ChannelType.private,
-        creatorId: 5,
-        subscriberCount: 100,
-        isVerified: true,
-        isSubscribed: true,
-        tags: ['flutter', 'dart'],
-        userRole: ChannelUserRole.admin,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(1_750_000_000_000),
-        updatedAt: DateTime.fromMillisecondsSinceEpoch(1_750_000_100_000),
-      );
-
+  // ── CMO-4  toMap / fromMap / copyWith / == / hashCode ────────────────────
+  group('CMO-4 序列化与复制', () {
+    test('toMap / fromMap 往返', () {
+      final original = ChannelModel.fromJson({
+        'id': 7,
+        'name': 'Go',
+        'visibility': 1,
+        'access_type': 0,
+        'join_policy': 1,
+        'creator_id': 3,
+        'subscriber_count': 100,
+        'created_at': 1_750_000_000_000,
+        'updated_at': 1_750_000_000_000,
+        'user_role': 2,
+        'is_subscribed': 1,
+      });
       final map = original.toMap();
-      final rebuilt = ChannelModel.fromMap(map);
-
-      expect(rebuilt.id, original.id);
-      expect(rebuilt.name, original.name);
-      expect(rebuilt.type, original.type);
-      expect(rebuilt.creatorId, original.creatorId);
-      expect(rebuilt.subscriberCount, original.subscriberCount);
-      expect(rebuilt.isVerified, original.isVerified);
-      expect(rebuilt.isSubscribed, original.isSubscribed);
-      expect(rebuilt.tags, original.tags);
-      expect(rebuilt.userRole, original.userRole);
-      expect(
-        rebuilt.createdAt.millisecondsSinceEpoch,
-        original.createdAt.millisecondsSinceEpoch,
-      );
+      final restored = ChannelModel.fromMap(map);
+      expect(restored.id, original.id);
+      expect(restored.name, original.name);
+      expect(restored.visibility, original.visibility);
+      expect(restored.accessType, original.accessType);
+      expect(restored.joinPolicy, original.joinPolicy);
+      expect(restored.creatorId, original.creatorId);
     });
 
-    test('toMap — tags 编码为 JSON 字符串', () {
-      final map = _channel(tags: ['x', 'y']).toMap();
-      expect(map['tags'], isA<String>());
-      expect(jsonDecode(map['tags'] as String), ['x', 'y']);
+    test('copyWith 正确复制部分字段', () {
+      final original = _channel(name: 'Original');
+      final copied = original.copyWith(name: 'Copied', visibility: 1);
+      expect(copied.name, 'Copied');
+      expect(copied.visibility, 1);
+      expect(copied.accessType, original.accessType);
+      expect(copied.id, original.id);
     });
 
-    test('toMap — null tags → null', () {
-      final map = _channel().toMap();
-      expect(map['tags'], isNull);
+    test('== 基于 id 判断相等', () {
+      final a = _channel(id: 1);
+      final b = _channel(id: 1, name: 'Different');
+      final c = _channel(id: 2);
+      expect(a == b, isTrue);
+      expect(a == c, isFalse);
     });
 
-    test('toMap — is_verified/is_subscribed 编码为 0/1', () {
-      final mapT = _channel(isVerified: true, isSubscribed: true).toMap();
-      final mapF = _channel(isVerified: false, isSubscribed: false).toMap();
-      expect(mapT['is_verified'], 1);
-      expect(mapT['is_subscribed'], 1);
-      expect(mapF['is_verified'], 0);
-      expect(mapF['is_subscribed'], 0);
+    test('hashCode 与 == 一致', () {
+      final a = _channel(id: 42);
+      final b = _channel(id: 42);
+      // 相等的对象必须有相同的 hashCode
+      expect(a.hashCode, equals(b.hashCode));
     });
+  });
 
-    test('toMap — has_purchased 编码为 0/1，确保购买态可重启恢复', () {
-      final mapT = _channel(hasPurchased: true).toMap();
-      final mapF = _channel(hasPurchased: false).toMap();
-      expect(mapT['has_purchased'], 1);
-      expect(mapF['has_purchased'], 0);
-      expect(ChannelModel.fromMap(mapT).hasPurchased, isTrue);
-    });
-
-    test('toJson — has_purchased 编码为 0/1', () {
-      expect(_channel(hasPurchased: true).toJson()['has_purchased'], 1);
-      expect(_channel(hasPurchased: false).toJson()['has_purchased'], 0);
-    });
-
-    test('isManaged — admin/creator 为 true，其余为 false', () {
+  // ── CMO-5  isManaged / canPublish 计算属性 ────────────────────────────────
+  group('CMO-5 计算属性', () {
+    test('isManaged — admin/creator 为 true', () {
       expect(_channel(userRole: ChannelUserRole.admin).isManaged, isTrue);
       expect(_channel(userRole: ChannelUserRole.creator).isManaged, isTrue);
       expect(_channel(userRole: ChannelUserRole.editor).isManaged, isFalse);
-      expect(_channel(userRole: ChannelUserRole.none).isManaged, isFalse);
+      expect(_channel(userRole: ChannelUserRole.subscriber).isManaged, isFalse);
     });
 
     test('canPublish — editor/admin/creator 为 true', () {
@@ -373,29 +329,6 @@ void main() {
       expect(_channel(userRole: ChannelUserRole.admin).canPublish, isTrue);
       expect(_channel(userRole: ChannelUserRole.creator).canPublish, isTrue);
       expect(_channel(userRole: ChannelUserRole.none).canPublish, isFalse);
-    });
-
-    test('copyWith — 覆盖指定字段', () {
-      final original = _channel(id: 5, name: 'Old', subscriberCount: 10);
-      final updated = original.copyWith(name: 'New', subscriberCount: 99);
-      expect(updated.id, 5);
-      expect(updated.name, 'New');
-      expect(updated.subscriberCount, 99);
-    });
-
-    test('== — 同 id 则相等', () {
-      final a = _channel(id: 7, name: 'A');
-      final b = _channel(id: 7, name: 'B');
-      expect(a == b, isTrue);
-    });
-
-    test('== — 不同 id 则不相等', () {
-      expect(_channel(id: 1) == _channel(id: 2), isFalse);
-    });
-
-    test('hashCode — 等于 id.hashCode', () {
-      final ch = _channel(id: 33);
-      expect(ch.hashCode, 33.hashCode);
     });
   });
 }

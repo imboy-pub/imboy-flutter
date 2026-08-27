@@ -213,7 +213,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       Material(
         color: Colors.transparent,
         child: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
+          icon: const Icon(CupertinoIcons.ellipsis_vertical),
           iconColor: AppColors.getTextColor(brightness),
           onSelected: (route) => context.push(route),
           itemBuilder: (context) => items,
@@ -235,7 +235,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       // 失败态与空态统一走 NoDataView：此前手写 Text + Material ElevatedButton，
       // 与同函数下方的 NoDataView 空态视觉割裂（无图标、按钮风格不一致）。
       return NoDataView(
-        icon: Icons.error_outline,
+        icon: CupertinoIcons.exclamationmark_circle,
         text: state.error!,
         onTop: () {
           final notifier = ref.read(channelListProvider.notifier);
@@ -251,7 +251,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     if (state.channels.isEmpty) {
       // 已订阅空态提供"发现频道"跳转入口（引导语可点击）
       return NoDataView(
-        icon: Icons.campaign_outlined,
+        icon: CupertinoIcons.speaker_2,
         text: isSubscribed
             ? context.t.channel.noSubscribedChannels
             : context.t.channel.noManagedChannels,
@@ -304,7 +304,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
                   child: SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CupertinoActivityIndicator(),
                   ),
                 ),
               );
@@ -362,6 +362,27 @@ class _ChannelListItem extends StatelessWidget {
     }
   }
 
+  /// 频道可见性图标（公开/私有）
+  IconData _getVisibilityIcon() {
+    return channel.isPublic ? CupertinoIcons.globe : CupertinoIcons.lock;
+  }
+
+  /// 频道可见性颜色
+  Color _getVisibilityColor() {
+    return channel.isPublic ? AppColors.primary : AppColors.iosGray;
+  }
+
+  /// 计算相对时间
+  String _formatRelativeTime(DateTime dt, dynamic t) {
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inMinutes < 1) return t.channel.justNow as String;
+    if (diff.inHours < 1) return '${diff.inMinutes} ${t.channel.minutesAgo}';
+    if (diff.inDays < 1) return '${diff.inHours} ${t.channel.hoursAgo}';
+    if (diff.inDays < 7) return '${diff.inDays} ${t.channel.daysAgo}';
+    return '${diff.inDays ~/ 7} ${t.channel.weeksAgo}';
+  }
+
   /// 频道头像。
   ///
   /// 原实现用 `CircleAvatar.backgroundImage`，只在「没有 URL」时才渲染兜底
@@ -371,7 +392,7 @@ class _ChannelListItem extends StatelessWidget {
   Widget _buildAvatar() {
     const double size = 48;
     const Widget fallback = Center(
-      child: Icon(Icons.campaign, size: 24, color: AppColors.primary),
+      child: Icon(CupertinoIcons.speaker_2, size: 24, color: AppColors.primary),
     );
     final String url = channel.avatar ?? '';
     return ClipOval(
@@ -422,6 +443,41 @@ class _ChannelListItem extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            // 频道可见性图标
+            Icon(
+              _getVisibilityIcon(),
+              size: 14,
+              color: _getVisibilityColor().withValues(alpha: 0.7),
+            ),
+            // 付费标签（独立于可见性）
+            if (channel.hasPrice)
+              Container(
+                margin: const EdgeInsets.only(left: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: BoxDecoration(
+                  color: AppColors.iosOrange.withValues(alpha: 0.1),
+                  borderRadius: AppRadius.borderRadiusTiny,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.money_dollar,
+                      size: 10,
+                      color: AppColors.iosOrange,
+                    ),
+                    AppSpacing.horizontalTiny,
+                    Text(
+                      t.channel.accessTypePaid,
+                      style: context.textStyle(
+                        FontSizeType.tiny,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.iosOrange,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             // 角色标签（仅"我管理的"标签页显示）
             if (showRole && channel.userRole != ChannelUserRole.none) ...[
               Container(
@@ -444,14 +500,18 @@ class _ChannelListItem extends StatelessWidget {
             if (channel.isVerified)
               const Padding(
                 padding: EdgeInsets.only(left: 4),
-                child: Icon(Icons.verified, size: 16, color: AppColors.primary),
+                child: Icon(
+                  CupertinoIcons.checkmark_seal_fill,
+                  size: 16,
+                  color: AppColors.primary,
+                ),
               ),
           ],
         ),
         subtitle: Row(
           children: [
             Icon(
-              Icons.people_outline,
+              CupertinoIcons.person_2,
               size: 14,
               color: AppColors.getTextColor(brightness, isSecondary: true),
             ),
@@ -463,6 +523,23 @@ class _ChannelListItem extends StatelessWidget {
                 color: AppColors.getTextColor(brightness, isSecondary: true),
               ),
             ),
+            // 最后活跃时间
+            if (channel.updatedAt != channel.createdAt) ...[
+              AppSpacing.horizontalSmall,
+              Icon(
+                CupertinoIcons.clock,
+                size: 12,
+                color: AppColors.getTextColor(brightness, isSecondary: true),
+              ),
+              AppSpacing.horizontalTiny,
+              Text(
+                _formatRelativeTime(channel.updatedAt, t),
+                style: context.textStyle(
+                  FontSizeType.tiny,
+                  color: AppColors.getTextColor(brightness, isSecondary: true),
+                ),
+              ),
+            ],
             if (channel.tags != null && channel.tags!.isNotEmpty) ...[
               AppSpacing.horizontalSmall,
               Expanded(

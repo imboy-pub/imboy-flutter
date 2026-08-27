@@ -379,6 +379,17 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get continueEditing => 'متابعة التعديل';
 	@override String get publishFirstContent => 'نشر أول محتوى';
 	@override String get noSubscribersDesc => 'لا يوجد مشتركون بعد، شارك القناة مع أصدقائك';
+	@override String get emoji => 'رموز تعبيرية';
+	@override String get justNow => 'الآن';
+	@override String get minutesAgo => 'دقائق مضت';
+	@override String get hoursAgo => 'ساعات مضت';
+	@override String get weeksAgo => 'أسابيع مضت';
+	@override String get visibilityLabel => 'الرؤية';
+	@override String get accessTypeLabel => 'التسعير';
+	@override String get accessTypeFree => 'مجاني';
+	@override String get accessTypePaid => 'مدفوع';
+	@override String get typePublicPaidDesc => 'يمكن لأي شخص اكتشاف القناة والاشتراك بعد الشراء';
+	@override String get typePrivatePaidDesc => 'يمكن للمستخدمين المدعوين فقط الدخول في عملية الشراء والاشتراك بعد الدفع';
 }
 
 // Path: chat
@@ -2888,6 +2899,17 @@ extension on TranslationsArSa {
 			'channel.continueEditing' => 'متابعة التعديل',
 			'channel.publishFirstContent' => 'نشر أول محتوى',
 			'channel.noSubscribersDesc' => 'لا يوجد مشتركون بعد، شارك القناة مع أصدقائك',
+			'channel.emoji' => 'رموز تعبيرية',
+			'channel.justNow' => 'الآن',
+			'channel.minutesAgo' => 'دقائق مضت',
+			'channel.hoursAgo' => 'ساعات مضت',
+			'channel.weeksAgo' => 'أسابيع مضت',
+			'channel.visibilityLabel' => 'الرؤية',
+			'channel.accessTypeLabel' => 'التسعير',
+			'channel.accessTypeFree' => 'مجاني',
+			'channel.accessTypePaid' => 'مدفوع',
+			'channel.typePublicPaidDesc' => 'يمكن لأي شخص اكتشاف القناة والاشتراك بعد الشراء',
+			'channel.typePrivatePaidDesc' => 'يمكن للمستخدمين المدعوين فقط الدخول في عملية الشراء والاشتراك بعد الدفع',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.cards' => 'بطاقات',
 			'chat.jdShopping' => 'تسوق JD',
@@ -3110,6 +3132,8 @@ extension on TranslationsArSa {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => 'وقت الدفع: ${time}',
 			'chat.orderStatusPending' => 'بانتظار الدفع',
 			'chat.orderStatusPaid' => 'مدفوع',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderStatusRefunded' => 'تم الاسترداد',
 			'chat.orderStatusExpired' => 'منتهٍ',
 			'chat.defaultFileName' => 'ملف',
@@ -3121,8 +3145,6 @@ extension on TranslationsArSa {
 			'chat.e2eeCreatedAtLabel' => 'تاريخ الإنشاء',
 			'chat.e2eeGeneratingKey' => 'جارٍ إنشاء المفتاح، انتظر...',
 			'chat.e2eeNewKeyGenerated' => 'تم إنشاء زوج مفاتيح E2EE جديد!',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeReady' => 'جاهز',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'جاهز (${count} شظية)',
 			'chat.webFeatureMultiDevice' => 'مزامنة الأجهزة',
@@ -3624,6 +3646,8 @@ extension on TranslationsArSa {
 			'common.whatYourFeedback' => 'ما هي ملاحظاتك؟',
 			'common.yesterday' => 'أمس',
 			'common.yourContactInformation' => 'معلومات الاتصال الخاصة بك',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmRemove' => 'تأكيد الإزالة',
 			'common.confirmRemoveFromDenylist' => 'هل أنت متأكد من إزالة هذا المستخدم من القائمة السوداء؟',
 			'common.buttonRemove' => 'إزالة',
@@ -3635,8 +3659,6 @@ extension on TranslationsArSa {
 			'common.confirmChange' => 'تأكيد التغيير',
 			'common.verificationCodeSentToEmail' => 'سيتم إرسال رمز التحقق إلى هذا البريد الإلكتروني، يرجى إكمال التحقق خلال فترة الصلاحية',
 			'common.verificationCodeSentToMobile' => 'سيتم إرسال رمز التحقق إلى هذا الهاتف، يرجى إكمال التحقق خلال فترة الصلاحية',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => 'يرجى إدخال عنوان البريد الإلكتروني الصحيح',
 			'common.pleaseEnter6DigitVerificationCode' => 'يرجى إدخال رمز التحقق المكون من 6 أرقام',
 			'common.verificationCodeSent' => 'تم إرسال رمز التحقق',
@@ -4138,6 +4160,8 @@ extension on TranslationsArSa {
 			'common.e2eeBackupImportantNoteColon' => 'ملاحظة مهمة:',
 			'common.e2eeBackupKeepSafe' => '• احفظ ملف النسخة وكلمة المرور بأمان',
 			'common.e2eeBackupStoreMultipleLoc' => '• يُفضّل حفظ الملف في عدة أماكن آمنة',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• لا يمكن استرداد كلمة المرور، احفظها جيداً',
 			'common.e2eeBackupImportTitle' => 'استيراد نسخة E2EE',
 			'common.e2eeBackupImportGuide' => 'تعليمات الاستيراد',
@@ -4149,8 +4173,6 @@ extension on TranslationsArSa {
 			'common.e2eeBackupVersionLabel' => 'الإصدار',
 			'common.e2eeBackupAlgorithmLabel' => 'الخوارزمية',
 			'common.e2eeBackupFileSizeLabel' => 'حجم الملف',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ تنسيق الملف صالح',
 			'common.e2eeBackupImportPwdHint' => 'أدخل كلمة المرور المحددة عند الإنشاء',
 			'common.e2eeBackupImportBtn' => 'استيراد المفتاح',
@@ -4652,6 +4674,8 @@ extension on TranslationsArSa {
 			'main.markStar' => 'إضافة إلى المفضلة',
 			'main.markStarDesc' => 'إضافة هذه الرسالة إلى المفضلة',
 			'main.markTodo' => 'مهام',
+			_ => null,
+		} ?? switch (path) {
 			'main.markTodoDesc' => 'تعليم كمهمة',
 			'main.multiSelect' => 'تحديد متعدد',
 			'main.multiSelectMode' => 'وضع التحديد المتعدد',
@@ -4663,8 +4687,6 @@ extension on TranslationsArSa {
 			'main.or' => 'أو',
 			'main.otherParty' => 'الطرف الآخر',
 			'main.packageSize' => 'حجم الحزمة',
-			_ => null,
-		} ?? switch (path) {
 			'main.peerHasHungUp' => 'قام الطرف الآخر بإنهاء المكالمة',
 			'main.play' => 'تشغيل',
 			'main.pleaseInputParam' => ({required Object param}) => 'يرجى إدخال ${param}',

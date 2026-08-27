@@ -19,6 +19,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/app_upgrade_log_api.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:flutter/cupertino.dart';
 
 class UpgradePage extends ConsumerStatefulWidget {
   /// apk更新url
@@ -558,9 +559,8 @@ class UpgradeCardState extends State<UpgradeCard> {
         ? AppColors.darkTextPrimary
         : AppColors.upgradeBackground;
 
-    return Scaffold(
-      backgroundColor: AppColors.darkBackground.withValues(alpha: 0.4),
-      body: Center(
+    return CupertinoPageScaffold(
+      child: Center(
         child: Container(
           width: MediaQuery.of(context).size.width - 40,
           padding: const EdgeInsets.only(bottom: 20),
@@ -708,7 +708,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                       Visibility(
                         visible: widget.negativeBtn.isNotEmpty,
                         child: Expanded(
-                          child: TextButton(
+                          child: CupertinoButton(
                             onPressed: widget.negativeCallback,
                             child: Text(
                               widget.negativeBtn,
@@ -731,7 +731,7 @@ class UpgradeCardState extends State<UpgradeCard> {
                       Visibility(
                         visible: widget.positiveBtn.isNotEmpty,
                         child: Expanded(
-                          child: TextButton(
+                          child: CupertinoButton(
                             onPressed: widget.positiveCallback,
                             child: Text(
                               widget.positiveBtn,

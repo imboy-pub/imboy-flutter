@@ -525,13 +525,8 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   // ---- 预览 ----
 
   void _showPreview() {
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.getSurfaceColor(Theme.of(context).brightness),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (ctx) => _ComposePreviewSheet(
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
@@ -620,6 +615,8 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
                   padding: AppSpacing.allRegular,
                   children: [
                     TextField(
+                      enableSuggestions: false,
+                      autocorrect: false,
                       controller: _titleController,
                       enabled: !_isPublishing,
                       maxLength: _maxTitleLength,
@@ -673,16 +670,16 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   Future<void> _confirmLeave(bool didPop) async {
     if (didPop) return;
     final t = context.t;
-    final leave = await showDialog<bool>(
+    final leave = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         content: Text(t.channel.composeLeaveImagesLost),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
               t.common.confirm,
@@ -702,6 +699,8 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     final separator = AppColors.getIosSeparator(brightness);
     final secondary = AppColors.getTextColor(brightness, isSecondary: true);
     return TextField(
+      enableSuggestions: false,
+      autocorrect: false,
       controller: _contentController,
       focusNode: _contentFocusNode,
       enabled: !_isPublishing,
@@ -816,7 +815,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          Icons.close,
+                          CupertinoIcons.xmark_circle_fill,
                           size: 16,
                           color: AppColors.mediaScrimWhite,
                         ),
@@ -845,7 +844,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
         ),
         child: Tooltip(
           message: context.t.channel.addImage,
-          child: Icon(Icons.add, size: 32, color: separator),
+          child: Icon(CupertinoIcons.add, size: 32, color: separator),
         ),
       ),
     );
@@ -903,7 +902,7 @@ class _ComposePreviewSheet extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close, size: 20),
+                icon: const Icon(CupertinoIcons.xmark_circle_fill, size: 20),
                 onPressed: () => Navigator.pop(context),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
@@ -937,7 +936,7 @@ class _ComposePreviewSheet extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
-                child: OutlinedButton(
+                child: CupertinoButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(context.t.channel.continueEditing),
                 ),
@@ -945,7 +944,7 @@ class _ComposePreviewSheet extends StatelessWidget {
               if (onPublish != null) ...[
                 AppSpacing.horizontalMedium,
                 Expanded(
-                  child: ElevatedButton(
+                  child: CupertinoButton.filled(
                     onPressed: () {
                       Navigator.pop(context);
                       onPublish!();
@@ -1028,37 +1027,37 @@ class _MarkdownToolbar extends StatelessWidget {
     // ponytail: 标题不做 h1→h2→h3 循环，直接 h2；需要多级再加。
     final buttons = <(IconData, String, VoidCallback)>[
       (
-        Icons.format_bold,
+        CupertinoIcons.bold,
         t.channel.formatBold,
         () => _apply((x, s) => applyInlineWrap(x, s, '**')),
       ),
       (
-        Icons.format_italic,
+        CupertinoIcons.italic,
         t.channel.formatItalic,
         () => _apply((x, s) => applyInlineWrap(x, s, '*')),
       ),
       (
-        Icons.format_strikethrough,
+        CupertinoIcons.strikethrough,
         t.channel.formatStrikethrough,
         () => _apply((x, s) => applyInlineWrap(x, s, '~~')),
       ),
       (
-        Icons.title,
+        CupertinoIcons.textformat,
         t.channel.formatHeading,
         () => _apply((x, s) => applyLinePrefix(x, s, '## ')),
       ),
       (
-        Icons.format_list_bulleted,
+        CupertinoIcons.list_bullet,
         t.channel.formatList,
         () => _apply((x, s) => applyLinePrefix(x, s, '- ')),
       ),
       (
-        Icons.format_quote,
+        CupertinoIcons.text_quote,
         t.channel.formatQuote,
         () => _apply((x, s) => applyLinePrefix(x, s, '> ')),
       ),
       (
-        Icons.link,
+        CupertinoIcons.link,
         t.channel.formatLink,
         () => _apply(
           (x, s) => applyLink(

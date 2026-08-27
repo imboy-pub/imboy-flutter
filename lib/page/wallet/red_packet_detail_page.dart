@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -140,15 +141,15 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(backgroundColor: headerRed, elevation: 0),
-        body: const Center(child: CircularProgressIndicator()),
+        appBar: GlassAppBar(title: ""),
+        body: const Center(child: CupertinoActivityIndicator()),
       );
     }
 
     if (_packet == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(t.common.redPacketDetail),
+        appBar: GlassAppBar(
+          title: t.common.redPacketDetail,
           backgroundColor: headerRed,
         ),
         body: Center(child: Text(t.common.redPacketNotFound)),
@@ -344,7 +345,7 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                             child: Row(
                               children: [
                                 Icon(
-                                  Icons.star,
+                                  CupertinoIcons.star,
                                   size: 12,
                                   color: AppColors.getIosOrange(brightness),
                                 ),

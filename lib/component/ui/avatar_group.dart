@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:octo_image/octo_image.dart';
@@ -42,11 +43,7 @@ class GroupAvatar extends StatelessWidget {
       content = Hero(tag: heroTag!, child: content);
     }
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: _getBorderRadius(),
-      child: content,
-    );
+    return GestureDetector(onTap: onTap, child: content);
   }
 
   BorderRadius _getBorderRadius() {
@@ -112,7 +109,7 @@ class GroupAvatar extends StatelessWidget {
       child:
           errorWidget ??
           Icon(
-            Icons.groups,
+            CupertinoIcons.person_2,
             size: size * 0.6,
             color: isDark ? Colors.grey[400] : Colors.grey[600],
           ),

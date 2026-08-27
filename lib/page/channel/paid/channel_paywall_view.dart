@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
@@ -67,7 +68,7 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
               // 锁定图标 + 标题
               Row(
                 children: [
-                  const Icon(Icons.lock_outline, color: AppColors.iosYellow),
+                  const Icon(CupertinoIcons.lock, color: AppColors.iosYellow),
                   AppSpacing.horizontalSmall,
                   Expanded(
                     child: Text(
@@ -100,7 +101,7 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
                   child: Row(
                     children: [
                       const Icon(
-                        Icons.local_offer_outlined,
+                        CupertinoIcons.tag,
                         size: 16,
                         color: AppColors.primary,
                       ),
@@ -133,9 +134,9 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
                           ? const SizedBox(
                               width: 14,
                               height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: CupertinoActivityIndicator(),
                             )
-                          : const Icon(Icons.shopping_cart_checkout_outlined),
+                          : const Icon(CupertinoIcons.cart),
                       label: Text(
                         _isPaying
                             ? t.main.payingDots
@@ -146,7 +147,7 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
                   const SizedBox(width: 10),
                   OutlinedButton.icon(
                     onPressed: () => _showMyOrdersSheet(),
-                    icon: const Icon(Icons.receipt_long_outlined),
+                    icon: const Icon(CupertinoIcons.doc_text),
                     label: Text(t.main.myOrders),
                   ),
                 ],
@@ -211,18 +212,14 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
         final isTimedOut = ref.read(channelPurchaseProvider).isPollTimedOut;
         if (isTimedOut) {
           // SDK 成功但服务端回调未确认——提示查看订单，不误报"购买失败"
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.t.common.purchaseConfirming)),
-          );
+          AppLoading.showToast(context.t.common.purchaseConfirming);
           return;
         }
         _handleThirdPartyFailure(result);
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.common.purchaseSuccess)));
+      AppLoading.showToast(context.t.common.purchaseSuccess);
       await _onPurchaseSuccess(channelId);
     } finally {
       if (mounted) setState(() => _isPaying = false);
@@ -238,15 +235,11 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
       if (!mounted) return;
 
       if (order == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t.common.purchaseFailed)),
-        );
+        AppLoading.showToast(context.t.common.purchaseFailed);
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.common.purchaseSuccess)));
+      AppLoading.showToast(context.t.common.purchaseSuccess);
       await _onPurchaseSuccess(channelId);
     } finally {
       if (mounted) setState(() => _isPaying = false);
@@ -268,9 +261,7 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
       case PaymentLaunchResult.failed:
       case PaymentLaunchResult.success:
       case null:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t.common.purchaseFailed)),
-        );
+        AppLoading.showToast(context.t.common.purchaseFailed);
     }
   }
 
@@ -279,9 +270,9 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
     int balanceFen,
   ) async {
     final t = context.t;
-    await showDialog<void>(
+    await showCupertinoDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.common.insufficientBalanceTitle),
         content: Text(
           t.common.insufficientBalanceContent(
@@ -291,7 +282,7 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
           ),
         ),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(t.common.cancel),
           ),
@@ -319,9 +310,7 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
       // 拉单失败不能渲染成"暂无订单"——用户会以为付款没成功
       iPrint('ChannelPaywall: 获取订单列表失败 - $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.common.loadError)));
+      AppLoading.showToast(t.common.loadError);
       return;
     }
     if (!mounted) return;
@@ -330,9 +319,8 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
         .where((o) => o.channelId.toString() == channelId)
         .toList();
 
-    await showModalBottomSheet<void>(
+    await showCupertinoModalPopup<void>(
       context: context,
-      isScrollControlled: true,
       builder: (ctx) => SafeArea(
         child: SizedBox(
           height: MediaQuery.of(ctx).size.height * 0.62,
@@ -386,15 +374,13 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
     if (!mounted) return;
 
     if (order == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.common.orderDetailLoadFailed)));
+      AppLoading.showToast(t.common.orderDetailLoadFailed);
       return;
     }
 
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.main.orderDetail),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -437,7 +423,7 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(t.common.confirm),
           ),

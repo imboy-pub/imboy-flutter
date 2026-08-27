@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -63,12 +64,11 @@ class OtherLoginSection extends StatelessWidget {
         Semantics(
           label: t.passport.oneKeyLogin,
           button: true,
-          child: InkWell(
+          child: GestureDetector(
             key: const Key('one_key_login_button'),
             onTap: () async {
               await notifier.loginAuth(false);
             },
-            borderRadius: BorderRadius.circular(24),
             child: Container(
               width: 48,
               height: 48,
@@ -80,7 +80,7 @@ class OtherLoginSection extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: const Icon(
-                Icons.touch_app,
+                CupertinoIcons.hand_raised,
                 color: AppColors.primary,
                 size: 28,
               ),
@@ -103,9 +103,8 @@ class OtherLoginSection extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        InkWell(
+        GestureDetector(
           key: const Key('alipay_login_button'),
-          borderRadius: BorderRadius.circular(24),
           onTap: () async {
             final err = await notifier.loginByAlipay();
             // 用户取消返回 null（静默）；仅失败时提示

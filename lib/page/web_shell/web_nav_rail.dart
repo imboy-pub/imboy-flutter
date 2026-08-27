@@ -118,9 +118,8 @@ class _WebNavRailItem extends StatelessWidget {
 
     return Tooltip(
       message: item.label,
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
         child: Container(
           width: 56,
           height: 56,
@@ -165,10 +164,7 @@ class _Badge extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        color: colorScheme.error,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      decoration: BoxDecoration(color: colorScheme.error),
       child: Text(
         text,
         textAlign: TextAlign.center,

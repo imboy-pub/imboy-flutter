@@ -14,6 +14,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/page/group/widgets/group_empty_state.dart';
 
 import 'group_list_provider.dart';
 import 'group_list_service.dart';
@@ -308,69 +309,11 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
     String? text,
     bool showCta = true,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xLarge),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: AppColors.iosBlue.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                CupertinoIcons.person_2_square_stack,
-                size: 40,
-                color: AppColors.iosBlue,
-              ),
-            ),
-            AppSpacing.verticalRegular,
-            Text(
-              text ?? t.common.noData,
-              style: context.textStyle(
-                FontSizeType.medium,
-                fontWeight: FontWeight.w500,
-                color: secondaryColor,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (showCta) ...[
-              AppSpacing.verticalSmall,
-              Text(
-                t.common.createGroupF2fTips,
-                style: context.textStyle(
-                  FontSizeType.small,
-                  color: secondaryColor.withValues(alpha: 0.7),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              AppSpacing.verticalLarge,
-              CupertinoButton.filled(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xLarge,
-                ),
-                onPressed: () => context.push('/group/launch_chat'),
-                child: Text(
-                  t.chat.initiateChat,
-                  style: context.textStyle(
-                    FontSizeType.body,
-                    fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.onPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+    return GroupEmptyState(
+      title: text ?? t.common.noData,
+      subtitle: showCta ? t.common.createGroupF2fTips : null,
+      actionLabel: showCta ? t.chat.initiateChat : null,
+      onAction: showCta ? () => context.push('/group/launch_chat') : null,
     );
   }
 

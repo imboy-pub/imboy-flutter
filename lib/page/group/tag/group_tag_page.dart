@@ -135,15 +135,16 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
       isEmpty: _tags.isEmpty,
       onRetry: _loadTags,
       emptyText: t.groupTag.noTag,
-      child: RefreshIndicator(
-        onRefresh: _loadTags,
-        child: ListView.builder(
-          itemCount: _tags.length,
-          itemBuilder: (context, index) {
-            final tag = _tags[index];
-            return _buildTagItem(tag);
-          },
-        ),
+      child: CustomScrollView(
+        slivers: [
+          CupertinoSliverRefreshControl(onRefresh: _loadTags),
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final tag = _tags[index];
+              return _buildTagItem(tag);
+            }, childCount: _tags.length),
+          ),
+        ],
       ),
     );
   }

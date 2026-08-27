@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
@@ -124,7 +125,7 @@ class _MessageAgentTaskBuilderState
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (canReject)
-                  TextButton(
+                  CupertinoButton(
                     onPressed: _isProcessing
                         ? null
                         : () => _decide(taskId, approve: false),
@@ -137,7 +138,7 @@ class _MessageAgentTaskBuilderState
                     ),
                   ),
                 if (canApprove)
-                  TextButton(
+                  CupertinoButton(
                     onPressed: _isProcessing
                         ? null
                         : () => _decide(taskId, approve: true),
@@ -159,11 +160,11 @@ class _MessageAgentTaskBuilderState
   }
 
   IconData _statusIcon(String status) => switch (status) {
-    'completed' => Icons.check_circle_outline,
-    'failed' => Icons.error_outline,
-    'cancelled' => Icons.cancel_outlined,
-    'awaiting_approval' => Icons.hourglass_top,
-    _ => Icons.smart_toy_outlined,
+    'completed' => CupertinoIcons.checkmark_circle,
+    'failed' => CupertinoIcons.exclamationmark_circle,
+    'cancelled' => CupertinoIcons.xmark_circle,
+    'awaiting_approval' => CupertinoIcons.clock,
+    _ => CupertinoIcons.rectangle_stack_badge_person_crop,
   };
 
   Color _statusColor(String status) => switch (status) {

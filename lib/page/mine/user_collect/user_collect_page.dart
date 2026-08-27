@@ -216,7 +216,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    Icons.local_offer,
+                    CupertinoIcons.bookmark,
                     size: 10,
                     color: AppColors.getIosBlue(Theme.of(context).brightness),
                   ),
@@ -435,7 +435,10 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
       ).withValues(alpha: 0.1),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: AppColors.iosRed),
+          const Icon(
+            CupertinoIcons.exclamationmark_circle,
+            color: AppColors.iosRed,
+          ),
           AppSpacing.horizontalSmall,
           Expanded(child: Text(t.common.loadError)),
           CupertinoButton(
@@ -470,89 +473,85 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             : AppColors.lightSurface,
         borderRadius: AppRadius.borderRadiusCell,
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: AppRadius.borderRadiusCell,
-          onLongPress: () => _enterMultiSelect(obj),
-          onTap: () async {
-            if (_multiSelect) {
-              _toggleSelect(obj);
-              return;
-            }
-            if (widget.isSelect) {
-              _sendToDialog(obj);
-            } else {
-              Navigator.push(
-                context,
-                CupertinoPageRoute<void>(
-                  builder: (context) =>
-                      UserCollectDetailPage(obj: obj, pageIndex: index),
-                ),
-              );
-            }
-          },
-          child: Padding(
-            padding: AppSpacing.allRegular,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isPinned) ...[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        CupertinoIcons.pin_fill,
-                        size: 12,
-                        color: AppColors.getIosBlue(brightness),
-                      ),
-                      AppSpacing.horizontalTiny,
-                      Text(
-                        t.chat.pinned,
-                        style: context.textStyle(
-                          FontSizeType.caption2,
-                          color: AppColors.getIosBlue(brightness),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  AppSpacing.verticalSmall,
-                ],
-                notifier.buildItemBody(context, obj, 'page'),
-                AppSpacing.verticalMedium,
+      child: GestureDetector(
+        onLongPress: () => _enterMultiSelect(obj),
+        onTap: () async {
+          if (_multiSelect) {
+            _toggleSelect(obj);
+            return;
+          }
+          if (widget.isSelect) {
+            _sendToDialog(obj);
+          } else {
+            Navigator.push(
+              context,
+              CupertinoPageRoute<void>(
+                builder: (context) =>
+                    UserCollectDetailPage(obj: obj, pageIndex: index),
+              ),
+            );
+          }
+        },
+        child: Padding(
+          padding: AppSpacing.allRegular,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isPinned) ...[
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Flexible(
-                      child: Text(
-                        obj.source,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textStyle(
-                          FontSizeType.small,
-                          color: AppColors.iosGray,
-                        ),
+                    Icon(
+                      CupertinoIcons.pin_fill,
+                      size: 12,
+                      color: AppColors.getIosBlue(brightness),
+                    ),
+                    AppSpacing.horizontalTiny,
+                    Text(
+                      t.chat.pinned,
+                      style: context.textStyle(
+                        FontSizeType.caption2,
+                        color: AppColors.getIosBlue(brightness),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Text(
-                      currentState.kind == currentState.recentUse &&
-                              obj.updatedAt > 0
-                          ? DateTimeHelper.lastTimeFmt(obj.updatedAt)
-                          : DateTimeHelper.lastTimeFmt(obj.createdAt),
+                  ],
+                ),
+                AppSpacing.verticalSmall,
+              ],
+              notifier.buildItemBody(context, obj, 'page'),
+              AppSpacing.verticalMedium,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      obj.source,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: context.textStyle(
                         FontSizeType.small,
                         color: AppColors.iosGray,
                       ),
                     ),
-                  ],
-                ),
-                if (obj.tag.isNotEmpty) ...[
-                  AppSpacing.verticalSmall,
-                  buildItemTag(obj.tag, context),
+                  ),
+                  Text(
+                    currentState.kind == currentState.recentUse &&
+                            obj.updatedAt > 0
+                        ? DateTimeHelper.lastTimeFmt(obj.updatedAt)
+                        : DateTimeHelper.lastTimeFmt(obj.createdAt),
+                    style: context.textStyle(
+                      FontSizeType.small,
+                      color: AppColors.iosGray,
+                    ),
+                  ),
                 ],
+              ),
+              if (obj.tag.isNotEmpty) ...[
+                AppSpacing.verticalSmall,
+                buildItemTag(obj.tag, context),
               ],
-            ),
+            ],
           ),
         ),
       ),

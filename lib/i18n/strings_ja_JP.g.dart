@@ -379,6 +379,17 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get continueEditing => '編集を続ける';
 	@override String get publishFirstContent => '最初のコンテンツを公開';
 	@override String get noSubscribersDesc => 'まだ購読者はいません。友達にチャンネルを共有しましょう';
+	@override String get emoji => '絵文字';
+	@override String get justNow => 'たった今';
+	@override String get minutesAgo => '分前';
+	@override String get hoursAgo => '時間前';
+	@override String get weeksAgo => '週間前';
+	@override String get visibilityLabel => '公開範囲';
+	@override String get accessTypeLabel => '有料設定';
+	@override String get accessTypeFree => '無料';
+	@override String get accessTypePaid => '有料';
+	@override String get typePublicPaidDesc => '誰でもチャンネルを見つけられ、購入後に登録できます';
+	@override String get typePrivatePaidDesc => '招待されたユーザーのみ購入フローに進み、支払い後に登録できます';
 }
 
 // Path: chat
@@ -2888,6 +2899,17 @@ extension on TranslationsJaJp {
 			'channel.continueEditing' => '編集を続ける',
 			'channel.publishFirstContent' => '最初のコンテンツを公開',
 			'channel.noSubscribersDesc' => 'まだ購読者はいません。友達にチャンネルを共有しましょう',
+			'channel.emoji' => '絵文字',
+			'channel.justNow' => 'たった今',
+			'channel.minutesAgo' => '分前',
+			'channel.hoursAgo' => '時間前',
+			'channel.weeksAgo' => '週間前',
+			'channel.visibilityLabel' => '公開範囲',
+			'channel.accessTypeLabel' => '有料設定',
+			'channel.accessTypeFree' => '無料',
+			'channel.accessTypePaid' => '有料',
+			'channel.typePublicPaidDesc' => '誰でもチャンネルを見つけられ、購入後に登録できます',
+			'channel.typePrivatePaidDesc' => '招待されたユーザーのみ購入フローに進み、支払い後に登録できます',
 			'chat.bankCard' => '銀行カード',
 			'chat.cards' => '枚',
 			'chat.jdShopping' => 'JDショッピング',
@@ -3110,6 +3132,8 @@ extension on TranslationsJaJp {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支払日時: ${time}',
 			'chat.orderStatusPending' => '未払い',
 			'chat.orderStatusPaid' => '支払済み',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderStatusRefunded' => '返金済み',
 			'chat.orderStatusExpired' => '期限切れ',
 			'chat.defaultFileName' => 'ファイル',
@@ -3121,8 +3145,6 @@ extension on TranslationsJaJp {
 			'chat.e2eeCreatedAtLabel' => '作成日時',
 			'chat.e2eeGeneratingKey' => 'キーを生成中です。お待ちください...',
 			'chat.e2eeNewKeyGenerated' => '新しいE2EEキーペアを生成しました！',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeReady' => '準備完了',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備完了（シャード ${count} 個）',
 			'chat.webFeatureMultiDevice' => 'マルチデバイス同期',
@@ -3624,6 +3646,8 @@ extension on TranslationsJaJp {
 			'common.whatYourFeedback' => 'フィードバックをお聞かせください',
 			'common.yesterday' => '昨日',
 			'common.yourContactInformation' => 'あなたの連絡先',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmRemove' => '削除を確認',
 			'common.confirmRemoveFromDenylist' => 'このユーザーをブロックリストから削除してもよろしいですか？',
 			'common.buttonRemove' => '削除',
@@ -3635,8 +3659,6 @@ extension on TranslationsJaJp {
 			'common.confirmChange' => '変更を確認',
 			'common.verificationCodeSentToEmail' => '認証コードをこのメールアドレスに送信します。有効期限内に確認を完了してください',
 			'common.verificationCodeSentToMobile' => '認証コードをこの携帯電話に送信します。有効期限内に確認を完了してください',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterCorrectEmailAddress' => '正しいメールアドレスを入力してください',
 			'common.pleaseEnter6DigitVerificationCode' => '6桁の認証コードを入力してください',
 			'common.verificationCodeSent' => '認証コードを送信しました',
@@ -4138,6 +4160,8 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupImportantNoteColon' => '重要なお知らせ：',
 			'common.e2eeBackupKeepSafe' => '• バックアップファイルとパスワードは大切に保管してください',
 			'common.e2eeBackupStoreMultipleLoc' => '• 複数の安全な場所に保管することをお勧めします',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• パスワードは復元できません。必ず保管してください',
 			'common.e2eeBackupImportTitle' => 'E2EEバックアップを読み込む',
 			'common.e2eeBackupImportGuide' => '読み込みの手順',
@@ -4149,8 +4173,6 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupVersionLabel' => 'バージョン',
 			'common.e2eeBackupAlgorithmLabel' => 'アルゴリズム',
 			'common.e2eeBackupFileSizeLabel' => 'ファイルサイズ',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupFileValid' => '✓ ファイル形式は有効です',
 			'common.e2eeBackupImportPwdHint' => 'バックアップ作成時のパスワードを入力',
 			'common.e2eeBackupImportBtn' => 'キーを読み込む',
@@ -4652,6 +4674,8 @@ extension on TranslationsJaJp {
 			'main.markStar' => 'コレクションに追加',
 			'main.markStarDesc' => 'このメッセージをコレクションに追加',
 			'main.markTodo' => 'ToDo',
+			_ => null,
+		} ?? switch (path) {
 			'main.markTodoDesc' => 'ToDo項目としてマーク',
 			'main.multiSelect' => '複数選択',
 			'main.multiSelectMode' => '複数選択モード',
@@ -4663,8 +4687,6 @@ extension on TranslationsJaJp {
 			'main.or' => 'または',
 			'main.otherParty' => '相手',
 			'main.packageSize' => 'パッケージサイズ',
-			_ => null,
-		} ?? switch (path) {
 			'main.peerHasHungUp' => '相手が切断しました',
 			'main.play' => '再生',
 			'main.pleaseInputParam' => ({required Object param}) => '${param}を入力してください',

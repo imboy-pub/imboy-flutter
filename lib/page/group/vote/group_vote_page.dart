@@ -94,11 +94,15 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
           children: [
             const SizedBox(height: AppSpacing.small),
             CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: titleController,
               placeholder: t.groupVote.voteTitle,
             ),
             const SizedBox(height: AppSpacing.regular),
             CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: optionsController,
               maxLines: 4,
               placeholder: t.groupVote.eachOptionPerLine,
@@ -190,16 +194,18 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
       return NoDataView(text: t.groupVote.noVote);
     }
 
-    return RefreshIndicator(
-      onRefresh: () => _loadVotes(refresh: true),
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-        itemCount: _votes.length,
-        itemBuilder: (context, index) {
-          final vote = _votes[index];
-          return _buildVoteItem(vote);
-        },
-      ),
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () => _loadVotes(refresh: true),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final vote = _votes[index];
+            return _buildVoteItem(vote);
+          }, childCount: _votes.length),
+        ),
+      ],
     );
   }
 

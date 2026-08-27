@@ -18,6 +18,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/page/channel/channel_admin_add_rules.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 管理员信息
 class _AdminInfo {
@@ -99,10 +100,8 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
     // 构造已有管理员 ID 集合，用于在选人界面过滤
     final existingIds = _admins.map((a) => a.userId).toList();
 
-    final picked = await showModalBottomSheet<({String userId, int role})>(
+    final picked = await showCupertinoModalPopup<({String userId, int role})>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
       builder: (_) => _ContactPickerSheet(
         existingAdminIds: existingIds,
         channelId: widget.channelId,
@@ -119,26 +118,22 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
       );
       if (!mounted) return;
       if (success) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(t.channel.addAdminSuccess)));
+        AppLoading.showToast(t.channel.addAdminSuccess);
         unawaited(_loadAdmins());
       }
       // 失败提示已由 ChannelApi.addAdmin 透传服务端 msg（AppLoading.showError），无需兜底文案
     } catch (e) {
       iPrint('[ChannelAdmin] 添加管理员失败: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(t.channel.addAdminFailed)));
+        AppLoading.showToast(t.channel.addAdminFailed);
       }
     }
   }
 
   Future<void> _showRoleDialog(_AdminInfo admin) async {
-    final result = await showDialog<int>(
+    final result = await showCupertinoDialog<int>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.channel.changeRole),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -159,7 +154,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
             child: Text(t.common.cancel),
           ),
@@ -177,18 +172,14 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
         );
         if (!mounted) return;
         if (success) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.channel.updateRoleSuccess)));
+          AppLoading.showToast(t.channel.updateRoleSuccess);
           unawaited(_loadAdmins());
         }
         // 失败提示已由 ChannelApi.updateAdminRole 透传服务端 msg，无需兜底文案
       } catch (e) {
         iPrint('[ChannelAdmin] 更新角色失败: $e');
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.channel.updateRoleFailed)));
+          AppLoading.showToast(t.channel.updateRoleFailed);
         }
       }
     }
@@ -210,19 +201,19 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
   }
 
   Future<void> _removeAdmin(_AdminInfo admin) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.channel.removeAdmin),
         content: Text(t.channel.removeAdminConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, false),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
+            isDestructiveAction: true,
             child: Text(t.common.confirm),
           ),
         ],
@@ -234,18 +225,14 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
         final success = await _api.removeAdmin(widget.channelId, admin.userId);
         if (!mounted) return;
         if (success) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.channel.removeAdminSuccess)));
+          AppLoading.showToast(t.channel.removeAdminSuccess);
           unawaited(_loadAdmins());
         }
         // 失败提示已由 ChannelApi.removeAdmin 透传服务端 msg，无需兜底文案
       } catch (e) {
         iPrint('[ChannelAdmin] 移除管理员失败: $e');
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.channel.removeAdminFailed)));
+          AppLoading.showToast(t.channel.removeAdminFailed);
         }
       }
     }
@@ -314,7 +301,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
 
     if (_error != null) {
       return NoDataView(
-        icon: Icons.error_outline,
+        icon: CupertinoIcons.exclamationmark_circle,
         text: _error!,
         onTop: _loadAdmins,
       );
@@ -322,7 +309,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
 
     if (_admins.isEmpty) {
       return NoDataView(
-        icon: Icons.admin_panel_settings_outlined,
+        icon: CupertinoIcons.shield_lefthalf_fill,
         text: t.channel.noAdmins,
       );
     }
@@ -478,9 +465,9 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
   /// 弹出角色选择对话框，返回用户选择的角色值（1/2），取消返回 null。
   Future<int?> _pickRole(BuildContext ctx) {
     final t = ctx.t;
-    return showDialog<int>(
+    return showCupertinoDialog<int>(
       context: ctx,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.channel.selectRole),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -500,7 +487,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
             child: Text(t.common.cancel),
           ),
@@ -545,7 +532,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(CupertinoIcons.xmark_circle_fill),
                   onPressed: () => Navigator.pop(context),
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                 ),
@@ -556,11 +543,13 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: TextField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _searchCtrl,
               autofocus: false,
               decoration: InputDecoration(
                 hintText: t.channel.searchContactsHint,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(CupertinoIcons.search),
                 border: OutlineInputBorder(
                   borderRadius: AppRadius.borderRadiusXLarge,
                   borderSide: BorderSide.none,
@@ -574,7 +563,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
           // 联系人列表
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CupertinoActivityIndicator())
                 : _filtered.isEmpty
                 ? Center(
                     child: Text(

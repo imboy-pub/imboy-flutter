@@ -26,14 +26,18 @@ final _epoch = DateTime(2025, 1, 1);
 
 // ─── 辅助：快速构造 ChannelModel ─────────────────────────────────────────────
 ChannelModel _channel({
-  required ChannelType type,
+  int visibility = 0,
+  int accessType = 0,
+  int? joinPolicy,
   bool isSubscribed = false,
   bool hasPurchased = false,
   ChannelUserRole userRole = ChannelUserRole.none,
 }) => ChannelModel(
   id: 1,
   name: 'test',
-  type: type,
+  visibility: visibility,
+  accessType: accessType,
+  joinPolicy: joinPolicy ?? (accessType == 1 ? 3 : (visibility == 1 ? 1 : 0)),
   creatorId: 0,
   createdAt: _epoch,
   updatedAt: _epoch,
@@ -49,32 +53,50 @@ void main() {
       expect(isPaidChannelLocked(null), isFalse);
     });
 
+    test('缺失或未支持访问策略 → 非管理员锁定（fail-closed）', () {
+      expect(
+        isPaidChannelLocked(
+          _channel(
+            visibility: ChannelModel.unknownAccessPolicy,
+            accessType: ChannelModel.unknownAccessPolicy,
+            joinPolicy: ChannelModel.unknownAccessPolicy,
+          ),
+        ),
+        isTrue,
+      );
+      expect(
+        isPaidChannelLocked(
+          _channel(visibility: 0, accessType: 1, joinPolicy: 0),
+        ),
+        isTrue,
+      );
+    });
+
     test('public channel, not subscribed → false', () {
-      expect(isPaidChannelLocked(_channel(type: ChannelType.public)), isFalse);
+      expect(isPaidChannelLocked(_channel(accessType: 0)), isFalse);
     });
 
     test('private channel, not subscribed → false（仅 paid 才锁）', () {
-      expect(isPaidChannelLocked(_channel(type: ChannelType.private)), isFalse);
+      expect(
+        isPaidChannelLocked(_channel(visibility: 1, accessType: 0)),
+        isFalse,
+      );
     });
 
     test('paid channel, not subscribed, not managed → true', () {
-      expect(isPaidChannelLocked(_channel(type: ChannelType.paid)), isTrue);
+      expect(isPaidChannelLocked(_channel(accessType: 1)), isTrue);
     });
 
     test('paid channel, only isSubscribed=true → true（订阅不能替代购买）', () {
       expect(
-        isPaidChannelLocked(
-          _channel(type: ChannelType.paid, isSubscribed: true),
-        ),
+        isPaidChannelLocked(_channel(accessType: 1, isSubscribed: true)),
         isTrue,
       );
     });
 
     test('paid channel, hasPurchased=true → false（已购买解锁）', () {
       expect(
-        isPaidChannelLocked(
-          _channel(type: ChannelType.paid, hasPurchased: true),
-        ),
+        isPaidChannelLocked(_channel(accessType: 1, hasPurchased: true)),
         isFalse,
       );
     });
@@ -82,7 +104,7 @@ void main() {
     test('paid channel, userRole=admin (isManaged) → false（管理员解锁）', () {
       expect(
         isPaidChannelLocked(
-          _channel(type: ChannelType.paid, userRole: ChannelUserRole.admin),
+          _channel(accessType: 1, userRole: ChannelUserRole.admin),
         ),
         isFalse,
       );
@@ -91,7 +113,7 @@ void main() {
     test('paid channel, userRole=creator (isManaged) → false', () {
       expect(
         isPaidChannelLocked(
-          _channel(type: ChannelType.paid, userRole: ChannelUserRole.creator),
+          _channel(accessType: 1, userRole: ChannelUserRole.creator),
         ),
         isFalse,
       );
@@ -105,26 +127,21 @@ void main() {
     });
 
     test('public channel keeps visitor CTA until followed', () {
+      expect(hasChannelContentAccess(_channel(accessType: 0)), isFalse);
       expect(
-        hasChannelContentAccess(_channel(type: ChannelType.public)),
-        isFalse,
-      );
-      expect(
-        hasChannelContentAccess(
-          _channel(type: ChannelType.public, isSubscribed: true),
-        ),
+        hasChannelContentAccess(_channel(accessType: 0, isSubscribed: true)),
         isTrue,
       );
     });
 
     test('private channel requires subscription', () {
       expect(
-        hasChannelContentAccess(_channel(type: ChannelType.private)),
+        hasChannelContentAccess(_channel(visibility: 1, accessType: 0)),
         isFalse,
       );
       expect(
         hasChannelContentAccess(
-          _channel(type: ChannelType.private, isSubscribed: true),
+          _channel(visibility: 1, accessType: 0, isSubscribed: true),
         ),
         isTrue,
       );
@@ -132,15 +149,11 @@ void main() {
 
     test('paid channel requires purchase even when subscribed', () {
       expect(
-        hasChannelContentAccess(
-          _channel(type: ChannelType.paid, isSubscribed: true),
-        ),
+        hasChannelContentAccess(_channel(accessType: 1, isSubscribed: true)),
         isFalse,
       );
       expect(
-        hasChannelContentAccess(
-          _channel(type: ChannelType.paid, hasPurchased: true),
-        ),
+        hasChannelContentAccess(_channel(accessType: 1, hasPurchased: true)),
         isTrue,
       );
     });
@@ -148,7 +161,7 @@ void main() {
     test('managed channel is handled by the editor empty state', () {
       expect(
         hasChannelContentAccess(
-          _channel(type: ChannelType.paid, userRole: ChannelUserRole.admin),
+          _channel(accessType: 1, userRole: ChannelUserRole.admin),
         ),
         isFalse,
       );

@@ -1,5 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -237,10 +238,8 @@ Future<void> zoomInPhotoView(BuildContext context, String thumb) async {
     }
   }
   if (!context.mounted) return;
-  showModalBottomSheet<void>(
+  showCupertinoModalPopup<void>(
     context: context,
-    isScrollControlled: true,
-    enableDrag: false,
     builder: (context) => GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: PhotoView(imageProvider: thumbProvider),
@@ -261,10 +260,8 @@ Future<void> zoomInPhotoViewGallery(
       cachedImageProvider(e as String, w: size.width.toDouble()),
     );
   }
-  showModalBottomSheet<void>(
+  showCupertinoModalPopup<void>(
     context: context,
-    isScrollControlled: true,
-    enableDrag: false,
     builder: (context) => GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: PhotoViewGallery.builder(
@@ -314,10 +311,8 @@ Future<void> zoomInPhotoViewGalleryWithInitialPage(
   // 确保初始索引在有效范围内
   final validInitialPage = initialPage.clamp(0, items.length - 1);
 
-  showModalBottomSheet<void>(
+  showCupertinoModalPopup<void>(
     context: context,
-    isScrollControlled: true,
-    enableDrag: false,
     builder: (context) => GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: PhotoViewGallery.builder(

@@ -374,7 +374,13 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
             // 使用当前语言环境（响应式更新）
             locale: _currentLocale.flutterLocale,
 
-            builder: AppLoading.init(),
+            // CupertinoPageScaffold 迁移后页面缺 Material 祖先，Text 无显式
+            // 样式时回退到框架黄色双下划线兜底样式。透明 Material 在导航器之上
+            // 恢复全局 DefaultTextStyle/Material 祖先，无视觉影响。
+            builder: (context, child) => AppLoading.init()(
+              context,
+              Material(type: MaterialType.transparency, child: child),
+            ),
             // 使用 Riverpod 主题系统（字体大小变化时会自动重建）
             theme: themeState.isDarkMode
                 ? ref.read(themeProvider.notifier).darkTheme

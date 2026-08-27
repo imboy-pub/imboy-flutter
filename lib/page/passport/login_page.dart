@@ -103,9 +103,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final height = MediaQuery.of(context).size.height;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      body: Stack(
+    return CupertinoPageScaffold(
+      child: Stack(
         children: [
           const Positioned(top: -120, right: -60, child: BezierContainer()),
           SafeArea(
@@ -171,14 +170,14 @@ class _LoginPageState extends ConsumerState<LoginPage>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TextButton(
+                      CupertinoButton(
                         onPressed: () => context.push(AppRoutes.forgotPassword),
                         child: Text(
                           t.account.forgotPassword,
                           style: const TextStyle(color: AppColors.iosGray),
                         ),
                       ),
-                      TextButton(
+                      CupertinoButton(
                         onPressed: () => context.push(AppRoutes.signUp),
                         child: Text(
                           t.account.signup,
@@ -236,6 +235,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
           ),
           AppSpacing.verticalRegular,
           TextField(
+            enableSuggestions: false,
+            autocorrect: false,
             key: const Key('login_password_input'),
             controller: _passwordController,
             obscureText: state.loginPwdObscure,
@@ -324,6 +325,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
             children: [
               Expanded(
                 child: TextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   controller: _mobileCodeController,
                   readOnly: _isLoading,
                   autofillHints: const [AutofillHints.oneTimeCode],
@@ -421,6 +424,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
             children: [
               Expanded(
                 child: TextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   controller: _emailCodeController,
                   readOnly: _isLoading,
                   autofillHints: const [AutofillHints.oneTimeCode],
@@ -532,8 +537,9 @@ class _LoginPageState extends ConsumerState<LoginPage>
     return SizedBox(
       width: double.infinity,
       height: 50,
-      child: ElevatedButton(
+      child: CupertinoButton.filled(
         key: const Key('login_submit_button'),
+        padding: EdgeInsets.zero,
         onPressed: (_isLoading || !isEnabled)
             ? null
             : () {

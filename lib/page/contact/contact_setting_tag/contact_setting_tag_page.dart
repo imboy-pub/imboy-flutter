@@ -110,6 +110,8 @@ class _ContactSettingTagPageState extends ConsumerState<ContactSettingTagPage> {
             children: [
               CupertinoListTile.notched(
                 title: CupertinoTextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   controller: controller.remarkTextController,
                   focusNode: controller.remarkFocusNode,
                   autofocus: true,

@@ -1,7 +1,6 @@
 library;
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:feedback/feedback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
@@ -206,7 +205,9 @@ List<RouteBase> mineRoutes() => [
           if (model == null) {
             return CupertinoPage(
               key: state.pageKey,
-              child: Scaffold(body: Center(child: Text(t.common.dataNotFound))),
+              child: CupertinoPageScaffold(
+                child: Center(child: Text(t.common.dataNotFound)),
+              ),
             );
           }
           return CupertinoPage(

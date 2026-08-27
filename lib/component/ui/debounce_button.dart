@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 /// 防抖按钮组件
 ///
@@ -20,9 +20,6 @@ class DebounceButton extends StatefulWidget {
   /// 点击回调
   final Future<void> Function() onPressed;
 
-  /// 按钮样式
-  final ButtonStyle? style;
-
   /// 是否禁用（外部控制）
   final bool disabled;
 
@@ -42,7 +39,6 @@ class DebounceButton extends StatefulWidget {
     super.key,
     required this.text,
     required this.onPressed,
-    this.style,
     this.disabled = false,
     this.loadingColor,
     this.width,
@@ -78,18 +74,14 @@ class _DebounceButtonState extends State<DebounceButton> {
     return SizedBox(
       width: widget.width,
       height: widget.height,
-      child: ElevatedButton(
-        style: widget.style,
+      child: CupertinoButton.filled(
         onPressed: isDisabled ? null : _handlePress,
         child: _isSubmitting
             ? SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    widget.loadingColor ?? Colors.white,
-                  ),
+                child: CupertinoActivityIndicator(
+                  color: widget.loadingColor ?? CupertinoColors.white,
                 ),
               )
             : Text(widget.text, style: widget.textStyle),

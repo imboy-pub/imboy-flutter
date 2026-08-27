@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:go_router/go_router.dart';
@@ -52,14 +53,13 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
       ),
       child: Material(
         color: AppColors.transparent,
-        child: InkWell(
+        child: GestureDetector(
           onTap: () {
             if (groupId.isNotEmpty && scheduleId.isNotEmpty) {
               final encodedId = Uri.encodeComponent(scheduleId);
               context.push('/group/$groupId/schedule/$encodedId');
             }
           },
-          borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
@@ -68,7 +68,7 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                 Row(
                   children: [
                     const Icon(
-                      Icons.calendar_month,
+                      CupertinoIcons.calendar,
                       color: AppColors.primary,
                       size: 24,
                     ),
@@ -121,7 +121,7 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     const Icon(
-                      Icons.arrow_forward_ios,
+                      CupertinoIcons.chevron_right,
                       size: 12,
                       color: AppColors.iosGray,
                     ),

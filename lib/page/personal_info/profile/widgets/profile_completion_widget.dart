@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../profile_provider.dart';
@@ -157,7 +158,11 @@ class ProfileCompletionWidget extends ConsumerWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.check_circle, color: AppColors.iosGreen, size: 18),
+            const Icon(
+              CupertinoIcons.checkmark_circle,
+              color: AppColors.iosGreen,
+              size: 18,
+            ),
             const SizedBox(width: AppSpacing.small),
             Text(
               t.chat.profileCompleted,
@@ -191,11 +196,10 @@ class ProfileCompletionWidget extends ConsumerWidget {
               .take(3)
               .map(
                 // InkWell 自带 button 语义，无需再包 Semantics（会重复播报）。
-                (suggestion) => InkWell(
+                (suggestion) => GestureDetector(
                   onTap: onSuggestionTap == null
                       ? null
                       : () => onSuggestionTap!(suggestion.key),
-                  borderRadius: BorderRadius.circular(10),
                   // DESIGN.md §11.5：可点击区域最小 44×44pt，
                   // chip 视觉高度只有 ~28pt，靠 minHeight 撑出触达区。
                   child: Container(

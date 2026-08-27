@@ -123,7 +123,7 @@ class SearchBarDelegate extends SearchDelegate<dynamic> {
         child: IconButton(
           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
           icon: Icon(
-            Icons.clear,
+            CupertinoIcons.clear,
             size: 20,
             color: ThemeManager.instance.getThemeColor('textSecondary'),
           ),
@@ -138,7 +138,7 @@ class SearchBarDelegate extends SearchDelegate<dynamic> {
     return IconButton(
       tooltip: t.common.buttonBack,
       icon: Icon(
-        Icons.arrow_back_ios,
+        CupertinoIcons.chevron_left,
         size: 20,
         color: ThemeManager.instance.getThemeColor('textPrimary'),
       ),
@@ -177,10 +177,8 @@ class SearchBarDelegate extends SearchDelegate<dynamic> {
       builder: (context, AsyncSnapshot<dynamic> snapshot) {
         if (!snapshot.hasData) {
           return Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(
-                ThemeManager.instance.getThemeColor('primary'),
-              ),
+            child: CupertinoActivityIndicator(
+              color: ThemeManager.instance.getThemeColor('primary'),
             ),
           );
         }

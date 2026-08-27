@@ -149,56 +149,63 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
     //（0待完成 1进行中 2已提交 3已批改）的枚举混淆。
     final isCompleted = status == 3;
 
-    return RefreshIndicator(
-      onRefresh: _loadDetail,
-      child: ListView(
-        padding: const EdgeInsets.all(AppSpacing.regular),
-        children: [
-          Text(
-            _toText(_task!['title']),
-            style: context.textStyle(
-              FontSizeType.extraLarge,
-              fontWeight: FontWeight.w700,
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(onRefresh: _loadDetail),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.regular),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _toText(_task!['title']),
+                  style: context.textStyle(
+                    FontSizeType.extraLarge,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.small),
+                _iosChip(
+                  isCompleted
+                      ? context.t.groupTask.completed
+                      : context.t.groupTask.pending,
+                  isDark: Theme.of(context).brightness == Brightness.dark,
+                ),
+                const SizedBox(height: AppSpacing.medium),
+                if (_toText(_task!['description']).isNotEmpty)
+                  _InfoLine(
+                    label: context.t.groupTask.taskDescription,
+                    value: _toText(_task!['description']),
+                  ),
+                _InfoLine(
+                  label: context.t.groupTask.deadline,
+                  value: _formatDeadline(_task!['deadline']),
+                ),
+                // 不展示 task_id：那是内部标识（形如 task.5yPMVuT6W5P03.c），
+                // 对用户没有任何意义，只会让详情页看起来像调试面板。
+                _InfoLine(
+                  label: context.t.groupTask.pendingReview,
+                  value: _pendingReviewCount.toString(),
+                ),
+                const SizedBox(height: AppSpacing.regular),
+                if (!isCompleted)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: CupertinoButton.filled(
+                      borderRadius: BorderRadius.circular(12),
+                      onPressed: _isSubmitting ? null : _submitTask,
+                      child: _isSubmitting
+                          ? const CupertinoActivityIndicator()
+                          : Text(context.t.groupTask.submitTask),
+                    ),
+                  ),
+              ],
             ),
           ),
-          const SizedBox(height: AppSpacing.small),
-          _iosChip(
-            isCompleted
-                ? context.t.groupTask.completed
-                : context.t.groupTask.pending,
-            isDark: Theme.of(context).brightness == Brightness.dark,
-          ),
-          const SizedBox(height: AppSpacing.medium),
-          if (_toText(_task!['description']).isNotEmpty)
-            _InfoLine(
-              label: context.t.groupTask.taskDescription,
-              value: _toText(_task!['description']),
-            ),
-          _InfoLine(
-            label: context.t.groupTask.deadline,
-            value: _formatDeadline(_task!['deadline']),
-          ),
-          // 不展示 task_id：那是内部标识（形如 task.5yPMVuT6W5P03.c），
-          // 对用户没有任何意义，只会让详情页看起来像调试面板。
-          _InfoLine(
-            label: context.t.groupTask.pendingReview,
-            value: _pendingReviewCount.toString(),
-          ),
-          const SizedBox(height: AppSpacing.regular),
-          if (!isCompleted)
-            SizedBox(
-              width: double.infinity,
-              height: 44,
-              child: CupertinoButton.filled(
-                borderRadius: BorderRadius.circular(12),
-                onPressed: _isSubmitting ? null : _submitTask,
-                child: _isSubmitting
-                    ? const CupertinoActivityIndicator()
-                    : Text(context.t.groupTask.submitTask),
-              ),
-            ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

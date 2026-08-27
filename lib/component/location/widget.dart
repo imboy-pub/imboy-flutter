@@ -209,9 +209,8 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
   Widget build(BuildContext context) {
     final widthMax = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
+    return CupertinoPageScaffold(
+      child: Stack(
         children: [
           // 背景层：地图 + FAB
           Column(
@@ -238,7 +237,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                           initialData: true,
                           builder: (context, snapshot) {
                             return Icon(
-                              Icons.gps_fixed,
+                              CupertinoIcons.location,
                               size: 26,
                               color: snapshot.data!
                                   ? AppColors.primary
@@ -274,7 +273,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                 child: _frostedIconButton(
                                   onTap: () => Navigator.of(context).pop(),
                                   icon: Icon(
-                                    Icons.arrow_back_ios_new,
+                                    CupertinoIcons.chevron_left,
                                     size: 18,
                                     color: AppColors.getIosBlue(
                                       Theme.of(context).brightness,
@@ -306,8 +305,8 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
             builder: (context, scrollController) {
               final brightness = Theme.of(context).brightness;
               return ClipRRect(
-                // 顶部圆角：这是贴底部的面板，只有上边缘该圆角，四角全圆是错误语义
                 borderRadius: AppRadius.bottomSheet,
+                // 顶部圆角：这是贴底部的面板，只有上边缘该圆角，四角全圆是错误语义
                 child: ColoredBox(
                   color: Theme.of(context).colorScheme.surface,
                   child: StreamBuilder<List<AMapPosition>>(
@@ -365,18 +364,20 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                             ? widthMax * .8
                                             : widthMax,
                                         decoration: BoxDecoration(
-                                          borderRadius: widget
-                                              .searchBarStyle
-                                              .borderRadius,
                                           color: Theme.of(
                                             context,
                                           ).colorScheme.surface,
+                                          borderRadius: widget
+                                              .searchBarStyle
+                                              .borderRadius,
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.only(
                                             left: 10,
                                           ),
                                           child: TextField(
+                                            enableSuggestions: false,
+                                            autocorrect: false,
                                             focusNode: focusNode,
                                             keyboardType: TextInputType.text,
                                             controller: _searchQueryController,
@@ -390,7 +391,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                             ),
                                             decoration: InputDecoration(
                                               icon: Icon(
-                                                Icons.search,
+                                                CupertinoIcons.search,
                                                 size: 20,
                                                 color: AppColors.getTextColor(
                                                   brightness,
@@ -496,10 +497,8 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                         );
                       }
                       return Center(
-                        child: CircularProgressIndicator(
-                          // 之前用 onPrimary（配合主色背景才有效）画在普通 surface
-                          // 背景上，浅色主题下近乎不可见
-                          valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                        child: CupertinoActivityIndicator(
+                          color: AppColors.primary,
                         ),
                       );
                     },
@@ -555,11 +554,10 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
     final enabled = _sendMsg != null;
     return Material(
       color: enabled ? AppColors.primary : AppColors.iosGray3,
+      borderRadius: AppRadius.borderRadiusRegular,
       elevation: enabled ? 2 : 0,
       shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.2),
-      borderRadius: AppRadius.borderRadiusRegular,
-      child: InkWell(
-        borderRadius: AppRadius.borderRadiusRegular,
+      child: GestureDetector(
         onTap: _handleSend,
         child: Container(
           constraints: const BoxConstraints(minWidth: 64, minHeight: 44),

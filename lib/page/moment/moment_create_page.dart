@@ -1046,7 +1046,7 @@ class _MediaThumb extends StatelessWidget {
         ),
       );
     }
-    return const Icon(Icons.broken_image_outlined);
+    return const Icon(CupertinoIcons.photo);
   }
 }
 

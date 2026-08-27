@@ -24,6 +24,7 @@ import 'widgets/channel_header_bar.dart';
 import 'widgets/channel_message_feed.dart';
 import 'widgets/channel_publish_bar.dart';
 import 'paid/channel_paywall_view.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 频道详情页（壳页面）
 ///
@@ -245,11 +246,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     return [
       PopupMenuButton<String>(
-        icon: const Icon(Icons.more_vert),
+        icon: const Icon(CupertinoIcons.ellipsis_vertical),
         tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
+        shape: RoundedRectangleBorder(),
         color: Theme.of(context).brightness == Brightness.dark
             ? AppColors.darkSurfaceContainerHighest
             : AppColors.lightSurface,
@@ -309,7 +308,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       items.add(
         _buildPopupMenuItem(
           value: 'show_channel_info',
-          icon: Icons.info_outline,
+          icon: CupertinoIcons.info_circle,
           text: isChinese ? '频道信息' : 'Channel Info',
         ),
       );
@@ -327,7 +326,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       items.add(
         _buildPopupMenuItem(
           value: 'manage_admins',
-          icon: Icons.add,
+          icon: CupertinoIcons.add,
           text: isChinese ? '邀请管理员' : 'Invite Admins',
         ),
       );
@@ -336,7 +335,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       items.add(
         _buildPopupMenuItem(
           value: 'edit_channel',
-          icon: Icons.settings_outlined,
+          icon: CupertinoIcons.gear,
           text: isChinese ? '频道设置' : 'Channel Settings',
         ),
       );
@@ -346,7 +345,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       items.add(
         _buildPopupMenuItem(
           value: 'show_channel_info',
-          icon: Icons.info_outline,
+          icon: CupertinoIcons.info_circle,
           text: isChinese ? '频道信息' : 'Channel Info',
         ),
       );
@@ -372,7 +371,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       }
 
       // 4. My Orders
-      if (channel.type == ChannelType.paid &&
+      if (channel.isPaid &&
           AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder)) {
         items.add(
           _buildPopupMenuItem(
@@ -476,7 +475,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   Widget _buildErrorView(String error) {
     // 与空态统一走 NoDataView，避免同一 App 内失败态样式各写一套。
     return NoDataView(
-      icon: Icons.error_outline,
+      icon: CupertinoIcons.exclamationmark_circle,
       text: error,
       onTop: () => ref
           .read(channelDetailProvider.notifier)
@@ -488,34 +487,30 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   void _showDeleteChannelDialog(ChannelModel channel) {
     final t = context.t;
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => CupertinoAlertDialog(
         title: Text(t.channel.deleteChannel),
         content: Text(t.channel.deleteChannelConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(dialogContext),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () async {
               Navigator.pop(dialogContext);
               final success = await _channelService.deleteChannel(
                 channel.id.toString(),
               );
               if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.channel.channelDeleted)),
-                );
+                AppLoading.showToast(t.channel.channelDeleted);
                 context.pop();
               } else if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.channel.deleteChannelFailed)),
-                );
+                AppLoading.showToast(t.channel.deleteChannelFailed);
               }
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
+            isDestructiveAction: true,
             child: Text(t.common.confirm),
           ),
         ],
@@ -559,17 +554,17 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     if (channel.isSubscribed) {
       // 已订阅 → 确认退订
-      final confirmed = await showDialog<bool>(
+      final confirmed = await showCupertinoDialog<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
+        builder: (ctx) => CupertinoAlertDialog(
           title: Text(t.channel.unsubscribeConfirm),
           content: Text(t.channel.unsubscribeConfirmDesc),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(t.common.cancel),
             ),
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(t.common.confirm),
             ),
@@ -586,9 +581,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         await _loadStats(channelId);
         // 与订阅成功/发现页退订保持对称的成功反馈（M9）
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.common.tipSuccess)));
+          AppLoading.showToast(t.common.tipSuccess);
         }
       }
       // 失败分支不再叠兜底文案：后端中文原因已由 ChannelApi.unsubscribe 透出
@@ -602,9 +595,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         _statsRequestedChannelId = null;
         await _loadStats(channelId);
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(t.channel.subscribeSuccess)));
+          AppLoading.showToast(t.channel.subscribeSuccess);
         }
       }
       // 失败分支不再叠兜底文案：后端中文原因已由 ChannelApi.subscribe 透出
@@ -653,10 +644,12 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         final invitationEnabled = AppFeatureRegistry.isEnabled(
           FeatureKeys.channelInvitation,
         );
-        final isPrivate = channel?.type == ChannelType.private;
+        final canInvite =
+            channel?.isPrivate == true &&
+            (channel?.joinPolicy == 1 || channel?.joinPolicy == 3);
         context.push(
           '/channel/$channelId/subscribers',
-          extra: {'canInvite': invitationEnabled && isPrivate},
+          extra: {'canInvite': invitationEnabled && canInvite},
         );
         break;
     }
@@ -668,12 +661,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     final hasAvatar = channel.avatar != null && channel.avatar!.isNotEmpty;
     final subscriberCount = _stats?.subscriberCount ?? channel.subscriberCount;
 
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
+      builder: (context) => CupertinoAlertDialog(
         title: Row(
           children: [
             if (hasAvatar)
@@ -682,7 +672,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 backgroundImage: cachedImageProvider(channel.avatar!),
               )
             else
-              const CircleAvatar(radius: 20, child: Icon(Icons.campaign)),
+              const CircleAvatar(
+                radius: 20,
+                child: Icon(CupertinoIcons.speaker_2),
+              ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -711,7 +704,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           ],
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
             child: Text(context.t.common.ok),
           ),
@@ -742,12 +735,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     final t = context.t;
     final shareLink = '$webBaseUrl/channel/${channel.id}';
 
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
-      showDragHandle: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -769,9 +758,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               onTap: () {
                 Clipboard.setData(ClipboardData(text: shareLink));
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.main.copiedToClipboard)),
-                );
+                AppLoading.showToast(t.main.copiedToClipboard);
               },
             ),
             ListTile(

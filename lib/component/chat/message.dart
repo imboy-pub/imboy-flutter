@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart'
     hide VideoMessageBuilder, AudioMessageBuilder;
@@ -241,7 +242,7 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
           children: [
             Row(
               children: [
-                Icon(Icons.insert_drive_file, size: 16, color: txtColor),
+                Icon(CupertinoIcons.doc, size: 16, color: txtColor),
                 const SizedBox(width: 8),
                 Text(
                   "[${t.chat.file}] $sizeStr",
@@ -276,7 +277,8 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
             highlightColor: Colors.grey[100]!,
             child: Container(color: Colors.white),
           ),
-          errorBuilder: (context, error, stacktrace) => const Icon(Icons.error),
+          errorBuilder: (context, error, stacktrace) =>
+              const Icon(CupertinoIcons.exclamationmark_circle),
         );
       } else {
         content = const SizedBox.shrink();
@@ -301,17 +303,17 @@ void showTextMessage(String text) {
 void confirmOpenFile(BuildContext context, String uri) {
   showDialog<void>(
     context: context,
-    builder: (context) => AlertDialog(
+    builder: (context) => CupertinoAlertDialog(
       content: SizedBox(
         height: 40,
         child: Center(child: Text(t.chat.sureOpenTheFile)),
       ),
       actions: [
-        TextButton(
+        CupertinoButton(
           child: Text(t.common.buttonCancel),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        TextButton(
+        CupertinoButton(
           child: Text(t.common.buttonConfirm),
           onPressed: () async {
             Navigator.of(context).pop();

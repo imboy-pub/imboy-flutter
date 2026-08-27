@@ -236,107 +236,129 @@ class _GroupScheduleDetailPageState
     final location = _toText(schedule['location']);
     final description = _toText(schedule['description']);
 
-    return RefreshIndicator(
-      onRefresh: _loadDetail,
-      child: ListView(
-        padding: const EdgeInsets.all(AppSpacing.regular),
-        children: [
-          Text(
-            _toText(schedule['title']),
-            style: context.textStyle(
-              FontSizeType.extraLarge,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.small),
-          _iosChip(
-            isCancelled
-                ? context.t.groupSchedule.statusCancelled
-                : isEnded
-                ? context.t.groupSchedule.statusEnded
-                : isNotStarted
-                ? context.t.groupSchedule.statusNotStarted
-                : context.t.groupSchedule.statusInProgress,
-            isDark: Theme.of(context).brightness == Brightness.dark,
-          ),
-          const SizedBox(height: AppSpacing.medium),
-          _InfoLine(label: context.t.groupSchedule.startTime, value: startTime),
-          _InfoLine(label: context.t.groupSchedule.endTime, value: endTime),
-          if (location.isNotEmpty)
-            _InfoLine(label: context.t.groupSchedule.location, value: location),
-          if (description.isNotEmpty)
-            _InfoLine(
-              label: context.t.groupTask.taskDescription,
-              value: description,
-            ),
-          const SizedBox(height: AppSpacing.medium),
-          _InfoLine(
-            label: context.t.groupSchedule.participants,
-            value: _toInt(_detail!['participant_count']).toString(),
-          ),
-          if (participants.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.small),
-            Text(
-              context.t.group.groupMembers,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: AppSpacing.small),
-            ...participants
-                .take(20)
-                .map(
-                  (item) => ListTile(
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(CupertinoIcons.person, size: 18),
-                    title: Text(resolveParticipantName(item, _memberNames)),
-                  ),
-                ),
-          ],
-          const SizedBox(height: AppSpacing.regular),
-          if (isActionable)
-            Row(
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(onRefresh: _loadDetail),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.regular),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: CupertinoButton.filled(
-                    borderRadius: BorderRadius.circular(12),
-                    onPressed: _isSubmitting ? null : () => _confirm(true),
-                    child: Text(context.t.groupSchedule.confirmAttend),
+                Text(
+                  _toText(schedule['title']),
+                  style: context.textStyle(
+                    FontSizeType.extraLarge,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.medium),
-                Expanded(
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    borderRadius: BorderRadius.circular(12),
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.darkSurface
-                        : AppColors.lightSurfaceContainer,
-                    onPressed: _isSubmitting ? null : () => _confirm(false),
-                    child: Text(context.t.groupSchedule.declineAttend),
-                  ),
+                const SizedBox(height: AppSpacing.small),
+                _iosChip(
+                  isCancelled
+                      ? context.t.groupSchedule.statusCancelled
+                      : isEnded
+                      ? context.t.groupSchedule.statusEnded
+                      : isNotStarted
+                      ? context.t.groupSchedule.statusNotStarted
+                      : context.t.groupSchedule.statusInProgress,
+                  isDark: Theme.of(context).brightness == Brightness.dark,
                 ),
+                const SizedBox(height: AppSpacing.medium),
+                _InfoLine(
+                  label: context.t.groupSchedule.startTime,
+                  value: startTime,
+                ),
+                _InfoLine(
+                  label: context.t.groupSchedule.endTime,
+                  value: endTime,
+                ),
+                if (location.isNotEmpty)
+                  _InfoLine(
+                    label: context.t.groupSchedule.location,
+                    value: location,
+                  ),
+                if (description.isNotEmpty)
+                  _InfoLine(
+                    label: context.t.groupTask.taskDescription,
+                    value: description,
+                  ),
+                const SizedBox(height: AppSpacing.medium),
+                _InfoLine(
+                  label: context.t.groupSchedule.participants,
+                  value: _toInt(_detail!['participant_count']).toString(),
+                ),
+                if (participants.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.small),
+                  Text(
+                    context.t.group.groupMembers,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: AppSpacing.small),
+                  ...participants
+                      .take(20)
+                      .map(
+                        (item) => ListTile(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(CupertinoIcons.person, size: 18),
+                          title: Text(
+                            resolveParticipantName(item, _memberNames),
+                          ),
+                        ),
+                      ),
+                ],
+                const SizedBox(height: AppSpacing.regular),
+                if (isActionable)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CupertinoButton.filled(
+                          borderRadius: BorderRadius.circular(12),
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => _confirm(true),
+                          child: Text(context.t.groupSchedule.confirmAttend),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.medium),
+                      Expanded(
+                        child: CupertinoButton(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          borderRadius: BorderRadius.circular(12),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppColors.darkSurface
+                              : AppColors.lightSurfaceContainer,
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => _confirm(false),
+                          child: Text(context.t.groupSchedule.declineAttend),
+                        ),
+                      ),
+                    ],
+                  ),
+                if (isActionable) const SizedBox(height: AppSpacing.medium),
+                if (isActionable)
+                  SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.iosRed.withValues(alpha: 0.1),
+                      onPressed: _isSubmitting ? null : _cancelSchedule,
+                      child: Text(
+                        context.t.groupSchedule.cancelSchedule,
+                        style: context.textStyle(
+                          FontSizeType.body,
+                          color: AppColors.iosRed,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
-          if (isActionable) const SizedBox(height: AppSpacing.medium),
-          if (isActionable)
-            SizedBox(
-              width: double.infinity,
-              child: CupertinoButton(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                borderRadius: BorderRadius.circular(12),
-                color: AppColors.iosRed.withValues(alpha: 0.1),
-                onPressed: _isSubmitting ? null : _cancelSchedule,
-                child: Text(
-                  context.t.groupSchedule.cancelSchedule,
-                  style: context.textStyle(
-                    FontSizeType.body,
-                    color: AppColors.iosRed,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 }

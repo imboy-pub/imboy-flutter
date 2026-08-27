@@ -212,7 +212,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
             children: [
               _buildActionButton(
                 context: context,
-                icon: Icons.reply,
+                icon: CupertinoIcons.arrowshape_turn_up_left,
                 label: t.main.quote,
                 // 本菜单所有动作一律 "先关菜单、再执行"。
                 // 反过来（先执行再关）时，onClose 里的 Navigator.pop() 会把
@@ -228,7 +228,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               ),
               _buildActionButton(
                 context: context,
-                icon: Icons.copy,
+                icon: CupertinoIcons.doc_on_doc,
                 label: t.common.buttonCopy,
                 onTap: () {
                   HapticFeedback.lightImpact();
@@ -238,7 +238,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               ),
               _buildActionButton(
                 context: context,
-                icon: Icons.moving,
+                icon: CupertinoIcons.arrow_up_right,
                 label: t.chat.forward,
                 onTap: () {
                   HapticFeedback.lightImpact();
@@ -249,7 +249,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               if (widget.onCollect != null)
                 _buildActionButton(
                   context: context,
-                  icon: Icons.collections_bookmark,
+                  icon: CupertinoIcons.bookmark_fill,
                   label: t.main.favorites,
                   onTap: () {
                     HapticFeedback.lightImpact();
@@ -269,7 +269,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               if (widget.onSave != null)
                 _buildActionButton(
                   context: context,
-                  icon: Icons.save_alt,
+                  icon: CupertinoIcons.arrow_down_to_line,
                   label: t.common.buttonSave,
                   onTap: () {
                     HapticFeedback.lightImpact();
@@ -284,7 +284,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 if (widget.onRetry != null)
                   _buildActionButton(
                     context: context,
-                    icon: Icons.refresh,
+                    icon: CupertinoIcons.arrow_clockwise,
                     label: t.common.buttonRetry,
                     onTap: () {
                       HapticFeedback.lightImpact();
@@ -296,7 +296,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 if (widget.canEdit)
                   _buildActionButton(
                     context: context,
-                    icon: Icons.edit,
+                    icon: CupertinoIcons.pencil,
                     label: t.common.edit,
                     onTap: () {
                       HapticFeedback.lightImpact();
@@ -308,7 +308,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 if (widget.onRevoke != null)
                   _buildActionButton(
                     context: context,
-                    icon: Icons.layers_clear_rounded,
+                    icon: CupertinoIcons.square_stack,
                     label: t.chat.revoke,
                     onTap: () {
                       HapticFeedback.lightImpact();
@@ -319,7 +319,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 // 删除按钮（发送者：可选择删除所有人或仅自己）
                 _buildActionButton(
                   context: context,
-                  icon: Icons.delete,
+                  icon: CupertinoIcons.delete,
                   label: t.common.buttonDelete,
                   onTap: () {
                     HapticFeedback.lightImpact();
@@ -331,7 +331,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 // 接收者：举报此条消息（合规入口）
                 _buildActionButton(
                   context: context,
-                  icon: Icons.flag_outlined,
+                  icon: CupertinoIcons.flag,
                   label: t.complaint.complaint,
                   onTap: () {
                     HapticFeedback.lightImpact();
@@ -342,7 +342,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                 // 接收者：仅可删除自己看到的消息
                 _buildActionButton(
                   context: context,
-                  icon: Icons.delete,
+                  icon: CupertinoIcons.delete,
                   label: t.common.deleteForMe,
                   onTap: () {
                     HapticFeedback.lightImpact();
@@ -404,8 +404,12 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   ),
                 ),
                 const SizedBox(height: 6),
+                // 换行优先于省略号（与 conversation/right_button 同一准则）：
+                // 德语等长文案或大字号下，两行承接比截断更可读；
+                // 面板高度随内容自适应，不会溢出。
                 Text(
                   label,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: FontSizeType.caption2.size,
                     color: isDestructive
@@ -413,7 +417,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                         : Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -477,10 +481,10 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
     final t = context.t;
     if (widget.isSentByMe) {
       // 发送者：可选择删除所有人或仅自己
-      showDialog<void>(
+      showCupertinoDialog<void>(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
+          return CupertinoAlertDialog(
             title: Text(t.common.buttonDelete),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -514,7 +518,8 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               ],
             ),
             actions: [
-              TextButton(
+              CupertinoButton(
+                padding: EdgeInsets.zero,
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -526,31 +531,33 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
       );
     } else {
       // 接收者：仅可删除自己看到的
-      showDialog<void>(
+      showCupertinoDialog<void>(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
+          return CupertinoAlertDialog(
             title: Text(t.common.buttonDelete),
             content: Text(t.common.chatDeleteConfirm),
             actions: [
-              TextButton(
+              CupertinoButton(
+                padding: EdgeInsets.zero,
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
                 child: Text(t.common.buttonCancel),
               ),
-              TextButton(
+              CupertinoButton(
+                padding: EdgeInsets.zero,
                 onPressed: () {
                   Navigator.of(context).pop();
                   widget.onDelete();
                   widget.onClose?.call();
                 },
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.getIosRed(
-                    Theme.of(context).brightness,
+                child: Text(
+                  t.common.buttonDelete,
+                  style: TextStyle(
+                    color: AppColors.getIosRed(Theme.of(context).brightness),
                   ),
                 ),
-                child: Text(t.common.buttonDelete),
               ),
             ],
           );
@@ -578,9 +585,8 @@ void showMessageActionMenu({
   VoidCallback? onRetry, // 新增：重试回调
   bool canEdit = false,
 }) {
-  showModalBottomSheet<void>(
+  showCupertinoModalPopup<void>(
     context: context,
-    backgroundColor: AppColors.transparent,
     builder: (BuildContext context) {
       return Container(
         margin: AppSpacing.allRegular,

@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -156,7 +157,7 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
       backgroundColor: AppColors.getSurfaceGrouped(
         Theme.of(context).brightness,
       ),
-      appBar: AppBar(title: Text(t.common.transferSend)),
+      appBar: GlassAppBar(title: t.common.transferSend),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Form(
@@ -185,6 +186,8 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
               // 备注
               WalletFieldCard(
                 child: TextFormField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   controller: _remarkController,
                   decoration: walletInputDecoration(
                     hint: t.common.transferRemarkLabel,

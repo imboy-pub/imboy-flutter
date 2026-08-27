@@ -19,6 +19,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import '../chat_provider.dart';
 import '../../widget/chat_input.dart';
 import 'package:imboy/page/chat/chat/agent_task_ephemeral_state_notifier.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 聊天事件订阅管理器
 ///
@@ -490,9 +491,7 @@ class ChatEventSubscriptionManager {
   /// 显示错误 SnackBar（需要由调用者提供 BuildContext）
   /// 3 秒后自动消失，无需额外确认按钮（避免出现"点了无反应"的伪按钮）
   void showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
-    );
+    AppLoading.showToast(message);
   }
 
   /// 取消所有订阅

@@ -163,7 +163,7 @@ final class CreateChannelNotifierProvider
 }
 
 String _$createChannelNotifierHash() =>
-    r'4bbb5c31fc1edf01450fd8aeca590d3298e4f56a';
+    r'c106ae0b02ba0eb93c21e14d50e4eec177d15109';
 
 /// 创建频道 Notifier
 

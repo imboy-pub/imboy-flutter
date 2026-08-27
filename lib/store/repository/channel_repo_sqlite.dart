@@ -20,7 +20,9 @@ class ChannelRepo {
   static const String name = 'name';
   static const String description = 'description';
   static const String avatar = 'avatar';
-  static const String type = 'type';
+  static const String visibility = 'visibility';
+  static const String accessType = 'access_type';
+  static const String joinPolicy = 'join_policy';
   static const String customId = 'custom_id';
   static const String creatorId = 'creator_id';
   static const String subscriberCount = 'subscriber_count';

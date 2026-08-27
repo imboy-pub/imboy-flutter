@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -44,7 +45,7 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.warning_amber_rounded,
+            CupertinoIcons.exclamationmark_triangle,
             size: 16,
             color: AppColors.iosOrange,
           ),

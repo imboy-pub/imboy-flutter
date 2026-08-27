@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -50,15 +51,15 @@ Future<void> showE2EERecoveryGuide(
 
   return showDialog<void>(
     context: context,
-    builder: (ctx) => AlertDialog(
+    builder: (ctx) => CupertinoAlertDialog(
       title: Text(title),
       content: Text(content),
       actions: [
-        TextButton(
+        CupertinoButton(
           onPressed: () => Navigator.of(ctx).pop(),
           child: Text(t.chat.e2eeRecoveryLater),
         ),
-        TextButton(
+        CupertinoButton(
           onPressed: () {
             Navigator.of(ctx).pop();
             ctx.push('/e2ee_key_recovery');
@@ -88,7 +89,7 @@ class E2EERecoveryBanner extends StatelessWidget {
     ).textTheme.bodySmall?.copyWith(color: scheme.onSecondaryContainer);
     return Material(
       color: scheme.secondaryContainer,
-      child: InkWell(
+      child: GestureDetector(
         onTap: () => context.push('/e2ee_key_recovery'),
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -98,7 +99,7 @@ class E2EERecoveryBanner extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                Icons.lock_clock_outlined,
+                CupertinoIcons.lock,
                 size: 20,
                 color: scheme.onSecondaryContainer,
               ),
@@ -111,7 +112,7 @@ class E2EERecoveryBanner extends StatelessWidget {
                 onTap: onDismiss,
                 behavior: HitTestBehavior.opaque,
                 child: Icon(
-                  Icons.close,
+                  CupertinoIcons.xmark_circle_fill,
                   size: 18,
                   color: scheme.onSecondaryContainer,
                 ),

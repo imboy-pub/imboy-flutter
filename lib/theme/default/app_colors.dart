@@ -382,6 +382,12 @@ class AppColors {
   /// 5% 黑叠层（= Colors.black.withValues(alpha:0.05)）卡片悬浮底色
   static const Color overlayBlack5 = Color(0x0D000000);
 
+  /// 8% 黑叠层（= Colors.black.withValues(alpha:0.08)）浮层柔光阴影（DESIGN.md §5.2）
+  static const Color overlayBlack8 = Color(0x14000000);
+
+  /// 10% 黑叠层（= Colors.black.withValues(alpha:0.10)）弹层遮罩
+  static const Color overlayBlack10 = Color(0x1A000000);
+
   static double getContrastRatio(Color c1, Color c2) {
     double l1 = _getLuminance(c1), l2 = _getLuminance(c2);
     return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05);

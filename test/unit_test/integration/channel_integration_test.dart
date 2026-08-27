@@ -119,7 +119,9 @@ void main() {
             'id': 1001,
             'name': '稳定测试频道',
             'description': 'for ci',
-            'type': 1,
+            'visibility': 1,
+            'access_type': 0,
+            'join_policy': 1,
             'custom_id': 'stable_channel_1001',
             'creator_uid': 9001,
             'subscriber_count': 9,
@@ -158,7 +160,9 @@ void main() {
                 'id': 1001,
                 'name': '稳定测试频道',
                 'description': 'for ci',
-                'type': 1,
+                'visibility': 1,
+                'access_type': 0,
+                'join_policy': 1,
                 'custom_id': 'stable_channel_1001',
                 'creator_uid': 9001,
                 'subscriber_count': 10,
@@ -190,13 +194,15 @@ void main() {
         final created = await api.createChannel(
           name: '稳定测试频道',
           description: 'for ci',
-          type: 1,
+          visibility: 1,
+          accessType: 0,
+          joinPolicy: 1,
           customId: 'stable_channel_1001',
           tags: const ['ci', 'channel'],
         );
         expect(created, isNotNull);
         expect(created!.id, 1001);
-        expect(created.type, ChannelType.private);
+        expect(created.visibility, 1);
         final createReq = api.lastRequest();
         expect(createReq.method, 'POST');
         expect(createReq.path, '/api/v1/channel/create');
@@ -204,6 +210,9 @@ void main() {
           (createReq.data as Map<String, dynamic>)['custom_id'],
           'stable_channel_1001',
         );
+        expect((createReq.data as Map<String, dynamic>)['visibility'], 1);
+        expect((createReq.data as Map<String, dynamic>)['access_type'], 0);
+        expect((createReq.data as Map<String, dynamic>)['join_policy'], 1);
         expect((createReq.data as Map<String, dynamic>)['tags'], [
           'ci',
           'channel',
@@ -439,7 +448,9 @@ void main() {
         'name': 'Test Channel',
         'description': 'A test channel',
         'avatar': 'https://example.com/avatar.jpg',
-        'type': 0,
+        'visibility': 0,
+        'access_type': 0,
+        'join_policy': 0,
         'custom_id': 'test_channel',
         'creator_id': 123,
         'subscriber_count': 100,
@@ -452,7 +463,7 @@ void main() {
       final model = ChannelModel.fromJson(json);
       expect(model.id, 1001);
       expect(model.name, 'Test Channel');
-      expect(model.type, ChannelType.public);
+      expect(model.visibility, 0);
       expect(model.subscriberCount, 100);
       expect(model.isVerified, isTrue);
       expect(model.tags, ['news', 'tech']);
@@ -468,7 +479,9 @@ void main() {
         'name': 'Mixed Channel',
         'description': 12345,
         'avatar': '',
-        'type': '2',
+        'visibility': '0',
+        'access_type': '1',
+        'join_policy': '3',
         'custom_id': 667,
         'creator_uid': 9001,
         'subscriber_count': '88',
@@ -485,7 +498,7 @@ void main() {
       expect(model.name, 'Mixed Channel');
       expect(model.description, '12345');
       expect(model.avatar, isNull);
-      expect(model.type, ChannelType.paid);
+      expect(model.accessType, 1);
       expect(model.customId, '667');
       expect(model.creatorId, 9001);
       expect(model.subscriberCount, 88);

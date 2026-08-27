@@ -17,6 +17,7 @@ import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 
 import 'channel_provider.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 创建频道页面
 class ChannelCreatePage extends ConsumerStatefulWidget {
@@ -35,13 +36,20 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
   final _scrollController = ScrollController();
   MediaPickerCapability get _picker =>
       CapabilityLocator.I.get<MediaPickerCapability>();
-  int _selectedType = 0;
-  bool _isPublic = true;
+  int _visibility = 0; // 0=public, 1=private
+  int _accessType = 0; // 0=free, 1=paid
   bool _isUploadingAvatar = false;
   String? _avatarUrl;
   File? _avatarFile;
   final List<String> _tags = [];
   static const int _maxTags = 8;
+
+  /// 根据 visibility + accessType 计算 join_policy
+  int get _joinPolicy {
+    if (_accessType == 1) return 3; // paid → purchase
+    if (_visibility == 1) return 1; // private + free → invite
+    return 0; // public + free → open
+  }
 
   @override
   void dispose() {
@@ -67,7 +75,9 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
       customId: _customIdController.text.trim().isNotEmpty
           ? _customIdController.text.trim()
           : null,
-      type: _selectedType,
+      visibility: _visibility,
+      accessType: _accessType,
+      joinPolicy: _joinPolicy,
       avatar: _avatarUrl,
       tags: _tags.isEmpty ? null : _tags,
     );
@@ -98,9 +108,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
     } catch (e) {
       iPrint('[ChannelCreate] 上传头像失败: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.common.uploadFailed)));
+      AppLoading.showToast(context.t.common.uploadFailed);
     }
   }
 
@@ -142,14 +150,12 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
     });
 
     if (!success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.common.uploadFailed)));
+      AppLoading.showToast(context.t.common.uploadFailed);
     }
   }
 
   void _showAvatarPicker() {
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -184,9 +190,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
       return;
     }
     if (_tags.length >= _maxTags) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.contact.channelMaxTagsCount)));
+      AppLoading.showToast(t.contact.channelMaxTagsCount);
       return;
     }
     setState(() => _tags.add(tag));
@@ -195,6 +199,18 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
 
   void _removeTag(String tag) {
     setState(() => _tags.remove(tag));
+  }
+
+  /// 根据可见性和付费属性生成频道类型描述
+  String _buildChannelTypeDesc(Translations t) {
+    if (_accessType == 1) {
+      return _visibility == 0
+          ? t.channel.typePublicPaidDesc
+          : t.channel.typePrivatePaidDesc;
+    }
+    return _visibility == 0
+        ? t.channel.typePublicDesc
+        : t.channel.typePrivateDesc;
   }
 
   @override
@@ -208,13 +224,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
         FocusScope.of(context).unfocus();
 
         // Show Snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: AppColors.iosRed,
-            duration: const Duration(seconds: 4),
-          ),
-        );
+        AppLoading.showToast(next.error!);
 
         // Scroll to the bottom to make sure the error container at the bottom is visible
         Future.delayed(const Duration(milliseconds: 100), () {
@@ -268,9 +278,8 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
             ),
             AppSpacing.verticalSmall,
             Center(
-              child: InkWell(
+              child: GestureDetector(
                 onTap: _isUploadingAvatar ? null : _showAvatarPicker,
-                borderRadius: BorderRadius.circular(48),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -281,7 +290,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                           ? FileImage(_avatarFile!)
                           : null,
                       child: _avatarFile == null
-                          ? const Icon(Icons.camera_alt_outlined, size: 30)
+                          ? const Icon(CupertinoIcons.camera, size: 30)
                           : null,
                     ),
                     if (_isUploadingAvatar)
@@ -298,7 +307,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                           child: SizedBox(
                             width: 24,
                             height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CupertinoActivityIndicator(),
                           ),
                         ),
                       ),
@@ -313,7 +322,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: const Icon(
-                          Icons.edit,
+                          CupertinoIcons.pencil,
                           size: 16,
                           color: AppColors.onPrimary,
                         ),
@@ -327,12 +336,14 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
 
             // 频道名称
             TextFormField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _nameController,
               decoration: InputDecoration(
                 labelText: t.channel.nameLabel,
                 hintText: t.channel.nameHint,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.campaign),
+                prefixIcon: const Icon(CupertinoIcons.speaker_2),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -349,12 +360,14 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
 
             // 频道描述
             TextFormField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _descriptionController,
               decoration: InputDecoration(
                 labelText: t.channel.descriptionLabel,
                 hintText: t.channel.descriptionHint,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.description_outlined),
+                prefixIcon: const Icon(CupertinoIcons.doc_text),
                 alignLabelWithHint: true,
               ),
               maxLines: 3,
@@ -364,12 +377,14 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
 
             // 自定义 ID
             TextFormField(
+              enableSuggestions: false,
+              autocorrect: false,
               controller: _customIdController,
               decoration: InputDecoration(
                 labelText: t.channel.customIdLabel,
                 hintText: t.channel.customIdHint,
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.alternate_email),
+                prefixIcon: const Icon(CupertinoIcons.at),
                 helperText: t.channel.customIdHelper,
               ),
               validator: (value) {
@@ -396,6 +411,8 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
               children: [
                 Expanded(
                   child: TextField(
+                    enableSuggestions: false,
+                    autocorrect: false,
                     controller: _tagController,
                     decoration: InputDecoration(
                       hintText: t.groupTag.tagName,
@@ -406,7 +423,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                 ),
                 IconButton(
                   onPressed: () => _addTag(),
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: const Icon(CupertinoIcons.add_circled),
                   tooltip: t.groupTag.addTag,
                 ),
               ],
@@ -428,9 +445,9 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
             ],
             AppSpacing.verticalRegular,
 
-            // 频道类型
+            // 频道可见性
             Text(
-              t.channel.typeLabel,
+              t.channel.visibilityLabel,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             AppSpacing.verticalSmall,
@@ -439,25 +456,48 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                 ButtonSegment(
                   value: 0,
                   label: Text(t.channel.typePublic),
-                  icon: const Icon(Icons.public),
+                  icon: const Icon(CupertinoIcons.globe),
                 ),
                 ButtonSegment(
                   value: 1,
                   label: Text(t.channel.typePrivate),
-                  icon: const Icon(Icons.lock_outline),
+                  icon: const Icon(CupertinoIcons.lock),
                 ),
               ],
-              selected: {_selectedType},
+              selected: {_visibility},
               onSelectionChanged: (Set<int> selection) {
-                setState(() {
-                  _selectedType = selection.first;
-                  _isPublic = _selectedType == 0;
-                });
+                setState(() => _visibility = selection.first);
+              },
+            ),
+            AppSpacing.verticalRegular,
+
+            // 付费属性
+            Text(
+              t.channel.accessTypeLabel,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            AppSpacing.verticalSmall,
+            SegmentedButton<int>(
+              segments: [
+                ButtonSegment(
+                  value: 0,
+                  label: Text(t.channel.accessTypeFree),
+                  icon: const Icon(CupertinoIcons.gift),
+                ),
+                ButtonSegment(
+                  value: 1,
+                  label: Text(t.channel.accessTypePaid),
+                  icon: const Icon(CupertinoIcons.money_dollar),
+                ),
+              ],
+              selected: {_accessType},
+              onSelectionChanged: (Set<int> selection) {
+                setState(() => _accessType = selection.first);
               },
             ),
             AppSpacing.verticalXLarge,
 
-            // 频道类型说明
+            // 组合说明
             Container(
               padding: AppSpacing.allMedium,
               decoration: BoxDecoration(
@@ -467,16 +507,16 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
               child: Row(
                 children: [
                   Icon(
-                    _isPublic ? Icons.public : Icons.lock_outline,
+                    _visibility == 0
+                        ? CupertinoIcons.globe
+                        : CupertinoIcons.lock,
                     color: AppColors.primary,
                     size: 20,
                   ),
                   AppSpacing.horizontalSmall,
                   Expanded(
                     child: Text(
-                      _isPublic
-                          ? t.channel.typePublicDesc
-                          : t.channel.typePrivateDesc,
+                      _buildChannelTypeDesc(t),
                       style: context.textStyle(
                         FontSizeType.footnote,
                         color: AppColors.primary,
@@ -511,7 +551,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
                 child: Row(
                   children: [
                     const Icon(
-                      Icons.error_outline,
+                      CupertinoIcons.exclamationmark_circle,
                       color: AppColors.iosRed,
                       size: 20,
                     ),

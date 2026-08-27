@@ -11,6 +11,7 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// E2EE 密钥恢复入口页面
 ///
@@ -201,10 +202,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                     horizontal: 8,
                     vertical: 4,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppColors.iosGreen,
-                    borderRadius: AppRadius.borderRadiusMedium,
-                  ),
+                  decoration: BoxDecoration(color: AppColors.iosGreen),
                   child: Text(
                     t.chat.e2eeActivated,
                     style: context.textStyle(
@@ -396,9 +394,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
     return Material(
       color: AppColors.transparent,
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: AppRadius.borderRadiusMedium,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
@@ -514,9 +511,8 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
     return Material(
       color: AppColors.transparent,
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: AppRadius.borderRadiusMedium,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
@@ -573,7 +569,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
 
   /// 显示本地备份选项
   void _showLocalBackupOptions(BuildContext context) {
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
@@ -925,13 +921,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       if (mounted) Navigator.of(context).pop();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t.common.e2eeKeyGenerateFailed),
-            backgroundColor: AppColors.getIosRed(Theme.of(context).brightness),
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        AppLoading.showToast(t.common.e2eeKeyGenerateFailed);
       }
     }
   }
@@ -951,21 +941,11 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
       if (!mounted) return;
       setState(() => _keyInfo = {});
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(t.common.e2eeKeyDeleted),
-          backgroundColor: AppColors.iosGreen,
-        ),
-      );
+      AppLoading.showToast(t.common.e2eeKeyDeleted);
     } on Exception catch (e) {
       iPrint('[E2EEKeyRecovery] 删除密钥失败: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(t.common.e2eeDeleteFailed),
-          backgroundColor: AppColors.getIosRed(Theme.of(context).brightness),
-        ),
-      );
+      AppLoading.showToast(t.common.e2eeDeleteFailed);
     }
   }
 }

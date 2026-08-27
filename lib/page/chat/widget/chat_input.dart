@@ -516,23 +516,19 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                           margin: EdgeInsets.symmetric(
                             horizontal: AppSpacing.tiny,
                           ),
-                          child: ElevatedButton(
+                          child: CupertinoButton(
                             onPressed: () => _insertQuickReply(replies[index]),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _themeColor(
-                                'primary',
-                              ).withValues(alpha: 0.1),
-                              foregroundColor: _themeColor('primary'),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: AppSpacing.medium,
-                                vertical: AppSpacing.tiny,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: AppRadius.borderRadiusRegular,
-                              ),
-                              elevation: 0,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: AppSpacing.medium,
+                              vertical: AppSpacing.tiny,
                             ),
-                            child: Text(replies[index]),
+                            color: _themeColor(
+                              'primary',
+                            ).withValues(alpha: 0.1),
+                            child: Text(
+                              replies[index],
+                              style: TextStyle(color: _themeColor('primary')),
+                            ),
                           ),
                         );
                       },
@@ -549,11 +545,14 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    child: IconButton(
+                    child: CupertinoButton(
                       key: const Key('quick_reply_manage_button'),
-                      tooltip: t.chat.quickReplyManage,
-                      icon: Icon(Icons.tune, color: _themeColor('primary')),
+                      padding: EdgeInsets.zero,
                       onPressed: _openQuickReplyManage,
+                      child: Icon(
+                        CupertinoIcons.slider_horizontal_3,
+                        color: _themeColor('primary'),
+                      ),
                     ),
                   ),
                 ],
@@ -909,13 +908,13 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                         indicatorColor: _themeColor('primary'),
                         categoryIcons: const CategoryIcons(
                           recentIcon: CupertinoIcons.clock,
-                          smileyIcon: Icons.emoji_emotions_outlined,
-                          animalIcon: Icons.cruelty_free_outlined,
-                          foodIcon: Icons.coffee_outlined,
-                          activityIcon: Icons.sports_soccer_outlined,
-                          travelIcon: Icons.directions_car_filled_outlined,
-                          objectIcon: Icons.lightbulb_outline,
-                          symbolIcon: Icons.emoji_symbols_outlined,
+                          smileyIcon: CupertinoIcons.smiley,
+                          animalIcon: CupertinoIcons.paw,
+                          foodIcon: CupertinoIcons.leaf_arrow_circlepath,
+                          activityIcon: CupertinoIcons.sportscourt,
+                          travelIcon: CupertinoIcons.car,
+                          objectIcon: CupertinoIcons.lightbulb,
+                          symbolIcon: CupertinoIcons.asterisk_circle,
                           flagIcon: CupertinoIcons.flag,
                         ),
                       ),
@@ -949,41 +948,43 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         return KeyboardListener(
           focusNode: _keyboardListenerFocusNode,
           onKeyEvent: _handleKeyboardShortcuts,
-          child: TextField(
-            key: const Key('chat_message_input'),
-            controller: _textController,
-            focusNode: _inputFocusNode,
-            maxLines: widget.maxLines,
-            minLines: widget.minLines,
-            maxLength: widget.maxLength,
-            enableInteractiveSelection: true,
-            keyboardType: widget.keyboardType,
-            textCapitalization: widget.textCapitalization,
-            textInputAction: widget.textInputAction,
-            contentInsertionConfiguration: widget.contentInsertionConfiguration,
-            decoration: InputDecoration(
-              hintText: widget.hintText ?? t.chat.messageInputHint,
-              hintStyle: TextStyle(
-                color: _themeColor('textSecondary'),
-                fontSize: _themeFontSize(FontSizeType.medium),
-              ),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-              counterText: '',
-              filled: false,
-            ),
-            style: TextStyle(
-              color: _themeColor('textPrimary'),
-              fontSize: _themeFontSize(FontSizeType.medium),
-            ),
-            onChanged: (val) {
-              _handleTextControllerChange();
-            },
+          child: GestureDetector(
             onTap: () {
               updateState(InputType.text);
               widget.onTextFieldTap?.call();
             },
-            onSubmitted: (_) => _handleSendPressed(),
+            child: CupertinoTextField(
+              enableSuggestions: false,
+              autocorrect: false,
+              key: const Key('chat_message_input'),
+              controller: _textController,
+              focusNode: _inputFocusNode,
+              maxLines: widget.maxLines,
+              minLines: widget.minLines,
+              maxLength: widget.maxLength,
+              enableInteractiveSelection: true,
+              keyboardType: widget.keyboardType,
+              textCapitalization: widget.textCapitalization,
+              textInputAction: widget.textInputAction,
+              placeholder: widget.hintText ?? t.chat.messageInputHint,
+              placeholderStyle: TextStyle(
+                color: _themeColor('textSecondary'),
+                fontSize: _themeFontSize(FontSizeType.medium),
+              ),
+              decoration: null,
+              padding: EdgeInsets.zero,
+              style: TextStyle(
+                color: _themeColor('textPrimary'),
+                fontSize: _themeFontSize(FontSizeType.medium),
+              ),
+              onChanged: (val) {
+                _handleTextControllerChange();
+              },
+              onTapOutside: (_) {
+                // 不做额外处理，由 GestureDetector 的 onTap 处理
+              },
+              onSubmitted: (_) => _handleSendPressed(),
+            ),
           ),
         );
       },
@@ -1151,7 +1152,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 构建发送按钮（带动画效果，iOS 17 风格）
   Widget _buildSendButton() {
-    final brightness = Theme.of(context).brightness;
+    final brightness = MediaQuery.of(context).platformBrightness;
     return ValueListenableBuilder<bool>(
       valueListenable: _sendButtonVisible,
       builder: (context, sendButtonVisible, _) {
@@ -1281,7 +1282,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       );
     }
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     final composerBgColor = isDark
         ? AppColors.darkSurface
         : AppColors.lightSurfaceGrouped;
@@ -1308,7 +1309,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               border: Border(
                 top: BorderSide(
                   color: AppColors.getIosSeparator(
-                    Theme.of(context).brightness,
+                    MediaQuery.of(context).platformBrightness,
                   ).withValues(alpha: 0.3),
                   width: 0.33,
                 ),
@@ -1343,7 +1344,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                             color: isFocused
                                 ? _themeColor('primary').withValues(alpha: 0.5)
                                 : AppColors.getIosSeparator(
-                                    Theme.of(context).brightness,
+                                    MediaQuery.of(context).platformBrightness,
                                   ).withValues(alpha: 0.2),
                             width: isFocused ? 1.0 : 0.5,
                           ),

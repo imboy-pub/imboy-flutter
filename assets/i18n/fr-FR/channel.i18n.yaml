@@ -134,3 +134,14 @@ noMessagesSubscribedDesc: Abonnement réussi ! Attendez les prochaines publicati
 continueEditing: Continuer la modification
 publishFirstContent: Publier le premier contenu
 noSubscribersDesc: Aucun abonné pour le moment, partagez la chaîne avec vos amis
+emoji: "Emoji"
+justNow: "À l'instant"
+minutesAgo: "min"
+hoursAgo: "h"
+weeksAgo: "sem."
+visibilityLabel: "Visibilité"
+accessTypeLabel: "Tarification"
+accessTypeFree: "Gratuit"
+accessTypePaid: "Payant"
+typePublicPaidDesc: "Tout le monde peut découvrir la chaîne et s'abonner après achat"
+typePrivatePaidDesc: "Seuls les utilisateurs invités peuvent accéder à l'achat et s'abonner après paiement"

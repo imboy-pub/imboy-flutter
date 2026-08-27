@@ -152,7 +152,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
           return _buildStartGrowingCard(context, channel, t);
         }
         return NoDataView(
-          icon: Icons.edit_note_outlined,
+          icon: CupertinoIcons.pencil,
           text: t.channel.noMessagesManaged,
           description: t.channel.noMessagesManagedDesc,
           onTop: () => context.push('/channel/${widget.channelId}/compose'),
@@ -160,7 +160,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
         );
       } else if (!hasContentAccess) {
         return NoDataView(
-          icon: Icons.notifications_active_outlined,
+          icon: CupertinoIcons.bell_fill,
           text: _isSubscribingFromEmpty
               ? t.common.loading
               : t.channel.noMessagesVisitor,
@@ -174,7 +174,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
         );
       } else {
         return NoDataView(
-          icon: Icons.article_outlined,
+          icon: CupertinoIcons.doc_text,
           text: t.channel.noMessagesSubscribed,
           description: t.channel.noMessagesSubscribedDesc,
         );
@@ -200,7 +200,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                     child: SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CupertinoActivityIndicator(),
                     ),
                   ),
                 );
@@ -246,7 +246,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
               heroTag: 'channel_scroll_top_${widget.channelId}',
               onPressed: _scrollToTop,
               elevation: 2,
-              child: const Icon(Icons.arrow_upward, size: 20),
+              child: const Icon(CupertinoIcons.chevron_up, size: 20),
             ),
           ),
       ],
@@ -256,7 +256,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   Widget _buildErrorView(BuildContext context, String error, Translations t) {
     // 与同 build 里的 NoDataView 空态统一，避免失败态自成一套视觉。
     return NoDataView(
-      icon: Icons.error_outline,
+      icon: CupertinoIcons.exclamationmark_circle,
       text: error,
       onTop: () => ref
           .read(channelDetailProvider.notifier)
@@ -421,7 +421,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                             )
                           : const Center(
                               child: Icon(
-                                Icons.campaign_outlined,
+                                CupertinoIcons.speaker_2,
                                 size: 48,
                                 color: AppColors.chatWebSecondaryDark,
                               ),
@@ -431,17 +431,14 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                   const SizedBox(height: 12),
 
                   // "添加照片" 绿色文本按钮
-                  TextButton(
+                  CupertinoButton(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     onPressed: () => context.push(
                       '/channel/${channel.id}/edit',
                       extra: channel,
-                    ),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.chatWebBrand,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
                     ),
                     child: Text(
                       addPhotoText,
@@ -468,25 +465,32 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                   const SizedBox(height: 12),
 
                   // "添加描述" / "已有描述" 绿色文本按钮
-                  TextButton.icon(
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
                     onPressed: () => context.push(
                       '/channel/${channel.id}/edit',
                       extra: channel,
                     ),
-                    icon: const Icon(
-                      CupertinoIcons.pencil,
-                      size: 16,
-                      color: AppColors.chatWebBrand,
-                    ),
-                    label: Text(
-                      addDescText,
-                      style: TextStyle(
-                        fontSize: FontSizeType.normal.size,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.chatWebBrand,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.pencil,
+                          size: 16,
+                          color: AppColors.chatWebBrand,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          addDescText,
+                          style: TextStyle(
+                            fontSize: FontSizeType.normal.size,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.chatWebBrand,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -539,16 +543,12 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
         : AppColors.chatWebBackgroundLight;
     final textPrimary = AppColors.getTextColor(Theme.of(context).brightness);
 
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: btnBg,
-          borderRadius: BorderRadius.circular(24),
-        ),
+        decoration: BoxDecoration(color: btnBg),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

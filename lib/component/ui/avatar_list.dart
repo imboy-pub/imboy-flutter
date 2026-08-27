@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:imboy/store/model/people_model.dart';
@@ -48,7 +49,7 @@ class AvatarList extends StatelessWidget {
         ),
       );
     } else if (member.account == 'add') {
-      return InkWell(
+      return GestureDetector(
         onTap: onTapAdd,
         child: _RoundedDottedBorder(
           child: ClipRRect(
@@ -56,13 +57,13 @@ class AvatarList extends StatelessWidget {
             child: SizedBox(
               height: (height ?? 56) - 4,
               width: (width ?? 56) - 4,
-              child: const Icon(Icons.add),
+              child: const Icon(CupertinoIcons.add),
             ),
           ),
         ),
       );
     } else if (member.account == 'remove') {
-      return InkWell(
+      return GestureDetector(
         onTap: onTapRemove,
         child: _RoundedDottedBorder(
           child: ClipRRect(
@@ -70,7 +71,7 @@ class AvatarList extends StatelessWidget {
             child: SizedBox(
               height: (height ?? 56) - 4,
               width: (width ?? 56) - 4,
-              child: const Icon(Icons.remove),
+              child: const Icon(CupertinoIcons.minus),
             ),
           ),
         ),

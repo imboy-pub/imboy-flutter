@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -325,7 +326,9 @@ class _PerformanceMonitorPanelState extends State<PerformanceMonitorPanel> {
           Row(
             children: [
               Icon(
-                isGood ? Icons.check_circle : Icons.warning,
+                isGood
+                    ? CupertinoIcons.checkmark_circle
+                    : CupertinoIcons.exclamationmark_triangle,
                 color: isGood
                     ? AppColors.getIosGreen(Theme.of(context).brightness)
                     : AppColors.iosOrange,

@@ -199,7 +199,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           // 设备名称
           _buildDetailItem(
             context,
-            icon: Icons.edit_outlined,
+            icon: CupertinoIcons.pencil,
             title: t.account.deviceName,
             value: _deviceName,
             onTap: () => _editDeviceName(context),
@@ -211,7 +211,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           // 设备类型
           _buildDetailItem(
             context,
-            icon: Icons.devices_outlined,
+            icon: CupertinoIcons.device_phone_portrait,
             title: t.account.deviceType,
             value: widget.model.showType,
           ),
@@ -221,7 +221,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
           // 最后活跃时间
           _buildDetailItem(
             context,
-            icon: Icons.access_time_outlined,
+            icon: CupertinoIcons.clock,
             title: t.main.lastActiveTime,
             value: _formatLastActiveTime(),
           ),
@@ -287,7 +287,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
               if (showArrow) ...[
                 AppSpacing.horizontalSmall,
                 Icon(
-                  Icons.chevron_right,
+                  CupertinoIcons.chevron_right,
                   color: Theme.of(
                     context,
                   ).colorScheme.onSurface.withValues(alpha: 0.4),
@@ -328,7 +328,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline, color: AppColors.info, size: 20),
+          Icon(CupertinoIcons.info_circle, color: AppColors.info, size: 20),
           AppSpacing.horizontalMedium,
           Expanded(
             child: Text(
@@ -353,22 +353,20 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
     final errorColor = AppColors.getIosRed(Theme.of(context).brightness);
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton.icon(
+      child: CupertinoButton(
         onPressed: () => _showDeleteDialog(context),
-        icon: const Icon(Icons.delete_outline),
-        label: Text(t.common.deleteThisDevice),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: errorColor.withValues(alpha: 0.1),
-          foregroundColor: errorColor,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: AppRadius.borderRadiusMedium,
-            side: BorderSide(
-              color: errorColor.withValues(alpha: 0.3),
-              width: 0.5,
-            ),
-          ),
+        color: errorColor.withValues(alpha: 0.1),
+        foregroundColor: errorColor,
+        borderRadius: AppRadius.borderRadiusMedium,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(CupertinoIcons.delete),
+            AppSpacing.horizontalSmall,
+            Text(t.common.deleteThisDevice),
+          ],
         ),
       ),
     );
@@ -378,7 +376,7 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
   Widget _buildForceOfflineButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton.icon(
+      child: CupertinoButton(
         onPressed: widget.model.online
             ? () async {
                 // 确认对话框
@@ -407,20 +405,17 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                 }
               }
             : null,
-        icon: const Icon(Icons.power_settings_new),
-        label: Text(t.common.forceDeviceOffline),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.warning.withValues(alpha: 0.1),
-          foregroundColor: AppColors.warning,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: AppRadius.borderRadiusMedium,
-            side: BorderSide(
-              color: AppColors.warning.withValues(alpha: 0.3),
-              width: 0.5,
-            ),
-          ),
+        foregroundColor: AppColors.warning,
+        borderRadius: AppRadius.borderRadiusMedium,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(CupertinoIcons.clear_circled),
+            AppSpacing.horizontalSmall,
+            Text(t.common.forceDeviceOffline),
+          ],
         ),
       ),
     );
@@ -450,19 +445,19 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
     switch (deviceType.toLowerCase()) {
       case 'ios':
       case 'iphone':
-        return Icons.phone_iphone;
+        return CupertinoIcons.phone;
       case 'android':
-        return Icons.phone_android;
+        return CupertinoIcons.phone;
       case 'macos':
-        return Icons.laptop_mac;
+        return CupertinoIcons.device_laptop;
       case 'windows':
-        return Icons.laptop_windows;
+        return CupertinoIcons.device_laptop;
       case 'web':
-        return Icons.web;
+        return CupertinoIcons.globe;
       case 'desktop':
-        return Icons.desktop_mac;
+        return CupertinoIcons.desktopcomputer;
       default:
-        return Icons.devices;
+        return CupertinoIcons.rectangle_on_rectangle;
     }
   }
 

@@ -134,3 +134,14 @@ noMessagesSubscribedDesc: تم الاشتراك بنجاح! يرجى انتظا�
 continueEditing: متابعة التعديل
 publishFirstContent: نشر أول محتوى
 noSubscribersDesc: لا يوجد مشتركون بعد، شارك القناة مع أصدقائك
+emoji: "رموز تعبيرية"
+justNow: "الآن"
+minutesAgo: "دقائق مضت"
+hoursAgo: "ساعات مضت"
+weeksAgo: "أسابيع مضت"
+visibilityLabel: "الرؤية"
+accessTypeLabel: "التسعير"
+accessTypeFree: "مجاني"
+accessTypePaid: "مدفوع"
+typePublicPaidDesc: "يمكن لأي شخص اكتشاف القناة والاشتراك بعد الشراء"
+typePrivatePaidDesc: "يمكن للمستخدمين المدعوين فقط الدخول في عملية الشراء والاشتراك بعد الدفع"

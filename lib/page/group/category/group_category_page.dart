@@ -121,15 +121,16 @@ class _GroupCategoryPageState extends ConsumerState<GroupCategoryPage> {
       isEmpty: _categories.isEmpty,
       onRetry: _loadCategories,
       emptyText: t.groupCategory.noCategory,
-      child: RefreshIndicator(
-        onRefresh: _loadCategories,
-        child: ListView.builder(
-          itemCount: _categories.length,
-          itemBuilder: (context, index) {
-            final category = _categories[index];
-            return _buildCategoryItem(category);
-          },
-        ),
+      child: CustomScrollView(
+        slivers: [
+          CupertinoSliverRefreshControl(onRefresh: _loadCategories),
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final category = _categories[index];
+              return _buildCategoryItem(category);
+            }, childCount: _categories.length),
+          ),
+        ],
       ),
     );
   }

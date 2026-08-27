@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -23,13 +24,12 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-      body: SafeArea(
+    return CupertinoPageScaffold(
+      child: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 40),
-            Icon(Icons.shield_outlined, color: AppColors.primary, size: 80),
+            Icon(CupertinoIcons.shield, color: AppColors.primary, size: 80),
             AppSpacing.verticalLarge,
             Text(
               t.account.accountSecurityEnhance,
@@ -69,7 +69,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 children: [
                   _buildPage(
                     context: context,
-                    icon: Icons.phone_iphone,
+                    icon: CupertinoIcons.device_phone_portrait,
                     title: t.account.bindMobile,
                     subtitle: t.account.bindMobileFor,
                     onTap: () async {
@@ -84,7 +84,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                   ),
                   _buildPage(
                     context: context,
-                    icon: Icons.alternate_email,
+                    icon: CupertinoIcons.at,
                     title: t.account.linkEmail,
                     subtitle: t.account.linkEmailFor,
                     onTap: () async {
@@ -107,28 +107,19 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
             const SizedBox(height: 30),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
-              child: ElevatedButton(
+              child: CupertinoButton(
+                color: AppColors.primary,
+                borderRadius: AppRadius.borderRadiusRegular,
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.regular,
+                ),
                 onPressed: () {
-                  // 按登录态分流：账号密码注册场景（未登录）去登录页；
-                  // 第三方登录场景（支付宝/一键登录，已是登录态）去主页——
-                  // 已登录用户回登录页是语义错误（2026-08-19 真机反馈）
                   if (UserRepoLocal.to.currentUid.isNotEmpty) {
                     context.go('/bottom_navigation');
                   } else {
                     context.go('/sign_in');
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: AppColors.onPrimary,
-                  backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: AppRadius.borderRadiusRegular,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.regular,
-                  ),
-                  elevation: 0,
-                ),
                 child: Center(
                   child: Text(
                     t.common.buttonAccomplish,
@@ -141,7 +132,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
               ),
             ),
             AppSpacing.verticalRegular,
-            TextButton(
+            CupertinoButton(
               onPressed: () {
                 context.go('/bottom_navigation');
               },

@@ -31,11 +31,18 @@ class ChannelApi extends HttpClient {
     required String name,
     String? description,
     String? avatar,
-    int type = 0,
+    int visibility = 0,
+    int accessType = 0,
+    int joinPolicy = 0,
     String? customId,
     List<String>? tags,
   }) async {
-    final data = <String, dynamic>{'name': name, 'type': type};
+    final data = <String, dynamic>{
+      'name': name,
+      'visibility': visibility,
+      'access_type': accessType,
+      'join_policy': joinPolicy,
+    };
 
     if (description != null) data['description'] = description;
     if (avatar != null) data['avatar'] = avatar;

@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/widget/fadeanimation.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
@@ -78,34 +80,11 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
     super.dispose();
   }
 
-  void _showSnackBar(
-    BuildContext context,
-    Widget message, {
-    Color backgroundColor = AppColors.iosRed,
-    Duration duration = const Duration(seconds: 5),
-  }) {
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: message,
-          backgroundColor: backgroundColor,
-          duration: duration,
-          behavior: SnackBarBehavior.fixed,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-      );
-  }
-
   @override
   Widget build(BuildContext context) {
     final notifier = ref.read(passportProvider.notifier);
     final t = context.t;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = isDark
-        ? AppColors.darkSurface
-        : AppColors.lightSurface;
     final surfaceContainerColor = isDark
         ? AppColors.darkSurfaceContainer
         : AppColors.lightSurfaceContainer;
@@ -120,14 +99,13 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
 
     // 验证数据完整性
     if (_account.isEmpty || _accountType.isEmpty || _pwd.isEmpty) {
-      return Scaffold(
-        backgroundColor: surfaceColor,
-        body: Center(
+      return CupertinoPageScaffold(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
-                Icons.error_outline,
+                CupertinoIcons.exclamationmark_circle,
                 size: 64,
                 color: AppColors.iosRed,
               ),
@@ -140,7 +118,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                 ),
               ),
               AppSpacing.verticalRegular,
-              ElevatedButton(
+              CupertinoButton(
                 onPressed: () {
                   if (!context.mounted) return;
                   context.go('/sign_up');
@@ -153,9 +131,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: surfaceColor,
-      body: Stack(
+    return CupertinoPageScaffold(
+      child: Stack(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.large),
@@ -171,9 +148,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 0),
-                    decoration: BoxDecoration(
-                      borderRadius: AppRadius.borderRadiusSmall,
-                    ),
+                    decoration: BoxDecoration(),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -215,7 +190,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                             pinController: _pinController,
                             obscureText: true,
                             obscuringWidget: Icon(
-                              Icons.safety_check,
+                              CupertinoIcons.shield,
                               color: AppColors.primary,
                               size: 24,
                             ),
@@ -271,7 +246,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                               ),
                             ),
                             Expanded(
-                              child: TextButton(
+                              child: CupertinoDialogAction(
                                 onPressed: () async {
                                   String? res = await notifier.sendCode(
                                     _accountType,
@@ -280,46 +255,19 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                   );
                                   if (!context.mounted) return;
                                   if (res == null) {
-                                    _showSnackBar(
-                                      context,
-                                      Text(
-                                        t.main.codeSentToParam(param: _account),
-                                        // 彩底恒定前景用 onPrimary
-                                        style: context.textStyle(
-                                          FontSizeType.medium,
-                                          color: AppColors.onPrimary,
-                                        ),
-                                      ),
-                                      backgroundColor: AppColors.primary,
+                                    AppLoading.showSuccess(
+                                      t.main.codeSentToParam(param: _account),
                                     );
                                   } else {
                                     if (res == 'param_already_exist') {
                                       final label = _accountType == 'email'
                                           ? t.account.email
                                           : t.account.mobile;
-                                      _showSnackBar(
-                                        context,
-                                        Text(
-                                          t.chat.paramAlreadyExist(
-                                            param: label,
-                                          ),
-                                          style: context.textStyle(
-                                            FontSizeType.medium,
-                                            color: AppColors.onPrimary,
-                                          ),
-                                        ),
+                                      AppLoading.showError(
+                                        t.chat.paramAlreadyExist(param: label),
                                       );
                                     } else {
-                                      _showSnackBar(
-                                        context,
-                                        Text(
-                                          res,
-                                          style: context.textStyle(
-                                            FontSizeType.medium,
-                                            color: AppColors.onPrimary,
-                                          ),
-                                        ),
-                                      );
+                                      AppLoading.showError(res);
                                     }
                                   }
                                 },
@@ -337,7 +285,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                         ),
 
                         const SizedBox(height: 30),
-                        ElevatedButton(
+                        CupertinoButton(
+                          color: AppColors.primary,
                           onPressed: () async {
                             FocusScope.of(context).unfocus();
                             String? res = await notifier.confirmSignup(
@@ -349,42 +298,13 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                             );
                             if (!context.mounted) return;
                             if (res == null) {
-                              _showSnackBar(
-                                context,
-                                Text(
-                                  t.common.tipSuccess,
-                                  style: context.textStyle(
-                                    FontSizeType.medium,
-                                    color: AppColors.onPrimary,
-                                  ),
-                                ),
-                                backgroundColor: AppColors.iosGreen,
-                                duration: const Duration(seconds: 2),
-                              );
+                              AppLoading.showSuccess(t.common.tipSuccess);
                               // 注册成功后引导用户去管理账户（绑定手机号/关联邮箱）
                               context.go('/manage_account');
                             } else {
-                              _showSnackBar(
-                                context,
-                                Text(
-                                  res,
-                                  style: context.textStyle(
-                                    FontSizeType.medium,
-                                    color: AppColors.onPrimary,
-                                  ),
-                                ),
-                              );
+                              AppLoading.showError(res);
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: AppColors.onPrimary,
-                            minimumSize: const Size(double.infinity, 52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: AppRadius.borderRadiusRegular,
-                            ),
-                            elevation: 0,
-                          ),
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10, right: 10),
                             child: Text(

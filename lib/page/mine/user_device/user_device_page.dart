@@ -268,19 +268,19 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
     switch (deviceType.toLowerCase()) {
       case 'ios':
       case 'iphone':
-        return Icons.phone_iphone;
+        return CupertinoIcons.phone;
       case 'android':
-        return Icons.phone_android;
+        return CupertinoIcons.phone;
       case 'macos':
-        return Icons.laptop_mac;
+        return CupertinoIcons.device_laptop;
       case 'windows':
-        return Icons.laptop_windows;
+        return CupertinoIcons.device_laptop;
       case 'web':
-        return Icons.web;
+        return CupertinoIcons.globe;
       case 'desktop':
-        return Icons.desktop_mac;
+        return CupertinoIcons.desktopcomputer;
       default:
-        return Icons.devices;
+        return CupertinoIcons.rectangle_on_rectangle;
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:flutter/cupertino.dart';
 
 /// 朋友圈模块专用的确认对话框。
 ///
@@ -18,19 +19,19 @@ Future<bool> showMomentConfirmDialog(
 }) async {
   final t = context.t;
   final theme = Theme.of(context);
-  final result = await showDialog<bool>(
+  final result = await showCupertinoDialog<bool>(
     context: context,
     barrierDismissible: true,
     builder: (ctx) {
-      return AlertDialog(
+      return CupertinoAlertDialog(
         title: Text(title),
         content: Text(message),
         actions: [
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(cancelLabel ?? t.common.buttonCancel),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(
               confirmLabel ?? t.common.confirm,

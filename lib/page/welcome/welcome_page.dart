@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -84,8 +85,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Scaffold(
-      body: Container(
+    return CupertinoPageScaffold(
+      child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -236,7 +237,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     SizedBox(
                       width: double.infinity,
                       height: 56,
-                      child: ElevatedButton(
+                      child: CupertinoButton(
+                        color: AppColors.primary,
                         onPressed: () {
                           if (_currentPage < _pages(context).length - 1) {
                             _pageController.nextPage(
@@ -247,14 +249,6 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                             context.go('/sign_in');
                           }
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppRadius.borderRadiusXLarge,
-                          ),
-                          elevation: 8,
-                          shadowColor: AppColors.primary.withValues(alpha: 0.4),
-                        ),
                         child: Text(
                           _currentPage == _pages(context).length - 1
                               ? context.t.welcome.getStarted
@@ -355,7 +349,11 @@ class _LanguageSelector extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.language, size: 18, color: AppColors.primary),
+                const Icon(
+                  CupertinoIcons.globe,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
                 AppSpacing.horizontalSmall,
                 Text(
                   currentName,
@@ -367,7 +365,7 @@ class _LanguageSelector extends StatelessWidget {
                 ),
                 AppSpacing.horizontalTiny,
                 const Icon(
-                  Icons.keyboard_arrow_down,
+                  CupertinoIcons.chevron_down,
                   size: 18,
                   color: AppColors.primary,
                 ),
@@ -405,7 +403,7 @@ class _LanguageSelector extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                Icons.check,
+                CupertinoIcons.checkmark,
                 size: 18,
                 color: locale == currentLocale
                     ? AppColors.primary

@@ -24,10 +24,34 @@ class AddFriendPage extends ConsumerStatefulWidget {
 
 class _AddFriendPageState extends ConsumerState<AddFriendPage> {
   Timer? _searchDebounce;
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    // 延迟到 didChangeDependencies 中处理 GoRouterState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleQueryParams();
+    });
+  }
+
+  void _handleQueryParams() {
+    if (!mounted) return;
+    final q = GoRouterState.of(context).uri.queryParameters['q'] ?? '';
+    if (q.isNotEmpty) {
+      _searchController.text = q;
+      // 延迟触发搜索（等 build 完成）
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _doSearch(q, ref);
+      });
+    }
+  }
 
   @override
   void dispose() {
     _searchDebounce?.cancel();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -123,6 +147,7 @@ class _AddFriendPageState extends ConsumerState<AddFriendPage> {
           children: [
             CupertinoSearchTextField(
               key: const Key('add_friend_search_input'),
+              controller: _searchController,
               placeholder: t.account.hintLoginAccount,
               onChanged: (v) {
                 _searchDebounce?.cancel();
@@ -207,10 +232,7 @@ class _AddFriendPageState extends ConsumerState<AddFriendPage> {
       leading: Container(
         width: 32,
         height: 32,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
+        decoration: BoxDecoration(color: color),
         child: Icon(icon, color: AppColors.onPrimary, size: 18),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),

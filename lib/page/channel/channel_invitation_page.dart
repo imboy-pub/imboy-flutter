@@ -13,6 +13,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'channel_di_provider.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// 频道邀请中心页（私有频道）
 ///
@@ -119,24 +120,16 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
     if (!mounted) return;
 
     if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            accept
-                ? t.common.acceptInvitationFailed
-                : t.common.rejectInvitationFailed,
-          ),
-        ),
+      AppLoading.showToast(
+        accept
+            ? t.common.acceptInvitationFailed
+            : t.common.rejectInvitationFailed,
       );
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          accept ? t.common.invitationAccepted : t.common.invitationRejected,
-        ),
-      ),
+    AppLoading.showToast(
+      accept ? t.common.invitationAccepted : t.common.invitationRejected,
     );
     await _loadInvitations(showLoading: false);
   }
@@ -179,7 +172,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
   }) {
     if (invitations.isEmpty) {
       return NoDataView(
-        icon: Icons.mark_email_unread_outlined,
+        icon: CupertinoIcons.mail,
         text: isMyInvitations
             ? t.common.noReceivedInvitations
             : t.common.noSentInvitations,
@@ -270,7 +263,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                 if (channelId.isNotEmpty)
                   IconButton(
                     onPressed: () => context.push('/channel/$channelId'),
-                    icon: const Icon(Icons.open_in_new, size: 18),
+                    icon: const Icon(CupertinoIcons.arrow_up_right, size: 18),
                     tooltip: t.discovery.openChannel,
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
@@ -303,7 +296,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
     if (_isLoading) {
       return Scaffold(
         appBar: GlassAppBar(title: t.common.channelInvitations),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(child: CupertinoActivityIndicator()),
       );
     }
 
@@ -316,7 +309,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
             children: [
               Text(_error ?? ''),
               AppSpacing.verticalMedium,
-              ElevatedButton(
+              CupertinoButton.filled(
                 onPressed: _loadInvitations,
                 child: Text(t.common.buttonRetry),
               ),
@@ -408,7 +401,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.mark_email_unread_outlined, size: 20),
+                      const Icon(CupertinoIcons.mail, size: 20),
                       AppSpacing.horizontalSmall,
                       Expanded(
                         child: Text(
@@ -448,7 +441,7 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                     Row(
                       children: [
                         Expanded(
-                          child: OutlinedButton(
+                          child: CupertinoButton(
                             onPressed: isProcessing
                                 ? null
                                 : () => _handleInvitationAction(
@@ -483,10 +476,17 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                   ],
                   if (channelId.isNotEmpty) ...[
                     AppSpacing.verticalSmall,
-                    TextButton.icon(
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
                       onPressed: () => context.push('/channel/$channelId'),
-                      icon: const Icon(Icons.open_in_new),
-                      label: Text(t.discovery.openChannel),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(CupertinoIcons.arrow_up_right, size: 18),
+                          const SizedBox(width: 4),
+                          Text(t.discovery.openChannel),
+                        ],
+                      ),
                     ),
                   ],
                 ],

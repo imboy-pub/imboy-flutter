@@ -64,7 +64,11 @@ class _ChannelStripBody extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
             child: Row(
               children: [
-                const Icon(Icons.campaign, size: 14, color: AppColors.primary),
+                const Icon(
+                  CupertinoIcons.speaker_2,
+                  size: 14,
+                  color: AppColors.primary,
+                ),
                 AppSpacing.horizontalTiny,
                 Text(
                   t.channel.title,
@@ -95,7 +99,7 @@ class _ChannelTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return InkWell(
+    return GestureDetector(
       onTap: () => context.push('/channel/${summary.channelId}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -238,7 +242,7 @@ class _ChannelAvatar extends StatelessWidget {
         child: AvatarFallbackContent(
           name: name,
           color: AppColors.primary,
-          emptyIcon: Icons.campaign_outlined,
+          emptyIcon: CupertinoIcons.speaker_2,
           iconSize: 22,
           textStyle: context.textStyle(
             FontSizeType.large,

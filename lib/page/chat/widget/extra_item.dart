@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -42,10 +43,9 @@ class ExtraItem extends StatelessWidget {
 
     return Material(
       color: AppColors.transparent,
-      child: InkWell(
+      child: GestureDetector(
         onTap:
             onPressed ?? () => AppLoading.showToast(t.common.featureComingSoon),
-        borderRadius: AppRadius.borderRadiusRegular,
         child: Container(
           width: width ?? 64,
           padding: const EdgeInsets.symmetric(
@@ -174,7 +174,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       return;
     }
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(
+      CupertinoPageRoute<void>(
         builder: (_) => RtcRoomPage(
           wsUrl: res['wsUrl'] ?? '',
           token: res['token'] ?? '',
@@ -196,12 +196,12 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
     final mediaItems = <ExtraItem>[
       ExtraItem(
         title: t.main.album,
-        image: const Icon(Icons.photo_library_outlined, size: iconSize),
+        image: const Icon(CupertinoIcons.photo, size: iconSize),
         onPressed: widget.handleImageSelection,
       ),
       ExtraItem(
         title: t.main.camera,
-        image: const Icon(Icons.camera_alt_outlined, size: iconSize),
+        image: const Icon(CupertinoIcons.camera, size: iconSize),
         onPressed: () {
           if (widget.handlePickerSelection != null) {
             widget.handlePickerSelection!(context);
@@ -210,7 +210,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       ),
       ExtraItem(
         title: t.groupSchedule.location,
-        image: const Icon(Icons.location_on_outlined, size: iconSize),
+        image: const Icon(CupertinoIcons.location, size: iconSize),
         onPressed: () async {
           if (!context.mounted) return;
 
@@ -259,7 +259,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       ),
       ExtraItem(
         title: t.chat.file,
-        image: const Icon(Icons.insert_drive_file_outlined, size: iconSize),
+        image: const Icon(CupertinoIcons.doc, size: iconSize),
         onPressed: widget.handleFileSelection,
       ),
       // 表情入口只保留输入框的笑脸键（emoji 属于文本内容，不是独立消息类型）。
@@ -268,18 +268,18 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       // 表情包资源就绪后再加回来，届时图标应是贴纸而非 face_outlined。
       ExtraItem(
         title: t.main.favorites,
-        image: const Icon(Icons.collections_bookmark_outlined, size: iconSize),
+        image: const Icon(CupertinoIcons.collections, size: iconSize),
         onPressed: widget.handleCollectSelection,
       ),
       ExtraItem(
         title: t.common.personalCard,
-        image: const Icon(Icons.person_outline, size: iconSize),
+        image: const Icon(CupertinoIcons.person, size: iconSize),
         onPressed: widget.handleVisitCardSelection,
       ),
       if (widget.type != 'C2G')
         ExtraItem(
           title: t.common.voiceCall,
-          image: const Icon(Icons.phone_outlined, size: iconSize),
+          image: const Icon(CupertinoIcons.phone, size: iconSize),
           onPressed: () {
             openCallScreen(
               context,
@@ -296,7 +296,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       if (widget.type != 'C2G')
         ExtraItem(
           title: t.common.videoCall,
-          image: const Icon(Icons.videocam_outlined, size: iconSize),
+          image: const Icon(CupertinoIcons.videocam, size: iconSize),
           onPressed: () {
             openCallScreen(
               context,
@@ -317,27 +317,27 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       if (isC2G)
         ExtraItem(
           title: t.common.groupCall,
-          image: const Icon(Icons.video_call_outlined, size: iconSize),
+          image: const Icon(CupertinoIcons.videocam, size: iconSize),
           onPressed: () => _joinGroupCall(context),
         ),
       if (isC2G)
         ExtraItem(
           title: t.groupVote.title,
-          image: const Icon(Icons.poll_outlined, size: iconSize),
+          image: const Icon(CupertinoIcons.chart_bar, size: iconSize),
           onPressed: () =>
               context.push('/group/${widget.options['to']}/vote?create=1'),
         ),
       if (isC2G)
         ExtraItem(
           title: t.groupSchedule.title,
-          image: const Icon(Icons.event_outlined, size: iconSize),
+          image: const Icon(CupertinoIcons.calendar, size: iconSize),
           onPressed: () =>
               context.push('/group/${widget.options['to']}/schedule?create=1'),
         ),
       if (isC2G)
         ExtraItem(
           title: t.groupTask.title,
-          image: const Icon(Icons.checklist_outlined, size: iconSize),
+          image: const Icon(CupertinoIcons.checkmark, size: iconSize),
           onPressed: () =>
               context.push('/group/${widget.options['to']}/task?create=1'),
         ),
@@ -348,7 +348,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       ExtraItem(
         title: t.common.redPacket,
         image: const Icon(
-          Icons.redeem,
+          CupertinoIcons.gift,
           size: iconSize,
           color: AppColors.iosRed,
         ),
@@ -367,7 +367,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
         ExtraItem(
           title: t.common.transfer,
           image: const Icon(
-            Icons.swap_horiz,
+            CupertinoIcons.arrow_2_circlepath,
             size: iconSize,
             color: AppColors.iosOrange,
           ),

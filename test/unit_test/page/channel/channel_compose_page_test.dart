@@ -17,6 +17,7 @@
 // 运行方式 / How to run:
 //   flutter test test/unit_test/page/channel/channel_compose_page_test.dart
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +42,7 @@ Widget _buildApp(PickAssetsFn picker) {
 
 /// 点「添加图片」并等待 EasyLoading 淡入完成。
 Future<void> _tapAddTile(WidgetTester tester) async {
-  final addTile = find.byIcon(Icons.add);
+  final addTile = find.byIcon(CupertinoIcons.add);
   await tester.ensureVisible(addTile);
   await tester.tap(addTile);
   await tester.pump(); // 启动 _pickImages

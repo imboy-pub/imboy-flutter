@@ -137,14 +137,10 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
         ? AppColors.getIosGreen(brightness)
         : AppColors.getIosBlue(brightness);
 
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: Text(t.chat.sendTo),
-        backgroundColor: isDarkMode
-            ? AppColors.darkSurfaceGrouped
-            : AppColors.lightSurfaceGrouped,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         content: SizedBox(
           height: 164,
           child: Column(
@@ -189,7 +185,11 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
                         ),
                       ],
                     ),
-              const Divider(),
+              Container(
+                height: 1,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                color: CupertinoColors.separator.withValues(alpha: 0.3),
+              ),
               Expanded(
                 child: Text(
                   // visitCard
@@ -205,7 +205,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
           ),
         ),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -215,7 +216,8 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
               style: TextStyle(color: buttonTextColor),
             ),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () async {
               var nav = Navigator.of(context);
               nav.pop();
@@ -238,7 +240,7 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       children: [
         SizedBox(
           height: _itemHeight.toDouble(),
-          child: InkWell(
+          child: GestureDetector(
             onTap: () {
               sendToDialog(model);
               // model.selected = !model.selected;

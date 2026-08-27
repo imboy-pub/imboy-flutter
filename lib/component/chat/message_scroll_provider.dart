@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 part 'message_scroll_provider.g.dart';
@@ -420,8 +420,7 @@ class ScrollToBottomButton extends ConsumerWidget {
           ),
           child: Material(
             color: AppColors.transparent,
-            child: InkWell(
-              borderRadius: AppRadius.borderRadiusLarge,
+            child: GestureDetector(
               onTap: () {
                 manager.scrollToBottom(animated: true);
                 // 清除未读计数
@@ -434,7 +433,7 @@ class ScrollToBottomButton extends ConsumerWidget {
                   children: [
                     const Center(
                       child: Icon(
-                        Icons.keyboard_arrow_down,
+                        CupertinoIcons.chevron_down,
                         color: AppColors.onPrimary,
                         size: 24,
                       ),

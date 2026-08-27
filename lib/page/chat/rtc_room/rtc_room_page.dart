@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,9 +83,8 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
       }
     });
 
-    return Scaffold(
-      backgroundColor: CallTokens.bgDeep,
-      body: SafeArea(
+    return CupertinoPageScaffold(
+      child: SafeArea(
         child: Column(
           children: [
             _header(state),
@@ -159,10 +159,7 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
               const SizedBox(
                 width: 16,
                 height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: CallTokens.white70,
-                ),
+                child: CupertinoActivityIndicator(color: CallTokens.white70),
               ),
               AppSpacing.horizontalSmall,
               Text(
@@ -185,7 +182,7 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
         return _connectionFailed();
       }
       return const Center(
-        child: CircularProgressIndicator(color: CallTokens.white54),
+        child: CupertinoActivityIndicator(color: CallTokens.white54),
       );
     }
 
@@ -268,7 +265,11 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.wifi_off, color: CallTokens.white54, size: 52),
+          const Icon(
+            CupertinoIcons.exclamationmark_circle,
+            color: CallTokens.white54,
+            size: 52,
+          ),
           AppSpacing.verticalMedium,
           Text(
             t.common.callDisconnected,
@@ -278,11 +279,23 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
             ),
           ),
           AppSpacing.verticalSmall,
-          TextButton.icon(
+          CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: _connect,
-            icon: const Icon(Icons.refresh),
-            label: Text(t.common.buttonRetry),
-            style: TextButton.styleFrom(foregroundColor: CallTokens.white),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  CupertinoIcons.arrow_clockwise,
+                  color: CallTokens.white,
+                ),
+                AppSpacing.horizontalTiny,
+                Text(
+                  t.common.buttonRetry,
+                  style: const TextStyle(color: CallTokens.white),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -333,7 +346,7 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
             else
               Center(
                 child: Icon(
-                  Icons.account_circle,
+                  CupertinoIcons.person_circle,
                   size: main ? 88 : 56,
                   color: CallTokens.white38,
                 ),
@@ -401,7 +414,7 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
                 top: AppSpacing.tiny,
                 right: AppSpacing.tiny,
                 child: Icon(
-                  Icons.swap_vert,
+                  CupertinoIcons.arrow_2_circlepath,
                   color: CallTokens.white70,
                   size: 20,
                 ),
@@ -458,10 +471,7 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
         horizontal: AppSpacing.small,
         vertical: AppSpacing.tiny,
       ),
-      decoration: BoxDecoration(
-        color: CallTokens.blackA55,
-        borderRadius: AppRadius.borderRadiusSmall,
-      ),
+      decoration: BoxDecoration(color: CallTokens.blackA55),
       child: Text(
         name,
         style: context.textStyle(
@@ -506,27 +516,33 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _controlButton(
-            icon: state.micOn ? Icons.mic : Icons.mic_off,
+            icon: state.micOn
+                ? CupertinoIcons.mic_fill
+                : CupertinoIcons.mic_slash,
             label: t.common.microphone,
             onPressed: notifier.toggleMic,
           ),
           _controlButton(
-            icon: state.cameraOn ? Icons.videocam : Icons.videocam_off,
+            icon: state.cameraOn
+                ? CupertinoIcons.videocam_fill
+                : CupertinoIcons.video_camera,
             label: t.main.camera,
             onPressed: notifier.toggleCamera,
           ),
           _controlButton(
-            icon: state.speakerOn ? Icons.volume_up : Icons.volume_off,
+            icon: state.speakerOn
+                ? CupertinoIcons.volume_up
+                : CupertinoIcons.volume_off,
             label: t.main.loudspeaker,
             onPressed: notifier.toggleSpeaker,
           ),
           _controlButton(
-            icon: Icons.cameraswitch,
+            icon: CupertinoIcons.arrow_2_circlepath,
             label: t.common.switchCamera,
             onPressed: notifier.switchCamera,
           ),
           _controlButton(
-            icon: Icons.call_end,
+            icon: CupertinoIcons.phone_down_fill,
             label: t.main.hangup,
             background: AppColors.getIosRed(Theme.of(context).brightness),
             onPressed: () async {
@@ -553,8 +569,7 @@ class _RtcRoomPageState extends ConsumerState<RtcRoomPage> {
       child: Material(
         color: background,
         shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
+        child: GestureDetector(
           onTap: onPressed,
           child: SizedBox(
             width: _controlButtonSize,

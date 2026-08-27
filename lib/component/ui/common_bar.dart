@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -200,7 +201,11 @@ class GlassBackButton extends StatelessWidget {
                 color: navBlue.withValues(alpha: 0.1),
                 borderRadius: AppRadius.borderRadiusCell,
               ),
-              child: Icon(Icons.arrow_back_ios_new, color: navBlue, size: 16),
+              child: Icon(
+                CupertinoIcons.chevron_left,
+                color: navBlue,
+                size: 16,
+              ),
             ),
           ),
         ),

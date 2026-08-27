@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -525,7 +526,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  media == 'video' ? Icons.videocam : Icons.call,
+                  media == 'video'
+                      ? CupertinoIcons.videocam_fill
+                      : CupertinoIcons.phone_fill,
                   size: 16,
                   color: CallTokens.white60,
                 ),
@@ -564,22 +567,14 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           child: Container(
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-            decoration: BoxDecoration(
-              color: CallTokens.blackA55,
-              borderRadius: BorderRadius.circular(20),
-            ),
+            decoration: BoxDecoration(color: CallTokens.blackA55),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(
                   width: 13,
                   height: 13,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      CallTokens.white70,
-                    ),
-                  ),
+                  child: CupertinoActivityIndicator(color: CallTokens.white70),
                 ),
                 AppSpacing.horizontalSmall,
                 Text(
@@ -616,7 +611,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           child: Row(
             children: [
               const Icon(
-                Icons.error_outline,
+                CupertinoIcons.exclamationmark_circle,
                 color: CallTokens.white70,
                 size: 20,
               ),
@@ -631,7 +626,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                 ),
               ),
               if (target != null)
-                TextButton(
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
                   onPressed: () =>
                       unawaited(openMediaPermissionSettings(target)),
                   child: Text(
@@ -718,7 +714,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     // a11y 仍靠 Semantics label 保留。
     final List<Widget> island = [
       _circleButton(
-        icon: state.micOff ? Icons.mic_off : Icons.mic,
+        icon: state.micOff ? CupertinoIcons.mic_slash : CupertinoIcons.mic_fill,
         label: t.common.microphone,
         active: !state.micOff,
         showLabel: false,
@@ -730,7 +726,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       // 摄像头开关：视频通话才显示，复用 notifier.turnCamera（已有，禁用视频轨）
       if (isVideo)
         _circleButton(
-          icon: state.cameraOff ? Icons.videocam_off : Icons.videocam,
+          icon: state.cameraOff
+              ? CupertinoIcons.videocam
+              : CupertinoIcons.videocam_fill,
           label: t.chat.video,
           active: !state.cameraOff,
           showLabel: false,
@@ -740,7 +738,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           },
         ),
       _circleButton(
-        icon: state.speakerOn ? Icons.volume_up : Icons.volume_off,
+        icon: state.speakerOn
+            ? CupertinoIcons.volume_up
+            : CupertinoIcons.volume_off,
         label: t.main.loudspeaker,
         active: state.speakerOn,
         showLabel: false,
@@ -751,14 +751,14 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       ),
       if (isVideo)
         _circleButton(
-          icon: Icons.cameraswitch,
+          icon: CupertinoIcons.camera_rotate_fill,
           label: t.common.switchCamera,
           showLabel: false,
           onTap: notifier.switchCamera,
         ),
       // 挂断键：实心红、整合进岛内末位，最醒目
       _circleButton(
-        icon: Icons.call_end,
+        icon: CupertinoIcons.phone_down_fill,
         label: t.main.hangup,
         showLabel: false,
         background: AppColors.getIosRed(Theme.of(context).brightness),
@@ -859,21 +859,16 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           ClipOval(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-              child: Material(
-                color: bg,
-                shape: const CircleBorder(),
-                child: InkWell(
-                  onTap: () {
-                    // 实心主按钮（挂断）自带 mediumImpact，避免双重触感
-                    if (!solid) HapticFeedback.selectionClick();
-                    onTap();
-                  },
-                  customBorder: const CircleBorder(),
-                  child: SizedBox(
-                    width: 58,
-                    height: 58,
-                    child: Icon(icon, color: fg, size: 26),
-                  ),
+              child: GestureDetector(
+                onTap: () {
+                  if (!solid) HapticFeedback.selectionClick();
+                  onTap();
+                },
+                child: Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: bg),
+                  child: Icon(icon, color: fg, size: 26),
                 ),
               ),
             ),
@@ -963,7 +958,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       return const ColoredBox(
         color: CallTokens.bg1A1A1A,
         child: Center(
-          child: Icon(Icons.videocam_off, color: CallTokens.white38, size: 28),
+          child: Icon(
+            CupertinoIcons.video_camera,
+            color: CallTokens.white38,
+            size: 28,
+          ),
         ),
       );
     }
@@ -1026,19 +1025,19 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                       button: true,
                       label: t.common.enterFullscreen,
                       child: ClipOval(
-                        child: Material(
-                          color: CallTokens.black54,
-                          child: InkWell(
-                            onTap: _swapVideoLayout,
-                            customBorder: const CircleBorder(),
-                            child: const SizedBox(
-                              width: 28,
-                              height: 28,
-                              child: Icon(
-                                Icons.swap_vert,
-                                color: CallTokens.white,
-                                size: 18,
-                              ),
+                        child: GestureDetector(
+                          onTap: _swapVideoLayout,
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: CallTokens.black54,
+                            ),
+                            child: const Icon(
+                              CupertinoIcons.arrow_up_arrow_down,
+                              color: CallTokens.white,
+                              size: 18,
                             ),
                           ),
                         ),
@@ -1093,25 +1092,24 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                 child: ClipOval(
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: Material(
-                      color: CallTokens.whiteA18,
-                      shape: const CircleBorder(),
-                      child: InkWell(
-                        customBorder: const CircleBorder(),
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          // 用 MediaQuery 算出右上角初始位（小窗宽 ~108）。
-                          final size = MediaQuery.sizeOf(context);
-                          _notifier.enterFloating(size.width - 118, 70);
-                        },
-                        child: const SizedBox(
-                          width: 44,
-                          height: 44,
-                          child: Icon(
-                            Icons.fullscreen_exit,
-                            color: CallTokens.white,
-                            size: 24,
-                          ),
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        // 用 MediaQuery 算出右上角初始位（小窗宽 ~108）。
+                        final size = MediaQuery.sizeOf(context);
+                        _notifier.enterFloating(size.width - 118, 70);
+                      },
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: CallTokens.whiteA18,
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.fullscreen_exit,
+                          color: CallTokens.white,
+                          size: 24,
                         ),
                       ),
                     ),
@@ -1227,7 +1225,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                         top: 4,
                         right: 4,
                         child: Icon(
-                          Icons.fullscreen,
+                          CupertinoIcons.fullscreen,
                           color: CallTokens.white70,
                           size: 18,
                         ),
@@ -1249,10 +1247,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
     // 最小化：仅渲染透明悬浮窗，让用户在底层 app 上继续操作（通话不挂断）。
     if (state.minimized) {
-      return Material(
-        type: MaterialType.transparency,
-        child: _buildFloatingWindow(state),
-      );
+      return Container(child: _buildFloatingWindow(state));
     }
 
     final isVideo = media == 'video';
@@ -1261,9 +1256,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     // 控件可见性：音频/呼出常驻；接通视频点屏切换。淡入淡出替代硬切。
     final bool toolsVisible = !hasRemoteVideo || state.showTool;
 
-    final scaffold = Scaffold(
-      backgroundColor: CallTokens.black,
-      body: Stack(
+    final scaffold = CupertinoPageScaffold(
+      child: Stack(
         children: [
           // 1. 背景层
           if (hasRemoteVideo)

@@ -200,3 +200,15 @@ noSubscribersDesc: 还没有订阅者，分享给好友吧
 allCategories: 全部
 sortPopular: 热门
 sortNewest: 最新
+emoji: "表情"
+justNow: "刚刚"
+minutesAgo: "分钟前"
+hoursAgo: "小时前"
+weeksAgo: "周前"
+# 正交模型创建页面（2026-08-26）
+visibilityLabel: "可见性"
+accessTypeLabel: "付费属性"
+accessTypeFree: "免费"
+accessTypePaid: "付费"
+typePublicPaidDesc: "任何人都可以发现频道，购买后即可订阅"
+typePrivatePaidDesc: "仅受邀用户可进入购买流程，付款后即可订阅"

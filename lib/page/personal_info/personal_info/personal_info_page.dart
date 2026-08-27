@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -317,17 +318,16 @@ class _AvatarPreviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.darkBackground,
-      appBar: AppBar(
+      appBar: GlassAppBar(
         backgroundColor: AppColors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(
             CupertinoIcons.xmark,
             color: AppColors.onPrimary,
             size: 22,
           ),
           onPressed: () => Navigator.of(context).pop(),
-          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
         ),
       ),
       body: Hero(

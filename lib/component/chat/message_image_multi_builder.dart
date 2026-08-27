@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -147,7 +148,7 @@ class _GridTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (uri.isEmpty) return const _TilePlaceholder(icon: Icons.broken_image);
+    if (uri.isEmpty) return const _TilePlaceholder(icon: CupertinoIcons.photo);
 
     return OctoImage(
       image: cachedImageProvider(uri),
@@ -158,7 +159,7 @@ class _GridTile extends StatelessWidget {
         child: Container(color: AppColors.shimmerBase),
       ),
       errorBuilder: (context, error, stacktrace) =>
-          const _TilePlaceholder(icon: Icons.broken_image),
+          const _TilePlaceholder(icon: CupertinoIcons.photo),
     );
   }
 }

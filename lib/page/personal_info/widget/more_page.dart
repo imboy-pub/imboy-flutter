@@ -63,7 +63,7 @@ class _MorePageState extends ConsumerState<MorePage> {
               // 地区设置项
               _buildInfoItem(
                 context: context,
-                icon: Icons.location_on_outlined,
+                icon: CupertinoIcons.location,
                 iconColor: AppColors.iosGreen,
                 title: t.account.region,
                 trailing: Text(
@@ -163,7 +163,7 @@ class _MorePageState extends ConsumerState<MorePage> {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return InkWell(
+    return GestureDetector(
       onTap: onPressed,
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -193,7 +193,7 @@ class _MorePageState extends ConsumerState<MorePage> {
             trailing,
             const SizedBox(width: AppSpacing.small),
             Icon(
-              Icons.arrow_forward_ios,
+              CupertinoIcons.chevron_right,
               size: 16,
               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),

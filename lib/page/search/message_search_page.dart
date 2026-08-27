@@ -115,9 +115,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
 
     _updateHighlightWords(state.currentQuery);
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
+    return CupertinoPageScaffold(
+      child: SafeArea(
         child: Column(
           children: [
             // 搜索栏
@@ -162,7 +161,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
           // 返回按钮
           IconButton(
             icon: Icon(
-              Icons.arrow_back_ios,
+              CupertinoIcons.chevron_left,
               color: Theme.of(context).colorScheme.onSurface,
               size: 20,
             ),
@@ -178,6 +177,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                 borderRadius: AppRadius.borderRadiusMedium,
               ),
               child: TextField(
+                enableSuggestions: false,
+                autocorrect: false,
                 controller: _searchController,
                 autofocus: true,
                 decoration: InputDecoration(
@@ -197,23 +198,20 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                           height: 20,
                           child: Padding(
                             padding: const EdgeInsets.all(10),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColors.primary,
-                              ),
+                            child: CupertinoActivityIndicator(
+                              color: AppColors.primary,
                             ),
                           ),
                         )
                       : Icon(
-                          Icons.search,
+                          CupertinoIcons.search,
                           color: AppColors.textSecondary,
                           size: 20,
                         ),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           icon: Icon(
-                            Icons.clear,
+                            CupertinoIcons.clear,
                             color: AppColors.textSecondary,
                             size: 18,
                           ),
@@ -238,7 +236,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
           ),
           AppSpacing.horizontalSmall,
           // 取消按钮
-          TextButton(
+          CupertinoButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               t.common.buttonCancel,
@@ -388,7 +386,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       child: Row(
         children: [
           Icon(
-            Icons.chat_bubble_outline,
+            CupertinoIcons.chat_bubble,
             size: 16,
             color: AppColors.textSecondary,
           ),
@@ -402,7 +400,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               ),
             ),
           ),
-          TextButton(
+          CupertinoButton(
             onPressed: () {
               ref.read(messageSearchProvider.notifier).clearSearchScope();
               if (_searchController.text.isNotEmpty) {
@@ -452,7 +450,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
 
   /// 构建加载视图
   Widget _buildLoadingView() {
-    return const Center(child: CircularProgressIndicator());
+    return const Center(child: CupertinoActivityIndicator());
   }
 
   /// 构建搜索历史
@@ -467,7 +465,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.history,
+              CupertinoIcons.clock,
               size: 64,
               color: AppColors.textSecondary.withValues(alpha: 0.3),
             ),
@@ -506,7 +504,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              TextButton(
+              CupertinoButton(
                 onPressed: () {
                   ref.read(messageSearchProvider.notifier).clearHistory();
                 },
@@ -576,7 +574,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     return NoDataView(
       text: t.common.searchNoResults,
       description: '"${state.currentQuery}"',
-      icon: Icons.search_off,
+      icon: CupertinoIcons.slash_circle,
       iconSize: 64,
     );
   }
@@ -594,14 +592,14 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       return NoDataView(
         text: t.common.searchDisabledTitle,
         description: state.errorMessage,
-        icon: Icons.lock_outline,
+        icon: CupertinoIcons.lock,
         iconSize: 64,
       );
     }
     return NoDataView(
       text: t.common.searchError,
       description: state.errorMessage,
-      icon: Icons.error_outline,
+      icon: CupertinoIcons.exclamationmark_circle,
       iconSize: 64,
       onTop: () => ref
           .read(messageSearchProvider.notifier)
@@ -636,17 +634,13 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
               ),
               if (state.hasActiveFilters()) ...[
                 AppSpacing.horizontalSmall,
-                TextButton(
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.small,
+                  ),
                   onPressed: () {
                     ref.read(messageSearchProvider.notifier).resetFilters();
                   },
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.small,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
                   child: Text(
                     t.common.resetFilters,
                     style: context.textStyle(
@@ -672,8 +666,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.regular),
                     child: state.isLoading
-                        ? const CircularProgressIndicator()
-                        : TextButton(
+                        ? const CupertinoActivityIndicator()
+                        : CupertinoButton(
                             onPressed: () {
                               ref
                                   .read(messageSearchProvider.notifier)
@@ -732,8 +726,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
           ),
         ],
       ),
-      child: InkWell(
-        borderRadius: AppRadius.borderRadiusMedium,
+      child: GestureDetector(
         onTap: () => _onResultTap(result),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.medium),

@@ -140,6 +140,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
   Widget _buildPasswordSection() {
     return TextField(
+      enableSuggestions: false,
+      autocorrect: false,
       controller: _passwordController,
       obscureText: true,
       decoration: InputDecoration(
@@ -154,6 +156,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
   Widget _buildConfirmPasswordSection() {
     return TextField(
+      enableSuggestions: false,
+      autocorrect: false,
       controller: _confirmPasswordController,
       obscureText: true,
       decoration: InputDecoration(
@@ -172,10 +176,17 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   Widget _buildRecoveryKeyButton() {
     return Align(
       alignment: Alignment.centerLeft,
-      child: TextButton.icon(
-        icon: const Icon(CupertinoIcons.wand_stars, size: 18),
-        label: Text(t.common.e2eeUseRecoveryKey),
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
         onPressed: _generateRecoveryKey,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(CupertinoIcons.wand_stars, size: 18),
+            const SizedBox(width: 4),
+            Text(t.common.e2eeUseRecoveryKey),
+          ],
+        ),
       ),
     );
   }
@@ -237,6 +248,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
   Widget _buildNotesSection() {
     return TextField(
+      enableSuggestions: false,
+      autocorrect: false,
       controller: _notesController,
       decoration: InputDecoration(
         labelText: t.common.e2eeBackupNoteLabel,
@@ -301,19 +314,19 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         _confirmPasswordController.text.isNotEmpty &&
         !_isExporting;
 
-    return ElevatedButton(
-      onPressed: isEnabled ? _handleExport : null,
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 48),
-        backgroundColor: isEnabled ? null : AppColors.iosGray,
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: CupertinoButton.filled(
+        onPressed: isEnabled ? _handleExport : null,
+        child: _isExporting
+            ? const SizedBox(
+                height: AppSpacing.large,
+                width: AppSpacing.large,
+                child: CupertinoActivityIndicator(),
+              )
+            : Text(t.common.e2eeBackupGenerateBtn),
       ),
-      child: _isExporting
-          ? const SizedBox(
-              height: AppSpacing.large,
-              width: AppSpacing.large,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : Text(t.common.e2eeBackupGenerateBtn),
     );
   }
 
@@ -330,7 +343,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
           ? const SizedBox(
               height: AppSpacing.large,
               width: AppSpacing.large,
-              child: CircularProgressIndicator(strokeWidth: 2),
+              child: CupertinoActivityIndicator(),
             )
           : const Icon(CupertinoIcons.cloud_upload),
       label: Text(t.common.e2eeBackupCloudUploadBtn),
@@ -539,22 +552,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.getIosGreen(Theme.of(context).brightness),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    AppLoading.showToast(message);
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.getIosRed(Theme.of(context).brightness),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    AppLoading.showToast(message);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -250,19 +251,19 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
       AppLoading.showToast(context.t.channel.commentDeleteNoPermission);
       return;
     }
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showCupertinoDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(context.t.channel.deleteComment),
         content: Text(context.t.channel.deleteCommentConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(context.t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
+            isDestructiveAction: true,
             child: Text(context.t.common.confirm),
           ),
         ],
@@ -352,7 +353,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   void _shareMessage() {
     final t = context.t;
     final message = widget.message!;
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -365,9 +366,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 Navigator.pop(ctx);
                 Clipboard.setData(ClipboardData(text: message.contentPreview));
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.main.copiedToClipboard)),
-                );
+                AppLoading.showToast(t.main.copiedToClipboard);
               },
             ),
             ListTile(
@@ -406,7 +405,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
 
     if (widget.message == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(title)),
+        appBar: GlassAppBar(title: title),
         body: NoDataView(
           icon: CupertinoIcons.doc_text,
           text: t.common.loadError,
@@ -415,7 +414,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: GlassAppBar(title: title),
       body: Column(
         children: [
           Expanded(
@@ -497,11 +496,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                     ),
                     if (message.viewCount > 0) ...[
                       AppSpacing.horizontalSmall,
-                      Icon(
-                        Icons.remove_red_eye_outlined,
-                        size: 13,
-                        color: secondary,
-                      ),
+                      Icon(CupertinoIcons.eye, size: 13, color: secondary),
                       const SizedBox(width: 2),
                       Text(
                         '${message.viewCount} ${context.t.channel.views}',
@@ -763,7 +758,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.play_arrow,
+                  CupertinoIcons.play_arrow,
                   color: AppColors.mediaScrimWhite,
                   size: 36,
                 ),
@@ -813,7 +808,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.all(AppSpacing.large),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: CupertinoActivityIndicator()),
           ),
         ),
       ];
@@ -822,7 +817,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
       return [
         SliverToBoxAdapter(
           child: NoDataView(
-            icon: Icons.cloud_off_outlined,
+            icon: CupertinoIcons.cloud,
             text: context.t.common.loadError,
             onTop: _loadComments,
           ),
@@ -835,7 +830,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.large),
             child: NoDataView(
-              icon: Icons.chat_bubble_outline,
+              icon: CupertinoIcons.chat_bubble,
               text: context.t.channel.noComments,
             ),
           ),
@@ -898,7 +893,9 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           Row(
             children: [
               _actionButton(
-                icon: _liked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                icon: _liked
+                    ? CupertinoIcons.hand_thumbsup_fill
+                    : CupertinoIcons.hand_thumbsup,
                 label: totalReactions > 0 ? '$totalReactions' : t.channel.like,
                 color: _liked ? AppColors.primary : secondary,
                 onTap: _toggleMessageLike,
@@ -909,7 +906,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
               ),
               AppSpacing.horizontalRegular,
               _actionButton(
-                icon: Icons.chat_bubble_outline,
+                icon: CupertinoIcons.chat_bubble,
                 label: _comments.isNotEmpty
                     ? '${_comments.length}'
                     : t.channel.comment,
@@ -921,7 +918,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
               ),
               AppSpacing.horizontalRegular,
               _actionButton(
-                icon: Icons.share_outlined,
+                icon: CupertinoIcons.share,
                 label: t.channel.share,
                 color: secondary,
                 onTap: _shareMessage,
@@ -951,7 +948,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                   GestureDetector(
                     onTap: _cancelReply,
                     child: Icon(
-                      Icons.close,
+                      CupertinoIcons.xmark_circle_fill,
                       size: 16,
                       color: AppColors.iosGray,
                     ),
@@ -982,9 +979,9 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CupertinoActivityIndicator(),
                         )
-                      : const Icon(Icons.send, size: 18),
+                      : const Icon(CupertinoIcons.arrow_up_circle, size: 18),
                 ),
               ],
             ),
@@ -1016,10 +1013,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: color,
-                  ),
+                  child: CupertinoActivityIndicator(color: color),
                 )
               else
                 Icon(icon, size: 18, color: color),

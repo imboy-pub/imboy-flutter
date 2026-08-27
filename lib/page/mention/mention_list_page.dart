@@ -14,6 +14,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 
 /// @提及列表页面
 class MentionListPage extends ConsumerStatefulWidget {
@@ -175,9 +176,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
 
     if (!mounted) return;
     if (groupId.isEmpty || msgId.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(t.mention.navInfoMissing)));
+      AppLoading.showToast(t.mention.navInfoMissing);
       return;
     }
 

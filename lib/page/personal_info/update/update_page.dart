@@ -70,8 +70,7 @@ class UpdatePage extends ConsumerWidget {
               ),
               child: Material(
                 color: AppColors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(AppSpacing.regular * 2),
+                child: GestureDetector(
                   onTap: state.valueChanged
                       ? () async {
                           if (field == "input") {
@@ -163,6 +162,8 @@ class UpdatePage extends ConsumerWidget {
         vertical: 2,
       ),
       child: TextFormField(
+        enableSuggestions: false,
+        autocorrect: false,
         autofocus: true,
         focusNode: focusNode,
         controller: controller,
@@ -239,6 +240,8 @@ class UpdatePage extends ConsumerWidget {
               ],
             ),
             child: TextFormField(
+              enableSuggestions: false,
+              autocorrect: false,
               autofocus: true,
               focusNode: focusNode,
               controller: controller,

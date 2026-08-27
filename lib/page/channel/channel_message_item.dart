@@ -8,7 +8,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:imboy/component/helper/safe_launcher.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -398,11 +398,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
           ),
           const Spacer(),
           if (message.viewCount > 0) ...[
-            Icon(
-              Icons.remove_red_eye_outlined,
-              size: 13,
-              color: secondaryColor,
-            ),
+            Icon(CupertinoIcons.eye, size: 13, color: secondaryColor),
             const SizedBox(width: 2),
             Text(
               _formatCount(message.viewCount),
@@ -420,7 +416,11 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                 : _showMoreMenu(context),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              child: Icon(Icons.more_horiz, size: 18, color: secondaryColor),
+              child: Icon(
+                CupertinoIcons.ellipsis,
+                size: 18,
+                color: secondaryColor,
+              ),
             ),
           ),
         ],
@@ -734,7 +734,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black54,
+                      color: AppColors.mediaScrimBlack.withValues(alpha: 0.54),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -751,7 +751,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.play_arrow,
+                  CupertinoIcons.play_arrow,
                   color: Colors.white,
                   size: 36,
                 ),
@@ -771,9 +771,8 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
 
     return Padding(
       padding: const EdgeInsets.only(top: 6),
-      child: InkWell(
+      child: GestureDetector(
         onTap: (uri == null || uri.isEmpty) ? null : () => _openFile(uri),
-        borderRadius: AppRadius.borderRadiusSmall,
         child: Container(
           padding: AppSpacing.allMedium,
           decoration: BoxDecoration(
@@ -782,7 +781,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
           ),
           child: Row(
             children: [
-              Icon(Icons.insert_drive_file, size: 36, color: textColor),
+              Icon(CupertinoIcons.doc, size: 36, color: textColor),
               AppSpacing.horizontalMedium,
               Expanded(
                 child: Column(
@@ -853,7 +852,9 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
         children: [
           // 点赞按钮（主反应）
           _buildActionButton(
-            icon: _liked ? Icons.thumb_up : Icons.thumb_up_outlined,
+            icon: _liked
+                ? CupertinoIcons.hand_thumbsup_fill
+                : CupertinoIcons.hand_thumbsup,
             label: totalReactions > 0
                 ? _formatCount(totalReactions)
                 : t.channel.like,
@@ -867,7 +868,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
           AppSpacing.horizontalRegular,
           // 评论 —— 直达 B1 阅读页（评论区随正文一并承载），不再走独立评论页
           _buildActionButton(
-            icon: Icons.chat_bubble_outline,
+            icon: CupertinoIcons.chat_bubble,
             label: t.channel.comment,
             color: secondaryColor,
             onTap: () {
@@ -881,7 +882,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
           AppSpacing.horizontalRegular,
           // 分享
           _buildActionButton(
-            icon: Icons.share_outlined,
+            icon: CupertinoIcons.share,
             label: t.channel.share,
             color: secondaryColor,
             onTap: () => _shareMessage(),
@@ -907,10 +908,9 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       button: true,
       child: Material(
         type: MaterialType.transparency,
-        child: InkWell(
+        child: GestureDetector(
           onTap: onTap,
           onLongPress: onLongPress,
-          borderRadius: AppRadius.borderRadiusSmall,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
             child: Row(
@@ -919,10 +919,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                   SizedBox(
                     width: 16,
                     height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: color,
-                    ),
+                    child: CupertinoActivityIndicator(color: color),
                   )
                 else
                   Icon(icon, size: 16, color: color),
@@ -996,7 +993,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
 
   void _showMoreMenu(BuildContext context) {
     final t = context.t;
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -1011,9 +1008,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                   Clipboard.setData(
                     ClipboardData(text: widget.message.content),
                   );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t.main.copiedToClipboard)),
-                  );
+                  AppLoading.showToast(t.main.copiedToClipboard);
                 }
               },
             ),
@@ -1053,14 +1048,10 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       pinned,
     );
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            pinned
-                ? context.t.channel.messagePinned
-                : context.t.channel.messageUnpinned,
-          ),
-        ),
+      AppLoading.showToast(
+        pinned
+            ? context.t.channel.messagePinned
+            : context.t.channel.messageUnpinned,
       );
       widget.onReactionChanged?.call();
       widget.onPinned?.call(pinned);
@@ -1070,17 +1061,17 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   void _showDeleteMessageDialog() {
     final t = context.t;
     final deletedMsg = t.channel.messageDeleted;
-    showDialog<void>(
+    showCupertinoDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.channel.deleteMessage),
         content: Text(t.channel.deleteMessageConfirm),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(ctx),
             child: Text(t.common.cancel),
           ),
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () async {
               final channelService = ref.read(channelServiceProvider);
               Navigator.pop(ctx);
@@ -1089,14 +1080,12 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                 widget.message.id.toString(),
               );
               if (success && mounted) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(deletedMsg)));
+                AppLoading.showToast(deletedMsg);
                 widget.onReactionChanged?.call();
                 widget.onDeleted?.call();
               }
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.iosRed),
+            isDestructiveAction: true,
             child: Text(t.common.confirm),
           ),
         ],
@@ -1106,7 +1095,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
 
   void _shareMessage() {
     final t = context.t;
-    showModalBottomSheet<void>(
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -1119,9 +1108,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                 Navigator.pop(ctx);
                 final text = widget.message.contentPreview;
                 Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.main.copiedToClipboard)),
-                );
+                AppLoading.showToast(t.main.copiedToClipboard);
               },
             ),
             ListTile(
@@ -1154,19 +1141,13 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     final parsed = Uri.tryParse(uri);
     if (parsed == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.chat.fileUrlInvalid)));
+      AppLoading.showToast(context.t.chat.fileUrlInvalid);
       return;
     }
-    if (!await canLaunchUrl(parsed)) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.common.fileOpenFailed)));
-      return;
+    final opened = await SafeLauncher.safeLaunchUrl(parsed);
+    if (!opened && mounted) {
+      AppLoading.showToast(context.t.common.fileOpenFailed);
     }
-    await launchUrl(parsed, mode: LaunchMode.externalApplication);
   }
 
   // ---- 辅助格式化 ----
@@ -1267,7 +1248,7 @@ class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
     final isThis = playbackState.currentMessageId == widget.messageId;
     final isPlaying = isThis && playbackState.isPlaying;
 
-    return InkWell(
+    return GestureDetector(
       onTap: _togglePlay,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1278,15 +1259,12 @@ class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
                 ? SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: widget.textColor,
-                    ),
+                    child: CupertinoActivityIndicator(color: widget.textColor),
                   )
                 : Icon(
                     isPlaying
-                        ? Icons.pause_circle_filled
-                        : Icons.play_circle_filled,
+                        ? CupertinoIcons.pause_circle_fill
+                        : CupertinoIcons.play_circle_fill,
                     color: widget.textColor,
                     size: 20,
                   ),

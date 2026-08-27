@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
@@ -145,10 +146,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
     // 而本页 Column 含 Expanded → RenderFlex unbounded height 异常导致整页
     // 白屏(无搜索框/无列表)。改用 Scaffold 给 Column 有界高度（QA#20）。
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.common.searchChatContent),
-        centerTitle: true,
-      ),
+      appBar: GlassAppBar(title: t.common.searchChatContent),
       body: Column(
         children: [
           // 搜索栏
@@ -294,13 +292,13 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           ? NoDataView(
               text: t.common.searchDisabledTitle,
               description: errorMessage,
-              icon: Icons.lock_outline,
+              icon: CupertinoIcons.lock,
               iconSize: 64,
             )
           : NoDataView(
               text: t.common.searchError,
               description: errorMessage,
-              icon: Icons.error_outline,
+              icon: CupertinoIcons.exclamationmark_circle,
               iconSize: 64,
               onTop: () => performSearch(query: query),
             ),

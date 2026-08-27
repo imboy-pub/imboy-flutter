@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:imboy/component/helper/safe_launcher.dart';
 
 import 'package:imboy/component/helper/func.dart'
     show cachedImageProvider, iPrint;
@@ -93,9 +93,8 @@ Future<void> _openLink(String? href) async {
     iPrint('[channel_markdown] 无效链接: $href');
     return;
   }
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  } else {
+  final opened = await SafeLauncher.safeLaunchUrl(uri);
+  if (!opened) {
     iPrint('[channel_markdown] 无法打开链接: $href');
   }
 }
