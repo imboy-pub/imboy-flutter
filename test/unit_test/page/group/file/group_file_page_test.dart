@@ -7,6 +7,7 @@ import 'package:file_picker_platform_interface/file_picker_platform_interface.da
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/service/group_file_service.dart';
@@ -160,8 +161,12 @@ final class _FakePickedFile extends PlatformFile {
 }
 
 Widget _buildTestApp() {
-  return const ProviderScope(
-    child: MaterialApp(home: GroupFilePage(groupId: 'g1')),
+  // 群文件页用 AppLoading.showToast 反馈；未挂 builder 时 EasyLoading 会断言。
+  return ProviderScope(
+    child: MaterialApp(
+      home: const GroupFilePage(groupId: 'g1'),
+      builder: AppLoading.init(),
+    ),
   );
 }
 

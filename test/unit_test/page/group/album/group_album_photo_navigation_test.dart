@@ -4,6 +4,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/page/group/album/group_album_photo_detail_page.dart';
 import 'package:imboy/page/group/album/group_album_photo_page.dart';
 import 'package:imboy/config/const.dart';
@@ -170,7 +171,12 @@ void main() {
     );
 
     await tester.pumpWidget(
-      ProviderScope(child: MaterialApp.router(routerConfig: router)),
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: router,
+          builder: AppLoading.init(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -204,13 +210,14 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
           home: GroupAlbumPhotoPage(
             groupId: 'g1',
             albumId: 'a1',
             albumName: 'A',
           ),
+          builder: AppLoading.init(),
         ),
       ),
     );
@@ -249,13 +256,14 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
           home: GroupAlbumPhotoPage(
             groupId: 'g1',
             albumId: 'a1',
             albumName: 'A',
           ),
+          builder: AppLoading.init(),
         ),
       ),
     );
@@ -300,13 +308,14 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
           home: GroupAlbumPhotoPage(
             groupId: 'g1',
             albumId: 'a1',
             albumName: 'A',
           ),
+          builder: AppLoading.init(),
         ),
       ),
     );
@@ -361,13 +370,14 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
           home: GroupAlbumPhotoPage(
             groupId: 'g1',
             albumId: 'a1',
             albumName: 'A',
           ),
+          builder: AppLoading.init(),
         ),
       ),
     );
@@ -409,7 +419,7 @@ void main() {
       GroupAlbumService.instanceForTest = fakeService;
 
       await tester.pumpWidget(
-        const ProviderScope(
+        ProviderScope(
           child: MaterialApp(
             home: GroupAlbumPhotoDetailPage(
               groupId: 'g1',
@@ -419,6 +429,7 @@ void main() {
               photoIds: ['p1', 'p2', 'p3'],
               initialIndex: 1,
             ),
+            builder: AppLoading.init(),
           ),
         ),
       );
@@ -464,7 +475,7 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
           home: GroupAlbumPhotoDetailPage(
             groupId: 'g1',
@@ -474,6 +485,7 @@ void main() {
             photoIds: ['p1'],
             initialIndex: 0,
           ),
+          builder: AppLoading.init(),
         ),
       ),
     );
@@ -503,7 +515,7 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
           home: GroupAlbumPhotoDetailPage(
             groupId: 'g1',
@@ -513,6 +525,7 @@ void main() {
             photoIds: ['p1'],
             initialIndex: 0,
           ),
+          builder: AppLoading.init(),
         ),
       ),
     );
@@ -537,7 +550,7 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
           home: GroupAlbumPhotoDetailPage(
             groupId: 'g1',
@@ -547,6 +560,7 @@ void main() {
             photoIds: ['p1'],
             initialIndex: 0,
           ),
+          builder: AppLoading.init(),
         ),
       ),
     );
@@ -572,7 +586,7 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
           home: GroupAlbumPhotoDetailPage(
             groupId: 'g1',
@@ -582,6 +596,7 @@ void main() {
             photoIds: ['p1'],
             initialIndex: 0,
           ),
+          builder: AppLoading.init(),
         ),
       ),
     );
@@ -609,7 +624,12 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: _DetailDeleteHost())),
+      ProviderScope(
+        child: MaterialApp(
+          home: _DetailDeleteHost(),
+          builder: AppLoading.init(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('result:none'), findsOneWidget);
@@ -645,7 +665,12 @@ void main() {
     GroupAlbumService.instanceForTest = fakeService;
 
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: _DetailDeleteHost())),
+      ProviderScope(
+        child: MaterialApp(
+          home: _DetailDeleteHost(),
+          builder: AppLoading.init(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('result:none'), findsOneWidget);
@@ -687,9 +712,10 @@ void main() {
       GroupAlbumService.instanceForTest = fakeService;
 
       await tester.pumpWidget(
-        const ProviderScope(
+        ProviderScope(
           child: MaterialApp(
             home: GroupAlbumPhotoPage(groupId: 'g1', albumId: 'a1'),
+            builder: AppLoading.init(),
           ),
         ),
       );
