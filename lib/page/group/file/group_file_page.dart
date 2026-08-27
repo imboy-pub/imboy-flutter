@@ -1,4 +1,6 @@
 import 'dart:async' show unawaited;
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -217,7 +219,10 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
     final file = result.files.single;
     final fileName = file.name.trim();
-    final fileBytes = file.bytes;
+    Uint8List? fileBytes = file.bytes;
+    if (fileBytes == null && file.path != null) {
+      fileBytes = await File(file.path!).readAsBytes();
+    }
     if (fileName.isEmpty || fileBytes == null || fileBytes.isEmpty) {
       if (!mounted) return;
       AppLoading.showToast(t.common.groupFileReadFailed);

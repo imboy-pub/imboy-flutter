@@ -330,6 +330,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
         rightDMActions: [
           // 纯图标按钮须显式 Semantics，CupertinoButton 无 tooltip 参数。
           Semantics(
+            identifier: 'auto.group.schedule.create',
             button: true,
             label: t.groupSchedule.createSchedule,
             child: CupertinoButton(

@@ -1,4 +1,6 @@
 import 'dart:async' show unawaited;
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -250,7 +252,10 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
 
     final file = result.files.single;
     final photoName = file.name.trim();
-    final photoBytes = file.bytes;
+    Uint8List? photoBytes = file.bytes;
+    if (photoBytes == null && file.path != null) {
+      photoBytes = await File(file.path!).readAsBytes();
+    }
     if (photoName.isEmpty || photoBytes == null || photoBytes.isEmpty) {
       if (!mounted) return;
       AppLoading.showToast(t.common.groupAlbumPhotoReadFailed);
