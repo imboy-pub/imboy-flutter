@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
@@ -38,7 +39,7 @@ void main() {
 
     expect(find.text(t.chat.e2eeRecoveryBannerText), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.close));
+    await tester.tap(find.byIcon(CupertinoIcons.xmark_circle_fill));
     await tester.pump();
 
     expect(dismissed, isTrue);

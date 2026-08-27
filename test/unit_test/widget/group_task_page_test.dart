@@ -10,6 +10,7 @@
 // 运行方式 / How to run:
 //   flutter test test/widget/group_task_page_test.dart
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -191,7 +192,7 @@ void main() {
 
       // pump 一帧（不 settle），此时仍在加载
       await tester.pump();
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
 
       // 推进 fake timer 使 pending timer 清空，避免测试框架报 "timer still pending"
       // Advance fake timer to drain the pending 10-second timer before test teardown
@@ -263,7 +264,7 @@ void main() {
       await tester.tap(find.byKey(const Key('create_task_fab')));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('create_task_dialog')), findsOneWidget);
+      expect(find.byKey(const Key('create_task_confirm')), findsOneWidget);
       expect(find.byKey(const Key('task_title_field')), findsOneWidget);
     });
 
@@ -284,7 +285,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 对话框仍存在（未关闭） / Dialog should still be open
-      expect(find.byKey(const Key('create_task_dialog')), findsOneWidget);
+      expect(find.byKey(const Key('create_task_confirm')), findsOneWidget);
       expect(fake.createCallCount, 0);
     });
 
@@ -312,7 +313,7 @@ void main() {
       expect(fake.createCallCount, 1);
       expect(fake.lastCreatedTitle, '新建集成测试作业');
       // 对话框关闭 / Dialog closed
-      expect(find.byKey(const Key('create_task_dialog')), findsNothing);
+      expect(find.byKey(const Key('create_task_confirm')), findsNothing);
       // 新作业出现在列表 / New task appears in list
       expect(find.text('新建集成测试作业'), findsOneWidget);
     });

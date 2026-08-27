@@ -8,6 +8,7 @@
 /// - 内容居中 + 最大宽度约束
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_welcome_panel.dart';
@@ -91,7 +92,7 @@ void main() {
   group('WebWelcomePanel — 图标', () {
     testWidgets('默认渲染 chat_bubble_outline', (tester) async {
       await _pumpWelcomePanel(tester, child: const WebWelcomePanel(title: 'T'));
-      expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.chat_bubble), findsOneWidget);
     });
 
     testWidgets('自定义 icon 可注入', (tester) async {
@@ -100,13 +101,13 @@ void main() {
         child: const WebWelcomePanel(title: 'T', icon: Icons.contacts_outlined),
       );
       expect(find.byIcon(Icons.contacts_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.chat_bubble_outline), findsNothing);
+      expect(find.byIcon(CupertinoIcons.chat_bubble), findsNothing);
     });
 
     testWidgets('图标尺寸为 96', (tester) async {
       await _pumpWelcomePanel(tester, child: const WebWelcomePanel(title: 'T'));
       final iconWidget = tester.widget<Icon>(
-        find.byIcon(Icons.chat_bubble_outline),
+        find.byIcon(CupertinoIcons.chat_bubble),
       );
       expect(iconWidget.size, 96);
     });
@@ -142,7 +143,7 @@ void main() {
       final BuildContext ctx = tester.element(find.text('T'));
       final cs = Theme.of(ctx).colorScheme;
       final iconWidget = tester.widget<Icon>(
-        find.byIcon(Icons.chat_bubble_outline),
+        find.byIcon(CupertinoIcons.chat_bubble),
       );
       expect(iconWidget.color, cs.primary.withAlpha(153));
     });

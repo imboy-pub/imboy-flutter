@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
@@ -12,7 +13,7 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.person_outline_rounded), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.person), findsOneWidget);
     expect(find.text('?'), findsNothing);
   });
 
@@ -26,6 +27,6 @@ void main() {
     );
 
     expect(find.text('测'), findsOneWidget);
-    expect(find.byIcon(Icons.person_outline_rounded), findsNothing);
+    expect(find.byIcon(CupertinoIcons.person), findsNothing);
   });
 }

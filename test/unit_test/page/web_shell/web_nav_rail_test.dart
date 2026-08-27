@@ -79,8 +79,8 @@ void main() {
         currentIndex: 0,
         onTap: (_) {},
       );
-      // 4 个 InkWell（每个 item 一个）
-      expect(find.byType(InkWell), findsNWidgets(4));
+      // 4 个 GestureDetector（每个 item 一个）
+      expect(find.byType(GestureDetector), findsNWidgets(4));
     });
 
     testWidgets('默认 width=72', (tester) async {
@@ -300,7 +300,7 @@ void main() {
         currentIndex: 0,
         onTap: (i) => lastTap = i,
       );
-      await tester.tap(find.byType(InkWell).at(1));
+      await tester.tap(find.byType(GestureDetector).at(1));
       await tester.pump();
       expect(lastTap, 1);
     });
@@ -313,7 +313,7 @@ void main() {
         currentIndex: 0,
         onTap: (i) => lastTap = i,
       );
-      await tester.tap(find.byType(InkWell).at(3));
+      await tester.tap(find.byType(GestureDetector).at(3));
       await tester.pump();
       expect(lastTap, 3);
     });
@@ -326,7 +326,7 @@ void main() {
         currentIndex: 1,
         onTap: (i) => lastTap = i,
       );
-      await tester.tap(find.byType(InkWell).at(1));
+      await tester.tap(find.byType(GestureDetector).at(1));
       await tester.pump();
       expect(lastTap, 1);
     });

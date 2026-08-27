@@ -1,7 +1,7 @@
 /// Widget test for `lib/component/chat/message_unsupported_builder.dart`
 ///
 /// 覆盖：
-///   - 总是渲染警告图标 (Icons.warning_amber_rounded, AppColors.iosOrange)
+///   - 总是渲染警告图标 (CupertinoIcons.exclamationmark_triangle, AppColors.iosOrange)
 ///   - 总是渲染 "不支持的消息类型" 主标签
 ///   - msg_type 非空 + 非 'unknown' → 渲染 "($msgType)" 副标签
 ///   - msg_type 'unknown' + original_type 非空 → 副标签 fallback 用 original_type
@@ -9,6 +9,7 @@
 ///   - msg_type 'unknown' + original_type 'unknown' → 副标签隐藏
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -49,9 +50,12 @@ void main() {
   group('ImUnsupportedMessageBuilder layout', () {
     testWidgets('总是渲染 warning_amber_rounded 图标 + iosOrange', (tester) async {
       await _pump(tester, message: _msg());
-      expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
+      expect(
+        find.byIcon(CupertinoIcons.exclamationmark_triangle),
+        findsOneWidget,
+      );
       final icon = tester.widget<Icon>(
-        find.byIcon(Icons.warning_amber_rounded),
+        find.byIcon(CupertinoIcons.exclamationmark_triangle),
       );
       expect(icon.color, AppColors.iosOrange);
     });

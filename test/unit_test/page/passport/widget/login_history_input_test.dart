@@ -86,7 +86,7 @@ void main() {
         onDelete: (_) {},
       );
 
-      expect(find.byIcon(Icons.arrow_drop_down), findsNothing);
+      expect(find.byIcon(CupertinoIcons.chevron_down), findsNothing);
     });
 
     testWidgets('history 非空 → 显示下拉箭头 suffix', (tester) async {
@@ -101,7 +101,7 @@ void main() {
         onDelete: (_) {},
       );
 
-      expect(find.byIcon(Icons.arrow_drop_down), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.chevron_down), findsOneWidget);
     });
 
     testWidgets('自定义 suffixIcon 覆盖默认下拉箭头', (tester) async {
@@ -120,7 +120,7 @@ void main() {
 
       expect(find.byKey(const Key('custom_suffix')), findsOneWidget);
       expect(
-        find.byIcon(Icons.arrow_drop_down),
+        find.byIcon(CupertinoIcons.chevron_down),
         findsNothing,
         reason: '自定义 suffix 应覆盖默认下拉箭头',
       );
@@ -162,7 +162,7 @@ void main() {
         onDelete: (_) {},
       );
 
-      await tester.tap(find.byIcon(Icons.arrow_drop_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
 
       // Overlay 内 ListTile 数 == history 长度
@@ -187,7 +187,7 @@ void main() {
           onDelete: (_) {},
         );
 
-        await tester.tap(find.byIcon(Icons.arrow_drop_down));
+        await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
         await tester.pumpAndSettle();
 
         await tester.tap(find.text('bob@example.com'));
@@ -213,7 +213,7 @@ void main() {
         onDelete: (v) => deleted = v,
       );
 
-      await tester.tap(find.byIcon(Icons.arrow_drop_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
 
       // close icon 在 ListTile.trailing 中（IconButton + CupertinoIcons.xmark，
@@ -245,12 +245,12 @@ void main() {
       );
 
       // 第一次 tap：开
-      await tester.tap(find.byIcon(Icons.arrow_drop_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
       expect(find.byType(ListTile), findsOneWidget);
 
       // 第二次 tap：关
-      await tester.tap(find.byIcon(Icons.arrow_drop_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
       expect(find.byType(ListTile), findsNothing);
     });
@@ -270,7 +270,7 @@ void main() {
       );
 
       // 打开 Overlay
-      await tester.tap(find.byIcon(Icons.arrow_drop_down));
+      await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
       await tester.pumpAndSettle();
       expect(find.byType(ListTile), findsOneWidget);
 

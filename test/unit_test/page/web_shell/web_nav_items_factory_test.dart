@@ -9,6 +9,7 @@
 /// - 工厂常量值契约
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_nav_items_factory.dart';
@@ -48,8 +49,8 @@ void main() {
         channelLabel: 'H',
         mineLabel: 'I',
       );
-      expect(items[0].icon, Icons.chat_bubble_outline);
-      expect(items[0].activeIcon, Icons.chat_bubble);
+      expect(items[0].icon, CupertinoIcons.chat_bubble);
+      expect(items[0].activeIcon, CupertinoIcons.chat_bubble_fill);
     });
 
     test('Tab 1 联系人：people_alt_outlined / people_alt', () {
@@ -59,8 +60,8 @@ void main() {
         channelLabel: 'H',
         mineLabel: 'I',
       );
-      expect(items[1].icon, Icons.people_alt_outlined);
-      expect(items[1].activeIcon, Icons.people_alt);
+      expect(items[1].icon, CupertinoIcons.person_2);
+      expect(items[1].activeIcon, CupertinoIcons.person_2_fill);
     });
 
     test('Tab 2 频道：campaign_outlined / campaign', () {
@@ -70,8 +71,8 @@ void main() {
         channelLabel: 'H',
         mineLabel: 'I',
       );
-      expect(items[2].icon, Icons.campaign_outlined);
-      expect(items[2].activeIcon, Icons.campaign);
+      expect(items[2].icon, CupertinoIcons.speaker_2);
+      expect(items[2].activeIcon, CupertinoIcons.speaker_2);
     });
 
     test('Tab 3 我的：person_outline / person', () {
@@ -81,8 +82,8 @@ void main() {
         channelLabel: 'H',
         mineLabel: 'I',
       );
-      expect(items[3].icon, Icons.person_outline);
-      expect(items[3].activeIcon, Icons.person);
+      expect(items[3].icon, CupertinoIcons.person);
+      expect(items[3].activeIcon, CupertinoIcons.person_fill);
     });
   });
 

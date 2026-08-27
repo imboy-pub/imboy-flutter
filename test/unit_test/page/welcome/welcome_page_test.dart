@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -172,9 +173,9 @@ void main() {
       await _pumpWelcome(tester);
 
       // language icon 图标应可见（顶部右侧选择器）
-      expect(find.byIcon(Icons.language), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.globe), findsOneWidget);
       // 下拉箭头图标可见
-      expect(find.byIcon(Icons.keyboard_arrow_down), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.chevron_down), findsOneWidget);
     });
   });
 }

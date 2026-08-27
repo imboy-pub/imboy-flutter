@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -150,8 +151,8 @@ void main() {
       expect(find.text('所有人'), findsOneWidget);
       // hint = "通知所有群成员"
       expect(find.text('通知所有群成员'), findsOneWidget);
-      // group icon (Icons.group)
-      expect(find.byIcon(Icons.group), findsOneWidget);
+      // group icon (CupertinoIcons.group)
+      expect(find.byIcon(CupertinoIcons.group), findsOneWidget);
     });
 
     testWidgets('showAllMention=true + isAdmin=false → 不渲染 @所有人', (
@@ -165,7 +166,7 @@ void main() {
       );
 
       expect(find.text('所有人'), findsNothing);
-      expect(find.byIcon(Icons.group), findsNothing);
+      expect(find.byIcon(CupertinoIcons.group), findsNothing);
     });
 
     testWidgets('keyword="所" → @所有人 仍匹配（包含搜索）', (tester) async {

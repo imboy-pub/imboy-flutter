@@ -211,8 +211,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Icons.verified 应出现
-      expect(find.byIcon(Icons.verified), findsWidgets);
+      // CupertinoIcons.checkmark_seal_fill 应出现
+      expect(find.byIcon(CupertinoIcons.checkmark_seal_fill), findsWidgets);
     });
   });
 

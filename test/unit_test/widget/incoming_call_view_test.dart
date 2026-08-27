@@ -8,6 +8,7 @@
 // 运行方式 / How to run:
 //   flutter test test/widget/incoming_call_view_test.dart
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/p2p_call_screen/incoming_call_view.dart';
@@ -44,11 +45,11 @@ void main() {
 
     expect(find.text('张三'), findsOneWidget);
     // 拒接按钮（红色 call_end）
-    expect(find.byIcon(Icons.call_end), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.phone_down_circle_fill), findsOneWidget);
     // 视频来电的接听按钮用 videocam 图标
-    expect(find.byIcon(Icons.videocam), findsWidgets);
+    expect(find.byIcon(CupertinoIcons.videocam), findsNWidgets(2));
 
-    await tester.tap(find.byIcon(Icons.call_end));
+    await tester.tap(find.byIcon(CupertinoIcons.phone_down_circle_fill));
     expect(declined, isTrue);
     expect(accepted, isFalse);
   });
@@ -60,10 +61,10 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.byIcon(Icons.phone), findsOneWidget);
-    expect(find.byIcon(Icons.videocam), findsNothing);
+    expect(find.byIcon(CupertinoIcons.phone), findsNWidgets(2));
+    expect(find.byIcon(CupertinoIcons.videocam), findsNothing);
 
-    await tester.tap(find.byIcon(Icons.phone));
+    await tester.tap(find.byIcon(CupertinoIcons.phone));
     expect(accepted, isTrue);
   });
 
