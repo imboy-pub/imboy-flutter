@@ -9,6 +9,7 @@
 /// 后填充表单（加载失败显示错误态 + 重试）。
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -171,7 +172,7 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           IconButton(
             key: const ValueKey('task-assignee-refresh'),
             tooltip: t.workspace.taskAssigneeRefresh,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(CupertinoIcons.refresh),
             onPressed: () =>
                 ref.invalidate(assigneeCandidatesProvider(widget.workspaceId)),
           ),

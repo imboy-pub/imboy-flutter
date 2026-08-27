@@ -10,6 +10,7 @@
 /// - archived：顶部归档横幅（写操作禁用由各视图按状态自行落实）
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -135,7 +136,7 @@ class _ShellTopBar extends ConsumerWidget {
           IconButton(
             key: const ValueKey('workspace-shell-dm-entry'),
             tooltip: t.workspace.dmEntry,
-            icon: const Icon(Icons.chat_bubble_outline),
+            icon: const Icon(CupertinoIcons.chat_bubble_text),
             onPressed: () => context.push('/conversation'),
           ),
         ],
@@ -168,14 +169,14 @@ class _ShellRail extends ConsumerWidget {
           IconButton(
             key: const ValueKey('workspace-shell-switcher'),
             tooltip: t.workspace.pickerTitle,
-            icon: const Icon(Icons.dashboard_customize_outlined),
+            icon: const Icon(CupertinoIcons.square_grid_2x2),
             onPressed: () => context.push('/workspace'),
           ),
           // 全局 DM 入口（复用现有会话列表；DM 不进五项导航）
           IconButton(
             key: const ValueKey('workspace-shell-dm-entry'),
             tooltip: t.workspace.dmEntry,
-            icon: const Icon(Icons.chat_bubble_outline),
+            icon: const Icon(CupertinoIcons.chat_bubble_text),
             onPressed: () => context.push('/conversation'),
           ),
           if (current != null)

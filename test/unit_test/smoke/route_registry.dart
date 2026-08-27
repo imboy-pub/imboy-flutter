@@ -422,6 +422,33 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
     location: '/workspace/9001/branding',
   ),
 
+  // ==================== 工作区 Project/Tasks（WP6/T10a/T10b，W0） ====================
+  const SmokeRoute(
+    name: 'workspace_project_create',
+    location: '/workspace/9001/projects/create',
+  ),
+  const SmokeRoute(
+    name: 'workspace_project_detail',
+    location: '/workspace/9001/projects/9101',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'WP6/T10a：ProjectDetailPage 经 projectDetailProvider 异步加载'
+        '（与 workspace_channel_detail 同类），无头环境留 pending timer；'
+        '结构契约由 project detail page 测试断言',
+  ),
+  const SmokeRoute(
+    name: 'workspace_task_create',
+    location: '/workspace/9001/projects/9101/tasks/new',
+  ),
+  const SmokeRoute(
+    name: 'workspace_task_edit',
+    location: '/workspace/9001/projects/9101/tasks/9102/edit',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'WP6/T10b：edit 模式经 projectTaskDetailProvider 加载既有行，'
+        '无头环境留 pending timer；四态状态机由 task controller 测试覆盖',
+  ),
+
   // ==================== 兼容旧路径 ====================
   const SmokeRoute(name: 'people_info_top', location: '/people_info/1001'),
 ];
