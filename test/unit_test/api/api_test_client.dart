@@ -141,20 +141,20 @@ class ApiTestClient {
       );
 
   Map<String, String> _defaultHeaders() {
-    final cos = Platform.isIOS
-        ? 'ios'
-        : Platform.isAndroid
-        ? 'android'
-        : Platform.isMacOS
-        ? 'macos'
-        : 'linux';
-    final pkg = Platform.isAndroid
-        ? 'pub.imboy.app'
-        : Platform.isMacOS
-        ? 'pub.imboy.app'
-        : Platform.isIOS
-        ? 'pub.imboy.app'
-        : 'pub.imboy.app';
+    // 生产验签已 per-pkg 化（auth_ds 按 pkg_cos_sk 查 config 表）：可用
+    // TEST_SIGN_COS/TEST_SIGN_PKG 覆盖为有登记的组合（如 android/
+    // imboy.chat），不设置时保持按宿主平台推导的历史默认值。
+    final env = Platform.environment;
+    final cos =
+        env['TEST_SIGN_COS'] ??
+        (Platform.isIOS
+            ? 'ios'
+            : Platform.isAndroid
+            ? 'android'
+            : Platform.isMacOS
+            ? 'macos'
+            : 'linux');
+    final pkg = env['TEST_SIGN_PKG'] ?? 'pub.imboy.app';
     const vsn = '0.8.0';
     final raw = '$_deviceId|$vsn|$cos|$pkg';
     final key = utf8.encode(_loadSigningKey());
@@ -223,20 +223,29 @@ class ApiTestClient {
             ? 'email'
             : 'mobile');
     _log('登录: $account');
-    final resp = await _dio.post<dynamic>(
-      '/api/v1/passport/login',
-      data: {
-        'account': account,
-        // 与真实客户端（passport_notifier）和 integration_test/flows 一致：
-        // 上送 md5(明文)，服务端存的是 elib_password:generate(md5(明文))。
-        // 此前这里发裸明文，导致本套件永远登不进 App 创建的真实账号。
-        'pwd': _md5(password),
-        'type': loginType,
-        'rsa_encrypt': '0',
-      },
-      options: Options(headers: _defaultHeaders()),
-    );
-    final body = _parse(resp);
+    Future<Map<String, dynamic>> postPwd(String pwd) async {
+      final resp = await _dio.post<dynamic>(
+        '/api/v1/passport/login',
+        data: {
+          'account': account,
+          'pwd': pwd,
+          'type': loginType,
+          'rsa_encrypt': '0',
+        },
+        options: Options(headers: _defaultHeaders()),
+      );
+      return _parse(resp);
+    }
+
+    // 与真实客户端（passport_notifier）一致：先上送 md5(明文)。
+    var body = await postPwd(_md5(password));
+    // alpha.69 密码协议迁移（imboy ba8da098）后，存量账号哈希为
+    // hmac(md5hex) 旧格式时 md5 上送恒 errorPassword；镜像真实客户端的
+    // 明文回退重试一次，保证新旧两种存储格式均可登录。
+    if (body['code'] != 0 && '${body['msg']}'.contains('errorPassword')) {
+      _log('md5 拒收，尝试明文回退');
+      body = await postPwd(password);
+    }
     if (body['code'] == 0) {
       final p = body['payload'] as Map<String, dynamic>?;
       _accessToken = p?['token'] as String?;
