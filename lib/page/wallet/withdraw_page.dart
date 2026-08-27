@@ -65,7 +65,11 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
     if (success) {
       AppLoading.showSuccess(t.common.withdrawSuccess);
       // 刷新钱包余额 / Refresh wallet state
-      ref.invalidate(walletProvider);
+      // 用显式重载而非 invalidate：钱包页的加载只挂在 initState，
+      // invalidate 清空 state 后 pop 回去无人重新拉取，页面会以
+      // 初始 ¥0.00 + 空流水渲染，直到再次进出页面（批次111 实测复现）。
+      ref.read(walletProvider.notifier).loadBalance();
+      ref.read(walletProvider.notifier).loadTransactions();
       if (mounted) Navigator.pop(context);
     } else {
       // B1#16：失败时错误文案由 WalletApi.withdraw 的

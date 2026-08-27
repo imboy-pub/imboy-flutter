@@ -4,6 +4,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -524,7 +525,9 @@ class _WalletPageState extends ConsumerState<WalletPage> {
                   ? t.common.transactionTypeIncome
                   : t.common.transactionTypeExpense),
       ),
-      subtitle: Text(tx.createdAt),
+      // 服务端 created_at 为毫秒时间戳原样透传，直出会把裸数字摆给用户；
+      // 统一经 millisFmtOrEmpty 按设备本地时区换算（BUG#51 同款场景）。
+      subtitle: Text(DateTimeHelper.millisFmtOrEmpty(tx.createdAt)),
       trailing: Text(
         amountText,
         style: context
