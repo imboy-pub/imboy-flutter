@@ -28,7 +28,11 @@ import 'package:integration_test/integration_test.dart';
 import 'package:imboy/main.dart' as app;
 
 import '../flows/test_utils.dart'
-    show checkPreconditions, drainKnownFrameworkExceptions, flowLog;
+    show
+        checkPreconditions,
+        drainKnownFrameworkExceptions,
+        flowLog,
+        takeScreenshot;
 
 /// 一个「我的」子页面：路由 + 渲染成功标志候选文案（空则退化为断言存在任意 Text）。
 class _SubPage {
@@ -129,6 +133,10 @@ void main() {
             findsWidgets,
             reason: '「${page.name}」(${page.path}) 子页应成功渲染',
           );
+
+          if (page.path == '/e2ee_backup_import') {
+            await takeScreenshot(tester, 'e2ee_01_backup_import');
+          }
 
           if (page.destructive) {
             flowLog('${page.name} 为破坏性页，仅断言渲染，不点任何执行按钮');

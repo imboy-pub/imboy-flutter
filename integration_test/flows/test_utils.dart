@@ -198,9 +198,21 @@ Future<void> settle(WidgetTester tester, {int maxSeconds = 5}) async {
 // ──────────────────────────────────────────────
 
 Future<void> takeScreenshot(WidgetTester tester, String name) async {
+  // Android 厂商 ROM 上 binding.takeScreenshot 可能阻塞；AI 视觉回归改由主机侧
+  // ADB 在这个检查点抓屏。默认保持 0，不会改变普通集成测试的耗时或行为。
+  const aiScreenshotHoldMs = int.fromEnvironment(
+    'AI_SCREENSHOT_HOLD_MS',
+    defaultValue: 0,
+  );
   // Android 真机的 integration_test surface 转换在部分厂商 ROM 上会阻塞
   // 测试 isolate；截图只是诊断产物，不应阻断业务流程验收。
   if (Platform.isAndroid) {
+    if (aiScreenshotHoldMs > 0) {
+      flowLog('[AI_SCREENSHOT] $name');
+      await tester.pump(Duration(milliseconds: aiScreenshotHoldMs));
+      flowLog('[AI_SCREENSHOT_DONE] $name');
+      return;
+    }
     flowLog('截图跳过（Android 真机诊断不阻断流程）: $name');
     return;
   }

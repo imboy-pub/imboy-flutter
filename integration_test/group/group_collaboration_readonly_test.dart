@@ -41,15 +41,27 @@ void main() {
         tester.element(navigator),
         rootNavigator: true,
       );
-      final pages = <({String name, String path, Type type})>[
-        (
-          name: '群日程',
-          path: '/group/$groupId/schedule',
-          type: GroupSchedulePage,
-        ),
-        (name: '群任务', path: '/group/$groupId/task', type: GroupTaskPage),
-        (name: '群投票', path: '/group/$groupId/vote', type: GroupVotePage),
-      ];
+      final pages =
+          <({String name, String path, String screenshot, Type type})>[
+            (
+              name: '群日程',
+              path: '/group/$groupId/schedule',
+              screenshot: 'group_schedule_01_list',
+              type: GroupSchedulePage,
+            ),
+            (
+              name: '群任务',
+              path: '/group/$groupId/task',
+              screenshot: 'group_task_01_list',
+              type: GroupTaskPage,
+            ),
+            (
+              name: '群投票',
+              path: '/group/$groupId/vote',
+              screenshot: 'group_vote_01_list',
+              type: GroupVotePage,
+            ),
+          ];
 
       for (final page in pages) {
         flowLog('只读进入${page.name}: ${page.path}');
@@ -67,6 +79,7 @@ void main() {
         expect(find.byType(Scaffold), findsWidgets);
         await settle(tester, maxSeconds: 3);
         flowLog('${page.name}列表页已挂载；本轮未执行写操作');
+        await takeScreenshot(tester, page.screenshot);
 
         if (navigatorState.canPop()) navigatorState.pop();
         await settle(tester, maxSeconds: 1);

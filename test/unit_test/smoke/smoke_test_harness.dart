@@ -24,6 +24,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/router/app_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/billing/billing_provider.dart';
 import 'package:imboy/service/storage.dart';
 
 import '../helper/sqflite_test_helper.dart';
@@ -77,7 +78,9 @@ Widget buildRouterApp(GoRouter router) {
 /// 结尾 pumpWidget(SizedBox) 卸载页面，触发各 State.dispose() 取消其
 /// 订阅/定时器，规避 teardown 的 `Timer still pending` 不变量失败。
 Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
-  final container = ProviderContainer();
+  final container = ProviderContainer(
+    overrides: [billingProvider.overrideWith(_SmokeBillingNotifier.new)],
+  );
 
   // 每个用例独立 navigatorKey + 直接落在目标路由（无 splash）
   final router = createAppRouter(
@@ -116,6 +119,19 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
   await tester.pump(const Duration(seconds: 5));
 
   return captured;
+}
+
+/// 账单页 initState 会同时拉取套餐与订阅；烟雾测试只验证渲染，不应连接真实
+/// API。覆盖这两个入口，仍保留页面、路由及 Provider 的真实构建路径。
+class _SmokeBillingNotifier extends BillingNotifier {
+  @override
+  BillingState build() => const BillingState();
+
+  @override
+  Future<void> loadPlans() async {}
+
+  @override
+  Future<void> loadSubscription() async {}
 }
 
 // ---------------------------------------------------------------------------

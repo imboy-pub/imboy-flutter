@@ -46,6 +46,7 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
       await settle(tester, maxSeconds: 5);
       flowLog('钱包首页已挂载并完成余额/流水只读请求；未执行资金写操作');
+      await takeScreenshot(tester, 'wallet_01_readonly');
 
       if (navigator.canPop()) navigator.pop();
       await settle(tester, maxSeconds: 2);

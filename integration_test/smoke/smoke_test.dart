@@ -20,6 +20,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:imboy/main.dart' as app;
 
 import '../flows/api_test_client.dart';
+import '../flows/test_utils.dart' show takeScreenshot;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -90,6 +91,7 @@ void main() {
         findsOneWidget,
         reason: 'MaterialApp 应唯一存在，未找到则启动流程异常',
       );
+      await takeScreenshot(tester, 'smoke_01_main_shell');
     });
   });
 }

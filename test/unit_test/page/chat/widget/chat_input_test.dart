@@ -222,7 +222,7 @@ void main() {
       await tester.pump();
 
       // showMentionPicker 在光标处插入 '@'
-      final field = tester.widget<TextField>(
+      final field = tester.widget<CupertinoTextField>(
         find.byKey(const Key('chat_message_input')),
       );
       expect(field.controller?.text, '@');

@@ -235,6 +235,7 @@ echo "产物: $ARTIFACT_DIR"
 
 # L0/L1：静态、纯逻辑、Widget、SQLite ffi、协议和服务测试。
 run_step "app_analyze" required "$APP_ROOT" flutter analyze
+run_step "app_ai_test_specs" required "$APP_ROOT" python3 scripts/auto_test.py validate
 if [[ "$MODE" == "quick" ]]; then
   QUICK_TEST_FILES=()
   while IFS= read -r test_file; do

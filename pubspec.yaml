@@ -66,10 +66,10 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🎨 Theme & UI Enhancement                                      │
   # └─────────────────────────────────────────────────────────────────┘
-  dynamic_color: ^1.7.0            # Material 3 dynamic color support
+  dynamic_color: ^1.9.0           # 2.x returns material_ui ColorScheme, incompatible with Flutter ColorScheme
   cross_cache: any                 # Cross-platform caching strategy
-  device_info_plus: ^13.0.0         # Device information access
-  package_info_plus: ^10.0.0        # Package metadata and version info
+  device_info_plus: ^11.5.0         # Pinned with win32 5.x
+  package_info_plus: ^8.3.0         # Pinned with win32 5.x
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 📷 Media & Camera                                               │
@@ -81,9 +81,9 @@ dependencies:
   photo_manager: 3.9.0               # Media management; 3.12.0 breaks current Android Kotlin build
   carousel_slider_plus: ^7.1.2       # 聊天附件面板左右滑动分页
   video_compress: ^3.1.4             # Video compression before upload
-  file_picker: ^11.0.0               # File picker
+  file_picker: ^11.0.0               # Pinned with win32 5.x
   open_file: ^4.0.0                   # File opening with default apps (updated: 3.5.10 → 4.0.0)
-  image: ^4.8.0                      # Image manipulation library
+  image: ^4.9.2                      # Image manipulation library
   video_player: ^2.11.1               # Video playback support
   flutter_local_notifications: ^22.0.0 # Local notifications support (updated: 21.0.0 → 22.0.0)
 
@@ -171,7 +171,7 @@ dependencies:
   xid: ^1.2.1                        # Unique ID generation
   ntp: ^2.0.0                        # Network Time Protocol (time sync)
   equatable: ^2.0.7                  # Object equality comparisons
-  synchronized: ^3.4.0               # Synchronization primitives
+  synchronized: ^3.4.1+2             # Synchronization primitives
   share_plus: ^13.2.0                # Sharing functionality (updated: 13.0.0 → 13.2.0)
   share_handler: ^0.0.25             # Receive files opened from external apps (E2EE backup import)
   wakelock_plus: 1.6.1               # Keep screen on; 1.7.0 is incompatible with current Kotlin APIs
@@ -257,8 +257,7 @@ dependency_overrides:
   path_provider_foundation: ">=2.4.0 <2.6.0"
 
   # ┌─ win32 / package_info_plus Override ──────────────────────────────────┐
-  # file_picker 11.x 仍依赖 win32 ^5.9.0，故整个 win32 栈锁定在 5.x。
-  # 待 file_picker 发布 win32 6.x 兼容版后统一升级整个 win32 栈。
+  # file_picker 11.x and current native plugins require win32 5.x.
   win32: ^5.15.0
   # flutter_secure_storage_windows 4.2.x 已迁移到 win32 6.x API（Win32Result / toHRESULT）。
   # 4.1.x 是与 win32 5.x 兼容的最后一代；flutter_secure_storage 10.x 约束为 ^4.1.0，4.1.x 满足。

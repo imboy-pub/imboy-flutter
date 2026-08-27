@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -47,7 +48,7 @@ void main() {
     await tester.pump();
 
     // 打开「更多」弹层
-    await tester.tap(find.byIcon(Icons.more_horiz));
+    await tester.tap(find.byIcon(CupertinoIcons.ellipsis));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);

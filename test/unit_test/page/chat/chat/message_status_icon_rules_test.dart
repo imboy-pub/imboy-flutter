@@ -13,7 +13,7 @@
 ///   - null     → (null, null)
 library;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/utils/message_status_icon_rules.dart';
@@ -22,31 +22,31 @@ void main() {
   group('resolveMessageStatusIcon', () {
     test('sending → access_time / textSecondary', () {
       final r = resolveMessageStatusIcon(MessageStatus.sending);
-      expect(r.iconData, Icons.access_time);
+      expect(r.iconData, CupertinoIcons.clock);
       expect(r.colorKey, 'textSecondary');
     });
 
     test('sent → done_all / primary', () {
       final r = resolveMessageStatusIcon(MessageStatus.sent);
-      expect(r.iconData, Icons.done_all);
+      expect(r.iconData, CupertinoIcons.checkmark_alt);
       expect(r.colorKey, 'primary');
     });
 
     test('delivered → done_all / primary（与 sent 同图标）', () {
       final r = resolveMessageStatusIcon(MessageStatus.delivered);
-      expect(r.iconData, Icons.done_all);
+      expect(r.iconData, CupertinoIcons.checkmark_alt);
       expect(r.colorKey, 'primary');
     });
 
     test('seen → done_all / sendMessageBg', () {
       final r = resolveMessageStatusIcon(MessageStatus.seen);
-      expect(r.iconData, Icons.done_all);
+      expect(r.iconData, CupertinoIcons.checkmark_alt);
       expect(r.colorKey, 'sendMessageBg');
     });
 
     test('error → error_outline / error', () {
       final r = resolveMessageStatusIcon(MessageStatus.error);
-      expect(r.iconData, Icons.error_outline);
+      expect(r.iconData, CupertinoIcons.exclamationmark_circle);
       expect(r.colorKey, 'error');
     });
 

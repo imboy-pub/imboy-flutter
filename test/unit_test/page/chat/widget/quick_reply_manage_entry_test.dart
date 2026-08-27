@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -93,7 +94,7 @@ void main() {
 
     // 至少还能看到 2 条快捷回复，固定尾部没把滚动区挤没
     expect(
-      find.byType(ElevatedButton).evaluate().length,
+      find.byType(CupertinoButton).evaluate().length,
       greaterThanOrEqualTo(2),
       reason: '固定尾部按钮把快捷回复挤得只剩 1 条以下',
     );
