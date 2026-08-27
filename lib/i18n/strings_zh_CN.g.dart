@@ -10955,6 +10955,8 @@ extension on Translations {
 			'workspace.createNameHint' => '例如：官网改版项目组',
 			'workspace.createNameRequired' => '工作区名称不能为空',
 			'workspace.createSubmit' => '创建',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createEntry' => '创建工作区',
 			'workspace.createSuccess' => '工作区创建成功',
 			'workspace.createIdempotentHit' => '已存在同名工作区，直接进入',
@@ -10966,8 +10968,6 @@ extension on Translations {
 			'workspace.overviewResources' => '资源摘要',
 			'workspace.overviewPinnedContent' => '频道置顶内容',
 			'workspace.overviewPinnedEmpty' => '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewRecentFiles' => '最近文件',
 			'workspace.overviewRecentFilesEmpty' => '最近上传的文件将在此展示；也可在各频道内查看附件',
 			'workspace.membersTitle' => '工作区成员',
