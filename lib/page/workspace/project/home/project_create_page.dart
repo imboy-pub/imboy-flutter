@@ -57,7 +57,8 @@ class _ProjectCreatePageState extends ConsumerState<ProjectCreatePage> {
       ref.invalidate(projectListPageProvider((widget.workspaceId, 1)));
       if (!mounted) return;
       AppLoading.showSuccess(t.workspace.projectCreateSuccess);
-      context.pop();
+      // 直接挂载（壳内嵌/测试根路由）时无可弹栈，不得让 pop 中断收尾
+      if (context.canPop()) context.pop();
     } on WorkspaceApiException catch (e) {
       if (mounted) AppLoading.showBackendError(e.message);
     } catch (e) {

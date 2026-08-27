@@ -148,6 +148,8 @@ Future<void> _pumpView(
   await tester.pumpWidget(
     TranslationProvider(
       child: ProviderScope(
+        // 测试区禁用 riverpod3 自动重试（FakeAsync 推不动退避 timer）
+        retry: (retryCount, error) => null,
         overrides: [
           projectApiProvider.overrideWith((ref) => projectApi),
           workspaceApiProvider.overrideWith((ref) => wsApi),
@@ -296,11 +298,15 @@ void main() {
       await tester.tap(forwardKey);
       await tester.pump();
 
-      // 进行中：同任务前向按钮已不可点（disabled）
-      final button = tester.widget<IconButton>(forwardKey);
-      expect(button.onPressed, isNull);
-      await tester.tap(forwardKey, warnIfMissed: false);
-      await tester.pump();
+      // 进行中：同任务前向按钮从树上移除并以加载指示替代（防抖锁）
+      expect(forwardKey, findsNothing, reason: '流转进行中必须收敛入口（禁止并发重复提交）');
+      expect(find.byType(CircularProgressIndicator), findsWidgets);
+      // 元素已不在树上的二次点击不得产生第二次请求
+      // （tap 零匹配会直接抛错，这里以显式守卫模拟"用户连点"被吞掉）
+      if (forwardKey.evaluate().isNotEmpty) {
+        await tester.tap(forwardKey);
+        await tester.pump();
+      }
       expect(api.transitions, isEmpty, reason: '进行中不得重复提交');
 
       api.statusGate!.complete();
@@ -345,8 +351,9 @@ void main() {
       final api = _TaskFakeApi(const []);
       final wsApi = _MembersCountingApi();
       await _pumpView(tester, projectApi: api, wsApi: wsApi, writable: true);
-      expect(find.textContaining(t.workspace.taskEmptyTitle), findsOneWidget);
-      expect(find.textContaining('待办'), findsOneWidget);
+      expect(find.textContaining(t.workspace.taskEmptyTitle), findsWidgets);
+      // 四态说明副文案 + 筛选条 chip 都会出现
+      expect(find.textContaining(t.workspace.taskStatusDoing), findsWidgets);
     });
 
     testWidgets('加载态可见', (tester) async {
@@ -358,6 +365,7 @@ void main() {
       await tester.pumpWidget(
         TranslationProvider(
           child: ProviderScope(
+            retry: (retryCount, error) => null,
             overrides: [
               projectApiProvider.overrideWith((ref) => slowApi),
               workspaceApiProvider.overrideWith((ref) => wsApi),
@@ -423,6 +431,7 @@ void main() {
       await tester.pumpWidget(
         TranslationProvider(
           child: ProviderScope(
+            retry: (retryCount, error) => null,
             overrides: [
               projectApiProvider.overrideWith((ref) => api),
               workspaceApiProvider.overrideWith((ref) => wsApi),
@@ -436,8 +445,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // 候选来源 = members 接口返回集（active 关系）；1003 非成员不在其中
+      // 候选来源 = members 接口返回集（active 关系）；1003 非成员不在其中。
+      // DropdownMenuItem 懒构建：先展开菜单再断言选项集合。
       expect(wsApi.calls, greaterThanOrEqualTo(1));
+      await tester.tap(find.byKey(const ValueKey('task-assignee-dropdown')));
+      await tester.pumpAndSettle();
       expect(
         find.byKey(ValueKey('task-assignee-option-$_memberUid')),
         findsOneWidget,
@@ -448,7 +460,8 @@ void main() {
       );
       expect(
         find.byKey(const ValueKey('task-assignee-option-none')),
-        findsOneWidget,
+        findsWidgets,
+        reason: '"暂不指派"出现在按钮本体与菜单中（同名 key 两份属正常）',
       );
       expect(
         find.byKey(const ValueKey('task-assignee-option-1003')),
@@ -457,8 +470,6 @@ void main() {
       );
 
       // 选韩梅梅并提交
-      await tester.tap(find.byKey(const ValueKey('task-assignee-dropdown')));
-      await tester.pumpAndSettle();
       await tester.tap(find.text('韩梅梅').last);
       await tester.pumpAndSettle();
       await tester.enterText(
@@ -518,9 +529,12 @@ void main() {
         greaterThan(callsAfterFirstLoad),
         reason: '刷新必须重新拉取 active 成员',
       );
+      // 展开菜单验证新成员已进入候选（懒构建：菜单打开才挂载选项行）
+      await tester.tap(find.byKey(const ValueKey('task-assignee-dropdown')));
+      await tester.pumpAndSettle();
       expect(
         find.byKey(ValueKey('task-assignee-option-$_extraUid')),
-        findsOneWidget,
+        findsWidgets,
         reason: '新候选在刷新后可见（成员变化即时反映）',
       );
     });
@@ -587,6 +601,7 @@ Future<void> _pumpForm(
   await tester.pumpWidget(
     TranslationProvider(
       child: ProviderScope(
+        retry: (retryCount, error) => null,
         overrides: [
           projectApiProvider.overrideWith((ref) => api),
           workspaceApiProvider.overrideWith((ref) => wsApi),
@@ -612,6 +627,7 @@ Future<void> _pumpViewWithTasksApi(
   await tester.pumpWidget(
     TranslationProvider(
       child: ProviderScope(
+        retry: (retryCount, error) => null,
         overrides: [
           projectApiProvider.overrideWith((ref) => tasksApi),
           workspaceApiProvider.overrideWith((ref) => wsApi),

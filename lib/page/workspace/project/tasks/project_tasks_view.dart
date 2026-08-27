@@ -253,8 +253,9 @@ class _ProjectTasksViewState extends ConsumerState<ProjectTasksView> {
   String? _memberName(List<WorkspaceMemberModel> members, EntityId userId) {
     if (userId.isEmpty) return null;
     for (final m in members) {
-      if (m.userId == userId)
+      if (m.userId == userId) {
         return m.nickname.isEmpty ? m.account : m.nickname;
+      }
     }
     return null;
   }

@@ -77,15 +77,12 @@ class _ProjectDetailPageState extends ConsumerState<ProjectDetailPage> {
   Widget build(BuildContext context) {
     final t = context.t;
     final projectAsync = ref.watch(projectDetailProvider(widget.projectId));
-    final wsId = widget.workspaceId;
-    final membersAsync = wsId.isEmpty
-        ? null
-        : ref.watch(assigneeCandidatesProvider(wsId));
-
-    // archived 横幅跟随壳内当前工作区状态（与 WP5 members 页同源判定）
+    // 归档横幅跟随壳内当前工作区状态（与 WP5 members 页同源判定）
     final currentWs = ref.watch(currentWorkspaceProvider);
     final archived =
-        currentWs != null && currentWs.id == wsId && currentWs.isArchived;
+        currentWs != null &&
+        currentWs.id == widget.workspaceId &&
+        currentWs.isArchived;
 
     return Scaffold(
       appBar: AppBar(title: Text(t.workspace.projectDetailTitle)),
@@ -101,6 +98,14 @@ class _ProjectDetailPageState extends ConsumerState<ProjectDetailPage> {
                     ref.invalidate(projectDetailProvider(widget.projectId)),
               ),
               data: (project) {
+                // 详情行自带 workspace_id：路由未显式传参（同栈直达）时兜底，
+                // 保证角色判定/成员候选始终有工作区上下文。
+                final wsId = widget.workspaceId.isNotEmpty
+                    ? widget.workspaceId
+                    : project.workspaceId;
+                final membersAsync = wsId.isEmpty
+                    ? null
+                    : ref.watch(assigneeCandidatesProvider(wsId));
                 final myRole = membersAsync?.whenOrNull(
                   data: (members) => _myRole(members),
                 );
@@ -148,8 +153,9 @@ class _ProjectDetailPageState extends ConsumerState<ProjectDetailPage> {
   String? _memberName(List<WorkspaceMemberModel>? members, EntityId userId) {
     if (members == null || userId.isEmpty) return null;
     for (final m in members) {
-      if (m.userId == userId)
+      if (m.userId == userId) {
         return m.nickname.isEmpty ? m.account : m.nickname;
+      }
     }
     return null;
   }

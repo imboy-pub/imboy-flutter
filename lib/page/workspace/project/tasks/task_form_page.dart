@@ -113,7 +113,8 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
       ref.invalidate(projectTasksProvider(widget.projectId));
       ref.invalidate(assigneeCandidatesProvider(widget.workspaceId));
       if (!mounted) return;
-      context.pop();
+      // 同上：无路由栈时跳过返回
+      if (context.canPop()) context.pop();
     } on WorkspaceApiException catch (e) {
       // 服务端消息原样透出：400 标题校验 / 非 active 成员指派 /
       // 403 Guest / 980 归档。禁止静默失败。

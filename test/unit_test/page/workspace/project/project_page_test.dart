@@ -172,6 +172,9 @@ Future<void> _pump(
   await tester.pumpWidget(
     TranslationProvider(
       child: ProviderScope(
+        // 测试区禁用 riverpod3 自动重试（FakeAsync 推不动退避 timer，
+        // 会把 AsyncError 状态无限期挡在 loading 之后）
+        retry: (retryCount, error) => null,
         overrides: [
           projectApiProvider.overrideWith((ref) => projectApi),
           workspaceApiProvider.overrideWith((ref) => workspaceApi),
@@ -328,6 +331,7 @@ void main() {
       await tester.pumpWidget(
         TranslationProvider(
           child: ProviderScope(
+            retry: (retryCount, error) => null,
             overrides: [
               projectApiProvider.overrideWith((ref) => api),
               workspaceApiProvider.overrideWith((ref) => _MembersOnlyFakeApi()),
@@ -407,6 +411,7 @@ void main() {
       await tester.pumpWidget(
         TranslationProvider(
           child: ProviderScope(
+            retry: (retryCount, error) => null,
             overrides: [
               projectApiProvider.overrideWith((ref) => api),
               workspaceApiProvider.overrideWith((ref) => _MembersOnlyFakeApi()),
