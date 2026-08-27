@@ -229,7 +229,7 @@ void main() {
     expect(find.text('文档A'), findsOneWidget);
     expect(find.text('图片B'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(FilterChip, '图片 (1)'));
+    await tester.tap(find.text('图片 (1)'));
     await tester.pumpAndSettle();
 
     expect(find.text('文档A'), findsNothing);
@@ -282,8 +282,9 @@ void main() {
     await tester.pumpWidget(_buildTestApp());
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextField), '预算');
-    await tester.tap(find.widgetWithIcon(IconButton, Icons.arrow_forward));
+    await tester.enterText(find.byType(CupertinoSearchTextField), '预算');
+    // 页面在 onSubmitted 里触发搜索（CupertinoSearchTextField 无提交按钮）
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
 
     expect(fakeService.searchKeywordCalls, ['预算']);
@@ -334,7 +335,9 @@ void main() {
     expect(find.text('文件地址无效'), findsOneWidget);
   });
 
-  testWidgets('tap image file opens in-app preview sheet', (tester) async {
+  testWidgets('tap image file opens in-app full-screen preview', (
+    tester,
+  ) async {
     final fakeService = _FakeGroupFileService(
       files: [
         {
@@ -355,7 +358,7 @@ void main() {
     await tester.tap(find.text('示例图片.jpg'));
     await tester.pumpAndSettle();
 
-    expect(find.byTooltip('关闭预览'), findsOneWidget);
+    expect(find.bySemanticsLabel('关闭'), findsOneWidget);
     expect(find.text('无法打开文件链接'), findsNothing);
   });
 

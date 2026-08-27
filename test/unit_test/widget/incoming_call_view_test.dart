@@ -64,7 +64,8 @@ void main() {
     expect(find.byIcon(CupertinoIcons.phone), findsNWidgets(2));
     expect(find.byIcon(CupertinoIcons.videocam), findsNothing);
 
-    await tester.tap(find.byIcon(CupertinoIcons.phone));
+    // phone icon 出现两次（17pt 说明行 + 34pt 接听钮），tap 取后者
+    await tester.tap(find.byIcon(CupertinoIcons.phone).last);
     expect(accepted, isTrue);
   });
 
