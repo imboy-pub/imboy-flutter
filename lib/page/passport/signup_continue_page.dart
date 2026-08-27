@@ -249,7 +249,7 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                               ),
                             ),
                             Expanded(
-                              child: CupertinoDialogAction(
+                              child: CupertinoButton(
                                 onPressed: () async {
                                   String? res = await notifier.sendCode(
                                     _accountType,

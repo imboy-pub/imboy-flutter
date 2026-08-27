@@ -501,7 +501,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                       : AppColors.chatWebSecondaryLight,
                 ),
               ),
-              CupertinoDialogAction(
+              CupertinoButton(
                 onPressed: _clearSearchHistory,
                 child: Text(
                   t.common.clear,

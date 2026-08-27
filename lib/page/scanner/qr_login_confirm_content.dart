@@ -173,7 +173,7 @@ class QrLoginConfirmContent extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           height: 48,
-          child: CupertinoDialogAction(
+          child: CupertinoButton(
             onPressed: onCancel,
             child: Text(
               t.common.buttonCancel,
