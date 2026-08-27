@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
@@ -31,7 +33,9 @@ import 'package:imboy/service/e2ee_crypto_service.dart';
 void main() {
   Widget wrap(Widget page) {
     return TranslationProvider(
-      child: ProviderScope(child: MaterialApp(home: page)),
+      child: ProviderScope(
+        child: MaterialApp(builder: AppLoading.init(), home: page),
+      ),
     );
   }
 
@@ -121,8 +125,8 @@ void main() {
         wrap(E2EEBackupImportPage(initialFilePath: file.path)),
       );
 
-      final btn = tester.widget<ElevatedButton>(
-        find.widgetWithText(ElevatedButton, t.common.e2eeBackupImportBtn),
+      final btn = tester.widget<CupertinoButton>(
+        find.widgetWithText(CupertinoButton, t.common.e2eeBackupImportBtn),
       );
       expect(btn.onPressed, isNull, reason: '密码为空时导入按钮应置灰禁用');
     });
@@ -163,8 +167,8 @@ void main() {
           .first;
       expect(pwdField.enabled, isFalse, reason: '未选合法文件时密码框应禁用');
 
-      final btn = tester.widget<ElevatedButton>(
-        find.widgetWithText(ElevatedButton, t.common.e2eeBackupImportBtn),
+      final btn = tester.widget<CupertinoButton>(
+        find.widgetWithText(CupertinoButton, t.common.e2eeBackupImportBtn),
       );
       expect(btn.onPressed, isNull, reason: '无文件时导入按钮应禁用');
     });

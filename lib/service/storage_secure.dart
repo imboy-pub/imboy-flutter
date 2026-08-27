@@ -36,8 +36,12 @@ class StorageSecureService {
       StorageSecureService._internal();
 
   // FlutterSecureStorage 实例
+  // RT-P2-01：ThisDeviceOnly 变体——E2EE 私钥/pickle key 等秘密不得随
+  // 设备备份恢复到新设备（2026-08-25 审计决策落地，2026-08-27 红队补齐）。
   final FlutterSecureStorage _self = const FlutterSecureStorage(
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
   );
 
   /// 获取单例实例（推荐使用）

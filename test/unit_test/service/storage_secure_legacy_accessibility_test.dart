@@ -108,9 +108,9 @@ void main() {
 
     expect(value, 'legacy-secret');
     expect(calls.map((c) => c.method).toList(), ['read', 'read', 'write']);
-    expect(accessibilityOf(calls[0]), 'first_unlock');
+    expect(accessibilityOf(calls[0]), 'first_unlock_this_device');
     expect(accessibilityOf(calls[1]), 'unlocked');
-    expect(accessibilityOf(calls[2]), 'first_unlock');
+    expect(accessibilityOf(calls[2]), 'first_unlock_this_device');
     expect((calls[2].arguments as Map)['value'], 'legacy-secret');
   });
 

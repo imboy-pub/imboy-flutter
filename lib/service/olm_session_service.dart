@@ -744,14 +744,22 @@ class OlmSessionService {
   /// S3 TOFU: 比对 identity fingerprint，首次固定，变化则 fail-closed。
   ///
   /// [curve25519Base64] 为对端 identity curve25519 公钥（已通过 Ed25519 签名验证）。
-  /// CryptoStore 不可用时跳过（降级为无 TOFU，不阻塞通信）。
+  /// CryptoStore 不可用时 fail-closed 抛 [OlmStateCommitException]（RT-P2-02）——
+  /// 无持久化即无法锚定对端身份，不得继续建会话。
   Future<void> _enforceTofu(
     String peerUid,
     String peerDeviceId,
     String curve25519Base64,
   ) async {
     final store = await cryptoStore;
-    if (store == null) return; // 降级：无持久化则跳过 TOFU
+    if (store == null) {
+      // RT-P2-02（2026-08-27 红队）：与 _requireStore 同一 fail-closed 语义。
+      // 无持久化就无法 pin/比对指纹——带未知对端身份加密等于裸奔，宁可拒发。
+      throw OlmStateCommitException(
+        'crypto store unavailable; refusing to establish TOFU anchor for '
+        '$peerUid:$peerDeviceId',
+      );
+    }
 
     final pinned = await store.loadPinnedFingerprint(
       peerUid: peerUid,

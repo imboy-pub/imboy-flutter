@@ -533,6 +533,16 @@ class ChatNetworkService {
           return false;
         }
       } else {
+        // E2EE-061 对齐（RT-P3-01）：与 sendWsMsg 的明文分支同一道终检——
+        // descriptor 里的 content key 绝不允许在明文 payload 中出网。
+        if (AttachmentSealPolicy.carriesContentKey(payload)) {
+          iPrint(
+            '🚫 [E2EE] sendMessage: 带 content key 的 payload 不得明文发送: '
+            'msgId=${msg['id']}',
+          );
+          AppLoading.showToast(getE2EEErrorMessage('policy_not_initialized'));
+          return false;
+        }
         final cleanPayload = Map<String, dynamic>.from(payload);
         cleanPayload.remove('msg_type');
         cleanPayload.remove('action');

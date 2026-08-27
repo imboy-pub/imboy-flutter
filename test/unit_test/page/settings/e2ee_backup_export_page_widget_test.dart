@@ -26,10 +26,10 @@ void main() {
 
   // 页面 TextField 顺序：密码(0)、确认(1)、备注(2)
   Finder exportButton() =>
-      find.widgetWithText(ElevatedButton, t.common.e2eeBackupGenerateBtn);
+      find.widgetWithText(CupertinoButton, t.common.e2eeBackupGenerateBtn);
 
   bool isExportButtonEnabled(WidgetTester tester) =>
-      tester.widget<ElevatedButton>(exportButton()).onPressed != null;
+      tester.widget<CupertinoButton>(exportButton()).onPressed != null;
 
   group('E2EEBackupExportPage 导出按钮启用条件（BUG#132 回归）', () {
     testWidgets('初始两框为空时导出按钮 disabled', (tester) async {
