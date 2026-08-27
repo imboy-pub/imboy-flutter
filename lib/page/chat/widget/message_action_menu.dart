@@ -404,8 +404,12 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                   ),
                 ),
                 const SizedBox(height: 6),
+                // 换行优先于省略号（与 conversation/right_button 同一准则）：
+                // 德语等长文案或大字号下，两行承接比截断更可读；
+                // 面板高度随内容自适应，不会溢出。
                 Text(
                   label,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: FontSizeType.caption2.size,
                     color: isDestructive
@@ -413,7 +417,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                         : Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],

@@ -331,4 +331,32 @@ void main() {
       await _unmount(tester);
     });
   });
+
+  // 换行契约（与 conversation/right_button 同一准则，2026-08-27 用户拍板：
+  // "打3个点的模式，还不如换行"）：德语等长文案或「超大字号」下，
+  // 操作按钮标签应换行承接而非打点截断。
+  // 本菜单里唯一设置 maxLines 的就是操作按钮标签（reaction emoji 无约束），
+  // 因此断言「所有带 maxLines 的文本 == 2」即可锁定整个按钮区。
+  group('长文案换行契约（换行优先于省略号）', () {
+    testWidgets('所有操作按钮标签 maxLines==2', (tester) async {
+      await _pump(
+        tester,
+        isSentByMe: true,
+        onRevoke: () {},
+        onSave: () {},
+        onCollect: () {},
+      );
+
+      final labeledTexts = tester
+          .widgetList<Text>(
+            find.byWidgetPredicate((w) => w is Text && w.maxLines != null),
+          )
+          .toList();
+      expect(labeledTexts, isNotEmpty);
+      for (final text in labeledTexts) {
+        expect(text.maxLines, 2, reason: '「${text.data}」应允许两行换行承接');
+      }
+      await _unmount(tester);
+    });
+  });
 }
