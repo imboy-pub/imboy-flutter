@@ -79,339 +79,344 @@ class _PinCodeVerificationPageState
     final errorColor = isDark ? AppColors.darkError : AppColors.lightError;
 
     return CupertinoPageScaffold(
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.large),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 80),
-                    FadeAnimation(
-                      delay: 0.8,
-                      child: const PassportTitle(color: AppColors.primary),
-                    ),
-                    const SizedBox(height: 40),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
-                      decoration: BoxDecoration(),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.none,
-                              vertical: AppSpacing.small,
-                            ),
-                            child: RichText(
-                              text: TextSpan(
-                                text: widget.accountType == 'email'
-                                    ? t.account.codeSentToEmail
-                                    : t.account.codeSentToMobile,
-                                children: [
-                                  TextSpan(
-                                    text: widget.account,
-                                    style: context.textStyle(
-                                      FontSizeType.medium,
-                                      color: textPrimary,
-                                      fontWeight: FontWeight.bold,
+      child: Material(
+        type: MaterialType.transparency,
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.large,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 80),
+                      FadeAnimation(
+                        delay: 0.8,
+                        child: const PassportTitle(color: AppColors.primary),
+                      ),
+                      const SizedBox(height: 40),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        decoration: BoxDecoration(),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.none,
+                                vertical: AppSpacing.small,
+                              ),
+                              child: RichText(
+                                text: TextSpan(
+                                  text: widget.accountType == 'email'
+                                      ? t.account.codeSentToEmail
+                                      : t.account.codeSentToMobile,
+                                  children: [
+                                    TextSpan(
+                                      text: widget.account,
+                                      style: context.textStyle(
+                                        FontSizeType.medium,
+                                        color: textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                                // 字号归一：15 非枚举值，就近 normal(14)，真机复核
-                                style: context.textStyle(
-                                  FontSizeType.normal,
-                                  color: textSecondary,
-                                ),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          Form(
-                            key: formKey,
-                            child: MaterialPinField(
-                              length: 6,
-                              pinController: _pinController,
-                              obscureText: true,
-                              obscuringWidget: Icon(
-                                CupertinoIcons.shield,
-                                color: AppColors.primary,
-                                size: 24,
-                              ),
-                              blinkWhenObscuring: true,
-                              theme: MaterialPinTheme(
-                                shape: MaterialPinShape.outlined,
-                                cellSize: const Size(40, 50),
-                                borderRadius: AppRadius.borderRadiusSmall,
-                                borderColor: borderColor,
-                                focusedBorderColor: AppColors.primary,
-                                filledBorderColor: AppColors.primary,
-                                fillColor: surfaceContainerColor,
-                                // 固定字号（不缩放）：pin 格子固定 40×50，缩放会溢出
-                                textStyle: TextStyle(
-                                  color: textPrimary,
-                                  fontSize: FontSizeType.extraLarge.size,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              keyboardType: TextInputType.number,
-                              onCompleted: (v) {},
-                              onChanged: (value) {
-                                setState(() {
-                                  currentText = value;
-                                });
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.large,
-                            ),
-                            child: Text(
-                              hasError ? t.common.pinCodeFillTips : '',
-                              style: context.textStyle(
-                                FontSizeType.small,
-                                color: errorColor,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                          AppSpacing.verticalLarge,
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  t.common.notReceiveCoeQ,
-                                  // 字号归一：15→normal(14)，真机复核
+                                  ],
+                                  // 字号归一：15 非枚举值，就近 normal(14)，真机复核
                                   style: context.textStyle(
                                     FontSizeType.normal,
                                     color: textSecondary,
                                   ),
                                 ),
+                                textAlign: TextAlign.center,
                               ),
-                              Expanded(
+                            ),
+                            const SizedBox(height: 30),
+                            Form(
+                              key: formKey,
+                              child: MaterialPinField(
+                                length: 6,
+                                pinController: _pinController,
+                                obscureText: true,
+                                obscuringWidget: Icon(
+                                  CupertinoIcons.shield,
+                                  color: AppColors.primary,
+                                  size: 24,
+                                ),
+                                blinkWhenObscuring: true,
+                                theme: MaterialPinTheme(
+                                  shape: MaterialPinShape.outlined,
+                                  cellSize: const Size(40, 50),
+                                  borderRadius: AppRadius.borderRadiusSmall,
+                                  borderColor: borderColor,
+                                  focusedBorderColor: AppColors.primary,
+                                  filledBorderColor: AppColors.primary,
+                                  fillColor: surfaceContainerColor,
+                                  // 固定字号（不缩放）：pin 格子固定 40×50，缩放会溢出
+                                  textStyle: TextStyle(
+                                    color: textPrimary,
+                                    fontSize: FontSizeType.extraLarge.size,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                keyboardType: TextInputType.number,
+                                onCompleted: (v) {},
+                                onChanged: (value) {
+                                  setState(() {
+                                    currentText = value;
+                                  });
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.large,
+                              ),
+                              child: Text(
+                                hasError ? t.common.pinCodeFillTips : '',
+                                style: context.textStyle(
+                                  FontSizeType.small,
+                                  color: errorColor,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                            AppSpacing.verticalLarge,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    t.common.notReceiveCoeQ,
+                                    // 字号归一：15→normal(14)，真机复核
+                                    style: context.textStyle(
+                                      FontSizeType.normal,
+                                      color: textSecondary,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: CupertinoButton(
+                                    onPressed: () async {
+                                      String? res = await notifier.sendCode(
+                                        widget.accountType,
+                                        widget.account,
+                                        'forgot_pwd',
+                                      );
+                                      if (!context.mounted) return;
+                                      if (res == null) {
+                                        notifier.snackBar(
+                                          Text(
+                                            t.main.codeSentToParam(
+                                              param: widget.account,
+                                            ),
+                                            // 彩底前景用 onPrimary
+                                            style: context.textStyle(
+                                              FontSizeType.extraLarge,
+                                              color: AppColors.onPrimary,
+                                            ),
+                                          ),
+                                          icon: const Icon(
+                                            CupertinoIcons.checkmark_circle,
+                                            color: AppColors.onPrimary,
+                                          ),
+                                        );
+                                      } else {
+                                        notifier.snackBar(
+                                          Text(
+                                            res,
+                                            // 彩底前景用 onPrimary
+                                            style: context.textStyle(
+                                              FontSizeType.extraLarge,
+                                              color: AppColors.onPrimary,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Text(
+                                      t.chat.resendCode,
+                                      style: context.textStyle(
+                                        FontSizeType.medium,
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 30),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.none,
+                                    vertical: AppSpacing.small,
+                                  ),
+                                  child: StatefulBuilder(
+                                    builder: (context, setLocalState) {
+                                      return PasswordTextField(
+                                        obscureText: state.newPwdObscure,
+                                        hintText: t.account.newPassword,
+                                        style: TextStyle(color: textPrimary),
+                                        hintStyle: TextStyle(
+                                          color: textSecondary,
+                                        ),
+                                        iconColor: textSecondary,
+                                        onTap: () {
+                                          notifier.toggleNewPwdObscure();
+                                        },
+                                        onChanged: (String? val) {
+                                          if (strNoEmpty(val)) {
+                                            notifier.setNewPwd(val!.trim());
+                                          }
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.none,
+                                    vertical: AppSpacing.small,
+                                  ),
+                                  child: StatefulBuilder(
+                                    builder: (context, setLocalState) {
+                                      return PasswordTextField(
+                                        obscureText: state.retypePwdObscure,
+                                        hintText: t.account.retypePassword,
+                                        style: TextStyle(color: textPrimary),
+                                        hintStyle: TextStyle(
+                                          color: textSecondary,
+                                        ),
+                                        iconColor: textSecondary,
+                                        onTap: () {
+                                          setState(() {
+                                            notifier.setRetypePwdObscure(
+                                              !state.retypePwdObscure,
+                                            );
+                                          });
+                                        },
+                                        onChanged: (String? val) {
+                                          if (strNoEmpty(val)) {
+                                            notifier.setRetypePwd(val!.trim());
+                                          }
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 30),
+                            FadeAnimation(
+                              delay: 1,
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: 52,
                                 child: CupertinoButton(
+                                  color: AppColors.primary,
                                   onPressed: () async {
-                                    String? res = await notifier.sendCode(
-                                      widget.accountType,
-                                      widget.account,
-                                      'forgot_pwd',
+                                    FocusScope.of(context).unfocus();
+                                    if (currentText.length != 6) {
+                                      _pinController.triggerError();
+                                      setState(() => hasError = true);
+                                      return;
+                                    }
+                                    formKey.currentState!.validate();
+                                    String? res = await notifier.resetPassword(
+                                      type: widget.accountType,
+                                      account: widget.account,
+                                      code: currentText,
+                                      newPwd: state.newPwd,
+                                      rePwd: state.retypePwd,
                                     );
-                                    if (!context.mounted) return;
                                     if (res == null) {
-                                      notifier.snackBar(
-                                        Text(
-                                          t.main.codeSentToParam(
-                                            param: widget.account,
-                                          ),
-                                          // 彩底前景用 onPrimary
-                                          style: context.textStyle(
-                                            FontSizeType.extraLarge,
-                                            color: AppColors.onPrimary,
-                                          ),
-                                        ),
-                                        icon: const Icon(
-                                          CupertinoIcons.checkmark_circle,
-                                          color: AppColors.onPrimary,
-                                        ),
+                                      AppLoading.showSuccess(
+                                        t.common.confirmRecoverSuccess,
                                       );
+                                      if (!context.mounted) return;
+                                      context.go('/sign_in');
                                     } else {
-                                      notifier.snackBar(
-                                        Text(
-                                          res,
-                                          // 彩底前景用 onPrimary
-                                          style: context.textStyle(
-                                            FontSizeType.extraLarge,
-                                            color: AppColors.onPrimary,
+                                      setState(() {
+                                        hasError = false;
+                                        notifier.snackBar(
+                                          Text(
+                                            res,
+                                            // 彩底前景用 onPrimary
+                                            style: context.textStyle(
+                                              FontSizeType.extraLarge,
+                                              color: AppColors.onPrimary,
+                                            ),
                                           ),
-                                        ),
-                                      );
+                                        );
+                                      });
                                     }
                                   },
                                   child: Text(
-                                    t.chat.resendCode,
+                                    t.main.setParam(param: t.account.password),
                                     style: context.textStyle(
                                       FontSizeType.medium,
-                                      color: AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.none,
-                                  vertical: AppSpacing.small,
-                                ),
-                                child: StatefulBuilder(
-                                  builder: (context, setLocalState) {
-                                    return PasswordTextField(
-                                      obscureText: state.newPwdObscure,
-                                      hintText: t.account.newPassword,
-                                      style: TextStyle(color: textPrimary),
-                                      hintStyle: TextStyle(
-                                        color: textSecondary,
-                                      ),
-                                      iconColor: textSecondary,
-                                      onTap: () {
-                                        notifier.toggleNewPwdObscure();
-                                      },
-                                      onChanged: (String? val) {
-                                        if (strNoEmpty(val)) {
-                                          notifier.setNewPwd(val!.trim());
-                                        }
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.none,
-                                  vertical: AppSpacing.small,
-                                ),
-                                child: StatefulBuilder(
-                                  builder: (context, setLocalState) {
-                                    return PasswordTextField(
-                                      obscureText: state.retypePwdObscure,
-                                      hintText: t.account.retypePassword,
-                                      style: TextStyle(color: textPrimary),
-                                      hintStyle: TextStyle(
-                                        color: textSecondary,
-                                      ),
-                                      iconColor: textSecondary,
-                                      onTap: () {
-                                        setState(() {
-                                          notifier.setRetypePwdObscure(
-                                            !state.retypePwdObscure,
-                                          );
-                                        });
-                                      },
-                                      onChanged: (String? val) {
-                                        if (strNoEmpty(val)) {
-                                          notifier.setRetypePwd(val!.trim());
-                                        }
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
-                          FadeAnimation(
-                            delay: 1,
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 52,
-                              child: CupertinoButton(
-                                color: AppColors.primary,
-                                onPressed: () async {
-                                  FocusScope.of(context).unfocus();
-                                  if (currentText.length != 6) {
-                                    _pinController.triggerError();
-                                    setState(() => hasError = true);
-                                    return;
-                                  }
-                                  formKey.currentState!.validate();
-                                  String? res = await notifier.resetPassword(
-                                    type: widget.accountType,
-                                    account: widget.account,
-                                    code: currentText,
-                                    newPwd: state.newPwd,
-                                    rePwd: state.retypePwd,
-                                  );
-                                  if (res == null) {
-                                    AppLoading.showSuccess(
-                                      t.common.confirmRecoverSuccess,
-                                    );
-                                    if (!context.mounted) return;
-                                    context.go('/sign_in');
-                                  } else {
-                                    setState(() {
-                                      hasError = false;
-                                      notifier.snackBar(
-                                        Text(
-                                          res,
-                                          // 彩底前景用 onPrimary
-                                          style: context.textStyle(
-                                            FontSizeType.extraLarge,
-                                            color: AppColors.onPrimary,
-                                          ),
-                                        ),
-                                      );
-                                    });
-                                  }
-                                },
-                                child: Text(
-                                  t.main.setParam(param: t.account.password),
-                                  style: context.textStyle(
-                                    FontSizeType.medium,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    AppSpacing.verticalLarge,
-                    FadeAnimation(
-                      delay: 1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            t.main.tryAgainQ,
-                            style: TextStyle(
-                              color: textSecondary,
-                              letterSpacing: 0.5,
+                      AppSpacing.verticalLarge,
+                      FadeAnimation(
+                        delay: 1,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              t.main.tryAgainQ,
+                              style: TextStyle(
+                                color: textSecondary,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              if (!context.mounted) return;
-                              context.go('/sign_in');
-                            },
-                            child: Text(
-                              t.account.login,
-                              // context.textStyle 无 letterSpacing 参数，copyWith 补回
-                              style: context
-                                  .textStyle(
-                                    FontSizeType.normal,
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                  )
-                                  .copyWith(letterSpacing: 0.5),
+                            GestureDetector(
+                              onTap: () {
+                                if (!context.mounted) return;
+                                context.go('/sign_in');
+                              },
+                              child: Text(
+                                t.account.login,
+                                // context.textStyle 无 letterSpacing 参数，copyWith 补回
+                                style: context
+                                    .textStyle(
+                                      FontSizeType.normal,
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    )
+                                    .copyWith(letterSpacing: 0.5),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              top: 40,
-              left: 0,
-              child: notifier.backButton(color: AppColors.primary),
-            ),
-          ],
+              Positioned(
+                top: 40,
+                left: 0,
+                child: notifier.backButton(color: AppColors.primary),
+              ),
+            ],
+          ),
         ),
       ),
     );

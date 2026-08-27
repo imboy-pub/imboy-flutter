@@ -104,106 +104,110 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return CupertinoPageScaffold(
-      child: Stack(
-        children: [
-          const Positioned(top: -120, right: -60, child: BezierContainer()),
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  SizedBox(height: height * 0.04),
-                  const PassportTitle(color: AppColors.primary),
-                  AppSpacing.verticalXLarge,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Stack(
+          children: [
+            const Positioned(top: -120, right: -60, child: BezierContainer()),
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    SizedBox(height: height * 0.04),
+                    const PassportTitle(color: AppColors.primary),
+                    AppSpacing.verticalXLarge,
 
-                  // TabBar 对齐 iOS 风格
-                  Container(
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.darkSurfaceGrouped
-                          : AppColors.lightSurfaceGrouped,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: AppSpacing.allTiny,
-                    child: TabBar(
-                      controller: _tabController,
-                      indicator: BoxDecoration(
+                    // TabBar 对齐 iOS 风格
+                    Container(
+                      decoration: BoxDecoration(
                         color: isDark
-                            ? AppColors.darkSurfaceGroupedTertiary
-                            : AppColors.lightSurface,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.darkBackground.withValues(
-                              alpha: 0.05,
+                            ? AppColors.darkSurfaceGrouped
+                            : AppColors.lightSurfaceGrouped,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: AppSpacing.allTiny,
+                      child: TabBar(
+                        controller: _tabController,
+                        indicator: BoxDecoration(
+                          color: isDark
+                              ? AppColors.darkSurfaceGroupedTertiary
+                              : AppColors.lightSurface,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.darkBackground.withValues(
+                                alpha: 0.05,
+                              ),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
+                          ],
+                        ),
+                        labelColor: AppColors.primary,
+                        unselectedLabelColor: AppColors.iosGray,
+                        dividerColor: Colors.transparent,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        tabs: [
+                          Tab(text: t.account.account),
+                          Tab(text: t.account.mobile),
+                          Tab(text: t.account.email),
                         ],
                       ),
-                      labelColor: AppColors.primary,
-                      unselectedLabelColor: AppColors.iosGray,
-                      dividerColor: Colors.transparent,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      tabs: [
-                        Tab(text: t.account.account),
-                        Tab(text: t.account.mobile),
-                        Tab(text: t.account.email),
-                      ],
                     ),
-                  ),
-                  AppSpacing.verticalRegular,
+                    AppSpacing.verticalRegular,
 
-                  SizedBox(
-                    height: 220,
-                    child: TabBarView(
-                      controller: _tabController,
+                    SizedBox(
+                      height: 220,
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildAccountLogin(state, notifier, isDark),
+                          _buildMobileLogin(state, notifier, isDark),
+                          _buildEmailLogin(state, notifier, isDark),
+                        ],
+                      ),
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildAccountLogin(state, notifier, isDark),
-                        _buildMobileLogin(state, notifier, isDark),
-                        _buildEmailLogin(state, notifier, isDark),
+                        CupertinoButton(
+                          onPressed: () =>
+                              context.push(AppRoutes.forgotPassword),
+                          child: Text(
+                            t.account.forgotPassword,
+                            style: const TextStyle(color: AppColors.iosGray),
+                          ),
+                        ),
+                        CupertinoButton(
+                          onPressed: () => context.push(AppRoutes.signUp),
+                          child: Text(
+                            t.account.signup,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CupertinoButton(
-                        onPressed: () => context.push(AppRoutes.forgotPassword),
-                        child: Text(
-                          t.account.forgotPassword,
-                          style: const TextStyle(color: AppColors.iosGray),
-                        ),
-                      ),
-                      CupertinoButton(
-                        onPressed: () => context.push(AppRoutes.signUp),
-                        child: Text(
-                          t.account.signup,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  AppSpacing.verticalLarge,
-                  OtherLoginSection(
-                    notifier: notifier,
-                    isDark: isDark,
-                    showAlipay: true,
-                    showOneKey: true,
-                  ),
-                ],
+                    AppSpacing.verticalLarge,
+                    OtherLoginSection(
+                      notifier: notifier,
+                      isDark: isDark,
+                      showAlipay: true,
+                      showOneKey: true,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 10,
-            left: 0,
-            child: notifier.backButton(color: AppColors.primary),
-          ),
-        ],
+            Positioned(
+              top: 10,
+              left: 0,
+              child: notifier.backButton(color: AppColors.primary),
+            ),
+          ],
+        ),
       ),
     );
   }

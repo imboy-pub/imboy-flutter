@@ -53,72 +53,75 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
     final height = MediaQuery.of(context).size.height;
 
     return CupertinoPageScaffold(
-      child: SizedBox(
-        height: height,
-        child: Stack(
-          children: [
-            Positioned(
-              top: -height * .15,
-              right: -MediaQuery.of(context).size.width * .18,
-              child: const BezierContainer(),
-            ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: SizedBox(
+          height: height,
+          child: Stack(
+            children: [
+              Positioned(
+                top: -height * .15,
+                right: -MediaQuery.of(context).size.width * .18,
+                child: const BezierContainer(),
+              ),
 
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: height * 0.12),
-                    const PassportTitle(color: AppColors.primary),
-                    const SizedBox(height: 40),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: height * 0.12),
+                      const PassportTitle(color: AppColors.primary),
+                      const SizedBox(height: 40),
 
-                    Text(
-                      t.account.recoverPassword,
-                      style: context.textStyle(
-                        FontSizeType.extraLarge,
-                        fontWeight: FontWeight.bold,
-                        color: _isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.lightTextPrimary,
+                      Text(
+                        t.account.recoverPassword,
+                        style: context.textStyle(
+                          FontSizeType.extraLarge,
+                          fontWeight: FontWeight.bold,
+                          color: _isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 30),
+                      const SizedBox(height: 30),
 
-                    // Tabs
-                    TabBar(
-                      controller: _tabController,
-                      labelColor: AppColors.primary,
-                      unselectedLabelColor: _unselectedLabel,
-                      indicatorColor: AppColors.primary,
-                      tabs: [
-                        Tab(text: t.account.email),
-                        Tab(text: t.account.mobile),
-                      ],
-                    ),
-                    AppSpacing.verticalLarge,
-
-                    SizedBox(
-                      height: 200,
-                      child: TabBarView(
+                      // Tabs
+                      TabBar(
                         controller: _tabController,
-                        children: [
-                          _buildEmailInput(state, notifier),
-                          _buildMobileInput(state, notifier),
+                        labelColor: AppColors.primary,
+                        unselectedLabelColor: _unselectedLabel,
+                        indicatorColor: AppColors.primary,
+                        tabs: [
+                          Tab(text: t.account.email),
+                          Tab(text: t.account.mobile),
                         ],
                       ),
-                    ),
-                  ],
+                      AppSpacing.verticalLarge,
+
+                      SizedBox(
+                        height: 200,
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _buildEmailInput(state, notifier),
+                            _buildMobileInput(state, notifier),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              top: 40,
-              left: 0,
-              child: notifier.backButton(color: AppColors.primary),
-            ),
-          ],
+              Positioned(
+                top: 40,
+                left: 0,
+                child: notifier.backButton(color: AppColors.primary),
+              ),
+            ],
+          ),
         ),
       ),
     );

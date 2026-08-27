@@ -74,85 +74,88 @@ class _SignupPageState extends ConsumerState<SignupPage>
     final height = MediaQuery.of(context).size.height;
 
     return CupertinoPageScaffold(
-      child: Stack(
-        children: [
-          Positioned(
-            top: -height * .15,
-            right: -MediaQuery.of(context).size.width * .18,
-            child: const BezierContainer(),
-          ),
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(height: height * 0.04),
-                  const PassportTitle(color: AppColors.primary),
-                  AppSpacing.verticalXLarge,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Stack(
+          children: [
+            Positioned(
+              top: -height * .15,
+              right: -MediaQuery.of(context).size.width * .18,
+              child: const BezierContainer(),
+            ),
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: height * 0.04),
+                    const PassportTitle(color: AppColors.primary),
+                    AppSpacing.verticalXLarge,
 
-                  // Tabs
-                  TabBar(
-                    controller: _tabController,
-                    labelColor: AppColors.primary,
-                    unselectedLabelColor: _unselectedLabel,
-                    indicatorColor: AppColors.primary,
-                    tabs: [
-                      Tab(text: t.account.email),
-                      Tab(text: t.account.mobile),
-                    ],
-                  ),
-                  AppSpacing.verticalRegular,
-
-                  SizedBox(
-                    height: 290,
-                    child: TabBarView(
+                    // Tabs
+                    TabBar(
                       controller: _tabController,
-                      children: [
-                        _buildEmailRegister(state, notifier),
-                        _buildMobileRegister(state, notifier),
+                      labelColor: AppColors.primary,
+                      unselectedLabelColor: _unselectedLabel,
+                      indicatorColor: AppColors.primary,
+                      tabs: [
+                        Tab(text: t.account.email),
+                        Tab(text: t.account.mobile),
                       ],
                     ),
-                  ),
+                    AppSpacing.verticalRegular,
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CupertinoButton(
-                        onPressed: () => context.go(AppRoutes.signIn),
-                        child: Text(
-                          t.main.siginQ,
-                          style: const TextStyle(color: AppColors.iosGray),
-                        ),
+                    SizedBox(
+                      height: 290,
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildEmailRegister(state, notifier),
+                          _buildMobileRegister(state, notifier),
+                        ],
                       ),
-                      CupertinoButton(
-                        onPressed: () => context.go(AppRoutes.signIn),
-                        child: Text(
-                          t.account.login,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
 
-                  AppSpacing.verticalLarge,
-                  OtherLoginSection(
-                    notifier: notifier,
-                    isDark: _isDark,
-                    showAlipay: true,
-                    showOneKey: true,
-                  ),
-                ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CupertinoButton(
+                          onPressed: () => context.go(AppRoutes.signIn),
+                          child: Text(
+                            t.main.siginQ,
+                            style: const TextStyle(color: AppColors.iosGray),
+                          ),
+                        ),
+                        CupertinoButton(
+                          onPressed: () => context.go(AppRoutes.signIn),
+                          child: Text(
+                            t.account.login,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    AppSpacing.verticalLarge,
+                    OtherLoginSection(
+                      notifier: notifier,
+                      isDark: _isDark,
+                      showAlipay: true,
+                      showOneKey: true,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 20,
-            left: 0,
-            child: notifier.backButton(color: AppColors.primary),
-          ),
-        ],
+            Positioned(
+              top: 20,
+              left: 0,
+              child: notifier.backButton(color: AppColors.primary),
+            ),
+          ],
+        ),
       ),
     );
   }
