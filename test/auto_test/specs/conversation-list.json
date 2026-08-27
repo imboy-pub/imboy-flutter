@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "CONVERSATION-LIST-001",
+  "title": "会话列表、搜索与进入聊天",
+  "risk": "P0",
+  "phase": "p0",
+  "sources": ["lib/page/conversation/conversation_page.dart"],
+  "dependencies": ["lib/page/conversation/conversation_provider.dart"],
+  "assertions": {"functional": ["会话列表或空态可见", "搜索输入可定位", "进入既有会话不崩溃"], "ui": ["加载、空态、搜索无结果均可区分"]},
+  "visual": {"rubric": ["no_overflow", "list_state", "long_text", "dark_mode"], "baseline": "待真机采集"},
+  "runner": {"type": "flutter", "target": "integration_test/chat/conversation_test.dart", "requires": ["device", "credentials", "local_or_authorized_remote"]},
+  "checkpoints": ["conv_03_conversation_list", "conv_search_typed"],
+  "safe_to_execute": true
+}

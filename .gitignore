@@ -146,3 +146,6 @@ plugin/r_upgrade
 
 # spike 实验区：Rust 构建产物不入库（源码可重建，见 ~/.pub-cache flutter_vodozemac）
 spikes/**/target/
+
+# AI 真机回归的可提交规格与准则；单次截图、日志与运行报告不入库。
+test/auto_test/reports/

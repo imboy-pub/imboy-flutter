@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "CHAT-PAGE-001",
+  "title": "单聊消息展示、输入与发送状态",
+  "risk": "P0",
+  "phase": "p0",
+  "sources": ["lib/page/chat/chat/chat_page.dart"],
+  "dependencies": ["lib/page/chat/widget/chat_input.dart", "lib/service/websocket.dart"],
+  "assertions": {"functional": ["聊天页可进入", "消息列表与输入区共存", "发送仅以 ACK 或明确失败态判定"], "ui": ["键盘和面板不遮挡输入与发送", "网络失败提示可见"]},
+  "visual": {"rubric": ["no_overflow", "keyboard_safe_area", "message_contrast", "touch_target"], "baseline": "待真机采集"},
+  "runner": {"type": "flutter", "target": "integration_test/e2e_chat_test.dart", "requires": ["device", "credentials", "authorized_test_accounts"]},
+  "checkpoints": ["c2c_01_chat_page", "c2c_02_after_send"],
+  "safe_to_execute": false
+}

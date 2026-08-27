@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "PASSPORT-LOGIN-001",
+  "title": "登录与主界面可见",
+  "risk": "P0",
+  "phase": "p0",
+  "sources": ["lib/page/passport/login_page.dart"],
+  "dependencies": ["lib/main.dart"],
+  "assertions": {"functional": ["登录 API 成功", "MaterialApp 与主 Scaffold 可见"], "ui": ["登录错误态可见且不误入主界面"]},
+  "visual": {"rubric": ["no_overflow", "touch_target", "dark_mode", "error_state"], "baseline": "待真机采集"},
+  "runner": {"type": "flutter", "target": "integration_test/smoke/smoke_test.dart", "requires": ["device", "credentials", "local_or_authorized_remote"]},
+  "checkpoints": ["smoke_01_main_shell"],
+  "safe_to_execute": true
+}

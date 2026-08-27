@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "WALLET-TRANSFER-001",
+  "title": "钱包余额、转账校验与确认界面",
+  "risk": "P0",
+  "phase": "p0",
+  "sources": ["lib/page/wallet/wallet_page.dart", "lib/page/wallet/transfer_send_page.dart"],
+  "dependencies": ["lib/page/wallet/wallet_provider.dart", "lib/page/wallet/wallet_amount.dart"],
+  "assertions": {"functional": ["余额加载或错误态可区分", "金额格式与余额校验不误报成功", "确认前不得产生资金写入"], "ui": ["金额、余额、确认和风险提示完整可见"]},
+  "visual": {"rubric": ["no_overflow", "money_format", "danger_confirmation", "dark_mode"], "baseline": "待真机采集"},
+  "runner": {"type": "flutter", "target": "integration_test/wallet/wallet_readonly_test.dart", "requires": ["device", "credentials", "local_fixture_for_write"]},
+  "checkpoints": ["wallet_01_readonly"],
+  "safe_to_execute": false
+}

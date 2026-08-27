@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "GROUP-SCHEDULE-001",
+  "title": "群日程列表、创建入口与详情导航",
+  "risk": "P0",
+  "phase": "p0",
+  "sources": ["lib/page/group/schedule/group_schedule_page.dart"],
+  "dependencies": ["lib/page/group/schedule/group_schedule_detail_page.dart"],
+  "assertions": {"functional": ["列表、空态和错误重试可区分", "创建入口有语义标识", "缺失日程 ID 不得导航"], "ui": ["日期时间地点信息不截断", "创建按钮可见可触达"]},
+  "visual": {"rubric": ["no_overflow", "touch_target", "long_text", "empty_error_state"], "baseline": "待真机采集"},
+  "runner": {"type": "flutter", "target": "integration_test/group/group_collaboration_readonly_test.dart", "requires": ["device", "credentials", "existing_group"]},
+  "checkpoints": ["group_schedule_01_list"],
+  "safe_to_execute": true
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "E2EE-BACKUP-IMPORT-001",
+  "title": "E2EE 备份导入前置与危险操作门禁",
+  "risk": "P0",
+  "phase": "p0",
+  "sources": ["lib/page/settings/e2ee_backup_import_page.dart"],
+  "dependencies": ["lib/service/e2ee_backup_url_download_service.dart"],
+  "assertions": {"functional": ["非法文件不能启用导入", "风险警告可见", "真实导入默认不执行"], "ui": ["警告、禁用态、云端恢复入口均可读"]},
+  "visual": {"rubric": ["no_overflow", "danger_confirmation", "disabled_state", "dark_mode"], "baseline": "待真机采集"},
+  "runner": {"type": "flutter", "target": "integration_test/mine/mine_subpages_smoke_test.dart", "requires": ["device", "credentials", "disposable_account_for_import"]},
+  "checkpoints": ["e2ee_01_backup_import"],
+  "safe_to_execute": false
+}

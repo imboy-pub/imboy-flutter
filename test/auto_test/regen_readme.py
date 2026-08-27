@@ -28,6 +28,10 @@ def parse(errors):
     data = collections.defaultdict(dict)
     for f in sorted(glob.glob(os.path.join(BASE, '*', '*.md'))):
         mod = os.path.basename(os.path.dirname(f))
+        # AI 规格、视觉基线与运行报告目录不镜像 lib/page；不能把其中 README
+        # 当成「0 行坏表格」而阻断原有页面台账汇总。
+        if mod in {'specs', 'reports', 'baselines'}:
+            continue
         name = os.path.basename(f)
         rows, c, found, solved, pending, path = 0, collections.Counter(), 0, 0, 0, ''
         for lineno, line in enumerate(open(f, encoding='utf-8'), 1):
@@ -89,6 +93,13 @@ def main():
     A('本目录**镜像 `lib/page/` 结构**：改了 `lib/page/channel/channel_list_page.dart`，')
     A('就去 `test/auto_test/channel/channel_list_page.md` 更新对应功能点。\n')
     A('执行规程见 [LOOP_PROMPT.md](./LOOP_PROMPT.md)。\n')
+    A('## AI 真机回归（分三期改造）\n')
+    A('页面台账仍用于人工真机走查；可重复执行的 AI/真机规格位于 `specs/`，')
+    A('由 `python3 scripts/auto_test.py validate|plan|impact|report` 校验和编排。\n')
+    A('当前迁移样板与覆盖等级见 [AI_TEST_INDEX.md](./AI_TEST_INDEX.md)，')
+    A('页面级规格迁移队列见 [AI_COVERAGE_MATRIX.md](./AI_COVERAGE_MATRIX.md)，')
+    A('建议的规格补齐优先级见 [AI_SPEC_BACKLOG.md](./AI_SPEC_BACKLOG.md)，')
+    A('视觉判据见 [visual-rubric.md](./visual-rubric.md)。运行产物写入 `reports/`，不入库。\n')
     A('## 表格规则（保证有限膨胀）\n')
     A('| 规则 | 说明 |\n|---|---|')
     A('| **一行 = 一个功能点** | 行数只随功能增加，**不随测试轮次增加** |')

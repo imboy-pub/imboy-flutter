@@ -14,6 +14,16 @@
 
 执行规程见 [LOOP_PROMPT.md](./LOOP_PROMPT.md)。
 
+## AI 真机回归（分三期改造）
+
+页面台账仍用于人工真机走查；可重复执行的 AI/真机规格位于 `specs/`，
+由 `python3 scripts/auto_test.py validate|plan|impact|report` 校验和编排。
+
+当前迁移样板与覆盖等级见 [AI_TEST_INDEX.md](./AI_TEST_INDEX.md)，
+页面级规格迁移队列见 [AI_COVERAGE_MATRIX.md](./AI_COVERAGE_MATRIX.md)，
+建议的规格补齐优先级见 [AI_SPEC_BACKLOG.md](./AI_SPEC_BACKLOG.md)，
+视觉判据见 [visual-rubric.md](./visual-rubric.md)。运行产物写入 `reports/`，不入库。
+
 ## 表格规则（保证有限膨胀）
 
 | 规则 | 说明 |
@@ -48,9 +58,8 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1304 | 84.6% |
-| 待复验 | 2 | 0.1% |
-| 阻塞 | 235 | 15.2% |
+| 无待办 | 1308 | 84.9% |
+| 阻塞 | 233 | 15.1% |
 | **合计** | **1541** | 100% |
 
 bug 累计：**发现 201 / 解决 195 / 待处理 6**
@@ -59,30 +68,30 @@ bug 累计：**发现 201 / 解决 195 / 待处理 6**
 
 ## 模块索引
 
-| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 待复验 | 阻塞 |
-|---|---|---|---|---|---|---|
-| [group](group/) | 26 | 286 | 0 | 246 | 0 | 40 |
-| [mine](mine/) | 21 | 249 | 0 | 234 | 0 | 15 |
-| [channel](channel/) | 13 | 146 | 0 | 122 | 0 | 24 |
-| [contact](contact/) | 13 | 126 | 2 | 118 | 0 | 8 |
-| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 0 | 19 |
-| [passport](passport/) | 7 | 82 | 0 | 46 | 0 | 36 |
-| [chat](chat/) | 6 | 76 | 0 | 60 | 0 | 16 |
-| [moment](moment/) | 6 | 74 | 0 | 73 | 0 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 51 | 0 | 10 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 | 0 |
-| [single](single/) | 5 | 48 | 0 | 44 | 2 | 2 |
-| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 |
-| [settings](settings/) | 3 | 36 | 0 | 25 | 0 | 11 |
-| [search](search/) | 3 | 35 | 0 | 14 | 0 | 21 |
-| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 28 |
-| [scanner](scanner/) | 3 | 30 | 0 | 28 | 0 | 2 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 11 | 0 | 1 |
-| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 |
-| [mention](mention/) | 1 | 12 | 0 | 11 | 0 | 1 |
-| [splash](splash/) | 1 | 12 | 0 | 12 | 0 | 0 |
-| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 |
-| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 |
+| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 阻塞 |
+|---|---|---|---|---|---|
+| [group](group/) | 26 | 286 | 0 | 246 | 40 |
+| [mine](mine/) | 21 | 249 | 0 | 234 | 15 |
+| [channel](channel/) | 13 | 146 | 0 | 122 | 24 |
+| [contact](contact/) | 13 | 126 | 2 | 118 | 8 |
+| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 19 |
+| [passport](passport/) | 7 | 82 | 0 | 46 | 36 |
+| [chat](chat/) | 6 | 76 | 0 | 60 | 16 |
+| [moment](moment/) | 6 | 74 | 0 | 73 | 1 |
+| [wallet](wallet/) | 5 | 61 | 1 | 53 | 8 |
+| [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 |
+| [single](single/) | 5 | 48 | 0 | 46 | 2 |
+| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
+| [settings](settings/) | 3 | 36 | 0 | 25 | 11 |
+| [search](search/) | 3 | 35 | 0 | 14 | 21 |
+| [live_room](live_room/) | 3 | 33 | 0 | 5 | 28 |
+| [scanner](scanner/) | 3 | 30 | 0 | 28 | 2 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 11 | 1 |
+| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 |
+| [mention](mention/) | 1 | 12 | 0 | 11 | 1 |
+| [splash](splash/) | 1 | 12 | 0 | 12 | 0 |
+| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 |
+| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 |
 
 ## 页面清单
 
