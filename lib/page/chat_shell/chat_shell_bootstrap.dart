@@ -1,12 +1,12 @@
-/// T2 (WP1) — ChatShell 业务接线层（experience 消费 + 现有首页注入）
+/// T2 (WP1) / T8 (WP5) — ChatShell 业务接线层（experience 消费 + 现有首页注入）
 ///
 /// 把现有 Chat 首页原样包进 ChatShell：
 /// - `experience = chat` → [ChatShellPage]，内容区注入现有两个入口
 ///   （移动端 BottomNavigationPage / 桌面端 WebShellBootstrap），与挂载
 ///   进路由前的实例化方式完全一致（纯包装，零业务逻辑改动）
-/// - `experience = workspace` → WP5 (T8) WorkspaceShell 的扩展点：本期
-///   客户端没有任何 workspace UI，按 §4.1 fail-safe 规则以 chat 壳渲染，
-///   T8 落地时把该分支替换为 WorkspaceShellBootstrap 即可
+/// - `experience = workspace` → [WorkspaceShellBootstrap]（WP5/T8）：
+///   五项导航（Overview/Projects/Channels/Groups/Members）+ 全局 DM 区，
+///   无工作区时空态运行（创建入口）；branding 主题作用域见 T12
 ///
 /// experience 的来源链路见 `experience_provider.dart`（/api/v1/init 下发 →
 /// initConfig 写 StorageService 缓存 → provider 读取；缺失/未知值降级 chat）。
@@ -23,6 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/page/web_shell/web_shell_bootstrap.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_bootstrap.dart';
 
 import 'chat_shell_page.dart';
 import 'experience_provider.dart';
@@ -40,11 +41,8 @@ class ChatShellBootstrap extends ConsumerWidget {
         mobileEntry: BottomNavigationPage(),
         desktopEntry: WebShellBootstrap(),
       ),
-      // WP5/T8 扩展点：WorkspaceShell 未实现前按 chat 壳 fail-safe 渲染
-      ProductExperience.workspace => const ChatShellPage(
-        mobileEntry: BottomNavigationPage(),
-        desktopEntry: WebShellBootstrap(),
-      ),
+      // WP5/T8：Workspace 体验壳（五项导航 IA + 空态运行 + T12 branding 作用域）
+      ProductExperience.workspace => const WorkspaceShellBootstrap(),
     };
   }
 }

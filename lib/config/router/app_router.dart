@@ -34,6 +34,7 @@ import 'routes/group_routes.dart';
 import 'routes/channel_routes.dart';
 import 'routes/mine_routes.dart';
 import 'routes/group_feature_routes.dart';
+import 'routes/workspace_routes.dart';
 
 bool _matchesPublicPath(String currentPath, String publicPath) {
   if (publicPath == AppRoutes.initial) {
@@ -503,6 +504,9 @@ GoRouter createAppRouter({
 
       // 频道路由
       ...channelRoutes(),
+
+      // 工作区路由（WP5/T8：切换器/创建流/频道详情/邀请/Branding）
+      ...workspaceRoutes(),
 
       // 个人中心路由
       ...mineRoutes(),

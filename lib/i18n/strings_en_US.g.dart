@@ -65,6 +65,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$passport$en_US passport = _Translations$passport$en_US._(_root);
 	@override late final _Translations$splash$en_US splash = _Translations$splash$en_US._(_root);
 	@override late final _Translations$welcome$en_US welcome = _Translations$welcome$en_US._(_root);
+	@override late final _Translations$workspace$en_US workspace = _Translations$workspace$en_US._(_root);
 }
 
 // Path: account
@@ -2690,6 +2691,107 @@ class _Translations$welcome$en_US extends Translations$welcome$zh_CN {
 	@override String get skip => 'Skip';
 }
 
+// Path: workspace
+class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
+	_Translations$workspace$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get navOverview => 'Overview';
+	@override String get navProjects => 'Projects';
+	@override String get navChannels => 'Channels';
+	@override String get navGroups => 'Groups';
+	@override String get navMembers => 'Members';
+	@override String get pickerTitle => 'My Workspaces';
+	@override String get pickerEmptyTitle => 'No workspace yet';
+	@override String get pickerEmptySubtitle => 'Create one and get started in 3 minutes (Announcements channel and General group included)';
+	@override String get archivedBadge => 'Archived';
+	@override String get emptyNoWorkspace => 'Select or create a workspace first';
+	@override String get dmEntry => 'Direct messages';
+	@override String get createTitle => 'Create Workspace';
+	@override String get createDesc => 'One shot creates: the workspace, you as Owner (Workspace Member), an Announcements channel and a General group. All or nothing.';
+	@override String get createNameLabel => 'Workspace name';
+	@override String get createNameHint => 'e.g. Website Redesign Team';
+	@override String get createNameRequired => 'Workspace name is required';
+	@override String get createSubmit => 'Create';
+	@override String get createEntry => 'Create Workspace';
+	@override String get createSuccess => 'Workspace created';
+	@override String get createIdempotentHit => 'Existing workspace with the same name, entering it';
+	@override String get createTemplateTitle => 'Will be initialized';
+	@override String get createTemplateChannel => 'Announcements channel (you become publisher & subscriber)';
+	@override String get createTemplateGroup => 'General group (you become a Group Member)';
+	@override String get createTemplateOwner => 'You become the workspace Owner (Workspace Member)';
+	@override String get overviewTitle => 'Overview';
+	@override String get overviewResources => 'Resources';
+	@override String get overviewPinnedContent => 'Pinned channel posts';
+	@override String get overviewPinnedEmpty => 'No pinned channel posts yet; Group Notices are not aggregated here (they belong to each group)';
+	@override String get overviewRecentFiles => 'Recent files';
+	@override String get overviewRecentFilesEmpty => 'Recently uploaded files will appear here; attachments are also available inside each channel';
+	@override String get membersTitle => 'Workspace Members';
+	@override String get membersEmpty => 'No workspace members yet';
+	@override String get membersEmptySubtitle => 'Invite registered users as Workspace Members (Owner / Member / Guest)';
+	@override String get projectsEmptyTitle => 'No projects yet';
+	@override String get projectsEmptySubtitle => 'Projects track clear deliverables; a community workspace with only channels and groups is perfectly fine';
+	@override String get channelsEmptyTitle => 'No workspace channels yet';
+	@override String get channelsEmptySubtitle => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups';
+	@override String channelTileSubtitle({required Object count}) => '${count} subscribers';
+	@override String get channelDetailTitle => 'Channel';
+	@override String get discussInGroupGuide => 'Channels are for publishing; want to discuss? Jump to the General group →';
+	@override String get groupsEmptyTitle => 'No workspace groups yet';
+	@override String get groupsEmptySubtitle => 'Groups are real-time discussion spaces in the workspace (the only chat entry)';
+	@override String groupTileSubtitle({required Object count}) => '${count} group members';
+	@override String get inviteTitle => 'Invite Workspace Member';
+	@override String get inviteDesc => 'Only registered users can be invited; joining a workspace never auto-joys a group or auto-subscribes a channel — the three relations are written and reported separately';
+	@override String get inviteSearchHint => 'Search by username / user ID';
+	@override String get inviteEntry => 'Invite Workspace Member';
+	@override String get inviteJoinGroupOption => 'Also join the General group (become a Group Member)';
+	@override String get inviteSubscribeChannelOption => 'Also subscribe to the Announcements channel (become a Channel Subscriber)';
+	@override String get inviteOptionUnavailable => 'Target resource not found; this option is unavailable';
+	@override String get inviteSubmit => 'Send invite';
+	@override String get inviteResultsTitle => 'Results (three independent)';
+	@override String get inviteResultWorkspace => 'Join workspace (becomes Workspace Member)';
+	@override String get inviteResultGroup => 'Join General group (becomes Group Member)';
+	@override String get inviteResultChannel => 'Subscribe to Announcements channel (becomes Channel Subscriber)';
+	@override String get resultIdle => 'Not run';
+	@override String get resultRunning => 'Running';
+	@override String get resultSuccess => 'Success';
+	@override String get resultFailed => 'Failed';
+	@override String get roleOwner => 'Owner';
+	@override String get roleMember => 'Member';
+	@override String get roleGuest => 'Guest';
+	@override String removeMemberTitle({required Object name}) => 'Remove workspace member ${name}';
+	@override String get removeMemberDesc => 'Removing ends their workspace access; unfinished tasks or owned projects will make the server return a conflict list and cancel the removal';
+	@override String get removeMemberConfirm => 'Remove';
+	@override String changeRoleTitle({required Object name}) => 'Change workspace role of ${name}';
+	@override String transferTitle({required Object name}) => 'Transfer primary Owner to ${name}';
+	@override String get transferDesc => 'After the transfer you become a regular Workspace Member; they gain full governance';
+	@override String get transferConfirm => 'Transfer';
+	@override String get governanceTitle => 'Workspace governance';
+	@override String get brandingEntry => 'Branding (name / logo / primary color)';
+	@override String get archiveEntry => 'Archive workspace';
+	@override String get restoreEntry => 'Restore workspace';
+	@override String get archiveTitle => 'Archive workspace';
+	@override String get archiveDesc => 'Archiving makes it read-only for everyone (writes rejected by the server); restore anytime';
+	@override String get archiveConfirm => 'Archive';
+	@override String get restoreTitle => 'Restore workspace';
+	@override String get restoreDesc => 'Restoring re-enables read and write';
+	@override String get restoreConfirm => 'Restore';
+	@override String get archivedBanner => 'Workspace archived: content is viewable, writes are disabled; the Owner can restore it on the Members page';
+	@override String get brandingTitle => 'Workspace branding';
+	@override String get brandingNameLabel => 'Brand name';
+	@override String get brandingLogoLabel => 'Logo URL';
+	@override String get brandingLogoHint => 'https://… (workspace logo image URL)';
+	@override String get brandingColorLabel => 'Primary color';
+	@override String get brandingColorHint => '#2474E5';
+	@override String get brandingColorHelper => 'Only #RRGGBB / #AARRGGBB; invalid values fall back to the default theme color';
+	@override String get brandingColorInvalid => 'Invalid color format; only #RRGGBB / #AARRGGBB is supported';
+	@override String get brandingSaved => 'Branding saved';
+	@override String get brandingPreview => 'Primary color preview';
+	@override String get brandingPreviewApplied => 'This primary color applies inside the workspace';
+	@override String get brandingPreviewFallback => 'Not set or invalid; using the default theme color';
+}
+
 // Path: account.alipaySim
 class _Translations$account$alipaySim$en_US extends Translations$account$alipaySim$zh_CN {
 	_Translations$account$alipaySim$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -5114,6 +5216,98 @@ extension on TranslationsEnUs {
 			'welcome.next' => 'Next',
 			'welcome.getStarted' => 'Get Started',
 			'welcome.skip' => 'Skip',
+			'workspace.navOverview' => 'Overview',
+			'workspace.navProjects' => 'Projects',
+			'workspace.navChannels' => 'Channels',
+			'workspace.navGroups' => 'Groups',
+			'workspace.navMembers' => 'Members',
+			'workspace.pickerTitle' => 'My Workspaces',
+			'workspace.pickerEmptyTitle' => 'No workspace yet',
+			'workspace.pickerEmptySubtitle' => 'Create one and get started in 3 minutes (Announcements channel and General group included)',
+			'workspace.archivedBadge' => 'Archived',
+			'workspace.emptyNoWorkspace' => 'Select or create a workspace first',
+			'workspace.dmEntry' => 'Direct messages',
+			'workspace.createTitle' => 'Create Workspace',
+			'workspace.createDesc' => 'One shot creates: the workspace, you as Owner (Workspace Member), an Announcements channel and a General group. All or nothing.',
+			'workspace.createNameLabel' => 'Workspace name',
+			'workspace.createNameHint' => 'e.g. Website Redesign Team',
+			'workspace.createNameRequired' => 'Workspace name is required',
+			'workspace.createSubmit' => 'Create',
+			'workspace.createEntry' => 'Create Workspace',
+			'workspace.createSuccess' => 'Workspace created',
+			'workspace.createIdempotentHit' => 'Existing workspace with the same name, entering it',
+			'workspace.createTemplateTitle' => 'Will be initialized',
+			'workspace.createTemplateChannel' => 'Announcements channel (you become publisher & subscriber)',
+			'workspace.createTemplateGroup' => 'General group (you become a Group Member)',
+			'workspace.createTemplateOwner' => 'You become the workspace Owner (Workspace Member)',
+			'workspace.overviewTitle' => 'Overview',
+			'workspace.overviewResources' => 'Resources',
+			'workspace.overviewPinnedContent' => 'Pinned channel posts',
+			'workspace.overviewPinnedEmpty' => 'No pinned channel posts yet; Group Notices are not aggregated here (they belong to each group)',
+			'workspace.overviewRecentFiles' => 'Recent files',
+			'workspace.overviewRecentFilesEmpty' => 'Recently uploaded files will appear here; attachments are also available inside each channel',
+			'workspace.membersTitle' => 'Workspace Members',
+			'workspace.membersEmpty' => 'No workspace members yet',
+			'workspace.membersEmptySubtitle' => 'Invite registered users as Workspace Members (Owner / Member / Guest)',
+			'workspace.projectsEmptyTitle' => 'No projects yet',
+			'workspace.projectsEmptySubtitle' => 'Projects track clear deliverables; a community workspace with only channels and groups is perfectly fine',
+			'workspace.channelsEmptyTitle' => 'No workspace channels yet',
+			'workspace.channelsEmptySubtitle' => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups',
+			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} subscribers',
+			'workspace.channelDetailTitle' => 'Channel',
+			'workspace.discussInGroupGuide' => 'Channels are for publishing; want to discuss? Jump to the General group →',
+			'workspace.groupsEmptyTitle' => 'No workspace groups yet',
+			'workspace.groupsEmptySubtitle' => 'Groups are real-time discussion spaces in the workspace (the only chat entry)',
+			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} group members',
+			'workspace.inviteTitle' => 'Invite Workspace Member',
+			'workspace.inviteDesc' => 'Only registered users can be invited; joining a workspace never auto-joys a group or auto-subscribes a channel — the three relations are written and reported separately',
+			'workspace.inviteSearchHint' => 'Search by username / user ID',
+			'workspace.inviteEntry' => 'Invite Workspace Member',
+			'workspace.inviteJoinGroupOption' => 'Also join the General group (become a Group Member)',
+			'workspace.inviteSubscribeChannelOption' => 'Also subscribe to the Announcements channel (become a Channel Subscriber)',
+			'workspace.inviteOptionUnavailable' => 'Target resource not found; this option is unavailable',
+			'workspace.inviteSubmit' => 'Send invite',
+			'workspace.inviteResultsTitle' => 'Results (three independent)',
+			'workspace.inviteResultWorkspace' => 'Join workspace (becomes Workspace Member)',
+			'workspace.inviteResultGroup' => 'Join General group (becomes Group Member)',
+			'workspace.inviteResultChannel' => 'Subscribe to Announcements channel (becomes Channel Subscriber)',
+			'workspace.resultIdle' => 'Not run',
+			'workspace.resultRunning' => 'Running',
+			'workspace.resultSuccess' => 'Success',
+			'workspace.resultFailed' => 'Failed',
+			'workspace.roleOwner' => 'Owner',
+			'workspace.roleMember' => 'Member',
+			'workspace.roleGuest' => 'Guest',
+			'workspace.removeMemberTitle' => ({required Object name}) => 'Remove workspace member ${name}',
+			'workspace.removeMemberDesc' => 'Removing ends their workspace access; unfinished tasks or owned projects will make the server return a conflict list and cancel the removal',
+			'workspace.removeMemberConfirm' => 'Remove',
+			'workspace.changeRoleTitle' => ({required Object name}) => 'Change workspace role of ${name}',
+			'workspace.transferTitle' => ({required Object name}) => 'Transfer primary Owner to ${name}',
+			'workspace.transferDesc' => 'After the transfer you become a regular Workspace Member; they gain full governance',
+			'workspace.transferConfirm' => 'Transfer',
+			'workspace.governanceTitle' => 'Workspace governance',
+			'workspace.brandingEntry' => 'Branding (name / logo / primary color)',
+			'workspace.archiveEntry' => 'Archive workspace',
+			'workspace.restoreEntry' => 'Restore workspace',
+			'workspace.archiveTitle' => 'Archive workspace',
+			'workspace.archiveDesc' => 'Archiving makes it read-only for everyone (writes rejected by the server); restore anytime',
+			'workspace.archiveConfirm' => 'Archive',
+			'workspace.restoreTitle' => 'Restore workspace',
+			'workspace.restoreDesc' => 'Restoring re-enables read and write',
+			'workspace.restoreConfirm' => 'Restore',
+			'workspace.archivedBanner' => 'Workspace archived: content is viewable, writes are disabled; the Owner can restore it on the Members page',
+			'workspace.brandingTitle' => 'Workspace branding',
+			'workspace.brandingNameLabel' => 'Brand name',
+			'workspace.brandingLogoLabel' => 'Logo URL',
+			'workspace.brandingLogoHint' => 'https://… (workspace logo image URL)',
+			'workspace.brandingColorLabel' => 'Primary color',
+			'workspace.brandingColorHint' => '#2474E5',
+			'workspace.brandingColorHelper' => 'Only #RRGGBB / #AARRGGBB; invalid values fall back to the default theme color',
+			'workspace.brandingColorInvalid' => 'Invalid color format; only #RRGGBB / #AARRGGBB is supported',
+			'workspace.brandingSaved' => 'Branding saved',
+			'workspace.brandingPreview' => 'Primary color preview',
+			'workspace.brandingPreviewApplied' => 'This primary color applies inside the workspace',
+			'workspace.brandingPreviewFallback' => 'Not set or invalid; using the default theme color',
 			_ => null,
 		};
 	}

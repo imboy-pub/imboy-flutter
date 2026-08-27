@@ -67,6 +67,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$passport$zh_CN passport = Translations$passport$zh_CN.internal(_root);
 	late final Translations$splash$zh_CN splash = Translations$splash$zh_CN.internal(_root);
 	late final Translations$welcome$zh_CN welcome = Translations$welcome$zh_CN.internal(_root);
+	late final Translations$workspace$zh_CN workspace = Translations$workspace$zh_CN.internal(_root);
 }
 
 // Path: account
@@ -7886,6 +7887,291 @@ class Translations$welcome$zh_CN {
 	String get skip => '跳过';
 }
 
+// Path: workspace
+class Translations$workspace$zh_CN {
+	Translations$workspace$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '概览'
+	String get navOverview => '概览';
+
+	/// zh-CN: '项目'
+	String get navProjects => '项目';
+
+	/// zh-CN: '频道'
+	String get navChannels => '频道';
+
+	/// zh-CN: '群组'
+	String get navGroups => '群组';
+
+	/// zh-CN: '成员'
+	String get navMembers => '成员';
+
+	/// zh-CN: '我的工作区'
+	String get pickerTitle => '我的工作区';
+
+	/// zh-CN: '还没有工作区'
+	String get pickerEmptyTitle => '还没有工作区';
+
+	/// zh-CN: '创建一个工作区，3 分钟开启团队协作（自动创建 Announcements 频道与 General 群）'
+	String get pickerEmptySubtitle => '创建一个工作区，3 分钟开启团队协作（自动创建 Announcements 频道与 General 群）';
+
+	/// zh-CN: '已归档'
+	String get archivedBadge => '已归档';
+
+	/// zh-CN: '请先选择或创建一个工作区'
+	String get emptyNoWorkspace => '请先选择或创建一个工作区';
+
+	/// zh-CN: '私信（全局）'
+	String get dmEntry => '私信（全局）';
+
+	/// zh-CN: '创建工作区'
+	String get createTitle => '创建工作区';
+
+	/// zh-CN: '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。'
+	String get createDesc => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。';
+
+	/// zh-CN: '工作区名称'
+	String get createNameLabel => '工作区名称';
+
+	/// zh-CN: '例如：官网改版项目组'
+	String get createNameHint => '例如：官网改版项目组';
+
+	/// zh-CN: '工作区名称不能为空'
+	String get createNameRequired => '工作区名称不能为空';
+
+	/// zh-CN: '创建'
+	String get createSubmit => '创建';
+
+	/// zh-CN: '创建工作区'
+	String get createEntry => '创建工作区';
+
+	/// zh-CN: '工作区创建成功'
+	String get createSuccess => '工作区创建成功';
+
+	/// zh-CN: '已存在同名工作区，直接进入'
+	String get createIdempotentHit => '已存在同名工作区，直接进入';
+
+	/// zh-CN: '将自动初始化'
+	String get createTemplateTitle => '将自动初始化';
+
+	/// zh-CN: 'Announcements 频道（你成为频道发布者与订阅者）'
+	String get createTemplateChannel => 'Announcements 频道（你成为频道发布者与订阅者）';
+
+	/// zh-CN: 'General 群（你成为群成员）'
+	String get createTemplateGroup => 'General 群（你成为群成员）';
+
+	/// zh-CN: '你成为工作区 Owner（工作区成员）'
+	String get createTemplateOwner => '你成为工作区 Owner（工作区成员）';
+
+	/// zh-CN: '概览'
+	String get overviewTitle => '概览';
+
+	/// zh-CN: '资源摘要'
+	String get overviewResources => '资源摘要';
+
+	/// zh-CN: '频道置顶内容'
+	String get overviewPinnedContent => '频道置顶内容';
+
+	/// zh-CN: '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）'
+	String get overviewPinnedEmpty => '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）';
+
+	/// zh-CN: '最近文件'
+	String get overviewRecentFiles => '最近文件';
+
+	/// zh-CN: '最近上传的文件将在此展示；也可在各频道内查看附件'
+	String get overviewRecentFilesEmpty => '最近上传的文件将在此展示；也可在各频道内查看附件';
+
+	/// zh-CN: '工作区成员'
+	String get membersTitle => '工作区成员';
+
+	/// zh-CN: '暂无工作区成员'
+	String get membersEmpty => '暂无工作区成员';
+
+	/// zh-CN: '邀请已注册用户成为工作区成员（Owner / Member / Guest）'
+	String get membersEmptySubtitle => '邀请已注册用户成为工作区成员（Owner / Member / Guest）';
+
+	/// zh-CN: '还没有项目'
+	String get projectsEmptyTitle => '还没有项目';
+
+	/// zh-CN: '项目用于跟踪明确的交付目标；只有频道和群的社区型工作区同样成立'
+	String get projectsEmptySubtitle => '项目用于跟踪明确的交付目标；只有频道和群的社区型工作区同样成立';
+
+	/// zh-CN: '还没有工作区频道'
+	String get channelsEmptyTitle => '还没有工作区频道';
+
+	/// zh-CN: '频道用于持续发布内容（公告/资料），讨论请去群组'
+	String get channelsEmptySubtitle => '频道用于持续发布内容（公告/资料），讨论请去群组';
+
+	/// zh-CN: '$count 位订阅者'
+	String channelTileSubtitle({required Object count}) => '${count} 位订阅者';
+
+	/// zh-CN: '频道'
+	String get channelDetailTitle => '频道';
+
+	/// zh-CN: '频道用于发布内容；想讨论？去 General 群聊聊 →'
+	String get discussInGroupGuide => '频道用于发布内容；想讨论？去 General 群聊聊 →';
+
+	/// zh-CN: '还没有工作区群组'
+	String get groupsEmptyTitle => '还没有工作区群组';
+
+	/// zh-CN: '群组是工作区里的实时讨论空间（聊天唯一入口）'
+	String get groupsEmptySubtitle => '群组是工作区里的实时讨论空间（聊天唯一入口）';
+
+	/// zh-CN: '$count 位群成员'
+	String groupTileSubtitle({required Object count}) => '${count} 位群成员';
+
+	/// zh-CN: '邀请工作区成员'
+	String get inviteTitle => '邀请工作区成员';
+
+	/// zh-CN: '仅支持邀请已注册用户；加入工作区不自动入群、不自动订阅频道——以下三种关系分别写入、分别显示结果'
+	String get inviteDesc => '仅支持邀请已注册用户；加入工作区不自动入群、不自动订阅频道——以下三种关系分别写入、分别显示结果';
+
+	/// zh-CN: '按用户名 / 用户 ID 搜索'
+	String get inviteSearchHint => '按用户名 / 用户 ID 搜索';
+
+	/// zh-CN: '邀请工作区成员'
+	String get inviteEntry => '邀请工作区成员';
+
+	/// zh-CN: '同时加入 General 群（成为群成员）'
+	String get inviteJoinGroupOption => '同时加入 General 群（成为群成员）';
+
+	/// zh-CN: '同时订阅 Announcements 频道（成为频道订阅者）'
+	String get inviteSubscribeChannelOption => '同时订阅 Announcements 频道（成为频道订阅者）';
+
+	/// zh-CN: '未找到对应资源，该选项不可用'
+	String get inviteOptionUnavailable => '未找到对应资源，该选项不可用';
+
+	/// zh-CN: '发送邀请'
+	String get inviteSubmit => '发送邀请';
+
+	/// zh-CN: '结果（三条独立）'
+	String get inviteResultsTitle => '结果（三条独立）';
+
+	/// zh-CN: '加入工作区（成为工作区成员）'
+	String get inviteResultWorkspace => '加入工作区（成为工作区成员）';
+
+	/// zh-CN: '加入 General 群（成为群成员）'
+	String get inviteResultGroup => '加入 General 群（成为群成员）';
+
+	/// zh-CN: '订阅 Announcements 频道（成为频道订阅者）'
+	String get inviteResultChannel => '订阅 Announcements 频道（成为频道订阅者）';
+
+	/// zh-CN: '未执行'
+	String get resultIdle => '未执行';
+
+	/// zh-CN: '进行中'
+	String get resultRunning => '进行中';
+
+	/// zh-CN: '成功'
+	String get resultSuccess => '成功';
+
+	/// zh-CN: '失败'
+	String get resultFailed => '失败';
+
+	/// zh-CN: 'Owner'
+	String get roleOwner => 'Owner';
+
+	/// zh-CN: 'Member'
+	String get roleMember => 'Member';
+
+	/// zh-CN: 'Guest'
+	String get roleGuest => 'Guest';
+
+	/// zh-CN: '移除工作区成员 $name'
+	String removeMemberTitle({required Object name}) => '移除工作区成员 ${name}';
+
+	/// zh-CN: '移除后其工作区访问即失效；若其仍有未完成任务或负责的项目，服务端会返回冲突清单并取消本次移除'
+	String get removeMemberDesc => '移除后其工作区访问即失效；若其仍有未完成任务或负责的项目，服务端会返回冲突清单并取消本次移除';
+
+	/// zh-CN: '确认移除'
+	String get removeMemberConfirm => '确认移除';
+
+	/// zh-CN: '修改 $name 的工作区角色'
+	String changeRoleTitle({required Object name}) => '修改 ${name} 的工作区角色';
+
+	/// zh-CN: '转移主 Owner 给 $name'
+	String transferTitle({required Object name}) => '转移主 Owner 给 ${name}';
+
+	/// zh-CN: '转移后你成为普通工作区成员（Member），对方获得全部治理权'
+	String get transferDesc => '转移后你成为普通工作区成员（Member），对方获得全部治理权';
+
+	/// zh-CN: '确认转移'
+	String get transferConfirm => '确认转移';
+
+	/// zh-CN: '工作区治理'
+	String get governanceTitle => '工作区治理';
+
+	/// zh-CN: '品牌设置（名称 / Logo / 主色）'
+	String get brandingEntry => '品牌设置（名称 / Logo / 主色）';
+
+	/// zh-CN: '归档工作区'
+	String get archiveEntry => '归档工作区';
+
+	/// zh-CN: '恢复工作区'
+	String get restoreEntry => '恢复工作区';
+
+	/// zh-CN: '归档工作区'
+	String get archiveTitle => '归档工作区';
+
+	/// zh-CN: '归档后全员只读（写操作被服务端拒绝），可随时恢复'
+	String get archiveDesc => '归档后全员只读（写操作被服务端拒绝），可随时恢复';
+
+	/// zh-CN: '确认归档'
+	String get archiveConfirm => '确认归档';
+
+	/// zh-CN: '恢复工作区'
+	String get restoreTitle => '恢复工作区';
+
+	/// zh-CN: '恢复后工作区恢复读写'
+	String get restoreDesc => '恢复后工作区恢复读写';
+
+	/// zh-CN: '确认恢复'
+	String get restoreConfirm => '确认恢复';
+
+	/// zh-CN: '工作区已归档：内容可查看，写操作已禁用；Owner 可在成员页恢复'
+	String get archivedBanner => '工作区已归档：内容可查看，写操作已禁用；Owner 可在成员页恢复';
+
+	/// zh-CN: '工作区品牌'
+	String get brandingTitle => '工作区品牌';
+
+	/// zh-CN: '品牌名称'
+	String get brandingNameLabel => '品牌名称';
+
+	/// zh-CN: 'Logo 地址'
+	String get brandingLogoLabel => 'Logo 地址';
+
+	/// zh-CN: 'https://…（工作区 Logo 图片地址）'
+	String get brandingLogoHint => 'https://…（工作区 Logo 图片地址）';
+
+	/// zh-CN: '主色 primaryColor'
+	String get brandingColorLabel => '主色 primaryColor';
+
+	/// zh-CN: '#2474E5'
+	String get brandingColorHint => '#2474E5';
+
+	/// zh-CN: '仅支持 #RRGGBB / #AARRGGBB；非法值回落默认主题色'
+	String get brandingColorHelper => '仅支持 #RRGGBB / #AARRGGBB；非法值回落默认主题色';
+
+	/// zh-CN: '主色格式不正确，仅支持 #RRGGBB / #AARRGGBB'
+	String get brandingColorInvalid => '主色格式不正确，仅支持 #RRGGBB / #AARRGGBB';
+
+	/// zh-CN: '品牌设置已保存'
+	String get brandingSaved => '品牌设置已保存';
+
+	/// zh-CN: '主色预览'
+	String get brandingPreview => '主色预览';
+
+	/// zh-CN: '当前主色将在工作区内生效'
+	String get brandingPreviewApplied => '当前主色将在工作区内生效';
+
+	/// zh-CN: '未设置或非法值，使用默认主题色'
+	String get brandingPreviewFallback => '未设置或非法值，使用默认主题色';
+}
+
 // Path: account.alipaySim
 class Translations$account$alipaySim$zh_CN {
 	Translations$account$alipaySim$zh_CN.internal(this._root);
@@ -10473,6 +10759,100 @@ extension on Translations {
 			'welcome.next' => '下一步',
 			'welcome.getStarted' => '开始使用',
 			'welcome.skip' => '跳过',
+			'workspace.navOverview' => '概览',
+			'workspace.navProjects' => '项目',
+			'workspace.navChannels' => '频道',
+			'workspace.navGroups' => '群组',
+			'workspace.navMembers' => '成员',
+			'workspace.pickerTitle' => '我的工作区',
+			'workspace.pickerEmptyTitle' => '还没有工作区',
+			'workspace.pickerEmptySubtitle' => '创建一个工作区，3 分钟开启团队协作（自动创建 Announcements 频道与 General 群）',
+			'workspace.archivedBadge' => '已归档',
+			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
+			'workspace.dmEntry' => '私信（全局）',
+			'workspace.createTitle' => '创建工作区',
+			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
+			'workspace.createNameLabel' => '工作区名称',
+			'workspace.createNameHint' => '例如：官网改版项目组',
+			'workspace.createNameRequired' => '工作区名称不能为空',
+			'workspace.createSubmit' => '创建',
+			'workspace.createEntry' => '创建工作区',
+			'workspace.createSuccess' => '工作区创建成功',
+			'workspace.createIdempotentHit' => '已存在同名工作区，直接进入',
+			'workspace.createTemplateTitle' => '将自动初始化',
+			'workspace.createTemplateChannel' => 'Announcements 频道（你成为频道发布者与订阅者）',
+			'workspace.createTemplateGroup' => 'General 群（你成为群成员）',
+			'workspace.createTemplateOwner' => '你成为工作区 Owner（工作区成员）',
+			'workspace.overviewTitle' => '概览',
+			'workspace.overviewResources' => '资源摘要',
+			'workspace.overviewPinnedContent' => '频道置顶内容',
+			'workspace.overviewPinnedEmpty' => '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）',
+			_ => null,
+		} ?? switch (path) {
+			'workspace.overviewRecentFiles' => '最近文件',
+			'workspace.overviewRecentFilesEmpty' => '最近上传的文件将在此展示；也可在各频道内查看附件',
+			'workspace.membersTitle' => '工作区成员',
+			'workspace.membersEmpty' => '暂无工作区成员',
+			'workspace.membersEmptySubtitle' => '邀请已注册用户成为工作区成员（Owner / Member / Guest）',
+			'workspace.projectsEmptyTitle' => '还没有项目',
+			'workspace.projectsEmptySubtitle' => '项目用于跟踪明确的交付目标；只有频道和群的社区型工作区同样成立',
+			'workspace.channelsEmptyTitle' => '还没有工作区频道',
+			'workspace.channelsEmptySubtitle' => '频道用于持续发布内容（公告/资料），讨论请去群组',
+			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位订阅者',
+			'workspace.channelDetailTitle' => '频道',
+			'workspace.discussInGroupGuide' => '频道用于发布内容；想讨论？去 General 群聊聊 →',
+			'workspace.groupsEmptyTitle' => '还没有工作区群组',
+			'workspace.groupsEmptySubtitle' => '群组是工作区里的实时讨论空间（聊天唯一入口）',
+			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成员',
+			'workspace.inviteTitle' => '邀请工作区成员',
+			'workspace.inviteDesc' => '仅支持邀请已注册用户；加入工作区不自动入群、不自动订阅频道——以下三种关系分别写入、分别显示结果',
+			'workspace.inviteSearchHint' => '按用户名 / 用户 ID 搜索',
+			'workspace.inviteEntry' => '邀请工作区成员',
+			'workspace.inviteJoinGroupOption' => '同时加入 General 群（成为群成员）',
+			'workspace.inviteSubscribeChannelOption' => '同时订阅 Announcements 频道（成为频道订阅者）',
+			'workspace.inviteOptionUnavailable' => '未找到对应资源，该选项不可用',
+			'workspace.inviteSubmit' => '发送邀请',
+			'workspace.inviteResultsTitle' => '结果（三条独立）',
+			'workspace.inviteResultWorkspace' => '加入工作区（成为工作区成员）',
+			'workspace.inviteResultGroup' => '加入 General 群（成为群成员）',
+			'workspace.inviteResultChannel' => '订阅 Announcements 频道（成为频道订阅者）',
+			'workspace.resultIdle' => '未执行',
+			'workspace.resultRunning' => '进行中',
+			'workspace.resultSuccess' => '成功',
+			'workspace.resultFailed' => '失败',
+			'workspace.roleOwner' => 'Owner',
+			'workspace.roleMember' => 'Member',
+			'workspace.roleGuest' => 'Guest',
+			'workspace.removeMemberTitle' => ({required Object name}) => '移除工作区成员 ${name}',
+			'workspace.removeMemberDesc' => '移除后其工作区访问即失效；若其仍有未完成任务或负责的项目，服务端会返回冲突清单并取消本次移除',
+			'workspace.removeMemberConfirm' => '确认移除',
+			'workspace.changeRoleTitle' => ({required Object name}) => '修改 ${name} 的工作区角色',
+			'workspace.transferTitle' => ({required Object name}) => '转移主 Owner 给 ${name}',
+			'workspace.transferDesc' => '转移后你成为普通工作区成员（Member），对方获得全部治理权',
+			'workspace.transferConfirm' => '确认转移',
+			'workspace.governanceTitle' => '工作区治理',
+			'workspace.brandingEntry' => '品牌设置（名称 / Logo / 主色）',
+			'workspace.archiveEntry' => '归档工作区',
+			'workspace.restoreEntry' => '恢复工作区',
+			'workspace.archiveTitle' => '归档工作区',
+			'workspace.archiveDesc' => '归档后全员只读（写操作被服务端拒绝），可随时恢复',
+			'workspace.archiveConfirm' => '确认归档',
+			'workspace.restoreTitle' => '恢复工作区',
+			'workspace.restoreDesc' => '恢复后工作区恢复读写',
+			'workspace.restoreConfirm' => '确认恢复',
+			'workspace.archivedBanner' => '工作区已归档：内容可查看，写操作已禁用；Owner 可在成员页恢复',
+			'workspace.brandingTitle' => '工作区品牌',
+			'workspace.brandingNameLabel' => '品牌名称',
+			'workspace.brandingLogoLabel' => 'Logo 地址',
+			'workspace.brandingLogoHint' => 'https://…（工作区 Logo 图片地址）',
+			'workspace.brandingColorLabel' => '主色 primaryColor',
+			'workspace.brandingColorHint' => '#2474E5',
+			'workspace.brandingColorHelper' => '仅支持 #RRGGBB / #AARRGGBB；非法值回落默认主题色',
+			'workspace.brandingColorInvalid' => '主色格式不正确，仅支持 #RRGGBB / #AARRGGBB',
+			'workspace.brandingSaved' => '品牌设置已保存',
+			'workspace.brandingPreview' => '主色预览',
+			'workspace.brandingPreviewApplied' => '当前主色将在工作区内生效',
+			'workspace.brandingPreviewFallback' => '未设置或非法值，使用默认主题色',
 			_ => null,
 		};
 	}

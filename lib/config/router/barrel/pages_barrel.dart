@@ -20,6 +20,18 @@ export 'package:imboy/page/web_shell/web_shell.dart';
 export 'package:imboy/page/chat_shell/chat_shell.dart';
 
 // ============================================================================
+// Workspace 体验（WP5 / T8+T9+T12，双体验 v2.5.2）
+// ============================================================================
+// Workspace 体验壳 — experience=workspace 的五项导航入口（/bottom_navigation 分发）
+export 'package:imboy/page/workspace_shell/workspace_shell.dart';
+// Workspace 视图 — 切换器/创建流/频道详情/邀请向导/Branding（workspace_routes 消费）
+export 'package:imboy/page/workspace/workspace_branding_page.dart';
+export 'package:imboy/page/workspace/workspace_channel_detail_page.dart';
+export 'package:imboy/page/workspace/workspace_create_page.dart';
+export 'package:imboy/page/workspace/workspace_invite_page.dart';
+export 'package:imboy/page/workspace/workspace_picker_page.dart';
+
+// ============================================================================
 // 会话和聊天
 // ============================================================================
 export 'package:imboy/page/conversation/conversation_page.dart';
