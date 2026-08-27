@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'env.dart';
 
 /// 第三方支付（微信 / 支付宝）配置。
@@ -28,8 +29,16 @@ abstract final class PaymentConfig {
   ///
   /// 优先 `--dart-define=ALIPAY_APP_ID`（显式覆盖），
   /// 缺省回落 env 配置——构建忘传参不再降级「即将开通」。
+  /// 测试覆盖钩子：非 null 时优先于 dart-define/env（见 payment_launcher_test
+  /// 「alipay without configuration」用例——本机 env 常带真实 appId，
+  /// 不注入则「未配置」前提失效）。
+  @visibleForTesting
+  static String? debugAlipayAppIdOverride;
+
   static String get alipayAppId {
     const injected = String.fromEnvironment('ALIPAY_APP_ID');
+    final override = debugAlipayAppIdOverride;
+    if (override != null) return override;
     return injected.isNotEmpty ? injected : Env().alipayAppId;
   }
 

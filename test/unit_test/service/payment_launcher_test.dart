@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/config/payment_config.dart';
 import 'package:imboy/service/payment_gateway.dart';
 import 'package:imboy/service/payment_launcher.dart';
 
@@ -211,6 +212,9 @@ void main() {
     });
 
     test('alipay without configuration degrades to notConfigured', () async {
+      // 本机 env 常带真实 appId：强制「未配置」前提（结束复原）
+      addTearDown(() => PaymentConfig.debugAlipayAppIdOverride = null);
+      PaymentConfig.debugAlipayAppIdOverride = '';
       // CI 生成的 env 配置不含商户 appId；支付配置缺失时必须安全降级，
       // 不能调用三方网关或把订单串交给未配置的 SDK。
       final r = await launcher.launch('alipay', {
