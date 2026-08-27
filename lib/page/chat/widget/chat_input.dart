@@ -550,6 +550,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                       padding: EdgeInsets.zero,
                       onPressed: _openQuickReplyManage,
                       child: Icon(
+                        semanticLabel: '管理快捷回复',
                         CupertinoIcons.slider_horizontal_3,
                         color: _themeColor('primary'),
                       ),

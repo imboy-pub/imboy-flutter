@@ -65,6 +65,7 @@ class _SendToPageState extends ConsumerState<SendToPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           onPressed: () => context.pop(),
           child: Icon(
+            semanticLabel: '返回',
             CupertinoIcons.back,
             color: colorScheme.primary,
             size: 22,

@@ -323,6 +323,7 @@ class _AvatarPreviewPage extends StatelessWidget {
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Icon(
+            semanticLabel: '关闭',
             CupertinoIcons.xmark,
             color: AppColors.onPrimary,
             size: 22,

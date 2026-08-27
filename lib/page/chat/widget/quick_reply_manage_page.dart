@@ -189,6 +189,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                                 padding: EdgeInsets.zero,
                                 onPressed: () => _handleEdit(index),
                                 child: const Icon(
+                                  semanticLabel: '编辑',
                                   CupertinoIcons.pencil,
                                   size: 20,
                                 ),
@@ -223,6 +224,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
                           onPressed: _handleAdd,
                           color: CupertinoColors.activeBlue,
                           child: const Icon(
+                            semanticLabel: '添加',
                             CupertinoIcons.add,
                             color: CupertinoColors.white,
                           ),

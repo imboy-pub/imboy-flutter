@@ -355,7 +355,11 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
             trailing: CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Icon(CupertinoIcons.xmark, size: 22),
+              child: const Icon(
+                semanticLabel: '关闭',
+                CupertinoIcons.xmark,
+                size: 22,
+              ),
             ),
           ),
           body: SafeArea(
