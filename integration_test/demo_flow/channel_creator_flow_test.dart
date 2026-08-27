@@ -20,9 +20,13 @@
 //   dart test integration_test/demo_flow/channel_creator_flow_test.dart \
 //     --concurrency=1 --reporter expanded
 //
-// 覆盖：创建频道(type=0/type=2) → 详情回读 → 编辑 → 发布内容 → 评论 → 管理列表回读。
+// 覆盖：创建频道(C1 免费/C3 付费 access_type 契约) → 详情回读 → 编辑 →
+//       发布内容 → 评论 → 管理列表回读。
 // 未覆盖：第二订阅者账号视角评论、邀请接受（本地无第二可登录测试账号）。
-// 清理策略：频道与内容保留在本地库（marker=DEMO-FLOW-20260819），不做删除写操作。
+// 契约注记（2026-08-27，alpha.69）：channel/create 不再接受 type 参数，
+//   改为 visibility/access_type/join_policy 三元组（ADR §8.3.1），
+//   允许组合 C1(0,0,0)/C2(1,0,1)/C3(0,1,3)/C4(1,1,3)；响应无 type 字段。
+// 清理策略：频道与内容保留在本地库（marker=DEMO-FLOW-20260827），不做删除写操作。
 
 @TestOn('vm')
 library;
@@ -33,7 +37,7 @@ import 'package:test/test.dart';
 
 import '../../test/unit_test/api/api_test_client.dart';
 
-const _marker = 'DEMO-FLOW-20260819';
+const _marker = 'DEMO-FLOW-20260827';
 
 void main() {
   late ApiTestClient client;
@@ -75,14 +79,16 @@ void main() {
 
   tearDownAll(() => client.close());
 
-  test('DF-12.1 创建免费频道（type=0，DEMO-FLOW-20260819 命名）', () async {
+  test('DF-12.1 创建免费频道（C1：0/0/0，DEMO-FLOW-20260827 命名）', () async {
     if (skipOr(needChannel: false) != null) return;
     final resp = await client.post(
       '/api/v1/channel/create',
       data: {
         'name': '$_marker 频道创作者验证',
         'description': '$_marker 自动化创建的测试频道',
-        'type': 0,
+        'visibility': 0,
+        'access_type': 0,
+        'join_policy': 0,
       },
     );
     ApiAssert.success(resp, context: '创建频道');
@@ -90,25 +96,27 @@ void main() {
     channelId = '${payload['id'] ?? ''}';
     expect(channelId!.isNotEmpty, isTrue, reason: '创建成功必须返回频道 id');
     expect('${payload['name']}', contains(_marker));
-    expect(_readInt(payload['type']), 0);
+    expect(_readInt(payload['access_type']), 0);
     _log('创建频道成功 id=$channelId name=${payload['name']}');
   });
 
-  test('DF-12.2 创建付费类型频道 smoke（type=2 可创建，价格为空）', () async {
+  test('DF-12.2 创建付费频道 smoke（C3：0/1/3 可创建，价格为空）', () async {
     if (skipOr(needChannel: false) != null) return;
     final resp = await client.post(
       '/api/v1/channel/create',
       data: {
         'name': '$_marker 付费类型冒烟',
-        'description': '$_marker type=2 创建能力验证（价格需 fixture 写入）',
-        'type': 2,
+        'description': '$_marker C3 付费频道创建能力验证（价格需 fixture 写入）',
+        'visibility': 0,
+        'access_type': 1,
+        'join_policy': 3,
       },
     );
-    ApiAssert.success(resp, context: '创建付费类型频道');
+    ApiAssert.success(resp, context: '创建付费频道');
     final payload = _payload(resp);
     paidChannelId = '${payload['id'] ?? ''}';
-    expect(_readInt(payload['type']), 2);
-    _log('创建 type=2 频道成功 id=$paidChannelId（无 channel_price 行，订单会被价格校验拒绝）');
+    expect(_readInt(payload['access_type']), 1);
+    _log('创建 C3 付费频道成功 id=$paidChannelId（无 channel_price 行，订单会被价格校验拒绝）');
   });
 
   test('DF-12.3 频道详情回读与编辑（update → 再回读）', () async {

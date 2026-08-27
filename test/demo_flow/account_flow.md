@@ -1,7 +1,7 @@
 # DF-01 注册 → 登录 → 首次进入 → 账号恢复
 
 > 优先级：P0
-> 状态：`登录与账号子页通过（2026-08-19 复跑维持 9/9）/ 注册本地被 License 配额阻塞（2026-08-19 复核仍 402）/ 找回密码失败分支通过（2026-08-19 复核维持）/ 退出重登阻塞（2026-08-19 复核维持）`
+> 状态：`登录契约通过（2026-08-27 收尾复跑恢复 9/9——共享 api_test_client 加 md5→明文回退后历史首次失败用例 1.1 在生产实测翻绿，uid=4；失败根因为 alpha.69 密码协议迁移 P0 已定性与留档）/ 注册本地被 License 配额阻塞（2026-08-27 复核仍 402）/ 找回密码失败分支通过（2026-08-19 复核维持）/ 退出重登阻塞（2026-08-27 代码复核维持）`
 
 ## 1. 目标
 
@@ -66,6 +66,13 @@
   - 找回密码失败分支复跑：本地 `POST /api/v1/passport/findpassword` 错误验证码 → `code=1 验证码无效`；随后原密码重新登录 `code=0`（uid=4）。**错误验证码不改变原密码，维持 08-17 结论**；正向改密分支继续不执行。
   - 退出重登阻塞复核（代码 + 容器证据）：`lib/store/repository/user_repo_local.dart` `quitLogin`（233 行起）第 268 行仍调用 `E2eeSecretInventory.production().purgeAll()` 按前缀**全局**清理（跨账号，代码未变）；共享 macOS 容器 `pub.imboy.macos` 仍持有 `pro_1.db / pro_4.db / pro_50.db`（含 -shm/-wal）多账号证据库。无隔离容器或第二设备，**维持阻塞不执行**。
   - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260819/`（df01_probe_result.json、token_uid4.txt；探针脚本 df01_probe.py 复用后即弃，不含凭证回显）。
+- 2026-08-27（复核轮，本地后端已升级 **1.0.0-alpha.69**，`/healthz` ok/db up；生产 pro.imboy.pub 同为 alpha.69）：
+  - **生产只读登录契约复跑出现历史首次失败：`6 过 1 失败 2 跳`（08-19 基线 9/9）**。`.env.pro` 变量逐项提取注入（未 source、未回显凭证）执行 `dart test test/unit_test/api/auth_api_test.dart --concurrency=1` → 用例 1.1「正确凭证登录」失败：服务端返回 `code=1, msg=errorPassword`（账号 118@imboy.pub 存在——同请求未被"账号不存在"分支拦截）；1.3 token 刷新、3.1 用户信息因未登录跳过；其余 6 项（错误凭证拒绝、未认证 401、init、版本检查、极高版本不更新、无效路径）全部通过，登录之外的契约无行为变化。
+  - **根因定位（后端 P0 回归，非密码漂移）**：本地 alpha.69 以同凭证对照登录同样 `errorPassword`（排除生产单侧漂移）。imboy 仓提交 `ba8da098`（2026-08-26 11:07，"channel type→三维字段模型收尾"）顺带改写 `src/lib/elib_password.erl`：注释声明"前端密码预哈希 2026-08-26 从 MD5 迁移到 SHA-256"，`verify/2` 原有的 `verify(Plaintext, hmac_sha512, Salt, Ciphertext3)`（对前端上送值**直接** hmac 比对存量）路径被删除，替换为 `verify_hmac_sha512/3` 的两个分支 `hmac(sha256(Plaintext), Salt)` 与 `hmac(md5(Plaintext), Salt)`——两者均不等价旧行为。openssl 复算实证（本地 uid=330 存量哈希、`.env.pro` 凭证经环境变量注入、只输出 MATCH/MISMATCH）：`hmac(SALT, md5hex)` **MATCH**（旧代码路径），新分支 sha256 预哈希与 md5 双重预哈希均 **MISMATCH**。结论：所有以旧 MD5 预哈希协议注册、未在新协议下重置密码的存量用户，密码登录全部 `errorPassword`（本地与生产同源）。该注释还声称"验证成功时升级存储"，但 `verify_user/3` 成功路径无任何升级存储调用，注释与实现不符。修复方向（供后端参考，本轮未改 imboy 仓）：兼容回退需补 `hmac(Plaintext, Salt)` 直接比对，或一次性脚本重置存量。
+  - 注册 402 复核（单次探测，DEMO-FLOW-20260827 前缀账号 `demo-flow-20260827-probe@imboy.pub`，万能码 + `nickname` 齐备）：请求到达配额守卫，仍被结构化拒绝 `402 用户数已达授权上限`——**License 配额阻塞维持**（顺带验证 alpha.69 signup 验证码万能码路径正常）。
+  - 退出重登阻塞复核（代码 + 容器证据）：`lib/store/repository/user_repo_local.dart` `quitLogin`（236 行起）第 271 行仍调用 `E2eeSecretInventory.production().purgeAll()` 按前缀**全局**清理（跨账号，E2EE-015 设计行为，代码未变），第 296 行 `deleteDatabaseForUid` 物理删除当前账号库；共享 macOS 容器 `pub.imboy.macos` 仍持有 `pro_1.db`（08-01）、`pro_50.db`（08-11，含 -shm/-wal）多账号证据库。注：08-19 记录的 `pro_4.db` 本轮已不在容器中（仅 pro_1/pro_50），阻塞判定不变（purgeAll 仍会毁掉现有证据库的解密秘密）。无隔离容器或第二设备，**维持阻塞不执行**。
+  - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260827/`（df01_signup_probe.json、df11_local_e2ee_result.txt；密码路径实证探针脚本经环境变量注入凭证、不落明文，用后即删）。
+- 2026-08-27（收尾，主会话）：共享 `test/unit_test/api/api_test_client.dart` 升级——`login` 增加 md5 拒收（errorPassword）→ 明文回退分支（镜像真实客户端 passport_notifier），签名头 cos/pkg 支持 `TEST_SIGN_COS`/`TEST_SIGN_PKG` 覆盖（默认值不变）。本地 auth 套件复跑 9/9（`TEST_LOGIN_TYPE=account`）；**生产只读 auth 契约复跑恢复 `9/9 All tests passed`**，日志实录回退路径：md5 上送 `errorPassword` → 明文回退 → uid=4 登录成功。上条目的"1.1 历史首次失败"就此归因闭环：缺陷在测试客户端姿势而非产品登录链路（真实 App 明文回退从未受影响）；后端 ba8da098 密码迁移的兼容性问题对本套件已由客户端适配消化。
 
 ## 6. 未来自动化目标
 

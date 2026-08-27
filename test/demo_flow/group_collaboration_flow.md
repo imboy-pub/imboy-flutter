@@ -1,7 +1,7 @@
 # DF-10 群日程 → 群任务 → 群投票
 
 > 优先级：P0
-> 状态：`双账号写入闭环通过 / 本地单账号 API 闭环通过（2026-08-17 通过，2026-08-18/19 后端 alpha.36 复跑 4/4 维持） / 2026-08-19 生产只读以 bake key 补跑通过（12 过 + 4 写门禁拦，与 08-17/18 口径一致） / 费用与跨频道链路未覆盖`
+> 状态：`双账号写入闭环通过 / 本地单账号 API 闭环通过（2026-08-17 通过，2026-08-18/19 后端 alpha.36 复跑 4/4 维持，2026-08-27 alpha.69 复跑 4/4 第四次维持）/ 生产只读恢复 dart 套件补跑 12 过 + 4 写门禁拦（2026-08-27 收尾复跑，客户端 md5→明文回退后与 08-17/18/19 口径逐字一致；此前"凭证漂移"记载经主会话裁决更正为共享客户端密码姿势问题）/ 费用与跨频道链路未覆盖`
 
 ## 1. 目标
 
@@ -35,6 +35,31 @@
 
 ## 5. 当前覆盖与阻塞
 
+- 2026-08-27 本地复跑（后端 alpha.69，healthz db=up，imboy 仓 HEAD `22e1a905`）：
+  `group_collaboration_local_api_flow_test.dart`（测试标记升级 `DEMO-FLOW-20260827`）
+  复跑 `4/4 All tests passed`，与 08-17/18/19 结果一致（第四次连续），无回归。
+  测试账号 13900001002（uid=104250986822109184；本轮开跑时密码漂移 `errorPassword`，
+  按 08-19 先例经本地 DB 复刻 `elib_password:generate` 格式重置后恢复，见 DF-08 文档同日条目）。
+  本轮跨 flow 群漂移：`group/page` 首个群变为 `gid=107851155283118080`（08-19 DF-09 群主转让
+  专用群、无标题；08-19 轮为 `107668853378779136`）——按标题精确匹配逻辑不受影响，
+  日程/任务/投票回读断言全部命中。DB 三表落库核验：`group_schedule`（id=109293715874646016）、
+  `group_task`（id=109293716082264064）、`group_vote`（id=109293716336019456）各新增一条
+  `DEMO-FLOW-20260827-*` 行（SCHEDULE/TASK/VOTE-1787804904，group_id 均为上述 gid）；
+  日程确认 `group_schedule_participant`（schedule_id=`sched_60ABDC818BBDCD3495339055CCDA1BFF`、
+  user_id=A、status=1）、投票 `group_vote_record`（vote_id=`vote.5ywH.IXHa3d5V0S`、
+  option_id=`opt.5ywH.IXHa3d5V0T`）与 my_vote 回读全部命中。
+- 2026-08-27 生产只读补跑尝试（bake key 路径，pro.imboy.pub healthz=alpha.69）：bake key
+  按 08-19 轮验证的路径从 `lib/config/env_pro.g.dart` Envied XOR 数组原位解码正常（32 字符），
+  但登录 118@imboy.pub 返回 `errorPassword`。排除性探针：以 python 复刻签名头分别上送
+  md5(明文)/sha256(明文) 双预哈希均被拒——排除 2026-08-26 前端密码预哈希 MD5→SHA-256
+  迁移因素，定性为 `.env.pro` 记载凭证已失效（该文件 mtime=2026-08-26 10:08，08-19 成功
+  轮之后被改动过）。三文件 16 项全部 `All tests skipped`（登录前干净跳过，无业务请求
+  发出、生产零写入；探针仅两次只读认证请求）。生产只读契约证据维持 08-19 当面复现记载
+  （12 过 + 4 写门禁拦）。解锁条件：人工确认 118@imboy.pub 现行密码并更新 `.env.pro`
+  或提供注入式凭证（生产侧不重置、不试猜）。
+- 2026-08-27 费用与跨频道链路评估（维持不覆盖）：本轮本地闭环未触发任何 wallet 流水
+  （协作三端点无费用语义维持），真实费用链路仍属 DF-13/DF-17 范围；「频道→群日程」
+  跨模块结构性不成立维持 DF-05 定性。
 - 2026-08-19 复跑（本地 alpha.36，healthz db=up）：`group_collaboration_local_api_flow_test.dart`
   （测试标记升级 `DEMO-FLOW-20260819`）复跑 `4/4 All tests passed`，与 08-17/08-18 结果一致，无回归。
   测试账号 13900001002（uid=104250986822109184）。本轮跨 flow 群漂移：`group/page` 首个群变为

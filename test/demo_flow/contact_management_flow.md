@@ -1,7 +1,7 @@
 # DF-19 联系人 → 备注/标签 → 分组筛选
 
 > 优先级：P1
-> 状态：`本地 API 写入闭环通过（2026-08-17 建立，2026-08-19 alpha.36 复跑 8/8 维持）/ 分组 id 契约缺陷未修复（2026-08-19 实测 payload.id 仍为嵌套 map）/ 分组 API 客户端未接入维持 / UI 级展示待真机轮次`
+> 状态：`本地 API 写入闭环通过（2026-08-17 建立，2026-08-27 alpha.69 复跑 8/8 维持）/ 分组 id 契约缺陷未修复（2026-08-27 源码+实测双证据维持：logic 层注释明确保留整行 map 旧结构）/ 分组 API 客户端未接入维持 / UI 级展示待真机轮次`
 
 ## 1. 目标
 
@@ -65,6 +65,10 @@
   - **分组 API 客户端未接入维持**：`grep -rn "friend/category|friend/move|friend_category" lib/` 仍为 0 命中；移动端分组能力仍由好友标签（scene=friend，`lib/config/const.dart` 承载 user_tag 端点）承担。
   - 生产只读复跑：`user_tag_api_test.dart` 以 `.env.pro` 注入运行 → `4/4 All tests passed`（登录 uid=4；标签分页/TSID 结构/friend_page 可达/匿名鉴权拒绝），未执行任何生产写入。运行注意同 moments_flow.md 09 节：`.env.pro` 的 34 字符 SOLIDIFIED_KEY 直接注入会「签名验证失败」，须用 env_pro.g.dart bake 的 32 字符 key（XOR 解码，不打印）。
   - UI 展示维持待真机轮次（本轮无设备操作）。
+- 2026-08-27：**alpha.69 复跑维持通过（8/8 All tests passed）**。环境：本地后端 `http://127.0.0.1:9800`（healthz version=1.0.0-alpha.69）。命令与既定一致（`dart test integration_test/demo_flow/contact_management_flow_api_test.dart --concurrency=1` + 三重门禁）。账号密码处置同 DF-02 08-27 条目（后端 08-26 verify 迁移后经本地 DB 重置为 `generate(md5(md5(demoflow888)))`，md5 首送直登；DB 直查须 `-p 4323`，见 friend_flow.md 08-27 环境坑）。本轮写入数据（均带 0827 标记，DB 核验）：备注 `DEMO-FLOW-20260827-备注-v2`、标签 `DF0827标签`（id=109294669504186368，scene=2，user_tag_relation 1 行）、分组 `DF0827分组`（id=109294669556615168，user_friend_category 表）；user_friend B 行 category_id=109294669556615168 与分组回读一致。前置好友关系自愈复用 DF-02 本轮建立的关系（未重建）。
+  - **payload.id 嵌套 map 缺陷维持未修（源码+实测双证据）**：① 源码（imboy alpha.69 HEAD=22e1a905）：`src/logic/friend_category_logic.erl:17-28` 的 `add/2` 返回 `{ok, #{<<"id">> => Id, <<"name">> => Name, <<"groupname">> => Name}}`，函数注释明确写「兼容旧入口：创建好友分组并返回旧 map 结构」——重构 ds 层时刻意保留了旧形状，非疏忽遗漏；`src/api/friend_category_handler.erl:46-47` 仍将其整体当 LastInsertId 放入 `#{<<"id">> => LastInsertId}`。② 实测：测试内证据打印输出 `[DF-19-EVIDENCE] category/add payload.id runtimeType=_Map<String, dynamic>`，真实 TSID 仍在 `payload.id.id`。测试兼容提取逻辑（num/Map 双形状）仍必要；后端修复待做（若修复，可按测试内注释将断言加严为裸 TSID）。
+  - **分组 API 客户端未接入维持**：`grep -rn -E "friend/category|friend/move|friend_category" lib/` 仍为 0 命中；移动端分组能力仍由好友标签（scene=friend，`lib/config/const.dart` 承载 user_tag 端点）承担。
+  - 生产只读复核（方式变更，同 DF-02 08-27 条目背景：alpha.69 per-pkg 验签 + verify 迁移使 dart test 套件无法直跑）：以探针（android/imboy.chat 组合 + 明文回退登录 uid=4）复刻 `user_tag_api_test.dart` 4 项断言：user_tag/page code=0（1 个标签）、标签 TSID 结构（int）、relation/friend_page 可达（code=0）、匿名访问被拒（401）→ **4/4 通过，零写入**。生产 user_tag 只读契约无回归。
 
 ## 6. 未来自动化目标
 

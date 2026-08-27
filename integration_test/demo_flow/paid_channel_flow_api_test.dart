@@ -66,9 +66,12 @@ void main() {
     client = ApiTestClient(baseUrl: ApiTestConfig.apiBaseUrl);
     final guard = _writeGuard();
     if (guard != null) return;
+    // 2026-08-27：buyer 登录名为 account '50578'（md5 预哈希姿势，见
+    // test/demo_flow/paid_channel_flow.md 2026-08-27 节）。
     final resp = await client.login(
       account: ApiTestConfig.testPhone,
       password: ApiTestConfig.testPassword,
+      type: 'account',
     );
     loggedIn = resp['code'] == 0;
     if (loggedIn) {
@@ -83,7 +86,9 @@ void main() {
     final before = await client.get('/api/v1/channel/$_channelId');
     ApiAssert.success(before, context: '购买前频道详情');
     final channel = _payload(before);
-    expect(_readInt(channel['type']), 2, reason: '目标必须是付费频道');
+    // 2026-08-27：alpha.69 频道表迁移 type→access_type（付费=1，原 type=2），
+    // detail 返回 channel_transfer 恒等透传 access_type；见 paid_channel_flow.md。
+    expect(_readInt(channel['access_type']), 1, reason: '目标必须是付费频道');
     expect(
       _readInt(channel['price']),
       _priceFen,
@@ -223,7 +228,7 @@ void main() {
     }
     final refund = await client.post(
       '/api/v1/channel/order/refund',
-      data: {'order_no': orderNo, 'refund_reason': 'DEMO-FLOW-20260819 自动化回收'},
+      data: {'order_no': orderNo, 'refund_reason': 'DEMO-FLOW-20260827 自动化回收'},
     );
     ApiAssert.success(refund, context: '退款回收 mock 订单');
 

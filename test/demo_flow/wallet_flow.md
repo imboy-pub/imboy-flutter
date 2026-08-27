@@ -1,6 +1,7 @@
 # DF-06 钱包余额 → 转账确认 → 结果回传
 
 > 状态：`通过（本地 API 全闭环：充值/发送/扣款/accept 收款/重复拒绝/流水/错误分支，2026-08-18 BUG-A 修复复验通过，2026-08-19 复跑 7/7 维持且 transfer_order 0 悬挂）；UI 链路未复验`
+> 2026-08-27 更新：`本地 API 全链复跑 7/7 维持（transfer_order 0 悬挂，超余额错误信息不泄露维持）；期初余额衔接核对完成（B +80 漂移归因 08-21 其他轮次）；转账最低金额 alpha.69 由 100 分降为 1 分（前后端一致，测试边界已同步）；生产只读 4/4 探针复刻维持（fail 契约按禁令未运行）`
 > 优先级：P1
 > 类型：高风险资金流程
 
@@ -209,6 +210,52 @@ dart test integration_test/demo_flow/wallet_transfer_flow_test.dart --concurrenc
 
 本轮净资金变化：A 净 0（topup +200 / send -200），B +200（两笔 accept）；期末 A=2970、B=1100
 （其后 DF-18 红包再 +100 → 1200，见 red_packet_flow.md）。
+
+## 6.3 2026-08-27 复核证据（DEMO-FLOW-20260827）
+
+环境：本地后端 `http://127.0.0.1:9800`（healthz `1.0.0-alpha.69`，db up，本轮未干预进程）；账号 A=account
+`50578`（uid=104250986822109184，登录方式变更与密码姿势实测见 moments_flow.md 第 10 节——**本地 A/B 当前
+md5 预哈希姿势可登录，共享 api_test_client 未退化**），B=`smoke_bob`（uid=1000000056）。测试标记更新为
+`DEMO-FLOW-20260827`（A 的 login 调用补 `type: 'account'`）。
+
+### 期初余额衔接核对（与 08-19 期末）
+
+- A=2970 分：与 08-19 DF-17/DF-13 期末一致，**零漂移**。
+- B=1280 分：08-19 期末 1200（含 DF-18 红包 +100），**+80 漂移已归因**——08-21 14:26 两笔流水
+  （`抢红包 +50`、`收取转账 +30`，对手方 uid=1000000051，remark「支付回归转账」），为 08-20~08-25 期间
+  其他轮次（支付回归）所为，非本流程操作。另有 08-20 16:53-56 uid=1 发起的 2 笔「0.01 test」转账
+  （1 分，refunded/accepted 各 1）与本流程账号无关。
+
+### 行为变更（非回归）：转账最低金额 alpha.69 降为 1 分
+
+首跑暴露 `amount=99` 转账**成功**（08-19 前「低于最低金额 100 分被拒」用例失败）。只读核实：
+
+- 后端 `src/logic/transfer_logic.erl:14`：`is_integer(Amount) andalso Amount >= 1`（08-19 时为 `>= 100`）。
+- 前端 `lib/page/wallet/transfer_send_page.dart:62/178`：`amountFen < 1` 拦截（同步放宽）。
+- **前后端一致（均 ≥1 分）**，第 5 节「两端一致（100 分）」的历史记载已过时。测试用例边界同步：
+  「低于最低金额 99 分」改为「负数金额 -100 被下界拒绝」；首跑意外成功的 99 分转账
+  （transfer_id=109298196037240832）已由 B accept 回收（code=0），无悬挂。
+
+### 本地全链复跑（修正后 7 passed, 0 skipped，All tests passed!）
+
+1. 主闭环：topup 100（reference_no=TOP1787807093613…）→ send（transfer_id=`109298305988823040`）→
+   B accept（1579→1679，+100）→ 重复 accept `code=1 状态不合法，无法收取` 且余额不变；A 流水含
+   -100 tx_type=5、B 流水含 +100 tx_type=6；accept 前 B 余额不变（pending 语义）。
+2. 独立 accept 用例：transfer_id=`109298306089486336`，B 1679→1779（+100），重复 accept 拒绝。
+3. 错误分支：amount=-100/"10.5"/0 →「转账参数不合法」；**超余额 → `code=1 钱包余额不足`
+   （BUG-B 修复维持，不再泄露 db_exception）**；receiver_uid 空/`abc` 均拒绝。
+4. 服务端 DB 只读取证：`transfer_order` 全库 **0 笔 pending**（14 accepted + 1 refunded）；
+   本轮 5 笔 `DEMO-FLOW-20260827` 转账均 accepted。
+5. 本轮净资金变化（含首跑 99 分）：mock topup 注入 500 分；A 2970→2871（净 -99，经 99 分转账流向 B）、
+   B 1280→1779（净 +499 = 两轮套件 accept 400 + 99 分回收）。
+
+### 生产只读复跑（4/4，零写入，探针复刻）
+
+生产契约无法用共享 `wallet_api_test.dart` 直跑（md5 姿势对生产 uid=4 恒 errorPassword + pkg
+pub.imboy.app 生产验签拒绝），以探针复刻 4 用例（明文姿势 + cos=android/pkg=imboy.chat + bake key）：
+1.1 balance code=0；1.2 balance/frozen 数值 + 分元一致性（balance_fen=2）；2.1 transactions 分页可达
+code=0；2.2 流水项金额数值（amount_key=amount）。**`wallet_api_fail_contract_test.dart` 按永久禁令未
+运行**；未对生产执行任何资金写入。
 
 ## 7. 未来自动化目标
 

@@ -1,9 +1,9 @@
 # DF-11 E2EE 建立 → 安全消息 → 密钥备份/恢复
 
 > 优先级：P0
-> 状态：`本地密码学与只读入口通过 / 生产策略为 disabled / 双设备和恢复阻塞`
+> 状态：`本地密码学与只读入口通过（2026-08-27 复跑 64/64 维持）/ 生产策略为 disabled（2026-08-27 复核无变化）/ 生产 e2ee API 契约恢复 8 过 1 跳（2026-08-27 收尾复跑，客户端 md5→明文回退后与 08-19 基线一致）/ 双设备和恢复阻塞`
 > 安全等级：高风险，密钥恢复步骤默认不执行
-> 最近验证：2026-08-19
+> 最近验证：2026-08-27
 
 ## 1. 目标
 
@@ -72,6 +72,11 @@
 - 2026-08-19（DEMO-FLOW-20260819）：本地后端（1.0.0-alpha.36，beam 今日 10:25 重启）policy 复核 `GET /api/v1/app/policy` → `e2ee_mode=required`、`storage_mode=secure_e2ee`、`audit_mode=metadata`，与 08-18 记录一致无变化。本地只读 API 契约 `e2ee_api_test.dart` `8` 过 `1` 跳（key/status 业务非 0 受控跳）+ `e2ee_backup_api_test.dart` `1` 过 `1` 跳（写链路被 `TEST_ALLOW_API_WRITES` 门禁在发请求前拦截，设计行为），合计 `9` 过 `2` 跳 `0` 失败，与 08-18 口径逐项一致。
 - 2026-08-19（DEMO-FLOW-20260819）：生产只读复跑（`.env.pro` read_env 提取注入，未 source、未输出凭证、零写入）：policy 探测 `GET https://pro.imboy.pub/api/v1/app/policy` → `e2ee_mode=disabled`、`storage_mode=compliance_e2ee`、`audit_mode=full`（e2ee_mode/storage_mode 与 08-17 起记录一致）；`e2ee_api_test.dart` `8` 过 `1` 跳 + `e2ee_backup_api_test.dart` `1` 过 `1` 跳（put/get/info/delete 写链路被门禁按预期拦截），`9` 过 `2` 跳 `0` 失败，与 08-17 口径一致。
 - 2026-08-19（DEMO-FLOW-20260819）：双设备/密钥恢复维持 `阻塞`（原因不变：两台设备需分别登录两个授权测试账号，账号归属/登录态需人工确认；设备密钥生成/注册/备份恢复属密钥类操作需人工授权；绝不导入/恢复真实 E2EE 密钥、绝不执行 quitLogin）。本轮未对任何环境执行密钥生成、导入、恢复或清空操作。
+- 2026-08-27（DEMO-FLOW-20260827 复核轮，本地与生产后端均为 **1.0.0-alpha.69**，本地 `/healthz` ok/db up；08-25 曾有 E2EE P0+P1+P2 全面修复轮，本轮验证基线保持）：
+  - 本地协议回归复跑，`flutter test --concurrency=1` 定向 6 文件（e2ee_backup_restore 13 + olm_pfs_production_path 8 + policy_gate/fan_out_per_device 18 + group_session_service 24 + room_key_olm_roundtrip 1）：**64/64 All tests passed，0 失败 0 跳过**，首轮即全绿无 flaky（08-19 曾出现 1 例 flutter_secure_storage 时序 flaky，本轮未复现）。`room_key_olm_roundtrip_test.dart` 经 JSON reporter 确认 `skipped=false, result=success` 真实执行（工作区根 `spikes/e2ee-group/rust/target/release/libvodozemac_bindings_dart.dylib` 为 08-24 构建——08-25 修复轮产物，早于本轮；`/usr/local/lib/vodozemac_bindings_dart.framework` 在位），与 08-17/18/19 基线一致。测试日志中出现 `[ComplianceKey] 服务端无活跃合规密钥`（GET https://pro.imboy.pub/api/v1/e2ee/compliance_key，既有套件行为的只读查询，无写入）。
+  - policy 只读复核（GET，无认证）：本地 alpha.69 → `e2ee_mode=required`、`storage_mode=secure_e2ee`、`audit_mode=metadata`；生产 alpha.69 → `e2ee_mode=disabled`、`storage_mode=compliance_e2ee`、`audit_mode=full`。两侧三项均与 08-18/19 记录逐项一致，**alpha.69 E2EE 策略无变化**；生产的 `TEST_EXPECT_E2EE` 门继续不满足，双设备 strict 闭环保持阻塞。
+  - **生产 E2EE 契约复跑受 alpha.69 密码验证回归连锁退化**（根因见 account_flow.md 08-27 条目：imboy `ba8da098` 删除存量密码的旧验证路径，存量账号登录恒 `errorPassword`）：`.env.pro` 提取注入执行 `dart test` → `e2ee_api_test.dart` **0 过 9 跳**（登录失败后全部用例以"未登录"跳过；08-19 基线 8 过 1 跳）；`e2ee_backup_api_test.dart` **1 过 1 跳 0 失败**（"未认证访问 info 被拒"不依赖登录维持通过，写链路被 `TEST_ALLOW_API_WRITES` 门禁在发请求前拦截属设计行为，与 08-19 基线一致）。本地对照（`.env.local` 去引号 key + 本地凭证指向 127.0.0.1:9800）：`e2ee_api_test.dart` 同样 0 过 9 跳、`e2ee_backup_api_test.dart` 同样 1 过 1 跳——证明退化全部来自登录前置失败，E2EE API 本身契约（policy/未认证拒绝/写门禁）无行为变化。后端密码回归修复后需复跑恢复基线口径。
+  - 双设备/密钥恢复维持 `阻塞`（原因不变：账号归属/登录态需人工确认；密钥类操作需人工授权）。本轮未对任何环境执行密钥生成、导入、恢复或清空操作；生产零写入。
 
 ## 6. 未来自动化目标
 

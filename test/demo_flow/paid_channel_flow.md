@@ -1,7 +1,8 @@
 # DF-13 付费频道 → 订单 → 购买后解锁
 
 > 优先级：P1
-> 状态：`本地 mock 闭环通过（API 级，2026-08-19 复跑 6/6 维持，fixture 标记 DEMO-FLOW-20260819）/ 生产付费验收阻塞`
+> 状态：`本地 mock 闭环通过（API 级，2026-08-19 复跑 6/6 维持）；alpha.69 支付 500 根因已定位且后端修复就绪待部署（2026-08-27 收尾，badmap normalize + jsonb 回归测试）/ 生产付费验收阻塞`
+> 2026-08-27 更新：`本地 mock 全链**部分阻塞**——paywall/topup/订单创建/订单列表回读通过，支付端点被 alpha.69 新后端缺陷（channel/order/pay 恒 500，pay_with_gateway 对 extra_data badmap，b02e674b 08-24 引入）打断，购买后解锁与退款回收未执行；fixture 脚本与 alpha.69 表结构不兼容（channel.type→access_type，644fe80d 08-25），本轮以手工 SQL fixture 等效替代并清理无残留；生产首次出现 1 个付费频道样本（106933346608875520，price=1 分），购买仍按资金红线阻塞`
 > 风险等级：资金/权益写入，默认阻塞
 
 ## 1. 目标
@@ -41,6 +42,7 @@
 - 2026-08-12：后端订单取消接口、客户端订单详情取消入口和 mock 闭环测试已补齐；默认安全模式下未执行资金/权益写入，真实隔离支付仍保持 `BLOCKED`。
 - 2026-08-17：**本地 mock 闭环打通（API 级，`dart test` 全绿 6/6）**——paywall → mock topup → 订单创建（wallet 网关）→ 支付 → 订单列表/详情回读 → 内容解锁 → 余额扣款回读 → 退款回收（权益与余额均恢复）。生产环境付费能力仍未启用（生产 discover 全部 type=0、账号零余额），生产付费验收维持 `BLOCKED`。
 - 2026-08-18：后端升级 alpha.36 后全链复跑 6/6 维持通过（新 fixture 已清理无残留）；生产只读探针复核 discover 仍 7 项全部 type=0（无付费样本），生产付费维持 `阻塞`，未向生产发送任何写入/付费请求。
+- 2026-08-27（收尾，主会话）：**pay 500 根因修复就绪（imboy 工作区，未部署、未 commit）**——`channel_logic_order.erl` 对 extra_data 增加 `normalize_extra_data/1` 归一（jsonb 读回的 JSON 字符串 try-decode 为 map，坏值兜底 `#{}`），消除 `pay_with_gateway/6` 对 binary 直接 `maps:find` 的 badmap 崩溃；配套 jsonb 回归测试（订单行携带 JSON 字符串 extra_data 走复用路径不再 500 且不调网关）。验证：`make eunit-local t=channel_logic_order_pay_tests` 12/12、guard/refund/admin_refund 三个姊妹套件 18+7+5 全绿。**本地留存 2970 分 mock 充值的解锁→退款回收闭环要等后端以新代码重启后再跑 DF-13 补齐**。
 - 不能用普通频道订阅或订单列表出现替代购买后权益闭环证据。
 
 ### 2026-08-17 证据（本地 API 级）
@@ -92,6 +94,58 @@ Fixture：`PAID_FIXTURE_MARKER=imboy-paid-fixture-DEMO-FLOW-20260817 PAID_FIXTUR
 三重门禁复核：不带门禁变量运行 → `0 passed, 6 skipped`（All tests skipped），未发出任何请求。
 
 生产付费阻塞复核（2026-08-19，只读探针并入 DF-05 本轮探针）：`GET /api/v1/channels/discover` → code=0、7 项、type 分布 `{0:7}`（仍无付费样本）；`subscribed` → 0 项。生产付费验收维持 `阻塞`（无样本 + 生产禁写红线，本轮对生产零写入零付费）。
+
+### 2026-08-27 复核（DEMO-FLOW-20260827）：alpha.69 迁移后部分阻塞
+
+环境：本地 `http://127.0.0.1:9800`（alpha.69）；buyer=A=account `50578`（uid=104250986822109184，登录姿势
+见 moments_flow.md 第 10 节），owner UID 沿用 106571324662745088。
+
+#### 环境不兼容 1：fixture 脚本与 alpha.69 表结构不匹配（已手工替代）
+
+`imboy/scripts/paid_channel_fixture.sh create` 在 BEGIN 后报 `column "type" of relation "channel" does not
+exist`（事务整体回滚，无残留）。根因：644fe80d（08-25）字段重构把 `channel.type` 迁移为 `access_type`
+（付费=1，原 type=2），脚本未同步（imboy 仓本轮只读，未修改）。本轮以手工 SQL 建等效 fixture
+（marker=`imboy-paid-fixture-DEMO-FLOW-20260827`）：channel(access_type=1, join_policy=3, visibility=0,
+status=1) + channel_admin(role=3) + channel_price(9.90 CNY) + channel_message(paid-channel-fixture-content)，
+channel_id=`1787807321809497`。其中 join_policy=3（付费购买式加入）+visibility=0（公开）为
+`channel_logic_order` 购买前置（首次尝试缺 join_policy 被「该频道暂不支持购买」拒绝后按源码补齐）。
+测试文件断言同步：`channel['type']==2` → `channel['access_type']==1`；退款原因标记更新。
+
+#### 环境不兼容 2（新后端缺陷，P1）：channel/order/pay 恒 500
+
+链路在支付端点被打断（`+3 ~2 -1`：13.1/13.2/13.4 通过，13.3 失败，13.5/13.6 连锁跳过）：
+
+1. **通过**（服务端证据）：13.1 paywall（详情 access_type=1、price=990 分、内容被拒「付费频道需要先购买」）；
+   13.2 mock topup 990（余额回读一致）；13.3 前半订单创建成功（order_no=`CH1787807372785620110`、
+   amount=9.90、payment_method=wallet、status=0）；13.4 `orders/my` 回读命中。
+2. **失败**：`POST /api/v1/channel/order/pay` → HTTP 500 non_json_response。crash.log（05:09:32 UTC）
+   铁证：`{badmap,<<"{\"subscription_type\": 1}">>}`，`maps:find(<<"gateway_pay_no">>, …)` 崩于
+   `channel_logic_order.erl:306` `pay_with_gateway/6`。根因：订单创建时服务端把 `subscription_type`
+   写入 `channel_order.extra_data`（jsonb），支付复用路径（B-00，b02e674b 08-24 引入）读回后直接
+   `maps:find`，但本地 epgsql codecs 无 json 解码，jsonb 读回为 JSON 二进制串而非 map → badmap →
+   cowboy 500。历史对照：CH1787221544163450455（08-20 创建、同结构 extra_data、status=1 paid）在
+   b02e674b 引入前支付成功——确认为 alpha.69 周期**新回归**，且当前配置下所有带 extra_data 的订单支付
+   均不可用。修复方向（供后端参考，未修改）：读回 extra_data 后按类型解码（binary→jsx:decode 或
+   epgsql 配 json codec），或创建时不写入非 map 兼容结构。
+3. **跳过**：13.5（解锁/扣款回读）、13.6（退款回收）因未支付不满足前置，`前序未完成支付` 受控跳过。
+
+#### 三重门禁复核与数据清理
+
+- 不带 `TEST_ALLOW_PAID_CHANNEL_WRITES` 运行 → `0 passed, 6 skipped`（All tests skipped），未发出任何请求。
+- fixture 清理（手工级联，等效脚本 cleanup 语义）：channel_order（含卡死 status=0 订单
+  CH1787807372785620110）/channel_message/channel_price/channel_admin/channel 按 marker/channel_id 全部
+  删除，inspect 复核 channel/order/price/message 均 0，**无残留**。
+- mock 资金披露：A 因三轮尝试各执行一次 13.2，留存 3 笔无订单对冲的 topup 990（共 2970 分 mock）；
+  购买/退款闭环未能执行故无对冲，与历史「topup 增量留存披露」模式一致（本地 mock 资金，可回收）。
+
+#### 生产付费阻塞复核（只读，零写入零付费）
+
+- `GET /api/v1/channels/discover` → code=0、8 项（08-19 口径 7 项）；alpha.69 起 discover 列表字段精简
+  （不含 type/access_type/price），付费判定改为逐频道 detail 只读回读。
+- 逐项 detail：7 个 `access_type=0` 免费频道 + **1 个付费频道 `106933346608875520`（access_type=1、
+  join_policy=3、price=1 分）——生产首次出现付费频道样本**（历史轮均记载无样本）。
+- `subscribed` → 1 项。生产购买验收维持 `阻塞`：阻塞原因由「无样本 + 资金红线」收窄为「资金红线禁写」
+  （不充值、不购买）；本轮对生产零写入零付费。
 
 ## 6. 未来自动化目标
 

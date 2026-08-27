@@ -1,7 +1,7 @@
 # DF-07 建群 → 面对面建群 → 入群确认
 
 > 优先级：P0
-> 状态：`通过（2026-08-19 本地 alpha.36 复跑 3/3 维持，数据标记更新为 DEMO-FLOW-20260819；face2face_save 加严断言连续第二天全绿）；后端无独立入群确认端点（邀请直接生效）；面对面 UI 双端确认页仍未验收`
+> 状态：`通过（2026-08-27 本地 alpha.69 复跑 3/3 维持，数据标记更新为 DEMO-FLOW-20260827；face2face_save 加严断言连续第三天全绿（08-18/19/27）；本轮前置：本地库实际在 127.0.0.1:4323（非 5432 旧实例）+ 08-26 密码预哈希迁移后双账号 errorPassword，已按 md5² 契约经节点 RPC 重置恢复，详见第 5 节）；后端无独立入群确认端点（邀请直接生效）；面对面 UI 双端确认页仍未验收`
 
 ## 1. 目标
 
@@ -99,6 +99,35 @@
      保留为可回收数据，不解散。
   5. 跨 flow 数据漂移记录：同日另有并行会话（DF-10 协作）以 `DEMO-FLOW-20260817-COLLAB` 前缀
      建群 `107850811471824896`（13:21:14，早于本轮 13:23），互不影响（不同成员集合暗号/时间戳）。
+- 2026-08-27：本地后端（healthz `{"status":"ok","db":"up","version":"1.0.0-alpha.69"}`，运行节点
+  `imboy_dev@127.0.0.1`（cookie `imboycookie`，`_rel/imboy` 发布包今午重启），未干预进程）复跑
+  `group_local_creation_flow_test.dart` `3/3 All tests passed`（A=`13900001002` mobile 型登录
+  uid 104250986822109184、B=`smoke_bob` uid 1000000056）：
+  1. **本轮环境级前置（重要，两轮之间后端 alpha.36→alpha.69 经大量修复）**：
+     - 本机存在两个 PG 实例：`127.0.0.1:5432`（旧库，38751 个种子用户，历史 demo 数据不在其中）
+       与 `127.0.0.1:4323`（**运行节点实际连接的真库**，见 `_rel/.../sys.config` 的 `pg_conf`）。
+       DB 直查必须 `psql -h 127.0.0.1 -p 4323 -U imboy_user -d imboy_v1`，否则查到旧实例会误判
+       “DB 被重置、账号不存在”。
+     - imboy 08-26 密码预哈希迁移（commit `ba8da098`，alpha.69 已含）：`elib_password:verify` 先试
+       `hmac(sha256(明文))` 新格式，失败回退 `hmac(md5(明文))`；存量账号哈希为 `hmac(md5hex(明文))`
+       旧格式，**md5 传输恒 errorPassword，仅明文传输可登录**（真实客户端 passport_notifier 已按
+       md5 失败→明文重试兼容；共享 `api_test_client.dart` 仅发 md5，对存量账号暂无法登录）。
+     - 双账号 errorPassword 恢复（08-19 先例的服务端化版本）：经节点 RPC `elib_password:generate`
+       + `user_ds:update_password` 重置（临时 escript，用后即删），generate 入参取
+       `md5hex(md5hex(明文))`——使现有 md5 传输的 Dart 测试客户端走 verify 的 md5 回退分支登录成功，
+       真实 App 的 md5 首次尝试同样直接成功。A=`admin888`、B=`demoflow888` 恢复后探针均 code=0。
+  2. 普通建群、面对面建群、B/A 双侧 join 列表回读三项闭环全部复现；A+smoke_bob 成员集合继续复用
+     去重主测试群 `107668232984594432`（重复 add 返回同一 gid，无幽灵群断言通过）。
+  3. face2face_save 加严断言（save 响应 group map+member_list 双方、group/detail 回读群行、
+     非群主侧 attr=join 列表包含 f2f 群）连续第三天全绿（08-18/19/27），alpha.69 修复维持有效。
+  4. 本轮数据标记更新为 `DEMO-FLOW-20260827`（测试常量 `_groupPrefix`）；新建面对面群
+     `109295765318535168`（B 调用 save，owner=B 1000000056，title 空，双方 join_mode=
+     face2face_join，DB 只读核验），保留为可回收数据，不解散。
+  5. 数据披露：本轮为验证 md5² 密码契约另建一次性探针账号 `df27probe`（uid 109295483532609536，
+     nickname DF27PROBE，本地合成测试数据，保留可回收）；诊断期间误将 uid 1000000060
+     （account 字段=`13900001002`，nickname 支付验收员，08-20 他轮支付验收所建）的密码重置为
+     admin888-md5²——DEMO-FLOW A 的 mobile 型登录实际命中 uid 104250986822109184
+     （account 字段=`50578`、mobile=`13900001002`），与该行无关，其原始密码不可考。
 - 入群确认：后端路由无独立 invite/confirm 端点，`group_member/join` 对邀请直接生效（被邀请方无确认页），
   `face2face` join_mode 为 `face2face_join`；“确认后入群”的二段式链路在当前后端实现中不存在，UI 确认页仅为保存动作。
 

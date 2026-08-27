@@ -26,7 +26,7 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:test/test.dart';
 import '../../test/unit_test/api/api_test_client.dart';
 
-const _prefix = 'DEMO-FLOW-20260819';
+const _prefix = 'DEMO-FLOW-20260827';
 final _runTs = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
 void _log(String msg) => stderr.writeln('[DF15-LOCAL] $msg');

@@ -1,7 +1,7 @@
 # DF-09 群信息 → 成员 → 公告 → 可逆管理
 
 > 优先级：P0
-> 状态：`通过（2026-08-19 本地 alpha.36 复跑 4/4 维持：群名/公告、角色提升/恢复、成员移除+邀回、群主转让，数据标记更新为 DEMO-FLOW-20260819）；群主转让在专用一次性群单向执行并回读（立即转回被 per_hour_once 限流拒绝）；退群/解散/清空记录等危险操作仍默认不执行`
+> 状态：`通过（2026-08-27 本地 alpha.69 复跑 4/4 维持：群名/公告、角色提升/恢复、成员移除+邀回、群主转让在新专用群复现含限流负向，数据标记更新为 DEMO-FLOW-20260827；生产只读群契约以新自包含测试 10/10 复跑，含 alpha.69 密码迁移观测）；群主转让在专用一次性群单向执行并回读（立即转回被 per_hour_once 限流拒绝）；退群/解散/清空记录等危险操作仍默认不执行`
 
 ## 1. 目标
 
@@ -99,8 +99,37 @@
      - 负向断言通过：B 立即转回同群被 `per_hour_once` 限流拒绝（该群保留为可回收数据，不解散）。
   3. 上轮（08-18）转让群 `107668853378779136` 未再触碰；本轮转让群为新 gid，不受上轮限流影响。
   4. 与 DF-07 同日串行执行（add/face2face 共用 uid 维度 three_second_once 限流桶），无跨用例限流冲突。
+- 2026-08-27：本地后端（healthz `1.0.0-alpha.69`，db=up，运行节点 `imboy_dev@127.0.0.1`，
+  未干预进程）复跑 `group_local_management_flow_test.dart` `4/4 All tests passed`
+  （A=`13900001002` mobile 型登录 uid 104250986822109184 群主、B=`smoke_bob` uid 1000000056；
+  双账号凭证按本轮环境级前置经节点 RPC 以 md5² 契约重置恢复，始末见 group_creation_flow.md
+  第 5 节 2026-08-27 条目——真库在 127.0.0.1:4323、08-26 密码预哈希迁移致存量账号 md5 传输
+  恒 errorPassword）：
+  1. 群名+公告、角色 1→3→1、成员移除+邀回三项闭环全部复现，仍落在 A+B 去重主测试群
+     `107668232984594432`（群主保持为 A）。本轮数据标记更新为 `DEMO-FLOW-20260827`
+     （测试常量 `_groupPrefix`）；DB 只读核验（-p 4323）：title=
+     `DEMO-FLOW-20260827-MGMT-1787805901542`、introduction=
+     `DEMO-FLOW-20260827-NOTICE-1787805901542`、owner_uid=104250986822109184 落库一致。
+  2. DF-09-4 群主转让在新建专用面对面群 `109295848451737600` 上单向执行（B 登记暗号、A/B 凭暗号
+     加入、A face2face_save 建行为 owner），DB 只读核验（-p 4323）：
+     - `group_log` 新增 type=9 日志 `109295857058449408`（body：from_owner_uid=A、
+       to_owner_uid=B、changed_by=A、remark=群转让，created_at 2026-08-27 12:45:25）；
+     - 转让后 group 行 owner_uid=B（1000000056），成员回读 B `role=4`（ROLE_OWNER）、A 降为
+       `role=1`，双方 join_mode=face2face_join；
+     - 负向断言通过：B 立即转回同群被 `per_hour_once` 限流拒绝（该群保留为可回收数据，不解散；
+       历史转让群 107668853378779136/107851155283118080 未触碰）。
+  3. 与 DF-07 同日串行执行，无跨用例限流冲突。
+  4. **生产只读群契约复跑（10/10）**：共享 `test/unit_test/api/{group,group_member}_api_test.dart`
+     因 08-26 密码迁移（共享客户端仅发 md5，存量账号 118@imboy.pub md5 传输恒 errorPassword，
+     明文传输 code=0/uid=4 探针实证）本轮无法登录生产；按「确有必要才新增」新建自包含测试
+     `integration_test/demo_flow/group_pro_readonly_contract_test.dart`（登录镜像真实客户端
+     md5→明文回退；`API_BASE_URL=https://pro.imboy.pub` + bake 解码 key +
+     `DEMO_FLOW_PRO_READONLY=true` 三重显式 opt-in，默认全 SKIP 已验证；仅登录 POST+GET 只读，
+     无写端点）复刻原 6+5 断言口径并合并去重：`10/10 All tests passed`（0.1 迁移观测
+     md5Rejected=true/plainRetryOk=true + 群分页 2 + 群详情 2 + 成员分页 3 + 同群判定 2）。
+     共享契约客户端的 md5 迁移适配留待主会话统一裁决（影响全部生产契约测试）。
 - 危险操作（退群 owner leave、解散、清空记录、不可逆 E2EE）本轮仍默认不执行。
 
 ## 6. 未来自动化目标
 
-现有 `group_management_readonly_test.dart`、`group_management_longpress_readonly_test.dart` 和 `group_detail_readonly_test.dart` 已覆盖群列表、详情和成员只读入口；`integration_test/demo_flow/group_creation_management_flow_test.dart` 覆盖群名/公告写入，`group_member_readback_flow_test.dart` 覆盖普通成员跨设备回读，`group_member_role_flow_test.dart` 覆盖管理员→普通成员的可逆角色变更，`group_local_management_flow_test.dart` 覆盖本地群名/公告/角色/成员移除+邀回闭环，2026-08-18 起新增 DF-09-4 覆盖群主转让（单向 + 限流负向断言）。退群、解散和危险操作仍独立受控（默认阻塞）。
+现有 `group_management_readonly_test.dart`、`group_management_longpress_readonly_test.dart` 和 `group_detail_readonly_test.dart` 已覆盖群列表、详情和成员只读入口；`integration_test/demo_flow/group_creation_management_flow_test.dart` 覆盖群名/公告写入，`group_member_readback_flow_test.dart` 覆盖普通成员跨设备回读，`group_member_role_flow_test.dart` 覆盖管理员→普通成员的可逆角色变更，`group_local_management_flow_test.dart` 覆盖本地群名/公告/角色/成员移除+邀回闭环，2026-08-18 起 DF-09-4 覆盖群主转让（单向 + 限流负向断言），2026-08-27 起新增 `group_pro_readonly_contract_test.dart` 覆盖生产只读群契约（自包含客户端，md5→明文回退登录适配 alpha.69 密码迁移）。退群、解散和危险操作仍独立受控（默认阻塞）。

@@ -1,6 +1,6 @@
 # DF-02 添加好友流程
 
-> 状态：`本地 API 闭环通过（2026-08-17 建立，2026-08-19 alpha.36 复跑 7/7 维持）/ 生产只读 5/5（2026-08-19 复跑维持）/ 双端 UI 通知验证待执行（本轮 Android 真机未连接，iPhone 16e 在线但属真机轮次）`
+> 状态：`本地 API 闭环通过（2026-08-17 建立，2026-08-27 alpha.69 复跑 7/7 维持）/ 生产只读 contact 契约恢复 5/5（2026-08-27 收尾 dart test 复跑，客户端 md5→明文回退后与 08-19 基线一致）/ 双端 UI 通知验证待执行（真机轮次）`
 > 优先级：P0
 > 类型：基础关系建立流程
 
@@ -74,6 +74,13 @@
   - 全链路复验：搜索命中 B → 步骤 2 自愈删除 08-18 遗留好友关系（friend/delete code=0，删除后 A 列表无 B）→ 申请 code=0 → 重复申请被拒 → 确认 payload.is_friend=1 → 双方 friend/list 回读 is_friend=1 → 无结果边界空列表。本轮新增好友关系两条（备注 DEMO-FLOW-20260819-A/B，可回收）。
 - 2026-08-19 生产只读复跑：`contact_api_test.dart` 以 `.env.pro` 变量注入（read_env 提取，未 source、凭证未输出、未设 `TEST_ALLOW_API_WRITES`）→ **5/5 通过**（好友列表/本人资料/搜索可达/黑名单分页，登录 uid=4），零写入，维持 08-17 结论。
 - 2026-08-19 设备复核：Android 真机 MRD AL00 本轮未连接（08-18 曾在线）；iPhone 16e 无线在线；双端 UI 通知闭环维持「待真机」，不以设备在线代替 UI 证据。
+- 2026-08-27：**alpha.69 复跑维持通过（7/7 All tests passed）**。环境：本地后端 `http://127.0.0.1:9800`（healthz `{"status":"ok","db":"up","version":"1.0.0-alpha.69"}`，节点 imboy_dev@127.0.0.1、cookie imboycookie、beam 12:12 启动）。命令与既定一致（`dart test integration_test/demo_flow/friend_flow_api_test.dart --concurrency=1` + 三重门禁：`API_BASE_URL` 取自 `.env.local`、`IMBOY_ENV_PRO=.env.local`、双账号 + `TEST_ALLOW_API_WRITES=true`）。本轮操作记录：
+  - 账号凭证自愈（契约级变化）：后端 2026-08-26 提交（ba8da098，随 alpha.69 生效）将 `elib_password:verify/2` 的预哈希协议从「直接对客户端上送值做 HMAC」迁移为「先试 hmac_sha512(sha256(上送值))、再回退 hmac_sha512(md5(上送值))」。存量 md5 格式密码（08-19 存的 generate(md5(明文))）在纯 md5 客户端（api_test_client）下恒 errorPassword；imboyapp 真实客户端靠 `passport_notifier` 的「md5 失败→明文回退」重试（明文上送命中 md5 分支）仍可登录。本轮经本地 DB 将两个 DEMO-FLOW 账号密码重置为 `generate(md5(md5(demoflow888)))`（哈希经 escript rpc 到运行节点 `elib_password:generate/1` 生成，保证格式保真；仅命中 account IN ('13900260817','13900260818') 两行）——该格式下 md5 首送与 App 明文回退均可一次成功。密码明文值仍为 demoflow888。
+  - 测试微调：`kFlowMark` 升级为 `DEMO-FLOW-20260827`（好友申请 msg/confirm 备注标记）；昵称兜底搜索 keyword 维持建号昵称 `DEMO-FLOW-20260817-B`（账号昵称未变）。
+  - 全链路复验：搜索命中 B → 步骤 2 自愈删除 08-19 遗留好友关系（friend/delete code=0）→ 申请 code=0 → 重复申请被拒 → 确认 payload.is_friend=1 → 双方 friend/list 回读 is_friend=1 → 无结果边界空列表。DB 核验：user_friend 新建 2 行（id=109294597829822464/109294597875959808，备注 DEMO-FLOW-20260827-A/B，12:35:25，可回收）。
+- 2026-08-27 生产只读复核（**方式变更，注意**）：`contact_api_test.dart` dart test 直接复跑失败，根因有二（均非本 flow 业务回归）：① alpha.69 生产验签已按 per-pkg 查 config 表 key（`auth_ds:verify_sign` → `app_version_ds:sign_key(pkg,cos,sk)`），api_test_client 固定组合 `cos=linux/pkg=pub.imboy.app/sk=1` 在生产 config 无对应条目 → 全部请求 902「签名验证失败」（实测 android/imboy.chat、ios/pub.imboy.2、macos/pub.imboy.macos 三组真实平台组合 + 当前 bake key 均 code=0 通过，key 本身正确）；② 生产共享账号 118@imboy.pub 密码未漂移（.env.pro 记载值有效），但 verify 迁移后 md5 预哈希首送 errorPassword，需明文回退（实测明文 code=0 uid=4）。本轮以探针（临时脚本，android/imboy.chat 组合 + md5→明文回退登录 + Bearer 只读 GET）复刻该套件 5 项断言：好友列表 code=0（12 好友）、数据结构+TSID、user/show code=0 含 id/nickname、user/search 可达、denylist/page code=0 → **5/5 通过，零写入**。生产 contact 只读能力无回归；dart test 套件恢复需给 api_test_client 增加 cos/pkg 环境覆盖与明文回退（超出本轮允许修改范围，建议后续处理）。
+- 2026-08-27 环境坑新发现：本地同时存在两个 PG 实例——5432（无密码可连，38751 用户的另一套数据）与 4323（后端实际使用，`PGPASSWORD` 见后端 sys.local.config，19218 用户）；DEMO-FLOW 账号、user_friend 等真实测试数据在 4323，直查命令须显式 `-p 4323`。imboy_ctl 连接运行节点需 `IMBOY_CTL_NODE=imboy_dev@127.0.0.1 IMBOY_CTL_COOKIE=imboycookie`（默认 cookie imboy 不适用当前节点）。`.env.local` 的 `API_BASE_URL` 为局域网地址 192.168.0.98:9800（本机 IP 未变，可用；127.0.0.1:9800 等价）。
+- 2026-08-27 设备复核：Android 真机在线但本轮不占用（主会话既定）；双端 UI 通知闭环维持「待真机」，不以设备在线代替 UI 证据。
 
 ## 6. 未来自动化目标
 

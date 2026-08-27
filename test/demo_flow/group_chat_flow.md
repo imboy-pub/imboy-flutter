@@ -1,7 +1,7 @@
 # DF-08 群会话 → 群消息 → @成员 → 消息恢复
 
 > 优先级：P0
-> 状态：`双账号文本消息闭环通过（生产，2026-08-10/11）/ 本地 strict 环境明文拒收+密文归档复跑通过（2026-08-19 2/2）/ @成员定性为本地 strict 环境结构性不可覆盖（2026-08-19 源码复核维持）/ 群历史 API 列名 bug 复核仍未修（2026-08-19 HEAD e6d785d0 复核维持）`
+> 状态：`双账号文本消息闭环通过（生产，2026-08-10/11）/ 本地 strict 环境明文拒收+密文归档复跑通过（2026-08-27 后端 alpha.69 复跑 2/2 第四次连续维持）/ @成员定性为本地 strict 环境结构性不可覆盖（2026-08-27 源码复核维持）/ 群历史 API 列名 bug 已在后端工作区修复待部署（2026-08-27 收尾：group_handler to_groupid→to_id，eunit 断言同步改 to_id，运行节点未重启故 alpha.69 行为暂不变）/ C2G ACK 帧不回非回归维持（2026-08-27 alpha.69 实测）`
 
 ## 1. 目标
 
@@ -25,6 +25,8 @@
   - 2026-08-18 复跑：本地 alpha.36 上两项证据均复现（2/2 通过），见第 5 节。
   - 2026-08-19 复跑：本地 alpha.36（main@e6d785d0）两项证据再次复现（2/2 通过），
     测试数据标记升级为 `DEMO-FLOW-20260819`，见第 5 节。
+  - 2026-08-27 复跑：本地 alpha.69（HEAD 22e1a905）两项证据第四次复现（2/2 通过，
+    08-17/18/19/27 连续），测试数据标记升级为 `DEMO-FLOW-20260827`，见第 5 节。
 - [ ] A @ B，B 查看提醒或群内消息。
   - 预期：@ 成员选择、消息渲染和提醒状态正确。
   - 页面计划：[mention_list_page.md](../auto_test/mention/mention_list_page.md)
@@ -110,6 +112,52 @@
   `src/logic/msg_c2g_logic.erl:48` `mentions_from_payload/1` 仅在 `is_map(Payload)` 时
   读取 `mentions` 键、binary 走 `_ -> []`——strict 环境下被接受的 C2G 密文消息服务端
   mentions 恒空的定性维持（见第 3 节）。
+- 2026-08-27 复跑（本地 alpha.69，healthz db=up，policy 只读确认 `e2ee_mode=required`、
+  `storage_mode=secure_e2ee`；imboy 仓 HEAD `22e1a905`，2026-08-27）：
+  `group_local_message_flow_test.dart`（测试标记升级 `DEMO-FLOW-20260827`）
+  `2/2 All tests passed`（双账号 A=`13900001002`/uid=104250986822109184、
+  B=`smoke_bob`/uid=1000000056，B 仅用于建群成员集合；A+smoke_bob 成员集合按后端幂等
+  去重复用群 `107668232984594432`，与 08-18/19 同群）：
+  1. 明文 C2G（`DEMO-FLOW-20260827-PLAIN-*`）被 fail-closed 拒收，
+     收到 `policy_violation / encrypted_message_required` 帧——第四次复跑通过（08-17/18/19/27）。
+  2. 密文结构消息归档复验：`msg_c2g` DB 行 `demoflow-cipher-1787804846682`
+     （to_id=107668232984594432、from_id=A、e2ee 非空、created_at=2026-08-27 12:27:26）命中；
+     `C2G_SERVER_ACK` 帧 15 秒仍不回（alpha.69 未修，非回归维持，以 DB 行为服务端成功证据，
+     入站帧为空）。
+  - 账号漂移处置（沿用 08-19 先例）：本轮开跑时 A/B 双账号登录均 `errorPassword`
+    （08-19 后密码再次漂移），经本地 DB 复刻 `elib_password:generate` 格式重置
+    DEMO-FLOW 测试账号（`public.user` 各命中 1 行：104250986822109184、1000000056；
+    hash 由 imboy 仓编译产物 `erl -pa imboy/ebin` 直接调用 `elib_password:generate/1`
+    生成并离线自验匹配后落库，无凭证明文落盘、临时文件用后即删）。
+- 2026-08-27 msg_page bug 复核（仍未修，alpha.69 三重证据链维持）：
+  - 源码：imboy HEAD `22e1a905`（2026-08-27）的 `src/api/group_handler.erl:481` 仍构造
+    `Where0 = #{to_groupid => Gid2}`（全仓唯一命中），经 `msg_c2g_ds:page/3`（`msg_c2g_ds.erl:489-492`）
+    → `elib_pg:page_with_total` 直接以 Where 键为列名；后端从 alpha.36 升级到 alpha.69
+    经历大量修复，该缺陷未动。
+  - 表结构：本地库 `msg_c2g` 实际列仍为 `to_id`（16 列：id/topic_id/from_id/to_id/msg_id/
+    msg_type/e2ee/payload/server_ts/created_at/mentions/pinned/reply_to_msg_id/reply_to_from_id/
+    reply_snippet/expire_at），无 `to_groupid` 列。
+  - 实测：群 `107668232984594432` 在 `msg_c2g` 已累计 3 轮 DEMO-FLOW 归档行
+    （08-18/08-19/08-27 各一条 `demoflow-cipher-*`）的同时，`group/msg_page` 返回
+    `total=0`（失败走 `_ -> total=0` 吞错分支）——归档行存在与 API 恒空的矛盾在
+    alpha.69 上当面复现。
+  - 测试加固：`group_local_message_flow_test.dart` 的 msg_page 观测输出已增强为
+    `total` + `list 是否含本条 msg_id` 双指标（本轮 total=0、含=false；后端修复后
+    可直接把归档断言从 DB 行升级回 API 并加严）。
+- 2026-08-27 @成员互斥复核（结构性定性维持，alpha.69）：`imboy_policy.erl:223` 的
+  guard 仍为 `is_map(E2EE), is_binary(Payload)`（v2.0 契约注释未变），且新增的 PFv3
+  Olm fan-out 判定 `has_device_envelopes/1` 仍以 payload binary 为前提；
+  `msg_c2g_logic.erl:47-51` `mentions_from_payload/1` 仍仅在 `is_map(Payload)` 时读取
+  `mentions` 键、binary 走 `_ -> []`。strict 环境被接受的 C2G 密文消息服务端 mentions
+  恒空、`mention_logic:create_mentions` 永不触发的定性维持（`msg_c2g` 虽有 mentions 列，
+  写入路径与 strict 门禁依旧互斥）。
+- 2026-08-27 C2G ACK 帧不回复核（非回归维持，alpha.69）：源码层面回帧通路存在——
+  `msg_c2g_logic.erl:372/384` 在 staging `{ok,new}`/`{ok,duplicate}` 分支均
+  `self() ! {reply, #{type => <<"C2G_SERVER_ACK">>, ...}}`，`websocket_handler.erl:582`
+  `websocket_info({reply, Msg}, State)` 有对应处理；但实测密文消息归档成功后 15 秒
+  无 ACK 帧（入站帧=[]），与 alpha.27/36 行为一致——源码通路与运行时行为矛盾，
+  根因在后端运行时（本轮只读取证不修改），归档证据继续以 DB 行为准。
+- 2026-08-27（收尾，主会话）：**msg_page 列名 bug 后端修复就绪（未部署、未 commit）**——`src/api/group_handler.erl` 的 `Where0 = #{to_groupid => Gid2}` 改为 `#{to_id => Gid2}`（全仓唯一命中，表列以 `00000006_msg_c2g.up.sql` 为准）；`test/api/group_handler_tests.erl` 固化旧键名的断言同步改为断言 `#{to_id => 101}`（该测试此前把缺陷当契约，属测试侧跟随修复）。验证：`make compile` 通过；`make eunit-local t=group_handler_tests` 5/5。**运行节点仍为未含此修复的 alpha.69**，API 恒 total=0 的现象要等本地后端用新代码重启/重新部署后才会消失；届时按既定预案把归档断言从 DB 行升级回 API total/list。
 
 ## 6. 未来自动化目标
 
@@ -118,7 +166,8 @@
 `group_local_message_flow_test.dart`（2026-08-17 新增）覆盖本地 strict 环境明文拒收与密文归档。
 
 后续文本、@普通成员和消息恢复只在双账号、非生产隔离数据和显式写入授权满足时执行；
-`msg_page` 列名 bug 修复后应把服务端历史回读断言从 DB 行升级回 API（2026-08-19 复核：HEAD `e6d785d0`
-仍构造 `to_groupid`，缺陷未修）；@成员在本地 strict 环境结构性不可覆盖（见第 3 节定性，2026-08-19
+`msg_page` 列名 bug 修复已就绪于 imboy 工作区（2026-08-27 收尾，见上条），本地后端重启加载新代码后，
+把服务端历史回读断言从 DB 行升级回 API total/list（既有 total/list 双指标观测可直接复用）；
+@成员在本地 strict 环境结构性不可覆盖（见第 3 节定性，2026-08-27
 源码复核维持 `imboy_policy.erl:223` binary 要求与 `msg_c2g_logic.erl:48` map 要求互斥），
 如需 API 级覆盖应在非 strict 环境补充专用用例。

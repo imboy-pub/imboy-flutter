@@ -27,7 +27,7 @@ import 'package:test/test.dart';
 import '../../test/unit_test/api/api_test_client.dart';
 
 /// 写入数据的统一标记前缀（本地可回收测试数据，每轮复核递增日期）。
-const kFlowMark = 'DEMO-FLOW-20260819';
+const kFlowMark = 'DEMO-FLOW-20260827';
 
 /// 从 payload 提取 list（兼容 List / {list:[]} / {data:[]}）。
 List<dynamic> _extractList(dynamic payload) {

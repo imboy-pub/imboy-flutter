@@ -1,9 +1,9 @@
 # DF-22 直播间列表 → 开播 → 观看
 
 > 优先级：P1
-> 状态：`本地列表状态与 API 只读回读通过（2026-08-19 复跑维持），开播/观看阻塞（媒体服务缺失）`
+> 状态：`本地列表状态与 API 只读回读通过（2026-08-27 复跑维持）；开播服务端受理层历史首次闭环（2026-08-27，create/start/stop 状态流转+观众可见性一致，根因更正：受理层与 livekit 无关）；观看媒体/真实推流阻塞（无 SFU 与真机）`
 > 条件：媒体服务和双端设备
-> 最近验证：2026-08-19
+> 最近验证：2026-08-27
 
 ## 1. 目标
 
@@ -60,6 +60,30 @@
   三项与 08-17/08-18 结果一致。开播/观看阻塞维持：本地后端 `config/sys.local.config` 与运行节点
   `sys.config` grep `livekit` 仍 0 处（本轮 DF-21 复核），与 DF-21 `rtc/room/join` 500 同根因；
   生产写入红线维持。解锁条件：人工配置本地 livekit 段并重启后端 + 可用 LiveKit SFU。
+- 2026-08-27（DEMO-FLOW-20260827，本地后端 alpha.69）：复跑 `live_room_list_provider_test.dart`
+  （`flutter test --concurrency=1`）`12` 项全部通过（列表加载、分页 loadMore、加载态防重入），
+  与 08-17/18/19 一致。
+- 2026-08-27（DEMO-FLOW-20260827）：本地登录后 API 只读回读复验（账号 50578，md5 姿势登录，纯 GET
+  无写入，一次性探针用后已删）：`list` → `code=0 total=0`（正常空态）；`my_list` → `code=0` 空列表；
+  `detail?room_id=999999999999` → `code=1 直播间不存在`（无效房间边界正确）。三项与历史三轮一致。
+- 2026-08-27（DEMO-FLOW-20260827）：**根因更正 + 开播服务端受理层历史首次闭环通过（本轮状态升级）**。
+  上轮记载"开播与 DF-21 `rtc/room/join` 500 同根因（即使本地写入也无可用 LiveKit SFU 签发推流凭证）"
+  经源码证伪：`live_room_handler.erl` 的 `create/start/stop` 为**纯 DB 状态流转**——create 校验
+  title（≤100 字节）后插入行并生成 `stream_key`（status=0）；start/stop 仅校验房间 owner 后置
+  `status=1/2`；全程不触碰 `config_ds:env(livekit)`、不签发媒体凭证（媒体连接属客户端直连 SFU 层，
+  服务端受理层与 DF-21 并非同根因）。实测（本地 alpha.69，账号 50578，title=
+  `DEMO-FLOW-20260827-rtc-recheck`）：`create` → `code=0` 返回 `room_id/stream_key/status=0`；
+  `detail` 回读 `status=0`；`start` → `code=0`，detail 回读 `status=1`；**开播中观众 `list`
+  `total=1`（主播状态与观众可见一致，验收标准第 1 条的 API 层）**；`stop` → `code=0`，detail
+  `status=2`，此后 `list total=0` 而 `my_list total=1`（已结束直播仅 owner 可见，语义正确）；负向：
+  `start room_id=999999999999` → `code=1 直播间不存在`。数据已回收（`live_room` 表探针行已删，
+  psql verify 0 行）。观看媒体/真实推流仍 `BLOCKED`（无 LiveKit SFU、无真机）：受理层闭环不能替代
+  实际推流/播放证据。
+- 2026-08-27（DEMO-FLOW-20260827）新发现后端缺陷（P2，imboy 仓只读取证未修改）：live_room 端点 JSON
+  payload 存在**重复键**——`list` 响应 payload 含两个 `"list"` 键；`create` 响应 payload 中
+  `status/stream_key/user_id/viewer_count` 各出现两次。根因：handler 组装 map 时 atom key（如
+  `user_id`）与 binary key（如 `<<"user_id">>`）混用，jsone 序列化时各输出一次。多数解析器取末值，
+  暂无功能影响，但 JSON 契约不规范，跨解析器行为可能不一致，建议后端统一 key 类型后修复。
 
 ## 6. 未来自动化目标
 

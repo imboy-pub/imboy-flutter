@@ -1,7 +1,8 @@
 # DF-18 红包发送 → 领取 → 详情
 
 > 优先级：P1
-> 状态：`通过（本地 API 闭环：发送/领取/重复领取拒绝/详情一致/双方余额流水，2026-08-19 复跑 4/4 维持）；UI 链路未复验；红包最低金额前后端不一致维持（P2 待修）`
+> 状态：`通过（本地 API 闭环：发送/领取/重复领取拒绝/详情一致/双方余额流水，2026-08-19 复跑 4/4 维持）；UI 链路未复验`
+> 2026-08-27 更新：`本地 API 闭环复跑 4/4 维持；**红包最低金额前后端不一致（P2）已在 alpha.69 修复**——后端总额 ≥1 分且 ≥ 个数，前端同步 <1/<count 拦截，1 分红包边界实测通过（send/open/detail code=0），测试边界用例已同步；UI 链路维持待真机`
 > 风险等级：资金写入，默认阻塞
 
 ## 1. 目标
@@ -106,6 +107,37 @@ status=finished、receivers=1 仅 B=1000000056）；双方流水均含 ±100 分
 红包最低金额前后端不一致复核（2026-08-19 维持）：后端 `src/logic/red_packet_logic.erl:38`
 `Amount >= 100 andalso Count >= 1`；前端 `lib/page/wallet/red_packet_send_page.dart:72/238`
 仅拦 `amountFen < 1`。**不一致维持（P2 待修）**。本轮净资金变化：A 净 0、B +100。
+
+### 2026-08-27 复跑记录（DEMO-FLOW-20260827）
+
+环境：本地后端 `http://127.0.0.1:9800`（alpha.69）；账号 A=account `50578`（uid=104250986822109184，
+登录姿势变更见 moments_flow.md 第 10 节），B=`smoke_bob`（uid=1000000056）；DF-17 之后串行执行。
+测试标记更新为 `DEMO-FLOW-20260827`（A 的 login 调用补 `type: 'account'`）。
+
+本地 API 闭环复跑（`--concurrency=1`）：`4 passed, 0 failed（All tests passed!）`——闭环用例 + 3 类
+错误分支。关键数字：期初 A=2871 分、B=1779 分（DF-17 期末），`red_packet_id=109298492985575424`
+（topup 100 → 2971 → send 后 2871，净 0）；B `open` `grab_amount=100`、余额 1779→1879（+100）；
+重复 open 被拒「红包已被领完或已过期」余额不变；双方 detail 一致（sender=104250986822109184、
+status=finished、receivers=1 仅 B）；双方流水均含 ±100 分红包条目；错误分支（amount=0「红包参数
+不合法」/count=0「红包参数不合法」/无效 id「红包不存在」）。DB 核验：`red_packet` 2 行 finished、
+`red_packet_receive` 2 行（100 分 + 1 分边界），与 API 回读一致。
+
+**重点缺陷复核（P2）：红包最低金额前后端不一致——已在 alpha.69 修复**：
+
+- 后端 `src/logic/red_packet_logic.erl:41`（08-19 时 :38 为 `Amount >= 100`）：现为
+  `is_integer(Amount) andalso Amount >= 1 andalso is_integer(Count) andalso Count >= 1 andalso Amount >= Count`。
+- 前端 `lib/page/wallet/red_packet_send_page.dart:73/79`（原 :72/238 仅拦 `<1`）：现为
+  `amountFen < 1` 拦截 + `amountFen < count` 拦截（总额不得小于个数），与后端完全对齐。
+- **边界实测（服务端证据，DEMO-FLOW-20260827）**：1 分 fixed 红包 send `code=0`
+  （red_packet_id=109298522958071808）→ B open `code=0 grab_amount=1` → 双方 detail
+  `amount=1 status=finished`；`amount=0.5`（非整数）`code=1 红包参数不合法`；`amount=0/count=0`
+  同样「红包参数不合法」。1~99 分区间不再出现「前端放行、后端拒绝」的体验裂缝。
+- 测试边界同步：原「低于最低总额 99 分被拒绝」用例改为「amount=0 被下界拒绝」（99 分现为合法金额）。
+- 附带发现：`wallet/topup` 有独立的 100~1000000 分限额（10 分 →「充值金额不合法，请输入100分到
+  1000000分之间的整数」，100 分 code=0），非回归。
+
+本轮净资金变化：A 净 0（套件 topup/send 相抵 + 边界探针 topup100/-send1/-topup 前差 1 分，期末
+A=2970），B +101（100 分套件红包 + 1 分边界红包，期末 B=1880）。UI 链路维持待真机（无设备不执行）。
 
 ## 6. 未来自动化目标
 

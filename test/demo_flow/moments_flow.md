@@ -1,6 +1,7 @@
 # DF-05 朋友圈发布 → 查看 → 互动
 
-> 状态：`本地 API 闭环通过（发布/自读/好友可见/点赞/评论/回读，2026-08-19 复跑 5/5）；UI 链路 widget 级复验通过（2026-08-19 复跑 109 项 0 失败，无真机端到端）；生产只读契约 4/4 复跑维持`
+> 状态：`本地 API 闭环通过（发布/自读/好友可见/点赞/评论/回读，2026-08-19 复跑 5/5，2026-08-27 复跑 5/5 维持）；UI 链路 widget 级通过（moment_confirm_dialog 定位器已跟随 Cupertino 迁移修复，test/unit_test/page/moment/ 目录 296 项全绿——2026-08-27 收尾）；生产只读契约 4/4 复跑维持`
+> 2026-08-27 更新：`本地 API 闭环复跑 5/5 维持；UI 链路 3 个失败用例经定位器修复（AlertDialog→CupertinoAlertDialog、TextButton→CupertinoButton）后恢复全绿；生产只读 4/4 探针复刻维持（alpha.69 生产验签/密码姿势见第 10 节）`
 > 优先级：P1
 > 类型：社交内容流程
 
@@ -154,3 +155,67 @@ beam.smp 今早 08:46 启动加载 08:44 编译代码，本轮未干预进程）
 ### 维持未覆盖
 
 真实 HTTP 驱动的端到端渲染、手势滚动/下拉、相机与媒体上传（待真机）；媒体上传另受 DF-14 记载的 Garage endpoint 环境问题约束。
+
+## 10. 2026-08-27 复核证据（DEMO-FLOW-20260827）
+
+环境：本地后端 `http://127.0.0.1:9800`（healthz `{"status":"ok","db":"up","version":"1.0.0-alpha.69"}`，08-26 升级，本轮未干预进程）；
+生产 `https://pro.imboy.pub`（alpha.69，只读）。账号变更：A 登录名由手机号 `13900001002` 变为
+account `50578`（uid 不变 104250986822109184，DB 只读核实 mobile 字段仍为 13900001002 但 mobile+type 登录实测
+errorPassword，account 类型可登录），B=`smoke_bob`（uid=1000000056）维持。测试标记更新为
+`DEMO-FLOW-20260827`（`integration_test/demo_flow/moments_flow_test.dart`，A 的 login 调用补 `type: 'account'`）。
+
+### 密码协议姿势（本轮实测，修正第一批沉淀）
+
+- **本地 A/B 当前均为 md5 预哈希姿势可登录（code=0），明文姿势 errorPassword**——与 08-27 第一批
+  沉淀"md5 恒 errorPassword、明文可登录"方向相反（两账号密码存储为 08-18/19 轮按
+  `elib_password:generate(md5(明文))` 复位格式）。共享 `api_test_client.dart`（md5 姿势）在本地
+  **未退化**，无需探针复刻。
+- **生产（uid=4，.env.pro 账号）为明文姿势 code=0、md5 errorPassword**（与第一批沉淀一致）。
+- 本地后端对 cos/pkg 组合不敏感（macos/pub.imboy.app 与 android/imboy.chat 均通过验签）；
+  生产必须 cos=android / pkg=imboy.chat + 32 字符 bake key（.env.pro SOLIDIFIED_KEY，08-26 已修正一致）。
+
+### API 闭环复跑（5/5，全部服务端证据）
+
+1. 好友前置幂等：add/confirm 返回 already_friends/no_pending_request，与 08-17/18/19 一致。
+2. `POST /api/v1/moment/create`（visibility=1，allow_comment=true，含 `DEMO-FLOW-20260827` 标记）→
+   `code=0`，moment_id=`109297810381473792`。
+3. A `feed?limit=20` 首页命中；B `GET /api/v1/moments/user/104250986822109184` 命中同一动态（好友可见性通过）。
+4. B 点赞 + 评论均 `code=0`；A 详情回读 `stats.like_count=1`、`stats.comment_count=1`；B 评论列表命中标记评论。
+5. 服务端 DB 回读（只读取证）：`moment_post` 1 行（author_uid=104250986822109184、visibility=1、status=1）、
+   `moment_like` 1 行（user_id=1000000056）、`moment_comment` 1 行（user_id=1000000056）。
+6. 错误分支 4 项均为结构化业务错误：空内容「动态内容不能为空」、visibility=9「可见性参数无效」、
+   `moment/0/like`「动态不存在」、空评论「动态不存在」，无崩溃。
+7. 红线遵守：未调用 `moment/:id/delete`；未向生产发任何写入。
+
+### UI 链路 widget 级复跑（106 过 3 失败，`flutter test --concurrency=1`）
+
+第 8 节 7 个文件全量复跑：feed 34 + publish 15 + 事件流状态机 30 + 详情页渲染契约 30 + confirm dialog 9 =
+109 项，**106 过 3 失败**。失败全部集中在 `moment_confirm_dialog_test.dart`：
+
+- `renders 2 TextButton actions` / `non-destructive confirm uses colorScheme.primary` /
+  `barrier dismiss → null result coerces to false`，异常均为 `Bad state: No element`。
+- 根因（只读核实）：用户提交 `7c0f755e`（refactor(ui): Material→Cupertino 风格迁移）把
+  `lib/page/moment/moment_confirm_dialog.dart` 的 `showMomentConfirmDialog` 从 `AlertDialog + TextButton`
+  改为 `showCupertinoDialog + CupertinoAlertDialog + CupertinoButton`；测试仍 `find.byType(AlertDialog)`
+  查找旧类型。与 2026-08-09 轮"Cupertino 图标迁移致 6 项失败"同型：**测试定位器过期，非业务逻辑回归**
+  （title/message 渲染、cancel/confirm 结算、destructive iosRed、i18n 兜底 6 项全部通过）。
+- 未修复原因：`test/unit_test/` 属本轮禁改区（复核轮约束），修正定位器需人工授权后同步
+  （AlertDialog→CupertinoAlertDialog、TextButton→CupertinoButton 两处即可）。
+
+### 生产只读契约复跑（4/4，零写入，探针复刻）
+
+生产契约无法继续用共享 `moment_api_test.dart` 直跑（共享客户端 md5 姿势对生产 uid=4 恒 errorPassword +
+pkg=pub.imboy.app 生产验签拒绝），按既定先例以探针复刻 4 用例（明文姿势 + cos=android/pkg=imboy.chat +
+32 字符 bake key，与 api_test_client 同源 HMAC-SHA512 签名）：
+
+1. `feed?limit=10` → `code=0`（1.1 PASS）；
+2. 游标分页信封：payload 为 Map、list 为 List、has_more 为 bool（1.2 PASS，list_len=10）；
+3. 动态项含可解析 id（id_key=id）（1.3 PASS）；
+4. `moment/0` → `code=1 动态不存在`，业务错误而非崩溃（2.1 PASS）。
+
+与 08-17/18/19 结果一致，未执行任何生产写入。
+
+### 维持未覆盖（2026-08-27）
+
+真实 HTTP 驱动的端到端渲染、手势滚动/下拉、相机与媒体上传（待真机）；confirm dialog 3 项定位器
+待人工授权同步（见上）。

@@ -1,6 +1,6 @@
 # DF-04 单聊消息闭环
 
-> 状态：`双账号双端消息闭环通过（2026-08-11 r14 历史证据；2026-08-19 无第二真机未重跑）/ 本地单账号发送受理链路通过（e2ee 信封，2026-08-19 复验维持）/ 服务端历史归档本地可用 / E2EE 端上闭环未覆盖`
+> 状态：`双账号双端消息闭环通过（2026-08-11 r14 历史证据；2026-08-27 无真机轮次未重跑）/ 本地单账号发送受理链路通过（e2ee 信封，2026-08-27 alpha.69 复验维持）/ 服务端历史归档本地可用 / E2EE 端上闭环未覆盖`
 > 优先级：P0
 > 类型：好友关系后的核心消息流程
 
@@ -78,6 +78,18 @@
     - 边界说明维持：这是按服务端声明式契约构造的测试信封，不证明端上 Olm 握手/密钥协商/解密（E2EE 端到端验收属 DF-11）；agent_reply 未在本轮观察（不作为断言条件）。
     - 跨会话数据漂移：`msg_c2c` 存在 2026-08-19 13:21:51 归档行 `ub8711bb8c8330m8olhf`（ciphertext=`DEMO-FLOW-20260819-E2EE-envelope`，大写标记）——非本会话发送，说明同日另有会话执行了同款 DF-04 探针；已按并行规则记录，不作为本轮证据。
     - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260819/`（ws_send_e2ee_result.json 原始探针输出 + ws_send_e2ee_result_verified.json 复核修正版，含 psql 直查与会话核验摘要）。
+- 2026-08-27（复核轮，本地后端已升级 **1.0.0-alpha.69**；生产 alpha.69 严格只读）：
+  - **双端实时闭环未重跑**：真机本轮不占用，维持引用 2026-08-11 r14 历史 PASS 证据（run id `dual-20260811-mac117-118a-r14`）。本轮未新增双端证据。
+  - **本地 policy 只读观测（alpha.69）**：`GET /api/v1/app/policy` → `payload.capabilities.e2ee_mode=required`、`storage_mode=secure_e2ee`——与 08-18/08-19 一致，**策略未变化**，明文拒收断言预期维持。
+  - **单账号发送受理链路复验维持通过（DEMO-FLOW-20260827，4/4 断言 + 归档直查，本地 alpha.69）**：
+    - 登录：**明文姿势**（后端 2026-08-26 密码预哈希 MD5→SHA-256 迁移，`pwd=明文` 走 `elib_password` 旧格式分支命中存量 md5 存储；旧 md5 姿势恒 `errorPassword`，详见 conversation_flow.md 2026-08-27 条目与 `lib/page/passport/passport_notifier.dart` 明文回退）→ uid=4。
+    - 明文帧（`e2ee` 空串）→ **WS text 帧** `S2C / action=policy_violation / payload.reason=encrypted_message_required`（帧含发送 `id` 回显 `df27mtb15zhy92kk81l7`）——required 部署级明文门设计行为。**协议细节修正**：alpha.69 拒收帧以 text 帧下发（`websocket_handler.erl` `{reply,{text,...}}`），此前轮次按二进制帧监听会漏收；`C2C_SERVER_ACK` 仍为二进制 v2 帧。
+    - e2ee 信封帧（v2.0 契约：`e2ee.devices` 非空 map + `payload` 空串，对端 AI agent uid `103107938360756224` 免好友校验，ciphertext=`DEMO-FLOW-20260827-E2EE-envelope`）→ 二进制 v2 帧 `C2C_SERVER_ACK`（`in_reply_to` 回显，客户端 id `df27mtb15zkwybrle1af`，`server_ts` 一致）。
+    - 服务端归档（psql 直查 `msg_c2c`，端口 **4323** 实例）：行存在（`created_at=2026-08-27 12:36:24.8+08`），e2ee 元数据完整保留（`protocol=olm / fan_out=per_device / devices.agent-default.ciphertext`），`payload` 空串；`msg/history` 回读 code=0 且在列（消息字段 `msg_id`，`conv_seq=7`，`sender_did` 保留）。本轮共 3 行同标记归档（含探针调试轮次 r1/r2），全部真实落库——2026-08-25 轮记载的 `write_msg_with_sender ON CONFLICT` 0 行插入 bug **未复现**。
+    - 会话生成：`conversation/mine`（`payload.list`）唯一 c2c 会话 `conversation_id=103107938360756224` 的 `last_msg_id=df27mtb15zkwybrle1af`（即本轮发送 id）——会话由本轮消息真实产生。
+    - 边界说明维持：测试信封不证明端上 Olm 握手/密钥协商/解密（E2EE 端到端验收属 DF-11）；agent 无回复（15s 观察窗 `agent_reply_seen=false`，与 08-19 一致）。
+  - macOS 桌面只读入口：`flutter test integration_test/demo_flow/single_chat_flow_test.dart -d macos`（APP_ENV=pro + `.env.pro` 变量 `--dart-define` 注入）→ **1 skipped**（"当前账号没有可识别的已有 C2C 会话"）：登录与会话列表页挂载正常，但生产 uid=4 会话列表为空（08-19 为 4 项、可进入含 3 条历史的 ChatPage）——跨轮生产数据清空所致环境因素，非回归；08-19 入口证据维持历史引用。
+  - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260827/`（df03_df04_local_r3.json 最终轮探针输出、df04_macos_single_chat.log）。
 
 ## 6. 未来自动化目标
 

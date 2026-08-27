@@ -1,7 +1,7 @@
 # DF-12 创建频道 → 发布内容 → 评论 → 管理
 
 > 优先级：P1
-> 状态：`API 级闭环通过（本地，2026-08-19 复跑 7/7 维持，marker 更新 DEMO-FLOW-20260819）/ UI 链路未覆盖，订阅者视角与邀请阻塞`
+> 状态：`API 级闭环通过（本地，2026-08-27 alpha.69 契约适配后复跑 7/7 维持，marker 更新 DEMO-FLOW-20260827）/ UI 链路未覆盖，订阅者视角与邀请阻塞`
 
 ## 1. 目标
 
@@ -92,7 +92,30 @@
 
 剩余阻塞不变：UI 创建/编辑/发布/评论链路未覆盖（无设备轮次）；第二订阅者账号视角与邀请接受阻塞（本地无第二可登录测试账号，本轮文档与测试均无 smoke_bob 作为频道订阅者的既定命令）；「文章」类型发布未覆盖。
 
+### 2026-08-27 复跑（本地 API 级，alpha.69 契约迁移适配）
+
+环境：`http://127.0.0.1:9800/healthz` → `{"status":"ok","db":"up","version":"1.0.0-alpha.69"}`（imboy main@22e1a905）。测试文件 marker 常量由 `DEMO-FLOW-20260819` 更新为 `DEMO-FLOW-20260827`。登录：共享 `api_test_client`（md5 姿势）对 TEST_PHONE（13900001002，mobile 型）登录 code=0，uid=104250986822109184（第一批准 agent 已将该账号密码重置为 md5² 契约，共享客户端未受 alpha.69 密码迁移影响）。
+
+**本轮契约迁移（重要）**：首轮按原测试（`type: 0` / `type: 2` 参数）复跑 **5 过 2 败**——DF-12.1/12.2 的 `payload['type']` 断言失败（Actual: -1）。经 imboy 仓只读定位确认**非业务回归**：alpha.69 的 `channel/create` 不再接受 `type` 参数（被静默忽略），改为 `visibility/access_type/join_policy` 三元组（ADR §8.3.1，允许组合 C1(0,0,0)/C2(1,0,1)/C3(0,1,3)/C4(1,1,3)），响应 Channel map（CHANNEL_SAFE_COLUMNS）无 `type` 字段；本地 `channel` 表同步 13→20 列（type 拆分，见 channel_flow.md 2026-08-27 条目）。测试已按新契约更新：DF-12.1 改 C1 组合并断言 `access_type==0`；DF-12.2 改 C3（0/1/3，付费=access_type 1）组合并断言 `access_type==1`；旧口径「type=2 付费类型」在 alpha.69 下已不存在。
+
+适配后结果：`dart test` 全绿 **7/7**（执行命令同 08-17 节）：
+
+1. 登录 uid=104250986822109184。
+2. 创建 C1 免费频道 id=109299849937291264（0/0/0，code=0，name 含 `DEMO-FLOW-20260827`）；创建 C3 付费频道 id=109299849979234304（0/1/3，无 channel_price 行，订单会被价格校验拒绝——与旧 type=2 口径语义等价）。
+3. 编辑（update）→ 详情回读一致（description 含「v2」）。
+4. 发布 messageId=109299850040051712，服务端列表回读命中。
+5. 评论 commentId=109299850075703296，回读命中（创作者视角）。
+6. managed 命中新频道；creator 订阅后 subscribers=1、admins=1；未订阅时 subscribers 403 权限边界维持。
+7. DB 直查核验（127.0.0.1:4323 真库）：4 个 `DEMO-FLOW-20260827%` 频道行与 2 条发布消息行均落库（含首轮契约适配前创建的 2 个频道，见数据披露）。
+
+三重门禁复核：不带 `TEST_ALLOW_CHANNEL_WRITES` / `TEST_ALLOW_API_WRITES` 运行 → `0 passed, 7 skipped`（All tests skipped），setUpAll 的 `_writeGuard()` 先于登录返回，**未发出任何请求**，默认 SKIP 属设计。
+
+数据披露：首轮（契约适配前）创建的频道 109299326829987840（免费语义落库 0/0/0）、109299326922262528（`type:2` 参数被忽略，实际按默认 0/0/0 落库）及消息 109299327004051456 一并保留本地库（marker=DEMO-FLOW-20260827，可回收，未删除）。
+
+剩余阻塞不变：UI 创建/编辑/发布/评论链路未覆盖（本轮真机不占用）；第二订阅者账号视角与邀请接受维持阻塞（注：B=smoke_bob 本轮已可登录，但为避免与并行会话数据耦合且主会话既定口径为维持，未占用其做频道订阅者）；「文章」类型发布未覆盖。
+
 ## 6. 未来自动化目标
 
 - [x] 已新增 `integration_test/demo_flow/channel_creator_flow_test.dart`（纯 Dart，`dart test` 可跑，默认 SKIP，需 `TEST_ALLOW_CHANNEL_WRITES=true` + `TEST_ALLOW_API_WRITES=true` + 非生产地址三重门禁）。
 - [x] 2026-08-18：该测试作为后端升级（alpha.27 → alpha.36）后的回归手段复跑通过 7/7，值得保留为本地频道写入闭环的标准回归入口。
+- [x] 2026-08-27：alpha.36 → alpha.69 复跑暴露 channel/create 契约迁移（type → visibility/access_type/join_policy），测试断言已按 C1/C3 新契约适配并复跑 7/7；该回归入口同时具备契约迁移侦测能力。

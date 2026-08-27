@@ -1,7 +1,7 @@
 # DF-15 群分类/标签 → 二维码 → 邀请入群
 
 > 优先级：P1
-> 状态：`分类/标签写入与回读本地通过（2026-08-19 复跑 4/4，二维码读码回归恢复） / 二维码 URL 构造+读码端点通过（08-19 有效 tk code=0、无效 tk 302；08-18 的 302 回归不再复现，阻塞解除） / 客户端渲染无头回归 08-19 实测 9/9 通过（08-18 SDK 问题未复现） / 扫码入群双端阻塞`
+> 状态：`分类/标签写入与回读本地通过（2026-08-27 alpha.69 复跑 4/4，二维码 tk 校验 code=0 维持） / 二维码 URL 构造+读码端点通过（08-27 有效 tk code=0、无效 tk 302） / 客户端渲染无头回归 08-27 实测 13/13 通过（口径随 08-24 头像嵌入功能 +4 用例） / 扫码入群双端阻塞`
 
 ## 1. 目标
 
@@ -35,6 +35,13 @@
 
 ## 5. 当前覆盖与阻塞
 
+- 2026-08-27（DEMO-FLOW-20260827）**alpha.69 复跑 4/4 + 渲染 13/13 全绿**：`group_organization_local_api_flow_test.dart` 一轮通过 `4 passed All tests passed`（本地后端 1.0.0-alpha.69）。
+  - 群分类：`POST /api/v1/group/category/create`（`DEMO-FLOW-20260827-CAT-*`）code=0，返回 TSID id（109298422208792576）→ `category/list` 回读命中（列表累计 7 个分类），维持通过。
+  - 群标签：绑定历史测试群（attr=owner 复用 gid=107852100410804224）code=0 msg=标签添加成功 → `tag/list` 回读命中（群累计 1 个标签），维持通过。
+  - 群二维码：干净（去引号）44 字符 key 构造有效 tk → `GET /api/v1/group/qrcode?id&exp&tk&s=app_qrcode` **code=0 msg=success**，payload type=group、group_member role=4、member_count=1；无效 tk 仍返回 302（non_json_response），不误入群——与 08-17/08-19 通过口径一致，alpha.69 运行节点 solidified_key 与 `.env.local` 去引号值继续一致。
+  - 客户端二维码渲染无头复跑：`qrcode_pages_test.dart`（10 项）+ `qrcode_url_test.dart`（3 项）= **13/13 All tests passed**。口径说明：08-19 记载 9 项 → 本轮 13 项，增量为 2026-08-24 提交 f945bdbe「二维码中心嵌入用户/群/频道头像」功能新增的 CQ-4/CQ-5/GQ-4/GQ-5 四个头像渲染用例（git 归因确认），非测试口径漂移；渲染基线随功能演进更新为 13。
+  - 账号与登录姿势：改用 account `50578`（uid 104250986822109184）+ `TEST_LOGIN_TYPE=account`；本轮实测共享客户端 md5 预哈希姿势可登录（DB 密码行现为 hmac(md5(明文)) 格式，与 08-27 早间批次"明文可登"的观测相反——密码行在批次间被并行会话重置，以实测为准）；写入数据前缀更新为 DEMO-FLOW-20260827。
+  - 双端扫码维持待真机（本轮不执行）。
 - 2026-08-19（DEMO-FLOW-20260819）复跑 `4/4 All tests passed`，**08-18 的二维码读码 302 回归不再复现（阻塞解除）**：
   - 群分类：`POST /api/v1/group/category/create`（`DEMO-FLOW-20260819-CAT-*`）code=0，返回 TSID id（107850845605070848）→ `category/list` 回读命中（列表累计 6 个分类），维持通过。
   - 群标签：绑定测试群（复用 DF-14 本轮自举群 gid=107850811471824896）code=0 msg=标签添加成功 → `tag/list` 回读命中（群累计 1 个标签），维持通过。

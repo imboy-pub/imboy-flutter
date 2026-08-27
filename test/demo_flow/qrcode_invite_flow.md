@@ -1,8 +1,8 @@
 # DF-20 生成二维码 → 扫码识别 → 进入目标业务
 
 > 优先级：P1
-> 状态：`本地渲染 20/20 与 API 生成回读 5/5 复跑通过（2026-08-19；群码 2 用例当日曾因注入带引号 SOLIDIFIED_KEY 误判环境阻塞，主会话裁决后全量复跑 5/5）；频道码专属路由仍缺失且被 :channel_id 通配吞掉（2026-08-19 实测 code=1 频道不存在）；双端扫码待真机`
-> 最近验证：2026-08-19
+> 状态：`本地渲染 24/24 与 API 生成回读 5/5 复跑通过（2026-08-27 alpha.69；渲染口径随 08-24 头像嵌入功能 20→24）；频道码专属路由已在后端工作区补齐待部署（2026-08-27 收尾：路由+handler+回归测试三件套，运行节点未重启故 live 行为暂不变；部署后 DF-20-5 断言需反向加严为成功回读）；双端扫码待真机`
+> 最近验证：2026-08-27
 
 ## 1. 目标
 
@@ -38,6 +38,12 @@
 
 - 需要相机权限、第二设备或第二账号。
 - 扫码后涉及好友申请/入群/订阅时，沿用对应流程的授权和证据要求。
+- 2026-08-27（DEMO-FLOW-20260827）**alpha.69 复跑 API 5/5 + 渲染 24/24 全绿；频道码路由重点复核：alpha.69 未补路由，缺陷维持**：
+  - **频道码路由复核（P1 重点缺陷）**：三重证据确认 `/api/v1/channel/qrcode` 路由在 alpha.69 仍未注册——1) imboy 仓工作区 `imboy_router.erl` 仅 120 行 user/qrcode 与 240 行 group/qrcode，无 channel/qrcode；2) 运行 release（1.0.0-alpha.69，beam PID 61572）编译产物 `imboy_router.beam` 经 strings 探针无 `channel/qrcode` 路由字符串；3) 带 token + 正确 tk 实测 `GET /api/v1/channel/qrcode` 仍返回 `HTTP 200 + code=1 msg=频道不存在`——被 `:channel_id` 通配捕获为 "qrcode" 的误导性行为与 08-18/08-19 记载逐字一致。按既定预案"未补则维持记载"，DF-20-5 断言（code!=0）**不反向加严**，本轮实测通过并保留证据打印；后端补路由后仍需按 08-18 记载反向加严为成功回读。
+  - API 复跑 `dart test integration_test/demo_flow/qrcode_invite_flow_test.dart --concurrency=1` → `5/5 All tests passed`：DF-20-1 用户码 type=user/id 一致/isfriend；DF-20-2 无效码 user_not_exist；DF-20-3 有效群码 type=group 幂等（干净去引号 44 字符 key 注入）；DF-20-4 过期群码业务拒绝；DF-20-5 频道码缺口断言（证据打印 code=1 频道不存在）。
+  - 渲染复跑 `flutter test test/unit_test/page/qrcode/ test/unit_test/page/scanner/scanner_qrcode_states_test.dart --concurrency=1` → **24/24 All tests passed**（qrcode_pages 10 + qrcode_url 3 + qrcode_provider 5 + scanner_qrcode_states 6）。口径说明：08-19 记载 20 项 → 本轮 24 项，增量为 2026-08-24 提交 f945bdbe「二维码中心嵌入头像」功能新增 CQ-4/CQ-5/GQ-4/GQ-5 四个用例（git 归因确认），渲染基线随功能演进更新为 24。
+  - 账号与登录姿势：改用 account `50578`（uid 104250986822109184）+ `TEST_LOGIN_TYPE=account`；本轮实测共享客户端 md5 预哈希姿势可登录（DB 密码行现为 hmac(md5(明文)) 格式，与 08-27 早间批次"明文可登"观测相反——密码行在批次间被并行会话重置，以实测为准）。本轮零新增群/频道数据（群码用例复用 A 已加入群，join 幂等）。
+  - 双端扫码维持待真机（本轮不执行）。
 - 2026-08-09：用户、群/频道二维码的本地渲染检查通过；没有第二授权账号/设备，扫码识别、好友申请、入群和订阅写入保持 `BLOCKED`。
 - 2026-08-17（DEMO-FLOW-20260817）：本地二维码渲染无头复跑 `flutter test test/unit_test/page/qrcode/ test/unit_test/page/scanner/scanner_qrcode_states_test.dart --concurrency=1` → `20` 项全部通过，覆盖用户/群二维码 URL 构造、渲染与扫码结果模型。
 - 2026-08-17（DEMO-FLOW-20260817）：新增 `integration_test/demo_flow/qrcode_invite_flow_test.dart`（纯 dart test，本地后端），首次形成二维码**服务端生成回读**证据，`5/5 All tests passed`：
@@ -56,6 +62,16 @@
   - **DF-20-3 有效群码 / DF-20-4 过期群码：环境级阻塞**。实测均返回 `code=200 non_json_response`，取证链：今早 10:25 启动的运行节点（`_rel/imboy` 发布包 console 模式）未注入 `IMBOY_SOLIDIFIED_KEY` → `imboy_app:ensure_solidified_keys/0` 走节点名哈希派生 dev key 分支 → `group_handler:qrcode` 的 `md5(exp_Key)==Tk` 校验 `Verified=false` → handler 回 `302` 重定向 `www.imboy.pub` → dio 跟随重定向取回 HTML 200 → `non_json_response`。经只读 RPC 布尔比对确认运行节点 `application:get_env(imboy, solidified_key)` 与 `.env.local` 值 **mismatch**（探针不输出密钥值，已清理）。该问题与 DF-15 在 08-18 记载的群二维码读码回归同根因；**解锁条件：人工以 IMBOY_SOLIDIFIED_KEY 注入重启本地后端**（本会话按规则禁止重启后端）。两用例维持 08-18 的通过证据，不计为本轮回归。
   - 测试文件小改：建群 fallback 标题更新为 `DEMO-FLOW-20260819-QR-GROUP`（本轮未触发，A 已有加入群，零新增群数据）；DF-20-5 新增实际 code/msg 证据打印。运行注意维持：`API_BASE_URL` 必须显式传干净值（`scripts/test.env` 行内注释陷阱）。
   - **主会话裁决（同日）**：上述「运行节点 key mismatch」结论系**带引号比对**误判——`.env.local` 的 `SOLIDIFIED_KEY` 值带双引号，用 `read_env`/awk 提取后未去引号直接注入 `IMBOY_SOLIDIFIED_KEY` 时，tk 计算用的是带引号字符串，服务端校验必 302；该 agent 的 RPC 布尔比对探针同样以带引号串比对，故双重误判。与 DF-15 并行轮（正确去引号，4/4 含群码 code=0 通过）结论冲突后，主会话重放裁决：干净 44 字符 key → 群码 `code=0 msg=success`（role=4）+ 无效 tk 正确 302；故意带引号 key → `code=200 non_json_response`（与 DF-20-3/4 失败签名逐字一致）。**结论：运行节点 key 与 `.env.local` 去引号值一致，无需后端重启或任何变更**；随后以干净 key 全量复跑 `qrcode_invite_flow_test.dart` → `5/5 All tests passed`（DF-20-3 有效群码回读 type=group 幂等、DF-20-4 过期群码业务拒绝均当面通过），DF-20 本轮状态升级为通过。防御性加固：测试文件对 env 注入的 key 增加与文件读取同款的去引号处理，杜绝复发；运行注入仍须保证值本身无引号。
+- 2026-08-27（收尾，主会话）：**频道码路由缺失已在 imboy 工作区修复（未部署、未 commit）**。实现与群码同契约的最小闭环：
+  路由 `{"/api/v1/channel/qrcode", channel_handler, #{action => qrcode}}` 注册在 `/api/v1/channel/:channel_id`
+  通配之前（消灭误导性捕获的根因）；`channel_handler:qrcode/2` 校验 `exp(毫秒)+tk=md5(exp_solidifiedKey)`，
+  未登录/坏 tk → 302、过期 → 业务错误「验证码已过期」、成功回读频道名片并带 `type=<<"channel">>`。
+  **刻意不自动订阅**：订阅必须走 `/subscribe` 的 access_type/join_policy 与付费门禁，GET 扫码不得绕过订单（与群「扫码即入群」的差异是频道付费语义决定的设计决策）。配套测试：`router_consistency_tests` 新增
+  `channel_qrcode_route_registered_before_wildcard_test`（顺序守护）、`channel_handler_tests` 新增名片回读/
+  过期拒绝/坏 tk 302 三用例；另发现 qrcode 需要把 auth_ds/config_ds 加入 handler 边界白名单
+  （scripts/check_module_boundaries.sh，与 user/group handler 先例一致），边界检查恢复全过。
+  验证：`make eunit-local t=router_consistency_tests` 8/8、`t=channel_handler_tests` 85/85。
+  **部署后动作**：DF-20-5 断言从 code!=0 反向加严为 code=0 成功回读 type=channel。
 
 ## 6. 未来自动化目标
 

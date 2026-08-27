@@ -34,7 +34,7 @@ import '../../test/unit_test/api/api_test_client.dart';
 
 // 2026-08-18 起 B 账号为 smoke_bob（uid 1000000056，account 型登录，
 // 凭证见 moments/wallet/red_packet flow 文档）。
-const _msgPrefix = 'DEMO-FLOW-20260819';
+const _msgPrefix = 'DEMO-FLOW-20260827';
 
 /// 与 ApiTestClient._defaultHeaders 相同的设备签名（did 与登录客户端一致）。
 Map<String, String> _signedHeaders(String deviceId) {
@@ -275,20 +275,31 @@ void main() {
         );
       }
 
-      // 服务端历史回读。已知后端 bug（HEAD 与 alpha.27 一致）：
+      // 服务端历史回读。已知后端 bug（2026-08-27 复核：HEAD 22e1a905 的
+      // group_handler.erl:481 仍构造 to_groupid，msg_c2g 实际列为 to_id）：
       // group_handler:msg_page 的查询键 to_groupid 与 msg_c2g 实际列 to_id
       // 不匹配，SQL 失败被吞后恒返回 total=0——这与历史 flow 中
       // "服务端历史接口归档为空(historyUnavailable)"现象一致，根因待后端修复。
-      // 因此归档证据以 DB msg_c2g 行为准（服务端写入行为的直接记录）。
+      // 因此归档证据以 DB msg_c2g 行为准（服务端写入行为的直接记录）；
+      // 若 total>0 则进一步核对 list 是否含本条 msg_id，作为修复判定观测。
       final page = await clientA.get(
         '/api/v1/group/msg_page',
         queryParameters: {'gid': gid, 'page': 1, 'size': 20},
       );
       ApiAssert.success(page, context: 'group/msg_page');
+      final pagePayload = (page['payload'] ?? const {}) as Map;
+      final pageTotal = pagePayload['total'];
+      final pageList = pagePayload['list'];
+      final pageMsgIds = pageList is List
+          ? pageList
+                .whereType<Map>()
+                .map((m) => '${m['msg_id'] ?? ''}')
+                .toList()
+          : <String>[];
       stderr.writeln(
-        '[DF-08] group/msg_page total='
-        '${((page['payload'] ?? const {}) as Map)['total']}'
-        '（已知 to_groupid/to_id 列名 bug，归档以 DB 行判定）',
+        '[DF-08] group/msg_page total=$pageTotal '
+        'list含本条msg_id=${pageMsgIds.contains(msgId)}'
+        '（键名 bug 未修时 total=0，归档以 DB 行判定）',
       );
 
       // DB 直查归档行（本地测试库连接参数由环境注入，见 scripts/test.env）。

@@ -1,7 +1,7 @@
 # DF-03 会话列表 → 未读 → 进入聊天
 
 > 优先级：P0
-> 状态：`列表与只读聊天入口通过（Android 真机 + macOS 生产只读）/ 有效会话写入与置顶闭环本地复跑维持通过（2026-08-19）/ 未读清零与双账号闭环待补齐`
+> 状态：`列表与只读聊天入口通过（Android 真机 + macOS 生产只读）/ 有效会话写入与置顶闭环本地复跑维持通过（2026-08-27，alpha.69）/ 生产只读契约恢复 dart 套件 8 过 2 门禁拦（2026-08-27 收尾复跑，客户端 md5→明文回退后与 08-19 口径一致）/ 未读清零与双账号闭环待补齐`
 
 ## 1. 目标
 
@@ -69,6 +69,15 @@
   - 环境注记（跨 flow 数据漂移，仅记录不断言）：登录 uid=4 建立 WS 后收到 `logged_another_device`（did=undefined）×2 及积压 `apply_friend_confirm`、`group_member_leave` 等 S2C 推送，与其他并行 flow 会话共享 uid=4 的迹象一致；`conversation/mine` 会话数仅断言本轮目标会话，不断言全局总数。
   - macOS 桌面只读复跑：`flutter test integration_test/demo_flow/conversation_flow_test.dart -d macos`（APP_ENV=pro + `.env.pro` 变量以 `--dart-define` 注入）→ `1/1 All tests passed`，登录后进入会话列表，`conversation_search_input` 存在，发现 `4` 个 `Slidable` 会话项，与 08-18 记录一致。本轮复跑在含他人未提交改动（`bottom_navigation_page.dart`/`conversation_provider.dart`）的工作区上完成，证明这些改动未破坏会话列表基础入口；构建无锁等待。
   - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260819/`（df03_ws_e2ee_result.json、df03_pin_unpin_result.json、df03_pinned_fix_result.json）。
+- 2026-08-27（复核轮，本地后端已升级 **1.0.0-alpha.69**；生产 alpha.69 严格只读）：
+  - **【环境级发现：后端密码预哈希 MD5→SHA-256 迁移（2026-08-26）】**：本轮首轮直接跑 `dart test test/unit_test/api/conversation_api_test.dart`（`.env.pro` 变量逐项提取注入，未 source、未回显凭证）→ 登录 `errorPassword`、10 用例全 SKIP。经离线比对本地库存储 hash（`hmac(key=salt, msg=md5hex("admin888"))`）+ 只读 `imboy/src/lib/elib_password.erl`（头部注释"前端密码预哈希格式（2026-08-26 从 MD5 迁移到 SHA-256）"）定位根因：**密码未漂移**，alpha.69 `verify_hmac_sha512/3` 双分支（`sha256raw(pwd)` / `md5hex(pwd)`）对旧客户端 md5 姿势（上送 `md5hex(明文)`，存储 `hmac(msg=md5hex)`）均不匹配；**明文姿势上送可命中旧格式分支**（`md5hex(明文)==存储 msg`）——本地与生产以 `pwd=明文` 实测均 `code=0`（uid=4）。imboyapp 客户端已内置"登录失败后明文回退"（`lib/page/passport/passport_notifier.dart` `pwd_was_md5` 标记），故真实客户端不受影响；**纯 dart 契约测试客户端 `api_test_client.dart` 固定 md5 姿势、无回退，需后续升级**（不在本轮授权修改范围）。另注：`.env.pro` 的 SOLIDIFIED_KEY 已于 08-26 被人工更新为正确 32 字符值（签名验证可过，本轮错误均为密码级而非签名级）。
+  - 生产只读契约复跑（探针复刻，替代无法登录的 dart 套件）：明文姿势登录后逐条复刻套件 8 个只读用例（会话列表/置顶列表/离线消息×2/好友列表/群组分页/最近联系人/用户设置，均真实请求 `https://pro.imboy.pub`）→ **8/8 PASS，2 写端点（7.1/8.1）按客户端写门禁设计未发出请求**，与 08-19 基线（8 passed / 2 门禁拦截）完全一致，alpha.69 生产契约无回归。证据：`/tmp/demo_flow_20260827/df03_prod_contract.json`。
+  - macOS 桌面只读复跑：`flutter test integration_test/demo_flow/conversation_flow_test.dart -d macos`（APP_ENV=pro + `.env.pro` 变量 `--dart-define` 注入）→ `1/1 All tests passed`，登录（客户端明文回退路径）后进入会话列表，`conversation_search_input` 存在。**环境数据漂移**：本轮会话列表为空（`ConversationRepo/all 0 items`），08-19 为 4 个 `Slidable` 会话项——生产 uid=4 的会话数据在两轮之间被清空，属跨轮数据变化，不构成测试失败（断言不要求非空）。本轮仍在含用户未提交改动（频道 DND 相关等）的工作区上通过。
+  - **有效会话写入+pin/unpin 幂等闭环复跑维持通过（DEMO-FLOW-20260827，全部带服务端证据，本地 alpha.69）**：WS（`imboy.v2` 子协议 + Bearer，明文姿势登录 uid=4）向 agent（uid `103107938360756224`）发送 v2.0 加密契约信封（`e2ee.devices` 非空 map + `payload` 空串，ciphertext=`DEMO-FLOW-20260827-E2EE-envelope`）→ 二进制 v2 帧 `C2C_SERVER_ACK`（`in_reply_to` 回显本轮发送 id `df27mtb15zkwybrle1af`）；`msg/history` code=0 且消息在列（字段 `msg_id`，e2ee 元数据完整保留为字符串化 JSON）；psql 直查 `msg_c2c` 归档行存在（from=4/to=agent/`protocol=olm`/`fan_out=per_device`，本轮共 3 行同标记，含调试轮次）；`conversation/mine`（`payload.list`）该 c2c 会话（`conversation_id=103107938360756224`）`last_msg_id` 即本轮发送 id。
+  - **pin/unpin 全步骤**：`POST /api/v1/conversation/pin`（conversation_id string 传输）→ code=0；mine 回读 `is_pinned=true`；`conversation/pinned`（`payload.items`）含该会话且 `pinned_at=1787805399973`；重复 pin 幂等 code=0；`POST /api/v1/conversation/unpin` → code=0（payload `updated:true`）→ `is_pinned=false`、pinned 列表清空；重复 unpin 幂等 code=0。终态已还原为未置顶（初始态同为 false）。
+  - 未读清零：维持未验收——agent 回复观察窗（15s）内无来自 agent 的 C2C/S2C 帧（`agent_reply_seen=false`），本地 agent 未配置 LLM 后端无对端回复，`message_read` 已读回执无合法上报对象（不能上报"已读自己发送的消息"）。会话删除/恢复仍默认不执行。
+  - 环境注记：a) 本地库已整体更换（4323 端口实例 19218 用户，为生产快照形态；uid=4 即 `118@imboy.pub`，08-19 记载的本地账号 13900001002/uid=4 旧数据不再存在；**本地 psql 直查须带 `-p 4323`**，默认 5432 是另一实例）；b) 登录 WS 后收到 `logged_another_device`（did=e2e-dart-test-001）S2C 推送，共享 uid=4 迹象；c) alpha.69 下 `policy_violation` 拒收帧以 **WS text 帧**返回（`websocket_handler.erl` `{reply,{text,...}}` 路径），`C2C_SERVER_ACK` 仍为二进制 v2 帧——与 08-19 记录的拒收帧形态描述不同，属协议细节修正；d) 2026-08-25 轮记载的 `write_msg_with_sender ON CONFLICT` 丢数据 bug 本轮未复现（3 条发送 3 行落库）；e) **alpha.69 会话存储模型变化**：`conversation/mine` 改为从 `msg_c2c`/`msg_c2g` 消息表实时聚合（`conversation_logic.erl` `read_msg_for_conversation` + `normalize_*_conversation`），`public.conversation` 物化表本地为 0 行但 API 正常返回——pin 状态独立存于 `conversation_pin` 表（本轮 user_id=4 终态 0 行，还原彻底）。
+  - 证据文件（本机临时目录，不入仓）：`/tmp/demo_flow_20260827/`（df03_prod_contract.json、df03_df04_local_r3.json 最终轮探针输出、df03_macos_conversation.log）。
 
 ## 6. 未来自动化目标
 

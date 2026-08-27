@@ -29,7 +29,7 @@ import 'package:test/test.dart';
 import '../../test/unit_test/api/api_test_client.dart';
 
 /// 写入数据的统一标记前缀（本地可回收测试数据）。
-const kFlowMark = 'DEMO-FLOW-20260819';
+const kFlowMark = 'DEMO-FLOW-20260827';
 
 /// 从 payload 提取 list（兼容 List / {list:[]} / {data:[]}）。
 List<dynamic> _extractList(dynamic payload) {
@@ -183,7 +183,7 @@ void main() {
     if (!ready) {
       return markTestSkipped(skipReason ?? '环境未就绪');
     }
-    tagName = 'DF0819标签';
+    tagName = 'DF0827标签';
     final resp = await clientA.post(
       '/api/v1/user_tag/add',
       data: {'scene': 'friend', 'tag': tagName},
@@ -265,7 +265,7 @@ void main() {
     }
     final resp = await clientA.post(
       '/api/v1/friend/category/add',
-      data: {'name': 'DF0819分组'},
+      data: {'name': 'DF0827分组'},
     );
     ApiAssert.success(resp, context: 'friend/category/add');
     final payload = resp['payload'];
