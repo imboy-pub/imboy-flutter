@@ -27,8 +27,9 @@ import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/sqlite.dart';
 
+import '../../vodozemac_native_lib.dart';
+
 /// spike 已构建的 vodozemac 宿主动态库（同 olm_ratchet_pfs_pcs_test.dart）
-const String _spikeLibDir = '../spikes/e2ee-group/rust/target/release/';
 
 const String _peerUid = '9001';
 const String _peerDid = 'dev-alice';
@@ -48,7 +49,7 @@ final Uint8List _pickleKey = Uint8List.fromList(
 bool _vodInited = false;
 Future<void> _ensureVod() async {
   if (_vodInited) return;
-  await vod.init(libraryPath: _spikeLibDir);
+  await ensureVodozemac();
   _vodInited = true;
 }
 

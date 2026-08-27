@@ -4,7 +4,8 @@ import 'package:imboy/service/e2ee/fallback_rotation_policy.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/olm_api.dart';
-import 'package:vodozemac/vodozemac.dart' as vod;
+
+import '../../vodozemac_native_lib.dart';
 
 /// E2EE-062：**fallback key 周期轮换的接线实证**。
 ///
@@ -16,7 +17,6 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 /// 2. 【对照组】刚轮换过 → **不得**再次上报。
 ///    它红说明轮换判据没生效、每次入站建会话都会重发一次 fallback key；
 /// 3. 时刻过期 → 再次轮换，且 **keyId 与上一次不同**（真换，不是重发同一把）。
-const String _spikeLibDir = '../spikes/e2ee-group/rust/target/release/';
 
 class _FakeOlmApi extends OlmApi {
   final List<String> reportedKeyIds = [];
@@ -67,7 +67,7 @@ void main() {
           }
           return null;
         });
-    await vod.init(libraryPath: _spikeLibDir);
+    await ensureVodozemac();
     OlmSessionService.debugMarkVodReady();
   });
 

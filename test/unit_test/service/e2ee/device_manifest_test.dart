@@ -9,6 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 import 'package:imboy/service/e2ee/device_manifest.dart';
 
+import '../../vodozemac_native_lib.dart';
+
 void main() {
   group('DeviceManifest', () {
     late String ed25519Pub;
@@ -19,7 +21,7 @@ void main() {
 
     setUpAll(() async {
       // Initialize vodozemac Rust library first
-      await vod.init(libraryPath: '../spikes/e2ee-group/rust/target/release/');
+      await ensureVodozemac();
 
       // Setup actual Ed25519 keys via vodozemac for device manifest
       final account = vod.Account();

@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
+import '../../vodozemac_native_lib.dart';
+
 /// E2EE-062：**fallback key 轮换语义的特征测试**（characterization test）。
 ///
 /// == 为什么需要它 ==
@@ -19,13 +21,12 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 ///
 /// **读文档只能形成假设**（本项目已多次被实证推翻），故用真 vodozemac 账号实测。
 /// 本文件**不改任何生产代码**，只把库行为钉死，供轮换设计引用。
-const String _spikeLibDir = '../spikes/e2ee-group/rust/target/release/';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    await vod.init(libraryPath: _spikeLibDir);
+    await ensureVodozemac();
   });
 
   test('对照组：新账号 generateFallbackKey 后能取到一把 key', () {

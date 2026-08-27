@@ -5,6 +5,8 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 import 'package:imboy/service/e2ee/device_manifest.dart';
 import 'package:imboy/service/e2ee/capability_negotiator.dart';
 
+import '../../vodozemac_native_lib.dart';
+
 PeerCapability _peer(String deviceId, List<String> protocols) => PeerCapability(
   deviceId: deviceId,
   signingKey: 'ed25519:$deviceId',
@@ -137,7 +139,7 @@ void main() {
 
     setUpAll(() async {
       // Initialize vodozemac Rust library
-      await vod.init(libraryPath: '../spikes/e2ee-group/rust/target/release/');
+      await ensureVodozemac();
 
       final account = vod.Account();
       ed25519Pub = account.identityKeys.ed25519.toBase64();

@@ -1,8 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
+
+import '../vodozemac_native_lib.dart';
 
 /// ADR 13 T-13-04：room-key-over-Olm 真 vodozemac 密码学 round-trip。
 ///
@@ -12,17 +12,17 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 ///
 /// 依赖 spike 构建的 vodozemac 宿主动态库；缺失自动 skip，**不作为普通 unit
 /// test 依赖**（普通 wiring 测试见 test/service/group_session_service_test.dart）。
-const String _spikeLibDir = '../spikes/e2ee-group/rust/target/release/';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('T-13-04 room key over Olm 真 round-trip（缺 spike 库自动 skip）', () async {
-    if (!Directory(_spikeLibDir).existsSync()) {
-      markTestSkipped('spike 动态库缺失：$_spikeLibDir（cargo build --release 后可跑）');
+    try {
+      await ensureVodozemac();
+    } on StateError catch (e) {
+      markTestSkipped(e.message);
       return;
     }
-    await vod.init(libraryPath: _spikeLibDir);
 
     // 1. 发送端建 Megolm 群会话，encrypt 前导出 room key（棘轮起点 exportAt(0)）
     final group = vod.GroupSession();

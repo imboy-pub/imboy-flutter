@@ -11,6 +11,8 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 import 'package:imboy/service/e2ee/device_manifest.dart';
 import 'package:imboy/service/e2ee/identity_verifier.dart';
 
+import '../../vodozemac_native_lib.dart';
+
 void main() {
   group('P0-1 verifyIdentitySignature fail-closed', () {
     test('空 map → 抛 IdentityVerificationException', () {
@@ -137,7 +139,7 @@ void main() {
 
     setUpAll(() async {
       // Initialize vodozemac Rust library
-      await vod.init(libraryPath: '../spikes/e2ee-group/rust/target/release/');
+      await ensureVodozemac();
 
       // Setup actual Ed25519 keys via vodozemac for device manifest
       final account = vod.Account();

@@ -16,14 +16,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
+import '../../vodozemac_native_lib.dart';
+
 /// spike 已构建的 vodozemac 宿主动态库（同 group_session_service_test.dart）
-const String _spikeLibDir = '../spikes/e2ee-group/rust/target/release/';
 
 /// vod.init 全进程只能调一次（RustLib 重复初始化会抛错）
 bool _vodInited = false;
 Future<void> _ensureVod() async {
   if (_vodInited) return;
-  await vod.init(libraryPath: _spikeLibDir);
+  await ensureVodozemac();
   _vodInited = true;
 }
 

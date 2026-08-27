@@ -27,13 +27,14 @@ import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/identity_verifier.dart';
 import 'package:imboy/service/e2ee/safety_number.dart';
 
+import '../../vodozemac_native_lib.dart';
+
 /// spike 已构建的 vodozemac 宿主动态库
-const String _spikeLibDir = '../spikes/e2ee-group/rust/target/release/';
 
 bool _vodInited = false;
 Future<void> _ensureVod() async {
   if (_vodInited) return;
-  await vod.init(libraryPath: _spikeLibDir);
+  await ensureVodozemac();
   _vodInited = true;
 }
 

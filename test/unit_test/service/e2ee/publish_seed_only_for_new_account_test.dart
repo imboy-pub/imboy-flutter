@@ -2,7 +2,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/store/api/olm_api.dart';
-import 'package:vodozemac/vodozemac.dart' as vod;
+
+import '../../vodozemac_native_lib.dart';
 
 /// E2EE-062：**`publishIdentityAndPrekeys` 只应对新建账号无条件铺满 OTK 池**。
 ///
@@ -28,7 +29,6 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 ///
 /// 用真 vodozemac 账号 + 假 `OlmApi` 记录调用，断言的是**有没有发出上报**，
 /// 不是内部函数的返回值。
-const String _spikeLibDir = '../spikes/e2ee-group/rust/target/release/';
 
 class _FakeOlmApi extends OlmApi {
   _FakeOlmApi({required this.countResult});
@@ -107,8 +107,8 @@ void main() {
           }
           return null;
         });
-    // vod.init 全进程只能调一次
-    await vod.init(libraryPath: _spikeLibDir);
+    // 原生库初始化全进程只能调一次（ensureVodozemac 内部已守卫）
+    await ensureVodozemac();
     OlmSessionService.debugMarkVodReady();
   });
 

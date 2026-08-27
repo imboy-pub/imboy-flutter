@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
+import '../../vodozemac_native_lib.dart';
+
 /// E2EE-062：**`forgetFallbackKey()` 与 fallback key 留存期的特征测试**。
 ///
 /// == 为什么需要它 ==
@@ -18,7 +20,6 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 /// Dart 文档是错的：丢的是**上一把**，当前那把保留。
 /// 而且轮换本身就会挤掉"上上把"，因此每把 key 的留存期**已经**被周期轮换
 /// 界定在约两个周期内——显式调用 `forgetFallbackKey()` 收益有限、丢消息风险真实。
-const String _spikeLibDir = '../spikes/e2ee-group/rust/target/release/';
 
 /// 用 Bob 的某把 fallback key 建出站会话并加密一条，返回密文。
 String _encryptTo(
@@ -60,7 +61,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    await vod.init(libraryPath: _spikeLibDir);
+    await ensureVodozemac();
   });
 
   group('forgetFallbackKey 的实际语义', () {

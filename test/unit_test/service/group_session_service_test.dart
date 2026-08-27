@@ -17,6 +17,8 @@ import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
+import '../vodozemac_native_lib.dart';
+
 /// 生成本设备真实 E2EE 密钥对（生产同款入口，范式同 e2ee_service_test.dart）
 Future<Map<String, dynamic>> _setupDeviceKey() async {
   final keyInfo = await E2EEKeyService.generateKeyPair();
@@ -25,13 +27,12 @@ Future<Map<String, dynamic>> _setupDeviceKey() async {
 }
 
 /// spike 已构建的 vodozemac 宿主动态库（存在才跑 Megolm 全链路用例）
-const String _spikeLibDir = '../spikes/e2ee-group/rust/target/release/';
 
 /// vod.init 全进程只能调一次（RustLib 重复初始化会抛错）
 bool _vodInited = false;
 Future<void> _ensureVod() async {
   if (_vodInited) return;
-  await vod.init(libraryPath: _spikeLibDir);
+  await ensureVodozemac();
   GroupSessionService.debugMarkVodReady();
   _vodInited = true;
 }
@@ -146,11 +147,11 @@ void main() {
   });
 
   group('Megolm 全链路（需要 spike 动态库，缺失自动 skip）', () {
-    final hasLib = Directory(_spikeLibDir).existsSync();
+    final hasLib = hasVodozemacTestLib();
 
     test('encryptGroupMessage 真实发送编排：剔除本机并给远端设备包裹 room key', () async {
       if (!hasLib) {
-        markTestSkipped('spike 动态库缺失：$_spikeLibDir');
+        markTestSkipped('vodozemac 测试原生库缺失（修复指引见 vodozemac_native_lib.dart）');
         return;
       }
       await _ensureVod();
@@ -222,7 +223,7 @@ void main() {
 
     test('建群会话 → 导出 → 包裹 → 解包 → import → 加解密往返', () async {
       if (!hasLib) {
-        markTestSkipped('spike 动态库缺失：$_spikeLibDir（cargo build --release 后可跑）');
+        markTestSkipped('vodozemac 测试原生库缺失（修复指引见 vodozemac_native_lib.dart）');
         return;
       }
       await _ensureVod();
@@ -269,7 +270,7 @@ void main() {
     // （e2ee_room_key 是任意成员可发的具名 action，据此翻旗标 = 越权 + 不可逆 DoS）
     test('handleRoomKeyMessage 存 inbound 可解密，但不翻转 e2ee 旗标', () async {
       if (!hasLib) {
-        markTestSkipped('spike 动态库缺失：$_spikeLibDir');
+        markTestSkipped('vodozemac 测试原生库缺失（修复指引见 vodozemac_native_lib.dart）');
         return;
       }
       await _ensureVod();
@@ -384,9 +385,9 @@ void main() {
     test(
       'C2C room key → handleRoomKeyMessage → decryptC2CMessage 全链路往返',
       () async {
-        final hasLib = Directory(_spikeLibDir).existsSync();
+        final hasLib = hasVodozemacTestLib();
         if (!hasLib) {
-          markTestSkipped('spike 动态库缺失：$_spikeLibDir');
+          markTestSkipped('vodozemac 测试原生库缺失（修复指引见 vodozemac_native_lib.dart）');
           return;
         }
         await _ensureVod();
@@ -447,9 +448,9 @@ void main() {
     // 安全回归（发现1 HIGH）：域混淆注入必须被拒——攻击者以 type=C2G,to=群A
     // 发送，但 payload.gid=群B，不得写入群 B 的 Megolm 命名空间。
     test('域混淆：type/to 与 payload.gid 不一致的群 room key 被丢弃', () async {
-      final hasLib = Directory(_spikeLibDir).existsSync();
+      final hasLib = hasVodozemacTestLib();
       if (!hasLib) {
-        markTestSkipped('spike 动态库缺失：$_spikeLibDir');
+        markTestSkipped('vodozemac 测试原生库缺失（修复指引见 vodozemac_native_lib.dart）');
         return;
       }
       await _ensureVod();
@@ -495,9 +496,9 @@ void main() {
 
     // C2C key 若从 C2G 通道到达（通道混淆）必须被拒
     test('通道混淆：scope=c2c 的 room key 从 C2G 通道到达被丢弃', () async {
-      final hasLib = Directory(_spikeLibDir).existsSync();
+      final hasLib = hasVodozemacTestLib();
       if (!hasLib) {
-        markTestSkipped('spike 动态库缺失：$_spikeLibDir');
+        markTestSkipped('vodozemac 测试原生库缺失（修复指引见 vodozemac_native_lib.dart）');
         return;
       }
       await _ensureVod();
