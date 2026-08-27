@@ -398,9 +398,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         allowMultiple: false,
       );
 
-      if (result != null &&
-          result.files.isNotEmpty &&
-          result.files.single.path != null) {
+      if (result.isNotEmpty && result.single.path != null) {
         // 切换到文件选择器来源前，清理之前 URL 下载产生的临时文件
         if (_selectedFileSource == 'url' && _selectedFile != null) {
           await E2EEBackupUrlDownloadService.cleanupTempFile(
@@ -408,7 +406,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           );
         }
         setState(() {
-          _selectedFile = File(result.files.single.path!);
+          _selectedFile = File(result.single.path!);
           _selectedFileSource = 'picker';
           _backupInfo = null;
         });

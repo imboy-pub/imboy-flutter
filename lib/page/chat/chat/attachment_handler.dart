@@ -290,14 +290,12 @@ class ChatAttachmentHandler {
 
   /// 处理文件选择
   Future<void> handleFileSelection(BuildContext context) async {
-    final result = await FilePicker.pickFiles(type: FileType.any);
-    if (result == null ||
-        result.files.isEmpty ||
-        result.files.single.path == null) {
+    final files = await FilePicker.pickFiles(type: FileType.any);
+    if (files.isEmpty || files.single.path == null) {
       return;
     }
     if (!context.mounted) return;
-    await uploadFile(context, result.files.single);
+    await uploadFile(context, files.single);
   }
 
   /// 上传文件
@@ -312,6 +310,7 @@ class ChatAttachmentHandler {
     try {
       final Uint8List bytes = await File(path).readAsBytes();
       final String mime = lookupMimeType(path) ?? 'application/octet-stream';
+      final int fileSize = await file.length();
       final s = _uploadScope;
       // message_id 必须在上传**之前**生成：它是绑定值（方案甲）的输入。
       final String messageId = Xid().toString();
@@ -333,7 +332,7 @@ class ChatAttachmentHandler {
         ),
         mimeType: mime,
         name: file.name,
-        size: file.size,
+        size: fileSize,
         source: meta['object_key'] as String,
         status: MessageStatus.sending,
         metadata: _withBurnMetadata(
@@ -516,14 +515,14 @@ class ChatAttachmentHandler {
   /// 完全绕过 photo_manager。
   Future<void> handleImageFileSelection(BuildContext context) async {
     try {
-      final result = await FilePicker.pickFiles(
+      final files = await FilePicker.pickFiles(
         type: FileType.image,
         allowMultiple: true,
       );
-      if (result == null || result.files.isEmpty) return;
+      if (files.isEmpty) return;
       if (!context.mounted) return;
 
-      for (final file in result.files) {
+      for (final file in files) {
         await _uploadImagePlatformFile(context, file);
       }
     } catch (e) {
@@ -537,12 +536,9 @@ class ChatAttachmentHandler {
     PlatformFile file,
   ) async {
     try {
-      // 获取图片字节
-      Uint8List? bytes = file.bytes;
-      if (bytes == null && file.path != null) {
-        bytes = await File(file.path!).readAsBytes();
-      }
-      if (bytes == null || bytes.isEmpty) {
+      // file_picker 12 移除同步 bytes，统一走异步读取
+      final Uint8List bytes = await file.readAsBytes();
+      if (bytes.isEmpty) {
         debugPrint('[attachment_handler] image bytes is null: ${file.name}');
         return;
       }

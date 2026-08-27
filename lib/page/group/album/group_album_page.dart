@@ -241,22 +241,18 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final albumId = _resolveAlbumId(album);
     if (albumId.isEmpty) return;
 
-    final result = await FilePicker.pickFiles(
+    final files = await FilePicker.pickFiles(
       type: FileType.image,
       allowMultiple: false,
-      withData: true,
     );
-    if (result == null || result.files.isEmpty) {
+    if (files.isEmpty) {
       return;
     }
 
-    final file = result.files.single;
+    final file = files.single;
     final photoName = file.name.trim();
-    Uint8List? photoBytes = file.bytes;
-    if (photoBytes == null && file.path != null) {
-      photoBytes = await File(file.path!).readAsBytes();
-    }
-    if (photoName.isEmpty || photoBytes == null || photoBytes.isEmpty) {
+    final Uint8List photoBytes = await file.readAsBytes();
+    if (photoName.isEmpty || photoBytes.isEmpty) {
       if (!mounted) return;
       AppLoading.showToast(t.common.groupAlbumPhotoReadFailed);
       return;

@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:file_picker/src/platform/file_picker_platform_interface.dart';
+import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -115,27 +116,53 @@ class _FakeGroupAlbumService extends GroupAlbumService {
 class _FakeFilePicker extends FilePickerPlatform {
   _FakeFilePicker({required this.pickResult});
 
-  FilePickerResult? pickResult;
+  List<PlatformFile>? pickResult;
   int pickFilesCallCount = 0;
 
   @override
-  Future<FilePickerResult?> pickFiles({
+  Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    void Function(FilePickerStatus)? onFileLoading,
+    Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
-    bool allowMultiple = false,
-    bool withData = false,
-    bool withReadStream = false,
-    bool lockParentWindow = false,
-    bool readSequential = false,
-    bool cancelUploadOnWindowBlur = true,
+    AndroidOptions androidOptions = const AndroidOptions(),
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
   }) async {
     pickFilesCallCount++;
-    return pickResult;
+    return pickResult ?? const [];
   }
+}
+
+/// PlatformFile 是 abstract base class，测试只能 extends 模拟。
+final class _FakePickedFile extends PlatformFile {
+  _FakePickedFile({required String name, List<int>? bytes})
+    : _name = name,
+      _bytes = bytes == null ? null : Uint8List.fromList(bytes);
+
+  final String _name;
+  final Uint8List? _bytes;
+
+  @override
+  String get name => _name;
+
+  @override
+  Uri get uri => Uri.file('/fake/$_name');
+
+  @override
+  XFile get xFile => XFile.fromData(_bytes ?? Uint8List(0));
+
+  @override
+  Future<int> length() async => _bytes?.length ?? 0;
+
+  @override
+  Future<Uint8List> readAsBytes() async => _bytes ?? Uint8List(0);
+
+  @override
+  Stream<Uint8List> readAsByteStream() => Stream.value(_bytes ?? Uint8List(0));
 }
 
 Widget _buildTestApp() {
@@ -154,21 +181,15 @@ Widget _buildTestApp() {
 FilePickerPlatform? _originalFilePicker;
 bool _hasOriginalFilePicker = false;
 
-FilePickerResult _singlePickResult({
+List<PlatformFile> _singlePickResult({
   required String fileName,
   required List<int> bytes,
 }) {
-  return FilePickerResult([
-    PlatformFile(
-      name: fileName,
-      size: bytes.length,
-      bytes: Uint8List.fromList(bytes),
-    ),
-  ]);
+  return [_FakePickedFile(name: fileName, bytes: bytes)];
 }
 
-FilePickerResult _singlePickResultWithoutBytes({required String fileName}) {
-  return FilePickerResult([PlatformFile(name: fileName, size: 0, bytes: null)]);
+List<PlatformFile> _singlePickResultWithoutBytes({required String fileName}) {
+  return [_FakePickedFile(name: fileName)];
 }
 
 void main() {

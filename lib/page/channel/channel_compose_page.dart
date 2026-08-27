@@ -290,9 +290,9 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
         type: FileType.image,
         allowMultiple: true,
       );
-      if (result == null || result.files.isEmpty || !mounted) return;
+      if (result.isEmpty || !mounted) return;
       final picked = <_PickedImage>[
-        for (final f in result.files.take(remaining))
+        for (final f in result.take(remaining))
           if (f.path != null) _PickedImage.file(File(f.path!)),
       ];
       if (picked.isEmpty) return;

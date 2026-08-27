@@ -208,22 +208,18 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   Future<void> _pickAndUploadFile() async {
     if (_isUploading) return;
 
-    final result = await FilePicker.pickFiles(
+    final files = await FilePicker.pickFiles(
       type: FileType.any,
       allowMultiple: false,
-      withData: true,
     );
-    if (result == null || result.files.isEmpty) {
+    if (files.isEmpty) {
       return;
     }
 
-    final file = result.files.single;
+    final file = files.single;
     final fileName = file.name.trim();
-    Uint8List? fileBytes = file.bytes;
-    if (fileBytes == null && file.path != null) {
-      fileBytes = await File(file.path!).readAsBytes();
-    }
-    if (fileName.isEmpty || fileBytes == null || fileBytes.isEmpty) {
+    final Uint8List fileBytes = await file.readAsBytes();
+    if (fileName.isEmpty || fileBytes.isEmpty) {
       if (!mounted) return;
       AppLoading.showToast(t.common.groupFileReadFailed);
       return;
