@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -60,7 +61,7 @@ void main() {
     testWidgets('renders 盾牌 icon + 标题 + 说明文字', (tester) async {
       await _pump(tester);
 
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.shield), findsOneWidget);
       // i18n: accountSecurityEnhance = "提升账户安全"
       expect(find.text('提升账户安全'), findsOneWidget);
       // i18n: bindMobileAndEmailTips
@@ -85,7 +86,7 @@ void main() {
       // bindNow = "立即绑定"
       expect(find.text('立即绑定'), findsOneWidget);
       // phone icon
-      expect(find.byIcon(Icons.phone_iphone), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.device_phone_portrait), findsOneWidget);
 
       await _unmount(tester);
     });
@@ -156,7 +157,7 @@ void main() {
       // linkEmailFor = "用于登录、身份验证和接收账单"
       expect(find.text('用于登录、身份验证和接收账单'), findsOneWidget);
       // alternate_email icon
-      expect(find.byIcon(Icons.alternate_email), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.at), findsOneWidget);
 
       await _unmount(tester);
     });

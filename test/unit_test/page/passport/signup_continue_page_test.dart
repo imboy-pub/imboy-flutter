@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -147,7 +148,10 @@ void main() {
       await _pump(tester); // 不传任何参数
 
       // 错误图标
-      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(
+        find.byIcon(CupertinoIcons.exclamationmark_circle),
+        findsOneWidget,
+      );
       // i18n: unknown = "未知"
       expect(find.text('未知'), findsOneWidget);
       // i18n: buttonBack = "返回"
@@ -178,7 +182,10 @@ void main() {
         accountType: 'email',
         // pwd 故意为空
       );
-      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(
+        find.byIcon(CupertinoIcons.exclamationmark_circle),
+        findsOneWidget,
+      );
       expect(find.text('未知'), findsOneWidget);
       await _unmount(tester);
     });
