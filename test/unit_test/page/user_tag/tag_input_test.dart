@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -48,7 +49,8 @@ void main() {
 
       expect(find.text('vip'), findsOneWidget);
       // 选中标签芯片自带关闭图标，点击触发移除回调
-      final closeIcon = find.byIcon(Icons.close);
+      // 2026-08-27 跟随 7c0f755e：芯片删除图标改为 CupertinoIcons.xmark_circle_fill
+      final closeIcon = find.byIcon(CupertinoIcons.xmark_circle_fill);
       expect(closeIcon, findsWidgets);
       await tester.tap(closeIcon.first);
       await tester.pump();

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -79,14 +80,16 @@ void main() {
     expect(confirmText.style?.color, isNot(AppColors.iosRed));
   });
 
-  testWidgets('renders 2 TextButton actions (cancel + confirm)', (
+  // 2026-08-27 跟随 7c0f755e Material→Cupertino 迁移：
+  // 对话框为 CupertinoAlertDialog，动作按钮为 CupertinoButton。
+  testWidgets('renders 2 CupertinoButton actions (cancel + confirm)', (
     tester,
   ) async {
     await pumpHost(tester, isDestructive: false);
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(CupertinoAlertDialog), findsOneWidget);
     final actions = find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.byType(TextButton),
+      of: find.byType(CupertinoAlertDialog),
+      matching: find.byType(CupertinoButton),
     );
     expect(actions, findsNWidgets(2));
   });
@@ -96,7 +99,7 @@ void main() {
   ) async {
     await pumpHost(tester, isDestructive: false);
     final confirmText = tester.widget<Text>(find.text('OK'));
-    final ctx = tester.element(find.byType(AlertDialog));
+    final ctx = tester.element(find.byType(CupertinoAlertDialog));
     final expectedColor = Theme.of(ctx).colorScheme.primary;
     expect(confirmText.style?.color, expectedColor);
   });
@@ -109,14 +112,14 @@ void main() {
     // 用 navigator.maybePop() 模拟 barrierDismissible 路径：
     // showDialog 返回 null → helper 内部 `result ?? false` → false
     final navigator = Navigator.of(
-      tester.element(find.byType(AlertDialog)),
+      tester.element(find.byType(CupertinoAlertDialog)),
       rootNavigator: true,
     );
-    navigator.pop(); // pop 不带 result → showDialog 收到 null
+    navigator.pop(); // pop 不带 result → showCupertinoDialog 收到 null
     await tester.pumpAndSettle();
 
     expect(_lastResult, isFalse);
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(CupertinoAlertDialog), findsNothing);
   });
 
   testWidgets('default labels fall back to i18n buttonCancel/confirm '

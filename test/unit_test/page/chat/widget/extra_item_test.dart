@@ -39,7 +39,8 @@ void main() {
   testWidgets('点击 → 触发 onPressed 回调', (tester) async {
     var tapped = false;
     await pump(tester, title: '拍摄', onPressed: () => tapped = true);
-    await tester.tap(find.byType(InkWell));
+    // 2026-08-27 跟随 7c0f755e：入口由 InkWell 改为 GestureDetector
+    await tester.tap(find.byType(GestureDetector).first);
     await tester.pump();
     expect(tapped, isTrue);
   });

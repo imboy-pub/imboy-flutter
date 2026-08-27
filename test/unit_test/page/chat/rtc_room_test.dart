@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -112,15 +113,18 @@ void main() {
     );
   });
 
+  // 2026-08-27 跟随 7c0f755e Material→Cupertino 迁移：
+  // 控制栏图标为 CupertinoIcons（mic_fill/videocam_fill/arrow_2_circlepath/
+  // phone_down_fill），连接失败图标为 exclamationmark_circle。
   testWidgets('renders title and full control bar', (tester) async {
     await tester.pumpWidget(_buildPage());
     await tester.pump(); // post-frame connect
 
     expect(find.text('测试群'), findsOneWidget);
-    expect(find.byIcon(Icons.mic), findsOneWidget);
-    expect(find.byIcon(Icons.videocam), findsOneWidget);
-    expect(find.byIcon(Icons.cameraswitch), findsOneWidget);
-    expect(find.byIcon(Icons.call_end), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.mic_fill), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.videocam_fill), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.arrow_2_circlepath), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.phone_down_fill), findsOneWidget);
   });
 
   testWidgets('群通话初次连接失败时保留页面并提供重试', (tester) async {
@@ -128,7 +132,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('重试'), findsOneWidget);
-    expect(find.byIcon(Icons.wifi_off), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.exclamationmark_circle), findsOneWidget);
   });
 
   testWidgets('mic button toggles icon between mic and mic_off', (
@@ -137,31 +141,31 @@ void main() {
     await tester.pumpWidget(_buildPage());
     await tester.pump();
 
-    await tester.tap(find.byIcon(Icons.mic));
+    await tester.tap(find.byIcon(CupertinoIcons.mic_fill));
     await tester.pump();
-    expect(find.byIcon(Icons.mic_off), findsOneWidget);
-    expect(find.byIcon(Icons.mic), findsNothing);
+    expect(find.byIcon(CupertinoIcons.mic_slash), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.mic_fill), findsNothing);
 
-    await tester.tap(find.byIcon(Icons.mic_off));
+    await tester.tap(find.byIcon(CupertinoIcons.mic_slash));
     await tester.pump();
-    expect(find.byIcon(Icons.mic), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.mic_fill), findsOneWidget);
   });
 
   testWidgets('camera button toggles icon', (tester) async {
     await tester.pumpWidget(_buildPage());
     await tester.pump();
 
-    await tester.tap(find.byIcon(Icons.videocam));
+    await tester.tap(find.byIcon(CupertinoIcons.videocam_fill));
     await tester.pump();
-    expect(find.byIcon(Icons.videocam_off), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.video_camera), findsOneWidget);
   });
 
   testWidgets('speaker button toggles icon', (tester) async {
     await tester.pumpWidget(_buildPage());
     await tester.pump();
 
-    await tester.tap(find.byIcon(Icons.volume_up));
+    await tester.tap(find.byIcon(CupertinoIcons.volume_up));
     await tester.pump();
-    expect(find.byIcon(Icons.volume_off), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.volume_off), findsOneWidget);
   });
 }

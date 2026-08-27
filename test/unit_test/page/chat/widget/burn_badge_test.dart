@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,7 +18,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 ///   - burnAfterMs <= 0 → 显示 "阅后" 静态文案
 ///   - burnReadAtMs > 0 + burnAfterMs > 0 → AnimatedBuilder 显示倒计时秒数
 ///   - 已超时 (remainSec <= 0) → 显示 "0s"
-///   - 火苗图标 (Icons.local_fire_department) 必现
+///   - 火苗图标 (CupertinoIcons.flame) 必现
 ///   - iOS Red 配色（亮/暗模式自适应）
 Future<void> _pump(
   WidgetTester tester, {
@@ -87,7 +88,7 @@ void main() {
         burnTicker: const Stream.empty(),
       );
 
-      expect(find.byIcon(Icons.local_fire_department), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.flame), findsOneWidget);
     });
   });
 
@@ -107,10 +108,11 @@ void main() {
         burnTicker: controller.stream,
       );
 
-      // 倒计时模式：进度弧 CircularProgressIndicator 渲染
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // 2026-08-27 跟随 7c0f755e：进度弧由 CircularProgressIndicator 改为
+      // CupertinoActivityIndicator（阅读中状态双渲染之一）
+      expect(find.byType(CupertinoActivityIndicator), findsWidgets);
       // 倒计时模式下 fire icon 仍渲染
-      expect(find.byIcon(Icons.local_fire_department), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.flame), findsOneWidget);
       // 倒计时模式渲染秒数文本（\d+s）
       expect(
         find.byWidgetPredicate(
@@ -149,9 +151,7 @@ void main() {
         brightness: Brightness.light,
       );
 
-      final icon = tester.widget<Icon>(
-        find.byIcon(Icons.local_fire_department),
-      );
+      final icon = tester.widget<Icon>(find.byIcon(CupertinoIcons.flame));
       expect(icon.color, AppColors.iosRed);
       expect(icon.size, 8);
     });
@@ -166,9 +166,7 @@ void main() {
         brightness: Brightness.dark,
       );
 
-      final icon = tester.widget<Icon>(
-        find.byIcon(Icons.local_fire_department),
-      );
+      final icon = tester.widget<Icon>(find.byIcon(CupertinoIcons.flame));
       expect(icon.color, AppColors.iosRedDark);
     });
 
