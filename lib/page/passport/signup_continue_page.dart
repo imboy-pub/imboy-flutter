@@ -100,32 +100,35 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
     // 验证数据完整性
     if (_account.isEmpty || _accountType.isEmpty || _pwd.isEmpty) {
       return CupertinoPageScaffold(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                CupertinoIcons.exclamationmark_circle,
-                size: 64,
-                color: AppColors.iosRed,
-              ),
-              AppSpacing.verticalRegular,
-              Text(
-                t.common.unknown,
-                style: context.textStyle(
-                  FontSizeType.large,
-                  color: textPrimary,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 64,
+                  color: AppColors.iosRed,
                 ),
-              ),
-              AppSpacing.verticalRegular,
-              CupertinoButton(
-                onPressed: () {
-                  if (!context.mounted) return;
-                  context.go('/sign_up');
-                },
-                child: Text(t.common.buttonBack),
-              ),
-            ],
+                AppSpacing.verticalRegular,
+                Text(
+                  t.common.unknown,
+                  style: context.textStyle(
+                    FontSizeType.large,
+                    color: textPrimary,
+                  ),
+                ),
+                AppSpacing.verticalRegular,
+                CupertinoButton(
+                  onPressed: () {
+                    if (!context.mounted) return;
+                    context.go('/sign_up');
+                  },
+                  child: Text(t.common.buttonBack),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -325,13 +328,15 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                     delay: 1,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          t.main.tryAgainQ,
-                          style: TextStyle(
-                            color: textSecondary,
-                            letterSpacing: 0.5,
+                        Flexible(
+                          child: Text(
+                            t.main.tryAgainQ,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: textSecondary,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ),
                         GestureDetector(

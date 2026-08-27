@@ -195,6 +195,9 @@ class PassportNotifier extends _$PassportNotifier {
 
   /// 清除注册继续页面临时数据
   void clearSignupData() {
+    // 页面 dispose 可能晚于 provider 回收（riverpod 3 中 disposed 后连
+    // notifier.state 都不可写），此时清理已无意义，直接跳过。
+    if (!ref.mounted) return;
     state = state.copyWith(
       signupAccount: null,
       signupAccountType: null,
