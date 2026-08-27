@@ -2790,6 +2790,51 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get brandingPreview => 'Primary color preview';
 	@override String get brandingPreviewApplied => 'This primary color applies inside the workspace';
 	@override String get brandingPreviewFallback => 'Not set or invalid; using the default theme color';
+	@override String get projectsTitle => 'Projects';
+	@override String get projectCreateEntry => 'New project';
+	@override String get projectCreateTitle => 'Create Project';
+	@override String get projectNameLabel => 'Project name';
+	@override String get projectNameHint => 'e.g. Website revamp';
+	@override String get projectNameRequired => 'Project name is required';
+	@override String get projectDescLabel => 'Description (optional)';
+	@override String get projectDescHint => 'What does this project deliver?';
+	@override String get projectSubmit => 'Create';
+	@override String get projectCreateSuccess => 'Project created';
+	@override String get projectDetailTitle => 'Project Detail';
+	@override String get projectInfoSection => 'Basic Info';
+	@override String get projectOwnerLabel => 'Owner';
+	@override String get projectStatusLabel => 'Status';
+	@override String get projectStatusActive => 'Active';
+	@override String get projectStatusDone => 'Done';
+	@override String get projectMarkDone => 'Mark as done';
+	@override String get projectReopen => 'Reopen project';
+	@override String get projectStatusChanged => 'Project status updated';
+	@override String get projectTasksSection => 'Tasks';
+	@override String get taskNewEntry => 'New task';
+	@override String get taskFormCreateTitle => 'New Task';
+	@override String get taskFormEditTitle => 'Edit Task';
+	@override String get taskTitleLabel => 'Task title';
+	@override String get taskTitleRequired => 'Task title is required';
+	@override String get taskAssigneeLabel => 'Assignee (Workspace Member)';
+	@override String get taskAssigneeNone => 'Unassigned';
+	@override String get taskAssigneeRefresh => 'Refresh assignee candidates';
+	@override String get taskSubmitCreate => 'Create task';
+	@override String get taskSubmitSave => 'Save';
+	@override String get taskCreatedToast => 'Task created';
+	@override String get taskExistingToast => 'A task with the same title already exists; reusing it';
+	@override String get taskUpdatedToast => 'Task saved';
+	@override String get taskFilterAll => 'All';
+	@override String get taskStatusTodo => 'To do';
+	@override String get taskStatusDoing => 'Doing';
+	@override String get taskStatusReview => 'Review';
+	@override String get taskStatusDone => 'Done';
+	@override String taskAdvanceTo({required Object status}) => 'Advance to "${status}"';
+	@override String taskFallbackMenuTitle({required Object title}) => 'Move ${title} back to…';
+	@override String taskStatusMovedToast({required Object status}) => 'Moved to "${status}"';
+	@override String get taskEmptyTitle => 'No tasks yet';
+	@override String get taskEmptySubtitle => 'Track execution in four states: To do → Doing → Review → Done';
+	@override String get guestReadonlyHint => 'Guests have read-only access to workspace resources';
+	@override String get projectsLoadMore => 'Load more';
 }
 
 // Path: account.alipaySim
@@ -5308,6 +5353,51 @@ extension on TranslationsEnUs {
 			'workspace.brandingPreview' => 'Primary color preview',
 			'workspace.brandingPreviewApplied' => 'This primary color applies inside the workspace',
 			'workspace.brandingPreviewFallback' => 'Not set or invalid; using the default theme color',
+			'workspace.projectsTitle' => 'Projects',
+			'workspace.projectCreateEntry' => 'New project',
+			'workspace.projectCreateTitle' => 'Create Project',
+			'workspace.projectNameLabel' => 'Project name',
+			'workspace.projectNameHint' => 'e.g. Website revamp',
+			'workspace.projectNameRequired' => 'Project name is required',
+			'workspace.projectDescLabel' => 'Description (optional)',
+			'workspace.projectDescHint' => 'What does this project deliver?',
+			'workspace.projectSubmit' => 'Create',
+			'workspace.projectCreateSuccess' => 'Project created',
+			'workspace.projectDetailTitle' => 'Project Detail',
+			'workspace.projectInfoSection' => 'Basic Info',
+			'workspace.projectOwnerLabel' => 'Owner',
+			'workspace.projectStatusLabel' => 'Status',
+			'workspace.projectStatusActive' => 'Active',
+			'workspace.projectStatusDone' => 'Done',
+			'workspace.projectMarkDone' => 'Mark as done',
+			'workspace.projectReopen' => 'Reopen project',
+			'workspace.projectStatusChanged' => 'Project status updated',
+			'workspace.projectTasksSection' => 'Tasks',
+			'workspace.taskNewEntry' => 'New task',
+			'workspace.taskFormCreateTitle' => 'New Task',
+			'workspace.taskFormEditTitle' => 'Edit Task',
+			'workspace.taskTitleLabel' => 'Task title',
+			'workspace.taskTitleRequired' => 'Task title is required',
+			'workspace.taskAssigneeLabel' => 'Assignee (Workspace Member)',
+			'workspace.taskAssigneeNone' => 'Unassigned',
+			'workspace.taskAssigneeRefresh' => 'Refresh assignee candidates',
+			'workspace.taskSubmitCreate' => 'Create task',
+			'workspace.taskSubmitSave' => 'Save',
+			'workspace.taskCreatedToast' => 'Task created',
+			'workspace.taskExistingToast' => 'A task with the same title already exists; reusing it',
+			'workspace.taskUpdatedToast' => 'Task saved',
+			'workspace.taskFilterAll' => 'All',
+			'workspace.taskStatusTodo' => 'To do',
+			'workspace.taskStatusDoing' => 'Doing',
+			'workspace.taskStatusReview' => 'Review',
+			'workspace.taskStatusDone' => 'Done',
+			'workspace.taskAdvanceTo' => ({required Object status}) => 'Advance to "${status}"',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Move ${title} back to…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Moved to "${status}"',
+			'workspace.taskEmptyTitle' => 'No tasks yet',
+			'workspace.taskEmptySubtitle' => 'Track execution in four states: To do → Doing → Review → Done',
+			'workspace.guestReadonlyHint' => 'Guests have read-only access to workspace resources',
+			'workspace.projectsLoadMore' => 'Load more',
 			_ => null,
 		};
 	}

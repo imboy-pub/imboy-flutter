@@ -35,6 +35,65 @@ List<RouteBase> workspaceRoutes() => [
           child: const WorkspaceCreatePage(),
         ),
       ),
+      // ==================== Project（WP6 T10a/T10b） ====================
+      // 静态 /projects/create 先于动态 /projects/:projectId 注册
+      GoRoute(
+        path: '/:workspaceId/projects/create',
+        name: 'workspace_project_create',
+        pageBuilder: (context, state) {
+          final wsId = state.pathParameters['workspaceId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: ProjectCreatePage(workspaceId: wsId),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/:workspaceId/projects/:projectId',
+        name: 'workspace_project_detail',
+        pageBuilder: (context, state) {
+          final wsId = state.pathParameters['workspaceId'] ?? '';
+          final projectId = state.pathParameters['projectId'] ?? '';
+          return CupertinoPage(
+            key: state.pageKey,
+            child: ProjectDetailPage(projectId: projectId, workspaceId: wsId),
+          );
+        },
+        routes: [
+          // 任务创建（T10b）：/workspace/:wsId/projects/:projectId/tasks/new
+          GoRoute(
+            path: 'tasks/new',
+            name: 'workspace_task_create',
+            pageBuilder: (context, state) {
+              final wsId = state.pathParameters['workspaceId'] ?? '';
+              final projectId = state.pathParameters['projectId'] ?? '';
+              return CupertinoPage(
+                key: state.pageKey,
+                child: TaskFormPage(projectId: projectId, workspaceId: wsId),
+              );
+            },
+          ),
+          // 任务编辑：…/tasks/:taskId/edit
+          // （表单页按 taskId 内部经 projectTaskDetailProvider 加载既有行）
+          GoRoute(
+            path: 'tasks/:taskId/edit',
+            name: 'workspace_task_edit',
+            pageBuilder: (context, state) {
+              final wsId = state.pathParameters['workspaceId'] ?? '';
+              final projectId = state.pathParameters['projectId'] ?? '';
+              final taskId = state.pathParameters['taskId'] ?? '';
+              return CupertinoPage(
+                key: state.pageKey,
+                child: TaskFormPage(
+                  projectId: projectId,
+                  workspaceId: wsId,
+                  taskId: taskId,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       GoRoute(
         path: '/:workspaceId/channels/:channelId',
         name: 'workspace_channel_detail',

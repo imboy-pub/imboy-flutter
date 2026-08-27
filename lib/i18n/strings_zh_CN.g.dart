@@ -8170,6 +8170,141 @@ class Translations$workspace$zh_CN {
 
 	/// zh-CN: '未设置或非法值，使用默认主题色'
 	String get brandingPreviewFallback => '未设置或非法值，使用默认主题色';
+
+	/// zh-CN: '项目'
+	String get projectsTitle => '项目';
+
+	/// zh-CN: '新建项目'
+	String get projectCreateEntry => '新建项目';
+
+	/// zh-CN: '新建项目'
+	String get projectCreateTitle => '新建项目';
+
+	/// zh-CN: '项目名称'
+	String get projectNameLabel => '项目名称';
+
+	/// zh-CN: '例如：官网改版'
+	String get projectNameHint => '例如：官网改版';
+
+	/// zh-CN: '项目名称不能为空'
+	String get projectNameRequired => '项目名称不能为空';
+
+	/// zh-CN: '项目描述（可选）'
+	String get projectDescLabel => '项目描述（可选）';
+
+	/// zh-CN: '这个项目要交付什么？'
+	String get projectDescHint => '这个项目要交付什么？';
+
+	/// zh-CN: '创建'
+	String get projectSubmit => '创建';
+
+	/// zh-CN: '项目创建成功'
+	String get projectCreateSuccess => '项目创建成功';
+
+	/// zh-CN: '项目详情'
+	String get projectDetailTitle => '项目详情';
+
+	/// zh-CN: '基本信息'
+	String get projectInfoSection => '基本信息';
+
+	/// zh-CN: '负责人'
+	String get projectOwnerLabel => '负责人';
+
+	/// zh-CN: '状态'
+	String get projectStatusLabel => '状态';
+
+	/// zh-CN: '进行中'
+	String get projectStatusActive => '进行中';
+
+	/// zh-CN: '已完成'
+	String get projectStatusDone => '已完成';
+
+	/// zh-CN: '标记为已完成'
+	String get projectMarkDone => '标记为已完成';
+
+	/// zh-CN: '重新开启项目'
+	String get projectReopen => '重新开启项目';
+
+	/// zh-CN: '项目状态已更新'
+	String get projectStatusChanged => '项目状态已更新';
+
+	/// zh-CN: '任务'
+	String get projectTasksSection => '任务';
+
+	/// zh-CN: '新建任务'
+	String get taskNewEntry => '新建任务';
+
+	/// zh-CN: '新建任务'
+	String get taskFormCreateTitle => '新建任务';
+
+	/// zh-CN: '编辑任务'
+	String get taskFormEditTitle => '编辑任务';
+
+	/// zh-CN: '任务标题'
+	String get taskTitleLabel => '任务标题';
+
+	/// zh-CN: '任务标题不能为空'
+	String get taskTitleRequired => '任务标题不能为空';
+
+	/// zh-CN: '负责人（工作区成员）'
+	String get taskAssigneeLabel => '负责人（工作区成员）';
+
+	/// zh-CN: '暂不指派'
+	String get taskAssigneeNone => '暂不指派';
+
+	/// zh-CN: '刷新负责人候选'
+	String get taskAssigneeRefresh => '刷新负责人候选';
+
+	/// zh-CN: '创建任务'
+	String get taskSubmitCreate => '创建任务';
+
+	/// zh-CN: '保存'
+	String get taskSubmitSave => '保存';
+
+	/// zh-CN: '任务已创建'
+	String get taskCreatedToast => '任务已创建';
+
+	/// zh-CN: '相同标题的任务已存在，直接使用既有任务'
+	String get taskExistingToast => '相同标题的任务已存在，直接使用既有任务';
+
+	/// zh-CN: '任务已保存'
+	String get taskUpdatedToast => '任务已保存';
+
+	/// zh-CN: '全部'
+	String get taskFilterAll => '全部';
+
+	/// zh-CN: '待办'
+	String get taskStatusTodo => '待办';
+
+	/// zh-CN: '进行中'
+	String get taskStatusDoing => '进行中';
+
+	/// zh-CN: '评审中'
+	String get taskStatusReview => '评审中';
+
+	/// zh-CN: '已完成'
+	String get taskStatusDone => '已完成';
+
+	/// zh-CN: '推进到「$status」'
+	String taskAdvanceTo({required Object status}) => '推进到「${status}」';
+
+	/// zh-CN: '回退 $title 到…'
+	String taskFallbackMenuTitle({required Object title}) => '回退 ${title} 到…';
+
+	/// zh-CN: '已流转到「$status」'
+	String taskStatusMovedToast({required Object status}) => '已流转到「${status}」';
+
+	/// zh-CN: '还没有任务'
+	String get taskEmptyTitle => '还没有任务';
+
+	/// zh-CN: '用四态跟踪执行：待办 → 进行中 → 评审中 → 已完成'
+	String get taskEmptySubtitle => '用四态跟踪执行：待办 → 进行中 → 评审中 → 已完成';
+
+	/// zh-CN: '访客（Guest）身份对工作区资源只读'
+	String get guestReadonlyHint => '访客（Guest）身份对工作区资源只读';
+
+	/// zh-CN: '加载更多'
+	String get projectsLoadMore => '加载更多';
 }
 
 // Path: account.alipaySim
@@ -10853,6 +10988,51 @@ extension on Translations {
 			'workspace.brandingPreview' => '主色预览',
 			'workspace.brandingPreviewApplied' => '当前主色将在工作区内生效',
 			'workspace.brandingPreviewFallback' => '未设置或非法值，使用默认主题色',
+			'workspace.projectsTitle' => '项目',
+			'workspace.projectCreateEntry' => '新建项目',
+			'workspace.projectCreateTitle' => '新建项目',
+			'workspace.projectNameLabel' => '项目名称',
+			'workspace.projectNameHint' => '例如：官网改版',
+			'workspace.projectNameRequired' => '项目名称不能为空',
+			'workspace.projectDescLabel' => '项目描述（可选）',
+			'workspace.projectDescHint' => '这个项目要交付什么？',
+			'workspace.projectSubmit' => '创建',
+			'workspace.projectCreateSuccess' => '项目创建成功',
+			'workspace.projectDetailTitle' => '项目详情',
+			'workspace.projectInfoSection' => '基本信息',
+			'workspace.projectOwnerLabel' => '负责人',
+			'workspace.projectStatusLabel' => '状态',
+			'workspace.projectStatusActive' => '进行中',
+			'workspace.projectStatusDone' => '已完成',
+			'workspace.projectMarkDone' => '标记为已完成',
+			'workspace.projectReopen' => '重新开启项目',
+			'workspace.projectStatusChanged' => '项目状态已更新',
+			'workspace.projectTasksSection' => '任务',
+			'workspace.taskNewEntry' => '新建任务',
+			'workspace.taskFormCreateTitle' => '新建任务',
+			'workspace.taskFormEditTitle' => '编辑任务',
+			'workspace.taskTitleLabel' => '任务标题',
+			'workspace.taskTitleRequired' => '任务标题不能为空',
+			'workspace.taskAssigneeLabel' => '负责人（工作区成员）',
+			'workspace.taskAssigneeNone' => '暂不指派',
+			'workspace.taskAssigneeRefresh' => '刷新负责人候选',
+			'workspace.taskSubmitCreate' => '创建任务',
+			'workspace.taskSubmitSave' => '保存',
+			'workspace.taskCreatedToast' => '任务已创建',
+			'workspace.taskExistingToast' => '相同标题的任务已存在，直接使用既有任务',
+			'workspace.taskUpdatedToast' => '任务已保存',
+			'workspace.taskFilterAll' => '全部',
+			'workspace.taskStatusTodo' => '待办',
+			'workspace.taskStatusDoing' => '进行中',
+			'workspace.taskStatusReview' => '评审中',
+			'workspace.taskStatusDone' => '已完成',
+			'workspace.taskAdvanceTo' => ({required Object status}) => '推进到「${status}」',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 到…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流转到「${status}」',
+			'workspace.taskEmptyTitle' => '还没有任务',
+			'workspace.taskEmptySubtitle' => '用四态跟踪执行：待办 → 进行中 → 评审中 → 已完成',
+			'workspace.guestReadonlyHint' => '访客（Guest）身份对工作区资源只读',
+			'workspace.projectsLoadMore' => '加载更多',
 			_ => null,
 		};
 	}

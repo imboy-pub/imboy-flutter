@@ -45,7 +45,7 @@ final class ApplyFriendNotifierProvider
 }
 
 String _$applyFriendNotifierHash() =>
-    r'8c4c28858c5f0ae0972703c6831838349ecde28d';
+    r'4faf15e469709bf46dd341a41c29872c1b1e0c57';
 
 /// 申请好友 Notifier
 
