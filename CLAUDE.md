@@ -36,7 +36,7 @@
 | 框架 | Flutter / Dart 3.8+ |
 | 状态管理 | Riverpod（100% 迁移完成，0 GetX） |
 | 路由 | go_router |
-| 本地数据库 | SQLite (sqflite 2.4+)，当前 schema v30 |
+| 本地数据库 | SQLite (sqflite 2.4+ + SQLCipher)，当前 schema v31（manifest 单一真源） |
 | 网络 | Dio 5.10 |
 | 实时通讯 | WebSocket + WebRTC |
 | 国际化 | slang ^4.18.0，默认语言 zh-CN |
@@ -98,7 +98,12 @@ scripts/           # 构建/测试脚本
 
 ### SQLite 版本
 
-当前 `_dbVersion = 30`（以 `lib/service/sqlite.dart` 为准）。历史：v21 修复 `moment_notify` dedup 索引（`COALESCE(comment_id, '')`）。
+当前 `_dbVersion = 31`（以 `lib/service/sqlite.dart` 为准；v31 = 频道访问模型
+三字段）。**迁移唯一真源是 `lib/service/migrations/manifest_all.dart` 的类型化
+清单**（2026-08-27 起）：assets/migrations/*.sql 与 embedded 常量都是生成物，
+改迁移必须改 manifest 后跑 `dart run tool/generate_sqlite_migrations.dart
+--check`；统一测试门 `bash scripts/run_sqlite_migration_gate.sh --local`。
+历史：v21 修复 `moment_notify` dedup 索引（`COALESCE(comment_id, '')`）。
 
 ---
 

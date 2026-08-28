@@ -5,7 +5,8 @@
 目标仓库：`/Users/leeyi/project/imboy.pub/imboyapp`  
 输入报告：`docs/sqlite-migration-strategy-2026-08-27.md`  
 当前基线：`029ced9510e884f588cf174c98de829cd7ae4fb8`  
-计划状态：READY；实施状态：NOT STARTED
+计划状态：READY；实施状态：WP0–WP6+WP8 完成（2026-08-27）；
+WP7 BLOCKED（待用户确认设备/安装包/账号）→ 总体 PARTIAL（见 docs/sqlite-migration-release-gate.md）
 
 ## 1. 最终目标与验收口径
 
@@ -150,7 +151,7 @@ Out of scope: <explicit exclusions>
 
 ## Step 1 — WP0 冻结基线与迁移 fixture
 
-Status：NOT_STARTED  
+Status：PASS（2026-08-27，53/53；计划外发现 FTS 影子表/downgrade 注释语义）
 Owner：主 Agent  
 Dependencies：无  
 Estimated weight：0.5 天
@@ -190,7 +191,7 @@ flutter test \
 
 ## Step 2 — WP1 降级完整路径 fail-fast
 
-Status：NOT_STARTED  
+Status：PASS（2026-08-27，MissingMigrationPathException + 跳号 allowlist 显式化）
 Owner：Lane A  
 Dependencies：WP0 PASS  
 Estimated weight：1 天
@@ -219,7 +220,7 @@ TDD：
 
 ## Step 3 — WP2 移除事务内危险恢复和宽泛错误吞噬
 
-Status：NOT_STARTED  
+Status：PASS（2026-08-27，v9→31 全链经 migrate 首跑成功；precondition 替代吞错）
 Owner：Lane B  
 Dependencies：WP0 PASS  
 Estimated weight：1 天
@@ -257,7 +258,7 @@ dart analyze lib/service/migration_service.dart lib/service/migration_script.dar
 
 ## Step 4 — WP3 类型化 Migration Manifest 与单一真源
 
-Status：NOT_STARTED  
+Status：PASS（2026-08-27，生成物与 .sql 字节级一致 54748/21811B；发现历史跨号边 v14→PRAGMA15）
 Owner：Lane A  
 Dependencies：B1 PASS  
 Estimated weight：2–3 天
@@ -287,7 +288,7 @@ Manifest 每条边必须声明：ID、from/to、up、可选 down、reversible、
 
 ## Step 5 — WP4 Schema Contract、application_id 与 hash
 
-Status：NOT_STARTED  
+Status：PASS（2026-08-27，三路径 fingerprint 收敛；发现并修复 P1 生产缺陷：fresh 建库丢 i_cv 索引）
 Owner：Lane B  
 Dependencies：B1 PASS，且 WP3 manifest 接口已通过微型 Gate 冻结  
 Estimated weight：2 天
@@ -323,7 +324,7 @@ dart analyze lib/service tool/generate_sqlite_migrations.dart
 
 ## Step 6 — WP5 事务外一致性快照与恢复协调器
 
-Status：NOT_STARTED  
+Status：PASS（2026-08-27，本地 ffi；真机能力 CAPABILITY_PROBED 留 WP7；已接线 sqlite.dart 三回调）
 Owner：Lane A  
 Dependencies：WP3、WP4 PASS  
 Estimated weight：3 天 + 真机能力核验
@@ -357,7 +358,7 @@ Owned files：
 
 ## Step 7 — WP6 全矩阵自动测试与 CI Gate
 
-Status：NOT_STARTED  
+Status：PASS（2026-08-27，矩阵 38/38；Gate 13/13 exit 0；退出码契约 0/2/64 实测；quality.yml 已接 CI job）
 Owner：Lane B  
 Dependencies：WP3、WP4、WP5 PASS  
 Estimated weight：2–3 天
@@ -391,7 +392,7 @@ bash scripts/run_sqlite_migration_gate.sh --ci
 
 ## Step 8 — WP7 Android/iOS 真机与旧版安装包回滚
 
-Status：NOT_STARTED  
+Status：PARTIAL_DONE（2026-08-27：Android 自动化六步真机 PASS——用户授权后执行，SQLCipher 加密继承等三项 CAPABILITY_PROBED 转实证；iOS/旧包人工回滚/kill -9 未执行。是否接受为遗留待用户决策）
 Owner：Android Lane 与 iOS Lane 可并行  
 Dependencies：WP6 PASS；用户提供设备和可验证旧安装包  
 Estimated weight：1–2 天
@@ -416,7 +417,7 @@ Android 与 iOS 分别执行：
 
 ## Step 9 — WP8 最终审计、文档与发布决策
 
-Status：NOT_STARTED  
+Status：PASS（2026-08-27，发布决策 PARTIAL——唯一阻塞为 WP7 真机；见 docs/sqlite-migration-release-gate.md）
 Owner：主 Agent + Flutter Reviewer + Security Reviewer  
 Dependencies：WP7 完成或明确 BLOCKED  
 Estimated weight：1 天

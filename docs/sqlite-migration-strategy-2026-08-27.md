@@ -193,3 +193,29 @@ flutter test <8 个迁移相关测试文件> --reporter expanded
 ## 8. 方法与来源
 
 研究拆分为现状链路、失败/数据风险、官方标准、IMBoy 落地四个问题。读取并交叉核对了当前仓库迁移服务、规划器、升级/降级 SQL、内嵌脚本和相关测试；使用 SQLite、sqflite、Android Room 一手官方资料。Firecrawl/Exa 在当前环境未配置，因此网络研究使用公开检索回退；结论没有依赖博客或二手论坛内容。
+
+
+---
+
+## 9. 实施结果（2026-08-27 追加，WP8）
+
+本方案已于 2026-08-27 按实施计划（docs/sqlite-migration-implementation-plan-2026-08-27.md）
+落地 WP0–WP6 + WP8；WP7 真机验收 BLOCKED 待用户输入。**发布决策：PARTIAL**
+（详见 docs/sqlite-migration-release-gate.md）。
+
+### 研究结论与实测的对账
+
+| 研究预判 | 实测结果 |
+|---|---|
+| P0 降级缺块静默成功 | 已修复：MissingMigrationPathException fail-fast；4 条缺边实测拒绝 |
+| P0 事务内复制/覆盖主库 | 已修复：快照/恢复全部移出事务（VACUUM INTO + 协调器），迁移失败只靠 sqflite 回滚 |
+| P1 duplicate-column 吞错 | 已修复：显式 ADD COLUMN precondition；v11/v12 历史重复 ALTER 由 precondition 承接 |
+| P1 双真源 | 已修复：manifest 单一真源，.sql/embedded 均为生成物（字节级 --check 守护） |
+| P1 两条建库路径分叉 | **实证并修复**：fresh 路径因注释解析 bug 丢 i_cv_UserId_IsShow_LastTime 索引（P1 生产缺陷）；修复后三路径 fingerprint 收敛（f6d4a55a…） |
+| 只验证四张消息表 | 已扩展：声明式 invariant + golden contract（v9/v16/v25/v30/v31）+ _imboy_schema_meta |
+
+### 研究未预判的发现
+
+- 历史跨号边：upgrade VERSION:14 块的 PRAGMA 为 15（v14/v15 无 schema 差异，
+  v15 跳号的真正来源）——manifest 以 from=13/to=15/blockLabel=14 显式建模。
+- downgrade.sql 头部注释的语义描述与实际块语义相反（已钉死为 VERSION:N = N→N-1）。

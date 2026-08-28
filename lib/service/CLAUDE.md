@@ -18,7 +18,11 @@
 | `websocket_message_queue.dart` | WS 离线队列 | 仅兜底**未被** MessageRetry 跟踪的报文（B×D 去重见 `shouldEnqueueOffline`） |
 | `sqlite.dart` | SQLite（v9, WAL, 64MB缓存） | synchronized并发控制 |
 | `cached_sqlite_service.dart` | SQLite 查询缓存 | - |
-| `migration_service.dart` | 数据库迁移（含快照备份） | upgrade/downgrade.sql |
+| `migration_service.dart` | 数据库迁移执行（事务内、失败回滚） | 从 manifest 构造脚本；快照/恢复在事务外（见下） |
+| `migration_manifest.dart` + `migrations/` | **迁移唯一真源**（类型化边：SQL/reversible/dataLoss/affectedObjects） | .sql 与 embedded 常量均为生成物（tool/generate_sqlite_migrations.dart --check 守护） |
+| `database_snapshot_service.dart` | 事务外一致性快照（VACUUM INTO、原子落位、env+uid 隔离、恢复） | 恢复需先关全部连接 |
+| `database_migration_orchestrator.dart` | 迁移协调器（预检 fail-closed → 快照 → 迁移后验证+meta） | sqlite.dart 打开前/三版本回调接线 |
+| `schema_fingerprint.dart` / `schema_contract.dart` | schema 指纹（SHA-256）、golden contract、关键 invariant、_imboy_schema_meta、application_id | 启动/迁移后错配检测 |
 | `storage.dart` | 键值对存储 | shared_preferences |
 | `storage_secure.dart` | 安全存储 | flutter_secure_storage |
 | `secure_token_storage_service.dart` | Token 存储 | - |
