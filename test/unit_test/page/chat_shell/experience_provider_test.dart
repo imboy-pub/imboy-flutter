@@ -22,6 +22,7 @@ void main() {
   setUp(() async {
     // 每个用例从「无缓存」状态出发（离线首启等价态）
     await StorageService.to.remove(Keys.effectiveProductExperience);
+    await StorageService.to.remove(Keys.localProductExperience);
   });
 
   group('parseProductExperience — fail-safe 解析', () {
@@ -191,6 +192,38 @@ void main() {
       expect(
         container2.read(productExperienceProvider),
         ProductExperience.workspace,
+      );
+    });
+
+    test('用户本机选择优先于服务端默认值，并在新的 ProviderContainer 中保留', () async {
+      await StorageService.to.setString(
+        Keys.effectiveProductExperience,
+        ProductExperience.workspace.wireName,
+      );
+      final container1 = ProviderContainer();
+      addTearDown(container1.dispose);
+      expect(
+        container1.read(productExperienceProvider),
+        ProductExperience.workspace,
+      );
+
+      await container1
+          .read(productExperienceProvider.notifier)
+          .select(ProductExperience.chat);
+      expect(
+        container1.read(productExperienceProvider),
+        ProductExperience.chat,
+      );
+      expect(
+        StorageService.to.getString(Keys.localProductExperience),
+        ProductExperience.chat.wireName,
+      );
+
+      final container2 = ProviderContainer();
+      addTearDown(container2.dispose);
+      expect(
+        container2.read(productExperienceProvider),
+        ProductExperience.chat,
       );
     });
   });

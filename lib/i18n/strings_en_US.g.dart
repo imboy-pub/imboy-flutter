@@ -2720,6 +2720,10 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => 'Archived';
 	@override String get emptyNoWorkspace => 'Select or create a workspace first';
 	@override String get dmEntry => 'Direct messages';
+	@override String get experienceModeEntry => 'Work mode';
+	@override String get experienceModeHint => 'Only changes this device\'s home screen; workspace membership and resource permissions stay the same';
+	@override String get experienceModePersonal => 'Personal';
+	@override String get experienceModeWorkspace => 'Workspace';
 	@override String get createTitle => 'Create Workspace';
 	@override String get createDesc => 'One shot creates: the workspace, you as Owner (Workspace Member), an Announcements channel and a General group. All or nothing.';
 	@override String get createNameLabel => 'Workspace name';
@@ -5294,6 +5298,10 @@ extension on TranslationsEnUs {
 			'workspace.archivedBadge' => 'Archived',
 			'workspace.emptyNoWorkspace' => 'Select or create a workspace first',
 			'workspace.dmEntry' => 'Direct messages',
+			'workspace.experienceModeEntry' => 'Work mode',
+			'workspace.experienceModeHint' => 'Only changes this device\'s home screen; workspace membership and resource permissions stay the same',
+			'workspace.experienceModePersonal' => 'Personal',
+			'workspace.experienceModeWorkspace' => 'Workspace',
 			'workspace.createTitle' => 'Create Workspace',
 			'workspace.createDesc' => 'One shot creates: the workspace, you as Owner (Workspace Member), an Announcements channel and a General group. All or nothing.',
 			'workspace.createNameLabel' => 'Workspace name',

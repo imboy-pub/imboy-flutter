@@ -6,7 +6,8 @@
 /// 服务端安装级 IMBOY_PRODUCT_EXPERIENCE
 ///   → /api/v1/init 下发 { effective_product_experience, config_version }
 ///   → initConfig（config/init.dart）解密后写入 StorageService 缓存
-///   → 本 provider 读取缓存
+///   → 本 provider 读取缓存作为默认值
+///   → 用户在「设置 → 工作模式」选择时，以本机偏好覆盖默认值
 ///   → 路由与壳（ChatShellBootstrap）只消费该值
 /// ```
 ///
@@ -14,9 +15,9 @@
 /// - 字段缺失（T1 未就绪 / 旧后端）、值为空、未知值、离线无缓存
 ///   → 一律按 [ProductExperience.chat] 渲染；
 /// - 旧客户端继续按 chat；
-/// - 切换语义为安装级：修改服务端配置 + 受控重启后 `config_version` 变化，
-///   客户端下次启动时 initConfig 覆盖缓存，本 provider 随新 ProviderContainer
-///   生效（App 生命周期内该值视为不变，不做运行时热切换）。
+/// - 未选择本机偏好时，服务端安装级配置仍是默认值；
+/// - 本机偏好仅决定当前设备的首页壳，绝不改变 Workspace Member、Group
+///   Member、Channel Subscriber 等权限边界。
 ///
 /// 镜像 `config/env.dart` `publicBaseUrl` 的「服务端下发 → StorageService
 /// 缓存 → 内置默认回落」三段式。
@@ -73,8 +74,7 @@ ProductExperience resolveProductExperienceFromPayload(
   return parseProductExperience(raw is String ? raw : null);
 }
 
-/// 同步读取 StorageService 缓存的 experience（服务端优先 + 本地缓存 +
-/// 离线回落 chat）。
+/// 同步读取 StorageService 缓存的服务端默认 experience（离线回落 chat）。
 ///
 /// 缓存由 initConfig 在每次启动拉取 /api/v1/init 后覆盖写入；离线无缓存
 /// 时 getString 返回空串 → [parseProductExperience] 降级 chat。
@@ -84,9 +84,46 @@ ProductExperience readCachedProductExperience() {
   );
 }
 
-/// 当前生效的产品体验（App 生命周期内不变，安装级配置）。
+/// 读取用户在当前设备主动选择的体验；无有效选择返回 null。
+ProductExperience? readLocalProductExperience() {
+  final raw = StorageService.to.getString(Keys.localProductExperience);
+  for (final experience in ProductExperience.values) {
+    if (raw == experience.wireName) return experience;
+  }
+  return null;
+}
+
+/// 当前生效体验：用户本机选择优先，未选择时回落服务端默认值。
+ProductExperience resolveCurrentProductExperience() {
+  return readLocalProductExperience() ?? readCachedProductExperience();
+}
+
+/// 当前生效的产品体验。
 ///
-/// 消费方：ChatShellBootstrap（experience=chat → ChatShell）。路由与
-/// Provider 只消费该值，不得自行读取原始字符串（唯一真相源收敛）。
-final Provider<ProductExperience> productExperienceProvider =
-    Provider<ProductExperience>((ref) => readCachedProductExperience());
+/// 消费方：ChatShellBootstrap（experience=chat → ChatShell）。本 Provider
+/// 是唯一可写入口，确保「设置」页选择后立即切壳并持久化到当前设备。
+class ProductExperienceNotifier extends Notifier<ProductExperience> {
+  @override
+  ProductExperience build() => resolveCurrentProductExperience();
+
+  /// 选择当前设备的首页体验；写入失败时恢复先前状态，避免界面与持久化不一致。
+  Future<void> select(ProductExperience experience) async {
+    if (experience == state) return;
+    final previous = state;
+    state = experience;
+    try {
+      await StorageService.to.setString(
+        Keys.localProductExperience,
+        experience.wireName,
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
+  }
+}
+
+final productExperienceProvider =
+    NotifierProvider<ProductExperienceNotifier, ProductExperience>(
+      ProductExperienceNotifier.new,
+    );

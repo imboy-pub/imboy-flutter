@@ -12,6 +12,11 @@ pickerEmptySubtitle: "创建一个工作区，3 分钟开启团队协作（自�
 archivedBadge: "已归档"
 emptyNoWorkspace: "请先选择或创建一个工作区"
 dmEntry: "私信（全局）"
+# ==================== 个人 / 工作区体验切换 ====================
+experienceModeEntry: "工作模式"
+experienceModeHint: "仅切换当前设备的首页，不改变工作区成员或资源权限"
+experienceModePersonal: "个人"
+experienceModeWorkspace: "工作区"
 # ==================== 创建流（3 分钟建站） ====================
 createTitle: "创建工作区"
 createDesc: "一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。"

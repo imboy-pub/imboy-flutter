@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/page/single/markdown_page.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
@@ -115,6 +116,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final userRepo = ref.watch(userRepoProvider);
     final themeState = ref.watch(themeProvider);
     final brightness = Theme.of(context).brightness;
+    final experience = ref.watch(productExperienceProvider);
 
     return IosPageTemplate(
       title: t.main.setting,
@@ -153,6 +155,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   themeState.fontSizeOption.localizedName,
                 ),
                 onTap: () => context.push('/font_size'),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.workspace.experienceModeEntry),
+                subtitle: Text(t.workspace.experienceModeHint),
+                leading: _buildIcon(
+                  CupertinoIcons.rectangle_3_offgrid,
+                  AppColors.iosBlue,
+                ),
+                trailing: _buildValueTrailing(_experienceModeLabel(experience)),
+                onTap: () => _selectExperienceMode(experience),
               ),
             ],
           ),
@@ -318,6 +330,50 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       ),
       child: Icon(icon, color: AppColors.onPrimary, size: 20),
     );
+  }
+
+  String _experienceModeLabel(ProductExperience experience) {
+    return switch (experience) {
+      ProductExperience.chat => t.workspace.experienceModePersonal,
+      ProductExperience.workspace => t.workspace.experienceModeWorkspace,
+    };
+  }
+
+  Future<void> _selectExperienceMode(ProductExperience current) async {
+    final selected = await showCupertinoModalPopup<ProductExperience>(
+      context: context,
+      builder: (sheetContext) => CupertinoActionSheet(
+        title: Text(t.workspace.experienceModeEntry),
+        message: Text(t.workspace.experienceModeHint),
+        actions: [
+          CupertinoActionSheetAction(
+            isDefaultAction: current == ProductExperience.chat,
+            onPressed: () =>
+                Navigator.pop(sheetContext, ProductExperience.chat),
+            child: Text(t.workspace.experienceModePersonal),
+          ),
+          CupertinoActionSheetAction(
+            isDefaultAction: current == ProductExperience.workspace,
+            onPressed: () =>
+                Navigator.pop(sheetContext, ProductExperience.workspace),
+            child: Text(t.workspace.experienceModeWorkspace),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(sheetContext),
+          child: Text(t.common.buttonCancel),
+        ),
+      ),
+    );
+    if (selected == null || selected == current) return;
+
+    try {
+      await ref.read(productExperienceProvider.notifier).select(selected);
+      if (!mounted) return;
+      context.go('/bottom_navigation');
+    } catch (_) {
+      if (mounted) AppLoading.showError(t.common.settingFailedPleaseTryAgain);
+    }
   }
 
   Widget _buildValueTrailing(String value) {

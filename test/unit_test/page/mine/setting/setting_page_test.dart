@@ -39,6 +39,10 @@ GoRouter _stubRouter() {
       GoRoute(path: '/language', builder: (_, _) => stub('language stub')),
       GoRoute(path: '/dark_model', builder: (_, _) => stub('dark_model stub')),
       GoRoute(path: '/font_size', builder: (_, _) => stub('font_size stub')),
+      GoRoute(
+        path: '/bottom_navigation',
+        builder: (_, _) => stub('bottom_navigation stub'),
+      ),
     ],
   );
 }
@@ -120,7 +124,7 @@ void main() {
   });
 
   group('SettingPage menu items', () {
-    testWidgets('renders 通用 section 4 个菜单项 (账号安全/语言/深色模式/字体)', (tester) async {
+    testWidgets('renders 通用 section 5 个菜单项（含工作模式）', (tester) async {
       await _pumpSetting(tester);
 
       // 4 个 setting items 主标题
@@ -129,6 +133,7 @@ void main() {
       expect(find.text('深色模式'), findsOneWidget);
       // fontSettings = @:fontSizeSetting 别名 → 解析为 "字体大小设置"
       expect(find.byIcon(CupertinoIcons.textformat), findsOneWidget);
+      expect(find.text('工作模式'), findsOneWidget);
 
       await _unmount(tester);
     });
@@ -160,6 +165,25 @@ void main() {
   });
 
   group('SettingPage navigation', () {
+    testWidgets('选择工作区模式后回到首页并持久化本机偏好', (tester) async {
+      await StorageService.to.remove(Keys.localProductExperience);
+      await _pumpSetting(tester);
+
+      await tester.tap(find.text('工作模式'));
+      await tester.pumpAndSettle();
+      expect(find.text('个人'), findsAtLeastNWidgets(2));
+      expect(find.text('工作区'), findsOneWidget);
+
+      await tester.tap(find.text('工作区'));
+      await tester.pumpAndSettle();
+      expect(find.text('bottom_navigation stub'), findsOneWidget);
+      expect(
+        StorageService.to.getString(Keys.localProductExperience),
+        'workspace',
+      );
+      await _unmount(tester);
+    });
+
     testWidgets('tap "账号安全" → /account_security', (tester) async {
       await _pumpSetting(tester);
 

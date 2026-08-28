@@ -7961,6 +7961,18 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '私信（全局）'
 	String get dmEntry => '私信（全局）';
 
+	/// zh-CN: '工作模式'
+	String get experienceModeEntry => '工作模式';
+
+	/// zh-CN: '仅切换当前设备的首页，不改变工作区成员或资源权限'
+	String get experienceModeHint => '仅切换当前设备的首页，不改变工作区成员或资源权限';
+
+	/// zh-CN: '个人'
+	String get experienceModePersonal => '个人';
+
+	/// zh-CN: '工作区'
+	String get experienceModeWorkspace => '工作区';
+
 	/// zh-CN: '创建工作区'
 	String get createTitle => '创建工作区';
 
@@ -10949,14 +10961,18 @@ extension on Translations {
 			'workspace.archivedBadge' => '已归档',
 			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
 			'workspace.dmEntry' => '私信（全局）',
+			'workspace.experienceModeEntry' => '工作模式',
+			'workspace.experienceModeHint' => '仅切换当前设备的首页，不改变工作区成员或资源权限',
+			'workspace.experienceModePersonal' => '个人',
+			'workspace.experienceModeWorkspace' => '工作区',
 			'workspace.createTitle' => '创建工作区',
 			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createNameLabel' => '工作区名称',
 			'workspace.createNameHint' => '例如：官网改版项目组',
 			'workspace.createNameRequired' => '工作区名称不能为空',
 			'workspace.createSubmit' => '创建',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createEntry' => '创建工作区',
 			'workspace.createSuccess' => '工作区创建成功',
 			'workspace.createIdempotentHit' => '已存在同名工作区，直接进入',

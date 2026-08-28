@@ -22,6 +22,11 @@ class Keys {
   // 字段下发（T1）；缺失/未知值由消费方 experience_provider 降级 chat
   static const String effectiveProductExperience =
       "effective_product_experience";
+
+  /// 用户在当前设备主动选择的首页体验（chat|workspace）。
+  ///
+  /// 它只覆盖客户端首页入口，不会修改服务端安装级配置或任何资源权限。
+  static const String localProductExperience = "local_product_experience";
   static const String appFeatures = "app_features";
   static const String appManifest = "app_manifest";
   static const String appManifestEtag = "app_manifest_etag";
