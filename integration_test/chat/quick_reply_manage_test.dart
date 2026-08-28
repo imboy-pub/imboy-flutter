@@ -20,7 +20,8 @@ import '../flows/test_utils.dart'
         drainKnownFrameworkExceptions,
         autoLoginOrSkip,
         waitForEntryState,
-        isOnMainShell;
+        isOnMainShell,
+        takeScreenshot;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -128,8 +129,8 @@ void main() {
       // PUSH 快捷回复管理页，注入测试默认数据
       flowLog('进入快捷回复管理页 (isolated)');
       final testDefaults = ['Reply-A', 'Reply-B', 'Reply-C'];
-      nav.push(
-        MaterialPageRoute(
+      nav.push<void>(
+        MaterialPageRoute<void>(
           builder: (_) => QuickReplyManagePage(defaults: testDefaults),
         ),
       );
@@ -143,6 +144,7 @@ void main() {
       expect(find.text('Reply-A'), findsOneWidget);
       expect(find.text('Reply-B'), findsOneWidget);
       expect(find.text('Reply-C'), findsOneWidget);
+      await takeScreenshot(tester, 'quick_reply_01_defaults');
 
       // -------------------------------------------------------------
       // 2. 输入框最大长度限制生效

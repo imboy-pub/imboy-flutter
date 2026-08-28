@@ -18,10 +18,12 @@
 | Case | 风险 | 页面 | 执行器 | 截图检查点 | 视觉基线 | 高风险门禁 |
 |---|---|---|---|---|---|---|
 | `CHAT-PAGE-001` | P0 | 单聊消息展示、输入与发送状态 | `integration_test/e2e_chat_test.dart` | `c2c_01_chat_page`<br>`c2c_02_after_send` | 待真机采集 | 是 |
+| `CHAT-QUICK-REPLY-MANAGE-001` | P1 | 快捷回复管理列表与编辑控件 | `integration_test/chat/quick_reply_manage_test.dart` | `quick_reply_01_defaults` | 待真机采集 | 是 |
 | `CONVERSATION-LIST-001` | P0 | 会话列表、搜索与进入聊天 | `integration_test/chat/conversation_test.dart` | `conv_03_conversation_list`<br>`conv_search_typed` | 待真机采集 | 否 |
 | `E2EE-BACKUP-IMPORT-001` | P0 | E2EE 备份导入前置与危险操作门禁 | `integration_test/mine/mine_subpages_smoke_test.dart` | `e2ee_01_backup_import` | 待真机采集 | 是 |
 | `GROUP-SCHEDULE-001` | P0 | 群日程列表、创建入口与详情导航 | `integration_test/group/group_collaboration_readonly_test.dart` | `group_schedule_01_list` | 待真机采集 | 否 |
 | `PASSPORT-LOGIN-001` | P0 | 登录与主界面可见 | `integration_test/smoke/smoke_test.dart` | `smoke_01_main_shell` | 待真机采集 | 否 |
+| `PASSPORT-SIGNUP-001` | P0 | 注册页可达、表单布局与默认不提交门禁 | `integration_test/auth/register_flow_test.dart` | `reg_03_signup_page`<br>`reg_04_form_filled` | 待真机采集 | 否 |
 | `WALLET-TRANSFER-001` | P0 | 钱包余额、转账校验与确认界面 | `integration_test/wallet/wallet_readonly_test.dart` | `wallet_01_readonly` | 待真机采集 | 是 |
 
 ## 使用

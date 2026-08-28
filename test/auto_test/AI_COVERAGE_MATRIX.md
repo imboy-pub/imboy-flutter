@@ -8,8 +8,8 @@
 | 指标 | 数量 |
 |---|---:|
 | 页面台账总数 | 137 |
-| 已有关联规格的样板页 | 7 |
-| 待分级并补规格的页面 | 130 |
+| 已有关联规格的样板页 | 9 |
+| 待分级并补规格的页面 | 128 |
 | 源码映射缺失 | 0 |
 
 ## 页面队列
@@ -33,7 +33,7 @@
 | chat | [chat_page](chat/chat_page.md) | `lib/page/chat/chat/chat_page.dart` | 21 | 已有样板（需继续细化） | `CHAT-PAGE-001` |
 | chat | [chat_setting_page](chat/chat_setting_page.md) | `lib/page/chat/chat_setting/chat_setting_page.dart` | 10 | 待分级并补规格 | — |
 | chat | [p2p_call_screen_page](chat/p2p_call_screen_page.md) | `lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 12 | 待分级并补规格 | — |
-| chat | [quick_reply_manage_page](chat/quick_reply_manage_page.md) | `lib/page/chat/widget/quick_reply_manage_page.dart` | 11 | 待分级并补规格 | — |
+| chat | [quick_reply_manage_page](chat/quick_reply_manage_page.md) | `lib/page/chat/widget/quick_reply_manage_page.dart` | 11 | 已有样板（需继续细化） | `CHAT-QUICK-REPLY-MANAGE-001` |
 | chat | [rtc_room_page](chat/rtc_room_page.md) | `lib/page/chat/rtc_room/rtc_room_page.dart` | 12 | 待分级并补规格 | — |
 | chat | [send_to_page](chat/send_to_page.md) | `lib/page/chat/send_to/send_to_page.dart` | 10 | 待分级并补规格 | — |
 | contact | [add_friend_page](contact/add_friend_page.md) | `lib/page/contact/new_friend/add_friend_page.dart` | 9 | 待分级并补规格 | — |
@@ -112,7 +112,7 @@
 | passport | [login_page](passport/login_page.md) | `lib/page/passport/login_page.dart` | 12 | 已有样板（需继续细化） | `PASSPORT-LOGIN-001` |
 | passport | [manage_account_page](passport/manage_account_page.md) | `lib/page/passport/manage_account_page.dart` | 10 | 待分级并补规格 | — |
 | passport | [signup_continue_page](passport/signup_continue_page.md) | `lib/page/passport/signup_continue_page.dart` | 12 | 待分级并补规格 | — |
-| passport | [signup_page](passport/signup_page.md) | `lib/page/passport/signup_page.dart` | 12 | 待分级并补规格 | — |
+| passport | [signup_page](passport/signup_page.md) | `lib/page/passport/signup_page.dart` | 12 | 已有样板（需继续细化） | `PASSPORT-SIGNUP-001` |
 | passport | [web_login_page](passport/web_login_page.md) | `lib/page/passport/web_login_page.dart` | 12 | 待分级并补规格 | — |
 | personal_info | [more_page](personal_info/more_page.md) | `lib/page/personal_info/widget/more_page.dart` | 10 | 待分级并补规格 | — |
 | personal_info | [personal_info_page](personal_info/personal_info_page.md) | `lib/page/personal_info/personal_info/personal_info_page.dart` | 12 | 待分级并补规格 | — |

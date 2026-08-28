@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "CHAT-QUICK-REPLY-MANAGE-001",
+  "title": "快捷回复管理列表与编辑控件",
+  "risk": "P1",
+  "phase": "p1",
+  "sources": ["lib/page/chat/widget/quick_reply_manage_page.dart"],
+  "dependencies": ["lib/service/quick_reply_service.dart"],
+  "assertions": {"functional": ["默认短语列表可见", "新增、编辑、删除和排序控件存在", "本地快捷回复数据变更可被恢复"], "ui": ["列表、浮动按钮和编辑对话框无截断", "图标操作具备可读语义"]},
+  "visual": {"rubric": ["no_overflow", "list_state", "touch_target", "long_text"], "baseline": "待真机采集"},
+  "runner": {"type": "flutter", "target": "integration_test/chat/quick_reply_manage_test.dart", "requires": ["device", "credentials", "disposable_local_profile"]},
+  "checkpoints": ["quick_reply_01_defaults"],
+  "safe_to_execute": false
+}

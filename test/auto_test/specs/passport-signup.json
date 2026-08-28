@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "PASSPORT-SIGNUP-001",
+  "title": "注册页可达、表单布局与默认不提交门禁",
+  "risk": "P0",
+  "phase": "p0",
+  "sources": ["lib/page/passport/signup_page.dart"],
+  "dependencies": ["lib/page/passport/signup_continue_page.dart"],
+  "assertions": {"functional": ["登录页可进入注册页", "昵称、账号和密码输入框可见", "未显式授权时不得提交注册"], "ui": ["注册表单和提交按钮完整可见", "长文本与键盘不遮挡主要操作"]},
+  "visual": {"rubric": ["no_overflow", "keyboard_safe_area", "touch_target", "long_text"], "baseline": "待真机采集"},
+  "runner": {"type": "flutter", "target": "integration_test/auth/register_flow_test.dart", "requires": ["device", "backend", "logged_out_state", "local_or_authorized_remote"]},
+  "checkpoints": ["reg_03_signup_page", "reg_04_form_filled"],
+  "safe_to_execute": true
+}
