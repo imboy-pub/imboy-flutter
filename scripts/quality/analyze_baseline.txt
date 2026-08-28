@@ -1,0 +1,11 @@
+# IMBoy 双体验功能目录 flutter analyze 基线（门脚本生成，勿手改）
+# 再生成：bash scripts/quality/check_analyze_increment.sh --update-baseline
+# 日期：2026-08-28 ｜ Flutter 3.47.1 • channel stable • https://github.com/flutter/flutter.git
+# 格式：count<TAB>file<TAB>code（问题身份=(文件,规则代码)；不记行号）
+1	lib/page/channel/channel_compose_page.dart	deprecated_member_use
+1	lib/page/chat/chat/attachment_handler.dart	deprecated_member_use
+1	lib/page/group/album/group_album_page.dart	deprecated_member_use
+1	lib/page/group/album/group_album_page.dart	unused_import
+1	lib/page/group/file/group_file_page.dart	deprecated_member_use
+1	lib/page/group/file/group_file_page.dart	unused_import
+1	lib/page/settings/e2ee_backup_import_page.dart	deprecated_member_use
