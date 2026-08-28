@@ -1,5 +1,4 @@
 import 'dart:async' show unawaited;
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -241,15 +240,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final albumId = _resolveAlbumId(album);
     if (albumId.isEmpty) return;
 
-    final files = await FilePicker.pickFiles(
-      type: FileType.image,
-      allowMultiple: false,
-    );
-    if (files.isEmpty) {
+    final file = await FilePicker.pickFile(type: FileType.image);
+    if (file == null) {
       return;
     }
 
-    final file = files.single;
     final photoName = file.name.trim();
     final Uint8List photoBytes = await file.readAsBytes();
     if (photoName.isEmpty || photoBytes.isEmpty) {

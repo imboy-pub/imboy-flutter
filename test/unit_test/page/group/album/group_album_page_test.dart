@@ -117,7 +117,7 @@ class _FakeFilePicker extends FilePickerPlatform {
   _FakeFilePicker({required this.pickResult});
 
   List<PlatformFile>? pickResult;
-  int pickFilesCallCount = 0;
+  int pickCallCount = 0;
 
   @override
   Future<List<PlatformFile>> pickFiles({
@@ -132,8 +132,26 @@ class _FakeFilePicker extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    pickFilesCallCount++;
+    pickCallCount++;
     return pickResult ?? const [];
+  }
+
+  @override
+  Future<PlatformFile?> pickFile({
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    int compressionQuality = 0,
+    AndroidOptions androidOptions = const AndroidOptions(),
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
+  }) async {
+    pickCallCount++;
+    final files = pickResult ?? const <PlatformFile>[];
+    return files.isEmpty ? null : files.first;
   }
 }
 
@@ -318,7 +336,7 @@ void main() {
     await tester.tap(find.byTooltip('上传图片').first);
     await tester.pumpAndSettle();
 
-    expect(fakePicker.pickFilesCallCount, 1);
+    expect(fakePicker.pickCallCount, 1);
     expect(fakeService.uploadCalls.length, 1);
     expect(fakeService.uploadCalls.single.groupId, 'g1');
     expect(fakeService.uploadCalls.single.albumId, 'a-real');
@@ -348,7 +366,7 @@ void main() {
     await tester.tap(find.byTooltip('上传图片').first);
     await tester.pumpAndSettle();
 
-    expect(fakePicker.pickFilesCallCount, 1);
+    expect(fakePicker.pickCallCount, 1);
     expect(fakeService.uploadCalls.length, 1);
     expect(find.text('图片上传失败，请稍后重试'), findsOneWidget);
     expect(fakeService.getAlbumsCallCount, 1);
@@ -375,7 +393,7 @@ void main() {
     await tester.tap(find.byTooltip('上传图片').first);
     await tester.pumpAndSettle();
 
-    expect(fakePicker.pickFilesCallCount, 1);
+    expect(fakePicker.pickCallCount, 1);
     expect(fakeService.uploadCalls, isEmpty);
     expect(find.text('图片读取失败，请重试'), findsOneWidget);
   });

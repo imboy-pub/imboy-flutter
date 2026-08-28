@@ -112,7 +112,7 @@ class _FakeFilePicker extends FilePickerPlatform {
   _FakeFilePicker({required this.pickResult});
 
   List<PlatformFile>? pickResult;
-  int pickFilesCallCount = 0;
+  int pickCallCount = 0;
 
   @override
   Future<List<PlatformFile>> pickFiles({
@@ -127,8 +127,26 @@ class _FakeFilePicker extends FilePickerPlatform {
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
   }) async {
-    pickFilesCallCount++;
+    pickCallCount++;
     return pickResult ?? const [];
+  }
+
+  @override
+  Future<PlatformFile?> pickFile({
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    int compressionQuality = 0,
+    AndroidOptions androidOptions = const AndroidOptions(),
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
+  }) async {
+    pickCallCount++;
+    final files = pickResult ?? const <PlatformFile>[];
+    return files.isEmpty ? null : files.first;
   }
 }
 
@@ -627,7 +645,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(fakePicker.pickFilesCallCount, 1);
+    expect(fakePicker.pickCallCount, 1);
     expect(fakeService.uploadCalls.length, 1);
     expect(fakeService.uploadCalls.single.groupId, 'g1');
     expect(fakeService.uploadCalls.single.fileName, 'upload.txt');
@@ -667,7 +685,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(fakePicker.pickFilesCallCount, 1);
+    expect(fakePicker.pickCallCount, 1);
     expect(fakeService.uploadCalls.length, 1);
     expect(find.text('文件上传失败，请稍后重试'), findsOneWidget);
     expect(fakeService.getFilesCallCount, 1);
@@ -701,7 +719,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(fakePicker.pickFilesCallCount, 1);
+    expect(fakePicker.pickCallCount, 1);
     expect(fakeService.uploadCalls, isEmpty);
     expect(find.text('文件读取失败，请重试'), findsOneWidget);
   });

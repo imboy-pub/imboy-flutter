@@ -67,6 +67,9 @@ dependencies:
   # │ 🎨 Theme & UI Enhancement                                      │
   # └─────────────────────────────────────────────────────────────────┘
   dynamic_color: ^2.1.0           # 2.x returns material_ui ColorScheme, incompatible with Flutter ColorScheme
+  # dynamic_color 2.x 的 toColorScheme 返回 material_ui 包的 ColorScheme 类型，
+  # lib/theme/dynamic_color_manager.dart 直接 import 该类型，故需显式声明此依赖。
+  material_ui: ^1.1.0             # transitive dep of dynamic_color 2.x, imported directly by dynamic_color_manager.dart
   cross_cache: any                 # Cross-platform caching strategy
   # device_info_plus 12+ 同样迁移到 win32 6.x API（LOCAL_MACHINE / Win32Result.value）。
   # HttpClient 链路（User-Agent / 设备标识）间接依赖，API 测试必经路径。
