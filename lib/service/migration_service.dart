@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:imboy/service/embedded_schema_scripts.dart';
+import 'package:imboy/service/migrations/manifest_all.dart';
 import 'package:imboy/service/migration_script.dart';
 import 'package:imboy/service/migration_script_planner.dart';
 import 'package:logger/logger.dart';
@@ -95,6 +95,11 @@ class MigrationService {
       _upgradeScripts ?? const {};
 
   /// 初始化（加载迁移脚本）
+  ///
+  /// 【WP3】脚本块不再从 SQL 字符串解析，而是直接从类型化清单
+  /// kMigrationManifest 构造——单一真源（边数据、方向、描述全部来自
+  /// manifest；assets/migrations/*.sql 与 kUpgradeScriptSql/kDowngradeScriptSql
+  /// 均为生成物，由生成器 --check 守护一致）。
   Future<void> init() async {
     if (_upgradeScripts != null) {
       _logger.d('MigrationService already initialized');
@@ -104,8 +109,24 @@ class MigrationService {
     _logger.i('Initializing MigrationService...');
 
     try {
-      _upgradeScripts = _parseMigrationScripts(kUpgradeScriptSql);
-      _downgradeScripts = _parseMigrationScripts(kDowngradeScriptSql);
+      _upgradeScripts = {
+        for (final e in kMigrationManifest.upgradesByTo.values)
+          e.blockLabel: MigrationScript(
+            version: e.blockLabel,
+            targetVersion: e.toVersion,
+            description: e.description,
+            sqlStatements: e.sqlStatements,
+          ),
+      };
+      _downgradeScripts = {
+        for (final e in kMigrationManifest.downgradesByFrom.values)
+          e.blockLabel: MigrationScript(
+            version: e.blockLabel,
+            targetVersion: e.toVersion,
+            description: e.description,
+            sqlStatements: e.sqlStatements,
+          ),
+      };
 
       _logger.i('MigrationService initialized');
       _logger.i('Loaded ${_upgradeScripts!.length} upgrade scripts');
@@ -157,30 +178,37 @@ class MigrationService {
   /// 执行迁移（由 SqliteService 调用）
   ///
   /// 注意：此方法在 SqliteService 的 onUpgrade/onDowngrade 回调中被调用，
-  /// 这些回调已经在事务中执行，因此不需要额外创建事务。
-  /// 如果迁移失败，SQLite 会自动回滚整个事务。
+  /// 这些回调已经在 sqflite 的事务中执行（回调实际收到的是事务句柄，
+  /// 故参数类型为 [DatabaseExecutor]），因此不需要、也不允许额外创建事务。
+  /// 迁移失败时由调用方 rethrow，sqflite 自动回滚整个事务。
+  ///
+  /// 【WP2 原子性契约】本方法在事务内执行，因此：
+  /// - 禁止文件级快照/恢复：事务内复制主 db 文件不是一致性快照（WAL/
+  ///   混合页），失败路径恢复会关闭活动连接并覆盖主库，与 sqflite 事务
+  ///   回滚职责冲突（研究文档 §2.3 P0）。一致性快照由协调器在事务外
+  ///   提供（后续 WP），本方法只依赖外层事务回滚。
+  /// - 禁止字符串吞错：唯一允许的幂等兼容是显式的 ADD COLUMN
+  ///   precondition（目标列已存在 → 跳过该条语句并留痕），其他任何 SQL
+  ///   错误如实抛出交由事务回滚。
   Future<MigrationResult> migrate({
-    required Database db,
+    required DatabaseExecutor db,
     required int fromVersion,
     required int toVersion,
     bool isUpgrade = true,
   }) async {
-    String? snapshotPath;
-
     try {
       // 确保迁移脚本已加载
       await init();
-
-      // 创建快照（在事务外执行）
-      snapshotPath = await _createSnapshot(db);
 
       // 数据完整性检查：迁移前验证数据库状态
       if (!await _verifyDatabaseIntegrity(db)) {
         throw Exception('Database integrity check failed before migration');
       }
 
-      // 获取并执行 SQL（按正确顺序：升级升序、降级降序）
-      // Select and order scripts (ascending for upgrade, descending for downgrade)
+      // 获取并执行 SQL（按正确顺序：升级升序、降级降序）。
+      // 路径上任何所需块缺失都会抛 MissingMigrationPathException /
+      // MissingMigrationScriptException（WP1），由下方 catch 转为 failure，
+      // 绝不静默返回空计划成功。
       final scripts = MigrationScriptPlanner.plan(
         scripts: isUpgrade ? _upgradeScripts! : _downgradeScripts!,
         fromVersion: fromVersion,
@@ -188,7 +216,19 @@ class MigrationService {
       );
 
       if (scripts.isEmpty) {
-        _logger.w('No migration scripts found for v$fromVersion → v$toVersion');
+        // from == to 的 no-op（planner 唯一返回空计划的合法情形）。
+        // from != to 时 planner 已保证要么非空要么抛错；此处防御性
+        // fail-closed：万一出现空计划，绝不报告成功。
+        if (fromVersion != toVersion) {
+          return MigrationResult.failure(
+            error:
+                'Empty migration plan for v$fromVersion → v$toVersion '
+                '(fail-closed; planner should have thrown)',
+            fromVersion: fromVersion,
+            toVersion: toVersion,
+          );
+        }
+        _logger.i('No-op migration: v$fromVersion → v$toVersion');
         return MigrationResult.success(
           fromVersion: fromVersion,
           toVersion: toVersion,
@@ -205,23 +245,18 @@ class MigrationService {
         );
 
         for (final sql in script.sqlStatements) {
-          try {
-            await db.execute(sql);
-            // 安全截取：避免 SQL 语句长度小于 50 时抛出 RangeError
-            final preview = sql.length > 50
-                ? '${sql.substring(0, 50)}...'
-                : sql;
-            _logger.d('Executed: $preview');
-          } catch (e) {
-            // 忽略 "duplicate column" 错误（字段已存在）
-            final errorStr = e.toString().toLowerCase();
-            if (errorStr.contains('duplicate column')) {
-              _logger.w('Column already exists (ignoring): $e');
-            } else {
-              // 其他错误重新抛出
-              rethrow;
-            }
+          // 显式幂等 precondition：脚本对已存在列重复 ADD COLUMN
+          // （v11/v12 块对 v10 已加列的历史重复）时跳过并留痕；
+          // 其余语句照常执行，错误如实抛出（WP2：不再吞 duplicate column）。
+          if (await _addColumnAlreadySatisfied(db, sql)) {
+            _logger.i(
+              'Precondition satisfied, skip: ADD COLUMN already exists '
+              '(${_preview(sql)})',
+            );
+            continue;
           }
+          await db.execute(sql);
+          _logger.d('Executed: ${_preview(sql)}');
         }
 
         // 每个脚本执行后进行完整性检查
@@ -232,9 +267,6 @@ class MigrationService {
         }
       }
 
-      // 清理快照
-      await _cleanupSnapshot(snapshotPath);
-
       _logger.i('Migration completed: v$fromVersion → v$toVersion');
 
       return MigrationResult.success(
@@ -244,28 +276,47 @@ class MigrationService {
     } catch (e, stackTrace) {
       _logger.e('Migration failed', error: e, stackTrace: stackTrace);
 
-      // 注意：由于此方法在 SQLite 事务中执行，失败会自动回滚
-      // 快照恢复只在事务回滚失败时作为备用方案
-      if (snapshotPath != null) {
-        try {
-          await _restoreFromSnapshot(db, snapshotPath);
-          _logger.i('Restored from snapshot');
-        } catch (restoreError) {
-          _logger.e('Failed to restore from snapshot', error: restoreError);
-        }
-      }
-
+      // 【WP2】失败路径只依赖外层 sqflite 事务回滚（调用方 rethrow 本
+      // failure 后 sqflite 回滚且不推进版本号）。这里绝不：
+      //   - close 数据库连接（句柄归 sqflite 管理）；
+      //   - 复制/覆盖任何数据库文件（见方法注释的原子性契约）。
       return MigrationResult.failure(
         error: e.toString(),
         fromVersion: fromVersion,
         toVersion: toVersion,
-        snapshotPath: snapshotPath,
       );
     }
   }
 
+  /// 安全截取 SQL 预览（避免超长语句刷屏，也避免 SQL 短于 3 时 RangeError）
+  static String _preview(String sql) =>
+      sql.length > 50 ? '${sql.substring(0, 50)}...' : sql;
+
+  /// ADD COLUMN 语句的静态识别与目标列已存在的显式 precondition。
+  static final RegExp _addColumnPattern = RegExp(
+    r'''ALTER\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?["'`]?(\w+)["'`]?\s+ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?["'`]?(\w+)''',
+    caseSensitive: false,
+  );
+
+  /// 若 [sql] 是 `ALTER TABLE t ADD COLUMN c` 且列 c 已存在，返回 true
+  /// （调用方跳过该语句）；其余情况一律返回 false（照常执行）。
+  ///
+  /// 这是 WP2 对旧"吞 duplicate column 错误"的显式替代：幂等意图在
+  /// 执行前声明，而不是执行后按错误字符串猜。
+  Future<bool> _addColumnAlreadySatisfied(
+    DatabaseExecutor db,
+    String sql,
+  ) async {
+    final match = _addColumnPattern.firstMatch(sql);
+    if (match == null) return false;
+    final table = match.group(1)!;
+    final column = match.group(2)!;
+    final info = await db.rawQuery('PRAGMA table_info($table)');
+    return info.any((row) => row['name'] == column);
+  }
+
   /// 数据完整性检查
-  Future<bool> _verifyDatabaseIntegrity(Database db) async {
+  Future<bool> _verifyDatabaseIntegrity(DatabaseExecutor db) async {
     try {
       // 执行 SQLite 完整性检查
       final result = await db.rawQuery('PRAGMA integrity_check');
@@ -290,144 +341,16 @@ class MigrationService {
     }
   }
 
-  /// 解析迁移脚本文件
-  Map<int, MigrationScript> _parseMigrationScripts(String content) {
-    final scripts = <int, MigrationScript>{};
-
-    // 按版本标记分割
-    final blocks = content.split('-- VERSION:');
-
-    for (final block in blocks.skip(1)) {
-      final lines = block.split('\n');
-      if (lines.isEmpty) continue;
-
-      // 解析版本号（起始版本）
-      final startVersion = int.tryParse(lines[0].trim());
-      if (startVersion == null) continue;
-
-      // 解析元数据
-      String description = '';
-
-      for (final line in lines) {
-        final trimmed = line.trim();
-        if (trimmed.startsWith('-- DESC:')) {
-          description = trimmed.substring('-- DESC:'.length).trim();
-        }
-      }
-
-      // 提取 SQL 语句
-      final sqlStatements = <String>[];
-      final currentStatement = StringBuffer();
-
-      // 目标版本（从 PRAGMA user_version 中提取）
-      int targetVersion = startVersion;
-
-      // 跳过第一行（版本号），从第二行开始处理 SQL 语句
-      for (final line in lines.skip(1)) {
-        final trimmed = line.trim();
-        if (trimmed.isEmpty || trimmed.startsWith('--')) continue;
-
-        currentStatement.write(line);
-        currentStatement.write('\n');
-
-        // 提取 PRAGMA user_version 作为目标版本
-        if (trimmed.startsWith('PRAGMA user_version')) {
-          final match = RegExp(
-            r'PRAGMA user_version\s*=\s*(\d+)',
-          ).firstMatch(trimmed);
-          if (match != null) {
-            targetVersion = int.parse(match.group(1)!);
-          }
-        }
-
-        if (trimmed.endsWith(';')) {
-          sqlStatements.add(currentStatement.toString().trim());
-          currentStatement.clear();
-        }
-      }
-
-      if (currentStatement.isNotEmpty) {
-        sqlStatements.add(currentStatement.toString().trim());
-      }
-
-      // 使用起始版本作为 key
-      scripts[startVersion] = MigrationScript(
-        version: startVersion,
-        targetVersion: targetVersion,
-        description: description,
-        sqlStatements: sqlStatements,
-      );
-    }
-
-    return scripts;
-  }
-
-  /// 创建快照
-  Future<String> _createSnapshot(Database db) async {
-    final dbPath = db.path;
-    final tempDir = await getTemporaryDirectory();
-    final snapshotDir = Directory(path.join(tempDir.path, 'db_snapshots'));
-    await snapshotDir.create(recursive: true);
-
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final snapshotPath = path.join(snapshotDir.path, 'snapshot_$timestamp.db');
-
-    await File(dbPath).copy(snapshotPath);
-    _logger.d('Snapshot created: $snapshotPath');
-
-    return snapshotPath;
-  }
-
-  /// 从快照恢复
-  Future<void> _restoreFromSnapshot(Database db, String snapshotPath) async {
-    final dbPath = db.path;
-
-    await db.close();
-
-    await File(snapshotPath).copy(dbPath);
-
-    // 重新打开数据库
-    // 注意：这里需要由 SqliteService 重新打开
-  }
-
-  /// 清理快照，保留最近 [keepCount] 个快照
-  ///
-  /// 迁移成功后调用，删除多余的旧快照而非立即删除所有快照，
-  /// 以便在后续启动时仍可回滚到近期版本。
-  static const int _defaultKeepCount = 3;
-
-  Future<void> _cleanupSnapshot(String snapshotPath) async {
-    try {
-      final snapshotFile = File(snapshotPath);
-      final snapshotDir = snapshotFile.parent;
-
-      if (!await snapshotDir.exists()) return;
-
-      // 收集所有快照文件并按修改时间倒序排列（最新在前）
-      final snapshots = <File>[];
-      await for (final entity in snapshotDir.list()) {
-        if (entity is File && entity.path.endsWith('.db')) {
-          snapshots.add(entity);
-        }
-      }
-
-      if (snapshots.length <= _defaultKeepCount) return;
-
-      snapshots.sort((a, b) {
-        return b.lastModifiedSync().compareTo(a.lastModifiedSync());
-      });
-
-      // 删除超出保留数量的旧快照
-      for (var i = _defaultKeepCount; i < snapshots.length; i++) {
-        await snapshots[i].delete();
-        _logger.d('Removed old snapshot: ${snapshots[i].path}');
-      }
-    } catch (e) {
-      _logger.w('Failed to cleanup snapshots: $e');
-    }
-  }
+  /// 【WP3】历史 _parseMigrationScripts 已删除：脚本块直接从类型化清单
+  /// kMigrationManifest 构造（见 init），不再从 SQL 字符串解析方向/目标。
 
   /// 清理旧快照
+  ///
+  /// 【WP2】事务内的 _createSnapshot / _restoreFromSnapshot / _cleanupSnapshot
+  /// 已删除（在 sqflite 版本迁移事务回调内复制/覆盖主库文件不是一致性
+  /// 操作，且与外层事务回滚冲突——研究文档 §2.3 P0）。历史遗留的
+  /// db_snapshots 临时目录仍由本方法按期限清理；新的一致性快照能力由
+  /// 迁移协调器（后续 WP）在事务外提供。
   Future<int> cleanupOldSnapshots({
     Duration maxAge = const Duration(days: 1),
   }) async {

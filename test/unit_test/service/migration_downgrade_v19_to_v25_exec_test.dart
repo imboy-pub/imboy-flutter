@@ -11,8 +11,6 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/service/embedded_schema_scripts.dart';
-import 'package:imboy/service/migration_script.dart';
 import 'package:imboy/service/migration_script_planner.dart';
 import 'package:imboy/service/migration_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
