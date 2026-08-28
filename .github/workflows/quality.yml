@@ -31,6 +31,43 @@ jobs:
         run: python3 scripts/auto_test.py validate
 
   # ----------------------------------------------------------------
+  # 0.5) SQLite 迁移治理 Gate（WP6，2026-08-27）
+  # 单一真源 manifest + 全版本升级/降级矩阵 + 故障注入 + 快照/恢复。
+  # 退出码：0 PASS / 1 FAIL / 2 BLOCKED（BLOCKED 不当 PASS）。
+  # ----------------------------------------------------------------
+  sqlite-migration-gate:
+    name: SQLite migration gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: 'stable'
+          cache: true
+
+      - name: Install sqlite3 for sqflite_common_ffi
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Materialize CI environment
+        run: bash .github/scripts/ci_gen_env.sh
+
+      - name: Run migration gate
+        run: bash scripts/run_sqlite_migration_gate.sh --ci
+
+      - name: Upload gate evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: sqlite-migration-gate-logs
+          path: build/sqlite-migration-gate/
+
+  # ----------------------------------------------------------------
   # 1) Flutter analyze (strict-* 启用后基线 830 warnings + 703 infos)
   # ----------------------------------------------------------------
   flutter-analyze:
