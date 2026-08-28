@@ -46,11 +46,11 @@ class ErrorCode {
   static const int FORBIDDEN = 403;
   static const int ACCESS_DENIED = 403;
 
-  /// 群组不存在
-  static const int GROUP_NOT_FOUND = 404;
-  static const int USER_NOT_FOUND = 404;
+  /// 好友不存在
   static const int FRIEND_NOT_FOUND = 404;
+  static const int USER_NOT_FOUND = 404;
   static const int NOT_FOUND = 404;
+  static const int GROUP_NOT_FOUND = 404;
   static const int MESSAGE_NOT_FOUND = 404;
 
   /// 错误码 405
@@ -84,9 +84,9 @@ class ErrorCode {
   static const int FILE_TYPE_INVALID = 415;
 
   /// 错误码 422
-  static const int UNPROCESSABLE_ENTITY = 422;
-  static const int PARAM_INVALID = 422;
   static const int MISSING_PARAM = 422;
+  static const int PARAM_INVALID = 422;
+  static const int UNPROCESSABLE_ENTITY = 422;
 
   /// 错误码 423
   static const int ACCOUNT_LOCKED = 423;
@@ -112,10 +112,10 @@ class ErrorCode {
   /// 错误码 502
   static const int BAD_GATEWAY = 502;
 
-  /// 服务不可用
+  /// 错误码 503
+  static const int CLUSTER_ERROR = 503;
   static const int SERVICE_UNAVAILABLE = 503;
   static const int NODE_OFFLINE = 503;
-  static const int CLUSTER_ERROR = 503;
 
   /// 错误码 504
   static const int TIMEOUT = 504;
@@ -247,6 +247,9 @@ class ErrorCode {
 
   /// 错误码 968
   static const int PHOTO_ALREADY_LIKED = 968;
+
+  /// 错误码 980
+  static const int WORKSPACE_ARCHIVED = 980;
 
   // =====================================================================
   // 其余：各子系统扩展错误码
@@ -496,6 +499,7 @@ class ErrorCode {
     966: '图片大小超出限制',
     967: '相册权限不足',
     968: '已点赞该图片',
+    980: '工作区已归档，写操作被拒绝',
     5000: '无效的传输会话',
     5001: '传输会话已过期',
     5002: '传输会话不存在',

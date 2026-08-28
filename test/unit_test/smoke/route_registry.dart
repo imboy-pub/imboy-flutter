@@ -146,7 +146,7 @@ bool isQuarantined(SmokeRoute r) =>
     r.status == RouteStatus.quarantine ||
     leakyRoutesQuarantine.contains(r.name);
 
-/// 全部 118 条路由（与 extract_routes.dart 输出一一对应）
+/// 全部 123 条路由（与 extract_routes.dart 输出一一对应；WP5 新增 5 条工作区路由）
 final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   // ==================== 认证 / 启动 ====================
   const SmokeRoute(name: 'splash', location: '/'),
@@ -387,6 +387,67 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
 
   // ==================== @提及 ====================
   const SmokeRoute(name: 'mention_list', location: '/mention'),
+
+  // ==================== 工作区（WP5/T8，双体验 v2.5.2） ====================
+  const SmokeRoute(
+    name: 'workspace_picker',
+    location: '/workspace',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'WP5/T8：页面经 workspaceShellProvider.loadMine 发起异步网络'
+        '请求，无头烟雾测试留 pending timer（与 bottom_navigation 同类），'
+        '由 test/unit_test/page/workspace_shell/* 与真机覆盖',
+  ),
+  const SmokeRoute(name: 'workspace_create', location: '/workspace/create'),
+  const SmokeRoute(
+    name: 'workspace_channel_detail',
+    location: '/workspace/9001/channels/9002',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'WP5/T9：内嵌 ChannelDetailPage 发起异步加载'
+        '（channelDetailProvider），无头环境留 pending timer；'
+        '结构契约由 workspace_channel_detail_page_test 断言',
+  ),
+  const SmokeRoute(
+    name: 'workspace_invite',
+    location: '/workspace/9001/members/invite',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'WP5/T9：initState 定位 Template 资源 + 搜索均为异步网络'
+        '请求，无头环境留 pending timer；三条独立结果状态机由'
+        ' workspace_invite_controller_test 纯逻辑覆盖',
+  ),
+  const SmokeRoute(
+    name: 'workspace_branding',
+    location: '/workspace/9001/branding',
+  ),
+
+  // ==================== 工作区 Project/Tasks（WP6/T10a/T10b，W0） ====================
+  const SmokeRoute(
+    name: 'workspace_project_create',
+    location: '/workspace/9001/projects/create',
+  ),
+  const SmokeRoute(
+    name: 'workspace_project_detail',
+    location: '/workspace/9001/projects/9101',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'WP6/T10a：ProjectDetailPage 经 projectDetailProvider 异步加载'
+        '（与 workspace_channel_detail 同类），无头环境留 pending timer；'
+        '结构契约由 project detail page 测试断言',
+  ),
+  const SmokeRoute(
+    name: 'workspace_task_create',
+    location: '/workspace/9001/projects/9101/tasks/new',
+  ),
+  const SmokeRoute(
+    name: 'workspace_task_edit',
+    location: '/workspace/9001/projects/9101/tasks/9102/edit',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'WP6/T10b：edit 模式经 projectTaskDetailProvider 加载既有行，'
+        '无头环境留 pending timer；四态状态机由 task controller 测试覆盖',
+  ),
 
   // ==================== 兼容旧路径 ====================
   const SmokeRoute(name: 'people_info_top', location: '/people_info/1001'),
