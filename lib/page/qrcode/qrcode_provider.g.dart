@@ -52,7 +52,7 @@ abstract class _$QrCodeNotifier extends $Notifier<QrCodeModel> {
   QrCodeModel build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<QrCodeModel, QrCodeModel>;
     final element =
         ref.element
@@ -62,6 +62,6 @@ abstract class _$QrCodeNotifier extends $Notifier<QrCodeModel> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

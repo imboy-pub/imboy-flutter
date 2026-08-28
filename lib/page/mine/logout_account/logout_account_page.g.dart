@@ -48,7 +48,7 @@ abstract class _$LogoutAccountNotifier extends $Notifier<LogoutAccountState> {
   LogoutAccountState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<LogoutAccountState, LogoutAccountState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$LogoutAccountNotifier extends $Notifier<LogoutAccountState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

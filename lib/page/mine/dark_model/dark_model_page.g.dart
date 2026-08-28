@@ -47,7 +47,7 @@ abstract class _$DarkModelNotifier extends $Notifier<DarkModelState> {
   DarkModelState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<DarkModelState, DarkModelState>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$DarkModelNotifier extends $Notifier<DarkModelState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

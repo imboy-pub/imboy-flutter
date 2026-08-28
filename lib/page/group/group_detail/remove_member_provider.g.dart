@@ -53,7 +53,7 @@ abstract class _$RemoveMemberNotifier extends $Notifier<RemoveMemberState> {
   RemoveMemberState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<RemoveMemberState, RemoveMemberState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$RemoveMemberNotifier extends $Notifier<RemoveMemberState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

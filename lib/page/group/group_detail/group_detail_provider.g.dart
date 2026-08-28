@@ -53,7 +53,7 @@ abstract class _$GroupDetailNotifier extends $Notifier<GroupDetailState> {
   GroupDetailState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<GroupDetailState, GroupDetailState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$GroupDetailNotifier extends $Notifier<GroupDetailState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

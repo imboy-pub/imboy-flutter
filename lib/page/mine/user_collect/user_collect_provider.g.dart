@@ -48,7 +48,7 @@ final class UserCollectNotifierProvider
 }
 
 String _$userCollectNotifierHash() =>
-    r'12faf22d0b18ab2ecd16c305e9424909479f3b0b';
+    r'e3739c8d816cb927d210f35b8fcf5e077c5ad2d6';
 
 /// UserCollect Notifier
 /// 处理收藏相关的业务逻辑
@@ -57,7 +57,7 @@ abstract class _$UserCollectNotifier extends $Notifier<UserCollectState> {
   UserCollectState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<UserCollectState, UserCollectState>;
     final element =
         ref.element
@@ -67,6 +67,6 @@ abstract class _$UserCollectNotifier extends $Notifier<UserCollectState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -53,7 +53,7 @@ abstract class _$MessageSearchNotifier extends $Notifier<MessageSearchState> {
   MessageSearchState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<MessageSearchState, MessageSearchState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$MessageSearchNotifier extends $Notifier<MessageSearchState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

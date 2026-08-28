@@ -52,7 +52,7 @@ abstract class _$ProfileNotifier extends $Notifier<ProfileState> {
   ProfileState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ProfileState, ProfileState>;
     final element =
         ref.element
@@ -62,6 +62,6 @@ abstract class _$ProfileNotifier extends $Notifier<ProfileState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -47,7 +47,7 @@ abstract class _$RtcRoomNotifier extends $Notifier<RtcRoomState> {
   RtcRoomState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<RtcRoomState, RtcRoomState>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$RtcRoomNotifier extends $Notifier<RtcRoomState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

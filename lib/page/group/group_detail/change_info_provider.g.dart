@@ -53,7 +53,7 @@ abstract class _$ChangeInfoNotifier extends $Notifier<ChangeInfoState> {
   ChangeInfoState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ChangeInfoState, ChangeInfoState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$ChangeInfoNotifier extends $Notifier<ChangeInfoState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

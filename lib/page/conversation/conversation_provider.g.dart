@@ -48,7 +48,7 @@ abstract class _$ConversationNotifier extends $Notifier<ConversationState> {
   ConversationState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ConversationState, ConversationState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$ConversationNotifier extends $Notifier<ConversationState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

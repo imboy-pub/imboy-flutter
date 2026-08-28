@@ -52,7 +52,7 @@ abstract class _$AddMemberNotifier extends $Notifier<AddMemberState> {
   AddMemberState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AddMemberState, AddMemberState>;
     final element =
         ref.element
@@ -62,6 +62,6 @@ abstract class _$AddMemberNotifier extends $Notifier<AddMemberState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

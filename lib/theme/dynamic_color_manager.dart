@@ -2,6 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dynamic_color/dynamic_color.dart';
+// dynamic_color 2.x 的 toColorScheme 返回 material_ui 包自己的 ColorScheme
+// （字段与 Flutter 同形但类型独立）；缓存与合并处用 mui.ColorScheme 承接，
+// 字段值本身是 dart:ui Color，可直接喂给 Flutter ColorScheme.copyWith。
+import 'package:material_ui/material_ui.dart' as mui;
 
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -19,9 +23,9 @@ class DynamicColorManager {
     return _instance!;
   }
 
-  // 缓存的动态颜色方案
-  ColorScheme? _cachedLightDynamicColorScheme;
-  ColorScheme? _cachedDarkDynamicColorScheme;
+  // 缓存的动态颜色方案（mui.ColorScheme，见文件头 import 处说明）
+  mui.ColorScheme? _cachedLightDynamicColorScheme;
+  mui.ColorScheme? _cachedDarkDynamicColorScheme;
 
   // 动态颜色是否可用
   bool? _isDynamicColorSupported;
@@ -56,7 +60,7 @@ class DynamicColorManager {
   ///
   /// 返回包含亮色和暗色动态颜色方案的元组
   /// 如果不支持动态颜色，返回 null
-  Future<({ColorScheme? light, ColorScheme? dark})?>
+  Future<({mui.ColorScheme? light, mui.ColorScheme? dark})?>
   getDynamicColorSchemes() async {
     try {
       // 检查是否支持动态颜色
@@ -215,11 +219,11 @@ class DynamicColorManager {
   /// 合并动态颜色和基础颜色
   ///
   /// [baseScheme] 基础颜色方案
-  /// [dynamicScheme] 动态颜色方案
+  /// [dynamicScheme] 动态颜色方案（mui.ColorScheme，字段值为 dart:ui Color）
   /// 返回合并后的颜色方案
   ColorScheme _mergeDynamicColors(
     ColorScheme baseScheme,
-    ColorScheme dynamicScheme,
+    mui.ColorScheme dynamicScheme,
   ) {
     // 使用动态颜色的主要颜色，保留应用特定的表面和错误颜色
     return baseScheme.copyWith(

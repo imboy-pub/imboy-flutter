@@ -84,7 +84,7 @@ abstract class _$QrLoginConfirm extends $Notifier<QrLoginConfirmState> {
   QrLoginConfirmState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<QrLoginConfirmState, QrLoginConfirmState>;
     final element =
         ref.element
@@ -94,6 +94,6 @@ abstract class _$QrLoginConfirm extends $Notifier<QrLoginConfirmState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

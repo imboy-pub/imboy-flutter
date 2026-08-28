@@ -47,7 +47,7 @@ final class PassportNotifierProvider
   }
 }
 
-String _$passportNotifierHash() => r'8123c33d82c3093c3ebca0681e2f3581bc876147';
+String _$passportNotifierHash() => r'14665c66e08e67fab796d3a7daede3474511f546';
 
 /// Passport 模块 Riverpod Notifier
 /// 管理 Passport 模块的状态和业务逻辑
@@ -56,7 +56,7 @@ abstract class _$PassportNotifier extends $Notifier<PassportState> {
   PassportState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<PassportState, PassportState>;
     final element =
         ref.element
@@ -66,6 +66,6 @@ abstract class _$PassportNotifier extends $Notifier<PassportState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

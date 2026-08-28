@@ -48,7 +48,7 @@ abstract class _$UserDeviceNotifier extends $Notifier<UserDeviceState> {
   UserDeviceState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<UserDeviceState, UserDeviceState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$UserDeviceNotifier extends $Notifier<UserDeviceState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

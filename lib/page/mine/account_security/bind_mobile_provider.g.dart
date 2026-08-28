@@ -48,7 +48,7 @@ abstract class _$BindMobileNotifier extends $Notifier<BindMobileState> {
   BindMobileState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<BindMobileState, BindMobileState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$BindMobileNotifier extends $Notifier<BindMobileState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

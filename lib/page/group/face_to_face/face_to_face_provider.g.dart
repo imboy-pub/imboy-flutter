@@ -53,7 +53,7 @@ abstract class _$FaceToFaceNotifier extends $Notifier<FaceToFaceState> {
   FaceToFaceState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<FaceToFaceState, FaceToFaceState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$FaceToFaceNotifier extends $Notifier<FaceToFaceState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

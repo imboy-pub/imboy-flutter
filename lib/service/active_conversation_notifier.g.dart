@@ -75,7 +75,7 @@ abstract class _$ActiveConversationNotifier
   ActiveConversationState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<ActiveConversationState, ActiveConversationState>;
     final element =
@@ -86,6 +86,6 @@ abstract class _$ActiveConversationNotifier
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

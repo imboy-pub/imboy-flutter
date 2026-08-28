@@ -53,7 +53,7 @@ abstract class _$P2pCallScreenNotifier extends $Notifier<P2pCallScreenState> {
   P2pCallScreenState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<P2pCallScreenState, P2pCallScreenState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$P2pCallScreenNotifier extends $Notifier<P2pCallScreenState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

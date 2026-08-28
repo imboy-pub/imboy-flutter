@@ -48,7 +48,7 @@ abstract class _$ContactTagListNotifier extends $Notifier<ContactTagListState> {
   ContactTagListState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ContactTagListState, ContactTagListState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$ContactTagListNotifier extends $Notifier<ContactTagListState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

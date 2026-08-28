@@ -47,7 +47,7 @@ abstract class _$DenylistNotifier extends $Notifier<DenylistState> {
   DenylistState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<DenylistState, DenylistState>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$DenylistNotifier extends $Notifier<DenylistState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

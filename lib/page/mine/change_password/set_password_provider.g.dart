@@ -52,7 +52,7 @@ abstract class _$SetPassword extends $Notifier<SetPasswordState> {
   SetPasswordState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<SetPasswordState, SetPasswordState>;
     final element =
         ref.element
@@ -62,6 +62,6 @@ abstract class _$SetPassword extends $Notifier<SetPasswordState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -48,7 +48,7 @@ abstract class _$FeedbackPageNotifier extends $Notifier<FeedbackPageState> {
   FeedbackPageState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<FeedbackPageState, FeedbackPageState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$FeedbackPageNotifier extends $Notifier<FeedbackPageState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

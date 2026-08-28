@@ -52,7 +52,7 @@ abstract class _$SetRegionNotifier extends $Notifier<SetRegionState> {
   SetRegionState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<SetRegionState, SetRegionState>;
     final element =
         ref.element
@@ -62,6 +62,6 @@ abstract class _$SetRegionNotifier extends $Notifier<SetRegionState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

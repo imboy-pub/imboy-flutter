@@ -53,7 +53,7 @@ abstract class _$ChannelListNotifier extends $Notifier<ChannelListState> {
   ChannelListState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ChannelListState, ChannelListState>;
     final element =
         ref.element
@@ -63,7 +63,7 @@ abstract class _$ChannelListNotifier extends $Notifier<ChannelListState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -112,7 +112,7 @@ abstract class _$ChannelDetailNotifier extends $Notifier<ChannelDetailState> {
   ChannelDetailState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ChannelDetailState, ChannelDetailState>;
     final element =
         ref.element
@@ -122,7 +122,7 @@ abstract class _$ChannelDetailNotifier extends $Notifier<ChannelDetailState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -171,7 +171,7 @@ abstract class _$CreateChannelNotifier extends $Notifier<CreateChannelState> {
   CreateChannelState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<CreateChannelState, CreateChannelState>;
     final element =
         ref.element
@@ -181,7 +181,7 @@ abstract class _$CreateChannelNotifier extends $Notifier<CreateChannelState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 

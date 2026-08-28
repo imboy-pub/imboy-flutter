@@ -58,7 +58,7 @@ dependencies:
   # │ 💾 Data & Storage                                               │
   # └─────────────────────────────────────────────────────────────────┘
   shared_preferences: ^2.5.4       # Local key-value storage
-  flutter_secure_storage: ^10.0.0  # Secure storage for sensitive data (tokens, keys)
+  flutter_secure_storage: ^11.0.0  # Secure storage for sensitive data (tokens, keys)
   sqflite_sqlcipher: ^3.4.0          # SQLCipher encrypted SQLite (drop-in sqflite replacement)
   # sqflite: ^2.4.2                 # 已被 sqflite_sqlcipher 替代
   path: ^1.9.0                     # Path manipulation utilities
@@ -66,10 +66,15 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🎨 Theme & UI Enhancement                                      │
   # └─────────────────────────────────────────────────────────────────┘
-  dynamic_color: ^1.9.0           # 2.x returns material_ui ColorScheme, incompatible with Flutter ColorScheme
+  dynamic_color: ^2.1.0           # 2.x returns material_ui ColorScheme, incompatible with Flutter ColorScheme
   cross_cache: any                 # Cross-platform caching strategy
-  device_info_plus: ^13.0.0         # Device information access
-  package_info_plus: ^13.2.0       # Package metadata and version info
+  # device_info_plus 12+ 同样迁移到 win32 6.x API（LOCAL_MACHINE / Win32Result.value）。
+  # HttpClient 链路（User-Agent / 设备标识）间接依赖，API 测试必经路径。
+  # 11.5.0 是 win32 5.x 代的最后版本，与本块 win32/win32_registry pin 同命运。
+  device_info_plus: ^13.2.0
+  # package_info_plus 10.x 已迁移到 win32 6.x API（toPcwstr / toHRESULT / Pointer.value）。
+  # 8.x 是 win32 5.x 代的最后一条线，与本块 win32 pin 匹配。
+  package_info_plus: ^10.2.1
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 📷 Media & Camera                                               │
@@ -78,7 +83,7 @@ dependencies:
   wechat_camera_picker: ^4.5.0      # 原生相机取景界面（拍照/录像），全局唯一相机拍摄入口
   image_picker: ^1.1.2               # 仅作桌面平台(macOS/Windows/Linux)兜底，见 wechat_assets_picker_adapter.dart
   photo_view: ^0.15.0                # Interactive image viewer with zoom/pan
-  photo_manager: 3.9.0               # Media management; 3.12.0 breaks current Android Kotlin build
+  photo_manager: 3.12.0               # Media management; 3.12.0 breaks current Android Kotlin build
   carousel_slider_plus: ^7.1.2       # 聊天附件面板左右滑动分页
   video_compress: ^3.1.4             # Video compression before upload
   file_picker: ^12.1.1               # File picker
@@ -174,7 +179,7 @@ dependencies:
   synchronized: ^3.4.0               # Synchronization primitives
   share_plus: ^13.2.0                # Sharing functionality (updated: 13.0.0 → 13.2.0)
   share_handler: ^0.0.25             # Receive files opened from external apps (E2EE backup import)
-  wakelock_plus: 1.6.1               # Keep screen on; 1.7.0 is incompatible with current Kotlin APIs
+  wakelock_plus: 1.7.0               # Keep screen on; 1.7.0 is incompatible with current Kotlin APIs
   r_upgrade:                          # App upgrade utility
     # path: plugin/r_upgrade
     git:
@@ -192,13 +197,13 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🔥 Firebase & Analytics                                          │
   # └─────────────────────────────────────────────────────────────────┘
-  firebase_core: 4.11.0             # 与当前 macOS Podfile.lock 的 Firebase SDK 12.15 保持一致
-  firebase_messaging: 16.4.1        # 与当前 macOS Podfile.lock 的原生插件版本保持一致
+  firebase_core: 4.14.0             # 与当前 macOS Podfile.lock 的 Firebase SDK 12.15 保持一致
+  firebase_messaging: 16.6.0        # 与当前 macOS Podfile.lock 的原生插件版本保持一致
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🛡️ Error Tracking & Monitoring                                    │
   # └─────────────────────────────────────────────────────────────────┘
-  sentry_flutter: 9.23.0             # Sentry; 9.26.0 no longer exposes the generated Android plugin class
+  sentry_flutter: 9.28.0             # Sentry; 9.26.0 no longer exposes the generated Android plugin class
 
   envied: ^1.3.8                    # Environment variables management (updated: 1.3.2 → 1.3.8)
   pin_code_fields: ^9.3.0             # PIN code input fields
@@ -222,9 +227,9 @@ dependencies:
   visibility_detector: ^0.4.0+2    # Widget visibility detection
   slang: ^4.18.0                    # Internationalization code generation (updated: 4.14.0 → 4.18.0)
   slang_flutter: ^4.18.0             # Flutter slang integration (updated: 4.14.0 → 4.18.0)
-  go_router: ^17.2.0                 # Declarative routing (go_router)
-  flutter_riverpod: 3.3.1            # pin: riverpod 4.0.4 栈与传递依赖 mockito 5.7.0 的 analyzer 需求冲突，回退 4.0.3 栈
-  riverpod_annotation: 4.0.2         # pin: riverpod_generator 4.0.3 要求 annotation 4.0.2
+  go_router: ^18.0.0                 # Declarative routing (go_router)
+  flutter_riverpod: 3.4.2            # pin: riverpod 4.0.4 栈与传递依赖 mockito 5.7.0 的 analyzer 需求冲突，回退 4.0.3 栈
+  riverpod_annotation: 4.0.6         # pin: riverpod_generator 4.0.3 要求 annotation 4.0.2
   crop_your_image: ^2.0.0
 
   # ┌─────────────────────────────────────────────────────────────────┐
@@ -238,15 +243,16 @@ dependencies:
 
 dependency_overrides:
   # ┌─ Analyzer Override ───────────────────────────────────────────────┐
-  # riverpod_generator 4.0.3 要求 analyzer ^9。锁 ^9（上个提交验证 working 的组合）。
-  # 4.0.4 要求 analyzer ^12，但其传递依赖 mockito 5.7.0 要求 analyzer ^13，
-  # mockito builder 在 analyzer 12 下编译失败（NamedArgument 在 9 之后删除、13 才恢复）。
-  analyzer: ^9.0.0
-  # dart_style 3.1.3 兼容 analyzer ^9（>=8.2.0 <10.0.0）。
-  dart_style: 3.1.3
-  # mockito（riverpod_generator 传递依赖）5.7.0 的 builder 在 analyzer 9 下编译失败
-  # （substitute API 属 analyzer 13）；5.6.4 声明 analyzer >=8.1.1 <13，与 ^9 兼容。
-  mockito: 5.6.4
+  # riverpod_generator 4.0.8 声明 analyzer ^13（RegularFormalParameter /
+  # FormalParameter.type 均为 analyzer 13 API，9 下 builder 编译失败）。
+  # mockito 5.7.0 同样要求 ^13 且 NamedArgument 在 13 恢复，配套可编译。
+  # 历史：旧组合 generator 4.0.3 曾锁 analyzer ^9 + dart_style 3.1.3 + mockito 5.6.4，
+  # 升 4.0.8 后 analyzer 随之升 13；dart_style 3.1.3 在 13 下编译失败，需 ≥3.1.9。
+  analyzer: ^13.0.0
+  dart_style: ^3.1.9
+  # mockito 5.6.4 的 builder 缺 analyzer 13 的 SubstitutedExecutableElementImpl.from；
+  # 5.7.0 以 analyzer ^13 为目标编译（NamedArgument 在 13 恢复）。
+  mockito: 5.7.0
 
   # ┌─ path_provider_foundation Override ────────────────────────────────┐
   # 2.6.0 migrated to FFI + objective_c native assets hook, which Flutter
@@ -263,18 +269,11 @@ dependency_overrides:
   # 4.1.x 是与 win32 5.x 兼容的最后一代；flutter_secure_storage 10.x 约束为 ^4.1.0，4.1.x 满足。
   # 与 file_picker / win32 5.x pin 同命运，待 file_picker 升 win32 6.x 后统一解锁。
   flutter_secure_storage_windows: ^4.2.0
-  # package_info_plus 10.x 已迁移到 win32 6.x API（toPcwstr / toHRESULT / Pointer.value）。
-  # 8.x 是 win32 5.x 代的最后一条线，与本块 win32 pin 匹配。
-  package_info_plus: ^10.2.1
   # win32_registry 3.x 迁移到 win32 6.x API（REG_SAM_FLAGS / PWSTR / IntPtr）。
   # 与本块 win32 5.x pin 硬冲突，且 sqflite_sqlcipher → win32_registry 是所有
   # API / Repo 测试的传递依赖，不锁 2.x 则整个测试套件无法在 macOS 上编译。
   # 与 win32 5.x pin 同命运：待 file_picker 迁移 6.x 后统一解锁。
   win32_registry: ^3.0.0
-  # device_info_plus 12+ 同样迁移到 win32 6.x API（LOCAL_MACHINE / Win32Result.value）。
-  # HttpClient 链路（User-Agent / 设备标识）间接依赖，API 测试必经路径。
-  # 11.5.0 是 win32 5.x 代的最后版本，与本块 win32/win32_registry pin 同命运。
-  device_info_plus: ^13.2.0
 
   # ┌─ Local Plugin Overrides ──────────────────────────────────────────┐
   flutter_chat_core:
@@ -320,7 +319,7 @@ dev_dependencies:
 
   # ┌─ Code Generation ─────────────────────────────────────────────┐
   build_runner: ^2.12.2                # Code generation for Riverpod, slang, envied
-  riverpod_generator: 4.0.3            # pin: 4.0.4 传递依赖 mockito 5.7.0 (^13) 与自身 analyzer ^12 冲突，builder 无法编译
+  riverpod_generator: 4.0.8            # pin: 4.0.4 传递依赖 mockito 5.7.0 (^13) 与自身 analyzer ^12 冲突，builder 无法编译
   envied_generator: ^1.3.8             # Environment variables code generation (updated: 1.3.2 → 1.3.8)
 
   # ┌─ Code Quality & Linting ───────────────────────────────────────┐

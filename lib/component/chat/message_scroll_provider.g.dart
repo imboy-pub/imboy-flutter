@@ -57,7 +57,7 @@ abstract class _$MessageScrollManager extends $Notifier<MessageScrollState> {
   MessageScrollState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<MessageScrollState, MessageScrollState>;
     final element =
         ref.element
@@ -67,6 +67,6 @@ abstract class _$MessageScrollManager extends $Notifier<MessageScrollState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

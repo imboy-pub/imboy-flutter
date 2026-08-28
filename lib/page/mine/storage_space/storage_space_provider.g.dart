@@ -48,7 +48,7 @@ abstract class _$StorageSpaceNotifier extends $Notifier<StorageSpaceState> {
   StorageSpaceState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<StorageSpaceState, StorageSpaceState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$StorageSpaceNotifier extends $Notifier<StorageSpaceState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

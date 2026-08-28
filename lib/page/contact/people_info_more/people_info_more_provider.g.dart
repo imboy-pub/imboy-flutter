@@ -53,7 +53,7 @@ abstract class _$PeopleInfoMoreNotifier extends $Notifier<PeopleInfoMoreState> {
   PeopleInfoMoreState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<PeopleInfoMoreState, PeopleInfoMoreState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$PeopleInfoMoreNotifier extends $Notifier<PeopleInfoMoreState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

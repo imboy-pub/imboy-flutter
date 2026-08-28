@@ -53,7 +53,7 @@ abstract class _$VoicePlaybackService extends $Notifier<VoicePlaybackState> {
   VoicePlaybackState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<VoicePlaybackState, VoicePlaybackState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$VoicePlaybackService extends $Notifier<VoicePlaybackState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

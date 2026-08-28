@@ -55,7 +55,7 @@ abstract class _$ContactSettingTagNotifier
   ContactSettingTagState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<ContactSettingTagState, ContactSettingTagState>;
     final element =
@@ -66,6 +66,6 @@ abstract class _$ContactSettingTagNotifier
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

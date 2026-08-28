@@ -52,7 +52,7 @@ abstract class _$PublisherNotifier extends $Notifier<PublisherState> {
   PublisherState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<PublisherState, PublisherState>;
     final element =
         ref.element
@@ -62,6 +62,6 @@ abstract class _$PublisherNotifier extends $Notifier<PublisherState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

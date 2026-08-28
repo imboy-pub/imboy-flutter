@@ -105,7 +105,7 @@ abstract class _$GroupAnnouncementNotifier
   GroupAnnouncementState build(String groupId);
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<GroupAnnouncementState, GroupAnnouncementState>;
     final element =
@@ -116,6 +116,6 @@ abstract class _$GroupAnnouncementNotifier
               Object?,
               Object?
             >;
-    element.handleCreate(ref, () => build(_$args));
+    return element.handleCreate(ref, () => build(_$args));
   }
 }

@@ -53,7 +53,7 @@ abstract class _$GroupSelectNotifier extends $Notifier<GroupSelectState> {
   GroupSelectState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<GroupSelectState, GroupSelectState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$GroupSelectNotifier extends $Notifier<GroupSelectState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -52,7 +52,7 @@ abstract class _$GroupListNotifier extends $Notifier<GroupListState> {
   GroupListState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<GroupListState, GroupListState>;
     final element =
         ref.element
@@ -62,6 +62,6 @@ abstract class _$GroupListNotifier extends $Notifier<GroupListState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

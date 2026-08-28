@@ -54,7 +54,7 @@ abstract class _$ChangeLoginPassword
   ChangeLoginPasswordState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<ChangeLoginPasswordState, ChangeLoginPasswordState>;
     final element =
@@ -65,6 +65,6 @@ abstract class _$ChangeLoginPassword
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -52,7 +52,7 @@ abstract class _$ScannerNotifier extends $Notifier<ScannerState> {
   ScannerState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ScannerState, ScannerState>;
     final element =
         ref.element
@@ -62,6 +62,6 @@ abstract class _$ScannerNotifier extends $Notifier<ScannerState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

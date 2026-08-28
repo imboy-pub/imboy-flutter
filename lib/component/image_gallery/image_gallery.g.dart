@@ -48,7 +48,7 @@ abstract class _$ImageGalleryNotifier extends $Notifier<ImageGalleryState> {
   ImageGalleryState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ImageGalleryState, ImageGalleryState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$ImageGalleryNotifier extends $Notifier<ImageGalleryState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

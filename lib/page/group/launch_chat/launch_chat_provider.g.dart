@@ -53,7 +53,7 @@ abstract class _$LaunchChatNotifier extends $Notifier<LaunchChatState> {
   LaunchChatState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<LaunchChatState, LaunchChatState>;
     final element =
         ref.element
@@ -63,6 +63,6 @@ abstract class _$LaunchChatNotifier extends $Notifier<LaunchChatState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
