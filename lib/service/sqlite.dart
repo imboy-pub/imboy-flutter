@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -13,6 +14,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/embedded_schema_scripts.dart';
 import 'package:imboy/service/cached_sqlite_service.dart';
+import 'package:imboy/service/database_migration_orchestrator.dart';
 import 'package:imboy/service/db_encryption_key_service.dart';
 import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/sqflite_init.dart';
@@ -255,6 +257,32 @@ class SqliteService {
       unawaited(_cleanupEncryptionBackups(path));
     }
 
+    // 【WP5】打开前协调：预检（quick/fk check）+ 若需要版本迁移则在
+    // 迁移事务外创建一致性快照（VACUUM INTO，WAL 安全）。任何失败都
+    // fail-closed（返回 null 走现有降级处理），绝不跳过快照直接迁移。
+    if (!kIsWeb) {
+      final baseDir = (await getApplicationSupportDirectory()).path;
+      final decision = await DatabaseMigrationOrchestrator.to.prepareForOpen(
+        dbPath: path,
+        baseDir: baseDir,
+        env: currentEnv,
+        uid: uid,
+        targetVersion: _dbVersion,
+        password: encrypted ? password : null,
+        unsyncedOutboxProbe: _unsyncedOutboxProbe,
+      );
+      if (!decision.proceed) {
+        AppLogger.error(
+          '[sqlite] migration preflight aborted: ${decision.abortReason} '
+          '(blockers: ${decision.blockers})',
+        );
+        return null;
+      }
+      if (decision.snapshotPath != null) {
+        iPrint('📦 Pre-migration snapshot: ${decision.snapshotPath}');
+      }
+    }
+
     try {
       return await openEncryptedDatabase(
         path,
@@ -462,6 +490,19 @@ class SqliteService {
         }
       }
 
+      // 【WP5】新装路径同样过迁移后验证（invariant + meta + application_id）
+      final verification = await DatabaseMigrationOrchestrator.to
+          .verifyAfterMigration(
+            db,
+            toVersion: version,
+            migrationId: 'baseline_create_v$version',
+          );
+      if (!verification.ok) {
+        throw Exception(
+          'Baseline creation verification failed: ${verification.violations}',
+        );
+      }
+
       iPrint("✅ Schema initialized: baseline(16) → v$version");
     }
   }
@@ -545,12 +586,75 @@ class SqliteService {
       throw Exception('Migration failed: ${result.error}');
     }
 
+    // 【WP5】迁移后验证（仍在事务内）：关键 invariant + quick/fk check +
+    // _imboy_schema_meta 写入；失败抛出让 sqflite 回滚且版本号不推进。
+    final verification = await DatabaseMigrationOrchestrator.to
+        .verifyAfterMigration(
+          db,
+          toVersion: newVsn,
+          migrationId: 'upgrade_v${oldVsn}_v$newVsn',
+        );
+    if (!verification.ok) {
+      throw Exception(
+        'Post-migration verification failed: ${verification.violations}',
+      );
+    }
+
     iPrint(
       "✅ Migration completed successfully: v${result.fromVersion} → v${result.toVersion}",
     );
 
+    // 迁移成功后按保留策略清理快照（fire-and-forget，不阻塞启动）
+    unawaited(_cleanupMigrationSnapshots());
+
     // 验证表结构是否正确
     await _verifyTableStructure(db);
+  }
+
+  /// 【WP5】未同步 outbox 探测：降级场景存在未同步数据时阻塞迁移。
+  ///
+  /// v28+ 存在 channel_message_outbox / channel_publish_outbox；低版本库
+  /// 无这些表（无阻塞）。探测失败按"无阻塞"处理（表缺失是合法形态），
+  /// 读到行数>0 视为阻塞。
+  static Future<List<String>> _unsyncedOutboxProbe() async {
+    final db = await SqliteService.to.db;
+    if (db == null) return const [];
+    final blockers = <String>[];
+    for (final table in ['channel_message_outbox', 'channel_publish_outbox']) {
+      try {
+        final exists = await db.rawQuery(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name = ?",
+          [table],
+        );
+        if (exists.isEmpty) continue;
+        final count =
+            (await db.rawQuery(
+                  'SELECT count(*) AS c FROM $table',
+                )).first.values.first
+                as int;
+        if (count > 0) blockers.add('$table: $count unsynced rows');
+      } catch (_) {
+        // 表不存在/不可读：非阻塞（降级预检的保守豁免由调用方决定）
+      }
+    }
+    return blockers;
+  }
+
+  /// 【WP5】迁移成功后的快照保留清理。
+  static Future<void> _cleanupMigrationSnapshots() async {
+    try {
+      if (kIsWeb) return;
+      final uid = UserRepoLocal.to.currentUid;
+      if (uid.isEmpty) return;
+      final baseDir = (await getApplicationSupportDirectory()).path;
+      await DatabaseMigrationOrchestrator.to.postMigrationCleanup(
+        baseDir: baseDir,
+        env: currentEnv,
+        uid: uid,
+      );
+    } catch (e) {
+      AppLogger.debug('snapshot cleanup skipped: $e');
+    }
   }
 
   /// 验证关键表的字段是否存在
@@ -599,6 +703,19 @@ class SqliteService {
 
     if (!result.success) {
       throw Exception('Downgrade failed: ${result.error}');
+    }
+
+    // 【WP5】降级同样需要迁移后验证（manifest 已声明 31→30 窗口）。
+    final verification = await DatabaseMigrationOrchestrator.to
+        .verifyAfterMigration(
+          db,
+          toVersion: newVsn,
+          migrationId: 'downgrade_v${oldVsn}_v$newVsn',
+        );
+    if (!verification.ok) {
+      throw Exception(
+        'Post-downgrade verification failed: ${verification.violations}',
+      );
     }
 
     iPrint(
