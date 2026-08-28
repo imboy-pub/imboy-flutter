@@ -1,0 +1,2436 @@
+{
+  "version": 16,
+  "fingerprint": "33a577c25dcdb696b4d491b4fd157f4fb71f964eb59d50571a398ff122af35f5",
+  "tables": {
+    "channel": {
+      "columns": [
+        {
+          "name": "avatar",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "creator_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "custom_id",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "has_purchased",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "is_subscribed",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "is_verified",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "subscriber_count",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "tags",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "type",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "user_role",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "custom_id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "idx_channel_creator_id",
+          "columns": [
+            "creator_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_channel_custom_id",
+          "columns": [
+            "custom_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_channel_type",
+          "columns": [
+            "type"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "channel_admin": {
+      "columns": [
+        {
+          "name": "added_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "channel_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "role",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "channel_id",
+            "user_id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "idx_channel_admin_user",
+          "columns": [
+            "user_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "channel_message": {
+      "columns": [
+        {
+          "name": "author_avatar",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "author_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "author_name",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "channel_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "content",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "is_pinned",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "msg_type",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "my_reactions",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "reaction_summary",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "view_count",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_channel_msg_channel_id",
+          "columns": [
+            "channel_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_channel_msg_created_at",
+          "columns": [
+            "channel_id",
+            "created_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_channel_msg_pinned",
+          "columns": [
+            "channel_id",
+            "is_pinned"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "channel_subscription": {
+      "columns": [
+        {
+          "name": "channel_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "is_muted",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "is_pinned",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "last_message_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "last_read_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "notifications_enabled",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "1",
+          "pk": 0
+        },
+        {
+          "name": "subscribed_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "unread_count",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "channel_id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "idx_subscription_muted",
+          "columns": [
+            "is_muted"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_subscription_pinned",
+          "columns": [
+            "is_pinned"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "contact": {
+      "columns": [
+        {
+          "name": "account",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "avatar",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "category_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "gender",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "is_friend",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "is_from",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "last_seen_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "nickname",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "peer_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "region",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "remark",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "sign",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "source",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "tag",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "user_id",
+            "peer_id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "i_Nickname",
+          "columns": [
+            "nickname"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "i_Remark",
+          "columns": [
+            "remark"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "i_Tag",
+          "columns": [
+            "tag"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "i_UserId_CategoryId",
+          "columns": [
+            "user_id",
+            "category_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "i_UserId_IsFriend_UpdateTime",
+          "columns": [
+            "user_id",
+            "is_friend",
+            "updated_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_contact_user_id_peer_id",
+          "columns": [
+            "user_id",
+            "peer_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "conversation": {
+      "columns": [
+        {
+          "name": "avatar",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "is_show",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "last_msg_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "last_msg_status",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "last_time",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "msg_type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "peer_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "region",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "sign",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "subtitle",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "unread_num",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "i_cv_UserId_IsShow_LastTime",
+          "columns": [
+            "user_id",
+            "is_show",
+            "last_time"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_conversation_user_id_last_time",
+          "columns": [
+            "user_id",
+            "last_time"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "uk_cv_Type_From_To",
+          "columns": [
+            "type",
+            "user_id",
+            "peer_id"
+          ],
+          "unique": 1,
+          "origin": "c"
+        }
+      ]
+    },
+    "group": {
+      "columns": [
+        {
+          "name": "avatar",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "content_limit",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "2",
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "creator_uid",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "introduction",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "join_limit",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "2",
+          "pk": 0
+        },
+        {
+          "name": "member_count",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "1",
+          "pk": 0
+        },
+        {
+          "name": "member_max",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "1000",
+          "pk": 0
+        },
+        {
+          "name": "owner_uid",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "pinned_msg",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "status",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "1",
+          "pk": 0
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "type",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "1",
+          "pk": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "user_id_sum",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        }
+      ],
+      "indexes": []
+    },
+    "group_member": {
+      "columns": [
+        {
+          "name": "account",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "alias",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "avatar",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "group_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "invite_code",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "is_join",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "join_mode",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "nickname",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "role",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "sign",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "status",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "1",
+          "pk": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "i_Uid_Gid_IsJoin",
+          "columns": [
+            "user_id",
+            "group_id",
+            "is_join"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_group_member_user_id_status",
+          "columns": [
+            "user_id",
+            "status"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "uk_Gid_Uid",
+          "columns": [
+            "group_id",
+            "user_id"
+          ],
+          "unique": 1,
+          "origin": "c"
+        }
+      ]
+    },
+    "group_notice": {
+      "columns": [
+        {
+          "name": "body",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "edit_user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "expired_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "group_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "status",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "i_Gid_Status_ExpiredAt",
+          "columns": [
+            "group_id",
+            "status",
+            "expired_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "msg_c2c": {
+      "columns": [
+        {
+          "name": "action",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "conversation_uk3",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "e2ee",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "from_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "is_author",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "msg_type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "sender_did",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "status",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "to_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "topic_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "'C2C'",
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "idx_msg_c2c_conversation_created_at",
+          "columns": [
+            "conversation_uk3",
+            "created_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2c_conversation_status_author",
+          "columns": [
+            "conversation_uk3",
+            "status",
+            "is_author"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2c_conversation_topic_id",
+          "columns": [
+            "conversation_uk3",
+            "topic_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2c_conversation_uk3",
+          "columns": [
+            "conversation_uk3"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2c_from_to_created",
+          "columns": [
+            "from_id",
+            "to_id",
+            "created_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2c_msg_type",
+          "columns": [
+            "msg_type"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2c_status",
+          "columns": [
+            "status"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2c_unread_count",
+          "columns": [
+            "conversation_uk3",
+            "is_author",
+            "auto_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "msg_c2c_fts": {
+      "columns": [
+        {
+          "name": "conversation_uk3",
+          "type": "",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "text_content",
+          "type": "",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": []
+    },
+    "msg_c2g": {
+      "columns": [
+        {
+          "name": "action",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "conversation_uk3",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "e2ee",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "from_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "is_author",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "msg_type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "status",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "to_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "topic_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "'C2G'",
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "idx_msg_c2g_conversation_created_at",
+          "columns": [
+            "conversation_uk3",
+            "created_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2g_conversation_status_author",
+          "columns": [
+            "conversation_uk3",
+            "status",
+            "is_author"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2g_conversation_topic_id",
+          "columns": [
+            "conversation_uk3",
+            "topic_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2g_conversation_uk3",
+          "columns": [
+            "conversation_uk3"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2g_from_to_created",
+          "columns": [
+            "from_id",
+            "to_id",
+            "created_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2g_msg_type",
+          "columns": [
+            "msg_type"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2g_status",
+          "columns": [
+            "status"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2g_unread_count",
+          "columns": [
+            "conversation_uk3",
+            "is_author",
+            "auto_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "msg_c2g_fts": {
+      "columns": [
+        {
+          "name": "conversation_uk3",
+          "type": "",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "text_content",
+          "type": "",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": []
+    },
+    "msg_c2s": {
+      "columns": [
+        {
+          "name": "action",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "conversation_uk3",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "e2ee",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "from_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "is_author",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "msg_type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "status",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "to_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "topic_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "'C2S'",
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "idx_msg_c2s_conversation_created_at",
+          "columns": [
+            "conversation_uk3",
+            "created_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2s_conversation_status_author",
+          "columns": [
+            "conversation_uk3",
+            "status",
+            "is_author"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2s_conversation_topic_id",
+          "columns": [
+            "conversation_uk3",
+            "topic_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2s_conversation_uk3",
+          "columns": [
+            "conversation_uk3"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2s_from_to_created",
+          "columns": [
+            "from_id",
+            "to_id",
+            "created_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2s_status",
+          "columns": [
+            "status"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_c2s_unread_count",
+          "columns": [
+            "conversation_uk3",
+            "is_author",
+            "auto_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "msg_s2c": {
+      "columns": [
+        {
+          "name": "action",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "conversation_uk3",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "e2ee",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "from_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "is_author",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "msg_type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "status",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "to_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "topic_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "type",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "'S2C'",
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "idx_msg_s2c_action",
+          "columns": [
+            "action"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_s2c_conversation_created_at",
+          "columns": [
+            "conversation_uk3",
+            "created_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_s2c_conversation_status_author",
+          "columns": [
+            "conversation_uk3",
+            "status",
+            "is_author"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_s2c_conversation_topic_id",
+          "columns": [
+            "conversation_uk3",
+            "topic_id"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_s2c_conversation_uk3",
+          "columns": [
+            "conversation_uk3"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_msg_s2c_from_to_created",
+          "columns": [
+            "from_id",
+            "to_id",
+            "created_at"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "new_friend": {
+      "columns": [
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "avatar",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "from_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "msg",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "nickname",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "to_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "uid",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "from_id",
+            "to_id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        }
+      ]
+    },
+    "user_collect": {
+      "columns": [
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "info",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "kind",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "kind_id",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "remark",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "source",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "tag",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "user_id",
+            "kind_id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "i_Source",
+          "columns": [
+            "source"
+          ],
+          "unique": 0,
+          "origin": "c"
+        },
+        {
+          "name": "idx_user_collect_user_id_kind",
+          "columns": [
+            "user_id",
+            "kind"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    },
+    "user_denylist": {
+      "columns": [
+        {
+          "name": "account",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "avatar",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "denied_user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "gender",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "nickname",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "region",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "remark",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "sign",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "source",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "user_id",
+            "denied_user_id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        }
+      ]
+    },
+    "user_device": {
+      "columns": [
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "device_id",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "device_name",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "device_type",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "device_vsn",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "last_active_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "user_id",
+            "device_id"
+          ],
+          "unique": 1,
+          "origin": "u"
+        }
+      ]
+    },
+    "user_group": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "group_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "remark",
+          "type": "TEXT",
+          "notNull": 0,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "setting",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        },
+        {
+          "name": "status",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "1",
+          "pk": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": []
+    },
+    "user_tag": {
+      "columns": [
+        {
+          "name": "auto_id",
+          "type": "INTEGER",
+          "notNull": 0,
+          "default": null,
+          "pk": 1
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "referer_time",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "scene",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "subtitle",
+          "type": "TEXT",
+          "notNull": 1,
+          "default": "''",
+          "pk": 0
+        },
+        {
+          "name": "tag_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": "0",
+          "pk": 0
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "notNull": 1,
+          "default": null,
+          "pk": 0
+        }
+      ],
+      "indexes": [
+        {
+          "name": "AUTOINDEX",
+          "columns": [
+            "user_id",
+            "scene",
+            "name"
+          ],
+          "unique": 1,
+          "origin": "u"
+        },
+        {
+          "name": "idx_user_tag_user_id_scene",
+          "columns": [
+            "user_id",
+            "scene"
+          ],
+          "unique": 0,
+          "origin": "c"
+        }
+      ]
+    }
+  },
+  "others": {
+    "index:i_Gid_Status_ExpiredAt": "CREATE INDEX i_Gid_Status_ExpiredAt ON group_notice (group_id, status, expired_at ASC)",
+    "index:i_Nickname": "CREATE INDEX i_Nickname ON contact (nickname)",
+    "index:i_Remark": "CREATE INDEX i_Remark ON contact (remark)",
+    "index:i_Source": "CREATE INDEX i_Source ON user_collect (source)",
+    "index:i_Tag": "CREATE INDEX i_Tag ON contact (tag)",
+    "index:i_Uid_Gid_IsJoin": "CREATE INDEX i_Uid_Gid_IsJoin ON group_member (user_id, group_id, is_join)",
+    "index:i_UserId_CategoryId": "CREATE INDEX i_UserId_CategoryId ON contact (user_id, category_id)",
+    "index:i_UserId_IsFriend_UpdateTime": "CREATE INDEX i_UserId_IsFriend_UpdateTime ON contact (user_id, is_friend, updated_at)",
+    "index:i_cv_UserId_IsShow_LastTime": "CREATE INDEX i_cv_UserId_IsShow_LastTime ON conversation (user_id, is_show, last_time)",
+    "index:idx_channel_admin_user": "CREATE INDEX idx_channel_admin_user ON channel_admin(user_id)",
+    "index:idx_channel_creator_id": "CREATE INDEX idx_channel_creator_id ON channel(creator_id)",
+    "index:idx_channel_custom_id": "CREATE INDEX idx_channel_custom_id ON channel(custom_id)",
+    "index:idx_channel_msg_channel_id": "CREATE INDEX idx_channel_msg_channel_id ON channel_message(channel_id)",
+    "index:idx_channel_msg_created_at": "CREATE INDEX idx_channel_msg_created_at ON channel_message(channel_id, created_at DESC)",
+    "index:idx_channel_msg_pinned": "CREATE INDEX idx_channel_msg_pinned ON channel_message(channel_id, is_pinned)",
+    "index:idx_channel_type": "CREATE INDEX idx_channel_type ON channel(type)",
+    "index:idx_contact_user_id_peer_id": "CREATE INDEX idx_contact_user_id_peer_id ON contact (user_id, peer_id)",
+    "index:idx_conversation_user_id_last_time": "CREATE INDEX idx_conversation_user_id_last_time ON conversation (user_id, last_time DESC)",
+    "index:idx_group_member_user_id_status": "CREATE INDEX idx_group_member_user_id_status ON group_member (user_id, status)",
+    "index:idx_msg_c2c_conversation_created_at": "CREATE INDEX idx_msg_c2c_conversation_created_at ON msg_c2c (conversation_uk3, created_at)",
+    "index:idx_msg_c2c_conversation_status_author": "CREATE INDEX idx_msg_c2c_conversation_status_author ON msg_c2c (conversation_uk3, status, is_author)",
+    "index:idx_msg_c2c_conversation_topic_id": "CREATE INDEX idx_msg_c2c_conversation_topic_id ON msg_c2c (conversation_uk3, topic_id)",
+    "index:idx_msg_c2c_conversation_uk3": "CREATE INDEX idx_msg_c2c_conversation_uk3 ON msg_c2c (conversation_uk3)",
+    "index:idx_msg_c2c_from_to_created": "CREATE INDEX idx_msg_c2c_from_to_created ON msg_c2c (from_id, to_id, created_at DESC)",
+    "index:idx_msg_c2c_msg_type": "CREATE INDEX idx_msg_c2c_msg_type ON msg_c2c (msg_type)",
+    "index:idx_msg_c2c_status": "CREATE INDEX idx_msg_c2c_status ON msg_c2c (status)",
+    "index:idx_msg_c2c_unread_count": "CREATE INDEX idx_msg_c2c_unread_count ON msg_c2c (conversation_uk3, is_author, auto_id)",
+    "index:idx_msg_c2g_conversation_created_at": "CREATE INDEX idx_msg_c2g_conversation_created_at ON msg_c2g (conversation_uk3, created_at)",
+    "index:idx_msg_c2g_conversation_status_author": "CREATE INDEX idx_msg_c2g_conversation_status_author ON msg_c2g (conversation_uk3, status, is_author)",
+    "index:idx_msg_c2g_conversation_topic_id": "CREATE INDEX idx_msg_c2g_conversation_topic_id ON msg_c2g (conversation_uk3, topic_id)",
+    "index:idx_msg_c2g_conversation_uk3": "CREATE INDEX idx_msg_c2g_conversation_uk3 ON msg_c2g (conversation_uk3)",
+    "index:idx_msg_c2g_from_to_created": "CREATE INDEX idx_msg_c2g_from_to_created ON msg_c2g (from_id, to_id, created_at DESC)",
+    "index:idx_msg_c2g_msg_type": "CREATE INDEX idx_msg_c2g_msg_type ON msg_c2g (msg_type)",
+    "index:idx_msg_c2g_status": "CREATE INDEX idx_msg_c2g_status ON msg_c2g (status)",
+    "index:idx_msg_c2g_unread_count": "CREATE INDEX idx_msg_c2g_unread_count ON msg_c2g (conversation_uk3, is_author, auto_id)",
+    "index:idx_msg_c2s_conversation_created_at": "CREATE INDEX idx_msg_c2s_conversation_created_at ON msg_c2s (conversation_uk3, created_at)",
+    "index:idx_msg_c2s_conversation_status_author": "CREATE INDEX idx_msg_c2s_conversation_status_author ON msg_c2s (conversation_uk3, status, is_author)",
+    "index:idx_msg_c2s_conversation_topic_id": "CREATE INDEX idx_msg_c2s_conversation_topic_id ON msg_c2s (conversation_uk3, topic_id)",
+    "index:idx_msg_c2s_conversation_uk3": "CREATE INDEX idx_msg_c2s_conversation_uk3 ON msg_c2s (conversation_uk3)",
+    "index:idx_msg_c2s_from_to_created": "CREATE INDEX idx_msg_c2s_from_to_created ON msg_c2s (from_id, to_id, created_at DESC)",
+    "index:idx_msg_c2s_status": "CREATE INDEX idx_msg_c2s_status ON msg_c2s (status)",
+    "index:idx_msg_c2s_unread_count": "CREATE INDEX idx_msg_c2s_unread_count ON msg_c2s (conversation_uk3, is_author, auto_id)",
+    "index:idx_msg_s2c_action": "CREATE INDEX idx_msg_s2c_action ON msg_s2c (action)",
+    "index:idx_msg_s2c_conversation_created_at": "CREATE INDEX idx_msg_s2c_conversation_created_at ON msg_s2c (conversation_uk3, created_at)",
+    "index:idx_msg_s2c_conversation_status_author": "CREATE INDEX idx_msg_s2c_conversation_status_author ON msg_s2c (conversation_uk3, status, is_author)",
+    "index:idx_msg_s2c_conversation_topic_id": "CREATE INDEX idx_msg_s2c_conversation_topic_id ON msg_s2c (conversation_uk3, topic_id)",
+    "index:idx_msg_s2c_conversation_uk3": "CREATE INDEX idx_msg_s2c_conversation_uk3 ON msg_s2c (conversation_uk3)",
+    "index:idx_msg_s2c_from_to_created": "CREATE INDEX idx_msg_s2c_from_to_created ON msg_s2c (from_id, to_id, created_at DESC)",
+    "index:idx_subscription_muted": "CREATE INDEX idx_subscription_muted ON channel_subscription(is_muted)",
+    "index:idx_subscription_pinned": "CREATE INDEX idx_subscription_pinned ON channel_subscription(is_pinned)",
+    "index:idx_user_collect_user_id_kind": "CREATE INDEX idx_user_collect_user_id_kind ON user_collect (user_id, kind)",
+    "index:idx_user_tag_user_id_scene": "CREATE INDEX idx_user_tag_user_id_scene ON user_tag (user_id, scene)",
+    "index:uk_Gid_Uid": "CREATE UNIQUE INDEX uk_Gid_Uid ON group_member (group_id, user_id)",
+    "index:uk_cv_Type_From_To": "CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation (\"type\", user_id, peer_id)"
+  }
+}
