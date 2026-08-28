@@ -9,6 +9,7 @@
 /// - badge 透传
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -174,7 +175,7 @@ void main() {
     ) async {
       final container = await _pumpShell(tester, size: const Size(1400, 800));
       // 点击 NavRail 的第二项（联系人）
-      await tester.tap(find.byType(InkWell).at(1));
+      await tester.tap(find.byType(GestureDetector).at(1));
       await tester.pump();
 
       expect(container.read(webShellProvider).currentTab, 1);
@@ -360,8 +361,17 @@ void main() {
         // MaterialApp 默认 themeAnimationDuration=200ms：主题切换经 AnimatedTheme
         // lerp，未等动画完成就读 Scaffold 会拿到过渡中间值（伪失败）。等动画结束。
         await tester.pump(const Duration(milliseconds: 300));
-        final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
-        return scaffold.backgroundColor ?? Colors.transparent;
+        // Cupertino 迁移后背景由 CupertinoTheme 层接管；MaterialApp 会把
+        // colorScheme.surface 桥接给 Cupertino 主题，明暗语义不变
+        final elements = find.byType(CupertinoPageScaffold).evaluate();
+        if (elements.isEmpty) return Colors.transparent;
+        final ctx = elements.first;
+        final scaffold = tester.widget<CupertinoPageScaffold>(
+          find.byType(CupertinoPageScaffold).first,
+        );
+        return scaffold.backgroundColor ??
+            CupertinoTheme.of(ctx).scaffoldBackgroundColor ??
+            Colors.transparent;
       }
 
       final lightBg = await pumpAndGetBackground(Brightness.light);

@@ -107,9 +107,11 @@ void main() {
     testWidgets('Scaffold uses iOS surfaceGrouped background', (tester) async {
       await _pumpMine(tester);
 
-      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
-      // 亮色模式下 surfaceGrouped = #F2F2F7
-      expect(scaffold.backgroundColor, AppColors.lightSurfaceGrouped);
+      // Cupertino 迁移后背景色由 CupertinoTheme 层接管，组件不再显式设色
+      final scaffold = tester.widget<CupertinoPageScaffold>(
+        find.byType(CupertinoPageScaffold).first,
+      );
+      expect(scaffold.backgroundColor, isNull);
     });
 
     testWidgets('renders immersive top safety spacing', (tester) async {
