@@ -82,17 +82,24 @@ void main() {
       expect(plan.map((s) => s.version).toList(), [14, 16]);
     });
 
-    // 降级方向不校验：kDowngradeScriptSql 止于 v18（v19~v25 全缺，A-21 记录的
-    // 预存缺口）。不补脚本就严格化，只会让旧版 app 直接打不开数据库。
-    test('降级缺脚本仍按原样返回（预存缺口，不在本任务范围） / downgrade unchanged', () {
-      final scripts = {11: downgradeScript(11)};
-      final plan = MigrationScriptPlanner.plan(
-        scripts: scripts,
-        fromVersion: 11,
-        toVersion: 9,
-      );
-      expect(plan.map((s) => s.version).toList(), [11]);
-    });
+    // WP1（2026-08-27）反转：降级缺块不再"按原样返回"。旧行为会让
+    // migrate() 拿到部分计划返回 success，sqflite 推进 user_version 而
+    // schema 停在旧状态（研究文档 §2.2 P0，v30→v29 是最危险实例）。
+    // 现在任何降级缺块都必须抛 MissingMigrationPathException。
+    test(
+      '降级缺脚本必须抛 MissingMigrationPathException / missing downgrade block throws',
+      () {
+        final scripts = {11: downgradeScript(11)};
+        expect(
+          () => MigrationScriptPlanner.plan(
+            scripts: scripts,
+            fromVersion: 11,
+            toVersion: 9,
+          ),
+          throwsA(isA<MissingMigrationPathException>()),
+        );
+      },
+    );
   });
 
   group('MigrationScriptPlanner.plan — 降级 / downgrade', () {
@@ -156,6 +163,11 @@ void main() {
     // 脚本一个都没加载成功（embedded 常量为空、asset 读取失败）时返回空计划，
     // MigrationService 走 `scripts.isEmpty` 分支直接 return success —— 迁移
     // 完全没发生却报成功。反转为"必须抛"。
+    //
+    // WP1（2026-08-27）异常类型细化：空 map 升级缺失的是整个路径
+    // （[10, 11] 全缺，不只目标块），按新语义抛 MissingMigrationPathException；
+    // MissingMigrationScriptException 保留给"只缺目标块"的场景（见上方
+    // 升级 V9→V12 用例）。
     test('空 scripts map 必须抛异常 / empty map throws', () {
       expect(
         () => MigrationScriptPlanner.plan(
@@ -163,7 +175,7 @@ void main() {
           fromVersion: 9,
           toVersion: 11,
         ),
-        throwsA(isA<MissingMigrationScriptException>()),
+        throwsA(isA<MissingMigrationPathException>()),
       );
     });
 

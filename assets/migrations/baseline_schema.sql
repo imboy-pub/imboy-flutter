@@ -172,7 +172,6 @@ CREATE TABLE conversation (
     last_msg_status INTEGER,
     payload TEXT
 );
--- sqlite_sequence is auto-managed by SQLite, do not create manually
 CREATE INDEX i_cv_UserId_IsShow_LastTime ON conversation (user_id, is_show, last_time);
 CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation ("type", user_id, peer_id);
 CREATE INDEX idx_conversation_user_id_last_time ON conversation (user_id, last_time DESC);
