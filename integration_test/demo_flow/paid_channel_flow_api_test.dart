@@ -273,8 +273,9 @@ String? _writeGuard() {
           .toLowerCase() ==
       'true';
   if (!paidWrites) return '未设置 TEST_ALLOW_PAID_CHANNEL_WRITES=true';
-  if (!ApiTestConfig.allowBusinessWrites)
+  if (!ApiTestConfig.allowBusinessWrites) {
     return '未设置 TEST_ALLOW_API_WRITES=true';
+  }
   if (ApiTestConfig.targetsProductionOrUnknown) return '目标地址不是本地/开发环境';
   if (!ApiTestConfig.isConfigured) return '未配置测试账号';
   if (_channelId.isEmpty) return '未设置 TEST_PAID_CHANNEL_ID（用 fixture 脚本创建）';
@@ -290,8 +291,9 @@ Future<Map<String, dynamic>> _waitForFinalOrder(
     ApiAssert.success(response, context: '查询付费频道订单');
     final payload = _payload(response);
     final status = _readInt(payload['status']);
-    if (status == 1 || status == 2 || status == 3 || status == 4)
+    if (status == 1 || status == 2 || status == 3 || status == 4) {
       return payload;
+    }
     await Future<void>.delayed(const Duration(milliseconds: 200));
   }
   fail('付费频道订单在轮询窗口内未进入终态');

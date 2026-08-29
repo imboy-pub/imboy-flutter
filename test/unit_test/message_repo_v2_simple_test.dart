@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
@@ -14,11 +15,11 @@ void main() {
       expect(MessageRepo.c2sTable, equals('msg_c2s'));
       expect(MessageRepo.s2cTable, equals('msg_s2c'));
 
-      print('✅ 表名常量正确:');
-      print('  - C2C: ${MessageRepo.c2cTable}');
-      print('  - C2G: ${MessageRepo.c2gTable}');
-      print('  - C2S: ${MessageRepo.c2sTable}');
-      print('  - S2C: ${MessageRepo.s2cTable}');
+      debugPrint('✅ 表名常量正确:');
+      debugPrint('  - C2C: ${MessageRepo.c2cTable}');
+      debugPrint('  - C2G: ${MessageRepo.c2gTable}');
+      debugPrint('  - C2S: ${MessageRepo.c2sTable}');
+      debugPrint('  - S2C: ${MessageRepo.s2cTable}');
     });
 
     test('getTableName 方法正确性', () {
@@ -40,7 +41,7 @@ void main() {
       expect(MessageRepo.getTableName('C2C_REVOKE_ACK'), equals('msg_c2c'));
       expect(MessageRepo.getTableName('C2G_REVOKE_ACK'), equals('msg_c2g'));
 
-      print('✅ getTableName 方法正确映射所有消息类型');
+      debugPrint('✅ getTableName 方法正确映射所有消息类型');
     });
 
     test('新字段常量正确性', () {
@@ -49,10 +50,10 @@ void main() {
       expect(MessageRepo.action, equals('action'));
       expect(MessageRepo.e2ee, equals('e2ee'));
 
-      print('✅ 新字段常量正确:');
-      print('  - msg_type: ${MessageRepo.msgType}');
-      print('  - action: ${MessageRepo.action}');
-      print('  - e2ee: ${MessageRepo.e2ee}');
+      debugPrint('✅ 新字段常量正确:');
+      debugPrint('  - msg_type: ${MessageRepo.msgType}');
+      debugPrint('  - action: ${MessageRepo.action}');
+      debugPrint('  - e2ee: ${MessageRepo.e2ee}');
     });
 
     test('新字段已添加到 defaultColumns', () {
@@ -82,8 +83,10 @@ void main() {
         ]),
       );
 
-      print('✅ defaultColumns 包含所有字段，共 ${MessageRepo.defaultColumns.length} 个');
-      print('  字段列表: ${MessageRepo.defaultColumns.join(", ")}');
+      debugPrint(
+        '✅ defaultColumns 包含所有字段，共 ${MessageRepo.defaultColumns.length} 个',
+      );
+      debugPrint('  字段列表: ${MessageRepo.defaultColumns.join(", ")}');
     });
 
     test('MessageRepo 实例化', () {
@@ -100,7 +103,7 @@ void main() {
       final s2cRepo = MessageRepo(tableName: MessageRepo.s2cTable);
       expect(s2cRepo.tableName, equals('msg_s2c'));
 
-      print('✅ MessageRepo 可以使用新表名创建实例');
+      debugPrint('✅ MessageRepo 可以使用新表名创建实例');
 
       // 测试使用旧表名应该抛出异常（不在白名单中）
       expect(() => MessageRepo(tableName: 'message'), throwsArgumentError);
@@ -115,7 +118,7 @@ void main() {
         throwsArgumentError,
       );
 
-      print('✅ 旧表名和非法表名被正确拒绝');
+      debugPrint('✅ 旧表名和非法表名被正确拒绝');
     });
 
     test('字段常量一致性', () {
@@ -132,18 +135,18 @@ void main() {
       expect(MessageRepo.isAuthor, equals('is_author'));
       expect(MessageRepo.topicId, equals('topic_id'));
 
-      print('✅ 所有字段常量定义正确');
+      debugPrint('✅ 所有字段常量定义正确');
     });
 
     test('v2.0 迁移总结', () {
-      print('\n📊 MessageRepo v2.0 迁移总结:');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      print('✅ 表名常量已更新为 v2.0 规范');
-      print('✅ getTableName 方法支持所有消息类型');
-      print('✅ 新增字段: msg_type, action, e2ee');
-      print('✅ defaultColumns 已包含新字段');
-      print('✅ 表名白名单验证机制正常');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+      debugPrint('\n📊 MessageRepo v2.0 迁移总结:');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      debugPrint('✅ 表名常量已更新为 v2.0 规范');
+      debugPrint('✅ getTableName 方法支持所有消息类型');
+      debugPrint('✅ 新增字段: msg_type, action, e2ee');
+      debugPrint('✅ defaultColumns 已包含新字段');
+      debugPrint('✅ 表名白名单验证机制正常');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
       // 最终验证
       expect(MessageRepo.c2cTable, equals('msg_c2c'));

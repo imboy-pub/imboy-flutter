@@ -72,15 +72,6 @@ void _tearDownPathProviderMock() {
 // 辅助函数 / Helpers
 // ---------------------------------------------------------------------------
 
-/// 逐字节比较两个 Uint8List
-bool _bytesEqual(Uint8List a, Uint8List b) {
-  if (a.length != b.length) return false;
-  for (int i = 0; i < a.length; i++) {
-    if (a[i] != b[i]) return false;
-  }
-  return true;
-}
-
 /// 创建合法备份文件并返回路径
 Future<String> _createValidBackup({
   String password = _kValidPassword,

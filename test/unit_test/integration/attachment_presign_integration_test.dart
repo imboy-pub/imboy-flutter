@@ -6,7 +6,7 @@
 /// 运行（需后端 9800 + Garage 就绪 + 有效 JWT）：
 ///   后端生成 token：`token_ds:encrypt_token(Uid)`
 ///   flutter test test/integration/attachment_presign_integration_test.dart \
-///     --dart-define=IMBOY_TEST_TOKEN=<token> \
+///     --dart-define=IMBOY_TEST_TOKEN=`<token>` \
 ///     --dart-define=IMBOY_API_BASE=http://127.0.0.1:9800
 ///
 /// 未提供 token 时整组 skip（不阻塞无后端的 CI）。

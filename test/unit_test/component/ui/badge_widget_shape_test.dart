@@ -181,10 +181,7 @@ void main() {
         TranslationProvider(
           child: const MaterialApp(
             home: Scaffold(
-              body: BadgeWidget(
-                content: const Text('7'),
-                child: const Icon(Icons.chat),
-              ),
+              body: BadgeWidget(content: Text('7'), child: Icon(Icons.chat)),
             ),
           ),
         ),

@@ -2,7 +2,6 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
@@ -350,7 +349,7 @@ void main() {
       expect(rect.height, greaterThanOrEqualTo(44));
 
       final sem = tester.getSemantics(sendButton);
-      expect(sem.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(sem.flagsCollection.isButton, isTrue);
       expect(sem.label, '发送'); // t.chat.send = 发送
 
       await _unmount(tester);
@@ -407,7 +406,7 @@ void main() {
       final finder = find.bySemanticsLabel(label);
       expect(finder, findsWidgets, reason: '语义树里找不到 label="$label" 的节点');
       expect(
-        tester.getSemantics(finder.first).hasFlag(SemanticsFlag.isButton),
+        tester.getSemantics(finder.first).flagsCollection.isButton,
         isTrue,
         reason: '"$label" 未声明 button 语义',
       );

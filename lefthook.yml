@@ -64,7 +64,9 @@ commit-msg:
         fi
 
 # pre-push 门控：合并到 main 前的最后一道防线
-#   - dart-analyze-full: 总是跑，快（~10s），零依赖
+#   - dart-analyze-full: 总是跑（~10s），零依赖。APP-02 (2026-08-29) 起
+#     全仓 analyzer 清零（159→0），升级为全仓指纹级 ratchet 门：基线外
+#     新增 1 条即拦（scripts/quality/analyzer_ratchet_baseline.txt）。
 #   - error-code-sync: 并排仓时跑 --check；覆盖"后端 hrl 已改、本仓生成物
 #     未同步"的漂移（该场景不触碰 error_code.dart，pre-commit glob 不命中）
 #   - api-contract-tests: 后端可达时跑 Tier 1 契约测试；不可达/未配置凭证时优雅跳过
@@ -74,7 +76,7 @@ pre-push:
   commands:
     dart-analyze-full:
       tags: quality
-      run: dart analyze lib --no-fatal-warnings
+      run: bash scripts/quality/check_analyzer_ratchet.sh
     error-code-sync:
       tags: quality
       run: |

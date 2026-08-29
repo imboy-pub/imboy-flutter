@@ -54,7 +54,11 @@ void main() {
       );
       if (resp['code'] != 0) return markTestSkipped('feed 非成功');
       final payload = resp['payload'];
-      expect(payload, isA<Map>(), reason: 'feed payload 应为 Map(游标分页信封)');
+      expect(
+        payload,
+        isA<Map<String, dynamic>>(),
+        reason: 'feed payload 应为 Map(游标分页信封)',
+      );
       final map = payload as Map;
       expect(map.containsKey('list'), isTrue, reason: 'feed 应含 list 字段');
       expect(map['list'] is List, isTrue, reason: 'feed.list 应为 List');

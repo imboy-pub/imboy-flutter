@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
@@ -283,13 +282,19 @@ void main() {
       );
 
       final semSelected = tester.getSemantics(find.text('消息'));
-      expect(semSelected.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(semSelected.flagsCollection.isButton, isTrue);
       expect(semSelected.label, '消息');
-      expect(semSelected.hasFlag(SemanticsFlag.isSelected), isTrue);
+      expect(
+        semSelected.flagsCollection.isSelected.toBoolOrNull() == true,
+        isTrue,
+      );
 
       final semUnselected = tester.getSemantics(find.text('我的'));
-      expect(semUnselected.hasFlag(SemanticsFlag.isButton), isTrue);
-      expect(semUnselected.hasFlag(SemanticsFlag.isSelected), isFalse);
+      expect(semUnselected.flagsCollection.isButton, isTrue);
+      expect(
+        semUnselected.flagsCollection.isSelected.toBoolOrNull() == true,
+        isFalse,
+      );
     });
   });
 }

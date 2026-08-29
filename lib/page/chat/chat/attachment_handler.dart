@@ -515,10 +515,7 @@ class ChatAttachmentHandler {
   /// 完全绕过 photo_manager。
   Future<void> handleImageFileSelection(BuildContext context) async {
     try {
-      final files = await FilePicker.pickFiles(
-        type: FileType.image,
-        allowMultiple: true,
-      );
+      final files = await FilePicker.pickFiles(type: FileType.image);
       if (files.isEmpty) return;
       if (!context.mounted) return;
 

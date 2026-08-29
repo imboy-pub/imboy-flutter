@@ -6,8 +6,6 @@
 /// CMO-4  ChannelModel.toMap / fromMap 往返 / copyWith / == / hashCode
 library;
 
-import 'dart:convert';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/store/model/channel_model.dart';
 

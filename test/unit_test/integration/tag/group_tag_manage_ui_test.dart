@@ -597,7 +597,7 @@ void main() {
     });
 
     test('空颜色使用默认值', () {
-      const colorString = null;
+      const String? colorString = null;
       final colorValue =
           int.tryParse(colorString ?? '0xFF2196F3') ?? 0xFF2196F3;
 

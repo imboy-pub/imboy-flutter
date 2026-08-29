@@ -28,7 +28,7 @@ void expectTsid(dynamic v, {required String field}) {
   );
 }
 
-List _extractList(dynamic payload) {
+List<dynamic> _extractList(dynamic payload) {
   if (payload is List) return payload;
   if (payload is Map) {
     final l = payload['list'] ?? payload['data'] ?? payload['rows'];

@@ -29,8 +29,9 @@ void main() {
       final lines = file.readAsLinesSync();
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i].trim();
-        if (!line.startsWith("import '") && !line.startsWith('import "'))
+        if (!line.startsWith("import '") && !line.startsWith('import "')) {
           continue;
+        }
 
         // Only check package: imports (skip dart:, relative, and imboy internal)
         final pkgMatch = RegExp(

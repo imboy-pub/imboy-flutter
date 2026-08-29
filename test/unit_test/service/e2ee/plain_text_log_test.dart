@@ -4,7 +4,6 @@
 /// the plain-text content of the message payload, even in debug mode.
 library;
 
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';

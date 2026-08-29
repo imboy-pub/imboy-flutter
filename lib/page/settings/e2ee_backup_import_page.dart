@@ -392,13 +392,12 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   Future<void> _selectFile() async {
     try {
-      final result = await FilePicker.pickFiles(
+      final result = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['enc'],
-        allowMultiple: false,
       );
 
-      if (result.isNotEmpty && result.single.path != null) {
+      if (result != null && result.path != null) {
         // 切换到文件选择器来源前，清理之前 URL 下载产生的临时文件
         if (_selectedFileSource == 'url' && _selectedFile != null) {
           await E2EEBackupUrlDownloadService.cleanupTempFile(
@@ -406,7 +405,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           );
         }
         setState(() {
-          _selectedFile = File(result.single.path!);
+          _selectedFile = File(result.path!);
           _selectedFileSource = 'picker';
           _backupInfo = null;
         });

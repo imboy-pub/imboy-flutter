@@ -286,10 +286,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   /// 后续上传/预览与相册路径一致。
   Future<void> _pickImagesViaFilePicker(int remaining) async {
     try {
-      final result = await FilePicker.pickFiles(
-        type: FileType.image,
-        allowMultiple: true,
-      );
+      final result = await FilePicker.pickFiles(type: FileType.image);
       if (result.isEmpty || !mounted) return;
       final picked = <_PickedImage>[
         for (final f in result.take(remaining))

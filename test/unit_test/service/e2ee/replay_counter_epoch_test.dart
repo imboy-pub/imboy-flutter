@@ -18,6 +18,7 @@
 /// 且 counter 乱序不得导致拒收；同时保留原有的正向与会话隔离用例。
 library;
 
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -141,7 +142,7 @@ void main() {
 
       // Message 1 (seq = 1) -> Decrypts successfully
       final r1 = await E2EEService.decryptIncomingPayload(payload: m1);
-      print('> r1: $r1');
+      debugPrint('> r1: $r1');
       expect(r1['_e2ee_failed'], isNot(true));
 
       // Message 2 (seq = 2) -> Decrypts successfully
