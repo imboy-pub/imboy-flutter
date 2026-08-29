@@ -10,7 +10,6 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 
 /// MinePage（我的页面）渲染契约测试
 ///

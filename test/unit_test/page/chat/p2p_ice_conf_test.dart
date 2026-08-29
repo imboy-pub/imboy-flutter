@@ -14,8 +14,8 @@ void main() {
   test('空 turn_urls（后端未配 eturnal）→ null 降级纯 STUN', () {
     expect(
       P2pCallScreenNotifier.buildIceServers({
-        'turn_urls': [],
-        'stun_urls': [],
+        'turn_urls': <String>[],
+        'stun_urls': <String>[],
         'username': 'u',
         'credential': 'c',
       }),
@@ -24,7 +24,7 @@ void main() {
     expect(
       P2pCallScreenNotifier.buildIceServers({
         'error': 'eturnal_secret_not_configured',
-        'stun_urls': [],
+        'stun_urls': <String>[],
       }),
       isNull,
     );
@@ -57,7 +57,7 @@ void main() {
   test('stun_urls 为空但 turn_urls 有效 → 跳过 stun 条目不崩', () {
     final servers = P2pCallScreenNotifier.buildIceServers({
       'turn_urls': ['turn:1.2.3.4:3478?transport=udp'],
-      'stun_urls': [],
+      'stun_urls': <String>[],
       'username': 'u',
       'credential': 'c',
     })!;

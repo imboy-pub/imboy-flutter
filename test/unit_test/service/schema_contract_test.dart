@@ -19,7 +19,7 @@ import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 const _updateGoldens = bool.fromEnvironment('UPDATE_SCHEMA_GOLDENS');
 const _goldenDir = 'test/fixtures/sqlite_migration/schema';
-const _goldenVersions = [9, 16, 25, 30, 31];
+const _goldenVersions = [9, 16, 25, 30, 31, 32];
 
 void main() {
   setUpAll(() {

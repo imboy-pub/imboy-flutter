@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/chat/mention_list_widget.dart';
@@ -340,7 +339,7 @@ void main() {
       // getSemantics 会上溯到包含该 widget 的最近语义节点，
       // Semantics(button: true) 的标志会合并到那里
       expect(
-        tester.getSemantics(find.text('Alice')).hasFlag(SemanticsFlag.isButton),
+        tester.getSemantics(find.text('Alice')).flagsCollection.isButton,
         isTrue,
         reason: '候选行未声明 button 语义，读屏用户不知道这是可点的',
       );

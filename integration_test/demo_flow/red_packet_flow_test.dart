@@ -22,6 +22,7 @@
 @TestOn('vm')
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:test/test.dart';
 
 import '../../test/unit_test/api/api_test_client.dart';
@@ -44,7 +45,7 @@ String? _gateReason() {
   return null;
 }
 
-void _ev(String msg) => print('[DEMO-FLOW-EVIDENCE][DF-18] $msg');
+void _ev(String msg) => debugPrint('[DEMO-FLOW-EVIDENCE][DF-18] $msg');
 
 Map<String, dynamic> _payloadMap(Map<String, dynamic> resp) {
   final p = resp['payload'];

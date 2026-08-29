@@ -1,5 +1,4 @@
 import 'dart:async' show unawaited;
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -208,15 +207,11 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   Future<void> _pickAndUploadFile() async {
     if (_isUploading) return;
 
-    final files = await FilePicker.pickFiles(
-      type: FileType.any,
-      allowMultiple: false,
-    );
-    if (files.isEmpty) {
+    final file = await FilePicker.pickFile(type: FileType.any);
+    if (file == null) {
       return;
     }
 
-    final file = files.single;
     final fileName = file.name.trim();
     final Uint8List fileBytes = await file.readAsBytes();
     if (fileName.isEmpty || fileBytes.isEmpty) {

@@ -30,7 +30,7 @@ void expectTsid(dynamic v, {required String field}) {
 }
 
 /// 分页信封取 list：payload 可能为 List 或 {list:[...]} / {data:[...]}
-List _extractList(dynamic payload) {
+List<dynamic> _extractList(dynamic payload) {
   if (payload is List) return payload;
   if (payload is Map) {
     final l = payload['list'] ?? payload['data'] ?? payload['rows'];

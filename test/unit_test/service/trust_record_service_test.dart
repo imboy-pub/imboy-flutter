@@ -9,17 +9,12 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/trust_event_canonical.dart';
 import 'package:imboy/service/e2ee/trust_event_client.dart';
-import 'package:imboy/service/trust_record_service.dart';
 
 void main() {
   group('1. 设备字段提取', () {
     test('int/num/string 类型均兼容，缺失返回 null', () {
-      final devices = <Map<String, dynamic>>[
-        {'device_id': 'dev-a', 'device_generation': 1, 'identity_version': '2'},
-        {'device_id': 'dev-b'},
-      ];
-      // 通过公有 API 间接验证：_findDevice/_intField 是私有的，
-      // 这里用真实服务调用路径的输入构造验证 event_id 契约。
+      // _findDevice/_intField 是私有函数，由集成测试覆盖；
+      // 此处仅保留占位分组，防止 suite 名漂移。
       expect(true, isTrue); // 占位：私有函数由集成测试覆盖
     });
   });

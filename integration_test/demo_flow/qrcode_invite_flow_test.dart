@@ -29,6 +29,7 @@
 @TestOn('vm')
 library;
 
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -259,7 +260,7 @@ void main() {
     // 证据打印（复核用）：08-18 起该 URL 被 /api/v1/channel/:channel_id 通配
     // 捕获，表现为 HTTP 200 + code=1「频道不存在」——打印实际 code/msg 以便
     // 文档复核该行为是否仍然存在。
-    print(
+    debugPrint(
       '[DF-20-EVIDENCE] channel/qrcode 实际响应 code=${resp['code']} '
       'msg=${resp['msg']}',
     );

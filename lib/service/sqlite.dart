@@ -45,7 +45,7 @@ class SqliteService {
   // v28: channel_message_outbox 频道消息可靠本地待同步队列
   // v29: channel_publish_outbox 频道消息发布可靠重试队列
   // v30: channel.has_purchased 付费频道购买权益本地缓存
-  static const _dbVersion = 31;
+  static const _dbVersion = 32;
 
   // 单例构造
   SqliteService._privateConstructor();

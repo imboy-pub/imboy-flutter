@@ -116,7 +116,7 @@ Future<void> _unmount(WidgetTester tester) async {
   _router.go('/_blank');
   await tester.pumpAndSettle();
   // 消费 dispose 阶段的 UnmountedRefException（如有），避免污染 testWidgets 收尾。
-  final dynamic exception = tester.takeException();
+  final Object? exception = tester.takeException();
   if (exception != null) {
     final s = exception.toString();
     final isExpected =

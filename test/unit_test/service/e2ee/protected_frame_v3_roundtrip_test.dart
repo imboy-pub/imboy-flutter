@@ -4,6 +4,8 @@
 /// - 正向：payload 完整恢复 + _e2ee_v3_verified 标记
 /// - 篡改：header_hash / ciphertext / inner header 任一篡改 → _e2ee_failed
 /// - 边界：oversized → 密码学前拒绝
+library;
+
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';

@@ -4,6 +4,8 @@
 /// - 接收侧：正确路由到本设备信封、缺失设备 fail-closed
 /// - 发送侧：wire format 契约（meta_version/protocol/fan_out/devices）
 /// - 篡改隔离：一个设备信封被篡改不影响其他设备
+library;
+
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';

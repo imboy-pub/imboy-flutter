@@ -348,7 +348,7 @@ packages:
     source: path
     version: "1.1.0"
   cross_file:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: cross_file
       sha256: f141ea4f277af142a0356955707f6556f37b03947d39d55585981a06ca437bd6
@@ -636,7 +636,7 @@ packages:
     source: hosted
     version: "1.0.1"
   file_picker_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: file_picker_platform_interface
       sha256: b1ddd7909853c9df0eb4dbc5b388837ff313e28d6d5a9a71a83794b70c4c86bd
@@ -1559,7 +1559,7 @@ packages:
     source: hosted
     version: "0.13.0"
   material_ui:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: material_ui
       sha256: "7ba1ca315d50a004791dbab290417c52a61466d56db2822fe3c5c2994903110c"
@@ -1807,7 +1807,7 @@ packages:
     source: hosted
     version: "2.2.2"
   path_provider_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: path_provider_platform_interface
       sha256: "484838772624c3a4b94f1e44a3e19897fee738f2d5c4ce448443b0417f7c9dda"

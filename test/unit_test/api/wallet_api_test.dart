@@ -97,8 +97,8 @@ void main() {
       final list = payload is List
           ? payload
           : payload is Map
-          ? (payload['list'] ?? payload['data'] ?? const [])
-          : const [];
+          ? (payload['list'] ?? payload['data'] ?? const <dynamic>[])
+          : const <dynamic>[];
       if (list is List && list.isNotEmpty) {
         final first = list.first as Map<String, dynamic>;
         final amountKey = [

@@ -352,6 +352,7 @@ class _SearchSection extends StatelessWidget {
             AppSpacing.horizontalSmall,
             IconButton(
               key: const ValueKey('workspace-invite-search-btn'),
+              tooltip: t.workspace.inviteSearchHint,
               onPressed: searching ? null : onSearch,
               icon: searching
                   ? const SizedBox(

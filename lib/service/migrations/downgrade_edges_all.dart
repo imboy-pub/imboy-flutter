@@ -9,6 +9,38 @@ import 'package:imboy/service/migration_manifest.dart';
 
 const List<MigrationEdge> kDowngradeEdgesAll = [
   MigrationEdge(
+    id: 'downgrade_v32_恢复_group_user_id_sum_列',
+    fromVersion: 32,
+    toVersion: 31,
+    description: '从 v32 降级到 v31（group 恢复 user_id_sum 列，历史值置 0）。',
+    reversible: false,
+    dataLoss: true,
+    requiresResync: false,
+    preconditions: [
+      'downgrade 前 v32 schema 处于一致状态（integrity/foreign_key check 通过）',
+    ],
+    postconditions: ['v31 结构生效：PRAGMA user_version = 31'],
+    affectedObjects: ['group'],
+    headerComment:
+        r"""-- ============================================================
+-- VERSION: 32
+-- DESC: 从 v32 降级到 v31（group 恢复 user_id_sum 列）。
+--       降级配对边：恢复列结构（ADD COLUMN 带 DEFAULT，无需重建表），
+--       历史 sum 值不还原（恒 0）——该列本就是已退役的死数据。
+-- ============================================================
+
+""",
+    sql:
+        r"""ALTER TABLE "group" ADD COLUMN user_id_sum INTEGER NOT NULL DEFAULT 0;
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 31;
+
+""",
+  ),
+  MigrationEdge(
     id: 'legacy_downgrade_v31_从_v31_降级到_v30',
     fromVersion: 31,
     toVersion: 30,

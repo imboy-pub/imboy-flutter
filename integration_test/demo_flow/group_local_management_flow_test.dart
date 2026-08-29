@@ -89,8 +89,8 @@ void main() {
     final list = payload is List
         ? payload
         : payload is Map
-        ? (payload['list'] ?? payload['data'] ?? const [])
-        : const [];
+        ? (payload['list'] ?? payload['data'] ?? const <dynamic>[])
+        : const <dynamic>[];
     return [
       for (final row in list is List ? list : const <dynamic>[])
         if (row is Map) row.cast<String, dynamic>(),
@@ -122,13 +122,13 @@ void main() {
     );
     ApiAssert.success(add, context: 'group/add');
     gid =
-        '${(((add['payload'] as Map)['group'] ?? const {}) as Map)['id'] ?? ''}';
+        '${(((add['payload'] as Map)['group'] ?? const <String, dynamic>{}) as Map)['id'] ?? ''}';
     expect(gid.isNotEmpty, isTrue, reason: 'group/add 缺少群 id');
 
     await throttleGap();
     final ts = DateTime.now().millisecondsSinceEpoch;
-    final title = '${_groupPrefix}-MGMT-$ts';
-    final notice = '${_groupPrefix}-NOTICE-$ts';
+    final title = '$_groupPrefix-MGMT-$ts';
+    final notice = '$_groupPrefix-NOTICE-$ts';
     final edit = await clientA.post(
       '/api/v1/group/edit',
       data: {'gid': gid, 'title': title, 'introduction': notice},

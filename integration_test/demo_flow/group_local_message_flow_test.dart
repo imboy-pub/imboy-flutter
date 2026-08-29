@@ -149,8 +149,9 @@ void main() {
         try {
           final msg = jsonDecode(data);
           if (msg is Map && match(msg.cast<String, dynamic>())) {
-            if (!completer.isCompleted)
+            if (!completer.isCompleted) {
               completer.complete(msg.cast<String, dynamic>());
+            }
           }
         } catch (_) {}
       },
@@ -186,7 +187,7 @@ void main() {
     );
     ApiAssert.success(add, context: 'group/add');
     gid =
-        '${(((add['payload'] as Map)['group'] ?? const {}) as Map)['id'] ?? ''}';
+        '${(((add['payload'] as Map)['group'] ?? const <String, dynamic>{}) as Map)['id'] ?? ''}';
     expect(gid.isNotEmpty, isTrue, reason: 'group/add 缺少群 id');
 
     final ws = await _connect(clientA);
@@ -210,7 +211,7 @@ void main() {
         inbound: inbound,
       );
       final reason =
-          '${((frame['payload'] ?? const {}) as Map)['reason'] ?? ''}';
+          '${((frame['payload'] ?? const <String, dynamic>{}) as Map)['reason'] ?? ''}';
       expect(
         reason,
         'encrypted_message_required',
@@ -287,12 +288,12 @@ void main() {
         queryParameters: {'gid': gid, 'page': 1, 'size': 20},
       );
       ApiAssert.success(page, context: 'group/msg_page');
-      final pagePayload = (page['payload'] ?? const {}) as Map;
+      final pagePayload = (page['payload'] ?? const <String, dynamic>{}) as Map;
       final pageTotal = pagePayload['total'];
       final pageList = pagePayload['list'];
       final pageMsgIds = pageList is List
           ? pageList
-                .whereType<Map>()
+                .whereType<Map<String, dynamic>>()
                 .map((m) => '${m['msg_id'] ?? ''}')
                 .toList()
           : <String>[];

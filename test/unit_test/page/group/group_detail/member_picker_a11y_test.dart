@@ -10,7 +10,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -104,7 +103,12 @@ void main() {
       final name = find.text('张三');
       expect(name, findsWidgets);
       expect(
-        tester.getSemantics(name.first).hasFlag(SemanticsFlag.isSelected),
+        tester
+                .getSemantics(name.first)
+                .flagsCollection
+                .isSelected
+                .toBoolOrNull() ==
+            true,
         isFalse,
         reason: '未选中时不该声明 selected',
       );
@@ -113,7 +117,12 @@ void main() {
       await tester.pump();
 
       expect(
-        tester.getSemantics(name.first).hasFlag(SemanticsFlag.isSelected),
+        tester
+                .getSemantics(name.first)
+                .flagsCollection
+                .isSelected
+                .toBoolOrNull() ==
+            true,
         isTrue,
         reason: '移除成员是破坏性操作，选中态读不出来风险更高',
       );

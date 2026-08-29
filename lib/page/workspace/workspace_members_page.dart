@@ -452,18 +452,21 @@ class _MemberTile extends StatelessWidget {
           if (canRemove)
             IconButton(
               key: ValueKey('workspace-member-remove-${member.userId}'),
+              tooltip: t.workspace.removeMemberConfirm,
               icon: const Icon(CupertinoIcons.delete, size: 18),
               onPressed: () => onRemove(member),
             ),
           if (writable && !isMe)
             IconButton(
               key: ValueKey('workspace-member-role-${member.userId}'),
+              tooltip: t.workspace.changeRoleTitle(name: member.nickname),
               icon: const Icon(Icons.manage_accounts_outlined, size: 18),
               onPressed: () => _showRoleSheet(context, member),
             ),
           if (canTransfer)
             IconButton(
               key: ValueKey('workspace-member-transfer-${member.userId}'),
+              tooltip: t.workspace.transferConfirm,
               icon: const Icon(Icons.workspace_premium_outlined, size: 18),
               onPressed: () => onTransfer(member),
             ),

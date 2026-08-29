@@ -119,13 +119,14 @@ class _ProReadOnlyClient {
     var md5Rejected = false;
     if (resp['code'] != 0) {
       md5Rejected = '${resp['msg']}'.contains('errorPassword');
-      if (!md5Rejected)
+      if (!md5Rejected) {
         return {
           'ok': false,
           'md5Rejected': false,
           'plainRetryOk': false,
           'resp': resp,
         };
+      }
       resp = await _json(
         'POST',
         '/api/v1/passport/login',

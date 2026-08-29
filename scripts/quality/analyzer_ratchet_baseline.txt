@@ -1,0 +1,4 @@
+# IMBoy 全仓 analyzer ratchet 基线（门脚本生成，勿手改）
+# 再生成：bash scripts/quality/check_analyzer_ratchet.sh --update-baseline
+# 日期：2026-08-29 ｜ Dart SDK version: 3.13.1 (stable) (Tue Aug 18 01:00:59 2026 -0700) on "macos_arm64"
+# 格式：count<TAB>severity|code|file（指纹=(severity,规则代码,文件)；不记行号）

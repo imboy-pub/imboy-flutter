@@ -27,7 +27,6 @@ import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
-import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';

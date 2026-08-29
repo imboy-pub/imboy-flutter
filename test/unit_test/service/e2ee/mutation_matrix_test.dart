@@ -128,8 +128,12 @@ void main() {
         (env) => env..['sender_did'] = 'forged-did',
         // 7. Mutate transport session_id
         (env) {
-          final e2ee = Map<String, dynamic>.from(env['e2ee']);
-          final proto = Map<String, dynamic>.from(e2ee['protocol_metadata']);
+          final e2ee = Map<String, dynamic>.from(
+            env['e2ee'] as Map<dynamic, dynamic>,
+          );
+          final proto = Map<String, dynamic>.from(
+            e2ee['protocol_metadata'] as Map<dynamic, dynamic>,
+          );
           proto['session_id'] = 'forged-session-ref';
           e2ee['protocol_metadata'] = proto;
           env['e2ee'] = e2ee;
@@ -137,21 +141,27 @@ void main() {
         },
         // 8. Mutate header_hash
         (env) {
-          final e2ee = Map<String, dynamic>.from(env['e2ee']);
+          final e2ee = Map<String, dynamic>.from(
+            env['e2ee'] as Map<dynamic, dynamic>,
+          );
           e2ee['header_hash'] = 'forged-header-hash-value';
           env['e2ee'] = e2ee;
           return env;
         },
         // 9. Mutate ciphertext
         (env) {
-          final e2ee = Map<String, dynamic>.from(env['e2ee']);
+          final e2ee = Map<String, dynamic>.from(
+            env['e2ee'] as Map<dynamic, dynamic>,
+          );
           e2ee['ciphertext'] = 'forged-ciphertext-value';
           env['e2ee'] = e2ee;
           return env;
         },
         // 10. Mutate meta_version to invalid number
         (env) {
-          final e2ee = Map<String, dynamic>.from(env['e2ee']);
+          final e2ee = Map<String, dynamic>.from(
+            env['e2ee'] as Map<dynamic, dynamic>,
+          );
           e2ee['meta_version'] = 99;
           env['e2ee'] = e2ee;
           return env;

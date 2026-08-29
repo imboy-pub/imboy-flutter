@@ -53,3 +53,46 @@ jobs:
       - name: Verify generated error_code.dart matches error_code.hrl
         # 退出码 0 = 生成物与真源一致；1 = 漂移（红门禁，无 continue-on-error）
         run: dart run scripts/generate_error_code.dart --check --source=backend-imboy/include/error_code.hrl
+
+  # ----------------------------------------------------------------
+  # CI-01：proto regen 漂移门（imboy.proto ↔ imboyapp 生成物）
+  # imboy/src/imboy.proto 变更后必须在 imboyapp 跑 scripts/regen_protobuf.sh
+  # 并同一 PR 提交生成物；漏 regen 即红。无 continue-on-error。
+  # ----------------------------------------------------------------
+  proto-regen-contract:
+    name: Proto regen drift (imboy.proto ↔ lib/service/protocol)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout imboyapp（生成物所在仓）
+        uses: actions/checkout@v7
+
+      - name: Checkout imboy backend（proto 真源仓）
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy
+          # path=imboy：满足 regen_protobuf.sh 的并排布局假设
+          # （APP_DIR/../imboy/src/imboy.proto）
+          path: imboy
+          fetch-depth: 1
+
+      - name: Install protoc
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq protobuf-compiler
+          protoc --version
+
+      - name: Setup Dart + protoc_plugin
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk-version: '3.8.0'
+      - run: dart pub global activate protoc_plugin
+
+      - name: Regen and verify no drift
+        env:
+          PATH: ${{ env.PATH }}:/home/runner/.pub-cache/bin
+        run: |
+          bash scripts/regen_protobuf.sh
+          if ! git diff --exit-code -- lib/service/protocol/; then
+            echo "::error::proto 产物漂移：imboy.proto 变更后须在 imboyapp 执行 scripts/regen_protobuf.sh 并同 PR 提交生成物"
+            exit 1
+          fi

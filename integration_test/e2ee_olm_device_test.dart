@@ -15,8 +15,6 @@
 ///   "真机 Olm 验收有记录(非模拟器)" — 本测试即该记录。
 library;
 
-import 'dart:typed_data';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';

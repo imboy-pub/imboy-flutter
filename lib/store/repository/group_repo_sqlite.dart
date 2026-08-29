@@ -14,8 +14,6 @@ class GroupRepo implements GroupRepository {
   static String joinLimit = 'join_limit'; //  加入限制: 1 不需审核  2 需要审核  3 只允许邀请加入
   static String contentLimit =
       'content_limit'; // 内部发布限制: 1 圈内不需审核  2 圈内需要审核  3 圈外需要审核
-  static String userIdSum =
-      'user_id_sum'; // 主要用于添加群聊的时候排重；还可以用于校验客户端memberCount是否应该增加
   static String ownerUid = 'owner_uid'; //  群组拥有者ID
   static String creatorUid = 'creator_uid'; //群组创建者ID
   static String memberMax = 'member_max'; // 允许最大成员数量
@@ -33,7 +31,6 @@ class GroupRepo implements GroupRepository {
     GroupRepo.type,
     GroupRepo.joinLimit,
     GroupRepo.contentLimit,
-    GroupRepo.userIdSum,
     GroupRepo.ownerUid,
     GroupRepo.creatorUid,
     GroupRepo.memberMax,
@@ -386,7 +383,6 @@ class GroupRepo implements GroupRepository {
       GroupRepo.type: obj.type,
       GroupRepo.joinLimit: obj.joinLimit,
       GroupRepo.contentLimit: obj.contentLimit,
-      GroupRepo.userIdSum: obj.userIdSum,
       GroupRepo.ownerUid: obj.ownerUid,
       GroupRepo.creatorUid: obj.creatorUid,
       GroupRepo.memberMax: obj.memberMax,
@@ -434,9 +430,6 @@ class GroupRepo implements GroupRepository {
     }
     if (json.containsKey(GroupRepo.contentLimit)) {
       data[GroupRepo.contentLimit] = json[GroupRepo.contentLimit];
-    }
-    if (json.containsKey(GroupRepo.userIdSum)) {
-      data[GroupRepo.userIdSum] = json[GroupRepo.userIdSum];
     }
     if (json.containsKey(GroupRepo.ownerUid)) {
       data[GroupRepo.ownerUid] = json[GroupRepo.ownerUid];

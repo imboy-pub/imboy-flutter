@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -55,13 +56,13 @@ void main() {
     test('数据库版本检查', () async {
       final database = await db.db;
       if (database == null) {
-        print('⚠️  数据库未初始化');
+        debugPrint('⚠️  数据库未初始化');
         return;
       }
 
       final version = await database.rawQuery('PRAGMA user_version');
       final currentVersion = version.first['user_version'] as int?;
-      print('当前数据库版本: v$currentVersion');
+      debugPrint('当前数据库版本: v$currentVersion');
 
       // 验证版本号在合理范围内
       expect(currentVersion, greaterThanOrEqualTo(9));
@@ -71,7 +72,7 @@ void main() {
     test('表存在性检查', () async {
       final database = await db.db;
       if (database == null) {
-        print('⚠️  数据库未初始化');
+        debugPrint('⚠️  数据库未初始化');
         return;
       }
 
@@ -94,7 +95,7 @@ void main() {
         );
         if (result.isNotEmpty) {
           hasNewTables = true;
-          print('✅ 新表存在: $table');
+          debugPrint('✅ 新表存在: $table');
         }
       }
 
@@ -105,7 +106,7 @@ void main() {
         );
         if (result.isNotEmpty) {
           hasOldTables = true;
-          print('ℹ️  旧表存在: $table');
+          debugPrint('ℹ️  旧表存在: $table');
         }
       }
 
@@ -113,9 +114,9 @@ void main() {
       expect(hasNewTables || hasOldTables, isTrue);
 
       if (hasNewTables) {
-        print('✅ 数据库已迁移到 v2.0 新表结构');
+        debugPrint('✅ 数据库已迁移到 v2.0 新表结构');
       } else if (hasOldTables) {
-        print('ℹ️  数据库仍使用旧表结构，等待迁移');
+        debugPrint('ℹ️  数据库仍使用旧表结构，等待迁移');
       }
     });
 

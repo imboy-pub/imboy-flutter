@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/page/conversation/subscribed_channel_strip_provider.dart';
 import 'package:imboy/page/conversation/widget/subscribed_channel_strip.dart';
 import 'package:imboy/store/model/channel_model.dart';

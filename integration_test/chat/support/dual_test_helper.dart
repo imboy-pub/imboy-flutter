@@ -26,7 +26,7 @@ class DualTestConfig {
 
 class DualTestHelper {
   static void log(String message) {
-    print('[TEST] $message');
+    debugPrint('[TEST] $message');
   }
 
   static bool needsLogin(WidgetTester tester) {
