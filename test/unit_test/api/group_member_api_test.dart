@@ -29,13 +29,16 @@ void expectTsid(dynamic v, {required String field}) {
   );
 }
 
-List _asList(dynamic payload) {
+List<dynamic> _asList(dynamic payload) {
   if (payload is List) return payload;
   if (payload is Map) {
-    return (payload['list'] ?? payload['items'] ?? payload['data'] ?? const [])
+    return (payload['list'] ??
+            payload['items'] ??
+            payload['data'] ??
+            const <dynamic>[])
         as List;
   }
-  return const [];
+  return const <dynamic>[];
 }
 
 String? _firstGid(dynamic payload) {

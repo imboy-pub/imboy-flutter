@@ -91,8 +91,8 @@ void main() {
     final list = payload is List
         ? payload
         : payload is Map
-        ? (payload['list'] ?? payload['data'] ?? const [])
-        : const [];
+        ? (payload['list'] ?? payload['data'] ?? const <dynamic>[])
+        : const <dynamic>[];
     return [
       for (final row in list is List ? list : const <dynamic>[])
         if (row is Map) row.cast<String, dynamic>(),
@@ -114,7 +114,7 @@ void main() {
     );
     ApiAssert.success(resp, context: 'group/add');
     final payload = resp['payload'] as Map<String, dynamic>;
-    final group = (payload['group'] ?? const {}) as Map;
+    final group = (payload['group'] ?? const <String, dynamic>{}) as Map;
     final gid = '${group['id'] ?? group['gid'] ?? ''}';
     expect(gid.isNotEmpty, isTrue, reason: 'group/add 响应缺少群 id: $payload');
     createdGid = gid;
@@ -138,12 +138,12 @@ void main() {
     );
     ApiAssert.success(again, context: 'group/add repeat');
     final gidAgain =
-        '${(((again['payload'] as Map)['group'] ?? const {}) as Map)['id'] ?? ''}';
+        '${(((again['payload'] as Map)['group'] ?? const <String, dynamic>{}) as Map)['id'] ?? ''}';
     expect(gidAgain, gid, reason: '重复提交相同成员集合应复用同一群，不产生幽灵群');
 
     await throttleGap();
     createdTitle =
-        '${_groupPrefix}-CREATE-${DateTime.now().millisecondsSinceEpoch}';
+        '$_groupPrefix-CREATE-${DateTime.now().millisecondsSinceEpoch}';
     final edit = await clientA.post(
       '/api/v1/group/edit',
       data: {'gid': gid, 'title': createdTitle},
@@ -228,11 +228,12 @@ void main() {
     );
     ApiAssert.success(save, context: 'group/face2face_save');
     final savePayload = save['payload'] as Map;
-    final savedGroup = (savePayload['group'] ?? const {}) as Map;
+    final savedGroup =
+        (savePayload['group'] ?? const <String, dynamic>{}) as Map;
     expect(
       '${savedGroup['id'] ?? savedGroup['gid'] ?? ''}',
       gidA,
-      reason: 'face2face_save 响应 group 应为已落库群（id=$gidA），实际=${savePayload}',
+      reason: 'face2face_save 响应 group 应为已落库群（id=$gidA），实际=$savePayload',
     );
     final savedUids = memberUids(memberRows(savePayload['member_list']));
     expect(

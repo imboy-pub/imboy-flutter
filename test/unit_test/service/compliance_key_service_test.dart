@@ -80,7 +80,7 @@ void main() {
     ComplianceKeyService.debugFetcher = null;
   });
 
-  Map<String, dynamic> _key(String keyId, String pem) => {
+  Map<String, dynamic> buildKey(String keyId, String pem) => {
     'key_id': keyId,
     'public_key': pem,
     'algorithm': 'RSA-OAEP-256',
@@ -89,7 +89,7 @@ void main() {
 
   group('1. TOFU 首次固定', () {
     test('无 pin 时获取即固定并返回', () async {
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', _pemA);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_1', _pemA);
       final info = await ComplianceKeyService.instance.getComplianceKey();
       expect(info, isNotNull);
       expect(info!.keyId, 'ck_1');
@@ -117,11 +117,12 @@ void main() {
     });
 
     test('格式差异不影响 pin 匹配', () async {
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', _pemA);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_1', _pemA);
       await ComplianceKeyService.instance.getComplianceKey();
       // 服务端换一种 PEM 排版返回同一把公钥
-      final reflowed = _pemA.replaceAll('\n', '') + '\n';
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', reflowed);
+      final reflowed = '${_pemA.replaceAll('\n', '')}\n';
+      ComplianceKeyService.debugFetcher = () async =>
+          buildKey('ck_1', reflowed);
       final info = await ComplianceKeyService.instance.getComplianceKey();
       expect(info, isNotNull);
       expect(info!.keyId, 'ck_1');
@@ -130,10 +131,10 @@ void main() {
 
   group('3. 服务端换钥 → fail-closed', () {
     test('key_id 变化抛 ComplianceKeyChangedException', () async {
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', _pemA);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_1', _pemA);
       await ComplianceKeyService.instance.getComplianceKey();
 
-      ComplianceKeyService.debugFetcher = () async => _key('ck_2', _pemA);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_2', _pemA);
       expect(
         () =>
             ComplianceKeyService.instance.getComplianceKey(forceRefresh: true),
@@ -145,10 +146,10 @@ void main() {
     });
 
     test('同 key_id 但公钥变化也抛异常', () async {
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', _pemA);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_1', _pemA);
       await ComplianceKeyService.instance.getComplianceKey();
 
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', _pemB);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_1', _pemB);
       expect(
         () =>
             ComplianceKeyService.instance.getComplianceKey(forceRefresh: true),
@@ -157,10 +158,10 @@ void main() {
     });
 
     test('异常携带新旧标识供 UI 展示', () async {
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', _pemA);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_1', _pemA);
       await ComplianceKeyService.instance.getComplianceKey();
 
-      ComplianceKeyService.debugFetcher = () async => _key('ck_2', _pemB);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_2', _pemB);
       try {
         await ComplianceKeyService.instance.getComplianceKey(
           forceRefresh: true,
@@ -180,10 +181,10 @@ void main() {
 
   group('4. 确认/拒绝轮换', () {
     test('accept: true → re-pin 后可正常获取', () async {
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', _pemA);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_1', _pemA);
       await ComplianceKeyService.instance.getComplianceKey();
 
-      ComplianceKeyService.debugFetcher = () async => _key('ck_2', _pemB);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_2', _pemB);
       await expectLater(
         () =>
             ComplianceKeyService.instance.getComplianceKey(forceRefresh: true),
@@ -200,10 +201,10 @@ void main() {
     });
 
     test('accept: false → 保持旧 pin，继续 fail-closed', () async {
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', _pemA);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_1', _pemA);
       await ComplianceKeyService.instance.getComplianceKey();
 
-      ComplianceKeyService.debugFetcher = () async => _key('ck_2', _pemB);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_2', _pemB);
       await expectLater(
         () =>
             ComplianceKeyService.instance.getComplianceKey(forceRefresh: true),
@@ -232,7 +233,7 @@ void main() {
     });
 
     test('有有效缓存且拉取失败 → 复用缓存（过期策略由 PolicyGate 兜底）', () async {
-      ComplianceKeyService.debugFetcher = () async => _key('ck_1', _pemA);
+      ComplianceKeyService.debugFetcher = () async => buildKey('ck_1', _pemA);
       final first = await ComplianceKeyService.instance.getComplianceKey();
       expect(first, isNotNull);
 

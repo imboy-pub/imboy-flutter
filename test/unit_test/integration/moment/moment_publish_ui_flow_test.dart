@@ -36,7 +36,6 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/moment/moment_create_page.dart';
 import 'package:imboy/page/moment/moment_interactions.dart';
-import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/storage.dart';
@@ -60,7 +59,7 @@ Future<void> _pumpPage(WidgetTester tester) async {
 
 /// 拆掉 widget 树并把 pending 定时器跑完（页面内有上传/定位相关异步）。
 /// 取页面 PopScope 的 canPop。用谓词而非 byType：PopScope 是泛型，
-/// find.byType(PopScope) 找的是 PopScope<dynamic>，匹配不到 PopScope<Object?>。
+/// find.byType(PopScope) 找的是 `PopScope<dynamic>`，匹配不到 `PopScope<Object?>`。
 bool _canPopOf(WidgetTester tester) {
   final finder = find.byWidgetPredicate((w) => w is PopScope);
   expect(finder, findsWidgets, reason: '页面应有 PopScope 退出保护');
@@ -278,7 +277,7 @@ void main() {
       expect(received, hasLength(1));
       expect(received.single.action, 'moment_new');
       expect(received.single.momentId, 'm_001');
-      expect(received.single.payload?['content'], 'hi');
+      expect(received.single.payload['content'], 'hi');
 
       await sub.cancel();
     });

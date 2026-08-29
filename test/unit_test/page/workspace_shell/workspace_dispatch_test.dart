@@ -36,6 +36,16 @@ class _EmptyMineFakeApi extends WorkspaceApi {
   }
 }
 
+/// 固定 experience=workspace 的 Notifier 覆盖。
+///
+/// productExperienceProvider 是 NotifierProvider（无 overrideWithValue），
+/// 以固定 build() 的子类覆盖，同时规避基类 build 里的 StorageService
+/// 依赖（测试环境无 GetX storage 绑定）。
+class _WorkspaceExperienceNotifier extends ProductExperienceNotifier {
+  @override
+  ProductExperience build() => ProductExperience.workspace;
+}
+
 void main() {
   testWidgets('experience=workspace → 工作区壳空态（创建入口），非 ChatShellPage', (
     tester,
@@ -44,8 +54,8 @@ void main() {
       TranslationProvider(
         child: ProviderScope(
           overrides: [
-            productExperienceProvider.overrideWithValue(
-              ProductExperience.workspace,
+            productExperienceProvider.overrideWith(
+              _WorkspaceExperienceNotifier.new,
             ),
             workspaceApiProvider.overrideWith((ref) => _EmptyMineFakeApi()),
           ],

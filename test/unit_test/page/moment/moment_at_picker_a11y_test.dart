@@ -10,7 +10,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -143,7 +142,12 @@ void main() {
 
     // 初始未选中
     expect(
-      tester.getSemantics(name.first).hasFlag(SemanticsFlag.isSelected),
+      tester
+              .getSemantics(name.first)
+              .flagsCollection
+              .isSelected
+              .toBoolOrNull() ==
+          true,
       isFalse,
       reason: '未选中时不该声明 selected',
     );
@@ -153,7 +157,12 @@ void main() {
 
     // 选中后语义翻转——多选页里这是读屏用户唯一能感知选中与否的途径
     expect(
-      tester.getSemantics(name.first).hasFlag(SemanticsFlag.isSelected),
+      tester
+              .getSemantics(name.first)
+              .flagsCollection
+              .isSelected
+              .toBoolOrNull() ==
+          true,
       isTrue,
       reason: '选中后未声明 selected，读屏用户不知道自己选没选',
     );

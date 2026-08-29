@@ -36,7 +36,7 @@ void main() {
       chatService: null,
       conversation: unknownTypeConversation(),
       messageId: 'msg-1',
-      onExpire: (_, __) async {},
+      onExpire: (_, _) async {},
     );
 
     expect(
@@ -58,7 +58,7 @@ void main() {
       chatService: null,
       conversation: unknownTypeConversation(),
       messageId: 'msg-2',
-      onExpire: (_, __) async {},
+      onExpire: (_, _) async {},
       attempt: ChatBurnService.maxBurnDeleteAttempts - 1,
     );
 

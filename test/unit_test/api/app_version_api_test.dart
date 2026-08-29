@@ -100,8 +100,8 @@ void main() {
       );
       if (resp['code'] != 0) return markTestSkipped('app_ddl/get 非成功');
       final payload = resp['payload'];
-      if (payload is Map && payload.containsKey('ddl')) {
-        expect(payload['ddl'], isA<List>(), reason: 'ddl 应为 List');
+      if (payload is Map<String, dynamic> && payload.containsKey('ddl')) {
+        expect(payload['ddl'], isA<List<dynamic>>(), reason: 'ddl 应为 List');
       }
     });
   });

@@ -14,11 +14,9 @@ import 'package:imboy/service/e2ee_service.dart' hide RecipientDevice;
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/sqlite.dart';
 
-/// 协议调用追踪器:记录 encrypt/decrypt 调用次数,验证 C2C 路径不走 Megolm/RSA。
+/// 协议调用追踪器:记录 encrypt 调用次数,验证 C2C 路径不走 Megolm/RSA。
 class _TrackingProtocol implements E2eeSessionProtocol {
   static int encryptCalls = 0;
-  static int decryptCalls = 0;
-  static String? lastEncryptedPlaintext;
 
   @override
   ProtocolSuite get suite => ProtocolSuite.olm;
@@ -36,12 +34,11 @@ class _TrackingProtocol implements E2eeSessionProtocol {
     required E2eeContext context,
   }) async {
     encryptCalls++;
-    lastEncryptedPlaintext = plaintext;
     final deviceId = recipients.isNotEmpty
         ? recipients.first.deviceId
         : 'unknown';
     return E2eeCiphertext('olm-ct-for-$deviceId', {
-      'session_id': 'sess-$deviceId-${encryptCalls}',
+      'session_id': 'sess-$deviceId-$encryptCalls',
       'message_type': 1,
       'peer_uid': context.peerUid ?? '',
       'peer_device_id': context.peerDeviceId ?? '',
@@ -54,7 +51,6 @@ class _TrackingProtocol implements E2eeSessionProtocol {
     required Map<String, dynamic> metadata,
     E2eeContext? context,
   }) async {
-    decryptCalls++;
     return ciphertext;
   }
 
@@ -63,15 +59,12 @@ class _TrackingProtocol implements E2eeSessionProtocol {
 
   static void reset() {
     encryptCalls = 0;
-    decryptCalls = 0;
-    lastEncryptedPlaintext = null;
   }
 }
 
 /// RSA 专用的追踪协议:验证 C2C 新写入从不调用 RSA。
 class _RsaNeverCalledProtocol implements E2eeSessionProtocol {
   static int encryptCalls = 0;
-  static int decryptCalls = 0;
 
   @override
   ProtocolSuite get suite => ProtocolSuite.rsa;
@@ -98,7 +91,6 @@ class _RsaNeverCalledProtocol implements E2eeSessionProtocol {
     required Map<String, dynamic> metadata,
     E2eeContext? context,
   }) async {
-    decryptCalls++;
     return ciphertext;
   }
 
@@ -107,14 +99,12 @@ class _RsaNeverCalledProtocol implements E2eeSessionProtocol {
 
   static void reset() {
     encryptCalls = 0;
-    decryptCalls = 0;
   }
 }
 
 /// Megolm 协议:验证 C2C 发送路径不调用 Megolm encrypt。
 class _MegolmTrackingProtocol implements E2eeSessionProtocol {
   static int encryptCalls = 0;
-  static int decryptCalls = 0;
 
   @override
   ProtocolSuite get suite => ProtocolSuite.megolm;
@@ -143,7 +133,6 @@ class _MegolmTrackingProtocol implements E2eeSessionProtocol {
     required Map<String, dynamic> metadata,
     E2eeContext? context,
   }) async {
-    decryptCalls++;
     return ciphertext;
   }
 
@@ -152,7 +141,6 @@ class _MegolmTrackingProtocol implements E2eeSessionProtocol {
 
   static void reset() {
     encryptCalls = 0;
-    decryptCalls = 0;
   }
 }
 

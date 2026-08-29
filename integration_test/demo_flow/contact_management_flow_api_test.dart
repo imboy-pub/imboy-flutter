@@ -24,6 +24,7 @@
 @TestOn('vm')
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:test/test.dart';
 
 import '../../test/unit_test/api/api_test_client.dart';
@@ -280,7 +281,7 @@ void main() {
     // #{<<"id">> => LastInsertId}。此处兼容两种形状，并在文档记录该问题。
     final rawId = (payload as Map<Object?, Object?>)['id'];
     // 证据打印（复核用）：payload.id 为 num=契约已修复；为 Map=嵌套 map 缺陷维持。
-    print(
+    debugPrint(
       '[DF-19-EVIDENCE] category/add payload.id runtimeType=${rawId.runtimeType}',
     );
     if (rawId is num) {

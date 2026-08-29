@@ -69,6 +69,8 @@ jobs:
 
   # ----------------------------------------------------------------
   # 1) Flutter analyze (strict-* 启用后基线 830 warnings + 703 infos)
+  #    APP-02 (2026-08-29) 起全仓清零（159→0）；下方 severity 门为粗粒度
+  #    兜底，指纹级零基线门由 1.5) check_analyzer_ratchet.sh 把关。
   # ----------------------------------------------------------------
   flutter-analyze:
     name: Flutter analyze
@@ -117,6 +119,21 @@ jobs:
           if [ "$infos" -gt 703 ]; then
             echo "::warning::infos $infos exceed baseline 703 (ratchet, soft)"
           fi
+
+      # ----------------------------------------------------------------
+      # 1.5) 全仓 analyzer ratchet 门（APP-02，2026-08-29）
+      # 指纹级零基线：基线 scripts/quality/analyzer_ratchet_baseline.txt
+      # 之外新增 1 条 analyzer 问题即 FAIL；基线内减少仅提示收紧。
+      # ----------------------------------------------------------------
+      - name: Analyzer ratchet gate (whole-repo, zero baseline)
+        run: bash scripts/quality/check_analyzer_ratchet.sh
+
+      # ----------------------------------------------------------------
+      # 1.6) 文件行数 ratchet 门（APP-02）：新文件超 800 行 / 存量超限
+      # 文件再增长即 FAIL（存量 47 个已入 file_size_baseline.txt 基线）。
+      # ----------------------------------------------------------------
+      - name: File size ratchet gate (800-line)
+        run: bash scripts/quality/check_file_size_ratchet.sh
 
   # ----------------------------------------------------------------
   # 2) Secrets — gitleaks

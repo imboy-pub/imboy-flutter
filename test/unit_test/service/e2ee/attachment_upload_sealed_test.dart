@@ -33,7 +33,7 @@ class _Capture {
   Map<String, dynamic>? confirmBody;
 }
 
-Future<String> run(
+Future<String> _run(
   Uint8List bytes,
   _Capture cap, {
   AttachmentSealRequest? seal,
@@ -63,14 +63,14 @@ void main() {
     test('PUT 的是明文本身', () async {
       final pt = _plain(100);
       final cap = _Capture();
-      await run(pt, cap);
+      await _run(pt, cap);
       expect(cap.putBytes, equals(pt));
     });
 
     test('confirm 上报明文哈希与明文大小，且不带 cipher', () async {
       final pt = _plain(100);
       final cap = _Capture();
-      await run(pt, cap);
+      await _run(pt, cap);
       expect(
         cap.confirmBody!['file_hash256'],
         equals(sha256.convert(pt).toString()),
@@ -93,7 +93,7 @@ void main() {
         attachmentId: 'att-1',
         chunkSize: 32,
       );
-      await run(pt, cap, seal: req);
+      await _run(pt, cap, seal: req);
     });
 
     test('PUT 的不是明文，且长度是密文长度（每块 +16 字节 tag）', () {

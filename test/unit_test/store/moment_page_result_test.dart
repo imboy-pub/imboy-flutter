@@ -9,7 +9,7 @@ import 'package:imboy/store/api/moment_api.dart';
 void main() {
   Map<String, dynamic> payload(int count, {String? cursor = 'c1'}) => {
     'list': List.generate(count, (i) => {'id': 'id$i'}),
-    if (cursor != null) 'cursor': cursor,
+    'cursor': ?cursor,
   };
 
   group('MomentPageResult.fromPayload hasMore', () {

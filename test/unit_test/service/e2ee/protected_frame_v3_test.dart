@@ -10,6 +10,8 @@
 /// - 篡改检测（PF3-01）
 /// - 资源边界（PF3-08）
 /// - 未知字段拒绝策略
+library;
+
 import 'dart:convert';
 import 'dart:typed_data';
 

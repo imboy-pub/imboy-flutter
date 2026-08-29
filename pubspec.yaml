@@ -357,6 +357,13 @@ dev_dependencies:
   permission_handler_platform_interface: any
   plugin_platform_interface: any
   yaml: any
+  # 测试直接 import 的平台接口/支撑包（depend_on_referenced_packages）：
+  # cross_file / file_picker_platform_interface：group 相册与文件页 fake
+  #   FilePicker 覆写（test/unit_test/page/group/…）
+  # path_provider_platform_interface：flutter_test_config mock path provider
+  cross_file: any
+  file_picker_platform_interface: any
+  path_provider_platform_interface: any
 flutter:
 
   # ┌─ Material Design ───────────────────────────────────────────────┐

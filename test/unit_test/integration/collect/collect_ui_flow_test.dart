@@ -798,8 +798,8 @@ void main() {
 
 /// 构造最小可用 UserCollectModel。
 ///
-/// 旧用例把裸 `{'id': 1}` / `1` 塞进 `items`，那时 items 还是 List<dynamic>；
-/// 模型收紧为 List<UserCollectModel> 后整份文件编译失败——注意它单跑时
+/// 旧用例把裸 `{'id': 1}` / `1` 塞进 `items`，那时 items 还是 `List<dynamic>`；
+/// 模型收紧为 `List<UserCollectModel>` 后整份文件编译失败——注意它单跑时
 /// 只报「加载失败」不报断言错，很容易被当成偶发跳过。
 UserCollectModel _collect(String kindId) => UserCollectModel(
   userId: 1,

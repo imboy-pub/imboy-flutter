@@ -30,13 +30,16 @@ void expectTsid(dynamic v, {required String field}) {
 }
 
 /// 从分页 payload 中尽力取出 List（兼容 List / {list:[]} / {items:[]} / {data:[]}）。
-List _asList(dynamic payload) {
+List<dynamic> _asList(dynamic payload) {
   if (payload is List) return payload;
   if (payload is Map) {
-    return (payload['list'] ?? payload['items'] ?? payload['data'] ?? const [])
+    return (payload['list'] ??
+            payload['items'] ??
+            payload['data'] ??
+            const <dynamic>[])
         as List;
   }
-  return const [];
+  return const <dynamic>[];
 }
 
 /// 取列表首项中第一个存在的 id 键值。

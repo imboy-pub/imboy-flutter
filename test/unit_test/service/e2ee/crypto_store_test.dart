@@ -5,6 +5,8 @@
 /// - outbox write + session persist 在同一事务（发送侧）
 /// - dedupe check + session persist 在同一事务（接收侧）
 /// - 崩溃恢复：outbox 中未确认条目可重发
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -268,6 +270,9 @@ void main() {
           peerDeviceId: 'dev-Z',
           pickle: 'should-rollback',
           outboxId: 'msg-fail',
+          // 刻意以 dynamic 注入 null：让 null 穿过参数静态类型直达 SQLite
+          // 的 NOT NULL 约束（类型安全的 null 传不进 String 形参）。
+          // ignore: argument_type_not_assignable
           payload: null as dynamic, // 触发 NOT NULL 约束
         );
       } catch (_) {

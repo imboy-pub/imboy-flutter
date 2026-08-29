@@ -369,9 +369,9 @@ void main() {
         final scaffold = tester.widget<CupertinoPageScaffold>(
           find.byType(CupertinoPageScaffold).first,
         );
+        // scaffoldBackgroundColor 非空（CupertinoTheme 必有值），无需再兜底
         return scaffold.backgroundColor ??
-            CupertinoTheme.of(ctx).scaffoldBackgroundColor ??
-            Colors.transparent;
+            CupertinoTheme.of(ctx).scaffoldBackgroundColor;
       }
 
       final lightBg = await pumpAndGetBackground(Brightness.light);

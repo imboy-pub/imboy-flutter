@@ -66,7 +66,7 @@ void main() {
       );
       final list = payload is List
           ? payload
-          : (payload as Map)['list'] ?? (payload)['data'] ?? const [];
+          : (payload as Map)['list'] ?? (payload)['data'] ?? const <dynamic>[];
       if (list is List && list.isNotEmpty) {
         final first = list.first as Map<String, dynamic>;
         // 好友项应含用户标识；后端字段可能为 uid/from_id/peer_id 之一

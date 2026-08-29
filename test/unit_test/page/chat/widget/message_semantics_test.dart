@@ -7,7 +7,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
@@ -42,7 +41,7 @@ void main() {
     await pump(tester, isSentByMe: true);
     final node = tester.getSemantics(find.byType(SizedBox).first);
     expect(
-      node.hasFlag(SemanticsFlag.isButton),
+      node.flagsCollection.isButton,
       isTrue,
       reason: '图片/语音消息是可点的，读屏得知道它能点',
     );

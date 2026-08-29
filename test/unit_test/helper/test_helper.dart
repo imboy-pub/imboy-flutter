@@ -14,7 +14,9 @@ class ConversationTestHelper {
   /// 在测试环境中使用，跳过 StorageService 的草稿读取
   static String computeContentWithoutDraft(ConversationModel conv) {
     // 处理系统提示信息
-    String sysPrompt = _parseSysPrompt(conv.payload?['sys_prompt'] ?? '');
+    String sysPrompt = _parseSysPrompt(
+      (conv.payload?['sys_prompt'] as String?) ?? '',
+    );
     if (sysPrompt.isNotEmpty) {
       return sysPrompt;
     }
@@ -28,7 +30,7 @@ class ConversationTestHelper {
         // 对方撤回 (status=30)
         String title = conv.title;
         if (title.isEmpty) {
-          title = conv.payload?['peer_name'] ?? '';
+          title = (conv.payload?['peer_name'] as String?) ?? '';
         }
         String suffix = '';
         if (title.length > 12) {

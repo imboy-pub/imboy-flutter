@@ -49,7 +49,11 @@ void main() {
       if (resp['code'] != 0) return markTestSkipped('category/list 非成功');
       final payload = resp['payload'];
       // 客户端 GroupCategoryApi.getCategories 读 payload['categories']
-      expect(payload, isA<Map>(), reason: 'payload 应为 Map，实际=$payload');
+      expect(
+        payload,
+        isA<Map<String, dynamic>>(),
+        reason: 'payload 应为 Map，实际=$payload',
+      );
       final categories = (payload as Map)['categories'];
       expect(
         categories == null || categories is List,

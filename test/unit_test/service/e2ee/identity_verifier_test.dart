@@ -4,6 +4,8 @@
 /// - 缺少任何必要字段 → IdentityVerificationException
 /// - 签名无效 → IdentityVerificationException
 /// - 合法签名 → 通过（需 vodozemac 原生库，CI 环境 skip）
+library;
+
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';

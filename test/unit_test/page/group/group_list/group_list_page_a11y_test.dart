@@ -13,17 +13,14 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_list/group_list_page.dart';
 import 'package:imboy/page/group/group_list/group_list_provider.dart';
 
-/// 注入空列表，绕开 initData 的网络/SQLite 副作用。
+/// 注入空列表 State，让页面 initData 走空数据分支。
 ///
-/// 只覆盖 build() 不够：页面 initState 会经 addPostFrameCallback 调 initData，
-/// 不拦住会走真实数据源（和 denylist / friend_list 踩的是同一个坑）。
+/// initData 已收编到页面 State（group_list_page.dart），不在 Notifier 上；
+/// 覆盖 build() 返回空列表即可让页面数据装载短路为空态。
 class _FakeGroupListNotifier extends GroupListNotifier {
   @override
   GroupListState build() =>
       const GroupListState(groupList: [], isLoading: false);
-
-  @override
-  Future<void> initData({bool onRefresh = false}) async {}
 }
 
 void main() {

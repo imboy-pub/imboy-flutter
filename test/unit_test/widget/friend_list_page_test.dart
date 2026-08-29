@@ -365,8 +365,8 @@ void main() {
 /// 不能用 `overrideWithValue`：contactProvider 是 NotifierProvider，
 /// overrideWithValue 装的是 _SyncValueProviderElement，页面里任何
 /// `ref.read(contactProvider.notifier)` 都会在类型转换处炸
-/// （'_SyncValueProviderElement<ContactState>' is not a subtype of
-/// '$ClassProviderElement<ContactNotifier, ...>'）。
+/// （`_SyncValueProviderElement<ContactState>` is not a subtype of
+/// `'$ClassProviderElement<ContactNotifier, ...>'`）。
 /// 必须 overrideWith(() => 子类) 才有真正的 notifier 实例。
 class _StateOverrideNotifier extends ContactNotifier {
   _StateOverrideNotifier(this._initial);
