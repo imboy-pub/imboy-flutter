@@ -46,11 +46,11 @@ class ErrorCode {
   static const int FORBIDDEN = 403;
   static const int ACCESS_DENIED = 403;
 
-  /// 好友不存在
-  static const int FRIEND_NOT_FOUND = 404;
-  static const int USER_NOT_FOUND = 404;
-  static const int NOT_FOUND = 404;
+  /// 群组不存在
   static const int GROUP_NOT_FOUND = 404;
+  static const int USER_NOT_FOUND = 404;
+  static const int FRIEND_NOT_FOUND = 404;
+  static const int NOT_FOUND = 404;
   static const int MESSAGE_NOT_FOUND = 404;
 
   /// 错误码 405
@@ -84,9 +84,9 @@ class ErrorCode {
   static const int FILE_TYPE_INVALID = 415;
 
   /// 错误码 422
-  static const int MISSING_PARAM = 422;
-  static const int PARAM_INVALID = 422;
   static const int UNPROCESSABLE_ENTITY = 422;
+  static const int PARAM_INVALID = 422;
+  static const int MISSING_PARAM = 422;
 
   /// 错误码 423
   static const int ACCOUNT_LOCKED = 423;
@@ -112,10 +112,10 @@ class ErrorCode {
   /// 错误码 502
   static const int BAD_GATEWAY = 502;
 
-  /// 错误码 503
-  static const int CLUSTER_ERROR = 503;
+  /// 服务不可用
   static const int SERVICE_UNAVAILABLE = 503;
   static const int NODE_OFFLINE = 503;
+  static const int CLUSTER_ERROR = 503;
 
   /// 错误码 504
   static const int TIMEOUT = 504;
@@ -389,6 +389,9 @@ class ErrorCode {
 
   /// 错误码 5190
   static const int FEATURE_DISABLED = 5190;
+
+  /// 错误码 5191
+  static const int PLUGIN_PATH_INVALID = 5191;
 
   /// 错误码 5200
   static const int INVALID_QR_TOKEN = 5200;

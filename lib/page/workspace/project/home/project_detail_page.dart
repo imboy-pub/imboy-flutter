@@ -24,6 +24,7 @@ import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart'
     show currentWorkspaceProvider;
 import 'package:imboy/page/workspace/project/project_data_providers.dart';
 import 'package:imboy/page/workspace/project/tasks/project_tasks_view.dart';
+import 'package:imboy/page/workspace/project/w2/project_w2_entry_section.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 class ProjectDetailPage extends ConsumerStatefulWidget {
@@ -139,6 +140,13 @@ class _ProjectDetailPageState extends ConsumerState<ProjectDetailPage> {
                       ),
                       AppSpacing.verticalRegular,
                       ProjectTasksSection(project: project, writable: writable),
+                      AppSpacing.verticalRegular,
+                      // W2 (ZC-06)：项目协作入口区（成员/里程碑/频道/聚合），
+                      // 仅挂入口不改既有交互；wsId 缺失时不渲染
+                      ProjectW2EntrySection(
+                        projectId: project.id,
+                        workspaceId: wsId,
+                      ),
                     ],
                   ),
                 );

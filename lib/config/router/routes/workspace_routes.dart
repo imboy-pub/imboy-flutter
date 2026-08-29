@@ -92,6 +92,68 @@ List<RouteBase> workspaceRoutes() => [
               );
             },
           ),
+          // ==================== W2 (ZC-06)：项目协作子页 ====================
+          // 成员 / 里程碑 / 项目频道 / 内容聚合（四聚合）
+          GoRoute(
+            path: 'members',
+            name: 'workspace_project_members',
+            pageBuilder: (context, state) {
+              final wsId = state.pathParameters['workspaceId'] ?? '';
+              final projectId = state.pathParameters['projectId'] ?? '';
+              return CupertinoPage(
+                key: state.pageKey,
+                child: ProjectMembersPage(
+                  projectId: projectId,
+                  workspaceId: wsId,
+                ),
+              );
+            },
+          ),
+          GoRoute(
+            path: 'milestones',
+            name: 'workspace_project_milestones',
+            pageBuilder: (context, state) {
+              final wsId = state.pathParameters['workspaceId'] ?? '';
+              final projectId = state.pathParameters['projectId'] ?? '';
+              return CupertinoPage(
+                key: state.pageKey,
+                child: ProjectMilestonesPage(
+                  projectId: projectId,
+                  workspaceId: wsId,
+                ),
+              );
+            },
+          ),
+          GoRoute(
+            path: 'channels',
+            name: 'workspace_project_channels',
+            pageBuilder: (context, state) {
+              final wsId = state.pathParameters['workspaceId'] ?? '';
+              final projectId = state.pathParameters['projectId'] ?? '';
+              return CupertinoPage(
+                key: state.pageKey,
+                child: ProjectChannelsPage(
+                  projectId: projectId,
+                  workspaceId: wsId,
+                ),
+              );
+            },
+          ),
+          GoRoute(
+            path: 'insights',
+            name: 'workspace_project_insights',
+            pageBuilder: (context, state) {
+              final wsId = state.pathParameters['workspaceId'] ?? '';
+              final projectId = state.pathParameters['projectId'] ?? '';
+              return CupertinoPage(
+                key: state.pageKey,
+                child: ProjectInsightsPage(
+                  projectId: projectId,
+                  workspaceId: wsId,
+                ),
+              );
+            },
+          ),
         ],
       ),
       GoRoute(

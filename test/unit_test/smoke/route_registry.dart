@@ -449,6 +449,43 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
         '无头环境留 pending timer；四态状态机由 task controller 测试覆盖',
   ),
 
+  // ==================== 工作区 Project W2 协作（ZC-06，成员/里程碑/频道/聚合） ====================
+  const SmokeRoute(
+    name: 'workspace_project_members',
+    location: '/workspace/9001/projects/9101/members',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'W2/ZC-06：成员页经 projectMemberPageProvider 异步加载，'
+        '无头环境留 pending timer；权限/幂等/分页契约由 '
+        'project_w2_members_page_test 断言',
+  ),
+  const SmokeRoute(
+    name: 'workspace_project_milestones',
+    location: '/workspace/9001/projects/9101/milestones',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'W2/ZC-06：里程碑页经 projectMilestonePageProvider 异步加载，'
+        '无头环境留 pending timer；状态机/幂等/筛选契约由 '
+        'project_w2_milestones_page_test 断言',
+  ),
+  const SmokeRoute(
+    name: 'workspace_project_channels',
+    location: '/workspace/9001/projects/9101/channels',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'W2/ZC-06：关联频道页经 projectChannelPageProvider 异步加载，'
+        '无头环境留 pending timer；link/unlink 幂等契约由 '
+        'project_w2_channels_page_test 断言',
+  ),
+  const SmokeRoute(
+    name: 'workspace_project_insights',
+    location: '/workspace/9001/projects/9101/insights',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'W2/ZC-06：四聚合页各 Tab 独立异步加载，无头环境留 pending '
+        'timer；三态契约由 project_w2_insights_page_test 断言',
+  ),
+
   // ==================== 兼容旧路径 ====================
   const SmokeRoute(name: 'people_info_top', location: '/people_info/1001'),
 ];

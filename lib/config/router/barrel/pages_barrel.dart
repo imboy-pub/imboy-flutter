@@ -34,6 +34,11 @@ export 'package:imboy/page/workspace/workspace_picker_page.dart';
 export 'package:imboy/page/workspace/project/home/project_create_page.dart';
 export 'package:imboy/page/workspace/project/home/project_detail_page.dart';
 export 'package:imboy/page/workspace/project/tasks/task_form_page.dart';
+// Project W2 协作视图（ZC-06 — 成员/里程碑/项目频道/内容聚合）
+export 'package:imboy/page/workspace/project/w2/project_channels_page.dart';
+export 'package:imboy/page/workspace/project/w2/project_insights_page.dart';
+export 'package:imboy/page/workspace/project/w2/project_members_page.dart';
+export 'package:imboy/page/workspace/project/w2/project_milestones_page.dart';
 
 // ============================================================================
 // 会话和聊天

@@ -8350,6 +8350,207 @@ class Translations$workspace$zh_CN {
 
 	/// zh-CN: '加载更多'
 	String get projectsLoadMore => '加载更多';
+
+	/// zh-CN: '项目协作'
+	String get projectW2SectionTitle => '项目协作';
+
+	/// zh-CN: '成员'
+	String get projectMembersEntry => '成员';
+
+	/// zh-CN: '里程碑'
+	String get projectMilestonesEntry => '里程碑';
+
+	/// zh-CN: '项目频道'
+	String get projectChannelsEntry => '项目频道';
+
+	/// zh-CN: '内容聚合'
+	String get projectInsightsEntry => '内容聚合';
+
+	/// zh-CN: '无权限：仅项目成员、项目负责人或工作区 Owner 可查看'
+	String get projectNoPermission => '无权限：仅项目成员、项目负责人或工作区 Owner 可查看';
+
+	/// zh-CN: '访客（Guest）身份对项目只读'
+	String get projectGuestReadonly => '访客（Guest）身份对项目只读';
+
+	/// zh-CN: '加载更多'
+	String get projectLoadMore => '加载更多';
+
+	/// zh-CN: '项目成员'
+	String get projectMembersTitle => '项目成员';
+
+	/// zh-CN: '还没有项目成员'
+	String get projectMemberEmptyTitle => '还没有项目成员';
+
+	/// zh-CN: '项目负责人可邀请已注册用户加入此项目'
+	String get projectMemberEmptySubtitle => '项目负责人可邀请已注册用户加入此项目';
+
+	/// zh-CN: '邀请项目成员'
+	String get projectMemberInviteTitle => '邀请项目成员';
+
+	/// zh-CN: '用户 ID'
+	String get projectMemberInviteFieldLabel => '用户 ID';
+
+	/// zh-CN: '要邀请的已注册用户 ID'
+	String get projectMemberInviteFieldHint => '要邀请的已注册用户 ID';
+
+	/// zh-CN: '请输入有效的用户 ID'
+	String get projectMemberInviteInvalidUid => '请输入有效的用户 ID';
+
+	/// zh-CN: '邀请'
+	String get projectMemberInviteSubmit => '邀请';
+
+	/// zh-CN: '已加入项目成员'
+	String get projectMemberInviteSuccess => '已加入项目成员';
+
+	/// zh-CN: '该用户已是项目成员'
+	String get projectMemberInviteExisting => '该用户已是项目成员';
+
+	/// zh-CN: '移除项目成员 $name'
+	String projectMemberRemoveConfirmTitle({required Object name}) => '移除项目成员 ${name}';
+
+	/// zh-CN: '移除后该用户将失去此项目内容的访问（可重新邀请）'
+	String get projectMemberRemoveConfirmDesc => '移除后该用户将失去此项目内容的访问（可重新邀请）';
+
+	/// zh-CN: '移除'
+	String get projectMemberRemoveSubmit => '移除';
+
+	/// zh-CN: '已移除'
+	String get projectMemberRemovedToast => '已移除';
+
+	/// zh-CN: '该用户已不在项目成员中'
+	String get projectMemberAlreadyRemovedToast => '该用户已不在项目成员中';
+
+	/// zh-CN: '转移项目负责人给 $name'
+	String projectMemberTransferTitle({required Object name}) => '转移项目负责人给 ${name}';
+
+	/// zh-CN: '转移后对方获得此项目的完全管理权'
+	String get projectMemberTransferDesc => '转移后对方获得此项目的完全管理权';
+
+	/// zh-CN: '确认转移'
+	String get projectMemberTransferConfirm => '确认转移';
+
+	/// zh-CN: '项目负责人已转移'
+	String get projectMemberTransferDoneToast => '项目负责人已转移';
+
+	/// zh-CN: '里程碑'
+	String get projectMilestonesTitle => '里程碑';
+
+	/// zh-CN: '还没有里程碑'
+	String get projectMilestoneEmptyTitle => '还没有里程碑';
+
+	/// zh-CN: '用里程碑标记项目的关键节点（计划中 → 已达成，单向）'
+	String get projectMilestoneEmptySubtitle => '用里程碑标记项目的关键节点（计划中 → 已达成，单向）';
+
+	/// zh-CN: '新建里程碑'
+	String get projectMilestoneCreateTitle => '新建里程碑';
+
+	/// zh-CN: '名称'
+	String get projectMilestoneNameLabel => '名称';
+
+	/// zh-CN: '里程碑名称不能为空'
+	String get projectMilestoneNameRequired => '里程碑名称不能为空';
+
+	/// zh-CN: '截止日期（YYYY-MM-DD，可选）'
+	String get projectMilestoneDueDateLabel => '截止日期（YYYY-MM-DD，可选）';
+
+	/// zh-CN: '日期格式应为 YYYY-MM-DD'
+	String get projectMilestoneDueDateInvalid => '日期格式应为 YYYY-MM-DD';
+
+	/// zh-CN: '创建'
+	String get projectMilestoneCreateSubmit => '创建';
+
+	/// zh-CN: '里程碑已创建'
+	String get projectMilestoneCreatedToast => '里程碑已创建';
+
+	/// zh-CN: '全部'
+	String get projectMilestoneFilterAll => '全部';
+
+	/// zh-CN: '计划中'
+	String get projectMilestoneFilterPlanned => '计划中';
+
+	/// zh-CN: '已达成'
+	String get projectMilestoneFilterReached => '已达成';
+
+	/// zh-CN: '标记达成'
+	String get projectMilestoneReach => '标记达成';
+
+	/// zh-CN: '里程碑已达成'
+	String get projectMilestoneReachedToast => '里程碑已达成';
+
+	/// zh-CN: '该里程碑已达成'
+	String get projectMilestoneAlreadyReachedToast => '该里程碑已达成';
+
+	/// zh-CN: '已达成（不可回退）'
+	String get projectMilestoneReachedHint => '已达成（不可回退）';
+
+	/// zh-CN: '截止'
+	String get projectMilestoneDueLabel => '截止';
+
+	/// zh-CN: '项目频道'
+	String get projectChannelsTitle => '项目频道';
+
+	/// zh-CN: '还没有关联频道'
+	String get projectChannelEmptyTitle => '还没有关联频道';
+
+	/// zh-CN: '关联工作区频道后，其置顶内容与最近帖子会聚合进本项目'
+	String get projectChannelEmptySubtitle => '关联工作区频道后，其置顶内容与最近帖子会聚合进本项目';
+
+	/// zh-CN: '选择要关联的频道'
+	String get projectChannelLinkTitle => '选择要关联的频道';
+
+	/// zh-CN: '没有可关联的候选频道'
+	String get projectChannelNoCandidate => '没有可关联的候选频道';
+
+	/// zh-CN: '频道已关联'
+	String get projectChannelLinkedToast => '频道已关联';
+
+	/// zh-CN: '该频道已关联'
+	String get projectChannelLinkExistingToast => '该频道已关联';
+
+	/// zh-CN: '解除关联 $name'
+	String projectChannelUnlinkTitle({required Object name}) => '解除关联 ${name}';
+
+	/// zh-CN: '解除后该频道内容不再聚合进本项目'
+	String get projectChannelUnlinkDesc => '解除后该频道内容不再聚合进本项目';
+
+	/// zh-CN: '解除关联'
+	String get projectChannelUnlinkSubmit => '解除关联';
+
+	/// zh-CN: '已解除关联'
+	String get projectChannelUnlinkedToast => '已解除关联';
+
+	/// zh-CN: '置顶消息'
+	String get projectInsightsTabPinned => '置顶消息';
+
+	/// zh-CN: '资源链接'
+	String get projectInsightsTabResources => '资源链接';
+
+	/// zh-CN: '项目动态'
+	String get projectInsightsTabActivity => '项目动态';
+
+	/// zh-CN: '相关帖子'
+	String get projectInsightsTabPosts => '相关帖子';
+
+	/// zh-CN: '关联频道暂无置顶内容'
+	String get projectInsightsPinnedEmpty => '关联频道暂无置顶内容';
+
+	/// zh-CN: '项目暂无资源链接'
+	String get projectInsightsResourcesEmpty => '项目暂无资源链接';
+
+	/// zh-CN: '项目暂无动态'
+	String get projectInsightsActivityEmpty => '项目暂无动态';
+
+	/// zh-CN: '关联频道暂无帖子'
+	String get projectInsightsPostsEmpty => '关联频道暂无帖子';
+
+	/// zh-CN: '$name 发布'
+	String projectInsightsPostAuthor({required Object name}) => '${name} 发布';
+
+	/// zh-CN: '链接名称'
+	String get projectLinkNameLabel => '链接名称';
+
+	/// zh-CN: '链接地址'
+	String get projectLinkUrlLabel => '链接地址';
 }
 
 // Path: account.alipaySim
@@ -11093,6 +11294,73 @@ extension on Translations {
 			'workspace.taskEmptySubtitle' => '用四态跟踪执行：待办 → 进行中 → 评审中 → 已完成',
 			'workspace.guestReadonlyHint' => '访客（Guest）身份对工作区资源只读',
 			'workspace.projectsLoadMore' => '加载更多',
+			'workspace.projectW2SectionTitle' => '项目协作',
+			'workspace.projectMembersEntry' => '成员',
+			'workspace.projectMilestonesEntry' => '里程碑',
+			'workspace.projectChannelsEntry' => '项目频道',
+			'workspace.projectInsightsEntry' => '内容聚合',
+			'workspace.projectNoPermission' => '无权限：仅项目成员、项目负责人或工作区 Owner 可查看',
+			'workspace.projectGuestReadonly' => '访客（Guest）身份对项目只读',
+			'workspace.projectLoadMore' => '加载更多',
+			'workspace.projectMembersTitle' => '项目成员',
+			'workspace.projectMemberEmptyTitle' => '还没有项目成员',
+			'workspace.projectMemberEmptySubtitle' => '项目负责人可邀请已注册用户加入此项目',
+			'workspace.projectMemberInviteTitle' => '邀请项目成员',
+			'workspace.projectMemberInviteFieldLabel' => '用户 ID',
+			'workspace.projectMemberInviteFieldHint' => '要邀请的已注册用户 ID',
+			'workspace.projectMemberInviteInvalidUid' => '请输入有效的用户 ID',
+			'workspace.projectMemberInviteSubmit' => '邀请',
+			'workspace.projectMemberInviteSuccess' => '已加入项目成员',
+			'workspace.projectMemberInviteExisting' => '该用户已是项目成员',
+			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '移除项目成员 ${name}',
+			'workspace.projectMemberRemoveConfirmDesc' => '移除后该用户将失去此项目内容的访问（可重新邀请）',
+			'workspace.projectMemberRemoveSubmit' => '移除',
+			'workspace.projectMemberRemovedToast' => '已移除',
+			'workspace.projectMemberAlreadyRemovedToast' => '该用户已不在项目成员中',
+			'workspace.projectMemberTransferTitle' => ({required Object name}) => '转移项目负责人给 ${name}',
+			'workspace.projectMemberTransferDesc' => '转移后对方获得此项目的完全管理权',
+			'workspace.projectMemberTransferConfirm' => '确认转移',
+			'workspace.projectMemberTransferDoneToast' => '项目负责人已转移',
+			'workspace.projectMilestonesTitle' => '里程碑',
+			'workspace.projectMilestoneEmptyTitle' => '还没有里程碑',
+			'workspace.projectMilestoneEmptySubtitle' => '用里程碑标记项目的关键节点（计划中 → 已达成，单向）',
+			'workspace.projectMilestoneCreateTitle' => '新建里程碑',
+			'workspace.projectMilestoneNameLabel' => '名称',
+			'workspace.projectMilestoneNameRequired' => '里程碑名称不能为空',
+			'workspace.projectMilestoneDueDateLabel' => '截止日期（YYYY-MM-DD，可选）',
+			'workspace.projectMilestoneDueDateInvalid' => '日期格式应为 YYYY-MM-DD',
+			'workspace.projectMilestoneCreateSubmit' => '创建',
+			'workspace.projectMilestoneCreatedToast' => '里程碑已创建',
+			'workspace.projectMilestoneFilterAll' => '全部',
+			'workspace.projectMilestoneFilterPlanned' => '计划中',
+			'workspace.projectMilestoneFilterReached' => '已达成',
+			'workspace.projectMilestoneReach' => '标记达成',
+			'workspace.projectMilestoneReachedToast' => '里程碑已达成',
+			'workspace.projectMilestoneAlreadyReachedToast' => '该里程碑已达成',
+			'workspace.projectMilestoneReachedHint' => '已达成（不可回退）',
+			'workspace.projectMilestoneDueLabel' => '截止',
+			'workspace.projectChannelsTitle' => '项目频道',
+			'workspace.projectChannelEmptyTitle' => '还没有关联频道',
+			'workspace.projectChannelEmptySubtitle' => '关联工作区频道后，其置顶内容与最近帖子会聚合进本项目',
+			'workspace.projectChannelLinkTitle' => '选择要关联的频道',
+			'workspace.projectChannelNoCandidate' => '没有可关联的候选频道',
+			'workspace.projectChannelLinkedToast' => '频道已关联',
+			'workspace.projectChannelLinkExistingToast' => '该频道已关联',
+			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => '解除关联 ${name}',
+			'workspace.projectChannelUnlinkDesc' => '解除后该频道内容不再聚合进本项目',
+			'workspace.projectChannelUnlinkSubmit' => '解除关联',
+			'workspace.projectChannelUnlinkedToast' => '已解除关联',
+			'workspace.projectInsightsTabPinned' => '置顶消息',
+			'workspace.projectInsightsTabResources' => '资源链接',
+			'workspace.projectInsightsTabActivity' => '项目动态',
+			'workspace.projectInsightsTabPosts' => '相关帖子',
+			'workspace.projectInsightsPinnedEmpty' => '关联频道暂无置顶内容',
+			'workspace.projectInsightsResourcesEmpty' => '项目暂无资源链接',
+			'workspace.projectInsightsActivityEmpty' => '项目暂无动态',
+			'workspace.projectInsightsPostsEmpty' => '关联频道暂无帖子',
+			'workspace.projectInsightsPostAuthor' => ({required Object name}) => '${name} 发布',
+			'workspace.projectLinkNameLabel' => '链接名称',
+			'workspace.projectLinkUrlLabel' => '链接地址',
 			_ => null,
 		};
 	}
