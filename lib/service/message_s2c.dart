@@ -533,19 +533,16 @@ class MessageS2CService {
     final avatar = payload['avatar'];
     final account = payload['account'];
     final gid = payload['gid'];
-    final userIdSum = payload['user_id_sum'] ?? 0;
 
     iPrint('🔔 [S2C] 收到 group_member_join 消息');
     iPrint('  ├─ userId: $userId');
     iPrint('  ├─ nickname: $nickname');
     iPrint('  ├─ gid: $gid');
-    iPrint('  ├─ userIdSum: $userIdSum');
     iPrint('  └─ 完整 payload: $payload');
 
     final joinRes = await GroupListService().memberJoin(
       groupId: gid as String,
       userId: userId as String,
-      userIdSum: userIdSum as int,
     );
 
     iPrint('📢 [S2C] 发布 join_group 事件到 ChatExtendEvent');
@@ -591,12 +588,10 @@ class MessageS2CService {
   ) async {
     final userId = payload['leave_uid'];
     final gid = payload['gid'];
-    final userIdSum = payload['user_id_sum'] ?? 0;
 
     await GroupListService().memberLeave(
       groupId: gid as String,
       userId: userId as String,
-      userIdSum: userIdSum as int,
     );
 
     AppEventBus.fire(

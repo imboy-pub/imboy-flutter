@@ -19,7 +19,6 @@ void main() {
         'type': true,
         'join_limit': '2',
         'content_limit': false,
-        'user_id_sum': '7',
         'owner_uid': 9001,
         'creator_uid': 9002,
         'member_max': '500',
@@ -36,7 +35,6 @@ void main() {
       expect(model.type, 1);
       expect(model.joinLimit, 2);
       expect(model.contentLimit, 0);
-      expect(model.userIdSum, 7);
       expect(model.ownerUid, 9001);
       expect(model.creatorUid, 9002);
       expect(model.memberMax, 500);

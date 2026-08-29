@@ -8,7 +8,6 @@ class GroupModel {
   final int type; // 类型: 1 公开群组  2 私有群组
   int joinLimit; //  加入限制: 1 不需审核  2 需要审核  3 只允许邀请加入
   int contentLimit; // 内部发布限制: 1 圈内不需审核  2 圈内需要审核  3 圈外需要审核
-  int userIdSum; // 主要用于添加群聊的时候排重；还可以用于校验客户端memberCount是否应该增加
   int ownerUid; //  群组拥有者ID
   int creatorUid; //群组创建者ID
   int memberMax; // 允许最大成员数量
@@ -40,7 +39,6 @@ class GroupModel {
     required this.type,
     required this.joinLimit,
     required this.contentLimit,
-    required this.userIdSum,
     required this.ownerUid,
     required this.creatorUid,
     required this.memberMax,
@@ -60,7 +58,6 @@ class GroupModel {
       type: parseModelInt(json['type']),
       joinLimit: parseModelInt(json['join_limit']),
       contentLimit: parseModelInt(json['content_limit']),
-      userIdSum: parseModelInt(json['user_id_sum']),
       ownerUid: parseModelInt(json['owner_uid']),
       creatorUid: parseModelInt(json['creator_uid']),
       memberMax: parseModelInt(json['member_max']),
@@ -85,7 +82,6 @@ class GroupModel {
     GroupRepo.type: type,
     GroupRepo.joinLimit: joinLimit,
     GroupRepo.contentLimit: contentLimit,
-    GroupRepo.userIdSum: userIdSum,
     GroupRepo.ownerUid: ownerUid,
     GroupRepo.creatorUid: creatorUid,
     GroupRepo.memberMax: memberMax,

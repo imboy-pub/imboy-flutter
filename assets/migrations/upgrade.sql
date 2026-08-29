@@ -1490,3 +1490,49 @@ UPDATE channel SET visibility = -1, access_type = -1, join_policy = -1
 DROP INDEX IF EXISTS idx_channel_type;
 
 PRAGMA user_version = 31;
+-- ============================================================
+-- VERSION: 32
+-- DESC: group 移除 user_id_sum 列。
+--       服务端迁移 00000079 已删除该列（SUM(bigint) 约 85 人溢出，
+--       且同成员集允许多群后签名语义不复存在），载荷不再下发；
+--       客户端 userIdSum 纯存储零业务读取，属死列。
+--       SQLite < 3.35 不支持 DROP COLUMN，按仓内惯例走
+--       建新表 → 拷数据 → 删旧表 → 改名 的重建方式。
+--       降级可逆：down 边以 ADD COLUMN 恢复（历史 sum 值不还原，置 0）。
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS "group_v32" (
+    id INTEGER PRIMARY KEY,
+    type INTEGER DEFAULT 1,
+    join_limit INTEGER DEFAULT 2,
+    content_limit INTEGER DEFAULT 2,
+    owner_uid INTEGER NOT NULL,
+    creator_uid INTEGER NOT NULL,
+    member_max INTEGER NOT NULL DEFAULT 1000,
+    member_count INTEGER NOT NULL DEFAULT 1,
+    introduction TEXT NOT NULL DEFAULT '',
+    avatar TEXT NOT NULL DEFAULT '',
+    title TEXT NOT NULL DEFAULT '',
+    status INTEGER NOT NULL DEFAULT 1,
+    updated_at INTEGER DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    pinned_msg TEXT
+);
+INSERT INTO "group_v32" (
+    id, type, join_limit, content_limit, owner_uid, creator_uid,
+    member_max, member_count, introduction, avatar, title, status,
+    updated_at, created_at, pinned_msg
+)
+SELECT
+    id, type, join_limit, content_limit, owner_uid, creator_uid,
+    member_max, member_count, introduction, avatar, title, status,
+    updated_at, created_at, pinned_msg
+FROM "group";
+DROP TABLE "group";
+ALTER TABLE "group_v32" RENAME TO "group";
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 32;
+

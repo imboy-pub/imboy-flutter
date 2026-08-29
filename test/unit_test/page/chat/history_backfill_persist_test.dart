@@ -121,7 +121,6 @@ const String _groupDDL = '''
     type INTEGER DEFAULT 1,
     join_limit INTEGER DEFAULT 2,
     content_limit INTEGER DEFAULT 2,
-    user_id_sum INTEGER NOT NULL DEFAULT 0,
     owner_uid INTEGER NOT NULL,
     creator_uid INTEGER NOT NULL,
     member_max INTEGER NOT NULL DEFAULT 1000,

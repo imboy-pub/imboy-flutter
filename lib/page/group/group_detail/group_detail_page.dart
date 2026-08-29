@@ -252,7 +252,6 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                         type: 2,
                         joinLimit: 1,
                         contentLimit: 1,
-                        userIdSum: 0,
                         ownerUid: 0,
                         creatorUid: 0,
                         memberMax: 0,

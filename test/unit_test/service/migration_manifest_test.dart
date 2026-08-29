@@ -11,7 +11,7 @@
 //   6. 每边 sqlStatements 以 `PRAGMA user_version = to` 收尾（框架推进
 //      版本的单一出口）。
 //   7. latestVersion == SqliteService._dbVersion == MigrationService.targetVersion。
-//   8. v31→v30 唯一受支持降级窗口在 manifest 中且声明 dataLoss/requiresResync。
+//   8. 唯一受支持降级窗口（v32→v31、v31→v30）在 manifest 中且声明 dataLoss/requiresResync。
 library;
 
 import 'dart:io';
@@ -50,8 +50,8 @@ void main() {
       );
     });
 
-    test('latestVersion == 31 == SqliteService._dbVersion（源码扫描）', () async {
-      expect(kMigrationManifest.latestVersion, equals(31));
+    test('latestVersion == 32 == SqliteService._dbVersion（源码扫描）', () async {
+      expect(kMigrationManifest.latestVersion, equals(32));
       final src = File('lib/service/sqlite.dart').readAsStringSync();
       final m = RegExp(
         r'static\s+const\s+_dbVersion\s*=\s*(\d+)',

@@ -440,7 +440,6 @@ class GroupListService {
   Future<Map<String, dynamic>?> memberJoin({
     required String groupId,
     required String userId,
-    required int userIdSum,
   }) async {
     GroupRepo gRepo = GroupRepo();
     GroupModel? g = await gRepo.findById(groupId);
@@ -469,10 +468,7 @@ class GroupListService {
           createdAt: DateTimeHelper.millisecond(),
         ),
       );
-      await gRepo.save(groupId, {
-        GroupRepo.userIdSum: userIdSum,
-        GroupRepo.memberCount: g.memberCount + 1,
-      });
+      await gRepo.save(groupId, {GroupRepo.memberCount: g.memberCount + 1});
     }
     return {"isFirst": gm == null ? true : false};
   }
@@ -481,7 +477,6 @@ class GroupListService {
   Future<void> memberLeave({
     required String groupId,
     required String userId,
-    required int userIdSum,
   }) async {
     GroupRepo gRepo = GroupRepo();
     GroupModel? g = await gRepo.findById(groupId);
@@ -493,10 +488,7 @@ class GroupListService {
     } else {
       int res = await GroupMemberRepo().delete(groupId, userId);
       iPrint("memberLeave $res;");
-      await gRepo.save(groupId, {
-        GroupRepo.userIdSum: userIdSum,
-        GroupRepo.memberCount: g!.memberCount - 1,
-      });
+      await gRepo.save(groupId, {GroupRepo.memberCount: g!.memberCount - 1});
     }
   }
 

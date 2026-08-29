@@ -19,7 +19,7 @@ library;
 
 /// 权威数据库版本（lib/service/sqlite.dart `_dbVersion`）。
 /// 由 inventory test 通过源码扫描守护，防止 embedded 脚本与权威版本漂移。
-const int kInventoryCurrentDbVersion = 31;
+const int kInventoryCurrentDbVersion = 32;
 
 /// 新库基线版本：kBaselineSchemaSql（example10.db 模板）建库后 user_version。
 /// SqliteService._onCreate 在加密平台执行 baseline 后设置此值，再跑增量。
@@ -60,6 +60,7 @@ const Set<int> kInventoryExpectedUpgradeBlocks = {
   29,
   30,
   31,
+  32,
 };
 
 /// downgrade.sql 中实际存在的 VERSION 块（14 块，含 VERSION:9 空占位）。
@@ -82,6 +83,7 @@ const Set<int> kInventoryExpectedDowngradeBlocks = {
   28,
   29,
   31,
+  32,
 };
 
 /// 已知缺失的降级块（块 N = N→N-1 边不存在），共 8 条。
@@ -109,7 +111,7 @@ const Set<int> kInventoryKnownMissingDowngradeBlocks = {
 
 /// 受支持升级起点（研究文档 §6 测试矩阵口径）：v9 / v16 / v18 / v25 /
 /// v29 / v30 → v31，外加全新安装（baseline+增量）。
-const Set<int> kInventorySupportedUpgradeOrigins = {9, 16, 18, 25, 29, 30};
+const Set<int> kInventorySupportedUpgradeOrigins = {9, 16, 18, 25, 29, 30, 31};
 
 /// 当前唯一声明可逆的生产降级窗口：v31 → v30（访问模型三列回退）。
 const int kInventorySupportedDowngradeFrom = 31;

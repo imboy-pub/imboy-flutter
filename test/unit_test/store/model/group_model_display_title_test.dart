@@ -20,7 +20,6 @@ GroupModel buildGroup({String title = '', String computeTitle = ''}) {
     type: 1,
     joinLimit: 1,
     contentLimit: 1,
-    userIdSum: 0,
     ownerUid: 50,
     creatorUid: 50,
     memberMax: 200,
