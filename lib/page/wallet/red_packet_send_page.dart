@@ -205,16 +205,25 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          _isLucky
-                              ? t.common.redPacketCurrentLucky
-                              : t.common.redPacketCurrentNormal,
-                          style: context.textStyle(
-                            FontSizeType.medium,
-                            fontWeight: FontWeight.w600,
+                        // 左侧文案可收缩：英文环境文案长 + 右按钮默认 padding，
+                        // 两者硬宽之和在 390pt 屏溢出 4.2px
+                        Expanded(
+                          child: Text(
+                            _isLucky
+                                ? t.common.redPacketCurrentLucky
+                                : t.common.redPacketCurrentNormal,
+                            style: context.textStyle(
+                              FontSizeType.medium,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         CupertinoButton(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.small,
+                          ),
                           onPressed: () => setState(() {
                             _selectedType = _isLucky ? 'fixed' : 'random';
                           }),
