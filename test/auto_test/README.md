@@ -1,7 +1,7 @@
 # imboyapp 自动化测试计划 —— 索引
 
 > **权威文档**。imboyapp 现有全部功能点（已完成 / 未完成 / 阻塞 全部纳入）。
-> 覆盖 **137 个页面 / 1541 个功能点**
+> 覆盖 **154 个页面 / 1725 个功能点**
 > 数据源：`lib/page/**` 真实源码抽取 ＋ 真机实测记录
 
 > ⚠️ 本文件由 `regen_readme.py` 生成，**不要手改**。
@@ -58,9 +58,11 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1308 | 84.9% |
-| 阻塞 | 233 | 15.1% |
-| **合计** | **1541** | 100% |
+| 无待办 | 1308 | 75.8% |
+| 待首测 | 183 | 10.6% |
+| 待复验 | 1 | 0.1% |
+| 阻塞 | 233 | 13.5% |
+| **合计** | **1725** | 100% |
 
 bug 累计：**发现 201 / 解决 195 / 待处理 6**
 
@@ -68,30 +70,31 @@ bug 累计：**发现 201 / 解决 195 / 待处理 6**
 
 ## 模块索引
 
-| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 阻塞 |
-|---|---|---|---|---|---|
-| [group](group/) | 26 | 286 | 0 | 246 | 40 |
-| [mine](mine/) | 21 | 249 | 0 | 234 | 15 |
-| [channel](channel/) | 13 | 146 | 0 | 122 | 24 |
-| [contact](contact/) | 13 | 126 | 2 | 118 | 8 |
-| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 19 |
-| [passport](passport/) | 7 | 82 | 0 | 46 | 36 |
-| [chat](chat/) | 6 | 76 | 0 | 60 | 16 |
-| [moment](moment/) | 6 | 74 | 0 | 73 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 53 | 8 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 |
-| [single](single/) | 5 | 48 | 0 | 46 | 2 |
-| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
-| [settings](settings/) | 3 | 36 | 0 | 25 | 11 |
-| [search](search/) | 3 | 35 | 0 | 14 | 21 |
-| [live_room](live_room/) | 3 | 33 | 0 | 5 | 28 |
-| [scanner](scanner/) | 3 | 30 | 0 | 28 | 2 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 11 | 1 |
-| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 |
-| [mention](mention/) | 1 | 12 | 0 | 11 | 1 |
-| [splash](splash/) | 1 | 12 | 0 | 12 | 0 |
-| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 |
-| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 |
+| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 待首测 | 待复验 | 阻塞 |
+|---|---|---|---|---|---|---|---|
+| [group](group/) | 26 | 286 | 0 | 246 | 0 | 0 | 40 |
+| [mine](mine/) | 21 | 250 | 0 | 234 | 0 | 1 | 15 |
+| [workspace](workspace/) | 17 | 183 | 0 | 0 | 183 | 0 | 0 |
+| [channel](channel/) | 13 | 146 | 0 | 122 | 0 | 0 | 24 |
+| [contact](contact/) | 13 | 126 | 2 | 118 | 0 | 0 | 8 |
+| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 0 | 0 | 19 |
+| [passport](passport/) | 7 | 82 | 0 | 46 | 0 | 0 | 36 |
+| [chat](chat/) | 6 | 76 | 0 | 60 | 0 | 0 | 16 |
+| [moment](moment/) | 6 | 74 | 0 | 73 | 0 | 0 | 1 |
+| [wallet](wallet/) | 5 | 61 | 1 | 53 | 0 | 0 | 8 |
+| [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 | 0 | 0 |
+| [single](single/) | 5 | 48 | 0 | 46 | 0 | 0 | 2 |
+| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 | 0 |
+| [settings](settings/) | 3 | 36 | 0 | 25 | 0 | 0 | 11 |
+| [search](search/) | 3 | 35 | 0 | 14 | 0 | 0 | 21 |
+| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 0 | 28 |
+| [scanner](scanner/) | 3 | 30 | 0 | 28 | 0 | 0 | 2 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 11 | 0 | 0 | 1 |
+| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
+| [mention](mention/) | 1 | 12 | 0 | 11 | 0 | 0 | 1 |
+| [splash](splash/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
+| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
+| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 | 0 |
 
 ## 页面清单
 
@@ -201,7 +204,7 @@ bug 累计：**发现 201 / 解决 195 / 待处理 6**
 - [mine_page](mine/mine_page.md) — 12 功能点
 - [select_region_page](mine/select_region_page.md) — 10 功能点
 - [set_password_page](mine/set_password_page.md) — 11 功能点
-- [setting_page](mine/setting_page.md) — 16 功能点
+- [setting_page](mine/setting_page.md) — 17 功能点
 - [storage_space_page](mine/storage_space_page.md) — 10 功能点
 - [user_collect_detail_page](mine/user_collect_detail_page.md) — 12 功能点
 - [user_collect_page](mine/user_collect_page.md) — 17 功能点
@@ -298,3 +301,23 @@ bug 累计：**发现 201 / 解决 195 / 待处理 6**
 ### welcome
 
 - [welcome_page](welcome/welcome_page.md) — 12 功能点
+
+### workspace
+
+- [project_channels_page](workspace/project_channels_page.md) — 11 功能点
+- [project_create_page](workspace/project_create_page.md) — 9 功能点
+- [project_detail_page](workspace/project_detail_page.md) — 11 功能点
+- [project_insights_page](workspace/project_insights_page.md) — 10 功能点
+- [project_members_page](workspace/project_members_page.md) — 13 功能点
+- [project_milestones_page](workspace/project_milestones_page.md) — 13 功能点
+- [task_form_page](workspace/task_form_page.md) — 13 功能点
+- [workspace_branding_page](workspace/workspace_branding_page.md) — 11 功能点
+- [workspace_channel_detail_page](workspace/workspace_channel_detail_page.md) — 9 功能点
+- [workspace_channels_page](workspace/workspace_channels_page.md) — 8 功能点
+- [workspace_create_page](workspace/workspace_create_page.md) — 10 功能点
+- [workspace_groups_page](workspace/workspace_groups_page.md) — 8 功能点
+- [workspace_invite_page](workspace/workspace_invite_page.md) — 12 功能点
+- [workspace_members_page](workspace/workspace_members_page.md) — 13 功能点
+- [workspace_overview_page](workspace/workspace_overview_page.md) — 11 功能点
+- [workspace_picker_page](workspace/workspace_picker_page.md) — 11 功能点
+- [workspace_projects_page](workspace/workspace_projects_page.md) — 10 功能点

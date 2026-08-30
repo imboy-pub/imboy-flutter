@@ -7,9 +7,9 @@
 
 | 指标 | 数量 |
 |---|---:|
-| 页面台账总数 | 137 |
+| 页面台账总数 | 154 |
 | 已有关联规格的样板页 | 9 |
-| 待分级并补规格的页面 | 128 |
+| 待分级并补规格的页面 | 145 |
 | 源码映射缺失 | 0 |
 
 ## 页面队列
@@ -95,7 +95,7 @@
 | mine | [mine_page](mine/mine_page.md) | `lib/page/mine/mine/mine_page.dart` | 12 | 待分级并补规格 | — |
 | mine | [select_region_page](mine/select_region_page.md) | `lib/page/mine/select_region/select_region_page.dart` | 10 | 待分级并补规格 | — |
 | mine | [set_password_page](mine/set_password_page.md) | `lib/page/mine/change_password/set_password_page.dart` | 11 | 待分级并补规格 | — |
-| mine | [setting_page](mine/setting_page.md) | `lib/page/mine/setting/setting_page.dart` | 16 | 待分级并补规格 | — |
+| mine | [setting_page](mine/setting_page.md) | `lib/page/mine/setting/setting_page.dart` | 17 | 待分级并补规格 | — |
 | mine | [storage_space_page](mine/storage_space_page.md) | `lib/page/mine/storage_space/storage_space_page.dart` | 10 | 待分级并补规格 | — |
 | mine | [user_collect_detail_page](mine/user_collect_detail_page.md) | `lib/page/mine/user_collect/user_collect_detail_page.dart` | 12 | 待分级并补规格 | — |
 | mine | [user_collect_page](mine/user_collect_page.md) | `lib/page/mine/user_collect/user_collect_page.dart` | 17 | 待分级并补规格 | — |
@@ -153,3 +153,20 @@
 | wallet | [withdraw_page](wallet/withdraw_page.md) | `lib/page/wallet/withdraw_page.dart` | 13 | 待分级并补规格 | — |
 | web_shell | [web_shell_page](web_shell/web_shell_page.md) | `lib/page/web_shell/web_shell_page.dart` | 11 | 待分级并补规格 | — |
 | welcome | [welcome_page](welcome/welcome_page.md) | `lib/page/welcome/welcome_page.dart` | 12 | 待分级并补规格 | — |
+| workspace | [project_channels_page](workspace/project_channels_page.md) | `lib/page/workspace/project/w2/project_channels_page.dart` | 11 | 待分级并补规格 | — |
+| workspace | [project_create_page](workspace/project_create_page.md) | `lib/page/workspace/project/home/project_create_page.dart` | 9 | 待分级并补规格 | — |
+| workspace | [project_detail_page](workspace/project_detail_page.md) | `lib/page/workspace/project/home/project_detail_page.dart` | 11 | 待分级并补规格 | — |
+| workspace | [project_insights_page](workspace/project_insights_page.md) | `lib/page/workspace/project/w2/project_insights_page.dart` | 10 | 待分级并补规格 | — |
+| workspace | [project_members_page](workspace/project_members_page.md) | `lib/page/workspace/project/w2/project_members_page.dart` | 13 | 待分级并补规格 | — |
+| workspace | [project_milestones_page](workspace/project_milestones_page.md) | `lib/page/workspace/project/w2/project_milestones_page.dart` | 13 | 待分级并补规格 | — |
+| workspace | [task_form_page](workspace/task_form_page.md) | `lib/page/workspace/project/tasks/task_form_page.dart` | 13 | 待分级并补规格 | — |
+| workspace | [workspace_branding_page](workspace/workspace_branding_page.md) | `lib/page/workspace/workspace_branding_page.dart` | 11 | 待分级并补规格 | — |
+| workspace | [workspace_channel_detail_page](workspace/workspace_channel_detail_page.md) | `lib/page/workspace/workspace_channel_detail_page.dart` | 9 | 待分级并补规格 | — |
+| workspace | [workspace_channels_page](workspace/workspace_channels_page.md) | `lib/page/workspace/workspace_channels_page.dart` | 8 | 待分级并补规格 | — |
+| workspace | [workspace_create_page](workspace/workspace_create_page.md) | `lib/page/workspace/workspace_create_page.dart` | 10 | 待分级并补规格 | — |
+| workspace | [workspace_groups_page](workspace/workspace_groups_page.md) | `lib/page/workspace/workspace_groups_page.dart` | 8 | 待分级并补规格 | — |
+| workspace | [workspace_invite_page](workspace/workspace_invite_page.md) | `lib/page/workspace/workspace_invite_page.dart` | 12 | 待分级并补规格 | — |
+| workspace | [workspace_members_page](workspace/workspace_members_page.md) | `lib/page/workspace/workspace_members_page.dart` | 13 | 待分级并补规格 | — |
+| workspace | [workspace_overview_page](workspace/workspace_overview_page.md) | `lib/page/workspace/workspace_overview_page.dart` | 11 | 待分级并补规格 | — |
+| workspace | [workspace_picker_page](workspace/workspace_picker_page.md) | `lib/page/workspace/workspace_picker_page.dart` | 11 | 待分级并补规格 | — |
+| workspace | [workspace_projects_page](workspace/workspace_projects_page.md) | `lib/page/workspace/workspace_projects_page.dart` | 10 | 待分级并补规格 | — |
