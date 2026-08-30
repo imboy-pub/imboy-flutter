@@ -5,9 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/splash/splash_page.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Test-only fake — injected via `tester.platformDispatcher.accessibilityFeaturesTestValue`
 /// so `MediaQuery.disableAnimationsOf` reflects the system "Reduce Motion" state.
@@ -61,6 +64,11 @@ GoRouter _stubRouter() {
         path: '/bottom_navigation',
         builder: (_, _) =>
             const Scaffold(body: Center(child: Text('home stub'))),
+      ),
+      GoRoute(
+        path: '/sign_in',
+        builder: (_, _) =>
+            const Scaffold(body: Center(child: Text('sign_in stub'))),
       ),
     ],
   );
@@ -411,6 +419,28 @@ void main() {
         findsOneWidget,
         reason: '未登录/认证异常最终都必须落在 /welcome',
       );
+    });
+  });
+
+  // ── welcomeSeen 分支：引导只展示一次，看过后未登录冷启动直达登录页 ──
+  group('SplashPage welcomeSeen 直达登录页', () {
+    testWidgets('welcome_seen=true 时未登录冷启动直达 /sign_in', (tester) async {
+      // StorageService.init() 可重入：重置 mock 初始值后重新 init，
+      // _prefs 即指向含 welcome_seen=true 的新 mock store
+      SharedPreferences.setMockInitialValues({Keys.welcomeSeen: true});
+      await StorageService.init();
+      expect(StorageService.to.getBool(Keys.welcomeSeen), true);
+
+      await _pumpSplash(tester, size: const Size(390, 844));
+      await tester.pump(const Duration(milliseconds: 100));
+      await _drainSplashTimer(tester);
+
+      expect(
+        find.text('sign_in stub'),
+        findsOneWidget,
+        reason: 'welcome_seen=true 的未登录冷启动必须直达登录页（引导只展示一次）',
+      );
+      expect(find.text('welcome stub'), findsNothing);
     });
   });
 }
