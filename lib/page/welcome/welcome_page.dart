@@ -45,6 +45,12 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
   int _currentPage = 0;
   StreamSubscription<AppLocale>? _localeSubscription;
 
+  /// 引导页任一出口（跳过/走完）置位「已看过」标记：
+  /// splash 未登录分支据此直达登录页，避免每次未登录冷启动都看引导
+  void _markWelcomeSeen() {
+    StorageService.to.setBool(Keys.welcomeSeen, true);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -246,6 +252,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                               curve: Curves.easeInOut,
                             );
                           } else {
+                            _markWelcomeSeen();
                             context.go('/sign_in');
                           }
                         },
@@ -269,6 +276,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                         label: context.t.welcome.skip,
                         child: GestureDetector(
                           onTap: () {
+                            _markWelcomeSeen();
                             context.go('/sign_in');
                           },
                           child: ConstrainedBox(

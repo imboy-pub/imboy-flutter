@@ -158,6 +158,11 @@ class _SplashPageState extends ConsumerState<SplashPage>
           context.go(AppRoutes.signIn);
           return;
         }
+        // 引导页只展示一次：看过（跳过/走完任一出口）后未登录冷启动直达登录页
+        if (StorageService.to.getBool(Keys.welcomeSeen) == true) {
+          context.go(AppRoutes.signIn);
+          return;
+        }
         context.go('/welcome');
         return;
       }

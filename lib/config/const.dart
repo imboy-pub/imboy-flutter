@@ -59,6 +59,10 @@ class Keys {
   // 进程被系统杀死时 finally 不执行，冷启动后 LoginPage 检测到即知流程被中断
   static const String alipayLoginInProgress = "alipay_login_in_progress";
 
+  // 欢迎引导页已看过标记：WelcomePage 任一出口（跳过/走完）置位；splash
+  // 未登录分支据此直达登录页——引导只展示一次，而非每次未登录冷启动都看
+  static const String welcomeSeen = "welcome_seen";
+
   /// 聊天历史回填游标键前缀（`msg_history_seq_<uk3>`，唯一写入点
   /// chat_provider.dart syncHistoryBackfill）。登出/清数据时必须按此前缀
   /// 全量清理，否则残留游标会让换号/重装（SharedPreferences 保留）后
