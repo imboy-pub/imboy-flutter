@@ -155,7 +155,10 @@ class UpgradePageState extends ConsumerState<UpgradePage> {
       title: t.common.newVersionDetectedWithVersion(param: widget.version),
       message: widget.message,
       positiveBtn: t.common.updateNow,
-      negativeBtn: t.chat.remindMeLater,
+      // force 升级必须更新，不提供「下次再说」（与 build 的初始构造口径一致：
+      // 负按钮文案为空串时 Visibility 隐藏）；语言切换等触发本方法时不得把
+      // force 卡片的负按钮文案改回「下次再说」
+      negativeBtn: widget.isForce ? '' : t.chat.remindMeLater,
       hasLinearProgress: true,
       progress: 0,
     );
