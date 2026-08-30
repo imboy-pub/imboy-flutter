@@ -115,6 +115,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 file("proguard-rules.pro")
             )
+            // JVerification 一键登录要求包签名与极光后台登记一致，不一致时
+            // init 回调 code=8004（真机日志：1011 appSign or bundleId invalid）。
+            // 因此有 release 签名配置时 debug 也用 release 签名；无配置（如
+            // CI/新环境缺 local.properties 四件套）回落 Flutter 默认 debug 签名。
+            signingConfig = if (localProperties.getProperty("storeFile") != null) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
         release {
             // TODO: Add your own signing config for the release build.
