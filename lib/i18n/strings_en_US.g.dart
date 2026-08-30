@@ -1646,6 +1646,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get webQRGenerateFailed => 'Failed to generate QR code';
 	@override String get webQRTokenInvalid => 'Invalid login token';
 	@override String get e2eeErrNoRecipientKey => 'Cannot get recipient\'s device key, message not sent';
+	@override String get e2eeErrPeerNotOnboarded => 'The other person has never signed in on any device yet, so the message cannot be encrypted. Please try again after they sign in.';
 	@override String get e2eeDecryptFailed => 'Message cannot be decrypted';
 	@override String get e2eeDecryptFailedReasons => 'This message cannot be decrypted. Possible reasons:';
 	@override String get e2eeDecryptReasonOtherDevice => '• You logged in on another device';
@@ -1779,6 +1780,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String initConfigNetworkError({required Object code}) => 'Network or server error (HTTP ${code})';
 	@override String get initConfigProtocolError => 'Server returned an invalid protocol response';
 	@override String get initConfigFetchFailed => 'Failed to fetch config, please check your network connection';
+	@override String get initConfigDecryptFailed => 'Configuration decryption failed: the app and server security keys do not match. Please update the app or contact support.';
 	@override String get attachmentGetFileFailed => 'Unable to get file, please retry or choose from gallery';
 	@override String get attachmentGetFileFailedAndroid9 => 'File retrieval failed — Android 9 compatibility issue may apply';
 	@override String get attachmentGetImageDataFailed => 'Unable to get image data, please retry';
@@ -4476,6 +4478,7 @@ extension on TranslationsEnUs {
 			'common.webQRGenerateFailed' => 'Failed to generate QR code',
 			'common.webQRTokenInvalid' => 'Invalid login token',
 			'common.e2eeErrNoRecipientKey' => 'Cannot get recipient\'s device key, message not sent',
+			'common.e2eeErrPeerNotOnboarded' => 'The other person has never signed in on any device yet, so the message cannot be encrypted. Please try again after they sign in.',
 			'common.e2eeDecryptFailed' => 'Message cannot be decrypted',
 			'common.e2eeDecryptFailedReasons' => 'This message cannot be decrypted. Possible reasons:',
 			'common.e2eeDecryptReasonOtherDevice' => '• You logged in on another device',
@@ -4485,9 +4488,9 @@ extension on TranslationsEnUs {
 			'common.e2eeDecryptRecreateHint' => 'Note: after recreating, the other party needs to fetch your new key; encrypted messages not yet delivered during the change may not be resent automatically. Message history is not affected.',
 			'common.e2eePeerKeyChanged' => 'This contact\'s safety number has changed (they may have reinstalled the app or switched devices). If security matters to you, verify their identity through another channel.',
 			'common.complianceKeyChangedTitle' => 'Compliance audit key has changed',
-			'common.complianceKeyChangedBody' => 'The compliance audit public key from the server does not match the locally pinned value. If this is an intentional key rotation by your administrator, tap "Confirm rotation". Otherwise, do not send encrypted messages and contact your administrator.',
 			_ => null,
 		} ?? switch (path) {
+			'common.complianceKeyChangedBody' => 'The compliance audit public key from the server does not match the locally pinned value. If this is an intentional key rotation by your administrator, tap "Confirm rotation". Otherwise, do not send encrypted messages and contact your administrator.',
 			'common.complianceKeyChangedActionConfirm' => 'Confirm rotation',
 			'common.complianceKeyChangedActionKeep' => 'Not now',
 			'common.e2eeDecryptActionRecreateKey' => 'Recreate key (recommended)',
@@ -4611,6 +4614,7 @@ extension on TranslationsEnUs {
 			'common.initConfigNetworkError' => ({required Object code}) => 'Network or server error (HTTP ${code})',
 			'common.initConfigProtocolError' => 'Server returned an invalid protocol response',
 			'common.initConfigFetchFailed' => 'Failed to fetch config, please check your network connection',
+			'common.initConfigDecryptFailed' => 'Configuration decryption failed: the app and server security keys do not match. Please update the app or contact support.',
 			'common.attachmentGetFileFailed' => 'Unable to get file, please retry or choose from gallery',
 			'common.attachmentGetFileFailedAndroid9' => 'File retrieval failed — Android 9 compatibility issue may apply',
 			'common.attachmentGetImageDataFailed' => 'Unable to get image data, please retry',
@@ -4998,10 +5002,10 @@ extension on TranslationsEnUs {
 			'main.album' => 'Photos',
 			'main.appSize' => 'App size',
 			'main.arSa' => 'Arabic (Saudi Arabia)',
-			'main.audio' => 'Audio',
-			'main.barcodeFound' => 'QR code detected',
 			_ => null,
 		} ?? switch (path) {
+			'main.audio' => 'Audio',
+			'main.barcodeFound' => 'QR code detected',
 			'main.botQianFan' => 'Qianfan Bot',
 			'main.liveRoomWhipLabel' => 'WHIP Stream URL',
 			'main.liveRoomWhepLabel' => 'WHEP Stream URL',
@@ -5512,10 +5516,10 @@ extension on TranslationsEnUs {
 			'workspace.projectMemberInviteInvalidUid' => 'Enter a valid user ID',
 			'workspace.projectMemberInviteSubmit' => 'Invite',
 			'workspace.projectMemberInviteSuccess' => 'Added to project members',
-			'workspace.projectMemberInviteExisting' => 'Already a project member',
-			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Remove project member ${name}',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteExisting' => 'Already a project member',
+			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Remove project member ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => 'After removal the user loses access to this project (they can be invited again)',
 			'workspace.projectMemberRemoveSubmit' => 'Remove',
 			'workspace.projectMemberRemovedToast' => 'Removed',

@@ -1640,6 +1640,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get webQRGenerateFailed => '生成二維碼失敗';
 	@override String get webQRTokenInvalid => '登入令牌無效';
 	@override String get e2eeErrNoRecipientKey => '無法獲取對方裝置金鑰，訊息未傳送';
+	@override String get e2eeErrPeerNotOnboarded => '對方還沒有在任何裝置上登入過，暫時無法加密傳送；請等對方登入後再試';
 	@override String get e2eeDecryptFailed => '訊息無法解密';
 	@override String get e2eeDecryptFailedReasons => '此訊息無法解密，可能原因是：';
 	@override String get e2eeDecryptReasonOtherDevice => '• 您在其他裝置上登入';
@@ -1769,6 +1770,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String initConfigNetworkError({required Object code}) => '網路故障或服務故障 (HTTP ${code})';
 	@override String get initConfigProtocolError => '服務故障協議有誤';
 	@override String get initConfigFetchFailed => '配置獲取失敗，請檢查網路連線';
+	@override String get initConfigDecryptFailed => '配置解密失敗：應用與服務端安全密鑰不一致，請更新應用版本或聯繫管理員';
 	@override String get attachmentGetFileFailed => '無法獲取檔案，請重試或使用相簿選擇';
 	@override String get attachmentGetFileFailedAndroid9 => '檔案獲取失敗，Android 9 可能存在相容性問題';
 	@override String get attachmentGetImageDataFailed => '無法獲取圖片資料，請重試';
@@ -4173,6 +4175,7 @@ extension on TranslationsZhHant {
 			'common.webQRGenerateFailed' => '生成二維碼失敗',
 			'common.webQRTokenInvalid' => '登入令牌無效',
 			'common.e2eeErrNoRecipientKey' => '無法獲取對方裝置金鑰，訊息未傳送',
+			'common.e2eeErrPeerNotOnboarded' => '對方還沒有在任何裝置上登入過，暫時無法加密傳送；請等對方登入後再試',
 			'common.e2eeDecryptFailed' => '訊息無法解密',
 			'common.e2eeDecryptFailedReasons' => '此訊息無法解密，可能原因是：',
 			'common.e2eeDecryptReasonOtherDevice' => '• 您在其他裝置上登入',
@@ -4192,9 +4195,9 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupConfirmPwdLabel' => '確認密碼 *',
 			'common.e2eeBackupConfirmPwdHint' => '再次輸入密碼',
 			'common.e2eeBackupNoteLabel' => '備註（可選）',
-			'common.e2eeBackupNoteHint' => '例如：主手機備份 - 2026年1月',
 			_ => null,
 		} ?? switch (path) {
+			'common.e2eeBackupNoteHint' => '例如：主手機備份 - 2026年1月',
 			'common.e2eeBackupPwdStrengthLabel' => '密碼強度',
 			'common.e2eeBackupPwdWeak' => '弱 - 建議增加複雜度',
 			'common.e2eeBackupPwdMedium' => '中等 - 建議增加長度或複雜度',
@@ -4304,6 +4307,7 @@ extension on TranslationsZhHant {
 			'common.initConfigNetworkError' => ({required Object code}) => '網路故障或服務故障 (HTTP ${code})',
 			'common.initConfigProtocolError' => '服務故障協議有誤',
 			'common.initConfigFetchFailed' => '配置獲取失敗，請檢查網路連線',
+			'common.initConfigDecryptFailed' => '配置解密失敗：應用與服務端安全密鑰不一致，請更新應用版本或聯繫管理員',
 			'common.attachmentGetFileFailed' => '無法獲取檔案，請重試或使用相簿選擇',
 			'common.attachmentGetFileFailedAndroid9' => '檔案獲取失敗，Android 9 可能存在相容性問題',
 			'common.attachmentGetImageDataFailed' => '無法獲取圖片資料，請重試',
@@ -4705,10 +4709,10 @@ extension on TranslationsZhHant {
 			'main.expired' => '已過期',
 			'main.extraItem' => '額外項目',
 			'main.faceToFaceLogic' => '面對面建群邏輯',
-			'main.favorites' => '收藏',
-			'main.female' => '女',
 			_ => null,
 		} ?? switch (path) {
+			'main.favorites' => '收藏',
+			'main.female' => '女',
 			'main.followSystem' => '跟隨系統',
 			'main.frFr' => '法語（法國）',
 			'main.from' => '來自',

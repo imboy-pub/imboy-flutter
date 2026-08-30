@@ -931,6 +931,7 @@ webLoginEmptyError: Please enter account and password
 webQRGenerateFailed: Failed to generate QR code
 webQRTokenInvalid: Invalid login token
 e2eeErrNoRecipientKey: "Cannot get recipient's device key, message not sent"
+e2eeErrPeerNotOnboarded: The other person has never signed in on any device yet, so the message cannot be encrypted. Please try again after they sign in.
 e2eeDecryptFailed: Message cannot be decrypted
 e2eeDecryptFailedReasons: "This message cannot be decrypted. Possible reasons:"
 e2eeDecryptReasonOtherDevice: • You logged in on another device
@@ -1064,6 +1065,7 @@ initConfigTimeout: "Config fetch timed out: please check network or server statu
 initConfigNetworkError(code): Network or server error (HTTP $code)
 initConfigProtocolError: Server returned an invalid protocol response
 initConfigFetchFailed: "Failed to fetch config, please check your network connection"
+initConfigDecryptFailed: "Configuration decryption failed: the app and server security keys do not match. Please update the app or contact support."
 attachmentGetFileFailed: "Unable to get file, please retry or choose from gallery"
 attachmentGetFileFailedAndroid9: File retrieval failed — Android 9 compatibility issue may apply
 attachmentGetImageDataFailed: "Unable to get image data, please retry"

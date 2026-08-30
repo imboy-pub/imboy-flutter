@@ -470,18 +470,33 @@ class AppInitializer {
       final key = await Env.signKey();
       if (kDebugMode) debugPrint('🔐 [INIT] signKey initialized');
       final String md5Key = EncrypterService.md5(key);
-      final String decrypted = useGcm
-          ? utf8.decode(
-              EncrypterService.aesGcmDecryptSelfContained(
-                encryptedV2,
-                Uint8List.fromList(utf8.encode(md5Key)),
-              ),
-            )
-          : EncrypterService.aesDecrypt(
-              encrypted,
-              md5Key,
-              Env().solidifiedKeyIv,
-            );
+      final String decrypted;
+      try {
+        decrypted = useGcm
+            ? utf8.decode(
+                EncrypterService.aesGcmDecryptSelfContained(
+                  encryptedV2,
+                  Uint8List.fromList(utf8.encode(md5Key)),
+                ),
+              )
+            : EncrypterService.aesDecrypt(
+                encrypted,
+                md5Key,
+                Env().solidifiedKeyIv,
+              );
+      } on Exception catch (e) {
+        // H2 真机走查发现③：解密失败 = 密钥不匹配或密文损坏——能走到这里
+        // 说明网络与后端都正常，笼统报"请检查网络连接"会误导排障方向。
+        // 单独分类并给出行动指引（更新应用/核对密钥）。
+        if (kDebugMode) {
+          debugPrint('❌ initConfig: 配置解密失败（APP 与服务端密钥不一致？）: $e');
+        }
+        final error = {"error": t.common.initConfigDecryptFailed};
+        if (!completer.isCompleted) {
+          completer.complete(error);
+        }
+        return error;
+      }
       Map<String, dynamic> payload =
           jsonDecode(decrypted) as Map<String, dynamic>;
       if (kDebugMode) debugPrint('🔧 initConfig: 解密完成');

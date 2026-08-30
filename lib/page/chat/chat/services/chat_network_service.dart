@@ -745,7 +745,10 @@ class ChatNetworkService {
     final didToKid = keyResult['didToKid'] ?? {};
 
     if (didToPem.isEmpty) {
-      throw E2eeDecryptException('no_recipient_keys');
+      // H2 真机走查发现④：对端账号从未在任何设备登录（设备表为空）与
+      // 密钥/会话故障必须区分——前者需要"等对方登录一次"的引导文案，
+      // 后者才属于设备密钥故障。getE2EEErrorMessage 按此 reason 路由。
+      throw E2eeDecryptException('peer_has_no_device');
     }
 
     final myUid = UserRepoLocal.to.currentUid;
@@ -895,6 +898,11 @@ class ChatNetworkService {
       // 合规审计密钥与本地 TOFU 固定不一致（审计 P1-1）：fail-closed 拒发，
       // 用户需在弹窗中确认管理员轮换后才可继续发送加密消息。
       return t.main.e2eeErrComplianceChanged;
+    }
+    if (errorStr.contains('peer_has_no_device')) {
+      // 对端从未登录过任何设备：给"等对方登录"的行动指引，
+      // 而非通用的"无法获取设备密钥"。
+      return t.common.e2eeErrPeerNotOnboarded;
     }
     if (errorStr.contains('no_recipient_keys') ||
         errorStr.contains('recipient_device_not_olm_ready') ||

@@ -4940,6 +4940,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '无法获取对方设备密钥，消息未发送'
 	String get e2eeErrNoRecipientKey => '无法获取对方设备密钥，消息未发送';
 
+	/// zh-CN: '对方还没有在任何设备上登录过，暂时无法加密发送；请等对方登录后再试'
+	String get e2eeErrPeerNotOnboarded => '对方还没有在任何设备上登录过，暂时无法加密发送；请等对方登录后再试';
+
 	/// zh-CN: '消息无法解密'
 	String get e2eeDecryptFailed => '消息无法解密';
 
@@ -5353,6 +5356,9 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '配置获取失败，请检查网络连接'
 	String get initConfigFetchFailed => '配置获取失败，请检查网络连接';
+
+	/// zh-CN: '配置解密失败：应用与服务端安全密钥不一致，请更新应用版本或联系管理员'
+	String get initConfigDecryptFailed => '配置解密失败：应用与服务端安全密钥不一致，请更新应用版本或联系管理员';
 
 	/// zh-CN: '无法获取文件，请重试或使用相册选择'
 	String get attachmentGetFileFailed => '无法获取文件，请重试或使用相册选择';
@@ -10216,6 +10222,7 @@ extension on Translations {
 			'common.webQRGenerateFailed' => '生成二维码失败',
 			'common.webQRTokenInvalid' => '登录令牌无效',
 			'common.e2eeErrNoRecipientKey' => '无法获取对方设备密钥，消息未发送',
+			'common.e2eeErrPeerNotOnboarded' => '对方还没有在任何设备上登录过，暂时无法加密发送；请等对方登录后再试',
 			'common.e2eeDecryptFailed' => '消息无法解密',
 			'common.e2eeDecryptFailedReasons' => '此消息无法解密，可能原因是：',
 			'common.e2eeDecryptReasonOtherDevice' => '• 您在其他设备上登录',
@@ -10354,6 +10361,7 @@ extension on Translations {
 			'common.initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
 			'common.initConfigProtocolError' => '服务故障协议有误',
 			'common.initConfigFetchFailed' => '配置获取失败，请检查网络连接',
+			'common.initConfigDecryptFailed' => '配置解密失败：应用与服务端安全密钥不一致，请更新应用版本或联系管理员',
 			'common.attachmentGetFileFailed' => '无法获取文件，请重试或使用相册选择',
 			'common.attachmentGetFileFailedAndroid9' => '文件获取失败，Android 9 可能存在兼容性问题',
 			'common.attachmentGetImageDataFailed' => '无法获取图片数据，请重试',
@@ -10652,10 +10660,10 @@ extension on Translations {
 			'group.groupAlbumPhotoPrev' => '上一张',
 			'group.groupAlbumPhotoLikeCount' => '点赞数',
 			'group.groupAlbumPhotoCommentCount' => '评论数',
-			'group.groupAlbumPhotoMyLike' => '我的点赞',
-			'group.groupAlbumPhotoIdLabel' => '图片ID',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupAlbumPhotoMyLike' => '我的点赞',
+			'group.groupAlbumPhotoIdLabel' => '图片ID',
 			'group.e2eeKeyManagement' => 'E2EE 密钥管理',
 			'group.e2eeKeyManagementSubtitle' => '备份、恢复和管理端到端加密密钥',
 			'group.e2eeTitle' => '端到端加密',
@@ -11166,10 +11174,10 @@ extension on Translations {
 			'workspace.experienceModeHint' => '仅切换当前设备的首页，不改变工作区成员或资源权限',
 			'workspace.experienceModePersonal' => '个人',
 			'workspace.experienceModeWorkspace' => '工作区',
-			'workspace.createTitle' => '创建工作区',
-			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.createTitle' => '创建工作区',
+			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
 			'workspace.createNameLabel' => '工作区名称',
 			'workspace.createNameHint' => '例如：官网改版项目组',
 			'workspace.createNameRequired' => '工作区名称不能为空',

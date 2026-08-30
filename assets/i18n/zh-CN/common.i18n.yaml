@@ -945,6 +945,7 @@ webLoginEmptyError: 请输入账号和密码
 webQRGenerateFailed: 生成二维码失败
 webQRTokenInvalid: 登录令牌无效
 e2eeErrNoRecipientKey: 无法获取对方设备密钥，消息未发送
+e2eeErrPeerNotOnboarded: 对方还没有在任何设备上登录过，暂时无法加密发送；请等对方登录后再试
 e2eeDecryptFailed: 消息无法解密
 e2eeDecryptFailedReasons: 此消息无法解密，可能原因是：
 e2eeDecryptReasonOtherDevice: • 您在其他设备上登录
@@ -1083,6 +1084,7 @@ initConfigTimeout: "配置获取超时: 请检查网络连接或服务端状态"
 initConfigNetworkError(code): 网络故障或服务故障 (HTTP $code)
 initConfigProtocolError: 服务故障协议有误
 initConfigFetchFailed: 配置获取失败，请检查网络连接
+initConfigDecryptFailed: 配置解密失败：应用与服务端安全密钥不一致，请更新应用版本或联系管理员
 attachmentGetFileFailed: 无法获取文件，请重试或使用相册选择
 attachmentGetFileFailedAndroid9: 文件获取失败，Android 9 可能存在兼容性问题
 attachmentGetImageDataFailed: 无法获取图片数据，请重试

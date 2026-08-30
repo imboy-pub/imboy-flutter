@@ -933,6 +933,7 @@ webLoginEmptyError: 請輸入賬號和密碼
 webQRGenerateFailed: 生成二維碼失敗
 webQRTokenInvalid: 登入令牌無效
 e2eeErrNoRecipientKey: 無法獲取對方裝置金鑰，訊息未傳送
+e2eeErrPeerNotOnboarded: 對方還沒有在任何裝置上登入過，暫時無法加密傳送；請等對方登入後再試
 e2eeDecryptFailed: 訊息無法解密
 e2eeDecryptFailedReasons: 此訊息無法解密，可能原因是：
 e2eeDecryptReasonOtherDevice: • 您在其他裝置上登入
@@ -1062,6 +1063,7 @@ initConfigTimeout: '配置獲取超時: 請檢查網路連線或服務端狀態'
 initConfigNetworkError(code): 網路故障或服務故障 (HTTP $code)
 initConfigProtocolError: 服務故障協議有誤
 initConfigFetchFailed: 配置獲取失敗，請檢查網路連線
+initConfigDecryptFailed: 配置解密失敗：應用與服務端安全密鑰不一致，請更新應用版本或聯繫管理員
 attachmentGetFileFailed: 無法獲取檔案，請重試或使用相簿選擇
 attachmentGetFileFailedAndroid9: 檔案獲取失敗，Android 9 可能存在相容性問題
 attachmentGetImageDataFailed: 無法獲取圖片資料，請重試
