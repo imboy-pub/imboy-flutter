@@ -706,7 +706,9 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       onTap: onTap,
       child: Container(
         width: 64,
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        // 2px 垂直留白：48 高附件栏内 icon(22)+间距(2)+tiny 文字行高已近满，
+        // padding 4 在大字体缩放下溢出 2px
+        padding: const EdgeInsets.symmetric(vertical: 2),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
