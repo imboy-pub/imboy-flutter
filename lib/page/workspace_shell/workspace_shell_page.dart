@@ -104,42 +104,55 @@ class _ShellTopBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
     final current = ref.watch(workspaceShellProvider.select((s) => s.current));
-    return Material(
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      child: Row(
-        children: [
-          Expanded(
-            child: InkWell(
-              key: const ValueKey('workspace-shell-switcher'),
-              onTap: () => context.push('/workspace'),
-              child: Padding(
-                padding: AppSpacing.allMedium,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        current?.name ?? t.workspace.pickerTitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
+    // 本壳 Scaffold 无 appBar：不包 SafeArea 顶栏会直顶屏幕上沿，
+    // 右上角 IconButton 落进 iOS 状态栏/刘海区域，视觉被压且点不到
+    return SafeArea(
+      top: true,
+      bottom: false,
+      child: Material(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        child: Row(
+          children: [
+            Expanded(
+              child: InkWell(
+                key: const ValueKey('workspace-shell-switcher'),
+                onTap: () => context.push('/workspace'),
+                child: Padding(
+                  padding: AppSpacing.allMedium,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          current?.name ?? t.workspace.pickerTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
-                    ),
-                    const Icon(Icons.unfold_more, size: 16),
-                  ],
+                      const Icon(Icons.unfold_more, size: 16),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          // 全局 DM 入口（复用现有会话列表；DM 不进五项导航）
-          IconButton(
-            key: const ValueKey('workspace-shell-dm-entry'),
-            tooltip: t.workspace.dmEntry,
-            icon: const Icon(CupertinoIcons.chat_bubble_text),
-            onPressed: () => context.push('/conversation'),
-          ),
-        ],
+            // 全局 DM 入口（复用现有会话列表；DM 不进五项导航）
+            IconButton(
+              key: const ValueKey('workspace-shell-dm-entry'),
+              tooltip: t.workspace.dmEntry,
+              icon: const Icon(CupertinoIcons.chat_bubble_text),
+              onPressed: () => context.push('/conversation'),
+            ),
+            // 设置入口：「工作模式」切换(chat/workspace)只在设置页；
+            // 本壳无「我的」tab，缺此入口用户切到 workspace 后无法切回
+            IconButton(
+              key: const ValueKey('workspace-shell-setting-entry'),
+              tooltip: t.channel.settings,
+              icon: const Icon(CupertinoIcons.gear),
+              onPressed: () => context.push('/mine/setting'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -178,6 +191,14 @@ class _ShellRail extends ConsumerWidget {
             tooltip: t.workspace.dmEntry,
             icon: const Icon(CupertinoIcons.chat_bubble_text),
             onPressed: () => context.push('/conversation'),
+          ),
+          // 设置入口：「工作模式」切换(chat/workspace)只在设置页；
+          // 本壳无「我的」tab，缺此入口用户切到 workspace 后无法切回
+          IconButton(
+            key: const ValueKey('workspace-shell-setting-entry'),
+            tooltip: t.channel.settings,
+            icon: const Icon(CupertinoIcons.gear),
+            onPressed: () => context.push('/mine/setting'),
           ),
           if (current != null)
             Padding(
