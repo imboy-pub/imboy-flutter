@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/welcome/welcome_page.dart';
+import 'package:imboy/service/storage.dart';
 
 /// WelcomePage widget test
 ///
@@ -163,6 +165,44 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('sign in stub'), findsOneWidget);
+    });
+  });
+
+  group('WelcomePage welcomeSeen 标记（引导只展示一次）', () {
+    testWidgets('跳过出口置位 welcome_seen（splash 据此直达登录页）', (tester) async {
+      // flutter_test_config 已 mock SharedPreferences + StorageService.init；
+      // mock store 为进程级共享（前序用例可能已置位），显式重置起点
+      await StorageService.to.setBool(Keys.welcomeSeen, false);
+
+      await _pumpWelcome(tester);
+      await tester.tap(find.text('跳过'));
+      await tester.pumpAndSettle();
+
+      expect(
+        StorageService.to.getBool(Keys.welcomeSeen),
+        true,
+        reason: '跳过出口必须置位 welcome_seen，否则未登录冷启动会重看引导',
+      );
+    });
+
+    testWidgets('走完出口（开始使用）置位 welcome_seen', (tester) async {
+      await _pumpWelcome(tester);
+
+      // mock store 进程级共享，显式重置起点让置位断言变强
+      await StorageService.to.setBool(Keys.welcomeSeen, false);
+
+      await tester.drag(find.byType(PageView), const Offset(-1000, 0));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(PageView), const Offset(-1000, 0));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('开始使用'));
+      await tester.pumpAndSettle();
+
+      expect(
+        StorageService.to.getBool(Keys.welcomeSeen),
+        true,
+        reason: '走完出口同样必须置位 welcome_seen',
+      );
     });
   });
 
