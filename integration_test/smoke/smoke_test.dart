@@ -20,7 +20,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:imboy/main.dart' as app;
 
 import '../flows/api_test_client.dart';
-import '../flows/test_utils.dart' show installPluginErrorFilter, takeScreenshot;
+import '../flows/test_utils.dart'
+    show checkPreconditions, installPluginErrorFilter, takeScreenshot;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -72,7 +73,7 @@ void main() {
   tearDownAll(() => client?.close());
 
   group('冒烟测试：App 基础流程', () {
-    testWidgets('App 启动 — Scaffold 与 MaterialApp 均可见', (tester) async {
+    testWidgets('App 启动 — 登录并进入主界面', (tester) async {
       // 桌面端无实现的平台插件（jverify/share_handler 等）在 app 初始化时
       // 抛 MissingPluginException 污染错误通道，须在 app.main() 前过滤
       installPluginErrorFilter();
@@ -81,9 +82,12 @@ void main() {
       // 避免 setUp 中调用时 group 多测试场景下 Flutter 绑定重复初始化。
       app.main();
 
-      // 等待启动动画和路由初始化完成；网络初始化最多 15s
-      await tester.pump(const Duration(seconds: 10));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      // 标准前置链：后端可达 → 入口稳定（欢迎页/登录页/主 Shell）→
+      // 欢迎页跳过 → UI 登录 → 等主 Shell 挂载。全新环境（无登录态缓存）
+      // 会停在欢迎页，裸 expect Scaffold 的旧断言在该场景必然失败。
+      if (!await checkPreconditions(tester)) {
+        fail('冒烟测试前置失败：后端不可达、入口异常或登录未成功进入主界面');
+      }
 
       expect(
         find.byType(Scaffold),
