@@ -62,7 +62,8 @@ class WorkspaceInviteCodeController extends ChangeNotifier {
   Future<void> generate({
     required Future<WorkspaceInviteCode> Function() createInviteCode,
   }) async {
-    if (isGenerating) return;
+    // 撤销在途时同样忽略：revoke 完成态与 generating 态互写会瞬态清码
+    if (isGenerating || isRevoking) return;
     _set(
       _state.copyWith(
         phase: WorkspaceInviteCodePhase.generating,

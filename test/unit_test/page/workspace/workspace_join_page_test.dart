@@ -9,6 +9,8 @@
 /// - WorkspaceApi.createInviteCode / joinByCode 的 envelope 解析与异常映射
 library;
 
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +22,7 @@ import 'package:imboy/component/http/http_transformer.dart';
 import 'package:imboy/component/ui/app_loading.dart' as app_loading;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace/workspace_join_controller.dart';
 import 'package:imboy/page/workspace/workspace_join_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
@@ -243,6 +246,50 @@ void main() {
     );
     await tester.pump();
     expect(find.text('团队码无效或已失效'), findsNothing);
+  });
+
+  testWidgets('逐字输入到第 8 位自动提交且仅一次（非粘贴路径）', (tester) async {
+    final api = _JoinFakeApi()
+      ..joinResult = const WorkspaceJoinResult(
+        status: 'joined',
+        workspace: WorkspaceModel(id: '9005', name: '官网改版', ownerId: '1002'),
+      );
+    final container = _seededContainer(api);
+    addTearDown(container.dispose);
+
+    await _pump(tester, container: container);
+
+    // 逐字增长（A → AB → … → AB12CD34）：onChanged 触发 8 次，
+    // 仅第 8 次 wasFull=false→true 触发自动提交
+    const field = ValueKey('workspace-join-code-field');
+    const full = 'AB12CD34';
+    for (var i = 1; i <= full.length; i++) {
+      await tester.enterText(find.byKey(field), full.substring(0, i));
+      await tester.pump();
+    }
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(api.receivedCodes, ['AB12CD34']);
+    expect(find.text('probe-home'), findsOneWidget);
+    // 清理 EasyLoading 自动消失 Timer，避免 pending timers
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 4));
+  });
+
+  test('WorkspaceJoinController 提交在途 dispose：完成后不抛（_disposed 守卫）', () async {
+    final c = WorkspaceJoinController();
+    c.updateCode('AB12CD34');
+    final gate = Completer<WorkspaceJoinResult>();
+    final done = c.submit(joinByCode: (_) => gate.future);
+    // 页面在提交在途时退出 → dispose → 提交 resolve，_set 被守卫拦截
+    c.dispose();
+    gate.complete(
+      const WorkspaceJoinResult(
+        status: 'joined',
+        workspace: WorkspaceModel(id: '9005', name: 'X', ownerId: '1'),
+      ),
+    );
+    await done;
   });
 
   group('WorkspaceApi invite_code / join envelope 解析（post 注入）', () {

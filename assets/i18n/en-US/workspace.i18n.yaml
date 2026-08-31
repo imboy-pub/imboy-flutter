@@ -62,7 +62,7 @@ groupsEmptySubtitle: "Groups are real-time discussion spaces in the workspace (t
 groupTileSubtitle: "$count group members"
 # ==================== Invite (three independent results) ====================
 inviteTitle: "Invite Workspace Member"
-inviteDesc: "Only registered users can be invited; joining a workspace never auto-joys a group or auto-subscribes a channel — the three relations are written and reported separately"
+inviteDesc: "Only registered users can be invited; joining a workspace never auto-joins a group or auto-subscribes a channel — the three relations are written and reported separately"
 inviteSearchHint: "Search by username / user ID"
 inviteEntry: "Invite Workspace Member"
 inviteJoinGroupOption: "Also join the General group (become a Group Member)"

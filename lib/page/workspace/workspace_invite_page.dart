@@ -640,7 +640,8 @@ class _InviteCodeCard extends StatelessWidget {
                     Expanded(
                       child: FilledButton.icon(
                         key: const ValueKey('workspace-invite-code-copy'),
-                        onPressed: onCopy,
+                        // 撤销在途时禁复制（可能复制到正被撤销的码）
+                        onPressed: controller.isRevoking ? null : onCopy,
                         icon: const Icon(CupertinoIcons.doc_on_doc),
                         label: Text(t.workspace.inviteCodeCopy),
                       ),

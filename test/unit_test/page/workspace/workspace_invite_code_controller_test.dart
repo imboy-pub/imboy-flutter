@@ -2,8 +2,11 @@
 ///
 /// 覆盖：生成成功（ready + 码/有效期）、空 payload 按失败、生成异常
 /// （403/980 透传消息）、重新生成覆盖旧码 + copied 复位、复制成功/失败、
-/// 无码复制 no-op、撤销成功回 idle 清码/失败留 ready/无码 no-op。
+/// 无码复制 no-op、撤销成功回 idle 清码/失败留 ready/无码 no-op/
+/// 撤销在途生成互斥。
 library;
+
+import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -188,6 +191,33 @@ void main() {
       );
 
       expect(called, isFalse);
+      expect(c.state.phase, WorkspaceInviteCodePhase.idle);
+    });
+
+    test('撤销在途时生成 no-op（互斥，避免两态互写瞬态清码）', () async {
+      final c = WorkspaceInviteCodeController();
+      addTearDown(c.dispose);
+
+      await c.generate(
+        createInviteCode: () async =>
+            const WorkspaceInviteCode(code: 'AB12CD34', expiresAt: 't'),
+      );
+      final gate = Completer<int>();
+      final revoking = c.revoke(revokeInviteCode: () => gate.future);
+      expect(c.isRevoking, isTrue);
+
+      var generateCalled = false;
+      await c.generate(
+        createInviteCode: () async {
+          generateCalled = true;
+          return const WorkspaceInviteCode(code: 'ZZZZ9999', expiresAt: 't');
+        },
+      );
+      expect(generateCalled, isFalse);
+      expect(c.state.inviteCode.code, 'AB12CD34');
+
+      gate.complete(1);
+      await revoking;
       expect(c.state.phase, WorkspaceInviteCodePhase.idle);
     });
   });

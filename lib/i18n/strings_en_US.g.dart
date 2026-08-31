@@ -2765,7 +2765,7 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get groupsEmptySubtitle => 'Groups are real-time discussion spaces in the workspace (the only chat entry)';
 	@override String groupTileSubtitle({required Object count}) => '${count} group members';
 	@override String get inviteTitle => 'Invite Workspace Member';
-	@override String get inviteDesc => 'Only registered users can be invited; joining a workspace never auto-joys a group or auto-subscribes a channel — the three relations are written and reported separately';
+	@override String get inviteDesc => 'Only registered users can be invited; joining a workspace never auto-joins a group or auto-subscribes a channel — the three relations are written and reported separately';
 	@override String get inviteSearchHint => 'Search by username / user ID';
 	@override String get inviteEntry => 'Invite Workspace Member';
 	@override String get inviteJoinGroupOption => 'Also join the General group (become a Group Member)';
@@ -5433,7 +5433,7 @@ extension on TranslationsEnUs {
 			'workspace.groupsEmptySubtitle' => 'Groups are real-time discussion spaces in the workspace (the only chat entry)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} group members',
 			'workspace.inviteTitle' => 'Invite Workspace Member',
-			'workspace.inviteDesc' => 'Only registered users can be invited; joining a workspace never auto-joys a group or auto-subscribes a channel — the three relations are written and reported separately',
+			'workspace.inviteDesc' => 'Only registered users can be invited; joining a workspace never auto-joins a group or auto-subscribes a channel — the three relations are written and reported separately',
 			'workspace.inviteSearchHint' => 'Search by username / user ID',
 			'workspace.inviteEntry' => 'Invite Workspace Member',
 			'workspace.inviteJoinGroupOption' => 'Also join the General group (become a Group Member)',
