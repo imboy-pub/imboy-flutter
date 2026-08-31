@@ -2483,6 +2483,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get webQRRefresh => '重新整理二維碼';
 	@override String get webSwitchToQR => '使用 QR 碼登入';
 	@override String get e2eeErrDefault => '端到端加密失敗，訊息未傳送';
+	@override String get e2eeErrPeerDeviceNotReady => '有成員的裝置尚未完成安全設定，訊息未傳送；請稍後重試';
 	@override String get e2eeSocialTotalShards => '總分片數';
 	@override String get e2eeSocialThreshold => '恢復閾值';
 	@override String e2eeSocialThresholdHint({required Object count}) => '恢復金鑰時需要 ${count} 個代理協助';
@@ -4905,6 +4906,7 @@ extension on TranslationsZhHant {
 			'main.webQRRefresh' => '重新整理二維碼',
 			'main.webSwitchToQR' => '使用 QR 碼登入',
 			'main.e2eeErrDefault' => '端到端加密失敗，訊息未傳送',
+			'main.e2eeErrPeerDeviceNotReady' => '有成員的裝置尚未完成安全設定，訊息未傳送；請稍後重試',
 			'main.e2eeSocialTotalShards' => '總分片數',
 			'main.e2eeSocialThreshold' => '恢復閾值',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '恢復金鑰時需要 ${count} 個代理協助',

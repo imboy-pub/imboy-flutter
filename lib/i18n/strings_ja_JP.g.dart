@@ -2448,6 +2448,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get webQRRefresh => 'QRコードを更新';
 	@override String get webSwitchToQR => 'QRコードでログイン';
 	@override String get e2eeErrDefault => 'エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした';
+	@override String get e2eeErrPeerDeviceNotReady => 'メンバーのデバイスでセキュリティ設定が未完了のため、メッセージは送信されませんでした。しばらくしてから再試行してください';
 	@override String get e2eeSocialTotalShards => 'シャードの合計数';
 	@override String get e2eeSocialThreshold => '復元のしきい値';
 	@override String e2eeSocialThresholdHint({required Object count}) => 'キーの復元には ${count} 人の代理者の協力が必要です';
@@ -4835,6 +4836,7 @@ extension on TranslationsJaJp {
 			'main.webQRRefresh' => 'QRコードを更新',
 			'main.webSwitchToQR' => 'QRコードでログイン',
 			'main.e2eeErrDefault' => 'エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした',
+			'main.e2eeErrPeerDeviceNotReady' => 'メンバーのデバイスでセキュリティ設定が未完了のため、メッセージは送信されませんでした。しばらくしてから再試行してください',
 			'main.e2eeSocialTotalShards' => 'シャードの合計数',
 			'main.e2eeSocialThreshold' => '復元のしきい値',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'キーの復元には ${count} 人の代理者の協力が必要です',

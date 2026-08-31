@@ -904,6 +904,14 @@ class ChatNetworkService {
       // 而非通用的"无法获取设备密钥"。
       return t.common.e2eeErrPeerNotOnboarded;
     }
+    if (errorStr.contains('olm_wrap_failed')) {
+      // strict 模式 fail-closed（ADR 14 §S1.1）：Megolm rotate 时给某台
+      // 成员设备包裹 room key 失败——典型为新成员设备未完成 Olm onboarding
+      // 或对端 OTK 尚未就绪。拒绝是安全设计，但重试有意义（对方设备就绪
+      // 后即可发送），必须给出与"对方从未登录"不同的"稍后重试"指引；
+      // 否则落到笼统默认文案，用户与开发者都无法定位（release 无日志）。
+      return t.main.e2eeErrPeerDeviceNotReady;
+    }
     if (errorStr.contains('no_recipient_keys') ||
         errorStr.contains('recipient_device_not_olm_ready') ||
         errorStr.contains('设备密钥') ||

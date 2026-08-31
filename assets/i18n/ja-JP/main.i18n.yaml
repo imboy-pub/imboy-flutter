@@ -231,6 +231,7 @@ webQRExpired: QRコードの有効期限が切れました
 webQRRefresh: QRコードを更新
 webSwitchToQR: QRコードでログイン
 e2eeErrDefault: エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした
+e2eeErrPeerDeviceNotReady: メンバーのデバイスでセキュリティ設定が未完了のため、メッセージは送信されませんでした。しばらくしてから再試行してください
 e2eeSocialTotalShards: シャードの合計数
 e2eeSocialThreshold: 復元のしきい値
 e2eeSocialThresholdHint(count): キーの復元には $count 人の代理者の協力が必要です

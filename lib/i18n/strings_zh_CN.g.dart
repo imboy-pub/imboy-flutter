@@ -7439,6 +7439,9 @@ class Translations$main$zh_CN {
 	/// zh-CN: '端到端加密失败，消息未发送'
 	String get e2eeErrDefault => '端到端加密失败，消息未发送';
 
+	/// zh-CN: '有成员的设备尚未完成安全设置，消息未发送；请稍后重试'
+	String get e2eeErrPeerDeviceNotReady => '有成员的设备尚未完成安全设置，消息未发送；请稍后重试';
+
 	/// zh-CN: '合规审计密钥已变更，消息未发送，请确认轮换后重试'
 	String get e2eeErrComplianceChanged => '合规审计密钥已变更，消息未发送，请确认轮换后重试';
 
@@ -11075,6 +11078,7 @@ extension on Translations {
 			'main.webQRRefresh' => '刷新二维码',
 			'main.webSwitchToQR' => '使用 QR 码登录',
 			'main.e2eeErrDefault' => '端到端加密失败，消息未发送',
+			'main.e2eeErrPeerDeviceNotReady' => '有成员的设备尚未完成安全设置，消息未发送；请稍后重试',
 			'main.e2eeErrComplianceChanged' => '合规审计密钥已变更，消息未发送，请确认轮换后重试',
 			'main.complianceKeyInfoTitle' => '合规审计密钥',
 			'main.complianceKeyInfoServerKey' => '服务端下发的公钥',
@@ -11233,9 +11237,9 @@ extension on Translations {
 			'workspace.dmEntry' => '私信（全局）',
 			'workspace.experienceModeEntry' => '工作模式',
 			'workspace.experienceModeHint' => '仅切换当前设备的首页，不改变工作区成员或资源权限',
-			'workspace.experienceModePersonal' => '个人',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModePersonal' => '个人',
 			'workspace.experienceModeWorkspace' => '工作区',
 			'workspace.switchToWorkspace' => '切换到工作区',
 			'workspace.switchToPersonal' => '切换到个人',

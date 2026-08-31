@@ -231,6 +231,7 @@ webQRExpired: QR code scaduto
 webQRRefresh: Aggiorna QR code
 webSwitchToQR: Accesso via QR code
 e2eeErrDefault: E2EE fallito, messaggio non inviato
+e2eeErrPeerDeviceNotReady: La configurazione di sicurezza del dispositivo di alcuni membri non è completata, messaggio non inviato; riprova più tardi
 e2eeSocialTotalShards: Totale frammenti
 e2eeSocialThreshold: Soglia di ripristino
 e2eeSocialThresholdHint(count): "$count garanti richiesti per il ripristino"

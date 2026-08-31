@@ -2514,6 +2514,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get webQRRefresh => 'Refresh QR Code';
 	@override String get webSwitchToQR => 'Login with QR code';
 	@override String get e2eeErrDefault => 'End-to-end encryption failed, message not sent';
+	@override String get e2eeErrPeerDeviceNotReady => 'Some members\' devices haven\'t finished security setup, message not sent; please try again later';
 	@override String get e2eeErrComplianceChanged => 'Compliance audit key changed, message not sent. Confirm rotation and retry';
 	@override String get complianceKeyInfoTitle => 'Compliance Audit Key';
 	@override String get complianceKeyInfoServerKey => 'Public key from server';
@@ -5244,6 +5245,7 @@ extension on TranslationsEnUs {
 			'main.webQRRefresh' => 'Refresh QR Code',
 			'main.webSwitchToQR' => 'Login with QR code',
 			'main.e2eeErrDefault' => 'End-to-end encryption failed, message not sent',
+			'main.e2eeErrPeerDeviceNotReady' => 'Some members\' devices haven\'t finished security setup, message not sent; please try again later',
 			'main.e2eeErrComplianceChanged' => 'Compliance audit key changed, message not sent. Confirm rotation and retry',
 			'main.complianceKeyInfoTitle' => 'Compliance Audit Key',
 			'main.complianceKeyInfoServerKey' => 'Public key from server',
@@ -5535,9 +5537,9 @@ extension on TranslationsEnUs {
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Advance to "${status}"',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Move ${title} back to…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Moved to "${status}"',
-			'workspace.taskEmptyTitle' => 'No tasks yet',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskEmptyTitle' => 'No tasks yet',
 			'workspace.taskEmptySubtitle' => 'Track execution in four states: To do → Doing → Review → Done',
 			'workspace.guestReadonlyHint' => 'Guests have read-only access to workspace resources',
 			'workspace.projectsLoadMore' => 'Load more',

@@ -2448,6 +2448,7 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get webQRRefresh => 'Обновить QR-код';
 	@override String get webSwitchToQR => 'Войти по QR-коду';
 	@override String get e2eeErrDefault => 'Ошибка сквозного шифрования, сообщение не отправлено';
+	@override String get e2eeErrPeerDeviceNotReady => 'Настройка безопасности не завершена на устройствах некоторых участников, сообщение не отправлено; повторите попытку позже';
 	@override String get e2eeSocialTotalShards => 'Всего фрагментов';
 	@override String get e2eeSocialThreshold => 'Порог восстановления';
 	@override String e2eeSocialThresholdHint({required Object count}) => 'Для восстановления нужно ${count} посредников';
@@ -4835,6 +4836,7 @@ extension on TranslationsRuRu {
 			'main.webQRRefresh' => 'Обновить QR-код',
 			'main.webSwitchToQR' => 'Войти по QR-коду',
 			'main.e2eeErrDefault' => 'Ошибка сквозного шифрования, сообщение не отправлено',
+			'main.e2eeErrPeerDeviceNotReady' => 'Настройка безопасности не завершена на устройствах некоторых участников, сообщение не отправлено; повторите попытку позже',
 			'main.e2eeSocialTotalShards' => 'Всего фрагментов',
 			'main.e2eeSocialThreshold' => 'Порог восстановления',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Для восстановления нужно ${count} посредников',

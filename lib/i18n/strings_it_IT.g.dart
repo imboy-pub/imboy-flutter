@@ -2451,6 +2451,7 @@ class _Translations$main$it_IT extends Translations$main$zh_CN {
 	@override String get webQRRefresh => 'Aggiorna QR code';
 	@override String get webSwitchToQR => 'Accesso via QR code';
 	@override String get e2eeErrDefault => 'E2EE fallito, messaggio non inviato';
+	@override String get e2eeErrPeerDeviceNotReady => 'La configurazione di sicurezza del dispositivo di alcuni membri non è completata, messaggio non inviato; riprova più tardi';
 	@override String get e2eeSocialTotalShards => 'Totale frammenti';
 	@override String get e2eeSocialThreshold => 'Soglia di ripristino';
 	@override String e2eeSocialThresholdHint({required Object count}) => '${count} garanti richiesti per il ripristino';
@@ -4838,6 +4839,7 @@ extension on TranslationsItIt {
 			'main.webQRRefresh' => 'Aggiorna QR code',
 			'main.webSwitchToQR' => 'Accesso via QR code',
 			'main.e2eeErrDefault' => 'E2EE fallito, messaggio non inviato',
+			'main.e2eeErrPeerDeviceNotReady' => 'La configurazione di sicurezza del dispositivo di alcuni membri non è completata, messaggio non inviato; riprova più tardi',
 			'main.e2eeSocialTotalShards' => 'Totale frammenti',
 			'main.e2eeSocialThreshold' => 'Soglia di ripristino',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '${count} garanti richiesti per il ripristino',

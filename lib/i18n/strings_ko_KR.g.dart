@@ -2448,6 +2448,7 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get webQRRefresh => 'QR 코드 새로고침';
 	@override String get webSwitchToQR => 'QR 코드로 로그인';
 	@override String get e2eeErrDefault => '종단간 암호화 실패, 메시지가 전송되지 않았습니다';
+	@override String get e2eeErrPeerDeviceNotReady => '일부 멤버의 기기에서 보안 설정이 완료되지 않아 메시지가 전송되지 않았습니다. 잠시 후 다시 시도해 주세요';
 	@override String get e2eeSocialTotalShards => '전체 샤드 수';
 	@override String get e2eeSocialThreshold => '복구 임계값';
 	@override String e2eeSocialThresholdHint({required Object count}) => '키 복구 시 ${count}명의 대리자가 필요합니다';
@@ -4835,6 +4836,7 @@ extension on TranslationsKoKr {
 			'main.webQRRefresh' => 'QR 코드 새로고침',
 			'main.webSwitchToQR' => 'QR 코드로 로그인',
 			'main.e2eeErrDefault' => '종단간 암호화 실패, 메시지가 전송되지 않았습니다',
+			'main.e2eeErrPeerDeviceNotReady' => '일부 멤버의 기기에서 보안 설정이 완료되지 않아 메시지가 전송되지 않았습니다. 잠시 후 다시 시도해 주세요',
 			'main.e2eeSocialTotalShards' => '전체 샤드 수',
 			'main.e2eeSocialThreshold' => '복구 임계값',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '키 복구 시 ${count}명의 대리자가 필요합니다',

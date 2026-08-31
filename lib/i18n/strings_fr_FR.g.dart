@@ -2451,6 +2451,7 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get webQRRefresh => 'Actualiser le QR code';
 	@override String get webSwitchToQR => 'Connexion par QR code';
 	@override String get e2eeErrDefault => 'Échec E2EE, message non envoyé';
+	@override String get e2eeErrPeerDeviceNotReady => 'L\'installation de sécurité n\'est pas terminée sur l\'appareil de certains membres, message non envoyé ; réessayez plus tard';
 	@override String get e2eeSocialTotalShards => 'Total de fragments';
 	@override String get e2eeSocialThreshold => 'Seuil de restauration';
 	@override String e2eeSocialThresholdHint({required Object count}) => '${count} dépositaires requis pour la restauration';
@@ -4838,6 +4839,7 @@ extension on TranslationsFrFr {
 			'main.webQRRefresh' => 'Actualiser le QR code',
 			'main.webSwitchToQR' => 'Connexion par QR code',
 			'main.e2eeErrDefault' => 'Échec E2EE, message non envoyé',
+			'main.e2eeErrPeerDeviceNotReady' => 'L\'installation de sécurité n\'est pas terminée sur l\'appareil de certains membres, message non envoyé ; réessayez plus tard',
 			'main.e2eeSocialTotalShards' => 'Total de fragments',
 			'main.e2eeSocialThreshold' => 'Seuil de restauration',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => '${count} dépositaires requis pour la restauration',

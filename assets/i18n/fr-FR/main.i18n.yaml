@@ -231,6 +231,7 @@ webQRExpired: QR code expiré
 webQRRefresh: Actualiser le QR code
 webSwitchToQR: Connexion par QR code
 e2eeErrDefault: Échec E2EE, message non envoyé
+e2eeErrPeerDeviceNotReady: "L'installation de sécurité n'est pas terminée sur l'appareil de certains membres, message non envoyé ; réessayez plus tard"
 e2eeSocialTotalShards: Total de fragments
 e2eeSocialThreshold: Seuil de restauration
 e2eeSocialThresholdHint(count): "$count dépositaires requis pour la restauration"

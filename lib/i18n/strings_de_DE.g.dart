@@ -2451,6 +2451,7 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get webQRRefresh => 'QR-Code aktualisieren';
 	@override String get webSwitchToQR => 'Per QR-Code anmelden';
 	@override String get e2eeErrDefault => 'E2EE fehlgeschlagen, Nachricht nicht gesendet';
+	@override String get e2eeErrPeerDeviceNotReady => 'Die Sicherheitseinrichtung einiger Mitglieder ist nicht abgeschlossen, Nachricht nicht gesendet; bitte später erneut versuchen';
 	@override String get e2eeSocialTotalShards => 'Fragmente gesamt';
 	@override String get e2eeSocialThreshold => 'Schwellenwert';
 	@override String e2eeSocialThresholdHint({required Object count}) => 'Für Wiederherstellung sind ${count} Treuhänder nötig';
@@ -4838,6 +4839,7 @@ extension on TranslationsDeDe {
 			'main.webQRRefresh' => 'QR-Code aktualisieren',
 			'main.webSwitchToQR' => 'Per QR-Code anmelden',
 			'main.e2eeErrDefault' => 'E2EE fehlgeschlagen, Nachricht nicht gesendet',
+			'main.e2eeErrPeerDeviceNotReady' => 'Die Sicherheitseinrichtung einiger Mitglieder ist nicht abgeschlossen, Nachricht nicht gesendet; bitte später erneut versuchen',
 			'main.e2eeSocialTotalShards' => 'Fragmente gesamt',
 			'main.e2eeSocialThreshold' => 'Schwellenwert',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Für Wiederherstellung sind ${count} Treuhänder nötig',

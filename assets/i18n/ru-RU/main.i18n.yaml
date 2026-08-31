@@ -231,6 +231,7 @@ webQRExpired: Срок действия QR-кода истёк
 webQRRefresh: Обновить QR-код
 webSwitchToQR: Войти по QR-коду
 e2eeErrDefault: Ошибка сквозного шифрования, сообщение не отправлено
+e2eeErrPeerDeviceNotReady: Настройка безопасности не завершена на устройствах некоторых участников, сообщение не отправлено; повторите попытку позже
 e2eeSocialTotalShards: Всего фрагментов
 e2eeSocialThreshold: Порог восстановления
 e2eeSocialThresholdHint(count): Для восстановления нужно $count посредников

@@ -2448,6 +2448,7 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get webQRRefresh => 'تحديث رمز QR';
 	@override String get webSwitchToQR => 'الدخول برمز QR';
 	@override String get e2eeErrDefault => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة';
+	@override String get e2eeErrPeerDeviceNotReady => 'لم تكتمل إعدادات الأمان على أجهزة بعض الأعضاء، لم تُرسل الرسالة؛ يُرجى المحاولة لاحقاً';
 	@override String get e2eeSocialTotalShards => 'إجمالي الشظايا';
 	@override String get e2eeSocialThreshold => 'حد الاستعادة';
 	@override String e2eeSocialThresholdHint({required Object count}) => 'يلزم ${count} وكيل للاستعادة';
@@ -4835,6 +4836,7 @@ extension on TranslationsArSa {
 			'main.webQRRefresh' => 'تحديث رمز QR',
 			'main.webSwitchToQR' => 'الدخول برمز QR',
 			'main.e2eeErrDefault' => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة',
+			'main.e2eeErrPeerDeviceNotReady' => 'لم تكتمل إعدادات الأمان على أجهزة بعض الأعضاء، لم تُرسل الرسالة؛ يُرجى المحاولة لاحقاً',
 			'main.e2eeSocialTotalShards' => 'إجمالي الشظايا',
 			'main.e2eeSocialThreshold' => 'حد الاستعادة',
 			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'يلزم ${count} وكيل للاستعادة',

@@ -231,6 +231,7 @@ webQRExpired: انتهت صلاحية رمز QR
 webQRRefresh: تحديث رمز QR
 webSwitchToQR: الدخول برمز QR
 e2eeErrDefault: فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة
+e2eeErrPeerDeviceNotReady: لم تكتمل إعدادات الأمان على أجهزة بعض الأعضاء، لم تُرسل الرسالة؛ يُرجى المحاولة لاحقاً
 e2eeSocialTotalShards: إجمالي الشظايا
 e2eeSocialThreshold: حد الاستعادة
 e2eeSocialThresholdHint(count): يلزم $count وكيل للاستعادة

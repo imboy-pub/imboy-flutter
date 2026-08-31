@@ -231,6 +231,7 @@ webQRExpired: QR-Code abgelaufen
 webQRRefresh: QR-Code aktualisieren
 webSwitchToQR: Per QR-Code anmelden
 e2eeErrDefault: E2EE fehlgeschlagen, Nachricht nicht gesendet
+e2eeErrPeerDeviceNotReady: Die Sicherheitseinrichtung einiger Mitglieder ist nicht abgeschlossen, Nachricht nicht gesendet; bitte später erneut versuchen
 e2eeSocialTotalShards: Fragmente gesamt
 e2eeSocialThreshold: Schwellenwert
 e2eeSocialThresholdHint(count): Für Wiederherstellung sind $count Treuhänder nötig
