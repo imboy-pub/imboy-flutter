@@ -31,6 +31,7 @@ import 'package:imboy/page/workspace/workspace_view_widgets.dart'
     show WorkspaceRoleBadge;
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/model/workspace_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -216,7 +217,7 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
               icon: CupertinoIcons.square_arrow_right,
               label: t.account.logOut,
               isDestructive: true,
-              onTap: () => _popAndPush(context, '/logout_account'),
+              onTap: () => unawaited(_logout(context)),
             ),
           ],
         ),
@@ -242,6 +243,41 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
   static void _popAndPush(BuildContext context, String location) {
     Navigator.pop(context);
     context.push(location);
+  }
+
+  /// 退出登录：镜像设置页 `_handleLogout`（确认弹窗 → quitLogin → /welcome）。
+  ///
+  /// 此前误接 `/logout_account`（注销账号页）——`t.account.logOut`（退出登录）
+  /// 与 `logoutAccount`（注销账号）是两个语义，本入口绝不能走注销流程。
+  /// router/navigator 在 quitLogin **之前**捕获：quitLogin 清全局状态后
+  /// sheet widget 可能已随监听器重建，再经 context 取会撞 unmounted。
+  static Future<void> _logout(BuildContext context) async {
+    final t = context.t;
+    final confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (dialogContext) => CupertinoAlertDialog(
+        title: Text(t.account.logOut),
+        content: Text(t.account.areYouSureLogOut),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(t.common.buttonConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final router = GoRouter.of(context);
+    final navigator = Navigator.of(context);
+    await UserRepoLocal.to.quitLogin();
+    // go 不会收掉非路由的 modal sheet，先关 sheet 再跳
+    navigator.pop();
+    router.go('/welcome');
   }
 
   /// 工作模式一键切换（本机首页偏好，可逆无损）。
