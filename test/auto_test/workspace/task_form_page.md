@@ -17,4 +17,4 @@
 | 无待办 | - | `page/workspace/project/tasks/task_form_page.dart` | 编辑修改标题/执行人后保存：成功 toast，返回后任务列表与候选列表刷新 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 无待办 | - | `page/workspace/project/tasks/task_form_page.dart` | 编辑时改选「未指派」保存：任务执行人被清除（clearAssignee） | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 无待办 | - | `page/workspace/project/tasks/task_form_page.dart` | 顶栏「刷新候选」按钮重拉工作区成员候选；候选加载失败显示错误行 + 重试按钮 | 已通过 | 批次W2R2FIX | 1 | 1 | 0 | 已修：_parseException透传组件异常免被toString重包；断网点刷新logcat见重拉GET，错误文案「无网络」非Instance of（widget测试佐证） |
-| 阻塞 | 需Guest账号/非active成员/归档工作区 | `page/workspace/project/tasks/task_form_page.dart` | 服务端错误透传：指派非 active 成员 400 / Guest 403 / 归档工作区 980，toast 原样显示服务端消息 | 未测 | 批次W2R1 | 0 | 0 | 0 | 缺触发400/403/980的前置条件 |
+| 无待办 | - | `page/workspace/project/tasks/task_form_page.dart` | 服务端错误透传：指派非 active 成员 400 / Guest 403 / 归档工作区 980，toast 原样显示服务端消息 | 已通过 | 批次W2R3 | 0 | 0 | 0 | 980闭环：表单开着时API归档WS2再提交，toast原样「工作区已归档，写操作被拒绝」；400/403入口被UI只读门控前置隐藏不可达 |

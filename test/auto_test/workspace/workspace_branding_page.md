@@ -14,5 +14,5 @@
 | 无待办 | - | `page/workspace/workspace_branding_page.dart` | 主色为空或非法时预览方块回落主题默认色并提示回落文案 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 无待办 | - | `page/workspace/workspace_branding_page.dart` | 非法色值点保存 toast 提示色值非法且不发请求 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 无待办 | - | `page/workspace/workspace_branding_page.dart` | 保存成功 toast 提示并自动返回，壳内工作区名称/主色立即生效 | 已通过 | 批次W2R2FIX | 1 | 1 | 0 | 真机toast+自动返回+壳图标FF0000+DB写入+重进回填；根因API请求/响应均缺branding嵌套键，修workspace_api读写契约 |
-| 阻塞 | 需临时工作区归档后测 | `page/workspace/workspace_branding_page.dart` | 已归档工作区顶部展示归档横幅且保存按钮禁用（服务端 980 兜底） | 未测 | 批次W2R1 | 0 | 0 | 0 | 种子工作区不可归档；create临时区可解 |
+| 无待办 | - | `page/workspace/workspace_branding_page.dart` | 已归档工作区顶部展示归档横幅且保存按钮禁用（服务端 980 兜底） | 已通过 | 批次W2R3 | 0 | 0 | 0 | WS2归档态：橙横幅+保存灰禁，点击零网络请求（logcat无Request） |
 | 阻塞 | 需非Owner可达编辑页入口 | `page/workspace/workspace_branding_page.dart` | 非 Owner 保存被服务端拒绝并透出错误消息（仅 Owner 可改） | 未测 | 批次W2R1 | 0 | 0 | 0 | 治理区仅Owner可见无深链入口 |

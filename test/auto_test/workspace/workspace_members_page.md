@@ -15,6 +15,6 @@
 | 无待办 | - | `page/workspace/workspace_members_page.dart` | 改角色弹 ActionSheet 三选（Owner/成员/访客），选择后成功刷新列表 | 已通过 | 批次W2R2 | 0 | 0 | 0 | ActionSheet Owner/Member/Guest 三选；乙 Guest↔Member 双向切换成功徽标变色 |
 | 无待办 | - | `page/workspace/workspace_members_page.dart` | 仅非 Guest 且非本人成员展示转移 Owner 按钮，确认弹窗后转移并刷新（最后 Owner 保护由服务端兜底） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 转移确认弹窗语义完整；转移后甲降Member乙升Owner（角色互换UI刷新）；已API转回核验DB |
 | 无待办 | - | `page/workspace/workspace_members_page.dart` | Owner 底部治理区展示 Branding 入口，点击进入 /workspace/:wsId/branding 编辑页 | 已通过 | 批次W2R2 | 0 | 0 | 0 | Branding 入口进编辑页（名称回填20/200+Logo+主色预览+保存） |
-| 阻塞 | 弹窗+取消已验；成功流转待临时工作区（种子区归档影响后续批次） | `page/workspace/workspace_members_page.dart` | 治理区归档/恢复入口弹确认弹窗，成功后壳状态同步且归档横幅显隐立即生效 | 未测 | 批次W2R2 | 0 | 0 | 0 | 归档弹窗文案完整（归档后全员只读可随时恢复），取消零写操作 |
-| 阻塞 | 依赖真实归档流转 | `page/workspace/workspace_members_page.dart` | 已归档工作区顶部展示归档横幅，邀请/移除/改角色等写操作按钮禁用（服务端 980 兜底） | 未测 | 批次W2R2 | 0 | 0 | 0 | 同上 |
+| 无待办 | - | `page/workspace/workspace_members_page.dart` | 治理区归档/恢复入口弹确认弹窗，成功后壳状态同步且归档横幅显隐立即生效 | 已通过 | 批次W2R3 | 0 | 0 | 0 | WS2归档后UI恢复闭环：弹窗→确认→restore请求→横幅即隐、邀请复蓝、入口复归档红字；两轮归档/恢复均过 |
+| 无待办 | - | `page/workspace/workspace_members_page.dart` | 已归档工作区顶部展示归档横幅，邀请/移除/改角色等写操作按钮禁用（服务端 980 兜底） | 已通过 | 批次W2R3 | 0 | 0 | 0 | 重启后橙横幅+邀请灰禁；归档下成员卡移除/改角色按钮整体隐藏（恢复后同卡按钮复现直接对照） |
 | 无待办 | - | `page/workspace/workspace_members_page.dart` | 非 Owner（Member/Guest）不显示邀请按钮与治理区，成员行无操作按钮（只读视图） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 转移期间甲=Member实证：邀请按钮/治理区/行操作按钮全部消失（只读视图） |
