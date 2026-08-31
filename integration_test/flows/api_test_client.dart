@@ -174,6 +174,16 @@ class FlowApiClient {
       _refreshToken = p?['refreshtoken'] as String?;
       _currentUid = '${p?['uid'] ?? ''}';
       _log('登录成功: uid=$_currentUid');
+    } else if (!plainPassword && body['msg'] == 'errorPassword') {
+      // 新格式账号（hmac_sha512 存储，如 RPC 重置密码的测试号）只接受明文，
+      // md5 传输被拒时用明文重试一次；plainPassword=true 时不回退防死循环。
+      _log('md5 登录被拒，尝试明文重试');
+      return login(
+        account: account,
+        password: password,
+        type: loginType,
+        plainPassword: true,
+      );
     } else {
       _log('登录失败: ${body['msg']}');
     }
