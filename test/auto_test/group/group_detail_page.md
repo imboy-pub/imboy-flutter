@@ -1,6 +1,6 @@
 # `page/group/group_detail/group_detail_page.dart`
 
-> 功能点 17 个 | bug 发现 4 / 解决 3 / 待处理 1
+> 功能点 17 个 | bug 发现 4 / 解决 4 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -21,4 +21,4 @@
 | 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 非好友成员头像出现在拼图中（驱动表 group_member，contact 仅补头像） | 已通过 | 批次W2R6 | 0 | 0 | 0 | UID_F与ACC_A user_friend=0行无本地contact，头像URL由group_member行(服务端page带u.avatar)驱动→拼图count=2含非好友格；同F-13环境限制真图渲染为占位，数据链路正确 |
 | 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 拼图排列按 user_id 恒定：重进页面/成员换头像均不漂移 | 已通过 | 批次W2R6 | 0 | 0 | 0 | 重进详情count恒2不漂移；成员区甲(uid…161)前己(uid…116)后=user_id升序与SQL契约一致；排序SQL由15个契约测试锁死(test/unit_test/page/group/group_avatar_compute_test.dart) |
 | 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 群主头像不缺席（is_join=0 行不被过滤，or user_id=自己兜底） | 已通过 | 批次W2R6 | 0 | 0 | 0 | owner甲格恒在拼图：2人时count=2含owner，移除非owner后count=1仍含owner；is_join=0不过滤由memberAvatarSql契约测试锁定(in(0,1) or user_id=自己) |
-| 待修复 | 2026-08-31 | `page/group/group_detail/group_detail_page.dart` | 成员退群后本页拼图即时更新（GroupMemberUpdateEvent 失效缓存） | 有BUG待修 | 批次W2R6 | 1 | 0 | 1 | 本机移除成员本页即时更新OK：count 2→0→1(<1s,provider删行+fire失效缓存)。但新bug:S2C group_member_leave处理崩溃(message_s2c.dart:593 int as String强转)致跨设备退群推送分支失效(对方设备不删行不失效拼图,列表member_count也未减)。复现:两成员群本机移除另一在线设备收S2C即崩 |
+| 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 成员退群后本页拼图即时更新（GroupMemberUpdateEvent 失效缓存） | 已通过 | 批次W2R6 | 1 | 1 | 0 | 本机移除成员本页即时更新OK：count 2→0→1(<1s,provider删行+fire失效缓存)。W2R6发现新bug:S2C group_member_leave处理崩溃(message_s2c.dart int as String强转)致跨设备退群推送分支失效——已修:join/leave/dissolve 三分支统一 parseModelString/Int 归一+缺字段防御(同款双重cast家族一并修),跨设备路径待下批次双端复验 |

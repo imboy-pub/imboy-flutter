@@ -528,11 +528,17 @@ class MessageS2CService {
     Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
-    final userId = data['from'];
-    final nickname = payload['nickname'];
-    final avatar = payload['avatar'];
-    final account = payload['account'];
-    final gid = payload['gid'];
+    // 同 _handleGroupMemberLeave：TSID integer 硬 cast 崩溃 + 字段缺失
+    // 防御（服务端任一字段漏发即 null，`as String` 同样崩）。
+    final userId = parseModelString(data['from']);
+    final nickname = parseModelString(payload['nickname']);
+    final avatar = parseModelString(payload['avatar']);
+    final account = parseModelString(payload['account']);
+    final gid = parseModelString(payload['gid']);
+    if (gid.isEmpty || userId.isEmpty) {
+      iPrint('[S2C] group_member_join 缺 gid/from，忽略: $payload');
+      return;
+    }
 
     iPrint('🔔 [S2C] 收到 group_member_join 消息');
     iPrint('  ├─ userId: $userId');
@@ -541,8 +547,8 @@ class MessageS2CService {
     iPrint('  └─ 完整 payload: $payload');
 
     final joinRes = await GroupListService().memberJoin(
-      groupId: gid as String,
-      userId: userId as String,
+      groupId: gid,
+      userId: userId,
     );
 
     iPrint('📢 [S2C] 发布 join_group 事件到 ChatExtendEvent');
@@ -555,10 +561,10 @@ class MessageS2CService {
           'userId': userId,
           'isFirst': joinRes?['isFirst'] ?? false,
           'people': PeopleModel(
-            id: userId as int,
-            account: account as String,
-            nickname: nickname as String,
-            avatar: avatar as String,
+            id: parseModelInt(userId),
+            account: account,
+            nickname: nickname,
+            avatar: avatar,
           ),
         },
       ),
@@ -573,8 +579,12 @@ class MessageS2CService {
   /// 触发时机：群组被解散
   /// 处理逻辑：清理群组相关数据，更新UI
   static Future<void> _handleGroupDissolve(Map<String, dynamic> payload) async {
-    final gid = payload['gid'];
-    await GroupDetailService().cleanData(gid as String);
+    final gid = parseModelString(payload['gid']);
+    if (gid.isEmpty) {
+      iPrint('[S2C] group_dissolve 缺 gid，忽略: $payload');
+      return;
+    }
+    await GroupDetailService().cleanData(gid);
   }
 
   /// 处理群组成员离开
@@ -586,13 +596,18 @@ class MessageS2CService {
     Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
-    final userId = payload['leave_uid'];
-    final gid = payload['gid'];
+    // TSID 按 JSON integer 下发（编码规范），硬 `as String` 会 type cast
+    // 崩溃并打断整个 S2C 分发（批次W2R6 实证：跨设备退群推送分支失效）；
+    // PeopleModel.id 是 int，同值先 `as String` 后 `as int` 的双重 cast
+    // 必崩一处。统一 parseModel 归一 + 缺字段防御。
+    final gid = parseModelString(payload['gid']);
+    final userId = parseModelString(payload['leave_uid']);
+    if (gid.isEmpty || userId.isEmpty) {
+      iPrint('[S2C] group_member_leave 缺 gid/leave_uid，忽略: $payload');
+      return;
+    }
 
-    await GroupListService().memberLeave(
-      groupId: gid as String,
-      userId: userId as String,
-    );
+    await GroupListService().memberLeave(groupId: gid, userId: userId);
 
     AppEventBus.fire(
       ChatExtendEvent(
@@ -600,7 +615,7 @@ class MessageS2CService {
         payload: {
           'groupId': gid,
           'userId': userId,
-          'people': PeopleModel(id: userId as int, account: ''),
+          'people': PeopleModel(id: parseModelInt(userId), account: ''),
         },
       ),
     );
