@@ -191,6 +191,16 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         // 检查是否还有更多数据
         int total = IMBoyHttpResponse.payloadInt(payload, 'total') ?? 0;
         _hasMore = _memberList.length < total;
+
+        // 成员信息整页刷新（含头像变更）→ 群头像拼图缓存按 gid 失效，
+        // 下次 load 拿到新头像列表
+        AppEventBus.fire(
+          GroupMemberUpdateEvent(
+            groupId: widget.groupId,
+            userId: UserRepoLocal.to.currentUid,
+            changeType: 'refresh',
+          ),
+        );
       }
 
       if (mounted) {

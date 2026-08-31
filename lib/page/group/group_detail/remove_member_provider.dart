@@ -4,6 +4,8 @@ import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 
 part 'remove_member_provider.g.dart';
 
@@ -153,6 +155,14 @@ class RemoveMemberService {
 
       for (var userId in memberUserIds) {
         await gmRepo.delete(groupId, userId);
+        // 被踢成员删除后 fire：群头像拼图缓存按 gid 失效
+        AppEventBus.fire(
+          GroupMemberUpdateEvent(
+            groupId: groupId,
+            userId: userId,
+            changeType: 'kick',
+          ),
+        );
       }
       return true;
     }

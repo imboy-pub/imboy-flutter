@@ -156,6 +156,14 @@ class GroupDetailService {
 
     // 2. 删除群组成员记录
     await GroupMemberRepo().deleteByGid(gid);
+    // 成员全清 → 群头像拼图缓存失效（GroupAvatarMemberCache 按 gid 失效）
+    AppEventBus.fire(
+      GroupMemberUpdateEvent(
+        groupId: gid,
+        userId: UserRepoLocal.to.currentUid,
+        changeType: 'dissolve',
+      ),
+    );
 
     // 3. 删除群组记录
     await GroupRepo().delete(gid);

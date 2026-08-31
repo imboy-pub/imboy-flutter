@@ -19,6 +19,8 @@ import 'package:imboy/page/conversation/conversation_tap_dispatcher.dart';
 import 'package:imboy/page/conversation/widget/subscribed_channel_strip.dart';
 import 'package:imboy/page/conversation/widget/right_button.dart'
     show RightButton;
+import 'package:imboy/page/group/group_avatar_cache.dart'
+    show GroupAvatarMemberCache;
 import 'package:imboy/page/web_shell/web_shell.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -179,6 +181,10 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     ssExtend = AppEventBus.on<ChatExtendEvent>().listen((event) async {
       if (!mounted) return;
       if (event.type == 'refresh_conversations' || event.type == 'clean_msg') {
+        // 会话数据被外部全量刷新（含 contact.avatar 变更），群头像拼图
+        // 缓存的 URL 快照可能已过期 —— 粗粒度全部失效，让下次 load 重查。
+        // 该事件本身低频，代价可接受（计划 W4-3 兜底链）。
+        GroupAvatarMemberCache.instance.invalidateAll();
         if (event.payload['conversation'] is ConversationModel) {
           final updatedConv =
               event.payload['conversation'] as ConversationModel;

@@ -23,6 +23,9 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/page/scanner/qr_login_confirm_page.dart';
 import 'package:imboy/page/scanner/qr_login_intent.dart';
 import 'package:imboy/page/scanner/scanner_result_page.dart';
@@ -231,8 +234,17 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
           '/people_info/${parseModelString(payload['id'])}?scene=qrcode',
         );
       } else if (result == '' && type == 'group') {
+        final String joinedGid = parseModelString(payload['id']);
         await GroupMemberRepo().save(
           IMBoyHttpResponse.payloadAsMap(payload['group_member']),
+        );
+        // 自己入群落库后 fire：群头像拼图缓存按 gid 失效
+        AppEventBus.fire(
+          GroupMemberUpdateEvent(
+            groupId: joinedGid,
+            userId: UserRepoLocal.to.currentUid,
+            changeType: 'join',
+          ),
         );
         if (!mounted) return;
         // 统一走 go_router：原生 push 的 ChatPage 内 go_router 调用会失灵

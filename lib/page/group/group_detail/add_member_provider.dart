@@ -5,6 +5,8 @@ import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:azlistview/azlistview.dart';
 
@@ -194,7 +196,16 @@ class AddMemberService {
       await gRepo.update(groupId, gData);
 
       for (var json in (memberList as List)) {
-        await gmRepo.save(json as Map<String, dynamic>);
+        final item = json as Map<String, dynamic>;
+        await gmRepo.save(item);
+        // 新成员落库后 fire：群头像拼图缓存按 gid 失效，拼图立即纳入新成员
+        AppEventBus.fire(
+          GroupMemberUpdateEvent(
+            groupId: groupId,
+            userId: (item[GroupMemberRepo.userId] ?? '').toString(),
+            changeType: 'join',
+          ),
+        );
       }
       return true;
     }
