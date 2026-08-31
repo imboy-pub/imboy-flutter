@@ -810,6 +810,11 @@ class PassportNotifier extends _$PassportNotifier {
     if (kIsWeb) {
       return false;
     }
+    // JVerify 为移动端专属 SDK，桌面端无 dart 侧实现，调用即抛
+    // MissingPluginException（unhandled zone error）
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return false;
+    }
     // 已初始化成功
     if (jverify != null) return true;
     // 初始化正在进行中，等待其完成

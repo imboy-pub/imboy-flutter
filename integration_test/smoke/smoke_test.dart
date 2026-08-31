@@ -20,7 +20,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:imboy/main.dart' as app;
 
 import '../flows/api_test_client.dart';
-import '../flows/test_utils.dart' show takeScreenshot;
+import '../flows/test_utils.dart' show installPluginErrorFilter, takeScreenshot;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -73,6 +73,10 @@ void main() {
 
   group('冒烟测试：App 基础流程', () {
     testWidgets('App 启动 — Scaffold 与 MaterialApp 均可见', (tester) async {
+      // 桌面端无实现的平台插件（jverify/share_handler 等）在 app 初始化时
+      // 抛 MissingPluginException 污染错误通道，须在 app.main() 前过滤
+      installPluginErrorFilter();
+
       // app.main() 在 testWidgets 回调内调用，确保每个 test 独立初始化一次，
       // 避免 setUp 中调用时 group 多测试场景下 Flutter 绑定重复初始化。
       app.main();

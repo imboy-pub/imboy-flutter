@@ -623,6 +623,26 @@ void drainKnownFrameworkExceptions(WidgetTester tester) {
 // 标准前置检查（checkPreconditions）
 // ──────────────────────────────────────────────
 
+/// 过滤桌面端平台插件缺失异常。
+///
+/// jverify/share_handler 等插件在 macOS/Windows/Linux 无 dart 侧实现，
+/// app 初始化触发的 MissingPluginException 会以 FlutterError 形式进入
+/// flutter_test 的错误通道，触发 binding 断言
+/// `_pendingExceptionDetails != null` 失败，整个测试挂死。
+/// 在 testWidgets 回调内、app.main() 之前调用一次。
+void installPluginErrorFilter() {
+  final original = FlutterError.onError;
+  FlutterError.onError = (details) {
+    final e = details.exception;
+    if (e is MissingPluginException ||
+        e.toString().contains('MissingPluginException')) {
+      debugPrint('[TEST] 已过滤平台插件缺失异常: ${e.toString().split('\n').first}');
+      return;
+    }
+    original?.call(details);
+  };
+}
+
 /// 标准前置检查：后端可达 → App 进入入口 → 自动登录。
 /// 失败时调用 markTestSkipped 并返回 false；调用方必须立即 return。
 ///

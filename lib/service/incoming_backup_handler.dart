@@ -59,20 +59,24 @@ class IncomingBackupHandler {
   static Stream<String> watchIncomingFiles() {
     final controller = StreamController<String>();
 
-    // 1. share_handler stream（ACTION_SEND / iOS Share Extension）
-    ShareHandler.instance.sharedMediaStream.listen(
-      (media) async {
-        final path = await _extractBackupPath(media);
-        if (path != null && !controller.isClosed) {
-          controller.add(path);
-        }
-      },
-      onError: (Object e) {
-        if (kDebugMode) {
-          debugPrint('[IncomingBackup] share_handler stream error: $e');
-        }
-      },
-    );
+    // 1. share_handler stream（ACTION_SEND / iOS Share Extension）。
+    //    移动端专属：桌面端无 dart 侧实现，EventChannel listen 调用本身
+    //    抛 MissingPluginException（unhandled zone error，不走 onError）。
+    if (Platform.isAndroid || Platform.isIOS) {
+      ShareHandler.instance.sharedMediaStream.listen(
+        (media) async {
+          final path = await _extractBackupPath(media);
+          if (path != null && !controller.isClosed) {
+            controller.add(path);
+          }
+        },
+        onError: (Object e) {
+          if (kDebugMode) {
+            debugPrint('[IncomingBackup] share_handler stream error: $e');
+          }
+        },
+      );
+    }
 
     // 2. backup_intent channel：Android ACTION_VIEW（热启动）
     // native 侧 onNewIntent 后 invokeMethod("onNewViewFile") 触发。
