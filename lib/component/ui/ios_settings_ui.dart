@@ -60,6 +60,14 @@ class IosPageTemplate extends StatelessWidget {
     final navBar = CupertinoNavigationBar(
       // 返回键统一为样式A（GlassBackButton）；tab 根页 canPop=false → 不显示
       automaticallyImplyLeading: false,
+      // SDK 默认给 leading/trailing 各包 16px 边距（_kNavBarEdgePadding）。
+      // trailing 归零：44px 按钮盒已内置 ~11px 内缩，SDK 边距是重复留白
+      // （曾致图标字面距屏缘 ~27px）；**end 必须显式传 0**——传 null 会
+      // 回落 SDK 默认 16。leading 保留 8px（chip/返回键文字无内缩）。
+      padding: const EdgeInsetsDirectional.only(
+        start: AppSpacing.small,
+        end: 0,
+      ),
       leading:
           leading ??
           (Navigator.of(context).canPop() ? const GlassBackButton() : null),

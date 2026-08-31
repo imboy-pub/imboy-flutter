@@ -54,10 +54,13 @@ bool _isWebShellHosted(BuildContext context) {
 
 /// 会话列表页面 - iOS 17 Premium 风格
 class ConversationPage extends ConsumerStatefulWidget {
-  /// 宿主壳注入的导航栏 leading（workspace 壳挂账户头像入口；chat 壳不传）。
+  /// 宿主壳注入的导航栏 leading（workspace 壳挂工作区切换 chip；chat 壳不传）。
   final Widget? leading;
 
-  const ConversationPage({super.key, this.leading});
+  /// 宿主壳追加到右上角动作之后的元素（workspace 壳挂账户头像）。
+  final List<Widget>? trailingActions;
+
+  const ConversationPage({super.key, this.leading, this.trailingActions});
 
   @override
   ConsumerState<ConversationPage> createState() => _ConversationPageState();
@@ -231,11 +234,12 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     return IosPageTemplate(
       title: t.chat.titleMessage,
       leading: widget.leading,
+      // RightButton 自带 44px 热区；IosPageTemplate 已把 SDK 导航栏
+      // leading/trailing 边距收窄为左右各 8px（原 16px，曾致图标字面
+      // 距屏缘 ~27px、与 Workspace 壳顶栏不一致），不再叠加外层 Padding
       actions: [
-        Padding(
-          padding: EdgeInsets.only(right: AppSpacing.small),
-          child: RightButton(),
-        ),
+        RightButton(),
+        if (widget.trailingActions != null) ...widget.trailingActions!,
       ],
       slivers: [
         CupertinoSliverRefreshControl(

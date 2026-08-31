@@ -61,7 +61,7 @@ Future<void> _pumpShell(
 }
 
 void main() {
-  testWidgets('移动端：底部导航五项 + 顶栏页面标题制（头像菜单，无切换器）', (tester) async {
+  testWidgets('移动端：底部导航五项 + 顶栏 [切换 chip | 标题 | 头像]', (tester) async {
     final container = await _seededContainer();
     addTearDown(container.dispose);
 
@@ -78,13 +78,18 @@ void main() {
     expect(find.text('项目'), findsWidgets);
     // Members 退出五项导航（入口收敛进 Overview 成员卡片）
     expect(find.text('成员'), findsNothing);
-    // T1：workspace 切换器退出移动端顶栏（收进账户 Sheet + 概览页卡片）
+    // 切换 chip 恢复移动端常驻（壳顶栏 + ConversationPage leading 各一，
+    // IndexedStack 保活两实例均在树中）
     expect(
       find.byKey(const ValueKey('workspace-shell-switcher')),
-      findsNothing,
+      findsWidgets,
     );
-    // 全局区收敛：DM/设置图标退出，收进头像菜单（顶栏 + ConversationPage
-    // extraActions 各一，IndexedStack 保活两处均在树中）
+    // 头像：壳顶栏右侧 + ConversationPage trailingActions 各一
+    expect(
+      find.byKey(const ValueKey('workspace-shell-account-entry')),
+      findsWidgets,
+    );
+    // DM/设置图标退出全局区（收进账户 Sheet）
     expect(
       find.byKey(const ValueKey('workspace-shell-dm-entry')),
       findsNothing,
@@ -93,13 +98,9 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-setting-entry')),
       findsNothing,
     );
-    expect(
-      find.byKey(const ValueKey('workspace-shell-account-entry')),
-      findsWidgets,
-    );
   });
 
-  testWidgets('会话目的地：壳顶栏隐藏，头像经 extraActions 呈现', (tester) async {
+  testWidgets('会话目的地：自带导航栏 [chip | 消息 | 搜索+＋+头像]，壳顶栏隐藏', (tester) async {
     final container = await _seededContainer();
     addTearDown(container.dispose);
 
@@ -114,12 +115,11 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-bottom-nav')),
       findsOneWidget,
     );
-    // ConversationPage 自带标题栏，壳顶栏不叠加（switcher 顶栏实例不存在）
+    // 会话页自带 chip 与头像（壳顶栏隐藏后两者依旧可达）
     expect(
       find.byKey(const ValueKey('workspace-shell-switcher')),
-      findsNothing,
+      findsWidgets,
     );
-    // 头像经 ConversationPage extraActions 挂入其标题栏（T1：五页右上均可达账户区）
     expect(
       find.byKey(const ValueKey('workspace-shell-account-entry')),
       findsWidgets,
@@ -137,10 +137,10 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-bottom-nav')),
       findsNothing,
     );
-    // 桌面惯例：rail 顶部保留工作区切换器
+    // 桌面惯例：rail 顶部保留工作区切换器（含 ConversationPage leading 实例）
     expect(
       find.byKey(const ValueKey('workspace-shell-switcher')),
-      findsOneWidget,
+      findsWidgets,
     );
     expect(
       find.byKey(const ValueKey('workspace-shell-account-entry')),

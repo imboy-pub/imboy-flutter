@@ -95,7 +95,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
             context.push('/channel/create');
           },
         ),
-        ..._buildOverflowMenu(t, brightness),
+        ..._buildOverflowMenu(t),
         AppSpacing.horizontalSmall,
       ],
       body: Column(
@@ -187,7 +187,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
   }
 
   /// 「订单/邀请」低频入口收进 more_vert 溢出菜单；flag 全关时不渲染。
-  List<Widget> _buildOverflowMenu(Translations t, Brightness brightness) {
+  List<Widget> _buildOverflowMenu(Translations t) {
     final items = <PopupMenuItem<String>>[
       if (AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder))
         PopupMenuItem(
@@ -213,8 +213,20 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       Material(
         color: Colors.transparent,
         child: PopupMenuButton<String>(
-          icon: const Icon(CupertinoIcons.ellipsis_vertical),
-          iconColor: AppColors.getTextColor(brightness),
+          // child 模式而非 icon 模式：icon 模式被内部 IconButton 约束在
+          // 48px 盒内居中，竖排三点字形极窄（墨迹 ~6px），居中后墨迹浮在
+          // 距屏缘 ~20px 处，与搜索/加号（~11px）不齐且调 padding 无效
+          // （48px 最小约束优先）。自绘 44px 高热区、右缘仅 2px，墨迹
+          // 观感与相邻图标齐平；颜色与搜索/加号（CupertinoButton 默认
+          // iOS 系统蓝）统一，曾用 getTextColor 黑色两色不一。
+          child: const Padding(
+            padding: EdgeInsets.fromLTRB(10, 11, 2, 11),
+            child: Icon(
+              CupertinoIcons.ellipsis_vertical,
+              size: 22,
+              color: CupertinoColors.activeBlue,
+            ),
+          ),
           onSelected: (route) => context.push(route),
           itemBuilder: (context) => items,
         ),

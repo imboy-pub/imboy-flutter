@@ -42,11 +42,13 @@ class WorkspaceAccountButton extends ConsumerWidget {
     final user = ref.watch(userRepoProvider).currentUser;
     final avatar = user?.avatar ?? '';
     final initial = _initialOf(user?.nickname, user?.account);
-    return IconButton(
+    // CupertinoButton(padding: zero)：与右侧导航工具按钮同款解剖，44px 热区
+    return CupertinoButton(
       key: const ValueKey('workspace-shell-account-entry'),
-      tooltip: context.t.account.profile,
       padding: EdgeInsets.zero,
-      icon: CircleAvatar(
+      minimumSize: const Size(44, 44),
+      onPressed: () => _openAccountSheet(context, ref),
+      child: CircleAvatar(
         radius: 14,
         backgroundImage: avatar.isNotEmpty ? NetworkImage(avatar) : null,
         child: avatar.isEmpty
@@ -57,7 +59,6 @@ class WorkspaceAccountButton extends ConsumerWidget {
               )
             : null,
       ),
-      onPressed: () => _openAccountSheet(context, ref),
     );
   }
 
@@ -67,6 +68,56 @@ class WorkspaceAccountButton extends ConsumerWidget {
     final a = account ?? '';
     if (a.isNotEmpty) return a.substring(0, 1);
     return '?';
+  }
+}
+
+/// 全局区工作区切换 chip：左上角常驻（2026-08-31 三轮收敛：恢复切换入口
+/// 可见性——只藏在账户 Sheet 里用户找不到）。Slack / Notion 惯例位：
+/// 左上 = 工作区上下文（图标 + 名称 + 下箭头），点击进「我的工作区」切换页。
+class WorkspaceSwitcherChip extends ConsumerWidget {
+  const WorkspaceSwitcherChip({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t;
+    final theme = Theme.of(context);
+    final current = ref.watch(workspaceShellProvider.select((s) => s.current));
+    return CupertinoButton(
+      key: const ValueKey('workspace-shell-switcher'),
+      padding: EdgeInsets.zero,
+      minimumSize: const Size(44, 44),
+      onPressed: () => context.push('/workspace'),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 150),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              CupertinoIcons.square_grid_2x2,
+              size: 17,
+              color: theme.colorScheme.onSurface,
+            ),
+            AppSpacing.horizontalTiny,
+            Flexible(
+              child: Text(
+                current?.name ?? t.workspace.pickerTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            AppSpacing.horizontalTiny,
+            Icon(
+              CupertinoIcons.chevron_down,
+              size: 12,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -136,13 +187,13 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
               onTap: () => _popAndPush(context, '/mine/setting'),
             ),
             const Divider(height: AppSpacing.xLarge),
-            // 工作模式：叠层弹出二级弹层（不先关账户 sheet——sheet 的
-            // context 关闭即 unmount，先关会导致 select 永远不执行）
+            // 工作模式直达切换（镜像 MinePage 同名入口：只有两种模式，
+            // 点「切换到个人」直接切，免二次弹层）
             _SheetActionTile(
-              icon: CupertinoIcons.rectangle_stack,
-              label: t.workspace.experienceModeEntry,
+              icon: CupertinoIcons.person_circle,
+              label: t.workspace.switchToPersonal,
               onTap: () => unawaited(
-                _openExperienceModeSheet(context, ref, closeAccountSheet: true),
+                _switchExperience(ProductExperience.chat, context, ref),
               ),
             ),
             _SheetActionTile(
@@ -177,57 +228,22 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
     context.push(location);
   }
 
-  /// 工作模式二级选择（镜像设置页同名入口的本机偏好切换语义）。
+  /// 工作模式一键切换（本机首页偏好，可逆无损）。
   ///
-  /// [closeAccountSheet]：选择成功后是否连带关闭账户 sheet（本 sheet 内
-  /// 调用时传 true；ChatShellBootstrap watch provider 会自动切壳，
-  /// 悬在 root navigator 上的账户 sheet 需手动收掉）。
-  ///
-  /// 注意全程使用账户 sheet 自己的 context：二级弹层返回结果时它必须
-  /// 仍 mounted（不提前 pop），否则 select 会被 `!context.mounted` 拦截。
-  static Future<void> _openExperienceModeSheet(
+  /// select 成功后 watch provider 的 ChatShellBootstrap 自动切壳，再收掉
+  /// 账户 sheet（全程用 sheet 自己的 context，不提前 pop——context 关闭
+  /// 即 unmount，先关会导致 select 被 mounted 守卫拦截，见设置页镜像实现）。
+  static Future<void> _switchExperience(
+    ProductExperience target,
     BuildContext context,
-    WidgetRef ref, {
-    bool closeAccountSheet = false,
-  }) async {
-    final t = context.t;
-    final current = ref.read(productExperienceProvider);
-    final selected = await showCupertinoModalPopup<ProductExperience>(
-      context: context,
-      builder: (sheetContext) => CupertinoActionSheet(
-        title: Text(t.workspace.experienceModeEntry),
-        message: Text(t.workspace.experienceModeHint),
-        actions: [
-          CupertinoActionSheetAction(
-            isDefaultAction: current == ProductExperience.chat,
-            onPressed: () =>
-                Navigator.pop(sheetContext, ProductExperience.chat),
-            child: Text(t.workspace.experienceModePersonal),
-          ),
-          CupertinoActionSheetAction(
-            isDefaultAction: current == ProductExperience.workspace,
-            onPressed: () =>
-                Navigator.pop(sheetContext, ProductExperience.workspace),
-            child: Text(t.workspace.experienceModeWorkspace),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(sheetContext),
-          child: Text(t.common.buttonCancel),
-        ),
-      ),
-    );
-    if (selected == null || selected == current || !context.mounted) return;
+    WidgetRef ref,
+  ) async {
     try {
-      await ref.read(productExperienceProvider.notifier).select(selected);
-      // watch productExperienceProvider 的 ChatShellBootstrap 已自动切壳；
-      // 无需 context.go（当前就在 /bottom_navigation，go 同路径是 no-op）
-      if (closeAccountSheet && context.mounted) {
-        Navigator.pop(context);
-      }
+      await ref.read(productExperienceProvider.notifier).select(target);
+      if (context.mounted) Navigator.pop(context);
     } catch (_) {
       if (context.mounted) {
-        AppLoading.showError(t.common.settingFailedPleaseTryAgain);
+        AppLoading.showError(context.t.common.settingFailedPleaseTryAgain);
       }
     }
   }

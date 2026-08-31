@@ -7,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/quick_action_grid.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -40,6 +42,19 @@ class MinePage extends ConsumerStatefulWidget {
 }
 
 class _MinePageState extends ConsumerState<MinePage> {
+  /// 工作模式一键切换（个人 ↔ 工作区，本机首页偏好；失败回滚并提示）。
+  Future<void> _switchExperience(ProductExperience target) async {
+    try {
+      await ref.read(productExperienceProvider.notifier).select(target);
+      if (!mounted) return;
+      context.go('/bottom_navigation');
+    } catch (_) {
+      if (mounted) {
+        AppLoading.showError(t.common.settingFailedPleaseTryAgain);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userRepo = ref.watch(userRepoProvider);
@@ -71,6 +86,29 @@ class _MinePageState extends ConsumerState<MinePage> {
                   bottom: AppSpacing.tiny,
                 ),
                 child: _buildQuickActions(context),
+              ),
+            ),
+
+            // 工作模式直达切换（个人 ↔ 工作区一键互换；本机首页偏好，
+            // 可逆无损，免确认。原路径埋在设置→工作模式四步，太深）
+            SliverToBoxAdapter(
+              child: ImBoySettingsSection(
+                margin: const EdgeInsets.fromLTRB(
+                  AppSpacing.regular,
+                  AppSpacing.small,
+                  AppSpacing.regular,
+                  AppSpacing.none,
+                ),
+                children: [
+                  ImBoySettingsTile(
+                    title: Text(t.workspace.switchToWorkspace),
+                    leading: _buildIcon(
+                      CupertinoIcons.square_grid_2x2,
+                      AppColors.iosTeal,
+                    ),
+                    onTap: () => _switchExperience(ProductExperience.workspace),
+                  ),
+                ],
               ),
             ),
 

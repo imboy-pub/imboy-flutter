@@ -1,11 +1,11 @@
 /// T8 (WP5) — Workspace 体验壳页面（§4.2 IA 唯一权威导航结构）
 ///
-/// 结构（2026-08-31 UX 收敛三轮：头像左置 + 标题居中）：
-/// - 顶栏（仅移动端且非会话目的地）：左 = 头像菜单，中 = 当前页面标题
-///   （右侧等宽占位保持真居中），右 = 预留动作位；
-///   workspace 切换退出顶栏（收进账户 Sheet 工作区列表 + 概览页工作区卡片）
-/// - 会话目的地：ConversationPage 自带标题栏（头像经 leading 挂左上、
-///   右上保留发起聊天"＋"），壳顶栏不叠加
+/// 结构（2026-08-31 UX 收敛四轮：左上工作区 chip 常驻 + 右上账户归位）：
+/// - 顶栏（仅移动端且非会话目的地）：左 = 工作区切换 chip（恢复切换入口
+///   可见性），中 = 当前页面标题（居中），右 = 头像菜单；
+///   Slack / Notion 惯例：左上工作区上下文、右上账户
+/// - 会话目的地：ConversationPage 自带标题栏（左上 = 切换 chip、
+///   右上 = [搜索 + 发起聊天 + 头像]），壳顶栏不叠加
 /// - 内容区：五项导航 IndexedStack（Conversations / Overview / Channels /
 ///   Groups / Projects；DM 进一级导航排第一）
 /// - 导航形态：移动端底部 NavigationBar / 桌面端 NavigationRail
@@ -54,8 +54,8 @@ class WorkspaceShellPage extends ConsumerWidget {
 
     final body = Column(
       children: [
-        // 移动端全局区：工作区切换 + 头像菜单（会话目的地自带标题栏，
-        // 不叠加壳顶栏）
+        // 移动端全局区：左上工作区切换 chip + 右上头像菜单（会话目的地
+        // 自带导航栏且已含 chip/头像，不叠加壳顶栏）
         if (layout == WorkspaceShellLayout.mobile &&
             shell.destination != WorkspaceShellDestination.conversations)
           const _ShellTopBar(),
@@ -83,8 +83,8 @@ class WorkspaceShellPage extends ConsumerWidget {
 }
 
 /// 五项内容区（IndexedStack 保活各视图滚动位置；顺序 = 枚举声明顺序）。
-/// 会话页左上角挂账户头像（T1 二轮：头像左侧 + 标题居中，YouTube /
-/// Apple Music 布局；右上保留发起聊天"＋"）。
+/// 会话页导航栏：左上 = 工作区切换 chip（切换入口全页常驻可见），
+/// 右上 = [搜索 + 发起聊天 + 头像]。
 class _DestinationStack extends StatelessWidget {
   final int index;
 
@@ -96,7 +96,10 @@ class _DestinationStack extends StatelessWidget {
       key: const ValueKey('workspace-shell-destination-stack'),
       index: index,
       children: const [
-        ConversationPage(leading: WorkspaceAccountButton()),
+        ConversationPage(
+          leading: WorkspaceSwitcherChip(),
+          trailingActions: [WorkspaceAccountButton()],
+        ),
         WorkspaceOverviewPage(),
         WorkspaceChannelsPage(),
         WorkspaceGroupsPage(),
@@ -106,12 +109,9 @@ class _DestinationStack extends StatelessWidget {
   }
 }
 
-/// 顶栏左右锚区宽度（与 IconButton 最小可点域对齐，保证标题视觉居中）。
-const double _kTopBarAnchorWidth = 56;
-
-/// 移动端全局区顶栏（T1 页面标题制·头像左置）：左 = 头像菜单，
-/// 中 = 当前页面标题（真居中：右侧等宽占位），右 = 预留动作位。
-/// 会话目的地不渲染（ConversationPage 自带标题栏，头像经 leading 挂入）。
+/// 移动端全局区顶栏（仅非会话目的地渲染）：左 = 工作区切换 chip，
+/// 中 = 当前页面标题（居中），右 = 头像菜单。Slack / Notion 惯例布局：
+/// 左上 = 工作区上下文，右上 = 账户入口。
 class _ShellTopBar extends ConsumerWidget {
   const _ShellTopBar();
 
@@ -121,8 +121,7 @@ class _ShellTopBar extends ConsumerWidget {
     final destination = ref.watch(
       workspaceShellProvider.select((s) => s.destination),
     );
-    // 本壳 Scaffold 无 appBar：不包 SafeArea 顶栏会直顶屏幕上沿，
-    // 左上角头像按钮落进 iOS 状态栏/刘海区域，视觉被压且点不到
+    // 本壳 Scaffold 无 appBar：不包 SafeArea 顶栏会直顶屏幕上沿
     return SafeArea(
       top: true,
       bottom: false,
@@ -130,9 +129,9 @@ class _ShellTopBar extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surfaceContainer,
         child: Row(
           children: [
-            const SizedBox(
-              width: _kTopBarAnchorWidth,
-              child: Center(child: WorkspaceAccountButton()),
+            Padding(
+              padding: const EdgeInsets.only(left: AppSpacing.small),
+              child: const WorkspaceSwitcherChip(),
             ),
             Expanded(
               child: Center(
@@ -146,7 +145,12 @@ class _ShellTopBar extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(width: _kTopBarAnchorWidth),
+            Padding(
+              // 头像 44px 按钮盒自带 8px 内缩：外层只留 4px，图标观感
+              // 与消息页导航栏（trailing 零边距 + 11px 内缩）对齐
+              padding: const EdgeInsets.only(right: AppSpacing.tiny),
+              child: const WorkspaceAccountButton(),
+            ),
           ],
         ),
       ),

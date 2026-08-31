@@ -2727,6 +2727,8 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get experienceModeHint => 'Only changes this device\'s home screen; workspace membership and resource permissions stay the same';
 	@override String get experienceModePersonal => 'Personal';
 	@override String get experienceModeWorkspace => 'Workspace';
+	@override String get switchToWorkspace => 'Switch to workspace';
+	@override String get switchToPersonal => 'Switch to personal';
 	@override String get createTitle => 'Create Workspace';
 	@override String get createDesc => 'One shot creates: the workspace, you as Owner (Workspace Member), an Announcements channel and a General group. All or nothing.';
 	@override String get createNameLabel => 'Workspace name';
@@ -2747,6 +2749,7 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get overviewRecentFiles => 'Recent files';
 	@override String get overviewRecentFilesEmpty => 'Recently uploaded files will appear here; attachments are also available inside each channel';
 	@override String get membersTitle => 'Workspace Members';
+	@override String membersCountLabel({required Object count}) => '${count} members';
 	@override String get membersEmpty => 'No workspace members yet';
 	@override String get membersEmptySubtitle => 'Invite registered users as Workspace Members (Owner / Member / Guest)';
 	@override String get membersViewAll => 'View all';
@@ -5376,6 +5379,8 @@ extension on TranslationsEnUs {
 			'workspace.experienceModeHint' => 'Only changes this device\'s home screen; workspace membership and resource permissions stay the same',
 			'workspace.experienceModePersonal' => 'Personal',
 			'workspace.experienceModeWorkspace' => 'Workspace',
+			'workspace.switchToWorkspace' => 'Switch to workspace',
+			'workspace.switchToPersonal' => 'Switch to personal',
 			'workspace.createTitle' => 'Create Workspace',
 			'workspace.createDesc' => 'One shot creates: the workspace, you as Owner (Workspace Member), an Announcements channel and a General group. All or nothing.',
 			'workspace.createNameLabel' => 'Workspace name',
@@ -5396,6 +5401,7 @@ extension on TranslationsEnUs {
 			'workspace.overviewRecentFiles' => 'Recent files',
 			'workspace.overviewRecentFilesEmpty' => 'Recently uploaded files will appear here; attachments are also available inside each channel',
 			'workspace.membersTitle' => 'Workspace Members',
+			'workspace.membersCountLabel' => ({required Object count}) => '${count} members',
 			'workspace.membersEmpty' => 'No workspace members yet',
 			'workspace.membersEmptySubtitle' => 'Invite registered users as Workspace Members (Owner / Member / Guest)',
 			'workspace.membersViewAll' => 'View all',
@@ -5515,11 +5521,11 @@ extension on TranslationsEnUs {
 			'workspace.projectMemberEmptyTitle' => 'No project members yet',
 			'workspace.projectMemberEmptySubtitle' => 'The project owner can invite registered users to this project',
 			'workspace.projectMemberInviteTitle' => 'Invite Project Member',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberInviteFieldLabel' => 'User ID',
 			'workspace.projectMemberInviteFieldHint' => 'Registered user ID to invite',
 			'workspace.projectMemberInviteInvalidUid' => 'Enter a valid user ID',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteSubmit' => 'Invite',
 			'workspace.projectMemberInviteSuccess' => 'Added to project members',
 			'workspace.projectMemberInviteExisting' => 'Already a project member',

@@ -14,12 +14,14 @@ void main() {
   );
 
   group('RightButton — 渲染', () {
-    testWidgets('渲染两个 IconButton：搜索 + 添加', (tester) async {
+    testWidgets('渲染两个 CupertinoButton：搜索 + 添加', (tester) async {
       await tester.pumpWidget(host(const RightButton()));
       await tester.pump();
 
+      // 2026-08-31 起 IconButton → CupertinoButton(padding: zero)（与
+      // contact_page 导航栏按钮同款，修右间距浮出 ~37px 问题）
       expect(find.byType(RightButton), findsOneWidget);
-      expect(find.byType(IconButton), findsNWidgets(2));
+      expect(find.byType(CupertinoButton), findsNWidgets(2));
       expect(find.byIcon(CupertinoIcons.search), findsOneWidget);
       expect(find.byIcon(CupertinoIcons.plus_circle), findsOneWidget);
     });
@@ -37,7 +39,7 @@ void main() {
       await tester.pump();
 
       expect(tester.takeException(), isNull);
-      expect(find.byType(IconButton), findsNWidgets(2));
+      expect(find.byType(CupertinoButton), findsNWidgets(2));
     });
   });
 

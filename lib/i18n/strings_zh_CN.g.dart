@@ -7982,6 +7982,12 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '工作区'
 	String get experienceModeWorkspace => '工作区';
 
+	/// zh-CN: '切换到工作区'
+	String get switchToWorkspace => '切换到工作区';
+
+	/// zh-CN: '切换到个人'
+	String get switchToPersonal => '切换到个人';
+
 	/// zh-CN: '创建工作区'
 	String get createTitle => '创建工作区';
 
@@ -8041,6 +8047,9 @@ class Translations$workspace$zh_CN {
 
 	/// zh-CN: '工作区成员'
 	String get membersTitle => '工作区成员';
+
+	/// zh-CN: '$count 位成员'
+	String membersCountLabel({required Object count}) => '${count} 位成员';
 
 	/// zh-CN: '暂无工作区成员'
 	String get membersEmpty => '暂无工作区成员';
@@ -11183,6 +11192,8 @@ extension on Translations {
 			_ => null,
 		} ?? switch (path) {
 			'workspace.experienceModeWorkspace' => '工作区',
+			'workspace.switchToWorkspace' => '切换到工作区',
+			'workspace.switchToPersonal' => '切换到个人',
 			'workspace.createTitle' => '创建工作区',
 			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
 			'workspace.createNameLabel' => '工作区名称',
@@ -11203,6 +11214,7 @@ extension on Translations {
 			'workspace.overviewRecentFiles' => '最近文件',
 			'workspace.overviewRecentFilesEmpty' => '最近上传的文件将在此展示；也可在各频道内查看附件',
 			'workspace.membersTitle' => '工作区成员',
+			'workspace.membersCountLabel' => ({required Object count}) => '${count} 位成员',
 			'workspace.membersEmpty' => '暂无工作区成员',
 			'workspace.membersEmptySubtitle' => '邀请已注册用户成为工作区成员（Owner / Member / Guest）',
 			'workspace.membersViewAll' => '查看全部',

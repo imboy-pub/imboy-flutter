@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -56,50 +57,59 @@ class _WorkspaceMembersPageState extends ConsumerState<WorkspaceMembersPage> {
     final ws = ref.watch(currentWorkspaceProvider);
     final wsId = ws?.id ?? '';
     if (wsId.isEmpty) {
-      return WorkspaceEmptyView(
-        icon: CupertinoIcons.person_crop_circle,
+      // 独立路由页（/workspace/members）：必须自带页面骨架——透明背景
+      // 在路由栈上会露出黑色底（曾在壳 IndexedStack 内由父级供背景）
+      return IosPageTemplate(
         title: t.workspace.membersTitle,
-        subtitle: t.workspace.emptyNoWorkspace,
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: WorkspaceEmptyView(
+              icon: CupertinoIcons.person_crop_circle,
+              title: t.workspace.membersTitle,
+              subtitle: t.workspace.emptyNoWorkspace,
+            ),
+          ),
+        ],
       );
     }
     final archived = ws?.isArchived ?? false;
     final members = ref.watch(workspaceMembersProvider(wsId));
     final myUid = UserRepoLocal.to.currentUid;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          if (archived) const WorkspaceArchivedBanner(),
-          Expanded(
-            child: members.when(
-              loading: () => const WorkspaceLoadingView(),
-              error: (e, _) => WorkspaceErrorView(
-                message: workspaceErrorMessage(e),
-                onRetry: () => ref.invalidate(workspaceMembersProvider(wsId)),
-              ),
-              data: (page) {
-                final isOwner =
-                    _myRole(page.list, myUid) == WorkspaceMemberRole.owner;
-                return _MembersBody(
-                  wsId: wsId,
-                  members: page.list,
-                  archived: archived,
-                  isOwner: isOwner,
-                  myUid: myUid,
-                  onRemove: (m) => _confirmRemove(m),
-                  onRoleChange: (m, role) => _changeRole(m, role),
-                  onTransfer: (m) => _confirmTransfer(m),
-                  onArchiveToggle: () => _confirmArchiveToggle(archived),
-                  onInvite: () =>
-                      context.push('/workspace/$wsId/members/invite'),
-                  onBranding: () => context.push('/workspace/$wsId/branding'),
-                );
-              },
+    return IosPageTemplate(
+      title: t.workspace.membersTitle,
+      slivers: [
+        if (archived)
+          const SliverToBoxAdapter(child: WorkspaceArchivedBanner()),
+        SliverFillRemaining(
+          hasScrollBody: true,
+          child: members.when(
+            loading: () => const WorkspaceLoadingView(),
+            error: (e, _) => WorkspaceErrorView(
+              message: workspaceErrorMessage(e),
+              onRetry: () => ref.invalidate(workspaceMembersProvider(wsId)),
             ),
+            data: (page) {
+              final isOwner =
+                  _myRole(page.list, myUid) == WorkspaceMemberRole.owner;
+              return _MembersBody(
+                wsId: wsId,
+                members: page.list,
+                archived: archived,
+                isOwner: isOwner,
+                myUid: myUid,
+                onRemove: (m) => _confirmRemove(m),
+                onRoleChange: (m, role) => _changeRole(m, role),
+                onTransfer: (m) => _confirmTransfer(m),
+                onArchiveToggle: () => _confirmArchiveToggle(archived),
+                onInvite: () => context.push('/workspace/$wsId/members/invite'),
+                onBranding: () => context.push('/workspace/$wsId/branding'),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -300,18 +310,47 @@ class _MembersBody extends StatelessWidget {
             ],
           ),
         if (isOwner) AppSpacing.verticalRegular,
-        ...[
-          for (final m in members)
-            _MemberTile(
-              member: m,
-              isMe: m.userId == myUid,
-              isOwnerPanel: isOwner,
-              archived: archived,
-              onRemove: onRemove,
-              onRoleChange: onRoleChange,
-              onTransfer: onTransfer,
+        // 成员数小节头（iOS 分组列表小节标题样式）
+        Padding(
+          padding: const EdgeInsets.only(
+            left: AppSpacing.small,
+            bottom: AppSpacing.tiny,
+          ),
+          child: Text(
+            t.workspace.membersCountLabel(count: members.length),
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-        ],
+          ),
+        ),
+        // 全体成员合并为一张分组卡片（iOS 通讯录风格），行间细分隔线
+        Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(AppSpacing.regular),
+          ),
+          child: Column(
+            children: [
+              for (var i = 0; i < members.length; i++) ...[
+                if (i > 0)
+                  Divider(
+                    height: 1,
+                    indent: AppSpacing.xLarge,
+                    color: theme.dividerColor.withValues(alpha: 0.5),
+                  ),
+                _MemberTile(
+                  member: members[i],
+                  isMe: members[i].userId == myUid,
+                  isOwnerPanel: isOwner,
+                  archived: archived,
+                  onRemove: onRemove,
+                  onRoleChange: onRoleChange,
+                  onTransfer: onTransfer,
+                ),
+              ],
+            ],
+          ),
+        ),
         if (isOwner) ...[
           AppSpacing.verticalRegular,
           WorkspaceSectionCard(
@@ -395,13 +434,12 @@ class _MemberTile extends StatelessWidget {
     final canTransfer =
         writable && !isMe && member.role != WorkspaceMemberRole.guest;
     final canRemove = writable && !isMe;
+    // 分组卡片内的行：自身不再带卡片装饰/外边距（分隔线由父级统一插入）
     return Container(
       key: ValueKey('workspace-member-tile-${member.userId}'),
-      margin: const EdgeInsets.only(bottom: AppSpacing.small),
-      padding: AppSpacing.allRegular,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AppSpacing.regular),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
       ),
       child: Row(
         children: [
@@ -449,26 +487,38 @@ class _MemberTile extends StatelessWidget {
               ],
             ),
           ),
-          if (canRemove)
-            IconButton(
-              key: ValueKey('workspace-member-remove-${member.userId}'),
-              tooltip: t.workspace.removeMemberConfirm,
-              icon: const Icon(CupertinoIcons.delete, size: 18),
-              onPressed: () => onRemove(member),
-            ),
-          if (writable && !isMe)
-            IconButton(
-              key: ValueKey('workspace-member-role-${member.userId}'),
-              tooltip: t.workspace.changeRoleTitle(name: member.nickname),
-              icon: const Icon(Icons.manage_accounts_outlined, size: 18),
-              onPressed: () => _showRoleSheet(context, member),
-            ),
-          if (canTransfer)
-            IconButton(
-              key: ValueKey('workspace-member-transfer-${member.userId}'),
-              tooltip: t.workspace.transferConfirm,
-              icon: const Icon(Icons.workspace_premium_outlined, size: 18),
-              onPressed: () => onTransfer(member),
+          if (canRemove || canTransfer || (writable && !isMe))
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (canRemove)
+                  IconButton(
+                    key: ValueKey('workspace-member-remove-${member.userId}'),
+                    tooltip: t.workspace.removeMemberConfirm,
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(CupertinoIcons.delete, size: 18),
+                    onPressed: () => onRemove(member),
+                  ),
+                if (writable && !isMe)
+                  IconButton(
+                    key: ValueKey('workspace-member-role-${member.userId}'),
+                    tooltip: t.workspace.changeRoleTitle(name: member.nickname),
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(Icons.manage_accounts_outlined, size: 18),
+                    onPressed: () => _showRoleSheet(context, member),
+                  ),
+                if (canTransfer)
+                  IconButton(
+                    key: ValueKey('workspace-member-transfer-${member.userId}'),
+                    tooltip: t.workspace.transferConfirm,
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(
+                      Icons.workspace_premium_outlined,
+                      size: 18,
+                    ),
+                    onPressed: () => onTransfer(member),
+                  ),
+              ],
             ),
         ],
       ),

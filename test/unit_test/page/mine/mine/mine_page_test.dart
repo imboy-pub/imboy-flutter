@@ -185,14 +185,15 @@ void main() {
         findsOneWidget,
         reason: 'profile card 右侧应有 chevron_right',
       );
-      // 4 个 ImBoySettingsTile（storageSpace/loginDeviceManagement/
-      // setting/feedback）默认 trailing 为 CupertinoListTileChevron，
-      // 内部渲染 CupertinoIcons.right_chevron。
-      // favorites 已移入 QuickActionGrid，不再是 Tile，故是 4 不是 5。
+      // 5 个 ImBoySettingsTile（switchToWorkspace/storageSpace/
+      // loginDeviceManagement/setting/feedback）默认 trailing 为
+      // CupertinoListTileChevron，内部渲染 CupertinoIcons.right_chevron。
+      // favorites 已移入 QuickActionGrid，不是 Tile。
+      // 2026-08-31：新增「切换到工作区」直达 tile（4→5）。
       expect(
         find.byIcon(CupertinoIcons.right_chevron),
-        findsNWidgets(4),
-        reason: '4 个设置项每项右侧应有 CupertinoListTileChevron',
+        findsNWidgets(5),
+        reason: '5 个设置项每项右侧应有 CupertinoListTileChevron',
       );
     });
   });
