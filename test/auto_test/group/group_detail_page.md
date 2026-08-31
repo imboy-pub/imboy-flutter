@@ -1,6 +1,6 @@
 # `page/group/group_detail/group_detail_page.dart`
 
-> 功能点 12 个 | bug 发现 3 / 解决 3 / 待处理 0
+> 功能点 17 个 | bug 发现 3 / 解决 3 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -17,3 +17,8 @@
 | 阻塞 | 需 20 人以上测试群 | `page/group/group_detail/group_detail_page.dart` | 展示查看全部成员入口 | 未测 | - | 0 | 0 | 0 | 入口条件 memberCount>20，现有测试群仅 2 人 |
 | 阻塞 | 需授权不可撤销写操作 | `page/group/group_detail/group_detail_page.dart` | 群主开启群级 E2EE 加密 | 未测 | - | 0 | 0 | 0 | 0→1 单向不可逆，开了无法回退 |
 | 阻塞 | 需授权写生产数据 | `page/group/group_detail/group_detail_page.dart` | 危险操作区清空记录与退群解散 | 未测 | - | 0 | 0 | 0 | 清空/投诉/解散均写生产且不可逆 |
+| 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 群详情头部群头像：有自定义群图显示群图，无群图按成员头像拼图（group_info_card SmartGroupAvatar） | 未测 | - | 0 | 0 | 0 | 群头像线 6d0f9e46/4084a983/488abb34/590ddb13 新增 |
+| 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 非好友成员头像出现在拼图中（驱动表 group_member，contact 仅补头像） | 未测 | - | 0 | 0 | 0 | 修 computeAvatar 原只取好友致缺格 |
+| 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 拼图排列按 user_id 恒定：重进页面/成员换头像均不漂移 | 未测 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 群主头像不缺席（is_join=0 行不被过滤，or user_id=自己兜底） | 未测 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 成员退群后本页拼图即时更新（GroupMemberUpdateEvent 失效缓存） | 未测 | - | 0 | 0 | 0 | |

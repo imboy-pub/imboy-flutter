@@ -1,7 +1,7 @@
 # imboyapp 自动化测试计划 —— 索引
 
 > **权威文档**。imboyapp 现有全部功能点（已完成 / 未完成 / 阻塞 全部纳入）。
-> 覆盖 **155 个页面 / 1741 个功能点**
+> 覆盖 **155 个页面 / 1748 个功能点**
 > 数据源：`lib/page/**` 真实源码抽取 ＋ 真机实测记录
 
 > ⚠️ 本文件由 `regen_readme.py` 生成，**不要手改**。
@@ -58,9 +58,9 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1484 | 85.2% |
-| 阻塞 | 257 | 14.8% |
-| **合计** | **1741** | 100% |
+| 无待办 | 1491 | 85.3% |
+| 阻塞 | 257 | 14.7% |
+| **合计** | **1748** | 100% |
 
 bug 累计：**发现 206 / 解决 201 / 待处理 5**
 
@@ -70,7 +70,7 @@ bug 累计：**发现 206 / 解决 201 / 待处理 5**
 
 | 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 阻塞 |
 |---|---|---|---|---|---|
-| [group](group/) | 26 | 286 | 0 | 246 | 40 |
+| [group](group/) | 26 | 293 | 0 | 253 | 40 |
 | [mine](mine/) | 21 | 250 | 0 | 235 | 15 |
 | [workspace](workspace/) | 18 | 199 | 0 | 175 | 24 |
 | [channel](channel/) | 13 | 146 | 0 | 122 | 24 |
@@ -158,10 +158,10 @@ bug 累计：**发现 206 / 解决 201 / 待处理 5**
 - [group_announcement_page](group/group_announcement_page.md) — 12 功能点
 - [group_category_detail_page](group/group_category_detail_page.md) — 10 功能点
 - [group_category_page](group/group_category_page.md) — 10 功能点
-- [group_detail_page](group/group_detail_page.md) — 12 功能点
+- [group_detail_page](group/group_detail_page.md) — 17 功能点
 - [group_file_audio_preview_page](group/group_file_audio_preview_page.md) — 9 功能点
 - [group_file_page](group/group_file_page.md) — 12 功能点
-- [group_list_page](group/group_list_page.md) — 12 功能点
+- [group_list_page](group/group_list_page.md) — 14 功能点
 - [group_member_detail_page](group/group_member_detail_page.md) — 11 功能点
 - [group_member_page](group/group_member_page.md) — 12 功能点
 - [group_schedule_detail_page](group/group_schedule_detail_page.md) — 12 功能点

@@ -1,6 +1,6 @@
 # `page/group/group_list/group_list_page.dart`
 
-> 功能点 12 个 | bug 发现 2 / 解决 2 / 待处理 0
+> 功能点 14 个 | bug 发现 2 / 解决 2 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -17,3 +17,5 @@
 | 无待办 | - | ``page/group/group_list/group_list_page.dart`` | 长按弹出群聊信息与聊天操作表 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群列表——群聊(1)+全部/我加入/我管理/我创建分段筛选+刷新按钮+点「P0#2 重建验证」群进聊天页(2成员)；批次详验(搜索/长按/空态)稳定功能无回归 |
 | 无待办 | - | ``page/group/group_list/group_list_page.dart`` | 空态展示发起群聊引导按钮 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群列表——群聊(1)+全部/我加入/我管理/我创建分段筛选+刷新按钮+点「P0#2 重建验证」群进聊天页(2成员)；批次详验(搜索/长按/空态)稳定功能无回归 |
 | 无待办 | - | `page/group/group_list/group_list_page.dart` | 搜索无结果展示纯文案空态 | 已通过 | 批次29 | 0 | 0 | 0 | 输入 zzz 群列表消失，仅显示「无搜索结果」纯文案，无 CTA 按钮 |
+| 无待办 | - | `page/group/group_list/group_list_page.dart` | 群列表头像：无群图的群按成员头像拼图且排列恒定（SmartGroupAvatar 同款） | 未测 | - | 0 | 0 | 0 | 群头像线 488abb34 会话/列表预热新增 |
+| 无待办 | - | `page/group/group_list/group_list_page.dart` | 头像同步渲染优先：滚动重挂载/二次进入列表无占位闪烁（缓存 peek 命中） | 未测 | - | 0 | 0 | 0 | |
