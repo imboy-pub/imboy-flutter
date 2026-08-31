@@ -176,12 +176,18 @@ class WorkspaceJoinController extends ChangeNotifier {
   }
 
   void _set(WorkspaceJoinState next) {
+    // 提交在途时退出页面（输满自动提交 + 立即返回）：dispose 后
+    // notifyListeners 会抛 FlutterError（debug）/静默写死对象（release）
+    if (_disposed) return;
     _state = next;
     notifyListeners();
   }
 
+  bool _disposed = false;
+
   @override
   void dispose() {
+    _disposed = true;
     _state = const WorkspaceJoinState();
     _code = '';
     super.dispose();

@@ -101,6 +101,9 @@ class _WorkspaceJoinPageState extends ConsumerState<WorkspaceJoinPage> {
                 enabled: !_join.isSubmitting,
                 textCapitalization: TextCapitalization.characters,
                 autocorrect: false,
+                // visiblePassword：禁 IME 组合态（中文键盘拼音字母经
+                // uppercase/formatter 会混入码字段）+ 免联想
+                keyboardType: TextInputType.visiblePassword,
                 onChanged: _onCodeChanged,
                 decoration: InputDecoration(
                   labelText: t.workspace.joinCodeLabel,

@@ -139,12 +139,18 @@ class WorkspaceInviteCodeController extends ChangeNotifier {
   void reset() => _set(const WorkspaceInviteCodeState());
 
   void _set(WorkspaceInviteCodeState next) {
+    // 生成/撤销在途时退出页面：dispose 后 notifyListeners 抛
+    // FlutterError（debug）/静默写死（release），守卫拦截
+    if (_disposed) return;
     _state = next;
     notifyListeners();
   }
 
+  bool _disposed = false;
+
   @override
   void dispose() {
+    _disposed = true;
     _state = const WorkspaceInviteCodeState();
     super.dispose();
   }

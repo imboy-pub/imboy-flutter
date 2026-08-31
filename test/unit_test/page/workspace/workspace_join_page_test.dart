@@ -246,16 +246,17 @@ void main() {
   });
 
   group('WorkspaceApi invite_code / join envelope 解析（post 注入）', () {
-    test('createInviteCode：{code, expires_at} 解析', () async {
+    test('createInviteCode：{code, expires_at(毫秒时间戳 int)} 解析', () async {
       final api = _EnvelopeFakeApi(
         IMBoyHttpResponse.success(const {
           'code': 'AB12CD34',
-          'expires_at': '2026-09-30 12:00:00',
+          // 后端 elib_cnv 时间字段统一毫秒 int（真机抓包形态）
+          'expires_at': 1789123200000,
         }),
       );
       final result = await api.createInviteCode('9001');
       expect(result.code, 'AB12CD34');
-      expect(result.expiresAt, '2026-09-30 12:00:00');
+      expect(result.expiresAt, '1789123200000');
       expect(result.isValid, isTrue);
     });
 
