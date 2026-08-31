@@ -58,13 +58,13 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1432 | 83.0% |
-| 待首测 | 21 | 1.2% |
-| 待修复 | 8 | 0.5% |
-| 阻塞 | 264 | 15.3% |
+| 无待办 | 1439 | 83.4% |
+| 待首测 | 10 | 0.6% |
+| 待修复 | 9 | 0.5% |
+| 阻塞 | 267 | 15.5% |
 | **合计** | **1725** | 100% |
 
-bug 累计：**发现 209 / 解决 195 / 待处理 14**
+bug 累计：**发现 210 / 解决 195 / 待处理 15**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -74,7 +74,7 @@ bug 累计：**发现 209 / 解决 195 / 待处理 14**
 |---|---|---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 0 | 246 | 0 | 0 | 40 |
 | [mine](mine/) | 21 | 250 | 0 | 235 | 0 | 0 | 15 |
-| [workspace](workspace/) | 17 | 183 | 8 | 123 | 21 | 8 | 31 |
+| [workspace](workspace/) | 17 | 183 | 9 | 130 | 10 | 9 | 34 |
 | [channel](channel/) | 13 | 146 | 0 | 122 | 0 | 0 | 24 |
 | [contact](contact/) | 13 | 126 | 2 | 118 | 0 | 0 | 8 |
 | [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 0 | 0 | 19 |
@@ -319,5 +319,5 @@ bug 累计：**发现 209 / 解决 195 / 待处理 14**
 - [workspace_invite_page](workspace/workspace_invite_page.md) — 12 功能点 ⚠️ 1 待处理
 - [workspace_members_page](workspace/workspace_members_page.md) — 13 功能点 ⚠️ 1 待处理
 - [workspace_overview_page](workspace/workspace_overview_page.md) — 11 功能点
-- [workspace_picker_page](workspace/workspace_picker_page.md) — 11 功能点
+- [workspace_picker_page](workspace/workspace_picker_page.md) — 11 功能点 ⚠️ 1 待处理
 - [workspace_projects_page](workspace/workspace_projects_page.md) — 10 功能点
