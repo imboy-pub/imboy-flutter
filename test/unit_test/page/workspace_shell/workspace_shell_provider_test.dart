@@ -15,16 +15,16 @@ import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
 void main() {
-  group('WorkspaceShellNavItems（§4.2 IA 唯一权威导航结构）', () {
+  group('WorkspaceShellNavItems（§4.2 IA + 频率分层收敛）', () {
     final items = buildWorkspaceShellNavItems(
+      conversationsLabel: '消息',
       overviewLabel: '概览',
       projectsLabel: '项目',
       channelsLabel: '频道',
       groupsLabel: '群组',
-      membersLabel: '成员',
     );
 
-    test('五项导航：Overview/Projects/Channels/Groups/Members（固定顺序）', () {
+    test('五项导航：Conversations/Overview/Channels/Groups/Projects（固定顺序）', () {
       expect(items.length, kWorkspaceShellDestinationCount);
       expect(
         items.map((i) => i.destination).toList(),
@@ -32,13 +32,19 @@ void main() {
       );
     });
 
-    test('Members 导航术语：工作区成员（members），无 DM / Files 一级导航', () {
-      // §4.2 收敛决策：Files 不做一级导航；DM 由壳全局区承载不进导航
-      expect(items.last.destination, WorkspaceShellDestination.members);
-      expect(items.last.label, '成员');
-      final destinations = items.map((i) => i.destination).toSet();
-      expect(destinations.length, 5);
-      expect(destinations.contains(WorkspaceShellDestination.overview), isTrue);
+    test('频率分层：会话（全局 DM）排第一；Members 退出一级导航', () {
+      // 2026-08-31 UX 收敛：DM 进一级导航且排第一；Files 不做一级导航；
+      // Members 退出（治理低频，入口收敛进 Overview 成员卡片）
+      expect(items.first.destination, WorkspaceShellDestination.conversations);
+      expect(items.first.label, '消息');
+      expect(items.last.destination, WorkspaceShellDestination.projects);
+      expect(items.map((i) => i.destination).toSet(), {
+        WorkspaceShellDestination.conversations,
+        WorkspaceShellDestination.overview,
+        WorkspaceShellDestination.channels,
+        WorkspaceShellDestination.groups,
+        WorkspaceShellDestination.projects,
+      });
     });
 
     test('每一项均有图标与文案', () {
@@ -73,7 +79,7 @@ void main() {
       addTearDown(container.dispose);
 
       final notifier = container.read(workspaceShellProvider.notifier);
-      notifier.selectDestination(WorkspaceShellDestination.members);
+      notifier.selectDestination(WorkspaceShellDestination.projects);
       notifier.applyCreated(
         WorkspaceCreateResult(
           workspace: const WorkspaceModel(

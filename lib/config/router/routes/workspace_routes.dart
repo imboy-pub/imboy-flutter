@@ -35,6 +35,16 @@ List<RouteBase> workspaceRoutes() => [
           child: const WorkspaceCreatePage(),
         ),
       ),
+      // 工作区成员（2026-08-31 UX 收敛：Members 退出五项导航，入口收敛进
+      // Overview「工作区成员」卡片；页面读 currentWorkspaceProvider 无参挂载）
+      GoRoute(
+        path: '/members',
+        name: 'workspace_members',
+        pageBuilder: (context, state) => CupertinoPage(
+          key: state.pageKey,
+          child: const WorkspaceMembersPage(),
+        ),
+      ),
       // ==================== Project（WP6 T10a/T10b） ====================
       // 静态 /projects/create 先于动态 /projects/:projectId 注册
       GoRoute(

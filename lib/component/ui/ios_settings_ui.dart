@@ -16,6 +16,7 @@ class IosPageTemplate extends StatelessWidget {
     this.slivers,
     this.body,
     this.actions,
+    this.leading,
     this.controller,
     this.useLargeTitle = false, // 默认改为紧凑模式
     this.backgroundColor,
@@ -34,6 +35,10 @@ class IosPageTemplate extends StatelessWidget {
   /// 避免同轴嵌套两层可滚动区域导致的 sliver 布局/命中测试崩溃。
   final Widget? body;
   final List<Widget>? actions;
+
+  /// 自定义导航栏 leading（宿主壳挂账户头像等入口用）；不传时保持
+  /// 原行为（可返回页显示 GlassBackButton，tab 根页不显示）。
+  final Widget? leading;
   final bool useLargeTitle;
   final Color? backgroundColor;
   final Widget? bottomWidget;
@@ -55,7 +60,9 @@ class IosPageTemplate extends StatelessWidget {
     final navBar = CupertinoNavigationBar(
       // 返回键统一为样式A（GlassBackButton）；tab 根页 canPop=false → 不显示
       automaticallyImplyLeading: false,
-      leading: Navigator.of(context).canPop() ? const GlassBackButton() : null,
+      leading:
+          leading ??
+          (Navigator.of(context).canPop() ? const GlassBackButton() : null),
       middle: Text(
         title,
         style: context

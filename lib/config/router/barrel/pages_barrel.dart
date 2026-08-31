@@ -29,6 +29,7 @@ export 'package:imboy/page/workspace/workspace_branding_page.dart';
 export 'package:imboy/page/workspace/workspace_channel_detail_page.dart';
 export 'package:imboy/page/workspace/workspace_create_page.dart';
 export 'package:imboy/page/workspace/workspace_invite_page.dart';
+export 'package:imboy/page/workspace/workspace_members_page.dart';
 export 'package:imboy/page/workspace/workspace_picker_page.dart';
 // Project / Task 视图（WP6 T10a/T10b — 项目详情/创建表单/任务表单）
 export 'package:imboy/page/workspace/project/home/project_create_page.dart';

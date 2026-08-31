@@ -7952,6 +7952,9 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '我的工作区'
 	String get pickerTitle => '我的工作区';
 
+	/// zh-CN: '切换工作区'
+	String get switchWorkspace => '切换工作区';
+
 	/// zh-CN: '还没有工作区'
 	String get pickerEmptyTitle => '还没有工作区';
 
@@ -8044,6 +8047,9 @@ class Translations$workspace$zh_CN {
 
 	/// zh-CN: '邀请已注册用户成为工作区成员（Owner / Member / Guest）'
 	String get membersEmptySubtitle => '邀请已注册用户成为工作区成员（Owner / Member / Guest）';
+
+	/// zh-CN: '查看全部'
+	String get membersViewAll => '查看全部';
 
 	/// zh-CN: '还没有项目'
 	String get projectsEmptyTitle => '还没有项目';
@@ -11165,6 +11171,7 @@ extension on Translations {
 			'workspace.navGroups' => '群组',
 			'workspace.navMembers' => '成员',
 			'workspace.pickerTitle' => '我的工作区',
+			'workspace.switchWorkspace' => '切换工作区',
 			'workspace.pickerEmptyTitle' => '还没有工作区',
 			'workspace.pickerEmptySubtitle' => '创建一个工作区，3 分钟开启团队协作（自动创建 Announcements 频道与 General 群）',
 			'workspace.archivedBadge' => '已归档',
@@ -11173,9 +11180,9 @@ extension on Translations {
 			'workspace.experienceModeEntry' => '工作模式',
 			'workspace.experienceModeHint' => '仅切换当前设备的首页，不改变工作区成员或资源权限',
 			'workspace.experienceModePersonal' => '个人',
-			'workspace.experienceModeWorkspace' => '工作区',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModeWorkspace' => '工作区',
 			'workspace.createTitle' => '创建工作区',
 			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
 			'workspace.createNameLabel' => '工作区名称',
@@ -11198,6 +11205,7 @@ extension on Translations {
 			'workspace.membersTitle' => '工作区成员',
 			'workspace.membersEmpty' => '暂无工作区成员',
 			'workspace.membersEmptySubtitle' => '邀请已注册用户成为工作区成员（Owner / Member / Guest）',
+			'workspace.membersViewAll' => '查看全部',
 			'workspace.projectsEmptyTitle' => '还没有项目',
 			'workspace.projectsEmptySubtitle' => '项目用于跟踪明确的交付目标；只有频道和群的社区型工作区同样成立',
 			'workspace.channelsEmptyTitle' => '还没有工作区频道',

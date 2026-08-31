@@ -4,6 +4,7 @@
 /// `workspace_shell_nav_items.dart`（§4.2 IA 唯一权威）。
 library;
 
+export 'workspace_account_menu.dart';
 export 'workspace_branding_theme.dart';
 export 'workspace_shell_bootstrap.dart';
 export 'workspace_shell_breakpoint.dart';

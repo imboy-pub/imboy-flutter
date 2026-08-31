@@ -2717,6 +2717,7 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get navGroups => 'Groups';
 	@override String get navMembers => 'Members';
 	@override String get pickerTitle => 'My Workspaces';
+	@override String get switchWorkspace => 'Switch workspace';
 	@override String get pickerEmptyTitle => 'No workspace yet';
 	@override String get pickerEmptySubtitle => 'Create one and get started in 3 minutes (Announcements channel and General group included)';
 	@override String get archivedBadge => 'Archived';
@@ -2748,6 +2749,7 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get membersTitle => 'Workspace Members';
 	@override String get membersEmpty => 'No workspace members yet';
 	@override String get membersEmptySubtitle => 'Invite registered users as Workspace Members (Owner / Member / Guest)';
+	@override String get membersViewAll => 'View all';
 	@override String get projectsEmptyTitle => 'No projects yet';
 	@override String get projectsEmptySubtitle => 'Projects track clear deliverables; a community workspace with only channels and groups is perfectly fine';
 	@override String get channelsEmptyTitle => 'No workspace channels yet';
@@ -5364,6 +5366,7 @@ extension on TranslationsEnUs {
 			'workspace.navGroups' => 'Groups',
 			'workspace.navMembers' => 'Members',
 			'workspace.pickerTitle' => 'My Workspaces',
+			'workspace.switchWorkspace' => 'Switch workspace',
 			'workspace.pickerEmptyTitle' => 'No workspace yet',
 			'workspace.pickerEmptySubtitle' => 'Create one and get started in 3 minutes (Announcements channel and General group included)',
 			'workspace.archivedBadge' => 'Archived',
@@ -5395,6 +5398,7 @@ extension on TranslationsEnUs {
 			'workspace.membersTitle' => 'Workspace Members',
 			'workspace.membersEmpty' => 'No workspace members yet',
 			'workspace.membersEmptySubtitle' => 'Invite registered users as Workspace Members (Owner / Member / Guest)',
+			'workspace.membersViewAll' => 'View all',
 			'workspace.projectsEmptyTitle' => 'No projects yet',
 			'workspace.projectsEmptySubtitle' => 'Projects track clear deliverables; a community workspace with only channels and groups is perfectly fine',
 			'workspace.channelsEmptyTitle' => 'No workspace channels yet',
@@ -5514,10 +5518,10 @@ extension on TranslationsEnUs {
 			'workspace.projectMemberInviteFieldLabel' => 'User ID',
 			'workspace.projectMemberInviteFieldHint' => 'Registered user ID to invite',
 			'workspace.projectMemberInviteInvalidUid' => 'Enter a valid user ID',
-			'workspace.projectMemberInviteSubmit' => 'Invite',
-			'workspace.projectMemberInviteSuccess' => 'Added to project members',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteSubmit' => 'Invite',
+			'workspace.projectMemberInviteSuccess' => 'Added to project members',
 			'workspace.projectMemberInviteExisting' => 'Already a project member',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Remove project member ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => 'After removal the user loses access to this project (they can be invited again)',

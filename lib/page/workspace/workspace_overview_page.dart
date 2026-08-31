@@ -11,6 +11,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -57,9 +58,13 @@ class _OverviewBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final ws = ref.watch(currentWorkspaceProvider);
     return ListView(
       padding: AppSpacing.allRegular,
       children: [
+        // 当前工作区卡片（T1：切换器退出顶栏后的概览页兜底入口）
+        if (ws != null) _WorkspaceSwitchCard(ws: ws),
+        AppSpacing.verticalSmall,
         WorkspaceSectionCard(
           title: t.workspace.overviewResources,
           child: Row(
@@ -118,6 +123,12 @@ class _OverviewBody extends ConsumerWidget {
         AppSpacing.verticalRegular,
         WorkspaceSectionCard(
           title: t.workspace.membersTitle,
+          // Members 退出五项导航后的唯一入口（治理低频 → 收进 Overview）
+          trailing: TextButton(
+            key: const ValueKey('workspace-overview-members-all'),
+            onPressed: () => context.push('/workspace/members'),
+            child: Text(t.workspace.membersViewAll),
+          ),
           child: _MemberPreview(members: data.memberPreview),
         ),
       ],
@@ -130,6 +141,55 @@ class _OverviewBody extends ConsumerWidget {
       t.workspace.overviewPinnedEmpty,
       style: theme.textTheme.bodySmall?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+/// 当前工作区卡片：点击进入「我的工作区」切换页（T1 收敛后的概览页兜底入口）。
+class _WorkspaceSwitchCard extends StatelessWidget {
+  final WorkspaceModel ws;
+
+  const _WorkspaceSwitchCard({required this.ws});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      key: const ValueKey('workspace-overview-switcher'),
+      borderRadius: BorderRadius.circular(AppSpacing.regular),
+      onTap: () => context.push('/workspace'),
+      child: Container(
+        padding: AppSpacing.allMedium,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AppSpacing.regular),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              CupertinoIcons.square_grid_2x2,
+              size: 20,
+              color: theme.colorScheme.primary,
+            ),
+            AppSpacing.horizontalSmall,
+            Expanded(
+              child: Text(
+                ws.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_right,
+              size: 14,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
       ),
     );
   }

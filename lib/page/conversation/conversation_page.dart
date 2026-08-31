@@ -54,7 +54,10 @@ bool _isWebShellHosted(BuildContext context) {
 
 /// 会话列表页面 - iOS 17 Premium 风格
 class ConversationPage extends ConsumerStatefulWidget {
-  const ConversationPage({super.key});
+  /// 宿主壳注入的导航栏 leading（workspace 壳挂账户头像入口；chat 壳不传）。
+  final Widget? leading;
+
+  const ConversationPage({super.key, this.leading});
 
   @override
   ConsumerState<ConversationPage> createState() => _ConversationPageState();
@@ -227,6 +230,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
 
     return IosPageTemplate(
       title: t.chat.titleMessage,
+      leading: widget.leading,
       actions: [
         Padding(
           padding: EdgeInsets.only(right: AppSpacing.small),
