@@ -1,7 +1,7 @@
 # imboyapp 自动化测试计划 —— 索引
 
 > **权威文档**。imboyapp 现有全部功能点（已完成 / 未完成 / 阻塞 全部纳入）。
-> 覆盖 **154 个页面 / 1725 个功能点**
+> 覆盖 **155 个页面 / 1741 个功能点**
 > 数据源：`lib/page/**` 真实源码抽取 ＋ 真机实测记录
 
 > ⚠️ 本文件由 `regen_readme.py` 生成，**不要手改**。
@@ -58,9 +58,9 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1468 | 85.1% |
-| 阻塞 | 257 | 14.9% |
-| **合计** | **1725** | 100% |
+| 无待办 | 1484 | 85.2% |
+| 阻塞 | 257 | 14.8% |
+| **合计** | **1741** | 100% |
 
 bug 累计：**发现 206 / 解决 201 / 待处理 5**
 
@@ -72,7 +72,7 @@ bug 累计：**发现 206 / 解决 201 / 待处理 5**
 |---|---|---|---|---|---|
 | [group](group/) | 26 | 286 | 0 | 246 | 40 |
 | [mine](mine/) | 21 | 250 | 0 | 235 | 15 |
-| [workspace](workspace/) | 17 | 183 | 0 | 159 | 24 |
+| [workspace](workspace/) | 18 | 199 | 0 | 175 | 24 |
 | [channel](channel/) | 13 | 146 | 0 | 122 | 24 |
 | [contact](contact/) | 13 | 126 | 2 | 118 | 8 |
 | [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 19 |
@@ -314,7 +314,8 @@ bug 累计：**发现 206 / 解决 201 / 待处理 5**
 - [workspace_channels_page](workspace/workspace_channels_page.md) — 8 功能点
 - [workspace_create_page](workspace/workspace_create_page.md) — 10 功能点
 - [workspace_groups_page](workspace/workspace_groups_page.md) — 8 功能点
-- [workspace_invite_page](workspace/workspace_invite_page.md) — 12 功能点
+- [workspace_invite_page](workspace/workspace_invite_page.md) — 17 功能点
+- [workspace_join_page](workspace/workspace_join_page.md) — 11 功能点
 - [workspace_members_page](workspace/workspace_members_page.md) — 13 功能点
 - [workspace_overview_page](workspace/workspace_overview_page.md) — 11 功能点
 - [workspace_picker_page](workspace/workspace_picker_page.md) — 11 功能点
