@@ -30,7 +30,7 @@
 | channel | [channel_order_detail_page](channel/channel_order_detail_page.md) | `lib/page/channel/channel_order_detail_page.dart` | 10 | 待分级并补规格 | — |
 | channel | [channel_order_list_page](channel/channel_order_list_page.md) | `lib/page/channel/channel_order_list_page.dart` | 9 | 待分级并补规格 | — |
 | channel | [channel_subscriber_page](channel/channel_subscriber_page.md) | `lib/page/channel/channel_subscriber_page.dart` | 12 | 待分级并补规格 | — |
-| chat | [chat_page](chat/chat_page.md) | `lib/page/chat/chat/chat_page.dart` | 21 | 已有样板（需继续细化） | `CHAT-GROUP-001`<br>`CHAT-SINGLE-READONLY-001`<br>`CHAT-VOICE-RENDER-001`<br>`TWO-CLIENT-MAC-C2C-PING-001`<br>`CHAT-PAGE-001` |
+| chat | [chat_page](chat/chat_page.md) | `lib/page/chat/chat/chat_page.dart` | 21 | 已有样板（需继续细化） | `C2C-E2EE-SEND-RENDER-001`<br>`CHAT-GROUP-001`<br>`CHAT-SINGLE-READONLY-001`<br>`CHAT-VOICE-RENDER-001`<br>`TWO-CLIENT-MAC-C2C-PING-001`<br>`CHAT-PAGE-001` |
 | chat | [chat_setting_page](chat/chat_setting_page.md) | `lib/page/chat/chat_setting/chat_setting_page.dart` | 10 | 待分级并补规格 | — |
 | chat | [p2p_call_screen_page](chat/p2p_call_screen_page.md) | `lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 12 | 待分级并补规格 | — |
 | chat | [quick_reply_manage_page](chat/quick_reply_manage_page.md) | `lib/page/chat/widget/quick_reply_manage_page.dart` | 11 | 已有样板（需继续细化） | `CHAT-QUICK-REPLY-MANAGE-001` |

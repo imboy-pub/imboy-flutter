@@ -1,0 +1,54 @@
+{
+ "schema_version": 1,
+ "id": "C2C-E2EE-SEND-RENDER-001",
+ "title": "strict E2EE 加密 C2C 全链发送：白盒发送→对端拉密文→ChatPage 回显",
+ "risk": "P0",
+ "phase": "p0",
+ "sources": [
+  "integration_test/chat/c2c_e2ee_send_render_test.dart",
+  "lib/page/chat/chat/services/chat_network_service.dart",
+  "lib/page/chat/chat/chat_page.dart"
+ ],
+ "dependencies": [
+  "lib/service/encryption_mode.dart",
+  "lib/page/chat/chat/chat_provider.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "strict 策略门就绪后白盒 ChatNetworkService.sendMessage 返回 true（真设备密钥 bootstrap + OLM 出站 + WS 提交）",
+   "对端经 /api/v1/msg/history 拉到消息：payload 不含明文且 e2ee 信封 protocol=olm（密文落库语义）",
+   "ChatPage 内经 chatProvider.addMessage + chatService.insertMessage 后消息进入 ChatService.messages（UI 渲染真相源）",
+   "发送的文本以 RichText 形态在聊天页回显渲染（find.textContaining findRichText）",
+   "UI 入口发送的第二条消息同样在对端历史中以密文形态可见"
+  ],
+  "ui": [
+   "ChatPage 正常打开（type=C2C）",
+   "发送方自己发送的消息气泡在会话内渲染"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "list_state",
+   "no_overflow"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/chat/c2c_e2ee_send_render_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "e2eesend_01_whitelist_send_ok",
+  "e2eesend_02_peer_history_cipher",
+  "e2eesend_03_ui_truth_source",
+  "e2eesend_04_bubble_render",
+  "e2eesend_05_peer_history_second"
+ ],
+ "safe_to_execute": true,
+ "notes": "与 e2ee_c2c_outbound_frame_test（离线白盒帧格式）互补：本测试走生产全链（真登录态/真设备密钥/真 WS/真落库/真 UI）。后端 history 接口的 e2ee 信封以 JSON 字符串透传。UI 插入由页面层 chatService.insertMessage 负责，provider.addMessage 不含该步——白盒调用需与 ChatPage._sendTextMessage 同构。"
+}
