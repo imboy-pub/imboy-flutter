@@ -400,6 +400,16 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   ),
   const SmokeRoute(name: 'workspace_create', location: '/workspace/create'),
   const SmokeRoute(
+    name: 'workspace_members',
+    location: '/workspace/members',
+    status: RouteStatus.quarantine,
+    skipReason:
+        '2026-08-31 UX 收敛：Members 退出五项导航，入口收敛进 Overview'
+        '「工作区成员」卡片；页面读 currentWorkspaceProvider 异步加载成员'
+        '分页，无头环境留 pending timer；权限/幂等契约由'
+        ' workspace_members 相关 page test 断言',
+  ),
+  const SmokeRoute(
     name: 'workspace_channel_detail',
     location: '/workspace/9001/channels/9002',
     status: RouteStatus.quarantine,

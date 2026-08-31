@@ -85,14 +85,22 @@ class _RightButtonState extends State<RightButton> {
           minimumSize: const Size(44, 44),
           padding: EdgeInsets.zero,
           onPressed: () => context.push('/message_search'),
-          child: const Icon(CupertinoIcons.search, size: _navIconSize),
+          child: const Icon(
+            CupertinoIcons.search,
+            size: _navIconSize,
+            semanticLabel: '搜索消息',
+          ),
         ),
         CupertinoButton(
           key: _addKey,
           minimumSize: const Size(44, 44),
           padding: EdgeInsets.zero,
           onPressed: _showAddMenu,
-          child: const Icon(CupertinoIcons.plus_circle, size: _navIconSize),
+          child: const Icon(
+            CupertinoIcons.plus_circle,
+            size: _navIconSize,
+            semanticLabel: '更多功能',
+          ),
         ),
       ],
     );
