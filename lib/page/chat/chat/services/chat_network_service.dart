@@ -680,10 +680,13 @@ class ChatNetworkService {
     // 差异仅在于协议套件（Megolm vs Olm）与扇出方式（单次 vs per-device）。
     final myUid = UserRepoLocal.to.currentUid.toString();
     final now = DateTime.now().millisecondsSinceEpoch;
-    // 先加密获取 Megolm session_id，再包装 PFv3 信封
-    final megolmRes = await GroupSessionService.to.encryptGroupMessage(
+    // E2EE-025（Megolm 版）：session_ref 必须在构造 protected_header 前可知，
+    // 但不能用「先加密一次拿 sessionId」的方式获取——那会让每条消息被
+    // Megolm encrypt 两次（首段密文直接丢弃，ratchet 推进两步，100 条配额
+    // 实际只发 50 条）。ensureOutboundSession 与随后的 encrypt 共用同一把
+    // 发送锁与同一套 rotate 判定：必要时建会话/分发 room key，但不加密。
+    final sessionRef = await GroupSessionService.to.ensureOutboundSession(
       gid: toId,
-      plaintext: plaintext,
     );
     final encrypted = await E2eeOutboundRouter.encryptV3(
       suite: ProtocolSuite.megolm,
@@ -696,7 +699,7 @@ class ChatNetworkService {
       destination: toId,
       messageType: messageType,
       action: action.isEmpty ? 'message' : action,
-      sessionRef: megolmRes.sessionId,
+      sessionRef: sessionRef,
       createdAtMs: now,
       persistOutbox: false,
     );

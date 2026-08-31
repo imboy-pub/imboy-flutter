@@ -220,6 +220,88 @@ void main() {
       );
     });
 
+    test('ensureOutboundSession：建会话不加密不计数，encrypt 复用同一会话', () async {
+      if (!hasLib) {
+        markTestSkipped('vodozemac 测试原生库缺失（修复指引见 vodozemac_native_lib.dart）');
+        return;
+      }
+      await _ensureVod();
+
+      const gid = 'g_ensure_session';
+      const senderDid = 'sender_did';
+      const peerDid = 'peer_did';
+      deviceId = senderDid;
+      GroupSessionService.to.clearMemory();
+      E2EEService.setGroupDeviceKeyCacheForTest(gid, {
+        senderDid: 'sender-pem',
+        peerDid: 'peer-pem',
+      });
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.plaintext,
+        initialized: true,
+      );
+
+      var roomKeyCount = 0;
+      GroupSessionService.to.debugRoomKeySender = (chatType, to, payload) =>
+          roomKeyCount++;
+      GroupSessionService.to.debugOlmWrap = (did, exportedKey) async =>
+          (type: 0, body: 'olm-for-$did');
+      addTearDown(() {
+        GroupSessionService.to.clearMemory();
+        GroupSessionService.to.debugRoomKeySender = null;
+        GroupSessionService.to.debugOlmWrap = null;
+        E2EEService.clearKeyCacheForTest();
+      });
+
+      // ensure：rotate 建会话 + 分发恰好一次 room key，全程不加密
+      final sessionId = await GroupSessionService.to.ensureOutboundSession(
+        gid: gid,
+      );
+      expect(sessionId, isNotEmpty);
+      expect(roomKeyCount, 1, reason: '建会话分发恰好一次 room key');
+
+      // 再次 ensure：会话新鲜 → 不 rotate、不再分发，返回同一 sessionId
+      expect(
+        await GroupSessionService.to.ensureOutboundSession(gid: gid),
+        sessionId,
+      );
+      expect(roomKeyCount, 1);
+
+      // encrypt 复用 ensure 的会话（双重加密修复的核心契约：
+      // header session_ref 与实际加密 session 必须同源），且不触发新分发
+      final encrypted = await GroupSessionService.to.encryptGroupMessage(
+        gid: gid,
+        plaintext: '一',
+      );
+      expect(encrypted.sessionId, sessionId, reason: 'encrypt 必须复用 ensure 的会话');
+      expect(roomKeyCount, 1);
+
+      final encrypted2 = await GroupSessionService.to.encryptGroupMessage(
+        gid: gid,
+        plaintext: '二',
+      );
+      expect(encrypted2.sessionId, sessionId);
+      expect(roomKeyCount, 1);
+
+      // inbound 在 rotate 时已自持，两条密文均可解
+      expect(
+        await GroupSessionService.to.decryptGroupMessage(
+          gid: gid,
+          sessionId: sessionId,
+          ciphertext: encrypted.ciphertext,
+        ),
+        '一',
+      );
+      expect(
+        await GroupSessionService.to.decryptGroupMessage(
+          gid: gid,
+          sessionId: sessionId,
+          ciphertext: encrypted2.ciphertext,
+        ),
+        '二',
+      );
+    });
+
     test('建群会话 → 导出 → 包裹 → 解包 → import → 加解密往返', () async {
       if (!hasLib) {
         markTestSkipped('vodozemac 测试原生库缺失（修复指引见 vodozemac_native_lib.dart）');

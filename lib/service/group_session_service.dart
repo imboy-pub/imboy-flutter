@@ -156,6 +156,38 @@ class GroupSessionService {
     plaintext: plaintext,
   );
 
+  /// 取得群会话域的 outbound Megolm session 标识（必要时 rotate 并分发
+  /// room key），**不加密、不推进消息计数**。
+  ///
+  /// **为什么需要它（E2EE-025 同源，方案 A 的 Megolm 版）**：PFv3 的
+  /// `protected_header.session_ref` 是 header 构造入参，而 header 要先进
+  /// inner_frame 才能被 `protocol.encrypt` 加密——session id 必须在加密
+  /// **之前**就已知。此前发送侧只能先 `encryptGroupMessage`「加密一次」拿
+  /// sessionId，该段密文直接丢弃，再由 `E2eeOutboundRouter.encryptV3` 内部
+  /// 第二次加密：每条消息 ratchet 推进两步（`_maxMessagesPerSession` 的
+  /// 100 条配额实际只发 50 条）并白耗一次加密。与 Olm 侧
+  /// [OlmSessionService.ensureSessionId] 同构。
+  ///
+  /// 与 [encryptGroupMessage] 共用同一把 per-scope 发送锁与同一套 rotate
+  /// 判定，返回后调用 encrypt 复用同一会话。
+  ///
+  /// ⚠️ 已知竞态：本方法与随后的 encrypt 之间若发生 rotate（成员/设备集合
+  /// 变化），header 的 `session_ref` 会与实际加密 session 不一致——接收侧
+  /// 判 `context_mismatch_session_id` 拒收该条，方向 fail-closed（与 Olm
+  /// 侧 ensureSessionId 一致，不产生可利用的绑定弱化）。
+  Future<String> ensureOutboundSession({required String gid}) async {
+    await ensureInitialized();
+    final lock = _sendLocks.putIfAbsent(gid, () => Lock());
+    return lock.synchronized(() async {
+      final outbound = await _resolveOutbound(
+        isGroup: true,
+        scopeKey: gid,
+        target: gid,
+      );
+      return outbound.sessionId;
+    });
+  }
+
   /// 同一会话域的并发发送串行化：stale 标记消费→公钥刷新→rotate→encrypt 必须原子，
   /// 否则被踢成员离群到 rotate 之间的窗口内会有新消息仍用旧 session（前向保密缺口）。
   Future<({String sessionId, String ciphertext})> _encryptScoped({
@@ -167,47 +199,62 @@ class GroupSessionService {
     await ensureInitialized();
     final lock = _sendLocks.putIfAbsent(scopeKey, () => Lock());
     return lock.synchronized(() async {
-      final force = _staleGids.remove(scopeKey);
-      final deviceKeys = isGroup
-          ? await E2EEService.getGroupDevicePublicKeys(
-              target,
-              forceRefresh: force,
-            )
-          : await E2EEService.getUserDevicePublicKeys(
-              target,
-              forceRefresh: force,
-            );
-      final didToPem = deviceKeys['didToPem'] ?? const <String, String>{};
-      if (didToPem.isEmpty) {
-        throw Exception('no_recipient_keys');
-      }
-      final didSet = didToPem.keys.toSet();
-
-      var outbound = _outbound[scopeKey];
-      // P0-2: 设备集合变化 OR 消息数/时间超限 → rotate
-      final needsRotate =
-          outbound == null ||
-          !setEquals(outbound.dids, didSet) ||
-          outbound.messageCount >= _maxMessagesPerSession ||
-          (DateTime.now().millisecondsSinceEpoch - outbound.createdAt) >=
-              _maxSessionAgeMs;
-      if (needsRotate) {
-        // ponytail: 任何成员/设备集合变化都整体 rotate + 全量重分发；
-        // 若 key 消息量成为负担，可对"仅新增设备"改为 exportAt(当前 index) 定向补发
-        outbound = await _rotateAndDistribute(
-          isGroup: isGroup,
-          target: target,
-          didToPem: didToPem,
-          didToKid: deviceKeys['didToKid'] ?? const <String, String>{},
-          didToUid: deviceKeys['didToUid'] ?? const <String, String>{},
-          didSet: didSet,
-        );
-        _outbound[scopeKey] = outbound;
-      }
+      final outbound = await _resolveOutbound(
+        isGroup: isGroup,
+        scopeKey: scopeKey,
+        target: target,
+      );
       final ciphertext = outbound.session.encrypt(plaintext);
       outbound.messageCount++;
       return (sessionId: outbound.sessionId, ciphertext: ciphertext);
     });
+  }
+
+  /// 发送锁内调用：确保会话域上存在与当前设备集合匹配的 outbound 会话
+  /// （设备集合变化 / 消息数 / 存活时间超限 → rotate + 全量重分发）。
+  Future<_OutboundGroupSession> _resolveOutbound({
+    required bool isGroup,
+    required String scopeKey,
+    required String target,
+  }) async {
+    final force = _staleGids.remove(scopeKey);
+    final deviceKeys = isGroup
+        ? await E2EEService.getGroupDevicePublicKeys(
+            target,
+            forceRefresh: force,
+          )
+        : await E2EEService.getUserDevicePublicKeys(
+            target,
+            forceRefresh: force,
+          );
+    final didToPem = deviceKeys['didToPem'] ?? const <String, String>{};
+    if (didToPem.isEmpty) {
+      throw Exception('no_recipient_keys');
+    }
+    final didSet = didToPem.keys.toSet();
+
+    var outbound = _outbound[scopeKey];
+    // P0-2: 设备集合变化 OR 消息数/时间超限 → rotate
+    final needsRotate =
+        outbound == null ||
+        !setEquals(outbound.dids, didSet) ||
+        outbound.messageCount >= _maxMessagesPerSession ||
+        (DateTime.now().millisecondsSinceEpoch - outbound.createdAt) >=
+            _maxSessionAgeMs;
+    if (needsRotate) {
+      // ponytail: 任何成员/设备集合变化都整体 rotate + 全量重分发；
+      // 若 key 消息量成为负担，可对"仅新增设备"改为 exportAt(当前 index) 定向补发
+      outbound = await _rotateAndDistribute(
+        isGroup: isGroup,
+        target: target,
+        didToPem: didToPem,
+        didToKid: deviceKeys['didToKid'] ?? const <String, String>{},
+        didToUid: deviceKeys['didToUid'] ?? const <String, String>{},
+        didSet: didSet,
+      );
+      _outbound[scopeKey] = outbound;
+    }
+    return outbound;
   }
 
   Future<_OutboundGroupSession> _rotateAndDistribute({
