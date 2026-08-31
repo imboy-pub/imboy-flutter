@@ -10,8 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/group_collab/public.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:imboy/page/group/group_avatar_cache.dart'
+    show defaultGroupAvatarLoader;
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -141,7 +142,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
                         groupId: currentModel.peerId.toString(),
                         onTap: widget.onTapAvatar,
                         size: 56,
-                        avatarLoader: GroupListService().computeAvatar,
+                        avatarLoader: defaultGroupAvatarLoader,
                         heroTag: 'avatar_${currentModel.peerId}',
                       )
                     : Avatar(

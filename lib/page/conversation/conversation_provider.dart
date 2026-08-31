@@ -8,6 +8,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/events/common_events.dart'
     show ConversationAuthoritySyncEvent;
+import 'package:imboy/page/group/group_avatar_cache.dart';
 import 'package:imboy/page/group/group_list/group_list_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/api/conversation_api.dart';
@@ -742,6 +743,10 @@ class ConversationNotifier extends _$ConversationNotifier {
       }
 
       final newMap = {for (var c in li) c.uk3: c};
+      // 群头像拼图预热：列表数据就绪后为无自定义头像的 C2G 群并发拉成员
+      // 头像（fire-and-forget，缓存内 in-flight 去重）。下一帧列表项 build
+      // 时 peek 即命中、同步渲染，消除首帧占位图→真图闪变。
+      unawaited(_warmupGroupAvatars(li));
       if (!ref.mounted) {
         return li;
       }
@@ -761,6 +766,22 @@ class ConversationNotifier extends _$ConversationNotifier {
     String trigger = 'manual',
   }) async {
     await conversationsList(syncAuthoritative: true, syncTrigger: trigger);
+  }
+
+  /// 群头像拼图预热：只预热「拼图分支」的群 —— 已设置自定义头像的群
+  /// 单图直出、不加载成员、不碰缓存（产品规则）。
+  Future<void> _warmupGroupAvatars(List<ConversationModel> li) async {
+    for (final c in li) {
+      if (c.type != 'C2G' || c.avatar.isNotEmpty) {
+        continue;
+      }
+      unawaited(
+        GroupAvatarMemberCache.instance.load(
+          c.peerId.toString(),
+          defaultGroupAvatarLoader,
+        ),
+      );
+    }
   }
 
   Future<void> refreshConversationListLocal({

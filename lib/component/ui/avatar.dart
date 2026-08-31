@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart'
     show zoomInPhotoView;
+import 'package:imboy/page/group/group_avatar_cache.dart';
 
 import 'avatar_group.dart';
 
@@ -30,43 +31,15 @@ class SmartGroupAvatar extends StatefulWidget {
 }
 
 class _SmartGroupAvatarState extends State<SmartGroupAvatar> {
-  late Future<List<String>> _membersFuture;
-  final _avatarCache = <String, List<String>>{};
+  Future<List<String>>? _membersFuture;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  void _loadData() {
-    if (widget.avatar != null && widget.avatar!.isNotEmpty) {
-      return;
-    }
-
-    if (widget.groupId == "") {
-      return;
-    }
-
-    // 使用缓存避免重复查询
-    if (_avatarCache.containsKey(widget.groupId)) {
-      return;
-    }
-
-    // 使用传入的回调函数加载头像，如果没有提供则返回空列表
-    if (widget.avatarLoader != null) {
-      _membersFuture = widget.avatarLoader!(widget.groupId).then((avatars) {
-        _avatarCache[widget.groupId] = avatars;
-        return avatars;
-      });
-    } else {
-      _membersFuture = Future.value([]);
-    }
-  }
+  // _membersFuture 对应的 groupId；widget 复用（groupId 变化）时重建 future，
+  // 其余 build 复用同一 future，避免 FutureBuilder 每帧重跑。
+  String? _futureGid;
 
   @override
   Widget build(BuildContext context) {
-    // 有自定义头像直接显示
+    // 有自定义头像直接显示（产品规则：不加载成员、不查缓存、不预热）
     if (widget.avatar != null && widget.avatar!.isNotEmpty) {
       return GroupAvatar(
         avatar: widget.avatar,
@@ -85,7 +58,28 @@ class _SmartGroupAvatarState extends State<SmartGroupAvatar> {
       );
     }
 
-    // 异步加载成员头像
+    // 同步嗅探：会话列表预热后这里命中，直接渲染真图，无 FutureBuilder
+    // 首帧闪变。peek 是纯内存查询；invalidate/TTL 失效后返回 null，
+    // 下一次 build 自动回落到下面的异步加载路径。
+    final cached = GroupAvatarMemberCache.instance.peek(widget.groupId);
+    if (cached != null) {
+      return GroupAvatar(
+        memberAvatars: cached,
+        size: widget.size,
+        onTap: widget.onTap,
+        heroTag: widget.heroTag,
+      );
+    }
+
+    // 缓存未命中：全局缓存异步兜底（in-flight 去重，滚动重挂载不放大
+    // 查询次数），仅冷加载首帧会出现一次占位→真图。
+    if (_membersFuture == null || _futureGid != widget.groupId) {
+      _futureGid = widget.groupId;
+      _membersFuture = GroupAvatarMemberCache.instance.load(
+        widget.groupId,
+        widget.avatarLoader ?? defaultGroupAvatarLoader,
+      );
+    }
     return FutureBuilder<List<String>>(
       future: _membersFuture,
       builder: (context, snapshot) {

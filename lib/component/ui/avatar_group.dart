@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:octo_image/octo_image.dart';
 
 import 'avatar_shape.dart';
@@ -226,6 +227,15 @@ class GroupAvatar extends StatelessWidget {
     BorderRadius? borderRadius,
     required bool isDark,
   }) {
+    // 空头像占位：保留格子位置（拼图顺序由 user_id 决定，不因缺头像
+    // 漂移），不走 OctoImage 的网络/解码报错路径。
+    if (url.isEmpty) {
+      return Container(
+        color: isDark
+            ? AppColors.placeholderSurfaceDark
+            : AppColors.placeholderSurfaceLight,
+      );
+    }
     return ClipRRect(
       borderRadius: borderRadius ?? _getTileBorderRadius(),
       child: OctoImage(
