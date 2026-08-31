@@ -18,6 +18,8 @@ import 'package:imboy/store/api/group_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 
 /// 群组列表服务类 - 处理业务逻辑
 class GroupListService {
@@ -237,42 +239,103 @@ class GroupListService {
     };
   }
 
-  /// 计算群组头像
+  /// 计算群组头像（成员头像 URL 列表，九宫格拼图数据源）。
+  ///
+  /// 确定性契约（group_avatar_compute_test.dart 锁死）：
+  /// - 驱动表是 group_member：非好友成员也能出头像。原 SQL 以 contact 为
+  ///   驱动表 LEFT JOIN group_member、`gm.group_id = ?` 落在被 join 表上，
+  ///   只能取到同时是我好友的成员，拼图缺格（computeTitle 修过的同款 bug）。
+  /// - `order by gm.user_id`：同一群任何时刻排列一致，不随查询时刻/位置漂移。
+  /// - `is_join in (0, 1)`：0=群主 1=普通成员（写入侧见 _syncSelfMembershipShadow
+  ///   的 owner 分支强制 0，消费侧见 remove_member_provider 过滤注释），用 in
+  ///   而非 `= 1`，否则群主头像从拼图消失；`or gm.user_id = ?` 兜底自己行的
+  ///   is_join 脏值（DDL DEFAULT 0，正常写入只会是 0/1）。
+  /// - 空头像保留占位：格子顺序由 user_id 决定，不因缺头像漂移；GroupAvatar
+  ///   对空串渲染灰格（avatar_group.dart _buildAvatarTile）。
   Future<List<String>> computeAvatar(String gid) async {
     const limit = 9;
-    String sql =
-        "select c.avatar from ${ContactRepo.tableName} as c left join ${GroupMemberRepo.tableName} gm on gm.${GroupMemberRepo.userId} = c.${ContactRepo.peerId} WHERE gm.group_id = ? limit $limit;";
+    final String currentUid = UserRepoLocal.to.currentUid;
     Database? db = await SqliteService.to.db;
     if (db == null) {
       return [];
     }
-    List<Map<String, dynamic>> list = await db.rawQuery(sql, [gid]);
-    List<String> li = [UserRepoLocal.to.current.avatar];
+    List<Map<String, dynamic>> list = await db.rawQuery(
+      memberAvatarSql(limit: limit),
+      [gid, currentUid],
+    );
     if (list.isNotEmpty) {
-      for (var e in list) {
-        String t = e['avatar'] as String? ?? '';
-        if (t.isNotEmpty) {
-          li.add(t);
-        }
-      }
-      if (li.isNotEmpty) {
-        return li;
-      }
+      return rowsToAvatarList(list);
     }
 
+    // 本地无成员行（新装/冷数据）：服务端拉一页，落库后按与本地分支同一
+    // 规则（user_id 升序、自己去重、空位保留）返回。
     Map<String, dynamic>? payload = await GroupMemberApi().page(
       gid: gid,
       size: limit,
     );
-    if (payload != null && payload['list'] != null) {
-      GroupMemberRepo repo = GroupMemberRepo();
-      for (var item in IMBoyHttpResponse.payloadList(payload)) {
-        unawaited(repo.save(item));
-        String t = IMBoyHttpResponse.payloadStr(item, 'avatar') ?? '';
-        if (t.trim().isNotEmpty) {
-          li.add(t);
-        }
+    if (payload == null || payload['list'] == null) {
+      return [];
+    }
+    final rows = <Map<String, dynamic>>[];
+    for (var item in IMBoyHttpResponse.payloadList(payload)) {
+      unawaited(GroupMemberRepo().save(item));
+      rows.add(item);
+    }
+    return serverRowsToAvatarList(
+      rows,
+      selfUid: currentUid,
+      selfAvatar: UserRepoLocal.to.current.avatar,
+    );
+  }
+
+  /// computeAvatar 的 SQL。抽成静态方法便于契约测试锁死驱动表方向、
+  /// 排序与 is_join 过滤 —— 这三处任何一处回退都会复活已修的缺格/漂移 bug。
+  static String memberAvatarSql({int limit = 9}) {
+    return "select coalesce(c.${ContactRepo.avatar}, gm.${GroupMemberRepo.avatar}, '') as avatar"
+        " from ${GroupMemberRepo.tableName} as gm"
+        " left join ${ContactRepo.tableName} as c"
+        " on c.${ContactRepo.peerId} = gm.${GroupMemberRepo.userId}"
+        " where gm.${GroupMemberRepo.groupId} = ?"
+        " and (gm.${GroupMemberRepo.isJoin} in (0, 1)"
+        " or gm.${GroupMemberRepo.userId} = ?)"
+        " order by gm.${GroupMemberRepo.userId}"
+        " limit $limit;";
+  }
+
+  /// 本地 SQL 行 → 头像列表。空串保留占位（顺序由 user_id 决定），
+  /// 全员空头像时返回空列表交由 GroupAvatar 走默认群图（灰格拼图不如
+  /// 默认图直观）。
+  static List<String> rowsToAvatarList(List<Map<String, dynamic>> rows) {
+    final li = [for (final e in rows) (e['avatar'] as String? ?? '')];
+    if (li.every((url) => url.isEmpty)) {
+      return [];
+    }
+    return li;
+  }
+
+  /// 服务端回退分支的列表构造：按 user_id 升序输出，与本地分支同一
+  /// 确定性顺序（同一群冷启动两次排列一致）；服务端未返回自己时用自己的
+  /// 头像补位（对齐原实现「至少显示自己」的兜底），返回了则不重复插队
+  /// （原实现自己固定首位 + 服务端可能再带一份，会重复）。
+  static List<String> serverRowsToAvatarList(
+    List<Map<String, dynamic>> rows, {
+    required String selfUid,
+    required String selfAvatar,
+  }) {
+    final byUid = <int, String>{
+      if (selfUid.isNotEmpty) int.tryParse(selfUid) ?? 0: selfAvatar,
+    };
+    for (final row in rows) {
+      final uid = parseModelInt(row[GroupMemberRepo.userId]);
+      if (uid <= 0) {
+        continue;
       }
+      byUid[uid] = (row[GroupMemberRepo.avatar] as String? ?? '').trim();
+    }
+    final uids = byUid.keys.toList()..sort();
+    final li = [for (final uid in uids) byUid[uid]!];
+    if (li.every((url) => url.isEmpty)) {
+      return [];
     }
     return li;
   }
@@ -490,6 +553,15 @@ class GroupListService {
       iPrint("memberLeave $res;");
       await gRepo.save(groupId, {GroupRepo.memberCount: g!.memberCount - 1});
     }
+    // 本地成员落库后 fire：群头像拼图缓存（GroupAvatarMemberCache）按 gid
+    // 即时失效，返回会话列表立刻反映成员变化。
+    AppEventBus.fire(
+      GroupMemberUpdateEvent(
+        groupId: groupId,
+        userId: userId,
+        changeType: 'leave',
+      ),
+    );
   }
 
   /// 获取群组列表
