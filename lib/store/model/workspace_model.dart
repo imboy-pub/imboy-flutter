@@ -13,6 +13,8 @@
 /// safeParseBigIntJson 语义：int/num/String 均可入，绝不丢精度回转 int）。
 library;
 
+import 'package:intl/intl.dart';
+
 import 'model_parse_utils.dart';
 
 /// TSID 64-bit ID 的前端字符串包装类型。
@@ -178,6 +180,65 @@ class WorkspaceCreateResult {
   }
 
   bool get isIdempotentHit => status == 'existing';
+}
+
+/// 团队码（invite_code；一工作区同时只有一个 active 码）。
+///
+/// 后端契约：`POST /api/v1/workspaces/{id}/invite_code` envelope data
+/// `{code, expires_at}`（8 位大写字母数字；重新生成即覆盖旧码）。
+///
+/// expires_at 经 elib_cnv 统一转毫秒时间戳（与全 API 时间字段同口径），
+/// 展示用 [expiresAtLabel]（裸数字对用户不可读）。
+class WorkspaceInviteCode {
+  final String code;
+  final String expiresAt;
+
+  const WorkspaceInviteCode({this.code = '', this.expiresAt = ''});
+
+  factory WorkspaceInviteCode.fromJson(Map<String, dynamic> json) {
+    return WorkspaceInviteCode(
+      code: parseModelString(json['code']),
+      expiresAt: parseModelString(json['expires_at']),
+    );
+  }
+
+  bool get isValid => code.isNotEmpty;
+
+  /// 有效期可读格式：毫秒时间戳 → `yyyy-MM-dd HH:mm`；非数字原样返回。
+  String get expiresAtLabel {
+    final ts = int.tryParse(expiresAt);
+    if (ts == null || ts <= 0) return expiresAt;
+    return DateFormat(
+      'yyyy-MM-dd HH:mm',
+    ).format(DateTime.fromMillisecondsSinceEpoch(ts));
+  }
+}
+
+/// 团队码加入结果（`POST /api/v1/workspaces/join` body `{code}`）。
+///
+/// envelope data `{status, workspace}`：status = joined（本次新加入）|
+/// unchanged（已是成员，幂等命中）；workspace 字段同 detail。
+class WorkspaceJoinResult {
+  final String status;
+  final WorkspaceModel workspace;
+
+  const WorkspaceJoinResult({
+    this.status = '',
+    this.workspace = const WorkspaceModel(id: '', name: '', ownerId: ''),
+  });
+
+  factory WorkspaceJoinResult.fromJson(Map<String, dynamic> json) {
+    final wsRaw = json['workspace'];
+    return WorkspaceJoinResult(
+      status: parseModelString(json['status']),
+      workspace: wsRaw is Map<String, dynamic>
+          ? WorkspaceModel.fromJson(wsRaw)
+          : const WorkspaceModel(id: '', name: '', ownerId: ''),
+    );
+  }
+
+  /// joined | unchanged 都算成功加入（幂等命中不视为错误）。
+  bool get isAlreadyMember => status == 'unchanged';
 }
 
 /// 工作区成员（Workspace Member）模型。

@@ -3,6 +3,7 @@
 /// 路由清单（静态路径先于动态参数注册，防 404/遮蔽）：
 /// - /workspace                      → 工作区切换器（我的工作区列表）
 /// - /workspace/create               → 创建工作区（Template 3 分钟建站）
+/// - /workspace/join                 → 团队码加入工作区（T2.6）
 /// - /workspace/:workspaceId/channels/:channelId → 工作区频道详情
 ///   （I6：只有发帖/评论入口 + 讨论引导至 Group）
 /// - /workspace/:workspaceId/members/invite      → 邀请工作区成员向导
@@ -34,6 +35,13 @@ List<RouteBase> workspaceRoutes() => [
           key: state.pageKey,
           child: const WorkspaceCreatePage(),
         ),
+      ),
+      // 团队码加入（T2.6）：静态路径，先于 :workspaceId 注册
+      GoRoute(
+        path: '/join',
+        name: 'workspace_join',
+        pageBuilder: (context, state) =>
+            CupertinoPage(key: state.pageKey, child: const WorkspaceJoinPage()),
       ),
       // 工作区成员（2026-08-31 UX 收敛：Members 退出五项导航，入口收敛进
       // Overview「工作区成员」卡片；页面读 currentWorkspaceProvider 无参挂载）

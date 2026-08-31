@@ -46,12 +46,12 @@ class ErrorCode {
   static const int FORBIDDEN = 403;
   static const int ACCESS_DENIED = 403;
 
-  /// 群组不存在
-  static const int GROUP_NOT_FOUND = 404;
+  /// 消息不存在
+  static const int MESSAGE_NOT_FOUND = 404;
   static const int USER_NOT_FOUND = 404;
   static const int FRIEND_NOT_FOUND = 404;
+  static const int GROUP_NOT_FOUND = 404;
   static const int NOT_FOUND = 404;
-  static const int MESSAGE_NOT_FOUND = 404;
 
   /// 错误码 405
   static const int METHOD_NOT_ALLOWED = 405;
@@ -85,8 +85,8 @@ class ErrorCode {
 
   /// 错误码 422
   static const int UNPROCESSABLE_ENTITY = 422;
-  static const int PARAM_INVALID = 422;
   static const int MISSING_PARAM = 422;
+  static const int PARAM_INVALID = 422;
 
   /// 错误码 423
   static const int ACCOUNT_LOCKED = 423;
@@ -118,8 +118,8 @@ class ErrorCode {
   static const int CLUSTER_ERROR = 503;
 
   /// 错误码 504
-  static const int TIMEOUT = 504;
   static const int GATEWAY_TIMEOUT = 504;
+  static const int TIMEOUT = 504;
 
   /// 错误码 507
   static const int INSUFFICIENT_STORAGE = 507;
@@ -250,6 +250,12 @@ class ErrorCode {
 
   /// 错误码 980
   static const int WORKSPACE_ARCHIVED = 980;
+
+  /// 错误码 981
+  static const int WORKSPACE_INVITE_INVALID = 981;
+
+  /// 错误码 982
+  static const int WORKSPACE_INVITE_EXPIRED = 982;
 
   // =====================================================================
   // 其余：各子系统扩展错误码
@@ -503,6 +509,8 @@ class ErrorCode {
     967: '相册权限不足',
     968: '已点赞该图片',
     980: '工作区已归档，写操作被拒绝',
+    981: '团队码无效或已失效',
+    982: '团队码已过期',
     5000: '无效的传输会话',
     5001: '传输会话已过期',
     5002: '传输会话不存在',

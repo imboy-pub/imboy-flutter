@@ -139,15 +139,25 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
 
   /// 创建成功后回填（Template 原子结果：workspace + channel + group）。
   void applyCreated(WorkspaceCreateResult result) {
-    if (result.workspace.id.isEmpty) return;
-    // 最新创建置顶（服务端列表按 created_at DESC，回填顺序与之一致）
-    final list = [
-      result.workspace,
-      ...state.workspaces.where((ws) => ws.id != result.workspace.id),
-    ];
+    _prependAndSelect(result.workspace);
+  }
+
+  /// 团队码加入成功后回填（joined / unchanged 均走此路径）。
+  ///
+  /// 与 [applyCreated] 同构（去重语义一致）：新加入置顶 + 切当前 +
+  /// 回 Overview；已在列表中的工作区 id 不重复插入（置顶去重）。
+  void applyJoined(WorkspaceModel ws) {
+    _prependAndSelect(ws);
+  }
+
+  /// 置顶 + 设当前 + destination=overview（创建/加入共用回填）。
+  void _prependAndSelect(WorkspaceModel ws) {
+    if (ws.id.isEmpty) return;
+    // 最新加入置顶（服务端列表按 created_at DESC，回填顺序与之一致）
+    final list = [ws, ...state.workspaces.where((item) => item.id != ws.id)];
     state = state.copyWith(
       workspaces: list,
-      currentWorkspaceId: result.workspace.id,
+      currentWorkspaceId: ws.id,
       destination: WorkspaceShellDestination.overview,
     );
   }

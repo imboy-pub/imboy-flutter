@@ -399,6 +399,7 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
         '由 test/unit_test/page/workspace_shell/* 与真机覆盖',
   ),
   const SmokeRoute(name: 'workspace_create', location: '/workspace/create'),
+  const SmokeRoute(name: 'workspace_join', location: '/workspace/join'),
   const SmokeRoute(
     name: 'workspace_members',
     location: '/workspace/members',

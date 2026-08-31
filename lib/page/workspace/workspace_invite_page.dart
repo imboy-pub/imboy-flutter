@@ -13,8 +13,10 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/api/group_member_api.dart';
@@ -23,6 +25,7 @@ import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace/workspace_invite_code_controller.dart';
 import 'package:imboy/page/workspace/workspace_invite_controller.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -60,6 +63,8 @@ class _WorkspaceInvitePageState extends ConsumerState<WorkspaceInvitePage> {
   final TextEditingController _keywordCtrl = TextEditingController();
   final WorkspaceInviteResultsController _results =
       WorkspaceInviteResultsController();
+  final WorkspaceInviteCodeController _inviteCode =
+      WorkspaceInviteCodeController();
 
   List<_CandidateUser> _candidates = [];
   bool _searching = false;
@@ -84,7 +89,49 @@ class _WorkspaceInvitePageState extends ConsumerState<WorkspaceInvitePage> {
   void dispose() {
     _keywordCtrl.dispose();
     _results.dispose();
+    _inviteCode.dispose();
     super.dispose();
+  }
+
+  /// 当前用户是否该工作区 Owner（镜像 members 页判定：成员列表里我的
+  /// role == owner；服务端对 createInviteCode 仍有 403 兜底）。
+  bool get _isOwner {
+    final uid = UserRepoLocal.to.currentUid;
+    if (uid.isEmpty) return false;
+    final page = ref
+        .watch(workspaceMembersProvider(widget.workspaceId))
+        .whenOrNull(data: (value) => value);
+    if (page == null) return false;
+    return page.list.any(
+      (m) => m.userId == uid && m.role == WorkspaceMemberRole.owner,
+    );
+  }
+
+  /// 生成 / 重新生成团队码（后端同事务撤旧码：一工作区一个 active 码）。
+  Future<void> _generateInviteCode() {
+    return _inviteCode.generate(
+      createInviteCode: () =>
+          ref.read(workspaceApiProvider).createInviteCode(widget.workspaceId),
+    );
+  }
+
+  /// 复制当前团队码（Clipboard + 轻提示，仓内复制惯例）。
+  Future<void> _copyInviteCode() {
+    final t = context.t;
+    return _inviteCode.copy(
+      writeToClipboard: (code) async {
+        await Clipboard.setData(ClipboardData(text: code));
+        if (mounted) AppLoading.showToast(t.main.copiedToClipboard);
+      },
+    );
+  }
+
+  /// 撤销当前团队码（成功后码清空，输码即 981）。
+  Future<void> _revokeInviteCode() {
+    return _inviteCode.revoke(
+      revokeInviteCode: () =>
+          ref.read(workspaceApiProvider).revokeInviteCode(widget.workspaceId),
+    );
   }
 
   /// 定位 Template 默认资源：优先按名字精确匹配，找不到回落第一个
@@ -207,6 +254,16 @@ class _WorkspaceInvitePageState extends ConsumerState<WorkspaceInvitePage> {
             ),
           ),
           AppSpacing.verticalRegular,
+          // 团队码卡片（仅 Owner；T2.6）：输码加入的另一半入口
+          if (_isOwner) ...[
+            _InviteCodeCard(
+              controller: _inviteCode,
+              onGenerate: _generateInviteCode,
+              onCopy: _copyInviteCode,
+              onRevoke: _revokeInviteCode,
+            ),
+            AppSpacing.verticalRegular,
+          ],
           _SearchSection(
             controller: _keywordCtrl,
             searching: _searching,
@@ -496,6 +553,121 @@ class _ResultRow extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ],
+    );
+  }
+}
+
+/// 团队码卡片（T2.6，仅 Owner）：生成/重新生成 + 复制 + 有效期 + 撤销。
+///
+/// 契约口径：一工作区一个 active 码；「重新生成」后端同事务撤旧码（覆盖），
+/// 「撤销」走独立 revoke 端点（成功后码清空，输码即 981）。
+class _InviteCodeCard extends StatelessWidget {
+  final WorkspaceInviteCodeController controller;
+  final VoidCallback onGenerate;
+  final VoidCallback onCopy;
+  final VoidCallback onRevoke;
+
+  const _InviteCodeCard({
+    required this.controller,
+    required this.onGenerate,
+    required this.onCopy,
+    required this.onRevoke,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    final theme = Theme.of(context);
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final s = controller.state;
+        return WorkspaceSectionCard(
+          title: t.workspace.inviteCodeSectionTitle,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (s.phase == WorkspaceInviteCodePhase.ready) ...[
+                SelectableText(
+                  key: const ValueKey('workspace-invite-code-text'),
+                  s.inviteCode.code,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 2,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+                AppSpacing.verticalTiny,
+                Text(
+                  t.workspace.inviteCodeExpiresAt(
+                    expiresAt: s.inviteCode.expiresAtLabel,
+                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                AppSpacing.verticalSmall,
+              ],
+              if (s.message.isNotEmpty) ...[
+                Text(
+                  s.message,
+                  key: const ValueKey('workspace-invite-code-error'),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+                AppSpacing.verticalSmall,
+              ],
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.tonalIcon(
+                      key: const ValueKey('workspace-invite-code-generate'),
+                      onPressed: controller.isGenerating ? null : onGenerate,
+                      icon: controller.isGenerating
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(CupertinoIcons.qrcode),
+                      // 生成 / 重新生成共用（重新生成覆盖旧码即撤销）
+                      label: Text(t.workspace.inviteCodeGenerate),
+                    ),
+                  ),
+                  if (s.phase == WorkspaceInviteCodePhase.ready) ...[
+                    AppSpacing.horizontalSmall,
+                    Expanded(
+                      child: FilledButton.icon(
+                        key: const ValueKey('workspace-invite-code-copy'),
+                        onPressed: onCopy,
+                        icon: const Icon(CupertinoIcons.doc_on_doc),
+                        label: Text(t.workspace.inviteCodeCopy),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              if (s.phase == WorkspaceInviteCodePhase.ready) ...[
+                AppSpacing.verticalSmall,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    key: const ValueKey('workspace-invite-code-revoke'),
+                    onPressed: controller.isRevoking ? null : onRevoke,
+                    child: Text(
+                      t.workspace.inviteCodeRevoke,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 }

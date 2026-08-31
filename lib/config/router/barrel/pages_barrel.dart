@@ -24,11 +24,12 @@ export 'package:imboy/page/chat_shell/chat_shell.dart';
 // ============================================================================
 // Workspace 体验壳 — experience=workspace 的五项导航入口（/bottom_navigation 分发）
 export 'package:imboy/page/workspace_shell/workspace_shell.dart';
-// Workspace 视图 — 切换器/创建流/频道详情/邀请向导/Branding（workspace_routes 消费）
+// Workspace 视图 — 切换器/创建流/加入流/频道详情/邀请向导/Branding（workspace_routes 消费）
 export 'package:imboy/page/workspace/workspace_branding_page.dart';
 export 'package:imboy/page/workspace/workspace_channel_detail_page.dart';
 export 'package:imboy/page/workspace/workspace_create_page.dart';
 export 'package:imboy/page/workspace/workspace_invite_page.dart';
+export 'package:imboy/page/workspace/workspace_join_page.dart';
 export 'package:imboy/page/workspace/workspace_members_page.dart';
 export 'package:imboy/page/workspace/workspace_picker_page.dart';
 // Project / Task 视图（WP6 T10a/T10b — 项目详情/创建表单/任务表单）

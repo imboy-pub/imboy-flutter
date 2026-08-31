@@ -22,6 +22,15 @@ class WorkspaceApiException implements Exception {
   /// 归档写守卫（T7 workspace_guard 稳定错误码）。
   bool get isArchived => code == 980;
 
+  /// 团队码无效/已撤销（T2 invite_code；envelope 981）。
+  ///
+  /// 字面量与 isArchived(980) 同款风格；契约真源 imboy/include/error_code.hrl
+  /// （ErrorCode.WORKSPACE_INVITE_INVALID，生成物已同步）。
+  bool get isInviteInvalid => code == 981;
+
+  /// 团队码已过期（T2 invite_code；envelope 982）。
+  bool get isInviteExpired => code == 982;
+
   /// 成员移除冲突（未完成任务 / 项目 Owner 清单由服务端拼进消息）。
   bool get isConflict => code == 409;
 
@@ -262,6 +271,50 @@ class WorkspaceApi extends HttpClient {
       data: {'user_id': userId},
     );
     _ensureOk(resp);
+  }
+
+  // ==================== 团队码（T2.5 invite_code / join） ====================
+
+  /// 生成团队码（仅 Owner；一工作区一个 active 码，重新生成覆盖旧码）。
+  ///
+  /// envelope data `{code, expires_at}`（8 位大写字母数字）；错误透传
+  /// [WorkspaceApiException]（403 越权 / 980 归档）。
+  Future<WorkspaceInviteCode> createInviteCode(EntityId workspaceId) async {
+    final resp = await post(
+      '/api/v1/workspaces/$workspaceId/invite_code',
+      data: <String, dynamic>{},
+    );
+    return _unwrap(
+      resp,
+      WorkspaceInviteCode.fromJson,
+      fallback: const WorkspaceInviteCode(),
+    );
+  }
+
+  /// 团队码加入工作区（body `{code}`；joined | unchanged 均为成功）。
+  ///
+  /// 错误语义（envelope code）：981 码无效/已撤销、982 码过期、980 工作区
+  /// 已归档、404 不存在——页面经 [WorkspaceApiException.isInviteInvalid] /
+  /// [WorkspaceApiException.isInviteExpired] 等区分 UI 文案。
+  Future<WorkspaceJoinResult> joinByCode(String code) async {
+    final resp = await post('/api/v1/workspaces/join', data: {'code': code});
+    return _unwrap(
+      resp,
+      WorkspaceJoinResult.fromJson,
+      fallback: const WorkspaceJoinResult(),
+    );
+  }
+
+  /// 撤销团队码（仅 Owner；幂等：无 active 码 → revoked 0）。
+  ///
+  /// 撤销后输码即 981。envelope data `{revoked}`。
+  Future<int> revokeInviteCode(EntityId workspaceId) async {
+    final resp = await post(
+      '/api/v1/workspaces/$workspaceId/invite_code/revoke',
+      data: <String, dynamic>{},
+    );
+    final payload = _ensureOk(resp);
+    return (payload['revoked'] as num?)?.toInt() ?? 0;
   }
 
   // ==================== 内部：envelope 解包 ====================

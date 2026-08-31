@@ -203,6 +203,97 @@ void main() {
       final state = container.read(workspaceShellProvider);
       expect(state.current?.isArchived, isTrue);
     });
+
+    test('applyJoined 新工作区：置顶 + 切当前 + destination=overview', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(workspaceShellProvider.notifier);
+      notifier.applyCreated(
+        WorkspaceCreateResult(
+          workspace: const WorkspaceModel(
+            id: '9001',
+            name: 'A',
+            ownerId: '1001',
+          ),
+          channelId: '',
+          groupId: '',
+          status: 'created',
+        ),
+      );
+      notifier.selectDestination(WorkspaceShellDestination.projects);
+
+      notifier.applyJoined(
+        const WorkspaceModel(id: '9005', name: '团队码加入', ownerId: '1002'),
+      );
+
+      final state = container.read(workspaceShellProvider);
+      expect(state.workspaces.length, 2);
+      // 新加入置顶（回填顺序与服务端 created_at DESC 一致）
+      expect(state.workspaces.first.id, '9005');
+      expect(state.currentWorkspaceId, '9005');
+      expect(state.destination, WorkspaceShellDestination.overview);
+    });
+
+    test('applyJoined 已存在的工作区 id 不重复插入（去重同 applyCreated）', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(workspaceShellProvider.notifier);
+      notifier.applyCreated(
+        WorkspaceCreateResult(
+          workspace: const WorkspaceModel(
+            id: '9001',
+            name: 'A',
+            ownerId: '1001',
+          ),
+          channelId: '',
+          groupId: '',
+          status: 'created',
+        ),
+      );
+      notifier.applyCreated(
+        WorkspaceCreateResult(
+          workspace: const WorkspaceModel(
+            id: '9002',
+            name: 'B',
+            ownerId: '1001',
+          ),
+          channelId: '',
+          groupId: '',
+          status: 'created',
+        ),
+      );
+
+      // unchanged 幂等命中：重复 applyJoined 既有 id（服务端可能回带
+      // joined_at 更新的行），不重复插入，只置顶 + 切当前
+      notifier.applyJoined(
+        const WorkspaceModel(id: '9001', name: 'A', ownerId: '1001'),
+      );
+
+      final state = container.read(workspaceShellProvider);
+      expect(state.workspaces.length, 2);
+      expect(
+        state.workspaces.where((ws) => ws.id == '9001').length,
+        1,
+        reason: '同 id 不得重复插入',
+      );
+      expect(state.workspaces.first.id, '9001');
+      expect(state.currentWorkspaceId, '9001');
+      expect(state.destination, WorkspaceShellDestination.overview);
+    });
+
+    test('applyJoined 空 id（异常兜底）不产生任何状态变更', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(workspaceShellProvider.notifier);
+      notifier.applyJoined(const WorkspaceModel(id: '', name: '', ownerId: ''));
+
+      final state = container.read(workspaceShellProvider);
+      expect(state.workspaces, isEmpty);
+      expect(state.currentWorkspaceId, '');
+    });
   });
 
   group('ensureCurrentBranding（mine 列表不带 branding 的补拉）', () {
