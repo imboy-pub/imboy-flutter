@@ -17,8 +17,8 @@
 | 阻塞 | 需故障注入使工作区邀请失败（后端拒 members/invite） | `page/workspace/workspace_invite_page.dart` | 工作区邀请失败时整单失败，两条可选关系不再发起（保持待处理） | 未测 | 批次W2R2 | 0 | 0 | 0 | UI 无失败注入手段 |
 | 阻塞 | 需故障注入使可选关系失败（join/subscribe 被拒） | `page/workspace/workspace_invite_page.dart` | 可选关系单条失败互不影响，失败行支持单独重试 | 未测 | 批次W2R2 | 0 | 0 | 0 | UI 无失败注入手段 |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 提交后返回成员管理页可见新成员（成员列表与 Overview 已失效刷新） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 返回成员页第三张卡显示走查AT戊(Member)；成员列表已失效刷新 |
-| 无待办 | - | `page/workspace/workspace_invite_page.dart` | Owner 顶部展示团队码卡片（生成/复制/撤销），非 Owner 不显示该卡片 | 未测 | - | 0 | 0 | 0 | 237a4257 团队码线新增；服务端对 createInviteCode 仍有 403 兜底 |
-| 无待办 | - | `page/workspace/workspace_invite_page.dart` | 生成/重新生成团队码：展示 8 位码，重生成即撤旧码（一工作区恒一个 active 码） | 未测 | - | 0 | 0 | 0 | |
-| 无待办 | - | `page/workspace/workspace_invite_page.dart` | 复制团队码到剪贴板并轻提示 | 未测 | - | 0 | 0 | 0 | |
-| 无待办 | - | `page/workspace/workspace_invite_page.dart` | 撤销团队码后码清空，持旧码者输码加入即 981 无效 | 未测 | - | 0 | 0 | 0 | |
-| 无待办 | - | `page/workspace/workspace_invite_page.dart` | 团队码过期时间以可读格式展示（expiresAtLabel → yyyy-MM-dd HH:mm） | 未测 | - | 0 | 0 | 0 | |
+| 无待办 | - | `page/workspace/workspace_invite_page.dart` | Owner 顶部展示团队码卡片（生成/复制/撤销），非 Owner 不显示该卡片 | 已通过 | 批次W2R5 | 0 | 0 | 0 | ACC_A(Owner) 见「团队码邀请」卡片+生成/复制/撤销；UID_F(Member) 成员页无邀请按钮、邀请页不可达（代码 _isOwner 守卫+服务端 403 兜底） |
+| 无待办 | - | `page/workspace/workspace_invite_page.dart` | 生成/重新生成团队码：展示 8 位码，重生成即撤旧码（一工作区恒一个 active 码） | 已通过 | 批次W2R5 | 0 | 0 | 0 | 生成 T4EEWZHR→重生成 39F8V2Y2：UI 码更新，DB 旧码 status=revoked、新码 active（uk_ws_active 唯一约束）；单次点击仅 1 个 POST |
+| 无待办 | - | `page/workspace/workspace_invite_page.dart` | 复制团队码到剪贴板并轻提示 | 已通过 | 批次W2R5 | 0 | 0 | 0 | 点复制 0.8s 内截图 toast「已复制到剪贴板」 |
+| 无待办 | - | `page/workspace/workspace_invite_page.dart` | 撤销团队码后码清空，持旧码者输码加入即 981 无效 | 已通过 | 批次W2R5 | 0 | 0 | 0 | 撤销后卡片回 idle（码/有效期/复制/撤销消失）+DB revoked；UID_F 输被撤销码红字「团队码无效或已失效」留页 |
+| 无待办 | - | `page/workspace/workspace_invite_page.dart` | 团队码过期时间以可读格式展示（expiresAtLabel → yyyy-MM-dd HH:mm） | 已通过 | 批次W2R5 | 0 | 0 | 0 | 卡片显示「有效期至 2026-09-07 21:02」可读格式 |
