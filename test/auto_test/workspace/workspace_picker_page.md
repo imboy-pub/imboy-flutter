@@ -12,7 +12,7 @@
 | 无待办 | - | `page/workspace/workspace_picker_page.dart` | 点击其他工作区卡片：选中该工作区并自动返回壳，壳从 Overview 开始展示 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 双向切换均回壳Overview开始，顶栏名同步 |
 | 无待办 | - | `page/workspace/workspace_picker_page.dart` | 切换到配置了不同 branding 的工作区后返回壳，新工作区主题（branding 颜色）生效 | 已通过 | 批次W2R2FIX | 1 | 1 | 0 | 真机WS2橙/WS1无色回落蓝；根因mine列表不含branding+branding接口嵌套解析错，ensureCurrentBranding补拉 |
 | 无待办 | - | `page/workspace/workspace_picker_page.dart` | 已归档工作区卡片在工作区名下方显示红色「已归档」徽标文案 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 归档WS2重启后卡显示红色已归档徽标；壳顶橙横幅「内容可查看写已禁用Owner可恢复」 |
-| 阻塞 | 需无任何工作区账号 | `page/workspace/workspace_picker_page.dart` | 账号无任何工作区时显示空态视图（rectangle_stack 图标 + 空态标题/副标题文案） | 未测 | 批次W2R2 | 0 | 0 | 0 | 同创建页前置 |
+| 无待办 | - | `page/workspace/workspace_picker_page.dart` | 账号无任何工作区时显示空态视图（rectangle_stack 图标 + 空态标题/副标题文案） | 已通过 | 批次W2R3 | 0 | 0 | 0 | F登录即见「还没有工作区」空态（rectangle_stack+创建/重试入口）；渲染自壳bootstrap _NoWorkspaceEntry（与picker共用WorkspaceEmptyView）；无工作区账号到不了picker路由本身 |
 | 阻塞 | 需无缓存+加载失败同时成立 | `page/workspace/workspace_picker_page.dart` | 加载失败且无缓存数据时显示错误视图，点重试按钮重新拉取我的工作区列表 | 未测 | 批次W2R2 | 0 | 0 | 0 | 清数据则卡登录，不可达 |
 | 无待办 | - | `page/workspace/workspace_picker_page.dart` | 再次点击当前已选中的工作区卡片：直接返回壳，不重复加载、当前工作区不变 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 再点当前选中卡直接回壳，工作区不变无重复加载 |
 | 无待办 | - | `page/workspace/workspace_picker_page.dart` | 系统返回手势/顶栏返回键回到壳，当前工作区保持不变 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 顶栏返回箭头回壳，当前工作区保持 |

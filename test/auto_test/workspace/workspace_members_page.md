@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 阻塞 | 壳内必有工作区上下文，该页无工作区场景入口不可达 | `page/workspace/workspace_members_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R2 | 0 | 0 | 0 | 缺无工作区上下文的进入路径 |
+| 阻塞 | 需壳挂载但当前工作区为空的时序或产品决策 | `page/workspace/workspace_members_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3实测：无工作区账号被壳bootstrap拦截（整页_NoWorkspaceEntry空态），WorkspaceShellPage不挂载Tab不可达，防御分支产品逻辑上互斥 |
 | 阻塞 | 成员页无下拉刷新且切Tab不失效，列表错误态不可触达 | `page/workspace/workspace_members_page.dart` | 成员列表先显示加载态，加载失败展示错误消息与重试按钮重新拉取 | 未测 | 批次W2R2 | 0 | 0 | 0 | 断网实测：仅 init 层错误视图+重试可用（恢复后重试成功）；观察项：列表级刷新入口缺失 |
 | 无待办 | - | `page/workspace/workspace_members_page.dart` | 成员行渲染头像/昵称（空则账号）/@账号/角色徽标（Owner/Member/Guest 三色） | 已通过 | 批次W2R2FIX | 1 | 1 | 0 | 真机甲/乙行(带按钮)昵称均可见；根因昵称被按钮+徽标挤到25dp ellipsis空白，改昵称独占整行+@账号单行截断 |
 | 阻塞 | 成员列表恒含Owner，空态不可达 | `page/workspace/workspace_members_page.dart` | 成员列表为空时空态展示标题与副标题提示 | 未测 | 批次W2R2 | 0 | 0 | 0 | 缺空列表场景 |

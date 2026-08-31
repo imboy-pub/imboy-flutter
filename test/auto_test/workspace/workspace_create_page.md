@@ -5,13 +5,13 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 阻塞 | 需无任何工作区的可登录账号 | `page/workspace/workspace_create_page.dart` | 无任何工作区的空态页创建入口进入 /workspace/create，页头标题与说明文案正常渲染 | 未测 | 批次W2R1 | 0 | 0 | 0 | 入口仅空态出现非切换器；C号登录报账号不存在 |
-| 阻塞 | 需无任何工作区的可登录账号 | `page/workspace/workspace_create_page.dart` | 名称输入框可输入且上限 200 字符，展示标签与占位提示 | 未测 | 批次W2R1 | 0 | 0 | 0 | 同行1前置条件 |
-| 阻塞 | 需无任何工作区的可登录账号 | `page/workspace/workspace_create_page.dart` | 模板说明卡片渲染三行（公告频道/全体群/创建者权限） | 未测 | 批次W2R1 | 0 | 0 | 0 | 同行1前置条件 |
-| 阻塞 | 需无任何工作区的可登录账号 | `page/workspace/workspace_create_page.dart` | 名称留空点创建按钮 toast 提示名称必填且不发请求 | 未测 | 批次W2R1 | 0 | 0 | 0 | 同行1前置条件 |
-| 阻塞 | 需无任何工作区的可登录账号 | `page/workspace/workspace_create_page.dart` | 提交创建时按钮转圈禁用防重复提交 | 未测 | 批次W2R1 | 0 | 0 | 0 | 同行1前置条件 |
-| 阻塞 | 需无任何工作区的可登录账号 | `page/workspace/workspace_create_page.dart` | 创建成功 toast 提示成功并跳转 /bottom_navigation 挂载工作区壳进入新工作区 Overview | 未测 | 批次W2R1 | 0 | 0 | 0 | 同行1前置条件 |
-| 阻塞 | 需无任何工作区的可登录账号 | `page/workspace/workspace_create_page.dart` | 创建成功后壳内当前工作区切换为新建工作区（模板含 Announcements 频道与 General 群） | 未测 | 批次W2R1 | 0 | 0 | 0 | 同行1前置条件 |
-| 阻塞 | 需无任何工作区的可登录账号 | `page/workspace/workspace_create_page.dart` | 服务端幂等命中时 toast 提示幂等命中文案并同样进入 Overview | 未测 | 批次W2R1 | 0 | 0 | 0 | 同行1前置条件 |
-| 阻塞 | 需触发409上限或980归档条件 | `page/workspace/workspace_create_page.dart` | 服务端错误（409 数量上限/980 归档等）toast 原样透出服务端消息 | 未测 | 批次W2R1 | 0 | 0 | 0 | 需造服务端错误前置 |
-| 阻塞 | 需服务端错误注入 | `page/workspace/workspace_create_page.dart` | 提交失败后按钮恢复可点击可重试 | 未测 | 批次W2R1 | 0 | 0 | 0 | 依赖失败路径可触发 |
+| 无待办 | - | `page/workspace/workspace_create_page.dart` | 无任何工作区的空态页创建入口进入 /workspace/create，页头标题与说明文案正常渲染 | 已通过 | 批次W2R3 | 0 | 0 | 0 | F空态页「+ 创建工作区」进创建页，标题「创建工作区」+自动完成说明完整 |
+| 无待办 | - | `page/workspace/workspace_create_page.dart` | 名称输入框可输入且上限 200 字符，展示标签与占位提示 | 已通过 | 批次W2R3 | 0 | 0 | 0 | 未输入时hint占位；输入后label浮起+计数；250字符截断于200/200 |
+| 无待办 | - | `page/workspace/workspace_create_page.dart` | 模板说明卡片渲染三行（公告频道/全体群/创建者权限） | 已通过 | 批次W2R3 | 0 | 0 | 0 | 「将自动初始化」三行：Announcements频道/General群/你成为Owner |
+| 无待办 | - | `page/workspace/workspace_create_page.dart` | 名称留空点创建按钮 toast 提示名称必填且不发请求 | 已通过 | 批次W2R3 | 0 | 0 | 0 | toast「工作区名称不能为空」；logcat零请求 |
+| 无待办 | - | `page/workspace/workspace_create_page.dart` | 提交创建时按钮转圈禁用防重复提交 | 已通过 | 批次W2R3 | 0 | 0 | 0 | 挂起注入：按钮灰禁+转圈图标；双击仅1个POST（logcat） |
+| 无待办 | - | `page/workspace/workspace_create_page.dart` | 创建成功 toast 提示成功并跳转 /bottom_navigation 挂载工作区壳进入新工作区 Overview | 已通过 | 批次W2R3 | 0 | 0 | 0 | toast「工作区创建成功」+顶栏新工作区名+概览Tab高亮 |
+| 无待办 | - | `page/workspace/workspace_create_page.dart` | 创建成功后壳内当前工作区切换为新建工作区（模板含 Announcements 频道与 General 群） | 已通过 | 批次W2R3 | 0 | 0 | 0 | 概览1频道1群+频道Tab Announcements+群组Tab General；区名AT-ji-linshi-W2R3（中文名adb不可输改ASCII） |
+| 阻塞 | 需同request_id重复提交手段（UI每次生成新Xid） | `page/workspace/workspace_create_page.dart` | 服务端幂等命中时 toast 提示幂等命中文案并同样进入 Overview | 未测 | 批次W2R3 | 0 | 0 | 0 | UI无法控制request_id（每次提交新生成），幂等命中不可复现 |
+| 阻塞 | 需经济触发409上限或980条件 | `page/workspace/workspace_create_page.dart` | 服务端错误（409 数量上限/980 归档等）toast 原样透出服务端消息 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3核实：上限=100区/Owner不经济；980不适用创建端点；400被maxLength=200前置拦截；仅连接失败路径（走通用catch非服务端错误） |
+| 无待办 | - | `page/workspace/workspace_create_page.dart` | 提交失败后按钮恢复可点击可重试 | 已通过 | 批次W2R3 | 0 | 0 | 0 | 挂起注入超时+3次重试耗尽→按钮恢复蓝色可点；恢复网络后重试成功创建 |

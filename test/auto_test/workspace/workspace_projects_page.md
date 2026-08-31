@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 阻塞 | 壳内必有工作区上下文，入口不可达 | `page/workspace/workspace_projects_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R2 | 0 | 0 | 0 | 同族前置缺失 |
+| 阻塞 | 需壳挂载但当前工作区为空的时序或产品决策 | `page/workspace/workspace_projects_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3实测：无工作区账号被壳bootstrap拦截（整页_NoWorkspaceEntry空态），WorkspaceShellPage不挂载Tab不可达，防御分支产品逻辑上互斥 |
 | 无待办 | - | `page/workspace/workspace_projects_page.dart` | 首次进入显示加载态后分页聚合渲染项目列表 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 快网下加载指示闪现难捕；hasLoading 分页loading分支经行8点击加载更多时间接实证 |
 | 阻塞 | 需页面级无缓存与加载失败叠加场景 | `page/workspace/workspace_projects_page.dart` | 首页加载失败且无已加载数据时整页错误态+重试按钮重新拉取 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3实测：断网切Tab失败保留缓存不显错误视图；断网冷启动卡splash后落init层无网络+重试（启动层），页面级错误态仍不可达；init层重试机制已实证 |
 | 无待办 | - | `page/workspace/workspace_projects_page.dart` | 项目卡渲染状态图标（完成绿色勾/进行中文件夹）+名称+描述最多两行省略 | 已通过 | 批次W2R2 | 0 | 0 | 0 | done绿勾圆图标+active蓝文件夹图标双证；名称+描述两行正常 |
