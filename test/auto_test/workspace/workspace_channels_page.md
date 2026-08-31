@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 阻塞 | 需无任何工作区的账号 | `page/workspace/workspace_channels_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R1 | 0 | 0 | 0 | 现有AB账号均有工作区 |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 进入频道导航先显示加载态后渲染频道列表 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
-| 阻塞 | 需错误注入手段 | `page/workspace/workspace_channels_page.dart` | 加载失败展示服务端错误消息与重试按钮，点重试重新拉取 | 未测 | 批次W2R1 | 0 | 0 | 0 | 断网致启动受阻无法到达错误态 |
+| 阻塞 | 需页面级无缓存与加载失败叠加场景 | `page/workspace/workspace_channels_page.dart` | 加载失败展示服务端错误消息与重试按钮，点重试重新拉取 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3实测：断网切Tab重拉确有发起但失败保留缓存不显错误视图；断网冷启动卡splash约2.5min后落init层无网络+重试（启动层非页面级），页面级错误态仍不可达 |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 频道卡渲染天线圆标+频道名+「N 人订阅」副标题+右箭头 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 阻塞 | 需无频道的工作区 | `page/workspace/workspace_channels_page.dart` | 频道列表为空时空态展示标题与副标题提示 | 未测 | 批次W2R1 | 0 | 0 | 0 | 模板建区必含Announcements |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 点击频道卡进入频道详情页 /workspace/:wsId/channels/:channelId | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |

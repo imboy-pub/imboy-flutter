@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 阻塞 | 需无任何工作区的账号 | `page/workspace/workspace_groups_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R1 | 0 | 0 | 0 | 现有AB账号均有工作区 |
 | 无待办 | - | `page/workspace/workspace_groups_page.dart` | 进入群组导航先显示加载态后渲染群列表 | 已通过 | 批次W2R1 | 0 | 0 | 0 | 加载帧瞬态以请求渲染链判定 |
-| 阻塞 | 需错误注入手段 | `page/workspace/workspace_groups_page.dart` | 加载失败展示服务端错误消息与重试按钮，点重试重新拉取 | 未测 | 批次W2R1 | 0 | 0 | 0 | 断网致启动受阻无法到达错误态 |
+| 阻塞 | 需页面级无缓存与加载失败叠加场景 | `page/workspace/workspace_groups_page.dart` | 加载失败展示服务端错误消息与重试按钮，点重试重新拉取 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3实测：断网切Tab重拉确有发起（logcat见GET groups）但失败保留缓存不显错误视图；断网冷启动落init层错误视图（启动层），页面级错误态仍不可达 |
 | 无待办 | - | `page/workspace/workspace_groups_page.dart` | 群卡渲染群头像（无头像展示占位图标）+群名+「N 名成员」副标题+聊天气泡图标 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 阻塞 | 需无群的工作区 | `page/workspace/workspace_groups_page.dart` | 群列表为空时空态展示标题与副标题提示 | 未测 | 批次W2R1 | 0 | 0 | 0 | 模板建区必含General群 |
 | 无待办 | - | `page/workspace/workspace_groups_page.dart` | 点击群卡复用现有群聊页进入 /chat/:groupId（C2G 会话，带标题与头像） | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
