@@ -175,4 +175,34 @@ void main() {
       findsNothing,
     );
   });
+
+  testWidgets('账户 Sheet：单工作区也常驻列表 + 创建/加入双入口（T1.1）', (tester) async {
+    final container = await _seededContainer();
+    addTearDown(container.dispose);
+
+    await _pumpShell(tester, container);
+
+    // 头像入口壳顶栏与会话页各一（IndexedStack 保活），点第一个即可
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-shell-account-entry')).first,
+    );
+    // bottom sheet 过场动画：固定帧推进（无头禁网环境不 pumpAndSettle）
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // 单工作区列表常驻：自身 tile 渲染且带选中 check
+    expect(
+      find.byKey(const ValueKey('workspace-account-sheet-ws-9001')),
+      findsOneWidget,
+    );
+    // 创建/加入双入口常驻（「创建更多 + 团队码加入」断头修复）
+    expect(
+      find.byKey(const ValueKey('workspace-account-sheet-create-entry')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('workspace-account-sheet-join-entry')),
+      findsOneWidget,
+    );
+  });
 }

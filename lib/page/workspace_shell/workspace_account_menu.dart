@@ -11,6 +11,8 @@
 ///   经 workspaceMembersProvider 匹配当前 uid；未命中不显示）
 /// - 工作区列表：当前项高亮，点击即切换（Slack You 页同构）
 /// - 动作：编辑个人资料(/personal_info) / 我的收藏 / 设置
+/// - 工作区动作：创建新工作区(/workspace/create) / 加入工作区(/workspace/join)
+///   （双入口常驻，单工作区用户亦可发起）
 /// - 底部：工作模式（二级 ActionSheet） / 退出登录（destructive）
 library;
 
@@ -187,6 +189,20 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
               onTap: () => _popAndPush(context, '/mine/setting'),
             ),
             const Divider(height: AppSpacing.xLarge),
+            // 创建/加入工作区双入口（T1.1：断头入口收编进账户 Sheet，
+            // 单工作区用户也能从这里发起创建或加入）
+            _SheetActionTile(
+              key: const ValueKey('workspace-account-sheet-create-entry'),
+              icon: CupertinoIcons.rectangle_stack_badge_plus,
+              label: t.workspace.createEntry,
+              onTap: () => _popAndPush(context, '/workspace/create'),
+            ),
+            _SheetActionTile(
+              key: const ValueKey('workspace-account-sheet-join-entry'),
+              icon: CupertinoIcons.person_crop_circle_badge_plus,
+              label: t.workspace.joinEntry,
+              onTap: () => _popAndPush(context, '/workspace/join'),
+            ),
             // 工作模式直达切换（镜像 MinePage 同名入口：只有两种模式，
             // 点「切换到个人」直接切，免二次弹层）
             _SheetActionTile(
@@ -332,10 +348,6 @@ class _WorkspaceList extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.t;
     final theme = Theme.of(context);
-    if (workspaces.length <= 1) {
-      // 单工作区：不渲染列表区（切换入口由概览页工作区卡片兜底）
-      return const SizedBox.shrink();
-    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -382,6 +394,7 @@ class _SheetActionTile extends StatelessWidget {
   final bool isDestructive;
 
   const _SheetActionTile({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,

@@ -2779,6 +2779,21 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get resultRunning => 'Running';
 	@override String get resultSuccess => 'Success';
 	@override String get resultFailed => 'Failed';
+	@override String get joinEntry => 'Join Workspace';
+	@override String get joinTitle => 'Join Workspace';
+	@override String get joinDesc => 'Enter a team code to join the workspace';
+	@override String get joinCodeLabel => 'Team code';
+	@override String get joinCodeHint => '8 characters, uppercase letters or digits';
+	@override String get joinSubmit => 'Join';
+	@override String joinSuccess({required Object name}) => 'Joined "${name}"';
+	@override String get joinAlreadyMember => 'You are already in this workspace';
+	@override String get joinInvalidCode => 'Team code is invalid or revoked';
+	@override String get joinExpiredCode => 'Team code has expired';
+	@override String get inviteCodeSectionTitle => 'Team Code Invite';
+	@override String get inviteCodeGenerate => 'Generate team code';
+	@override String get inviteCodeCopy => 'Copy';
+	@override String get inviteCodeRevoke => 'Revoke';
+	@override String inviteCodeExpiresAt({required Object expiresAt}) => 'Valid until ${expiresAt}';
 	@override String get roleOwner => 'Owner';
 	@override String get roleMember => 'Member';
 	@override String get roleGuest => 'Guest';
@@ -5431,6 +5446,21 @@ extension on TranslationsEnUs {
 			'workspace.resultRunning' => 'Running',
 			'workspace.resultSuccess' => 'Success',
 			'workspace.resultFailed' => 'Failed',
+			'workspace.joinEntry' => 'Join Workspace',
+			'workspace.joinTitle' => 'Join Workspace',
+			'workspace.joinDesc' => 'Enter a team code to join the workspace',
+			'workspace.joinCodeLabel' => 'Team code',
+			'workspace.joinCodeHint' => '8 characters, uppercase letters or digits',
+			'workspace.joinSubmit' => 'Join',
+			'workspace.joinSuccess' => ({required Object name}) => 'Joined "${name}"',
+			'workspace.joinAlreadyMember' => 'You are already in this workspace',
+			'workspace.joinInvalidCode' => 'Team code is invalid or revoked',
+			'workspace.joinExpiredCode' => 'Team code has expired',
+			'workspace.inviteCodeSectionTitle' => 'Team Code Invite',
+			'workspace.inviteCodeGenerate' => 'Generate team code',
+			'workspace.inviteCodeCopy' => 'Copy',
+			'workspace.inviteCodeRevoke' => 'Revoke',
+			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'Valid until ${expiresAt}',
 			'workspace.roleOwner' => 'Owner',
 			'workspace.roleMember' => 'Member',
 			'workspace.roleGuest' => 'Guest',
@@ -5506,6 +5536,8 @@ extension on TranslationsEnUs {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Move ${title} back to…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Moved to "${status}"',
 			'workspace.taskEmptyTitle' => 'No tasks yet',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskEmptySubtitle' => 'Track execution in four states: To do → Doing → Review → Done',
 			'workspace.guestReadonlyHint' => 'Guests have read-only access to workspace resources',
 			'workspace.projectsLoadMore' => 'Load more',
@@ -5521,8 +5553,6 @@ extension on TranslationsEnUs {
 			'workspace.projectMemberEmptyTitle' => 'No project members yet',
 			'workspace.projectMemberEmptySubtitle' => 'The project owner can invite registered users to this project',
 			'workspace.projectMemberInviteTitle' => 'Invite Project Member',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteFieldLabel' => 'User ID',
 			'workspace.projectMemberInviteFieldHint' => 'Registered user ID to invite',
 			'workspace.projectMemberInviteInvalidUid' => 'Enter a valid user ID',

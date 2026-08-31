@@ -8138,6 +8138,51 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '失败'
 	String get resultFailed => '失败';
 
+	/// zh-CN: '加入工作区'
+	String get joinEntry => '加入工作区';
+
+	/// zh-CN: '加入工作区'
+	String get joinTitle => '加入工作区';
+
+	/// zh-CN: '输入团队码即可加入工作区'
+	String get joinDesc => '输入团队码即可加入工作区';
+
+	/// zh-CN: '团队码'
+	String get joinCodeLabel => '团队码';
+
+	/// zh-CN: '8 位大写字母或数字'
+	String get joinCodeHint => '8 位大写字母或数字';
+
+	/// zh-CN: '加入'
+	String get joinSubmit => '加入';
+
+	/// zh-CN: '已加入「$name」'
+	String joinSuccess({required Object name}) => '已加入「${name}」';
+
+	/// zh-CN: '你已在该工作区中'
+	String get joinAlreadyMember => '你已在该工作区中';
+
+	/// zh-CN: '团队码无效或已失效'
+	String get joinInvalidCode => '团队码无效或已失效';
+
+	/// zh-CN: '团队码已过期'
+	String get joinExpiredCode => '团队码已过期';
+
+	/// zh-CN: '团队码邀请'
+	String get inviteCodeSectionTitle => '团队码邀请';
+
+	/// zh-CN: '生成团队码'
+	String get inviteCodeGenerate => '生成团队码';
+
+	/// zh-CN: '复制'
+	String get inviteCodeCopy => '复制';
+
+	/// zh-CN: '撤销'
+	String get inviteCodeRevoke => '撤销';
+
+	/// zh-CN: '有效期至 $expiresAt'
+	String inviteCodeExpiresAt({required Object expiresAt}) => '有效期至 ${expiresAt}';
+
 	/// zh-CN: 'Owner'
 	String get roleOwner => 'Owner';
 
@@ -11244,6 +11289,21 @@ extension on Translations {
 			'workspace.resultRunning' => '进行中',
 			'workspace.resultSuccess' => '成功',
 			'workspace.resultFailed' => '失败',
+			'workspace.joinEntry' => '加入工作区',
+			'workspace.joinTitle' => '加入工作区',
+			'workspace.joinDesc' => '输入团队码即可加入工作区',
+			'workspace.joinCodeLabel' => '团队码',
+			'workspace.joinCodeHint' => '8 位大写字母或数字',
+			'workspace.joinSubmit' => '加入',
+			'workspace.joinSuccess' => ({required Object name}) => '已加入「${name}」',
+			'workspace.joinAlreadyMember' => '你已在该工作区中',
+			'workspace.joinInvalidCode' => '团队码无效或已失效',
+			'workspace.joinExpiredCode' => '团队码已过期',
+			'workspace.inviteCodeSectionTitle' => '团队码邀请',
+			'workspace.inviteCodeGenerate' => '生成团队码',
+			'workspace.inviteCodeCopy' => '复制',
+			'workspace.inviteCodeRevoke' => '撤销',
+			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '有效期至 ${expiresAt}',
 			'workspace.roleOwner' => 'Owner',
 			'workspace.roleMember' => 'Member',
 			'workspace.roleGuest' => 'Guest',

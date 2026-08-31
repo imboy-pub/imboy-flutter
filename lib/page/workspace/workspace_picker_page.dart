@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -36,12 +37,37 @@ class WorkspacePickerPage extends ConsumerWidget {
               icon: CupertinoIcons.rectangle_stack,
               title: t.workspace.pickerEmptyTitle,
               subtitle: t.workspace.pickerEmptySubtitle,
+              actions: [
+                FilledButton.tonalIcon(
+                  key: const ValueKey('workspace-picker-empty-create-entry'),
+                  onPressed: () => context.push('/workspace/create'),
+                  icon: const Icon(CupertinoIcons.add),
+                  label: Text(t.workspace.createEntry),
+                ),
+              ],
             )
           : ListView.separated(
               padding: AppSpacing.allRegular,
-              itemCount: shell.workspaces.length,
+              // 列表项 + 底部常驻「创建/加入」双入口 footer（Slack 模式）。
+              itemCount: shell.workspaces.length + 2,
               separatorBuilder: (_, _) => AppSpacing.verticalSmall,
               itemBuilder: (context, index) {
+                if (index == shell.workspaces.length) {
+                  return _PickerActionTile(
+                    key: const ValueKey('workspace-picker-create-entry'),
+                    icon: CupertinoIcons.add,
+                    label: t.workspace.createEntry,
+                    onTap: () => context.push('/workspace/create'),
+                  );
+                }
+                if (index == shell.workspaces.length + 1) {
+                  return _PickerActionTile(
+                    key: const ValueKey('workspace-picker-join-entry'),
+                    icon: CupertinoIcons.person_add,
+                    label: t.workspace.joinEntry,
+                    onTap: () => context.push('/workspace/join'),
+                  );
+                }
                 final ws = shell.workspaces[index];
                 return _WorkspaceTile(
                   ws: ws,
@@ -126,6 +152,50 @@ class _WorkspaceTile extends StatelessWidget {
             ),
             if (selected)
               Icon(CupertinoIcons.check_mark, color: theme.colorScheme.primary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 底部常驻动作入口 tile（创建/加入工作区），样式对齐 [_WorkspaceTile]。
+class _PickerActionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _PickerActionTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppSpacing.regular),
+      onTap: onTap,
+      child: Container(
+        padding: AppSpacing.allRegular,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AppSpacing.regular),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: theme.colorScheme.primary),
+            AppSpacing.horizontalRegular,
+            Expanded(
+              child: Text(
+                label,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ],
         ),
       ),
