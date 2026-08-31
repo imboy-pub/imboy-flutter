@@ -58,10 +58,9 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1439 | 83.4% |
-| 待首测 | 10 | 0.6% |
+| 无待办 | 1446 | 83.8% |
 | 待修复 | 9 | 0.5% |
-| 阻塞 | 267 | 15.5% |
+| 阻塞 | 270 | 15.7% |
 | **合计** | **1725** | 100% |
 
 bug 累计：**发现 210 / 解决 195 / 待处理 15**
@@ -70,31 +69,31 @@ bug 累计：**发现 210 / 解决 195 / 待处理 15**
 
 ## 模块索引
 
-| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 待首测 | 待修复 | 阻塞 |
-|---|---|---|---|---|---|---|---|
-| [group](group/) | 26 | 286 | 0 | 246 | 0 | 0 | 40 |
-| [mine](mine/) | 21 | 250 | 0 | 235 | 0 | 0 | 15 |
-| [workspace](workspace/) | 17 | 183 | 9 | 130 | 10 | 9 | 34 |
-| [channel](channel/) | 13 | 146 | 0 | 122 | 0 | 0 | 24 |
-| [contact](contact/) | 13 | 126 | 2 | 118 | 0 | 0 | 8 |
-| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 0 | 0 | 19 |
-| [passport](passport/) | 7 | 82 | 0 | 46 | 0 | 0 | 36 |
-| [chat](chat/) | 6 | 76 | 0 | 60 | 0 | 0 | 16 |
-| [moment](moment/) | 6 | 74 | 0 | 73 | 0 | 0 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 53 | 0 | 0 | 8 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 | 0 | 0 |
-| [single](single/) | 5 | 48 | 0 | 46 | 0 | 0 | 2 |
-| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 | 0 |
-| [settings](settings/) | 3 | 36 | 0 | 25 | 0 | 0 | 11 |
-| [search](search/) | 3 | 35 | 0 | 14 | 0 | 0 | 21 |
-| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 0 | 28 |
-| [scanner](scanner/) | 3 | 30 | 0 | 28 | 0 | 0 | 2 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 11 | 0 | 0 | 1 |
-| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
-| [mention](mention/) | 1 | 12 | 0 | 11 | 0 | 0 | 1 |
-| [splash](splash/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
-| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
-| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 | 0 |
+| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 待修复 | 阻塞 |
+|---|---|---|---|---|---|---|
+| [group](group/) | 26 | 286 | 0 | 246 | 0 | 40 |
+| [mine](mine/) | 21 | 250 | 0 | 235 | 0 | 15 |
+| [workspace](workspace/) | 17 | 183 | 9 | 137 | 9 | 37 |
+| [channel](channel/) | 13 | 146 | 0 | 122 | 0 | 24 |
+| [contact](contact/) | 13 | 126 | 2 | 118 | 0 | 8 |
+| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 0 | 19 |
+| [passport](passport/) | 7 | 82 | 0 | 46 | 0 | 36 |
+| [chat](chat/) | 6 | 76 | 0 | 60 | 0 | 16 |
+| [moment](moment/) | 6 | 74 | 0 | 73 | 0 | 1 |
+| [wallet](wallet/) | 5 | 61 | 1 | 53 | 0 | 8 |
+| [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 | 0 |
+| [single](single/) | 5 | 48 | 0 | 46 | 0 | 2 |
+| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 |
+| [settings](settings/) | 3 | 36 | 0 | 25 | 0 | 11 |
+| [search](search/) | 3 | 35 | 0 | 14 | 0 | 21 |
+| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 28 |
+| [scanner](scanner/) | 3 | 30 | 0 | 28 | 0 | 2 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 11 | 0 | 1 |
+| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [mention](mention/) | 1 | 12 | 0 | 11 | 0 | 1 |
+| [splash](splash/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 |
 
 ## 页面清单
 
