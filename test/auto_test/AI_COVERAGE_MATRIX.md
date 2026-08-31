@@ -49,7 +49,7 @@
 | contact | [people_info_same_group_page](contact/people_info_same_group_page.md) | `lib/page/contact/people_info_more/people_info_same_group_page.dart` | 8 | 待分级并补规格 | — |
 | contact | [people_nearby_page](contact/people_nearby_page.md) | `lib/page/contact/people_nearby/people_nearby_page.dart` | 11 | 待分级并补规格 | — |
 | contact | [recently_registered_user_page](contact/recently_registered_user_page.md) | `lib/page/contact/recently_registered_user/recently_registered_user_page.dart` | 8 | 待分级并补规格 | — |
-| conversation | [conversation_page](conversation/conversation_page.md) | `lib/page/conversation/conversation_page.dart` | 12 | 已有样板（需继续细化） | `TWO-CLIENT-MAC-C2C-PING-001`<br>`CONVERSATION-LIST-001` |
+| conversation | [conversation_page](conversation/conversation_page.md) | `lib/page/conversation/conversation_page.dart` | 12 | 已有样板（需继续细化） | `C2C-PLAINTEXT-REJECT-001`<br>`TWO-CLIENT-MAC-C2C-PING-001`<br>`CONVERSATION-LIST-001` |
 | group | [add_member_page](group/add_member_page.md) | `lib/page/group/group_detail/add_member_page.dart` | 11 | 待分级并补规格 | — |
 | group | [change_info_page](group/change_info_page.md) | `lib/page/group/group_detail/change_info_page.dart` | 10 | 待分级并补规格 | — |
 | group | [face_to_face_confirm_page](group/face_to_face_confirm_page.md) | `lib/page/group/face_to_face/face_to_face_confirm_page.dart` | 10 | 待分级并补规格 | — |

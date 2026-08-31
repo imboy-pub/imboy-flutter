@@ -1,0 +1,46 @@
+{
+ "schema_version": 1,
+ "id": "C2C-PLAINTEXT-REJECT-001",
+ "title": "strict 模式拒收明文 C2C 消息（fail-closed 安全语义）",
+ "risk": "P0",
+ "phase": "p0",
+ "sources": [
+  "lib/page/chat/chat/services/chat_network_service.dart",
+  "lib/page/conversation/conversation_page.dart"
+ ],
+ "dependencies": [
+  "lib/service/message_s2c.dart",
+  "lib/service/e2ee/protocol/encrypt_payload.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "对端 WS 直发无 e2ee 字段的明文 C2C text 消息",
+   "被测端在观察窗口内不建会话、不落库、不渲染",
+   "会话出现即判定 fail-closed 被破坏（安全回归）"
+  ],
+  "ui": [
+   "拒收过程无崩溃、无错误弹窗打断用户"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "list_state",
+   "empty_error_state",
+   "no_overflow"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/chat/c2c_plaintext_reject_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "c2cplat_01_no_leak"
+ ],
+ "safe_to_execute": true
+}
