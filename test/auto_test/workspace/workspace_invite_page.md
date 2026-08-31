@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 从成员管理页 Owner 邀请按钮进入 /workspace/:wsId/members/invite 邀请向导页 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 批次W2R2 实测：成员页邀请按钮进入向导页，说明文案+搜索框+三条结果区渲染完整 |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 进入时后台定位模板资源（General 群与 Announcements 频道）供可选项使用 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 进入即 GET /workspaces/:id/groups+channels 定位模板资源（logcat），可选项显示 General/Announcements 名称 |
-| 待修复 | 2026-08-31 | `page/workspace/workspace_invite_page.dart` | 输入关键词后键盘提交或点搜索按钮搜索已注册用户，搜索中按钮转圈，失败时红字提示错误 | 有BUG待修 | 批次W2R2 | 1 | 0 | 1 | 搜索成功路径可用（请求+转圈+结果）；失败红字未触发；用户ID搜索不可用：后端仅精确匹配 email/mobile/account，无 id 分支 |
+| 无待办 | - | `page/workspace/workspace_invite_page.dart` | 输入关键词后键盘提交或点搜索按钮搜索已注册用户，搜索中按钮转圈，失败时红字提示错误 | 已通过 | 批次W2R2FIX | 1 | 1 | 0 | 后端新增全数字→find_by_id 分支（imboy f019e2c6）；HTTP 实证 ID 搜索命中+account 回归+allow_search=2 拒绝；失败红字分支未触发（需故障注入） |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 搜索结果列出候选用户（昵称+@账号）并自动排除自己 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 搜 at20260831e 命中候选（昵称+@账号），结果仅 E 无自己；注：@形态账号被 email 分支劫持不可搜（allow_search=2 也不可搜） |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 点击候选行选中显示对勾并展开角色选择与可选项区（未选中时不显示提交区） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 点候选行出对勾+展开角色分段+可选项+发送邀请按钮；未选中时无提交区 |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 角色分段按钮在成员/访客间切换（默认成员） | 已通过 | 批次W2R2 | 0 | 0 | 0 | Member 默认选中；Guest↔Member 双向切换正常 |
