@@ -58,11 +58,11 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1491 | 85.3% |
-| 阻塞 | 257 | 14.7% |
+| 无待办 | 1494 | 85.5% |
+| 阻塞 | 254 | 14.5% |
 | **合计** | **1748** | 100% |
 
-bug 累计：**发现 207 / 解决 202 / 待处理 5**
+bug 累计：**发现 207 / 解决 203 / 待处理 4**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -74,7 +74,7 @@ bug 累计：**发现 207 / 解决 202 / 待处理 5**
 | [mine](mine/) | 21 | 250 | 0 | 235 | 15 |
 | [workspace](workspace/) | 18 | 199 | 0 | 175 | 24 |
 | [channel](channel/) | 13 | 146 | 0 | 122 | 24 |
-| [contact](contact/) | 13 | 126 | 2 | 118 | 8 |
+| [contact](contact/) | 13 | 126 | 1 | 121 | 5 |
 | [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 19 |
 | [passport](passport/) | 7 | 82 | 0 | 46 | 36 |
 | [chat](chat/) | 6 | 76 | 0 | 60 | 16 |
@@ -135,7 +135,7 @@ bug 累计：**发现 207 / 解决 202 / 待处理 5**
 - [contact_page](contact/contact_page.md) — 12 功能点
 - [contact_setting_page](contact/contact_setting_page.md) — 10 功能点
 - [contact_setting_tag_page](contact/contact_setting_tag_page.md) — 9 功能点
-- [new_friend_page](contact/new_friend_page.md) — 11 功能点 ⚠️ 1 待处理
+- [new_friend_page](contact/new_friend_page.md) — 11 功能点
 - [people_info_more_page](contact/people_info_more_page.md) — 9 功能点
 - [people_info_page](contact/people_info_page.md) — 11 功能点
 - [people_info_same_group_page](contact/people_info_same_group_page.md) — 8 功能点
