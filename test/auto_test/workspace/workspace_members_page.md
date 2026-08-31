@@ -1,13 +1,13 @@
 # `page/workspace/workspace_members_page.dart`
 
-> 功能点 13 个 | bug 发现 1 / 解决 0 / 待处理 1
+> 功能点 13 个 | bug 发现 1 / 解决 1 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
 | 阻塞 | 壳内必有工作区上下文，该页无工作区场景入口不可达 | `page/workspace/workspace_members_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R2 | 0 | 0 | 0 | 缺无工作区上下文的进入路径 |
 | 阻塞 | 成员页无下拉刷新且切Tab不失效，列表错误态不可触达 | `page/workspace/workspace_members_page.dart` | 成员列表先显示加载态，加载失败展示错误消息与重试按钮重新拉取 | 未测 | 批次W2R2 | 0 | 0 | 0 | 断网实测：仅 init 层错误视图+重试可用（恢复后重试成功）；观察项：列表级刷新入口缺失 |
-| 待修复 | 2026-08-31 | `page/workspace/workspace_members_page.dart` | 成员行渲染头像/昵称（空则账号）/@账号/角色徽标（Owner/Member/Guest 三色） | 有BUG待修 | 批次W2R2 | 1 | 0 | 1 | 含操作按钮的行昵称不可见（Owner自己行/只读视图正常，语义树有文本）；头像/@账号/徽标三色 Owner蓝Member绿Guest灰 已实证 |
+| 无待办 | - | `page/workspace/workspace_members_page.dart` | 成员行渲染头像/昵称（空则账号）/@账号/角色徽标（Owner/Member/Guest 三色） | 已通过 | 批次W2R2FIX | 1 | 1 | 0 | 真机甲/乙行(带按钮)昵称均可见；根因昵称被按钮+徽标挤到25dp ellipsis空白，改昵称独占整行+@账号单行截断 |
 | 阻塞 | 成员列表恒含Owner，空态不可达 | `page/workspace/workspace_members_page.dart` | 成员列表为空时空态展示标题与副标题提示 | 未测 | 批次W2R2 | 0 | 0 | 0 | 缺空列表场景 |
 | 无待办 | - | `page/workspace/workspace_members_page.dart` | Owner 顶部展示邀请按钮，点击进入邀请向导页 /workspace/:wsId/members/invite | 已通过 | 批次W2R2 | 0 | 0 | 0 | 邀请按钮进向导页已验（见邀请向导页行1） |
 | 无待办 | - | `page/workspace/workspace_members_page.dart` | Owner 视角其他成员行展示移除/改角色/转移按钮，自己所在行不展示 | 已通过 | 批次W2R2 | 0 | 0 | 0 | Owner视角乙/戊行有移除/改角色/转移三按钮；甲自己行无 |

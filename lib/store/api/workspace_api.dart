@@ -124,26 +124,44 @@ class WorkspaceApi extends HttpClient {
 
   // ==================== Branding（T12） ====================
 
+  /// 从 branding 接口 envelope 解析白名单视图。
+  ///
+  /// 服务端契约（workspace_handler branding_read/branding_write）：
+  /// payload = `{workspace_id, branding: {name, logo, primaryColor}}` ——
+  /// branding 嵌套一层；曾按顶层解析导致读/写返回恒为空（壳主题拿不到
+  /// primaryColor、保存后本地回填也被空值覆盖）。
+  WorkspaceBranding _unwrapBranding(
+    IMBoyHttpResponse resp,
+    WorkspaceBranding fallback,
+  ) {
+    final json = _ensureOk(resp);
+    if (json.isEmpty) return fallback;
+    final branding = json['branding'];
+    if (branding is Map<String, dynamic>) {
+      return WorkspaceBranding.fromJson(branding);
+    }
+    return fallback;
+  }
+
   /// Branding 读（白名单 name/logo/primaryColor）。
   Future<WorkspaceBranding> readBranding(EntityId workspaceId) async {
     final resp = await get('/api/v1/workspaces/$workspaceId/branding');
-    return _unwrap(
-      resp,
-      WorkspaceBranding.fromJson,
-      fallback: const WorkspaceBranding(),
-    );
+    return _unwrapBranding(resp, const WorkspaceBranding());
   }
 
   /// Branding 写（仅 Owner；白名单外键由服务端静默丢弃）。
+  ///
+  /// 服务端要求请求体 `{branding: {...}}`（branding_write 里
+  /// `maps:get(<<"branding">>, PostVals)`，缺键 = 空对象 = 静默无写入）。
   Future<WorkspaceBranding> updateBranding(
     EntityId workspaceId,
     WorkspaceBranding branding,
   ) async {
     final resp = await post(
       '/api/v1/workspaces/$workspaceId/branding',
-      data: branding.toJson(),
+      data: {'branding': branding.toJson()},
     );
-    return _unwrap(resp, WorkspaceBranding.fromJson, fallback: branding);
+    return _unwrapBranding(resp, branding);
   }
 
   // ==================== Overview / 资源清单 ====================

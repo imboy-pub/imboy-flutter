@@ -36,6 +36,17 @@ class _WorkspaceBrandingPageState extends ConsumerState<WorkspaceBrandingPage> {
   bool _saving = false;
 
   @override
+  void initState() {
+    super.initState();
+    // 主色预览随输入实时刷新：TextField 只更新 controller，不触发 build
+    _colorCtrl.addListener(_onColorChanged);
+  }
+
+  void _onColorChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   void dispose() {
     _nameCtrl.dispose();
     _logoCtrl.dispose();
@@ -68,7 +79,7 @@ class _WorkspaceBrandingPageState extends ConsumerState<WorkspaceBrandingPage> {
       if (ws != null && ws.id == widget.workspaceId) {
         ref
             .read(workspaceShellProvider.notifier)
-            .replaceWorkspace(_mergeBranding(ws, branding));
+            .replaceWorkspace(ws.mergeBranding(branding));
       }
       if (mounted) {
         AppLoading.showSuccess(t.workspace.brandingSaved);
@@ -81,17 +92,6 @@ class _WorkspaceBrandingPageState extends ConsumerState<WorkspaceBrandingPage> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
-  }
-
-  WorkspaceModel _mergeBranding(WorkspaceModel ws, WorkspaceBranding branding) {
-    return WorkspaceModel(
-      id: ws.id,
-      name: branding.name.isNotEmpty ? branding.name : ws.name,
-      logo: branding.logo,
-      ownerId: ws.ownerId,
-      status: ws.status,
-      branding: branding,
-    );
   }
 
   @override

@@ -9,6 +9,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -89,9 +90,11 @@ Future<void> _pumpMembersPage(
   WidgetTester tester, {
   required EntityId currentUid,
   required _MembersFakeApi api,
+  Size size = const Size(430, 1400),
+  double devicePixelRatio = 1.0,
 }) async {
-  tester.view.physicalSize = const Size(430, 1400);
-  tester.view.devicePixelRatio = 1.0;
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = devicePixelRatio;
   addTearDown(tester.view.reset);
 
   // 当前用户身份经 StorageService（UserRepoLocal.currentUid 数据源）
@@ -250,6 +253,44 @@ void main() {
       find.byKey(const ValueKey('workspace-restore-entry')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('360dp 窄屏 Owner 视角：带按钮行昵称独占整行完整可见（批次W2R2FIX 回归锚点）', (
+    tester,
+  ) async {
+    // 真机 MRD-AL00 = 360dp 宽。回归背景：「昵称+徽标同行」布局下昵称被
+    // 按钮行+徽标挤到 ~25dp——首字+省略号都放不下时 ellipsis 渲染空白
+    // （语义树仍有文本、视觉消失）；@账号无 maxLines 折成两行。
+    await _pumpMembersPage(
+      tester,
+      currentUid: _ownerUid,
+      api: _MembersFakeApi(),
+      size: const Size(720, 1440),
+      devicePixelRatio: 2.0,
+    );
+
+    const tile1002 = ValueKey('workspace-member-tile-1002');
+    final nicknameFinder = find.descendant(
+      of: find.byKey(tile1002),
+      matching: find.text('韩梅梅'),
+    );
+    final badgeFinder = find.byKey(
+      const ValueKey('workspace-role-badge-member'),
+    );
+
+    // 昵称渲染宽度保底 ≥40dp（修复前 Flexible 挤压下仅 ~25dp 且渲染空白）
+    final paragraph = tester.renderObject<RenderParagraph>(nicknameFinder);
+    expect(
+      paragraph.size.width,
+      greaterThanOrEqualTo(40),
+      reason: '昵称须独占整行宽度，不被徽标/按钮挤压到渲染空白',
+    );
+    // 徽标换行到昵称下方的次要行（与 @账号 同行）
+    final nicknameTop = tester.getTopLeft(nicknameFinder).dy;
+    final badgeTop = tester.getTopLeft(badgeFinder).dy;
+    expect(badgeTop, greaterThan(nicknameTop), reason: '徽标不应与昵称同行争宽');
+    // 无任何 RenderFlex 溢出
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('移除成员 409 冲突：服务端冲突清单文本透出（未完成任务），不得伪装成功', (tester) async {

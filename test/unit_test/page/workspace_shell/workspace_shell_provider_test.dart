@@ -8,11 +8,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_branding_theme.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_breakpoint.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
+
+/// Fake：mine() 列表行不带 branding（复刻服务端 page_by_member 的 SELECT
+/// 列：id/name/logo/owner_id/status/created_at，无 branding）；readBranding
+/// 返回白名单视图并计数（验证补拉只发生在缺失 primaryColor 的行上）。
+class _NoBrandingFakeApi extends WorkspaceApi {
+  int readBrandingCalls = 0;
+
+  // mine 列表行一律不带 branding（复刻服务端行为）
+  static const seed = [
+    WorkspaceModel(id: '9001', name: '甲区', ownerId: '1001'),
+    WorkspaceModel(id: '9002', name: '乙区', ownerId: '1001'),
+  ];
+
+  @override
+  Future<WorkspacePageResult<WorkspaceModel>> mine({
+    int page = 1,
+    int size = 20,
+  }) async {
+    return WorkspacePageResult<WorkspaceModel>(
+      list: seed,
+      total: seed.length,
+      totalPage: 1,
+    );
+  }
+
+  @override
+  Future<WorkspaceBranding> readBranding(EntityId workspaceId) {
+    readBrandingCalls++;
+    return Future.value(
+      workspaceId == '9001'
+          ? const WorkspaceBranding(name: '甲区', primaryColor: '#00AAFF')
+          : const WorkspaceBranding(name: '乙区', primaryColor: '#FF6600'),
+    );
+  }
+}
 
 void main() {
   group('WorkspaceShellNavItems（§4.2 IA + 频率分层收敛）', () {
@@ -165,6 +202,66 @@ void main() {
 
       final state = container.read(workspaceShellProvider);
       expect(state.current?.isArchived, isTrue);
+    });
+  });
+
+  group('ensureCurrentBranding（mine 列表不带 branding 的补拉）', () {
+    test('loadMine 后为当前工作区补拉 branding（冷启动路径）', () async {
+      final api = _NoBrandingFakeApi();
+      final container = ProviderContainer(
+        overrides: [workspaceApiProvider.overrideWithValue(api)],
+      );
+      addTearDown(container.dispose);
+
+      await container.read(workspaceShellProvider.notifier).loadMine();
+      // ensureCurrentBranding 是 loadMine 内的 fire-and-forget 补拉
+      await Future<void>.delayed(Duration.zero);
+
+      final current = container.read(workspaceShellProvider).current;
+      expect(current?.id, '9001');
+      expect(
+        current?.branding.primaryColor,
+        '#00AAFF',
+        reason: 'mine 行不带 branding，壳主题依赖补拉结果（T12）',
+      );
+      expect(api.readBrandingCalls, 1);
+    });
+
+    test('切换工作区后为新当前工作区补拉（切换路径）', () async {
+      final api = _NoBrandingFakeApi();
+      final container = ProviderContainer(
+        overrides: [workspaceApiProvider.overrideWithValue(api)],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(workspaceShellProvider.notifier);
+      await notifier.loadMine();
+      notifier.selectWorkspace('9002');
+      // selectWorkspace 内 fire-and-forget：跑完微任务队列
+      await Future<void>.delayed(Duration.zero);
+
+      final current = container.read(workspaceShellProvider).current;
+      expect(current?.id, '9002');
+      expect(current?.branding.primaryColor, '#FF6600');
+      expect(api.readBrandingCalls, 2);
+    });
+
+    test('已配置 primaryColor 的行不重拉（编辑页本地回填已覆盖）', () async {
+      final api = _NoBrandingFakeApi();
+      final container = ProviderContainer(
+        overrides: [workspaceApiProvider.overrideWithValue(api)],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(workspaceShellProvider.notifier);
+      await notifier.loadMine();
+      notifier.selectWorkspace('9002');
+      await Future<void>.delayed(Duration.zero);
+      final callsBefore = api.readBrandingCalls;
+
+      // 直接调用 ensure：当前行（9002）已有 primaryColor → 不重拉
+      await notifier.ensureCurrentBranding();
+      expect(api.readBrandingCalls, callsBefore);
     });
   });
 

@@ -9,6 +9,8 @@
 /// 中以 autoDispose.family + 页面 ref.watch 的组合使用，绝不只 read。
 library;
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/helper/func.dart' show iPrint;
@@ -87,6 +89,11 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
         currentWorkspaceId: currentId,
         isLoading: false,
       );
+      // mine 列表接口不含 branding（服务端 page_by_member 只 SELECT
+      // id/name/logo/owner_id/status/created_at）：为当前工作区补拉一次。
+      // 必须在返回前完成：并发 loadMine 的列表回写会覆盖 fire-and-forget
+      // 补拉的结果（冷启动壳主题曾因此回落默认蓝）。
+      await ensureCurrentBranding();
     } on WorkspaceApiException catch (e) {
       iPrint('[WorkspaceShell] loadMine failed: $e');
       state = state.copyWith(isLoading: false, error: e.message);
@@ -103,6 +110,25 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
       currentWorkspaceId: workspaceId,
       destination: WorkspaceShellDestination.overview,
     );
+    // mine 列表行不带 branding：切换后为新当前工作区补拉（T12 主题切换）
+    unawaited(ensureCurrentBranding());
+  }
+
+  /// 补拉当前工作区 branding 并轻量同步该行（壳主题 T12 作用域随参数重建）。
+  ///
+  /// - 已配置 primaryColor 的行不重拉（编辑页保存路径已本地回填）
+  /// - 异步期间切走工作区：只同步仍是当前的那一行，不覆盖新当前
+  Future<void> ensureCurrentBranding() async {
+    final ws = state.current;
+    if (ws == null || ws.branding.primaryColor.isNotEmpty) return;
+    try {
+      final branding = await ref.read(workspaceApiProvider).readBranding(ws.id);
+      final cur = state.current;
+      if (cur == null || cur.id != ws.id) return;
+      replaceWorkspace(cur.mergeBranding(branding));
+    } catch (e) {
+      iPrint('[WorkspaceShell] ensureCurrentBranding failed: $e');
+    }
   }
 
   /// 切换导航目的地（§4.2 五项之一）。

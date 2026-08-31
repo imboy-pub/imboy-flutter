@@ -133,6 +133,20 @@ class WorkspaceModel {
   }
 
   bool get isArchived => status.isArchived;
+
+  /// branding 编辑/补全后的轻量合并（name 空回落现值，其余字段原样保留）。
+  /// 供壳 provider（branding 补拉）与 branding 编辑页（保存回填）共用，
+  /// 避免两处手写合并漂移。
+  WorkspaceModel mergeBranding(WorkspaceBranding branding) {
+    return WorkspaceModel(
+      id: id,
+      name: branding.name.isNotEmpty ? branding.name : name,
+      logo: branding.logo,
+      ownerId: ownerId,
+      status: status,
+      branding: branding,
+    );
+  }
 }
 
 /// Template 原子创建结果（I13：全成或全回滚，request_id 幂等）。

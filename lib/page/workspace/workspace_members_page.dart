@@ -462,28 +462,35 @@ class _MemberTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // 昵称独占整行：窄屏（360dp）下「昵称+徽标同行」时昵称被
+                // 按钮行（118dp）+徽标（~66dp）挤到 25dp——首字+省略号都
+                // 放不下时 ellipsis 渲染空白（语义树仍有文本、视觉消失）。
+                Text(
+                  member.nickname.isEmpty ? member.account : member.nickname,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall,
+                ),
+                // 次要行：@账号（可截断）+ 角色徽标；@账号曾无 maxLines
+                // 折成两行加剧行高异常，现单行截断
                 Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        member.nickname.isEmpty
-                            ? member.account
-                            : member.nickname,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleSmall,
+                    if (member.account.isNotEmpty) ...[
+                      Flexible(
+                        child: Text(
+                          '@${member.account}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
                       ),
-                    ),
-                    AppSpacing.horizontalSmall,
+                      AppSpacing.horizontalSmall,
+                    ],
                     WorkspaceRoleBadge(role: member.role),
                   ],
                 ),
-                if (member.account.isNotEmpty)
-                  Text(
-                    '@${member.account}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
               ],
             ),
           ),
