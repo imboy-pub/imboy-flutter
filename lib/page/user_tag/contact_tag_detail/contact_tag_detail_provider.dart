@@ -63,6 +63,12 @@ class ContactTagDetailNotifier extends _$ContactTagDetailNotifier {
     return const ContactTagDetailState();
   }
 
+  /// 标签改名后同步详情页标题（批次72 遗留：save 页只读不写导致标题不刷新）。
+  /// 详情页未打开时调用无害——下次进入 initState 的 loadTagData 会重置。
+  void updateTagName(String name) {
+    state = state.copyWith(tagName: name);
+  }
+
   /// 处理联系人列表（排序和索引）
   void handleList(List<ContactModel> list) {
     final indexData = <String>{};

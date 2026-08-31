@@ -62,7 +62,7 @@
 | 阻塞 | 257 | 14.9% |
 | **合计** | **1725** | 100% |
 
-bug 累计：**发现 210 / 解决 204 / 待处理 6**
+bug 累计：**发现 210 / 解决 205 / 待处理 5**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -80,7 +80,7 @@ bug 累计：**发现 210 / 解决 204 / 待处理 6**
 | [chat](chat/) | 6 | 76 | 0 | 60 | 16 |
 | [moment](moment/) | 6 | 74 | 0 | 73 | 1 |
 | [wallet](wallet/) | 5 | 61 | 1 | 53 | 8 |
-| [user_tag](user_tag/) | 5 | 58 | 1 | 58 | 0 |
+| [user_tag](user_tag/) | 5 | 58 | 0 | 58 | 0 |
 | [single](single/) | 5 | 48 | 0 | 46 | 2 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 25 | 11 |
@@ -278,7 +278,7 @@ bug 累计：**发现 210 / 解决 204 / 待处理 6**
 
 ### user_tag
 
-- [contact_tag_detail_page](user_tag/contact_tag_detail_page.md) — 11 功能点 ⚠️ 1 待处理
+- [contact_tag_detail_page](user_tag/contact_tag_detail_page.md) — 11 功能点
 - [contact_tag_list_page](user_tag/contact_tag_list_page.md) — 12 功能点
 - [select_tag_friend_page](user_tag/select_tag_friend_page.md) — 12 功能点
 - [tag_relation_page](user_tag/tag_relation_page.md) — 12 功能点

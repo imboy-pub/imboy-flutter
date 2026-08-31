@@ -215,12 +215,11 @@ class _UserTagSavePageState extends ConsumerState<UserTagSavePage> {
                                       .read(contactTagListProvider.notifier)
                                       .updateTag(updatedTag);
 
-                                  // 如果详情页面已打开，更新标签名称
-                                  try {
-                                    ref.read(contactTagDetailProvider).tagName;
-                                  } catch (e) {
-                                    // 详情页面未打开，忽略
-                                  }
+                                  // 如果详情页面已打开，同步详情标题（批次72：
+                                  // 原实现只 read 不写，改名后详情标题不刷新）
+                                  ref
+                                      .read(contactTagDetailProvider.notifier)
+                                      .updateTagName(trimmedText);
 
                                   AppLoading.showSuccess(t.common.tipSuccess);
                                   if (context.mounted) {
