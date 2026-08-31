@@ -1,0 +1,47 @@
+{
+ "schema_version": 1,
+ "id": "CHANNEL-EDIT-001",
+ "title": "频道资料编辑与持久化",
+ "risk": "P1",
+ "phase": "p1",
+ "sources": [
+  "lib/page/channel/channel_edit_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/channel/channel_detail_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "详情页进入编辑页",
+   "修改资料保存成功",
+   "重进详情页修改已持久化"
+  ],
+  "ui": [
+   "编辑表单不溢出",
+   "保存按钮状态流转"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "long_text",
+   "disabled_state"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/channel/channel_edit_persistence_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "edit_01_detail",
+  "edit_02_edit_page",
+  "edit_03_after_save"
+ ],
+ "safe_to_execute": false
+}

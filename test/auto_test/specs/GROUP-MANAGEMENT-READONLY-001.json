@@ -1,0 +1,43 @@
+{
+ "schema_version": 1,
+ "id": "GROUP-MANAGEMENT-READONLY-001",
+ "title": "群列表与群管理入口只读",
+ "risk": "P1",
+ "phase": "p1",
+ "sources": [
+  "lib/page/group/group_list/group_list_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/group/group_detail/group_detail_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "群列表渲染与搜索",
+   "群管理入口可达"
+  ],
+  "ui": [
+   "列表项不溢出、计数文案正确"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "list_state",
+   "long_text"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/group/group_management_readonly_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "group_management_01_list"
+ ],
+ "safe_to_execute": true
+}

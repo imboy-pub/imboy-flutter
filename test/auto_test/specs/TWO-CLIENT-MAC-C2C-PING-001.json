@@ -1,0 +1,47 @@
+{
+ "schema_version": 1,
+ "id": "TWO-CLIENT-MAC-C2C-PING-001",
+ "title": "双端 C2C 消息互通",
+ "risk": "P0",
+ "phase": "p0",
+ "sources": [
+  "lib/page/chat/chat/chat_page.dart",
+  "lib/page/conversation/conversation_page.dart"
+ ],
+ "dependencies": [
+  "lib/service/websocket.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "甲端会话列表就绪",
+   "双端进入同一会话",
+   "对端发送消息本端可达（WS 实时）"
+  ],
+  "ui": [
+   "两端气泡与时间线渲染一致"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "keyboard_safe_area",
+   "message_contrast"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/two_client/mac_peer_c2c_ping_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "mac_ping_01_conversations",
+  "mac_ping_02_chat_page",
+  "mac_ping_03_after_send"
+ ],
+ "safe_to_execute": false
+}

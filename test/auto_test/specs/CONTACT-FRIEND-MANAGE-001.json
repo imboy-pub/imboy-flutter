@@ -1,0 +1,48 @@
+{
+ "schema_version": 1,
+ "id": "CONTACT-FRIEND-MANAGE-001",
+ "title": "好友资料页查看与管理",
+ "risk": "P0",
+ "phase": "p0",
+ "sources": [
+  "lib/page/contact/people_info/people_info_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/contact/contact/contact_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "联系人列表点入好友资料页",
+   "备注/标签等资料信息正确渲染",
+   "资料页操作入口（发消息/删除）可达"
+  ],
+  "ui": [
+   "资料区长昵称与签名字段不溢出",
+   "危险操作有确认"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "long_text",
+   "danger_confirmation"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/contact/friend_management_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "friend_01_launch",
+  "friend_02_after_login",
+  "friend_03_contact_list",
+  "friend_detail"
+ ],
+ "safe_to_execute": false
+}

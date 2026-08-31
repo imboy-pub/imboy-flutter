@@ -1,0 +1,43 @@
+{
+ "schema_version": 1,
+ "id": "CHANNEL-PUBLISH-SMOKE-001",
+ "title": "频道列表到详情发布冒烟",
+ "risk": "P1",
+ "phase": "p1",
+ "sources": [
+  "lib/page/channel/channel_detail_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/channel/channel_list_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "频道列表可见",
+   "进入详情页内容渲染"
+  ],
+  "ui": [
+   "列表与详情骨架完整不溢出"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "list_state"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/channel/channel_publish_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "pub_01_channel_list",
+  "pub_02_detail"
+ ],
+ "safe_to_execute": true
+}

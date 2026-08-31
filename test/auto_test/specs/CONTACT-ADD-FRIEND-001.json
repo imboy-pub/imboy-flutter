@@ -1,0 +1,52 @@
+{
+ "schema_version": 1,
+ "id": "CONTACT-ADD-FRIEND-001",
+ "title": "搜索账号并发起好友申请",
+ "risk": "P0",
+ "phase": "p0",
+ "sources": [
+  "lib/page/contact/new_friend/add_friend_page.dart",
+  "lib/page/contact/new_friend/new_friend_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/contact/contact/contact_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "联系人页右上入口进入添加好友页",
+   "搜索账号返回结果并可进入对方资料页",
+   "从资料页发起好友申请且申请落库",
+   "重复申请有幂等或已发送提示"
+  ],
+  "ui": [
+   "搜索框与结果列表不溢出",
+   "申请按钮触达面积与禁用态正确"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "touch_target",
+   "long_text",
+   "empty_error_state"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/contact/add_friend_request_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "add_friend_01_launch",
+  "add_friend_02_contact_tab",
+  "add_friend_03_add_page",
+  "add_friend_04_results",
+  "add_friend_05_profile"
+ ],
+ "safe_to_execute": false
+}

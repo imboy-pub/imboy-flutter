@@ -1,0 +1,53 @@
+{
+ "schema_version": 1,
+ "id": "CHANNEL-CREATE-001",
+ "title": "创建频道全流程",
+ "risk": "P0",
+ "phase": "p0",
+ "sources": [
+  "lib/page/channel/channel_create_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/channel/channel_detail_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "创建入口进入表单页",
+   "必填项校验与表单填写",
+   "提交后创建成功并进入频道",
+   "创建后可继续输入发布"
+  ],
+  "ui": [
+   "表单长文案不溢出",
+   "提交按钮禁用/加载态"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "keyboard_safe_area",
+   "disabled_state",
+   "long_text"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/channel/channel_e2e_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "channel_create_01_launch",
+  "channel_create_02_after_login",
+  "channel_create_03_create_form",
+  "channel_create_04_form_filled",
+  "channel_create_05_after_submit",
+  "channel_create_06_input",
+  "channel_create_07_after_publish"
+ ],
+ "safe_to_execute": false
+}

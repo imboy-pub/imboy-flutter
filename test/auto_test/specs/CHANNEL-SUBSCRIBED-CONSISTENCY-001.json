@@ -1,0 +1,44 @@
+{
+ "schema_version": 1,
+ "id": "CHANNEL-SUBSCRIBED-CONSISTENCY-001",
+ "title": "订阅频道列表与详情一致性",
+ "risk": "P1",
+ "phase": "p1",
+ "sources": [
+  "lib/page/channel/channel_detail_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/channel/channel_list_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "订阅列表与详情数据一致（标题/计数）",
+   "两入口进入同一频道渲染一致"
+  ],
+  "ui": [
+   "一致性字段无占位残留"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "long_text",
+   "list_state"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/channel/channel_subscribed_detail_consistency_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "consist_01_list",
+  "consist_02_detail"
+ ],
+ "safe_to_execute": true
+}

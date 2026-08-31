@@ -1,0 +1,43 @@
+{
+ "schema_version": 1,
+ "id": "CHAT-SINGLE-READONLY-001",
+ "title": "单聊历史消息只读渲染",
+ "risk": "P1",
+ "phase": "p1",
+ "sources": [
+  "lib/page/chat/chat/chat_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/conversation/conversation_list_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "进入单聊页历史消息渲染完整",
+   "只读态不出现输入崩溃或空指针"
+  ],
+  "ui": [
+   "历史消息长文本与时间戳布局"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "long_text",
+   "message_contrast"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/chat/single_chat_readonly_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "single_chat_readonly_01"
+ ],
+ "safe_to_execute": true
+}

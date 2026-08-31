@@ -1,0 +1,53 @@
+{
+ "schema_version": 1,
+ "id": "CONTACT-CONFIRM-FRIEND-001",
+ "title": "新的朋友列表与接受好友申请",
+ "risk": "P0",
+ "phase": "p0",
+ "sources": [
+  "lib/page/contact/new_friend/new_friend_page.dart",
+  "lib/page/contact/apply_friend/apply_friend_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/contact/confirm_new_friend/confirm_new_friend_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "新的朋友列表渲染待处理申请",
+   "点击接受进入确认好友页",
+   "确认后申请状态变已添加且双向好友行建立",
+   "入口红点随未读清零"
+  ],
+  "ui": [
+   "头像空值兜底占位不崩",
+   "接受按钮状态流转可见（接受→已添加）"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "touch_target",
+   "list_state",
+   "empty_error_state"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/contact/confirm_new_friend_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "confirm_friend_01_launch",
+  "confirm_friend_02_login_ok",
+  "confirm_friend_03_contact_tab",
+  "confirm_friend_04_new_friend_list",
+  "confirm_friend_05_confirm_page",
+  "confirm_friend_06_after_accept"
+ ],
+ "safe_to_execute": false
+}

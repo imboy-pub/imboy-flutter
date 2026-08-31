@@ -1,0 +1,52 @@
+{
+ "schema_version": 1,
+ "id": "CHANNEL-DETAIL-PUBLISH-001",
+ "title": "频道发现、详情与消息发布",
+ "risk": "P0",
+ "phase": "p0",
+ "sources": [
+  "lib/page/channel/channel_detail_page.dart",
+  "lib/page/channel/channel_compose_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/channel/channel_discover_page.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "频道 Tab 进入频道详情",
+   "输入消息并发布成功",
+   "发布后详情流即时出现新内容"
+  ],
+  "ui": [
+   "输入区键盘安全区",
+   "发布按钮加载/禁用态"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "keyboard_safe_area",
+   "touch_target",
+   "long_text"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/channel/channel_e2e_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "channel_01_launch",
+  "channel_02_after_login",
+  "channel_03_channel_tab",
+  "channel_04_channel_detail",
+  "channel_05_input_message",
+  "channel_06_after_publish"
+ ],
+ "safe_to_execute": false
+}

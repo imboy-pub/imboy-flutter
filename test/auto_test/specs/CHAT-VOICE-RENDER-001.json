@@ -1,0 +1,46 @@
+{
+ "schema_version": 1,
+ "id": "CHAT-VOICE-RENDER-001",
+ "title": "语音消息气泡渲染",
+ "risk": "P1",
+ "phase": "p1",
+ "sources": [
+  "lib/page/chat/chat/chat_page.dart"
+ ],
+ "dependencies": [
+  "lib/page/chat/widget/chat_input.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "空语音列表空态不崩",
+   "语音气泡进入聊天页渲染",
+   "语音气泡波形/时长渲染正确"
+  ],
+  "ui": [
+   "气泡宽度与时长时间 display 不溢出"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "message_contrast",
+   "long_text"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/chat/voice_render_verify_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "voice_conv_list_empty",
+  "voice_01_chat_page",
+  "voice_02_bubble_render"
+ ],
+ "safe_to_execute": true
+}

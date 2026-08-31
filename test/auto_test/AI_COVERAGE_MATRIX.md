@@ -7,9 +7,9 @@
 
 | 指标 | 数量 |
 |---|---:|
-| 页面台账总数 | 154 |
-| 已有关联规格的样板页 | 9 |
-| 待分级并补规格的页面 | 145 |
+| 页面台账总数 | 155 |
+| 已有关联规格的样板页 | 19 |
+| 待分级并补规格的页面 | 136 |
 | 源码映射缺失 | 0 |
 
 ## 页面队列
@@ -20,36 +20,36 @@
 | channel | [channel_admin_page](channel/channel_admin_page.md) | `lib/page/channel/channel_admin_page.dart` | 11 | 待分级并补规格 | — |
 | channel | [channel_article_page](channel/channel_article_page.md) | `lib/page/channel/channel_article_page.dart` | 12 | 待分级并补规格 | — |
 | channel | [channel_comment_page](channel/channel_comment_page.md) | `lib/page/channel/channel_comment_page.dart` | 12 | 待分级并补规格 | — |
-| channel | [channel_compose_page](channel/channel_compose_page.md) | `lib/page/channel/channel_compose_page.dart` | 12 | 待分级并补规格 | — |
-| channel | [channel_create_page](channel/channel_create_page.md) | `lib/page/channel/channel_create_page.dart` | 11 | 待分级并补规格 | — |
-| channel | [channel_detail_page](channel/channel_detail_page.md) | `lib/page/channel/channel_detail_page.dart` | 13 | 待分级并补规格 | — |
+| channel | [channel_compose_page](channel/channel_compose_page.md) | `lib/page/channel/channel_compose_page.dart` | 12 | 已有样板（需继续细化） | `CHANNEL-DETAIL-PUBLISH-001` |
+| channel | [channel_create_page](channel/channel_create_page.md) | `lib/page/channel/channel_create_page.dart` | 11 | 已有样板（需继续细化） | `CHANNEL-CREATE-001` |
+| channel | [channel_detail_page](channel/channel_detail_page.md) | `lib/page/channel/channel_detail_page.dart` | 13 | 已有样板（需继续细化） | `CHANNEL-DETAIL-PUBLISH-001`<br>`CHANNEL-PUBLISH-SMOKE-001`<br>`CHANNEL-SUBSCRIBED-CONSISTENCY-001` |
 | channel | [channel_discover_page](channel/channel_discover_page.md) | `lib/page/channel/channel_discover_page.dart` | 10 | 待分级并补规格 | — |
-| channel | [channel_edit_page](channel/channel_edit_page.md) | `lib/page/channel/channel_edit_page.dart` | 11 | 待分级并补规格 | — |
+| channel | [channel_edit_page](channel/channel_edit_page.md) | `lib/page/channel/channel_edit_page.dart` | 11 | 已有样板（需继续细化） | `CHANNEL-EDIT-001` |
 | channel | [channel_invitation_page](channel/channel_invitation_page.md) | `lib/page/channel/channel_invitation_page.dart` | 11 | 待分级并补规格 | — |
 | channel | [channel_list_page](channel/channel_list_page.md) | `lib/page/channel/channel_list_page.dart` | 12 | 待分级并补规格 | — |
 | channel | [channel_order_detail_page](channel/channel_order_detail_page.md) | `lib/page/channel/channel_order_detail_page.dart` | 10 | 待分级并补规格 | — |
 | channel | [channel_order_list_page](channel/channel_order_list_page.md) | `lib/page/channel/channel_order_list_page.dart` | 9 | 待分级并补规格 | — |
 | channel | [channel_subscriber_page](channel/channel_subscriber_page.md) | `lib/page/channel/channel_subscriber_page.dart` | 12 | 待分级并补规格 | — |
-| chat | [chat_page](chat/chat_page.md) | `lib/page/chat/chat/chat_page.dart` | 21 | 已有样板（需继续细化） | `CHAT-PAGE-001` |
+| chat | [chat_page](chat/chat_page.md) | `lib/page/chat/chat/chat_page.dart` | 21 | 已有样板（需继续细化） | `CHAT-GROUP-001`<br>`CHAT-SINGLE-READONLY-001`<br>`CHAT-VOICE-RENDER-001`<br>`TWO-CLIENT-MAC-C2C-PING-001`<br>`CHAT-PAGE-001` |
 | chat | [chat_setting_page](chat/chat_setting_page.md) | `lib/page/chat/chat_setting/chat_setting_page.dart` | 10 | 待分级并补规格 | — |
 | chat | [p2p_call_screen_page](chat/p2p_call_screen_page.md) | `lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart` | 12 | 待分级并补规格 | — |
 | chat | [quick_reply_manage_page](chat/quick_reply_manage_page.md) | `lib/page/chat/widget/quick_reply_manage_page.dart` | 11 | 已有样板（需继续细化） | `CHAT-QUICK-REPLY-MANAGE-001` |
 | chat | [rtc_room_page](chat/rtc_room_page.md) | `lib/page/chat/rtc_room/rtc_room_page.dart` | 12 | 待分级并补规格 | — |
 | chat | [send_to_page](chat/send_to_page.md) | `lib/page/chat/send_to/send_to_page.dart` | 10 | 待分级并补规格 | — |
-| contact | [add_friend_page](contact/add_friend_page.md) | `lib/page/contact/new_friend/add_friend_page.dart` | 9 | 待分级并补规格 | — |
-| contact | [apply_friend_page](contact/apply_friend_page.md) | `lib/page/contact/apply_friend/apply_friend_page.dart` | 9 | 待分级并补规格 | — |
+| contact | [add_friend_page](contact/add_friend_page.md) | `lib/page/contact/new_friend/add_friend_page.dart` | 9 | 已有样板（需继续细化） | `CONTACT-ADD-FRIEND-001`<br>`TWO-CLIENT-MAC-FRIEND-APPLY-001` |
+| contact | [apply_friend_page](contact/apply_friend_page.md) | `lib/page/contact/apply_friend/apply_friend_page.dart` | 9 | 已有样板（需继续细化） | `CONTACT-CONFIRM-FRIEND-001` |
 | contact | [assistant_plaza_page](contact/assistant_plaza_page.md) | `lib/page/contact/assistant_plaza/assistant_plaza_page.dart` | 10 | 待分级并补规格 | — |
 | contact | [confirm_new_friend_page](contact/confirm_new_friend_page.md) | `lib/page/contact/confirm_new_friend/confirm_new_friend_page.dart` | 9 | 待分级并补规格 | — |
 | contact | [contact_page](contact/contact_page.md) | `lib/page/contact/contact/contact_page.dart` | 12 | 待分级并补规格 | — |
 | contact | [contact_setting_page](contact/contact_setting_page.md) | `lib/page/contact/contact_setting/contact_setting_page.dart` | 10 | 待分级并补规格 | — |
 | contact | [contact_setting_tag_page](contact/contact_setting_tag_page.md) | `lib/page/contact/contact_setting_tag/contact_setting_tag_page.dart` | 9 | 待分级并补规格 | — |
-| contact | [new_friend_page](contact/new_friend_page.md) | `lib/page/contact/new_friend/new_friend_page.dart` | 11 | 待分级并补规格 | — |
+| contact | [new_friend_page](contact/new_friend_page.md) | `lib/page/contact/new_friend/new_friend_page.dart` | 11 | 已有样板（需继续细化） | `CONTACT-ADD-FRIEND-001`<br>`CONTACT-CONFIRM-FRIEND-001`<br>`TWO-CLIENT-MAC-FRIEND-APPLY-001` |
 | contact | [people_info_more_page](contact/people_info_more_page.md) | `lib/page/contact/people_info_more/people_info_more_page.dart` | 9 | 待分级并补规格 | — |
-| contact | [people_info_page](contact/people_info_page.md) | `lib/page/contact/people_info/people_info_page.dart` | 11 | 待分级并补规格 | — |
+| contact | [people_info_page](contact/people_info_page.md) | `lib/page/contact/people_info/people_info_page.dart` | 11 | 已有样板（需继续细化） | `CONTACT-FRIEND-MANAGE-001` |
 | contact | [people_info_same_group_page](contact/people_info_same_group_page.md) | `lib/page/contact/people_info_more/people_info_same_group_page.dart` | 8 | 待分级并补规格 | — |
 | contact | [people_nearby_page](contact/people_nearby_page.md) | `lib/page/contact/people_nearby/people_nearby_page.dart` | 11 | 待分级并补规格 | — |
 | contact | [recently_registered_user_page](contact/recently_registered_user_page.md) | `lib/page/contact/recently_registered_user/recently_registered_user_page.dart` | 8 | 待分级并补规格 | — |
-| conversation | [conversation_page](conversation/conversation_page.md) | `lib/page/conversation/conversation_page.dart` | 12 | 已有样板（需继续细化） | `CONVERSATION-LIST-001` |
+| conversation | [conversation_page](conversation/conversation_page.md) | `lib/page/conversation/conversation_page.dart` | 12 | 已有样板（需继续细化） | `TWO-CLIENT-MAC-C2C-PING-001`<br>`CONVERSATION-LIST-001` |
 | group | [add_member_page](group/add_member_page.md) | `lib/page/group/group_detail/add_member_page.dart` | 11 | 待分级并补规格 | — |
 | group | [change_info_page](group/change_info_page.md) | `lib/page/group/group_detail/change_info_page.dart` | 10 | 待分级并补规格 | — |
 | group | [face_to_face_confirm_page](group/face_to_face_confirm_page.md) | `lib/page/group/face_to_face/face_to_face_confirm_page.dart` | 10 | 待分级并补规格 | — |
@@ -60,10 +60,10 @@
 | group | [group_announcement_page](group/group_announcement_page.md) | `lib/page/group/announcement/group_announcement_page.dart` | 12 | 待分级并补规格 | — |
 | group | [group_category_detail_page](group/group_category_detail_page.md) | `lib/page/group/category/group_category_detail_page.dart` | 10 | 待分级并补规格 | — |
 | group | [group_category_page](group/group_category_page.md) | `lib/page/group/category/group_category_page.dart` | 10 | 待分级并补规格 | — |
-| group | [group_detail_page](group/group_detail_page.md) | `lib/page/group/group_detail/group_detail_page.dart` | 12 | 待分级并补规格 | — |
+| group | [group_detail_page](group/group_detail_page.md) | `lib/page/group/group_detail/group_detail_page.dart` | 17 | 待分级并补规格 | — |
 | group | [group_file_audio_preview_page](group/group_file_audio_preview_page.md) | `lib/page/group/file/group_file_audio_preview_page.dart` | 9 | 待分级并补规格 | — |
 | group | [group_file_page](group/group_file_page.md) | `lib/page/group/file/group_file_page.dart` | 12 | 待分级并补规格 | — |
-| group | [group_list_page](group/group_list_page.md) | `lib/page/group/group_list/group_list_page.dart` | 12 | 待分级并补规格 | — |
+| group | [group_list_page](group/group_list_page.md) | `lib/page/group/group_list/group_list_page.dart` | 14 | 已有样板（需继续细化） | `GROUP-MANAGEMENT-READONLY-001` |
 | group | [group_member_detail_page](group/group_member_detail_page.md) | `lib/page/group/group_member/group_member_detail_page.dart` | 11 | 待分级并补规格 | — |
 | group | [group_member_page](group/group_member_page.md) | `lib/page/group/group_member/group_member_page.dart` | 12 | 待分级并补规格 | — |
 | group | [group_schedule_detail_page](group/group_schedule_detail_page.md) | `lib/page/group/schedule/group_schedule_detail_page.dart` | 12 | 待分级并补规格 | — |
@@ -84,7 +84,7 @@
 | mine | [bind_email_page](mine/bind_email_page.md) | `lib/page/mine/account_security/bind_email_page.dart` | 12 | 待分级并补规格 | — |
 | mine | [bind_mobile_page](mine/bind_mobile_page.md) | `lib/page/mine/account_security/bind_mobile_page.dart` | 12 | 待分级并补规格 | — |
 | mine | [change_name_page](mine/change_name_page.md) | `lib/page/mine/user_device/change_name_page.dart` | 11 | 待分级并补规格 | — |
-| mine | [change_password_page](mine/change_password_page.md) | `lib/page/mine/change_password/change_password_page.dart` | 12 | 待分级并补规格 | — |
+| mine | [change_password_page](mine/change_password_page.md) | `lib/page/mine/change_password/change_password_page.dart` | 12 | 已有样板（需继续细化） | `AUTH-PASSWORD-CHANGE-001` |
 | mine | [dark_model_page](mine/dark_model_page.md) | `lib/page/mine/dark_model/dark_model_page.dart` | 9 | 待分级并补规格 | — |
 | mine | [denylist_page](mine/denylist_page.md) | `lib/page/mine/denylist/denylist_page.dart` | 12 | 待分级并补规格 | — |
 | mine | [feedback_detail_page](mine/feedback_detail_page.md) | `lib/page/mine/feedback/feedback_detail_page.dart` | 12 | 待分级并补规格 | — |
@@ -165,7 +165,8 @@
 | workspace | [workspace_channels_page](workspace/workspace_channels_page.md) | `lib/page/workspace/workspace_channels_page.dart` | 8 | 待分级并补规格 | — |
 | workspace | [workspace_create_page](workspace/workspace_create_page.md) | `lib/page/workspace/workspace_create_page.dart` | 10 | 待分级并补规格 | — |
 | workspace | [workspace_groups_page](workspace/workspace_groups_page.md) | `lib/page/workspace/workspace_groups_page.dart` | 8 | 待分级并补规格 | — |
-| workspace | [workspace_invite_page](workspace/workspace_invite_page.md) | `lib/page/workspace/workspace_invite_page.dart` | 12 | 待分级并补规格 | — |
+| workspace | [workspace_invite_page](workspace/workspace_invite_page.md) | `lib/page/workspace/workspace_invite_page.dart` | 17 | 待分级并补规格 | — |
+| workspace | [workspace_join_page](workspace/workspace_join_page.md) | `lib/page/workspace/workspace_join_page.dart` | 11 | 待分级并补规格 | — |
 | workspace | [workspace_members_page](workspace/workspace_members_page.md) | `lib/page/workspace/workspace_members_page.dart` | 13 | 待分级并补规格 | — |
 | workspace | [workspace_overview_page](workspace/workspace_overview_page.md) | `lib/page/workspace/workspace_overview_page.dart` | 11 | 待分级并补规格 | — |
 | workspace | [workspace_picker_page](workspace/workspace_picker_page.md) | `lib/page/workspace/workspace_picker_page.dart` | 11 | 待分级并补规格 | — |

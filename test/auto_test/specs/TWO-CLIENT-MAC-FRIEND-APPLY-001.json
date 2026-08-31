@@ -1,0 +1,45 @@
+{
+ "schema_version": 1,
+ "id": "TWO-CLIENT-MAC-FRIEND-APPLY-001",
+ "title": "双端好友申请互通",
+ "risk": "P1",
+ "phase": "p1",
+ "sources": [
+  "lib/page/contact/new_friend/new_friend_page.dart",
+  "lib/page/contact/new_friend/add_friend_page.dart"
+ ],
+ "dependencies": [
+  "lib/service/websocket.dart"
+ ],
+ "assertions": {
+  "functional": [
+   "乙端主壳就绪",
+   "甲端申请乙端可达可受理"
+  ],
+  "ui": [
+   "申请项渲染与红点一致"
+  ]
+ },
+ "visual": {
+  "rubric": [
+   "no_overflow",
+   "touch_target",
+   "list_state"
+  ],
+  "baseline": "待真机采集"
+ },
+ "runner": {
+  "type": "flutter",
+  "target": "integration_test/two_client/mac_peer_friend_apply_test.dart",
+  "requires": [
+   "device",
+   "credentials",
+   "authorized_test_accounts"
+  ]
+ },
+ "checkpoints": [
+  "mac_peer_01_main_shell",
+  "mac_peer_02_after_apply"
+ ],
+ "safe_to_execute": false
+}
