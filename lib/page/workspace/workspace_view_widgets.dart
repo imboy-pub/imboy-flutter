@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/http/http_exceptions.dart' show HttpException;
 import 'package:imboy/store/api/workspace_api.dart' show WorkspaceApiException;
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -257,5 +258,8 @@ void showWorkspaceArchivedToast(BuildContext context, String message) {
 /// 统一异常转用户消息（WorkspaceApiException 用服务端中文消息）。
 String workspaceErrorMessage(Object error) {
   if (error is WorkspaceApiException) return error.message;
+  // 组件 http 异常（断网 NetworkException 等）自带人话 message，直接取；
+  // 不要走 toString()（会显示 "Instance of X" 字面量）。
+  if (error is HttpException) return error.message;
   return error.toString();
 }

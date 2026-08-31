@@ -116,12 +116,21 @@ String _getErrorMessageForStatusCode(int? statusCode) {
 }
 
 HttpException _parseException(Exception error) {
+  // 组件自身异常（NetworkException/BadRequestException 等，message 已是
+  // 人话）直接透传。否则断网前置分支抛出的 NetworkException 会在下方
+  // else 被 error.toString() 重包成 "Instance of 'NetworkException'"，
+  // 经 IMBoyHttpResponse.msg → WorkspaceApiException 一路污染到 UI。
+  if (error is HttpException) return error;
   if (error is DioException) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
         return NetworkException(message: error.message);
+      // 连接失败（拒绝/不可达，如 adb reverse 断开）：按无网络透出人话，
+      // 而不是落入 default 的 UnknownException。
+      case DioExceptionType.connectionError:
+        return NetworkException(message: t.common.tipConnectDesc);
       case DioExceptionType.cancel:
         return CancelException(error.message);
       case DioExceptionType.badResponse:

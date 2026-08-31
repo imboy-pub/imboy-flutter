@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/component/http/http_parse.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 void main() {
   group('handleResponse', () {
@@ -114,6 +117,34 @@ void main() {
       expect(resp.ok, isFalse);
       expect(resp.error, isA<UnauthorisedException>());
       expect(resp.code, 401);
+    });
+
+    test('passes component HttpException through keeping human message', () {
+      // 回归：断网前置分支抛 NetworkException(「无网络」)曾被打成
+      // "Instance of 'NetworkException'"（error.toString() 重包），
+      // 经 resp.msg 污染到 WorkspaceApiException 一路显示到 UI。
+      final resp = handleException(
+        '/offline',
+        NetworkException(message: '无网络'),
+      );
+      expect(resp.ok, isFalse);
+      expect(resp.error, isA<NetworkException>());
+      expect(resp.msg, '无网络');
+    });
+
+    test('maps Dio connectionError to NetworkException with connect tip', () {
+      // 回归：连接被拒/不可达（如 adb reverse 断开）曾落入 default 分支
+      // 变成 UnknownException（非人话）。
+      final exception = DioException(
+        requestOptions: RequestOptions(path: '/refused'),
+        type: DioExceptionType.connectionError,
+        error: const SocketException('Connection refused'),
+      );
+
+      final resp = handleException('/refused', exception);
+      expect(resp.ok, isFalse);
+      expect(resp.error, isA<NetworkException>());
+      expect(resp.msg, t.common.tipConnectDesc);
     });
   });
 }

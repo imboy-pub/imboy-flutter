@@ -20,6 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/app_loading.dart' as app_loading;
+import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/project/project_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart'
@@ -550,6 +551,80 @@ void main() {
       expect(find.text(t.workspace.taskTitleRequired), findsOneWidget);
       await tester.pump(const Duration(seconds: 6));
     });
+
+    testWidgets('候选加载失败：错误行显示人话消息（非 Instance of）+ 重试重拉', (tester) async {
+      // 回归 W2R1 bug：NetworkException 曾以 toString() 字面量
+      // "Instance of NetworkException" 显示在错误行。
+      final wsApi = _FailingMembersApi();
+      await _pumpForm(tester, api: _TaskFakeApi(const []), wsApi: wsApi);
+
+      expect(
+        find.byKey(const ValueKey('task-assignee-candidates-error')),
+        findsOneWidget,
+      );
+      expect(find.text('无网络'), findsOneWidget);
+      expect(find.textContaining('Instance of'), findsNothing);
+
+      final callsBeforeRetry = wsApi.calls;
+      await tester.tap(find.byKey(const ValueKey('task-assignee-retry')));
+      await tester.pumpAndSettle();
+      expect(wsApi.calls, greaterThan(callsBeforeRetry), reason: '重试必须重拉候选');
+    });
+
+    testWidgets('编辑模式加载失败：错误视图人话消息 + 重试重新拉取任务详情', (tester) async {
+      // 回归 W2R1 bug：断网进编辑长时间停留加载态；错误视图出现后消息
+      // 必须是人话且重试可用（真机复核批次 W2R2FIX）。
+      final detailApi = _FailingTaskDetailApi();
+      tester.view.physicalSize = const Size(430, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final router = GoRouter(
+        initialLocation: '/x',
+        routes: [
+          GoRoute(
+            path: '/x',
+            builder: (c, s) => TaskFormPage(
+              projectId: _projectId,
+              workspaceId: _wsId,
+              taskId: '7788',
+            ),
+          ),
+        ],
+      );
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: ProviderScope(
+            retry: (retryCount, error) => null,
+            overrides: [
+              projectApiProvider.overrideWith((ref) => detailApi),
+              workspaceApiProvider.overrideWith((ref) => _FailingMembersApi()),
+            ],
+            child: MaterialApp.router(
+              routerConfig: router,
+              builder: app_loading.AppLoading.init(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(t.workspace.taskFormEditTitle), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('workspace-error-retry')),
+        findsOneWidget,
+      );
+      expect(find.text('无网络'), findsOneWidget);
+      expect(find.textContaining('Instance of'), findsNothing);
+
+      final callsBeforeRetry = detailApi.detailCalls;
+      await tester.tap(find.byKey(const ValueKey('workspace-error-retry')));
+      await tester.pumpAndSettle();
+      expect(
+        detailApi.detailCalls,
+        greaterThan(callsBeforeRetry),
+        reason: '重试必须重新拉取任务详情',
+      );
+    });
   });
 }
 
@@ -577,6 +652,32 @@ class _FailingTasksApi extends ProjectApi {
     int size = 200,
   }) async {
     throw const WorkspaceApiException(403, 'not a member');
+  }
+}
+
+/// members 接口恒抛断网异常（回归：错误行须显示人话而非 toString 字面量）。
+class _FailingMembersApi extends WorkspaceApi {
+  int calls = 0;
+
+  @override
+  Future<WorkspacePageResult<WorkspaceMemberModel>> members(
+    EntityId workspaceId, {
+    int page = 1,
+    int size = 20,
+  }) async {
+    calls += 1;
+    throw NetworkException(message: '无网络');
+  }
+}
+
+/// taskDetail 恒抛断网异常（回归：编辑模式错误视图 + 重试重拉）。
+class _FailingTaskDetailApi extends ProjectApi {
+  int detailCalls = 0;
+
+  @override
+  Future<ProjectTaskModel> taskDetail(EntityId taskId) async {
+    detailCalls += 1;
+    throw NetworkException(message: '无网络');
   }
 }
 

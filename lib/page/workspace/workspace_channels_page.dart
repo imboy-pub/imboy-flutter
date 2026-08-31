@@ -15,6 +15,8 @@ import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart'
+    show WorkspaceShellDestination;
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -25,6 +27,19 @@ class WorkspaceChannelsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ws = ref.watch(currentWorkspaceProvider);
     final wsId = ws?.id ?? '';
+    // IndexedStack 保活各目的地：本页 offstage 时仍是 autoDispose provider
+    // 的活跃 listener，provider 不会销毁，切回不重拉。监听壳目的地变化，
+    // 重新进入「频道」导航时失效重拉（等价 autoDispose 销毁重建语义）。
+    ref.listen(workspaceShellProvider.select((s) => s.destination), (
+      prev,
+      next,
+    ) {
+      if (prev != next &&
+          next == WorkspaceShellDestination.channels &&
+          wsId.isNotEmpty) {
+        ref.invalidate(workspaceChannelsProvider(wsId));
+      }
+    });
     if (wsId.isEmpty) {
       return WorkspaceEmptyView(
         icon: CupertinoIcons.antenna_radiowaves_left_right,

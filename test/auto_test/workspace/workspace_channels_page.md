@@ -1,6 +1,6 @@
 # `page/workspace/workspace_channels_page.dart`
 
-> 功能点 8 个 | bug 发现 1 / 解决 0 / 待处理 1
+> 功能点 8 个 | bug 发现 1 / 解决 1 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -12,4 +12,4 @@
 | 阻塞 | 需无频道的工作区 | `page/workspace/workspace_channels_page.dart` | 频道列表为空时空态展示标题与副标题提示 | 未测 | 批次W2R1 | 0 | 0 | 0 | 模板建区必含Announcements |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 点击频道卡进入频道详情页 /workspace/:wsId/channels/:channelId | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 阻塞 | 需他区频道作反例 | `page/workspace/workspace_channels_page.dart` | 列表按 scope=workspace 严格分区，仅展示本工作区频道（其他来源频道不出现） | 未测 | 批次W2R1 | 0 | 0 | 0 | create临时区建好后可解 |
-| 待修复 | 2026-08-30 | `page/workspace/workspace_channels_page.dart` | 离开再进入频道导航重新拉取列表（provider 自动销毁重建） | 有BUG待修 | 批次W2R1 | 1 | 0 | 1 | 壳IndexedStack保活切回无重拉请求 |
+| 无待办 | - | `page/workspace/workspace_channels_page.dart` | 离开再进入频道导航重新拉取列表（provider 自动销毁重建） | 已通过 | 批次W2R2FIX | 1 | 1 | 0 | 已修：页面ref.listen壳目的地切回即invalidate重拉；logcat证切回后新GET channels |
