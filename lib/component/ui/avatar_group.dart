@@ -1,7 +1,10 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/group_avatar_composite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:octo_image/octo_image.dart';
 
@@ -119,12 +122,67 @@ class GroupAvatar extends StatelessWidget {
 
   Widget _buildCombinedAvatar(bool isDark) {
     final displayAvatars = memberAvatars.take(maxDisplayCount).toList();
-    final avatarCount = displayAvatars.length;
+
+    // W5 合成单图优先：命中直接一纹理直出（每群 1 纹理替代 9 纹理，
+    // 格子同帧出现对齐微信观感）。key 含原序列表+size（顺序即布局位置，
+    // 不得排序），见 GroupAvatarComposite.keyFor 注释。
+    final composite = GroupAvatarComposite.peek(
+      GroupAvatarComposite.keyFor(displayAvatars, size),
+    );
+    if (composite != null) {
+      return _compositeWidget(composite);
+    }
+
+    // 未命中：触发后台合成（in-flight 去重；失败不缓存、无 raster 上下文
+    // 如测试环境安全降级 null），本帧起 legacy 逐 tile 路径兜底。
+    GroupAvatarComposite.schedule(
+      displayAvatars,
+      size,
+      shape,
+      borderRadius,
+      isDark,
+    );
+    // 通知重建时必须**重新 peek**（合成图就绪 → 切直出），而不是只重跑
+    // legacy——曾把 builder 直接指向 _buildLegacyCombined，通知永远切不过去。
+    return ListenableBuilder(
+      listenable: GroupAvatarComposite.rebuildNotifier,
+      builder: (context, _) {
+        final again = GroupAvatarComposite.peek(
+          GroupAvatarComposite.keyFor(displayAvatars, size),
+        );
+        return again != null
+            ? _compositeWidget(again)
+            : _buildLegacyCombined(displayAvatars, isDark);
+      },
+    );
+  }
+
+  /// 合成单图直出 widget。
+  Widget _compositeWidget(ui.Image image) {
+    return ClipRRect(
+      borderRadius: _getBorderRadius(),
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: RawImage(
+          image: image,
+          width: size,
+          height: size,
+          fit: BoxFit.fill,
+        ),
+      ),
+    );
+  }
+
+  /// legacy 逐 tile Widget 路径（合成未就绪/失败时的兜底渲染）。
+  /// 视觉参数与 GroupAvatarComposite._paint 一一对应，改任一侧必须同步另一侧。
+  Widget _buildLegacyCombined(List<String> avatars, bool isDark) {
+    final avatarCount = avatars.length;
 
     if (avatarCount >= 2 && avatarCount <= 4) {
       return ClipRRect(
         borderRadius: _getBorderRadius(),
-        child: _buildSmallGroupLayout(displayAvatars, isDark),
+        child: _buildSmallGroupLayout(avatars, isDark),
       );
     }
 
@@ -133,7 +191,7 @@ class GroupAvatar extends StatelessWidget {
       child: SizedBox(
         width: size,
         height: size,
-        child: _buildGridLayout(displayAvatars, isDark),
+        child: _buildGridLayout(avatars, isDark),
       ),
     );
   }
