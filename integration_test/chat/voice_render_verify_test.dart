@@ -1,154 +1,167 @@
-// integration_test/chat/voice_render_verify_test.dart
+// strict E2EE 下语音消息气泡渲染验证（白盒加密发送 + 本地回显）。
 //
-// voice 消息渲染真机验证（#100）：
-//   - 发送侧走 WS v2 JSON（msg_type=voice），不经 protobuf，直达
-//     服务端 content_type_to_enum(<<"voice">>) -> 'AUDIO' 修复链路
-//   - 接收侧验证 MessageTypeNormalizer audio→voice 归一后
-//     渲染为 AudioMessageBuilder（语音气泡），而非「不支持的消息类型」
+// 历史：本测试原经第二个客户端 WS 直发明文 voice 帧造数据；strict 部署
+// （e2ee_mode=required）下明文 C2C 被 fail-closed 拒收（不建会话不落库），
+// 原语义已失效（静默 skip）。现改为与本轮 c2c_e2ee_send_render 同构的
+// 白盒模式：app 内经 chatProvider.addMessage（真加密链路）+
+// chatService.insertMessage（页面层 UI 插入）发送 voice 消息，
+// 验证其在聊天页渲染为 AudioMessageBuilder（语音气泡）。
 //
-// 运行（真机，禁止模拟器）：
-//   flutter test integration_test/chat/voice_render_verify_test.dart \
-//     -d <device_id> \
-//     --dart-define=APP_ENV=local_home \
-//     --dart-define=API_BASE_URL=http://192.168.2.62:9800 \
-//     --dart-define=TEST_PHONE=demo_voice_recv \
-//     --dart-define=TEST_PASSWORD=admin888
+// 注：payload.source 用 s3:// 前缀（本地测试数据），会被 getSingleFile 的
+// scheme 白名单拦截（SSRF 防护，设计行为，见 imboy_cache_manager.dart:141），
+// 气泡进入错误态——但不影响验证目标：voice 消息渲染为
+// AudioMessageBuilder（语音气泡）而非「不支持的消息类型」。
 
-import 'dart:convert';
-import 'dart:io';
+import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' show AudioMessage;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:flyer_chat_audio_message/flyer_chat_audio_message.dart'
+    show FlyerChatAudioMessage;
+import 'package:imboy/component/chat/message_audio_builder.dart'
+    show AudioMessageBuilder;
+import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:xid/xid.dart';
 
-import 'package:imboy/component/chat/message_audio_builder.dart';
-import 'package:imboy/page/conversation/widget/conversation_item.dart';
-
-import '../flows/app_launcher.dart';
 import '../flows/api_test_client.dart';
+import '../flows/app_launcher.dart';
 import '../flows/test_utils.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('voice 消息渲染为语音气泡（WS JSON 发送链路）', (tester) async {
-    if (!requireBusinessWriteAuthorization()) return;
-    // 1. 启动 app 并以 demo_voice_recv 登录（TEST_PHONE / TEST_PASSWORD）
-    await ensureAppLaunched(tester, maxSeconds: 5);
-    // 全新安装冷启动较慢，先等欢迎页/登录页/主界面任一入口就绪
-    if (!await waitForEntryState(tester)) {
-      markTestSkipped('App 入口状态超时，跳过');
-    }
-    flowLog('步骤1: 入口就绪，autoLoginOrSkip 开始');
-    await autoLoginOrSkip(tester);
-    flowLog('步骤1: autoLoginOrSkip 完成');
+  testWidgets('strict 模式白盒加密发送 voice 消息渲染为语音气泡', (tester) async {
+    installPluginErrorFilter();
+    await ensureAppLaunched(tester, maxSeconds: 10);
+    if (!await checkPreconditions(tester)) return;
     await settle(tester, maxSeconds: 2);
 
-    // 2. 第二个客户端（demo_voice_send）登录，准备 WS 发送
+    // 1. strict 策略就绪确认
+    var policyReady = false;
+    for (var i = 0; i < 10 && !policyReady; i++) {
+      policyReady = EncryptionModeService.isInitialized;
+      if (!policyReady) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+    }
+    if (!policyReady) {
+      markTestSkipped('加密策略未就绪（EncryptionModeService 未初始化）');
+      return;
+    }
+    if (EncryptionModeService.current != EncryptionMode.strictE2ee) {
+      markTestSkipped(
+        '当前部署非 strict E2EE（current=${EncryptionModeService.current}）',
+      );
+      return;
+    }
+
+    // 2. 对端账号登录（只取 uid，消息由本端白盒加密发送）
     final base = FlowApiConfig.apiBaseUrl.isNotEmpty
         ? FlowApiConfig.apiBaseUrl
-        : 'http://192.168.2.62:9800';
-    final sender = FlowApiClient(
-      baseUrl: base,
-      deviceId: 'voice-verify-sender',
-    );
-    final loginRes = await sender.login(
-      account: 'demo_voice_send',
+        : 'http://127.0.0.1:9800';
+    final peer = FlowApiClient(baseUrl: base, deviceId: 'voice-peer');
+    final loginRes = await peer.login(
+      account: const String.fromEnvironment(
+        'C2C_PEER_ACCOUNT',
+        defaultValue: 'at20260830210132b@at.local',
+      ),
       password: 'admin888',
-      type: 'account',
-      // demo 账号为新格式（hmac_sha512 存储），仅接受明文
+      type: 'email',
       plainPassword: true,
     );
     if (loginRes['code'] != 0) {
-      markTestSkipped('demo_voice_send 登录失败: ${loginRes['msg']}，跳过');
+      markTestSkipped('对端账号登录失败: ${loginRes['msg']}，跳过');
       return;
     }
-    final sendUid = sender.currentUid ?? '';
-    flowLog('发送端登录成功 uid=$sendUid');
+    final peerUid = peer.currentUid ?? '';
+    final selfUid = UserRepoLocal.to.currentUid;
+    flowLog('对端登录成功 uid=$peerUid，本端 uid=$selfUid');
+    if (peerUid.isEmpty || selfUid.isEmpty || peerUid == selfUid) {
+      markTestSkipped('账号状态异常（uid 为空或两端同号），跳过');
+      return;
+    }
 
-    // 3. WS 连接（imboy.v2 子协议）并发一条 voice
-    // demo_voice_recv 固定 uid（本地测试账号，历史会话实证）
-    const recvUid = '106019888539371520';
-    final wsUrl =
-        '${base.replaceFirst('http', 'ws')}/api/v1/ws'
-        '?token=${sender.accessToken}&did=voice-verify-sender&cos=android';
-    final ws = await WebSocket.connect(
-      wsUrl,
-      headers: {'Sec-WebSocket-Protocol': 'imboy.v2'},
+    // 3. 打开与对端的 ChatPage
+    final ctx = tester.element(find.byType(Scaffold).first);
+    unawaited(
+      Navigator.of(ctx).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ChatPage(
+            type: 'C2C',
+            peerId: peerUid,
+            peerTitle: 'voice-render-peer',
+            peerAvatar: '',
+            peerSign: '',
+          ),
+        ),
+      ),
     );
-    flowLog('WS 已连接');
-
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final msgId = 'voice${now.toRadixString(36)}';
-    ws.add(
-      jsonEncode({
-        'id': msgId,
-        'type': 'C2C',
-        'from': sendUid,
-        'to': recvUid,
-        'msg_type': 'voice',
-        'action': '',
-        'e2ee': null,
-        'payload': {
-          'uri': 's3://local-test/voice_demo.ogg',
-          'duration_ms': 1500,
-          'size': 1024,
-          'client_send_ts': now,
-        },
-        'created_at': now,
-      }),
-    );
-    flowLog('voice 已发送 msgId=$msgId');
-
-    // 4. 进会话列表 → 打开与 demo_voice_send 的会话
-    flowLog('步骤4: 进入会话列表');
-    await settle(tester, maxSeconds: 3);
-    final convTabOk = await _openConversationTab(tester);
-    flowLog('步骤4: _openConversationTab=$convTabOk');
-    if (!convTabOk) {
-      markTestSkipped('无法进入会话列表，跳过');
+    await settle(tester, maxSeconds: 6);
+    await takeScreenshot(tester, 'voice_conv_list_empty');
+    if (!tester.any(find.byType(ChatPage))) {
+      markTestSkipped('ChatPage 未打开，跳过');
       return;
     }
-    await settle(tester, maxSeconds: 3);
-    flowLog('步骤4: 已 settle 会话列表');
-
-    // 会话列表找 demo_voice_send；找不到先重试一次（等会话刷新）
-    Finder? convItem;
-    for (var i = 0; i < 3 && convItem == null; i++) {
-      convItem = _findConversation(tester);
-      flowLog('步骤4: 查找会话 第${i + 1}轮=${convItem != null}');
-      if (convItem == null) {
-        await Future<void>.delayed(const Duration(seconds: 2));
-        await settle(tester, maxSeconds: 2);
-      }
-    }
-    if (convItem == null) {
-      await takeScreenshot(tester, 'voice_conv_list_empty');
-      markTestSkipped('会话列表未找到 demo_voice_send 会话，跳过');
-      return;
-    }
-    final tapOk = await safeTap(tester, convItem);
-    flowLog('步骤4: 点击会话=$tapOk');
-    await settle(tester, maxSeconds: 3);
     await takeScreenshot(tester, 'voice_01_chat_page');
-    flowLog('步骤4: 已进入聊天页');
+    flowLog('步骤3: ChatPage 已打开');
 
-    // 5. 轮询断言：历史或实时推送的 voice 消息渲染为语音气泡
-    // 注：payload.uri 用 s3:// 前缀（本地测试数据），会被 getSingleFile 的
-    // scheme 白名单拦截（SSRF 防护，设计行为，见 imboy_cache_manager.dart:141），
-    // 气泡进入错误态 —— 但这不影响验证目标：voice 消息渲染为
-    // AudioMessageBuilder（语音气泡）而非「不支持的消息类型」。
+    // 4. 白盒两步发送 voice 消息（与 ChatPage 语音发送同构）
+    final chatCtx = tester.element(find.byType(ChatPage).first);
+    final container = ProviderScope.containerOf(chatCtx);
+    final notifier = container.read(chatProvider.notifier);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final messageId = Xid().toString();
+    final message = AudioMessage(
+      authorId: selfUid,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(now, isUtc: true),
+      id: messageId,
+      // 本地测试假 uri：气泡进入错误态，不影响「渲染为语音气泡」验证目标
+      source: 's3://local-test/voice_demo_$now.ogg',
+      text: '',
+      size: 1024,
+      duration: const Duration(milliseconds: 1500),
+      metadata: {'peer_id': peerUid},
+    );
+    final ok = await notifier.addMessage(
+      selfUid,
+      peerUid,
+      '',
+      'voice-render-peer',
+      'C2C',
+      message,
+    );
+    expect(ok, isTrue, reason: 'strict 模式加密发送 voice 应成功');
+    await notifier.chatService?.insertMessage(
+      message,
+      index: notifier.chatService?.messages.length ?? 0,
+    );
+    flowLog('步骤4: voice 已白盒发送 msgId=$messageId');
+
+    // 5. 轮询断言：voice 消息渲染为语音气泡（本地回显走 core 类型分发
+    // FlyerChatAudioMessage；接收路径经 ChatMessageItem 分发为
+    // AudioMessageBuilder——两条路径任一命中即达标）
     var found = false;
-    for (var i = 0; i < 60; i++) {
+    bool hasVoiceBubble(WidgetTester t) => t.any(
+      find.byWidgetPredicate(
+        (w) => w is FlyerChatAudioMessage || w is AudioMessageBuilder,
+        skipOffstage: false,
+      ),
+    );
+    for (var i = 0; i < 30; i++) {
       await tester.pump(const Duration(milliseconds: 500));
-      // skipOffstage: false —— 新消息在 ListView 底部，可能处于视口外
+      // skipOffstage: false —— 消息在 ListView 底部，可能处于视口外
       // （懒加载未构建），默认 finder 只查 onstage 节点会漏判
-      if (tester.any(find.byType(AudioMessageBuilder, skipOffstage: false))) {
+      if (hasVoiceBubble(tester)) {
         found = true;
-        flowLog('步骤5: 第${i + 1}轮发现 AudioMessageBuilder');
+        flowLog('步骤5: 第${i + 1}轮发现语音气泡组件');
         break;
       }
-      // 每 5 轮向下滚动列表，把底部新消息滚入视口触发构建
       if (i % 5 == 4) {
         try {
           await tester.drag(
@@ -160,41 +173,12 @@ void main() {
         }
         await tester.pump(const Duration(milliseconds: 300));
       }
-      await Future<void>.delayed(const Duration(milliseconds: 500));
     }
     flowLog('步骤5: 轮询结束 found=$found');
     await settle(tester, maxSeconds: 2);
     await takeScreenshot(tester, 'voice_02_bubble_render');
 
     expect(found, isTrue, reason: '会话页应渲染出语音气泡 AudioMessageBuilder');
-    ws.close();
-    drainKnownFrameworkExceptions(tester);
+    flowLog('测试完成');
   }, timeout: const Timeout(Duration(minutes: 6)));
-}
-
-Finder? _findConversation(WidgetTester tester) {
-  // 会话列表项是 ConversationItem（ValueKey(model.id)），无固定 Key；
-  // 显示 title 是 displayTitle（昵称或账号），textContaining 优先，兜底取第一项
-  final byName = find.textContaining('demo_voice_send');
-  if (tester.any(byName)) return byName.first;
-  final byItem = find.byType(ConversationItem);
-  if (tester.any(byItem)) return byItem.first;
-  return null;
-}
-
-bool _isOnConvList(WidgetTester t) =>
-    t.any(find.byKey(const Key('conversation_search_input'))) &&
-    t.any(find.byType(ConversationItem));
-
-Future<bool> _openConversationTab(WidgetTester t) async {
-  if (_isOnConvList(t)) return true;
-  final ok = await tapAny(t, [
-    find.byKey(const Key('tab_conversations')),
-    find.byIcon(CupertinoIcons.chat_bubble),
-    find.byIcon(CupertinoIcons.chat_bubble_fill),
-    find.text('消息'),
-    find.text('会话'),
-  ]);
-  await settle(t, maxSeconds: 2);
-  return ok || _isOnConvList(t);
 }

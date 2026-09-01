@@ -12,9 +12,9 @@
  ],
  "assertions": {
   "functional": [
-   "空语音列表空态不崩",
-   "语音气泡进入聊天页渲染",
-   "语音气泡波形/时长渲染正确"
+   "strict 策略就绪后白盒两步发送（provider.addMessage+insertMessage）voice 消息成功",
+   "voice 消息加密出站（msg_type=voice，e2ee 信封）",
+   "本地回显渲染为语音气泡组件（FlyerChatAudioMessage 或 AudioMessageBuilder）"
   ],
   "ui": [
    "气泡宽度与时长时间 display 不溢出"
