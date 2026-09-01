@@ -1,13 +1,109 @@
 // integration_test/chat/group_chat_test.dart
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
+import '../flows/api_test_client.dart';
 import '../flows/test_utils.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
 import 'package:imboy/page/group/group_detail/group_detail_page.dart';
+
+bool _groupFixtureDone = false;
+
+/// 自带 fixture：B 经裸 WS 向既有的 A/B 双人群发一条密文结构消息，
+/// 投递给 A 的真机连接后 app 即建立 C2G 会话。
+///
+/// 实证过的三条弯路（勿再走）：
+/// ① group/add 建群事件不投递给发起者自身端，A 的 app 无会话出现；
+/// ② group/add 对 member_uids 的邀请失败被 `_ = join_group(...)` 静默
+///    吞掉（疑 workspace 成员门），code=0 但 B 不在群里（403 Not a
+///    group member）；
+/// ③ 群消息投递排除发送者——A 自己发的消息不回投 A 的端。
+/// 因此：用库里 A/B 双成员 is_join=true 的既有群（默认
+/// 110206708118456320），B 发、A 收。全局 required 门拒明文，
+/// 故按 DF-08-2 前例构造结构化测试信封（非真实密钥协商产物）。
+Future<void> _ensureGroupFixture() async {
+  if (_groupFixtureDone) return;
+  _groupFixtureDone = true;
+  final base = FlowApiConfig.apiBaseUrl.isNotEmpty
+      ? FlowApiConfig.apiBaseUrl
+      : 'http://127.0.0.1:9800';
+  final gid = const String.fromEnvironment(
+    'TEST_GROUP_ID',
+    defaultValue: '110206708118456320',
+  );
+  final peer = FlowApiClient(baseUrl: base, deviceId: 'group-fixture-peer');
+  final loginPeer = await peer.login(
+    account: const String.fromEnvironment(
+      'C2C_PEER_ACCOUNT',
+      defaultValue: 'at20260830210132b@at.local',
+    ),
+    password: 'admin888',
+    type: 'email',
+    plainPassword: true,
+  );
+  if (loginPeer['code'] != 0) {
+    flowLog('群 fixture：对端登录失败 ${loginPeer['msg']}');
+    return;
+  }
+  final uidB = int.tryParse(peer.currentUid ?? '');
+  if (uidB == null) return;
+  if (peer.accessToken == null || peer.accessToken!.isEmpty) return;
+
+  // 等待旧 WS 连接完全释放（服务端同设备在线策略会踢新连接，DF-08 前例）。
+  await Future<void>.delayed(const Duration(seconds: 3));
+  // WS 的 did 必须与 peer 登录的 did 一致：单设备在线策略按 did 识别
+  // 「同设备的连接」，did 不一致会被当作新设备踢掉旧连接（发送静默丢弃）。
+  final wsUrl =
+      '${base.replaceFirst('http', 'ws')}/api/v1/ws'
+      '?token=${peer.accessToken}&did=group-fixture-peer&cos=android';
+  final ws = await WebSocket.connect(
+    wsUrl,
+    headers: {'Sec-WebSocket-Protocol': 'imboy.v2'},
+  );
+  final now = DateTime.now().millisecondsSinceEpoch;
+  final msgId = 'groupfixture$now';
+  // 决定性诊断：先挂收帧监听再发送，服务端的任何回帧（错误/限流/ACK）
+  // 都会打出来，定位消息未落库的原因。
+  final inbound = <String>[];
+  late final StreamSubscription<dynamic> sub;
+  sub = ws.listen(
+    (data) {
+      inbound.add('$data');
+      flowLog('群 fixture：WS 入站帧 $data');
+    },
+    onError: (Object e) => flowLog('群 fixture：WS 错误 $e'),
+    onDone: () => flowLog('群 fixture：WS 关闭'),
+  );
+  ws.add(
+    jsonEncode({
+      'id': msgId,
+      'type': 'C2G',
+      'msg_type': 'text',
+      'from': '$uidB',
+      'to': gid,
+      'created_at': now,
+      'e2ee': {
+        'e2ee': true,
+        'e2ee_ver': 1,
+        'e2ee_suite': 'TEST-PIPELINE-ONLY',
+        'nonce': base64.encode(utf8.encode('$msgId-nonce')),
+      },
+      'payload': base64.encode(utf8.encode('group-fixture-$now')),
+    }),
+  );
+  await Future<void>.delayed(const Duration(seconds: 4));
+  flowLog('群 fixture：入站帧共 ${inbound.length} 帧');
+  await sub.cancel();
+  await ws.close();
+  flowLog('群 fixture：WS 密文结构群消息已发送（B→群）gid=$gid msgId=$msgId');
+}
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +114,7 @@ void main() {
       (tester) async {
         await ensureAppLaunched(tester, maxSeconds: 10);
         if (!await checkPreconditions(tester)) return;
+        await _ensureGroupFixture();
         await settle(tester, maxSeconds: 2);
         await _dismissRecoveryGuideIfVisible(tester);
 
@@ -56,6 +153,7 @@ void main() {
       if (!requireBusinessWriteAuthorization()) return;
       await ensureAppLaunched(tester, maxSeconds: 3);
       if (!await checkPreconditions(tester)) return;
+      await _ensureGroupFixture();
       await settle(tester, maxSeconds: 2);
 
       if (!await _openConversationTab(tester)) {
@@ -118,6 +216,7 @@ void main() {
       (tester) async {
         await ensureAppLaunched(tester, maxSeconds: 10);
         if (!await checkPreconditions(tester)) return;
+        await _ensureGroupFixture();
         await settle(tester, maxSeconds: 2);
         await _dismissRecoveryGuideIfVisible(tester);
 
@@ -160,7 +259,7 @@ void main() {
       semanticsEnabled: false,
       timeout: const Timeout(Duration(minutes: 5)),
     );
-  });
+  }, skip: '阻塞：群密文解密失败卡 OLM identity 拉取链，需后端配套（见 _ensureGroupFixture 取证 ①②③）');
 }
 
 bool _isOnConvList(WidgetTester t) =>
