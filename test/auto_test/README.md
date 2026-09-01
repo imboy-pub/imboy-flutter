@@ -24,6 +24,14 @@
 建议的规格补齐优先级见 [AI_SPEC_BACKLOG.md](./AI_SPEC_BACKLOG.md)，
 视觉判据见 [visual-rubric.md](./visual-rubric.md)。运行产物写入 `reports/`，不入库。
 
+## 存量集成测试健康检查（2026-09-01 完成）
+
+`integration_test/` 全目录 68 个测试文件 100% 扫描：28 文件 PASS（约 90 用例）、
+39 skip/阻塞全部定性（双设备协作/数据依赖/参数化夹具/专用账号/资金域五型）、
+暴露并修复 1 个 P0 产品 bug（C2G PFv3 gid 绑定恒拒收）。
+总账、五型定性、三分跑法、门禁参数清单与运行教训见
+[HEALTH_CHECK_REPORT_2026-09-01.md](./HEALTH_CHECK_REPORT_2026-09-01.md)。
+
 ## 表格规则（保证有限膨胀）
 
 | 规则 | 说明 |
