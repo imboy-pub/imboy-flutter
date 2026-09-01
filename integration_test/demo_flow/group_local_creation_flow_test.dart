@@ -139,7 +139,14 @@ void main() {
     ApiAssert.success(again, context: 'group/add repeat');
     final gidAgain =
         '${(((again['payload'] as Map)['group'] ?? const <String, dynamic>{}) as Map)['id'] ?? ''}';
-    expect(gidAgain, gid, reason: '重复提交相同成员集合应复用同一群，不产生幽灵群');
+    // P0 终局拍板（group-user-id-sum-p0-decision-2026-08-29）：同一成员集
+    // 允许创建多个群（微信/Telegram 同款），不做创建幂等去重——
+    // 旧断言「应复用同一群」已随 user_id_sum 签名链退役，反向钉死新语义。
+    expect(
+      gidAgain,
+      isNot(gid),
+      reason: '拍板语义：重复提交相同成员集合应产生新群（同集多群），实际复用了 $gid',
+    );
 
     await throttleGap();
     createdTitle =

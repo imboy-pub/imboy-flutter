@@ -190,6 +190,14 @@ void main() {
         '${(((add['payload'] as Map)['group'] ?? const <String, dynamic>{}) as Map)['id'] ?? ''}';
     expect(gid.isNotEmpty, isTrue, reason: 'group/add 缺少群 id');
 
+    // 组级 fail-closed 门（P0-B B4）只拦 e2ee_mode=1 的群；新群默认关，
+    // 必须显式开启组级加密，否则明文消息不会被拒收、policy_violation 永不到来。
+    final setMode = await clientA.post(
+      '/api/v1/group/set_e2ee_mode',
+      data: {'gid': gid, 'e2ee_mode': 1},
+    );
+    ApiAssert.success(setMode, context: 'group/set_e2ee_mode');
+
     final ws = await _connect(clientA);
     try {
       final mark = '$_msgPrefix-PLAIN-${DateTime.now().millisecondsSinceEpoch}';
