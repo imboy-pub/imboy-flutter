@@ -928,9 +928,10 @@ class ChatNetworkService {
       return t.main.e2eeErrSessionExportFailed;
     }
     if (errorStr.contains('compliance_key_unavailable')) {
-      // 合规密钥获取失败（网络/后端不可达或密钥过期），
-      // 与 compliance_key_changed（已轮换）行动指引一致。
-      return t.main.e2eeErrComplianceChanged;
+      // 合规密钥获取失败（网络/后端不可达或密钥过期）：与已轮换的
+      // compliance_key_changed 语义不同——这里是"拿不到密钥"，用户无从
+      // 确认轮换，给"稍后重试"而非"确认轮换"指引。
+      return t.main.e2eeErrComplianceUnavailable;
     }
     if (errorStr.contains('suite_mismatch') ||
         errorStr.contains('suite mismatch')) {
@@ -956,7 +957,10 @@ class ChatNetworkService {
     // 兜底：未匹配任何已知错误码。附带原始错误字符串（截断 80 字符），
     // 让用户截图反馈时开发者能直接定位根因——release 构建无 iPrint/AppLogger
     // 日志，文案是唯一可诊断通道。此前只返回笼统文案，用户与开发者都无法定位。
-    final snippet = errorStr.length > 80 ? errorStr.substring(0, 80) : errorStr;
+    // 用 error.toString()（原始大小写）而非 errorStr（已 toLowerCase），
+    // 保证错误码原文可读。
+    final raw = error.toString();
+    final snippet = raw.length > 80 ? raw.substring(0, 80) : raw;
     return '${t.main.e2eeErrDefault}（$snippet）';
   }
 

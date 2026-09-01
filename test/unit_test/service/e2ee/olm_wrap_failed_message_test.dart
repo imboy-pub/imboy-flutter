@@ -57,10 +57,24 @@ void main() {
     expect(message, isNot(t.main.e2eeErrDefault));
   });
 
-  test('未知异常落兜底文案并附带错误码', () {
-    final message = service.getE2EEErrorMessage(Exception('whatever_unknown'));
+  test('compliance_key_unavailable 路由到独立的稍后重试文案', () {
+    final message = service.getE2EEErrorMessage(
+      'E2eeSecurityException: compliance_key_unavailable',
+    );
+    // unavailable（取不到密钥）与 changed（已轮换）语义不同，
+    // 必须路由到独立键，不能复用 compliance_key_changed 的"确认轮换"指引。
+    expect(message, t.main.e2eeErrComplianceUnavailable);
+    expect(message, isNot(t.main.e2eeErrComplianceChanged));
+    expect(message, isNot(t.main.e2eeErrDefault));
+  });
+
+  test('未知异常落兜底文案并附带原始大小写的错误码', () {
+    final message = service.getE2EEErrorMessage(
+      Exception('Whatever_UNKNOWN_Error'),
+    );
     expect(message, contains(t.main.e2eeErrDefault));
-    // 兜底分支附带原始错误码，让用户截图时开发者能直接定位
-    expect(message, contains('whatever_unknown'));
+    // 兜底分支附带原始错误码（保留大小写，不用 toLowerCase 后的值），
+    // 让用户截图时开发者能直接定位。
+    expect(message, contains('Whatever_UNKNOWN_Error'));
   });
 }

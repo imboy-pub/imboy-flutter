@@ -2516,6 +2516,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get e2eeErrDefault => 'End-to-end encryption failed, message not sent';
 	@override String get e2eeErrPeerDeviceNotReady => 'Some members\' devices haven\'t finished security setup, message not sent; please try again later';
 	@override String get e2eeErrComplianceChanged => 'Compliance audit key changed, message not sent. Confirm rotation and retry';
+	@override String get e2eeErrComplianceUnavailable => 'Compliance key temporarily unavailable, message not sent, please try again later';
 	@override String get e2eeErrDeviceNotReady => 'Your device hasn\'t finished security initialization, please log out and back in then retry';
 	@override String get e2eeErrSessionExportFailed => 'Group session key generation failed, please try again later';
 	@override String get e2eeErrProtocolMismatch => 'Encryption protocol mismatch, please update the app and retry';
@@ -5250,6 +5251,7 @@ extension on TranslationsEnUs {
 			'main.e2eeErrDefault' => 'End-to-end encryption failed, message not sent',
 			'main.e2eeErrPeerDeviceNotReady' => 'Some members\' devices haven\'t finished security setup, message not sent; please try again later',
 			'main.e2eeErrComplianceChanged' => 'Compliance audit key changed, message not sent. Confirm rotation and retry',
+			'main.e2eeErrComplianceUnavailable' => 'Compliance key temporarily unavailable, message not sent, please try again later',
 			'main.e2eeErrDeviceNotReady' => 'Your device hasn\'t finished security initialization, please log out and back in then retry',
 			'main.e2eeErrSessionExportFailed' => 'Group session key generation failed, please try again later',
 			'main.e2eeErrProtocolMismatch' => 'Encryption protocol mismatch, please update the app and retry',
@@ -5539,9 +5541,9 @@ extension on TranslationsEnUs {
 			'workspace.taskStatusTodo' => 'To do',
 			'workspace.taskStatusDoing' => 'Doing',
 			'workspace.taskStatusReview' => 'Review',
-			'workspace.taskStatusDone' => 'Done',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskStatusDone' => 'Done',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Advance to "${status}"',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Move ${title} back to…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Moved to "${status}"',
