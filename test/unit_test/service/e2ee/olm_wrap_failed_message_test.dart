@@ -33,10 +33,34 @@ void main() {
     );
   });
 
-  test('未知异常仍落默认兜底文案', () {
-    expect(
-      service.getE2EEErrorMessage(Exception('whatever_unknown')),
-      t.main.e2eeErrDefault,
+  test('sender_device_id_missing 路由到设备未初始化文案', () {
+    final message = service.getE2EEErrorMessage(
+      'E2eeSecurityException: sender_device_id_missing',
     );
+    expect(message, t.main.e2eeErrDeviceNotReady);
+    expect(message, isNot(t.main.e2eeErrDefault));
+  });
+
+  test('megolm_export_failed 路由到会话密钥生成失败文案', () {
+    final message = service.getE2EEErrorMessage(
+      Exception('megolm_export_failed'),
+    );
+    expect(message, t.main.e2eeErrSessionExportFailed);
+    expect(message, isNot(t.main.e2eeErrDefault));
+  });
+
+  test('suite mismatch 路由到协议配置异常文案', () {
+    final message = service.getE2EEErrorMessage(
+      StateError('E2EE suite mismatch: selected=megolm, registered=olm'),
+    );
+    expect(message, t.main.e2eeErrProtocolMismatch);
+    expect(message, isNot(t.main.e2eeErrDefault));
+  });
+
+  test('未知异常落兜底文案并附带错误码', () {
+    final message = service.getE2EEErrorMessage(Exception('whatever_unknown'));
+    expect(message, contains(t.main.e2eeErrDefault));
+    // 兜底分支附带原始错误码，让用户截图时开发者能直接定位
+    expect(message, contains('whatever_unknown'));
   });
 }

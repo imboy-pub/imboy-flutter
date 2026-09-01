@@ -7445,6 +7445,15 @@ class Translations$main$zh_CN {
 	/// zh-CN: '合规审计密钥已变更，消息未发送，请确认轮换后重试'
 	String get e2eeErrComplianceChanged => '合规审计密钥已变更，消息未发送，请确认轮换后重试';
 
+	/// zh-CN: '当前设备未完成安全初始化，请退出重新登录后重试'
+	String get e2eeErrDeviceNotReady => '当前设备未完成安全初始化，请退出重新登录后重试';
+
+	/// zh-CN: '群会话密钥生成失败，请稍后重试'
+	String get e2eeErrSessionExportFailed => '群会话密钥生成失败，请稍后重试';
+
+	/// zh-CN: '加密协议配置异常，请更新应用后重试'
+	String get e2eeErrProtocolMismatch => '加密协议配置异常，请更新应用后重试';
+
 	/// zh-CN: '合规审计密钥'
 	String get complianceKeyInfoTitle => '合规审计密钥';
 
@@ -11080,6 +11089,9 @@ extension on Translations {
 			'main.e2eeErrDefault' => '端到端加密失败，消息未发送',
 			'main.e2eeErrPeerDeviceNotReady' => '有成员的设备尚未完成安全设置，消息未发送；请稍后重试',
 			'main.e2eeErrComplianceChanged' => '合规审计密钥已变更，消息未发送，请确认轮换后重试',
+			'main.e2eeErrDeviceNotReady' => '当前设备未完成安全初始化，请退出重新登录后重试',
+			'main.e2eeErrSessionExportFailed' => '群会话密钥生成失败，请稍后重试',
+			'main.e2eeErrProtocolMismatch' => '加密协议配置异常，请更新应用后重试',
 			'main.complianceKeyInfoTitle' => '合规审计密钥',
 			'main.complianceKeyInfoServerKey' => '服务端下发的公钥',
 			'main.complianceKeyInfoLocalPin' => '本地固定（TOFU）',
@@ -11234,11 +11246,11 @@ extension on Translations {
 			'workspace.pickerEmptySubtitle' => '创建一个工作区，3 分钟开启团队协作（自动创建 Announcements 频道与 General 群）',
 			'workspace.archivedBadge' => '已归档',
 			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.dmEntry' => '私信（全局）',
 			'workspace.experienceModeEntry' => '工作模式',
 			'workspace.experienceModeHint' => '仅切换当前设备的首页，不改变工作区成员或资源权限',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => '个人',
 			'workspace.experienceModeWorkspace' => '工作区',
 			'workspace.switchToWorkspace' => '切换到工作区',

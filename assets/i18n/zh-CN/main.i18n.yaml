@@ -232,6 +232,9 @@ webSwitchToQR: 使用 QR 码登录
 e2eeErrDefault: 端到端加密失败，消息未发送
 e2eeErrPeerDeviceNotReady: 有成员的设备尚未完成安全设置，消息未发送；请稍后重试
 e2eeErrComplianceChanged: 合规审计密钥已变更，消息未发送，请确认轮换后重试
+e2eeErrDeviceNotReady: 当前设备未完成安全初始化，请退出重新登录后重试
+e2eeErrSessionExportFailed: 群会话密钥生成失败，请稍后重试
+e2eeErrProtocolMismatch: 加密协议配置异常，请更新应用后重试
 complianceKeyInfoTitle: 合规审计密钥
 complianceKeyInfoServerKey: 服务端下发的公钥
 complianceKeyInfoLocalPin: 本地固定（TOFU）
