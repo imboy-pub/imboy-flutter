@@ -94,3 +94,5 @@ TEST_ALLOW_DUAL_ACCOUNT_GROUP_PROD_WRITES / TEST_ALLOW_DUAL_ACCOUNT_GROUP_COLLAB
 | strict 群双真机群聊收发走查（P0 修复后的端到端人工验收） | 需第二台设备 |
 | patrol 原生配置按官方文档接通 | 待立项 |
 | 数据依赖类测试自带 API fixture 化（系统性改造） | 待立项 |
+| group_chat_test fixture 化——五层深挖触及产品语义边界（建群事件不投递发起者/邀请被静默吞/投递排除发送者/全局门拒明文/伪密文卡 OLM identity）。**已 skip 整个 group 并提交（42a0c088）**，五层取证 docstring 与 helper 保留在仓内；阻塞于后端 OLM identity 拉取链，补齐后去掉 skip 即可恢复 | 已收口（阻塞于后端） |
+| two_client/mac_e2ee_server_probe——**确认失败为 macOS 环境性 flake**（connectivity 变化触发 WS 重连 + IncomingBackup 平台通道死亡 + 账号被别处登录触发 logged_another_device → 2min 超时，从未执行到 user_keys/report_device_key 探针逻辑），非其本要诊断的"report_device_key 落库失败"信号。批次85 历史探针，勿再重追 | 已收口（非真信号） |
