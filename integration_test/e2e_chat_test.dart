@@ -15,6 +15,9 @@ void main() {
       await ensureAppLaunched(tester, maxSeconds: 3);
       if (!await checkPreconditions(tester)) return;
       await settle(tester, maxSeconds: 2);
+      // 全新环境首次登录会弹 E2EE 恢复指南，「稍后」关掉避免挡住会话列表。
+      await dismissRecoveryGuide(tester);
+      await settle(tester, maxSeconds: 2);
 
       if (!await _openConversationTab(tester)) {
         markTestSkipped('无法进入会话列表');

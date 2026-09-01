@@ -666,3 +666,22 @@ Future<bool> checkPreconditions(WidgetTester tester) async {
   }
   return autoLoginOrSkip(tester);
 }
+
+/// E2EE 恢复指南弹窗出现时点「稍后」关闭。
+///
+/// 全新环境（清数据/首装）首次登录必弹「本设备已生成新的端到端加密密钥」
+/// 恢复指南（CupertinoAlertDialog），不关掉会挡住后续页面流程导致超时。
+/// 参考 single_chat_readonly_test 的同名私有 helper（首例实证）。
+Future<void> dismissRecoveryGuide(WidgetTester tester) async {
+  for (int i = 0; i < 20; i++) {
+    final later = find.byWidgetPredicate(
+      (widget) =>
+          widget is Text && ['稍后', 'Later'].contains(widget.data?.trim()),
+    );
+    if (tester.any(later)) {
+      await safeTap(tester, later.first);
+      return;
+    }
+    await tester.pump(const Duration(milliseconds: 200));
+  }
+}

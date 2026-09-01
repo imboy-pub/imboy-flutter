@@ -24,7 +24,7 @@ void main() {
       await settle(tester, maxSeconds: 2);
       // 全新环境首次登录会弹 E2EE 恢复指南（本设备新密钥提示），
       // 「稍后」关掉它，否则钱包页流程被弹窗挡住超时。
-      await _dismissRecoveryGuide(tester);
+      await dismissRecoveryGuide(tester);
       await settle(tester, maxSeconds: 2);
 
       final navigatorFinder = find.byType(Navigator);
@@ -72,19 +72,4 @@ Future<bool> _waitFor(
     await tester.pump(const Duration(milliseconds: 500));
   }
   return predicate();
-}
-
-/// E2EE 恢复指南弹窗出现时点「稍后」关闭（全新环境首次登录必弹）。
-Future<void> _dismissRecoveryGuide(WidgetTester tester) async {
-  for (int i = 0; i < 20; i++) {
-    final later = find.byWidgetPredicate(
-      (widget) =>
-          widget is Text && ['稍后', 'Later'].contains(widget.data?.trim()),
-    );
-    if (tester.any(later)) {
-      await safeTap(tester, later.first);
-      return;
-    }
-    await tester.pump(const Duration(milliseconds: 200));
-  }
 }
