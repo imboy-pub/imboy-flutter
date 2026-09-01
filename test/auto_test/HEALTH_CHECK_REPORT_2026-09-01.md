@@ -89,7 +89,7 @@ TEST_ALLOW_DUAL_ACCOUNT_GROUP_PROD_WRITES / TEST_ALLOW_DUAL_ACCOUNT_GROUP_COLLAB
 
 | 项 | 归属 |
 |---|---|
-| 裸 WS 下行 0 帧（DF-08：ACK/policy_violation 收不到而后端落库正常；websocket_ds 07-25 后零改动，非近期回归） | 待排障 |
+| 裸 WS 下行 0 帧（DF-08：ACK/policy_violation 收不到而后端落库正常；websocket_ds 07-25 后零改动，非近期回归）。服务端门与返回链逐环验证正常；**根因范围锁定：下行投递依赖在线表注册（user_logic:online），同 uid 多连接并存时裸 WS 注册被真机连接覆盖**——需后端侧确认 | 待排障（后端侧） |
 | e2e_chat 废弃/改造（被 c2c_e2ee_send_render 取代性覆盖） | **待拍板** |
 | strict 群双真机群聊收发走查（P0 修复后的端到端人工验收） | 需第二台设备 |
 | patrol 原生配置按官方文档接通 | 待立项 |
