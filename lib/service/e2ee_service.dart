@@ -759,10 +759,15 @@ class E2EEService {
       return 'to';
     }
 
-    // 4.5 gid 校验 (C2G 辅助)
+    // 4.5 gid 校验 (C2G 辅助)。
+    // 帧 gid 是可选路由字段：客户端发送帧与后端 MsgBase 均不携带（恒空），
+    // 恒等比对会把每条 C2G PFv3 消息误判 context_mismatch_gid 拒收
+    // （真机实证：e2ee_group_outbound_frame_test）。群归属已由步骤 4 的
+    // to == conversation_id == destination 三方比对钉死；本步仅在
+    // 上游显式携带 gid 时才比对，跨群复制防护不回退。
     if (payloadType == 'C2G') {
       final payloadGid = payload['gid']?.toString() ?? '';
-      if (payloadGid != headerConvId) {
+      if (payloadGid.isNotEmpty && payloadGid != headerConvId) {
         return 'gid';
       }
     }

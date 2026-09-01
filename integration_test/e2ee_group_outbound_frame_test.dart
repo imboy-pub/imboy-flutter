@@ -18,6 +18,8 @@ import 'package:imboy/config/init.dart' show deviceId;
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/e2ee/protected_frame_v3.dart'
+    show ProtectedFrameV3;
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/encryption_mode.dart';
@@ -198,30 +200,48 @@ void main() {
       expect(frame['id'], _messageId);
       expect(frame['type'], 'C2G');
       expect(frame['msg_type'], 'text');
-      expect(frame['payload'], isA<String>());
-      expect(frame['payload'], isNot(contains(_plaintext)));
-      expect(e2ee['protocol'], 'megolm');
-      expect(e2ee['version'], 1);
-      expect(e2ee['e2ee_suite'], 'MEGOLM.V1');
-      expect(e2ee['meta_version'], 2);
-      expect(e2ee['gid'], _gid);
-      expect(e2ee['session_id'], isA<String>());
-
-      final decrypted = await GroupSessionService.to.decryptGroupMessage(
-        gid: _gid,
-        sessionId: e2ee['session_id'] as String,
-        ciphertext: frame['payload'] as String,
+      // PFv3（E2EE-025）：外层 payload 恒为空串，密文在信封内
+      expect(frame['payload'], '');
+      // v3 外层信封结构——C2G 已从 v2 扁平 metadata 统一升级为 PFv3 信封
+      expect(e2ee['meta_version'], 3);
+      final protocolMetadata = (e2ee['protocol_metadata'] as Map)
+          .cast<String, dynamic>();
+      expect(protocolMetadata['protocol'], 'megolm');
+      expect(protocolMetadata['version'], 1);
+      expect(protocolMetadata['e2ee_suite'], 'MEGOLM.V1');
+      expect(protocolMetadata['gid'], _gid);
+      final sessionId = protocolMetadata['session_id'] as String;
+      expect(sessionId, isNotEmpty);
+      final verified = ProtectedFrameV3.verifyOuterEnvelope(e2ee);
+      expect(verified.isValid, isTrue);
+      expect(verified.decodedHeader!['message_id'], _messageId);
+      // Megolm 密文 = base64url(utf8(innerFrameB64))
+      final megolmCiphertext = utf8.decode(
+        base64Url.decode(e2ee['ciphertext'] as String),
       );
-      expect((jsonDecode(decrypted) as Map)['text'], _plaintext);
+      expect(megolmCiphertext, isNot(contains(_plaintext)));
+
+      // 生产入站路径验收（v3 信封 → Megolm → inner frame payload）。
+      // WS 服务端会从认证连接上下文回填可信 sender_did；捕获的是上行前
+      // 客户端帧，入站验收前模拟这一个路由字段（与 C2C 验收同款）。
+      final received = await E2EEService.decryptIncomingPayload(
+        payload: {...frame, 'sender_did': _senderDid},
+      );
+      expect(
+        received['_e2ee_failed'],
+        isNull,
+        reason: 'v3 解密失败 reason=${received['_e2ee_reason']}',
+      );
+      expect(received['text'], _plaintext);
+      expect(received['_e2ee_v3_verified'], isTrue);
 
       // 模拟重进会话：清掉内存会话后，接收侧必须从安全存储恢复 inbound。
       GroupSessionService.to.clearMemory();
-      final recovered = await GroupSessionService.to.decryptGroupMessage(
-        gid: _gid,
-        sessionId: e2ee['session_id'] as String,
-        ciphertext: frame['payload'] as String,
+      final recovered = await E2EEService.decryptIncomingPayload(
+        payload: {...frame, 'sender_did': _senderDid},
       );
-      expect((jsonDecode(recovered) as Map)['text'], _plaintext);
+      expect(recovered['_e2ee_failed'], isNull);
+      expect(recovered['text'], _plaintext);
 
       // 同一真实 Megolm 密文再走生产离线/历史消息映射入口，确认 UI 层
       // 不是只在 GroupSessionService 直调时能解密。
@@ -239,13 +259,14 @@ void main() {
         msgType: 'text',
         action: '',
         e2ee: e2ee,
+        senderDid: _senderDid,
       ).toTypeMessage();
       expect(mapped, isA<TextMessage>());
       expect((mapped as TextMessage).text, _plaintext);
 
       expect(roomKey, isNotNull);
       expect(roomKey!['gid'], _gid);
-      expect(roomKey!['session_id'], e2ee['session_id']);
+      expect(roomKey!['session_id'], sessionId);
       final keys = roomKey!['keys'] as List;
       expect(keys, hasLength(2));
       expect(
@@ -271,11 +292,14 @@ void main() {
           messageType: olm['type'] as int,
         );
         final peerGroupInbound = vod.InboundGroupSession.import(exported);
-        expect(peerGroupInbound.sessionId, e2ee['session_id']);
+        expect(peerGroupInbound.sessionId, sessionId);
+        // PFv3 下 Megolm 原文是 inner frame 的 base64url CBOR（非裸 JSON）；
+        // CBOR/明文还原已由上面生产入站路径段覆盖，这里验证对端设备
+        // 能用 room key 导入的会话解出非空原文即可。
         final peerPlaintext = peerGroupInbound
-            .decrypt(frame['payload'] as String)
+            .decrypt(megolmCiphertext)
             .plaintext;
-        expect((jsonDecode(peerPlaintext) as Map)['text'], _plaintext);
+        expect(peerPlaintext, isNotEmpty);
       }
     } finally {
       await subscription.cancel();
