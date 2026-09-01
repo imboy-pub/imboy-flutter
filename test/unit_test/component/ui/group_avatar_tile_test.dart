@@ -35,8 +35,9 @@ void main() {
         ),
       );
 
-      // 2-4 人布局：3 个 tile，其中空串短路为 Container，只剩 2 个 OctoImage
+      // 2-4 人布局：3 个 tile，其中空串占位为灰底+人形剪影，剩 2 个 OctoImage
       expect(find.byType(OctoImage), findsNWidgets(2));
+      expect(find.byIcon(CupertinoIcons.person_2), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
@@ -59,6 +60,7 @@ void main() {
       );
 
       expect(find.byType(OctoImage), findsNWidgets(4));
+      expect(find.byIcon(CupertinoIcons.person_2), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

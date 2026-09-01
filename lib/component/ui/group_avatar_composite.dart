@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:flutter/cupertino.dart' show CupertinoIcons, TextPainter;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 
@@ -319,6 +320,8 @@ class GroupAvatarComposite {
       ),
     );
     if (tile == null) {
+      // 空头像：灰底 + 人形剪影，对齐 legacy _buildAvatarTile 空串分支
+      // （微信同款观感；纯色块真机验收被批"半张脸+白块"）。
       canvas.drawRect(
         rect,
         ui.Paint()
@@ -326,11 +329,14 @@ class GroupAvatarComposite {
               ? AppColors.placeholderSurfaceDark
               : AppColors.placeholderSurfaceLight,
       );
+      _paintPersonGlyph(canvas, rect);
       return;
     }
     canvas.drawImageRect(
       tile,
-      ui.Rect.fromLTWH(0, 0, tile.width.toDouble(), tile.height.toDouble()),
+      // BoxFit.cover 语义：按目标宽高比居中裁剪，非方形格（2 人格
+      // half×size）不得整图拉伸变形。
+      _coverSrcRect(tile, rect),
       rect,
       ui.Paint()..filterQuality = ui.FilterQuality.medium,
     );
@@ -345,6 +351,47 @@ class GroupAvatarComposite {
 
   static void _notifyRebuild() {
     (rebuildNotifier as _RebuildNotifier).notify();
+  }
+
+  /// BoxFit.cover 的 src 裁剪：图片宽高比与目标不一致时按比例居中裁，
+  /// 对齐 legacy OctoImage(fit: cover) 不拉伸。
+  static ui.Rect _coverSrcRect(ui.Image tile, ui.Rect dst) {
+    final iw = tile.width.toDouble();
+    final ih = tile.height.toDouble();
+    final dstRatio = dst.width / dst.height;
+    final srcRatio = iw / ih;
+    if ((srcRatio - dstRatio).abs() < 0.001) {
+      return ui.Rect.fromLTWH(0, 0, iw, ih);
+    }
+    if (srcRatio > dstRatio) {
+      // 图更宽：裁左右
+      final w = ih * dstRatio;
+      return ui.Rect.fromLTWH((iw - w) / 2, 0, w, ih);
+    }
+    // 图更高：裁上下
+    final h = iw / dstRatio;
+    return ui.Rect.fromLTWH(0, (ih - h) / 2, iw, h);
+  }
+
+  /// 空头像格的人形剪影：TextPainter 画 CupertinoIcons 字形，
+  /// 手法与 IconImageProvider 相同（fontFamily+package 缺一不可，
+  /// 否则渲染成缺字形方框）；观感对齐 legacy 的
+  /// Icon(CupertinoIcons.person_2, size: size*0.3, color: iosGray)。
+  static void _paintPersonGlyph(ui.Canvas canvas, ui.Rect rect) {
+    final icon = CupertinoIcons.person_2;
+    final iconSize = rect.shortestSide * 0.6;
+    final tp = TextPainter(textDirection: TextDirection.ltr)
+      ..text = TextSpan(
+        text: String.fromCharCode(icon.codePoint),
+        style: TextStyle(
+          fontSize: iconSize,
+          fontFamily: icon.fontFamily,
+          package: icon.fontPackage,
+          color: AppColors.iosGray,
+        ),
+      )
+      ..layout();
+    tp.paint(canvas, rect.center - ui.Offset(tp.width / 2, tp.height / 2));
   }
 }
 

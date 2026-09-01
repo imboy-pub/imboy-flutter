@@ -286,12 +286,21 @@ class GroupAvatar extends StatelessWidget {
     required bool isDark,
   }) {
     // 空头像占位：保留格子位置（拼图顺序由 user_id 决定，不因缺头像
-    // 漂移），不走 OctoImage 的网络/解码报错路径。
+    // 漂移），不走 OctoImage 的网络/解码报错路径。纯色块在真机上观感是
+    // "半张脸+白块"（用户 2026-08-31 验收反馈），对齐微信改为
+    // 灰底 + 人形剪影；Canvas 合成路径的空格画法见
+    // GroupAvatarComposite._paintTileWithCorners，两侧同步改。
     if (url.isEmpty) {
       return Container(
         color: isDark
             ? AppColors.placeholderSurfaceDark
             : AppColors.placeholderSurfaceLight,
+        alignment: Alignment.center,
+        child: Icon(
+          CupertinoIcons.person_2,
+          size: size * 0.3,
+          color: AppColors.iosGray,
+        ),
       );
     }
     return ClipRRect(
