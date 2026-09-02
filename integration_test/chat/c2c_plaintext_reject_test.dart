@@ -1,7 +1,9 @@
 // C2C 明文拒收安全回归（strict E2EE fail-closed 语义）：
 // 对端账号经 FlowApiClient 登录 + WebSocket 直发一条**无 e2ee 字段的明文**
 // text 消息；strict 部署（e2ee_mode=required）下被测端必须拒收——
-// 不建会话、不落库、不渲染。会话未出现 = PASS（fail-closed 生效）。
+// 不落库、不渲染。明文文本未出现 = PASS（fail-closed 生效）。
+// 判定信号是明文内容本身而非「出现 C2C 会话」：重登后 app 从 history
+// 同步密文历史会合法重建会话（2026-09-02 定案，旧断言曾因此误判）。
 //
 // 背景：E2EE 红队审计确立的安全语义——明文 C2C 在 strict 模式下绝不
 // 落库渲染。本测试把该语义固化为自动化回归，防将来被无意放宽。
@@ -13,7 +15,6 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:imboy/page/conversation/widget/conversation_item.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../flows/api_test_client.dart';
@@ -82,20 +83,15 @@ void main() {
 
       // 3. 被测端观察窗口内不允许出现新 C2C 会话（fail-closed 验证）
       await settle(tester, maxSeconds: 3);
-      Future<bool> hasC2C() async {
+      Future<bool> hasPlaintextLeak() async {
         // 每轮 pump 驱动帧刷新后再查
         await tester.pump(const Duration(milliseconds: 500));
-        return tester.any(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is ConversationItem && widget.model.type == 'C2C',
-          ),
-        );
+        return tester.any(find.textContaining(msgText));
       }
 
       var leaked = false;
       for (int i = 0; i < 20; i++) {
-        if (await hasC2C()) {
+        if (await hasPlaintextLeak()) {
           leaked = true;
           break;
         }
@@ -105,7 +101,11 @@ void main() {
         isFalse,
         reason:
             'strict 模式收到明文 C2C 必须拒收——'
-            '会话出现意味着 fail-closed 被破坏，属安全回归',
+            '明文文本出现意味着 fail-closed 被破坏，属安全回归。'
+            '注意：C2C ConversationItem 本身不是泄漏信号，pm clear 重登后 '
+            'app 从服务端 history 同步密文历史会在 UI 层合法重建会话'
+            '（2026-09-02 定案：服务端拒收经 remsh + staging/msg_c2c/'
+            'conversation 三重实证完好，旧断言误判）',
       );
       await takeScreenshot(tester, 'c2cplat_01_no_leak');
       drainKnownFrameworkExceptions(tester);

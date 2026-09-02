@@ -1,4 +1,5 @@
 // integration_test/app_test.dart
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -23,7 +24,15 @@ void main() {
         findsOneWidget,
         reason: 'MaterialApp 应唯一存在',
       );
-      expect(find.byType(Scaffold), findsWidgets, reason: '启动后应有 Scaffold');
+      // 登录/欢迎页已 Cupertino 化（CupertinoPageScaffold，login_page.dart），
+      // 主 Shell 才有 Material Scaffold；两种页面骨架任一存在即算启动成功。
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Scaffold || w is CupertinoPageScaffold,
+        ),
+        findsWidgets,
+        reason: '启动后应有页面骨架（Scaffold 或 CupertinoPageScaffold）',
+      );
     });
 
     testWidgets('进入可操作入口（登录页或主 Shell）', (tester) async {

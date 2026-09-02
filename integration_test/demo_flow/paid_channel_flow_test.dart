@@ -209,7 +209,8 @@ Future<Map<String, dynamic>> _waitForPaidOrder(
 }
 
 void _assertPaidChannel(Map<String, dynamic> channel, String phase) {
-  expect(_readInt(channel['type']), 2, reason: '$phase目标必须是付费频道');
+  // 访问模型重构（2026-08-26）后付费判定=access_type==1（channel_logic_order.erl），旧 type=2 已废弃
+  expect(_readInt(channel['access_type']), 1, reason: '$phase目标必须是付费频道');
   expect(
     channel.containsKey('is_subscribed'),
     isTrue,
