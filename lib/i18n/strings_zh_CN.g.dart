@@ -7982,8 +7982,8 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '请先选择或创建一个工作区'
 	String get emptyNoWorkspace => '请先选择或创建一个工作区';
 
-	/// zh-CN: '私信（全局）'
-	String get dmEntry => '私信（全局）';
+	/// zh-CN: '全部消息'
+	String get dmEntry => '全部消息';
 
 	/// zh-CN: '首页布局'
 	String get experienceModeEntry => '首页布局';
@@ -11255,7 +11255,7 @@ extension on Translations {
 			_ => null,
 		} ?? switch (path) {
 			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
-			'workspace.dmEntry' => '私信（全局）',
+			'workspace.dmEntry' => '全部消息',
 			'workspace.experienceModeEntry' => '首页布局',
 			'workspace.experienceModeHint' => '选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份',
 			'workspace.experienceModePersonal' => '个人',

@@ -2727,7 +2727,7 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'Create one and get started in 3 minutes (Announcements channel and General group included)';
 	@override String get archivedBadge => 'Archived';
 	@override String get emptyNoWorkspace => 'Select or create a workspace first';
-	@override String get dmEntry => 'Direct messages';
+	@override String get dmEntry => 'All messages';
 	@override String get experienceModeEntry => 'Home layout';
 	@override String get experienceModeHint => 'Choose this device\'s experience; only the home layout changes, not permissions or workspace membership';
 	@override String get experienceModePersonal => 'Personal';
@@ -5400,7 +5400,7 @@ extension on TranslationsEnUs {
 			'workspace.pickerEmptySubtitle' => 'Create one and get started in 3 minutes (Announcements channel and General group included)',
 			'workspace.archivedBadge' => 'Archived',
 			'workspace.emptyNoWorkspace' => 'Select or create a workspace first',
-			'workspace.dmEntry' => 'Direct messages',
+			'workspace.dmEntry' => 'All messages',
 			'workspace.experienceModeEntry' => 'Home layout',
 			'workspace.experienceModeHint' => 'Choose this device\'s experience; only the home layout changes, not permissions or workspace membership',
 			'workspace.experienceModePersonal' => 'Personal',

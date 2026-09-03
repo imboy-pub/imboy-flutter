@@ -40,7 +40,7 @@ class WorkspaceShellPage extends ConsumerWidget {
     final t = context.t;
     final shell = ref.watch(workspaceShellProvider);
     final items = buildWorkspaceShellNavItems(
-      conversationsLabel: t.chat.titleMessage,
+      conversationsLabel: t.workspace.dmEntry,
       overviewLabel: t.workspace.navOverview,
       channelsLabel: t.workspace.navChannels,
       groupsLabel: t.workspace.navGroups,
@@ -92,18 +92,20 @@ class _DestinationStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return IndexedStack(
       key: const ValueKey('workspace-shell-destination-stack'),
       index: index,
-      children: const [
+      children: [
         ConversationPage(
-          leading: WorkspaceSwitcherChip(),
-          trailingActions: [WorkspaceAccountButton()],
+          title: t.workspace.dmEntry,
+          leading: const WorkspaceSwitcherChip(),
+          trailingActions: const [WorkspaceAccountButton()],
         ),
-        WorkspaceOverviewPage(),
-        WorkspaceChannelsPage(),
-        WorkspaceGroupsPage(),
-        WorkspaceProjectsPage(),
+        const WorkspaceOverviewPage(),
+        const WorkspaceChannelsPage(),
+        const WorkspaceGroupsPage(),
+        const WorkspaceProjectsPage(),
       ],
     );
   }

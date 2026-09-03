@@ -75,7 +75,7 @@ String workspaceShellDestinationTitle(
   WorkspaceShellDestination destination,
 ) {
   return switch (destination) {
-    WorkspaceShellDestination.conversations => t.chat.titleMessage,
+    WorkspaceShellDestination.conversations => t.workspace.dmEntry,
     WorkspaceShellDestination.overview => t.workspace.navOverview,
     WorkspaceShellDestination.channels => t.workspace.navChannels,
     WorkspaceShellDestination.groups => t.workspace.navGroups,

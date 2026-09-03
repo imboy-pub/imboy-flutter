@@ -13,7 +13,7 @@ pickerEmptyTitle: "No workspace yet"
 pickerEmptySubtitle: "Create one and get started in 3 minutes (Announcements channel and General group included)"
 archivedBadge: "Archived"
 emptyNoWorkspace: "Select or create a workspace first"
-dmEntry: "Direct messages"
+dmEntry: "All messages"
 # ==================== Personal / workspace experience ====================
 experienceModeEntry: "Home layout"
 experienceModeHint: "Choose this device's experience; only the home layout changes, not permissions or workspace membership"

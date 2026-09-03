@@ -71,7 +71,7 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-bottom-nav')),
       findsOneWidget,
     );
-    expect(find.text('消息'), findsWidgets);
+    expect(find.text('全部消息'), findsWidgets);
     expect(find.text('概览'), findsWidgets);
     expect(find.text('频道'), findsWidgets);
     expect(find.text('群组'), findsWidgets);
@@ -100,7 +100,7 @@ void main() {
     );
   });
 
-  testWidgets('会话目的地：自带导航栏 [chip | 消息 | 搜索+＋+头像]，壳顶栏隐藏', (tester) async {
+  testWidgets('会话目的地：自带导航栏 [chip | 全部消息 | 搜索+＋+头像]，壳顶栏隐藏', (tester) async {
     final container = await _seededContainer();
     addTearDown(container.dispose);
 
@@ -124,6 +124,7 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-account-entry')),
       findsWidgets,
     );
+    expect(find.text('全部消息'), findsWidgets);
   });
 
   testWidgets('桌面端：NavigationRail 五项 + 顶部切换器 + 头像沉底', (tester) async {
@@ -146,7 +147,7 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-account-entry')),
       findsWidgets,
     );
-    expect(find.text('消息'), findsWidgets);
+    expect(find.text('全部消息'), findsWidgets);
     expect(find.text('项目'), findsWidgets);
     expect(find.text('成员'), findsNothing);
   });

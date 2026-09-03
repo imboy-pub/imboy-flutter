@@ -54,7 +54,7 @@ class _NoBrandingFakeApi extends WorkspaceApi {
 void main() {
   group('WorkspaceShellNavItems（§4.2 IA + 频率分层收敛）', () {
     final items = buildWorkspaceShellNavItems(
-      conversationsLabel: '消息',
+      conversationsLabel: '全部消息',
       overviewLabel: '概览',
       projectsLabel: '项目',
       channelsLabel: '频道',
@@ -73,7 +73,7 @@ void main() {
       // 2026-08-31 UX 收敛：DM 进一级导航且排第一；Files 不做一级导航；
       // Members 退出（治理低频，入口收敛进 Overview 成员卡片）
       expect(items.first.destination, WorkspaceShellDestination.conversations);
-      expect(items.first.label, '消息');
+      expect(items.first.label, '全部消息');
       expect(items.last.destination, WorkspaceShellDestination.projects);
       expect(items.map((i) => i.destination).toSet(), {
         WorkspaceShellDestination.conversations,

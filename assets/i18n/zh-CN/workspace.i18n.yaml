@@ -12,7 +12,7 @@ pickerEmptyTitle: "还没有工作区"
 pickerEmptySubtitle: "创建一个工作区，3 分钟开启团队协作（自动创建 Announcements 频道与 General 群）"
 archivedBadge: "已归档"
 emptyNoWorkspace: "请先选择或创建一个工作区"
-dmEntry: "私信（全局）"
+dmEntry: "全部消息"
 # ==================== 个人 / 工作区体验切换 ====================
 experienceModeEntry: "首页布局"
 experienceModeHint: "选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份"

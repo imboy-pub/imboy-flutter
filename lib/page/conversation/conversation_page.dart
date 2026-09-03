@@ -62,7 +62,15 @@ class ConversationPage extends ConsumerStatefulWidget {
   /// 宿主壳追加到右上角动作之后的元素（workspace 壳挂账户头像）。
   final List<Widget>? trailingActions;
 
-  const ConversationPage({super.key, this.leading, this.trailingActions});
+  /// 宿主壳可覆盖页面标题；Personal 默认继续使用“消息”。
+  final String? title;
+
+  const ConversationPage({
+    super.key,
+    this.leading,
+    this.trailingActions,
+    this.title,
+  });
 
   @override
   ConsumerState<ConversationPage> createState() => _ConversationPageState();
@@ -238,7 +246,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
               .toList();
 
     return IosPageTemplate(
-      title: t.chat.titleMessage,
+      title: widget.title ?? t.chat.titleMessage,
       leading: widget.leading,
       // RightButton 自带 44px 热区；IosPageTemplate 已把 SDK 导航栏
       // leading/trailing 边距收窄为左右各 8px（原 16px，曾致图标字面
