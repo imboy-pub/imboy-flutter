@@ -7985,17 +7985,20 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '私信（全局）'
 	String get dmEntry => '私信（全局）';
 
-	/// zh-CN: '工作模式'
-	String get experienceModeEntry => '工作模式';
+	/// zh-CN: '首页布局'
+	String get experienceModeEntry => '首页布局';
 
-	/// zh-CN: '仅切换当前设备的首页，不改变工作区成员或资源权限'
-	String get experienceModeHint => '仅切换当前设备的首页，不改变工作区成员或资源权限';
+	/// zh-CN: '选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份'
+	String get experienceModeHint => '选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份';
 
 	/// zh-CN: '个人'
 	String get experienceModePersonal => '个人';
 
 	/// zh-CN: '工作区'
 	String get experienceModeWorkspace => '工作区';
+
+	/// zh-CN: '恢复部署默认值'
+	String get experienceModeReset => '恢复部署默认值';
 
 	/// zh-CN: '切换到工作区'
 	String get switchToWorkspace => '切换到工作区';
@@ -11253,10 +11256,11 @@ extension on Translations {
 		} ?? switch (path) {
 			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
 			'workspace.dmEntry' => '私信（全局）',
-			'workspace.experienceModeEntry' => '工作模式',
-			'workspace.experienceModeHint' => '仅切换当前设备的首页，不改变工作区成员或资源权限',
+			'workspace.experienceModeEntry' => '首页布局',
+			'workspace.experienceModeHint' => '选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份',
 			'workspace.experienceModePersonal' => '个人',
 			'workspace.experienceModeWorkspace' => '工作区',
+			'workspace.experienceModeReset' => '恢复部署默认值',
 			'workspace.switchToWorkspace' => '切换到工作区',
 			'workspace.switchToPersonal' => '切换到个人',
 			'workspace.createTitle' => '创建工作区',

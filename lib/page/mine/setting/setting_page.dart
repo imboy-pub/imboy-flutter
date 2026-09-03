@@ -340,7 +340,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   }
 
   Future<void> _selectExperienceMode(ProductExperience current) async {
-    final selected = await showCupertinoModalPopup<ProductExperience>(
+    final selected = await showCupertinoModalPopup<_ExperienceSelection>(
       context: context,
       builder: (sheetContext) => CupertinoActionSheet(
         title: Text(t.workspace.experienceModeEntry),
@@ -349,14 +349,21 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           CupertinoActionSheetAction(
             isDefaultAction: current == ProductExperience.chat,
             onPressed: () =>
-                Navigator.pop(sheetContext, ProductExperience.chat),
+                Navigator.pop(sheetContext, _ExperienceSelection.personal),
             child: Text(t.workspace.experienceModePersonal),
           ),
           CupertinoActionSheetAction(
             isDefaultAction: current == ProductExperience.workspace,
             onPressed: () =>
-                Navigator.pop(sheetContext, ProductExperience.workspace),
+                Navigator.pop(sheetContext, _ExperienceSelection.workspace),
             child: Text(t.workspace.experienceModeWorkspace),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(
+              sheetContext,
+              _ExperienceSelection.deploymentDefault,
+            ),
+            child: Text(t.workspace.experienceModeReset),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
@@ -365,10 +372,24 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         ),
       ),
     );
-    if (selected == null || selected == current) return;
+    if (selected == null) return;
+    if ((selected == _ExperienceSelection.personal &&
+            current == ProductExperience.chat) ||
+        (selected == _ExperienceSelection.workspace &&
+            current == ProductExperience.workspace)) {
+      return;
+    }
 
     try {
-      await ref.read(productExperienceProvider.notifier).select(selected);
+      final notifier = ref.read(productExperienceProvider.notifier);
+      switch (selected) {
+        case _ExperienceSelection.personal:
+          await notifier.select(ProductExperience.chat);
+        case _ExperienceSelection.workspace:
+          await notifier.select(ProductExperience.workspace);
+        case _ExperienceSelection.deploymentDefault:
+          await notifier.resetToDefault();
+      }
       if (!mounted) return;
       context.go('/bottom_navigation');
     } catch (_) {
@@ -587,3 +608,5 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     );
   }
 }
+
+enum _ExperienceSelection { personal, workspace, deploymentDefault }

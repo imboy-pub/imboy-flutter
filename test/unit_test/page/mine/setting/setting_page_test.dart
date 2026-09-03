@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/page/mine/setting/setting_page.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -124,7 +125,7 @@ void main() {
   });
 
   group('SettingPage menu items', () {
-    testWidgets('renders 通用 section 5 个菜单项（含工作模式）', (tester) async {
+    testWidgets('renders 通用 section 5 个菜单项（含首页布局）', (tester) async {
       await _pumpSetting(tester);
 
       // 4 个 setting items 主标题
@@ -133,7 +134,7 @@ void main() {
       expect(find.text('深色模式'), findsOneWidget);
       // fontSettings = @:fontSizeSetting 别名 → 解析为 "字体大小设置"
       expect(find.byIcon(CupertinoIcons.textformat), findsOneWidget);
-      expect(find.text('工作模式'), findsOneWidget);
+      expect(find.text('首页布局'), findsOneWidget);
 
       await _unmount(tester);
     });
@@ -169,10 +170,11 @@ void main() {
       await StorageService.to.remove(Keys.localProductExperience);
       await _pumpSetting(tester);
 
-      await tester.tap(find.text('工作模式'));
+      await tester.tap(find.text('首页布局'));
       await tester.pumpAndSettle();
       expect(find.text('个人'), findsAtLeastNWidgets(2));
       expect(find.text('工作区'), findsOneWidget);
+      expect(find.text('恢复部署默认值'), findsOneWidget);
 
       await tester.tap(find.text('工作区'));
       await tester.pumpAndSettle();
@@ -181,6 +183,27 @@ void main() {
         StorageService.to.getString(Keys.localProductExperience),
         'workspace',
       );
+      await _unmount(tester);
+    });
+
+    testWidgets('恢复部署默认值后删除本机偏好并回到首页', (tester) async {
+      await StorageService.to.setString(
+        Keys.effectiveProductExperience,
+        ProductExperience.workspace.wireName,
+      );
+      await StorageService.to.setString(
+        Keys.localProductExperience,
+        ProductExperience.chat.wireName,
+      );
+      await _pumpSetting(tester);
+
+      await tester.tap(find.text('首页布局'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('恢复部署默认值'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('bottom_navigation stub'), findsOneWidget);
+      expect(StorageService.to.getString(Keys.localProductExperience), isEmpty);
       await _unmount(tester);
     });
 

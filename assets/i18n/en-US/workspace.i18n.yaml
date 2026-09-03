@@ -15,10 +15,11 @@ archivedBadge: "Archived"
 emptyNoWorkspace: "Select or create a workspace first"
 dmEntry: "Direct messages"
 # ==================== Personal / workspace experience ====================
-experienceModeEntry: "Work mode"
-experienceModeHint: "Only changes this device's home screen; workspace membership and resource permissions stay the same"
+experienceModeEntry: "Home layout"
+experienceModeHint: "Choose this device's experience; only the home layout changes, not permissions or workspace membership"
 experienceModePersonal: "Personal"
 experienceModeWorkspace: "Workspace"
+experienceModeReset: "Restore deployment default"
 switchToWorkspace: "Switch to workspace"
 switchToPersonal: "Switch to personal"
 # ==================== Create flow (3-minute setup) ====================

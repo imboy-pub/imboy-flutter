@@ -2728,10 +2728,11 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => 'Archived';
 	@override String get emptyNoWorkspace => 'Select or create a workspace first';
 	@override String get dmEntry => 'Direct messages';
-	@override String get experienceModeEntry => 'Work mode';
-	@override String get experienceModeHint => 'Only changes this device\'s home screen; workspace membership and resource permissions stay the same';
+	@override String get experienceModeEntry => 'Home layout';
+	@override String get experienceModeHint => 'Choose this device\'s experience; only the home layout changes, not permissions or workspace membership';
 	@override String get experienceModePersonal => 'Personal';
 	@override String get experienceModeWorkspace => 'Workspace';
+	@override String get experienceModeReset => 'Restore deployment default';
 	@override String get switchToWorkspace => 'Switch to workspace';
 	@override String get switchToPersonal => 'Switch to personal';
 	@override String get createTitle => 'Create Workspace';
@@ -5400,10 +5401,11 @@ extension on TranslationsEnUs {
 			'workspace.archivedBadge' => 'Archived',
 			'workspace.emptyNoWorkspace' => 'Select or create a workspace first',
 			'workspace.dmEntry' => 'Direct messages',
-			'workspace.experienceModeEntry' => 'Work mode',
-			'workspace.experienceModeHint' => 'Only changes this device\'s home screen; workspace membership and resource permissions stay the same',
+			'workspace.experienceModeEntry' => 'Home layout',
+			'workspace.experienceModeHint' => 'Choose this device\'s experience; only the home layout changes, not permissions or workspace membership',
 			'workspace.experienceModePersonal' => 'Personal',
 			'workspace.experienceModeWorkspace' => 'Workspace',
+			'workspace.experienceModeReset' => 'Restore deployment default',
 			'workspace.switchToWorkspace' => 'Switch to workspace',
 			'workspace.switchToPersonal' => 'Switch to personal',
 			'workspace.createTitle' => 'Create Workspace',
@@ -5540,9 +5542,9 @@ extension on TranslationsEnUs {
 			'workspace.taskFilterAll' => 'All',
 			'workspace.taskStatusTodo' => 'To do',
 			'workspace.taskStatusDoing' => 'Doing',
-			'workspace.taskStatusReview' => 'Review',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskStatusReview' => 'Review',
 			'workspace.taskStatusDone' => 'Done',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Advance to "${status}"',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Move ${title} back to…',

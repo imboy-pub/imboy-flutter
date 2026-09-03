@@ -226,6 +226,27 @@ void main() {
         ProductExperience.chat,
       );
     });
+
+    test('恢复部署默认值会删除本机覆盖并立即更新状态', () async {
+      await StorageService.to.setString(
+        Keys.effectiveProductExperience,
+        ProductExperience.workspace.wireName,
+      );
+      await StorageService.to.setString(
+        Keys.localProductExperience,
+        ProductExperience.chat.wireName,
+      );
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      await container.read(productExperienceProvider.notifier).resetToDefault();
+
+      expect(
+        container.read(productExperienceProvider),
+        ProductExperience.workspace,
+      );
+      expect(StorageService.to.getString(Keys.localProductExperience), isEmpty);
+    });
   });
 
   group('命名契约（防漂移）', () {

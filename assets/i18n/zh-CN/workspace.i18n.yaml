@@ -14,10 +14,11 @@ archivedBadge: "已归档"
 emptyNoWorkspace: "请先选择或创建一个工作区"
 dmEntry: "私信（全局）"
 # ==================== 个人 / 工作区体验切换 ====================
-experienceModeEntry: "工作模式"
-experienceModeHint: "仅切换当前设备的首页，不改变工作区成员或资源权限"
+experienceModeEntry: "首页布局"
+experienceModeHint: "选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份"
 experienceModePersonal: "个人"
 experienceModeWorkspace: "工作区"
+experienceModeReset: "恢复部署默认值"
 switchToWorkspace: "切换到工作区"
 switchToPersonal: "切换到个人"
 # ==================== 创建流（3 分钟建站） ====================

@@ -7,7 +7,7 @@
 ///   → /api/v1/init 下发 { effective_product_experience, config_version }
 ///   → initConfig（config/init.dart）解密后写入 StorageService 缓存
 ///   → 本 provider 读取缓存作为默认值
-///   → 用户在「设置 → 工作模式」选择时，以本机偏好覆盖默认值
+///   → 用户在「设置 → 首页布局」选择时，以本机偏好覆盖默认值
 ///   → 路由与壳（ChatShellBootstrap）只消费该值
 /// ```
 ///
@@ -120,6 +120,12 @@ class ProductExperienceNotifier extends Notifier<ProductExperience> {
       state = previous;
       rethrow;
     }
+  }
+
+  /// 删除当前设备的覆盖值，恢复服务端部署默认的首页布局。
+  Future<void> resetToDefault() async {
+    await StorageService.to.remove(Keys.localProductExperience);
+    state = readCachedProductExperience();
   }
 }
 
