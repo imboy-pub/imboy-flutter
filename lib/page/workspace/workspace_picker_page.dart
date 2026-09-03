@@ -44,6 +44,13 @@ class WorkspacePickerPage extends ConsumerWidget {
                   icon: const Icon(CupertinoIcons.add),
                   label: Text(t.workspace.createEntry),
                 ),
+                AppSpacing.verticalSmall,
+                OutlinedButton.icon(
+                  key: const ValueKey('workspace-picker-empty-join-entry'),
+                  onPressed: () => context.push('/workspace/join'),
+                  icon: const Icon(CupertinoIcons.person_add),
+                  label: Text(t.workspace.joinEntry),
+                ),
               ],
             )
           : ListView.separated(

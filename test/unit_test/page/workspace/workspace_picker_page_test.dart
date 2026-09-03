@@ -1,6 +1,6 @@
 /// T1.2/T1.4 — WorkspacePickerPage widget 测试
 ///
-/// 覆盖：空列表 → 空态 + 创建 CTA（断头空态修复）；多工作区列表 + 底部
+/// 覆盖：空列表 → 空态 + 创建/加入 CTA（断头空态修复）；多工作区列表 + 底部
 /// 常驻双入口（创建/加入，Slack「Add workspaces」模式）；点击入口的
 /// go_router 导航断言（join 路由由测试 router 提供占位，阶段二转正）。
 /// 壳状态经 UncontrolledProviderScope + applyCreated 直接播种（无网）。
@@ -84,7 +84,7 @@ Future<void> _pump(
 }
 
 void main() {
-  testWidgets('空列表：空态 + 创建 CTA（断头空态修复）', (tester) async {
+  testWidgets('空列表：空态 + 创建/加入 CTA（断头空态修复）', (tester) async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
     await _seeded(container, count: 0);
@@ -96,11 +96,29 @@ void main() {
       find.byKey(const ValueKey('workspace-picker-empty-create-entry')),
       findsOneWidget,
     );
+    expect(
+      find.byKey(const ValueKey('workspace-picker-empty-join-entry')),
+      findsOneWidget,
+    );
     // 空态不加列表 footer（列表本身不存在）
     expect(
       find.byKey(const ValueKey('workspace-picker-create-entry')),
       findsNothing,
     );
+  });
+
+  testWidgets('空列表点击加入入口：导航 /workspace/join', (tester) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await _seeded(container, count: 0);
+
+    await _pump(tester, container, withRouter: true);
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-picker-empty-join-entry')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('probe-join'), findsOneWidget);
   });
 
   testWidgets('2 个工作区：2 tile + 底部常驻双入口', (tester) async {
