@@ -314,13 +314,23 @@ jobs:
         run: flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings
 
       - name: Check code coverage
-        # 全量 coverage 套件 6 例环境敏感失败（e2ee_health_check 依赖网络/时序，
-        # conversation_authority 时序敏感）——基线期 non-blocking，已登记
-        # standard/gap-matrix.md X16，修复后删本行
-        continue-on-error: true
         run: |
-          flutter test --coverage
+          set -euo pipefail
+          flutter test test/unit_test --coverage
           test -f coverage/lcov.info
+          read -r hit found < <(
+            awk -F: '
+              /^LH:/ { hit += $2 }
+              /^LF:/ { found += $2 }
+              END { print hit + 0, found + 0 }
+            ' coverage/lcov.info
+          )
+          test "$found" -gt 0
+          awk -v hit="$hit" -v found="$found" \
+            'BEGIN { exit !((100 * hit / found) >= 38) }' || {
+            echo "::error::Line coverage $(awk -v h="$hit" -v f="$found" 'BEGIN { printf "%.2f", 100 * h / f }')% is below 38%"
+            exit 1
+          }
 
   # ==================== 性能测试任务 ====================
   performance-test:
