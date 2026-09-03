@@ -36,6 +36,16 @@ class _EmptyMineFakeApi extends WorkspaceApi {
   }
 }
 
+class _FailedMineFakeApi extends WorkspaceApi {
+  @override
+  Future<WorkspacePageResult<WorkspaceModel>> mine({
+    int page = 1,
+    int size = 20,
+  }) async {
+    throw const WorkspaceApiException(500, '加载失败');
+  }
+}
+
 /// 固定 experience=workspace 的 Notifier 覆盖。
 ///
 /// productExperienceProvider 是 NotifierProvider（无 overrideWithValue），
@@ -44,6 +54,11 @@ class _EmptyMineFakeApi extends WorkspaceApi {
 class _WorkspaceExperienceNotifier extends ProductExperienceNotifier {
   @override
   ProductExperience build() => ProductExperience.workspace;
+
+  @override
+  Future<void> select(ProductExperience experience) async {
+    state = experience;
+  }
 }
 
 void main() {
@@ -74,6 +89,43 @@ void main() {
       find.byKey(const ValueKey('workspace-empty-create-entry')),
       findsOneWidget,
     );
+    expect(
+      find.byKey(const ValueKey('workspace-empty-join-entry')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('workspace-return-personal-entry')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('工作区加载失败时可返回个人首页', (tester) async {
+    final container = ProviderContainer(
+      overrides: [
+        productExperienceProvider.overrideWith(
+          _WorkspaceExperienceNotifier.new,
+        ),
+        workspaceApiProvider.overrideWith((ref) => _FailedMineFakeApi()),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: WorkspaceShellBootstrap()),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('加载失败'), findsOneWidget);
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-return-personal-entry')),
+    );
+    await tester.pump();
+
+    expect(container.read(productExperienceProvider), ProductExperience.chat);
   });
 
   test('workspace 分支产物形态固定：WorkspaceShellBootstrap（const 构造契约）', () {

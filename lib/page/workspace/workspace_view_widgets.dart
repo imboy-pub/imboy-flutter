@@ -142,11 +142,13 @@ class WorkspaceEmptyView extends StatelessWidget {
 class WorkspaceErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
+  final List<Widget> actions;
 
   const WorkspaceErrorView({
     super.key,
     required this.message,
     required this.onRetry,
+    this.actions = const [],
   });
 
   @override
@@ -175,6 +177,7 @@ class WorkspaceErrorView extends StatelessWidget {
               onPressed: onRetry,
               child: Text(t.common.buttonRetry),
             ),
+            if (actions.isNotEmpty) ...[AppSpacing.verticalSmall, ...actions],
           ],
         ),
       ),
