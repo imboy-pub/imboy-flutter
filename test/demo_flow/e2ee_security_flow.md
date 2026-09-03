@@ -43,6 +43,7 @@
 ## 5. 当前覆盖与阻塞
 
 - Android 真机已执行 `integration_test/e2ee_olm_device_test.dart`，5/5 通过，覆盖本地 Olm/X3DH/Ed25519/OTK/pickle 密码学行为。
+- 2026-09-03：`integration_test/e2ee_megolm_device_test.dart` 在华为 Android 真机 `XWE6R19916004085` 通过 `1/1`，在 iPhone 16e 真机 `00008140-000E30561E32801C` 通过 `flutter drive` 执行 `1/1`；覆盖两平台原生 vodozemac Megolm GroupSession 导出/导入、连续消息解密与轮换隔离。iOS 的 `flutter test` 因无线设备不接受其提示的 `--publish-port` 参数而在测试体前失败，改用仓内 `test_driver/integration_test.dart` 后真实执行通过。该证据不登录、不访问后端、不写业务数据，也不等于双设备账号消息闭环、完整 UI 回归或 X15 许可证替换。
 - 2026-08-10：Android 华为真机重跑 `integration_test/e2ee_olm_device_test.dart`，`5/5 All tests passed`；vodozemac、X3DH/Olm 双向解密、签名、OTK 消费和 session pickle 恢复均通过，但仍属于单机协议/持久化证据。
 - 两个授权测试账号分别运行 `contact_api_test.dart` 与 `e2ee_api_test.dart`，各自联系人 5/5、E2EE 13 项中 12 通过和 1 项条件跳过；这是账号级只读证据，不等于双设备握手或加密消息闭环。
 - 该结果不等于双设备登录、设备握手、加密消息互通或备份恢复 UI 闭环。
