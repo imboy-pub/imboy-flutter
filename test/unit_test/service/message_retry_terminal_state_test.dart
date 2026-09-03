@@ -166,6 +166,23 @@ void main() {
       expect(retry.getRetryInfo(id), isNotNull);
     });
 
+    test('超过单页 100 条时继续扫描后续页', () async {
+      for (var i = 0; i < 101; i++) {
+        await _insertMsg(
+          'ts${i.toString().padLeft(18, '0')}',
+          status: IMBoyMessageStatus.pendingRetry,
+        );
+      }
+
+      await retry.debugScanFailedMessages();
+
+      expect(retry.retryQueueSize, 101);
+      expect(
+        retry.getRetryInfo('ts${0.toString().padLeft(18, '0')}'),
+        isNotNull,
+      );
+    });
+
     test('终态 error 不得被捞回 —— 否则放弃上限形同虚设', () async {
       const id = 'ts0000000000000er01';
       await _insertMsg(id, status: IMBoyMessageStatus.error);

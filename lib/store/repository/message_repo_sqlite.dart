@@ -637,6 +637,34 @@ class MessageRepo implements MessageRepository {
     }
   }
 
+  Future<List<MessageModel>> pageRetryCandidates({
+    required List<int> statuses,
+    required int limit,
+    int? beforeCreatedAt,
+    int? beforeAutoId,
+  }) async {
+    final placeholders = statuses.map((_) => '?').join(',');
+    var where =
+        '${MessageRepo.status} IN ($placeholders) '
+        'AND ${MessageRepo.isAuthor}=?';
+    final whereArgs = <Object?>[...statuses, 1];
+    if (beforeCreatedAt != null && beforeAutoId != null) {
+      where +=
+          ' AND (${MessageRepo.createdAt} < ? OR '
+          '(${MessageRepo.createdAt} = ? AND ${MessageRepo.autoId} < ?))';
+      whereArgs.addAll([beforeCreatedAt, beforeCreatedAt, beforeAutoId]);
+    }
+    final rows = await _db.query(
+      tableName,
+      columns: _readColumns,
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: '${MessageRepo.createdAt} DESC, ${MessageRepo.autoId} DESC',
+      limit: limit,
+    );
+    return rows.map(MessageModel.fromJson).toList(growable: false);
+  }
+
   /// 创建搜索索引
   @override
   Future<void> createSearchIndexes() async {

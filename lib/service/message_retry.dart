@@ -211,30 +211,9 @@ class MessageRetry with EventSubscriptionManager {
       for (final table in tables) {
         try {
           final repo = getMessageRepo(table);
-
-          // 查询最近的消息（限制最近100条）
-          final messages = await repo.page(page: 1, size: 100, kwd: '');
-
-          // 过滤出需要重试的消息
-          final failedMessages = messages.where((msg) {
-            return statusesToRetry.contains(msg.status) &&
-                msg.isAuthor == 1 && // 只重试自己发送的消息
-                msg.id.isNotEmpty; // 确保 msgId 非空
-          }).toList();
-
-          for (final msg in failedMessages) {
-            totalFound++;
-
-            // 检查消息是否已经在重试队列中
-            if (!_retryQueue.containsKey(msg.id)) {
-              // 添加到重试队列
-              addToRetryQueue(msg.id, table);
-              totalAdded++;
-              iPrint(
-                '✅ [RETRY_SCAN] 添加失败消息到重试队列: msgId=${msg.id}, status=${msg.status}, table=$table',
-              );
-            }
-          }
+          final counts = await _scanTable(repo, table, statusesToRetry);
+          totalFound += counts.found;
+          totalAdded += counts.added;
         } on Object catch (e) {
           iPrint('⚠️ [RETRY_SCAN] 扫描表 $table 失败: $e');
         }
@@ -252,6 +231,42 @@ class MessageRetry with EventSubscriptionManager {
     } on Object catch (e) {
       iPrint('❌ [RETRY_SCAN] 扫描失败消息出错: $e');
     }
+  }
+
+  Future<({int found, int added})> _scanTable(
+    MessageRepo repo,
+    String table,
+    Set<int> statusesToRetry,
+  ) async {
+    const pageSize = 100;
+    int found = 0;
+    int added = 0;
+    int? beforeCreatedAt;
+    int? beforeAutoId;
+
+    while (true) {
+      final messages = await repo.pageRetryCandidates(
+        statuses: statusesToRetry.toList(growable: false),
+        limit: pageSize,
+        beforeCreatedAt: beforeCreatedAt,
+        beforeAutoId: beforeAutoId,
+      );
+      for (final msg in messages) {
+        if (msg.id.isEmpty) continue;
+        found++;
+        if (_retryQueue.containsKey(msg.id)) continue;
+        addToRetryQueue(msg.id, table);
+        added++;
+        iPrint(
+          '✅ [RETRY_SCAN] 添加失败消息到重试队列: msgId=${msg.id}, status=${msg.status}, table=$table',
+        );
+      }
+      if (messages.length < pageSize) break;
+      final last = messages.last;
+      beforeCreatedAt = last.createdAt;
+      beforeAutoId = last.autoId;
+    }
+    return (found: found, added: added);
   }
 
   bool _isStorageReadyForRetryScan() {
