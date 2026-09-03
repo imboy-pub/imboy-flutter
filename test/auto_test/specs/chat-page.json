@@ -8,7 +8,7 @@
   "dependencies": ["lib/page/chat/widget/chat_input.dart", "lib/service/websocket.dart"],
   "assertions": {"functional": ["聊天页可进入", "消息列表与输入区共存", "发送仅以 ACK 或明确失败态判定"], "ui": ["键盘和面板不遮挡输入与发送", "网络失败提示可见"]},
   "visual": {"rubric": ["no_overflow", "keyboard_safe_area", "message_contrast", "touch_target"], "baseline": "待真机采集"},
-  "runner": {"type": "flutter", "target": "integration_test/e2e_chat_test.dart", "requires": ["device", "credentials", "authorized_test_accounts"]},
-  "checkpoints": ["c2c_01_chat_page", "c2c_02_after_send"],
+  "runner": {"type": "flutter", "target": "integration_test/chat/c2c_e2ee_send_render_test.dart", "requires": ["device", "credentials", "authorized_test_accounts"]},
+  "checkpoints": ["e2eesend_01_whitelist_send_ok", "e2eesend_02_peer_history_cipher", "e2eesend_03_ui_truth_source", "e2eesend_04_bubble_render", "e2eesend_05_peer_history_second"],
   "safe_to_execute": false
 }

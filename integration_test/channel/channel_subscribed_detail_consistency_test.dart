@@ -1,19 +1,34 @@
 // integration_test/channel/channel_subscribed_detail_consistency_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/ui/flat_list_tile.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import '../flows/app_launcher.dart';
 import 'package:integration_test/integration_test.dart';
 import '../flows/test_utils.dart';
+
+const _expectedUid = String.fromEnvironment(
+  'TEST_EXPECTED_UID',
+  defaultValue: '',
+);
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('频道订阅详情一致性', () {
     testWidgets('已订阅频道详情页数据正常显示', (tester) async {
+      if (_expectedUid.isEmpty) {
+        markTestSkipped('需显式 TEST_EXPECTED_UID，禁止读取未知账号的频道数据');
+        return;
+      }
       // 生产环境首次初始化包含远端配置、数据库和 E2EE 服务启动，
       // 华为真机冷启动可能超过 3 秒；频道只读验收应等待入口稳定后再判定。
       await ensureAppLaunched(tester, maxSeconds: 10);
       if (!await checkPreconditions(tester)) return;
+      final actualUid = UserRepoLocal.to.currentUid;
+      if (actualUid != _expectedUid) {
+        fail('登录账号 UID=$actualUid 与授权账号 $_expectedUid 不一致');
+      }
       await settle(tester, maxSeconds: 2);
 
       if (!await _openChannelTab(tester)) {
@@ -23,17 +38,19 @@ void main() {
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'consist_01_list');
 
-      if (!tester.any(find.byType(ListTile))) {
+      final tiles = find.byType(FlatListTile);
+      if (!tester.any(tiles)) {
         markTestSkipped('已订阅列表为空，无法验证一致性');
         return;
       }
 
       // 记录列表第一项的频道名
-      String? channelName;
-      final tile = tester.widget<ListTile>(find.byType(ListTile).first);
-      if (tile.title is Text) channelName = (tile.title as Text).data?.trim();
+      final title = find
+          .descendant(of: tiles.first, matching: find.byType(Text))
+          .first;
+      final channelName = tester.widget<Text>(title).data?.trim();
 
-      await safeTap(tester, find.byType(ListTile).first);
+      await safeTap(tester, tiles.first);
       await settle(tester, maxSeconds: 2);
       await takeScreenshot(tester, 'consist_02_detail');
 

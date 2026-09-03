@@ -17,6 +17,7 @@ import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 
 /// Megolm 会话套件标识（e2ee 元数据 e2ee_suite 字段，区分既有 RSA+AES 套件）
@@ -350,9 +351,15 @@ class GroupSessionService {
   ) {
     final msgId =
         'rk_${DateTime.now().millisecondsSinceEpoch}_${Random.secure().nextInt(999999)}';
+    // from 必填：服务端 WS validate_peer_fields 对 C2G/C2C 帧要求 from+to
+    // 双非空，缺失即 missing_required_fields 拒收——room key 曾因此从未送达
+    // （接收端 megolm 恒解密失败，2026-09-03 双端真机群聊定案）；接收侧
+    // handleRoomKeyMessage 也依赖 data['from'] 解析 senderUid。
+    final from = UserRepoLocal.to.currentUid;
     final msg = {
       'id': msgId,
       'type': chatType,
+      'from': from,
       'to': to,
       'msg_type': roomKeyAction,
       'action': roomKeyAction,

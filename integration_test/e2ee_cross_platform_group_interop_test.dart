@@ -106,7 +106,7 @@ void main() {
         .setMockMethodCallHandler(secureStorageChannel, null);
   });
 
-  _registerInteropTest('Android/macOS C2G Megolm + Olm 双向互解', () async {
+  _registerInteropTest('Android-macOS C2G Megolm + Olm 双向互解', () async {
     switch (_role) {
       case 'sender':
         await _runSender(secureStore);
@@ -204,7 +204,10 @@ Future<void> _runSender(Map<String, String?> secureStore) async {
     final frame = _decodeFrame(sent.single.message);
     _assertEncryptedGroupFrame(frame, _messageId, _messageText);
     expect(roomKey!['meta_version'], 3);
-    expect(roomKey!['session_id'], _map(frame['e2ee'])['session_id']);
+    expect(
+      roomKey!['session_id'],
+      _map(_map(frame['e2ee'])['protocol_metadata'])['session_id'],
+    );
     final keys = roomKey!['keys'] as List;
     expect(keys, hasLength(1));
     final olm = _map(_map(keys.single)['olm']);
@@ -258,7 +261,7 @@ Future<void> _runReceiverAndReply(Map<String, String?> secureStore) async {
     fail('macOS 群聊 E2EE 解密失败: ${received['_e2ee_reason']}');
   }
   expect(received['text'], _messageText);
-  expect(received['_e2ee_megolm_verified'], isTrue);
+  expect(received['_e2ee_v3_verified'], isTrue);
 
   E2EEService.setGroupDeviceKeyCacheForTest(_gid, {
     _senderDid: 'sender-public-key',
@@ -341,7 +344,7 @@ Future<void> _runFinalReceiver(Map<String, String?> secureStore) async {
     fail('Android 群聊 E2EE 回复解密失败: ${received['_e2ee_reason']}');
   }
   expect(received['text'], _replyText);
-  expect(received['_e2ee_megolm_verified'], isTrue);
+  expect(received['_e2ee_v3_verified'], isTrue);
   debugPrintSynchronously('E2EE_GROUP_INTEROP_PASS: Android/macOS C2G 双向互解');
   await _cleanupLocalState(secureStore, uid: _senderUid);
 }
@@ -404,14 +407,15 @@ void _assertEncryptedGroupFrame(
 ) {
   expect(frame['id'], messageId);
   expect(frame['type'], 'C2G');
-  expect(frame['payload'], isA<String>());
+  expect(frame['payload'], '');
   expect('$frame', isNot(contains(plaintext)));
   final e2ee = _map(frame['e2ee']);
-  expect(e2ee['protocol'], 'megolm');
-  expect(e2ee['e2ee_suite'], 'MEGOLM.V1');
-  expect(e2ee['meta_version'], 2);
-  expect(e2ee['gid'], _gid);
-  expect(e2ee['session_id'], isNotEmpty);
+  expect(e2ee['meta_version'], 3);
+  final protocolMetadata = _map(e2ee['protocol_metadata']);
+  expect(protocolMetadata['protocol'], 'megolm');
+  expect(protocolMetadata['e2ee_suite'], 'MEGOLM.V1');
+  expect(protocolMetadata['gid'], _gid);
+  expect(protocolMetadata['session_id'], isNotEmpty);
 }
 
 Map<String, dynamic> _readVector() {
@@ -429,7 +433,14 @@ Map<String, dynamic> _map(Object? value) {
 }
 
 void _printVector(Map<String, dynamic> vector) {
-  debugPrintSynchronously(
-    'E2EE_INTEROP_VECTOR_B64:${base64Url.encode(utf8.encode(jsonEncode(vector)))}',
-  );
+  final encoded = base64Url.encode(utf8.encode(jsonEncode(vector)));
+  const chunkSize = 700;
+  final total = (encoded.length + chunkSize - 1) ~/ chunkSize;
+  for (var i = 0; i < total; i++) {
+    final end = (i + 1) * chunkSize;
+    debugPrintSynchronously(
+      'E2EE_INTEROP_VECTOR_B64_CHUNK:${i + 1}/$total:'
+      '${encoded.substring(i * chunkSize, end.clamp(0, encoded.length))}',
+    );
+  }
 }

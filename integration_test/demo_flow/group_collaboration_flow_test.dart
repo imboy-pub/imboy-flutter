@@ -1,4 +1,4 @@
-// P0 群协作双账号 flow：117 创建/回读，118 确认日程、提交任务、投票。
+// P0 群协作双账号 flow：群主创建/回读，成员确认日程、提交任务、投票。
 // 只使用授权测试账号和既有 P0 测试群；不取消日程、不删除任务、不撤销投票。
 
 import 'package:flutter/cupertino.dart';
@@ -19,8 +19,15 @@ import 'package:integration_test/integration_test.dart';
 import '../flows/app_launcher.dart';
 import '../flows/test_utils.dart';
 
-const _ownerUid = '50';
-const _memberUid = '4';
+const _ownerUid = String.fromEnvironment(
+  'TEST_COLLAB_OWNER_UID',
+  defaultValue: '',
+);
+const _memberUid = String.fromEnvironment(
+  'TEST_COLLAB_MEMBER_UID',
+  defaultValue: '',
+);
+const _groupId = String.fromEnvironment('TEST_GROUP_ID', defaultValue: '');
 const _role = String.fromEnvironment('TEST_COLLAB_ROLE', defaultValue: '');
 const _groupTitle = String.fromEnvironment(
   'TEST_GROUP_TITLE',
@@ -92,6 +99,13 @@ bool _requireAuthorization() {
     markTestSkipped('TEST_COLLAB_ROLE 必须是 owner 或 member');
     return false;
   }
+  if (!RegExp(r'^\d+$').hasMatch(_ownerUid) ||
+      !RegExp(r'^\d+$').hasMatch(_memberUid) ||
+      _ownerUid == _memberUid ||
+      !RegExp(r'^\d+$').hasMatch(_groupId)) {
+    markTestSkipped('必须显式提供两个不同的数字型 UID 和数字型 TEST_GROUP_ID');
+    return false;
+  }
   if (!_groupTitle.startsWith('P0-TEST-GROUP-') ||
       !_scheduleTitle.startsWith('P0-SCHEDULE-') ||
       !_taskTitle.startsWith('P0-TASK-') ||
@@ -108,9 +122,9 @@ Future<void> _runOwnerFlow(WidgetTester tester, String groupId) async {
   final task = await _findOrCreateTask(groupId);
   final vote = await _findOrCreateVote(groupId);
 
-  expect(schedule, isNotNull, reason: '117 必须创建或定位测试日程');
-  expect(task, isNotNull, reason: '117 必须创建或定位测试任务');
-  expect(vote, isNotNull, reason: '117 必须创建或定位测试投票');
+  expect(schedule, isNotNull, reason: '群主必须创建或定位测试日程');
+  expect(task, isNotNull, reason: '群主必须创建或定位测试任务');
+  expect(vote, isNotNull, reason: '群主必须创建或定位测试投票');
 
   final scheduleId = _readId(schedule, primary: 'schedule_id');
   final taskId = _readTaskRouteId(task);
@@ -143,19 +157,19 @@ Future<void> _runOwnerFlow(WidgetTester tester, String groupId) async {
     tester,
     GroupSchedulePage(groupId: groupId),
     find.byType(GroupSchedulePage),
-    '117 已回读群日程列表',
+    '群主已回读群日程列表',
   );
   await _mountAndPop(
     tester,
     GroupTaskPage(groupId: groupId),
     find.byType(GroupTaskPage),
-    '117 已回读群任务列表',
+    '群主已回读群任务列表',
   );
   await _mountAndPop(
     tester,
     GroupVotePage(groupId: groupId),
     find.byType(GroupVotePage),
-    '117 已回读群投票列表',
+    '群主已回读群投票列表',
   );
 }
 
@@ -163,7 +177,7 @@ Future<void> _runMemberFlow(WidgetTester tester, String groupId) async {
   final schedules = await GroupScheduleApi().getSchedules(groupId: groupId);
   final schedule = _findByTitle(schedules, _scheduleTitle);
   final scheduleId = _readId(schedule, primary: 'schedule_id');
-  expect(scheduleId, isNotEmpty, reason: '118 必须回读管理员创建的日程');
+  expect(scheduleId, isNotEmpty, reason: '成员必须回读管理员创建的日程');
 
   expect(
     await GroupScheduleApi().confirmSchedule(
@@ -172,7 +186,7 @@ Future<void> _runMemberFlow(WidgetTester tester, String groupId) async {
       confirm: true,
     ),
     isTrue,
-    reason: '118 确认参加必须收到服务端成功响应',
+    reason: '成员确认参加必须收到服务端成功响应',
   );
   final scheduleDetail = await GroupScheduleApi().getSchedule(
     groupId: groupId,
@@ -187,8 +201,8 @@ Future<void> _runMemberFlow(WidgetTester tester, String groupId) async {
   final task = _findByTitle(tasks, _taskTitle);
   final taskRouteId = _readTaskRouteId(task);
   final taskSubmitId = _readTaskSubmitId(task);
-  expect(taskRouteId, isNotEmpty, reason: '118 必须回读任务详情 ID');
-  expect(taskSubmitId, isNotEmpty, reason: '118 必须回读任务提交 ID');
+  expect(taskRouteId, isNotEmpty, reason: '成员必须回读任务详情 ID');
+  expect(taskSubmitId, isNotEmpty, reason: '成员必须回读任务提交 ID');
   final taskBeforeSubmit = await GroupTaskApi().getTask(
     groupId: groupId,
     taskId: taskRouteId,
@@ -201,7 +215,7 @@ Future<void> _runMemberFlow(WidgetTester tester, String groupId) async {
         content: _marker,
       ),
       isTrue,
-      reason: '118 提交任务必须收到服务端成功响应',
+      reason: '成员提交任务必须收到服务端成功响应',
     );
   }
   final taskDetail = await GroupTaskApi().getTask(
@@ -213,7 +227,7 @@ Future<void> _runMemberFlow(WidgetTester tester, String groupId) async {
   final votes = await GroupVoteApi().getVotes(groupId: groupId);
   final vote = _findByTitle(votes, _voteTitle);
   final voteId = _readId(vote, primary: 'vote_id');
-  expect(voteId, isNotEmpty, reason: '118 必须回读管理员创建的测试投票');
+  expect(voteId, isNotEmpty, reason: '成员必须回读管理员创建的测试投票');
   flowLog(
     '投票 ID 字段：vote_id=${vote?['vote_id']} id=${vote?['id']} vote_uid=${vote?['vote_uid']}',
   );
@@ -235,7 +249,7 @@ Future<void> _runMemberFlow(WidgetTester tester, String groupId) async {
         optionIds: [optionId],
       ),
       isTrue,
-      reason: '118 投票必须收到服务端成功响应',
+      reason: '成员投票必须收到服务端成功响应',
     );
   }
   final myVote = await GroupVoteApi().getMyVotes(
@@ -248,21 +262,21 @@ Future<void> _runMemberFlow(WidgetTester tester, String groupId) async {
     tester,
     GroupScheduleDetailPage(groupId: groupId, scheduleId: scheduleId),
     find.byType(GroupScheduleDetailPage),
-    '118 已挂载并回读日程详情',
+    '成员已挂载并回读日程详情',
   );
   await _mountAndPop(
     tester,
     GroupTaskDetailPage(groupId: groupId, taskId: taskRouteId),
     find.byType(GroupTaskDetailPage),
-    '118 已挂载并回读任务详情',
+    '成员已挂载并回读任务详情',
   );
   await _mountAndPop(
     tester,
     GroupVoteDetailPage(groupId: groupId, voteId: voteId),
     find.byType(GroupVoteDetailPage),
-    '118 已挂载并回读投票详情',
+    '成员已挂载并回读投票详情',
   );
-  flowLog('118 已完成日程确认、任务提交和投票，并完成详情页回读');
+  flowLog('成员已完成日程确认、任务提交和投票，并完成详情页回读');
 }
 
 Future<Map<String, dynamic>?> _findOrCreateSchedule(String groupId) async {
@@ -329,7 +343,9 @@ Future<Map<String, dynamic>?> _findOrCreateVote(String groupId) async {
 Future<String?> _findGroup({required String attr}) async {
   final payload = await GroupApi().page(page: 1, size: 100, attr: attr);
   for (final item in _asList(payload)) {
-    if (item is Map && item['title']?.toString() == _groupTitle) {
+    if (item is Map &&
+        item['title']?.toString() == _groupTitle &&
+        _readId(item) == _groupId) {
       final id = _readId(item);
       if (id.isNotEmpty) return id;
     }

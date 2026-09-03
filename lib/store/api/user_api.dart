@@ -176,7 +176,13 @@ class UserApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await post(
       API.userChangePassword,
-      data: {'new_pwd': newPwd, 'existing_pwd': existingPwd},
+      // 与 passport login 同契约：rsa_encrypt=0 明文传输（alpha.69 密码
+      // 迁移后客户端统一行为）；服务端 safe_rsa_decrypt 据此跳过 RSA 解密。
+      data: {
+        'new_pwd': newPwd,
+        'existing_pwd': existingPwd,
+        'rsa_encrypt': '0',
+      },
     );
 
     iPrint("> on UserApi/changePassword resp: ${resp.payload.toString()}");
@@ -190,7 +196,7 @@ class UserApi extends HttpClient {
   Future<bool> setPassword({required String newPwd}) async {
     IMBoyHttpResponse resp = await post(
       API.userSetPassword,
-      data: {'new_pwd': newPwd},
+      data: {'new_pwd': newPwd, 'rsa_encrypt': '0'},
     );
 
     iPrint("> on UserApi/setPassword resp: ${resp.payload.toString()}");

@@ -72,9 +72,8 @@ void main() {
       }
 
       final actualUid = UserRepoLocal.to.currentUid;
-      if (_expectedUid.isNotEmpty && actualUid != _expectedUid) {
-        markTestSkipped('当前 App 登录 UID 与目标账号不一致，拒绝向错误账号发送群消息');
-        return;
+      if (actualUid != _expectedUid) {
+        fail('当前 App UID=$actualUid 与显式授权账号 $_expectedUid 不一致');
       }
 
       await _ensureTestWebSocket(tester);
@@ -163,16 +162,26 @@ bool _requireAuthorization() {
   }
   if (!FlowConfig.hasCredentials ||
       _groupId.isEmpty ||
+      _expectedUid.isEmpty ||
       _runId.isEmpty ||
       _effectiveTestWsUrl.isEmpty ||
       _requiredMemberUids.trim().isEmpty) {
     markTestSkipped(
-      '缺少测试群、账号、WebSocket、TEST_DUAL_RUN_ID 或 TEST_REQUIRED_MEMBER_UIDS',
+      '缺少测试群、账号、TEST_EXPECTED_UID、WebSocket、TEST_DUAL_RUN_ID 或 TEST_REQUIRED_MEMBER_UIDS',
     );
     return false;
   }
   if (!{'sender', 'receiver'}.contains(_dualRole)) {
     markTestSkipped('TEST_DUAL_ROLE 只能是 sender 或 receiver');
+    return false;
+  }
+  final requiredUids = _requiredMemberUids
+      .split(',')
+      .map((uid) => uid.trim())
+      .where((uid) => uid.isNotEmpty)
+      .toSet();
+  if (!requiredUids.contains(_expectedUid)) {
+    markTestSkipped('TEST_EXPECTED_UID 必须包含在 TEST_REQUIRED_MEMBER_UIDS 中');
     return false;
   }
   return true;
@@ -213,6 +222,9 @@ Future<bool> _openConversationTab(WidgetTester tester) async {
     find.byKey(const Key('tab_conversations')),
     find.byIcon(Icons.chat_bubble),
     find.byIcon(Icons.chat_bubble_outline),
+    // 工作区壳（WorkspaceShellPage）底部导航/侧栏的 Tab 文案是「全部消息」
+    // （NavigationBar 无 per-item key），桌面端默认可能落在工作区壳。
+    find.text('全部消息'),
     find.text('消息'),
     find.text('会话'),
     find.text('Chats'),
@@ -221,6 +233,26 @@ Future<bool> _openConversationTab(WidgetTester tester) async {
     await settle(tester, maxSeconds: 1);
     if (_isConversationList(tester)) return true;
   }
+  // 诊断：桌面壳（WebNavRail/NavigationRail）与移动壳的导航结构不同，
+  // 失败时输出可见文本与关键组件类型，便于定位 Tab 不可达原因。
+  final texts = tester
+      .widgetList<Text>(find.byType(Text))
+      .map((t) => t.data ?? '')
+      .where((s) => s.trim().isNotEmpty)
+      .take(30)
+      .join(' | ');
+  final types = tester.allWidgets
+      .map((w) => w.runtimeType.toString())
+      .where(
+        (t) =>
+            t.contains('Rail') ||
+            t.contains('Shell') ||
+            t.contains('Conversation') ||
+            t.contains('BottomNavigation'),
+      )
+      .toSet()
+      .join(', ');
+  flowLog('会话列表不可达诊断: texts=[$texts] navTypes=[$types]');
   return false;
 }
 

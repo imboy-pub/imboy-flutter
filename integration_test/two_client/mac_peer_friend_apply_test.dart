@@ -12,6 +12,7 @@
 //     --dart-define=API_BASE_URL=https://pro.imboy.pub \
 //     --dart-define=TEST_PHONE=<对端账号> \
 //     --dart-define=TEST_PASSWORD=<对端密码> \
+//     --dart-define=TEST_EXPECTED_UID=<macOS账号uid> \
 //     --dart-define=PEER_UID=<Android真机账号uid> \
 //     --dart-define=TEST_ALLOW_FRIEND_APPLY=true
 
@@ -30,6 +31,10 @@ import '../flows/app_launcher.dart';
 import '../flows/test_utils.dart';
 
 const _peerUid = String.fromEnvironment('PEER_UID', defaultValue: '');
+const _expectedUid = String.fromEnvironment(
+  'TEST_EXPECTED_UID',
+  defaultValue: '',
+);
 
 const _friendApplyFlag = String.fromEnvironment(
   'TEST_ALLOW_FRIEND_APPLY',
@@ -50,8 +55,8 @@ void main() {
           markTestSkipped('需显式 TEST_ALLOW_FRIEND_APPLY=true');
           return;
         }
-        if (_peerUid.isEmpty) {
-          markTestSkipped('需显式 PEER_UID=<对端uid>，禁止默认写入');
+        if (_peerUid.isEmpty || _expectedUid.isEmpty) {
+          markTestSkipped('需显式 TEST_EXPECTED_UID 和 PEER_UID，禁止默认写入');
           return;
         }
 
@@ -60,6 +65,10 @@ void main() {
 
         final loggedIn = await autoLoginOrSkip(tester);
         if (!loggedIn) return;
+        final actualUid = UserRepoLocal.to.currentUid;
+        if (actualUid != _expectedUid || actualUid == _peerUid) {
+          fail('登录账号 UID=$actualUid 与授权发送方 $_expectedUid 不一致，或目标为自己');
+        }
         if (!await waitForMainShell(tester)) {
           fail('对端账号登录成功但主 Shell 未挂载');
         }

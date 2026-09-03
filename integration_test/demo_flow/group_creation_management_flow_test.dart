@@ -1,7 +1,7 @@
-// P0 双账号建群与群管理写入：只允许授权的 117/118 测试账号。
+// P0 双账号建群与群管理写入：只允许显式授权的测试账号。
 //
 // 该 flow 默认定位同标题测试群；设置 TEST_REQUIRE_FRESH_GROUP=true 时，
-// 只用授权的群主 UID 50 创建一个仅含群主的新群，再邀请 UID 4，证明全新建群
+// 只用授权群主创建一个仅含群主的新群，再邀请授权成员，证明全新建群
 // 和入群写入。之后修改群名并发布一条测试公告，再通过详情、成员和公告接口
 // 及 GroupDetailPage 回读核对。不会解散群、退群、移除成员、开启群级 E2EE
 // 或操作第三方成员。
@@ -20,11 +20,11 @@ import '../flows/test_utils.dart';
 
 const _ownerUid = String.fromEnvironment(
   'TEST_GROUP_OWNER_UID',
-  defaultValue: '50',
+  defaultValue: '',
 );
 const _memberUid = String.fromEnvironment(
   'TEST_GROUP_MEMBER_UID',
-  defaultValue: '4',
+  defaultValue: '',
 );
 const _groupTitle = String.fromEnvironment(
   'TEST_GROUP_TITLE',
@@ -95,7 +95,7 @@ void main() {
       final memberIds = members.map(_readMemberId).whereType<String>().toSet();
       expect(
         memberIds,
-        containsAll(<String>{_ownerUid, _memberUid}),
+        containsAll(<String>[_ownerUid, _memberUid]),
         reason: '成员服务端回读必须同时包含管理员和授权测试成员',
       );
 
@@ -160,8 +160,10 @@ bool _requireGroupWriteAuthorization() {
     markTestSkipped('本 flow 只接受已明确授权的生产双账号验证，非目标环境跳过');
     return false;
   }
-  if (_ownerUid != '50' || _memberUid != '4' || _ownerUid == _memberUid) {
-    markTestSkipped('建群 flow 仅允许当前授权的 UID 50→4，拒绝其他账号组合');
+  if (!RegExp(r'^\d+$').hasMatch(_ownerUid) ||
+      !RegExp(r'^\d+$').hasMatch(_memberUid) ||
+      _ownerUid == _memberUid) {
+    markTestSkipped('必须显式提供两个不同的数字型群主/成员 UID');
     return false;
   }
   if (!_groupTitle.startsWith('P0-TEST-GROUP-') ||
@@ -202,7 +204,7 @@ Future<_GroupSeed?> _findOrCreateTestGroup() async {
     if (group is! Map) return null;
     final id = _readId(group);
     if (id.isEmpty) return null;
-    flowLog('全新测试群已创建：gid=$id，准备邀请 118');
+    flowLog('全新测试群已创建：gid=$id，准备邀请成员 $_memberUid');
 
     // GroupMemberApi.join 的旧返回类型把“成功但无 payload”折成 null；
     // 这里直接核对 HTTP 成功和成员服务端回读，避免把成功邀请误判为失败。
@@ -214,12 +216,12 @@ Future<_GroupSeed?> _findOrCreateTestGroup() async {
       },
     );
     flowLog(
-      '邀请 118 响应：ok=${joinResponse.ok} code=${joinResponse.code} msg=${joinResponse.msg}',
+      '邀请成员 $_memberUid 响应：ok=${joinResponse.ok} code=${joinResponse.code} msg=${joinResponse.msg}',
     );
     expect(
       joinResponse.ok,
       isTrue,
-      reason: '全新测试群已创建但邀请 118 失败，拒绝把单成员群误报为双账号建群通过',
+      reason: '全新测试群已创建但邀请授权成员失败，拒绝把单成员群误报为双账号建群通过',
     );
     final members = _asList(
       await GroupMemberApi().page(gid: id, page: 1, size: 20),
@@ -227,8 +229,8 @@ Future<_GroupSeed?> _findOrCreateTestGroup() async {
     final memberIds = members.map(_readMemberId).whereType<String>().toSet();
     expect(
       memberIds,
-      containsAll(<String>{_ownerUid, _memberUid}),
-      reason: '全新测试群邀请后服务端成员必须同时包含 117 和 118',
+      containsAll(<String>[_ownerUid, _memberUid]),
+      reason: '全新测试群邀请后服务端成员必须同时包含授权群主和成员',
     );
     return _GroupSeed(
       id: id,
@@ -239,11 +241,6 @@ Future<_GroupSeed?> _findOrCreateTestGroup() async {
 
   final existing = await _findExistingTestGroup();
   if (existing != null) return existing;
-
-  // 后端可能按成员集合幂等复用已有群；先核对当前授权两人是否已有同群，
-  // 避免把“复用旧群”误报成“新建群”。
-  final pair = await _findExistingPairGroup();
-  if (pair != null) return pair;
 
   final response = await GroupApi().groupAdd(memberUserIds: [_memberUid]);
   final group = response?['group'];
@@ -265,30 +262,6 @@ Future<_GroupSeed?> _findExistingTestGroup() async {
     final id = _readId(row);
     if (id.isNotEmpty) {
       return _GroupSeed(id: id, title: _groupTitle, reused: true);
-    }
-  }
-  return null;
-}
-
-Future<_GroupSeed?> _findExistingPairGroup() async {
-  final payload = await GroupApi().page(page: 1, size: 100, attr: 'owner');
-  final rows = _asList(payload);
-  for (final row in rows) {
-    if (row is! Map) continue;
-    final id = _readId(row);
-    if (id.isEmpty) continue;
-    final memberPage = await GroupMemberApi().page(gid: id, page: 1, size: 20);
-    final memberIds = _asList(
-      memberPage,
-    ).map(_readMemberId).whereType<String>().toSet();
-    if (memberIds.length == 2 &&
-        memberIds.contains(_ownerUid) &&
-        memberIds.contains(_memberUid)) {
-      return _GroupSeed(
-        id: id,
-        title: row['title']?.toString() ?? '',
-        reused: true,
-      );
     }
   }
   return null;

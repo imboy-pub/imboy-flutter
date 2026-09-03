@@ -1,6 +1,6 @@
 // integration_test/all_tests.dart — 全量集成测试入口
 import 'app_test.dart' as app_test;
-import 'e2e_chat_test.dart' as c2c_chat;
+import 'chat/c2c_e2ee_send_render_test.dart' as c2c_e2ee_send;
 import 'chat/conversation_test.dart' as conversation;
 import 'chat/group_chat_test.dart' as group_chat;
 import 'channel/channel_e2e_test.dart' as channel_e2e;
@@ -15,7 +15,7 @@ import 'auth/password_change_test.dart' as pwd_change;
 
 void main() {
   app_test.main();
-  c2c_chat.main();
+  c2c_e2ee_send.main();
   conversation.main();
   group_chat.main();
   channel_e2e.main();

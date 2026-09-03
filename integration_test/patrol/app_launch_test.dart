@@ -12,19 +12,20 @@
 //     --dart-define=TEST_PHONE="$TEST_PHONE" \
 //     --dart-define=TEST_PASSWORD="$TEST_PASSWORD"
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 // findsWidgets 等 matcher 不由 patrol_finders 导出，需直接取自 flutter_test
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/main.dart' as app;
+import 'package:imboy/page/error/init_error_page.dart';
 import 'package:patrol/patrol.dart';
 
 void main() {
   patrolTest('App 启动：放行原生权限弹窗后主界面可见', ($) async {
-    app.main();
+    await app.bootstrap();
 
-    // 启动动画 + 路由初始化；网络初始化最多 15s（与 smoke_test 对齐）
-    await $.pump(const Duration(seconds: 10));
-    // patrol 的 pumpAndSettle：duration 是帧间隔，timeout 才是等待上限
+    // main() 已等待初始化；这里只等待首帧和路由动画稳定。
+    await $.pump();
     await $.pumpAndSettle(timeout: const Duration(seconds: 5));
 
     // ── Patrol 独有能力：处理系统权限弹窗 ──
@@ -32,12 +33,15 @@ void main() {
     // integration_test 既看不见也点不掉，会导致后续断言全部失败。
     // 最多放行 3 次（华为 EMUI 会连续弹多个）。
     for (var i = 0; i < 3; i++) {
-      if (!await $.platform.mobile.isPermissionDialogVisible(
-        timeout: const Duration(seconds: 3),
-      )) {
+      final isVisible = await $.platform.mobile
+          .isPermissionDialogVisible(timeout: const Duration(seconds: 3))
+          .timeout(const Duration(seconds: 5));
+      if (!isVisible) {
         break;
       }
-      await $.platform.mobile.grantPermissionWhenInUse();
+      await $.platform.mobile.grantPermissionWhenInUse().timeout(
+        const Duration(seconds: 5),
+      );
       await $.pumpAndSettle();
     }
 
@@ -46,10 +50,13 @@ void main() {
       findsOneWidget,
       reason: 'MaterialApp 应唯一存在，未找到则启动流程异常',
     );
+    expect(find.byType(InitErrorPage), findsNothing, reason: '启动初始化失败，不应进入错误页');
     expect(
-      $(Scaffold),
+      find.byWidgetPredicate(
+        (widget) => widget is Scaffold || widget is CupertinoPageScaffold,
+      ),
       findsWidgets,
-      reason: '启动后应有 Scaffold，实际未找到 — App 可能崩溃',
+      reason: '启动后应有 Material/Cupertino 页面骨架，实际未找到 — App 可能崩溃',
     );
-  });
+  }, timeout: const Timeout(Duration(seconds: 60)));
 }

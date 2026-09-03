@@ -1,0 +1,237 @@
+{
+  "goal": "integration_test/ 全部 70 文件执行 + 非 PASS 项收口（README.md 权威索引）",
+  "baseline_ledger": "test/auto_test/reports/full_run_2026-09-01/STATUS.md",
+  "baseline_final_report": "test/auto_test/reports/full_run_2026-09-01/FINAL_REPORT.md",
+  "state_model": "baseline_ledger 是完整 70 项唯一清单；pending_tasks 和 remaining_cases 是 2026-09-02 逐项覆盖。最终状态按 case 路径用覆盖项替换基线项后计算，已 PASS 项不重跑。",
+  "baseline_summary": {
+    "executed": 70,
+    "total": 70,
+    "PASS": 46,
+    "PASS_SKIPS": 1,
+    "SKIP": 17,
+    "FAIL": 5,
+    "TIMEOUT": 1,
+    "session": "2026-09-01/02"
+  },
+  "current_session": {
+    "started": "2026-09-02T09:2x",
+    "device": "XWE6R19916004085 (MRD-AL00)",
+    "backend": "127.0.0.1:9800 e2ee_mode=required (strict) OK",
+    "pg": "127.0.0.1:4323 OK"
+  },
+  "pending_tasks": [
+    {
+      "id": "T1",
+      "case": "integration_test/chat/c2c_plaintext_reject_test.dart",
+      "prior_result": "FAIL(疑似strict拒收回归)",
+      "action": "remsh 只读验证 imboy_policy:validate_message_write 一行定音；若坐实 policy 放行则记录根因（修复需另立项，阶段一不改码）",
+      "status": "done-diagnosis",
+      "owner": "main",
+      "verdict": "误判非回归：服务端 fail-closed 完好。证据链：1) remsh 实证 validate_message_write(C2C,text,<<>>,null,P)={error,encrypted_message_required} 且 message_encryption_required()=true; 2) msg_store_staging 09-01 晚 0 行=明文从未 stage; 3) msg_c2c 该窗仅 5 条全部 has_e2ee=t 的 A→B 密文(其他 E2EE 测试产物 20:30~21:05); 4) conversation 表 0 行。UI 出现 C2C 会话 = app pm clear 重登后从 history 拉密文历史在 UI 层重建会话(与明文无关)。FINAL_REPORT『疑似回归』判定被推翻。",
+      "followup": "测试断言过宽(任意 C2C 会话出现即判泄漏)→修正为检查明文内容 msgText 后真机复跑"
+    },
+    {
+      "id": "T2",
+      "case": "integration_test/app_test.dart",
+      "prior_result": "TIMEOUT(binding assertion 挂死)",
+      "action": "重跑定位+修断言+复跑",
+      "status": "done-PASS",
+      "owner": "main",
+      "result": "TIMEOUT→PASS +2 -0（17s）。定案：16s 即 FAIL 且首断言『进入登录页/主Shell』已通过（启动链路 initConfig/policy/E2EE自愈全正常），挂因=第三断言 find.byType(Scaffold) 过期——登录页已 Cupertino 化(login_page.dart:106 CupertinoPageScaffold)；上会话『启动未捕获异常』为 binding _pendingExceptionDetails 余波误判。断言改兼容 Scaffold|CupertinoPageScaffold 后 PASS。logs/device_rerun_app_test2.log"
+    },
+    {
+      "id": "T3",
+      "case": "integration_test/demo_flow/paid_channel_flow_api_test.dart (dart)",
+      "prior_result": "SKIP(未设置 TEST_PAID_CHANNEL_ID)",
+      "action": "用 fixture 脚本创建付费频道拿到 ID 后重跑",
+      "status": "done-PASS",
+      "owner": "main",
+      "result": "SKIP→PASS +6 -0（DF-13.1~13.6 全链：paywall→mock topup→订单→支付→解锁→退款回收），日志 logs/dart_rerun_paid_channel_api3.log",
+      "fixes_during": [
+        "scripts/paid_channel_fixture.sh 过期：INSERT channel 还用已删除的 type 列（08-26 访问模型重构换 access_type/visibility/join_policy），已修对齐（参照存量付费频道 access_type=1,visibility=0,join_policy=3）+inspect 查询 c.type→c.access_type",
+        "fixture 频道 110252446399596544 无 channel_price 行导致『频道价格未配置』→ 用修好的官方脚本新建 fixture 1788323408812711（marker=imboy-paid-fixture-20260902，price 9.90）",
+        "dart 队列测试读 Platform.environment 而非 String.fromEnvironment（runner.py HOST_ENV 对 dart 队列其实传得进——os env 继承；但 -D/--dart-define 不被 dart test 支持）"
+      ],
+      "fixture_cleanup": "频道 1788323408812711 保留在本地库可复用；如需清理 PAID_FIXTURE_MARKER=imboy-paid-fixture-20260902 bash scripts/paid_channel_fixture.sh cleanup"
+    },
+    {
+      "id": "T4",
+      "case": "integration_test/demo_flow/group_pro_readonly_contract_test.dart (dart)",
+      "prior_result": "SKIP(需生产只读账号)",
+      "action": "用 118@imboy.pub/admin888 重跑",
+      "status": "done-PASS",
+      "owner": "main",
+      "result": "SKIP→PASS +10 -0（群详情/群成员分页/同群判定 生产只读契约 1:1 复刻 08-19 基线），日志 logs/dart_rerun_pro_readonly.log；IMBOY_SOLIDIFIED_KEY 从 lib/config/env_pro.g.dart envied XOR 解出（32 字符）"
+    },
+    {
+      "id": "T5",
+      "case": "真机日常 app 恢复",
+      "prior_result": "flutter test 卸载了日常 app",
+      "action": "flutter build apk --debug && adb install -r（全部真机测试完成后执行）",
+      "status": "done",
+      "owner": "main",
+      "result": "2026-09-02 注册页安全模式复验后再次 flutter build apk --debug + adb install -r Success；pm path pub.imboy.app 可见（XWE6R19916004085）"
+    },
+    {
+      "id": "T6",
+      "case": "integration_test/demo_flow/paid_channel_flow_test.dart (DEVICE #49)",
+      "prior_result": "SKIP(数据依赖 TEST_PAID_CHANNEL_ID)",
+      "action": "用 T3 的 fixture 频道 + 修 access_type 断言后重跑",
+      "status": "done-PASS",
+      "owner": "main",
+      "result": "SKIP→PASS +1 -0（4s）。断言修正：旧 type==2 → access_type==1（后端付费判定 channel_logic_order.erl:70，08-26 访问模型重构）。logs/device_rerun_paid_channel2.log"
+    }
+  ],
+  "session_final_stats": {
+    "PASS": 54,
+    "PASS_SKIPS": 1,
+    "SKIP": 15,
+    "FAIL": 0,
+    "TIMEOUT": 0,
+    "total": 70,
+    "changes_from_baseline": "T1(#28) FAIL→PASS, T2(#19) TIMEOUT→PASS, T3(#10) SKIP→PASS, T4(#9) SKIP→PASS, T6(#49) SKIP→PASS；Patrol handshake/app_launch PASS；跨平台群 E2EE 官方三阶段 PASS；DF-08 收紧拒收判据后因本地 fixture 账号缺失转 SKIP；剩余 0 FAIL + 15 SKIP"
+  },
+  "no_rerun_rationale": [
+    "e2ee_cross_platform_group_interop: 官方三阶段脚本已完成 Android sender→macOS receiver→Android final，双向互解 PASS",
+    "patrol/app_launch: 正确 Patrol runner + InitErrorPage 排除断言已复验 PASS",
+    "demo_flow/group_local_message_flow: 已删除 fail-closed DB 降级假绿；当前本地 fixture 账号不存在，严格断言尚未执行",
+    "其余 SKIP: 逐项以 remaining_cases 的 blocker 为准；涉及账号、第三方、生产写入或不可逆状态的一律等待人工确认"
+  ],
+  "remaining_cases": [
+    {
+      "case": "integration_test/demo_flow/group_local_message_flow_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "test/auto_test/reports/resume_2026-09-03/logs/dart_group_local_message_flow3.log；+2 -0（7s）：DF-08-1 4s 收到 policy_violation(encrypted_message_required)，DF-08-2 3s 收到 SERVER_ACK+归档回读",
+      "resolution": "2026-09-03 本地沙箱执行（127.0.0.1:9800+smoke_alice/bob 双号+TEST_LOGIN_TYPE=account）。『裸WS下行0帧』定案=测试侧解码 bug 而非后端遗留：imboy.v2 子协议连接上服务端同步回执（policy_violation/SERVER_ACK）载荷是 protobuf，监听器 utf8.decode 抛 FormatException 被 catch(_){} 静默吞掉。修复=镜像 App 端 _dispatchFramePayload 解码策略（首字节{判 JSON→ImboyPbCodec.tryDecode 回退）。健康检查§六『在线表注册被真机覆盖』假设被推翻——后端一直在发帧。09-02 遗留的门禁（显式 UID/LOGIN_TYPE2）全部满足后首次真实执行",
+      "regression_note": "修复属测试侧解码对齐 App 协议，无产品代码改动；该修复思路适用于其他裸 WS 测试"
+    },
+    {
+      "case": "integration_test/e2ee_cross_platform_group_interop_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "test/auto_test/reports/cross_platform_group/run_pf3_marker_2026-09-02.log；官方三阶段 Android sender→macOS receiver→Android final 全部完成，E2EE_GROUP_INTEROP_PASS，All tests passed，脚本真实 exit 0；修复 Android logcat 截断（vector chunk 1500→700）及 PFv3 验证标记断言"
+    },
+    {
+      "case": "integration_test/patrol/app_launch_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "test/auto_test/reports/patrol_app_launch_init_guard_2026-09-02.log；新增 InitErrorPage 排除断言后 Total 1, Successful 1, Failed 0，测试体 15s，runner exit 0"
+    },
+    {
+      "case": "integration_test/patrol/handshake_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "evidence": "patrol test: 1 successful, 0 failed, 4s；CLI finalizer 清理不存在包失败，不影响测试结果"
+    },
+    {
+      "case": "integration_test/two_client/mac_e2ee_server_probe_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "不缺第二客户端，但会给当前登录账号持久上报设备密钥。2026-09-03 已补 TEST_ALLOW_DEVICE_KEY_REPORT、TEST_EXPECTED_UID、PEER_UID 三重门及登录 UID 核验；直接读取安全存储原值，拒绝空/unknown 的 device_id、key_id 和空公钥，强断言上报成功及服务端精确回读 device_id+key_id；仍需人工确认自管账号、查询目标及设备密钥写入授权，或确认退休历史探针",
+      "evidence": "HEALTH_CHECK_REPORT 已将历史诊断收口为 macOS 环境 flake；安全门、上报和回读断言静态分析通过，未输出公钥正文"
+    },
+    {
+      "case": "integration_test/two_client/mac_peer_c2c_ping_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "Android+macOS 硬件已具备。2026-09-03 已补发送方 TEST_EXPECTED_UID、目标 PEER_UID，并在按昵称进入后硬校验 ChatPage.peerId；仍需人工确认双方自管账号、精确 UID/昵称及发消息授权"
+    },
+    {
+      "case": "integration_test/two_client/mac_peer_friend_apply_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "Android+macOS 硬件已具备。2026-09-03 已补发送方 TEST_EXPECTED_UID、目标 PEER_UID 与登录 UID/非自发校验；仍需人工确认双方自管账号、精确 UID 及好友申请授权"
+    },
+    {
+      "case": "integration_test/auth/password_change_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/device_password_change_forward4.log + device_password_change_restore.log（reports/resume_2026-09-03/）：正向 admin888→SmokeAlice#2026 全链 UI PASS（1:02）+ 反向复原 PASS（1:07）+ 复原后 admin888 API 登录验证通过",
+      "resolution": "2026-09-03 本地沙箱（127.0.0.1:9801 专属节点 + smoke_alice）执行。**挖出真 P0：改密功能全链路不可用**——服务端 user_logic:change_password/set_password 无条件 rsa_decrypt 对 App 明文（rsa_encrypt 未传）抛 {error,invalid_padding} 恒 500。三处修复：①服务端改 safe_rsa_decrypt+rsa_encrypt 参数（对齐 passport login 契约，imboy 仓 user_logic.erl）②App UserApi.changePassword/setPassword 补发 rsa_encrypt:'0'（imboyapp 仓）③update_password_with_log 此前 `_ = with_tx` 吞事务失败返回假 success，改为如实返回错误。后端 user_handler_tests 7/7 绿。测试侧同步修 tab_mine 选择器漂移（tab_profile/tab_me→tab_mine）+补 dismissRecoveryGuide（首登 E2EE 恢复指南弹窗挡 Tab）",
+      "env_note": "9800 共享节点被并发 eunit 会话 meck 污染（elib_pg beam 热加载+fake_conn/mock_conn），改用 9801 专属节点（erlexec -noinput -args_file vm_9801.args + HTTP_PORT=9801）执行"
+    },
+    {
+      "case": "integration_test/auth/register_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "2026-09-02 已以 TEST_ALLOW_REGISTER=false 真机执行，因设备保留既有登录态而设计性 SKIP；未提交表单、未发验证码、未创建账号。继续需人工允许登出/清除本地会话；完整注册还需邮箱及外发验证码授权，且当前测试无法自动输入验证码闭环",
+      "evidence": "test/auto_test/reports/register_ui_only_2026-09-02.log；+0 ~1, All tests skipped（已登录状态）"
+    },
+    {
+      "case": "integration_test/channel/channel_subscribed_detail_consistency_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/device_channel_subscribed_consistency.log：00:57 +1 All tests passed——列表首项频道名与详情页一致、无『频道不存在』",
+      "resolution": "2026-09-03 本地沙箱执行。fixture 准备=API 先给 smoke_alice 订阅免费频道 110252446336681984（DEMO-FLOW-20260827 频道创作者验证，订阅+回读 list 均成功）；阻塞『需人工确认测试账号』以 agent 自有 smoke 号在本地后端消除"
+    },
+    {
+      "case": "integration_test/demo_flow/group_collaboration_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "owner/member 流程会创建日程、任务、投票并提交。已改为必须显式提供互异数字型 owner/member UID、精确群 ID 和标题；仍缺账号归属、目标群及生产写入人工授权和完整 marker fixture",
+      "evidence": "2026-09-03 身份/目标门禁静态分析通过，未执行网络写入"
+    },
+    {
+      "case": "integration_test/demo_flow/group_creation_management_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "会建群、改群、邀请成员和发公告。已移除固定 UID 默认值及按双成员集合复用任意旧群的降级路径；仍缺账号归属、目标群及生产写入人工授权",
+      "evidence": "2026-09-03 身份/目标门禁静态分析及独立审查通过，未执行网络写入"
+    },
+    {
+      "case": "integration_test/demo_flow/group_dual_account_message_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "需两会话并发、自管双方账号、现存授权群、目标 gid/成员 UID 及双向真实群消息授权；发送的两条消息会持久化且无删除/撤回"
+    },
+    {
+      "case": "integration_test/demo_flow/group_member_join_probe_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "会向生产测试群邀请成员。已移除固定 UID，并在写入前回读核对 gid、测试标题和 owner_uid；仍缺账号归属、目标群及生产写入人工授权",
+      "evidence": "2026-09-03 身份/目标门禁静态分析及独立审查通过，未执行网络写入"
+    },
+    {
+      "case": "integration_test/demo_flow/group_member_readback_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "历史只读 fixture 已失效。已要求显式 owner/member/expected UID，并按群 ID+标题精确定位；重建 fixture 仍需先执行建群/邀请/公告写入并取得人工授权",
+      "evidence": "test/auto_test/reports/fixture_cases/group_member_readback_2026-09-02.log；+0 ~1, All tests skipped；2026-09-03 身份/目标门禁静态分析通过，未执行"
+    },
+    {
+      "case": "integration_test/demo_flow/group_member_role_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "只读 readback 硬断言 role=3，但历史已恢复 role=1；完整链需 promote(owner)→readback(member)→restore(owner)，中断可能遗留 role=3。已移除固定 UID并在操作前核对 gid、标题和 owner_uid；仍需角色写入授权并监督恢复",
+      "evidence": "2026-09-03 身份/目标门禁静态分析及独立审查通过，未执行角色变更"
+    },
+    {
+      "case": "integration_test/demo_flow/local_e2ee_group_fixture_flow_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/device_local_e2ee_fixture2.log：00:52 +1 All tests passed——建群+邀请 smoke_bob+开 E2EE+详情回读 e2ee_mode=1（gid=110572649006237696，群 LOCAL-E2EE-GROUP-20260903-B2Y）",
+      "resolution": "2026-09-03 本地沙箱执行。首跑挂『详情必须回读 e2ee_mode=1』→挖出真产品缺陷：P1-7b 显式安全列收紧时把 e2ee_mode 从 group detail 列清单遗漏（客户端 group_api.dart P0-B B4 注释明确依赖 detail 携带该字段同步本地旗标，覆盖开关广播后才入群的成员）＝安全加固引入的静默契约回退。修复 imboy/src/api/group_handler.erl detail GroupCols 补 e2ee_mode + 热加载 9801 后复跑 PASS。阻塞『不可逆 E2EE 需授权』以本地合成群（仅含 smoke 双号）消除"
+    },
+    {
+      "case": "integration_test/e2e_chat_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/device_e2e_chat2.log：01:05 +1 All tests passed——显式目标会话(SmokeBob/1000000056)进入 ChatPage→E2EE 发送→onSendPressed true→输入框清空→消息渲染；服务端 msg_c2c 当窗 1 行密文归档（13:36:51）三方互证",
+      "resolution": "2026-09-03 本地沙箱执行。测试侧修复：enterText 后未 pump——发送按钮经 ValueListenableBuilder+AnimatedSwitcher(300ms) 才挂载，不 pump 时 send_button key 不存在、tapAny 落空退化到键盘回车（真机软键盘无效）＝『输入框未清空』假象。补两帧 pump(450+100ms) 后按钮命中。阻塞以 agent 自有 smoke 双号在本地后端消除（与 c2c_e2ee_send_render 白盒路径互补，本用例补齐 UI 按钮链路）"
+    }
+  ],
+  "completed_tasks": [
+    "integration_test/patrol/handshake_test.dart",
+    "integration_test/patrol/app_launch_test.dart",
+    "integration_test/e2ee_cross_platform_group_interop_test.dart"
+  ],
+  "notes": "状态文件由 2026-09-02 会话创建；每完成一项立即回写。"
+}

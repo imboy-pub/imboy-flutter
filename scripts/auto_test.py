@@ -17,6 +17,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -120,26 +121,70 @@ def print_plan(specs: list[tuple[Path, dict]]) -> None:
 
 
 def is_local_url(value: str) -> bool:
-    return value.startswith(('http://127.0.0.1:', 'http://localhost:', 'http://0.0.0.0:'))
+    parsed = urlsplit(value)
+    return parsed.scheme in {'http', 'https', 'ws', 'wss'} and parsed.hostname in {
+        '127.0.0.1', 'localhost', '0.0.0.0',
+    }
+
+
+def _target_urls() -> tuple[str, str]:
+    api_url = (
+        os.environ.get('IMBOY_API_BASE_URL_OVERRIDE')
+        or os.environ.get('IMBOY_API_BASE_URL')
+        or os.environ.get('API_BASE_URL')
+        or ''
+    )
+    return api_url, os.environ.get('IMBOY_WS_URL_OVERRIDE', '')
+
+
+def _flutter_env_defines() -> list[str]:
+    """与 capture_integration_screenshots.py 同一套受控注入：
+    仅当 IMBOY_TEST_PHONE/IMBOY_TEST_PASSWORD 显式提供时才拼 dart-define，
+    同时透传 IMBOY_APP_ENV 与 *_OVERRIDE 地址（本地后端 + adb reverse 联调配方）。"""
+    defines = []
+    app_env = os.environ.get('IMBOY_APP_ENV')
+    if app_env:
+        defines.append(f'--dart-define=APP_ENV={app_env}')
+    phone = os.environ.get('IMBOY_TEST_PHONE')
+    password = os.environ.get('IMBOY_TEST_PASSWORD')
+    if phone and password:
+        defines.append(f'--dart-define=TEST_PHONE={phone}')
+        defines.append(f'--dart-define=TEST_PASSWORD={password}')
+    api_url, ws_url = _target_urls()
+    if os.environ.get('IMBOY_API_BASE_URL_OVERRIDE'):
+        defines.append(f'--dart-define=API_BASE_URL_OVERRIDE={api_url}')
+    elif api_url:
+        defines.append(f'--dart-define=API_BASE_URL={api_url}')
+    if ws_url:
+        defines.append(f'--dart-define=WS_URL_OVERRIDE={ws_url}')
+    for var, define in (
+        ('IMBOY_SOLIDIFIED_KEY_OVERRIDE', 'SOLIDIFIED_KEY_OVERRIDE'),
+        ('IMBOY_SOLIDIFIED_KEY_IV_OVERRIDE', 'SOLIDIFIED_KEY_IV_OVERRIDE'),
+    ):
+        value = os.environ.get(var)
+        if value:
+            defines.append(f'--dart-define={define}={value}')
+    return defines
 
 
 def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir: Path) -> int:
-    api_url = os.environ.get('IMBOY_API_BASE_URL', os.environ.get('API_BASE_URL', 'http://127.0.0.1:9800'))
+    api_url, ws_url = _target_urls()
     remote_allowed = os.environ.get('IMBOY_ALLOW_REMOTE_TEST') == '1'
+    env_defines = _flutter_env_defines()
     results = []
     for _, spec in specs:
         runner = spec['runner']
         status, reason, code = 'PLANNED', 'dry-run；未触发设备或网络操作', 0
         command = [runner['type']]
         if runner['type'] == 'flutter':
-            command += ['test', runner['target'], '-d', device]
+            command += ['test', runner['target'], '-d', device, *env_defines]
         else:
             command += ['test', '--target', runner['target'], '--device', device]
         if not spec['safe_to_execute']:
             status, reason, code = 'BLOCKED', 'case 标记为高风险，必须由专用受控测试替代', 2
         elif not device:
             status, reason, code = 'BLOCKED', '缺少 --device 真机 ID', 2
-        elif not is_local_url(api_url) and not remote_allowed:
+        elif (not is_local_url(api_url) or (ws_url and not is_local_url(ws_url))) and not remote_allowed:
             status, reason, code = 'BLOCKED', '远程地址需 IMBOY_ALLOW_REMOTE_TEST=1', 2
         elif execute:
             completed = subprocess.run(command, cwd=ROOT, check=False)
@@ -161,7 +206,7 @@ def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir
 
 def capture_case(spec: dict, device: str, output: Path, hold_ms: int, app_env: str, platform: str, execute: bool) -> int:
     """以规格为入口采集一个低风险 case 的截图；默认仅输出计划。"""
-    api_url = os.environ.get('IMBOY_API_BASE_URL', os.environ.get('API_BASE_URL', 'http://127.0.0.1:9800'))
+    api_url, ws_url = _target_urls()
     command = [
         sys.executable,
         'scripts/capture_integration_screenshots.py',
@@ -181,7 +226,9 @@ def capture_case(spec: dict, device: str, output: Path, hold_ms: int, app_env: s
     if not device:
         print('BLOCKED: 缺少 --device 真机 ID。')
         return 2
-    if not is_local_url(api_url) and os.environ.get('IMBOY_ALLOW_REMOTE_TEST') != '1':
+    if (
+        not is_local_url(api_url) or (ws_url and not is_local_url(ws_url))
+    ) and os.environ.get('IMBOY_ALLOW_REMOTE_TEST') != '1':
         print('BLOCKED: 远程地址需 IMBOY_ALLOW_REMOTE_TEST=1。')
         return 2
     if not execute:

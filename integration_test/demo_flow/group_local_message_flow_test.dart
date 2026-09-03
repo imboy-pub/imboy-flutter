@@ -3,8 +3,9 @@
 // 运行（本地后端 http://127.0.0.1:9800）：
 //   API_BASE_URL=http://127.0.0.1:9800 \
 //   IMBOY_SOLIDIFIED_KEY=<本地签名密钥> \
-//   TEST_PHONE=13900001002 TEST_PASSWORD=admin888 \
-//   TEST_PHONE2=smoke_bob TEST_PASSWORD2=demoflow888 \
+//   TEST_PHONE=<account-a> TEST_PASSWORD=<password-a> \
+//   TEST_PHONE2=<account-b> TEST_PASSWORD2=<password-b> \
+//   TEST_LOGIN_TYPE2=<mobile-or-account> \
 //   TEST_ALLOW_API_WRITES=true \
 //   dart test integration_test/demo_flow/group_local_message_flow_test.dart \
 //     --concurrency=1
@@ -26,14 +27,15 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart' as crypto;
+import 'package:imboy/service/protocol/imboy_frame.dart';
+import 'package:imboy/service/protocol/imboy_pb_codec.dart';
 import 'package:test/test.dart';
 
 import '../../test/unit_test/api/api_test_client.dart';
 
-// 2026-08-18 起 B 账号为 smoke_bob（uid 1000000056，account 型登录，
-// 凭证见 moments/wallet/red_packet flow 文档）。
 const _msgPrefix = 'DEMO-FLOW-20260827';
 
 /// 与 ApiTestClient._defaultHeaders 相同的设备签名（did 与登录客户端一致）。
@@ -75,13 +77,57 @@ Future<WebSocket> _connect(ApiTestClient client) async {
       .replaceFirst('https://', 'wss://')
       .replaceFirst('http://', 'ws://');
   final wsUri = wsUrl.endsWith('/ws') ? wsUrl : '$wsUrl/api/v1/ws';
-  final headers = _signedHeaders('e2e-dart-test-001');
+  final headers = _signedHeaders(
+    'e2e-dart-ws-$pid-${DateTime.now().microsecondsSinceEpoch}',
+  );
   headers['authorization'] = 'Bearer ${client.accessToken}';
   return WebSocket.connect(
     wsUri,
     headers: headers,
     protocols: const ['imboy.v2'],
   );
+}
+
+Uint8List _c2gFrame(Map<String, dynamic> message) => ImboyFrame.encode(
+  type: FrameType.msgC2G,
+  flags: 0,
+  payload: Uint8List.fromList(utf8.encode(jsonEncode(message))),
+);
+
+Future<String> _archivedMsgId(String msgId) async {
+  final password = Platform.environment['PGPASSWORD'] ?? '';
+  if (password.isEmpty) throw StateError('DB 归档核验需要 PGPASSWORD');
+  final result = await Process.run(
+    'psql',
+    [
+      '-h',
+      Platform.environment['PGHOST'] ?? '127.0.0.1',
+      '-p',
+      Platform.environment['PGPORT'] ?? '4323',
+      '-U',
+      Platform.environment['PGUSER'] ?? 'imboy_user',
+      '-d',
+      Platform.environment['PGDATABASE'] ?? 'imboy_v1',
+      '-At',
+      '-c',
+      "SELECT msg_id FROM public.msg_c2g WHERE msg_id='$msgId'",
+    ],
+    environment: {
+      'PGPASSWORD': password,
+      'PATH': Platform.environment['PATH'] ?? '',
+    },
+  );
+  if (result.exitCode != 0) throw StateError('psql 归档核验失败: ${result.stderr}');
+  return (result.stdout as String).trim();
+}
+
+Future<String> _waitForArchivedMsgId(String msgId) async {
+  for (var i = 0; i < 10; i++) {
+    final archived = await _archivedMsgId(msgId);
+    if (archived.isNotEmpty) return archived;
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+  }
+  return '';
 }
 
 void main() {
@@ -94,6 +140,16 @@ void main() {
 
   setUpAll(() async {
     clientA = ApiTestClient(baseUrl: ApiTestConfig.apiBaseUrl);
+    final expectedUidA = Platform.environment['TEST_EXPECTED_UID_A'] ?? '';
+    final expectedUidB = Platform.environment['TEST_EXPECTED_UID_B'] ?? '';
+    final loginType2 = Platform.environment['TEST_LOGIN_TYPE2'] ?? '';
+    if (!RegExp(r'^\d+$').hasMatch(expectedUidA) ||
+        !RegExp(r'^\d+$').hasMatch(expectedUidB) ||
+        expectedUidA == expectedUidB ||
+        !{'mobile', 'account', 'email'}.contains(loginType2)) {
+      skipReason = '需要显式互异数字型 TEST_EXPECTED_UID_A/B 和合法 TEST_LOGIN_TYPE2';
+      return;
+    }
     if (!ApiTestConfig.isDualConfigured) {
       skipReason = '需要双账号（B 用于建群成员集合）';
       return;
@@ -115,13 +171,16 @@ void main() {
       return;
     }
     uidA = clientA.currentUid ?? '';
+    if (uidA != expectedUidA) {
+      skipReason = 'A 登录 UID 与 TEST_EXPECTED_UID_A 不一致';
+      return;
+    }
     // 只为登录 B 拿 uid 用于建群成员集合；消息发送由 A 完成。
     final clientB = ApiTestClient(baseUrl: ApiTestConfig.apiBaseUrl);
     final respB = await clientB.login(
       account: ApiTestConfig.testPhone2,
       password: ApiTestConfig.testPassword2,
-      // smoke_bob 是 account 型登录（mobile 字段为空）。
-      type: 'account',
+      type: loginType2,
     );
     clientB.close();
     if (respB['code'] != 0) {
@@ -129,10 +188,32 @@ void main() {
       return;
     }
     uidB = '${((respB['payload'] as Map)['uid'] ?? '')}';
+    if (uidB != expectedUidB || uidA == uidB) {
+      skipReason = 'B 登录 UID 与 TEST_EXPECTED_UID_B 不一致或两账号相同';
+      return;
+    }
     ready = true;
   });
 
   tearDownAll(() => clientA.close());
+
+  /// 与 App 端 WebSocketService._dispatchFramePayload 同一解码策略：
+  /// imboy.v2 子协议连接上，服务端同步回执（policy_violation/SERVER_ACK
+  /// 等）的载荷是 protobuf，投递管道帧是 JSON 原文。此前测试只做
+  /// utf8.decode，protobuf 字节抛 FormatException 被 catch(_){} 静默
+  /// 吞掉——表现为「下行 0 帧」假象（DF-08-1/DF-08-2 ACK 均受累）。
+  String? _payloadToText(Uint8List payload) {
+    if (payload.isNotEmpty && payload.first == 0x7B /* '{' */ ) {
+      return utf8.decode(payload, allowMalformed: true);
+    }
+    final pbMap = ImboyPbCodec.tryDecode(payload);
+    if (pbMap != null) return jsonEncode(pbMap);
+    try {
+      return utf8.decode(payload, allowMalformed: false);
+    } on FormatException {
+      return null;
+    }
+  }
 
   /// 等待下一帧匹配 [match]（15 秒超时），返回原始帧 map。
   Future<Map<String, dynamic>> waitForFrame(
@@ -144,10 +225,18 @@ void main() {
     late final StreamSubscription<dynamic> sub;
     sub = ws.listen(
       (data) {
-        if (data is! String) return;
-        inbound?.add(data);
         try {
-          final msg = jsonDecode(data);
+          final decoded = data is List<int>
+              ? ImboyFrame.tryDecode(Uint8List.fromList(data))
+              : null;
+          final text = data is String
+              ? data
+              : decoded == null
+              ? null
+              : _payloadToText(decoded.frame.payload);
+          if (text == null) return;
+          inbound?.add(text);
+          final msg = jsonDecode(text);
           if (msg is Map && match(msg.cast<String, dynamic>())) {
             if (!completer.isCompleted) {
               completer.complete(msg.cast<String, dynamic>());
@@ -200,10 +289,12 @@ void main() {
 
     final ws = await _connect(clientA);
     try {
-      final mark = '$_msgPrefix-PLAIN-${DateTime.now().millisecondsSinceEpoch}';
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final msgId = 'demoflow-plain-$ts';
+      final mark = '$_msgPrefix-PLAIN-$ts';
       ws.add(
-        jsonEncode({
-          'id': 'demoflow-plain-${DateTime.now().millisecondsSinceEpoch}',
+        _c2gFrame({
+          'id': msgId,
           'type': 'C2G',
           'msg_type': 'text',
           'from': uidA,
@@ -220,11 +311,7 @@ void main() {
       );
       final reason =
           '${((frame['payload'] ?? const <String, dynamic>{}) as Map)['reason'] ?? ''}';
-      expect(
-        reason,
-        'encrypted_message_required',
-        reason: '本地 e2ee_mode=required 应拒收明文群消息，帧=$frame',
-      );
+      expect(reason, 'encrypted_message_required');
     } finally {
       await ws.close();
     }
@@ -244,7 +331,7 @@ void main() {
       final cipherMark = '$_msgPrefix-CIPHER-$ts';
       final ciphertext = base64.encode(utf8.encode(cipherMark));
       ws.add(
-        jsonEncode({
+        _c2gFrame({
           'id': msgId,
           'type': 'C2G',
           'msg_type': 'text',
@@ -311,41 +398,8 @@ void main() {
         '（键名 bug 未修时 total=0，归档以 DB 行判定）',
       );
 
-      // DB 直查归档行（本地测试库连接参数由环境注入，见 scripts/test.env）。
-      final pgHost = Platform.environment['PGHOST'] ?? '127.0.0.1';
-      final pgPort = Platform.environment['PGPORT'] ?? '4323';
-      final pgUser = Platform.environment['PGUSER'] ?? 'imboy_user';
-      final pgDb = Platform.environment['PGDATABASE'] ?? 'imboy_v1';
-      final pgPassword = Platform.environment['PGPASSWORD'] ?? '';
       expect(
-        pgPassword,
-        isNotEmpty,
-        reason: 'DB 归档核验需要 PGPASSWORD（scripts/test.env 提供）',
-      );
-      final dbResult = await Process.run(
-        'psql',
-        [
-          '-h',
-          pgHost,
-          '-p',
-          pgPort,
-          '-U',
-          pgUser,
-          '-d',
-          pgDb,
-          '-At',
-          '-c',
-          "SELECT msg_id FROM public.msg_c2g WHERE msg_id='$msgId'",
-        ],
-        environment: {
-          'PGPASSWORD': pgPassword,
-          'PATH': Platform.environment['PATH'] ?? '',
-        },
-      );
-      expect(dbResult.exitCode, 0, reason: 'psql 归档核验失败: ${dbResult.stderr}');
-      final archived = (dbResult.stdout as String).trim();
-      expect(
-        archived,
+        await _waitForArchivedMsgId(msgId),
         msgId,
         reason:
             '服务端 msg_c2g 表应包含刚发送的密文消息归档行'

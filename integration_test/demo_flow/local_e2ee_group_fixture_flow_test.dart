@@ -26,11 +26,11 @@ import '../flows/test_utils.dart';
 
 const _ownerUid = String.fromEnvironment(
   'TEST_LOCAL_E2EE_GROUP_OWNER_UID',
-  defaultValue: '1000000051',
+  defaultValue: '',
 );
 const _memberUid = String.fromEnvironment(
   'TEST_LOCAL_E2EE_GROUP_MEMBER_UID',
-  defaultValue: '1000000056',
+  defaultValue: '',
 );
 const _groupTitle = String.fromEnvironment(
   'TEST_LOCAL_E2EE_GROUP_TITLE',
@@ -102,7 +102,7 @@ void main() {
       ).map(_readMemberId).whereType<String>().toSet();
       expect(
         memberIds,
-        containsAll(<String>{_ownerUid, _memberUid}),
+        containsAll(<String>[_ownerUid, _memberUid]),
         reason: '开启群级 E2EE 前必须确认群主和成员都已服务端入群',
       );
 
@@ -140,8 +140,10 @@ bool _requireLocalFixtureAuthorization() {
     markTestSkipped('本地 E2EE 群夹具拒绝生产或无法识别的目标地址');
     return false;
   }
-  if (_ownerUid.isEmpty || _memberUid.isEmpty || _ownerUid == _memberUid) {
-    markTestSkipped('本地 E2EE 群夹具要求两个不同的测试 UID');
+  if (!RegExp(r'^\d+$').hasMatch(_ownerUid) ||
+      !RegExp(r'^\d+$').hasMatch(_memberUid) ||
+      _ownerUid == _memberUid) {
+    markTestSkipped('本地 E2EE 群夹具要求两个不同的数字型测试 UID');
     return false;
   }
   if (!_groupTitle.startsWith('LOCAL-E2EE-GROUP-') || _groupTitle.length < 24) {

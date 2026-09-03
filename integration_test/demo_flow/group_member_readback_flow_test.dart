@@ -1,4 +1,4 @@
-// P0 群管理跨设备回读：Android/118 只读核对 macOS/117 管理员写入的测试群。
+// P0 群管理跨设备回读：成员只读核对管理员写入的测试群。
 // 不创建、不修改、不删除任何群数据。
 
 import 'package:flutter/cupertino.dart';
@@ -15,8 +15,17 @@ import '../flows/test_utils.dart';
 
 const _expectedUid = String.fromEnvironment(
   'TEST_EXPECTED_UID',
-  defaultValue: '4',
+  defaultValue: '',
 );
+const _ownerUid = String.fromEnvironment(
+  'TEST_GROUP_OWNER_UID',
+  defaultValue: '',
+);
+const _memberUid = String.fromEnvironment(
+  'TEST_GROUP_MEMBER_UID',
+  defaultValue: '',
+);
+const _groupId = String.fromEnvironment('TEST_GROUP_ID', defaultValue: '');
 const _groupTitle = String.fromEnvironment(
   'TEST_GROUP_TITLE',
   defaultValue: '',
@@ -32,8 +41,7 @@ void main() {
   testWidgets(
     '成员账号可回读管理员写入的测试群、成员和公告',
     (tester) async {
-      if (_groupTitle.isEmpty || !_announcementMarker.startsWith('P0-GROUP-')) {
-        markTestSkipped('缺少目标测试群标题或公告标记');
+      if (!_authorized()) {
         return;
       }
 
@@ -56,7 +64,7 @@ void main() {
         await GroupMemberApi().page(gid: group.id, page: 1, size: 20),
       );
       final memberIds = members.map(_readMemberId).whereType<String>().toSet();
-      expect(memberIds, containsAll(<String>{'50', '4'}));
+      expect(memberIds, containsAll(<String>[_ownerUid, _memberUid]));
 
       final detail = await GroupApi().detail(gid: group.id);
       expect(_readTitle(detail), _groupTitle);
@@ -111,12 +119,31 @@ class _GroupSeed {
 Future<_GroupSeed?> _findTestGroup() async {
   final payload = await GroupApi().page(page: 1, size: 100, attr: 'join');
   for (final row in _asList(payload)) {
-    if (row is Map && row['title']?.toString() == _groupTitle) {
+    if (row is Map &&
+        row['title']?.toString() == _groupTitle &&
+        _readId(row) == _groupId) {
       final id = _readId(row);
       if (id.isNotEmpty) return _GroupSeed(id: id);
     }
   }
   return null;
+}
+
+bool _authorized() {
+  if (_groupTitle.isEmpty || !_announcementMarker.startsWith('P0-GROUP-')) {
+    markTestSkipped('缺少目标测试群标题或公告标记');
+    return false;
+  }
+  if (!RegExp(r'^\d+$').hasMatch(_expectedUid) ||
+      !RegExp(r'^\d+$').hasMatch(_ownerUid) ||
+      !RegExp(r'^\d+$').hasMatch(_memberUid) ||
+      !RegExp(r'^\d+$').hasMatch(_groupId) ||
+      _ownerUid == _memberUid ||
+      _expectedUid != _memberUid) {
+    markTestSkipped('必须显式提供目标群 ID、两个不同数字型 UID，且当前 UID 为成员');
+    return false;
+  }
+  return true;
 }
 
 Future<List<String>> _loadAnnouncements(String gid) async {
