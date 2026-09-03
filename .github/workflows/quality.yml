@@ -128,6 +128,9 @@ jobs:
       - name: Analyzer ratchet gate (whole-repo, zero baseline)
         run: bash scripts/quality/check_analyzer_ratchet.sh
 
+      - name: Riverpod lifecycle ratchet
+        run: dart run tool/check_riverpod_lifecycle.dart
+
       # ----------------------------------------------------------------
       # 1.6) 文件行数 ratchet 门（APP-02）：新文件超 800 行 / 存量超限
       # 文件再增长即 FAIL（存量 47 个已入 file_size_baseline.txt 基线）。
