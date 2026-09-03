@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:imboy/component/chat/composer_emoji_panel.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_article_page.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
@@ -175,5 +177,64 @@ void main() {
     expect(hasExplicitLabel(t.channel.share), isTrue);
     expect(tester.takeException(), isNull);
     semanticsHandle.dispose();
+  });
+
+  testWidgets('表情面板使用底栏全宽且无布局异常', (tester) async {
+    await tester.pumpWidget(
+      _buildTestApp(service, _fakeMessage(content: '正文内容')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('composer_emoji_button')));
+    await tester.pumpAndSettle();
+
+    final panel = find.byType(ComposerEmojiPanel);
+    expect(panel, findsOneWidget);
+    expect(tester.getSize(panel).width, greaterThan(350));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('发送按钮仅在输入评论后出现', (tester) async {
+    await tester.pumpWidget(
+      _buildTestApp(service, _fakeMessage(content: '正文内容')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip(t.common.buttonSend), findsNothing);
+    await tester.enterText(
+      find.byKey(const Key('composer_text_field')),
+      '一条评论',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip(t.common.buttonSend), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('拖拽阅读列表会收起系统键盘', (tester) async {
+    await tester.pumpWidget(
+      _buildTestApp(service, _fakeMessage(content: '正文内容')),
+    );
+    await tester.pumpAndSettle();
+
+    final scrollView = tester.widget<CustomScrollView>(
+      find.byType(CustomScrollView),
+    );
+    expect(
+      scrollView.keyboardDismissBehavior,
+      ScrollViewKeyboardDismissBehavior.onDrag,
+    );
+  });
+
+  testWidgets('分享弹窗使用不透明主题表面', (tester) async {
+    await tester.pumpWidget(
+      _buildTestApp(service, _fakeMessage(content: '正文内容')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(t.channel.share).last);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CupertinoModalSurface), findsOneWidget);
   });
 }

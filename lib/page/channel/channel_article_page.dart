@@ -6,11 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/chat/composer_field.dart';
+import 'package:imboy/component/chat/composer_emoji_panel.dart';
 import 'package:imboy/component/helper/func.dart'
     show cachedImageProvider, iPrint;
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
@@ -55,6 +57,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
+  final ValueNotifier<bool> _emojiOpen = ValueNotifier(false);
 
   static const int _pageSize = 20;
 
@@ -63,6 +66,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   bool _isLoadingMore = false;
   bool _hasMore = false;
   bool _isSending = false;
+  bool _hasText = false;
   String? _loadError;
   int _replyToCommentId = 0;
   String _replyToName = '';
@@ -79,6 +83,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     _liked =
         widget.message?.myReactions.contains(ChannelReactionType.like) ?? false;
     _scrollController.addListener(_onScroll);
+    _inputController.addListener(_onInputChanged);
     if (widget.message != null) {
       _loadComments();
     }
@@ -87,18 +92,31 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   @override
   void dispose() {
     _scrollController.removeListener(_onScroll);
+    _inputController.removeListener(_onInputChanged);
     _scrollController.dispose();
     _inputController.dispose();
     _inputFocusNode.dispose();
+    _emojiOpen.dispose();
     super.dispose();
   }
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
+    if (_emojiOpen.value) _emojiOpen.value = false;
     final pos = _scrollController.position;
     if (pos.maxScrollExtent - pos.pixels <= 200) {
       _loadMoreComments();
     }
+  }
+
+  void _onInputChanged() {
+    final hasText = _inputController.text.trim().isNotEmpty;
+    if (hasText != _hasText && mounted) setState(() => _hasText = hasText);
+  }
+
+  void _focusCommentInput() {
+    _emojiOpen.value = false;
+    _inputFocusNode.requestFocus();
   }
 
   // ---- 评论数据 ----
@@ -355,7 +373,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     final message = widget.message!;
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => CupertinoModalSurface(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -420,6 +438,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           Expanded(
             child: CustomScrollView(
               controller: _scrollController,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               slivers: [
                 SliverToBoxAdapter(child: _buildAuthorHeader(channel?.name)),
                 SliverToBoxAdapter(child: _buildBody()),
@@ -839,7 +858,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     }
     return [
       SliverPadding(
-        padding: AppSpacing.allSmall,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
             final comment = _comments[index];
@@ -892,37 +911,43 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           // 操作栏：赞 / 评论 / 转发
           Row(
             children: [
-              _actionButton(
-                icon: _liked
-                    ? CupertinoIcons.hand_thumbsup_fill
-                    : CupertinoIcons.hand_thumbsup,
-                label: totalReactions > 0 ? '$totalReactions' : t.channel.like,
-                color: _liked ? AppColors.primary : secondary,
-                onTap: _toggleMessageLike,
-                isLoading: _likeActionBusy,
-                semanticsLabel: totalReactions > 0
-                    ? '${t.channel.like} $totalReactions'
-                    : t.channel.like,
+              Expanded(
+                child: _actionButton(
+                  icon: _liked
+                      ? CupertinoIcons.hand_thumbsup_fill
+                      : CupertinoIcons.hand_thumbsup,
+                  label: totalReactions > 0
+                      ? '$totalReactions'
+                      : t.channel.like,
+                  color: _liked ? AppColors.primary : secondary,
+                  onTap: _toggleMessageLike,
+                  isLoading: _likeActionBusy,
+                  semanticsLabel: totalReactions > 0
+                      ? '${t.channel.like} $totalReactions'
+                      : t.channel.like,
+                ),
               ),
-              AppSpacing.horizontalRegular,
-              _actionButton(
-                icon: CupertinoIcons.chat_bubble,
-                label: _comments.isNotEmpty
-                    ? '${_comments.length}'
-                    : t.channel.comment,
-                color: secondary,
-                onTap: () => _inputFocusNode.requestFocus(),
-                semanticsLabel: _comments.isNotEmpty
-                    ? '${t.channel.comment} ${_comments.length}'
-                    : t.channel.comment,
+              Expanded(
+                child: _actionButton(
+                  icon: CupertinoIcons.chat_bubble,
+                  label: _comments.isNotEmpty
+                      ? '${_comments.length}'
+                      : t.channel.comment,
+                  color: secondary,
+                  onTap: _focusCommentInput,
+                  semanticsLabel: _comments.isNotEmpty
+                      ? '${t.channel.comment} ${_comments.length}'
+                      : t.channel.comment,
+                ),
               ),
-              AppSpacing.horizontalRegular,
-              _actionButton(
-                icon: CupertinoIcons.share,
-                label: t.channel.share,
-                color: secondary,
-                onTap: _shareMessage,
-                semanticsLabel: t.channel.share,
+              Expanded(
+                child: _actionButton(
+                  icon: CupertinoIcons.share,
+                  label: t.channel.share,
+                  color: secondary,
+                  onTap: _shareMessage,
+                  semanticsLabel: t.channel.share,
+                ),
               ),
             ],
           ),
@@ -937,17 +962,25 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
               ),
               child: Row(
                 children: [
-                  Text(
-                    '${t.channel.replyTo}: $_replyToName',
-                    style: context.textStyle(
-                      FontSizeType.small,
-                      color: AppColors.primary,
+                  Expanded(
+                    child: Text(
+                      '${t.channel.replyTo}: $_replyToName',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textStyle(
+                        FontSizeType.small,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: _cancelReply,
-                    child: Icon(
+                  IconButton(
+                    onPressed: _cancelReply,
+                    tooltip: t.common.cancel,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 44,
+                      height: 44,
+                    ),
+                    icon: Icon(
                       CupertinoIcons.xmark_circle_fill,
                       size: 16,
                       color: AppColors.iosGray,
@@ -968,23 +1001,56 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                     hintText: t.channel.writeComment,
                     maxLength: 500,
                     maxLines: 4,
+                    emojiOpen: _emojiOpen,
                     textInputAction: TextInputAction.send,
                     onSubmitted: _sendComment,
                   ),
                 ),
-                AppSpacing.horizontalSmall,
-                IconButton.filled(
-                  onPressed: _isSending ? null : _sendComment,
-                  icon: _isSending
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CupertinoActivityIndicator(),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.centerLeft,
+                  child: (_hasText || _isSending)
+                      ? Padding(
+                          padding: const EdgeInsets.only(
+                            left: AppSpacing.small,
+                          ),
+                          child: SizedBox(
+                            width: 44,
+                            height: 44,
+                            child: IconButton.filled(
+                              onPressed: _isSending ? null : _sendComment,
+                              tooltip: t.common.buttonSend,
+                              icon: _isSending
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CupertinoActivityIndicator(),
+                                    )
+                                  : const Icon(
+                                      CupertinoIcons.chevron_up,
+                                      size: 20,
+                                    ),
+                            ),
+                          ),
                         )
-                      : const Icon(CupertinoIcons.arrow_up_circle, size: 18),
+                      : const SizedBox(height: 44),
                 ),
               ],
             ),
+          ),
+          ValueListenableBuilder<bool>(
+            valueListenable: _emojiOpen,
+            builder: (context, open, _) => open
+                ? ComposerEmojiPanel(
+                    controller: _inputController,
+                    backgroundColor:
+                        Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.darkBackground
+                        : AppColors.lightSurfaceGrouped,
+                    maxLength: 500,
+                  )
+                : const SizedBox.shrink(),
           ),
         ],
       ),
@@ -1005,9 +1071,10 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: SizedBox(
+          height: 44,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (isLoading)
                 SizedBox(
@@ -1018,9 +1085,13 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
               else
                 Icon(icon, size: 18, color: color),
               const SizedBox(width: 4),
-              Text(
-                label,
-                style: context.textStyle(FontSizeType.caption2, color: color),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyle(FontSizeType.caption2, color: color),
+                ),
               ),
             ],
           ),

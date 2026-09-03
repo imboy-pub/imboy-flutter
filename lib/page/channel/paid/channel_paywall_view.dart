@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_payment_method_sheet.dart';
 import 'package:imboy/page/channel/channel_purchase_provider.dart';
@@ -321,7 +322,7 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
 
     await showCupertinoModalPopup<void>(
       context: context,
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => CupertinoModalSurface(
         child: SizedBox(
           height: MediaQuery.of(ctx).size.height * 0.62,
           child: Column(

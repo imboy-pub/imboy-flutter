@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/safety_number_page.dart';
 import 'package:imboy/page/group/group_detail/remove_member_provider.dart';
@@ -163,7 +164,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
     return showCupertinoModalPopup<int>(
       context: context,
       builder: (ctx) {
-        return SafeArea(
+        return CupertinoModalSurface(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

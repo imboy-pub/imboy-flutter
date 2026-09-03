@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -157,7 +158,7 @@ class _ChannelCreatePageState extends ConsumerState<ChannelCreatePage> {
   void _showAvatarPicker() {
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => CupertinoModalSurface(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

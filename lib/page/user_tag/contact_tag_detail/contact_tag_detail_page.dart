@@ -169,9 +169,10 @@ class _ContactTagDetailPageState extends ConsumerState<ContactTagDetailPage> {
             onTap: () {
               showCupertinoModalPopup<void>(
                 context: context,
-                builder: (context) => SizedBox(
+                builder: (context) => Container(
                   width: MediaQuery.of(context).size.width,
                   height: 172,
+                  color: Theme.of(context).colorScheme.surface,
                   // 键盘弹出时弹层可用高度收缩，固定高度内容会 RenderFlex
                   // 底部溢出（真机记录：58px）；包一层滚动，收缩时可滚动，
                   // 静止时高度不变、视觉不变。

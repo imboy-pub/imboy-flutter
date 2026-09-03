@@ -31,6 +31,7 @@ import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 
 import 'package:imboy/config/init.dart' show appName;
 import 'package:imboy/i18n/strings.g.dart';
@@ -278,7 +279,7 @@ class _WebChatPanelState extends ConsumerState<_WebChatPanel> {
     showCupertinoModalPopup<void>(
       context: ctx,
       builder: (sheetCtx) {
-        return SafeArea(
+        return CupertinoModalSurface(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

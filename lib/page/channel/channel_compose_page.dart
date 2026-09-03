@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/widgets/channel_markdown.dart';
@@ -524,12 +525,14 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   void _showPreview() {
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (ctx) => _ComposePreviewSheet(
-        title: _titleController.text.trim(),
-        content: _contentController.text.trim(),
-        images: List<_PickedImage>.from(_images),
-        cover: _effectiveCover,
-        onPublish: _publish,
+      builder: (ctx) => CupertinoModalSurface(
+        child: _ComposePreviewSheet(
+          title: _titleController.text.trim(),
+          content: _contentController.text.trim(),
+          images: List<_PickedImage>.from(_images),
+          cover: _effectiveCover,
+          onPublish: _publish,
+        ),
       ),
     );
   }

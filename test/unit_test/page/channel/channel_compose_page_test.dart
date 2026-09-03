@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_compose_page.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -136,5 +137,22 @@ void main() {
     expect(find.byIcon(Icons.close), findsNothing);
 
     await tester.pump(const Duration(seconds: 2));
+  });
+
+  testWidgets('文章预览弹窗使用不透明主题表面', (tester) async {
+    await tester.pumpWidget(_buildApp(_nullPicker));
+    await tester.pump();
+
+    await tester.enterText(find.byType(TextField).first, '测试标题');
+    await tester.pump();
+    final previewButton = find.widgetWithText(
+      CupertinoButton,
+      t.channel.preview,
+    );
+    expect(tester.widget<CupertinoButton>(previewButton).onPressed, isNotNull);
+    await tester.tap(previewButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CupertinoModalSurface), findsOneWidget);
   });
 }

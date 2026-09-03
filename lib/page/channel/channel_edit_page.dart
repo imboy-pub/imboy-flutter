@@ -11,6 +11,7 @@ import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -263,7 +264,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
   void _showAvatarPicker() {
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => CupertinoModalSurface(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

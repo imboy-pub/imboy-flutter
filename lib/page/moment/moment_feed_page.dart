@@ -747,18 +747,22 @@ class _MomentContentState extends State<_MomentContent> {
                 .copyWith(height: 1.45),
           ),
         if (_isLong)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: GestureDetector(
-              onTap: () => setState(() => _expanded = !_expanded),
-              child: Text(
-                _expanded
-                    ? t.discovery.momentCollapse
-                    : t.discovery.momentShowFull,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.wechatBlue,
-                  fontWeight: FontWeight.w500,
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _expanded
+                      ? t.discovery.momentCollapse
+                      : t.discovery.momentShowFull,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: AppColors.wechatBlue,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),

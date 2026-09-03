@@ -18,6 +18,7 @@ import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/moment/moment_utils.dart';
@@ -995,7 +996,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     final t = context.t;
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => CupertinoModalSurface(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1097,7 +1098,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     final t = context.t;
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => CupertinoModalSurface(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

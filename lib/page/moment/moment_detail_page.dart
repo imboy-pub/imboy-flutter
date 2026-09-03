@@ -1034,9 +1034,14 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                             ),
                           ),
                         ),
-                        GestureDetector(
-                          onTap: _cancelReply,
-                          child: const Icon(
+                        IconButton(
+                          onPressed: _cancelReply,
+                          tooltip: t.common.cancel,
+                          constraints: const BoxConstraints.tightFor(
+                            width: 44,
+                            height: 44,
+                          ),
+                          icon: const Icon(
                             CupertinoIcons.xmark_circle_fill,
                             size: 16,
                             color: AppColors.iosGray,

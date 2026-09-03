@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -737,7 +738,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (context) => SafeArea(
+      builder: (context) => CupertinoModalSurface(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -337,7 +338,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
 
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (context) => SafeArea(
+      builder: (context) => CupertinoModalSurface(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

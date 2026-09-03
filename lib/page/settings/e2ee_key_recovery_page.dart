@@ -3,6 +3,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_export_page.dart';
 import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
@@ -571,7 +572,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
   void _showLocalBackupOptions(BuildContext context) {
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (context) => SafeArea(
+      builder: (context) => CupertinoModalSurface(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

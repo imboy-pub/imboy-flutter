@@ -7,7 +7,6 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_comment_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -51,11 +50,16 @@ class ChannelCommentTile extends StatelessWidget {
     final hasAvatar = comment.userAvatar.isNotEmpty;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.small),
-      padding: AppSpacing.allSmall,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.medium),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: AppRadius.borderRadiusSmall,
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.getIosSeparator(
+              isDark ? Brightness.dark : Brightness.light,
+            ).withValues(alpha: 0.55),
+            width: 0.5,
+          ),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +153,7 @@ class ChannelCommentTile extends StatelessWidget {
                       label: context.t.channel.reply,
                       onTap: onReply,
                     ),
-                    AppSpacing.horizontalSmall,
+                    AppSpacing.horizontalTiny,
                     _actionChip(
                       context,
                       icon: comment.isLiked
@@ -161,7 +165,7 @@ class ChannelCommentTile extends StatelessWidget {
                       onTap: onToggleLike,
                     ),
                     if (isMine) ...[
-                      AppSpacing.horizontalSmall,
+                      AppSpacing.horizontalTiny,
                       _actionChip(
                         context,
                         icon: CupertinoIcons.delete,
@@ -190,21 +194,29 @@ class ChannelCommentTile extends StatelessWidget {
     final c =
         color ??
         AppColors.getTextColor(Theme.of(context).brightness, isSecondary: true);
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        child: Row(
-          children: [
-            Icon(icon, size: 14, color: c),
-            if (label.isNotEmpty) ...[
-              const SizedBox(width: 2),
-              Text(
-                label,
-                style: context.textStyle(FontSizeType.caption2, color: c),
-              ),
-            ],
-          ],
+    return Semantics(
+      button: true,
+      label: label.isEmpty ? context.t.channel.deleteComment : label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: SizedBox(
+          height: 44,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+            child: Row(
+              children: [
+                Icon(icon, size: 14, color: c),
+                if (label.isNotEmpty) ...[
+                  const SizedBox(width: 2),
+                  Text(
+                    label,
+                    style: context.textStyle(FontSizeType.caption2, color: c),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

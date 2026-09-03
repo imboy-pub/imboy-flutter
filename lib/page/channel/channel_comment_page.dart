@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/chat/composer_field.dart';
+import 'package:imboy/component/chat/composer_emoji_panel.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
@@ -41,6 +42,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<bool> _emojiOpen = ValueNotifier(false);
   final ChannelService _service = ChannelService.to;
 
   static const int _pageSize = 20;
@@ -83,11 +85,13 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
     _inputController.dispose();
     _inputFocusNode.dispose();
     _scrollController.dispose();
+    _emojiOpen.dispose();
     super.dispose();
   }
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
+    if (_emojiOpen.value) _emojiOpen.value = false;
     final pos = _scrollController.position;
     // 评论按时间升序、最新在底部，滚动接近底部时加载下一页
     if (pos.maxScrollExtent - pos.pixels <= 200) {
@@ -282,6 +286,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
         behavior: HitTestBehavior.translucent,
         onTap: () {
           FocusScope.of(context).unfocus();
+          _emojiOpen.value = false;
         },
         child: Column(
           children: [
@@ -316,7 +321,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
         controller: _scrollController,
         // 下滑即收键盘：外层 GestureDetector 只吃 onTap，列表拖拽由框架处理。
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: AppSpacing.allSmall,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
         itemCount: _comments.length,
         itemBuilder: (context, index) {
           final comment = _comments[index];
@@ -363,17 +368,25 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
                   ),
                   child: Row(
                     children: [
-                      Text(
-                        '${t.channel.replyTo}: $_replyToName',
-                        style: context.textStyle(
-                          FontSizeType.small,
-                          color: AppColors.primary,
+                      Expanded(
+                        child: Text(
+                          '${t.channel.replyTo}: $_replyToName',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textStyle(
+                            FontSizeType.small,
+                            color: AppColors.primary,
+                          ),
                         ),
                       ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: _cancelReply,
-                        child: Icon(
+                      IconButton(
+                        onPressed: _cancelReply,
+                        tooltip: t.common.cancel,
+                        constraints: const BoxConstraints.tightFor(
+                          width: 44,
+                          height: 44,
+                        ),
+                        icon: Icon(
                           CupertinoIcons.xmark_circle_fill,
                           size: 16,
                           color: AppColors.iosGray,
@@ -394,6 +407,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
                       hintText: t.channel.writeComment,
                       maxLength: 500,
                       maxLines: 4,
+                      emojiOpen: _emojiOpen,
                       textInputAction: TextInputAction.send,
                       onSubmitted: _sendComment,
                     ),
@@ -409,6 +423,19 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
                         : const SizedBox(height: 44),
                   ),
                 ],
+              ),
+              ValueListenableBuilder<bool>(
+                valueListenable: _emojiOpen,
+                builder: (context, open, _) => open
+                    ? ComposerEmojiPanel(
+                        controller: _inputController,
+                        backgroundColor:
+                            Theme.of(context).brightness == Brightness.dark
+                            ? AppColors.darkBackground
+                            : AppColors.lightSurfaceGrouped,
+                        maxLength: 500,
+                      )
+                    : const SizedBox.shrink(),
               ),
             ],
           ),
