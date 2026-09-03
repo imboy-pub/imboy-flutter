@@ -776,6 +776,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       if (msg.isEmpty) return;
 
       final action = msg['action']?.toString() ?? '';
+      final normalizedAction = action.toUpperCase();
       final messageType = (msg['type']?.toString() ?? '').toUpperCase();
       var messageId = msg['id']?.toString() ?? '';
       msg['type'] = messageType;
@@ -826,9 +827,9 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       }
 
       // 【优化】过滤 ACK 相关消息，避免转发到 MessageService
-      if (action == 'CLIENT_ACK_CONFIRM' ||
-          action == 'CLIENT_ACK_ERROR' ||
-          action.endsWith('_ACK')) {
+      if (normalizedAction == 'CLIENT_ACK_CONFIRM' ||
+          normalizedAction == 'CLIENT_ACK_ERROR' ||
+          normalizedAction.endsWith('_ACK')) {
         return;
       }
 
@@ -879,8 +880,9 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     // action-ACK（撤回/编辑/表情回应等无 *_SERVER_ACK 的操作确认）：
     // 汇入出站确认状态机的单一清除入口（MessageRetry 停重发）。
     // CLIENT_ACK_CONFIRM/ERROR 属机制C（入站收据），不在此列。
-    if (action.endsWith('_ACK') &&
-        action != 'CLIENT_ACK' &&
+    final normalizedAction = action.toUpperCase();
+    if (normalizedAction.endsWith('_ACK') &&
+        normalizedAction != 'CLIENT_ACK' &&
         messageId.isNotEmpty) {
       AppEventBus.fire(
         RemoveFromRetryQueueRequestedEvent(

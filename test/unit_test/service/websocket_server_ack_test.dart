@@ -149,6 +149,26 @@ void main() {
       expect(removeEvent.reason, 'ws_action_ack');
     });
 
+    test('小写 action-ACK 也汇入清除入口且不下发业务事件', () async {
+      final retryRemoved =
+          AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().first;
+      var forwarded = false;
+      final subscription = AppEventBus.on<WebSocketMessageReceivedEvent>()
+          .listen((_) => forwarded = true);
+      addTearDown(subscription.cancel);
+
+      svc.handleV2BinaryForTest(
+        _s2cFrame({'id': xid, 'type': 'S2C', 'action': 'message_revoke_ack'}),
+      );
+
+      final removeEvent = await retryRemoved.timeout(
+        const Duration(seconds: 1),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(removeEvent.messageId, xid);
+      expect(forwarded, isFalse);
+    });
+
     test('入站 0x03 二进制 ACK 帧仅日志忽略（服务端从不下发）', () {
       // 0x03 载荷是 uint64，装不下 Xid；契约上确认一律走 JSON *_SERVER_ACK
       expect(
