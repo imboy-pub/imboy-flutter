@@ -8108,8 +8108,8 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '邀请工作区成员'
 	String get inviteTitle => '邀请工作区成员';
 
-	/// zh-CN: '仅支持邀请已注册用户；加入工作区不自动入群、不自动订阅频道——以下三种关系分别写入、分别显示结果'
-	String get inviteDesc => '仅支持邀请已注册用户；加入工作区不自动入群、不自动订阅频道——以下三种关系分别写入、分别显示结果';
+	/// zh-CN: '仅支持邀请已注册用户；加入工作区不自动入群或订阅频道——可同时加入 General 群，并发送 Announcements 频道邀请'
+	String get inviteDesc => '仅支持邀请已注册用户；加入工作区不自动入群或订阅频道——可同时加入 General 群，并发送 Announcements 频道邀请';
 
 	/// zh-CN: '按用户名 / 用户 ID 搜索'
 	String get inviteSearchHint => '按用户名 / 用户 ID 搜索';
@@ -8120,8 +8120,8 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '同时加入 General 群（成为群成员）'
 	String get inviteJoinGroupOption => '同时加入 General 群（成为群成员）';
 
-	/// zh-CN: '同时订阅 Announcements 频道（成为频道订阅者）'
-	String get inviteSubscribeChannelOption => '同时订阅 Announcements 频道（成为频道订阅者）';
+	/// zh-CN: '同时发送 Announcements 频道邀请'
+	String get inviteSubscribeChannelOption => '同时发送 Announcements 频道邀请';
 
 	/// zh-CN: '未找到对应资源，该选项不可用'
 	String get inviteOptionUnavailable => '未找到对应资源，该选项不可用';
@@ -8138,8 +8138,8 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '加入 General 群（成为群成员）'
 	String get inviteResultGroup => '加入 General 群（成为群成员）';
 
-	/// zh-CN: '订阅 Announcements 频道（成为频道订阅者）'
-	String get inviteResultChannel => '订阅 Announcements 频道（成为频道订阅者）';
+	/// zh-CN: '发送 Announcements 频道邀请（对方接受后成为订阅者）'
+	String get inviteResultChannel => '发送 Announcements 频道邀请（对方接受后成为订阅者）';
 
 	/// zh-CN: '未执行'
 	String get resultIdle => '未执行';
@@ -11294,17 +11294,17 @@ extension on Translations {
 			'workspace.groupsEmptySubtitle' => '群组是工作区里的实时讨论空间（聊天唯一入口）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成员',
 			'workspace.inviteTitle' => '邀请工作区成员',
-			'workspace.inviteDesc' => '仅支持邀请已注册用户；加入工作区不自动入群、不自动订阅频道——以下三种关系分别写入、分别显示结果',
+			'workspace.inviteDesc' => '仅支持邀请已注册用户；加入工作区不自动入群或订阅频道——可同时加入 General 群，并发送 Announcements 频道邀请',
 			'workspace.inviteSearchHint' => '按用户名 / 用户 ID 搜索',
 			'workspace.inviteEntry' => '邀请工作区成员',
 			'workspace.inviteJoinGroupOption' => '同时加入 General 群（成为群成员）',
-			'workspace.inviteSubscribeChannelOption' => '同时订阅 Announcements 频道（成为频道订阅者）',
+			'workspace.inviteSubscribeChannelOption' => '同时发送 Announcements 频道邀请',
 			'workspace.inviteOptionUnavailable' => '未找到对应资源，该选项不可用',
 			'workspace.inviteSubmit' => '发送邀请',
 			'workspace.inviteResultsTitle' => '结果（三条独立）',
 			'workspace.inviteResultWorkspace' => '加入工作区（成为工作区成员）',
 			'workspace.inviteResultGroup' => '加入 General 群（成为群成员）',
-			'workspace.inviteResultChannel' => '订阅 Announcements 频道（成为频道订阅者）',
+			'workspace.inviteResultChannel' => '发送 Announcements 频道邀请（对方接受后成为订阅者）',
 			'workspace.resultIdle' => '未执行',
 			'workspace.resultRunning' => '进行中',
 			'workspace.resultSuccess' => '成功',

@@ -2,15 +2,45 @@
 ///
 /// 计划锚点（T9 VALIDATE）：widget/逻辑测试覆盖三种关系的独立状态与
 /// 部分失败；证明「加入 Workspace（成为工作区成员）必须成功」「加入
-/// General Group（成为群成员）」「订阅 Announcements Channel（成为频道
-/// 订阅者）」三条关系分别写入、分别返回结果、失败可重试。
+/// General Group（成为群成员）」「邀请加入 Announcements Channel」三条动作
+/// 分别执行、分别返回结果、失败可重试。
 library;
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/page/workspace/workspace_invite_page.dart';
+import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/page/workspace/workspace_invite_controller.dart';
 
+class _RecordingChannelApi extends ChannelApi {
+  String? channelId;
+  String? inviteeUid;
+
+  @override
+  Future<Map<String, dynamic>?> createInvitation({
+    required String channelId,
+    required String inviteeUid,
+  }) async {
+    this.channelId = channelId;
+    this.inviteeUid = inviteeUid;
+    return {'id': 'invitation-1'};
+  }
+}
+
 void main() {
+  test('频道邀请传递目标成员 UID，而不是当前操作者订阅', () async {
+    final api = _RecordingChannelApi();
+
+    await sendWorkspaceChannelInvitation(
+      api: api,
+      channelId: 'channel-1',
+      inviteeUid: 'target-user',
+    );
+
+    expect(api.channelId, 'channel-1');
+    expect(api.inviteeUid, 'target-user');
+  });
+
   group('WorkspaceInviteResultsController 三条独立结果', () {
     test('主关系成功 + 两条可选均成功 → 三条 success', () async {
       final c = WorkspaceInviteResultsController();
@@ -19,7 +49,7 @@ void main() {
       await c.submit(
         invite: () async {},
         joinGroup: () async {},
-        subscribeChannel: () async {},
+        inviteChannel: () async {},
       );
 
       expect(c.state.workspace.phase, WorkspaceRelationPhase.success);
@@ -36,7 +66,7 @@ void main() {
       await c.submit(
         invite: () async => throw Exception('403 仅 Owner 可邀请'),
         joinGroup: () async => groupCalled = true,
-        subscribeChannel: () async => channelCalled = true,
+        inviteChannel: () async => channelCalled = true,
       );
 
       // 前置关系（工作区成员）不存在时，不写群成员/频道订阅关系
@@ -54,7 +84,7 @@ void main() {
       await c.submit(
         invite: () async {},
         joinGroup: () async => throw Exception('join failed'),
-        subscribeChannel: () async {},
+        inviteChannel: () async {},
       );
 
       expect(c.state.workspace.phase, WorkspaceRelationPhase.success);
@@ -67,11 +97,7 @@ void main() {
       final c = WorkspaceInviteResultsController();
       addTearDown(c.dispose);
 
-      await c.submit(
-        invite: () async {},
-        joinGroup: null,
-        subscribeChannel: null,
-      );
+      await c.submit(invite: () async {}, joinGroup: null, inviteChannel: null);
 
       expect(c.state.workspace.phase, WorkspaceRelationPhase.success);
       expect(c.state.group.phase, WorkspaceRelationPhase.idle);
@@ -85,7 +111,7 @@ void main() {
       await c.submit(
         invite: () async {},
         joinGroup: () async => throw Exception('first attempt failed'),
-        subscribeChannel: () async {},
+        inviteChannel: () async {},
       );
 
       // 重试入群成功：只改变 group 状态，channel 保持 success
@@ -103,7 +129,7 @@ void main() {
       await c.submit(
         invite: () async {},
         joinGroup: () async {},
-        subscribeChannel: () async {},
+        inviteChannel: () async {},
       );
 
       await c.retryChannel(

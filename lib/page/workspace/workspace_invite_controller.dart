@@ -3,10 +3,10 @@
 /// I14 / 计划 §1.4 Template 约定：三种关系分别写入、分别返回结果：
 /// 1. 加入 Workspace（成为**工作区成员**）——必须成功，失败则整单失败
 /// 2. 加入 General Group（成为**群成员**）——可选、可重试、独立显示结果
-/// 3. 订阅 Announcements Channel（成为**频道订阅者**）——可选、可重试、独立显示结果
+/// 3. 邀请加入 Announcements Channel——可选、可重试、独立显示结果
 ///
 /// 后两项互不影响、不影响第 1 项；任一失败项可单独重试。动作经构造注入
-/// （既有 group join / channel subscribe / workspace invite API 由页面装配，
+/// （既有 group join / channel invitation / workspace invite API 由页面装配，
 /// 本类只管状态机，可无网络单测）。
 library;
 
@@ -68,12 +68,12 @@ class WorkspaceInviteResultsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 提交整单：[invite] 必须成功；[joinGroup]/[subscribeChannel] 可空
+  /// 提交整单：[invite] 必须成功；[joinGroup]/[inviteChannel] 可空
   /// （未勾选）；后两项失败不影响主结果。
   Future<void> submit({
     required Future<void> Function() invite,
     Future<void> Function()? joinGroup,
-    Future<void> Function()? subscribeChannel,
+    Future<void> Function()? inviteChannel,
   }) async {
     _set(
       _state.copyWith(
@@ -85,7 +85,7 @@ class WorkspaceInviteResultsController extends ChangeNotifier {
             : const WorkspaceRelationResult(
                 phase: WorkspaceRelationPhase.running,
               ),
-        channel: subscribeChannel == null
+        channel: inviteChannel == null
             ? const WorkspaceRelationResult()
             : const WorkspaceRelationResult(
                 phase: WorkspaceRelationPhase.running,
@@ -117,7 +117,7 @@ class WorkspaceInviteResultsController extends ChangeNotifier {
     // 两条可选关系独立执行：一个失败不影响另一个
     await Future.wait([
       _runOptional(joinGroup, isGroup: true),
-      _runOptional(subscribeChannel, isGroup: false),
+      _runOptional(inviteChannel, isGroup: false),
     ]);
   }
 
@@ -125,9 +125,9 @@ class WorkspaceInviteResultsController extends ChangeNotifier {
   Future<void> retryGroup(Future<void> Function() joinGroup) =>
       _runOptional(joinGroup, isGroup: true);
 
-  /// 单独重试「订阅 Announcements Channel」。
-  Future<void> retryChannel(Future<void> Function() subscribeChannel) =>
-      _runOptional(subscribeChannel, isGroup: false);
+  /// 单独重试「邀请加入 Announcements Channel」。
+  Future<void> retryChannel(Future<void> Function() inviteChannel) =>
+      _runOptional(inviteChannel, isGroup: false);
 
   Future<void> _runOptional(
     Future<void> Function()? action, {

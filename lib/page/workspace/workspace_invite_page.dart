@@ -4,11 +4,10 @@
 /// 结果区三条独立展示（全称消歧）：
 /// - 加入工作区（成为工作区成员）——必须成功
 /// - 加入 General 群（成为群成员）——可选/可重试
-/// - 订阅 Announcements 频道（成为频道订阅者）——可选/可重试
+/// - 邀请加入 Announcements 频道——可选/可重试
 ///
 /// 可选关系调用既有 API：group join（member_uids 带入被邀人）与
-/// channel subscribe（既有端点语义为订阅发起者本人——W0 后端无替他人
-/// 订阅端点，此处按计划「调用既有 API」口径执行，语义差异记录在案）。
+/// channel invitation（目标用户接受后才成为频道订阅者）。
 library;
 
 import 'package:flutter/material.dart';
@@ -35,6 +34,20 @@ import 'package:imboy/theme/default/font_types.dart';
 /// Template 资源定位（fallback：创建后改名也能找到默认资源）。
 const String kWorkspaceDefaultGroupName = 'General';
 const String kWorkspaceDefaultChannelName = 'Announcements';
+
+Future<void> sendWorkspaceChannelInvitation({
+  required ChannelApi api,
+  required String channelId,
+  required EntityId inviteeUid,
+}) async {
+  final invitation = await api.createInvitation(
+    channelId: channelId,
+    inviteeUid: inviteeUid,
+  );
+  if (invitation == null) {
+    throw const WorkspaceApiException(1, 'channel invitation failed');
+  }
+}
 
 /// 搜索结果用户条目（user/search 返回行的最小快照）。
 class _CandidateUser {
@@ -72,7 +85,7 @@ class _WorkspaceInvitePageState extends ConsumerState<WorkspaceInvitePage> {
   _CandidateUser? _selected;
   WorkspaceMemberRole _role = WorkspaceMemberRole.member;
   bool _joinGroup = true;
-  bool _subscribeChannel = true;
+  bool _inviteChannel = true;
   bool _submitting = false;
 
   // Template 资源（General 群 / Announcements 频道）定位结果
@@ -223,13 +236,12 @@ class _WorkspaceInvitePageState extends ConsumerState<WorkspaceInvitePage> {
           ? () =>
                 groupApi.join(gid: _generalGroupId, memberUserIds: [target.id])
           : null,
-      subscribeChannel: _subscribeChannel && _announcementsChannelId.isNotEmpty
-          ? () async {
-              final ok = await channelApi.subscribe(_announcementsChannelId);
-              if (!ok) {
-                throw const WorkspaceApiException(1, 'subscribe failed');
-              }
-            }
+      inviteChannel: _inviteChannel && _announcementsChannelId.isNotEmpty
+          ? () => sendWorkspaceChannelInvitation(
+              api: channelApi,
+              channelId: _announcementsChannelId,
+              inviteeUid: target.id,
+            )
           : null,
     );
     if (!mounted) return;
@@ -315,10 +327,10 @@ class _WorkspaceInvitePageState extends ConsumerState<WorkspaceInvitePage> {
             ),
             CheckboxListTile(
               key: const ValueKey('workspace-invite-subscribe-channel'),
-              value: _subscribeChannel && _announcementsChannelId.isNotEmpty,
+              value: _inviteChannel && _announcementsChannelId.isNotEmpty,
               onChanged: _announcementsChannelId.isEmpty
                   ? null
-                  : (v) => setState(() => _subscribeChannel = v ?? false),
+                  : (v) => setState(() => _inviteChannel = v ?? false),
               title: Text(t.workspace.inviteSubscribeChannelOption),
               subtitle: _announcementsChannelId.isEmpty
                   ? Text(
@@ -366,13 +378,15 @@ class _WorkspaceInvitePageState extends ConsumerState<WorkspaceInvitePage> {
   }
 
   Future<void> _retryChannel() async {
-    if (_announcementsChannelId.isEmpty) return;
-    await _results.retryChannel(() async {
-      final ok = await ChannelApi().subscribe(_announcementsChannelId);
-      if (!ok) {
-        throw const WorkspaceApiException(1, 'subscribe failed');
-      }
-    });
+    final target = _selected;
+    if (target == null || _announcementsChannelId.isEmpty) return;
+    await _results.retryChannel(
+      () => sendWorkspaceChannelInvitation(
+        api: ChannelApi(),
+        channelId: _announcementsChannelId,
+        inviteeUid: target.id,
+      ),
+    );
   }
 }
 
