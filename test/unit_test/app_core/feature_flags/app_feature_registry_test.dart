@@ -31,6 +31,11 @@ void main() {
     expect(AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover), isFalse);
   });
 
+  test('server cannot enable a feature absent from the compiled build', () {
+    AppFeatureRegistry.replaceSnapshotForTest({'not_compiled': true});
+    expect(AppFeatureRegistry.isEnabled('not_compiled'), isFalse);
+  });
+
   test('maps route paths to feature keys', () {
     expect(
       RouteFeatureGuard.featureForPath('/channel/discover'),

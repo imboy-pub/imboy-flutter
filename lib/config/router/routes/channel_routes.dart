@@ -4,9 +4,36 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
-import '../barrel/pages_barrel.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/channel/channel_admin_page.dart';
+import 'package:imboy/page/channel/channel_article_page.dart';
+import 'package:imboy/page/channel/channel_comment_page.dart';
+import 'package:imboy/page/channel/channel_compose_page.dart';
+import 'package:imboy/page/channel/channel_create_page.dart';
+import 'package:imboy/page/channel/channel_detail_page.dart';
+import 'package:imboy/page/channel/channel_edit_page.dart';
+import 'package:imboy/page/channel/channel_list_page.dart';
+import 'package:imboy/page/channel/channel_subscriber_page.dart';
+import 'package:imboy/page/qrcode/channel_qrcode_page.dart';
 
-List<RouteBase> channelRoutes() => [
+List<RouteBase> channelRoutes({
+  List<RouteBase> featureRoutes = const <RouteBase>[],
+}) => [
+  GoRoute(
+    path: '/qrcode/channel',
+    name: 'qrcode_channel',
+    pageBuilder: (context, state) {
+      final extra = state.extra as Map<String, dynamic>?;
+      return CupertinoPage(
+        key: state.pageKey,
+        child: extra == null
+            ? CupertinoPageScaffold(
+                child: Center(child: Text(t.common.dataNotFound)),
+              )
+            : ChannelQrCodePage(channelData: extra),
+      );
+    },
+  ),
   // ==================== 频道相关 ====================
   GoRoute(
     path: '/channel',
@@ -14,48 +41,12 @@ List<RouteBase> channelRoutes() => [
     pageBuilder: (context, state) =>
         CupertinoPage(key: state.pageKey, child: const ChannelListPage()),
     routes: [
-      // 具体路径必须放在动态参数路由之前，否则 /discover 会被当作 channelId
-      GoRoute(
-        path: '/discover',
-        name: 'channel_discover',
-        pageBuilder: (context, state) => CupertinoPage(
-          key: state.pageKey,
-          child: const ChannelDiscoverPage(),
-        ),
-      ),
+      ...featureRoutes,
       GoRoute(
         path: '/create',
         name: 'channel_create',
         pageBuilder: (context, state) =>
             CupertinoPage(key: state.pageKey, child: const ChannelCreatePage()),
-      ),
-      GoRoute(
-        path: '/invitations',
-        name: 'channel_invitations',
-        pageBuilder: (context, state) => CupertinoPage(
-          key: state.pageKey,
-          child: const ChannelInvitationPage(),
-        ),
-      ),
-      // 静态路径须放在 /:channelId 之前，否则 /orders 会被当作 channelId
-      GoRoute(
-        path: '/orders',
-        name: 'channel_orders',
-        pageBuilder: (context, state) => CupertinoPage(
-          key: state.pageKey,
-          child: const ChannelOrderListPage(),
-        ),
-      ),
-      GoRoute(
-        path: '/order/:orderNo',
-        name: 'channel_order_detail',
-        pageBuilder: (context, state) {
-          final orderNo = state.pathParameters['orderNo']!;
-          return CupertinoPage(
-            key: state.pageKey,
-            child: ChannelOrderDetailPage(orderNo: orderNo),
-          );
-        },
       ),
       GoRoute(
         path: '/:channelId',

@@ -10,7 +10,6 @@ export '../../page/contact/new_friend/add_friend_page.dart';
 export '../../page/contact/new_friend/new_friend_page.dart';
 export '../../page/contact/people_info/people_info_page.dart';
 export '../../page/contact/people_info_more/people_info_more_page.dart';
-export '../../page/contact/people_nearby/people_nearby_page.dart';
 export '../../page/contact/assistant_plaza/assistant_plaza_page.dart';
 export '../../page/contact/recently_registered_user/recently_registered_user_page.dart';
 export '../../page/mention/mention_list_page.dart';

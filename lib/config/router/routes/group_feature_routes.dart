@@ -2,7 +2,6 @@ library;
 
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/i18n/strings.g.dart';
 import '../barrel/pages_barrel.dart';
 
 List<RouteBase> groupFeatureRoutes() => [
@@ -98,100 +97,6 @@ List<RouteBase> groupFeatureRoutes() => [
           photoIds: photoIds,
           initialIndex: initialIndex,
         ),
-      );
-    },
-  ),
-  // 群投票
-  GoRoute(
-    path: '/group/:groupId/vote',
-    name: 'group_vote',
-    pageBuilder: (context, state) {
-      final groupId = state.pathParameters['groupId'] ?? '';
-      final autoCreate = state.uri.queryParameters['create'] == '1';
-      return CupertinoPage(
-        key: state.pageKey,
-        child: GroupVotePage(groupId: groupId, autoCreate: autoCreate),
-      );
-    },
-  ),
-  GoRoute(
-    path: '/group/:groupId/vote/:voteId',
-    name: 'group_vote_detail',
-    pageBuilder: (context, state) {
-      final groupId = state.pathParameters['groupId'] ?? '';
-      final voteId = state.pathParameters['voteId'] ?? '';
-      return CupertinoPage(
-        key: state.pageKey,
-        child: GroupVoteDetailPage(groupId: groupId, voteId: voteId),
-      );
-    },
-  ),
-  // 群日程
-  GoRoute(
-    path: '/group/:groupId/schedule',
-    name: 'group_schedule',
-    pageBuilder: (context, state) {
-      final groupId = state.pathParameters['groupId'] ?? '';
-      final autoCreate = state.uri.queryParameters['create'] == '1';
-      return CupertinoPage(
-        key: state.pageKey,
-        child: GroupSchedulePage(groupId: groupId, autoCreate: autoCreate),
-      );
-    },
-  ),
-  GoRoute(
-    path: '/group/:groupId/schedule/:scheduleId',
-    name: 'group_schedule_detail',
-    pageBuilder: (context, state) {
-      final groupId = state.pathParameters['groupId'] ?? '';
-      final scheduleId = state.pathParameters['scheduleId'] ?? '';
-      if (scheduleId.isEmpty) {
-        return CupertinoPage(
-          key: state.pageKey,
-          child: CupertinoPageScaffold(
-            child: Center(child: Text(t.common.dataNotFound)),
-          ),
-        );
-      }
-      return CupertinoPage(
-        key: state.pageKey,
-        child: GroupScheduleDetailPage(
-          groupId: groupId,
-          scheduleId: scheduleId,
-        ),
-      );
-    },
-  ),
-  // 群作业
-  GoRoute(
-    path: '/group/:groupId/task',
-    name: 'group_task',
-    pageBuilder: (context, state) {
-      final groupId = state.pathParameters['groupId'] ?? '';
-      final autoCreate = state.uri.queryParameters['create'] == '1';
-      return CupertinoPage(
-        key: state.pageKey,
-        child: GroupTaskPage(groupId: groupId, autoCreate: autoCreate),
-      );
-    },
-  ),
-  GoRoute(
-    path: '/group/:groupId/task/:taskId',
-    name: 'group_task_detail',
-    pageBuilder: (context, state) {
-      final groupId = state.pathParameters['groupId'] ?? '';
-      final taskId = state.pathParameters['taskId'] ?? '';
-      if (taskId.isEmpty) {
-        return CupertinoPage(
-          key: state.pageKey,
-          child: CupertinoPageScaffold(
-            child: Center(child: Text(t.common.dataNotFound)),
-          ),
-        );
-      }
-      return CupertinoPage(
-        key: state.pageKey,
-        child: GroupTaskDetailPage(groupId: groupId, taskId: taskId),
       );
     },
   ),

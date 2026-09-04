@@ -1,9 +1,45 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
+import 'package:imboy/config/router/generated_product_feature_routes.dart';
 
 void main() {
+  test('canonical generated registry contains selected feature routes', () {
+    Iterable<String?> routeNames(Iterable<RouteBase> routes) sync* {
+      for (final route in routes.whereType<GoRoute>()) {
+        yield route.name;
+        yield* routeNames(route.routes);
+      }
+    }
+
+    final names = routeNames(compiledProductFeatureRoutes()).toSet();
+    expect(
+      names,
+      containsAll(<String>{
+        'moment_feed',
+        'moment_create',
+        'moment_notify',
+        'moment_detail',
+        'people_nearby',
+        'map_location_picker',
+        'group_vote',
+        'group_vote_detail',
+        'group_schedule',
+        'group_schedule_detail',
+        'group_task',
+        'group_task_detail',
+        'channel_list',
+        'qrcode_channel',
+        'channel_discover',
+        'channel_invitations',
+        'channel_orders',
+        'channel_order_detail',
+      }),
+    );
+  });
+
   group('RouteFeatureGuard.appEntryForPath', () {
     test('returns moment for moment routes', () {
       expect(RouteFeatureGuard.appEntryForPath('/moment/feed'), 'moment_tab');

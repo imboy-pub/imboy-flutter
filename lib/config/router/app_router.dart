@@ -17,21 +17,18 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'generated_product_feature_routes.dart';
 
 // ============================================================================
 // 页面 Barrel exports - 统一导入所有页面
 // ============================================================================
 import 'barrel/pages_barrel.dart';
 
-// 组件
-import 'package:imboy/component/location/widget.dart';
-
 // 数据模型
 import 'package:imboy/store/model/live_room_model.dart';
 
 // 分域路由
 import 'routes/group_routes.dart';
-import 'routes/channel_routes.dart';
 import 'routes/mine_routes.dart';
 import 'routes/group_feature_routes.dart';
 import 'routes/workspace_routes.dart';
@@ -251,36 +248,7 @@ GoRouter createAppRouter({
             CupertinoPage(key: state.pageKey, child: ConversationPage()),
       ),
 
-      // ==================== 朋友圈相关 ====================
-      GoRoute(
-        path: AppRoutes.momentFeed,
-        name: 'moment_feed',
-        pageBuilder: (context, state) =>
-            CupertinoPage(key: state.pageKey, child: const MomentFeedPage()),
-      ),
-      GoRoute(
-        path: AppRoutes.momentCreate,
-        name: 'moment_create',
-        pageBuilder: (context, state) =>
-            CupertinoPage(key: state.pageKey, child: const MomentCreatePage()),
-      ),
-      GoRoute(
-        path: '/moment_notify',
-        name: 'moment_notify',
-        pageBuilder: (context, state) =>
-            CupertinoPage(key: state.pageKey, child: const MomentNotifyPage()),
-      ),
-      GoRoute(
-        path: '${AppRoutes.momentRoot}/:momentId',
-        name: 'moment_detail',
-        pageBuilder: (context, state) {
-          final momentId = state.pathParameters['momentId'] ?? '';
-          return CupertinoPage(
-            key: state.pageKey,
-            child: MomentDetailPage(momentId: momentId),
-          );
-        },
-      ),
+      ...compiledProductFeatureRoutes(),
 
       // ==================== 聊天相关 ====================
       // 转发消息页 - 使用 CupertinoPage 支持 iOS 风格滑动返回
@@ -453,12 +421,6 @@ GoRouter createAppRouter({
             },
           ),
           GoRoute(
-            path: '/people_nearby',
-            name: 'people_nearby',
-            pageBuilder: (context, state) =>
-                CupertinoPage(key: state.pageKey, child: PeopleNearbyPage()),
-          ),
-          GoRoute(
             path: '/recently_registered_user',
             name: 'recently_registered_user',
             pageBuilder: (context, state) => CupertinoPage(
@@ -496,9 +458,6 @@ GoRouter createAppRouter({
 
       // 群组路由
       ...groupRoutes(),
-
-      // 频道路由
-      ...channelRoutes(),
 
       // 工作区路由（WP5/T8：切换器/创建流/频道详情/邀请/Branding）
       ...workspaceRoutes(),
@@ -577,31 +536,6 @@ GoRouter createAppRouter({
           child: const NetworkFailureGuidancePage(),
         ),
       ),
-      GoRoute(
-        path: '/map_location_picker',
-        name: 'map_location_picker',
-        pageBuilder: (context, state) {
-          // 从 state.extra 获取参数
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          final lat = extra['lat'] as double? ?? 39.909187;
-          final lng = extra['lng'] as double? ?? 116.397451;
-          final citycode = extra['citycode']?.toString() ?? '';
-          final isMapImage = extra['isMapImage'] as bool? ?? false;
-
-          return CupertinoPage(
-            key: state.pageKey,
-            child: MapLocationPicker(
-              arguments: {
-                'lat': lat,
-                'lng': lng,
-                'citycode': citycode,
-                'isMapImage': isMapImage,
-              },
-            ),
-          );
-        },
-      ),
-
       // ==================== 直播间相关 ====================
       GoRoute(
         path: '/live_room',
@@ -674,26 +608,6 @@ GoRouter createAppRouter({
           return CupertinoPage(
             key: state.pageKey,
             child: GroupQrCodePage(group: group),
-          );
-        },
-      ),
-      GoRoute(
-        path: '/qrcode/channel',
-        name: 'qrcode_channel',
-        pageBuilder: (context, state) {
-          // 从 state.extra 获取频道数据
-          final extra = state.extra as Map<String, dynamic>?;
-          if (extra == null) {
-            return CupertinoPage(
-              key: state.pageKey,
-              child: CupertinoPageScaffold(
-                child: Center(child: Text(t.common.dataNotFound)),
-              ),
-            );
-          }
-          return CupertinoPage(
-            key: state.pageKey,
-            child: ChannelQrCodePage(channelData: extra),
           );
         },
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 
 void main() {
   group('AppManifest.hasAppEntry', () {
@@ -56,6 +57,46 @@ void main() {
   });
 
   group('AppManifest parsing edge cases', () {
+    test('matching generated build metadata is accepted', () {
+      final manifest = AppManifest.fromMap(<String, dynamic>{
+        'manifest_hash': productFeatureManifestHash,
+        'manifest_schema_version': productFeatureSchemaVersion,
+        'compiled_features': compiledProductFeatures,
+      });
+      expect(manifest.ensureBuildCompatible, returnsNormally);
+    });
+
+    test('missing, malformed and mismatched contract fields fail closed', () {
+      for (final raw in <Map<String, dynamic>>[
+        {},
+        {'manifest_hash': 'sha256:mismatch'},
+        {'manifest_schema_version': 999},
+        {'manifest_schema_version': 'not-an-int'},
+        {'compiled_features': 'not-an-array'},
+        {'compiled_features': <dynamic>[]},
+        {
+          'compiled_features': [123],
+        },
+        {
+          'compiled_features': ['not_compiled'],
+        },
+      ]) {
+        expect(
+          AppManifest.fromMap(raw).ensureBuildCompatible,
+          throwsA(isA<AppManifestMismatchException>()),
+        );
+      }
+    });
+
+    test('incompatible manifest is ignored without throwing', () {
+      final accepted = AppManifestService.replaceIfCompatibleForTest(
+        <String, dynamic>{'manifest_hash': 'sha256:stale'},
+      );
+
+      expect(accepted, isFalse);
+      expect(AppManifestService.manifest, isNull);
+    });
+
     test('missing app_entries key defaults to empty list', () {
       final manifest = AppManifest.fromMap(<String, dynamic>{
         'features': <String, dynamic>{},
