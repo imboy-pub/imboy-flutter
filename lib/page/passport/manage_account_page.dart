@@ -123,8 +123,12 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
                 child: Center(
                   child: Text(
                     t.common.buttonAccomplish,
+                    // 填充式按钮上的文案必须显式 onPrimary：
+                    // context.textStyle 不带 color 时回退到主题文字色，
+                    // 在 primary 蓝底上不可见（2026-09-04 真机发现）
                     style: context.textStyle(
                       FontSizeType.medium,
+                      color: AppColors.onPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

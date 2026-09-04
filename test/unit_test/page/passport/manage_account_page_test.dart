@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/passport/manage_account_page.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// ManageAccountPage widget test
 ///
@@ -112,6 +113,11 @@ void main() {
       expect(find.text('完成'), findsOneWidget);
       // i18n: later = "以后再说"
       expect(find.text('以后再说'), findsOneWidget);
+
+      // 回归（2026-09-04 真机发现）：填充式按钮上的文案必须显式
+      // onPrimary（白），否则样式回退主题文字色，primary 蓝底上不可见
+      final accomplishStyle = tester.widget<Text>(find.text('完成')).style;
+      expect(accomplishStyle?.color, AppColors.onPrimary);
 
       await _unmount(tester);
     });
