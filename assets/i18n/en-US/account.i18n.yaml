@@ -28,6 +28,13 @@ login: Login
 loginDeviceManagement: Login device management
 loginEmail: Login email
 logoutAccount: Delete account
+
+logoutPendingBanner: Deletion request submitted, expected by $date
+logoutPendingHeader: DELETION REQUEST STATUS
+logoutCancelRequest: Cancel deletion request
+logoutCancelledNote: Deletion request cancelled
+logoutRetainedHeader: DATA RETENTION
+logoutRetainedNote: After deletion, audit logs and financial records are retained as required by law and anonymised; owned groups, workspaces and channels are transferred to a successor member first
 mobile: Mobile
 mobileQuickLogin: Quick login
 myAccount: My account

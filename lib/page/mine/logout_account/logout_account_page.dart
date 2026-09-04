@@ -26,21 +26,33 @@ class LogoutAccountState {
   final String? error;
   final String selectedValue;
 
+  /// D-04：注销请求状态（deletion_status 接口返回，null=未拉取）
+  final Map<String, dynamic>? deletionStatus;
+
+  /// 状态是否已拉取过（防 post-frame 重复拉取）
+  final bool statusLoaded;
+
   const LogoutAccountState({
     this.isLoading = false,
     this.error,
     this.selectedValue = '',
+    this.deletionStatus,
+    this.statusLoaded = false,
   });
 
   LogoutAccountState copyWith({
     bool? isLoading,
     String? error,
     String? selectedValue,
+    Map<String, dynamic>? deletionStatus,
+    bool? statusLoaded,
   }) {
     return LogoutAccountState(
       isLoading: isLoading ?? this.isLoading,
       error: error,
       selectedValue: selectedValue ?? this.selectedValue,
+      deletionStatus: deletionStatus ?? this.deletionStatus,
+      statusLoaded: statusLoaded ?? this.statusLoaded,
     );
   }
 }
@@ -90,6 +102,22 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
     }
   }
 
+  /// D-04：拉取注销请求状态（宽限期/预期完成时间）
+  Future<void> fetchDeletionStatus() async {
+    final userApi = ref.read(userApiProvider);
+    final data = await userApi.deletionStatus();
+    state = state.copyWith(deletionStatus: data, statusLoaded: true);
+  }
+
+  /// D-04：撤销注销申请，成功后刷新状态
+  Future<bool> cancelLogoutRequest() async {
+    final ok = await ref.read(userApiProvider).cancelLogout();
+    if (ok) {
+      await fetchDeletionStatus();
+    }
+    return ok;
+  }
+
   Future<bool> applyLogout() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
@@ -130,6 +158,13 @@ class LogoutAccountPage extends ConsumerWidget {
     final agreed = state.selectedValue == 'read_and_agree';
     final brightness = Theme.of(context).brightness;
 
+    // D-04：进入页面拉取一次注销状态（宽限期/预期完成时间）
+    if (!state.statusLoaded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(logoutAccountProvider.notifier).fetchDeletionStatus();
+      });
+    }
+
     return IosPageTemplate(
       title: t.account.logoutAccount,
       useLargeTitle: false,
@@ -143,6 +178,28 @@ class LogoutAccountPage extends ConsumerWidget {
       ),
       child: Column(
         children: [
+          // D-04：注销状态区块（宽限期横幅 + 撤销入口）
+          if (state.statusLoaded && state.deletionStatus != null)
+            _buildStatusSection(context, ref, state, brightness),
+
+          // 数据留存说明（D-04：保留类别公示）
+          ImBoySettingsSection(
+            header: Text(t.account.logoutRetainedHeader.toUpperCase()),
+            children: [
+              ImBoySettingsTile(
+                title: Text(
+                  t.account.logoutRetainedNote,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: brightness == Brightness.dark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
           // 导出数据 Section
           ImBoySettingsSection(
             header: Text(t.chat.exportMyData.toUpperCase()),
@@ -224,6 +281,69 @@ class LogoutAccountPage extends ConsumerWidget {
     );
   }
 
+  /// D-04：注销状态区块 —— 宽限期横幅（预期完成时间）+ 撤销入口
+  Widget _buildStatusSection(
+    BuildContext context,
+    WidgetRef ref,
+    LogoutAccountState state,
+    Brightness brightness,
+  ) {
+    final status = state.deletionStatus?['status']?.toString();
+    if (status != 'requested') {
+      return const SizedBox.shrink();
+    }
+    final expected = state.deletionStatus?['expected_deletion_at']?.toString();
+    final retained = state.deletionStatus?['retained_categories'];
+    final retainedNote = retained is List && retained.isNotEmpty
+        ? '· audit_logs / financial_records'
+        : '';
+
+    return ImBoySettingsSection(
+      header: Text(context.t.account.logoutPendingHeader.toUpperCase()),
+      children: [
+        ImBoySettingsTile(
+          title: Text(
+            context.t.account.logoutPendingBanner(date: expected ?? '-'),
+          ),
+          subtitle: Text(
+            '${context.t.account.logoutRetainedNote} $retainedNote',
+          ),
+        ),
+        ImBoySettingsTile(
+          title: Text(
+            context.t.account.logoutCancelRequest,
+            style: context.textStyle(
+              FontSizeType.body,
+              color: AppColors.iosRed,
+            ),
+          ),
+          leading: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.iosRed,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              CupertinoIcons.xmark_circle,
+              color: AppColors.onPrimary,
+              size: 18,
+            ),
+          ),
+          onTap: () async {
+            final ok = await ref
+                .read(logoutAccountProvider.notifier)
+                .cancelLogoutRequest();
+            if (ok && context.mounted) {
+              AppLoading.show(status: context.t.account.logoutCancelledNote);
+              AppLoading.dismiss();
+            }
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildDeleteButton(
     BuildContext context,
     WidgetRef ref,
@@ -241,8 +361,9 @@ class LogoutAccountPage extends ConsumerWidget {
       ),
       child: SizedBox(
         width: double.infinity,
-        height: 50,
         child: CupertinoButton(
+          minimumSize: const Size(0, 50),
+          padding: EdgeInsets.zero,
           color: AppColors.getIosRed(brightness),
           borderRadius: BorderRadius.circular(14),
           onPressed: agreed && !state.isLoading

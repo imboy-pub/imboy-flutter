@@ -28,6 +28,13 @@ login: 登录
 loginDeviceManagement: 登录设备管理
 loginEmail: 登录邮箱
 logoutAccount: 注销账号
+
+logoutPendingBanner: 注销申请已提交，预计 $date 完成
+logoutPendingHeader: 注销申请状态
+logoutCancelRequest: 撤销注销申请
+logoutCancelledNote: 注销申请已撤销
+logoutRetainedHeader: 数据留存说明
+logoutRetainedNote: 删除完成后：审计日志与财务记录依法留存并匿名化；您拥有的群/工作区/频道将优先转移给继任成员
 mobile: 手机
 mobileQuickLogin: 一键登录
 myAccount: 我的账号

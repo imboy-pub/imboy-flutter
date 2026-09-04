@@ -168,6 +168,24 @@ class Translations$account$zh_CN {
 	/// zh-CN: '注销账号'
 	String get logoutAccount => '注销账号';
 
+	/// zh-CN: '注销申请已提交，预计 $date 完成'
+	String logoutPendingBanner({required Object date}) => '注销申请已提交，预计 ${date} 完成';
+
+	/// zh-CN: '注销申请状态'
+	String get logoutPendingHeader => '注销申请状态';
+
+	/// zh-CN: '撤销注销申请'
+	String get logoutCancelRequest => '撤销注销申请';
+
+	/// zh-CN: '注销申请已撤销'
+	String get logoutCancelledNote => '注销申请已撤销';
+
+	/// zh-CN: '数据留存说明'
+	String get logoutRetainedHeader => '数据留存说明';
+
+	/// zh-CN: '删除完成后：审计日志与财务记录依法留存并匿名化；您拥有的群/工作区/频道将优先转移给继任成员'
+	String get logoutRetainedNote => '删除完成后：审计日志与财务记录依法留存并匿名化；您拥有的群/工作区/频道将优先转移给继任成员';
+
 	/// zh-CN: '手机'
 	String get mobile => '手机';
 
@@ -8714,6 +8732,12 @@ extension on Translations {
 			'account.loginDeviceManagement' => '登录设备管理',
 			'account.loginEmail' => '登录邮箱',
 			'account.logoutAccount' => '注销账号',
+			'account.logoutPendingBanner' => ({required Object date}) => '注销申请已提交，预计 ${date} 完成',
+			'account.logoutPendingHeader' => '注销申请状态',
+			'account.logoutCancelRequest' => '撤销注销申请',
+			'account.logoutCancelledNote' => '注销申请已撤销',
+			'account.logoutRetainedHeader' => '数据留存说明',
+			'account.logoutRetainedNote' => '删除完成后：审计日志与财务记录依法留存并匿名化；您拥有的群/工作区/频道将优先转移给继任成员',
 			'account.mobile' => '手机',
 			'account.mobileQuickLogin' => '一键登录',
 			'account.myAccount' => '我的账号',
@@ -9190,14 +9214,14 @@ extension on Translations {
 			'chat.sendFriendRequest' => '发送添加朋友申请',
 			'chat.sendMsgRejected' => '消息已发出，但被对方拒收了。',
 			'chat.sendMessage' => '发消息',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sendSeparatelyTo' => '分别发送给',
 			'chat.sendTo' => '发送给',
 			'chat.send' => _root.common.buttonSend,
 			'chat.releaseConvertToText' => '松开 转文字',
 			'chat.voiceReleaseCancelSend' => '松开 取消发送',
 			'chat.voiceReleaseCancel' => '松开 取消',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceSlideHint' => '上滑 取消 / 转文字',
 			'chat.convertToText' => '转文字',
 			'chat.sender' => '发送者',
@@ -9704,14 +9728,14 @@ extension on Translations {
 			'common.unmuteMemberFailed' => '取消禁言失败',
 			'common.kickMemberSuccess' => '已移出群聊',
 			'common.kickMemberFailed' => '移出群聊失败',
+			_ => null,
+		} ?? switch (path) {
 			'common.transferGroupSuccess' => '群主已转让',
 			'common.transferGroupFailed' => '转让群主失败',
 			'common.notMuted' => '未禁言',
 			'common.muteDuration' => '禁言时长',
 			'common.muteDuration1hour' => '1小时',
 			'common.muteDuration6hours' => '6小时',
-			_ => null,
-		} ?? switch (path) {
 			'common.muteDuration12hours' => '12小时',
 			'common.muteDuration1day' => '1天',
 			'common.muteDuration3days' => '3天',
@@ -10218,14 +10242,14 @@ extension on Translations {
 			'common.invitationAccepted' => '已接受邀请',
 			'common.invitationRejected' => '已拒绝邀请',
 			'common.invitationStatusPending' => '待处理',
+			_ => null,
+		} ?? switch (path) {
 			'common.invitationStatusAccepted' => '已接受',
 			'common.invitationStatusRejected' => '已拒绝',
 			'common.invitationStatusExpired' => '已过期',
 			'common.invitationStatusCancelled' => '已取消',
 			'common.invitationStatusUnknown' => '未知',
 			'common.noReceivedInvitations' => '暂无收到的邀请',
-			_ => null,
-		} ?? switch (path) {
 			'common.noSentInvitations' => '暂无发出的邀请',
 			'common.processingDots' => '处理中...',
 			'common.purchaseFailed' => '购买失败，请稍后重试',
@@ -10732,14 +10756,14 @@ extension on Translations {
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '已选择 ${count} 项',
 			'group.groupAlbumPhotoEmpty' => '暂无图片',
 			'group.groupAlbumPhotoUrlMissing' => '图片地址缺失，无法打开',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoUrlInvalid' => '图片地址无效',
 			'group.groupAlbumPhotoDetailTitle' => '图片详情',
 			'group.groupAlbumPhotoSetCover' => '设为封面',
 			'group.groupAlbumPhotoPrev' => '上一张',
 			'group.groupAlbumPhotoLikeCount' => '点赞数',
 			'group.groupAlbumPhotoCommentCount' => '评论数',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumPhotoMyLike' => '我的点赞',
 			'group.groupAlbumPhotoIdLabel' => '图片ID',
 			'group.e2eeKeyManagement' => 'E2EE 密钥管理',
@@ -11246,14 +11270,14 @@ extension on Translations {
 			'workspace.navProjects' => '项目',
 			'workspace.navChannels' => '频道',
 			'workspace.navGroups' => '群组',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navMembers' => '成员',
 			'workspace.pickerTitle' => '我的工作区',
 			'workspace.switchWorkspace' => '切换工作区',
 			'workspace.pickerEmptyTitle' => '还没有工作区',
 			'workspace.pickerEmptySubtitle' => '创建一个工作区，3 分钟开启团队协作（自动创建 Announcements 频道与 General 群）',
 			'workspace.archivedBadge' => '已归档',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
 			'workspace.dmEntry' => '全部消息',
 			'workspace.experienceModeEntry' => '首页布局',

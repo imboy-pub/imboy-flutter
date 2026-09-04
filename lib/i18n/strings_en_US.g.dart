@@ -105,6 +105,12 @@ class _Translations$account$en_US extends Translations$account$zh_CN {
 	@override String get loginDeviceManagement => 'Login device management';
 	@override String get loginEmail => 'Login email';
 	@override String get logoutAccount => 'Delete account';
+	@override String logoutPendingBanner({required Object date}) => 'Deletion request submitted, expected by ${date}';
+	@override String get logoutPendingHeader => 'DELETION REQUEST STATUS';
+	@override String get logoutCancelRequest => 'Cancel deletion request';
+	@override String get logoutCancelledNote => 'Deletion request cancelled';
+	@override String get logoutRetainedHeader => 'DATA RETENTION';
+	@override String get logoutRetainedNote => 'After deletion, audit logs and financial records are retained as required by law and anonymised; owned groups, workspaces and channels are transferred to a successor member first';
 	@override String get mobile => 'Mobile';
 	@override String get mobileQuickLogin => 'Quick login';
 	@override String get myAccount => 'My account';
@@ -3004,6 +3010,12 @@ extension on TranslationsEnUs {
 			'account.loginDeviceManagement' => 'Login device management',
 			'account.loginEmail' => 'Login email',
 			'account.logoutAccount' => 'Delete account',
+			'account.logoutPendingBanner' => ({required Object date}) => 'Deletion request submitted, expected by ${date}',
+			'account.logoutPendingHeader' => 'DELETION REQUEST STATUS',
+			'account.logoutCancelRequest' => 'Cancel deletion request',
+			'account.logoutCancelledNote' => 'Deletion request cancelled',
+			'account.logoutRetainedHeader' => 'DATA RETENTION',
+			'account.logoutRetainedNote' => 'After deletion, audit logs and financial records are retained as required by law and anonymised; owned groups, workspaces and channels are transferred to a successor member first',
 			'account.mobile' => 'Mobile',
 			'account.mobileQuickLogin' => 'Quick login',
 			'account.myAccount' => 'My account',
@@ -3480,14 +3492,14 @@ extension on TranslationsEnUs {
 			'chat.momentsReplyingTo' => 'Replying to @{name}',
 			'chat.sendNewMessage' => 'Send new message',
 			'chat.markRead' => 'Mark as read',
+			_ => null,
+		} ?? switch (path) {
 			'chat.markUnread' => 'Mark as unread',
 			'chat.pleaseEnterSignature' => 'Please enter signature',
 			'chat.exportProfile' => 'Export Profile',
 			'chat.setSignature' => 'Set Signature',
 			'chat.setAvatar' => 'Set Avatar',
 			'chat.fastForward' => ({required Object seconds}) => 'Fast Forward ${seconds}',
-			_ => null,
-		} ?? switch (path) {
 			'chat.messageId' => 'Message ID',
 			'chat.chatType' => 'Chat type',
 			'chat.voiceFileEmptyPleaseTryAgain' => 'Voice file is empty, please try again',
@@ -3994,14 +4006,14 @@ extension on TranslationsEnUs {
 			'common.tipProvidersTitleFirst' => 'Or sign in with',
 			'common.tipSuccess' => 'Operation successful!',
 			'common.tipTips' => 'Tips',
+			_ => null,
+		} ?? switch (path) {
 			'common.titleContact' => 'Contacts',
 			'common.today' => 'Today',
 			'common.unknown' => 'Unknown',
 			'common.unknownMessage' => 'Unknown message',
 			'common.updateLog' => 'Update log',
 			'common.updateNow' => 'Update now',
-			_ => null,
-		} ?? switch (path) {
 			'common.uploading' => 'Uploading',
 			'common.uploadSuccess' => 'Upload successful',
 			'common.uploadFailed' => 'Upload failed',
@@ -4508,14 +4520,14 @@ extension on TranslationsEnUs {
 			'common.e2eeDecryptFailed' => 'Message cannot be decrypted',
 			'common.e2eeDecryptFailedReasons' => 'This message cannot be decrypted. Possible reasons:',
 			'common.e2eeDecryptReasonOtherDevice' => '• You logged in on another device',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeDecryptReasonKeyExpired' => '• Device key has expired',
 			'common.e2eeDecryptReasonDataCorrupt' => '• App data is corrupted',
 			'common.e2eeDecryptChooseSolution' => 'Please choose a solution:',
 			'common.e2eeDecryptRecreateHint' => 'Note: after recreating, the other party needs to fetch your new key; encrypted messages not yet delivered during the change may not be resent automatically. Message history is not affected.',
 			'common.e2eePeerKeyChanged' => 'This contact\'s safety number has changed (they may have reinstalled the app or switched devices). If security matters to you, verify their identity through another channel.',
 			'common.complianceKeyChangedTitle' => 'Compliance audit key has changed',
-			_ => null,
-		} ?? switch (path) {
 			'common.complianceKeyChangedBody' => 'The compliance audit public key from the server does not match the locally pinned value. If this is an intentional key rotation by your administrator, tap "Confirm rotation". Otherwise, do not send encrypted messages and contact your administrator.',
 			'common.complianceKeyChangedActionConfirm' => 'Confirm rotation',
 			'common.complianceKeyChangedActionKeep' => 'Not now',
@@ -5022,14 +5034,14 @@ extension on TranslationsEnUs {
 			'main.lifePayment' => 'Bill Payment',
 			'main.medicalHealth' => 'Healthcare',
 			'main.meituanDelivery' => 'Meituan Delivery',
+			_ => null,
+		} ?? switch (path) {
 			'main.tencentService' => 'Tencent Services',
 			'main.traffic' => 'Transport',
 			'main.totalAssets' => 'Total Assets',
 			'main.album' => 'Photos',
 			'main.appSize' => 'App size',
 			'main.arSa' => 'Arabic (Saudi Arabia)',
-			_ => null,
-		} ?? switch (path) {
 			'main.audio' => 'Audio',
 			'main.barcodeFound' => 'QR code detected',
 			'main.botQianFan' => 'Qianfan Bot',
@@ -5536,14 +5548,14 @@ extension on TranslationsEnUs {
 			'workspace.taskAssigneeRefresh' => 'Refresh assignee candidates',
 			'workspace.taskSubmitCreate' => 'Create task',
 			'workspace.taskSubmitSave' => 'Save',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskCreatedToast' => 'Task created',
 			'workspace.taskExistingToast' => 'A task with the same title already exists; reusing it',
 			'workspace.taskUpdatedToast' => 'Task saved',
 			'workspace.taskFilterAll' => 'All',
 			'workspace.taskStatusTodo' => 'To do',
 			'workspace.taskStatusDoing' => 'Doing',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskStatusReview' => 'Review',
 			'workspace.taskStatusDone' => 'Done',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Advance to "${status}"',

@@ -239,6 +239,24 @@ class UserApi extends HttpClient {
     return true;
   }
 
+  /// D-04：注销请求状态（pending/cancelled/completed + 预期完成时间 +
+  /// 保留类别），页面据此渲染宽限期横幅与撤销入口。
+  Future<Map<String, dynamic>?> deletionStatus() async {
+    try {
+      IMBoyHttpResponse resp = await get(API.userDeletionStatus);
+      iPrint("> on UserApi/deletionStatus resp: ${resp.payload.toString()}");
+      if (!resp.ok) {
+        return null;
+      }
+      return resp.payload is Map<String, dynamic>
+          ? resp.payload as Map<String, dynamic>
+          : null;
+    } on Object catch (e) {
+      iPrint("> on UserApi/deletionStatus error: $e");
+      return null;
+    }
+  }
+
   /// 导出用户数据（个人信息、联系人、聊天记录等）
   /// 返回 JSON 格式的用户数据，失败时返回 null
   Future<Map<String, dynamic>?> exportUserData() async {

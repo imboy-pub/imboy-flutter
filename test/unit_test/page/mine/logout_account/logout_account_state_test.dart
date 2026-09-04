@@ -38,5 +38,31 @@ void main() {
         expect(cleared.isLoading, isTrue);
       },
     );
+
+    group('LogoutAccountState deletion status fields (D-04)', () {
+      test('default: no deletionStatus, not loaded', () {
+        const state = LogoutAccountState();
+        expect(state.deletionStatus, isNull);
+        expect(state.statusLoaded, isFalse);
+      });
+
+      test('copyWith carries deletionStatus + statusLoaded', () {
+        final next = base.copyWith(
+          deletionStatus: {'status': 'requested'},
+          statusLoaded: true,
+        );
+        expect(next.deletionStatus?['status'], 'requested');
+        expect(next.statusLoaded, isTrue);
+      });
+
+      test('copyWith keeps previous deletionStatus when omitted', () {
+        final seeded = base.copyWith(
+          deletionStatus: {'status': 'requested'},
+          statusLoaded: true,
+        );
+        final next = seeded.copyWith(isLoading: true);
+        expect(next.deletionStatus?['status'], 'requested');
+      });
+    });
   });
 }

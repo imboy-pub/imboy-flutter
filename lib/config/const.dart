@@ -165,6 +165,7 @@ class API {
   static const userSetPassword = '/api/v1/user/set_password';
   static const userApplyLogout = '/api/v1/user/apply_logout';
   static const userCancelLogout = '/api/v1/user/cancel_logout';
+  static const userDeletionStatus = '/api/v1/user/deletion_status';
   static const userSearch = '/api/v1/user/search';
 
   static const ftsRecentlyUser = '/api/v1/fts/recently_user';
