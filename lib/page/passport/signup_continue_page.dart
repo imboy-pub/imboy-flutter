@@ -41,6 +41,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
 
   bool hasError = false;
   String currentText = "";
+  bool _isSubmitting = false;
+  bool _isResending = false;
   final formKey = GlobalKey<FormState>();
 
   StreamSubscription<dynamic>? _localeSubscription;
@@ -161,6 +163,8 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                             vertical: AppSpacing.small,
                           ),
                           child: RichText(
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                             text: TextSpan(
                               text: _accountType == 'email'
                                   ? t.account.codeSentToEmail
@@ -237,8 +241,9 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                           ),
                         ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
+                            Flexible(
                               child: Text(
                                 t.common.notReceiveCoeQ,
                                 // 字号归一：15→normal(14)，同上须真机复核
@@ -248,76 +253,116 @@ class _SignupContinuePageState extends ConsumerState<SignupContinuePage> {
                                 ),
                               ),
                             ),
-                            Expanded(
-                              child: CupertinoButton(
-                                onPressed: () async {
-                                  String? res = await notifier.sendCode(
-                                    _accountType,
-                                    _account,
-                                    'signup',
-                                  );
-                                  if (!context.mounted) return;
-                                  if (res == null) {
-                                    AppLoading.showSuccess(
-                                      t.main.codeSentToParam(param: _account),
-                                    );
-                                  } else {
-                                    if (res == 'param_already_exist') {
-                                      final label = _accountType == 'email'
-                                          ? t.account.email
-                                          : t.account.mobile;
-                                      AppLoading.showError(
-                                        t.chat.paramAlreadyExist(param: label),
-                                      );
-                                    } else {
-                                      AppLoading.showError(res);
-                                    }
-                                  }
-                                },
-                                child: Text(
-                                  t.chat.resendCode,
-                                  style: context.textStyle(
-                                    FontSizeType.medium,
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                            CupertinoButton(
+                              minimumSize: const Size(44, 44),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.small,
+                                vertical: AppSpacing.small,
                               ),
+                              onPressed: _isResending
+                                  ? null
+                                  : () async {
+                                      setState(() => _isResending = true);
+                                      String? res;
+                                      try {
+                                        res = await notifier.sendCode(
+                                          _accountType,
+                                          _account,
+                                          'signup',
+                                        );
+                                      } finally {
+                                        if (mounted) {
+                                          setState(() => _isResending = false);
+                                        }
+                                      }
+                                      if (!context.mounted) return;
+                                      if (res == null) {
+                                        AppLoading.showSuccess(
+                                          t.main.codeSentToParam(
+                                            param: _account,
+                                          ),
+                                        );
+                                      } else if (res == 'param_already_exist') {
+                                        final label = _accountType == 'email'
+                                            ? t.account.email
+                                            : t.account.mobile;
+                                        AppLoading.showError(
+                                          t.chat.paramAlreadyExist(
+                                            param: label,
+                                          ),
+                                        );
+                                      } else {
+                                        AppLoading.showError(res);
+                                      }
+                                    },
+                              child: _isResending
+                                  ? const CupertinoActivityIndicator(
+                                      color: AppColors.primary,
+                                    )
+                                  : Text(
+                                      t.chat.resendCode,
+                                      maxLines: 1,
+                                      style: context.textStyle(
+                                        FontSizeType.medium,
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                             ),
                           ],
                         ),
 
                         const SizedBox(height: 30),
-                        CupertinoButton(
-                          color: AppColors.primary,
-                          onPressed: () async {
-                            FocusScope.of(context).unfocus();
-                            String? res = await notifier.confirmSignup(
-                              accountType: _accountType,
-                              account: _account,
-                              nickname: _nickname,
-                              code: currentText,
-                              pwd: _pwd,
-                            );
-                            if (!context.mounted) return;
-                            if (res == null) {
-                              AppLoading.showSuccess(t.common.tipSuccess);
-                              // 注册成功后引导用户去管理账户（绑定手机号/关联邮箱）
-                              context.go('/manage_account');
-                            } else {
-                              AppLoading.showError(res);
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 10, right: 10),
-                            child: Text(
-                              t.account.signup,
-                              textAlign: TextAlign.center,
-                              style: context.textStyle(
-                                FontSizeType.extraLarge,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: CupertinoButton.filled(
+                            minimumSize: const Size(0, 50),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.small,
                             ),
+                            onPressed:
+                                (_isSubmitting || currentText.length != 6)
+                                ? null
+                                : () async {
+                                    FocusScope.of(context).unfocus();
+                                    setState(() => _isSubmitting = true);
+                                    String? res;
+                                    try {
+                                      res = await notifier.confirmSignup(
+                                        accountType: _accountType,
+                                        account: _account,
+                                        nickname: _nickname,
+                                        code: currentText,
+                                        pwd: _pwd,
+                                      );
+                                    } finally {
+                                      if (mounted) {
+                                        setState(() => _isSubmitting = false);
+                                      }
+                                    }
+                                    if (!context.mounted) return;
+                                    if (res == null) {
+                                      AppLoading.showSuccess(
+                                        t.common.tipSuccess,
+                                      );
+                                      context.go('/manage_account');
+                                    } else {
+                                      AppLoading.showError(res);
+                                    }
+                                  },
+                            child: _isSubmitting
+                                ? const CupertinoActivityIndicator(
+                                    color: AppColors.onPrimary,
+                                  )
+                                : Text(
+                                    t.account.signup,
+                                    textAlign: TextAlign.center,
+                                    style: context.textStyle(
+                                      FontSizeType.medium,
+                                      color: AppColors.onPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],

@@ -40,6 +40,14 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'passport_state.dart';
 part 'passport_notifier.g.dart';
 
+String formatJverifyLoginError(int? code, String? message) {
+  final detail = message?.trim() ?? '';
+  final codeText = code?.toString() ?? 'unknown';
+  return detail.isEmpty
+      ? '一键登录失败（错误码 $codeText）'
+      : '一键登录失败（错误码 $codeText）：$detail';
+}
+
 /// Passport 模块 Riverpod Notifier
 /// 管理 Passport 模块的状态和业务逻辑
 @riverpod
@@ -693,7 +701,10 @@ class PassportNotifier extends _$PassportNotifier {
       data: data,
     );
     if (resp2.ok) {
-      return null;
+      final status = await _login(accountType, account, pwd);
+      if (status == 1) return null;
+
+      return state.error.isNotEmpty ? state.error : t.common.unknown;
     } else {
       state = state.copyWith(
         error: _localizedAuthErrMsg(resp2.error?.message ?? t.common.unknown),
@@ -841,7 +852,7 @@ class PassportNotifier extends _$PassportNotifier {
         }
       });
 
-      jv.setDebugMode(kDebugMode);
+      jv.setDebugMode(false);
       jv.setCollectionAuth(true);
       jv.setup(appKey: Env().jiguangAppKey, channel: "devloper-default");
 
@@ -1175,15 +1186,22 @@ class PassportNotifier extends _$PassportNotifier {
       enableSms: false,
       loginAuthcallback: (event) {
         if (event.code == 6000) {
-          unawaited(
-            quickLogin(
-              operator: event.operator!,
-              token: event.message!,
-              service: 'jverify',
-            ),
-          );
+          unawaited(() async {
+            try {
+              final error = await quickLogin(
+                operator: event.operator!,
+                token: event.message!,
+                service: 'jverify',
+              );
+              if (error != null && error.isNotEmpty) {
+                snackBar(error);
+              }
+            } catch (_) {
+              snackBar('一键登录失败，请检查网络后重试');
+            }
+          }());
         } else {
-          snackBar(event.message);
+          snackBar(formatJverifyLoginError(event.code, event.message));
         }
       },
     );

@@ -12,6 +12,7 @@ import 'package:imboy/page/passport/signup_continue_page.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// SignupContinuePage widget test
 ///
@@ -272,6 +273,37 @@ void main() {
       expect(find.text('想再试一次吗？'), findsOneWidget);
       // i18n: login = "登录"
       expect(find.text('登录'), findsOneWidget);
+
+      await _unmount(tester);
+    });
+
+    testWidgets('注册按钮全宽、文字清晰，验证码满 6 位后启用', (tester) async {
+      await _pump(
+        tester,
+        account: 'alice@example.com',
+        accountType: 'email',
+        pwd: 'secret',
+      );
+
+      final text = tester.widget<Text>(find.text('注册'));
+      expect(text.style?.color, AppColors.onPrimary);
+
+      final buttonFinder = find.ancestor(
+        of: find.text('注册'),
+        matching: find.byType(CupertinoButton),
+      );
+      var button = tester.widget<CupertinoButton>(buttonFinder);
+      expect(button.minimumSize?.height, greaterThanOrEqualTo(50));
+      expect(button.onPressed, isNull);
+
+      final pinField = tester.widget<MaterialPinField>(
+        find.byType(MaterialPinField),
+      );
+      pinField.pinController!.setText('123456');
+      await tester.pump();
+
+      button = tester.widget<CupertinoButton>(buttonFinder);
+      expect(button.onPressed, isNotNull);
 
       await _unmount(tester);
     });

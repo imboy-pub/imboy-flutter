@@ -12,6 +12,7 @@ import 'package:imboy/page/passport/widget/bezier_container.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/page/passport/widget/other_login_section.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
@@ -267,8 +268,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
           AppSpacing.verticalLarge,
           SizedBox(
             width: double.infinity,
-            height: 50,
             child: CupertinoButton.filled(
+              minimumSize: const Size(0, 50),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
               onPressed: (_isLoading || !isEnabled)
                   ? null
                   : () async {
@@ -311,7 +313,14 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     },
               child: _isLoading
                   ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
-                  : Text(t.common.nextStep),
+                  : Text(
+                      t.common.nextStep,
+                      style: context.textStyle(
+                        FontSizeType.medium,
+                        color: AppColors.onPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -401,8 +410,9 @@ class _SignupPageState extends ConsumerState<SignupPage>
           AppSpacing.verticalLarge,
           SizedBox(
             width: double.infinity,
-            height: 50,
             child: CupertinoButton.filled(
+              minimumSize: const Size(0, 50),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
               onPressed: (_isLoading || !isEnabled)
                   ? null
                   : () async {
@@ -444,7 +454,14 @@ class _SignupPageState extends ConsumerState<SignupPage>
                     },
               child: _isLoading
                   ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
-                  : Text(t.common.nextStep),
+                  : Text(
+                      t.common.nextStep,
+                      style: context.textStyle(
+                        FontSizeType.medium,
+                        color: AppColors.onPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
             ),
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +11,7 @@ import 'package:imboy/page/passport/signup_page.dart';
 import 'package:imboy/page/passport/passport_notifier.dart';
 import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// SignupPage widget test
 ///
@@ -116,6 +118,15 @@ void main() {
       await _pump(tester);
       // 默认 Tab 0 (email register) 显示 nextStep button
       expect(find.text('下一步'), findsAtLeastNWidgets(1));
+      final nextStep = tester.widget<Text>(find.text('下一步').first);
+      expect(nextStep.style?.color, AppColors.onPrimary);
+      final button = tester.widget<CupertinoButton>(
+        find.ancestor(
+          of: find.text('下一步').first,
+          matching: find.byType(CupertinoButton),
+        ),
+      );
+      expect(button.minimumSize?.height, greaterThanOrEqualTo(50));
       await _unmount(tester);
     });
   });
