@@ -54,34 +54,36 @@ def scan_refs
   [static, dynamic_ns]
 end
 
-# 展开一个 locale 目录的全部 YAML → { "ns.a.b" => value }；alias 行同审计口径
+# 展开一个 locale 目录的全部 YAML → { "ns.a.b" => value }；alias 行同审计口径。
+# 键名用 Psych 树原始文本（on 保持 "on"），与 i18n_audit.rb 的 YAML 1.2 对齐口径
+# 一致 —— safe_load 的 1.1 类型化曾把 on/off 变成 true/false 幽灵键。
 def flat_locale(locale)
   flat = {}
   aliases = {}
   Dir.glob(File.join(I18N_ROOT, locale, "*.i18n.yaml")).sort.each do |f|
     ns = File.basename(f, ".i18n.yaml")
-    walk = lambda do |node, prefix|
-      node.each do |k, v|
-        # slang 参数键 `name(param)` / 复数键 `name(plural)`：与审计器同口径，
-        # 逻辑键名剥掉括号后缀
-        name = k.to_s.sub(/\([^)]*\)\z/, "")
-        key = prefix.empty? ? name : "#{prefix}.#{name}"
-        if v.is_a?(Hash)
-          walk.call(v, key)
-        elsif v.to_s.start_with?("@:")
-          # 与 i18n_audit.rb 同口径：alias 键同时进 flat（logical）与
-          # aliases 两表 —— alias 本身也是一个可删的键
-          aliases[key] = v.to_s.delete_prefix("@:")
-          flat[key] = v
-        else
-          flat[key] = v
+    walk = lambda do |map, prefix|
+      map.children.each_slice(2) do |k, v|
+        name, = split_key_scalar(k.value.to_s)
+        key = prefix.empty? ? "#{ns}.#{name}" : "#{prefix}.#{name}"
+        case v
+        when Psych::Nodes::Mapping then walk.call(v, key)
+        when Psych::Nodes::Scalar
+          val = v.value.to_s
+          aliases[key] = val.delete_prefix("@:") if val.start_with?("@:")
+          flat[key] = val
         end
       end
     end
-    tree = YAML.safe_load(File.read(f), aliases: false) || {}
-    walk.call(tree, ns)
+    walk.call(Psych.parse_file(f).root, "")
   end
   [flat, aliases]
+end
+
+# slang 参数键 `name(param)`：剥掉括号后缀（与审计器 split_key 同口径）
+def split_key_scalar(raw)
+  m = raw.match(/\A([^(]+?)\s*\([^)]*\)\s*\z/)
+  m ? [m[1], nil] : [raw, nil]
 end
 
 # ── 手术式行删除：用 Psych 解析树拿每个映射条目的行号，按行区间删除 ──

@@ -63,6 +63,38 @@ def split_key(raw)
   m ? [m[1], m[2].strip] : [raw, nil]
 end
 
+# YAML 1.2 core schema 标量解析（与 Dart yaml 包对齐）。
+# 仅对 PLAIN 风格生效；引号/字面量块一律为 String。
+# 这是 Psych 1.1 类型化（把 on/off/yes/no 也变布尔）导致幽灵键问题的根治。
+def yaml12_scalar(node)
+  return node.value if node.style != Psych::Nodes::Scalar::PLAIN
+  case node.value
+  when "", "~", "null", "Null", "NULL" then nil
+  when "true", "True", "TRUE" then true
+  when "false", "False", "FALSE" then false
+  when /\A[-+]?\d+\z/ then node.value.to_i
+  when /\A[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?\z/ then Float(node.value)
+  when /\A[-+]?\.inf\z/i then node.value.start_with?("-") ? -Float::INFINITY : Float::INFINITY
+  when /\A\.nan\z/i then Float::NAN
+  else node.value
+  end
+rescue ArgumentError
+  node.value
+end
+
+# 由 Psych 树构建数据：键名用原始文本（on 保持 "on"，不类型化为 true），
+# 与 slang 实际解析行为一致。
+def build_data(node)
+  case node
+  when Psych::Nodes::Document then build_data(node.root)
+  when Psych::Nodes::Mapping
+    node.children.each_slice(2).to_h { |k, v| [k.value.to_s, build_data(v)] }
+  when Psych::Nodes::Sequence then node.children.map { |c| build_data(c) }
+  when Psych::Nodes::Scalar then yaml12_scalar(node)
+  else node.value
+  end
+end
+
 def parse_yaml_file(path)
   tree = YAML.parse_file(path)
   dups = []
@@ -80,7 +112,7 @@ def parse_yaml_file(path)
     end
   end
   walk.call(tree)
-  data = YAML.safe_load_file(path, aliases: true)
+  data = build_data(tree)
   [data, dups, nil]
 rescue Psych::SyntaxError => e
   [nil, [], e.message]
