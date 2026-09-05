@@ -1516,6 +1516,9 @@ class ChatPageState extends ConsumerState<ChatPage>
       message: message,
       isSentByMe: caps.isSentByMe,
       canEdit: canEdit,
+      // R-01 消息举报上下文：c2c scope=对话对端 uid；c2g scope=群 ID
+      reportChatType: _chatType,
+      reportScopeId: widget.peerId,
       onReply: () => updateQuoteMessage(message),
       onCopy: () {
         if (message is TextMessage) {

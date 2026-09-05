@@ -3,9 +3,11 @@ import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/message_action_menu.dart';
+import 'package:imboy/store/api/report_api.dart';
 
 /// MessageActionMenu 长按操作菜单 widget 契约测试
 ///
@@ -71,7 +73,236 @@ Future<void> _unmount(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// R-01 消息一等举报 + E2EE 同意门测试。
+///
+/// 举报按钮（接收者可见）→ 原因选择 →（E2EE 消息）明文披露同意对话框
+/// → 提交 message 类举报（target_type='message'，不再伪装 user+description）。
+class _FakeReportApi extends ReportApi {
+  _FakeReportApi() : super.base();
+
+  final List<Map<String, dynamic>> messageCalls = [];
+
+  @override
+  Future<bool> createMessage({
+    required String chatType,
+    required String targetId,
+    required String scopeId,
+    required String reason,
+    String excerpt = '',
+    bool consent = false,
+    String clientMsgId = '',
+    String msgType = '',
+    int sentAt = 0,
+  }) async {
+    messageCalls.add({
+      'chat_type': chatType,
+      'target_id': targetId,
+      'scope_id': scopeId,
+      'reason': reason,
+      'excerpt': excerpt,
+      'consent': consent,
+      'client_msg_id': clientMsgId,
+    });
+    return true;
+  }
+}
+
+Future<void> _pumpReport(
+  WidgetTester tester, {
+  required bool isSentByMe,
+  Map<String, dynamic>? metadata,
+  String reportChatType = 'c2c',
+  String reportScopeId = '3001',
+}) async {
+  final message = TextMessage(
+    id: 'msg_r1',
+    authorId: '2001',
+    text: '垃圾广告内容',
+    metadata: metadata,
+    createdAt: DateTime.fromMillisecondsSinceEpoch(1770000000000),
+  );
+  await tester.pumpWidget(
+    TranslationProvider(
+      child: MaterialApp(
+        // AppLoading 需要 EasyLoading init 的 overlay
+        builder: AppLoading.init(),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: MessageActionMenu(
+              message: message,
+              isSentByMe: isSentByMe,
+              reportChatType: reportChatType,
+              reportScopeId: reportScopeId,
+              onReply: () {},
+              onCopy: () {},
+              onEdit: () {},
+              onDelete: () {},
+              onForward: () {},
+              onReaction: (_) {},
+              onClose: () {},
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
+}
+
+void _registerReportGroups() {
+  group('R-01 消息一等举报', () {
+    // 基础语言 zh-CN：与既有用例一致用字面文案断言
+    testWidgets('非 E2EE：选原因后直接提交 message 举报（含摘录，无 consent）', (tester) async {
+      final fake = _FakeReportApi();
+      ReportApi.debugInstanceForTest = fake;
+      try {
+        await _pumpReport(tester, isSentByMe: false);
+
+        // 打开举报原因 action sheet
+        await tester.tap(find.text('投诉'));
+        await tester.pumpAndSettle();
+
+        // 非 E2EE 不出现同意对话框
+        expect(find.text('提交加密消息证据'), findsNothing);
+
+        await tester.tap(find.text('垃圾信息'));
+        await tester.pumpAndSettle();
+
+        expect(fake.messageCalls, hasLength(1));
+        final call = fake.messageCalls.first;
+        expect(call['chat_type'], 'c2c');
+        expect(call['target_id'], 'msg_r1');
+        expect(call['scope_id'], '3001');
+        expect(call['reason'], 'spam');
+        expect(call['excerpt'], '垃圾广告内容');
+        expect(call['consent'], false);
+        expect(call['client_msg_id'], 'msg_r1');
+        await _unmount(tester);
+      } finally {
+        ReportApi.debugInstanceForTest = null;
+      }
+    });
+
+    testWidgets('E2EE：选原因后先弹明文披露同意对话框', (tester) async {
+      final fake = _FakeReportApi();
+      ReportApi.debugInstanceForTest = fake;
+      try {
+        await _pumpReport(
+          tester,
+          isSentByMe: false,
+          metadata: {
+            'e2ee': {'v': 'OLM.V1'},
+          },
+        );
+
+        await tester.tap(find.text('投诉'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('骚扰'));
+        await tester.pumpAndSettle();
+
+        // 同意对话框出现；尚未提交
+        expect(find.text('提交加密消息证据'), findsOneWidget);
+        expect(fake.messageCalls, isEmpty);
+
+        // 取消：不提交
+        await tester.tap(find.text('取消'));
+        await tester.pumpAndSettle();
+        expect(fake.messageCalls, isEmpty);
+        await _unmount(tester);
+      } finally {
+        ReportApi.debugInstanceForTest = null;
+      }
+    });
+
+    testWidgets('E2EE：明确同意 → 摘录 + consent=true', (tester) async {
+      final fake = _FakeReportApi();
+      ReportApi.debugInstanceForTest = fake;
+      try {
+        await _pumpReport(
+          tester,
+          isSentByMe: false,
+          metadata: {
+            'e2ee': {'v': 'OLM.V1'},
+          },
+        );
+
+        await tester.tap(find.text('投诉'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('垃圾信息'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('同意并提交证据'));
+        await tester.pumpAndSettle();
+
+        expect(fake.messageCalls, hasLength(1));
+        final call = fake.messageCalls.first;
+        expect(call['excerpt'], '垃圾广告内容');
+        expect(call['consent'], true);
+        await _unmount(tester);
+      } finally {
+        ReportApi.debugInstanceForTest = null;
+      }
+    });
+
+    testWidgets('E2EE：拒绝披露 → 无摘录、无 consent，仍成举报', (tester) async {
+      final fake = _FakeReportApi();
+      ReportApi.debugInstanceForTest = fake;
+      try {
+        await _pumpReport(
+          tester,
+          isSentByMe: false,
+          metadata: {
+            'e2ee': {'v': 'OLM.V1'},
+          },
+        );
+
+        await tester.tap(find.text('投诉'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('其他'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('仅举报（不提交内容）'));
+        await tester.pumpAndSettle();
+
+        expect(fake.messageCalls, hasLength(1));
+        final call = fake.messageCalls.first;
+        expect(call['excerpt'], '');
+        expect(call['consent'], false);
+        expect(call['reason'], 'other');
+        await _unmount(tester);
+      } finally {
+        ReportApi.debugInstanceForTest = null;
+      }
+    });
+
+    testWidgets('群聊上下文透传：chat_type=c2g + scope=群 ID', (tester) async {
+      final fake = _FakeReportApi();
+      ReportApi.debugInstanceForTest = fake;
+      try {
+        await _pumpReport(
+          tester,
+          isSentByMe: false,
+          reportChatType: 'C2G',
+          reportScopeId: '7001',
+        );
+
+        await tester.tap(find.text('投诉'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('垃圾信息'));
+        await tester.pumpAndSettle();
+
+        expect(fake.messageCalls, hasLength(1));
+        expect(fake.messageCalls.first['chat_type'], 'C2G');
+        expect(fake.messageCalls.first['scope_id'], '7001');
+        await _unmount(tester);
+      } finally {
+        ReportApi.debugInstanceForTest = null;
+      }
+    });
+  });
+}
+
 void main() {
+  _registerReportGroups();
+
   setUpAll(() {
     Env.uploadKey = 'test_dummy_upload_key';
     Env.uploadScene = 'test_scene';

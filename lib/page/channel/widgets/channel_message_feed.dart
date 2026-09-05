@@ -17,6 +17,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/api/report_api.dart';
+import 'package:imboy/page/group/widgets/group_dialogs.dart';
 
 import '../channel_message_item.dart';
 import '../channel_provider.dart';
@@ -221,6 +223,8 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                     channelId: widget.channelId,
                     isManaged: widget.isManaged,
                     onReactionChanged: widget.onReactionChanged,
+                    // R-01 频道消息举报入口：长按弹原因选择，走 message 一等举报
+                    onLongPress: () => _showChannelMessageReport(message, t),
                     onPinned: (pinned) {
                       ref
                           .read(channelDetailProvider.notifier)
@@ -251,6 +255,61 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
           ),
       ],
     );
+  }
+
+  /// R-01 频道消息举报：target_type='message'（chat_type=channel），
+  /// scope=频道 ID，服务端核验订阅/公开可见性；频道消息非 E2EE，
+  /// 文本摘录直接随工单提交。
+  void _showChannelMessageReport(ChannelMessageModel message, Translations t) {
+    GroupDialogs.actionSheet(
+      context,
+      title: t.complaint.complaint,
+      actions: [
+        (
+          label: t.complaintReason.spam,
+          destructive: false,
+          onPressed: () => _submitChannelMessageReport(message, 'spam'),
+        ),
+        (
+          label: t.complaintReason.harassment,
+          destructive: false,
+          onPressed: () => _submitChannelMessageReport(message, 'harassment'),
+        ),
+        (
+          label: t.complaintReason.inappropriate,
+          destructive: false,
+          onPressed: () =>
+              _submitChannelMessageReport(message, 'inappropriate'),
+        ),
+        (
+          label: t.complaintReason.other,
+          destructive: false,
+          onPressed: () => _submitChannelMessageReport(message, 'other'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _submitChannelMessageReport(
+    ChannelMessageModel message,
+    String reason,
+  ) async {
+    final t = context.t;
+    final ok = await ReportApi().createMessage(
+      chatType: 'channel',
+      targetId: message.id.toString(),
+      scopeId: widget.channelId,
+      reason: reason,
+      excerpt: message.content.trim(),
+      clientMsgId: message.id.toString(),
+      msgType: message.msgType,
+      sentAt: message.createdAt.millisecondsSinceEpoch,
+    );
+    if (ok) {
+      AppLoading.showSuccess(t.common.complaintSuccess);
+    } else {
+      AppLoading.showError(t.common.complaintFailed);
+    }
   }
 
   Widget _buildErrorView(BuildContext context, String error, Translations t) {

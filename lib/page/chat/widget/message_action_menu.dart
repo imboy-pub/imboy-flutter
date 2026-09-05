@@ -42,6 +42,8 @@ class MessageActionMenu extends StatefulWidget {
     this.onRetry, // 新增：重试功能
     this.onClose,
     this.canEdit = false,
+    this.reportChatType = 'c2c',
+    this.reportScopeId = '',
   });
 
   final Message message;
@@ -59,6 +61,12 @@ class MessageActionMenu extends StatefulWidget {
   final VoidCallback? onRetry; // 新增：重试功能
   final VoidCallback? onClose;
   final bool canEdit;
+
+  /// R-01 消息举报上下文：消息表面 'c2c'|'c2g'（由 ChatPage 传入）。
+  final String reportChatType;
+
+  /// R-01 消息举报上下文：c2c=对话对端 uid；c2g=群 ID。
+  final String reportScopeId;
 
   @override
   State<MessageActionMenu> createState() => _MessageActionMenuState();
@@ -428,9 +436,10 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
     );
   }
 
-  /// 举报此条消息：后端 report 仅支持 moment/group/channel/user 四类，
-  /// 无 message 类型，故举报对象为消息发送者（targetType='user'），
-  /// 并在 description 携带被举报消息 id 供审核定位。
+  /// 举报此条消息（R-01 一等消息举报）：target_type='message'，
+  /// 携带消息表面/scope/结构化证据；服务端核验消息存在性、举报人
+  /// 可见性与 scope 一致性。E2EE 消息必须经举报人明确同意后才提交
+  /// 明文摘录，拒绝时仅提交哈希与上下文元数据。
   void _showReportDialog(BuildContext context) {
     final t = context.t;
     GroupDialogs.actionSheet(
@@ -461,12 +470,94 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
     );
   }
 
+  /// 该消息是否为端到端加密（metadata.e2ee 信封存在即视为加密）。
+  bool get _isE2EE {
+    final v = widget.message.metadata?['e2ee'];
+    if (v == null) return false;
+    if (v is Map) return v.isNotEmpty;
+    if (v is String) return v.trim().isNotEmpty;
+    return false;
+  }
+
+  /// 提取最小明文摘录：仅文本类消息有摘录，非文本（图片/语音等）
+  /// 消息不提交内容。
+  String _messageExcerpt() {
+    final msg = widget.message;
+    if (msg is TextMessage) {
+      return msg.text.trim();
+    }
+    return '';
+  }
+
   Future<void> _submitReport(String reason) async {
-    final ok = await ReportApi().create(
-      targetType: 'user',
-      targetId: widget.message.authorId,
+    if (_isE2EE) {
+      await _confirmE2eeEvidence(reason);
+      return;
+    }
+    await _submitMessageReport(reason, excerpt: _messageExcerpt());
+  }
+
+  /// E2EE 同意门：举报人明确选择是否随工单披露明文摘录。
+  Future<void> _confirmE2eeEvidence(String reason) async {
+    final t = context.t;
+    await showCupertinoDialog<void>(
+      context: context,
+      builder: (BuildContext ctx) {
+        return CupertinoAlertDialog(
+          title: Text(t.complaint.e2eeConsentTitle),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(t.complaint.e2eeConsentBody),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                // 明确同意：提交最小明文摘录 + 同意标记
+                _submitMessageReport(
+                  reason,
+                  excerpt: _messageExcerpt(),
+                  consent: true,
+                );
+              },
+              child: Text(t.complaint.e2eeConsentSubmit),
+            ),
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                // 拒绝披露：仅举报（哈希/元数据），不携带明文
+                _submitMessageReport(reason, excerpt: '');
+              },
+              child: Text(t.complaint.e2eeConsentDecline),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: false,
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(t.common.buttonCancel),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _submitMessageReport(
+    String reason, {
+    required String excerpt,
+    bool consent = false,
+  }) async {
+    final t = context.t;
+    final meta = widget.message.metadata;
+    final ok = await ReportApi().createMessage(
+      chatType: widget.reportChatType,
+      targetId: widget.message.id,
+      scopeId: widget.reportScopeId,
       reason: reason,
-      description: 'message_id:${widget.message.id}',
+      excerpt: excerpt,
+      consent: consent,
+      clientMsgId: widget.message.id,
+      msgType: meta?['msg_type'] is String ? meta!['msg_type'] as String : '',
+      sentAt: widget.message.createdAt?.millisecondsSinceEpoch ?? 0,
     );
     if (ok) {
       AppLoading.showSuccess(t.common.complaintSuccess);
@@ -584,6 +675,8 @@ void showMessageActionMenu({
   VoidCallback? onDeleteForEveryone, // 新增：删除所有人的消息
   VoidCallback? onRetry, // 新增：重试回调
   bool canEdit = false,
+  String reportChatType = 'c2c',
+  String reportScopeId = '',
 }) {
   showCupertinoModalPopup<void>(
     context: context,
@@ -593,6 +686,8 @@ void showMessageActionMenu({
         child: MessageActionMenu(
           message: message,
           isSentByMe: isSentByMe,
+          reportChatType: reportChatType,
+          reportScopeId: reportScopeId,
           onReply: onReply,
           onCopy: onCopy,
           onEdit: onEdit,
