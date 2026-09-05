@@ -189,6 +189,11 @@ flutter test integration_test/i18n_rtl_walkthrough_test.dart -d XWE6R19916004085
   （i18n 惯例）、设计系统内部标签、内部诊断异常 message、语言选择页自身。
   strict 门 PASS、UI Gate+RTL 55/55（9d2bad3d）。日志/迁移描述类 1800+ 处
   按团队惯例保留，不入 i18n 范围。
+- **全量 flutter test 终验（收口）**：+6107 通过 / ~240 跳过 / -7 失败；7 个失败
+  全部为 loading 失败（非断言失败），归属并行工作流：2 个伪装 .dart 的历史
+  日志文件 + 5 个 file_picker 升级 WIP 测试桩（invalid_override）。
+  i18n 改动涉及功能域测试全绿——19+ 笔提交的回归安全性与 push 就绪度
+  以全量套件为金标准证据。
 
 ### 6.6.1 macOS 桌面过渡走查（2026-09-05，用户批准的过渡证据）
 
