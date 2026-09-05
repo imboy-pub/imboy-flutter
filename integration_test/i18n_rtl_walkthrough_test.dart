@@ -85,6 +85,25 @@ void main() {
     expect(deDir, TextDirection.ltr, reason: 'de-DE 应为 LTR');
     await takeScreenshot(tester, 'i18n_03_de_shell');
 
+    // 检查点 4-8：其余待审语言（长文案 fr/it/ru + 复数 ru + han/latin ja/ko），
+    // 全部应为 LTR；串行逐语言执行（settle/断言/截图一一对应）
+    final more = <String, String>{
+      'fr-FR': 'i18n_04_fr_shell',
+      'it-IT': 'i18n_05_it_shell',
+      'ru-RU': 'i18n_06_ru_shell',
+      'ja-JP': 'i18n_07_ja_shell',
+      'ko-KR': 'i18n_08_ko_shell',
+    };
+    for (final entry in more.entries) {
+      LocaleSettings.setLocaleRaw(entry.key);
+      await settle(tester, maxSeconds: 8);
+      final dir = Directionality.of(
+        tester.element(find.byType(Scaffold).first),
+      );
+      expect(dir, TextDirection.ltr, reason: '${entry.key} 应为 LTR');
+      await takeScreenshot(tester, entry.value);
+    }
+
     // 恢复基线语言，不在设备残留 ar 态（app 若持久化语言，避免影响后续使用）
     LocaleSettings.setLocale(baseline);
     await settle(tester, maxSeconds: 5);
