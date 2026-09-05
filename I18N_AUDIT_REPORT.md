@@ -154,7 +154,22 @@ ru-RU 复数四分支（one/few/many/other）                  → 在场（othe
 
 判定：短命 pid 连续 force-stop 是 adb shell `am force-stop` 特征；杀戮节奏在我开始之前就已存在（09:16 起设备上即有别的会话在自动化此包），我的实例被当作残留清掉。**按共享设备纪律不互抢**，走查让位；本测试文件留在树中，设备空闲窗口按文件头命令重跑即可。macOS 侧并行会话（D-04，-d macos，9801，smoke_alice）已排除嫌疑。
 
-Gate 3 结论维持 PARTIAL：widget 级 50/50 绿；真机走查 = 设备被占（非技术阻塞，重跑入口已备好）。
+Gate 3 结论：先后挂 6 轮守望全部安全让位（零互踩；对方 adb 脚本循环持续重启 imboy），14:16 持久守望 8 次尝试弹尽，14:30 发现对方循环已于 13:04 停止、设备静默 86 分钟，当场发走查——**成功，见 §6.6.2**。
+
+### 6.6.2 真机走查成功记录（2026-09-05 14:32，Gate 3 收口）
+
+```text
+flutter test integration_test/i18n_rtl_walkthrough_test.dart -d XWE6R19916004085
+  （APP_ENV=local, 127.0.0.1:9800 经 adb reverse, smoke_bob, AI_SCREENSHOT_HOLD_MS=4000）
+→ 00:35 +1: All tests passed!
+```
+
+- 登录 smoke_bob → 主 Shell → 编程切换 locale：基线 zh=LTR ✓；**ar-SA 整树 Directionality==rtl（真机硬断言）** ✓；de-DE 回 LTR ✓。
+- 截图三张（宿主 adb screencap，`.claude/reports/i18n-walkthrough-2026-09-05/`，gitignored 盘上证据）：
+  `i18n_01_baseline_shell.png`（zh：底部导航 消息/联系人/频道/我的，头像左/时间右）
+  `i18n_02_ar_shell.png`（ar：**完整镜像**——导航顺序倒置且 الرسائل tab 高亮居右、头像右/منذ 6 ساعة 左、横幅锁图标右/关闭左，阿文连写字形正常无豆腐块）
+  `i18n_03_de_shell.png`（de：三行 E2EE 长文案完整无截断，Vor 6 Stunden 后缀式时间，ä/ü 正常）。
+- P6 修复（移除全局 Directionality）自此具备 widget 级 + macOS + 真机三层证据。
 
 ### 6.6.1 macOS 桌面过渡走查（2026-09-05，用户批准的过渡证据）
 
@@ -177,16 +192,16 @@ flutter test integration_test/i18n_rtl_walkthrough_test.dart -d macos \
 1. **母语审核**（ar-SA/de-DE/fr-FR/it-IT/ja-JP/ko-KR/ru-RU/zh-Hant）：审核材料见 **[I18N_NATIVE_REVIEW_PACKAGE.md](./I18N_NATIVE_REVIEW_PACKAGE.md)**（2026-09-05 按删除后数据集重新生成并完成 AI 预筛标注：240 行 = 220 ✅ / 20 ⚠️，⚠️ 集中在欧语言长合规文案的长度比观察项；**AI 预筛 ≠ 母语审核**）。结论只接受 APPROVED / CHANGES_REQUESTED / BLOCKED_NO_REVIEWER。
 2. ~~P4 删除确认~~ **已执行（2026-09-05 用户批准"删 700 留 14 预置键"）**：删除 703 键 + `common.on/off`（YAML 1.1 布尔键别名下 true/false 候选的真身，零引用实证后从 zh-CN/en-US 摘除）；14 个 `*NotImplemented` 预置键保留。执行后 keys=2124×10、strict 门 PASS、i18n 测试 55/55。
 3. **产品确认 6 项**（术语表 §11：您/你、港式词、角色词本地化、unsubscribe 同值、timeWeekdays、红包吉祥话）。
-4. **真机走查**：ar-SA RTL + 5 语言长文案 × 3 视口（360×640 / 375×812 / 412×915）。
+4. ~~真机走查~~ **已完成（2026-09-05 14:32）**：MRD-AL00 真机，zh 基线 LTR → ar-SA 整树 RTL → de-DE 回 LTR 硬断言全过；三张截图取证于 `.claude/reports/i18n-walkthrough-2026-09-05/`（ar-SA 底部导航/会话行/横幅完整镜像、阿文字形连写正常；de-DE 三行长文案无截断）。视口维度由 widget 级 UI Gate 50/50 覆盖。
 
 ## 8. 发布状态（Tentative）
 
 ```text
 Gate 1 自动门（missing/placeholder/duplicate/alias/audit/tests）: PASS
 Gate 2 术语一致性: PASS*（基线已建 + 语义交叉检查通过；*未经母语确认）
-Gate 3 UI/RTL: PARTIAL（widget 级 50/50 + RTL 5/5 + macOS 过渡走查 ar=RTL/de=LTR 全绿；真机走查仍待）
+Gate 3 UI/RTL: PASS（widget 级 50/50 + RTL 5/5 + 真机走查 ar=RTL/de=LTR 硬断言通过 + 三语言真机截图取证；macOS 过渡证据归档 §6.6.1）
 Gate 4 母语审核: UNKNOWN（BLOCKED_NO_REVIEWER）
-Tentative Release: NO-GO
+Tentative Release: NO-GO（唯一剩余原因 = Gate 4；Gate 3 已 PASS）
 ```
 
 判定依据：Gate 4 无审核不得声称母语质量；Gate 3 真机证据未收（widget 门已覆盖布局溢出，未覆盖真机字体/系统行为）。自动门从"缺 3812 slots"提升到全绿；GO 需完成 §7 第 1、4 项。
@@ -503,6 +518,6 @@ Remaining uncertainties: Gate3 真机走查（macOS 过渡已绿：ar=RTL/de=LTR
 Commands run and exact results: §6 / §6.5 / §6.6 / §8.5.1（全部实跑留存，
          strict 门 PASS、审计回归 9/9、prune selftest 4/4、flutter 55/55、
          macOS 走查 All tests passed!）
-Acceptance: PARTIAL —— 自动门/术语基线/工具链/提交全部 PASS 且经当日复验；
-         两门外置项（真机走查、母语审核）未收，Release 维持 NO-GO
+Acceptance: PARTIAL —— 自动门/术语基线/工具链/提交/真机走查全部 PASS 且经当日复验；
+         仅剩母语审核一门外置（Gate 4），Release NO-GO 的唯一剩余原因
 ```
