@@ -47,6 +47,9 @@ class ChannelMessageItem extends ConsumerStatefulWidget {
   final ValueChanged<bool>? onPinned;
   final VoidCallback? onDeleted;
 
+  /// R-01 频道消息举报入口：长按消息触发（由 feed 层注入）。
+  final VoidCallback? onLongPress;
+
   const ChannelMessageItem({
     super.key,
     required this.message,
@@ -55,6 +58,7 @@ class ChannelMessageItem extends ConsumerStatefulWidget {
     this.onReactionChanged,
     this.onPinned,
     this.onDeleted,
+    this.onLongPress,
   });
 
   @override
@@ -295,6 +299,8 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               );
             },
       onDoubleTap: _onDoubleTap,
+      // R-01 频道消息举报入口（长按）
+      onLongPress: widget.onLongPress,
       child: Stack(
         children: [
           Container(
