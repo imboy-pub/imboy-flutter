@@ -631,6 +631,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => 'Recréation de la clé...';
 	@override String get e2eeKeyRecreated => 'Clé recréée';
 	@override String get e2eeRecoveryNewDeviceTitle => 'Nouvel appareil détecté';
+	@override String get e2eeRecoveryNewDeviceBody => 'Pour protéger vos messages, une nouvelle clé de chiffrement de bout en bout a été générée sur cet appareil.\nLes anciens messages ont été chiffrés avec la clé de l\'ancien appareil et ne seront visibles qu\'après restauration de la clé. Vous pouvez la restaurer via « Importer une sauvegarde locale ».';
 	@override String get e2eeRecoveryDecryptFailedTitle => 'Message indéchiffrable';
 	@override String get e2eeRecoveryDecryptFailedBody => 'Ce message est chiffré avec la clé d\'un autre appareil.\n\nSi vous avez changé d\'appareil ou réinstallé l\'app, restaurez la clé pour lire les anciens messages.';
 	@override String get e2eeRecoveryLater => 'Plus tard';
@@ -2992,6 +2993,7 @@ extension on TranslationsFrFr {
 			'chat.e2eeRecreatingKey' => 'Recréation de la clé...',
 			'chat.e2eeKeyRecreated' => 'Clé recréée',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Nouvel appareil détecté',
+			'chat.e2eeRecoveryNewDeviceBody' => 'Pour protéger vos messages, une nouvelle clé de chiffrement de bout en bout a été générée sur cet appareil.\nLes anciens messages ont été chiffrés avec la clé de l\'ancien appareil et ne seront visibles qu\'après restauration de la clé. Vous pouvez la restaurer via « Importer une sauvegarde locale ».',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Message indéchiffrable',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Ce message est chiffré avec la clé d\'un autre appareil.\n\nSi vous avez changé d\'appareil ou réinstallé l\'app, restaurez la clé pour lire les anciens messages.',
 			'chat.e2eeRecoveryLater' => 'Plus tard',
@@ -3497,9 +3499,9 @@ extension on TranslationsFrFr {
 			'common.messageIdCannotBeEmpty' => 'L\'ID du message est vide. Impossible d\'effectuer l\'opération.',
 			'common.startRevokeMessageFlow' => 'Démarrage du flux de révocation de message.',
 			'common.revokeMessageTracking' => 'Suivi de la révocation de message.',
-			'common.useNewActionMechanism' => 'Utilisation du nouveau mécanisme d\'action.',
 			_ => null,
 		} ?? switch (path) {
+			'common.useNewActionMechanism' => 'Utilisation du nouveau mécanisme d\'action.',
 			'common.revokeMessageSendResult' => 'Résultat de l\'envoi du message de révocation.',
 			'common.revokeRequestSendComplete' => 'Demande de révocation envoyée.',
 			'common.revokeFailed' => 'Échec de la révocation.',
@@ -4011,9 +4013,9 @@ extension on TranslationsFrFr {
 			'group.groupAlbumRenameTitle' => 'Renommer l\'album',
 			'group.groupAlbumRenamed' => 'Album renommé',
 			'group.groupAlbumUnnamed' => 'Album sans nom',
-			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} images',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} images',
 			'group.groupAlbumPhotoIdMissing' => 'ID d\'image manquant, détails indisponibles',
 			'group.groupAlbumPhotoListTitle' => 'Images de l\'album',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count} sélectionnés',
@@ -4525,9 +4527,9 @@ extension on TranslationsFrFr {
 			'workspace.taskSubmitCreate' => 'Créer la tâche',
 			'workspace.taskSubmitSave' => 'Enregistrer',
 			'workspace.taskCreatedToast' => 'Tâche créée',
-			'workspace.taskExistingToast' => 'Une tâche du même titre existe déjà, la tâche existante est utilisée directement',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskExistingToast' => 'Une tâche du même titre existe déjà, la tâche existante est utilisée directement',
 			'workspace.taskUpdatedToast' => 'Tâche enregistrée',
 			'workspace.taskFilterAll' => 'Tout',
 			'workspace.taskStatusTodo' => 'À faire',

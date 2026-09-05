@@ -34,40 +34,40 @@ Future<void> showE2EERecoveryGuide(
   BuildContext context, {
   required E2EERecoveryScene scene,
 }) {
-  final (String title, String content) = switch (scene) {
-    E2EERecoveryScene.newDevice => (
-      t.chat.e2eeRecoveryNewDeviceTitle,
-      // 社交恢复/设备间传输已下线（commit deda4751），此处使用内联文案
-      // 仅引导用户通过本地备份恢复密钥。
-      '为保护消息安全，本设备已生成新的端到端加密密钥。\n\n'
-          '历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。'
-          '你可以通过「本地备份导入」恢复。',
-    ),
-    E2EERecoveryScene.decryptFailed => (
-      t.chat.e2eeRecoveryDecryptFailedTitle,
-      t.chat.e2eeRecoveryDecryptFailedBody,
-    ),
-  };
-
   return showDialog<void>(
     context: context,
-    builder: (ctx) => CupertinoAlertDialog(
-      title: Text(title),
-      content: Text(content),
-      actions: [
-        CupertinoButton(
-          onPressed: () => Navigator.of(ctx).pop(),
-          child: Text(t.chat.e2eeRecoveryLater),
+    builder: (ctx) {
+      // 文案在 builder 内求值：跟随 locale 变化（此前在 showDialog 前求值，
+      // 语言切换瞬间会弹窗残留旧语言文本）；正文曾为硬编码中文内联串
+      // （commit deda4751），已回归 t 键 e2eeRecoveryNewDeviceBody。
+      final (String title, String content) = switch (scene) {
+        E2EERecoveryScene.newDevice => (
+          t.chat.e2eeRecoveryNewDeviceTitle,
+          t.chat.e2eeRecoveryNewDeviceBody,
         ),
-        CupertinoButton(
-          onPressed: () {
-            Navigator.of(ctx).pop();
-            ctx.push('/e2ee_key_recovery');
-          },
-          child: Text(t.chat.e2eeRecoveryGoRecover),
+        E2EERecoveryScene.decryptFailed => (
+          t.chat.e2eeRecoveryDecryptFailedTitle,
+          t.chat.e2eeRecoveryDecryptFailedBody,
         ),
-      ],
-    ),
+      };
+      return CupertinoAlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          CupertinoButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(t.chat.e2eeRecoveryLater),
+          ),
+          CupertinoButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              ctx.push('/e2ee_key_recovery');
+            },
+            child: Text(t.chat.e2eeRecoveryGoRecover),
+          ),
+        ],
+      );
+    },
   );
 }
 

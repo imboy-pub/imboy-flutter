@@ -178,6 +178,9 @@ e2eeProxyNeedAtLeast(count): Please select at least $count proxies
 e2eeRecreatingKey: Recreating key...
 e2eeKeyRecreated: Key recreated successfully
 e2eeRecoveryNewDeviceTitle: New device detected
+e2eeRecoveryNewDeviceBody: "To protect your messages, a new end-to-end encryption key was generated on this device.
+
+Historical messages were encrypted with the key from your old device and can only be viewed after restoring the key. You can restore it via \"Import local backup\"."
 e2eeRecoveryDecryptFailedTitle: Cannot decrypt this message
 e2eeRecoveryDecryptFailedBody: "This message was encrypted with another device's key.\n\nIf you switched devices or reinstalled the app, recover your encryption key to view history messages."
 e2eeRecoveryLater: Later

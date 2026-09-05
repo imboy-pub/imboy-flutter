@@ -631,6 +631,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => '키를 다시 만드는 중...';
 	@override String get e2eeKeyRecreated => '키가 다시 만들어졌습니다';
 	@override String get e2eeRecoveryNewDeviceTitle => '새 기기 로그인 감지';
+	@override String get e2eeRecoveryNewDeviceBody => '메시지를 보호하기 위해 이 기기에서 새로운 종단간 암호화 키를 생성했습니다.\n이전 메시지는 이전 기기의 키로 암호화되어 있어 키를 복원해야 볼 수 있습니다. "로컬 백업 가져오기"를 통해 복원할 수 있습니다.';
 	@override String get e2eeRecoveryDecryptFailedTitle => '이 메시지를 복호화할 수 없습니다';
 	@override String get e2eeRecoveryDecryptFailedBody => '이 메시지는 다른 기기의 키로 암호화되었습니다.\n\n기기를 교체했거나 앱을 다시 설치했다면, 암호화 키를 복구한 후 이전 메시지를 확인하세요.';
 	@override String get e2eeRecoveryLater => '나중에';
@@ -2989,6 +2990,7 @@ extension on TranslationsKoKr {
 			'chat.e2eeRecreatingKey' => '키를 다시 만드는 중...',
 			'chat.e2eeKeyRecreated' => '키가 다시 만들어졌습니다',
 			'chat.e2eeRecoveryNewDeviceTitle' => '새 기기 로그인 감지',
+			'chat.e2eeRecoveryNewDeviceBody' => '메시지를 보호하기 위해 이 기기에서 새로운 종단간 암호화 키를 생성했습니다.\n이전 메시지는 이전 기기의 키로 암호화되어 있어 키를 복원해야 볼 수 있습니다. "로컬 백업 가져오기"를 통해 복원할 수 있습니다.',
 			'chat.e2eeRecoveryDecryptFailedTitle' => '이 메시지를 복호화할 수 없습니다',
 			'chat.e2eeRecoveryDecryptFailedBody' => '이 메시지는 다른 기기의 키로 암호화되었습니다.\n\n기기를 교체했거나 앱을 다시 설치했다면, 암호화 키를 복구한 후 이전 메시지를 확인하세요.',
 			'chat.e2eeRecoveryLater' => '나중에',
@@ -3494,9 +3496,9 @@ extension on TranslationsKoKr {
 			'common.messageIdCannotBeEmpty' => '메시지 ID가 비어있어 작업을 수행할 수 없습니다',
 			'common.startRevokeMessageFlow' => '메시지 회수 흐름 시작',
 			'common.revokeMessageTracking' => '메시지 회수 추적',
-			'common.useNewActionMechanism' => '새 작업 메커니즘 사용',
 			_ => null,
 		} ?? switch (path) {
+			'common.useNewActionMechanism' => '새 작업 메커니즘 사용',
 			'common.revokeMessageSendResult' => '메시지 회수 전송 결과',
 			'common.revokeRequestSendComplete' => '회수 요청 전송 완료',
 			'common.revokeFailed' => '회수 실패',
@@ -4008,9 +4010,9 @@ extension on TranslationsKoKr {
 			'group.groupAlbumRenameTitle' => '앨범 이름 변경',
 			'group.groupAlbumRenamed' => '앨범 이름이 변경되었습니다',
 			'group.groupAlbumUnnamed' => '이름 없는 앨범',
-			'group.groupAlbumPhotoCount' => ({required Object count}) => '이미지 ${count}장',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '이미지 ${count}장',
 			'group.groupAlbumPhotoIdMissing' => '이미지 ID가 없어 상세정보를 볼 수 없습니다',
 			'group.groupAlbumPhotoListTitle' => '앨범 이미지',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count}개 선택됨',
@@ -4522,9 +4524,9 @@ extension on TranslationsKoKr {
 			'workspace.taskSubmitCreate' => '작업 만들기',
 			'workspace.taskSubmitSave' => '저장',
 			'workspace.taskCreatedToast' => '작업이 생성되었습니다',
-			'workspace.taskExistingToast' => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskExistingToast' => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다',
 			'workspace.taskUpdatedToast' => '작업이 저장되었습니다',
 			'workspace.taskFilterAll' => '전체',
 			'workspace.taskStatusTodo' => '할 일',

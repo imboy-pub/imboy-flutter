@@ -631,6 +631,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => 'Schlüssel wird neu erstellt...';
 	@override String get e2eeKeyRecreated => 'Schlüssel neu erstellt';
 	@override String get e2eeRecoveryNewDeviceTitle => 'Neue Gerätenutzung erkannt';
+	@override String get e2eeRecoveryNewDeviceBody => 'Zum Schutz deiner Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt.\nÄltere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Du kannst ihn über „Lokales Backup importieren“ wiederherstellen.';
 	@override String get e2eeRecoveryDecryptFailedTitle => 'Diese Nachricht kann nicht entschlüsselt werden';
 	@override String get e2eeRecoveryDecryptFailedBody => 'Diese Nachricht wurde mit dem Schlüssel eines anderen Geräts verschlüsselt.\n\nWenn Sie das Gerät gewechselt oder die App neu installiert haben, stellen Sie den Schlüssel wieder her, um ältere Nachrichten zu lesen.';
 	@override String get e2eeRecoveryLater => 'Später';
@@ -2992,6 +2993,7 @@ extension on TranslationsDeDe {
 			'chat.e2eeRecreatingKey' => 'Schlüssel wird neu erstellt...',
 			'chat.e2eeKeyRecreated' => 'Schlüssel neu erstellt',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Neue Gerätenutzung erkannt',
+			'chat.e2eeRecoveryNewDeviceBody' => 'Zum Schutz deiner Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt.\nÄltere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Du kannst ihn über „Lokales Backup importieren“ wiederherstellen.',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Diese Nachricht kann nicht entschlüsselt werden',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Diese Nachricht wurde mit dem Schlüssel eines anderen Geräts verschlüsselt.\n\nWenn Sie das Gerät gewechselt oder die App neu installiert haben, stellen Sie den Schlüssel wieder her, um ältere Nachrichten zu lesen.',
 			'chat.e2eeRecoveryLater' => 'Später',
@@ -3497,9 +3499,9 @@ extension on TranslationsDeDe {
 			'common.messageIdCannotBeEmpty' => 'Nachrichten-ID ist leer, Vorgang kann nicht durchgeführt werden',
 			'common.startRevokeMessageFlow' => 'Widerruf-Nachrichtenablauf starten',
 			'common.revokeMessageTracking' => 'Widerruf-Nachrichtenverfolgung',
-			'common.useNewActionMechanism' => 'Neuen Action-Mechanismus verwenden',
 			_ => null,
 		} ?? switch (path) {
+			'common.useNewActionMechanism' => 'Neuen Action-Mechanismus verwenden',
 			'common.revokeMessageSendResult' => 'Widerruf-Nachrichtensendergebnis',
 			'common.revokeRequestSendComplete' => 'Widerruf-Anfrage gesendet',
 			'common.revokeFailed' => 'Widerruf fehlgeschlagen',
@@ -4011,9 +4013,9 @@ extension on TranslationsDeDe {
 			'group.groupAlbumRenameTitle' => 'Album umbenennen',
 			'group.groupAlbumRenamed' => 'Album umbenannt',
 			'group.groupAlbumUnnamed' => 'Unbenanntes Album',
-			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} Bilder',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} Bilder',
 			'group.groupAlbumPhotoIdMissing' => 'Bild-ID fehlt, Details können nicht angezeigt werden',
 			'group.groupAlbumPhotoListTitle' => 'Albumbilder',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count} ausgewählt',
@@ -4525,9 +4527,9 @@ extension on TranslationsDeDe {
 			'workspace.taskSubmitCreate' => 'Aufgabe erstellen',
 			'workspace.taskSubmitSave' => 'Speichern',
 			'workspace.taskCreatedToast' => 'Aufgabe erstellt',
-			'workspace.taskExistingToast' => 'Aufgabe mit gleichem Titel existiert bereits, vorhandene Aufgabe wird verwendet',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskExistingToast' => 'Aufgabe mit gleichem Titel existiert bereits, vorhandene Aufgabe wird verwendet',
 			'workspace.taskUpdatedToast' => 'Aufgabe gespeichert',
 			'workspace.taskFilterAll' => 'Alle',
 			'workspace.taskStatusTodo' => 'Offen',

@@ -179,6 +179,9 @@ e2eeProxyNeedAtLeast(count): Almeno $count garanti
 e2eeRecreatingKey: Ricreazione chiave...
 e2eeKeyRecreated: Chiave ricreata
 e2eeRecoveryNewDeviceTitle: Nuovo dispositivo rilevato
+e2eeRecoveryNewDeviceBody: "Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave di crittografia end-to-end.
+
+I messaggi precedenti sono stati crittografati con la chiave del vecchio dispositivo e saranno visibili solo dopo il ripristino della chiave. Puoi ripristinarla tramite \"Importa backup locale\"."
 e2eeRecoveryDecryptFailedTitle: Messaggio indecifrabile
 e2eeRecoveryDecryptFailedBody: |-
   Questo messaggio è cifrato con la chiave di un altro dispositivo.

@@ -179,6 +179,9 @@ e2eeProxyNeedAtLeast(count): اختر $count وكلاء على الأقل
 e2eeRecreatingKey: جارٍ إعادة إنشاء المفتاح...
 e2eeKeyRecreated: تمت إعادة إنشاء المفتاح
 e2eeRecoveryNewDeviceTitle: تم رصد دخول من جهاز جديد
+e2eeRecoveryNewDeviceBody: "لحماية رسائلك، تم إنشاء مفتاح تشفير جديد من طرف إلى طرف على هذا الجهاز.
+
+الرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ولا يمكن عرضها إلا بعد استعادة المفتاح. يمكنك الاستعادة عبر \"استيراد نسخة احتياطية محلية\"."
 e2eeRecoveryDecryptFailedTitle: تعذّر فك تشفير هذه الرسالة
 e2eeRecoveryDecryptFailedBody: |-
   هذه الرسالة مشفّرة بمفتاح جهاز آخر.

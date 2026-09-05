@@ -631,6 +631,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => 'جارٍ إعادة إنشاء المفتاح...';
 	@override String get e2eeKeyRecreated => 'تمت إعادة إنشاء المفتاح';
 	@override String get e2eeRecoveryNewDeviceTitle => 'تم رصد دخول من جهاز جديد';
+	@override String get e2eeRecoveryNewDeviceBody => 'لحماية رسائلك، تم إنشاء مفتاح تشفير جديد من طرف إلى طرف على هذا الجهاز.\nالرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ولا يمكن عرضها إلا بعد استعادة المفتاح. يمكنك الاستعادة عبر "استيراد نسخة احتياطية محلية".';
 	@override String get e2eeRecoveryDecryptFailedTitle => 'تعذّر فك تشفير هذه الرسالة';
 	@override String get e2eeRecoveryDecryptFailedBody => 'هذه الرسالة مشفّرة بمفتاح جهاز آخر.\n\nإذا غيّرت الجهاز أو أعدت تثبيت التطبيق، فاستعد مفتاح التشفير لعرض الرسائل السابقة.';
 	@override String get e2eeRecoveryLater => 'لاحقاً';
@@ -2989,6 +2990,7 @@ extension on TranslationsArSa {
 			'chat.e2eeRecreatingKey' => 'جارٍ إعادة إنشاء المفتاح...',
 			'chat.e2eeKeyRecreated' => 'تمت إعادة إنشاء المفتاح',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'تم رصد دخول من جهاز جديد',
+			'chat.e2eeRecoveryNewDeviceBody' => 'لحماية رسائلك، تم إنشاء مفتاح تشفير جديد من طرف إلى طرف على هذا الجهاز.\nالرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ولا يمكن عرضها إلا بعد استعادة المفتاح. يمكنك الاستعادة عبر "استيراد نسخة احتياطية محلية".',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'تعذّر فك تشفير هذه الرسالة',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'هذه الرسالة مشفّرة بمفتاح جهاز آخر.\n\nإذا غيّرت الجهاز أو أعدت تثبيت التطبيق، فاستعد مفتاح التشفير لعرض الرسائل السابقة.',
 			'chat.e2eeRecoveryLater' => 'لاحقاً',
@@ -3494,9 +3496,9 @@ extension on TranslationsArSa {
 			'common.messageIdCannotBeEmpty' => 'معرف الرسالة فارغ، لا يمكن العمل',
 			'common.startRevokeMessageFlow' => 'بدء عملية سحب الرسالة',
 			'common.revokeMessageTracking' => 'تتبع سحب الرسالة',
-			'common.useNewActionMechanism' => 'استخدام آلية action الجديدة',
 			_ => null,
 		} ?? switch (path) {
+			'common.useNewActionMechanism' => 'استخدام آلية action الجديدة',
 			'common.revokeMessageSendResult' => 'نتيجة إرسال سحب الرسالة',
 			'common.revokeRequestSendComplete' => 'تم إرسال طلب السحب',
 			'common.revokeFailed' => 'فشل السحب',
@@ -4008,9 +4010,9 @@ extension on TranslationsArSa {
 			'group.groupAlbumRenameTitle' => 'إعادة تسمية الألبوم',
 			'group.groupAlbumRenamed' => 'تمت إعادة تسمية الألبوم',
 			'group.groupAlbumUnnamed' => 'ألبوم بدون اسم',
-			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} صورة',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} صورة',
 			'group.groupAlbumPhotoIdMissing' => 'معرّف الصورة مفقود، لا يمكن عرض التفاصيل',
 			'group.groupAlbumPhotoListTitle' => 'صور الألبوم',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => 'محدد: ${count}',
@@ -4522,9 +4524,9 @@ extension on TranslationsArSa {
 			'workspace.taskSubmitCreate' => 'إنشاء المهمة',
 			'workspace.taskSubmitSave' => 'حفظ',
 			'workspace.taskCreatedToast' => 'تم إنشاء المهمة',
-			'workspace.taskExistingToast' => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskExistingToast' => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة',
 			'workspace.taskUpdatedToast' => 'تم حفظ المهمة',
 			'workspace.taskFilterAll' => 'الكل',
 			'workspace.taskStatusTodo' => 'قيد الانتظار',

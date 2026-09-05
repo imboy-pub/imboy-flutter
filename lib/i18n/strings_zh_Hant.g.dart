@@ -638,6 +638,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => '正在重新建立金鑰...';
 	@override String get e2eeKeyRecreated => '金鑰已重新建立';
 	@override String get e2eeRecoveryNewDeviceTitle => '檢測到新裝置登入';
+	@override String get e2eeRecoveryNewDeviceBody => '為保護訊息安全，本裝置已產生新的端對端加密金鑰。\n歷史訊息使用舊裝置的金鑰加密，需先恢復金鑰才能查看。你可以透過「本機備份匯入」恢復。';
 	@override String get e2eeRecoveryDecryptFailedTitle => '無法解密此訊息';
 	@override String get e2eeRecoveryDecryptFailedBody => '此訊息由其他裝置的金鑰加密。\n\n若你更換了裝置或重新安裝了應用，請恢復加密金鑰後再檢視歷史訊息。';
 	@override String get e2eeRecoveryLater => '稍後';
@@ -2996,6 +2997,7 @@ extension on TranslationsZhHant {
 			'chat.e2eeRecreatingKey' => '正在重新建立金鑰...',
 			'chat.e2eeKeyRecreated' => '金鑰已重新建立',
 			'chat.e2eeRecoveryNewDeviceTitle' => '檢測到新裝置登入',
+			'chat.e2eeRecoveryNewDeviceBody' => '為保護訊息安全，本裝置已產生新的端對端加密金鑰。\n歷史訊息使用舊裝置的金鑰加密，需先恢復金鑰才能查看。你可以透過「本機備份匯入」恢復。',
 			'chat.e2eeRecoveryDecryptFailedTitle' => '無法解密此訊息',
 			'chat.e2eeRecoveryDecryptFailedBody' => '此訊息由其他裝置的金鑰加密。\n\n若你更換了裝置或重新安裝了應用，請恢復加密金鑰後再檢視歷史訊息。',
 			'chat.e2eeRecoveryLater' => '稍後',
@@ -3494,9 +3496,9 @@ extension on TranslationsZhHant {
 			'common.revoking' => '正在收回...',
 			'common.editing' => '正在編輯...',
 			'common.messageIdCannotBeEmpty' => '訊息 ID 為空，無法操作',
-			'common.startRevokeMessageFlow' => '開始撤回訊息流程',
 			_ => null,
 		} ?? switch (path) {
+			'common.startRevokeMessageFlow' => '開始撤回訊息流程',
 			'common.revokeMessageTracking' => '撤回訊息追蹤',
 			'common.useNewActionMechanism' => '使用新的 action 機制',
 			'common.revokeMessageSendResult' => '撤回訊息傳送結果',
@@ -4008,9 +4010,9 @@ extension on TranslationsZhHant {
 			'group.groupCreated' => '群組已建立',
 			'group.groupCreatedSuccess' => '群組建立成功，邀請你完善群組資訊或直接進入群組',
 			'group.enterGroupChat' => '進入群組',
-			'group.perfectionGroupInfo' => '完善群組資訊',
 			_ => null,
 		} ?? switch (path) {
+			'group.perfectionGroupInfo' => '完善群組資訊',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => '選擇群組',
 			'group.sureToDissolveGroup' => '確定要解散本群組嗎？',
@@ -4522,9 +4524,9 @@ extension on TranslationsZhHant {
 			'workspace.taskSubmitCreate' => '建立任務',
 			'workspace.taskSubmitSave' => '儲存',
 			'workspace.taskCreatedToast' => '任務已建立',
-			'workspace.taskExistingToast' => '相同標題的任務已存在，直接使用既有任務',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskExistingToast' => '相同標題的任務已存在，直接使用既有任務',
 			'workspace.taskUpdatedToast' => '任務已儲存',
 			'workspace.taskFilterAll' => '所有',
 			'workspace.taskStatusTodo' => '待辦',

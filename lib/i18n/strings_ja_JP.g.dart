@@ -631,6 +631,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => 'キーを再作成中...';
 	@override String get e2eeKeyRecreated => 'キーを再作成しました';
 	@override String get e2eeRecoveryNewDeviceTitle => '新しいデバイスのログインを検出しました';
+	@override String get e2eeRecoveryNewDeviceBody => 'メッセージを保護するため、このデバイスで新しいエンドツーエンド暗号化キーを生成しました。\n過去のメッセージは旧デバイスのキーで暗号化されているため、キーを復元しないと表示できません。「ローカルバックアップのインポート」から復元できます。';
 	@override String get e2eeRecoveryDecryptFailedTitle => 'このメッセージを復号できません';
 	@override String get e2eeRecoveryDecryptFailedBody => 'このメッセージは別のデバイスのキーで暗号化されています。\n\nデバイスを変更したりアプリを再インストールした場合は、暗号キーを復元してから過去のメッセージを閲覧してください。';
 	@override String get e2eeRecoveryLater => '後で';
@@ -2989,6 +2990,7 @@ extension on TranslationsJaJp {
 			'chat.e2eeRecreatingKey' => 'キーを再作成中...',
 			'chat.e2eeKeyRecreated' => 'キーを再作成しました',
 			'chat.e2eeRecoveryNewDeviceTitle' => '新しいデバイスのログインを検出しました',
+			'chat.e2eeRecoveryNewDeviceBody' => 'メッセージを保護するため、このデバイスで新しいエンドツーエンド暗号化キーを生成しました。\n過去のメッセージは旧デバイスのキーで暗号化されているため、キーを復元しないと表示できません。「ローカルバックアップのインポート」から復元できます。',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'このメッセージを復号できません',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'このメッセージは別のデバイスのキーで暗号化されています。\n\nデバイスを変更したりアプリを再インストールした場合は、暗号キーを復元してから過去のメッセージを閲覧してください。',
 			'chat.e2eeRecoveryLater' => '後で',
@@ -3494,9 +3496,9 @@ extension on TranslationsJaJp {
 			'common.messageIdCannotBeEmpty' => 'メッセージIDが空です。操作を実行できません',
 			'common.startRevokeMessageFlow' => 'メッセージ取り消しフローを開始',
 			'common.revokeMessageTracking' => 'メッセージ取り消し追跡',
-			'common.useNewActionMechanism' => '新しいアクションメカニズムを使用',
 			_ => null,
 		} ?? switch (path) {
+			'common.useNewActionMechanism' => '新しいアクションメカニズムを使用',
 			'common.revokeMessageSendResult' => 'メッセージ取り消し送信結果',
 			'common.revokeRequestSendComplete' => '取り消しリクエスト送信完了',
 			'common.revokeFailed' => '取り消しに失敗しました',
@@ -4008,9 +4010,9 @@ extension on TranslationsJaJp {
 			'group.groupAlbumRenameTitle' => 'アルバムの名前を変更',
 			'group.groupAlbumRenamed' => 'アルバム名を変更しました',
 			'group.groupAlbumUnnamed' => '無題のアルバム',
-			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 枚の画像',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 枚の画像',
 			'group.groupAlbumPhotoIdMissing' => '画像IDがありません。詳細を表示できません',
 			'group.groupAlbumPhotoListTitle' => 'アルバムの画像',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count} 件選択中',
@@ -4522,9 +4524,9 @@ extension on TranslationsJaJp {
 			'workspace.taskSubmitCreate' => 'タスクを作成',
 			'workspace.taskSubmitSave' => '保存する',
 			'workspace.taskCreatedToast' => 'タスクを作成しました',
-			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
 			'workspace.taskUpdatedToast' => 'タスクを保存しました',
 			'workspace.taskFilterAll' => 'すべて',
 			'workspace.taskStatusTodo' => 'TODO',

@@ -631,6 +631,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => 'Recreating key...';
 	@override String get e2eeKeyRecreated => 'Key recreated successfully';
 	@override String get e2eeRecoveryNewDeviceTitle => 'New device detected';
+	@override String get e2eeRecoveryNewDeviceBody => 'To protect your messages, a new end-to-end encryption key was generated on this device.\nHistorical messages were encrypted with the key from your old device and can only be viewed after restoring the key. You can restore it via "Import local backup".';
 	@override String get e2eeRecoveryDecryptFailedTitle => 'Cannot decrypt this message';
 	@override String get e2eeRecoveryDecryptFailedBody => 'This message was encrypted with another device\'s key.\n\nIf you switched devices or reinstalled the app, recover your encryption key to view history messages.';
 	@override String get e2eeRecoveryLater => 'Later';
@@ -2992,6 +2993,7 @@ extension on TranslationsEnUs {
 			'chat.e2eeRecreatingKey' => 'Recreating key...',
 			'chat.e2eeKeyRecreated' => 'Key recreated successfully',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'New device detected',
+			'chat.e2eeRecoveryNewDeviceBody' => 'To protect your messages, a new end-to-end encryption key was generated on this device.\nHistorical messages were encrypted with the key from your old device and can only be viewed after restoring the key. You can restore it via "Import local backup".',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Cannot decrypt this message',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'This message was encrypted with another device\'s key.\n\nIf you switched devices or reinstalled the app, recover your encryption key to view history messages.',
 			'chat.e2eeRecoveryLater' => 'Later',
@@ -3497,9 +3499,9 @@ extension on TranslationsEnUs {
 			'common.useNewActionMechanism' => 'Processing',
 			'common.revokeMessageSendResult' => 'Recall result',
 			'common.revokeRequestSendComplete' => 'Recall request sent',
-			'common.revokeFailed' => 'Revoke failed',
 			_ => null,
 		} ?? switch (path) {
+			'common.revokeFailed' => 'Revoke failed',
 			'common.revokeMessageException' => 'Recall error',
 			'common.revokeOperationAbnormal' => 'Recall operation failed',
 			'common.startEditMessageFlow' => 'Editing message',
@@ -4011,9 +4013,9 @@ extension on TranslationsEnUs {
 			'group.groupCreated' => 'Group created',
 			'group.groupCreatedSuccess' => 'Group created successfully! Invite members or enter the group now',
 			'group.enterGroupChat' => 'Enter Group',
-			'group.perfectionGroupInfo' => 'Complete Group Info',
 			_ => null,
 		} ?? switch (path) {
+			'group.perfectionGroupInfo' => 'Complete Group Info',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'Select group chat',
 			'group.sureToDissolveGroup' => 'Are you sure you want to dissolve this group?',
@@ -4525,9 +4527,9 @@ extension on TranslationsEnUs {
 			'workspace.taskSubmitCreate' => 'Create task',
 			'workspace.taskSubmitSave' => 'Save',
 			'workspace.taskCreatedToast' => 'Task created',
-			'workspace.taskExistingToast' => 'A task with the same title already exists; reusing it',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskExistingToast' => 'A task with the same title already exists; reusing it',
 			'workspace.taskUpdatedToast' => 'Task saved',
 			'workspace.taskFilterAll' => 'All',
 			'workspace.taskStatusTodo' => 'To do',

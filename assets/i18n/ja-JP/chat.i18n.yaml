@@ -179,6 +179,9 @@ e2eeProxyNeedAtLeast(count): 最低 $count 人の代理者を選択してくだ�
 e2eeRecreatingKey: キーを再作成中...
 e2eeKeyRecreated: キーを再作成しました
 e2eeRecoveryNewDeviceTitle: 新しいデバイスのログインを検出しました
+e2eeRecoveryNewDeviceBody: "メッセージを保護するため、このデバイスで新しいエンドツーエンド暗号化キーを生成しました。
+
+過去のメッセージは旧デバイスのキーで暗号化されているため、キーを復元しないと表示できません。「ローカルバックアップのインポート」から復元できます。"
 e2eeRecoveryDecryptFailedTitle: このメッセージを復号できません
 e2eeRecoveryDecryptFailedBody: |-
   このメッセージは別のデバイスのキーで暗号化されています。

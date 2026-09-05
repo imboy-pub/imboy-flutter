@@ -179,6 +179,9 @@ e2eeProxyNeedAtLeast(count): Mindestens $count Treuhänder wählen
 e2eeRecreatingKey: Schlüssel wird neu erstellt...
 e2eeKeyRecreated: Schlüssel neu erstellt
 e2eeRecoveryNewDeviceTitle: Neue Gerätenutzung erkannt
+e2eeRecoveryNewDeviceBody: "Zum Schutz deiner Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt.
+
+Ältere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Du kannst ihn über „Lokales Backup importieren“ wiederherstellen."
 e2eeRecoveryDecryptFailedTitle: Diese Nachricht kann nicht entschlüsselt werden
 e2eeRecoveryDecryptFailedBody: |-
   Diese Nachricht wurde mit dem Schlüssel eines anderen Geräts verschlüsselt.

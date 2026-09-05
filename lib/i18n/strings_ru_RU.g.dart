@@ -631,6 +631,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => 'Создание ключа заново...';
 	@override String get e2eeKeyRecreated => 'Ключ создан заново';
 	@override String get e2eeRecoveryNewDeviceTitle => 'Обнаружен вход с нового устройства';
+	@override String get e2eeRecoveryNewDeviceBody => 'Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования.\nПрошлые сообщения зашифрованы ключом со старого устройства, и их можно будет увидеть только после восстановления ключа. Вы можете восстановить его через «Импорт локальной резервной копии».';
 	@override String get e2eeRecoveryDecryptFailedTitle => 'Не удалось расшифровать сообщение';
 	@override String get e2eeRecoveryDecryptFailedBody => 'Это сообщение зашифровано ключом другого устройства.\n\nЕсли вы сменили устройство или переустановили приложение, восстановите ключ шифрования, чтобы прочитать прошлые сообщения.';
 	@override String get e2eeRecoveryLater => 'Позже';
@@ -2998,6 +2999,7 @@ extension on TranslationsRuRu {
 			'chat.e2eeRecreatingKey' => 'Создание ключа заново...',
 			'chat.e2eeKeyRecreated' => 'Ключ создан заново',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Обнаружен вход с нового устройства',
+			'chat.e2eeRecoveryNewDeviceBody' => 'Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования.\nПрошлые сообщения зашифрованы ключом со старого устройства, и их можно будет увидеть только после восстановления ключа. Вы можете восстановить его через «Импорт локальной резервной копии».',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Не удалось расшифровать сообщение',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Это сообщение зашифровано ключом другого устройства.\n\nЕсли вы сменили устройство или переустановили приложение, восстановите ключ шифрования, чтобы прочитать прошлые сообщения.',
 			'chat.e2eeRecoveryLater' => 'Позже',
@@ -3503,9 +3505,9 @@ extension on TranslationsRuRu {
 			'common.messageIdCannotBeEmpty' => 'ID сообщения пуст, невозможно выполнить операцию',
 			'common.startRevokeMessageFlow' => 'Начало отзыва сообщения',
 			'common.revokeMessageTracking' => 'Отслеживание отзыва сообщения',
-			'common.useNewActionMechanism' => 'Использовать новый механизм действий',
 			_ => null,
 		} ?? switch (path) {
+			'common.useNewActionMechanism' => 'Использовать новый механизм действий',
 			'common.revokeMessageSendResult' => 'Результат отправки отзыва сообщения',
 			'common.revokeRequestSendComplete' => 'Запрос на отзыв отправлен',
 			'common.revokeFailed' => 'Не удалось отозвать',
@@ -4017,9 +4019,9 @@ extension on TranslationsRuRu {
 			'group.groupAlbumRenameTitle' => 'Переименовать альбом',
 			'group.groupAlbumRenamed' => 'Альбом переименован',
 			'group.groupAlbumUnnamed' => 'Альбом без названия',
-			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} фото',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} фото',
 			'group.groupAlbumPhotoIdMissing' => 'ID фото отсутствует, нельзя открыть детали',
 			'group.groupAlbumPhotoListTitle' => 'Фото альбома',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => 'Выбрано: ${count}',
@@ -4531,9 +4533,9 @@ extension on TranslationsRuRu {
 			'workspace.taskSubmitCreate' => 'Создать задачу',
 			'workspace.taskSubmitSave' => _root.common.buttonSave,
 			'workspace.taskCreatedToast' => 'Задача создана',
-			'workspace.taskExistingToast' => 'Задача с таким названием уже существует, используется она',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskExistingToast' => 'Задача с таким названием уже существует, используется она',
 			'workspace.taskUpdatedToast' => 'Задача сохранена',
 			'workspace.taskFilterAll' => 'Все',
 			'workspace.taskStatusTodo' => 'К выполнению',

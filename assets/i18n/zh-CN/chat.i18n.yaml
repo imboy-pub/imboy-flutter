@@ -186,6 +186,9 @@ e2eeProxyNeedAtLeast(count): 请选择至少 $count 个代理
 e2eeRecreatingKey: 正在重新创建密钥...
 e2eeKeyRecreated: 密钥已重新创建
 e2eeRecoveryNewDeviceTitle: 检测到新设备登录
+e2eeRecoveryNewDeviceBody: "为保护消息安全，本设备已生成新的端到端加密密钥。
+
+历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。"
 e2eeRecoveryDecryptFailedTitle: 无法解密此消息
 e2eeRecoveryDecryptFailedBody: "此消息由其他设备的密钥加密。\n\n若你更换了设备或重新安装了应用，请恢复加密密钥后再查看历史消息。"
 e2eeRecoveryLater: 稍后

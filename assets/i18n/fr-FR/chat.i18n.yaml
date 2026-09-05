@@ -179,6 +179,9 @@ e2eeProxyNeedAtLeast(count): Au moins $count dépositaires
 e2eeRecreatingKey: Recréation de la clé...
 e2eeKeyRecreated: Clé recréée
 e2eeRecoveryNewDeviceTitle: Nouvel appareil détecté
+e2eeRecoveryNewDeviceBody: "Pour protéger vos messages, une nouvelle clé de chiffrement de bout en bout a été générée sur cet appareil.
+
+Les anciens messages ont été chiffrés avec la clé de l'ancien appareil et ne seront visibles qu'après restauration de la clé. Vous pouvez la restaurer via « Importer une sauvegarde locale »."
 e2eeRecoveryDecryptFailedTitle: Message indéchiffrable
 e2eeRecoveryDecryptFailedBody: |-
   Ce message est chiffré avec la clé d'un autre appareil.

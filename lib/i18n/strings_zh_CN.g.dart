@@ -1676,6 +1676,9 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '检测到新设备登录'
 	String get e2eeRecoveryNewDeviceTitle => '检测到新设备登录';
 
+	/// zh-CN: '为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。'
+	String get e2eeRecoveryNewDeviceBody => '为保护消息安全，本设备已生成新的端到端加密密钥。\n历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。';
+
 	/// zh-CN: '无法解密此消息'
 	String get e2eeRecoveryDecryptFailedTitle => '无法解密此消息';
 
@@ -7247,6 +7250,7 @@ extension on Translations {
 			'chat.e2eeRecreatingKey' => '正在重新创建密钥...',
 			'chat.e2eeKeyRecreated' => '密钥已重新创建',
 			'chat.e2eeRecoveryNewDeviceTitle' => '检测到新设备登录',
+			'chat.e2eeRecoveryNewDeviceBody' => '为保护消息安全，本设备已生成新的端到端加密密钥。\n历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。',
 			'chat.e2eeRecoveryDecryptFailedTitle' => '无法解密此消息',
 			'chat.e2eeRecoveryDecryptFailedBody' => '此消息由其他设备的密钥加密。\n\n若你更换了设备或重新安装了应用，请恢复加密密钥后再查看历史消息。',
 			'chat.e2eeRecoveryLater' => '稍后',
@@ -7744,9 +7748,9 @@ extension on Translations {
 			'common.expression' => '表情',
 			'common.extendedInfo' => '扩展信息',
 			'common.profession' => '职业',
-			'common.shareFailed' => '分享失败',
 			_ => null,
 		} ?? switch (path) {
+			'common.shareFailed' => '分享失败',
 			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} 格式资料已导出并复制到剪贴板',
 			'common.setRegion' => '设置地区',
 			'common.deleteOperationAbnormal' => '删除操作异常，请重试',
@@ -8258,9 +8262,9 @@ extension on Translations {
 			'group.groupCreated' => '群聊已创建',
 			'group.groupCreatedSuccess' => '群聊创建成功，邀请你完善群信息或直接进入群聊',
 			'group.enterGroupChat' => '进入群聊',
-			'group.perfectionGroupInfo' => '完善群信息',
 			_ => null,
 		} ?? switch (path) {
+			'group.perfectionGroupInfo' => '完善群信息',
 			'group.setAdmin' => '设为管理员',
 			'group.selectGroup' => '选择群聊',
 			'group.sureToDissolveGroup' => '确定要解散本群吗？',
@@ -8772,9 +8776,9 @@ extension on Translations {
 			'workspace.taskSubmitCreate' => '创建任务',
 			'workspace.taskSubmitSave' => '保存',
 			'workspace.taskCreatedToast' => '任务已创建',
-			'workspace.taskExistingToast' => '相同标题的任务已存在，直接使用既有任务',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskExistingToast' => '相同标题的任务已存在，直接使用既有任务',
 			'workspace.taskUpdatedToast' => '任务已保存',
 			'workspace.taskFilterAll' => '全部',
 			'workspace.taskStatusTodo' => '待办',

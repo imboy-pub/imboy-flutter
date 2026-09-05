@@ -631,6 +631,7 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => 'Ricreazione chiave...';
 	@override String get e2eeKeyRecreated => 'Chiave ricreata';
 	@override String get e2eeRecoveryNewDeviceTitle => 'Nuovo dispositivo rilevato';
+	@override String get e2eeRecoveryNewDeviceBody => 'Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave di crittografia end-to-end.\nI messaggi precedenti sono stati crittografati con la chiave del vecchio dispositivo e saranno visibili solo dopo il ripristino della chiave. Puoi ripristinarla tramite "Importa backup locale".';
 	@override String get e2eeRecoveryDecryptFailedTitle => 'Messaggio indecifrabile';
 	@override String get e2eeRecoveryDecryptFailedBody => 'Questo messaggio è cifrato con la chiave di un altro dispositivo.\n\nSe hai cambiato dispositivo o reinstallato l\'app, ripristina la chiave per leggere i vecchi messaggi.';
 	@override String get e2eeRecoveryLater => 'Più tardi';
@@ -2992,6 +2993,7 @@ extension on TranslationsItIt {
 			'chat.e2eeRecreatingKey' => 'Ricreazione chiave...',
 			'chat.e2eeKeyRecreated' => 'Chiave ricreata',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Nuovo dispositivo rilevato',
+			'chat.e2eeRecoveryNewDeviceBody' => 'Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave di crittografia end-to-end.\nI messaggi precedenti sono stati crittografati con la chiave del vecchio dispositivo e saranno visibili solo dopo il ripristino della chiave. Puoi ripristinarla tramite "Importa backup locale".',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Messaggio indecifrabile',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Questo messaggio è cifrato con la chiave di un altro dispositivo.\n\nSe hai cambiato dispositivo o reinstallato l\'app, ripristina la chiave per leggere i vecchi messaggi.',
 			'chat.e2eeRecoveryLater' => 'Più tardi',
@@ -3497,9 +3499,9 @@ extension on TranslationsItIt {
 			'common.messageIdCannotBeEmpty' => 'L\'ID del messaggio è vuoto, impossibile eseguire l\'operazione',
 			'common.startRevokeMessageFlow' => 'Avvio flusso revoca messaggio',
 			'common.revokeMessageTracking' => 'Tracciamento revoca messaggio',
-			'common.useNewActionMechanism' => 'Uso nuovo meccanismo azione',
 			_ => null,
 		} ?? switch (path) {
+			'common.useNewActionMechanism' => 'Uso nuovo meccanismo azione',
 			'common.revokeMessageSendResult' => 'Risultato invio revoca messaggio',
 			'common.revokeRequestSendComplete' => 'Invio richiesta revoca completato',
 			'common.revokeFailed' => 'Revoca non riuscita',
@@ -4011,9 +4013,9 @@ extension on TranslationsItIt {
 			'group.groupAlbumRenameTitle' => 'Rinomina album',
 			'group.groupAlbumRenamed' => 'Album rinominato',
 			'group.groupAlbumUnnamed' => 'Album senza nome',
-			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} immagini',
 			_ => null,
 		} ?? switch (path) {
+			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} immagini',
 			'group.groupAlbumPhotoIdMissing' => 'ID immagine mancante, dettagli non disponibili',
 			'group.groupAlbumPhotoListTitle' => 'Immagini album',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count} selezionati',
@@ -4525,9 +4527,9 @@ extension on TranslationsItIt {
 			'workspace.projectMembersEntry' => 'Membri',
 			'workspace.projectMembersTitle' => 'Membri del progetto',
 			'workspace.projectMilestoneAlreadyReachedToast' => 'Questa milestone è già stata raggiunta',
-			'workspace.projectMilestoneCreateSubmit' => 'Crea',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMilestoneCreateSubmit' => 'Crea',
 			'workspace.projectMilestoneCreateTitle' => 'Nuova milestone',
 			'workspace.projectMilestoneCreatedToast' => 'Milestone creata',
 			'workspace.projectMilestoneDueDateInvalid' => 'Il formato della data deve essere YYYY-MM-DD',
