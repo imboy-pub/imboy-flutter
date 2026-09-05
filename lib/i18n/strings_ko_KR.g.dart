@@ -449,6 +449,11 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get settings => '채널 설정';
 	@override String get inviteAdmins => '관리자 초대';
 	@override String get shareToMyStatus => '내 상태에 공유';
+	@override String get creator => '생성자';
+	@override String get admin => '관리자';
+	@override String get editor => '편집자';
+	@override String get privacyTitle => '공개 채널과 개인정보 보호';
+	@override String get privacyDesc => '누구나 이 채널을 찾아 팔로우할 수 있습니다. 전화번호는 다른 구독자와 채널 관리자에게 완전히 숨겨집니다.';
 }
 
 // Path: chat
@@ -2836,6 +2841,11 @@ extension on TranslationsKoKr {
 			'channel.settings' => '채널 설정',
 			'channel.inviteAdmins' => '관리자 초대',
 			'channel.shareToMyStatus' => '내 상태에 공유',
+			'channel.creator' => '생성자',
+			'channel.admin' => '관리자',
+			'channel.editor' => '편집자',
+			'channel.privacyTitle' => '공개 채널과 개인정보 보호',
+			'channel.privacyDesc' => '누구나 이 채널을 찾아 팔로우할 수 있습니다. 전화번호는 다른 구독자와 채널 관리자에게 완전히 숨겨집니다.',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -2998,13 +3008,13 @@ extension on TranslationsKoKr {
 			'chat.e2eeActivated' => '활성화됨',
 			'chat.e2eeCreatedAtLabel' => '생성 시간',
 			'chat.e2eeGeneratingKey' => '키를 생성하는 중입니다. 잠시만 기다려 주세요...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => '새 E2EE 키 쌍이 생성되었습니다!',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '준비 완료 (샤드 ${count}개)',
 			'chat.webFeatureMultiDevice' => '다중 기기 동기화',
 			'chat.webFeatureMultiDeviceDesc' => '휴대폰과 PC 간에 자유롭게 전환하며 메시지가 실시간으로 동기화됩니다',
 			'chat.webFeatureE2EE' => '종단간 암호화',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => '모든 메시지는 종단간 암호화되어 개인정보를 안전하게 보호합니다',
 			'chat.webFeatureFileTransfer' => '파일 전송',
 			'chat.webFeatureFileTransferDesc' => '드래그 앤 드롭으로 파일을 보낼 수 있으며 다양한 형식을 지원합니다',
@@ -3512,13 +3522,13 @@ extension on TranslationsKoKr {
 			'common.momentsLoadMoreComments' => '댓글 더 보기',
 			'common.momentsUploadFailed' => '미디어 업로드 실패, 나중에 다시 시도해주세요',
 			'common.saveFailed' => '저장 실패',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirm' => '확인',
 			'common.success' => '성공',
 			'common.personalDisplay' => '개인 표시',
 			'common.personalSignature' => '개인 서명',
 			'common.personalBackground' => '개인 배경',
-			_ => null,
-		} ?? switch (path) {
 			'common.expression' => '이모티콘',
 			'common.extendedInfo' => '추가 정보',
 			'common.profession' => '직업',
@@ -4026,13 +4036,13 @@ extension on TranslationsKoKr {
 			'error.e2eeErrNetwork' => '네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다',
 			'error.liveRoomTitleRequired' => '제목을 입력해주세요',
 			'group.enterSameGroup' => '주변 친구와 같은 그룹 채팅에 들어가세요',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => '그룹 입장',
 			'group.groupAlias' => '그룹 내 내 닉네임',
 			'group.groupAlbum' => '그룹 앨범',
 			'group.groupDissolve' => '그룹 해체',
 			'group.groupLeave' => '그룹 나가기',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => '그룹 구성원',
 			'group.groupName' => '그룹 채팅 이름',
 			'group.mutualGroupsWithHer' => '해당 사용자와의 공통 그룹 채팅',
@@ -4540,13 +4550,13 @@ extension on TranslationsKoKr {
 			'workspace.projectCreateEntry' => '새 프로젝트',
 			'workspace.projectCreateTitle' => '새 프로젝트',
 			'workspace.projectNameLabel' => '프로젝트 이름',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => '예: 공식 홈페이지 리뉴얼',
 			'workspace.projectNameRequired' => '프로젝트 이름은 필수입니다',
 			'workspace.projectDescLabel' => '프로젝트 설명(선택)',
 			'workspace.projectDescHint' => '이 프로젝트로 무엇을 전달하나요?',
 			'workspace.projectSubmit' => '만들기',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => '프로젝트가 생성되었습니다',
 			'workspace.projectDetailTitle' => '프로젝트 상세',
 			'workspace.projectOwnerLabel' => '담당자',

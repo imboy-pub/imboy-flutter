@@ -1123,6 +1123,21 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '分享至我的动态'
 	String get shareToMyStatus => '分享至我的动态';
+
+	/// zh-CN: '创建者'
+	String get creator => '创建者';
+
+	/// zh-CN: '管理员'
+	String get admin => '管理员';
+
+	/// zh-CN: '编辑'
+	String get editor => '编辑';
+
+	/// zh-CN: '公开频道与隐私保护'
+	String get privacyTitle => '公开频道与隐私保护';
+
+	/// zh-CN: '任何人都可查找并关注此频道。你的电话号码对其他订阅者或频道管理员完全保密。'
+	String get privacyDesc => '任何人都可查找并关注此频道。你的电话号码对其他订阅者或频道管理员完全保密。';
 }
 
 // Path: chat
@@ -7130,6 +7145,11 @@ extension on Translations {
 			'channel.settings' => '频道设置',
 			'channel.inviteAdmins' => '邀请管理员',
 			'channel.shareToMyStatus' => '分享至我的动态',
+			'channel.creator' => '创建者',
+			'channel.admin' => '管理员',
+			'channel.editor' => '编辑',
+			'channel.privacyTitle' => '公开频道与隐私保护',
+			'channel.privacyDesc' => '任何人都可查找并关注此频道。你的电话号码对其他订阅者或频道管理员完全保密。',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -7292,13 +7312,13 @@ extension on Translations {
 			'chat.orderStatusPaid' => '已支付',
 			'chat.orderStatusRefunded' => '已退款',
 			'chat.orderStatusExpired' => '已过期',
+			_ => null,
+		} ?? switch (path) {
 			'chat.defaultFileName' => '文件',
 			'chat.fileUrlInvalid' => '文件链接无效',
 			'chat.e2eeStatusAvailable' => '可用',
 			'chat.e2eeGenerateNewKey' => '生成新密钥',
 			'chat.e2eeGenerateNewKeyDesc' => '生成新的 E2EE 密钥对（旧消息将无法解密）',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeActivated' => '已激活',
 			'chat.e2eeCreatedAtLabel' => '创建时间',
 			'chat.e2eeGeneratingKey' => '正在生成密钥，请稍候...',
@@ -7806,13 +7826,13 @@ extension on Translations {
 			'common.momentReportReasonSpam' => '垃圾广告',
 			'common.momentReportReasonHarassment' => '骚扰霸凌',
 			'common.momentReportReasonPorn' => '色情低俗',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '欺诈诈骗',
 			'common.momentReportReasonInfringement' => '侵权抄袭',
 			'common.momentReportReasonOther' => '其他',
 			'common.momentReportReasonPrompt' => '请选择举报原因',
 			'common.momentsLoadMoreComments' => '加载更多评论',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentsUploadFailed' => '媒体上传失败，请稍后重试',
 			'common.momentsHasFailedUploads' => '有媒体上传失败，请重试或移除后再发布',
 			'common.uploadPartialFailed' => ({required Object count}) => '${count} 项上传失败',
@@ -8320,13 +8340,13 @@ extension on Translations {
 			'error.e2eeErrNetwork' => '网络错误，加密失败，消息未发送',
 			'error.liveRoomTitleRequired' => '标题不能为空',
 			'group.enterSameGroup' => '与身边的朋友进入同一个群聊',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => '进入该群',
 			'group.groupAlias' => '我在本群的昵称',
 			'group.groupAlbum' => '群相册',
 			'group.groupDissolve' => '解散群聊',
 			'group.groupLeave' => '退出群聊',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => '群成员',
 			'group.groupName' => '群聊名称',
 			'group.mutualGroupsWithHer' => '我和他的共同群聊',
@@ -8834,13 +8854,13 @@ extension on Translations {
 			'workspace.projectCreateEntry' => '新建项目',
 			'workspace.projectCreateTitle' => '新建项目',
 			'workspace.projectNameLabel' => '项目名称',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => '例如：官网改版',
 			'workspace.projectNameRequired' => '项目名称不能为空',
 			'workspace.projectDescLabel' => '项目描述（可选）',
 			'workspace.projectDescHint' => '这个项目要交付什么？',
 			'workspace.projectSubmit' => '创建',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => '项目创建成功',
 			'workspace.projectDetailTitle' => '项目详情',
 			'workspace.projectOwnerLabel' => '负责人',

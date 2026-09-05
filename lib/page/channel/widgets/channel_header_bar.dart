@@ -263,22 +263,21 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
 
   Widget _buildRoleBadge(BuildContext context) {
     final role = widget.channel.userRole;
-    final isChinese = Localizations.localeOf(context).languageCode == 'zh';
 
     String label = '';
     Color color = AppColors.iosGray;
 
     switch (role) {
       case ChannelUserRole.creator:
-        label = isChinese ? '创建者' : 'Creator';
+        label = t.channel.creator;
         color = AppColors.primary;
         break;
       case ChannelUserRole.admin:
-        label = isChinese ? '管理员' : 'Admin';
+        label = t.channel.admin;
         color = AppColors.iosOrange;
         break;
       case ChannelUserRole.editor:
-        label = isChinese ? '编辑' : 'Editor';
+        label = t.channel.editor;
         color = AppColors.iosBlue;
         break;
       default:
@@ -373,7 +372,6 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
               // Prominent Subscribe CTA
               SizedBox(
                 width: 140,
-                height: 40,
                 child: FilledButton.icon(
                   onPressed: widget.isActionPending ? null : widget.onActionTap,
                   icon: widget.isActionPending
@@ -392,6 +390,8 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    minimumSize: const Size(0, 40),
                     shape: RoundedRectangleBorder(),
                   ),
                 ),
@@ -518,16 +518,9 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
 
   Widget _buildPrivacyCard(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final localeCode = Localizations.localeOf(context).languageCode;
-    final isChinese = localeCode == 'zh';
 
-    // 拟真 WhatsApp 隐私文案
-    final String privacyTitle = isChinese
-        ? "公开频道与隐私保护"
-        : "Public channel & privacy";
-    final String privacyDesc = isChinese
-        ? "任何人都可查找并关注此频道。你的电话号码对其他订阅者或频道管理员完全保密。"
-        : "Anyone can find and follow this channel. Your phone number remains completely hidden from other followers and the channel admin.";
+    final String privacyTitle = t.channel.privacyTitle;
+    final String privacyDesc = t.channel.privacyDesc;
 
     final cardBg = isDark
         ? const Color(0xFF1F2C34).withValues(alpha: 0.5) // 经典暗色 WhatsApp 背景微调

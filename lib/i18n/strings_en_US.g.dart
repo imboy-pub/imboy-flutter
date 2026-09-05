@@ -449,6 +449,11 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get settings => 'Channel Settings';
 	@override String get inviteAdmins => 'Invite Admins';
 	@override String get shareToMyStatus => 'Share to My Status';
+	@override String get creator => 'Creator';
+	@override String get admin => 'Admin';
+	@override String get editor => 'Editor';
+	@override String get privacyTitle => 'Public channels & privacy';
+	@override String get privacyDesc => 'Anyone can find and follow this channel. Your phone number remains completely hidden from other followers and channel admins.';
 }
 
 // Path: chat
@@ -2839,6 +2844,11 @@ extension on TranslationsEnUs {
 			'channel.settings' => 'Channel Settings',
 			'channel.inviteAdmins' => 'Invite Admins',
 			'channel.shareToMyStatus' => 'Share to My Status',
+			'channel.creator' => 'Creator',
+			'channel.admin' => 'Admin',
+			'channel.editor' => 'Editor',
+			'channel.privacyTitle' => 'Public channels & privacy',
+			'channel.privacyDesc' => 'Anyone can find and follow this channel. Your phone number remains completely hidden from other followers and channel admins.',
 			'chat.bankCard' => 'Bank Card',
 			'chat.receivePayment' => 'Receive & Pay',
 			'chat.alreadyMember' => 'Already a member',
@@ -3001,13 +3011,13 @@ extension on TranslationsEnUs {
 			'chat.e2eeActivated' => 'Active',
 			'chat.e2eeCreatedAtLabel' => 'Created At',
 			'chat.e2eeGeneratingKey' => 'Generating key, please wait...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'New E2EE key pair generated!',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Ready (${count} shards)',
 			'chat.webFeatureMultiDevice' => 'Multi-Device Sync',
 			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
 			'chat.webFeatureE2EE' => 'End-to-End Encryption',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
 			'chat.webFeatureFileTransfer' => 'File Transfer',
 			'chat.webFeatureFileTransferDesc' => 'Drag and drop to send files, supports various formats',
@@ -3515,13 +3525,13 @@ extension on TranslationsEnUs {
 			'common.confirm' => 'Confirm',
 			'common.success' => 'Success',
 			'common.personalDisplay' => 'Personal Display',
+			_ => null,
+		} ?? switch (path) {
 			'common.personalSignature' => 'Personal Signature',
 			'common.personalBackground' => 'Personal Background',
 			'common.expression' => 'Expression',
 			'common.extendedInfo' => 'Extended Info',
 			'common.profession' => 'Profession',
-			_ => null,
-		} ?? switch (path) {
 			'common.shareFailed' => 'Share failed',
 			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
 			'common.setRegion' => 'Set Region',
@@ -4029,13 +4039,13 @@ extension on TranslationsEnUs {
 			'error.e2eeErrNetwork' => 'Network error, encryption failed, message not sent',
 			'error.liveRoomTitleRequired' => 'Title cannot be empty',
 			'group.enterSameGroup' => 'Join the same group chat with friends nearby',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => 'Enter this group',
 			'group.groupAlias' => 'My nickname in this group',
 			'group.groupAlbum' => 'Group Album',
 			'group.groupDissolve' => 'Dissolve group',
 			'group.groupLeave' => 'Leave group',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => 'Group members',
 			'group.groupName' => 'Group chat name',
 			'group.mutualGroupsWithHer' => 'Groups in common',
@@ -4543,13 +4553,13 @@ extension on TranslationsEnUs {
 			'workspace.projectCreateEntry' => 'New project',
 			'workspace.projectCreateTitle' => 'Create Project',
 			'workspace.projectNameLabel' => 'Project name',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => 'e.g. Website revamp',
 			'workspace.projectNameRequired' => 'Project name is required',
 			'workspace.projectDescLabel' => 'Description (optional)',
 			'workspace.projectDescHint' => 'What does this project deliver?',
 			'workspace.projectSubmit' => 'Create',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'Project created',
 			'workspace.projectDetailTitle' => 'Project Detail',
 			'workspace.projectOwnerLabel' => 'Owner',

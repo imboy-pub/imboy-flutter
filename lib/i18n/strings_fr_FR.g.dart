@@ -449,6 +449,11 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get settings => 'Paramètres de la chaîne';
 	@override String get inviteAdmins => 'Inviter des administrateurs';
 	@override String get shareToMyStatus => 'Partager sur mon statut';
+	@override String get creator => 'Créateur';
+	@override String get admin => 'Administrateur';
+	@override String get editor => 'Éditeur';
+	@override String get privacyTitle => 'Chaînes publiques et confidentialité';
+	@override String get privacyDesc => 'Tout le monde peut trouver et suivre cette chaîne. Votre numéro de téléphone reste totalement masqué pour les autres abonnés et les administrateurs.';
 }
 
 // Path: chat
@@ -2839,6 +2844,11 @@ extension on TranslationsFrFr {
 			'channel.settings' => 'Paramètres de la chaîne',
 			'channel.inviteAdmins' => 'Inviter des administrateurs',
 			'channel.shareToMyStatus' => 'Partager sur mon statut',
+			'channel.creator' => 'Créateur',
+			'channel.admin' => 'Administrateur',
+			'channel.editor' => 'Éditeur',
+			'channel.privacyTitle' => 'Chaînes publiques et confidentialité',
+			'channel.privacyDesc' => 'Tout le monde peut trouver et suivre cette chaîne. Votre numéro de téléphone reste totalement masqué pour les autres abonnés et les administrateurs.',
 			'chat.bankCard' => 'Carte bancaire',
 			'chat.receivePayment' => 'Paiement et réception',
 			'chat.alreadyMember' => 'Déjà membre',
@@ -3001,13 +3011,13 @@ extension on TranslationsFrFr {
 			'chat.e2eeActivated' => 'Actif',
 			'chat.e2eeCreatedAtLabel' => 'Créée le',
 			'chat.e2eeGeneratingKey' => 'Génération de la clé, patientez...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'Nouvelle paire de clés E2EE créée !',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Prêt (${count} fragments)',
 			'chat.webFeatureMultiDevice' => 'Multi-appareils',
 			'chat.webFeatureMultiDeviceDesc' => 'Basculez entre mobile et PC, synchronisation en temps réel',
 			'chat.webFeatureE2EE' => 'E2EE',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'Tous les messages chiffrés de bout en bout pour votre vie privée',
 			'chat.webFeatureFileTransfer' => 'Transfert de fichiers',
 			'chat.webFeatureFileTransferDesc' => 'Glissez-déposez vos fichiers, tous formats',
@@ -3515,13 +3525,13 @@ extension on TranslationsFrFr {
 			'common.momentsLoadMoreComments' => 'Charger plus de commentaires',
 			'common.momentsUploadFailed' => 'Échec de l\'envoi du média. Réessayez plus tard.',
 			'common.saveFailed' => 'Échec de l\'enregistrement.',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirm' => 'Confirmer',
 			'common.success' => 'Succès',
 			'common.personalDisplay' => 'Affichage personnel',
 			'common.personalSignature' => 'Signature personnelle',
 			'common.personalBackground' => 'Arrière-plan personnel',
-			_ => null,
-		} ?? switch (path) {
 			'common.expression' => 'Emoji',
 			'common.extendedInfo' => 'Informations étendues',
 			'common.profession' => 'Profession',
@@ -4029,13 +4039,13 @@ extension on TranslationsFrFr {
 			'error.e2eeErrNetwork' => 'Erreur réseau, échec du chiffrement, message non envoyé',
 			'error.liveRoomTitleRequired' => 'Titre requis',
 			'group.enterSameGroup' => 'Entrer dans le même groupe que les amis à proximité',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => 'Rejoindre ce groupe',
 			'group.groupAlias' => 'Mon surnom dans ce groupe',
 			'group.groupAlbum' => 'Album de groupe',
 			'group.groupDissolve' => 'Dissoudre le groupe',
 			'group.groupLeave' => 'Quitter le groupe',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => 'Membres du groupe',
 			'group.groupName' => 'Nom du groupe',
 			'group.mutualGroupsWithHer' => 'Groupes communs avec lui/elle',
@@ -4543,13 +4553,13 @@ extension on TranslationsFrFr {
 			'workspace.projectCreateEntry' => 'Nouveau projet',
 			'workspace.projectCreateTitle' => 'Nouveau projet',
 			'workspace.projectNameLabel' => 'Nom du projet',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => 'Ex. : refonte du site web',
 			'workspace.projectNameRequired' => 'Le nom du projet est requis',
 			'workspace.projectDescLabel' => 'Description du projet (facultatif)',
 			'workspace.projectDescHint' => 'Que doit livrer ce projet ?',
 			'workspace.projectSubmit' => 'Créer',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'Projet créé avec succès',
 			'workspace.projectDetailTitle' => 'Détails du projet',
 			'workspace.projectOwnerLabel' => 'Responsable',

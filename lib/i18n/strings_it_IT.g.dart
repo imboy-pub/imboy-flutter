@@ -449,6 +449,11 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get settings => 'Impostazioni canale';
 	@override String get inviteAdmins => 'Invita amministratori';
 	@override String get shareToMyStatus => 'Condividi al mio stato';
+	@override String get creator => 'Creatore';
+	@override String get admin => 'Amministratore';
+	@override String get editor => 'Editore';
+	@override String get privacyTitle => 'Canali pubblici e privacy';
+	@override String get privacyDesc => 'Chiunque può trovare e seguire questo canale. Il tuo numero di telefono resta completamente nascosto agli altri iscritti e agli amministratori.';
 }
 
 // Path: chat
@@ -2839,6 +2844,11 @@ extension on TranslationsItIt {
 			'channel.settings' => 'Impostazioni canale',
 			'channel.inviteAdmins' => 'Invita amministratori',
 			'channel.shareToMyStatus' => 'Condividi al mio stato',
+			'channel.creator' => 'Creatore',
+			'channel.admin' => 'Amministratore',
+			'channel.editor' => 'Editore',
+			'channel.privacyTitle' => 'Canali pubblici e privacy',
+			'channel.privacyDesc' => 'Chiunque può trovare e seguire questo canale. Il tuo numero di telefono resta completamente nascosto agli altri iscritti e agli amministratori.',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.receivePayment' => 'Ricevi & Paga',
 			'chat.alreadyMember' => 'Già membro',
@@ -3001,13 +3011,13 @@ extension on TranslationsItIt {
 			'chat.e2eeActivated' => 'Attivo',
 			'chat.e2eeCreatedAtLabel' => 'Creato il',
 			'chat.e2eeGeneratingKey' => 'Generazione chiave, attendi...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'Nuova coppia di chiavi E2EE creata !',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Pronto (${count} frammenti)',
 			'chat.webFeatureMultiDevice' => 'Multi-dispositivo',
 			'chat.webFeatureMultiDeviceDesc' => 'Passa da mobile a PC, sincronizzazione in tempo reale',
 			'chat.webFeatureE2EE' => 'E2EE',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'Tutti i messaggi cifrati end-to-end per la privacy',
 			'chat.webFeatureFileTransfer' => 'Trasferimento file',
 			'chat.webFeatureFileTransferDesc' => 'Trascina i file, tutti i formati',
@@ -3515,13 +3525,13 @@ extension on TranslationsItIt {
 			'common.momentsLoadMoreComments' => 'Carica altri commenti',
 			'common.momentsUploadFailed' => 'Caricamento media fallito. Riprova più tardi.',
 			'common.saveFailed' => 'Salvataggio non riuscito',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirm' => 'Conferma',
 			'common.success' => 'Successo',
 			'common.personalDisplay' => 'Visualizzazione personale',
 			'common.personalSignature' => 'Firma personale',
 			'common.personalBackground' => 'Sfondo personale',
-			_ => null,
-		} ?? switch (path) {
 			'common.expression' => 'Emoji',
 			'common.extendedInfo' => 'Info estese',
 			'common.profession' => 'Professione',
@@ -4029,13 +4039,13 @@ extension on TranslationsItIt {
 			'error.e2eeErrNetwork' => 'Errore di rete, cifratura fallita, messaggio non inviato',
 			'error.liveRoomTitleRequired' => 'Titolo richiesto',
 			'group.enterSameGroup' => 'Entra nella stessa chat di gruppo con gli amici vicini',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => 'Entra nel gruppo',
 			'group.groupAlias' => 'Il mio nickname nel gruppo',
 			'group.groupAlbum' => 'Album di gruppo',
 			'group.groupDissolve' => 'Sciogli gruppo',
 			'group.groupLeave' => 'Esci dal gruppo',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => 'Membri gruppo',
 			'group.groupName' => 'Nome gruppo',
 			'group.mutualGroupsWithHer' => 'Gruppi comuni con lui/lei',
@@ -4543,13 +4553,13 @@ extension on TranslationsItIt {
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => 'Pubblicato da ${name}',
 			'workspace.projectInsightsPostsEmpty' => 'I canali collegati non hanno post per ora',
 			'workspace.projectInsightsResourcesEmpty' => 'Nessun link alle risorse per questo progetto',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectInsightsTabActivity' => 'Attività del progetto',
 			'workspace.projectInsightsTabPinned' => 'Messaggi in evidenza',
 			'workspace.projectInsightsTabPosts' => 'Post correlati',
 			'workspace.projectInsightsTabResources' => 'Link alle risorse',
 			'workspace.projectLoadMore' => 'Carica altro',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMarkDone' => 'Segna come completato',
 			'workspace.projectMemberAlreadyRemovedToast' => 'Questo utente non è più tra i membri del progetto',
 			'workspace.projectMemberEmptySubtitle' => 'Il responsabile del progetto può invitare utenti registrati a unirsi a questo progetto',

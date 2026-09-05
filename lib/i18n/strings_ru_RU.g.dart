@@ -449,6 +449,11 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get settings => 'Настройки канала';
 	@override String get inviteAdmins => 'Пригласить администраторов';
 	@override String get shareToMyStatus => 'Поделиться в мой статус';
+	@override String get creator => 'Создатель';
+	@override String get admin => 'Админ';
+	@override String get editor => 'Редактор';
+	@override String get privacyTitle => 'Публичные каналы и конфиденциальность';
+	@override String get privacyDesc => 'Этот канал может найти и подписаться любой. Ваш номер телефона полностью скрыт от других подписчиков и администраторов канала.';
 }
 
 // Path: chat
@@ -2845,6 +2850,11 @@ extension on TranslationsRuRu {
 			'channel.settings' => 'Настройки канала',
 			'channel.inviteAdmins' => 'Пригласить администраторов',
 			'channel.shareToMyStatus' => 'Поделиться в мой статус',
+			'channel.creator' => 'Создатель',
+			'channel.admin' => 'Админ',
+			'channel.editor' => 'Редактор',
+			'channel.privacyTitle' => 'Публичные каналы и конфиденциальность',
+			'channel.privacyDesc' => 'Этот канал может найти и подписаться любой. Ваш номер телефона полностью скрыт от других подписчиков и администраторов канала.',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -3007,13 +3017,13 @@ extension on TranslationsRuRu {
 			'chat.e2eeActivated' => 'Активно',
 			'chat.e2eeCreatedAtLabel' => 'Создан',
 			'chat.e2eeGeneratingKey' => 'Создание ключа, подождите...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'Новая пара ключей E2EE создана!',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Готово (фрагментов: ${count})',
 			'chat.webFeatureMultiDevice' => 'Синхронизация устройств',
 			'chat.webFeatureMultiDeviceDesc' => 'Переключайтесь между телефоном и ПК, сообщения синхронизируются в реальном времени',
 			'chat.webFeatureE2EE' => 'Сквозное шифрование',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'Все сообщения зашифрованы сквозным шифрованием для защиты конфиденциальности',
 			'chat.webFeatureFileTransfer' => 'Передача файлов',
 			'chat.webFeatureFileTransferDesc' => 'Перетащите файл, чтобы отправить; поддерживаются разные форматы',
@@ -3521,13 +3531,13 @@ extension on TranslationsRuRu {
 			'common.momentsLoadMoreComments' => 'Ещё комментарии',
 			'common.momentsUploadFailed' => 'Не удалось загрузить медиа, попробуйте позже',
 			'common.saveFailed' => 'Не удалось сохранить',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirm' => 'Подтвердить',
 			'common.success' => 'Успешно',
 			'common.personalDisplay' => 'Личное отображение',
 			'common.personalSignature' => 'Личная подпись',
 			'common.personalBackground' => 'Личный фон',
-			_ => null,
-		} ?? switch (path) {
 			'common.expression' => 'Эмодзи',
 			'common.extendedInfo' => 'Дополнительная информация',
 			'common.profession' => 'Профессия',
@@ -4035,13 +4045,13 @@ extension on TranslationsRuRu {
 			'error.e2eeErrNetwork' => 'Сетевая ошибка, шифрование не выполнено, сообщение не отправлено',
 			'error.liveRoomTitleRequired' => 'Введите название',
 			'group.enterSameGroup' => 'Войти в одну группу с друзьями рядом',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => 'Войти в эту группу',
 			'group.groupAlias' => 'Мой никнейм в этой группе',
 			'group.groupAlbum' => 'Альбом группы',
 			'group.groupDissolve' => 'Роспуск группы',
 			'group.groupLeave' => 'Покинуть группу',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => 'Участники группы',
 			'group.groupName' => 'Название группы',
 			'group.mutualGroupsWithHer' => 'Общие группы',
@@ -4549,13 +4559,13 @@ extension on TranslationsRuRu {
 			'workspace.projectCreateEntry' => 'Новый проект',
 			'workspace.projectCreateTitle' => 'Новый проект',
 			'workspace.projectNameLabel' => 'Название проекта',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => 'Например: редизайн сайта',
 			'workspace.projectNameRequired' => 'Название проекта не может быть пустым',
 			'workspace.projectDescLabel' => 'Описание проекта (необязательно)',
 			'workspace.projectDescHint' => 'Что должен дать этот проект?',
 			'workspace.projectSubmit' => 'Создать',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'Проект создан',
 			'workspace.projectDetailTitle' => 'Детали проекта',
 			'workspace.projectOwnerLabel' => 'Ответственный',

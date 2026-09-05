@@ -449,6 +449,11 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get settings => 'إعدادات القناة';
 	@override String get inviteAdmins => 'دعوة المشرفين';
 	@override String get shareToMyStatus => 'مشاركة في حالتي';
+	@override String get creator => 'المنشئ';
+	@override String get admin => 'مشرف';
+	@override String get editor => 'محرر';
+	@override String get privacyTitle => 'القنوات العامة والخصوصية';
+	@override String get privacyDesc => 'يمكن لأي شخص العثور على هذه القناة ومتابعتها. رقم هويتك مخفي تمامًا عن المشتركين الآخرين ومشرفي القناة.';
 }
 
 // Path: chat
@@ -2836,6 +2841,11 @@ extension on TranslationsArSa {
 			'channel.settings' => 'إعدادات القناة',
 			'channel.inviteAdmins' => 'دعوة المشرفين',
 			'channel.shareToMyStatus' => 'مشاركة في حالتي',
+			'channel.creator' => 'المنشئ',
+			'channel.admin' => 'مشرف',
+			'channel.editor' => 'محرر',
+			'channel.privacyTitle' => 'القنوات العامة والخصوصية',
+			'channel.privacyDesc' => 'يمكن لأي شخص العثور على هذه القناة ومتابعتها. رقم هويتك مخفي تمامًا عن المشتركين الآخرين ومشرفي القناة.',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -2998,13 +3008,13 @@ extension on TranslationsArSa {
 			'chat.e2eeActivated' => 'مفعّل',
 			'chat.e2eeCreatedAtLabel' => 'تاريخ الإنشاء',
 			'chat.e2eeGeneratingKey' => 'جارٍ إنشاء المفتاح، انتظر...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'تم إنشاء زوج مفاتيح E2EE جديد!',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'جاهز (${count} شظية)',
 			'chat.webFeatureMultiDevice' => 'مزامنة الأجهزة',
 			'chat.webFeatureMultiDeviceDesc' => 'بدّل بحرية بين الهاتف والكمبيوتر، وتُزامَل الرسائل لحظياً',
 			'chat.webFeatureE2EE' => 'تشفير من طرف إلى طرف',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'جميع الرسائل مشفّرة من طرف إلى طرف لحماية خصوصيتك',
 			'chat.webFeatureFileTransfer' => 'نقل الملفات',
 			'chat.webFeatureFileTransferDesc' => 'اسحب الملف لإرساله، مع دعم صيغ متعددة',
@@ -3512,13 +3522,13 @@ extension on TranslationsArSa {
 			'common.momentsLoadMoreComments' => 'المزيد من التعليقات',
 			'common.momentsUploadFailed' => 'تعذّر رفع الوسائط، حاول لاحقاً',
 			'common.saveFailed' => 'فشل الحفظ',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirm' => 'تأكيد',
 			'common.success' => 'نجح',
 			'common.personalDisplay' => 'عرض شخصي',
 			'common.personalSignature' => 'التوقيع الشخصي',
 			'common.personalBackground' => 'الخلفية الشخصية',
-			_ => null,
-		} ?? switch (path) {
 			'common.expression' => 'رموز تعبيرية',
 			'common.extendedInfo' => 'معلومات موسعة',
 			'common.profession' => 'المهنة',
@@ -4026,13 +4036,13 @@ extension on TranslationsArSa {
 			'error.e2eeErrNetwork' => 'خطأ شبكة، فشل التشفير، لم تُرسل الرسالة',
 			'error.liveRoomTitleRequired' => 'أدخل العنوان',
 			'group.enterSameGroup' => 'انضم إلى نفس المجموعة مع الأصدقاء من حولك',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => 'الانضمام إلى هذه المجموعة',
 			'group.groupAlias' => 'لقبي في هذه المجموعة',
 			'group.groupAlbum' => 'ألبوم المجموعة',
 			'group.groupDissolve' => 'حلّ الدردشة الجماعية',
 			'group.groupLeave' => 'مغادرة الدردشة الجماعية',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => 'أعضاء الدردشة الجماعية',
 			'group.groupName' => 'اسم الدردشة الجماعية',
 			'group.mutualGroupsWithHer' => 'المجموعات المشتركة بيني وبينه',
@@ -4540,13 +4550,13 @@ extension on TranslationsArSa {
 			'workspace.projectCreateEntry' => 'مشروع جديد',
 			'workspace.projectCreateTitle' => 'مشروع جديد',
 			'workspace.projectNameLabel' => 'اسم المشروع',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => 'مثال: إعادة تصميم الموقع',
 			'workspace.projectNameRequired' => 'لا يمكن أن يكون اسم المشروع فارغاً',
 			'workspace.projectDescLabel' => 'وصف المشروع (اختياري)',
 			'workspace.projectDescHint' => 'ماذا سيقدّم هذا المشروع؟',
 			'workspace.projectSubmit' => 'إنشاء',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'تم إنشاء المشروع بنجاح',
 			'workspace.projectDetailTitle' => 'تفاصيل المشروع',
 			'workspace.projectOwnerLabel' => 'المسؤول',

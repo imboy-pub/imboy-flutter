@@ -449,6 +449,11 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get settings => 'チャンネル設定';
 	@override String get inviteAdmins => '管理者を招待';
 	@override String get shareToMyStatus => 'マイステータスに共有';
+	@override String get creator => '作成者';
+	@override String get admin => '管理者';
+	@override String get editor => '編集者';
+	@override String get privacyTitle => '公開チャンネルとプライバシー';
+	@override String get privacyDesc => '誰でもこのチャンネルを検索してフォローできます。電話番号は他のフォロワーやチャンネル管理者には一切表示されません。';
 }
 
 // Path: chat
@@ -2836,6 +2841,11 @@ extension on TranslationsJaJp {
 			'channel.settings' => 'チャンネル設定',
 			'channel.inviteAdmins' => '管理者を招待',
 			'channel.shareToMyStatus' => 'マイステータスに共有',
+			'channel.creator' => '作成者',
+			'channel.admin' => '管理者',
+			'channel.editor' => '編集者',
+			'channel.privacyTitle' => '公開チャンネルとプライバシー',
+			'channel.privacyDesc' => '誰でもこのチャンネルを検索してフォローできます。電話番号は他のフォロワーやチャンネル管理者には一切表示されません。',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -2998,13 +3008,13 @@ extension on TranslationsJaJp {
 			'chat.e2eeActivated' => '有効',
 			'chat.e2eeCreatedAtLabel' => '作成日時',
 			'chat.e2eeGeneratingKey' => 'キーを生成中です。お待ちください...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => '新しいE2EEキーペアを生成しました！',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備完了（シャード ${count} 個）',
 			'chat.webFeatureMultiDevice' => 'マルチデバイス同期',
 			'chat.webFeatureMultiDeviceDesc' => 'スマートフォンとPCをシームレスに切り替え、メッセージをリアルタイム同期',
 			'chat.webFeatureE2EE' => 'エンドツーエンド暗号化',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'すべてのメッセージをエンドツーエンドで暗号化し、プライバシーを保護',
 			'chat.webFeatureFileTransfer' => 'ファイル転送',
 			'chat.webFeatureFileTransferDesc' => 'ドラッグ&ドロップでファイルを送信、あらゆる形式に対応',
@@ -3512,13 +3522,13 @@ extension on TranslationsJaJp {
 			'common.momentsLoadMoreComments' => 'コメントをさらに読み込む',
 			'common.momentsUploadFailed' => 'メディアのアップロードに失敗しました。後でもう一度お試しください',
 			'common.saveFailed' => '保存に失敗しました',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirm' => '確認',
 			'common.success' => '成功しました',
 			'common.personalDisplay' => '個人表示',
 			'common.personalSignature' => '署名',
 			'common.personalBackground' => '個人背景',
-			_ => null,
-		} ?? switch (path) {
 			'common.expression' => 'スタンプ',
 			'common.extendedInfo' => '拡張情報',
 			'common.profession' => '職業',
@@ -4026,13 +4036,13 @@ extension on TranslationsJaJp {
 			'error.e2eeErrNetwork' => 'ネットワークエラーのため暗号化に失敗しました。メッセージは送信されませんでした',
 			'error.liveRoomTitleRequired' => 'タイトルを入力してください',
 			'group.enterSameGroup' => '近くの友達と同じグループチャットに入る',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => 'このグループに入る',
 			'group.groupAlias' => 'グループ内のニックネーム',
 			'group.groupAlbum' => 'グループアルバム',
 			'group.groupDissolve' => 'グループを解散',
 			'group.groupLeave' => 'グループを退出',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => 'グループメンバー',
 			'group.groupName' => 'グループ名',
 			'group.mutualGroupsWithHer' => '相手との共通グループチャット',
@@ -4540,13 +4550,13 @@ extension on TranslationsJaJp {
 			'workspace.projectCreateEntry' => '新規プロジェクト',
 			'workspace.projectCreateTitle' => '新規プロジェクト',
 			'workspace.projectNameLabel' => 'プロジェクト名',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => '例：サイトリニューアル',
 			'workspace.projectNameRequired' => 'プロジェクト名は空にできません',
 			'workspace.projectDescLabel' => 'プロジェクトの説明（任意）',
 			'workspace.projectDescHint' => 'このプロジェクトは何を成果として届けますか？',
 			'workspace.projectSubmit' => '作成',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'プロジェクトを作成しました',
 			'workspace.projectDetailTitle' => 'プロジェクト詳細',
 			'workspace.projectOwnerLabel' => '担当者',

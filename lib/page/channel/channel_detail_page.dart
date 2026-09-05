@@ -185,17 +185,11 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        Localizations.localeOf(context).languageCode == 'zh'
-                            ? (channel.userRole == ChannelUserRole.creator
-                                  ? '创建者'
-                                  : channel.userRole == ChannelUserRole.admin
-                                  ? '管理员'
-                                  : '编辑')
-                            : (channel.userRole == ChannelUserRole.creator
-                                  ? 'Creator'
-                                  : channel.userRole == ChannelUserRole.admin
-                                  ? 'Admin'
-                                  : 'Editor'),
+                        channel.userRole == ChannelUserRole.creator
+                            ? t.channel.creator
+                            : channel.userRole == ChannelUserRole.admin
+                            ? t.channel.admin
+                            : t.channel.editor,
                         style: TextStyle(
                           fontSize: FontSizeType.tiny.size,
                           fontWeight: FontWeight.bold,

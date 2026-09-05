@@ -449,6 +449,11 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get settings => 'Kanaleinstellungen';
 	@override String get inviteAdmins => 'Admins einladen';
 	@override String get shareToMyStatus => 'In meinem Status teilen';
+	@override String get creator => 'Ersteller';
+	@override String get admin => 'Admin';
+	@override String get editor => 'Redakteur';
+	@override String get privacyTitle => 'Öffentliche Kanäle & Datenschutz';
+	@override String get privacyDesc => 'Jeder kann diesen Kanal finden und abonnieren. Deine Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen.';
 }
 
 // Path: chat
@@ -2839,6 +2844,11 @@ extension on TranslationsDeDe {
 			'channel.settings' => 'Kanaleinstellungen',
 			'channel.inviteAdmins' => 'Admins einladen',
 			'channel.shareToMyStatus' => 'In meinem Status teilen',
+			'channel.creator' => 'Ersteller',
+			'channel.admin' => 'Admin',
+			'channel.editor' => 'Redakteur',
+			'channel.privacyTitle' => 'Öffentliche Kanäle & Datenschutz',
+			'channel.privacyDesc' => 'Jeder kann diesen Kanal finden und abonnieren. Deine Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen.',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.receivePayment' => 'Empfangen & Zahlen',
 			'chat.alreadyMember' => 'Bereits Mitglied',
@@ -3001,13 +3011,13 @@ extension on TranslationsDeDe {
 			'chat.e2eeActivated' => 'Aktiv',
 			'chat.e2eeCreatedAtLabel' => 'Erstellt am',
 			'chat.e2eeGeneratingKey' => 'Schlüssel wird erstellt, bitte warten...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'Neues E2EE-Schlüsselpaar erstellt!',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Bereit (${count} Fragmente)',
 			'chat.webFeatureMultiDevice' => 'Multi-Geräte-Sync',
 			'chat.webFeatureMultiDeviceDesc' => 'Nahtlos zwischen Handy und PC wechseln, Nachrichten in Echtzeit synchronisieren',
 			'chat.webFeatureE2EE' => 'E2EE',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'Alle Nachrichten E2EE-verschlüsselt für maximale Privatsphäre',
 			'chat.webFeatureFileTransfer' => 'Dateiübertragung',
 			'chat.webFeatureFileTransferDesc' => 'Dateien per Drag & Drop senden, alle Formate',
@@ -3515,13 +3525,13 @@ extension on TranslationsDeDe {
 			'common.momentsLoadMoreComments' => 'Weitere Kommentare laden',
 			'common.momentsUploadFailed' => 'Medien-Upload fehlgeschlagen. Bitte später erneut versuchen.',
 			'common.saveFailed' => 'Speichern fehlgeschlagen',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirm' => 'Bestätigen',
 			'common.success' => 'Erfolg',
 			'common.personalDisplay' => 'Persönliche Anzeige',
 			'common.personalSignature' => 'Persönliche Signatur',
 			'common.personalBackground' => 'Persönlicher Hintergrund',
-			_ => null,
-		} ?? switch (path) {
 			'common.expression' => 'Emoji',
 			'common.extendedInfo' => 'Erweiterte Informationen',
 			'common.profession' => 'Beruf',
@@ -4029,13 +4039,13 @@ extension on TranslationsDeDe {
 			'error.e2eeErrNetwork' => 'Netzwerkfehler beim Verschlüsseln, Nachricht nicht gesendet',
 			'error.liveRoomTitleRequired' => 'Titel erforderlich',
 			'group.enterSameGroup' => 'Mit Freunden in der Nähe denselben Gruppenchat beitreten',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => 'Der Gruppe beitreten',
 			'group.groupAlias' => 'Mein Spitzname in dieser Gruppe',
 			'group.groupAlbum' => 'Gruppenalbum',
 			'group.groupDissolve' => 'Gruppe auflösen',
 			'group.groupLeave' => 'Gruppe verlassen',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => 'Gruppenmitglieder',
 			'group.groupName' => 'Gruppenname',
 			'group.mutualGroupsWithHer' => 'Gemeinsame Gruppen',
@@ -4543,13 +4553,13 @@ extension on TranslationsDeDe {
 			'workspace.projectCreateEntry' => 'Neues Projekt',
 			'workspace.projectCreateTitle' => 'Neues Projekt',
 			'workspace.projectNameLabel' => 'Projektname',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => 'z. B. Website-Relaunch',
 			'workspace.projectNameRequired' => 'Projektname darf nicht leer sein',
 			'workspace.projectDescLabel' => 'Projektbeschreibung (optional)',
 			'workspace.projectDescHint' => 'Was soll dieses Projekt liefern?',
 			'workspace.projectSubmit' => 'Erstellen',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'Projekt erstellt',
 			'workspace.projectDetailTitle' => 'Projektdetails',
 			'workspace.projectOwnerLabel' => 'Verantwortlich',

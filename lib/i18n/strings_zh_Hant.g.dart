@@ -449,6 +449,11 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get settings => '頻道設定';
 	@override String get inviteAdmins => '邀請管理員';
 	@override String get shareToMyStatus => '分享至我的動態';
+	@override String get creator => '建立者';
+	@override String get admin => '管理員';
+	@override String get editor => '編輯';
+	@override String get privacyTitle => '公開頻道與隱私保護';
+	@override String get privacyDesc => '任何人都可以查找並追蹤此頻道。你的電話號碼對其他訂閱者或頻道管理員完全保密。';
 }
 
 // Path: chat
@@ -2836,6 +2841,11 @@ extension on TranslationsZhHant {
 			'channel.settings' => '頻道設定',
 			'channel.inviteAdmins' => '邀請管理員',
 			'channel.shareToMyStatus' => '分享至我的動態',
+			'channel.creator' => '建立者',
+			'channel.admin' => '管理員',
+			'channel.editor' => '編輯',
+			'channel.privacyTitle' => '公開頻道與隱私保護',
+			'channel.privacyDesc' => '任何人都可以查找並追蹤此頻道。你的電話號碼對其他訂閱者或頻道管理員完全保密。',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -2998,13 +3008,13 @@ extension on TranslationsZhHant {
 			'chat.orderStatusRefunded' => '已退費',
 			'chat.orderStatusExpired' => '已過期',
 			'chat.defaultFileName' => '檔案',
+			_ => null,
+		} ?? switch (path) {
 			'chat.fileUrlInvalid' => '檔案連結無效',
 			'chat.e2eeStatusAvailable' => '已啟用',
 			'chat.e2eeGenerateNewKey' => '生成新金鑰',
 			'chat.e2eeGenerateNewKeyDesc' => '生成新的 E2EE 金鑰對（舊訊息將無法解密）',
 			'chat.e2eeActivated' => '已啟用',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeCreatedAtLabel' => '建立時間',
 			'chat.e2eeGeneratingKey' => '正在生成金鑰，請稍候...',
 			'chat.e2eeNewKeyGenerated' => '新的 E2EE 金鑰對已生成！',
@@ -3512,13 +3522,13 @@ extension on TranslationsZhHant {
 			'common.momentReportReasonOther' => '其他原因',
 			'common.momentReportReasonPrompt' => '請選擇舉報原因',
 			'common.momentsLoadMoreComments' => '載入更多評論',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentsUploadFailed' => '媒體上傳失敗，請稍後重試',
 			'common.saveFailed' => '儲存失敗',
 			'common.confirm' => '確認',
 			'common.success' => '執行成功',
 			'common.personalDisplay' => '個人展示',
-			_ => null,
-		} ?? switch (path) {
 			'common.personalSignature' => '個性簽名',
 			'common.personalBackground' => '個人背景',
 			'common.expression' => '表情符號',
@@ -4026,13 +4036,13 @@ extension on TranslationsZhHant {
 			'error.e2eeErrNetwork' => '網路錯誤，加密失敗，訊息未傳送',
 			'error.liveRoomTitleRequired' => '標題不能為空',
 			'group.enterSameGroup' => '與身邊的朋友進入同一個群組聊天',
+			_ => null,
+		} ?? switch (path) {
 			'group.enterTheGroup' => '進入該群組',
 			'group.groupAlias' => '我在本群組的暱稱',
 			'group.groupAlbum' => '群相簿',
 			'group.groupDissolve' => '解散群組',
 			'group.groupLeave' => '退出群組',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupMembers' => '群組成員',
 			'group.groupName' => '群組名稱',
 			'group.mutualGroupsWithHer' => '我和他的共同群組',
@@ -4540,13 +4550,13 @@ extension on TranslationsZhHant {
 			'workspace.projectCreateEntry' => '新增專案',
 			'workspace.projectCreateTitle' => '新增專案',
 			'workspace.projectNameLabel' => '專案名稱',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => '例如：官網改版',
 			'workspace.projectNameRequired' => '專案名稱不能為空',
 			'workspace.projectDescLabel' => '專案描述（選填）',
 			'workspace.projectDescHint' => '這個專案要交付什麼？',
 			'workspace.projectSubmit' => '建立',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => '專案建立成功',
 			'workspace.projectDetailTitle' => '專案詳情',
 			'workspace.projectOwnerLabel' => '負責人',
