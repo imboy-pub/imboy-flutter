@@ -35,12 +35,13 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 
 	late final TranslationsRuRu _root = this; // ignore: unused_field
 
-	@override 
+	@override
 	TranslationsRuRu $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsRuRu(meta: meta ?? this.$meta);
 
 	// Translations
 	@override late final _Translations$account$ru_RU account = _Translations$account$ru_RU._(_root);
 	@override late final _Translations$agent$ru_RU agent = _Translations$agent$ru_RU._(_root);
+	@override late final _Translations$agentTask$ru_RU agentTask = _Translations$agentTask$ru_RU._(_root);
 	@override late final _Translations$billing$ru_RU billing = _Translations$billing$ru_RU._(_root);
 	@override late final _Translations$channel$ru_RU channel = _Translations$channel$ru_RU._(_root);
 	@override late final _Translations$chat$ru_RU chat = _Translations$chat$ru_RU._(_root);
@@ -52,6 +53,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$error$ru_RU error = _Translations$error$ru_RU._(_root);
 	@override late final _Translations$group$ru_RU group = _Translations$group$ru_RU._(_root);
 	@override late final _Translations$groupCategory$ru_RU groupCategory = _Translations$groupCategory$ru_RU._(_root);
+	@override late final _Translations$groupDiscovery$ru_RU groupDiscovery = _Translations$groupDiscovery$ru_RU._(_root);
 	@override late final _Translations$groupList$ru_RU groupList = _Translations$groupList$ru_RU._(_root);
 	@override late final _Translations$groupSchedule$ru_RU groupSchedule = _Translations$groupSchedule$ru_RU._(_root);
 	@override late final _Translations$groupTag$ru_RU groupTag = _Translations$groupTag$ru_RU._(_root);
@@ -64,6 +66,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$passport$ru_RU passport = _Translations$passport$ru_RU._(_root);
 	@override late final _Translations$splash$ru_RU splash = _Translations$splash$ru_RU._(_root);
 	@override late final _Translations$welcome$ru_RU welcome = _Translations$welcome$ru_RU._(_root);
+	@override late final _Translations$workspace$ru_RU workspace = _Translations$workspace$ru_RU._(_root);
 }
 
 // Path: account
@@ -190,6 +193,20 @@ class _Translations$account$ru_RU extends Translations$account$zh_CN {
 	@override String get e2eeTransferFromOldDevice => 'Получить ключ со старого устройства';
 	@override String get pleaseRelogin => 'Войдите заново';
 	@override String get otherLoginMethods => 'Другие способы входа';
+	@override String get logoutCancelRequest => 'Отменить заявку на удаление';
+	@override String get logoutCancelledNote => 'Заявка на удаление отменена';
+	@override String logoutPendingBanner({required Object date}) => 'Заявка на удаление подана, ожидаемое завершение — ${date}';
+	@override String get logoutPendingHeader => 'Статус заявки на удаление';
+	@override String get logoutRetainedHeader => 'О хранении данных';
+	@override String get logoutRetainedNote => 'После удаления: журналы аудита и финансовые записи хранятся и анонимизируются в соответствии с законом; ваши группы/рабочие пространства/каналы будут сначала переданы преемникам';
+	@override String get payCancelled => 'Оплата отменена';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodComingSoon => 'Этот способ оплаты скоро станет доступен';
+	@override String get payMethodMock => 'Тестовая оплата (среда разработки)';
+	@override String get payMethodTitle => 'Выбор способа оплаты';
+	@override String get payMethodWallet => 'Баланс кошелька';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override late final _Translations$account$alipaySim$ru_RU alipaySim = _Translations$account$alipaySim$ru_RU._(_root);
 }
 
 // Path: agent
@@ -209,6 +226,27 @@ class _Translations$agent$ru_RU extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => 'Официальный';
 	@override String get badgeAiA11y => 'ИИ-ассистент';
 	@override String get badgeOfficialA11y => 'Официальный аккаунт';
+	@override String get legacyBotGoPlaza => 'Перейти в ИИ-ассистенты';
+	@override String get legacyBotMigrated => 'Этот вход для ботов обновлён. Общайтесь с ассистентами в разделе ИИ-ассистенты';
+}
+
+// Path: agentTask
+class _Translations$agentTask$ru_RU extends Translations$agentTask$zh_CN {
+	_Translations$agentTask$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ИИ-задачи';
+	@override String get working => 'Выполняется';
+	@override String get submitted => 'Отправлено';
+	@override String get progress => 'В процессе';
+	@override String get completed => 'Завершено';
+	@override String get failed => 'Ошибка выполнения';
+	@override String get cancelled => 'Отменено';
+	@override String get awaitingApproval => 'Ожидает утверждения';
+	@override String get approve => 'Утвердить';
+	@override String get reject => 'Отклонить';
 }
 
 // Path: billing
@@ -390,6 +428,66 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get accessTypePaid => 'Платно';
 	@override String get typePublicPaidDesc => 'Любой может найти канал и подписаться после покупки';
 	@override String get typePrivatePaidDesc => 'Только приглашённые пользователи могут перейти к покупке и подписаться после оплаты';
+	@override String get addImage => 'Добавить изображение';
+	@override String get allCategories => 'Все';
+	@override String get articleBodyHint => 'Напишите что-нибудь... Поддерживается жирный, курсив, заголовки, списки и др.';
+	@override String get cancelOrder => 'Отменить заказ';
+	@override String get cancelOrderConfirmMessage => 'Отменить этот неоплаченный заказ? После отмены оплата будет невозможна.';
+	@override String get cancelOrderConfirmTitle => 'Подтвердить отмену заказа';
+	@override String get cancelOrderSuccess => 'Заказ отменён';
+	@override String get channelNotFound => 'Канал не существует';
+	@override String get comment => 'Комментарий';
+	@override String get commentDeleteNoPermission => 'Нет прав на удаление этого комментария';
+	@override String get commentFailed => 'Не удалось прокомментировать';
+	@override String get coverLabel => 'Обложка';
+	@override String get coverSet => 'Установлено как обложка';
+	@override String get deleteComment => 'Удалить комментарий';
+	@override String get deleteCommentConfirm => 'Удалить этот комментарий?';
+	@override String get formatBold => 'Жирный';
+	@override String get formatHeading => 'Заголовок';
+	@override String get formatItalic => 'Курсив';
+	@override String get formatLink => 'Ссылка';
+	@override String get formatList => 'Список';
+	@override String get formatQuote => 'Цитата';
+	@override String get formatStrikethrough => 'Зачёркнутый';
+	@override String get like => 'Нравится';
+	@override String get linkTextPlaceholder => 'Текст ссылки';
+	@override String get myOrders => 'Мои заказы';
+	@override String get noComments => 'Пока нет комментариев';
+	@override String get noOrders => 'Нет заказов';
+	@override String get orderAmount => 'Сумма';
+	@override String get orderChannel => 'Канал';
+	@override String get orderContinuePay => 'Продолжить оплату';
+	@override String get orderCreatedAt => 'Время заказа';
+	@override String get orderDetail => 'Детали заказа';
+	@override String get orderNo => 'Номер заказа';
+	@override String get orderPaidAt => 'Время оплаты';
+	@override String get orderPaymentMethod => 'Способ оплаты';
+	@override String get orderStatusCancelled => 'Отменён';
+	@override String get orderStatusExpired => 'Истёк';
+	@override String get orderStatusLabel => 'Статус';
+	@override String get orderStatusPaid => 'Оплачен';
+	@override String get orderStatusPending => 'Ожидает оплаты';
+	@override String get orderStatusRefunded => 'Возвращён';
+	@override String get orderStatusRefunding => 'Возврат в обработке';
+	@override String get orderSubscriptionPeriod => 'Период подписки';
+	@override String get orderValidUntil => 'Действует до';
+	@override String get payAlipay => 'Alipay';
+	@override String get payWallet => 'Баланс кошелька';
+	@override String get payWechat => 'WeChat Pay';
+	@override String get preview => 'Предпросмотр';
+	@override String get publish => 'Опубликовать';
+	@override String get readFull => 'Читать полностью';
+	@override String get refundApply => 'Запросить возврат';
+	@override String get refundConfirmMessage => 'Запросить возврат по этому заказу? После возврата подписка будет отменена.';
+	@override String get refundConfirmTitle => 'Подтвердить возврат';
+	@override String get refundSuccess => 'Заявка на возврат отправлена';
+	@override String get reply => 'Ответить';
+	@override String get replyTo => 'Ответ на';
+	@override String get sortNewest => 'Сначала новые';
+	@override String get sortPopular => 'Популярные';
+	@override String get titleOptional => 'Заголовок (необязательно)';
+	@override String get writeComment => 'Написать комментарий...';
 }
 
 // Path: chat
@@ -677,6 +775,16 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get extraItems => 'Дополнительно';
 	@override String get messageInputHint => 'Напишите сообщение...';
 	@override String get invalidMessageType => '[Неподдерживаемое сообщение]';
+	@override String get alipayLoginInterrupted => 'Процесс входа через Alipay прерван системой, попробуйте снова';
+	@override String get burnReadBadge => 'Сгорает';
+	@override String get convertToText => 'В текст';
+	@override String get extraPanelCollab => 'Совместная работа';
+	@override String get extraPanelFunds => 'Финансы';
+	@override String get extraPanelMedia => 'Медиа';
+	@override String get releaseConvertToText => 'Отпустите — в текст';
+	@override String get voiceReleaseCancel => 'Отпустите — отмена';
+	@override String get voiceReleaseCancelSend => 'Отпустите — отменить отправку';
+	@override String get voiceSlideHint => 'Вверх — отмена / в текст';
 }
 
 // Path: common
@@ -1095,14 +1203,23 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get switchEnvironment => 'Переключить среду';
 	@override String get thisMonth => 'В этом месяце';
 	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
-		other: '${n} дней назад',
+		one: '${n} день назад',
+		few: '${n} дня назад',
+		many: '${n} дней назад',
+		other: '${n} дня назад',
 	);
 	@override String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
-		other: '${n} часов назад',
+		one: '${n} час назад',
+		few: '${n} часа назад',
+		many: '${n} часов назад',
+		other: '${n} часа назад',
 	);
 	@override String get timeJustNow => 'Только что';
 	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
-		other: '${n} минут назад',
+		one: '${n} минуту назад',
+		few: '${n} минуты назад',
+		many: '${n} минут назад',
+		other: '${n} минуты назад',
 	);
 	@override String get timeToday => 'Сегодня';
 	@override String get timeYesterday => 'Вчера';
@@ -1831,6 +1948,77 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get searchFailedRetry => 'Поиск не удался, повторите попытку';
 	@override String get searchDisabledTitle => 'Поиск по сообщениям недоступен';
 	@override String get searchDisabledByEncryption => 'Включено сквозное шифрование: сервер не может читать сообщения, поэтому полнотекстовый поиск недоступен';
+	@override String get amountMustPositive => 'Сумма должна быть больше 0';
+	@override String get answer => 'Ответить';
+	@override String get collapse => 'Свернуть';
+	@override String get complianceKeyChangedActionConfirm => 'Подтвердить ротацию';
+	@override String get complianceKeyChangedActionKeep => 'Отложить подтверждение';
+	@override String get complianceKeyChangedBody => 'Открытый ключ комплаенс-аудита, выданный сервером, не совпадает с локально зафиксированным значением. Если это намеренная ротация ключа администратором, нажмите «Подтвердить ротацию»; иначе не отправляйте зашифрованные сообщения и обратитесь к администратору для проверки.';
+	@override String get complianceKeyChangedTitle => 'Ключ комплаенс-аудита изменён';
+	@override String get declineCall => 'Отклонить';
+	@override String get e2eeErrPeerNotOnboarded => 'Собеседник ещё не входил ни на одном устройстве, зашифрованная отправка пока невозможна; дождитесь его входа и повторите';
+	@override String get e2eeRecoveryKeyCopied => 'Ключ восстановления скопирован';
+	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Ключ восстановления скопирован; буфер обмена будет очищен через ${seconds} сек, сохраните его как можно скорее';
+	@override String get e2eeRecoveryKeySaveNote => 'Немедленно сохраните этот ключ восстановления (скриншот или менеджер паролей). Если забудете парольную фразу, это единственная возможность расшифровать резервную копию; без него восстановление станет невозможным навсегда.';
+	@override String get e2eeRecoveryKeyTitle => 'Ключ восстановления';
+	@override String get e2eeUseRecoveryKey => 'Создать ключ восстановления (запасной доступ при забытой парольной фразе)';
+	@override String get enterAmount => 'Введите сумму';
+	@override String get expandFull => 'Развернуть';
+	@override String f2fEnteringGroup({required Object count}) => 'Скоро в групповой чат войдут: ${count} чел.';
+	@override String get f2fSecretCode => 'Секретный код';
+	@override String get hoursAgo => 'ч. назад';
+	@override String get minutesAgo => 'мин. назад';
+	@override String get initConfigDecryptFailed => 'Не удалось расшифровать конфигурацию: ключ безопасности приложения не совпадает с серверным. Обновите приложение или обратитесь к администратору';
+	@override String get justNow => 'Только что';
+	@override String get me => 'Я';
+	@override String get minimize => 'Свернуть';
+	@override String get momentsHasFailedUploads => 'Часть медиа не загружена. Повторите попытку или удалите их перед публикацией';
+	@override String get noHistory => 'Нет истории';
+	@override String get noNewRegisteredUsersTitle => 'Новых пользователей пока нет';
+	@override String get payReceiveSuccess => 'Платёж получен!';
+	@override String get purchaseConfirming => 'Платёж подтверждается, проверьте статус заказа позже';
+	@override String get reconnecting => 'Слабое соединение, переподключение...';
+	@override String get redPacketAmountTooSmall => 'Общая сумма — не менее количества × 0.01 юаня';
+	@override String get redPacketBrand => 'Красный конверт IMBoy';
+	@override String get redPacketCount => 'Количество конвертов';
+	@override String get redPacketCountEmpty => 'Введите количество конвертов';
+	@override String get redPacketCountMin => 'Количество конвертов — не менее 1';
+	@override String get redPacketCountUnit => 'шт.';
+	@override String get redPacketCurrentLucky => 'Тип: конверт на удачу';
+	@override String get redPacketCurrentNormal => 'Тип: обычный конверт';
+	@override String get redPacketDialogSubtitle => 'Удачи и благополучия!';
+	@override String get redPacketDialogTitle => 'Красный конверт для вас';
+	@override String get redPacketFetchError => 'Ошибка загрузки деталей конверта';
+	@override String get redPacketFetchFailed => 'Не удалось загрузить детали конверта';
+	@override String get redPacketGreetingLabel => 'Подпись / пожелание';
+	@override String get redPacketNotFound => 'Конверт не существует или удалён';
+	@override String redPacketReceiverLabel({required Object uid}) => 'Пользователь: ${uid}';
+	@override String get redPacketSingleAmount => 'Сумма на конверт';
+	@override String get redPacketStuffLucky => 'Наполнить конверт';
+	@override String get redPacketStuffNormal => 'Отправить из кошелька';
+	@override String get redPacketSwitchToLucky => 'Переключить на конверт на удачу';
+	@override String get redPacketSwitchToNormal => 'Переключить на обычный конверт';
+	@override String get redPacketTotalAmount => 'Общая сумма';
+	@override String get redPacketView => 'Просмотреть конверт';
+	@override String get switchCamera => 'Переключить камеру';
+	@override String timeDaysShort({required Object count}) => '${count} д';
+	@override String timeHoursShort({required Object count}) => '${count} ч';
+	@override String timeMinutesShort({required Object count}) => '${count} мин';
+	@override String get timeNowShort => 'сейчас';
+	@override String get transferAccepted => 'Получено';
+	@override String get transferAmountLabel => 'Сумма перевода';
+	@override String get transferConfirm => 'Подтвердить перевод';
+	@override String get transferDefaultRemark => 'Перевод другу';
+	@override String get transferMinAmountError => 'Минимальная сумма перевода — 0.01 юаня';
+	@override String get transferPending => 'Ожидает подтверждения получателем';
+	@override String get transferReceiving => 'Получение платежа...';
+	@override String get transferRefunded => 'Возвращено';
+	@override String get transferRemarkLabel => 'Примечание к переводу';
+	@override String get transferTapToReceive => 'Нажмите, чтобы получить';
+	@override String uploadPartialFailed({required Object count}) => 'Не удалось загрузить элементов: ${count}';
+	@override String get voiceSttConverting => 'Распознавание...';
+	@override String get voiceSttNotConfigured => 'Функция распознавания речи не настроена';
+	@override String get voiceSttPreviewTitle => 'Предпросмотр распознанного текста';
 }
 
 // Path: complaint
@@ -1841,6 +2029,10 @@ class _Translations$complaint$ru_RU extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => 'Жалоба';
+	@override String get e2eeConsentTitle => 'Отправить зашифрованные доказательства';
+	@override String get e2eeConsentBody => 'Это сообщение зашифровано сквозным шифрованием; сервер не видит его содержимое. Отправка выдержки раскроет выбранный открытый текст модераторам для проверки. Согласны?';
+	@override String get e2eeConsentSubmit => 'Согласен и отправить';
+	@override String get e2eeConsentDecline => 'Только жалоба (без содержимого)';
 }
 
 // Path: complaintReason
@@ -1971,6 +2163,14 @@ class _Translations$discovery$ru_RU extends Translations$discovery$zh_CN {
 	@override String get openChannel => 'Открыть канал';
 	@override String get paidChannelLocked => 'Содержимое платного канала заблокировано';
 	@override String get webQRScanned => 'Отсканировано';
+	@override String get momentActionMore => 'Другие действия';
+	@override String momentAtCount({required Object count}) => '${count} чел.';
+	@override String momentAtReminded({required Object name}) => 'Напоминание: ${name}';
+	@override String momentAtRemindedMore({required Object name, required Object count}) => 'Напоминание: ${name} и ещё ${count} чел.';
+	@override String get momentAtWho => 'Кого напомнить?';
+	@override String momentLikesCountOnly({required Object count}) => 'Оценили: ${count}';
+	@override String get momentLocation => 'Местоположение';
+	@override String get momentLocationNone => 'Не показывать местоположение';
 }
 
 // Path: error
@@ -2045,6 +2245,15 @@ class _Translations$group$ru_RU extends Translations$group$zh_CN {
 	@override String get e2eeKeyManagementSubtitle => 'Резервное копирование, восстановление и управление ключами сквозного шифрования';
 	@override String get e2eeTitle => 'Сквозное шифрование';
 	@override String get e2eeEnableConfirm => 'После включения сообщения группы будут защищены сквозным шифрованием и доступны только на устройствах участников. Это действие необратимо. Включить?';
+	@override String get enterGroupChat => 'Войти в групповой чат';
+	@override String get groupCreated => 'Групповой чат создан';
+	@override String get groupCreatedSuccess => 'Групповой чат создан. Заполните информацию о группе или сразу войдите в чат';
+	@override String get groupInfo => 'Информация о группе';
+	@override String get groupMemberRoleLabel => 'Участник';
+	@override String get moreActions => 'Другие действия';
+	@override String noMemberWithRole({required Object roleName}) => 'Пока нет: ${roleName}';
+	@override String get perfectionGroupInfo => 'Заполнить информацию о группе';
+	@override String get touchContactAddMember => 'Нажмите на контакт, чтобы добавить участника в группу';
 }
 
 // Path: groupCategory
@@ -2071,6 +2280,22 @@ class _Translations$groupCategory$ru_RU extends Translations$groupCategory$zh_CN
 	@override String get renameFailed => 'Не удалось переименовать, попробуйте ещё раз';
 	@override String get deleteFailed => 'Не удалось удалить, попробуйте ещё раз';
 	@override String get categoryDetailTip => 'Группы в этой папке можно переносить через «В папку» в списке групп';
+}
+
+// Path: groupDiscovery
+class _Translations$groupDiscovery$ru_RU extends Translations$groupDiscovery$zh_CN {
+	_Translations$groupDiscovery$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Обзор групп';
+	@override String get searchHint => 'Поиск публичных групп';
+	@override String get allCategories => 'Все';
+	@override String get sortPopular => 'Популярные';
+	@override String get sortNewest => 'Сначала новые';
+	@override String get emptyTitle => 'Публичных групп пока нет, загляните позже';
+	@override String get searchEmpty => 'Нет подходящих публичных групп';
 }
 
 // Path: groupList
@@ -2497,6 +2722,35 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get liveRoomTitleLabel => 'Название трансляции';
 	@override String get liveRoomTitleHint => 'Введите название трансляции';
 	@override String get lightModel => 'Светлая тема';
+	@override String get complianceKeyInfoAlgorithm => 'Алгоритм';
+	@override String get complianceKeyInfoChangedWarning => '⚠️ Комплаенс-ключ сервера не совпадает с локально зафиксированным! Если это не намеренная ротация администратора, немедленно свяжитесь с администратором и прекратите отправку зашифрованных сообщений.';
+	@override String get complianceKeyInfoFetchedAt => 'Время получения';
+	@override String get complianceKeyInfoFingerprint => 'Отпечаток открытого ключа';
+	@override String get complianceKeyInfoHint => 'Ключ комплаенс-аудита используется для двойного шифрования в режиме compliance_e2ee. Если отпечаток выше не совпадает с опубликованным администратором, сервер мог быть подменён.';
+	@override String get complianceKeyInfoKeyId => 'ID ключа';
+	@override String get complianceKeyInfoLocalPin => 'Локальная фиксация (TOFU)';
+	@override String get complianceKeyInfoPinnedAt => 'Время фиксации';
+	@override String get complianceKeyInfoPinnedNone => 'Ещё не зафиксирован (зафиксируется автоматически при следующем получении)';
+	@override String get complianceKeyInfoRefreshFailed => 'Не удалось получить. Проверьте сеть и повторите';
+	@override String get complianceKeyInfoServerKey => 'Открытый ключ сервера';
+	@override String get complianceKeyInfoTitle => 'Ключ комплаенс-аудита';
+	@override String get e2eeErrComplianceChanged => 'Ключ комплаенс-аудита изменён, сообщение не отправлено. Подтвердите ротацию и повторите';
+	@override String get e2eeErrComplianceUnavailable => 'Комплаенс-ключ временно недоступен, сообщение не отправлено. Повторите позже';
+	@override String get e2eeErrDeviceNotReady => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите';
+	@override String get e2eeErrProtocolMismatch => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите';
+	@override String get e2eeErrSessionExportFailed => 'Не удалось создать сеансовый ключ группы. Повторите позже';
+	@override String get safetyNumberCopied => 'Скопировано';
+	@override String get safetyNumberCopy => 'Копировать';
+	@override String get safetyNumberHint => 'Сравните код безопасности с собеседником лично или по телефону. Если коды совпадают, ваша связь не прослушивается посредником; если нет — немедленно прекратите разговор и проверьте личность собеседника другим способом. Статус проверки хранится только на этом устройстве.';
+	@override String get safetyNumberMarkVerified => 'Отметить как проверенного';
+	@override String get safetyNumberMarkedVerified => 'Отмечено как проверенное';
+	@override String get safetyNumberNoDevices => 'У собеседника не включено сквозное шифрование';
+	@override String get safetyNumberPeerDevice => 'Устройство собеседника';
+	@override String get safetyNumberReportRejected => 'Сервер отклонил событие проверки (подпись/срок не совпадают), статус не изменён';
+	@override String get safetyNumberReportUnavailable => 'Не удалось получить информацию об устройстве, не отправлено';
+	@override String get safetyNumberReporting => 'Отправка результата проверки...';
+	@override String get safetyNumberTitle => 'Проверка кода безопасности';
+	@override String get safetyNumberVerifyFailed => 'Не удалось получить код безопасности. Повторите позже';
 }
 
 // Path: mention
@@ -2521,6 +2775,7 @@ class _Translations$mention$ru_RU extends Translations$mention$zh_CN {
 	@override String mentionCount({required Object count}) => 'Новых упоминаний: ${count}';
 	@override String get mentionAllDenied => 'Только администратор может использовать @все';
 	@override String get navInfoMissing => 'Нет данных о позиции сообщения, переход невозможен';
+	@override String get pickButtonTooltip => 'Упомянуть участника';
 }
 
 // Path: momentFriendPicker
@@ -2583,6 +2838,16 @@ class _Translations$passport$ru_RU extends Translations$passport$zh_CN {
 	@override String get getVerifyCode => 'Получить код';
 	@override String get hasAccount => 'Уже есть аккаунт?';
 	@override String get oneKeyLogin => 'Быстрый вход';
+	@override String get qrCodeExpired => 'Срок действия QR-кода истёк, отсканируйте заново';
+	@override String get qrCodeUsed => 'Этот QR-код уже использован';
+	@override String get qrConnecting => 'Подключение...';
+	@override String get qrLoginAction => 'Подтвердить вход';
+	@override String get qrLoginCancelled => 'Вход отменён';
+	@override String get qrLoginCancelledByMe => 'Вы отменили вход';
+	@override String get qrLoginConfirming => 'Выполняется вход...';
+	@override String get qrLoginSuccess => 'Вход выполнен';
+	@override String get qrWebLoginDesc => 'Подтвердите вход этого аккаунта в веб-версии';
+	@override String get qrWebLoginTitle => 'Подтверждение входа в веб-версии';
 }
 
 // Path: splash
@@ -2611,6 +2876,263 @@ class _Translations$welcome$ru_RU extends Translations$welcome$zh_CN {
 	@override String get next => 'Далее';
 	@override String get getStarted => 'Начать';
 	@override String get skip => 'Пропустить';
+}
+
+// Path: workspace
+class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
+	_Translations$workspace$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get navOverview => 'Обзор';
+	@override String get navProjects => 'Проекты';
+	@override String get navChannels => 'Каналы';
+	@override String get navGroups => 'Группы';
+	@override String get navMembers => 'Участники';
+	@override String get pickerTitle => 'Мои рабочие пространства';
+	@override String get switchWorkspace => 'Сменить рабочее пространство';
+	@override String get pickerEmptyTitle => 'Пока нет рабочих пространств';
+	@override String get pickerEmptySubtitle => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)';
+	@override String get archivedBadge => 'В архиве';
+	@override String get emptyNoWorkspace => 'Сначала выберите или создайте рабочее пространство';
+	@override String get dmEntry => 'Все сообщения';
+	@override String get experienceModeEntry => 'Макет главного экрана';
+	@override String get experienceModeHint => 'Выберите режим использования на этом устройстве; меняется только макет главного экрана, права и участие в рабочем пространстве не затрагиваются';
+	@override String get experienceModePersonal => 'Личный';
+	@override String get experienceModeWorkspace => 'Рабочее пространство';
+	@override String get experienceModeReset => 'Восстановить значения по умолчанию';
+	@override String get switchToWorkspace => 'Переключиться на рабочее пространство';
+	@override String get switchToPersonal => 'Переключиться на личный';
+	@override String get createTitle => 'Создать рабочее пространство';
+	@override String get createDesc => 'Одно действие — и всё готово: рабочее пространство, вы (как Owner — участник рабочего пространства), канал Announcements и группа General. Всё выполняется успешно или полностью откатывается.';
+	@override String get createNameLabel => 'Название рабочего пространства';
+	@override String get createNameHint => 'Например: группа редизайна сайта';
+	@override String get createNameRequired => 'Название рабочего пространства не может быть пустым';
+	@override String get createSubmit => 'Создать';
+	@override String get createEntry => 'Создать рабочее пространство';
+	@override String get createSuccess => 'Рабочее пространство создано';
+	@override String get createIdempotentHit => 'Рабочее пространство с таким названием уже существует, переходим в него';
+	@override String get createTemplateTitle => 'Будет инициализировано автоматически';
+	@override String get createTemplateChannel => 'Канал Announcements (вы станете издателем и подписчиком канала)';
+	@override String get createTemplateGroup => 'Группа General (вы станете участником группы)';
+	@override String get createTemplateOwner => 'Вы станете Owner рабочего пространства (участник рабочего пространства)';
+	@override String get overviewTitle => 'Обзор';
+	@override String get overviewResources => 'Сводка ресурсов';
+	@override String get overviewPinnedContent => 'Закреплённое в каналах';
+	@override String get overviewPinnedEmpty => 'В каналах пока нет закреплённого контента; объявления групп здесь не собираются (они находятся в самих группах)';
+	@override String get overviewRecentFiles => 'Последние файлы';
+	@override String get overviewRecentFilesEmpty => 'Здесь появятся недавно загруженные файлы; вложения также можно посмотреть в каналах';
+	@override String get membersTitle => 'Участники рабочего пространства';
+	@override String membersCountLabel({required Object count}) => 'Участников: ${count}';
+	@override String get membersEmpty => 'Пока нет участников рабочего пространства';
+	@override String get membersEmptySubtitle => 'Пригласите зарегистрированных пользователей стать участниками рабочего пространства (Owner / Member / Guest)';
+	@override String get membersViewAll => 'Показать все';
+	@override String get projectsEmptyTitle => 'Пока нет проектов';
+	@override String get projectsEmptySubtitle => 'Проекты нужны для отслеживания чётких целей; такой же сценарий подходит и для сообществ из каналов и групп';
+	@override String get channelsEmptyTitle => 'Пока нет каналов рабочего пространства';
+	@override String get channelsEmptySubtitle => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы';
+	@override String channelTileSubtitle({required Object count}) => 'Подписчиков: ${count}';
+	@override String get channelDetailTitle => 'Канал';
+	@override String get discussInGroupGuide => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General →';
+	@override String get groupsEmptyTitle => 'Пока нет групп в рабочем пространстве';
+	@override String get groupsEmptySubtitle => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)';
+	@override String groupTileSubtitle({required Object count}) => 'Участников группы: ${count}';
+	@override String get inviteTitle => 'Пригласить участника рабочего пространства';
+	@override String get inviteDesc => 'Приглашать можно только зарегистрированных пользователей; вступление в рабочее пространство не добавляет в группы автоматически и не оформляет подписку на каналы — можно одновременно вступить в группу General и отправить приглашение в канал Announcements';
+	@override String get inviteSearchHint => 'Поиск по имени пользователя / ID';
+	@override String get inviteEntry => 'Пригласить участника рабочего пространства';
+	@override String get inviteJoinGroupOption => 'Также вступить в группу General (стать участником группы)';
+	@override String get inviteSubscribeChannelOption => 'Также отправить приглашение в канал Announcements';
+	@override String get inviteOptionUnavailable => 'Соответствующий ресурс не найден, опция недоступна';
+	@override String get inviteSubmit => 'Отправить приглашение';
+	@override String get inviteResultsTitle => 'Результаты (три независимых)';
+	@override String get inviteResultWorkspace => 'Вступить в рабочее пространство (стать участником рабочего пространства)';
+	@override String get inviteResultGroup => 'Вступить в группу General (стать участником группы)';
+	@override String get inviteResultChannel => 'Отправить приглашение в канал Announcements (после принятия получатель станет подписчиком)';
+	@override String get resultIdle => 'Не выполнено';
+	@override String get resultRunning => 'Выполняется';
+	@override String get resultSuccess => 'Успешно';
+	@override String get resultFailed => 'Не удалось';
+	@override String get joinEntry => 'Вступить в рабочее пространство';
+	@override String get joinTitle => 'Вступить в рабочее пространство';
+	@override String get joinDesc => 'Введите командный код, чтобы вступить в рабочее пространство';
+	@override String get joinCodeLabel => 'Командный код';
+	@override String get joinCodeHint => '8 символов: заглавные буквы или цифры';
+	@override String get joinSubmit => 'Вступить';
+	@override String joinSuccess({required Object name}) => 'Вы вступили в «${name}»';
+	@override String get joinAlreadyMember => 'Вы уже состоите в этом рабочем пространстве';
+	@override String get joinInvalidCode => 'Командный код недействителен или истёк';
+	@override String get joinExpiredCode => 'Срок действия командного кода истёк';
+	@override String get inviteCodeSectionTitle => 'Приглашение командным кодом';
+	@override String get inviteCodeGenerate => 'Сгенерировать командный код';
+	@override String get inviteCodeCopy => _root.common.buttonCopy;
+	@override String get inviteCodeRevoke => 'Отозвать';
+	@override String inviteCodeExpiresAt({required Object expiresAt}) => 'Действует до ${expiresAt}';
+	@override String get roleOwner => 'Owner';
+	@override String get roleMember => 'Member';
+	@override String get roleGuest => 'Guest';
+	@override String removeMemberTitle({required Object name}) => 'Удалить участника рабочего пространства ${name}';
+	@override String get removeMemberDesc => 'После удаления его доступ к рабочему пространству будет отозван; если у него остались незавершённые задачи или ответственные проекты, сервер вернёт список конфликтов и отменит удаление';
+	@override String get removeMemberConfirm => 'Подтвердить удаление';
+	@override String changeRoleTitle({required Object name}) => 'Изменить роль в рабочем пространстве: ${name}';
+	@override String transferTitle({required Object name}) => 'Передать роль главного Owner: ${name}';
+	@override String get transferDesc => 'После передачи вы станете обычным участником рабочего пространства (Member), а получатель получит все права управления';
+	@override String get transferConfirm => 'Подтвердить передачу';
+	@override String get governanceTitle => 'Управление рабочим пространством';
+	@override String get brandingEntry => 'Настройки бренда (название / логотип / основной цвет)';
+	@override String get archiveEntry => 'Архивировать рабочее пространство';
+	@override String get restoreEntry => 'Восстановить рабочее пространство';
+	@override String get archiveTitle => 'Архивировать рабочее пространство';
+	@override String get archiveDesc => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент';
+	@override String get archiveConfirm => 'Подтвердить архивацию';
+	@override String get restoreTitle => 'Восстановить рабочее пространство';
+	@override String get restoreDesc => 'После восстановления рабочее пространство снова доступно для чтения и записи';
+	@override String get restoreConfirm => 'Подтвердить восстановление';
+	@override String get archivedBanner => 'Рабочее пространство в архиве: контент доступен для просмотра, запись отключена; Owner может восстановить его на странице участников';
+	@override String get brandingTitle => 'Бренд рабочего пространства';
+	@override String get brandingNameLabel => 'Название бренда';
+	@override String get brandingLogoLabel => 'Адрес логотипа';
+	@override String get brandingLogoHint => 'https://... (адрес изображения логотипа рабочего пространства)';
+	@override String get brandingColorLabel => 'Основной цвет primaryColor';
+	@override String get brandingColorHint => '#2474E5';
+	@override String get brandingColorHelper => 'Поддерживается только #RRGGBB / #AARRGGBB; при недопустимом значении используется цвет темы по умолчанию';
+	@override String get brandingColorInvalid => 'Неверный формат основного цвета, поддерживается только #RRGGBB / #AARRGGBB';
+	@override String get brandingSaved => 'Настройки бренда сохранены';
+	@override String get brandingPreview => 'Предпросмотр основного цвета';
+	@override String get brandingPreviewApplied => 'Текущий основной цвет применяется внутри рабочего пространства';
+	@override String get brandingPreviewFallback => 'Не задано или недопустимое значение — используется цвет темы по умолчанию';
+	@override String get projectsTitle => 'Проекты';
+	@override String get projectCreateEntry => 'Новый проект';
+	@override String get projectCreateTitle => 'Новый проект';
+	@override String get projectNameLabel => 'Название проекта';
+	@override String get projectNameHint => 'Например: редизайн сайта';
+	@override String get projectNameRequired => 'Название проекта не может быть пустым';
+	@override String get projectDescLabel => 'Описание проекта (необязательно)';
+	@override String get projectDescHint => 'Что должен дать этот проект?';
+	@override String get projectSubmit => 'Создать';
+	@override String get projectCreateSuccess => 'Проект создан';
+	@override String get projectDetailTitle => 'Детали проекта';
+	@override String get projectInfoSection => 'Основная информация';
+	@override String get projectOwnerLabel => 'Ответственный';
+	@override String get projectStatusLabel => 'Статус';
+	@override String get projectStatusActive => 'В процессе';
+	@override String get projectStatusDone => 'Завершён';
+	@override String get projectMarkDone => 'Отметить как завершённый';
+	@override String get projectReopen => 'Открыть проект заново';
+	@override String get projectStatusChanged => 'Статус проекта обновлён';
+	@override String get projectTasksSection => 'Задачи';
+	@override String get taskNewEntry => 'Новая задача';
+	@override String get taskFormCreateTitle => 'Новая задача';
+	@override String get taskFormEditTitle => 'Редактировать задачу';
+	@override String get taskTitleLabel => 'Название задачи';
+	@override String get taskTitleRequired => 'Название задачи не может быть пустым';
+	@override String get taskAssigneeLabel => 'Ответственный (участник рабочего пространства)';
+	@override String get taskAssigneeNone => 'Пока не назначать';
+	@override String get taskAssigneeRefresh => 'Обновить список кандидатов';
+	@override String get taskSubmitCreate => 'Создать задачу';
+	@override String get taskSubmitSave => _root.common.buttonSave;
+	@override String get taskCreatedToast => 'Задача создана';
+	@override String get taskExistingToast => 'Задача с таким названием уже существует, используется она';
+	@override String get taskUpdatedToast => 'Задача сохранена';
+	@override String get taskFilterAll => 'Все';
+	@override String get taskStatusTodo => 'К выполнению';
+	@override String get taskStatusDoing => 'В процессе';
+	@override String get taskStatusReview => 'На проверке';
+	@override String get taskStatusDone => 'Завершено';
+	@override String taskAdvanceTo({required Object status}) => 'Перевести в «${status}»';
+	@override String taskFallbackMenuTitle({required Object title}) => 'Вернуть «${title}» к...';
+	@override String taskStatusMovedToast({required Object status}) => 'Переведено в «${status}»';
+	@override String get taskEmptyTitle => 'Пока нет задач';
+	@override String get taskEmptySubtitle => 'Отслеживайте выполнение по четырём статусам: к выполнению → в процессе → на проверке → завершено';
+	@override String get guestReadonlyHint => 'Гость (Guest) имеет доступ только для чтения к ресурсам рабочего пространства';
+	@override String get projectsLoadMore => 'Загрузить ещё';
+	@override String get projectW2SectionTitle => 'Совместная работа по проекту';
+	@override String get projectMembersEntry => 'Участники';
+	@override String get projectMilestonesEntry => 'Этапы';
+	@override String get projectChannelsEntry => 'Каналы проекта';
+	@override String get projectInsightsEntry => 'Сводка контента';
+	@override String get projectNoPermission => 'Нет доступа: просмотр доступен только участникам проекта, ответственному за проект или Owner рабочего пространства';
+	@override String get projectGuestReadonly => 'Гость (Guest) имеет доступ к проекту только для чтения';
+	@override String get projectLoadMore => 'Загрузить ещё';
+	@override String get projectMembersTitle => 'Участники проекта';
+	@override String get projectMemberEmptyTitle => 'Пока нет участников проекта';
+	@override String get projectMemberEmptySubtitle => 'Ответственный за проект может приглашать зарегистрированных пользователей';
+	@override String get projectMemberInviteTitle => 'Пригласить участника проекта';
+	@override String get projectMemberInviteFieldLabel => 'ID пользователя';
+	@override String get projectMemberInviteFieldHint => 'ID зарегистрированного пользователя для приглашения';
+	@override String get projectMemberInviteInvalidUid => 'Введите действительный ID пользователя';
+	@override String get projectMemberInviteSubmit => 'Пригласить';
+	@override String get projectMemberInviteSuccess => 'Пользователь добавлен в участники проекта';
+	@override String get projectMemberInviteExisting => 'Этот пользователь уже участник проекта';
+	@override String projectMemberRemoveConfirmTitle({required Object name}) => 'Удалить участника проекта ${name}';
+	@override String get projectMemberRemoveConfirmDesc => 'После удаления пользователь потеряет доступ к содержимому проекта (можно пригласить снова)';
+	@override String get projectMemberRemoveSubmit => 'Удалить';
+	@override String get projectMemberRemovedToast => 'Удалено';
+	@override String get projectMemberAlreadyRemovedToast => 'Этого пользователя уже нет среди участников проекта';
+	@override String projectMemberTransferTitle({required Object name}) => 'Передать роль ответственного за проект: ${name}';
+	@override String get projectMemberTransferDesc => 'После передачи получатель получит полные права управления проектом';
+	@override String get projectMemberTransferConfirm => 'Подтвердить передачу';
+	@override String get projectMemberTransferDoneToast => 'Ответственный за проект передан';
+	@override String get projectMilestonesTitle => 'Этапы';
+	@override String get projectMilestoneEmptyTitle => 'Пока нет этапов';
+	@override String get projectMilestoneEmptySubtitle => 'Отмечайте ключевые точки проекта этапами (в плане → достигнут, только вперёд)';
+	@override String get projectMilestoneCreateTitle => 'Новый этап';
+	@override String get projectMilestoneNameLabel => 'Название';
+	@override String get projectMilestoneNameRequired => 'Название этапа не может быть пустым';
+	@override String get projectMilestoneDueDateLabel => 'Срок (YYYY-MM-DD, необязательно)';
+	@override String get projectMilestoneDueDateInvalid => 'Формат даты — YYYY-MM-DD';
+	@override String get projectMilestoneCreateSubmit => 'Создать';
+	@override String get projectMilestoneCreatedToast => 'Этап создан';
+	@override String get projectMilestoneFilterAll => 'Все';
+	@override String get projectMilestoneFilterPlanned => 'В плане';
+	@override String get projectMilestoneFilterReached => 'Достигнут';
+	@override String get projectMilestoneReach => 'Отметить как достигнутый';
+	@override String get projectMilestoneReachedToast => 'Этап достигнут';
+	@override String get projectMilestoneAlreadyReachedToast => 'Этот этап уже достигнут';
+	@override String get projectMilestoneReachedHint => 'Достигнут (нельзя вернуть назад)';
+	@override String get projectMilestoneDueLabel => 'Срок';
+	@override String get projectChannelsTitle => 'Каналы проекта';
+	@override String get projectChannelEmptyTitle => 'Нет привязанных каналов';
+	@override String get projectChannelEmptySubtitle => 'После привязки каналов рабочего пространства их закреплённый контент и последние публикации собираются в этом проекте';
+	@override String get projectChannelLinkTitle => 'Выберите каналы для привязки';
+	@override String get projectChannelNoCandidate => 'Нет каналов, доступных для привязки';
+	@override String get projectChannelLinkedToast => 'Канал привязан';
+	@override String get projectChannelLinkExistingToast => 'Этот канал уже привязан';
+	@override String projectChannelUnlinkTitle({required Object name}) => 'Отвязать ${name}';
+	@override String get projectChannelUnlinkDesc => 'После отвязки контент этого канала больше не будет собираться в проекте';
+	@override String get projectChannelUnlinkSubmit => 'Отвязать';
+	@override String get projectChannelUnlinkedToast => 'Привязка снята';
+	@override String get projectInsightsTabPinned => 'Закреплённые сообщения';
+	@override String get projectInsightsTabResources => 'Ссылки на ресурсы';
+	@override String get projectInsightsTabActivity => 'События проекта';
+	@override String get projectInsightsTabPosts => 'Связанные публикации';
+	@override String get projectInsightsPinnedEmpty => 'В привязанных каналах пока нет закреплённого контента';
+	@override String get projectInsightsResourcesEmpty => 'В проекте пока нет ссылок на ресурсы';
+	@override String get projectInsightsActivityEmpty => 'В проекте пока нет событий';
+	@override String get projectInsightsPostsEmpty => 'В привязанных каналах пока нет публикаций';
+	@override String projectInsightsPostAuthor({required Object name}) => 'Опубликовано: ${name}';
+	@override String get projectLinkNameLabel => 'Название ссылки';
+	@override String get projectLinkUrlLabel => 'Адрес ссылки';
+}
+
+// Path: account.alipaySim
+class _Translations$account$alipaySim$ru_RU extends Translations$account$alipaySim$zh_CN {
+	_Translations$account$alipaySim$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get alipaySuccess => 'Платёж выполнен';
+	@override String get balanceSource => 'Баланс аккаунта';
+	@override String get confirmPay => 'Подтвердить оплату';
+	@override String get energy => 'За платёж начислено 5 г зелёной энергии';
+	@override String get enterPassword => 'Введите платёжный пароль';
+	@override String get huabei => 'Huabei (рассрочка)';
+	@override String get merchantSuccess => 'Оплата в приложении магазина выполнена';
+	@override String get paymentAmount => 'Сумма:';
+	@override String get selectMethod => 'Выберите способ оплаты';
+	@override String get storeName => 'Флагманский магазин информационных технологий';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -2738,6 +3260,29 @@ extension on TranslationsRuRu {
 			'account.e2eeTransferFromOldDevice' => 'Получить ключ со старого устройства',
 			'account.pleaseRelogin' => 'Войдите заново',
 			'account.otherLoginMethods' => 'Другие способы входа',
+			'account.logoutCancelRequest' => 'Отменить заявку на удаление',
+			'account.logoutCancelledNote' => 'Заявка на удаление отменена',
+			'account.logoutPendingBanner' => ({required Object date}) => 'Заявка на удаление подана, ожидаемое завершение — ${date}',
+			'account.logoutPendingHeader' => 'Статус заявки на удаление',
+			'account.logoutRetainedHeader' => 'О хранении данных',
+			'account.logoutRetainedNote' => 'После удаления: журналы аудита и финансовые записи хранятся и анонимизируются в соответствии с законом; ваши группы/рабочие пространства/каналы будут сначала переданы преемникам',
+			'account.payCancelled' => 'Оплата отменена',
+			'account.payMethodAlipay' => 'Alipay',
+			'account.payMethodComingSoon' => 'Этот способ оплаты скоро станет доступен',
+			'account.payMethodMock' => 'Тестовая оплата (среда разработки)',
+			'account.payMethodTitle' => 'Выбор способа оплаты',
+			'account.payMethodWallet' => 'Баланс кошелька',
+			'account.payMethodWechat' => 'WeChat Pay',
+			'account.alipaySim.alipaySuccess' => 'Платёж выполнен',
+			'account.alipaySim.balanceSource' => 'Баланс аккаунта',
+			'account.alipaySim.confirmPay' => 'Подтвердить оплату',
+			'account.alipaySim.energy' => 'За платёж начислено 5 г зелёной энергии',
+			'account.alipaySim.enterPassword' => 'Введите платёжный пароль',
+			'account.alipaySim.huabei' => 'Huabei (рассрочка)',
+			'account.alipaySim.merchantSuccess' => 'Оплата в приложении магазина выполнена',
+			'account.alipaySim.paymentAmount' => 'Сумма:',
+			'account.alipaySim.selectMethod' => 'Выберите способ оплаты',
+			'account.alipaySim.storeName' => 'Флагманский магазин информационных технологий',
 			'agent.plazaTitle' => 'ИИ-ассистенты',
 			'agent.transparencyBanner' => 'Все участники здесь — ИИ-ассистенты с чётко обозначенным статусом. В зашифрованных чатах — только настоящие люди.',
 			'agent.searchHint' => 'Поиск ассистентов',
@@ -2748,6 +3293,18 @@ extension on TranslationsRuRu {
 			'agent.badgeOfficial' => 'Официальный',
 			'agent.badgeAiA11y' => 'ИИ-ассистент',
 			'agent.badgeOfficialA11y' => 'Официальный аккаунт',
+			'agent.legacyBotGoPlaza' => 'Перейти в ИИ-ассистенты',
+			'agent.legacyBotMigrated' => 'Этот вход для ботов обновлён. Общайтесь с ассистентами в разделе ИИ-ассистенты',
+			'agentTask.title' => 'ИИ-задачи',
+			'agentTask.working' => 'Выполняется',
+			'agentTask.submitted' => 'Отправлено',
+			'agentTask.progress' => 'В процессе',
+			'agentTask.completed' => 'Завершено',
+			'agentTask.failed' => 'Ошибка выполнения',
+			'agentTask.cancelled' => 'Отменено',
+			'agentTask.awaitingApproval' => 'Ожидает утверждения',
+			'agentTask.approve' => 'Утвердить',
+			'agentTask.reject' => 'Отклонить',
 			'billing.title' => 'Подписки',
 			'billing.planPeriodMonthly' => 'Ежемесячно',
 			'billing.planPeriodYearly' => 'Ежегодно',
@@ -2911,6 +3468,66 @@ extension on TranslationsRuRu {
 			'channel.accessTypePaid' => 'Платно',
 			'channel.typePublicPaidDesc' => 'Любой может найти канал и подписаться после покупки',
 			'channel.typePrivatePaidDesc' => 'Только приглашённые пользователи могут перейти к покупке и подписаться после оплаты',
+			'channel.addImage' => 'Добавить изображение',
+			'channel.allCategories' => 'Все',
+			'channel.articleBodyHint' => 'Напишите что-нибудь... Поддерживается жирный, курсив, заголовки, списки и др.',
+			'channel.cancelOrder' => 'Отменить заказ',
+			'channel.cancelOrderConfirmMessage' => 'Отменить этот неоплаченный заказ? После отмены оплата будет невозможна.',
+			'channel.cancelOrderConfirmTitle' => 'Подтвердить отмену заказа',
+			'channel.cancelOrderSuccess' => 'Заказ отменён',
+			'channel.channelNotFound' => 'Канал не существует',
+			'channel.comment' => 'Комментарий',
+			'channel.commentDeleteNoPermission' => 'Нет прав на удаление этого комментария',
+			'channel.commentFailed' => 'Не удалось прокомментировать',
+			'channel.coverLabel' => 'Обложка',
+			'channel.coverSet' => 'Установлено как обложка',
+			'channel.deleteComment' => 'Удалить комментарий',
+			'channel.deleteCommentConfirm' => 'Удалить этот комментарий?',
+			'channel.formatBold' => 'Жирный',
+			'channel.formatHeading' => 'Заголовок',
+			'channel.formatItalic' => 'Курсив',
+			'channel.formatLink' => 'Ссылка',
+			'channel.formatList' => 'Список',
+			'channel.formatQuote' => 'Цитата',
+			'channel.formatStrikethrough' => 'Зачёркнутый',
+			'channel.like' => 'Нравится',
+			'channel.linkTextPlaceholder' => 'Текст ссылки',
+			'channel.myOrders' => 'Мои заказы',
+			'channel.noComments' => 'Пока нет комментариев',
+			'channel.noOrders' => 'Нет заказов',
+			'channel.orderAmount' => 'Сумма',
+			'channel.orderChannel' => 'Канал',
+			'channel.orderContinuePay' => 'Продолжить оплату',
+			'channel.orderCreatedAt' => 'Время заказа',
+			'channel.orderDetail' => 'Детали заказа',
+			'channel.orderNo' => 'Номер заказа',
+			'channel.orderPaidAt' => 'Время оплаты',
+			'channel.orderPaymentMethod' => 'Способ оплаты',
+			'channel.orderStatusCancelled' => 'Отменён',
+			'channel.orderStatusExpired' => 'Истёк',
+			'channel.orderStatusLabel' => 'Статус',
+			'channel.orderStatusPaid' => 'Оплачен',
+			'channel.orderStatusPending' => 'Ожидает оплаты',
+			'channel.orderStatusRefunded' => 'Возвращён',
+			'channel.orderStatusRefunding' => 'Возврат в обработке',
+			'channel.orderSubscriptionPeriod' => 'Период подписки',
+			'channel.orderValidUntil' => 'Действует до',
+			'channel.payAlipay' => 'Alipay',
+			'channel.payWallet' => 'Баланс кошелька',
+			'channel.payWechat' => 'WeChat Pay',
+			'channel.preview' => 'Предпросмотр',
+			'channel.publish' => 'Опубликовать',
+			'channel.readFull' => 'Читать полностью',
+			'channel.refundApply' => 'Запросить возврат',
+			'channel.refundConfirmMessage' => 'Запросить возврат по этому заказу? После возврата подписка будет отменена.',
+			'channel.refundConfirmTitle' => 'Подтвердить возврат',
+			'channel.refundSuccess' => 'Заявка на возврат отправлена',
+			'channel.reply' => 'Ответить',
+			'channel.replyTo' => 'Ответ на',
+			'channel.sortNewest' => 'Сначала новые',
+			'channel.sortPopular' => 'Популярные',
+			'channel.titleOptional' => 'Заголовок (необязательно)',
+			'channel.writeComment' => 'Написать комментарий...',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.cards' => 'шт.',
 			'chat.jdShopping' => 'Покупки на JD',
@@ -3038,6 +3655,8 @@ extension on TranslationsRuRu {
 			'chat.sendTo' => 'Отправить',
 			'chat.send' => _root.common.buttonSend,
 			'chat.sender' => 'Отправитель',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sending' => 'Отправка...',
 			'chat.signatureInputHint' => 'Подсказка ввода подписи',
 			'chat.signaturePlaceholder' => 'Заполнитель подписи',
@@ -3133,8 +3752,6 @@ extension on TranslationsRuRu {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => 'Оплачено: ${time}',
 			'chat.orderStatusPending' => 'Ожидает оплаты',
 			'chat.orderStatusPaid' => 'Оплачено',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderStatusRefunded' => 'Возврат оформлен',
 			'chat.orderStatusExpired' => 'Истекло',
 			'chat.defaultFileName' => 'Файл',
@@ -3191,6 +3808,16 @@ extension on TranslationsRuRu {
 			'chat.extraItems' => 'Дополнительно',
 			'chat.messageInputHint' => 'Напишите сообщение...',
 			'chat.invalidMessageType' => '[Неподдерживаемое сообщение]',
+			'chat.alipayLoginInterrupted' => 'Процесс входа через Alipay прерван системой, попробуйте снова',
+			'chat.burnReadBadge' => 'Сгорает',
+			'chat.convertToText' => 'В текст',
+			'chat.extraPanelCollab' => 'Совместная работа',
+			'chat.extraPanelFunds' => 'Финансы',
+			'chat.extraPanelMedia' => 'Медиа',
+			'chat.releaseConvertToText' => 'Отпустите — в текст',
+			'chat.voiceReleaseCancel' => 'Отпустите — отмена',
+			'chat.voiceReleaseCancelSend' => 'Отпустите — отменить отправку',
+			'chat.voiceSlideHint' => 'Вверх — отмена / в текст',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
@@ -3542,6 +4169,8 @@ extension on TranslationsRuRu {
 			'common.muteDuration1hour' => '1 Hour',
 			'common.muteDuration6hours' => '6 Hours',
 			'common.muteDuration12hours' => '12 Hours',
+			_ => null,
+		} ?? switch (path) {
 			'common.muteDuration1day' => '1 Day',
 			'common.muteDuration3days' => '3 Days',
 			'common.muteDuration7days' => '7 Days',
@@ -3599,10 +4228,10 @@ extension on TranslationsRuRu {
 			'common.sureDeleteGroupChatRecord' => 'Удалить историю чата группы?',
 			'common.switchEnvironment' => 'Переключить среду',
 			'common.thisMonth' => 'В этом месяце',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, other: '${n} дней назад', ), 
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, other: '${n} часов назад', ), 
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, one: '${n} день назад', few: '${n} дня назад', many: '${n} дней назад', other: '${n} дня назад', ),
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, one: '${n} час назад', few: '${n} часа назад', many: '${n} часов назад', other: '${n} часа назад', ),
 			'common.timeJustNow' => 'Только что',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, other: '${n} минут назад', ), 
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, one: '${n} минуту назад', few: '${n} минуты назад', many: '${n} минут назад', other: '${n} минуты назад', ),
 			'common.timeToday' => 'Сегодня',
 			'common.timeYesterday' => 'Вчера',
 			'common.tipConnectDesc' => 'Нет сети',
@@ -3647,8 +4276,6 @@ extension on TranslationsRuRu {
 			'common.whatYourFeedback' => 'Что вы думаете?',
 			'common.yesterday' => 'Вчера',
 			'common.yourContactInformation' => 'Ваша контактная информация',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirmRemove' => 'Подтвердить удаление',
 			'common.confirmRemoveFromDenylist' => 'Удалить этого пользователя из чёрного списка?',
 			'common.buttonRemove' => 'Удалить',
@@ -4056,6 +4683,8 @@ extension on TranslationsRuRu {
 			'common.insufficientBalanceTitle' => 'Недостаточно средств',
 			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => 'Текущий баланс ${currency} ${balance}, требуется ${currency} ${price}. Сначала пополните счёт.',
 			'common.goRecharge' => 'Пополнить счёт',
+			_ => null,
+		} ?? switch (path) {
 			'common.noOrders' => 'Нет заказов',
 			'common.orderDetailLoadFailed' => 'Не удалось загрузить заказ',
 			'common.orderNoLabel' => ({required Object no}) => 'Заказ: ${no}',
@@ -4161,8 +4790,6 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupImportantNoteColon' => 'Важно:',
 			'common.e2eeBackupKeepSafe' => '• Храните файл копии и пароль в безопасности',
 			'common.e2eeBackupStoreMultipleLoc' => '• Храните файл в нескольких надёжных местах',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• Пароль нельзя восстановить, обязательно запомните его',
 			'common.e2eeBackupImportTitle' => 'Импорт резервной копии E2EE',
 			'common.e2eeBackupImportGuide' => 'Инструкция по импорту',
@@ -4334,7 +4961,82 @@ extension on TranslationsRuRu {
 			'common.searchFailedRetry' => 'Поиск не удался, повторите попытку',
 			'common.searchDisabledTitle' => 'Поиск по сообщениям недоступен',
 			'common.searchDisabledByEncryption' => 'Включено сквозное шифрование: сервер не может читать сообщения, поэтому полнотекстовый поиск недоступен',
+			'common.amountMustPositive' => 'Сумма должна быть больше 0',
+			'common.answer' => 'Ответить',
+			'common.collapse' => 'Свернуть',
+			'common.complianceKeyChangedActionConfirm' => 'Подтвердить ротацию',
+			'common.complianceKeyChangedActionKeep' => 'Отложить подтверждение',
+			'common.complianceKeyChangedBody' => 'Открытый ключ комплаенс-аудита, выданный сервером, не совпадает с локально зафиксированным значением. Если это намеренная ротация ключа администратором, нажмите «Подтвердить ротацию»; иначе не отправляйте зашифрованные сообщения и обратитесь к администратору для проверки.',
+			'common.complianceKeyChangedTitle' => 'Ключ комплаенс-аудита изменён',
+			'common.declineCall' => 'Отклонить',
+			'common.e2eeErrPeerNotOnboarded' => 'Собеседник ещё не входил ни на одном устройстве, зашифрованная отправка пока невозможна; дождитесь его входа и повторите',
+			'common.e2eeRecoveryKeyCopied' => 'Ключ восстановления скопирован',
+			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Ключ восстановления скопирован; буфер обмена будет очищен через ${seconds} сек, сохраните его как можно скорее',
+			'common.e2eeRecoveryKeySaveNote' => 'Немедленно сохраните этот ключ восстановления (скриншот или менеджер паролей). Если забудете парольную фразу, это единственная возможность расшифровать резервную копию; без него восстановление станет невозможным навсегда.',
+			'common.e2eeRecoveryKeyTitle' => 'Ключ восстановления',
+			'common.e2eeUseRecoveryKey' => 'Создать ключ восстановления (запасной доступ при забытой парольной фразе)',
+			'common.enterAmount' => 'Введите сумму',
+			'common.expandFull' => 'Развернуть',
+			'common.f2fEnteringGroup' => ({required Object count}) => 'Скоро в групповой чат войдут: ${count} чел.',
+			'common.f2fSecretCode' => 'Секретный код',
+			'common.hoursAgo' => 'ч. назад',
+			'common.minutesAgo' => 'мин. назад',
+			'common.initConfigDecryptFailed' => 'Не удалось расшифровать конфигурацию: ключ безопасности приложения не совпадает с серверным. Обновите приложение или обратитесь к администратору',
+			'common.justNow' => 'Только что',
+			'common.me' => 'Я',
+			'common.minimize' => 'Свернуть',
+			'common.momentsHasFailedUploads' => 'Часть медиа не загружена. Повторите попытку или удалите их перед публикацией',
+			'common.noHistory' => 'Нет истории',
+			'common.noNewRegisteredUsersTitle' => 'Новых пользователей пока нет',
+			'common.payReceiveSuccess' => 'Платёж получен!',
+			'common.purchaseConfirming' => 'Платёж подтверждается, проверьте статус заказа позже',
+			'common.reconnecting' => 'Слабое соединение, переподключение...',
+			'common.redPacketAmountTooSmall' => 'Общая сумма — не менее количества × 0.01 юаня',
+			'common.redPacketBrand' => 'Красный конверт IMBoy',
+			'common.redPacketCount' => 'Количество конвертов',
+			'common.redPacketCountEmpty' => 'Введите количество конвертов',
+			'common.redPacketCountMin' => 'Количество конвертов — не менее 1',
+			'common.redPacketCountUnit' => 'шт.',
+			'common.redPacketCurrentLucky' => 'Тип: конверт на удачу',
+			'common.redPacketCurrentNormal' => 'Тип: обычный конверт',
+			'common.redPacketDialogSubtitle' => 'Удачи и благополучия!',
+			'common.redPacketDialogTitle' => 'Красный конверт для вас',
+			'common.redPacketFetchError' => 'Ошибка загрузки деталей конверта',
+			'common.redPacketFetchFailed' => 'Не удалось загрузить детали конверта',
+			'common.redPacketGreetingLabel' => 'Подпись / пожелание',
+			'common.redPacketNotFound' => 'Конверт не существует или удалён',
+			'common.redPacketReceiverLabel' => ({required Object uid}) => 'Пользователь: ${uid}',
+			'common.redPacketSingleAmount' => 'Сумма на конверт',
+			'common.redPacketStuffLucky' => 'Наполнить конверт',
+			'common.redPacketStuffNormal' => 'Отправить из кошелька',
+			'common.redPacketSwitchToLucky' => 'Переключить на конверт на удачу',
+			'common.redPacketSwitchToNormal' => 'Переключить на обычный конверт',
+			'common.redPacketTotalAmount' => 'Общая сумма',
+			'common.redPacketView' => 'Просмотреть конверт',
+			'common.switchCamera' => 'Переключить камеру',
+			'common.timeDaysShort' => ({required Object count}) => '${count} д',
+			'common.timeHoursShort' => ({required Object count}) => '${count} ч',
+			'common.timeMinutesShort' => ({required Object count}) => '${count} мин',
+			'common.timeNowShort' => 'сейчас',
+			'common.transferAccepted' => 'Получено',
+			'common.transferAmountLabel' => 'Сумма перевода',
+			'common.transferConfirm' => 'Подтвердить перевод',
+			'common.transferDefaultRemark' => 'Перевод другу',
+			'common.transferMinAmountError' => 'Минимальная сумма перевода — 0.01 юаня',
+			'common.transferPending' => 'Ожидает подтверждения получателем',
+			'common.transferReceiving' => 'Получение платежа...',
+			'common.transferRefunded' => 'Возвращено',
+			'common.transferRemarkLabel' => 'Примечание к переводу',
+			'common.transferTapToReceive' => 'Нажмите, чтобы получить',
+			'common.uploadPartialFailed' => ({required Object count}) => 'Не удалось загрузить элементов: ${count}',
+			'common.voiceSttConverting' => 'Распознавание...',
+			'common.voiceSttNotConfigured' => 'Функция распознавания речи не настроена',
+			'common.voiceSttPreviewTitle' => 'Предпросмотр распознанного текста',
 			'complaint.complaint' => 'Жалоба',
+			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
+			'complaint.e2eeConsentBody' => 'Это сообщение зашифровано сквозным шифрованием; сервер не видит его содержимое. Отправка выдержки раскроет выбранный открытый текст модераторам для проверки. Согласны?',
+			'complaint.e2eeConsentSubmit' => 'Согласен и отправить',
+			'complaint.e2eeConsentDecline' => 'Только жалоба (без содержимого)',
 			'complaintReason.spam' => 'Спам',
 			'complaintReason.harassment' => 'Преследование',
 			'complaintReason.inappropriate' => 'Неподходящий контент',
@@ -4438,6 +5140,14 @@ extension on TranslationsRuRu {
 			'discovery.openChannel' => 'Открыть канал',
 			'discovery.paidChannelLocked' => 'Содержимое платного канала заблокировано',
 			'discovery.webQRScanned' => 'Отсканировано',
+			'discovery.momentActionMore' => 'Другие действия',
+			'discovery.momentAtCount' => ({required Object count}) => '${count} чел.',
+			'discovery.momentAtReminded' => ({required Object name}) => 'Напоминание: ${name}',
+			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'Напоминание: ${name} и ещё ${count} чел.',
+			'discovery.momentAtWho' => 'Кого напомнить?',
+			'discovery.momentLikesCountOnly' => ({required Object count}) => 'Оценили: ${count}',
+			'discovery.momentLocation' => 'Местоположение',
+			'discovery.momentLocationNone' => 'Не показывать местоположение',
 			'error.restartRequired' => 'Требуется перезапуск приложения',
 			'error.networkFailureGuidance' => 'Руководство при сетевых ошибках',
 			'error.pleaseCheckNetwork' => 'Пожалуйста, проверьте настройки сети.',
@@ -4487,6 +5197,8 @@ extension on TranslationsRuRu {
 			'group.groupAlbumPhotoSetCover' => 'Сделать обложкой',
 			'group.groupAlbumPhotoPrev' => 'Назад',
 			'group.groupAlbumPhotoLikeCount' => 'Лайки',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoCommentCount' => 'Комментарии',
 			'group.groupAlbumPhotoMyLike' => 'Мой лайк',
 			'group.groupAlbumPhotoIdLabel' => 'ID фото',
@@ -4494,6 +5206,15 @@ extension on TranslationsRuRu {
 			'group.e2eeKeyManagementSubtitle' => 'Резервное копирование, восстановление и управление ключами сквозного шифрования',
 			'group.e2eeTitle' => 'Сквозное шифрование',
 			'group.e2eeEnableConfirm' => 'После включения сообщения группы будут защищены сквозным шифрованием и доступны только на устройствах участников. Это действие необратимо. Включить?',
+			'group.enterGroupChat' => 'Войти в групповой чат',
+			'group.groupCreated' => 'Групповой чат создан',
+			'group.groupCreatedSuccess' => 'Групповой чат создан. Заполните информацию о группе или сразу войдите в чат',
+			'group.groupInfo' => 'Информация о группе',
+			'group.groupMemberRoleLabel' => 'Участник',
+			'group.moreActions' => 'Другие действия',
+			'group.noMemberWithRole' => ({required Object roleName}) => 'Пока нет: ${roleName}',
+			'group.perfectionGroupInfo' => 'Заполнить информацию о группе',
+			'group.touchContactAddMember' => 'Нажмите на контакт, чтобы добавить участника в группу',
 			'groupCategory.title' => 'Папки групп',
 			'groupCategory.createCategory' => 'Создать папку',
 			'groupCategory.categoryName' => 'Название папки',
@@ -4511,6 +5232,13 @@ extension on TranslationsRuRu {
 			'groupCategory.renameFailed' => 'Не удалось переименовать, попробуйте ещё раз',
 			'groupCategory.deleteFailed' => 'Не удалось удалить, попробуйте ещё раз',
 			'groupCategory.categoryDetailTip' => 'Группы в этой папке можно переносить через «В папку» в списке групп',
+			'groupDiscovery.title' => 'Обзор групп',
+			'groupDiscovery.searchHint' => 'Поиск публичных групп',
+			'groupDiscovery.allCategories' => 'Все',
+			'groupDiscovery.sortPopular' => 'Популярные',
+			'groupDiscovery.sortNewest' => 'Сначала новые',
+			'groupDiscovery.emptyTitle' => 'Публичных групп пока нет, загляните позже',
+			'groupDiscovery.searchEmpty' => 'Нет подходящих публичных групп',
 			'groupList.attrAll' => 'Все',
 			'groupList.attrOwner' => 'Мои',
 			'groupList.attrManager' => 'Управляю',
@@ -4675,8 +5403,6 @@ extension on TranslationsRuRu {
 			'main.markStar' => 'Избранное',
 			'main.markStarDesc' => 'Добавить в избранное',
 			'main.markTodo' => 'Сделать',
-			_ => null,
-		} ?? switch (path) {
 			'main.markTodoDesc' => 'Пометить как задачу',
 			'main.multiSelect' => 'Множественный выбор',
 			'main.multiSelectMode' => 'Режим множественного выбора',
@@ -4885,6 +5611,35 @@ extension on TranslationsRuRu {
 			'main.liveRoomTitleLabel' => 'Название трансляции',
 			'main.liveRoomTitleHint' => 'Введите название трансляции',
 			'main.lightModel' => 'Светлая тема',
+			'main.complianceKeyInfoAlgorithm' => 'Алгоритм',
+			'main.complianceKeyInfoChangedWarning' => '⚠️ Комплаенс-ключ сервера не совпадает с локально зафиксированным! Если это не намеренная ротация администратора, немедленно свяжитесь с администратором и прекратите отправку зашифрованных сообщений.',
+			'main.complianceKeyInfoFetchedAt' => 'Время получения',
+			'main.complianceKeyInfoFingerprint' => 'Отпечаток открытого ключа',
+			'main.complianceKeyInfoHint' => 'Ключ комплаенс-аудита используется для двойного шифрования в режиме compliance_e2ee. Если отпечаток выше не совпадает с опубликованным администратором, сервер мог быть подменён.',
+			'main.complianceKeyInfoKeyId' => 'ID ключа',
+			'main.complianceKeyInfoLocalPin' => 'Локальная фиксация (TOFU)',
+			'main.complianceKeyInfoPinnedAt' => 'Время фиксации',
+			'main.complianceKeyInfoPinnedNone' => 'Ещё не зафиксирован (зафиксируется автоматически при следующем получении)',
+			'main.complianceKeyInfoRefreshFailed' => 'Не удалось получить. Проверьте сеть и повторите',
+			'main.complianceKeyInfoServerKey' => 'Открытый ключ сервера',
+			'main.complianceKeyInfoTitle' => 'Ключ комплаенс-аудита',
+			'main.e2eeErrComplianceChanged' => 'Ключ комплаенс-аудита изменён, сообщение не отправлено. Подтвердите ротацию и повторите',
+			'main.e2eeErrComplianceUnavailable' => 'Комплаенс-ключ временно недоступен, сообщение не отправлено. Повторите позже',
+			'main.e2eeErrDeviceNotReady' => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите',
+			'main.e2eeErrProtocolMismatch' => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите',
+			'main.e2eeErrSessionExportFailed' => 'Не удалось создать сеансовый ключ группы. Повторите позже',
+			'main.safetyNumberCopied' => 'Скопировано',
+			'main.safetyNumberCopy' => 'Копировать',
+			'main.safetyNumberHint' => 'Сравните код безопасности с собеседником лично или по телефону. Если коды совпадают, ваша связь не прослушивается посредником; если нет — немедленно прекратите разговор и проверьте личность собеседника другим способом. Статус проверки хранится только на этом устройстве.',
+			'main.safetyNumberMarkVerified' => 'Отметить как проверенного',
+			'main.safetyNumberMarkedVerified' => 'Отмечено как проверенное',
+			'main.safetyNumberNoDevices' => 'У собеседника не включено сквозное шифрование',
+			'main.safetyNumberPeerDevice' => 'Устройство собеседника',
+			'main.safetyNumberReportRejected' => 'Сервер отклонил событие проверки (подпись/срок не совпадают), статус не изменён',
+			'main.safetyNumberReportUnavailable' => 'Не удалось получить информацию об устройстве, не отправлено',
+			'main.safetyNumberReporting' => 'Отправка результата проверки...',
+			'main.safetyNumberTitle' => 'Проверка кода безопасности',
+			'main.safetyNumberVerifyFailed' => 'Не удалось получить код безопасности. Повторите позже',
 			'mention.mentionAll' => 'Все',
 			'mention.mentionAllHint' => 'Уведомить всех участников группы',
 			'mention.noMatchedMember' => 'Нет подходящих участников',
@@ -4900,6 +5655,7 @@ extension on TranslationsRuRu {
 			'mention.mentionCount' => ({required Object count}) => 'Новых упоминаний: ${count}',
 			'mention.mentionAllDenied' => 'Только администратор может использовать @все',
 			'mention.navInfoMissing' => 'Нет данных о позиции сообщения, переход невозможен',
+			'mention.pickButtonTooltip' => 'Упомянуть участника',
 			'momentFriendPicker.title' => 'Выбор друзей',
 			'momentFriendPicker.titleAllow' => 'Показать',
 			'momentFriendPicker.titleDeny' => 'Скрыть от',
@@ -4935,6 +5691,16 @@ extension on TranslationsRuRu {
 			'passport.getVerifyCode' => 'Получить код',
 			'passport.hasAccount' => 'Уже есть аккаунт?',
 			'passport.oneKeyLogin' => 'Быстрый вход',
+			'passport.qrCodeExpired' => 'Срок действия QR-кода истёк, отсканируйте заново',
+			'passport.qrCodeUsed' => 'Этот QR-код уже использован',
+			'passport.qrConnecting' => 'Подключение...',
+			'passport.qrLoginAction' => 'Подтвердить вход',
+			'passport.qrLoginCancelled' => 'Вход отменён',
+			'passport.qrLoginCancelledByMe' => 'Вы отменили вход',
+			'passport.qrLoginConfirming' => 'Выполняется вход...',
+			'passport.qrLoginSuccess' => 'Вход выполнен',
+			'passport.qrWebLoginDesc' => 'Подтвердите вход этого аккаунта в веб-версии',
+			'passport.qrWebLoginTitle' => 'Подтверждение входа в веб-версии',
 			'splash.slogan' => 'Свободно общайтесь — легко и удобно',
 			'welcome.step1Title' => 'Общайтесь свободно',
 			'welcome.step1Desc' => 'Бесшовное общение В любое время, в любом месте',
@@ -4945,6 +5711,237 @@ extension on TranslationsRuRu {
 			'welcome.next' => 'Далее',
 			'welcome.getStarted' => 'Начать',
 			'welcome.skip' => 'Пропустить',
+			_ => null,
+		} ?? switch (path) {
+			'workspace.navOverview' => 'Обзор',
+			'workspace.navProjects' => 'Проекты',
+			'workspace.navChannels' => 'Каналы',
+			'workspace.navGroups' => 'Группы',
+			'workspace.navMembers' => 'Участники',
+			'workspace.pickerTitle' => 'Мои рабочие пространства',
+			'workspace.switchWorkspace' => 'Сменить рабочее пространство',
+			'workspace.pickerEmptyTitle' => 'Пока нет рабочих пространств',
+			'workspace.pickerEmptySubtitle' => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)',
+			'workspace.archivedBadge' => 'В архиве',
+			'workspace.emptyNoWorkspace' => 'Сначала выберите или создайте рабочее пространство',
+			'workspace.dmEntry' => 'Все сообщения',
+			'workspace.experienceModeEntry' => 'Макет главного экрана',
+			'workspace.experienceModeHint' => 'Выберите режим использования на этом устройстве; меняется только макет главного экрана, права и участие в рабочем пространстве не затрагиваются',
+			'workspace.experienceModePersonal' => 'Личный',
+			'workspace.experienceModeWorkspace' => 'Рабочее пространство',
+			'workspace.experienceModeReset' => 'Восстановить значения по умолчанию',
+			'workspace.switchToWorkspace' => 'Переключиться на рабочее пространство',
+			'workspace.switchToPersonal' => 'Переключиться на личный',
+			'workspace.createTitle' => 'Создать рабочее пространство',
+			'workspace.createDesc' => 'Одно действие — и всё готово: рабочее пространство, вы (как Owner — участник рабочего пространства), канал Announcements и группа General. Всё выполняется успешно или полностью откатывается.',
+			'workspace.createNameLabel' => 'Название рабочего пространства',
+			'workspace.createNameHint' => 'Например: группа редизайна сайта',
+			'workspace.createNameRequired' => 'Название рабочего пространства не может быть пустым',
+			'workspace.createSubmit' => 'Создать',
+			'workspace.createEntry' => 'Создать рабочее пространство',
+			'workspace.createSuccess' => 'Рабочее пространство создано',
+			'workspace.createIdempotentHit' => 'Рабочее пространство с таким названием уже существует, переходим в него',
+			'workspace.createTemplateTitle' => 'Будет инициализировано автоматически',
+			'workspace.createTemplateChannel' => 'Канал Announcements (вы станете издателем и подписчиком канала)',
+			'workspace.createTemplateGroup' => 'Группа General (вы станете участником группы)',
+			'workspace.createTemplateOwner' => 'Вы станете Owner рабочего пространства (участник рабочего пространства)',
+			'workspace.overviewTitle' => 'Обзор',
+			'workspace.overviewResources' => 'Сводка ресурсов',
+			'workspace.overviewPinnedContent' => 'Закреплённое в каналах',
+			'workspace.overviewPinnedEmpty' => 'В каналах пока нет закреплённого контента; объявления групп здесь не собираются (они находятся в самих группах)',
+			'workspace.overviewRecentFiles' => 'Последние файлы',
+			'workspace.overviewRecentFilesEmpty' => 'Здесь появятся недавно загруженные файлы; вложения также можно посмотреть в каналах',
+			'workspace.membersTitle' => 'Участники рабочего пространства',
+			'workspace.membersCountLabel' => ({required Object count}) => 'Участников: ${count}',
+			'workspace.membersEmpty' => 'Пока нет участников рабочего пространства',
+			'workspace.membersEmptySubtitle' => 'Пригласите зарегистрированных пользователей стать участниками рабочего пространства (Owner / Member / Guest)',
+			'workspace.membersViewAll' => 'Показать все',
+			'workspace.projectsEmptyTitle' => 'Пока нет проектов',
+			'workspace.projectsEmptySubtitle' => 'Проекты нужны для отслеживания чётких целей; такой же сценарий подходит и для сообществ из каналов и групп',
+			'workspace.channelsEmptyTitle' => 'Пока нет каналов рабочего пространства',
+			'workspace.channelsEmptySubtitle' => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы',
+			'workspace.channelTileSubtitle' => ({required Object count}) => 'Подписчиков: ${count}',
+			'workspace.channelDetailTitle' => 'Канал',
+			'workspace.discussInGroupGuide' => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General →',
+			'workspace.groupsEmptyTitle' => 'Пока нет групп в рабочем пространстве',
+			'workspace.groupsEmptySubtitle' => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)',
+			'workspace.groupTileSubtitle' => ({required Object count}) => 'Участников группы: ${count}',
+			'workspace.inviteTitle' => 'Пригласить участника рабочего пространства',
+			'workspace.inviteDesc' => 'Приглашать можно только зарегистрированных пользователей; вступление в рабочее пространство не добавляет в группы автоматически и не оформляет подписку на каналы — можно одновременно вступить в группу General и отправить приглашение в канал Announcements',
+			'workspace.inviteSearchHint' => 'Поиск по имени пользователя / ID',
+			'workspace.inviteEntry' => 'Пригласить участника рабочего пространства',
+			'workspace.inviteJoinGroupOption' => 'Также вступить в группу General (стать участником группы)',
+			'workspace.inviteSubscribeChannelOption' => 'Также отправить приглашение в канал Announcements',
+			'workspace.inviteOptionUnavailable' => 'Соответствующий ресурс не найден, опция недоступна',
+			'workspace.inviteSubmit' => 'Отправить приглашение',
+			'workspace.inviteResultsTitle' => 'Результаты (три независимых)',
+			'workspace.inviteResultWorkspace' => 'Вступить в рабочее пространство (стать участником рабочего пространства)',
+			'workspace.inviteResultGroup' => 'Вступить в группу General (стать участником группы)',
+			'workspace.inviteResultChannel' => 'Отправить приглашение в канал Announcements (после принятия получатель станет подписчиком)',
+			'workspace.resultIdle' => 'Не выполнено',
+			'workspace.resultRunning' => 'Выполняется',
+			'workspace.resultSuccess' => 'Успешно',
+			'workspace.resultFailed' => 'Не удалось',
+			'workspace.joinEntry' => 'Вступить в рабочее пространство',
+			'workspace.joinTitle' => 'Вступить в рабочее пространство',
+			'workspace.joinDesc' => 'Введите командный код, чтобы вступить в рабочее пространство',
+			'workspace.joinCodeLabel' => 'Командный код',
+			'workspace.joinCodeHint' => '8 символов: заглавные буквы или цифры',
+			'workspace.joinSubmit' => 'Вступить',
+			'workspace.joinSuccess' => ({required Object name}) => 'Вы вступили в «${name}»',
+			'workspace.joinAlreadyMember' => 'Вы уже состоите в этом рабочем пространстве',
+			'workspace.joinInvalidCode' => 'Командный код недействителен или истёк',
+			'workspace.joinExpiredCode' => 'Срок действия командного кода истёк',
+			'workspace.inviteCodeSectionTitle' => 'Приглашение командным кодом',
+			'workspace.inviteCodeGenerate' => 'Сгенерировать командный код',
+			'workspace.inviteCodeCopy' => _root.common.buttonCopy,
+			'workspace.inviteCodeRevoke' => 'Отозвать',
+			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'Действует до ${expiresAt}',
+			'workspace.roleOwner' => 'Owner',
+			'workspace.roleMember' => 'Member',
+			'workspace.roleGuest' => 'Guest',
+			'workspace.removeMemberTitle' => ({required Object name}) => 'Удалить участника рабочего пространства ${name}',
+			'workspace.removeMemberDesc' => 'После удаления его доступ к рабочему пространству будет отозван; если у него остались незавершённые задачи или ответственные проекты, сервер вернёт список конфликтов и отменит удаление',
+			'workspace.removeMemberConfirm' => 'Подтвердить удаление',
+			'workspace.changeRoleTitle' => ({required Object name}) => 'Изменить роль в рабочем пространстве: ${name}',
+			'workspace.transferTitle' => ({required Object name}) => 'Передать роль главного Owner: ${name}',
+			'workspace.transferDesc' => 'После передачи вы станете обычным участником рабочего пространства (Member), а получатель получит все права управления',
+			'workspace.transferConfirm' => 'Подтвердить передачу',
+			'workspace.governanceTitle' => 'Управление рабочим пространством',
+			'workspace.brandingEntry' => 'Настройки бренда (название / логотип / основной цвет)',
+			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
+			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
+			'workspace.archiveTitle' => 'Архивировать рабочее пространство',
+			'workspace.archiveDesc' => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент',
+			'workspace.archiveConfirm' => 'Подтвердить архивацию',
+			'workspace.restoreTitle' => 'Восстановить рабочее пространство',
+			'workspace.restoreDesc' => 'После восстановления рабочее пространство снова доступно для чтения и записи',
+			'workspace.restoreConfirm' => 'Подтвердить восстановление',
+			'workspace.archivedBanner' => 'Рабочее пространство в архиве: контент доступен для просмотра, запись отключена; Owner может восстановить его на странице участников',
+			'workspace.brandingTitle' => 'Бренд рабочего пространства',
+			'workspace.brandingNameLabel' => 'Название бренда',
+			'workspace.brandingLogoLabel' => 'Адрес логотипа',
+			'workspace.brandingLogoHint' => 'https://... (адрес изображения логотипа рабочего пространства)',
+			'workspace.brandingColorLabel' => 'Основной цвет primaryColor',
+			'workspace.brandingColorHint' => '#2474E5',
+			'workspace.brandingColorHelper' => 'Поддерживается только #RRGGBB / #AARRGGBB; при недопустимом значении используется цвет темы по умолчанию',
+			'workspace.brandingColorInvalid' => 'Неверный формат основного цвета, поддерживается только #RRGGBB / #AARRGGBB',
+			'workspace.brandingSaved' => 'Настройки бренда сохранены',
+			'workspace.brandingPreview' => 'Предпросмотр основного цвета',
+			'workspace.brandingPreviewApplied' => 'Текущий основной цвет применяется внутри рабочего пространства',
+			'workspace.brandingPreviewFallback' => 'Не задано или недопустимое значение — используется цвет темы по умолчанию',
+			'workspace.projectsTitle' => 'Проекты',
+			'workspace.projectCreateEntry' => 'Новый проект',
+			'workspace.projectCreateTitle' => 'Новый проект',
+			'workspace.projectNameLabel' => 'Название проекта',
+			'workspace.projectNameHint' => 'Например: редизайн сайта',
+			'workspace.projectNameRequired' => 'Название проекта не может быть пустым',
+			'workspace.projectDescLabel' => 'Описание проекта (необязательно)',
+			'workspace.projectDescHint' => 'Что должен дать этот проект?',
+			'workspace.projectSubmit' => 'Создать',
+			'workspace.projectCreateSuccess' => 'Проект создан',
+			'workspace.projectDetailTitle' => 'Детали проекта',
+			'workspace.projectInfoSection' => 'Основная информация',
+			'workspace.projectOwnerLabel' => 'Ответственный',
+			'workspace.projectStatusLabel' => 'Статус',
+			'workspace.projectStatusActive' => 'В процессе',
+			'workspace.projectStatusDone' => 'Завершён',
+			'workspace.projectMarkDone' => 'Отметить как завершённый',
+			'workspace.projectReopen' => 'Открыть проект заново',
+			'workspace.projectStatusChanged' => 'Статус проекта обновлён',
+			'workspace.projectTasksSection' => 'Задачи',
+			'workspace.taskNewEntry' => 'Новая задача',
+			'workspace.taskFormCreateTitle' => 'Новая задача',
+			'workspace.taskFormEditTitle' => 'Редактировать задачу',
+			'workspace.taskTitleLabel' => 'Название задачи',
+			'workspace.taskTitleRequired' => 'Название задачи не может быть пустым',
+			'workspace.taskAssigneeLabel' => 'Ответственный (участник рабочего пространства)',
+			'workspace.taskAssigneeNone' => 'Пока не назначать',
+			'workspace.taskAssigneeRefresh' => 'Обновить список кандидатов',
+			'workspace.taskSubmitCreate' => 'Создать задачу',
+			'workspace.taskSubmitSave' => _root.common.buttonSave,
+			'workspace.taskCreatedToast' => 'Задача создана',
+			'workspace.taskExistingToast' => 'Задача с таким названием уже существует, используется она',
+			'workspace.taskUpdatedToast' => 'Задача сохранена',
+			'workspace.taskFilterAll' => 'Все',
+			'workspace.taskStatusTodo' => 'К выполнению',
+			'workspace.taskStatusDoing' => 'В процессе',
+			'workspace.taskStatusReview' => 'На проверке',
+			'workspace.taskStatusDone' => 'Завершено',
+			'workspace.taskAdvanceTo' => ({required Object status}) => 'Перевести в «${status}»',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Вернуть «${title}» к...',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Переведено в «${status}»',
+			'workspace.taskEmptyTitle' => 'Пока нет задач',
+			'workspace.taskEmptySubtitle' => 'Отслеживайте выполнение по четырём статусам: к выполнению → в процессе → на проверке → завершено',
+			'workspace.guestReadonlyHint' => 'Гость (Guest) имеет доступ только для чтения к ресурсам рабочего пространства',
+			'workspace.projectsLoadMore' => 'Загрузить ещё',
+			'workspace.projectW2SectionTitle' => 'Совместная работа по проекту',
+			'workspace.projectMembersEntry' => 'Участники',
+			'workspace.projectMilestonesEntry' => 'Этапы',
+			'workspace.projectChannelsEntry' => 'Каналы проекта',
+			'workspace.projectInsightsEntry' => 'Сводка контента',
+			'workspace.projectNoPermission' => 'Нет доступа: просмотр доступен только участникам проекта, ответственному за проект или Owner рабочего пространства',
+			'workspace.projectGuestReadonly' => 'Гость (Guest) имеет доступ к проекту только для чтения',
+			'workspace.projectLoadMore' => 'Загрузить ещё',
+			'workspace.projectMembersTitle' => 'Участники проекта',
+			'workspace.projectMemberEmptyTitle' => 'Пока нет участников проекта',
+			'workspace.projectMemberEmptySubtitle' => 'Ответственный за проект может приглашать зарегистрированных пользователей',
+			'workspace.projectMemberInviteTitle' => 'Пригласить участника проекта',
+			'workspace.projectMemberInviteFieldLabel' => 'ID пользователя',
+			'workspace.projectMemberInviteFieldHint' => 'ID зарегистрированного пользователя для приглашения',
+			'workspace.projectMemberInviteInvalidUid' => 'Введите действительный ID пользователя',
+			'workspace.projectMemberInviteSubmit' => 'Пригласить',
+			'workspace.projectMemberInviteSuccess' => 'Пользователь добавлен в участники проекта',
+			'workspace.projectMemberInviteExisting' => 'Этот пользователь уже участник проекта',
+			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Удалить участника проекта ${name}',
+			'workspace.projectMemberRemoveConfirmDesc' => 'После удаления пользователь потеряет доступ к содержимому проекта (можно пригласить снова)',
+			'workspace.projectMemberRemoveSubmit' => 'Удалить',
+			'workspace.projectMemberRemovedToast' => 'Удалено',
+			'workspace.projectMemberAlreadyRemovedToast' => 'Этого пользователя уже нет среди участников проекта',
+			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'Передать роль ответственного за проект: ${name}',
+			'workspace.projectMemberTransferDesc' => 'После передачи получатель получит полные права управления проектом',
+			'workspace.projectMemberTransferConfirm' => 'Подтвердить передачу',
+			'workspace.projectMemberTransferDoneToast' => 'Ответственный за проект передан',
+			'workspace.projectMilestonesTitle' => 'Этапы',
+			'workspace.projectMilestoneEmptyTitle' => 'Пока нет этапов',
+			'workspace.projectMilestoneEmptySubtitle' => 'Отмечайте ключевые точки проекта этапами (в плане → достигнут, только вперёд)',
+			'workspace.projectMilestoneCreateTitle' => 'Новый этап',
+			'workspace.projectMilestoneNameLabel' => 'Название',
+			'workspace.projectMilestoneNameRequired' => 'Название этапа не может быть пустым',
+			'workspace.projectMilestoneDueDateLabel' => 'Срок (YYYY-MM-DD, необязательно)',
+			'workspace.projectMilestoneDueDateInvalid' => 'Формат даты — YYYY-MM-DD',
+			'workspace.projectMilestoneCreateSubmit' => 'Создать',
+			'workspace.projectMilestoneCreatedToast' => 'Этап создан',
+			'workspace.projectMilestoneFilterAll' => 'Все',
+			'workspace.projectMilestoneFilterPlanned' => 'В плане',
+			'workspace.projectMilestoneFilterReached' => 'Достигнут',
+			'workspace.projectMilestoneReach' => 'Отметить как достигнутый',
+			'workspace.projectMilestoneReachedToast' => 'Этап достигнут',
+			'workspace.projectMilestoneAlreadyReachedToast' => 'Этот этап уже достигнут',
+			'workspace.projectMilestoneReachedHint' => 'Достигнут (нельзя вернуть назад)',
+			'workspace.projectMilestoneDueLabel' => 'Срок',
+			'workspace.projectChannelsTitle' => 'Каналы проекта',
+			'workspace.projectChannelEmptyTitle' => 'Нет привязанных каналов',
+			'workspace.projectChannelEmptySubtitle' => 'После привязки каналов рабочего пространства их закреплённый контент и последние публикации собираются в этом проекте',
+			'workspace.projectChannelLinkTitle' => 'Выберите каналы для привязки',
+			'workspace.projectChannelNoCandidate' => 'Нет каналов, доступных для привязки',
+			'workspace.projectChannelLinkedToast' => 'Канал привязан',
+			'workspace.projectChannelLinkExistingToast' => 'Этот канал уже привязан',
+			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'Отвязать ${name}',
+			'workspace.projectChannelUnlinkDesc' => 'После отвязки контент этого канала больше не будет собираться в проекте',
+			'workspace.projectChannelUnlinkSubmit' => 'Отвязать',
+			'workspace.projectChannelUnlinkedToast' => 'Привязка снята',
+			'workspace.projectInsightsTabPinned' => 'Закреплённые сообщения',
+			'workspace.projectInsightsTabResources' => 'Ссылки на ресурсы',
+			'workspace.projectInsightsTabActivity' => 'События проекта',
+			'workspace.projectInsightsTabPosts' => 'Связанные публикации',
+			'workspace.projectInsightsPinnedEmpty' => 'В привязанных каналах пока нет закреплённого контента',
+			'workspace.projectInsightsResourcesEmpty' => 'В проекте пока нет ссылок на ресурсы',
+			'workspace.projectInsightsActivityEmpty' => 'В проекте пока нет событий',
+			'workspace.projectInsightsPostsEmpty' => 'В привязанных каналах пока нет публикаций',
+			'workspace.projectInsightsPostAuthor' => ({required Object name}) => 'Опубликовано: ${name}',
+			'workspace.projectLinkNameLabel' => 'Название ссылки',
+			'workspace.projectLinkUrlLabel' => 'Адрес ссылки',
 			_ => null,
 		};
 	}

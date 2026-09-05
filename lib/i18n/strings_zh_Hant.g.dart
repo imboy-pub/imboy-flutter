@@ -35,12 +35,13 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 
 	late final TranslationsZhHant _root = this; // ignore: unused_field
 
-	@override 
+	@override
 	TranslationsZhHant $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsZhHant(meta: meta ?? this.$meta);
 
 	// Translations
 	@override late final Translations$account$zh_Hant account = Translations$account$zh_Hant.internal(_root);
 	@override late final Translations$agent$zh_Hant agent = Translations$agent$zh_Hant.internal(_root);
+	@override late final Translations$agentTask$zh_Hant agentTask = Translations$agentTask$zh_Hant.internal(_root);
 	@override late final Translations$billing$zh_Hant billing = Translations$billing$zh_Hant.internal(_root);
 	@override late final Translations$channel$zh_Hant channel = Translations$channel$zh_Hant.internal(_root);
 	@override late final Translations$chat$zh_Hant chat = Translations$chat$zh_Hant.internal(_root);
@@ -52,6 +53,7 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	@override late final Translations$error$zh_Hant error = Translations$error$zh_Hant.internal(_root);
 	@override late final Translations$group$zh_Hant group = Translations$group$zh_Hant.internal(_root);
 	@override late final Translations$groupCategory$zh_Hant groupCategory = Translations$groupCategory$zh_Hant.internal(_root);
+	@override late final Translations$groupDiscovery$zh_Hant groupDiscovery = Translations$groupDiscovery$zh_Hant.internal(_root);
 	@override late final Translations$groupList$zh_Hant groupList = Translations$groupList$zh_Hant.internal(_root);
 	@override late final Translations$groupSchedule$zh_Hant groupSchedule = Translations$groupSchedule$zh_Hant.internal(_root);
 	@override late final Translations$groupTag$zh_Hant groupTag = Translations$groupTag$zh_Hant.internal(_root);
@@ -64,6 +66,7 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	@override late final Translations$passport$zh_Hant passport = Translations$passport$zh_Hant.internal(_root);
 	@override late final Translations$splash$zh_Hant splash = Translations$splash$zh_Hant.internal(_root);
 	@override late final Translations$welcome$zh_Hant welcome = Translations$welcome$zh_Hant.internal(_root);
+	@override late final Translations$workspace$zh_Hant workspace = Translations$workspace$zh_Hant.internal(_root);
 }
 
 // Path: account
@@ -103,6 +106,12 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get loginDeviceManagement => '登入設備管理';
 	@override String get loginEmail => '登入郵箱';
 	@override String get logoutAccount => '註銷帳號';
+	@override String logoutPendingBanner({required Object date}) => '註銷申請已提交，預計 ${date} 完成';
+	@override String get logoutPendingHeader => '註銷申請狀態';
+	@override String get logoutCancelRequest => '撤銷註銷申請';
+	@override String get logoutCancelledNote => '註銷申請已撤銷';
+	@override String get logoutRetainedHeader => '資料留存說明';
+	@override String get logoutRetainedNote => '刪除完成後：稽核日誌與財務紀錄依法留存並匿名化；您擁有的群組/工作區/頻道將優先轉移給繼任成員';
 	@override String get mobile => '手機';
 	@override String get mobileQuickLogin => '一鍵登入';
 	@override String get myAccount => '我的帳號';
@@ -121,11 +130,11 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get recoverPassword => '找回密碼';
 	@override String get recoverPasswordDesc => '請輸入您的郵箱地址，我們將把密碼重設碼傳送給您。';
 	@override String get recoverPasswordIntro => '不要感覺不好，這是常有的事。';
-	@override String get birthday => '生日';
+	@override String get birthday => '出生日期';
 	@override String get region => '地區';
 	@override String get retypePassword => '重新輸入密碼';
 	@override String get scanQrCode => '掃描二維碼';
-	@override String get securityCenter => '安全中心';
+	@override String get securityCenter => '帳號安全中心';
 	@override String get setNickname => '設定暱稱';
 	@override String get signature => '個性簽名';
 	@override String get signup => '註冊';
@@ -151,7 +160,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get privacyLogoutAccount => '註銷帳號';
 	@override String get wallet => '錢包';
 	@override String get changeLoginPassword => '修改登入密碼';
-	@override String get loginExpiredTitle => '提示';
+	@override String get loginExpiredTitle => '登入已過期';
 	@override String get otherDevice => '其他設備';
 	@override String get loginPassword => '登入密碼';
 	@override String get loginPasswordDesc => '用於登入 IMBoy 帳號';
@@ -175,9 +184,16 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get refreshDeviceKeyHint => '如果訊息無法解密，點選此按鈕重新整理金鑰';
 	@override String get refreshingDeviceKey => '正在重新整理裝置金鑰...';
 	@override String get deviceKeyRefreshed => '裝置金鑰已重新整理';
-	@override String get rechargeTitle => '充值';
-	@override String get rechargeAmountHint => '請輸入充值金額（元），0.01元～10000元';
-	@override String get rechargeAmountExample => '例如：100';
+	@override String get rechargeTitle => '儲值';
+	@override String get rechargeAmountHint => '請輸入儲值金額（元），0.01元～10000元';
+	@override String get rechargeAmountExample => '範例：100';
+	@override String get payMethodTitle => '選擇付款方式';
+	@override String get payMethodWallet => '錢包餘額';
+	@override String get payMethodMock => '模擬付款（開發環境）';
+	@override String get payMethodAlipay => '支付寶';
+	@override String get payMethodWechat => '微信付款';
+	@override String get payMethodComingSoon => '此付款方式即將開通，敬請期待';
+	@override String get payCancelled => '付款已取消';
 	@override String get e2eeDeviceTransfer => '裝置間傳輸';
 	@override String get e2eeDeviceTransferDesc => '透過二維碼直接傳輸金鑰到新裝置';
 	@override String get e2eeDeviceIdLabel => '裝置 ID';
@@ -190,6 +206,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get e2eeTransferFromOldDevice => '從舊裝置接收金鑰';
 	@override String get pleaseRelogin => '請重新登入';
 	@override String get otherLoginMethods => '其他登入方式';
+	@override late final Translations$account$alipaySim$zh_Hant alipaySim = Translations$account$alipaySim$zh_Hant.internal(_root);
 }
 
 // Path: agent
@@ -206,9 +223,30 @@ class Translations$agent$zh_Hant extends Translations$agent$zh_CN {
 	@override String get searchEmpty => '無符合的助手';
 	@override String get sendMessage => '傳訊息';
 	@override String get badgeAi => 'AI';
-	@override String get badgeOfficial => '官方';
-	@override String get badgeAiA11y => 'AI 助手';
+	@override String get badgeOfficial => '官方認證';
+	@override String get badgeAiA11y => 'AI 助理';
 	@override String get badgeOfficialA11y => '官方帳號';
+	@override String get legacyBotMigrated => '此機器人入口已升級，請到 AI 助手廣場與助手對話';
+	@override String get legacyBotGoPlaza => '前往助手廣場';
+}
+
+// Path: agentTask
+class Translations$agentTask$zh_Hant extends Translations$agentTask$zh_CN {
+	Translations$agentTask$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AI 任務';
+	@override String get working => '執行中';
+	@override String get submitted => '已送出';
+	@override String get progress => '進行中';
+	@override String get completed => '執行完成';
+	@override String get failed => '執行失敗';
+	@override String get cancelled => '已撤銷';
+	@override String get awaitingApproval => '待審批';
+	@override String get approve => '核准';
+	@override String get reject => '拒絕';
 }
 
 // Path: billing
@@ -232,9 +270,9 @@ class Translations$billing$zh_Hant extends Translations$billing$zh_CN {
 	@override String get payMethodTitle => '選擇付款方式';
 	@override String get payMethodMock => '模擬付款（開發環境）';
 	@override String get payMethodAlipay => '支付寶';
-	@override String get payMethodWechat => '微信支付';
+	@override String get payMethodWechat => '微信付款';
 	@override String get payMethodComingSoon => '該付款方式即將開放，敬請期待';
-	@override String get quotaUnlimited => '不限';
+	@override String get quotaUnlimited => '無上限';
 }
 
 // Path: channel
@@ -248,7 +286,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get title => '頻道';
 	@override String get loading => '載入中...';
 	@override String get subscribed => '已訂閱';
-	@override String get managed => '管理中';
+	@override String get managed => '我管理的';
 	@override String get discover => '發現頻道';
 	@override String get search => '搜尋頻道';
 	@override String get create => '建立頻道';
@@ -269,7 +307,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get unsubscribe => '取消訂閱';
 	@override String get unsubscribeConfirm => '取消訂閱';
 	@override String get unsubscribeConfirmDesc => '確定要取消訂閱該頻道嗎？取消後將不再收到頻道訊息。';
-	@override String get share => '分享';
+	@override String get share => '分享連結';
 	@override String get shareNotImplemented => '分享功能即將上線';
 	@override String get nameLabel => '頻道名稱';
 	@override String get nameHint => '請輸入頻道名稱';
@@ -278,25 +316,25 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get descriptionLabel => '頻道描述';
 	@override String get descriptionHint => '介紹一下你的頻道（選填）';
 	@override String get customIdLabel => '自訂ID（選填）';
-	@override String get customIdHint => '例如：my_channel';
+	@override String get customIdHint => '範例：my_channel';
 	@override String get customIdHelper => '設定後可透過ID直接搜尋到頻道';
 	@override String get customIdInvalid => '只能包含字母、數字和底線';
 	@override String get customIdLength => '長度需要在4-30個字元之間';
 	@override String get typeLabel => '頻道類型';
 	@override String get typePublic => '公開';
-	@override String get typePrivate => '私有';
+	@override String get typePrivate => '私密';
 	@override String get typePublicDesc => '任何人都可以搜尋到並訂閱你的頻道';
 	@override String get typePrivateDesc => '只有透過邀請連結才能訂閱你的頻道';
 	@override String get createTips => '建立頻道後，你可以發布訊息給所有訂閱者。頻道訊息只有管理員可以發布。';
-	@override String get today => '今天';
-	@override String get yesterday => '昨天';
-	@override String get daysAgo => '天前';
+	@override String get today => '今日';
+	@override String get yesterday => '昨日';
+	@override String get daysAgo => '天以前';
 	@override String get messages => '訊息';
 	@override String get views => '閱讀';
 	@override String get reactions => '互動';
 	@override String get selectReaction => '選擇表情';
 	@override String get react => '互動';
-	@override String get admin => '管理';
+	@override String get admin => '管理設定';
 	@override String get settings => '設定';
 	@override String get editChannel => '編輯頻道';
 	@override String get editChannelDesc => '修改頻道名稱、描述等資訊';
@@ -321,14 +359,15 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get preview => '預覽';
 	@override String get addImage => '新增圖片';
 	@override String get titleOptional => '標題（選填）';
-	@override String get coverLabel => '封面';
+	@override String get coverLabel => '封面圖片';
 	@override String get coverSet => '已設為封面';
+	@override String get articleBodyHint => '寫點什麼...支援粗體、斜體、標題、清單等格式';
 	@override String get formatBold => '粗體';
 	@override String get formatItalic => '斜體';
 	@override String get formatStrikethrough => '刪除線';
 	@override String get formatHeading => '標題';
-	@override String get formatList => '列表';
-	@override String get formatQuote => '引用';
+	@override String get formatList => '清單';
+	@override String get formatQuote => '引言';
 	@override String get formatLink => '連結';
 	@override String get linkTextPlaceholder => '連結文字';
 	@override String get pinMessage => '置頂訊息';
@@ -347,8 +386,8 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get removeAdminConfirm => '確定要移除該管理員嗎？';
 	@override String get removeAdminSuccess => '管理員已移除';
 	@override String get removeAdminFailed => '移除管理員失敗';
-	@override String get changeRole => '更改角色';
-	@override String get updateRoleSuccess => '角色更新成功';
+	@override String get changeRole => '變更角色';
+	@override String get updateRoleSuccess => '角色已變更';
 	@override String get updateRoleFailed => '角色更新失敗';
 	@override String get userId => '使用者ID';
 	@override String get userIdHint => '請輸入使用者ID';
@@ -362,7 +401,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get roleAdminDesc => '可管理頻道';
 	@override String get roleEditor => '編輯';
 	@override String get roleEditorDesc => '可釋出訊息';
-	@override String get roleUnknown => '未知';
+	@override String get roleUnknown => '不明';
 	@override String get searchSubscribers => '搜尋訂閱者';
 	@override String get subscriberSearchHint => '輸入暱稱或ID搜尋';
 	@override String get noSearchResults => '未找到符合的訂閱者';
@@ -386,6 +425,46 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get qrcode => '頻道二維碼';
 	@override String qrcodeTips({required Object days, required Object date}) => '二維碼${days}天內（${date}前）有效';
 	@override String get defaultName => '未命名頻道';
+	@override String get myOrders => '我的訂單';
+	@override String get noOrders => '尚無訂單紀錄';
+	@override String get orderValidUntil => '效期至';
+	@override String get orderStatusPending => '待付款';
+	@override String get orderStatusPaid => '已付款';
+	@override String get orderStatusRefunded => '已退費';
+	@override String get orderStatusCancelled => '已撤銷';
+	@override String get orderStatusRefunding => '退費中';
+	@override String get orderStatusExpired => '已過期';
+	@override String get orderDetail => '訂單詳情';
+	@override String get orderNo => '訂單編號';
+	@override String get orderChannel => '頻道';
+	@override String get orderAmount => '金額';
+	@override String get orderStatusLabel => '狀態';
+	@override String get orderPaymentMethod => '付款方式';
+	@override String get orderCreatedAt => '下單時間';
+	@override String get orderPaidAt => '付款時間';
+	@override String get orderSubscriptionPeriod => '訂閱週期';
+	@override String get payWallet => '錢包餘額';
+	@override String get payAlipay => '支付寶';
+	@override String get payWechat => '微信付款';
+	@override String get refundApply => '申請退費';
+	@override String get refundConfirmTitle => '確認退費';
+	@override String get refundConfirmMessage => '確定要對這筆訂單申請退費嗎？退費後將取消訂閱。';
+	@override String get refundSuccess => '退費申請已送出';
+	@override String get cancelOrder => '取消訂單';
+	@override String get cancelOrderConfirmTitle => '確認取消訂單';
+	@override String get cancelOrderConfirmMessage => '確定要取消這筆待付款訂單嗎？取消後將無法繼續付款。';
+	@override String get cancelOrderSuccess => '訂單已取消';
+	@override String get orderContinuePay => '繼續付款';
+	@override String get comment => '留言';
+	@override String get noComments => '尚無留言';
+	@override String get writeComment => '發表留言...';
+	@override String get reply => '回覆';
+	@override String get replyTo => '回覆';
+	@override String get like => '按讚';
+	@override String get commentFailed => '留言失敗';
+	@override String get deleteComment => '刪除留言';
+	@override String get deleteCommentConfirm => '確定刪除這則留言嗎？';
+	@override String get commentDeleteNoPermission => '無權刪除這則留言';
 	@override String get noMessagesManaged => '頻道尚未發布任何內容';
 	@override String get noMessagesManagedDesc => '作為頻道主，你可以點擊下方按鈕發布第一條內容';
 	@override String get noMessagesVisitor => '訂閱後查看頻道內容';
@@ -395,7 +474,10 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get continueEditing => '繼續編輯';
 	@override String get publishFirstContent => '發布第一條內容';
 	@override String get noSubscribersDesc => '還沒有訂閱者，分享給好友吧';
-	@override String get emoji => '表情';
+	@override String get allCategories => '所有';
+	@override String get sortPopular => '熱門';
+	@override String get sortNewest => '最新發布';
+	@override String get emoji => '表情符號';
 	@override String get justNow => '剛剛';
 	@override String get minutesAgo => '分鐘前';
 	@override String get hoursAgo => '小時前';
@@ -418,14 +500,14 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get bankCard => '銀行卡';
 	@override String get cards => '張';
 	@override String get jdShopping => '京東購物';
-	@override String get receivePayment => '收付款';
+	@override String get receivePayment => '收款與付款';
 	@override String get alreadyEntered => '您已經輸入過了';
 	@override String get alreadyMember => '已經是成員';
 	@override String get appSqliteFileSizeExplain => '目前帳號本地產生的 sqlite 檔案大小；可清理所選聊天記錄裡的圖片、影片、和檔案，或清空所選聊天記錄裡的所有聊天訊息。';
-	@override String get attachmentProvider => '附件提供者';
+	@override String get attachmentProvider => '附件來源';
 	@override String get audioMessage => '語音訊息';
 	@override String get awaitingReply => '待回覆';
-	@override String get businessCard => '名片';
+	@override String get businessCard => '電子名片';
 	@override String get busyTryAgainLater => '對方正忙，請稍後再試';
 	@override String get later => '以後再說';
 	@override String peerIsTyping({required Object name}) => '${name} 正在輸入...';
@@ -450,6 +532,9 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get chatStatusSeenDesc => '訊息已讀';
 	@override String get createGroupF2f => '面對面建群組';
 	@override String get displayProfile => '顯示您的資料';
+	@override String get extraPanelMedia => '媒體';
+	@override String get extraPanelCollab => '群協作';
+	@override String get extraPanelFunds => '資金';
 	@override String get file => '檔案';
 	@override String get unknownFile => '未知檔案';
 	@override String get fileMessage => '[檔案]';
@@ -466,7 +551,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get groupFileVideoPreview => '影片預覽';
 	@override String get groupFileAudioPreview => '音訊預覽';
 	@override String get groupFileMediaPause => '暫停';
-	@override String get groupFileMediaPlay => '播放';
+	@override String get groupFileMediaPlay => '開始播放';
 	@override String get groupFileUrlMissing => '檔案地址缺失，無法開啟';
 	@override String get groupFileUrlInvalid => '檔案地址無效';
 	@override String get groupFilePreview => '檔案預覽';
@@ -477,20 +562,20 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get groupFileCategoryImage => '圖片';
 	@override String get groupFileCategoryVideo => '影片';
 	@override String get groupFileCategoryAudio => '音訊';
-	@override String get groupFileCategoryOther => '其他';
+	@override String get groupFileCategoryOther => '其他類別';
 	@override String get groupChat => '群組聊天';
 	@override String get image => '圖片';
 	@override String get imageMessage => '[圖片]';
 	@override String get initiateChat => '發起群組聊天';
 	@override String get justChat => '僅聊天';
-	@override String get location => '位置';
+	@override String get location => '所在位置';
 	@override String get exportMyData => '匯出我的資料';
 	@override String get exportDataDesc => '匯出你的個人資訊、聯絡人和聊天記錄';
 	@override String get message => '訊息';
 	@override String get messageHandlingMixin => '訊息處理混入';
 	@override String get messageMarkTitle => '訊息標記';
 	@override String get customMessage => '自訂訊息';
-	@override String get card => '名片';
+	@override String get card => '電子名片';
 	@override String get messageType => '訊息類型';
 	@override String get messageVisitCardBuilder => '訊息卡片建構器';
 	@override String get messageWasWithdrawn => '撤回了一則訊息';
@@ -499,7 +584,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get momentStatus => '朋友圈和狀態';
 	@override String get offline => '離線';
 	@override String get online => '在線';
-	@override String paramAlreadyExist({required Object param}) => '${param}已存在';
+	@override String paramAlreadyExist({required Object param}) => '${param}已經存在';
 	@override String get pin => '置頂';
 	@override String get pinChat => '置頂聊天';
 	@override String get pinned => '已置頂';
@@ -508,7 +593,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get quoteReply => '引用回覆';
 	@override String get rating => '評級';
 	@override String readAgreeParam({required Object param}) => '已經閱讀並同意${param}';
-	@override String get recentChats => '最近聊天';
+	@override String get recentChats => '最近的聊天';
 	@override String get recentForwards => '最近轉發';
 	@override String get remindMeLater => '下次再說';
 	@override String get quickReplyManage => '管理快捷回覆';
@@ -520,17 +605,17 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get unmuteMember => 'Unmute';
 	@override String get muteUntil => 'Muted Until';
 	@override String get muted => 'Muted';
-	@override String mutedFor({required Object label}) => '禁言 ${label}';
+	@override String mutedFor({required Object label}) => '已被禁言 ${label}';
 	@override String muteUnitMinutes({required Object count}) => '${count} 分鐘';
 	@override String muteUnitHours({required Object count}) => '${count} 小時';
-	@override String muteUnitDays({required Object count}) => '${count} 天';
-	@override String get youAreMuted => '你已被禁言';
+	@override String muteUnitDays({required Object count}) => '${count} 日';
+	@override String get youAreMuted => '你已被設定禁言';
 	@override String youAreMutedWithTime({required Object minutes}) => '你已被禁言，剩餘 ${minutes} 分鐘';
 	@override String get repliedAt => '回覆於';
 	@override String get reply => '回覆';
 	@override String get replyTo => '回覆';
 	@override String get resendCode => '重發驗證碼';
-	@override String get revoke => '撤回';
+	@override String get revoke => '收回';
 	@override String get scanQrCodeBusinessCard => '掃描二維碼卡片';
 	@override String get singleChat => 'Private Chat';
 	@override String get privateChat => 'Private Chat';
@@ -572,19 +657,26 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get chatOpenFile => '開啟檔案';
 	@override String get chatOpenLink => '開啟連結';
 	@override String get avatarSelectPhoto => '選擇照片';
-	@override String get avatarTakePhoto => '拍照';
+	@override String get avatarTakePhoto => '拍攝照片';
 	@override String get avatarSelectFromAlbum => '從相簿選擇';
+	@override String get releaseConvertToText => '放開 轉文字';
+	@override String get voiceReleaseCancelSend => '放開 取消傳送';
+	@override String get voiceReleaseCancel => '放開 取消';
+	@override String get voiceSlideHint => '上滑 取消 / 轉文字';
+	@override String get convertToText => '轉文字';
 	@override String get profileExportProfile => '匯出資料';
 	@override String get momentsSend => '傳送';
 	@override String get videoCompressInProgress => '已有壓縮任務在進行中';
 	@override String get videoCompressing => '正在壓縮影片...';
 	@override String get loginExpiredMessage => '登入過期，請重新登入';
+	@override String get alipayLoginInterrupted => '支付寶登入流程被系統中斷，請重試';
 	@override String get geometricPattern => '幾何圖案';
 	@override String get ripplePattern => '波紋圖案';
 	@override String get customImage => '自訂圖片';
 	@override String get voiceRecordResultEmpty => '語音錄製結果為空';
 	@override String get voiceFileInvalid => '語音檔案無效';
 	@override String get burnAfterReading => '閱後即焚';
+	@override String get burnReadBadge => '閱後';
 	@override String get visibleThresholdRead => '可視閾值已讀';
 	@override String get readThresholdDelay => '已讀閾值與延時';
 	@override String get goodReadability => '可讀性良好';
@@ -620,28 +712,28 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get sendingVoice => '正在傳送語音...';
 	@override String get deletingMessage => '正在刪除...';
 	@override String get deletingLocalMessage => '正在刪除本地訊息...';
-	@override String get quickReplyReceived => '收到';
+	@override String get quickReplyReceived => '已收到';
 	@override String get quickReplyThanks => '謝謝';
-	@override String get quickReplyWait => '稍等';
+	@override String get quickReplyWait => '請稍候';
 	@override String get messageMute => _root.chat.chatSettingMute;
 	@override String groupCategoryGroupCount({required Object count}) => '${count} 個群聊';
 	@override String get groupAlbumCreateTitle => '新建群相簿';
 	@override String get groupAlbumCreated => '相簿已建立';
 	@override String get profileCompleted => '資料已完善！';
-	@override String profileProgress({required Object percent}) => '${percent}% 完成';
+	@override String profileProgress({required Object percent}) => '${percent}% 已完成';
 	@override String createdAtLabel({required Object time}) => '建立時間: ${time}';
 	@override String expiredAtLabel({required Object time}) => '過期時間: ${time}';
-	@override String get myReceivedTab => '我收到的';
+	@override String get myReceivedTab => '我接收的';
 	@override String orderStatusLabel({required Object status}) => '狀態: ${status}';
 	@override String orderCreatedAtLabel({required Object time}) => '建立時間: ${time}';
 	@override String orderPaymentAtLabel({required Object time}) => '支付時間: ${time}';
-	@override String get orderStatusPending => '待支付';
-	@override String get orderStatusPaid => '已支付';
-	@override String get orderStatusRefunded => '已退款';
+	@override String get orderStatusPending => '待付款';
+	@override String get orderStatusPaid => '已付款';
+	@override String get orderStatusRefunded => '已退費';
 	@override String get orderStatusExpired => '已過期';
 	@override String get defaultFileName => '檔案';
 	@override String get fileUrlInvalid => '檔案連結無效';
-	@override String get e2eeStatusAvailable => '可用';
+	@override String get e2eeStatusAvailable => '已啟用';
 	@override String get e2eeGenerateNewKey => '生成新金鑰';
 	@override String get e2eeGenerateNewKeyDesc => '生成新的 E2EE 金鑰對（舊訊息將無法解密）';
 	@override String get e2eeActivated => '已啟用';
@@ -652,8 +744,8 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String e2eeReadyWithShards({required Object count}) => '準備就緒（${count} 個分片）';
 	@override String get webFeatureMultiDevice => '多裝置同步';
 	@override String get webFeatureMultiDeviceDesc => '在手機和電腦之間無縫切換，訊息實時同步';
-	@override String get webFeatureE2EE => '端到端加密';
-	@override String get webFeatureE2EEDesc => '所有訊息都經過端到端加密，確保隱私安全';
+	@override String get webFeatureE2EE => '端對端加密';
+	@override String get webFeatureE2EEDesc => '所有訊息都經過端對端加密，確保隱私安全';
 	@override String get webFeatureFileTransfer => '檔案傳輸';
 	@override String get webFeatureFileTransferDesc => '拖拽即可傳送檔案，支援各種格式';
 	@override String get webQRStatusWaiting => '開啟 ImBoy 手機版 > 設定 > 掃一掃';
@@ -704,7 +796,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	// Translations
 	@override String get about => '關於';
 	@override String get aboutApp => '關於應用';
-	@override String get accept => '接受';
+	@override String get accept => '同意';
 	@override String get acceptFriendRequest => '通過好友驗證';
 	@override String get addFriend => '新增朋友';
 	@override String get addPhoneContact => '新增手機聯絡人';
@@ -717,7 +809,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get added => '已新增';
 	@override String get addedToDenylistTips => '已加入黑名單，您將不再收到對方的訊息';
 	@override String get agreeContinue => '同意並繼續';
-	@override String get all => '全部';
+	@override String get all => '所有';
 	@override String get allSenders => '所有發送者';
 	@override String get allTags => '全部標籤';
 	@override String get allTime => '所有時間';
@@ -727,17 +819,17 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get appSizeTips => '包含應用程式執行所需的檔案，包括 APK 檔案、最佳化的編譯器輸出，以及解壓縮的原生函式庫。';
 	@override String get applyAddFriend => '申請新增好友';
 	@override String get awaitingVerification => '等待驗證';
-	@override String get buttonAccomplish => '完成';
+	@override String get buttonAccomplish => '已完成';
 	@override String get buttonAdd => '新增';
-	@override String get buttonBack => '返回';
+	@override String get buttonBack => '回上一頁';
 	@override String get buttonBind => '綁定';
 	@override String get bindMobileAndEmailTips => '綁定手機號和郵箱，讓您的帳號更安全';
 	@override String get bindNow => '立即綁定';
-	@override String get buttonCancel => '取消';
+	@override String get buttonCancel => '關閉';
 	@override String get buttonCreate => '建立';
 	@override String get buttonChangePassword => '修改密碼';
 	@override String get phoneInputHint => '請輸入手機號';
-	@override String get buttonMore => '更多';
+	@override String get buttonMore => '查看更多';
 	@override String get buttonRefresh => '重新整理';
 	@override String get buttonClose => '關閉';
 	@override String get buttonConfirm => '確認';
@@ -748,7 +840,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get buttonInviteCode => '邀請碼';
 	@override String get buttonLogin => '登入';
 	@override String get buttonLogout => '登出';
-	@override String get buttonNextStep => '下一步';
+	@override String get buttonNextStep => '下一個步驟';
 	@override String get buttonOk => '確定';
 	@override String get buttonRegister => '註冊';
 	@override String get buttonResetPassword => '重設密碼';
@@ -757,8 +849,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get buttonSelectFromAlbum => '從相簿選擇';
 	@override String get buttonSend => '傳送';
 	@override String get buttonSetEmpty => '設為空';
-	@override String get buttonSubmit => '提交';
-	@override String get buttonTakingPictures => '拍照';
+	@override String get buttonSubmit => '送出';
+	@override String get buttonTakingPictures => '拍攝照片';
 	@override String get cacheTips => '快取是使用應用過程中產生的暫時資料，清理快取不會影響您的正常使用。';
 	@override String get callDuration => '通話時長';
 	@override String get callEnded => '通話已結束';
@@ -766,15 +858,15 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get canNotAddYourselfFriend => '您不能新增自己為好友';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
-	@override String get operationSuccessful => '操作成功';
+	@override String get operationSuccessful => '操作已完成';
 	@override String get save => _root.common.buttonSave;
 	@override String get reset => '重設';
 	@override String get clear => '清除';
 	@override String saveTag({required Object count}) => '儲存標籤 (${count})';
 	@override String get cancelLogoutBody => '此帳號處於註銷反悔期，若登入成功則視作終止註銷流程。如需繼續註銷，請在註銷申請提交後的 15 天內不要登入 IMBoy。';
 	@override String get cancelLogoutTitle => '是否終止註銷流程？';
-	@override String get cancelled => '已取消';
-	@override String get chatSettingBackground => '聊天背景';
+	@override String get cancelled => '已撤銷';
+	@override String get chatSettingBackground => '聊天背景圖';
 	@override String get chatSettingBackgroundCustom => '已設定自訂背景';
 	@override String get chatSettingBackgroundDefault => '預設背景';
 	@override String get chatSettingBackgroundSelectorTip => '背景選擇功能開發中';
@@ -897,9 +989,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String groupFileDeleteConfirm({required Object name}) => '確定刪除檔案「${name}」嗎？';
 	@override String get groupFileImageLoadFailed => '圖片載入失敗';
 	@override String get groupFileOpenFailed => '無法開啟檔案連結';
-	@override String get groupFileSearchClear => '清空';
+	@override String get groupFileSearchClear => '清除';
 	@override String get groupFileSearchAction => '搜尋';
-	@override String get groupFileCategoryAll => '全部';
+	@override String get groupFileCategoryAll => '所有';
 	@override String get groupFileSearchEmpty => '未找到匹配檔案';
 	@override String get groupFileAudioLoadFailed => '音訊載入失敗';
 	@override String get groupFileAudioLoading => '音訊載入中...';
@@ -940,7 +1032,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get microphone => '麥克風';
 	@override String get microphonePermissionNotObtained => '未獲取麥克風權限';
 	@override String get moreInfo => '更多資訊';
-	@override String get myAddress => '我的地址';
+	@override String get myAddress => '我的住址';
 	@override String get nearbyPeopleTips => '和附近的人交換聯絡方式，結交新朋友';
 	@override String get needContinueWorkHard => '需要繼續加油';
 	@override String get needSubmitEffect => '需要確認提交，該操作才生效';
@@ -951,7 +1043,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get networkFailureTips => '網路故障提示';
 	@override String get newVersionDetected => '檢測到新版本';
 	@override String newVersionDetectedWithVersion({required Object param}) => '檢測到新版本 ${param}';
-	@override String get nextStep => '下一步';
+	@override String get nextStep => '下一個步驟';
 	@override String get nicknameConflictError => '暱稱已被使用，請選擇其他暱稱';
 	@override String get nicknameEmojiOnlyError => '暱稱不能僅包含表情符號';
 	@override String get nicknameEmptyError => '暱稱不能為空';
@@ -994,7 +1086,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get operationFailedAgainLater => '操作失敗，請稍後重試';
 	@override String get optionsNo => '否';
 	@override String get optionsRename => '我想重新命名';
-	@override String get optionsYes => '是的！';
+	@override String get optionsYes => '沒錯！';
 	@override String get p2pCallScreenLogic => '點對點通話畫面邏輯';
 	@override String get p2pCallScreenView => '點對點通話畫面視圖';
 	@override String paramFormatError({required Object param}) => '${param}格式有誤';
@@ -1014,7 +1106,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get profileSettings => '資料設定';
 	@override String get reEdit => '重新編輯';
 	@override String get recoverPasswordSuccess => '驗證碼傳送成功';
-	@override String get regionCancel => '取消';
+	@override String get regionCancel => '取消選取';
 	@override String get regionConfirm => '確定';
 	@override String get regionNoResult => '暫無結果';
 	@override String get regionSearchHint => '按地區名稱搜尋';
@@ -1024,7 +1116,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get releaseFingerCancelSending => '鬆開手指，取消傳送';
 	@override String get removeContactFromTag => '從標籤中移除聯絡人';
 	@override String get removeMember => '移出成員';
-	@override String get atMentionYouTag => '[@你] ';
+	@override String get atMentionYouTag => '[提及你]';
 	@override String get atMentionLeftMember => '@已退群成員';
 	@override String get muteNotifications => '訊息免打擾';
 	@override String get muteNotificationsHint => '開啟後不會收到新訊息提醒，但仍可在會話列表看到未讀';
@@ -1062,8 +1154,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get muteDuration5min => '5分鐘';
 	@override String get muteDuration10min => '10分鐘';
 	@override String get muteDuration30min => '30分鐘';
-	@override String get muteDuration30days => '30天';
-	@override String muteUnitSeconds({required Object count}) => '${count} 秒';
+	@override String get muteDuration30days => '30 天';
+	@override String muteUnitSeconds({required Object count}) => '${count} 秒鐘';
 	@override String get throttleWarning => '操作頻率過高，請稍後再試';
 	@override String throttleRetryAfter({required Object seconds}) => '操作頻率過高，請 ${seconds} 秒後再試';
 	@override String get mutedCannotSend => '禁言期間無法傳送訊息';
@@ -1102,7 +1194,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get selectedRegion => '已選地區';
 	@override String get sendMsgNotFriendTips => '對方開啟了好友驗證，您還不是他（她）好友。請先傳送好友驗證請求，對方驗證通過後，才能聊天。';
 	@override String get setChatBackground => '設定目前聊天背景';
-	@override String get share => '分享';
+	@override String get share => '分享出去';
 	@override String get signatureTips => '簽名提示';
 	@override String get slideUpCancelSending => '手指上滑，取消傳送';
 	@override String get storagePermissionNotObtained => '未獲取儲存權限';
@@ -1111,7 +1203,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get sureDeleteData => '確認刪除嗎？刪除後不可恢復。';
 	@override String get sureDeleteGroupChatRecord => '確定刪除群組的聊天記錄嗎？';
 	@override String get switchEnvironment => '切換環境';
-	@override String get thisMonth => '本月';
+	@override String get thisMonth => '這個月';
 	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
 		other: '${n}天前',
 	);
@@ -1122,25 +1214,25 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
 		other: '${n}分鐘前',
 	);
-	@override String get timeToday => '今天';
-	@override String get timeYesterday => '昨天';
+	@override String get timeToday => '今日';
+	@override String get timeYesterday => '昨日';
 	@override String get tipConnectDesc => '無網路';
 	@override String tipConnectDescWithParen({required Object param}) => '（${param}）';
 	@override String tipDeleteContact({required Object param}) => '將聯絡人「${param}」刪除，同時刪除與該聯絡人的聊天記錄';
 	@override String tipDeviceSpace({required Object param1, required Object param2}) => '佔設備 ${param1}% 儲存空間（${param2}）';
-	@override String get tipDraft => '草稿';
+	@override String get tipDraft => '草稿內容';
 	@override String get tipEmptyChatPlaceholder => '這裡還沒有訊息';
 	@override String get tipFailed => '操作失敗！';
 	@override String get tipGreeting => '歡迎使用';
 	@override String get tipProvidersTitleFirst => '或用以下帳號登入';
-	@override String get tipSuccess => '操作成功！';
+	@override String get tipSuccess => '操作已完成！';
 	@override String get tipTips => '小貼士';
 	@override String get titleContact => '通訊錄';
-	@override String get today => '今天';
-	@override String get unknown => '未知';
+	@override String get today => '今日';
+	@override String get unknown => '不明';
 	@override String get unknownMessage => '未知訊息';
 	@override String get updateLog => '更新記錄';
-	@override String get updateNow => '立即更新';
+	@override String get updateNow => '立刻更新';
 	@override String get uploading => 'Uploading';
 	@override String get uploadSuccess => 'Upload successful';
 	@override String get uploadFailed => 'Upload failed';
@@ -1151,7 +1243,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get userTagRelationView => '用家標籤關係視圖';
 	@override String get userTagSaveView => '用家標籤儲存視圖';
 	@override String verificationMessageSentByPeerIs({required Object param}) => '對方發來的驗證訊息為：${param}';
-	@override String get version => '版本';
+	@override String get version => '軟體版本';
 	@override String get videoCall => '影片通話';
 	@override String get viewAllGroupMember => '檢視全部群組成員';
 	@override String get voiceCall => '語音通話';
@@ -1164,11 +1256,11 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get warning => '警告：';
 	@override String get webpageLoading => '網頁載入中...';
 	@override String get whatYourFeedback => '您的回饋是什麼?';
-	@override String get yesterday => '昨天';
+	@override String get yesterday => '昨日';
 	@override String get yourContactInformation => '您的聯絡方式';
 	@override String get confirmRemove => '確認移出';
 	@override String get confirmRemoveFromDenylist => '確認將此用家移出黑名單？';
-	@override String get buttonRemove => '移出';
+	@override String get buttonRemove => '移除';
 	@override String get removedFromDenylist => '已移出黑名單';
 	@override String get newEmailAddress => '新郵箱地址';
 	@override String get emailAddress => '郵箱地址';
@@ -1279,11 +1371,11 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get loadingTagDataFailed => '載入標籤資料失敗';
 	@override String get pleaseEnterContent => '請輸入內容';
 	@override String get comingSoon => '敬請期待';
-	@override String get chatBackground => '聊天背景';
+	@override String get chatBackground => '聊天背景圖片';
 	@override String get useSystemDefaultBackground => '使用系統預設背景';
 	@override String get selectCustomBackgroundImage => '選擇自訂背景圖片';
 	@override String get currentBackground => '目前背景';
-	@override String get backgroundTransparency => '背景透明度';
+	@override String get backgroundTransparency => '背景透明程度';
 	@override String get defaultBackground => '預設背景';
 	@override String get solidColorBackground => '純色背景';
 	@override String get selectImageFailed => '選擇圖片失敗';
@@ -1306,7 +1398,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get deleteSuccess => '刪除成功';
 	@override String get localDeleteSuccess => '本地刪除成功';
 	@override String get localDeleteFailed => '本地刪除失敗';
-	@override String get revokeSuccess => '撤回成功';
+	@override String get revokeSuccess => '收回成功';
 	@override String get editContentCannotBeEmpty => '編輯內容不能為空';
 	@override String get editSuccess => '編輯成功';
 	@override String get messageNotFound => '未找到該訊息';
@@ -1323,7 +1415,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get basicInfo => '基本資訊';
 	@override String get contactInfo => '聯絡資訊';
 	@override String get editTags => '編輯標籤';
-	@override String get quickActions => '快捷操作';
+	@override String get quickActions => '快速操作';
 	@override String get noNewFriendRequests => '暫時沒有新的好友申請';
 	@override String get pleaseEnterVerificationMessage => '請輸入驗證訊息';
 	@override String get unknownRegion => '未知地區';
@@ -1339,9 +1431,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get noGroupAnnouncement => '暫無群組公告';
 	@override String get announcementContentCannotBeEmpty => '公告內容不能為空';
 	@override String get announcementPublishSuccess => '公告發布成功';
-	@override String get tips => '提示';
+	@override String get tips => '小提示';
 	@override String get featureComingSoon => '功能暫未實現';
-	@override String get understood => '明白了';
+	@override String get understood => '我懂了';
 	@override String get noProblem => '沒問題';
 	@override String get onMyWay => '馬上到';
 	@override String get sendOfflineCommand => '強制下線';
@@ -1359,7 +1451,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get confirmNewPassword => '確認新密碼';
 	@override String get validationPassed => '驗證通過';
 	@override String get changeFailed => '修改失敗';
-	@override String get submitted => '已提交';
+	@override String get submitted => '已送出';
 	@override String get viewSecurityHelp => '檢視安全說明';
 	@override String get momentsNoData => '暫無動態';
 	@override String get momentsDeleteConfirm => '確定刪除這條動態嗎？';
@@ -1379,10 +1471,10 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get momentsReportFailed => '舉報失敗，請稍後重試';
 	@override String get momentReportReasonSpam => '垃圾廣告';
 	@override String get momentReportReasonHarassment => '騷擾霸凌';
-	@override String get momentReportReasonPorn => '色情低俗';
+	@override String get momentReportReasonPorn => '色情或不雅內容';
 	@override String get momentReportReasonFraud => '欺詐詐騙';
 	@override String get momentReportReasonInfringement => '侵權抄襲';
-	@override String get momentReportReasonOther => '其他';
+	@override String get momentReportReasonOther => '其他原因';
 	@override String get momentReportReasonPrompt => '請選擇舉報原因';
 	@override String get momentsLoadMoreComments => '載入更多評論';
 	@override String get momentsUploadFailed => '媒體上傳失敗，請稍後重試';
@@ -1393,14 +1485,14 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get noNextVoiceMessage => '沒有下一條語音訊息可播放';
 	@override String get nextVoiceMessageNoPath => '下一條語音訊息沒有音訊檔案路徑';
 	@override String get saveFailed => '儲存失敗';
-	@override String get tip => '提示';
+	@override String get tip => '小提示';
 	@override String get confirm => '確認';
-	@override String get success => '成功';
+	@override String get success => '執行成功';
 	@override String get personalDisplay => '個人展示';
 	@override String get personalSignature => '個性簽名';
 	@override String get personalBackground => '個人背景';
 	@override String get setBackgroundImage => '設定背景圖片';
-	@override String get expression => '表情';
+	@override String get expression => '表情符號';
 	@override String get extendedInfo => '擴展資訊';
 	@override String get profession => '職業';
 	@override String get pleaseEnterProfession => 'Please enter profession';
@@ -1418,7 +1510,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get avatarUpdateSuccess => '頭像更新成功';
 	@override String get avatarUpdateFailed => '頭像更新失敗';
 	@override String get deleteOperationAbnormal => '刪除操作異常，請重試';
-	@override String get revoking => '正在撤回...';
+	@override String get revoking => '正在收回...';
 	@override String get editing => '正在編輯...';
 	@override String get messageIdCannotBeEmpty => '訊息 ID 為空，無法操作';
 	@override String get startRevokeMessageFlow => '開始撤回訊息流程';
@@ -1463,7 +1555,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get revokeOperationAbnormalPleaseTryAgain => '撤回操作異常，請重試';
 	@override String get collectionFailedPleaseTryAgain => '收藏失敗，請重試';
 	@override String get reactionSent => '已傳送反應';
-	@override String get seconds => '秒';
+	@override String get seconds => '秒鐘';
 	@override String get messageCannotLocatedMayBeDeleted => '未能定位到該訊息，可能已被刪除';
 	@override String get settingFailedPleaseTryAgain => '設定失敗，請重試';
 	@override String partialDeleteSuccess({required Object success, required Object fail}) => '部分刪除成功：${success} 成功，${fail} 失敗';
@@ -1475,7 +1567,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get permissionOnlySupportAndroidAndIos => 'Permission 只支援 Android 和 iOS';
 	@override String get messageSendFailedPleaseCheckNetwork => '訊息傳送失敗，請檢查網路連接';
 	@override String get retryingSend => '正在重試傳送...';
-	@override String get quickReplyOk => '好的';
+	@override String get quickReplyOk => '好';
 	@override String get quickReplyOkThanks => '好的，謝謝';
 	@override String get tagInspiration => '靈感';
 	@override String get noDetailedInfo => '該用家還沒有設定個人簽名等詳細資訊';
@@ -1498,10 +1590,10 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get lazyUserNoSignature => '暫無個人簽名';
 	@override String get noFavoritesYet => '暫無收藏內容，快去收藏一些有趣的訊息吧';
 	@override String get fontPreviewText => '這是正文內容，您可以在這裡看到不同字體大小的顯示效果。';
-	@override String get smaller => '更小';
+	@override String get smaller => '縮小';
 	@override String currentFontScale({required Object param1, required Object param2}) => '目前：${param1} ${param2}%';
 	@override String emailUpdatedTo({required Object param}) => '郵箱已更新為 ${param}';
-	@override String groupAnnouncementExpiry({required Object time}) => '有效期至: ${time}';
+	@override String groupAnnouncementExpiry({required Object time}) => '效期至: ${time}';
 	@override String get groupAlbumCreateFailed => '建立失敗，請稍後重試';
 	@override String get groupAlbumDeleteTitle => '刪除群相簿';
 	@override String groupAlbumDeleteConfirm({required Object name}) => '確定刪除相簿「${name}」嗎？';
@@ -1537,21 +1629,21 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get sectionTheme => '主題';
 	@override String get selectLanguage => '選擇語言';
 	@override String get completionSuggestions => '完善建議：';
-	@override String get sectionGeneral => '通用';
+	@override String get sectionGeneral => '一般';
 	@override String get sectionPrivacySecurity => '隱私與安全';
 	@override String get sectionHelpAbout => '幫助與關於';
 	@override String get msgOnlyVisibleToParties => '訊息僅收發雙方可讀';
 	@override String get msgNotEncrypted => '訊息未加密傳輸';
 	@override String unreadCount({required Object count}) => '${count} 則未讀';
 	@override String durationMinutes({required Object count}) => '${count}分鐘';
-	@override String durationSeconds({required Object count}) => '${count}秒';
+	@override String durationSeconds({required Object count}) => '${count}秒鐘';
 	@override String get rechargeAmountError => '請輸入0.01元到10000元之間的金額';
-	@override String get rechargeSuccess => '充值成功';
+	@override String get rechargeSuccess => '儲值成功';
 	@override String get rechargeConfirm => '確認充值';
 	@override String get transactionHistory2 => '流水記錄';
 	@override String get noTransactionHistory => '暫無流水記錄';
 	@override String get allLoaded => '— 已全部載入 —';
-	@override String get transactionTypeIncome => '充值';
+	@override String get transactionTypeIncome => '儲值';
 	@override String get transactionTypeExpense => '消費';
 	@override String get sectionLoginCredentials => '登入憑證';
 	@override String get channelInvitations => '頻道邀請';
@@ -1560,11 +1652,11 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get invitationAccepted => '已接受邀請';
 	@override String get invitationRejected => '已拒絕邀請';
 	@override String get invitationStatusPending => '待處理';
-	@override String get invitationStatusAccepted => '已接受';
+	@override String get invitationStatusAccepted => '已同意';
 	@override String get invitationStatusRejected => '已拒絕';
 	@override String get invitationStatusExpired => '已過期';
-	@override String get invitationStatusCancelled => '已取消';
-	@override String get invitationStatusUnknown => '未知';
+	@override String get invitationStatusCancelled => '已撤銷';
+	@override String get invitationStatusUnknown => '不明';
 	@override String get noReceivedInvitations => '暫無收到的邀請';
 	@override String get noSentInvitations => '暫無發出的邀請';
 	@override String get processingDots => '處理中...';
@@ -1572,12 +1664,12 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get purchaseSuccess => '購買成功';
 	@override String get insufficientBalanceTitle => '餘額不足';
 	@override String insufficientBalanceContent({required Object currency, required Object balance, required Object price}) => '當前餘額 ${currency} ${balance}，需支付 ${currency} ${price}。請先充值後再購買。';
-	@override String get goRecharge => '去充值';
+	@override String get goRecharge => '去儲值';
 	@override String get noOrders => '暫無訂單';
 	@override String get orderDetailLoadFailed => '訂單詳情載入失敗';
 	@override String orderNoLabel({required Object no}) => '訂單號: ${no}';
-	@override String get orderStatusCancelled => '已取消';
-	@override String get orderStatusUnknown => '未知';
+	@override String get orderStatusCancelled => '已撤銷';
+	@override String get orderStatusUnknown => '不明';
 	@override String get removeReaction => '移除反應';
 	@override String removeReactionConfirm({required Object emoji}) => '確定要移除 ${emoji} 反應嗎？';
 	@override String get fileOpenFailed => '無法開啟該檔案';
@@ -1611,7 +1703,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String e2eeDeviceIdInfo({required Object id}) => '裝置 ID: ${id}';
 	@override String e2eeKeyIdInfo({required Object id}) => '金鑰 ID: ${id}';
 	@override String e2eeCreatedAtInfo({required Object time}) => '建立時間: ${time}';
-	@override String get e2eeImportantNote => '重要提示';
+	@override String get e2eeImportantNote => '重要提醒';
 	@override String get e2eeWarnOldMayNotDecrypt => '• 舊訊息可能無法解密';
 	@override String get e2eeSuggestBackupNow => '• 建議立即匯出備份';
 	@override String get e2eeGoBackup => '去備份';
@@ -1628,7 +1720,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeLoadFailed => '載入失敗，請重試';
 	@override String e2eeContactingProxy({required Object name}) => '正在聯絡: ${name}';
 	@override String get e2eeRecoveryFailed => '恢復失敗，請重試';
-	@override String get webFeatureNotification => '桌面通知';
+	@override String get webFeatureNotification => '桌面版通知';
 	@override String get webFeatureNotificationDesc => '即使不在頁面也能收到新訊息提醒';
 	@override String get webQRConfirmOnPhone => '請在手機上確認登入';
 	@override String get webQRLoginFailed => '登入失敗';
@@ -1676,7 +1768,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrShareFailed => '分享失敗，請重試';
 	@override String get e2eeBackupExportSuccessTitle => '備份匯出成功';
 	@override String get e2eeBackupExportSuccessBody => '您的 E2EE 金鑰備份已成功生成。';
-	@override String get e2eeBackupImportantNoteColon => '重要提示：';
+	@override String get e2eeBackupImportantNoteColon => '重要提醒：';
 	@override String get e2eeBackupKeepSafe => '• 請妥善保管備份檔案和密碼';
 	@override String get e2eeBackupStoreMultipleLoc => '• 建議將檔案儲存到多個安全位置';
 	@override String get e2eeBackupPwdCantRecoverNote => '• 密碼無法找回，請務必牢記';
@@ -1814,7 +1906,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String grabAmountYuan({required Object amount}) => '領到金額：${amount} 元';
 	@override String transferAmountYuan({required Object amount}) => '轉賬金額：${amount} 元';
 	@override String get insufficientBalance => '餘額不足';
-	@override String get goToRecharge => '去充值';
+	@override String get goToRecharge => '前往儲值';
 	@override String get withdrawSuccess => '提現成功';
 	@override String get withdrawConfirm => '確認提現';
 	@override String get withdrawFeeNotice => '手續費與到帳時間以實際結算為準';
@@ -1824,7 +1916,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get withdrawAccount => '提現賬號';
 	@override String get withdrawAmountLabel => '提現金額';
 	@override String get withdrawAlipay => '支付寶';
-	@override String get withdrawWechat => '微信';
+	@override String get withdrawWechat => 'WeChat';
 	@override String walletBalanceLabel({required Object balance}) => '錢包餘額 ￥${balance}';
 	@override String get withdrawAccountHintAlipay => '提現賬號（郵箱或手機號）';
 	@override String get withdrawAccountHintWechat => '提現賬號（微信號）';
@@ -1842,15 +1934,82 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get enterFullscreen => '進入全螢幕';
 	@override String get exitFullscreen => '退出全螢幕';
 	@override String get developer => '開發者';
-	@override String get fontSizeOptionSmall => '小';
+	@override String get fontSizeOptionSmall => '小字';
 	@override String get fontSizeOptionNormal => '標準';
-	@override String get fontSizeOptionMedium => '中';
-	@override String get fontSizeOptionLarge => '大';
-	@override String get fontSizeOptionExtraLarge => '特大';
-	@override String get fontSizeOptionHuge => '超大';
+	@override String get fontSizeOptionMedium => '中字';
+	@override String get fontSizeOptionLarge => '大字';
+	@override String get fontSizeOptionExtraLarge => '特大字';
+	@override String get fontSizeOptionHuge => '超大字';
 	@override String get searchFailedRetry => '搜尋失敗，請重試';
 	@override String get searchDisabledTitle => '訊息搜尋未啟用';
 	@override String get searchDisabledByEncryption => '已開啟端對端加密，伺服器無法讀取訊息內容，因此不提供全文搜尋';
+	@override String get amountMustPositive => '金額必須大於 0';
+	@override String get answer => '接聽';
+	@override String get collapse => '收合';
+	@override String get complianceKeyChangedActionConfirm => '確認輪替';
+	@override String get complianceKeyChangedActionKeep => '暫不確認';
+	@override String get complianceKeyChangedBody => '伺服器下發的合規稽核公開金鑰與本地固定值不一致。若這是管理員有意進行的金鑰輪替，請點擊「確認輪替」；否則請勿繼續傳送加密訊息，並請聯絡管理員查明。';
+	@override String get complianceKeyChangedTitle => '合規稽核金鑰已變更';
+	@override String get declineCall => '拒接';
+	@override String get e2eeRecoveryKeyCopied => '恢復金鑰已複製';
+	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => '恢復金鑰已複製，${seconds} 秒後將自動清除剪貼簿，請盡快儲存';
+	@override String get e2eeRecoveryKeySaveNote => '請立即儲存這串恢復金鑰（截圖或存入密碼管理員）。忘記密碼時，它是解密備份的唯一憑據；一旦遺失，備份將永久無法還原。';
+	@override String get e2eeRecoveryKeyTitle => '恢復金鑰';
+	@override String get e2eeUseRecoveryKey => '產生恢復金鑰（忘記密碼時的備用憑據）';
+	@override String get enterAmount => '請輸入金額';
+	@override String get expandFull => '展開';
+	@override String get hoursAgo => '小時前';
+	@override String get justNow => '剛剛';
+	@override String get me => '本人';
+	@override String get minimize => '縮到最小';
+	@override String get minutesAgo => '分鐘前';
+	@override String get momentsHasFailedUploads => '有媒體上傳失敗，請重試或移除後再發布';
+	@override String get noHistory => '暫無歷史紀錄';
+	@override String get noNewRegisteredUsersTitle => '暫無新註冊使用者';
+	@override String get payReceiveSuccess => '已成功收款！';
+	@override String get purchaseConfirming => '付款確認中，請稍後查看訂單狀態';
+	@override String get reconnecting => '網路不穩，正在重新連線…';
+	@override String get redPacketAmountTooSmall => '總金額至少為份數 × 0.01 元';
+	@override String get redPacketBrand => 'IMBoy 紅包';
+	@override String get redPacketCount => '紅包數量';
+	@override String get redPacketCountEmpty => '請輸入紅包數量';
+	@override String get redPacketCountMin => '紅包數量至少須為 1';
+	@override String get redPacketCountUnit => '份';
+	@override String get redPacketCurrentLucky => '目前為：拼手氣紅包';
+	@override String get redPacketCurrentNormal => '目前為：普通紅包';
+	@override String get redPacketDialogSubtitle => '大吉大利，恭喜發財';
+	@override String get redPacketDialogTitle => '送你一個紅包';
+	@override String get redPacketFetchError => '取得紅包詳情時發生異常';
+	@override String get redPacketFetchFailed => '取得紅包詳情失敗';
+	@override String get redPacketGreetingLabel => '留言 / 祝福語';
+	@override String get redPacketNotFound => '紅包不存在或已被刪除';
+	@override String redPacketReceiverLabel({required Object uid}) => '使用者：${uid}';
+	@override String get redPacketSingleAmount => '單個金額';
+	@override String get redPacketStuffLucky => '塞錢發紅包';
+	@override String get redPacketStuffNormal => '放入錢包傳送';
+	@override String get redPacketSwitchToLucky => '改為拼手氣紅包';
+	@override String get redPacketSwitchToNormal => '改為普通紅包';
+	@override String get redPacketTotalAmount => '總金額';
+	@override String get redPacketView => '查看紅包';
+	@override String get switchCamera => '切換鏡頭';
+	@override String timeDaysShort({required Object count}) => '${count}d';
+	@override String timeHoursShort({required Object count}) => '${count}h';
+	@override String timeMinutesShort({required Object count}) => '${count}m';
+	@override String get timeNowShort => 'now';
+	@override String get transferAccepted => '已收款';
+	@override String get transferAmountLabel => '轉帳金額';
+	@override String get transferConfirm => '確認轉帳';
+	@override String get transferDefaultRemark => '轉帳給好友';
+	@override String get transferMinAmountError => '轉帳最低金額為 0.01 元';
+	@override String get transferPending => '等待對方確認';
+	@override String get transferReceiving => '收款中...';
+	@override String get transferRefunded => '已退還';
+	@override String get transferRemarkLabel => '轉帳備註';
+	@override String get transferTapToReceive => '點擊收款';
+	@override String uploadPartialFailed({required Object count}) => '${count} 項上傳失敗';
+	@override String get voiceSttConverting => '正在辨識中...';
+	@override String get voiceSttNotConfigured => '轉文字功能尚未設定';
+	@override String get voiceSttPreviewTitle => '語音轉文字預覽';
 }
 
 // Path: complaint
@@ -1861,6 +2020,10 @@ class Translations$complaint$zh_Hant extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => '投訴';
+	@override String get e2eeConsentTitle => '提交加密訊息證據';
+	@override String get e2eeConsentBody => '該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？';
+	@override String get e2eeConsentSubmit => '同意並提交證據';
+	@override String get e2eeConsentDecline => '僅舉報（不提交內容）';
 }
 
 // Path: complaintReason
@@ -1873,7 +2036,7 @@ class Translations$complaintReason$zh_Hant extends Translations$complaintReason$
 	@override String get spam => '垃圾資訊';
 	@override String get harassment => '騷擾';
 	@override String get inappropriate => '不當內容';
-	@override String get other => '其他';
+	@override String get other => '其他原因';
 }
 
 // Path: contact
@@ -1917,19 +2080,19 @@ class Translations$contact$zh_Hant extends Translations$contact$zh_CN {
 	@override String tagLengthExceeded({required Object param}) => '標籤長度不能超過 ${param} 個字元';
 	@override String maxTagsExceeded({required Object param}) => '最多只能新增 ${param} 個標籤';
 	@override String selectedTags({required Object param, required Object max}) => '已選標籤 (${param}/${max})';
-	@override String get tagImportant => '重要';
+	@override String get tagImportant => 'VIP聯絡人';
 	@override String get tagUrgent => '緊急';
-	@override String get tagWork => '工作';
-	@override String get tagLife => '生活';
+	@override String get tagWork => '公司';
+	@override String get tagLife => '日常';
 	@override String get tagStudy => '學習';
 	@override String get tagEntertainment => '娛樂';
-	@override String get tagTravel => '旅行';
-	@override String get tagFood => '美食';
-	@override String get tagHealth => '健康';
-	@override String get tagFamily => '家庭';
+	@override String get tagTravel => '旅遊';
+	@override String get tagFood => '吃貨';
+	@override String get tagHealth => '養生';
+	@override String get tagFamily => '家人';
 	@override String get tagFriends => '好友';
 	@override String get tagProject => '專案';
-	@override String get tagIdeas => '想法';
+	@override String get tagIdeas => '點子';
 	@override String get tagMemo => '備忘';
 	@override String get friendRequestSent => '已傳送';
 	@override String get channelMaxTagsCount => '最多可新增 8 個標籤';
@@ -1946,7 +2109,7 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String get findNearbyPeople => '搜尋附近的人';
 	@override String get moment => '動態';
 	@override String get nearbyPeopleExplain => '附近的用家可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。\n您的電話號碼將會被隱藏。';
-	@override String get peopleNearby => '附近的人';
+	@override String get peopleNearby => '附近的朋友';
 	@override String get peopleNearbyLogic => '附近的人邏輯';
 	@override String get scan => '掃一掃';
 	@override String get scanResult => '掃描結果';
@@ -1972,31 +2135,33 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String get momentActionComment => '評論';
 	@override String get momentActionDelete => '刪除';
 	@override String get momentActionReport => '舉報';
-	@override String get momentActionCancel => '取消';
+	@override String get momentActionCancel => '取消動作';
 	@override String momentViewAllComments({required Object count}) => '查看全部 ${count} 條評論';
 	@override String momentLikedBy({required Object names}) => '${names} 讚了';
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 等${count}人讚了';
 	@override String get momentPartialVisible => '部分可見';
 	@override String get momentContentPlaceholder => '這一刻的想法...';
-	@override String get momentShowFull => '全文';
+	@override String get momentShowFull => '展開全文';
 	@override String get momentExpand => '展開';
-	@override String get momentCollapse => '收起';
+	@override String get momentCollapse => '收合';
 	@override String get momentReportComment => '舉報評論';
-	@override String get momentsDraftKeepTitle => '保留草稿？';
+	@override String get momentsDraftKeepTitle => '要保留草稿嗎？';
 	@override String get momentsDraftKeepMessage => '保留後下次進入可繼續編輯';
-	@override String get momentsDraftDiscard => '不保留';
-	@override String get momentsDraftKeep => '保留';
+	@override String get momentsDraftDiscard => '捨棄';
+	@override String get momentsDraftKeep => '保留草稿';
 	@override String get discover => '發現';
+	@override String get momentActionMore => '更多選項';
+	@override String momentLikesCountOnly({required Object count}) => '${count} 人按讚';
 	@override String get shake => '搖一搖';
 	@override String get openChannel => '開啟頻道';
 	@override String get paidChannelLocked => '付費頻道內容已鎖定';
 	@override String get webQRScanned => '已掃描';
-	@override String get momentLocation => '所在位置';
+	@override String get momentLocation => '打卡地點';
 	@override String get momentLocationNone => '不顯示位置';
 	@override String get momentAtWho => '提醒誰看';
-	@override String momentAtReminded({required Object name}) => '提醒了 ${name}';
-	@override String momentAtRemindedMore({required Object name, required Object count}) => '提醒了 ${name} 等${count}人';
-	@override String momentAtCount({required Object count}) => '${count}人';
+	@override String momentAtReminded({required Object name}) => '提醒了 ${name} 查看';
+	@override String momentAtRemindedMore({required Object name, required Object count}) => '提醒了 ${name} 等${count}人查看';
+	@override String momentAtCount({required Object count}) => '${count} 人查看';
 }
 
 // Path: error
@@ -2046,7 +2211,7 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get groupInfo => '群組資訊';
 	@override String get groupMemberRoleLabel => '成員';
 	@override String noMemberWithRole({required Object roleName}) => '暫無${roleName}';
-	@override String get moreActions => '更多操作';
+	@override String get moreActions => '更多選項';
 	@override String get touchContactAddMember => '點擊聯絡人新增為群組成員';
 	@override String get groupCreated => '群組已建立';
 	@override String get groupCreatedSuccess => '群組建立成功，邀請你完善群組資訊或直接進入群組';
@@ -2108,6 +2273,22 @@ class Translations$groupCategory$zh_Hant extends Translations$groupCategory$zh_C
 	@override String get categoryDetailTip => '該分組下的群聊可以在群組列表中透過「移入分組」進行管理';
 }
 
+// Path: groupDiscovery
+class Translations$groupDiscovery$zh_Hant extends Translations$groupDiscovery$zh_CN {
+	Translations$groupDiscovery$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '發現群組';
+	@override String get searchHint => '搜尋公開群組';
+	@override String get allCategories => '所有';
+	@override String get sortPopular => '熱門';
+	@override String get sortNewest => '最新建立';
+	@override String get emptyTitle => '暫無公開群組，稍後再來看看';
+	@override String get searchEmpty => '沒有符合的公開群組';
+}
+
 // Path: groupList
 class Translations$groupList$zh_Hant extends Translations$groupList$zh_CN {
 	Translations$groupList$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
@@ -2115,10 +2296,10 @@ class Translations$groupList$zh_Hant extends Translations$groupList$zh_CN {
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get attrAll => '全部';
+	@override String get attrAll => '所有';
 	@override String get attrOwner => '我建立';
-	@override String get attrManager => '我管理';
-	@override String get attrJoin => '我加入';
+	@override String get attrManager => '我管理的';
+	@override String get attrJoin => '我加入的';
 	@override String get refresh => '重新整理';
 }
 
@@ -2129,34 +2310,34 @@ class Translations$groupSchedule$zh_Hant extends Translations$groupSchedule$zh_C
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '群日程';
+	@override String get title => '群組日程';
 	@override String get createSchedule => '建立日程';
 	@override String get scheduleTitle => '日程標題';
 	@override String get selectDate => '選擇日期';
 	@override String get selectTime => '選擇時間';
 	@override String get location => '地點';
-	@override String get reminder => '提醒';
-	@override String get noReminder => '不提醒';
+	@override String get reminder => '提醒通知';
+	@override String get noReminder => '關閉提醒';
 	@override String get noSchedule => '暫無日程';
 	@override String get scheduleCreated => '日程建立成功';
-	@override String get scheduleUpdated => '日程更新成功';
+	@override String get scheduleUpdated => '日程已更新';
 	@override String get reminder15min => '提前15分鐘';
 	@override String get reminder1hour => '提前1小時';
-	@override String get reminder1day => '提前1天';
+	@override String get reminder1day => '提早 1 天';
 	@override String get startTime => '開始時間';
 	@override String get endTime => '結束時間';
 	@override String get participants => '參與人數';
-	@override String get statusCancelled => '已取消';
+	@override String get statusCancelled => '已撤銷';
 	@override String get statusInProgress => '進行中';
 	@override String get statusNotStarted => '未開始';
 	@override String get statusEnded => '已結束';
-	@override String get cancelSuccess => '日程已取消';
+	@override String get cancelSuccess => '已取消日程';
 	@override String get cancelFailed => '取消失敗，請稍後重試';
 	@override String get confirmAttend => '確認參加';
 	@override String get declineAttend => '不參加';
-	@override String get cancelSchedule => '取消日程';
+	@override String get cancelSchedule => '撤銷日程';
 	@override String get scheduleIdMissing => '日程ID缺失，無法檢視詳情';
-	@override String get untitledSchedule => '未命名日程';
+	@override String get untitledSchedule => '無標題日程';
 	@override String get cardViewAndAttend => '查看詳情並確認參加';
 }
 
@@ -2193,15 +2374,15 @@ class Translations$groupTask$zh_Hant extends Translations$groupTask$zh_CN {
 	@override String get deadline => '截止時間';
 	@override String get noDeadline => '無截止時間';
 	@override String get noTask => '暫無任務';
-	@override String get all => '全部';
-	@override String get pending => '待完成';
-	@override String get completed => '已完成';
+	@override String get all => '所有';
+	@override String get pending => '待處理';
+	@override String get completed => '已結案';
 	@override String get taskCreated => '任務建立成功';
 	@override String get taskSubmitted => '任務已提交';
 	@override String get submitTask => '提交作業';
 	@override String get taskCompleted => '任務已完成';
 	@override String get overdue => '已過期';
-	@override String daysLeft({required Object days}) => '${days} 天后截止';
+	@override String daysLeft({required Object days}) => '${days} 天後截止';
 	@override String hoursLeft({required Object hours}) => '${hours} 小時後截止';
 	@override String get dueSoon => '即將截止';
 	@override String get submitFailed => '提交失敗，請稍後重試';
@@ -2218,28 +2399,28 @@ class Translations$groupVote$zh_Hant extends Translations$groupVote$zh_CN {
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '群投票';
+	@override String get title => '群組投票';
 	@override String get createVote => '建立投票';
 	@override String get voteTitle => '投票標題';
 	@override String get voteOptions => '投票選項';
 	@override String get addOption => '新增選項';
 	@override String get allowMultiple => '允許多選';
-	@override String get anonymous => '匿名投票';
+	@override String get anonymous => '不記名投票';
 	@override String get deadline => '截止時間';
 	@override String get noDeadline => '無截止時間';
 	@override String get noVote => '暫無投票';
 	@override String get voteEnded => '投票已結束';
-	@override String totalVotes({required Object count}) => '共 ${count} 票';
-	@override String get voteSuccess => '投票成功';
-	@override String get hasVoted => '已投票';
+	@override String totalVotes({required Object count}) => '總計 ${count} 票';
+	@override String get voteSuccess => '已成功投票';
+	@override String get hasVoted => '已投過票';
 	@override String get viewResults => '檢視結果';
-	@override String get cancelVoteSuccess => '已取消投票';
+	@override String get cancelVoteSuccess => '已撤銷投票';
 	@override String get cancelVoteFailed => '取消失敗，請稍後重試';
 	@override String get endVoteFailed => '結束失敗，請稍後重試';
 	@override String get eachOptionPerLine => '每行一個選項';
 	@override String get statusInProgress => '進行中';
-	@override String get updateVote => '更新投票';
-	@override String get cancelMyVote => '取消我的投票';
+	@override String get updateVote => '變更投票';
+	@override String get cancelMyVote => '撤銷我的投票';
 	@override String get voteIdMissing => '投票ID缺失，無法檢視詳情';
 	@override String participantCount({required Object count}) => '參與人數: ${count}';
 }
@@ -2265,20 +2446,20 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get audio => '音訊';
 	@override String get barcodeFound => '找到條碼！';
 	@override String get botQianFan => '千帆機器人';
-	@override String get liveRoomWhipLabel => 'WHIP 推流地址';
-	@override String get liveRoomWhepLabel => 'WHEP 拉流地址';
+	@override String get liveRoomWhipLabel => 'WHIP 推流位址';
+	@override String get liveRoomWhepLabel => 'WHEP 拉流位址';
 	@override String get cache => '快取';
 	@override String get camera => '拍攝';
 	@override String get changeNameView => '修改名稱視圖';
 	@override String changeParam({required Object param}) => '更改${param}';
 	@override String get chooseFromAlbum => '從相簿選擇';
-	@override String get clean => '清理';
+	@override String get clean => '清除';
 	@override String codeSentToParam({required Object param}) => '驗證碼已傳送到${param}';
 	@override String codeSentToType({required Object param}) => '驗證碼已傳送到${param}';
-	@override String get collected => '已收藏';
+	@override String get collected => '已加入收藏';
 	@override String get completed => '已完結';
 	@override String get copied => '已複製';
-	@override String get darkModel => '深色模式';
+	@override String get darkModel => '深色主題';
 	@override String get deDd => '德語（德國）';
 	@override String get disable => '停用';
 	@override String get earlier => '較早';
@@ -2289,8 +2470,8 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get expired => '已過期';
 	@override String get extraItem => '額外項目';
 	@override String get faceToFaceLogic => '面對面建群邏輯';
-	@override String get favorites => '收藏';
-	@override String get female => '女';
+	@override String get favorites => '收藏夾';
+	@override String get female => '女生';
 	@override String get followSystem => '跟隨系統';
 	@override String get frFr => '法語（法國）';
 	@override String get from => '來自';
@@ -2299,17 +2480,17 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get hangup => '掛斷';
 	@override String get haveSet => '已設定';
 	@override String get httpParse => 'HTTP 解析';
-	@override String get iAm => '我是';
+	@override String get iAm => '本人是';
 	@override String get itIt => '義大利語（義大利）';
 	@override String get jaJp => '日語（日本）';
-	@override String get keepSecret => '保密';
+	@override String get keepSecret => '保守祕密';
 	@override String get lastActiveTime => '最近活躍時間';
 	@override String get lastSeenHide => '隱藏上線狀態';
 	@override String get lastSeenNever => '從未上線';
 	@override String lastSeenWeeksAgo({required Object param}) => '${param}週前';
 	@override String lastSeenExactTime({required Object param}) => '上次上線 ${param}';
 	@override String get licenseAgreement => '《軟體許可及服務協議》';
-	@override String get liveBroadcast => '直播';
+	@override String get liveBroadcast => '現場直播';
 	@override String get liveRoomListView => '直播間列表視圖';
 	@override String get publisherPage => '推流頁面';
 	@override String get subscriber => '訂閱者';
@@ -2317,18 +2498,18 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get loudspeaker => '擴音器';
 	@override String get makeYourselfInvisible => '讓自己不可見';
 	@override String get makeYourselfVisible => '讓自己可見';
-	@override String get male => '男';
-	@override String get manage => '管理';
-	@override String get markImportant => '重要';
+	@override String get male => '男生';
+	@override String get manage => '營運管理';
+	@override String get markImportant => '設為重要';
 	@override String get markImportantDesc => '標記為重要訊息';
-	@override String get markStar => '收藏';
+	@override String get markStar => '加入收藏';
 	@override String get markStarDesc => '收藏此訊息';
 	@override String get markTodo => '待辦';
 	@override String get markTodoDesc => '標記為待辦事項';
 	@override String get multiSelect => '多選';
 	@override String get multiSelectMode => '多選模式';
-	@override String get myFavorites => '我的收藏';
-	@override String get myLive => '我的直播';
+	@override String get myFavorites => '我的收藏夾';
+	@override String get myLive => '我的直播間';
 	@override String get name => '名稱';
 	@override String numUnit({required Object param}) => '${param}個';
 	@override String get openInBrowser => '在瀏覽器中開啟';
@@ -2336,12 +2517,12 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get otherParty => '對方';
 	@override String get packageSize => '套件大小';
 	@override String get peerHasHungUp => '對方已掛斷';
-	@override String get play => '播放';
+	@override String get play => '開始播放';
 	@override String pleaseInputParam({required Object param}) => '請輸入${param}';
 	@override String get pleaseSelect => '請選擇';
 	@override String get quickFilters => '快速篩選';
-	@override String get quote => '引用';
-	@override String get recentlyUsed => '最近使用';
+	@override String get quote => '引言';
+	@override String get recentlyUsed => '最近使用的';
 	@override String get releaseEnd => '鬆開結束';
 	@override String remainingChars({required Object param}) => '還可輸入 ${param} 個字元';
 	@override String get kickMember => 'Remove from Group';
@@ -2361,7 +2542,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String signInWith({required Object param}) => '用${param}登入';
 	@override String get source => '來源';
 	@override String get speakingTooShort => '說話時間太短';
-	@override String get speed => '速度';
+	@override String get speed => '倍速';
 	@override String get star => _root.main.markStar;
 	@override String get stillNeeded => '還需';
 	@override String get storageSpace => '儲存空間';
@@ -2369,14 +2550,14 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get text => '文字';
 	@override String get thisWeek => '本週';
 	@override String get timeRange => '時間範圍';
-	@override String get timeWeekdays => '星期一,星期二,星期三,星期四,星期五,星期六,星期日';
-	@override String get titleMine => '我的';
+	@override String get timeWeekdays => '週一,週二,週三,週四,週五,週六,週日';
+	@override String get titleMine => '個人頁';
 	@override String get titleSquare => '廣場';
-	@override String get tooBad => '太差了';
+	@override String get tooBad => '太糟糕了';
 	@override String get tryAgainQ => '想再試一次嗎？';
 	@override String get type => '類型';
 	@override String get unanswered => '未應答';
-	@override String get unnamed => '未命名';
+	@override String get unnamed => '無名稱';
 	@override String upToWords({required Object param}) => '最多${param}個字';
 	@override String get upgrade => '升級';
 	@override String get usedSpace => '已使用空間';
@@ -2396,7 +2577,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get privacyPolicy => '隱私政策';
 	@override String get termsOfService => '服務條款';
 	@override String get saving => _root.common.loading;
-	@override String get topStories => '看一看';
+	@override String get topStories => '熱門內容';
 	@override String get systemDefault => '系統預設';
 	@override String get custom => '自訂';
 	@override String get previewArea => '預覽區域';
@@ -2409,9 +2590,9 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get previewEffect => '預覽效果';
 	@override String get thisIsTitleText => '這是標題文字';
 	@override String get thisIsAuxiliaryText => '這是輔助說明文字';
-	@override String get toBeCompleted => '待完善';
+	@override String get toBeCompleted => '待補充';
 	@override String get availableCount => '可選擇';
-	@override String get mostUsed => '最常用';
+	@override String get mostUsed => '常用';
 	@override String get commentPlaceholder => '評論...';
 	@override String get delayMsLabel => '延時毫秒 (>=100)';
 	@override String get processed => '已處理';
@@ -2425,12 +2606,12 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get exportToLocal => '匯出個人資料到本地';
 	@override String get exportAsText => 'Export as text format';
 	@override String get selectFromAlbum => '從相簿選擇';
-	@override String get volumeUp => '音量增加';
+	@override String get volumeUp => '調高音量';
 	@override String get volumeDown => '音量減少';
-	@override String fastRewind({required Object seconds}) => '快退 ${seconds}秒';
+	@override String fastRewind({required Object seconds}) => '倒轉 ${seconds} 秒';
 	@override String get pleaseTryAgain => '請重試';
-	@override String get secret => '保密';
-	@override String get takePhoto => '拍照';
+	@override String get secret => '保守祕密';
+	@override String get takePhoto => '拍攝照片';
 	@override String get publishing => '發布中...';
 	@override String get deletingInProgressPleaseWait => '正在刪除中，請稍候...';
 	@override String get testUser1 => '用家 1';
@@ -2438,12 +2619,12 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get testUser3 => '用家 3';
 	@override String get testUser4 => '用家 4';
 	@override String get testUser5 => '用家 5';
-	@override String get collecting => '收藏中...';
+	@override String get collecting => '加入收藏中...';
 	@override String get user => '用家';
 	@override String get recommended => '推薦';
-	@override String get larger => '更大';
+	@override String get larger => '放大';
 	@override String currentLength({required Object param1, required Object param2}) => '目前長度：${param1} / ${param2}';
-	@override String get fillIn => '填入';
+	@override String get fillIn => '填寫';
 	@override String get msgProtectedByComplianceKey => '訊息受合規金鑰保護';
 	@override String inviterLabel({required Object uid}) => '邀請人: ${uid}';
 	@override String inviteeLabel({required Object uid}) => '被邀請人: ${uid}';
@@ -2451,7 +2632,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get reject => '拒絕';
 	@override String get myOrders => '我的訂單';
 	@override String get purchaseUnlockHint => '購買後可解鎖頻道歷史訊息與後續更新內容。';
-	@override String get payingDots => '支付中...';
+	@override String get payingDots => '付款中...';
 	@override String get purchaseAndUnlock => '立即購買並解鎖';
 	@override String get orderDetail => '訂單詳情';
 	@override String orderAmountLabel({required Object currency, required Object amount}) => '金額: ${currency} ${amount}';
@@ -2464,19 +2645,19 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get e2eeKeyIdLabel => '金鑰 ID';
 	@override String get e2eeWarnIrreversible => '• 此操作不可撤銷';
 	@override String get e2eeWarnNeedRestoreOrNew => '• 需要從備份恢復或生成新金鑰';
-	@override String get gotIt => '我知道了';
+	@override String get gotIt => '了解了';
 	@override String get e2eeRecoverKeyTitle => '恢復金鑰';
 	@override String get e2eeCanRecoverKey => '可以恢復金鑰';
 	@override String get e2eeInsufficientShards => '分片數量不足';
 	@override String e2eeProxyUser({required Object uid}) => '代理使用者: ${uid}';
-	@override String e2eeShardLabel({required Object index, required Object total}) => '分片 ${index} / ${total}';
+	@override String e2eeShardLabel({required Object index, required Object total}) => '金鑰分片 ${index} / ${total}';
 	@override String get e2eeReloadShards => '重新載入';
 	@override String get e2eeRecovering => '恢復中...';
 	@override String get e2eeKeyRestored => '金鑰已成功恢復';
 	@override String e2eeUsedShards({required Object count}) => '已使用 ${count} 個代理分片';
 	@override String get e2eePreparing => '準備恢復...';
 	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => '進度: ${collected} / ${total} 個分片';
-	@override String e2eeCollectingShards({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...';
+	@override String e2eeCollectingShards({required Object collected, required Object total}) => '正在收集金鑰分片 (${collected}/${total})...';
 	@override String get e2eeShardsCollected => '分片收集完成，正在重組金鑰...';
 	@override String get webQRLoggingIn => '登入中...';
 	@override String get webQRExpired => '二維碼已過期';
@@ -2492,13 +2673,13 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String e2eeSocialProxyDefaultName({required Object uid}) => '使用者 ${uid}';
 	@override String get e2eeSocialShardSentViaWs => '分片已透過 WebSocket 直接傳送到代理裝置儲存';
 	@override String e2eeSocialSentCount({required Object sent, required Object total}) => '已傳送到 ${sent} 個代理裝置（共 ${total} 個）';
-	@override String get e2eeSocialManageTitle => '管理分片';
-	@override String get e2eeSocialMyShards => '我的分片';
-	@override String get e2eeSocialProxyShards => '代理分片';
-	@override String e2eeSocialShardOf({required Object idx, required Object total}) => '分片 ${idx} / ${total}';
+	@override String get e2eeSocialManageTitle => '分片管理';
+	@override String get e2eeSocialMyShards => '我的金鑰分片';
+	@override String get e2eeSocialProxyShards => '代理金鑰分片';
+	@override String e2eeSocialShardOf({required Object idx, required Object total}) => '金鑰分片 ${idx} / ${total}';
 	@override String get e2eeSocialShardActive => '活躍';
-	@override String get e2eeSocialShardUsed => '已使用';
-	@override String get e2eeSocialShardValid => '分片有效';
+	@override String get e2eeSocialShardUsed => '已消耗';
+	@override String get e2eeSocialShardValid => '分片仍有效';
 	@override String e2eeSocialUserShard({required Object uid}) => '使用者 ${uid} 的金鑰分片';
 	@override String get e2eeSocialProxyUserLabel => '代理使用者';
 	@override String get e2eeSocialRecoveryThresholdLabel => '恢復閾值';
@@ -2520,7 +2701,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get e2eeSocialExistingShards => '現有恢復分片';
 	@override String get e2eeSocialRecoverKeyTitle => '恢復金鑰';
 	@override String get e2eeSocialRecoverKeyDesc => '使用代理的分片恢復金鑰';
-	@override String get e2eeSocialManageShardsTitle => '管理分片';
+	@override String get e2eeSocialManageShardsTitle => '分片管理';
 	@override String get e2eeSocialManageShardsDesc => '檢視和管理所有恢復分片';
 	@override String get e2eeSocialZeroTrustHint1 => '零信任架構：服務端不儲存分片，直接聯絡代理';
 	@override String get e2eeSocialZeroTrustHint2 => '零信任架構：分片儲存在代理裝置';
@@ -2532,6 +2713,35 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get liveRoomTitleLabel => '直播間標題';
 	@override String get liveRoomTitleHint => '請輸入直播間標題';
 	@override String get lightModel => '淺色模式';
+	@override String get complianceKeyInfoAlgorithm => '演算法';
+	@override String get complianceKeyInfoChangedWarning => '⚠️ 伺服器下發的合規公開金鑰與本地固定值不一致！若這不是管理員有意進行的輪替，請立即聯絡管理員，並停止傳送加密訊息。';
+	@override String get complianceKeyInfoFetchedAt => '取得時間';
+	@override String get complianceKeyInfoFingerprint => '公開金鑰指紋';
+	@override String get complianceKeyInfoHint => '合規稽核金鑰用於 compliance_e2ee 模式的雙重加密。若上方指紋與管理員公布的指紋不一致，表示伺服器可能已遭竄改。';
+	@override String get complianceKeyInfoKeyId => '金鑰 ID';
+	@override String get complianceKeyInfoLocalPin => '裝置端固定（TOFU）';
+	@override String get complianceKeyInfoPinnedAt => '固定時間';
+	@override String get complianceKeyInfoPinnedNone => '尚未固定（下次取得時自動固定）';
+	@override String get complianceKeyInfoRefreshFailed => '取得失敗，請檢查網路後重試';
+	@override String get complianceKeyInfoServerKey => '伺服器下發的公開金鑰';
+	@override String get complianceKeyInfoTitle => '合規稽核金鑰';
+	@override String get e2eeErrComplianceChanged => '合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試';
+	@override String get e2eeErrComplianceUnavailable => '合規金鑰暫時無法使用，訊息未傳送，請稍後重試';
+	@override String get e2eeErrDeviceNotReady => '目前裝置未完成安全初始化，請登出後重新登入再試';
+	@override String get e2eeErrProtocolMismatch => '加密協定設定異常，請更新應用程式後重試';
+	@override String get e2eeErrSessionExportFailed => '群組會話金鑰產生失敗，請稍後重試';
+	@override String get safetyNumberCopied => '已複製';
+	@override String get safetyNumberCopy => '複製';
+	@override String get safetyNumberHint => '請透過面對面或電話與對方比對安全碼。若一致，表示你們的通訊沒有被中間人監聽；若不一致，請立即停止對話，並透過其他管道核實對方身分。驗證狀態僅保存在本機。';
+	@override String get safetyNumberMarkVerified => '標記為已驗證';
+	@override String get safetyNumberMarkedVerified => '已標記為已驗證';
+	@override String get safetyNumberNoDevices => '對方尚未啟用端對端加密';
+	@override String get safetyNumberPeerDevice => '對方裝置';
+	@override String get safetyNumberReportRejected => '伺服器拒絕了該驗證事件（簽章/時效不符），未標記';
+	@override String get safetyNumberReportUnavailable => '無法取得裝置資訊，未上報';
+	@override String get safetyNumberReporting => '正在上報驗證結果...';
+	@override String get safetyNumberTitle => '安全碼驗證';
+	@override String get safetyNumberVerifyFailed => '取得安全碼失敗，請稍後重試';
 }
 
 // Path: mention
@@ -2541,21 +2751,22 @@ class Translations$mention$zh_Hant extends Translations$mention$zh_CN {
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get mentionAll => '所有人';
+	@override String get mentionAll => '全體成員';
 	@override String get mentionAllHint => '通知所有群成員';
 	@override String get noMatchedMember => '沒有匹配的成員';
 	@override String get selectMention => '選擇要@的成員';
-	@override String get title => '@提及';
+	@override String get title => '@標註';
 	@override String get noMention => '暫無@提及';
 	@override String get allRead => '全部已讀';
 	@override String get markAsRead => '標記為已讀';
-	@override String get newMention => '新的@提及';
+	@override String get newMention => '新的@標註';
 	@override String get fromGroup => '來自群聊';
 	@override String get fromChat => '來自聊天';
 	@override String get viewContext => '檢視上下文';
 	@override String mentionCount({required Object count}) => '${count} 條新提及';
 	@override String get mentionAllDenied => '僅管理員可以 @所有人';
 	@override String get navInfoMissing => '訊息定位資訊缺失，無法跳轉';
+	@override String get pickButtonTooltip => '@標註成員';
 }
 
 // Path: momentFriendPicker
@@ -2591,11 +2802,11 @@ class Translations$momentNotify$zh_Hant extends Translations$momentNotify$zh_CN 
 	@override String get actionLike => '讚了你的朋友圈';
 	@override String get actionComment => '評論了你';
 	@override String get markAllRead => '全部已讀';
-	@override String get clearAll => '清空全部';
+	@override String get clearAll => '全部清空';
 	@override String get clearConfirmTitle => '清空所有通知?';
 	@override String get clearConfirmMessage => '清空後無法恢復';
 	@override String get confirm => '確定';
-	@override String get cancel => '取消';
+	@override String get cancel => '關閉';
 	@override String get delete => '刪除';
 	@override String get loadFailed => '載入失敗，請稍後重試';
 }
@@ -2618,6 +2829,16 @@ class Translations$passport$zh_Hant extends Translations$passport$zh_CN {
 	@override String get getVerifyCode => '獲取驗證碼';
 	@override String get hasAccount => '已有帳號？';
 	@override String get oneKeyLogin => '一鍵登入';
+	@override String get qrCodeExpired => '二維碼已過期，請重新掃碼';
+	@override String get qrCodeUsed => '此二維碼已使用';
+	@override String get qrLoginCancelled => '登入已取消';
+	@override String get qrLoginConfirming => '登入中...';
+	@override String get qrLoginCancelledByMe => '已取消登入';
+	@override String get qrConnecting => '連線中...';
+	@override String get qrWebLoginTitle => 'Web 端登入確認';
+	@override String get qrWebLoginDesc => '請確認是否在 Web 端登入此帳號';
+	@override String get qrLoginAction => '確認登入';
+	@override String get qrLoginSuccess => '登入成功';
 }
 
 // Path: splash
@@ -2639,13 +2860,270 @@ class Translations$welcome$zh_Hant extends Translations$welcome$zh_CN {
 	// Translations
 	@override String get step1Title => '簡單連接';
 	@override String get step1Desc => '體驗無縫溝通的樂趣。 隨時隨地，暢所欲言。';
-	@override String get step2Title => '安全私密';
+	@override String get step2Title => '安全又私密';
 	@override String get step2Desc => '端到端加密 保護你的個人時刻只屬於你自己。';
 	@override String get step3Title => '準備探索？';
 	@override String get step3Desc => '加入一個充滿活力的社區。 讓對話開始吧！';
-	@override String get next => '下一步';
+	@override String get next => '下一個步驟';
 	@override String get getStarted => '開始使用';
 	@override String get skip => '跳過';
+}
+
+// Path: workspace
+class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
+	Translations$workspace$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get navOverview => '總覽';
+	@override String get navProjects => '專案';
+	@override String get navChannels => '頻道';
+	@override String get navGroups => '群組';
+	@override String get navMembers => '成員';
+	@override String get pickerTitle => '我的工作區';
+	@override String get switchWorkspace => '切換工作區';
+	@override String get pickerEmptyTitle => '還沒有工作區';
+	@override String get pickerEmptySubtitle => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）';
+	@override String get archivedBadge => '已封存';
+	@override String get emptyNoWorkspace => '請先選擇或建立一個工作區';
+	@override String get dmEntry => '全部訊息';
+	@override String get experienceModeEntry => '首頁版面配置';
+	@override String get experienceModeHint => '選擇目前裝置的使用體驗；僅改變首頁版面配置，不改變權限或工作區成員身分';
+	@override String get experienceModePersonal => '個人';
+	@override String get experienceModeWorkspace => '工作區';
+	@override String get experienceModeReset => '還原部署預設值';
+	@override String get switchToWorkspace => '切換到工作區';
+	@override String get switchToPersonal => '切換到個人';
+	@override String get createTitle => '建立工作區';
+	@override String get createDesc => '一次建立，自動完成：工作區、你（Owner 工作區成員身分）、Announcements 頻道與 General 群。全部成功或全部還原。';
+	@override String get createNameLabel => '工作區名稱';
+	@override String get createNameHint => '例如：官網改版專案小組';
+	@override String get createNameRequired => '工作區名稱不能為空';
+	@override String get createSubmit => '建立';
+	@override String get createEntry => '建立工作區';
+	@override String get createSuccess => '工作區建立成功';
+	@override String get createIdempotentHit => '已存在同名工作區，直接進入';
+	@override String get createTemplateTitle => '將自動初始化';
+	@override String get createTemplateChannel => 'Announcements 頻道（你成為頻道發布者與訂閱者）';
+	@override String get createTemplateGroup => 'General 群（你成為群成員）';
+	@override String get createTemplateOwner => '你成為工作區 Owner（工作區成員）';
+	@override String get overviewTitle => '總覽';
+	@override String get overviewResources => '資源摘要';
+	@override String get overviewPinnedContent => '頻道置頂內容';
+	@override String get overviewPinnedEmpty => '頻道暫無置頂內容；群組公告不在此聚合（群組公告屬於各個群）';
+	@override String get overviewRecentFiles => '最近檔案';
+	@override String get overviewRecentFilesEmpty => '最近上傳的檔案會在此顯示；也可在各頻道內查看附件';
+	@override String get membersTitle => '工作區成員';
+	@override String membersCountLabel({required Object count}) => '${count} 位成員';
+	@override String get membersEmpty => '暫無工作區成員';
+	@override String get membersEmptySubtitle => '邀請已註冊使用者成為工作區成員（Owner / Member / Guest）';
+	@override String get membersViewAll => '查看所有';
+	@override String get projectsEmptyTitle => '還沒有專案';
+	@override String get projectsEmptySubtitle => '專案用於追蹤明確的交付目標；只有頻道和群組的社群型工作區同樣適用';
+	@override String get channelsEmptyTitle => '還沒有工作區頻道';
+	@override String get channelsEmptySubtitle => '頻道用於持續發布內容（公告/資料），討論請去群組';
+	@override String channelTileSubtitle({required Object count}) => '${count} 位訂閱者';
+	@override String get channelDetailTitle => '頻道';
+	@override String get discussInGroupGuide => '頻道用於發布內容；想討論？去 General 群聊聊 →';
+	@override String get groupsEmptyTitle => '還沒有工作區群組';
+	@override String get groupsEmptySubtitle => '群組是工作區裡的即時討論空間（聊天唯一入口）';
+	@override String groupTileSubtitle({required Object count}) => '${count} 位群成員';
+	@override String get inviteTitle => '邀請工作區成員';
+	@override String get inviteDesc => '僅支援邀請已註冊使用者；加入工作區不會自動入群或訂閱頻道——可同時加入 General 群，並發送 Announcements 頻道邀請';
+	@override String get inviteSearchHint => '依使用者名稱 / 使用者 ID 搜尋';
+	@override String get inviteEntry => '邀請工作區成員';
+	@override String get inviteJoinGroupOption => '同時加入 General 群（成為群成員）';
+	@override String get inviteSubscribeChannelOption => '同時發送 Announcements 頻道邀請';
+	@override String get inviteOptionUnavailable => '找不到對應資源，此選項不可用';
+	@override String get inviteSubmit => '發送邀請';
+	@override String get inviteResultsTitle => '結果（三條獨立）';
+	@override String get inviteResultWorkspace => '加入工作區（成為工作區成員）';
+	@override String get inviteResultGroup => '加入 General 群（成為群成員）';
+	@override String get inviteResultChannel => '發送 Announcements 頻道邀請（對方接受後成為訂閱者）';
+	@override String get resultIdle => '未執行';
+	@override String get resultRunning => '進行中';
+	@override String get resultSuccess => '執行成功';
+	@override String get resultFailed => '失敗';
+	@override String get joinEntry => '加入工作區';
+	@override String get joinTitle => '加入工作區';
+	@override String get joinDesc => '輸入團隊碼即可加入工作區';
+	@override String get joinCodeLabel => '團隊碼';
+	@override String get joinCodeHint => '8 位大寫字母或數字';
+	@override String get joinSubmit => '送出';
+	@override String joinSuccess({required Object name}) => '你已加入「${name}」';
+	@override String get joinAlreadyMember => '你已在此工作區中';
+	@override String get joinInvalidCode => '團隊碼無效或已失效';
+	@override String get joinExpiredCode => '團隊碼已過期';
+	@override String get inviteCodeSectionTitle => '團隊碼邀請';
+	@override String get inviteCodeGenerate => '產生團隊碼';
+	@override String get inviteCodeCopy => '複製';
+	@override String get inviteCodeRevoke => '撤銷';
+	@override String inviteCodeExpiresAt({required Object expiresAt}) => '效期至 ${expiresAt}';
+	@override String get roleOwner => 'Owner';
+	@override String get roleMember => 'Member';
+	@override String get roleGuest => 'Guest';
+	@override String removeMemberTitle({required Object name}) => '移除工作區成員 ${name}';
+	@override String get removeMemberDesc => '移除後其工作區存取即失效；若其仍有未完成任務或負責的專案，伺服器端會回傳衝突清單並取消本次移除';
+	@override String get removeMemberConfirm => '確認移除';
+	@override String changeRoleTitle({required Object name}) => '修改 ${name} 的工作區角色';
+	@override String transferTitle({required Object name}) => '轉移主 Owner 給 ${name}';
+	@override String get transferDesc => '轉移後你成為一般工作區成員（Member），對方獲得全部治理權';
+	@override String get transferConfirm => '確認轉移';
+	@override String get governanceTitle => '工作區治理';
+	@override String get brandingEntry => '品牌設定（名稱 / Logo / 主色）';
+	@override String get archiveEntry => '封存工作區';
+	@override String get restoreEntry => '還原工作區';
+	@override String get archiveTitle => '封存工作區';
+	@override String get archiveDesc => '封存後全員唯讀（寫入操作會被伺服器端拒絕），可隨時還原';
+	@override String get archiveConfirm => '確認封存';
+	@override String get restoreTitle => '還原工作區';
+	@override String get restoreDesc => '還原後工作區即可讀寫';
+	@override String get restoreConfirm => '確認還原';
+	@override String get archivedBanner => '工作區已封存：內容可查看，寫入操作已停用；Owner 可在成員頁還原';
+	@override String get brandingTitle => '工作區品牌';
+	@override String get brandingNameLabel => '品牌名稱';
+	@override String get brandingLogoLabel => 'Logo 網址';
+	@override String get brandingLogoHint => 'https://…（工作區 Logo 圖片網址）';
+	@override String get brandingColorLabel => '品牌主色 primaryColor';
+	@override String get brandingColorHint => '#2474E5';
+	@override String get brandingColorHelper => '僅支援 #RRGGBB / #AARRGGBB；非法值改用預設主題色';
+	@override String get brandingColorInvalid => '主色格式不正確，僅支援 #RRGGBB / #AARRGGBB';
+	@override String get brandingSaved => '品牌設定已儲存';
+	@override String get brandingPreview => '主色預覽';
+	@override String get brandingPreviewApplied => '目前主色將在工作區內生效';
+	@override String get brandingPreviewFallback => '未設定或非法值時，使用預設主題色';
+	@override String get projectsTitle => '專案';
+	@override String get projectCreateEntry => '新增專案';
+	@override String get projectCreateTitle => '新增專案';
+	@override String get projectNameLabel => '專案名稱';
+	@override String get projectNameHint => '例如：官網改版';
+	@override String get projectNameRequired => '專案名稱不能為空';
+	@override String get projectDescLabel => '專案描述（選填）';
+	@override String get projectDescHint => '這個專案要交付什麼？';
+	@override String get projectSubmit => '建立';
+	@override String get projectCreateSuccess => '專案建立成功';
+	@override String get projectDetailTitle => '專案詳情';
+	@override String get projectInfoSection => '基本資訊';
+	@override String get projectOwnerLabel => '負責人';
+	@override String get projectStatusLabel => '狀態';
+	@override String get projectStatusActive => '進行中';
+	@override String get projectStatusDone => '已結案';
+	@override String get projectMarkDone => '標記為已結案';
+	@override String get projectReopen => '重新開啟專案';
+	@override String get projectStatusChanged => '專案狀態已更新';
+	@override String get projectTasksSection => '任務';
+	@override String get taskNewEntry => '新增任務';
+	@override String get taskFormCreateTitle => '新增任務';
+	@override String get taskFormEditTitle => '編輯任務';
+	@override String get taskTitleLabel => '任務標題';
+	@override String get taskTitleRequired => '任務標題不能為空';
+	@override String get taskAssigneeLabel => '負責人（工作區成員）';
+	@override String get taskAssigneeNone => '暫不指派';
+	@override String get taskAssigneeRefresh => '重新整理負責人候選';
+	@override String get taskSubmitCreate => '建立任務';
+	@override String get taskSubmitSave => '儲存';
+	@override String get taskCreatedToast => '任務已建立';
+	@override String get taskExistingToast => '相同標題的任務已存在，直接使用既有任務';
+	@override String get taskUpdatedToast => '任務已儲存';
+	@override String get taskFilterAll => '所有';
+	@override String get taskStatusTodo => '待辦';
+	@override String get taskStatusDoing => '進行中';
+	@override String get taskStatusReview => '審核中';
+	@override String get taskStatusDone => '已結案';
+	@override String taskAdvanceTo({required Object status}) => '推進到「${status}」';
+	@override String taskFallbackMenuTitle({required Object title}) => '回退 ${title} 至…';
+	@override String taskStatusMovedToast({required Object status}) => '已流轉到「${status}」';
+	@override String get taskEmptyTitle => '還沒有任務';
+	@override String get taskEmptySubtitle => '以四種狀態追蹤執行：待辦 → 進行中 → 審核中 → 已結案';
+	@override String get guestReadonlyHint => '訪客（Guest）身分對工作區資源唯讀';
+	@override String get projectsLoadMore => '載入更多';
+	@override String get projectW2SectionTitle => '專案協作';
+	@override String get projectMembersEntry => '成員';
+	@override String get projectMilestonesEntry => '專案里程碑';
+	@override String get projectChannelsEntry => '專案頻道';
+	@override String get projectInsightsEntry => '內容聚合';
+	@override String get projectNoPermission => '無權限：僅專案成員、專案負責人或工作區 Owner 可查看';
+	@override String get projectGuestReadonly => '訪客（Guest）身分對專案唯讀';
+	@override String get projectLoadMore => '載入更多';
+	@override String get projectMembersTitle => '專案成員';
+	@override String get projectMemberEmptyTitle => '還沒有專案成員';
+	@override String get projectMemberEmptySubtitle => '專案負責人可邀請已註冊使用者加入此專案';
+	@override String get projectMemberInviteTitle => '邀請專案成員';
+	@override String get projectMemberInviteFieldLabel => '使用者 ID';
+	@override String get projectMemberInviteFieldHint => '要邀請的已註冊使用者 ID';
+	@override String get projectMemberInviteInvalidUid => '請輸入有效的使用者 ID';
+	@override String get projectMemberInviteSubmit => '邀請';
+	@override String get projectMemberInviteSuccess => '已加入專案成員';
+	@override String get projectMemberInviteExisting => '該使用者已是專案成員';
+	@override String projectMemberRemoveConfirmTitle({required Object name}) => '移除專案成員 ${name}';
+	@override String get projectMemberRemoveConfirmDesc => '移除後該使用者將失去此專案內容的存取權（可重新邀請）';
+	@override String get projectMemberRemoveSubmit => '移出專案';
+	@override String get projectMemberRemovedToast => '已移出專案';
+	@override String get projectMemberAlreadyRemovedToast => '該使用者已不在專案成員中';
+	@override String projectMemberTransferTitle({required Object name}) => '轉移專案負責人給 ${name}';
+	@override String get projectMemberTransferDesc => '轉移後對方獲得此專案的完整管理權';
+	@override String get projectMemberTransferConfirm => '確認轉移';
+	@override String get projectMemberTransferDoneToast => '專案負責人已轉移';
+	@override String get projectMilestonesTitle => '專案里程碑';
+	@override String get projectMilestoneEmptyTitle => '還沒有里程碑';
+	@override String get projectMilestoneEmptySubtitle => '以里程碑標記專案的關鍵節點（計畫中 → 已達成，單向）';
+	@override String get projectMilestoneCreateTitle => '新增里程碑';
+	@override String get projectMilestoneNameLabel => '名稱';
+	@override String get projectMilestoneNameRequired => '里程碑名稱不能為空';
+	@override String get projectMilestoneDueDateLabel => '截止日期（YYYY-MM-DD，選填）';
+	@override String get projectMilestoneDueDateInvalid => '日期格式應為 YYYY-MM-DD';
+	@override String get projectMilestoneCreateSubmit => '建立';
+	@override String get projectMilestoneCreatedToast => '里程碑已建立';
+	@override String get projectMilestoneFilterAll => '所有';
+	@override String get projectMilestoneFilterPlanned => '計畫中';
+	@override String get projectMilestoneFilterReached => '已達成';
+	@override String get projectMilestoneReach => '標記達成';
+	@override String get projectMilestoneReachedToast => '里程碑已達成';
+	@override String get projectMilestoneAlreadyReachedToast => '該里程碑已達成';
+	@override String get projectMilestoneReachedHint => '已達成（不可回復）';
+	@override String get projectMilestoneDueLabel => '截止日';
+	@override String get projectChannelsTitle => '專案頻道';
+	@override String get projectChannelEmptyTitle => '還沒有關聯頻道';
+	@override String get projectChannelEmptySubtitle => '關聯工作區頻道後，其置頂內容與最近貼文會聚合進此專案';
+	@override String get projectChannelLinkTitle => '選擇要關聯的頻道';
+	@override String get projectChannelNoCandidate => '沒有可關聯的候選頻道';
+	@override String get projectChannelLinkedToast => '頻道已關聯';
+	@override String get projectChannelLinkExistingToast => '該頻道已關聯';
+	@override String projectChannelUnlinkTitle({required Object name}) => '解除關聯 ${name}';
+	@override String get projectChannelUnlinkDesc => '解除後該頻道內容不再聚合進此專案';
+	@override String get projectChannelUnlinkSubmit => '解除關聯';
+	@override String get projectChannelUnlinkedToast => '已解除關聯';
+	@override String get projectInsightsTabPinned => '置頂訊息';
+	@override String get projectInsightsTabResources => '資源連結';
+	@override String get projectInsightsTabActivity => '專案動態';
+	@override String get projectInsightsTabPosts => '相關貼文';
+	@override String get projectInsightsPinnedEmpty => '關聯頻道暫無置頂內容';
+	@override String get projectInsightsResourcesEmpty => '專案暫無資源連結';
+	@override String get projectInsightsActivityEmpty => '專案暫無動態';
+	@override String get projectInsightsPostsEmpty => '關聯頻道暫無貼文';
+	@override String projectInsightsPostAuthor({required Object name}) => '${name} 發布';
+	@override String get projectLinkNameLabel => '連結名稱';
+	@override String get projectLinkUrlLabel => '連結網址';
+}
+
+// Path: account.alipaySim
+class Translations$account$alipaySim$zh_Hant extends Translations$account$alipaySim$zh_CN {
+	Translations$account$alipaySim$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectMethod => '選擇付款方式';
+	@override String get confirmPay => '確認付款';
+	@override String get enterPassword => '請輸入支付密碼';
+	@override String get alipaySuccess => '付款成功';
+	@override String get merchantSuccess => '商家APP付款成功';
+	@override String get huabei => '花唄分期';
+	@override String get energy => '付款成功得綠色能量 5g';
+	@override String get storeName => '資訊科技旗艦店';
+	@override String get paymentAmount => '金額：';
+	@override String get balanceSource => '帳戶餘額';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -2686,6 +3164,12 @@ extension on TranslationsZhHant {
 			'account.loginDeviceManagement' => '登入設備管理',
 			'account.loginEmail' => '登入郵箱',
 			'account.logoutAccount' => '註銷帳號',
+			'account.logoutPendingBanner' => ({required Object date}) => '註銷申請已提交，預計 ${date} 完成',
+			'account.logoutPendingHeader' => '註銷申請狀態',
+			'account.logoutCancelRequest' => '撤銷註銷申請',
+			'account.logoutCancelledNote' => '註銷申請已撤銷',
+			'account.logoutRetainedHeader' => '資料留存說明',
+			'account.logoutRetainedNote' => '刪除完成後：稽核日誌與財務紀錄依法留存並匿名化；您擁有的群組/工作區/頻道將優先轉移給繼任成員',
 			'account.mobile' => '手機',
 			'account.mobileQuickLogin' => '一鍵登入',
 			'account.myAccount' => '我的帳號',
@@ -2704,11 +3188,11 @@ extension on TranslationsZhHant {
 			'account.recoverPassword' => '找回密碼',
 			'account.recoverPasswordDesc' => '請輸入您的郵箱地址，我們將把密碼重設碼傳送給您。',
 			'account.recoverPasswordIntro' => '不要感覺不好，這是常有的事。',
-			'account.birthday' => '生日',
+			'account.birthday' => '出生日期',
 			'account.region' => '地區',
 			'account.retypePassword' => '重新輸入密碼',
 			'account.scanQrCode' => '掃描二維碼',
-			'account.securityCenter' => '安全中心',
+			'account.securityCenter' => '帳號安全中心',
 			'account.setNickname' => '設定暱稱',
 			'account.signature' => '個性簽名',
 			'account.signup' => '註冊',
@@ -2734,7 +3218,7 @@ extension on TranslationsZhHant {
 			'account.privacyLogoutAccount' => '註銷帳號',
 			'account.wallet' => '錢包',
 			'account.changeLoginPassword' => '修改登入密碼',
-			'account.loginExpiredTitle' => '提示',
+			'account.loginExpiredTitle' => '登入已過期',
 			'account.otherDevice' => '其他設備',
 			'account.loginPassword' => '登入密碼',
 			'account.loginPasswordDesc' => '用於登入 IMBoy 帳號',
@@ -2758,9 +3242,16 @@ extension on TranslationsZhHant {
 			'account.refreshDeviceKeyHint' => '如果訊息無法解密，點選此按鈕重新整理金鑰',
 			'account.refreshingDeviceKey' => '正在重新整理裝置金鑰...',
 			'account.deviceKeyRefreshed' => '裝置金鑰已重新整理',
-			'account.rechargeTitle' => '充值',
-			'account.rechargeAmountHint' => '請輸入充值金額（元），0.01元～10000元',
-			'account.rechargeAmountExample' => '例如：100',
+			'account.rechargeTitle' => '儲值',
+			'account.rechargeAmountHint' => '請輸入儲值金額（元），0.01元～10000元',
+			'account.rechargeAmountExample' => '範例：100',
+			'account.payMethodTitle' => '選擇付款方式',
+			'account.payMethodWallet' => '錢包餘額',
+			'account.payMethodMock' => '模擬付款（開發環境）',
+			'account.payMethodAlipay' => '支付寶',
+			'account.payMethodWechat' => '微信付款',
+			'account.payMethodComingSoon' => '此付款方式即將開通，敬請期待',
+			'account.payCancelled' => '付款已取消',
 			'account.e2eeDeviceTransfer' => '裝置間傳輸',
 			'account.e2eeDeviceTransferDesc' => '透過二維碼直接傳輸金鑰到新裝置',
 			'account.e2eeDeviceIdLabel' => '裝置 ID',
@@ -2773,6 +3264,16 @@ extension on TranslationsZhHant {
 			'account.e2eeTransferFromOldDevice' => '從舊裝置接收金鑰',
 			'account.pleaseRelogin' => '請重新登入',
 			'account.otherLoginMethods' => '其他登入方式',
+			'account.alipaySim.selectMethod' => '選擇付款方式',
+			'account.alipaySim.confirmPay' => '確認付款',
+			'account.alipaySim.enterPassword' => '請輸入支付密碼',
+			'account.alipaySim.alipaySuccess' => '付款成功',
+			'account.alipaySim.merchantSuccess' => '商家APP付款成功',
+			'account.alipaySim.huabei' => '花唄分期',
+			'account.alipaySim.energy' => '付款成功得綠色能量 5g',
+			'account.alipaySim.storeName' => '資訊科技旗艦店',
+			'account.alipaySim.paymentAmount' => '金額：',
+			'account.alipaySim.balanceSource' => '帳戶餘額',
 			'agent.plazaTitle' => 'AI 助手廣場',
 			'agent.transparencyBanner' => '這裡的成員都是 AI 助手，身分會明確標註；加密聊天裡，只有真人。',
 			'agent.searchHint' => '搜尋助手',
@@ -2780,9 +3281,21 @@ extension on TranslationsZhHant {
 			'agent.searchEmpty' => '無符合的助手',
 			'agent.sendMessage' => '傳訊息',
 			'agent.badgeAi' => 'AI',
-			'agent.badgeOfficial' => '官方',
-			'agent.badgeAiA11y' => 'AI 助手',
+			'agent.badgeOfficial' => '官方認證',
+			'agent.badgeAiA11y' => 'AI 助理',
 			'agent.badgeOfficialA11y' => '官方帳號',
+			'agent.legacyBotMigrated' => '此機器人入口已升級，請到 AI 助手廣場與助手對話',
+			'agent.legacyBotGoPlaza' => '前往助手廣場',
+			'agentTask.title' => 'AI 任務',
+			'agentTask.working' => '執行中',
+			'agentTask.submitted' => '已送出',
+			'agentTask.progress' => '進行中',
+			'agentTask.completed' => '執行完成',
+			'agentTask.failed' => '執行失敗',
+			'agentTask.cancelled' => '已撤銷',
+			'agentTask.awaitingApproval' => '待審批',
+			'agentTask.approve' => '核准',
+			'agentTask.reject' => '拒絕',
 			'billing.title' => '方案訂閱',
 			'billing.planPeriodMonthly' => '月繳',
 			'billing.planPeriodYearly' => '年繳',
@@ -2797,14 +3310,14 @@ extension on TranslationsZhHant {
 			'billing.payMethodTitle' => '選擇付款方式',
 			'billing.payMethodMock' => '模擬付款（開發環境）',
 			'billing.payMethodAlipay' => '支付寶',
-			'billing.payMethodWechat' => '微信支付',
+			'billing.payMethodWechat' => '微信付款',
 			'billing.payMethodComingSoon' => '該付款方式即將開放，敬請期待',
-			'billing.quotaUnlimited' => '不限',
+			'billing.quotaUnlimited' => '無上限',
 			'channel.composeLeaveImagesLost' => '已選圖片不會保存，確定離開？',
 			'channel.title' => '頻道',
 			'channel.loading' => '載入中...',
 			'channel.subscribed' => '已訂閱',
-			'channel.managed' => '管理中',
+			'channel.managed' => '我管理的',
 			'channel.discover' => '發現頻道',
 			'channel.search' => '搜尋頻道',
 			'channel.create' => '建立頻道',
@@ -2825,7 +3338,7 @@ extension on TranslationsZhHant {
 			'channel.unsubscribe' => '取消訂閱',
 			'channel.unsubscribeConfirm' => '取消訂閱',
 			'channel.unsubscribeConfirmDesc' => '確定要取消訂閱該頻道嗎？取消後將不再收到頻道訊息。',
-			'channel.share' => '分享',
+			'channel.share' => '分享連結',
 			'channel.shareNotImplemented' => '分享功能即將上線',
 			'channel.nameLabel' => '頻道名稱',
 			'channel.nameHint' => '請輸入頻道名稱',
@@ -2834,25 +3347,25 @@ extension on TranslationsZhHant {
 			'channel.descriptionLabel' => '頻道描述',
 			'channel.descriptionHint' => '介紹一下你的頻道（選填）',
 			'channel.customIdLabel' => '自訂ID（選填）',
-			'channel.customIdHint' => '例如：my_channel',
+			'channel.customIdHint' => '範例：my_channel',
 			'channel.customIdHelper' => '設定後可透過ID直接搜尋到頻道',
 			'channel.customIdInvalid' => '只能包含字母、數字和底線',
 			'channel.customIdLength' => '長度需要在4-30個字元之間',
 			'channel.typeLabel' => '頻道類型',
 			'channel.typePublic' => '公開',
-			'channel.typePrivate' => '私有',
+			'channel.typePrivate' => '私密',
 			'channel.typePublicDesc' => '任何人都可以搜尋到並訂閱你的頻道',
 			'channel.typePrivateDesc' => '只有透過邀請連結才能訂閱你的頻道',
 			'channel.createTips' => '建立頻道後，你可以發布訊息給所有訂閱者。頻道訊息只有管理員可以發布。',
-			'channel.today' => '今天',
-			'channel.yesterday' => '昨天',
-			'channel.daysAgo' => '天前',
+			'channel.today' => '今日',
+			'channel.yesterday' => '昨日',
+			'channel.daysAgo' => '天以前',
 			'channel.messages' => '訊息',
 			'channel.views' => '閱讀',
 			'channel.reactions' => '互動',
 			'channel.selectReaction' => '選擇表情',
 			'channel.react' => '互動',
-			'channel.admin' => '管理',
+			'channel.admin' => '管理設定',
 			'channel.settings' => '設定',
 			'channel.editChannel' => '編輯頻道',
 			'channel.editChannelDesc' => '修改頻道名稱、描述等資訊',
@@ -2877,14 +3390,15 @@ extension on TranslationsZhHant {
 			'channel.preview' => '預覽',
 			'channel.addImage' => '新增圖片',
 			'channel.titleOptional' => '標題（選填）',
-			'channel.coverLabel' => '封面',
+			'channel.coverLabel' => '封面圖片',
 			'channel.coverSet' => '已設為封面',
+			'channel.articleBodyHint' => '寫點什麼...支援粗體、斜體、標題、清單等格式',
 			'channel.formatBold' => '粗體',
 			'channel.formatItalic' => '斜體',
 			'channel.formatStrikethrough' => '刪除線',
 			'channel.formatHeading' => '標題',
-			'channel.formatList' => '列表',
-			'channel.formatQuote' => '引用',
+			'channel.formatList' => '清單',
+			'channel.formatQuote' => '引言',
 			'channel.formatLink' => '連結',
 			'channel.linkTextPlaceholder' => '連結文字',
 			'channel.pinMessage' => '置頂訊息',
@@ -2903,8 +3417,8 @@ extension on TranslationsZhHant {
 			'channel.removeAdminConfirm' => '確定要移除該管理員嗎？',
 			'channel.removeAdminSuccess' => '管理員已移除',
 			'channel.removeAdminFailed' => '移除管理員失敗',
-			'channel.changeRole' => '更改角色',
-			'channel.updateRoleSuccess' => '角色更新成功',
+			'channel.changeRole' => '變更角色',
+			'channel.updateRoleSuccess' => '角色已變更',
 			'channel.updateRoleFailed' => '角色更新失敗',
 			'channel.userId' => '使用者ID',
 			'channel.userIdHint' => '請輸入使用者ID',
@@ -2918,7 +3432,7 @@ extension on TranslationsZhHant {
 			'channel.roleAdminDesc' => '可管理頻道',
 			'channel.roleEditor' => '編輯',
 			'channel.roleEditorDesc' => '可釋出訊息',
-			'channel.roleUnknown' => '未知',
+			'channel.roleUnknown' => '不明',
 			'channel.searchSubscribers' => '搜尋訂閱者',
 			'channel.subscriberSearchHint' => '輸入暱稱或ID搜尋',
 			'channel.noSearchResults' => '未找到符合的訂閱者',
@@ -2942,6 +3456,46 @@ extension on TranslationsZhHant {
 			'channel.qrcode' => '頻道二維碼',
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => '二維碼${days}天內（${date}前）有效',
 			'channel.defaultName' => '未命名頻道',
+			'channel.myOrders' => '我的訂單',
+			'channel.noOrders' => '尚無訂單紀錄',
+			'channel.orderValidUntil' => '效期至',
+			'channel.orderStatusPending' => '待付款',
+			'channel.orderStatusPaid' => '已付款',
+			'channel.orderStatusRefunded' => '已退費',
+			'channel.orderStatusCancelled' => '已撤銷',
+			'channel.orderStatusRefunding' => '退費中',
+			'channel.orderStatusExpired' => '已過期',
+			'channel.orderDetail' => '訂單詳情',
+			'channel.orderNo' => '訂單編號',
+			'channel.orderChannel' => '頻道',
+			'channel.orderAmount' => '金額',
+			'channel.orderStatusLabel' => '狀態',
+			'channel.orderPaymentMethod' => '付款方式',
+			'channel.orderCreatedAt' => '下單時間',
+			'channel.orderPaidAt' => '付款時間',
+			'channel.orderSubscriptionPeriod' => '訂閱週期',
+			'channel.payWallet' => '錢包餘額',
+			'channel.payAlipay' => '支付寶',
+			'channel.payWechat' => '微信付款',
+			'channel.refundApply' => '申請退費',
+			'channel.refundConfirmTitle' => '確認退費',
+			'channel.refundConfirmMessage' => '確定要對這筆訂單申請退費嗎？退費後將取消訂閱。',
+			'channel.refundSuccess' => '退費申請已送出',
+			'channel.cancelOrder' => '取消訂單',
+			'channel.cancelOrderConfirmTitle' => '確認取消訂單',
+			'channel.cancelOrderConfirmMessage' => '確定要取消這筆待付款訂單嗎？取消後將無法繼續付款。',
+			'channel.cancelOrderSuccess' => '訂單已取消',
+			'channel.orderContinuePay' => '繼續付款',
+			'channel.comment' => '留言',
+			'channel.noComments' => '尚無留言',
+			'channel.writeComment' => '發表留言...',
+			'channel.reply' => '回覆',
+			'channel.replyTo' => '回覆',
+			'channel.like' => '按讚',
+			'channel.commentFailed' => '留言失敗',
+			'channel.deleteComment' => '刪除留言',
+			'channel.deleteCommentConfirm' => '確定刪除這則留言嗎？',
+			'channel.commentDeleteNoPermission' => '無權刪除這則留言',
 			'channel.noMessagesManaged' => '頻道尚未發布任何內容',
 			'channel.noMessagesManagedDesc' => '作為頻道主，你可以點擊下方按鈕發布第一條內容',
 			'channel.noMessagesVisitor' => '訂閱後查看頻道內容',
@@ -2951,7 +3505,10 @@ extension on TranslationsZhHant {
 			'channel.continueEditing' => '繼續編輯',
 			'channel.publishFirstContent' => '發布第一條內容',
 			'channel.noSubscribersDesc' => '還沒有訂閱者，分享給好友吧',
-			'channel.emoji' => '表情',
+			'channel.allCategories' => '所有',
+			'channel.sortPopular' => '熱門',
+			'channel.sortNewest' => '最新發布',
+			'channel.emoji' => '表情符號',
 			'channel.justNow' => '剛剛',
 			'channel.minutesAgo' => '分鐘前',
 			'channel.hoursAgo' => '小時前',
@@ -2965,14 +3522,14 @@ extension on TranslationsZhHant {
 			'chat.bankCard' => '銀行卡',
 			'chat.cards' => '張',
 			'chat.jdShopping' => '京東購物',
-			'chat.receivePayment' => '收付款',
+			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyEntered' => '您已經輸入過了',
 			'chat.alreadyMember' => '已經是成員',
 			'chat.appSqliteFileSizeExplain' => '目前帳號本地產生的 sqlite 檔案大小；可清理所選聊天記錄裡的圖片、影片、和檔案，或清空所選聊天記錄裡的所有聊天訊息。',
-			'chat.attachmentProvider' => '附件提供者',
+			'chat.attachmentProvider' => '附件來源',
 			'chat.audioMessage' => '語音訊息',
 			'chat.awaitingReply' => '待回覆',
-			'chat.businessCard' => '名片',
+			'chat.businessCard' => '電子名片',
 			'chat.busyTryAgainLater' => '對方正忙，請稍後再試',
 			'chat.later' => '以後再說',
 			'chat.peerIsTyping' => ({required Object name}) => '${name} 正在輸入...',
@@ -2997,6 +3554,9 @@ extension on TranslationsZhHant {
 			'chat.chatStatusSeenDesc' => '訊息已讀',
 			'chat.createGroupF2f' => '面對面建群組',
 			'chat.displayProfile' => '顯示您的資料',
+			'chat.extraPanelMedia' => '媒體',
+			'chat.extraPanelCollab' => '群協作',
+			'chat.extraPanelFunds' => '資金',
 			'chat.file' => '檔案',
 			'chat.unknownFile' => '未知檔案',
 			'chat.fileMessage' => '[檔案]',
@@ -3013,7 +3573,7 @@ extension on TranslationsZhHant {
 			'chat.groupFileVideoPreview' => '影片預覽',
 			'chat.groupFileAudioPreview' => '音訊預覽',
 			'chat.groupFileMediaPause' => '暫停',
-			'chat.groupFileMediaPlay' => '播放',
+			'chat.groupFileMediaPlay' => '開始播放',
 			'chat.groupFileUrlMissing' => '檔案地址缺失，無法開啟',
 			'chat.groupFileUrlInvalid' => '檔案地址無效',
 			'chat.groupFilePreview' => '檔案預覽',
@@ -3024,20 +3584,20 @@ extension on TranslationsZhHant {
 			'chat.groupFileCategoryImage' => '圖片',
 			'chat.groupFileCategoryVideo' => '影片',
 			'chat.groupFileCategoryAudio' => '音訊',
-			'chat.groupFileCategoryOther' => '其他',
+			'chat.groupFileCategoryOther' => '其他類別',
 			'chat.groupChat' => '群組聊天',
 			'chat.image' => '圖片',
 			'chat.imageMessage' => '[圖片]',
 			'chat.initiateChat' => '發起群組聊天',
 			'chat.justChat' => '僅聊天',
-			'chat.location' => '位置',
+			'chat.location' => '所在位置',
 			'chat.exportMyData' => '匯出我的資料',
 			'chat.exportDataDesc' => '匯出你的個人資訊、聯絡人和聊天記錄',
 			'chat.message' => '訊息',
 			'chat.messageHandlingMixin' => '訊息處理混入',
 			'chat.messageMarkTitle' => '訊息標記',
 			'chat.customMessage' => '自訂訊息',
-			'chat.card' => '名片',
+			'chat.card' => '電子名片',
 			'chat.messageType' => '訊息類型',
 			'chat.messageVisitCardBuilder' => '訊息卡片建構器',
 			'chat.messageWasWithdrawn' => '撤回了一則訊息',
@@ -3046,7 +3606,7 @@ extension on TranslationsZhHant {
 			'chat.momentStatus' => '朋友圈和狀態',
 			'chat.offline' => '離線',
 			'chat.online' => '在線',
-			'chat.paramAlreadyExist' => ({required Object param}) => '${param}已存在',
+			'chat.paramAlreadyExist' => ({required Object param}) => '${param}已經存在',
 			'chat.pin' => '置頂',
 			'chat.pinChat' => '置頂聊天',
 			'chat.pinned' => '已置頂',
@@ -3055,7 +3615,7 @@ extension on TranslationsZhHant {
 			'chat.quoteReply' => '引用回覆',
 			'chat.rating' => '評級',
 			'chat.readAgreeParam' => ({required Object param}) => '已經閱讀並同意${param}',
-			'chat.recentChats' => '最近聊天',
+			'chat.recentChats' => '最近的聊天',
 			'chat.recentForwards' => '最近轉發',
 			'chat.remindMeLater' => '下次再說',
 			'chat.quickReplyManage' => '管理快捷回覆',
@@ -3067,17 +3627,17 @@ extension on TranslationsZhHant {
 			'chat.unmuteMember' => 'Unmute',
 			'chat.muteUntil' => 'Muted Until',
 			'chat.muted' => 'Muted',
-			'chat.mutedFor' => ({required Object label}) => '禁言 ${label}',
+			'chat.mutedFor' => ({required Object label}) => '已被禁言 ${label}',
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count} 分鐘',
 			'chat.muteUnitHours' => ({required Object count}) => '${count} 小時',
-			'chat.muteUnitDays' => ({required Object count}) => '${count} 天',
-			'chat.youAreMuted' => '你已被禁言',
+			'chat.muteUnitDays' => ({required Object count}) => '${count} 日',
+			'chat.youAreMuted' => '你已被設定禁言',
 			'chat.youAreMutedWithTime' => ({required Object minutes}) => '你已被禁言，剩餘 ${minutes} 分鐘',
 			'chat.repliedAt' => '回覆於',
 			'chat.reply' => '回覆',
 			'chat.replyTo' => '回覆',
 			'chat.resendCode' => '重發驗證碼',
-			'chat.revoke' => '撤回',
+			'chat.revoke' => '收回',
 			'chat.scanQrCodeBusinessCard' => '掃描二維碼卡片',
 			'chat.singleChat' => 'Private Chat',
 			'chat.privateChat' => 'Private Chat',
@@ -3086,6 +3646,8 @@ extension on TranslationsZhHant {
 			'chat.sendMsgRejected' => '訊息已發出，但被對方拒收了。',
 			'chat.sendMessage' => '發訊息',
 			'chat.sendSeparatelyTo' => '分別傳送給',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sendTo' => '傳送給',
 			'chat.send' => _root.common.buttonSend,
 			'chat.sender' => '發送者',
@@ -3119,19 +3681,26 @@ extension on TranslationsZhHant {
 			'chat.chatOpenFile' => '開啟檔案',
 			'chat.chatOpenLink' => '開啟連結',
 			'chat.avatarSelectPhoto' => '選擇照片',
-			'chat.avatarTakePhoto' => '拍照',
+			'chat.avatarTakePhoto' => '拍攝照片',
 			'chat.avatarSelectFromAlbum' => '從相簿選擇',
+			'chat.releaseConvertToText' => '放開 轉文字',
+			'chat.voiceReleaseCancelSend' => '放開 取消傳送',
+			'chat.voiceReleaseCancel' => '放開 取消',
+			'chat.voiceSlideHint' => '上滑 取消 / 轉文字',
+			'chat.convertToText' => '轉文字',
 			'chat.profileExportProfile' => '匯出資料',
 			'chat.momentsSend' => '傳送',
 			'chat.videoCompressInProgress' => '已有壓縮任務在進行中',
 			'chat.videoCompressing' => '正在壓縮影片...',
 			'chat.loginExpiredMessage' => '登入過期，請重新登入',
+			'chat.alipayLoginInterrupted' => '支付寶登入流程被系統中斷，請重試',
 			'chat.geometricPattern' => '幾何圖案',
 			'chat.ripplePattern' => '波紋圖案',
 			'chat.customImage' => '自訂圖片',
 			'chat.voiceRecordResultEmpty' => '語音錄製結果為空',
 			'chat.voiceFileInvalid' => '語音檔案無效',
 			'chat.burnAfterReading' => '閱後即焚',
+			'chat.burnReadBadge' => '閱後',
 			'chat.visibleThresholdRead' => '可視閾值已讀',
 			'chat.readThresholdDelay' => '已讀閾值與延時',
 			'chat.goodReadability' => '可讀性良好',
@@ -3167,30 +3736,28 @@ extension on TranslationsZhHant {
 			'chat.sendingVoice' => '正在傳送語音...',
 			'chat.deletingMessage' => '正在刪除...',
 			'chat.deletingLocalMessage' => '正在刪除本地訊息...',
-			'chat.quickReplyReceived' => '收到',
-			_ => null,
-		} ?? switch (path) {
+			'chat.quickReplyReceived' => '已收到',
 			'chat.quickReplyThanks' => '謝謝',
-			'chat.quickReplyWait' => '稍等',
+			'chat.quickReplyWait' => '請稍候',
 			'chat.messageMute' => _root.chat.chatSettingMute,
 			'chat.groupCategoryGroupCount' => ({required Object count}) => '${count} 個群聊',
 			'chat.groupAlbumCreateTitle' => '新建群相簿',
 			'chat.groupAlbumCreated' => '相簿已建立',
 			'chat.profileCompleted' => '資料已完善！',
-			'chat.profileProgress' => ({required Object percent}) => '${percent}% 完成',
+			'chat.profileProgress' => ({required Object percent}) => '${percent}% 已完成',
 			'chat.createdAtLabel' => ({required Object time}) => '建立時間: ${time}',
 			'chat.expiredAtLabel' => ({required Object time}) => '過期時間: ${time}',
-			'chat.myReceivedTab' => '我收到的',
+			'chat.myReceivedTab' => '我接收的',
 			'chat.orderStatusLabel' => ({required Object status}) => '狀態: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '建立時間: ${time}',
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付時間: ${time}',
-			'chat.orderStatusPending' => '待支付',
-			'chat.orderStatusPaid' => '已支付',
-			'chat.orderStatusRefunded' => '已退款',
+			'chat.orderStatusPending' => '待付款',
+			'chat.orderStatusPaid' => '已付款',
+			'chat.orderStatusRefunded' => '已退費',
 			'chat.orderStatusExpired' => '已過期',
 			'chat.defaultFileName' => '檔案',
 			'chat.fileUrlInvalid' => '檔案連結無效',
-			'chat.e2eeStatusAvailable' => '可用',
+			'chat.e2eeStatusAvailable' => '已啟用',
 			'chat.e2eeGenerateNewKey' => '生成新金鑰',
 			'chat.e2eeGenerateNewKeyDesc' => '生成新的 E2EE 金鑰對（舊訊息將無法解密）',
 			'chat.e2eeActivated' => '已啟用',
@@ -3201,8 +3768,8 @@ extension on TranslationsZhHant {
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備就緒（${count} 個分片）',
 			'chat.webFeatureMultiDevice' => '多裝置同步',
 			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
-			'chat.webFeatureE2EE' => '端到端加密',
-			'chat.webFeatureE2EEDesc' => '所有訊息都經過端到端加密，確保隱私安全',
+			'chat.webFeatureE2EE' => '端對端加密',
+			'chat.webFeatureE2EEDesc' => '所有訊息都經過端對端加密，確保隱私安全',
 			'chat.webFeatureFileTransfer' => '檔案傳輸',
 			'chat.webFeatureFileTransferDesc' => '拖拽即可傳送檔案，支援各種格式',
 			'chat.webQRStatusWaiting' => '開啟 ImBoy 手機版 > 設定 > 掃一掃',
@@ -3244,7 +3811,7 @@ extension on TranslationsZhHant {
 			'chat.invalidMessageType' => '[不支援的訊息]',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
-			'common.accept' => '接受',
+			'common.accept' => '同意',
 			'common.acceptFriendRequest' => '通過好友驗證',
 			'common.addFriend' => '新增朋友',
 			'common.addPhoneContact' => '新增手機聯絡人',
@@ -3257,7 +3824,7 @@ extension on TranslationsZhHant {
 			'common.added' => '已新增',
 			'common.addedToDenylistTips' => '已加入黑名單，您將不再收到對方的訊息',
 			'common.agreeContinue' => '同意並繼續',
-			'common.all' => '全部',
+			'common.all' => '所有',
 			'common.allSenders' => '所有發送者',
 			'common.allTags' => '全部標籤',
 			'common.allTime' => '所有時間',
@@ -3267,17 +3834,17 @@ extension on TranslationsZhHant {
 			'common.appSizeTips' => '包含應用程式執行所需的檔案，包括 APK 檔案、最佳化的編譯器輸出，以及解壓縮的原生函式庫。',
 			'common.applyAddFriend' => '申請新增好友',
 			'common.awaitingVerification' => '等待驗證',
-			'common.buttonAccomplish' => '完成',
+			'common.buttonAccomplish' => '已完成',
 			'common.buttonAdd' => '新增',
-			'common.buttonBack' => '返回',
+			'common.buttonBack' => '回上一頁',
 			'common.buttonBind' => '綁定',
 			'common.bindMobileAndEmailTips' => '綁定手機號和郵箱，讓您的帳號更安全',
 			'common.bindNow' => '立即綁定',
-			'common.buttonCancel' => '取消',
+			'common.buttonCancel' => '關閉',
 			'common.buttonCreate' => '建立',
 			'common.buttonChangePassword' => '修改密碼',
 			'common.phoneInputHint' => '請輸入手機號',
-			'common.buttonMore' => '更多',
+			'common.buttonMore' => '查看更多',
 			'common.buttonRefresh' => '重新整理',
 			'common.buttonClose' => '關閉',
 			'common.buttonConfirm' => '確認',
@@ -3288,7 +3855,7 @@ extension on TranslationsZhHant {
 			'common.buttonInviteCode' => '邀請碼',
 			'common.buttonLogin' => '登入',
 			'common.buttonLogout' => '登出',
-			'common.buttonNextStep' => '下一步',
+			'common.buttonNextStep' => '下一個步驟',
 			'common.buttonOk' => '確定',
 			'common.buttonRegister' => '註冊',
 			'common.buttonResetPassword' => '重設密碼',
@@ -3297,8 +3864,8 @@ extension on TranslationsZhHant {
 			'common.buttonSelectFromAlbum' => '從相簿選擇',
 			'common.buttonSend' => '傳送',
 			'common.buttonSetEmpty' => '設為空',
-			'common.buttonSubmit' => '提交',
-			'common.buttonTakingPictures' => '拍照',
+			'common.buttonSubmit' => '送出',
+			'common.buttonTakingPictures' => '拍攝照片',
 			'common.cacheTips' => '快取是使用應用過程中產生的暫時資料，清理快取不會影響您的正常使用。',
 			'common.callDuration' => '通話時長',
 			'common.callEnded' => '通話已結束',
@@ -3306,15 +3873,15 @@ extension on TranslationsZhHant {
 			'common.canNotAddYourselfFriend' => '您不能新增自己為好友',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
-			'common.operationSuccessful' => '操作成功',
+			'common.operationSuccessful' => '操作已完成',
 			'common.save' => _root.common.buttonSave,
 			'common.reset' => '重設',
 			'common.clear' => '清除',
 			'common.saveTag' => ({required Object count}) => '儲存標籤 (${count})',
 			'common.cancelLogoutBody' => '此帳號處於註銷反悔期，若登入成功則視作終止註銷流程。如需繼續註銷，請在註銷申請提交後的 15 天內不要登入 IMBoy。',
 			'common.cancelLogoutTitle' => '是否終止註銷流程？',
-			'common.cancelled' => '已取消',
-			'common.chatSettingBackground' => '聊天背景',
+			'common.cancelled' => '已撤銷',
+			'common.chatSettingBackground' => '聊天背景圖',
 			'common.chatSettingBackgroundCustom' => '已設定自訂背景',
 			'common.chatSettingBackgroundDefault' => '預設背景',
 			'common.chatSettingBackgroundSelectorTip' => '背景選擇功能開發中',
@@ -3437,9 +4004,9 @@ extension on TranslationsZhHant {
 			'common.groupFileDeleteConfirm' => ({required Object name}) => '確定刪除檔案「${name}」嗎？',
 			'common.groupFileImageLoadFailed' => '圖片載入失敗',
 			'common.groupFileOpenFailed' => '無法開啟檔案連結',
-			'common.groupFileSearchClear' => '清空',
+			'common.groupFileSearchClear' => '清除',
 			'common.groupFileSearchAction' => '搜尋',
-			'common.groupFileCategoryAll' => '全部',
+			'common.groupFileCategoryAll' => '所有',
 			'common.groupFileSearchEmpty' => '未找到匹配檔案',
 			'common.groupFileAudioLoadFailed' => '音訊載入失敗',
 			'common.groupFileAudioLoading' => '音訊載入中...',
@@ -3480,7 +4047,7 @@ extension on TranslationsZhHant {
 			'common.microphone' => '麥克風',
 			'common.microphonePermissionNotObtained' => '未獲取麥克風權限',
 			'common.moreInfo' => '更多資訊',
-			'common.myAddress' => '我的地址',
+			'common.myAddress' => '我的住址',
 			'common.nearbyPeopleTips' => '和附近的人交換聯絡方式，結交新朋友',
 			'common.needContinueWorkHard' => '需要繼續加油',
 			'common.needSubmitEffect' => '需要確認提交，該操作才生效',
@@ -3491,7 +4058,7 @@ extension on TranslationsZhHant {
 			'common.networkFailureTips' => '網路故障提示',
 			'common.newVersionDetected' => '檢測到新版本',
 			'common.newVersionDetectedWithVersion' => ({required Object param}) => '檢測到新版本 ${param}',
-			'common.nextStep' => '下一步',
+			'common.nextStep' => '下一個步驟',
 			'common.nicknameConflictError' => '暱稱已被使用，請選擇其他暱稱',
 			'common.nicknameEmojiOnlyError' => '暱稱不能僅包含表情符號',
 			'common.nicknameEmptyError' => '暱稱不能為空',
@@ -3534,7 +4101,7 @@ extension on TranslationsZhHant {
 			'common.operationFailedAgainLater' => '操作失敗，請稍後重試',
 			'common.optionsNo' => '否',
 			'common.optionsRename' => '我想重新命名',
-			'common.optionsYes' => '是的！',
+			'common.optionsYes' => '沒錯！',
 			'common.p2pCallScreenLogic' => '點對點通話畫面邏輯',
 			'common.p2pCallScreenView' => '點對點通話畫面視圖',
 			'common.paramFormatError' => ({required Object param}) => '${param}格式有誤',
@@ -3554,7 +4121,7 @@ extension on TranslationsZhHant {
 			'common.profileSettings' => '資料設定',
 			'common.reEdit' => '重新編輯',
 			'common.recoverPasswordSuccess' => '驗證碼傳送成功',
-			'common.regionCancel' => '取消',
+			'common.regionCancel' => '取消選取',
 			'common.regionConfirm' => '確定',
 			'common.regionNoResult' => '暫無結果',
 			'common.regionSearchHint' => '按地區名稱搜尋',
@@ -3564,7 +4131,7 @@ extension on TranslationsZhHant {
 			'common.releaseFingerCancelSending' => '鬆開手指，取消傳送',
 			'common.removeContactFromTag' => '從標籤中移除聯絡人',
 			'common.removeMember' => '移出成員',
-			'common.atMentionYouTag' => '[@你] ',
+			'common.atMentionYouTag' => '[提及你]',
 			'common.atMentionLeftMember' => '@已退群成員',
 			'common.muteNotifications' => '訊息免打擾',
 			'common.muteNotificationsHint' => '開啟後不會收到新訊息提醒，但仍可在會話列表看到未讀',
@@ -3593,6 +4160,8 @@ extension on TranslationsZhHant {
 			'common.notMuted' => 'Not Muted',
 			'common.muteDuration' => 'Mute Duration',
 			'common.muteDuration1hour' => '1 Hour',
+			_ => null,
+		} ?? switch (path) {
 			'common.muteDuration6hours' => '6 Hours',
 			'common.muteDuration12hours' => '12 Hours',
 			'common.muteDuration1day' => '1 Day',
@@ -3602,8 +4171,8 @@ extension on TranslationsZhHant {
 			'common.muteDuration5min' => '5分鐘',
 			'common.muteDuration10min' => '10分鐘',
 			'common.muteDuration30min' => '30分鐘',
-			'common.muteDuration30days' => '30天',
-			'common.muteUnitSeconds' => ({required Object count}) => '${count} 秒',
+			'common.muteDuration30days' => '30 天',
+			'common.muteUnitSeconds' => ({required Object count}) => '${count} 秒鐘',
 			'common.throttleWarning' => '操作頻率過高，請稍後再試',
 			'common.throttleRetryAfter' => ({required Object seconds}) => '操作頻率過高，請 ${seconds} 秒後再試',
 			'common.mutedCannotSend' => '禁言期間無法傳送訊息',
@@ -3642,7 +4211,7 @@ extension on TranslationsZhHant {
 			'common.selectedRegion' => '已選地區',
 			'common.sendMsgNotFriendTips' => '對方開啟了好友驗證，您還不是他（她）好友。請先傳送好友驗證請求，對方驗證通過後，才能聊天。',
 			'common.setChatBackground' => '設定目前聊天背景',
-			'common.share' => '分享',
+			'common.share' => '分享出去',
 			'common.signatureTips' => '簽名提示',
 			'common.slideUpCancelSending' => '手指上滑，取消傳送',
 			'common.storagePermissionNotObtained' => '未獲取儲存權限',
@@ -3651,30 +4220,30 @@ extension on TranslationsZhHant {
 			'common.sureDeleteData' => '確認刪除嗎？刪除後不可恢復。',
 			'common.sureDeleteGroupChatRecord' => '確定刪除群組的聊天記錄嗎？',
 			'common.switchEnvironment' => '切換環境',
-			'common.thisMonth' => '本月',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}天前', ), 
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}小時前', ), 
+			'common.thisMonth' => '這個月',
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}天前', ),
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}小時前', ),
 			'common.timeJustNow' => '剛剛',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}分鐘前', ), 
-			'common.timeToday' => '今天',
-			'common.timeYesterday' => '昨天',
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}分鐘前', ),
+			'common.timeToday' => '今日',
+			'common.timeYesterday' => '昨日',
 			'common.tipConnectDesc' => '無網路',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '（${param}）',
 			'common.tipDeleteContact' => ({required Object param}) => '將聯絡人「${param}」刪除，同時刪除與該聯絡人的聊天記錄',
 			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '佔設備 ${param1}% 儲存空間（${param2}）',
-			'common.tipDraft' => '草稿',
+			'common.tipDraft' => '草稿內容',
 			'common.tipEmptyChatPlaceholder' => '這裡還沒有訊息',
 			'common.tipFailed' => '操作失敗！',
 			'common.tipGreeting' => '歡迎使用',
 			'common.tipProvidersTitleFirst' => '或用以下帳號登入',
-			'common.tipSuccess' => '操作成功！',
+			'common.tipSuccess' => '操作已完成！',
 			'common.tipTips' => '小貼士',
 			'common.titleContact' => '通訊錄',
-			'common.today' => '今天',
-			'common.unknown' => '未知',
+			'common.today' => '今日',
+			'common.unknown' => '不明',
 			'common.unknownMessage' => '未知訊息',
 			'common.updateLog' => '更新記錄',
-			'common.updateNow' => '立即更新',
+			'common.updateNow' => '立刻更新',
 			'common.uploading' => 'Uploading',
 			'common.uploadSuccess' => 'Upload successful',
 			'common.uploadFailed' => 'Upload failed',
@@ -3682,12 +4251,10 @@ extension on TranslationsZhHant {
 			'common.userDisabledOrDeleted' => '用家被停用或已刪除',
 			'common.userNotExist' => '用家不存在',
 			'common.userOnlineStatusWidget' => '用家上線狀態小部件',
-			_ => null,
-		} ?? switch (path) {
 			'common.userTagRelationView' => '用家標籤關係視圖',
 			'common.userTagSaveView' => '用家標籤儲存視圖',
 			'common.verificationMessageSentByPeerIs' => ({required Object param}) => '對方發來的驗證訊息為：${param}',
-			'common.version' => '版本',
+			'common.version' => '軟體版本',
 			'common.videoCall' => '影片通話',
 			'common.viewAllGroupMember' => '檢視全部群組成員',
 			'common.voiceCall' => '語音通話',
@@ -3700,11 +4267,11 @@ extension on TranslationsZhHant {
 			'common.warning' => '警告：',
 			'common.webpageLoading' => '網頁載入中...',
 			'common.whatYourFeedback' => '您的回饋是什麼?',
-			'common.yesterday' => '昨天',
+			'common.yesterday' => '昨日',
 			'common.yourContactInformation' => '您的聯絡方式',
 			'common.confirmRemove' => '確認移出',
 			'common.confirmRemoveFromDenylist' => '確認將此用家移出黑名單？',
-			'common.buttonRemove' => '移出',
+			'common.buttonRemove' => '移除',
 			'common.removedFromDenylist' => '已移出黑名單',
 			'common.newEmailAddress' => '新郵箱地址',
 			'common.emailAddress' => '郵箱地址',
@@ -3815,11 +4382,11 @@ extension on TranslationsZhHant {
 			'common.loadingTagDataFailed' => '載入標籤資料失敗',
 			'common.pleaseEnterContent' => '請輸入內容',
 			'common.comingSoon' => '敬請期待',
-			'common.chatBackground' => '聊天背景',
+			'common.chatBackground' => '聊天背景圖片',
 			'common.useSystemDefaultBackground' => '使用系統預設背景',
 			'common.selectCustomBackgroundImage' => '選擇自訂背景圖片',
 			'common.currentBackground' => '目前背景',
-			'common.backgroundTransparency' => '背景透明度',
+			'common.backgroundTransparency' => '背景透明程度',
 			'common.defaultBackground' => '預設背景',
 			'common.solidColorBackground' => '純色背景',
 			'common.selectImageFailed' => '選擇圖片失敗',
@@ -3842,7 +4409,7 @@ extension on TranslationsZhHant {
 			'common.deleteSuccess' => '刪除成功',
 			'common.localDeleteSuccess' => '本地刪除成功',
 			'common.localDeleteFailed' => '本地刪除失敗',
-			'common.revokeSuccess' => '撤回成功',
+			'common.revokeSuccess' => '收回成功',
 			'common.editContentCannotBeEmpty' => '編輯內容不能為空',
 			'common.editSuccess' => '編輯成功',
 			'common.messageNotFound' => '未找到該訊息',
@@ -3859,7 +4426,7 @@ extension on TranslationsZhHant {
 			'common.basicInfo' => '基本資訊',
 			'common.contactInfo' => '聯絡資訊',
 			'common.editTags' => '編輯標籤',
-			'common.quickActions' => '快捷操作',
+			'common.quickActions' => '快速操作',
 			'common.noNewFriendRequests' => '暫時沒有新的好友申請',
 			'common.pleaseEnterVerificationMessage' => '請輸入驗證訊息',
 			'common.unknownRegion' => '未知地區',
@@ -3875,9 +4442,9 @@ extension on TranslationsZhHant {
 			'common.noGroupAnnouncement' => '暫無群組公告',
 			'common.announcementContentCannotBeEmpty' => '公告內容不能為空',
 			'common.announcementPublishSuccess' => '公告發布成功',
-			'common.tips' => '提示',
+			'common.tips' => '小提示',
 			'common.featureComingSoon' => '功能暫未實現',
-			'common.understood' => '明白了',
+			'common.understood' => '我懂了',
 			'common.noProblem' => '沒問題',
 			'common.onMyWay' => '馬上到',
 			'common.sendOfflineCommand' => '強制下線',
@@ -3895,7 +4462,7 @@ extension on TranslationsZhHant {
 			'common.confirmNewPassword' => '確認新密碼',
 			'common.validationPassed' => '驗證通過',
 			'common.changeFailed' => '修改失敗',
-			'common.submitted' => '已提交',
+			'common.submitted' => '已送出',
 			'common.viewSecurityHelp' => '檢視安全說明',
 			'common.momentsNoData' => '暫無動態',
 			'common.momentsDeleteConfirm' => '確定刪除這條動態嗎？',
@@ -3915,10 +4482,10 @@ extension on TranslationsZhHant {
 			'common.momentsReportFailed' => '舉報失敗，請稍後重試',
 			'common.momentReportReasonSpam' => '垃圾廣告',
 			'common.momentReportReasonHarassment' => '騷擾霸凌',
-			'common.momentReportReasonPorn' => '色情低俗',
+			'common.momentReportReasonPorn' => '色情或不雅內容',
 			'common.momentReportReasonFraud' => '欺詐詐騙',
 			'common.momentReportReasonInfringement' => '侵權抄襲',
-			'common.momentReportReasonOther' => '其他',
+			'common.momentReportReasonOther' => '其他原因',
 			'common.momentReportReasonPrompt' => '請選擇舉報原因',
 			'common.momentsLoadMoreComments' => '載入更多評論',
 			'common.momentsUploadFailed' => '媒體上傳失敗，請稍後重試',
@@ -3929,14 +4496,14 @@ extension on TranslationsZhHant {
 			'common.noNextVoiceMessage' => '沒有下一條語音訊息可播放',
 			'common.nextVoiceMessageNoPath' => '下一條語音訊息沒有音訊檔案路徑',
 			'common.saveFailed' => '儲存失敗',
-			'common.tip' => '提示',
+			'common.tip' => '小提示',
 			'common.confirm' => '確認',
-			'common.success' => '成功',
+			'common.success' => '執行成功',
 			'common.personalDisplay' => '個人展示',
 			'common.personalSignature' => '個性簽名',
 			'common.personalBackground' => '個人背景',
 			'common.setBackgroundImage' => '設定背景圖片',
-			'common.expression' => '表情',
+			'common.expression' => '表情符號',
 			'common.extendedInfo' => '擴展資訊',
 			'common.profession' => '職業',
 			'common.pleaseEnterProfession' => 'Please enter profession',
@@ -3954,7 +4521,7 @@ extension on TranslationsZhHant {
 			'common.avatarUpdateSuccess' => '頭像更新成功',
 			'common.avatarUpdateFailed' => '頭像更新失敗',
 			'common.deleteOperationAbnormal' => '刪除操作異常，請重試',
-			'common.revoking' => '正在撤回...',
+			'common.revoking' => '正在收回...',
 			'common.editing' => '正在編輯...',
 			'common.messageIdCannotBeEmpty' => '訊息 ID 為空，無法操作',
 			'common.startRevokeMessageFlow' => '開始撤回訊息流程',
@@ -3999,7 +4566,7 @@ extension on TranslationsZhHant {
 			'common.revokeOperationAbnormalPleaseTryAgain' => '撤回操作異常，請重試',
 			'common.collectionFailedPleaseTryAgain' => '收藏失敗，請重試',
 			'common.reactionSent' => '已傳送反應',
-			'common.seconds' => '秒',
+			'common.seconds' => '秒鐘',
 			'common.messageCannotLocatedMayBeDeleted' => '未能定位到該訊息，可能已被刪除',
 			'common.settingFailedPleaseTryAgain' => '設定失敗，請重試',
 			'common.partialDeleteSuccess' => ({required Object success, required Object fail}) => '部分刪除成功：${success} 成功，${fail} 失敗',
@@ -4011,7 +4578,7 @@ extension on TranslationsZhHant {
 			'common.permissionOnlySupportAndroidAndIos' => 'Permission 只支援 Android 和 iOS',
 			'common.messageSendFailedPleaseCheckNetwork' => '訊息傳送失敗，請檢查網路連接',
 			'common.retryingSend' => '正在重試傳送...',
-			'common.quickReplyOk' => '好的',
+			'common.quickReplyOk' => '好',
 			'common.quickReplyOkThanks' => '好的，謝謝',
 			'common.tagInspiration' => '靈感',
 			'common.noDetailedInfo' => '該用家還沒有設定個人簽名等詳細資訊',
@@ -4034,10 +4601,10 @@ extension on TranslationsZhHant {
 			'common.lazyUserNoSignature' => '暫無個人簽名',
 			'common.noFavoritesYet' => '暫無收藏內容，快去收藏一些有趣的訊息吧',
 			'common.fontPreviewText' => '這是正文內容，您可以在這裡看到不同字體大小的顯示效果。',
-			'common.smaller' => '更小',
+			'common.smaller' => '縮小',
 			'common.currentFontScale' => ({required Object param1, required Object param2}) => '目前：${param1} ${param2}%',
 			'common.emailUpdatedTo' => ({required Object param}) => '郵箱已更新為 ${param}',
-			'common.groupAnnouncementExpiry' => ({required Object time}) => '有效期至: ${time}',
+			'common.groupAnnouncementExpiry' => ({required Object time}) => '效期至: ${time}',
 			'common.groupAlbumCreateFailed' => '建立失敗，請稍後重試',
 			'common.groupAlbumDeleteTitle' => '刪除群相簿',
 			'common.groupAlbumDeleteConfirm' => ({required Object name}) => '確定刪除相簿「${name}」嗎？',
@@ -4073,21 +4640,21 @@ extension on TranslationsZhHant {
 			'common.sectionTheme' => '主題',
 			'common.selectLanguage' => '選擇語言',
 			'common.completionSuggestions' => '完善建議：',
-			'common.sectionGeneral' => '通用',
+			'common.sectionGeneral' => '一般',
 			'common.sectionPrivacySecurity' => '隱私與安全',
 			'common.sectionHelpAbout' => '幫助與關於',
 			'common.msgOnlyVisibleToParties' => '訊息僅收發雙方可讀',
 			'common.msgNotEncrypted' => '訊息未加密傳輸',
 			'common.unreadCount' => ({required Object count}) => '${count} 則未讀',
 			'common.durationMinutes' => ({required Object count}) => '${count}分鐘',
-			'common.durationSeconds' => ({required Object count}) => '${count}秒',
+			'common.durationSeconds' => ({required Object count}) => '${count}秒鐘',
 			'common.rechargeAmountError' => '請輸入0.01元到10000元之間的金額',
-			'common.rechargeSuccess' => '充值成功',
+			'common.rechargeSuccess' => '儲值成功',
 			'common.rechargeConfirm' => '確認充值',
 			'common.transactionHistory2' => '流水記錄',
 			'common.noTransactionHistory' => '暫無流水記錄',
 			'common.allLoaded' => '— 已全部載入 —',
-			'common.transactionTypeIncome' => '充值',
+			'common.transactionTypeIncome' => '儲值',
 			'common.transactionTypeExpense' => '消費',
 			'common.sectionLoginCredentials' => '登入憑證',
 			'common.channelInvitations' => '頻道邀請',
@@ -4096,24 +4663,26 @@ extension on TranslationsZhHant {
 			'common.invitationAccepted' => '已接受邀請',
 			'common.invitationRejected' => '已拒絕邀請',
 			'common.invitationStatusPending' => '待處理',
-			'common.invitationStatusAccepted' => '已接受',
+			'common.invitationStatusAccepted' => '已同意',
 			'common.invitationStatusRejected' => '已拒絕',
 			'common.invitationStatusExpired' => '已過期',
-			'common.invitationStatusCancelled' => '已取消',
-			'common.invitationStatusUnknown' => '未知',
+			'common.invitationStatusCancelled' => '已撤銷',
+			'common.invitationStatusUnknown' => '不明',
 			'common.noReceivedInvitations' => '暫無收到的邀請',
 			'common.noSentInvitations' => '暫無發出的邀請',
 			'common.processingDots' => '處理中...',
 			'common.purchaseFailed' => '購買失敗，請稍後重試',
 			'common.purchaseSuccess' => '購買成功',
 			'common.insufficientBalanceTitle' => '餘額不足',
+			_ => null,
+		} ?? switch (path) {
 			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => '當前餘額 ${currency} ${balance}，需支付 ${currency} ${price}。請先充值後再購買。',
-			'common.goRecharge' => '去充值',
+			'common.goRecharge' => '去儲值',
 			'common.noOrders' => '暫無訂單',
 			'common.orderDetailLoadFailed' => '訂單詳情載入失敗',
 			'common.orderNoLabel' => ({required Object no}) => '訂單號: ${no}',
-			'common.orderStatusCancelled' => '已取消',
-			'common.orderStatusUnknown' => '未知',
+			'common.orderStatusCancelled' => '已撤銷',
+			'common.orderStatusUnknown' => '不明',
 			'common.removeReaction' => '移除反應',
 			'common.removeReactionConfirm' => ({required Object emoji}) => '確定要移除 ${emoji} 反應嗎？',
 			'common.fileOpenFailed' => '無法開啟該檔案',
@@ -4147,7 +4716,7 @@ extension on TranslationsZhHant {
 			'common.e2eeDeviceIdInfo' => ({required Object id}) => '裝置 ID: ${id}',
 			'common.e2eeKeyIdInfo' => ({required Object id}) => '金鑰 ID: ${id}',
 			'common.e2eeCreatedAtInfo' => ({required Object time}) => '建立時間: ${time}',
-			'common.e2eeImportantNote' => '重要提示',
+			'common.e2eeImportantNote' => '重要提醒',
 			'common.e2eeWarnOldMayNotDecrypt' => '• 舊訊息可能無法解密',
 			'common.e2eeSuggestBackupNow' => '• 建議立即匯出備份',
 			'common.e2eeGoBackup' => '去備份',
@@ -4164,7 +4733,7 @@ extension on TranslationsZhHant {
 			'common.e2eeLoadFailed' => '載入失敗，請重試',
 			'common.e2eeContactingProxy' => ({required Object name}) => '正在聯絡: ${name}',
 			'common.e2eeRecoveryFailed' => '恢復失敗，請重試',
-			'common.webFeatureNotification' => '桌面通知',
+			'common.webFeatureNotification' => '桌面版通知',
 			'common.webFeatureNotificationDesc' => '即使不在頁面也能收到新訊息提醒',
 			'common.webQRConfirmOnPhone' => '請在手機上確認登入',
 			'common.webQRLoginFailed' => '登入失敗',
@@ -4196,8 +4765,6 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupConfirmPwdLabel' => '確認密碼 *',
 			'common.e2eeBackupConfirmPwdHint' => '再次輸入密碼',
 			'common.e2eeBackupNoteLabel' => '備註（可選）',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupNoteHint' => '例如：主手機備份 - 2026年1月',
 			'common.e2eeBackupPwdStrengthLabel' => '密碼強度',
 			'common.e2eeBackupPwdWeak' => '弱 - 建議增加複雜度',
@@ -4214,7 +4781,7 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrShareFailed' => '分享失敗，請重試',
 			'common.e2eeBackupExportSuccessTitle' => '備份匯出成功',
 			'common.e2eeBackupExportSuccessBody' => '您的 E2EE 金鑰備份已成功生成。',
-			'common.e2eeBackupImportantNoteColon' => '重要提示：',
+			'common.e2eeBackupImportantNoteColon' => '重要提醒：',
 			'common.e2eeBackupKeepSafe' => '• 請妥善保管備份檔案和密碼',
 			'common.e2eeBackupStoreMultipleLoc' => '• 建議將檔案儲存到多個安全位置',
 			'common.e2eeBackupPwdCantRecoverNote' => '• 密碼無法找回，請務必牢記',
@@ -4352,7 +4919,7 @@ extension on TranslationsZhHant {
 			'common.grabAmountYuan' => ({required Object amount}) => '領到金額：${amount} 元',
 			'common.transferAmountYuan' => ({required Object amount}) => '轉賬金額：${amount} 元',
 			'common.insufficientBalance' => '餘額不足',
-			'common.goToRecharge' => '去充值',
+			'common.goToRecharge' => '前往儲值',
 			'common.withdrawSuccess' => '提現成功',
 			'common.withdrawConfirm' => '確認提現',
 			'common.withdrawFeeNotice' => '手續費與到帳時間以實際結算為準',
@@ -4362,7 +4929,7 @@ extension on TranslationsZhHant {
 			'common.withdrawAccount' => '提現賬號',
 			'common.withdrawAmountLabel' => '提現金額',
 			'common.withdrawAlipay' => '支付寶',
-			'common.withdrawWechat' => '微信',
+			'common.withdrawWechat' => 'WeChat',
 			'common.walletBalanceLabel' => ({required Object balance}) => '錢包餘額 ￥${balance}',
 			'common.withdrawAccountHintAlipay' => '提現賬號（郵箱或手機號）',
 			'common.withdrawAccountHintWechat' => '提現賬號（微信號）',
@@ -4380,20 +4947,91 @@ extension on TranslationsZhHant {
 			'common.enterFullscreen' => '進入全螢幕',
 			'common.exitFullscreen' => '退出全螢幕',
 			'common.developer' => '開發者',
-			'common.fontSizeOptionSmall' => '小',
+			'common.fontSizeOptionSmall' => '小字',
 			'common.fontSizeOptionNormal' => '標準',
-			'common.fontSizeOptionMedium' => '中',
-			'common.fontSizeOptionLarge' => '大',
-			'common.fontSizeOptionExtraLarge' => '特大',
-			'common.fontSizeOptionHuge' => '超大',
+			'common.fontSizeOptionMedium' => '中字',
+			'common.fontSizeOptionLarge' => '大字',
+			'common.fontSizeOptionExtraLarge' => '特大字',
+			'common.fontSizeOptionHuge' => '超大字',
 			'common.searchFailedRetry' => '搜尋失敗，請重試',
 			'common.searchDisabledTitle' => '訊息搜尋未啟用',
 			'common.searchDisabledByEncryption' => '已開啟端對端加密，伺服器無法讀取訊息內容，因此不提供全文搜尋',
+			'common.amountMustPositive' => '金額必須大於 0',
+			'common.answer' => '接聽',
+			'common.collapse' => '收合',
+			'common.complianceKeyChangedActionConfirm' => '確認輪替',
+			'common.complianceKeyChangedActionKeep' => '暫不確認',
+			'common.complianceKeyChangedBody' => '伺服器下發的合規稽核公開金鑰與本地固定值不一致。若這是管理員有意進行的金鑰輪替，請點擊「確認輪替」；否則請勿繼續傳送加密訊息，並請聯絡管理員查明。',
+			'common.complianceKeyChangedTitle' => '合規稽核金鑰已變更',
+			'common.declineCall' => '拒接',
+			'common.e2eeRecoveryKeyCopied' => '恢復金鑰已複製',
+			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => '恢復金鑰已複製，${seconds} 秒後將自動清除剪貼簿，請盡快儲存',
+			'common.e2eeRecoveryKeySaveNote' => '請立即儲存這串恢復金鑰（截圖或存入密碼管理員）。忘記密碼時，它是解密備份的唯一憑據；一旦遺失，備份將永久無法還原。',
+			'common.e2eeRecoveryKeyTitle' => '恢復金鑰',
+			'common.e2eeUseRecoveryKey' => '產生恢復金鑰（忘記密碼時的備用憑據）',
+			'common.enterAmount' => '請輸入金額',
+			'common.expandFull' => '展開',
+			'common.hoursAgo' => '小時前',
+			'common.justNow' => '剛剛',
+			'common.me' => '本人',
+			'common.minimize' => '縮到最小',
+			'common.minutesAgo' => '分鐘前',
+			'common.momentsHasFailedUploads' => '有媒體上傳失敗，請重試或移除後再發布',
+			'common.noHistory' => '暫無歷史紀錄',
+			'common.noNewRegisteredUsersTitle' => '暫無新註冊使用者',
+			'common.payReceiveSuccess' => '已成功收款！',
+			'common.purchaseConfirming' => '付款確認中，請稍後查看訂單狀態',
+			'common.reconnecting' => '網路不穩，正在重新連線…',
+			'common.redPacketAmountTooSmall' => '總金額至少為份數 × 0.01 元',
+			'common.redPacketBrand' => 'IMBoy 紅包',
+			'common.redPacketCount' => '紅包數量',
+			'common.redPacketCountEmpty' => '請輸入紅包數量',
+			'common.redPacketCountMin' => '紅包數量至少須為 1',
+			'common.redPacketCountUnit' => '份',
+			'common.redPacketCurrentLucky' => '目前為：拼手氣紅包',
+			'common.redPacketCurrentNormal' => '目前為：普通紅包',
+			'common.redPacketDialogSubtitle' => '大吉大利，恭喜發財',
+			'common.redPacketDialogTitle' => '送你一個紅包',
+			'common.redPacketFetchError' => '取得紅包詳情時發生異常',
+			'common.redPacketFetchFailed' => '取得紅包詳情失敗',
+			'common.redPacketGreetingLabel' => '留言 / 祝福語',
+			'common.redPacketNotFound' => '紅包不存在或已被刪除',
+			'common.redPacketReceiverLabel' => ({required Object uid}) => '使用者：${uid}',
+			'common.redPacketSingleAmount' => '單個金額',
+			'common.redPacketStuffLucky' => '塞錢發紅包',
+			'common.redPacketStuffNormal' => '放入錢包傳送',
+			'common.redPacketSwitchToLucky' => '改為拼手氣紅包',
+			'common.redPacketSwitchToNormal' => '改為普通紅包',
+			'common.redPacketTotalAmount' => '總金額',
+			'common.redPacketView' => '查看紅包',
+			'common.switchCamera' => '切換鏡頭',
+			'common.timeDaysShort' => ({required Object count}) => '${count}d',
+			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
+			'common.timeNowShort' => 'now',
+			'common.transferAccepted' => '已收款',
+			'common.transferAmountLabel' => '轉帳金額',
+			'common.transferConfirm' => '確認轉帳',
+			'common.transferDefaultRemark' => '轉帳給好友',
+			'common.transferMinAmountError' => '轉帳最低金額為 0.01 元',
+			'common.transferPending' => '等待對方確認',
+			'common.transferReceiving' => '收款中...',
+			'common.transferRefunded' => '已退還',
+			'common.transferRemarkLabel' => '轉帳備註',
+			'common.transferTapToReceive' => '點擊收款',
+			'common.uploadPartialFailed' => ({required Object count}) => '${count} 項上傳失敗',
+			'common.voiceSttConverting' => '正在辨識中...',
+			'common.voiceSttNotConfigured' => '轉文字功能尚未設定',
+			'common.voiceSttPreviewTitle' => '語音轉文字預覽',
 			'complaint.complaint' => '投訴',
+			'complaint.e2eeConsentTitle' => '提交加密訊息證據',
+			'complaint.e2eeConsentBody' => '該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？',
+			'complaint.e2eeConsentSubmit' => '同意並提交證據',
+			'complaint.e2eeConsentDecline' => '僅舉報（不提交內容）',
 			'complaintReason.spam' => '垃圾資訊',
 			'complaintReason.harassment' => '騷擾',
 			'complaintReason.inappropriate' => '不當內容',
-			'complaintReason.other' => '其他',
+			'complaintReason.other' => '其他原因',
 			'contact.applyFriend' => '申請好友',
 			'contact.applyFriendLogic' => '申請好友邏輯',
 			'contact.applyParam' => ({required Object param}) => '申請${param}',
@@ -4428,19 +5066,19 @@ extension on TranslationsZhHant {
 			'contact.tagLengthExceeded' => ({required Object param}) => '標籤長度不能超過 ${param} 個字元',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能新增 ${param} 個標籤',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '已選標籤 (${param}/${max})',
-			'contact.tagImportant' => '重要',
+			'contact.tagImportant' => 'VIP聯絡人',
 			'contact.tagUrgent' => '緊急',
-			'contact.tagWork' => '工作',
-			'contact.tagLife' => '生活',
+			'contact.tagWork' => '公司',
+			'contact.tagLife' => '日常',
 			'contact.tagStudy' => '學習',
 			'contact.tagEntertainment' => '娛樂',
-			'contact.tagTravel' => '旅行',
-			'contact.tagFood' => '美食',
-			'contact.tagHealth' => '健康',
-			'contact.tagFamily' => '家庭',
+			'contact.tagTravel' => '旅遊',
+			'contact.tagFood' => '吃貨',
+			'contact.tagHealth' => '養生',
+			'contact.tagFamily' => '家人',
 			'contact.tagFriends' => '好友',
 			'contact.tagProject' => '專案',
-			'contact.tagIdeas' => '想法',
+			'contact.tagIdeas' => '點子',
 			'contact.tagMemo' => '備忘',
 			'contact.friendRequestSent' => '已傳送',
 			'contact.channelMaxTagsCount' => '最多可新增 8 個標籤',
@@ -4448,7 +5086,7 @@ extension on TranslationsZhHant {
 			'discovery.findNearbyPeople' => '搜尋附近的人',
 			'discovery.moment' => '動態',
 			'discovery.nearbyPeopleExplain' => '附近的用家可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。\n您的電話號碼將會被隱藏。',
-			'discovery.peopleNearby' => '附近的人',
+			'discovery.peopleNearby' => '附近的朋友',
 			'discovery.peopleNearbyLogic' => '附近的人邏輯',
 			'discovery.scan' => '掃一掃',
 			'discovery.scanResult' => '掃描結果',
@@ -4474,31 +5112,33 @@ extension on TranslationsZhHant {
 			'discovery.momentActionComment' => '評論',
 			'discovery.momentActionDelete' => '刪除',
 			'discovery.momentActionReport' => '舉報',
-			'discovery.momentActionCancel' => '取消',
+			'discovery.momentActionCancel' => '取消動作',
 			'discovery.momentViewAllComments' => ({required Object count}) => '查看全部 ${count} 條評論',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} 讚了',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人讚了',
 			'discovery.momentPartialVisible' => '部分可見',
 			'discovery.momentContentPlaceholder' => '這一刻的想法...',
-			'discovery.momentShowFull' => '全文',
+			'discovery.momentShowFull' => '展開全文',
 			'discovery.momentExpand' => '展開',
-			'discovery.momentCollapse' => '收起',
+			'discovery.momentCollapse' => '收合',
 			'discovery.momentReportComment' => '舉報評論',
-			'discovery.momentsDraftKeepTitle' => '保留草稿？',
+			'discovery.momentsDraftKeepTitle' => '要保留草稿嗎？',
 			'discovery.momentsDraftKeepMessage' => '保留後下次進入可繼續編輯',
-			'discovery.momentsDraftDiscard' => '不保留',
-			'discovery.momentsDraftKeep' => '保留',
+			'discovery.momentsDraftDiscard' => '捨棄',
+			'discovery.momentsDraftKeep' => '保留草稿',
 			'discovery.discover' => '發現',
+			'discovery.momentActionMore' => '更多選項',
+			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} 人按讚',
 			'discovery.shake' => '搖一搖',
 			'discovery.openChannel' => '開啟頻道',
 			'discovery.paidChannelLocked' => '付費頻道內容已鎖定',
 			'discovery.webQRScanned' => '已掃描',
-			'discovery.momentLocation' => '所在位置',
+			'discovery.momentLocation' => '打卡地點',
 			'discovery.momentLocationNone' => '不顯示位置',
 			'discovery.momentAtWho' => '提醒誰看',
-			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name}',
-			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人',
-			'discovery.momentAtCount' => ({required Object count}) => '${count}人',
+			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name} 查看',
+			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人查看',
+			'discovery.momentAtCount' => ({required Object count}) => '${count} 人查看',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.networkFailureGuidance' => '網路故障排查指引',
 			'error.pleaseCheckNetwork' => '請檢查您的網路設定。',
@@ -4530,7 +5170,7 @@ extension on TranslationsZhHant {
 			'group.groupInfo' => '群組資訊',
 			'group.groupMemberRoleLabel' => '成員',
 			'group.noMemberWithRole' => ({required Object roleName}) => '暫無${roleName}',
-			'group.moreActions' => '更多操作',
+			'group.moreActions' => '更多選項',
 			'group.touchContactAddMember' => '點擊聯絡人新增為群組成員',
 			'group.groupCreated' => '群組已建立',
 			'group.groupCreatedSuccess' => '群組建立成功，邀請你完善群組資訊或直接進入群組',
@@ -4548,6 +5188,8 @@ extension on TranslationsZhHant {
 			'group.groupAlbumUnnamed' => '未命名相簿',
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 張圖片',
 			'group.groupAlbumPhotoIdMissing' => '圖片ID缺失，無法檢視詳情',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoListTitle' => '相簿圖片',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '已選擇 ${count} 項',
 			'group.groupAlbumPhotoEmpty' => '暫無圖片',
@@ -4581,39 +5223,46 @@ extension on TranslationsZhHant {
 			'groupCategory.renameFailed' => '重新命名失敗，請重試',
 			'groupCategory.deleteFailed' => '刪除失敗，請重試',
 			'groupCategory.categoryDetailTip' => '該分組下的群聊可以在群組列表中透過「移入分組」進行管理',
-			'groupList.attrAll' => '全部',
+			'groupDiscovery.title' => '發現群組',
+			'groupDiscovery.searchHint' => '搜尋公開群組',
+			'groupDiscovery.allCategories' => '所有',
+			'groupDiscovery.sortPopular' => '熱門',
+			'groupDiscovery.sortNewest' => '最新建立',
+			'groupDiscovery.emptyTitle' => '暫無公開群組，稍後再來看看',
+			'groupDiscovery.searchEmpty' => '沒有符合的公開群組',
+			'groupList.attrAll' => '所有',
 			'groupList.attrOwner' => '我建立',
-			'groupList.attrManager' => '我管理',
-			'groupList.attrJoin' => '我加入',
+			'groupList.attrManager' => '我管理的',
+			'groupList.attrJoin' => '我加入的',
 			'groupList.refresh' => '重新整理',
-			'groupSchedule.title' => '群日程',
+			'groupSchedule.title' => '群組日程',
 			'groupSchedule.createSchedule' => '建立日程',
 			'groupSchedule.scheduleTitle' => '日程標題',
 			'groupSchedule.selectDate' => '選擇日期',
 			'groupSchedule.selectTime' => '選擇時間',
 			'groupSchedule.location' => '地點',
-			'groupSchedule.reminder' => '提醒',
-			'groupSchedule.noReminder' => '不提醒',
+			'groupSchedule.reminder' => '提醒通知',
+			'groupSchedule.noReminder' => '關閉提醒',
 			'groupSchedule.noSchedule' => '暫無日程',
 			'groupSchedule.scheduleCreated' => '日程建立成功',
-			'groupSchedule.scheduleUpdated' => '日程更新成功',
+			'groupSchedule.scheduleUpdated' => '日程已更新',
 			'groupSchedule.reminder15min' => '提前15分鐘',
 			'groupSchedule.reminder1hour' => '提前1小時',
-			'groupSchedule.reminder1day' => '提前1天',
+			'groupSchedule.reminder1day' => '提早 1 天',
 			'groupSchedule.startTime' => '開始時間',
 			'groupSchedule.endTime' => '結束時間',
 			'groupSchedule.participants' => '參與人數',
-			'groupSchedule.statusCancelled' => '已取消',
+			'groupSchedule.statusCancelled' => '已撤銷',
 			'groupSchedule.statusInProgress' => '進行中',
 			'groupSchedule.statusNotStarted' => '未開始',
 			'groupSchedule.statusEnded' => '已結束',
-			'groupSchedule.cancelSuccess' => '日程已取消',
+			'groupSchedule.cancelSuccess' => '已取消日程',
 			'groupSchedule.cancelFailed' => '取消失敗，請稍後重試',
 			'groupSchedule.confirmAttend' => '確認參加',
 			'groupSchedule.declineAttend' => '不參加',
-			'groupSchedule.cancelSchedule' => '取消日程',
+			'groupSchedule.cancelSchedule' => '撤銷日程',
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，無法檢視詳情',
-			'groupSchedule.untitledSchedule' => '未命名日程',
+			'groupSchedule.untitledSchedule' => '無標題日程',
 			'groupSchedule.cardViewAndAttend' => '查看詳情並確認參加',
 			'groupTag.title' => '群標籤',
 			'groupTag.addTag' => '新增標籤',
@@ -4632,15 +5281,15 @@ extension on TranslationsZhHant {
 			'groupTask.deadline' => '截止時間',
 			'groupTask.noDeadline' => '無截止時間',
 			'groupTask.noTask' => '暫無任務',
-			'groupTask.all' => '全部',
-			'groupTask.pending' => '待完成',
-			'groupTask.completed' => '已完成',
+			'groupTask.all' => '所有',
+			'groupTask.pending' => '待處理',
+			'groupTask.completed' => '已結案',
 			'groupTask.taskCreated' => '任務建立成功',
 			'groupTask.taskSubmitted' => '任務已提交',
 			'groupTask.submitTask' => '提交作業',
 			'groupTask.taskCompleted' => '任務已完成',
 			'groupTask.overdue' => '已過期',
-			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
+			'groupTask.daysLeft' => ({required Object days}) => '${days} 天後截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小時後截止',
 			'groupTask.dueSoon' => '即將截止',
 			'groupTask.submitFailed' => '提交失敗，請稍後重試',
@@ -4648,28 +5297,28 @@ extension on TranslationsZhHant {
 			'groupTask.pendingReview' => '待稽核',
 			'groupTask.taskIdMissing' => '任務ID缺失，無法檢視詳情',
 			'groupTask.taskIdMissingSubmit' => '任務ID缺失，無法提交',
-			'groupVote.title' => '群投票',
+			'groupVote.title' => '群組投票',
 			'groupVote.createVote' => '建立投票',
 			'groupVote.voteTitle' => '投票標題',
 			'groupVote.voteOptions' => '投票選項',
 			'groupVote.addOption' => '新增選項',
 			'groupVote.allowMultiple' => '允許多選',
-			'groupVote.anonymous' => '匿名投票',
+			'groupVote.anonymous' => '不記名投票',
 			'groupVote.deadline' => '截止時間',
 			'groupVote.noDeadline' => '無截止時間',
 			'groupVote.noVote' => '暫無投票',
 			'groupVote.voteEnded' => '投票已結束',
-			'groupVote.totalVotes' => ({required Object count}) => '共 ${count} 票',
-			'groupVote.voteSuccess' => '投票成功',
-			'groupVote.hasVoted' => '已投票',
+			'groupVote.totalVotes' => ({required Object count}) => '總計 ${count} 票',
+			'groupVote.voteSuccess' => '已成功投票',
+			'groupVote.hasVoted' => '已投過票',
 			'groupVote.viewResults' => '檢視結果',
-			'groupVote.cancelVoteSuccess' => '已取消投票',
+			'groupVote.cancelVoteSuccess' => '已撤銷投票',
 			'groupVote.cancelVoteFailed' => '取消失敗，請稍後重試',
 			'groupVote.endVoteFailed' => '結束失敗，請稍後重試',
 			'groupVote.eachOptionPerLine' => '每行一個選項',
 			'groupVote.statusInProgress' => '進行中',
-			'groupVote.updateVote' => '更新投票',
-			'groupVote.cancelMyVote' => '取消我的投票',
+			'groupVote.updateVote' => '變更投票',
+			'groupVote.cancelMyVote' => '撤銷我的投票',
 			'groupVote.voteIdMissing' => '投票ID缺失，無法檢視詳情',
 			'groupVote.participantCount' => ({required Object count}) => '參與人數: ${count}',
 			'main.change' => '更改',
@@ -4686,20 +5335,20 @@ extension on TranslationsZhHant {
 			'main.audio' => '音訊',
 			'main.barcodeFound' => '找到條碼！',
 			'main.botQianFan' => '千帆機器人',
-			'main.liveRoomWhipLabel' => 'WHIP 推流地址',
-			'main.liveRoomWhepLabel' => 'WHEP 拉流地址',
+			'main.liveRoomWhipLabel' => 'WHIP 推流位址',
+			'main.liveRoomWhepLabel' => 'WHEP 拉流位址',
 			'main.cache' => '快取',
 			'main.camera' => '拍攝',
 			'main.changeNameView' => '修改名稱視圖',
 			'main.changeParam' => ({required Object param}) => '更改${param}',
 			'main.chooseFromAlbum' => '從相簿選擇',
-			'main.clean' => '清理',
+			'main.clean' => '清除',
 			'main.codeSentToParam' => ({required Object param}) => '驗證碼已傳送到${param}',
 			'main.codeSentToType' => ({required Object param}) => '驗證碼已傳送到${param}',
-			'main.collected' => '已收藏',
+			'main.collected' => '已加入收藏',
 			'main.completed' => '已完結',
 			'main.copied' => '已複製',
-			'main.darkModel' => '深色模式',
+			'main.darkModel' => '深色主題',
 			'main.deDd' => '德語（德國）',
 			'main.disable' => '停用',
 			'main.earlier' => '較早',
@@ -4710,10 +5359,8 @@ extension on TranslationsZhHant {
 			'main.expired' => '已過期',
 			'main.extraItem' => '額外項目',
 			'main.faceToFaceLogic' => '面對面建群邏輯',
-			_ => null,
-		} ?? switch (path) {
-			'main.favorites' => '收藏',
-			'main.female' => '女',
+			'main.favorites' => '收藏夾',
+			'main.female' => '女生',
 			'main.followSystem' => '跟隨系統',
 			'main.frFr' => '法語（法國）',
 			'main.from' => '來自',
@@ -4722,17 +5369,17 @@ extension on TranslationsZhHant {
 			'main.hangup' => '掛斷',
 			'main.haveSet' => '已設定',
 			'main.httpParse' => 'HTTP 解析',
-			'main.iAm' => '我是',
+			'main.iAm' => '本人是',
 			'main.itIt' => '義大利語（義大利）',
 			'main.jaJp' => '日語（日本）',
-			'main.keepSecret' => '保密',
+			'main.keepSecret' => '保守祕密',
 			'main.lastActiveTime' => '最近活躍時間',
 			'main.lastSeenHide' => '隱藏上線狀態',
 			'main.lastSeenNever' => '從未上線',
 			'main.lastSeenWeeksAgo' => ({required Object param}) => '${param}週前',
 			'main.lastSeenExactTime' => ({required Object param}) => '上次上線 ${param}',
 			'main.licenseAgreement' => '《軟體許可及服務協議》',
-			'main.liveBroadcast' => '直播',
+			'main.liveBroadcast' => '現場直播',
 			'main.liveRoomListView' => '直播間列表視圖',
 			'main.publisherPage' => '推流頁面',
 			'main.subscriber' => '訂閱者',
@@ -4740,18 +5387,18 @@ extension on TranslationsZhHant {
 			'main.loudspeaker' => '擴音器',
 			'main.makeYourselfInvisible' => '讓自己不可見',
 			'main.makeYourselfVisible' => '讓自己可見',
-			'main.male' => '男',
-			'main.manage' => '管理',
-			'main.markImportant' => '重要',
+			'main.male' => '男生',
+			'main.manage' => '營運管理',
+			'main.markImportant' => '設為重要',
 			'main.markImportantDesc' => '標記為重要訊息',
-			'main.markStar' => '收藏',
+			'main.markStar' => '加入收藏',
 			'main.markStarDesc' => '收藏此訊息',
 			'main.markTodo' => '待辦',
 			'main.markTodoDesc' => '標記為待辦事項',
 			'main.multiSelect' => '多選',
 			'main.multiSelectMode' => '多選模式',
-			'main.myFavorites' => '我的收藏',
-			'main.myLive' => '我的直播',
+			'main.myFavorites' => '我的收藏夾',
+			'main.myLive' => '我的直播間',
 			'main.name' => '名稱',
 			'main.numUnit' => ({required Object param}) => '${param}個',
 			'main.openInBrowser' => '在瀏覽器中開啟',
@@ -4759,12 +5406,12 @@ extension on TranslationsZhHant {
 			'main.otherParty' => '對方',
 			'main.packageSize' => '套件大小',
 			'main.peerHasHungUp' => '對方已掛斷',
-			'main.play' => '播放',
+			'main.play' => '開始播放',
 			'main.pleaseInputParam' => ({required Object param}) => '請輸入${param}',
 			'main.pleaseSelect' => '請選擇',
 			'main.quickFilters' => '快速篩選',
-			'main.quote' => '引用',
-			'main.recentlyUsed' => '最近使用',
+			'main.quote' => '引言',
+			'main.recentlyUsed' => '最近使用的',
 			'main.releaseEnd' => '鬆開結束',
 			'main.remainingChars' => ({required Object param}) => '還可輸入 ${param} 個字元',
 			'main.kickMember' => 'Remove from Group',
@@ -4784,7 +5431,7 @@ extension on TranslationsZhHant {
 			'main.signInWith' => ({required Object param}) => '用${param}登入',
 			'main.source' => '來源',
 			'main.speakingTooShort' => '說話時間太短',
-			'main.speed' => '速度',
+			'main.speed' => '倍速',
 			'main.star' => _root.main.markStar,
 			'main.stillNeeded' => '還需',
 			'main.storageSpace' => '儲存空間',
@@ -4792,14 +5439,14 @@ extension on TranslationsZhHant {
 			'main.text' => '文字',
 			'main.thisWeek' => '本週',
 			'main.timeRange' => '時間範圍',
-			'main.timeWeekdays' => '星期一,星期二,星期三,星期四,星期五,星期六,星期日',
-			'main.titleMine' => '我的',
+			'main.timeWeekdays' => '週一,週二,週三,週四,週五,週六,週日',
+			'main.titleMine' => '個人頁',
 			'main.titleSquare' => '廣場',
-			'main.tooBad' => '太差了',
+			'main.tooBad' => '太糟糕了',
 			'main.tryAgainQ' => '想再試一次嗎？',
 			'main.type' => '類型',
 			'main.unanswered' => '未應答',
-			'main.unnamed' => '未命名',
+			'main.unnamed' => '無名稱',
 			'main.upToWords' => ({required Object param}) => '最多${param}個字',
 			'main.upgrade' => '升級',
 			'main.usedSpace' => '已使用空間',
@@ -4819,7 +5466,7 @@ extension on TranslationsZhHant {
 			'main.privacyPolicy' => '隱私政策',
 			'main.termsOfService' => '服務條款',
 			'main.saving' => _root.common.loading,
-			'main.topStories' => '看一看',
+			'main.topStories' => '熱門內容',
 			'main.systemDefault' => '系統預設',
 			'main.custom' => '自訂',
 			'main.previewArea' => '預覽區域',
@@ -4832,9 +5479,9 @@ extension on TranslationsZhHant {
 			'main.previewEffect' => '預覽效果',
 			'main.thisIsTitleText' => '這是標題文字',
 			'main.thisIsAuxiliaryText' => '這是輔助說明文字',
-			'main.toBeCompleted' => '待完善',
+			'main.toBeCompleted' => '待補充',
 			'main.availableCount' => '可選擇',
-			'main.mostUsed' => '最常用',
+			'main.mostUsed' => '常用',
 			'main.commentPlaceholder' => '評論...',
 			'main.delayMsLabel' => '延時毫秒 (>=100)',
 			'main.processed' => '已處理',
@@ -4848,12 +5495,12 @@ extension on TranslationsZhHant {
 			'main.exportToLocal' => '匯出個人資料到本地',
 			'main.exportAsText' => 'Export as text format',
 			'main.selectFromAlbum' => '從相簿選擇',
-			'main.volumeUp' => '音量增加',
+			'main.volumeUp' => '調高音量',
 			'main.volumeDown' => '音量減少',
-			'main.fastRewind' => ({required Object seconds}) => '快退 ${seconds}秒',
+			'main.fastRewind' => ({required Object seconds}) => '倒轉 ${seconds} 秒',
 			'main.pleaseTryAgain' => '請重試',
-			'main.secret' => '保密',
-			'main.takePhoto' => '拍照',
+			'main.secret' => '保守祕密',
+			'main.takePhoto' => '拍攝照片',
 			'main.publishing' => '發布中...',
 			'main.deletingInProgressPleaseWait' => '正在刪除中，請稍候...',
 			'main.testUser1' => '用家 1',
@@ -4861,12 +5508,12 @@ extension on TranslationsZhHant {
 			'main.testUser3' => '用家 3',
 			'main.testUser4' => '用家 4',
 			'main.testUser5' => '用家 5',
-			'main.collecting' => '收藏中...',
+			'main.collecting' => '加入收藏中...',
 			'main.user' => '用家',
 			'main.recommended' => '推薦',
-			'main.larger' => '更大',
+			'main.larger' => '放大',
 			'main.currentLength' => ({required Object param1, required Object param2}) => '目前長度：${param1} / ${param2}',
-			'main.fillIn' => '填入',
+			'main.fillIn' => '填寫',
 			'main.msgProtectedByComplianceKey' => '訊息受合規金鑰保護',
 			'main.inviterLabel' => ({required Object uid}) => '邀請人: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => '被邀請人: ${uid}',
@@ -4874,7 +5521,7 @@ extension on TranslationsZhHant {
 			'main.reject' => '拒絕',
 			'main.myOrders' => '我的訂單',
 			'main.purchaseUnlockHint' => '購買後可解鎖頻道歷史訊息與後續更新內容。',
-			'main.payingDots' => '支付中...',
+			'main.payingDots' => '付款中...',
 			'main.purchaseAndUnlock' => '立即購買並解鎖',
 			'main.orderDetail' => '訂單詳情',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '金額: ${currency} ${amount}',
@@ -4887,19 +5534,19 @@ extension on TranslationsZhHant {
 			'main.e2eeKeyIdLabel' => '金鑰 ID',
 			'main.e2eeWarnIrreversible' => '• 此操作不可撤銷',
 			'main.e2eeWarnNeedRestoreOrNew' => '• 需要從備份恢復或生成新金鑰',
-			'main.gotIt' => '我知道了',
+			'main.gotIt' => '了解了',
 			'main.e2eeRecoverKeyTitle' => '恢復金鑰',
 			'main.e2eeCanRecoverKey' => '可以恢復金鑰',
 			'main.e2eeInsufficientShards' => '分片數量不足',
 			'main.e2eeProxyUser' => ({required Object uid}) => '代理使用者: ${uid}',
-			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '分片 ${index} / ${total}',
+			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '金鑰分片 ${index} / ${total}',
 			'main.e2eeReloadShards' => '重新載入',
 			'main.e2eeRecovering' => '恢復中...',
 			'main.e2eeKeyRestored' => '金鑰已成功恢復',
 			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 個代理分片',
 			'main.e2eePreparing' => '準備恢復...',
 			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '進度: ${collected} / ${total} 個分片',
-			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...',
+			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '正在收集金鑰分片 (${collected}/${total})...',
 			'main.e2eeShardsCollected' => '分片收集完成，正在重組金鑰...',
 			'main.webQRLoggingIn' => '登入中...',
 			'main.webQRExpired' => '二維碼已過期',
@@ -4915,13 +5562,13 @@ extension on TranslationsZhHant {
 			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => '使用者 ${uid}',
 			'main.e2eeSocialShardSentViaWs' => '分片已透過 WebSocket 直接傳送到代理裝置儲存',
 			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => '已傳送到 ${sent} 個代理裝置（共 ${total} 個）',
-			'main.e2eeSocialManageTitle' => '管理分片',
-			'main.e2eeSocialMyShards' => '我的分片',
-			'main.e2eeSocialProxyShards' => '代理分片',
-			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => '分片 ${idx} / ${total}',
+			'main.e2eeSocialManageTitle' => '分片管理',
+			'main.e2eeSocialMyShards' => '我的金鑰分片',
+			'main.e2eeSocialProxyShards' => '代理金鑰分片',
+			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => '金鑰分片 ${idx} / ${total}',
 			'main.e2eeSocialShardActive' => '活躍',
-			'main.e2eeSocialShardUsed' => '已使用',
-			'main.e2eeSocialShardValid' => '分片有效',
+			'main.e2eeSocialShardUsed' => '已消耗',
+			'main.e2eeSocialShardValid' => '分片仍有效',
 			'main.e2eeSocialUserShard' => ({required Object uid}) => '使用者 ${uid} 的金鑰分片',
 			'main.e2eeSocialProxyUserLabel' => '代理使用者',
 			'main.e2eeSocialRecoveryThresholdLabel' => '恢復閾值',
@@ -4943,7 +5590,7 @@ extension on TranslationsZhHant {
 			'main.e2eeSocialExistingShards' => '現有恢復分片',
 			'main.e2eeSocialRecoverKeyTitle' => '恢復金鑰',
 			'main.e2eeSocialRecoverKeyDesc' => '使用代理的分片恢復金鑰',
-			'main.e2eeSocialManageShardsTitle' => '管理分片',
+			'main.e2eeSocialManageShardsTitle' => '分片管理',
 			'main.e2eeSocialManageShardsDesc' => '檢視和管理所有恢復分片',
 			'main.e2eeSocialZeroTrustHint1' => '零信任架構：服務端不儲存分片，直接聯絡代理',
 			'main.e2eeSocialZeroTrustHint2' => '零信任架構：分片儲存在代理裝置',
@@ -4955,21 +5602,51 @@ extension on TranslationsZhHant {
 			'main.liveRoomTitleLabel' => '直播間標題',
 			'main.liveRoomTitleHint' => '請輸入直播間標題',
 			'main.lightModel' => '淺色模式',
-			'mention.mentionAll' => '所有人',
+			'main.complianceKeyInfoAlgorithm' => '演算法',
+			'main.complianceKeyInfoChangedWarning' => '⚠️ 伺服器下發的合規公開金鑰與本地固定值不一致！若這不是管理員有意進行的輪替，請立即聯絡管理員，並停止傳送加密訊息。',
+			'main.complianceKeyInfoFetchedAt' => '取得時間',
+			'main.complianceKeyInfoFingerprint' => '公開金鑰指紋',
+			'main.complianceKeyInfoHint' => '合規稽核金鑰用於 compliance_e2ee 模式的雙重加密。若上方指紋與管理員公布的指紋不一致，表示伺服器可能已遭竄改。',
+			'main.complianceKeyInfoKeyId' => '金鑰 ID',
+			'main.complianceKeyInfoLocalPin' => '裝置端固定（TOFU）',
+			'main.complianceKeyInfoPinnedAt' => '固定時間',
+			'main.complianceKeyInfoPinnedNone' => '尚未固定（下次取得時自動固定）',
+			'main.complianceKeyInfoRefreshFailed' => '取得失敗，請檢查網路後重試',
+			'main.complianceKeyInfoServerKey' => '伺服器下發的公開金鑰',
+			'main.complianceKeyInfoTitle' => '合規稽核金鑰',
+			'main.e2eeErrComplianceChanged' => '合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試',
+			'main.e2eeErrComplianceUnavailable' => '合規金鑰暫時無法使用，訊息未傳送，請稍後重試',
+			'main.e2eeErrDeviceNotReady' => '目前裝置未完成安全初始化，請登出後重新登入再試',
+			'main.e2eeErrProtocolMismatch' => '加密協定設定異常，請更新應用程式後重試',
+			'main.e2eeErrSessionExportFailed' => '群組會話金鑰產生失敗，請稍後重試',
+			'main.safetyNumberCopied' => '已複製',
+			'main.safetyNumberCopy' => '複製',
+			'main.safetyNumberHint' => '請透過面對面或電話與對方比對安全碼。若一致，表示你們的通訊沒有被中間人監聽；若不一致，請立即停止對話，並透過其他管道核實對方身分。驗證狀態僅保存在本機。',
+			'main.safetyNumberMarkVerified' => '標記為已驗證',
+			'main.safetyNumberMarkedVerified' => '已標記為已驗證',
+			'main.safetyNumberNoDevices' => '對方尚未啟用端對端加密',
+			'main.safetyNumberPeerDevice' => '對方裝置',
+			'main.safetyNumberReportRejected' => '伺服器拒絕了該驗證事件（簽章/時效不符），未標記',
+			'main.safetyNumberReportUnavailable' => '無法取得裝置資訊，未上報',
+			'main.safetyNumberReporting' => '正在上報驗證結果...',
+			'main.safetyNumberTitle' => '安全碼驗證',
+			'main.safetyNumberVerifyFailed' => '取得安全碼失敗，請稍後重試',
+			'mention.mentionAll' => '全體成員',
 			'mention.mentionAllHint' => '通知所有群成員',
 			'mention.noMatchedMember' => '沒有匹配的成員',
 			'mention.selectMention' => '選擇要@的成員',
-			'mention.title' => '@提及',
+			'mention.title' => '@標註',
 			'mention.noMention' => '暫無@提及',
 			'mention.allRead' => '全部已讀',
 			'mention.markAsRead' => '標記為已讀',
-			'mention.newMention' => '新的@提及',
+			'mention.newMention' => '新的@標註',
 			'mention.fromGroup' => '來自群聊',
 			'mention.fromChat' => '來自聊天',
 			'mention.viewContext' => '檢視上下文',
 			'mention.mentionCount' => ({required Object count}) => '${count} 條新提及',
 			'mention.mentionAllDenied' => '僅管理員可以 @所有人',
 			'mention.navInfoMissing' => '訊息定位資訊缺失，無法跳轉',
+			'mention.pickButtonTooltip' => '@標註成員',
 			'momentFriendPicker.title' => '選擇好友',
 			'momentFriendPicker.titleAllow' => '指定可見',
 			'momentFriendPicker.titleDeny' => '不給誰看',
@@ -4987,11 +5664,11 @@ extension on TranslationsZhHant {
 			'momentNotify.actionLike' => '讚了你的朋友圈',
 			'momentNotify.actionComment' => '評論了你',
 			'momentNotify.markAllRead' => '全部已讀',
-			'momentNotify.clearAll' => '清空全部',
+			'momentNotify.clearAll' => '全部清空',
 			'momentNotify.clearConfirmTitle' => '清空所有通知?',
 			'momentNotify.clearConfirmMessage' => '清空後無法恢復',
 			'momentNotify.confirm' => '確定',
-			'momentNotify.cancel' => '取消',
+			'momentNotify.cancel' => '關閉',
 			'momentNotify.delete' => '刪除',
 			'momentNotify.loadFailed' => '載入失敗，請稍後重試',
 			'passport.retrievePassword' => '找回密碼',
@@ -5005,16 +5682,257 @@ extension on TranslationsZhHant {
 			'passport.getVerifyCode' => '獲取驗證碼',
 			'passport.hasAccount' => '已有帳號？',
 			'passport.oneKeyLogin' => '一鍵登入',
+			'passport.qrCodeExpired' => '二維碼已過期，請重新掃碼',
+			'passport.qrCodeUsed' => '此二維碼已使用',
+			'passport.qrLoginCancelled' => '登入已取消',
+			'passport.qrLoginConfirming' => '登入中...',
+			'passport.qrLoginCancelledByMe' => '已取消登入',
+			'passport.qrConnecting' => '連線中...',
+			'passport.qrWebLoginTitle' => 'Web 端登入確認',
+			'passport.qrWebLoginDesc' => '請確認是否在 Web 端登入此帳號',
+			'passport.qrLoginAction' => '確認登入',
+			'passport.qrLoginSuccess' => '登入成功',
 			'splash.slogan' => '暢所欲言，自在溝通',
 			'welcome.step1Title' => '簡單連接',
 			'welcome.step1Desc' => '體驗無縫溝通的樂趣。 隨時隨地，暢所欲言。',
-			'welcome.step2Title' => '安全私密',
+			'welcome.step2Title' => '安全又私密',
 			'welcome.step2Desc' => '端到端加密 保護你的個人時刻只屬於你自己。',
 			'welcome.step3Title' => '準備探索？',
 			'welcome.step3Desc' => '加入一個充滿活力的社區。 讓對話開始吧！',
-			'welcome.next' => '下一步',
+			'welcome.next' => '下一個步驟',
 			'welcome.getStarted' => '開始使用',
 			'welcome.skip' => '跳過',
+			_ => null,
+		} ?? switch (path) {
+			'workspace.navOverview' => '總覽',
+			'workspace.navProjects' => '專案',
+			'workspace.navChannels' => '頻道',
+			'workspace.navGroups' => '群組',
+			'workspace.navMembers' => '成員',
+			'workspace.pickerTitle' => '我的工作區',
+			'workspace.switchWorkspace' => '切換工作區',
+			'workspace.pickerEmptyTitle' => '還沒有工作區',
+			'workspace.pickerEmptySubtitle' => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）',
+			'workspace.archivedBadge' => '已封存',
+			'workspace.emptyNoWorkspace' => '請先選擇或建立一個工作區',
+			'workspace.dmEntry' => '全部訊息',
+			'workspace.experienceModeEntry' => '首頁版面配置',
+			'workspace.experienceModeHint' => '選擇目前裝置的使用體驗；僅改變首頁版面配置，不改變權限或工作區成員身分',
+			'workspace.experienceModePersonal' => '個人',
+			'workspace.experienceModeWorkspace' => '工作區',
+			'workspace.experienceModeReset' => '還原部署預設值',
+			'workspace.switchToWorkspace' => '切換到工作區',
+			'workspace.switchToPersonal' => '切換到個人',
+			'workspace.createTitle' => '建立工作區',
+			'workspace.createDesc' => '一次建立，自動完成：工作區、你（Owner 工作區成員身分）、Announcements 頻道與 General 群。全部成功或全部還原。',
+			'workspace.createNameLabel' => '工作區名稱',
+			'workspace.createNameHint' => '例如：官網改版專案小組',
+			'workspace.createNameRequired' => '工作區名稱不能為空',
+			'workspace.createSubmit' => '建立',
+			'workspace.createEntry' => '建立工作區',
+			'workspace.createSuccess' => '工作區建立成功',
+			'workspace.createIdempotentHit' => '已存在同名工作區，直接進入',
+			'workspace.createTemplateTitle' => '將自動初始化',
+			'workspace.createTemplateChannel' => 'Announcements 頻道（你成為頻道發布者與訂閱者）',
+			'workspace.createTemplateGroup' => 'General 群（你成為群成員）',
+			'workspace.createTemplateOwner' => '你成為工作區 Owner（工作區成員）',
+			'workspace.overviewTitle' => '總覽',
+			'workspace.overviewResources' => '資源摘要',
+			'workspace.overviewPinnedContent' => '頻道置頂內容',
+			'workspace.overviewPinnedEmpty' => '頻道暫無置頂內容；群組公告不在此聚合（群組公告屬於各個群）',
+			'workspace.overviewRecentFiles' => '最近檔案',
+			'workspace.overviewRecentFilesEmpty' => '最近上傳的檔案會在此顯示；也可在各頻道內查看附件',
+			'workspace.membersTitle' => '工作區成員',
+			'workspace.membersCountLabel' => ({required Object count}) => '${count} 位成員',
+			'workspace.membersEmpty' => '暫無工作區成員',
+			'workspace.membersEmptySubtitle' => '邀請已註冊使用者成為工作區成員（Owner / Member / Guest）',
+			'workspace.membersViewAll' => '查看所有',
+			'workspace.projectsEmptyTitle' => '還沒有專案',
+			'workspace.projectsEmptySubtitle' => '專案用於追蹤明確的交付目標；只有頻道和群組的社群型工作區同樣適用',
+			'workspace.channelsEmptyTitle' => '還沒有工作區頻道',
+			'workspace.channelsEmptySubtitle' => '頻道用於持續發布內容（公告/資料），討論請去群組',
+			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位訂閱者',
+			'workspace.channelDetailTitle' => '頻道',
+			'workspace.discussInGroupGuide' => '頻道用於發布內容；想討論？去 General 群聊聊 →',
+			'workspace.groupsEmptyTitle' => '還沒有工作區群組',
+			'workspace.groupsEmptySubtitle' => '群組是工作區裡的即時討論空間（聊天唯一入口）',
+			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成員',
+			'workspace.inviteTitle' => '邀請工作區成員',
+			'workspace.inviteDesc' => '僅支援邀請已註冊使用者；加入工作區不會自動入群或訂閱頻道——可同時加入 General 群，並發送 Announcements 頻道邀請',
+			'workspace.inviteSearchHint' => '依使用者名稱 / 使用者 ID 搜尋',
+			'workspace.inviteEntry' => '邀請工作區成員',
+			'workspace.inviteJoinGroupOption' => '同時加入 General 群（成為群成員）',
+			'workspace.inviteSubscribeChannelOption' => '同時發送 Announcements 頻道邀請',
+			'workspace.inviteOptionUnavailable' => '找不到對應資源，此選項不可用',
+			'workspace.inviteSubmit' => '發送邀請',
+			'workspace.inviteResultsTitle' => '結果（三條獨立）',
+			'workspace.inviteResultWorkspace' => '加入工作區（成為工作區成員）',
+			'workspace.inviteResultGroup' => '加入 General 群（成為群成員）',
+			'workspace.inviteResultChannel' => '發送 Announcements 頻道邀請（對方接受後成為訂閱者）',
+			'workspace.resultIdle' => '未執行',
+			'workspace.resultRunning' => '進行中',
+			'workspace.resultSuccess' => '執行成功',
+			'workspace.resultFailed' => '失敗',
+			'workspace.joinEntry' => '加入工作區',
+			'workspace.joinTitle' => '加入工作區',
+			'workspace.joinDesc' => '輸入團隊碼即可加入工作區',
+			'workspace.joinCodeLabel' => '團隊碼',
+			'workspace.joinCodeHint' => '8 位大寫字母或數字',
+			'workspace.joinSubmit' => '送出',
+			'workspace.joinSuccess' => ({required Object name}) => '你已加入「${name}」',
+			'workspace.joinAlreadyMember' => '你已在此工作區中',
+			'workspace.joinInvalidCode' => '團隊碼無效或已失效',
+			'workspace.joinExpiredCode' => '團隊碼已過期',
+			'workspace.inviteCodeSectionTitle' => '團隊碼邀請',
+			'workspace.inviteCodeGenerate' => '產生團隊碼',
+			'workspace.inviteCodeCopy' => '複製',
+			'workspace.inviteCodeRevoke' => '撤銷',
+			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '效期至 ${expiresAt}',
+			'workspace.roleOwner' => 'Owner',
+			'workspace.roleMember' => 'Member',
+			'workspace.roleGuest' => 'Guest',
+			'workspace.removeMemberTitle' => ({required Object name}) => '移除工作區成員 ${name}',
+			'workspace.removeMemberDesc' => '移除後其工作區存取即失效；若其仍有未完成任務或負責的專案，伺服器端會回傳衝突清單並取消本次移除',
+			'workspace.removeMemberConfirm' => '確認移除',
+			'workspace.changeRoleTitle' => ({required Object name}) => '修改 ${name} 的工作區角色',
+			'workspace.transferTitle' => ({required Object name}) => '轉移主 Owner 給 ${name}',
+			'workspace.transferDesc' => '轉移後你成為一般工作區成員（Member），對方獲得全部治理權',
+			'workspace.transferConfirm' => '確認轉移',
+			'workspace.governanceTitle' => '工作區治理',
+			'workspace.brandingEntry' => '品牌設定（名稱 / Logo / 主色）',
+			'workspace.archiveEntry' => '封存工作區',
+			'workspace.restoreEntry' => '還原工作區',
+			'workspace.archiveTitle' => '封存工作區',
+			'workspace.archiveDesc' => '封存後全員唯讀（寫入操作會被伺服器端拒絕），可隨時還原',
+			'workspace.archiveConfirm' => '確認封存',
+			'workspace.restoreTitle' => '還原工作區',
+			'workspace.restoreDesc' => '還原後工作區即可讀寫',
+			'workspace.restoreConfirm' => '確認還原',
+			'workspace.archivedBanner' => '工作區已封存：內容可查看，寫入操作已停用；Owner 可在成員頁還原',
+			'workspace.brandingTitle' => '工作區品牌',
+			'workspace.brandingNameLabel' => '品牌名稱',
+			'workspace.brandingLogoLabel' => 'Logo 網址',
+			'workspace.brandingLogoHint' => 'https://…（工作區 Logo 圖片網址）',
+			'workspace.brandingColorLabel' => '品牌主色 primaryColor',
+			'workspace.brandingColorHint' => '#2474E5',
+			'workspace.brandingColorHelper' => '僅支援 #RRGGBB / #AARRGGBB；非法值改用預設主題色',
+			'workspace.brandingColorInvalid' => '主色格式不正確，僅支援 #RRGGBB / #AARRGGBB',
+			'workspace.brandingSaved' => '品牌設定已儲存',
+			'workspace.brandingPreview' => '主色預覽',
+			'workspace.brandingPreviewApplied' => '目前主色將在工作區內生效',
+			'workspace.brandingPreviewFallback' => '未設定或非法值時，使用預設主題色',
+			'workspace.projectsTitle' => '專案',
+			'workspace.projectCreateEntry' => '新增專案',
+			'workspace.projectCreateTitle' => '新增專案',
+			'workspace.projectNameLabel' => '專案名稱',
+			'workspace.projectNameHint' => '例如：官網改版',
+			'workspace.projectNameRequired' => '專案名稱不能為空',
+			'workspace.projectDescLabel' => '專案描述（選填）',
+			'workspace.projectDescHint' => '這個專案要交付什麼？',
+			'workspace.projectSubmit' => '建立',
+			'workspace.projectCreateSuccess' => '專案建立成功',
+			'workspace.projectDetailTitle' => '專案詳情',
+			'workspace.projectInfoSection' => '基本資訊',
+			'workspace.projectOwnerLabel' => '負責人',
+			'workspace.projectStatusLabel' => '狀態',
+			'workspace.projectStatusActive' => '進行中',
+			'workspace.projectStatusDone' => '已結案',
+			'workspace.projectMarkDone' => '標記為已結案',
+			'workspace.projectReopen' => '重新開啟專案',
+			'workspace.projectStatusChanged' => '專案狀態已更新',
+			'workspace.projectTasksSection' => '任務',
+			'workspace.taskNewEntry' => '新增任務',
+			'workspace.taskFormCreateTitle' => '新增任務',
+			'workspace.taskFormEditTitle' => '編輯任務',
+			'workspace.taskTitleLabel' => '任務標題',
+			'workspace.taskTitleRequired' => '任務標題不能為空',
+			'workspace.taskAssigneeLabel' => '負責人（工作區成員）',
+			'workspace.taskAssigneeNone' => '暫不指派',
+			'workspace.taskAssigneeRefresh' => '重新整理負責人候選',
+			'workspace.taskSubmitCreate' => '建立任務',
+			'workspace.taskSubmitSave' => '儲存',
+			'workspace.taskCreatedToast' => '任務已建立',
+			'workspace.taskExistingToast' => '相同標題的任務已存在，直接使用既有任務',
+			'workspace.taskUpdatedToast' => '任務已儲存',
+			'workspace.taskFilterAll' => '所有',
+			'workspace.taskStatusTodo' => '待辦',
+			'workspace.taskStatusDoing' => '進行中',
+			'workspace.taskStatusReview' => '審核中',
+			'workspace.taskStatusDone' => '已結案',
+			'workspace.taskAdvanceTo' => ({required Object status}) => '推進到「${status}」',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 至…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流轉到「${status}」',
+			'workspace.taskEmptyTitle' => '還沒有任務',
+			'workspace.taskEmptySubtitle' => '以四種狀態追蹤執行：待辦 → 進行中 → 審核中 → 已結案',
+			'workspace.guestReadonlyHint' => '訪客（Guest）身分對工作區資源唯讀',
+			'workspace.projectsLoadMore' => '載入更多',
+			'workspace.projectW2SectionTitle' => '專案協作',
+			'workspace.projectMembersEntry' => '成員',
+			'workspace.projectMilestonesEntry' => '專案里程碑',
+			'workspace.projectChannelsEntry' => '專案頻道',
+			'workspace.projectInsightsEntry' => '內容聚合',
+			'workspace.projectNoPermission' => '無權限：僅專案成員、專案負責人或工作區 Owner 可查看',
+			'workspace.projectGuestReadonly' => '訪客（Guest）身分對專案唯讀',
+			'workspace.projectLoadMore' => '載入更多',
+			'workspace.projectMembersTitle' => '專案成員',
+			'workspace.projectMemberEmptyTitle' => '還沒有專案成員',
+			'workspace.projectMemberEmptySubtitle' => '專案負責人可邀請已註冊使用者加入此專案',
+			'workspace.projectMemberInviteTitle' => '邀請專案成員',
+			'workspace.projectMemberInviteFieldLabel' => '使用者 ID',
+			'workspace.projectMemberInviteFieldHint' => '要邀請的已註冊使用者 ID',
+			'workspace.projectMemberInviteInvalidUid' => '請輸入有效的使用者 ID',
+			'workspace.projectMemberInviteSubmit' => '邀請',
+			'workspace.projectMemberInviteSuccess' => '已加入專案成員',
+			'workspace.projectMemberInviteExisting' => '該使用者已是專案成員',
+			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '移除專案成員 ${name}',
+			'workspace.projectMemberRemoveConfirmDesc' => '移除後該使用者將失去此專案內容的存取權（可重新邀請）',
+			'workspace.projectMemberRemoveSubmit' => '移出專案',
+			'workspace.projectMemberRemovedToast' => '已移出專案',
+			'workspace.projectMemberAlreadyRemovedToast' => '該使用者已不在專案成員中',
+			'workspace.projectMemberTransferTitle' => ({required Object name}) => '轉移專案負責人給 ${name}',
+			'workspace.projectMemberTransferDesc' => '轉移後對方獲得此專案的完整管理權',
+			'workspace.projectMemberTransferConfirm' => '確認轉移',
+			'workspace.projectMemberTransferDoneToast' => '專案負責人已轉移',
+			'workspace.projectMilestonesTitle' => '專案里程碑',
+			'workspace.projectMilestoneEmptyTitle' => '還沒有里程碑',
+			'workspace.projectMilestoneEmptySubtitle' => '以里程碑標記專案的關鍵節點（計畫中 → 已達成，單向）',
+			'workspace.projectMilestoneCreateTitle' => '新增里程碑',
+			'workspace.projectMilestoneNameLabel' => '名稱',
+			'workspace.projectMilestoneNameRequired' => '里程碑名稱不能為空',
+			'workspace.projectMilestoneDueDateLabel' => '截止日期（YYYY-MM-DD，選填）',
+			'workspace.projectMilestoneDueDateInvalid' => '日期格式應為 YYYY-MM-DD',
+			'workspace.projectMilestoneCreateSubmit' => '建立',
+			'workspace.projectMilestoneCreatedToast' => '里程碑已建立',
+			'workspace.projectMilestoneFilterAll' => '所有',
+			'workspace.projectMilestoneFilterPlanned' => '計畫中',
+			'workspace.projectMilestoneFilterReached' => '已達成',
+			'workspace.projectMilestoneReach' => '標記達成',
+			'workspace.projectMilestoneReachedToast' => '里程碑已達成',
+			'workspace.projectMilestoneAlreadyReachedToast' => '該里程碑已達成',
+			'workspace.projectMilestoneReachedHint' => '已達成（不可回復）',
+			'workspace.projectMilestoneDueLabel' => '截止日',
+			'workspace.projectChannelsTitle' => '專案頻道',
+			'workspace.projectChannelEmptyTitle' => '還沒有關聯頻道',
+			'workspace.projectChannelEmptySubtitle' => '關聯工作區頻道後，其置頂內容與最近貼文會聚合進此專案',
+			'workspace.projectChannelLinkTitle' => '選擇要關聯的頻道',
+			'workspace.projectChannelNoCandidate' => '沒有可關聯的候選頻道',
+			'workspace.projectChannelLinkedToast' => '頻道已關聯',
+			'workspace.projectChannelLinkExistingToast' => '該頻道已關聯',
+			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => '解除關聯 ${name}',
+			'workspace.projectChannelUnlinkDesc' => '解除後該頻道內容不再聚合進此專案',
+			'workspace.projectChannelUnlinkSubmit' => '解除關聯',
+			'workspace.projectChannelUnlinkedToast' => '已解除關聯',
+			'workspace.projectInsightsTabPinned' => '置頂訊息',
+			'workspace.projectInsightsTabResources' => '資源連結',
+			'workspace.projectInsightsTabActivity' => '專案動態',
+			'workspace.projectInsightsTabPosts' => '相關貼文',
+			'workspace.projectInsightsPinnedEmpty' => '關聯頻道暫無置頂內容',
+			'workspace.projectInsightsResourcesEmpty' => '專案暫無資源連結',
+			'workspace.projectInsightsActivityEmpty' => '專案暫無動態',
+			'workspace.projectInsightsPostsEmpty' => '關聯頻道暫無貼文',
+			'workspace.projectInsightsPostAuthor' => ({required Object name}) => '${name} 發布',
+			'workspace.projectLinkNameLabel' => '連結名稱',
+			'workspace.projectLinkUrlLabel' => '連結網址',
 			_ => null,
 		};
 	}

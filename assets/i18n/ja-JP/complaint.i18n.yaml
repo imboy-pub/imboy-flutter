@@ -1,2 +1,5 @@
----
 complaint: 通報
+e2eeConsentTitle: 暗号化メッセージの証拠を提出
+e2eeConsentBody: このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？
+e2eeConsentSubmit: 同意して証拠を提出
+e2eeConsentDecline: 内容なしで通報のみ

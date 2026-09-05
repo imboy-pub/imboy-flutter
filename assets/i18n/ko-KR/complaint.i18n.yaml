@@ -1,2 +1,5 @@
----
 complaint: 신고
+e2eeConsentTitle: 암호화 메시지 증거 제출
+e2eeConsentBody: "이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?"
+e2eeConsentSubmit: 동의하고 증거 제출
+e2eeConsentDecline: 콘텐츠 없이 신고만

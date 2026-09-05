@@ -35,12 +35,13 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 
 	late final TranslationsKoKr _root = this; // ignore: unused_field
 
-	@override 
+	@override
 	TranslationsKoKr $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsKoKr(meta: meta ?? this.$meta);
 
 	// Translations
 	@override late final _Translations$account$ko_KR account = _Translations$account$ko_KR._(_root);
 	@override late final _Translations$agent$ko_KR agent = _Translations$agent$ko_KR._(_root);
+	@override late final _Translations$agentTask$ko_KR agentTask = _Translations$agentTask$ko_KR._(_root);
 	@override late final _Translations$billing$ko_KR billing = _Translations$billing$ko_KR._(_root);
 	@override late final _Translations$channel$ko_KR channel = _Translations$channel$ko_KR._(_root);
 	@override late final _Translations$chat$ko_KR chat = _Translations$chat$ko_KR._(_root);
@@ -52,6 +53,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$error$ko_KR error = _Translations$error$ko_KR._(_root);
 	@override late final _Translations$group$ko_KR group = _Translations$group$ko_KR._(_root);
 	@override late final _Translations$groupCategory$ko_KR groupCategory = _Translations$groupCategory$ko_KR._(_root);
+	@override late final _Translations$groupDiscovery$ko_KR groupDiscovery = _Translations$groupDiscovery$ko_KR._(_root);
 	@override late final _Translations$groupList$ko_KR groupList = _Translations$groupList$ko_KR._(_root);
 	@override late final _Translations$groupSchedule$ko_KR groupSchedule = _Translations$groupSchedule$ko_KR._(_root);
 	@override late final _Translations$groupTag$ko_KR groupTag = _Translations$groupTag$ko_KR._(_root);
@@ -64,6 +66,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$passport$ko_KR passport = _Translations$passport$ko_KR._(_root);
 	@override late final _Translations$splash$ko_KR splash = _Translations$splash$ko_KR._(_root);
 	@override late final _Translations$welcome$ko_KR welcome = _Translations$welcome$ko_KR._(_root);
+	@override late final _Translations$workspace$ko_KR workspace = _Translations$workspace$ko_KR._(_root);
 }
 
 // Path: account
@@ -190,6 +193,20 @@ class _Translations$account$ko_KR extends Translations$account$zh_CN {
 	@override String get e2eeTransferFromOldDevice => '이전 기기에서 키 받기';
 	@override String get pleaseRelogin => '다시 로그인해주세요';
 	@override String get otherLoginMethods => '다른 로그인 방법';
+	@override String get logoutCancelRequest => '탈퇴 신청 철회';
+	@override String get logoutCancelledNote => '탈퇴 신청이 철회되었습니다';
+	@override String logoutPendingBanner({required Object date}) => '탈퇴 신청이 접수되었습니다. ${date}에 완료 예정';
+	@override String get logoutPendingHeader => '탈퇴 신청 상태';
+	@override String get logoutRetainedHeader => '데이터 보관 안내';
+	@override String get logoutRetainedNote => '삭제 완료 후: 감사 로그와 재무 기록은 법에 따라 보관 및 익명화됩니다. 본인이 소유한 그룹/워크스페이스/채널은 후임 구성원에게 우선 이전됩니다';
+	@override String get payCancelled => '결제가 취소되었습니다';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodComingSoon => '해당 결제 수단은 곧 지원될 예정입니다';
+	@override String get payMethodMock => '모의 결제(개발 환경)';
+	@override String get payMethodTitle => '결제 수단 선택';
+	@override String get payMethodWallet => '지갑 잔액';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override late final _Translations$account$alipaySim$ko_KR alipaySim = _Translations$account$alipaySim$ko_KR._(_root);
 }
 
 // Path: agent
@@ -209,6 +226,27 @@ class _Translations$agent$ko_KR extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => '공식';
 	@override String get badgeAiA11y => 'AI 어시스턴트';
 	@override String get badgeOfficialA11y => '공식 계정';
+	@override String get legacyBotGoPlaza => '어시스턴트 광장으로 가기';
+	@override String get legacyBotMigrated => '이 봇 입구는 업그레이드되었습니다. AI 어시스턴트 광장에서 어시스턴트와 대화해 주세요';
+}
+
+// Path: agentTask
+class _Translations$agentTask$ko_KR extends Translations$agentTask$zh_CN {
+	_Translations$agentTask$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AI 작업';
+	@override String get working => '실행 중';
+	@override String get submitted => '제출됨';
+	@override String get progress => '진행 중';
+	@override String get completed => '완료됨';
+	@override String get failed => '실행 실패';
+	@override String get cancelled => '취소됨';
+	@override String get awaitingApproval => '승인 대기 중';
+	@override String get approve => '승인';
+	@override String get reject => '거절';
 }
 
 // Path: billing
@@ -390,6 +428,66 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get accessTypePaid => '유료';
 	@override String get typePublicPaidDesc => '누구나 채널을 찾을 수 있으며 구매 후 구독할 수 있습니다';
 	@override String get typePrivatePaidDesc => '초대된 사용자만 구매 절차를 진행할 수 있으며 결제 후 구독됩니다';
+	@override String get addImage => '이미지 추가';
+	@override String get allCategories => '전체';
+	@override String get articleBodyHint => '내용을 입력하세요… 굵게, 기울임, 제목, 목록 등 서식을 지원합니다';
+	@override String get cancelOrder => '주문 취소';
+	@override String get cancelOrderConfirmMessage => '결제 대기 중인 이 주문을 취소하시겠습니까? 취소 후에는 결제를 계속할 수 없습니다.';
+	@override String get cancelOrderConfirmTitle => '주문 취소 확인';
+	@override String get cancelOrderSuccess => '주문이 취소되었습니다';
+	@override String get channelNotFound => '채널이 없습니다';
+	@override String get comment => '댓글';
+	@override String get commentDeleteNoPermission => '이 댓글을 삭제할 권한이 없습니다';
+	@override String get commentFailed => '댓글 작성 실패';
+	@override String get coverLabel => '표지';
+	@override String get coverSet => '표지로 설정되었습니다';
+	@override String get deleteComment => '댓글 삭제';
+	@override String get deleteCommentConfirm => '이 댓글을 삭제하시겠습니까?';
+	@override String get formatBold => '굵게';
+	@override String get formatHeading => '제목';
+	@override String get formatItalic => '기울임';
+	@override String get formatLink => '링크';
+	@override String get formatList => '목록';
+	@override String get formatQuote => '인용';
+	@override String get formatStrikethrough => '취소선';
+	@override String get like => '좋아요';
+	@override String get linkTextPlaceholder => '링크 텍스트';
+	@override String get myOrders => '내 주문';
+	@override String get noComments => '댓글이 없습니다';
+	@override String get noOrders => '주문 기록이 없습니다';
+	@override String get orderAmount => '금액';
+	@override String get orderChannel => '채널';
+	@override String get orderContinuePay => '결제 계속';
+	@override String get orderCreatedAt => '주문 시간';
+	@override String get orderDetail => '주문 상세';
+	@override String get orderNo => '주문 번호';
+	@override String get orderPaidAt => '결제 시간';
+	@override String get orderPaymentMethod => '결제 수단';
+	@override String get orderStatusCancelled => '취소됨';
+	@override String get orderStatusExpired => '만료됨';
+	@override String get orderStatusLabel => '상태';
+	@override String get orderStatusPaid => '결제 완료';
+	@override String get orderStatusPending => '결제 대기';
+	@override String get orderStatusRefunded => '환불됨';
+	@override String get orderStatusRefunding => '환불 처리 중';
+	@override String get orderSubscriptionPeriod => '구독 기간';
+	@override String get orderValidUntil => '유효 기간';
+	@override String get payAlipay => 'Alipay';
+	@override String get payWallet => '지갑 잔액';
+	@override String get payWechat => 'WeChat Pay';
+	@override String get preview => '미리보기';
+	@override String get publish => '게시';
+	@override String get readFull => '전체 읽기';
+	@override String get refundApply => '환불 신청';
+	@override String get refundConfirmMessage => '이 주문에 환불을 신청하시겠습니까? 환불 시 구독이 취소됩니다.';
+	@override String get refundConfirmTitle => '환불 확인';
+	@override String get refundSuccess => '환불 신청이 접수되었습니다';
+	@override String get reply => '답글';
+	@override String get replyTo => '답글';
+	@override String get sortNewest => '최신순';
+	@override String get sortPopular => '인기순';
+	@override String get titleOptional => '제목(선택)';
+	@override String get writeComment => '댓글 달기...';
 }
 
 // Path: chat
@@ -677,6 +775,16 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get extraItems => '추가 항목';
 	@override String get messageInputHint => '메시지를 입력하세요...';
 	@override String get invalidMessageType => '[지원하지 않는 메시지]';
+	@override String get alipayLoginInterrupted => 'Alipay 로그인 과정이 시스템에 의해 중단되었습니다. 다시 시도해 주세요';
+	@override String get burnReadBadge => '열람 후';
+	@override String get convertToText => '텍스트 변환';
+	@override String get extraPanelCollab => '그룹 협업';
+	@override String get extraPanelFunds => '자금';
+	@override String get extraPanelMedia => '미디어';
+	@override String get releaseConvertToText => '놓으면 텍스트 변환';
+	@override String get voiceReleaseCancel => '놓으면 취소';
+	@override String get voiceReleaseCancelSend => '놓으면 전송 취소';
+	@override String get voiceSlideHint => '위로 스와이프: 취소 / 텍스트 변환';
 }
 
 // Path: common
@@ -1831,6 +1939,77 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get searchFailedRetry => '검색에 실패했습니다. 다시 시도해 주세요';
 	@override String get searchDisabledTitle => '메시지 검색을 사용할 수 없음';
 	@override String get searchDisabledByEncryption => '종단간 암호화가 켜져 있어 서버가 메시지를 읽을 수 없으므로 전체 검색을 제공하지 않습니다';
+	@override String get amountMustPositive => '금액은 0보다 커야 합니다';
+	@override String get answer => '받기';
+	@override String get collapse => '접기';
+	@override String get complianceKeyChangedActionConfirm => '교체 확인';
+	@override String get complianceKeyChangedActionKeep => '나중에 확인';
+	@override String get complianceKeyChangedBody => '서버가 내려준 컴플라이언스 감사 공개 키가 로컬 고정값과 일치하지 않습니다. 관리자가 의도한 키 교체라면 "교체 확인"을 누르고, 그렇지 않다면 암호화 메시지 전송을 중단한 후 관리자에게 확인해 주세요.';
+	@override String get complianceKeyChangedTitle => '컴플라이언스 감사 키가 변경되었습니다';
+	@override String get declineCall => '거절';
+	@override String get e2eeErrPeerNotOnboarded => '상대방이 어떤 기기에서도 로그인한 적이 없어 암호화 전송이 일시적으로 불가합니다. 상대방이 로그인한 후 다시 시도해 주세요';
+	@override String get e2eeRecoveryKeyCopied => '복구 키가 복사되었습니다';
+	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => '복구 키가 복사되었습니다. ${seconds}초 후 클립보드에서 자동으로 지워지니 빨리 저장해 주세요';
+	@override String get e2eeRecoveryKeySaveNote => '이 복구 키를 즉시 저장하세요(스크린샷 또는 비밀번호 관리자에 보관). 암호를 잊었을 때 백업을 복호화할 수 있는 유일한 수단이며, 잃어버리면 백업을 영구히 복구할 수 없습니다.';
+	@override String get e2eeRecoveryKeyTitle => '복구 키';
+	@override String get e2eeUseRecoveryKey => '복구 키 생성(암호 분실 시 대비용)';
+	@override String get enterAmount => '금액을 입력해 주세요';
+	@override String get expandFull => '펼치기';
+	@override String f2fEnteringGroup({required Object count}) => '${count}명이 곧 그룹 채팅에 입장합니다';
+	@override String get f2fSecretCode => '암호';
+	@override String get hoursAgo => '시간 전';
+	@override String get initConfigDecryptFailed => '설정 복호화 실패: 앱과 서버의 보안 키가 일치하지 않습니다. 앱을 업데이트하거나 관리자에게 문의해 주세요';
+	@override String get justNow => '방금';
+	@override String get me => '나';
+	@override String get minimize => '최소화';
+	@override String get minutesAgo => '분 전';
+	@override String get momentsHasFailedUploads => '업로드에 실패한 미디어가 있습니다. 다시 시도하거나 제거한 후 게시해 주세요';
+	@override String get noHistory => '기록이 없습니다';
+	@override String get noNewRegisteredUsersTitle => '새로 가입한 사용자가 없습니다';
+	@override String get payReceiveSuccess => '받기 완료!';
+	@override String get purchaseConfirming => '결제 확인 중입니다. 주문 상태는 잠시 후 확인해 주세요';
+	@override String get reconnecting => '네트워크 상태가 좋지 않아 다시 연결 중…';
+	@override String get redPacketAmountTooSmall => '총 금액은 개수 × 0.01위안 이상이어야 합니다';
+	@override String get redPacketBrand => 'IMBoy 복주머니';
+	@override String get redPacketCount => '복주머니 개수';
+	@override String get redPacketCountEmpty => '복주머니 개수를 입력해 주세요';
+	@override String get redPacketCountMin => '복주머니 개수는 1개 이상이어야 합니다';
+	@override String get redPacketCountUnit => '개';
+	@override String get redPacketCurrentLucky => '현재: 랜덤 복주머니';
+	@override String get redPacketCurrentNormal => '현재: 일반 복주머니';
+	@override String get redPacketDialogSubtitle => '좋은 일이 가득하길, 복 많이 받으세요';
+	@override String get redPacketDialogTitle => '복주머니가 도착했습니다';
+	@override String get redPacketFetchError => '복주머니 상세 조회 오류';
+	@override String get redPacketFetchFailed => '복주머니 상세를 불러오지 못했습니다';
+	@override String get redPacketGreetingLabel => '메시지 / 축하 문구';
+	@override String get redPacketNotFound => '복주머니가 없거나 삭제되었습니다';
+	@override String redPacketReceiverLabel({required Object uid}) => '사용자: ${uid}';
+	@override String get redPacketSingleAmount => '개별 금액';
+	@override String get redPacketStuffLucky => '금액을 넣어 복주머니 보내기';
+	@override String get redPacketStuffNormal => '지갑에 넣어 보내기';
+	@override String get redPacketSwitchToLucky => '랜덤 복주머니로 변경';
+	@override String get redPacketSwitchToNormal => '일반 복주머니로 변경';
+	@override String get redPacketTotalAmount => '총 금액';
+	@override String get redPacketView => '복주머니 보기';
+	@override String get switchCamera => '카메라 전환';
+	@override String timeDaysShort({required Object count}) => '${count}일';
+	@override String timeHoursShort({required Object count}) => '${count}시간';
+	@override String timeMinutesShort({required Object count}) => '${count}분';
+	@override String get timeNowShort => '지금';
+	@override String get transferAccepted => '받기 완료';
+	@override String get transferAmountLabel => '송금 금액';
+	@override String get transferConfirm => '송금 확인';
+	@override String get transferDefaultRemark => '친구에게 송금';
+	@override String get transferMinAmountError => '송금 최소 금액은 0.01위안입니다';
+	@override String get transferPending => '상대방 확인 대기 중';
+	@override String get transferReceiving => '받는 중...';
+	@override String get transferRefunded => '반환됨';
+	@override String get transferRemarkLabel => '송금 메모';
+	@override String get transferTapToReceive => '탭하여 받기';
+	@override String uploadPartialFailed({required Object count}) => '${count}개 항목 업로드 실패';
+	@override String get voiceSttConverting => '인식 중...';
+	@override String get voiceSttNotConfigured => '텍스트 변환 기능이 아직 설정되지 않았습니다';
+	@override String get voiceSttPreviewTitle => '음성 텍스트 변환 미리보기';
 }
 
 // Path: complaint
@@ -1841,6 +2020,10 @@ class _Translations$complaint$ko_KR extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => '신고';
+	@override String get e2eeConsentTitle => '암호화 메시지 증거 제출';
+	@override String get e2eeConsentBody => '이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?';
+	@override String get e2eeConsentSubmit => '동의하고 증거 제출';
+	@override String get e2eeConsentDecline => '콘텐츠 없이 신고만';
 }
 
 // Path: complaintReason
@@ -1971,6 +2154,14 @@ class _Translations$discovery$ko_KR extends Translations$discovery$zh_CN {
 	@override String get openChannel => '채널 열기';
 	@override String get paidChannelLocked => '유료 채널 콘텐츠가 잠겨 있습니다';
 	@override String get webQRScanned => '스캔 완료';
+	@override String get momentActionMore => '더 보기';
+	@override String momentAtCount({required Object count}) => '${count}명';
+	@override String momentAtReminded({required Object name}) => '${name}님에게 알림을 보냈습니다';
+	@override String momentAtRemindedMore({required Object name, required Object count}) => '${name}님 외 ${count}명에게 알림을 보냈습니다';
+	@override String get momentAtWho => '알림 받을 사람';
+	@override String momentLikesCountOnly({required Object count}) => '${count}명이 좋아합니다';
+	@override String get momentLocation => '위치';
+	@override String get momentLocationNone => '위치 표시 안 함';
 }
 
 // Path: error
@@ -2045,6 +2236,15 @@ class _Translations$group$ko_KR extends Translations$group$zh_CN {
 	@override String get e2eeKeyManagementSubtitle => '종단간 암호화 키를 백업, 복구 및 관리합니다';
 	@override String get e2eeTitle => '종단간 암호화';
 	@override String get e2eeEnableConfirm => '활성화하면 그룹 메시지가 종단간 암호화되어 구성원의 기기에서만 복호화할 수 있습니다. 이 작업은 되돌릴 수 없습니다. 활성화하시겠습니까?';
+	@override String get enterGroupChat => '그룹 채팅 입장';
+	@override String get groupCreated => '그룹 채팅이 생성되었습니다';
+	@override String get groupCreatedSuccess => '그룹 채팅이 생성되었습니다. 그룹 정보를 완성하거나 바로 입장하세요';
+	@override String get groupInfo => '그룹 채팅 정보';
+	@override String get groupMemberRoleLabel => '구성원';
+	@override String get moreActions => '더 보기';
+	@override String noMemberWithRole({required Object roleName}) => '${roleName} 없음';
+	@override String get perfectionGroupInfo => '그룹 정보 완성';
+	@override String get touchContactAddMember => '연락처를 탭하여 그룹 구성원으로 추가';
 }
 
 // Path: groupCategory
@@ -2071,6 +2271,22 @@ class _Translations$groupCategory$ko_KR extends Translations$groupCategory$zh_CN
 	@override String get renameFailed => '이름 변경 실패, 다시 시도해주세요';
 	@override String get deleteFailed => '삭제 실패, 다시 시도해주세요';
 	@override String get categoryDetailTip => '이 폴더의 그룹은 그룹 목록에서 "폴더로 이동"으로 관리할 수 있습니다';
+}
+
+// Path: groupDiscovery
+class _Translations$groupDiscovery$ko_KR extends Translations$groupDiscovery$zh_CN {
+	_Translations$groupDiscovery$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '그룹 탐색';
+	@override String get searchHint => '공개 그룹 검색';
+	@override String get allCategories => '전체';
+	@override String get sortPopular => '인기순';
+	@override String get sortNewest => '최신순';
+	@override String get emptyTitle => '공개 그룹이 없습니다. 나중에 다시 확인해 주세요';
+	@override String get searchEmpty => '일치하는 공개 그룹이 없습니다';
 }
 
 // Path: groupList
@@ -2497,6 +2713,35 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get liveRoomTitleLabel => '라이브 룸 제목';
 	@override String get liveRoomTitleHint => '라이브 룸 제목을 입력하세요';
 	@override String get lightModel => '라이트 모드';
+	@override String get complianceKeyInfoAlgorithm => '알고리즘';
+	@override String get complianceKeyInfoChangedWarning => '⚠️ 서버가 내려준 컴플라이언스 공개 키가 로컬 고정값과 일치하지 않습니다! 관리자가 의도한 교체가 아니라면 즉시 관리자에게 연락하고 암호화 메시지 전송을 중단하세요.';
+	@override String get complianceKeyInfoFetchedAt => '가져온 시간';
+	@override String get complianceKeyInfoFingerprint => '공개 키 지문';
+	@override String get complianceKeyInfoHint => '컴플라이언스 감사 키는 compliance_e2ee 모드의 이중 암호화에 사용됩니다. 위 지문이 관리자가 공표한 지문과 일치하지 않으면 서버가 변조되었을 수 있습니다.';
+	@override String get complianceKeyInfoKeyId => '키 ID';
+	@override String get complianceKeyInfoLocalPin => '로컬 고정(TOFU)';
+	@override String get complianceKeyInfoPinnedAt => '고정 시간';
+	@override String get complianceKeyInfoPinnedNone => '아직 고정되지 않음(다음 가져오기 시 자동 고정)';
+	@override String get complianceKeyInfoRefreshFailed => '가져오기 실패. 네트워크 확인 후 다시 시도해 주세요';
+	@override String get complianceKeyInfoServerKey => '서버가 내려준 공개 키';
+	@override String get complianceKeyInfoTitle => '컴플라이언스 감사 키';
+	@override String get e2eeErrComplianceChanged => '컴플라이언스 감사 키가 변경되어 메시지를 보내지 않았습니다. 교체를 확인한 후 다시 시도해 주세요';
+	@override String get e2eeErrComplianceUnavailable => '컴플라이언스 키를 일시적으로 사용할 수 없어 메시지를 보내지 않았습니다. 잠시 후 다시 시도해 주세요';
+	@override String get e2eeErrDeviceNotReady => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요';
+	@override String get e2eeErrProtocolMismatch => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요';
+	@override String get e2eeErrSessionExportFailed => '그룹 세션 키 생성에 실패했습니다. 잠시 후 다시 시도해 주세요';
+	@override String get safetyNumberCopied => '복사되었습니다';
+	@override String get safetyNumberCopy => '복사';
+	@override String get safetyNumberHint => '대면 또는 전화로 상대방과 보안 번호를 비교해 주세요. 일치하면 두 사람의 통신에 중간자가 없는 것이고, 일치하지 않으면 즉시 대화를 중단하고 다른 경로로 상대방의 신원을 확인하세요. 검증 상태는 이 기기에만 저장됩니다.';
+	@override String get safetyNumberMarkVerified => '검증됨으로 표시';
+	@override String get safetyNumberMarkedVerified => '검증됨으로 표시했습니다';
+	@override String get safetyNumberNoDevices => '상대방이 아직 종단간 암호화를 사용하지 않습니다';
+	@override String get safetyNumberPeerDevice => '상대방 기기';
+	@override String get safetyNumberReportRejected => '서버가 이 검증 이벤트를 거부했습니다(서명/시효 불일치). 표시하지 않았습니다';
+	@override String get safetyNumberReportUnavailable => '기기 정보를 가져올 수 없어 보고하지 않았습니다';
+	@override String get safetyNumberReporting => '검증 결과 보고 중...';
+	@override String get safetyNumberTitle => '보안 번호 검증';
+	@override String get safetyNumberVerifyFailed => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요';
 }
 
 // Path: mention
@@ -2521,6 +2766,7 @@ class _Translations$mention$ko_KR extends Translations$mention$zh_CN {
 	@override String mentionCount({required Object count}) => '새 멘션 ${count}건';
 	@override String get mentionAllDenied => '관리자만 @모두를 사용할 수 있습니다';
 	@override String get navInfoMissing => '메시지 위치 정보가 없어 이동할 수 없습니다';
+	@override String get pickButtonTooltip => '멤버 @멘션';
 }
 
 // Path: momentFriendPicker
@@ -2583,6 +2829,16 @@ class _Translations$passport$ko_KR extends Translations$passport$zh_CN {
 	@override String get getVerifyCode => '인증 코드 받기';
 	@override String get hasAccount => '이미 계정이 있으신가요?';
 	@override String get oneKeyLogin => '원클릭 로그인';
+	@override String get qrCodeExpired => 'QR코드가 만료되었습니다. 다시 스캔해 주세요';
+	@override String get qrCodeUsed => '이 QR코드는 이미 사용되었습니다';
+	@override String get qrConnecting => '연결 중...';
+	@override String get qrLoginAction => '로그인 확인';
+	@override String get qrLoginCancelled => '로그인이 취소되었습니다';
+	@override String get qrLoginCancelledByMe => '로그인을 취소했습니다';
+	@override String get qrLoginConfirming => '로그인 중...';
+	@override String get qrLoginSuccess => '로그인 성공';
+	@override String get qrWebLoginDesc => '웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요';
+	@override String get qrWebLoginTitle => '웹 로그인 확인';
 }
 
 // Path: splash
@@ -2611,6 +2867,263 @@ class _Translations$welcome$ko_KR extends Translations$welcome$zh_CN {
 	@override String get next => '다음';
 	@override String get getStarted => '시작하기';
 	@override String get skip => '건너뛰기';
+}
+
+// Path: workspace
+class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
+	_Translations$workspace$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get navOverview => '개요';
+	@override String get navProjects => '프로젝트';
+	@override String get navChannels => '채널';
+	@override String get navGroups => '그룹';
+	@override String get navMembers => '구성원';
+	@override String get pickerTitle => '내 워크스페이스';
+	@override String get switchWorkspace => '워크스페이스 전환';
+	@override String get pickerEmptyTitle => '아직 워크스페이스가 없습니다';
+	@override String get pickerEmptySubtitle => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)';
+	@override String get archivedBadge => '보관됨';
+	@override String get emptyNoWorkspace => '먼저 워크스페이스를 선택하거나 만들어 주세요';
+	@override String get dmEntry => '전체 메시지';
+	@override String get experienceModeEntry => '홈 레이아웃';
+	@override String get experienceModeHint => '현재 기기의 사용 환경을 선택합니다. 홈 레이아웃만 변경되며 권한이나 워크스페이스 구성원 신분은 변경되지 않습니다';
+	@override String get experienceModePersonal => '개인';
+	@override String get experienceModeWorkspace => '워크스페이스';
+	@override String get experienceModeReset => '배포 기본값으로 복원';
+	@override String get switchToWorkspace => '워크스페이스로 전환';
+	@override String get switchToPersonal => '개인으로 전환';
+	@override String get createTitle => '워크스페이스 만들기';
+	@override String get createDesc => '한 번에 자동 생성: 워크스페이스, 본인(Owner 워크스페이스 구성원 신분), Announcements 채널, General 그룹. 전부 성공하거나 전부 롤백됩니다.';
+	@override String get createNameLabel => '워크스페이스 이름';
+	@override String get createNameHint => '예: 공식 홈페이지 리뉴얼 팀';
+	@override String get createNameRequired => '워크스페이스 이름은 필수입니다';
+	@override String get createSubmit => '만들기';
+	@override String get createEntry => '워크스페이스 만들기';
+	@override String get createSuccess => '워크스페이스가 생성되었습니다';
+	@override String get createIdempotentHit => '같은 이름의 워크스페이스가 이미 있습니다. 해당 워크스페이스로 이동합니다';
+	@override String get createTemplateTitle => '자동 초기화 항목';
+	@override String get createTemplateChannel => 'Announcements 채널(채널 게시자이자 구독자가 됩니다)';
+	@override String get createTemplateGroup => 'General 그룹(그룹 구성원이 됩니다)';
+	@override String get createTemplateOwner => '워크스페이스 Owner가 됩니다(워크스페이스 구성원)';
+	@override String get overviewTitle => '개요';
+	@override String get overviewResources => '리소스 요약';
+	@override String get overviewPinnedContent => '채널 고정 콘텐츠';
+	@override String get overviewPinnedEmpty => '채널에 고정된 콘텐츠가 없습니다. 그룹 공지는 여기에 집계되지 않습니다(그룹 공지는 각 그룹에 속함)';
+	@override String get overviewRecentFiles => '최근 파일';
+	@override String get overviewRecentFilesEmpty => '최근 업로드한 파일이 여기에 표시됩니다. 각 채널에서도 첨부파일을 볼 수 있습니다';
+	@override String get membersTitle => '워크스페이스 구성원';
+	@override String membersCountLabel({required Object count}) => '구성원 ${count}명';
+	@override String get membersEmpty => '워크스페이스 구성원이 없습니다';
+	@override String get membersEmptySubtitle => '가입한 사용자를 워크스페이스 구성원으로 초대하세요(Owner / Member / Guest)';
+	@override String get membersViewAll => '전체 보기';
+	@override String get projectsEmptyTitle => '아직 프로젝트가 없습니다';
+	@override String get projectsEmptySubtitle => '프로젝트는 명확한 전달 목표를 추적합니다. 채널과 그룹만 있는 커뮤니티형 워크스페이스에서도 똑같이 적용됩니다';
+	@override String get channelsEmptyTitle => '아직 워크스페이스 채널이 없습니다';
+	@override String get channelsEmptySubtitle => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요';
+	@override String channelTileSubtitle({required Object count}) => '구독자 ${count}명';
+	@override String get channelDetailTitle => '채널';
+	@override String get discussInGroupGuide => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 →';
+	@override String get groupsEmptyTitle => '아직 워크스페이스 그룹이 없습니다';
+	@override String get groupsEmptySubtitle => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)';
+	@override String groupTileSubtitle({required Object count}) => '그룹 구성원 ${count}명';
+	@override String get inviteTitle => '워크스페이스 구성원 초대';
+	@override String get inviteDesc => '가입한 사용자만 초대할 수 있습니다. 워크스페이스 가입이 자동으로 그룹 가입이나 채널 구독으로 이어지지 않습니다. General 그룹에 동시 가입시키고 Announcements 채널 초대를 보낼 수 있습니다';
+	@override String get inviteSearchHint => '사용자 이름 / 사용자 ID로 검색';
+	@override String get inviteEntry => '워크스페이스 구성원 초대';
+	@override String get inviteJoinGroupOption => 'General 그룹에 동시 가입(그룹 구성원이 됨)';
+	@override String get inviteSubscribeChannelOption => 'Announcements 채널 초대 동시 발송';
+	@override String get inviteOptionUnavailable => '해당 리소스를 찾을 수 없어 이 옵션을 사용할 수 없습니다';
+	@override String get inviteSubmit => '초대 보내기';
+	@override String get inviteResultsTitle => '결과(3개 독립)';
+	@override String get inviteResultWorkspace => '워크스페이스 가입(워크스페이스 구성원이 됨)';
+	@override String get inviteResultGroup => 'General 그룹 가입(그룹 구성원이 됨)';
+	@override String get inviteResultChannel => 'Announcements 채널 초대 발송(수락 시 구독자가 됨)';
+	@override String get resultIdle => '실행 안 함';
+	@override String get resultRunning => '진행 중';
+	@override String get resultSuccess => '성공';
+	@override String get resultFailed => '실패';
+	@override String get joinEntry => '워크스페이스 가입';
+	@override String get joinTitle => '워크스페이스 가입';
+	@override String get joinDesc => '팀 코드를 입력하면 워크스페이스에 가입할 수 있습니다';
+	@override String get joinCodeLabel => '팀 코드';
+	@override String get joinCodeHint => '영문 대문자 또는 숫자 8자';
+	@override String get joinSubmit => '가입';
+	@override String joinSuccess({required Object name}) => '「${name}」에 가입했습니다';
+	@override String get joinAlreadyMember => '이미 이 워크스페이스에 속해 있습니다';
+	@override String get joinInvalidCode => '팀 코드가 잘못되었거나 만료되었습니다';
+	@override String get joinExpiredCode => '팀 코드가 만료되었습니다';
+	@override String get inviteCodeSectionTitle => '팀 코드 초대';
+	@override String get inviteCodeGenerate => '팀 코드 생성';
+	@override String get inviteCodeCopy => '복사';
+	@override String get inviteCodeRevoke => '무효화';
+	@override String inviteCodeExpiresAt({required Object expiresAt}) => '${expiresAt}까지 유효';
+	@override String get roleOwner => 'Owner';
+	@override String get roleMember => 'Member';
+	@override String get roleGuest => 'Guest';
+	@override String removeMemberTitle({required Object name}) => '워크스페이스 구성원 ${name} 제거';
+	@override String get removeMemberDesc => '제거하면 해당 구성원의 워크스페이스 접근이 즉시 해제됩니다. 미완료 작업이나 담당 프로젝트가 남아 있으면 서버가 충돌 목록을 반환하며 이번 제거를 취소합니다';
+	@override String get removeMemberConfirm => '제거 확인';
+	@override String changeRoleTitle({required Object name}) => '${name}의 워크스페이스 역할 변경';
+	@override String transferTitle({required Object name}) => '메인 Owner를 ${name}에게 이전';
+	@override String get transferDesc => '이전 후 본인은 일반 워크스페이스 구성원(Member)이 되고 상대방이 전체 거버넌스 권한을 갖습니다';
+	@override String get transferConfirm => '이전 확인';
+	@override String get governanceTitle => '워크스페이스 거버넌스';
+	@override String get brandingEntry => '브랜드 설정(이름 / Logo / 기본 색상)';
+	@override String get archiveEntry => '워크스페이스 보관';
+	@override String get restoreEntry => '워크스페이스 복원';
+	@override String get archiveTitle => '워크스페이스 보관';
+	@override String get archiveDesc => '보관 후 전원 읽기 전용이 됩니다(쓰기 작업은 서버에서 거부). 언제든지 복원할 수 있습니다';
+	@override String get archiveConfirm => '보관 확인';
+	@override String get restoreTitle => '워크스페이스 복원';
+	@override String get restoreDesc => '복원 후 워크스페이스는 읽기/쓰기가 다시 활성화됩니다';
+	@override String get restoreConfirm => '복원 확인';
+	@override String get archivedBanner => '워크스페이스가 보관되었습니다: 콘텐츠는 볼 수 있지만 쓰기 작업은 비활성화됩니다. Owner는 구성원 페이지에서 복원할 수 있습니다';
+	@override String get brandingTitle => '워크스페이스 브랜드';
+	@override String get brandingNameLabel => '브랜드 이름';
+	@override String get brandingLogoLabel => 'Logo 주소';
+	@override String get brandingLogoHint => 'https://…(워크스페이스 Logo 이미지 주소)';
+	@override String get brandingColorLabel => '기본 색상 primaryColor';
+	@override String get brandingColorHint => '#2474E5';
+	@override String get brandingColorHelper => '#RRGGBB / #AARRGGBB만 지원합니다. 잘못된 값은 기본 테마 색상으로 대체됩니다';
+	@override String get brandingColorInvalid => '기본 색상 형식이 잘못되었습니다. #RRGGBB / #AARRGGBB만 지원합니다';
+	@override String get brandingSaved => '브랜드 설정이 저장되었습니다';
+	@override String get brandingPreview => '기본 색상 미리보기';
+	@override String get brandingPreviewApplied => '현재 기본 색상은 워크스페이스 안에서 적용됩니다';
+	@override String get brandingPreviewFallback => '설정되지 않았거나 잘못된 값이면 기본 테마 색상을 사용합니다';
+	@override String get projectsTitle => '프로젝트';
+	@override String get projectCreateEntry => '새 프로젝트';
+	@override String get projectCreateTitle => '새 프로젝트';
+	@override String get projectNameLabel => '프로젝트 이름';
+	@override String get projectNameHint => '예: 공식 홈페이지 리뉴얼';
+	@override String get projectNameRequired => '프로젝트 이름은 필수입니다';
+	@override String get projectDescLabel => '프로젝트 설명(선택)';
+	@override String get projectDescHint => '이 프로젝트로 무엇을 전달하나요?';
+	@override String get projectSubmit => '만들기';
+	@override String get projectCreateSuccess => '프로젝트가 생성되었습니다';
+	@override String get projectDetailTitle => '프로젝트 상세';
+	@override String get projectInfoSection => '기본 정보';
+	@override String get projectOwnerLabel => '담당자';
+	@override String get projectStatusLabel => '상태';
+	@override String get projectStatusActive => '진행 중';
+	@override String get projectStatusDone => '완료됨';
+	@override String get projectMarkDone => '완료로 표시';
+	@override String get projectReopen => '프로젝트 다시 열기';
+	@override String get projectStatusChanged => '프로젝트 상태가 업데이트되었습니다';
+	@override String get projectTasksSection => '작업';
+	@override String get taskNewEntry => '새 작업';
+	@override String get taskFormCreateTitle => '새 작업';
+	@override String get taskFormEditTitle => '작업 편집';
+	@override String get taskTitleLabel => '작업 제목';
+	@override String get taskTitleRequired => '작업 제목은 필수입니다';
+	@override String get taskAssigneeLabel => '담당자(워크스페이스 구성원)';
+	@override String get taskAssigneeNone => '지정 안 함';
+	@override String get taskAssigneeRefresh => '담당자 후보 새로 고침';
+	@override String get taskSubmitCreate => '작업 만들기';
+	@override String get taskSubmitSave => '저장';
+	@override String get taskCreatedToast => '작업이 생성되었습니다';
+	@override String get taskExistingToast => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다';
+	@override String get taskUpdatedToast => '작업이 저장되었습니다';
+	@override String get taskFilterAll => '전체';
+	@override String get taskStatusTodo => '할 일';
+	@override String get taskStatusDoing => '진행 중';
+	@override String get taskStatusReview => '검토 중';
+	@override String get taskStatusDone => '완료됨';
+	@override String taskAdvanceTo({required Object status}) => '「${status}」 상태로 진행';
+	@override String taskFallbackMenuTitle({required Object title}) => '${title} 상태로 되돌리기…';
+	@override String taskStatusMovedToast({required Object status}) => '「${status}」 상태로 변경되었습니다';
+	@override String get taskEmptyTitle => '아직 작업이 없습니다';
+	@override String get taskEmptySubtitle => '4단계 상태로 실행을 추적합니다: 할 일 → 진행 중 → 검토 중 → 완료';
+	@override String get guestReadonlyHint => '게스트(Guest) 신분은 워크스페이스 리소스가 읽기 전용입니다';
+	@override String get projectsLoadMore => '더 로드';
+	@override String get projectW2SectionTitle => '프로젝트 협업';
+	@override String get projectMembersEntry => '구성원';
+	@override String get projectMilestonesEntry => '마일스톤';
+	@override String get projectChannelsEntry => '프로젝트 채널';
+	@override String get projectInsightsEntry => '콘텐츠 집계';
+	@override String get projectNoPermission => '권한 없음: 프로젝트 구성원, 프로젝트 담당자 또는 워크스페이스 Owner만 볼 수 있습니다';
+	@override String get projectGuestReadonly => '게스트(Guest) 신분은 프로젝트가 읽기 전용입니다';
+	@override String get projectLoadMore => '더 로드';
+	@override String get projectMembersTitle => '프로젝트 구성원';
+	@override String get projectMemberEmptyTitle => '아직 프로젝트 구성원이 없습니다';
+	@override String get projectMemberEmptySubtitle => '프로젝트 담당자가 가입한 사용자를 이 프로젝트에 초대할 수 있습니다';
+	@override String get projectMemberInviteTitle => '프로젝트 구성원 초대';
+	@override String get projectMemberInviteFieldLabel => '사용자 ID';
+	@override String get projectMemberInviteFieldHint => '초대할 가입 사용자 ID';
+	@override String get projectMemberInviteInvalidUid => '올바른 사용자 ID를 입력해 주세요';
+	@override String get projectMemberInviteSubmit => '초대';
+	@override String get projectMemberInviteSuccess => '프로젝트 구성원으로 추가되었습니다';
+	@override String get projectMemberInviteExisting => '이 사용자는 이미 프로젝트 구성원입니다';
+	@override String projectMemberRemoveConfirmTitle({required Object name}) => '프로젝트 구성원 ${name} 제거';
+	@override String get projectMemberRemoveConfirmDesc => '제거 후 해당 사용자는 이 프로젝트 콘텐츠에 접근할 수 없습니다(다시 초대 가능)';
+	@override String get projectMemberRemoveSubmit => '제거';
+	@override String get projectMemberRemovedToast => '제거되었습니다';
+	@override String get projectMemberAlreadyRemovedToast => '해당 사용자는 이미 프로젝트 구성원이 아닙니다';
+	@override String projectMemberTransferTitle({required Object name}) => '${name}에게 프로젝트 담당자 이전';
+	@override String get projectMemberTransferDesc => '이전 후 상대방이 이 프로젝트의 전체 관리 권한을 갖습니다';
+	@override String get projectMemberTransferConfirm => '이전 확인';
+	@override String get projectMemberTransferDoneToast => '프로젝트 담당자가 이전되었습니다';
+	@override String get projectMilestonesTitle => '마일스톤';
+	@override String get projectMilestoneEmptyTitle => '아직 마일스톤이 없습니다';
+	@override String get projectMilestoneEmptySubtitle => '마일스톤으로 프로젝트의 핵심 지점을 표시합니다(계획됨 → 달성됨, 단방향)';
+	@override String get projectMilestoneCreateTitle => '새 마일스톤';
+	@override String get projectMilestoneNameLabel => '이름';
+	@override String get projectMilestoneNameRequired => '마일스톤 이름은 필수입니다';
+	@override String get projectMilestoneDueDateLabel => '마감일(YYYY-MM-DD, 선택)';
+	@override String get projectMilestoneDueDateInvalid => '날짜 형식은 YYYY-MM-DD이어야 합니다';
+	@override String get projectMilestoneCreateSubmit => '만들기';
+	@override String get projectMilestoneCreatedToast => '마일스톤이 생성되었습니다';
+	@override String get projectMilestoneFilterAll => '전체';
+	@override String get projectMilestoneFilterPlanned => '계획됨';
+	@override String get projectMilestoneFilterReached => '달성됨';
+	@override String get projectMilestoneReach => '달성으로 표시';
+	@override String get projectMilestoneReachedToast => '마일스톤이 달성되었습니다';
+	@override String get projectMilestoneAlreadyReachedToast => '이 마일스톤은 이미 달성되었습니다';
+	@override String get projectMilestoneReachedHint => '달성됨(되돌릴 수 없음)';
+	@override String get projectMilestoneDueLabel => '마감';
+	@override String get projectChannelsTitle => '프로젝트 채널';
+	@override String get projectChannelEmptyTitle => '아직 연결된 채널이 없습니다';
+	@override String get projectChannelEmptySubtitle => '워크스페이스 채널을 연결하면 고정 콘텐츠와 최근 게시물이 이 프로젝트에 집계됩니다';
+	@override String get projectChannelLinkTitle => '연결할 채널 선택';
+	@override String get projectChannelNoCandidate => '연결 가능한 후보 채널이 없습니다';
+	@override String get projectChannelLinkedToast => '채널이 연결되었습니다';
+	@override String get projectChannelLinkExistingToast => '이 채널은 이미 연결되어 있습니다';
+	@override String projectChannelUnlinkTitle({required Object name}) => '${name} 연결 해제';
+	@override String get projectChannelUnlinkDesc => '해제 후 해당 채널의 콘텐츠는 더 이상 이 프로젝트에 집계되지 않습니다';
+	@override String get projectChannelUnlinkSubmit => '연결 해제';
+	@override String get projectChannelUnlinkedToast => '연결이 해제되었습니다';
+	@override String get projectInsightsTabPinned => '고정 메시지';
+	@override String get projectInsightsTabResources => '리소스 링크';
+	@override String get projectInsightsTabActivity => '프로젝트 활동';
+	@override String get projectInsightsTabPosts => '관련 게시물';
+	@override String get projectInsightsPinnedEmpty => '연결된 채널에 고정된 콘텐츠가 없습니다';
+	@override String get projectInsightsResourcesEmpty => '프로젝트에 리소스 링크가 없습니다';
+	@override String get projectInsightsActivityEmpty => '프로젝트에 활동이 없습니다';
+	@override String get projectInsightsPostsEmpty => '연결된 채널에 게시물이 없습니다';
+	@override String projectInsightsPostAuthor({required Object name}) => '${name} 게시';
+	@override String get projectLinkNameLabel => '링크 이름';
+	@override String get projectLinkUrlLabel => '링크 주소';
+}
+
+// Path: account.alipaySim
+class _Translations$account$alipaySim$ko_KR extends Translations$account$alipaySim$zh_CN {
+	_Translations$account$alipaySim$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectMethod => '결제 수단 선택';
+	@override String get confirmPay => '결제 확인';
+	@override String get enterPassword => '결제 비밀번호를 입력해 주세요';
+	@override String get alipaySuccess => '결제 성공';
+	@override String get merchantSuccess => '스토어 앱 결제 성공';
+	@override String get huabei => '후이베이 할부';
+	@override String get energy => '결제 시 그린 에너지 5g 획득';
+	@override String get storeName => '정보기술 플래그십 스토어';
+	@override String get paymentAmount => '금액:';
+	@override String get balanceSource => '계정 잔액';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -2738,6 +3251,29 @@ extension on TranslationsKoKr {
 			'account.e2eeTransferFromOldDevice' => '이전 기기에서 키 받기',
 			'account.pleaseRelogin' => '다시 로그인해주세요',
 			'account.otherLoginMethods' => '다른 로그인 방법',
+			'account.logoutCancelRequest' => '탈퇴 신청 철회',
+			'account.logoutCancelledNote' => '탈퇴 신청이 철회되었습니다',
+			'account.logoutPendingBanner' => ({required Object date}) => '탈퇴 신청이 접수되었습니다. ${date}에 완료 예정',
+			'account.logoutPendingHeader' => '탈퇴 신청 상태',
+			'account.logoutRetainedHeader' => '데이터 보관 안내',
+			'account.logoutRetainedNote' => '삭제 완료 후: 감사 로그와 재무 기록은 법에 따라 보관 및 익명화됩니다. 본인이 소유한 그룹/워크스페이스/채널은 후임 구성원에게 우선 이전됩니다',
+			'account.payCancelled' => '결제가 취소되었습니다',
+			'account.payMethodAlipay' => 'Alipay',
+			'account.payMethodComingSoon' => '해당 결제 수단은 곧 지원될 예정입니다',
+			'account.payMethodMock' => '모의 결제(개발 환경)',
+			'account.payMethodTitle' => '결제 수단 선택',
+			'account.payMethodWallet' => '지갑 잔액',
+			'account.payMethodWechat' => 'WeChat Pay',
+			'account.alipaySim.selectMethod' => '결제 수단 선택',
+			'account.alipaySim.confirmPay' => '결제 확인',
+			'account.alipaySim.enterPassword' => '결제 비밀번호를 입력해 주세요',
+			'account.alipaySim.alipaySuccess' => '결제 성공',
+			'account.alipaySim.merchantSuccess' => '스토어 앱 결제 성공',
+			'account.alipaySim.huabei' => '후이베이 할부',
+			'account.alipaySim.energy' => '결제 시 그린 에너지 5g 획득',
+			'account.alipaySim.storeName' => '정보기술 플래그십 스토어',
+			'account.alipaySim.paymentAmount' => '금액:',
+			'account.alipaySim.balanceSource' => '계정 잔액',
 			'agent.plazaTitle' => 'AI 어시스턴트 광장',
 			'agent.transparencyBanner' => '여기 있는 구성원은 모두 AI 어시스턴트이며 신원이 명확히 표시됩니다. 암호화 채팅에는 실제 사람만 있습니다.',
 			'agent.searchHint' => '어시스턴트 검색',
@@ -2748,6 +3284,18 @@ extension on TranslationsKoKr {
 			'agent.badgeOfficial' => '공식',
 			'agent.badgeAiA11y' => 'AI 어시스턴트',
 			'agent.badgeOfficialA11y' => '공식 계정',
+			'agent.legacyBotGoPlaza' => '어시스턴트 광장으로 가기',
+			'agent.legacyBotMigrated' => '이 봇 입구는 업그레이드되었습니다. AI 어시스턴트 광장에서 어시스턴트와 대화해 주세요',
+			'agentTask.title' => 'AI 작업',
+			'agentTask.working' => '실행 중',
+			'agentTask.submitted' => '제출됨',
+			'agentTask.progress' => '진행 중',
+			'agentTask.completed' => '완료됨',
+			'agentTask.failed' => '실행 실패',
+			'agentTask.cancelled' => '취소됨',
+			'agentTask.awaitingApproval' => '승인 대기 중',
+			'agentTask.approve' => '승인',
+			'agentTask.reject' => '거절',
 			'billing.title' => '구독 플랜',
 			'billing.planPeriodMonthly' => '월간',
 			'billing.planPeriodYearly' => '연간',
@@ -2911,6 +3459,66 @@ extension on TranslationsKoKr {
 			'channel.accessTypePaid' => '유료',
 			'channel.typePublicPaidDesc' => '누구나 채널을 찾을 수 있으며 구매 후 구독할 수 있습니다',
 			'channel.typePrivatePaidDesc' => '초대된 사용자만 구매 절차를 진행할 수 있으며 결제 후 구독됩니다',
+			'channel.addImage' => '이미지 추가',
+			'channel.allCategories' => '전체',
+			'channel.articleBodyHint' => '내용을 입력하세요… 굵게, 기울임, 제목, 목록 등 서식을 지원합니다',
+			'channel.cancelOrder' => '주문 취소',
+			'channel.cancelOrderConfirmMessage' => '결제 대기 중인 이 주문을 취소하시겠습니까? 취소 후에는 결제를 계속할 수 없습니다.',
+			'channel.cancelOrderConfirmTitle' => '주문 취소 확인',
+			'channel.cancelOrderSuccess' => '주문이 취소되었습니다',
+			'channel.channelNotFound' => '채널이 없습니다',
+			'channel.comment' => '댓글',
+			'channel.commentDeleteNoPermission' => '이 댓글을 삭제할 권한이 없습니다',
+			'channel.commentFailed' => '댓글 작성 실패',
+			'channel.coverLabel' => '표지',
+			'channel.coverSet' => '표지로 설정되었습니다',
+			'channel.deleteComment' => '댓글 삭제',
+			'channel.deleteCommentConfirm' => '이 댓글을 삭제하시겠습니까?',
+			'channel.formatBold' => '굵게',
+			'channel.formatHeading' => '제목',
+			'channel.formatItalic' => '기울임',
+			'channel.formatLink' => '링크',
+			'channel.formatList' => '목록',
+			'channel.formatQuote' => '인용',
+			'channel.formatStrikethrough' => '취소선',
+			'channel.like' => '좋아요',
+			'channel.linkTextPlaceholder' => '링크 텍스트',
+			'channel.myOrders' => '내 주문',
+			'channel.noComments' => '댓글이 없습니다',
+			'channel.noOrders' => '주문 기록이 없습니다',
+			'channel.orderAmount' => '금액',
+			'channel.orderChannel' => '채널',
+			'channel.orderContinuePay' => '결제 계속',
+			'channel.orderCreatedAt' => '주문 시간',
+			'channel.orderDetail' => '주문 상세',
+			'channel.orderNo' => '주문 번호',
+			'channel.orderPaidAt' => '결제 시간',
+			'channel.orderPaymentMethod' => '결제 수단',
+			'channel.orderStatusCancelled' => '취소됨',
+			'channel.orderStatusExpired' => '만료됨',
+			'channel.orderStatusLabel' => '상태',
+			'channel.orderStatusPaid' => '결제 완료',
+			'channel.orderStatusPending' => '결제 대기',
+			'channel.orderStatusRefunded' => '환불됨',
+			'channel.orderStatusRefunding' => '환불 처리 중',
+			'channel.orderSubscriptionPeriod' => '구독 기간',
+			'channel.orderValidUntil' => '유효 기간',
+			'channel.payAlipay' => 'Alipay',
+			'channel.payWallet' => '지갑 잔액',
+			'channel.payWechat' => 'WeChat Pay',
+			'channel.preview' => '미리보기',
+			'channel.publish' => '게시',
+			'channel.readFull' => '전체 읽기',
+			'channel.refundApply' => '환불 신청',
+			'channel.refundConfirmMessage' => '이 주문에 환불을 신청하시겠습니까? 환불 시 구독이 취소됩니다.',
+			'channel.refundConfirmTitle' => '환불 확인',
+			'channel.refundSuccess' => '환불 신청이 접수되었습니다',
+			'channel.reply' => '답글',
+			'channel.replyTo' => '답글',
+			'channel.sortNewest' => '최신순',
+			'channel.sortPopular' => '인기순',
+			'channel.titleOptional' => '제목(선택)',
+			'channel.writeComment' => '댓글 달기...',
 			'chat.bankCard' => '은행 카드',
 			'chat.cards' => '장',
 			'chat.jdShopping' => 'JD 쇼핑',
@@ -3038,6 +3646,8 @@ extension on TranslationsKoKr {
 			'chat.sendTo' => '전송 대상',
 			'chat.send' => _root.common.buttonSend,
 			'chat.sender' => '발신자',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sending' => '전송 중...',
 			'chat.signatureInputHint' => '서명 입력 팁',
 			'chat.signaturePlaceholder' => '서명 플레이스홀더',
@@ -3133,8 +3743,6 @@ extension on TranslationsKoKr {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '결제 시간: ${time}',
 			'chat.orderStatusPending' => '결제 대기',
 			'chat.orderStatusPaid' => '결제 완료',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderStatusRefunded' => '환불됨',
 			'chat.orderStatusExpired' => '만료됨',
 			'chat.defaultFileName' => '파일',
@@ -3191,6 +3799,16 @@ extension on TranslationsKoKr {
 			'chat.extraItems' => '추가 항목',
 			'chat.messageInputHint' => '메시지를 입력하세요...',
 			'chat.invalidMessageType' => '[지원하지 않는 메시지]',
+			'chat.alipayLoginInterrupted' => 'Alipay 로그인 과정이 시스템에 의해 중단되었습니다. 다시 시도해 주세요',
+			'chat.burnReadBadge' => '열람 후',
+			'chat.convertToText' => '텍스트 변환',
+			'chat.extraPanelCollab' => '그룹 협업',
+			'chat.extraPanelFunds' => '자금',
+			'chat.extraPanelMedia' => '미디어',
+			'chat.releaseConvertToText' => '놓으면 텍스트 변환',
+			'chat.voiceReleaseCancel' => '놓으면 취소',
+			'chat.voiceReleaseCancelSend' => '놓으면 전송 취소',
+			'chat.voiceSlideHint' => '위로 스와이프: 취소 / 텍스트 변환',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
@@ -3542,6 +4160,8 @@ extension on TranslationsKoKr {
 			'common.muteDuration1hour' => '1 Hour',
 			'common.muteDuration6hours' => '6 Hours',
 			'common.muteDuration12hours' => '12 Hours',
+			_ => null,
+		} ?? switch (path) {
 			'common.muteDuration1day' => '1 Day',
 			'common.muteDuration3days' => '3 Days',
 			'common.muteDuration7days' => '7 Days',
@@ -3599,10 +4219,10 @@ extension on TranslationsKoKr {
 			'common.sureDeleteGroupChatRecord' => '그룹 채팅 기록을 삭제하시겠습니까?',
 			'common.switchEnvironment' => '환경 전환',
 			'common.thisMonth' => '이번 달',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '${n}일 전', ), 
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '${n}시간 전', ), 
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '${n}일 전', ),
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '${n}시간 전', ),
 			'common.timeJustNow' => '방금',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '${n}분 전', ), 
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ko'))(n, other: '${n}분 전', ),
 			'common.timeToday' => '오늘',
 			'common.timeYesterday' => '어제',
 			'common.tipConnectDesc' => '네트워크 없음',
@@ -3647,8 +4267,6 @@ extension on TranslationsKoKr {
 			'common.whatYourFeedback' => '피드백은 무엇입니까?',
 			'common.yesterday' => '어제',
 			'common.yourContactInformation' => '연락처 정보',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirmRemove' => '제거 확인',
 			'common.confirmRemoveFromDenylist' => '이 사용자를 차단 목록에서 제거하시겠습니까?',
 			'common.buttonRemove' => '제거',
@@ -4056,6 +4674,8 @@ extension on TranslationsKoKr {
 			'common.insufficientBalanceTitle' => '잔액 부족',
 			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => '현재 잔액 ${currency} ${balance}, 결제 필요 금액 ${currency} ${price}. 먼저 충전 후 구매하세요.',
 			'common.goRecharge' => '충전하러 가기',
+			_ => null,
+		} ?? switch (path) {
 			'common.noOrders' => '주문이 없습니다',
 			'common.orderDetailLoadFailed' => '주문 상세를 불러오지 못했습니다',
 			'common.orderNoLabel' => ({required Object no}) => '주문 번호: ${no}',
@@ -4161,8 +4781,6 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupImportantNoteColon' => '중요 안내',
 			'common.e2eeBackupKeepSafe' => '• 백업 파일과 비밀번호를 안전하게 보관하세요',
 			'common.e2eeBackupStoreMultipleLoc' => '• 파일을 여러 안전한 위치에 보관하세요',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• 비밀번호는 복구할 수 없으니 반드시 기억해주세요',
 			'common.e2eeBackupImportTitle' => 'E2EE 백업 가져오기',
 			'common.e2eeBackupImportGuide' => '가져오기 안내',
@@ -4334,7 +4952,82 @@ extension on TranslationsKoKr {
 			'common.searchFailedRetry' => '검색에 실패했습니다. 다시 시도해 주세요',
 			'common.searchDisabledTitle' => '메시지 검색을 사용할 수 없음',
 			'common.searchDisabledByEncryption' => '종단간 암호화가 켜져 있어 서버가 메시지를 읽을 수 없으므로 전체 검색을 제공하지 않습니다',
+			'common.amountMustPositive' => '금액은 0보다 커야 합니다',
+			'common.answer' => '받기',
+			'common.collapse' => '접기',
+			'common.complianceKeyChangedActionConfirm' => '교체 확인',
+			'common.complianceKeyChangedActionKeep' => '나중에 확인',
+			'common.complianceKeyChangedBody' => '서버가 내려준 컴플라이언스 감사 공개 키가 로컬 고정값과 일치하지 않습니다. 관리자가 의도한 키 교체라면 "교체 확인"을 누르고, 그렇지 않다면 암호화 메시지 전송을 중단한 후 관리자에게 확인해 주세요.',
+			'common.complianceKeyChangedTitle' => '컴플라이언스 감사 키가 변경되었습니다',
+			'common.declineCall' => '거절',
+			'common.e2eeErrPeerNotOnboarded' => '상대방이 어떤 기기에서도 로그인한 적이 없어 암호화 전송이 일시적으로 불가합니다. 상대방이 로그인한 후 다시 시도해 주세요',
+			'common.e2eeRecoveryKeyCopied' => '복구 키가 복사되었습니다',
+			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => '복구 키가 복사되었습니다. ${seconds}초 후 클립보드에서 자동으로 지워지니 빨리 저장해 주세요',
+			'common.e2eeRecoveryKeySaveNote' => '이 복구 키를 즉시 저장하세요(스크린샷 또는 비밀번호 관리자에 보관). 암호를 잊었을 때 백업을 복호화할 수 있는 유일한 수단이며, 잃어버리면 백업을 영구히 복구할 수 없습니다.',
+			'common.e2eeRecoveryKeyTitle' => '복구 키',
+			'common.e2eeUseRecoveryKey' => '복구 키 생성(암호 분실 시 대비용)',
+			'common.enterAmount' => '금액을 입력해 주세요',
+			'common.expandFull' => '펼치기',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count}명이 곧 그룹 채팅에 입장합니다',
+			'common.f2fSecretCode' => '암호',
+			'common.hoursAgo' => '시간 전',
+			'common.initConfigDecryptFailed' => '설정 복호화 실패: 앱과 서버의 보안 키가 일치하지 않습니다. 앱을 업데이트하거나 관리자에게 문의해 주세요',
+			'common.justNow' => '방금',
+			'common.me' => '나',
+			'common.minimize' => '최소화',
+			'common.minutesAgo' => '분 전',
+			'common.momentsHasFailedUploads' => '업로드에 실패한 미디어가 있습니다. 다시 시도하거나 제거한 후 게시해 주세요',
+			'common.noHistory' => '기록이 없습니다',
+			'common.noNewRegisteredUsersTitle' => '새로 가입한 사용자가 없습니다',
+			'common.payReceiveSuccess' => '받기 완료!',
+			'common.purchaseConfirming' => '결제 확인 중입니다. 주문 상태는 잠시 후 확인해 주세요',
+			'common.reconnecting' => '네트워크 상태가 좋지 않아 다시 연결 중…',
+			'common.redPacketAmountTooSmall' => '총 금액은 개수 × 0.01위안 이상이어야 합니다',
+			'common.redPacketBrand' => 'IMBoy 복주머니',
+			'common.redPacketCount' => '복주머니 개수',
+			'common.redPacketCountEmpty' => '복주머니 개수를 입력해 주세요',
+			'common.redPacketCountMin' => '복주머니 개수는 1개 이상이어야 합니다',
+			'common.redPacketCountUnit' => '개',
+			'common.redPacketCurrentLucky' => '현재: 랜덤 복주머니',
+			'common.redPacketCurrentNormal' => '현재: 일반 복주머니',
+			'common.redPacketDialogSubtitle' => '좋은 일이 가득하길, 복 많이 받으세요',
+			'common.redPacketDialogTitle' => '복주머니가 도착했습니다',
+			'common.redPacketFetchError' => '복주머니 상세 조회 오류',
+			'common.redPacketFetchFailed' => '복주머니 상세를 불러오지 못했습니다',
+			'common.redPacketGreetingLabel' => '메시지 / 축하 문구',
+			'common.redPacketNotFound' => '복주머니가 없거나 삭제되었습니다',
+			'common.redPacketReceiverLabel' => ({required Object uid}) => '사용자: ${uid}',
+			'common.redPacketSingleAmount' => '개별 금액',
+			'common.redPacketStuffLucky' => '금액을 넣어 복주머니 보내기',
+			'common.redPacketStuffNormal' => '지갑에 넣어 보내기',
+			'common.redPacketSwitchToLucky' => '랜덤 복주머니로 변경',
+			'common.redPacketSwitchToNormal' => '일반 복주머니로 변경',
+			'common.redPacketTotalAmount' => '총 금액',
+			'common.redPacketView' => '복주머니 보기',
+			'common.switchCamera' => '카메라 전환',
+			'common.timeDaysShort' => ({required Object count}) => '${count}일',
+			'common.timeHoursShort' => ({required Object count}) => '${count}시간',
+			'common.timeMinutesShort' => ({required Object count}) => '${count}분',
+			'common.timeNowShort' => '지금',
+			'common.transferAccepted' => '받기 완료',
+			'common.transferAmountLabel' => '송금 금액',
+			'common.transferConfirm' => '송금 확인',
+			'common.transferDefaultRemark' => '친구에게 송금',
+			'common.transferMinAmountError' => '송금 최소 금액은 0.01위안입니다',
+			'common.transferPending' => '상대방 확인 대기 중',
+			'common.transferReceiving' => '받는 중...',
+			'common.transferRefunded' => '반환됨',
+			'common.transferRemarkLabel' => '송금 메모',
+			'common.transferTapToReceive' => '탭하여 받기',
+			'common.uploadPartialFailed' => ({required Object count}) => '${count}개 항목 업로드 실패',
+			'common.voiceSttConverting' => '인식 중...',
+			'common.voiceSttNotConfigured' => '텍스트 변환 기능이 아직 설정되지 않았습니다',
+			'common.voiceSttPreviewTitle' => '음성 텍스트 변환 미리보기',
 			'complaint.complaint' => '신고',
+			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
+			'complaint.e2eeConsentBody' => '이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?',
+			'complaint.e2eeConsentSubmit' => '동의하고 증거 제출',
+			'complaint.e2eeConsentDecline' => '콘텐츠 없이 신고만',
 			'complaintReason.spam' => '스팸',
 			'complaintReason.harassment' => '괴롭힘',
 			'complaintReason.inappropriate' => '부적절한 내용',
@@ -4438,6 +5131,14 @@ extension on TranslationsKoKr {
 			'discovery.openChannel' => '채널 열기',
 			'discovery.paidChannelLocked' => '유료 채널 콘텐츠가 잠겨 있습니다',
 			'discovery.webQRScanned' => '스캔 완료',
+			'discovery.momentActionMore' => '더 보기',
+			'discovery.momentAtCount' => ({required Object count}) => '${count}명',
+			'discovery.momentAtReminded' => ({required Object name}) => '${name}님에게 알림을 보냈습니다',
+			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '${name}님 외 ${count}명에게 알림을 보냈습니다',
+			'discovery.momentAtWho' => '알림 받을 사람',
+			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}명이 좋아합니다',
+			'discovery.momentLocation' => '위치',
+			'discovery.momentLocationNone' => '위치 표시 안 함',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.networkFailureGuidance' => '네트워크 오류 안내',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
@@ -4487,6 +5188,8 @@ extension on TranslationsKoKr {
 			'group.groupAlbumPhotoSetCover' => '표지로 설정',
 			'group.groupAlbumPhotoPrev' => '이전',
 			'group.groupAlbumPhotoLikeCount' => '좋아요 수',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoCommentCount' => '댓글 수',
 			'group.groupAlbumPhotoMyLike' => '내 좋아요',
 			'group.groupAlbumPhotoIdLabel' => '이미지 ID',
@@ -4494,6 +5197,15 @@ extension on TranslationsKoKr {
 			'group.e2eeKeyManagementSubtitle' => '종단간 암호화 키를 백업, 복구 및 관리합니다',
 			'group.e2eeTitle' => '종단간 암호화',
 			'group.e2eeEnableConfirm' => '활성화하면 그룹 메시지가 종단간 암호화되어 구성원의 기기에서만 복호화할 수 있습니다. 이 작업은 되돌릴 수 없습니다. 활성화하시겠습니까?',
+			'group.enterGroupChat' => '그룹 채팅 입장',
+			'group.groupCreated' => '그룹 채팅이 생성되었습니다',
+			'group.groupCreatedSuccess' => '그룹 채팅이 생성되었습니다. 그룹 정보를 완성하거나 바로 입장하세요',
+			'group.groupInfo' => '그룹 채팅 정보',
+			'group.groupMemberRoleLabel' => '구성원',
+			'group.moreActions' => '더 보기',
+			'group.noMemberWithRole' => ({required Object roleName}) => '${roleName} 없음',
+			'group.perfectionGroupInfo' => '그룹 정보 완성',
+			'group.touchContactAddMember' => '연락처를 탭하여 그룹 구성원으로 추가',
 			'groupCategory.title' => '그룹 폴더',
 			'groupCategory.createCategory' => '폴더 만들기',
 			'groupCategory.categoryName' => '폴더 이름',
@@ -4511,6 +5223,13 @@ extension on TranslationsKoKr {
 			'groupCategory.renameFailed' => '이름 변경 실패, 다시 시도해주세요',
 			'groupCategory.deleteFailed' => '삭제 실패, 다시 시도해주세요',
 			'groupCategory.categoryDetailTip' => '이 폴더의 그룹은 그룹 목록에서 "폴더로 이동"으로 관리할 수 있습니다',
+			'groupDiscovery.title' => '그룹 탐색',
+			'groupDiscovery.searchHint' => '공개 그룹 검색',
+			'groupDiscovery.allCategories' => '전체',
+			'groupDiscovery.sortPopular' => '인기순',
+			'groupDiscovery.sortNewest' => '최신순',
+			'groupDiscovery.emptyTitle' => '공개 그룹이 없습니다. 나중에 다시 확인해 주세요',
+			'groupDiscovery.searchEmpty' => '일치하는 공개 그룹이 없습니다',
 			'groupList.attrAll' => '전체',
 			'groupList.attrOwner' => '내가 만듦',
 			'groupList.attrManager' => '내가 관리',
@@ -4675,8 +5394,6 @@ extension on TranslationsKoKr {
 			'main.markStar' => '즐겨찾기',
 			'main.markStarDesc' => '이 메시지를 즐겨찾기에 추가',
 			'main.markTodo' => '할 일',
-			_ => null,
-		} ?? switch (path) {
 			'main.markTodoDesc' => '할 일로 표시',
 			'main.multiSelect' => '다중 선택',
 			'main.multiSelectMode' => '다중 선택 모드',
@@ -4885,6 +5602,35 @@ extension on TranslationsKoKr {
 			'main.liveRoomTitleLabel' => '라이브 룸 제목',
 			'main.liveRoomTitleHint' => '라이브 룸 제목을 입력하세요',
 			'main.lightModel' => '라이트 모드',
+			'main.complianceKeyInfoAlgorithm' => '알고리즘',
+			'main.complianceKeyInfoChangedWarning' => '⚠️ 서버가 내려준 컴플라이언스 공개 키가 로컬 고정값과 일치하지 않습니다! 관리자가 의도한 교체가 아니라면 즉시 관리자에게 연락하고 암호화 메시지 전송을 중단하세요.',
+			'main.complianceKeyInfoFetchedAt' => '가져온 시간',
+			'main.complianceKeyInfoFingerprint' => '공개 키 지문',
+			'main.complianceKeyInfoHint' => '컴플라이언스 감사 키는 compliance_e2ee 모드의 이중 암호화에 사용됩니다. 위 지문이 관리자가 공표한 지문과 일치하지 않으면 서버가 변조되었을 수 있습니다.',
+			'main.complianceKeyInfoKeyId' => '키 ID',
+			'main.complianceKeyInfoLocalPin' => '로컬 고정(TOFU)',
+			'main.complianceKeyInfoPinnedAt' => '고정 시간',
+			'main.complianceKeyInfoPinnedNone' => '아직 고정되지 않음(다음 가져오기 시 자동 고정)',
+			'main.complianceKeyInfoRefreshFailed' => '가져오기 실패. 네트워크 확인 후 다시 시도해 주세요',
+			'main.complianceKeyInfoServerKey' => '서버가 내려준 공개 키',
+			'main.complianceKeyInfoTitle' => '컴플라이언스 감사 키',
+			'main.e2eeErrComplianceChanged' => '컴플라이언스 감사 키가 변경되어 메시지를 보내지 않았습니다. 교체를 확인한 후 다시 시도해 주세요',
+			'main.e2eeErrComplianceUnavailable' => '컴플라이언스 키를 일시적으로 사용할 수 없어 메시지를 보내지 않았습니다. 잠시 후 다시 시도해 주세요',
+			'main.e2eeErrDeviceNotReady' => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요',
+			'main.e2eeErrProtocolMismatch' => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요',
+			'main.e2eeErrSessionExportFailed' => '그룹 세션 키 생성에 실패했습니다. 잠시 후 다시 시도해 주세요',
+			'main.safetyNumberCopied' => '복사되었습니다',
+			'main.safetyNumberCopy' => '복사',
+			'main.safetyNumberHint' => '대면 또는 전화로 상대방과 보안 번호를 비교해 주세요. 일치하면 두 사람의 통신에 중간자가 없는 것이고, 일치하지 않으면 즉시 대화를 중단하고 다른 경로로 상대방의 신원을 확인하세요. 검증 상태는 이 기기에만 저장됩니다.',
+			'main.safetyNumberMarkVerified' => '검증됨으로 표시',
+			'main.safetyNumberMarkedVerified' => '검증됨으로 표시했습니다',
+			'main.safetyNumberNoDevices' => '상대방이 아직 종단간 암호화를 사용하지 않습니다',
+			'main.safetyNumberPeerDevice' => '상대방 기기',
+			'main.safetyNumberReportRejected' => '서버가 이 검증 이벤트를 거부했습니다(서명/시효 불일치). 표시하지 않았습니다',
+			'main.safetyNumberReportUnavailable' => '기기 정보를 가져올 수 없어 보고하지 않았습니다',
+			'main.safetyNumberReporting' => '검증 결과 보고 중...',
+			'main.safetyNumberTitle' => '보안 번호 검증',
+			'main.safetyNumberVerifyFailed' => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요',
 			'mention.mentionAll' => '전체',
 			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
 			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
@@ -4900,6 +5646,7 @@ extension on TranslationsKoKr {
 			'mention.mentionCount' => ({required Object count}) => '새 멘션 ${count}건',
 			'mention.mentionAllDenied' => '관리자만 @모두를 사용할 수 있습니다',
 			'mention.navInfoMissing' => '메시지 위치 정보가 없어 이동할 수 없습니다',
+			'mention.pickButtonTooltip' => '멤버 @멘션',
 			'momentFriendPicker.title' => '친구 선택',
 			'momentFriendPicker.titleAllow' => '공개할 친구',
 			'momentFriendPicker.titleDeny' => '제외할 친구',
@@ -4935,6 +5682,16 @@ extension on TranslationsKoKr {
 			'passport.getVerifyCode' => '인증 코드 받기',
 			'passport.hasAccount' => '이미 계정이 있으신가요?',
 			'passport.oneKeyLogin' => '원클릭 로그인',
+			'passport.qrCodeExpired' => 'QR코드가 만료되었습니다. 다시 스캔해 주세요',
+			'passport.qrCodeUsed' => '이 QR코드는 이미 사용되었습니다',
+			'passport.qrConnecting' => '연결 중...',
+			'passport.qrLoginAction' => '로그인 확인',
+			'passport.qrLoginCancelled' => '로그인이 취소되었습니다',
+			'passport.qrLoginCancelledByMe' => '로그인을 취소했습니다',
+			'passport.qrLoginConfirming' => '로그인 중...',
+			'passport.qrLoginSuccess' => '로그인 성공',
+			'passport.qrWebLoginDesc' => '웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요',
+			'passport.qrWebLoginTitle' => '웹 로그인 확인',
 			'splash.slogan' => '자유롭게 대화하세요',
 			'welcome.step1Title' => '간단한 연결',
 			'welcome.step1Desc' => '원활한 소통의 즐거움을 경험해 보세요. 언제 어디서든.',
@@ -4945,6 +5702,237 @@ extension on TranslationsKoKr {
 			'welcome.next' => '다음',
 			'welcome.getStarted' => '시작하기',
 			'welcome.skip' => '건너뛰기',
+			_ => null,
+		} ?? switch (path) {
+			'workspace.navOverview' => '개요',
+			'workspace.navProjects' => '프로젝트',
+			'workspace.navChannels' => '채널',
+			'workspace.navGroups' => '그룹',
+			'workspace.navMembers' => '구성원',
+			'workspace.pickerTitle' => '내 워크스페이스',
+			'workspace.switchWorkspace' => '워크스페이스 전환',
+			'workspace.pickerEmptyTitle' => '아직 워크스페이스가 없습니다',
+			'workspace.pickerEmptySubtitle' => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)',
+			'workspace.archivedBadge' => '보관됨',
+			'workspace.emptyNoWorkspace' => '먼저 워크스페이스를 선택하거나 만들어 주세요',
+			'workspace.dmEntry' => '전체 메시지',
+			'workspace.experienceModeEntry' => '홈 레이아웃',
+			'workspace.experienceModeHint' => '현재 기기의 사용 환경을 선택합니다. 홈 레이아웃만 변경되며 권한이나 워크스페이스 구성원 신분은 변경되지 않습니다',
+			'workspace.experienceModePersonal' => '개인',
+			'workspace.experienceModeWorkspace' => '워크스페이스',
+			'workspace.experienceModeReset' => '배포 기본값으로 복원',
+			'workspace.switchToWorkspace' => '워크스페이스로 전환',
+			'workspace.switchToPersonal' => '개인으로 전환',
+			'workspace.createTitle' => '워크스페이스 만들기',
+			'workspace.createDesc' => '한 번에 자동 생성: 워크스페이스, 본인(Owner 워크스페이스 구성원 신분), Announcements 채널, General 그룹. 전부 성공하거나 전부 롤백됩니다.',
+			'workspace.createNameLabel' => '워크스페이스 이름',
+			'workspace.createNameHint' => '예: 공식 홈페이지 리뉴얼 팀',
+			'workspace.createNameRequired' => '워크스페이스 이름은 필수입니다',
+			'workspace.createSubmit' => '만들기',
+			'workspace.createEntry' => '워크스페이스 만들기',
+			'workspace.createSuccess' => '워크스페이스가 생성되었습니다',
+			'workspace.createIdempotentHit' => '같은 이름의 워크스페이스가 이미 있습니다. 해당 워크스페이스로 이동합니다',
+			'workspace.createTemplateTitle' => '자동 초기화 항목',
+			'workspace.createTemplateChannel' => 'Announcements 채널(채널 게시자이자 구독자가 됩니다)',
+			'workspace.createTemplateGroup' => 'General 그룹(그룹 구성원이 됩니다)',
+			'workspace.createTemplateOwner' => '워크스페이스 Owner가 됩니다(워크스페이스 구성원)',
+			'workspace.overviewTitle' => '개요',
+			'workspace.overviewResources' => '리소스 요약',
+			'workspace.overviewPinnedContent' => '채널 고정 콘텐츠',
+			'workspace.overviewPinnedEmpty' => '채널에 고정된 콘텐츠가 없습니다. 그룹 공지는 여기에 집계되지 않습니다(그룹 공지는 각 그룹에 속함)',
+			'workspace.overviewRecentFiles' => '최근 파일',
+			'workspace.overviewRecentFilesEmpty' => '최근 업로드한 파일이 여기에 표시됩니다. 각 채널에서도 첨부파일을 볼 수 있습니다',
+			'workspace.membersTitle' => '워크스페이스 구성원',
+			'workspace.membersCountLabel' => ({required Object count}) => '구성원 ${count}명',
+			'workspace.membersEmpty' => '워크스페이스 구성원이 없습니다',
+			'workspace.membersEmptySubtitle' => '가입한 사용자를 워크스페이스 구성원으로 초대하세요(Owner / Member / Guest)',
+			'workspace.membersViewAll' => '전체 보기',
+			'workspace.projectsEmptyTitle' => '아직 프로젝트가 없습니다',
+			'workspace.projectsEmptySubtitle' => '프로젝트는 명확한 전달 목표를 추적합니다. 채널과 그룹만 있는 커뮤니티형 워크스페이스에서도 똑같이 적용됩니다',
+			'workspace.channelsEmptyTitle' => '아직 워크스페이스 채널이 없습니다',
+			'workspace.channelsEmptySubtitle' => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요',
+			'workspace.channelTileSubtitle' => ({required Object count}) => '구독자 ${count}명',
+			'workspace.channelDetailTitle' => '채널',
+			'workspace.discussInGroupGuide' => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 →',
+			'workspace.groupsEmptyTitle' => '아직 워크스페이스 그룹이 없습니다',
+			'workspace.groupsEmptySubtitle' => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)',
+			'workspace.groupTileSubtitle' => ({required Object count}) => '그룹 구성원 ${count}명',
+			'workspace.inviteTitle' => '워크스페이스 구성원 초대',
+			'workspace.inviteDesc' => '가입한 사용자만 초대할 수 있습니다. 워크스페이스 가입이 자동으로 그룹 가입이나 채널 구독으로 이어지지 않습니다. General 그룹에 동시 가입시키고 Announcements 채널 초대를 보낼 수 있습니다',
+			'workspace.inviteSearchHint' => '사용자 이름 / 사용자 ID로 검색',
+			'workspace.inviteEntry' => '워크스페이스 구성원 초대',
+			'workspace.inviteJoinGroupOption' => 'General 그룹에 동시 가입(그룹 구성원이 됨)',
+			'workspace.inviteSubscribeChannelOption' => 'Announcements 채널 초대 동시 발송',
+			'workspace.inviteOptionUnavailable' => '해당 리소스를 찾을 수 없어 이 옵션을 사용할 수 없습니다',
+			'workspace.inviteSubmit' => '초대 보내기',
+			'workspace.inviteResultsTitle' => '결과(3개 독립)',
+			'workspace.inviteResultWorkspace' => '워크스페이스 가입(워크스페이스 구성원이 됨)',
+			'workspace.inviteResultGroup' => 'General 그룹 가입(그룹 구성원이 됨)',
+			'workspace.inviteResultChannel' => 'Announcements 채널 초대 발송(수락 시 구독자가 됨)',
+			'workspace.resultIdle' => '실행 안 함',
+			'workspace.resultRunning' => '진행 중',
+			'workspace.resultSuccess' => '성공',
+			'workspace.resultFailed' => '실패',
+			'workspace.joinEntry' => '워크스페이스 가입',
+			'workspace.joinTitle' => '워크스페이스 가입',
+			'workspace.joinDesc' => '팀 코드를 입력하면 워크스페이스에 가입할 수 있습니다',
+			'workspace.joinCodeLabel' => '팀 코드',
+			'workspace.joinCodeHint' => '영문 대문자 또는 숫자 8자',
+			'workspace.joinSubmit' => '가입',
+			'workspace.joinSuccess' => ({required Object name}) => '「${name}」에 가입했습니다',
+			'workspace.joinAlreadyMember' => '이미 이 워크스페이스에 속해 있습니다',
+			'workspace.joinInvalidCode' => '팀 코드가 잘못되었거나 만료되었습니다',
+			'workspace.joinExpiredCode' => '팀 코드가 만료되었습니다',
+			'workspace.inviteCodeSectionTitle' => '팀 코드 초대',
+			'workspace.inviteCodeGenerate' => '팀 코드 생성',
+			'workspace.inviteCodeCopy' => '복사',
+			'workspace.inviteCodeRevoke' => '무효화',
+			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '${expiresAt}까지 유효',
+			'workspace.roleOwner' => 'Owner',
+			'workspace.roleMember' => 'Member',
+			'workspace.roleGuest' => 'Guest',
+			'workspace.removeMemberTitle' => ({required Object name}) => '워크스페이스 구성원 ${name} 제거',
+			'workspace.removeMemberDesc' => '제거하면 해당 구성원의 워크스페이스 접근이 즉시 해제됩니다. 미완료 작업이나 담당 프로젝트가 남아 있으면 서버가 충돌 목록을 반환하며 이번 제거를 취소합니다',
+			'workspace.removeMemberConfirm' => '제거 확인',
+			'workspace.changeRoleTitle' => ({required Object name}) => '${name}의 워크스페이스 역할 변경',
+			'workspace.transferTitle' => ({required Object name}) => '메인 Owner를 ${name}에게 이전',
+			'workspace.transferDesc' => '이전 후 본인은 일반 워크스페이스 구성원(Member)이 되고 상대방이 전체 거버넌스 권한을 갖습니다',
+			'workspace.transferConfirm' => '이전 확인',
+			'workspace.governanceTitle' => '워크스페이스 거버넌스',
+			'workspace.brandingEntry' => '브랜드 설정(이름 / Logo / 기본 색상)',
+			'workspace.archiveEntry' => '워크스페이스 보관',
+			'workspace.restoreEntry' => '워크스페이스 복원',
+			'workspace.archiveTitle' => '워크스페이스 보관',
+			'workspace.archiveDesc' => '보관 후 전원 읽기 전용이 됩니다(쓰기 작업은 서버에서 거부). 언제든지 복원할 수 있습니다',
+			'workspace.archiveConfirm' => '보관 확인',
+			'workspace.restoreTitle' => '워크스페이스 복원',
+			'workspace.restoreDesc' => '복원 후 워크스페이스는 읽기/쓰기가 다시 활성화됩니다',
+			'workspace.restoreConfirm' => '복원 확인',
+			'workspace.archivedBanner' => '워크스페이스가 보관되었습니다: 콘텐츠는 볼 수 있지만 쓰기 작업은 비활성화됩니다. Owner는 구성원 페이지에서 복원할 수 있습니다',
+			'workspace.brandingTitle' => '워크스페이스 브랜드',
+			'workspace.brandingNameLabel' => '브랜드 이름',
+			'workspace.brandingLogoLabel' => 'Logo 주소',
+			'workspace.brandingLogoHint' => 'https://…(워크스페이스 Logo 이미지 주소)',
+			'workspace.brandingColorLabel' => '기본 색상 primaryColor',
+			'workspace.brandingColorHint' => '#2474E5',
+			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB만 지원합니다. 잘못된 값은 기본 테마 색상으로 대체됩니다',
+			'workspace.brandingColorInvalid' => '기본 색상 형식이 잘못되었습니다. #RRGGBB / #AARRGGBB만 지원합니다',
+			'workspace.brandingSaved' => '브랜드 설정이 저장되었습니다',
+			'workspace.brandingPreview' => '기본 색상 미리보기',
+			'workspace.brandingPreviewApplied' => '현재 기본 색상은 워크스페이스 안에서 적용됩니다',
+			'workspace.brandingPreviewFallback' => '설정되지 않았거나 잘못된 값이면 기본 테마 색상을 사용합니다',
+			'workspace.projectsTitle' => '프로젝트',
+			'workspace.projectCreateEntry' => '새 프로젝트',
+			'workspace.projectCreateTitle' => '새 프로젝트',
+			'workspace.projectNameLabel' => '프로젝트 이름',
+			'workspace.projectNameHint' => '예: 공식 홈페이지 리뉴얼',
+			'workspace.projectNameRequired' => '프로젝트 이름은 필수입니다',
+			'workspace.projectDescLabel' => '프로젝트 설명(선택)',
+			'workspace.projectDescHint' => '이 프로젝트로 무엇을 전달하나요?',
+			'workspace.projectSubmit' => '만들기',
+			'workspace.projectCreateSuccess' => '프로젝트가 생성되었습니다',
+			'workspace.projectDetailTitle' => '프로젝트 상세',
+			'workspace.projectInfoSection' => '기본 정보',
+			'workspace.projectOwnerLabel' => '담당자',
+			'workspace.projectStatusLabel' => '상태',
+			'workspace.projectStatusActive' => '진행 중',
+			'workspace.projectStatusDone' => '완료됨',
+			'workspace.projectMarkDone' => '완료로 표시',
+			'workspace.projectReopen' => '프로젝트 다시 열기',
+			'workspace.projectStatusChanged' => '프로젝트 상태가 업데이트되었습니다',
+			'workspace.projectTasksSection' => '작업',
+			'workspace.taskNewEntry' => '새 작업',
+			'workspace.taskFormCreateTitle' => '새 작업',
+			'workspace.taskFormEditTitle' => '작업 편집',
+			'workspace.taskTitleLabel' => '작업 제목',
+			'workspace.taskTitleRequired' => '작업 제목은 필수입니다',
+			'workspace.taskAssigneeLabel' => '담당자(워크스페이스 구성원)',
+			'workspace.taskAssigneeNone' => '지정 안 함',
+			'workspace.taskAssigneeRefresh' => '담당자 후보 새로 고침',
+			'workspace.taskSubmitCreate' => '작업 만들기',
+			'workspace.taskSubmitSave' => '저장',
+			'workspace.taskCreatedToast' => '작업이 생성되었습니다',
+			'workspace.taskExistingToast' => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다',
+			'workspace.taskUpdatedToast' => '작업이 저장되었습니다',
+			'workspace.taskFilterAll' => '전체',
+			'workspace.taskStatusTodo' => '할 일',
+			'workspace.taskStatusDoing' => '진행 중',
+			'workspace.taskStatusReview' => '검토 중',
+			'workspace.taskStatusDone' => '완료됨',
+			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」 상태로 진행',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} 상태로 되돌리기…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」 상태로 변경되었습니다',
+			'workspace.taskEmptyTitle' => '아직 작업이 없습니다',
+			'workspace.taskEmptySubtitle' => '4단계 상태로 실행을 추적합니다: 할 일 → 진행 중 → 검토 중 → 완료',
+			'workspace.guestReadonlyHint' => '게스트(Guest) 신분은 워크스페이스 리소스가 읽기 전용입니다',
+			'workspace.projectsLoadMore' => '더 로드',
+			'workspace.projectW2SectionTitle' => '프로젝트 협업',
+			'workspace.projectMembersEntry' => '구성원',
+			'workspace.projectMilestonesEntry' => '마일스톤',
+			'workspace.projectChannelsEntry' => '프로젝트 채널',
+			'workspace.projectInsightsEntry' => '콘텐츠 집계',
+			'workspace.projectNoPermission' => '권한 없음: 프로젝트 구성원, 프로젝트 담당자 또는 워크스페이스 Owner만 볼 수 있습니다',
+			'workspace.projectGuestReadonly' => '게스트(Guest) 신분은 프로젝트가 읽기 전용입니다',
+			'workspace.projectLoadMore' => '더 로드',
+			'workspace.projectMembersTitle' => '프로젝트 구성원',
+			'workspace.projectMemberEmptyTitle' => '아직 프로젝트 구성원이 없습니다',
+			'workspace.projectMemberEmptySubtitle' => '프로젝트 담당자가 가입한 사용자를 이 프로젝트에 초대할 수 있습니다',
+			'workspace.projectMemberInviteTitle' => '프로젝트 구성원 초대',
+			'workspace.projectMemberInviteFieldLabel' => '사용자 ID',
+			'workspace.projectMemberInviteFieldHint' => '초대할 가입 사용자 ID',
+			'workspace.projectMemberInviteInvalidUid' => '올바른 사용자 ID를 입력해 주세요',
+			'workspace.projectMemberInviteSubmit' => '초대',
+			'workspace.projectMemberInviteSuccess' => '프로젝트 구성원으로 추가되었습니다',
+			'workspace.projectMemberInviteExisting' => '이 사용자는 이미 프로젝트 구성원입니다',
+			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '프로젝트 구성원 ${name} 제거',
+			'workspace.projectMemberRemoveConfirmDesc' => '제거 후 해당 사용자는 이 프로젝트 콘텐츠에 접근할 수 없습니다(다시 초대 가능)',
+			'workspace.projectMemberRemoveSubmit' => '제거',
+			'workspace.projectMemberRemovedToast' => '제거되었습니다',
+			'workspace.projectMemberAlreadyRemovedToast' => '해당 사용자는 이미 프로젝트 구성원이 아닙니다',
+			'workspace.projectMemberTransferTitle' => ({required Object name}) => '${name}에게 프로젝트 담당자 이전',
+			'workspace.projectMemberTransferDesc' => '이전 후 상대방이 이 프로젝트의 전체 관리 권한을 갖습니다',
+			'workspace.projectMemberTransferConfirm' => '이전 확인',
+			'workspace.projectMemberTransferDoneToast' => '프로젝트 담당자가 이전되었습니다',
+			'workspace.projectMilestonesTitle' => '마일스톤',
+			'workspace.projectMilestoneEmptyTitle' => '아직 마일스톤이 없습니다',
+			'workspace.projectMilestoneEmptySubtitle' => '마일스톤으로 프로젝트의 핵심 지점을 표시합니다(계획됨 → 달성됨, 단방향)',
+			'workspace.projectMilestoneCreateTitle' => '새 마일스톤',
+			'workspace.projectMilestoneNameLabel' => '이름',
+			'workspace.projectMilestoneNameRequired' => '마일스톤 이름은 필수입니다',
+			'workspace.projectMilestoneDueDateLabel' => '마감일(YYYY-MM-DD, 선택)',
+			'workspace.projectMilestoneDueDateInvalid' => '날짜 형식은 YYYY-MM-DD이어야 합니다',
+			'workspace.projectMilestoneCreateSubmit' => '만들기',
+			'workspace.projectMilestoneCreatedToast' => '마일스톤이 생성되었습니다',
+			'workspace.projectMilestoneFilterAll' => '전체',
+			'workspace.projectMilestoneFilterPlanned' => '계획됨',
+			'workspace.projectMilestoneFilterReached' => '달성됨',
+			'workspace.projectMilestoneReach' => '달성으로 표시',
+			'workspace.projectMilestoneReachedToast' => '마일스톤이 달성되었습니다',
+			'workspace.projectMilestoneAlreadyReachedToast' => '이 마일스톤은 이미 달성되었습니다',
+			'workspace.projectMilestoneReachedHint' => '달성됨(되돌릴 수 없음)',
+			'workspace.projectMilestoneDueLabel' => '마감',
+			'workspace.projectChannelsTitle' => '프로젝트 채널',
+			'workspace.projectChannelEmptyTitle' => '아직 연결된 채널이 없습니다',
+			'workspace.projectChannelEmptySubtitle' => '워크스페이스 채널을 연결하면 고정 콘텐츠와 최근 게시물이 이 프로젝트에 집계됩니다',
+			'workspace.projectChannelLinkTitle' => '연결할 채널 선택',
+			'workspace.projectChannelNoCandidate' => '연결 가능한 후보 채널이 없습니다',
+			'workspace.projectChannelLinkedToast' => '채널이 연결되었습니다',
+			'workspace.projectChannelLinkExistingToast' => '이 채널은 이미 연결되어 있습니다',
+			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => '${name} 연결 해제',
+			'workspace.projectChannelUnlinkDesc' => '해제 후 해당 채널의 콘텐츠는 더 이상 이 프로젝트에 집계되지 않습니다',
+			'workspace.projectChannelUnlinkSubmit' => '연결 해제',
+			'workspace.projectChannelUnlinkedToast' => '연결이 해제되었습니다',
+			'workspace.projectInsightsTabPinned' => '고정 메시지',
+			'workspace.projectInsightsTabResources' => '리소스 링크',
+			'workspace.projectInsightsTabActivity' => '프로젝트 활동',
+			'workspace.projectInsightsTabPosts' => '관련 게시물',
+			'workspace.projectInsightsPinnedEmpty' => '연결된 채널에 고정된 콘텐츠가 없습니다',
+			'workspace.projectInsightsResourcesEmpty' => '프로젝트에 리소스 링크가 없습니다',
+			'workspace.projectInsightsActivityEmpty' => '프로젝트에 활동이 없습니다',
+			'workspace.projectInsightsPostsEmpty' => '연결된 채널에 게시물이 없습니다',
+			'workspace.projectInsightsPostAuthor' => ({required Object name}) => '${name} 게시',
+			'workspace.projectLinkNameLabel' => '링크 이름',
+			'workspace.projectLinkUrlLabel' => '링크 주소',
 			_ => null,
 		};
 	}

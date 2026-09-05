@@ -35,12 +35,13 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 
 	late final TranslationsItIt _root = this; // ignore: unused_field
 
-	@override 
+	@override
 	TranslationsItIt $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsItIt(meta: meta ?? this.$meta);
 
 	// Translations
 	@override late final _Translations$account$it_IT account = _Translations$account$it_IT._(_root);
 	@override late final _Translations$agent$it_IT agent = _Translations$agent$it_IT._(_root);
+	@override late final _Translations$agentTask$it_IT agentTask = _Translations$agentTask$it_IT._(_root);
 	@override late final _Translations$billing$it_IT billing = _Translations$billing$it_IT._(_root);
 	@override late final _Translations$channel$it_IT channel = _Translations$channel$it_IT._(_root);
 	@override late final _Translations$chat$it_IT chat = _Translations$chat$it_IT._(_root);
@@ -52,6 +53,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$error$it_IT error = _Translations$error$it_IT._(_root);
 	@override late final _Translations$group$it_IT group = _Translations$group$it_IT._(_root);
 	@override late final _Translations$groupCategory$it_IT groupCategory = _Translations$groupCategory$it_IT._(_root);
+	@override late final _Translations$groupDiscovery$it_IT groupDiscovery = _Translations$groupDiscovery$it_IT._(_root);
 	@override late final _Translations$groupList$it_IT groupList = _Translations$groupList$it_IT._(_root);
 	@override late final _Translations$groupSchedule$it_IT groupSchedule = _Translations$groupSchedule$it_IT._(_root);
 	@override late final _Translations$groupTag$it_IT groupTag = _Translations$groupTag$it_IT._(_root);
@@ -64,6 +66,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$passport$it_IT passport = _Translations$passport$it_IT._(_root);
 	@override late final _Translations$splash$it_IT splash = _Translations$splash$it_IT._(_root);
 	@override late final _Translations$welcome$it_IT welcome = _Translations$welcome$it_IT._(_root);
+	@override late final _Translations$workspace$it_IT workspace = _Translations$workspace$it_IT._(_root);
 }
 
 // Path: account
@@ -190,6 +193,20 @@ class _Translations$account$it_IT extends Translations$account$zh_CN {
 	@override String get e2eeTransferFromOldDevice => 'Dal vecchio dispositivo';
 	@override String get pleaseRelogin => 'Riaccedi';
 	@override String get otherLoginMethods => 'Altri metodi di accesso';
+	@override late final _Translations$account$alipaySim$it_IT alipaySim = _Translations$account$alipaySim$it_IT._(_root);
+	@override String get logoutCancelledNote => 'Richiesta di disattivazione ritirata';
+	@override String logoutPendingBanner({required Object date}) => 'Richiesta di disattivazione inviata, completamento previsto per il ${date}';
+	@override String get logoutPendingHeader => 'Stato della richiesta di disattivazione';
+	@override String get logoutCancelRequest => 'Annulla richiesta di disattivazione';
+	@override String get logoutRetainedHeader => 'Informativa sulla conservazione dei dati';
+	@override String get logoutRetainedNote => 'Al termine dell\'eliminazione: i log di audit e i record finanziari verranno conservati per obbligo di legge e anonimizzati; i gruppi/aree di lavoro/canali di tua proprietà saranno trasferiti prioritariamente ai membri successori';
+	@override String get payCancelled => 'Pagamento annullato';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodComingSoon => 'Questo metodo di pagamento sarà disponibile a breve, restate sintonizzati';
+	@override String get payMethodMock => 'Pagamento simulato (ambiente di sviluppo)';
+	@override String get payMethodTitle => 'Seleziona metodo di pagamento';
+	@override String get payMethodWallet => 'Saldo del portafoglio';
+	@override String get payMethodWechat => 'WeChat Pay';
 }
 
 // Path: agent
@@ -209,6 +226,27 @@ class _Translations$agent$it_IT extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => 'Ufficiale';
 	@override String get badgeAiA11y => 'Assistente IA';
 	@override String get badgeOfficialA11y => 'Account ufficiale';
+	@override String get legacyBotGoPlaza => 'Vai alla piazza degli assistenti IA';
+	@override String get legacyBotMigrated => 'L\'ingresso di questo bot è stato aggiornato: vai alla piazza degli assistenti IA per parlare con gli assistenti';
+}
+
+// Path: agentTask
+class _Translations$agentTask$it_IT extends Translations$agentTask$zh_CN {
+	_Translations$agentTask$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Attività IA';
+	@override String get working => 'In esecuzione';
+	@override String get submitted => 'Inviato';
+	@override String get progress => 'In corso';
+	@override String get completed => 'Completata';
+	@override String get failed => 'Non riuscita';
+	@override String get cancelled => 'Annullata';
+	@override String get awaitingApproval => 'In attesa di approvazione';
+	@override String get approve => 'Approva';
+	@override String get reject => 'Rifiuta';
 }
 
 // Path: billing
@@ -390,6 +428,66 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get accessTypePaid => 'A pagamento';
 	@override String get typePublicPaidDesc => 'Chiunque può scoprire il canale e abbonarsi dopo l\'acquisto';
 	@override String get typePrivatePaidDesc => 'Solo gli utenti invitati possono accedere all\'acquisto e abbonarsi dopo il pagamento';
+	@override String get addImage => 'Aggiungi immagine';
+	@override String get allCategories => 'Tutte';
+	@override String get articleBodyHint => 'Scrivi qualcosa… sono supportati grassetto, corsivo, titoli, elenchi e altri formati';
+	@override String get cancelOrder => 'Annulla ordine';
+	@override String get cancelOrderConfirmMessage => 'Vuoi davvero annullare questo ordine in attesa di pagamento? Dopo l\'annullamento non sarà più possibile pagare.';
+	@override String get cancelOrderConfirmTitle => 'Conferma annullamento ordine';
+	@override String get cancelOrderSuccess => 'Ordine annullato';
+	@override String get channelNotFound => 'Canale inesistente';
+	@override String get comment => 'Commento';
+	@override String get commentDeleteNoPermission => 'Non hai il permesso di eliminare questo commento';
+	@override String get commentFailed => 'Commento non riuscito';
+	@override String get coverLabel => 'Copertina';
+	@override String get coverSet => 'Impostata come copertina';
+	@override String get deleteComment => 'Elimina commento';
+	@override String get deleteCommentConfirm => 'Vuoi eliminare questo commento?';
+	@override String get formatBold => 'Grassetto';
+	@override String get formatHeading => 'Titolo';
+	@override String get formatItalic => 'Corsivo';
+	@override String get formatLink => 'Link';
+	@override String get formatList => 'Elenco';
+	@override String get formatQuote => 'Citazione';
+	@override String get formatStrikethrough => 'Barrato';
+	@override String get like => 'Mi piace';
+	@override String get linkTextPlaceholder => 'Testo del link';
+	@override String get myOrders => 'I miei ordini';
+	@override String get noComments => 'Nessun commento per ora';
+	@override String get noOrders => 'Nessun ordine registrato per ora';
+	@override String get orderAmount => 'Importo';
+	@override String get orderChannel => 'Canale';
+	@override String get orderContinuePay => 'Continua il pagamento';
+	@override String get orderCreatedAt => 'Data dell\'ordine';
+	@override String get orderDetail => 'Dettagli ordine';
+	@override String get orderNo => 'N. ordine';
+	@override String get orderPaidAt => 'Data del pagamento';
+	@override String get orderPaymentMethod => 'Metodo di pagamento';
+	@override String get orderStatusCancelled => 'Annullato';
+	@override String get orderStatusExpired => 'Scaduto';
+	@override String get orderStatusLabel => 'Stato';
+	@override String get orderStatusPaid => 'Pagato';
+	@override String get orderStatusPending => 'In attesa di pagamento';
+	@override String get orderStatusRefunded => 'Rimborsato';
+	@override String get orderStatusRefunding => 'Rimborso in corso';
+	@override String get orderSubscriptionPeriod => 'Periodo di iscrizione';
+	@override String get orderValidUntil => 'Valido fino al';
+	@override String get payAlipay => 'Alipay';
+	@override String get payWallet => 'Saldo del portafoglio';
+	@override String get payWechat => 'WeChat Pay';
+	@override String get preview => 'Anteprima';
+	@override String get publish => 'Pubblica';
+	@override String get readFull => 'Leggi tutto';
+	@override String get refundApply => 'Richiedi rimborso';
+	@override String get refundConfirmMessage => 'Vuoi richiedere il rimborso di questo ordine? Dopo il rimborso l\'iscrizione verrà annullata.';
+	@override String get refundConfirmTitle => 'Conferma rimborso';
+	@override String get refundSuccess => 'Richiesta di rimborso inviata';
+	@override String get reply => 'Rispondi';
+	@override String get replyTo => 'Risposta a';
+	@override String get sortNewest => 'Più recenti';
+	@override String get sortPopular => 'Popolari';
+	@override String get titleOptional => 'Titolo (opzionale)';
+	@override String get writeComment => 'Scrivi un commento...';
 }
 
 // Path: chat
@@ -677,6 +775,16 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get extraItems => 'Extra';
 	@override String get messageInputHint => 'Scrivi un messaggio...';
 	@override String get invalidMessageType => '[Messaggio non supportato]';
+	@override String get alipayLoginInterrupted => 'Il flusso di accesso Alipay è stato interrotto dal sistema, riprova';
+	@override String get burnReadBadge => 'Dopo lettura';
+	@override String get convertToText => 'Converti in testo';
+	@override String get extraPanelCollab => 'Collaborazione di gruppo';
+	@override String get extraPanelFunds => 'Fondi';
+	@override String get extraPanelMedia => 'Media';
+	@override String get releaseConvertToText => 'Rilascia per convertire in testo';
+	@override String get voiceReleaseCancel => 'Rilascia per annullare';
+	@override String get voiceReleaseCancelSend => 'Rilascia per annullare l\'invio';
+	@override String get voiceSlideHint => 'Scorri su per annullare / convertire in testo';
 }
 
 // Path: common
@@ -1834,6 +1942,77 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get searchFailedRetry => 'Ricerca non riuscita, riprova';
 	@override String get searchDisabledTitle => 'Ricerca messaggi non disponibile';
 	@override String get searchDisabledByEncryption => 'La crittografia end-to-end è attiva: il server non può leggere i messaggi, quindi la ricerca full-text non è disponibile';
+	@override String get amountMustPositive => 'L\'importo deve essere maggiore di 0';
+	@override String get answer => 'Rispondi';
+	@override String get collapse => 'Comprimi';
+	@override String get complianceKeyChangedActionConfirm => 'Conferma rotazione';
+	@override String get complianceKeyChangedActionKeep => 'Non confermare per ora';
+	@override String get complianceKeyChangedBody => 'La chiave pubblica di audit di conformità distribuita dal server non corrisponde al valore bloccato localmente. Se si tratta di una rotazione della chiave intenzionale dell\'amministratore, tocca «Conferma rotazione»; in caso contrario non continuare a inviare messaggi cifrati e contatta l\'amministratore per una verifica.';
+	@override String get complianceKeyChangedTitle => 'La chiave di audit di conformità è cambiata';
+	@override String get declineCall => 'Rifiuta';
+	@override String get e2eeErrPeerNotOnboarded => 'L\'altro non ha ancora effettuato l\'accesso da nessun dispositivo, impossibile inviare in cifratura per ora; attendi che l\'altro effettui l\'accesso e riprova';
+	@override String get e2eeRecoveryKeyCopied => 'Chiave di recupero copiata';
+	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Chiave di recupero copiata, gli appunti verranno cancellati automaticamente tra ${seconds} secondi, salvala al più presto';
+	@override String get e2eeRecoveryKeySaveNote => 'Salva subito questa chiave di recupero (screenshot o conservala in un gestore di password). Se dimentichi la passphrase è l\'unico strumento per decifrare il backup; se la perdi, il backup non sarà più recuperabile.';
+	@override String get e2eeRecoveryKeyTitle => 'Chiave di recupero';
+	@override String get e2eeUseRecoveryKey => 'Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)';
+	@override String get enterAmount => 'Inserisci l\'importo';
+	@override String get expandFull => 'Espandi';
+	@override String f2fEnteringGroup({required Object count}) => '${count} persone stanno per entrare nella chat di gruppo';
+	@override String get f2fSecretCode => 'Codice segreto';
+	@override String get hoursAgo => 'ore fa';
+	@override String get initConfigDecryptFailed => 'Decifratura della configurazione non riuscita: la chiave di sicurezza dell\'app non corrisponde a quella del server, aggiorna l\'app o contatta l\'amministratore';
+	@override String get justNow => 'Proprio ora';
+	@override String get me => 'Io';
+	@override String get minimize => 'Riduci a icona';
+	@override String get minutesAgo => 'minuti fa';
+	@override String get momentsHasFailedUploads => 'Ci sono media il cui caricamento non è riuscito, riprova o rimuovili prima di pubblicare';
+	@override String get noHistory => 'Nessuna cronologia per ora';
+	@override String get noNewRegisteredUsersTitle => 'Nessun nuovo utente registrato per ora';
+	@override String get payReceiveSuccess => 'Ricezione riuscita!';
+	@override String get purchaseConfirming => 'Pagamento in fase di conferma, controlla lo stato dell\'ordine più tardi';
+	@override String get reconnecting => 'Connessione debole, riconnessione in corso…';
+	@override String get redPacketAmountTooSmall => 'L\'importo totale deve essere almeno pari al numero di buste × 0,01 yuan';
+	@override String get redPacketBrand => 'Busta rossa IMBoy';
+	@override String get redPacketCount => 'Numero di buste';
+	@override String get redPacketCountEmpty => 'Inserisci il numero di buste';
+	@override String get redPacketCountMin => 'Il numero di buste deve essere almeno 1';
+	@override String get redPacketCountUnit => 'pz';
+	@override String get redPacketCurrentLucky => 'Attuale: busta fortunata';
+	@override String get redPacketCurrentNormal => 'Attuale: busta normale';
+	@override String get redPacketDialogSubtitle => 'Buona fortuna e tanta prosperità';
+	@override String get redPacketDialogTitle => 'Ti ho inviato una busta rossa';
+	@override String get redPacketFetchError => 'Errore nel recupero dei dettagli della busta';
+	@override String get redPacketFetchFailed => 'Impossibile recuperare i dettagli della busta';
+	@override String get redPacketGreetingLabel => 'Messaggio / auguri';
+	@override String get redPacketNotFound => 'La busta rossa non esiste o è stata eliminata';
+	@override String redPacketReceiverLabel({required Object uid}) => 'Utente: ${uid}';
+	@override String get redPacketSingleAmount => 'Importo per busta';
+	@override String get redPacketStuffLucky => 'Invia busta fortunata';
+	@override String get redPacketStuffNormal => 'Invia dal portafoglio';
+	@override String get redPacketSwitchToLucky => 'Passa a busta fortunata';
+	@override String get redPacketSwitchToNormal => 'Passa a busta normale';
+	@override String get redPacketTotalAmount => 'Importo totale';
+	@override String get redPacketView => 'Vedi busta rossa';
+	@override String get switchCamera => 'Cambia fotocamera';
+	@override String timeDaysShort({required Object count}) => '${count}g';
+	@override String timeHoursShort({required Object count}) => '${count}h';
+	@override String timeMinutesShort({required Object count}) => '${count}m';
+	@override String get timeNowShort => 'adesso';
+	@override String get transferAccepted => 'Ricevuto';
+	@override String get transferAmountLabel => 'Importo del bonifico';
+	@override String get transferConfirm => 'Conferma bonifico';
+	@override String get transferDefaultRemark => 'Bonifico a un amico';
+	@override String get transferMinAmountError => 'L\'importo minimo del bonifico è 0,01 yuan';
+	@override String get transferPending => 'In attesa di conferma dell\'altro';
+	@override String get transferReceiving => 'Ricezione in corso...';
+	@override String get transferRefunded => 'Restituito';
+	@override String get transferRemarkLabel => 'Note del bonifico';
+	@override String get transferTapToReceive => 'Tocca per ricevere';
+	@override String uploadPartialFailed({required Object count}) => 'Caricamento non riuscito per ${count} elementi';
+	@override String get voiceSttConverting => 'Riconoscimento in corso...';
+	@override String get voiceSttNotConfigured => 'La conversione in testo non è ancora configurata';
+	@override String get voiceSttPreviewTitle => 'Anteprima di conversione vocale in testo';
 }
 
 // Path: complaint
@@ -1844,6 +2023,10 @@ class _Translations$complaint$it_IT extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => 'Reclamo';
+	@override String get e2eeConsentTitle => 'Invia prove crittografate';
+	@override String get e2eeConsentBody => 'Questo messaggio è cifrato end-to-end; il server non può vederne il contenuto. Inviare un estratto renderà visibile il testo selezionato ai moderatori per la revisione. Acconsenti?';
+	@override String get e2eeConsentSubmit => 'Acconsenti e invia';
+	@override String get e2eeConsentDecline => 'Solo segnala (senza contenuto)';
 }
 
 // Path: complaintReason
@@ -1974,6 +2157,14 @@ class _Translations$discovery$it_IT extends Translations$discovery$zh_CN {
 	@override String get openChannel => 'Apri canale';
 	@override String get paidChannelLocked => 'Contenuto bloccato (a pagamento)';
 	@override String get webQRScanned => 'Scansionato';
+	@override String get momentActionMore => 'Altre azioni';
+	@override String momentAtCount({required Object count}) => '${count} persone';
+	@override String momentAtReminded({required Object name}) => 'Ha avvisato ${name}';
+	@override String momentAtRemindedMore({required Object name, required Object count}) => 'Ha avvisato ${name} e altri ${count}';
+	@override String get momentAtWho => 'Chi avvisare';
+	@override String momentLikesCountOnly({required Object count}) => 'Piace a ${count} persone';
+	@override String get momentLocation => 'Posizione';
+	@override String get momentLocationNone => 'Non mostrare la posizione';
 }
 
 // Path: error
@@ -2048,6 +2239,15 @@ class _Translations$group$it_IT extends Translations$group$zh_CN {
 	@override String get e2eeKeyManagementSubtitle => 'Backup, ripristino e gestione chiavi E2EE';
 	@override String get e2eeTitle => 'Crittografia end-to-end';
 	@override String get e2eeEnableConfirm => 'Una volta attivata, i messaggi del gruppo saranno crittografati end-to-end e leggibili solo sui dispositivi dei membri. L\'operazione è irreversibile. Attivare?';
+	@override String get enterGroupChat => 'Entra nella chat di gruppo';
+	@override String get groupCreated => 'Chat di gruppo creata';
+	@override String get groupCreatedSuccess => 'Chat di gruppo creata con successo, ti invitiamo a completare le informazioni del gruppo o a entrare direttamente';
+	@override String get groupInfo => 'Info chat di gruppo';
+	@override String get groupMemberRoleLabel => 'Membro';
+	@override String get moreActions => 'Altre azioni';
+	@override String noMemberWithRole({required Object roleName}) => 'Nessun ${roleName} per ora';
+	@override String get perfectionGroupInfo => 'Completa le info del gruppo';
+	@override String get touchContactAddMember => 'Tocca un contatto per aggiungerlo come membro del gruppo';
 }
 
 // Path: groupCategory
@@ -2074,6 +2274,22 @@ class _Translations$groupCategory$it_IT extends Translations$groupCategory$zh_CN
 	@override String get renameFailed => 'Ridenominazione fallita. Riprova.';
 	@override String get deleteFailed => 'Eliminazione fallita. Riprova.';
 	@override String get categoryDetailTip => 'I gruppi di questa categoria si gestiscono dalla lista gruppi tramite « Sposta in categoria »';
+}
+
+// Path: groupDiscovery
+class _Translations$groupDiscovery$it_IT extends Translations$groupDiscovery$zh_CN {
+	_Translations$groupDiscovery$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Scopri gruppi';
+	@override String get searchHint => 'Cerca gruppi pubblici';
+	@override String get allCategories => 'Tutte';
+	@override String get sortPopular => 'Popolari';
+	@override String get sortNewest => 'Più recenti';
+	@override String get emptyTitle => 'Nessun gruppo pubblico per ora, torna a trovarci più tardi';
+	@override String get searchEmpty => 'Nessun gruppo pubblico corrispondente';
 }
 
 // Path: groupList
@@ -2500,6 +2716,35 @@ class _Translations$main$it_IT extends Translations$main$zh_CN {
 	@override String get liveRoomTitleLabel => 'Titolo live';
 	@override String get liveRoomTitleHint => 'Titolo live';
 	@override String get lightModel => 'Modalità chiara';
+	@override String get complianceKeyInfoAlgorithm => 'Algoritmo';
+	@override String get complianceKeyInfoChangedWarning => '⚠️ La chiave pubblica di conformità distribuita dal server non corrisponde al pin locale! Se non si tratta di una rotazione intenzionale dell\'amministratore, contatta subito l\'amministratore e smetti di inviare messaggi cifrati.';
+	@override String get complianceKeyInfoFetchedAt => 'Ora di recupero';
+	@override String get complianceKeyInfoFingerprint => 'Impronta della chiave pubblica';
+	@override String get complianceKeyInfoHint => 'La chiave di audit di conformità è usata per la doppia cifratura della modalità compliance_e2ee. Se l\'impronta sopra non corrisponde a quella pubblicata dall\'amministratore, il server potrebbe essere stato manomesso.';
+	@override String get complianceKeyInfoKeyId => 'ID chiave';
+	@override String get complianceKeyInfoLocalPin => 'Pin locale (TOFU)';
+	@override String get complianceKeyInfoPinnedAt => 'Ora del pin';
+	@override String get complianceKeyInfoPinnedNone => 'Non ancora bloccato (verrà bloccato automaticamente al prossimo recupero)';
+	@override String get complianceKeyInfoRefreshFailed => 'Recupero non riuscito, controlla la rete e riprova';
+	@override String get complianceKeyInfoServerKey => 'Chiave pubblica distribuita dal server';
+	@override String get complianceKeyInfoTitle => 'Chiave di audit di conformità';
+	@override String get e2eeErrComplianceChanged => 'La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova';
+	@override String get e2eeErrComplianceUnavailable => 'Chiave di conformità temporaneamente non disponibile, messaggio non inviato; riprova più tardi';
+	@override String get e2eeErrDeviceNotReady => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova';
+	@override String get e2eeErrProtocolMismatch => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova';
+	@override String get e2eeErrSessionExportFailed => 'Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi';
+	@override String get safetyNumberCopied => 'Copiato';
+	@override String get safetyNumberCopy => 'Copia';
+	@override String get safetyNumberHint => 'Confronta il codice di sicurezza con l\'altro di persona o al telefono. Se corrisponde, le vostre comunicazioni non sono intercettate da un attacco man-in-the-middle; se non corrisponde, interrompi subito la conversazione e verifica l\'identità dell\'altro tramite un altro canale. Lo stato di verifica è salvato solo su questo dispositivo.';
+	@override String get safetyNumberMarkVerified => 'Segna come verificato';
+	@override String get safetyNumberMarkedVerified => 'Segnato come verificato';
+	@override String get safetyNumberNoDevices => 'L\'altro non ha ancora attivato la crittografia end-to-end';
+	@override String get safetyNumberPeerDevice => 'Dispositivo dell\'altro';
+	@override String get safetyNumberReportRejected => 'Il server ha rifiutato l\'evento di verifica (firma/validità non corrispondenti), non segnato';
+	@override String get safetyNumberReportUnavailable => 'Impossibile ottenere le informazioni del dispositivo, non riportato';
+	@override String get safetyNumberReporting => 'Invio del risultato della verifica in corso...';
+	@override String get safetyNumberTitle => 'Verifica del codice di sicurezza';
+	@override String get safetyNumberVerifyFailed => 'Impossibile ottenere il codice di sicurezza, riprova più tardi';
 }
 
 // Path: mention
@@ -2524,6 +2769,7 @@ class _Translations$mention$it_IT extends Translations$mention$zh_CN {
 	@override String mentionCount({required Object count}) => '${count} nuove menzioni';
 	@override String get mentionAllDenied => 'Solo gli amministratori possono @tutti';
 	@override String get navInfoMissing => 'Posizione messaggio mancante, navigazione impossibile';
+	@override String get pickButtonTooltip => 'Menziona membro';
 }
 
 // Path: momentFriendPicker
@@ -2586,6 +2832,16 @@ class _Translations$passport$it_IT extends Translations$passport$zh_CN {
 	@override String get getVerifyCode => 'Ottieni codice';
 	@override String get hasAccount => 'Hai già un account?';
 	@override String get oneKeyLogin => 'Accesso rapido';
+	@override String get qrCodeExpired => 'Codice QR scaduto, scansiona di nuovo';
+	@override String get qrCodeUsed => 'Questo codice QR è già stato usato';
+	@override String get qrConnecting => 'Connessione in corso...';
+	@override String get qrLoginAction => 'Conferma accesso';
+	@override String get qrLoginCancelled => 'Accesso annullato';
+	@override String get qrLoginCancelledByMe => 'Accesso annullato';
+	@override String get qrLoginConfirming => 'Accesso in corso...';
+	@override String get qrLoginSuccess => 'Accesso riuscito';
+	@override String get qrWebLoginDesc => 'Conferma se accedere a questo account dal client Web';
+	@override String get qrWebLoginTitle => 'Conferma accesso dal Web';
 }
 
 // Path: splash
@@ -2614,6 +2870,263 @@ class _Translations$welcome$it_IT extends Translations$welcome$zh_CN {
 	@override String get next => 'Avanti';
 	@override String get getStarted => 'Inizia';
 	@override String get skip => 'Salta';
+}
+
+// Path: workspace
+class _Translations$workspace$it_IT extends Translations$workspace$zh_CN {
+	_Translations$workspace$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get archiveConfirm => 'Conferma archiviazione';
+	@override String get archiveDesc => 'Dopo l\'archiviazione tutti saranno in sola lettura (le operazioni di scrittura saranno rifiutate dal server); è possibile ripristinare in qualsiasi momento';
+	@override String get archiveEntry => 'Archivia area di lavoro';
+	@override String get archiveTitle => 'Archivia area di lavoro';
+	@override String get archivedBadge => 'Archiviata';
+	@override String get archivedBanner => 'Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l\'Owner può ripristinarla dalla pagina membri';
+	@override String get brandingColorHelper => 'Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito';
+	@override String get brandingColorHint => '#2474E5';
+	@override String get brandingColorInvalid => 'Formato del colore principale non corretto, sono supportati solo #RRGGBB / #AARRGGBB';
+	@override String get brandingColorLabel => 'Colore principale (primaryColor)';
+	@override String get brandingEntry => 'Impostazioni brand (nome / logo / colore principale)';
+	@override String get brandingLogoHint => 'https://… (URL dell\'immagine del logo dell\'area di lavoro)';
+	@override String get brandingLogoLabel => 'URL del logo';
+	@override String get brandingNameLabel => 'Nome del brand';
+	@override String get brandingPreview => 'Anteprima colore principale';
+	@override String get brandingPreviewApplied => 'Il colore principale attuale sarà applicato all\'interno dell\'area di lavoro';
+	@override String get brandingPreviewFallback => 'Valore non impostato o non valido, uso del colore del tema predefinito';
+	@override String get brandingSaved => 'Impostazioni del brand salvate';
+	@override String get brandingTitle => 'Brand dell\'area di lavoro';
+	@override String changeRoleTitle({required Object name}) => 'Modifica il ruolo nell\'area di lavoro di ${name}';
+	@override String get channelDetailTitle => 'Canale';
+	@override String channelTileSubtitle({required Object count}) => '${count} iscritti';
+	@override String get channelsEmptySubtitle => 'I canali servono a pubblicare contenuti in modo continuativo (annunci/materiali); per discutere vai ai gruppi';
+	@override String get channelsEmptyTitle => 'Nessun canale nell\'area di lavoro per ora';
+	@override String get createDesc => 'Con una sola creazione, automaticamente: area di lavoro, tu (come Owner, membro dell\'area di lavoro), canale Announcements e gruppo General. Tutto riesce o tutto viene annullato.';
+	@override String get createEntry => 'Crea area di lavoro';
+	@override String get createIdempotentHit => 'Esiste già un\'area di lavoro con questo nome, accesso diretto';
+	@override String get createNameHint => 'Ad es.: Team rifacimento sito web';
+	@override String get createNameLabel => 'Nome area di lavoro';
+	@override String get createNameRequired => 'Il nome dell\'area di lavoro non può essere vuoto';
+	@override String get createSubmit => 'Crea';
+	@override String get createSuccess => 'Area di lavoro creata con successo';
+	@override String get createTemplateChannel => 'Canale Announcements (diventerai editore e iscritto del canale)';
+	@override String get createTemplateGroup => 'Gruppo General (diventerai membro del gruppo)';
+	@override String get createTemplateOwner => 'Diventerai Owner dell\'area di lavoro (membro dell\'area di lavoro)';
+	@override String get createTemplateTitle => 'Verrà inizializzato automaticamente';
+	@override String get createTitle => 'Crea area di lavoro';
+	@override String get discussInGroupGuide => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General →';
+	@override String get dmEntry => 'Tutti i messaggi';
+	@override String get emptyNoWorkspace => 'Seleziona o crea prima un\'area di lavoro';
+	@override String get experienceModeEntry => 'Layout home';
+	@override String get experienceModeHint => 'Scegli l\'esperienza d\'uso per questo dispositivo; modifica solo il layout della home, non i permessi né l\'appartenenza all\'area di lavoro';
+	@override String get experienceModePersonal => 'Personale';
+	@override String get experienceModeReset => 'Ripristina valori predefiniti del deployment';
+	@override String get experienceModeWorkspace => 'Area di lavoro';
+	@override String get governanceTitle => 'Governance dell\'area di lavoro';
+	@override String groupTileSubtitle({required Object count}) => '${count} membri del gruppo';
+	@override String get groupsEmptySubtitle => 'I gruppi sono gli spazi di discussione in tempo reale dell\'area di lavoro (unico punto d\'accesso alla chat)';
+	@override String get groupsEmptyTitle => 'Nessun gruppo nell\'area di lavoro per ora';
+	@override String get guestReadonlyHint => 'Come Ospite (Guest) le risorse dell\'area di lavoro sono in sola lettura';
+	@override String get inviteCodeCopy => 'Copia';
+	@override String inviteCodeExpiresAt({required Object expiresAt}) => 'Valido fino a ${expiresAt}';
+	@override String get inviteCodeGenerate => 'Genera codice team';
+	@override String get inviteCodeRevoke => 'Revoca';
+	@override String get inviteCodeSectionTitle => 'Invito con codice team';
+	@override String get inviteDesc => 'Sono invitabili solo utenti registrati; entrare nell\'area di lavoro non aggiunge automaticamente a gruppi né iscrive ai canali — puoi far entrare contemporaneamente nel gruppo General e inviare l\'invito al canale Announcements';
+	@override String get inviteEntry => 'Invita membri nell\'area di lavoro';
+	@override String get inviteJoinGroupOption => 'Entra anche nel gruppo General (diventa membro del gruppo)';
+	@override String get inviteOptionUnavailable => 'Risorsa corrispondente non trovata, opzione non disponibile';
+	@override String get inviteResultChannel => 'Invito al canale Announcements inviato (dopo l\'accettazione diventa iscritto)';
+	@override String get inviteResultGroup => 'Ingresso nel gruppo General (diventa membro del gruppo)';
+	@override String get inviteResultWorkspace => 'Ingresso nell\'area di lavoro (diventa membro dell\'area di lavoro)';
+	@override String get inviteResultsTitle => 'Risultati (tre operazioni indipendenti)';
+	@override String get inviteSearchHint => 'Cerca per nome utente / ID utente';
+	@override String get inviteSubmit => 'Invia invito';
+	@override String get inviteSubscribeChannelOption => 'Invia anche l\'invito al canale Announcements';
+	@override String get inviteTitle => 'Invita membri nell\'area di lavoro';
+	@override String get joinAlreadyMember => 'Sei già in questa area di lavoro';
+	@override String get joinCodeHint => '8 caratteri tra lettere maiuscole o numeri';
+	@override String get joinCodeLabel => 'Codice team';
+	@override String get joinDesc => 'Inserisci il codice team per entrare nell\'area di lavoro';
+	@override String get joinEntry => 'Entra nell\'area di lavoro';
+	@override String get joinExpiredCode => 'Codice team scaduto';
+	@override String get joinInvalidCode => 'Codice team non valido o non più utilizzabile';
+	@override String get joinSubmit => 'Entra';
+	@override String joinSuccess({required Object name}) => 'Sei entrato in «${name}»';
+	@override String get joinTitle => 'Entra nell\'area di lavoro';
+	@override String membersCountLabel({required Object count}) => '${count} membri';
+	@override String get membersEmpty => 'Nessun membro dell\'area di lavoro per ora';
+	@override String get membersEmptySubtitle => 'Invita utenti registrati a diventare membri dell\'area di lavoro (Owner / Member / Guest)';
+	@override String get membersTitle => 'Membri dell\'area di lavoro';
+	@override String get membersViewAll => 'Vedi tutti';
+	@override String get navChannels => 'Canali';
+	@override String get navGroups => 'Gruppi';
+	@override String get navMembers => 'Membri';
+	@override String get navOverview => 'Panoramica';
+	@override String get navProjects => 'Progetti';
+	@override String get overviewPinnedContent => 'Contenuti in evidenza dei canali';
+	@override String get overviewPinnedEmpty => 'Nessun contenuto in evidenza nei canali; gli annunci dei gruppi non vengono aggregati qui (gli annunci appartengono ai singoli gruppi)';
+	@override String get overviewRecentFiles => 'File recenti';
+	@override String get overviewRecentFilesEmpty => 'I file caricati di recente verranno mostrati qui; puoi vedere gli allegati anche all\'interno dei singoli canali';
+	@override String get overviewResources => 'Riepilogo risorse';
+	@override String get overviewTitle => 'Panoramica';
+	@override String get pickerEmptySubtitle => 'Crea un\'area di lavoro e avvia la collaborazione del team in 3 minuti (canale Announcements e gruppo General creati automaticamente)';
+	@override String get pickerEmptyTitle => 'Nessuna area di lavoro per ora';
+	@override String get pickerTitle => 'Le mie aree di lavoro';
+	@override String get projectChannelEmptySubtitle => 'Dopo aver collegato un canale dell\'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto';
+	@override String get projectChannelEmptyTitle => 'Nessun canale collegato per ora';
+	@override String get projectChannelLinkExistingToast => 'Questo canale è già collegato';
+	@override String get projectChannelLinkTitle => 'Seleziona i canali da collegare';
+	@override String get projectChannelLinkedToast => 'Canale collegato';
+	@override String get projectChannelNoCandidate => 'Nessun canale candidato collegabile';
+	@override String get projectChannelUnlinkDesc => 'Dopo lo scollegamento i contenuti del canale non verranno più aggregati in questo progetto';
+	@override String get projectChannelUnlinkSubmit => 'Scollega';
+	@override String projectChannelUnlinkTitle({required Object name}) => 'Scollega ${name}';
+	@override String get projectChannelUnlinkedToast => 'Scollegato';
+	@override String get projectChannelsEntry => 'Canali del progetto';
+	@override String get projectChannelsTitle => 'Canali del progetto';
+	@override String get projectCreateEntry => 'Nuovo progetto';
+	@override String get projectCreateSuccess => 'Progetto creato con successo';
+	@override String get projectCreateTitle => 'Nuovo progetto';
+	@override String get projectDescHint => 'Cosa deve consegnare questo progetto?';
+	@override String get projectDescLabel => 'Descrizione del progetto (opzionale)';
+	@override String get projectDetailTitle => 'Dettagli progetto';
+	@override String get projectGuestReadonly => 'Come Ospite (Guest) il progetto è in sola lettura';
+	@override String get projectInfoSection => 'Informazioni di base';
+	@override String get projectInsightsActivityEmpty => 'Nessuna attività per questo progetto';
+	@override String get projectInsightsEntry => 'Aggregazione contenuti';
+	@override String get projectInsightsPinnedEmpty => 'I canali collegati non hanno contenuti in evidenza per ora';
+	@override String projectInsightsPostAuthor({required Object name}) => 'Pubblicato da ${name}';
+	@override String get projectInsightsPostsEmpty => 'I canali collegati non hanno post per ora';
+	@override String get projectInsightsResourcesEmpty => 'Nessun link alle risorse per questo progetto';
+	@override String get projectInsightsTabActivity => 'Attività del progetto';
+	@override String get projectInsightsTabPinned => 'Messaggi in evidenza';
+	@override String get projectInsightsTabPosts => 'Post correlati';
+	@override String get projectInsightsTabResources => 'Link alle risorse';
+	@override String get projectLinkNameLabel => 'Nome del link';
+	@override String get projectLinkUrlLabel => 'URL del link';
+	@override String get projectLoadMore => 'Carica altro';
+	@override String get projectMarkDone => 'Segna come completato';
+	@override String get projectMemberAlreadyRemovedToast => 'Questo utente non è più tra i membri del progetto';
+	@override String get projectMemberEmptySubtitle => 'Il responsabile del progetto può invitare utenti registrati a unirsi a questo progetto';
+	@override String get projectMemberEmptyTitle => 'Nessun membro del progetto per ora';
+	@override String get projectMemberInviteExisting => 'Questo utente è già membro del progetto';
+	@override String get projectMemberInviteFieldHint => 'ID dell\'utente registrato da invitare';
+	@override String get projectMemberInviteFieldLabel => 'ID utente';
+	@override String get projectMemberInviteInvalidUid => 'Inserisci un ID utente valido';
+	@override String get projectMemberInviteSubmit => 'Invita';
+	@override String get projectMemberInviteSuccess => 'Aggiunto ai membri del progetto';
+	@override String get projectMemberInviteTitle => 'Invita membri nel progetto';
+	@override String get projectMemberRemoveConfirmDesc => 'Dopo la rimozione l\'utente perderà l\'accesso ai contenuti di questo progetto (potrà essere invitato di nuovo)';
+	@override String projectMemberRemoveConfirmTitle({required Object name}) => 'Rimuovi il membro del progetto ${name}';
+	@override String get projectMemberRemoveSubmit => 'Rimuovi';
+	@override String get projectMemberRemovedToast => 'Rimosso';
+	@override String get projectMemberTransferConfirm => 'Conferma trasferimento';
+	@override String get projectMemberTransferDesc => 'Dopo il trasferimento l\'altro otterrà il pieno controllo di gestione di questo progetto';
+	@override String get projectMemberTransferDoneToast => 'Responsabilità del progetto trasferita';
+	@override String projectMemberTransferTitle({required Object name}) => 'Trasferisci la responsabilità del progetto a ${name}';
+	@override String get projectMembersEntry => 'Membri';
+	@override String get projectMembersTitle => 'Membri del progetto';
+	@override String get projectMilestoneAlreadyReachedToast => 'Questa milestone è già stata raggiunta';
+	@override String get projectMilestoneCreateSubmit => 'Crea';
+	@override String get projectMilestoneCreateTitle => 'Nuova milestone';
+	@override String get projectMilestoneCreatedToast => 'Milestone creata';
+	@override String get projectMilestoneDueDateInvalid => 'Il formato della data deve essere YYYY-MM-DD';
+	@override String get projectMilestoneDueDateLabel => 'Data di scadenza (YYYY-MM-DD, opzionale)';
+	@override String get projectMilestoneDueLabel => 'Scadenza';
+	@override String get projectMilestoneEmptySubtitle => 'Contrassegna i nodi chiave del progetto con le milestone (pianificata → raggiunta, a senso unico)';
+	@override String get projectMilestoneEmptyTitle => 'Nessuna milestone per ora';
+	@override String get projectMilestoneFilterAll => 'Tutte';
+	@override String get projectMilestoneFilterPlanned => 'Pianificate';
+	@override String get projectMilestoneFilterReached => 'Raggiunte';
+	@override String get projectMilestoneNameLabel => 'Nome';
+	@override String get projectMilestoneNameRequired => 'Il nome della milestone non può essere vuoto';
+	@override String get projectMilestoneReach => 'Segna come raggiunta';
+	@override String get projectMilestoneReachedHint => 'Raggiunta (non è possibile tornare indietro)';
+	@override String get projectMilestoneReachedToast => 'Milestone raggiunta';
+	@override String get projectMilestonesEntry => 'Milestone';
+	@override String get projectMilestonesTitle => 'Milestone';
+	@override String get projectNameHint => 'Ad es.: Rifacimento sito web';
+	@override String get projectNameLabel => 'Nome progetto';
+	@override String get projectNameRequired => 'Il nome del progetto non può essere vuoto';
+	@override String get projectNoPermission => 'Nessun permesso: visibile solo ai membri del progetto, al responsabile del progetto o all\'Owner dell\'area di lavoro';
+	@override String get projectOwnerLabel => 'Responsabile';
+	@override String get projectReopen => 'Riapri progetto';
+	@override String get projectStatusActive => 'In corso';
+	@override String get projectStatusChanged => 'Stato del progetto aggiornato';
+	@override String get projectStatusDone => 'Completato';
+	@override String get projectStatusLabel => 'Stato';
+	@override String get projectSubmit => 'Crea';
+	@override String get projectTasksSection => 'Attività';
+	@override String get projectW2SectionTitle => 'Collaborazione progetto';
+	@override String get projectsEmptySubtitle => 'I progetti servono a monitorare obiettivi di consegna chiari; valgono anche per le aree di lavoro comunitarie con soli canali e gruppi';
+	@override String get projectsEmptyTitle => 'Nessun progetto per ora';
+	@override String get projectsLoadMore => 'Carica altro';
+	@override String get projectsTitle => 'Progetti';
+	@override String get removeMemberConfirm => 'Conferma rimozione';
+	@override String get removeMemberDesc => 'Dopo la rimozione perderà subito l\'accesso all\'area di lavoro; se ha ancora attività non completate o progetti a sua responsabilità, il server restituirà un elenco di conflitti e annullerà la rimozione';
+	@override String removeMemberTitle({required Object name}) => 'Rimuovi il membro dell\'area di lavoro ${name}';
+	@override String get restoreConfirm => 'Conferma ripristino';
+	@override String get restoreDesc => 'Dopo il ripristino l\'area di lavoro tornerà in lettura e scrittura';
+	@override String get restoreEntry => 'Ripristina area di lavoro';
+	@override String get restoreTitle => 'Ripristina area di lavoro';
+	@override String get resultFailed => 'Non riuscito';
+	@override String get resultIdle => 'Non eseguito';
+	@override String get resultRunning => 'In corso';
+	@override String get resultSuccess => 'Riuscito';
+	@override String get roleGuest => 'Guest';
+	@override String get roleMember => 'Member';
+	@override String get roleOwner => 'Owner';
+	@override String get switchToPersonal => 'Passa a personale';
+	@override String get switchToWorkspace => 'Passa ad area di lavoro';
+	@override String get switchWorkspace => 'Cambia area di lavoro';
+	@override String taskAdvanceTo({required Object status}) => 'Avanza a «${status}»';
+	@override String get taskAssigneeLabel => 'Responsabile (membro dell\'area di lavoro)';
+	@override String get taskAssigneeNone => 'Non assegnare per ora';
+	@override String get taskAssigneeRefresh => 'Aggiorna i candidati responsabili';
+	@override String get taskCreatedToast => 'Attività creata';
+	@override String get taskEmptySubtitle => 'Monitora l\'esecuzione con quattro stati: da fare → in corso → in revisione → completata';
+	@override String get taskEmptyTitle => 'Nessuna attività per ora';
+	@override String get taskExistingToast => 'Esiste già un\'attività con lo stesso titolo, verrà usata quella esistente';
+	@override String taskFallbackMenuTitle({required Object title}) => 'Riporta "${title}" a…';
+	@override String get taskFilterAll => 'Tutte';
+	@override String get taskFormCreateTitle => 'Nuova attività';
+	@override String get taskFormEditTitle => 'Modifica attività';
+	@override String get taskNewEntry => 'Nuova attività';
+	@override String get taskStatusDoing => 'In corso';
+	@override String get taskStatusDone => 'Completata';
+	@override String taskStatusMovedToast({required Object status}) => 'Spostata a «${status}»';
+	@override String get taskStatusReview => 'In revisione';
+	@override String get taskStatusTodo => 'Da fare';
+	@override String get taskSubmitCreate => 'Crea attività';
+	@override String get taskSubmitSave => 'Salva';
+	@override String get taskTitleLabel => 'Titolo attività';
+	@override String get taskTitleRequired => 'Il titolo dell\'attività non può essere vuoto';
+	@override String get taskUpdatedToast => 'Attività salvata';
+	@override String get transferConfirm => 'Conferma trasferimento';
+	@override String get transferDesc => 'Dopo il trasferimento diventerai un normale membro dell\'area di lavoro (Member) e l\'altro otterrà tutti i poteri di governance';
+	@override String transferTitle({required Object name}) => 'Trasferisci il ruolo di Owner principale a ${name}';
+}
+
+// Path: account.alipaySim
+class _Translations$account$alipaySim$it_IT extends Translations$account$alipaySim$zh_CN {
+	_Translations$account$alipaySim$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get alipaySuccess => 'Pagamento riuscito';
+	@override String get balanceSource => 'Saldo del conto';
+	@override String get confirmPay => 'Conferma pagamento';
+	@override String get energy => 'Pagamento riuscito: ottieni 5g di energia verde';
+	@override String get enterPassword => 'Inserisci la password di pagamento';
+	@override String get huabei => 'Pagamento a rate Huabei';
+	@override String get merchantSuccess => 'Pagamento riuscito nell\'app del commerciante';
+	@override String get paymentAmount => 'Importo: ';
+	@override String get selectMethod => 'Seleziona metodo di pagamento';
+	@override String get storeName => 'Negozio flagship di tecnologia dell\'informazione';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -2741,6 +3254,29 @@ extension on TranslationsItIt {
 			'account.e2eeTransferFromOldDevice' => 'Dal vecchio dispositivo',
 			'account.pleaseRelogin' => 'Riaccedi',
 			'account.otherLoginMethods' => 'Altri metodi di accesso',
+			'account.alipaySim.alipaySuccess' => 'Pagamento riuscito',
+			'account.alipaySim.balanceSource' => 'Saldo del conto',
+			'account.alipaySim.confirmPay' => 'Conferma pagamento',
+			'account.alipaySim.energy' => 'Pagamento riuscito: ottieni 5g di energia verde',
+			'account.alipaySim.enterPassword' => 'Inserisci la password di pagamento',
+			'account.alipaySim.huabei' => 'Pagamento a rate Huabei',
+			'account.alipaySim.merchantSuccess' => 'Pagamento riuscito nell\'app del commerciante',
+			'account.alipaySim.paymentAmount' => 'Importo: ',
+			'account.alipaySim.selectMethod' => 'Seleziona metodo di pagamento',
+			'account.alipaySim.storeName' => 'Negozio flagship di tecnologia dell\'informazione',
+			'account.logoutCancelledNote' => 'Richiesta di disattivazione ritirata',
+			'account.logoutPendingBanner' => ({required Object date}) => 'Richiesta di disattivazione inviata, completamento previsto per il ${date}',
+			'account.logoutPendingHeader' => 'Stato della richiesta di disattivazione',
+			'account.logoutCancelRequest' => 'Annulla richiesta di disattivazione',
+			'account.logoutRetainedHeader' => 'Informativa sulla conservazione dei dati',
+			'account.logoutRetainedNote' => 'Al termine dell\'eliminazione: i log di audit e i record finanziari verranno conservati per obbligo di legge e anonimizzati; i gruppi/aree di lavoro/canali di tua proprietà saranno trasferiti prioritariamente ai membri successori',
+			'account.payCancelled' => 'Pagamento annullato',
+			'account.payMethodAlipay' => 'Alipay',
+			'account.payMethodComingSoon' => 'Questo metodo di pagamento sarà disponibile a breve, restate sintonizzati',
+			'account.payMethodMock' => 'Pagamento simulato (ambiente di sviluppo)',
+			'account.payMethodTitle' => 'Seleziona metodo di pagamento',
+			'account.payMethodWallet' => 'Saldo del portafoglio',
+			'account.payMethodWechat' => 'WeChat Pay',
 			'agent.plazaTitle' => 'Assistenti IA',
 			'agent.transparencyBanner' => 'Tutti i membri qui sono assistenti IA, chiaramente identificati. Nelle chat crittografate ci sono solo persone reali.',
 			'agent.searchHint' => 'Cerca assistenti',
@@ -2751,6 +3287,18 @@ extension on TranslationsItIt {
 			'agent.badgeOfficial' => 'Ufficiale',
 			'agent.badgeAiA11y' => 'Assistente IA',
 			'agent.badgeOfficialA11y' => 'Account ufficiale',
+			'agent.legacyBotGoPlaza' => 'Vai alla piazza degli assistenti IA',
+			'agent.legacyBotMigrated' => 'L\'ingresso di questo bot è stato aggiornato: vai alla piazza degli assistenti IA per parlare con gli assistenti',
+			'agentTask.title' => 'Attività IA',
+			'agentTask.working' => 'In esecuzione',
+			'agentTask.submitted' => 'Inviato',
+			'agentTask.progress' => 'In corso',
+			'agentTask.completed' => 'Completata',
+			'agentTask.failed' => 'Non riuscita',
+			'agentTask.cancelled' => 'Annullata',
+			'agentTask.awaitingApproval' => 'In attesa di approvazione',
+			'agentTask.approve' => 'Approva',
+			'agentTask.reject' => 'Rifiuta',
 			'billing.title' => 'Abbonamenti',
 			'billing.planPeriodMonthly' => 'Mensile',
 			'billing.planPeriodYearly' => 'Annuale',
@@ -2914,6 +3462,66 @@ extension on TranslationsItIt {
 			'channel.accessTypePaid' => 'A pagamento',
 			'channel.typePublicPaidDesc' => 'Chiunque può scoprire il canale e abbonarsi dopo l\'acquisto',
 			'channel.typePrivatePaidDesc' => 'Solo gli utenti invitati possono accedere all\'acquisto e abbonarsi dopo il pagamento',
+			'channel.addImage' => 'Aggiungi immagine',
+			'channel.allCategories' => 'Tutte',
+			'channel.articleBodyHint' => 'Scrivi qualcosa… sono supportati grassetto, corsivo, titoli, elenchi e altri formati',
+			'channel.cancelOrder' => 'Annulla ordine',
+			'channel.cancelOrderConfirmMessage' => 'Vuoi davvero annullare questo ordine in attesa di pagamento? Dopo l\'annullamento non sarà più possibile pagare.',
+			'channel.cancelOrderConfirmTitle' => 'Conferma annullamento ordine',
+			'channel.cancelOrderSuccess' => 'Ordine annullato',
+			'channel.channelNotFound' => 'Canale inesistente',
+			'channel.comment' => 'Commento',
+			'channel.commentDeleteNoPermission' => 'Non hai il permesso di eliminare questo commento',
+			'channel.commentFailed' => 'Commento non riuscito',
+			'channel.coverLabel' => 'Copertina',
+			'channel.coverSet' => 'Impostata come copertina',
+			'channel.deleteComment' => 'Elimina commento',
+			'channel.deleteCommentConfirm' => 'Vuoi eliminare questo commento?',
+			'channel.formatBold' => 'Grassetto',
+			'channel.formatHeading' => 'Titolo',
+			'channel.formatItalic' => 'Corsivo',
+			'channel.formatLink' => 'Link',
+			'channel.formatList' => 'Elenco',
+			'channel.formatQuote' => 'Citazione',
+			'channel.formatStrikethrough' => 'Barrato',
+			'channel.like' => 'Mi piace',
+			'channel.linkTextPlaceholder' => 'Testo del link',
+			'channel.myOrders' => 'I miei ordini',
+			'channel.noComments' => 'Nessun commento per ora',
+			'channel.noOrders' => 'Nessun ordine registrato per ora',
+			'channel.orderAmount' => 'Importo',
+			'channel.orderChannel' => 'Canale',
+			'channel.orderContinuePay' => 'Continua il pagamento',
+			'channel.orderCreatedAt' => 'Data dell\'ordine',
+			'channel.orderDetail' => 'Dettagli ordine',
+			'channel.orderNo' => 'N. ordine',
+			'channel.orderPaidAt' => 'Data del pagamento',
+			'channel.orderPaymentMethod' => 'Metodo di pagamento',
+			'channel.orderStatusCancelled' => 'Annullato',
+			'channel.orderStatusExpired' => 'Scaduto',
+			'channel.orderStatusLabel' => 'Stato',
+			'channel.orderStatusPaid' => 'Pagato',
+			'channel.orderStatusPending' => 'In attesa di pagamento',
+			'channel.orderStatusRefunded' => 'Rimborsato',
+			'channel.orderStatusRefunding' => 'Rimborso in corso',
+			'channel.orderSubscriptionPeriod' => 'Periodo di iscrizione',
+			'channel.orderValidUntil' => 'Valido fino al',
+			'channel.payAlipay' => 'Alipay',
+			'channel.payWallet' => 'Saldo del portafoglio',
+			'channel.payWechat' => 'WeChat Pay',
+			'channel.preview' => 'Anteprima',
+			'channel.publish' => 'Pubblica',
+			'channel.readFull' => 'Leggi tutto',
+			'channel.refundApply' => 'Richiedi rimborso',
+			'channel.refundConfirmMessage' => 'Vuoi richiedere il rimborso di questo ordine? Dopo il rimborso l\'iscrizione verrà annullata.',
+			'channel.refundConfirmTitle' => 'Conferma rimborso',
+			'channel.refundSuccess' => 'Richiesta di rimborso inviata',
+			'channel.reply' => 'Rispondi',
+			'channel.replyTo' => 'Risposta a',
+			'channel.sortNewest' => 'Più recenti',
+			'channel.sortPopular' => 'Popolari',
+			'channel.titleOptional' => 'Titolo (opzionale)',
+			'channel.writeComment' => 'Scrivi un commento...',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.cards' => 'pz',
 			'chat.jdShopping' => 'Shopping JD',
@@ -3041,6 +3649,8 @@ extension on TranslationsItIt {
 			'chat.sendTo' => 'Invia a',
 			'chat.send' => _root.common.buttonSend,
 			'chat.sender' => 'Mittente',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sending' => 'Invio in corso...',
 			'chat.signatureInputHint' => 'Suggerimento input firma',
 			'chat.signaturePlaceholder' => 'Placeholder firma',
@@ -3136,8 +3746,6 @@ extension on TranslationsItIt {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => 'Pagato: ${time}',
 			'chat.orderStatusPending' => 'Da pagare',
 			'chat.orderStatusPaid' => 'Pagato',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderStatusRefunded' => 'Rimborsato',
 			'chat.orderStatusExpired' => 'Scaduto',
 			'chat.defaultFileName' => 'File',
@@ -3194,6 +3802,16 @@ extension on TranslationsItIt {
 			'chat.extraItems' => 'Extra',
 			'chat.messageInputHint' => 'Scrivi un messaggio...',
 			'chat.invalidMessageType' => '[Messaggio non supportato]',
+			'chat.alipayLoginInterrupted' => 'Il flusso di accesso Alipay è stato interrotto dal sistema, riprova',
+			'chat.burnReadBadge' => 'Dopo lettura',
+			'chat.convertToText' => 'Converti in testo',
+			'chat.extraPanelCollab' => 'Collaborazione di gruppo',
+			'chat.extraPanelFunds' => 'Fondi',
+			'chat.extraPanelMedia' => 'Media',
+			'chat.releaseConvertToText' => 'Rilascia per convertire in testo',
+			'chat.voiceReleaseCancel' => 'Rilascia per annullare',
+			'chat.voiceReleaseCancelSend' => 'Rilascia per annullare l\'invio',
+			'chat.voiceSlideHint' => 'Scorri su per annullare / convertire in testo',
 			'common.about' => 'Informazioni',
 			'common.aboutApp' => 'Informazioni sull\'app',
 			'common.accept' => 'Accetta',
@@ -3545,6 +4163,8 @@ extension on TranslationsItIt {
 			'common.muteDuration1hour' => '1 Hour',
 			'common.muteDuration6hours' => '6 Hours',
 			'common.muteDuration12hours' => '12 Hours',
+			_ => null,
+		} ?? switch (path) {
 			'common.muteDuration1day' => '1 Day',
 			'common.muteDuration3days' => '3 Days',
 			'common.muteDuration7days' => '7 Days',
@@ -3602,10 +4222,10 @@ extension on TranslationsItIt {
 			'common.sureDeleteGroupChatRecord' => 'Sei sicuro di voler eliminare la cronologia della chat del gruppo?',
 			'common.switchEnvironment' => 'Cambia ambiente',
 			'common.thisMonth' => 'Questo mese',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('it'))(n, one: '${n} giorno fa', other: '${n} giorni fa', ), 
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('it'))(n, one: '${n} ora fa', other: '${n} ore fa', ), 
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('it'))(n, one: '${n} giorno fa', other: '${n} giorni fa', ),
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('it'))(n, one: '${n} ora fa', other: '${n} ore fa', ),
 			'common.timeJustNow' => 'Proprio ora',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('it'))(n, one: '${n} minuto fa', other: '${n} minuti fa', ), 
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('it'))(n, one: '${n} minuto fa', other: '${n} minuti fa', ),
 			'common.timeToday' => 'Oggi',
 			'common.timeYesterday' => 'Ieri',
 			'common.tipConnectDesc' => 'Nessuna rete',
@@ -3650,8 +4270,6 @@ extension on TranslationsItIt {
 			'common.whatYourFeedback' => 'Qual è il tuo feedback?',
 			'common.yesterday' => 'Ieri',
 			'common.yourContactInformation' => 'Le tue informazioni di contatto',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirmRemove' => 'Conferma rimozione',
 			'common.confirmRemoveFromDenylist' => 'Sei sicuro di voler rimuovere questo utente dalla lista bloccati?',
 			'common.buttonRemove' => 'Rimuovi',
@@ -4059,6 +4677,8 @@ extension on TranslationsItIt {
 			'common.insufficientBalanceTitle' => 'Saldo insufficiente',
 			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => 'Saldo: ${currency} ${balance}, richiesto: ${currency} ${price}. Ricarica prima.',
 			'common.goRecharge' => 'Ricarica',
+			_ => null,
+		} ?? switch (path) {
 			'common.noOrders' => 'Nessun ordine',
 			'common.orderDetailLoadFailed' => 'Dettagli ordine non disponibili',
 			'common.orderNoLabel' => ({required Object no}) => 'Ordine n°: ${no}',
@@ -4164,8 +4784,6 @@ extension on TranslationsItIt {
 			'common.e2eeBackupImportantNoteColon' => 'Importante:',
 			'common.e2eeBackupKeepSafe' => '• Backup e password al sicuro',
 			'common.e2eeBackupStoreMultipleLoc' => '• Conserva in più posti',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• Password irreversibile',
 			'common.e2eeBackupImportTitle' => 'Importa backup E2EE',
 			'common.e2eeBackupImportGuide' => 'Istruzioni',
@@ -4337,7 +4955,82 @@ extension on TranslationsItIt {
 			'common.searchFailedRetry' => 'Ricerca non riuscita, riprova',
 			'common.searchDisabledTitle' => 'Ricerca messaggi non disponibile',
 			'common.searchDisabledByEncryption' => 'La crittografia end-to-end è attiva: il server non può leggere i messaggi, quindi la ricerca full-text non è disponibile',
+			'common.amountMustPositive' => 'L\'importo deve essere maggiore di 0',
+			'common.answer' => 'Rispondi',
+			'common.collapse' => 'Comprimi',
+			'common.complianceKeyChangedActionConfirm' => 'Conferma rotazione',
+			'common.complianceKeyChangedActionKeep' => 'Non confermare per ora',
+			'common.complianceKeyChangedBody' => 'La chiave pubblica di audit di conformità distribuita dal server non corrisponde al valore bloccato localmente. Se si tratta di una rotazione della chiave intenzionale dell\'amministratore, tocca «Conferma rotazione»; in caso contrario non continuare a inviare messaggi cifrati e contatta l\'amministratore per una verifica.',
+			'common.complianceKeyChangedTitle' => 'La chiave di audit di conformità è cambiata',
+			'common.declineCall' => 'Rifiuta',
+			'common.e2eeErrPeerNotOnboarded' => 'L\'altro non ha ancora effettuato l\'accesso da nessun dispositivo, impossibile inviare in cifratura per ora; attendi che l\'altro effettui l\'accesso e riprova',
+			'common.e2eeRecoveryKeyCopied' => 'Chiave di recupero copiata',
+			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Chiave di recupero copiata, gli appunti verranno cancellati automaticamente tra ${seconds} secondi, salvala al più presto',
+			'common.e2eeRecoveryKeySaveNote' => 'Salva subito questa chiave di recupero (screenshot o conservala in un gestore di password). Se dimentichi la passphrase è l\'unico strumento per decifrare il backup; se la perdi, il backup non sarà più recuperabile.',
+			'common.e2eeRecoveryKeyTitle' => 'Chiave di recupero',
+			'common.e2eeUseRecoveryKey' => 'Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)',
+			'common.enterAmount' => 'Inserisci l\'importo',
+			'common.expandFull' => 'Espandi',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count} persone stanno per entrare nella chat di gruppo',
+			'common.f2fSecretCode' => 'Codice segreto',
+			'common.hoursAgo' => 'ore fa',
+			'common.initConfigDecryptFailed' => 'Decifratura della configurazione non riuscita: la chiave di sicurezza dell\'app non corrisponde a quella del server, aggiorna l\'app o contatta l\'amministratore',
+			'common.justNow' => 'Proprio ora',
+			'common.me' => 'Io',
+			'common.minimize' => 'Riduci a icona',
+			'common.minutesAgo' => 'minuti fa',
+			'common.momentsHasFailedUploads' => 'Ci sono media il cui caricamento non è riuscito, riprova o rimuovili prima di pubblicare',
+			'common.noHistory' => 'Nessuna cronologia per ora',
+			'common.noNewRegisteredUsersTitle' => 'Nessun nuovo utente registrato per ora',
+			'common.payReceiveSuccess' => 'Ricezione riuscita!',
+			'common.purchaseConfirming' => 'Pagamento in fase di conferma, controlla lo stato dell\'ordine più tardi',
+			'common.reconnecting' => 'Connessione debole, riconnessione in corso…',
+			'common.redPacketAmountTooSmall' => 'L\'importo totale deve essere almeno pari al numero di buste × 0,01 yuan',
+			'common.redPacketBrand' => 'Busta rossa IMBoy',
+			'common.redPacketCount' => 'Numero di buste',
+			'common.redPacketCountEmpty' => 'Inserisci il numero di buste',
+			'common.redPacketCountMin' => 'Il numero di buste deve essere almeno 1',
+			'common.redPacketCountUnit' => 'pz',
+			'common.redPacketCurrentLucky' => 'Attuale: busta fortunata',
+			'common.redPacketCurrentNormal' => 'Attuale: busta normale',
+			'common.redPacketDialogSubtitle' => 'Buona fortuna e tanta prosperità',
+			'common.redPacketDialogTitle' => 'Ti ho inviato una busta rossa',
+			'common.redPacketFetchError' => 'Errore nel recupero dei dettagli della busta',
+			'common.redPacketFetchFailed' => 'Impossibile recuperare i dettagli della busta',
+			'common.redPacketGreetingLabel' => 'Messaggio / auguri',
+			'common.redPacketNotFound' => 'La busta rossa non esiste o è stata eliminata',
+			'common.redPacketReceiverLabel' => ({required Object uid}) => 'Utente: ${uid}',
+			'common.redPacketSingleAmount' => 'Importo per busta',
+			'common.redPacketStuffLucky' => 'Invia busta fortunata',
+			'common.redPacketStuffNormal' => 'Invia dal portafoglio',
+			'common.redPacketSwitchToLucky' => 'Passa a busta fortunata',
+			'common.redPacketSwitchToNormal' => 'Passa a busta normale',
+			'common.redPacketTotalAmount' => 'Importo totale',
+			'common.redPacketView' => 'Vedi busta rossa',
+			'common.switchCamera' => 'Cambia fotocamera',
+			'common.timeDaysShort' => ({required Object count}) => '${count}g',
+			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
+			'common.timeNowShort' => 'adesso',
+			'common.transferAccepted' => 'Ricevuto',
+			'common.transferAmountLabel' => 'Importo del bonifico',
+			'common.transferConfirm' => 'Conferma bonifico',
+			'common.transferDefaultRemark' => 'Bonifico a un amico',
+			'common.transferMinAmountError' => 'L\'importo minimo del bonifico è 0,01 yuan',
+			'common.transferPending' => 'In attesa di conferma dell\'altro',
+			'common.transferReceiving' => 'Ricezione in corso...',
+			'common.transferRefunded' => 'Restituito',
+			'common.transferRemarkLabel' => 'Note del bonifico',
+			'common.transferTapToReceive' => 'Tocca per ricevere',
+			'common.uploadPartialFailed' => ({required Object count}) => 'Caricamento non riuscito per ${count} elementi',
+			'common.voiceSttConverting' => 'Riconoscimento in corso...',
+			'common.voiceSttNotConfigured' => 'La conversione in testo non è ancora configurata',
+			'common.voiceSttPreviewTitle' => 'Anteprima di conversione vocale in testo',
 			'complaint.complaint' => 'Reclamo',
+			'complaint.e2eeConsentTitle' => 'Invia prove crittografate',
+			'complaint.e2eeConsentBody' => 'Questo messaggio è cifrato end-to-end; il server non può vederne il contenuto. Inviare un estratto renderà visibile il testo selezionato ai moderatori per la revisione. Acconsenti?',
+			'complaint.e2eeConsentSubmit' => 'Acconsenti e invia',
+			'complaint.e2eeConsentDecline' => 'Solo segnala (senza contenuto)',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Molestie',
 			'complaintReason.inappropriate' => 'Contenuto inappropriato',
@@ -4441,6 +5134,14 @@ extension on TranslationsItIt {
 			'discovery.openChannel' => 'Apri canale',
 			'discovery.paidChannelLocked' => 'Contenuto bloccato (a pagamento)',
 			'discovery.webQRScanned' => 'Scansionato',
+			'discovery.momentActionMore' => 'Altre azioni',
+			'discovery.momentAtCount' => ({required Object count}) => '${count} persone',
+			'discovery.momentAtReminded' => ({required Object name}) => 'Ha avvisato ${name}',
+			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'Ha avvisato ${name} e altri ${count}',
+			'discovery.momentAtWho' => 'Chi avvisare',
+			'discovery.momentLikesCountOnly' => ({required Object count}) => 'Piace a ${count} persone',
+			'discovery.momentLocation' => 'Posizione',
+			'discovery.momentLocationNone' => 'Non mostrare la posizione',
 			'error.restartRequired' => 'Riavvio richiesto',
 			'error.networkFailureGuidance' => 'Guida errori di rete',
 			'error.pleaseCheckNetwork' => 'Controlla le impostazioni di rete.',
@@ -4490,6 +5191,8 @@ extension on TranslationsItIt {
 			'group.groupAlbumPhotoSetCover' => 'Copertina',
 			'group.groupAlbumPhotoPrev' => 'Precedente',
 			'group.groupAlbumPhotoLikeCount' => 'Mi piace',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoCommentCount' => 'Commenti',
 			'group.groupAlbumPhotoMyLike' => 'Il mio Mi piace',
 			'group.groupAlbumPhotoIdLabel' => 'ID immagine',
@@ -4497,6 +5200,15 @@ extension on TranslationsItIt {
 			'group.e2eeKeyManagementSubtitle' => 'Backup, ripristino e gestione chiavi E2EE',
 			'group.e2eeTitle' => 'Crittografia end-to-end',
 			'group.e2eeEnableConfirm' => 'Una volta attivata, i messaggi del gruppo saranno crittografati end-to-end e leggibili solo sui dispositivi dei membri. L\'operazione è irreversibile. Attivare?',
+			'group.enterGroupChat' => 'Entra nella chat di gruppo',
+			'group.groupCreated' => 'Chat di gruppo creata',
+			'group.groupCreatedSuccess' => 'Chat di gruppo creata con successo, ti invitiamo a completare le informazioni del gruppo o a entrare direttamente',
+			'group.groupInfo' => 'Info chat di gruppo',
+			'group.groupMemberRoleLabel' => 'Membro',
+			'group.moreActions' => 'Altre azioni',
+			'group.noMemberWithRole' => ({required Object roleName}) => 'Nessun ${roleName} per ora',
+			'group.perfectionGroupInfo' => 'Completa le info del gruppo',
+			'group.touchContactAddMember' => 'Tocca un contatto per aggiungerlo come membro del gruppo',
 			'groupCategory.title' => 'Categorie di gruppo',
 			'groupCategory.createCategory' => 'Crea categoria',
 			'groupCategory.categoryName' => 'Nome categoria',
@@ -4514,6 +5226,13 @@ extension on TranslationsItIt {
 			'groupCategory.renameFailed' => 'Ridenominazione fallita. Riprova.',
 			'groupCategory.deleteFailed' => 'Eliminazione fallita. Riprova.',
 			'groupCategory.categoryDetailTip' => 'I gruppi di questa categoria si gestiscono dalla lista gruppi tramite « Sposta in categoria »',
+			'groupDiscovery.title' => 'Scopri gruppi',
+			'groupDiscovery.searchHint' => 'Cerca gruppi pubblici',
+			'groupDiscovery.allCategories' => 'Tutte',
+			'groupDiscovery.sortPopular' => 'Popolari',
+			'groupDiscovery.sortNewest' => 'Più recenti',
+			'groupDiscovery.emptyTitle' => 'Nessun gruppo pubblico per ora, torna a trovarci più tardi',
+			'groupDiscovery.searchEmpty' => 'Nessun gruppo pubblico corrispondente',
 			'groupList.attrAll' => 'Tutto',
 			'groupList.attrOwner' => 'Creati',
 			'groupList.attrManager' => 'Gestiti',
@@ -4678,8 +5397,6 @@ extension on TranslationsItIt {
 			'main.markStar' => 'Preferito',
 			'main.markStarDesc' => 'Aggiungi questo messaggio ai preferiti',
 			'main.markTodo' => 'Da fare',
-			_ => null,
-		} ?? switch (path) {
 			'main.markTodoDesc' => 'Segna come attività',
 			'main.multiSelect' => 'Selezione multipla',
 			'main.multiSelectMode' => 'Modalità selezione multipla',
@@ -4888,6 +5605,35 @@ extension on TranslationsItIt {
 			'main.liveRoomTitleLabel' => 'Titolo live',
 			'main.liveRoomTitleHint' => 'Titolo live',
 			'main.lightModel' => 'Modalità chiara',
+			'main.complianceKeyInfoAlgorithm' => 'Algoritmo',
+			'main.complianceKeyInfoChangedWarning' => '⚠️ La chiave pubblica di conformità distribuita dal server non corrisponde al pin locale! Se non si tratta di una rotazione intenzionale dell\'amministratore, contatta subito l\'amministratore e smetti di inviare messaggi cifrati.',
+			'main.complianceKeyInfoFetchedAt' => 'Ora di recupero',
+			'main.complianceKeyInfoFingerprint' => 'Impronta della chiave pubblica',
+			'main.complianceKeyInfoHint' => 'La chiave di audit di conformità è usata per la doppia cifratura della modalità compliance_e2ee. Se l\'impronta sopra non corrisponde a quella pubblicata dall\'amministratore, il server potrebbe essere stato manomesso.',
+			'main.complianceKeyInfoKeyId' => 'ID chiave',
+			'main.complianceKeyInfoLocalPin' => 'Pin locale (TOFU)',
+			'main.complianceKeyInfoPinnedAt' => 'Ora del pin',
+			'main.complianceKeyInfoPinnedNone' => 'Non ancora bloccato (verrà bloccato automaticamente al prossimo recupero)',
+			'main.complianceKeyInfoRefreshFailed' => 'Recupero non riuscito, controlla la rete e riprova',
+			'main.complianceKeyInfoServerKey' => 'Chiave pubblica distribuita dal server',
+			'main.complianceKeyInfoTitle' => 'Chiave di audit di conformità',
+			'main.e2eeErrComplianceChanged' => 'La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova',
+			'main.e2eeErrComplianceUnavailable' => 'Chiave di conformità temporaneamente non disponibile, messaggio non inviato; riprova più tardi',
+			'main.e2eeErrDeviceNotReady' => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova',
+			'main.e2eeErrProtocolMismatch' => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova',
+			'main.e2eeErrSessionExportFailed' => 'Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi',
+			'main.safetyNumberCopied' => 'Copiato',
+			'main.safetyNumberCopy' => 'Copia',
+			'main.safetyNumberHint' => 'Confronta il codice di sicurezza con l\'altro di persona o al telefono. Se corrisponde, le vostre comunicazioni non sono intercettate da un attacco man-in-the-middle; se non corrisponde, interrompi subito la conversazione e verifica l\'identità dell\'altro tramite un altro canale. Lo stato di verifica è salvato solo su questo dispositivo.',
+			'main.safetyNumberMarkVerified' => 'Segna come verificato',
+			'main.safetyNumberMarkedVerified' => 'Segnato come verificato',
+			'main.safetyNumberNoDevices' => 'L\'altro non ha ancora attivato la crittografia end-to-end',
+			'main.safetyNumberPeerDevice' => 'Dispositivo dell\'altro',
+			'main.safetyNumberReportRejected' => 'Il server ha rifiutato l\'evento di verifica (firma/validità non corrispondenti), non segnato',
+			'main.safetyNumberReportUnavailable' => 'Impossibile ottenere le informazioni del dispositivo, non riportato',
+			'main.safetyNumberReporting' => 'Invio del risultato della verifica in corso...',
+			'main.safetyNumberTitle' => 'Verifica del codice di sicurezza',
+			'main.safetyNumberVerifyFailed' => 'Impossibile ottenere il codice di sicurezza, riprova più tardi',
 			'mention.mentionAll' => 'Tutti',
 			'mention.mentionAllHint' => 'Notifica tutti i membri del gruppo',
 			'mention.noMatchedMember' => 'Nessun membro corrispondente',
@@ -4903,6 +5649,7 @@ extension on TranslationsItIt {
 			'mention.mentionCount' => ({required Object count}) => '${count} nuove menzioni',
 			'mention.mentionAllDenied' => 'Solo gli amministratori possono @tutti',
 			'mention.navInfoMissing' => 'Posizione messaggio mancante, navigazione impossibile',
+			'mention.pickButtonTooltip' => 'Menziona membro',
 			'momentFriendPicker.title' => 'Scegli amici',
 			'momentFriendPicker.titleAllow' => 'Visibile a',
 			'momentFriendPicker.titleDeny' => 'Escludi',
@@ -4938,6 +5685,16 @@ extension on TranslationsItIt {
 			'passport.getVerifyCode' => 'Ottieni codice',
 			'passport.hasAccount' => 'Hai già un account?',
 			'passport.oneKeyLogin' => 'Accesso rapido',
+			'passport.qrCodeExpired' => 'Codice QR scaduto, scansiona di nuovo',
+			'passport.qrCodeUsed' => 'Questo codice QR è già stato usato',
+			'passport.qrConnecting' => 'Connessione in corso...',
+			'passport.qrLoginAction' => 'Conferma accesso',
+			'passport.qrLoginCancelled' => 'Accesso annullato',
+			'passport.qrLoginCancelledByMe' => 'Accesso annullato',
+			'passport.qrLoginConfirming' => 'Accesso in corso...',
+			'passport.qrLoginSuccess' => 'Accesso riuscito',
+			'passport.qrWebLoginDesc' => 'Conferma se accedere a questo account dal client Web',
+			'passport.qrWebLoginTitle' => 'Conferma accesso dal Web',
 			'splash.slogan' => 'Parla liberamente, comunica con facilità',
 			'welcome.step1Title' => 'Connessione semplice',
 			'welcome.step1Desc' => 'Sperimenta la gioia di una comunicazione senza intoppi. In qualsiasi momento, ovunque.',
@@ -4948,6 +5705,237 @@ extension on TranslationsItIt {
 			'welcome.next' => 'Avanti',
 			'welcome.getStarted' => 'Inizia',
 			'welcome.skip' => 'Salta',
+			_ => null,
+		} ?? switch (path) {
+			'workspace.archiveConfirm' => 'Conferma archiviazione',
+			'workspace.archiveDesc' => 'Dopo l\'archiviazione tutti saranno in sola lettura (le operazioni di scrittura saranno rifiutate dal server); è possibile ripristinare in qualsiasi momento',
+			'workspace.archiveEntry' => 'Archivia area di lavoro',
+			'workspace.archiveTitle' => 'Archivia area di lavoro',
+			'workspace.archivedBadge' => 'Archiviata',
+			'workspace.archivedBanner' => 'Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l\'Owner può ripristinarla dalla pagina membri',
+			'workspace.brandingColorHelper' => 'Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito',
+			'workspace.brandingColorHint' => '#2474E5',
+			'workspace.brandingColorInvalid' => 'Formato del colore principale non corretto, sono supportati solo #RRGGBB / #AARRGGBB',
+			'workspace.brandingColorLabel' => 'Colore principale (primaryColor)',
+			'workspace.brandingEntry' => 'Impostazioni brand (nome / logo / colore principale)',
+			'workspace.brandingLogoHint' => 'https://… (URL dell\'immagine del logo dell\'area di lavoro)',
+			'workspace.brandingLogoLabel' => 'URL del logo',
+			'workspace.brandingNameLabel' => 'Nome del brand',
+			'workspace.brandingPreview' => 'Anteprima colore principale',
+			'workspace.brandingPreviewApplied' => 'Il colore principale attuale sarà applicato all\'interno dell\'area di lavoro',
+			'workspace.brandingPreviewFallback' => 'Valore non impostato o non valido, uso del colore del tema predefinito',
+			'workspace.brandingSaved' => 'Impostazioni del brand salvate',
+			'workspace.brandingTitle' => 'Brand dell\'area di lavoro',
+			'workspace.changeRoleTitle' => ({required Object name}) => 'Modifica il ruolo nell\'area di lavoro di ${name}',
+			'workspace.channelDetailTitle' => 'Canale',
+			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} iscritti',
+			'workspace.channelsEmptySubtitle' => 'I canali servono a pubblicare contenuti in modo continuativo (annunci/materiali); per discutere vai ai gruppi',
+			'workspace.channelsEmptyTitle' => 'Nessun canale nell\'area di lavoro per ora',
+			'workspace.createDesc' => 'Con una sola creazione, automaticamente: area di lavoro, tu (come Owner, membro dell\'area di lavoro), canale Announcements e gruppo General. Tutto riesce o tutto viene annullato.',
+			'workspace.createEntry' => 'Crea area di lavoro',
+			'workspace.createIdempotentHit' => 'Esiste già un\'area di lavoro con questo nome, accesso diretto',
+			'workspace.createNameHint' => 'Ad es.: Team rifacimento sito web',
+			'workspace.createNameLabel' => 'Nome area di lavoro',
+			'workspace.createNameRequired' => 'Il nome dell\'area di lavoro non può essere vuoto',
+			'workspace.createSubmit' => 'Crea',
+			'workspace.createSuccess' => 'Area di lavoro creata con successo',
+			'workspace.createTemplateChannel' => 'Canale Announcements (diventerai editore e iscritto del canale)',
+			'workspace.createTemplateGroup' => 'Gruppo General (diventerai membro del gruppo)',
+			'workspace.createTemplateOwner' => 'Diventerai Owner dell\'area di lavoro (membro dell\'area di lavoro)',
+			'workspace.createTemplateTitle' => 'Verrà inizializzato automaticamente',
+			'workspace.createTitle' => 'Crea area di lavoro',
+			'workspace.discussInGroupGuide' => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General →',
+			'workspace.dmEntry' => 'Tutti i messaggi',
+			'workspace.emptyNoWorkspace' => 'Seleziona o crea prima un\'area di lavoro',
+			'workspace.experienceModeEntry' => 'Layout home',
+			'workspace.experienceModeHint' => 'Scegli l\'esperienza d\'uso per questo dispositivo; modifica solo il layout della home, non i permessi né l\'appartenenza all\'area di lavoro',
+			'workspace.experienceModePersonal' => 'Personale',
+			'workspace.experienceModeReset' => 'Ripristina valori predefiniti del deployment',
+			'workspace.experienceModeWorkspace' => 'Area di lavoro',
+			'workspace.governanceTitle' => 'Governance dell\'area di lavoro',
+			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} membri del gruppo',
+			'workspace.groupsEmptySubtitle' => 'I gruppi sono gli spazi di discussione in tempo reale dell\'area di lavoro (unico punto d\'accesso alla chat)',
+			'workspace.groupsEmptyTitle' => 'Nessun gruppo nell\'area di lavoro per ora',
+			'workspace.guestReadonlyHint' => 'Come Ospite (Guest) le risorse dell\'area di lavoro sono in sola lettura',
+			'workspace.inviteCodeCopy' => 'Copia',
+			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'Valido fino a ${expiresAt}',
+			'workspace.inviteCodeGenerate' => 'Genera codice team',
+			'workspace.inviteCodeRevoke' => 'Revoca',
+			'workspace.inviteCodeSectionTitle' => 'Invito con codice team',
+			'workspace.inviteDesc' => 'Sono invitabili solo utenti registrati; entrare nell\'area di lavoro non aggiunge automaticamente a gruppi né iscrive ai canali — puoi far entrare contemporaneamente nel gruppo General e inviare l\'invito al canale Announcements',
+			'workspace.inviteEntry' => 'Invita membri nell\'area di lavoro',
+			'workspace.inviteJoinGroupOption' => 'Entra anche nel gruppo General (diventa membro del gruppo)',
+			'workspace.inviteOptionUnavailable' => 'Risorsa corrispondente non trovata, opzione non disponibile',
+			'workspace.inviteResultChannel' => 'Invito al canale Announcements inviato (dopo l\'accettazione diventa iscritto)',
+			'workspace.inviteResultGroup' => 'Ingresso nel gruppo General (diventa membro del gruppo)',
+			'workspace.inviteResultWorkspace' => 'Ingresso nell\'area di lavoro (diventa membro dell\'area di lavoro)',
+			'workspace.inviteResultsTitle' => 'Risultati (tre operazioni indipendenti)',
+			'workspace.inviteSearchHint' => 'Cerca per nome utente / ID utente',
+			'workspace.inviteSubmit' => 'Invia invito',
+			'workspace.inviteSubscribeChannelOption' => 'Invia anche l\'invito al canale Announcements',
+			'workspace.inviteTitle' => 'Invita membri nell\'area di lavoro',
+			'workspace.joinAlreadyMember' => 'Sei già in questa area di lavoro',
+			'workspace.joinCodeHint' => '8 caratteri tra lettere maiuscole o numeri',
+			'workspace.joinCodeLabel' => 'Codice team',
+			'workspace.joinDesc' => 'Inserisci il codice team per entrare nell\'area di lavoro',
+			'workspace.joinEntry' => 'Entra nell\'area di lavoro',
+			'workspace.joinExpiredCode' => 'Codice team scaduto',
+			'workspace.joinInvalidCode' => 'Codice team non valido o non più utilizzabile',
+			'workspace.joinSubmit' => 'Entra',
+			'workspace.joinSuccess' => ({required Object name}) => 'Sei entrato in «${name}»',
+			'workspace.joinTitle' => 'Entra nell\'area di lavoro',
+			'workspace.membersCountLabel' => ({required Object count}) => '${count} membri',
+			'workspace.membersEmpty' => 'Nessun membro dell\'area di lavoro per ora',
+			'workspace.membersEmptySubtitle' => 'Invita utenti registrati a diventare membri dell\'area di lavoro (Owner / Member / Guest)',
+			'workspace.membersTitle' => 'Membri dell\'area di lavoro',
+			'workspace.membersViewAll' => 'Vedi tutti',
+			'workspace.navChannels' => 'Canali',
+			'workspace.navGroups' => 'Gruppi',
+			'workspace.navMembers' => 'Membri',
+			'workspace.navOverview' => 'Panoramica',
+			'workspace.navProjects' => 'Progetti',
+			'workspace.overviewPinnedContent' => 'Contenuti in evidenza dei canali',
+			'workspace.overviewPinnedEmpty' => 'Nessun contenuto in evidenza nei canali; gli annunci dei gruppi non vengono aggregati qui (gli annunci appartengono ai singoli gruppi)',
+			'workspace.overviewRecentFiles' => 'File recenti',
+			'workspace.overviewRecentFilesEmpty' => 'I file caricati di recente verranno mostrati qui; puoi vedere gli allegati anche all\'interno dei singoli canali',
+			'workspace.overviewResources' => 'Riepilogo risorse',
+			'workspace.overviewTitle' => 'Panoramica',
+			'workspace.pickerEmptySubtitle' => 'Crea un\'area di lavoro e avvia la collaborazione del team in 3 minuti (canale Announcements e gruppo General creati automaticamente)',
+			'workspace.pickerEmptyTitle' => 'Nessuna area di lavoro per ora',
+			'workspace.pickerTitle' => 'Le mie aree di lavoro',
+			'workspace.projectChannelEmptySubtitle' => 'Dopo aver collegato un canale dell\'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto',
+			'workspace.projectChannelEmptyTitle' => 'Nessun canale collegato per ora',
+			'workspace.projectChannelLinkExistingToast' => 'Questo canale è già collegato',
+			'workspace.projectChannelLinkTitle' => 'Seleziona i canali da collegare',
+			'workspace.projectChannelLinkedToast' => 'Canale collegato',
+			'workspace.projectChannelNoCandidate' => 'Nessun canale candidato collegabile',
+			'workspace.projectChannelUnlinkDesc' => 'Dopo lo scollegamento i contenuti del canale non verranno più aggregati in questo progetto',
+			'workspace.projectChannelUnlinkSubmit' => 'Scollega',
+			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'Scollega ${name}',
+			'workspace.projectChannelUnlinkedToast' => 'Scollegato',
+			'workspace.projectChannelsEntry' => 'Canali del progetto',
+			'workspace.projectChannelsTitle' => 'Canali del progetto',
+			'workspace.projectCreateEntry' => 'Nuovo progetto',
+			'workspace.projectCreateSuccess' => 'Progetto creato con successo',
+			'workspace.projectCreateTitle' => 'Nuovo progetto',
+			'workspace.projectDescHint' => 'Cosa deve consegnare questo progetto?',
+			'workspace.projectDescLabel' => 'Descrizione del progetto (opzionale)',
+			'workspace.projectDetailTitle' => 'Dettagli progetto',
+			'workspace.projectGuestReadonly' => 'Come Ospite (Guest) il progetto è in sola lettura',
+			'workspace.projectInfoSection' => 'Informazioni di base',
+			'workspace.projectInsightsActivityEmpty' => 'Nessuna attività per questo progetto',
+			'workspace.projectInsightsEntry' => 'Aggregazione contenuti',
+			'workspace.projectInsightsPinnedEmpty' => 'I canali collegati non hanno contenuti in evidenza per ora',
+			'workspace.projectInsightsPostAuthor' => ({required Object name}) => 'Pubblicato da ${name}',
+			'workspace.projectInsightsPostsEmpty' => 'I canali collegati non hanno post per ora',
+			'workspace.projectInsightsResourcesEmpty' => 'Nessun link alle risorse per questo progetto',
+			'workspace.projectInsightsTabActivity' => 'Attività del progetto',
+			'workspace.projectInsightsTabPinned' => 'Messaggi in evidenza',
+			'workspace.projectInsightsTabPosts' => 'Post correlati',
+			'workspace.projectInsightsTabResources' => 'Link alle risorse',
+			'workspace.projectLinkNameLabel' => 'Nome del link',
+			'workspace.projectLinkUrlLabel' => 'URL del link',
+			'workspace.projectLoadMore' => 'Carica altro',
+			'workspace.projectMarkDone' => 'Segna come completato',
+			'workspace.projectMemberAlreadyRemovedToast' => 'Questo utente non è più tra i membri del progetto',
+			'workspace.projectMemberEmptySubtitle' => 'Il responsabile del progetto può invitare utenti registrati a unirsi a questo progetto',
+			'workspace.projectMemberEmptyTitle' => 'Nessun membro del progetto per ora',
+			'workspace.projectMemberInviteExisting' => 'Questo utente è già membro del progetto',
+			'workspace.projectMemberInviteFieldHint' => 'ID dell\'utente registrato da invitare',
+			'workspace.projectMemberInviteFieldLabel' => 'ID utente',
+			'workspace.projectMemberInviteInvalidUid' => 'Inserisci un ID utente valido',
+			'workspace.projectMemberInviteSubmit' => 'Invita',
+			'workspace.projectMemberInviteSuccess' => 'Aggiunto ai membri del progetto',
+			'workspace.projectMemberInviteTitle' => 'Invita membri nel progetto',
+			'workspace.projectMemberRemoveConfirmDesc' => 'Dopo la rimozione l\'utente perderà l\'accesso ai contenuti di questo progetto (potrà essere invitato di nuovo)',
+			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Rimuovi il membro del progetto ${name}',
+			'workspace.projectMemberRemoveSubmit' => 'Rimuovi',
+			'workspace.projectMemberRemovedToast' => 'Rimosso',
+			'workspace.projectMemberTransferConfirm' => 'Conferma trasferimento',
+			'workspace.projectMemberTransferDesc' => 'Dopo il trasferimento l\'altro otterrà il pieno controllo di gestione di questo progetto',
+			'workspace.projectMemberTransferDoneToast' => 'Responsabilità del progetto trasferita',
+			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'Trasferisci la responsabilità del progetto a ${name}',
+			'workspace.projectMembersEntry' => 'Membri',
+			'workspace.projectMembersTitle' => 'Membri del progetto',
+			'workspace.projectMilestoneAlreadyReachedToast' => 'Questa milestone è già stata raggiunta',
+			'workspace.projectMilestoneCreateSubmit' => 'Crea',
+			'workspace.projectMilestoneCreateTitle' => 'Nuova milestone',
+			'workspace.projectMilestoneCreatedToast' => 'Milestone creata',
+			'workspace.projectMilestoneDueDateInvalid' => 'Il formato della data deve essere YYYY-MM-DD',
+			'workspace.projectMilestoneDueDateLabel' => 'Data di scadenza (YYYY-MM-DD, opzionale)',
+			'workspace.projectMilestoneDueLabel' => 'Scadenza',
+			'workspace.projectMilestoneEmptySubtitle' => 'Contrassegna i nodi chiave del progetto con le milestone (pianificata → raggiunta, a senso unico)',
+			'workspace.projectMilestoneEmptyTitle' => 'Nessuna milestone per ora',
+			'workspace.projectMilestoneFilterAll' => 'Tutte',
+			'workspace.projectMilestoneFilterPlanned' => 'Pianificate',
+			'workspace.projectMilestoneFilterReached' => 'Raggiunte',
+			'workspace.projectMilestoneNameLabel' => 'Nome',
+			'workspace.projectMilestoneNameRequired' => 'Il nome della milestone non può essere vuoto',
+			'workspace.projectMilestoneReach' => 'Segna come raggiunta',
+			'workspace.projectMilestoneReachedHint' => 'Raggiunta (non è possibile tornare indietro)',
+			'workspace.projectMilestoneReachedToast' => 'Milestone raggiunta',
+			'workspace.projectMilestonesEntry' => 'Milestone',
+			'workspace.projectMilestonesTitle' => 'Milestone',
+			'workspace.projectNameHint' => 'Ad es.: Rifacimento sito web',
+			'workspace.projectNameLabel' => 'Nome progetto',
+			'workspace.projectNameRequired' => 'Il nome del progetto non può essere vuoto',
+			'workspace.projectNoPermission' => 'Nessun permesso: visibile solo ai membri del progetto, al responsabile del progetto o all\'Owner dell\'area di lavoro',
+			'workspace.projectOwnerLabel' => 'Responsabile',
+			'workspace.projectReopen' => 'Riapri progetto',
+			'workspace.projectStatusActive' => 'In corso',
+			'workspace.projectStatusChanged' => 'Stato del progetto aggiornato',
+			'workspace.projectStatusDone' => 'Completato',
+			'workspace.projectStatusLabel' => 'Stato',
+			'workspace.projectSubmit' => 'Crea',
+			'workspace.projectTasksSection' => 'Attività',
+			'workspace.projectW2SectionTitle' => 'Collaborazione progetto',
+			'workspace.projectsEmptySubtitle' => 'I progetti servono a monitorare obiettivi di consegna chiari; valgono anche per le aree di lavoro comunitarie con soli canali e gruppi',
+			'workspace.projectsEmptyTitle' => 'Nessun progetto per ora',
+			'workspace.projectsLoadMore' => 'Carica altro',
+			'workspace.projectsTitle' => 'Progetti',
+			'workspace.removeMemberConfirm' => 'Conferma rimozione',
+			'workspace.removeMemberDesc' => 'Dopo la rimozione perderà subito l\'accesso all\'area di lavoro; se ha ancora attività non completate o progetti a sua responsabilità, il server restituirà un elenco di conflitti e annullerà la rimozione',
+			'workspace.removeMemberTitle' => ({required Object name}) => 'Rimuovi il membro dell\'area di lavoro ${name}',
+			'workspace.restoreConfirm' => 'Conferma ripristino',
+			'workspace.restoreDesc' => 'Dopo il ripristino l\'area di lavoro tornerà in lettura e scrittura',
+			'workspace.restoreEntry' => 'Ripristina area di lavoro',
+			'workspace.restoreTitle' => 'Ripristina area di lavoro',
+			'workspace.resultFailed' => 'Non riuscito',
+			'workspace.resultIdle' => 'Non eseguito',
+			'workspace.resultRunning' => 'In corso',
+			'workspace.resultSuccess' => 'Riuscito',
+			'workspace.roleGuest' => 'Guest',
+			'workspace.roleMember' => 'Member',
+			'workspace.roleOwner' => 'Owner',
+			'workspace.switchToPersonal' => 'Passa a personale',
+			'workspace.switchToWorkspace' => 'Passa ad area di lavoro',
+			'workspace.switchWorkspace' => 'Cambia area di lavoro',
+			'workspace.taskAdvanceTo' => ({required Object status}) => 'Avanza a «${status}»',
+			'workspace.taskAssigneeLabel' => 'Responsabile (membro dell\'area di lavoro)',
+			'workspace.taskAssigneeNone' => 'Non assegnare per ora',
+			'workspace.taskAssigneeRefresh' => 'Aggiorna i candidati responsabili',
+			'workspace.taskCreatedToast' => 'Attività creata',
+			'workspace.taskEmptySubtitle' => 'Monitora l\'esecuzione con quattro stati: da fare → in corso → in revisione → completata',
+			'workspace.taskEmptyTitle' => 'Nessuna attività per ora',
+			'workspace.taskExistingToast' => 'Esiste già un\'attività con lo stesso titolo, verrà usata quella esistente',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Riporta "${title}" a…',
+			'workspace.taskFilterAll' => 'Tutte',
+			'workspace.taskFormCreateTitle' => 'Nuova attività',
+			'workspace.taskFormEditTitle' => 'Modifica attività',
+			'workspace.taskNewEntry' => 'Nuova attività',
+			'workspace.taskStatusDoing' => 'In corso',
+			'workspace.taskStatusDone' => 'Completata',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Spostata a «${status}»',
+			'workspace.taskStatusReview' => 'In revisione',
+			'workspace.taskStatusTodo' => 'Da fare',
+			'workspace.taskSubmitCreate' => 'Crea attività',
+			'workspace.taskSubmitSave' => 'Salva',
+			'workspace.taskTitleLabel' => 'Titolo attività',
+			'workspace.taskTitleRequired' => 'Il titolo dell\'attività non può essere vuoto',
+			'workspace.taskUpdatedToast' => 'Attività salvata',
+			'workspace.transferConfirm' => 'Conferma trasferimento',
+			'workspace.transferDesc' => 'Dopo il trasferimento diventerai un normale membro dell\'area di lavoro (Member) e l\'altro otterrà tutti i poteri di governance',
+			'workspace.transferTitle' => ({required Object name}) => 'Trasferisci il ruolo di Owner principale a ${name}',
 			_ => null,
 		};
 	}

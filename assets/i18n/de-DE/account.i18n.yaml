@@ -116,3 +116,27 @@ webPasswordHint: Passwort eingeben
 e2eeTransferFromOldDevice: Vom alten Gerät empfangen
 pleaseRelogin: Bitte neu anmelden
 otherLoginMethods: "Weitere Anmeldemethoden"
+payMethodTitle: Zahlungsart wählen
+payMethodAlipay: Alipay
+payMethodWechat: WeChat Pay
+payMethodWallet: Wallet-Guthaben
+payMethodMock: Testzahlung (nur Entwicklung)
+payMethodComingSoon: Diese Zahlungsart ist bald verfügbar
+payCancelled: Zahlung abgebrochen
+alipaySim:
+  selectMethod: Zahlungsart wählen
+  confirmPay: Zahlung bestätigen
+  paymentAmount: "Betrag:"
+  balanceSource: Kontoguthaben
+  enterPassword: Bitte Zahlungs-Passwort eingeben
+  huabei: Huabei-Ratenzahlung
+  energy: Nach erfolgreicher Zahlung 5 g grüne Energie erhalten
+  alipaySuccess: Zahlung erfolgreich
+  merchantSuccess: Zahlung in der Händler-App erfolgreich
+  storeName: IT-Flagship-Store
+logoutPendingHeader: Status des Löschantrags
+logoutPendingBanner: Löschantrag eingereicht, Abschluss voraussichtlich am $date
+logoutCancelRequest: Löschantrag zurückziehen
+logoutCancelledNote: Löschantrag zurückgezogen
+logoutRetainedHeader: Hinweis zur Datenaufbewahrung
+logoutRetainedNote: Nach Abschluss der Löschung werden Audit-Protokolle und Finanzunterlagen gesetzlich vorgeschrieben aufbewahrt und anonymisiert; von Ihnen geführte Gruppen/Arbeitsbereiche/Kanäle werden vorrangig an Nachfolgemitglieder übertragen

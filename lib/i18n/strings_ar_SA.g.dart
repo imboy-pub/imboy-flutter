@@ -35,12 +35,13 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 
 	late final TranslationsArSa _root = this; // ignore: unused_field
 
-	@override 
+	@override
 	TranslationsArSa $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsArSa(meta: meta ?? this.$meta);
 
 	// Translations
 	@override late final _Translations$account$ar_SA account = _Translations$account$ar_SA._(_root);
 	@override late final _Translations$agent$ar_SA agent = _Translations$agent$ar_SA._(_root);
+	@override late final _Translations$agentTask$ar_SA agentTask = _Translations$agentTask$ar_SA._(_root);
 	@override late final _Translations$billing$ar_SA billing = _Translations$billing$ar_SA._(_root);
 	@override late final _Translations$channel$ar_SA channel = _Translations$channel$ar_SA._(_root);
 	@override late final _Translations$chat$ar_SA chat = _Translations$chat$ar_SA._(_root);
@@ -52,6 +53,7 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$error$ar_SA error = _Translations$error$ar_SA._(_root);
 	@override late final _Translations$group$ar_SA group = _Translations$group$ar_SA._(_root);
 	@override late final _Translations$groupCategory$ar_SA groupCategory = _Translations$groupCategory$ar_SA._(_root);
+	@override late final _Translations$groupDiscovery$ar_SA groupDiscovery = _Translations$groupDiscovery$ar_SA._(_root);
 	@override late final _Translations$groupList$ar_SA groupList = _Translations$groupList$ar_SA._(_root);
 	@override late final _Translations$groupSchedule$ar_SA groupSchedule = _Translations$groupSchedule$ar_SA._(_root);
 	@override late final _Translations$groupTag$ar_SA groupTag = _Translations$groupTag$ar_SA._(_root);
@@ -64,6 +66,7 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$passport$ar_SA passport = _Translations$passport$ar_SA._(_root);
 	@override late final _Translations$splash$ar_SA splash = _Translations$splash$ar_SA._(_root);
 	@override late final _Translations$welcome$ar_SA welcome = _Translations$welcome$ar_SA._(_root);
+	@override late final _Translations$workspace$ar_SA workspace = _Translations$workspace$ar_SA._(_root);
 }
 
 // Path: account
@@ -190,6 +193,20 @@ class _Translations$account$ar_SA extends Translations$account$zh_CN {
 	@override String get e2eeTransferFromOldDevice => 'استقبال المفتاح من الجهاز القديم';
 	@override String get pleaseRelogin => 'سجّل الدخول مجدداً';
 	@override String get otherLoginMethods => 'طرق تسجيل دخول أخرى';
+	@override String logoutPendingBanner({required Object date}) => 'تم إرسال طلب إلغاء الحساب، ويُتوقع اكتماله في ${date}';
+	@override String get logoutPendingHeader => 'حالة طلب إلغاء الحساب';
+	@override String get logoutCancelRequest => 'سحب طلب إلغاء الحساب';
+	@override String get logoutCancelledNote => 'تم سحب طلب إلغاء الحساب';
+	@override String get logoutRetainedHeader => 'ملاحظة الاحتفاظ بالبيانات';
+	@override String get logoutRetainedNote => 'بعد اكتمال الحذف: تُحفظ سجلات التدقيق والسجلات المالية وفقاً للقانون ويُجرى إخفاء هويتها؛ وستُنقل المجموعات/مساحات العمل/القنوات التي تملكها بالأولوية إلى عضو خلف';
+	@override String get payCancelled => 'تم إلغاء الدفع';
+	@override String get payMethodTitle => 'اختيار طريقة الدفع';
+	@override String get payMethodWallet => 'رصيد المحفظة';
+	@override String get payMethodMock => 'دفع محاكى (بيئة التطوير)';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get payMethodComingSoon => 'ستُتاح طريقة الدفع هذه قريباً، ترقّبها';
+	@override late final _Translations$account$alipaySim$ar_SA alipaySim = _Translations$account$alipaySim$ar_SA._(_root);
 }
 
 // Path: agent
@@ -209,6 +226,27 @@ class _Translations$agent$ar_SA extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => 'رسمي';
 	@override String get badgeAiA11y => 'مساعد ذكاء اصطناعي';
 	@override String get badgeOfficialA11y => 'حساب رسمي';
+	@override String get legacyBotMigrated => 'تمت ترقية مدخل الروبوت هذا. انتقل إلى ساحة مساعدي الذكاء الاصطناعي للتحدث مع المساعد.';
+	@override String get legacyBotGoPlaza => 'الذهاب إلى ساحة المساعدين';
+}
+
+// Path: agentTask
+class _Translations$agentTask$ar_SA extends Translations$agentTask$zh_CN {
+	_Translations$agentTask$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'مهمة الذكاء الاصطناعي';
+	@override String get working => 'جارٍ التنفيذ';
+	@override String get submitted => 'مُرسَلة';
+	@override String get progress => 'قيد التنفيذ';
+	@override String get completed => 'مكتملة';
+	@override String get failed => 'فشل التنفيذ';
+	@override String get cancelled => 'ملغاة';
+	@override String get awaitingApproval => 'بانتظار الموافقة';
+	@override String get approve => 'موافقة';
+	@override String get reject => 'رفض';
 }
 
 // Path: billing
@@ -390,6 +428,66 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get accessTypePaid => 'مدفوع';
 	@override String get typePublicPaidDesc => 'يمكن لأي شخص اكتشاف القناة والاشتراك بعد الشراء';
 	@override String get typePrivatePaidDesc => 'يمكن للمستخدمين المدعوين فقط الدخول في عملية الشراء والاشتراك بعد الدفع';
+	@override String get addImage => 'إضافة صورة';
+	@override String get allCategories => 'الكل';
+	@override String get articleBodyHint => 'اكتب شيئاً… يدعم الخط الغامق والمائل والعناوين والقوائم وغيرها من التنسيقات';
+	@override String get cancelOrder => 'إلغاء الطلب';
+	@override String get cancelOrderConfirmTitle => 'تأكيد إلغاء الطلب';
+	@override String get cancelOrderConfirmMessage => 'هل أنت متأكد من إلغاء هذا الطلب في انتظار الدفع؟ بعد الإلغاء لن تتمكن من متابعة الدفع.';
+	@override String get cancelOrderSuccess => 'تم إلغاء الطلب';
+	@override String get channelNotFound => 'القناة غير موجودة';
+	@override String get comment => 'تعليق';
+	@override String get commentFailed => 'فشل التعليق';
+	@override String get commentDeleteNoPermission => 'لا تملك صلاحية حذف هذا التعليق';
+	@override String get deleteComment => 'حذف التعليق';
+	@override String get deleteCommentConfirm => 'هل أنت متأكد من حذف هذا التعليق؟';
+	@override String get noComments => 'لا توجد تعليقات';
+	@override String get writeComment => 'اكتب تعليقاً...';
+	@override String get reply => 'رد';
+	@override String get replyTo => 'رداً على';
+	@override String get like => 'إعجاب';
+	@override String get coverLabel => 'الغلاف';
+	@override String get coverSet => 'تم التعيين كغلاف';
+	@override String get linkTextPlaceholder => 'نص الرابط';
+	@override String get formatBold => 'غامق';
+	@override String get formatItalic => 'مائل';
+	@override String get formatHeading => 'عنوان';
+	@override String get formatList => 'قائمة';
+	@override String get formatQuote => 'اقتباس';
+	@override String get formatLink => 'رابط';
+	@override String get formatStrikethrough => 'يتوسطه خط';
+	@override String get preview => 'معاينة';
+	@override String get publish => 'نشر';
+	@override String get readFull => 'قراءة النص الكامل';
+	@override String get sortNewest => 'الأحدث';
+	@override String get sortPopular => 'الأكثر رواجاً';
+	@override String get titleOptional => 'العنوان (اختياري)';
+	@override String get myOrders => 'طلباتي';
+	@override String get noOrders => 'لا توجد سجلات طلبات';
+	@override String get orderDetail => 'تفاصيل الطلب';
+	@override String get orderNo => 'رقم الطلب';
+	@override String get orderAmount => 'المبلغ';
+	@override String get orderChannel => 'القناة';
+	@override String get orderStatusLabel => 'الحالة';
+	@override String get orderStatusPending => 'في انتظار الدفع';
+	@override String get orderStatusPaid => 'مدفوع';
+	@override String get orderStatusCancelled => 'ملغى';
+	@override String get orderStatusExpired => 'منتهٍ';
+	@override String get orderStatusRefunded => 'مسترد';
+	@override String get orderStatusRefunding => 'قيد الاسترداد';
+	@override String get orderCreatedAt => 'وقت الطلب';
+	@override String get orderPaidAt => 'وقت الدفع';
+	@override String get orderPaymentMethod => 'طريقة الدفع';
+	@override String get orderSubscriptionPeriod => 'مدة الاشتراك';
+	@override String get orderValidUntil => 'صالح حتى';
+	@override String get orderContinuePay => 'متابعة الدفع';
+	@override String get payAlipay => 'Alipay';
+	@override String get payWechat => 'WeChat Pay';
+	@override String get payWallet => 'رصيد المحفظة';
+	@override String get refundApply => 'طلب استرداد';
+	@override String get refundConfirmTitle => 'تأكيد الاسترداد';
+	@override String get refundConfirmMessage => 'هل أنت متأكد من طلب استرداد المبلغ لهذا الطلب؟ سيؤدي الاسترداد إلى إلغاء الاشتراك.';
+	@override String get refundSuccess => 'تم إرسال طلب الاسترداد';
 }
 
 // Path: chat
@@ -677,6 +775,16 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get extraItems => 'إضافات';
 	@override String get messageInputHint => 'اكتب رسالة...';
 	@override String get invalidMessageType => '[رسالة غير مدعومة]';
+	@override String get convertToText => 'تحويل إلى نص';
+	@override String get releaseConvertToText => 'أفلت للتحويل إلى نص';
+	@override String get voiceReleaseCancel => 'أفلت للإلغاء';
+	@override String get voiceReleaseCancelSend => 'أفلت لإلغاء الإرسال';
+	@override String get voiceSlideHint => 'اسحب لأعلى للإلغاء / التحويل إلى نص';
+	@override String get burnReadBadge => 'يُحرق بعد القراءة';
+	@override String get extraPanelCollab => 'تعاون المجموعة';
+	@override String get extraPanelFunds => 'الأموال';
+	@override String get extraPanelMedia => 'الوسائط';
+	@override String get alipayLoginInterrupted => 'انقطعت عملية تسجيل الدخول عبر Alipay بسبب النظام، حاول مرة أخرى';
 }
 
 // Path: common
@@ -1831,6 +1939,77 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get searchFailedRetry => 'فشل البحث، يرجى المحاولة مرة أخرى';
 	@override String get searchDisabledTitle => 'بحث الرسائل غير متاح';
 	@override String get searchDisabledByEncryption => 'التشفير التام مُفعّل، لذا لا يستطيع الخادم قراءة رسائلك ولا يتوفر البحث في النص الكامل';
+	@override String get amountMustPositive => 'يجب أن يكون المبلغ أكبر من 0';
+	@override String get enterAmount => 'يرجى إدخال المبلغ';
+	@override String get answer => 'قبول';
+	@override String get declineCall => 'رفض';
+	@override String get collapse => 'طي';
+	@override String get expandFull => 'توسيع';
+	@override String get minimize => 'تصغير';
+	@override String get me => 'أنا';
+	@override String get justNow => 'الآن';
+	@override String get minutesAgo => 'دقائق مضت';
+	@override String get hoursAgo => 'ساعات مضت';
+	@override String timeDaysShort({required Object count}) => '${count}ي';
+	@override String timeHoursShort({required Object count}) => '${count}س';
+	@override String timeMinutesShort({required Object count}) => '${count}د';
+	@override String get timeNowShort => 'الآن';
+	@override String get reconnecting => 'الشبكة ضعيفة، جارٍ إعادة الاتصال…';
+	@override String get switchCamera => 'تبديل الكاميرا';
+	@override String get noHistory => 'لا يوجد سجل';
+	@override String get noNewRegisteredUsersTitle => 'لا يوجد مستخدمون مسجلون جدد';
+	@override String get payReceiveSuccess => 'تم استلام المبلغ بنجاح!';
+	@override String get purchaseConfirming => 'جارٍ تأكيد الدفع، تحقق من حالة الطلب لاحقاً';
+	@override String uploadPartialFailed({required Object count}) => 'فشل رفع ${count} عنصراً';
+	@override String get momentsHasFailedUploads => 'فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر';
+	@override String f2fEnteringGroup({required Object count}) => 'سيدخل ${count} أشخاص قريباً إلى الدردشة الجماعية';
+	@override String get f2fSecretCode => 'الرمز السري';
+	@override String get complianceKeyChangedTitle => 'تم تغيير مفتاح تدقيق الامتثال';
+	@override String get complianceKeyChangedActionConfirm => 'تأكيد التدوير';
+	@override String get complianceKeyChangedActionKeep => 'تأكيد لاحقاً';
+	@override String get complianceKeyChangedBody => 'المفتاح العام لتدقيق الامتثال الصادر من الخادم لا يطابق القيمة المثبتة محلياً. إذا كان هذا تدويراً مقصوداً للمفتاح من المسؤول، فانقر على «تأكيد التدوير»؛ وإلا فلا تُكمل إرسال الرسائل المشفّرة، واتصل بالمسؤول للتحقق.';
+	@override String get e2eeErrPeerNotOnboarded => 'لم يسجّل الطرف الآخر الدخول على أي جهاز بعد، فلا يمكن الإرسال المشفّر مؤقتاً؛ انتظر تسجيل دخوله ثم أعد المحاولة';
+	@override String get e2eeRecoveryKeyTitle => 'مفتاح الاستعادة';
+	@override String get e2eeRecoveryKeyCopied => 'تم نسخ مفتاح الاستعادة';
+	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'تم نسخ مفتاح الاستعادة، وسيُمسَح الحافظة تلقائياً بعد ${seconds} ثانية، يرجى حفظه سريعاً';
+	@override String get e2eeRecoveryKeySaveNote => 'احفظ مفتاح الاستعادة هذا فوراً (بلقطة شاشة أو في مدير كلمات المرور). عند نسيان عبارة المرور، فهو الدليل الوحيد لفك تشفير النسخة الاحتياطية؛ وإذا فُقد فلن يمكن استعادة النسخة الاحتياطية أبداً.';
+	@override String get e2eeUseRecoveryKey => 'إنشاء مفتاح استعادة (دليل احتياطي عند نسيان عبارة المرور)';
+	@override String get initConfigDecryptFailed => 'فشل فك تشفير الإعدادات: مفتاح الأمان في التطبيق لا يطابق الخادم، يرجى تحديث إصدار التطبيق أو الاتصال بالمسؤول';
+	@override String get voiceSttConverting => 'جارٍ التعرف على الصوت...';
+	@override String get voiceSttNotConfigured => 'ميزة التحويل إلى نص غير مهيأة بعد';
+	@override String get voiceSttPreviewTitle => 'معاينة تحويل الصوت إلى نص';
+	@override String get redPacketBrand => 'مغلف IMBoy الأحمر';
+	@override String get redPacketDialogTitle => 'أرسلنا لك مغلفاً أحمر';
+	@override String get redPacketDialogSubtitle => 'أطيب التمنيات، وكل عام وأنتم بخير';
+	@override String get redPacketView => 'عرض المغلف';
+	@override String get redPacketTotalAmount => 'المبلغ الإجمالي';
+	@override String get redPacketSingleAmount => 'مبلغ المغلف الواحد';
+	@override String get redPacketCount => 'عدد المغلفات';
+	@override String get redPacketCountUnit => 'مغلف';
+	@override String get redPacketCountEmpty => 'يرجى إدخال عدد المغلفات';
+	@override String get redPacketCountMin => 'يجب أن يكون عدد المغلفات 1 على الأقل';
+	@override String get redPacketAmountTooSmall => 'يجب أن يكون المبلغ الإجمالي على الأقل عدد المغلفات × 0.01 يوان';
+	@override String get redPacketGreetingLabel => 'رسالة / تهنئة';
+	@override String get redPacketCurrentLucky => 'الوضع الحالي: مغلف الحظ';
+	@override String get redPacketCurrentNormal => 'الوضع الحالي: مغلف عادي';
+	@override String get redPacketSwitchToLucky => 'التحويل إلى مغلف حظ';
+	@override String get redPacketSwitchToNormal => 'التحويل إلى مغلف عادي';
+	@override String get redPacketStuffLucky => 'إرسال مغلف حظ';
+	@override String get redPacketStuffNormal => 'إرسال من المحفظة';
+	@override String get redPacketFetchError => 'خطأ في جلب تفاصيل المغلف';
+	@override String get redPacketFetchFailed => 'تعذّر جلب تفاصيل المغلف';
+	@override String get redPacketNotFound => 'المغلف غير موجود أو محذوف';
+	@override String redPacketReceiverLabel({required Object uid}) => 'المستخدم: ${uid}';
+	@override String get transferAmountLabel => 'مبلغ التحويل';
+	@override String get transferRemarkLabel => 'ملاحظة التحويل';
+	@override String get transferDefaultRemark => 'تحويل إلى صديق';
+	@override String get transferConfirm => 'تأكيد التحويل';
+	@override String get transferMinAmountError => 'الحد الأدنى لمبلغ التحويل هو 0.01 يوان';
+	@override String get transferPending => 'في انتظار تأكيد الطرف الآخر';
+	@override String get transferAccepted => 'تم الاستلام';
+	@override String get transferReceiving => 'جارٍ استلام المبلغ...';
+	@override String get transferRefunded => 'تمت الإعادة';
+	@override String get transferTapToReceive => 'انقر للاستلام';
 }
 
 // Path: complaint
@@ -1841,6 +2020,10 @@ class _Translations$complaint$ar_SA extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => 'شكوى';
+	@override String get e2eeConsentTitle => 'تقديم دليل مشفّر';
+	@override String get e2eeConsentBody => 'هذه الرسالة مشفّرة من الطرف إلى الطرف ولا يمكن للخادم الاطلاع على محتواها. سيكشف تقديم مقتطف النص محتوى الرسالة المحدد للمشرفين لمراجعة البلاغ. هل توافق؟';
+	@override String get e2eeConsentSubmit => 'أوافق وأرسل الدليل';
+	@override String get e2eeConsentDecline => 'الإبلاغ فقط (بدون محتوى)';
 }
 
 // Path: complaintReason
@@ -1971,6 +2154,14 @@ class _Translations$discovery$ar_SA extends Translations$discovery$zh_CN {
 	@override String get openChannel => 'فتح القناة';
 	@override String get paidChannelLocked => 'محتوى القناة المدفوعة مقفل';
 	@override String get webQRScanned => 'تم المسح';
+	@override String get momentActionMore => 'المزيد من الإجراءات';
+	@override String momentLikesCountOnly({required Object count}) => '${count} أعجبوا';
+	@override String get momentLocation => 'الموقع الحالي';
+	@override String get momentLocationNone => 'عدم عرض الموقع';
+	@override String get momentAtWho => 'من تريد تنبيهه؟';
+	@override String momentAtReminded({required Object name}) => 'نبّهت ${name}';
+	@override String momentAtRemindedMore({required Object name, required Object count}) => 'نبّهت ${name} و${count} آخرين';
+	@override String momentAtCount({required Object count}) => '${count} أشخاص';
 }
 
 // Path: error
@@ -2045,6 +2236,15 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get e2eeKeyManagementSubtitle => 'نسخ احتياطي واستعادة وإدارة مفاتيح التشفير من طرف إلى طرف';
 	@override String get e2eeTitle => 'التشفير من طرف إلى طرف';
 	@override String get e2eeEnableConfirm => 'بعد التفعيل، سيتم تشفير رسائل المجموعة من طرف إلى طرف ولن تُقرأ إلا على أجهزة الأعضاء. لا يمكن التراجع عن هذا الإجراء. هل تريد التفعيل؟';
+	@override String get groupInfo => 'معلومات الدردشة الجماعية';
+	@override String get groupMemberRoleLabel => 'Member';
+	@override String noMemberWithRole({required Object roleName}) => 'لا يوجد ${roleName}';
+	@override String get moreActions => 'المزيد من الإجراءات';
+	@override String get touchContactAddMember => 'انقر على جهة الاتصال لإضافتها كعضو في المجموعة';
+	@override String get groupCreated => 'تم إنشاء الدردشة الجماعية';
+	@override String get groupCreatedSuccess => 'تم إنشاء الدردشة الجماعية بنجاح، ودعوتك إلى إكمال معلومات المجموعة أو الدخول مباشرة إلى الدردشة الجماعية';
+	@override String get enterGroupChat => 'الدخول إلى الدردشة الجماعية';
+	@override String get perfectionGroupInfo => 'إكمال معلومات المجموعة';
 }
 
 // Path: groupCategory
@@ -2071,6 +2271,22 @@ class _Translations$groupCategory$ar_SA extends Translations$groupCategory$zh_CN
 	@override String get renameFailed => 'تعذّرت إعادة التسمية، أعد المحاولة';
 	@override String get deleteFailed => 'تعذّر الحذف، أعد المحاولة';
 	@override String get categoryDetailTip => 'يمكن إدارة مجموعات هذا المجلد عبر «نقل إلى مجلد» في قائمة المجموعات';
+}
+
+// Path: groupDiscovery
+class _Translations$groupDiscovery$ar_SA extends Translations$groupDiscovery$zh_CN {
+	_Translations$groupDiscovery$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'اكتشاف المجموعات';
+	@override String get searchHint => 'البحث عن مجموعات عامة';
+	@override String get allCategories => 'الكل';
+	@override String get sortPopular => 'الأكثر رواجاً';
+	@override String get sortNewest => 'الأحدث';
+	@override String get emptyTitle => 'لا توجد مجموعات عامة حالياً، عُد لاحقاً';
+	@override String get searchEmpty => 'لا توجد مجموعات عامة مطابقة';
 }
 
 // Path: groupList
@@ -2497,6 +2713,35 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get liveRoomTitleLabel => 'عنوان الغرفة';
 	@override String get liveRoomTitleHint => 'أدخل عنوان الغرفة';
 	@override String get lightModel => 'الوضع الفاتح';
+	@override String get e2eeErrComplianceChanged => 'تغيّر مفتاح تدقيق الامتثال، ولم تُرسل الرسالة. أكّد تدوير المفتاح ثم أعد المحاولة';
+	@override String get e2eeErrComplianceUnavailable => 'مفتاح الامتثال غير متاح حالياً، ولم تُرسل الرسالة. حاول لاحقاً';
+	@override String get e2eeErrDeviceNotReady => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة';
+	@override String get e2eeErrProtocolMismatch => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة';
+	@override String get e2eeErrSessionExportFailed => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً';
+	@override String get complianceKeyInfoTitle => 'مفتاح تدقيق الامتثال';
+	@override String get complianceKeyInfoServerKey => 'المفتاح العام الصادر من الخادم';
+	@override String get complianceKeyInfoLocalPin => 'التثبيت المحلي (TOFU)';
+	@override String get complianceKeyInfoKeyId => 'معرّف المفتاح (ID)';
+	@override String get complianceKeyInfoAlgorithm => 'الخوارزمية';
+	@override String get complianceKeyInfoFingerprint => 'بصمة المفتاح العام';
+	@override String get complianceKeyInfoFetchedAt => 'وقت الجلب';
+	@override String get complianceKeyInfoPinnedAt => 'وقت التثبيت';
+	@override String get complianceKeyInfoPinnedNone => 'لم يُثبَّت بعد (سيُثبَّت تلقائياً عند الجلب التالي)';
+	@override String get complianceKeyInfoChangedWarning => '⚠️ المفتاح العام للامتثال الصادر من الخادم لا يطابق التثبيت المحلي! إذا لم يكن هذا تدويراً مقصوداً من المسؤول، فتواصل مع المسؤول فوراً وأوقف إرسال الرسائل المشفّرة.';
+	@override String get complianceKeyInfoRefreshFailed => 'فشل الجلب، تحقق من الشبكة ثم أعد المحاولة';
+	@override String get complianceKeyInfoHint => 'يُستخدم مفتاح تدقيق الامتثال للتشفير المزدوج في وضع compliance_e2ee. إذا اختلفت البصمة أعلاه عن البصمة التي أعلنها المسؤول، فقد يكون الخادم قد عُبث به.';
+	@override String get safetyNumberTitle => 'التحقق من رمز الأمان';
+	@override String get safetyNumberHint => 'قارن رمز الأمان مع الطرف الآخر وجهاً لوجه أو عبر الهاتف. إذا تطابق الرمزان فهذا يعني أن اتصالكما ليس خاضعاً لتنصت وسيط؛ وإذا اختلف فأوقف المحادثة فوراً وتحقق من هوية الطرف الآخر عبر قناة أخرى. تُحفظ حالة التحقق على هذا الجهاز فقط.';
+	@override String get safetyNumberCopy => 'نسخ';
+	@override String get safetyNumberCopied => 'تم النسخ';
+	@override String get safetyNumberMarkVerified => 'وضع علامة تم التحقق';
+	@override String get safetyNumberMarkedVerified => 'تم وضع علامة تم التحقق';
+	@override String get safetyNumberPeerDevice => 'جهاز الطرف الآخر';
+	@override String get safetyNumberNoDevices => 'لم يفعّل الطرف الآخر التشفير من طرف إلى طرف بعد';
+	@override String get safetyNumberVerifyFailed => 'تعذّر الحصول على رمز الأمان. حاول لاحقاً';
+	@override String get safetyNumberReporting => 'جارٍ الإبلاغ عن نتيجة التحقق...';
+	@override String get safetyNumberReportRejected => 'رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة';
+	@override String get safetyNumberReportUnavailable => 'تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ';
 }
 
 // Path: mention
@@ -2521,6 +2766,7 @@ class _Translations$mention$ar_SA extends Translations$mention$zh_CN {
 	@override String mentionCount({required Object count}) => '${count} إشارات جديدة';
 	@override String get mentionAllDenied => 'للمشرفين فقط استخدام @الجميع';
 	@override String get navInfoMissing => 'معلومات موقع الرسالة مفقودة، لا يمكن الانتقال';
+	@override String get pickButtonTooltip => '@إشارة إلى عضو';
 }
 
 // Path: momentFriendPicker
@@ -2583,6 +2829,16 @@ class _Translations$passport$ar_SA extends Translations$passport$zh_CN {
 	@override String get getVerifyCode => 'احصل على الرمز';
 	@override String get hasAccount => 'لديك حساب بالفعل؟';
 	@override String get oneKeyLogin => 'تسجيل الدخول بنقرة واحدة';
+	@override String get qrCodeExpired => 'انتهت صلاحية رمز QR، امسحه ضوئياً من جديد';
+	@override String get qrCodeUsed => 'تم استخدام رمز QR هذا بالفعل';
+	@override String get qrLoginCancelled => 'تم إلغاء تسجيل الدخول';
+	@override String get qrLoginConfirming => 'جارٍ تسجيل الدخول...';
+	@override String get qrLoginCancelledByMe => 'تم إلغاء تسجيل الدخول';
+	@override String get qrConnecting => 'جارٍ الاتصال...';
+	@override String get qrWebLoginTitle => 'تأكيد تسجيل الدخول عبر الويب';
+	@override String get qrWebLoginDesc => 'يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب';
+	@override String get qrLoginAction => 'تأكيد تسجيل الدخول';
+	@override String get qrLoginSuccess => 'تم تسجيل الدخول بنجاح';
 }
 
 // Path: splash
@@ -2611,6 +2867,263 @@ class _Translations$welcome$ar_SA extends Translations$welcome$zh_CN {
 	@override String get next => 'التالي';
 	@override String get getStarted => 'ابدأ';
 	@override String get skip => 'تخطي';
+}
+
+// Path: workspace
+class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
+	_Translations$workspace$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get navOverview => 'نظرة عامة';
+	@override String get navProjects => 'المشاريع';
+	@override String get navChannels => 'القنوات';
+	@override String get navGroups => 'المجموعات';
+	@override String get navMembers => 'الأعضاء';
+	@override String get pickerTitle => 'مساحات عملي';
+	@override String get switchWorkspace => 'تبديل مساحة العمل';
+	@override String get pickerEmptyTitle => 'لا توجد مساحات عمل بعد';
+	@override String get pickerEmptySubtitle => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)';
+	@override String get archivedBadge => 'مؤرشفة';
+	@override String get emptyNoWorkspace => 'يرجى أولاً اختيار مساحة عمل أو إنشائها';
+	@override String get dmEntry => 'كل الرسائل';
+	@override String get experienceModeEntry => 'تخطيط الصفحة الرئيسية';
+	@override String get experienceModeHint => 'اختر تجربة الاستخدام على هذا الجهاز؛ يغيّر تخطيط الصفحة الرئيسية فقط، دون تغيير الأذونات أو عضوية مساحة العمل';
+	@override String get experienceModePersonal => 'شخصي';
+	@override String get experienceModeWorkspace => 'مساحة عمل';
+	@override String get experienceModeReset => 'استعادة القيمة الافتراضية للنشر';
+	@override String get switchToWorkspace => 'التبديل إلى مساحة العمل';
+	@override String get switchToPersonal => 'التبديل إلى الشخصي';
+	@override String get createTitle => 'إنشاء مساحة عمل';
+	@override String get createDesc => 'إنشاء واحد يُنجز تلقائياً: مساحة العمل، وعضويتك فيها (Owner)، وقناة Announcements، ومجموعة General. إما نجاح الكل أو التراجع عن الكل.';
+	@override String get createNameLabel => 'اسم مساحة العمل';
+	@override String get createNameHint => 'مثال: فريق مشروع إعادة تصميم الموقع';
+	@override String get createNameRequired => 'لا يمكن أن يكون اسم مساحة العمل فارغاً';
+	@override String get createSubmit => 'إنشاء';
+	@override String get createEntry => 'إنشاء مساحة عمل';
+	@override String get createSuccess => 'تم إنشاء مساحة العمل بنجاح';
+	@override String get createIdempotentHit => 'توجد مساحة عمل بنفس الاسم بالفعل، وسيتم الدخول إليها مباشرة';
+	@override String get createTemplateTitle => 'سيُهيَّأ تلقائياً';
+	@override String get createTemplateChannel => 'قناة Announcements (تصبح ناشراً ومشتركاً فيها)';
+	@override String get createTemplateGroup => 'مجموعة General (تصبح عضواً فيها)';
+	@override String get createTemplateOwner => 'تصبح Owner لمساحة العمل (عضو مساحة عمل)';
+	@override String get overviewTitle => 'نظرة عامة';
+	@override String get overviewResources => 'ملخص الموارد';
+	@override String get overviewPinnedContent => 'المحتوى المثبّت في القنوات';
+	@override String get overviewPinnedEmpty => 'لا يوجد محتوى مثبّت في القنوات بعد؛ إعلانات المجموعات لا تُجمَّع هنا (إعلانات المجموعات تخص كل مجموعة)';
+	@override String get overviewRecentFiles => 'الملفات الأخيرة';
+	@override String get overviewRecentFilesEmpty => 'ستظهر الملفات المرفوعة حديثاً هنا؛ ويمكنك أيضاً عرض المرفقات داخل كل قناة';
+	@override String get membersTitle => 'أعضاء مساحة العمل';
+	@override String membersCountLabel({required Object count}) => '${count} أعضاء';
+	@override String get membersEmpty => 'لا يوجد أعضاء في مساحة العمل بعد';
+	@override String get membersEmptySubtitle => 'ادعُ مستخدمين مسجلين ليصبحوا أعضاء مساحة العمل (Owner / Member / Guest)';
+	@override String get membersViewAll => 'عرض الكل';
+	@override String get projectsEmptyTitle => 'لا توجد مشاريع بعد';
+	@override String get projectsEmptySubtitle => 'تُستخدم المشاريع لتتبع أهداف تسليم واضحة؛ وينطبق الأمر نفسه على مساحات العمل المجتمعية التي فيها قنوات ومجموعات فقط';
+	@override String get channelsEmptyTitle => 'لا توجد قنوات في مساحة العمل بعد';
+	@override String get channelsEmptySubtitle => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات';
+	@override String channelTileSubtitle({required Object count}) => '${count} مشتركين';
+	@override String get channelDetailTitle => 'القناة';
+	@override String get discussInGroupGuide => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General ←';
+	@override String get groupsEmptyTitle => 'لا توجد مجموعات في مساحة العمل بعد';
+	@override String get groupsEmptySubtitle => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)';
+	@override String groupTileSubtitle({required Object count}) => '${count} أعضاء المجموعة';
+	@override String get inviteTitle => 'دعوة أعضاء مساحة العمل';
+	@override String get inviteDesc => 'الدعوة متاحة للمستخدمين المسجلين فقط؛ الانضمام إلى مساحة العمل لا يعني تلقائياً الانضمام إلى المجموعات أو الاشتراك في القنوات — يمكنك الانضمام في الوقت نفسه إلى مجموعة General وإرسال دعوة قناة Announcements';
+	@override String get inviteSearchHint => 'ابحث باسم المستخدم / معرّف المستخدم';
+	@override String get inviteEntry => 'دعوة أعضاء مساحة العمل';
+	@override String get inviteJoinGroupOption => 'الانضمام أيضاً إلى مجموعة General (يصبح عضواً في المجموعة)';
+	@override String get inviteSubscribeChannelOption => 'إرسال دعوة قناة Announcements أيضاً';
+	@override String get inviteOptionUnavailable => 'لم يُعثر على المورد المقابل، هذا الخيار غير متاح';
+	@override String get inviteSubmit => 'إرسال الدعوة';
+	@override String get inviteResultsTitle => 'النتائج (ثلاث نتائج مستقلة)';
+	@override String get inviteResultWorkspace => 'الانضمام إلى مساحة العمل (يصبح عضو مساحة عمل)';
+	@override String get inviteResultGroup => 'الانضمام إلى مجموعة General (يصبح عضو المجموعة)';
+	@override String get inviteResultChannel => 'إرسال دعوة قناة Announcements (يصبح مشتركاً بعد قبول الدعوة)';
+	@override String get resultIdle => 'لم يُنفَّذ';
+	@override String get resultRunning => 'قيد التنفيذ';
+	@override String get resultSuccess => 'نجح';
+	@override String get resultFailed => 'فشل';
+	@override String get joinEntry => 'الانضمام إلى مساحة عمل';
+	@override String get joinTitle => 'الانضمام إلى مساحة العمل';
+	@override String get joinDesc => 'أدخل رمز الفريق للانضمام إلى مساحة العمل';
+	@override String get joinCodeLabel => 'رمز الفريق';
+	@override String get joinCodeHint => '8 أحرف كبيرة أو أرقام';
+	@override String get joinSubmit => 'انضمام';
+	@override String joinSuccess({required Object name}) => 'تم الانضمام إلى «${name}»';
+	@override String get joinAlreadyMember => 'أنت في مساحة العمل هذه بالفعل';
+	@override String get joinInvalidCode => 'رمز الفريق غير صالح أو منتهي الصلاحية';
+	@override String get joinExpiredCode => 'انتهت صلاحية رمز الفريق';
+	@override String get inviteCodeSectionTitle => 'دعوة برمز الفريق';
+	@override String get inviteCodeGenerate => 'إنشاء رمز الفريق';
+	@override String get inviteCodeCopy => 'نسخ';
+	@override String get inviteCodeRevoke => 'إبطال';
+	@override String inviteCodeExpiresAt({required Object expiresAt}) => 'صالح حتى ${expiresAt}';
+	@override String get roleOwner => 'Owner';
+	@override String get roleMember => 'Member';
+	@override String get roleGuest => 'Guest';
+	@override String removeMemberTitle({required Object name}) => 'إزالة عضو مساحة العمل ${name}';
+	@override String get removeMemberDesc => 'بعد الإزالة ينتهي وصوله إلى مساحة العمل؛ إذا كانت لديه مهام غير مكتملة أو مشاريع مسؤول عنها، فسيعيد الخادم قائمة التعارضات ويُلغي هذه الإزالة';
+	@override String get removeMemberConfirm => 'تأكيد الإزالة';
+	@override String changeRoleTitle({required Object name}) => 'تعديل دور ${name} في مساحة العمل';
+	@override String transferTitle({required Object name}) => 'نقل دور Owner الرئيسي إلى ${name}';
+	@override String get transferDesc => 'بعد النقل تصبح عضو مساحة عمل عادياً (Member)، ويحصل الطرف الآخر على كامل صلاحيات الحوكمة';
+	@override String get transferConfirm => 'تأكيد النقل';
+	@override String get governanceTitle => 'حوكمة مساحة العمل';
+	@override String get brandingEntry => 'إعدادات العلامة (الاسم / Logo / اللون الأساسي)';
+	@override String get archiveEntry => 'أرشفة مساحة العمل';
+	@override String get restoreEntry => 'استعادة مساحة العمل';
+	@override String get archiveTitle => 'أرشفة مساحة العمل';
+	@override String get archiveDesc => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت';
+	@override String get archiveConfirm => 'تأكيد الأرشفة';
+	@override String get restoreTitle => 'استعادة مساحة العمل';
+	@override String get restoreDesc => 'بعد الاستعادة تعود مساحة العمل للقراءة والكتابة';
+	@override String get restoreConfirm => 'تأكيد الاستعادة';
+	@override String get archivedBanner => 'مساحة العمل مؤرشفة: يمكن عرض المحتوى وعمليات الكتابة معطّلة؛ يمكن لـ Owner الاستعادة من صفحة الأعضاء';
+	@override String get brandingTitle => 'علامة مساحة العمل';
+	@override String get brandingNameLabel => 'اسم العلامة';
+	@override String get brandingLogoLabel => 'عنوان Logo';
+	@override String get brandingLogoHint => 'https://… (عنوان صورة Logo لمساحة العمل)';
+	@override String get brandingColorLabel => 'اللون الأساسي primaryColor';
+	@override String get brandingColorHint => '#2474E5';
+	@override String get brandingColorHelper => 'يُدعم #RRGGBB / #AARRGGBB فقط؛ القيم غير الصالحة تعود إلى لون السمة الافتراضي';
+	@override String get brandingColorInvalid => 'تنسيق اللون الأساسي غير صحيح، يُدعم #RRGGBB / #AARRGGBB فقط';
+	@override String get brandingSaved => 'تم حفظ إعدادات العلامة';
+	@override String get brandingPreview => 'معاينة اللون الأساسي';
+	@override String get brandingPreviewApplied => 'سيُطبَّق اللون الأساسي الحالي داخل مساحة العمل';
+	@override String get brandingPreviewFallback => 'إذا لم يُضبط أو كان غير صالح، يُستخدم لون السمة الافتراضي';
+	@override String get projectsTitle => 'المشاريع';
+	@override String get projectCreateEntry => 'مشروع جديد';
+	@override String get projectCreateTitle => 'مشروع جديد';
+	@override String get projectNameLabel => 'اسم المشروع';
+	@override String get projectNameHint => 'مثال: إعادة تصميم الموقع';
+	@override String get projectNameRequired => 'لا يمكن أن يكون اسم المشروع فارغاً';
+	@override String get projectDescLabel => 'وصف المشروع (اختياري)';
+	@override String get projectDescHint => 'ماذا سيقدّم هذا المشروع؟';
+	@override String get projectSubmit => 'إنشاء';
+	@override String get projectCreateSuccess => 'تم إنشاء المشروع بنجاح';
+	@override String get projectDetailTitle => 'تفاصيل المشروع';
+	@override String get projectInfoSection => 'المعلومات الأساسية';
+	@override String get projectOwnerLabel => 'المسؤول';
+	@override String get projectStatusLabel => 'الحالة';
+	@override String get projectStatusActive => 'قيد التنفيذ';
+	@override String get projectStatusDone => 'مكتمل';
+	@override String get projectMarkDone => 'وضع علامة مكتمل';
+	@override String get projectReopen => 'إعادة فتح المشروع';
+	@override String get projectStatusChanged => 'تم تحديث حالة المشروع';
+	@override String get projectTasksSection => 'المهام';
+	@override String get taskNewEntry => 'مهمة جديدة';
+	@override String get taskFormCreateTitle => 'مهمة جديدة';
+	@override String get taskFormEditTitle => 'تعديل المهمة';
+	@override String get taskTitleLabel => 'عنوان المهمة';
+	@override String get taskTitleRequired => 'لا يمكن أن يكون عنوان المهمة فارغاً';
+	@override String get taskAssigneeLabel => 'المسؤول (عضو مساحة العمل)';
+	@override String get taskAssigneeNone => 'بدون تعيين حالياً';
+	@override String get taskAssigneeRefresh => 'تحديث قائمة المرشحين للمسؤولية';
+	@override String get taskSubmitCreate => 'إنشاء المهمة';
+	@override String get taskSubmitSave => 'حفظ';
+	@override String get taskCreatedToast => 'تم إنشاء المهمة';
+	@override String get taskExistingToast => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة';
+	@override String get taskUpdatedToast => 'تم حفظ المهمة';
+	@override String get taskFilterAll => 'الكل';
+	@override String get taskStatusTodo => 'قيد الانتظار';
+	@override String get taskStatusDoing => 'قيد التنفيذ';
+	@override String get taskStatusReview => 'قيد المراجعة';
+	@override String get taskStatusDone => 'مكتملة';
+	@override String taskAdvanceTo({required Object status}) => 'الانتقال إلى «${status}»';
+	@override String taskFallbackMenuTitle({required Object title}) => 'إعادة ${title} إلى…';
+	@override String taskStatusMovedToast({required Object status}) => 'تم الانتقال إلى «${status}»';
+	@override String get taskEmptyTitle => 'لا توجد مهام بعد';
+	@override String get taskEmptySubtitle => 'تتبّع التنفيذ بأربع حالات: قيد الانتظار ← قيد التنفيذ ← قيد المراجعة ← مكتملة';
+	@override String get guestReadonlyHint => 'صلاحية الضيف (Guest) للقراءة فقط على موارد مساحة العمل';
+	@override String get projectsLoadMore => 'تحميل المزيد';
+	@override String get projectW2SectionTitle => 'تعاون المشروع';
+	@override String get projectMembersEntry => 'الأعضاء';
+	@override String get projectMilestonesEntry => 'المعالم';
+	@override String get projectChannelsEntry => 'قنوات المشروع';
+	@override String get projectInsightsEntry => 'تجميع المحتوى';
+	@override String get projectNoPermission => 'لا توجد صلاحية: يمكن العرض لأعضاء المشروع أو مسؤول المشروع أو Owner مساحة العمل فقط';
+	@override String get projectGuestReadonly => 'صلاحية الضيف (Guest) للقراءة فقط على المشروع';
+	@override String get projectLoadMore => 'تحميل المزيد';
+	@override String get projectMembersTitle => 'أعضاء المشروع';
+	@override String get projectMemberEmptyTitle => 'لا يوجد أعضاء في المشروع بعد';
+	@override String get projectMemberEmptySubtitle => 'يمكن لمسؤول المشروع دعوة مستخدمين مسجلين للانضمام إلى هذا المشروع';
+	@override String get projectMemberInviteTitle => 'دعوة أعضاء المشروع';
+	@override String get projectMemberInviteFieldLabel => 'معرّف المستخدم';
+	@override String get projectMemberInviteFieldHint => 'معرّف المستخدم المسجل المراد دعوته';
+	@override String get projectMemberInviteInvalidUid => 'يرجى إدخال معرّف مستخدم صالح';
+	@override String get projectMemberInviteSubmit => 'دعوة';
+	@override String get projectMemberInviteSuccess => 'تمت إضافته عضواً في المشروع';
+	@override String get projectMemberInviteExisting => 'هذا المستخدم عضو في المشروع بالفعل';
+	@override String projectMemberRemoveConfirmTitle({required Object name}) => 'إزالة عضو المشروع ${name}';
+	@override String get projectMemberRemoveConfirmDesc => 'بعد الإزالة سيفقد هذا المستخدم الوصول إلى محتوى المشروع (يمكن دعوته من جديد)';
+	@override String get projectMemberRemoveSubmit => 'إزالة';
+	@override String get projectMemberRemovedToast => 'تمت الإزالة';
+	@override String get projectMemberAlreadyRemovedToast => 'هذا المستخدم لم يعد عضواً في المشروع';
+	@override String projectMemberTransferTitle({required Object name}) => 'نقل مسؤولية المشروع إلى ${name}';
+	@override String get projectMemberTransferDesc => 'بعد النقل يحصل الطرف الآخر على كامل صلاحيات إدارة المشروع';
+	@override String get projectMemberTransferConfirm => 'تأكيد النقل';
+	@override String get projectMemberTransferDoneToast => 'تم نقل مسؤولية المشروع';
+	@override String get projectMilestonesTitle => 'المعالم';
+	@override String get projectMilestoneEmptyTitle => 'لا توجد معالم بعد';
+	@override String get projectMilestoneEmptySubtitle => 'استخدم المعالم لوسم نقاط المشروع الرئيسية (مخطط ← مُحقَّق، باتجاه واحد)';
+	@override String get projectMilestoneCreateTitle => 'معلم جديد';
+	@override String get projectMilestoneNameLabel => 'الاسم';
+	@override String get projectMilestoneNameRequired => 'لا يمكن أن يكون اسم المعلم فارغاً';
+	@override String get projectMilestoneDueDateLabel => 'تاريخ الاستحقاق (YYYY-MM-DD، اختياري)';
+	@override String get projectMilestoneDueDateInvalid => 'يجب أن يكون تنسيق التاريخ YYYY-MM-DD';
+	@override String get projectMilestoneCreateSubmit => 'إنشاء';
+	@override String get projectMilestoneCreatedToast => 'تم إنشاء المعلم';
+	@override String get projectMilestoneFilterAll => 'الكل';
+	@override String get projectMilestoneFilterPlanned => 'مخطط';
+	@override String get projectMilestoneFilterReached => 'مُحقَّق';
+	@override String get projectMilestoneReach => 'وضع علامة مُحقَّق';
+	@override String get projectMilestoneReachedToast => 'تم تحقيق المعلم';
+	@override String get projectMilestoneAlreadyReachedToast => 'تم تحقيق هذا المعلم بالفعل';
+	@override String get projectMilestoneReachedHint => 'مُحقَّق (لا يمكن التراجع)';
+	@override String get projectMilestoneDueLabel => 'الاستحقاق';
+	@override String get projectChannelsTitle => 'قنوات المشروع';
+	@override String get projectChannelEmptyTitle => 'لا توجد قنوات مرتبطة بعد';
+	@override String get projectChannelEmptySubtitle => 'بعد ربط قناة مساحة العمل، يُجمَّع محتواها المثبّت ومنشوراتها الأخيرة في هذا المشروع';
+	@override String get projectChannelLinkTitle => 'اختيار القناة المراد ربطها';
+	@override String get projectChannelNoCandidate => 'لا توجد قنوات مرشحة للربط';
+	@override String get projectChannelLinkedToast => 'تم ربط القناة';
+	@override String get projectChannelLinkExistingToast => 'هذه القناة مرتبطة بالفعل';
+	@override String projectChannelUnlinkTitle({required Object name}) => 'إلغاء ربط ${name}';
+	@override String get projectChannelUnlinkDesc => 'بعد الإلغاء لن يُجمَّع محتوى هذه القناة في هذا المشروع';
+	@override String get projectChannelUnlinkSubmit => 'إلغاء الربط';
+	@override String get projectChannelUnlinkedToast => 'تم إلغاء الربط';
+	@override String get projectInsightsTabPinned => 'الرسائل المثبّتة';
+	@override String get projectInsightsTabResources => 'روابط الموارد';
+	@override String get projectInsightsTabActivity => 'نشاط المشروع';
+	@override String get projectInsightsTabPosts => 'المنشورات ذات الصلة';
+	@override String get projectInsightsPinnedEmpty => 'لا يوجد محتوى مثبّت في القنوات المرتبطة';
+	@override String get projectInsightsResourcesEmpty => 'لا توجد روابط موارد في المشروع بعد';
+	@override String get projectInsightsActivityEmpty => 'لا يوجد نشاط في المشروع بعد';
+	@override String get projectInsightsPostsEmpty => 'لا توجد منشورات في القنوات المرتبطة';
+	@override String projectInsightsPostAuthor({required Object name}) => 'نشر ${name}';
+	@override String get projectLinkNameLabel => 'اسم الرابط';
+	@override String get projectLinkUrlLabel => 'عنوان الرابط';
+}
+
+// Path: account.alipaySim
+class _Translations$account$alipaySim$ar_SA extends Translations$account$alipaySim$zh_CN {
+	_Translations$account$alipaySim$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get selectMethod => 'اختيار طريقة الدفع';
+	@override String get confirmPay => 'تأكيد الدفع';
+	@override String get enterPassword => 'يرجى إدخال كلمة مرور الدفع';
+	@override String get alipaySuccess => 'تم الدفع بنجاح';
+	@override String get merchantSuccess => 'نجح الدفع عبر تطبيق التاجر';
+	@override String get huabei => 'تقسيط Huabei';
+	@override String get energy => 'ستحصل على 5g من الطاقة الخضراء عند نجاح الدفع';
+	@override String get storeName => 'المتجر الرئيسي لتقنية المعلومات';
+	@override String get paymentAmount => 'المبلغ:';
+	@override String get balanceSource => 'رصيد الحساب';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -2738,6 +3251,29 @@ extension on TranslationsArSa {
 			'account.e2eeTransferFromOldDevice' => 'استقبال المفتاح من الجهاز القديم',
 			'account.pleaseRelogin' => 'سجّل الدخول مجدداً',
 			'account.otherLoginMethods' => 'طرق تسجيل دخول أخرى',
+			'account.logoutPendingBanner' => ({required Object date}) => 'تم إرسال طلب إلغاء الحساب، ويُتوقع اكتماله في ${date}',
+			'account.logoutPendingHeader' => 'حالة طلب إلغاء الحساب',
+			'account.logoutCancelRequest' => 'سحب طلب إلغاء الحساب',
+			'account.logoutCancelledNote' => 'تم سحب طلب إلغاء الحساب',
+			'account.logoutRetainedHeader' => 'ملاحظة الاحتفاظ بالبيانات',
+			'account.logoutRetainedNote' => 'بعد اكتمال الحذف: تُحفظ سجلات التدقيق والسجلات المالية وفقاً للقانون ويُجرى إخفاء هويتها؛ وستُنقل المجموعات/مساحات العمل/القنوات التي تملكها بالأولوية إلى عضو خلف',
+			'account.payCancelled' => 'تم إلغاء الدفع',
+			'account.payMethodTitle' => 'اختيار طريقة الدفع',
+			'account.payMethodWallet' => 'رصيد المحفظة',
+			'account.payMethodMock' => 'دفع محاكى (بيئة التطوير)',
+			'account.payMethodAlipay' => 'Alipay',
+			'account.payMethodWechat' => 'WeChat Pay',
+			'account.payMethodComingSoon' => 'ستُتاح طريقة الدفع هذه قريباً، ترقّبها',
+			'account.alipaySim.selectMethod' => 'اختيار طريقة الدفع',
+			'account.alipaySim.confirmPay' => 'تأكيد الدفع',
+			'account.alipaySim.enterPassword' => 'يرجى إدخال كلمة مرور الدفع',
+			'account.alipaySim.alipaySuccess' => 'تم الدفع بنجاح',
+			'account.alipaySim.merchantSuccess' => 'نجح الدفع عبر تطبيق التاجر',
+			'account.alipaySim.huabei' => 'تقسيط Huabei',
+			'account.alipaySim.energy' => 'ستحصل على 5g من الطاقة الخضراء عند نجاح الدفع',
+			'account.alipaySim.storeName' => 'المتجر الرئيسي لتقنية المعلومات',
+			'account.alipaySim.paymentAmount' => 'المبلغ:',
+			'account.alipaySim.balanceSource' => 'رصيد الحساب',
 			'agent.plazaTitle' => 'مساعدو الذكاء الاصطناعي',
 			'agent.transparencyBanner' => 'جميع الأعضاء هنا مساعدو ذكاء اصطناعي، وهويتهم موضحة بوضوح. في المحادثات المشفّرة لا يوجد سوى أشخاص حقيقيين.',
 			'agent.searchHint' => 'البحث عن مساعد',
@@ -2748,6 +3284,18 @@ extension on TranslationsArSa {
 			'agent.badgeOfficial' => 'رسمي',
 			'agent.badgeAiA11y' => 'مساعد ذكاء اصطناعي',
 			'agent.badgeOfficialA11y' => 'حساب رسمي',
+			'agent.legacyBotMigrated' => 'تمت ترقية مدخل الروبوت هذا. انتقل إلى ساحة مساعدي الذكاء الاصطناعي للتحدث مع المساعد.',
+			'agent.legacyBotGoPlaza' => 'الذهاب إلى ساحة المساعدين',
+			'agentTask.title' => 'مهمة الذكاء الاصطناعي',
+			'agentTask.working' => 'جارٍ التنفيذ',
+			'agentTask.submitted' => 'مُرسَلة',
+			'agentTask.progress' => 'قيد التنفيذ',
+			'agentTask.completed' => 'مكتملة',
+			'agentTask.failed' => 'فشل التنفيذ',
+			'agentTask.cancelled' => 'ملغاة',
+			'agentTask.awaitingApproval' => 'بانتظار الموافقة',
+			'agentTask.approve' => 'موافقة',
+			'agentTask.reject' => 'رفض',
 			'billing.title' => 'الاشتراكات',
 			'billing.planPeriodMonthly' => 'شهري',
 			'billing.planPeriodYearly' => 'سنوي',
@@ -2911,6 +3459,66 @@ extension on TranslationsArSa {
 			'channel.accessTypePaid' => 'مدفوع',
 			'channel.typePublicPaidDesc' => 'يمكن لأي شخص اكتشاف القناة والاشتراك بعد الشراء',
 			'channel.typePrivatePaidDesc' => 'يمكن للمستخدمين المدعوين فقط الدخول في عملية الشراء والاشتراك بعد الدفع',
+			'channel.addImage' => 'إضافة صورة',
+			'channel.allCategories' => 'الكل',
+			'channel.articleBodyHint' => 'اكتب شيئاً… يدعم الخط الغامق والمائل والعناوين والقوائم وغيرها من التنسيقات',
+			'channel.cancelOrder' => 'إلغاء الطلب',
+			'channel.cancelOrderConfirmTitle' => 'تأكيد إلغاء الطلب',
+			'channel.cancelOrderConfirmMessage' => 'هل أنت متأكد من إلغاء هذا الطلب في انتظار الدفع؟ بعد الإلغاء لن تتمكن من متابعة الدفع.',
+			'channel.cancelOrderSuccess' => 'تم إلغاء الطلب',
+			'channel.channelNotFound' => 'القناة غير موجودة',
+			'channel.comment' => 'تعليق',
+			'channel.commentFailed' => 'فشل التعليق',
+			'channel.commentDeleteNoPermission' => 'لا تملك صلاحية حذف هذا التعليق',
+			'channel.deleteComment' => 'حذف التعليق',
+			'channel.deleteCommentConfirm' => 'هل أنت متأكد من حذف هذا التعليق؟',
+			'channel.noComments' => 'لا توجد تعليقات',
+			'channel.writeComment' => 'اكتب تعليقاً...',
+			'channel.reply' => 'رد',
+			'channel.replyTo' => 'رداً على',
+			'channel.like' => 'إعجاب',
+			'channel.coverLabel' => 'الغلاف',
+			'channel.coverSet' => 'تم التعيين كغلاف',
+			'channel.linkTextPlaceholder' => 'نص الرابط',
+			'channel.formatBold' => 'غامق',
+			'channel.formatItalic' => 'مائل',
+			'channel.formatHeading' => 'عنوان',
+			'channel.formatList' => 'قائمة',
+			'channel.formatQuote' => 'اقتباس',
+			'channel.formatLink' => 'رابط',
+			'channel.formatStrikethrough' => 'يتوسطه خط',
+			'channel.preview' => 'معاينة',
+			'channel.publish' => 'نشر',
+			'channel.readFull' => 'قراءة النص الكامل',
+			'channel.sortNewest' => 'الأحدث',
+			'channel.sortPopular' => 'الأكثر رواجاً',
+			'channel.titleOptional' => 'العنوان (اختياري)',
+			'channel.myOrders' => 'طلباتي',
+			'channel.noOrders' => 'لا توجد سجلات طلبات',
+			'channel.orderDetail' => 'تفاصيل الطلب',
+			'channel.orderNo' => 'رقم الطلب',
+			'channel.orderAmount' => 'المبلغ',
+			'channel.orderChannel' => 'القناة',
+			'channel.orderStatusLabel' => 'الحالة',
+			'channel.orderStatusPending' => 'في انتظار الدفع',
+			'channel.orderStatusPaid' => 'مدفوع',
+			'channel.orderStatusCancelled' => 'ملغى',
+			'channel.orderStatusExpired' => 'منتهٍ',
+			'channel.orderStatusRefunded' => 'مسترد',
+			'channel.orderStatusRefunding' => 'قيد الاسترداد',
+			'channel.orderCreatedAt' => 'وقت الطلب',
+			'channel.orderPaidAt' => 'وقت الدفع',
+			'channel.orderPaymentMethod' => 'طريقة الدفع',
+			'channel.orderSubscriptionPeriod' => 'مدة الاشتراك',
+			'channel.orderValidUntil' => 'صالح حتى',
+			'channel.orderContinuePay' => 'متابعة الدفع',
+			'channel.payAlipay' => 'Alipay',
+			'channel.payWechat' => 'WeChat Pay',
+			'channel.payWallet' => 'رصيد المحفظة',
+			'channel.refundApply' => 'طلب استرداد',
+			'channel.refundConfirmTitle' => 'تأكيد الاسترداد',
+			'channel.refundConfirmMessage' => 'هل أنت متأكد من طلب استرداد المبلغ لهذا الطلب؟ سيؤدي الاسترداد إلى إلغاء الاشتراك.',
+			'channel.refundSuccess' => 'تم إرسال طلب الاسترداد',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.cards' => 'بطاقات',
 			'chat.jdShopping' => 'تسوق JD',
@@ -3038,6 +3646,8 @@ extension on TranslationsArSa {
 			'chat.sendTo' => 'إرسال إلى',
 			'chat.send' => _root.common.buttonSend,
 			'chat.sender' => 'المرسل',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sending' => 'جارٍ الإرسال...',
 			'chat.signatureInputHint' => 'تلميح إدخال التوقيع',
 			'chat.signaturePlaceholder' => 'عنصر نائب للتوقيع',
@@ -3133,8 +3743,6 @@ extension on TranslationsArSa {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => 'وقت الدفع: ${time}',
 			'chat.orderStatusPending' => 'بانتظار الدفع',
 			'chat.orderStatusPaid' => 'مدفوع',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderStatusRefunded' => 'تم الاسترداد',
 			'chat.orderStatusExpired' => 'منتهٍ',
 			'chat.defaultFileName' => 'ملف',
@@ -3191,6 +3799,16 @@ extension on TranslationsArSa {
 			'chat.extraItems' => 'إضافات',
 			'chat.messageInputHint' => 'اكتب رسالة...',
 			'chat.invalidMessageType' => '[رسالة غير مدعومة]',
+			'chat.convertToText' => 'تحويل إلى نص',
+			'chat.releaseConvertToText' => 'أفلت للتحويل إلى نص',
+			'chat.voiceReleaseCancel' => 'أفلت للإلغاء',
+			'chat.voiceReleaseCancelSend' => 'أفلت لإلغاء الإرسال',
+			'chat.voiceSlideHint' => 'اسحب لأعلى للإلغاء / التحويل إلى نص',
+			'chat.burnReadBadge' => 'يُحرق بعد القراءة',
+			'chat.extraPanelCollab' => 'تعاون المجموعة',
+			'chat.extraPanelFunds' => 'الأموال',
+			'chat.extraPanelMedia' => 'الوسائط',
+			'chat.alipayLoginInterrupted' => 'انقطعت عملية تسجيل الدخول عبر Alipay بسبب النظام، حاول مرة أخرى',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
@@ -3542,6 +4160,8 @@ extension on TranslationsArSa {
 			'common.muteDuration1hour' => '1 Hour',
 			'common.muteDuration6hours' => '6 Hours',
 			'common.muteDuration12hours' => '12 Hours',
+			_ => null,
+		} ?? switch (path) {
 			'common.muteDuration1day' => '1 Day',
 			'common.muteDuration3days' => '3 Days',
 			'common.muteDuration7days' => '7 Days',
@@ -3599,10 +4219,10 @@ extension on TranslationsArSa {
 			'common.sureDeleteGroupChatRecord' => 'هل أنت متأكد من حذف سجل المجموعة؟',
 			'common.switchEnvironment' => 'تبديل البيئة',
 			'common.thisMonth' => 'هذا الشهر',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} يوم', ), 
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} ساعة', ), 
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} يوم', ),
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} ساعة', ),
 			'common.timeJustNow' => 'الآن',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} دقيقة', ), 
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} دقيقة', ),
 			'common.timeToday' => 'اليوم',
 			'common.timeYesterday' => 'أمس',
 			'common.tipConnectDesc' => 'لا يوجد اتصال بالشبكة',
@@ -3647,8 +4267,6 @@ extension on TranslationsArSa {
 			'common.whatYourFeedback' => 'ما هي ملاحظاتك؟',
 			'common.yesterday' => 'أمس',
 			'common.yourContactInformation' => 'معلومات الاتصال الخاصة بك',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirmRemove' => 'تأكيد الإزالة',
 			'common.confirmRemoveFromDenylist' => 'هل أنت متأكد من إزالة هذا المستخدم من القائمة السوداء؟',
 			'common.buttonRemove' => 'إزالة',
@@ -4056,6 +4674,8 @@ extension on TranslationsArSa {
 			'common.insufficientBalanceTitle' => 'رصيد غير كافٍ',
 			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => 'رصيدك الحالي ${currency} ${balance}، المطلوب ${currency} ${price}. اشحن رصيدك أولاً.',
 			'common.goRecharge' => 'اشحن الرصيد',
+			_ => null,
+		} ?? switch (path) {
 			'common.noOrders' => 'لا توجد طلبات',
 			'common.orderDetailLoadFailed' => 'تعذّر تحميل الطلب',
 			'common.orderNoLabel' => ({required Object no}) => 'رقم الطلب: ${no}',
@@ -4161,8 +4781,6 @@ extension on TranslationsArSa {
 			'common.e2eeBackupImportantNoteColon' => 'ملاحظة مهمة:',
 			'common.e2eeBackupKeepSafe' => '• احفظ ملف النسخة وكلمة المرور بأمان',
 			'common.e2eeBackupStoreMultipleLoc' => '• يُفضّل حفظ الملف في عدة أماكن آمنة',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• لا يمكن استرداد كلمة المرور، احفظها جيداً',
 			'common.e2eeBackupImportTitle' => 'استيراد نسخة E2EE',
 			'common.e2eeBackupImportGuide' => 'تعليمات الاستيراد',
@@ -4334,7 +4952,82 @@ extension on TranslationsArSa {
 			'common.searchFailedRetry' => 'فشل البحث، يرجى المحاولة مرة أخرى',
 			'common.searchDisabledTitle' => 'بحث الرسائل غير متاح',
 			'common.searchDisabledByEncryption' => 'التشفير التام مُفعّل، لذا لا يستطيع الخادم قراءة رسائلك ولا يتوفر البحث في النص الكامل',
+			'common.amountMustPositive' => 'يجب أن يكون المبلغ أكبر من 0',
+			'common.enterAmount' => 'يرجى إدخال المبلغ',
+			'common.answer' => 'قبول',
+			'common.declineCall' => 'رفض',
+			'common.collapse' => 'طي',
+			'common.expandFull' => 'توسيع',
+			'common.minimize' => 'تصغير',
+			'common.me' => 'أنا',
+			'common.justNow' => 'الآن',
+			'common.minutesAgo' => 'دقائق مضت',
+			'common.hoursAgo' => 'ساعات مضت',
+			'common.timeDaysShort' => ({required Object count}) => '${count}ي',
+			'common.timeHoursShort' => ({required Object count}) => '${count}س',
+			'common.timeMinutesShort' => ({required Object count}) => '${count}د',
+			'common.timeNowShort' => 'الآن',
+			'common.reconnecting' => 'الشبكة ضعيفة، جارٍ إعادة الاتصال…',
+			'common.switchCamera' => 'تبديل الكاميرا',
+			'common.noHistory' => 'لا يوجد سجل',
+			'common.noNewRegisteredUsersTitle' => 'لا يوجد مستخدمون مسجلون جدد',
+			'common.payReceiveSuccess' => 'تم استلام المبلغ بنجاح!',
+			'common.purchaseConfirming' => 'جارٍ تأكيد الدفع، تحقق من حالة الطلب لاحقاً',
+			'common.uploadPartialFailed' => ({required Object count}) => 'فشل رفع ${count} عنصراً',
+			'common.momentsHasFailedUploads' => 'فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر',
+			'common.f2fEnteringGroup' => ({required Object count}) => 'سيدخل ${count} أشخاص قريباً إلى الدردشة الجماعية',
+			'common.f2fSecretCode' => 'الرمز السري',
+			'common.complianceKeyChangedTitle' => 'تم تغيير مفتاح تدقيق الامتثال',
+			'common.complianceKeyChangedActionConfirm' => 'تأكيد التدوير',
+			'common.complianceKeyChangedActionKeep' => 'تأكيد لاحقاً',
+			'common.complianceKeyChangedBody' => 'المفتاح العام لتدقيق الامتثال الصادر من الخادم لا يطابق القيمة المثبتة محلياً. إذا كان هذا تدويراً مقصوداً للمفتاح من المسؤول، فانقر على «تأكيد التدوير»؛ وإلا فلا تُكمل إرسال الرسائل المشفّرة، واتصل بالمسؤول للتحقق.',
+			'common.e2eeErrPeerNotOnboarded' => 'لم يسجّل الطرف الآخر الدخول على أي جهاز بعد، فلا يمكن الإرسال المشفّر مؤقتاً؛ انتظر تسجيل دخوله ثم أعد المحاولة',
+			'common.e2eeRecoveryKeyTitle' => 'مفتاح الاستعادة',
+			'common.e2eeRecoveryKeyCopied' => 'تم نسخ مفتاح الاستعادة',
+			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'تم نسخ مفتاح الاستعادة، وسيُمسَح الحافظة تلقائياً بعد ${seconds} ثانية، يرجى حفظه سريعاً',
+			'common.e2eeRecoveryKeySaveNote' => 'احفظ مفتاح الاستعادة هذا فوراً (بلقطة شاشة أو في مدير كلمات المرور). عند نسيان عبارة المرور، فهو الدليل الوحيد لفك تشفير النسخة الاحتياطية؛ وإذا فُقد فلن يمكن استعادة النسخة الاحتياطية أبداً.',
+			'common.e2eeUseRecoveryKey' => 'إنشاء مفتاح استعادة (دليل احتياطي عند نسيان عبارة المرور)',
+			'common.initConfigDecryptFailed' => 'فشل فك تشفير الإعدادات: مفتاح الأمان في التطبيق لا يطابق الخادم، يرجى تحديث إصدار التطبيق أو الاتصال بالمسؤول',
+			'common.voiceSttConverting' => 'جارٍ التعرف على الصوت...',
+			'common.voiceSttNotConfigured' => 'ميزة التحويل إلى نص غير مهيأة بعد',
+			'common.voiceSttPreviewTitle' => 'معاينة تحويل الصوت إلى نص',
+			'common.redPacketBrand' => 'مغلف IMBoy الأحمر',
+			'common.redPacketDialogTitle' => 'أرسلنا لك مغلفاً أحمر',
+			'common.redPacketDialogSubtitle' => 'أطيب التمنيات، وكل عام وأنتم بخير',
+			'common.redPacketView' => 'عرض المغلف',
+			'common.redPacketTotalAmount' => 'المبلغ الإجمالي',
+			'common.redPacketSingleAmount' => 'مبلغ المغلف الواحد',
+			'common.redPacketCount' => 'عدد المغلفات',
+			'common.redPacketCountUnit' => 'مغلف',
+			'common.redPacketCountEmpty' => 'يرجى إدخال عدد المغلفات',
+			'common.redPacketCountMin' => 'يجب أن يكون عدد المغلفات 1 على الأقل',
+			'common.redPacketAmountTooSmall' => 'يجب أن يكون المبلغ الإجمالي على الأقل عدد المغلفات × 0.01 يوان',
+			'common.redPacketGreetingLabel' => 'رسالة / تهنئة',
+			'common.redPacketCurrentLucky' => 'الوضع الحالي: مغلف الحظ',
+			'common.redPacketCurrentNormal' => 'الوضع الحالي: مغلف عادي',
+			'common.redPacketSwitchToLucky' => 'التحويل إلى مغلف حظ',
+			'common.redPacketSwitchToNormal' => 'التحويل إلى مغلف عادي',
+			'common.redPacketStuffLucky' => 'إرسال مغلف حظ',
+			'common.redPacketStuffNormal' => 'إرسال من المحفظة',
+			'common.redPacketFetchError' => 'خطأ في جلب تفاصيل المغلف',
+			'common.redPacketFetchFailed' => 'تعذّر جلب تفاصيل المغلف',
+			'common.redPacketNotFound' => 'المغلف غير موجود أو محذوف',
+			'common.redPacketReceiverLabel' => ({required Object uid}) => 'المستخدم: ${uid}',
+			'common.transferAmountLabel' => 'مبلغ التحويل',
+			'common.transferRemarkLabel' => 'ملاحظة التحويل',
+			'common.transferDefaultRemark' => 'تحويل إلى صديق',
+			'common.transferConfirm' => 'تأكيد التحويل',
+			'common.transferMinAmountError' => 'الحد الأدنى لمبلغ التحويل هو 0.01 يوان',
+			'common.transferPending' => 'في انتظار تأكيد الطرف الآخر',
+			'common.transferAccepted' => 'تم الاستلام',
+			'common.transferReceiving' => 'جارٍ استلام المبلغ...',
+			'common.transferRefunded' => 'تمت الإعادة',
+			'common.transferTapToReceive' => 'انقر للاستلام',
 			'complaint.complaint' => 'شكوى',
+			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
+			'complaint.e2eeConsentBody' => 'هذه الرسالة مشفّرة من الطرف إلى الطرف ولا يمكن للخادم الاطلاع على محتواها. سيكشف تقديم مقتطف النص محتوى الرسالة المحدد للمشرفين لمراجعة البلاغ. هل توافق؟',
+			'complaint.e2eeConsentSubmit' => 'أوافق وأرسل الدليل',
+			'complaint.e2eeConsentDecline' => 'الإبلاغ فقط (بدون محتوى)',
 			'complaintReason.spam' => 'رسائل مزعجة',
 			'complaintReason.harassment' => 'مضايقة',
 			'complaintReason.inappropriate' => 'محتوى غير لائق',
@@ -4438,6 +5131,14 @@ extension on TranslationsArSa {
 			'discovery.openChannel' => 'فتح القناة',
 			'discovery.paidChannelLocked' => 'محتوى القناة المدفوعة مقفل',
 			'discovery.webQRScanned' => 'تم المسح',
+			'discovery.momentActionMore' => 'المزيد من الإجراءات',
+			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} أعجبوا',
+			'discovery.momentLocation' => 'الموقع الحالي',
+			'discovery.momentLocationNone' => 'عدم عرض الموقع',
+			'discovery.momentAtWho' => 'من تريد تنبيهه؟',
+			'discovery.momentAtReminded' => ({required Object name}) => 'نبّهت ${name}',
+			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'نبّهت ${name} و${count} آخرين',
+			'discovery.momentAtCount' => ({required Object count}) => '${count} أشخاص',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.networkFailureGuidance' => 'إرشادات فشل الشبكة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
@@ -4487,6 +5188,8 @@ extension on TranslationsArSa {
 			'group.groupAlbumPhotoSetCover' => 'تعيين كغلاف',
 			'group.groupAlbumPhotoPrev' => 'السابق',
 			'group.groupAlbumPhotoLikeCount' => 'الإعجابات',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoCommentCount' => 'التعليقات',
 			'group.groupAlbumPhotoMyLike' => 'إعجابي',
 			'group.groupAlbumPhotoIdLabel' => 'معرّف الصورة',
@@ -4494,6 +5197,15 @@ extension on TranslationsArSa {
 			'group.e2eeKeyManagementSubtitle' => 'نسخ احتياطي واستعادة وإدارة مفاتيح التشفير من طرف إلى طرف',
 			'group.e2eeTitle' => 'التشفير من طرف إلى طرف',
 			'group.e2eeEnableConfirm' => 'بعد التفعيل، سيتم تشفير رسائل المجموعة من طرف إلى طرف ولن تُقرأ إلا على أجهزة الأعضاء. لا يمكن التراجع عن هذا الإجراء. هل تريد التفعيل؟',
+			'group.groupInfo' => 'معلومات الدردشة الجماعية',
+			'group.groupMemberRoleLabel' => 'Member',
+			'group.noMemberWithRole' => ({required Object roleName}) => 'لا يوجد ${roleName}',
+			'group.moreActions' => 'المزيد من الإجراءات',
+			'group.touchContactAddMember' => 'انقر على جهة الاتصال لإضافتها كعضو في المجموعة',
+			'group.groupCreated' => 'تم إنشاء الدردشة الجماعية',
+			'group.groupCreatedSuccess' => 'تم إنشاء الدردشة الجماعية بنجاح، ودعوتك إلى إكمال معلومات المجموعة أو الدخول مباشرة إلى الدردشة الجماعية',
+			'group.enterGroupChat' => 'الدخول إلى الدردشة الجماعية',
+			'group.perfectionGroupInfo' => 'إكمال معلومات المجموعة',
 			'groupCategory.title' => 'مجلدات المجموعات',
 			'groupCategory.createCategory' => 'إنشاء مجلد',
 			'groupCategory.categoryName' => 'اسم المجلد',
@@ -4511,6 +5223,13 @@ extension on TranslationsArSa {
 			'groupCategory.renameFailed' => 'تعذّرت إعادة التسمية، أعد المحاولة',
 			'groupCategory.deleteFailed' => 'تعذّر الحذف، أعد المحاولة',
 			'groupCategory.categoryDetailTip' => 'يمكن إدارة مجموعات هذا المجلد عبر «نقل إلى مجلد» في قائمة المجموعات',
+			'groupDiscovery.title' => 'اكتشاف المجموعات',
+			'groupDiscovery.searchHint' => 'البحث عن مجموعات عامة',
+			'groupDiscovery.allCategories' => 'الكل',
+			'groupDiscovery.sortPopular' => 'الأكثر رواجاً',
+			'groupDiscovery.sortNewest' => 'الأحدث',
+			'groupDiscovery.emptyTitle' => 'لا توجد مجموعات عامة حالياً، عُد لاحقاً',
+			'groupDiscovery.searchEmpty' => 'لا توجد مجموعات عامة مطابقة',
 			'groupList.attrAll' => 'الكل',
 			'groupList.attrOwner' => 'أنشأتها',
 			'groupList.attrManager' => 'أديرها',
@@ -4675,8 +5394,6 @@ extension on TranslationsArSa {
 			'main.markStar' => 'إضافة إلى المفضلة',
 			'main.markStarDesc' => 'إضافة هذه الرسالة إلى المفضلة',
 			'main.markTodo' => 'مهام',
-			_ => null,
-		} ?? switch (path) {
 			'main.markTodoDesc' => 'تعليم كمهمة',
 			'main.multiSelect' => 'تحديد متعدد',
 			'main.multiSelectMode' => 'وضع التحديد المتعدد',
@@ -4885,6 +5602,35 @@ extension on TranslationsArSa {
 			'main.liveRoomTitleLabel' => 'عنوان الغرفة',
 			'main.liveRoomTitleHint' => 'أدخل عنوان الغرفة',
 			'main.lightModel' => 'الوضع الفاتح',
+			'main.e2eeErrComplianceChanged' => 'تغيّر مفتاح تدقيق الامتثال، ولم تُرسل الرسالة. أكّد تدوير المفتاح ثم أعد المحاولة',
+			'main.e2eeErrComplianceUnavailable' => 'مفتاح الامتثال غير متاح حالياً، ولم تُرسل الرسالة. حاول لاحقاً',
+			'main.e2eeErrDeviceNotReady' => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة',
+			'main.e2eeErrProtocolMismatch' => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة',
+			'main.e2eeErrSessionExportFailed' => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً',
+			'main.complianceKeyInfoTitle' => 'مفتاح تدقيق الامتثال',
+			'main.complianceKeyInfoServerKey' => 'المفتاح العام الصادر من الخادم',
+			'main.complianceKeyInfoLocalPin' => 'التثبيت المحلي (TOFU)',
+			'main.complianceKeyInfoKeyId' => 'معرّف المفتاح (ID)',
+			'main.complianceKeyInfoAlgorithm' => 'الخوارزمية',
+			'main.complianceKeyInfoFingerprint' => 'بصمة المفتاح العام',
+			'main.complianceKeyInfoFetchedAt' => 'وقت الجلب',
+			'main.complianceKeyInfoPinnedAt' => 'وقت التثبيت',
+			'main.complianceKeyInfoPinnedNone' => 'لم يُثبَّت بعد (سيُثبَّت تلقائياً عند الجلب التالي)',
+			'main.complianceKeyInfoChangedWarning' => '⚠️ المفتاح العام للامتثال الصادر من الخادم لا يطابق التثبيت المحلي! إذا لم يكن هذا تدويراً مقصوداً من المسؤول، فتواصل مع المسؤول فوراً وأوقف إرسال الرسائل المشفّرة.',
+			'main.complianceKeyInfoRefreshFailed' => 'فشل الجلب، تحقق من الشبكة ثم أعد المحاولة',
+			'main.complianceKeyInfoHint' => 'يُستخدم مفتاح تدقيق الامتثال للتشفير المزدوج في وضع compliance_e2ee. إذا اختلفت البصمة أعلاه عن البصمة التي أعلنها المسؤول، فقد يكون الخادم قد عُبث به.',
+			'main.safetyNumberTitle' => 'التحقق من رمز الأمان',
+			'main.safetyNumberHint' => 'قارن رمز الأمان مع الطرف الآخر وجهاً لوجه أو عبر الهاتف. إذا تطابق الرمزان فهذا يعني أن اتصالكما ليس خاضعاً لتنصت وسيط؛ وإذا اختلف فأوقف المحادثة فوراً وتحقق من هوية الطرف الآخر عبر قناة أخرى. تُحفظ حالة التحقق على هذا الجهاز فقط.',
+			'main.safetyNumberCopy' => 'نسخ',
+			'main.safetyNumberCopied' => 'تم النسخ',
+			'main.safetyNumberMarkVerified' => 'وضع علامة تم التحقق',
+			'main.safetyNumberMarkedVerified' => 'تم وضع علامة تم التحقق',
+			'main.safetyNumberPeerDevice' => 'جهاز الطرف الآخر',
+			'main.safetyNumberNoDevices' => 'لم يفعّل الطرف الآخر التشفير من طرف إلى طرف بعد',
+			'main.safetyNumberVerifyFailed' => 'تعذّر الحصول على رمز الأمان. حاول لاحقاً',
+			'main.safetyNumberReporting' => 'جارٍ الإبلاغ عن نتيجة التحقق...',
+			'main.safetyNumberReportRejected' => 'رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة',
+			'main.safetyNumberReportUnavailable' => 'تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ',
 			'mention.mentionAll' => 'الجميع',
 			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
 			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',
@@ -4900,6 +5646,7 @@ extension on TranslationsArSa {
 			'mention.mentionCount' => ({required Object count}) => '${count} إشارات جديدة',
 			'mention.mentionAllDenied' => 'للمشرفين فقط استخدام @الجميع',
 			'mention.navInfoMissing' => 'معلومات موقع الرسالة مفقودة، لا يمكن الانتقال',
+			'mention.pickButtonTooltip' => '@إشارة إلى عضو',
 			'momentFriendPicker.title' => 'اختيار الأصدقاء',
 			'momentFriendPicker.titleAllow' => 'السماح لـ',
 			'momentFriendPicker.titleDeny' => 'إخفاء عن',
@@ -4935,6 +5682,16 @@ extension on TranslationsArSa {
 			'passport.getVerifyCode' => 'احصل على الرمز',
 			'passport.hasAccount' => 'لديك حساب بالفعل؟',
 			'passport.oneKeyLogin' => 'تسجيل الدخول بنقرة واحدة',
+			'passport.qrCodeExpired' => 'انتهت صلاحية رمز QR، امسحه ضوئياً من جديد',
+			'passport.qrCodeUsed' => 'تم استخدام رمز QR هذا بالفعل',
+			'passport.qrLoginCancelled' => 'تم إلغاء تسجيل الدخول',
+			'passport.qrLoginConfirming' => 'جارٍ تسجيل الدخول...',
+			'passport.qrLoginCancelledByMe' => 'تم إلغاء تسجيل الدخول',
+			'passport.qrConnecting' => 'جارٍ الاتصال...',
+			'passport.qrWebLoginTitle' => 'تأكيد تسجيل الدخول عبر الويب',
+			'passport.qrWebLoginDesc' => 'يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب',
+			'passport.qrLoginAction' => 'تأكيد تسجيل الدخول',
+			'passport.qrLoginSuccess' => 'تم تسجيل الدخول بنجاح',
 			'splash.slogan' => 'تواصل بحرية وبدون قيود',
 			'welcome.step1Title' => 'اتصال بسيط',
 			'welcome.step1Desc' => 'استمتع بفرصة التواصل السلس. في أي وقت، وفي أي مكان.',
@@ -4945,6 +5702,237 @@ extension on TranslationsArSa {
 			'welcome.next' => 'التالي',
 			'welcome.getStarted' => 'ابدأ',
 			'welcome.skip' => 'تخطي',
+			_ => null,
+		} ?? switch (path) {
+			'workspace.navOverview' => 'نظرة عامة',
+			'workspace.navProjects' => 'المشاريع',
+			'workspace.navChannels' => 'القنوات',
+			'workspace.navGroups' => 'المجموعات',
+			'workspace.navMembers' => 'الأعضاء',
+			'workspace.pickerTitle' => 'مساحات عملي',
+			'workspace.switchWorkspace' => 'تبديل مساحة العمل',
+			'workspace.pickerEmptyTitle' => 'لا توجد مساحات عمل بعد',
+			'workspace.pickerEmptySubtitle' => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)',
+			'workspace.archivedBadge' => 'مؤرشفة',
+			'workspace.emptyNoWorkspace' => 'يرجى أولاً اختيار مساحة عمل أو إنشائها',
+			'workspace.dmEntry' => 'كل الرسائل',
+			'workspace.experienceModeEntry' => 'تخطيط الصفحة الرئيسية',
+			'workspace.experienceModeHint' => 'اختر تجربة الاستخدام على هذا الجهاز؛ يغيّر تخطيط الصفحة الرئيسية فقط، دون تغيير الأذونات أو عضوية مساحة العمل',
+			'workspace.experienceModePersonal' => 'شخصي',
+			'workspace.experienceModeWorkspace' => 'مساحة عمل',
+			'workspace.experienceModeReset' => 'استعادة القيمة الافتراضية للنشر',
+			'workspace.switchToWorkspace' => 'التبديل إلى مساحة العمل',
+			'workspace.switchToPersonal' => 'التبديل إلى الشخصي',
+			'workspace.createTitle' => 'إنشاء مساحة عمل',
+			'workspace.createDesc' => 'إنشاء واحد يُنجز تلقائياً: مساحة العمل، وعضويتك فيها (Owner)، وقناة Announcements، ومجموعة General. إما نجاح الكل أو التراجع عن الكل.',
+			'workspace.createNameLabel' => 'اسم مساحة العمل',
+			'workspace.createNameHint' => 'مثال: فريق مشروع إعادة تصميم الموقع',
+			'workspace.createNameRequired' => 'لا يمكن أن يكون اسم مساحة العمل فارغاً',
+			'workspace.createSubmit' => 'إنشاء',
+			'workspace.createEntry' => 'إنشاء مساحة عمل',
+			'workspace.createSuccess' => 'تم إنشاء مساحة العمل بنجاح',
+			'workspace.createIdempotentHit' => 'توجد مساحة عمل بنفس الاسم بالفعل، وسيتم الدخول إليها مباشرة',
+			'workspace.createTemplateTitle' => 'سيُهيَّأ تلقائياً',
+			'workspace.createTemplateChannel' => 'قناة Announcements (تصبح ناشراً ومشتركاً فيها)',
+			'workspace.createTemplateGroup' => 'مجموعة General (تصبح عضواً فيها)',
+			'workspace.createTemplateOwner' => 'تصبح Owner لمساحة العمل (عضو مساحة عمل)',
+			'workspace.overviewTitle' => 'نظرة عامة',
+			'workspace.overviewResources' => 'ملخص الموارد',
+			'workspace.overviewPinnedContent' => 'المحتوى المثبّت في القنوات',
+			'workspace.overviewPinnedEmpty' => 'لا يوجد محتوى مثبّت في القنوات بعد؛ إعلانات المجموعات لا تُجمَّع هنا (إعلانات المجموعات تخص كل مجموعة)',
+			'workspace.overviewRecentFiles' => 'الملفات الأخيرة',
+			'workspace.overviewRecentFilesEmpty' => 'ستظهر الملفات المرفوعة حديثاً هنا؛ ويمكنك أيضاً عرض المرفقات داخل كل قناة',
+			'workspace.membersTitle' => 'أعضاء مساحة العمل',
+			'workspace.membersCountLabel' => ({required Object count}) => '${count} أعضاء',
+			'workspace.membersEmpty' => 'لا يوجد أعضاء في مساحة العمل بعد',
+			'workspace.membersEmptySubtitle' => 'ادعُ مستخدمين مسجلين ليصبحوا أعضاء مساحة العمل (Owner / Member / Guest)',
+			'workspace.membersViewAll' => 'عرض الكل',
+			'workspace.projectsEmptyTitle' => 'لا توجد مشاريع بعد',
+			'workspace.projectsEmptySubtitle' => 'تُستخدم المشاريع لتتبع أهداف تسليم واضحة؛ وينطبق الأمر نفسه على مساحات العمل المجتمعية التي فيها قنوات ومجموعات فقط',
+			'workspace.channelsEmptyTitle' => 'لا توجد قنوات في مساحة العمل بعد',
+			'workspace.channelsEmptySubtitle' => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات',
+			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} مشتركين',
+			'workspace.channelDetailTitle' => 'القناة',
+			'workspace.discussInGroupGuide' => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General ←',
+			'workspace.groupsEmptyTitle' => 'لا توجد مجموعات في مساحة العمل بعد',
+			'workspace.groupsEmptySubtitle' => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)',
+			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} أعضاء المجموعة',
+			'workspace.inviteTitle' => 'دعوة أعضاء مساحة العمل',
+			'workspace.inviteDesc' => 'الدعوة متاحة للمستخدمين المسجلين فقط؛ الانضمام إلى مساحة العمل لا يعني تلقائياً الانضمام إلى المجموعات أو الاشتراك في القنوات — يمكنك الانضمام في الوقت نفسه إلى مجموعة General وإرسال دعوة قناة Announcements',
+			'workspace.inviteSearchHint' => 'ابحث باسم المستخدم / معرّف المستخدم',
+			'workspace.inviteEntry' => 'دعوة أعضاء مساحة العمل',
+			'workspace.inviteJoinGroupOption' => 'الانضمام أيضاً إلى مجموعة General (يصبح عضواً في المجموعة)',
+			'workspace.inviteSubscribeChannelOption' => 'إرسال دعوة قناة Announcements أيضاً',
+			'workspace.inviteOptionUnavailable' => 'لم يُعثر على المورد المقابل، هذا الخيار غير متاح',
+			'workspace.inviteSubmit' => 'إرسال الدعوة',
+			'workspace.inviteResultsTitle' => 'النتائج (ثلاث نتائج مستقلة)',
+			'workspace.inviteResultWorkspace' => 'الانضمام إلى مساحة العمل (يصبح عضو مساحة عمل)',
+			'workspace.inviteResultGroup' => 'الانضمام إلى مجموعة General (يصبح عضو المجموعة)',
+			'workspace.inviteResultChannel' => 'إرسال دعوة قناة Announcements (يصبح مشتركاً بعد قبول الدعوة)',
+			'workspace.resultIdle' => 'لم يُنفَّذ',
+			'workspace.resultRunning' => 'قيد التنفيذ',
+			'workspace.resultSuccess' => 'نجح',
+			'workspace.resultFailed' => 'فشل',
+			'workspace.joinEntry' => 'الانضمام إلى مساحة عمل',
+			'workspace.joinTitle' => 'الانضمام إلى مساحة العمل',
+			'workspace.joinDesc' => 'أدخل رمز الفريق للانضمام إلى مساحة العمل',
+			'workspace.joinCodeLabel' => 'رمز الفريق',
+			'workspace.joinCodeHint' => '8 أحرف كبيرة أو أرقام',
+			'workspace.joinSubmit' => 'انضمام',
+			'workspace.joinSuccess' => ({required Object name}) => 'تم الانضمام إلى «${name}»',
+			'workspace.joinAlreadyMember' => 'أنت في مساحة العمل هذه بالفعل',
+			'workspace.joinInvalidCode' => 'رمز الفريق غير صالح أو منتهي الصلاحية',
+			'workspace.joinExpiredCode' => 'انتهت صلاحية رمز الفريق',
+			'workspace.inviteCodeSectionTitle' => 'دعوة برمز الفريق',
+			'workspace.inviteCodeGenerate' => 'إنشاء رمز الفريق',
+			'workspace.inviteCodeCopy' => 'نسخ',
+			'workspace.inviteCodeRevoke' => 'إبطال',
+			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'صالح حتى ${expiresAt}',
+			'workspace.roleOwner' => 'Owner',
+			'workspace.roleMember' => 'Member',
+			'workspace.roleGuest' => 'Guest',
+			'workspace.removeMemberTitle' => ({required Object name}) => 'إزالة عضو مساحة العمل ${name}',
+			'workspace.removeMemberDesc' => 'بعد الإزالة ينتهي وصوله إلى مساحة العمل؛ إذا كانت لديه مهام غير مكتملة أو مشاريع مسؤول عنها، فسيعيد الخادم قائمة التعارضات ويُلغي هذه الإزالة',
+			'workspace.removeMemberConfirm' => 'تأكيد الإزالة',
+			'workspace.changeRoleTitle' => ({required Object name}) => 'تعديل دور ${name} في مساحة العمل',
+			'workspace.transferTitle' => ({required Object name}) => 'نقل دور Owner الرئيسي إلى ${name}',
+			'workspace.transferDesc' => 'بعد النقل تصبح عضو مساحة عمل عادياً (Member)، ويحصل الطرف الآخر على كامل صلاحيات الحوكمة',
+			'workspace.transferConfirm' => 'تأكيد النقل',
+			'workspace.governanceTitle' => 'حوكمة مساحة العمل',
+			'workspace.brandingEntry' => 'إعدادات العلامة (الاسم / Logo / اللون الأساسي)',
+			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
+			'workspace.restoreEntry' => 'استعادة مساحة العمل',
+			'workspace.archiveTitle' => 'أرشفة مساحة العمل',
+			'workspace.archiveDesc' => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت',
+			'workspace.archiveConfirm' => 'تأكيد الأرشفة',
+			'workspace.restoreTitle' => 'استعادة مساحة العمل',
+			'workspace.restoreDesc' => 'بعد الاستعادة تعود مساحة العمل للقراءة والكتابة',
+			'workspace.restoreConfirm' => 'تأكيد الاستعادة',
+			'workspace.archivedBanner' => 'مساحة العمل مؤرشفة: يمكن عرض المحتوى وعمليات الكتابة معطّلة؛ يمكن لـ Owner الاستعادة من صفحة الأعضاء',
+			'workspace.brandingTitle' => 'علامة مساحة العمل',
+			'workspace.brandingNameLabel' => 'اسم العلامة',
+			'workspace.brandingLogoLabel' => 'عنوان Logo',
+			'workspace.brandingLogoHint' => 'https://… (عنوان صورة Logo لمساحة العمل)',
+			'workspace.brandingColorLabel' => 'اللون الأساسي primaryColor',
+			'workspace.brandingColorHint' => '#2474E5',
+			'workspace.brandingColorHelper' => 'يُدعم #RRGGBB / #AARRGGBB فقط؛ القيم غير الصالحة تعود إلى لون السمة الافتراضي',
+			'workspace.brandingColorInvalid' => 'تنسيق اللون الأساسي غير صحيح، يُدعم #RRGGBB / #AARRGGBB فقط',
+			'workspace.brandingSaved' => 'تم حفظ إعدادات العلامة',
+			'workspace.brandingPreview' => 'معاينة اللون الأساسي',
+			'workspace.brandingPreviewApplied' => 'سيُطبَّق اللون الأساسي الحالي داخل مساحة العمل',
+			'workspace.brandingPreviewFallback' => 'إذا لم يُضبط أو كان غير صالح، يُستخدم لون السمة الافتراضي',
+			'workspace.projectsTitle' => 'المشاريع',
+			'workspace.projectCreateEntry' => 'مشروع جديد',
+			'workspace.projectCreateTitle' => 'مشروع جديد',
+			'workspace.projectNameLabel' => 'اسم المشروع',
+			'workspace.projectNameHint' => 'مثال: إعادة تصميم الموقع',
+			'workspace.projectNameRequired' => 'لا يمكن أن يكون اسم المشروع فارغاً',
+			'workspace.projectDescLabel' => 'وصف المشروع (اختياري)',
+			'workspace.projectDescHint' => 'ماذا سيقدّم هذا المشروع؟',
+			'workspace.projectSubmit' => 'إنشاء',
+			'workspace.projectCreateSuccess' => 'تم إنشاء المشروع بنجاح',
+			'workspace.projectDetailTitle' => 'تفاصيل المشروع',
+			'workspace.projectInfoSection' => 'المعلومات الأساسية',
+			'workspace.projectOwnerLabel' => 'المسؤول',
+			'workspace.projectStatusLabel' => 'الحالة',
+			'workspace.projectStatusActive' => 'قيد التنفيذ',
+			'workspace.projectStatusDone' => 'مكتمل',
+			'workspace.projectMarkDone' => 'وضع علامة مكتمل',
+			'workspace.projectReopen' => 'إعادة فتح المشروع',
+			'workspace.projectStatusChanged' => 'تم تحديث حالة المشروع',
+			'workspace.projectTasksSection' => 'المهام',
+			'workspace.taskNewEntry' => 'مهمة جديدة',
+			'workspace.taskFormCreateTitle' => 'مهمة جديدة',
+			'workspace.taskFormEditTitle' => 'تعديل المهمة',
+			'workspace.taskTitleLabel' => 'عنوان المهمة',
+			'workspace.taskTitleRequired' => 'لا يمكن أن يكون عنوان المهمة فارغاً',
+			'workspace.taskAssigneeLabel' => 'المسؤول (عضو مساحة العمل)',
+			'workspace.taskAssigneeNone' => 'بدون تعيين حالياً',
+			'workspace.taskAssigneeRefresh' => 'تحديث قائمة المرشحين للمسؤولية',
+			'workspace.taskSubmitCreate' => 'إنشاء المهمة',
+			'workspace.taskSubmitSave' => 'حفظ',
+			'workspace.taskCreatedToast' => 'تم إنشاء المهمة',
+			'workspace.taskExistingToast' => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة',
+			'workspace.taskUpdatedToast' => 'تم حفظ المهمة',
+			'workspace.taskFilterAll' => 'الكل',
+			'workspace.taskStatusTodo' => 'قيد الانتظار',
+			'workspace.taskStatusDoing' => 'قيد التنفيذ',
+			'workspace.taskStatusReview' => 'قيد المراجعة',
+			'workspace.taskStatusDone' => 'مكتملة',
+			'workspace.taskAdvanceTo' => ({required Object status}) => 'الانتقال إلى «${status}»',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'إعادة ${title} إلى…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => 'تم الانتقال إلى «${status}»',
+			'workspace.taskEmptyTitle' => 'لا توجد مهام بعد',
+			'workspace.taskEmptySubtitle' => 'تتبّع التنفيذ بأربع حالات: قيد الانتظار ← قيد التنفيذ ← قيد المراجعة ← مكتملة',
+			'workspace.guestReadonlyHint' => 'صلاحية الضيف (Guest) للقراءة فقط على موارد مساحة العمل',
+			'workspace.projectsLoadMore' => 'تحميل المزيد',
+			'workspace.projectW2SectionTitle' => 'تعاون المشروع',
+			'workspace.projectMembersEntry' => 'الأعضاء',
+			'workspace.projectMilestonesEntry' => 'المعالم',
+			'workspace.projectChannelsEntry' => 'قنوات المشروع',
+			'workspace.projectInsightsEntry' => 'تجميع المحتوى',
+			'workspace.projectNoPermission' => 'لا توجد صلاحية: يمكن العرض لأعضاء المشروع أو مسؤول المشروع أو Owner مساحة العمل فقط',
+			'workspace.projectGuestReadonly' => 'صلاحية الضيف (Guest) للقراءة فقط على المشروع',
+			'workspace.projectLoadMore' => 'تحميل المزيد',
+			'workspace.projectMembersTitle' => 'أعضاء المشروع',
+			'workspace.projectMemberEmptyTitle' => 'لا يوجد أعضاء في المشروع بعد',
+			'workspace.projectMemberEmptySubtitle' => 'يمكن لمسؤول المشروع دعوة مستخدمين مسجلين للانضمام إلى هذا المشروع',
+			'workspace.projectMemberInviteTitle' => 'دعوة أعضاء المشروع',
+			'workspace.projectMemberInviteFieldLabel' => 'معرّف المستخدم',
+			'workspace.projectMemberInviteFieldHint' => 'معرّف المستخدم المسجل المراد دعوته',
+			'workspace.projectMemberInviteInvalidUid' => 'يرجى إدخال معرّف مستخدم صالح',
+			'workspace.projectMemberInviteSubmit' => 'دعوة',
+			'workspace.projectMemberInviteSuccess' => 'تمت إضافته عضواً في المشروع',
+			'workspace.projectMemberInviteExisting' => 'هذا المستخدم عضو في المشروع بالفعل',
+			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'إزالة عضو المشروع ${name}',
+			'workspace.projectMemberRemoveConfirmDesc' => 'بعد الإزالة سيفقد هذا المستخدم الوصول إلى محتوى المشروع (يمكن دعوته من جديد)',
+			'workspace.projectMemberRemoveSubmit' => 'إزالة',
+			'workspace.projectMemberRemovedToast' => 'تمت الإزالة',
+			'workspace.projectMemberAlreadyRemovedToast' => 'هذا المستخدم لم يعد عضواً في المشروع',
+			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'نقل مسؤولية المشروع إلى ${name}',
+			'workspace.projectMemberTransferDesc' => 'بعد النقل يحصل الطرف الآخر على كامل صلاحيات إدارة المشروع',
+			'workspace.projectMemberTransferConfirm' => 'تأكيد النقل',
+			'workspace.projectMemberTransferDoneToast' => 'تم نقل مسؤولية المشروع',
+			'workspace.projectMilestonesTitle' => 'المعالم',
+			'workspace.projectMilestoneEmptyTitle' => 'لا توجد معالم بعد',
+			'workspace.projectMilestoneEmptySubtitle' => 'استخدم المعالم لوسم نقاط المشروع الرئيسية (مخطط ← مُحقَّق، باتجاه واحد)',
+			'workspace.projectMilestoneCreateTitle' => 'معلم جديد',
+			'workspace.projectMilestoneNameLabel' => 'الاسم',
+			'workspace.projectMilestoneNameRequired' => 'لا يمكن أن يكون اسم المعلم فارغاً',
+			'workspace.projectMilestoneDueDateLabel' => 'تاريخ الاستحقاق (YYYY-MM-DD، اختياري)',
+			'workspace.projectMilestoneDueDateInvalid' => 'يجب أن يكون تنسيق التاريخ YYYY-MM-DD',
+			'workspace.projectMilestoneCreateSubmit' => 'إنشاء',
+			'workspace.projectMilestoneCreatedToast' => 'تم إنشاء المعلم',
+			'workspace.projectMilestoneFilterAll' => 'الكل',
+			'workspace.projectMilestoneFilterPlanned' => 'مخطط',
+			'workspace.projectMilestoneFilterReached' => 'مُحقَّق',
+			'workspace.projectMilestoneReach' => 'وضع علامة مُحقَّق',
+			'workspace.projectMilestoneReachedToast' => 'تم تحقيق المعلم',
+			'workspace.projectMilestoneAlreadyReachedToast' => 'تم تحقيق هذا المعلم بالفعل',
+			'workspace.projectMilestoneReachedHint' => 'مُحقَّق (لا يمكن التراجع)',
+			'workspace.projectMilestoneDueLabel' => 'الاستحقاق',
+			'workspace.projectChannelsTitle' => 'قنوات المشروع',
+			'workspace.projectChannelEmptyTitle' => 'لا توجد قنوات مرتبطة بعد',
+			'workspace.projectChannelEmptySubtitle' => 'بعد ربط قناة مساحة العمل، يُجمَّع محتواها المثبّت ومنشوراتها الأخيرة في هذا المشروع',
+			'workspace.projectChannelLinkTitle' => 'اختيار القناة المراد ربطها',
+			'workspace.projectChannelNoCandidate' => 'لا توجد قنوات مرشحة للربط',
+			'workspace.projectChannelLinkedToast' => 'تم ربط القناة',
+			'workspace.projectChannelLinkExistingToast' => 'هذه القناة مرتبطة بالفعل',
+			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'إلغاء ربط ${name}',
+			'workspace.projectChannelUnlinkDesc' => 'بعد الإلغاء لن يُجمَّع محتوى هذه القناة في هذا المشروع',
+			'workspace.projectChannelUnlinkSubmit' => 'إلغاء الربط',
+			'workspace.projectChannelUnlinkedToast' => 'تم إلغاء الربط',
+			'workspace.projectInsightsTabPinned' => 'الرسائل المثبّتة',
+			'workspace.projectInsightsTabResources' => 'روابط الموارد',
+			'workspace.projectInsightsTabActivity' => 'نشاط المشروع',
+			'workspace.projectInsightsTabPosts' => 'المنشورات ذات الصلة',
+			'workspace.projectInsightsPinnedEmpty' => 'لا يوجد محتوى مثبّت في القنوات المرتبطة',
+			'workspace.projectInsightsResourcesEmpty' => 'لا توجد روابط موارد في المشروع بعد',
+			'workspace.projectInsightsActivityEmpty' => 'لا يوجد نشاط في المشروع بعد',
+			'workspace.projectInsightsPostsEmpty' => 'لا توجد منشورات في القنوات المرتبطة',
+			'workspace.projectInsightsPostAuthor' => ({required Object name}) => 'نشر ${name}',
+			'workspace.projectLinkNameLabel' => 'اسم الرابط',
+			'workspace.projectLinkUrlLabel' => 'عنوان الرابط',
 			_ => null,
 		};
 	}

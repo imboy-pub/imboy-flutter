@@ -35,12 +35,13 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 
 	late final TranslationsEnUs _root = this; // ignore: unused_field
 
-	@override 
+	@override
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
 	@override late final _Translations$account$en_US account = _Translations$account$en_US._(_root);
 	@override late final _Translations$agent$en_US agent = _Translations$agent$en_US._(_root);
+	@override late final _Translations$agentTask$en_US agentTask = _Translations$agentTask$en_US._(_root);
 	@override late final _Translations$billing$en_US billing = _Translations$billing$en_US._(_root);
 	@override late final _Translations$channel$en_US channel = _Translations$channel$en_US._(_root);
 	@override late final _Translations$chat$en_US chat = _Translations$chat$en_US._(_root);
@@ -199,6 +200,13 @@ class _Translations$account$en_US extends Translations$account$zh_CN {
 	@override String get pleaseRelogin => 'Please log in again';
 	@override String get otherLoginMethods => 'Other sign-in methods';
 	@override late final _Translations$account$alipaySim$en_US alipaySim = _Translations$account$alipaySim$en_US._(_root);
+	@override String get payCancelled => 'Payment cancelled';
+	@override String get payMethodTitle => 'Select Payment Method';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get payMethodWallet => 'Wallet Balance';
+	@override String get payMethodMock => 'Mock payment (development environment)';
+	@override String get payMethodComingSoon => 'This payment method is coming soon. Stay tuned!';
 }
 
 // Path: agent
@@ -220,6 +228,25 @@ class _Translations$agent$en_US extends Translations$agent$zh_CN {
 	@override String get badgeOfficialA11y => 'Official account';
 	@override String get legacyBotMigrated => 'This bot entry has been upgraded. Chat with AI assistants in the plaza instead';
 	@override String get legacyBotGoPlaza => 'Go to Assistant Plaza';
+}
+
+// Path: agentTask
+class _Translations$agentTask$en_US extends Translations$agentTask$zh_CN {
+	_Translations$agentTask$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AI Tasks';
+	@override String get working => 'Running';
+	@override String get submitted => 'Submitted';
+	@override String get progress => 'In Progress';
+	@override String get completed => 'Completed';
+	@override String get failed => 'Failed';
+	@override String get cancelled => 'Cancelled';
+	@override String get awaitingApproval => 'Awaiting Approval';
+	@override String get approve => 'Approve';
+	@override String get reject => 'Reject';
 }
 
 // Path: billing
@@ -420,6 +447,47 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get accessTypePaid => 'Paid';
 	@override String get typePublicPaidDesc => 'Anyone can discover the channel and subscribe after purchase';
 	@override String get typePrivatePaidDesc => 'Only invited users can enter the purchase flow and subscribe after payment';
+	@override String get articleBodyHint => 'Write something… Bold, italic, headings, lists and other formats are supported';
+	@override String get cancelOrder => 'Cancel Order';
+	@override String get cancelOrderConfirmTitle => 'Confirm Cancellation';
+	@override String get cancelOrderConfirmMessage => 'Are you sure you want to cancel this pending order? It cannot be paid after cancellation.';
+	@override String get cancelOrderSuccess => 'Order cancelled';
+	@override String get comment => 'Comment';
+	@override String get commentDeleteNoPermission => 'You do not have permission to delete this comment';
+	@override String get commentFailed => 'Failed to post comment';
+	@override String get deleteComment => 'Delete Comment';
+	@override String get deleteCommentConfirm => 'Are you sure you want to delete this comment?';
+	@override String get like => 'Like';
+	@override String get myOrders => 'My Orders';
+	@override String get noComments => 'No comments yet';
+	@override String get noOrders => 'No orders yet';
+	@override String get orderAmount => 'Amount';
+	@override String get orderChannel => 'Channel';
+	@override String get orderContinuePay => 'Continue Payment';
+	@override String get orderCreatedAt => 'Order Time';
+	@override String get orderDetail => 'Order Details';
+	@override String get orderNo => 'Order No.';
+	@override String get orderPaidAt => 'Paid At';
+	@override String get orderPaymentMethod => 'Payment Method';
+	@override String get orderStatusLabel => 'Status';
+	@override String get orderStatusPending => 'Pending Payment';
+	@override String get orderStatusPaid => 'Paid';
+	@override String get orderStatusCancelled => 'Cancelled';
+	@override String get orderStatusRefunding => 'Refunding';
+	@override String get orderStatusRefunded => 'Refunded';
+	@override String get orderStatusExpired => 'Expired';
+	@override String get orderSubscriptionPeriod => 'Subscription Period';
+	@override String get orderValidUntil => 'Valid Until';
+	@override String get payAlipay => 'Alipay';
+	@override String get payWechat => 'WeChat Pay';
+	@override String get payWallet => 'Wallet Balance';
+	@override String get refundApply => 'Request Refund';
+	@override String get refundConfirmTitle => 'Confirm Refund';
+	@override String get refundConfirmMessage => 'Are you sure you want to request a refund for this order? Your subscription will be cancelled after the refund.';
+	@override String get refundSuccess => 'Refund request submitted';
+	@override String get reply => 'Reply';
+	@override String get replyTo => 'Reply to';
+	@override String get writeComment => 'Write a comment...';
 }
 
 // Path: chat
@@ -708,6 +776,15 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get extraItems => 'Extras';
 	@override String get messageInputHint => 'Say something...';
 	@override String get invalidMessageType => '[Unsupported message]';
+	@override String get burnReadBadge => 'Burn';
+	@override String get convertToText => 'Convert to Text';
+	@override String get extraPanelMedia => 'Media';
+	@override String get extraPanelCollab => 'Group Collab';
+	@override String get extraPanelFunds => 'Funds';
+	@override String get releaseConvertToText => 'Release to convert to text';
+	@override String get voiceReleaseCancelSend => 'Release to cancel sending';
+	@override String get voiceReleaseCancel => 'Release to cancel';
+	@override String get voiceSlideHint => 'Slide up to cancel / convert to text';
 }
 
 // Path: common
@@ -1873,6 +1950,69 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get searchFailedRetry => 'Search failed, please try again';
 	@override String get searchDisabledTitle => 'Message search unavailable';
 	@override String get searchDisabledByEncryption => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available';
+	@override String get amountMustPositive => 'Amount must be greater than 0';
+	@override String get answer => 'Answer';
+	@override String get collapse => 'Collapse';
+	@override String get declineCall => 'Decline';
+	@override String get e2eeRecoveryKeyTitle => 'Recovery Key';
+	@override String get e2eeUseRecoveryKey => 'Generate recovery key (backup credential if you forget your passphrase)';
+	@override String get e2eeRecoveryKeySaveNote => 'Save this recovery key now (take a screenshot or store it in a password manager). If you forget your passphrase, it is the only credential that can decrypt your backup; once lost, the backup cannot be recovered.';
+	@override String get e2eeRecoveryKeyCopied => 'Recovery key copied';
+	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Recovery key copied. The clipboard will be cleared in ${seconds} seconds — save it now.';
+	@override String get enterAmount => 'Please enter an amount';
+	@override String get expandFull => 'Expand';
+	@override String get justNow => 'Just now';
+	@override String get minutesAgo => 'minutes ago';
+	@override String get hoursAgo => 'hours ago';
+	@override String get me => 'Me';
+	@override String get minimize => 'Minimize';
+	@override String get momentsHasFailedUploads => 'Some media failed to upload. Retry or remove them before posting.';
+	@override String get noHistory => 'No history yet';
+	@override String get noNewRegisteredUsersTitle => 'No newly registered users';
+	@override String get payReceiveSuccess => 'Payment received!';
+	@override String get purchaseConfirming => 'Payment is being confirmed. Check your order status shortly.';
+	@override String get reconnecting => 'Poor connection, reconnecting…';
+	@override String get redPacketBrand => 'IMBoy Red Packet';
+	@override String get redPacketDialogTitle => 'A red packet for you';
+	@override String get redPacketDialogSubtitle => 'Wishing you good fortune and prosperity';
+	@override String get redPacketTotalAmount => 'Total Amount';
+	@override String get redPacketSingleAmount => 'Amount per Red Packet';
+	@override String get redPacketCount => 'Number of Red Packets';
+	@override String get redPacketCountUnit => 'packets';
+	@override String get redPacketCountEmpty => 'Please enter the number of red packets';
+	@override String get redPacketCountMin => 'The number of red packets must be at least 1';
+	@override String get redPacketAmountTooSmall => 'Total amount must be at least ¥0.01 per red packet';
+	@override String get redPacketGreetingLabel => 'Message / Greeting';
+	@override String get redPacketCurrentLucky => 'Current mode: Lucky Red Packet';
+	@override String get redPacketCurrentNormal => 'Current mode: Normal Red Packet';
+	@override String get redPacketSwitchToLucky => 'Switch to Lucky Red Packet';
+	@override String get redPacketSwitchToNormal => 'Switch to Normal Red Packet';
+	@override String get redPacketStuffLucky => 'Send Lucky Red Packet';
+	@override String get redPacketStuffNormal => 'Send Normal Red Packet';
+	@override String redPacketReceiverLabel({required Object uid}) => 'User: ${uid}';
+	@override String get redPacketView => 'View Red Packet';
+	@override String get redPacketFetchError => 'Error loading red packet details';
+	@override String get redPacketFetchFailed => 'Failed to load red packet details';
+	@override String get redPacketNotFound => 'Red packet not found or has been deleted';
+	@override String get switchCamera => 'Switch Camera';
+	@override String get timeNowShort => 'now';
+	@override String timeMinutesShort({required Object count}) => '${count}m';
+	@override String timeHoursShort({required Object count}) => '${count}h';
+	@override String timeDaysShort({required Object count}) => '${count}d';
+	@override String get transferAccepted => 'Received';
+	@override String get transferAmountLabel => 'Transfer Amount';
+	@override String get transferConfirm => 'Confirm Transfer';
+	@override String get transferDefaultRemark => 'Transfer to a friend';
+	@override String get transferMinAmountError => 'The minimum transfer amount is ¥0.01';
+	@override String get transferPending => 'Waiting for the recipient to confirm';
+	@override String get transferReceiving => 'Receiving...';
+	@override String get transferRefunded => 'Returned';
+	@override String get transferRemarkLabel => 'Transfer Note';
+	@override String get transferTapToReceive => 'Tap to receive';
+	@override String uploadPartialFailed({required Object count}) => '${count} items failed to upload';
+	@override String get voiceSttConverting => 'Transcribing...';
+	@override String get voiceSttNotConfigured => 'Voice-to-text is not configured yet';
+	@override String get voiceSttPreviewTitle => 'Voice-to-Text Preview';
 }
 
 // Path: complaint
@@ -1883,6 +2023,10 @@ class _Translations$complaint$en_US extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => 'Complaint';
+	@override String get e2eeConsentTitle => 'Submit encrypted evidence';
+	@override String get e2eeConsentBody => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?';
+	@override String get e2eeConsentSubmit => 'Consent & submit evidence';
+	@override String get e2eeConsentDecline => 'Report only (no content)';
 }
 
 // Path: complaintReason
@@ -2019,6 +2163,8 @@ class _Translations$discovery$en_US extends Translations$discovery$zh_CN {
 	@override String momentAtReminded({required Object name}) => 'Reminded ${name}';
 	@override String momentAtRemindedMore({required Object name, required Object count}) => 'Reminded ${name} and ${count} others';
 	@override String momentAtCount({required Object count}) => '${count} people';
+	@override String get momentActionMore => 'More';
+	@override String momentLikesCountOnly({required Object count}) => '${count} people liked this';
 }
 
 // Path: error
@@ -2623,6 +2769,7 @@ class _Translations$mention$en_US extends Translations$mention$zh_CN {
 	@override String mentionCount({required Object count}) => '${count} new mentions';
 	@override String get mentionAllDenied => 'Only admins can @everyone';
 	@override String get navInfoMissing => 'Message location info missing, unable to navigate';
+	@override String get pickButtonTooltip => '@Mention a member';
 }
 
 // Path: momentFriendPicker
@@ -2685,6 +2832,16 @@ class _Translations$passport$en_US extends Translations$passport$zh_CN {
 	@override String get getVerifyCode => 'Get Code';
 	@override String get hasAccount => 'Already have an account?';
 	@override String get oneKeyLogin => 'One-tap Login';
+	@override String get qrCodeExpired => 'QR code has expired. Please scan again.';
+	@override String get qrCodeUsed => 'This QR code has already been used';
+	@override String get qrConnecting => 'Connecting...';
+	@override String get qrLoginAction => 'Confirm Login';
+	@override String get qrLoginCancelled => 'Login cancelled';
+	@override String get qrLoginCancelledByMe => 'You cancelled this login';
+	@override String get qrLoginConfirming => 'Signing in...';
+	@override String get qrLoginSuccess => 'Login successful';
+	@override String get qrWebLoginTitle => 'Web Login Confirmation';
+	@override String get qrWebLoginDesc => 'Confirm whether to log in to this account on the web';
 }
 
 // Path: splash
@@ -3113,6 +3270,13 @@ extension on TranslationsEnUs {
 			'account.alipaySim.storeName' => 'InfoTech Flagship Store',
 			'account.alipaySim.paymentAmount' => 'Amount: ',
 			'account.alipaySim.balanceSource' => 'Account Balance',
+			'account.payCancelled' => 'Payment cancelled',
+			'account.payMethodTitle' => 'Select Payment Method',
+			'account.payMethodAlipay' => 'Alipay',
+			'account.payMethodWechat' => 'WeChat Pay',
+			'account.payMethodWallet' => 'Wallet Balance',
+			'account.payMethodMock' => 'Mock payment (development environment)',
+			'account.payMethodComingSoon' => 'This payment method is coming soon. Stay tuned!',
 			'agent.plazaTitle' => 'AI Assistants',
 			'agent.transparencyBanner' => 'Everyone here is an AI assistant, clearly labeled as such. In encrypted chats, there are only real people.',
 			'agent.searchHint' => 'Search assistants',
@@ -3125,6 +3289,16 @@ extension on TranslationsEnUs {
 			'agent.badgeOfficialA11y' => 'Official account',
 			'agent.legacyBotMigrated' => 'This bot entry has been upgraded. Chat with AI assistants in the plaza instead',
 			'agent.legacyBotGoPlaza' => 'Go to Assistant Plaza',
+			'agentTask.title' => 'AI Tasks',
+			'agentTask.working' => 'Running',
+			'agentTask.submitted' => 'Submitted',
+			'agentTask.progress' => 'In Progress',
+			'agentTask.completed' => 'Completed',
+			'agentTask.failed' => 'Failed',
+			'agentTask.cancelled' => 'Cancelled',
+			'agentTask.awaitingApproval' => 'Awaiting Approval',
+			'agentTask.approve' => 'Approve',
+			'agentTask.reject' => 'Reject',
 			'billing.title' => 'Subscriptions',
 			'billing.planPeriodMonthly' => 'Monthly',
 			'billing.planPeriodYearly' => 'Yearly',
@@ -3307,6 +3481,47 @@ extension on TranslationsEnUs {
 			'channel.accessTypePaid' => 'Paid',
 			'channel.typePublicPaidDesc' => 'Anyone can discover the channel and subscribe after purchase',
 			'channel.typePrivatePaidDesc' => 'Only invited users can enter the purchase flow and subscribe after payment',
+			'channel.articleBodyHint' => 'Write something… Bold, italic, headings, lists and other formats are supported',
+			'channel.cancelOrder' => 'Cancel Order',
+			'channel.cancelOrderConfirmTitle' => 'Confirm Cancellation',
+			'channel.cancelOrderConfirmMessage' => 'Are you sure you want to cancel this pending order? It cannot be paid after cancellation.',
+			'channel.cancelOrderSuccess' => 'Order cancelled',
+			'channel.comment' => 'Comment',
+			'channel.commentDeleteNoPermission' => 'You do not have permission to delete this comment',
+			'channel.commentFailed' => 'Failed to post comment',
+			'channel.deleteComment' => 'Delete Comment',
+			'channel.deleteCommentConfirm' => 'Are you sure you want to delete this comment?',
+			'channel.like' => 'Like',
+			'channel.myOrders' => 'My Orders',
+			'channel.noComments' => 'No comments yet',
+			'channel.noOrders' => 'No orders yet',
+			'channel.orderAmount' => 'Amount',
+			'channel.orderChannel' => 'Channel',
+			'channel.orderContinuePay' => 'Continue Payment',
+			'channel.orderCreatedAt' => 'Order Time',
+			'channel.orderDetail' => 'Order Details',
+			'channel.orderNo' => 'Order No.',
+			'channel.orderPaidAt' => 'Paid At',
+			'channel.orderPaymentMethod' => 'Payment Method',
+			'channel.orderStatusLabel' => 'Status',
+			'channel.orderStatusPending' => 'Pending Payment',
+			'channel.orderStatusPaid' => 'Paid',
+			'channel.orderStatusCancelled' => 'Cancelled',
+			'channel.orderStatusRefunding' => 'Refunding',
+			'channel.orderStatusRefunded' => 'Refunded',
+			'channel.orderStatusExpired' => 'Expired',
+			'channel.orderSubscriptionPeriod' => 'Subscription Period',
+			'channel.orderValidUntil' => 'Valid Until',
+			'channel.payAlipay' => 'Alipay',
+			'channel.payWechat' => 'WeChat Pay',
+			'channel.payWallet' => 'Wallet Balance',
+			'channel.refundApply' => 'Request Refund',
+			'channel.refundConfirmTitle' => 'Confirm Refund',
+			'channel.refundConfirmMessage' => 'Are you sure you want to request a refund for this order? Your subscription will be cancelled after the refund.',
+			'channel.refundSuccess' => 'Refund request submitted',
+			'channel.reply' => 'Reply',
+			'channel.replyTo' => 'Reply to',
+			'channel.writeComment' => 'Write a comment...',
 			'chat.bankCard' => 'Bank Card',
 			'chat.cards' => 'cards',
 			'chat.jdShopping' => 'JD Shopping',
@@ -3434,6 +3649,8 @@ extension on TranslationsEnUs {
 			'chat.storageSpaceData' => 'Storage space and data',
 			'chat.sureOpenTheFile' => 'Are you sure you want to open the file?',
 			'chat.textMessage' => 'Text message',
+			_ => null,
+		} ?? switch (path) {
 			'chat.titleMessage' => 'Messages',
 			'chat.topChat' => 'Pin chat',
 			'chat.unpin' => 'Unpin',
@@ -3492,8 +3709,6 @@ extension on TranslationsEnUs {
 			'chat.momentsReplyingTo' => 'Replying to @{name}',
 			'chat.sendNewMessage' => 'Send new message',
 			'chat.markRead' => 'Mark as read',
-			_ => null,
-		} ?? switch (path) {
 			'chat.markUnread' => 'Mark as unread',
 			'chat.pleaseEnterSignature' => 'Please enter signature',
 			'chat.exportProfile' => 'Export Profile',
@@ -3588,6 +3803,15 @@ extension on TranslationsEnUs {
 			'chat.extraItems' => 'Extras',
 			'chat.messageInputHint' => 'Say something...',
 			'chat.invalidMessageType' => '[Unsupported message]',
+			'chat.burnReadBadge' => 'Burn',
+			'chat.convertToText' => 'Convert to Text',
+			'chat.extraPanelMedia' => 'Media',
+			'chat.extraPanelCollab' => 'Group Collab',
+			'chat.extraPanelFunds' => 'Funds',
+			'chat.releaseConvertToText' => 'Release to convert to text',
+			'chat.voiceReleaseCancelSend' => 'Release to cancel sending',
+			'chat.voiceReleaseCancel' => 'Release to cancel',
+			'chat.voiceSlideHint' => 'Slide up to cancel / convert to text',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -3939,6 +4163,8 @@ extension on TranslationsEnUs {
 			'common.muteDuration5min' => '5 Minutes',
 			'common.muteDuration10min' => '10 Minutes',
 			'common.muteDuration30min' => '30 Minutes',
+			_ => null,
+		} ?? switch (path) {
 			'common.muteDuration30days' => '30 Days',
 			'common.muteUnitSeconds' => ({required Object count}) => '${count} sec',
 			'common.throttleWarning' => 'Too many requests, please try again later',
@@ -3989,10 +4215,10 @@ extension on TranslationsEnUs {
 			'common.sureDeleteGroupChatRecord' => 'Delete group chat records?',
 			'common.switchEnvironment' => 'Switch environment',
 			'common.thisMonth' => 'This month',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} day ago', other: '${n} days ago', ), 
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} hour ago', other: '${n} hours ago', ), 
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} day ago', other: '${n} days ago', ),
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} hour ago', other: '${n} hours ago', ),
 			'common.timeJustNow' => 'Just now',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} minute ago', other: '${n} minutes ago', ), 
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} minute ago', other: '${n} minutes ago', ),
 			'common.timeToday' => 'Today',
 			'common.timeYesterday' => 'Yesterday',
 			'common.tipConnectDesc' => 'No network',
@@ -4006,8 +4232,6 @@ extension on TranslationsEnUs {
 			'common.tipProvidersTitleFirst' => 'Or sign in with',
 			'common.tipSuccess' => 'Operation successful!',
 			'common.tipTips' => 'Tips',
-			_ => null,
-		} ?? switch (path) {
 			'common.titleContact' => 'Contacts',
 			'common.today' => 'Today',
 			'common.unknown' => 'Unknown',
@@ -4453,6 +4677,8 @@ extension on TranslationsEnUs {
 			'common.orderDetailLoadFailed' => 'Failed to load order details',
 			'common.orderNoLabel' => ({required Object no}) => 'Order No: ${no}',
 			'common.orderStatusCancelled' => 'Cancelled',
+			_ => null,
+		} ?? switch (path) {
 			'common.orderStatusUnknown' => 'Unknown',
 			'common.removeReaction' => 'Remove Reaction',
 			'common.removeReactionConfirm' => ({required Object emoji}) => 'Remove ${emoji} reaction?',
@@ -4520,8 +4746,6 @@ extension on TranslationsEnUs {
 			'common.e2eeDecryptFailed' => 'Message cannot be decrypted',
 			'common.e2eeDecryptFailedReasons' => 'This message cannot be decrypted. Possible reasons:',
 			'common.e2eeDecryptReasonOtherDevice' => '• You logged in on another device',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeDecryptReasonKeyExpired' => '• Device key has expired',
 			'common.e2eeDecryptReasonDataCorrupt' => '• App data is corrupted',
 			'common.e2eeDecryptChooseSolution' => 'Please choose a solution:',
@@ -4739,7 +4963,74 @@ extension on TranslationsEnUs {
 			'common.searchFailedRetry' => 'Search failed, please try again',
 			'common.searchDisabledTitle' => 'Message search unavailable',
 			'common.searchDisabledByEncryption' => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available',
+			'common.amountMustPositive' => 'Amount must be greater than 0',
+			'common.answer' => 'Answer',
+			'common.collapse' => 'Collapse',
+			'common.declineCall' => 'Decline',
+			'common.e2eeRecoveryKeyTitle' => 'Recovery Key',
+			'common.e2eeUseRecoveryKey' => 'Generate recovery key (backup credential if you forget your passphrase)',
+			'common.e2eeRecoveryKeySaveNote' => 'Save this recovery key now (take a screenshot or store it in a password manager). If you forget your passphrase, it is the only credential that can decrypt your backup; once lost, the backup cannot be recovered.',
+			'common.e2eeRecoveryKeyCopied' => 'Recovery key copied',
+			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Recovery key copied. The clipboard will be cleared in ${seconds} seconds — save it now.',
+			'common.enterAmount' => 'Please enter an amount',
+			'common.expandFull' => 'Expand',
+			'common.justNow' => 'Just now',
+			'common.minutesAgo' => 'minutes ago',
+			'common.hoursAgo' => 'hours ago',
+			'common.me' => 'Me',
+			'common.minimize' => 'Minimize',
+			'common.momentsHasFailedUploads' => 'Some media failed to upload. Retry or remove them before posting.',
+			'common.noHistory' => 'No history yet',
+			'common.noNewRegisteredUsersTitle' => 'No newly registered users',
+			'common.payReceiveSuccess' => 'Payment received!',
+			'common.purchaseConfirming' => 'Payment is being confirmed. Check your order status shortly.',
+			'common.reconnecting' => 'Poor connection, reconnecting…',
+			'common.redPacketBrand' => 'IMBoy Red Packet',
+			'common.redPacketDialogTitle' => 'A red packet for you',
+			'common.redPacketDialogSubtitle' => 'Wishing you good fortune and prosperity',
+			'common.redPacketTotalAmount' => 'Total Amount',
+			'common.redPacketSingleAmount' => 'Amount per Red Packet',
+			'common.redPacketCount' => 'Number of Red Packets',
+			'common.redPacketCountUnit' => 'packets',
+			'common.redPacketCountEmpty' => 'Please enter the number of red packets',
+			'common.redPacketCountMin' => 'The number of red packets must be at least 1',
+			'common.redPacketAmountTooSmall' => 'Total amount must be at least ¥0.01 per red packet',
+			'common.redPacketGreetingLabel' => 'Message / Greeting',
+			'common.redPacketCurrentLucky' => 'Current mode: Lucky Red Packet',
+			'common.redPacketCurrentNormal' => 'Current mode: Normal Red Packet',
+			'common.redPacketSwitchToLucky' => 'Switch to Lucky Red Packet',
+			'common.redPacketSwitchToNormal' => 'Switch to Normal Red Packet',
+			'common.redPacketStuffLucky' => 'Send Lucky Red Packet',
+			'common.redPacketStuffNormal' => 'Send Normal Red Packet',
+			'common.redPacketReceiverLabel' => ({required Object uid}) => 'User: ${uid}',
+			'common.redPacketView' => 'View Red Packet',
+			'common.redPacketFetchError' => 'Error loading red packet details',
+			'common.redPacketFetchFailed' => 'Failed to load red packet details',
+			'common.redPacketNotFound' => 'Red packet not found or has been deleted',
+			'common.switchCamera' => 'Switch Camera',
+			'common.timeNowShort' => 'now',
+			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
+			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			'common.timeDaysShort' => ({required Object count}) => '${count}d',
+			'common.transferAccepted' => 'Received',
+			'common.transferAmountLabel' => 'Transfer Amount',
+			'common.transferConfirm' => 'Confirm Transfer',
+			'common.transferDefaultRemark' => 'Transfer to a friend',
+			'common.transferMinAmountError' => 'The minimum transfer amount is ¥0.01',
+			'common.transferPending' => 'Waiting for the recipient to confirm',
+			'common.transferReceiving' => 'Receiving...',
+			'common.transferRefunded' => 'Returned',
+			'common.transferRemarkLabel' => 'Transfer Note',
+			'common.transferTapToReceive' => 'Tap to receive',
+			'common.uploadPartialFailed' => ({required Object count}) => '${count} items failed to upload',
+			'common.voiceSttConverting' => 'Transcribing...',
+			'common.voiceSttNotConfigured' => 'Voice-to-text is not configured yet',
+			'common.voiceSttPreviewTitle' => 'Voice-to-Text Preview',
 			'complaint.complaint' => 'Complaint',
+			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
+			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
+			'complaint.e2eeConsentSubmit' => 'Consent & submit evidence',
+			'complaint.e2eeConsentDecline' => 'Report only (no content)',
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harassment',
 			'complaintReason.inappropriate' => 'Inappropriate content',
@@ -4849,6 +5140,8 @@ extension on TranslationsEnUs {
 			'discovery.momentAtReminded' => ({required Object name}) => 'Reminded ${name}',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'Reminded ${name} and ${count} others',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} people',
+			'discovery.momentActionMore' => 'More',
+			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} people liked this',
 			'error.restartRequired' => 'Restart Required',
 			'error.networkFailureGuidance' => 'Network troubleshooting guide',
 			'error.pleaseCheckNetwork' => 'Please check your network settings.',
@@ -4898,6 +5191,8 @@ extension on TranslationsEnUs {
 			'group.groupAlbumUnnamed' => 'Unnamed album',
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} photos',
 			'group.groupAlbumPhotoIdMissing' => 'Photo ID missing, cannot view details',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoListTitle' => 'Album Photos',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '${count} selected',
 			'group.groupAlbumPhotoEmpty' => 'No photos yet',
@@ -5034,8 +5329,6 @@ extension on TranslationsEnUs {
 			'main.lifePayment' => 'Bill Payment',
 			'main.medicalHealth' => 'Healthcare',
 			'main.meituanDelivery' => 'Meituan Delivery',
-			_ => null,
-		} ?? switch (path) {
 			'main.tencentService' => 'Tencent Services',
 			'main.traffic' => 'Transport',
 			'main.totalAssets' => 'Total Assets',
@@ -5356,6 +5649,7 @@ extension on TranslationsEnUs {
 			'mention.mentionCount' => ({required Object count}) => '${count} new mentions',
 			'mention.mentionAllDenied' => 'Only admins can @everyone',
 			'mention.navInfoMissing' => 'Message location info missing, unable to navigate',
+			'mention.pickButtonTooltip' => '@Mention a member',
 			'momentFriendPicker.title' => 'Select Friends',
 			'momentFriendPicker.titleAllow' => 'Visible to...',
 			'momentFriendPicker.titleDeny' => 'Hidden from...',
@@ -5391,6 +5685,16 @@ extension on TranslationsEnUs {
 			'passport.getVerifyCode' => 'Get Code',
 			'passport.hasAccount' => 'Already have an account?',
 			'passport.oneKeyLogin' => 'One-tap Login',
+			'passport.qrCodeExpired' => 'QR code has expired. Please scan again.',
+			'passport.qrCodeUsed' => 'This QR code has already been used',
+			'passport.qrConnecting' => 'Connecting...',
+			'passport.qrLoginAction' => 'Confirm Login',
+			'passport.qrLoginCancelled' => 'Login cancelled',
+			'passport.qrLoginCancelledByMe' => 'You cancelled this login',
+			'passport.qrLoginConfirming' => 'Signing in...',
+			'passport.qrLoginSuccess' => 'Login successful',
+			'passport.qrWebLoginTitle' => 'Web Login Confirmation',
+			'passport.qrWebLoginDesc' => 'Confirm whether to log in to this account on the web',
 			'splash.slogan' => 'Connect Freely, Communicate Anywhere',
 			'welcome.step1Title' => 'Simple Connection',
 			'welcome.step1Desc' => 'Experience the joy of seamless communication. Anytime, anywhere.',
@@ -5401,6 +5705,8 @@ extension on TranslationsEnUs {
 			'welcome.next' => 'Next',
 			'welcome.getStarted' => 'Get Started',
 			'welcome.skip' => 'Skip',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navOverview' => 'Overview',
 			'workspace.navProjects' => 'Projects',
 			'workspace.navChannels' => 'Channels',
@@ -5548,8 +5854,6 @@ extension on TranslationsEnUs {
 			'workspace.taskAssigneeRefresh' => 'Refresh assignee candidates',
 			'workspace.taskSubmitCreate' => 'Create task',
 			'workspace.taskSubmitSave' => 'Save',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskCreatedToast' => 'Task created',
 			'workspace.taskExistingToast' => 'A task with the same title already exists; reusing it',
 			'workspace.taskUpdatedToast' => 'Task saved',

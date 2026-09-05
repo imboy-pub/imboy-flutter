@@ -1,1 +1,5 @@
 complaint: 投诉
+e2eeConsentTitle: 提交加密消息证据
+e2eeConsentBody: 该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？
+e2eeConsentSubmit: 同意并提交证据
+e2eeConsentDecline: 仅举报（不提交内容）

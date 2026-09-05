@@ -1,2 +1,5 @@
----
 complaint: Plainte
+e2eeConsentTitle: Soumettre des preuves chiffrées
+e2eeConsentBody: "Ce message est chiffré de bout en bout ; le serveur ne peut pas en voir le contenu. Soumettre un extrait divulguera le texte clair sélectionné aux modérateurs pour examen. Êtes-vous d'accord ?"
+e2eeConsentSubmit: Accepter et soumettre
+e2eeConsentDecline: Signaler uniquement (sans contenu)

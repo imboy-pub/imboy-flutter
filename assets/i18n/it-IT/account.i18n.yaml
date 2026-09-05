@@ -116,3 +116,27 @@ webPasswordHint: Password
 e2eeTransferFromOldDevice: Dal vecchio dispositivo
 pleaseRelogin: Riaccedi
 otherLoginMethods: "Altri metodi di accesso"
+alipaySim:
+  alipaySuccess: Pagamento riuscito
+  balanceSource: Saldo del conto
+  confirmPay: Conferma pagamento
+  energy: "Pagamento riuscito: ottieni 5g di energia verde"
+  enterPassword: Inserisci la password di pagamento
+  huabei: Pagamento a rate Huabei
+  merchantSuccess: Pagamento riuscito nell'app del commerciante
+  paymentAmount: "Importo: "
+  selectMethod: Seleziona metodo di pagamento
+  storeName: Negozio flagship di tecnologia dell'informazione
+logoutCancelledNote: Richiesta di disattivazione ritirata
+logoutPendingBanner(date): "Richiesta di disattivazione inviata, completamento previsto per il $date"
+logoutPendingHeader: Stato della richiesta di disattivazione
+logoutCancelRequest: Annulla richiesta di disattivazione
+logoutRetainedHeader: Informativa sulla conservazione dei dati
+logoutRetainedNote: "Al termine dell'eliminazione: i log di audit e i record finanziari verranno conservati per obbligo di legge e anonimizzati; i gruppi/aree di lavoro/canali di tua proprietà saranno trasferiti prioritariamente ai membri successori"
+payCancelled: Pagamento annullato
+payMethodAlipay: Alipay
+payMethodComingSoon: Questo metodo di pagamento sarà disponibile a breve, restate sintonizzati
+payMethodMock: "Pagamento simulato (ambiente di sviluppo)"
+payMethodTitle: Seleziona metodo di pagamento
+payMethodWallet: Saldo del portafoglio
+payMethodWechat: WeChat Pay

@@ -1,2 +1,5 @@
----
 complaint: Beschwerde
+e2eeConsentTitle: Verschlüsselte Beweise einreichen
+e2eeConsentBody: "Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmst du zu?"
+e2eeConsentSubmit: Zustimmen und einreichen
+e2eeConsentDecline: Nur melden (ohne Inhalt)

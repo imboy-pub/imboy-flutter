@@ -1,1 +1,5 @@
 complaint: Complaint
+e2eeConsentTitle: Submit encrypted evidence
+e2eeConsentBody: "This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?"
+e2eeConsentSubmit: "Consent & submit evidence"
+e2eeConsentDecline: Report only (no content)

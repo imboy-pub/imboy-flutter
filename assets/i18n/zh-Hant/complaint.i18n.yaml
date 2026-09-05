@@ -1,1 +1,5 @@
 complaint: 投訴
+e2eeConsentTitle: 提交加密訊息證據
+e2eeConsentBody: 該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？
+e2eeConsentSubmit: 同意並提交證據
+e2eeConsentDecline: 僅舉報（不提交內容）

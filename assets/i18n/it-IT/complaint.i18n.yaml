@@ -1,2 +1,5 @@
----
 complaint: Reclamo
+e2eeConsentTitle: Invia prove crittografate
+e2eeConsentBody: "Questo messaggio è cifrato end-to-end; il server non può vederne il contenuto. Inviare un estratto renderà visibile il testo selezionato ai moderatori per la revisione. Acconsenti?"
+e2eeConsentSubmit: Acconsenti e invia
+e2eeConsentDecline: Solo segnala (senza contenuto)

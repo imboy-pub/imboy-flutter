@@ -593,8 +593,8 @@ class Translations$billing$zh_CN {
 	/// zh-CN: '支付失败'
 	String get payFailed => '支付失败';
 
-	/// zh-CN: '已取消支付'
-	String get payCancelled => '已取消支付';
+	/// zh-CN: '支付已取消'
+	String get payCancelled => '支付已取消';
 
 	/// zh-CN: '选择支付方式'
 	String get payMethodTitle => '选择支付方式';
@@ -851,8 +851,8 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '标题（选填）'
 	String get titleOptional => '标题（选填）';
 
-	/// zh-CN: '写点什么…支持加粗、斜体、标题、列表等格式'
-	String get articleBodyHint => '写点什么…支持加粗、斜体、标题、列表等格式';
+	/// zh-CN: '写点什么...支持加粗、斜体、标题、列表等格式'
+	String get articleBodyHint => '写点什么...支持加粗、斜体、标题、列表等格式';
 
 	/// zh-CN: '封面'
 	String get coverLabel => '封面';
@@ -1667,8 +1667,8 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '签名占位符'
 	String get signaturePlaceholder => '签名占位符';
 
-	/// zh-CN: '确认码已发送到您的邮箱， 请输入确认码确认您的帐户。'
-	String get signupIntro => '确认码已发送到您的邮箱， 请输入确认码确认您的帐户。';
+	/// zh-CN: '确认码已发送到您的邮箱， 请输入确认码确认您的账户。'
+	String get signupIntro => '确认码已发送到您的邮箱， 请输入确认码确认您的账户。';
 
 	/// zh-CN: '社交资料'
 	String get socialProfile => '社交资料';
@@ -1766,8 +1766,8 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '正在压缩视频...'
 	String get videoCompressing => '正在压缩视频...';
 
-	/// zh-CN: '登录过期,请重新登录'
-	String get loginExpiredMessage => '登录过期,请重新登录';
+	/// zh-CN: '登录过期，请重新登录'
+	String get loginExpiredMessage => '登录过期，请重新登录';
 
 	/// zh-CN: '支付宝登录流程被系统中断，请重试'
 	String get alipayLoginInterrupted => '支付宝登录流程被系统中断，请重试';
@@ -2144,8 +2144,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '拒绝'
 	String get declineCall => '拒绝';
 
-	/// zh-CN: '网络不佳，正在重连…'
-	String get reconnecting => '网络不佳，正在重连…';
+	/// zh-CN: '网络不佳，正在重连...'
+	String get reconnecting => '网络不佳，正在重连...';
 
 	/// zh-CN: '最小化'
 	String get minimize => '最小化';
@@ -2657,8 +2657,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '你的反馈问题我们已经收到了，会尽快处理！'
 	String get feedbackSuccessMsg => '你的反馈问题我们已经收到了，会尽快处理！';
 
-	/// zh-CN: '开启后,将跟随系统打开或关闭深色模式'
-	String get followSystemTips => '开启后,将跟随系统打开或关闭深色模式';
+	/// zh-CN: '开启后，将跟随系统打开或关闭深色模式'
+	String get followSystemTips => '开启后，将跟随系统打开或关闭深色模式';
 
 	/// zh-CN: '您已被设备【$param】强制下线'
 	String forceLogoutNotification({required Object param}) => '您已被设备【${param}】强制下线';
@@ -2807,8 +2807,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '位置消息'
 	String get locationMessage => '位置消息';
 
-	/// zh-CN: '你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。'
-	String get loginDeviceManagementTips => '你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。';
+	/// zh-CN: '你的账号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。'
+	String get loginDeviceManagementTips => '你的账号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。';
 
 	/// zh-CN: '退出登录失败'
 	String get logoutFailed => '退出登录失败';
@@ -3014,8 +3014,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '我想重命名'
 	String get optionsRename => '我想重命名';
 
-	/// zh-CN: '是的!'
-	String get optionsYes => '是的!';
+	/// zh-CN: '是的！'
+	String get optionsYes => '是的！';
 
 	/// zh-CN: 'p2pCallScreenLogic'
 	String get p2pCallScreenLogic => 'p2pCallScreenLogic';
@@ -3095,8 +3095,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '选择地区'
 	String get regionSelectTitle => '选择地区';
 
-	/// zh-CN: '松开手指,取消发送'
-	String get releaseFingerCancelSending => '松开手指,取消发送';
+	/// zh-CN: '松开手指，取消发送'
+	String get releaseFingerCancelSending => '松开手指，取消发送';
 
 	/// zh-CN: '从标签中移除联系人'
 	String get removeContactFromTag => '从标签中移除联系人';
@@ -3104,8 +3104,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '移出成员'
 	String get removeMember => '移出成员';
 
-	/// zh-CN: '[@你] '
-	String get atMentionYouTag => '[@你] ';
+	/// zh-CN: '[@你]'
+	String get atMentionYouTag => '[@你]';
 
 	/// zh-CN: '@已退群成员'
 	String get atMentionLeftMember => '@已退群成员';
@@ -3344,8 +3344,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '签名提示'
 	String get signatureTips => '签名提示';
 
-	/// zh-CN: '手指上滑,取消发送'
-	String get slideUpCancelSending => '手指上滑,取消发送';
+	/// zh-CN: '手指上滑，取消发送'
+	String get slideUpCancelSending => '手指上滑，取消发送';
 
 	/// zh-CN: '未获取存储权限'
 	String get storagePermissionNotObtained => '未获取存储权限';
@@ -3491,8 +3491,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '通话已断开'
 	String get callDisconnected => '通话已断开';
 
-	/// zh-CN: '连接中…'
-	String get connecting => '连接中…';
+	/// zh-CN: '连接中...'
+	String get connecting => '连接中...';
 
 	/// zh-CN: '语音输入功能暂无实现'
 	String get voiceInputNotImplemented => '语音输入功能暂无实现';
@@ -3509,8 +3509,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '网页加载中...'
 	String get webpageLoading => '网页加载中...';
 
-	/// zh-CN: '你的反馈是什么?'
-	String get whatYourFeedback => '你的反馈是什么?';
+	/// zh-CN: '你的反馈是什么？'
+	String get whatYourFeedback => '你的反馈是什么？';
 
 	/// zh-CN: '昨天'
 	String get yesterday => '昨天';
@@ -5249,8 +5249,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '下载并校验'
 	String get e2eeBackupUrlImportBtn => '下载并校验';
 
-	/// zh-CN: '正在下载…'
-	String get e2eeBackupUrlDownloading => '正在下载…';
+	/// zh-CN: '正在下载...'
+	String get e2eeBackupUrlDownloading => '正在下载...';
 
 	/// zh-CN: '链接无效，仅支持 HTTPS'
 	String get e2eeBackupErrUrlInvalid => '链接无效，仅支持 HTTPS';
@@ -5273,8 +5273,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '文件过大（超过 10MB 上限）'
 	String get e2eeBackupErrUrlTooLarge => '文件过大（超过 10MB 上限）';
 
-	/// zh-CN: '已收到外部备份文件，正在校验…'
-	String get e2eeBackupOpenFromExternal => '已收到外部备份文件，正在校验…';
+	/// zh-CN: '已收到外部备份文件，正在校验...'
+	String get e2eeBackupOpenFromExternal => '已收到外部备份文件，正在校验...';
 
 	/// zh-CN: '无法读取该文件，请改用「从链接导入」或「选择文件」'
 	String get e2eeBackupErrOpenExternal => '无法读取该文件，请改用「从链接导入」或「选择文件」';
@@ -5770,6 +5770,18 @@ class Translations$complaint$zh_CN {
 
 	/// zh-CN: '投诉'
 	String get complaint => '投诉';
+
+	/// zh-CN: '提交加密消息证据'
+	String get e2eeConsentTitle => '提交加密消息证据';
+
+	/// zh-CN: '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？'
+	String get e2eeConsentBody => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？';
+
+	/// zh-CN: '同意并提交证据'
+	String get e2eeConsentSubmit => '同意并提交证据';
+
+	/// zh-CN: '仅举报（不提交内容）'
+	String get e2eeConsentDecline => '仅举报（不提交内容）';
 }
 
 // Path: complaintReason
@@ -7154,8 +7166,8 @@ class Translations$main$zh_CN {
 	/// zh-CN: '你'
 	String get you => '你';
 
-	/// zh-CN: '这让你感觉如何?'
-	String get yourFeel => '这让你感觉如何?';
+	/// zh-CN: '这让你感觉如何？'
+	String get yourFeel => '这让你感觉如何？';
 
 	/// zh-CN: '简体中文'
 	String get zhCn => '简体中文';
@@ -7820,8 +7832,8 @@ class Translations$momentNotify$zh_CN {
 	/// zh-CN: '清空全部'
 	String get clearAll => '清空全部';
 
-	/// zh-CN: '清空所有通知?'
-	String get clearConfirmTitle => '清空所有通知?';
+	/// zh-CN: '清空所有通知？'
+	String get clearConfirmTitle => '清空所有通知？';
 
 	/// zh-CN: '清空后无法恢复'
 	String get clearConfirmMessage => '清空后无法恢复';
@@ -8291,8 +8303,8 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: 'Logo 地址'
 	String get brandingLogoLabel => 'Logo 地址';
 
-	/// zh-CN: 'https://…（工作区 Logo 图片地址）'
-	String get brandingLogoHint => 'https://…（工作区 Logo 图片地址）';
+	/// zh-CN: 'https://...（工作区 Logo 图片地址）'
+	String get brandingLogoHint => 'https://...（工作区 Logo 图片地址）';
 
 	/// zh-CN: '主色 primaryColor'
 	String get brandingColorLabel => '主色 primaryColor';
@@ -8435,8 +8447,8 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '推进到「$status」'
 	String taskAdvanceTo({required Object status}) => '推进到「${status}」';
 
-	/// zh-CN: '回退 $title 到…'
-	String taskFallbackMenuTitle({required Object title}) => '回退 ${title} 到…';
+	/// zh-CN: '回退 $title 到...'
+	String taskFallbackMenuTitle({required Object title}) => '回退 ${title} 到...';
 
 	/// zh-CN: '已流转到「$status」'
 	String taskStatusMovedToast({required Object status}) => '已流转到「${status}」';
@@ -8874,7 +8886,7 @@ extension on Translations {
 			'billing.retry' => '重试',
 			'billing.paySuccess' => '订阅成功',
 			'billing.payFailed' => '支付失败',
-			'billing.payCancelled' => '已取消支付',
+			'billing.payCancelled' => '支付已取消',
 			'billing.payMethodTitle' => '选择支付方式',
 			'billing.payMethodMock' => '模拟支付（开发环境）',
 			'billing.payMethodAlipay' => '支付宝',
@@ -8957,7 +8969,7 @@ extension on Translations {
 			'channel.preview' => '预览',
 			'channel.addImage' => '添加图片',
 			'channel.titleOptional' => '标题（选填）',
-			'channel.articleBodyHint' => '写点什么…支持加粗、斜体、标题、列表等格式',
+			'channel.articleBodyHint' => '写点什么...支持加粗、斜体、标题、列表等格式',
 			'channel.coverLabel' => '封面',
 			'channel.coverSet' => '已设为封面',
 			'channel.formatBold' => '加粗',
@@ -9228,7 +9240,7 @@ extension on Translations {
 			'chat.sending' => '正在发送...',
 			'chat.signatureInputHint' => '签名输入提示',
 			'chat.signaturePlaceholder' => '签名占位符',
-			'chat.signupIntro' => '确认码已发送到您的邮箱， 请输入确认码确认您的帐户。',
+			'chat.signupIntro' => '确认码已发送到您的邮箱， 请输入确认码确认您的账户。',
 			'chat.socialProfile' => '社交资料',
 			'chat.status' => '状态',
 			'chat.storageSpaceData' => '存储空间和数据',
@@ -9261,7 +9273,7 @@ extension on Translations {
 			'chat.momentsSend' => '发送',
 			'chat.videoCompressInProgress' => '已有压缩任务在进行中',
 			'chat.videoCompressing' => '正在压缩视频...',
-			'chat.loginExpiredMessage' => '登录过期,请重新登录',
+			'chat.loginExpiredMessage' => '登录过期，请重新登录',
 			'chat.alipayLoginInterrupted' => '支付宝登录流程被系统中断，请重试',
 			'chat.geometricPattern' => '几何图案',
 			'chat.ripplePattern' => '波纹图案',
@@ -9384,7 +9396,7 @@ extension on Translations {
 			'common.answer' => '接听',
 			'common.dataNotFound' => '页面数据不存在或已失效',
 			'common.declineCall' => '拒绝',
-			'common.reconnecting' => '网络不佳，正在重连…',
+			'common.reconnecting' => '网络不佳，正在重连...',
 			'common.minimize' => '最小化',
 			'common.switchCamera' => '切换摄像头',
 			'common.addFriend' => '添加朋友',
@@ -9555,7 +9567,7 @@ extension on Translations {
 			'common.feedbackModel' => '反馈模型',
 			'common.feedbackReplyModel' => '反馈回复模型',
 			'common.feedbackSuccessMsg' => '你的反馈问题我们已经收到了，会尽快处理！',
-			'common.followSystemTips' => '开启后,将跟随系统打开或关闭深色模式',
+			'common.followSystemTips' => '开启后，将跟随系统打开或关闭深色模式',
 			'common.forceLogoutNotification' => ({required Object param}) => '您已被设备【${param}】强制下线',
 			'common.friendPermissions' => '朋友权限',
 			'common.friendsPermissionsView' => '好友权限视图',
@@ -9605,7 +9617,7 @@ extension on Translations {
 			'common.loadMore' => '加载更多',
 			'common.loading' => '加载中',
 			'common.locationMessage' => '位置消息',
-			'common.loginDeviceManagementTips' => '你的帐号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。',
+			'common.loginDeviceManagementTips' => '你的账号在以下设备中登录过，你可以删除设备，删除后在该设备登录时需进行安全验证。',
 			'common.logoutFailed' => '退出登录失败',
 			'common.logoutNotice' => '《注销须知》',
 			'common.exportDataSuccess' => '数据已导出',
@@ -9674,7 +9686,7 @@ extension on Translations {
 			'common.operationFailedAgainLater' => '操作失败，请稍后重试',
 			'common.optionsNo' => '不',
 			'common.optionsRename' => '我想重命名',
-			'common.optionsYes' => '是的!',
+			'common.optionsYes' => '是的！',
 			'common.p2pCallScreenLogic' => 'p2pCallScreenLogic',
 			'common.p2pCallScreenView' => 'p2pCallScreenView',
 			'common.paramFormatError' => ({required Object param}) => '${param}格式有误',
@@ -9701,10 +9713,10 @@ extension on Translations {
 			'common.regionSelectedLevelHint' => ({required Object region, required Object level}) => '已选 ${region}（第 ${level} 级）：可直接点右上角完成，也可继续选择下一级',
 			'common.regionSearchTips' => '按地区名称或区域编码搜索',
 			'common.regionSelectTitle' => '选择地区',
-			'common.releaseFingerCancelSending' => '松开手指,取消发送',
+			'common.releaseFingerCancelSending' => '松开手指，取消发送',
 			'common.removeContactFromTag' => '从标签中移除联系人',
 			'common.removeMember' => '移出成员',
-			'common.atMentionYouTag' => '[@你] ',
+			'common.atMentionYouTag' => '[@你]',
 			'common.atMentionLeftMember' => '@已退群成员',
 			'common.muteNotifications' => '消息免打扰',
 			'common.muteNotificationsHint' => '开启后不会收到新消息提醒，但仍可在会话列表看到未读',
@@ -9786,7 +9798,7 @@ extension on Translations {
 			'common.setChatBackground' => '设置当前聊天背景',
 			'common.share' => '分享',
 			'common.signatureTips' => '签名提示',
-			'common.slideUpCancelSending' => '手指上滑,取消发送',
+			'common.slideUpCancelSending' => '手指上滑，取消发送',
 			'common.storagePermissionNotObtained' => '未获取存储权限',
 			'common.strongReminder' => '强提醒',
 			'common.submittedAt' => '提交于',
@@ -9794,10 +9806,10 @@ extension on Translations {
 			'common.sureDeleteGroupChatRecord' => '确定删除群的聊天记录吗？',
 			'common.switchEnvironment' => '切换环境',
 			'common.thisMonth' => '本月',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}天前', ), 
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}小时前', ), 
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}天前', ),
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}小时前', ),
 			'common.timeJustNow' => '刚刚',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}分钟前', ), 
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, other: '${n}分钟前', ),
 			'common.timeToday' => '今天',
 			'common.timeYesterday' => '昨天',
 			'common.tipConnectDesc' => '无网络',
@@ -9833,13 +9845,13 @@ extension on Translations {
 			'common.voiceCall' => '语音通话',
 			'common.groupCall' => '群通话',
 			'common.callDisconnected' => '通话已断开',
-			'common.connecting' => '连接中…',
+			'common.connecting' => '连接中...',
 			'common.voiceInputNotImplemented' => '语音输入功能暂无实现',
 			'common.waitingDownload' => '等待下载',
 			'common.waitingPeerAccept' => '等待对方接受邀请...',
 			'common.warning' => '警告:',
 			'common.webpageLoading' => '网页加载中...',
-			'common.whatYourFeedback' => '你的反馈是什么?',
+			'common.whatYourFeedback' => '你的反馈是什么？',
 			'common.yesterday' => '昨天',
 			'common.yourContactInformation' => '你的联系方式',
 			'common.confirmRemove' => '确认移出',
@@ -10421,7 +10433,7 @@ extension on Translations {
 			'common.e2eeBackupUrlFieldLabel' => '备份文件链接',
 			'common.e2eeBackupUrlFieldHint' => 'https://...',
 			'common.e2eeBackupUrlImportBtn' => '下载并校验',
-			'common.e2eeBackupUrlDownloading' => '正在下载…',
+			'common.e2eeBackupUrlDownloading' => '正在下载...',
 			'common.e2eeBackupErrUrlInvalid' => '链接无效，仅支持 HTTPS',
 			'common.e2eeBackupErrUrlDownload' => '下载失败，请检查链接与网络',
 			'common.e2eeBackupErrUrlTimeout' => '下载超时，请重试',
@@ -10429,7 +10441,7 @@ extension on Translations {
 			'common.e2eeBackupErrUrlHttp' => '服务器返回错误',
 			'common.e2eeBackupErrUrlEmpty' => '服务器返回的内容为空',
 			'common.e2eeBackupErrUrlTooLarge' => '文件过大（超过 10MB 上限）',
-			'common.e2eeBackupOpenFromExternal' => '已收到外部备份文件，正在校验…',
+			'common.e2eeBackupOpenFromExternal' => '已收到外部备份文件，正在校验...',
 			'common.e2eeBackupErrOpenExternal' => '无法读取该文件，请改用「从链接导入」或「选择文件」',
 			'common.e2eeSocialShardSettings' => '分片设置',
 			'common.e2eeSocialShardStoredNote' => '说明：分片将存储在代理设备上，服务端不保存任何分片',
@@ -10592,6 +10604,10 @@ extension on Translations {
 			'common.searchDisabledTitle' => '消息搜索未启用',
 			'common.searchDisabledByEncryption' => '端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索',
 			'complaint.complaint' => '投诉',
+			'complaint.e2eeConsentTitle' => '提交加密消息证据',
+			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
+			'complaint.e2eeConsentSubmit' => '同意并提交证据',
+			'complaint.e2eeConsentDecline' => '仅举报（不提交内容）',
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
 			'complaintReason.inappropriate' => '不当内容',
@@ -10752,12 +10768,12 @@ extension on Translations {
 			'group.groupAlbumUnnamed' => '未命名相册',
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 张图片',
 			'group.groupAlbumPhotoIdMissing' => '图片ID缺失，无法查看详情',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoListTitle' => '相册图片',
 			'group.groupAlbumPhotoSelectedCount' => ({required Object count}) => '已选择 ${count} 项',
 			'group.groupAlbumPhotoEmpty' => '暂无图片',
 			'group.groupAlbumPhotoUrlMissing' => '图片地址缺失，无法打开',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumPhotoUrlInvalid' => '图片地址无效',
 			'group.groupAlbumPhotoDetailTitle' => '图片详情',
 			'group.groupAlbumPhotoSetCover' => '设为封面',
@@ -11016,7 +11032,7 @@ extension on Translations {
 			'main.usedSpace' => '已使用空间',
 			'main.webView' => '网页视图',
 			'main.you' => '你',
-			'main.yourFeel' => '这让你感觉如何?',
+			'main.yourFeel' => '这让你感觉如何？',
 			'main.zhCn' => '简体中文',
 			'main.zhHant' => '繁体中文',
 			'main.bound' => '已绑定',
@@ -11229,7 +11245,7 @@ extension on Translations {
 			'momentNotify.actionComment' => '评论了你',
 			'momentNotify.markAllRead' => '全部已读',
 			'momentNotify.clearAll' => '清空全部',
-			'momentNotify.clearConfirmTitle' => '清空所有通知?',
+			'momentNotify.clearConfirmTitle' => '清空所有通知？',
 			'momentNotify.clearConfirmMessage' => '清空后无法恢复',
 			'momentNotify.confirm' => '确定',
 			'momentNotify.cancel' => '取消',
@@ -11266,12 +11282,12 @@ extension on Translations {
 			'welcome.next' => '下一步',
 			'welcome.getStarted' => '开始使用',
 			'welcome.skip' => '跳过',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navOverview' => '概览',
 			'workspace.navProjects' => '项目',
 			'workspace.navChannels' => '频道',
 			'workspace.navGroups' => '群组',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.navMembers' => '成员',
 			'workspace.pickerTitle' => '我的工作区',
 			'workspace.switchWorkspace' => '切换工作区',
@@ -11376,7 +11392,7 @@ extension on Translations {
 			'workspace.brandingTitle' => '工作区品牌',
 			'workspace.brandingNameLabel' => '品牌名称',
 			'workspace.brandingLogoLabel' => 'Logo 地址',
-			'workspace.brandingLogoHint' => 'https://…（工作区 Logo 图片地址）',
+			'workspace.brandingLogoHint' => 'https://...（工作区 Logo 图片地址）',
 			'workspace.brandingColorLabel' => '主色 primaryColor',
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '仅支持 #RRGGBB / #AARRGGBB；非法值回落默认主题色',
@@ -11424,7 +11440,7 @@ extension on Translations {
 			'workspace.taskStatusReview' => '评审中',
 			'workspace.taskStatusDone' => '已完成',
 			'workspace.taskAdvanceTo' => ({required Object status}) => '推进到「${status}」',
-			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 到…',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 到...',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流转到「${status}」',
 			'workspace.taskEmptyTitle' => '还没有任务',
 			'workspace.taskEmptySubtitle' => '用四态跟踪执行：待办 → 进行中 → 评审中 → 已完成',

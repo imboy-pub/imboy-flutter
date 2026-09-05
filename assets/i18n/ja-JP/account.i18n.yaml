@@ -20,7 +20,7 @@ email: メールアドレス
 existingPassword: 現在のパスワード
 forgotPassword: パスワードをお忘れですか？
 gender: 性別
-genderSaving: 保存中...
+genderSaving: 保存しています…
 groupQrcode: グループQRコード
 hintLoginAccount: アカウント/メールアドレス
 logOut: ログアウト
@@ -39,7 +39,7 @@ nickname: ニックネーム
 nicknameChangeVisibility: ニックネームを変更すると、このグループ内でのみ表示されます。グループメンバー全員が見ることができます。
 nicknameCharsRemaining: あと$param文字入力できます
 nicknameHint: ニックネームを入力してください
-nicknameSaving: 保存中...
+nicknameSaving: 保存しています…
 paramLogin: "$paramでログイン"
 password: パスワード
 recentlyRegisteredUser: 最近登録したユーザー
@@ -116,3 +116,29 @@ webPasswordHint: パスワードを入力
 e2eeTransferFromOldDevice: 古いデバイスからキーを受信
 pleaseRelogin: 再度ログインしてください
 otherLoginMethods: "その他のログイン方法"
+# --- 支払い（Alipayシミュレーター / 支払い方法） ---
+alipaySim:
+  alipaySuccess: 支払いが完了しました
+  balanceSource: アカウント残高
+  confirmPay: 支払いを確認
+  energy: 支払いが成功するとグリーンエネルギー5gを獲得できます
+  enterPassword: 支払いパスワードを入力してください
+  huabei: フーベイ分割払い
+  merchantSuccess: ストアアプリで支払いが完了しました
+  paymentAmount: "金額："
+  selectMethod: 支払い方法を選択
+  storeName: 情報テクノロジー旗艦店
+payCancelled: 支払いをキャンセルしました
+payMethodAlipay: Alipay
+payMethodComingSoon: この支払い方法は近日対応予定です。お楽しみに
+payMethodMock: テスト支払い（開発環境）
+payMethodTitle: 支払い方法を選択
+payMethodWallet: ウォレット残高
+payMethodWechat: WeChat Pay
+# --- アカウント削除申請 ---
+logoutCancelRequest: アカウント削除申請を取り消す
+logoutCancelledNote: アカウント削除申請を取り消しました
+logoutPendingBanner: アカウント削除の申請を受け付けました。完了予定：$date
+logoutPendingHeader: アカウント削除申請の状態
+logoutRetainedHeader: データ保持について
+logoutRetainedNote: 削除完了後：監査ログと財務記録は法令に基づき保持され、匿名化されます。あなたが所有するグループ/ワークスペース/チャンネルは、後継メンバーへ優先的に移管されます

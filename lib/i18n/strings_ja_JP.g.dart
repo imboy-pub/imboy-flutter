@@ -35,12 +35,13 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 
 	late final TranslationsJaJp _root = this; // ignore: unused_field
 
-	@override 
+	@override
 	TranslationsJaJp $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsJaJp(meta: meta ?? this.$meta);
 
 	// Translations
 	@override late final _Translations$account$ja_JP account = _Translations$account$ja_JP._(_root);
 	@override late final _Translations$agent$ja_JP agent = _Translations$agent$ja_JP._(_root);
+	@override late final _Translations$agentTask$ja_JP agentTask = _Translations$agentTask$ja_JP._(_root);
 	@override late final _Translations$billing$ja_JP billing = _Translations$billing$ja_JP._(_root);
 	@override late final _Translations$channel$ja_JP channel = _Translations$channel$ja_JP._(_root);
 	@override late final _Translations$chat$ja_JP chat = _Translations$chat$ja_JP._(_root);
@@ -52,6 +53,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$error$ja_JP error = _Translations$error$ja_JP._(_root);
 	@override late final _Translations$group$ja_JP group = _Translations$group$ja_JP._(_root);
 	@override late final _Translations$groupCategory$ja_JP groupCategory = _Translations$groupCategory$ja_JP._(_root);
+	@override late final _Translations$groupDiscovery$ja_JP groupDiscovery = _Translations$groupDiscovery$ja_JP._(_root);
 	@override late final _Translations$groupList$ja_JP groupList = _Translations$groupList$ja_JP._(_root);
 	@override late final _Translations$groupSchedule$ja_JP groupSchedule = _Translations$groupSchedule$ja_JP._(_root);
 	@override late final _Translations$groupTag$ja_JP groupTag = _Translations$groupTag$ja_JP._(_root);
@@ -64,6 +66,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$passport$ja_JP passport = _Translations$passport$ja_JP._(_root);
 	@override late final _Translations$splash$ja_JP splash = _Translations$splash$ja_JP._(_root);
 	@override late final _Translations$welcome$ja_JP welcome = _Translations$welcome$ja_JP._(_root);
+	@override late final _Translations$workspace$ja_JP workspace = _Translations$workspace$ja_JP._(_root);
 }
 
 // Path: account
@@ -94,7 +97,7 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get existingPassword => '現在のパスワード';
 	@override String get forgotPassword => 'パスワードをお忘れですか？';
 	@override String get gender => '性別';
-	@override String get genderSaving => '保存中...';
+	@override String get genderSaving => '保存しています…';
 	@override String get groupQrcode => 'グループQRコード';
 	@override String get hintLoginAccount => 'アカウント/メールアドレス';
 	@override String get logOut => 'ログアウト';
@@ -113,7 +116,7 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get nicknameChangeVisibility => 'ニックネームを変更すると、このグループ内でのみ表示されます。グループメンバー全員が見ることができます。';
 	@override String nicknameCharsRemaining({required Object param}) => 'あと${param}文字入力できます';
 	@override String get nicknameHint => 'ニックネームを入力してください';
-	@override String get nicknameSaving => '保存中...';
+	@override String get nicknameSaving => '保存しています…';
 	@override String paramLogin({required Object param}) => '${param}でログイン';
 	@override String get password => 'パスワード';
 	@override String get recentlyRegisteredUser => '最近登録したユーザー';
@@ -190,6 +193,20 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get e2eeTransferFromOldDevice => '古いデバイスからキーを受信';
 	@override String get pleaseRelogin => '再度ログインしてください';
 	@override String get otherLoginMethods => 'その他のログイン方法';
+	@override late final _Translations$account$alipaySim$ja_JP alipaySim = _Translations$account$alipaySim$ja_JP._(_root);
+	@override String get payCancelled => '支払いをキャンセルしました';
+	@override String get payMethodAlipay => 'Alipay';
+	@override String get payMethodComingSoon => 'この支払い方法は近日対応予定です。お楽しみに';
+	@override String get payMethodMock => 'テスト支払い（開発環境）';
+	@override String get payMethodTitle => '支払い方法を選択';
+	@override String get payMethodWallet => 'ウォレット残高';
+	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get logoutCancelRequest => 'アカウント削除申請を取り消す';
+	@override String get logoutCancelledNote => 'アカウント削除申請を取り消しました';
+	@override String logoutPendingBanner({required Object date}) => 'アカウント削除の申請を受け付けました。完了予定：${date}';
+	@override String get logoutPendingHeader => 'アカウント削除申請の状態';
+	@override String get logoutRetainedHeader => 'データ保持について';
+	@override String get logoutRetainedNote => '削除完了後：監査ログと財務記録は法令に基づき保持され、匿名化されます。あなたが所有するグループ/ワークスペース/チャンネルは、後継メンバーへ優先的に移管されます';
 }
 
 // Path: agent
@@ -209,6 +226,27 @@ class _Translations$agent$ja_JP extends Translations$agent$zh_CN {
 	@override String get badgeOfficial => '公式';
 	@override String get badgeAiA11y => 'AI アシスタント';
 	@override String get badgeOfficialA11y => '公式アカウント';
+	@override String get legacyBotGoPlaza => 'AI アシスタント広場へ';
+	@override String get legacyBotMigrated => 'このボットの入口はアップグレードされました。AI アシスタント広場でアシスタントと会話してください';
+}
+
+// Path: agentTask
+class _Translations$agentTask$ja_JP extends Translations$agentTask$zh_CN {
+	_Translations$agentTask$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AIタスク';
+	@override String get working => '実行中';
+	@override String get submitted => '提出済み';
+	@override String get progress => '進行中';
+	@override String get completed => '完了';
+	@override String get failed => '実行に失敗しました';
+	@override String get cancelled => 'キャンセル済み';
+	@override String get awaitingApproval => '承認待ち';
+	@override String get approve => '承認';
+	@override String get reject => '拒否';
 }
 
 // Path: billing
@@ -248,7 +286,7 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get title => 'チャンネル';
 	@override String get loading => '読み込み中...';
 	@override String get subscribed => '購読済み';
-	@override String get managed => '管理中';
+	@override String get managed => '運営中';
 	@override String get writeArticle => '投稿を書く';
 	@override String get discover => 'チャンネルを探す';
 	@override String get search => 'チャンネル検索';
@@ -296,7 +334,7 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get reactions => 'リアクション';
 	@override String get selectReaction => 'リアクションを選択';
 	@override String get react => 'リアクション';
-	@override String get admin => '管理';
+	@override String get admin => '管理者';
 	@override String get settings => '設定';
 	@override String get editChannel => 'チャンネルを編集';
 	@override String get editChannelDesc => 'チャンネル名、説明などを更新';
@@ -388,8 +426,68 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get accessTypeLabel => '有料設定';
 	@override String get accessTypeFree => '無料';
 	@override String get accessTypePaid => '有料';
-	@override String get typePublicPaidDesc => '誰でもチャンネルを見つけられ、購入後に登録できます';
-	@override String get typePrivatePaidDesc => '招待されたユーザーのみ購入フローに進み、支払い後に登録できます';
+	@override String get typePublicPaidDesc => '誰でもチャンネルを見つけられ、購入後に購読できます';
+	@override String get typePrivatePaidDesc => '招待されたユーザーのみ購入フローに進み、支払い後に購読できます';
+	@override String get addImage => '画像を追加';
+	@override String get allCategories => 'すべて';
+	@override String get articleBodyHint => '何か書いてみましょう…太字、斜体、見出し、リストなどの書式に対応';
+	@override String get formatBold => '太字';
+	@override String get formatHeading => '見出し';
+	@override String get formatItalic => 'イタリック';
+	@override String get formatLink => 'リンク';
+	@override String get formatList => 'リスト';
+	@override String get formatQuote => '引用文';
+	@override String get formatStrikethrough => '取り消し線';
+	@override String get linkTextPlaceholder => 'リンク文字';
+	@override String get preview => 'プレビュー';
+	@override String get publish => '公開';
+	@override String get titleOptional => 'タイトル（任意）';
+	@override String get readFull => '全文を読む';
+	@override String get comment => 'コメント';
+	@override String get writeComment => 'コメントを書く...';
+	@override String get noComments => 'コメントはまだありません';
+	@override String get commentFailed => 'コメントの送信に失敗しました';
+	@override String get commentDeleteNoPermission => 'このコメントを削除する権限がありません';
+	@override String get deleteComment => 'コメントを削除';
+	@override String get deleteCommentConfirm => 'このコメントを削除しますか？';
+	@override String get reply => '返信';
+	@override String get replyTo => '返信先';
+	@override String get like => 'いいね';
+	@override String get myOrders => '注文履歴';
+	@override String get noOrders => '注文記録はありません';
+	@override String get cancelOrder => '注文をキャンセル';
+	@override String get cancelOrderConfirmTitle => '注文キャンセルの確認';
+	@override String get cancelOrderConfirmMessage => 'この未払いの注文をキャンセルしますか？キャンセル後は支払いを続けられません。';
+	@override String get cancelOrderSuccess => '注文をキャンセルしました';
+	@override String get orderAmount => '金額';
+	@override String get orderChannel => 'チャンネル';
+	@override String get orderContinuePay => '支払いを続ける';
+	@override String get orderCreatedAt => '注文日時';
+	@override String get orderDetail => '注文詳細';
+	@override String get orderNo => '注文番号';
+	@override String get orderPaidAt => '支払い日時';
+	@override String get orderPaymentMethod => '支払い方法';
+	@override String get orderStatusCancelled => 'キャンセル済み';
+	@override String get orderStatusExpired => '期限切れ';
+	@override String get orderStatusLabel => 'ステータス';
+	@override String get orderStatusPaid => '支払い済み';
+	@override String get orderStatusPending => '未払い';
+	@override String get orderStatusRefunded => '返金済み';
+	@override String get orderStatusRefunding => '返金処理中';
+	@override String get orderSubscriptionPeriod => '購読期間';
+	@override String get orderValidUntil => '有効期限';
+	@override String get payAlipay => 'Alipay';
+	@override String get payWallet => 'ウォレット残高';
+	@override String get payWechat => 'WeChat Pay';
+	@override String get refundApply => '返金を申請';
+	@override String get refundConfirmTitle => '返金の確認';
+	@override String get refundConfirmMessage => 'この注文に返金を申請しますか？返金後は購読が解除されます。';
+	@override String get refundSuccess => '返金申請を送信しました';
+	@override String get channelNotFound => 'チャンネルが存在しません';
+	@override String get coverLabel => '表紙';
+	@override String get coverSet => '表紙に設定しました';
+	@override String get sortNewest => '新着';
+	@override String get sortPopular => '人気';
 }
 
 // Path: chat
@@ -467,7 +565,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get imageMessage => '[画像]';
 	@override String get initiateChat => 'グループチャットを開始';
 	@override String get justChat => 'チャットのみ';
-	@override String get location => '位置';
+	@override String get location => '位置情報';
 	@override String get exportMyData => 'マイデータを書き出す';
 	@override String get exportDataDesc => '個人情報、連絡先、チャット履歴を書き出します';
 	@override String get message => 'メッセージ';
@@ -677,6 +775,16 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get extraItems => '追加項目';
 	@override String get messageInputHint => 'メッセージを入力...';
 	@override String get invalidMessageType => '[未対応のメッセージ]';
+	@override String get alipayLoginInterrupted => 'Alipayログイン処理がシステムによって中断されました。もう一度お試しください';
+	@override String get burnReadBadge => '閲後';
+	@override String get convertToText => '文字起こし';
+	@override String get extraPanelCollab => 'グループコラボ';
+	@override String get extraPanelFunds => '資金';
+	@override String get extraPanelMedia => 'メディア';
+	@override String get releaseConvertToText => '離すと文字起こし';
+	@override String get voiceReleaseCancel => '離すとキャンセル';
+	@override String get voiceReleaseCancelSend => '離すと送信をキャンセル';
+	@override String get voiceSlideHint => '上にスワイプでキャンセル / 文字起こし';
 }
 
 // Path: common
@@ -737,7 +845,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get buttonRegister => '登録';
 	@override String get buttonResetPassword => 'パスワードをリセット';
 	@override String get buttonRetry => 'リトライ';
-	@override String get buttonSave => '保存';
+	@override String get buttonSave => '保存する';
 	@override String get buttonSelectFromAlbum => 'アルバムから選択';
 	@override String get buttonSend => '送信';
 	@override String get buttonSetEmpty => '消去';
@@ -750,7 +858,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get canNotAddYourselfFriend => '自分自身を友達に追加することはできません';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
-	@override String get operationSuccessful => '操作成功';
+	@override String get operationSuccessful => '操作が完了しました';
 	@override String get save => _root.common.buttonSave;
 	@override String get reset => 'リセット';
 	@override String get clear => '消去';
@@ -1045,7 +1153,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get muteDuration10min => '10分';
 	@override String get muteDuration30min => '30分';
 	@override String get muteDuration30days => '30日';
-	@override String muteUnitSeconds({required Object count}) => '${count} 秒';
+	@override String muteUnitSeconds({required Object count}) => '${count}秒';
 	@override String get throttleWarning => '操作が頻繁すぎます。後でもう一度お試しください';
 	@override String throttleRetryAfter({required Object seconds}) => '操作が頻繁すぎます。${seconds} 秒後にもう一度お試しください';
 	@override String get mutedCannotSend => 'ミュート中はメッセージを送信できません';
@@ -1143,7 +1251,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get voiceInputNotImplemented => '音声入力機能は未実装です';
 	@override String get waitingDownload => 'ダウンロード待ち';
 	@override String get waitingPeerAccept => '相手の承認を待っています...';
-	@override String get warning => '警告:';
+	@override String get warning => '注意';
 	@override String get webpageLoading => 'ウェブページ読み込み中...';
 	@override String get whatYourFeedback => 'フィードバックをお聞かせください';
 	@override String get yesterday => '昨日';
@@ -1237,7 +1345,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => 'すべてのユーザーのチャットから削除、取り消せません';
 	@override String get chatInitFailed => 'チャットの初期化に失敗しました';
 	@override String get cameraShootFailed => '撮影に失敗しました';
-	@override String get avatarSave => '保存';
+	@override String get avatarSave => '保存する';
 	@override String get avatarDeleteAvatar => 'アバターを削除';
 	@override String get avatarEditAvatar => 'アバターを編集';
 	@override String get backgroundUseCustomColor => 'カスタム色を使用';
@@ -1377,7 +1485,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get saveFailed => '保存に失敗しました';
 	@override String get tip => 'ヒント';
 	@override String get confirm => '確認';
-	@override String get success => '成功';
+	@override String get success => '成功しました';
 	@override String get personalDisplay => '個人表示';
 	@override String get personalSignature => '署名';
 	@override String get personalBackground => '個人背景';
@@ -1445,7 +1553,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get revokeOperationAbnormalPleaseTryAgain => '取り消し操作が異常です。もう一度お試しください';
 	@override String get collectionFailedPleaseTryAgain => 'コレクションに失敗しました。もう一度お試しください';
 	@override String get reactionSent => 'リアクションを送信しました';
-	@override String get seconds => '秒';
+	@override String get seconds => 's';
 	@override String get messageCannotLocatedMayBeDeleted => 'メッセージが見つかりません。削除された可能性があります';
 	@override String get settingFailedPleaseTryAgain => '設定に失敗しました。もう一度お試しください';
 	@override String partialDeleteSuccess({required Object success, required Object fail}) => '部分的な削除成功：${success}成功、${fail}失敗';
@@ -1526,7 +1634,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get msgNotEncrypted => 'メッセージは暗号化されていません';
 	@override String unreadCount({required Object count}) => '未読 ${count} 件';
 	@override String durationMinutes({required Object count}) => '${count}分';
-	@override String durationSeconds({required Object count}) => '${count}秒';
+	@override String durationSeconds({required Object count}) => '${count} 秒';
 	@override String get rechargeAmountError => '0.01元〜10000元の金額を入力してください';
 	@override String get rechargeSuccess => 'チャージしました';
 	@override String get rechargeConfirm => 'チャージを確認';
@@ -1822,15 +1930,86 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get enterFullscreen => '全画面表示にする';
 	@override String get exitFullscreen => '全画面表示を終了';
 	@override String get developer => '開発者';
-	@override String get fontSizeOptionSmall => '小';
+	@override String get fontSizeOptionSmall => '小さめ';
 	@override String get fontSizeOptionNormal => '標準';
-	@override String get fontSizeOptionMedium => '中';
-	@override String get fontSizeOptionLarge => '大';
-	@override String get fontSizeOptionExtraLarge => '特大';
+	@override String get fontSizeOptionMedium => '中くらい';
+	@override String get fontSizeOptionLarge => '大きめ';
+	@override String get fontSizeOptionExtraLarge => 'かなり大きめ';
 	@override String get fontSizeOptionHuge => '極大';
 	@override String get searchFailedRetry => '検索に失敗しました。再試行してください';
 	@override String get searchDisabledTitle => 'メッセージ検索は利用できません';
 	@override String get searchDisabledByEncryption => 'エンドツーエンド暗号化が有効なため、サーバーはメッセージを読み取れず、全文検索は利用できません';
+	@override String get amountMustPositive => '金額は0より大きい値を入力してください';
+	@override String get answer => '応答';
+	@override String get collapse => '折りたたむ';
+	@override String get declineCall => '拒否';
+	@override String get expandFull => 'すべて表示';
+	@override String get justNow => 'たった今';
+	@override String get me => '自分';
+	@override String get minimize => '最小化する';
+	@override String get noHistory => '履歴はありません';
+	@override String get noNewRegisteredUsersTitle => '新規登録ユーザーはいません';
+	@override String get reconnecting => '接続が不安定です。再接続中…';
+	@override String get switchCamera => 'カメラを切り替え';
+	@override String timeDaysShort({required Object count}) => '${count}日';
+	@override String timeHoursShort({required Object count}) => '${count}時間';
+	@override String timeMinutesShort({required Object count}) => '${count}分';
+	@override String get timeNowShort => '今';
+	@override String get hoursAgo => '時間前';
+	@override String get minutesAgo => '分前';
+	@override String f2fEnteringGroup({required Object count}) => '${count}人がまもなくグループチャットに参加します';
+	@override String get f2fSecretCode => '合言葉';
+	@override String get momentsHasFailedUploads => 'アップロードに失敗したメディアがあります。再試行するか削除してから公開してください';
+	@override String get transferAccepted => '受け取りました';
+	@override String get transferAmountLabel => '送金金額';
+	@override String get transferConfirm => '送金を確認';
+	@override String get transferDefaultRemark => '友達へ送金';
+	@override String get transferMinAmountError => '送金の最低金額は0.01元です';
+	@override String get transferPending => '相手の確認待ち';
+	@override String get transferReceiving => '受取処理中...';
+	@override String get transferRefunded => '返金されました';
+	@override String get transferRemarkLabel => '送金メモ';
+	@override String get transferTapToReceive => 'タップして受け取る';
+	@override String get payReceiveSuccess => '受取が完了しました！';
+	@override String get purchaseConfirming => '支払いの確認中です。注文の状態は後ほどご確認ください';
+	@override String get enterAmount => '金額を入力してください';
+	@override String uploadPartialFailed({required Object count}) => '${count}件のアップロードに失敗しました';
+	@override String get redPacketAmountTooSmall => '合計金額は個数 × 0.01元以上にしてください';
+	@override String get redPacketBrand => 'IMBoy お年玉';
+	@override String get redPacketCount => 'お年玉の個数';
+	@override String get redPacketCountEmpty => 'お年玉の個数を入力してください';
+	@override String get redPacketCountMin => 'お年玉の個数は1以上にしてください';
+	@override String get redPacketCountUnit => '個';
+	@override String get redPacketCurrentLucky => '現在：ランダムお年玉';
+	@override String get redPacketCurrentNormal => '現在：均等お年玉';
+	@override String get redPacketDialogSubtitle => 'いいことありますように';
+	@override String get redPacketDialogTitle => 'お年玉を贈ります';
+	@override String get redPacketFetchError => 'お年玉の詳細取得でエラーが発生しました';
+	@override String get redPacketFetchFailed => 'お年玉の詳細を取得できませんでした';
+	@override String get redPacketGreetingLabel => 'メッセージ / 祝いの言葉';
+	@override String get redPacketNotFound => 'お年玉が存在しないか、削除されました';
+	@override String redPacketReceiverLabel({required Object uid}) => 'ユーザー：${uid}';
+	@override String get redPacketSingleAmount => '1個あたりの金額';
+	@override String get redPacketStuffLucky => 'お年玉に金額を設定';
+	@override String get redPacketStuffNormal => 'ウォレットから送る';
+	@override String get redPacketSwitchToLucky => 'ランダムお年玉に変更';
+	@override String get redPacketSwitchToNormal => '均等お年玉に変更';
+	@override String get redPacketTotalAmount => '合計金額';
+	@override String get redPacketView => 'お年玉を見る';
+	@override String get voiceSttConverting => '認識中...';
+	@override String get voiceSttNotConfigured => '文字起こし機能は未設定です';
+	@override String get voiceSttPreviewTitle => '音声文字起こしプレビュー';
+	@override String get e2eeRecoveryKeyTitle => 'リカバリーキー';
+	@override String get e2eeRecoveryKeyCopied => 'リカバリーキーをコピーしました';
+	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'リカバリーキーをコピーしました。${seconds}秒後にクリップボードから自動的に消去されます。すぐに保存してください';
+	@override String get e2eeRecoveryKeySaveNote => 'このリカバリーキーを今すぐ保存してください（スクリーンショットまたはパスワード管理ツールへ）。パスフレーズを忘れた場合、バックアップを復号する唯一の手段です。紛失するとバックアップは永久に復元できません。';
+	@override String get e2eeUseRecoveryKey => 'リカバリーキーを生成（パスフレーズ忘れ時のバックアップ手段）';
+	@override String get e2eeErrPeerNotOnboarded => '相手はまだどのデバイスでもログインしたことがないため、暗号化して送信できません。相手のログイン後にもう一度お試しください';
+	@override String get complianceKeyChangedTitle => 'コンプライアンス監査キーが変更されました';
+	@override String get complianceKeyChangedActionConfirm => 'ローテーションを承認';
+	@override String get complianceKeyChangedActionKeep => '今は承認しない';
+	@override String get complianceKeyChangedBody => 'サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。';
+	@override String get initConfigDecryptFailed => '設定の復号に失敗しました：アプリとサーバーのセキュリティキーが一致しません。アプリを最新版に更新するか、管理者に連絡してください';
 }
 
 // Path: complaint
@@ -1841,6 +2020,10 @@ class _Translations$complaint$ja_JP extends Translations$complaint$zh_CN {
 
 	// Translations
 	@override String get complaint => '通報';
+	@override String get e2eeConsentTitle => '暗号化メッセージの証拠を提出';
+	@override String get e2eeConsentBody => 'このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？';
+	@override String get e2eeConsentSubmit => '同意して証拠を提出';
+	@override String get e2eeConsentDecline => '内容なしで通報のみ';
 }
 
 // Path: complaintReason
@@ -1897,15 +2080,15 @@ class _Translations$contact$ja_JP extends Translations$contact$zh_CN {
 	@override String tagLengthExceeded({required Object param}) => 'タグの長さは${param}文字を超えることはできません';
 	@override String maxTagsExceeded({required Object param}) => '最大${param}個のタグを追加できます';
 	@override String selectedTags({required Object param, required Object max}) => '選択したタグ (${param}/${max})';
-	@override String get tagImportant => '重要';
+	@override String get tagImportant => '大事';
 	@override String get tagUrgent => '緊急';
 	@override String get tagWork => '仕事';
-	@override String get tagLife => '生活';
+	@override String get tagLife => '暮らし';
 	@override String get tagStudy => '学習';
 	@override String get tagEntertainment => 'エンタメ';
-	@override String get tagTravel => '旅行';
+	@override String get tagTravel => '旅';
 	@override String get tagFood => 'グルメ';
-	@override String get tagHealth => '健康';
+	@override String get tagHealth => 'けんこう';
 	@override String get tagFamily => '家族';
 	@override String get tagFriends => '友達';
 	@override String get tagProject => 'プロジェクト';
@@ -1971,6 +2154,14 @@ class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
 	@override String get openChannel => 'チャンネルを開く';
 	@override String get paidChannelLocked => '有料チャンネルの内容はロックされています';
 	@override String get webQRScanned => 'スキャン済み';
+	@override String get momentActionMore => 'その他の操作';
+	@override String momentAtCount({required Object count}) => '${count}名';
+	@override String momentAtReminded({required Object name}) => '${name} さんに通知しました';
+	@override String momentAtRemindedMore({required Object name, required Object count}) => '${name} 他${count}名に通知しました';
+	@override String get momentAtWho => '誰に通知しますか？';
+	@override String momentLikesCountOnly({required Object count}) => '${count}名がいいね';
+	@override String get momentLocation => '位置情報';
+	@override String get momentLocationNone => '位置情報を表示しない';
 }
 
 // Path: error
@@ -2045,6 +2236,15 @@ class _Translations$group$ja_JP extends Translations$group$zh_CN {
 	@override String get e2eeKeyManagementSubtitle => 'エンドツーエンド暗号キーのバックアップ、復元、管理';
 	@override String get e2eeTitle => 'エンドツーエンド暗号化';
 	@override String get e2eeEnableConfirm => '有効にすると、グループのメッセージはエンドツーエンドで暗号化され、メンバーの端末でのみ復号できます。この操作は取り消せません。有効にしますか？';
+	@override String get enterGroupChat => 'グループチャットに入る';
+	@override String get groupCreated => 'グループチャットを作成しました';
+	@override String get groupCreatedSuccess => 'グループチャットを作成しました。グループ情報を設定するか、そのまま入ることができます';
+	@override String get groupInfo => 'グループ情報';
+	@override String get groupMemberRoleLabel => 'メンバー';
+	@override String get moreActions => 'その他の操作';
+	@override String noMemberWithRole({required Object roleName}) => '${roleName}はいません';
+	@override String get perfectionGroupInfo => 'グループ情報を設定';
+	@override String get touchContactAddMember => '連絡先をタップしてグループメンバーに追加';
 }
 
 // Path: groupCategory
@@ -2071,6 +2271,22 @@ class _Translations$groupCategory$ja_JP extends Translations$groupCategory$zh_CN
 	@override String get renameFailed => '名前の変更に失敗しました。もう一度お試しください';
 	@override String get deleteFailed => '削除に失敗しました。もう一度お試しください';
 	@override String get categoryDetailTip => 'このカテゴリのグループは、グループリストの「カテゴリに移動」から管理できます';
+}
+
+// Path: groupDiscovery
+class _Translations$groupDiscovery$ja_JP extends Translations$groupDiscovery$zh_CN {
+	_Translations$groupDiscovery$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'グループを見つける';
+	@override String get searchHint => '公開グループを検索';
+	@override String get allCategories => 'すべて';
+	@override String get sortPopular => '人気';
+	@override String get sortNewest => '新着';
+	@override String get emptyTitle => '公開グループはまだありません。後でもう一度ご覧ください';
+	@override String get searchEmpty => '一致する公開グループがありません';
 }
 
 // Path: groupList
@@ -2189,7 +2405,7 @@ class _Translations$groupVote$ja_JP extends Translations$groupVote$zh_CN {
 	@override String get voteOptions => '投票の選択肢';
 	@override String get addOption => '選択肢を追加';
 	@override String get allowMultiple => '複数選択を許可';
-	@override String get anonymous => '匿名投票';
+	@override String get anonymous => '匿名';
 	@override String get deadline => '期限';
 	@override String get noDeadline => '期限なし';
 	@override String get noVote => '投票はありません';
@@ -2250,7 +2466,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get enGb => 'イギリス英語';
 	@override String get enUs => 'アメリカ英語';
 	@override String get enable => '有効';
-	@override String get example => '例:';
+	@override String get example => '例：';
 	@override String get expired => '期限切れ';
 	@override String get extraItem => '追加項目';
 	@override String get faceToFaceLogic => '対面ロジック';
@@ -2263,7 +2479,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get good => 'とても良い';
 	@override String get hangup => '切断';
 	@override String get haveSet => '設定済み';
-	@override String get httpParse => 'HTTP解析';
+	@override String get httpParse => 'HTTPパース';
 	@override String get iAm => '私は';
 	@override String get itIt => 'イタリア語（イタリア）';
 	@override String get jaJp => '日本語（日本）';
@@ -2277,14 +2493,14 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get liveBroadcast => 'ライブ';
 	@override String get liveRoomListView => 'ライブルームリスト画面';
 	@override String get publisherPage => '配信ページ';
-	@override String get subscriber => '登録者';
+	@override String get subscriber => '購読者';
 	@override String get loggingOut => 'ログアウト中...';
 	@override String get loudspeaker => 'スピーカー';
 	@override String get makeYourselfInvisible => '自分を見えなくする';
 	@override String get makeYourselfVisible => '自分を見えるようにする';
 	@override String get male => '男性';
-	@override String get manage => '管理';
-	@override String get markImportant => '重要';
+	@override String get manage => '運営';
+	@override String get markImportant => '重要マーク';
 	@override String get markImportantDesc => '重要なメッセージとしてマーク';
 	@override String get markStar => 'コレクションに追加';
 	@override String get markStarDesc => 'このメッセージをコレクションに追加';
@@ -2305,8 +2521,8 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String pleaseInputParam({required Object param}) => '${param}を入力してください';
 	@override String get pleaseSelect => '選択してください';
 	@override String get quickFilters => 'クイックフィルター';
-	@override String get quote => '引用';
-	@override String get recentlyUsed => '最近使用';
+	@override String get quote => '引用する';
+	@override String get recentlyUsed => '最近';
 	@override String get releaseEnd => '指を離して終了';
 	@override String remainingChars({required Object param}) => 'あと${param}文字入力できます';
 	@override String get kickMember => 'Remove from Group';
@@ -2326,7 +2542,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String signInWith({required Object param}) => '${param}でログイン';
 	@override String get source => 'ソース';
 	@override String get speakingTooShort => '録音時間が短すぎます';
-	@override String get speed => '速度';
+	@override String get speed => '速度:';
 	@override String get star => _root.main.markStar;
 	@override String get stillNeeded => 'あと';
 	@override String get storageSpace => 'ストレージ容量';
@@ -2381,7 +2597,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get delayMsLabel => '遅延ミリ秒 (>=100)';
 	@override String get processed => '処理済み';
 	@override String get export => 'エクスポート';
-	@override String get school => '学校';
+	@override String get school => '出身学校';
 	@override String get hobbiesAndInterests => '趣味と興味';
 	@override String get interests => 'Interests';
 	@override String get pleaseEnterSchool => 'Please enter school';
@@ -2497,6 +2713,35 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get liveRoomTitleLabel => '配信ルーム名';
 	@override String get liveRoomTitleHint => '配信ルーム名を入力';
 	@override String get lightModel => 'ライトモード';
+	@override String get safetyNumberTitle => '安全番号の検証';
+	@override String get safetyNumberCopy => 'コピー';
+	@override String get safetyNumberCopied => 'コピーしました';
+	@override String get safetyNumberHint => '対面または電話で、相手と安全番号を照合してください。一致していれば、通信が中間者によって盗聴されていないことを意味します。一致しない場合は、直ちに会話を中止し、別の手段で相手の身元を確認してください。検証状態はこの端末にのみ保存されます。';
+	@override String get safetyNumberMarkVerified => '検証済みとしてマーク';
+	@override String get safetyNumberMarkedVerified => '検証済みとしてマークしました';
+	@override String get safetyNumberNoDevices => '相手はまだエンドツーエンド暗号化を有効にしていません';
+	@override String get safetyNumberPeerDevice => '相手のデバイス';
+	@override String get safetyNumberReportRejected => 'サーバーがこの検証イベントを拒否しました（署名/有効期限の不一致）。マークされていません';
+	@override String get safetyNumberReportUnavailable => 'デバイス情報を取得できないため、未報告です';
+	@override String get safetyNumberReporting => '検証結果を報告中...';
+	@override String get safetyNumberVerifyFailed => '安全番号の取得に失敗しました。後でもう一度お試しください';
+	@override String get complianceKeyInfoTitle => 'コンプライアンス監査キー';
+	@override String get complianceKeyInfoAlgorithm => 'アルゴリズム';
+	@override String get complianceKeyInfoChangedWarning => '⚠️ サーバーから配信されたコンプライアンス公開鍵がローカルの固定値と一致しません！これが管理者による意図的なローテーションでない場合は、直ちに管理者に連絡し、暗号化メッセージの送信を中止してください。';
+	@override String get complianceKeyInfoFetchedAt => '取得日時';
+	@override String get complianceKeyInfoFingerprint => '公開鍵のフィンガープリント';
+	@override String get complianceKeyInfoHint => 'コンプライアンス監査キーは compliance_e2ee モードの二重暗号化に使われます。上のフィンガープリントが管理者が公表したものと一致しない場合、サーバーが改ざんされている可能性があります。';
+	@override String get complianceKeyInfoKeyId => 'キーID';
+	@override String get complianceKeyInfoLocalPin => 'ローカル固定（TOFU）';
+	@override String get complianceKeyInfoPinnedAt => '固定日時';
+	@override String get complianceKeyInfoPinnedNone => '未固定（次回の取得時に自動的に固定されます）';
+	@override String get complianceKeyInfoRefreshFailed => '取得に失敗しました。ネットワークを確認してからもう一度お試しください';
+	@override String get complianceKeyInfoServerKey => 'サーバーから配信された公開鍵';
+	@override String get e2eeErrComplianceChanged => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください';
+	@override String get e2eeErrComplianceUnavailable => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください';
+	@override String get e2eeErrDeviceNotReady => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください';
+	@override String get e2eeErrProtocolMismatch => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください';
+	@override String get e2eeErrSessionExportFailed => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください';
 }
 
 // Path: mention
@@ -2521,6 +2766,7 @@ class _Translations$mention$ja_JP extends Translations$mention$zh_CN {
 	@override String mentionCount({required Object count}) => '${count} 件の新しいメンション';
 	@override String get mentionAllDenied => '管理者のみ @全員 できます';
 	@override String get navInfoMissing => 'メッセージの位置情報がありません。移動できません';
+	@override String get pickButtonTooltip => '@メンバーを指定';
 }
 
 // Path: momentFriendPicker
@@ -2583,6 +2829,16 @@ class _Translations$passport$ja_JP extends Translations$passport$zh_CN {
 	@override String get getVerifyCode => '認証コードを取得';
 	@override String get hasAccount => '既にアカウントをお持ちですか？';
 	@override String get oneKeyLogin => 'ワンタップログイン';
+	@override String get qrCodeExpired => 'QRコードの有効期限が切れました。もう一度スキャンしてください';
+	@override String get qrCodeUsed => 'このQRコードは使用済みです';
+	@override String get qrConnecting => '接続中...';
+	@override String get qrLoginAction => 'ログインを承認';
+	@override String get qrLoginCancelled => 'ログインがキャンセルされました';
+	@override String get qrLoginCancelledByMe => 'ログインをキャンセルしました';
+	@override String get qrLoginConfirming => 'ログイン中...';
+	@override String get qrLoginSuccess => 'ログインしました';
+	@override String get qrWebLoginDesc => 'このアカウントでのWeb版ログインを確認してください';
+	@override String get qrWebLoginTitle => 'Web版ログインの確認';
 }
 
 // Path: splash
@@ -2611,6 +2867,263 @@ class _Translations$welcome$ja_JP extends Translations$welcome$zh_CN {
 	@override String get next => '次へ';
 	@override String get getStarted => '始める';
 	@override String get skip => 'スキップ';
+}
+
+// Path: workspace
+class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
+	_Translations$workspace$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get navOverview => '概要';
+	@override String get navProjects => 'プロジェクト';
+	@override String get navChannels => 'チャンネル';
+	@override String get navGroups => 'グループ';
+	@override String get navMembers => 'メンバー';
+	@override String get pickerTitle => 'マイワークスペース';
+	@override String get switchWorkspace => 'ワークスペースを切り替え';
+	@override String get pickerEmptyTitle => 'ワークスペースはまだありません';
+	@override String get pickerEmptySubtitle => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）';
+	@override String get archivedBadge => 'アーカイブ済み';
+	@override String get emptyNoWorkspace => 'まずワークスペースを選択または作成してください';
+	@override String get dmEntry => 'すべてのメッセージ';
+	@override String get experienceModeEntry => 'ホームレイアウト';
+	@override String get experienceModeHint => 'この端末での使用体験を選択します。ホームレイアウトのみが変わり、権限やワークスペースメンバーとしての身分は変わりません';
+	@override String get experienceModePersonal => '個人';
+	@override String get experienceModeWorkspace => 'ワークスペース';
+	@override String get experienceModeReset => 'デプロイのデフォルトに戻す';
+	@override String get switchToWorkspace => 'ワークスペースに切り替え';
+	@override String get switchToPersonal => '個人に切り替え';
+	@override String get createTitle => 'ワークスペースを作成';
+	@override String get createDesc => '一度の作成で自動的に完了します：ワークスペース、あなた（Ownerのワークスペースメンバー）、AnnouncementsチャンネルとGeneralグループ。全て成功、または全てロールバックされます。';
+	@override String get createNameLabel => 'ワークスペース名';
+	@override String get createNameHint => '例：サイトリニューアルプロジェクト';
+	@override String get createNameRequired => 'ワークスペース名は空にできません';
+	@override String get createSubmit => '作成';
+	@override String get createEntry => 'ワークスペースを作成';
+	@override String get createSuccess => 'ワークスペースを作成しました';
+	@override String get createIdempotentHit => '同名のワークスペースが既に存在するため、そのまま開きます';
+	@override String get createTemplateTitle => '自動的に初期化されます';
+	@override String get createTemplateChannel => 'Announcementsチャンネル（あなたはチャンネルの配信者と購読者になります）';
+	@override String get createTemplateGroup => 'Generalグループ（あなたはグループメンバーになります）';
+	@override String get createTemplateOwner => 'あなたはワークスペースのOwner（ワークスペースメンバー）になります';
+	@override String get overviewTitle => '概要';
+	@override String get overviewResources => 'リソース概要';
+	@override String get overviewPinnedContent => 'チャンネルのピン留めコンテンツ';
+	@override String get overviewPinnedEmpty => 'チャンネルにピン留めコンテンツはまだありません。グループのお知らせはここに集約されません（お知らせは各グループに属します）';
+	@override String get overviewRecentFiles => '最近のファイル';
+	@override String get overviewRecentFilesEmpty => '最近アップロードしたファイルがここに表示されます。添付ファイルは各チャンネル内でも確認できます';
+	@override String get membersTitle => 'ワークスペースメンバー';
+	@override String membersCountLabel({required Object count}) => '${count}人のメンバー';
+	@override String get membersEmpty => 'ワークスペースメンバーはまだいません';
+	@override String get membersEmptySubtitle => '登録済みユーザーをワークスペースメンバーとして招待します（Owner / Member / Guest）';
+	@override String get membersViewAll => 'すべて表示';
+	@override String get projectsEmptyTitle => 'プロジェクトはまだありません';
+	@override String get projectsEmptySubtitle => 'プロジェクトは明確な成果目標の追跡に使います。チャンネルとグループだけのコミュニティ型ワークスペースでも同様に利用できます';
+	@override String get channelsEmptyTitle => 'ワークスペースのチャンネルはまだありません';
+	@override String get channelsEmptySubtitle => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ';
+	@override String channelTileSubtitle({required Object count}) => '購読者${count}人';
+	@override String get channelDetailTitle => 'チャンネル';
+	@override String get discussInGroupGuide => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう →';
+	@override String get groupsEmptyTitle => 'ワークスペースのグループはまだありません';
+	@override String get groupsEmptySubtitle => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）';
+	@override String groupTileSubtitle({required Object count}) => 'グループメンバー${count}人';
+	@override String get inviteTitle => 'ワークスペースメンバーを招待';
+	@override String get inviteDesc => '招待できるのは登録済みユーザーのみです。ワークスペースへの参加だけでは、グループへの参加やチャンネルの購読は自動的に行われません。同時にGeneralグループへ参加させ、Announcementsチャンネルへの招待を送ることができます';
+	@override String get inviteSearchHint => 'ユーザー名 / ユーザーIDで検索';
+	@override String get inviteEntry => 'ワークスペースメンバーを招待';
+	@override String get inviteJoinGroupOption => '同時にGeneralグループに参加（グループメンバーになります）';
+	@override String get inviteSubscribeChannelOption => '同時にAnnouncementsチャンネルへ招待を送る';
+	@override String get inviteOptionUnavailable => '対応するリソースが見つからず、このオプションは利用できません';
+	@override String get inviteSubmit => '招待を送信';
+	@override String get inviteResultsTitle => '結果（3件それぞれ独立）';
+	@override String get inviteResultWorkspace => 'ワークスペースに参加（ワークスペースメンバーになります）';
+	@override String get inviteResultGroup => 'Generalグループに参加（グループメンバーになります）';
+	@override String get inviteResultChannel => 'Announcementsチャンネルへ招待を送信（相手が承認すると購読者になります）';
+	@override String get resultIdle => '未実行';
+	@override String get resultRunning => '実行中';
+	@override String get resultSuccess => '成功しました';
+	@override String get resultFailed => '失敗しました';
+	@override String get joinEntry => 'ワークスペースに参加';
+	@override String get joinTitle => 'ワークスペースに参加';
+	@override String get joinDesc => 'チームコードを入力するとワークスペースに参加できます';
+	@override String get joinCodeLabel => 'チームコード';
+	@override String get joinCodeHint => '8桁の大文字英字または数字';
+	@override String get joinSubmit => '参加';
+	@override String joinSuccess({required Object name}) => '「${name}」に参加しました';
+	@override String get joinAlreadyMember => 'すでにこのワークスペースに参加しています';
+	@override String get joinInvalidCode => 'チームコードが無効または期限切れです';
+	@override String get joinExpiredCode => 'チームコードの有効期限が切れています';
+	@override String get inviteCodeSectionTitle => 'チームコードで招待';
+	@override String get inviteCodeGenerate => 'チームコードを生成';
+	@override String get inviteCodeCopy => 'コピー';
+	@override String get inviteCodeRevoke => '取り消す';
+	@override String inviteCodeExpiresAt({required Object expiresAt}) => '有効期限：${expiresAt} まで';
+	@override String get roleOwner => 'Owner';
+	@override String get roleMember => 'Member';
+	@override String get roleGuest => 'Guest';
+	@override String removeMemberTitle({required Object name}) => 'ワークスペースメンバー ${name} を削除';
+	@override String get removeMemberDesc => '削除すると、このメンバーのワークスペースへのアクセスは即時に無効になります。未完了のタスクや担当プロジェクトがある場合、サーバーが競合リストを返し、今回の削除は取り消されます';
+	@override String get removeMemberConfirm => '削除を確認';
+	@override String changeRoleTitle({required Object name}) => '${name} のワークスペースロールを変更';
+	@override String transferTitle({required Object name}) => 'メインOwnerを ${name} に移譲';
+	@override String get transferDesc => '移譲後、あなたは通常のワークスペースメンバー（Member）になり、相手が全ての管理権を取得します';
+	@override String get transferConfirm => '移譲を確認';
+	@override String get governanceTitle => 'ワークスペース管理';
+	@override String get brandingEntry => 'ブランド設定（名前 / Logo / メインカラー）';
+	@override String get archiveEntry => 'ワークスペースをアーカイブ';
+	@override String get restoreEntry => 'ワークスペースを復元';
+	@override String get archiveTitle => 'ワークスペースをアーカイブ';
+	@override String get archiveDesc => 'アーカイブ後は全員が閲覧のみ可能（書き込み操作はサーバーで拒否されます）。いつでも復元できます';
+	@override String get archiveConfirm => 'アーカイブを確認';
+	@override String get restoreTitle => 'ワークスペースを復元';
+	@override String get restoreDesc => '復元すると、ワークスペースは読み書き可能に戻ります';
+	@override String get restoreConfirm => '復元を確認';
+	@override String get archivedBanner => 'ワークスペースはアーカイブ済みです：コンテンツは閲覧でき、書き込み操作は無効になっています。Ownerはメンバーページから復元できます';
+	@override String get brandingTitle => 'ワークスペースブランド';
+	@override String get brandingNameLabel => 'ブランド名';
+	@override String get brandingLogoLabel => 'LogoのURL';
+	@override String get brandingLogoHint => 'https://…（ワークスペースLogo画像のURL）';
+	@override String get brandingColorLabel => 'メインカラー primaryColor';
+	@override String get brandingColorHint => '#2474E5';
+	@override String get brandingColorHelper => '#RRGGBB / #AARRGGBB のみ対応。無効な値はデフォルトのテーマカラーに戻ります';
+	@override String get brandingColorInvalid => 'メインカラーの形式が正しくありません。#RRGGBB / #AARRGGBB のみ対応しています';
+	@override String get brandingSaved => 'ブランド設定を保存しました';
+	@override String get brandingPreview => 'メインカラープレビュー';
+	@override String get brandingPreviewApplied => '現在のメインカラーはワークスペース内で反映されます';
+	@override String get brandingPreviewFallback => '未設定または無効な値の場合、デフォルトのテーマカラーを使用します';
+	@override String get projectsTitle => 'プロジェクト';
+	@override String get projectCreateEntry => '新規プロジェクト';
+	@override String get projectCreateTitle => '新規プロジェクト';
+	@override String get projectNameLabel => 'プロジェクト名';
+	@override String get projectNameHint => '例：サイトリニューアル';
+	@override String get projectNameRequired => 'プロジェクト名は空にできません';
+	@override String get projectDescLabel => 'プロジェクトの説明（任意）';
+	@override String get projectDescHint => 'このプロジェクトは何を成果として届けますか？';
+	@override String get projectSubmit => '作成';
+	@override String get projectCreateSuccess => 'プロジェクトを作成しました';
+	@override String get projectDetailTitle => 'プロジェクト詳細';
+	@override String get projectInfoSection => '基本情報';
+	@override String get projectOwnerLabel => '担当者';
+	@override String get projectStatusLabel => 'ステータス';
+	@override String get projectStatusActive => '進行中';
+	@override String get projectStatusDone => '完了';
+	@override String get projectMarkDone => '完了としてマーク';
+	@override String get projectReopen => 'プロジェクトを再オープン';
+	@override String get projectStatusChanged => 'プロジェクトのステータスを更新しました';
+	@override String get projectTasksSection => 'タスク';
+	@override String get taskNewEntry => '新規タスク';
+	@override String get taskFormCreateTitle => '新規タスク';
+	@override String get taskFormEditTitle => 'タスクを編集';
+	@override String get taskTitleLabel => 'タスクのタイトル';
+	@override String get taskTitleRequired => 'タスクのタイトルは空にできません';
+	@override String get taskAssigneeLabel => '担当者（ワークスペースメンバー）';
+	@override String get taskAssigneeNone => '担当者を未指定';
+	@override String get taskAssigneeRefresh => '担当者候補を更新';
+	@override String get taskSubmitCreate => 'タスクを作成';
+	@override String get taskSubmitSave => '保存する';
+	@override String get taskCreatedToast => 'タスクを作成しました';
+	@override String get taskExistingToast => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します';
+	@override String get taskUpdatedToast => 'タスクを保存しました';
+	@override String get taskFilterAll => 'すべて';
+	@override String get taskStatusTodo => 'TODO';
+	@override String get taskStatusDoing => '進行中';
+	@override String get taskStatusReview => 'レビュー中';
+	@override String get taskStatusDone => '完了';
+	@override String taskAdvanceTo({required Object status}) => '「${status}」へ進める';
+	@override String taskFallbackMenuTitle({required Object title}) => '${title} を差し戻す…';
+	@override String taskStatusMovedToast({required Object status}) => '「${status}」に移動しました';
+	@override String get taskEmptyTitle => 'タスクはまだありません';
+	@override String get taskEmptySubtitle => '4つのステータスで実行を追跡します：TODO → 進行中 → レビュー中 → 完了';
+	@override String get guestReadonlyHint => 'ゲスト（Guest）はワークスペースのリソースを閲覧のみ可能です';
+	@override String get projectsLoadMore => 'さらに読み込む';
+	@override String get projectW2SectionTitle => 'プロジェクトコラボレーション';
+	@override String get projectMembersEntry => 'メンバー';
+	@override String get projectMilestonesEntry => 'マイルストーン';
+	@override String get projectChannelsEntry => 'プロジェクトチャンネル';
+	@override String get projectInsightsEntry => 'コンテンツ集約';
+	@override String get projectNoPermission => '権限がありません：プロジェクトメンバー、プロジェクト担当者、またはワークスペースのOwnerのみ閲覧できます';
+	@override String get projectGuestReadonly => 'ゲスト（Guest）はプロジェクトを閲覧のみ可能です';
+	@override String get projectLoadMore => 'さらに読み込む';
+	@override String get projectMembersTitle => 'プロジェクトメンバー';
+	@override String get projectMemberEmptyTitle => 'プロジェクトメンバーはまだいません';
+	@override String get projectMemberEmptySubtitle => 'プロジェクト担当者は登録済みユーザーをこのプロジェクトに招待できます';
+	@override String get projectMemberInviteTitle => 'プロジェクトメンバーを招待';
+	@override String get projectMemberInviteFieldLabel => 'ユーザーID';
+	@override String get projectMemberInviteFieldHint => '招待する登録済みユーザーのID';
+	@override String get projectMemberInviteInvalidUid => '有効なユーザーIDを入力してください';
+	@override String get projectMemberInviteSubmit => '招待';
+	@override String get projectMemberInviteSuccess => 'プロジェクトメンバーに追加しました';
+	@override String get projectMemberInviteExisting => 'このユーザーは既にプロジェクトメンバーです';
+	@override String projectMemberRemoveConfirmTitle({required Object name}) => 'プロジェクトメンバー ${name} を削除';
+	@override String get projectMemberRemoveConfirmDesc => '削除すると、このユーザーはこのプロジェクトのコンテンツにアクセスできなくなります（再招待可能）';
+	@override String get projectMemberRemoveSubmit => '削除';
+	@override String get projectMemberRemovedToast => '削除しました';
+	@override String get projectMemberAlreadyRemovedToast => 'このユーザーは既にプロジェクトメンバーではありません';
+	@override String projectMemberTransferTitle({required Object name}) => 'プロジェクト担当者を ${name} に移譲';
+	@override String get projectMemberTransferDesc => '移譲後、相手がこのプロジェクトの完全な管理権を取得します';
+	@override String get projectMemberTransferConfirm => '移譲を確認';
+	@override String get projectMemberTransferDoneToast => 'プロジェクト担当者を移譲しました';
+	@override String get projectMilestonesTitle => 'マイルストーン';
+	@override String get projectMilestoneEmptyTitle => 'マイルストーンはまだありません';
+	@override String get projectMilestoneEmptySubtitle => 'マイルストーンでプロジェクトの重要な節目を記録します（計画中 → 達成、一方通行）';
+	@override String get projectMilestoneCreateTitle => '新規マイルストーン';
+	@override String get projectMilestoneNameLabel => '名前';
+	@override String get projectMilestoneNameRequired => 'マイルストーン名は空にできません';
+	@override String get projectMilestoneDueDateLabel => '期日（YYYY-MM-DD、任意）';
+	@override String get projectMilestoneDueDateInvalid => '日付の形式はYYYY-MM-DDにしてください';
+	@override String get projectMilestoneCreateSubmit => '作成';
+	@override String get projectMilestoneCreatedToast => 'マイルストーンを作成しました';
+	@override String get projectMilestoneFilterAll => 'すべて';
+	@override String get projectMilestoneFilterPlanned => '計画中';
+	@override String get projectMilestoneFilterReached => '達成済み';
+	@override String get projectMilestoneReach => '達成としてマーク';
+	@override String get projectMilestoneReachedToast => 'マイルストーンを達成しました';
+	@override String get projectMilestoneAlreadyReachedToast => 'このマイルストーンは既に達成済みです';
+	@override String get projectMilestoneReachedHint => '達成済み（取り消せません）';
+	@override String get projectMilestoneDueLabel => '期日';
+	@override String get projectChannelsTitle => 'プロジェクトチャンネル';
+	@override String get projectChannelEmptyTitle => '関連チャンネルはまだありません';
+	@override String get projectChannelEmptySubtitle => 'ワークスペースのチャンネルを関連付けると、そのピン留めコンテンツと最近の投稿がこのプロジェクトに集約されます';
+	@override String get projectChannelLinkTitle => '関連付けるチャンネルを選択';
+	@override String get projectChannelNoCandidate => '関連付けられる候補チャンネルがありません';
+	@override String get projectChannelLinkedToast => 'チャンネルを関連付けました';
+	@override String get projectChannelLinkExistingToast => 'このチャンネルは既に関連付けられています';
+	@override String projectChannelUnlinkTitle({required Object name}) => '${name} の関連付けを解除';
+	@override String get projectChannelUnlinkDesc => '解除すると、このチャンネルのコンテンツはこのプロジェクトに集約されなくなります';
+	@override String get projectChannelUnlinkSubmit => '関連付けを解除';
+	@override String get projectChannelUnlinkedToast => '関連付けを解除しました';
+	@override String get projectInsightsTabPinned => 'ピン留めメッセージ';
+	@override String get projectInsightsTabResources => 'リソースリンク';
+	@override String get projectInsightsTabActivity => 'アクティビティ';
+	@override String get projectInsightsTabPosts => '関連投稿';
+	@override String get projectInsightsPinnedEmpty => '関連チャンネルにピン留めコンテンツはまだありません';
+	@override String get projectInsightsResourcesEmpty => 'プロジェクトにリソースリンクはまだありません';
+	@override String get projectInsightsActivityEmpty => 'プロジェクトのアクティビティはまだありません';
+	@override String get projectInsightsPostsEmpty => '関連チャンネルに投稿はまだありません';
+	@override String projectInsightsPostAuthor({required Object name}) => '${name} が投稿';
+	@override String get projectLinkNameLabel => 'リンク名';
+	@override String get projectLinkUrlLabel => 'リンクURL';
+}
+
+// Path: account.alipaySim
+class _Translations$account$alipaySim$ja_JP extends Translations$account$alipaySim$zh_CN {
+	_Translations$account$alipaySim$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get alipaySuccess => '支払いが完了しました';
+	@override String get balanceSource => 'アカウント残高';
+	@override String get confirmPay => '支払いを確認';
+	@override String get energy => '支払いが成功するとグリーンエネルギー5gを獲得できます';
+	@override String get enterPassword => '支払いパスワードを入力してください';
+	@override String get huabei => 'フーベイ分割払い';
+	@override String get merchantSuccess => 'ストアアプリで支払いが完了しました';
+	@override String get paymentAmount => '金額：';
+	@override String get selectMethod => '支払い方法を選択';
+	@override String get storeName => '情報テクノロジー旗艦店';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -2642,7 +3155,7 @@ extension on TranslationsJaJp {
 			'account.existingPassword' => '現在のパスワード',
 			'account.forgotPassword' => 'パスワードをお忘れですか？',
 			'account.gender' => '性別',
-			'account.genderSaving' => '保存中...',
+			'account.genderSaving' => '保存しています…',
 			'account.groupQrcode' => 'グループQRコード',
 			'account.hintLoginAccount' => 'アカウント/メールアドレス',
 			'account.logOut' => 'ログアウト',
@@ -2661,7 +3174,7 @@ extension on TranslationsJaJp {
 			'account.nicknameChangeVisibility' => 'ニックネームを変更すると、このグループ内でのみ表示されます。グループメンバー全員が見ることができます。',
 			'account.nicknameCharsRemaining' => ({required Object param}) => 'あと${param}文字入力できます',
 			'account.nicknameHint' => 'ニックネームを入力してください',
-			'account.nicknameSaving' => '保存中...',
+			'account.nicknameSaving' => '保存しています…',
 			'account.paramLogin' => ({required Object param}) => '${param}でログイン',
 			'account.password' => 'パスワード',
 			'account.recentlyRegisteredUser' => '最近登録したユーザー',
@@ -2738,6 +3251,29 @@ extension on TranslationsJaJp {
 			'account.e2eeTransferFromOldDevice' => '古いデバイスからキーを受信',
 			'account.pleaseRelogin' => '再度ログインしてください',
 			'account.otherLoginMethods' => 'その他のログイン方法',
+			'account.alipaySim.alipaySuccess' => '支払いが完了しました',
+			'account.alipaySim.balanceSource' => 'アカウント残高',
+			'account.alipaySim.confirmPay' => '支払いを確認',
+			'account.alipaySim.energy' => '支払いが成功するとグリーンエネルギー5gを獲得できます',
+			'account.alipaySim.enterPassword' => '支払いパスワードを入力してください',
+			'account.alipaySim.huabei' => 'フーベイ分割払い',
+			'account.alipaySim.merchantSuccess' => 'ストアアプリで支払いが完了しました',
+			'account.alipaySim.paymentAmount' => '金額：',
+			'account.alipaySim.selectMethod' => '支払い方法を選択',
+			'account.alipaySim.storeName' => '情報テクノロジー旗艦店',
+			'account.payCancelled' => '支払いをキャンセルしました',
+			'account.payMethodAlipay' => 'Alipay',
+			'account.payMethodComingSoon' => 'この支払い方法は近日対応予定です。お楽しみに',
+			'account.payMethodMock' => 'テスト支払い（開発環境）',
+			'account.payMethodTitle' => '支払い方法を選択',
+			'account.payMethodWallet' => 'ウォレット残高',
+			'account.payMethodWechat' => 'WeChat Pay',
+			'account.logoutCancelRequest' => 'アカウント削除申請を取り消す',
+			'account.logoutCancelledNote' => 'アカウント削除申請を取り消しました',
+			'account.logoutPendingBanner' => ({required Object date}) => 'アカウント削除の申請を受け付けました。完了予定：${date}',
+			'account.logoutPendingHeader' => 'アカウント削除申請の状態',
+			'account.logoutRetainedHeader' => 'データ保持について',
+			'account.logoutRetainedNote' => '削除完了後：監査ログと財務記録は法令に基づき保持され、匿名化されます。あなたが所有するグループ/ワークスペース/チャンネルは、後継メンバーへ優先的に移管されます',
 			'agent.plazaTitle' => 'AI アシスタント広場',
 			'agent.transparencyBanner' => 'ここにいるのはすべて AI アシスタントで、身元は明確に表示されます。暗号化チャットには本物の人間しかいません。',
 			'agent.searchHint' => 'アシスタントを検索',
@@ -2748,6 +3284,18 @@ extension on TranslationsJaJp {
 			'agent.badgeOfficial' => '公式',
 			'agent.badgeAiA11y' => 'AI アシスタント',
 			'agent.badgeOfficialA11y' => '公式アカウント',
+			'agent.legacyBotGoPlaza' => 'AI アシスタント広場へ',
+			'agent.legacyBotMigrated' => 'このボットの入口はアップグレードされました。AI アシスタント広場でアシスタントと会話してください',
+			'agentTask.title' => 'AIタスク',
+			'agentTask.working' => '実行中',
+			'agentTask.submitted' => '提出済み',
+			'agentTask.progress' => '進行中',
+			'agentTask.completed' => '完了',
+			'agentTask.failed' => '実行に失敗しました',
+			'agentTask.cancelled' => 'キャンセル済み',
+			'agentTask.awaitingApproval' => '承認待ち',
+			'agentTask.approve' => '承認',
+			'agentTask.reject' => '拒否',
 			'billing.title' => 'プラン登録',
 			'billing.planPeriodMonthly' => '月額',
 			'billing.planPeriodYearly' => '年額',
@@ -2769,7 +3317,7 @@ extension on TranslationsJaJp {
 			'channel.title' => 'チャンネル',
 			'channel.loading' => '読み込み中...',
 			'channel.subscribed' => '購読済み',
-			'channel.managed' => '管理中',
+			'channel.managed' => '運営中',
 			'channel.writeArticle' => '投稿を書く',
 			'channel.discover' => 'チャンネルを探す',
 			'channel.search' => 'チャンネル検索',
@@ -2817,7 +3365,7 @@ extension on TranslationsJaJp {
 			'channel.reactions' => 'リアクション',
 			'channel.selectReaction' => 'リアクションを選択',
 			'channel.react' => 'リアクション',
-			'channel.admin' => '管理',
+			'channel.admin' => '管理者',
 			'channel.settings' => '設定',
 			'channel.editChannel' => 'チャンネルを編集',
 			'channel.editChannelDesc' => 'チャンネル名、説明などを更新',
@@ -2909,8 +3457,68 @@ extension on TranslationsJaJp {
 			'channel.accessTypeLabel' => '有料設定',
 			'channel.accessTypeFree' => '無料',
 			'channel.accessTypePaid' => '有料',
-			'channel.typePublicPaidDesc' => '誰でもチャンネルを見つけられ、購入後に登録できます',
-			'channel.typePrivatePaidDesc' => '招待されたユーザーのみ購入フローに進み、支払い後に登録できます',
+			'channel.typePublicPaidDesc' => '誰でもチャンネルを見つけられ、購入後に購読できます',
+			'channel.typePrivatePaidDesc' => '招待されたユーザーのみ購入フローに進み、支払い後に購読できます',
+			'channel.addImage' => '画像を追加',
+			'channel.allCategories' => 'すべて',
+			'channel.articleBodyHint' => '何か書いてみましょう…太字、斜体、見出し、リストなどの書式に対応',
+			'channel.formatBold' => '太字',
+			'channel.formatHeading' => '見出し',
+			'channel.formatItalic' => 'イタリック',
+			'channel.formatLink' => 'リンク',
+			'channel.formatList' => 'リスト',
+			'channel.formatQuote' => '引用文',
+			'channel.formatStrikethrough' => '取り消し線',
+			'channel.linkTextPlaceholder' => 'リンク文字',
+			'channel.preview' => 'プレビュー',
+			'channel.publish' => '公開',
+			'channel.titleOptional' => 'タイトル（任意）',
+			'channel.readFull' => '全文を読む',
+			'channel.comment' => 'コメント',
+			'channel.writeComment' => 'コメントを書く...',
+			'channel.noComments' => 'コメントはまだありません',
+			'channel.commentFailed' => 'コメントの送信に失敗しました',
+			'channel.commentDeleteNoPermission' => 'このコメントを削除する権限がありません',
+			'channel.deleteComment' => 'コメントを削除',
+			'channel.deleteCommentConfirm' => 'このコメントを削除しますか？',
+			'channel.reply' => '返信',
+			'channel.replyTo' => '返信先',
+			'channel.like' => 'いいね',
+			'channel.myOrders' => '注文履歴',
+			'channel.noOrders' => '注文記録はありません',
+			'channel.cancelOrder' => '注文をキャンセル',
+			'channel.cancelOrderConfirmTitle' => '注文キャンセルの確認',
+			'channel.cancelOrderConfirmMessage' => 'この未払いの注文をキャンセルしますか？キャンセル後は支払いを続けられません。',
+			'channel.cancelOrderSuccess' => '注文をキャンセルしました',
+			'channel.orderAmount' => '金額',
+			'channel.orderChannel' => 'チャンネル',
+			'channel.orderContinuePay' => '支払いを続ける',
+			'channel.orderCreatedAt' => '注文日時',
+			'channel.orderDetail' => '注文詳細',
+			'channel.orderNo' => '注文番号',
+			'channel.orderPaidAt' => '支払い日時',
+			'channel.orderPaymentMethod' => '支払い方法',
+			'channel.orderStatusCancelled' => 'キャンセル済み',
+			'channel.orderStatusExpired' => '期限切れ',
+			'channel.orderStatusLabel' => 'ステータス',
+			'channel.orderStatusPaid' => '支払い済み',
+			'channel.orderStatusPending' => '未払い',
+			'channel.orderStatusRefunded' => '返金済み',
+			'channel.orderStatusRefunding' => '返金処理中',
+			'channel.orderSubscriptionPeriod' => '購読期間',
+			'channel.orderValidUntil' => '有効期限',
+			'channel.payAlipay' => 'Alipay',
+			'channel.payWallet' => 'ウォレット残高',
+			'channel.payWechat' => 'WeChat Pay',
+			'channel.refundApply' => '返金を申請',
+			'channel.refundConfirmTitle' => '返金の確認',
+			'channel.refundConfirmMessage' => 'この注文に返金を申請しますか？返金後は購読が解除されます。',
+			'channel.refundSuccess' => '返金申請を送信しました',
+			'channel.channelNotFound' => 'チャンネルが存在しません',
+			'channel.coverLabel' => '表紙',
+			'channel.coverSet' => '表紙に設定しました',
+			'channel.sortNewest' => '新着',
+			'channel.sortPopular' => '人気',
 			'chat.bankCard' => '銀行カード',
 			'chat.cards' => '枚',
 			'chat.jdShopping' => 'JDショッピング',
@@ -2979,7 +3587,7 @@ extension on TranslationsJaJp {
 			'chat.imageMessage' => '[画像]',
 			'chat.initiateChat' => 'グループチャットを開始',
 			'chat.justChat' => 'チャットのみ',
-			'chat.location' => '位置',
+			'chat.location' => '位置情報',
 			'chat.exportMyData' => 'マイデータを書き出す',
 			'chat.exportDataDesc' => '個人情報、連絡先、チャット履歴を書き出します',
 			'chat.message' => 'メッセージ',
@@ -3038,6 +3646,8 @@ extension on TranslationsJaJp {
 			'chat.sendTo' => '送信先',
 			'chat.send' => _root.common.buttonSend,
 			'chat.sender' => '送信者',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sending' => '送信中...',
 			'chat.signatureInputHint' => '署名入力ヒント',
 			'chat.signaturePlaceholder' => '署名プレースホルダー',
@@ -3133,8 +3743,6 @@ extension on TranslationsJaJp {
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支払日時: ${time}',
 			'chat.orderStatusPending' => '未払い',
 			'chat.orderStatusPaid' => '支払済み',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderStatusRefunded' => '返金済み',
 			'chat.orderStatusExpired' => '期限切れ',
 			'chat.defaultFileName' => 'ファイル',
@@ -3191,6 +3799,16 @@ extension on TranslationsJaJp {
 			'chat.extraItems' => '追加項目',
 			'chat.messageInputHint' => 'メッセージを入力...',
 			'chat.invalidMessageType' => '[未対応のメッセージ]',
+			'chat.alipayLoginInterrupted' => 'Alipayログイン処理がシステムによって中断されました。もう一度お試しください',
+			'chat.burnReadBadge' => '閲後',
+			'chat.convertToText' => '文字起こし',
+			'chat.extraPanelCollab' => 'グループコラボ',
+			'chat.extraPanelFunds' => '資金',
+			'chat.extraPanelMedia' => 'メディア',
+			'chat.releaseConvertToText' => '離すと文字起こし',
+			'chat.voiceReleaseCancel' => '離すとキャンセル',
+			'chat.voiceReleaseCancelSend' => '離すと送信をキャンセル',
+			'chat.voiceSlideHint' => '上にスワイプでキャンセル / 文字起こし',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
@@ -3242,7 +3860,7 @@ extension on TranslationsJaJp {
 			'common.buttonRegister' => '登録',
 			'common.buttonResetPassword' => 'パスワードをリセット',
 			'common.buttonRetry' => 'リトライ',
-			'common.buttonSave' => '保存',
+			'common.buttonSave' => '保存する',
 			'common.buttonSelectFromAlbum' => 'アルバムから選択',
 			'common.buttonSend' => '送信',
 			'common.buttonSetEmpty' => '消去',
@@ -3255,7 +3873,7 @@ extension on TranslationsJaJp {
 			'common.canNotAddYourselfFriend' => '自分自身を友達に追加することはできません',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
-			'common.operationSuccessful' => '操作成功',
+			'common.operationSuccessful' => '操作が完了しました',
 			'common.save' => _root.common.buttonSave,
 			'common.reset' => 'リセット',
 			'common.clear' => '消去',
@@ -3542,6 +4160,8 @@ extension on TranslationsJaJp {
 			'common.muteDuration1hour' => '1 Hour',
 			'common.muteDuration6hours' => '6 Hours',
 			'common.muteDuration12hours' => '12 Hours',
+			_ => null,
+		} ?? switch (path) {
 			'common.muteDuration1day' => '1 Day',
 			'common.muteDuration3days' => '3 Days',
 			'common.muteDuration7days' => '7 Days',
@@ -3550,7 +4170,7 @@ extension on TranslationsJaJp {
 			'common.muteDuration10min' => '10分',
 			'common.muteDuration30min' => '30分',
 			'common.muteDuration30days' => '30日',
-			'common.muteUnitSeconds' => ({required Object count}) => '${count} 秒',
+			'common.muteUnitSeconds' => ({required Object count}) => '${count}秒',
 			'common.throttleWarning' => '操作が頻繁すぎます。後でもう一度お試しください',
 			'common.throttleRetryAfter' => ({required Object seconds}) => '操作が頻繁すぎます。${seconds} 秒後にもう一度お試しください',
 			'common.mutedCannotSend' => 'ミュート中はメッセージを送信できません',
@@ -3599,10 +4219,10 @@ extension on TranslationsJaJp {
 			'common.sureDeleteGroupChatRecord' => 'グループのチャット履歴を削除してもよろしいですか？',
 			'common.switchEnvironment' => '環境を切り替え',
 			'common.thisMonth' => '今月',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '${n}日前', ), 
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '${n}時間前', ), 
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '${n}日前', ),
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '${n}時間前', ),
 			'common.timeJustNow' => 'たった今',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '${n}分前', ), 
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, other: '${n}分前', ),
 			'common.timeToday' => '今日',
 			'common.timeYesterday' => '昨日',
 			'common.tipConnectDesc' => 'ネットワークなし',
@@ -3642,13 +4262,11 @@ extension on TranslationsJaJp {
 			'common.voiceInputNotImplemented' => '音声入力機能は未実装です',
 			'common.waitingDownload' => 'ダウンロード待ち',
 			'common.waitingPeerAccept' => '相手の承認を待っています...',
-			'common.warning' => '警告:',
+			'common.warning' => '注意',
 			'common.webpageLoading' => 'ウェブページ読み込み中...',
 			'common.whatYourFeedback' => 'フィードバックをお聞かせください',
 			'common.yesterday' => '昨日',
 			'common.yourContactInformation' => 'あなたの連絡先',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirmRemove' => '削除を確認',
 			'common.confirmRemoveFromDenylist' => 'このユーザーをブロックリストから削除してもよろしいですか？',
 			'common.buttonRemove' => '削除',
@@ -3738,7 +4356,7 @@ extension on TranslationsJaJp {
 			'common.chatDeleteAll' => 'すべてのユーザーのチャットから削除、取り消せません',
 			'common.chatInitFailed' => 'チャットの初期化に失敗しました',
 			'common.cameraShootFailed' => '撮影に失敗しました',
-			'common.avatarSave' => '保存',
+			'common.avatarSave' => '保存する',
 			'common.avatarDeleteAvatar' => 'アバターを削除',
 			'common.avatarEditAvatar' => 'アバターを編集',
 			'common.backgroundUseCustomColor' => 'カスタム色を使用',
@@ -3878,7 +4496,7 @@ extension on TranslationsJaJp {
 			'common.saveFailed' => '保存に失敗しました',
 			'common.tip' => 'ヒント',
 			'common.confirm' => '確認',
-			'common.success' => '成功',
+			'common.success' => '成功しました',
 			'common.personalDisplay' => '個人表示',
 			'common.personalSignature' => '署名',
 			'common.personalBackground' => '個人背景',
@@ -3946,7 +4564,7 @@ extension on TranslationsJaJp {
 			'common.revokeOperationAbnormalPleaseTryAgain' => '取り消し操作が異常です。もう一度お試しください',
 			'common.collectionFailedPleaseTryAgain' => 'コレクションに失敗しました。もう一度お試しください',
 			'common.reactionSent' => 'リアクションを送信しました',
-			'common.seconds' => '秒',
+			'common.seconds' => 's',
 			'common.messageCannotLocatedMayBeDeleted' => 'メッセージが見つかりません。削除された可能性があります',
 			'common.settingFailedPleaseTryAgain' => '設定に失敗しました。もう一度お試しください',
 			'common.partialDeleteSuccess' => ({required Object success, required Object fail}) => '部分的な削除成功：${success}成功、${fail}失敗',
@@ -4027,7 +4645,7 @@ extension on TranslationsJaJp {
 			'common.msgNotEncrypted' => 'メッセージは暗号化されていません',
 			'common.unreadCount' => ({required Object count}) => '未読 ${count} 件',
 			'common.durationMinutes' => ({required Object count}) => '${count}分',
-			'common.durationSeconds' => ({required Object count}) => '${count}秒',
+			'common.durationSeconds' => ({required Object count}) => '${count} 秒',
 			'common.rechargeAmountError' => '0.01元〜10000元の金額を入力してください',
 			'common.rechargeSuccess' => 'チャージしました',
 			'common.rechargeConfirm' => 'チャージを確認',
@@ -4056,6 +4674,8 @@ extension on TranslationsJaJp {
 			'common.insufficientBalanceTitle' => '残高不足',
 			'common.insufficientBalanceContent' => ({required Object currency, required Object balance, required Object price}) => '現在の残高は ${currency} ${balance}、支払い額は ${currency} ${price} です。チャージ後に購入してください。',
 			'common.goRecharge' => 'チャージへ',
+			_ => null,
+		} ?? switch (path) {
 			'common.noOrders' => '注文はありません',
 			'common.orderDetailLoadFailed' => '注文詳細の読み込みに失敗しました',
 			'common.orderNoLabel' => ({required Object no}) => '注文番号: ${no}',
@@ -4161,8 +4781,6 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupImportantNoteColon' => '重要なお知らせ：',
 			'common.e2eeBackupKeepSafe' => '• バックアップファイルとパスワードは大切に保管してください',
 			'common.e2eeBackupStoreMultipleLoc' => '• 複数の安全な場所に保管することをお勧めします',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeBackupPwdCantRecoverNote' => '• パスワードは復元できません。必ず保管してください',
 			'common.e2eeBackupImportTitle' => 'E2EEバックアップを読み込む',
 			'common.e2eeBackupImportGuide' => '読み込みの手順',
@@ -4325,16 +4943,91 @@ extension on TranslationsJaJp {
 			'common.enterFullscreen' => '全画面表示にする',
 			'common.exitFullscreen' => '全画面表示を終了',
 			'common.developer' => '開発者',
-			'common.fontSizeOptionSmall' => '小',
+			'common.fontSizeOptionSmall' => '小さめ',
 			'common.fontSizeOptionNormal' => '標準',
-			'common.fontSizeOptionMedium' => '中',
-			'common.fontSizeOptionLarge' => '大',
-			'common.fontSizeOptionExtraLarge' => '特大',
+			'common.fontSizeOptionMedium' => '中くらい',
+			'common.fontSizeOptionLarge' => '大きめ',
+			'common.fontSizeOptionExtraLarge' => 'かなり大きめ',
 			'common.fontSizeOptionHuge' => '極大',
 			'common.searchFailedRetry' => '検索に失敗しました。再試行してください',
 			'common.searchDisabledTitle' => 'メッセージ検索は利用できません',
 			'common.searchDisabledByEncryption' => 'エンドツーエンド暗号化が有効なため、サーバーはメッセージを読み取れず、全文検索は利用できません',
+			'common.amountMustPositive' => '金額は0より大きい値を入力してください',
+			'common.answer' => '応答',
+			'common.collapse' => '折りたたむ',
+			'common.declineCall' => '拒否',
+			'common.expandFull' => 'すべて表示',
+			'common.justNow' => 'たった今',
+			'common.me' => '自分',
+			'common.minimize' => '最小化する',
+			'common.noHistory' => '履歴はありません',
+			'common.noNewRegisteredUsersTitle' => '新規登録ユーザーはいません',
+			'common.reconnecting' => '接続が不安定です。再接続中…',
+			'common.switchCamera' => 'カメラを切り替え',
+			'common.timeDaysShort' => ({required Object count}) => '${count}日',
+			'common.timeHoursShort' => ({required Object count}) => '${count}時間',
+			'common.timeMinutesShort' => ({required Object count}) => '${count}分',
+			'common.timeNowShort' => '今',
+			'common.hoursAgo' => '時間前',
+			'common.minutesAgo' => '分前',
+			'common.f2fEnteringGroup' => ({required Object count}) => '${count}人がまもなくグループチャットに参加します',
+			'common.f2fSecretCode' => '合言葉',
+			'common.momentsHasFailedUploads' => 'アップロードに失敗したメディアがあります。再試行するか削除してから公開してください',
+			'common.transferAccepted' => '受け取りました',
+			'common.transferAmountLabel' => '送金金額',
+			'common.transferConfirm' => '送金を確認',
+			'common.transferDefaultRemark' => '友達へ送金',
+			'common.transferMinAmountError' => '送金の最低金額は0.01元です',
+			'common.transferPending' => '相手の確認待ち',
+			'common.transferReceiving' => '受取処理中...',
+			'common.transferRefunded' => '返金されました',
+			'common.transferRemarkLabel' => '送金メモ',
+			'common.transferTapToReceive' => 'タップして受け取る',
+			'common.payReceiveSuccess' => '受取が完了しました！',
+			'common.purchaseConfirming' => '支払いの確認中です。注文の状態は後ほどご確認ください',
+			'common.enterAmount' => '金額を入力してください',
+			'common.uploadPartialFailed' => ({required Object count}) => '${count}件のアップロードに失敗しました',
+			'common.redPacketAmountTooSmall' => '合計金額は個数 × 0.01元以上にしてください',
+			'common.redPacketBrand' => 'IMBoy お年玉',
+			'common.redPacketCount' => 'お年玉の個数',
+			'common.redPacketCountEmpty' => 'お年玉の個数を入力してください',
+			'common.redPacketCountMin' => 'お年玉の個数は1以上にしてください',
+			'common.redPacketCountUnit' => '個',
+			'common.redPacketCurrentLucky' => '現在：ランダムお年玉',
+			'common.redPacketCurrentNormal' => '現在：均等お年玉',
+			'common.redPacketDialogSubtitle' => 'いいことありますように',
+			'common.redPacketDialogTitle' => 'お年玉を贈ります',
+			'common.redPacketFetchError' => 'お年玉の詳細取得でエラーが発生しました',
+			'common.redPacketFetchFailed' => 'お年玉の詳細を取得できませんでした',
+			'common.redPacketGreetingLabel' => 'メッセージ / 祝いの言葉',
+			'common.redPacketNotFound' => 'お年玉が存在しないか、削除されました',
+			'common.redPacketReceiverLabel' => ({required Object uid}) => 'ユーザー：${uid}',
+			'common.redPacketSingleAmount' => '1個あたりの金額',
+			'common.redPacketStuffLucky' => 'お年玉に金額を設定',
+			'common.redPacketStuffNormal' => 'ウォレットから送る',
+			'common.redPacketSwitchToLucky' => 'ランダムお年玉に変更',
+			'common.redPacketSwitchToNormal' => '均等お年玉に変更',
+			'common.redPacketTotalAmount' => '合計金額',
+			'common.redPacketView' => 'お年玉を見る',
+			'common.voiceSttConverting' => '認識中...',
+			'common.voiceSttNotConfigured' => '文字起こし機能は未設定です',
+			'common.voiceSttPreviewTitle' => '音声文字起こしプレビュー',
+			'common.e2eeRecoveryKeyTitle' => 'リカバリーキー',
+			'common.e2eeRecoveryKeyCopied' => 'リカバリーキーをコピーしました',
+			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'リカバリーキーをコピーしました。${seconds}秒後にクリップボードから自動的に消去されます。すぐに保存してください',
+			'common.e2eeRecoveryKeySaveNote' => 'このリカバリーキーを今すぐ保存してください（スクリーンショットまたはパスワード管理ツールへ）。パスフレーズを忘れた場合、バックアップを復号する唯一の手段です。紛失するとバックアップは永久に復元できません。',
+			'common.e2eeUseRecoveryKey' => 'リカバリーキーを生成（パスフレーズ忘れ時のバックアップ手段）',
+			'common.e2eeErrPeerNotOnboarded' => '相手はまだどのデバイスでもログインしたことがないため、暗号化して送信できません。相手のログイン後にもう一度お試しください',
+			'common.complianceKeyChangedTitle' => 'コンプライアンス監査キーが変更されました',
+			'common.complianceKeyChangedActionConfirm' => 'ローテーションを承認',
+			'common.complianceKeyChangedActionKeep' => '今は承認しない',
+			'common.complianceKeyChangedBody' => 'サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。',
+			'common.initConfigDecryptFailed' => '設定の復号に失敗しました：アプリとサーバーのセキュリティキーが一致しません。アプリを最新版に更新するか、管理者に連絡してください',
 			'complaint.complaint' => '通報',
+			'complaint.e2eeConsentTitle' => '暗号化メッセージの証拠を提出',
+			'complaint.e2eeConsentBody' => 'このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？',
+			'complaint.e2eeConsentSubmit' => '同意して証拠を提出',
+			'complaint.e2eeConsentDecline' => '内容なしで通報のみ',
 			'complaintReason.spam' => 'スパム',
 			'complaintReason.harassment' => 'ハラスメント',
 			'complaintReason.inappropriate' => '不適切な内容',
@@ -4373,15 +5066,15 @@ extension on TranslationsJaJp {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'タグの長さは${param}文字を超えることはできません',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最大${param}個のタグを追加できます',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '選択したタグ (${param}/${max})',
-			'contact.tagImportant' => '重要',
+			'contact.tagImportant' => '大事',
 			'contact.tagUrgent' => '緊急',
 			'contact.tagWork' => '仕事',
-			'contact.tagLife' => '生活',
+			'contact.tagLife' => '暮らし',
 			'contact.tagStudy' => '学習',
 			'contact.tagEntertainment' => 'エンタメ',
-			'contact.tagTravel' => '旅行',
+			'contact.tagTravel' => '旅',
 			'contact.tagFood' => 'グルメ',
-			'contact.tagHealth' => '健康',
+			'contact.tagHealth' => 'けんこう',
 			'contact.tagFamily' => '家族',
 			'contact.tagFriends' => '友達',
 			'contact.tagProject' => 'プロジェクト',
@@ -4438,6 +5131,14 @@ extension on TranslationsJaJp {
 			'discovery.openChannel' => 'チャンネルを開く',
 			'discovery.paidChannelLocked' => '有料チャンネルの内容はロックされています',
 			'discovery.webQRScanned' => 'スキャン済み',
+			'discovery.momentActionMore' => 'その他の操作',
+			'discovery.momentAtCount' => ({required Object count}) => '${count}名',
+			'discovery.momentAtReminded' => ({required Object name}) => '${name} さんに通知しました',
+			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '${name} 他${count}名に通知しました',
+			'discovery.momentAtWho' => '誰に通知しますか？',
+			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}名がいいね',
+			'discovery.momentLocation' => '位置情報',
+			'discovery.momentLocationNone' => '位置情報を表示しない',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.networkFailureGuidance' => 'ネットワーク障害ガイダンス',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
@@ -4487,6 +5188,8 @@ extension on TranslationsJaJp {
 			'group.groupAlbumPhotoSetCover' => '表紙に設定',
 			'group.groupAlbumPhotoPrev' => '前へ',
 			'group.groupAlbumPhotoLikeCount' => 'いいね数',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAlbumPhotoCommentCount' => 'コメント数',
 			'group.groupAlbumPhotoMyLike' => '自分のいいね',
 			'group.groupAlbumPhotoIdLabel' => '画像ID',
@@ -4494,6 +5197,15 @@ extension on TranslationsJaJp {
 			'group.e2eeKeyManagementSubtitle' => 'エンドツーエンド暗号キーのバックアップ、復元、管理',
 			'group.e2eeTitle' => 'エンドツーエンド暗号化',
 			'group.e2eeEnableConfirm' => '有効にすると、グループのメッセージはエンドツーエンドで暗号化され、メンバーの端末でのみ復号できます。この操作は取り消せません。有効にしますか？',
+			'group.enterGroupChat' => 'グループチャットに入る',
+			'group.groupCreated' => 'グループチャットを作成しました',
+			'group.groupCreatedSuccess' => 'グループチャットを作成しました。グループ情報を設定するか、そのまま入ることができます',
+			'group.groupInfo' => 'グループ情報',
+			'group.groupMemberRoleLabel' => 'メンバー',
+			'group.moreActions' => 'その他の操作',
+			'group.noMemberWithRole' => ({required Object roleName}) => '${roleName}はいません',
+			'group.perfectionGroupInfo' => 'グループ情報を設定',
+			'group.touchContactAddMember' => '連絡先をタップしてグループメンバーに追加',
 			'groupCategory.title' => 'グループカテゴリ',
 			'groupCategory.createCategory' => 'カテゴリを作成',
 			'groupCategory.categoryName' => 'カテゴリ名',
@@ -4511,6 +5223,13 @@ extension on TranslationsJaJp {
 			'groupCategory.renameFailed' => '名前の変更に失敗しました。もう一度お試しください',
 			'groupCategory.deleteFailed' => '削除に失敗しました。もう一度お試しください',
 			'groupCategory.categoryDetailTip' => 'このカテゴリのグループは、グループリストの「カテゴリに移動」から管理できます',
+			'groupDiscovery.title' => 'グループを見つける',
+			'groupDiscovery.searchHint' => '公開グループを検索',
+			'groupDiscovery.allCategories' => 'すべて',
+			'groupDiscovery.sortPopular' => '人気',
+			'groupDiscovery.sortNewest' => '新着',
+			'groupDiscovery.emptyTitle' => '公開グループはまだありません。後でもう一度ご覧ください',
+			'groupDiscovery.searchEmpty' => '一致する公開グループがありません',
 			'groupList.attrAll' => 'すべて',
 			'groupList.attrOwner' => '作成済み',
 			'groupList.attrManager' => '管理中',
@@ -4584,7 +5303,7 @@ extension on TranslationsJaJp {
 			'groupVote.voteOptions' => '投票の選択肢',
 			'groupVote.addOption' => '選択肢を追加',
 			'groupVote.allowMultiple' => '複数選択を許可',
-			'groupVote.anonymous' => '匿名投票',
+			'groupVote.anonymous' => '匿名',
 			'groupVote.deadline' => '期限',
 			'groupVote.noDeadline' => '期限なし',
 			'groupVote.noVote' => '投票はありません',
@@ -4636,7 +5355,7 @@ extension on TranslationsJaJp {
 			'main.enGb' => 'イギリス英語',
 			'main.enUs' => 'アメリカ英語',
 			'main.enable' => '有効',
-			'main.example' => '例:',
+			'main.example' => '例：',
 			'main.expired' => '期限切れ',
 			'main.extraItem' => '追加項目',
 			'main.faceToFaceLogic' => '対面ロジック',
@@ -4649,7 +5368,7 @@ extension on TranslationsJaJp {
 			'main.good' => 'とても良い',
 			'main.hangup' => '切断',
 			'main.haveSet' => '設定済み',
-			'main.httpParse' => 'HTTP解析',
+			'main.httpParse' => 'HTTPパース',
 			'main.iAm' => '私は',
 			'main.itIt' => 'イタリア語（イタリア）',
 			'main.jaJp' => '日本語（日本）',
@@ -4663,20 +5382,18 @@ extension on TranslationsJaJp {
 			'main.liveBroadcast' => 'ライブ',
 			'main.liveRoomListView' => 'ライブルームリスト画面',
 			'main.publisherPage' => '配信ページ',
-			'main.subscriber' => '登録者',
+			'main.subscriber' => '購読者',
 			'main.loggingOut' => 'ログアウト中...',
 			'main.loudspeaker' => 'スピーカー',
 			'main.makeYourselfInvisible' => '自分を見えなくする',
 			'main.makeYourselfVisible' => '自分を見えるようにする',
 			'main.male' => '男性',
-			'main.manage' => '管理',
-			'main.markImportant' => '重要',
+			'main.manage' => '運営',
+			'main.markImportant' => '重要マーク',
 			'main.markImportantDesc' => '重要なメッセージとしてマーク',
 			'main.markStar' => 'コレクションに追加',
 			'main.markStarDesc' => 'このメッセージをコレクションに追加',
 			'main.markTodo' => 'ToDo',
-			_ => null,
-		} ?? switch (path) {
 			'main.markTodoDesc' => 'ToDo項目としてマーク',
 			'main.multiSelect' => '複数選択',
 			'main.multiSelectMode' => '複数選択モード',
@@ -4693,8 +5410,8 @@ extension on TranslationsJaJp {
 			'main.pleaseInputParam' => ({required Object param}) => '${param}を入力してください',
 			'main.pleaseSelect' => '選択してください',
 			'main.quickFilters' => 'クイックフィルター',
-			'main.quote' => '引用',
-			'main.recentlyUsed' => '最近使用',
+			'main.quote' => '引用する',
+			'main.recentlyUsed' => '最近',
 			'main.releaseEnd' => '指を離して終了',
 			'main.remainingChars' => ({required Object param}) => 'あと${param}文字入力できます',
 			'main.kickMember' => 'Remove from Group',
@@ -4714,7 +5431,7 @@ extension on TranslationsJaJp {
 			'main.signInWith' => ({required Object param}) => '${param}でログイン',
 			'main.source' => 'ソース',
 			'main.speakingTooShort' => '録音時間が短すぎます',
-			'main.speed' => '速度',
+			'main.speed' => '速度:',
 			'main.star' => _root.main.markStar,
 			'main.stillNeeded' => 'あと',
 			'main.storageSpace' => 'ストレージ容量',
@@ -4769,7 +5486,7 @@ extension on TranslationsJaJp {
 			'main.delayMsLabel' => '遅延ミリ秒 (>=100)',
 			'main.processed' => '処理済み',
 			'main.export' => 'エクスポート',
-			'main.school' => '学校',
+			'main.school' => '出身学校',
 			'main.hobbiesAndInterests' => '趣味と興味',
 			'main.interests' => 'Interests',
 			'main.pleaseEnterSchool' => 'Please enter school',
@@ -4885,6 +5602,35 @@ extension on TranslationsJaJp {
 			'main.liveRoomTitleLabel' => '配信ルーム名',
 			'main.liveRoomTitleHint' => '配信ルーム名を入力',
 			'main.lightModel' => 'ライトモード',
+			'main.safetyNumberTitle' => '安全番号の検証',
+			'main.safetyNumberCopy' => 'コピー',
+			'main.safetyNumberCopied' => 'コピーしました',
+			'main.safetyNumberHint' => '対面または電話で、相手と安全番号を照合してください。一致していれば、通信が中間者によって盗聴されていないことを意味します。一致しない場合は、直ちに会話を中止し、別の手段で相手の身元を確認してください。検証状態はこの端末にのみ保存されます。',
+			'main.safetyNumberMarkVerified' => '検証済みとしてマーク',
+			'main.safetyNumberMarkedVerified' => '検証済みとしてマークしました',
+			'main.safetyNumberNoDevices' => '相手はまだエンドツーエンド暗号化を有効にしていません',
+			'main.safetyNumberPeerDevice' => '相手のデバイス',
+			'main.safetyNumberReportRejected' => 'サーバーがこの検証イベントを拒否しました（署名/有効期限の不一致）。マークされていません',
+			'main.safetyNumberReportUnavailable' => 'デバイス情報を取得できないため、未報告です',
+			'main.safetyNumberReporting' => '検証結果を報告中...',
+			'main.safetyNumberVerifyFailed' => '安全番号の取得に失敗しました。後でもう一度お試しください',
+			'main.complianceKeyInfoTitle' => 'コンプライアンス監査キー',
+			'main.complianceKeyInfoAlgorithm' => 'アルゴリズム',
+			'main.complianceKeyInfoChangedWarning' => '⚠️ サーバーから配信されたコンプライアンス公開鍵がローカルの固定値と一致しません！これが管理者による意図的なローテーションでない場合は、直ちに管理者に連絡し、暗号化メッセージの送信を中止してください。',
+			'main.complianceKeyInfoFetchedAt' => '取得日時',
+			'main.complianceKeyInfoFingerprint' => '公開鍵のフィンガープリント',
+			'main.complianceKeyInfoHint' => 'コンプライアンス監査キーは compliance_e2ee モードの二重暗号化に使われます。上のフィンガープリントが管理者が公表したものと一致しない場合、サーバーが改ざんされている可能性があります。',
+			'main.complianceKeyInfoKeyId' => 'キーID',
+			'main.complianceKeyInfoLocalPin' => 'ローカル固定（TOFU）',
+			'main.complianceKeyInfoPinnedAt' => '固定日時',
+			'main.complianceKeyInfoPinnedNone' => '未固定（次回の取得時に自動的に固定されます）',
+			'main.complianceKeyInfoRefreshFailed' => '取得に失敗しました。ネットワークを確認してからもう一度お試しください',
+			'main.complianceKeyInfoServerKey' => 'サーバーから配信された公開鍵',
+			'main.e2eeErrComplianceChanged' => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください',
+			'main.e2eeErrComplianceUnavailable' => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください',
+			'main.e2eeErrDeviceNotReady' => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください',
+			'main.e2eeErrProtocolMismatch' => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください',
+			'main.e2eeErrSessionExportFailed' => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください',
 			'mention.mentionAll' => '全員',
 			'mention.mentionAllHint' => 'グループ全員に通知',
 			'mention.noMatchedMember' => '一致するメンバーがいません',
@@ -4900,6 +5646,7 @@ extension on TranslationsJaJp {
 			'mention.mentionCount' => ({required Object count}) => '${count} 件の新しいメンション',
 			'mention.mentionAllDenied' => '管理者のみ @全員 できます',
 			'mention.navInfoMissing' => 'メッセージの位置情報がありません。移動できません',
+			'mention.pickButtonTooltip' => '@メンバーを指定',
 			'momentFriendPicker.title' => '友達を選択',
 			'momentFriendPicker.titleAllow' => '公開対象',
 			'momentFriendPicker.titleDeny' => '除外対象',
@@ -4935,6 +5682,16 @@ extension on TranslationsJaJp {
 			'passport.getVerifyCode' => '認証コードを取得',
 			'passport.hasAccount' => '既にアカウントをお持ちですか？',
 			'passport.oneKeyLogin' => 'ワンタップログイン',
+			'passport.qrCodeExpired' => 'QRコードの有効期限が切れました。もう一度スキャンしてください',
+			'passport.qrCodeUsed' => 'このQRコードは使用済みです',
+			'passport.qrConnecting' => '接続中...',
+			'passport.qrLoginAction' => 'ログインを承認',
+			'passport.qrLoginCancelled' => 'ログインがキャンセルされました',
+			'passport.qrLoginCancelledByMe' => 'ログインをキャンセルしました',
+			'passport.qrLoginConfirming' => 'ログイン中...',
+			'passport.qrLoginSuccess' => 'ログインしました',
+			'passport.qrWebLoginDesc' => 'このアカウントでのWeb版ログインを確認してください',
+			'passport.qrWebLoginTitle' => 'Web版ログインの確認',
 			'splash.slogan' => '自由に話し、自然に繋がる',
 			'welcome.step1Title' => 'シンプルな接続',
 			'welcome.step1Desc' => 'シームレスなコミュニケーションの喜びを体験してください。 いつでも、どこでも。',
@@ -4945,6 +5702,237 @@ extension on TranslationsJaJp {
 			'welcome.next' => '次へ',
 			'welcome.getStarted' => '始める',
 			'welcome.skip' => 'スキップ',
+			_ => null,
+		} ?? switch (path) {
+			'workspace.navOverview' => '概要',
+			'workspace.navProjects' => 'プロジェクト',
+			'workspace.navChannels' => 'チャンネル',
+			'workspace.navGroups' => 'グループ',
+			'workspace.navMembers' => 'メンバー',
+			'workspace.pickerTitle' => 'マイワークスペース',
+			'workspace.switchWorkspace' => 'ワークスペースを切り替え',
+			'workspace.pickerEmptyTitle' => 'ワークスペースはまだありません',
+			'workspace.pickerEmptySubtitle' => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）',
+			'workspace.archivedBadge' => 'アーカイブ済み',
+			'workspace.emptyNoWorkspace' => 'まずワークスペースを選択または作成してください',
+			'workspace.dmEntry' => 'すべてのメッセージ',
+			'workspace.experienceModeEntry' => 'ホームレイアウト',
+			'workspace.experienceModeHint' => 'この端末での使用体験を選択します。ホームレイアウトのみが変わり、権限やワークスペースメンバーとしての身分は変わりません',
+			'workspace.experienceModePersonal' => '個人',
+			'workspace.experienceModeWorkspace' => 'ワークスペース',
+			'workspace.experienceModeReset' => 'デプロイのデフォルトに戻す',
+			'workspace.switchToWorkspace' => 'ワークスペースに切り替え',
+			'workspace.switchToPersonal' => '個人に切り替え',
+			'workspace.createTitle' => 'ワークスペースを作成',
+			'workspace.createDesc' => '一度の作成で自動的に完了します：ワークスペース、あなた（Ownerのワークスペースメンバー）、AnnouncementsチャンネルとGeneralグループ。全て成功、または全てロールバックされます。',
+			'workspace.createNameLabel' => 'ワークスペース名',
+			'workspace.createNameHint' => '例：サイトリニューアルプロジェクト',
+			'workspace.createNameRequired' => 'ワークスペース名は空にできません',
+			'workspace.createSubmit' => '作成',
+			'workspace.createEntry' => 'ワークスペースを作成',
+			'workspace.createSuccess' => 'ワークスペースを作成しました',
+			'workspace.createIdempotentHit' => '同名のワークスペースが既に存在するため、そのまま開きます',
+			'workspace.createTemplateTitle' => '自動的に初期化されます',
+			'workspace.createTemplateChannel' => 'Announcementsチャンネル（あなたはチャンネルの配信者と購読者になります）',
+			'workspace.createTemplateGroup' => 'Generalグループ（あなたはグループメンバーになります）',
+			'workspace.createTemplateOwner' => 'あなたはワークスペースのOwner（ワークスペースメンバー）になります',
+			'workspace.overviewTitle' => '概要',
+			'workspace.overviewResources' => 'リソース概要',
+			'workspace.overviewPinnedContent' => 'チャンネルのピン留めコンテンツ',
+			'workspace.overviewPinnedEmpty' => 'チャンネルにピン留めコンテンツはまだありません。グループのお知らせはここに集約されません（お知らせは各グループに属します）',
+			'workspace.overviewRecentFiles' => '最近のファイル',
+			'workspace.overviewRecentFilesEmpty' => '最近アップロードしたファイルがここに表示されます。添付ファイルは各チャンネル内でも確認できます',
+			'workspace.membersTitle' => 'ワークスペースメンバー',
+			'workspace.membersCountLabel' => ({required Object count}) => '${count}人のメンバー',
+			'workspace.membersEmpty' => 'ワークスペースメンバーはまだいません',
+			'workspace.membersEmptySubtitle' => '登録済みユーザーをワークスペースメンバーとして招待します（Owner / Member / Guest）',
+			'workspace.membersViewAll' => 'すべて表示',
+			'workspace.projectsEmptyTitle' => 'プロジェクトはまだありません',
+			'workspace.projectsEmptySubtitle' => 'プロジェクトは明確な成果目標の追跡に使います。チャンネルとグループだけのコミュニティ型ワークスペースでも同様に利用できます',
+			'workspace.channelsEmptyTitle' => 'ワークスペースのチャンネルはまだありません',
+			'workspace.channelsEmptySubtitle' => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ',
+			'workspace.channelTileSubtitle' => ({required Object count}) => '購読者${count}人',
+			'workspace.channelDetailTitle' => 'チャンネル',
+			'workspace.discussInGroupGuide' => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう →',
+			'workspace.groupsEmptyTitle' => 'ワークスペースのグループはまだありません',
+			'workspace.groupsEmptySubtitle' => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）',
+			'workspace.groupTileSubtitle' => ({required Object count}) => 'グループメンバー${count}人',
+			'workspace.inviteTitle' => 'ワークスペースメンバーを招待',
+			'workspace.inviteDesc' => '招待できるのは登録済みユーザーのみです。ワークスペースへの参加だけでは、グループへの参加やチャンネルの購読は自動的に行われません。同時にGeneralグループへ参加させ、Announcementsチャンネルへの招待を送ることができます',
+			'workspace.inviteSearchHint' => 'ユーザー名 / ユーザーIDで検索',
+			'workspace.inviteEntry' => 'ワークスペースメンバーを招待',
+			'workspace.inviteJoinGroupOption' => '同時にGeneralグループに参加（グループメンバーになります）',
+			'workspace.inviteSubscribeChannelOption' => '同時にAnnouncementsチャンネルへ招待を送る',
+			'workspace.inviteOptionUnavailable' => '対応するリソースが見つからず、このオプションは利用できません',
+			'workspace.inviteSubmit' => '招待を送信',
+			'workspace.inviteResultsTitle' => '結果（3件それぞれ独立）',
+			'workspace.inviteResultWorkspace' => 'ワークスペースに参加（ワークスペースメンバーになります）',
+			'workspace.inviteResultGroup' => 'Generalグループに参加（グループメンバーになります）',
+			'workspace.inviteResultChannel' => 'Announcementsチャンネルへ招待を送信（相手が承認すると購読者になります）',
+			'workspace.resultIdle' => '未実行',
+			'workspace.resultRunning' => '実行中',
+			'workspace.resultSuccess' => '成功しました',
+			'workspace.resultFailed' => '失敗しました',
+			'workspace.joinEntry' => 'ワークスペースに参加',
+			'workspace.joinTitle' => 'ワークスペースに参加',
+			'workspace.joinDesc' => 'チームコードを入力するとワークスペースに参加できます',
+			'workspace.joinCodeLabel' => 'チームコード',
+			'workspace.joinCodeHint' => '8桁の大文字英字または数字',
+			'workspace.joinSubmit' => '参加',
+			'workspace.joinSuccess' => ({required Object name}) => '「${name}」に参加しました',
+			'workspace.joinAlreadyMember' => 'すでにこのワークスペースに参加しています',
+			'workspace.joinInvalidCode' => 'チームコードが無効または期限切れです',
+			'workspace.joinExpiredCode' => 'チームコードの有効期限が切れています',
+			'workspace.inviteCodeSectionTitle' => 'チームコードで招待',
+			'workspace.inviteCodeGenerate' => 'チームコードを生成',
+			'workspace.inviteCodeCopy' => 'コピー',
+			'workspace.inviteCodeRevoke' => '取り消す',
+			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '有効期限：${expiresAt} まで',
+			'workspace.roleOwner' => 'Owner',
+			'workspace.roleMember' => 'Member',
+			'workspace.roleGuest' => 'Guest',
+			'workspace.removeMemberTitle' => ({required Object name}) => 'ワークスペースメンバー ${name} を削除',
+			'workspace.removeMemberDesc' => '削除すると、このメンバーのワークスペースへのアクセスは即時に無効になります。未完了のタスクや担当プロジェクトがある場合、サーバーが競合リストを返し、今回の削除は取り消されます',
+			'workspace.removeMemberConfirm' => '削除を確認',
+			'workspace.changeRoleTitle' => ({required Object name}) => '${name} のワークスペースロールを変更',
+			'workspace.transferTitle' => ({required Object name}) => 'メインOwnerを ${name} に移譲',
+			'workspace.transferDesc' => '移譲後、あなたは通常のワークスペースメンバー（Member）になり、相手が全ての管理権を取得します',
+			'workspace.transferConfirm' => '移譲を確認',
+			'workspace.governanceTitle' => 'ワークスペース管理',
+			'workspace.brandingEntry' => 'ブランド設定（名前 / Logo / メインカラー）',
+			'workspace.archiveEntry' => 'ワークスペースをアーカイブ',
+			'workspace.restoreEntry' => 'ワークスペースを復元',
+			'workspace.archiveTitle' => 'ワークスペースをアーカイブ',
+			'workspace.archiveDesc' => 'アーカイブ後は全員が閲覧のみ可能（書き込み操作はサーバーで拒否されます）。いつでも復元できます',
+			'workspace.archiveConfirm' => 'アーカイブを確認',
+			'workspace.restoreTitle' => 'ワークスペースを復元',
+			'workspace.restoreDesc' => '復元すると、ワークスペースは読み書き可能に戻ります',
+			'workspace.restoreConfirm' => '復元を確認',
+			'workspace.archivedBanner' => 'ワークスペースはアーカイブ済みです：コンテンツは閲覧でき、書き込み操作は無効になっています。Ownerはメンバーページから復元できます',
+			'workspace.brandingTitle' => 'ワークスペースブランド',
+			'workspace.brandingNameLabel' => 'ブランド名',
+			'workspace.brandingLogoLabel' => 'LogoのURL',
+			'workspace.brandingLogoHint' => 'https://…（ワークスペースLogo画像のURL）',
+			'workspace.brandingColorLabel' => 'メインカラー primaryColor',
+			'workspace.brandingColorHint' => '#2474E5',
+			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB のみ対応。無効な値はデフォルトのテーマカラーに戻ります',
+			'workspace.brandingColorInvalid' => 'メインカラーの形式が正しくありません。#RRGGBB / #AARRGGBB のみ対応しています',
+			'workspace.brandingSaved' => 'ブランド設定を保存しました',
+			'workspace.brandingPreview' => 'メインカラープレビュー',
+			'workspace.brandingPreviewApplied' => '現在のメインカラーはワークスペース内で反映されます',
+			'workspace.brandingPreviewFallback' => '未設定または無効な値の場合、デフォルトのテーマカラーを使用します',
+			'workspace.projectsTitle' => 'プロジェクト',
+			'workspace.projectCreateEntry' => '新規プロジェクト',
+			'workspace.projectCreateTitle' => '新規プロジェクト',
+			'workspace.projectNameLabel' => 'プロジェクト名',
+			'workspace.projectNameHint' => '例：サイトリニューアル',
+			'workspace.projectNameRequired' => 'プロジェクト名は空にできません',
+			'workspace.projectDescLabel' => 'プロジェクトの説明（任意）',
+			'workspace.projectDescHint' => 'このプロジェクトは何を成果として届けますか？',
+			'workspace.projectSubmit' => '作成',
+			'workspace.projectCreateSuccess' => 'プロジェクトを作成しました',
+			'workspace.projectDetailTitle' => 'プロジェクト詳細',
+			'workspace.projectInfoSection' => '基本情報',
+			'workspace.projectOwnerLabel' => '担当者',
+			'workspace.projectStatusLabel' => 'ステータス',
+			'workspace.projectStatusActive' => '進行中',
+			'workspace.projectStatusDone' => '完了',
+			'workspace.projectMarkDone' => '完了としてマーク',
+			'workspace.projectReopen' => 'プロジェクトを再オープン',
+			'workspace.projectStatusChanged' => 'プロジェクトのステータスを更新しました',
+			'workspace.projectTasksSection' => 'タスク',
+			'workspace.taskNewEntry' => '新規タスク',
+			'workspace.taskFormCreateTitle' => '新規タスク',
+			'workspace.taskFormEditTitle' => 'タスクを編集',
+			'workspace.taskTitleLabel' => 'タスクのタイトル',
+			'workspace.taskTitleRequired' => 'タスクのタイトルは空にできません',
+			'workspace.taskAssigneeLabel' => '担当者（ワークスペースメンバー）',
+			'workspace.taskAssigneeNone' => '担当者を未指定',
+			'workspace.taskAssigneeRefresh' => '担当者候補を更新',
+			'workspace.taskSubmitCreate' => 'タスクを作成',
+			'workspace.taskSubmitSave' => '保存する',
+			'workspace.taskCreatedToast' => 'タスクを作成しました',
+			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
+			'workspace.taskUpdatedToast' => 'タスクを保存しました',
+			'workspace.taskFilterAll' => 'すべて',
+			'workspace.taskStatusTodo' => 'TODO',
+			'workspace.taskStatusDoing' => '進行中',
+			'workspace.taskStatusReview' => 'レビュー中',
+			'workspace.taskStatusDone' => '完了',
+			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」へ進める',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} を差し戻す…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」に移動しました',
+			'workspace.taskEmptyTitle' => 'タスクはまだありません',
+			'workspace.taskEmptySubtitle' => '4つのステータスで実行を追跡します：TODO → 進行中 → レビュー中 → 完了',
+			'workspace.guestReadonlyHint' => 'ゲスト（Guest）はワークスペースのリソースを閲覧のみ可能です',
+			'workspace.projectsLoadMore' => 'さらに読み込む',
+			'workspace.projectW2SectionTitle' => 'プロジェクトコラボレーション',
+			'workspace.projectMembersEntry' => 'メンバー',
+			'workspace.projectMilestonesEntry' => 'マイルストーン',
+			'workspace.projectChannelsEntry' => 'プロジェクトチャンネル',
+			'workspace.projectInsightsEntry' => 'コンテンツ集約',
+			'workspace.projectNoPermission' => '権限がありません：プロジェクトメンバー、プロジェクト担当者、またはワークスペースのOwnerのみ閲覧できます',
+			'workspace.projectGuestReadonly' => 'ゲスト（Guest）はプロジェクトを閲覧のみ可能です',
+			'workspace.projectLoadMore' => 'さらに読み込む',
+			'workspace.projectMembersTitle' => 'プロジェクトメンバー',
+			'workspace.projectMemberEmptyTitle' => 'プロジェクトメンバーはまだいません',
+			'workspace.projectMemberEmptySubtitle' => 'プロジェクト担当者は登録済みユーザーをこのプロジェクトに招待できます',
+			'workspace.projectMemberInviteTitle' => 'プロジェクトメンバーを招待',
+			'workspace.projectMemberInviteFieldLabel' => 'ユーザーID',
+			'workspace.projectMemberInviteFieldHint' => '招待する登録済みユーザーのID',
+			'workspace.projectMemberInviteInvalidUid' => '有効なユーザーIDを入力してください',
+			'workspace.projectMemberInviteSubmit' => '招待',
+			'workspace.projectMemberInviteSuccess' => 'プロジェクトメンバーに追加しました',
+			'workspace.projectMemberInviteExisting' => 'このユーザーは既にプロジェクトメンバーです',
+			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'プロジェクトメンバー ${name} を削除',
+			'workspace.projectMemberRemoveConfirmDesc' => '削除すると、このユーザーはこのプロジェクトのコンテンツにアクセスできなくなります（再招待可能）',
+			'workspace.projectMemberRemoveSubmit' => '削除',
+			'workspace.projectMemberRemovedToast' => '削除しました',
+			'workspace.projectMemberAlreadyRemovedToast' => 'このユーザーは既にプロジェクトメンバーではありません',
+			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'プロジェクト担当者を ${name} に移譲',
+			'workspace.projectMemberTransferDesc' => '移譲後、相手がこのプロジェクトの完全な管理権を取得します',
+			'workspace.projectMemberTransferConfirm' => '移譲を確認',
+			'workspace.projectMemberTransferDoneToast' => 'プロジェクト担当者を移譲しました',
+			'workspace.projectMilestonesTitle' => 'マイルストーン',
+			'workspace.projectMilestoneEmptyTitle' => 'マイルストーンはまだありません',
+			'workspace.projectMilestoneEmptySubtitle' => 'マイルストーンでプロジェクトの重要な節目を記録します（計画中 → 達成、一方通行）',
+			'workspace.projectMilestoneCreateTitle' => '新規マイルストーン',
+			'workspace.projectMilestoneNameLabel' => '名前',
+			'workspace.projectMilestoneNameRequired' => 'マイルストーン名は空にできません',
+			'workspace.projectMilestoneDueDateLabel' => '期日（YYYY-MM-DD、任意）',
+			'workspace.projectMilestoneDueDateInvalid' => '日付の形式はYYYY-MM-DDにしてください',
+			'workspace.projectMilestoneCreateSubmit' => '作成',
+			'workspace.projectMilestoneCreatedToast' => 'マイルストーンを作成しました',
+			'workspace.projectMilestoneFilterAll' => 'すべて',
+			'workspace.projectMilestoneFilterPlanned' => '計画中',
+			'workspace.projectMilestoneFilterReached' => '達成済み',
+			'workspace.projectMilestoneReach' => '達成としてマーク',
+			'workspace.projectMilestoneReachedToast' => 'マイルストーンを達成しました',
+			'workspace.projectMilestoneAlreadyReachedToast' => 'このマイルストーンは既に達成済みです',
+			'workspace.projectMilestoneReachedHint' => '達成済み（取り消せません）',
+			'workspace.projectMilestoneDueLabel' => '期日',
+			'workspace.projectChannelsTitle' => 'プロジェクトチャンネル',
+			'workspace.projectChannelEmptyTitle' => '関連チャンネルはまだありません',
+			'workspace.projectChannelEmptySubtitle' => 'ワークスペースのチャンネルを関連付けると、そのピン留めコンテンツと最近の投稿がこのプロジェクトに集約されます',
+			'workspace.projectChannelLinkTitle' => '関連付けるチャンネルを選択',
+			'workspace.projectChannelNoCandidate' => '関連付けられる候補チャンネルがありません',
+			'workspace.projectChannelLinkedToast' => 'チャンネルを関連付けました',
+			'workspace.projectChannelLinkExistingToast' => 'このチャンネルは既に関連付けられています',
+			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => '${name} の関連付けを解除',
+			'workspace.projectChannelUnlinkDesc' => '解除すると、このチャンネルのコンテンツはこのプロジェクトに集約されなくなります',
+			'workspace.projectChannelUnlinkSubmit' => '関連付けを解除',
+			'workspace.projectChannelUnlinkedToast' => '関連付けを解除しました',
+			'workspace.projectInsightsTabPinned' => 'ピン留めメッセージ',
+			'workspace.projectInsightsTabResources' => 'リソースリンク',
+			'workspace.projectInsightsTabActivity' => 'アクティビティ',
+			'workspace.projectInsightsTabPosts' => '関連投稿',
+			'workspace.projectInsightsPinnedEmpty' => '関連チャンネルにピン留めコンテンツはまだありません',
+			'workspace.projectInsightsResourcesEmpty' => 'プロジェクトにリソースリンクはまだありません',
+			'workspace.projectInsightsActivityEmpty' => 'プロジェクトのアクティビティはまだありません',
+			'workspace.projectInsightsPostsEmpty' => '関連チャンネルに投稿はまだありません',
+			'workspace.projectInsightsPostAuthor' => ({required Object name}) => '${name} が投稿',
+			'workspace.projectLinkNameLabel' => 'リンク名',
+			'workspace.projectLinkUrlLabel' => 'リンクURL',
 			_ => null,
 		};
 	}
