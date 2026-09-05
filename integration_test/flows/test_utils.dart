@@ -334,6 +334,8 @@ Future<bool> waitForEntryState(
   int maxAttempts = 90,
 }) async {
   for (int i = 0; i < maxAttempts; i++) {
+    // 版本升级弹窗（recommend 型）会遮罩登录页/主 Shell，出现即关。
+    await dismissUpgradeDialog(tester);
     if (isOnLoginPage(tester) ||
         isOnWelcomePage(tester) ||
         isOnMainShell(tester)) {
@@ -355,10 +357,51 @@ Future<bool> waitForMainShell(
 }) async {
   for (int i = 0; i < maxAttempts; i++) {
     if (isOnMainShell(tester)) return true;
+    // 登录成功后异步弹窗可能遮住主 Shell 判定（新设备 E2EE 恢复弹窗、
+    // 晚到的版本升级弹窗），每轮顺手关掉——两者都幂等，无弹窗零副作用。
+    await dismissE2eeRecoveryDialog(tester);
+    await dismissUpgradeDialog(tester);
     await Future<void>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 300));
   }
   return false;
+}
+
+/// 新设备登录后 E2EE 恢复引导弹窗出现时点「稍后」关闭（幂等）。
+///
+/// 测试账号在新平台/新设备（模拟器、macOS、重装）首次登录必触发
+/// 「检测到新设备登录」弹窗；D-04 注销流程不依赖 E2EE 历史恢复，
+/// 点掉即可，不打断被测链路。
+Future<bool> dismissE2eeRecoveryDialog(WidgetTester tester) async {
+  final later = find.byWidgetPredicate(
+    (widget) => widget is Text && ['稍后', 'Later'].contains(widget.data?.trim()),
+  );
+  if (!tester.any(later)) return false;
+  final tapped = await safeTap(tester, later.first);
+  if (tapped) {
+    await settle(tester, maxSeconds: 1);
+    flowLog('已关闭 E2EE 恢复引导弹窗（稍后）');
+  }
+  return tapped;
+}
+
+/// 版本升级弹窗出现时点「下次再说」关闭（幂等，无弹窗时零副作用）。
+///
+/// 后端 app_version 表存在比当前包新的 recommend 版本时，冷启动的
+/// version check 会弹 UpgradePage 遮罩登录页/主 Shell；测试环境常有
+/// 其它会话植入的升级 fixture，不关掉会让入口判定与登录操作全部落空。
+Future<bool> dismissUpgradeDialog(WidgetTester tester) async {
+  final later = find.byWidgetPredicate(
+    (widget) =>
+        widget is Text && ['下次再说', 'Later'].contains(widget.data?.trim()),
+  );
+  if (!tester.any(later)) return false;
+  final tapped = await safeTap(tester, later.first);
+  if (tapped) {
+    await settle(tester, maxSeconds: 1);
+    flowLog('已关闭版本升级弹窗（下次再说）');
+  }
+  return tapped;
 }
 
 void logEntryDiagnostics(WidgetTester tester) {
@@ -505,7 +548,7 @@ Future<bool> autoLoginOrSkip(WidgetTester tester) async {
   }
 
   if (isOnWelcomePage(tester)) {
-    final movedToLogin = await _leaveWelcomePage(tester);
+    final movedToLogin = await leaveWelcomePage(tester);
     if (!movedToLogin) {
       markTestSkipped('欢迎页未找到进入登录页的操作入口，跳过');
       return false;
@@ -527,6 +570,8 @@ Future<bool> autoLoginOrSkip(WidgetTester tester) async {
     return false;
   }
   if (!isOnLoginPage(tester)) return true;
+  // 版本 check 异步返回可能晚于入口判定，登录操作前再关一次升级弹窗。
+  await dismissUpgradeDialog(tester);
   if (!FlowConfig.hasCredentials) {
     markTestSkipped('未配置 TEST_PHONE / TEST_PASSWORD，跳过');
     return false;
@@ -550,7 +595,7 @@ Future<bool> autoLoginOrSkip(WidgetTester tester) async {
 
 /// 欢迎页的“跳过”是 GestureDetector，最后一页则只有 ElevatedButton。
 /// 语义节点和按钮都保留兜底，避免桌面端/不同语言下只靠可见文案失效。
-Future<bool> _leaveWelcomePage(WidgetTester tester) async {
+Future<bool> leaveWelcomePage(WidgetTester tester) async {
   for (var i = 0; i < 4; i++) {
     if (!isOnWelcomePage(tester)) return isOnLoginPage(tester);
 
