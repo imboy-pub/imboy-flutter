@@ -38,22 +38,22 @@
 | 6 | T1 | `account.alipaySim.paymentAmount` | 金额： | المبلغ: | | ✅ |
 | 7 | T1 | `account.alipaySim.selectMethod` | 选择支付方式 | اختيار طريقة الدفع | | ✅ |
 | 8 | T1 | `account.areYouSureLogOut` | 确定要退出登录吗？ | هل أنت متأكد من أنك تريد تسجيل الخروج؟ | | ✅ |
-| 9 | T1 | `account.bindMobile` | 绑定手机号 | ربط رقم الهاتف المحمول | | ✅ |
-| 10 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | يستخدم لتسجيل الدخول واستعادة كلمة المرور واستلام الإشعارات المهمة | | ✅ |
-| 11 | T1 | `account.changeLoginPassword` | 修改登录密码 | تعديل كلمة مرور تسجيل الدخول | | ✅ |
-| 12 | T1 | `account.changeMobile` | 更换手机号 | تغيير رقم الهاتف | | ✅ |
-| 13 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | تم إرسال رمز التحقق إلى البريد الإلكتروني | | ✅ |
-| 14 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | تم إرسال رمز التحقق إلى الهاتف | | ✅ |
-| 15 | T1 | `account.currentDevice` | 当前设备 | الجهاز الحالي | | ✅ |
-| 16 | T1 | `account.currentMobile` | 当前手机号 | رقم الهاتف الحالي | | ✅ |
-| 17 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | المساحة المتوفرة في الجهاز | | ✅ |
-| 18 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | تم تحديث مفتاح الجهاز | | ✅ |
-| 19 | T1 | `account.deviceList` | 设备列表 | قائمة الأجهزة | | ✅ |
-| 20 | T1 | `account.deviceName` | 设备名称 | اسم الجهاز | | ✅ |
-| 21 | T1 | `account.deviceType` | 设备类型 | نوع الجهاز | | ✅ |
-| 22 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | المساحة المستخدمة في الجهاز | | ✅ |
-| 23 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | معرّف الجهاز | | ✅ |
-| 24 | T1 | `account.enhanceAccountSecurity` | 提升账号安全性 | تحسين أمان الحساب | | ✅ |
+| 9 | T1 | `account.bindAlipay` | 绑定支付宝 | ربط Alipay | | ✅ |
+| 10 | T1 | `account.bindMobile` | 绑定手机号 | ربط رقم الهاتف المحمول | | ✅ |
+| 11 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | يستخدم لتسجيل الدخول واستعادة كلمة المرور واستلام الإشعارات المهمة | | ✅ |
+| 12 | T1 | `account.changeLoginPassword` | 修改登录密码 | تعديل كلمة مرور تسجيل الدخول | | ✅ |
+| 13 | T1 | `account.changeMobile` | 更换手机号 | تغيير رقم الهاتف | | ✅ |
+| 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | تم إرسال رمز التحقق إلى البريد الإلكتروني | | ✅ |
+| 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | تم إرسال رمز التحقق إلى الهاتف | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | الجهاز الحالي | | ✅ |
+| 17 | T1 | `account.currentMobile` | 当前手机号 | رقم الهاتف الحالي | | ✅ |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | المساحة المتوفرة في الجهاز | | ✅ |
+| 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | تم تحديث مفتاح الجهاز | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | قائمة الأجهزة | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | اسم الجهاز | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | نوع الجهاز | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | المساحة المستخدمة في الجهاز | | ✅ |
+| 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | معرّف الجهاز | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | other:「منذ $n يوم」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | other:「منذ $n ساعة」 | | ✅ |
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | other:「منذ $n دقيقة」 | | ✅ |
@@ -73,22 +73,22 @@
 | 6 | T1 | `account.alipaySim.paymentAmount` | 金额： | Betrag: | | ✅ |
 | 7 | T1 | `account.alipaySim.selectMethod` | 选择支付方式 | Zahlungsart wählen | | ✅ |
 | 8 | T1 | `account.areYouSureLogOut` | 确定要退出登录吗？ | Möchten Sie sich wirklich abmelden? | | ✅ |
-| 9 | T1 | `account.bindMobile` | 绑定手机号 | Mobilfunknummer verbinden | | ✅ |
-| 10 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | Für Anmeldung, Passwort-Wiederherstellung und Empfang wichtiger Benachrichtigungen | | ⚠️ 长度比2.82 |
-| 11 | T1 | `account.changeLoginPassword` | 修改登录密码 | Anmeldepasswort ändern | | ✅ |
-| 12 | T1 | `account.changeMobile` | 更换手机号 | Mobilfunknummer ändern | | ✅ |
-| 13 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | Bestätigungscode an E-Mail gesendet | | ✅ |
-| 14 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | Bestätigungscode an Mobilfunknummer gesendet | | ✅ |
-| 15 | T1 | `account.currentDevice` | 当前设备 | Aktuelles Gerät | | ✅ |
-| 16 | T1 | `account.currentMobile` | 当前手机号 | Aktuelle Mobilfunknummer | | ✅ |
-| 17 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | Verfügbarer Speicherplatz auf dem Gerät | | ⚠️ 长度比3.58 |
-| 18 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | Geräteschlüssel aktualisiert | | ✅ |
-| 19 | T1 | `account.deviceList` | 设备列表 | Geräteliste | | ✅ |
-| 20 | T1 | `account.deviceName` | 设备名称 | Gerätename | | ✅ |
-| 21 | T1 | `account.deviceType` | 设备类型 | Gerätetyp | | ✅ |
-| 22 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | Vom Gerät verwendeter Speicherplatz | | ✅ |
-| 23 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | Geräte-ID | | ✅ |
-| 24 | T1 | `account.enhanceAccountSecurity` | 提升账号安全性 | Kontosicherheit verbessern | | ✅ |
+| 9 | T1 | `account.bindAlipay` | 绑定支付宝 | Alipay verknüpfen | | ✅ |
+| 10 | T1 | `account.bindMobile` | 绑定手机号 | Mobilfunknummer verbinden | | ✅ |
+| 11 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | Für Anmeldung, Passwort-Wiederherstellung und Empfang wichtiger Benachrichtigungen | | ⚠️ 长度比2.82 |
+| 12 | T1 | `account.changeLoginPassword` | 修改登录密码 | Anmeldepasswort ändern | | ✅ |
+| 13 | T1 | `account.changeMobile` | 更换手机号 | Mobilfunknummer ändern | | ✅ |
+| 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | Bestätigungscode an E-Mail gesendet | | ✅ |
+| 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | Bestätigungscode an Mobilfunknummer gesendet | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | Aktuelles Gerät | | ✅ |
+| 17 | T1 | `account.currentMobile` | 当前手机号 | Aktuelle Mobilfunknummer | | ✅ |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | Verfügbarer Speicherplatz auf dem Gerät | | ⚠️ 长度比3.58 |
+| 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | Geräteschlüssel aktualisiert | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | Geräteliste | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | Gerätename | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | Gerätetyp | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | Vom Gerät verwendeter Speicherplatz | | ✅ |
+| 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | Geräte-ID | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | one:「Vor $n Tag」 / other:「Vor $n Tagen」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | one:「Vor $n Stunde」 / other:「Vor $n Stunden」 | | ✅ |
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「Vor $n Minute」 / other:「Vor $n Minuten」 | | ✅ |
@@ -108,22 +108,22 @@
 | 6 | T1 | `account.alipaySim.paymentAmount` | 金额： | Montant : | | ✅ |
 | 7 | T1 | `account.alipaySim.selectMethod` | 选择支付方式 | Choisir le mode de paiement | | ✅ |
 | 8 | T1 | `account.areYouSureLogOut` | 确定要退出登录吗？ | Êtes-vous sûr de vouloir vous déconnecter ? | | ✅ |
-| 9 | T1 | `account.bindMobile` | 绑定手机号 | Associer le numéro de téléphone | | ⚠️ 长度比3.41 |
-| 10 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | Utilisé pour la connexion, la récupération du mot de passe et la réception de notifications importantes. | | ⚠️ 长度比3.57 |
-| 11 | T1 | `account.changeLoginPassword` | 修改登录密码 | Modifier le mot de passe de connexion | | ⚠️ 长度比3.39 |
-| 12 | T1 | `account.changeMobile` | 更换手机号 | Changer de numéro de téléphone | | ⚠️ 长度比3.30 |
-| 13 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | Code envoyé par e-mail | | ✅ |
-| 14 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | Code envoyé par SMS | | ✅ |
-| 15 | T1 | `account.currentDevice` | 当前设备 | Appareil actuel | | ✅ |
-| 16 | T1 | `account.currentMobile` | 当前手机号 | Numéro de téléphone actuel | | ⚠️ 长度比2.86 |
-| 17 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | Espace disponible sur l'appareil | | ⚠️ 长度比2.93 |
-| 18 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | Clé actualisée | | ✅ |
-| 19 | T1 | `account.deviceList` | 设备列表 | Liste des appareils | | ✅ |
-| 20 | T1 | `account.deviceName` | 设备名称 | Nom de l'appareil | | ✅ |
-| 21 | T1 | `account.deviceType` | 设备类型 | Type d'appareil | | ✅ |
-| 22 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | Espace utilisé sur l'appareil | | ✅ |
-| 23 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | ID d'appareil | | ✅ |
-| 24 | T1 | `account.enhanceAccountSecurity` | 提升账号安全性 | Améliorer la sécurité du compte | | ✅ |
+| 9 | T1 | `account.bindAlipay` | 绑定支付宝 | Lier Alipay | | ✅ |
+| 10 | T1 | `account.bindMobile` | 绑定手机号 | Associer le numéro de téléphone | | ⚠️ 长度比3.41 |
+| 11 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | Utilisé pour la connexion, la récupération du mot de passe et la réception de notifications importantes. | | ⚠️ 长度比3.57 |
+| 12 | T1 | `account.changeLoginPassword` | 修改登录密码 | Modifier le mot de passe de connexion | | ⚠️ 长度比3.39 |
+| 13 | T1 | `account.changeMobile` | 更换手机号 | Changer de numéro de téléphone | | ⚠️ 长度比3.30 |
+| 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | Code envoyé par e-mail | | ✅ |
+| 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | Code envoyé par SMS | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | Appareil actuel | | ✅ |
+| 17 | T1 | `account.currentMobile` | 当前手机号 | Numéro de téléphone actuel | | ⚠️ 长度比2.86 |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | Espace disponible sur l'appareil | | ⚠️ 长度比2.93 |
+| 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | Clé actualisée | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | Liste des appareils | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | Nom de l'appareil | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | Type d'appareil | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | Espace utilisé sur l'appareil | | ✅ |
+| 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | ID d'appareil | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | one:「Il y a $n jour」 / other:「Il y a $n jours」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | one:「Il y a $n heure」 / other:「Il y a $n heures」 | | ✅ |
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「Il y a $n minute」 / other:「Il y a $n minutes」 | | ✅ |
@@ -143,22 +143,22 @@
 | 6 | T1 | `account.alipaySim.paymentAmount` | 金额： | Importo: | | ✅ |
 | 7 | T1 | `account.alipaySim.selectMethod` | 选择支付方式 | Seleziona metodo di pagamento | | ✅ |
 | 8 | T1 | `account.areYouSureLogOut` | 确定要退出登录吗？ | Sei sicuro di volerti disconnettere? | | ✅ |
-| 9 | T1 | `account.bindMobile` | 绑定手机号 | Collega numero di telefono | | ⚠️ 长度比2.86 |
-| 10 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | Usato per accedere, recuperare la password e ricevere notifiche importanti | | ✅ |
-| 11 | T1 | `account.changeLoginPassword` | 修改登录密码 | Modifica password di accesso | | ✅ |
-| 12 | T1 | `account.changeMobile` | 更换手机号 | Cambia numero di telefono | | ✅ |
-| 13 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | Codice di verifica inviato all'email | | ✅ |
-| 14 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | Codice di verifica inviato al telefono | | ✅ |
-| 15 | T1 | `account.currentDevice` | 当前设备 | Dispositivo corrente | | ✅ |
-| 16 | T1 | `account.currentMobile` | 当前手机号 | Numero di telefono attuale | | ⚠️ 长度比2.86 |
-| 17 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | Spazio disponibile dispositivo | | ✅ |
-| 18 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | Chiave aggiornata | | ✅ |
-| 19 | T1 | `account.deviceList` | 设备列表 | Lista dispositivi | | ✅ |
-| 20 | T1 | `account.deviceName` | 设备名称 | Nome dispositivo | | ✅ |
-| 21 | T1 | `account.deviceType` | 设备类型 | Tipo dispositivo | | ✅ |
-| 22 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | Spazio utilizzato dispositivo | | ✅ |
-| 23 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | ID dispositivo | | ✅ |
-| 24 | T1 | `account.enhanceAccountSecurity` | 提升账号安全性 | Migliora sicurezza account | | ✅ |
+| 9 | T1 | `account.bindAlipay` | 绑定支付宝 | Collega Alipay | | ✅ |
+| 10 | T1 | `account.bindMobile` | 绑定手机号 | Collega numero di telefono | | ⚠️ 长度比2.86 |
+| 11 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | Usato per accedere, recuperare la password e ricevere notifiche importanti | | ✅ |
+| 12 | T1 | `account.changeLoginPassword` | 修改登录密码 | Modifica password di accesso | | ✅ |
+| 13 | T1 | `account.changeMobile` | 更换手机号 | Cambia numero di telefono | | ✅ |
+| 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | Codice di verifica inviato all'email | | ✅ |
+| 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | Codice di verifica inviato al telefono | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | Dispositivo corrente | | ✅ |
+| 17 | T1 | `account.currentMobile` | 当前手机号 | Numero di telefono attuale | | ⚠️ 长度比2.86 |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | Spazio disponibile dispositivo | | ✅ |
+| 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | Chiave aggiornata | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | Lista dispositivi | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | Nome dispositivo | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | Tipo dispositivo | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | Spazio utilizzato dispositivo | | ✅ |
+| 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | ID dispositivo | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | one:「$n giorno fa」 / other:「$n giorni fa」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | one:「$n ora fa」 / other:「$n ore fa」 | | ✅ |
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「$n minuto fa」 / other:「$n minuti fa」 | | ✅ |
@@ -178,28 +178,28 @@
 | 6 | T1 | `account.alipaySim.paymentAmount` | 金额： | 金額： | | ✅ |
 | 7 | T1 | `account.alipaySim.selectMethod` | 选择支付方式 | 支払い方法を選択 | | ✅ |
 | 8 | T1 | `account.areYouSureLogOut` | 确定要退出登录吗？ | ログアウトしてもよろしいですか？ | | ✅ |
-| 9 | T1 | `account.bindMobile` | 绑定手机号 | 携帯電話番号を登録 | | ✅ |
-| 10 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | ログイン、パスワード回復、重要通知の受信に使用します | | ✅ |
-| 11 | T1 | `account.changeLoginPassword` | 修改登录密码 | ログインパスワードを変更 | | ✅ |
-| 12 | T1 | `account.changeMobile` | 更换手机号 | 携帯電話番号を変更 | | ✅ |
-| 13 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | 認証コードをメールに送信しました | | ✅ |
-| 14 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | 認証コードを携帯電話に送信しました | | ✅ |
-| 15 | T1 | `account.currentDevice` | 当前设备 | 現在のデバイス | | ✅ |
-| 16 | T1 | `account.currentMobile` | 当前手机号 | 現在の携帯電話番号 | | ✅ |
-| 17 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | デバイスの空き容量 | | ✅ |
-| 18 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | デバイスキーを更新しました | | ✅ |
-| 19 | T1 | `account.deviceList` | 设备列表 | デバイスリスト | | ✅ |
-| 20 | T1 | `account.deviceName` | 设备名称 | デバイス名 | | ✅ |
-| 21 | T1 | `account.deviceType` | 设备类型 | デバイスタイプ | | ✅ |
-| 22 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | デバイスの使用容量 | | ✅ |
-| 23 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | デバイス ID | | ✅ |
-| 24 | T1 | `account.enhanceAccountSecurity` | 提升账号安全性 | アカウントのセキュリティを強化 | | ✅ |
+| 9 | T1 | `account.bindAlipay` | 绑定支付宝 | Alipayを連携 | | ✅ |
+| 10 | T1 | `account.bindMobile` | 绑定手机号 | 携帯電話番号を登録 | | ✅ |
+| 11 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | ログイン、パスワード回復、重要通知の受信に使用します | | ✅ |
+| 12 | T1 | `account.changeLoginPassword` | 修改登录密码 | ログインパスワードを変更 | | ✅ |
+| 13 | T1 | `account.changeMobile` | 更换手机号 | 携帯電話番号を変更 | | ✅ |
+| 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | 認証コードをメールに送信しました | | ✅ |
+| 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | 認証コードを携帯電話に送信しました | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | 現在のデバイス | | ✅ |
+| 17 | T1 | `account.currentMobile` | 当前手机号 | 現在の携帯電話番号 | | ✅ |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | デバイスの空き容量 | | ✅ |
+| 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | デバイスキーを更新しました | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | デバイスリスト | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | デバイス名 | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | デバイスタイプ | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | デバイスの使用容量 | | ✅ |
+| 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | デバイス ID | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | other:「$n日前」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | other:「$n時間前」 | | ✅ |
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | other:「$n分前」 | | ✅ |
 | 28 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。 | | ✅ |
-| 29 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | 対面または電話で、相手と安全番号を照合してください。一致していれば、通信が中間者によって盗聴されていないことを意味します。一致しない場合は、直ちに会話を中止し、別の手段で相手の身元を確認してください。検証状態はこの端末にのみ保存されます。 | | ✅ |
-| 30 | T3 | `discovery.nearbyPeopleExplain` | 附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。 你的电话号码将会被隐藏。 | 近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。 電話番号は非表示になります。 | | ✅ |
+| 29 | T3 | `discovery.nearbyPeopleExplain` | 附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。 你的电话号码将会被隐藏。 | 近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。 電話番号は非表示になります。 | | ✅ |
+| 30 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | 対面または電話で、相手と安全番号を照合してください。一致していれば、通信が中間者によって盗聴されていないことを意味します。一致しない場合は、直ちに会話を中止し、別の手段で相手の身元を確認してください。検証状態はこの端末にのみ保存されます。 | | ✅ |
 
 ### ko-KR
 
@@ -213,22 +213,22 @@
 | 6 | T1 | `account.alipaySim.paymentAmount` | 金额： | 금액: | | ✅ |
 | 7 | T1 | `account.alipaySim.selectMethod` | 选择支付方式 | 결제 수단 선택 | | ✅ |
 | 8 | T1 | `account.areYouSureLogOut` | 确定要退出登录吗？ | 로그아웃 하시겠습니까? | | ✅ |
-| 9 | T1 | `account.bindMobile` | 绑定手机号 | 휴대폰 번호 연결 | | ✅ |
-| 10 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | 로그인, 비밀번호 찾기 및 중요 알림 수신에 사용 | | ✅ |
-| 11 | T1 | `account.changeLoginPassword` | 修改登录密码 | 로그인 비밀번호 변경 | | ✅ |
-| 12 | T1 | `account.changeMobile` | 更换手机号 | 휴대폰 번호 변경 | | ✅ |
-| 13 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | 인증 코드가 이메일로 전송되었습니다 | | ✅ |
-| 14 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | 인증 코드가 휴대폰으로 전송되었습니다 | | ✅ |
-| 15 | T1 | `account.currentDevice` | 当前设备 | 현재 기기 | | ✅ |
-| 16 | T1 | `account.currentMobile` | 当前手机号 | 현재 휴대폰 번호 | | ✅ |
-| 17 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | 기기 사용 가능 공간 | | ✅ |
-| 18 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | 기기 키가 새로고침되었습니다 | | ✅ |
-| 19 | T1 | `account.deviceList` | 设备列表 | 기기 목록 | | ✅ |
-| 20 | T1 | `account.deviceName` | 设备名称 | 기기 이름 | | ✅ |
-| 21 | T1 | `account.deviceType` | 设备类型 | 기기 유형 | | ✅ |
-| 22 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | 기기 사용 공간 | | ✅ |
-| 23 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | 기기 ID | | ✅ |
-| 24 | T1 | `account.enhanceAccountSecurity` | 提升账号安全性 | 계정 보안 향상 | | ✅ |
+| 9 | T1 | `account.bindAlipay` | 绑定支付宝 | Alipay 연동 | | ✅ |
+| 10 | T1 | `account.bindMobile` | 绑定手机号 | 휴대폰 번호 연결 | | ✅ |
+| 11 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | 로그인, 비밀번호 찾기 및 중요 알림 수신에 사용 | | ✅ |
+| 12 | T1 | `account.changeLoginPassword` | 修改登录密码 | 로그인 비밀번호 변경 | | ✅ |
+| 13 | T1 | `account.changeMobile` | 更换手机号 | 휴대폰 번호 변경 | | ✅ |
+| 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | 인증 코드가 이메일로 전송되었습니다 | | ✅ |
+| 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | 인증 코드가 휴대폰으로 전송되었습니다 | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | 현재 기기 | | ✅ |
+| 17 | T1 | `account.currentMobile` | 当前手机号 | 현재 휴대폰 번호 | | ✅ |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | 기기 사용 가능 공간 | | ✅ |
+| 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | 기기 키가 새로고침되었습니다 | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | 기기 목록 | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | 기기 이름 | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | 기기 유형 | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | 기기 사용 공간 | | ✅ |
+| 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | 기기 ID | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | other:「$n일 전」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | other:「$n시간 전」 | | ✅ |
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | other:「$n분 전」 | | ✅ |
@@ -248,22 +248,22 @@
 | 6 | T1 | `account.alipaySim.paymentAmount` | 金额： | Сумма: | | ✅ |
 | 7 | T1 | `account.alipaySim.selectMethod` | 选择支付方式 | Выберите способ оплаты | | ✅ |
 | 8 | T1 | `account.areYouSureLogOut` | 确定要退出登录吗？ | Вы уверены, что хотите выйти? | | ✅ |
-| 9 | T1 | `account.bindMobile` | 绑定手机号 | Привязать мобильный | | ✅ |
-| 10 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | Для входа, восстановления пароля и уведомлений | | ✅ |
-| 11 | T1 | `account.changeLoginPassword` | 修改登录密码 | Изменить пароль для входа | | ✅ |
-| 12 | T1 | `account.changeMobile` | 更换手机号 | Изменить мобильный | | ✅ |
-| 13 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | Код подтверждения отправлен на электронную почту | | ⚠️ 长度比2.93 |
-| 14 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | Код подтверждения отправлен на мобильный | | ✅ |
-| 15 | T1 | `account.currentDevice` | 当前设备 | Текущее устройство | | ✅ |
-| 16 | T1 | `account.currentMobile` | 当前手机号 | Текущий мобильный | | ✅ |
-| 17 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | Доступное место на устройстве | | ✅ |
-| 18 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | Ключ устройства обновлён | | ✅ |
-| 19 | T1 | `account.deviceList` | 设备列表 | Список устройств | | ✅ |
-| 20 | T1 | `account.deviceName` | 设备名称 | Имя устройства | | ✅ |
-| 21 | T1 | `account.deviceType` | 设备类型 | Тип устройства | | ✅ |
-| 22 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | Использованное место на устройстве | | ✅ |
-| 23 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | ID устройства | | ✅ |
-| 24 | T1 | `account.enhanceAccountSecurity` | 提升账号安全性 | Повысить безопасность аккаунта | | ✅ |
+| 9 | T1 | `account.bindAlipay` | 绑定支付宝 | Привязать Alipay | | ✅ |
+| 10 | T1 | `account.bindMobile` | 绑定手机号 | Привязать мобильный | | ✅ |
+| 11 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | Для входа, восстановления пароля и уведомлений | | ✅ |
+| 12 | T1 | `account.changeLoginPassword` | 修改登录密码 | Изменить пароль для входа | | ✅ |
+| 13 | T1 | `account.changeMobile` | 更换手机号 | Изменить мобильный | | ✅ |
+| 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | Код подтверждения отправлен на электронную почту | | ⚠️ 长度比2.93 |
+| 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | Код подтверждения отправлен на мобильный | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | Текущее устройство | | ✅ |
+| 17 | T1 | `account.currentMobile` | 当前手机号 | Текущий мобильный | | ✅ |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | Доступное место на устройстве | | ✅ |
+| 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | Ключ устройства обновлён | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | Список устройств | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | Имя устройства | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | Тип устройства | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | Использованное место на устройстве | | ✅ |
+| 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | ID устройства | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | one:「$n день назад」 / few:「$n дня назад」 / many:「$n дней назад」 / other:「$n дня назад」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | one:「$n час назад」 / few:「$n часа назад」 / many:「$n часов назад」 / other:「$n часа назад」 | | ✅ |
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「$n минуту назад」 / few:「$n минуты назад」 / many:「$n минут назад」 / other:「$n минуты назад」 | | ✅ |
@@ -283,22 +283,22 @@
 | 6 | T1 | `account.alipaySim.paymentAmount` | 金额： | 金額： | | ✅ |
 | 7 | T1 | `account.alipaySim.selectMethod` | 选择支付方式 | 選擇付款方式 | | ✅ |
 | 8 | T1 | `account.areYouSureLogOut` | 确定要退出登录吗？ | 確定要登出嗎？ | | ✅ |
-| 9 | T1 | `account.bindMobile` | 绑定手机号 | 綁定手機號 | | ✅ |
-| 10 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | 用於登入、找回密碼和接收重要通知 | | ✅ |
-| 11 | T1 | `account.changeLoginPassword` | 修改登录密码 | 修改登入密碼 | | ✅ |
-| 12 | T1 | `account.changeMobile` | 更换手机号 | 更換手機號 | | ✅ |
-| 13 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | 驗證碼已傳送到郵箱 | | ✅ |
-| 14 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | 驗證碼已傳送到手機 | | ✅ |
-| 15 | T1 | `account.currentDevice` | 当前设备 | 目前設備 | | ✅ |
-| 16 | T1 | `account.currentMobile` | 当前手机号 | 目前手機號 | | ✅ |
-| 17 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | 設備可用空間 | | ✅ |
-| 18 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | 裝置金鑰已重新整理 | | ✅ |
-| 19 | T1 | `account.deviceList` | 设备列表 | 設備清單 | | ✅ |
-| 20 | T1 | `account.deviceName` | 设备名称 | 設備名稱 | | ✅ |
-| 21 | T1 | `account.deviceType` | 设备类型 | 設備類型 | | ✅ |
-| 22 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | 設備已使用空間 | | ✅ |
-| 23 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | 裝置 ID | | ✅ |
-| 24 | T1 | `account.enhanceAccountSecurity` | 提升账号安全性 | 提升帳號安全性 | | ✅ |
+| 9 | T1 | `account.bindAlipay` | 绑定支付宝 | 綁定支付寶 | | ✅ |
+| 10 | T1 | `account.bindMobile` | 绑定手机号 | 綁定手機號 | | ✅ |
+| 11 | T1 | `account.bindMobileFor` | 用于登录、找回密码和接收重要通知 | 用於登入、找回密碼和接收重要通知 | | ✅ |
+| 12 | T1 | `account.changeLoginPassword` | 修改登录密码 | 修改登入密碼 | | ✅ |
+| 13 | T1 | `account.changeMobile` | 更换手机号 | 更換手機號 | | ✅ |
+| 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | 驗證碼已傳送到郵箱 | | ✅ |
+| 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | 驗證碼已傳送到手機 | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | 目前設備 | | ✅ |
+| 17 | T1 | `account.currentMobile` | 当前手机号 | 目前手機號 | | ✅ |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | 設備可用空間 | | ✅ |
+| 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | 裝置金鑰已重新整理 | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | 設備清單 | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | 設備名稱 | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | 設備類型 | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | 設備已使用空間 | | ✅ |
+| 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | 裝置 ID | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | other:「$n天前」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | other:「$n小時前」 | | ✅ |
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | other:「$n分鐘前」 | | ✅ |

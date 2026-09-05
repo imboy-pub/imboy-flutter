@@ -182,6 +182,13 @@ flutter test integration_test/i18n_rtl_walkthrough_test.dart -d XWE6R19916004085
   正文回归 t 键、文案求值移入 builder。strict 门 PASS、UI Gate 50/50。
 - 走查扩展：测试升级为 8 语言全检查点（zh 基线 + ar RTL + de/fr/it/ru/ja/ko LTR），
   8 张截图全抓到（14:42/14:54 两轮）。
+- **走查延伸（硬编码中文全量清查）**：弹窗缺陷提示了缺陷类，对 lib/ 全量扫描
+  （排除注释/日志/生成物）：1929 处 CJK 字面量中**用户可见 UI 硬编码 38 处**，
+  修复 34 处（9 文件，21 新键 × 10 locale，含消灭 channel_detail 的 isChinese
+  三元伪 i18n——原只支持中英无视其余 8 语言）；合法保留 4 类：语言自称 3 处
+  （i18n 惯例）、设计系统内部标签、内部诊断异常 message、语言选择页自身。
+  strict 门 PASS、UI Gate+RTL 55/55（9d2bad3d）。日志/迁移描述类 1800+ 处
+  按团队惯例保留，不入 i18n 范围。
 
 ### 6.6.1 macOS 桌面过渡走查（2026-09-05，用户批准的过渡证据）
 
