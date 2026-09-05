@@ -11,12 +11,6 @@
 2. **Tier 2 复数节点**：全部 plural 键，各分支内联展示（one/few/many/other:「…」）；复数语法是机器翻译错误高发区（如俄语需 one/few/many/other 四分支）。
 3. **Tier 3 最长文案**：该语言未入选键中按译文长度取前 3（机器翻译生硬高发区）。
 
-## AI 预筛列说明（2026-09-05）
-
-> 倒数第二列为 **AI 预筛**（规则扫描 + 人工复核），仅标记机器可判定的异常（占位符、文字体系、长度比离群、复数分支、已知疑点）。
-> **AI 预筛 ≠ 母语审核**：✅ 只代表"未见机器可检异常"，不代表译文地道；Gate 4 仍为 BLOCKED_NO_REVIEWER。
-> ⚠️ 行请审核人优先复核；长度比高的合规/支付类长文案已按真实约束（widget 级 UI Gate 零溢出）验证过布局安全性，此处标记仅供语义复核参考。
-
 ## 总览（审核人填写）
 
 | 语言 | 审核人 | 结论 | 日期 | 备注 |
@@ -65,7 +59,7 @@
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | other:「منذ $n دقيقة」 | | ✅ |
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | قارن رمز الأمان مع الطرف الآخر وجهاً لوجه أو عبر الهاتف. إذا تطابق الرمزان فهذا يعني أن اتصالكما ليس خاضعاً لتنصت وسيط؛ وإذا اختلف فأوقف المحادثة فوراً وتحقق من هوية الطرف الآخر عبر قناة أخرى. تُحفظ حالة التحقق على هذا الجهاز فقط. | | ✅ |
 | 29 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | المفتاح العام لتدقيق الامتثال الصادر من الخادم لا يطابق القيمة المثبتة محلياً. إذا كان هذا تدويراً مقصوداً للمفتاح من المسؤول، فانقر على «تأكيد التدوير»؛ وإلا فلا تُكمل إرسال الرسائل المشفّرة، واتصل بالمسؤول للتحقق. | | ✅ |
-| 30 | T3 | `workspace.inviteDesc` | 仅支持邀请已注册用户；加入工作区不自动入群或订阅频道——可同时加入 General 群，并发送 Announcements 频道邀请 | الدعوة متاحة للمستخدمين المسجلين فقط؛ الانضمام إلى مساحة العمل لا يعني تلقائياً الانضمام إلى المجموعات أو الاشتراك في القنوات — يمكنك الانضمام في الوقت نفسه إلى مجموعة General وإرسال دعوة قناة Announcements | | ✅ |
+| 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | لحماية رسائلك، تم إنشاء مفتاح تشفير جديد من طرف إلى طرف على هذا الجهاز. الرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ولا يمكن عرضها إلا بعد استعادة المفتاح. يمكنك الاستعادة عبر "استيراد نسخة احتياطية محلية". | | ✅ |
 
 ### de-DE
 
@@ -100,7 +94,7 @@
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「Vor $n Minute」 / other:「Vor $n Minuten」 | | ✅ |
 | 28 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokal gepinnten Wert überein. Handelt es sich um eine beabsichtigte Schlüsselrotation durch den Administrator, tippen Sie auf „Rotation bestätigen“; andernfalls senden Sie keine weiteren verschlüsselten Nachrichten und kontaktieren Sie den Administrator zur Prüfung. | | ⚠️ 长度比2.88 |
 | 29 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Vergleichen Sie den Sicherheitscode persönlich oder telefonisch mit der anderen Person. Bei Übereinstimmung wird Ihre Kommunikation nicht abgehört; bei Abweichung beenden Sie sofort das Gespräch und verifizieren Sie die Identität über einen anderen Kanal. Der Verifizierungsstatus wird nur auf diesem Gerät gespeichert. | | ✅ |
-| 30 | T3 | `main.complianceKeyInfoChangedWarning` | ⚠️ 服务端下发的合规公钥与本地固定不一致！若这不是管理员有意的轮换，请立即联系管理员，并停止发送加密消息。 | ⚠️ Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokalen Pinning überein! Falls dies keine beabsichtigte Rotation durch den Administrator ist, kontaktieren Sie sofort den Administrator und senden Sie keine verschlüsselten Nachrichten. | | ⚠️ 长度比2.85 |
+| 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Zum Schutz deiner Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt. Ältere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Du kannst ihn über „Lokales Backup importieren“ wiederherstellen. | | ✅ |
 
 ### fr-FR
 
@@ -135,7 +129,7 @@
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「Il y a $n minute」 / other:「Il y a $n minutes」 | | ✅ |
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Comparez le code de sécurité avec votre correspondant en personne ou par téléphone. S'il correspond, vos communications ne sont pas interceptées par un intermédiaire ; dans le cas contraire, arrêtez immédiatement la conversation et vérifiez son identité par un autre canal. L'état de vérification n'est conservé que sur cet appareil. | | ✅ |
 | 29 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | La clé publique d'audit de conformité fournie par le serveur ne correspond pas à la valeur épinglée localement. S'il s'agit d'une rotation de clés voulue par l'administrateur, appuyez sur « Confirmer la rotation » ; sinon, n'envoyez plus de messages chiffrés et contactez l'administrateur pour vérification. | | ✅ |
-| 30 | T3 | `common.cancelLogoutBody` | 此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。 | Ce compte est en période de rétractation. Si vous vous connectez avec succès, cela sera considéré comme une annulation du processus de suppression. Pour continuer la suppression, ne vous connectez pas à IMBoy dans les 15 jours suivant la soumission de la demande de suppression. | | ⚠️ 长度比2.84 |
+| 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Pour protéger vos messages, une nouvelle clé de chiffrement de bout en bout a été générée sur cet appareil. Les anciens messages ont été chiffrés avec la clé de l'ancien appareil et ne seront visibles qu'après restauration de la clé. Vous pouvez la restaurer via « Importer une sauvegarde locale ». | | ✅ |
 
 ### it-IT
 
@@ -170,7 +164,7 @@
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「$n minuto fa」 / other:「$n minuti fa」 | | ✅ |
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Confronta il codice di sicurezza con l'altro di persona o al telefono. Se corrisponde, le vostre comunicazioni non sono intercettate da un attacco man-in-the-middle; se non corrisponde, interrompi subito la conversazione e verifica l'identità dell'altro tramite un altro canale. Lo stato di verifica è salvato solo su questo dispositivo. | | ✅ |
 | 29 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | La chiave pubblica di audit di conformità distribuita dal server non corrisponde al valore bloccato localmente. Se si tratta di una rotazione della chiave intenzionale dell'amministratore, tocca «Conferma rotazione»; in caso contrario non continuare a inviare messaggi cifrati e contatta l'amministratore per una verifica. | | ✅ |
-| 30 | T3 | `common.cancelLogoutBody` | 此账号处于注销反悔期，若登录成功则视作终止注销流程。如需继续注销，请在注销申请提交后的15天内不要登录IMBoy。 | Questo account è nel periodo di riflessione per la disattivazione. Se l'accesso ha successo, verrà considerato come terminazione del processo di disattivazione. Per continuare la disattivazione, non accedere a IMBoy entro 15 giorni dalla presentazione della richiesta di disattivazione. | | ⚠️ 长度比2.92 |
+| 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave di crittografia end-to-end. I messaggi precedenti sono stati crittografati con la chiave del vecchio dispositivo e saranno visibili solo dopo il ripristino della chiave. Puoi ripristinarla tramite "Importa backup locale". | | ✅ |
 
 ### ja-JP
 
@@ -204,8 +198,8 @@
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | other:「$n時間前」 | | ✅ |
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | other:「$n分前」 | | ✅ |
 | 28 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。 | | ✅ |
-| 29 | T3 | `discovery.nearbyPeopleExplain` | 附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。 你的电话号码将会被隐藏。 | 近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。 電話番号は非表示になります。 | | ✅ |
-| 30 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | 対面または電話で、相手と安全番号を照合してください。一致していれば、通信が中間者によって盗聴されていないことを意味します。一致しない場合は、直ちに会話を中止し、別の手段で相手の身元を確認してください。検証状態はこの端末にのみ保存されます。 | | ✅ |
+| 29 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | 対面または電話で、相手と安全番号を照合してください。一致していれば、通信が中間者によって盗聴されていないことを意味します。一致しない場合は、直ちに会話を中止し、別の手段で相手の身元を確認してください。検証状態はこの端末にのみ保存されます。 | | ✅ |
+| 30 | T3 | `discovery.nearbyPeopleExplain` | 附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。 你的电话号码将会被隐藏。 | 近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。 電話番号は非表示になります。 | | ✅ |
 
 ### ko-KR
 
@@ -240,7 +234,7 @@
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | other:「$n분 전」 | | ✅ |
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | 대면 또는 전화로 상대방과 보안 번호를 비교해 주세요. 일치하면 두 사람의 통신에 중간자가 없는 것이고, 일치하지 않으면 즉시 대화를 중단하고 다른 경로로 상대방의 신원을 확인하세요. 검증 상태는 이 기기에만 저장됩니다. | | ✅ |
 | 29 | T3 | `discovery.nearbyPeopleExplain` | 附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。 你的电话号码将会被隐藏。 | 주변 사용자가 귀하의 프로필을 보고 메시지를 보낼 수 있습니다. 이는 새 친구를 찾는 데 도움이 될 수 있지만 과도한 주의를 끌 수도 있습니다. 언제든지 프로필 공유를 중단할 수 있습니다. 전화번호는 숨겨집니다. | | ✅ |
-| 30 | T3 | `workspace.inviteDesc` | 仅支持邀请已注册用户；加入工作区不自动入群或订阅频道——可同时加入 General 群，并发送 Announcements 频道邀请 | 가입한 사용자만 초대할 수 있습니다. 워크스페이스 가입이 자동으로 그룹 가입이나 채널 구독으로 이어지지 않습니다. General 그룹에 동시 가입시키고 Announcements 채널 초대를 보낼 수 있습니다 | | ✅ |
+| 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | 메시지를 보호하기 위해 이 기기에서 새로운 종단간 암호화 키를 생성했습니다. 이전 메시지는 이전 기기의 키로 암호화되어 있어 키를 복원해야 볼 수 있습니다. "로컬 백업 가져오기"를 통해 복원할 수 있습니다. | | ✅ |
 
 ### ru-RU
 
@@ -275,7 +269,7 @@
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「$n минуту назад」 / few:「$n минуты назад」 / many:「$n минут назад」 / other:「$n минуты назад」 | | ✅ |
 | 28 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | Открытый ключ комплаенс-аудита, выданный сервером, не совпадает с локально зафиксированным значением. Если это намеренная ротация ключа администратором, нажмите «Подтвердить ротацию»; иначе не отправляйте зашифрованные сообщения и обратитесь к администратору для проверки. | | ✅ |
 | 29 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Сравните код безопасности с собеседником лично или по телефону. Если коды совпадают, ваша связь не прослушивается посредником; если нет — немедленно прекратите разговор и проверьте личность собеседника другим способом. Статус проверки хранится только на этом устройстве. | | ✅ |
-| 30 | T3 | `discovery.nearbyPeopleExplain` | 附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。 你的电话号码将会被隐藏。 | Пользователи рядом могут просматривать ваш профиль и отправлять вам сообщения. Это может помочь вам найти новых друзей, но также может привлечь чрезмерное внимание. Вы можете в любое время прекратить публикацию вашего профиля. Ваш номер телефона будет скрыт. | | ✅ |
+| 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования. Прошлые сообщения зашифрованы ключом со старого устройства, и их можно будет увидеть только после восстановления ключа. Вы можете восстановить его через «Импорт локальной резервной копии». | | ✅ |
 
 ### zh-Hant
 

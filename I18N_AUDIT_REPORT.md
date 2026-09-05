@@ -170,6 +170,18 @@ flutter test integration_test/i18n_rtl_walkthrough_test.dart -d XWE6R19916004085
   `i18n_02_ar_shell.png`（ar：**完整镜像**——导航顺序倒置且 الرسائل tab 高亮居右、头像右/منذ 6 ساعة 左、横幅锁图标右/关闭左，阿文连写字形正常无豆腐块）
   `i18n_03_de_shell.png`（de：三行 E2EE 长文案完整无截断，Vor 6 Stunden 后缀式时间，ä/ü 正常）。
 - P6 修复（移除全局 Directionality）自此具备 widget 级 + macOS + 真机三层证据。
+- **走查战利品一（ru 复数 resolver bug）**：ru 截图显示「7 часа назад」（应 часов）——
+  run.dart 把 ru 硬编码为恒返回 other，P14 补齐四分支后 resolver 未同步；且旧注释
+  「ru/ar 不在 slang 内置表」经实证为误判（slang 4.19 内置表有 ar/ru 的 CLDR 规则）。
+  修复 a2ab55d4：ru 移出硬编码走内置规则；ar 因仅 other 分支暂留。真机复跑验证
+  「7 часов назад」正确。
+- **走查战利品二（弹窗硬编码中文）**：ru 态 E2EE 恢复弹窗标题/正文显示中文而按钮为
+  俄语——newDevice 场景正文是 deda4751 引入的硬编码中文内联串，且文案在 showDialog
+  前提前求值导致切换语言时弹窗残留旧语言。修复 65b25183：新增
+  chat.e2eeRecoveryNewDeviceBody（10 locale，机器翻译待母语审核，已入审核包 Tier1）、
+  正文回归 t 键、文案求值移入 builder。strict 门 PASS、UI Gate 50/50。
+- 走查扩展：测试升级为 8 语言全检查点（zh 基线 + ar RTL + de/fr/it/ru/ja/ko LTR），
+  8 张截图全抓到（14:42/14:54 两轮）。
 
 ### 6.6.1 macOS 桌面过渡走查（2026-09-05，用户批准的过渡证据）
 
