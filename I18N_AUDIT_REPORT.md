@@ -474,3 +474,35 @@ C5 治理文档: I18N_AUDIT_REPORT.md I18N_TERMINOLOGY.md I18N_NATIVE_REVIEW_PAC
 ```
 
 说明：① C1 里个别键值由并行会话补写（logoutCancelRequest 等），但数据集是单一治理整体、经同一审计门验收，随 C1 提交；② `test_utils.dart` 的走查测试依赖其既有 API 但**未改动它**，不纳入本次提交；③ 全部提交须带 DCO sign-off（`git commit -s`，本仓惯例）；④ 若 P4 名单先获批，先执行删除（prune apply → slang → 门禁），再按上表提交，C1/C2 内容会相应减小。
+
+## 11. 会话交付卡（任务书模板，2026-09-05 收口）
+
+```text
+Task ID: i18n-release-governance P0-P17（本会话：P0-P16 执行与集成、
+         10 语言 Agent 波次派发、P4 执行、P6/P16 专项、工具链、交付收口）
+Base SHA: 02b4cc48（战役起点）；本会话落地 8 笔提交：
+         3f5ff07a 数据集 / abac27e5 审计器+修剪工具 / 1b926a37 RTL 根因 /
+         c19a0257 UI Gate+走查入口 / e6ad97c3 治理文档 / 09857f34 macOS 证据 /
+         b4b6b582 YAML 1.2 对齐 / 7ff56abb 根治记录（均 -s DCO，未 push）
+Owned files: assets/i18n/**（10 locale + 工具 4 件）、lib/i18n/**、lib/run.dart、
+         i18n 专项测试 ×3、I18N_*.md ×3 —— 提交完整性审计：外来文件零混入
+Files changed: 见上 8 笔（C1=223 files，+4222/−21595）
+Keys reviewed: 2779（起点）→ 2789（补齐+并行新增）→ 2124（P4 后终态）
+Translations added: 3812 slots（10 Agent 并行波次）+ 12 slots（竞态补齐）+ 19 项 P5 冻结修正
+Translations corrected: ru CLDR one/few/many/other 四分支（原仅 other 为真 bug）、
+         it-IT logoutCancelRequest、zh-CN 帐号→账号 等
+Key merges/deletions: 删除 703+on/off（6687 行）；保留 14 个 *NotImplemented 预置键；
+         SAFE_MERGE=0（无可合并同值键）
+Terminology fixes: I18N_TERMINOLOGY.md 十语言矩阵；ja 購読者裁决；zh-Hant 台湾词系；
+         Workspace Member ≠ Group Member ≠ Channel Subscriber 钉死
+Placeholder/plural fixes: placeholder 归一门禁（$x/${x}/{x}）零不一致；
+         ru 复数分支完整；审核包 AI 预筛 240 行（220✅/20⚠️）
+Remaining uncertainties: Gate3 真机走查（macOS 过渡已绿：ar=RTL/de=LTR 硬断言）；
+         Gate4 母语审核（BLOCKED_NO_REVIEWER）；54 残留候选（并行新代码，未授权）；
+         产品确认 6 项（术语表 §11）
+Commands run and exact results: §6 / §6.5 / §6.6 / §8.5.1（全部实跑留存，
+         strict 门 PASS、审计回归 9/9、prune selftest 4/4、flutter 55/55、
+         macOS 走查 All tests passed!）
+Acceptance: PARTIAL —— 自动门/术语基线/工具链/提交全部 PASS 且经当日复验；
+         两门外置项（真机走查、母语审核）未收，Release 维持 NO-GO
+```
