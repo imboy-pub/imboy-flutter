@@ -218,8 +218,24 @@ void main() {
       }
     }
     if (bestPoint != null) {
-      flowLog('长按点 dy=${bestPoint.dy}');
-      await tester.longPressAt(bestPoint);
+      // 探针 ①：tap 验证手势通道（解密失败气泡 tap 会弹密钥恢复引导，
+      // 弹窗出现=事件可达消息层；不出现=被遮挡层拦截）
+      await tester.tapAt(bestPoint);
+      await settle(tester, maxSeconds: 3);
+      final recoveryShown =
+          tester.any(find.textContaining('恢复')) ||
+          tester.any(find.textContaining('密钥'));
+      flowLog('tap 探针: 恢复引导弹窗=$recoveryShown');
+      if (recoveryShown) {
+        await dismissRecoveryGuide(tester);
+        await settle(tester, maxSeconds: 2);
+      }
+      // 探针 ②：手动 startGesture 长按（press→真实等待 900ms→up），
+      // 绕过 longPressAt 封装的时间语义
+      flowLog('手动长按 dy=${bestPoint.dy}');
+      final gesture = await tester.startGesture(bestPoint);
+      await tester.pump(const Duration(milliseconds: 900));
+      await gesture.up();
       await settle(tester, maxSeconds: 3);
       longPressed = true;
     }
