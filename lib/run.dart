@@ -290,16 +290,22 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
   /// 为 slang 内置表里没有的语言注册 cardinal resolver。
   ///
   /// 相对时间三个 key（timeDaysAgo / timeHoursAgo / timeMinutesAgo）改成 plural
-  /// 后，slang 会对每种语言查 resolver；zh / ja / ko / ar / ru 不在内置表里，
+  /// 后，slang 会对每种语言查 resolver；zh / ja / ko 不在内置表里，
   /// 每次渲染都会打一条
   /// `Resolver for <lang = zh> not specified! ... A fallback is used now.`
   ///
   /// 这几种语言在本项目里只提供 `other` 一档（无单复数变化，或复数规则复杂
   /// 待母语者补），恒返回 other 即为正确行为 —— 显式注册只为消除噪音日志，
-  /// 不改变任何输出。ru / ar 将来补齐 few/many 时，把对应 resolver 换成
-  /// 真实规则即可。
+  /// 不改变任何输出。
+  ///
+  /// ru / ar 不在此列表：slang 4.19 内置表已有两者的 CLDR 规则
+  /// （plural_resolver_map.dart）。ru-RU YAML 已具备 one/few/many/other
+  /// 四分支，必须走内置规则选支——曾因恒返回 other 导致真机显示
+  /// 「7 часа назад」（应为 часов）。ar 的 YAML 目前仅 other 分支，
+  /// 内置规则会选中缺失的 zero/one 分支，故暂由本列表兜底；
+  /// ar 补齐分支后应移出并同步删除本注释。
   Future<void> _registerPluralResolvers() async {
-    for (final lang in const ['zh', 'ja', 'ko', 'ar', 'ru']) {
+    for (final lang in const ['zh', 'ja', 'ko', 'ar']) {
       await LocaleSettings.setPluralResolver(
         language: lang,
         cardinalResolver: (n, {zero, one, two, few, many, other}) =>
