@@ -215,8 +215,11 @@ apply：10 locale 共删 6687 行（含级联父键），各 locale -666~-670 �
   I18N_AUDIT_STRICT=1 → PASS；flutter test（UI Gate + RTL）55/55
 工具加固：i18n_key_prune.rb apply 增加删后校验（逐键实测消失，防布尔键静默跳过）
 遗留：unused candidate=54（并行会话新增代码的未引用键，不在本次批准范围）
-已知限制：i18n_audit.rb 的 logical 键名经 YAML 1.1 类型化，on/off/yes/no 类键名
-  会以 true/false 形态出现 —— 后续若再出现该形态候选，先按本节方法核实真身再处置
+根治记录（同日）：i18n_audit.rb 的 parse_yaml_file 改为 Psych 树构建 + YAML 1.2 core
+  标量解析（键名保持原始文本，on 不再类型化为 true，与 Dart yaml 包对齐）；
+  i18n_key_prune.rb 的 flat_locale 同口径统一。当前树行为逐字节零变化
+  （summary/check 前后 diff 为空、审计回归 9/9、prune selftest 4/4），
+  幽灵键类别自此免疫
 ```
 
 ## 9. 附录：CONFIRMED_UNUSED 证据充分候选全清单（714 键）
