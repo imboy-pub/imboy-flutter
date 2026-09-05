@@ -156,6 +156,22 @@ ru-RU 复数四分支（one/few/many/other）                  → 在场（othe
 
 Gate 3 结论维持 PARTIAL：widget 级 50/50 绿；真机走查 = 设备被占（非技术阻塞，重跑入口已备好）。
 
+### 6.6.1 macOS 桌面过渡走查（2026-09-05，用户批准的过渡证据）
+
+```text
+flutter test integration_test/i18n_rtl_walkthrough_test.dart -d macos \
+  --dart-define=APP_ENV=local --dart-define=API_BASE_URL_OVERRIDE=http://127.0.0.1:9800 \
+  --dart-define=WS_URL_OVERRIDE=ws://127.0.0.1:9800/api/v1/ws \
+  --dart-define=TEST_PHONE=smoke_bob --dart-define=TEST_PASSWORD=admin888
+→ All tests passed!（00:13 +1）
+```
+
+- 登录 smoke_bob → 主 Shell 挂载 → `LocaleSettings.setLocaleRaw` 编程切换：
+  基线 zh-CN = TextDirection.ltr ✓；**ar-SA 后整树 Directionality == rtl（硬断言通过，
+  P6 移除全局 Directionality 修复在真实渲染面的首个端到端证据）**；de-DE 回 ltr ✓。
+- binding.takeScreenshot 在该运行器不受支持（按测试设计仅诊断产物，不阻断）。
+- 局限：macOS 桌面非真机——真机字体渲染/厂商 ROM 行为仍以 §6.6 的真机走查为准。
+
 ## 7. 剩余人工审核清单
 
 1. **母语审核**（ar-SA/de-DE/fr-FR/it-IT/ja-JP/ko-KR/ru-RU/zh-Hant）：审核材料见 **[I18N_NATIVE_REVIEW_PACKAGE.md](./I18N_NATIVE_REVIEW_PACKAGE.md)**（2026-09-05 按删除后数据集重新生成并完成 AI 预筛标注：240 行 = 220 ✅ / 20 ⚠️，⚠️ 集中在欧语言长合规文案的长度比观察项；**AI 预筛 ≠ 母语审核**）。结论只接受 APPROVED / CHANGES_REQUESTED / BLOCKED_NO_REVIEWER。
@@ -168,7 +184,7 @@ Gate 3 结论维持 PARTIAL：widget 级 50/50 绿；真机走查 = 设备被占
 ```text
 Gate 1 自动门（missing/placeholder/duplicate/alias/audit/tests）: PASS
 Gate 2 术语一致性: PASS*（基线已建 + 语义交叉检查通过；*未经母语确认）
-Gate 3 UI/RTL: PARTIAL（widget 级 UI Gate 50/50 + RTL 5/5 绿；真机走查仍待）
+Gate 3 UI/RTL: PARTIAL（widget 级 50/50 + RTL 5/5 + macOS 过渡走查 ar=RTL/de=LTR 全绿；真机走查仍待）
 Gate 4 母语审核: UNKNOWN（BLOCKED_NO_REVIEWER）
 Tentative Release: NO-GO
 ```
