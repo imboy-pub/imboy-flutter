@@ -454,6 +454,13 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get editor => 'Éditeur';
 	@override String get privacyTitle => 'Chaînes publiques et confidentialité';
 	@override String get privacyDesc => 'Tout le monde peut trouver et suivre cette chaîne. Votre numéro de téléphone reste totalement masqué pour les autres abonnés et les administrateurs.';
+	@override String get aboutThisChannel => 'À propos de cette chaîne';
+	@override String get changePhoto => 'Modifier la photo';
+	@override String get addPhoto => 'Ajouter une photo';
+	@override String get addDescription => 'Ajouter une description';
+	@override String channelCreated({required Object name}) => 'Chaîne « ${name} » créée';
+	@override String startGrowing({required Object name}) => 'Faites grandir « ${name} »';
+	@override String shareInviteText({required Object name, required Object url}) => 'Venez suivre ma chaîne « ${name} » : ${url}';
 }
 
 // Path: chat
@@ -2849,6 +2856,13 @@ extension on TranslationsFrFr {
 			'channel.editor' => 'Éditeur',
 			'channel.privacyTitle' => 'Chaînes publiques et confidentialité',
 			'channel.privacyDesc' => 'Tout le monde peut trouver et suivre cette chaîne. Votre numéro de téléphone reste totalement masqué pour les autres abonnés et les administrateurs.',
+			'channel.aboutThisChannel' => 'À propos de cette chaîne',
+			'channel.changePhoto' => 'Modifier la photo',
+			'channel.addPhoto' => 'Ajouter une photo',
+			'channel.addDescription' => 'Ajouter une description',
+			'channel.channelCreated' => ({required Object name}) => 'Chaîne « ${name} » créée',
+			'channel.startGrowing' => ({required Object name}) => 'Faites grandir « ${name} »',
+			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Venez suivre ma chaîne « ${name} » : ${url}',
 			'chat.bankCard' => 'Carte bancaire',
 			'chat.receivePayment' => 'Paiement et réception',
 			'chat.alreadyMember' => 'Déjà membre',
@@ -3004,6 +3018,8 @@ extension on TranslationsFrFr {
 			'chat.orderStatusRefunded' => 'Remboursée',
 			'chat.orderStatusExpired' => 'Expirée',
 			'chat.defaultFileName' => 'Fichier',
+			_ => null,
+		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'Lien du fichier invalide',
 			'chat.e2eeStatusAvailable' => 'Disponible',
 			'chat.e2eeGenerateNewKey' => 'Générer une nouvelle clé',
@@ -3011,8 +3027,6 @@ extension on TranslationsFrFr {
 			'chat.e2eeActivated' => 'Actif',
 			'chat.e2eeCreatedAtLabel' => 'Créée le',
 			'chat.e2eeGeneratingKey' => 'Génération de la clé, patientez...',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'Nouvelle paire de clés E2EE créée !',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Prêt (${count} fragments)',
 			'chat.webFeatureMultiDevice' => 'Multi-appareils',
@@ -3518,6 +3532,8 @@ extension on TranslationsFrFr {
 			'common.momentReportReasonSpam' => 'Spam ou publicité',
 			'common.momentReportReasonHarassment' => 'Harcèlement',
 			'common.momentReportReasonPorn' => 'Contenu pornographique',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Fraude ou arnaque',
 			'common.momentReportReasonInfringement' => 'Violation de droits',
 			'common.momentReportReasonOther' => 'Autre',
@@ -3525,8 +3541,6 @@ extension on TranslationsFrFr {
 			'common.momentsLoadMoreComments' => 'Charger plus de commentaires',
 			'common.momentsUploadFailed' => 'Échec de l\'envoi du média. Réessayez plus tard.',
 			'common.saveFailed' => 'Échec de l\'enregistrement.',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirm' => 'Confirmer',
 			'common.success' => 'Succès',
 			'common.personalDisplay' => 'Affichage personnel',
@@ -4032,6 +4046,8 @@ extension on TranslationsFrFr {
 			'error.networkTroubleshootingStep1' => '1. Ouvrez les paramètres du téléphone et gardez le Wi-Fi activé.',
 			'error.networkTroubleshootingStep2' => '2. Ouvrez les paramètres du téléphone - Général - Données cellulaires et gardez les données cellulaires activées.',
 			'error.networkTroubleshootingStep3' => '3. Si toujours impossible de se connecter au réseau, vérifiez si le Wi-Fi du téléphone a accès à Internet ou contactez l\'opérateur réseau.',
+			_ => null,
+		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'Il est suggéré de vérifier les paramètres réseau.',
 			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'Démarrer la restauration (${required} dépositaires requis)',
 			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Fragments insuffisants (${required} requis, ${current} actuels)',
@@ -4039,8 +4055,6 @@ extension on TranslationsFrFr {
 			'error.e2eeErrNetwork' => 'Erreur réseau, échec du chiffrement, message non envoyé',
 			'error.liveRoomTitleRequired' => 'Titre requis',
 			'group.enterSameGroup' => 'Entrer dans le même groupe que les amis à proximité',
-			_ => null,
-		} ?? switch (path) {
 			'group.enterTheGroup' => 'Rejoindre ce groupe',
 			'group.groupAlias' => 'Mon surnom dans ce groupe',
 			'group.groupAlbum' => 'Album de groupe',
@@ -4546,6 +4560,8 @@ extension on TranslationsFrFr {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Seuls #RRGGBB / #AARRGGBB sont pris en charge ; une valeur invalide retombe sur la couleur du thème par défaut',
 			'workspace.brandingColorInvalid' => 'Format de couleur principale invalide, seuls #RRGGBB / #AARRGGBB sont pris en charge',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingSaved' => 'Paramètres de marque enregistrés',
 			'workspace.brandingPreview' => 'Aperçu de la couleur principale',
 			'workspace.brandingPreviewApplied' => 'La couleur principale actuelle prendra effet dans l\'espace de travail',
@@ -4553,8 +4569,6 @@ extension on TranslationsFrFr {
 			'workspace.projectCreateEntry' => 'Nouveau projet',
 			'workspace.projectCreateTitle' => 'Nouveau projet',
 			'workspace.projectNameLabel' => 'Nom du projet',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameHint' => 'Ex. : refonte du site web',
 			'workspace.projectNameRequired' => 'Le nom du projet est requis',
 			'workspace.projectDescLabel' => 'Description du projet (facultatif)',

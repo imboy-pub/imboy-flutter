@@ -1138,6 +1138,27 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '任何人都可查找并关注此频道。你的电话号码对其他订阅者或频道管理员完全保密。'
 	String get privacyDesc => '任何人都可查找并关注此频道。你的电话号码对其他订阅者或频道管理员完全保密。';
+
+	/// zh-CN: '关于此频道'
+	String get aboutThisChannel => '关于此频道';
+
+	/// zh-CN: '修改照片'
+	String get changePhoto => '修改照片';
+
+	/// zh-CN: '添加照片'
+	String get addPhoto => '添加照片';
+
+	/// zh-CN: '添加描述'
+	String get addDescription => '添加描述';
+
+	/// zh-CN: '频道 “$name” 已创建'
+	String channelCreated({required Object name}) => '频道 “${name}” 已创建';
+
+	/// zh-CN: '开始发展壮大 “$name”'
+	String startGrowing({required Object name}) => '开始发展壮大 “${name}”';
+
+	/// zh-CN: '大家快来关注我的频道【$name】吧！$url'
+	String shareInviteText({required Object name, required Object url}) => '大家快来关注我的频道【${name}】吧！${url}';
 }
 
 // Path: chat
@@ -7150,6 +7171,13 @@ extension on Translations {
 			'channel.editor' => '编辑',
 			'channel.privacyTitle' => '公开频道与隐私保护',
 			'channel.privacyDesc' => '任何人都可查找并关注此频道。你的电话号码对其他订阅者或频道管理员完全保密。',
+			'channel.aboutThisChannel' => '关于此频道',
+			'channel.changePhoto' => '修改照片',
+			'channel.addPhoto' => '添加照片',
+			'channel.addDescription' => '添加描述',
+			'channel.channelCreated' => ({required Object name}) => '频道 “${name}” 已创建',
+			'channel.startGrowing' => ({required Object name}) => '开始发展壮大 “${name}”',
+			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快来关注我的频道【${name}】吧！${url}',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -7305,6 +7333,8 @@ extension on Translations {
 			'chat.createdAtLabel' => ({required Object time}) => '创建时间: ${time}',
 			'chat.expiredAtLabel' => ({required Object time}) => '过期时间: ${time}',
 			'chat.myReceivedTab' => '我收到的',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderStatusLabel' => ({required Object status}) => '状态: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '创建时间: ${time}',
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付时间: ${time}',
@@ -7312,8 +7342,6 @@ extension on Translations {
 			'chat.orderStatusPaid' => '已支付',
 			'chat.orderStatusRefunded' => '已退款',
 			'chat.orderStatusExpired' => '已过期',
-			_ => null,
-		} ?? switch (path) {
 			'chat.defaultFileName' => '文件',
 			'chat.fileUrlInvalid' => '文件链接无效',
 			'chat.e2eeStatusAvailable' => '可用',
@@ -7819,6 +7847,8 @@ extension on Translations {
 			'common.momentsPublishFailed' => '发布失败',
 			'common.momentsAllowComment' => '允许评论',
 			'common.momentsNoComments' => '暂无评论',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentsCommentFailed' => '评论失败，请稍后重试',
 			'common.momentsDeleteFailed' => '删除失败，请稍后重试',
 			'common.momentsReportSubmitted' => '举报已提交',
@@ -7826,8 +7856,6 @@ extension on Translations {
 			'common.momentReportReasonSpam' => '垃圾广告',
 			'common.momentReportReasonHarassment' => '骚扰霸凌',
 			'common.momentReportReasonPorn' => '色情低俗',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '欺诈诈骗',
 			'common.momentReportReasonInfringement' => '侵权抄袭',
 			'common.momentReportReasonOther' => '其他',
@@ -8333,6 +8361,8 @@ extension on Translations {
 			'error.networkTroubleshootingStep1' => '1.打开手机设置并把Wi-Fi开关保持开启状态。',
 			'error.networkTroubleshootingStep2' => '2.打开手机设置-通用-蜂窝移动网络，并把蜂窝移动数据开关保持开启状态。',
 			'error.networkTroubleshootingStep3' => '3.如果仍无法连接网络，请检查手机接入的Wi-Fi是否已接入互联网或者咨询网络运营商。',
+			_ => null,
+		} ?? switch (path) {
 			'error.suggestCheckNetwork' => '建议检查网络设置。',
 			'error.e2eeStartRecoveryBtn' => ({required Object required}) => '开始恢复密钥（需要 ${required} 个代理协助）',
 			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => '分片不足（需要 ${required} 个，当前 ${current} 个）',
@@ -8340,8 +8370,6 @@ extension on Translations {
 			'error.e2eeErrNetwork' => '网络错误，加密失败，消息未发送',
 			'error.liveRoomTitleRequired' => '标题不能为空',
 			'group.enterSameGroup' => '与身边的朋友进入同一个群聊',
-			_ => null,
-		} ?? switch (path) {
 			'group.enterTheGroup' => '进入该群',
 			'group.groupAlias' => '我在本群的昵称',
 			'group.groupAlbum' => '群相册',
@@ -8847,6 +8875,8 @@ extension on Translations {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '仅支持 #RRGGBB / #AARRGGBB；非法值回落默认主题色',
 			'workspace.brandingColorInvalid' => '主色格式不正确，仅支持 #RRGGBB / #AARRGGBB',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingSaved' => '品牌设置已保存',
 			'workspace.brandingPreview' => '主色预览',
 			'workspace.brandingPreviewApplied' => '当前主色将在工作区内生效',
@@ -8854,8 +8884,6 @@ extension on Translations {
 			'workspace.projectCreateEntry' => '新建项目',
 			'workspace.projectCreateTitle' => '新建项目',
 			'workspace.projectNameLabel' => '项目名称',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameHint' => '例如：官网改版',
 			'workspace.projectNameRequired' => '项目名称不能为空',
 			'workspace.projectDescLabel' => '项目描述（可选）',

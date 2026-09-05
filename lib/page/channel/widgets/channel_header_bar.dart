@@ -589,8 +589,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
 
     if (!hasDesc && !hasTags) return const SizedBox.shrink();
 
-    final isChinese = Localizations.localeOf(context).languageCode == 'zh';
-    final sectionTitle = isChinese ? "关于此频道" : "About this channel";
+    final sectionTitle = t.channel.aboutThisChannel;
 
     return Container(
       width: double.infinity,

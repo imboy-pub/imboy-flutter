@@ -454,6 +454,13 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get editor => '편집자';
 	@override String get privacyTitle => '공개 채널과 개인정보 보호';
 	@override String get privacyDesc => '누구나 이 채널을 찾아 팔로우할 수 있습니다. 전화번호는 다른 구독자와 채널 관리자에게 완전히 숨겨집니다.';
+	@override String get aboutThisChannel => '이 채널 정보';
+	@override String get changePhoto => '사진 변경';
+	@override String get addPhoto => '사진 추가';
+	@override String get addDescription => '설명 추가';
+	@override String channelCreated({required Object name}) => '채널 "${name}"이(가) 생성되었습니다';
+	@override String startGrowing({required Object name}) => '"${name}" 성장시키기';
+	@override String shareInviteText({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}';
 }
 
 // Path: chat
@@ -2846,6 +2853,13 @@ extension on TranslationsKoKr {
 			'channel.editor' => '편집자',
 			'channel.privacyTitle' => '공개 채널과 개인정보 보호',
 			'channel.privacyDesc' => '누구나 이 채널을 찾아 팔로우할 수 있습니다. 전화번호는 다른 구독자와 채널 관리자에게 완전히 숨겨집니다.',
+			'channel.aboutThisChannel' => '이 채널 정보',
+			'channel.changePhoto' => '사진 변경',
+			'channel.addPhoto' => '사진 추가',
+			'channel.addDescription' => '설명 추가',
+			'channel.channelCreated' => ({required Object name}) => '채널 "${name}"이(가) 생성되었습니다',
+			'channel.startGrowing' => ({required Object name}) => '"${name}" 성장시키기',
+			'channel.shareInviteText' => ({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -3001,6 +3015,8 @@ extension on TranslationsKoKr {
 			'chat.orderStatusRefunded' => '환불됨',
 			'chat.orderStatusExpired' => '만료됨',
 			'chat.defaultFileName' => '파일',
+			_ => null,
+		} ?? switch (path) {
 			'chat.fileUrlInvalid' => '파일 링크가 잘못되었습니다',
 			'chat.e2eeStatusAvailable' => '사용 가능',
 			'chat.e2eeGenerateNewKey' => '새 키 생성',
@@ -3008,8 +3024,6 @@ extension on TranslationsKoKr {
 			'chat.e2eeActivated' => '활성화됨',
 			'chat.e2eeCreatedAtLabel' => '생성 시간',
 			'chat.e2eeGeneratingKey' => '키를 생성하는 중입니다. 잠시만 기다려 주세요...',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => '새 E2EE 키 쌍이 생성되었습니다!',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '준비 완료 (샤드 ${count}개)',
 			'chat.webFeatureMultiDevice' => '다중 기기 동기화',
@@ -3515,6 +3529,8 @@ extension on TranslationsKoKr {
 			'common.momentReportReasonSpam' => '스팸·광고',
 			'common.momentReportReasonHarassment' => '괴롭힘',
 			'common.momentReportReasonPorn' => '음란물',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '사기',
 			'common.momentReportReasonInfringement' => '저작권 침해',
 			'common.momentReportReasonOther' => '기타',
@@ -3522,8 +3538,6 @@ extension on TranslationsKoKr {
 			'common.momentsLoadMoreComments' => '댓글 더 보기',
 			'common.momentsUploadFailed' => '미디어 업로드 실패, 나중에 다시 시도해주세요',
 			'common.saveFailed' => '저장 실패',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirm' => '확인',
 			'common.success' => '성공',
 			'common.personalDisplay' => '개인 표시',
@@ -4029,6 +4043,8 @@ extension on TranslationsKoKr {
 			'error.networkTroubleshootingStep1' => '1. 휴대전화 설정을 열고 Wi-Fi 스위치를 켜 주세요.',
 			'error.networkTroubleshootingStep2' => '2. 휴대전화 설정 - 일반 - 셀룰러 데이터를 열고 셀룰러 데이터 스위치를 켜 주세요.',
 			'error.networkTroubleshootingStep3' => '3. 여전히 네트워크에 연결할 수 없는 경우, 휴대전화가 연결된 Wi-Fi가 인터넷에 액세스할 수 있는지 확인하거나 네트워크 운영자에게 문의해 주세요.',
+			_ => null,
+		} ?? switch (path) {
 			'error.suggestCheckNetwork' => '네트워크 설정을 확인하는 것이 좋습니다.',
 			'error.e2eeStartRecoveryBtn' => ({required Object required}) => '키 복구 시작 (${required}명의 대리자 필요)',
 			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => '샤드 부족 (${required}개 필요, 현재 ${current}개)',
@@ -4036,8 +4052,6 @@ extension on TranslationsKoKr {
 			'error.e2eeErrNetwork' => '네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다',
 			'error.liveRoomTitleRequired' => '제목을 입력해주세요',
 			'group.enterSameGroup' => '주변 친구와 같은 그룹 채팅에 들어가세요',
-			_ => null,
-		} ?? switch (path) {
 			'group.enterTheGroup' => '그룹 입장',
 			'group.groupAlias' => '그룹 내 내 닉네임',
 			'group.groupAlbum' => '그룹 앨범',
@@ -4543,6 +4557,8 @@ extension on TranslationsKoKr {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB만 지원합니다. 잘못된 값은 기본 테마 색상으로 대체됩니다',
 			'workspace.brandingColorInvalid' => '기본 색상 형식이 잘못되었습니다. #RRGGBB / #AARRGGBB만 지원합니다',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingSaved' => '브랜드 설정이 저장되었습니다',
 			'workspace.brandingPreview' => '기본 색상 미리보기',
 			'workspace.brandingPreviewApplied' => '현재 기본 색상은 워크스페이스 안에서 적용됩니다',
@@ -4550,8 +4566,6 @@ extension on TranslationsKoKr {
 			'workspace.projectCreateEntry' => '새 프로젝트',
 			'workspace.projectCreateTitle' => '새 프로젝트',
 			'workspace.projectNameLabel' => '프로젝트 이름',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameHint' => '예: 공식 홈페이지 리뉴얼',
 			'workspace.projectNameRequired' => '프로젝트 이름은 필수입니다',
 			'workspace.projectDescLabel' => '프로젝트 설명(선택)',

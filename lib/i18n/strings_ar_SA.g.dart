@@ -454,6 +454,13 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get editor => 'محرر';
 	@override String get privacyTitle => 'القنوات العامة والخصوصية';
 	@override String get privacyDesc => 'يمكن لأي شخص العثور على هذه القناة ومتابعتها. رقم هويتك مخفي تمامًا عن المشتركين الآخرين ومشرفي القناة.';
+	@override String get aboutThisChannel => 'حول هذه القناة';
+	@override String get changePhoto => 'تغيير الصورة';
+	@override String get addPhoto => 'إضافة صورة';
+	@override String get addDescription => 'إضافة وصف';
+	@override String channelCreated({required Object name}) => 'تم إنشاء القناة "${name}"';
+	@override String startGrowing({required Object name}) => 'نمِّ القناة "${name}"';
+	@override String shareInviteText({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}';
 }
 
 // Path: chat
@@ -2846,6 +2853,13 @@ extension on TranslationsArSa {
 			'channel.editor' => 'محرر',
 			'channel.privacyTitle' => 'القنوات العامة والخصوصية',
 			'channel.privacyDesc' => 'يمكن لأي شخص العثور على هذه القناة ومتابعتها. رقم هويتك مخفي تمامًا عن المشتركين الآخرين ومشرفي القناة.',
+			'channel.aboutThisChannel' => 'حول هذه القناة',
+			'channel.changePhoto' => 'تغيير الصورة',
+			'channel.addPhoto' => 'إضافة صورة',
+			'channel.addDescription' => 'إضافة وصف',
+			'channel.channelCreated' => ({required Object name}) => 'تم إنشاء القناة "${name}"',
+			'channel.startGrowing' => ({required Object name}) => 'نمِّ القناة "${name}"',
+			'channel.shareInviteText' => ({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -3001,6 +3015,8 @@ extension on TranslationsArSa {
 			'chat.orderStatusRefunded' => 'تم الاسترداد',
 			'chat.orderStatusExpired' => 'منتهٍ',
 			'chat.defaultFileName' => 'ملف',
+			_ => null,
+		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'رابط الملف غير صالح',
 			'chat.e2eeStatusAvailable' => 'متاح',
 			'chat.e2eeGenerateNewKey' => 'إنشاء مفتاح جديد',
@@ -3008,8 +3024,6 @@ extension on TranslationsArSa {
 			'chat.e2eeActivated' => 'مفعّل',
 			'chat.e2eeCreatedAtLabel' => 'تاريخ الإنشاء',
 			'chat.e2eeGeneratingKey' => 'جارٍ إنشاء المفتاح، انتظر...',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'تم إنشاء زوج مفاتيح E2EE جديد!',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'جاهز (${count} شظية)',
 			'chat.webFeatureMultiDevice' => 'مزامنة الأجهزة',
@@ -3515,6 +3529,8 @@ extension on TranslationsArSa {
 			'common.momentReportReasonSpam' => 'مزعج أو إعلانات',
 			'common.momentReportReasonHarassment' => 'مضايقة',
 			'common.momentReportReasonPorn' => 'محتوى إباحي',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'احتيال',
 			'common.momentReportReasonInfringement' => 'انتهاك حقوق النشر',
 			'common.momentReportReasonOther' => 'أخرى',
@@ -3522,8 +3538,6 @@ extension on TranslationsArSa {
 			'common.momentsLoadMoreComments' => 'المزيد من التعليقات',
 			'common.momentsUploadFailed' => 'تعذّر رفع الوسائط، حاول لاحقاً',
 			'common.saveFailed' => 'فشل الحفظ',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirm' => 'تأكيد',
 			'common.success' => 'نجح',
 			'common.personalDisplay' => 'عرض شخصي',
@@ -4029,6 +4043,8 @@ extension on TranslationsArSa {
 			'error.networkTroubleshootingStep1' => '1. افتح إعدادات الهاتف وقم بإبقاء مفتاح Wi-Fi قيد التشغيل.',
 			'error.networkTroubleshootingStep2' => '2. افتح إعدادات الهاتف - عام - بيانات الهاتف المحمول، وقم بإبقاء مفتاح بيانات الهاتف المحمول قيد التشغيل.',
 			'error.networkTroubleshootingStep3' => '3. إذا كنت لا تزال غير قادر على الاتصال بالشبكة، يرجى التحقق مما إذا كان Wi-Fi المتصل بالهاتف متصلاً بالإنترنت أو استشارة مشغل الشبكة.',
+			_ => null,
+		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'يُقترح التحقق من إعدادات الشبكة.',
 			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'بدء الاستعادة (يلزم ${required} وكيلاً)',
 			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'شظايا غير كافية (يلزم ${required}، المتاح ${current})',
@@ -4036,8 +4052,6 @@ extension on TranslationsArSa {
 			'error.e2eeErrNetwork' => 'خطأ شبكة، فشل التشفير، لم تُرسل الرسالة',
 			'error.liveRoomTitleRequired' => 'أدخل العنوان',
 			'group.enterSameGroup' => 'انضم إلى نفس المجموعة مع الأصدقاء من حولك',
-			_ => null,
-		} ?? switch (path) {
 			'group.enterTheGroup' => 'الانضمام إلى هذه المجموعة',
 			'group.groupAlias' => 'لقبي في هذه المجموعة',
 			'group.groupAlbum' => 'ألبوم المجموعة',
@@ -4543,6 +4557,8 @@ extension on TranslationsArSa {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'يُدعم #RRGGBB / #AARRGGBB فقط؛ القيم غير الصالحة تعود إلى لون السمة الافتراضي',
 			'workspace.brandingColorInvalid' => 'تنسيق اللون الأساسي غير صحيح، يُدعم #RRGGBB / #AARRGGBB فقط',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingSaved' => 'تم حفظ إعدادات العلامة',
 			'workspace.brandingPreview' => 'معاينة اللون الأساسي',
 			'workspace.brandingPreviewApplied' => 'سيُطبَّق اللون الأساسي الحالي داخل مساحة العمل',
@@ -4550,8 +4566,6 @@ extension on TranslationsArSa {
 			'workspace.projectCreateEntry' => 'مشروع جديد',
 			'workspace.projectCreateTitle' => 'مشروع جديد',
 			'workspace.projectNameLabel' => 'اسم المشروع',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameHint' => 'مثال: إعادة تصميم الموقع',
 			'workspace.projectNameRequired' => 'لا يمكن أن يكون اسم المشروع فارغاً',
 			'workspace.projectDescLabel' => 'وصف المشروع (اختياري)',

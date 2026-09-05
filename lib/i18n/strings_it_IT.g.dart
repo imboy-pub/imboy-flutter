@@ -454,6 +454,13 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get editor => 'Editore';
 	@override String get privacyTitle => 'Canali pubblici e privacy';
 	@override String get privacyDesc => 'Chiunque può trovare e seguire questo canale. Il tuo numero di telefono resta completamente nascosto agli altri iscritti e agli amministratori.';
+	@override String get aboutThisChannel => 'Info su questo canale';
+	@override String get changePhoto => 'Modifica foto';
+	@override String get addPhoto => 'Aggiungi foto';
+	@override String get addDescription => 'Aggiungi descrizione';
+	@override String channelCreated({required Object name}) => 'Canale "${name}" creato';
+	@override String startGrowing({required Object name}) => 'Fai crescere "${name}"';
+	@override String shareInviteText({required Object name, required Object url}) => 'Venite a seguire il mio canale "${name}": ${url}';
 }
 
 // Path: chat
@@ -2849,6 +2856,13 @@ extension on TranslationsItIt {
 			'channel.editor' => 'Editore',
 			'channel.privacyTitle' => 'Canali pubblici e privacy',
 			'channel.privacyDesc' => 'Chiunque può trovare e seguire questo canale. Il tuo numero di telefono resta completamente nascosto agli altri iscritti e agli amministratori.',
+			'channel.aboutThisChannel' => 'Info su questo canale',
+			'channel.changePhoto' => 'Modifica foto',
+			'channel.addPhoto' => 'Aggiungi foto',
+			'channel.addDescription' => 'Aggiungi descrizione',
+			'channel.channelCreated' => ({required Object name}) => 'Canale "${name}" creato',
+			'channel.startGrowing' => ({required Object name}) => 'Fai crescere "${name}"',
+			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Venite a seguire il mio canale "${name}": ${url}',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.receivePayment' => 'Ricevi & Paga',
 			'chat.alreadyMember' => 'Già membro',
@@ -3004,6 +3018,8 @@ extension on TranslationsItIt {
 			'chat.orderStatusRefunded' => 'Rimborsato',
 			'chat.orderStatusExpired' => 'Scaduto',
 			'chat.defaultFileName' => 'File',
+			_ => null,
+		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'Link file non valido',
 			'chat.e2eeStatusAvailable' => 'Disponibile',
 			'chat.e2eeGenerateNewKey' => 'Genera nuova chiave',
@@ -3011,8 +3027,6 @@ extension on TranslationsItIt {
 			'chat.e2eeActivated' => 'Attivo',
 			'chat.e2eeCreatedAtLabel' => 'Creato il',
 			'chat.e2eeGeneratingKey' => 'Generazione chiave, attendi...',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'Nuova coppia di chiavi E2EE creata !',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Pronto (${count} frammenti)',
 			'chat.webFeatureMultiDevice' => 'Multi-dispositivo',
@@ -3518,6 +3532,8 @@ extension on TranslationsItIt {
 			'common.momentReportReasonSpam' => 'Spam o pubblicità',
 			'common.momentReportReasonHarassment' => 'Molestie',
 			'common.momentReportReasonPorn' => 'Pornografia',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Frode o truffa',
 			'common.momentReportReasonInfringement' => 'Violazione del copyright',
 			'common.momentReportReasonOther' => 'Altro',
@@ -3525,8 +3541,6 @@ extension on TranslationsItIt {
 			'common.momentsLoadMoreComments' => 'Carica altri commenti',
 			'common.momentsUploadFailed' => 'Caricamento media fallito. Riprova più tardi.',
 			'common.saveFailed' => 'Salvataggio non riuscito',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirm' => 'Conferma',
 			'common.success' => 'Successo',
 			'common.personalDisplay' => 'Visualizzazione personale',
@@ -4032,6 +4046,8 @@ extension on TranslationsItIt {
 			'error.networkTroubleshootingStep1' => '1. Apri impostazioni telefono e mantieni l\'interruttore Wi-Fi attivo.',
 			'error.networkTroubleshootingStep2' => '2. Apri impostazioni telefono - Generale - Dati cellulare e mantieni l\'interruttore Dati cellulare attivo.',
 			'error.networkTroubleshootingStep3' => '3. Se ancora impossibile connettersi alla rete, verifica se il Wi-Fi connesso dal telefono ha accesso a Internet o contatta l\'operatore di rete.',
+			_ => null,
+		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'Si consiglia di controllare le impostazioni di rete.',
 			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'Avvia ripristino (${required} garanti richiesti)',
 			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Frammenti insufficienti (${required} richiesti, ${current} attuali)',
@@ -4039,8 +4055,6 @@ extension on TranslationsItIt {
 			'error.e2eeErrNetwork' => 'Errore di rete, cifratura fallita, messaggio non inviato',
 			'error.liveRoomTitleRequired' => 'Titolo richiesto',
 			'group.enterSameGroup' => 'Entra nella stessa chat di gruppo con gli amici vicini',
-			_ => null,
-		} ?? switch (path) {
 			'group.enterTheGroup' => 'Entra nel gruppo',
 			'group.groupAlias' => 'Il mio nickname nel gruppo',
 			'group.groupAlbum' => 'Album di gruppo',
@@ -4546,6 +4560,8 @@ extension on TranslationsItIt {
 			'workspace.projectDescHint' => 'Cosa deve consegnare questo progetto?',
 			'workspace.projectDescLabel' => 'Descrizione del progetto (opzionale)',
 			'workspace.projectDetailTitle' => 'Dettagli progetto',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectGuestReadonly' => 'Come Ospite (Guest) il progetto è in sola lettura',
 			'workspace.projectInsightsActivityEmpty' => 'Nessuna attività per questo progetto',
 			'workspace.projectInsightsEntry' => 'Aggregazione contenuti',
@@ -4553,8 +4569,6 @@ extension on TranslationsItIt {
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => 'Pubblicato da ${name}',
 			'workspace.projectInsightsPostsEmpty' => 'I canali collegati non hanno post per ora',
 			'workspace.projectInsightsResourcesEmpty' => 'Nessun link alle risorse per questo progetto',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectInsightsTabActivity' => 'Attività del progetto',
 			'workspace.projectInsightsTabPinned' => 'Messaggi in evidenza',
 			'workspace.projectInsightsTabPosts' => 'Post correlati',

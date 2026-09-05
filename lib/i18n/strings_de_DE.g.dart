@@ -454,6 +454,13 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get editor => 'Redakteur';
 	@override String get privacyTitle => 'Öffentliche Kanäle & Datenschutz';
 	@override String get privacyDesc => 'Jeder kann diesen Kanal finden und abonnieren. Deine Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen.';
+	@override String get aboutThisChannel => 'Über diesen Kanal';
+	@override String get changePhoto => 'Foto ändern';
+	@override String get addPhoto => 'Foto hinzufügen';
+	@override String get addDescription => 'Beschreibung hinzufügen';
+	@override String channelCreated({required Object name}) => 'Kanal „${name}“ erstellt';
+	@override String startGrowing({required Object name}) => 'Wachse mit „${name}“';
+	@override String shareInviteText({required Object name, required Object url}) => 'Folgt gerne meinem Kanal "${name}": ${url}';
 }
 
 // Path: chat
@@ -2849,6 +2856,13 @@ extension on TranslationsDeDe {
 			'channel.editor' => 'Redakteur',
 			'channel.privacyTitle' => 'Öffentliche Kanäle & Datenschutz',
 			'channel.privacyDesc' => 'Jeder kann diesen Kanal finden und abonnieren. Deine Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen.',
+			'channel.aboutThisChannel' => 'Über diesen Kanal',
+			'channel.changePhoto' => 'Foto ändern',
+			'channel.addPhoto' => 'Foto hinzufügen',
+			'channel.addDescription' => 'Beschreibung hinzufügen',
+			'channel.channelCreated' => ({required Object name}) => 'Kanal „${name}“ erstellt',
+			'channel.startGrowing' => ({required Object name}) => 'Wachse mit „${name}“',
+			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Folgt gerne meinem Kanal "${name}": ${url}',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.receivePayment' => 'Empfangen & Zahlen',
 			'chat.alreadyMember' => 'Bereits Mitglied',
@@ -3004,6 +3018,8 @@ extension on TranslationsDeDe {
 			'chat.orderStatusRefunded' => 'Erstattet',
 			'chat.orderStatusExpired' => 'Abgelaufen',
 			'chat.defaultFileName' => 'Datei',
+			_ => null,
+		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'Dateilink ungültig',
 			'chat.e2eeStatusAvailable' => 'Verfügbar',
 			'chat.e2eeGenerateNewKey' => 'Neuen Schlüssel erstellen',
@@ -3011,8 +3027,6 @@ extension on TranslationsDeDe {
 			'chat.e2eeActivated' => 'Aktiv',
 			'chat.e2eeCreatedAtLabel' => 'Erstellt am',
 			'chat.e2eeGeneratingKey' => 'Schlüssel wird erstellt, bitte warten...',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'Neues E2EE-Schlüsselpaar erstellt!',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Bereit (${count} Fragmente)',
 			'chat.webFeatureMultiDevice' => 'Multi-Geräte-Sync',
@@ -3518,6 +3532,8 @@ extension on TranslationsDeDe {
 			'common.momentReportReasonSpam' => 'Spam oder Werbung',
 			'common.momentReportReasonHarassment' => 'Belästigung',
 			'common.momentReportReasonPorn' => 'Pornografie',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Betrug',
 			'common.momentReportReasonInfringement' => 'Urheberrechtsverletzung',
 			'common.momentReportReasonOther' => 'Sonstiges',
@@ -3525,8 +3541,6 @@ extension on TranslationsDeDe {
 			'common.momentsLoadMoreComments' => 'Weitere Kommentare laden',
 			'common.momentsUploadFailed' => 'Medien-Upload fehlgeschlagen. Bitte später erneut versuchen.',
 			'common.saveFailed' => 'Speichern fehlgeschlagen',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirm' => 'Bestätigen',
 			'common.success' => 'Erfolg',
 			'common.personalDisplay' => 'Persönliche Anzeige',
@@ -4032,6 +4046,8 @@ extension on TranslationsDeDe {
 			'error.networkTroubleshootingStep1' => '1. Telefoneinstellungen öffnen, WLAN eingeschaltet lassen.',
 			'error.networkTroubleshootingStep2' => '2. Einstellungen - Allgemein - Mobilfunkdaten, Schalter eingeschaltet lassen.',
 			'error.networkTroubleshootingStep3' => '3. Keine Verbindung? Prüfen Sie WLAN-Internetzugang oder kontaktieren Sie den Netzbetreiber.',
+			_ => null,
+		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'Überprüfen Sie die Netzwerkeinstellungen.',
 			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'Wiederherstellung starten (${required} Treuhänder nötig)',
 			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Zu wenige Fragmente (${required} nötig, ${current} vorhanden)',
@@ -4039,8 +4055,6 @@ extension on TranslationsDeDe {
 			'error.e2eeErrNetwork' => 'Netzwerkfehler beim Verschlüsseln, Nachricht nicht gesendet',
 			'error.liveRoomTitleRequired' => 'Titel erforderlich',
 			'group.enterSameGroup' => 'Mit Freunden in der Nähe denselben Gruppenchat beitreten',
-			_ => null,
-		} ?? switch (path) {
 			'group.enterTheGroup' => 'Der Gruppe beitreten',
 			'group.groupAlias' => 'Mein Spitzname in dieser Gruppe',
 			'group.groupAlbum' => 'Gruppenalbum',
@@ -4546,6 +4560,8 @@ extension on TranslationsDeDe {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Nur #RRGGBB / #AARRGGBB; ungültige Werte fallen auf die Standard-Designfarbe zurück',
 			'workspace.brandingColorInvalid' => 'Ungültiges Format der Hauptfarbe, nur #RRGGBB / #AARRGGBB',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingSaved' => 'Branding-Einstellungen gespeichert',
 			'workspace.brandingPreview' => 'Vorschau der Hauptfarbe',
 			'workspace.brandingPreviewApplied' => 'Die Hauptfarbe gilt im gesamten Arbeitsbereich',
@@ -4553,8 +4569,6 @@ extension on TranslationsDeDe {
 			'workspace.projectCreateEntry' => 'Neues Projekt',
 			'workspace.projectCreateTitle' => 'Neues Projekt',
 			'workspace.projectNameLabel' => 'Projektname',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameHint' => 'z. B. Website-Relaunch',
 			'workspace.projectNameRequired' => 'Projektname darf nicht leer sein',
 			'workspace.projectDescLabel' => 'Projektbeschreibung (optional)',

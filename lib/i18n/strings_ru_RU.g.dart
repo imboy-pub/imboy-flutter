@@ -454,6 +454,13 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get editor => 'Редактор';
 	@override String get privacyTitle => 'Публичные каналы и конфиденциальность';
 	@override String get privacyDesc => 'Этот канал может найти и подписаться любой. Ваш номер телефона полностью скрыт от других подписчиков и администраторов канала.';
+	@override String get aboutThisChannel => 'Об этом канале';
+	@override String get changePhoto => 'Изменить фото';
+	@override String get addPhoto => 'Добавить фото';
+	@override String get addDescription => 'Добавить описание';
+	@override String channelCreated({required Object name}) => 'Канал "${name}" создан';
+	@override String startGrowing({required Object name}) => 'Развивайте "${name}"';
+	@override String shareInviteText({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}';
 }
 
 // Path: chat
@@ -2855,6 +2862,13 @@ extension on TranslationsRuRu {
 			'channel.editor' => 'Редактор',
 			'channel.privacyTitle' => 'Публичные каналы и конфиденциальность',
 			'channel.privacyDesc' => 'Этот канал может найти и подписаться любой. Ваш номер телефона полностью скрыт от других подписчиков и администраторов канала.',
+			'channel.aboutThisChannel' => 'Об этом канале',
+			'channel.changePhoto' => 'Изменить фото',
+			'channel.addPhoto' => 'Добавить фото',
+			'channel.addDescription' => 'Добавить описание',
+			'channel.channelCreated' => ({required Object name}) => 'Канал "${name}" создан',
+			'channel.startGrowing' => ({required Object name}) => 'Развивайте "${name}"',
+			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -3010,6 +3024,8 @@ extension on TranslationsRuRu {
 			'chat.orderStatusRefunded' => 'Возврат оформлен',
 			'chat.orderStatusExpired' => 'Истекло',
 			'chat.defaultFileName' => 'Файл',
+			_ => null,
+		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'Недействительная ссылка на файл',
 			'chat.e2eeStatusAvailable' => 'Доступно',
 			'chat.e2eeGenerateNewKey' => 'Создать новый ключ',
@@ -3017,8 +3033,6 @@ extension on TranslationsRuRu {
 			'chat.e2eeActivated' => 'Активно',
 			'chat.e2eeCreatedAtLabel' => 'Создан',
 			'chat.e2eeGeneratingKey' => 'Создание ключа, подождите...',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => 'Новая пара ключей E2EE создана!',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Готово (фрагментов: ${count})',
 			'chat.webFeatureMultiDevice' => 'Синхронизация устройств',
@@ -3524,6 +3538,8 @@ extension on TranslationsRuRu {
 			'common.momentReportReasonSpam' => 'Спам или реклама',
 			'common.momentReportReasonHarassment' => 'Домогательства',
 			'common.momentReportReasonPorn' => 'Порнография',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Мошенничество',
 			'common.momentReportReasonInfringement' => 'Нарушение авторских прав',
 			'common.momentReportReasonOther' => 'Другое',
@@ -3531,8 +3547,6 @@ extension on TranslationsRuRu {
 			'common.momentsLoadMoreComments' => 'Ещё комментарии',
 			'common.momentsUploadFailed' => 'Не удалось загрузить медиа, попробуйте позже',
 			'common.saveFailed' => 'Не удалось сохранить',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirm' => 'Подтвердить',
 			'common.success' => 'Успешно',
 			'common.personalDisplay' => 'Личное отображение',
@@ -4038,6 +4052,8 @@ extension on TranslationsRuRu {
 			'error.networkTroubleshootingStep1' => '1. Включите Wi-Fi в настройках телефона',
 			'error.networkTroubleshootingStep2' => '2. Включите мобильные данные',
 			'error.networkTroubleshootingStep3' => '3. Проверьте интернет или обратитесь к оператору',
+			_ => null,
+		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'Рекомендуется проверить настройки сети.',
 			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'Начать восстановление (нужно посредников: ${required})',
 			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Недостаточно фрагментов (нужно ${required}, есть ${current})',
@@ -4045,8 +4061,6 @@ extension on TranslationsRuRu {
 			'error.e2eeErrNetwork' => 'Сетевая ошибка, шифрование не выполнено, сообщение не отправлено',
 			'error.liveRoomTitleRequired' => 'Введите название',
 			'group.enterSameGroup' => 'Войти в одну группу с друзьями рядом',
-			_ => null,
-		} ?? switch (path) {
 			'group.enterTheGroup' => 'Войти в эту группу',
 			'group.groupAlias' => 'Мой никнейм в этой группе',
 			'group.groupAlbum' => 'Альбом группы',
@@ -4552,6 +4566,8 @@ extension on TranslationsRuRu {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Поддерживается только #RRGGBB / #AARRGGBB; при недопустимом значении используется цвет темы по умолчанию',
 			'workspace.brandingColorInvalid' => 'Неверный формат основного цвета, поддерживается только #RRGGBB / #AARRGGBB',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingSaved' => 'Настройки бренда сохранены',
 			'workspace.brandingPreview' => 'Предпросмотр основного цвета',
 			'workspace.brandingPreviewApplied' => 'Текущий основной цвет применяется внутри рабочего пространства',
@@ -4559,8 +4575,6 @@ extension on TranslationsRuRu {
 			'workspace.projectCreateEntry' => 'Новый проект',
 			'workspace.projectCreateTitle' => 'Новый проект',
 			'workspace.projectNameLabel' => 'Название проекта',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameHint' => 'Например: редизайн сайта',
 			'workspace.projectNameRequired' => 'Название проекта не может быть пустым',
 			'workspace.projectDescLabel' => 'Описание проекта (необязательно)',

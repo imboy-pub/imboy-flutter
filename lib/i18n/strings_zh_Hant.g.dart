@@ -454,6 +454,13 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get editor => '編輯';
 	@override String get privacyTitle => '公開頻道與隱私保護';
 	@override String get privacyDesc => '任何人都可以查找並追蹤此頻道。你的電話號碼對其他訂閱者或頻道管理員完全保密。';
+	@override String get aboutThisChannel => '關於此頻道';
+	@override String get changePhoto => '修改照片';
+	@override String get addPhoto => '新增照片';
+	@override String get addDescription => '新增描述';
+	@override String channelCreated({required Object name}) => '頻道 “${name}” 已建立';
+	@override String startGrowing({required Object name}) => '開始發展壯大 “${name}”';
+	@override String shareInviteText({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}';
 }
 
 // Path: chat
@@ -2846,6 +2853,13 @@ extension on TranslationsZhHant {
 			'channel.editor' => '編輯',
 			'channel.privacyTitle' => '公開頻道與隱私保護',
 			'channel.privacyDesc' => '任何人都可以查找並追蹤此頻道。你的電話號碼對其他訂閱者或頻道管理員完全保密。',
+			'channel.aboutThisChannel' => '關於此頻道',
+			'channel.changePhoto' => '修改照片',
+			'channel.addPhoto' => '新增照片',
+			'channel.addDescription' => '新增描述',
+			'channel.channelCreated' => ({required Object name}) => '頻道 “${name}” 已建立',
+			'channel.startGrowing' => ({required Object name}) => '開始發展壯大 “${name}”',
+			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -3001,6 +3015,8 @@ extension on TranslationsZhHant {
 			'chat.expiredAtLabel' => ({required Object time}) => '過期時間: ${time}',
 			'chat.myReceivedTab' => '我接收的',
 			'chat.orderStatusLabel' => ({required Object status}) => '狀態: ${status}',
+			_ => null,
+		} ?? switch (path) {
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '建立時間: ${time}',
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付時間: ${time}',
 			'chat.orderStatusPending' => '待付款',
@@ -3008,8 +3024,6 @@ extension on TranslationsZhHant {
 			'chat.orderStatusRefunded' => '已退費',
 			'chat.orderStatusExpired' => '已過期',
 			'chat.defaultFileName' => '檔案',
-			_ => null,
-		} ?? switch (path) {
 			'chat.fileUrlInvalid' => '檔案連結無效',
 			'chat.e2eeStatusAvailable' => '已啟用',
 			'chat.e2eeGenerateNewKey' => '生成新金鑰',
@@ -3515,6 +3529,8 @@ extension on TranslationsZhHant {
 			'common.momentsReportSubmitted' => '舉報已提交',
 			'common.momentsReportFailed' => '舉報失敗，請稍後重試',
 			'common.momentReportReasonSpam' => '垃圾廣告',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonHarassment' => '騷擾霸凌',
 			'common.momentReportReasonPorn' => '色情或不雅內容',
 			'common.momentReportReasonFraud' => '欺詐詐騙',
@@ -3522,8 +3538,6 @@ extension on TranslationsZhHant {
 			'common.momentReportReasonOther' => '其他原因',
 			'common.momentReportReasonPrompt' => '請選擇舉報原因',
 			'common.momentsLoadMoreComments' => '載入更多評論',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentsUploadFailed' => '媒體上傳失敗，請稍後重試',
 			'common.saveFailed' => '儲存失敗',
 			'common.confirm' => '確認',
@@ -4029,6 +4043,8 @@ extension on TranslationsZhHant {
 			'error.networkTroubleshootingStep1' => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。',
 			'error.networkTroubleshootingStep2' => '2.開啟手機設定-一般-流動數據，並把流動數據開關保持開啟狀態。',
 			'error.networkTroubleshootingStep3' => '3.如仍無法連接網路，請檢查手機連接的 Wi-Fi 是否已連上互聯網或聯絡電訊商。',
+			_ => null,
+		} ?? switch (path) {
 			'error.suggestCheckNetwork' => '建議檢查網路設定。',
 			'error.e2eeStartRecoveryBtn' => ({required Object required}) => '開始恢復金鑰（需要 ${required} 個代理協助）',
 			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => '分片不足（需要 ${required} 個，當前 ${current} 個）',
@@ -4036,8 +4052,6 @@ extension on TranslationsZhHant {
 			'error.e2eeErrNetwork' => '網路錯誤，加密失敗，訊息未傳送',
 			'error.liveRoomTitleRequired' => '標題不能為空',
 			'group.enterSameGroup' => '與身邊的朋友進入同一個群組聊天',
-			_ => null,
-		} ?? switch (path) {
 			'group.enterTheGroup' => '進入該群組',
 			'group.groupAlias' => '我在本群組的暱稱',
 			'group.groupAlbum' => '群相簿',
@@ -4543,6 +4557,8 @@ extension on TranslationsZhHant {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '僅支援 #RRGGBB / #AARRGGBB；非法值改用預設主題色',
 			'workspace.brandingColorInvalid' => '主色格式不正確，僅支援 #RRGGBB / #AARRGGBB',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingSaved' => '品牌設定已儲存',
 			'workspace.brandingPreview' => '主色預覽',
 			'workspace.brandingPreviewApplied' => '目前主色將在工作區內生效',
@@ -4550,8 +4566,6 @@ extension on TranslationsZhHant {
 			'workspace.projectCreateEntry' => '新增專案',
 			'workspace.projectCreateTitle' => '新增專案',
 			'workspace.projectNameLabel' => '專案名稱',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameHint' => '例如：官網改版',
 			'workspace.projectNameRequired' => '專案名稱不能為空',
 			'workspace.projectDescLabel' => '專案描述（選填）',

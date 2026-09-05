@@ -454,6 +454,13 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get editor => '編集者';
 	@override String get privacyTitle => '公開チャンネルとプライバシー';
 	@override String get privacyDesc => '誰でもこのチャンネルを検索してフォローできます。電話番号は他のフォロワーやチャンネル管理者には一切表示されません。';
+	@override String get aboutThisChannel => 'このチャンネルについて';
+	@override String get changePhoto => '写真を変更';
+	@override String get addPhoto => '写真を追加';
+	@override String get addDescription => '説明を追加';
+	@override String channelCreated({required Object name}) => 'チャンネル「${name}」を作成しました';
+	@override String startGrowing({required Object name}) => '「${name}」を育てよう';
+	@override String shareInviteText({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}';
 }
 
 // Path: chat
@@ -2846,6 +2853,13 @@ extension on TranslationsJaJp {
 			'channel.editor' => '編集者',
 			'channel.privacyTitle' => '公開チャンネルとプライバシー',
 			'channel.privacyDesc' => '誰でもこのチャンネルを検索してフォローできます。電話番号は他のフォロワーやチャンネル管理者には一切表示されません。',
+			'channel.aboutThisChannel' => 'このチャンネルについて',
+			'channel.changePhoto' => '写真を変更',
+			'channel.addPhoto' => '写真を追加',
+			'channel.addDescription' => '説明を追加',
+			'channel.channelCreated' => ({required Object name}) => 'チャンネル「${name}」を作成しました',
+			'channel.startGrowing' => ({required Object name}) => '「${name}」を育てよう',
+			'channel.shareInviteText' => ({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -3001,6 +3015,8 @@ extension on TranslationsJaJp {
 			'chat.orderStatusRefunded' => '返金済み',
 			'chat.orderStatusExpired' => '期限切れ',
 			'chat.defaultFileName' => 'ファイル',
+			_ => null,
+		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'ファイルリンクが無効です',
 			'chat.e2eeStatusAvailable' => '利用可能',
 			'chat.e2eeGenerateNewKey' => '新しいキーを生成',
@@ -3008,8 +3024,6 @@ extension on TranslationsJaJp {
 			'chat.e2eeActivated' => '有効',
 			'chat.e2eeCreatedAtLabel' => '作成日時',
 			'chat.e2eeGeneratingKey' => 'キーを生成中です。お待ちください...',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeNewKeyGenerated' => '新しいE2EEキーペアを生成しました！',
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備完了（シャード ${count} 個）',
 			'chat.webFeatureMultiDevice' => 'マルチデバイス同期',
@@ -3515,6 +3529,8 @@ extension on TranslationsJaJp {
 			'common.momentReportReasonSpam' => 'スパム・広告',
 			'common.momentReportReasonHarassment' => '嫌がらせ',
 			'common.momentReportReasonPorn' => 'わいせつ',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '詐欺',
 			'common.momentReportReasonInfringement' => '著作権侵害',
 			'common.momentReportReasonOther' => 'その他',
@@ -3522,8 +3538,6 @@ extension on TranslationsJaJp {
 			'common.momentsLoadMoreComments' => 'コメントをさらに読み込む',
 			'common.momentsUploadFailed' => 'メディアのアップロードに失敗しました。後でもう一度お試しください',
 			'common.saveFailed' => '保存に失敗しました',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirm' => '確認',
 			'common.success' => '成功しました',
 			'common.personalDisplay' => '個人表示',
@@ -4029,6 +4043,8 @@ extension on TranslationsJaJp {
 			'error.networkTroubleshootingStep1' => '1. スマートフォンの設定を開き、Wi-Fiスイッチをオンにします。',
 			'error.networkTroubleshootingStep2' => '2. スマートフォンの設定 - 一般 - モバイルデータ通信を開き、モバイルデータ通信スイッチをオンにします。',
 			'error.networkTroubleshootingStep3' => '3. まだネットワークに接続できない場合、スマートフォンが接続しているWi-Fiがインターネットにアクセスできるかどうかを確認するか、ネットワーク事業者にお問い合わせください。',
+			_ => null,
+		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'ネットワーク設定を確認することをお勧めします。',
 			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'キーの復元を開始（${required} 人の代理者の協力が必要）',
 			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'シャード不足（必要 ${required} 個、現在 ${current} 個）',
@@ -4036,8 +4052,6 @@ extension on TranslationsJaJp {
 			'error.e2eeErrNetwork' => 'ネットワークエラーのため暗号化に失敗しました。メッセージは送信されませんでした',
 			'error.liveRoomTitleRequired' => 'タイトルを入力してください',
 			'group.enterSameGroup' => '近くの友達と同じグループチャットに入る',
-			_ => null,
-		} ?? switch (path) {
 			'group.enterTheGroup' => 'このグループに入る',
 			'group.groupAlias' => 'グループ内のニックネーム',
 			'group.groupAlbum' => 'グループアルバム',
@@ -4543,6 +4557,8 @@ extension on TranslationsJaJp {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB のみ対応。無効な値はデフォルトのテーマカラーに戻ります',
 			'workspace.brandingColorInvalid' => 'メインカラーの形式が正しくありません。#RRGGBB / #AARRGGBB のみ対応しています',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingSaved' => 'ブランド設定を保存しました',
 			'workspace.brandingPreview' => 'メインカラープレビュー',
 			'workspace.brandingPreviewApplied' => '現在のメインカラーはワークスペース内で反映されます',
@@ -4550,8 +4566,6 @@ extension on TranslationsJaJp {
 			'workspace.projectCreateEntry' => '新規プロジェクト',
 			'workspace.projectCreateTitle' => '新規プロジェクト',
 			'workspace.projectNameLabel' => 'プロジェクト名',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameHint' => '例：サイトリニューアル',
 			'workspace.projectNameRequired' => 'プロジェクト名は空にできません',
 			'workspace.projectDescLabel' => 'プロジェクトの説明（任意）',

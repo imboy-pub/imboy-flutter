@@ -151,7 +151,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
 
       if (isManaged) {
         if (channel != null) {
-          return _buildStartGrowingCard(context, channel, t);
+          return _buildStartGrowingCard(context, channel);
         }
         return NoDataView(
           icon: CupertinoIcons.pencil,
@@ -376,32 +376,20 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
     );
   }
 
-  Widget _buildStartGrowingCard(
-    BuildContext context,
-    ChannelModel channel,
-    dynamic t,
-  ) {
+  Widget _buildStartGrowingCard(BuildContext context, ChannelModel channel) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = Theme.of(context).cardColor;
     final textPrimary = AppColors.getTextColor(Theme.of(context).brightness);
     final channelName = channel.name;
 
     final hasAvatar = channel.avatar != null && channel.avatar!.isNotEmpty;
-    final isChinese = Localizations.localeOf(context).languageCode == 'zh';
-
-    final createdPillText = isChinese
-        ? '频道 “$channelName” 已创建'
-        : 'Channel "$channelName" created';
-    final cardTitle = isChinese
-        ? '开始发展壮大 “$channelName”'
-        : 'Start growing "$channelName"';
-    final addPhotoText = hasAvatar
-        ? (isChinese ? '修改照片' : 'Change photo')
-        : (isChinese ? '添加照片' : 'Add photo');
+    final createdPillText = t.channel.channelCreated(name: channelName);
+    final cardTitle = t.channel.startGrowing(name: channelName);
+    final addPhotoText = hasAvatar ? t.channel.changePhoto : t.channel.addPhoto;
     final addDescText =
         (channel.description != null && channel.description!.isNotEmpty)
         ? channel.description!
-        : (isChinese ? '添加描述' : 'Add description');
+        : t.channel.addDescription;
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -563,9 +551,10 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                       context.push(
                         AppRoutes.momentCreate,
                         extra: {
-                          'content': isChinese
-                              ? '大家快来关注我的频道【$channelName】吧！$webBaseUrl/channel/${channel.id}'
-                              : 'Come and follow my channel "$channelName" at $webBaseUrl/channel/${channel.id}',
+                          'content': context.t.channel.shareInviteText(
+                            name: channelName,
+                            url: '$webBaseUrl/channel/${channel.id}',
+                          ),
                         },
                       );
                     },
