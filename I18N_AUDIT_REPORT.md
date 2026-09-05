@@ -514,15 +514,22 @@ C5 治理文档: I18N_AUDIT_REPORT.md I18N_TERMINOLOGY.md I18N_NATIVE_REVIEW_PAC
 ```text
 Task ID: i18n-release-governance P0-P17（本会话：P0-P16 执行与集成、
          10 语言 Agent 波次派发、P4 执行、P6/P16 专项、工具链、交付收口）
-Base SHA: 02b4cc48（战役起点）；本会话落地 8 笔提交：
+Base SHA: 02b4cc48（战役起点）；本会话落地 18 笔 i18n 提交（均 -s DCO，未 push）：
          3f5ff07a 数据集 / abac27e5 审计器+修剪工具 / 1b926a37 RTL 根因 /
          c19a0257 UI Gate+走查入口 / e6ad97c3 治理文档 / 09857f34 macOS 证据 /
-         b4b6b582 YAML 1.2 对齐 / 7ff56abb 根治记录（均 -s DCO，未 push）
+         b4b6b582 YAML 1.2 对齐 / 7ff56abb 根治记录 / fd770d74 交付卡 /
+         d4e0c706 走查 8 语言扩展 / 9d2bad3d 硬编码清理 34 处 /
+         a2ab55d4 ru 复数 resolver / 65b25183 弹窗硬编码正文 /
+         fa912a3b+cb679437 isChinese 伪 i18n 清零 /
+         ee99618b+bb44ac32 证据归档
 Owned files: assets/i18n/**（10 locale + 工具 4 件）、lib/i18n/**、lib/run.dart、
+         lib/component/dialog/e2ee_recovery_guide_dialog.dart、lib/page/channel/{channel_detail_page,widgets/channel_header_bar,widgets/channel_message_feed}.dart、
+         lib/page/passport/passport_notifier.dart、lib/page/mine/account_security/**、lib/page/settings/compliance_key_page.dart、lib/page/error/init_error_page.dart、
+         lib/service/{message_webrtc,message_actions}.dart、lib/modules/messaging/infrastructure/message_model_mapper.dart、
          i18n 专项测试 ×3、I18N_*.md ×3 —— 提交完整性审计：外来文件零混入
-Files changed: 见上 8 笔（C1=223 files，+4222/−21595）
-Keys reviewed: 2779（起点）→ 2789（补齐+并行新增）→ 2124（P4 后终态）
-Translations added: 3812 slots（10 Agent 并行波次）+ 12 slots（竞态补齐）+ 19 项 P5 冻结修正
+Files changed: 见上 18 笔（C1=223 files，+4222/−21595）
+Keys reviewed: 2779（起点）→ 2789（补齐+并行新增）→ 2124（P4 后）→ 2151（弹窗正文+角色/隐私键）→ 2158（硬编码清理批）终态
+Translations added: 3812 slots（10 Agent 并行波次）+ 12 slots（竞态补齐）+ 19 项 P5 冻结修正 + 40 键（弹窗正文/硬编码清理两批 × 10 locale）
 Translations corrected: ru CLDR one/few/many/other 四分支（原仅 other 为真 bug）、
          it-IT logoutCancelRequest、zh-CN 帐号→账号 等
 Key merges/deletions: 删除 703+on/off（6687 行）；保留 14 个 *NotImplemented 预置键；
@@ -536,7 +543,7 @@ Remaining uncertainties: Gate3 真机走查（macOS 过渡已绿：ar=RTL/de=LTR
          产品确认 6 项（术语表 §11）
 Commands run and exact results: §6 / §6.5 / §6.6 / §8.5.1（全部实跑留存，
          strict 门 PASS、审计回归 9/9、prune selftest 4/4、flutter 55/55、
-         macOS 走查 All tests passed!）
-Acceptance: PARTIAL —— 自动门/术语基线/工具链/提交/真机走查全部 PASS 且经当日复验；
-         仅剩母语审核一门外置（Gate 4），Release NO-GO 的唯一剩余原因
+         macOS 走查与 8 语言真机走查 All tests passed!、真机截图 8 张）
+Acceptance: PARTIAL —— 自动门/术语基线/工具链/提交/真机走查/硬编码清查全部 PASS
+         且经当日复验；仅剩母语审核一门外置（Gate 4），Release NO-GO 的唯一剩余原因
 ```
