@@ -103,10 +103,11 @@ void main() {
       _app(_channel(role: ChannelUserRole.admin, subscribed: true)),
     );
 
-    // Verify the new premium "Start Growing" welcome card components (English default in tests)
-    expect(find.text('Channel "测试频道" created'), findsOneWidget);
-    expect(find.text('Start growing "测试频道"'), findsOneWidget);
-    expect(find.text('Share to My Status'), findsOneWidget);
-    expect(find.text('Invite Admins'), findsOneWidget);
+    // Verify the premium "Start Growing" welcome card components.
+    // 文案已 i18n 化：断言走 t 键而非写死某语言字面量
+    expect(find.text(t.channel.channelCreated(name: '测试频道')), findsOneWidget);
+    expect(find.text(t.channel.startGrowing(name: '测试频道')), findsOneWidget);
+    expect(find.text(t.channel.shareToMyStatus), findsOneWidget);
+    expect(find.text(t.channel.inviteAdmins), findsOneWidget);
   });
 }

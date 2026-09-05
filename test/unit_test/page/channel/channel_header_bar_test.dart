@@ -32,6 +32,12 @@ Widget _themedApp(Widget child) => TranslationProvider(
   ),
 );
 
+/// 统计行断言：以「订阅者」结尾的 Text（privacyDesc 等长文案含该子串，
+/// textContaining 会误伤，须锚定词尾）
+Finder statsLine() => find.byWidgetPredicate(
+  (w) => w is Text && (w.data ?? '').endsWith(t.channel.subscribers),
+);
+
 void main() {
   testWidgets('统计加载时显示等高 skeleton，不渲染伪造的 0 统计', (tester) async {
     await tester.pumpWidget(
@@ -40,7 +46,7 @@ void main() {
 
     expect(find.byType(CupertinoActivityIndicator), findsNothing);
     expect(find.textContaining('0'), findsNothing);
-    expect(find.textContaining(t.channel.subscribers), findsNothing);
+    expect(statsLine(), findsNothing);
   });
 
   testWidgets('操作 pending 时按钮禁用并显示 spinner', (tester) async {
@@ -75,7 +81,7 @@ void main() {
       ),
     );
 
-    expect(find.textContaining(t.channel.subscribers), findsOneWidget);
+    expect(statsLine(), findsOneWidget);
     expect(find.textContaining(t.channel.messages), findsOneWidget);
   });
 
