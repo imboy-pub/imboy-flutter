@@ -198,3 +198,5 @@ safetyNumberReportUnavailable: 無法取得裝置資訊，未上報
 safetyNumberReporting: 正在上報驗證結果...
 safetyNumberTitle: 安全碼驗證
 safetyNumberVerifyFailed: 取得安全碼失敗，請稍後重試
+
+complianceKeyNotConfigured: "目前部署未配置合規審計金鑰"

@@ -16,3 +16,10 @@ qrLoginConfirming: Выполняется вход...
 qrLoginSuccess: Вход выполнен
 qrWebLoginDesc: Подтвердите вход этого аккаунта в веб-версии
 qrWebLoginTitle: Подтверждение входа в веб-версии
+
+alipayNotSupportedWeb: "Вход через Alipay не поддерживается в вебе"
+oneKeyNotSupportedWeb: "Вход в один клик не поддерживается в вебе"
+oneKeyInitFailed: "Не удалось инициализировать вход в один клик, попробуйте позже"
+oneKeyNoSimCard: "Текущая сеть не поддерживается или в телефоне нет SIM-карты"
+cannotGetScreenSize: "Не удалось получить размер экрана"
+oneKeyFailedRetry: "Не удалось выполнить вход в один клик, проверьте сеть и повторите"

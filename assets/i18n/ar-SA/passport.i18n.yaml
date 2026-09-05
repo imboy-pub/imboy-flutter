@@ -16,3 +16,10 @@ qrWebLoginTitle: تأكيد تسجيل الدخول عبر الويب
 qrWebLoginDesc: يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب
 qrLoginAction: تأكيد تسجيل الدخول
 qrLoginSuccess: تم تسجيل الدخول بنجاح
+
+alipayNotSupportedWeb: "تسجيل الدخول عبر Alipay غير مدعوم على الويب"
+oneKeyNotSupportedWeb: "تسجيل الدخول بنقرة واحدة غير مدعوم على الويب"
+oneKeyInitFailed: "فشل تهيئة تسجيل الدخول بنقرة واحدة، حاول لاحقًا"
+oneKeyNoSimCard: "الشبكة الحالية غير مدعومة أو لا توجد شريحة SIM في الهاتف"
+cannotGetScreenSize: "تعذر الحصول على حجم الشاشة"
+oneKeyFailedRetry: "فشل تسجيل الدخول بنقرة واحدة، تحقق من الشبكة وحاول مجددًا"

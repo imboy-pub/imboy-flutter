@@ -893,3 +893,6 @@ transferAccepted: تم الاستلام
 transferReceiving: جارٍ استلام المبلغ...
 transferRefunded: تمت الإعادة
 transferTapToReceive: انقر للاستلام
+
+retry: "إعادة المحاولة"
+retrying: "جارٍ إعادة المحاولة…"

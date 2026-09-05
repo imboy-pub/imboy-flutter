@@ -190,3 +190,8 @@ refundSuccess: Refund request submitted
 reply: Reply
 replyTo: Reply to
 writeComment: Write a comment...
+
+info: "Channel Info"
+settings: "Channel Settings"
+inviteAdmins: "Invite Admins"
+shareToMyStatus: "Share to My Status"

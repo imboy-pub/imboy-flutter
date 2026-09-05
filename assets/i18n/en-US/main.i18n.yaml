@@ -197,3 +197,5 @@ liveRoomTitleLabel: Live Room Title
 liveRoomTitleHint: Enter live room title
 channelPriceLabel(currency, amount): "Price: $currency $amount"
 lightModel: Light mode
+
+complianceKeyNotConfigured: "No compliance audit key configured for this deployment"

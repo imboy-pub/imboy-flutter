@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 初始化失败兜底页 / Init failure fallback page
 ///
@@ -100,7 +101,7 @@ class _InitErrorPageState extends State<InitErrorPage> {
                             child: CupertinoActivityIndicator(),
                           )
                         : const Icon(CupertinoIcons.arrow_clockwise),
-                    label: Text(_retrying ? '重试中…' : '重试'),
+                    label: Text(_retrying ? t.common.retrying : t.common.retry),
                   ),
                 ],
               ),

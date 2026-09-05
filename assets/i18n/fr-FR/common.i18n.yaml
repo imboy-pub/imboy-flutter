@@ -896,3 +896,6 @@ uploadPartialFailed(count): "Échec du téléversement de $count éléments"
 voiceSttConverting: "Reconnaissance en cours..."
 voiceSttNotConfigured: "La conversion en texte n'est pas encore configurée"
 voiceSttPreviewTitle: "Aperçu de la conversion voix en texte"
+
+retry: "Réessayer"
+retrying: "Nouvelle tentative…"

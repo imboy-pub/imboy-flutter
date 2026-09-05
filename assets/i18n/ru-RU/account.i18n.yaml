@@ -111,3 +111,7 @@ alipaySim:
   paymentAmount: "Сумма:"
   selectMethod: Выберите способ оплаты
   storeName: Флагманский магазин информационных технологий
+
+bindAlipay: "Привязать Alipay"
+unbindAlipay: "Отвязать"
+confirmUnbindAlipay: "Подтвердить отвязку"

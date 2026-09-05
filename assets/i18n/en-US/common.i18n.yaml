@@ -896,3 +896,6 @@ voiceSttConverting: Transcribing...
 voiceSttNotConfigured: Voice-to-text is not configured yet
 voiceSttPreviewTitle: Voice-to-Text Preview
 collectedVideoFormatIncorrectCannotFindVideoUri: "Unsupported video format, the video could not be found"
+
+retry: "Retry"
+retrying: "Retrying…"

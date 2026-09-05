@@ -201,3 +201,5 @@ e2eeErrComplianceUnavailable: コンプライアンスキーが一時的に利�
 e2eeErrDeviceNotReady: このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください
 e2eeErrProtocolMismatch: 暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください
 e2eeErrSessionExportFailed: グループセッションキーの生成に失敗しました。後でもう一度お試しください
+
+complianceKeyNotConfigured: "このデプロイにはコンプライアンス監査キーが設定されていません"

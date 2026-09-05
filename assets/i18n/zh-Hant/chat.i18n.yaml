@@ -204,3 +204,9 @@ switchToKeyboardInput: 切換到鍵盤輸入
 extraItems: 附加項
 messageInputHint: 說點什麼...
 invalidMessageType: "[不支援的訊息]"
+
+encryptedMessagePlaceholder: "[加密訊息]"
+invalidMessagePlaceholder: "[無效訊息]"
+videoCallPlaceholder: "[視訊通話]"
+voiceCallPlaceholder: "[語音通話]"
+notFriendCannotSend: "非好友關係，無法發送訊息"

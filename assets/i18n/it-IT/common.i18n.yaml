@@ -896,3 +896,6 @@ uploadPartialFailed(count): "Caricamento non riuscito per $count elementi"
 voiceSttConverting: Riconoscimento in corso...
 voiceSttNotConfigured: La conversione in testo non è ancora configurata
 voiceSttPreviewTitle: Anteprima di conversione vocale in testo
+
+retry: "Riprova"
+retrying: "Riprovo…"

@@ -121,9 +121,11 @@ class _ComplianceKeyPageState extends State<ComplianceKeyPage> {
                     ),
                   ),
                 if (key == null && _error == null)
-                  const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Center(child: Text('当前部署未配置合规审计密钥')),
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Center(
+                      child: Text(t.main.complianceKeyNotConfigured),
+                    ),
                   ),
                 if (key != null) ...[
                   ImBoySettingsSection(

@@ -894,3 +894,6 @@ searchFailedRetry: "搜索失败，请重试"
 searchDisabledTitle: "消息搜索未启用"
 searchDisabledByEncryption: "端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索"
 collectedVideoFormatIncorrectCannotFindVideoUri: "视频格式暂不支持，无法找到对应视频"
+
+retry: "重试"
+retrying: "重试中…"

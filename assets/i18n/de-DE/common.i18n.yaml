@@ -896,3 +896,6 @@ complianceKeyChangedBody: Der vom Server bereitgestellte öffentliche Compliance
 complianceKeyChangedActionConfirm: Rotation bestätigen
 complianceKeyChangedActionKeep: Vorerst nicht bestätigen
 initConfigDecryptFailed: "Konfiguration konnte nicht entschlüsselt werden: Sicherheitsschlüssel von App und Server stimmen nicht überein. Bitte App aktualisieren oder Administrator kontaktieren"
+
+retry: "Wiederholen"
+retrying: "Wiederholung…"

@@ -385,6 +385,15 @@ class Translations$account$zh_CN {
 	String get otherLoginMethods => '其他登录方式';
 
 	late final Translations$account$alipaySim$zh_CN alipaySim = Translations$account$alipaySim$zh_CN.internal(_root);
+
+	/// zh-CN: '绑定支付宝'
+	String get bindAlipay => '绑定支付宝';
+
+	/// zh-CN: '解除绑定'
+	String get unbindAlipay => '解除绑定';
+
+	/// zh-CN: '确认解除绑定'
+	String get confirmUnbindAlipay => '确认解除绑定';
 }
 
 // Path: agent
@@ -1102,6 +1111,18 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '仅受邀用户可进入购买流程，付款后即可订阅'
 	String get typePrivatePaidDesc => '仅受邀用户可进入购买流程，付款后即可订阅';
+
+	/// zh-CN: '频道信息'
+	String get info => '频道信息';
+
+	/// zh-CN: '频道设置'
+	String get settings => '频道设置';
+
+	/// zh-CN: '邀请管理员'
+	String get inviteAdmins => '邀请管理员';
+
+	/// zh-CN: '分享至我的动态'
+	String get shareToMyStatus => '分享至我的动态';
 }
 
 // Path: chat
@@ -1714,6 +1735,21 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '[不支持的消息]'
 	String get invalidMessageType => '[不支持的消息]';
+
+	/// zh-CN: '[加密消息]'
+	String get encryptedMessagePlaceholder => '[加密消息]';
+
+	/// zh-CN: '[无效消息]'
+	String get invalidMessagePlaceholder => '[无效消息]';
+
+	/// zh-CN: '[视频通话]'
+	String get videoCallPlaceholder => '[视频通话]';
+
+	/// zh-CN: '[语音通话]'
+	String get voiceCallPlaceholder => '[语音通话]';
+
+	/// zh-CN: '非好友关系，无法发送消息'
+	String get notFriendCannotSend => '非好友关系，无法发送消息';
 }
 
 // Path: common
@@ -4402,6 +4438,12 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '视频格式暂不支持，无法找到对应视频'
 	String get collectedVideoFormatIncorrectCannotFindVideoUri => '视频格式暂不支持，无法找到对应视频';
+
+	/// zh-CN: '重试'
+	String get retry => '重试';
+
+	/// zh-CN: '重试中…'
+	String get retrying => '重试中…';
 }
 
 // Path: complaint
@@ -5782,6 +5824,9 @@ class Translations$main$zh_CN {
 
 	/// zh-CN: '浅色模式'
 	String get lightModel => '浅色模式';
+
+	/// zh-CN: '当前部署未配置合规审计密钥'
+	String get complianceKeyNotConfigured => '当前部署未配置合规审计密钥';
 }
 
 // Path: mention
@@ -5953,6 +5998,24 @@ class Translations$passport$zh_CN {
 
 	/// zh-CN: '登录成功'
 	String get qrLoginSuccess => '登录成功';
+
+	/// zh-CN: 'Web 平台不支持支付宝登录'
+	String get alipayNotSupportedWeb => 'Web 平台不支持支付宝登录';
+
+	/// zh-CN: 'Web 平台不支持一键登录功能'
+	String get oneKeyNotSupportedWeb => 'Web 平台不支持一键登录功能';
+
+	/// zh-CN: '一键登录服务初始化失败，请稍后重试'
+	String get oneKeyInitFailed => '一键登录服务初始化失败，请稍后重试';
+
+	/// zh-CN: '当前网络环境不支持，或者手机没有绑定电话卡'
+	String get oneKeyNoSimCard => '当前网络环境不支持，或者手机没有绑定电话卡';
+
+	/// zh-CN: '无法获取屏幕尺寸'
+	String get cannotGetScreenSize => '无法获取屏幕尺寸';
+
+	/// zh-CN: '一键登录失败，请检查网络后重试'
+	String get oneKeyFailedRetry => '一键登录失败，请检查网络后重试';
 }
 
 // Path: splash
@@ -6833,6 +6896,9 @@ extension on Translations {
 			'account.alipaySim.storeName' => '信息科技旗舰店',
 			'account.alipaySim.paymentAmount' => '金额：',
 			'account.alipaySim.balanceSource' => '账户余额',
+			'account.bindAlipay' => '绑定支付宝',
+			'account.unbindAlipay' => '解除绑定',
+			'account.confirmUnbindAlipay' => '确认解除绑定',
 			'agent.plazaTitle' => 'AI 助手广场',
 			'agent.transparencyBanner' => '这里的成员都是 AI 助手，身份会明确标注；加密聊天里，只有真人。',
 			'agent.searchHint' => '搜索助手',
@@ -7060,6 +7126,10 @@ extension on Translations {
 			'channel.accessTypePaid' => '付费',
 			'channel.typePublicPaidDesc' => '任何人都可以发现频道，购买后即可订阅',
 			'channel.typePrivatePaidDesc' => '仅受邀用户可进入购买流程，付款后即可订阅',
+			'channel.info' => '频道信息',
+			'channel.settings' => '频道设置',
+			'channel.inviteAdmins' => '邀请管理员',
+			'channel.shareToMyStatus' => '分享至我的动态',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -7227,6 +7297,8 @@ extension on Translations {
 			'chat.e2eeStatusAvailable' => '可用',
 			'chat.e2eeGenerateNewKey' => '生成新密钥',
 			'chat.e2eeGenerateNewKeyDesc' => '生成新的 E2EE 密钥对（旧消息将无法解密）',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeActivated' => '已激活',
 			'chat.e2eeCreatedAtLabel' => '创建时间',
 			'chat.e2eeGeneratingKey' => '正在生成密钥，请稍候...',
@@ -7234,8 +7306,6 @@ extension on Translations {
 			'chat.e2eeReadyWithShards' => ({required Object count}) => '准备就绪（${count} 个分片）',
 			'chat.webFeatureMultiDevice' => '多设备同步',
 			'chat.webFeatureMultiDeviceDesc' => '在手机和电脑之间无缝切换，消息实时同步',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EE' => '端到端加密',
 			'chat.webFeatureE2EEDesc' => '所有消息都经过端到端加密，确保隐私安全',
 			'chat.webFeatureFileTransfer' => '文件传输',
@@ -7263,6 +7333,11 @@ extension on Translations {
 			'chat.switchToKeyboardInput' => '切换到键盘输入',
 			'chat.extraItems' => '附加项',
 			'chat.invalidMessageType' => '[不支持的消息]',
+			'chat.encryptedMessagePlaceholder' => '[加密消息]',
+			'chat.invalidMessagePlaceholder' => '[无效消息]',
+			'chat.videoCallPlaceholder' => '[视频通话]',
+			'chat.voiceCallPlaceholder' => '[语音通话]',
+			'chat.notFriendCannotSend' => '非好友关系，无法发送消息',
 			'common.about' => '关于',
 			'common.aboutApp' => '关于应用',
 			'common.accept' => '接受',
@@ -7736,6 +7811,8 @@ extension on Translations {
 			'common.momentReportReasonOther' => '其他',
 			'common.momentReportReasonPrompt' => '请选择举报原因',
 			'common.momentsLoadMoreComments' => '加载更多评论',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentsUploadFailed' => '媒体上传失败，请稍后重试',
 			'common.momentsHasFailedUploads' => '有媒体上传失败，请重试或移除后再发布',
 			'common.uploadPartialFailed' => ({required Object count}) => '${count} 项上传失败',
@@ -7748,8 +7825,6 @@ extension on Translations {
 			'common.expression' => '表情',
 			'common.extendedInfo' => '扩展信息',
 			'common.profession' => '职业',
-			_ => null,
-		} ?? switch (path) {
 			'common.shareFailed' => '分享失败',
 			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} 格式资料已导出并复制到剪贴板',
 			'common.setRegion' => '设置地区',
@@ -8156,6 +8231,8 @@ extension on Translations {
 			'common.searchDisabledTitle' => '消息搜索未启用',
 			'common.searchDisabledByEncryption' => '端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '视频格式暂不支持，无法找到对应视频',
+			'common.retry' => '重试',
+			'common.retrying' => '重试中…',
 			'complaint.complaint' => '投诉',
 			'complaint.e2eeConsentTitle' => '提交加密消息证据',
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
@@ -8248,6 +8325,8 @@ extension on Translations {
 			'group.groupAlbum' => '群相册',
 			'group.groupDissolve' => '解散群聊',
 			'group.groupLeave' => '退出群聊',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupMembers' => '群成员',
 			'group.groupName' => '群聊名称',
 			'group.mutualGroupsWithHer' => '我和他的共同群聊',
@@ -8262,8 +8341,6 @@ extension on Translations {
 			'group.groupCreated' => '群聊已创建',
 			'group.groupCreatedSuccess' => '群聊创建成功，邀请你完善群信息或直接进入群聊',
 			'group.enterGroupChat' => '进入群聊',
-			_ => null,
-		} ?? switch (path) {
 			'group.perfectionGroupInfo' => '完善群信息',
 			'group.setAdmin' => '设为管理员',
 			'group.selectGroup' => '选择群聊',
@@ -8576,6 +8653,7 @@ extension on Translations {
 			'main.liveRoomTitleLabel' => '直播间标题',
 			'main.liveRoomTitleHint' => '请输入直播间标题',
 			'main.lightModel' => '浅色模式',
+			'main.complianceKeyNotConfigured' => '当前部署未配置合规审计密钥',
 			'mention.mentionAll' => '所有人',
 			'mention.mentionAllHint' => '通知所有群成员',
 			'mention.noMatchedMember' => '没有匹配的成员',
@@ -8621,6 +8699,12 @@ extension on Translations {
 			'passport.qrWebLoginDesc' => '请确认是否在 Web 端登录此账号',
 			'passport.qrLoginAction' => '确认登录',
 			'passport.qrLoginSuccess' => '登录成功',
+			'passport.alipayNotSupportedWeb' => 'Web 平台不支持支付宝登录',
+			'passport.oneKeyNotSupportedWeb' => 'Web 平台不支持一键登录功能',
+			'passport.oneKeyInitFailed' => '一键登录服务初始化失败，请稍后重试',
+			'passport.oneKeyNoSimCard' => '当前网络环境不支持，或者手机没有绑定电话卡',
+			'passport.cannotGetScreenSize' => '无法获取屏幕尺寸',
+			'passport.oneKeyFailedRetry' => '一键登录失败，请检查网络后重试',
 			'splash.slogan' => '畅所欲言，自在沟通',
 			'welcome.step1Title' => '简单连接',
 			'welcome.step1Desc' => '体验无缝沟通的乐趣。 随时随地，畅所欲言。',
@@ -8755,6 +8839,8 @@ extension on Translations {
 			'workspace.projectDescLabel' => '项目描述（可选）',
 			'workspace.projectDescHint' => '这个项目要交付什么？',
 			'workspace.projectSubmit' => '创建',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => '项目创建成功',
 			'workspace.projectDetailTitle' => '项目详情',
 			'workspace.projectOwnerLabel' => '负责人',
@@ -8776,8 +8862,6 @@ extension on Translations {
 			'workspace.taskSubmitCreate' => '创建任务',
 			'workspace.taskSubmitSave' => '保存',
 			'workspace.taskCreatedToast' => '任务已创建',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskExistingToast' => '相同标题的任务已存在，直接使用既有任务',
 			'workspace.taskUpdatedToast' => '任务已保存',
 			'workspace.taskFilterAll' => '全部',

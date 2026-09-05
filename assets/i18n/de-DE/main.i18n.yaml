@@ -198,3 +198,5 @@ e2eeErrComplianceUnavailable: Compliance-Schlüssel derzeit nicht verfügbar, Na
 e2eeErrDeviceNotReady: Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen
 e2eeErrProtocolMismatch: Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen
 e2eeErrSessionExportFailed: Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen
+
+complianceKeyNotConfigured: "Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert"

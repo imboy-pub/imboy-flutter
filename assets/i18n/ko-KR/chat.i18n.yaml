@@ -205,3 +205,9 @@ releaseConvertToText: 놓으면 텍스트 변환
 voiceReleaseCancel: 놓으면 취소
 voiceReleaseCancelSend: 놓으면 전송 취소
 voiceSlideHint: "위로 스와이프: 취소 / 텍스트 변환"
+
+encryptedMessagePlaceholder: "[암호화된 메시지]"
+invalidMessagePlaceholder: "[잘못된 메시지]"
+videoCallPlaceholder: "[영상 통화]"
+voiceCallPlaceholder: "[음성 통화]"
+notFriendCannotSend: "친구가 아니어서 메시지를 보낼 수 없습니다"

@@ -205,3 +205,9 @@ voiceReleaseCancel: "Loslassen: Abbrechen"
 voiceReleaseCancelSend: "Loslassen: Senden abbrechen"
 voiceSlideHint: "Nach oben wischen: Abbrechen / In Text umwandeln"
 alipayLoginInterrupted: Alipay-Anmeldung vom System unterbrochen, bitte erneut versuchen
+
+encryptedMessagePlaceholder: "[Verschlüsselte Nachricht]"
+invalidMessagePlaceholder: "[Ungültige Nachricht]"
+videoCallPlaceholder: "[Videoanruf]"
+voiceCallPlaceholder: "[Sprachanruf]"
+notFriendCannotSend: "Keine Freundschaft, Senden nicht möglich"

@@ -198,3 +198,5 @@ safetyNumberReportUnavailable: "Impossibile ottenere le informazioni del disposi
 safetyNumberReporting: Invio del risultato della verifica in corso...
 safetyNumberTitle: Verifica del codice di sicurezza
 safetyNumberVerifyFailed: "Impossibile ottenere il codice di sicurezza, riprova più tardi"
+
+complianceKeyNotConfigured: "Nessuna chiave di audit di conformità configurata per questo deployment"

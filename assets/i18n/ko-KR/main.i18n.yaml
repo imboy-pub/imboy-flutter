@@ -198,3 +198,5 @@ safetyNumberReportUnavailable: 기기 정보를 가져올 수 없어 보고하�
 safetyNumberReporting: "검증 결과 보고 중..."
 safetyNumberTitle: 보안 번호 검증
 safetyNumberVerifyFailed: 보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요
+
+complianceKeyNotConfigured: "이 배포에는 컴플라이언스 감사 키가 구성되어 있지 않습니다"

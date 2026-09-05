@@ -198,3 +198,5 @@ safetyNumberVerifyFailed: تعذّر الحصول على رمز الأمان. ح
 safetyNumberReporting: جارٍ الإبلاغ عن نتيجة التحقق...
 safetyNumberReportRejected: رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة
 safetyNumberReportUnavailable: تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ
+
+complianceKeyNotConfigured: "لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر"

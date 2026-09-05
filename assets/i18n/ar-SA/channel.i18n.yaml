@@ -187,3 +187,8 @@ refundApply: طلب استرداد
 refundConfirmTitle: تأكيد الاسترداد
 refundConfirmMessage: هل أنت متأكد من طلب استرداد المبلغ لهذا الطلب؟ سيؤدي الاسترداد إلى إلغاء الاشتراك.
 refundSuccess: تم إرسال طلب الاسترداد
+
+info: "معلومات القناة"
+settings: "إعدادات القناة"
+inviteAdmins: "دعوة المشرفين"
+shareToMyStatus: "مشاركة في حالتي"

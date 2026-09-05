@@ -558,7 +558,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                   _buildPillButton(
                     context: context,
                     icon: CupertinoIcons.arrow_2_circlepath,
-                    label: isChinese ? "分享至我的动态" : "Share to My Status",
+                    label: context.t.channel.shareToMyStatus,
                     onTap: () {
                       context.push(
                         AppRoutes.momentCreate,
@@ -576,7 +576,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                   _buildPillButton(
                     context: context,
                     icon: CupertinoIcons.plus,
-                    label: isChinese ? "邀请管理员" : "Invite Admins",
+                    label: context.t.channel.inviteAdmins,
                     onTap: () {
                       context.push('/channel/${channel.id}/admins');
                     },

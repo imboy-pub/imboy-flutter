@@ -179,6 +179,9 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get pleaseRelogin => '請重新登入';
 	@override String get otherLoginMethods => '其他登入方式';
 	@override late final Translations$account$alipaySim$zh_Hant alipaySim = Translations$account$alipaySim$zh_Hant.internal(_root);
+	@override String get bindAlipay => '綁定支付寶';
+	@override String get unbindAlipay => '解除綁定';
+	@override String get confirmUnbindAlipay => '確認解除綁定';
 }
 
 // Path: agent
@@ -442,6 +445,10 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get accessTypePaid => '付費';
 	@override String get typePublicPaidDesc => '任何人都可以發現頻道，購買後即可訂閱';
 	@override String get typePrivatePaidDesc => '僅受邀用戶可進入購買流程，付款後即可訂閱';
+	@override String get info => '頻道資訊';
+	@override String get settings => '頻道設定';
+	@override String get inviteAdmins => '邀請管理員';
+	@override String get shareToMyStatus => '分享至我的動態';
 }
 
 // Path: chat
@@ -652,6 +659,11 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get extraItems => '附加項';
 	@override String get messageInputHint => '說點什麼...';
 	@override String get invalidMessageType => '[不支援的訊息]';
+	@override String get encryptedMessagePlaceholder => '[加密訊息]';
+	@override String get invalidMessagePlaceholder => '[無效訊息]';
+	@override String get videoCallPlaceholder => '[視訊通話]';
+	@override String get voiceCallPlaceholder => '[語音通話]';
+	@override String get notFriendCannotSend => '非好友關係，無法發送訊息';
 }
 
 // Path: common
@@ -1558,6 +1570,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get voiceSttConverting => '正在辨識中...';
 	@override String get voiceSttNotConfigured => '轉文字功能尚未設定';
 	@override String get voiceSttPreviewTitle => '語音轉文字預覽';
+	@override String get retry => '重試';
+	@override String get retrying => '重試中…';
 }
 
 // Path: complaint
@@ -2102,6 +2116,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get safetyNumberReporting => '正在上報驗證結果...';
 	@override String get safetyNumberTitle => '安全碼驗證';
 	@override String get safetyNumberVerifyFailed => '取得安全碼失敗，請稍後重試';
+	@override String get complianceKeyNotConfigured => '目前部署未配置合規審計金鑰';
 }
 
 // Path: mention
@@ -2183,6 +2198,12 @@ class Translations$passport$zh_Hant extends Translations$passport$zh_CN {
 	@override String get qrWebLoginDesc => '請確認是否在 Web 端登入此帳號';
 	@override String get qrLoginAction => '確認登入';
 	@override String get qrLoginSuccess => '登入成功';
+	@override String get alipayNotSupportedWeb => 'Web 平台不支援支付寶登入';
+	@override String get oneKeyNotSupportedWeb => 'Web 平台不支援一鍵登入功能';
+	@override String get oneKeyInitFailed => '一鍵登入服務初始化失敗，請稍後重試';
+	@override String get oneKeyNoSimCard => '目前網路環境不支援，或手機沒有綁定電話卡';
+	@override String get cannotGetScreenSize => '無法取得螢幕尺寸';
+	@override String get oneKeyFailedRetry => '一鍵登入失敗，請檢查網路後重試';
 }
 
 // Path: splash
@@ -2581,6 +2602,9 @@ extension on TranslationsZhHant {
 			'account.alipaySim.storeName' => '資訊科技旗艦店',
 			'account.alipaySim.paymentAmount' => '金額：',
 			'account.alipaySim.balanceSource' => '帳戶餘額',
+			'account.bindAlipay' => '綁定支付寶',
+			'account.unbindAlipay' => '解除綁定',
+			'account.confirmUnbindAlipay' => '確認解除綁定',
 			'agent.plazaTitle' => 'AI 助手廣場',
 			'agent.transparencyBanner' => '這裡的成員都是 AI 助手，身分會明確標註；加密聊天裡，只有真人。',
 			'agent.searchHint' => '搜尋助手',
@@ -2808,6 +2832,10 @@ extension on TranslationsZhHant {
 			'channel.accessTypePaid' => '付費',
 			'channel.typePublicPaidDesc' => '任何人都可以發現頻道，購買後即可訂閱',
 			'channel.typePrivatePaidDesc' => '僅受邀用戶可進入購買流程，付款後即可訂閱',
+			'channel.info' => '頻道資訊',
+			'channel.settings' => '頻道設定',
+			'channel.inviteAdmins' => '邀請管理員',
+			'channel.shareToMyStatus' => '分享至我的動態',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -2975,6 +3003,8 @@ extension on TranslationsZhHant {
 			'chat.e2eeGenerateNewKey' => '生成新金鑰',
 			'chat.e2eeGenerateNewKeyDesc' => '生成新的 E2EE 金鑰對（舊訊息將無法解密）',
 			'chat.e2eeActivated' => '已啟用',
+			_ => null,
+		} ?? switch (path) {
 			'chat.e2eeCreatedAtLabel' => '建立時間',
 			'chat.e2eeGeneratingKey' => '正在生成金鑰，請稍候...',
 			'chat.e2eeNewKeyGenerated' => '新的 E2EE 金鑰對已生成！',
@@ -2982,8 +3012,6 @@ extension on TranslationsZhHant {
 			'chat.webFeatureMultiDevice' => '多裝置同步',
 			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
 			'chat.webFeatureE2EE' => '端對端加密',
-			_ => null,
-		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => '所有訊息都經過端對端加密，確保隱私安全',
 			'chat.webFeatureFileTransfer' => '檔案傳輸',
 			'chat.webFeatureFileTransferDesc' => '拖拽即可傳送檔案，支援各種格式',
@@ -3011,6 +3039,11 @@ extension on TranslationsZhHant {
 			'chat.extraItems' => '附加項',
 			'chat.messageInputHint' => '說點什麼...',
 			'chat.invalidMessageType' => '[不支援的訊息]',
+			'chat.encryptedMessagePlaceholder' => '[加密訊息]',
+			'chat.invalidMessagePlaceholder' => '[無效訊息]',
+			'chat.videoCallPlaceholder' => '[視訊通話]',
+			'chat.voiceCallPlaceholder' => '[語音通話]',
+			'chat.notFriendCannotSend' => '非好友關係，無法發送訊息',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '同意',
@@ -3484,6 +3517,8 @@ extension on TranslationsZhHant {
 			'common.confirm' => '確認',
 			'common.success' => '執行成功',
 			'common.personalDisplay' => '個人展示',
+			_ => null,
+		} ?? switch (path) {
 			'common.personalSignature' => '個性簽名',
 			'common.personalBackground' => '個人背景',
 			'common.expression' => '表情符號',
@@ -3496,8 +3531,6 @@ extension on TranslationsZhHant {
 			'common.revoking' => '正在收回...',
 			'common.editing' => '正在編輯...',
 			'common.messageIdCannotBeEmpty' => '訊息 ID 為空，無法操作',
-			_ => null,
-		} ?? switch (path) {
 			'common.startRevokeMessageFlow' => '開始撤回訊息流程',
 			'common.revokeMessageTracking' => '撤回訊息追蹤',
 			'common.useNewActionMechanism' => '使用新的 action 機制',
@@ -3904,6 +3937,8 @@ extension on TranslationsZhHant {
 			'common.voiceSttConverting' => '正在辨識中...',
 			'common.voiceSttNotConfigured' => '轉文字功能尚未設定',
 			'common.voiceSttPreviewTitle' => '語音轉文字預覽',
+			'common.retry' => '重試',
+			'common.retrying' => '重試中…',
 			'complaint.complaint' => '投訴',
 			'complaint.e2eeConsentTitle' => '提交加密訊息證據',
 			'complaint.e2eeConsentBody' => '該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？',
@@ -3996,6 +4031,8 @@ extension on TranslationsZhHant {
 			'group.groupAlbum' => '群相簿',
 			'group.groupDissolve' => '解散群組',
 			'group.groupLeave' => '退出群組',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupMembers' => '群組成員',
 			'group.groupName' => '群組名稱',
 			'group.mutualGroupsWithHer' => '我和他的共同群組',
@@ -4010,8 +4047,6 @@ extension on TranslationsZhHant {
 			'group.groupCreated' => '群組已建立',
 			'group.groupCreatedSuccess' => '群組建立成功，邀請你完善群組資訊或直接進入群組',
 			'group.enterGroupChat' => '進入群組',
-			_ => null,
-		} ?? switch (path) {
 			'group.perfectionGroupInfo' => '完善群組資訊',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => '選擇群組',
@@ -4324,6 +4359,7 @@ extension on TranslationsZhHant {
 			'main.safetyNumberReporting' => '正在上報驗證結果...',
 			'main.safetyNumberTitle' => '安全碼驗證',
 			'main.safetyNumberVerifyFailed' => '取得安全碼失敗，請稍後重試',
+			'main.complianceKeyNotConfigured' => '目前部署未配置合規審計金鑰',
 			'mention.mentionAll' => '全體成員',
 			'mention.mentionAllHint' => '通知所有群成員',
 			'mention.noMatchedMember' => '沒有匹配的成員',
@@ -4369,6 +4405,12 @@ extension on TranslationsZhHant {
 			'passport.qrWebLoginDesc' => '請確認是否在 Web 端登入此帳號',
 			'passport.qrLoginAction' => '確認登入',
 			'passport.qrLoginSuccess' => '登入成功',
+			'passport.alipayNotSupportedWeb' => 'Web 平台不支援支付寶登入',
+			'passport.oneKeyNotSupportedWeb' => 'Web 平台不支援一鍵登入功能',
+			'passport.oneKeyInitFailed' => '一鍵登入服務初始化失敗，請稍後重試',
+			'passport.oneKeyNoSimCard' => '目前網路環境不支援，或手機沒有綁定電話卡',
+			'passport.cannotGetScreenSize' => '無法取得螢幕尺寸',
+			'passport.oneKeyFailedRetry' => '一鍵登入失敗，請檢查網路後重試',
 			'splash.slogan' => '暢所欲言，自在溝通',
 			'welcome.step1Title' => '簡單連接',
 			'welcome.step1Desc' => '體驗無縫溝通的樂趣。 隨時隨地，暢所欲言。',
@@ -4503,6 +4545,8 @@ extension on TranslationsZhHant {
 			'workspace.projectDescLabel' => '專案描述（選填）',
 			'workspace.projectDescHint' => '這個專案要交付什麼？',
 			'workspace.projectSubmit' => '建立',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => '專案建立成功',
 			'workspace.projectDetailTitle' => '專案詳情',
 			'workspace.projectOwnerLabel' => '負責人',
@@ -4524,8 +4568,6 @@ extension on TranslationsZhHant {
 			'workspace.taskSubmitCreate' => '建立任務',
 			'workspace.taskSubmitSave' => '儲存',
 			'workspace.taskCreatedToast' => '任務已建立',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskExistingToast' => '相同標題的任務已存在，直接使用既有任務',
 			'workspace.taskUpdatedToast' => '任務已儲存',
 			'workspace.taskFilterAll' => '所有',

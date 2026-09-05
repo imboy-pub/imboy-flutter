@@ -893,3 +893,6 @@ uploadPartialFailed: $count 項上傳失敗
 voiceSttConverting: 正在辨識中...
 voiceSttNotConfigured: 轉文字功能尚未設定
 voiceSttPreviewTitle: 語音轉文字預覽
+
+retry: "重試"
+retrying: "重試中…"

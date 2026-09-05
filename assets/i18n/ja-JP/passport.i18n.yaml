@@ -17,3 +17,10 @@ qrLoginConfirming: ログイン中...
 qrLoginSuccess: ログインしました
 qrWebLoginDesc: このアカウントでのWeb版ログインを確認してください
 qrWebLoginTitle: Web版ログインの確認
+
+alipayNotSupportedWeb: "WebではAlipayログインに対応していません"
+oneKeyNotSupportedWeb: "Webではワンタップログインに対応していません"
+oneKeyInitFailed: "ワンタップログインの初期化に失敗しました。後でもう一度お試しください"
+oneKeyNoSimCard: "現在のネットワークは未対応か、SIMカードが挿入されていません"
+cannotGetScreenSize: "画面サイズを取得できません"
+oneKeyFailedRetry: "ワンタップログインに失敗しました。ネットワークを確認して再試行してください"

@@ -205,3 +205,9 @@ voiceReleaseCancelSend: أفلت لإلغاء الإرسال
 voiceSlideHint: اسحب لأعلى للإلغاء / التحويل إلى نص
 burnReadBadge: يُحرق بعد القراءة
 alipayLoginInterrupted: انقطعت عملية تسجيل الدخول عبر Alipay بسبب النظام، حاول مرة أخرى
+
+encryptedMessagePlaceholder: "[رسالة مشفّرة]"
+invalidMessagePlaceholder: "[رسالة غير صالحة]"
+videoCallPlaceholder: "[مكالمة فيديو]"
+voiceCallPlaceholder: "[مكالمة صوتية]"
+notFriendCannotSend: "لستما أصدقاء، لا يمكن الإرسال"

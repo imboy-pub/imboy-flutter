@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/generated_channel_order_widget.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/cupertino_modal_surface.dart';
@@ -24,7 +25,6 @@ import 'channel_provider.dart';
 import 'widgets/channel_header_bar.dart';
 import 'widgets/channel_message_feed.dart';
 import 'widgets/channel_publish_bar.dart';
-import 'paid/channel_paywall_view.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 
 /// 频道详情页（壳页面）
@@ -302,15 +302,13 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   List<PopupMenuEntry<String>> _buildMenuItems(ChannelModel channel) {
     final t = context.t;
     final items = <PopupMenuEntry<String>>[];
-    final isChinese = Localizations.localeOf(context).languageCode == 'zh';
-
     if (channel.isManaged) {
       // 1. Channel Info / 频道信息
       items.add(
         _buildPopupMenuItem(
           value: 'show_channel_info',
           icon: CupertinoIcons.info_circle,
-          text: isChinese ? '频道信息' : 'Channel Info',
+          text: t.channel.info,
         ),
       );
 
@@ -319,7 +317,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         _buildPopupMenuItem(
           value: 'share',
           icon: CupertinoIcons.share,
-          text: isChinese ? '分享' : t.channel.share,
+          text: t.channel.share,
         ),
       );
 
@@ -328,7 +326,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         _buildPopupMenuItem(
           value: 'manage_admins',
           icon: CupertinoIcons.add,
-          text: isChinese ? '邀请管理员' : 'Invite Admins',
+          text: t.channel.inviteAdmins,
         ),
       );
 
@@ -337,7 +335,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         _buildPopupMenuItem(
           value: 'edit_channel',
           icon: CupertinoIcons.gear,
-          text: isChinese ? '频道设置' : 'Channel Settings',
+          text: t.channel.settings,
         ),
       );
     } else {
@@ -347,7 +345,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         _buildPopupMenuItem(
           value: 'show_channel_info',
           icon: CupertinoIcons.info_circle,
-          text: isChinese ? '频道信息' : 'Channel Info',
+          text: t.channel.info,
         ),
       );
 
@@ -356,7 +354,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         _buildPopupMenuItem(
           value: 'share',
           icon: CupertinoIcons.share,
-          text: isChinese ? '分享' : t.channel.share,
+          text: t.channel.share,
         ),
       );
 
@@ -442,7 +440,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         if (isPaidChannelLocked(state.channel))
           SliverFillRemaining(
             hasScrollBody: false,
-            child: ChannelPaywallView(
+            child: compiledChannelPaywall(
               channel: state.channel!,
               onPurchased: () {
                 _statsRequestedChannelId = null;

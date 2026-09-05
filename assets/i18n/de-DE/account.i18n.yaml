@@ -111,3 +111,7 @@ logoutCancelRequest: Löschantrag zurückziehen
 logoutCancelledNote: Löschantrag zurückgezogen
 logoutRetainedHeader: Hinweis zur Datenaufbewahrung
 logoutRetainedNote: Nach Abschluss der Löschung werden Audit-Protokolle und Finanzunterlagen gesetzlich vorgeschrieben aufbewahrt und anonymisiert; von Ihnen geführte Gruppen/Arbeitsbereiche/Kanäle werden vorrangig an Nachfolgemitglieder übertragen
+
+bindAlipay: "Alipay verknüpfen"
+unbindAlipay: "Verknüpfung aufheben"
+confirmUnbindAlipay: "Verknüpfung aufheben bestätigen"

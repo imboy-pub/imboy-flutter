@@ -902,3 +902,6 @@ uploadPartialFailed: "Не удалось загрузить элементов:
 voiceSttConverting: Распознавание...
 voiceSttNotConfigured: Функция распознавания речи не настроена
 voiceSttPreviewTitle: Предпросмотр распознанного текста
+
+retry: "Повторить"
+retrying: "Повтор…"

@@ -191,3 +191,8 @@ coverLabel: 表紙
 coverSet: 表紙に設定しました
 sortNewest: 新着
 sortPopular: 人気
+
+info: "チャンネル情報"
+settings: "チャンネル設定"
+inviteAdmins: "管理者を招待"
+shareToMyStatus: "マイステータスに共有"

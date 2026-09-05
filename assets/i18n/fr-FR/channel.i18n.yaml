@@ -187,3 +187,8 @@ sortNewest: "Plus récents"
 sortPopular: "Populaires"
 titleOptional: "Titre (facultatif)"
 writeComment: "Écrire un commentaire..."
+
+info: "Informations de la chaîne"
+settings: "Paramètres de la chaîne"
+inviteAdmins: "Inviter des administrateurs"
+shareToMyStatus: "Partager sur mon statut"

@@ -179,6 +179,9 @@ class _Translations$account$ar_SA extends Translations$account$zh_CN {
 	@override String get payMethodWechat => 'WeChat Pay';
 	@override String get payMethodComingSoon => 'ستُتاح طريقة الدفع هذه قريباً، ترقّبها';
 	@override late final _Translations$account$alipaySim$ar_SA alipaySim = _Translations$account$alipaySim$ar_SA._(_root);
+	@override String get bindAlipay => 'ربط Alipay';
+	@override String get unbindAlipay => 'إلغاء الربط';
+	@override String get confirmUnbindAlipay => 'تأكيد إلغاء الربط';
 }
 
 // Path: agent
@@ -442,6 +445,10 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get refundConfirmTitle => 'تأكيد الاسترداد';
 	@override String get refundConfirmMessage => 'هل أنت متأكد من طلب استرداد المبلغ لهذا الطلب؟ سيؤدي الاسترداد إلى إلغاء الاشتراك.';
 	@override String get refundSuccess => 'تم إرسال طلب الاسترداد';
+	@override String get info => 'معلومات القناة';
+	@override String get settings => 'إعدادات القناة';
+	@override String get inviteAdmins => 'دعوة المشرفين';
+	@override String get shareToMyStatus => 'مشاركة في حالتي';
 }
 
 // Path: chat
@@ -652,6 +659,11 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get voiceSlideHint => 'اسحب لأعلى للإلغاء / التحويل إلى نص';
 	@override String get burnReadBadge => 'يُحرق بعد القراءة';
 	@override String get alipayLoginInterrupted => 'انقطعت عملية تسجيل الدخول عبر Alipay بسبب النظام، حاول مرة أخرى';
+	@override String get encryptedMessagePlaceholder => '[رسالة مشفّرة]';
+	@override String get invalidMessagePlaceholder => '[رسالة غير صالحة]';
+	@override String get videoCallPlaceholder => '[مكالمة فيديو]';
+	@override String get voiceCallPlaceholder => '[مكالمة صوتية]';
+	@override String get notFriendCannotSend => 'لستما أصدقاء، لا يمكن الإرسال';
 }
 
 // Path: common
@@ -1558,6 +1570,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get transferReceiving => 'جارٍ استلام المبلغ...';
 	@override String get transferRefunded => 'تمت الإعادة';
 	@override String get transferTapToReceive => 'انقر للاستلام';
+	@override String get retry => 'إعادة المحاولة';
+	@override String get retrying => 'جارٍ إعادة المحاولة…';
 }
 
 // Path: complaint
@@ -2102,6 +2116,7 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get safetyNumberReporting => 'جارٍ الإبلاغ عن نتيجة التحقق...';
 	@override String get safetyNumberReportRejected => 'رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة';
 	@override String get safetyNumberReportUnavailable => 'تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ';
+	@override String get complianceKeyNotConfigured => 'لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر';
 }
 
 // Path: mention
@@ -2183,6 +2198,12 @@ class _Translations$passport$ar_SA extends Translations$passport$zh_CN {
 	@override String get qrWebLoginDesc => 'يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب';
 	@override String get qrLoginAction => 'تأكيد تسجيل الدخول';
 	@override String get qrLoginSuccess => 'تم تسجيل الدخول بنجاح';
+	@override String get alipayNotSupportedWeb => 'تسجيل الدخول عبر Alipay غير مدعوم على الويب';
+	@override String get oneKeyNotSupportedWeb => 'تسجيل الدخول بنقرة واحدة غير مدعوم على الويب';
+	@override String get oneKeyInitFailed => 'فشل تهيئة تسجيل الدخول بنقرة واحدة، حاول لاحقًا';
+	@override String get oneKeyNoSimCard => 'الشبكة الحالية غير مدعومة أو لا توجد شريحة SIM في الهاتف';
+	@override String get cannotGetScreenSize => 'تعذر الحصول على حجم الشاشة';
+	@override String get oneKeyFailedRetry => 'فشل تسجيل الدخول بنقرة واحدة، تحقق من الشبكة وحاول مجددًا';
 }
 
 // Path: splash
@@ -2581,6 +2602,9 @@ extension on TranslationsArSa {
 			'account.alipaySim.storeName' => 'المتجر الرئيسي لتقنية المعلومات',
 			'account.alipaySim.paymentAmount' => 'المبلغ:',
 			'account.alipaySim.balanceSource' => 'رصيد الحساب',
+			'account.bindAlipay' => 'ربط Alipay',
+			'account.unbindAlipay' => 'إلغاء الربط',
+			'account.confirmUnbindAlipay' => 'تأكيد إلغاء الربط',
 			'agent.plazaTitle' => 'مساعدو الذكاء الاصطناعي',
 			'agent.transparencyBanner' => 'جميع الأعضاء هنا مساعدو ذكاء اصطناعي، وهويتهم موضحة بوضوح. في المحادثات المشفّرة لا يوجد سوى أشخاص حقيقيين.',
 			'agent.searchHint' => 'البحث عن مساعد',
@@ -2808,6 +2832,10 @@ extension on TranslationsArSa {
 			'channel.refundConfirmTitle' => 'تأكيد الاسترداد',
 			'channel.refundConfirmMessage' => 'هل أنت متأكد من طلب استرداد المبلغ لهذا الطلب؟ سيؤدي الاسترداد إلى إلغاء الاشتراك.',
 			'channel.refundSuccess' => 'تم إرسال طلب الاسترداد',
+			'channel.info' => 'معلومات القناة',
+			'channel.settings' => 'إعدادات القناة',
+			'channel.inviteAdmins' => 'دعوة المشرفين',
+			'channel.shareToMyStatus' => 'مشاركة في حالتي',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -2975,6 +3003,8 @@ extension on TranslationsArSa {
 			'chat.webFeatureMultiDevice' => 'مزامنة الأجهزة',
 			'chat.webFeatureMultiDeviceDesc' => 'بدّل بحرية بين الهاتف والكمبيوتر، وتُزامَل الرسائل لحظياً',
 			'chat.webFeatureE2EE' => 'تشفير من طرف إلى طرف',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'جميع الرسائل مشفّرة من طرف إلى طرف لحماية خصوصيتك',
 			'chat.webFeatureFileTransfer' => 'نقل الملفات',
 			'chat.webFeatureFileTransferDesc' => 'اسحب الملف لإرساله، مع دعم صيغ متعددة',
@@ -2982,8 +3012,6 @@ extension on TranslationsArSa {
 			'chat.webQRStatusScanned' => 'اضغط «تأكيد الدخول» على هاتفك',
 			'chat.webQRStatusVerifying' => 'جارٍ التحقق...',
 			'chat.webQRStatusExpired' => 'حدّث وأعد المسح',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeErrInvalidFormat' => 'تنسيق الرسالة خاطئ، فشل التشفير',
 			'chat.e2eeSocialStatus' => ({required Object status}) => 'الحالة: ${status}',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'اختر ${count} وكلاء على الأقل',
@@ -3011,6 +3039,11 @@ extension on TranslationsArSa {
 			'chat.voiceSlideHint' => 'اسحب لأعلى للإلغاء / التحويل إلى نص',
 			'chat.burnReadBadge' => 'يُحرق بعد القراءة',
 			'chat.alipayLoginInterrupted' => 'انقطعت عملية تسجيل الدخول عبر Alipay بسبب النظام، حاول مرة أخرى',
+			'chat.encryptedMessagePlaceholder' => '[رسالة مشفّرة]',
+			'chat.invalidMessagePlaceholder' => '[رسالة غير صالحة]',
+			'chat.videoCallPlaceholder' => '[مكالمة فيديو]',
+			'chat.voiceCallPlaceholder' => '[مكالمة صوتية]',
+			'chat.notFriendCannotSend' => 'لستما أصدقاء، لا يمكن الإرسال',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
@@ -3484,6 +3517,8 @@ extension on TranslationsArSa {
 			'common.personalDisplay' => 'عرض شخصي',
 			'common.personalSignature' => 'التوقيع الشخصي',
 			'common.personalBackground' => 'الخلفية الشخصية',
+			_ => null,
+		} ?? switch (path) {
 			'common.expression' => 'رموز تعبيرية',
 			'common.extendedInfo' => 'معلومات موسعة',
 			'common.profession' => 'المهنة',
@@ -3496,8 +3531,6 @@ extension on TranslationsArSa {
 			'common.messageIdCannotBeEmpty' => 'معرف الرسالة فارغ، لا يمكن العمل',
 			'common.startRevokeMessageFlow' => 'بدء عملية سحب الرسالة',
 			'common.revokeMessageTracking' => 'تتبع سحب الرسالة',
-			_ => null,
-		} ?? switch (path) {
 			'common.useNewActionMechanism' => 'استخدام آلية action الجديدة',
 			'common.revokeMessageSendResult' => 'نتيجة إرسال سحب الرسالة',
 			'common.revokeRequestSendComplete' => 'تم إرسال طلب السحب',
@@ -3904,6 +3937,8 @@ extension on TranslationsArSa {
 			'common.transferReceiving' => 'جارٍ استلام المبلغ...',
 			'common.transferRefunded' => 'تمت الإعادة',
 			'common.transferTapToReceive' => 'انقر للاستلام',
+			'common.retry' => 'إعادة المحاولة',
+			'common.retrying' => 'جارٍ إعادة المحاولة…',
 			'complaint.complaint' => 'شكوى',
 			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
 			'complaint.e2eeConsentBody' => 'هذه الرسالة مشفّرة من الطرف إلى الطرف ولا يمكن للخادم الاطلاع على محتواها. سيكشف تقديم مقتطف النص محتوى الرسالة المحدد للمشرفين لمراجعة البلاغ. هل توافق؟',
@@ -3996,6 +4031,8 @@ extension on TranslationsArSa {
 			'group.groupAlbum' => 'ألبوم المجموعة',
 			'group.groupDissolve' => 'حلّ الدردشة الجماعية',
 			'group.groupLeave' => 'مغادرة الدردشة الجماعية',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupMembers' => 'أعضاء الدردشة الجماعية',
 			'group.groupName' => 'اسم الدردشة الجماعية',
 			'group.mutualGroupsWithHer' => 'المجموعات المشتركة بيني وبينه',
@@ -4010,8 +4047,6 @@ extension on TranslationsArSa {
 			'group.groupAlbumRenameTitle' => 'إعادة تسمية الألبوم',
 			'group.groupAlbumRenamed' => 'تمت إعادة تسمية الألبوم',
 			'group.groupAlbumUnnamed' => 'ألبوم بدون اسم',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} صورة',
 			'group.groupAlbumPhotoIdMissing' => 'معرّف الصورة مفقود، لا يمكن عرض التفاصيل',
 			'group.groupAlbumPhotoListTitle' => 'صور الألبوم',
@@ -4324,6 +4359,7 @@ extension on TranslationsArSa {
 			'main.safetyNumberReporting' => 'جارٍ الإبلاغ عن نتيجة التحقق...',
 			'main.safetyNumberReportRejected' => 'رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة',
 			'main.safetyNumberReportUnavailable' => 'تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ',
+			'main.complianceKeyNotConfigured' => 'لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر',
 			'mention.mentionAll' => 'الجميع',
 			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
 			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',
@@ -4369,6 +4405,12 @@ extension on TranslationsArSa {
 			'passport.qrWebLoginDesc' => 'يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب',
 			'passport.qrLoginAction' => 'تأكيد تسجيل الدخول',
 			'passport.qrLoginSuccess' => 'تم تسجيل الدخول بنجاح',
+			'passport.alipayNotSupportedWeb' => 'تسجيل الدخول عبر Alipay غير مدعوم على الويب',
+			'passport.oneKeyNotSupportedWeb' => 'تسجيل الدخول بنقرة واحدة غير مدعوم على الويب',
+			'passport.oneKeyInitFailed' => 'فشل تهيئة تسجيل الدخول بنقرة واحدة، حاول لاحقًا',
+			'passport.oneKeyNoSimCard' => 'الشبكة الحالية غير مدعومة أو لا توجد شريحة SIM في الهاتف',
+			'passport.cannotGetScreenSize' => 'تعذر الحصول على حجم الشاشة',
+			'passport.oneKeyFailedRetry' => 'فشل تسجيل الدخول بنقرة واحدة، تحقق من الشبكة وحاول مجددًا',
 			'splash.slogan' => 'تواصل بحرية وبدون قيود',
 			'welcome.step1Title' => 'اتصال بسيط',
 			'welcome.step1Desc' => 'استمتع بفرصة التواصل السلس. في أي وقت، وفي أي مكان.',
@@ -4503,6 +4545,8 @@ extension on TranslationsArSa {
 			'workspace.projectDescLabel' => 'وصف المشروع (اختياري)',
 			'workspace.projectDescHint' => 'ماذا سيقدّم هذا المشروع؟',
 			'workspace.projectSubmit' => 'إنشاء',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'تم إنشاء المشروع بنجاح',
 			'workspace.projectDetailTitle' => 'تفاصيل المشروع',
 			'workspace.projectOwnerLabel' => 'المسؤول',
@@ -4524,8 +4568,6 @@ extension on TranslationsArSa {
 			'workspace.taskSubmitCreate' => 'إنشاء المهمة',
 			'workspace.taskSubmitSave' => 'حفظ',
 			'workspace.taskCreatedToast' => 'تم إنشاء المهمة',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskExistingToast' => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة',
 			'workspace.taskUpdatedToast' => 'تم حفظ المهمة',
 			'workspace.taskFilterAll' => 'الكل',

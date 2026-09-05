@@ -988,7 +988,7 @@ class PassportNotifier extends _$PassportNotifier {
   /// 返回 null 表示成功或用户取消（取消静默）；返回错误消息表示失败。
   Future<String?> loginByAlipay({AlipayAuthGateway? gateway}) async {
     if (kIsWeb) {
-      snackBar('Web 平台不支持支付宝登录');
+      snackBar(t.passport.alipayNotSupportedWeb);
       return null;
     }
     // 1. 服务端签名的授权串（私钥不出服务端）
@@ -1062,14 +1062,14 @@ class PassportNotifier extends _$PassportNotifier {
   Future<String?> loginAuth(bool isSms) async {
     // Web 平台不支持 JVerify 一键登录
     if (kIsWeb) {
-      snackBar('Web 平台不支持一键登录功能');
+      snackBar(t.passport.oneKeyNotSupportedWeb);
       return null;
     }
 
     if (jverify == null) {
       final ok = await initPlatformState();
       if (!ok) {
-        snackBar('一键登录服务初始化失败，请稍后重试');
+        snackBar(t.passport.oneKeyInitFailed);
         return null;
       }
     }
@@ -1078,7 +1078,7 @@ class PassportNotifier extends _$PassportNotifier {
     // 被并发的 initPlatformState()/登出流程置空后再用 `!` 解包崩溃。
     final jv = jverify;
     if (jv == null) {
-      snackBar('一键登录服务初始化失败，请稍后重试');
+      snackBar(t.passport.oneKeyInitFailed);
       return null;
     }
 
@@ -1086,13 +1086,13 @@ class PassportNotifier extends _$PassportNotifier {
     iPrint("checkVerifyEnable_res ${res.toString()}");
     bool result = res[fResultKey] as bool;
     if (result == false) {
-      snackBar('当前网络环境不支持，或者手机没有绑定电话卡');
+      snackBar(t.passport.oneKeyNoSimCard);
       return null;
     }
 
     final context = navigatorKey.currentContext;
     if (context == null || !context.mounted) {
-      snackBar('无法获取屏幕尺寸');
+      snackBar(t.passport.cannotGetScreenSize);
       return null;
     }
     final screenHeight = MediaQuery.of(context).size.height;
@@ -1197,7 +1197,7 @@ class PassportNotifier extends _$PassportNotifier {
                 snackBar(error);
               }
             } catch (_) {
-              snackBar('一键登录失败，请检查网络后重试');
+              snackBar(t.passport.oneKeyFailedRetry);
             }
           }());
         } else {

@@ -15,3 +15,10 @@ qrLoginConfirming: Signing in...
 qrLoginSuccess: Login successful
 qrWebLoginTitle: Web Login Confirmation
 qrWebLoginDesc: Confirm whether to log in to this account on the web
+
+alipayNotSupportedWeb: "Alipay login is not supported on web"
+oneKeyNotSupportedWeb: "One-tap login is not supported on web"
+oneKeyInitFailed: "Failed to initialize one-tap login, please try again later"
+oneKeyNoSimCard: "The current network is not supported, or the phone has no SIM card"
+cannotGetScreenSize: "Unable to get screen size"
+oneKeyFailedRetry: "One-tap login failed, check your network and try again"

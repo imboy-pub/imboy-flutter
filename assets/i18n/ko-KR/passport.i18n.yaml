@@ -16,3 +16,10 @@ qrLoginConfirming: "로그인 중..."
 qrLoginSuccess: 로그인 성공
 qrWebLoginDesc: 웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요
 qrWebLoginTitle: 웹 로그인 확인
+
+alipayNotSupportedWeb: "웹에서는 Alipay 로그인을 지원하지 않습니다"
+oneKeyNotSupportedWeb: "웹에서는 원탭 로그인을 지원하지 않습니다"
+oneKeyInitFailed: "원탭 로그인 초기화에 실패했습니다. 나중에 다시 시도해 주세요"
+oneKeyNoSimCard: "현재 네트워크가 지원되지 않거나 SIM카드가 없습니다"
+cannotGetScreenSize: "화면 크기를 가져올 수 없습니다"
+oneKeyFailedRetry: "원탭 로그인에 실패했습니다. 네트워크를 확인 후 다시 시도해 주세요"

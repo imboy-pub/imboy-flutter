@@ -111,3 +111,7 @@ alipaySim:
   storeName: "المتجر الرئيسي لتقنية المعلومات"
   paymentAmount: "المبلغ:"
   balanceSource: "رصيد الحساب"
+
+bindAlipay: "ربط Alipay"
+unbindAlipay: "إلغاء الربط"
+confirmUnbindAlipay: "تأكيد إلغاء الربط"

@@ -111,3 +111,7 @@ payMethodMock: "Paiement simulé (environnement de développement)"
 payMethodTitle: "Choisir le mode de paiement"
 payMethodWallet: "Solde du portefeuille"
 payMethodWechat: "WeChat Pay"
+
+bindAlipay: "Lier Alipay"
+unbindAlipay: "Délier"
+confirmUnbindAlipay: "Confirmer la déliaison"

@@ -1271,7 +1271,10 @@ class MessageActions {
       // 2. 通过事件总线通知 UI 显示错误提示
       try {
         AppEventBus.fire(
-          AppErrorEvent(message: '非好友关系，无法发送消息', errorType: 'not_a_friend'),
+          AppErrorEvent(
+            message: t.chat.notFriendCannotSend,
+            errorType: 'not_a_friend',
+          ),
         );
         iPrint('✅ [NOT_A_FRIEND] 已发送错误提示事件');
       } on Object catch (e) {

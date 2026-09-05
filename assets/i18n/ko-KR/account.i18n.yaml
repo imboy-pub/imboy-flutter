@@ -111,3 +111,7 @@ alipaySim:
   storeName: 정보기술 플래그십 스토어
   paymentAmount: "금액:"
   balanceSource: 계정 잔액
+
+bindAlipay: "Alipay 연동"
+unbindAlipay: "연동 해제"
+confirmUnbindAlipay: "연동 해제 확인"

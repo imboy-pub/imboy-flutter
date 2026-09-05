@@ -179,6 +179,9 @@ class _Translations$account$ru_RU extends Translations$account$zh_CN {
 	@override String get payMethodWallet => 'Баланс кошелька';
 	@override String get payMethodWechat => 'WeChat Pay';
 	@override late final _Translations$account$alipaySim$ru_RU alipaySim = _Translations$account$alipaySim$ru_RU._(_root);
+	@override String get bindAlipay => 'Привязать Alipay';
+	@override String get unbindAlipay => 'Отвязать';
+	@override String get confirmUnbindAlipay => 'Подтвердить отвязку';
 }
 
 // Path: agent
@@ -442,6 +445,10 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get sortPopular => 'Популярные';
 	@override String get titleOptional => 'Заголовок (необязательно)';
 	@override String get writeComment => 'Написать комментарий...';
+	@override String get info => 'Информация о канале';
+	@override String get settings => 'Настройки канала';
+	@override String get inviteAdmins => 'Пригласить администраторов';
+	@override String get shareToMyStatus => 'Поделиться в мой статус';
 }
 
 // Path: chat
@@ -652,6 +659,11 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancel => 'Отпустите — отмена';
 	@override String get voiceReleaseCancelSend => 'Отпустите — отменить отправку';
 	@override String get voiceSlideHint => 'Вверх — отмена / в текст';
+	@override String get encryptedMessagePlaceholder => '[Зашифрованное сообщение]';
+	@override String get invalidMessagePlaceholder => '[Недействительное сообщение]';
+	@override String get videoCallPlaceholder => '[Видеозвонок]';
+	@override String get voiceCallPlaceholder => '[Аудиозвонок]';
+	@override String get notFriendCannotSend => 'Не друзья, отправка невозможна';
 }
 
 // Path: common
@@ -1567,6 +1579,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get voiceSttConverting => 'Распознавание...';
 	@override String get voiceSttNotConfigured => 'Функция распознавания речи не настроена';
 	@override String get voiceSttPreviewTitle => 'Предпросмотр распознанного текста';
+	@override String get retry => 'Повторить';
+	@override String get retrying => 'Повтор…';
 }
 
 // Path: complaint
@@ -2111,6 +2125,7 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get safetyNumberReporting => 'Отправка результата проверки...';
 	@override String get safetyNumberTitle => 'Проверка кода безопасности';
 	@override String get safetyNumberVerifyFailed => 'Не удалось получить код безопасности. Повторите позже';
+	@override String get complianceKeyNotConfigured => 'Для этого развёртывания не настроен ключ комплаенс-аудита';
 }
 
 // Path: mention
@@ -2192,6 +2207,12 @@ class _Translations$passport$ru_RU extends Translations$passport$zh_CN {
 	@override String get qrLoginSuccess => 'Вход выполнен';
 	@override String get qrWebLoginDesc => 'Подтвердите вход этого аккаунта в веб-версии';
 	@override String get qrWebLoginTitle => 'Подтверждение входа в веб-версии';
+	@override String get alipayNotSupportedWeb => 'Вход через Alipay не поддерживается в вебе';
+	@override String get oneKeyNotSupportedWeb => 'Вход в один клик не поддерживается в вебе';
+	@override String get oneKeyInitFailed => 'Не удалось инициализировать вход в один клик, попробуйте позже';
+	@override String get oneKeyNoSimCard => 'Текущая сеть не поддерживается или в телефоне нет SIM-карты';
+	@override String get cannotGetScreenSize => 'Не удалось получить размер экрана';
+	@override String get oneKeyFailedRetry => 'Не удалось выполнить вход в один клик, проверьте сеть и повторите';
 }
 
 // Path: splash
@@ -2590,6 +2611,9 @@ extension on TranslationsRuRu {
 			'account.alipaySim.paymentAmount' => 'Сумма:',
 			'account.alipaySim.selectMethod' => 'Выберите способ оплаты',
 			'account.alipaySim.storeName' => 'Флагманский магазин информационных технологий',
+			'account.bindAlipay' => 'Привязать Alipay',
+			'account.unbindAlipay' => 'Отвязать',
+			'account.confirmUnbindAlipay' => 'Подтвердить отвязку',
 			'agent.plazaTitle' => 'ИИ-ассистенты',
 			'agent.transparencyBanner' => 'Все участники здесь — ИИ-ассистенты с чётко обозначенным статусом. В зашифрованных чатах — только настоящие люди.',
 			'agent.searchHint' => 'Поиск ассистентов',
@@ -2817,6 +2841,10 @@ extension on TranslationsRuRu {
 			'channel.sortPopular' => 'Популярные',
 			'channel.titleOptional' => 'Заголовок (необязательно)',
 			'channel.writeComment' => 'Написать комментарий...',
+			'channel.info' => 'Информация о канале',
+			'channel.settings' => 'Настройки канала',
+			'channel.inviteAdmins' => 'Пригласить администраторов',
+			'channel.shareToMyStatus' => 'Поделиться в мой статус',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -2984,6 +3012,8 @@ extension on TranslationsRuRu {
 			'chat.webFeatureMultiDevice' => 'Синхронизация устройств',
 			'chat.webFeatureMultiDeviceDesc' => 'Переключайтесь между телефоном и ПК, сообщения синхронизируются в реальном времени',
 			'chat.webFeatureE2EE' => 'Сквозное шифрование',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'Все сообщения зашифрованы сквозным шифрованием для защиты конфиденциальности',
 			'chat.webFeatureFileTransfer' => 'Передача файлов',
 			'chat.webFeatureFileTransferDesc' => 'Перетащите файл, чтобы отправить; поддерживаются разные форматы',
@@ -2991,8 +3021,6 @@ extension on TranslationsRuRu {
 			'chat.webQRStatusScanned' => 'Нажмите «Подтвердить вход» на телефоне',
 			'chat.webQRStatusVerifying' => 'Проверка...',
 			'chat.webQRStatusExpired' => 'Обновите и отсканируйте снова',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeErrInvalidFormat' => 'Неверный формат сообщения, шифрование не выполнено',
 			'chat.e2eeSocialStatus' => ({required Object status}) => 'Статус: ${status}',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Выберите минимум ${count} посредников',
@@ -3020,6 +3048,11 @@ extension on TranslationsRuRu {
 			'chat.voiceReleaseCancel' => 'Отпустите — отмена',
 			'chat.voiceReleaseCancelSend' => 'Отпустите — отменить отправку',
 			'chat.voiceSlideHint' => 'Вверх — отмена / в текст',
+			'chat.encryptedMessagePlaceholder' => '[Зашифрованное сообщение]',
+			'chat.invalidMessagePlaceholder' => '[Недействительное сообщение]',
+			'chat.videoCallPlaceholder' => '[Видеозвонок]',
+			'chat.voiceCallPlaceholder' => '[Аудиозвонок]',
+			'chat.notFriendCannotSend' => 'Не друзья, отправка невозможна',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
@@ -3493,6 +3526,8 @@ extension on TranslationsRuRu {
 			'common.personalDisplay' => 'Личное отображение',
 			'common.personalSignature' => 'Личная подпись',
 			'common.personalBackground' => 'Личный фон',
+			_ => null,
+		} ?? switch (path) {
 			'common.expression' => 'Эмодзи',
 			'common.extendedInfo' => 'Дополнительная информация',
 			'common.profession' => 'Профессия',
@@ -3505,8 +3540,6 @@ extension on TranslationsRuRu {
 			'common.messageIdCannotBeEmpty' => 'ID сообщения пуст, невозможно выполнить операцию',
 			'common.startRevokeMessageFlow' => 'Начало отзыва сообщения',
 			'common.revokeMessageTracking' => 'Отслеживание отзыва сообщения',
-			_ => null,
-		} ?? switch (path) {
 			'common.useNewActionMechanism' => 'Использовать новый механизм действий',
 			'common.revokeMessageSendResult' => 'Результат отправки отзыва сообщения',
 			'common.revokeRequestSendComplete' => 'Запрос на отзыв отправлен',
@@ -3913,6 +3946,8 @@ extension on TranslationsRuRu {
 			'common.voiceSttConverting' => 'Распознавание...',
 			'common.voiceSttNotConfigured' => 'Функция распознавания речи не настроена',
 			'common.voiceSttPreviewTitle' => 'Предпросмотр распознанного текста',
+			'common.retry' => 'Повторить',
+			'common.retrying' => 'Повтор…',
 			'complaint.complaint' => 'Жалоба',
 			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
 			'complaint.e2eeConsentBody' => 'Это сообщение зашифровано сквозным шифрованием; сервер не видит его содержимое. Отправка выдержки раскроет выбранный открытый текст модераторам для проверки. Согласны?',
@@ -4005,6 +4040,8 @@ extension on TranslationsRuRu {
 			'group.groupAlbum' => 'Альбом группы',
 			'group.groupDissolve' => 'Роспуск группы',
 			'group.groupLeave' => 'Покинуть группу',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupMembers' => 'Участники группы',
 			'group.groupName' => 'Название группы',
 			'group.mutualGroupsWithHer' => 'Общие группы',
@@ -4019,8 +4056,6 @@ extension on TranslationsRuRu {
 			'group.groupAlbumRenameTitle' => 'Переименовать альбом',
 			'group.groupAlbumRenamed' => 'Альбом переименован',
 			'group.groupAlbumUnnamed' => 'Альбом без названия',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} фото',
 			'group.groupAlbumPhotoIdMissing' => 'ID фото отсутствует, нельзя открыть детали',
 			'group.groupAlbumPhotoListTitle' => 'Фото альбома',
@@ -4333,6 +4368,7 @@ extension on TranslationsRuRu {
 			'main.safetyNumberReporting' => 'Отправка результата проверки...',
 			'main.safetyNumberTitle' => 'Проверка кода безопасности',
 			'main.safetyNumberVerifyFailed' => 'Не удалось получить код безопасности. Повторите позже',
+			'main.complianceKeyNotConfigured' => 'Для этого развёртывания не настроен ключ комплаенс-аудита',
 			'mention.mentionAll' => 'Все',
 			'mention.mentionAllHint' => 'Уведомить всех участников группы',
 			'mention.noMatchedMember' => 'Нет подходящих участников',
@@ -4378,6 +4414,12 @@ extension on TranslationsRuRu {
 			'passport.qrLoginSuccess' => 'Вход выполнен',
 			'passport.qrWebLoginDesc' => 'Подтвердите вход этого аккаунта в веб-версии',
 			'passport.qrWebLoginTitle' => 'Подтверждение входа в веб-версии',
+			'passport.alipayNotSupportedWeb' => 'Вход через Alipay не поддерживается в вебе',
+			'passport.oneKeyNotSupportedWeb' => 'Вход в один клик не поддерживается в вебе',
+			'passport.oneKeyInitFailed' => 'Не удалось инициализировать вход в один клик, попробуйте позже',
+			'passport.oneKeyNoSimCard' => 'Текущая сеть не поддерживается или в телефоне нет SIM-карты',
+			'passport.cannotGetScreenSize' => 'Не удалось получить размер экрана',
+			'passport.oneKeyFailedRetry' => 'Не удалось выполнить вход в один клик, проверьте сеть и повторите',
 			'splash.slogan' => 'Свободно общайтесь — легко и удобно',
 			'welcome.step1Title' => 'Общайтесь свободно',
 			'welcome.step1Desc' => 'Бесшовное общение В любое время, в любом месте',
@@ -4512,6 +4554,8 @@ extension on TranslationsRuRu {
 			'workspace.projectDescLabel' => 'Описание проекта (необязательно)',
 			'workspace.projectDescHint' => 'Что должен дать этот проект?',
 			'workspace.projectSubmit' => 'Создать',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'Проект создан',
 			'workspace.projectDetailTitle' => 'Детали проекта',
 			'workspace.projectOwnerLabel' => 'Ответственный',
@@ -4533,8 +4577,6 @@ extension on TranslationsRuRu {
 			'workspace.taskSubmitCreate' => 'Создать задачу',
 			'workspace.taskSubmitSave' => _root.common.buttonSave,
 			'workspace.taskCreatedToast' => 'Задача создана',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskExistingToast' => 'Задача с таким названием уже существует, используется она',
 			'workspace.taskUpdatedToast' => 'Задача сохранена',
 			'workspace.taskFilterAll' => 'Все',

@@ -179,6 +179,9 @@ class _Translations$account$en_US extends Translations$account$zh_CN {
 	@override String get payMethodWallet => 'Wallet Balance';
 	@override String get payMethodMock => 'Mock payment (development environment)';
 	@override String get payMethodComingSoon => 'This payment method is coming soon. Stay tuned!';
+	@override String get bindAlipay => 'Link Alipay';
+	@override String get unbindAlipay => 'Unlink';
+	@override String get confirmUnbindAlipay => 'Confirm unlink';
 }
 
 // Path: agent
@@ -442,6 +445,10 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get reply => 'Reply';
 	@override String get replyTo => 'Reply to';
 	@override String get writeComment => 'Write a comment...';
+	@override String get info => 'Channel Info';
+	@override String get settings => 'Channel Settings';
+	@override String get inviteAdmins => 'Invite Admins';
+	@override String get shareToMyStatus => 'Share to My Status';
 }
 
 // Path: chat
@@ -652,6 +659,11 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancelSend => 'Release to cancel sending';
 	@override String get voiceReleaseCancel => 'Release to cancel';
 	@override String get voiceSlideHint => 'Slide up to cancel / convert to text';
+	@override String get encryptedMessagePlaceholder => '[Encrypted message]';
+	@override String get invalidMessagePlaceholder => '[Invalid message]';
+	@override String get videoCallPlaceholder => '[Video call]';
+	@override String get voiceCallPlaceholder => '[Voice call]';
+	@override String get notFriendCannotSend => 'You are not friends, unable to send messages';
 }
 
 // Path: common
@@ -1561,6 +1573,8 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get voiceSttNotConfigured => 'Voice-to-text is not configured yet';
 	@override String get voiceSttPreviewTitle => 'Voice-to-Text Preview';
 	@override String get collectedVideoFormatIncorrectCannotFindVideoUri => 'Unsupported video format, the video could not be found';
+	@override String get retry => 'Retry';
+	@override String get retrying => 'Retrying…';
 }
 
 // Path: complaint
@@ -2105,6 +2119,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get liveRoomTitleHint => 'Enter live room title';
 	@override String channelPriceLabel({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}';
 	@override String get lightModel => 'Light mode';
+	@override String get complianceKeyNotConfigured => 'No compliance audit key configured for this deployment';
 }
 
 // Path: mention
@@ -2186,6 +2201,12 @@ class _Translations$passport$en_US extends Translations$passport$zh_CN {
 	@override String get qrLoginSuccess => 'Login successful';
 	@override String get qrWebLoginTitle => 'Web Login Confirmation';
 	@override String get qrWebLoginDesc => 'Confirm whether to log in to this account on the web';
+	@override String get alipayNotSupportedWeb => 'Alipay login is not supported on web';
+	@override String get oneKeyNotSupportedWeb => 'One-tap login is not supported on web';
+	@override String get oneKeyInitFailed => 'Failed to initialize one-tap login, please try again later';
+	@override String get oneKeyNoSimCard => 'The current network is not supported, or the phone has no SIM card';
+	@override String get cannotGetScreenSize => 'Unable to get screen size';
+	@override String get oneKeyFailedRetry => 'One-tap login failed, check your network and try again';
 }
 
 // Path: splash
@@ -2584,6 +2605,9 @@ extension on TranslationsEnUs {
 			'account.payMethodWallet' => 'Wallet Balance',
 			'account.payMethodMock' => 'Mock payment (development environment)',
 			'account.payMethodComingSoon' => 'This payment method is coming soon. Stay tuned!',
+			'account.bindAlipay' => 'Link Alipay',
+			'account.unbindAlipay' => 'Unlink',
+			'account.confirmUnbindAlipay' => 'Confirm unlink',
 			'agent.plazaTitle' => 'AI Assistants',
 			'agent.transparencyBanner' => 'Everyone here is an AI assistant, clearly labeled as such. In encrypted chats, there are only real people.',
 			'agent.searchHint' => 'Search assistants',
@@ -2811,6 +2835,10 @@ extension on TranslationsEnUs {
 			'channel.reply' => 'Reply',
 			'channel.replyTo' => 'Reply to',
 			'channel.writeComment' => 'Write a comment...',
+			'channel.info' => 'Channel Info',
+			'channel.settings' => 'Channel Settings',
+			'channel.inviteAdmins' => 'Invite Admins',
+			'channel.shareToMyStatus' => 'Share to My Status',
 			'chat.bankCard' => 'Bank Card',
 			'chat.receivePayment' => 'Receive & Pay',
 			'chat.alreadyMember' => 'Already a member',
@@ -2978,6 +3006,8 @@ extension on TranslationsEnUs {
 			'chat.webFeatureMultiDevice' => 'Multi-Device Sync',
 			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
 			'chat.webFeatureE2EE' => 'End-to-End Encryption',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'All messages are end-to-end encrypted, ensuring privacy and security',
 			'chat.webFeatureFileTransfer' => 'File Transfer',
 			'chat.webFeatureFileTransferDesc' => 'Drag and drop to send files, supports various formats',
@@ -2985,8 +3015,6 @@ extension on TranslationsEnUs {
 			'chat.webQRStatusScanned' => 'Please tap "Confirm Login" on your phone',
 			'chat.webQRStatusVerifying' => 'Verifying...',
 			'chat.webQRStatusExpired' => 'Please click refresh to scan again',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeErrInvalidFormat' => 'Message format error, encryption failed',
 			'chat.e2eeSocialStatus' => ({required Object status}) => 'Status: ${status}',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Please select at least ${count} proxies',
@@ -3014,6 +3042,11 @@ extension on TranslationsEnUs {
 			'chat.voiceReleaseCancelSend' => 'Release to cancel sending',
 			'chat.voiceReleaseCancel' => 'Release to cancel',
 			'chat.voiceSlideHint' => 'Slide up to cancel / convert to text',
+			'chat.encryptedMessagePlaceholder' => '[Encrypted message]',
+			'chat.invalidMessagePlaceholder' => '[Invalid message]',
+			'chat.videoCallPlaceholder' => '[Video call]',
+			'chat.voiceCallPlaceholder' => '[Voice call]',
+			'chat.notFriendCannotSend' => 'You are not friends, unable to send messages',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -3487,6 +3520,8 @@ extension on TranslationsEnUs {
 			'common.expression' => 'Expression',
 			'common.extendedInfo' => 'Extended Info',
 			'common.profession' => 'Profession',
+			_ => null,
+		} ?? switch (path) {
 			'common.shareFailed' => 'Share failed',
 			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
 			'common.setRegion' => 'Set Region',
@@ -3499,8 +3534,6 @@ extension on TranslationsEnUs {
 			'common.useNewActionMechanism' => 'Processing',
 			'common.revokeMessageSendResult' => 'Recall result',
 			'common.revokeRequestSendComplete' => 'Recall request sent',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeFailed' => 'Revoke failed',
 			'common.revokeMessageException' => 'Recall error',
 			'common.revokeOperationAbnormal' => 'Recall operation failed',
@@ -3907,6 +3940,8 @@ extension on TranslationsEnUs {
 			'common.voiceSttNotConfigured' => 'Voice-to-text is not configured yet',
 			'common.voiceSttPreviewTitle' => 'Voice-to-Text Preview',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => 'Unsupported video format, the video could not be found',
+			'common.retry' => 'Retry',
+			'common.retrying' => 'Retrying…',
 			'complaint.complaint' => 'Complaint',
 			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
@@ -3999,6 +4034,8 @@ extension on TranslationsEnUs {
 			'group.groupAlbum' => 'Group Album',
 			'group.groupDissolve' => 'Dissolve group',
 			'group.groupLeave' => 'Leave group',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupMembers' => 'Group members',
 			'group.groupName' => 'Group chat name',
 			'group.mutualGroupsWithHer' => 'Groups in common',
@@ -4013,8 +4050,6 @@ extension on TranslationsEnUs {
 			'group.groupCreated' => 'Group created',
 			'group.groupCreatedSuccess' => 'Group created successfully! Invite members or enter the group now',
 			'group.enterGroupChat' => 'Enter Group',
-			_ => null,
-		} ?? switch (path) {
 			'group.perfectionGroupInfo' => 'Complete Group Info',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'Select group chat',
@@ -4327,6 +4362,7 @@ extension on TranslationsEnUs {
 			'main.liveRoomTitleHint' => 'Enter live room title',
 			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}',
 			'main.lightModel' => 'Light mode',
+			'main.complianceKeyNotConfigured' => 'No compliance audit key configured for this deployment',
 			'mention.mentionAll' => 'Everyone',
 			'mention.mentionAllHint' => 'Notify all group members',
 			'mention.noMatchedMember' => 'No matching members',
@@ -4372,6 +4408,12 @@ extension on TranslationsEnUs {
 			'passport.qrLoginSuccess' => 'Login successful',
 			'passport.qrWebLoginTitle' => 'Web Login Confirmation',
 			'passport.qrWebLoginDesc' => 'Confirm whether to log in to this account on the web',
+			'passport.alipayNotSupportedWeb' => 'Alipay login is not supported on web',
+			'passport.oneKeyNotSupportedWeb' => 'One-tap login is not supported on web',
+			'passport.oneKeyInitFailed' => 'Failed to initialize one-tap login, please try again later',
+			'passport.oneKeyNoSimCard' => 'The current network is not supported, or the phone has no SIM card',
+			'passport.cannotGetScreenSize' => 'Unable to get screen size',
+			'passport.oneKeyFailedRetry' => 'One-tap login failed, check your network and try again',
 			'splash.slogan' => 'Connect Freely, Communicate Anywhere',
 			'welcome.step1Title' => 'Simple Connection',
 			'welcome.step1Desc' => 'Experience the joy of seamless communication. Anytime, anywhere.',
@@ -4506,6 +4548,8 @@ extension on TranslationsEnUs {
 			'workspace.projectDescLabel' => 'Description (optional)',
 			'workspace.projectDescHint' => 'What does this project deliver?',
 			'workspace.projectSubmit' => 'Create',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'Project created',
 			'workspace.projectDetailTitle' => 'Project Detail',
 			'workspace.projectOwnerLabel' => 'Owner',
@@ -4527,8 +4571,6 @@ extension on TranslationsEnUs {
 			'workspace.taskSubmitCreate' => 'Create task',
 			'workspace.taskSubmitSave' => 'Save',
 			'workspace.taskCreatedToast' => 'Task created',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskExistingToast' => 'A task with the same title already exists; reusing it',
 			'workspace.taskUpdatedToast' => 'Task saved',
 			'workspace.taskFilterAll' => 'All',

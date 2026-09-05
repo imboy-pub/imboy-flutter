@@ -179,6 +179,9 @@ class _Translations$account$ko_KR extends Translations$account$zh_CN {
 	@override String get payMethodWallet => '지갑 잔액';
 	@override String get payMethodWechat => 'WeChat Pay';
 	@override late final _Translations$account$alipaySim$ko_KR alipaySim = _Translations$account$alipaySim$ko_KR._(_root);
+	@override String get bindAlipay => 'Alipay 연동';
+	@override String get unbindAlipay => '연동 해제';
+	@override String get confirmUnbindAlipay => '연동 해제 확인';
 }
 
 // Path: agent
@@ -442,6 +445,10 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get sortPopular => '인기순';
 	@override String get titleOptional => '제목(선택)';
 	@override String get writeComment => '댓글 달기...';
+	@override String get info => '채널 정보';
+	@override String get settings => '채널 설정';
+	@override String get inviteAdmins => '관리자 초대';
+	@override String get shareToMyStatus => '내 상태에 공유';
 }
 
 // Path: chat
@@ -652,6 +659,11 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancel => '놓으면 취소';
 	@override String get voiceReleaseCancelSend => '놓으면 전송 취소';
 	@override String get voiceSlideHint => '위로 스와이프: 취소 / 텍스트 변환';
+	@override String get encryptedMessagePlaceholder => '[암호화된 메시지]';
+	@override String get invalidMessagePlaceholder => '[잘못된 메시지]';
+	@override String get videoCallPlaceholder => '[영상 통화]';
+	@override String get voiceCallPlaceholder => '[음성 통화]';
+	@override String get notFriendCannotSend => '친구가 아니어서 메시지를 보낼 수 없습니다';
 }
 
 // Path: common
@@ -1558,6 +1570,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get voiceSttConverting => '인식 중...';
 	@override String get voiceSttNotConfigured => '텍스트 변환 기능이 아직 설정되지 않았습니다';
 	@override String get voiceSttPreviewTitle => '음성 텍스트 변환 미리보기';
+	@override String get retry => '다시 시도';
+	@override String get retrying => '다시 시도 중…';
 }
 
 // Path: complaint
@@ -2102,6 +2116,7 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get safetyNumberReporting => '검증 결과 보고 중...';
 	@override String get safetyNumberTitle => '보안 번호 검증';
 	@override String get safetyNumberVerifyFailed => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요';
+	@override String get complianceKeyNotConfigured => '이 배포에는 컴플라이언스 감사 키가 구성되어 있지 않습니다';
 }
 
 // Path: mention
@@ -2183,6 +2198,12 @@ class _Translations$passport$ko_KR extends Translations$passport$zh_CN {
 	@override String get qrLoginSuccess => '로그인 성공';
 	@override String get qrWebLoginDesc => '웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요';
 	@override String get qrWebLoginTitle => '웹 로그인 확인';
+	@override String get alipayNotSupportedWeb => '웹에서는 Alipay 로그인을 지원하지 않습니다';
+	@override String get oneKeyNotSupportedWeb => '웹에서는 원탭 로그인을 지원하지 않습니다';
+	@override String get oneKeyInitFailed => '원탭 로그인 초기화에 실패했습니다. 나중에 다시 시도해 주세요';
+	@override String get oneKeyNoSimCard => '현재 네트워크가 지원되지 않거나 SIM카드가 없습니다';
+	@override String get cannotGetScreenSize => '화면 크기를 가져올 수 없습니다';
+	@override String get oneKeyFailedRetry => '원탭 로그인에 실패했습니다. 네트워크를 확인 후 다시 시도해 주세요';
 }
 
 // Path: splash
@@ -2581,6 +2602,9 @@ extension on TranslationsKoKr {
 			'account.alipaySim.storeName' => '정보기술 플래그십 스토어',
 			'account.alipaySim.paymentAmount' => '금액:',
 			'account.alipaySim.balanceSource' => '계정 잔액',
+			'account.bindAlipay' => 'Alipay 연동',
+			'account.unbindAlipay' => '연동 해제',
+			'account.confirmUnbindAlipay' => '연동 해제 확인',
 			'agent.plazaTitle' => 'AI 어시스턴트 광장',
 			'agent.transparencyBanner' => '여기 있는 구성원은 모두 AI 어시스턴트이며 신원이 명확히 표시됩니다. 암호화 채팅에는 실제 사람만 있습니다.',
 			'agent.searchHint' => '어시스턴트 검색',
@@ -2808,6 +2832,10 @@ extension on TranslationsKoKr {
 			'channel.sortPopular' => '인기순',
 			'channel.titleOptional' => '제목(선택)',
 			'channel.writeComment' => '댓글 달기...',
+			'channel.info' => '채널 정보',
+			'channel.settings' => '채널 설정',
+			'channel.inviteAdmins' => '관리자 초대',
+			'channel.shareToMyStatus' => '내 상태에 공유',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -2975,6 +3003,8 @@ extension on TranslationsKoKr {
 			'chat.webFeatureMultiDevice' => '다중 기기 동기화',
 			'chat.webFeatureMultiDeviceDesc' => '휴대폰과 PC 간에 자유롭게 전환하며 메시지가 실시간으로 동기화됩니다',
 			'chat.webFeatureE2EE' => '종단간 암호화',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => '모든 메시지는 종단간 암호화되어 개인정보를 안전하게 보호합니다',
 			'chat.webFeatureFileTransfer' => '파일 전송',
 			'chat.webFeatureFileTransferDesc' => '드래그 앤 드롭으로 파일을 보낼 수 있으며 다양한 형식을 지원합니다',
@@ -2982,8 +3012,6 @@ extension on TranslationsKoKr {
 			'chat.webQRStatusScanned' => '휴대폰에서 "로그인 확인"을 눌러주세요',
 			'chat.webQRStatusVerifying' => '확인 중...',
 			'chat.webQRStatusExpired' => '새로고침을 눌러 다시 스캔해주세요',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeErrInvalidFormat' => '메시지 형식 오류, 암호화 실패',
 			'chat.e2eeSocialStatus' => ({required Object status}) => '상태: ${status}',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '대리자를 최소 ${count}명 선택해주세요',
@@ -3011,6 +3039,11 @@ extension on TranslationsKoKr {
 			'chat.voiceReleaseCancel' => '놓으면 취소',
 			'chat.voiceReleaseCancelSend' => '놓으면 전송 취소',
 			'chat.voiceSlideHint' => '위로 스와이프: 취소 / 텍스트 변환',
+			'chat.encryptedMessagePlaceholder' => '[암호화된 메시지]',
+			'chat.invalidMessagePlaceholder' => '[잘못된 메시지]',
+			'chat.videoCallPlaceholder' => '[영상 통화]',
+			'chat.voiceCallPlaceholder' => '[음성 통화]',
+			'chat.notFriendCannotSend' => '친구가 아니어서 메시지를 보낼 수 없습니다',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
@@ -3484,6 +3517,8 @@ extension on TranslationsKoKr {
 			'common.personalDisplay' => '개인 표시',
 			'common.personalSignature' => '개인 서명',
 			'common.personalBackground' => '개인 배경',
+			_ => null,
+		} ?? switch (path) {
 			'common.expression' => '이모티콘',
 			'common.extendedInfo' => '추가 정보',
 			'common.profession' => '직업',
@@ -3496,8 +3531,6 @@ extension on TranslationsKoKr {
 			'common.messageIdCannotBeEmpty' => '메시지 ID가 비어있어 작업을 수행할 수 없습니다',
 			'common.startRevokeMessageFlow' => '메시지 회수 흐름 시작',
 			'common.revokeMessageTracking' => '메시지 회수 추적',
-			_ => null,
-		} ?? switch (path) {
 			'common.useNewActionMechanism' => '새 작업 메커니즘 사용',
 			'common.revokeMessageSendResult' => '메시지 회수 전송 결과',
 			'common.revokeRequestSendComplete' => '회수 요청 전송 완료',
@@ -3904,6 +3937,8 @@ extension on TranslationsKoKr {
 			'common.voiceSttConverting' => '인식 중...',
 			'common.voiceSttNotConfigured' => '텍스트 변환 기능이 아직 설정되지 않았습니다',
 			'common.voiceSttPreviewTitle' => '음성 텍스트 변환 미리보기',
+			'common.retry' => '다시 시도',
+			'common.retrying' => '다시 시도 중…',
 			'complaint.complaint' => '신고',
 			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
 			'complaint.e2eeConsentBody' => '이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?',
@@ -3996,6 +4031,8 @@ extension on TranslationsKoKr {
 			'group.groupAlbum' => '그룹 앨범',
 			'group.groupDissolve' => '그룹 해체',
 			'group.groupLeave' => '그룹 나가기',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupMembers' => '그룹 구성원',
 			'group.groupName' => '그룹 채팅 이름',
 			'group.mutualGroupsWithHer' => '해당 사용자와의 공통 그룹 채팅',
@@ -4010,8 +4047,6 @@ extension on TranslationsKoKr {
 			'group.groupAlbumRenameTitle' => '앨범 이름 변경',
 			'group.groupAlbumRenamed' => '앨범 이름이 변경되었습니다',
 			'group.groupAlbumUnnamed' => '이름 없는 앨범',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '이미지 ${count}장',
 			'group.groupAlbumPhotoIdMissing' => '이미지 ID가 없어 상세정보를 볼 수 없습니다',
 			'group.groupAlbumPhotoListTitle' => '앨범 이미지',
@@ -4324,6 +4359,7 @@ extension on TranslationsKoKr {
 			'main.safetyNumberReporting' => '검증 결과 보고 중...',
 			'main.safetyNumberTitle' => '보안 번호 검증',
 			'main.safetyNumberVerifyFailed' => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요',
+			'main.complianceKeyNotConfigured' => '이 배포에는 컴플라이언스 감사 키가 구성되어 있지 않습니다',
 			'mention.mentionAll' => '전체',
 			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
 			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
@@ -4369,6 +4405,12 @@ extension on TranslationsKoKr {
 			'passport.qrLoginSuccess' => '로그인 성공',
 			'passport.qrWebLoginDesc' => '웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요',
 			'passport.qrWebLoginTitle' => '웹 로그인 확인',
+			'passport.alipayNotSupportedWeb' => '웹에서는 Alipay 로그인을 지원하지 않습니다',
+			'passport.oneKeyNotSupportedWeb' => '웹에서는 원탭 로그인을 지원하지 않습니다',
+			'passport.oneKeyInitFailed' => '원탭 로그인 초기화에 실패했습니다. 나중에 다시 시도해 주세요',
+			'passport.oneKeyNoSimCard' => '현재 네트워크가 지원되지 않거나 SIM카드가 없습니다',
+			'passport.cannotGetScreenSize' => '화면 크기를 가져올 수 없습니다',
+			'passport.oneKeyFailedRetry' => '원탭 로그인에 실패했습니다. 네트워크를 확인 후 다시 시도해 주세요',
 			'splash.slogan' => '자유롭게 대화하세요',
 			'welcome.step1Title' => '간단한 연결',
 			'welcome.step1Desc' => '원활한 소통의 즐거움을 경험해 보세요. 언제 어디서든.',
@@ -4503,6 +4545,8 @@ extension on TranslationsKoKr {
 			'workspace.projectDescLabel' => '프로젝트 설명(선택)',
 			'workspace.projectDescHint' => '이 프로젝트로 무엇을 전달하나요?',
 			'workspace.projectSubmit' => '만들기',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => '프로젝트가 생성되었습니다',
 			'workspace.projectDetailTitle' => '프로젝트 상세',
 			'workspace.projectOwnerLabel' => '담당자',
@@ -4524,8 +4568,6 @@ extension on TranslationsKoKr {
 			'workspace.taskSubmitCreate' => '작업 만들기',
 			'workspace.taskSubmitSave' => '저장',
 			'workspace.taskCreatedToast' => '작업이 생성되었습니다',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskExistingToast' => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다',
 			'workspace.taskUpdatedToast' => '작업이 저장되었습니다',
 			'workspace.taskFilterAll' => '전체',

@@ -16,6 +16,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
@@ -240,7 +241,9 @@ class MessageWebrtc {
         peerId: int.tryParse(peerUid) ?? 0,
         avatar: peer.avatar,
         title: peer.nickname,
-        subtitle: msgType == MessageType.webrtcVideo ? '[视频通话]' : '[语音通话]',
+        subtitle: msgType == MessageType.webrtcVideo
+            ? t.chat.videoCallPlaceholder
+            : t.chat.voiceCallPlaceholder,
         type: 'C2C',
         msgType: msgType,
         lastMsgId: int.tryParse(msgId) ?? 0,

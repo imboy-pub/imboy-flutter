@@ -190,3 +190,8 @@ accessTypeFree: "免費"
 accessTypePaid: "付費"
 typePublicPaidDesc: "任何人都可以發現頻道，購買後即可訂閱"
 typePrivatePaidDesc: "僅受邀用戶可進入購買流程，付款後即可訂閱"
+
+info: "頻道資訊"
+settings: "頻道設定"
+inviteAdmins: "邀請管理員"
+shareToMyStatus: "分享至我的動態"

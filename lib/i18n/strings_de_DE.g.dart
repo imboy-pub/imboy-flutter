@@ -179,6 +179,9 @@ class _Translations$account$de_DE extends Translations$account$zh_CN {
 	@override String get logoutCancelledNote => 'Löschantrag zurückgezogen';
 	@override String get logoutRetainedHeader => 'Hinweis zur Datenaufbewahrung';
 	@override String get logoutRetainedNote => 'Nach Abschluss der Löschung werden Audit-Protokolle und Finanzunterlagen gesetzlich vorgeschrieben aufbewahrt und anonymisiert; von Ihnen geführte Gruppen/Arbeitsbereiche/Kanäle werden vorrangig an Nachfolgemitglieder übertragen';
+	@override String get bindAlipay => 'Alipay verknüpfen';
+	@override String get unbindAlipay => 'Verknüpfung aufheben';
+	@override String get confirmUnbindAlipay => 'Verknüpfung aufheben bestätigen';
 }
 
 // Path: agent
@@ -442,6 +445,10 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get sortPopular => 'Beliebt';
 	@override String get titleOptional => 'Titel (optional)';
 	@override String get writeComment => 'Kommentar schreiben...';
+	@override String get info => 'Kanalinformationen';
+	@override String get settings => 'Kanaleinstellungen';
+	@override String get inviteAdmins => 'Admins einladen';
+	@override String get shareToMyStatus => 'In meinem Status teilen';
 }
 
 // Path: chat
@@ -652,6 +659,11 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancelSend => 'Loslassen: Senden abbrechen';
 	@override String get voiceSlideHint => 'Nach oben wischen: Abbrechen / In Text umwandeln';
 	@override String get alipayLoginInterrupted => 'Alipay-Anmeldung vom System unterbrochen, bitte erneut versuchen';
+	@override String get encryptedMessagePlaceholder => '[Verschlüsselte Nachricht]';
+	@override String get invalidMessagePlaceholder => '[Ungültige Nachricht]';
+	@override String get videoCallPlaceholder => '[Videoanruf]';
+	@override String get voiceCallPlaceholder => '[Sprachanruf]';
+	@override String get notFriendCannotSend => 'Keine Freundschaft, Senden nicht möglich';
 }
 
 // Path: common
@@ -1561,6 +1573,8 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get complianceKeyChangedActionConfirm => 'Rotation bestätigen';
 	@override String get complianceKeyChangedActionKeep => 'Vorerst nicht bestätigen';
 	@override String get initConfigDecryptFailed => 'Konfiguration konnte nicht entschlüsselt werden: Sicherheitsschlüssel von App und Server stimmen nicht überein. Bitte App aktualisieren oder Administrator kontaktieren';
+	@override String get retry => 'Wiederholen';
+	@override String get retrying => 'Wiederholung…';
 }
 
 // Path: complaint
@@ -2105,6 +2119,7 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get e2eeErrDeviceNotReady => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen';
 	@override String get e2eeErrProtocolMismatch => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen';
 	@override String get e2eeErrSessionExportFailed => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen';
+	@override String get complianceKeyNotConfigured => 'Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert';
 }
 
 // Path: mention
@@ -2186,6 +2201,12 @@ class _Translations$passport$de_DE extends Translations$passport$zh_CN {
 	@override String get qrLoginSuccess => 'Angemeldet';
 	@override String get qrWebLoginDesc => 'Bitte bestätigen Sie die Anmeldung dieses Kontos im Web';
 	@override String get qrWebLoginTitle => 'Web-Anmeldung bestätigen';
+	@override String get alipayNotSupportedWeb => 'Alipay-Anmeldung wird im Web nicht unterstützt';
+	@override String get oneKeyNotSupportedWeb => 'One-Tap-Login wird im Web nicht unterstützt';
+	@override String get oneKeyInitFailed => 'One-Tap-Login konnte nicht initialisiert werden, bitte später erneut versuchen';
+	@override String get oneKeyNoSimCard => 'Das aktuelle Netzwerk wird nicht unterstützt oder das Handy hat keine SIM-Karte';
+	@override String get cannotGetScreenSize => 'Bildschirmgröße konnte nicht ermittelt werden';
+	@override String get oneKeyFailedRetry => 'One-Tap-Login fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen';
 }
 
 // Path: splash
@@ -2584,6 +2605,9 @@ extension on TranslationsDeDe {
 			'account.logoutCancelledNote' => 'Löschantrag zurückgezogen',
 			'account.logoutRetainedHeader' => 'Hinweis zur Datenaufbewahrung',
 			'account.logoutRetainedNote' => 'Nach Abschluss der Löschung werden Audit-Protokolle und Finanzunterlagen gesetzlich vorgeschrieben aufbewahrt und anonymisiert; von Ihnen geführte Gruppen/Arbeitsbereiche/Kanäle werden vorrangig an Nachfolgemitglieder übertragen',
+			'account.bindAlipay' => 'Alipay verknüpfen',
+			'account.unbindAlipay' => 'Verknüpfung aufheben',
+			'account.confirmUnbindAlipay' => 'Verknüpfung aufheben bestätigen',
 			'agent.plazaTitle' => 'KI-Assistenten',
 			'agent.transparencyBanner' => 'Alle Mitglieder hier sind KI-Assistenten und klar als solche gekennzeichnet. In verschlüsselten Chats gibt es nur echte Menschen.',
 			'agent.searchHint' => 'Assistenten suchen',
@@ -2811,6 +2835,10 @@ extension on TranslationsDeDe {
 			'channel.sortPopular' => 'Beliebt',
 			'channel.titleOptional' => 'Titel (optional)',
 			'channel.writeComment' => 'Kommentar schreiben...',
+			'channel.info' => 'Kanalinformationen',
+			'channel.settings' => 'Kanaleinstellungen',
+			'channel.inviteAdmins' => 'Admins einladen',
+			'channel.shareToMyStatus' => 'In meinem Status teilen',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.receivePayment' => 'Empfangen & Zahlen',
 			'chat.alreadyMember' => 'Bereits Mitglied',
@@ -2978,6 +3006,8 @@ extension on TranslationsDeDe {
 			'chat.webFeatureMultiDevice' => 'Multi-Geräte-Sync',
 			'chat.webFeatureMultiDeviceDesc' => 'Nahtlos zwischen Handy und PC wechseln, Nachrichten in Echtzeit synchronisieren',
 			'chat.webFeatureE2EE' => 'E2EE',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'Alle Nachrichten E2EE-verschlüsselt für maximale Privatsphäre',
 			'chat.webFeatureFileTransfer' => 'Dateiübertragung',
 			'chat.webFeatureFileTransferDesc' => 'Dateien per Drag & Drop senden, alle Formate',
@@ -2985,8 +3015,6 @@ extension on TranslationsDeDe {
 			'chat.webQRStatusScanned' => 'Am Handy „Anmelden" antippen',
 			'chat.webQRStatusVerifying' => 'Wird geprüft...',
 			'chat.webQRStatusExpired' => 'Aktualisieren und erneut scannen',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeErrInvalidFormat' => 'Ungültiges Nachrichtenformat, Verschlüsselung fehlgeschlagen',
 			'chat.e2eeSocialStatus' => ({required Object status}) => 'Status: ${status}',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Mindestens ${count} Treuhänder wählen',
@@ -3014,6 +3042,11 @@ extension on TranslationsDeDe {
 			'chat.voiceReleaseCancelSend' => 'Loslassen: Senden abbrechen',
 			'chat.voiceSlideHint' => 'Nach oben wischen: Abbrechen / In Text umwandeln',
 			'chat.alipayLoginInterrupted' => 'Alipay-Anmeldung vom System unterbrochen, bitte erneut versuchen',
+			'chat.encryptedMessagePlaceholder' => '[Verschlüsselte Nachricht]',
+			'chat.invalidMessagePlaceholder' => '[Ungültige Nachricht]',
+			'chat.videoCallPlaceholder' => '[Videoanruf]',
+			'chat.voiceCallPlaceholder' => '[Sprachanruf]',
+			'chat.notFriendCannotSend' => 'Keine Freundschaft, Senden nicht möglich',
 			'common.about' => 'Über',
 			'common.aboutApp' => 'Über die App',
 			'common.accept' => 'Akzeptieren',
@@ -3487,6 +3520,8 @@ extension on TranslationsDeDe {
 			'common.personalDisplay' => 'Persönliche Anzeige',
 			'common.personalSignature' => 'Persönliche Signatur',
 			'common.personalBackground' => 'Persönlicher Hintergrund',
+			_ => null,
+		} ?? switch (path) {
 			'common.expression' => 'Emoji',
 			'common.extendedInfo' => 'Erweiterte Informationen',
 			'common.profession' => 'Beruf',
@@ -3499,8 +3534,6 @@ extension on TranslationsDeDe {
 			'common.messageIdCannotBeEmpty' => 'Nachrichten-ID ist leer, Vorgang kann nicht durchgeführt werden',
 			'common.startRevokeMessageFlow' => 'Widerruf-Nachrichtenablauf starten',
 			'common.revokeMessageTracking' => 'Widerruf-Nachrichtenverfolgung',
-			_ => null,
-		} ?? switch (path) {
 			'common.useNewActionMechanism' => 'Neuen Action-Mechanismus verwenden',
 			'common.revokeMessageSendResult' => 'Widerruf-Nachrichtensendergebnis',
 			'common.revokeRequestSendComplete' => 'Widerruf-Anfrage gesendet',
@@ -3907,6 +3940,8 @@ extension on TranslationsDeDe {
 			'common.complianceKeyChangedActionConfirm' => 'Rotation bestätigen',
 			'common.complianceKeyChangedActionKeep' => 'Vorerst nicht bestätigen',
 			'common.initConfigDecryptFailed' => 'Konfiguration konnte nicht entschlüsselt werden: Sicherheitsschlüssel von App und Server stimmen nicht überein. Bitte App aktualisieren oder Administrator kontaktieren',
+			'common.retry' => 'Wiederholen',
+			'common.retrying' => 'Wiederholung…',
 			'complaint.complaint' => 'Beschwerde',
 			'complaint.e2eeConsentTitle' => 'Verschlüsselte Beweise einreichen',
 			'complaint.e2eeConsentBody' => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmst du zu?',
@@ -3999,6 +4034,8 @@ extension on TranslationsDeDe {
 			'group.groupAlbum' => 'Gruppenalbum',
 			'group.groupDissolve' => 'Gruppe auflösen',
 			'group.groupLeave' => 'Gruppe verlassen',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupMembers' => 'Gruppenmitglieder',
 			'group.groupName' => 'Gruppenname',
 			'group.mutualGroupsWithHer' => 'Gemeinsame Gruppen',
@@ -4013,8 +4050,6 @@ extension on TranslationsDeDe {
 			'group.groupAlbumRenameTitle' => 'Album umbenennen',
 			'group.groupAlbumRenamed' => 'Album umbenannt',
 			'group.groupAlbumUnnamed' => 'Unbenanntes Album',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} Bilder',
 			'group.groupAlbumPhotoIdMissing' => 'Bild-ID fehlt, Details können nicht angezeigt werden',
 			'group.groupAlbumPhotoListTitle' => 'Albumbilder',
@@ -4327,6 +4362,7 @@ extension on TranslationsDeDe {
 			'main.e2eeErrDeviceNotReady' => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen',
 			'main.e2eeErrProtocolMismatch' => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen',
 			'main.e2eeErrSessionExportFailed' => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen',
+			'main.complianceKeyNotConfigured' => 'Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert',
 			'mention.mentionAll' => 'Alle',
 			'mention.mentionAllHint' => 'Alle Gruppenmitglieder benachrichtigen',
 			'mention.noMatchedMember' => 'Keine passenden Mitglieder',
@@ -4372,6 +4408,12 @@ extension on TranslationsDeDe {
 			'passport.qrLoginSuccess' => 'Angemeldet',
 			'passport.qrWebLoginDesc' => 'Bitte bestätigen Sie die Anmeldung dieses Kontos im Web',
 			'passport.qrWebLoginTitle' => 'Web-Anmeldung bestätigen',
+			'passport.alipayNotSupportedWeb' => 'Alipay-Anmeldung wird im Web nicht unterstützt',
+			'passport.oneKeyNotSupportedWeb' => 'One-Tap-Login wird im Web nicht unterstützt',
+			'passport.oneKeyInitFailed' => 'One-Tap-Login konnte nicht initialisiert werden, bitte später erneut versuchen',
+			'passport.oneKeyNoSimCard' => 'Das aktuelle Netzwerk wird nicht unterstützt oder das Handy hat keine SIM-Karte',
+			'passport.cannotGetScreenSize' => 'Bildschirmgröße konnte nicht ermittelt werden',
+			'passport.oneKeyFailedRetry' => 'One-Tap-Login fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen',
 			'splash.slogan' => 'Frei kommunizieren.',
 			'welcome.step1Title' => 'Einfache Verbindung',
 			'welcome.step1Desc' => 'Erleben Sie die Freude nahtloser Kommunikation. Jederzeit, überall.',
@@ -4506,6 +4548,8 @@ extension on TranslationsDeDe {
 			'workspace.projectDescLabel' => 'Projektbeschreibung (optional)',
 			'workspace.projectDescHint' => 'Was soll dieses Projekt liefern?',
 			'workspace.projectSubmit' => 'Erstellen',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'Projekt erstellt',
 			'workspace.projectDetailTitle' => 'Projektdetails',
 			'workspace.projectOwnerLabel' => 'Verantwortlich',
@@ -4527,8 +4571,6 @@ extension on TranslationsDeDe {
 			'workspace.taskSubmitCreate' => 'Aufgabe erstellen',
 			'workspace.taskSubmitSave' => 'Speichern',
 			'workspace.taskCreatedToast' => 'Aufgabe erstellt',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskExistingToast' => 'Aufgabe mit gleichem Titel existiert bereits, vorhandene Aufgabe wird verwendet',
 			'workspace.taskUpdatedToast' => 'Aufgabe gespeichert',
 			'workspace.taskFilterAll' => 'Alle',

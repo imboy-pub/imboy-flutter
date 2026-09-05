@@ -194,3 +194,8 @@ accessTypeFree: "免费"
 accessTypePaid: "付费"
 typePublicPaidDesc: "任何人都可以发现频道，购买后即可订阅"
 typePrivatePaidDesc: "仅受邀用户可进入购买流程，付款后即可订阅"
+
+info: "频道信息"
+settings: "频道设置"
+inviteAdmins: "邀请管理员"
+shareToMyStatus: "分享至我的动态"

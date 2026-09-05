@@ -16,3 +16,10 @@ qrLoginConfirming: Accesso in corso...
 qrLoginSuccess: Accesso riuscito
 qrWebLoginDesc: "Conferma se accedere a questo account dal client Web"
 qrWebLoginTitle: "Conferma accesso dal Web"
+
+alipayNotSupportedWeb: "Login Alipay non supportato sul web"
+oneKeyNotSupportedWeb: "Login one-tap non supportato sul web"
+oneKeyInitFailed: "Inizializzazione del login one-tap non riuscita, riprova più tardi"
+oneKeyNoSimCard: "Rete non supportata o telefono senza SIM"
+cannotGetScreenSize: "Impossibile ottenere le dimensioni dello schermo"
+oneKeyFailedRetry: "Login one-tap non riuscito, controlla la rete e riprova"

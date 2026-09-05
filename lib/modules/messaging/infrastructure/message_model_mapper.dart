@@ -110,7 +110,7 @@ extension MessageModelMapper on MessageModel {
               authorId: fromId.toString(),
               createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
               id: id.toString(),
-              text: '[加密消息]',
+              text: t.chat.encryptedMessagePlaceholder,
               status: MessageStatus.error,
               metadata: {
                 'conversation_uk3': conversationUk3,
@@ -130,7 +130,7 @@ extension MessageModelMapper on MessageModel {
               authorId: fromId.toString(),
               createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
               id: id.toString(),
-              text: '[加密消息]',
+              text: t.chat.encryptedMessagePlaceholder,
               status: MessageStatus.error,
               metadata: {
                 'conversation_uk3': conversationUk3,
@@ -157,7 +157,7 @@ extension MessageModelMapper on MessageModel {
             authorId: fromId.toString(),
             createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
             id: id.toString(),
-            text: '[加密消息]',
+            text: t.chat.encryptedMessagePlaceholder,
             status: MessageStatus.error,
             metadata: {
               'conversation_uk3': conversationUk3,
@@ -175,7 +175,7 @@ extension MessageModelMapper on MessageModel {
         authorId: fromId.toString(),
         createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
         id: id.toString(),
-        text: '[无效消息]',
+        text: t.chat.invalidMessagePlaceholder,
         status: MessageStatus.error,
         metadata: {
           'conversation_uk3': conversationUk3,

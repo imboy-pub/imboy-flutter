@@ -201,3 +201,9 @@ releaseConvertToText: Release to convert to text
 voiceReleaseCancelSend: Release to cancel sending
 voiceReleaseCancel: Release to cancel
 voiceSlideHint: Slide up to cancel / convert to text
+
+encryptedMessagePlaceholder: "[Encrypted message]"
+invalidMessagePlaceholder: "[Invalid message]"
+videoCallPlaceholder: "[Video call]"
+voiceCallPlaceholder: "[Voice call]"
+notFriendCannotSend: "You are not friends, unable to send messages"

@@ -206,3 +206,9 @@ releaseConvertToText: 離すと文字起こし
 voiceReleaseCancel: 離すとキャンセル
 voiceReleaseCancelSend: 離すと送信をキャンセル
 voiceSlideHint: 上にスワイプでキャンセル / 文字起こし
+
+encryptedMessagePlaceholder: "[暗号化メッセージ]"
+invalidMessagePlaceholder: "[無効なメッセージ]"
+videoCallPlaceholder: "[ビデオ通話]"
+voiceCallPlaceholder: "[音声通話]"
+notFriendCannotSend: "友達ではないため送信できません"

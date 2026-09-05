@@ -119,7 +119,7 @@ class AccountSecurityPage extends ConsumerWidget {
             },
           ),
           ImBoySettingsTile(
-            title: const Text('绑定支付宝'),
+            title: Text(t.account.bindAlipay),
             subtitle: Text(
               hasBoundAlipay ? _maskAlipay(currentAlipay) : t.common.notBound,
             ),
@@ -207,7 +207,7 @@ class AccountSecurityPage extends ConsumerWidget {
           ),
           CupertinoActionSheetAction(
             isDestructiveAction: true,
-            child: const Text('解除绑定'),
+            child: Text(t.account.unbindAlipay),
             onPressed: () {
               Navigator.of(context).pop();
               _showConfirmUnbindDialog(context, ref, type);
@@ -231,7 +231,7 @@ class AccountSecurityPage extends ConsumerWidget {
     showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('确认解除绑定'),
+        title: Text(t.account.confirmUnbindAlipay),
         content: Text(
           type == 'email'
               ? '解除绑定后，你将无法使用该邮箱进行登录或找回密码。'
@@ -284,7 +284,7 @@ class AccountSecurityPage extends ConsumerWidget {
       context: context,
       builder: (context) {
         return CupertinoAlertDialog(
-          title: const Text('绑定支付宝'),
+          title: Text(t.account.bindAlipay),
           content: Padding(
             padding: const EdgeInsets.only(top: 10),
             child: CupertinoTextField(

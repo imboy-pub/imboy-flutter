@@ -197,3 +197,5 @@ e2eeProxySelectedCount(selected, total): 已选 $selected / $total
 liveRoomTitleLabel: 直播间标题
 liveRoomTitleHint: 请输入直播间标题
 lightModel: 浅色模式
+
+complianceKeyNotConfigured: "当前部署未配置合规审计密钥"

@@ -198,3 +198,5 @@ safetyNumberReportUnavailable: Не удалось получить информ
 safetyNumberReporting: Отправка результата проверки...
 safetyNumberTitle: Проверка кода безопасности
 safetyNumberVerifyFailed: Не удалось получить код безопасности. Повторите позже
+
+complianceKeyNotConfigured: "Для этого развёртывания не настроен ключ комплаенс-аудита"

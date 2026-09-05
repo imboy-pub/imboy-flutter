@@ -114,3 +114,7 @@ alipaySim:
   storeName: "信息科技旗舰店"
   paymentAmount: "金额："
   balanceSource: "账户余额"
+
+bindAlipay: "绑定支付宝"
+unbindAlipay: "解除绑定"
+confirmUnbindAlipay: "确认解除绑定"

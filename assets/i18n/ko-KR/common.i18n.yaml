@@ -893,3 +893,6 @@ uploadPartialFailed(count): "$count개 항목 업로드 실패"
 voiceSttConverting: "인식 중..."
 voiceSttNotConfigured: 텍스트 변환 기능이 아직 설정되지 않았습니다
 voiceSttPreviewTitle: 음성 텍스트 변환 미리보기
+
+retry: "다시 시도"
+retrying: "다시 시도 중…"

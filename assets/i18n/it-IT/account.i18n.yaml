@@ -111,3 +111,7 @@ payMethodMock: "Pagamento simulato (ambiente di sviluppo)"
 payMethodTitle: Seleziona metodo di pagamento
 payMethodWallet: Saldo del portafoglio
 payMethodWechat: WeChat Pay
+
+bindAlipay: "Collega Alipay"
+unbindAlipay: "Scollega"
+confirmUnbindAlipay: "Conferma scollegamento"

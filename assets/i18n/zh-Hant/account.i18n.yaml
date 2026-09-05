@@ -110,3 +110,7 @@ alipaySim:
   storeName: "資訊科技旗艦店"
   paymentAmount: "金額："
   balanceSource: "帳戶餘額"
+
+bindAlipay: "綁定支付寶"
+unbindAlipay: "解除綁定"
+confirmUnbindAlipay: "確認解除綁定"

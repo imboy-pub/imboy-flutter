@@ -16,3 +16,10 @@ qrLoginConfirming: Anmeldung läuft...
 qrLoginSuccess: Angemeldet
 qrWebLoginDesc: Bitte bestätigen Sie die Anmeldung dieses Kontos im Web
 qrWebLoginTitle: Web-Anmeldung bestätigen
+
+alipayNotSupportedWeb: "Alipay-Anmeldung wird im Web nicht unterstützt"
+oneKeyNotSupportedWeb: "One-Tap-Login wird im Web nicht unterstützt"
+oneKeyInitFailed: "One-Tap-Login konnte nicht initialisiert werden, bitte später erneut versuchen"
+oneKeyNoSimCard: "Das aktuelle Netzwerk wird nicht unterstützt oder das Handy hat keine SIM-Karte"
+cannotGetScreenSize: "Bildschirmgröße konnte nicht ermittelt werden"
+oneKeyFailedRetry: "One-Tap-Login fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen"

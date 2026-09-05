@@ -187,3 +187,8 @@ sortNewest: 최신순
 sortPopular: 인기순
 titleOptional: "제목(선택)"
 writeComment: 댓글 달기...
+
+info: "채널 정보"
+settings: "채널 설정"
+inviteAdmins: "관리자 초대"
+shareToMyStatus: "내 상태에 공유"

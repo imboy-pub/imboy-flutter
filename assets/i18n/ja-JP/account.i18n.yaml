@@ -113,3 +113,7 @@ logoutPendingBanner: アカウント削除の申請を受け付けました。�
 logoutPendingHeader: アカウント削除申請の状態
 logoutRetainedHeader: データ保持について
 logoutRetainedNote: 削除完了後：監査ログと財務記録は法令に基づき保持され、匿名化されます。あなたが所有するグループ/ワークスペース/チャンネルは、後継メンバーへ優先的に移管されます
+
+bindAlipay: "Alipayを連携"
+unbindAlipay: "連携解除"
+confirmUnbindAlipay: "連携解除の確認"

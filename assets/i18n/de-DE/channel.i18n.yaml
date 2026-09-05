@@ -187,3 +187,8 @@ sortNewest: Neueste
 sortPopular: Beliebt
 titleOptional: Titel (optional)
 writeComment: Kommentar schreiben...
+
+info: "Kanalinformationen"
+settings: "Kanaleinstellungen"
+inviteAdmins: "Admins einladen"
+shareToMyStatus: "In meinem Status teilen"

@@ -179,6 +179,9 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get logoutPendingHeader => 'アカウント削除申請の状態';
 	@override String get logoutRetainedHeader => 'データ保持について';
 	@override String get logoutRetainedNote => '削除完了後：監査ログと財務記録は法令に基づき保持され、匿名化されます。あなたが所有するグループ/ワークスペース/チャンネルは、後継メンバーへ優先的に移管されます';
+	@override String get bindAlipay => 'Alipayを連携';
+	@override String get unbindAlipay => '連携解除';
+	@override String get confirmUnbindAlipay => '連携解除の確認';
 }
 
 // Path: agent
@@ -442,6 +445,10 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get coverSet => '表紙に設定しました';
 	@override String get sortNewest => '新着';
 	@override String get sortPopular => '人気';
+	@override String get info => 'チャンネル情報';
+	@override String get settings => 'チャンネル設定';
+	@override String get inviteAdmins => '管理者を招待';
+	@override String get shareToMyStatus => 'マイステータスに共有';
 }
 
 // Path: chat
@@ -652,6 +659,11 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancel => '離すとキャンセル';
 	@override String get voiceReleaseCancelSend => '離すと送信をキャンセル';
 	@override String get voiceSlideHint => '上にスワイプでキャンセル / 文字起こし';
+	@override String get encryptedMessagePlaceholder => '[暗号化メッセージ]';
+	@override String get invalidMessagePlaceholder => '[無効なメッセージ]';
+	@override String get videoCallPlaceholder => '[ビデオ通話]';
+	@override String get voiceCallPlaceholder => '[音声通話]';
+	@override String get notFriendCannotSend => '友達ではないため送信できません';
 }
 
 // Path: common
@@ -1558,6 +1570,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get complianceKeyChangedActionKeep => '今は承認しない';
 	@override String get complianceKeyChangedBody => 'サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。';
 	@override String get initConfigDecryptFailed => '設定の復号に失敗しました：アプリとサーバーのセキュリティキーが一致しません。アプリを最新版に更新するか、管理者に連絡してください';
+	@override String get retry => '再試行';
+	@override String get retrying => '再試行中…';
 }
 
 // Path: complaint
@@ -2102,6 +2116,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get e2eeErrDeviceNotReady => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください';
 	@override String get e2eeErrProtocolMismatch => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください';
 	@override String get e2eeErrSessionExportFailed => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください';
+	@override String get complianceKeyNotConfigured => 'このデプロイにはコンプライアンス監査キーが設定されていません';
 }
 
 // Path: mention
@@ -2183,6 +2198,12 @@ class _Translations$passport$ja_JP extends Translations$passport$zh_CN {
 	@override String get qrLoginSuccess => 'ログインしました';
 	@override String get qrWebLoginDesc => 'このアカウントでのWeb版ログインを確認してください';
 	@override String get qrWebLoginTitle => 'Web版ログインの確認';
+	@override String get alipayNotSupportedWeb => 'WebではAlipayログインに対応していません';
+	@override String get oneKeyNotSupportedWeb => 'Webではワンタップログインに対応していません';
+	@override String get oneKeyInitFailed => 'ワンタップログインの初期化に失敗しました。後でもう一度お試しください';
+	@override String get oneKeyNoSimCard => '現在のネットワークは未対応か、SIMカードが挿入されていません';
+	@override String get cannotGetScreenSize => '画面サイズを取得できません';
+	@override String get oneKeyFailedRetry => 'ワンタップログインに失敗しました。ネットワークを確認して再試行してください';
 }
 
 // Path: splash
@@ -2581,6 +2602,9 @@ extension on TranslationsJaJp {
 			'account.logoutPendingHeader' => 'アカウント削除申請の状態',
 			'account.logoutRetainedHeader' => 'データ保持について',
 			'account.logoutRetainedNote' => '削除完了後：監査ログと財務記録は法令に基づき保持され、匿名化されます。あなたが所有するグループ/ワークスペース/チャンネルは、後継メンバーへ優先的に移管されます',
+			'account.bindAlipay' => 'Alipayを連携',
+			'account.unbindAlipay' => '連携解除',
+			'account.confirmUnbindAlipay' => '連携解除の確認',
 			'agent.plazaTitle' => 'AI アシスタント広場',
 			'agent.transparencyBanner' => 'ここにいるのはすべて AI アシスタントで、身元は明確に表示されます。暗号化チャットには本物の人間しかいません。',
 			'agent.searchHint' => 'アシスタントを検索',
@@ -2808,6 +2832,10 @@ extension on TranslationsJaJp {
 			'channel.coverSet' => '表紙に設定しました',
 			'channel.sortNewest' => '新着',
 			'channel.sortPopular' => '人気',
+			'channel.info' => 'チャンネル情報',
+			'channel.settings' => 'チャンネル設定',
+			'channel.inviteAdmins' => '管理者を招待',
+			'channel.shareToMyStatus' => 'マイステータスに共有',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -2975,6 +3003,8 @@ extension on TranslationsJaJp {
 			'chat.webFeatureMultiDevice' => 'マルチデバイス同期',
 			'chat.webFeatureMultiDeviceDesc' => 'スマートフォンとPCをシームレスに切り替え、メッセージをリアルタイム同期',
 			'chat.webFeatureE2EE' => 'エンドツーエンド暗号化',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'すべてのメッセージをエンドツーエンドで暗号化し、プライバシーを保護',
 			'chat.webFeatureFileTransfer' => 'ファイル転送',
 			'chat.webFeatureFileTransferDesc' => 'ドラッグ&ドロップでファイルを送信、あらゆる形式に対応',
@@ -2982,8 +3012,6 @@ extension on TranslationsJaJp {
 			'chat.webQRStatusScanned' => 'スマートフォンで「ログインを確認」をタップしてください',
 			'chat.webQRStatusVerifying' => '確認中...',
 			'chat.webQRStatusExpired' => '更新ボタンを押して再度スキャンしてください',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeErrInvalidFormat' => 'メッセージの形式が正しくありません。暗号化に失敗しました',
 			'chat.e2eeSocialStatus' => ({required Object status}) => 'ステータス: ${status}',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '最低 ${count} 人の代理者を選択してください',
@@ -3011,6 +3039,11 @@ extension on TranslationsJaJp {
 			'chat.voiceReleaseCancel' => '離すとキャンセル',
 			'chat.voiceReleaseCancelSend' => '離すと送信をキャンセル',
 			'chat.voiceSlideHint' => '上にスワイプでキャンセル / 文字起こし',
+			'chat.encryptedMessagePlaceholder' => '[暗号化メッセージ]',
+			'chat.invalidMessagePlaceholder' => '[無効なメッセージ]',
+			'chat.videoCallPlaceholder' => '[ビデオ通話]',
+			'chat.voiceCallPlaceholder' => '[音声通話]',
+			'chat.notFriendCannotSend' => '友達ではないため送信できません',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
@@ -3484,6 +3517,8 @@ extension on TranslationsJaJp {
 			'common.personalDisplay' => '個人表示',
 			'common.personalSignature' => '署名',
 			'common.personalBackground' => '個人背景',
+			_ => null,
+		} ?? switch (path) {
 			'common.expression' => 'スタンプ',
 			'common.extendedInfo' => '拡張情報',
 			'common.profession' => '職業',
@@ -3496,8 +3531,6 @@ extension on TranslationsJaJp {
 			'common.messageIdCannotBeEmpty' => 'メッセージIDが空です。操作を実行できません',
 			'common.startRevokeMessageFlow' => 'メッセージ取り消しフローを開始',
 			'common.revokeMessageTracking' => 'メッセージ取り消し追跡',
-			_ => null,
-		} ?? switch (path) {
 			'common.useNewActionMechanism' => '新しいアクションメカニズムを使用',
 			'common.revokeMessageSendResult' => 'メッセージ取り消し送信結果',
 			'common.revokeRequestSendComplete' => '取り消しリクエスト送信完了',
@@ -3904,6 +3937,8 @@ extension on TranslationsJaJp {
 			'common.complianceKeyChangedActionKeep' => '今は承認しない',
 			'common.complianceKeyChangedBody' => 'サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。',
 			'common.initConfigDecryptFailed' => '設定の復号に失敗しました：アプリとサーバーのセキュリティキーが一致しません。アプリを最新版に更新するか、管理者に連絡してください',
+			'common.retry' => '再試行',
+			'common.retrying' => '再試行中…',
 			'complaint.complaint' => '通報',
 			'complaint.e2eeConsentTitle' => '暗号化メッセージの証拠を提出',
 			'complaint.e2eeConsentBody' => 'このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？',
@@ -3996,6 +4031,8 @@ extension on TranslationsJaJp {
 			'group.groupAlbum' => 'グループアルバム',
 			'group.groupDissolve' => 'グループを解散',
 			'group.groupLeave' => 'グループを退出',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupMembers' => 'グループメンバー',
 			'group.groupName' => 'グループ名',
 			'group.mutualGroupsWithHer' => '相手との共通グループチャット',
@@ -4010,8 +4047,6 @@ extension on TranslationsJaJp {
 			'group.groupAlbumRenameTitle' => 'アルバムの名前を変更',
 			'group.groupAlbumRenamed' => 'アルバム名を変更しました',
 			'group.groupAlbumUnnamed' => '無題のアルバム',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} 枚の画像',
 			'group.groupAlbumPhotoIdMissing' => '画像IDがありません。詳細を表示できません',
 			'group.groupAlbumPhotoListTitle' => 'アルバムの画像',
@@ -4324,6 +4359,7 @@ extension on TranslationsJaJp {
 			'main.e2eeErrDeviceNotReady' => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください',
 			'main.e2eeErrProtocolMismatch' => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください',
 			'main.e2eeErrSessionExportFailed' => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください',
+			'main.complianceKeyNotConfigured' => 'このデプロイにはコンプライアンス監査キーが設定されていません',
 			'mention.mentionAll' => '全員',
 			'mention.mentionAllHint' => 'グループ全員に通知',
 			'mention.noMatchedMember' => '一致するメンバーがいません',
@@ -4369,6 +4405,12 @@ extension on TranslationsJaJp {
 			'passport.qrLoginSuccess' => 'ログインしました',
 			'passport.qrWebLoginDesc' => 'このアカウントでのWeb版ログインを確認してください',
 			'passport.qrWebLoginTitle' => 'Web版ログインの確認',
+			'passport.alipayNotSupportedWeb' => 'WebではAlipayログインに対応していません',
+			'passport.oneKeyNotSupportedWeb' => 'Webではワンタップログインに対応していません',
+			'passport.oneKeyInitFailed' => 'ワンタップログインの初期化に失敗しました。後でもう一度お試しください',
+			'passport.oneKeyNoSimCard' => '現在のネットワークは未対応か、SIMカードが挿入されていません',
+			'passport.cannotGetScreenSize' => '画面サイズを取得できません',
+			'passport.oneKeyFailedRetry' => 'ワンタップログインに失敗しました。ネットワークを確認して再試行してください',
 			'splash.slogan' => '自由に話し、自然に繋がる',
 			'welcome.step1Title' => 'シンプルな接続',
 			'welcome.step1Desc' => 'シームレスなコミュニケーションの喜びを体験してください。 いつでも、どこでも。',
@@ -4503,6 +4545,8 @@ extension on TranslationsJaJp {
 			'workspace.projectDescLabel' => 'プロジェクトの説明（任意）',
 			'workspace.projectDescHint' => 'このプロジェクトは何を成果として届けますか？',
 			'workspace.projectSubmit' => '作成',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'プロジェクトを作成しました',
 			'workspace.projectDetailTitle' => 'プロジェクト詳細',
 			'workspace.projectOwnerLabel' => '担当者',
@@ -4524,8 +4568,6 @@ extension on TranslationsJaJp {
 			'workspace.taskSubmitCreate' => 'タスクを作成',
 			'workspace.taskSubmitSave' => '保存する',
 			'workspace.taskCreatedToast' => 'タスクを作成しました',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
 			'workspace.taskUpdatedToast' => 'タスクを保存しました',
 			'workspace.taskFilterAll' => 'すべて',

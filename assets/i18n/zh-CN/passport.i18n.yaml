@@ -15,3 +15,10 @@ qrWebLoginTitle: Web 端登录确认
 qrWebLoginDesc: 请确认是否在 Web 端登录此账号
 qrLoginAction: 确认登录
 qrLoginSuccess: 登录成功
+
+alipayNotSupportedWeb: "Web 平台不支持支付宝登录"
+oneKeyNotSupportedWeb: "Web 平台不支持一键登录功能"
+oneKeyInitFailed: "一键登录服务初始化失败，请稍后重试"
+oneKeyNoSimCard: "当前网络环境不支持，或者手机没有绑定电话卡"
+cannotGetScreenSize: "无法获取屏幕尺寸"
+oneKeyFailedRetry: "一键登录失败，请检查网络后重试"

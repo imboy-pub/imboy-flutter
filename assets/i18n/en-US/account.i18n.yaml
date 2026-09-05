@@ -114,3 +114,7 @@ payMethodWechat: WeChat Pay
 payMethodWallet: Wallet Balance
 payMethodMock: Mock payment (development environment)
 payMethodComingSoon: This payment method is coming soon. Stay tuned!
+
+bindAlipay: "Link Alipay"
+unbindAlipay: "Unlink"
+confirmUnbindAlipay: "Confirm unlink"

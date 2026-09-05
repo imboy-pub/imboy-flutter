@@ -187,3 +187,8 @@ sortNewest: Сначала новые
 sortPopular: Популярные
 titleOptional: Заголовок (необязательно)
 writeComment: Написать комментарий...
+
+info: "Информация о канале"
+settings: "Настройки канала"
+inviteAdmins: "Пригласить администраторов"
+shareToMyStatus: "Поделиться в мой статус"

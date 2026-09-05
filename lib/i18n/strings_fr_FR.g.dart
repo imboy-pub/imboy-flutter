@@ -179,6 +179,9 @@ class _Translations$account$fr_FR extends Translations$account$zh_CN {
 	@override String get payMethodTitle => 'Choisir le mode de paiement';
 	@override String get payMethodWallet => 'Solde du portefeuille';
 	@override String get payMethodWechat => 'WeChat Pay';
+	@override String get bindAlipay => 'Lier Alipay';
+	@override String get unbindAlipay => 'Délier';
+	@override String get confirmUnbindAlipay => 'Confirmer la déliaison';
 }
 
 // Path: agent
@@ -442,6 +445,10 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get sortPopular => 'Populaires';
 	@override String get titleOptional => 'Titre (facultatif)';
 	@override String get writeComment => 'Écrire un commentaire...';
+	@override String get info => 'Informations de la chaîne';
+	@override String get settings => 'Paramètres de la chaîne';
+	@override String get inviteAdmins => 'Inviter des administrateurs';
+	@override String get shareToMyStatus => 'Partager sur mon statut';
 }
 
 // Path: chat
@@ -652,6 +659,11 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancel => 'Relâchez pour annuler';
 	@override String get voiceReleaseCancelSend => 'Relâchez pour annuler l\'envoi';
 	@override String get voiceSlideHint => 'Glissez vers le haut : annuler / convertir en texte';
+	@override String get encryptedMessagePlaceholder => '[Message chiffré]';
+	@override String get invalidMessagePlaceholder => '[Message invalide]';
+	@override String get videoCallPlaceholder => '[Appel vidéo]';
+	@override String get voiceCallPlaceholder => '[Appel audio]';
+	@override String get notFriendCannotSend => 'Pas amis, impossible d\'envoyer';
 }
 
 // Path: common
@@ -1561,6 +1573,8 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get voiceSttConverting => 'Reconnaissance en cours...';
 	@override String get voiceSttNotConfigured => 'La conversion en texte n\'est pas encore configurée';
 	@override String get voiceSttPreviewTitle => 'Aperçu de la conversion voix en texte';
+	@override String get retry => 'Réessayer';
+	@override String get retrying => 'Nouvelle tentative…';
 }
 
 // Path: complaint
@@ -2105,6 +2119,7 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get safetyNumberReporting => 'Envoi du résultat de vérification...';
 	@override String get safetyNumberTitle => 'Vérification du code de sécurité';
 	@override String get safetyNumberVerifyFailed => 'Échec de la récupération du code de sécurité. Réessayez plus tard';
+	@override String get complianceKeyNotConfigured => 'Aucune clé d\'audit de conformité configurée pour ce déploiement';
 }
 
 // Path: mention
@@ -2186,6 +2201,12 @@ class _Translations$passport$fr_FR extends Translations$passport$zh_CN {
 	@override String get qrLoginSuccess => 'Connexion réussie';
 	@override String get qrWebLoginDesc => 'Confirmez-vous la connexion à ce compte depuis le Web ?';
 	@override String get qrWebLoginTitle => 'Confirmation de connexion Web';
+	@override String get alipayNotSupportedWeb => 'Connexion Alipay non prise en charge sur le web';
+	@override String get oneKeyNotSupportedWeb => 'Connexion en un clic non prise en charge sur le web';
+	@override String get oneKeyInitFailed => 'Échec de l\'initialisation de la connexion en un clic, réessayez plus tard';
+	@override String get oneKeyNoSimCard => 'Le réseau actuel n\'est pas pris en charge ou le téléphone n\'a pas de carte SIM';
+	@override String get cannotGetScreenSize => 'Impossible d\'obtenir la taille de l\'écran';
+	@override String get oneKeyFailedRetry => 'Échec de la connexion en un clic, vérifiez le réseau et réessayez';
 }
 
 // Path: splash
@@ -2584,6 +2605,9 @@ extension on TranslationsFrFr {
 			'account.payMethodTitle' => 'Choisir le mode de paiement',
 			'account.payMethodWallet' => 'Solde du portefeuille',
 			'account.payMethodWechat' => 'WeChat Pay',
+			'account.bindAlipay' => 'Lier Alipay',
+			'account.unbindAlipay' => 'Délier',
+			'account.confirmUnbindAlipay' => 'Confirmer la déliaison',
 			'agent.plazaTitle' => 'Assistants IA',
 			'agent.transparencyBanner' => 'Tous les membres ici sont des assistants IA, clairement identifiés. Dans les discussions chiffrées, il n\'y a que de vraies personnes.',
 			'agent.searchHint' => 'Rechercher un assistant',
@@ -2811,6 +2835,10 @@ extension on TranslationsFrFr {
 			'channel.sortPopular' => 'Populaires',
 			'channel.titleOptional' => 'Titre (facultatif)',
 			'channel.writeComment' => 'Écrire un commentaire...',
+			'channel.info' => 'Informations de la chaîne',
+			'channel.settings' => 'Paramètres de la chaîne',
+			'channel.inviteAdmins' => 'Inviter des administrateurs',
+			'channel.shareToMyStatus' => 'Partager sur mon statut',
 			'chat.bankCard' => 'Carte bancaire',
 			'chat.receivePayment' => 'Paiement et réception',
 			'chat.alreadyMember' => 'Déjà membre',
@@ -2978,6 +3006,8 @@ extension on TranslationsFrFr {
 			'chat.webFeatureMultiDevice' => 'Multi-appareils',
 			'chat.webFeatureMultiDeviceDesc' => 'Basculez entre mobile et PC, synchronisation en temps réel',
 			'chat.webFeatureE2EE' => 'E2EE',
+			_ => null,
+		} ?? switch (path) {
 			'chat.webFeatureE2EEDesc' => 'Tous les messages chiffrés de bout en bout pour votre vie privée',
 			'chat.webFeatureFileTransfer' => 'Transfert de fichiers',
 			'chat.webFeatureFileTransferDesc' => 'Glissez-déposez vos fichiers, tous formats',
@@ -2985,8 +3015,6 @@ extension on TranslationsFrFr {
 			'chat.webQRStatusScanned' => 'Sur le mobile, appuyez sur « Connexion »',
 			'chat.webQRStatusVerifying' => 'Vérification...',
 			'chat.webQRStatusExpired' => 'Actualisez et rescannez',
-			_ => null,
-		} ?? switch (path) {
 			'chat.e2eeErrInvalidFormat' => 'Format de message invalide, échec du chiffrement',
 			'chat.e2eeSocialStatus' => ({required Object status}) => 'Statut : ${status}',
 			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Au moins ${count} dépositaires',
@@ -3014,6 +3042,11 @@ extension on TranslationsFrFr {
 			'chat.voiceReleaseCancel' => 'Relâchez pour annuler',
 			'chat.voiceReleaseCancelSend' => 'Relâchez pour annuler l\'envoi',
 			'chat.voiceSlideHint' => 'Glissez vers le haut : annuler / convertir en texte',
+			'chat.encryptedMessagePlaceholder' => '[Message chiffré]',
+			'chat.invalidMessagePlaceholder' => '[Message invalide]',
+			'chat.videoCallPlaceholder' => '[Appel vidéo]',
+			'chat.voiceCallPlaceholder' => '[Appel audio]',
+			'chat.notFriendCannotSend' => 'Pas amis, impossible d\'envoyer',
 			'common.about' => 'À propos',
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
@@ -3487,6 +3520,8 @@ extension on TranslationsFrFr {
 			'common.personalDisplay' => 'Affichage personnel',
 			'common.personalSignature' => 'Signature personnelle',
 			'common.personalBackground' => 'Arrière-plan personnel',
+			_ => null,
+		} ?? switch (path) {
 			'common.expression' => 'Emoji',
 			'common.extendedInfo' => 'Informations étendues',
 			'common.profession' => 'Profession',
@@ -3499,8 +3534,6 @@ extension on TranslationsFrFr {
 			'common.messageIdCannotBeEmpty' => 'L\'ID du message est vide. Impossible d\'effectuer l\'opération.',
 			'common.startRevokeMessageFlow' => 'Démarrage du flux de révocation de message.',
 			'common.revokeMessageTracking' => 'Suivi de la révocation de message.',
-			_ => null,
-		} ?? switch (path) {
 			'common.useNewActionMechanism' => 'Utilisation du nouveau mécanisme d\'action.',
 			'common.revokeMessageSendResult' => 'Résultat de l\'envoi du message de révocation.',
 			'common.revokeRequestSendComplete' => 'Demande de révocation envoyée.',
@@ -3907,6 +3940,8 @@ extension on TranslationsFrFr {
 			'common.voiceSttConverting' => 'Reconnaissance en cours...',
 			'common.voiceSttNotConfigured' => 'La conversion en texte n\'est pas encore configurée',
 			'common.voiceSttPreviewTitle' => 'Aperçu de la conversion voix en texte',
+			'common.retry' => 'Réessayer',
+			'common.retrying' => 'Nouvelle tentative…',
 			'complaint.complaint' => 'Plainte',
 			'complaint.e2eeConsentTitle' => 'Soumettre des preuves chiffrées',
 			'complaint.e2eeConsentBody' => 'Ce message est chiffré de bout en bout ; le serveur ne peut pas en voir le contenu. Soumettre un extrait divulguera le texte clair sélectionné aux modérateurs pour examen. Êtes-vous d\'accord ?',
@@ -3999,6 +4034,8 @@ extension on TranslationsFrFr {
 			'group.groupAlbum' => 'Album de groupe',
 			'group.groupDissolve' => 'Dissoudre le groupe',
 			'group.groupLeave' => 'Quitter le groupe',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupMembers' => 'Membres du groupe',
 			'group.groupName' => 'Nom du groupe',
 			'group.mutualGroupsWithHer' => 'Groupes communs avec lui/elle',
@@ -4013,8 +4050,6 @@ extension on TranslationsFrFr {
 			'group.groupAlbumRenameTitle' => 'Renommer l\'album',
 			'group.groupAlbumRenamed' => 'Album renommé',
 			'group.groupAlbumUnnamed' => 'Album sans nom',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAlbumPhotoCount' => ({required Object count}) => '${count} images',
 			'group.groupAlbumPhotoIdMissing' => 'ID d\'image manquant, détails indisponibles',
 			'group.groupAlbumPhotoListTitle' => 'Images de l\'album',
@@ -4327,6 +4362,7 @@ extension on TranslationsFrFr {
 			'main.safetyNumberReporting' => 'Envoi du résultat de vérification...',
 			'main.safetyNumberTitle' => 'Vérification du code de sécurité',
 			'main.safetyNumberVerifyFailed' => 'Échec de la récupération du code de sécurité. Réessayez plus tard',
+			'main.complianceKeyNotConfigured' => 'Aucune clé d\'audit de conformité configurée pour ce déploiement',
 			'mention.mentionAll' => 'Tout le monde',
 			'mention.mentionAllHint' => 'Notifier tous les membres du groupe',
 			'mention.noMatchedMember' => 'Aucun membre correspondant',
@@ -4372,6 +4408,12 @@ extension on TranslationsFrFr {
 			'passport.qrLoginSuccess' => 'Connexion réussie',
 			'passport.qrWebLoginDesc' => 'Confirmez-vous la connexion à ce compte depuis le Web ?',
 			'passport.qrWebLoginTitle' => 'Confirmation de connexion Web',
+			'passport.alipayNotSupportedWeb' => 'Connexion Alipay non prise en charge sur le web',
+			'passport.oneKeyNotSupportedWeb' => 'Connexion en un clic non prise en charge sur le web',
+			'passport.oneKeyInitFailed' => 'Échec de l\'initialisation de la connexion en un clic, réessayez plus tard',
+			'passport.oneKeyNoSimCard' => 'Le réseau actuel n\'est pas pris en charge ou le téléphone n\'a pas de carte SIM',
+			'passport.cannotGetScreenSize' => 'Impossible d\'obtenir la taille de l\'écran',
+			'passport.oneKeyFailedRetry' => 'Échec de la connexion en un clic, vérifiez le réseau et réessayez',
 			'splash.slogan' => 'Communiquez librement',
 			'welcome.step1Title' => 'Connexion simple',
 			'welcome.step1Desc' => 'Profitez de la joie d\'une communication fluide. Partout, à tout moment.',
@@ -4506,6 +4548,8 @@ extension on TranslationsFrFr {
 			'workspace.projectDescLabel' => 'Description du projet (facultatif)',
 			'workspace.projectDescHint' => 'Que doit livrer ce projet ?',
 			'workspace.projectSubmit' => 'Créer',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectCreateSuccess' => 'Projet créé avec succès',
 			'workspace.projectDetailTitle' => 'Détails du projet',
 			'workspace.projectOwnerLabel' => 'Responsable',
@@ -4527,8 +4571,6 @@ extension on TranslationsFrFr {
 			'workspace.taskSubmitCreate' => 'Créer la tâche',
 			'workspace.taskSubmitSave' => 'Enregistrer',
 			'workspace.taskCreatedToast' => 'Tâche créée',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskExistingToast' => 'Une tâche du même titre existe déjà, la tâche existante est utilisée directement',
 			'workspace.taskUpdatedToast' => 'Tâche enregistrée',
 			'workspace.taskFilterAll' => 'Tout',
