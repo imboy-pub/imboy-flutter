@@ -342,53 +342,56 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
     final themeState = ref.watch(themeProvider);
     final themeMode = ref.watch(themeModeProvider);
 
-    return Directionality(
-      // 为子树提供文本方向信息。它告诉应用中的其他widget应该按照从左到右（LTR）还是从右到左（RTL）的顺序来排列内容。
-      textDirection: TextDirection.ltr,
-      child: ScreenUtilInit(
-        designSize: const Size(375, 812),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        // fix https://github.com/flutter/flutter/issues/126585
-        useInheritedMediaQuery: true,
-        builder: (_, child) => TranslationProvider(
-          // slang TranslationProvider，用于在运行时切换语言
-          child: MaterialApp.router(
-            // Flutter 原生配置
-            title: appName,
-            debugShowCheckedModeBanner: false,
+    // 方向（RTL/LTR）由 MaterialApp + GlobalWidgetsLocalizations 依据当前
+    // locale 决定（zh/en → LTR，ar → RTL）；运行时 LocaleSettings 切换后
+    // 随 Localizations 重建自动更新。此前这里包裹的
+    // Directionality(TextDirection.ltr) 会压过上述机制，把 ar-SA 整树
+    // 强制成 LTR，是 RTL 缺陷的根因，已移除。
+    // 注意：URL/ID/Hash/安全码等技术字段在 RTL 语境下如需局部固定 LTR，
+    // 应在对应字段级 widget 包 Directionality(ltr)，不在此层处理。
+    return ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      // fix https://github.com/flutter/flutter/issues/126585
+      useInheritedMediaQuery: true,
+      builder: (_, child) => TranslationProvider(
+        // slang TranslationProvider，用于在运行时切换语言
+        child: MaterialApp.router(
+          // Flutter 原生配置
+          title: appName,
+          debugShowCheckedModeBanner: false,
 
-            // go_router 配置
-            routerConfig: _router,
+          // go_router 配置
+          routerConfig: _router,
 
-            // 配置本地化代理
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
+          // 配置本地化代理
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
 
-            // 配置支持的语言环境 - 使用 slang 生成的支持语言列表
-            supportedLocales: AppLocaleUtils.supportedLocales,
+          // 配置支持的语言环境 - 使用 slang 生成的支持语言列表
+          supportedLocales: AppLocaleUtils.supportedLocales,
 
-            // 使用当前语言环境（响应式更新）
-            locale: _currentLocale.flutterLocale,
+          // 使用当前语言环境（响应式更新）
+          locale: _currentLocale.flutterLocale,
 
-            // CupertinoPageScaffold 迁移后页面缺 Material 祖先，Text 无显式
-            // 样式时回退到框架黄色双下划线兜底样式。透明 Material 在导航器之上
-            // 恢复全局 DefaultTextStyle/Material 祖先，无视觉影响。
-            builder: (context, child) => AppLoading.init()(
-              context,
-              Material(type: MaterialType.transparency, child: child),
-            ),
-            // 使用 Riverpod 主题系统（字体大小变化时会自动重建）
-            theme: themeState.isDarkMode
-                ? ref.read(themeProvider.notifier).darkTheme
-                : ref.read(themeProvider.notifier).lightTheme,
-            darkTheme: ref.read(themeProvider.notifier).darkTheme,
-            // 使用 Riverpod themeMode provider
-            themeMode: themeMode,
+          // CupertinoPageScaffold 迁移后页面缺 Material 祖先，Text 无显式
+          // 样式时回退到框架黄色双下划线兜底样式。透明 Material 在导航器之上
+          // 恢复全局 DefaultTextStyle/Material 祖先，无视觉影响。
+          builder: (context, child) => AppLoading.init()(
+            context,
+            Material(type: MaterialType.transparency, child: child),
           ),
+          // 使用 Riverpod 主题系统（字体大小变化时会自动重建）
+          theme: themeState.isDarkMode
+              ? ref.read(themeProvider.notifier).darkTheme
+              : ref.read(themeProvider.notifier).lightTheme,
+          darkTheme: ref.read(themeProvider.notifier).darkTheme,
+          // 使用 Riverpod themeMode provider
+          themeMode: themeMode,
         ),
       ),
     );
