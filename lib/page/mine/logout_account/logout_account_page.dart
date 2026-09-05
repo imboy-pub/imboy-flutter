@@ -8,6 +8,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:intl/intl.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -292,7 +293,16 @@ class LogoutAccountPage extends ConsumerWidget {
     if (status != 'requested') {
       return const SizedBox.shrink();
     }
-    final expected = state.deletionStatus?['expected_deletion_at']?.toString();
+    // 服务端下发毫秒时间戳；直接 toString 会显示成"1793751235679"长串，
+    // 格式化为本地日期（解析失败时回退原文，便于排障）。
+    final expectedRaw = state.deletionStatus?['expected_deletion_at']
+        ?.toString();
+    final expectedMs = int.tryParse(expectedRaw ?? '');
+    final expected = expectedMs != null
+        ? DateFormat(
+            'yyyy-MM-dd',
+          ).format(DateTime.fromMillisecondsSinceEpoch(expectedMs))
+        : expectedRaw;
     final retained = state.deletionStatus?['retained_categories'];
     final retainedNote = retained is List && retained.isNotEmpty
         ? '· audit_logs / financial_records'
