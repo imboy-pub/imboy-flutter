@@ -1,6 +1,5 @@
 account: Account
 accountSecurity: Account security
-mobileRecharge: Mobile Recharge
 avatar: Avatar
 accountSecurityEnhance: Enhance account security
 bindMobile: Bind phone number
@@ -16,10 +15,8 @@ deviceName: Device name
 deviceType: Device type
 deviceUsedSpace: Device used space
 email: Email
-existingPassword: Current password
 forgotPassword: Forgot password?
 gender: Gender
-genderSaving: Saving...
 groupQrcode: Group QR code
 hintLoginAccount: Account/Email
 logOut: Log out
@@ -42,33 +39,20 @@ myQrcode: My QR code
 newPassword: New password
 newlyRegisteredPeople: Newly registered
 nickname: Nickname
-nicknameChangeVisibility: "After modifying nickname, it will only be displayed in this group and visible to all group members."
-nicknameCharsRemaining: $param characters remaining
 nicknameHint: Please enter nickname
-nicknameSaving: Saving...
-paramLogin: Log in with $param
 password: Password
-recentlyRegisteredUser: Recently registered user
-recoverCodePasswordDesc: We will send password recovery code to your email.
 recoverPassword: Reset password
-recoverPasswordDesc: Please enter your email to receive password reset instructions
-recoverPasswordIntro: "No worries, this happens to everyone."
 birthday: Birthday
 region: Region
 retypePassword: Re-enter password
 scanQrCode: Scan QR code
-securityCenter: Security center
 setNickname: Set nickname
 signature: Signature
 signup: Sign Up
-signupFormDesc: Please fill out this form to complete registration
 sourceQrcode: Added by scanning
-switchAccount: Switch account
 changeEmail: Change email
 bindEmail: Bind email
 currentEmail: Current email
-newEmailSameAsCurrent: New email is same as current binding
-newMobileSameAsCurrent: New mobile is same as current binding
 setPassword: Set password
 setLoginPassword: Set login password
 enhanceAccountSecurity: Enhance account security
@@ -79,11 +63,9 @@ changeMobile: Change mobile number
 currentMobile: Current mobile number
 newMobile: New mobile number
 enterMobileHint: Please enter mobile number
-codeSentToMobileParam: Sent to $param
 privacyLogoutAccount: Delete account
 wallet: Wallet
 changeLoginPassword: Change login password
-loginExpiredTitle: Notice
 otherDevice: Other Device
 loginPassword: Login Password
 loginPasswordDesc: Used to login IMBoy account
@@ -91,17 +73,10 @@ oldPassword: Old Password
 enterOldPassword: Please enter old password
 enterNewPassword: Please enter new password
 enterNewPasswordAgain: Please enter new password again
-balance: Balance
-recharge: Recharge
-withdraw: Withdraw
-paymentPassword: Payment Password
-setPaymentPassword: Set Payment Password
-enterPaymentPassword: Please enter payment password
 myQRCode: My QR Code
 profile: Profile
 setGender: Set Gender
 setBirthday: Set Birthday
-sentToEmail: Sent to $param
 nicknameRules: "• 2-24 characters
 • Not just whitespace or emojis
 • No sensitive words
@@ -113,8 +88,6 @@ deviceKeyRefreshed: Device key refreshed
 rechargeTitle: Top Up
 rechargeAmountHint: "Enter amount (CNY), ¥0.01 to ¥10,000"
 rechargeAmountExample: e.g. 100
-e2eeDeviceTransfer: Device Transfer
-e2eeDeviceTransferDesc: Transfer key directly to a new device via QR code
 e2eeDeviceIdLabel: Device ID
 webQRLoginTitle: Scan to Login
 webQRLoginHint: Scan the QR code with ImBoy on your phone
@@ -122,7 +95,6 @@ webSwitchToPassword: Login with account and password
 webPasswordLoginTitle: Account Login
 webAccountHint: Enter account / phone / email
 webPasswordHint: Enter password
-e2eeTransferFromOldDevice: Receive Key from Old Device
 pleaseRelogin: Please log in again
 otherLoginMethods: "Other sign-in methods"
 alipaySim:
@@ -130,9 +102,15 @@ alipaySim:
   confirmPay: "Confirm Payment"
   enterPassword: "Enter Payment Password"
   alipaySuccess: "Payment Successful"
-  merchantSuccess: "Merchant APP Payment Successful"
   huabei: "Huabei Installments"
   energy: "Succeeded to obtain 5g Green Energy"
   storeName: "InfoTech Flagship Store"
   paymentAmount: "Amount: "
   balanceSource: "Account Balance"
+payCancelled: Payment cancelled
+payMethodTitle: Select Payment Method
+payMethodAlipay: Alipay
+payMethodWechat: WeChat Pay
+payMethodWallet: Wallet Balance
+payMethodMock: Mock payment (development environment)
+payMethodComingSoon: This payment method is coming soon. Stay tuned!

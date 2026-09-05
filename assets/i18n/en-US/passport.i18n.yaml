@@ -1,11 +1,17 @@
-retrievePassword: Retrieve Password
 loginHistoryToggle: Show login history
 hintEmail: Please enter email
 hintMobile: Please enter mobile number
-forgetPassword: Forgot password?
-register: Register
 hintPassword: Please enter password
 hintVerifyCode: Please enter verification code
 getVerifyCode: Get Code
-hasAccount: Already have an account?
 oneKeyLogin: One-tap Login
+qrCodeExpired: QR code has expired. Please scan again.
+qrCodeUsed: This QR code has already been used
+qrConnecting: Connecting...
+qrLoginAction: Confirm Login
+qrLoginCancelled: Login cancelled
+qrLoginCancelledByMe: You cancelled this login
+qrLoginConfirming: Signing in...
+qrLoginSuccess: Login successful
+qrWebLoginTitle: Web Login Confirmation
+qrWebLoginDesc: Confirm whether to log in to this account on the web

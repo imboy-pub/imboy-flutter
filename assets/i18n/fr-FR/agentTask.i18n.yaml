@@ -1,0 +1,11 @@
+---
+title: Tâches IA
+working: Exécution en cours
+submitted: Soumise
+progress: En cours
+completed: Terminée
+failed: Échec de l'exécution
+cancelled: Annulée
+awaitingApproval: En attente d'approbation
+approve: Approuver
+reject: Rejeter

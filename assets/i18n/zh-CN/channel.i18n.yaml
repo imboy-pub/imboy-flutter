@@ -4,10 +4,8 @@ loading: 加载中...
 subscribed: 已订阅
 managed: 管理中
 discover: 发现频道
-search: 搜索频道
 create: 创建频道
 searchHint: 搜索频道名称或ID
-searchTip: 输入关键词搜索频道
 noResults: 未找到相关频道
 noRecommendedChannels: "暂无推荐频道
 稍后再来看看吧"
@@ -15,10 +13,7 @@ noSubscribedChannels: "暂无订阅的频道
 去发现更多精彩频道吧"
 noManagedChannels: "暂无管理的频道
 创建一个频道开始你的创作"
-noMessages: 暂无消息
 subscribers: 订阅者
-pinned: 置顶
-view: 查看
 subscribe: 订阅
 subscribeSuccess: 订阅成功
 subscribeFailed: 订阅失败
@@ -38,7 +33,6 @@ customIdHint: 例如：my_channel
 customIdHelper: 设置后可通过ID直接搜索到频道
 customIdInvalid: 只能包含字母、数字和下划线
 customIdLength: 长度需要在4-30个字符之间
-typeLabel: 频道类型
 typePublic: 公开
 typePrivate: 私有
 typePublicDesc: 任何人都可以搜索到并订阅你的频道
@@ -49,22 +43,13 @@ yesterday: 昨天
 daysAgo: 天前
 messages: 消息
 views: 阅读
-reactions: 互动
-selectReaction: 选择表情
-react: 互动
-admin: 管理
-settings: 设置
 editChannel: 编辑频道
-editChannelDesc: 修改频道名称、描述等信息
 editChannelNotImplemented: 编辑频道功能即将上线
 manageAdmins: 管理管理员
-manageAdminsDesc: 添加或移除频道管理员
 manageAdminsNotImplemented: 管理管理员功能即将上线
 manageSubscribers: 管理订阅者
-manageSubscribersDesc: 查看和管理频道订阅者
 manageSubscribersNotImplemented: 管理订阅者功能即将上线
 deleteChannel: 删除频道
-deleteChannelDesc: 删除后将无法恢复
 deleteChannelConfirm: 确定要删除该频道吗？此操作不可恢复。
 deleteChannelNotImplemented: 删除频道功能即将上线
 channelNotFound: 频道不存在
@@ -77,7 +62,7 @@ publish: 发布
 preview: 预览
 addImage: 添加图片
 titleOptional: 标题（选填）
-articleBodyHint: 写点什么…支持加粗、斜体、标题、列表等格式
+articleBodyHint: 写点什么...支持加粗、斜体、标题、列表等格式
 coverLabel: 封面
 coverSet: 已设为封面
 # 撰写页 markdown 格式工具条（D2）
@@ -108,8 +93,6 @@ removeAdminFailed: 移除管理员失败
 changeRole: 更改角色
 updateRoleSuccess: 角色更新成功
 updateRoleFailed: 角色更新失败
-userId: 用户ID
-userIdHint: 请输入用户ID
 selectFromContacts: 从联系人选择
 searchContactsHint: 搜索昵称或账号
 noContactsToAdd: 所有好友都已是管理员
@@ -120,7 +103,6 @@ roleAdmin: 管理员
 roleAdminDesc: 可管理频道
 roleEditor: 编辑
 roleEditorDesc: 可发布消息
-roleUnknown: 未知
 searchSubscribers: 搜索订阅者
 subscriberSearchHint: 输入昵称或ID搜索
 noSearchResults: 未找到匹配的订阅者

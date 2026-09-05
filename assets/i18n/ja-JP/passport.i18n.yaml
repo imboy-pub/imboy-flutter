@@ -1,12 +1,19 @@
 ---
-retrievePassword: パスワードを回復
 loginHistoryToggle: ログイン履歴を表示
 hintEmail: メールアドレスを入力してください
 hintMobile: 携帯電話番号を入力してください
-forgetPassword: パスワードをお忘れですか？
-register: 登録
 hintPassword: パスワードを入力してください
 hintVerifyCode: 認証コードを入力してください
 getVerifyCode: 認証コードを取得
-hasAccount: 既にアカウントをお持ちですか？
 oneKeyLogin: ワンタップログイン
+# --- QRログイン / Webログイン確認 ---
+qrCodeExpired: QRコードの有効期限が切れました。もう一度スキャンしてください
+qrCodeUsed: このQRコードは使用済みです
+qrConnecting: 接続中...
+qrLoginAction: ログインを承認
+qrLoginCancelled: ログインがキャンセルされました
+qrLoginCancelledByMe: ログインをキャンセルしました
+qrLoginConfirming: ログイン中...
+qrLoginSuccess: ログインしました
+qrWebLoginDesc: このアカウントでのWeb版ログインを確認してください
+qrWebLoginTitle: Web版ログインの確認

@@ -1,6 +1,5 @@
 ---
 restartRequired: Redémarrage requis
-networkFailureGuidance: Guide de dépannage réseau
 pleaseCheckNetwork: Vérifiez vos paramètres réseau.
 networkTroubleshootingStep1: 1. Ouvrez les paramètres du téléphone et gardez le Wi-Fi activé.
 networkTroubleshootingStep2: 2. Ouvrez les paramètres du téléphone - Général - Données cellulaires et gardez les données cellulaires activées.

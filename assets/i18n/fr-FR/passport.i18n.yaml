@@ -1,12 +1,18 @@
 ---
-retrievePassword: Récupérer le mot de passe
 loginHistoryToggle: Afficher l'historique de connexion
 hintEmail: Veuillez entrer votre adresse e-mail
 hintMobile: Veuillez entrer votre numéro de téléphone
-forgetPassword: Mot de passe oublié ?
-register: S'inscrire
 hintPassword: Veuillez entrer le mot de passe
 hintVerifyCode: Veuillez entrer le code de vérification
 getVerifyCode: Obtenir le code
-hasAccount: Vous avez déjà un compte ?
 oneKeyLogin: Connexion en un clic
+qrCodeExpired: "QR code expiré, veuillez le scanner à nouveau"
+qrCodeUsed: "Ce QR code a déjà été utilisé"
+qrConnecting: "Connexion..."
+qrLoginAction: "Confirmer la connexion"
+qrLoginCancelled: "Connexion annulée"
+qrLoginCancelledByMe: "Vous avez annulé la connexion"
+qrLoginConfirming: "Connexion en cours..."
+qrLoginSuccess: "Connexion réussie"
+qrWebLoginDesc: "Confirmez-vous la connexion à ce compte depuis le Web ?"
+qrWebLoginTitle: "Confirmation de connexion Web"

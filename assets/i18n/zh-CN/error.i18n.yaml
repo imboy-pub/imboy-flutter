@@ -1,5 +1,4 @@
 restartRequired: 需要重启应用
-networkFailureGuidance: 网络失败指引
 pleaseCheckNetwork: 请检查你的网络设置。
 networkTroubleshootingStep1: 1.打开手机设置并把Wi-Fi开关保持开启状态。
 networkTroubleshootingStep2: 2.打开手机设置-通用-蜂窝移动网络，并把蜂窝移动数据开关保持开启状态。

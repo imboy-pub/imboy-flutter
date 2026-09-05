@@ -1,11 +1,4 @@
 ---
-change: Ändern
-entertainment: Filme & Shows
-lifePayment: Rechnungszahlung
-medicalHealth: Gesundheit
-meituanDelivery: Meituan Lieferung
-tencentService: Tencent-Dienste
-traffic: Verkehr
 totalAssets: Gesamtvermögen
 album: Fotos
 appSize: App-Größe
@@ -17,36 +10,26 @@ liveRoomWhipLabel: WHIP-Streaming-URL
 liveRoomWhepLabel: WHEP-Empfangs-URL
 cache: Cache
 camera: Kamera
-changeNameView: Namen ändern
 changeParam: "$param ändern"
 chooseFromAlbum: Aus Album auswählen
 clean: Bereinigen
 codeSentToParam: Bestätigungscode an $param gesendet
-codeSentToType: Bestätigungscode an $param gesendet
 collected: Favorisiert
 completed: Abgeschlossen
 copied: Kopiert
 darkModel: Dunkler Modus
 deDd: Deutsch (Deutschland)
 disable: Deaktivieren
-earlier: Früher
-enGb: Britisches Englisch
 enUs: Amerikanisches Englisch
 enable: Aktivieren
-example: 'Beispiel:'
 expired: Abgelaufen
-extraItem: Zusätzliches Element
-faceToFaceLogic: Logik für Face-to-Face
 favorites: Favoriten
 female: Weiblich
 followSystem: System folgen
 frFr: Französisch (Frankreich)
 from: Von
-goClean: Zur Bereinigung
 good: Sehr gut
 hangup: Auflegen
-haveSet: Eingestellt
-httpParse: HTTP-Parsing
 iAm: Ich bin
 itIt: Italienisch (Italien)
 jaJp: Japanisch (Japan)
@@ -57,24 +40,13 @@ lastSeenNever: Nie online
 lastSeenWeeksAgo: Vor $param Wochen
 lastSeenExactTime: Zuletzt online $param
 licenseAgreement: Softwarelizenz- und Dienstleistungsvereinbarung
-liveBroadcast: Live-Übertragung
-liveRoomListView: Live-Raum-Ansicht
-publisherPage: Publisher-Seite
-subscriber: Abonnent
-loggingOut: Abmelden...
 loudspeaker: Lautsprecher
 makeYourselfInvisible: Unsichtbar werden
 makeYourselfVisible: Sichtbar werden
 male: Männlich
 manage: Verwalten
-markImportant: Wichtig
-markImportantDesc: Als wichtige Nachricht markieren
 markStar: Favorit
-markStarDesc: Diese Nachricht als Favorit markieren
-markTodo: Aufgabe
-markTodoDesc: Als Aufgabe markieren
 multiSelect: Mehrfachauswahl
-multiSelectMode: Mehrfachauswahl-Modus
 myFavorites: Meine Favoriten
 myLive: Mein Live-Stream
 name: Name
@@ -87,14 +59,10 @@ peerHasHungUp: Gesprächspartner hat aufgelegt
 play: Abspielen
 pleaseInputParam: Bitte $param eingeben
 pleaseSelect: Bitte auswählen
-quickFilters: Schnellfilter
 quote: Zitat
 recentlyUsed: Kürzlich verwendet
 releaseEnd: Zum Beenden loslassen
-remainingChars: Noch $param Zeichen möglich
-kickMember: Remove from Group
 memberDetail: Member Details
-memberRole: Role
 replied: Geantwortet
 ringing: Klingelt...
 ruRu: Russisch (Russland)
@@ -102,35 +70,24 @@ selectedCount: Ausgewählt ($count)
 selected: Ausgewählt
 sent: Gesendet
 sentByMe: Von mir gesendet
-sentByOthers: Von anderen gesendet
 setParam: "$param einstellen"
 setting: Einstellungen
 siginQ: Bereits ein Konto?
-signInWith: Mit $param anmelden
 source: Quelle
 speakingTooShort: Sprechzeit zu kurz
 speed: Geschwindigkeit
-star: "@:main.markStar"
 stillNeeded: Noch benötigt
 storageSpace: Speicherplatz
-termOfServices: Nutzungsbedingungen
 text: Text
 thisWeek: Diese Woche
-timeRange: Zeitbereich
-timeWeekdays: Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag,Sonntag
 titleMine: Ich
-titleSquare: Entdecken
 tooBad: Zu schlecht
 tryAgainQ: Nochmal versuchen?
 type: Typ
 unanswered: Unbeantwortet
 unnamed: Unbenannt
-upToWords: Maximal $param Zeichen
-upgrade: Aktualisieren
 usedSpace: Verwendeter Speicherplatz
-webView: Webansicht
 you: Sie
-yourFeel: Wie fühlen Sie sich dabei?
 zhCn: Vereinfachtes Chinesisch
 zhHant: Traditionelles Chinesisch
 bound: Gebunden
@@ -139,20 +96,14 @@ pendingInput: Eingabe ausstehend
 lengthCheck: Längenprüfung
 bugReport: Fehlerbericht
 deleting: Wird gelöscht...
-current: Aktuell
 publish: Veröffentlichen
 privacyPolicy: Datenschutzrichtlinie
 termsOfService: Nutzungsbedingungen
 saving: "@:common.loading"
-topStories: Top Stories
 systemDefault: Systemstandard
-custom: Benutzerdefiniert
-previewArea: Vorschaubereich
-simpleTexture: Einfache Textur
 gradientBlue: Verlauf Blau
 gradientPurple: Verlauf Lila
 copiedToClipboard: In die Zwischenablage kopiert
-copiedLink: Link kopiert
 destroyTime: Zerstörungszeit
 previewEffect: Vorschau-Effekt
 thisIsTitleText: Dies ist Titeltext
@@ -160,18 +111,9 @@ thisIsAuxiliaryText: Dies ist Hilfstext
 toBeCompleted: Noch zu vervollständigen
 availableCount: Verfügbar
 mostUsed: Am häufigsten verwendet
-commentPlaceholder: Kommentar...
-delayMsLabel: Verzögerung in ms (>=100)
-processed: Verarbeitet
-export: Exportieren
 school: Schule
 hobbiesAndInterests: Hobbys & Interessen
 interests: Interests
-pleaseEnterSchool: Please enter school
-pleaseEnterInterests: Please enter interests
-manageVisibility: Sichtbarkeit persönlicher Informationen verwalten
-exportToLocal: Profil lokal exportieren
-exportAsText: Export as text format
 selectFromAlbum: Aus Album auswählen
 volumeUp: Lautstärke erhöhen
 volumeDown: Lautstärke verringern
@@ -179,18 +121,11 @@ fastRewind: Schnell zurück $seconds Sekunden
 pleaseTryAgain: Bitte versuchen Sie es erneut
 secret: Geheim
 takePhoto: Foto aufnehmen
-publishing: Wird veröffentlicht...
 deletingInProgressPleaseWait: Wird gelöscht, bitte warten...
-testUser1: Benutzer 1
-testUser2: Benutzer 2
-testUser3: Benutzer 3
-testUser4: Benutzer 4
-testUser5: Benutzer 5
 collecting: Wird favorisiert...
 user: Benutzer
 recommended: Empfohlen
 larger: Größer
-currentLength: 'Aktuelle Länge: $param1 / $param2'
 fillIn: Ausfüllen
 msgProtectedByComplianceKey: Nachricht durch Compliance-Schlüssel geschützt
 inviterLabel(uid): 'Eingeladen von: $uid'
@@ -207,76 +142,59 @@ channelPriceLabel(currency, amount): 'Preis: $currency $amount'
 e2eeKeyRecoveryTitle: E2EE-Schlüsselverwaltung
 e2eeRecoveryMethods: Wiederherstellungsmethoden
 e2eeDangerousOps: Kritische Aktionen
-e2eeSocialRecovery: Soziale Wiederherstellung
-e2eeSocialRecoveryDesc: Schlüssel mit Hilfe vertrauter Kontakte wiederherstellen
 e2eeKeyIdLabel: Schlüssel-ID
 e2eeWarnIrreversible: "• Vorgang nicht umkehrbar"
 e2eeWarnNeedRestoreOrNew: "• Aus Backup wiederherstellen oder neuen Schlüssel erstellen"
 gotIt: Verstanden
-e2eeRecoverKeyTitle: Schlüssel wiederherstellen
-e2eeCanRecoverKey: Schlüssel wiederherstellbar
-e2eeInsufficientShards: Nicht genügend Fragmente
 e2eeProxyUser(uid): 'Treuhänder: $uid'
 e2eeShardLabel(index, total): Fragment $index / $total
-e2eeReloadShards: Neu laden
-e2eeRecovering: Wird wiederhergestellt...
-e2eeKeyRestored: Schlüssel wiederhergestellt
 e2eeUsedShards(count): "$count Treuhänder-Fragmente verwendet"
-e2eePreparing: Wird vorbereitet...
 e2eeRecoveryProgressLabel(collected, total): 'Fortschritt: $collected / $total Fragmente'
 e2eeCollectingShards(collected, total): Sammle Fragmente ($collected/$total)...
-e2eeShardsCollected: Fragmente gesammelt, Schlüssel wird zusammengesetzt...
 webQRLoggingIn: Anmeldung...
 webQRExpired: QR-Code abgelaufen
 webQRRefresh: QR-Code aktualisieren
 webSwitchToQR: Per QR-Code anmelden
 e2eeErrDefault: E2EE fehlgeschlagen, Nachricht nicht gesendet
 e2eeErrPeerDeviceNotReady: Die Sicherheitseinrichtung einiger Mitglieder ist nicht abgeschlossen, Nachricht nicht gesendet; bitte später erneut versuchen
-e2eeSocialTotalShards: Fragmente gesamt
-e2eeSocialThreshold: Schwellenwert
 e2eeSocialThresholdHint(count): Für Wiederherstellung sind $count Treuhänder nötig
-e2eeSocialSelectProxy: Treuhänder wählen
 e2eeSocialProxyNeeded(count): "$count vertrauenswürdige Kontakte als Treuhänder nötig"
 e2eeSocialProxyDefaultName(uid): Benutzer $uid
-e2eeSocialShardSentViaWs: Fragmente per WebSocket direkt an Treuhänder gesendet
 e2eeSocialSentCount(sent, total): An $sent von $total Treuhänder gesendet
-e2eeSocialManageTitle: Fragmente verwalten
-e2eeSocialMyShards: Meine Fragmente
-e2eeSocialProxyShards: Treuhänder-Fragmente
 e2eeSocialShardOf(idx, total): Fragment $idx / $total
-e2eeSocialShardActive: Aktiv
-e2eeSocialShardUsed: Verwendet
-e2eeSocialShardValid: Fragment gültig
 e2eeSocialUserShard(uid): Schlüsselfragment von $uid
-e2eeSocialProxyUserLabel: Treuhänder
-e2eeSocialRecoveryThresholdLabel: Schwellenwert
-e2eeSocialShardIndexLabel: Fragment-Nr.
-e2eeTransferQRHint: QR-Code am neuen Gerät scannen
 e2eeTransferQRExpiry(time): QR-Code läuft $time ab
-e2eeTransferRefreshQR: QR-Code aktualisieren
-e2eeTransferEnterUidTitle: Empfänger-Benutzer-ID eingeben
-e2eeTransferUidPlaceholder: Empfänger-Benutzer-ID
-e2eeTransferReceiving: Wird empfangen...
-e2eeTransferPageTitle: Geräteübertragung
-e2eeTransferPendingItem: Ausstehende Schlüsselübertragung
-e2eeTransferPendingItemDesc: Tippen für Details
-e2eeTransferView: Ansehen
-e2eeSocialTitle: Soziale Wiederherstellung
-e2eeSocialCanRecover: Schlüssel wiederherstellbar
-e2eeSocialSetupProxy: Treuhänder einrichten
-e2eeSocialChooseProxy: Vertrauenswürdige Kontakte als Treuhänder wählen
-e2eeSocialExistingShards: Vorhandene Fragmente
-e2eeSocialRecoverKeyTitle: Schlüssel wiederherstellen
-e2eeSocialRecoverKeyDesc: Mit Treuhänder-Fragmenten wiederherstellen
-e2eeSocialManageShardsTitle: Fragmente verwalten
-e2eeSocialManageShardsDesc: Alle Fragmente ansehen und verwalten
-e2eeSocialZeroTrustHint1: 'Zero-Trust: Server ohne Fragmente, direkter Kontakt zu Treuhändern'
-e2eeSocialZeroTrustHint2: 'Zero-Trust: Fragmente bei Treuhändern'
-e2eeSocialZeroTrustHint3: 'Zero-Trust: Server hat keinen Zugriff auf Klartext'
 e2eeProxyMinCount(count): Mindestens $count Treuhänder wählen
-e2eeProxySelectTitle: Treuhänder wählen
 e2eeProxySelectedCount(selected, total): "$selected / $total gewählt"
-e2eeProxyReachedMin: Mindestanzahl erreicht
 liveRoomTitleLabel: Livestream-Titel
 liveRoomTitleHint: Livestream-Titel eingeben
 lightModel: Heller Modus
+safetyNumberTitle: Sicherheitscode-Verifizierung
+safetyNumberHint: Vergleichen Sie den Sicherheitscode persönlich oder telefonisch mit der anderen Person. Bei Übereinstimmung wird Ihre Kommunikation nicht abgehört; bei Abweichung beenden Sie sofort das Gespräch und verifizieren Sie die Identität über einen anderen Kanal. Der Verifizierungsstatus wird nur auf diesem Gerät gespeichert.
+safetyNumberCopy: Kopieren
+safetyNumberCopied: Kopiert
+safetyNumberMarkVerified: Als verifiziert markieren
+safetyNumberMarkedVerified: Als verifiziert markiert
+safetyNumberNoDevices: Die Gegenseite hat Ende-zu-Ende-Verschlüsselung noch nicht aktiviert
+safetyNumberPeerDevice: Gerät der Gegenseite
+safetyNumberReportRejected: Der Server hat das Verifizierungsereignis abgelehnt (Signatur/Gültigkeit passt nicht), nicht markiert
+safetyNumberReportUnavailable: Geräteinformationen nicht verfügbar, nicht gemeldet
+safetyNumberReporting: Verifizierungsergebnis wird gemeldet...
+safetyNumberVerifyFailed: Sicherheitscode konnte nicht abgerufen werden. Bitte später erneut versuchen
+complianceKeyInfoTitle: Compliance-Audit-Schlüssel
+complianceKeyInfoAlgorithm: Algorithmus
+complianceKeyInfoChangedWarning: "⚠️ Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokalen Pinning überein! Falls dies keine beabsichtigte Rotation durch den Administrator ist, kontaktieren Sie sofort den Administrator und senden Sie keine verschlüsselten Nachrichten."
+complianceKeyInfoFetchedAt: Abgerufen am
+complianceKeyInfoFingerprint: Öffentlicher Schlüssel-Fingerabdruck
+complianceKeyInfoHint: "Der Compliance-Audit-Schlüssel dient der doppelten Verschlüsselung im compliance_e2ee-Modus. Weicht der obige Fingerabdruck vom Fingerabdruck ab, den der Administrator veröffentlicht hat, wurde der Server möglicherweise manipuliert."
+complianceKeyInfoKeyId: Schlüssel-ID
+complianceKeyInfoLocalPin: Lokales Pinning (TOFU)
+complianceKeyInfoPinnedAt: Gepinnt am
+complianceKeyInfoPinnedNone: Noch nicht gepinnt (wird beim nächsten Abruf automatisch gepinnt)
+complianceKeyInfoRefreshFailed: Abruf fehlgeschlagen. Bitte Netzwerk prüfen und erneut versuchen
+complianceKeyInfoServerKey: Vom Server bereitgestellter öffentlicher Schlüssel
+e2eeErrComplianceChanged: Compliance-Audit-Schlüssel hat sich geändert, Nachricht nicht gesendet. Bitte Rotation bestätigen und erneut versuchen
+e2eeErrComplianceUnavailable: Compliance-Schlüssel derzeit nicht verfügbar, Nachricht nicht gesendet. Bitte später erneut versuchen
+e2eeErrDeviceNotReady: Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen
+e2eeErrProtocolMismatch: Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen
+e2eeErrSessionExportFailed: Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen

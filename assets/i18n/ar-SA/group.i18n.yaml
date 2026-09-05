@@ -1,23 +1,17 @@
 ---
-financialManagement: إدارة مالية
 enterSameGroup: انضم إلى نفس المجموعة مع الأصدقاء من حولك
 enterTheGroup: الانضمام إلى هذه المجموعة
 groupAlias: لقبي في هذه المجموعة
 groupAlbum: ألبوم المجموعة
 groupDissolve: حلّ الدردشة الجماعية
-groupJoin: الانضمام إلى الدردشة الجماعية
 groupLeave: مغادرة الدردشة الجماعية
-groupManagement: إدارة الدردشة الجماعية
 groupMembers: أعضاء الدردشة الجماعية
 groupName: اسم الدردشة الجماعية
 mutualGroupsWithHer: المجموعات المشتركة بيني وبينه
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: ضيف
-groupMember: Member
 setAdmin: Set as Admin
-transferGroup: Transfer Ownership
-joinTime: Join Time
 selectGroup: اختيار مجموعة
 sureToDissolveGroup: هل أنت متأكد من حل هذه المجموعة؟
 sureToLeaveGroup: هل أنت متأكد من مغادرة هذه المجموعة؟
@@ -43,3 +37,12 @@ e2eeKeyManagement: إدارة مفاتيح E2EE
 e2eeKeyManagementSubtitle: نسخ احتياطي واستعادة وإدارة مفاتيح التشفير من طرف إلى طرف
 e2eeTitle: التشفير من طرف إلى طرف
 e2eeEnableConfirm: بعد التفعيل، سيتم تشفير رسائل المجموعة من طرف إلى طرف ولن تُقرأ إلا على أجهزة الأعضاء. لا يمكن التراجع عن هذا الإجراء. هل تريد التفعيل؟
+groupInfo: معلومات الدردشة الجماعية
+groupMemberRoleLabel: Member
+noMemberWithRole(roleName): لا يوجد $roleName
+moreActions: المزيد من الإجراءات
+touchContactAddMember: انقر على جهة الاتصال لإضافتها كعضو في المجموعة
+groupCreated: تم إنشاء الدردشة الجماعية
+groupCreatedSuccess: تم إنشاء الدردشة الجماعية بنجاح، ودعوتك إلى إكمال معلومات المجموعة أو الدخول مباشرة إلى الدردشة الجماعية
+enterGroupChat: الدخول إلى الدردشة الجماعية
+perfectionGroupInfo: إكمال معلومات المجموعة

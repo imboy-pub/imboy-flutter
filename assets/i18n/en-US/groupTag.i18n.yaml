@@ -1,9 +1,6 @@
 title: Group Tags
 addTag: Add Tag
 tagName: Tag Name
-tagColor: Tag Color
 noTag: No tags yet
-tagAdded: Tag added
-tagRemoved: Tag removed
 removeTitle: Remove Tag
 removeConfirm: Remove this tag?

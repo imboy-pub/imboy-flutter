@@ -1,23 +1,17 @@
 ---
-financialManagement: 資産運用
 enterSameGroup: 近くの友達と同じグループチャットに入る
 enterTheGroup: このグループに入る
 groupAlias: グループ内のニックネーム
 groupAlbum: グループアルバム
 groupDissolve: グループを解散
-groupJoin: グループに参加
 groupLeave: グループを退出
-groupManagement: グループ管理
 groupMembers: グループメンバー
 groupName: グループ名
 mutualGroupsWithHer: 相手との共通グループチャット
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: ゲスト
-groupMember: Member
 setAdmin: Set as Admin
-transferGroup: Transfer Ownership
-joinTime: Join Time
 selectGroup: グループチャットを選択
 sureToDissolveGroup: このグループを解散してもよろしいですか？
 sureToLeaveGroup: このグループを退出してもよろしいですか？
@@ -43,3 +37,13 @@ e2eeKeyManagement: E2EEキー管理
 e2eeKeyManagementSubtitle: エンドツーエンド暗号キーのバックアップ、復元、管理
 e2eeTitle: エンドツーエンド暗号化
 e2eeEnableConfirm: 有効にすると、グループのメッセージはエンドツーエンドで暗号化され、メンバーの端末でのみ復号できます。この操作は取り消せません。有効にしますか？
+# --- グループ作成 / メンバー操作 ---
+enterGroupChat: グループチャットに入る
+groupCreated: グループチャットを作成しました
+groupCreatedSuccess: グループチャットを作成しました。グループ情報を設定するか、そのまま入ることができます
+groupInfo: グループ情報
+groupMemberRoleLabel: メンバー
+moreActions: その他の操作
+noMemberWithRole: "${roleName}はいません"
+perfectionGroupInfo: グループ情報を設定
+touchContactAddMember: 連絡先をタップしてグループメンバーに追加

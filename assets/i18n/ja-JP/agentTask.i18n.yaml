@@ -1,0 +1,10 @@
+title: AIタスク
+working: 実行中
+submitted: 提出済み
+progress: 進行中
+completed: 完了
+failed: 実行に失敗しました
+cancelled: キャンセル済み
+awaitingApproval: 承認待ち
+approve: 承認
+reject: 拒否

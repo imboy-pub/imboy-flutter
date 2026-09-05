@@ -1,6 +1,5 @@
 ---
 restartRequired: アプリの再起動が必要です
-networkFailureGuidance: ネットワーク障害ガイダンス
 pleaseCheckNetwork: ネットワーク設定を確認してください。
 networkTroubleshootingStep1: 1. スマートフォンの設定を開き、Wi-Fiスイッチをオンにします。
 networkTroubleshootingStep2: 2. スマートフォンの設定 - 一般 - モバイルデータ通信を開き、モバイルデータ通信スイッチをオンにします。

@@ -6,18 +6,13 @@ subscribed: Iscritto
 managed: Gestito
 writeArticle: Scrivi un post
 discover: Scopri
-search: Cerca
 create: Crea canale
 searchHint: Cerca per nome o ID
-searchTip: Inserisci parole chiave per cercare
 noResults: Nessun canale trovato
 noRecommendedChannels: Nessun canale consigliato Controlla più tardi
 noSubscribedChannels: Nessun canale sottoscritto Scopri altri canali
 noManagedChannels: Nessun canale gestito Crea un canale per iniziare
-noMessages: Nessun messaggio
 subscribers: iscritti
-pinned: Fissato
-view: Visualizza
 subscribe: Iscriviti
 subscribeSuccess: Iscritto con successo
 subscribeFailed: Iscrizione fallita
@@ -37,7 +32,6 @@ customIdHint: 'es: mio_canale'
 customIdHelper: Permette ricerca per ID
 customIdInvalid: Solo lettere, numeri e underscore
 customIdLength: Deve essere 4-30 caratteri
-typeLabel: Tipo canale
 typePublic: Pubblico
 typePrivate: Privato
 typePublicDesc: Tutti possono trovare e iscriversi
@@ -48,22 +42,13 @@ yesterday: Ieri
 daysAgo: giorni fa
 messages: Messaggi
 views: Visualizzazioni
-reactions: Reazioni
-selectReaction: Seleziona reazione
-react: Reagisci
-admin: Amministra
-settings: Impostazioni
 editChannel: Modifica canale
-editChannelDesc: Aggiorna nome, descrizione, ecc.
 editChannelNotImplemented: Modifica canale disponibile a breve
 manageAdmins: Gestisci amministratori
-manageAdminsDesc: Aggiungi o rimuovi amministratori del canale
 manageAdminsNotImplemented: Gestione amministratori disponibile a breve
 manageSubscribers: Gestisci iscritti
-manageSubscribersDesc: Visualizza e gestisci gli iscritti al canale
 manageSubscribersNotImplemented: Gestione iscritti disponibile a breve
 deleteChannel: Elimina canale
-deleteChannelDesc: Questa azione non può essere annullata
 deleteChannelConfirm: Sei sicuro di voler eliminare questo canale? Questa azione è irreversibile.
 deleteChannelNotImplemented: Eliminazione canale disponibile a breve
 channelDeleted: Canale eliminato
@@ -89,8 +74,6 @@ removeAdminFailed: Impossibile rimuovere amministratore
 changeRole: Cambia ruolo
 updateRoleSuccess: Ruolo aggiornato con successo
 updateRoleFailed: Impossibile aggiornare ruolo
-userId: ID utente
-userIdHint: Inserisci ID utente
 selectFromContacts: Dai contatti
 searchContactsHint: Cerca nickname o account
 noContactsToAdd: Tutti gli amici sono già amministratori
@@ -101,7 +84,6 @@ roleAdmin: Amministratore
 roleAdminDesc: Gestisci il canale
 roleEditor: Editore
 roleEditorDesc: Pubblica messaggi
-roleUnknown: Sconosciuto
 searchSubscribers: Cerca iscritti
 subscriberSearchHint: Cerca per nome o ID
 noSearchResults: Nessun iscritto trovato
@@ -145,3 +127,63 @@ accessTypeFree: "Gratuito"
 accessTypePaid: "A pagamento"
 typePublicPaidDesc: "Chiunque può scoprire il canale e abbonarsi dopo l'acquisto"
 typePrivatePaidDesc: "Solo gli utenti invitati possono accedere all'acquisto e abbonarsi dopo il pagamento"
+addImage: Aggiungi immagine
+allCategories: Tutte
+articleBodyHint: "Scrivi qualcosa… sono supportati grassetto, corsivo, titoli, elenchi e altri formati"
+cancelOrder: Annulla ordine
+cancelOrderConfirmMessage: "Vuoi davvero annullare questo ordine in attesa di pagamento? Dopo l'annullamento non sarà più possibile pagare."
+cancelOrderConfirmTitle: Conferma annullamento ordine
+cancelOrderSuccess: Ordine annullato
+channelNotFound: Canale inesistente
+comment: Commento
+commentDeleteNoPermission: Non hai il permesso di eliminare questo commento
+commentFailed: Commento non riuscito
+coverLabel: Copertina
+coverSet: Impostata come copertina
+deleteComment: Elimina commento
+deleteCommentConfirm: "Vuoi eliminare questo commento?"
+formatBold: Grassetto
+formatHeading: Titolo
+formatItalic: Corsivo
+formatLink: Link
+formatList: Elenco
+formatQuote: Citazione
+formatStrikethrough: Barrato
+like: Mi piace
+linkTextPlaceholder: Testo del link
+myOrders: I miei ordini
+noComments: Nessun commento per ora
+noOrders: Nessun ordine registrato per ora
+orderAmount: Importo
+orderChannel: Canale
+orderContinuePay: Continua il pagamento
+orderCreatedAt: Data dell'ordine
+orderDetail: Dettagli ordine
+orderNo: N. ordine
+orderPaidAt: Data del pagamento
+orderPaymentMethod: Metodo di pagamento
+orderStatusCancelled: Annullato
+orderStatusExpired: Scaduto
+orderStatusLabel: Stato
+orderStatusPaid: Pagato
+orderStatusPending: In attesa di pagamento
+orderStatusRefunded: Rimborsato
+orderStatusRefunding: Rimborso in corso
+orderSubscriptionPeriod: Periodo di iscrizione
+orderValidUntil: "Valido fino al"
+payAlipay: Alipay
+payWallet: Saldo del portafoglio
+payWechat: WeChat Pay
+preview: Anteprima
+publish: Pubblica
+readFull: Leggi tutto
+refundApply: Richiedi rimborso
+refundConfirmMessage: "Vuoi richiedere il rimborso di questo ordine? Dopo il rimborso l'iscrizione verrà annullata."
+refundConfirmTitle: Conferma rimborso
+refundSuccess: Richiesta di rimborso inviata
+reply: Rispondi
+replyTo: "Risposta a"
+sortNewest: Più recenti
+sortPopular: Popolari
+titleOptional: "Titolo (opzionale)"
+writeComment: Scrivi un commento...

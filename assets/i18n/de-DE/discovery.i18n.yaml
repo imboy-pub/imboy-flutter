@@ -5,24 +5,15 @@ nearbyPeopleExplain: |-
   Benutzer in Ihrer Nähe können Ihr Profil sehen und Ihnen Nachrichten senden. Finden Sie neue Freunde oder beenden Sie das Teilen jederzeit.
   Ihre Telefonnummer bleibt verborgen.
 peopleNearby: Personen in der Nähe
-peopleNearbyLogic: Logik für Personen in der Nähe
-scan: Scannen
 scanResult: Scan-Ergebnis
-scannerResult: Scanner-Ergebnis
-titleDiscover: Entdecken
 myChannels: Meine Kanäle
-channelSquare: Kanal-Entdecken
 otherUsersCanFindMe: Andere Benutzer können mich durch Suche finden
 moments: Momente
-momentsReport: Moment melden
-momentsReportDesc: Beschreibung
-momentsComments: Kommentare
 momentsWriteComment: Kommentar schreiben...
 momentsVisibility: Sichtbarkeit
 momentsVisibilityPublic: Öffentlich
 momentsVisibilityPartial: Teilweise
 momentsVisibilityExclude: Ausnahmen
-momentsDenyUidsLabel: Ausgeschlossen UIDs (kommagetrennt)
 momentsDraftRestored: Letzter Entwurf wiederhergestellt
 momentsFeedStale: Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt
 momentActionLike: "Gefällt mir"
@@ -34,18 +25,21 @@ momentActionCancel: "Abbrechen"
 momentViewAllComments(count): "Alle ${count} Kommentare ansehen"
 momentLikedBy(names): "${names} gefällt das"
 momentAndOthersLiked(names,count): "${names} und ${count} weiteren gefällt das"
-momentPartialVisible: "Teilweise"
+momentLikesCountOnly(count): "${count} Personen gefiel dies"
 momentContentPlaceholder: "Woran denkst du..."
 momentShowFull: "Vollständig anzeigen"
-momentExpand: "Ausklappen"
 momentCollapse: "Einklappen"
-momentReportComment: "Kommentar melden"
 momentsDraftKeepTitle: "Entwurf behalten?"
 momentsDraftKeepMessage: "Beim nächsten Mal weiterbearbeiten"
 momentsDraftDiscard: "Verwerfen"
 momentsDraftKeep: "Behalten"
-discover: Entdecken
-shake: Schütteln
 openChannel: Kanal öffnen
 paidChannelLocked: Inhalt gesperrt (Kostenpflichtig)
 webQRScanned: Gescannt
+momentActionMore: Weitere Aktionen
+momentAtCount: "${count} Personen"
+momentAtReminded: "Benachrichtigt: ${name}"
+momentAtRemindedMore: "Benachrichtigt: ${name} und ${count} weitere"
+momentAtWho: Wen benachrichtigen?
+momentLocation: Standort
+momentLocationNone: Standort nicht anzeigen

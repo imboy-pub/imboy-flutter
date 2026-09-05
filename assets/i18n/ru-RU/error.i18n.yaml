@@ -1,6 +1,5 @@
 ---
 restartRequired: Требуется перезапуск приложения
-networkFailureGuidance: Руководство при сетевых ошибках
 pleaseCheckNetwork: Пожалуйста, проверьте настройки сети.
 networkTroubleshootingStep1: 1. Включите Wi-Fi в настройках телефона
 networkTroubleshootingStep2: 2. Включите мобильные данные

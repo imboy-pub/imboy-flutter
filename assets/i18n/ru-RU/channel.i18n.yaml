@@ -6,18 +6,13 @@ subscribed: Подписан
 managed: Управляемый
 writeArticle: Написать публикацию
 discover: Обзор
-search: Поиск
 create: Создать канал
 searchHint: Поиск по названию или ID
-searchTip: Введите ключевые слова для поиска
 noResults: Каналы не найдены
 noRecommendedChannels: Нет рекомендуемых каналов Проверьте позже
 noSubscribedChannels: Нет подписок Найдите больше каналов
 noManagedChannels: Нет управляемых каналов Создайте канал для начала
-noMessages: Нет сообщений
 subscribers: подписчиков
-pinned: Закреплено
-view: Просмотр
 subscribe: Подписаться
 subscribeSuccess: Подписка оформлена
 subscribeFailed: Ошибка подписки
@@ -37,7 +32,6 @@ customIdHint: 'напр: my_channel'
 customIdHelper: Позволяет искать по ID
 customIdInvalid: Только буквы, цифры и подчеркивания
 customIdLength: Должно быть 4-30 символов
-typeLabel: Тип канала
 typePublic: Публичный
 typePrivate: Приватный
 typePublicDesc: Любой может найти и подписаться
@@ -48,22 +42,13 @@ yesterday: Вчера
 daysAgo: дней назад
 messages: Сообщения
 views: Просмотры
-reactions: Реакции
-selectReaction: Выбрать реакцию
-react: Реагировать
-admin: Управление
-settings: Настройки
 editChannel: Редактировать канал
-editChannelDesc: Обновить название, описание и т.д.
 editChannelNotImplemented: Редактирование канала скоро будет доступно
 manageAdmins: Управление админами
-manageAdminsDesc: Добавить или удалить администраторов канала
 manageAdminsNotImplemented: Управление админами скоро будет доступно
 manageSubscribers: Управление подписчиками
-manageSubscribersDesc: Просмотр и управление подписчиками канала
 manageSubscribersNotImplemented: Управление подписчиками скоро будет доступно
 deleteChannel: Удалить канал
-deleteChannelDesc: Это действие нельзя отменить
 deleteChannelConfirm: Вы уверены, что хотите удалить этот канал? Это действие необратимо.
 deleteChannelNotImplemented: Удаление канала скоро будет доступно
 channelDeleted: Канал удалён
@@ -89,8 +74,6 @@ removeAdminFailed: Не удалось удалить администратор
 changeRole: Изменить роль
 updateRoleSuccess: Роль успешно обновлена
 updateRoleFailed: Не удалось обновить роль
-userId: ID пользователя
-userIdHint: Введите ID пользователя
 selectFromContacts: Выбрать из контактов
 searchContactsHint: Поиск по нику или аккаунту
 noContactsToAdd: Все друзья уже администраторы
@@ -101,7 +84,6 @@ roleAdmin: Администратор
 roleAdminDesc: Может управлять каналом
 roleEditor: Редактор
 roleEditorDesc: Может публиковать сообщения
-roleUnknown: Неизвестно
 searchSubscribers: Поиск подписчиков
 subscriberSearchHint: Поиск по имени или ID
 noSearchResults: Подходящие подписчики не найдены
@@ -145,3 +127,63 @@ accessTypeFree: "Бесплатно"
 accessTypePaid: "Платно"
 typePublicPaidDesc: "Любой может найти канал и подписаться после покупки"
 typePrivatePaidDesc: "Только приглашённые пользователи могут перейти к покупке и подписаться после оплаты"
+addImage: Добавить изображение
+allCategories: Все
+articleBodyHint: "Напишите что-нибудь... Поддерживается жирный, курсив, заголовки, списки и др."
+cancelOrder: Отменить заказ
+cancelOrderConfirmMessage: "Отменить этот неоплаченный заказ? После отмены оплата будет невозможна."
+cancelOrderConfirmTitle: Подтвердить отмену заказа
+cancelOrderSuccess: Заказ отменён
+channelNotFound: Канал не существует
+comment: Комментарий
+commentDeleteNoPermission: Нет прав на удаление этого комментария
+commentFailed: Не удалось прокомментировать
+coverLabel: Обложка
+coverSet: Установлено как обложка
+deleteComment: Удалить комментарий
+deleteCommentConfirm: Удалить этот комментарий?
+formatBold: Жирный
+formatHeading: Заголовок
+formatItalic: Курсив
+formatLink: Ссылка
+formatList: Список
+formatQuote: Цитата
+formatStrikethrough: Зачёркнутый
+like: Нравится
+linkTextPlaceholder: Текст ссылки
+myOrders: Мои заказы
+noComments: Пока нет комментариев
+noOrders: Нет заказов
+orderAmount: Сумма
+orderChannel: Канал
+orderContinuePay: Продолжить оплату
+orderCreatedAt: Время заказа
+orderDetail: Детали заказа
+orderNo: Номер заказа
+orderPaidAt: Время оплаты
+orderPaymentMethod: Способ оплаты
+orderStatusCancelled: Отменён
+orderStatusExpired: Истёк
+orderStatusLabel: Статус
+orderStatusPaid: Оплачен
+orderStatusPending: Ожидает оплаты
+orderStatusRefunded: Возвращён
+orderStatusRefunding: Возврат в обработке
+orderSubscriptionPeriod: Период подписки
+orderValidUntil: Действует до
+payAlipay: Alipay
+payWallet: Баланс кошелька
+payWechat: WeChat Pay
+preview: Предпросмотр
+publish: Опубликовать
+readFull: Читать полностью
+refundApply: Запросить возврат
+refundConfirmMessage: "Запросить возврат по этому заказу? После возврата подписка будет отменена."
+refundConfirmTitle: Подтвердить возврат
+refundSuccess: Заявка на возврат отправлена
+reply: Ответить
+replyTo: Ответ на
+sortNewest: Сначала новые
+sortPopular: Популярные
+titleOptional: Заголовок (необязательно)
+writeComment: Написать комментарий...

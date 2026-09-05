@@ -1,23 +1,17 @@
 ---
-financialManagement: Gestione patrimoniale
 enterSameGroup: Entra nella stessa chat di gruppo con gli amici vicini
 enterTheGroup: Entra nel gruppo
 groupAlias: Il mio nickname nel gruppo
 groupAlbum: Album di gruppo
 groupDissolve: Sciogli gruppo
-groupJoin: Unisciti al gruppo
 groupLeave: Esci dal gruppo
-groupManagement: Gestione gruppo
 groupMembers: Membri gruppo
 groupName: Nome gruppo
 mutualGroupsWithHer: Gruppi comuni con lui/lei
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: Ospite d'onore
-groupMember: Member
 setAdmin: Set as Admin
-transferGroup: Transfer Ownership
-joinTime: Join Time
 selectGroup: Seleziona una chat di gruppo
 sureToDissolveGroup: Sei sicuro di voler sciogliere questo gruppo?
 sureToLeaveGroup: Sei sicuro di voler uscire da questo gruppo?
@@ -43,3 +37,12 @@ e2eeKeyManagement: Gestione chiavi E2EE
 e2eeKeyManagementSubtitle: Backup, ripristino e gestione chiavi E2EE
 e2eeTitle: Crittografia end-to-end
 e2eeEnableConfirm: "Una volta attivata, i messaggi del gruppo saranno crittografati end-to-end e leggibili solo sui dispositivi dei membri. L'operazione è irreversibile. Attivare?"
+enterGroupChat: Entra nella chat di gruppo
+groupCreated: Chat di gruppo creata
+groupCreatedSuccess: "Chat di gruppo creata con successo, ti invitiamo a completare le informazioni del gruppo o a entrare direttamente"
+groupInfo: Info chat di gruppo
+groupMemberRoleLabel: Membro
+moreActions: Altre azioni
+noMemberWithRole(roleName): "Nessun $roleName per ora"
+perfectionGroupInfo: Completa le info del gruppo
+touchContactAddMember: "Tocca un contatto per aggiungerlo come membro del gruppo"

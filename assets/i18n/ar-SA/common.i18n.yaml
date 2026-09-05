@@ -4,8 +4,6 @@ aboutApp: حول التطبيق
 accept: قبول
 acceptFriendRequest: قبول طلب الصداقة
 addFriend: إضافة صديق
-addPhoneContact: إضافة جهة اتصال هاتف
-creditCardRepayment: سداد بطاقة الائتمان
 dataNotFound: بيانات هذه الصفحة غير موجودة أو منتهية الصلاحية
 smallChange: الفكّة
 addTag: إضافة علامة
@@ -13,10 +11,7 @@ addToContacts: إضافة إلى جهات الاتصال
 addToDenylist: إضافة إلى القائمة السوداء
 added: تمت الإضافة
 addedToDenylistTips: تمت الإضافة إلى القائمة السوداء، لن تتلقى رسائل من هذا المستخدم
-agreeContinue: موافق ومتابعة
 all: الكل
-allSenders: جميع المرسلين
-allTags: جميع العلامات
 allTime: جميع الأوقات
 allTypes: جميع الأنواع
 allowSearchMe: السماح بالبحث عني
@@ -27,12 +22,10 @@ awaitingVerification: في انتظار التحقق
 buttonAccomplish: إكمال
 buttonAdd: إضافة
 buttonBack: رجوع
-buttonBind: ربط
 bindMobileAndEmailTips: ربط رقم الهاتف المحمول وعنوان البريد الإلكتروني لتحسين أمان حسابك
 bindNow: ربط الآن
 buttonCancel: إلغاء
 buttonCreate: إنشاء
-buttonChangePassword: تغيير كلمة المرور
 phoneInputHint: أدخل رقم الهاتف
 buttonMore: المزيد
 buttonRefresh: تحديث
@@ -41,26 +34,17 @@ buttonConfirm: تأكيد
 buttonContinue: متابعة
 buttonCopy: نسخ
 buttonDelete: حذف
-buttonDeleteAccount: إلغاء الحساب
-buttonInviteCode: رمز الدعوة
-buttonLogin: تسجيل الدخول
 buttonLogout: تسجيل الخروج
-buttonNextStep: الخطوة التالية
 buttonOk: حسناً
-buttonRegister: تسجيل
-buttonResetPassword: إعادة تعيين كلمة المرور
 buttonRetry: إعادة المحاولة
 buttonSave: حفظ
 buttonSelectFromAlbum: اختيار من الألبوم
 buttonSend: إرسال
-buttonSetEmpty: مسح
-buttonSubmit: إرسال
 buttonTakingPictures: التقاط صورة
 cacheTips: الذاكرة المؤقتة هي بيانات مؤقتة تُنشأ أثناء استخدام التطبيق، مسح الذاكرة المؤقتة لن يؤثر على استخدامك العادي.
 callDuration: مدة المكالمة
 callEnded: "انتهت المكالمة"
 calling: جارٍ الاتصال
-canNotAddYourselfFriend: لا يمكنك إضافة نفسك كصديق
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: تمت العملية بنجاح
@@ -72,43 +56,23 @@ cancelLogoutBody: هذا الحساب في فترة السحب لإلغاء ال
 cancelLogoutTitle: هل تريد إنهاء عملية إلغاء الحساب؟
 cancelled: تم الإلغاء
 chatSettingBackground: خلفية الدردشة
-chatSettingBackgroundCustom: تم تعيين خلفية مخصصة
-chatSettingBackgroundDefault: الخلفية الافتراضية
-chatSettingBackgroundSelectorTip: ميزة اختيار الخلفية قيد التطوير
-chatSettingBackgroundSuccess: تم تعيين الخلفية بنجاح
-chatSettingClearHistory: مسح سجل الدردشة
-chatSettingClearHistoryConfirm: هل أنت متأكد من مسح جميع سجلات الدردشة؟ هذا الإجراء لا يمكن التراجع عنه.
-chatSettingClearHistoryDesc: حذف جميع الرسائل، هذا الإجراء لا يمكن التراجع عنه
-chatSettingClearedSuccess: تم المسح بنجاح
 chatSettingPinnedSuccess: تم التثبيت بنجاح
 chatSettingUnpinnedSuccess: تم إلغاء التثبيت
 chatSettings: إعدادات الدردشة
 chatStatusFailed: فشل الإرسال
-chatStatusFailedDesc: فشل الإرسال، اضغط لإعادة المحاولة
 chatErrorInDenylist: أنت في القائمة السوداء
-chatErrorInDenylistDesc: لا يمكن إرسال الرسالة - تم حظرك
-chatErrorNotAFriend: لستما أصدقاء بعد
-chatErrorNotAFriendDesc: لا يمكن إرسال الرسالة - أضف كصديق أولا
 checkForUpdates: التحقق من التحديثات
 clearAll: مسح الكل
 clearChatRecord: مسح سجل الدردشة
 complaintSuccess: تم إرسال الشكوى
 complaintFailed: تعذّر إرسال الشكوى، حاول لاحقاً
-confirmCode: رمز التأكيد
-confirmCodeError: رمز التأكيد فارغ
-confirmCodeSuccess: تم تأكيد الحساب.
 confirmDeleteChatRecord: هل أنت متأكد من حذف سجل الدردشة؟
-confirmNewFriend: تأكيد صديق جديد
-confirmNewFriendLogic: منطق تأكيد صديق جديد
 confirmRecoverSuccess: تم تعديل كلمة المرور بنجاح.
 contactSetting: إعدادات جهات الاتصال
-contactSettingTag: علامة إعدادات جهات الاتصال
-contactTagListLogic: منطق قائمة علامات جهات الاتصال
 contactTags: علامات جهات الاتصال
 contactInfoNotSynced: جهات الاتصال غير متزامنة
 continueDownloading: متابعة التنزيل
 copy: نسخ
-coupon: قسيمة
 createGroupF2fConfirmTips: هؤلاء الأصدقاء سينضمون أيضاً إلى المجموعة
 createGroupF2fTips: أدخل نفس الأربعة أرقام مع الأصدقاء من حولك للانضمام إلى نفس المجموعة
 delete: "@:common.buttonDelete"
@@ -126,65 +90,36 @@ deviceDetails: تفاصيل الجهاز
 downloaded: تم التنزيل
 edit: تعديل
 editTag: تعديل العلامة
-errorAccessDenied: تم رفض الوصول إلى $param
-errorCliVersionNotFound: "@:common.error"
 errorEmptyDirectory: "$param فارغ"
 errorFailedConnectServer: "@:common.error"
-errorFailedToConnect: "@:common.error"
-errorFileNotFound: لم يتم العثور على ملف في $param
-errorFolderNotFound: المجلد $param غير موجود
 errorHttpNotSupported: "@:common.error"
 errorInternalServer: "@:common.error"
 errorInvalid: "$param غير صالح"
-errorInvalidDart: "@:common.error"
-errorInvalidFileOrDirectory: "@:common.error"
-errorInvalidJson: "@:common.error"
 errorInvalidRequest: "@:common.error"
 errorLengthBetween: يجب أن يكون طول $param بين $min و $max
 errorManyRequest: "@:common.error"
-errorNoPackageToRemove: "@:common.error"
-errorNoValidFileOrUrl: "@:common.error"
-errorNonexistentDirectory: "@:common.error"
-errorPackageNotFound: "@:common.error"
 errorPassword: كلمة المرور غير صحيحة
 errorRequestForbidden: "@:common.error"
 errorRequestSyntax: "@:common.error"
 errorRequired: "$param مطلوب"
-errorRequiredPath: "@:common.error"
 errorRetypePassword: "@:common.error"
-errorSame: يجب أن يكون $param1 و $param2 متطابقين
 errorServerDown: "@:common.error"
 errorServerRefused: "@:common.error"
-errorSpecialCharactersInKey: "@:common.error"
 errorUnexpected: "@:common.error"
-errorUnnecessaryParameter: "@:common.error"
-errorUnnecessaryParameterPlural: "@:common.error"
-errorUpdateCli: "@:common.error"
 failedGetLatLong: "@:common.errorNetwork"
 failedGetMapTryAgain: "@:common.errorNetwork"
 failedRequestPleaseCheckNetwork: "@:common.errorNetwork"
 feedback: الاقتراحات والملاحظات
-feedbackBuilder: منشئ الملاحظات
 feedbackContentRequired: لا يمكن أن يكون محتوى الملاحظات فارغاً
 feedbackDetails: تفاصيل الاقتراحات والملاحظات
-feedbackModel: نموذج الملاحظات
-feedbackReplyModel: نموذج رد الملاحظات
 feedbackSuccessMsg: لقد تلقينا مشكلتك، وسنقوم بمعالجتها في أسرع وقت ممكن!
 followSystemTips: عند التمكين، سيتم تشغيل أو إيقاف الوضع الداكن وفقاً لإعدادات النظام
-forceLogoutNotification: تم تسجيل الخروج إجبارياً من الجهاز 【$param】
-friendPermissions: أذونات الأصدقاء
-friendsPermissionsView: عرض أذونات الأصدقاء
-genderConflictError: تعارض في إعدادات الجنس، يرجى المحاولة مرة أخرى
-genderNetworkError: استثناء في الشبكة، يرجى التحقق من اتصال الشبكة
 genderUpdateFailed: فشل تعيين الجنس، يرجى المحاولة مرة أخرى
-genderUpdateSuccess: تم تعيين الجنس بنجاح
-groupAddLocal: حفظ في جهات الاتصال
 groupAnnouncement: إعلان المجموعة
 groupFileUploadSuccess: تم رفع الملف
 groupFileUploadFailed: تعذّر رفع الملف، حاول لاحقاً
 groupFileDeleteSuccess: تم حذف الملف
 groupFileDeleteFailed: تعذّر الحذف، حاول لاحقاً
-groupFileClosePreview: إغلاق المعاينة
 groupFileUploadTooltip: رفع ملف
 groupFileSearch: البحث في ملفات المجموعة
 groupFileReadFailed: تعذّرت قراءة الملف، أعد المحاولة
@@ -192,70 +127,48 @@ groupFileDeleteTitle: حذف ملف المجموعة
 groupFileDeleteConfirm: حذف الملف «$name»؟
 groupFileImageLoadFailed: تعذّر تحميل الصورة
 groupFileOpenFailed: تعذّر فتح رابط الملف
-groupFileSearchClear: مسح
-groupFileSearchAction: بحث
 groupFileCategoryAll: الكل
 groupFileSearchEmpty: لا توجد ملفات مطابقة
 groupFileAudioLoadFailed: تعذّر تحميل الصوت
 groupFileAudioLoading: جارٍ تحميل الصوت...
 groupQrcodeTips: رمز QR صالح لمدة $days يوماً (قبل $date)، وسيتم تحديثه عند إعادة الدخول
-groupSearchTips: اسم المجموعة ووصف المجموعة
 helpDocument: مستند المساعدة
-hintEditGroupAnnouncement: تعديل إعلان المجموعة
-httpResponse: استجابة HTTP
 incomingCall: مكالمة واردة من $param
-info: معلومات
-infoLoggedInOnAnotherDevice: تم تسجيل الدخول إلى حسابك من جهاز آخر في $param
 installNow: التثبيت الآن
 iosAppIdUnknown: لم يتم إصدار التطبيق في AppStore أو AppID[$param] غير موجود
 koKr: الكورية (كوريا)
 languageSetting: إعدادات اللغة
-languageState: حالة اللغة
 lastActiveTips: عندما يكون الجهاز في حالة آمنة، سيتم تمديد وقت تسجيل الدخول تلقائياً للحفاظ على استلام رسائل الأصدقاء في الوقت المناسب، وسيتم تحديث وقت النشاط الأخير في هذا الوقت.
 lastSeenJustNow: تم تسجيل الدخول للتو
 lastSeenLongTimeAgo: تم تسجيل الدخول منذ فترة طويلة
 lastSeenMonthsAgo: منذ $param شهر
-leaveYourSuggestions: يرجى ترك اقتراحاتك وآرائك القيمة
 loadError: فشل التحميل، يرجى المحاولة مرة أخرى
 loadMore: تحميل المزيد
 loading: جارٍ التحميل
 locationMessage: رسالة موقع
 loginDeviceManagementTips: تم تسجيل الدخول إلى حسابك على الأجهزة التالية، يمكنك حذف الأجهزة، وستحتاج إلى التحقق الأمني عند تسجيل الدخول التالي على هذه الأجهزة بعد الحذف.
 logoutFailed: تعذّر تسجيل الخروج
-logoutNotice: إشعار إلغاء الحساب
-exportDataSuccess: تم تصدير البيانات
-manually: اختيار يدوي
 messageCall: إرسال رسالة
 messageContent: محتوى الرسالة
-messageLocationBuilder: منشئ موقع الرسالة
-messageNotification: إشعار الرسالة
 messageRevoked: تم سحب الرسالة
 quoteMessageNotAvailable: الرسالة المشار إليها غير متاحة
-messageRevokedBuilder: منشئ سحب الرسالة
 microphone: ميكروفون
 microphonePermissionNotObtained: لم يتم الحصول على إذن الميكروفون
 moreInfo: المزيد من المعلومات
-myAddress: عنواني
 nearbyPeopleTips: تبادل معلومات الاتصال مع الأشخاص القريبين واصنع أصدقاء جدد
 needContinueWorkHard: بحاجة إلى الاستمرار في العمل الجاد
-needSubmitEffect: يجب تأكيد الإرسال ليصبح هذا الإجراء ساري المفعول
 networkErrorWithAction: فشل $param، يرجى التحقق من اتصال الشبكة
 networkException: استثناء في اتصال الشبكة
 errorNetwork: خطأ في الشبكة
 networkExceptionPlaseNeedNetworkToViewData: حالة الشبكة غير طبيعية، تحتاج إلى تشغيل الشبكة لعرض البيانات
-networkFailureTips: تلميحات فشل الشبكة
 newVersionDetected: تم اكتشاف إصدار جديد
 newVersionDetectedWithVersion: تم اكتشاف إصدار جديد $param
 nextStep: الخطوة التالية
-nicknameConflictError: اللقب مستخدم بالفعل، يرجى اختيار لقب آخر
 nicknameEmojiOnlyError: لا يمكن أن يحتوي اللقب على رموز تعبيرية فقط
 nicknameEmptyError: لا يمكن أن يكون اللقب فارغاً
 nicknameLengthError: يجب أن يكون طول اللقب بين 2-24 حرفاً
-nicknameNetworkError: استثناء في الشبكة، يرجى التحقق من اتصال الشبكة
 nicknameSensitiveWordError: اللقب يحتوي على كلمات حساسة، يرجى إعادة الإدخال
-nicknameServerError: خطأ في الخادم، يرجى المحاولة مرة أخرى لاحقاً
 nicknameUpdateFailed: فشل تعديل اللقب، يرجى المحاولة مرة أخرى
-nicknameUpdateSuccess: تم تعديل اللقب بنجاح
 nicknameWhitespaceError: لا يمكن أن يحتوي اللقب على مسافات فقط
 noAvatar: بدون صورة رمزية
 noBarcodeFound: لم يتم العثور على الباركود!
@@ -263,59 +176,32 @@ noContacts: لا توجد جهات اتصال
 noConversationMessages: لا توجد رسائل محادثة
 noData: لا توجد بيانات
 noMembersInCurrentTag: لا يوجد أعضاء في العلامة الحالية
-noMoreData: لا مزيد من البيانات
 noNewFriends: لا يوجد أصدقاء جدد
 noPermission: لا يوجد إذن
 noReply: لا يوجد رد
-noSiginQ: ليس لديك حساب بعد؟
 noUpdateDescription: لا يوجد وصف للتحديث
-normalModel: الوضع العادي
 notAuthorizedLatLong: لم تقم بتفويض الحصول على خطوط الطول والعرض
 notLoggedIn: لم تسجّل الدخول
 notBad: ليس سيئاً
 notBound: غير مرتبط
 notFilled: غير مملوء
 notInstallAnyMapApp: لم تقم بتثبيت أي تطبيق خريطة
-notLetHimSee: عدم السماح له بالرؤية
 notReceiveCoeQ: لم تستلم رمز التحقق؟
-notSeeHim: عدم رؤيته
 notSet: لم يتم التعيين
-notShow: عدم العرض
 notTurnedLocationService: لم تقم بتشغيل خدمة الموقع
 nowNewVersion: لم يتم اكتشاف إصدار جديد
-false: "@:common.disabled"
 offlineNotification: إشعار عدم الاتصال
-true: "@:common.enabled"
 operationFailedAgainLater: فشلت العملية، يرجى المحاولة مرة أخرى لاحقاً
-optionsNo: لا
-optionsRename: أريد إعادة التسمية
-optionsYes: نعم!
-p2pCallScreenLogic: منطق شاشة مكالمة P2P
-p2pCallScreenView: عرض شاشة مكالمة P2P
-paramFormatError: تنسيق $param غير صحيح
 pauseDownloading: إيقاف التنزيل مؤقتاً
 peerNoResponse: لا يوجد رد من الطرف الآخر...
-peopleInfoMoreLogic: منطق معلومات المستخدم الإضافية
-peopleInfoSameGroupView: عرض المستخدمين في نفس المجموعة
-perMinuteOnce: يمكن الطلب مرة واحدة فقط في الدقيقة
-permission: إذن
 permissionAcquisitionFailed: فشل الحصول على الإذن
 personalCard: بطاقة شخصية
-personalInfoDesc: وصف المعلومات الشخصية
-personalInfoTip: تلميح المعلومات الشخصية
 personalInformation: معلومات شخصية
 pinCodeFillTips: يرجى ملء جميع المربعات
-pleaseSelectMembersForAdd: يرجى اختيار الأعضاء المراد إضافتهم
 profileSettings: إعدادات الملف الشخصي
 reEdit: إعادة التعديل
-recoverPasswordSuccess: تم إرسال رمز التحقق بنجاح
-regionCancel: إلغاء
-regionConfirm: تأكيد
-regionNoResult: لا توجد نتائج
 regionSearchHint: البحث باسم المنطقة
 regionSelectedLevelHint(region, level): "المحدد: $region (المستوى $level). يمكنك الإنهاء الآن أو متابعة التحديد لمستوى أدق."
-regionSearchTips: البحث باسم المنطقة أو رمز المنطقة
-regionSelectTitle: اختيار المنطقة
 releaseFingerCancelSending: اترك إصبعك لإلغاء الإرسال
 removeContactFromTag: إزالة جهة الاتصال من العلامة
 removeMember: إزالة العضو
@@ -329,10 +215,8 @@ quickReplyEditTitle: تعديل رد سريع
 removeAdmin: Remove Admin
 setAdminConfirm: Set this member as admin?
 removeAdminConfirm: Remove admin role from this member?
-muteMemberConfirm: Mute this member?
 unmuteMemberConfirm: Unmute this member?
 kickMemberConfirm: Remove this member from the group?
-transferGroupConfirm: Transfer group ownership to this member? You will become an admin after transfer.
 setAdminSuccess: Admin set
 setAdminFailed: Failed to set admin
 removeAdminSuccess: Admin removed
@@ -343,17 +227,11 @@ unmuteMemberSuccess: Member unmuted
 unmuteMemberFailed: Failed to unmute member
 kickMemberSuccess: Member removed
 kickMemberFailed: Failed to remove member
-transferGroupSuccess: Ownership transferred
-transferGroupFailed: Failed to transfer ownership
 notMuted: Not Muted
 muteDuration: Mute Duration
 muteDuration1hour: 1 Hour
-muteDuration6hours: 6 Hours
-muteDuration12hours: 12 Hours
 muteDuration1day: 1 Day
-muteDuration3days: 3 Days
 muteDuration7days: 7 Days
-muteDurationPermanent: Permanent
 muteDuration5min: 5 دقائق
 muteDuration10min: 10 دقائق
 muteDuration30min: 30 دقيقة
@@ -362,7 +240,6 @@ muteUnitSeconds: "$count ثانية"
 throttleWarning: محاولات كثيرة جداً، حاول لاحقاً
 throttleRetryAfter: محاولات كثيرة جداً، حاول بعد $seconds ثانية
 mutedCannotSend: لا يمكن إرسال الرسائل أثناء الكتم
-resendCodeSuccess: تم إرسال بريد إلكتروني جديد.
 resetFilters: إعادة تعيين التصفية
 saveQrCode: حفظ رمز QR
 saveSuccess: تم الحفظ بنجاح
@@ -373,12 +250,6 @@ searchAll: All messages
 searchChatContent: البحث في محتوى الدردشة
 searchChatRecord: البحث في سجل الدردشة
 searchError: خطأ في البحث
-searchFilterAll: تصفية الكل
-searchFilterImage: تصفية الصور
-searchFilterText: تصفية النص
-searchFilterToday: تصفية اليوم
-searchFilters: تصفية البحث
-searchFriendsTips: البحث عن الأصدقاء بلقبهم أو ملاحظاتهم
 searchHint: أدخل كلمات مفتاحية للبحث عن الرسائل
 searchHistory: سجل البحث
 searchLocation: البحث عن موقع
@@ -386,27 +257,18 @@ searchMessagesHint: "ابحث في محتوى الدردشة"
 searchNoFound: نتائج البحث فارغة :(
 searchNoResults: لا توجد نتائج بحث
 noSearchHistory: لا يوجد سجل بحث
-searchRegion: البحث عن منطقة
 searchResults: نتائج البحث
-searchResultsCount: النتيجة $current من إجمالي $total
-searchSuggestions: اقتراحات البحث
 selectAll: تحديد الكل
 selectContacts: اختيار جهات الاتصال
-selectRegionView: عرض اختيار المنطقة
-selectedItems: "$param عنصر محدد"
 selectedRegion: المنطقة المحددة
 sendMsgNotFriendTips: قام الطرف الآخر بتمكين التحقق من الصداقة، لست صديقاً له بعد. يرجى إرسال طلب التحقق من الصداقة أولاً، وبعد أن يوافق الطرف الآخر، يمكنك الدردشة.
-setChatBackground: تعيين خلفية الدردشة الحالية
 share: مشاركة
-signatureTips: تلميح التوقيع
 slideUpCancelSending: اسحب إصبعك للأعلى لإلغاء الإرسال
 storagePermissionNotObtained: لم يتم الحصول على إذن التخزين
-strongReminder: تذكير قوي
 submittedAt: تم الإرسال في
 sureDeleteData: هل أنت متأكد من الحذف؟ لا يمكن التراجع عن الحذف.
 sureDeleteGroupChatRecord: هل أنت متأكد من حذف سجل المجموعة؟
 switchEnvironment: تبديل البيئة
-thisMonth: هذا الشهر
 timeDaysAgo(plural):
   other: منذ $n يوم
 timeHoursAgo(plural):
@@ -414,17 +276,12 @@ timeHoursAgo(plural):
 timeJustNow: الآن
 timeMinutesAgo(plural):
   other: منذ $n دقيقة
-timeToday: اليوم
-timeYesterday: أمس
 tipConnectDesc: لا يوجد اتصال بالشبكة
 tipConnectDescWithParen: "($param)"
 tipDeleteContact: حذف جهة الاتصال "$param"، وحذف سجل الدردشة مع جهة الاتصال هذه في نفس الوقت
 tipDeviceSpace: تحتل $param1% من مساحة تخزين الجهاز ($param2)
 tipDraft: مسودة
-tipEmptyChatPlaceholder: لا توجد رسائل هنا بعد
 tipFailed: فشلت العملية!
-tipGreeting: أهلاً بك
-tipProvidersTitleFirst: أو سجل الدخول باستخدام الحسابات التالية
 tipSuccess: تمت العملية بنجاح!
 tipTips: تلميح
 titleContact: جهات الاتصال
@@ -439,10 +296,6 @@ uploadFailed: Upload failed
 userDataTips: يحتوي على الملفات الضرورية لتشغيل التطبيق، وجميع بيانات السجل مثل رسائل الدردشة وعلاقات الأصدقاء.
 userDisabledOrDeleted: تم تعطيل المستخدم أو حذفه
 userNotExist: المستخدم غير موجود
-userOnlineStatusWidget: أداة حالة المستخدم عبر الإنترنت
-userTagRelationView: عرض علاقة علامة المستخدم
-userTagSaveView: عرض حفظ علامة المستخدم
-verificationMessageSentByPeerIs: 'رسالة التحقق المرسلة من الطرف الآخر هي: $param'
 version: الإصدار
 videoCall: مكالمة فيديو
 viewAllGroupMember: عرض جميع أعضاء المجموعة
@@ -455,10 +308,7 @@ waitingDownload: في انتظار التنزيل
 waitingPeerAccept: في انتظار قبول الطرف الآخر...
 warning: 'تحذير:'
 webpageLoading: جارٍ تحميل صفحة الويب...
-whatYourFeedback: ما هي ملاحظاتك؟
 yesterday: أمس
-yourContactInformation: معلومات الاتصال الخاصة بك
-confirmRemove: تأكيد الإزالة
 confirmRemoveFromDenylist: هل أنت متأكد من إزالة هذا المستخدم من القائمة السوداء؟
 buttonRemove: إزالة
 removedFromDenylist: تمت الإزالة من القائمة السوداء
@@ -469,13 +319,7 @@ getVerificationCode: الحصول على رمز التحقق
 confirmChange: تأكيد التغيير
 verificationCodeSentToEmail: سيتم إرسال رمز التحقق إلى هذا البريد الإلكتروني، يرجى إكمال التحقق خلال فترة الصلاحية
 verificationCodeSentToMobile: سيتم إرسال رمز التحقق إلى هذا الهاتف، يرجى إكمال التحقق خلال فترة الصلاحية
-pleaseEnterCorrectEmailAddress: يرجى إدخال عنوان البريد الإلكتروني الصحيح
-pleaseEnter6DigitVerificationCode: يرجى إدخال رمز التحقق المكون من 6 أرقام
-verificationCodeSent: تم إرسال رمز التحقق
 sendFailed: فشل الإرسال
-noChangeNeeded: لا حاجة للتعديل
-submissionFailed: فشل الإرسال
-checkVerificationCodeOrRetry: يرجى فحص رمز التحقق أو المحاولة مرة أخرى لاحقاً
 forceOffline: إيقاف الاتصال
 forceDeviceOffline: إيقاف اتصال هذا الجهاز
 forceDeviceOfflineConfirm: سيتم إرسال أمر إيقاف الاتصال إلى هذا الجهاز، هل تريد المتابعة؟
@@ -485,7 +329,6 @@ feedbackSlogan: اقتراحاتك هي الدافع لتحسيناتنا
 newFeedback: ملاحظة جديدة
 feedbackHistory: سجل الملاحظات
 confirmDelete: تأكيد الحذف
-processing: "@:common.loading"
 verificationCode: رمز التحقق
 feedbackContent: محتوى الملاحظات
 officialReply: الرد الرسمي
@@ -494,12 +337,9 @@ locationHidden: تم إخفاء موقعك
 locationVisible: تم عرض موقعك
 noNearbyPeople: لا يوجد أشخاص قريبون
 clickSearchButtonToFind: انقر على زر البحث أعلاه للعثور على أشخاص قريبين
-operationSuccess: "@:common.success"
 operationFailed: "@:common.error"
 featureInDevelopment: الميزة قيد التطوير...
 addedToDenylist: تمت الإضافة إلى القائمة السوداء
-bindSuccess: تم الربط بنجاح
-mobileUpdatedToParam: تم تحديث رقم الهاتف إلى $param
 groupAnnouncementPublish: نشر إعلان
 pleaseEnterAnnouncementContent: يرجى إدخال محتوى الإعلان
 selectExpirationDateOptional: اختيار تاريخ انتهاء الصلاحية (اختياري)
@@ -531,15 +371,10 @@ clearChatRecordsDesc: مسح جميع سجلات الدردشة، هذا الإ�
 deleteAccountAction: إلغاء الحساب
 deleteAccountActionDesc: حذف الحساب وجميع البيانات بشكل دائم، هذا الإجراء لا يمكن التراجع عنه
 chatHistoryCleared: تم مسح سجل الدردشة
-accountDeletionNotAvailable: ميزة إلغاء الحساب غير متاحة بعد
 chatDeleteMessage: حذف الرسالة
 chatCopy: نسخ
 chatSaveImage: حفظ الصورة
 chatDeleteLocalOnly: حذف محلي فقط
-chatDownloadFile: تنزيل الملف
-chatShareFile: مشاركة الملف
-chatCopyLink: نسخ الرابط
-chatShareLink: مشاركة الرابط
 chatDeleteFailed: فشل الحذف
 chatNetworkErrorDeleteLocal: فشل الاتصال بالشبكة، هل تريد حذف الرسائل المحلية فقط؟
 chatDeleteConfirm: هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.
@@ -547,8 +382,6 @@ chatDeleteOnlyLocal: حذف من جانبك فقط، لا يزال مرئياً 
 chatDeleteAll: حذف من محادثات الجميع، لا يمكن التراجع
 chatInitFailed: فشل تهيئة الدردشة
 cameraShootFailed: فشل التقاط الصورة
-avatarSave: حفظ
-avatarDeleteAvatar: حذف الصورة الرمزية
 avatarEditAvatar: تعديل الصورة الرمزية
 backgroundUseCustomColor: استخدام لون مخصص
 backgroundOnlySolidColor: ينطبق على الخلفية الصلبة فقط
@@ -557,38 +390,17 @@ profileShareProfile: مشاركة الملف الشخصي
 tagClearAllConfirm: هل أنت متأكد من مسح جميع العلامات؟
 tagClearAll: تأكيد المسح
 audioPlayFailed: فشل التشغيل
-videoFileNotFound: ملف الإدخال غير موجود
-videoCompressFailed: فشل الضغط، النتيجة المرتجعة فارغة
-videoFurtherCompressFailed: فشل الضغط الإضافي
 forcedOfflineByDevice: تم تسجيل الخروج إجبارياً من الجهاز 【$device】
-searchDescription: البرامج المصغرة والحسابات الرسمية والمقالات ولحظات والرموز التعبيرية وغيرها
-testDirectNavigation: اختبار الانتقال المباشر
-tagNameTooLong: اسم العلامة لا يمكن أن يتجاوز 14 حرفاً
-tagNameNoComma: اسم العلامة لا يمكن أن يحتوي على فاصلة
-tagNameNoLeadingTrailingSpaces: اسم العلامة لا يمكن أن يحتوي على مسافات بادئة أو لاحقة
-tagNameNoSpecialChars: اسم العلامة لا يمكن أن يحتوي على أحرف خاصة
-commonTags: علامات شائعة
 loadingTagDataFailed: فشل تحميل بيانات العلامات
 pleaseEnterContent: يرجى إدخال المحتوى
 comingSoon: قريباً
-chatBackground: خلفية الدردشة
-useSystemDefaultBackground: استخدام الخلفية الافتراضية للنظام
-selectCustomBackgroundImage: اختيار صورة خلفية مخصصة
-currentBackground: الخلفية الحالية
 backgroundTransparency: شفافية الخلفية
 defaultBackground: الخلفية الافتراضية
 solidColorBackground: خلفية صلبة
 selectImageFailed: فشل اختيار الصورة
-takePhotoFailed: فشل التقاط الصورة
-selectVideoFailed: فشل اختيار الفيديو
-recordVideoFailed: فشل تسجيل الفيديو
-selectFileFailed: فشل اختيار الملف
 locationSelectNotImplemented: ميزة اختيار الموقع غير متاحة بعد
 selectLocationFailed: فشل اختيار الموقع
 sendCardNotImplemented: ميزة إرسال بطاقة العمل غير متاحة بعد
-sendCardFailed: فشل إرسال بطاقة العمل
-uploadResponseInvalid: بيانات استجابة الرفع غير صالحة
-voiceSendSuccess: تم إرسال الصوت بنجاح
 voiceSendFailed: فشل إرسال الصوت
 featureNotImplemented: الميزة غير متاحة بعد
 sendCollectionNotImplemented: ميزة إرسال المفضلة غير متاحة بعد
@@ -601,11 +413,8 @@ localDeleteFailed: فشل الحذف المحلي
 revokeSuccess: نجح السحب
 editContentCannotBeEmpty: لا يمكن أن يكون محتوى التعديل فارغاً
 editSuccess: نجح التعديل
-messageNotFound: لم يتم العثور على الرسالة
-conversationNotFound: لم يتم العثور على المحادثة
 enabled: مُمكَّن
 disabled: مُعطّل
-configureVisibleThreshold: تكوين عتبة الرؤية
 fontSizeSettingUpdated: تم تحديث إعدادات حجم الخط
 fontSizeSetting: إعدادات حجم الخط
 fontTooSmallMayAffect: الخط صغير جداً، قد يؤثر على القراءة
@@ -621,38 +430,24 @@ pleaseEnterVerificationMessage: يرجى إدخال رسالة التحقق
 unknownRegion: منطقة غير معروفة
 noCommonGroups: لا توجد مجموعات مشتركة
 noMoreInfo: لا توجد معلومات إضافية
-userNotSetSignature: لم يقم هذا المستخدم بتعيين توقيع شخصي أو تفاصيل أخرى
 verificationMessage: رسالة التحقق
 burnEnabledMessage: 'عند التمكين: تُدمّر الرسالة تلقائياً بعد قراءتها $duration'
 burnDisabledMessage: 'عند التعطيل: لن تُدمّر الرسالة تلقائياً'
-visibleEnabledMessage: 'عند التمكين: نسبة الرؤية ≥ $percentage%، المدة ≥ $delayms'
-visibleDisabledMessage: 'عند التعطيل: لن يتم القراءة تلقائياً بناءً على الرؤية'
-visibleThresholdInfo: 'نسبة الرؤية: $percentage% | التأخير: $delayms'
 noGroupAnnouncement: لا يوجد إعلان مجموعة
-announcementContentCannotBeEmpty: لا يمكن أن يكون محتوى الإعلان فارغاً
-announcementPublishSuccess: تم نشر الإعلان بنجاح
-tips: تلميح
 featureComingSoon: الميزة قادمة قريباً
 understood: فهمت
 noProblem: لا مشكلة
 onMyWay: قادم الآن
-sendOfflineCommand: إيقاف الاتصال إجبارياً
-offlineCommandSent: تم إرسال أمر إيقاف الاتصال
 operationOptions: خيارات العملية
 copyTextContent: نسخ محتوى النص
 shareWithOtherFriends: مشاركة مع أصدقاء آخرين
 addTagsToFavorites: إضافة علامات للمفضلة
 addRemarkToFavorites: إضافة ملاحظة للمفضلة
 deleteThisCollection: حذف هذه المفضلة
-pullUpLoadMore: اسحب للأعلى لتحميل المزيد
 changeSuccess: نجح التعديل
-loginPasswordUpdated: تم تحديث كلمة مرور تسجيل الدخول
 lengthOk: الطول صحيح
 confirmNewPassword: تأكيد كلمة المرور الجديدة
 validationPassed: نجح التحقق
-changeFailed: فشل التعديل
-submitted: تم الإرسال
-viewSecurityHelp: عرض مساعدة الأمان
 momentsNoData: لا توجد منشورات
 momentsDeleteConfirm: حذف هذا المنشور؟
 momentsDeleteCommentConfirm: حذف هذا التعليق؟
@@ -660,11 +455,7 @@ momentsNotFound: المنشور غير موجود أو لا يمكن عرضه
 momentsContentOrMediaRequired: أدخل نصاً أو أضف وسائط
 momentsPublishFailed: تعذّر النشر
 momentsAllowComment: السماح بالتعليقات
-momentsReportReason: سبب الإبلاغ
 momentsNoComments: لا تعليقات
-momentsContentHint: شارك شيئاً...
-momentsAddMedia: إضافة وسائط
-momentsAllowUidsLabel: قائمة UID المسموح لهم (مفصولة بفواصل)
 momentsCommentFailed: تعذّر إضافة التعليق، حاول لاحقاً
 momentsDeleteFailed: تعذّر الحذف، حاول لاحقاً
 momentsReportSubmitted: تم إرسال الإبلاغ
@@ -678,37 +469,18 @@ momentReportReasonOther: "أخرى"
 momentReportReasonPrompt: "اختر السبب"
 momentsLoadMoreComments: المزيد من التعليقات
 momentsUploadFailed: تعذّر رفع الوسائط، حاول لاحقاً
-transactionHistory: سجل المعاملات
-paymentPasswordSetSuccess: نجح تعيين كلمة مرور الدفع
-paymentPasswordSetFailed: فشل تعيين كلمة مرور الدفع
-nextVoiceMessageNotFound: لم يتم العثور على رسالة الصوت التالية
-noNextVoiceMessage: لا توجد رسالة صوتية تالية لتشغيلها
-nextVoiceMessageNoPath: رسالة الصوت التالية ليس لها مسار ملف صوتي
 saveFailed: فشل الحفظ
-tip: تلميح
 confirm: تأكيد
 success: نجح
 personalDisplay: عرض شخصي
 personalSignature: التوقيع الشخصي
 personalBackground: الخلفية الشخصية
-setBackgroundImage: تعيين صورة الخلفية
 expression: رموز تعبيرية
 extendedInfo: معلومات موسعة
 profession: المهنة
-pleaseEnterProfession: Please enter profession
-functionSettings: إعدادات الوظائف
-shareProfile: مشاركة الملف الشخصي
-shareWithFriends: مشاركة الملف الشخصي مع الأصدقاء
-shareQRCode: Share QR Code
-copyLink: Copy Link
-shareTo: Share To
 shareFailed: Share failed
-exportAsJson: Export as JSON format
 exportSuccessThenCopiedToClipboard: "$param format profile exported and copied to clipboard"
-exportFailed: Export failed
 setRegion: تعيين المنطقة
-avatarUpdateSuccess: نجح تحديث الصورة الرمزية
-avatarUpdateFailed: فشل تحديث الصورة الرمزية
 deleteOperationAbnormal: استثناء في عملية الحذف، يرجى المحاولة مرة أخرى
 revoking: جارٍ السحب...
 editing: جارٍ التعديل...
@@ -729,47 +501,26 @@ editRequestSendComplete: تم إرسال طلب التعديل
 editFailed: فشل التعديل
 editMessageException: استثناء تعديل الرسالة
 editOperationAbnormal: استثناء في عملية التعديل
-uploadAvatarFailed: فشل رفع الصورة الرمزية
 error: خطأ
 cannotOpenWebpage: لا يمكن فتح صفحة الويب
-groupIdCannotBeEmpty: معرف المجموعة لا يمكن أن يكون فارغاً
 selectImageFailedWithError: فشل اختيار الصورة
-uploadAvatarFailedWithError: فشل رفع الصورة الرمزية
-avatarSelectedUploadPending: تم اختيار الصورة الرمزية بنجاح، ميزة الرفع قيد الانتظار
-emailEditFeaturePending: ميزة تعديل البريد الإلكتروني قيد التطوير...
 reactionAdded: تمت إضافة رد فعل
 reactionCancelled: تم إلغاء رد الفعل
 retryFailedPleaseCheckNetwork: فشلت إعادة المحاولة، يرجى التحقق من اتصال الشبكة
 retryAbnormal: استثناء في إعادة المحاولة
 deleteFailedPleaseTryAgain: فشل الحذف، يرجى المحاولة مرة أخرى
 deleteFailedPleaseCheckNetwork: فشل الحذف، يرجى التحقق من اتصال الشبكة
-voiceRecordFailedPleaseTryAgain: فشل تسجيل الصوت، يرجى المحاولة مرة أخرى
-voiceFileNotFoundPleaseTryAgain: ملف الصوت غير موجود، يرجى المحاولة مرة أخرى
-voiceFileCannotReadPleaseTryAgain: لا يمكن قراءة ملف الصوت، يرجى المحاولة مرة أخرى
-voiceFileReadFailedPleaseTryAgain: فشلت قراءة ملف الصوت، يرجى المحاولة مرة أخرى
-voiceProcessingAbnormal: استثناء في معالجة الصوت
-voiceUploadFailedPleaseCheckNetwork: فشل رفع الصوت، يرجى التحقق من اتصال الشبكة
-voiceSendAbnormal: استثناء في إرسال الصوت
-voiceDuration: مدة الصوت
-playbackFailed: فشل التشغيل
-revokeOperationAbnormalPleaseTryAgain: استثناء في عملية السحب، يرجى المحاولة مرة أخرى
-collectionFailedPleaseTryAgain: فشل الإضافة إلى المفضلة، يرجى المحاولة مرة أخرى
-reactionSent: تم إرسال رد الفعل
 seconds: ثانية
-messageCannotLocatedMayBeDeleted: لم يمكن تحديد موقع الرسالة، ربما تم حذفها
 settingFailedPleaseTryAgain: فشل التعيين، يرجى المحاولة مرة أخرى
 partialDeleteSuccess: 'نجح الحذف الجزئي: $success نجح، $fail فشل'
-collectedVideoFormatIncorrectCannotFindVideoUri: تنسيق رسالة الفيديو المفضلة غير صحيح، لا يمكن العثور على video uri
 recordingCancelled: تم إلغاء التسجيل
 pullOfflineMessagesFailed: فشل سحب الرسائل غير المتصلة
 pullOfflineMessagesAbnormal: استثناء سحب الرسائل غير المتصلة
 logoutRequestFailedPleaseCheckNetwork: فشل طلب تسجيل الخروج، يرجى التحقق من اتصال الشبكة
 permissionOnlySupportAndroidAndIos: Permission يدعم Android و IOS فقط
-messageSendFailedPleaseCheckNetwork: فشل إرسال الرسالة، يرجى التحقق من اتصال الشبكة
 retryingSend: جارٍ إعادة الإرسال...
 quickReplyOk: حسناً
 quickReplyOkThanks: حسناً، شكراً
-tagInspiration: إلهام
 noDetailedInfo: لم يقم هذا المستخدم بتعيين توقيع شخصي أو تفاصيل أخرى
 noNewRegisteredUsers: لا يوجد مستخدمون جدد مسجلون حالياً يرجى العودة لاحقاً للعرض
 newRegisteredUsersTip: يعرض هذا المستخدمون المسجلون مؤخراً، يمكنك إضافتهم كأصدقاء بنشاط
@@ -786,13 +537,10 @@ lastSeenMinutesAgo: "@:common.timeMinutesAgo"
 lastSeenHoursAgo: "@:common.timeHoursAgo"
 lastSeenDaysAgo: "@:common.timeDaysAgo"
 fontSettings: "@:common.fontSizeSetting"
-failed: "@:common.error"
-lazyUserNoSignature: لا يوجد توقيع شخصي بعد
 noFavoritesYet: لا توجد مفضلات بعد، اذهب لإضافة بعض الرسائل المثيرة للاهتمام إلى المفضلة
 fontPreviewText: هذا محتوى النص الرئيسي، يمكنك هنا رؤية تأثير أحجام الخطوط المختلفة.
 smaller: أصغر
 currentFontScale: 'الحالي: $param1 $param2%'
-emailUpdatedTo: تم تحديث البريد الإلكتروني إلى $param
 groupAnnouncementExpiry(time): 'صالح حتى: $time'
 groupAlbumCreateFailed: تعذّر الإنشاء، حاول لاحقاً
 groupAlbumDeleteTitle: حذف ألبوم المجموعة
@@ -842,7 +590,6 @@ rechargeSuccess: تم الشحن
 rechargeConfirm: تأكيد الشحن
 transactionHistory2: سجل العمليات
 noTransactionHistory: لا توجد عمليات
-allLoaded: "— تم تحميل الكل —"
 transactionTypeIncome: شحن
 transactionTypeExpense: مصروفات
 sectionLoginCredentials: بيانات الدخول
@@ -870,7 +617,6 @@ orderDetailLoadFailed: تعذّر تحميل الطلب
 orderNoLabel(no): 'رقم الطلب: $no'
 orderStatusCancelled: ملغى
 orderStatusUnknown: غير معروف
-removeReaction: إزالة التفاعل
 removeReactionConfirm(emoji): إزالة تفاعل $emoji؟
 fileOpenFailed: تعذّر فتح هذا الملف
 e2eeLocalBackup: نسخة محلية احتياطية
@@ -889,8 +635,6 @@ e2eeExportBackup: تصدير النسخة
 e2eeExportBackupDesc: إنشاء نسخة احتياطية مشفّرة
 e2eeImportBackup: استيراد النسخة
 e2eeImportBackupDesc: استعادة المفتاح من نسخة احتياطية
-e2eeBackupManage: إدارة النسخ
-e2eeBackupManageDesc: عرض سجل النسخ الاحتياطية
 e2eeGenerateKeyConfirm: إنشاء زوج مفاتيح E2EE جديد؟
 e2eeWarnOldMessagesLost: "• لن يمكن فك الرسائل القديمة"
 e2eeWarnNeedNewBackup: "• ستحتاج إلى إنشاء نسخة احتياطية جديدة"
@@ -911,15 +655,7 @@ e2eeKeyGenerateFailed: تعذّر إنشاء المفتاح، أعد المحا�
 e2eeKeyDeleted: تم حذف المفتاح
 e2eeDeleteFailed: تعذّر الحذف، أعد المحاولة
 e2eeShardAvailableInfo(available, required): 'الشظايا المتاحة: $available، يلزم $required وكيلاً'
-e2eeNoRecoveryShards: لا توجد شظايا استعادة متاحة
-e2eeRecoverSuccess: تمت الاستعادة
-e2eeRecoverFailed: تعذّرت الاستعادة
-e2eeRecoverKeyFailed: تعذّرت استعادة المفتاح، أعد المحاولة
-e2eeLoadingShards: جارٍ تحميل الشظايا...
-e2eeNoShards: لا توجد شظايا متاحة
-e2eeLoadFailed: تعذّر التحميل، أعد المحاولة
 e2eeContactingProxy(name): 'جارٍ التواصل مع: $name'
-e2eeRecoveryFailed: تعذّرت الاستعادة، أعد المحاولة
 webFeatureNotification: إشعارات سطح المكتب
 webFeatureNotificationDesc: تصلك تنبيهات الرسائل الجديدة حتى مع إغلاق الصفحة
 webQRConfirmOnPhone: أكّد الدخول على هاتفك
@@ -990,19 +726,9 @@ e2eeBackupErrImportFailed: تعذّر الاستيراد، تحقق من كلم�
 e2eeBackupImportSuccessTitle: تم الاستيراد
 e2eeBackupImportSuccessBody: تمت استعادة مفتاح E2EE!
 e2eeBackupImportSuccessNote: "ملاحظة: تمت استعادة سجل المحادثات الجماعية. لا يمكن استعادة سجل المحادثات الفردية — فوفقًا لتصميم التشفير التام، لا يتم نسخ مفاتيح المحادثات الفردية بين الأجهزة"
-e2eeBackupNoRecords: لا توجد نسخ احتياطية
-e2eeBackupNoRecordsHint: بعد التصدير سيظهر السجل هنا
 e2eeBackupDeviceLabel(id): جهاز $id
 e2eeBackupCreatedAtLabel(time): أُنشئ $time
-e2eeBackupDetailTitle: تفاصيل النسخة
-e2eeBackupDeviceIdLabel: معرّف الجهاز
-e2eeBackupVersionNum: إصدار النسخة
 e2eeBackupCreatedAtRow: تاريخ الإنشاء
-e2eeBackupFileSizeRow: حجم الملف
-e2eeBackupNoteRow: ملاحظة
-e2eeBackupDeleteTitle: حذف سجل النسخة
-e2eeBackupDeleteConfirm: حذف سجل النسخة هذا؟
-e2eeBackupDeleteSuccess: تم حذف السجل
 e2eeBackupCloudUploadBtn: النسخ الاحتياطي إلى السحابة
 e2eeBackupCloudUploadSuccess(version): تم النسخ إلى السحابة (الإصدار $version)
 e2eeBackupErrCloudUploadFailed: فشل النسخ السحابي، يرجى المحاولة مرة أخرى
@@ -1027,62 +753,21 @@ e2eeBackupErrUrlTls: فشل الاتصال الآمن، تعذر التحقق م
 e2eeBackupErrUrlHttp: أرجع الخادم خطأ
 e2eeBackupErrUrlEmpty: أرجع الخادم محتوى فارغًا
 e2eeBackupErrUrlTooLarge: الملف كبير جدًا (يتجاوز حد 10 ميجابايت)
-e2eeBackupOpenFromExternal: تم استلام ملف نسخة احتياطية خارجي، جارٍ التحقق…
-e2eeBackupErrOpenExternal: تعذرت قراءة هذا الملف، استخدم «الاستيراد من رابط» أو «تحديد ملف»
-e2eeSocialShardSettings: إعدادات الشظايا
-e2eeSocialShardStoredNote: تُخزَّن الشظايا على أجهزة الوكلاء، ولا يحفظ الخادم أي شظية
-e2eeSocialAddProxy: إضافة وكيل
-e2eeSocialAddProxyHint: أضف جهات اتصال كوكلاء
 e2eeSocialCreateNeedMore(count): أضف $count وكلاء آخرين
-e2eeSocialCreateSuccessTitle: تم إنشاء الشظايا
 e2eeSocialTotalShardsInfo(count): قُسّم المفتاح إلى $count شظايا
 e2eeSocialThresholdInfo(count): يكفي $count وكيل للاستعادة
-e2eeSocialZeroTrustNote: 'بنية الثقة الصفرية: لا يحفظ الخادم أي شظية'
-e2eeSocialNoShards: لم تنشئ أي شظايا استعادة بعد
-e2eeSocialNoProxyShards: لا توجد شظايا وكلاء
-e2eeSocialKeyVersionLabel: إصدار المفتاح
-e2eeTransferErrNoKey: أنشئ زوج مفاتيح أولاً
-e2eeTransferErrInitFailed: فشل التهيئة، أعد المحاولة
-e2eeTransferErrNoRecipientKey: لا يملك المستلم مفتاحاً عاماً متاحاً
-e2eeTransferErrKeyNotFound: المفتاح غير موجود
-e2eeTransferErrCreateFailed: تعذّر إنشاء جلسة النقل، أعد المحاولة
-e2eeTransferCreateSessionBtn: إنشاء جلسة نقل
-e2eeTransferSessionCreated: تم إنشاء جلسة النقل
-e2eeTransferUidEmptyError: أدخل معرّف مستخدم صالحاً
-e2eeTransferSuccess: تم النقل!
-e2eeTransferFailed: تعذّر النقل، أعد المحاولة
-e2eeTransferProcessingMsg: جارٍ المعالجة...
-e2eeTransferSuccessTitle: تم النقل
-e2eeTransferSuccessBody: تم نقل المفتاح إلى هذا الجهاز
 e2eeTransferScanError(error): 'خطأ المسح: $error'
-e2eeTransferErrNoDeviceId: تعذّر الحصول على معرّف الجهاز
 passwordEncryptFailed: تعذّر تشفير كلمة المرور
 initConfigTimeout: 'انتهت مهلة تحميل الإعدادات: تحقق من الشبكة أو حالة الخادم'
 initConfigNetworkError(code): عطل شبكة أو عطل خادم (HTTP $code)
 initConfigProtocolError: خطأ في بروتوكول استجابة الخادم
 initConfigFetchFailed: تعذّر تحميل الإعدادات، تحقق من الشبكة
-attachmentGetFileFailed: تعذّر الحصول على الملف، أعد المحاولة أو اختر من المعرض
-attachmentGetFileFailedAndroid9: فشل الحصول على الملف، قد تكون مشكلة توافق مع Android 9
-attachmentGetImageDataFailed: تعذّر الحصول على بيانات الصورة، أعد المحاولة
-attachmentGetOriginalImageFailed: تعذّر الحصول على الصورة الأصلية
 saveFailedRetry: تعذّر الحفظ، أعد المحاولة
 downloadFileNotFound: ملف التنزيل غير موجود، أعد المحاولة
 downloadHashRetrying(retry, max): فشل التحقق من الملف، إعادة التنزيل ($retry/$max)
 downloadHashFailed: فشل التحقق من الملف عدة مرات، تحقق من الشبكة وأعد المحاولة
-e2eeTransferToNewDevice: نقل إلى جهاز جديد
-e2eeTransferPendingSection: عمليات نقل معلّقة
-e2eeTransferLoadFailed: تعذّر التحميل
-e2eeTransferLoadFailedDesc: تعذّر تحميل عمليات النقل المعلّقة، أعد المحاولة
-e2eeTransferNoPending: لا توجد عمليات نقل معلّقة
-e2eeTransferNoPendingDesc: عند إرسال جهاز مفتاحاً إليك، يظهر هنا
-e2eeSocialEnoughShards: لديك شظايا كافية للاستعادة
 e2eeSocialMoreShards(count): "$count شظايا إضافية..."
-e2eeProxyLoadFriendsFailed: تعذّر تحميل قائمة الأصدقاء، أعد المحاولة
-e2eeProxyNoPublicKey: لا يملك هذا الصديق مفتاحاً عاماً متاحاً
 e2eeProxyGetKeyFailed(name): تعذّر الحصول على المفتاح العام لـ $name
-e2eeProxySelectFailed: تعذّر اختيار الوكلاء، أعد المحاولة
-e2eeProxyNoFriends: لا يوجد أصدقاء
-e2eeProxyNoFriendsHint: أضف أصدقاء أولاً ثم اضبط الوكلاء
 e2eeProxyNeedMore(count, selected): يلزم $count جهة موثوقة على الأقل، محدد $selected
 e2eeProxyConfirmCount(count): تأكيد الاختيار ($count وكيل)
 buttonBackHome: الرئيسية
@@ -1096,22 +781,18 @@ redPacket: مغلف أحمر
 transfer: تحويل
 withdraw: سحب
 redPacketSend: إرسال مغلف
-redPacketOpen: فتح المغلف
 redPacketDetail: تفاصيل المغلف
 transferSend: تحويل أموال
-transferAccept: استلام التحويل
 greetingDefault: كل عام وأنتم بخير وازدهار
 grabAmountYuan(amount): 'المبلغ الملتقط: $amount يوان'
 transferAmountYuan(amount): 'مبلغ التحويل: $amount يوان'
 insufficientBalance: رصيد غير كافٍ
-goToRecharge: اشحن الرصيد
 withdrawSuccess: تم السحب
 withdrawConfirm: تأكيد السحب
 withdrawFeeNotice: تُحدَّد الرسوم ووقت الوصول وفقاً للتسوية الفعلية
 withdrawAmountError: أدخل مبلغاً لا يقل عن 0.01 يوان
 withdrawAccountEmpty: أدخل حساب السحب
 withdrawMethod: طريقة السحب
-withdrawAccount: حساب السحب
 withdrawAmountLabel: مبلغ السحب
 withdrawAlipay: Alipay
 withdrawWechat: WeChat
@@ -1141,3 +822,74 @@ fontSizeOptionHuge: ضخم
 searchFailedRetry: "فشل البحث، يرجى المحاولة مرة أخرى"
 searchDisabledTitle: "بحث الرسائل غير متاح"
 searchDisabledByEncryption: "التشفير التام مُفعّل، لذا لا يستطيع الخادم قراءة رسائلك ولا يتوفر البحث في النص الكامل"
+collectedVideoFormatIncorrectCannotFindVideoUri: "تنسيق الفيديو غير مدعوم، لا يمكن العثور على مقطع الفيديو"
+amountMustPositive: يجب أن يكون المبلغ أكبر من 0
+enterAmount: يرجى إدخال المبلغ
+answer: قبول
+declineCall: رفض
+collapse: طي
+expandFull: توسيع
+minimize: تصغير
+me: أنا
+justNow: "الآن"
+minutesAgo: "دقائق مضت"
+hoursAgo: "ساعات مضت"
+timeDaysShort: "${count}ي"
+timeHoursShort: "${count}س"
+timeMinutesShort: "${count}د"
+timeNowShort: "الآن"
+reconnecting: الشبكة ضعيفة، جارٍ إعادة الاتصال…
+switchCamera: تبديل الكاميرا
+noHistory: لا يوجد سجل
+noNewRegisteredUsersTitle: لا يوجد مستخدمون مسجلون جدد
+payReceiveSuccess: تم استلام المبلغ بنجاح!
+purchaseConfirming: جارٍ تأكيد الدفع، تحقق من حالة الطلب لاحقاً
+uploadPartialFailed: فشل رفع $count عنصراً
+momentsHasFailedUploads: فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر
+f2fEnteringGroup: سيدخل $count أشخاص قريباً إلى الدردشة الجماعية
+f2fSecretCode: الرمز السري
+complianceKeyChangedTitle: تم تغيير مفتاح تدقيق الامتثال
+complianceKeyChangedActionConfirm: تأكيد التدوير
+complianceKeyChangedActionKeep: تأكيد لاحقاً
+complianceKeyChangedBody: المفتاح العام لتدقيق الامتثال الصادر من الخادم لا يطابق القيمة المثبتة محلياً. إذا كان هذا تدويراً مقصوداً للمفتاح من المسؤول، فانقر على «تأكيد التدوير»؛ وإلا فلا تُكمل إرسال الرسائل المشفّرة، واتصل بالمسؤول للتحقق.
+e2eeErrPeerNotOnboarded: لم يسجّل الطرف الآخر الدخول على أي جهاز بعد، فلا يمكن الإرسال المشفّر مؤقتاً؛ انتظر تسجيل دخوله ثم أعد المحاولة
+e2eeRecoveryKeyTitle: مفتاح الاستعادة
+e2eeRecoveryKeyCopiedAutoClear: تم نسخ مفتاح الاستعادة، وسيُمسَح الحافظة تلقائياً بعد $seconds ثانية، يرجى حفظه سريعاً
+e2eeRecoveryKeySaveNote: احفظ مفتاح الاستعادة هذا فوراً (بلقطة شاشة أو في مدير كلمات المرور). عند نسيان عبارة المرور، فهو الدليل الوحيد لفك تشفير النسخة الاحتياطية؛ وإذا فُقد فلن يمكن استعادة النسخة الاحتياطية أبداً.
+e2eeUseRecoveryKey: إنشاء مفتاح استعادة (دليل احتياطي عند نسيان عبارة المرور)
+initConfigDecryptFailed: "فشل فك تشفير الإعدادات: مفتاح الأمان في التطبيق لا يطابق الخادم، يرجى تحديث إصدار التطبيق أو الاتصال بالمسؤول"
+voiceSttConverting: جارٍ التعرف على الصوت...
+voiceSttNotConfigured: ميزة التحويل إلى نص غير مهيأة بعد
+voiceSttPreviewTitle: معاينة تحويل الصوت إلى نص
+redPacketBrand: مغلف IMBoy الأحمر
+redPacketDialogTitle: أرسلنا لك مغلفاً أحمر
+redPacketDialogSubtitle: أطيب التمنيات، وكل عام وأنتم بخير
+redPacketView: عرض المغلف
+redPacketTotalAmount: المبلغ الإجمالي
+redPacketSingleAmount: مبلغ المغلف الواحد
+redPacketCount: عدد المغلفات
+redPacketCountUnit: مغلف
+redPacketCountEmpty: يرجى إدخال عدد المغلفات
+redPacketCountMin: يجب أن يكون عدد المغلفات 1 على الأقل
+redPacketAmountTooSmall: يجب أن يكون المبلغ الإجمالي على الأقل عدد المغلفات × 0.01 يوان
+redPacketGreetingLabel: "رسالة / تهنئة"
+redPacketCurrentLucky: "الوضع الحالي: مغلف الحظ"
+redPacketCurrentNormal: "الوضع الحالي: مغلف عادي"
+redPacketSwitchToLucky: التحويل إلى مغلف حظ
+redPacketSwitchToNormal: التحويل إلى مغلف عادي
+redPacketStuffLucky: إرسال مغلف حظ
+redPacketStuffNormal: إرسال من المحفظة
+redPacketFetchError: خطأ في جلب تفاصيل المغلف
+redPacketFetchFailed: تعذّر جلب تفاصيل المغلف
+redPacketNotFound: المغلف غير موجود أو محذوف
+redPacketReceiverLabel: "المستخدم: $uid"
+transferAmountLabel: مبلغ التحويل
+transferRemarkLabel: ملاحظة التحويل
+transferDefaultRemark: تحويل إلى صديق
+transferConfirm: تأكيد التحويل
+transferMinAmountError: الحد الأدنى لمبلغ التحويل هو 0.01 يوان
+transferPending: في انتظار تأكيد الطرف الآخر
+transferAccepted: تم الاستلام
+transferReceiving: جارٍ استلام المبلغ...
+transferRefunded: تمت الإعادة
+transferTapToReceive: انقر للاستلام

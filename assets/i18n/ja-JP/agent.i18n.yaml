@@ -8,3 +8,6 @@ badgeAi: AI
 badgeOfficial: 公式
 badgeAiA11y: AI アシスタント
 badgeOfficialA11y: 公式アカウント
+# --- 旧ボット入口の移行案内 ---
+legacyBotGoPlaza: AI アシスタント広場へ
+legacyBotMigrated: このボットの入口はアップグレードされました。AI アシスタント広場でアシスタントと会話してください

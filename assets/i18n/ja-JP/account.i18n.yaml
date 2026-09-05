@@ -1,7 +1,6 @@
 ---
 account: アカウント
 accountSecurity: アカウントのセキュリティ
-mobileRecharge: 携帯電話チャージ
 avatar: プロフィール写真
 accountSecurityEnhance: アカウントのセキュリティを強化
 bindMobile: 携帯電話番号を登録
@@ -17,10 +16,8 @@ deviceName: デバイス名
 deviceType: デバイスタイプ
 deviceUsedSpace: デバイスの使用容量
 email: メールアドレス
-existingPassword: 現在のパスワード
 forgotPassword: パスワードをお忘れですか？
 gender: 性別
-genderSaving: 保存しています…
 groupQrcode: グループQRコード
 hintLoginAccount: アカウント/メールアドレス
 logOut: ログアウト
@@ -36,33 +33,20 @@ myQrcode: マイQRコード
 newPassword: 新しいパスワード
 newlyRegisteredPeople: 新規登録ユーザー
 nickname: ニックネーム
-nicknameChangeVisibility: ニックネームを変更すると、このグループ内でのみ表示されます。グループメンバー全員が見ることができます。
-nicknameCharsRemaining: あと$param文字入力できます
 nicknameHint: ニックネームを入力してください
-nicknameSaving: 保存しています…
-paramLogin: "$paramでログイン"
 password: パスワード
-recentlyRegisteredUser: 最近登録したユーザー
-recoverCodePasswordDesc: パスワード回復コードをあなたのメールアドレスに送信します。
 recoverPassword: パスワードを再設定
-recoverPasswordDesc: メールアドレスを入力してください。パスワード再設定コードを送信します。
-recoverPasswordIntro: 気にしないでください。よくあることです。
 birthday: 誕生日
 region: 地域
 retypePassword: パスワードを再入力
 scanQrCode: QRコードをスキャン
-securityCenter: セキュリティセンター
 setNickname: ニックネームを設定
 signature: ステータスメッセージ
 signup: 登録
-signupFormDesc: 登録を完了するためにこのフォームに記入してください
 sourceQrcode: スキャンして追加
-switchAccount: アカウントを切り替え
 changeEmail: メールアドレスを変更
 bindEmail: メールアドレスを登録
 currentEmail: 現在のメールアドレス
-newEmailSameAsCurrent: 新しいメールアドレスが現在の登録と同じです
-newMobileSameAsCurrent: 新しい携帯電話番号が現在の登録と同じです
 setPassword: パスワードを設定
 setLoginPassword: ログインパスワードを設定
 enhanceAccountSecurity: アカウントのセキュリティを強化
@@ -73,11 +57,9 @@ changeMobile: 携帯電話番号を変更
 currentMobile: 現在の携帯電話番号
 newMobile: 新しい携帯電話番号
 enterMobileHint: 携帯電話番号を入力してください
-codeSentToMobileParam: "$paramに送信しました"
 privacyLogoutAccount: アカウントを削除
 wallet: ウォレット
 changeLoginPassword: ログインパスワードを変更
-loginExpiredTitle: 通知
 otherDevice: 他のデバイス
 loginPassword: ログインパスワード
 loginPasswordDesc: IMBoyアカウントのログインに使用されます
@@ -85,17 +67,10 @@ oldPassword: 古いパスワード
 enterOldPassword: 古いパスワードを入力してください
 enterNewPassword: 新しいパスワードを入力してください
 enterNewPasswordAgain: 新しいパスワードを再度入力してください
-balance: 残高
-recharge: チャージ
-withdraw: 出金
-paymentPassword: 支払いパスワード
-setPaymentPassword: 支払いパスワードを設定
-enterPaymentPassword: 支払いパスワードを入力してください
 myQRCode: マイQRコード
 profile: Profile
 setGender: 性別を設定
 setBirthday: 誕生日を設定
-sentToEmail: "$paramに送信しました"
 nicknameRules: "• ニックネームの長さ：2〜24文字 • 空白または絵文字のみにすることはできません • 敏感な単語を含めることはできません • 変更はすべてのチャットに反映されます"
 refreshDeviceKey: デバイスキーを更新
 refreshDeviceKeyHint: メッセージを復号できない場合は、このボタンでキーを更新してください
@@ -104,8 +79,6 @@ deviceKeyRefreshed: デバイスキーを更新しました
 rechargeTitle: チャージ
 rechargeAmountHint: チャージ金額を入力（元）。0.01元〜10000元
 rechargeAmountExample: 例：100
-e2eeDeviceTransfer: デバイス間転送
-e2eeDeviceTransferDesc: QRコードで新しいデバイスにキーを転送します
 e2eeDeviceIdLabel: デバイス ID
 webQRLoginTitle: QRコードでログイン
 webQRLoginHint: ImBoyスマートフォン版でQRコードをスキャン
@@ -113,7 +86,6 @@ webSwitchToPassword: アカウントとパスワードでログイン
 webPasswordLoginTitle: アカウントログイン
 webAccountHint: アカウント/電話番号/メールアドレスを入力
 webPasswordHint: パスワードを入力
-e2eeTransferFromOldDevice: 古いデバイスからキーを受信
 pleaseRelogin: 再度ログインしてください
 otherLoginMethods: "その他のログイン方法"
 # --- 支払い（Alipayシミュレーター / 支払い方法） ---
@@ -124,7 +96,6 @@ alipaySim:
   energy: 支払いが成功するとグリーンエネルギー5gを獲得できます
   enterPassword: 支払いパスワードを入力してください
   huabei: フーベイ分割払い
-  merchantSuccess: ストアアプリで支払いが完了しました
   paymentAmount: "金額："
   selectMethod: 支払い方法を選択
   storeName: 情報テクノロジー旗艦店

@@ -2,14 +2,9 @@
 title: Categorie di gruppo
 createCategory: Crea categoria
 categoryName: Nome categoria
-categoryDesc: Descrizione (facoltativo)
 noCategory: Nessuna categoria
-createFirst: Crea la prima categoria
-addGroup: Aggiungi gruppo alla categoria
-removeGroup: Rimuovi dalla categoria
 deleteCategory: Elimina categoria
 deleteCategoryConfirm: Eliminare questa categoria ? I gruppi saranno mantenuti.
-categoryCreated: Categoria creata
 categoryDeleted: Categoria eliminata
 renameCategory: Rinomina categoria
 categoryRenamed: Categoria rinominata

@@ -1,6 +1,5 @@
 ---
 restartRequired: App-Neustart erforderlich
-networkFailureGuidance: Netzwerkfehler-Anleitung
 pleaseCheckNetwork: Bitte überprüfen Sie Ihre Netzwerkeinstellungen.
 networkTroubleshootingStep1: 1. Telefoneinstellungen öffnen, WLAN eingeschaltet lassen.
 networkTroubleshootingStep2: 2. Einstellungen - Allgemein - Mobilfunkdaten, Schalter eingeschaltet lassen.

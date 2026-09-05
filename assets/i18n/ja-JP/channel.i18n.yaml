@@ -3,21 +3,16 @@ composeLeaveImagesLost: 選択した画像は保存されません。移動し�
 title: チャンネル
 loading: 読み込み中...
 subscribed: 購読済み
-managed: 管理中
+managed: 運営中
 writeArticle: 投稿を書く
 discover: チャンネルを探す
-search: チャンネル検索
 create: チャンネル作成
 searchHint: チャンネル名またはIDを検索
-searchTip: キーワードを入力してチャンネルを検索
 noResults: チャンネルが見つかりません
 noRecommendedChannels: おすすめチャンネルはありません また後でチェックしてください
 noSubscribedChannels: 購読中のチャンネルはありません もっとチャンネルを見つけましょう
 noManagedChannels: 管理中のチャンネルはありません チャンネルを作成して始めましょう
-noMessages: メッセージはありません
 subscribers: 購読者
-pinned: ピン留め
-view: 表示
 subscribe: 購読
 subscribeSuccess: 購読しました
 subscribeFailed: 購読に失敗しました
@@ -37,7 +32,6 @@ customIdHint: 例：my_channel
 customIdHelper: IDでチャンネルを検索できるようになります
 customIdInvalid: 英数字とアンダースコアのみ使用可能
 customIdLength: 4〜30文字で入力してください
-typeLabel: チャンネルタイプ
 typePublic: 公開
 typePrivate: 非公開
 typePublicDesc: 誰でもチャンネルを見つけて購読できます
@@ -48,22 +42,13 @@ yesterday: 昨日
 daysAgo: 日前
 messages: メッセージ
 views: 閲覧
-reactions: リアクション
-selectReaction: リアクションを選択
-react: リアクション
-admin: 管理
-settings: 設定
 editChannel: チャンネルを編集
-editChannelDesc: チャンネル名、説明などを更新
 editChannelNotImplemented: チャンネル編集機能は近日公開
 manageAdmins: 管理者を管理
-manageAdminsDesc: チャンネル管理者を追加・削除
 manageAdminsNotImplemented: 管理者管理機能は近日公開
 manageSubscribers: 購読者を管理
-manageSubscribersDesc: チャンネル購読者を表示・管理
 manageSubscribersNotImplemented: 購読者管理機能は近日公開
 deleteChannel: チャンネルを削除
-deleteChannelDesc: この操作は取り消せません
 deleteChannelConfirm: このチャンネルを削除してもよろしいですか？この操作は取り消せません。
 deleteChannelNotImplemented: チャンネル削除機能は近日公開
 channelDeleted: チャンネルを削除しました
@@ -89,8 +74,6 @@ removeAdminFailed: 管理者の削除に失敗しました
 changeRole: 役割を変更
 updateRoleSuccess: 役割を更新しました
 updateRoleFailed: 役割の更新に失敗しました
-userId: ユーザーID
-userIdHint: ユーザーIDを入力
 selectFromContacts: 連絡先から選択
 searchContactsHint: ニックネームまたはアカウントを検索
 noContactsToAdd: すべての友達がすでに管理者です
@@ -101,7 +84,6 @@ roleAdmin: 管理者
 roleAdminDesc: チャンネルを管理可能
 roleEditor: 編集者
 roleEditorDesc: メッセージを投稿可能
-roleUnknown: 不明
 searchSubscribers: 購読者を検索
 subscriberSearchHint: ニックネームまたはIDで検索
 noSearchResults: 一致する購読者が見つかりません
@@ -143,5 +125,69 @@ visibilityLabel: "公開範囲"
 accessTypeLabel: "有料設定"
 accessTypeFree: "無料"
 accessTypePaid: "有料"
-typePublicPaidDesc: "誰でもチャンネルを見つけられ、購入後に登録できます"
-typePrivatePaidDesc: "招待されたユーザーのみ購入フローに進み、支払い後に登録できます"
+typePublicPaidDesc: "誰でもチャンネルを見つけられ、購入後に購読できます"
+typePrivatePaidDesc: "招待されたユーザーのみ購入フローに進み、支払い後に購読できます"
+# --- 画像 / 投稿フォーマット ---
+addImage: 画像を追加
+allCategories: すべて
+articleBodyHint: 何か書いてみましょう…太字、斜体、見出し、リストなどの書式に対応
+formatBold: 太字
+formatHeading: 見出し
+formatItalic: イタリック
+formatLink: リンク
+formatList: リスト
+formatQuote: 引用文
+formatStrikethrough: 取り消し線
+linkTextPlaceholder: リンク文字
+preview: プレビュー
+publish: 公開
+titleOptional: タイトル（任意）
+readFull: 全文を読む
+# --- コメント ---
+comment: コメント
+writeComment: コメントを書く...
+noComments: コメントはまだありません
+commentFailed: コメントの送信に失敗しました
+commentDeleteNoPermission: このコメントを削除する権限がありません
+deleteComment: コメントを削除
+deleteCommentConfirm: このコメントを削除しますか？
+reply: 返信
+replyTo: 返信先
+like: いいね
+# --- 注文 / 決済 ---
+myOrders: 注文履歴
+noOrders: 注文記録はありません
+cancelOrder: 注文をキャンセル
+cancelOrderConfirmTitle: 注文キャンセルの確認
+cancelOrderConfirmMessage: この未払いの注文をキャンセルしますか？キャンセル後は支払いを続けられません。
+cancelOrderSuccess: 注文をキャンセルしました
+orderAmount: 金額
+orderChannel: チャンネル
+orderContinuePay: 支払いを続ける
+orderCreatedAt: 注文日時
+orderDetail: 注文詳細
+orderNo: 注文番号
+orderPaidAt: 支払い日時
+orderPaymentMethod: 支払い方法
+orderStatusCancelled: キャンセル済み
+orderStatusExpired: 期限切れ
+orderStatusLabel: ステータス
+orderStatusPaid: 支払い済み
+orderStatusPending: 未払い
+orderStatusRefunded: 返金済み
+orderStatusRefunding: 返金処理中
+orderSubscriptionPeriod: 購読期間
+orderValidUntil: 有効期限
+payAlipay: Alipay
+payWallet: ウォレット残高
+payWechat: WeChat Pay
+refundApply: 返金を申請
+refundConfirmTitle: 返金の確認
+refundConfirmMessage: この注文に返金を申請しますか？返金後は購読が解除されます。
+refundSuccess: 返金申請を送信しました
+# --- その他 ---
+channelNotFound: チャンネルが存在しません
+coverLabel: 表紙
+coverSet: 表紙に設定しました
+sortNewest: 新着
+sortPopular: 人気

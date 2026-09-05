@@ -1,11 +1,4 @@
 ---
-change: Modifica
-entertainment: Cinema e spettacoli
-lifePayment: Pagamento bollette
-medicalHealth: Salute
-meituanDelivery: Consegna Meituan
-tencentService: Servizi Tencent
-traffic: Trasporti
 totalAssets: Attivi totali
 album: Foto
 appSize: Dimensione app
@@ -17,36 +10,26 @@ liveRoomWhipLabel: URL di trasmissione WHIP
 liveRoomWhepLabel: URL di ricezione WHEP
 cache: Cache
 camera: Fotocamera
-changeNameView: Schermata modifica nome
 changeParam: Modifica $param
 chooseFromAlbum: Scegli dalla galleria
 clean: Pulisci
 codeSentToParam: Codice di verifica inviato a $param
-codeSentToType: Codice di verifica inviato a $param
 collected: Raccolto
 completed: Completato
 copied: Copiato
 darkModel: Modalità scura
 deDd: Tedesco (Germania)
 disable: Disabilita
-earlier: Prima
-enGb: Inglese (Regno Unito)
 enUs: Inglese (Stati Uniti)
 enable: Abilita
-example: 'Es:'
 expired: Scaduto
-extraItem: Elemento aggiuntivo
-faceToFaceLogic: Logica faccia a faccia
 favorites: Preferiti
 female: Donna
 followSystem: Segui sistema
 frFr: Francese (Francia)
 from: Da
-goClean: Vai a pulire
 good: Ottimo
 hangup: Riaggancia
-haveSet: Impostato
-httpParse: Analisi HTTP
 iAm: Io sono
 itIt: Italiano (Italia)
 jaJp: Giapponese (Giappone)
@@ -57,24 +40,13 @@ lastSeenNever: Mai online
 lastSeenWeeksAgo: Online $param settimane fa
 lastSeenExactTime: Online l'ultima volta $param
 licenseAgreement: "«Accordo di licenza software e servizi»"
-liveBroadcast: Live streaming
-liveRoomListView: Vista stanza live
-publisherPage: Pagina streaming
-subscriber: Iscritto
-loggingOut: Disconnessione in corso...
 loudspeaker: Altoparlante
 makeYourselfInvisible: Renditi invisibile
 makeYourselfVisible: Renditi visibile
 male: Uomo
 manage: Gestisci
-markImportant: Importante
-markImportantDesc: Segna come messaggio importante
 markStar: Preferito
-markStarDesc: Aggiungi questo messaggio ai preferiti
-markTodo: Da fare
-markTodoDesc: Segna come attività
 multiSelect: Selezione multipla
-multiSelectMode: Modalità selezione multipla
 myFavorites: I miei preferiti
 myLive: Il mio live
 name: Nome
@@ -87,14 +59,10 @@ peerHasHungUp: L'altra parte ha riagganciato
 play: Riproduci
 pleaseInputParam: Inserisci $param
 pleaseSelect: Seleziona
-quickFilters: Filtri rapidi
 quote: Cita
 recentlyUsed: Usato di recente
 releaseEnd: Rilascia per finire
-remainingChars: Puoi inserire ancora $param caratteri
-kickMember: Remove from Group
 memberDetail: Member Details
-memberRole: Role
 replied: Risposto
 ringing: Sta squillando...
 ruRu: Russo (Russia)
@@ -102,35 +70,24 @@ selectedCount: Selezionato ($count)
 selected: Selezionato
 sent: Inviato
 sentByMe: Inviato da me
-sentByOthers: Inviato da altri
 setParam: Imposta $param
 setting: Impostazioni
 siginQ: Hai già un account?
-signInWith: Accedi con $param
 source: Fonte
 speakingTooShort: Messaggio vocale troppo breve
 speed: Velocità
-star: "@:main.markStar"
 stillNeeded: Ancora necessario
 storageSpace: Spazio di archiviazione
-termOfServices: Termini di servizio
 text: Testo
 thisWeek: Questa settimana
-timeRange: Intervallo di tempo
-timeWeekdays: Lunedì,Martedì,Mercoledì,Giovedì,Venerdì,Sabato,Domenica
 titleMine: Io
-titleSquare: Esplora
 tooBad: Troppo brutto
 tryAgainQ: Vuoi riprovare?
 type: Tipo
 unanswered: Senza risposta
 unnamed: Senza nome
-upToWords: Al massimo $param caratteri
-upgrade: Aggiorna
 usedSpace: Spazio utilizzato
-webView: Vista web
 you: Tu
-yourFeel: Come ti fa sentire?
 zhCn: Cinese semplificato
 zhHant: Cinese tradizionale
 bound: Collegato
@@ -139,20 +96,14 @@ pendingInput: In attesa di input
 lengthCheck: Controllo lunghezza
 bugReport: Segnalazione errore
 deleting: Eliminazione in corso...
-current: Attuale
 publish: Pubblica
 privacyPolicy: Informativa sulla privacy
 termsOfService: Termini di servizio
 saving: "@:common.loading"
-topStories: Storie principali
 systemDefault: Predefinito di sistema
-custom: Personalizzato
-previewArea: Area anteprima
-simpleTexture: Texture semplice
 gradientBlue: Blu sfumato
 gradientPurple: Viola sfumato
 copiedToClipboard: Copiato negli appunti
-copiedLink: Link copiato
 destroyTime: Tempo di distruzione
 previewEffect: Effetto anteprima
 thisIsTitleText: Questo è testo titolo
@@ -160,18 +111,9 @@ thisIsAuxiliaryText: Questo è testo ausiliario
 toBeCompleted: Da completare
 availableCount: Disponibile
 mostUsed: Più usati
-commentPlaceholder: Commento...
-delayMsLabel: Ritardo in ms (>=100)
-processed: Elaborato
-export: Esporta
 school: Scuola
 hobbiesAndInterests: Hobby & Interessi
 interests: Interests
-pleaseEnterSchool: Please enter school
-pleaseEnterInterests: Please enter interests
-manageVisibility: Gestisci visibilità delle info personali
-exportToLocal: Esporta profilo localmente
-exportAsText: Export as text format
 selectFromAlbum: Seleziona dalla galleria
 volumeUp: Volume su
 volumeDown: Volume giù
@@ -179,18 +121,11 @@ fastRewind: Indietro veloce $seconds secondi
 pleaseTryAgain: Riprova
 secret: Segreto
 takePhoto: Scatta foto
-publishing: Pubblicazione...
 deletingInProgressPleaseWait: Eliminazione in corso, attendere...
-testUser1: Utente 1
-testUser2: Utente 2
-testUser3: Utente 3
-testUser4: Utente 4
-testUser5: Utente 5
 collecting: Raccolta in corso...
 user: Utente
 recommended: Consigliato
 larger: Più grande
-currentLength: 'Lunghezza attuale: $param1 / $param2'
 fillIn: Compila
 msgProtectedByComplianceKey: Messaggio protetto da chiave di conformità
 inviterLabel(uid): 'Invitato da: $uid'
@@ -207,76 +142,59 @@ channelPriceLabel(currency, amount): 'Prezzo: $currency $amount'
 e2eeKeyRecoveryTitle: Gestione chiavi E2EE
 e2eeRecoveryMethods: Metodi di ripristino
 e2eeDangerousOps: Operazioni sensibili
-e2eeSocialRecovery: Recupero sociale
-e2eeSocialRecoveryDesc: Ripristina la chiave tramite contatti fidati
 e2eeKeyIdLabel: ID chiave
 e2eeWarnIrreversible: "• Operazione irreversibile"
 e2eeWarnNeedRestoreOrNew: "• Ripristina da backup o genera una nuova chiave"
 gotIt: Capito
-e2eeRecoverKeyTitle: Ripristina chiave
-e2eeCanRecoverKey: Chiave ripristinabile
-e2eeInsufficientShards: Frammenti insufficienti
 e2eeProxyUser(uid): 'Garante: $uid'
 e2eeShardLabel(index, total): Frammento $index / $total
-e2eeReloadShards: Ricarica
-e2eeRecovering: Ripristino...
-e2eeKeyRestored: Chiave ripristinata
 e2eeUsedShards(count): "$count frammenti usati"
-e2eePreparing: Preparazione...
 e2eeRecoveryProgressLabel(collected, total): 'Avanzamento: $collected / $total frammenti'
 e2eeCollectingShards(collected, total): Raccolta frammenti ($collected/$total)...
-e2eeShardsCollected: Frammenti raccolti, ricostruzione chiave...
 webQRLoggingIn: Accesso...
 webQRExpired: QR code scaduto
 webQRRefresh: Aggiorna QR code
 webSwitchToQR: Accesso via QR code
 e2eeErrDefault: E2EE fallito, messaggio non inviato
 e2eeErrPeerDeviceNotReady: La configurazione di sicurezza del dispositivo di alcuni membri non è completata, messaggio non inviato; riprova più tardi
-e2eeSocialTotalShards: Totale frammenti
-e2eeSocialThreshold: Soglia di ripristino
 e2eeSocialThresholdHint(count): "$count garanti richiesti per il ripristino"
-e2eeSocialSelectProxy: Scegli garanti
 e2eeSocialProxyNeeded(count): "$count contatti fidati richiesti come garanti"
 e2eeSocialProxyDefaultName(uid): Utente $uid
-e2eeSocialShardSentViaWs: Frammenti inviati direttamente ai garanti via WebSocket
 e2eeSocialSentCount(sent, total): Inviati a $sent su $total garanti
-e2eeSocialManageTitle: Gestisci frammenti
-e2eeSocialMyShards: I miei frammenti
-e2eeSocialProxyShards: Frammenti garanti
 e2eeSocialShardOf(idx, total): Frammento $idx / $total
-e2eeSocialShardActive: Attivo
-e2eeSocialShardUsed: Usato
-e2eeSocialShardValid: Frammento valido
 e2eeSocialUserShard(uid): Frammento di chiave di $uid
-e2eeSocialProxyUserLabel: Garante
-e2eeSocialRecoveryThresholdLabel: Soglia di ripristino
-e2eeSocialShardIndexLabel: Numero frammento
-e2eeTransferQRHint: Scansiona questo QR code sul nuovo dispositivo
 e2eeTransferQRExpiry(time): QR code scade il $time
-e2eeTransferRefreshQR: Aggiorna QR code
-e2eeTransferEnterUidTitle: ID utente del destinatario
-e2eeTransferUidPlaceholder: ID utente destinatario
-e2eeTransferReceiving: Ricezione...
-e2eeTransferPageTitle: Trasferimento tra dispositivi
-e2eeTransferPendingItem: Trasferimento chiave in sospeso
-e2eeTransferPendingItemDesc: Tocca per i dettagli
-e2eeTransferView: Vedi
-e2eeSocialTitle: Recupero sociale
-e2eeSocialCanRecover: Chiave ripristinabile
-e2eeSocialSetupProxy: Configura garanti
-e2eeSocialChooseProxy: Scegli contatti fidati come garanti
-e2eeSocialExistingShards: Frammenti esistenti
-e2eeSocialRecoverKeyTitle: Ripristina chiave
-e2eeSocialRecoverKeyDesc: Ripristina tramite frammenti garanti
-e2eeSocialManageShardsTitle: Gestisci frammenti
-e2eeSocialManageShardsDesc: Vedi e gestisci tutti i frammenti
-e2eeSocialZeroTrustHint1: 'Zero-Trust: server senza frammenti, contatto diretto dei garanti'
-e2eeSocialZeroTrustHint2: 'Zero-Trust: frammenti dai garanti'
-e2eeSocialZeroTrustHint3: 'Zero-Trust: server senza accesso al testo in chiaro'
 e2eeProxyMinCount(count): Almeno $count garanti
-e2eeProxySelectTitle: Scegli garanti
 e2eeProxySelectedCount(selected, total): "$selected / $total scelti"
-e2eeProxyReachedMin: Numero minimo raggiunto
 liveRoomTitleLabel: Titolo live
 liveRoomTitleHint: Titolo live
 lightModel: Modalità chiara
+complianceKeyInfoAlgorithm: Algoritmo
+complianceKeyInfoChangedWarning: "⚠️ La chiave pubblica di conformità distribuita dal server non corrisponde al pin locale! Se non si tratta di una rotazione intenzionale dell'amministratore, contatta subito l'amministratore e smetti di inviare messaggi cifrati."
+complianceKeyInfoFetchedAt: Ora di recupero
+complianceKeyInfoFingerprint: Impronta della chiave pubblica
+complianceKeyInfoHint: "La chiave di audit di conformità è usata per la doppia cifratura della modalità compliance_e2ee. Se l'impronta sopra non corrisponde a quella pubblicata dall'amministratore, il server potrebbe essere stato manomesso."
+complianceKeyInfoKeyId: ID chiave
+complianceKeyInfoLocalPin: "Pin locale (TOFU)"
+complianceKeyInfoPinnedAt: Ora del pin
+complianceKeyInfoPinnedNone: "Non ancora bloccato (verrà bloccato automaticamente al prossimo recupero)"
+complianceKeyInfoRefreshFailed: "Recupero non riuscito, controlla la rete e riprova"
+complianceKeyInfoServerKey: Chiave pubblica distribuita dal server
+complianceKeyInfoTitle: Chiave di audit di conformità
+e2eeErrComplianceChanged: "La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova"
+e2eeErrComplianceUnavailable: "Chiave di conformità temporaneamente non disponibile, messaggio non inviato; riprova più tardi"
+e2eeErrDeviceNotReady: "Questo dispositivo non ha completato l'inizializzazione di sicurezza; esci, accedi di nuovo e riprova"
+e2eeErrProtocolMismatch: "Configurazione del protocollo di cifratura anomala; aggiorna l'app e riprova"
+e2eeErrSessionExportFailed: "Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi"
+safetyNumberCopied: Copiato
+safetyNumberCopy: Copia
+safetyNumberHint: "Confronta il codice di sicurezza con l'altro di persona o al telefono. Se corrisponde, le vostre comunicazioni non sono intercettate da un attacco man-in-the-middle; se non corrisponde, interrompi subito la conversazione e verifica l'identità dell'altro tramite un altro canale. Lo stato di verifica è salvato solo su questo dispositivo."
+safetyNumberMarkVerified: Segna come verificato
+safetyNumberMarkedVerified: Segnato come verificato
+safetyNumberNoDevices: "L'altro non ha ancora attivato la crittografia end-to-end"
+safetyNumberPeerDevice: "Dispositivo dell'altro"
+safetyNumberReportRejected: "Il server ha rifiutato l'evento di verifica (firma/validità non corrispondenti), non segnato"
+safetyNumberReportUnavailable: "Impossibile ottenere le informazioni del dispositivo, non riportato"
+safetyNumberReporting: Invio del risultato della verifica in corso...
+safetyNumberTitle: Verifica del codice di sicurezza
+safetyNumberVerifyFailed: "Impossibile ottenere il codice di sicurezza, riprova più tardi"

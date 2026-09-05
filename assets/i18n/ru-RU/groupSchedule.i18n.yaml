@@ -5,14 +5,7 @@ scheduleTitle: Название
 selectDate: Выбрать дату
 selectTime: Выбрать время
 location: Место
-reminder: Напоминание
-noReminder: Без напоминания
 noSchedule: Нет событий
-scheduleCreated: Событие создано
-scheduleUpdated: Событие обновлено
-reminder15min: За 15 минут
-reminder1hour: За 1 час
-reminder1day: За 1 день
 startTime: Начало
 endTime: Конец
 participants: Участники

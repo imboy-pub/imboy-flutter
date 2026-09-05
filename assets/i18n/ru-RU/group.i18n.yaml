@@ -1,23 +1,17 @@
 ---
-financialManagement: Инвестиции
 enterSameGroup: Войти в одну группу с друзьями рядом
 enterTheGroup: Войти в эту группу
 groupAlias: Мой никнейм в этой группе
 groupAlbum: Альбом группы
 groupDissolve: Роспуск группы
-groupJoin: Вступить в группу
 groupLeave: Покинуть группу
-groupManagement: Управление группой
 groupMembers: Участники группы
 groupName: Название группы
 mutualGroupsWithHer: Общие группы
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: Гость
-groupMember: Member
 setAdmin: Set as Admin
-transferGroup: Transfer Ownership
-joinTime: Join Time
 selectGroup: Выбрать групповой чат
 sureToDissolveGroup: Распустить эту группу?
 sureToLeaveGroup: Покинуть эту группу?
@@ -43,3 +37,12 @@ e2eeKeyManagement: Управление ключами E2EE
 e2eeKeyManagementSubtitle: Резервное копирование, восстановление и управление ключами сквозного шифрования
 e2eeTitle: Сквозное шифрование
 e2eeEnableConfirm: После включения сообщения группы будут защищены сквозным шифрованием и доступны только на устройствах участников. Это действие необратимо. Включить?
+enterGroupChat: Войти в групповой чат
+groupCreated: Групповой чат создан
+groupCreatedSuccess: Групповой чат создан. Заполните информацию о группе или сразу войдите в чат
+groupInfo: Информация о группе
+groupMemberRoleLabel: Участник
+moreActions: Другие действия
+noMemberWithRole: "Пока нет: $roleName"
+perfectionGroupInfo: Заполнить информацию о группе
+touchContactAddMember: Нажмите на контакт, чтобы добавить участника в группу

@@ -1,11 +1,4 @@
 ---
-change: تعديل
-entertainment: أفلام وعروض
-lifePayment: دفع فواتير
-medicalHealth: صحة طبية
-meituanDelivery: توصيل Meituan
-tencentService: خدمات Tencent
-traffic: التنقّل
 totalAssets: إجمالي الأصول
 album: ألبوم
 appSize: حجم التطبيق
@@ -17,36 +10,26 @@ liveRoomWhipLabel: عنوان بث WHIP
 liveRoomWhepLabel: عنوان استقبال WHEP
 cache: الذاكرة المؤقتة
 camera: تصوير
-changeNameView: عرض تغيير الاسم
 changeParam: تعديل $param
 chooseFromAlbum: اختيار من الألبوم
 clean: تنظيف
 codeSentToParam: تم إرسال رمز التحقق إلى $param
-codeSentToType: تم إرسال رمز التحقق إلى $param
 collected: تمت الإضافة إلى المفضلة
 completed: مكتمل
 copied: تم النسخ
 darkModel: الوضع الداكن
 deDd: الألمانية (ألمانيا)
 disable: تعطيل
-earlier: أقدم
-enGb: الإنجليزية (المملكة المتحدة)
 enUs: الإنجليزية (الولايات المتحدة)
 enable: تمكين
-example: 'مثال:'
 expired: منتهية الصلاحية
-extraItem: عنصر إضافي
-faceToFaceLogic: منطق وجهاً لوجه
 favorites: المفضلة
 female: أنثى
 followSystem: اتباع النظام
 frFr: الفرنسية (فرنسا)
 from: من
-goClean: الانتقال للتنظيف
 good: رائع
 hangup: إنهاء المكالمة
-haveSet: تم التعيين
-httpParse: تحليل HTTP
 iAm: أنا
 itIt: الإيطالية (إيطاليا)
 jaJp: اليابانية (اليابان)
@@ -57,24 +40,13 @@ lastSeenNever: لم يسجل الدخول أبداً
 lastSeenWeeksAgo: منذ $param أسبوع
 lastSeenExactTime: آخر اتصال $param
 licenseAgreement: اتفاقية ترخيص البرنامج والخدمة
-liveBroadcast: بث مباشر
-liveRoomListView: عرض قائمة الغرف المباشرة
-publisherPage: صفحة البث
-subscriber: مشترك
-loggingOut: جارٍ تسجيل الخروج...
 loudspeaker: مكبر صوت
 makeYourselfInvisible: اجعل نفسك غير مرئي
 makeYourselfVisible: اجعل نفسك مرئياً
 male: ذكر
 manage: إدارة
-markImportant: مهم
-markImportantDesc: تعليم كرسالة مهمة
 markStar: إضافة إلى المفضلة
-markStarDesc: إضافة هذه الرسالة إلى المفضلة
-markTodo: مهام
-markTodoDesc: تعليم كمهمة
 multiSelect: تحديد متعدد
-multiSelectMode: وضع التحديد المتعدد
 myFavorites: مفضلاتي
 myLive: بثي المباشر
 name: الاسم
@@ -87,14 +59,10 @@ peerHasHungUp: قام الطرف الآخر بإنهاء المكالمة
 play: تشغيل
 pleaseInputParam: يرجى إدخال $param
 pleaseSelect: يرجى الاختيار
-quickFilters: تصفية سريعة
 quote: اقتباس
 recentlyUsed: استخدمت مؤخراً
 releaseEnd: اترك للإنهاء
-remainingChars: لا يزال بإمكانك إدخال $param حرف
-kickMember: Remove from Group
 memberDetail: Member Details
-memberRole: Role
 replied: تم الرد
 ringing: جارٍ الرنين...
 ruRu: الروسية (روسيا)
@@ -102,35 +70,24 @@ selectedCount: تم التحديد ($count)
 selected: تم التحديد
 sent: تم الإرسال
 sentByMe: أرسلته
-sentByOthers: أرسله الآخرون
 setParam: تعيين $param
 setting: الإعدادات
 siginQ: لديك حساب بالفعل؟
-signInWith: تسجيل الدخول بـ $param
 source: المصدر
 speakingTooShort: مدة التحدث قصيرة جداً
 speed: السرعة
-star: "@:main.markStar"
 stillNeeded: لا يزال مطلوباً
 storageSpace: مساحة التخزين
-termOfServices: شروط الخدمة
 text: نص
 thisWeek: هذا الأسبوع
-timeRange: النطاق الزمني
-timeWeekdays: الاثنين،الثلاثاء،الأربعاء،الخميس،الجمعة،السبت،الأحد
 titleMine: أنا
-titleSquare: الساحة
 tooBad: سيء جداً
 tryAgainQ: هل تريد المحاولة مرة أخرى؟
 type: النوع
 unanswered: لم يتم الرد
 unnamed: بدون اسم
-upToWords: بحد أقصى $param حرف
-upgrade: ترقية
 usedSpace: المساحة المستخدمة
-webView: عرض الويب
 you: أنت
-yourFeel: كيف تشعر بذلك؟
 zhCn: الصينية المبسطة
 zhHant: الصينية التقليدية
 bound: تم الربط
@@ -139,20 +96,14 @@ pendingInput: في انتظار الإدخال
 lengthCheck: فحص الطول
 bugReport: تقرير خطأ
 deleting: جارٍ الحذف...
-current: الحالي
 publish: نشر
 privacyPolicy: سياسة الخصوصية
 termsOfService: شروط الخدمة
 saving: "@:common.loading"
-topStories: إلقاء نظرة
 systemDefault: الافتراضي للنظام
-custom: مخصص
-previewArea: منطقة المعاينة
-simpleTexture: ملمس بسيط
 gradientBlue: تدرج أزرق
 gradientPurple: تدرج بنفسجي
 copiedToClipboard: تم النسخ إلى الحافظة
-copiedLink: تم نسخ الرابط
 destroyTime: وقت التدمير
 previewEffect: معاينة التأثير
 thisIsTitleText: هذا نص عنوان
@@ -160,18 +111,9 @@ thisIsAuxiliaryText: هذا نص توضيحي مساعد
 toBeCompleted: يجب إكماله
 availableCount: قابل للاختيار
 mostUsed: الأكثر استخداماً
-commentPlaceholder: تعليق...
-delayMsLabel: تأخير بالمللي ثانية (>=100)
-processed: تمت المعالجة
-export: تصدير
 school: المدرسة
 hobbiesAndInterests: الهوايات والاهتمامات
 interests: Interests
-pleaseEnterSchool: Please enter school
-pleaseEnterInterests: Please enter interests
-manageVisibility: إدارة رؤية المعلومات الشخصية
-exportToLocal: تصدير الملف الشخصي إلى محلي
-exportAsText: Export as text format
 selectFromAlbum: اختيار من الألبوم
 volumeUp: زيادة الصوت
 volumeDown: خفض الصوت
@@ -179,18 +121,11 @@ fastRewind: ترجيع سريع $seconds ثانية
 pleaseTryAgain: يرجى المحاولة مرة أخرى
 secret: سري
 takePhoto: التقاط صورة
-publishing: جارٍ النشر...
 deletingInProgressPleaseWait: جارٍ الحذف، يرجى الانتظار...
-testUser1: مستخدم1
-testUser2: مستخدم2
-testUser3: مستخدم3
-testUser4: مستخدم4
-testUser5: مستخدم5
 collecting: جارٍ الإضافة إلى المفضلة...
 user: مستخدم
 recommended: مُوصى به
 larger: أكبر
-currentLength: 'الطول الحالي: $param1 / $param2'
 fillIn: ملء
 msgProtectedByComplianceKey: الرسائل محمية بمفتاح الامتثال
 inviterLabel(uid): 'الداعي: $uid'
@@ -207,76 +142,59 @@ channelPriceLabel(currency, amount): 'السعر: $currency $amount'
 e2eeKeyRecoveryTitle: إدارة مفاتيح التشفير من طرف إلى طرف
 e2eeRecoveryMethods: طرق استعادة المفتاح
 e2eeDangerousOps: إجراءات خطرة
-e2eeSocialRecovery: الاستعادة الاجتماعية
-e2eeSocialRecoveryDesc: استعادة المفتاح بمساعدة جهات اتصال موثوقة
 e2eeKeyIdLabel: معرّف المفتاح
 e2eeWarnIrreversible: "• هذا الإجراء غير قابل للتراجع"
 e2eeWarnNeedRestoreOrNew: "• يجب الاستعادة من نسخة أو إنشاء مفتاح جديد"
 gotIt: فهمت
-e2eeRecoverKeyTitle: استعادة المفتاح
-e2eeCanRecoverKey: يمكن استعادة المفتاح
-e2eeInsufficientShards: عدد الشظايا غير كافٍ
 e2eeProxyUser(uid): 'الوكيل: $uid'
 e2eeShardLabel(index, total): شظية $index / $total
-e2eeReloadShards: إعادة التحميل
-e2eeRecovering: جارٍ الاستعادة...
-e2eeKeyRestored: تمت استعادة المفتاح
 e2eeUsedShards(count): تم استخدام $count شظية وكلاء
-e2eePreparing: جارٍ التحضير...
 e2eeRecoveryProgressLabel(collected, total): 'التقدم: $collected / $total شظية'
 e2eeCollectingShards(collected, total): جارٍ جمع الشظايا ($collected/$total)...
-e2eeShardsCollected: اكتمل جمع الشظايا، جارٍ إعادة تجميع المفتاح...
 webQRLoggingIn: جارٍ الدخول...
 webQRExpired: انتهت صلاحية رمز QR
 webQRRefresh: تحديث رمز QR
 webSwitchToQR: الدخول برمز QR
 e2eeErrDefault: فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة
 e2eeErrPeerDeviceNotReady: لم تكتمل إعدادات الأمان على أجهزة بعض الأعضاء، لم تُرسل الرسالة؛ يُرجى المحاولة لاحقاً
-e2eeSocialTotalShards: إجمالي الشظايا
-e2eeSocialThreshold: حد الاستعادة
 e2eeSocialThresholdHint(count): يلزم $count وكيل للاستعادة
-e2eeSocialSelectProxy: اختيار الوكلاء
 e2eeSocialProxyNeeded(count): يلزم $count جهة اتصال موثوقة كوكلاء
 e2eeSocialProxyDefaultName(uid): المستخدم $uid
-e2eeSocialShardSentViaWs: أُرسلت الشظايا مباشرةً إلى أجهزة الوكلاء عبر WebSocket
 e2eeSocialSentCount(sent, total): أُرسل إلى $sent من أصل $total جهاز
-e2eeSocialManageTitle: إدارة الشظايا
-e2eeSocialMyShards: شظاياي
-e2eeSocialProxyShards: شظايا الوكلاء
 e2eeSocialShardOf(idx, total): شظية $idx / $total
-e2eeSocialShardActive: نشطة
-e2eeSocialShardUsed: مستخدمة
-e2eeSocialShardValid: الشظية صالحة
 e2eeSocialUserShard(uid): شظية مفتاح المستخدم $uid
-e2eeSocialProxyUserLabel: الوكيل
-e2eeSocialRecoveryThresholdLabel: حد الاستعادة
-e2eeSocialShardIndexLabel: رقم الشظية
-e2eeTransferQRHint: امسح رمز QR هذا على الجهاز الجديد
 e2eeTransferQRExpiry(time): تنتهي صلاحية رمز QR في $time
-e2eeTransferRefreshQR: تحديث رمز QR
-e2eeTransferEnterUidTitle: أدخل معرّف المستلم
-e2eeTransferUidPlaceholder: معرّف المستخدم المستلم
-e2eeTransferReceiving: جارٍ الاستقبال...
-e2eeTransferPageTitle: النقل بين الأجهزة
-e2eeTransferPendingItem: نقل مفتاح معلّق
-e2eeTransferPendingItemDesc: اضغط للتفاصيل
-e2eeTransferView: عرض
-e2eeSocialTitle: الاستعادة الاجتماعية
-e2eeSocialCanRecover: يمكن استعادة المفتاح
-e2eeSocialSetupProxy: إعداد الوكلاء
-e2eeSocialChooseProxy: اختر جهات اتصال موثوقة كوكلاء
-e2eeSocialExistingShards: شظايا الاستعادة الحالية
-e2eeSocialRecoverKeyTitle: استعادة المفتاح
-e2eeSocialRecoverKeyDesc: استعادة المفتاح من شظايا الوكلاء
-e2eeSocialManageShardsTitle: إدارة الشظايا
-e2eeSocialManageShardsDesc: عرض وإدارة جميع شظايا الاستعادة
-e2eeSocialZeroTrustHint1: 'ثقة صفرية: لا يحفظ الخادم الشظايا، يتواصل مع الوكلاء مباشرة'
-e2eeSocialZeroTrustHint2: 'ثقة صفرية: تُخزَّن الشظايا على أجهزة الوكلاء'
-e2eeSocialZeroTrustHint3: 'ثقة صفرية: الشظايا لدى الوكلاء، ولا يلمس الخادم النص الصريح'
 e2eeProxyMinCount(count): اختر $count وكلاء على الأقل
-e2eeProxySelectTitle: اختيار وكلاء الاستعادة
 e2eeProxySelectedCount(selected, total): 'محدد: $selected / $total'
-e2eeProxyReachedMin: تم بلوغ الحد الأدنى للوكلاء
 liveRoomTitleLabel: عنوان الغرفة
 liveRoomTitleHint: أدخل عنوان الغرفة
 lightModel: الوضع الفاتح
+e2eeErrComplianceChanged: تغيّر مفتاح تدقيق الامتثال، ولم تُرسل الرسالة. أكّد تدوير المفتاح ثم أعد المحاولة
+e2eeErrComplianceUnavailable: مفتاح الامتثال غير متاح حالياً، ولم تُرسل الرسالة. حاول لاحقاً
+e2eeErrDeviceNotReady: لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة
+e2eeErrProtocolMismatch: هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة
+e2eeErrSessionExportFailed: تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً
+complianceKeyInfoTitle: مفتاح تدقيق الامتثال
+complianceKeyInfoServerKey: المفتاح العام الصادر من الخادم
+complianceKeyInfoLocalPin: التثبيت المحلي (TOFU)
+complianceKeyInfoKeyId: 'معرّف المفتاح (ID)'
+complianceKeyInfoAlgorithm: الخوارزمية
+complianceKeyInfoFingerprint: بصمة المفتاح العام
+complianceKeyInfoFetchedAt: وقت الجلب
+complianceKeyInfoPinnedAt: وقت التثبيت
+complianceKeyInfoPinnedNone: لم يُثبَّت بعد (سيُثبَّت تلقائياً عند الجلب التالي)
+complianceKeyInfoChangedWarning: "⚠️ المفتاح العام للامتثال الصادر من الخادم لا يطابق التثبيت المحلي! إذا لم يكن هذا تدويراً مقصوداً من المسؤول، فتواصل مع المسؤول فوراً وأوقف إرسال الرسائل المشفّرة."
+complianceKeyInfoRefreshFailed: فشل الجلب، تحقق من الشبكة ثم أعد المحاولة
+complianceKeyInfoHint: يُستخدم مفتاح تدقيق الامتثال للتشفير المزدوج في وضع compliance_e2ee. إذا اختلفت البصمة أعلاه عن البصمة التي أعلنها المسؤول، فقد يكون الخادم قد عُبث به.
+safetyNumberTitle: التحقق من رمز الأمان
+safetyNumberHint: قارن رمز الأمان مع الطرف الآخر وجهاً لوجه أو عبر الهاتف. إذا تطابق الرمزان فهذا يعني أن اتصالكما ليس خاضعاً لتنصت وسيط؛ وإذا اختلف فأوقف المحادثة فوراً وتحقق من هوية الطرف الآخر عبر قناة أخرى. تُحفظ حالة التحقق على هذا الجهاز فقط.
+safetyNumberCopy: نسخ
+safetyNumberCopied: تم النسخ
+safetyNumberMarkVerified: وضع علامة تم التحقق
+safetyNumberMarkedVerified: تم وضع علامة تم التحقق
+safetyNumberPeerDevice: جهاز الطرف الآخر
+safetyNumberNoDevices: لم يفعّل الطرف الآخر التشفير من طرف إلى طرف بعد
+safetyNumberVerifyFailed: تعذّر الحصول على رمز الأمان. حاول لاحقاً
+safetyNumberReporting: جارٍ الإبلاغ عن نتيجة التحقق...
+safetyNumberReportRejected: رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة
+safetyNumberReportUnavailable: تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ

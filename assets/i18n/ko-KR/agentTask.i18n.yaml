@@ -1,0 +1,10 @@
+title: AI 작업
+working: 실행 중
+submitted: 제출됨
+progress: 진행 중
+completed: 완료됨
+failed: 실행 실패
+cancelled: 취소됨
+awaitingApproval: 승인 대기 중
+approve: 승인
+reject: 거절

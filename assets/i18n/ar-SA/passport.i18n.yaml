@@ -1,12 +1,18 @@
 ---
-retrievePassword: استعادة كلمة المرور
 loginHistoryToggle: إظهار سجل تسجيل الدخول
 hintEmail: أدخل بريدك الإلكتروني
 hintMobile: أدخل رقم هاتفك
-forgetPassword: نسيت كلمة المرور؟
-register: التسجيل
 hintPassword: أدخل كلمة المرور
 hintVerifyCode: أدخل رمز التحقق
 getVerifyCode: احصل على الرمز
-hasAccount: لديك حساب بالفعل؟
 oneKeyLogin: تسجيل الدخول بنقرة واحدة
+qrCodeExpired: انتهت صلاحية رمز QR، امسحه ضوئياً من جديد
+qrCodeUsed: تم استخدام رمز QR هذا بالفعل
+qrLoginCancelled: تم إلغاء تسجيل الدخول
+qrLoginConfirming: جارٍ تسجيل الدخول...
+qrLoginCancelledByMe: تم إلغاء تسجيل الدخول
+qrConnecting: جارٍ الاتصال...
+qrWebLoginTitle: تأكيد تسجيل الدخول عبر الويب
+qrWebLoginDesc: يرجى تأكيد ما إذا كنت تريد تسجيل الدخول إلى هذا الحساب على الويب
+qrLoginAction: تأكيد تسجيل الدخول
+qrLoginSuccess: تم تسجيل الدخول بنجاح

@@ -1,46 +1,27 @@
 ---
 bankCard: Carta bancaria
-cards: pz
-jdShopping: Shopping JD
 receivePayment: Ricevi & Paga
-alreadyEntered: Hai già inserito
 alreadyMember: Già membro
-appSqliteFileSizeExplain: Dimensione del file sqlite generato localmente per l'account corrente; puoi pulire immagini, video e file nelle chat selezionate, o svuotare tutti i messaggi nelle chat selezionate.
-attachmentProvider: Provider allegati
-audioMessage: Messaggio vocale
 awaitingReply: In attesa di risposta
 businessCard: Biglietto da visita
 busyTryAgainLater: L'altra parte è occupata, riprova più tardi
 later: Più tardi
 peerIsTyping(name): "$name sta scrivendo..."
-changeGroupChatName: Dopo aver modificato il nome della chat di gruppo, gli altri membri del gruppo verranno notificati.
-chatHistory: Cronologia della chat
 chatHoldDownTalk: Tieni premuto per parlare
 chatMessage: Messaggio della chat
-chatMomentSportDataEtc: Chat, momenti, dati sportivi ecc.
 chatSettingMute: Non disturbare
-chatSettingMuteDesc: Disattiva le notifiche dei messaggi per questa chat
 chatSettingMuted: Non disturbare attivato
-chatSettingPin: Fissa la chat
-chatSettingPinDesc: Fissa questa chat in cima alla lista
 chatSettingUnmuted: Non disturbare disattivato
 chatStatusSending: Invio in corso
 chatStatusSent: Inviato
 chatStatusDelivered: Consegnato
 chatStatusSeen: Visualizzato
-chatStatusSendingDesc: Messaggio in fase di invio...
-chatStatusSentDesc: Messaggio inviato
-chatStatusDeliveredDesc: Messaggio consegnato
-chatStatusSeenDesc: Messaggio visualizzato
 createGroupF2f: Crea gruppo faccia a faccia
 displayProfile: Mostra il tuo profilo
 file: File
 unknownFile: "File sconosciuto"
-fileMessage: "[File]"
 fileSize: Dimensione file
-forgotPasswordPinCodeView: Vista codice PIN password dimenticata
 forward: Inoltra
-forwardReply: Inoltra risposta
 forwardTo: Inoltra a
 forwardToFriend: Inoltra ad amico
 forwardedToChats: "Inoltrato a $count chat"
@@ -66,34 +47,19 @@ groupChat: Chat di gruppo
 image: Immagine
 imageMessage: "[Immagine]"
 initiateChat: Avvia una chat di gruppo
-justChat: Solo la chat
-location: Posizione
 exportMyData: Esporta i miei dati
 exportDataDesc: Esporta info, contatti e cronologia chat
-message: Messaggio
-messageHandlingMixin: Mixin gestione messaggi
-messageMarkTitle: Segna messaggio
 customMessage: Messaggio personalizzato
 card: Biglietto da visita
-messageType: Tipo messaggio
-messageVisitCardBuilder: Costruttore scheda visita messaggio
 messageWasWithdrawn: Ha revocato un messaggio
 messageWasWithdrawnWithTitle: "$param ha revocato un messaggio"
-messageWebrtcBuilder: Costruttore WebRTC messaggio
-momentStatus: Momenti e stato
 offline: Offline
 online: Online
 paramAlreadyExist: "$param esiste già"
 pin: Fissa
-pinChat: Fissa la chat
 pinned: Fissata
-privateReply: Risposta privata
-qrCodeBusinessCard: Biglietto da visita (QR code)
-quoteReply: Risposta citata
 rating: Valutazione
 readAgreeParam: Ho letto e accetto $param
-recentChats: Chat recenti
-recentForwards: Inoltri recenti
 remindMeLater: Ricordamelo dopo
 quickReplyManage: Gestisci risposte rapide
 quickReplyEmpty: Nessuna risposta rapida. Tocca in basso a destra per aggiungere
@@ -102,7 +68,6 @@ quickReplyMaxReached: Max. $max risposte
 quickReplyHint: Inserisci contenuto...
 muteMember: Mute Member
 unmuteMember: Unmute
-muteUntil: Muted Until
 muted: Muted
 mutedFor: 'Mutato: $label'
 muteUnitMinutes: "$count min"
@@ -112,76 +77,44 @@ youAreMuted: Sei stato mutato
 youAreMutedWithTime: Sei mutato, ancora $minutes min.
 repliedAt: Risposto il
 reply: Rispondi
-replyTo: Rispondi a
 resendCode: Invia di nuovo codice
 revoke: Revoca
 scanQrCodeBusinessCard: Scansiona scheda codice QR
-singleChat: Private Chat
 privateChat: Private Chat
-groupMessage: Group message
 sendFriendRequest: Invia richiesta amicizia
 sendMsgRejected: Messaggio inviato ma rifiutato dall'altra parte.
 sendMessage: Invia messaggio
-sendSeparatelyTo: Invia separatamente a
 sendTo: Invia a
 send: "@:common.buttonSend"
-sender: Mittente
 sending: Invio in corso...
-signatureInputHint: Suggerimento input firma
-signaturePlaceholder: Placeholder firma
-signupIntro: Il codice di conferma è stato inviato alla tua email, inserisci il codice di conferma per confermare il tuo account.
 socialProfile: Profilo social
-status: Stato
-storageSpaceData: Spazio di archiviazione e dati
 sureOpenTheFile: Sei sicuro di voler aprire il file?
-textMessage: Messaggio testo
 titleMessage: Messaggi
-topChat: Fissa la chat
 unpin: Rimuovi fissaggio
-unsupportedFileType: Tipo file non supportato
 userData: Dati utente
 video: Video
 videoMessage: "[Video]"
 viewAttachments: Visualizza allegati
 viewLargeImage: Vedi ingrandito
 voice: Voce
-voiceInput: Input vocale
 voiceMessage: Messaggio vocale
 youWithdrewAMessage: Hai revocato un messaggio
 formatCheck: Controllo formato
 featureRequest: Richiesta funzionalità
-resendCodeWithCount: Invia di nuovo ($count secondi)
 chatResend: Invia di nuovo
-chatReply: Rispondi
-chatOpenFile: Apri file
-chatOpenLink: Apri link
-avatarSelectPhoto: Seleziona foto
-avatarTakePhoto: Scatta foto
-avatarSelectFromAlbum: Seleziona dalla galleria
 profileExportProfile: Esporta profilo
 momentsSend: Invia
-videoCompressInProgress: Attività di compressione già in corso
-videoCompressing: Compressione video...
 loginExpiredMessage: Sessione scaduta, accedi di nuovo
-geometricPattern: Motivo geometrico
-ripplePattern: Motivo ondulato
 customImage: Immagine personalizzata
-voiceRecordResultEmpty: Risultato registrazione vocale vuoto
-voiceFileInvalid: File vocale non valido
 burnAfterReading: Distruggi dopo la lettura
-visibleThresholdRead: Soglia visibile letta
-readThresholdDelay: Soglia lettura & Ritardo
 goodReadability: Buona leggibilità
 profileCompleteness: Completezza profilo
 tagStatistics: Statistiche tag
-alreadySent: Già inviato
-visibleRatioLabel: Rapporto visibile (0.1~1.0)
 unsupportedMessageType: Tipo di messaggio non supportato
 passwordMismatch: Le password non corrispondono
 pleaseTryAgainLater: Riprova più tardi
 historyUnavailable: "Cronologia messaggi temporaneamente non disponibile"
 historyUnavailableHint: "L'archivio cronologico sul server è disabilitato o non disponibile. Tocca Riprova per risincronizzare"
-momentsSelectVideo: Scegli video
 momentsRecordVideo: Registra video
 momentsVisibilityPrivate: Privato
 momentsMediaTooManyImages: Massimo 9 immagini
@@ -200,14 +133,11 @@ setAvatar: Imposta avatar
 fastForward: Avanti veloce $seconds secondi
 messageId: ID messaggio
 chatType: Tipo di chat
-voiceFileEmptyPleaseTryAgain: Il file vocale è vuoto, riprova
-sendingVoice: Invio vocale in corso...
 deletingMessage: Eliminazione in corso...
 deletingLocalMessage: Eliminazione messaggio locale in corso...
 quickReplyReceived: Ricevuto
 quickReplyThanks: Grazie
 quickReplyWait: Attendi
-messageMute: "@:chat.chatSettingMute"
 groupCategoryGroupCount(count): "$count gruppi"
 groupAlbumCreateTitle: Crea album di gruppo
 groupAlbumCreated: Album creato
@@ -232,7 +162,6 @@ e2eeActivated: Attivo
 e2eeCreatedAtLabel: Creato il
 e2eeGeneratingKey: Generazione chiave, attendi...
 e2eeNewKeyGenerated: Nuova coppia di chiavi E2EE creata !
-e2eeReady: Pronto
 e2eeReadyWithShards(count): Pronto ($count frammenti)
 webFeatureMultiDevice: Multi-dispositivo
 webFeatureMultiDeviceDesc: Passa da mobile a PC, sincronizzazione in tempo reale
@@ -245,28 +174,11 @@ webQRStatusScanned: Sul mobile, tocca « Accedi »
 webQRStatusVerifying: Verifica...
 webQRStatusExpired: Aggiorna e scansiona di nuovo
 e2eeErrInvalidFormat: Formato messaggio non valido, cifratura fallita
-e2eeSocialCreateTitle: Crea frammenti
-e2eeSocialCreateBtn: Crea frammenti
-e2eeSocialCreateFailTitle: Fallito
-e2eeSocialCreateFailBody: Creazione fallita. Riprova.
-e2eeSocialCreateFirst: Visibile dopo la creazione
-e2eeSocialUsedAtLabel: Usato il
-e2eeTransferSendTitle: Invia chiave al nuovo dispositivo
-e2eeTransferCreateBtn: Crea
-e2eeTransferReceiveTitle: Ricevi chiave dal vecchio dispositivo
-e2eeTransferSendDesc: Trasferisci la chiave al nuovo dispositivo via QR code
-e2eeTransferReceiveDesc: Scansiona il QR code del vecchio dispositivo
 e2eeSocialStatus(status): 'Stato: $status'
-e2eeSocialCreateShardsTitle: Crea frammenti
-e2eeSocialCreateShardsDesc: Dividi la chiave in frammenti conservati dai garanti (server escluso)
 e2eeProxyNeedAtLeast(count): Almeno $count garanti
 e2eeRecreatingKey: Ricreazione chiave...
 e2eeKeyRecreated: Chiave ricreata
 e2eeRecoveryNewDeviceTitle: Nuovo dispositivo rilevato
-e2eeRecoveryNewDeviceBody: |-
-  Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave E2EE.
-
-  I messaggi precedenti, cifrati con la chiave del vecchio dispositivo, richiedono prima un ripristino. Ripristina tramite « Trasferimento », « Recupero sociale » o « Backup locale ».
 e2eeRecoveryDecryptFailedTitle: Messaggio indecifrabile
 e2eeRecoveryDecryptFailedBody: |-
   Questo messaggio è cifrato con la chiave di un altro dispositivo.
@@ -283,3 +195,10 @@ switchToKeyboardInput: Passa all'input da tastiera
 extraItems: Extra
 messageInputHint: Scrivi un messaggio...
 invalidMessageType: "[Messaggio non supportato]"
+alipayLoginInterrupted: "Il flusso di accesso Alipay è stato interrotto dal sistema, riprova"
+burnReadBadge: "Dopo lettura"
+convertToText: Converti in testo
+releaseConvertToText: "Rilascia per convertire in testo"
+voiceReleaseCancel: "Rilascia per annullare"
+voiceReleaseCancelSend: "Rilascia per annullare l'invio"
+voiceSlideHint: "Scorri su per annullare / convertire in testo"

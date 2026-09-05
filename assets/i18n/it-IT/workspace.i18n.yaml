@@ -1,0 +1,223 @@
+---
+archiveConfirm: Conferma archiviazione
+archiveDesc: "Dopo l'archiviazione tutti saranno in sola lettura (le operazioni di scrittura saranno rifiutate dal server); è possibile ripristinare in qualsiasi momento"
+archiveEntry: Archivia area di lavoro
+archiveTitle: Archivia area di lavoro
+archivedBadge: Archiviata
+archivedBanner: "Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l'Owner può ripristinarla dalla pagina membri"
+brandingColorHelper: "Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito"
+brandingColorHint: "#2474E5"
+brandingColorInvalid: "Formato del colore principale non corretto, sono supportati solo #RRGGBB / #AARRGGBB"
+brandingColorLabel: "Colore principale (primaryColor)"
+brandingEntry: "Impostazioni brand (nome / logo / colore principale)"
+brandingLogoHint: "https://… (URL dell'immagine del logo dell'area di lavoro)"
+brandingLogoLabel: URL del logo
+brandingNameLabel: Nome del brand
+brandingPreview: Anteprima colore principale
+brandingPreviewApplied: Il colore principale attuale sarà applicato all'interno dell'area di lavoro
+brandingPreviewFallback: Valore non impostato o non valido, uso del colore del tema predefinito
+brandingSaved: Impostazioni del brand salvate
+brandingTitle: Brand dell'area di lavoro
+changeRoleTitle(name): "Modifica il ruolo nell'area di lavoro di $name"
+channelDetailTitle: Canale
+channelTileSubtitle(count): "$count iscritti"
+channelsEmptySubtitle: "I canali servono a pubblicare contenuti in modo continuativo (annunci/materiali); per discutere vai ai gruppi"
+channelsEmptyTitle: Nessun canale nell'area di lavoro per ora
+createDesc: "Con una sola creazione, automaticamente: area di lavoro, tu (come Owner, membro dell'area di lavoro), canale Announcements e gruppo General. Tutto riesce o tutto viene annullato."
+createEntry: Crea area di lavoro
+createIdempotentHit: Esiste già un'area di lavoro con questo nome, accesso diretto
+createNameHint: "Ad es.: Team rifacimento sito web"
+createNameLabel: Nome area di lavoro
+createNameRequired: Il nome dell'area di lavoro non può essere vuoto
+createSubmit: Crea
+createSuccess: Area di lavoro creata con successo
+createTemplateChannel: "Canale Announcements (diventerai editore e iscritto del canale)"
+createTemplateGroup: "Gruppo General (diventerai membro del gruppo)"
+createTemplateOwner: "Diventerai Owner dell'area di lavoro (membro dell'area di lavoro)"
+createTemplateTitle: Verrà inizializzato automaticamente
+createTitle: Crea area di lavoro
+discussInGroupGuide: "I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General →"
+dmEntry: Tutti i messaggi
+emptyNoWorkspace: Seleziona o crea prima un'area di lavoro
+experienceModeEntry: Layout home
+experienceModeHint: "Scegli l'esperienza d'uso per questo dispositivo; modifica solo il layout della home, non i permessi né l'appartenenza all'area di lavoro"
+experienceModePersonal: Personale
+experienceModeReset: Ripristina valori predefiniti del deployment
+experienceModeWorkspace: Area di lavoro
+governanceTitle: Governance dell'area di lavoro
+groupTileSubtitle(count): "$count membri del gruppo"
+groupsEmptySubtitle: "I gruppi sono gli spazi di discussione in tempo reale dell'area di lavoro (unico punto d'accesso alla chat)"
+groupsEmptyTitle: Nessun gruppo nell'area di lavoro per ora
+inviteCodeCopy: Copia
+inviteCodeExpiresAt(expiresAt): "Valido fino a $expiresAt"
+inviteCodeGenerate: Genera codice team
+inviteCodeRevoke: Revoca
+inviteCodeSectionTitle: Invito con codice team
+inviteDesc: "Sono invitabili solo utenti registrati; entrare nell'area di lavoro non aggiunge automaticamente a gruppi né iscrive ai canali — puoi far entrare contemporaneamente nel gruppo General e inviare l'invito al canale Announcements"
+inviteEntry: Invita membri nell'area di lavoro
+inviteJoinGroupOption: "Entra anche nel gruppo General (diventa membro del gruppo)"
+inviteOptionUnavailable: Risorsa corrispondente non trovata, opzione non disponibile
+inviteResultChannel: "Invito al canale Announcements inviato (dopo l'accettazione diventa iscritto)"
+inviteResultGroup: "Ingresso nel gruppo General (diventa membro del gruppo)"
+inviteResultWorkspace: "Ingresso nell'area di lavoro (diventa membro dell'area di lavoro)"
+inviteResultsTitle: "Risultati (tre operazioni indipendenti)"
+inviteSearchHint: "Cerca per nome utente / ID utente"
+inviteSubmit: Invia invito
+inviteSubscribeChannelOption: "Invia anche l'invito al canale Announcements"
+inviteTitle: Invita membri nell'area di lavoro
+joinAlreadyMember: Sei già in questa area di lavoro
+joinCodeHint: 8 caratteri tra lettere maiuscole o numeri
+joinCodeLabel: Codice team
+joinDesc: Inserisci il codice team per entrare nell'area di lavoro
+joinEntry: Entra nell'area di lavoro
+joinExpiredCode: Codice team scaduto
+joinInvalidCode: Codice team non valido o non più utilizzabile
+joinSubmit: Entra
+joinSuccess(name): "Sei entrato in «$name»"
+joinTitle: Entra nell'area di lavoro
+membersCountLabel(count): "$count membri"
+membersEmpty: Nessun membro dell'area di lavoro per ora
+membersEmptySubtitle: "Invita utenti registrati a diventare membri dell'area di lavoro (Owner / Member / Guest)"
+membersTitle: Membri dell'area di lavoro
+membersViewAll: Vedi tutti
+navChannels: Canali
+navGroups: Gruppi
+navOverview: Panoramica
+navProjects: Progetti
+overviewPinnedContent: Contenuti in evidenza dei canali
+overviewPinnedEmpty: "Nessun contenuto in evidenza nei canali; gli annunci dei gruppi non vengono aggregati qui (gli annunci appartengono ai singoli gruppi)"
+overviewRecentFiles: File recenti
+overviewRecentFilesEmpty: "I file caricati di recente verranno mostrati qui; puoi vedere gli allegati anche all'interno dei singoli canali"
+overviewResources: Riepilogo risorse
+overviewTitle: Panoramica
+pickerEmptySubtitle: "Crea un'area di lavoro e avvia la collaborazione del team in 3 minuti (canale Announcements e gruppo General creati automaticamente)"
+pickerEmptyTitle: Nessuna area di lavoro per ora
+pickerTitle: Le mie aree di lavoro
+projectChannelEmptySubtitle: "Dopo aver collegato un canale dell'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto"
+projectChannelEmptyTitle: Nessun canale collegato per ora
+projectChannelLinkExistingToast: Questo canale è già collegato
+projectChannelLinkTitle: Seleziona i canali da collegare
+projectChannelLinkedToast: Canale collegato
+projectChannelNoCandidate: Nessun canale candidato collegabile
+projectChannelUnlinkDesc: "Dopo lo scollegamento i contenuti del canale non verranno più aggregati in questo progetto"
+projectChannelUnlinkSubmit: Scollega
+projectChannelUnlinkTitle(name): "Scollega $name"
+projectChannelUnlinkedToast: Scollegato
+projectChannelsEntry: Canali del progetto
+projectChannelsTitle: Canali del progetto
+projectCreateEntry: Nuovo progetto
+projectCreateSuccess: Progetto creato con successo
+projectCreateTitle: Nuovo progetto
+projectDescHint: Cosa deve consegnare questo progetto?
+projectDescLabel: "Descrizione del progetto (opzionale)"
+projectDetailTitle: Dettagli progetto
+projectGuestReadonly: "Come Ospite (Guest) il progetto è in sola lettura"
+projectInsightsActivityEmpty: Nessuna attività per questo progetto
+projectInsightsEntry: Aggregazione contenuti
+projectInsightsPinnedEmpty: I canali collegati non hanno contenuti in evidenza per ora
+projectInsightsPostAuthor(name): Pubblicato da $name
+projectInsightsPostsEmpty: I canali collegati non hanno post per ora
+projectInsightsResourcesEmpty: Nessun link alle risorse per questo progetto
+projectInsightsTabActivity: Attività del progetto
+projectInsightsTabPinned: Messaggi in evidenza
+projectInsightsTabPosts: Post correlati
+projectInsightsTabResources: Link alle risorse
+projectLoadMore: Carica altro
+projectMarkDone: Segna come completato
+projectMemberAlreadyRemovedToast: Questo utente non è più tra i membri del progetto
+projectMemberEmptySubtitle: "Il responsabile del progetto può invitare utenti registrati a unirsi a questo progetto"
+projectMemberEmptyTitle: Nessun membro del progetto per ora
+projectMemberInviteExisting: Questo utente è già membro del progetto
+projectMemberInviteFieldHint: ID dell'utente registrato da invitare
+projectMemberInviteInvalidUid: Inserisci un ID utente valido
+projectMemberInviteSubmit: Invita
+projectMemberInviteSuccess: Aggiunto ai membri del progetto
+projectMemberInviteTitle: Invita membri nel progetto
+projectMemberRemoveConfirmDesc: "Dopo la rimozione l'utente perderà l'accesso ai contenuti di questo progetto (potrà essere invitato di nuovo)"
+projectMemberRemoveConfirmTitle(name): "Rimuovi il membro del progetto $name"
+projectMemberRemoveSubmit: Rimuovi
+projectMemberRemovedToast: Rimosso
+projectMemberTransferConfirm: Conferma trasferimento
+projectMemberTransferDesc: "Dopo il trasferimento l'altro otterrà il pieno controllo di gestione di questo progetto"
+projectMemberTransferDoneToast: Responsabilità del progetto trasferita
+projectMemberTransferTitle(name): "Trasferisci la responsabilità del progetto a $name"
+projectMembersEntry: Membri
+projectMembersTitle: Membri del progetto
+projectMilestoneAlreadyReachedToast: Questa milestone è già stata raggiunta
+projectMilestoneCreateSubmit: Crea
+projectMilestoneCreateTitle: Nuova milestone
+projectMilestoneCreatedToast: Milestone creata
+projectMilestoneDueDateInvalid: Il formato della data deve essere YYYY-MM-DD
+projectMilestoneDueDateLabel: "Data di scadenza (YYYY-MM-DD, opzionale)"
+projectMilestoneDueLabel: Scadenza
+projectMilestoneEmptySubtitle: "Contrassegna i nodi chiave del progetto con le milestone (pianificata → raggiunta, a senso unico)"
+projectMilestoneEmptyTitle: Nessuna milestone per ora
+projectMilestoneFilterAll: Tutte
+projectMilestoneFilterPlanned: Pianificate
+projectMilestoneFilterReached: Raggiunte
+projectMilestoneNameLabel: Nome
+projectMilestoneNameRequired: Il nome della milestone non può essere vuoto
+projectMilestoneReach: Segna come raggiunta
+projectMilestoneReachedHint: "Raggiunta (non è possibile tornare indietro)"
+projectMilestoneReachedToast: Milestone raggiunta
+projectMilestonesEntry: Milestone
+projectMilestonesTitle: Milestone
+projectNameHint: "Ad es.: Rifacimento sito web"
+projectNameLabel: Nome progetto
+projectNameRequired: Il nome del progetto non può essere vuoto
+projectNoPermission: "Nessun permesso: visibile solo ai membri del progetto, al responsabile del progetto o all'Owner dell'area di lavoro"
+projectOwnerLabel: Responsabile
+projectReopen: Riapri progetto
+projectStatusActive: In corso
+projectStatusChanged: Stato del progetto aggiornato
+projectStatusDone: Completato
+projectStatusLabel: Stato
+projectSubmit: Crea
+projectTasksSection: Attività
+projectW2SectionTitle: Collaborazione progetto
+projectsEmptySubtitle: "I progetti servono a monitorare obiettivi di consegna chiari; valgono anche per le aree di lavoro comunitarie con soli canali e gruppi"
+projectsEmptyTitle: Nessun progetto per ora
+projectsLoadMore: Carica altro
+removeMemberConfirm: Conferma rimozione
+removeMemberDesc: "Dopo la rimozione perderà subito l'accesso all'area di lavoro; se ha ancora attività non completate o progetti a sua responsabilità, il server restituirà un elenco di conflitti e annullerà la rimozione"
+removeMemberTitle(name): "Rimuovi il membro dell'area di lavoro $name"
+restoreConfirm: Conferma ripristino
+restoreDesc: Dopo il ripristino l'area di lavoro tornerà in lettura e scrittura
+restoreEntry: Ripristina area di lavoro
+restoreTitle: Ripristina area di lavoro
+resultFailed: Non riuscito
+resultIdle: Non eseguito
+resultRunning: In corso
+resultSuccess: Riuscito
+roleGuest: Guest
+roleMember: Member
+roleOwner: Owner
+switchToPersonal: Passa a personale
+switchToWorkspace: Passa ad area di lavoro
+switchWorkspace: Cambia area di lavoro
+taskAdvanceTo(status): "Avanza a «$status»"
+taskAssigneeLabel: "Responsabile (membro dell'area di lavoro)"
+taskAssigneeNone: Non assegnare per ora
+taskAssigneeRefresh: Aggiorna i candidati responsabili
+taskCreatedToast: Attività creata
+taskEmptySubtitle: "Monitora l'esecuzione con quattro stati: da fare → in corso → in revisione → completata"
+taskEmptyTitle: Nessuna attività per ora
+taskExistingToast: Esiste già un'attività con lo stesso titolo, verrà usata quella esistente
+taskFallbackMenuTitle(title): "Riporta \"$title\" a…"
+taskFilterAll: Tutte
+taskFormCreateTitle: Nuova attività
+taskFormEditTitle: Modifica attività
+taskNewEntry: Nuova attività
+taskStatusDoing: In corso
+taskStatusDone: Completata
+taskStatusMovedToast(status): "Spostata a «$status»"
+taskStatusReview: In revisione
+taskStatusTodo: Da fare
+taskSubmitCreate: Crea attività
+taskSubmitSave: Salva
+taskTitleLabel: Titolo attività
+taskTitleRequired: Il titolo dell'attività non può essere vuoto
+taskUpdatedToast: Attività salvata
+transferConfirm: Conferma trasferimento
+transferDesc: "Dopo il trasferimento diventerai un normale membro dell'area di lavoro (Member) e l'altro otterrà tutti i poteri di governance"
+transferTitle(name): "Trasferisci il ruolo di Owner principale a $name"

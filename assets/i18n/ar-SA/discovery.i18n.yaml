@@ -5,24 +5,15 @@ nearbyPeopleExplain: |-
   يمكن للمستخدمين القريبين عرض ملفك الشخصي وإرسال رسائل إليك. قد يساعدك هذا في العثور على أصدقاء جدد، لكنه قد يجذب أيضاً الكثير من الاهتمام. يمكنك إيقاف مشاركة ملفك الشخصي في أي وقت.
   رقم هاتفك سيتم إخفاؤه.
 peopleNearby: أشخاص قريبون
-peopleNearbyLogic: منطق الأشخاص القريبين
-scan: مسح ضوئي
 scanResult: نتيجة المسح
-scannerResult: نتيجة الماسح
-titleDiscover: اكتشاف
 myChannels: قنواتي
-channelSquare: ساحة القنوات
 otherUsersCanFindMe: يمكن للمستخدمين الآخرين العثور علي من خلال البحث
 moments: اللحظات
-momentsReport: الإبلاغ عن المنشور
-momentsReportDesc: وصف إضافي
-momentsComments: التعليقات
 momentsWriteComment: اكتب تعليقاً...
 momentsVisibility: الظهور
 momentsVisibilityPublic: عام
 momentsVisibilityPartial: بعض الأشخاص
 momentsVisibilityExclude: إخفاء عن...
-momentsDenyUidsLabel: قائمة UID المخفي عنهم (مفصولة بفواصل)
 momentsDraftRestored: تمت استعادة المسودة الأخيرة
 momentsFeedStale: خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً
 momentActionLike: "إعجاب"
@@ -34,18 +25,21 @@ momentActionCancel: "إلغاء"
 momentViewAllComments(count): "عرض كل التعليقات (${count})"
 momentLikedBy(names): "أعجب ${names}"
 momentAndOthersLiked(names,count): "${names} و${count} آخرون أعجبوا"
-momentPartialVisible: "جزئي"
 momentContentPlaceholder: "بماذا تفكر..."
 momentShowFull: "عرض الكل"
-momentExpand: "توسيع"
 momentCollapse: "طي"
-momentReportComment: "إبلاغ عن التعليق"
 momentsDraftKeepTitle: "حفظ المسودة؟"
 momentsDraftKeepMessage: "يمكنك المتابعة في المرة القادمة"
 momentsDraftDiscard: "عدم الحفظ"
 momentsDraftKeep: "حفظ"
-discover: اكتشاف
-shake: هز
 openChannel: فتح القناة
 paidChannelLocked: محتوى القناة المدفوعة مقفل
 webQRScanned: تم المسح
+momentActionMore: "المزيد من الإجراءات"
+momentLikesCountOnly(count): "${count} أعجبوا"
+momentLocation: الموقع الحالي
+momentLocationNone: عدم عرض الموقع
+momentAtWho: من تريد تنبيهه؟
+momentAtReminded(name): "نبّهت ${name}"
+momentAtRemindedMore(name, count): "نبّهت ${name} و${count} آخرين"
+momentAtCount(count): "${count} أشخاص"

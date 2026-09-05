@@ -2,15 +2,9 @@
 mentionAll: الجميع
 mentionAllHint: إشعار جميع أعضاء المجموعة
 noMatchedMember: لا يوجد أعضاء مطابقون
-selectMention: اختر عضوًا للإشارة إليه
 title: "@إشارات"
 noMention: لا توجد إشارات
 allRead: تمت قراءة الكل
-markAsRead: وضع علامة مقروء
-newMention: إشارة جديدة
-fromGroup: من مجموعة
-fromChat: من محادثة
-viewContext: عرض السياق
-mentionCount: "$count إشارات جديدة"
 mentionAllDenied: للمشرفين فقط استخدام @الجميع
 navInfoMissing: معلومات موقع الرسالة مفقودة، لا يمكن الانتقال
+pickButtonTooltip: "@إشارة إلى عضو"

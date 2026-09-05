@@ -1,23 +1,17 @@
 ---
-financialManagement: Vermögensverwaltung
 enterSameGroup: Mit Freunden in der Nähe denselben Gruppenchat beitreten
 enterTheGroup: Der Gruppe beitreten
 groupAlias: Mein Spitzname in dieser Gruppe
 groupAlbum: Gruppenalbum
 groupDissolve: Gruppe auflösen
-groupJoin: Gruppe beitreten
 groupLeave: Gruppe verlassen
-groupManagement: Gruppenverwaltung
 groupMembers: Gruppenmitglieder
 groupName: Gruppenname
 mutualGroupsWithHer: Gemeinsame Gruppen
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: Ehrengast
-groupMember: Member
 setAdmin: Set as Admin
-transferGroup: Transfer Ownership
-joinTime: Join Time
 selectGroup: Gruppe auswählen
 sureToDissolveGroup: Gruppe wirklich auflösen?
 sureToLeaveGroup: Gruppe wirklich verlassen?
@@ -43,3 +37,12 @@ e2eeKeyManagement: E2EE-Schlüsselverwaltung
 e2eeKeyManagementSubtitle: E2EE-Schlüssel sichern, wiederherstellen und verwalten
 e2eeTitle: Ende-zu-Ende-Verschlüsselung
 e2eeEnableConfirm: "Nach der Aktivierung werden Gruppennachrichten Ende-zu-Ende verschlüsselt und sind nur auf den Geräten der Mitglieder lesbar. Dies kann nicht rückgängig gemacht werden. Aktivieren?"
+enterGroupChat: Zum Gruppenchat
+groupCreated: Gruppenchat erstellt
+groupCreatedSuccess: Gruppenchat erstellt. Bitte vervollständigen Sie die Gruppeninfos oder treten Sie direkt bei
+groupInfo: Gruppenchat-Infos
+groupMemberRoleLabel: Mitglied
+moreActions: Weitere Aktionen
+noMemberWithRole: "Keine $roleName vorhanden"
+perfectionGroupInfo: Gruppeninfos vervollständigen
+touchContactAddMember: Kontakt antippen, um als Gruppenmitglied hinzuzufügen

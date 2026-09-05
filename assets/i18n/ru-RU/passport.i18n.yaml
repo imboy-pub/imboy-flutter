@@ -1,12 +1,18 @@
 ---
-retrievePassword: Восстановить пароль
 loginHistoryToggle: Показать историю входа
 hintEmail: Введите эл. почту
 hintMobile: Введите номер мобильного
-forgetPassword: Забыли пароль?
-register: Регистрация
 hintPassword: Введите пароль
 hintVerifyCode: Введите код подтверждения
 getVerifyCode: Получить код
-hasAccount: Уже есть аккаунт?
 oneKeyLogin: Быстрый вход
+qrCodeExpired: Срок действия QR-кода истёк, отсканируйте заново
+qrCodeUsed: Этот QR-код уже использован
+qrConnecting: Подключение...
+qrLoginAction: Подтвердить вход
+qrLoginCancelled: Вход отменён
+qrLoginCancelledByMe: Вы отменили вход
+qrLoginConfirming: Выполняется вход...
+qrLoginSuccess: Вход выполнен
+qrWebLoginDesc: Подтвердите вход этого аккаунта в веб-версии
+qrWebLoginTitle: Подтверждение входа в веб-версии

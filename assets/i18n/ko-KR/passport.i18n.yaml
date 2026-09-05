@@ -1,12 +1,18 @@
 ---
-retrievePassword: 비밀번호 찾기
 loginHistoryToggle: 로그인 기록 펼치기
 hintEmail: 이메일을 입력해 주세요
 hintMobile: 휴대폰 번호를 입력해 주세요
-forgetPassword: 비밀번호를 잊으셨나요?
-register: 회원가입
 hintPassword: 비밀번호를 입력해 주세요
 hintVerifyCode: 인증 코드를 입력해 주세요
 getVerifyCode: 인증 코드 받기
-hasAccount: 이미 계정이 있으신가요?
 oneKeyLogin: 원클릭 로그인
+qrCodeExpired: QR코드가 만료되었습니다. 다시 스캔해 주세요
+qrCodeUsed: 이 QR코드는 이미 사용되었습니다
+qrConnecting: "연결 중..."
+qrLoginAction: 로그인 확인
+qrLoginCancelled: 로그인이 취소되었습니다
+qrLoginCancelledByMe: 로그인을 취소했습니다
+qrLoginConfirming: "로그인 중..."
+qrLoginSuccess: 로그인 성공
+qrWebLoginDesc: 웹에서 이 계정으로 로그인하려 합니다. 확인해 주세요
+qrWebLoginTitle: 웹 로그인 확인

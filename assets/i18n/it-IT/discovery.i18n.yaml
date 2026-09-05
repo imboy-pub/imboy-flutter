@@ -5,24 +5,15 @@ nearbyPeopleExplain: |-
   Gli utenti nelle vicinanze possono visualizzare il tuo profilo e inviarti messaggi. Questo potrebbe aiutarti a trovare nuovi amici, ma potrebbe anche attirare troppa attenzione. Puoi smettere di condividere il tuo profilo in qualsiasi momento.
   Il tuo numero di telefono verrà nascosto.
 peopleNearby: Persone nelle vicinanze
-peopleNearbyLogic: Logica persone nelle vicinanze
-scan: Scansiona
 scanResult: Risultato scansione
-scannerResult: Risultato scanner
-titleDiscover: Scopri
 myChannels: I miei canali
-channelSquare: Esplora canali
 otherUsersCanFindMe: Altri utenti possono trovarmi tramite ricerca
 moments: Momenti
-momentsReport: Segnala momento
-momentsReportDesc: Descrizione
-momentsComments: Commenti
 momentsWriteComment: Scrivi un commento...
 momentsVisibility: Visibilità
 momentsVisibilityPublic: Pubblico
 momentsVisibilityPartial: Parziale
 momentsVisibilityExclude: Eccezioni
-momentsDenyUidsLabel: UID esclusi (separati da virgola)
 momentsDraftRestored: Bozza precedente ripristinata
 momentsFeedStale: Errore di rete, mostra contenuti in cache
 momentActionLike: "Mi piace"
@@ -34,18 +25,21 @@ momentActionCancel: "Annulla"
 momentViewAllComments(count): "Vedi tutti i ${count} commenti"
 momentLikedBy(names): "A ${names} piace"
 momentAndOthersLiked(names,count): "A ${names} e altri ${count} piace"
-momentPartialVisible: "Parziale"
 momentContentPlaceholder: "A cosa stai pensando..."
 momentShowFull: "Mostra tutto"
-momentExpand: "Espandi"
 momentCollapse: "Comprimi"
-momentReportComment: "Segnala commento"
 momentsDraftKeepTitle: "Conservare la bozza?"
 momentsDraftKeepMessage: "Potrai continuare la prossima volta"
 momentsDraftDiscard: "Non conservare"
 momentsDraftKeep: "Conserva"
-discover: Scopri
-shake: Scuoti
 openChannel: Apri canale
 paidChannelLocked: Contenuto bloccato (a pagamento)
 webQRScanned: Scansionato
+momentActionMore: Altre azioni
+momentAtCount(count): "${count} persone"
+momentAtReminded(name): "Ha avvisato ${name}"
+momentAtRemindedMore(name, count): "Ha avvisato ${name} e altri ${count}"
+momentAtWho: Chi avvisare
+momentLikesCountOnly(count): "Piace a ${count} persone"
+momentLocation: Posizione
+momentLocationNone: Non mostrare la posizione

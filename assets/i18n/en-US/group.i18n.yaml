@@ -1,19 +1,15 @@
-financialManagement: Wealth Management
 enterSameGroup: Join the same group chat with friends nearby
 enterTheGroup: Enter this group
 groupAlias: My nickname in this group
 groupAlbum: Group Album
 groupDissolve: Dissolve group
-groupJoin: Join group
 groupLeave: Leave group
-groupManagement: Group management
 groupMembers: Group members
 groupName: Group chat name
 mutualGroupsWithHer: Groups in common
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: Guest
-groupMember: Member
 groupInfo: Group Info
 groupMemberRoleLabel: Member
 noMemberWithRole(roleName): No $roleName yet
@@ -24,8 +20,6 @@ groupCreatedSuccess: "Group created successfully! Invite members or enter the gr
 enterGroupChat: Enter Group
 perfectionGroupInfo: Complete Group Info
 setAdmin: Set as Admin
-transferGroup: Transfer Ownership
-joinTime: Join Time
 selectGroup: Select group chat
 sureToDissolveGroup: Are you sure you want to dissolve this group?
 sureToLeaveGroup: Are you sure you want to leave this group?

@@ -6,18 +6,13 @@ subscribed: Abonniert
 managed: Verwaltet
 writeArticle: Beitrag schreiben
 discover: Entdecken
-search: Suchen
 create: Kanal erstellen
 searchHint: Kanalname oder ID suchen
-searchTip: Schlüsselwörter eingeben um Kanäle zu suchen
 noResults: Keine Kanäle gefunden
 noRecommendedChannels: Keine empfohlenen Kanäle Schauen Sie später vorbei
 noSubscribedChannels: Keine abonnierten Kanäle Entdecke mehr Kanäle
 noManagedChannels: Keine verwalteten Kanäle Erstelle einen Kanal um zu beginnen
-noMessages: Keine Nachrichten
 subscribers: Abonnenten
-pinned: Angepinnt
-view: Ansehen
 subscribe: Abonnieren
 subscribeSuccess: Erfolgreich abonniert
 subscribeFailed: Abonnieren fehlgeschlagen
@@ -37,7 +32,6 @@ customIdHint: 'z.B.: mein_kanal'
 customIdHelper: Ermöglicht Suche nach Kanal-ID
 customIdInvalid: Nur Buchstaben, Zahlen und Unterstriche erlaubt
 customIdLength: Muss 4-30 Zeichen lang sein
-typeLabel: Kanaltyp
 typePublic: Öffentlich
 typePrivate: Privat
 typePublicDesc: Jeder kann deinen Kanal finden und abonnieren
@@ -48,22 +42,13 @@ yesterday: Gestern
 daysAgo: Tage her
 messages: Nachrichten
 views: Aufrufe
-reactions: Reaktionen
-selectReaction: Reaktion auswählen
-react: Reagieren
-admin: Verwalten
-settings: Einstellungen
 editChannel: Kanal bearbeiten
-editChannelDesc: Kanalname, Beschreibung usw. aktualisieren
 editChannelNotImplemented: Kanal bearbeiten kommt bald
 manageAdmins: Admins verwalten
-manageAdminsDesc: Kanal-Admins hinzufügen oder entfernen
 manageAdminsNotImplemented: Admins verwalten kommt bald
 manageSubscribers: Abonnenten verwalten
-manageSubscribersDesc: Kanal-Abonnenten anzeigen und verwalten
 manageSubscribersNotImplemented: Abonnenten verwalten kommt bald
 deleteChannel: Kanal löschen
-deleteChannelDesc: Diese Aktion kann nicht rückgängig gemacht werden
 deleteChannelConfirm: Bist du sicher, dass du diesen Kanal löschen möchtest? Dies kann nicht rückgängig gemacht werden.
 deleteChannelNotImplemented: Kanal löschen kommt bald
 channelDeleted: Kanal gelöscht
@@ -89,8 +74,6 @@ removeAdminFailed: Admin entfernen fehlgeschlagen
 changeRole: Rolle ändern
 updateRoleSuccess: Rolle erfolgreich aktualisiert
 updateRoleFailed: Rolle aktualisieren fehlgeschlagen
-userId: Benutzer-ID
-userIdHint: Benutzer-ID eingeben
 selectFromContacts: Aus Kontakten wählen
 searchContactsHint: Spitzname oder Konto suchen
 noContactsToAdd: Alle Freunde sind bereits Administratoren
@@ -101,7 +84,6 @@ roleAdmin: Admin
 roleAdminDesc: Kanal verwalten
 roleEditor: Editor
 roleEditorDesc: Nachrichten veröffentlichen
-roleUnknown: Unbekannt
 searchSubscribers: Abonnenten suchen
 subscriberSearchHint: Nach Name oder ID suchen
 noSearchResults: Keine passenden Abonnenten gefunden
@@ -145,3 +127,63 @@ accessTypeFree: "Kostenlos"
 accessTypePaid: "Kostenpflichtig"
 typePublicPaidDesc: "Jeder kann den Kanal entdecken und nach dem Kauf abonnieren"
 typePrivatePaidDesc: "Nur eingeladene Nutzer können den Kaufvorgang starten und nach Zahlung abonnieren"
+addImage: Bild hinzufügen
+allCategories: Alle
+articleBodyHint: Schreiben Sie etwas… Fett, Kursiv, Überschriften, Listen u. a. Formatierungen werden unterstützt
+cancelOrder: Bestellung stornieren
+cancelOrderConfirmMessage: Diese offene Bestellung wirklich stornieren? Nach dem Stornieren ist keine Zahlung mehr möglich.
+cancelOrderConfirmTitle: Stornierung bestätigen
+cancelOrderSuccess: Bestellung storniert
+channelNotFound: Kanal nicht gefunden
+comment: Kommentar
+commentDeleteNoPermission: Keine Berechtigung zum Löschen dieses Kommentars
+commentFailed: Kommentar fehlgeschlagen
+coverLabel: Cover
+coverSet: Als Cover festgelegt
+deleteComment: Kommentar löschen
+deleteCommentConfirm: Diesen Kommentar wirklich löschen?
+formatBold: Fett
+formatHeading: Überschrift
+formatItalic: Kursiv
+formatLink: Link
+formatList: Liste
+formatQuote: Zitat
+formatStrikethrough: Durchgestrichen
+like: Gefällt mir
+linkTextPlaceholder: Linktext
+myOrders: Meine Bestellungen
+noComments: Keine Kommentare
+noOrders: Keine Bestellungen
+orderAmount: Betrag
+orderChannel: Kanal
+orderContinuePay: Weiter bezahlen
+orderCreatedAt: Bestelldatum
+orderDetail: Bestelldetails
+orderNo: Bestellnr.
+orderPaidAt: Zahlungsdatum
+orderPaymentMethod: Zahlungsart
+orderStatusCancelled: Storniert
+orderStatusExpired: Abgelaufen
+orderStatusLabel: Status
+orderStatusPaid: Bezahlt
+orderStatusPending: Offen
+orderStatusRefunded: Erstattet
+orderStatusRefunding: Erstattung läuft
+orderSubscriptionPeriod: Abo-Zeitraum
+orderValidUntil: Gültig bis
+payAlipay: Alipay
+payWallet: Wallet-Guthaben
+payWechat: WeChat Pay
+preview: Vorschau
+publish: Veröffentlichen
+readFull: Weiterlesen
+refundApply: Erstattung beantragen
+refundConfirmMessage: Für diese Bestellung wirklich eine Erstattung beantragen? Nach der Erstattung wird das Abo beendet.
+refundConfirmTitle: Erstattung bestätigen
+refundSuccess: Erstattungsantrag eingereicht
+reply: Antworten
+replyTo: Antwort an
+sortNewest: Neueste
+sortPopular: Beliebt
+titleOptional: Titel (optional)
+writeComment: Kommentar schreiben...

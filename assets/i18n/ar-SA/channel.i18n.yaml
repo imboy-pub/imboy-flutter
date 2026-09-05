@@ -6,18 +6,13 @@ subscribed: مشترك
 managed: مُدار
 writeArticle: كتابة منشور
 discover: استكشف
-search: بحث
 create: إنشاء قناة
 searchHint: البحث بالاسم أو المعرف
-searchTip: أدخل كلمات مفتاحية للبحث
 noResults: لم يتم العثور على قنوات
 noRecommendedChannels: لا توجد قنوات موصى بها تحقق مرة أخرى لاحقاً
 noSubscribedChannels: لا توجد اشتراكات اكتشف المزيد من القنوات
 noManagedChannels: لا توجد قنوات مُدارة أنشئ قناة للبدء
-noMessages: لا توجد رسائل
 subscribers: مشتركين
-pinned: مثبت
-view: عرض
 subscribe: اشتراك
 subscribeSuccess: تم الاشتراك بنجاح
 subscribeFailed: فشل الاشتراك
@@ -37,7 +32,6 @@ customIdHint: 'مثال: my_channel'
 customIdHelper: يتيح البحث بالمعرف
 customIdInvalid: فقط أحرف وأرقام وشرطات سفلية
 customIdLength: يجب أن يكون 4-30 حرفاً
-typeLabel: نوع القناة
 typePublic: عام
 typePrivate: خاص
 typePublicDesc: يمكن لأي شخص العثور والاشتراك
@@ -48,22 +42,13 @@ yesterday: أمس
 daysAgo: أيام مضت
 messages: الرسائل
 views: المشاهدات
-reactions: التفاعلات
-selectReaction: اختر تفاعل
-react: تفاعل
-admin: إدارة
-settings: إعدادات
 editChannel: تعديل القناة
-editChannelDesc: تحديث اسم القناة، الوصف، إلخ.
 editChannelNotImplemented: تعديل القناة قريباً
 manageAdmins: إدارة المشرفين
-manageAdminsDesc: إضافة أو إزالة مشرفي القناة
 manageAdminsNotImplemented: إدارة المشرفين قريباً
 manageSubscribers: إدارة المشتركين
-manageSubscribersDesc: عرض وإدارة مشتركي القناة
 manageSubscribersNotImplemented: إدارة المشتركين قريباً
 deleteChannel: حذف القناة
-deleteChannelDesc: لا يمكن التراجع عن هذا الإجراء
 deleteChannelConfirm: هل أنت متأكد أنك تريد حذف هذه القناة؟ لا يمكن التراجع عن هذا.
 deleteChannelNotImplemented: حذف القناة قريباً
 channelDeleted: تم حذف القناة
@@ -89,8 +74,6 @@ removeAdminFailed: فشل إزالة المسؤول
 changeRole: تغيير الدور
 updateRoleSuccess: تم تحديث الدور بنجاح
 updateRoleFailed: فشل تحديث الدور
-userId: معرف المستخدم
-userIdHint: أدخل معرف المستخدم
 selectFromContacts: اختيار من جهات الاتصال
 searchContactsHint: ابحث بالاسم أو الحساب
 noContactsToAdd: جميع الأصدقاء مشرفون بالفعل
@@ -101,7 +84,6 @@ roleAdmin: مسؤول
 roleAdminDesc: يدير القناة
 roleEditor: محرر
 roleEditorDesc: ينشر الرسائل
-roleUnknown: غير معروف
 searchSubscribers: البحث عن المشتركين
 subscriberSearchHint: البحث بالاسم أو المعرف
 noSearchResults: لم يتم العثور على مشتركين مطابقين
@@ -145,3 +127,63 @@ accessTypeFree: "مجاني"
 accessTypePaid: "مدفوع"
 typePublicPaidDesc: "يمكن لأي شخص اكتشاف القناة والاشتراك بعد الشراء"
 typePrivatePaidDesc: "يمكن للمستخدمين المدعوين فقط الدخول في عملية الشراء والاشتراك بعد الدفع"
+addImage: إضافة صورة
+allCategories: الكل
+articleBodyHint: اكتب شيئاً… يدعم الخط الغامق والمائل والعناوين والقوائم وغيرها من التنسيقات
+cancelOrder: إلغاء الطلب
+cancelOrderConfirmTitle: تأكيد إلغاء الطلب
+cancelOrderConfirmMessage: هل أنت متأكد من إلغاء هذا الطلب في انتظار الدفع؟ بعد الإلغاء لن تتمكن من متابعة الدفع.
+cancelOrderSuccess: تم إلغاء الطلب
+channelNotFound: القناة غير موجودة
+comment: تعليق
+commentFailed: فشل التعليق
+commentDeleteNoPermission: لا تملك صلاحية حذف هذا التعليق
+deleteComment: حذف التعليق
+deleteCommentConfirm: هل أنت متأكد من حذف هذا التعليق؟
+noComments: لا توجد تعليقات
+writeComment: اكتب تعليقاً...
+reply: رد
+replyTo: رداً على
+like: إعجاب
+coverLabel: الغلاف
+coverSet: تم التعيين كغلاف
+linkTextPlaceholder: نص الرابط
+formatBold: غامق
+formatItalic: مائل
+formatHeading: عنوان
+formatList: قائمة
+formatQuote: اقتباس
+formatLink: رابط
+formatStrikethrough: يتوسطه خط
+preview: معاينة
+publish: نشر
+readFull: قراءة النص الكامل
+sortNewest: الأحدث
+sortPopular: الأكثر رواجاً
+titleOptional: العنوان (اختياري)
+myOrders: طلباتي
+noOrders: لا توجد سجلات طلبات
+orderDetail: تفاصيل الطلب
+orderNo: رقم الطلب
+orderAmount: المبلغ
+orderChannel: القناة
+orderStatusLabel: الحالة
+orderStatusPending: في انتظار الدفع
+orderStatusPaid: مدفوع
+orderStatusCancelled: ملغى
+orderStatusExpired: منتهٍ
+orderStatusRefunded: مسترد
+orderStatusRefunding: قيد الاسترداد
+orderCreatedAt: وقت الطلب
+orderPaidAt: وقت الدفع
+orderPaymentMethod: طريقة الدفع
+orderSubscriptionPeriod: مدة الاشتراك
+orderValidUntil: صالح حتى
+orderContinuePay: متابعة الدفع
+payAlipay: Alipay
+payWechat: WeChat Pay
+payWallet: رصيد المحفظة
+refundApply: طلب استرداد
+refundConfirmTitle: تأكيد الاسترداد
+refundConfirmMessage: هل أنت متأكد من طلب استرداد المبلغ لهذا الطلب؟ سيؤدي الاسترداد إلى إلغاء الاشتراك.
+refundSuccess: تم إرسال طلب الاسترداد

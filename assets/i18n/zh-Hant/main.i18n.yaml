@@ -1,10 +1,3 @@
-change: 更改
-entertainment: 電影演出
-lifePayment: 生活繳費
-medicalHealth: 醫療健康
-meituanDelivery: 美團外賣
-tencentService: 騰訊服務
-traffic: 交通
 totalAssets: 總資產
 album: 相簿
 appSize: 應用大小
@@ -12,70 +5,49 @@ arSa: 阿拉伯語（沙烏地阿拉伯）
 audio: 音訊
 barcodeFound: 找到條碼！
 botQianFan: 千帆機器人
-liveRoomWhipLabel: WHIP 推流地址
-liveRoomWhepLabel: WHEP 拉流地址
+liveRoomWhipLabel: WHIP 推流位址
+liveRoomWhepLabel: WHEP 拉流位址
 cache: 快取
 camera: 拍攝
-changeNameView: 修改名稱視圖
 changeParam: 更改$param
 chooseFromAlbum: 從相簿選擇
-clean: 清理
+clean: 清除
 codeSentToParam: 驗證碼已傳送到$param
-codeSentToType: 驗證碼已傳送到$param
-collected: 已收藏
+collected: 已加入收藏
 completed: 已完結
 copied: 已複製
-darkModel: 深色模式
+darkModel: 深色主題
 deDd: 德語（德國）
 disable: 停用
-earlier: 較早
-enGb: 英國英語
 enUs: 美國英語
 enable: 啟用
-example: 例：
 expired: 已過期
-extraItem: 額外項目
-faceToFaceLogic: 面對面建群邏輯
-favorites: 收藏
-female: 女
+favorites: 收藏夾
+female: 女生
 followSystem: 跟隨系統
 frFr: 法語（法國）
 from: 來自
-goClean: 前往清除
 good: 好棒
 hangup: 掛斷
-haveSet: 已設定
-httpParse: HTTP 解析
-iAm: 我是
+iAm: 本人是
 itIt: 義大利語（義大利）
 jaJp: 日語（日本）
-keepSecret: 保密
+keepSecret: 保守祕密
 lastActiveTime: 最近活躍時間
 lastSeenHide: 隱藏上線狀態
 lastSeenNever: 從未上線
 lastSeenWeeksAgo: $param週前
 lastSeenExactTime: 上次上線 $param
 licenseAgreement: 《軟體許可及服務協議》
-liveBroadcast: 直播
-liveRoomListView: 直播間列表視圖
-publisherPage: 推流頁面
-subscriber: 訂閱者
-loggingOut: 正在登出...
 loudspeaker: 擴音器
 makeYourselfInvisible: 讓自己不可見
 makeYourselfVisible: 讓自己可見
-male: 男
-manage: 管理
-markImportant: 重要
-markImportantDesc: 標記為重要訊息
-markStar: 收藏
-markStarDesc: 收藏此訊息
-markTodo: 待辦
-markTodoDesc: 標記為待辦事項
+male: 男生
+manage: 營運管理
+markStar: 加入收藏
 multiSelect: 多選
-multiSelectMode: 多選模式
-myFavorites: 我的收藏
-myLive: 我的直播
+myFavorites: 我的收藏夾
+myLive: 我的直播間
 name: 名稱
 numUnit: $param個
 openInBrowser: 在瀏覽器中開啟
@@ -83,17 +55,13 @@ or: 或
 otherParty: 對方
 packageSize: 套件大小
 peerHasHungUp: 對方已掛斷
-play: 播放
+play: 開始播放
 pleaseInputParam: 請輸入$param
 pleaseSelect: 請選擇
-quickFilters: 快速篩選
-quote: 引用
-recentlyUsed: 最近使用
+quote: 引言
+recentlyUsed: 最近使用的
 releaseEnd: 鬆開結束
-remainingChars: 還可輸入 $param 個字元
-kickMember: Remove from Group
 memberDetail: Member Details
-memberRole: Role
 replied: 已回覆
 ringing: 已響鈴...
 ruRu: 俄羅斯俄語
@@ -101,35 +69,24 @@ selectedCount: 已選 ($count)
 selected: 已選
 sent: 已傳送
 sentByMe: 我傳送的
-sentByOthers: 他人傳送的
 setParam: 設定$param
 setting: 設定
 siginQ: 已經有帳號了？
-signInWith: 用$param登入
 source: 來源
 speakingTooShort: 說話時間太短
-speed: 速度
-star: '@:main.markStar'
+speed: 倍速
 stillNeeded: 還需
 storageSpace: 儲存空間
-termOfServices: 服務條款
 text: 文字
 thisWeek: 本週
-timeRange: 時間範圍
-timeWeekdays: 星期一,星期二,星期三,星期四,星期五,星期六,星期日
-titleMine: 我的
-titleSquare: 廣場
-tooBad: 太差了
+titleMine: 個人頁
+tooBad: 太糟糕了
 tryAgainQ: 想再試一次嗎？
 type: 類型
 unanswered: 未應答
-unnamed: 未命名
-upToWords: 最多$param個字
-upgrade: 升級
+unnamed: 無名稱
 usedSpace: 已使用空間
-webView: 網頁視圖
 you: 您
-yourFeel: 這讓您感覺如何?
 zhCn: 簡體中文
 zhHant: 繁體中文
 bound: 已綁定
@@ -138,59 +95,37 @@ pendingInput: 待輸入
 lengthCheck: 長度檢查
 bugReport: 錯誤報告
 deleting: 刪除中...
-current: 目前
 publish: 發布
 privacyPolicy: 隱私政策
 termsOfService: 服務條款
 saving: '@:common.loading'
-topStories: 看一看
 systemDefault: 系統預設
-custom: 自訂
-previewArea: 預覽區域
-simpleTexture: 簡約紋理
 gradientBlue: 漸變藍
 gradientPurple: 漸變紫
 copiedToClipboard: 已複製到剪貼板
-copiedLink: 已複製連結
 destroyTime: 銷毀時間
 previewEffect: 預覽效果
 thisIsTitleText: 這是標題文字
 thisIsAuxiliaryText: 這是輔助說明文字
-toBeCompleted: 待完善
+toBeCompleted: 待補充
 availableCount: 可選擇
-mostUsed: 最常用
-commentPlaceholder: 評論...
-delayMsLabel: 延時毫秒 (>=100)
-processed: 已處理
-export: 匯出
+mostUsed: 常用
 school: 學校
 hobbiesAndInterests: 興趣愛好
 interests: Interests
-pleaseEnterSchool: Please enter school
-pleaseEnterInterests: Please enter interests
-manageVisibility: 管理個人資訊的可見性
-exportToLocal: 匯出個人資料到本地
-exportAsText: Export as text format
 selectFromAlbum: 從相簿選擇
-volumeUp: 音量增加
+volumeUp: 調高音量
 volumeDown: 音量減少
-fastRewind: 快退 $seconds秒
+fastRewind: 倒轉 $seconds 秒
 pleaseTryAgain: 請重試
-secret: 保密
-takePhoto: 拍照
-publishing: 發布中...
+secret: 保守祕密
+takePhoto: 拍攝照片
 deletingInProgressPleaseWait: 正在刪除中，請稍候...
-testUser1: 用家 1
-testUser2: 用家 2
-testUser3: 用家 3
-testUser4: 用家 4
-testUser5: 用家 5
-collecting: 收藏中...
+collecting: 加入收藏中...
 user: 用家
 recommended: 推薦
-larger: 更大
-currentLength: 目前長度：$param1 / $param2
-fillIn: 填入
+larger: 放大
+fillIn: 填寫
 msgProtectedByComplianceKey: 訊息受合規金鑰保護
 inviterLabel(uid): '邀請人: $uid'
 inviteeLabel(uid): '被邀請人: $uid'
@@ -198,7 +133,7 @@ mySentTab: 我發出的
 reject: 拒絕
 myOrders: 我的訂單
 purchaseUnlockHint: 購買後可解鎖頻道歷史訊息與後續更新內容。
-payingDots: 支付中...
+payingDots: 付款中...
 purchaseAndUnlock: 立即購買並解鎖
 orderDetail: 訂單詳情
 orderAmountLabel(currency, amount): '金額: $currency $amount'
@@ -206,76 +141,60 @@ channelPriceLabel(currency, amount): 價格：$currency $amount
 e2eeKeyRecoveryTitle: 端到端加密金鑰管理
 e2eeRecoveryMethods: 金鑰恢復方法
 e2eeDangerousOps: 危險操作
-e2eeSocialRecovery: 社交恢復
-e2eeSocialRecoveryDesc: 透過信任的聯絡人協助恢復金鑰
 e2eeKeyIdLabel: 金鑰 ID
 e2eeWarnIrreversible: • 此操作不可撤銷
 e2eeWarnNeedRestoreOrNew: • 需要從備份恢復或生成新金鑰
-gotIt: 我知道了
-e2eeRecoverKeyTitle: 恢復金鑰
-e2eeCanRecoverKey: 可以恢復金鑰
-e2eeInsufficientShards: 分片數量不足
+gotIt: 了解了
 e2eeProxyUser(uid): '代理使用者: $uid'
-e2eeShardLabel(index, total): 分片 $index / $total
-e2eeReloadShards: 重新載入
-e2eeRecovering: 恢復中...
-e2eeKeyRestored: 金鑰已成功恢復
+e2eeShardLabel(index, total): 金鑰分片 $index / $total
 e2eeUsedShards(count): 已使用 $count 個代理分片
-e2eePreparing: 準備恢復...
 e2eeRecoveryProgressLabel(collected, total): '進度: $collected / $total 個分片'
-e2eeCollectingShards(collected, total): 正在收集分片 ($collected/$total)...
-e2eeShardsCollected: 分片收集完成，正在重組金鑰...
+e2eeCollectingShards(collected, total): 正在收集金鑰分片 ($collected/$total)...
 webQRLoggingIn: 登入中...
 webQRExpired: 二維碼已過期
 webQRRefresh: 重新整理二維碼
 webSwitchToQR: 使用 QR 碼登入
 e2eeErrDefault: 端到端加密失敗，訊息未傳送
 e2eeErrPeerDeviceNotReady: 有成員的裝置尚未完成安全設定，訊息未傳送；請稍後重試
-e2eeSocialTotalShards: 總分片數
-e2eeSocialThreshold: 恢復閾值
 e2eeSocialThresholdHint(count): 恢復金鑰時需要 $count 個代理協助
-e2eeSocialSelectProxy: 選擇恢復代理
 e2eeSocialProxyNeeded(count): 需要 $count 個信任的聯絡人作為代理
 e2eeSocialProxyDefaultName(uid): 使用者 $uid
-e2eeSocialShardSentViaWs: 分片已透過 WebSocket 直接傳送到代理裝置儲存
 e2eeSocialSentCount(sent, total): 已傳送到 $sent 個代理裝置（共 $total 個）
-e2eeSocialManageTitle: 管理分片
-e2eeSocialMyShards: 我的分片
-e2eeSocialProxyShards: 代理分片
-e2eeSocialShardOf(idx, total): 分片 $idx / $total
-e2eeSocialShardActive: 活躍
-e2eeSocialShardUsed: 已使用
-e2eeSocialShardValid: 分片有效
+e2eeSocialShardOf(idx, total): 金鑰分片 $idx / $total
 e2eeSocialUserShard(uid): 使用者 $uid 的金鑰分片
-e2eeSocialProxyUserLabel: 代理使用者
-e2eeSocialRecoveryThresholdLabel: 恢復閾值
-e2eeSocialShardIndexLabel: 分片編號
-e2eeTransferQRHint: 請在新裝置上掃描此二維碼
 e2eeTransferQRExpiry(time): 二維碼將在 $time 過期
-e2eeTransferRefreshQR: 重新整理二維碼
-e2eeTransferEnterUidTitle: 輸入接收方使用者 ID
-e2eeTransferUidPlaceholder: 接收方使用者 ID
-e2eeTransferReceiving: 正在接受傳輸...
-e2eeTransferPageTitle: 裝置間傳輸
-e2eeTransferPendingItem: 待處理的金鑰傳輸
-e2eeTransferPendingItemDesc: 點選檢視詳情
-e2eeTransferView: 檢視
-e2eeSocialTitle: 社交恢復
-e2eeSocialCanRecover: 可以恢復金鑰
-e2eeSocialSetupProxy: 設定恢復代理
-e2eeSocialChooseProxy: 選擇信任的聯絡人作為恢復代理
-e2eeSocialExistingShards: 現有恢復分片
-e2eeSocialRecoverKeyTitle: 恢復金鑰
-e2eeSocialRecoverKeyDesc: 使用代理的分片恢復金鑰
-e2eeSocialManageShardsTitle: 管理分片
-e2eeSocialManageShardsDesc: 檢視和管理所有恢復分片
-e2eeSocialZeroTrustHint1: 零信任架構：服務端不儲存分片，直接聯絡代理
-e2eeSocialZeroTrustHint2: 零信任架構：分片儲存在代理裝置
-e2eeSocialZeroTrustHint3: 零信任架構：分片由代理裝置儲存，服務端不接觸明文
 e2eeProxyMinCount(count): 請至少選擇 $count 個代理
-e2eeProxySelectTitle: 選擇恢復代理
 e2eeProxySelectedCount(selected, total): 已選 $selected / $total
-e2eeProxyReachedMin: 已達到最少代理數量
 liveRoomTitleLabel: 直播間標題
 liveRoomTitleHint: 請輸入直播間標題
 lightModel: 淺色模式
+# ===== 以下為 P8 補齊鍵（按 zh-CN 鍵序） =====
+complianceKeyInfoAlgorithm: 演算法
+complianceKeyInfoChangedWarning: ⚠️ 伺服器下發的合規公開金鑰與本地固定值不一致！若這不是管理員有意進行的輪替，請立即聯絡管理員，並停止傳送加密訊息。
+complianceKeyInfoFetchedAt: 取得時間
+complianceKeyInfoFingerprint: 公開金鑰指紋
+complianceKeyInfoHint: 合規稽核金鑰用於 compliance_e2ee 模式的雙重加密。若上方指紋與管理員公布的指紋不一致，表示伺服器可能已遭竄改。
+complianceKeyInfoKeyId: 金鑰 ID
+complianceKeyInfoLocalPin: 裝置端固定（TOFU）
+complianceKeyInfoPinnedAt: 固定時間
+complianceKeyInfoPinnedNone: 尚未固定（下次取得時自動固定）
+complianceKeyInfoRefreshFailed: 取得失敗，請檢查網路後重試
+complianceKeyInfoServerKey: 伺服器下發的公開金鑰
+complianceKeyInfoTitle: 合規稽核金鑰
+e2eeErrComplianceChanged: 合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試
+e2eeErrComplianceUnavailable: 合規金鑰暫時無法使用，訊息未傳送，請稍後重試
+e2eeErrDeviceNotReady: 目前裝置未完成安全初始化，請登出後重新登入再試
+e2eeErrProtocolMismatch: 加密協定設定異常，請更新應用程式後重試
+e2eeErrSessionExportFailed: 群組會話金鑰產生失敗，請稍後重試
+safetyNumberCopied: 已複製
+safetyNumberCopy: 複製
+safetyNumberHint: 請透過面對面或電話與對方比對安全碼。若一致，表示你們的通訊沒有被中間人監聽；若不一致，請立即停止對話，並透過其他管道核實對方身分。驗證狀態僅保存在本機。
+safetyNumberMarkVerified: 標記為已驗證
+safetyNumberMarkedVerified: 已標記為已驗證
+safetyNumberNoDevices: 對方尚未啟用端對端加密
+safetyNumberPeerDevice: 對方裝置
+safetyNumberReportRejected: 伺服器拒絕了該驗證事件（簽章/時效不符），未標記
+safetyNumberReportUnavailable: 無法取得裝置資訊，未上報
+safetyNumberReporting: 正在上報驗證結果...
+safetyNumberTitle: 安全碼驗證
+safetyNumberVerifyFailed: 取得安全碼失敗，請稍後重試

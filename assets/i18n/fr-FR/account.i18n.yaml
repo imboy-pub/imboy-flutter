@@ -1,7 +1,6 @@
 ---
 account: Compte
 accountSecurity: Sécurité du compte
-mobileRecharge: Recharge mobile
 avatar: Photo de profil
 accountSecurityEnhance: Améliorer la sécurité du compte
 bindMobile: Associer le numéro de téléphone
@@ -17,10 +16,8 @@ deviceName: Nom de l'appareil
 deviceType: Type d'appareil
 deviceUsedSpace: Espace utilisé sur l'appareil
 email: E-mail
-existingPassword: Mot de passe actuel
 forgotPassword: Mot de passe oublié ?
 gender: Genre
-genderSaving: Enregistrement en cours...
 groupQrcode: Code QR du groupe
 hintLoginAccount: Compte/E-mail
 logOut: Se déconnecter
@@ -36,33 +33,20 @@ myQrcode: Mon code QR
 newPassword: Nouveau mot de passe
 newlyRegisteredPeople: Nouveaux inscrits
 nickname: Surnom
-nicknameChangeVisibility: Après modification du surnom, il ne s'affichera que dans ce groupe et tous les membres du groupe pourront le voir.
-nicknameCharsRemaining: Il reste encore $param caractères.
 nicknameHint: Entrez un surnom.
-nicknameSaving: Enregistrement en cours...
-paramLogin: Connexion $param.
 password: Mot de passe
-recentlyRegisteredUser: Utilisateur récemment inscrit
-recoverCodePasswordDesc: Nous enverrons le code de récupération de mot de passe à votre adresse e-mail.
 recoverPassword: Récupérer le mot de passe
-recoverPasswordDesc: Entrez votre adresse e-mail. Nous vous enverrons un code de réinitialisation du mot de passe.
-recoverPasswordIntro: Ne vous inquiétez pas, cela arrive souvent.
 birthday: Date de naissance
 region: Région
 retypePassword: Ressaisir le mot de passe
 scanQrCode: Scanner le code QR
-securityCenter: Centre de sécurité
 setNickname: Définir le surnom
 signature: Signature
 signup: S'inscrire
-signupFormDesc: Veuillez remplir ce formulaire pour terminer l'inscription.
 sourceQrcode: Ajouter via scan
-switchAccount: Changer de compte
 changeEmail: Modifier l'e-mail
 bindEmail: Associer l'e-mail
 currentEmail: E-mail actuel
-newEmailSameAsCurrent: Le nouvel e-mail est identique à l'actuel.
-newMobileSameAsCurrent: Le nouveau numéro de téléphone est identique à l'actuel.
 setPassword: Définir le mot de passe
 setLoginPassword: Définir le mot de passe de connexion
 enhanceAccountSecurity: Améliorer la sécurité du compte
@@ -73,11 +57,9 @@ changeMobile: Changer de numéro de téléphone
 currentMobile: Numéro de téléphone actuel
 newMobile: Nouveau numéro de téléphone
 enterMobileHint: Entrez le numéro de téléphone
-codeSentToMobileParam: Envoyé à $param
 privacyLogoutAccount: Supprimer le compte
 wallet: Portefeuille
 changeLoginPassword: Modifier le mot de passe de connexion
-loginExpiredTitle: Notification
 otherDevice: Autre appareil
 loginPassword: Mot de passe de connexion
 loginPasswordDesc: Utilisé pour se connecter au compte IMBoy.
@@ -85,17 +67,10 @@ oldPassword: Ancien mot de passe
 enterOldPassword: Entrez l'ancien mot de passe.
 enterNewPassword: Entrez le nouveau mot de passe.
 enterNewPasswordAgain: Entrez à nouveau le nouveau mot de passe.
-balance: Solde
-recharge: Recharger
-withdraw: Retirer
-paymentPassword: Mot de passe de paiement
-setPaymentPassword: Définir le mot de passe de paiement
-enterPaymentPassword: Entrez le mot de passe de paiement.
 myQRCode: Mon code QR
 profile: Profile
 setGender: Définir le genre
 setBirthday: Définir la date de naissance
-sentToEmail: Envoyé à $param
 nicknameRules: "• Longueur du surnom : 2-24 caractères • Ne peut pas contenir uniquement des espaces ou des émojis • Ne peut pas contenir de mots sensibles • Les modifications seront reflétées dans tous les chats"
 refreshDeviceKey: Actualiser la clé
 refreshDeviceKeyHint: Si les messages ne se déchiffrent pas, actualisez la clé ici
@@ -104,8 +79,6 @@ deviceKeyRefreshed: Clé actualisée
 rechargeTitle: Recharger
 rechargeAmountHint: Montant (yuan), 0.01–10000
 rechargeAmountExample: ex. 100
-e2eeDeviceTransfer: Transfert entre appareils
-e2eeDeviceTransferDesc: Transférer la clé vers un nouvel appareil via QR code
 e2eeDeviceIdLabel: ID d'appareil
 webQRLoginTitle: Connexion par QR code
 webQRLoginHint: Scannez le QR code avec l'app ImBoy
@@ -113,6 +86,28 @@ webSwitchToPassword: Connexion par mot de passe
 webPasswordLoginTitle: Connexion compte
 webAccountHint: Compte/mobile/e-mail
 webPasswordHint: Mot de passe
-e2eeTransferFromOldDevice: Depuis l'ancien appareil
 pleaseRelogin: Reconnectez-vous
 otherLoginMethods: "Autres méthodes de connexion"
+alipaySim:
+  alipaySuccess: "Paiement réussi"
+  balanceSource: "Solde du compte"
+  confirmPay: "Confirmer le paiement"
+  energy: "Paiement réussi : 5 g d'énergie verte offerts"
+  enterPassword: "Veuillez saisir le mot de passe de paiement"
+  huabei: "Huabei en plusieurs fois"
+  paymentAmount: "Montant :"
+  selectMethod: "Choisir le mode de paiement"
+  storeName: "Boutique phare des technologies de l'information"
+logoutCancelRequest: "Retirer la demande de suppression du compte"
+logoutCancelledNote: "Demande de suppression du compte retirée"
+logoutPendingBanner(date): "Demande de suppression soumise ; finalisation prévue le $date"
+logoutPendingHeader: "Statut de la demande de suppression"
+logoutRetainedHeader: "Conservation des données"
+logoutRetainedNote: "Après la suppression : les journaux d'audit et les enregistrements financiers sont conservés puis anonymisés conformément à la loi ; les groupes/espaces de travail/canaux que vous possédez seront transférés en priorité aux membres successeurs"
+payCancelled: "Paiement annulé"
+payMethodAlipay: "Alipay"
+payMethodComingSoon: "Ce mode de paiement sera bientôt disponible, restez à l'écoute"
+payMethodMock: "Paiement simulé (environnement de développement)"
+payMethodTitle: "Choisir le mode de paiement"
+payMethodWallet: "Solde du portefeuille"
+payMethodWechat: "WeChat Pay"

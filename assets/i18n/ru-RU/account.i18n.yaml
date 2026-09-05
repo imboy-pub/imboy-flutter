@@ -1,7 +1,6 @@
 ---
 account: Аккаунт
 accountSecurity: Безопасность аккаунта
-mobileRecharge: Пополнение мобильного
 avatar: Аватар
 accountSecurityEnhance: Повысить безопасность аккаунта
 bindMobile: Привязать мобильный
@@ -17,10 +16,8 @@ deviceName: Имя устройства
 deviceType: Тип устройства
 deviceUsedSpace: Использованное место на устройстве
 email: Электронная почта
-existingPassword: Текущий пароль
 forgotPassword: Забыли пароль?
 gender: Пол
-genderSaving: Сохранение...
 groupQrcode: QR-код группы
 hintLoginAccount: Аккаунт/Эл. почта
 logOut: Выйти
@@ -36,33 +33,20 @@ myQrcode: Мой QR-код
 newPassword: Новый пароль
 newlyRegisteredPeople: Недавно зарегистрированные
 nickname: Никнейм
-nicknameChangeVisibility: Никнейм виден только в этой группе
-nicknameCharsRemaining: Можно ввести ещё $param символов
 nicknameHint: Введите никнейм
-nicknameSaving: Сохранение...
-paramLogin: Войти через $param
 password: Пароль
-recentlyRegisteredUser: Недавно зарегистрированный пользователь
-recoverCodePasswordDesc: Код восстановления отправлен на эл. почту
 recoverPassword: Восстановить пароль
-recoverPasswordDesc: Введите адрес электронной почты. Мы отправим вам код для сброса пароля.
-recoverPasswordIntro: Не расстраивайтесь, это бывает.
 birthday: Дата рождения
 region: Регион
 retypePassword: Введите пароль снова
 scanQrCode: Сканировать QR-код
-securityCenter: Центр безопасности
 setNickname: Установить никнейм
 signature: Подпись
 signup: Регистрация
-signupFormDesc: Заполните форму, чтобы завершить регистрацию
 sourceQrcode: Добавить через сканирование
-switchAccount: Переключить аккаунт
 changeEmail: Изменить эл. почту
 bindEmail: Привязать эл. почту
 currentEmail: Текущая эл. почта
-newEmailSameAsCurrent: Новая эл. почта совпадает с текущей
-newMobileSameAsCurrent: Новый мобильный совпадает с текущим
 setPassword: Установить пароль
 setLoginPassword: Установить пароль для входа
 enhanceAccountSecurity: Повысить безопасность аккаунта
@@ -73,11 +57,9 @@ changeMobile: Изменить мобильный
 currentMobile: Текущий мобильный
 newMobile: Новый мобильный
 enterMobileHint: Введите номер мобильного
-codeSentToMobileParam: Отправлено на $param
 privacyLogoutAccount: Удалить аккаунт
 wallet: Кошелёк
 changeLoginPassword: Изменить пароль для входа
-loginExpiredTitle: Уведомление
 otherDevice: Другое устройство
 loginPassword: Пароль для входа
 loginPasswordDesc: Используется для входа в аккаунт IMBoy
@@ -85,17 +67,10 @@ oldPassword: Старый пароль
 enterOldPassword: Пожалуйста, введите старый пароль
 enterNewPassword: Пожалуйста, введите новый пароль
 enterNewPasswordAgain: Пожалуйста, введите новый пароль ещё раз
-balance: Баланс
-recharge: Пополнить
-withdraw: Вывести
-paymentPassword: Платёжный пароль
-setPaymentPassword: Установить платёжный пароль
-enterPaymentPassword: Пожалуйста, введите платёжный пароль
 myQRCode: Мой QR-код
 profile: Profile
 setGender: Установить пол
 setBirthday: Установить дату рождения
-sentToEmail: Отправлено на $param
 nicknameRules: "• 2–24 символа • Нельзя только пробелы или только эмодзи • Нельзя чувствительные слова • После изменения отображается во всех чатах"
 refreshDeviceKey: Обновить ключ устройства
 refreshDeviceKeyHint: Если сообщения не расшифровываются, обновите ключ этой кнопкой
@@ -104,8 +79,6 @@ deviceKeyRefreshed: Ключ устройства обновлён
 rechargeTitle: Пополнение
 rechargeAmountHint: Введите сумму пополнения (юаней), 0.01–10000
 rechargeAmountExample: 'Например: 100'
-e2eeDeviceTransfer: Передача между устройствами
-e2eeDeviceTransferDesc: Прямая передача ключа на новое устройство через QR-код
 e2eeDeviceIdLabel: ID устройства
 webQRLoginTitle: Вход по QR-коду
 webQRLoginHint: Отсканируйте QR-код приложением ImBoy на телефоне
@@ -113,6 +86,28 @@ webSwitchToPassword: Войти по паролю
 webPasswordLoginTitle: Вход по аккаунту
 webAccountHint: Введите аккаунт/телефон/email
 webPasswordHint: Введите пароль
-e2eeTransferFromOldDevice: Получить ключ со старого устройства
 pleaseRelogin: Войдите заново
 otherLoginMethods: "Другие способы входа"
+logoutCancelRequest: Отменить заявку на удаление
+logoutCancelledNote: Заявка на удаление отменена
+logoutPendingBanner: "Заявка на удаление подана, ожидаемое завершение — $date"
+logoutPendingHeader: Статус заявки на удаление
+logoutRetainedHeader: О хранении данных
+logoutRetainedNote: "После удаления: журналы аудита и финансовые записи хранятся и анонимизируются в соответствии с законом; ваши группы/рабочие пространства/каналы будут сначала переданы преемникам"
+payCancelled: Оплата отменена
+payMethodAlipay: Alipay
+payMethodComingSoon: Этот способ оплаты скоро станет доступен
+payMethodMock: Тестовая оплата (среда разработки)
+payMethodTitle: Выбор способа оплаты
+payMethodWallet: Баланс кошелька
+payMethodWechat: WeChat Pay
+alipaySim:
+  alipaySuccess: Платёж выполнен
+  balanceSource: Баланс аккаунта
+  confirmPay: Подтвердить оплату
+  energy: "За платёж начислено 5 г зелёной энергии"
+  enterPassword: Введите платёжный пароль
+  huabei: Huabei (рассрочка)
+  paymentAmount: "Сумма:"
+  selectMethod: Выберите способ оплаты
+  storeName: Флагманский магазин информационных технологий

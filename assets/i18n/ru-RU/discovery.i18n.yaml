@@ -5,24 +5,15 @@ nearbyPeopleExplain: |-
   Пользователи рядом могут просматривать ваш профиль и отправлять вам сообщения. Это может помочь вам найти новых друзей, но также может привлечь чрезмерное внимание. Вы можете в любое время прекратить публикацию вашего профиля.
   Ваш номер телефона будет скрыт.
 peopleNearby: Люди рядом
-peopleNearbyLogic: Логика людей поблизости
-scan: Сканировать
 scanResult: Результат сканирования
-scannerResult: Результат сканирования
-titleDiscover: Обнаружить
 myChannels: Мои каналы
-channelSquare: Площадка каналов
 otherUsersCanFindMe: Другие пользователи могут найти меня через поиск
 moments: Моменты
-momentsReport: Пожаловаться на публикацию
-momentsReportDesc: Дополнительное описание
-momentsComments: Комментарии
 momentsWriteComment: Написать комментарий...
 momentsVisibility: Видимость
 momentsVisibilityPublic: Все
 momentsVisibilityPartial: Некоторые
 momentsVisibilityExclude: Скрыть от...
-momentsDenyUidsLabel: Скрыть от UID (через запятую)
 momentsDraftRestored: Восстановлен черновик
 momentsFeedStale: Сетевая ошибка, показан кэш
 momentActionLike: "Нравится"
@@ -34,18 +25,21 @@ momentActionCancel: "Отмена"
 momentViewAllComments(count): "Все комментарии (${count})"
 momentLikedBy(names): "${names} оценили это"
 momentAndOthersLiked(names,count): "${names} и еще ${count} оценили это"
-momentPartialVisible: "Частично"
+momentLikesCountOnly(count): "${count} человек оценили это"
 momentContentPlaceholder: "О чём вы думаете..."
 momentShowFull: "Показать полностью"
-momentExpand: "Развернуть"
 momentCollapse: "Свернуть"
-momentReportComment: "Пожаловаться на комментарий"
 momentsDraftKeepTitle: "Сохранить черновик?"
 momentsDraftKeepMessage: "Сможете продолжить в следующий раз"
 momentsDraftDiscard: "Не сохранять"
 momentsDraftKeep: "Сохранить"
-discover: Обзор
-shake: Встряхнуть
 openChannel: Открыть канал
 paidChannelLocked: Содержимое платного канала заблокировано
 webQRScanned: Отсканировано
+momentActionMore: Другие действия
+momentAtCount: "${count} чел."
+momentAtReminded: "Напоминание: ${name}"
+momentAtRemindedMore: "Напоминание: ${name} и ещё ${count} чел."
+momentAtWho: Кого напомнить?
+momentLocation: Местоположение
+momentLocationNone: Не показывать местоположение

@@ -2,14 +2,9 @@
 title: Gruppenkategorien
 createCategory: Kategorie erstellen
 categoryName: Kategorie-Name
-categoryDesc: Beschreibung (optional)
 noCategory: Keine Kategorien
-createFirst: Erste Kategorie erstellen
-addGroup: Gruppe zur Kategorie hinzufügen
-removeGroup: Aus Kategorie entfernen
 deleteCategory: Kategorie löschen
 deleteCategoryConfirm: Diese Kategorie wirklich löschen? Gruppen bleiben erhalten.
-categoryCreated: Kategorie erstellt
 categoryDeleted: Kategorie gelöscht
 renameCategory: Kategorie umbenennen
 categoryRenamed: Kategorie umbenannt

@@ -1,15 +1,9 @@
 mentionAll: Everyone
 mentionAllHint: Notify all group members
 noMatchedMember: No matching members
-selectMention: Select a member to mention
 title: "@Mentions"
 noMention: No mentions yet
 allRead: All read
-markAsRead: Mark as read
-newMention: New mention
-fromGroup: From group
-fromChat: From chat
-viewContext: View context
-mentionCount: $count new mentions
 mentionAllDenied: "Only admins can @everyone"
 navInfoMissing: "Message location info missing, unable to navigate"
+pickButtonTooltip: "@Mention a member"

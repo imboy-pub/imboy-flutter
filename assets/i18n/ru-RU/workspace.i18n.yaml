@@ -1,0 +1,241 @@
+# WP5 (T9) — пространство имён Workspace (двойной режим, v2.5.2)
+# Терминология: участник рабочего пространства / участник группы / подписчик канала;
+# роли Owner / Member / Guest остаются латиницей, как в zh-CN.
+navOverview: Обзор
+navProjects: Проекты
+navChannels: Каналы
+navGroups: Группы
+pickerTitle: Мои рабочие пространства
+switchWorkspace: Сменить рабочее пространство
+pickerEmptyTitle: Пока нет рабочих пространств
+pickerEmptySubtitle: "Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)"
+archivedBadge: В архиве
+emptyNoWorkspace: Сначала выберите или создайте рабочее пространство
+dmEntry: Все сообщения
+# ==================== переключение личного режима / режима рабочего пространства ====================
+experienceModeEntry: Макет главного экрана
+experienceModeHint: "Выберите режим использования на этом устройстве; меняется только макет главного экрана, права и участие в рабочем пространстве не затрагиваются"
+experienceModePersonal: Личный
+experienceModeWorkspace: Рабочее пространство
+experienceModeReset: Восстановить значения по умолчанию
+switchToWorkspace: Переключиться на рабочее пространство
+switchToPersonal: Переключиться на личный
+# ==================== поток создания (рабочее пространство за 3 минуты) ====================
+createTitle: Создать рабочее пространство
+createDesc: "Одно действие — и всё готово: рабочее пространство, вы (как Owner — участник рабочего пространства), канал Announcements и группа General. Всё выполняется успешно или полностью откатывается."
+createNameLabel: Название рабочего пространства
+createNameHint: "Например: группа редизайна сайта"
+createNameRequired: Название рабочего пространства не может быть пустым
+createSubmit: Создать
+createEntry: Создать рабочее пространство
+createSuccess: Рабочее пространство создано
+createIdempotentHit: Рабочее пространство с таким названием уже существует, переходим в него
+createTemplateTitle: Будет инициализировано автоматически
+createTemplateChannel: "Канал Announcements (вы станете издателем и подписчиком канала)"
+createTemplateGroup: "Группа General (вы станете участником группы)"
+createTemplateOwner: "Вы станете Owner рабочего пространства (участник рабочего пространства)"
+# ==================== обзор (навигационный узел) ====================
+overviewTitle: Обзор
+overviewResources: Сводка ресурсов
+overviewPinnedContent: Закреплённое в каналах
+overviewPinnedEmpty: "В каналах пока нет закреплённого контента; объявления групп здесь не собираются (они находятся в самих группах)"
+overviewRecentFiles: Последние файлы
+overviewRecentFilesEmpty: "Здесь появятся недавно загруженные файлы; вложения также можно посмотреть в каналах"
+membersTitle: Участники рабочего пространства
+membersCountLabel(count): "Участников: $count"
+membersEmpty: Пока нет участников рабочего пространства
+membersEmptySubtitle: "Пригласите зарегистрированных пользователей стать участниками рабочего пространства (Owner / Member / Guest)"
+membersViewAll: Показать все
+# ==================== проекты (уровень заглушки: список + пустое состояние) ====================
+projectsEmptyTitle: Пока нет проектов
+projectsEmptySubtitle: "Проекты нужны для отслеживания чётких целей; такой же сценарий подходит и для сообществ из каналов и групп"
+# ==================== каналы (контент здесь) ====================
+channelsEmptyTitle: Пока нет каналов рабочего пространства
+channelsEmptySubtitle: "Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы"
+channelTileSubtitle(count): "Подписчиков: $count"
+channelDetailTitle: Канал
+discussInGroupGuide: "В каналах публикуют контент; хотите обсудить? Загляните в группу General →"
+# ==================== группы (единный вход к чатам) ====================
+groupsEmptyTitle: Пока нет групп в рабочем пространстве
+groupsEmptySubtitle: "Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)"
+groupTileSubtitle(count): "Участников группы: $count"
+# ==================== приглашения (три независимых результата) ====================
+inviteTitle: Пригласить участника рабочего пространства
+inviteDesc: "Приглашать можно только зарегистрированных пользователей; вступление в рабочее пространство не добавляет в группы автоматически и не оформляет подписку на каналы — можно одновременно вступить в группу General и отправить приглашение в канал Announcements"
+inviteSearchHint: Поиск по имени пользователя / ID
+inviteEntry: Пригласить участника рабочего пространства
+inviteJoinGroupOption: "Также вступить в группу General (стать участником группы)"
+inviteSubscribeChannelOption: "Также отправить приглашение в канал Announcements"
+inviteOptionUnavailable: "Соответствующий ресурс не найден, опция недоступна"
+inviteSubmit: Отправить приглашение
+inviteResultsTitle: "Результаты (три независимых)"
+inviteResultWorkspace: "Вступить в рабочее пространство (стать участником рабочего пространства)"
+inviteResultGroup: "Вступить в группу General (стать участником группы)"
+inviteResultChannel: "Отправить приглашение в канал Announcements (после принятия получатель станет подписчиком)"
+resultIdle: Не выполнено
+resultRunning: Выполняется
+resultSuccess: Успешно
+resultFailed: Не удалось
+# ==================== вступление в рабочее пространство (командный код, многоразовый) ====================
+joinEntry: Вступить в рабочее пространство
+joinTitle: Вступить в рабочее пространство
+joinDesc: Введите командный код, чтобы вступить в рабочее пространство
+joinCodeLabel: Командный код
+joinCodeHint: "8 символов: заглавные буквы или цифры"
+joinSubmit: Вступить
+joinSuccess(name): "Вы вступили в «$name»"
+joinAlreadyMember: Вы уже состоите в этом рабочем пространстве
+joinInvalidCode: Командный код недействителен или истёк
+joinExpiredCode: Срок действия командного кода истёк
+inviteCodeSectionTitle: Приглашение командным кодом
+inviteCodeGenerate: Сгенерировать командный код
+inviteCodeCopy: "@:common.buttonCopy"
+inviteCodeRevoke: Отозвать
+inviteCodeExpiresAt(expiresAt): "Действует до $expiresAt"
+# ==================== роли и управление ====================
+roleOwner: Owner
+roleMember: Member
+roleGuest: Guest
+removeMemberTitle: "Удалить участника рабочего пространства $name"
+removeMemberDesc: "После удаления его доступ к рабочему пространству будет отозван; если у него остались незавершённые задачи или ответственные проекты, сервер вернёт список конфликтов и отменит удаление"
+removeMemberConfirm: Подтвердить удаление
+changeRoleTitle: "Изменить роль в рабочем пространстве: $name"
+transferTitle: "Передать роль главного Owner: $name"
+transferDesc: "После передачи вы станете обычным участником рабочего пространства (Member), а получатель получит все права управления"
+transferConfirm: Подтвердить передачу
+governanceTitle: Управление рабочим пространством
+brandingEntry: "Настройки бренда (название / логотип / основной цвет)"
+archiveEntry: Архивировать рабочее пространство
+restoreEntry: Восстановить рабочее пространство
+archiveTitle: Архивировать рабочее пространство
+archiveDesc: "После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент"
+archiveConfirm: Подтвердить архивацию
+restoreTitle: Восстановить рабочее пространство
+restoreDesc: После восстановления рабочее пространство снова доступно для чтения и записи
+restoreConfirm: Подтвердить восстановление
+archivedBanner: "Рабочее пространство в архиве: контент доступен для просмотра, запись отключена; Owner может восстановить его на странице участников"
+# ==================== брендинг (T12) ====================
+brandingTitle: Бренд рабочего пространства
+brandingNameLabel: Название бренда
+brandingLogoLabel: Адрес логотипа
+brandingLogoHint: "https://... (адрес изображения логотипа рабочего пространства)"
+brandingColorLabel: Основной цвет primaryColor
+brandingColorHint: "#2474E5"
+brandingColorHelper: "Поддерживается только #RRGGBB / #AARRGGBB; при недопустимом значении используется цвет темы по умолчанию"
+brandingColorInvalid: "Неверный формат основного цвета, поддерживается только #RRGGBB / #AARRGGBB"
+brandingSaved: Настройки бренда сохранены
+brandingPreview: Предпросмотр основного цвета
+brandingPreviewApplied: Текущий основной цвет применяется внутри рабочего пространства
+brandingPreviewFallback: Не задано или недопустимое значение — используется цвет темы по умолчанию
+# ==================== проекты / детали / задачи (WP6 T10a/T10b) ====================
+projectCreateEntry: Новый проект
+projectCreateTitle: Новый проект
+projectNameLabel: Название проекта
+projectNameHint: "Например: редизайн сайта"
+projectNameRequired: Название проекта не может быть пустым
+projectDescLabel: Описание проекта (необязательно)
+projectDescHint: "Что должен дать этот проект?"
+projectSubmit: Создать
+projectCreateSuccess: Проект создан
+projectDetailTitle: Детали проекта
+projectOwnerLabel: Ответственный
+projectStatusLabel: Статус
+projectStatusActive: В процессе
+projectStatusDone: Завершён
+projectMarkDone: Отметить как завершённый
+projectReopen: Открыть проект заново
+projectStatusChanged: Статус проекта обновлён
+projectTasksSection: Задачи
+taskNewEntry: Новая задача
+taskFormCreateTitle: Новая задача
+taskFormEditTitle: Редактировать задачу
+taskTitleLabel: Название задачи
+taskTitleRequired: Название задачи не может быть пустым
+taskAssigneeLabel: "Ответственный (участник рабочего пространства)"
+taskAssigneeNone: Пока не назначать
+taskAssigneeRefresh: Обновить список кандидатов
+taskSubmitCreate: Создать задачу
+taskSubmitSave: "@:common.buttonSave"
+taskCreatedToast: Задача создана
+taskExistingToast: "Задача с таким названием уже существует, используется она"
+taskUpdatedToast: Задача сохранена
+taskFilterAll: Все
+taskStatusTodo: К выполнению
+taskStatusDoing: В процессе
+taskStatusReview: На проверке
+taskStatusDone: Завершено
+taskAdvanceTo: "Перевести в «$status»"
+taskFallbackMenuTitle: "Вернуть «$title» к..."
+taskStatusMovedToast: "Переведено в «$status»"
+taskEmptyTitle: Пока нет задач
+taskEmptySubtitle: "Отслеживайте выполнение по четырём статусам: к выполнению → в процессе → на проверке → завершено"
+projectsLoadMore: Загрузить ещё
+# ==================== W2 (ZC-06) — входы к совместной работе по проекту (на странице деталей) ====================
+projectW2SectionTitle: Совместная работа по проекту
+projectMembersEntry: Участники
+projectMilestonesEntry: Этапы
+projectChannelsEntry: Каналы проекта
+projectInsightsEntry: Сводка контента
+projectNoPermission: "Нет доступа: просмотр доступен только участникам проекта, ответственному за проект или Owner рабочего пространства"
+projectGuestReadonly: "Гость (Guest) имеет доступ к проекту только для чтения"
+projectLoadMore: Загрузить ещё
+# ==================== W2 — участники проекта ====================
+projectMembersTitle: Участники проекта
+projectMemberEmptyTitle: Пока нет участников проекта
+projectMemberEmptySubtitle: Ответственный за проект может приглашать зарегистрированных пользователей
+projectMemberInviteTitle: Пригласить участника проекта
+projectMemberInviteFieldHint: ID зарегистрированного пользователя для приглашения
+projectMemberInviteInvalidUid: Введите действительный ID пользователя
+projectMemberInviteSubmit: Пригласить
+projectMemberInviteSuccess: Пользователь добавлен в участники проекта
+projectMemberInviteExisting: Этот пользователь уже участник проекта
+projectMemberRemoveConfirmTitle: "Удалить участника проекта $name"
+projectMemberRemoveConfirmDesc: "После удаления пользователь потеряет доступ к содержимому проекта (можно пригласить снова)"
+projectMemberRemoveSubmit: Удалить
+projectMemberRemovedToast: Удалено
+projectMemberAlreadyRemovedToast: Этого пользователя уже нет среди участников проекта
+projectMemberTransferTitle: "Передать роль ответственного за проект: $name"
+projectMemberTransferDesc: После передачи получатель получит полные права управления проектом
+projectMemberTransferConfirm: Подтвердить передачу
+projectMemberTransferDoneToast: Ответственный за проект передан
+# ==================== W2 — этапы ====================
+projectMilestonesTitle: Этапы
+projectMilestoneEmptyTitle: Пока нет этапов
+projectMilestoneEmptySubtitle: "Отмечайте ключевые точки проекта этапами (в плане → достигнут, только вперёд)"
+projectMilestoneCreateTitle: Новый этап
+projectMilestoneNameLabel: Название
+projectMilestoneNameRequired: Название этапа не может быть пустым
+projectMilestoneDueDateLabel: "Срок (YYYY-MM-DD, необязательно)"
+projectMilestoneDueDateInvalid: Формат даты — YYYY-MM-DD
+projectMilestoneCreateSubmit: Создать
+projectMilestoneCreatedToast: Этап создан
+projectMilestoneFilterAll: Все
+projectMilestoneFilterPlanned: В плане
+projectMilestoneFilterReached: Достигнут
+projectMilestoneReach: Отметить как достигнутый
+projectMilestoneReachedToast: Этап достигнут
+projectMilestoneAlreadyReachedToast: Этот этап уже достигнут
+projectMilestoneReachedHint: "Достигнут (нельзя вернуть назад)"
+projectMilestoneDueLabel: Срок
+# ==================== W2 — каналы проекта ====================
+projectChannelsTitle: Каналы проекта
+projectChannelEmptyTitle: Нет привязанных каналов
+projectChannelEmptySubtitle: "После привязки каналов рабочего пространства их закреплённый контент и последние публикации собираются в этом проекте"
+projectChannelLinkTitle: Выберите каналы для привязки
+projectChannelNoCandidate: Нет каналов, доступных для привязки
+projectChannelLinkedToast: Канал привязан
+projectChannelLinkExistingToast: Этот канал уже привязан
+projectChannelUnlinkTitle: "Отвязать $name"
+projectChannelUnlinkDesc: После отвязки контент этого канала больше не будет собираться в проекте
+projectChannelUnlinkSubmit: Отвязать
+projectChannelUnlinkedToast: Привязка снята
+# ==================== W2 — сводка контента (четыре сводки) ====================
+projectInsightsTabPinned: Закреплённые сообщения
+projectInsightsTabResources: Ссылки на ресурсы
+projectInsightsTabActivity: События проекта
+projectInsightsTabPosts: Связанные публикации
+projectInsightsPinnedEmpty: В привязанных каналах пока нет закреплённого контента
+projectInsightsResourcesEmpty: В проекте пока нет ссылок на ресурсы
+projectInsightsActivityEmpty: В проекте пока нет событий
+projectInsightsPostsEmpty: В привязанных каналах пока нет публикаций
+projectInsightsPostAuthor: "Опубликовано: $name"

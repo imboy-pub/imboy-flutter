@@ -5,6 +5,8 @@ emptyTitle: 暫無 AI 助手，稍後再來看看
 searchEmpty: 無符合的助手
 sendMessage: 傳訊息
 badgeAi: AI
-badgeOfficial: 官方
-badgeAiA11y: AI 助手
+badgeOfficial: 官方認證
+badgeAiA11y: AI 助理
 badgeOfficialA11y: 官方帳號
+legacyBotMigrated: 此機器人入口已升級，請到 AI 助手廣場與助手對話
+legacyBotGoPlaza: 前往助手廣場

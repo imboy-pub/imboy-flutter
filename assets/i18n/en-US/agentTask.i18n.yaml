@@ -1,0 +1,10 @@
+title: AI Tasks
+working: Running
+submitted: Submitted
+progress: In Progress
+completed: Completed
+failed: Failed
+cancelled: Cancelled
+awaitingApproval: Awaiting Approval
+approve: Approve
+reject: Reject

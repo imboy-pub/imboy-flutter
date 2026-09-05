@@ -2,15 +2,9 @@
 mentionAll: Tout le monde
 mentionAllHint: Notifier tous les membres du groupe
 noMatchedMember: Aucun membre correspondant
-selectMention: Choisir un membre à mentionner
 title: "@Mentions"
 noMention: Aucune @mention
 allRead: Tout marquer lu
-markAsRead: Marquer comme lu
-newMention: Nouvelle @mention
-fromGroup: Depuis le groupe
-fromChat: Depuis la discussion
-viewContext: Voir le contexte
-mentionCount: "$count nouvelles mentions"
 mentionAllDenied: Seuls les administrateurs peuvent @tout
 navInfoMissing: Position du message manquante, navigation impossible
+pickButtonTooltip: "Mentionner un membre"

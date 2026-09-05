@@ -4,14 +4,7 @@ scheduleTitle: 日程标题
 selectDate: 选择日期
 selectTime: 选择时间
 location: 地点
-reminder: 提醒
-noReminder: 不提醒
 noSchedule: 暂无日程
-scheduleCreated: 日程创建成功
-scheduleUpdated: 日程更新成功
-reminder15min: 提前15分钟
-reminder1hour: 提前1小时
-reminder1day: 提前1天
 startTime: 开始时间
 endTime: 结束时间
 participants: 参与人数

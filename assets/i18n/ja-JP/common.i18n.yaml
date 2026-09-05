@@ -4,8 +4,6 @@ aboutApp: このアプリについて
 accept: 承認
 acceptFriendRequest: 友達リクエストを承認
 addFriend: 友達を追加
-addPhoneContact: 電話番号の連絡先を追加
-creditCardRepayment: クレジットカード返済
 dataNotFound: ページのデータが存在しないか、期限切れです
 smallChange: 残高
 addTag: タグを追加
@@ -13,10 +11,7 @@ addToContacts: 連絡先に追加
 addToDenylist: ブロックリストに追加
 added: 追加済み
 addedToDenylistTips: ブロックリストに追加しました。相手からのメッセージは届きません。
-agreeContinue: 同意して続行
 all: すべて
-allSenders: すべての送信者
-allTags: すべてのタグ
 allTime: すべての期間
 allTypes: すべてのタイプ
 allowSearchMe: 検索を許可する
@@ -27,12 +22,10 @@ awaitingVerification: 検証待ち
 buttonAccomplish: 完了
 buttonAdd: 追加
 buttonBack: 戻る
-buttonBind: 紐づけ
 bindMobileAndEmailTips: 携帯電話番号とメールアドレスを登録して、アカウントのセキュリティを向上させましょう
 bindNow: 今すぐ登録
 buttonCancel: キャンセル
 buttonCreate: 作成
-buttonChangePassword: パスワードを変更
 phoneInputHint: 電話番号を入力
 buttonMore: その他
 buttonRefresh: 更新
@@ -41,29 +34,20 @@ buttonConfirm: 確認
 buttonContinue: 続行
 buttonCopy: コピー
 buttonDelete: 削除
-buttonDeleteAccount: アカウントを削除
-buttonInviteCode: 招待コード
-buttonLogin: ログイン
 buttonLogout: ログアウト
-buttonNextStep: 次へ
 buttonOk: OK
-buttonRegister: 登録
-buttonResetPassword: パスワードをリセット
 buttonRetry: リトライ
-buttonSave: 保存
+buttonSave: 保存する
 buttonSelectFromAlbum: アルバムから選択
 buttonSend: 送信
-buttonSetEmpty: 消去
-buttonSubmit: 送信
 buttonTakingPictures: 写真を撮る
 cacheTips: キャッシュはアプリ使用中に生成される一時データです。キャッシュを削除しても正常な使用には影響しません。
 callDuration: 通話時間
 callEnded: "通話終了"
 calling: 通話中
-canNotAddYourselfFriend: 自分自身を友達に追加することはできません
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
-operationSuccessful: 操作成功
+operationSuccessful: 操作が完了しました
 save: "@:common.buttonSave"
 reset: リセット
 clear: 消去
@@ -72,43 +56,23 @@ cancelLogoutBody: このアカウントはログアウト猶予期間中です�
 cancelLogoutTitle: ログアウト処理を中止しますか？
 cancelled: キャンセルしました
 chatSettingBackground: チャット背景
-chatSettingBackgroundCustom: カスタム背景を設定済み
-chatSettingBackgroundDefault: デフォルト背景
-chatSettingBackgroundSelectorTip: 背景選択機能は開発中です
-chatSettingBackgroundSuccess: 背景を設定しました
-chatSettingClearHistory: チャット履歴を消去
-chatSettingClearHistoryConfirm: すべてのチャット履歴を消去してもよろしいですか？この操作は取り消せません。
-chatSettingClearHistoryDesc: すべてのメッセージを削除します。この操作は取り消せません
-chatSettingClearedSuccess: 消去しました
 chatSettingPinnedSuccess: ピン留めしました
 chatSettingUnpinnedSuccess: ピン留めを解除しました
 chatSettings: チャット設定
 chatStatusFailed: 失敗
-chatStatusFailedDesc: 送信に失敗しました。タップしてリトライ
 chatErrorInDenylist: 相手にブロックされています
-chatErrorInDenylistDesc: メッセージを送信できません - ブロックされています
-chatErrorNotAFriend: まだ友達ではありません
-chatErrorNotAFriendDesc: メッセージを送信できません - まず友達追加してください
 checkForUpdates: 更新を確認
 clearAll: すべて削除
 clearChatRecord: チャット履歴を消去
 complaintSuccess: 通報を送信しました
 complaintFailed: 通報の送信に失敗しました。後でもう一度お試しください
-confirmCode: 確認コード
-confirmCodeError: 確認コードが空です
-confirmCodeSuccess: アカウントを確認しました。
 confirmDeleteChatRecord: チャット履歴を削除してもよろしいですか？
-confirmNewFriend: 新しい友達を確認
-confirmNewFriendLogic: 新しい友達確認ロジック
 confirmRecoverSuccess: パスワードを変更しました。
 contactSetting: 連絡先設定
-contactSettingTag: 連絡先設定タグ
-contactTagListLogic: 連絡先タグリストロジック
 contactTags: 連絡先タグ
 contactInfoNotSynced: 連絡先情報が未同期です
 continueDownloading: ダウンロードを続行
 copy: コピー
-coupon: クーポン
 createGroupF2fConfirmTips: これらの友達もグループチャットに参加します
 createGroupF2fTips: 近くの友達と同じ4桁の数字を入力して、同じグループチャットに入ります
 delete: "@:common.buttonDelete"
@@ -126,65 +90,36 @@ deviceDetails: デバイス詳細
 downloaded: ダウンロード済み
 edit: 編集
 editTag: タグを編集
-errorAccessDenied: "$paramへのアクセスが拒否されました"
-errorCliVersionNotFound: "@:common.error"
 errorEmptyDirectory: "$paramは空です"
 errorFailedConnectServer: "@:common.error"
-errorFailedToConnect: "@:common.error"
-errorFileNotFound: "$paramの中にファイルが見つかりません"
-errorFolderNotFound: フォルダ$paramが見つかりません
 errorHttpNotSupported: "@:common.error"
 errorInternalServer: "@:common.error"
 errorInvalid: "$paramは無効です"
-errorInvalidDart: "@:common.error"
-errorInvalidFileOrDirectory: "@:common.error"
-errorInvalidJson: "@:common.error"
 errorInvalidRequest: "@:common.error"
 errorLengthBetween: "$paramの長さは$minから$maxの間である必要があります"
 errorManyRequest: "@:common.error"
-errorNoPackageToRemove: "@:common.error"
-errorNoValidFileOrUrl: "@:common.error"
-errorNonexistentDirectory: "@:common.error"
-errorPackageNotFound: "@:common.error"
 errorPassword: パスワードが間違っています
 errorRequestForbidden: "@:common.error"
 errorRequestSyntax: "@:common.error"
 errorRequired: "$paramは必須です"
-errorRequiredPath: "@:common.error"
 errorRetypePassword: "@:common.error"
-errorSame: "$param1と$param2は同じである必要があります"
 errorServerDown: "@:common.error"
 errorServerRefused: "@:common.error"
-errorSpecialCharactersInKey: "@:common.error"
 errorUnexpected: "@:common.error"
-errorUnnecessaryParameter: "@:common.error"
-errorUnnecessaryParameterPlural: "@:common.error"
-errorUpdateCli: "@:common.error"
 failedGetLatLong: "@:common.errorNetwork"
 failedGetMapTryAgain: "@:common.errorNetwork"
 failedRequestPleaseCheckNetwork: "@:common.errorNetwork"
 feedback: フィードバック
-feedbackBuilder: フィードバックビルダー
 feedbackContentRequired: フィードバック内容を空にすることはできません
 feedbackDetails: フィードバック詳細
-feedbackModel: フィードバックモデル
-feedbackReplyModel: フィードバック返信モデル
 feedbackSuccessMsg: フィードバックをいただきありがとうございます。できるだけ早く対応いたします！
 followSystemTips: オンにすると、システムのダークモードのオン/オフに従います
-forceLogoutNotification: デバイス【$param】により強制ログアウトされました
-friendPermissions: 友達の権限
-friendsPermissionsView: 友達権限画面
-genderConflictError: 性別設定が競合しています。もう一度お試しください
-genderNetworkError: ネットワークエラーです。ネットワーク接続を確認してください
 genderUpdateFailed: 性別設定に失敗しました。もう一度お試しください
-genderUpdateSuccess: 性別を設定しました
-groupAddLocal: 連絡先に保存
 groupAnnouncement: グループのお知らせ
 groupFileUploadSuccess: ファイルをアップロードしました
 groupFileUploadFailed: ファイルのアップロードに失敗しました。後でもう一度お試しください
 groupFileDeleteSuccess: ファイルを削除しました
 groupFileDeleteFailed: 削除に失敗しました。後でもう一度お試しください
-groupFileClosePreview: プレビューを閉じる
 groupFileUploadTooltip: ファイルをアップロード
 groupFileSearch: グループファイルを検索
 groupFileReadFailed: ファイルの読み込みに失敗しました。もう一度お試しください
@@ -192,70 +127,48 @@ groupFileDeleteTitle: グループファイルを削除
 groupFileDeleteConfirm: ファイル「$name」を削除しますか？
 groupFileImageLoadFailed: 画像の読み込みに失敗しました
 groupFileOpenFailed: ファイルリンクを開けません
-groupFileSearchClear: クリア
-groupFileSearchAction: 検索
 groupFileCategoryAll: すべて
 groupFileSearchEmpty: 一致するファイルが見つかりません
 groupFileAudioLoadFailed: 音声の読み込みに失敗しました
 groupFileAudioLoading: 音声を読み込み中...
 groupQrcodeTips: このQRコードは$days日内（$dateまで）有効です。再度入ると更新されます
-groupSearchTips: グループ名とグループ説明
 helpDocument: ヘルプドキュメント
-hintEditGroupAnnouncement: グループ公告を編集
-httpResponse: HTTPレスポンス
 incomingCall: "$paramからの着信"
-info: 情報
-infoLoggedInOnAnotherDevice: あなたのアカウントが$paramで他のデバイスにログインしました
 installNow: 今すぐインストール
 iosAppIdUnknown: AppStoreに未上架またはAppID[$param]が存在しません
 koKr: 韓国語（韓国）
 languageSetting: 言語設定
-languageState: 言語状態
 lastActiveTips: デバイスが安全な状態のとき、友達メッセージの適時な送受信を維持するためにログイン時間が自動的に延長され、このとき最終アクティブ時間が更新されます。
 lastSeenJustNow: たった今オンライン
 lastSeenLongTimeAgo: ずっと前にオンライン
 lastSeenMonthsAgo: "$paramヶ月前"
-leaveYourSuggestions: 貴重なご意見・ご要望をお寄せください
 loadError: 読み込みに失敗しました。もう一度お試しください
 loadMore: もっと読み込む
 loading: 読み込み中
 locationMessage: 位置メッセージ
 loginDeviceManagementTips: あなたのアカウントは以下のデバイスでログインしたことがあります。デバイスを削除できます。削除後、次回そのデバイスでログインする際にセキュリティ認証が必要です。
 logoutFailed: ログアウトに失敗しました
-logoutNotice: "《ログアウトに関する注意事項》"
-exportDataSuccess: データを書き出しました
-manually: 手動で選択
 messageCall: メッセージを送る
 messageContent: メッセージ内容
-messageLocationBuilder: メッセージ位置ビルダー
-messageNotification: メッセージ通知
 messageRevoked: メッセージが取り消されました
 quoteMessageNotAvailable: 引用されているメッセージは利用できません
-messageRevokedBuilder: メッセージ取り消しビルダー
 microphone: マイク
 microphonePermissionNotObtained: マイク権限が取得できませんでした
 moreInfo: 詳細情報
-myAddress: マイアドレス
 nearbyPeopleTips: 近くの人と連絡先を交換して、新しい友達を作りましょう
 needContinueWorkHard: 引き続き頑張る必要があります
-needSubmitEffect: 送信を確定する必要があります。この操作が有効になります
 networkErrorWithAction: "$paramが失敗しました。ネットワーク接続を確認してください"
 networkException: ネットワーク接続異常
 errorNetwork: ネットワークエラー
 networkExceptionPlaseNeedNetworkToViewData: ネットワーク状態が異常です。データを表示するにはネットワークを開く必要があります
-networkFailureTips: ネットワーク障害ヒント
 newVersionDetected: 新しいバージョンを検出しました
 newVersionDetectedWithVersion: 新しいバージョン $param を検出しました
 nextStep: 次へ
-nicknameConflictError: ニックネームは既に使用されています。別のニックネームを選んでください
 nicknameEmojiOnlyError: ニックネームは絵文字のみにすることはできません
 nicknameEmptyError: ニックネームを空にすることはできません
 nicknameLengthError: ニックネームの長さは2〜24文字である必要があります
-nicknameNetworkError: ネットワークエラーです。ネットワーク接続を確認してください
 nicknameSensitiveWordError: ニックネームに敏感な単語が含まれています。再度入力してください
-nicknameServerError: サーバーエラーです。後でもう一度お試しください
 nicknameUpdateFailed: ニックネームの変更に失敗しました。もう一度お試しください
-nicknameUpdateSuccess: ニックネームを変更しました
 nicknameWhitespaceError: ニックネームは空白のみにすることはできません
 noAvatar: アバターなし
 noBarcodeFound: バーコードが見つかりません！
@@ -263,59 +176,32 @@ noContacts: 連絡先なし
 noConversationMessages: チャットメッセージなし
 noData: データなし
 noMembersInCurrentTag: 現在のタグにメンバーがいません
-noMoreData: これ以上データはありません
 noNewFriends: 新しい友達はいません
 noPermission: 権限がありません
 noReply: 返信なし
-noSiginQ: まだアカウントをお持ちでないですか？
 noUpdateDescription: 更新説明なし
-normalModel: 通常モード
 notAuthorizedLatLong: まだ経度緯度の取得を許可していません
 notLoggedIn: ログインしていません
 notBad: 悪くない
 notBound: 未登録
 notFilled: 未入力
 notInstallAnyMapApp: 地図アプリがインストールされていません
-notLetHimSee: 相手に見せない
 notReceiveCoeQ: 認証コードが届きませんか？
-notSeeHim: 相手を見ない
 notSet: 未設定
-notShow: 表示しない
 notTurnedLocationService: まだ位置情報サービスを開いていません
 nowNewVersion: 新しいバージョンは検出されませんでした
-false: "@:common.disabled"
 offlineNotification: オフライン通知
-true: "@:common.enabled"
 operationFailedAgainLater: 操作に失敗しました。後でもう一度お試しください
-optionsNo: いいえ
-optionsRename: 名前を変更したい
-optionsYes: はい！
-p2pCallScreenLogic: P2P通話画面ロジック
-p2pCallScreenView: P2P通話画面
-paramFormatError: "$paramの形式が間違っています"
 pauseDownloading: ダウンロードを一時停止
 peerNoResponse: 相手が応答していません...
-peopleInfoMoreLogic: ユーザー情報詳細ロジック
-peopleInfoSameGroupView: ユーザー情報同じグループ画面
-perMinuteOnce: 1分に1回のみリクエストできます
-permission: 権限
 permissionAcquisitionFailed: 権限の取得に失敗しました
 personalCard: 個人名刺
-personalInfoDesc: 個人情報説明
-personalInfoTip: 個人情報ヒント
 personalInformation: 個人情報
 pinCodeFillTips: すべてのマス目を埋めてください
-pleaseSelectMembersForAdd: 追加するメンバーを選択してください
 profileSettings: プロフィール設定
 reEdit: 再編集
-recoverPasswordSuccess: 認証コードを送信しました
-regionCancel: キャンセル
-regionConfirm: 確認
-regionNoResult: 結果がありません
 regionSearchHint: 地域名で検索
 regionSelectedLevelHint(region, level): "選択中: $region（第 $level 階層）。このまま完了できます。さらに下の階層を選ぶこともできます。"
-regionSearchTips: 地域名または地域コードで検索
-regionSelectTitle: 地域を選択
 releaseFingerCancelSending: 指を離して送信をキャンセル
 removeContactFromTag: タグから連絡先を削除
 removeMember: メンバーを削除
@@ -329,10 +215,8 @@ quickReplyEditTitle: クイック返信を編集
 removeAdmin: Remove Admin
 setAdminConfirm: Set this member as admin?
 removeAdminConfirm: Remove admin role from this member?
-muteMemberConfirm: Mute this member?
 unmuteMemberConfirm: Unmute this member?
 kickMemberConfirm: Remove this member from the group?
-transferGroupConfirm: Transfer group ownership to this member? You will become an admin after transfer.
 setAdminSuccess: Admin set
 setAdminFailed: Failed to set admin
 removeAdminSuccess: Admin removed
@@ -343,26 +227,19 @@ unmuteMemberSuccess: Member unmuted
 unmuteMemberFailed: Failed to unmute member
 kickMemberSuccess: Member removed
 kickMemberFailed: Failed to remove member
-transferGroupSuccess: Ownership transferred
-transferGroupFailed: Failed to transfer ownership
 notMuted: Not Muted
 muteDuration: Mute Duration
 muteDuration1hour: 1 Hour
-muteDuration6hours: 6 Hours
-muteDuration12hours: 12 Hours
 muteDuration1day: 1 Day
-muteDuration3days: 3 Days
 muteDuration7days: 7 Days
-muteDurationPermanent: Permanent
 muteDuration5min: 5分
 muteDuration10min: 10分
 muteDuration30min: 30分
 muteDuration30days: 30日
-muteUnitSeconds: "$count 秒"
+muteUnitSeconds: "$count秒"
 throttleWarning: 操作が頻繁すぎます。後でもう一度お試しください
 throttleRetryAfter: 操作が頻繁すぎます。$seconds 秒後にもう一度お試しください
 mutedCannotSend: ミュート中はメッセージを送信できません
-resendCodeSuccess: 新しいメールを送信しました。
 resetFilters: フィルターをリセット
 saveQrCode: QRコードを保存
 saveSuccess: 保存しました
@@ -373,12 +250,6 @@ searchAll: All messages
 searchChatContent: チャット内容を検索
 searchChatRecord: チャット履歴を検索
 searchError: 検索エラー
-searchFilterAll: すべてのフィルター
-searchFilterImage: 画像フィルター
-searchFilterText: テキストフィルター
-searchFilterToday: 今日のフィルター
-searchFilters: 検索フィルター
-searchFriendsTips: 友達のニックネーム、備考で友達を検索
 searchHint: キーワードを入力してメッセージを検索
 searchHistory: 検索履歴
 searchLocation: 場所を検索
@@ -386,27 +257,18 @@ searchMessagesHint: "チャット内容を検索"
 searchNoFound: 検索結果が空です :(
 searchNoResults: 検索結果なし
 noSearchHistory: 検索履歴なし
-searchRegion: 地域を検索
 searchResults: 検索結果
-searchResultsCount: "$current件目、全$total件"
-searchSuggestions: 検索候補
 selectAll: すべて選択
 selectContacts: 連絡先を選択
-selectRegionView: 地域選択画面
-selectedItems: "$param個の項目を選択"
 selectedRegion: 選択した地域
 sendMsgNotFriendTips: 相手が友達認証をオンにしています。まだ友達ではありません。先に友達認証リクエストを送信してください。相手が承認するとチャットできます。
-setChatBackground: 現在のチャット背景を設定
 share: 共有
-signatureTips: 署名ヒント
 slideUpCancelSending: 指を上にスワイプして送信をキャンセル
 storagePermissionNotObtained: ストレージ権限が取得できませんでした
-strongReminder: 強力なリマインダー
 submittedAt: 提出日時
 sureDeleteData: 削除してもよろしいですか？削除後は復元できません。
 sureDeleteGroupChatRecord: グループのチャット履歴を削除してもよろしいですか？
 switchEnvironment: 環境を切り替え
-thisMonth: 今月
 timeDaysAgo(plural):
   other: "$n日前"
 timeHoursAgo(plural):
@@ -414,17 +276,12 @@ timeHoursAgo(plural):
 timeJustNow: たった今
 timeMinutesAgo(plural):
   other: "$n分前"
-timeToday: 今日
-timeYesterday: 昨日
 tipConnectDesc: ネットワークなし
 tipConnectDescWithParen: "($param)"
 tipDeleteContact: 連絡先「$param」を削除し、同時にその連絡先とのチャット履歴を削除します
 tipDeviceSpace: デバイスの$param1%ストレージ容量を占めています($param2)
 tipDraft: 下書き
-tipEmptyChatPlaceholder: ここにはまだメッセージがありません
 tipFailed: 操作に失敗しました！
-tipGreeting: ようこそ
-tipProvidersTitleFirst: または以下のアカウントでログイン
 tipSuccess: 操作が成功しました！
 tipTips: ヒント
 titleContact: 連絡先
@@ -439,10 +296,6 @@ uploadFailed: Upload failed
 userDataTips: アプリ実行に必要なファイル、チャットメッセージ、友達関係などすべての記録データが含まれます。
 userDisabledOrDeleted: ユーザーは無効化または削除されました
 userNotExist: ユーザーが存在しません
-userOnlineStatusWidget: ユーザーオンラインステータスウィジェット
-userTagRelationView: ユーザータグ関係画面
-userTagSaveView: ユーザータグ保存画面
-verificationMessageSentByPeerIs: 相手からの認証メッセージ：$param
 version: バージョン
 videoCall: ビデオ通話
 viewAllGroupMember: すべてのグループメンバーを表示
@@ -453,12 +306,9 @@ connecting: 接続中…
 voiceInputNotImplemented: 音声入力機能は未実装です
 waitingDownload: ダウンロード待ち
 waitingPeerAccept: 相手の承認を待っています...
-warning: '警告:'
+warning: 注意
 webpageLoading: ウェブページ読み込み中...
-whatYourFeedback: フィードバックをお聞かせください
 yesterday: 昨日
-yourContactInformation: あなたの連絡先
-confirmRemove: 削除を確認
 confirmRemoveFromDenylist: このユーザーをブロックリストから削除してもよろしいですか？
 buttonRemove: 削除
 removedFromDenylist: ブロックリストから削除しました
@@ -469,13 +319,7 @@ getVerificationCode: 認証コードを取得
 confirmChange: 変更を確認
 verificationCodeSentToEmail: 認証コードをこのメールアドレスに送信します。有効期限内に確認を完了してください
 verificationCodeSentToMobile: 認証コードをこの携帯電話に送信します。有効期限内に確認を完了してください
-pleaseEnterCorrectEmailAddress: 正しいメールアドレスを入力してください
-pleaseEnter6DigitVerificationCode: 6桁の認証コードを入力してください
-verificationCodeSent: 認証コードを送信しました
 sendFailed: 送信に失敗しました
-noChangeNeeded: 変更不要
-submissionFailed: 送信に失敗しました
-checkVerificationCodeOrRetry: 認証コードを確認するか、後でもう一度お試しください
 forceOffline: オフラインにする
 forceDeviceOffline: このデバイスをオフラインにする
 forceDeviceOfflineConfirm: このデバイスにオフラインコマンドを送信します。続行しますか？
@@ -485,7 +329,6 @@ feedbackSlogan: ご提案は改善の原動力です
 newFeedback: 新しいフィードバック
 feedbackHistory: フィードバック履歴
 confirmDelete: 削除確認
-processing: "@:common.loading"
 verificationCode: 認証コード
 feedbackContent: フィードバック内容
 officialReply: 公式返信
@@ -494,12 +337,9 @@ locationHidden: 位置情報を非表示にしました
 locationVisible: 位置情報を表示しました
 noNearbyPeople: 近くに人はいません
 clickSearchButtonToFind: 上の検索ボタンをクリックして近くの人を探してください
-operationSuccess: "@:common.success"
 operationFailed: "@:common.error"
 featureInDevelopment: 機能は開発中です...
 addedToDenylist: ブロックリストに追加しました
-bindSuccess: 登録しました
-mobileUpdatedToParam: 携帯電話番号を$paramに更新しました
 groupAnnouncementPublish: 公告を公開
 pleaseEnterAnnouncementContent: 公告内容を入力してください
 selectExpirationDateOptional: 有効期限を選択（オプション）
@@ -531,15 +371,10 @@ clearChatRecordsDesc: すべてのチャット履歴を消去します。この�
 deleteAccountAction: アカウントを削除
 deleteAccountActionDesc: アカウントとすべてのデータを完全に削除します。この操作は取り消せません
 chatHistoryCleared: チャット履歴を消去しました
-accountDeletionNotAvailable: アカウント削除機能はまだ利用できません
 chatDeleteMessage: メッセージを削除
 chatCopy: コピー
 chatSaveImage: 画像を保存
 chatDeleteLocalOnly: ローカルのみ削除
-chatDownloadFile: ファイルをダウンロード
-chatShareFile: ファイルを共有
-chatCopyLink: リンクをコピー
-chatShareLink: リンクを共有
 chatDeleteFailed: 削除に失敗しました
 chatNetworkErrorDeleteLocal: ネットワーク接続に失敗しました。ローカルメッセージのみ削除しますか？
 chatDeleteConfirm: このメッセージを削除してもよろしいですか？この操作は取り消せません。
@@ -547,8 +382,6 @@ chatDeleteOnlyLocal: 自分のみ削除、相手には表示されます
 chatDeleteAll: すべてのユーザーのチャットから削除、取り消せません
 chatInitFailed: チャットの初期化に失敗しました
 cameraShootFailed: 撮影に失敗しました
-avatarSave: 保存
-avatarDeleteAvatar: アバターを削除
 avatarEditAvatar: アバターを編集
 backgroundUseCustomColor: カスタム色を使用
 backgroundOnlySolidColor: 単色背景にのみ適用されます
@@ -557,38 +390,17 @@ profileShareProfile: プロフィールを共有
 tagClearAllConfirm: すべてのタグを消去してもよろしいですか？
 tagClearAll: すべて消去
 audioPlayFailed: 再生に失敗しました
-videoFileNotFound: 入力ファイルが見つかりません
-videoCompressFailed: 圧縮に失敗しました。結果が空です
-videoFurtherCompressFailed: さらに圧縮できませんでした
 forcedOfflineByDevice: デバイス【$device】により強制ログアウトされました
-searchDescription: ミニプログラム、公式アカウント、記事、モーメンツ、絵文字など
-testDirectNavigation: 直接ナビゲーションテスト
-tagNameTooLong: タグ名は14文字を超えることはできません
-tagNameNoComma: タグ名にカンマを含めることはできません
-tagNameNoLeadingTrailingSpaces: タグ名の先頭または末尾にスペースを含めることはできません
-tagNameNoSpecialChars: タグ名に特殊文字を含めることはできません
-commonTags: よく使うタグ
 loadingTagDataFailed: タグデータの読み込みに失敗しました
 pleaseEnterContent: 内容を入力してください
 comingSoon: 近日公開
-chatBackground: チャット背景
-useSystemDefaultBackground: システムデフォルトの背景を使用
-selectCustomBackgroundImage: カスタム背景画像を選択
-currentBackground: 現在の背景
 backgroundTransparency: 背景の透明度
 defaultBackground: デフォルト背景
 solidColorBackground: 単色背景
 selectImageFailed: 画像の選択に失敗しました
-takePhotoFailed: 写真の撮影に失敗しました
-selectVideoFailed: 動画の選択に失敗しました
-recordVideoFailed: 動画の録画に失敗しました
-selectFileFailed: ファイルの選択に失敗しました
 locationSelectNotImplemented: 位置選択機能は実装されていません
 selectLocationFailed: 位置の選択に失敗しました
 sendCardNotImplemented: 名刺送信機能は実装されていません
-sendCardFailed: 名刺の送信に失敗しました
-uploadResponseInvalid: アップロードレスポンスデータが無効です
-voiceSendSuccess: 音声を送信しました
 voiceSendFailed: 音声の送信に失敗しました
 featureNotImplemented: この機能はまだ実装されていません
 sendCollectionNotImplemented: コレクション送信機能は実装されていません
@@ -601,11 +413,8 @@ localDeleteFailed: ローカル削除に失敗しました
 revokeSuccess: 取り消しました
 editContentCannotBeEmpty: 編集内容を空にすることはできません
 editSuccess: 編集しました
-messageNotFound: メッセージが見つかりません
-conversationNotFound: 会話が見つかりません
 enabled: 有効
 disabled: 無効
-configureVisibleThreshold: 表示しきい値を設定
 fontSizeSettingUpdated: フォントサイズ設定を更新しました
 fontSizeSetting: フォントサイズ設定
 fontTooSmallMayAffect: フォントが小さすぎて読みやすさに影響する可能性があります
@@ -621,38 +430,24 @@ pleaseEnterVerificationMessage: 認証メッセージを入力してください
 unknownRegion: 未知の地域
 noCommonGroups: 共通のグループはありません
 noMoreInfo: これ以上の情報はありません
-userNotSetSignature: このユーザーは署名やその他の詳細情報を設定していません
 verificationMessage: 認証メッセージ
 burnEnabledMessage: オンにした後：メッセージは閲覧後 $duration で自動削除されます
 burnDisabledMessage: オフにした後：メッセージは自動削除されません
-visibleEnabledMessage: オンにした後：表示率≥$percentage%で$delayms以上で既読になります
-visibleDisabledMessage: オフにした後：表示に基づいて自動既読されません
-visibleThresholdInfo: '表示率: $percentage% | 遅延: $delayms'
 noGroupAnnouncement: グループ公告はありません
-announcementContentCannotBeEmpty: 公告内容を空にすることはできません
-announcementPublishSuccess: 公告を公開しました
-tips: ヒント
 featureComingSoon: 近日公開
 understood: 了解しました
 noProblem: 問題ありません
 onMyWay: すぐに向かいます
-sendOfflineCommand: 強制オフライン
-offlineCommandSent: オフラインコマンドを送信しました
 operationOptions: 操作オプション
 copyTextContent: テキストをコピー
 shareWithOtherFriends: 他の友達と共有
 addTagsToFavorites: コレクションにタグを追加
 addRemarkToFavorites: コレクションに備考を追加
 deleteThisCollection: このコレクションを削除
-pullUpLoadMore: 上にスワイプしてさらに読み込み
 changeSuccess: 変更しました
-loginPasswordUpdated: ログインパスワードを更新しました
 lengthOk: 長さはOKです
 confirmNewPassword: 新しいパスワードを確認
 validationPassed: 検証に合格しました
-changeFailed: 変更に失敗しました
-submitted: 提出済み
-viewSecurityHelp: セキュリティヘルプを表示
 momentsNoData: モーメントはありません
 momentsDeleteConfirm: このモーメントを削除しますか？
 momentsDeleteCommentConfirm: このコメントを削除しますか？
@@ -660,11 +455,7 @@ momentsNotFound: モーメントが存在しないか、表示する権限があ
 momentsContentOrMediaRequired: 内容またはメディアを少なくとも1つ入力してください
 momentsPublishFailed: 公開に失敗しました
 momentsAllowComment: コメントを許可
-momentsReportReason: 通報理由
 momentsNoComments: コメントはありません
-momentsContentHint: 何か書く...
-momentsAddMedia: メディアを追加
-momentsAllowUidsLabel: 公開対象 UID リスト（カンマ区切り）
 momentsCommentFailed: コメントの送信に失敗しました。後でもう一度お試しください
 momentsDeleteFailed: 削除に失敗しました。後でもう一度お試しください
 momentsReportSubmitted: 通報を送信しました
@@ -678,37 +469,18 @@ momentReportReasonOther: "その他"
 momentReportReasonPrompt: "理由を選択"
 momentsLoadMoreComments: コメントをさらに読み込む
 momentsUploadFailed: メディアのアップロードに失敗しました。後でもう一度お試しください
-transactionHistory: 取引履歴
-paymentPasswordSetSuccess: 支払いパスワードを設定しました
-paymentPasswordSetFailed: 支払いパスワードの設定に失敗しました
-nextVoiceMessageNotFound: 次の音声メッセージが見つかりません
-noNextVoiceMessage: 再生する次の音声メッセージがありません
-nextVoiceMessageNoPath: 次の音声メッセージに音声ファイルパスがありません
 saveFailed: 保存に失敗しました
-tip: ヒント
 confirm: 確認
-success: 成功
+success: 成功しました
 personalDisplay: 個人表示
 personalSignature: 署名
 personalBackground: 個人背景
-setBackgroundImage: 背景画像を設定
 expression: スタンプ
 extendedInfo: 拡張情報
 profession: 職業
-pleaseEnterProfession: Please enter profession
-functionSettings: 機能設定
-shareProfile: プロフィールを共有
-shareWithFriends: 友達とプロフィールを共有
-shareQRCode: Share QR Code
-copyLink: Copy Link
-shareTo: Share To
 shareFailed: Share failed
-exportAsJson: Export as JSON format
 exportSuccessThenCopiedToClipboard: "$param format profile exported and copied to clipboard"
-exportFailed: Export failed
 setRegion: 地域を設定
-avatarUpdateSuccess: アバターを更新しました
-avatarUpdateFailed: アバターの更新に失敗しました
 deleteOperationAbnormal: 削除操作が異常です。もう一度お試しください
 revoking: 取り消し中...
 editing: 編集中...
@@ -729,47 +501,26 @@ editRequestSendComplete: 編集リクエスト送信完了
 editFailed: 編集に失敗しました
 editMessageException: メッセージ編集例外
 editOperationAbnormal: 編集操作が異常です
-uploadAvatarFailed: アバターのアップロードに失敗しました
 error: エラー
 cannotOpenWebpage: ウェブページを開けません
-groupIdCannotBeEmpty: グループIDを空にすることはできません
 selectImageFailedWithError: 画像の選択に失敗しました
-uploadAvatarFailedWithError: アバターのアップロードに失敗しました
-avatarSelectedUploadPending: アバターが選択されました。アップロード機能は未実装です
-emailEditFeaturePending: メール編集機能は開発中です...
 reactionAdded: リアクションを追加しました
 reactionCancelled: リアクションをキャンセルしました
 retryFailedPleaseCheckNetwork: リトライに失敗しました。ネットワーク接続を確認してください
 retryAbnormal: リトライが異常です
 deleteFailedPleaseTryAgain: 削除に失敗しました。もう一度お試しください
 deleteFailedPleaseCheckNetwork: 削除に失敗しました。ネットワーク接続を確認してください
-voiceRecordFailedPleaseTryAgain: 音声の録音に失敗しました。もう一度お試しください
-voiceFileNotFoundPleaseTryAgain: 音声ファイルが見つかりません。もう一度お試しください
-voiceFileCannotReadPleaseTryAgain: 音声ファイルを読み取れません。もう一度お試しください
-voiceFileReadFailedPleaseTryAgain: 音声ファイルの読み取りに失敗しました。もう一度お試しください
-voiceProcessingAbnormal: 音声処理が異常です
-voiceUploadFailedPleaseCheckNetwork: 音声アップロードに失敗しました。ネットワーク接続を確認してください
-voiceSendAbnormal: 音声送信が異常です
-voiceDuration: 音声の長さ
-playbackFailed: 再生に失敗しました
-revokeOperationAbnormalPleaseTryAgain: 取り消し操作が異常です。もう一度お試しください
-collectionFailedPleaseTryAgain: コレクションに失敗しました。もう一度お試しください
-reactionSent: リアクションを送信しました
-seconds: 秒
-messageCannotLocatedMayBeDeleted: メッセージが見つかりません。削除された可能性があります
+seconds: "s"
 settingFailedPleaseTryAgain: 設定に失敗しました。もう一度お試しください
 partialDeleteSuccess: 部分的な削除成功：$success成功、$fail失敗
-collectedVideoFormatIncorrectCannotFindVideoUri: 収集した動画メッセージの形式が正しくありません。動画URIが見つかりません
 recordingCancelled: 録音がキャンセルされました
 pullOfflineMessagesFailed: オフラインメッセージのプルに失敗しました
 pullOfflineMessagesAbnormal: オフラインメッセージのプルが異常です
 logoutRequestFailedPleaseCheckNetwork: ログアウトリクエストに失敗しました。ネットワーク接続を確認してください
 permissionOnlySupportAndroidAndIos: 権限はAndroidとiOSのみサポートしています
-messageSendFailedPleaseCheckNetwork: メッセージ送信に失敗しました。ネットワーク接続を確認してください
 retryingSend: 再送信中...
 quickReplyOk: OK
 quickReplyOkThanks: OK、ありがとう
-tagInspiration: インスピレーション
 noDetailedInfo: 自己紹介などの詳細情報が未設定です
 noNewRegisteredUsers: 現在、新規登録ユーザーはいません 後でもう一度確認してください
 newRegisteredUsersTip: ここには最近登録したユーザーが表示されます。友達として追加できます
@@ -786,13 +537,10 @@ lastSeenMinutesAgo: "@:common.timeMinutesAgo"
 lastSeenHoursAgo: "@:common.timeHoursAgo"
 lastSeenDaysAgo: "@:common.timeDaysAgo"
 fontSettings: "@:common.fontSizeSetting"
-failed: "@:common.error"
-lazyUserNoSignature: 自己紹介は未設定です
 noFavoritesYet: お気に入りはまだありません。面白いメッセージを追加しましょう
 fontPreviewText: これは本文です。ここで異なるフォントサイズの表示効果を確認できます。
 smaller: より小さい
 currentFontScale: 現在：$param1 $param2%
-emailUpdatedTo: メールアドレスを$paramに更新しました
 groupAnnouncementExpiry(time): '有効期限: $time'
 groupAlbumCreateFailed: 作成に失敗しました。後でもう一度お試しください
 groupAlbumDeleteTitle: グループアルバムを削除
@@ -836,13 +584,12 @@ msgOnlyVisibleToParties: メッセージは送受信者のみ閲覧できます
 msgNotEncrypted: メッセージは暗号化されていません
 unreadCount(count): "未読 ${count} 件"
 durationMinutes(count): "${count}分"
-durationSeconds(count): "${count}秒"
+durationSeconds(count): "${count} 秒"
 rechargeAmountError: 0.01元〜10000元の金額を入力してください
 rechargeSuccess: チャージしました
 rechargeConfirm: チャージを確認
 transactionHistory2: 取引履歴
 noTransactionHistory: 取引履歴はありません
-allLoaded: "— すべて読み込み済み —"
 transactionTypeIncome: チャージ
 transactionTypeExpense: 利用
 sectionLoginCredentials: ログイン情報
@@ -870,7 +617,6 @@ orderDetailLoadFailed: 注文詳細の読み込みに失敗しました
 orderNoLabel(no): '注文番号: $no'
 orderStatusCancelled: キャンセル済み
 orderStatusUnknown: 不明
-removeReaction: リアクションを削除
 removeReactionConfirm(emoji): "$emoji リアクションを削除しますか？"
 fileOpenFailed: このファイルを開けません
 e2eeLocalBackup: ローカルバックアップ
@@ -889,8 +635,6 @@ e2eeExportBackup: バックアップを書き出す
 e2eeExportBackupDesc: 暗号化バックアップを生成します
 e2eeImportBackup: バックアップを読み込む
 e2eeImportBackupDesc: バックアップファイルからキーを復元します
-e2eeBackupManage: バックアップ管理
-e2eeBackupManageDesc: バックアップ履歴を表示します
 e2eeGenerateKeyConfirm: 新しいE2EEキーペアを生成しますか？
 e2eeWarnOldMessagesLost: "• 古いメッセージは復号できなくなります"
 e2eeWarnNeedNewBackup: "• バックアップファイルを再作成する必要があります"
@@ -911,15 +655,7 @@ e2eeKeyGenerateFailed: キーの生成に失敗しました。もう一度お試
 e2eeKeyDeleted: キーを削除しました
 e2eeDeleteFailed: 削除に失敗しました。もう一度お試しください
 e2eeShardAvailableInfo(available, required): '利用可能なシャード: $available 個、復元には $required 人の代理者の協力が必要です'
-e2eeNoRecoveryShards: 利用可能な復元シャードがありません
-e2eeRecoverSuccess: 復元しました
-e2eeRecoverFailed: 復元に失敗しました
-e2eeRecoverKeyFailed: キーの復元に失敗しました。もう一度お試しください
-e2eeLoadingShards: シャード情報を読み込み中...
-e2eeNoShards: 利用可能なシャードがありません
-e2eeLoadFailed: 読み込みに失敗しました。もう一度お試しください
 e2eeContactingProxy(name): '連絡中: $name'
-e2eeRecoveryFailed: 復元に失敗しました。もう一度お試しください
 webFeatureNotification: デスクトップ通知
 webFeatureNotificationDesc: アプリを開いていなくても新着メッセージをお知らせ
 webQRConfirmOnPhone: スマートフォンでログインを確認してください
@@ -990,19 +726,9 @@ e2eeBackupErrImportFailed: 読み込みに失敗しました。パスワード�
 e2eeBackupImportSuccessTitle: 読み込み完了
 e2eeBackupImportSuccessBody: E2EEキーを復元しました！
 e2eeBackupImportSuccessNote: "注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません"
-e2eeBackupNoRecords: バックアップ履歴はありません
-e2eeBackupNoRecordsHint: バックアップを書き出すと、ここに履歴が表示されます
 e2eeBackupDeviceLabel(id): デバイス $id
 e2eeBackupCreatedAtLabel(time): 作成日時 $time
-e2eeBackupDetailTitle: バックアップの詳細
-e2eeBackupDeviceIdLabel: デバイス ID
-e2eeBackupVersionNum: バックアップバージョン
 e2eeBackupCreatedAtRow: 作成日時
-e2eeBackupFileSizeRow: ファイルサイズ
-e2eeBackupNoteRow: メモ
-e2eeBackupDeleteTitle: バックアップ履歴を削除
-e2eeBackupDeleteConfirm: このバックアップ履歴を削除しますか？
-e2eeBackupDeleteSuccess: バックアップ履歴を削除しました
 e2eeBackupCloudUploadBtn: クラウドにバックアップ
 e2eeBackupCloudUploadSuccess(version): クラウドにバックアップしました（バージョン $version）
 e2eeBackupErrCloudUploadFailed: クラウドバックアップに失敗しました。再試行してください
@@ -1027,62 +753,21 @@ e2eeBackupErrUrlTls: 安全な接続に失敗しました、サーバー証明�
 e2eeBackupErrUrlHttp: サーバーがエラーを返しました
 e2eeBackupErrUrlEmpty: サーバーが空のコンテンツを返しました
 e2eeBackupErrUrlTooLarge: ファイルが大きすぎます（10MB制限を超過）
-e2eeBackupOpenFromExternal: 外部バックアップファイルを受信しました、検証中…
-e2eeBackupErrOpenExternal: このファイルを読み取れません、「リンクからインポート」または「ファイルを選択」を使用してください
-e2eeSocialShardSettings: シャード設定
-e2eeSocialShardStoredNote: 説明：シャードは代理デバイスに保存され、サーバーには一切保存されません
-e2eeSocialAddProxy: 代理者を追加
-e2eeSocialAddProxyHint: 代理者の連絡先を追加してください
 e2eeSocialCreateNeedMore(count): 先に $count 人の代理者を追加してください
-e2eeSocialCreateSuccessTitle: シャードを作成しました
 e2eeSocialTotalShardsInfo(count): キーを $count 個のシャードに分割しました
 e2eeSocialThresholdInfo(count): "$count 人の代理者の協力でキーを復元できます"
-e2eeSocialZeroTrustNote: ゼロトラスト構成：サーバーにはシャードを一切保存しません
-e2eeSocialNoShards: 復元シャードをまだ作成していません
-e2eeSocialNoProxyShards: 代理シャードはありません
-e2eeSocialKeyVersionLabel: キーのバージョン
-e2eeTransferErrNoKey: 先にキーペアを生成してください
-e2eeTransferErrInitFailed: 初期化に失敗しました。もう一度お試しください
-e2eeTransferErrNoRecipientKey: 受信者に利用可能な公開鍵がありません
-e2eeTransferErrKeyNotFound: キーが見つかりません
-e2eeTransferErrCreateFailed: 転送セッションの作成に失敗しました。もう一度お試しください
-e2eeTransferCreateSessionBtn: 転送セッションを作成
-e2eeTransferSessionCreated: 転送セッションを作成しました
-e2eeTransferUidEmptyError: 有効なユーザーIDを入力してください
-e2eeTransferSuccess: 転送に成功しました！
-e2eeTransferFailed: 転送に失敗しました。もう一度お試しください
-e2eeTransferProcessingMsg: 処理中...
-e2eeTransferSuccessTitle: 転送完了
-e2eeTransferSuccessBody: キーをこのデバイスに転送しました
 e2eeTransferScanError(error): 'スキャンエラー: $error'
-e2eeTransferErrNoDeviceId: デバイス IDを取得できません
 passwordEncryptFailed: パスワードの暗号化に失敗しました
 initConfigTimeout: 設定の取得がタイムアウトしました：ネットワーク接続またはサーバーの状態を確認してください
 initConfigNetworkError(code): ネットワークまたはサーバーの障害です (HTTP $code)
 initConfigProtocolError: サーバープロトコルに誤りがあります
 initConfigFetchFailed: 設定の取得に失敗しました。ネットワーク接続を確認してください
-attachmentGetFileFailed: ファイルを取得できません。もう一度お試しいただくか、アルバムから選択してください
-attachmentGetFileFailedAndroid9: ファイルの取得に失敗しました。Android 9では互換性の問題がある可能性があります
-attachmentGetImageDataFailed: 画像データを取得できません。もう一度お試しください
-attachmentGetOriginalImageFailed: 元の画像データを取得できません
 saveFailedRetry: 保存に失敗しました。もう一度お試しください
 downloadFileNotFound: ダウンロードファイルが存在しません。もう一度お試しください
 downloadHashRetrying(retry, max): ファイルの検証に失敗しました。再ダウンロード中 ($retry/$max)
 downloadHashFailed: ファイルの検証が複数回失敗しました。ネットワークを確認して再度お試しください
-e2eeTransferToNewDevice: 新しいデバイスへ転送
-e2eeTransferPendingSection: 保留中の転送
-e2eeTransferLoadFailed: 読み込みに失敗しました
-e2eeTransferLoadFailedDesc: 保留中の転送を読み込めません。もう一度お試しください
-e2eeTransferNoPending: 保留中の転送はありません
-e2eeTransferNoPendingDesc: デバイスからキーが送信されると、ここに表示されます
-e2eeSocialEnoughShards: キーを復元するのに十分なシャードがあります
 e2eeSocialMoreShards(count): 他 $count 個のシャード...
-e2eeProxyLoadFriendsFailed: 友達リストの読み込みに失敗しました。もう一度お試しください
-e2eeProxyNoPublicKey: この友達には利用可能な公開鍵がありません
 e2eeProxyGetKeyFailed(name): "$name の公開鍵の取得に失敗しました"
-e2eeProxySelectFailed: 代理者の選択に失敗しました。もう一度お試しください
-e2eeProxyNoFriends: 友達がいません
-e2eeProxyNoFriendsHint: 先に友達を追加してから復元の代理者を設定してください
 e2eeProxyNeedMore(count, selected): 最低 $count 人の信頼できる連絡先が必要です。$selected 人選択中
 e2eeProxyConfirmCount(count): 選択を確認（代理者 $count 人）
 buttonBackHome: ホームへ
@@ -1096,22 +781,18 @@ redPacket: お年玉
 transfer: 送金
 withdraw: 出金
 redPacketSend: お年玉を送る
-redPacketOpen: お年玉を受け取る
 redPacketDetail: お年玉の詳細
 transferSend: 送金を開始
-transferAccept: 受領を確認
 greetingDefault: 謹賀新年
 grabAmountYuan(amount): 受取金額：$amount 元
 transferAmountYuan(amount): 送金金額：$amount 元
 insufficientBalance: 残高不足
-goToRecharge: チャージへ
 withdrawSuccess: 出金しました
 withdrawConfirm: 出金を確認
 withdrawFeeNotice: 手数料と着金時間は実際の決済に準じます
 withdrawAmountError: 0.01元以上の金額を入力してください
 withdrawAccountEmpty: 出金先のアカウントを入力してください
 withdrawMethod: 出金方法
-withdrawAccount: 出金先アカウント
 withdrawAmountLabel: 出金金額
 withdrawAlipay: Alipay
 withdrawWechat: WeChat
@@ -1132,12 +813,92 @@ resumeScan: スキャンを再開
 enterFullscreen: 全画面表示にする
 exitFullscreen: 全画面表示を終了
 developer: 開発者
-fontSizeOptionSmall: 小
+fontSizeOptionSmall: 小さめ
 fontSizeOptionNormal: 標準
-fontSizeOptionMedium: 中
-fontSizeOptionLarge: 大
-fontSizeOptionExtraLarge: 特大
+fontSizeOptionMedium: 中くらい
+fontSizeOptionLarge: 大きめ
+fontSizeOptionExtraLarge: かなり大きめ
 fontSizeOptionHuge: 極大
 searchFailedRetry: "検索に失敗しました。再試行してください"
 searchDisabledTitle: "メッセージ検索は利用できません"
 searchDisabledByEncryption: "エンドツーエンド暗号化が有効なため、サーバーはメッセージを読み取れず、全文検索は利用できません"
+collectedVideoFormatIncorrectCannotFindVideoUri: "サポートされていない動画形式のため、対応する動画URLが見つかりません"
+# --- 汎用 UI / 通話 / レイアウト ---
+amountMustPositive: 金額は0より大きい値を入力してください
+answer: 応答
+collapse: 折りたたむ
+declineCall: 拒否
+expandFull: すべて表示
+justNow: たった今
+me: 自分
+minimize: 最小化する
+noHistory: 履歴はありません
+noNewRegisteredUsersTitle: 新規登録ユーザーはいません
+reconnecting: 接続が不安定です。再接続中…
+switchCamera: カメラを切り替え
+timeDaysShort: "${count}日"
+timeHoursShort: "${count}時間"
+timeMinutesShort: "${count}分"
+timeNowShort: 今
+hoursAgo: "時間前"
+minutesAgo: "分前"
+# --- 対面グループ（f2f） ---
+f2fEnteringGroup: "$count人がまもなくグループチャットに参加します"
+f2fSecretCode: 合言葉
+# --- モーメント ---
+momentsHasFailedUploads: アップロードに失敗したメディアがあります。再試行するか削除してから公開してください
+# --- 送金 / 受取 ---
+transferAccepted: 受け取りました
+transferAmountLabel: 送金金額
+transferConfirm: 送金を確認
+transferDefaultRemark: 友達へ送金
+transferMinAmountError: 送金の最低金額は0.01元です
+transferPending: 相手の確認待ち
+transferReceiving: 受取処理中...
+transferRefunded: 返金されました
+transferRemarkLabel: 送金メモ
+transferTapToReceive: タップして受け取る
+payReceiveSuccess: 受取が完了しました！
+purchaseConfirming: 支払いの確認中です。注文の状態は後ほどご確認ください
+enterAmount: 金額を入力してください
+uploadPartialFailed: "$count件のアップロードに失敗しました"
+# --- お年玉（紅包） ---
+redPacketAmountTooSmall: 合計金額は個数 × 0.01元以上にしてください
+redPacketBrand: IMBoy お年玉
+redPacketCount: お年玉の個数
+redPacketCountEmpty: お年玉の個数を入力してください
+redPacketCountMin: お年玉の個数は1以上にしてください
+redPacketCountUnit: 個
+redPacketCurrentLucky: 現在：ランダムお年玉
+redPacketCurrentNormal: 現在：均等お年玉
+redPacketDialogSubtitle: いいことありますように
+redPacketDialogTitle: お年玉を贈ります
+redPacketFetchError: お年玉の詳細取得でエラーが発生しました
+redPacketFetchFailed: お年玉の詳細を取得できませんでした
+redPacketGreetingLabel: メッセージ / 祝いの言葉
+redPacketNotFound: お年玉が存在しないか、削除されました
+redPacketReceiverLabel: "ユーザー：$uid"
+redPacketSingleAmount: 1個あたりの金額
+redPacketStuffLucky: お年玉に金額を設定
+redPacketStuffNormal: ウォレットから送る
+redPacketSwitchToLucky: ランダムお年玉に変更
+redPacketSwitchToNormal: 均等お年玉に変更
+redPacketTotalAmount: 合計金額
+redPacketView: お年玉を見る
+# --- 音声の文字起こし（STT） ---
+voiceSttConverting: 認識中...
+voiceSttNotConfigured: 文字起こし機能は未設定です
+voiceSttPreviewTitle: 音声文字起こしプレビュー
+# --- E2EE リカバリーキー ---
+e2eeRecoveryKeyTitle: リカバリーキー
+e2eeRecoveryKeyCopiedAutoClear: リカバリーキーをコピーしました。$seconds秒後にクリップボードから自動的に消去されます。すぐに保存してください
+e2eeRecoveryKeySaveNote: このリカバリーキーを今すぐ保存してください（スクリーンショットまたはパスワード管理ツールへ）。パスフレーズを忘れた場合、バックアップを復号する唯一の手段です。紛失するとバックアップは永久に復元できません。
+e2eeUseRecoveryKey: リカバリーキーを生成（パスフレーズ忘れ時のバックアップ手段）
+e2eeErrPeerNotOnboarded: 相手はまだどのデバイスでもログインしたことがないため、暗号化して送信できません。相手のログイン後にもう一度お試しください
+# --- コンプライアンス監査キー変更の確認 ---
+complianceKeyChangedTitle: コンプライアンス監査キーが変更されました
+complianceKeyChangedActionConfirm: ローテーションを承認
+complianceKeyChangedActionKeep: 今は承認しない
+complianceKeyChangedBody: サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。
+# --- 初期設定 ---
+initConfigDecryptFailed: 設定の復号に失敗しました：アプリとサーバーのセキュリティキーが一致しません。アプリを最新版に更新するか、管理者に連絡してください

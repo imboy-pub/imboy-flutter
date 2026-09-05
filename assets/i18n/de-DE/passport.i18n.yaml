@@ -1,12 +1,18 @@
 ---
-retrievePassword: Passwort wiederherstellen
 loginHistoryToggle: Anmeldeverlauf anzeigen
 hintEmail: Bitte E-Mail eingeben
 hintMobile: Bitte Mobilfunknummer eingeben
-forgetPassword: Passwort vergessen?
-register: Registrieren
 hintPassword: Bitte Passwort eingeben
 hintVerifyCode: Bitte Bestätigungscode eingeben
 getVerifyCode: Code anfordern
-hasAccount: Bereits ein Konto?
 oneKeyLogin: Schnellanmeldung
+qrCodeExpired: QR-Code abgelaufen, bitte neu scannen
+qrCodeUsed: Dieser QR-Code wurde bereits verwendet
+qrConnecting: Verbindung wird hergestellt...
+qrLoginAction: Anmeldung bestätigen
+qrLoginCancelled: Anmeldung wurde abgebrochen
+qrLoginCancelledByMe: Sie haben die Anmeldung abgebrochen
+qrLoginConfirming: Anmeldung läuft...
+qrLoginSuccess: Angemeldet
+qrWebLoginDesc: Bitte bestätigen Sie die Anmeldung dieses Kontos im Web
+qrWebLoginTitle: Web-Anmeldung bestätigen

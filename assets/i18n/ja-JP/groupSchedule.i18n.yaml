@@ -5,14 +5,7 @@ scheduleTitle: スケジュール名
 selectDate: 日付を選択
 selectTime: 時刻を選択
 location: 場所
-reminder: リマインダー
-noReminder: リマインダーなし
 noSchedule: スケジュールはありません
-scheduleCreated: スケジュールを作成しました
-scheduleUpdated: スケジュールを更新しました
-reminder15min: 15分前
-reminder1hour: 1時間前
-reminder1day: 1日前
 startTime: 開始時刻
 endTime: 終了時刻
 participants: 参加者数
