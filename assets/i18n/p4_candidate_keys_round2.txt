@@ -1,0 +1,47 @@
+# P4 第二轮候选删除键清单（2026-09-06 生成，37 键）
+# 来源：LIST=1000 ruby assets/i18n/i18n_audit.rb unused（candidate 段，审计器 tr. 盲区修复后）
+# 51 候选 = A 34 参数形态残留 + B 1 普通形态残留 + C 2 真新增；另 14 个 *NotImplemented 预置键按用户既有拍板保留，未列入
+# A 组（34 键）：均在 2026-09-05 用户批准的 703 删除清单内，因上轮 apply 参数键匹配缺陷漏删，本次证据重验零引用
+# B 组（1 键）：collectedVideoFormatIncorrectCannotFindVideoUri 上轮删除后遭并行会话回填（功能代码未落地），建议随功能落地后复核
+# C 组（2 键）：全新候选，无批准记录
+# 用法（须用户批准后）：ruby assets/i18n/i18n_key_prune.rb verify <本文件> / apply <批准清单> --approve
+# --- A 组：已批准漏删残留 ---
+chat.e2eeReadyWithShards
+chat.e2eeSocialStatus
+chat.e2eeProxyNeedAtLeast
+common.removeReactionConfirm
+common.e2eeShardAvailableInfo
+common.e2eeContactingProxy
+common.e2eeBackupDeviceLabel
+common.e2eeBackupCreatedAtLabel
+common.e2eeSocialCreateNeedMore
+common.e2eeSocialTotalShardsInfo
+common.e2eeSocialThresholdInfo
+common.e2eeTransferScanError
+common.e2eeSocialMoreShards
+common.e2eeProxyGetKeyFailed
+common.e2eeProxyNeedMore
+common.e2eeProxyConfirmCount
+common.grabAmountYuan
+discovery.momentViewAllComments
+error.e2eeStartRecoveryBtn
+error.e2eeInsufficientShardBtn
+main.e2eeProxyUser
+main.e2eeShardLabel
+main.e2eeUsedShards
+main.e2eeRecoveryProgressLabel
+main.e2eeCollectingShards
+main.e2eeSocialThresholdHint
+main.e2eeSocialProxyNeeded
+main.e2eeSocialProxyDefaultName
+main.e2eeSocialSentCount
+main.e2eeSocialShardOf
+main.e2eeSocialUserShard
+main.e2eeTransferQRExpiry
+main.e2eeProxyMinCount
+main.e2eeProxySelectedCount
+# --- B 组：并行回填待复核 ---
+common.collectedVideoFormatIncorrectCannotFindVideoUri
+# --- C 组：全新候选 ---
+common.success
+main.markStar

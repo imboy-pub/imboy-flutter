@@ -1,0 +1,38 @@
+# P4 Round-2 A 组批准清单（2026-09-06 执行）
+# 批准依据：2026-09-05 用户批准"删 700 留 14 预置键"，本 34 键均 ⊂ 该 703 清单（上轮 apply 参数键匹配缺陷漏删的残余）
+# 今日证据重验（tr. 感知 + 全仓/后端仓 -w 扫描）：零引用；详见 I18N_AUDIT_REPORT.md §8.7
+# B/C 组（collectedVideoFormatIncorrectCannotFindVideoUri / common.success / main.markStar）未获批，不在本清单
+chat.e2eeReadyWithShards
+chat.e2eeSocialStatus
+chat.e2eeProxyNeedAtLeast
+common.removeReactionConfirm
+common.e2eeShardAvailableInfo
+common.e2eeContactingProxy
+common.e2eeBackupDeviceLabel
+common.e2eeBackupCreatedAtLabel
+common.e2eeSocialCreateNeedMore
+common.e2eeSocialTotalShardsInfo
+common.e2eeSocialThresholdInfo
+common.e2eeTransferScanError
+common.e2eeSocialMoreShards
+common.e2eeProxyGetKeyFailed
+common.e2eeProxyNeedMore
+common.e2eeProxyConfirmCount
+common.grabAmountYuan
+discovery.momentViewAllComments
+error.e2eeStartRecoveryBtn
+error.e2eeInsufficientShardBtn
+main.e2eeProxyUser
+main.e2eeShardLabel
+main.e2eeUsedShards
+main.e2eeRecoveryProgressLabel
+main.e2eeCollectingShards
+main.e2eeSocialThresholdHint
+main.e2eeSocialProxyNeeded
+main.e2eeSocialProxyDefaultName
+main.e2eeSocialSentCount
+main.e2eeSocialShardOf
+main.e2eeSocialUserShard
+main.e2eeTransferQRExpiry
+main.e2eeProxyMinCount
+main.e2eeProxySelectedCount

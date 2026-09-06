@@ -204,6 +204,12 @@ def scan_refs
         parts = m.delete_prefix("t.").split(".")
         parts.each_index { |i| static << parts.take(i + 1).join(".") }
       end
+      # 别名访问器形态（如 final tr = translations ?? t 的可注入翻译模式）
+      # 同样构成真实引用；unused 判定宁可多算 used（保守），不可漏算导致误删
+      src.scan(/\btr(?:\.[A-Za-z0-9_]+)+/).each do |m|
+        parts = m.delete_prefix("tr.").split(".")
+        parts.each_index { |i| static << parts.take(i + 1).join(".") }
+      end
       src.scan(/\bt(?:\.[A-Za-z0-9_]+)*\s*\[/).each do |m|
         # 排除转义序列（如字符串中的 \t[）与测试代码里的同名变量
         # （slang 的 t 类没有 [] 操作符，可编译的 t[...] 必然不是翻译对象；

@@ -90,10 +90,11 @@ end
 # 返回删除的行数（0=未找到键）。保持文件其余部分逐字节不变。
 
 # 在 mapping 节点里找 path[0] 条目，返回 [key_node, value_node, next_key_line]
+# 匹配口径与 flat_locale 一致：slang 参数键 name(param) 按剥括号后的名字命中
 def find_entry(mapping, name)
   kids = mapping.children
   kids.each_slice(2).with_index do |(k, v), idx|
-    next unless k.respond_to?(:value) && k.value == name
+    next unless k.respond_to?(:value) && split_key_scalar(k.value.to_s).first == name
     next_key = kids[(idx + 1) * 2]
     return [k, v, next_key&.start_line]
   end
@@ -143,10 +144,11 @@ def delete_key_from_file(file_path, segments)
 end
 
 # 在 mapping 内定位 path[0]，命中即记录区间；未命中返回 0
+# 匹配口径与 find_entry 相同：参数键 name(param) 按剥括号后的名字命中
 def collect_and_delete(mapping, path, state, eof_line)
   kids = mapping.children
   kids.each_slice(2).with_index do |(k, v), idx|
-    next unless k.respond_to?(:value) && k.value == path.first
+    next unless k.respond_to?(:value) && split_key_scalar(k.value.to_s).first == path.first
     next_key = kids[(idx + 1) * 2]
     stop = next_key&.start_line || eof_line
     if path.size == 1
@@ -212,6 +214,7 @@ when "selftest"
     pluralKey:
       one: "1 个"
       other: "$n 个"
+    paramKey(count): "$count 个分片"
     last: 保留D
   YAML
   Dir.mktmpdir do |dir|
@@ -230,12 +233,15 @@ when "selftest"
           out3.include?("alpha: 保留A") && out3.include?("last: 保留D")
     n4 = delete_key_from_file(f, %w[group 不存在])
     ok4 = n4.zero? && File.read(f) == out3
-    if ok1 && ok2 && ok3 && ok4
-      puts "selftest: 4/4 passed"
+    n5 = delete_key_from_file(f, %w[paramKey])
+    out5 = File.read(f)
+    ok5 = n5 == 1 && !out5.include?("paramKey") && out5.include?("alpha: 保留A") && out5.include?("last: 保留D")
+    if ok1 && ok2 && ok3 && ok4 && ok5
+      puts "selftest: 5/5 passed"
       exit 0
     else
-      puts "selftest FAIL: leaf=#{ok1} cascade=#{ok2} block=#{ok3} missing=#{ok4}"
-      puts out3
+      puts "selftest FAIL: leaf=#{ok1} cascade=#{ok2} block=#{ok3} missing=#{ok4} param=#{ok5}"
+      puts out5
       exit 1
     end
   end

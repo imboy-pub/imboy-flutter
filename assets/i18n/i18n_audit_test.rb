@@ -18,6 +18,7 @@
 #   8. 空值必须失败
 #   9. missing 是信息项（check 通过）；I18N_AUDIT_STRICT=1 时判失败
 #  10. used_missing 检出（代码引用了但 locale 缺失）
+#  11. 别名访问器 tr. 构成真实引用，不得标 unused candidate
 
 require "tmpdir"
 require "fileutils"
@@ -227,6 +228,21 @@ test "missing_informational_but_strict_gates_and_used_missing" do |dir|
 
   out, _e, _s = run_audit(i18n, dir, "missing", "en-US")
   assert out.include?("common.unusedThing"), "missing mode lists key + zh-CN source: #{out}"
+end
+
+# 11 ── 别名访问器 tr.（final tr = translations ?? t 注入模式）构成真实引用
+test "alias_accessor_tr_counts_as_reference" do |dir|
+  locale_files = { "common.i18n.yaml" => "aliased: \"别名访问\"\norphan: \"孤儿键\"\n" }
+  i18n = write_fixture(dir, locales: {
+    "zh-CN" => locale_files,
+    "en-US" => locale_files
+  }, dart: {
+    "lib/page.dart" => "final tr = translations ?? t;\nString label() => tr.common.aliased;\n"
+  })
+  out, _e, _s = run_audit(i18n, dir, "unused")
+  assert out.include?("common.orphan"), "unreferenced key must stay a candidate: #{out}"
+  assert !out.include?("common.aliased"),
+         "key referenced via tr. accessor must NOT be flagged unused: #{out}"
 end
 
 # ── runner ──────────────────────────────────────────────────────────────
