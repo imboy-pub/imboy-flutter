@@ -404,5 +404,20 @@
       "imboyapp": "f69a3a82 test(channel) AT-CL 集成测试+FlowApiClient token 注入"
     },
     "ledger": "channel_detail_page.md 点赞行批次25→批次117（3/3），README 155页面/1748功能点/阻塞193（不变，bug 发现=解决）"
+  },
+  "session_2026_09_06_batch118": {
+    "note": "批次118（用户直派）：资料设置页投诉报「投诉失败，请稍后再试」全案——本地 curl/生产探针接口均正常，真因是前端把后端可读原因全部吞成通用失败文案；修复=ReportApi 消息透出，四处入口同步，AT-RP 两行 macOS 全链一次全绿。",
+    "fixes": [
+      "UI 吞后端消息：ReportApi.create/createMessage 只返回 bool，resp.msg 里的后端可读原因（「您已举报过该对象」「举报原因不能为空」等）全部丢弃，失败一律显示「投诉失败，请稍后再试」；改返回 (bool,String) + friendlyError 过滤网络层噪音后透出（镜像 E2EE 文案路由「文案=唯一诊断通道」惯例），contact_setting/group_detail/message_action_menu/channel_message_feed 四处入口同步",
+      "定位过程要点：本地 9801 curl 投诉成功；生产探针（测试号 15001 登录+举报）code=0 正常、路由存在（902 签名门 vs 不存在路径空响应的判别法）；后端 create 有 already_reported 幂等——用户场景最可能是重复举报被旧版 UI 吞成通用文案，具体原因已被掩盖，修复后会显示真实原因",
+      "顺带发现（生产,未修）：report/create 对不存在的 target_id（999999）也 code=0 落库，服务端缺目标存在性校验，记入 task_state 供后续批次"
+    ],
+    "tests": "AT-RP1 首次投诉（toast 投诉已提交）/ AT-RP2 重复投诉（toast 您已举报过该对象+断言不再出现通用失败文案）run1 一次全绿；message_action_menu 单测 26/26 回归（_FakeReportApi 适配新签名）；数据自愈配方（report_ticket 清场 SQL）在测试头注",
+    "test_env_quirks": "投诉工单幂等（reporter+target 唯一）：重跑 AT-RP 前须 DELETE FROM report_ticket WHERE reporter_uid=1000000056 AND target_type='user' AND target_id=1000000051；生产探针用测试号 15001@imboy.pub/admin888（FlowApiClient deviceType:'android' 过签名门）",
+    "commits": {
+      "imboyapp_fix": "ReportApi 消息透出+四入口+单测适配",
+      "imboyapp_test": "AT-RP 集成测试+台账批次118"
+    },
+    "ledger": "contact_setting_page.md 举报行批次80→118（1/1），README 155页面/1748功能点/阻塞193 不变"
   }
 }
