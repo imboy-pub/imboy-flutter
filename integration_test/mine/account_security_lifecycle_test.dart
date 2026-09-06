@@ -506,13 +506,23 @@ void main() {
 
     await _go(tester, '/logout_account');
 
-    // 勾选「已阅读并同意」条款（未勾选时注销按钮禁用）
+    // 勾选「已阅读并同意」条款（未勾选时注销按钮禁用）；
+    // CupertinoCheckbox 点击区小，用中心坐标点
     final checkbox = find.byType(CupertinoCheckbox);
     if (!tester.any(checkbox)) {
       fail('注销页条款 Checkbox 不存在');
     }
-    await tester.tap(checkbox.first, warnIfMissed: false);
+    final cbCenter = tester.getCenter(checkbox.first);
+    await tester.tapAt(cbCenter);
     await _pump(tester, seconds: 1);
+    final checked = await _waitFor(
+      tester,
+      () => tester
+          .widgetList<CupertinoCheckbox>(checkbox)
+          .any((w) => w.value == true),
+      seconds: 3,
+    );
+    expect(checked, isTrue, reason: '条款 Checkbox 应可勾选');
 
     // 注销按钮（红色破坏色）→ 二次确认弹窗
     await _tapText(tester, '注销账号');
