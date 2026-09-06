@@ -151,13 +151,17 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
   /// 删除好友申请记录
   Future<int> delete(String from, String to) async {
     int res = await (NewFriendRepo()).delete(from, to);
-    final uk = from + to;
+    // uk 格式必须与 NewFriendModel.uk 一致（from_to 带下划线）：
+    // 此前 from + to 直接拼接永不匹配 → removeAt(-1) RangeError，
+    // 表现为删除后列表无反应（库已删、UI 不刷新）
+    final uk = '${from}_$to';
     final index = state.items.indexWhere((e) {
       if (e is NewFriendModel) {
         return e.uk == uk;
       }
       return false;
     });
+    if (index == -1) return res;
     final newItems = List<dynamic>.from(state.items);
     newItems.removeAt(index);
     state = state.copyWith(items: newItems);
