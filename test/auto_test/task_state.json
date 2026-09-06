@@ -450,6 +450,8 @@
   "pending": "AS4 成功链（二次提交未落库待查，疑迟到401踢会话）与 AS5 注销终章未闭环——Docker Desktop VM 磁盘满致 imboy_pg18(4323) 瘫痪，9801 后端同依赖；恢复后 bash /tmp/as_orchestrate.sh 续跑（脚本自洽造数）",
   "ledger": "解阻 5 行（set_password 4+change_password 1）；change_password 成功链 1 行改阻塞理由；logout_account 2 行阻塞理由更新为待环境恢复；发现 216→219/解决 212→215",
   "commits": "imboy c5921d61（mobile 补发+eunit 桩）；imboyapp 13235669（本地化+契约修复+测试+基建）——均未 push",
-  "lessons": "flutter_tester 本地存储跨轮持久→缓存残留可污染跨场景断言（quitLogin 重登刷缓存）；EasyLoading toast 3s 与提交后 pump 等待竞速；启动期旧 token 401 风暴 http_auth_expired 迟到踢会话（app 登录竞态疑真 bug 待立项）；磁盘满会让 Docker VM 无法启动、4323/9801 全链瘫痪"
+  "lessons": "flutter_tester 本地存储跨轮持久→缓存残留可污染跨场景断言（quitLogin 重登刷缓存）；EasyLoading toast 3s 与提交后 pump 等待竞速；启动期旧 token 401 风暴 http_auth_expired 迟到踢会话（app 登录竞态疑真 bug 待立项）；磁盘满会让 Docker VM 无法启动、4323/9801 全链瘫痪",
+  "final": "批次120 全部收官：五场景 AT-AS1~5 实跑全绿（orch14 AS1-3+AS4 final4/AS5 run3）；elib_password verify 候选补 sha256(md5hex(P)) 修复改密链（imboy 69b7eca3 热更+手工 curl 闭环 code=0）；台账 8 行阻塞全解（set_password 4/change_password 2/logout_account 2）；bug 216→220/212→216/待处理 4 恒等式保持",
+  "env_note": "Docker Desktop VM(Docker.raw) 磁盘满曾致 4323/9801 全瘫；恢复=重启 Docker Desktop+docker builder prune -af 释放 17.5GB；bootstrap 含主动清残留 token 防启动期 401 风暴踢会话"
  }
 }
