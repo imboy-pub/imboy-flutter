@@ -334,6 +334,27 @@
       ],
       "imboy_eunit": "handler 套件 6/6 绿（含新增失败路径用例）；group 邻居 9 套件全绿；全量 eunit 11 失败为并行线 flake（D 链 user_ds/user_logic、F 线 imboy_feature/policy、workspace_archive、stress 成功率），与本批次无关（imboy 树当时干净）",
       "commits": "见 git log（imboy handler 修复+eunit；imboyapp 客户端修复+2 测试文件+台账）"
+    },
+    "batch_114": {
+      "date": "2026-09-06",
+      "scope": "group 域批量收尾 15 行（member_detail 5 + group_detail 3 + change_info 1 + add_member 1 + remove_member 2 + launch_chat 2 + group_announcement 1）",
+      "tests": [
+        "integration_test/group/member_detail_actions_test.dart（AT-MD1~5 管理操作链，All passed）",
+        "integration_test/group/group_manage_pages_test.dart（AT-GD/CI/AM/RM1/RM2 + AT-E2E/AT-DG，All passed）",
+        "integration_test/group/launch_chat_announcement_test.dart（AT-AN/AT-LC1/AT-LC2，All passed）"
+      ],
+      "write_ops_note": "全部写操作打本地 9801+本地库假数据（GMSmoke 假人/SmokeAlice 测试号），无生产数据无真人打扰；AM→RM 闭环（alice 进→出还原）、GMSmoke06 移出后 SQL 补回维持 22 人基线；群级 E2EE 0→1 单向开启（本地测试群接受）",
+      "quirks": [
+        "tap 被 AppLoading toast Overlay 吞掉——统一 ensureVisible+tap(first)+toast 后 pump 缓冲（member_detail 链踩两次）",
+        "测试幂等自愈三件套：遗留禁言先解禁、遗留管理员先取消、群名两值翻转",
+        "ActionSheet 关闭后文案不存在——断言需重开 sheet 验证",
+        "勾选后按钮文本变「完成(N)」——用 textContaining",
+        "postFrame 里的自动 pop 无法轮询捕捉——对照法（带参挂载 vs 空参退出）",
+        "go_router 嵌套路由 push 必须带父前缀 /group/announcement（二踩静默失败）",
+        "tester.widget<T>(find.text) 类型断言错误——应找 ancestor CupertinoButton"
+      ],
+      "maintain": "维持行：launch_chat 空态+add_member 空态（需零好友账号 UI 登录）、group_select（无活入口）、group_task×2（需先造任务数据）",
+      "commits": "见 git log 批次114"
     }
   }
 }
