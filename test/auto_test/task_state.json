@@ -355,6 +355,23 @@
       ],
       "maintain": "维持行：launch_chat 空态+add_member 空态（需零好友账号 UI 登录）、group_select（无活入口）、group_task×2（需先造任务数据）",
       "commits": "见 git log 批次114"
+    },
+    "batch_115": {
+      "date": "2026-09-06",
+      "scope": "workspace 壳验收 6 行（groups 他区反例/空态/失败重试 + channels 反例/空态 + projects 下拉刷新）",
+      "seed_data": "SQL：第二区群改名 AT-WS2-General/频道 at-ws2-announcements 作反例标记；新建空工作区 100000000000000210「AT-WS-空区-115」（bob owner，无群无频道）",
+      "tests": [
+        "integration_test/workspace/workspace_shell_acceptance_test.dart（AT-WG1/WC1/WG2/WC2/WF/WP，All passed）"
+      ],
+      "quirks": [
+        "adapterForTest 必须在 app.main() 之前设置——WorkspaceApi 等实例构造早，晚设置打不到已构造实例的 Dio（invalidate 后仍 AsyncData([])，拦截日志是假象）",
+        "Riverpod 2 AsyncLoading 保留前值(value+error 字段)——轮询 read 判 AsyncError 而非看 UI",
+        "IndexedStack offstage 子树渲染对 onstage finder 不可见——错误视图断言前先把 destination 切到目标页",
+        "两区模板群/频道同名单纯文字无法区分他区反例——SQL 改名做标记",
+        "shell 切体验=container.read(productExperienceProvider.notifier).select(workspace)；切区=workspaceShellProvider.selectWorkspace"
+      ],
+      "maintain": "workspace 其余 18 行维持：无工作区账号类 6 行（需 UI 登录切号）、失败+无缓存叠加类（需清 SQLCipher 缓存不可行）、create 幂等/409、invite 故障注入、branding 非 Owner、members/overview 空态",
+      "commits": "见 git log 批次115"
     }
   }
 }

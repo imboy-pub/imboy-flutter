@@ -9,7 +9,7 @@
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 进入频道导航先显示加载态后渲染频道列表 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 阻塞 | 需页面级无缓存与加载失败叠加场景 | `page/workspace/workspace_channels_page.dart` | 加载失败展示服务端错误消息与重试按钮，点重试重新拉取 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3实测：断网切Tab重拉确有发起但失败保留缓存不显错误视图；断网冷启动卡splash约2.5min后落init层无网络+重试（启动层非页面级），页面级错误态仍不可达 |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 频道卡渲染天线圆标+频道名+「N 人订阅」副标题+右箭头 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
-| 阻塞 | 需无频道的工作区 | `page/workspace/workspace_channels_page.dart` | 频道列表为空时空态展示标题与副标题提示 | 未测 | 批次W2R1 | 0 | 0 | 0 | 模板建区必含Announcements |
+| 无待办 | - | `page/workspace/workspace_channels_page.dart` | 频道列表为空时空态展示标题与副标题提示 | 已通过 | 批次115 | 0 | 0 | 0 | 批次115 沙箱：空工作区 → 「还没有工作区频道」+副标题 |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 点击频道卡进入频道详情页 /workspace/:wsId/channels/:channelId | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
-| 阻塞 | 需他区频道作反例 | `page/workspace/workspace_channels_page.dart` | 列表按 scope=workspace 严格分区，仅展示本工作区频道（其他来源频道不出现） | 未测 | 批次W2R1 | 0 | 0 | 0 | create临时区建好后可解 |
+| 无待办 | - | `page/workspace/workspace_channels_page.dart` | 列表按 scope=workspace 严格分区，仅展示本工作区频道（其他来源频道不出现） | 已通过 | 批次115 | 0 | 0 | 0 | 批次115 沙箱：本区 Announcements 在、他区 at-ws2-announcements 不在 |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 离开再进入频道导航重新拉取列表（provider 自动销毁重建） | 已通过 | 批次W2R2FIX | 1 | 1 | 0 | 已修：页面ref.listen壳目的地切回即invalidate重拉；logcat证切回后新GET channels |

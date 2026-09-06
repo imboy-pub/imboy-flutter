@@ -10,7 +10,7 @@
 | 阻塞 | 需页面级无缓存与加载失败叠加场景 | `page/workspace/workspace_projects_page.dart` | 首页加载失败且无已加载数据时整页错误态+重试按钮重新拉取 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3实测：断网切Tab失败保留缓存不显错误视图；断网冷启动卡splash后落init层无网络+重试（启动层），页面级错误态仍不可达；init层重试机制已实证 |
 | 无待办 | - | `page/workspace/workspace_projects_page.dart` | 项目卡渲染状态图标（完成绿色勾/进行中文件夹）+名称+描述最多两行省略 | 已通过 | 批次W2R2 | 0 | 0 | 0 | done绿勾圆图标+active蓝文件夹图标双证；名称+描述两行正常 |
 | 无待办 | - | `page/workspace/workspace_projects_page.dart` | 项目列表为空时空态展示标题与副标题提示且仍可下拉 | 已通过 | 批次W2R2 | 0 | 0 | 0 | WS2空态：还没有项目+副标题+新建按钮仍在；仍可下拉未注入验证 |
-| 阻塞 | adb注入无法触发Cupertino下拉（设备注入怪癖族），需真手指验证 | `page/workspace/workspace_projects_page.dart` | 下拉刷新重新拉取第一页项目列表 | 未测 | 批次W2R2 | 0 | 0 | 0 | 源码有CupertinoSliverRefreshControl(onRefresh)，多次慢拖未触发 |
+| 无待办 | - | `page/workspace/workspace_projects_page.dart` | 下拉刷新重新拉取第一页项目列表 | 已通过 | 批次115 | 0 | 0 | 0 | 批次115 沙箱：macOS drag overscroll 触发 CupertinoSliverRefreshControl，无异常（adb 注入限制不适用于沙箱 drag） |
 | 无待办 | - | `page/workspace/workspace_projects_page.dart` | 点击「创建项目」按钮进入 /workspace/:wsId/projects/create | 已通过 | 批次W2R2 | 0 | 0 | 0 | 新建项目进创建页（名称0/200+描述0/2000+创建按钮） |
 | 无待办 | - | `page/workspace/workspace_projects_page.dart` | 已归档工作区创建项目按钮禁用（服务端 980 兜底） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 归档WS2重启后：橙色归档横幅+新建按钮灰色禁用（对比正常蓝） |
 | 无待办 | - | `page/workspace/workspace_projects_page.dart` | 还有下一页时底部展示「加载更多」按钮，点击追加下一页并显示加载指示 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 21项目触发按钮；点击发page=2请求追加且按钮消失；加载指示见源码分支 |
