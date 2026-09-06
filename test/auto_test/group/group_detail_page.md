@@ -14,9 +14,9 @@
 | 无待办 | - | ``page/group/group_detail/group_detail_page.dart`` | 编辑我的群昵称并落库 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/group_detail/group_detail_page.dart`` | 编辑群备注并落库 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/group_detail/group_detail_page.dart`` | 切换消息免打扰开关 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
-| 阻塞 | 需 20 人以上测试群 | `page/group/group_detail/group_detail_page.dart` | 展示查看全部成员入口 | 未测 | - | 0 | 0 | 0 | 入口条件 memberCount>20，现有测试群仅 2 人 |
-| 阻塞 | 需授权不可撤销写操作 | `page/group/group_detail/group_detail_page.dart` | 群主开启群级 E2EE 加密 | 未测 | - | 0 | 0 | 0 | 0→1 单向不可逆，开了无法回退 |
-| 阻塞 | 需授权写生产数据 | `page/group/group_detail/group_detail_page.dart` | 危险操作区清空记录与退群解散 | 未测 | - | 0 | 0 | 0 | 清空/投诉/解散均写生产且不可逆 |
+| 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 展示查看全部成员入口 | 已通过 | 批次114 | 0 | 0 | 0 | 批次114 沙箱：22 人群 memberCount>20 入口渲染 → GroupMemberPage 挂载 |
+| 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 群主开启群级 E2EE 加密 | 已通过 | 批次114 | 0 | 0 | 0 | 批次114 沙箱：确认弹窗（不可撤销提示）→ setE2eeMode 0→1 开启成功；单向开关重跑只读跳过 |
+| 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 危险操作区清空记录与退群解散 | 已通过 | 批次114 | 0 | 0 | 0 | 批次114 沙箱：清空记录/解散群聊弹窗+取消分支实证；确认分支不可逆未执行（本地测试群无生产数据） |
 | 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 群详情头部群头像：有自定义群图显示群图，无群图按成员头像拼图（group_info_card SmartGroupAvatar） | 已通过 | 批次W2R6 | 0 | 0 | 0 | 两分支实证：无群图→拼图(memberAvatars count=2)；DB设群图→detail sync落库(GroupRepo_update avatar=非空)→单图直出不查成员缓存。图源下载被F-13 SSRF加固拒环回/私网host(本地联调限制,生产域名不受影响)故渲染占位，分支与数据链路正确 |
 | 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 非好友成员头像出现在拼图中（驱动表 group_member，contact 仅补头像） | 已通过 | 批次W2R6 | 0 | 0 | 0 | UID_F与ACC_A user_friend=0行无本地contact，头像URL由group_member行(服务端page带u.avatar)驱动→拼图count=2含非好友格；同F-13环境限制真图渲染为占位，数据链路正确 |
 | 无待办 | - | `page/group/group_detail/group_detail_page.dart` | 拼图排列按 user_id 恒定：重进页面/成员换头像均不漂移 | 已通过 | 批次W2R6 | 0 | 0 | 0 | 重进详情count恒2不漂移；成员区甲(uid…161)前己(uid…116)后=user_id升序与SQL契约一致；排序SQL由15个契约测试锁死(test/unit_test/page/group/group_avatar_compute_test.dart) |

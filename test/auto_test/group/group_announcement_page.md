@@ -16,4 +16,4 @@
 | 无待办 | - | ``page/group/announcement/group_announcement_page.dart`` | 无公告时展示空态占位图 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群公告页——「发布公告」+「删除」入口渲染（IMBoy 管理员角色，:13 角色控制入口生效）；批次详验(列表/过期日期/空内容拦截/删除确认/下拉刷新/空态)稳定功能无回归 |
 | 无待办 | - | ``page/group/announcement/group_announcement_page.dart`` | 加载失败弹提示并清除错误态 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群公告页——「发布公告」+「删除」入口渲染（IMBoy 管理员角色，:13 角色控制入口生效）；批次详验(列表/过期日期/空内容拦截/删除确认/下拉刷新/空态)稳定功能无回归 |
 | 无待办 | - | ``page/group/announcement/group_announcement_page.dart`` | 展示公告过期时间标签 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：真机群公告页——「发布公告」+「删除」入口渲染（IMBoy 管理员角色，:13 角色控制入口生效）；批次详验(列表/过期日期/空内容拦截/删除确认/下拉刷新/空态)稳定功能无回归 |
-| 阻塞 | 需可传空参的路由入口或代码注入（正常入口必传 groupId） | `page/group/announcement/group_announcement_page.dart` | 群ID为空时自动退出页面 | 未测 | 批次29 | 0 | 0 | 0 | isEmpty→pop 防御代码已证实（L35-37） |
+| 无待办 | - | `page/group/announcement/group_announcement_page.dart` | 群ID为空时自动退出页面 | 已通过 | 批次114 | 0 | 0 | 0 | 批次114 沙箱：对照法实证（带参挂载 vs 空参自动退出；pop 在 postFrame 无法捕捉瞬间） |
