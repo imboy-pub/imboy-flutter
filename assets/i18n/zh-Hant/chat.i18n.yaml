@@ -16,7 +16,7 @@ chatStatusSent: 已傳送
 chatStatusDelivered: 已送達
 chatStatusSeen: 已讀
 createGroupF2f: 面對面建群組
-displayProfile: 顯示您的資料
+displayProfile: 顯示你的資料
 file: 檔案
 unknownFile: "未知檔案"
 fileSize: 檔案大小
@@ -97,7 +97,7 @@ viewAttachments: 瀏覽附件
 viewLargeImage: 檢視大圖
 voice: 語音
 voiceMessage: 語音訊息
-youWithdrewAMessage: 您撤回了一則訊息
+youWithdrewAMessage: 你撤回了一則訊息
 formatCheck: 格式檢查
 featureRequest: 功能請求
 chatResend: 重新傳送

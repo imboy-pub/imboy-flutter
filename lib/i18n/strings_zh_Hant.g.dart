@@ -108,7 +108,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get logoutCancelRequest => '撤銷註銷申請';
 	@override String get logoutCancelledNote => '註銷申請已撤銷';
 	@override String get logoutRetainedHeader => '資料留存說明';
-	@override String get logoutRetainedNote => '刪除完成後：稽核日誌與財務紀錄依法留存並匿名化；您擁有的群組/工作區/頻道將優先轉移給繼任成員';
+	@override String get logoutRetainedNote => '刪除完成後：稽核日誌與財務紀錄依法留存並匿名化；你擁有的群組/工作區/頻道將優先轉移給繼任成員';
 	@override String get mobile => '手機';
 	@override String get mobileQuickLogin => '一鍵登入';
 	@override String get myAccount => '我的帳號';
@@ -444,7 +444,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get accessTypeFree => '免費';
 	@override String get accessTypePaid => '付費';
 	@override String get typePublicPaidDesc => '任何人都可以發現頻道，購買後即可訂閱';
-	@override String get typePrivatePaidDesc => '僅受邀用戶可進入購買流程，付款後即可訂閱';
+	@override String get typePrivatePaidDesc => '僅受邀使用者可進入購買流程，付款後即可訂閱';
 	@override String get info => '頻道資訊';
 	@override String get settings => '頻道設定';
 	@override String get inviteAdmins => '邀請管理員';
@@ -488,7 +488,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get chatStatusDelivered => '已送達';
 	@override String get chatStatusSeen => '已讀';
 	@override String get createGroupF2f => '面對面建群組';
-	@override String get displayProfile => '顯示您的資料';
+	@override String get displayProfile => '顯示你的資料';
 	@override String get file => '檔案';
 	@override String get unknownFile => '未知檔案';
 	@override String get fileSize => '檔案大小';
@@ -569,7 +569,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get viewLargeImage => '檢視大圖';
 	@override String get voice => '語音';
 	@override String get voiceMessage => '語音訊息';
-	@override String get youWithdrewAMessage => '您撤回了一則訊息';
+	@override String get youWithdrewAMessage => '你撤回了一則訊息';
 	@override String get formatCheck => '格式檢查';
 	@override String get featureRequest => '功能請求';
 	@override String get chatResend => '重新傳送';
@@ -693,7 +693,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get addToContacts => '新增到通訊錄';
 	@override String get addToDenylist => '加入黑名單';
 	@override String get added => '已新增';
-	@override String get addedToDenylistTips => '已加入黑名單，您將不再收到對方的訊息';
+	@override String get addedToDenylistTips => '已加入黑名單，你將不再收到對方的訊息';
 	@override String get all => '所有';
 	@override String get allTime => '所有時間';
 	@override String get allTypes => '所有類型';
@@ -705,7 +705,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get buttonAccomplish => '已完成';
 	@override String get buttonAdd => '新增';
 	@override String get buttonBack => '回上一頁';
-	@override String get bindMobileAndEmailTips => '綁定手機號和郵箱，讓您的帳號更安全';
+	@override String get bindMobileAndEmailTips => '綁定手機號和郵箱，讓你的帳號更安全';
 	@override String get bindNow => '立即綁定';
 	@override String get buttonCancel => '關閉';
 	@override String get buttonCreate => '建立';
@@ -724,7 +724,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get buttonSelectFromAlbum => '從相簿選擇';
 	@override String get buttonSend => '傳送';
 	@override String get buttonTakingPictures => '拍攝照片';
-	@override String get cacheTips => '快取是使用應用過程中產生的暫時資料，清理快取不會影響您的正常使用。';
+	@override String get cacheTips => '快取是使用應用過程中產生的暫時資料，清理快取不會影響你的正常使用。';
 	@override String get callDuration => '通話時長';
 	@override String get callEnded => '通話已結束';
 	@override String get calling => '正在通話';
@@ -743,7 +743,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get chatSettingUnpinnedSuccess => '取消置頂';
 	@override String get chatSettings => '聊天設定';
 	@override String get chatStatusFailed => '傳送失敗';
-	@override String get chatErrorInDenylist => '對方已將您加入黑名單';
+	@override String get chatErrorInDenylist => '對方已將你加入黑名單';
 	@override String get checkForUpdates => '檢查更新';
 	@override String get clearAll => '全部清除';
 	@override String get clearChatRecord => '清空聊天記錄';
@@ -768,7 +768,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get deleteTagTips => '刪除標籤後，標籤中的聯絡人不會被刪除';
 	@override String get deleteThisDevice => '刪除該設備';
 	@override String get deleteThisDeviceTips => '刪除後，下次在該設備登入時需要進行安全驗證。';
-	@override String get denylistNoteDesc => '被封鎖的使用者無法給您傳送訊息，也無法檢視您的動態。點擊使用者可以檢視詳情。';
+	@override String get denylistNoteDesc => '被封鎖的使用者無法給你傳送訊息，也無法檢視你的動態。點擊使用者可以檢視詳情。';
 	@override String get denylistNoteTitle => '黑名單說明';
 	@override String get details => '詳情';
 	@override String get deviceDetails => '設備詳情';
@@ -797,7 +797,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get feedback => '回饋建議';
 	@override String get feedbackContentRequired => '回饋內容不能為空';
 	@override String get feedbackDetails => '回饋建議明細';
-	@override String get feedbackSuccessMsg => '您的回饋問題我們已經收到了，會盡快處理！';
+	@override String get feedbackSuccessMsg => '你的回饋問題我們已經收到了，會盡快處理！';
 	@override String get followSystemTips => '開啟後，將跟隨系統開啟或關閉深色模式';
 	@override String get genderUpdateFailed => '性別設定失敗，請重試';
 	@override String get groupAnnouncement => '群組公告';
@@ -831,7 +831,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get loadMore => '載入更多';
 	@override String get loading => '載入中';
 	@override String get locationMessage => '位置訊息';
-	@override String get loginDeviceManagementTips => '您的帳號在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。';
+	@override String get loginDeviceManagementTips => '你的帳號在以下設備中登入過，你可以刪除設備，刪除後在該設備登入時需進行安全驗證。';
 	@override String get logoutFailed => '退出登入失敗';
 	@override String get messageCall => '發訊息';
 	@override String get messageContent => '訊息內容';
@@ -865,15 +865,15 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get noPermission => '沒有權限';
 	@override String get noReply => '暫無回覆';
 	@override String get noUpdateDescription => '無更新說明';
-	@override String get notAuthorizedLatLong => '您還沒有授權獲取經緯度';
+	@override String get notAuthorizedLatLong => '你還沒有授權獲取經緯度';
 	@override String get notLoggedIn => '未登入';
 	@override String get notBad => '還不錯';
 	@override String get notBound => '未綁定';
 	@override String get notFilled => '未填寫';
-	@override String get notInstallAnyMapApp => '您沒有安裝任何地圖應用哦';
+	@override String get notInstallAnyMapApp => '你沒有安裝任何地圖應用哦';
 	@override String get notReceiveCoeQ => '沒有收到驗證碼？';
 	@override String get notSet => '未設定';
-	@override String get notTurnedLocationService => '您還沒有開啟位置服務';
+	@override String get notTurnedLocationService => '你還沒有開啟位置服務';
 	@override String get nowNewVersion => '未檢測到新版本';
 	@override String get offlineNotification => '下線通知';
 	@override String get operationFailedAgainLater => '操作失敗，請稍後重試';
@@ -946,7 +946,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get selectAll => '全選';
 	@override String get selectContacts => '選擇通訊錄';
 	@override String get selectedRegion => '已選地區';
-	@override String get sendMsgNotFriendTips => '對方開啟了好友驗證，您還不是他（她）好友。請先傳送好友驗證請求，對方驗證通過後，才能聊天。';
+	@override String get sendMsgNotFriendTips => '對方開啟了好友驗證，你還不是他（她）好友。請先傳送好友驗證請求，對方驗證通過後，才能聊天。';
 	@override String get share => '分享出去';
 	@override String get slideUpCancelSending => '手指上滑，取消傳送';
 	@override String get storagePermissionNotObtained => '未獲取儲存權限';
@@ -1013,7 +1013,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get forceDeviceOfflineConfirm => '將向該設備傳送下線指令，確認繼續？';
 	@override String get confirmForceOffline => '確認下線';
 	@override String get forceOfflineCommandSent => '已傳送下線指令';
-	@override String get feedbackSlogan => '您的建議是我們改進的動力';
+	@override String get feedbackSlogan => '你的建議是我們改進的動力';
 	@override String get newFeedback => '新建回饋';
 	@override String get feedbackHistory => '回饋記錄';
 	@override String get confirmDelete => '確認刪除';
@@ -1021,8 +1021,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get feedbackContent => '回饋內容';
 	@override String get officialReply => '官方回覆';
 	@override String get setPasswordSecurityTips => '為了提升帳號安全，同時防止因無法獲取驗證碼導致無法登入，請設定登入密碼。';
-	@override String get locationHidden => '已隱藏您的位置';
-	@override String get locationVisible => '已顯示您的位置';
+	@override String get locationHidden => '已隱藏你的位置';
+	@override String get locationVisible => '已顯示你的位置';
 	@override String get noNearbyPeople => '暫無附近的人';
 	@override String get clickSearchButtonToFind => '點擊上方的搜尋按鈕搜尋附近的人';
 	@override String get operationFailed => _root.common.error;
@@ -1040,18 +1040,18 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get groupAnnouncementDeleteSuccess => '公告已刪除';
 	@override String get privacyClearChatHistory => '清除聊天記錄';
 	@override String get privacyClearChatHistoryConfirm => '確定要清除所有聊天記錄嗎？此操作不可恢復。';
-	@override String get privacyLogoutAccountConfirm => '確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。';
+	@override String get privacyLogoutAccountConfirm => '確定要註銷帳號嗎？此操作將永久刪除你的帳號和所有資料，且不可恢復。';
 	@override String get privacySettings => '隱私設定';
 	@override String get searchSettings => '搜尋設定';
 	@override String get allowSearchByAccount => '允許通過帳號搜尋';
-	@override String get allowSearchByAccountDesc => '其他使用者可以通過您的帳號找到您';
+	@override String get allowSearchByAccountDesc => '其他使用者可以通過你的帳號找到你';
 	@override String get allowAddByPhone => '允許通過手機號新增';
-	@override String get allowAddByPhoneDesc => '其他使用者可以通過您的手機號新增您為好友';
+	@override String get allowAddByPhoneDesc => '其他使用者可以通過你的手機號新增你為好友';
 	@override String get allowAddByQR => '允許通過二維碼新增';
-	@override String get allowAddByQRDesc => '其他使用者可以通過掃描您的二維碼新增您為好友';
+	@override String get allowAddByQRDesc => '其他使用者可以通過掃描你的二維碼新增你為好友';
 	@override String get statusSettings => '狀態設定';
 	@override String get showOnlineStatus => '顯示上線狀態';
-	@override String get showOnlineStatusDesc => '關閉後，好友看不到您的上線狀態和最後上線時間；訊息傳送不受影響';
+	@override String get showOnlineStatusDesc => '關閉後，好友看不到你的上線狀態和最後上線時間；訊息傳送不受影響';
 	@override String get allowNearbyVisible => '附近的人可見';
 	@override String get dataSettings => '資料設定';
 	@override String get clearChatRecords => '清除聊天記錄';
@@ -1066,7 +1066,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get chatDeleteFailed => '刪除失敗';
 	@override String get chatNetworkErrorDeleteLocal => '網路連接失敗，是否僅刪除本地訊息？';
 	@override String get chatDeleteConfirm => '確定要刪除這則訊息嗎？此操作無法撤銷。';
-	@override String get chatDeleteOnlyLocal => '僅在您這裡刪除，對方仍可見';
+	@override String get chatDeleteOnlyLocal => '僅在你這裡刪除，對方仍可見';
 	@override String get chatDeleteAll => '從所有人的聊天中刪除，無法撤銷';
 	@override String get chatInitFailed => '聊天初始化失敗';
 	@override String get cameraShootFailed => '拍攝失敗';
@@ -1078,7 +1078,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get tagClearAllConfirm => '確定要清空所有標籤嗎？';
 	@override String get tagClearAll => '確認清空';
 	@override String get audioPlayFailed => '播放失敗';
-	@override String forcedOfflineByDevice({required Object device}) => '您已被設備【${device}】強制下線';
+	@override String forcedOfflineByDevice({required Object device}) => '你已被設備【${device}】強制下線';
 	@override String get loadingTagDataFailed => '載入標籤資料失敗';
 	@override String get pleaseEnterContent => '請輸入內容';
 	@override String get comingSoon => '敬請期待';
@@ -1211,22 +1211,22 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get quickReplyOkThanks => '好的，謝謝';
 	@override String get noDetailedInfo => '該使用者還沒有設定個人簽名等詳細資訊';
 	@override String get noNewRegisteredUsers => '目前沒有新註冊的使用者 請稍後再來檢視';
-	@override String get newRegisteredUsersTip => '這裡顯示最近註冊的使用者，您可以主動新增他們為好友';
+	@override String get newRegisteredUsersTip => '這裡顯示最近註冊的使用者，你可以主動新增他們為好友';
 	@override String get notificationFriendRequest => '好友請求';
-	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} 請求新增您為好友';
+	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} 請求新增你為好友';
 	@override String get notificationGroupInvite => '群邀請';
-	@override String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} 邀請您加入群組 ${groupName}';
-	@override String get youRevokedMessage => '您撤回了一則訊息';
+	@override String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} 邀請你加入群組 ${groupName}';
+	@override String get youRevokedMessage => '你撤回了一則訊息';
 	@override String get otherRevokedMessage => '對方撤回了一則訊息';
 	@override String get networkFailureTryAgain => '網路故障，請重試！';
 	@override String get networkNotAvailable => '目前網路不可用。';
-	@override String get pleaseCheckNetworkConnection => '請檢查您的網路連接。';
+	@override String get pleaseCheckNetworkConnection => '請檢查你的網路連接。';
 	@override String lastSeenMinutesAgo({required num n}) => _root.common.timeMinutesAgo(n: n);
 	@override String lastSeenHoursAgo({required num n}) => _root.common.timeHoursAgo(n: n);
 	@override String lastSeenDaysAgo({required num n}) => _root.common.timeDaysAgo(n: n);
 	@override String get fontSettings => _root.common.fontSizeSetting;
 	@override String get noFavoritesYet => '暫無收藏內容，快去收藏一些有趣的訊息吧';
-	@override String get fontPreviewText => '這是正文內容，您可以在這裡看到不同字體大小的顯示效果。';
+	@override String get fontPreviewText => '這是正文內容，你可以在這裡看到不同字體大小的顯示效果。';
 	@override String get smaller => '縮小';
 	@override String currentFontScale({required Object param1, required Object param2}) => '目前：${param1} ${param2}%';
 	@override String groupAnnouncementExpiry({required Object time}) => '效期至: ${time}';
@@ -1313,9 +1313,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeCurrentKeyInfo => '當前金鑰資訊';
 	@override String get e2eeE2EEEnabled => '端到端加密已啟用';
 	@override String get e2eeNoKeyDetected => '未檢測到 E2EE 金鑰';
-	@override String get e2eeNoKeyDesc => '您需要先生成金鑰對或從備份中恢復';
+	@override String get e2eeNoKeyDesc => '你需要先生成金鑰對或從備份中恢復';
 	@override String get e2eeAboutTitle => '關於端到端加密';
-	@override String get e2eeInfoPoint1 => '• 您的訊息在傳送前已加密，伺服器無法檢視內容';
+	@override String get e2eeInfoPoint1 => '• 你的訊息在傳送前已加密，伺服器無法檢視內容';
 	@override String get e2eeInfoPoint2 => '• 更換裝置或刪除金鑰後，舊訊息可能無法解密';
 	@override String get e2eeInfoPoint3 => '• 請定期備份金鑰以防資料丟失';
 	@override String get e2eeExportBackup => '匯出備份';
@@ -1356,7 +1356,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeErrPeerNotOnboarded => '對方還沒有在任何裝置上登入過，暫時無法加密傳送；請等對方登入後再試';
 	@override String get e2eeDecryptFailed => '訊息無法解密';
 	@override String get e2eeDecryptFailedReasons => '此訊息無法解密，可能原因是：';
-	@override String get e2eeDecryptReasonOtherDevice => '• 您在其他裝置上登入';
+	@override String get e2eeDecryptReasonOtherDevice => '• 你在其他裝置上登入';
 	@override String get e2eeDecryptReasonKeyExpired => '• 裝置金鑰已過期';
 	@override String get e2eeDecryptReasonDataCorrupt => '• 應用資料損壞';
 	@override String get e2eeDecryptChooseSolution => '請選擇解決方案：';
@@ -1388,7 +1388,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrExportFailed => '匯出失敗，請重試';
 	@override String get e2eeBackupErrShareFailed => '分享失敗，請重試';
 	@override String get e2eeBackupExportSuccessTitle => '備份匯出成功';
-	@override String get e2eeBackupExportSuccessBody => '您的 E2EE 金鑰備份已成功生成。';
+	@override String get e2eeBackupExportSuccessBody => '你的 E2EE 金鑰備份已成功生成。';
 	@override String get e2eeBackupImportantNoteColon => '重要提醒：';
 	@override String get e2eeBackupKeepSafe => '• 請妥善保管備份檔案和密碼';
 	@override String get e2eeBackupStoreMultipleLoc => '• 建議將檔案儲存到多個安全位置';
@@ -1638,7 +1638,7 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	// Translations
 	@override String get findNearbyPeople => '搜尋附近的人';
 	@override String get moment => '動態';
-	@override String get nearbyPeopleExplain => '附近的使用者可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。\n您的電話號碼將會被隱藏。';
+	@override String get nearbyPeopleExplain => '附近的使用者可以檢視你的個人資料並給你發送訊息。這可能會幫助你找到新朋友，但也可能會引起過多的關注。你可以隨時停止分享你的個人資料。\n你的電話號碼將會被隱藏。';
 	@override String get peopleNearby => '附近的朋友';
 	@override String get scanResult => '掃描結果';
 	@override String get myChannels => '我的頻道';
@@ -1687,7 +1687,7 @@ class Translations$error$zh_Hant extends Translations$error$zh_CN {
 
 	// Translations
 	@override String get restartRequired => '需要重新啟動應用';
-	@override String get pleaseCheckNetwork => '請檢查您的網路設定。';
+	@override String get pleaseCheckNetwork => '請檢查你的網路設定。';
 	@override String get networkTroubleshootingStep1 => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。';
 	@override String get networkTroubleshootingStep2 => '2.開啟手機設定-一般-流動數據，並把流動數據開關保持開啟狀態。';
 	@override String get networkTroubleshootingStep3 => '3.如仍無法連接網路，請檢查手機連接的 Wi-Fi 是否已連上互聯網或聯絡電訊商。';
@@ -1997,7 +1997,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get unanswered => '未應答';
 	@override String get unnamed => '無名稱';
 	@override String get usedSpace => '已使用空間';
-	@override String get you => '您';
+	@override String get you => '你';
 	@override String get zhCn => '簡體中文';
 	@override String get zhHant => '繁體中文';
 	@override String get bound => '已綁定';
@@ -2501,7 +2501,7 @@ extension on TranslationsZhHant {
 			'account.logoutCancelRequest' => '撤銷註銷申請',
 			'account.logoutCancelledNote' => '註銷申請已撤銷',
 			'account.logoutRetainedHeader' => '資料留存說明',
-			'account.logoutRetainedNote' => '刪除完成後：稽核日誌與財務紀錄依法留存並匿名化；您擁有的群組/工作區/頻道將優先轉移給繼任成員',
+			'account.logoutRetainedNote' => '刪除完成後：稽核日誌與財務紀錄依法留存並匿名化；你擁有的群組/工作區/頻道將優先轉移給繼任成員',
 			'account.mobile' => '手機',
 			'account.mobileQuickLogin' => '一鍵登入',
 			'account.myAccount' => '我的帳號',
@@ -2809,7 +2809,7 @@ extension on TranslationsZhHant {
 			'channel.accessTypeFree' => '免費',
 			'channel.accessTypePaid' => '付費',
 			'channel.typePublicPaidDesc' => '任何人都可以發現頻道，購買後即可訂閱',
-			'channel.typePrivatePaidDesc' => '僅受邀用戶可進入購買流程，付款後即可訂閱',
+			'channel.typePrivatePaidDesc' => '僅受邀使用者可進入購買流程，付款後即可訂閱',
 			'channel.info' => '頻道資訊',
 			'channel.settings' => '頻道設定',
 			'channel.inviteAdmins' => '邀請管理員',
@@ -2844,7 +2844,7 @@ extension on TranslationsZhHant {
 			'chat.chatStatusDelivered' => '已送達',
 			'chat.chatStatusSeen' => '已讀',
 			'chat.createGroupF2f' => '面對面建群組',
-			'chat.displayProfile' => '顯示您的資料',
+			'chat.displayProfile' => '顯示你的資料',
 			'chat.file' => '檔案',
 			'chat.unknownFile' => '未知檔案',
 			'chat.fileSize' => '檔案大小',
@@ -2925,7 +2925,7 @@ extension on TranslationsZhHant {
 			'chat.viewLargeImage' => '檢視大圖',
 			'chat.voice' => '語音',
 			'chat.voiceMessage' => '語音訊息',
-			'chat.youWithdrewAMessage' => '您撤回了一則訊息',
+			'chat.youWithdrewAMessage' => '你撤回了一則訊息',
 			'chat.formatCheck' => '格式檢查',
 			'chat.featureRequest' => '功能請求',
 			'chat.chatResend' => '重新傳送',
@@ -3042,7 +3042,7 @@ extension on TranslationsZhHant {
 			'common.addToContacts' => '新增到通訊錄',
 			'common.addToDenylist' => '加入黑名單',
 			'common.added' => '已新增',
-			'common.addedToDenylistTips' => '已加入黑名單，您將不再收到對方的訊息',
+			'common.addedToDenylistTips' => '已加入黑名單，你將不再收到對方的訊息',
 			'common.all' => '所有',
 			'common.allTime' => '所有時間',
 			'common.allTypes' => '所有類型',
@@ -3054,7 +3054,7 @@ extension on TranslationsZhHant {
 			'common.buttonAccomplish' => '已完成',
 			'common.buttonAdd' => '新增',
 			'common.buttonBack' => '回上一頁',
-			'common.bindMobileAndEmailTips' => '綁定手機號和郵箱，讓您的帳號更安全',
+			'common.bindMobileAndEmailTips' => '綁定手機號和郵箱，讓你的帳號更安全',
 			'common.bindNow' => '立即綁定',
 			'common.buttonCancel' => '關閉',
 			'common.buttonCreate' => '建立',
@@ -3073,7 +3073,7 @@ extension on TranslationsZhHant {
 			'common.buttonSelectFromAlbum' => '從相簿選擇',
 			'common.buttonSend' => '傳送',
 			'common.buttonTakingPictures' => '拍攝照片',
-			'common.cacheTips' => '快取是使用應用過程中產生的暫時資料，清理快取不會影響您的正常使用。',
+			'common.cacheTips' => '快取是使用應用過程中產生的暫時資料，清理快取不會影響你的正常使用。',
 			'common.callDuration' => '通話時長',
 			'common.callEnded' => '通話已結束',
 			'common.calling' => '正在通話',
@@ -3092,7 +3092,7 @@ extension on TranslationsZhHant {
 			'common.chatSettingUnpinnedSuccess' => '取消置頂',
 			'common.chatSettings' => '聊天設定',
 			'common.chatStatusFailed' => '傳送失敗',
-			'common.chatErrorInDenylist' => '對方已將您加入黑名單',
+			'common.chatErrorInDenylist' => '對方已將你加入黑名單',
 			'common.checkForUpdates' => '檢查更新',
 			'common.clearAll' => '全部清除',
 			'common.clearChatRecord' => '清空聊天記錄',
@@ -3117,7 +3117,7 @@ extension on TranslationsZhHant {
 			'common.deleteTagTips' => '刪除標籤後，標籤中的聯絡人不會被刪除',
 			'common.deleteThisDevice' => '刪除該設備',
 			'common.deleteThisDeviceTips' => '刪除後，下次在該設備登入時需要進行安全驗證。',
-			'common.denylistNoteDesc' => '被封鎖的使用者無法給您傳送訊息，也無法檢視您的動態。點擊使用者可以檢視詳情。',
+			'common.denylistNoteDesc' => '被封鎖的使用者無法給你傳送訊息，也無法檢視你的動態。點擊使用者可以檢視詳情。',
 			'common.denylistNoteTitle' => '黑名單說明',
 			'common.details' => '詳情',
 			'common.deviceDetails' => '設備詳情',
@@ -3146,7 +3146,7 @@ extension on TranslationsZhHant {
 			'common.feedback' => '回饋建議',
 			'common.feedbackContentRequired' => '回饋內容不能為空',
 			'common.feedbackDetails' => '回饋建議明細',
-			'common.feedbackSuccessMsg' => '您的回饋問題我們已經收到了，會盡快處理！',
+			'common.feedbackSuccessMsg' => '你的回饋問題我們已經收到了，會盡快處理！',
 			'common.followSystemTips' => '開啟後，將跟隨系統開啟或關閉深色模式',
 			'common.genderUpdateFailed' => '性別設定失敗，請重試',
 			'common.groupAnnouncement' => '群組公告',
@@ -3180,7 +3180,7 @@ extension on TranslationsZhHant {
 			'common.loadMore' => '載入更多',
 			'common.loading' => '載入中',
 			'common.locationMessage' => '位置訊息',
-			'common.loginDeviceManagementTips' => '您的帳號在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。',
+			'common.loginDeviceManagementTips' => '你的帳號在以下設備中登入過，你可以刪除設備，刪除後在該設備登入時需進行安全驗證。',
 			'common.logoutFailed' => '退出登入失敗',
 			'common.messageCall' => '發訊息',
 			'common.messageContent' => '訊息內容',
@@ -3214,15 +3214,15 @@ extension on TranslationsZhHant {
 			'common.noPermission' => '沒有權限',
 			'common.noReply' => '暫無回覆',
 			'common.noUpdateDescription' => '無更新說明',
-			'common.notAuthorizedLatLong' => '您還沒有授權獲取經緯度',
+			'common.notAuthorizedLatLong' => '你還沒有授權獲取經緯度',
 			'common.notLoggedIn' => '未登入',
 			'common.notBad' => '還不錯',
 			'common.notBound' => '未綁定',
 			'common.notFilled' => '未填寫',
-			'common.notInstallAnyMapApp' => '您沒有安裝任何地圖應用哦',
+			'common.notInstallAnyMapApp' => '你沒有安裝任何地圖應用哦',
 			'common.notReceiveCoeQ' => '沒有收到驗證碼？',
 			'common.notSet' => '未設定',
-			'common.notTurnedLocationService' => '您還沒有開啟位置服務',
+			'common.notTurnedLocationService' => '你還沒有開啟位置服務',
 			'common.nowNewVersion' => '未檢測到新版本',
 			'common.offlineNotification' => '下線通知',
 			'common.operationFailedAgainLater' => '操作失敗，請稍後重試',
@@ -3295,7 +3295,7 @@ extension on TranslationsZhHant {
 			'common.selectAll' => '全選',
 			'common.selectContacts' => '選擇通訊錄',
 			'common.selectedRegion' => '已選地區',
-			'common.sendMsgNotFriendTips' => '對方開啟了好友驗證，您還不是他（她）好友。請先傳送好友驗證請求，對方驗證通過後，才能聊天。',
+			'common.sendMsgNotFriendTips' => '對方開啟了好友驗證，你還不是他（她）好友。請先傳送好友驗證請求，對方驗證通過後，才能聊天。',
 			'common.share' => '分享出去',
 			'common.slideUpCancelSending' => '手指上滑，取消傳送',
 			'common.storagePermissionNotObtained' => '未獲取儲存權限',
@@ -3356,7 +3356,7 @@ extension on TranslationsZhHant {
 			'common.forceDeviceOfflineConfirm' => '將向該設備傳送下線指令，確認繼續？',
 			'common.confirmForceOffline' => '確認下線',
 			'common.forceOfflineCommandSent' => '已傳送下線指令',
-			'common.feedbackSlogan' => '您的建議是我們改進的動力',
+			'common.feedbackSlogan' => '你的建議是我們改進的動力',
 			'common.newFeedback' => '新建回饋',
 			'common.feedbackHistory' => '回饋記錄',
 			'common.confirmDelete' => '確認刪除',
@@ -3364,8 +3364,8 @@ extension on TranslationsZhHant {
 			'common.feedbackContent' => '回饋內容',
 			'common.officialReply' => '官方回覆',
 			'common.setPasswordSecurityTips' => '為了提升帳號安全，同時防止因無法獲取驗證碼導致無法登入，請設定登入密碼。',
-			'common.locationHidden' => '已隱藏您的位置',
-			'common.locationVisible' => '已顯示您的位置',
+			'common.locationHidden' => '已隱藏你的位置',
+			'common.locationVisible' => '已顯示你的位置',
 			'common.noNearbyPeople' => '暫無附近的人',
 			'common.clickSearchButtonToFind' => '點擊上方的搜尋按鈕搜尋附近的人',
 			'common.operationFailed' => _root.common.error,
@@ -3383,18 +3383,18 @@ extension on TranslationsZhHant {
 			'common.groupAnnouncementDeleteSuccess' => '公告已刪除',
 			'common.privacyClearChatHistory' => '清除聊天記錄',
 			'common.privacyClearChatHistoryConfirm' => '確定要清除所有聊天記錄嗎？此操作不可恢復。',
-			'common.privacyLogoutAccountConfirm' => '確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。',
+			'common.privacyLogoutAccountConfirm' => '確定要註銷帳號嗎？此操作將永久刪除你的帳號和所有資料，且不可恢復。',
 			'common.privacySettings' => '隱私設定',
 			'common.searchSettings' => '搜尋設定',
 			'common.allowSearchByAccount' => '允許通過帳號搜尋',
-			'common.allowSearchByAccountDesc' => '其他使用者可以通過您的帳號找到您',
+			'common.allowSearchByAccountDesc' => '其他使用者可以通過你的帳號找到你',
 			'common.allowAddByPhone' => '允許通過手機號新增',
-			'common.allowAddByPhoneDesc' => '其他使用者可以通過您的手機號新增您為好友',
+			'common.allowAddByPhoneDesc' => '其他使用者可以通過你的手機號新增你為好友',
 			'common.allowAddByQR' => '允許通過二維碼新增',
-			'common.allowAddByQRDesc' => '其他使用者可以通過掃描您的二維碼新增您為好友',
+			'common.allowAddByQRDesc' => '其他使用者可以通過掃描你的二維碼新增你為好友',
 			'common.statusSettings' => '狀態設定',
 			'common.showOnlineStatus' => '顯示上線狀態',
-			'common.showOnlineStatusDesc' => '關閉後，好友看不到您的上線狀態和最後上線時間；訊息傳送不受影響',
+			'common.showOnlineStatusDesc' => '關閉後，好友看不到你的上線狀態和最後上線時間；訊息傳送不受影響',
 			'common.allowNearbyVisible' => '附近的人可見',
 			'common.dataSettings' => '資料設定',
 			'common.clearChatRecords' => '清除聊天記錄',
@@ -3409,7 +3409,7 @@ extension on TranslationsZhHant {
 			'common.chatDeleteFailed' => '刪除失敗',
 			'common.chatNetworkErrorDeleteLocal' => '網路連接失敗，是否僅刪除本地訊息？',
 			'common.chatDeleteConfirm' => '確定要刪除這則訊息嗎？此操作無法撤銷。',
-			'common.chatDeleteOnlyLocal' => '僅在您這裡刪除，對方仍可見',
+			'common.chatDeleteOnlyLocal' => '僅在你這裡刪除，對方仍可見',
 			'common.chatDeleteAll' => '從所有人的聊天中刪除，無法撤銷',
 			'common.chatInitFailed' => '聊天初始化失敗',
 			'common.cameraShootFailed' => '拍攝失敗',
@@ -3421,7 +3421,7 @@ extension on TranslationsZhHant {
 			'common.tagClearAllConfirm' => '確定要清空所有標籤嗎？',
 			'common.tagClearAll' => '確認清空',
 			'common.audioPlayFailed' => '播放失敗',
-			'common.forcedOfflineByDevice' => ({required Object device}) => '您已被設備【${device}】強制下線',
+			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被設備【${device}】強制下線',
 			'common.loadingTagDataFailed' => '載入標籤資料失敗',
 			'common.pleaseEnterContent' => '請輸入內容',
 			'common.comingSoon' => '敬請期待',
@@ -3556,22 +3556,22 @@ extension on TranslationsZhHant {
 			'common.quickReplyOkThanks' => '好的，謝謝',
 			'common.noDetailedInfo' => '該使用者還沒有設定個人簽名等詳細資訊',
 			'common.noNewRegisteredUsers' => '目前沒有新註冊的使用者 請稍後再來檢視',
-			'common.newRegisteredUsersTip' => '這裡顯示最近註冊的使用者，您可以主動新增他們為好友',
+			'common.newRegisteredUsersTip' => '這裡顯示最近註冊的使用者，你可以主動新增他們為好友',
 			'common.notificationFriendRequest' => '好友請求',
-			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} 請求新增您為好友',
+			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} 請求新增你為好友',
 			'common.notificationGroupInvite' => '群邀請',
-			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} 邀請您加入群組 ${groupName}',
-			'common.youRevokedMessage' => '您撤回了一則訊息',
+			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} 邀請你加入群組 ${groupName}',
+			'common.youRevokedMessage' => '你撤回了一則訊息',
 			'common.otherRevokedMessage' => '對方撤回了一則訊息',
 			'common.networkFailureTryAgain' => '網路故障，請重試！',
 			'common.networkNotAvailable' => '目前網路不可用。',
-			'common.pleaseCheckNetworkConnection' => '請檢查您的網路連接。',
+			'common.pleaseCheckNetworkConnection' => '請檢查你的網路連接。',
 			'common.lastSeenMinutesAgo' => ({required num n}) => _root.common.timeMinutesAgo(n: n),
 			'common.lastSeenHoursAgo' => ({required num n}) => _root.common.timeHoursAgo(n: n),
 			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.noFavoritesYet' => '暫無收藏內容，快去收藏一些有趣的訊息吧',
-			'common.fontPreviewText' => '這是正文內容，您可以在這裡看到不同字體大小的顯示效果。',
+			'common.fontPreviewText' => '這是正文內容，你可以在這裡看到不同字體大小的顯示效果。',
 			'common.smaller' => '縮小',
 			'common.currentFontScale' => ({required Object param1, required Object param2}) => '目前：${param1} ${param2}%',
 			'common.groupAnnouncementExpiry' => ({required Object time}) => '效期至: ${time}',
@@ -3658,9 +3658,9 @@ extension on TranslationsZhHant {
 			'common.e2eeCurrentKeyInfo' => '當前金鑰資訊',
 			'common.e2eeE2EEEnabled' => '端到端加密已啟用',
 			'common.e2eeNoKeyDetected' => '未檢測到 E2EE 金鑰',
-			'common.e2eeNoKeyDesc' => '您需要先生成金鑰對或從備份中恢復',
+			'common.e2eeNoKeyDesc' => '你需要先生成金鑰對或從備份中恢復',
 			'common.e2eeAboutTitle' => '關於端到端加密',
-			'common.e2eeInfoPoint1' => '• 您的訊息在傳送前已加密，伺服器無法檢視內容',
+			'common.e2eeInfoPoint1' => '• 你的訊息在傳送前已加密，伺服器無法檢視內容',
 			'common.e2eeInfoPoint2' => '• 更換裝置或刪除金鑰後，舊訊息可能無法解密',
 			'common.e2eeInfoPoint3' => '• 請定期備份金鑰以防資料丟失',
 			'common.e2eeExportBackup' => '匯出備份',
@@ -3701,7 +3701,7 @@ extension on TranslationsZhHant {
 			'common.e2eeErrPeerNotOnboarded' => '對方還沒有在任何裝置上登入過，暫時無法加密傳送；請等對方登入後再試',
 			'common.e2eeDecryptFailed' => '訊息無法解密',
 			'common.e2eeDecryptFailedReasons' => '此訊息無法解密，可能原因是：',
-			'common.e2eeDecryptReasonOtherDevice' => '• 您在其他裝置上登入',
+			'common.e2eeDecryptReasonOtherDevice' => '• 你在其他裝置上登入',
 			'common.e2eeDecryptReasonKeyExpired' => '• 裝置金鑰已過期',
 			'common.e2eeDecryptReasonDataCorrupt' => '• 應用資料損壞',
 			'common.e2eeDecryptChooseSolution' => '請選擇解決方案：',
@@ -3733,7 +3733,7 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrExportFailed' => '匯出失敗，請重試',
 			'common.e2eeBackupErrShareFailed' => '分享失敗，請重試',
 			'common.e2eeBackupExportSuccessTitle' => '備份匯出成功',
-			'common.e2eeBackupExportSuccessBody' => '您的 E2EE 金鑰備份已成功生成。',
+			'common.e2eeBackupExportSuccessBody' => '你的 E2EE 金鑰備份已成功生成。',
 			'common.e2eeBackupImportantNoteColon' => '重要提醒：',
 			'common.e2eeBackupKeepSafe' => '• 請妥善保管備份檔案和密碼',
 			'common.e2eeBackupStoreMultipleLoc' => '• 建議將檔案儲存到多個安全位置',
@@ -3947,7 +3947,7 @@ extension on TranslationsZhHant {
 			'contact.tagInputHint' => '輸入標籤...',
 			'discovery.findNearbyPeople' => '搜尋附近的人',
 			'discovery.moment' => '動態',
-			'discovery.nearbyPeopleExplain' => '附近的使用者可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。\n您的電話號碼將會被隱藏。',
+			'discovery.nearbyPeopleExplain' => '附近的使用者可以檢視你的個人資料並給你發送訊息。這可能會幫助你找到新朋友，但也可能會引起過多的關注。你可以隨時停止分享你的個人資料。\n你的電話號碼將會被隱藏。',
 			'discovery.peopleNearby' => '附近的朋友',
 			'discovery.scanResult' => '掃描結果',
 			'discovery.myChannels' => '我的頻道',
@@ -3987,7 +3987,7 @@ extension on TranslationsZhHant {
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人查看',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} 人查看',
 			'error.restartRequired' => '需要重新啟動應用',
-			'error.pleaseCheckNetwork' => '請檢查您的網路設定。',
+			'error.pleaseCheckNetwork' => '請檢查你的網路設定。',
 			'error.networkTroubleshootingStep1' => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。',
 			'error.networkTroubleshootingStep2' => '2.開啟手機設定-一般-流動數據，並把流動數據開關保持開啟狀態。',
 			'error.networkTroubleshootingStep3' => '3.如仍無法連接網路，請檢查手機連接的 Wi-Fi 是否已連上互聯網或聯絡電訊商。',
@@ -4218,7 +4218,7 @@ extension on TranslationsZhHant {
 			'main.unanswered' => '未應答',
 			'main.unnamed' => '無名稱',
 			'main.usedSpace' => '已使用空間',
-			'main.you' => '您',
+			'main.you' => '你',
 			'main.zhCn' => '簡體中文',
 			'main.zhHant' => '繁體中文',
 			'main.bound' => '已綁定',

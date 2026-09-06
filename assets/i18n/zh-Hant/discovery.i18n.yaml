@@ -1,8 +1,8 @@
 findNearbyPeople: 搜尋附近的人
 moment: 動態
-nearbyPeopleExplain: '附近的使用者可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。
+nearbyPeopleExplain: '附近的使用者可以檢視你的個人資料並給你發送訊息。這可能會幫助你找到新朋友，但也可能會引起過多的關注。你可以隨時停止分享你的個人資料。
 
-  您的電話號碼將會被隱藏。'
+  你的電話號碼將會被隱藏。'
 peopleNearby: 附近的朋友
 scanResult: 掃描結果
 myChannels: 我的頻道

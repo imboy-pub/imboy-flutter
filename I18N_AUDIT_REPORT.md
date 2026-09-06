@@ -693,3 +693,20 @@ ja あなた 22 处惯例使用、ko 귀하/당신 为规约敬语。17 个受�
 
 **新观察项**：zh-Hant 语料存在与 zh-CN 同类的人称混用（您 37 值 vs 你 30 值），本轮未获裁决、
 未触碰；如需统一建议随下一轮治理拍板。术语表 §11 第 1、2 项已回写为已解决。
+
+## 8.9 产品确认第二批复决执行（2026-09-06）
+
+用户三批复决：① zh-Hant 人称统一为「你」；② 角色词 Owner/Member/Guest 维持拉丁 PINNED；
+③ zh-Hant 残留 1 处「用戶」对齐为「使用者」。
+
+```text
+zh-Hant: 您→你 47 处（38 行，部分行多处；account 1/chat 2/common 36/discovery 6/error 1/main 1）
+zh-Hant: 用戶→使用者 1 处（词系对齐：使用者 27 vs 用戶 1 → 归一）
+残余核查零；slang 重生成、strict PASS、keys=2124×10、审计 10/10、UI Gate+RTL 55/55
+审核包同步：zh-Hant 译文列更新 1 行（discovery.nearbyPeopleExplain，改值行翻 ⚠️ 待复审）；
+  全包 grep 终验 您/用家/賬號/用戶 = 0
+术语表 §11 六项 NEEDS_PRODUCT_CONFIRMATION 全部闭环（1/2/3/4/5/6 → 已解决或确认维持）
+```
+
+至止所有可机做的产品语义裁决全部执行完毕。发布门保持：Gate 1-3 PASS，
+Gate 4 = BLOCKED_NO_REVIEWER（唯一剩余），Release = NO-GO 待母语审核。

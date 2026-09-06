@@ -9,7 +9,7 @@ addTag: 新增標籤
 addToContacts: 新增到通訊錄
 addToDenylist: 加入黑名單
 added: 已新增
-addedToDenylistTips: 已加入黑名單，您將不再收到對方的訊息
+addedToDenylistTips: 已加入黑名單，你將不再收到對方的訊息
 all: 所有
 allTime: 所有時間
 allTypes: 所有類型
@@ -21,7 +21,7 @@ awaitingVerification: 等待驗證
 buttonAccomplish: 已完成
 buttonAdd: 新增
 buttonBack: 回上一頁
-bindMobileAndEmailTips: 綁定手機號和郵箱，讓您的帳號更安全
+bindMobileAndEmailTips: 綁定手機號和郵箱，讓你的帳號更安全
 bindNow: 立即綁定
 buttonCancel: 關閉
 buttonCreate: 建立
@@ -40,7 +40,7 @@ buttonSave: 儲存
 buttonSelectFromAlbum: 從相簿選擇
 buttonSend: 傳送
 buttonTakingPictures: 拍攝照片
-cacheTips: 快取是使用應用過程中產生的暫時資料，清理快取不會影響您的正常使用。
+cacheTips: 快取是使用應用過程中產生的暫時資料，清理快取不會影響你的正常使用。
 callDuration: 通話時長
 callEnded: "通話已結束"
 calling: 正在通話
@@ -59,7 +59,7 @@ chatSettingPinnedSuccess: 置頂成功
 chatSettingUnpinnedSuccess: 取消置頂
 chatSettings: 聊天設定
 chatStatusFailed: 傳送失敗
-chatErrorInDenylist: 對方已將您加入黑名單
+chatErrorInDenylist: 對方已將你加入黑名單
 checkForUpdates: 檢查更新
 clearAll: 全部清除
 clearChatRecord: 清空聊天記錄
@@ -84,7 +84,7 @@ deleteForMe: 刪除我的訊息
 deleteTagTips: 刪除標籤後，標籤中的聯絡人不會被刪除
 deleteThisDevice: 刪除該設備
 deleteThisDeviceTips: 刪除後，下次在該設備登入時需要進行安全驗證。
-denylistNoteDesc: 被封鎖的使用者無法給您傳送訊息，也無法檢視您的動態。點擊使用者可以檢視詳情。
+denylistNoteDesc: 被封鎖的使用者無法給你傳送訊息，也無法檢視你的動態。點擊使用者可以檢視詳情。
 denylistNoteTitle: 黑名單說明
 details: 詳情
 deviceDetails: 設備詳情
@@ -113,7 +113,7 @@ failedRequestPleaseCheckNetwork: '@:common.errorNetwork'
 feedback: 回饋建議
 feedbackContentRequired: 回饋內容不能為空
 feedbackDetails: 回饋建議明細
-feedbackSuccessMsg: 您的回饋問題我們已經收到了，會盡快處理！
+feedbackSuccessMsg: 你的回饋問題我們已經收到了，會盡快處理！
 followSystemTips: 開啟後，將跟隨系統開啟或關閉深色模式
 genderUpdateFailed: 性別設定失敗，請重試
 groupAnnouncement: 群組公告
@@ -147,7 +147,7 @@ loadError: 載入失敗，請重試
 loadMore: 載入更多
 loading: 載入中
 locationMessage: 位置訊息
-loginDeviceManagementTips: 您的帳號在以下設備中登入過，您可以刪除設備，刪除後在該設備登入時需進行安全驗證。
+loginDeviceManagementTips: 你的帳號在以下設備中登入過，你可以刪除設備，刪除後在該設備登入時需進行安全驗證。
 logoutFailed: 退出登入失敗
 messageCall: 發訊息
 messageContent: 訊息內容
@@ -181,15 +181,15 @@ noNewFriends: 沒有新的好友
 noPermission: 沒有權限
 noReply: 暫無回覆
 noUpdateDescription: 無更新說明
-notAuthorizedLatLong: 您還沒有授權獲取經緯度
+notAuthorizedLatLong: 你還沒有授權獲取經緯度
 notLoggedIn: 未登入
 notBad: 還不錯
 notBound: 未綁定
 notFilled: 未填寫
-notInstallAnyMapApp: 您沒有安裝任何地圖應用哦
+notInstallAnyMapApp: 你沒有安裝任何地圖應用哦
 notReceiveCoeQ: 沒有收到驗證碼？
 notSet: 未設定
-notTurnedLocationService: 您還沒有開啟位置服務
+notTurnedLocationService: 你還沒有開啟位置服務
 nowNewVersion: 未檢測到新版本
 offlineNotification: 下線通知
 operationFailedAgainLater: 操作失敗，請稍後重試
@@ -262,7 +262,7 @@ searchResults: 搜尋結果
 selectAll: 全選
 selectContacts: 選擇通訊錄
 selectedRegion: 已選地區
-sendMsgNotFriendTips: 對方開啟了好友驗證，您還不是他（她）好友。請先傳送好友驗證請求，對方驗證通過後，才能聊天。
+sendMsgNotFriendTips: 對方開啟了好友驗證，你還不是他（她）好友。請先傳送好友驗證請求，對方驗證通過後，才能聊天。
 share: 分享出去
 slideUpCancelSending: 手指上滑，取消傳送
 storagePermissionNotObtained: 未獲取儲存權限
@@ -326,7 +326,7 @@ forceDeviceOffline: 讓該設備下線
 forceDeviceOfflineConfirm: 將向該設備傳送下線指令，確認繼續？
 confirmForceOffline: 確認下線
 forceOfflineCommandSent: 已傳送下線指令
-feedbackSlogan: 您的建議是我們改進的動力
+feedbackSlogan: 你的建議是我們改進的動力
 newFeedback: 新建回饋
 feedbackHistory: 回饋記錄
 confirmDelete: 確認刪除
@@ -334,8 +334,8 @@ verificationCode: 驗證碼
 feedbackContent: 回饋內容
 officialReply: 官方回覆
 setPasswordSecurityTips: 為了提升帳號安全，同時防止因無法獲取驗證碼導致無法登入，請設定登入密碼。
-locationHidden: 已隱藏您的位置
-locationVisible: 已顯示您的位置
+locationHidden: 已隱藏你的位置
+locationVisible: 已顯示你的位置
 noNearbyPeople: 暫無附近的人
 clickSearchButtonToFind: 點擊上方的搜尋按鈕搜尋附近的人
 operationFailed: '@:common.error'
@@ -353,18 +353,18 @@ groupAnnouncementDeleteFailed: 公告刪除失敗
 groupAnnouncementDeleteSuccess: 公告已刪除
 privacyClearChatHistory: 清除聊天記錄
 privacyClearChatHistoryConfirm: 確定要清除所有聊天記錄嗎？此操作不可恢復。
-privacyLogoutAccountConfirm: 確定要註銷帳號嗎？此操作將永久刪除您的帳號和所有資料，且不可恢復。
+privacyLogoutAccountConfirm: 確定要註銷帳號嗎？此操作將永久刪除你的帳號和所有資料，且不可恢復。
 privacySettings: 隱私設定
 searchSettings: 搜尋設定
 allowSearchByAccount: 允許通過帳號搜尋
-allowSearchByAccountDesc: 其他使用者可以通過您的帳號找到您
+allowSearchByAccountDesc: 其他使用者可以通過你的帳號找到你
 allowAddByPhone: 允許通過手機號新增
-allowAddByPhoneDesc: 其他使用者可以通過您的手機號新增您為好友
+allowAddByPhoneDesc: 其他使用者可以通過你的手機號新增你為好友
 allowAddByQR: 允許通過二維碼新增
-allowAddByQRDesc: 其他使用者可以通過掃描您的二維碼新增您為好友
+allowAddByQRDesc: 其他使用者可以通過掃描你的二維碼新增你為好友
 statusSettings: 狀態設定
 showOnlineStatus: 顯示上線狀態
-showOnlineStatusDesc: 關閉後，好友看不到您的上線狀態和最後上線時間；訊息傳送不受影響
+showOnlineStatusDesc: 關閉後，好友看不到你的上線狀態和最後上線時間；訊息傳送不受影響
 allowNearbyVisible: 附近的人可見
 dataSettings: 資料設定
 clearChatRecords: 清除聊天記錄
@@ -379,7 +379,7 @@ chatDeleteLocalOnly: 僅刪除本地
 chatDeleteFailed: 刪除失敗
 chatNetworkErrorDeleteLocal: 網路連接失敗，是否僅刪除本地訊息？
 chatDeleteConfirm: 確定要刪除這則訊息嗎？此操作無法撤銷。
-chatDeleteOnlyLocal: 僅在您這裡刪除，對方仍可見
+chatDeleteOnlyLocal: 僅在你這裡刪除，對方仍可見
 chatDeleteAll: 從所有人的聊天中刪除，無法撤銷
 chatInitFailed: 聊天初始化失敗
 cameraShootFailed: 拍攝失敗
@@ -391,7 +391,7 @@ profileShareProfile: 分享資料
 tagClearAllConfirm: 確定要清空所有標籤嗎？
 tagClearAll: 確認清空
 audioPlayFailed: 播放失敗
-forcedOfflineByDevice: 您已被設備【$device】強制下線
+forcedOfflineByDevice: 你已被設備【$device】強制下線
 loadingTagDataFailed: 載入標籤資料失敗
 pleaseEnterContent: 請輸入內容
 comingSoon: 敬請期待
@@ -524,22 +524,22 @@ quickReplyOk: 好
 quickReplyOkThanks: 好的，謝謝
 noDetailedInfo: 該使用者還沒有設定個人簽名等詳細資訊
 noNewRegisteredUsers: 目前沒有新註冊的使用者 請稍後再來檢視
-newRegisteredUsersTip: 這裡顯示最近註冊的使用者，您可以主動新增他們為好友
+newRegisteredUsersTip: 這裡顯示最近註冊的使用者，你可以主動新增他們為好友
 notificationFriendRequest: 好友請求
-notificationFriendRequestBody(requesterName): $requesterName 請求新增您為好友
+notificationFriendRequestBody(requesterName): $requesterName 請求新增你為好友
 notificationGroupInvite: 群邀請
-notificationGroupInviteBody(inviterName, groupName): $inviterName 邀請您加入群組 $groupName
-youRevokedMessage: 您撤回了一則訊息
+notificationGroupInviteBody(inviterName, groupName): $inviterName 邀請你加入群組 $groupName
+youRevokedMessage: 你撤回了一則訊息
 otherRevokedMessage: 對方撤回了一則訊息
 networkFailureTryAgain: 網路故障，請重試！
 networkNotAvailable: 目前網路不可用。
-pleaseCheckNetworkConnection: 請檢查您的網路連接。
+pleaseCheckNetworkConnection: 請檢查你的網路連接。
 lastSeenMinutesAgo: '@:common.timeMinutesAgo'
 lastSeenHoursAgo: '@:common.timeHoursAgo'
 lastSeenDaysAgo: '@:common.timeDaysAgo'
 fontSettings: '@:common.fontSizeSetting'
 noFavoritesYet: 暫無收藏內容，快去收藏一些有趣的訊息吧
-fontPreviewText: 這是正文內容，您可以在這裡看到不同字體大小的顯示效果。
+fontPreviewText: 這是正文內容，你可以在這裡看到不同字體大小的顯示效果。
 smaller: 縮小
 currentFontScale: 目前：$param1 $param2%
 groupAnnouncementExpiry(time): '效期至: $time'
@@ -626,9 +626,9 @@ e2eeDeleteKeyDesc: 刪除本地儲存的金鑰（無法恢復）
 e2eeCurrentKeyInfo: 當前金鑰資訊
 e2eeE2EEEnabled: 端到端加密已啟用
 e2eeNoKeyDetected: 未檢測到 E2EE 金鑰
-e2eeNoKeyDesc: 您需要先生成金鑰對或從備份中恢復
+e2eeNoKeyDesc: 你需要先生成金鑰對或從備份中恢復
 e2eeAboutTitle: 關於端到端加密
-e2eeInfoPoint1: • 您的訊息在傳送前已加密，伺服器無法檢視內容
+e2eeInfoPoint1: • 你的訊息在傳送前已加密，伺服器無法檢視內容
 e2eeInfoPoint2: • 更換裝置或刪除金鑰後，舊訊息可能無法解密
 e2eeInfoPoint3: • 請定期備份金鑰以防資料丟失
 e2eeExportBackup: 匯出備份
@@ -669,7 +669,7 @@ e2eeErrNoRecipientKey: 無法獲取對方裝置金鑰，訊息未傳送
 e2eeErrPeerNotOnboarded: 對方還沒有在任何裝置上登入過，暫時無法加密傳送；請等對方登入後再試
 e2eeDecryptFailed: 訊息無法解密
 e2eeDecryptFailedReasons: 此訊息無法解密，可能原因是：
-e2eeDecryptReasonOtherDevice: • 您在其他裝置上登入
+e2eeDecryptReasonOtherDevice: • 你在其他裝置上登入
 e2eeDecryptReasonKeyExpired: • 裝置金鑰已過期
 e2eeDecryptReasonDataCorrupt: • 應用資料損壞
 e2eeDecryptChooseSolution: 請選擇解決方案：
@@ -701,7 +701,7 @@ e2eeBackupErrNoKeyData: 無法獲取金鑰資料
 e2eeBackupErrExportFailed: 匯出失敗，請重試
 e2eeBackupErrShareFailed: 分享失敗，請重試
 e2eeBackupExportSuccessTitle: 備份匯出成功
-e2eeBackupExportSuccessBody: 您的 E2EE 金鑰備份已成功生成。
+e2eeBackupExportSuccessBody: 你的 E2EE 金鑰備份已成功生成。
 e2eeBackupImportantNoteColon: 重要提醒：
 e2eeBackupKeepSafe: • 請妥善保管備份檔案和密碼
 e2eeBackupStoreMultipleLoc: • 建議將檔案儲存到多個安全位置

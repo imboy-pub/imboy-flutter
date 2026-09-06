@@ -30,7 +30,7 @@ logoutPendingHeader: 註銷申請狀態
 logoutCancelRequest: 撤銷註銷申請
 logoutCancelledNote: 註銷申請已撤銷
 logoutRetainedHeader: 資料留存說明
-logoutRetainedNote: 刪除完成後：稽核日誌與財務紀錄依法留存並匿名化；您擁有的群組/工作區/頻道將優先轉移給繼任成員
+logoutRetainedNote: 刪除完成後：稽核日誌與財務紀錄依法留存並匿名化；你擁有的群組/工作區/頻道將優先轉移給繼任成員
 mobile: 手機
 mobileQuickLogin: 一鍵登入
 myAccount: 我的帳號
