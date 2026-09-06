@@ -83,7 +83,7 @@ class _FakeReportApi extends ReportApi {
   final List<Map<String, dynamic>> messageCalls = [];
 
   @override
-  Future<bool> createMessage({
+  Future<(bool, String)> createMessage({
     required String chatType,
     required String targetId,
     required String scopeId,
@@ -103,7 +103,7 @@ class _FakeReportApi extends ReportApi {
       'consent': consent,
       'client_msg_id': clientMsgId,
     });
-    return true;
+    return (true, 'success');
   }
 }
 

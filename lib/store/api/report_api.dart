@@ -22,7 +22,9 @@ class ReportApi extends HttpClient {
   /// [targetId] 目标ID（群ID/用户ID等）
   /// [reason] 原因: 'spam'|'harassment'|'inappropriate'|'other'
   /// [description] 补充描述（可选）
-  Future<bool> create({
+  /// 返回 (ok, 服务端消息)：失败时 msg 是后端可读原因（如「您已举报过该对象」），
+  /// 供调用方透出——此前只返回 bool，真实原因被「投诉失败，请稍后再试」掩盖。
+  Future<(bool, String)> create({
     required String targetType,
     required String targetId,
     required String reason,
@@ -37,7 +39,13 @@ class ReportApi extends HttpClient {
         'description': description,
       },
     );
-    return resp.ok;
+    return (resp.ok, resp.msg);
+  }
+
+  /// 失败提示选择：优先透出后端可读消息，网络层/解析层噪音回退通用文案。
+  static String friendlyError(String serverMsg, String fallback) {
+    const noise = {'', 'unknown error', 'error', 'success'};
+    return noise.contains(serverMsg.toLowerCase()) ? fallback : serverMsg;
   }
 
   /// R-01 消息一等举报：举报真实 UGC 消息对象（C2C/C2G/频道消息），
@@ -50,7 +58,8 @@ class ReportApi extends HttpClient {
   ///（E2EE 消息必须经用户明确同意后才传入非空 excerpt）
   /// [consent] E2EE 消息提交明文证据的明确同意标记
   /// [clientMsgId] 客户端消息 ID
-  Future<bool> createMessage({
+  /// 返回 (ok, 服务端消息)，语义同 [create]。
+  Future<(bool, String)> createMessage({
     required String chatType,
     required String targetId,
     required String scopeId,
@@ -81,7 +90,7 @@ class ReportApi extends HttpClient {
         'evidence': evidence,
       },
     );
-    return resp.ok;
+    return (resp.ok, resp.msg);
   }
 
   static String _sha256Hex(String input) {

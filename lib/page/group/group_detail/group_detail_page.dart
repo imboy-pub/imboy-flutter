@@ -663,14 +663,17 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   }
 
   Future<void> _submitComplaint(String reason) async {
-    if (await ReportApi().create(
+    final (ok, serverMsg) = await ReportApi().create(
       targetType: 'group',
       targetId: widget.groupId,
       reason: reason,
-    )) {
+    );
+    if (ok) {
       AppLoading.showSuccess(t.common.complaintSuccess);
     } else {
-      AppLoading.showError(t.common.complaintFailed);
+      AppLoading.showError(
+        ReportApi.friendlyError(serverMsg, t.common.complaintFailed),
+      );
     }
   }
 }

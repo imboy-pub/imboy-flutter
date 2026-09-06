@@ -290,14 +290,17 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
   }
 
   Future<void> _submitReport(String reason) async {
-    if (await ReportApi().create(
+    final (ok, serverMsg) = await ReportApi().create(
       targetType: 'user',
       targetId: widget.peerId,
       reason: reason,
-    )) {
+    );
+    if (ok) {
       AppLoading.showSuccess(t.common.complaintSuccess);
     } else {
-      AppLoading.showError(t.common.complaintFailed);
+      AppLoading.showError(
+        ReportApi.friendlyError(serverMsg, t.common.complaintFailed),
+      );
     }
   }
 

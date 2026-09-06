@@ -295,7 +295,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
     String reason,
   ) async {
     final t = context.t;
-    final ok = await ReportApi().createMessage(
+    final (ok, serverMsg) = await ReportApi().createMessage(
       chatType: 'channel',
       targetId: message.id.toString(),
       scopeId: widget.channelId,
@@ -308,7 +308,9 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
     if (ok) {
       AppLoading.showSuccess(t.common.complaintSuccess);
     } else {
-      AppLoading.showError(t.common.complaintFailed);
+      AppLoading.showError(
+        ReportApi.friendlyError(serverMsg, t.common.complaintFailed),
+      );
     }
   }
 

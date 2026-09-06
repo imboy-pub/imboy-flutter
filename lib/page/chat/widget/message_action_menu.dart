@@ -548,7 +548,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
   }) async {
     final t = context.t;
     final meta = widget.message.metadata;
-    final ok = await ReportApi().createMessage(
+    final (ok, serverMsg) = await ReportApi().createMessage(
       chatType: widget.reportChatType,
       targetId: widget.message.id,
       scopeId: widget.reportScopeId,
@@ -562,7 +562,9 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
     if (ok) {
       AppLoading.showSuccess(t.common.complaintSuccess);
     } else {
-      AppLoading.showError(t.common.complaintFailed);
+      AppLoading.showError(
+        ReportApi.friendlyError(serverMsg, t.common.complaintFailed),
+      );
     }
     widget.onClose?.call();
   }
