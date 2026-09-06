@@ -865,3 +865,7 @@ gitleaks 8.30.1 全 push 面（origin/main..HEAD）：245 笔提交 / 4.40MB dif
 
 **快速入口**：`ruby assets/i18n/i18n_audit.rb check`（日常）／`I18N_AUDIT_STRICT=1 …`（发布门）／
 `ruby assets/i18n/i18n_audit_test.rb`（工具回归 13 用例）。
+
+### 8.14 Round-3 补译词汇语料对齐（2026-09-06，第五审计维度）
+
+逐概念（禁言/管理员/移出/上传/搜索/资料/成员）对照 Round-3 补译词汇与各语言既有语料分布，修正 28 处分裂：ko 三项概念对齐（채팅 금지/구성원/제거）、ja/ru/fr kick 动词对齐菜单键、it 语料 3 键 Mutato→Silenziato（正向对齐）。判定保留：ar 管理员双概念（مشرف/المسؤول 各 11 键）、fr téléverser（语料 3:7 混用、语义更精确）、ru мьют/Замьютить 同根家族。验证：slang+strict PASS+13/13+61/61。
