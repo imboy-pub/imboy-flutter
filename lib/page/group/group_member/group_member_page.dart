@@ -201,6 +201,13 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
             changeType: 'refresh',
           ),
         );
+      } else if (_currentPage > 1) {
+        // 业务失败（HTTP 200 但 ok=false，如服务端返回 error）：与下方
+        // catch 网络异常同一防线——回滚页码，否则下次 _loadMore 直接跳到
+        // 再下一页，被跳过的成员在本次会话内永久漏页
+        iPrint('[GroupMember] 分页业务失败: page=$_currentPage');
+        _currentPage--;
+        AppLoading.showError(t.common.loadError);
       }
 
       if (mounted) {
