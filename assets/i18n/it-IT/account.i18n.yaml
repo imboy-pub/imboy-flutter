@@ -68,7 +68,7 @@ enterOldPassword: Inserisci la vecchia password
 enterNewPassword: Inserisci nuova password
 enterNewPasswordAgain: Inserisci di nuovo la nuova password
 myQRCode: Il mio codice QR
-profile: Profile
+profile: "Profilo"
 setGender: Imposta genere
 setBirthday: Imposta compleanno
 nicknameRules: "• Lunghezza nickname: 2-24 caratteri • Non può contenere solo spazi bianchi o emoji • Non può contenere parole sensibili • Le modifiche saranno riflesse in tutte le chat"

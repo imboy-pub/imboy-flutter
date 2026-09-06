@@ -82,12 +82,12 @@ deleteContact: 刪除聯絡人
 deleteForEveryone: 刪除所有人的訊息
 deleteForMe: 刪除我的訊息
 deleteTagTips: 刪除標籤後，標籤中的聯絡人不會被刪除
-deleteThisDevice: 刪除該設備
-deleteThisDeviceTips: 刪除後，下次在該設備登入時需要進行安全驗證。
+deleteThisDevice: 刪除該裝置
+deleteThisDeviceTips: 刪除後，下次在該裝置登入時需要進行安全驗證。
 denylistNoteDesc: 被封鎖的使用者無法給你傳送訊息，也無法檢視你的動態。點擊使用者可以檢視詳情。
 denylistNoteTitle: 黑名單說明
 details: 詳情
-deviceDetails: 設備詳情
+deviceDetails: 裝置詳情
 downloaded: 已下載
 edit: 編輯
 editTag: 編輯標籤
@@ -139,7 +139,7 @@ installNow: 立即安裝
 iosAppIdUnknown: AppStore 未上架或 AppID[$param]不存在
 koKr: 韓語（韓國）
 languageSetting: 語言設定
-lastActiveTips: 當設備處於安全狀態時，會自動延長登入時間以保持朋友訊息的即時收發，此時會更新最近活躍時間。
+lastActiveTips: 當裝置處於安全狀態時，會自動延長登入時間以保持朋友訊息的即時收發，此時會更新最近活躍時間。
 lastSeenJustNow: 剛剛上線
 lastSeenLongTimeAgo: 很久以前上線
 lastSeenMonthsAgo: $param個月前
@@ -147,7 +147,7 @@ loadError: 載入失敗，請重試
 loadMore: 載入更多
 loading: 載入中
 locationMessage: 位置訊息
-loginDeviceManagementTips: 你的帳號在以下設備中登入過，你可以刪除設備，刪除後在該設備登入時需進行安全驗證。
+loginDeviceManagementTips: 你的帳號在以下裝置中登入過，你可以刪除裝置，刪除後在該裝置登入時需進行安全驗證。
 logoutFailed: 退出登入失敗
 messageCall: 發訊息
 messageContent: 訊息內容
@@ -213,26 +213,26 @@ muteNotificationsHint: 開啟後不會收到新訊息提醒，但仍可在會話
 revokeExpired: 超過 2 分鐘，無法撤回
 quickReplyAddTitle: 新增快捷回覆
 quickReplyEditTitle: 編輯快捷回覆
-removeAdmin: Remove Admin
-setAdminConfirm: Set this member as admin?
-removeAdminConfirm: Remove admin role from this member?
-unmuteMemberConfirm: Unmute this member?
-kickMemberConfirm: Remove this member from the group?
-setAdminSuccess: Admin set
-setAdminFailed: Failed to set admin
-removeAdminSuccess: Admin removed
-removeAdminFailed: Failed to remove admin
-muteMemberSuccess: Member muted
-muteMemberFailed: Failed to mute member
-unmuteMemberSuccess: Member unmuted
-unmuteMemberFailed: Failed to unmute member
-kickMemberSuccess: Member removed
-kickMemberFailed: Failed to remove member
-notMuted: Not Muted
-muteDuration: Mute Duration
-muteDuration1hour: 1 Hour
-muteDuration1day: 1 Day
-muteDuration7days: 7 Days
+removeAdmin: "取消管理員"
+setAdminConfirm: "確定要將此成員設為管理員嗎？"
+removeAdminConfirm: "確定要取消此成員的管理員身分嗎？"
+unmuteMemberConfirm: "確定要取消禁言此成員嗎？"
+kickMemberConfirm: "確定要將此成員移出群聊嗎？"
+setAdminSuccess: "已設為管理員"
+setAdminFailed: "設定管理員失敗"
+removeAdminSuccess: "已取消管理員"
+removeAdminFailed: "取消管理員失敗"
+muteMemberSuccess: "已禁言"
+muteMemberFailed: "禁言失敗"
+unmuteMemberSuccess: "已取消禁言"
+unmuteMemberFailed: "取消禁言失敗"
+kickMemberSuccess: "已移出群聊"
+kickMemberFailed: "移出群聊失敗"
+notMuted: "未禁言"
+muteDuration: "禁言時長"
+muteDuration1hour: "1 小時"
+muteDuration1day: "1 天"
+muteDuration7days: "7 天"
 muteDuration5min: 5分鐘
 muteDuration10min: 10分鐘
 muteDuration30min: 30分鐘
@@ -246,8 +246,8 @@ saveQrCode: 儲存二維碼
 saveSuccess: 儲存成功
 scanQrcodeAddFriend: 掃一掃上面的二維碼圖案，加我為好友
 search: 搜尋
-searchScope: Search scope
-searchAll: All messages
+searchScope: "搜尋範圍"
+searchAll: "全部訊息"
 searchChatContent: 搜尋聊天內容
 searchChatRecord: 搜尋聊天記錄
 searchError: 搜尋錯誤
@@ -280,7 +280,7 @@ timeMinutesAgo(plural):
 tipConnectDesc: 無網路
 tipConnectDescWithParen: （$param）
 tipDeleteContact: 將聯絡人「$param」刪除，同時刪除與該聯絡人的聊天記錄
-tipDeviceSpace: 佔設備 $param1% 儲存空間（$param2）
+tipDeviceSpace: 佔裝置 $param1% 儲存空間（$param2）
 tipDraft: 草稿內容
 tipFailed: 操作失敗！
 tipSuccess: 操作已完成！
@@ -291,9 +291,9 @@ unknown: 不明
 unknownMessage: 未知訊息
 updateLog: 更新記錄
 updateNow: 立刻更新
-uploading: Uploading
-uploadSuccess: Upload successful
-uploadFailed: Upload failed
+uploading: "上傳中"
+uploadSuccess: "上傳成功"
+uploadFailed: "上傳失敗"
 userDataTips: 包含應用執行時必要的檔案，以及聊天訊息、好友關係等所有記錄資料。
 userDisabledOrDeleted: 使用者被停用或已刪除
 userNotExist: 使用者不存在
@@ -322,8 +322,8 @@ verificationCodeSentToEmail: 驗證碼將傳送至該郵箱，請在有效期內
 verificationCodeSentToMobile: 驗證碼將傳送至該手機，請在有效期內完成驗證
 sendFailed: 傳送失敗
 forceOffline: 下線
-forceDeviceOffline: 讓該設備下線
-forceDeviceOfflineConfirm: 將向該設備傳送下線指令，確認繼續？
+forceDeviceOffline: 讓該裝置下線
+forceDeviceOfflineConfirm: 將向該裝置傳送下線指令，確認繼續？
 confirmForceOffline: 確認下線
 forceOfflineCommandSent: 已傳送下線指令
 feedbackSlogan: 你的建議是我們改進的動力
@@ -391,7 +391,7 @@ profileShareProfile: 分享資料
 tagClearAllConfirm: 確定要清空所有標籤嗎？
 tagClearAll: 確認清空
 audioPlayFailed: 播放失敗
-forcedOfflineByDevice: 你已被設備【$device】強制下線
+forcedOfflineByDevice: 你已被裝置【$device】強制下線
 loadingTagDataFailed: 載入標籤資料失敗
 pleaseEnterContent: 請輸入內容
 comingSoon: 敬請期待
@@ -482,8 +482,8 @@ personalBackground: 個人背景
 expression: 表情符號
 extendedInfo: 擴展資訊
 profession: 職業
-shareFailed: Share failed
-exportSuccessThenCopiedToClipboard: $param format profile exported and copied to clipboard
+shareFailed: "分享失敗"
+exportSuccessThenCopiedToClipboard: "$param 格式資料已匯出並複製到剪貼簿"
 setRegion: 設定地區
 deleteOperationAbnormal: 刪除操作異常，請重試
 revoking: 正在收回...

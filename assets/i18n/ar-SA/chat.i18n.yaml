@@ -66,9 +66,9 @@ quickReplyEmpty: لا توجد ردود سريعة. اضغط زر الإضافة
 quickReplyDuplicate: المحتوى موجود مسبقاً
 quickReplyMaxReached: الحد الأقصى $max
 quickReplyHint: أدخل المحتوى...
-muteMember: Mute Member
-unmuteMember: Unmute
-muted: Muted
+muteMember: "كتم العضو"
+unmuteMember: "إلغاء الكتم"
+muted: "مكتوم"
 mutedFor: كتم $label
 muteUnitMinutes: "$count دقيقة"
 muteUnitHours: "$count ساعة"
@@ -80,7 +80,7 @@ reply: رد
 resendCode: إعادة إرسال رمز التحقق
 revoke: سحب
 scanQrCodeBusinessCard: مسح بطاقة عمل رمز QR
-privateChat: Private Chat
+privateChat: "محادثة خاصة"
 sendFriendRequest: إرسال طلب إضافة صديق
 sendMsgRejected: تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.
 sendMessage: إرسال رسالة
@@ -126,7 +126,7 @@ momentsReplyingTo: رد على @{name}
 sendNewMessage: إرسال رسالة جديدة
 markRead: تعليم كمقروء
 markUnread: تعليم كغير مقروء
-pleaseEnterSignature: Please enter signature
+pleaseEnterSignature: "أدخل توقيعك الشخصي"
 exportProfile: تصدير الملف الشخصي
 setSignature: تعيين التوقيع الشخصي
 setAvatar: تعيين الصورة الرمزية

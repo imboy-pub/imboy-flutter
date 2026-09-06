@@ -18,7 +18,7 @@ subscribeSuccess: Erfolgreich abonniert
 subscribeFailed: Abonnieren fehlgeschlagen
 unsubscribe: Abo beenden
 unsubscribeConfirm: Abo beenden
-unsubscribeConfirmDesc: Möchtest du dieses Abo wirklich beenden? Du erhältst keine Nachrichten mehr.
+unsubscribeConfirmDesc: "Möchten Sie dieses Abo wirklich beenden? Sie erhalten keine Nachrichten mehr."
 share: Teilen
 shareNotImplemented: Teilen-Funktion kommt bald
 nameLabel: Kanalname
@@ -26,7 +26,7 @@ nameHint: Kanalnamen eingeben
 nameRequired: Kanalname ist erforderlich
 nameTooLong: Kanalname darf 50 Zeichen nicht überschreiten
 descriptionLabel: Beschreibung
-descriptionHint: Beschreibe deinen Kanal (optional)
+descriptionHint: "Beschreiben Sie Ihren Kanal (optional)"
 customIdLabel: Benutzerdefinierte ID (optional)
 customIdHint: 'z.B.: mein_kanal'
 customIdHelper: Ermöglicht Suche nach Kanal-ID
@@ -34,9 +34,9 @@ customIdInvalid: Nur Buchstaben, Zahlen und Unterstriche erlaubt
 customIdLength: Muss 4-30 Zeichen lang sein
 typePublic: Öffentlich
 typePrivate: Privat
-typePublicDesc: Jeder kann deinen Kanal finden und abonnieren
+typePublicDesc: "Jeder kann Ihren Kanal finden und abonnieren"
 typePrivateDesc: Nur über Einladungslink zugänglich
-createTips: Nach Erstellung kannst du Nachrichten an alle Abonnenten senden. Nur Admins können Kanalnachrichten senden.
+createTips: "Nach Erstellung können Sie Nachrichten an alle Abonnenten senden. Nur Admins können Kanalnachrichten senden."
 today: Heute
 yesterday: Gestern
 daysAgo: Tage her
@@ -49,7 +49,7 @@ manageAdminsNotImplemented: Admins verwalten kommt bald
 manageSubscribers: Abonnenten verwalten
 manageSubscribersNotImplemented: Abonnenten verwalten kommt bald
 deleteChannel: Kanal löschen
-deleteChannelConfirm: Bist du sicher, dass du diesen Kanal löschen möchtest? Dies kann nicht rückgängig gemacht werden.
+deleteChannelConfirm: "Sind Sie sicher, dass Sie diesen Kanal löschen möchten? Dies kann nicht rückgängig gemacht werden."
 deleteChannelNotImplemented: Kanal löschen kommt bald
 channelDeleted: Kanal gelöscht
 deleteChannelFailed: Kanal löschen fehlgeschlagen
@@ -62,13 +62,13 @@ unpinMessageNotImplemented: Anpinnen aufheben kommt bald
 messagePinned: Nachricht angepinnt
 messageUnpinned: Anpinnen aufgehoben
 deleteMessage: Nachricht löschen
-deleteMessageConfirm: Bist du sicher, dass du diese Nachricht löschen möchtest?
+deleteMessageConfirm: "Sind Sie sicher, dass Sie diese Nachricht löschen möchten?"
 messageDeleted: Nachricht gelöscht
 addAdmin: Admin hinzufügen
 addAdminSuccess: Admin erfolgreich hinzugefügt
 addAdminFailed: Admin hinzufügen fehlgeschlagen
 removeAdmin: Admin entfernen
-removeAdminConfirm: Bist du sicher, dass du diesen Admin entfernen möchtest?
+removeAdminConfirm: "Sind Sie sicher, dass Sie diesen Admin entfernen möchten?"
 removeAdminSuccess: Admin entfernt
 removeAdminFailed: Admin entfernen fehlgeschlagen
 changeRole: Rolle ändern
@@ -89,7 +89,7 @@ subscriberSearchHint: Nach Name oder ID suchen
 noSearchResults: Keine passenden Abonnenten gefunden
 noSubscribers: Keine Abonnenten vorhanden
 removeSubscriber: Abonnent entfernen
-removeSubscriberConfirm: Bist du sicher, dass du diesen Abonnent entfernen möchtest?
+removeSubscriberConfirm: "Sind Sie sicher, dass Sie diesen Abonnenten entfernen möchten?"
 removeSubscriberSuccess: Abonnent entfernt
 removeSubscriberFailed: Abonnent entfernen fehlgeschlagen
 subscribedAt: Abonniert am
@@ -108,14 +108,14 @@ qrcode: Kanal-QR-Code
 qrcodeTips: QR-Code $days Tage gültig (bis $date)
 defaultName: Unbenannter Kanal
 noMessagesManaged: Der Kanal hat noch keine Inhalte veröffentlicht
-noMessagesManagedDesc: Als Kanalinhaber kannst du unten den ersten Inhalt veröffentlichen
+noMessagesManagedDesc: "Als Kanalinhaber können Sie unten den ersten Inhalt veröffentlichen"
 noMessagesVisitor: Abonnieren, um die Inhalte des Kanals zu sehen
 noMessagesVisitorDesc: Die Inhalte dieses Kanals werden nach dem Abonnieren angezeigt
 noMessagesSubscribed: Der Kanal hat noch keine Inhalte veröffentlicht
 noMessagesSubscribedDesc: Erfolgreich abonniert! Bitte warte auf neue Beiträge des Autors
 continueEditing: Weiter bearbeiten
 publishFirstContent: Ersten Inhalt veröffentlichen
-noSubscribersDesc: Noch keine Abonnenten. Teile den Kanal mit deinen Freunden
+noSubscribersDesc: "Noch keine Abonnenten. Teilen Sie den Kanal mit Ihren Freunden"
 emoji: "Emoji"
 justNow: "Gerade eben"
 minutesAgo: "Min."
@@ -197,7 +197,7 @@ creator: "Ersteller"
 admin: "Admin"
 editor: "Redakteur"
 privacyTitle: "Öffentliche Kanäle & Datenschutz"
-privacyDesc: "Jeder kann diesen Kanal finden und abonnieren. Deine Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen."
+privacyDesc: "Jeder kann diesen Kanal finden und abonnieren. Ihre Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen."
 
 aboutThisChannel: "Über diesen Kanal"
 changePhoto: "Foto ändern"

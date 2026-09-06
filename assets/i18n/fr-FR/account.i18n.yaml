@@ -68,7 +68,7 @@ enterOldPassword: Entrez l'ancien mot de passe.
 enterNewPassword: Entrez le nouveau mot de passe.
 enterNewPasswordAgain: Entrez à nouveau le nouveau mot de passe.
 myQRCode: Mon code QR
-profile: Profile
+profile: "Profil"
 setGender: Définir le genre
 setBirthday: Définir la date de naissance
 nicknameRules: "• Longueur du surnom : 2-24 caractères • Ne peut pas contenir uniquement des espaces ou des émojis • Ne peut pas contenir de mots sensibles • Les modifications seront reflétées dans tous les chats"

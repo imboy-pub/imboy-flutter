@@ -62,7 +62,7 @@ pleaseSelect: 선택해 주세요
 quote: 인용
 recentlyUsed: 최근 사용
 releaseEnd: 놓으면 종료
-memberDetail: Member Details
+memberDetail: "멤버 상세"
 replied: 답장됨
 ringing: 벨 울림...
 ruRu: 러시아어
@@ -113,7 +113,7 @@ availableCount: 선택 가능
 mostUsed: 가장 많이 사용
 school: 학교
 hobbiesAndInterests: 취미 및 관심사
-interests: Interests
+interests: "관심사"
 selectFromAlbum: 앨범에서 선택
 volumeUp: 볼륨 높이기
 volumeDown: 볼륨 낮추기

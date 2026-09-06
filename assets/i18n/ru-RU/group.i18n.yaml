@@ -11,7 +11,7 @@ mutualGroupsWithHer: Общие группы
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: Гость
-setAdmin: Set as Admin
+setAdmin: "Назначить администратором"
 selectGroup: Выбрать групповой чат
 sureToDissolveGroup: Распустить эту группу?
 sureToLeaveGroup: Покинуть эту группу?

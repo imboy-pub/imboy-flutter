@@ -68,7 +68,7 @@ enterOldPassword: 古いパスワードを入力してください
 enterNewPassword: 新しいパスワードを入力してください
 enterNewPasswordAgain: 新しいパスワードを再度入力してください
 myQRCode: マイQRコード
-profile: Profile
+profile: "プロフィール"
 setGender: 性別を設定
 setBirthday: 誕生日を設定
 nicknameRules: "• ニックネームの長さ：2〜24文字 • 空白または絵文字のみにすることはできません • 敏感な単語を含めることはできません • 変更はすべてのチャットに反映されます"

@@ -66,9 +66,9 @@ quickReplyEmpty: Keine Schnellantworten. Unten rechts tippen zum Hinzufügen
 quickReplyDuplicate: Inhalt existiert bereits
 quickReplyMaxReached: Max. $max Einträge
 quickReplyHint: Inhalt eingeben...
-muteMember: Mute Member
-unmuteMember: Unmute
-muted: Muted
+muteMember: "Mitglied stummschalten"
+unmuteMember: "Stummschaltung aufheben"
+muted: "Stummgeschaltet"
 mutedFor: 'Stummgeschaltet: $label'
 muteUnitMinutes: "$count Min."
 muteUnitHours: "$count Std."
@@ -80,7 +80,7 @@ reply: Antworten
 resendCode: Code erneut senden
 revoke: Widerrufen
 scanQrCodeBusinessCard: QR-Code-Visitenkarte scannen
-privateChat: Private Chat
+privateChat: "Privatchat"
 sendFriendRequest: Freundschaftsanfrage senden
 sendMsgRejected: Nachricht gesendet, aber vom Gesprächspartner abgelehnt.
 sendMessage: Nachricht senden
@@ -126,7 +126,7 @@ momentsReplyingTo: Antwort an @{name}
 sendNewMessage: Neue Nachricht senden
 markRead: Als gelesen markieren
 markUnread: Als ungelesen markieren
-pleaseEnterSignature: Please enter signature
+pleaseEnterSignature: "Persönliche Signatur eingeben"
 exportProfile: Profil exportieren
 setSignature: Signatur festlegen
 setAvatar: Avatar festlegen
@@ -176,9 +176,7 @@ e2eeErrInvalidFormat: Ungültiges Nachrichtenformat, Verschlüsselung fehlgeschl
 e2eeRecreatingKey: Schlüssel wird neu erstellt...
 e2eeKeyRecreated: Schlüssel neu erstellt
 e2eeRecoveryNewDeviceTitle: Neue Gerätenutzung erkannt
-e2eeRecoveryNewDeviceBody: "Zum Schutz deiner Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt.
-
-Ältere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Du kannst ihn über „Lokales Backup importieren“ wiederherstellen."
+e2eeRecoveryNewDeviceBody: "Zum Schutz Ihrer Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt.\n\nÄltere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Sie können ihn über „Lokales Backup importieren“ wiederherstellen."
 e2eeRecoveryDecryptFailedTitle: Diese Nachricht kann nicht entschlüsselt werden
 e2eeRecoveryDecryptFailedBody: |-
   Diese Nachricht wurde mit dem Schlüssel eines anderen Geräts verschlüsselt.

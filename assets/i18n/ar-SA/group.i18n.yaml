@@ -11,7 +11,7 @@ mutualGroupsWithHer: المجموعات المشتركة بيني وبينه
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: ضيف
-setAdmin: Set as Admin
+setAdmin: "تعيين مشرفًا"
 selectGroup: اختيار مجموعة
 sureToDissolveGroup: هل أنت متأكد من حل هذه المجموعة؟
 sureToLeaveGroup: هل أنت متأكد من مغادرة هذه المجموعة؟
@@ -38,7 +38,7 @@ e2eeKeyManagementSubtitle: نسخ احتياطي واستعادة وإدارة �
 e2eeTitle: التشفير من طرف إلى طرف
 e2eeEnableConfirm: بعد التفعيل، سيتم تشفير رسائل المجموعة من طرف إلى طرف ولن تُقرأ إلا على أجهزة الأعضاء. لا يمكن التراجع عن هذا الإجراء. هل تريد التفعيل؟
 groupInfo: معلومات الدردشة الجماعية
-groupMemberRoleLabel: Member
+groupMemberRoleLabel: "عضو"
 noMemberWithRole(roleName): لا يوجد $roleName
 moreActions: المزيد من الإجراءات
 touchContactAddMember: انقر على جهة الاتصال لإضافتها كعضو في المجموعة

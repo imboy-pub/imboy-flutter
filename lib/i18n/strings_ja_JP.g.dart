@@ -145,7 +145,7 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get enterNewPassword => '新しいパスワードを入力してください';
 	@override String get enterNewPasswordAgain => '新しいパスワードを再度入力してください';
 	@override String get myQRCode => 'マイQRコード';
-	@override String get profile => 'Profile';
+	@override String get profile => 'プロフィール';
 	@override String get setGender => '性別を設定';
 	@override String get setBirthday => '誕生日を設定';
 	@override String get nicknameRules => '• ニックネームの長さ：2〜24文字 • 空白または絵文字のみにすることはできません • 敏感な単語を含めることはできません • 変更はすべてのチャットに反映されます';
@@ -537,9 +537,9 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get quickReplyDuplicate => '内容がすでに存在します';
 	@override String quickReplyMaxReached({required Object max}) => '最大 ${max} 件';
 	@override String get quickReplyHint => '内容を入力...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muted => 'Muted';
+	@override String get muteMember => 'メンバーをミュート';
+	@override String get unmuteMember => 'ミュート解除';
+	@override String get muted => 'ミュート中';
 	@override String mutedFor({required Object label}) => 'ミュート ${label}';
 	@override String muteUnitMinutes({required Object count}) => '${count} 分';
 	@override String muteUnitHours({required Object count}) => '${count} 時間';
@@ -551,7 +551,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get resendCode => '認証コードを再送';
 	@override String get revoke => '送信取消';
 	@override String get scanQrCodeBusinessCard => 'QRコード名刺をスキャン';
-	@override String get privateChat => 'Private Chat';
+	@override String get privateChat => '個人チャット';
 	@override String get sendFriendRequest => '友達追加リクエストを送信';
 	@override String get sendMsgRejected => 'メッセージは送信されましたが、相手に拒否されました。';
 	@override String get sendMessage => 'メッセージ';
@@ -597,7 +597,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => '新しいメッセージを送信';
 	@override String get markRead => '既読にする';
 	@override String get markUnread => '未読にする';
-	@override String get pleaseEnterSignature => 'Please enter signature';
+	@override String get pleaseEnterSignature => 'ひとことを入力してください';
 	@override String get exportProfile => 'プロフィールをエクスポート';
 	@override String get setSignature => '署名を設定';
 	@override String get setAvatar => 'アバターを設定';
@@ -895,26 +895,26 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get revokeExpired => '2分を超過しているため、取り消せません';
 	@override String get quickReplyAddTitle => 'クイック返信を追加';
 	@override String get quickReplyEditTitle => 'クイック返信を編集';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration7days => '7 Days';
+	@override String get removeAdmin => '管理者を解除';
+	@override String get setAdminConfirm => 'このメンバーを管理者に設定しますか？';
+	@override String get removeAdminConfirm => 'このメンバーの管理者権限を解除しますか？';
+	@override String get unmuteMemberConfirm => 'このメンバーのミュートを解除しますか？';
+	@override String get kickMemberConfirm => 'このメンバーをグループから除外しますか？';
+	@override String get setAdminSuccess => '管理者に設定しました';
+	@override String get setAdminFailed => '管理者の設定に失敗しました';
+	@override String get removeAdminSuccess => '管理者を解除しました';
+	@override String get removeAdminFailed => '管理者の解除に失敗しました';
+	@override String get muteMemberSuccess => 'ミュートしました';
+	@override String get muteMemberFailed => 'ミュートに失敗しました';
+	@override String get unmuteMemberSuccess => 'ミュートを解除しました';
+	@override String get unmuteMemberFailed => 'ミュート解除に失敗しました';
+	@override String get kickMemberSuccess => 'メンバーを除外しました';
+	@override String get kickMemberFailed => 'メンバーの除外に失敗しました';
+	@override String get notMuted => 'ミュートされていません';
+	@override String get muteDuration => 'ミュート期間';
+	@override String get muteDuration1hour => '1時間';
+	@override String get muteDuration1day => '1日';
+	@override String get muteDuration7days => '7日';
 	@override String get muteDuration5min => '5分';
 	@override String get muteDuration10min => '10分';
 	@override String get muteDuration30min => '30分';
@@ -928,8 +928,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get saveSuccess => '保存しました';
 	@override String get scanQrcodeAddFriend => '上のQRコードをスキャンして友達に追加してください';
 	@override String get search => '検索';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String get searchScope => '検索範囲';
+	@override String get searchAll => 'すべてのメッセージ';
 	@override String get searchChatContent => 'チャット内容を検索';
 	@override String get searchChatRecord => 'チャット履歴を検索';
 	@override String get searchError => '検索エラー';
@@ -976,9 +976,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get unknownMessage => '不明なメッセージ';
 	@override String get updateLog => '更新ログ';
 	@override String get updateNow => '今すぐ更新';
-	@override String get uploading => 'Uploading';
-	@override String get uploadSuccess => 'Upload successful';
-	@override String get uploadFailed => 'Upload failed';
+	@override String get uploading => 'アップロード中';
+	@override String get uploadSuccess => 'アップロードしました';
+	@override String get uploadFailed => 'アップロードに失敗しました';
 	@override String get userDataTips => 'アプリ実行に必要なファイル、チャットメッセージ、友達関係などすべての記録データが含まれます。';
 	@override String get userDisabledOrDeleted => 'ユーザーは無効化または削除されました';
 	@override String get userNotExist => 'ユーザーが存在しません';
@@ -1167,8 +1167,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get expression => 'スタンプ';
 	@override String get extendedInfo => '拡張情報';
 	@override String get profession => '職業';
-	@override String get shareFailed => 'Share failed';
-	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get shareFailed => '共有に失敗しました';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} 形式のプロフィールをエクスポートし、クリップボードにコピーしました';
 	@override String get setRegion => '地域を設定';
 	@override String get deleteOperationAbnormal => '削除操作が異常です。もう一度お試しください';
 	@override String get revoking => '取り消し中...';
@@ -1720,7 +1720,7 @@ class _Translations$group$ja_JP extends Translations$group$zh_CN {
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
 	@override String get groupGuest => 'ゲスト';
-	@override String get setAdmin => 'Set as Admin';
+	@override String get setAdmin => '管理者に設定';
 	@override String get selectGroup => 'グループチャットを選択';
 	@override String get sureToDissolveGroup => 'このグループを解散してもよろしいですか？';
 	@override String get sureToLeaveGroup => 'このグループを退出してもよろしいですか？';
@@ -1976,7 +1976,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get quote => '引用する';
 	@override String get recentlyUsed => '最近';
 	@override String get releaseEnd => '指を離して終了';
-	@override String get memberDetail => 'Member Details';
+	@override String get memberDetail => 'メンバー詳細';
 	@override String get replied => '返信しました';
 	@override String get ringing => '呼び出し中...';
 	@override String get ruRu => 'ロシア語（ロシア）';
@@ -2027,7 +2027,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get mostUsed => '最も使用';
 	@override String get school => '出身学校';
 	@override String get hobbiesAndInterests => '趣味と興味';
-	@override String get interests => 'Interests';
+	@override String get interests => '興味・関心';
 	@override String get selectFromAlbum => 'アルバムから選択';
 	@override String get volumeUp => '音量を上げる';
 	@override String get volumeDown => '音量を下げる';
@@ -2371,7 +2371,7 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get taskExistingToast => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します';
 	@override String get taskUpdatedToast => 'タスクを保存しました';
 	@override String get taskFilterAll => 'すべて';
-	@override String get taskStatusTodo => 'TODO';
+	@override String get taskStatusTodo => '未着手';
 	@override String get taskStatusDoing => '進行中';
 	@override String get taskStatusReview => 'レビュー中';
 	@override String get taskStatusDone => '完了';
@@ -2542,7 +2542,7 @@ extension on TranslationsJaJp {
 			'account.enterNewPassword' => '新しいパスワードを入力してください',
 			'account.enterNewPasswordAgain' => '新しいパスワードを再度入力してください',
 			'account.myQRCode' => 'マイQRコード',
-			'account.profile' => 'Profile',
+			'account.profile' => 'プロフィール',
 			'account.setGender' => '性別を設定',
 			'account.setBirthday' => '誕生日を設定',
 			'account.nicknameRules' => '• ニックネームの長さ：2〜24文字 • 空白または絵文字のみにすることはできません • 敏感な単語を含めることはできません • 変更はすべてのチャットに反映されます',
@@ -2897,9 +2897,9 @@ extension on TranslationsJaJp {
 			'chat.quickReplyDuplicate' => '内容がすでに存在します',
 			'chat.quickReplyMaxReached' => ({required Object max}) => '最大 ${max} 件',
 			'chat.quickReplyHint' => '内容を入力...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muted' => 'Muted',
+			'chat.muteMember' => 'メンバーをミュート',
+			'chat.unmuteMember' => 'ミュート解除',
+			'chat.muted' => 'ミュート中',
 			'chat.mutedFor' => ({required Object label}) => 'ミュート ${label}',
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count} 分',
 			'chat.muteUnitHours' => ({required Object count}) => '${count} 時間',
@@ -2911,7 +2911,7 @@ extension on TranslationsJaJp {
 			'chat.resendCode' => '認証コードを再送',
 			'chat.revoke' => '送信取消',
 			'chat.scanQrCodeBusinessCard' => 'QRコード名刺をスキャン',
-			'chat.privateChat' => 'Private Chat',
+			'chat.privateChat' => '個人チャット',
 			'chat.sendFriendRequest' => '友達追加リクエストを送信',
 			'chat.sendMsgRejected' => 'メッセージは送信されましたが、相手に拒否されました。',
 			'chat.sendMessage' => 'メッセージ',
@@ -2957,7 +2957,7 @@ extension on TranslationsJaJp {
 			'chat.sendNewMessage' => '新しいメッセージを送信',
 			'chat.markRead' => '既読にする',
 			'chat.markUnread' => '未読にする',
-			'chat.pleaseEnterSignature' => 'Please enter signature',
+			'chat.pleaseEnterSignature' => 'ひとことを入力してください',
 			'chat.exportProfile' => 'プロフィールをエクスポート',
 			'chat.setSignature' => '署名を設定',
 			'chat.setAvatar' => 'アバターを設定',
@@ -3248,26 +3248,26 @@ extension on TranslationsJaJp {
 			'common.revokeExpired' => '2分を超過しているため、取り消せません',
 			'common.quickReplyAddTitle' => 'クイック返信を追加',
 			'common.quickReplyEditTitle' => 'クイック返信を編集',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration7days' => '7 Days',
+			'common.removeAdmin' => '管理者を解除',
+			'common.setAdminConfirm' => 'このメンバーを管理者に設定しますか？',
+			'common.removeAdminConfirm' => 'このメンバーの管理者権限を解除しますか？',
+			'common.unmuteMemberConfirm' => 'このメンバーのミュートを解除しますか？',
+			'common.kickMemberConfirm' => 'このメンバーをグループから除外しますか？',
+			'common.setAdminSuccess' => '管理者に設定しました',
+			'common.setAdminFailed' => '管理者の設定に失敗しました',
+			'common.removeAdminSuccess' => '管理者を解除しました',
+			'common.removeAdminFailed' => '管理者の解除に失敗しました',
+			'common.muteMemberSuccess' => 'ミュートしました',
+			'common.muteMemberFailed' => 'ミュートに失敗しました',
+			'common.unmuteMemberSuccess' => 'ミュートを解除しました',
+			'common.unmuteMemberFailed' => 'ミュート解除に失敗しました',
+			'common.kickMemberSuccess' => 'メンバーを除外しました',
+			'common.kickMemberFailed' => 'メンバーの除外に失敗しました',
+			'common.notMuted' => 'ミュートされていません',
+			'common.muteDuration' => 'ミュート期間',
+			'common.muteDuration1hour' => '1時間',
+			'common.muteDuration1day' => '1日',
+			'common.muteDuration7days' => '7日',
 			'common.muteDuration5min' => '5分',
 			'common.muteDuration10min' => '10分',
 			'common.muteDuration30min' => '30分',
@@ -3281,8 +3281,8 @@ extension on TranslationsJaJp {
 			'common.saveSuccess' => '保存しました',
 			'common.scanQrcodeAddFriend' => '上のQRコードをスキャンして友達に追加してください',
 			'common.search' => '検索',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.searchScope' => '検索範囲',
+			'common.searchAll' => 'すべてのメッセージ',
 			'common.searchChatContent' => 'チャット内容を検索',
 			'common.searchChatRecord' => 'チャット履歴を検索',
 			'common.searchError' => '検索エラー',
@@ -3323,9 +3323,9 @@ extension on TranslationsJaJp {
 			'common.unknownMessage' => '不明なメッセージ',
 			'common.updateLog' => '更新ログ',
 			'common.updateNow' => '今すぐ更新',
-			'common.uploading' => 'Uploading',
-			'common.uploadSuccess' => 'Upload successful',
-			'common.uploadFailed' => 'Upload failed',
+			'common.uploading' => 'アップロード中',
+			'common.uploadSuccess' => 'アップロードしました',
+			'common.uploadFailed' => 'アップロードに失敗しました',
 			'common.userDataTips' => 'アプリ実行に必要なファイル、チャットメッセージ、友達関係などすべての記録データが含まれます。',
 			'common.userDisabledOrDeleted' => 'ユーザーは無効化または削除されました',
 			'common.userNotExist' => 'ユーザーが存在しません',
@@ -3516,8 +3516,8 @@ extension on TranslationsJaJp {
 			'common.expression' => 'スタンプ',
 			'common.extendedInfo' => '拡張情報',
 			'common.profession' => '職業',
-			'common.shareFailed' => 'Share failed',
-			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'common.shareFailed' => '共有に失敗しました',
+			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} 形式のプロフィールをエクスポートし、クリップボードにコピーしました',
 			'common.setRegion' => '地域を設定',
 			'common.deleteOperationAbnormal' => '削除操作が異常です。もう一度お試しください',
 			'common.revoking' => '取り消し中...',
@@ -4017,7 +4017,7 @@ extension on TranslationsJaJp {
 		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'ゲスト',
-			'group.setAdmin' => 'Set as Admin',
+			'group.setAdmin' => '管理者に設定',
 			'group.selectGroup' => 'グループチャットを選択',
 			'group.sureToDissolveGroup' => 'このグループを解散してもよろしいですか？',
 			'group.sureToLeaveGroup' => 'このグループを退出してもよろしいですか？',
@@ -4201,7 +4201,7 @@ extension on TranslationsJaJp {
 			'main.quote' => '引用する',
 			'main.recentlyUsed' => '最近',
 			'main.releaseEnd' => '指を離して終了',
-			'main.memberDetail' => 'Member Details',
+			'main.memberDetail' => 'メンバー詳細',
 			'main.replied' => '返信しました',
 			'main.ringing' => '呼び出し中...',
 			'main.ruRu' => 'ロシア語（ロシア）',
@@ -4252,7 +4252,7 @@ extension on TranslationsJaJp {
 			'main.mostUsed' => '最も使用',
 			'main.school' => '出身学校',
 			'main.hobbiesAndInterests' => '趣味と興味',
-			'main.interests' => 'Interests',
+			'main.interests' => '興味・関心',
 			'main.selectFromAlbum' => 'アルバムから選択',
 			'main.volumeUp' => '音量を上げる',
 			'main.volumeDown' => '音量を下げる',
@@ -4535,7 +4535,7 @@ extension on TranslationsJaJp {
 			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
 			'workspace.taskUpdatedToast' => 'タスクを保存しました',
 			'workspace.taskFilterAll' => 'すべて',
-			'workspace.taskStatusTodo' => 'TODO',
+			'workspace.taskStatusTodo' => '未着手',
 			'workspace.taskStatusDoing' => '進行中',
 			'workspace.taskStatusReview' => 'レビュー中',
 			'workspace.taskStatusDone' => '完了',

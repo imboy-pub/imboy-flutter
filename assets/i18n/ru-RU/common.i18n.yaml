@@ -212,26 +212,26 @@ muteNotificationsHint: Если включено, вы не будете пол�
 revokeExpired: Прошло более 2 минут, отзыв невозможен
 quickReplyAddTitle: Новый быстрый ответ
 quickReplyEditTitle: Изменить быстрый ответ
-removeAdmin: Remove Admin
-setAdminConfirm: Set this member as admin?
-removeAdminConfirm: Remove admin role from this member?
-unmuteMemberConfirm: Unmute this member?
-kickMemberConfirm: Remove this member from the group?
-setAdminSuccess: Admin set
-setAdminFailed: Failed to set admin
-removeAdminSuccess: Admin removed
-removeAdminFailed: Failed to remove admin
-muteMemberSuccess: Member muted
-muteMemberFailed: Failed to mute member
-unmuteMemberSuccess: Member unmuted
-unmuteMemberFailed: Failed to unmute member
-kickMemberSuccess: Member removed
-kickMemberFailed: Failed to remove member
-notMuted: Not Muted
-muteDuration: Mute Duration
-muteDuration1hour: 1 Hour
-muteDuration1day: 1 Day
-muteDuration7days: 7 Days
+removeAdmin: "Снять права администратора"
+setAdminConfirm: "Назначить этого участника администратором?"
+removeAdminConfirm: "Снять с этого участника права администратора?"
+unmuteMemberConfirm: "Размьютить этого участника?"
+kickMemberConfirm: "Убрать этого участника из группы?"
+setAdminSuccess: "Администратор назначен"
+setAdminFailed: "Не удалось назначить администратора"
+removeAdminSuccess: "Права администратора сняты"
+removeAdminFailed: "Не удалось снять права администратора"
+muteMemberSuccess: "Участник замьючен"
+muteMemberFailed: "Не удалось замьютить участника"
+unmuteMemberSuccess: "Участник размьючен"
+unmuteMemberFailed: "Не удалось размьютить участника"
+kickMemberSuccess: "Участник убран"
+kickMemberFailed: "Не удалось убрать участника"
+notMuted: "Не замьючен"
+muteDuration: "Длительность мьюта"
+muteDuration1hour: "1 час"
+muteDuration1day: "1 день"
+muteDuration7days: "7 дней"
 muteDuration5min: 5 минут
 muteDuration10min: 10 минут
 muteDuration30min: 30 минут
@@ -245,8 +245,8 @@ saveQrCode: Сохранить QR-код
 saveSuccess: Успешно сохранено
 scanQrcodeAddFriend: Отсканируйте QR-код выше, чтобы добавить меня в друзья
 search: Поиск
-searchScope: Search scope
-searchAll: All messages
+searchScope: "Область поиска"
+searchAll: "Все сообщения"
 searchChatContent: Найти содержание чата
 searchChatRecord: Найти историю чата
 searchError: Ошибка поиска
@@ -299,9 +299,9 @@ unknown: Неизвестно
 unknownMessage: Неизвестное сообщение
 updateLog: Журнал обновлений
 updateNow: Обновить сейчас
-uploading: Uploading
-uploadSuccess: Upload successful
-uploadFailed: Upload failed
+uploading: "Загрузка…"
+uploadSuccess: "Загружено"
+uploadFailed: "Не удалось загрузить"
 userDataTips: Включает сообщения, контакты и данные приложения
 userDisabledOrDeleted: Пользователь отключён или удалён
 userNotExist: Пользователь не существует
@@ -490,8 +490,8 @@ personalBackground: Личный фон
 expression: Эмодзи
 extendedInfo: Дополнительная информация
 profession: Профессия
-shareFailed: Share failed
-exportSuccessThenCopiedToClipboard: "$param format profile exported and copied to clipboard"
+shareFailed: "Не удалось поделиться"
+exportSuccessThenCopiedToClipboard: "Профиль в формате $param экспортирован и скопирован в буфер обмена"
 setRegion: Установить регион
 deleteOperationAbnormal: Неверная операция удаления, попробуйте снова
 revoking: Отзыв...

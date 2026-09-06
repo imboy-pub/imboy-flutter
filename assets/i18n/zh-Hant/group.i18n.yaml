@@ -19,7 +19,7 @@ groupCreated: 群組已建立
 groupCreatedSuccess: 群組建立成功，邀請你完善群組資訊或直接進入群組
 enterGroupChat: 進入群組
 perfectionGroupInfo: 完善群組資訊
-setAdmin: Set as Admin
+setAdmin: "設為管理員"
 selectGroup: 選擇群組
 sureToDissolveGroup: 確定要解散本群組嗎？
 sureToLeaveGroup: 確定要退出本群組嗎？

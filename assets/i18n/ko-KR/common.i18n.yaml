@@ -212,26 +212,26 @@ muteNotificationsHint: 켜면 새 메시지 알림을 받지 않지만, 대화 �
 revokeExpired: 2분이 경과하여 회수할 수 없습니다
 quickReplyAddTitle: 빠른 답장 추가
 quickReplyEditTitle: 빠른 답장 편집
-removeAdmin: Remove Admin
-setAdminConfirm: Set this member as admin?
-removeAdminConfirm: Remove admin role from this member?
-unmuteMemberConfirm: Unmute this member?
-kickMemberConfirm: Remove this member from the group?
-setAdminSuccess: Admin set
-setAdminFailed: Failed to set admin
-removeAdminSuccess: Admin removed
-removeAdminFailed: Failed to remove admin
-muteMemberSuccess: Member muted
-muteMemberFailed: Failed to mute member
-unmuteMemberSuccess: Member unmuted
-unmuteMemberFailed: Failed to unmute member
-kickMemberSuccess: Member removed
-kickMemberFailed: Failed to remove member
-notMuted: Not Muted
-muteDuration: Mute Duration
-muteDuration1hour: 1 Hour
-muteDuration1day: 1 Day
-muteDuration7days: 7 Days
+removeAdmin: "관리자 해제"
+setAdminConfirm: "이 멤버를 관리자로 설정하시겠습니까?"
+removeAdminConfirm: "이 멤버의 관리자 권한을 해제하시겠습니까?"
+unmuteMemberConfirm: "이 멤버의 음소거를 해제하시겠습니까?"
+kickMemberConfirm: "이 멤버를 그룹에서 제외하시겠습니까?"
+setAdminSuccess: "관리자로 설정했습니다"
+setAdminFailed: "관리자 설정에 실패했습니다"
+removeAdminSuccess: "관리자를 해제했습니다"
+removeAdminFailed: "관리자 해제에 실패했습니다"
+muteMemberSuccess: "음소거했습니다"
+muteMemberFailed: "음소거에 실패했습니다"
+unmuteMemberSuccess: "음소거를 해제했습니다"
+unmuteMemberFailed: "음소거 해제에 실패했습니다"
+kickMemberSuccess: "멤버를 제외했습니다"
+kickMemberFailed: "멤버 제외에 실패했습니다"
+notMuted: "음소거 아님"
+muteDuration: "음소거 기간"
+muteDuration1hour: "1시간"
+muteDuration1day: "1일"
+muteDuration7days: "7일"
 muteDuration5min: 5분
 muteDuration10min: 10분
 muteDuration30min: 30분
@@ -245,8 +245,8 @@ saveQrCode: QR코드 저장
 saveSuccess: 저장 성공
 scanQrcodeAddFriend: 위 QR코드 패턴을 스캔하여 친구로 추가하세요
 search: 검색
-searchScope: Search scope
-searchAll: All messages
+searchScope: "검색 범위"
+searchAll: "모든 메시지"
 searchChatContent: 채팅 내용 검색
 searchChatRecord: 채팅 기록 검색
 searchError: 검색 오류
@@ -290,9 +290,9 @@ unknown: 알 수 없음
 unknownMessage: 알 수 없는 메시지
 updateLog: 업데이트 로그
 updateNow: 지금 업데이트
-uploading: Uploading
-uploadSuccess: Upload successful
-uploadFailed: Upload failed
+uploading: "업로드 중"
+uploadSuccess: "업로드했습니다"
+uploadFailed: "업로드에 실패했습니다"
 userDataTips: 앱 실행에 필요한 파일과 채팅 메시지, 친구 관계 등 모든 기록 데이터를 포함합니다.
 userDisabledOrDeleted: 사용자가 비활성화되거나 삭제됨
 userNotExist: 사용자가 존재하지 않습니다
@@ -481,8 +481,8 @@ personalBackground: 개인 배경
 expression: 이모티콘
 extendedInfo: 추가 정보
 profession: 직업
-shareFailed: Share failed
-exportSuccessThenCopiedToClipboard: "$param format profile exported and copied to clipboard"
+shareFailed: "공유에 실패했습니다"
+exportSuccessThenCopiedToClipboard: "$param 형식의 프로필을 내보내고 클립보드에 복사했습니다"
 setRegion: 지역 설정
 deleteOperationAbnormal: 삭제 작업 비정상, 다시 시도하세요
 revoking: 회수 중...

@@ -65,9 +65,9 @@ quickReplyEmpty: 暫無快捷回覆，點選右下角新增
 quickReplyDuplicate: 內容已存在
 quickReplyMaxReached: 最多 $max 條
 quickReplyHint: 輸入內容...
-muteMember: Mute Member
-unmuteMember: Unmute
-muted: Muted
+muteMember: "禁言成員"
+unmuteMember: "取消禁言"
+muted: "已禁言"
 mutedFor: 已被禁言 $label
 muteUnitMinutes: $count 分鐘
 muteUnitHours: $count 小時
@@ -79,7 +79,7 @@ reply: 回覆
 resendCode: 重發驗證碼
 revoke: 收回
 scanQrCodeBusinessCard: 掃描二維碼卡片
-privateChat: Private Chat
+privateChat: "私訊"
 sendFriendRequest: 傳送新增好友申請
 sendMsgRejected: 訊息已發出，但被對方拒收了。
 sendMessage: 發訊息
@@ -132,7 +132,7 @@ momentsReplyingTo: 正在回覆 @{name}
 sendNewMessage: 傳送新訊息
 markRead: 標記已讀
 markUnread: 標記未讀
-pleaseEnterSignature: Please enter signature
+pleaseEnterSignature: "請輸入個人簽名"
 exportProfile: 匯出資料
 setSignature: 設定個性簽名
 setAvatar: 設定頭像

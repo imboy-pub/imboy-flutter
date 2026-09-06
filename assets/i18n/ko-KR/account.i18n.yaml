@@ -68,7 +68,7 @@ enterOldPassword: 기존 비밀번호를 입력해 주세요
 enterNewPassword: 새 비밀번호를 입력해 주세요
 enterNewPasswordAgain: 새 비밀번호를 다시 입력해 주세요
 myQRCode: 내 QR코드
-profile: Profile
+profile: "프로필"
 setGender: 성별 설정
 setBirthday: 생일 설정
 nicknameRules: "• 닉네임 길이: 2-24자 • 공백이나 이모지만 포함할 수 없습니다 • 민감 단어를 포함할 수 없습니다 • 변경 사항은 모든 채팅에 반영됩니다"

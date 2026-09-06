@@ -145,7 +145,7 @@ class _Translations$account$ar_SA extends Translations$account$zh_CN {
 	@override String get enterNewPassword => 'يرجى إدخال كلمة المرور الجديدة';
 	@override String get enterNewPasswordAgain => 'يرجى إدخال كلمة المرور الجديدة مرة أخرى';
 	@override String get myQRCode => 'رمز QR الخاص بي';
-	@override String get profile => 'Profile';
+	@override String get profile => 'الملف الشخصي';
 	@override String get setGender => 'تعيين الجنس';
 	@override String get setBirthday => 'تعيين تاريخ الميلاد';
 	@override String get nicknameRules => '• طول اللقب 2-24 حرف • لا يمكن أن يحتوي على مسافات أو رموز تعبيرية فقط • لا يمكن أن يحتوي على كلمات حساسة • بعد التعديل، سيتم عرضه في جميع الدردشات';
@@ -537,9 +537,9 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get quickReplyDuplicate => 'المحتوى موجود مسبقاً';
 	@override String quickReplyMaxReached({required Object max}) => 'الحد الأقصى ${max}';
 	@override String get quickReplyHint => 'أدخل المحتوى...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muted => 'Muted';
+	@override String get muteMember => 'كتم العضو';
+	@override String get unmuteMember => 'إلغاء الكتم';
+	@override String get muted => 'مكتوم';
 	@override String mutedFor({required Object label}) => 'كتم ${label}';
 	@override String muteUnitMinutes({required Object count}) => '${count} دقيقة';
 	@override String muteUnitHours({required Object count}) => '${count} ساعة';
@@ -551,7 +551,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get resendCode => 'إعادة إرسال رمز التحقق';
 	@override String get revoke => 'سحب';
 	@override String get scanQrCodeBusinessCard => 'مسح بطاقة عمل رمز QR';
-	@override String get privateChat => 'Private Chat';
+	@override String get privateChat => 'محادثة خاصة';
 	@override String get sendFriendRequest => 'إرسال طلب إضافة صديق';
 	@override String get sendMsgRejected => 'تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.';
 	@override String get sendMessage => 'إرسال رسالة';
@@ -597,7 +597,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'إرسال رسالة جديدة';
 	@override String get markRead => 'تعليم كمقروء';
 	@override String get markUnread => 'تعليم كغير مقروء';
-	@override String get pleaseEnterSignature => 'Please enter signature';
+	@override String get pleaseEnterSignature => 'أدخل توقيعك الشخصي';
 	@override String get exportProfile => 'تصدير الملف الشخصي';
 	@override String get setSignature => 'تعيين التوقيع الشخصي';
 	@override String get setAvatar => 'تعيين الصورة الرمزية';
@@ -895,26 +895,26 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get revokeExpired => 'مرّت أكثر من دقيقتين، لا يمكن السحب';
 	@override String get quickReplyAddTitle => 'رد سريع جديد';
 	@override String get quickReplyEditTitle => 'تعديل رد سريع';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration7days => '7 Days';
+	@override String get removeAdmin => 'إزالة الإشراف';
+	@override String get setAdminConfirm => 'هل تريد تعيين هذا العضو مشرفًا؟';
+	@override String get removeAdminConfirm => 'هل تريد إزالة الإشراف من هذا العضو؟';
+	@override String get unmuteMemberConfirm => 'هل تريد إلغاء كتم هذا العضو؟';
+	@override String get kickMemberConfirm => 'إزالة هذا العضو من المجموعة؟';
+	@override String get setAdminSuccess => 'تم تعيين المشرف';
+	@override String get setAdminFailed => 'تعذّر تعيين المشرف';
+	@override String get removeAdminSuccess => 'تمت إزالة الإشراف';
+	@override String get removeAdminFailed => 'تعذّرت إزالة الإشراف';
+	@override String get muteMemberSuccess => 'تم كتم العضو';
+	@override String get muteMemberFailed => 'تعذّر كتم العضو';
+	@override String get unmuteMemberSuccess => 'تم إلغاء الكتم';
+	@override String get unmuteMemberFailed => 'تعذّر إلغاء الكتم';
+	@override String get kickMemberSuccess => 'تمت إزالة العضو';
+	@override String get kickMemberFailed => 'تعذّرت إزالة العضو';
+	@override String get notMuted => 'غير مكتوم';
+	@override String get muteDuration => 'مدة الكتم';
+	@override String get muteDuration1hour => 'ساعة واحدة';
+	@override String get muteDuration1day => 'يوم واحد';
+	@override String get muteDuration7days => '7 أيام';
 	@override String get muteDuration5min => '5 دقائق';
 	@override String get muteDuration10min => '10 دقائق';
 	@override String get muteDuration30min => '30 دقيقة';
@@ -928,8 +928,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get saveSuccess => 'تم الحفظ بنجاح';
 	@override String get scanQrcodeAddFriend => 'امسح رمز QR أعلاه لإضافتني كصديق';
 	@override String get search => 'بحث';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String get searchScope => 'نطاق البحث';
+	@override String get searchAll => 'كل الرسائل';
 	@override String get searchChatContent => 'البحث في محتوى الدردشة';
 	@override String get searchChatRecord => 'البحث في سجل الدردشة';
 	@override String get searchError => 'خطأ في البحث';
@@ -953,13 +953,25 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get sureDeleteGroupChatRecord => 'هل أنت متأكد من حذف سجل المجموعة؟';
 	@override String get switchEnvironment => 'تبديل البيئة';
 	@override String timeDaysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n,
+		one: 'منذ يوم واحد',
+		two: 'منذ يومين',
+		few: 'منذ ${n} أيام',
+		many: 'منذ ${n} يومًا',
 		other: 'منذ ${n} يوم',
 	);
 	@override String timeHoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n,
+		one: 'منذ ساعة واحدة',
+		two: 'منذ ساعتين',
+		few: 'منذ ${n} ساعات',
+		many: 'منذ ${n} ساعةً',
 		other: 'منذ ${n} ساعة',
 	);
 	@override String get timeJustNow => 'الآن';
 	@override String timeMinutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n,
+		one: 'منذ دقيقة واحدة',
+		two: 'منذ دقيقتين',
+		few: 'منذ ${n} دقائق',
+		many: 'منذ ${n} دقيقةً',
 		other: 'منذ ${n} دقيقة',
 	);
 	@override String get tipConnectDesc => 'لا يوجد اتصال بالشبكة';
@@ -976,9 +988,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get unknownMessage => 'رسالة غير معروفة';
 	@override String get updateLog => 'سجل التحديث';
 	@override String get updateNow => 'التحديث الآن';
-	@override String get uploading => 'Uploading';
-	@override String get uploadSuccess => 'Upload successful';
-	@override String get uploadFailed => 'Upload failed';
+	@override String get uploading => 'جارٍ الرفع';
+	@override String get uploadSuccess => 'تم الرفع';
+	@override String get uploadFailed => 'تعذّر الرفع';
 	@override String get userDataTips => 'يحتوي على الملفات الضرورية لتشغيل التطبيق، وجميع بيانات السجل مثل رسائل الدردشة وعلاقات الأصدقاء.';
 	@override String get userDisabledOrDeleted => 'تم تعطيل المستخدم أو حذفه';
 	@override String get userNotExist => 'المستخدم غير موجود';
@@ -1167,8 +1179,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get expression => 'رموز تعبيرية';
 	@override String get extendedInfo => 'معلومات موسعة';
 	@override String get profession => 'المهنة';
-	@override String get shareFailed => 'Share failed';
-	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get shareFailed => 'تعذّرت المشاركة';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => 'تم تصدير الملف الشخصي بتنسيق ${param} ونسخه إلى الحافظة';
 	@override String get setRegion => 'تعيين المنطقة';
 	@override String get deleteOperationAbnormal => 'استثناء في عملية الحذف، يرجى المحاولة مرة أخرى';
 	@override String get revoking => 'جارٍ السحب...';
@@ -1720,7 +1732,7 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
 	@override String get groupGuest => 'ضيف';
-	@override String get setAdmin => 'Set as Admin';
+	@override String get setAdmin => 'تعيين مشرفًا';
 	@override String get selectGroup => 'اختيار مجموعة';
 	@override String get sureToDissolveGroup => 'هل أنت متأكد من حل هذه المجموعة؟';
 	@override String get sureToLeaveGroup => 'هل أنت متأكد من مغادرة هذه المجموعة؟';
@@ -1747,7 +1759,7 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get e2eeTitle => 'التشفير من طرف إلى طرف';
 	@override String get e2eeEnableConfirm => 'بعد التفعيل، سيتم تشفير رسائل المجموعة من طرف إلى طرف ولن تُقرأ إلا على أجهزة الأعضاء. لا يمكن التراجع عن هذا الإجراء. هل تريد التفعيل؟';
 	@override String get groupInfo => 'معلومات الدردشة الجماعية';
-	@override String get groupMemberRoleLabel => 'Member';
+	@override String get groupMemberRoleLabel => 'عضو';
 	@override String noMemberWithRole({required Object roleName}) => 'لا يوجد ${roleName}';
 	@override String get moreActions => 'المزيد من الإجراءات';
 	@override String get touchContactAddMember => 'انقر على جهة الاتصال لإضافتها كعضو في المجموعة';
@@ -1976,7 +1988,7 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get quote => 'اقتباس';
 	@override String get recentlyUsed => 'استخدمت مؤخراً';
 	@override String get releaseEnd => 'اترك للإنهاء';
-	@override String get memberDetail => 'Member Details';
+	@override String get memberDetail => 'تفاصيل العضو';
 	@override String get replied => 'تم الرد';
 	@override String get ringing => 'جارٍ الرنين...';
 	@override String get ruRu => 'الروسية (روسيا)';
@@ -2027,7 +2039,7 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get mostUsed => 'الأكثر استخداماً';
 	@override String get school => 'المدرسة';
 	@override String get hobbiesAndInterests => 'الهوايات والاهتمامات';
-	@override String get interests => 'Interests';
+	@override String get interests => 'الاهتمامات';
 	@override String get selectFromAlbum => 'اختيار من الألبوم';
 	@override String get volumeUp => 'زيادة الصوت';
 	@override String get volumeDown => 'خفض الصوت';
@@ -2542,7 +2554,7 @@ extension on TranslationsArSa {
 			'account.enterNewPassword' => 'يرجى إدخال كلمة المرور الجديدة',
 			'account.enterNewPasswordAgain' => 'يرجى إدخال كلمة المرور الجديدة مرة أخرى',
 			'account.myQRCode' => 'رمز QR الخاص بي',
-			'account.profile' => 'Profile',
+			'account.profile' => 'الملف الشخصي',
 			'account.setGender' => 'تعيين الجنس',
 			'account.setBirthday' => 'تعيين تاريخ الميلاد',
 			'account.nicknameRules' => '• طول اللقب 2-24 حرف • لا يمكن أن يحتوي على مسافات أو رموز تعبيرية فقط • لا يمكن أن يحتوي على كلمات حساسة • بعد التعديل، سيتم عرضه في جميع الدردشات',
@@ -2897,9 +2909,9 @@ extension on TranslationsArSa {
 			'chat.quickReplyDuplicate' => 'المحتوى موجود مسبقاً',
 			'chat.quickReplyMaxReached' => ({required Object max}) => 'الحد الأقصى ${max}',
 			'chat.quickReplyHint' => 'أدخل المحتوى...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muted' => 'Muted',
+			'chat.muteMember' => 'كتم العضو',
+			'chat.unmuteMember' => 'إلغاء الكتم',
+			'chat.muted' => 'مكتوم',
 			'chat.mutedFor' => ({required Object label}) => 'كتم ${label}',
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count} دقيقة',
 			'chat.muteUnitHours' => ({required Object count}) => '${count} ساعة',
@@ -2911,7 +2923,7 @@ extension on TranslationsArSa {
 			'chat.resendCode' => 'إعادة إرسال رمز التحقق',
 			'chat.revoke' => 'سحب',
 			'chat.scanQrCodeBusinessCard' => 'مسح بطاقة عمل رمز QR',
-			'chat.privateChat' => 'Private Chat',
+			'chat.privateChat' => 'محادثة خاصة',
 			'chat.sendFriendRequest' => 'إرسال طلب إضافة صديق',
 			'chat.sendMsgRejected' => 'تم إرسال الرسالة، ولكن تم رفضها من قبل الطرف الآخر.',
 			'chat.sendMessage' => 'إرسال رسالة',
@@ -2957,7 +2969,7 @@ extension on TranslationsArSa {
 			'chat.sendNewMessage' => 'إرسال رسالة جديدة',
 			'chat.markRead' => 'تعليم كمقروء',
 			'chat.markUnread' => 'تعليم كغير مقروء',
-			'chat.pleaseEnterSignature' => 'Please enter signature',
+			'chat.pleaseEnterSignature' => 'أدخل توقيعك الشخصي',
 			'chat.exportProfile' => 'تصدير الملف الشخصي',
 			'chat.setSignature' => 'تعيين التوقيع الشخصي',
 			'chat.setAvatar' => 'تعيين الصورة الرمزية',
@@ -3248,26 +3260,26 @@ extension on TranslationsArSa {
 			'common.revokeExpired' => 'مرّت أكثر من دقيقتين، لا يمكن السحب',
 			'common.quickReplyAddTitle' => 'رد سريع جديد',
 			'common.quickReplyEditTitle' => 'تعديل رد سريع',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration7days' => '7 Days',
+			'common.removeAdmin' => 'إزالة الإشراف',
+			'common.setAdminConfirm' => 'هل تريد تعيين هذا العضو مشرفًا؟',
+			'common.removeAdminConfirm' => 'هل تريد إزالة الإشراف من هذا العضو؟',
+			'common.unmuteMemberConfirm' => 'هل تريد إلغاء كتم هذا العضو؟',
+			'common.kickMemberConfirm' => 'إزالة هذا العضو من المجموعة؟',
+			'common.setAdminSuccess' => 'تم تعيين المشرف',
+			'common.setAdminFailed' => 'تعذّر تعيين المشرف',
+			'common.removeAdminSuccess' => 'تمت إزالة الإشراف',
+			'common.removeAdminFailed' => 'تعذّرت إزالة الإشراف',
+			'common.muteMemberSuccess' => 'تم كتم العضو',
+			'common.muteMemberFailed' => 'تعذّر كتم العضو',
+			'common.unmuteMemberSuccess' => 'تم إلغاء الكتم',
+			'common.unmuteMemberFailed' => 'تعذّر إلغاء الكتم',
+			'common.kickMemberSuccess' => 'تمت إزالة العضو',
+			'common.kickMemberFailed' => 'تعذّرت إزالة العضو',
+			'common.notMuted' => 'غير مكتوم',
+			'common.muteDuration' => 'مدة الكتم',
+			'common.muteDuration1hour' => 'ساعة واحدة',
+			'common.muteDuration1day' => 'يوم واحد',
+			'common.muteDuration7days' => '7 أيام',
 			'common.muteDuration5min' => '5 دقائق',
 			'common.muteDuration10min' => '10 دقائق',
 			'common.muteDuration30min' => '30 دقيقة',
@@ -3281,8 +3293,8 @@ extension on TranslationsArSa {
 			'common.saveSuccess' => 'تم الحفظ بنجاح',
 			'common.scanQrcodeAddFriend' => 'امسح رمز QR أعلاه لإضافتني كصديق',
 			'common.search' => 'بحث',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.searchScope' => 'نطاق البحث',
+			'common.searchAll' => 'كل الرسائل',
 			'common.searchChatContent' => 'البحث في محتوى الدردشة',
 			'common.searchChatRecord' => 'البحث في سجل الدردشة',
 			'common.searchError' => 'خطأ في البحث',
@@ -3305,10 +3317,10 @@ extension on TranslationsArSa {
 			'common.sureDeleteData' => 'هل أنت متأكد من الحذف؟ لا يمكن التراجع عن الحذف.',
 			'common.sureDeleteGroupChatRecord' => 'هل أنت متأكد من حذف سجل المجموعة؟',
 			'common.switchEnvironment' => 'تبديل البيئة',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} يوم', ), 
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} ساعة', ), 
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, one: 'منذ يوم واحد', two: 'منذ يومين', few: 'منذ ${n} أيام', many: 'منذ ${n} يومًا', other: 'منذ ${n} يوم', ),
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, one: 'منذ ساعة واحدة', two: 'منذ ساعتين', few: 'منذ ${n} ساعات', many: 'منذ ${n} ساعةً', other: 'منذ ${n} ساعة', ),
 			'common.timeJustNow' => 'الآن',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, other: 'منذ ${n} دقيقة', ), 
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, one: 'منذ دقيقة واحدة', two: 'منذ دقيقتين', few: 'منذ ${n} دقائق', many: 'منذ ${n} دقيقةً', other: 'منذ ${n} دقيقة', ),
 			'common.tipConnectDesc' => 'لا يوجد اتصال بالشبكة',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => 'حذف جهة الاتصال "${param}"، وحذف سجل الدردشة مع جهة الاتصال هذه في نفس الوقت',
@@ -3323,9 +3335,9 @@ extension on TranslationsArSa {
 			'common.unknownMessage' => 'رسالة غير معروفة',
 			'common.updateLog' => 'سجل التحديث',
 			'common.updateNow' => 'التحديث الآن',
-			'common.uploading' => 'Uploading',
-			'common.uploadSuccess' => 'Upload successful',
-			'common.uploadFailed' => 'Upload failed',
+			'common.uploading' => 'جارٍ الرفع',
+			'common.uploadSuccess' => 'تم الرفع',
+			'common.uploadFailed' => 'تعذّر الرفع',
 			'common.userDataTips' => 'يحتوي على الملفات الضرورية لتشغيل التطبيق، وجميع بيانات السجل مثل رسائل الدردشة وعلاقات الأصدقاء.',
 			'common.userDisabledOrDeleted' => 'تم تعطيل المستخدم أو حذفه',
 			'common.userNotExist' => 'المستخدم غير موجود',
@@ -3516,8 +3528,8 @@ extension on TranslationsArSa {
 			'common.expression' => 'رموز تعبيرية',
 			'common.extendedInfo' => 'معلومات موسعة',
 			'common.profession' => 'المهنة',
-			'common.shareFailed' => 'Share failed',
-			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'common.shareFailed' => 'تعذّرت المشاركة',
+			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => 'تم تصدير الملف الشخصي بتنسيق ${param} ونسخه إلى الحافظة',
 			'common.setRegion' => 'تعيين المنطقة',
 			'common.deleteOperationAbnormal' => 'استثناء في عملية الحذف، يرجى المحاولة مرة أخرى',
 			'common.revoking' => 'جارٍ السحب...',
@@ -4017,7 +4029,7 @@ extension on TranslationsArSa {
 		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'ضيف',
-			'group.setAdmin' => 'Set as Admin',
+			'group.setAdmin' => 'تعيين مشرفًا',
 			'group.selectGroup' => 'اختيار مجموعة',
 			'group.sureToDissolveGroup' => 'هل أنت متأكد من حل هذه المجموعة؟',
 			'group.sureToLeaveGroup' => 'هل أنت متأكد من مغادرة هذه المجموعة؟',
@@ -4044,7 +4056,7 @@ extension on TranslationsArSa {
 			'group.e2eeTitle' => 'التشفير من طرف إلى طرف',
 			'group.e2eeEnableConfirm' => 'بعد التفعيل، سيتم تشفير رسائل المجموعة من طرف إلى طرف ولن تُقرأ إلا على أجهزة الأعضاء. لا يمكن التراجع عن هذا الإجراء. هل تريد التفعيل؟',
 			'group.groupInfo' => 'معلومات الدردشة الجماعية',
-			'group.groupMemberRoleLabel' => 'Member',
+			'group.groupMemberRoleLabel' => 'عضو',
 			'group.noMemberWithRole' => ({required Object roleName}) => 'لا يوجد ${roleName}',
 			'group.moreActions' => 'المزيد من الإجراءات',
 			'group.touchContactAddMember' => 'انقر على جهة الاتصال لإضافتها كعضو في المجموعة',
@@ -4201,7 +4213,7 @@ extension on TranslationsArSa {
 			'main.quote' => 'اقتباس',
 			'main.recentlyUsed' => 'استخدمت مؤخراً',
 			'main.releaseEnd' => 'اترك للإنهاء',
-			'main.memberDetail' => 'Member Details',
+			'main.memberDetail' => 'تفاصيل العضو',
 			'main.replied' => 'تم الرد',
 			'main.ringing' => 'جارٍ الرنين...',
 			'main.ruRu' => 'الروسية (روسيا)',
@@ -4252,7 +4264,7 @@ extension on TranslationsArSa {
 			'main.mostUsed' => 'الأكثر استخداماً',
 			'main.school' => 'المدرسة',
 			'main.hobbiesAndInterests' => 'الهوايات والاهتمامات',
-			'main.interests' => 'Interests',
+			'main.interests' => 'الاهتمامات',
 			'main.selectFromAlbum' => 'اختيار من الألبوم',
 			'main.volumeUp' => 'زيادة الصوت',
 			'main.volumeDown' => 'خفض الصوت',

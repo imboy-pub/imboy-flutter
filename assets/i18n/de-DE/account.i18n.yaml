@@ -68,7 +68,7 @@ enterOldPassword: Bitte altes Passwort eingeben
 enterNewPassword: Bitte neues Passwort eingeben
 enterNewPasswordAgain: Bitte neues Passwort erneut eingeben
 myQRCode: Mein QR-Code
-profile: Profile
+profile: "Profil"
 setGender: Geschlecht festlegen
 setBirthday: Geburtstag festlegen
 nicknameRules: "• Spitznamenlänge: 2-24 Zeichen • Darf nicht nur aus Leerzeichen oder Emojis bestehen • Darf keine sensiblen Wörter enthalten • Änderungen werden in allen Chats angezeigt"

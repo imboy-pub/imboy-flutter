@@ -62,7 +62,7 @@ pleaseSelect: 選択してください
 quote: 引用する
 recentlyUsed: 最近
 releaseEnd: 指を離して終了
-memberDetail: Member Details
+memberDetail: "メンバー詳細"
 replied: 返信しました
 ringing: 呼び出し中...
 ruRu: ロシア語（ロシア）
@@ -113,7 +113,7 @@ availableCount: 選択可能
 mostUsed: 最も使用
 school: 出身学校
 hobbiesAndInterests: 趣味と興味
-interests: Interests
+interests: "興味・関心"
 selectFromAlbum: アルバムから選択
 volumeUp: 音量を上げる
 volumeDown: 音量を下げる

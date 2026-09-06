@@ -145,7 +145,7 @@ class _Translations$account$de_DE extends Translations$account$zh_CN {
 	@override String get enterNewPassword => 'Bitte neues Passwort eingeben';
 	@override String get enterNewPasswordAgain => 'Bitte neues Passwort erneut eingeben';
 	@override String get myQRCode => 'Mein QR-Code';
-	@override String get profile => 'Profile';
+	@override String get profile => 'Profil';
 	@override String get setGender => 'Geschlecht festlegen';
 	@override String get setBirthday => 'Geburtstag festlegen';
 	@override String get nicknameRules => '• Spitznamenlänge: 2-24 Zeichen • Darf nicht nur aus Leerzeichen oder Emojis bestehen • Darf keine sensiblen Wörter enthalten • Änderungen werden in allen Chats angezeigt';
@@ -276,7 +276,7 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get subscribeFailed => 'Abonnieren fehlgeschlagen';
 	@override String get unsubscribe => 'Abo beenden';
 	@override String get unsubscribeConfirm => 'Abo beenden';
-	@override String get unsubscribeConfirmDesc => 'Möchtest du dieses Abo wirklich beenden? Du erhältst keine Nachrichten mehr.';
+	@override String get unsubscribeConfirmDesc => 'Möchten Sie dieses Abo wirklich beenden? Sie erhalten keine Nachrichten mehr.';
 	@override String get share => 'Teilen';
 	@override String get shareNotImplemented => 'Teilen-Funktion kommt bald';
 	@override String get nameLabel => 'Kanalname';
@@ -284,7 +284,7 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get nameRequired => 'Kanalname ist erforderlich';
 	@override String get nameTooLong => 'Kanalname darf 50 Zeichen nicht überschreiten';
 	@override String get descriptionLabel => 'Beschreibung';
-	@override String get descriptionHint => 'Beschreibe deinen Kanal (optional)';
+	@override String get descriptionHint => 'Beschreiben Sie Ihren Kanal (optional)';
 	@override String get customIdLabel => 'Benutzerdefinierte ID (optional)';
 	@override String get customIdHint => 'z.B.: mein_kanal';
 	@override String get customIdHelper => 'Ermöglicht Suche nach Kanal-ID';
@@ -292,9 +292,9 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get customIdLength => 'Muss 4-30 Zeichen lang sein';
 	@override String get typePublic => 'Öffentlich';
 	@override String get typePrivate => 'Privat';
-	@override String get typePublicDesc => 'Jeder kann deinen Kanal finden und abonnieren';
+	@override String get typePublicDesc => 'Jeder kann Ihren Kanal finden und abonnieren';
 	@override String get typePrivateDesc => 'Nur über Einladungslink zugänglich';
-	@override String get createTips => 'Nach Erstellung kannst du Nachrichten an alle Abonnenten senden. Nur Admins können Kanalnachrichten senden.';
+	@override String get createTips => 'Nach Erstellung können Sie Nachrichten an alle Abonnenten senden. Nur Admins können Kanalnachrichten senden.';
 	@override String get today => 'Heute';
 	@override String get yesterday => 'Gestern';
 	@override String get daysAgo => 'Tage her';
@@ -307,7 +307,7 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get manageSubscribers => 'Abonnenten verwalten';
 	@override String get manageSubscribersNotImplemented => 'Abonnenten verwalten kommt bald';
 	@override String get deleteChannel => 'Kanal löschen';
-	@override String get deleteChannelConfirm => 'Bist du sicher, dass du diesen Kanal löschen möchtest? Dies kann nicht rückgängig gemacht werden.';
+	@override String get deleteChannelConfirm => 'Sind Sie sicher, dass Sie diesen Kanal löschen möchten? Dies kann nicht rückgängig gemacht werden.';
 	@override String get deleteChannelNotImplemented => 'Kanal löschen kommt bald';
 	@override String get channelDeleted => 'Kanal gelöscht';
 	@override String get deleteChannelFailed => 'Kanal löschen fehlgeschlagen';
@@ -320,13 +320,13 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get messagePinned => 'Nachricht angepinnt';
 	@override String get messageUnpinned => 'Anpinnen aufgehoben';
 	@override String get deleteMessage => 'Nachricht löschen';
-	@override String get deleteMessageConfirm => 'Bist du sicher, dass du diese Nachricht löschen möchtest?';
+	@override String get deleteMessageConfirm => 'Sind Sie sicher, dass Sie diese Nachricht löschen möchten?';
 	@override String get messageDeleted => 'Nachricht gelöscht';
 	@override String get addAdmin => 'Admin hinzufügen';
 	@override String get addAdminSuccess => 'Admin erfolgreich hinzugefügt';
 	@override String get addAdminFailed => 'Admin hinzufügen fehlgeschlagen';
 	@override String get removeAdmin => 'Admin entfernen';
-	@override String get removeAdminConfirm => 'Bist du sicher, dass du diesen Admin entfernen möchtest?';
+	@override String get removeAdminConfirm => 'Sind Sie sicher, dass Sie diesen Admin entfernen möchten?';
 	@override String get removeAdminSuccess => 'Admin entfernt';
 	@override String get removeAdminFailed => 'Admin entfernen fehlgeschlagen';
 	@override String get changeRole => 'Rolle ändern';
@@ -347,7 +347,7 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get noSearchResults => 'Keine passenden Abonnenten gefunden';
 	@override String get noSubscribers => 'Keine Abonnenten vorhanden';
 	@override String get removeSubscriber => 'Abonnent entfernen';
-	@override String get removeSubscriberConfirm => 'Bist du sicher, dass du diesen Abonnent entfernen möchtest?';
+	@override String get removeSubscriberConfirm => 'Sind Sie sicher, dass Sie diesen Abonnenten entfernen möchten?';
 	@override String get removeSubscriberSuccess => 'Abonnent entfernt';
 	@override String get removeSubscriberFailed => 'Abonnent entfernen fehlgeschlagen';
 	@override String get subscribedAt => 'Abonniert am';
@@ -366,14 +366,14 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String qrcodeTips({required Object days, required Object date}) => 'QR-Code ${days} Tage gültig (bis ${date})';
 	@override String get defaultName => 'Unbenannter Kanal';
 	@override String get noMessagesManaged => 'Der Kanal hat noch keine Inhalte veröffentlicht';
-	@override String get noMessagesManagedDesc => 'Als Kanalinhaber kannst du unten den ersten Inhalt veröffentlichen';
+	@override String get noMessagesManagedDesc => 'Als Kanalinhaber können Sie unten den ersten Inhalt veröffentlichen';
 	@override String get noMessagesVisitor => 'Abonnieren, um die Inhalte des Kanals zu sehen';
 	@override String get noMessagesVisitorDesc => 'Die Inhalte dieses Kanals werden nach dem Abonnieren angezeigt';
 	@override String get noMessagesSubscribed => 'Der Kanal hat noch keine Inhalte veröffentlicht';
 	@override String get noMessagesSubscribedDesc => 'Erfolgreich abonniert! Bitte warte auf neue Beiträge des Autors';
 	@override String get continueEditing => 'Weiter bearbeiten';
 	@override String get publishFirstContent => 'Ersten Inhalt veröffentlichen';
-	@override String get noSubscribersDesc => 'Noch keine Abonnenten. Teile den Kanal mit deinen Freunden';
+	@override String get noSubscribersDesc => 'Noch keine Abonnenten. Teilen Sie den Kanal mit Ihren Freunden';
 	@override String get emoji => 'Emoji';
 	@override String get justNow => 'Gerade eben';
 	@override String get minutesAgo => 'Min.';
@@ -453,7 +453,7 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get admin => 'Admin';
 	@override String get editor => 'Redakteur';
 	@override String get privacyTitle => 'Öffentliche Kanäle & Datenschutz';
-	@override String get privacyDesc => 'Jeder kann diesen Kanal finden und abonnieren. Deine Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen.';
+	@override String get privacyDesc => 'Jeder kann diesen Kanal finden und abonnieren. Ihre Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen.';
 	@override String get aboutThisChannel => 'Über diesen Kanal';
 	@override String get changePhoto => 'Foto ändern';
 	@override String get addPhoto => 'Foto hinzufügen';
@@ -537,9 +537,9 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get quickReplyDuplicate => 'Inhalt existiert bereits';
 	@override String quickReplyMaxReached({required Object max}) => 'Max. ${max} Einträge';
 	@override String get quickReplyHint => 'Inhalt eingeben...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muted => 'Muted';
+	@override String get muteMember => 'Mitglied stummschalten';
+	@override String get unmuteMember => 'Stummschaltung aufheben';
+	@override String get muted => 'Stummgeschaltet';
 	@override String mutedFor({required Object label}) => 'Stummgeschaltet: ${label}';
 	@override String muteUnitMinutes({required Object count}) => '${count} Min.';
 	@override String muteUnitHours({required Object count}) => '${count} Std.';
@@ -551,7 +551,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get resendCode => 'Code erneut senden';
 	@override String get revoke => 'Widerrufen';
 	@override String get scanQrCodeBusinessCard => 'QR-Code-Visitenkarte scannen';
-	@override String get privateChat => 'Private Chat';
+	@override String get privateChat => 'Privatchat';
 	@override String get sendFriendRequest => 'Freundschaftsanfrage senden';
 	@override String get sendMsgRejected => 'Nachricht gesendet, aber vom Gesprächspartner abgelehnt.';
 	@override String get sendMessage => 'Nachricht senden';
@@ -597,7 +597,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Neue Nachricht senden';
 	@override String get markRead => 'Als gelesen markieren';
 	@override String get markUnread => 'Als ungelesen markieren';
-	@override String get pleaseEnterSignature => 'Please enter signature';
+	@override String get pleaseEnterSignature => 'Persönliche Signatur eingeben';
 	@override String get exportProfile => 'Profil exportieren';
 	@override String get setSignature => 'Signatur festlegen';
 	@override String get setAvatar => 'Avatar festlegen';
@@ -647,7 +647,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get e2eeRecreatingKey => 'Schlüssel wird neu erstellt...';
 	@override String get e2eeKeyRecreated => 'Schlüssel neu erstellt';
 	@override String get e2eeRecoveryNewDeviceTitle => 'Neue Gerätenutzung erkannt';
-	@override String get e2eeRecoveryNewDeviceBody => 'Zum Schutz deiner Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt.\nÄltere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Du kannst ihn über „Lokales Backup importieren“ wiederherstellen.';
+	@override String get e2eeRecoveryNewDeviceBody => 'Zum Schutz Ihrer Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt.\n\nÄltere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Sie können ihn über „Lokales Backup importieren“ wiederherstellen.';
 	@override String get e2eeRecoveryDecryptFailedTitle => 'Diese Nachricht kann nicht entschlüsselt werden';
 	@override String get e2eeRecoveryDecryptFailedBody => 'Diese Nachricht wurde mit dem Schlüssel eines anderen Geräts verschlüsselt.\n\nWenn Sie das Gerät gewechselt oder die App neu installiert haben, stellen Sie den Schlüssel wieder her, um ältere Nachrichten zu lesen.';
 	@override String get e2eeRecoveryLater => 'Später';
@@ -895,26 +895,26 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get revokeExpired => 'Mehr als 2 Minuten, Widerruf nicht möglich';
 	@override String get quickReplyAddTitle => 'Schnellantwort hinzufügen';
 	@override String get quickReplyEditTitle => 'Schnellantwort bearbeiten';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration7days => '7 Days';
+	@override String get removeAdmin => 'Admin entfernen';
+	@override String get setAdminConfirm => 'Dieses Mitglied als Admin festlegen?';
+	@override String get removeAdminConfirm => 'Admin-Rolle dieses Mitglieds entziehen?';
+	@override String get unmuteMemberConfirm => 'Stummschaltung dieses Mitglieds aufheben?';
+	@override String get kickMemberConfirm => 'Dieses Mitglied aus der Gruppe entfernen?';
+	@override String get setAdminSuccess => 'Admin festgelegt';
+	@override String get setAdminFailed => 'Admin konnte nicht festgelegt werden';
+	@override String get removeAdminSuccess => 'Admin entfernt';
+	@override String get removeAdminFailed => 'Admin konnte nicht entfernt werden';
+	@override String get muteMemberSuccess => 'Mitglied stummgeschaltet';
+	@override String get muteMemberFailed => 'Stummschalten fehlgeschlagen';
+	@override String get unmuteMemberSuccess => 'Stummschaltung aufgehoben';
+	@override String get unmuteMemberFailed => 'Aufheben der Stummschaltung fehlgeschlagen';
+	@override String get kickMemberSuccess => 'Mitglied entfernt';
+	@override String get kickMemberFailed => 'Mitglied konnte nicht entfernt werden';
+	@override String get notMuted => 'Nicht stummgeschaltet';
+	@override String get muteDuration => 'Stummschaltungsdauer';
+	@override String get muteDuration1hour => '1 Stunde';
+	@override String get muteDuration1day => '1 Tag';
+	@override String get muteDuration7days => '7 Tage';
 	@override String get muteDuration5min => '5 Min.';
 	@override String get muteDuration10min => '10 Min.';
 	@override String get muteDuration30min => '30 Min.';
@@ -928,8 +928,8 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get saveSuccess => 'Erfolgreich gespeichert';
 	@override String get scanQrcodeAddFriend => 'Scannen Sie den QR-Code, um mich als Freund hinzuzufügen';
 	@override String get search => 'Suche';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String get searchScope => 'Suchbereich';
+	@override String get searchAll => 'Alle Nachrichten';
 	@override String get searchChatContent => 'Chat-Inhalt durchsuchen';
 	@override String get searchChatRecord => 'Chat-Verlauf durchsuchen';
 	@override String get searchError => 'Suchfehler';
@@ -979,9 +979,9 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get unknownMessage => 'Unbekannte Nachricht';
 	@override String get updateLog => 'Update-Protokoll';
 	@override String get updateNow => 'Jetzt aktualisieren';
-	@override String get uploading => 'Uploading';
-	@override String get uploadSuccess => 'Upload successful';
-	@override String get uploadFailed => 'Upload failed';
+	@override String get uploading => 'Wird hochgeladen…';
+	@override String get uploadSuccess => 'Hochgeladen';
+	@override String get uploadFailed => 'Hochladen fehlgeschlagen';
 	@override String get userDataTips => 'Enthält notwendige App-Dateien sowie alle Daten wie Chatnachrichten und Kontakte.';
 	@override String get userDisabledOrDeleted => 'Benutzer deaktiviert oder gelöscht';
 	@override String get userNotExist => 'Benutzer existiert nicht';
@@ -1170,8 +1170,8 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get expression => 'Emoji';
 	@override String get extendedInfo => 'Erweiterte Informationen';
 	@override String get profession => 'Beruf';
-	@override String get shareFailed => 'Share failed';
-	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get shareFailed => 'Teilen fehlgeschlagen';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => 'Profil im ${param}-Format exportiert und in die Zwischenablage kopiert';
 	@override String get setRegion => 'Region festlegen';
 	@override String get deleteOperationAbnormal => 'Löschvorgang anomal, bitte versuchen Sie es erneut';
 	@override String get revoking => 'Wird widerrufen...';
@@ -1363,7 +1363,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeDecryptReasonKeyExpired => '• Geräteschlüssel abgelaufen';
 	@override String get e2eeDecryptReasonDataCorrupt => '• App-Daten beschädigt';
 	@override String get e2eeDecryptChooseSolution => 'Lösung wählen:';
-	@override String get e2eeDecryptRecreateHint => 'Hinweis: Nach der Neuerstellung muss die Gegenseite deinen neuen Schlüssel abrufen; während der Änderung noch nicht zugestellte verschlüsselte Nachrichten werden möglicherweise nicht automatisch erneut gesendet. Der Nachrichtenverlauf ist nicht betroffen.';
+	@override String get e2eeDecryptRecreateHint => 'Hinweis: Nach der Neuerstellung muss die Gegenseite Ihren neuen Schlüssel abrufen; während der Änderung noch nicht zugestellte verschlüsselte Nachrichten werden möglicherweise nicht automatisch erneut gesendet. Der Nachrichtenverlauf ist nicht betroffen.';
 	@override String get e2eePeerKeyChanged => 'Die Sicherheitsnummer dieses Kontakts hat sich geändert (möglicherweise wurde die App neu installiert oder das Gerät gewechselt). Wenn dir Sicherheit wichtig ist, überprüfe die Identität über einen anderen Kanal.';
 	@override String get e2eeDecryptActionRecreateKey => 'Schlüssel neu erstellen (empfohlen)';
 	@override String get e2eeDecryptActionRelogin => 'Neu anmelden';
@@ -1584,7 +1584,7 @@ class _Translations$complaint$de_DE extends Translations$complaint$zh_CN {
 	// Translations
 	@override String get complaint => 'Beschwerde';
 	@override String get e2eeConsentTitle => 'Verschlüsselte Beweise einreichen';
-	@override String get e2eeConsentBody => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmst du zu?';
+	@override String get e2eeConsentBody => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmen Sie zu?';
 	@override String get e2eeConsentSubmit => 'Zustimmen und einreichen';
 	@override String get e2eeConsentDecline => 'Nur melden (ohne Inhalt)';
 }
@@ -1667,7 +1667,7 @@ class _Translations$discovery$de_DE extends Translations$discovery$zh_CN {
 	@override String momentLikedBy({required Object names}) => '${names} gefällt das';
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} und ${count} weiteren gefällt das';
 	@override String momentLikesCountOnly({required Object count}) => '${count} Personen gefiel dies';
-	@override String get momentContentPlaceholder => 'Woran denkst du...';
+	@override String get momentContentPlaceholder => 'Woran denken Sie...';
 	@override String get momentShowFull => 'Vollständig anzeigen';
 	@override String get momentCollapse => 'Einklappen';
 	@override String get momentsDraftKeepTitle => 'Entwurf behalten?';
@@ -1723,7 +1723,7 @@ class _Translations$group$de_DE extends Translations$group$zh_CN {
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
 	@override String get groupGuest => 'Ehrengast';
-	@override String get setAdmin => 'Set as Admin';
+	@override String get setAdmin => 'Als Admin festlegen';
 	@override String get selectGroup => 'Gruppe auswählen';
 	@override String get sureToDissolveGroup => 'Gruppe wirklich auflösen?';
 	@override String get sureToLeaveGroup => 'Gruppe wirklich verlassen?';
@@ -1979,7 +1979,7 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get quote => 'Zitat';
 	@override String get recentlyUsed => 'Kürzlich verwendet';
 	@override String get releaseEnd => 'Zum Beenden loslassen';
-	@override String get memberDetail => 'Member Details';
+	@override String get memberDetail => 'Mitgliederdetails';
 	@override String get replied => 'Geantwortet';
 	@override String get ringing => 'Klingelt...';
 	@override String get ruRu => 'Russisch (Russland)';
@@ -2030,7 +2030,7 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get mostUsed => 'Am häufigsten verwendet';
 	@override String get school => 'Schule';
 	@override String get hobbiesAndInterests => 'Hobbys & Interessen';
-	@override String get interests => 'Interests';
+	@override String get interests => 'Interessen';
 	@override String get selectFromAlbum => 'Aus Album auswählen';
 	@override String get volumeUp => 'Lautstärke erhöhen';
 	@override String get volumeDown => 'Lautstärke verringern';
@@ -2147,7 +2147,7 @@ class _Translations$momentNotify$de_DE extends Translations$momentNotify$zh_CN {
 	@override String get title => 'Interaktionen';
 	@override String get emptyTitle => 'Keine neuen Benachrichtigungen';
 	@override String get emptyHint => '„Gefällt mir" und Kommentare von Freunden erscheinen hier';
-	@override String get actionLike => 'hat deinen Moment geliket';
+	@override String get actionLike => 'hat Ihren Moment gelikt';
 	@override String get actionComment => 'hat kommentiert';
 	@override String get markAllRead => 'Alle gelesen';
 	@override String get clearAll => 'Alle löschen';
@@ -2545,7 +2545,7 @@ extension on TranslationsDeDe {
 			'account.enterNewPassword' => 'Bitte neues Passwort eingeben',
 			'account.enterNewPasswordAgain' => 'Bitte neues Passwort erneut eingeben',
 			'account.myQRCode' => 'Mein QR-Code',
-			'account.profile' => 'Profile',
+			'account.profile' => 'Profil',
 			'account.setGender' => 'Geschlecht festlegen',
 			'account.setBirthday' => 'Geburtstag festlegen',
 			'account.nicknameRules' => '• Spitznamenlänge: 2-24 Zeichen • Darf nicht nur aus Leerzeichen oder Emojis bestehen • Darf keine sensiblen Wörter enthalten • Änderungen werden in allen Chats angezeigt',
@@ -2648,7 +2648,7 @@ extension on TranslationsDeDe {
 			'channel.subscribeFailed' => 'Abonnieren fehlgeschlagen',
 			'channel.unsubscribe' => 'Abo beenden',
 			'channel.unsubscribeConfirm' => 'Abo beenden',
-			'channel.unsubscribeConfirmDesc' => 'Möchtest du dieses Abo wirklich beenden? Du erhältst keine Nachrichten mehr.',
+			'channel.unsubscribeConfirmDesc' => 'Möchten Sie dieses Abo wirklich beenden? Sie erhalten keine Nachrichten mehr.',
 			'channel.share' => 'Teilen',
 			'channel.shareNotImplemented' => 'Teilen-Funktion kommt bald',
 			'channel.nameLabel' => 'Kanalname',
@@ -2656,7 +2656,7 @@ extension on TranslationsDeDe {
 			'channel.nameRequired' => 'Kanalname ist erforderlich',
 			'channel.nameTooLong' => 'Kanalname darf 50 Zeichen nicht überschreiten',
 			'channel.descriptionLabel' => 'Beschreibung',
-			'channel.descriptionHint' => 'Beschreibe deinen Kanal (optional)',
+			'channel.descriptionHint' => 'Beschreiben Sie Ihren Kanal (optional)',
 			'channel.customIdLabel' => 'Benutzerdefinierte ID (optional)',
 			'channel.customIdHint' => 'z.B.: mein_kanal',
 			'channel.customIdHelper' => 'Ermöglicht Suche nach Kanal-ID',
@@ -2664,9 +2664,9 @@ extension on TranslationsDeDe {
 			'channel.customIdLength' => 'Muss 4-30 Zeichen lang sein',
 			'channel.typePublic' => 'Öffentlich',
 			'channel.typePrivate' => 'Privat',
-			'channel.typePublicDesc' => 'Jeder kann deinen Kanal finden und abonnieren',
+			'channel.typePublicDesc' => 'Jeder kann Ihren Kanal finden und abonnieren',
 			'channel.typePrivateDesc' => 'Nur über Einladungslink zugänglich',
-			'channel.createTips' => 'Nach Erstellung kannst du Nachrichten an alle Abonnenten senden. Nur Admins können Kanalnachrichten senden.',
+			'channel.createTips' => 'Nach Erstellung können Sie Nachrichten an alle Abonnenten senden. Nur Admins können Kanalnachrichten senden.',
 			'channel.today' => 'Heute',
 			'channel.yesterday' => 'Gestern',
 			'channel.daysAgo' => 'Tage her',
@@ -2679,7 +2679,7 @@ extension on TranslationsDeDe {
 			'channel.manageSubscribers' => 'Abonnenten verwalten',
 			'channel.manageSubscribersNotImplemented' => 'Abonnenten verwalten kommt bald',
 			'channel.deleteChannel' => 'Kanal löschen',
-			'channel.deleteChannelConfirm' => 'Bist du sicher, dass du diesen Kanal löschen möchtest? Dies kann nicht rückgängig gemacht werden.',
+			'channel.deleteChannelConfirm' => 'Sind Sie sicher, dass Sie diesen Kanal löschen möchten? Dies kann nicht rückgängig gemacht werden.',
 			'channel.deleteChannelNotImplemented' => 'Kanal löschen kommt bald',
 			'channel.channelDeleted' => 'Kanal gelöscht',
 			'channel.deleteChannelFailed' => 'Kanal löschen fehlgeschlagen',
@@ -2692,13 +2692,13 @@ extension on TranslationsDeDe {
 			'channel.messagePinned' => 'Nachricht angepinnt',
 			'channel.messageUnpinned' => 'Anpinnen aufgehoben',
 			'channel.deleteMessage' => 'Nachricht löschen',
-			'channel.deleteMessageConfirm' => 'Bist du sicher, dass du diese Nachricht löschen möchtest?',
+			'channel.deleteMessageConfirm' => 'Sind Sie sicher, dass Sie diese Nachricht löschen möchten?',
 			'channel.messageDeleted' => 'Nachricht gelöscht',
 			'channel.addAdmin' => 'Admin hinzufügen',
 			'channel.addAdminSuccess' => 'Admin erfolgreich hinzugefügt',
 			'channel.addAdminFailed' => 'Admin hinzufügen fehlgeschlagen',
 			'channel.removeAdmin' => 'Admin entfernen',
-			'channel.removeAdminConfirm' => 'Bist du sicher, dass du diesen Admin entfernen möchtest?',
+			'channel.removeAdminConfirm' => 'Sind Sie sicher, dass Sie diesen Admin entfernen möchten?',
 			'channel.removeAdminSuccess' => 'Admin entfernt',
 			'channel.removeAdminFailed' => 'Admin entfernen fehlgeschlagen',
 			'channel.changeRole' => 'Rolle ändern',
@@ -2719,7 +2719,7 @@ extension on TranslationsDeDe {
 			'channel.noSearchResults' => 'Keine passenden Abonnenten gefunden',
 			'channel.noSubscribers' => 'Keine Abonnenten vorhanden',
 			'channel.removeSubscriber' => 'Abonnent entfernen',
-			'channel.removeSubscriberConfirm' => 'Bist du sicher, dass du diesen Abonnent entfernen möchtest?',
+			'channel.removeSubscriberConfirm' => 'Sind Sie sicher, dass Sie diesen Abonnenten entfernen möchten?',
 			'channel.removeSubscriberSuccess' => 'Abonnent entfernt',
 			'channel.removeSubscriberFailed' => 'Abonnent entfernen fehlgeschlagen',
 			'channel.subscribedAt' => 'Abonniert am',
@@ -2738,14 +2738,14 @@ extension on TranslationsDeDe {
 			'channel.qrcodeTips' => ({required Object days, required Object date}) => 'QR-Code ${days} Tage gültig (bis ${date})',
 			'channel.defaultName' => 'Unbenannter Kanal',
 			'channel.noMessagesManaged' => 'Der Kanal hat noch keine Inhalte veröffentlicht',
-			'channel.noMessagesManagedDesc' => 'Als Kanalinhaber kannst du unten den ersten Inhalt veröffentlichen',
+			'channel.noMessagesManagedDesc' => 'Als Kanalinhaber können Sie unten den ersten Inhalt veröffentlichen',
 			'channel.noMessagesVisitor' => 'Abonnieren, um die Inhalte des Kanals zu sehen',
 			'channel.noMessagesVisitorDesc' => 'Die Inhalte dieses Kanals werden nach dem Abonnieren angezeigt',
 			'channel.noMessagesSubscribed' => 'Der Kanal hat noch keine Inhalte veröffentlicht',
 			'channel.noMessagesSubscribedDesc' => 'Erfolgreich abonniert! Bitte warte auf neue Beiträge des Autors',
 			'channel.continueEditing' => 'Weiter bearbeiten',
 			'channel.publishFirstContent' => 'Ersten Inhalt veröffentlichen',
-			'channel.noSubscribersDesc' => 'Noch keine Abonnenten. Teile den Kanal mit deinen Freunden',
+			'channel.noSubscribersDesc' => 'Noch keine Abonnenten. Teilen Sie den Kanal mit Ihren Freunden',
 			'channel.emoji' => 'Emoji',
 			'channel.justNow' => 'Gerade eben',
 			'channel.minutesAgo' => 'Min.',
@@ -2825,7 +2825,7 @@ extension on TranslationsDeDe {
 			'channel.admin' => 'Admin',
 			'channel.editor' => 'Redakteur',
 			'channel.privacyTitle' => 'Öffentliche Kanäle & Datenschutz',
-			'channel.privacyDesc' => 'Jeder kann diesen Kanal finden und abonnieren. Deine Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen.',
+			'channel.privacyDesc' => 'Jeder kann diesen Kanal finden und abonnieren. Ihre Telefonnummer bleibt für andere Abonnenten und Kanal-Admins vollständig verborgen.',
 			'channel.aboutThisChannel' => 'Über diesen Kanal',
 			'channel.changePhoto' => 'Foto ändern',
 			'channel.addPhoto' => 'Foto hinzufügen',
@@ -2900,9 +2900,9 @@ extension on TranslationsDeDe {
 			'chat.quickReplyDuplicate' => 'Inhalt existiert bereits',
 			'chat.quickReplyMaxReached' => ({required Object max}) => 'Max. ${max} Einträge',
 			'chat.quickReplyHint' => 'Inhalt eingeben...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muted' => 'Muted',
+			'chat.muteMember' => 'Mitglied stummschalten',
+			'chat.unmuteMember' => 'Stummschaltung aufheben',
+			'chat.muted' => 'Stummgeschaltet',
 			'chat.mutedFor' => ({required Object label}) => 'Stummgeschaltet: ${label}',
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count} Min.',
 			'chat.muteUnitHours' => ({required Object count}) => '${count} Std.',
@@ -2914,7 +2914,7 @@ extension on TranslationsDeDe {
 			'chat.resendCode' => 'Code erneut senden',
 			'chat.revoke' => 'Widerrufen',
 			'chat.scanQrCodeBusinessCard' => 'QR-Code-Visitenkarte scannen',
-			'chat.privateChat' => 'Private Chat',
+			'chat.privateChat' => 'Privatchat',
 			'chat.sendFriendRequest' => 'Freundschaftsanfrage senden',
 			'chat.sendMsgRejected' => 'Nachricht gesendet, aber vom Gesprächspartner abgelehnt.',
 			'chat.sendMessage' => 'Nachricht senden',
@@ -2960,7 +2960,7 @@ extension on TranslationsDeDe {
 			'chat.sendNewMessage' => 'Neue Nachricht senden',
 			'chat.markRead' => 'Als gelesen markieren',
 			'chat.markUnread' => 'Als ungelesen markieren',
-			'chat.pleaseEnterSignature' => 'Please enter signature',
+			'chat.pleaseEnterSignature' => 'Persönliche Signatur eingeben',
 			'chat.exportProfile' => 'Profil exportieren',
 			'chat.setSignature' => 'Signatur festlegen',
 			'chat.setAvatar' => 'Avatar festlegen',
@@ -3012,7 +3012,7 @@ extension on TranslationsDeDe {
 			'chat.e2eeRecreatingKey' => 'Schlüssel wird neu erstellt...',
 			'chat.e2eeKeyRecreated' => 'Schlüssel neu erstellt',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Neue Gerätenutzung erkannt',
-			'chat.e2eeRecoveryNewDeviceBody' => 'Zum Schutz deiner Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt.\nÄltere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Du kannst ihn über „Lokales Backup importieren“ wiederherstellen.',
+			'chat.e2eeRecoveryNewDeviceBody' => 'Zum Schutz Ihrer Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt.\n\nÄltere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Sie können ihn über „Lokales Backup importieren“ wiederherstellen.',
 			'chat.e2eeRecoveryDecryptFailedTitle' => 'Diese Nachricht kann nicht entschlüsselt werden',
 			'chat.e2eeRecoveryDecryptFailedBody' => 'Diese Nachricht wurde mit dem Schlüssel eines anderen Geräts verschlüsselt.\n\nWenn Sie das Gerät gewechselt oder die App neu installiert haben, stellen Sie den Schlüssel wieder her, um ältere Nachrichten zu lesen.',
 			'chat.e2eeRecoveryLater' => 'Später',
@@ -3251,26 +3251,26 @@ extension on TranslationsDeDe {
 			'common.revokeExpired' => 'Mehr als 2 Minuten, Widerruf nicht möglich',
 			'common.quickReplyAddTitle' => 'Schnellantwort hinzufügen',
 			'common.quickReplyEditTitle' => 'Schnellantwort bearbeiten',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration7days' => '7 Days',
+			'common.removeAdmin' => 'Admin entfernen',
+			'common.setAdminConfirm' => 'Dieses Mitglied als Admin festlegen?',
+			'common.removeAdminConfirm' => 'Admin-Rolle dieses Mitglieds entziehen?',
+			'common.unmuteMemberConfirm' => 'Stummschaltung dieses Mitglieds aufheben?',
+			'common.kickMemberConfirm' => 'Dieses Mitglied aus der Gruppe entfernen?',
+			'common.setAdminSuccess' => 'Admin festgelegt',
+			'common.setAdminFailed' => 'Admin konnte nicht festgelegt werden',
+			'common.removeAdminSuccess' => 'Admin entfernt',
+			'common.removeAdminFailed' => 'Admin konnte nicht entfernt werden',
+			'common.muteMemberSuccess' => 'Mitglied stummgeschaltet',
+			'common.muteMemberFailed' => 'Stummschalten fehlgeschlagen',
+			'common.unmuteMemberSuccess' => 'Stummschaltung aufgehoben',
+			'common.unmuteMemberFailed' => 'Aufheben der Stummschaltung fehlgeschlagen',
+			'common.kickMemberSuccess' => 'Mitglied entfernt',
+			'common.kickMemberFailed' => 'Mitglied konnte nicht entfernt werden',
+			'common.notMuted' => 'Nicht stummgeschaltet',
+			'common.muteDuration' => 'Stummschaltungsdauer',
+			'common.muteDuration1hour' => '1 Stunde',
+			'common.muteDuration1day' => '1 Tag',
+			'common.muteDuration7days' => '7 Tage',
 			'common.muteDuration5min' => '5 Min.',
 			'common.muteDuration10min' => '10 Min.',
 			'common.muteDuration30min' => '30 Min.',
@@ -3284,8 +3284,8 @@ extension on TranslationsDeDe {
 			'common.saveSuccess' => 'Erfolgreich gespeichert',
 			'common.scanQrcodeAddFriend' => 'Scannen Sie den QR-Code, um mich als Freund hinzuzufügen',
 			'common.search' => 'Suche',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.searchScope' => 'Suchbereich',
+			'common.searchAll' => 'Alle Nachrichten',
 			'common.searchChatContent' => 'Chat-Inhalt durchsuchen',
 			'common.searchChatRecord' => 'Chat-Verlauf durchsuchen',
 			'common.searchError' => 'Suchfehler',
@@ -3326,9 +3326,9 @@ extension on TranslationsDeDe {
 			'common.unknownMessage' => 'Unbekannte Nachricht',
 			'common.updateLog' => 'Update-Protokoll',
 			'common.updateNow' => 'Jetzt aktualisieren',
-			'common.uploading' => 'Uploading',
-			'common.uploadSuccess' => 'Upload successful',
-			'common.uploadFailed' => 'Upload failed',
+			'common.uploading' => 'Wird hochgeladen…',
+			'common.uploadSuccess' => 'Hochgeladen',
+			'common.uploadFailed' => 'Hochladen fehlgeschlagen',
 			'common.userDataTips' => 'Enthält notwendige App-Dateien sowie alle Daten wie Chatnachrichten und Kontakte.',
 			'common.userDisabledOrDeleted' => 'Benutzer deaktiviert oder gelöscht',
 			'common.userNotExist' => 'Benutzer existiert nicht',
@@ -3519,8 +3519,8 @@ extension on TranslationsDeDe {
 			'common.expression' => 'Emoji',
 			'common.extendedInfo' => 'Erweiterte Informationen',
 			'common.profession' => 'Beruf',
-			'common.shareFailed' => 'Share failed',
-			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'common.shareFailed' => 'Teilen fehlgeschlagen',
+			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => 'Profil im ${param}-Format exportiert und in die Zwischenablage kopiert',
 			'common.setRegion' => 'Region festlegen',
 			'common.deleteOperationAbnormal' => 'Löschvorgang anomal, bitte versuchen Sie es erneut',
 			'common.revoking' => 'Wird widerrufen...',
@@ -3712,7 +3712,7 @@ extension on TranslationsDeDe {
 			'common.e2eeDecryptReasonKeyExpired' => '• Geräteschlüssel abgelaufen',
 			'common.e2eeDecryptReasonDataCorrupt' => '• App-Daten beschädigt',
 			'common.e2eeDecryptChooseSolution' => 'Lösung wählen:',
-			'common.e2eeDecryptRecreateHint' => 'Hinweis: Nach der Neuerstellung muss die Gegenseite deinen neuen Schlüssel abrufen; während der Änderung noch nicht zugestellte verschlüsselte Nachrichten werden möglicherweise nicht automatisch erneut gesendet. Der Nachrichtenverlauf ist nicht betroffen.',
+			'common.e2eeDecryptRecreateHint' => 'Hinweis: Nach der Neuerstellung muss die Gegenseite Ihren neuen Schlüssel abrufen; während der Änderung noch nicht zugestellte verschlüsselte Nachrichten werden möglicherweise nicht automatisch erneut gesendet. Der Nachrichtenverlauf ist nicht betroffen.',
 			'common.e2eePeerKeyChanged' => 'Die Sicherheitsnummer dieses Kontakts hat sich geändert (möglicherweise wurde die App neu installiert oder das Gerät gewechselt). Wenn dir Sicherheit wichtig ist, überprüfe die Identität über einen anderen Kanal.',
 			'common.e2eeDecryptActionRecreateKey' => 'Schlüssel neu erstellen (empfohlen)',
 			'common.e2eeDecryptActionRelogin' => 'Neu anmelden',
@@ -3924,7 +3924,7 @@ extension on TranslationsDeDe {
 			'common.retrying' => 'Wiederholung…',
 			'complaint.complaint' => 'Beschwerde',
 			'complaint.e2eeConsentTitle' => 'Verschlüsselte Beweise einreichen',
-			'complaint.e2eeConsentBody' => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmst du zu?',
+			'complaint.e2eeConsentBody' => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmen Sie zu?',
 			'complaint.e2eeConsentSubmit' => 'Zustimmen und einreichen',
 			'complaint.e2eeConsentDecline' => 'Nur melden (ohne Inhalt)',
 			'complaintReason.spam' => 'Spam',
@@ -3980,7 +3980,7 @@ extension on TranslationsDeDe {
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} gefällt das',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} und ${count} weiteren gefällt das',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} Personen gefiel dies',
-			'discovery.momentContentPlaceholder' => 'Woran denkst du...',
+			'discovery.momentContentPlaceholder' => 'Woran denken Sie...',
 			'discovery.momentShowFull' => 'Vollständig anzeigen',
 			'discovery.momentCollapse' => 'Einklappen',
 			'discovery.momentsDraftKeepTitle' => 'Entwurf behalten?',
@@ -4020,7 +4020,7 @@ extension on TranslationsDeDe {
 		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Ehrengast',
-			'group.setAdmin' => 'Set as Admin',
+			'group.setAdmin' => 'Als Admin festlegen',
 			'group.selectGroup' => 'Gruppe auswählen',
 			'group.sureToDissolveGroup' => 'Gruppe wirklich auflösen?',
 			'group.sureToLeaveGroup' => 'Gruppe wirklich verlassen?',
@@ -4204,7 +4204,7 @@ extension on TranslationsDeDe {
 			'main.quote' => 'Zitat',
 			'main.recentlyUsed' => 'Kürzlich verwendet',
 			'main.releaseEnd' => 'Zum Beenden loslassen',
-			'main.memberDetail' => 'Member Details',
+			'main.memberDetail' => 'Mitgliederdetails',
 			'main.replied' => 'Geantwortet',
 			'main.ringing' => 'Klingelt...',
 			'main.ruRu' => 'Russisch (Russland)',
@@ -4255,7 +4255,7 @@ extension on TranslationsDeDe {
 			'main.mostUsed' => 'Am häufigsten verwendet',
 			'main.school' => 'Schule',
 			'main.hobbiesAndInterests' => 'Hobbys & Interessen',
-			'main.interests' => 'Interests',
+			'main.interests' => 'Interessen',
 			'main.selectFromAlbum' => 'Aus Album auswählen',
 			'main.volumeUp' => 'Lautstärke erhöhen',
 			'main.volumeDown' => 'Lautstärke verringern',
@@ -4345,7 +4345,7 @@ extension on TranslationsDeDe {
 			'momentNotify.title' => 'Interaktionen',
 			'momentNotify.emptyTitle' => 'Keine neuen Benachrichtigungen',
 			'momentNotify.emptyHint' => '„Gefällt mir" und Kommentare von Freunden erscheinen hier',
-			'momentNotify.actionLike' => 'hat deinen Moment geliket',
+			'momentNotify.actionLike' => 'hat Ihren Moment gelikt',
 			'momentNotify.actionComment' => 'hat kommentiert',
 			'momentNotify.markAllRead' => 'Alle gelesen',
 			'momentNotify.clearAll' => 'Alle löschen',

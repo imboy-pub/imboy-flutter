@@ -212,26 +212,26 @@ muteNotificationsHint: Aucune notification, mais les messages non lus restent vi
 revokeExpired: Plus de 2 minutes, rappel impossible
 quickReplyAddTitle: Ajouter une réponse rapide
 quickReplyEditTitle: Modifier la réponse rapide
-removeAdmin: Remove Admin
-setAdminConfirm: Set this member as admin?
-removeAdminConfirm: Remove admin role from this member?
-unmuteMemberConfirm: Unmute this member?
-kickMemberConfirm: Remove this member from the group?
-setAdminSuccess: Admin set
-setAdminFailed: Failed to set admin
-removeAdminSuccess: Admin removed
-removeAdminFailed: Failed to remove admin
-muteMemberSuccess: Member muted
-muteMemberFailed: Failed to mute member
-unmuteMemberSuccess: Member unmuted
-unmuteMemberFailed: Failed to unmute member
-kickMemberSuccess: Member removed
-kickMemberFailed: Failed to remove member
-notMuted: Not Muted
-muteDuration: Mute Duration
-muteDuration1hour: 1 Hour
-muteDuration1day: 1 Day
-muteDuration7days: 7 Days
+removeAdmin: "Retirer le rôle d'admin"
+setAdminConfirm: "Définir ce membre comme administrateur ?"
+removeAdminConfirm: "Retirer le rôle d'administrateur à ce membre ?"
+unmuteMemberConfirm: "Retirer la mise en sourdine de ce membre ?"
+kickMemberConfirm: "Retirer ce membre du groupe ?"
+setAdminSuccess: "Administrateur défini"
+setAdminFailed: "Impossible de définir l'administrateur"
+removeAdminSuccess: "Administrateur retiré"
+removeAdminFailed: "Impossible de retirer l'administrateur"
+muteMemberSuccess: "Membre mis en sourdine"
+muteMemberFailed: "Échec de la mise en sourdine"
+unmuteMemberSuccess: "Mise en sourdine retirée"
+unmuteMemberFailed: "Impossible de retirer la mise en sourdine"
+kickMemberSuccess: "Membre retiré"
+kickMemberFailed: "Impossible de retirer le membre"
+notMuted: "Non mis en sourdine"
+muteDuration: "Durée de la mise en sourdine"
+muteDuration1hour: "1 heure"
+muteDuration1day: "1 jour"
+muteDuration7days: "7 jours"
 muteDuration5min: 5 min
 muteDuration10min: 10 min
 muteDuration30min: 30 min
@@ -245,8 +245,8 @@ saveQrCode: Enregistrer le code QR
 saveSuccess: Enregistré avec succès.
 scanQrcodeAddFriend: Scannez le code QR ci-dessus pour m'ajouter comme ami.
 search: Rechercher
-searchScope: Search scope
-searchAll: All messages
+searchScope: "Portée de la recherche"
+searchAll: "Tous les messages"
 searchChatContent: Rechercher le contenu de la conversation
 searchChatRecord: Rechercher l'historique de conversation
 searchError: Erreur de recherche.
@@ -293,9 +293,9 @@ unknown: Inconnu
 unknownMessage: Message inconnu.
 updateLog: Journal des mises à jour
 updateNow: Mettre à jour maintenant
-uploading: Uploading
-uploadSuccess: Upload successful
-uploadFailed: Upload failed
+uploading: "Téléversement en cours"
+uploadSuccess: "Téléversé"
+uploadFailed: "Échec du téléversement"
 userDataTips: Contient les fichiers nécessaires au fonctionnement de l'application, ainsi que tous les enregistrements de données tels que les messages de conversation et les relations d'amis.
 userDisabledOrDeleted: Utilisateur désactivé ou supprimé.
 userNotExist: L'utilisateur n'existe pas.
@@ -484,8 +484,8 @@ personalBackground: Arrière-plan personnel
 expression: Emoji
 extendedInfo: Informations étendues
 profession: Profession
-shareFailed: Share failed
-exportSuccessThenCopiedToClipboard: "$param format profile exported and copied to clipboard"
+shareFailed: "Échec du partage"
+exportSuccessThenCopiedToClipboard: "Profil exporté au format $param et copié dans le presse-papiers"
 setRegion: Définir la région
 deleteOperationAbnormal: Opération de suppression échouée. Veuillez réessayer.
 revoking: Révocation en cours...

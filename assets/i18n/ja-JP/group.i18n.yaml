@@ -11,7 +11,7 @@ mutualGroupsWithHer: 相手との共通グループチャット
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: ゲスト
-setAdmin: Set as Admin
+setAdmin: "管理者に設定"
 selectGroup: グループチャットを選択
 sureToDissolveGroup: このグループを解散してもよろしいですか？
 sureToLeaveGroup: このグループを退出してもよろしいですか？

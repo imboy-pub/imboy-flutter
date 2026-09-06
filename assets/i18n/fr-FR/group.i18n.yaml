@@ -11,7 +11,7 @@ mutualGroupsWithHer: Groupes communs avec lui/elle
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: Invité d'honneur
-setAdmin: Set as Admin
+setAdmin: "Définir comme administrateur"
 selectGroup: Sélectionner un groupe.
 sureToDissolveGroup: Confirmer la dissolution du groupe ?
 sureToLeaveGroup: Confirmer le départ du groupe ?

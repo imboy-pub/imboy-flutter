@@ -11,7 +11,7 @@ mutualGroupsWithHer: Gemeinsame Gruppen
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: Ehrengast
-setAdmin: Set as Admin
+setAdmin: "Als Admin festlegen"
 selectGroup: Gruppe auswählen
 sureToDissolveGroup: Gruppe wirklich auflösen?
 sureToLeaveGroup: Gruppe wirklich verlassen?

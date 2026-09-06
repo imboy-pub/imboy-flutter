@@ -212,26 +212,26 @@ muteNotificationsHint: オンにすると新着通知は届きませんが、会
 revokeExpired: 2分を超過しているため、取り消せません
 quickReplyAddTitle: クイック返信を追加
 quickReplyEditTitle: クイック返信を編集
-removeAdmin: Remove Admin
-setAdminConfirm: Set this member as admin?
-removeAdminConfirm: Remove admin role from this member?
-unmuteMemberConfirm: Unmute this member?
-kickMemberConfirm: Remove this member from the group?
-setAdminSuccess: Admin set
-setAdminFailed: Failed to set admin
-removeAdminSuccess: Admin removed
-removeAdminFailed: Failed to remove admin
-muteMemberSuccess: Member muted
-muteMemberFailed: Failed to mute member
-unmuteMemberSuccess: Member unmuted
-unmuteMemberFailed: Failed to unmute member
-kickMemberSuccess: Member removed
-kickMemberFailed: Failed to remove member
-notMuted: Not Muted
-muteDuration: Mute Duration
-muteDuration1hour: 1 Hour
-muteDuration1day: 1 Day
-muteDuration7days: 7 Days
+removeAdmin: "管理者を解除"
+setAdminConfirm: "このメンバーを管理者に設定しますか？"
+removeAdminConfirm: "このメンバーの管理者権限を解除しますか？"
+unmuteMemberConfirm: "このメンバーのミュートを解除しますか？"
+kickMemberConfirm: "このメンバーをグループから除外しますか？"
+setAdminSuccess: "管理者に設定しました"
+setAdminFailed: "管理者の設定に失敗しました"
+removeAdminSuccess: "管理者を解除しました"
+removeAdminFailed: "管理者の解除に失敗しました"
+muteMemberSuccess: "ミュートしました"
+muteMemberFailed: "ミュートに失敗しました"
+unmuteMemberSuccess: "ミュートを解除しました"
+unmuteMemberFailed: "ミュート解除に失敗しました"
+kickMemberSuccess: "メンバーを除外しました"
+kickMemberFailed: "メンバーの除外に失敗しました"
+notMuted: "ミュートされていません"
+muteDuration: "ミュート期間"
+muteDuration1hour: "1時間"
+muteDuration1day: "1日"
+muteDuration7days: "7日"
 muteDuration5min: 5分
 muteDuration10min: 10分
 muteDuration30min: 30分
@@ -245,8 +245,8 @@ saveQrCode: QRコードを保存
 saveSuccess: 保存しました
 scanQrcodeAddFriend: 上のQRコードをスキャンして友達に追加してください
 search: 検索
-searchScope: Search scope
-searchAll: All messages
+searchScope: "検索範囲"
+searchAll: "すべてのメッセージ"
 searchChatContent: チャット内容を検索
 searchChatRecord: チャット履歴を検索
 searchError: 検索エラー
@@ -290,9 +290,9 @@ unknown: 不明
 unknownMessage: 不明なメッセージ
 updateLog: 更新ログ
 updateNow: 今すぐ更新
-uploading: Uploading
-uploadSuccess: Upload successful
-uploadFailed: Upload failed
+uploading: "アップロード中"
+uploadSuccess: "アップロードしました"
+uploadFailed: "アップロードに失敗しました"
 userDataTips: アプリ実行に必要なファイル、チャットメッセージ、友達関係などすべての記録データが含まれます。
 userDisabledOrDeleted: ユーザーは無効化または削除されました
 userNotExist: ユーザーが存在しません
@@ -481,8 +481,8 @@ personalBackground: 個人背景
 expression: スタンプ
 extendedInfo: 拡張情報
 profession: 職業
-shareFailed: Share failed
-exportSuccessThenCopiedToClipboard: "$param format profile exported and copied to clipboard"
+shareFailed: "共有に失敗しました"
+exportSuccessThenCopiedToClipboard: "$param 形式のプロフィールをエクスポートし、クリップボードにコピーしました"
 setRegion: 地域を設定
 deleteOperationAbnormal: 削除操作が異常です。もう一度お試しください
 revoking: 取り消し中...

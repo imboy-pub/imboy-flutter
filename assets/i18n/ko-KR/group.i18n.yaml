@@ -11,7 +11,7 @@ mutualGroupsWithHer: 해당 사용자와의 공통 그룹 채팅
 groupOwner: Owner
 groupAdmin: Admin
 groupGuest: 게스트
-setAdmin: Set as Admin
+setAdmin: "관리자로 설정"
 selectGroup: 그룹 채팅 선택
 sureToDissolveGroup: 이 그룹을 해체하시겠습니까?
 sureToLeaveGroup: 이 그룹을 나가시겠습니까?

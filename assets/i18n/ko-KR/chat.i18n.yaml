@@ -66,9 +66,9 @@ quickReplyEmpty: 빠른 답장이 없습니다. 우측 하단을 눌러 추가�
 quickReplyDuplicate: 내용이 이미 존재합니다
 quickReplyMaxReached: 최대 $max개
 quickReplyHint: 내용 입력...
-muteMember: Mute Member
-unmuteMember: Unmute
-muted: Muted
+muteMember: "멤버 음소거"
+unmuteMember: "음소거 해제"
+muted: "음소거됨"
 mutedFor: 채팅 금지 $label
 muteUnitMinutes: "$count분"
 muteUnitHours: "$count시간"
@@ -80,7 +80,7 @@ reply: 답장
 resendCode: 인증 코드 재전송
 revoke: 회수
 scanQrCodeBusinessCard: QR코드 명함 스캔
-privateChat: Private Chat
+privateChat: "1:1 채팅"
 sendFriendRequest: 친구 추가 요청 보내기
 sendMsgRejected: 메시지가 전송되었으나 상대방이 거부했습니다.
 sendMessage: 메시지 보내기
@@ -126,7 +126,7 @@ momentsReplyingTo: "@{name}님에게 답글 작성 중"
 sendNewMessage: 새 메시지 전송
 markRead: 읽음으로 표시
 markUnread: 읽지 않음으로 표시
-pleaseEnterSignature: Please enter signature
+pleaseEnterSignature: "한 줄 소개를 입력하세요"
 exportProfile: 프로필 내보내기
 setSignature: 서명 설정
 setAvatar: 프로필 사진 설정

@@ -66,9 +66,9 @@ quickReplyEmpty: Нет быстрых ответов. Нажмите в пра�
 quickReplyDuplicate: Такой ответ уже существует
 quickReplyMaxReached: Максимум $max
 quickReplyHint: Введите текст...
-muteMember: Mute Member
-unmuteMember: Unmute
-muted: Muted
+muteMember: "Замьютить участника"
+unmuteMember: "Размьютить"
+muted: "Замьючен"
 mutedFor: Мут $label
 muteUnitMinutes: "$count мин"
 muteUnitHours: "$count ч"
@@ -80,7 +80,7 @@ reply: Ответить
 resendCode: Отправить код снова
 revoke: Отозвать
 scanQrCodeBusinessCard: Сканировать QR-код визитки
-privateChat: Private Chat
+privateChat: "Личный чат"
 sendFriendRequest: Отправить запрос дружбы
 sendMsgRejected: Сообщение отклонено собеседником
 sendMessage: Отправить сообщение
@@ -126,7 +126,7 @@ momentsReplyingTo: Ответ @{name}
 sendNewMessage: Отправить новое сообщение
 markRead: Пометить как прочитанное
 markUnread: Пометить как непрочитанное
-pleaseEnterSignature: Please enter signature
+pleaseEnterSignature: "Введите подпись"
 exportProfile: Экспортировать профиль
 setSignature: Установить подпись
 setAvatar: Установить аватар

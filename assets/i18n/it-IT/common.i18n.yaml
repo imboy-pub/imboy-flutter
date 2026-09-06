@@ -212,26 +212,26 @@ muteNotificationsHint: Nessuna notifica, ma i messaggi non letti restano visibil
 revokeExpired: Più di 2 minuti, revoca impossibile
 quickReplyAddTitle: Aggiungi risposta rapida
 quickReplyEditTitle: Modifica risposta rapida
-removeAdmin: Remove Admin
-setAdminConfirm: Set this member as admin?
-removeAdminConfirm: Remove admin role from this member?
-unmuteMemberConfirm: Unmute this member?
-kickMemberConfirm: Remove this member from the group?
-setAdminSuccess: Admin set
-setAdminFailed: Failed to set admin
-removeAdminSuccess: Admin removed
-removeAdminFailed: Failed to remove admin
-muteMemberSuccess: Member muted
-muteMemberFailed: Failed to mute member
-unmuteMemberSuccess: Member unmuted
-unmuteMemberFailed: Failed to unmute member
-kickMemberSuccess: Member removed
-kickMemberFailed: Failed to remove member
-notMuted: Not Muted
-muteDuration: Mute Duration
-muteDuration1hour: 1 Hour
-muteDuration1day: 1 Day
-muteDuration7days: 7 Days
+removeAdmin: "Rimuovi amministratore"
+setAdminConfirm: "Impostare questo membro come amministratore?"
+removeAdminConfirm: "Rimuovere il ruolo di amministratore a questo membro?"
+unmuteMemberConfirm: "Rimuovere il silenzio a questo membro?"
+kickMemberConfirm: "Rimuovere questo membro dal gruppo?"
+setAdminSuccess: "Amministratore impostato"
+setAdminFailed: "Impossibile impostare l'amministratore"
+removeAdminSuccess: "Amministratore rimosso"
+removeAdminFailed: "Impossibile rimuovere l'amministratore"
+muteMemberSuccess: "Membro silenziato"
+muteMemberFailed: "Impossibile silenziare il membro"
+unmuteMemberSuccess: "Silenzio rimosso"
+unmuteMemberFailed: "Impossibile rimuovere il silenzio"
+kickMemberSuccess: "Membro rimosso"
+kickMemberFailed: "Impossibile rimuovere il membro"
+notMuted: "Non silenziato"
+muteDuration: "Durata del silenzio"
+muteDuration1hour: "1 ora"
+muteDuration1day: "1 giorno"
+muteDuration7days: "7 giorni"
 muteDuration5min: 5 min
 muteDuration10min: 10 min
 muteDuration30min: 30 min
@@ -245,8 +245,8 @@ saveQrCode: Salva codice QR
 saveSuccess: Salvato con successo
 scanQrcodeAddFriend: Scansiona il codice QR sopra per aggiungermi come amico
 search: Cerca
-searchScope: Search scope
-searchAll: All messages
+searchScope: "Ambito di ricerca"
+searchAll: "Tutti i messaggi"
 searchChatContent: Cerca contenuto della chat
 searchChatRecord: Cerca cronologia della chat
 searchError: Errore ricerca
@@ -293,9 +293,9 @@ unknown: Sconosciuto
 unknownMessage: Messaggio sconosciuto
 updateLog: Registro aggiornamenti
 updateNow: Aggiorna ora
-uploading: Uploading
-uploadSuccess: Upload successful
-uploadFailed: Upload failed
+uploading: "Caricamento in corso"
+uploadSuccess: "Caricato"
+uploadFailed: "Caricamento non riuscito"
 userDataTips: Include file necessari per l'esecuzione dell'APP e tutti i dati registrati come messaggi chat, relazioni amicizia ecc.
 userDisabledOrDeleted: Utente disabilitato o eliminato
 userNotExist: L'utente non esiste
@@ -484,8 +484,8 @@ personalBackground: Sfondo personale
 expression: Emoji
 extendedInfo: Info estese
 profession: Professione
-shareFailed: Share failed
-exportSuccessThenCopiedToClipboard: "$param format profile exported and copied to clipboard"
+shareFailed: "Condivisione non riuscita"
+exportSuccessThenCopiedToClipboard: "Profilo esportato in formato $param e copiato negli appunti"
 setRegion: Imposta regione
 deleteOperationAbnormal: Operazione di eliminazione non riuscita, riprova
 revoking: Revoca in corso...

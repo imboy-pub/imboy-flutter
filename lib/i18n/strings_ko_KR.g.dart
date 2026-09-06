@@ -145,7 +145,7 @@ class _Translations$account$ko_KR extends Translations$account$zh_CN {
 	@override String get enterNewPassword => '새 비밀번호를 입력해 주세요';
 	@override String get enterNewPasswordAgain => '새 비밀번호를 다시 입력해 주세요';
 	@override String get myQRCode => '내 QR코드';
-	@override String get profile => 'Profile';
+	@override String get profile => '프로필';
 	@override String get setGender => '성별 설정';
 	@override String get setBirthday => '생일 설정';
 	@override String get nicknameRules => '• 닉네임 길이: 2-24자 • 공백이나 이모지만 포함할 수 없습니다 • 민감 단어를 포함할 수 없습니다 • 변경 사항은 모든 채팅에 반영됩니다';
@@ -537,9 +537,9 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get quickReplyDuplicate => '내용이 이미 존재합니다';
 	@override String quickReplyMaxReached({required Object max}) => '최대 ${max}개';
 	@override String get quickReplyHint => '내용 입력...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muted => 'Muted';
+	@override String get muteMember => '멤버 음소거';
+	@override String get unmuteMember => '음소거 해제';
+	@override String get muted => '음소거됨';
 	@override String mutedFor({required Object label}) => '채팅 금지 ${label}';
 	@override String muteUnitMinutes({required Object count}) => '${count}분';
 	@override String muteUnitHours({required Object count}) => '${count}시간';
@@ -551,7 +551,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get resendCode => '인증 코드 재전송';
 	@override String get revoke => '회수';
 	@override String get scanQrCodeBusinessCard => 'QR코드 명함 스캔';
-	@override String get privateChat => 'Private Chat';
+	@override String get privateChat => '1:1 채팅';
 	@override String get sendFriendRequest => '친구 추가 요청 보내기';
 	@override String get sendMsgRejected => '메시지가 전송되었으나 상대방이 거부했습니다.';
 	@override String get sendMessage => '메시지 보내기';
@@ -597,7 +597,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => '새 메시지 전송';
 	@override String get markRead => '읽음으로 표시';
 	@override String get markUnread => '읽지 않음으로 표시';
-	@override String get pleaseEnterSignature => 'Please enter signature';
+	@override String get pleaseEnterSignature => '한 줄 소개를 입력하세요';
 	@override String get exportProfile => '프로필 내보내기';
 	@override String get setSignature => '서명 설정';
 	@override String get setAvatar => '프로필 사진 설정';
@@ -895,26 +895,26 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get revokeExpired => '2분이 경과하여 회수할 수 없습니다';
 	@override String get quickReplyAddTitle => '빠른 답장 추가';
 	@override String get quickReplyEditTitle => '빠른 답장 편집';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration7days => '7 Days';
+	@override String get removeAdmin => '관리자 해제';
+	@override String get setAdminConfirm => '이 멤버를 관리자로 설정하시겠습니까?';
+	@override String get removeAdminConfirm => '이 멤버의 관리자 권한을 해제하시겠습니까?';
+	@override String get unmuteMemberConfirm => '이 멤버의 음소거를 해제하시겠습니까?';
+	@override String get kickMemberConfirm => '이 멤버를 그룹에서 제외하시겠습니까?';
+	@override String get setAdminSuccess => '관리자로 설정했습니다';
+	@override String get setAdminFailed => '관리자 설정에 실패했습니다';
+	@override String get removeAdminSuccess => '관리자를 해제했습니다';
+	@override String get removeAdminFailed => '관리자 해제에 실패했습니다';
+	@override String get muteMemberSuccess => '음소거했습니다';
+	@override String get muteMemberFailed => '음소거에 실패했습니다';
+	@override String get unmuteMemberSuccess => '음소거를 해제했습니다';
+	@override String get unmuteMemberFailed => '음소거 해제에 실패했습니다';
+	@override String get kickMemberSuccess => '멤버를 제외했습니다';
+	@override String get kickMemberFailed => '멤버 제외에 실패했습니다';
+	@override String get notMuted => '음소거 아님';
+	@override String get muteDuration => '음소거 기간';
+	@override String get muteDuration1hour => '1시간';
+	@override String get muteDuration1day => '1일';
+	@override String get muteDuration7days => '7일';
 	@override String get muteDuration5min => '5분';
 	@override String get muteDuration10min => '10분';
 	@override String get muteDuration30min => '30분';
@@ -928,8 +928,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get saveSuccess => '저장 성공';
 	@override String get scanQrcodeAddFriend => '위 QR코드 패턴을 스캔하여 친구로 추가하세요';
 	@override String get search => '검색';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String get searchScope => '검색 범위';
+	@override String get searchAll => '모든 메시지';
 	@override String get searchChatContent => '채팅 내용 검색';
 	@override String get searchChatRecord => '채팅 기록 검색';
 	@override String get searchError => '검색 오류';
@@ -976,9 +976,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get unknownMessage => '알 수 없는 메시지';
 	@override String get updateLog => '업데이트 로그';
 	@override String get updateNow => '지금 업데이트';
-	@override String get uploading => 'Uploading';
-	@override String get uploadSuccess => 'Upload successful';
-	@override String get uploadFailed => 'Upload failed';
+	@override String get uploading => '업로드 중';
+	@override String get uploadSuccess => '업로드했습니다';
+	@override String get uploadFailed => '업로드에 실패했습니다';
 	@override String get userDataTips => '앱 실행에 필요한 파일과 채팅 메시지, 친구 관계 등 모든 기록 데이터를 포함합니다.';
 	@override String get userDisabledOrDeleted => '사용자가 비활성화되거나 삭제됨';
 	@override String get userNotExist => '사용자가 존재하지 않습니다';
@@ -1167,8 +1167,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get expression => '이모티콘';
 	@override String get extendedInfo => '추가 정보';
 	@override String get profession => '직업';
-	@override String get shareFailed => 'Share failed';
-	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get shareFailed => '공유에 실패했습니다';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} 형식의 프로필을 내보내고 클립보드에 복사했습니다';
 	@override String get setRegion => '지역 설정';
 	@override String get deleteOperationAbnormal => '삭제 작업 비정상, 다시 시도하세요';
 	@override String get revoking => '회수 중...';
@@ -1720,7 +1720,7 @@ class _Translations$group$ko_KR extends Translations$group$zh_CN {
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
 	@override String get groupGuest => '게스트';
-	@override String get setAdmin => 'Set as Admin';
+	@override String get setAdmin => '관리자로 설정';
 	@override String get selectGroup => '그룹 채팅 선택';
 	@override String get sureToDissolveGroup => '이 그룹을 해체하시겠습니까?';
 	@override String get sureToLeaveGroup => '이 그룹을 나가시겠습니까?';
@@ -1976,7 +1976,7 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get quote => '인용';
 	@override String get recentlyUsed => '최근 사용';
 	@override String get releaseEnd => '놓으면 종료';
-	@override String get memberDetail => 'Member Details';
+	@override String get memberDetail => '멤버 상세';
 	@override String get replied => '답장됨';
 	@override String get ringing => '벨 울림...';
 	@override String get ruRu => '러시아어';
@@ -2027,7 +2027,7 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get mostUsed => '가장 많이 사용';
 	@override String get school => '학교';
 	@override String get hobbiesAndInterests => '취미 및 관심사';
-	@override String get interests => 'Interests';
+	@override String get interests => '관심사';
 	@override String get selectFromAlbum => '앨범에서 선택';
 	@override String get volumeUp => '볼륨 높이기';
 	@override String get volumeDown => '볼륨 낮추기';
@@ -2542,7 +2542,7 @@ extension on TranslationsKoKr {
 			'account.enterNewPassword' => '새 비밀번호를 입력해 주세요',
 			'account.enterNewPasswordAgain' => '새 비밀번호를 다시 입력해 주세요',
 			'account.myQRCode' => '내 QR코드',
-			'account.profile' => 'Profile',
+			'account.profile' => '프로필',
 			'account.setGender' => '성별 설정',
 			'account.setBirthday' => '생일 설정',
 			'account.nicknameRules' => '• 닉네임 길이: 2-24자 • 공백이나 이모지만 포함할 수 없습니다 • 민감 단어를 포함할 수 없습니다 • 변경 사항은 모든 채팅에 반영됩니다',
@@ -2897,9 +2897,9 @@ extension on TranslationsKoKr {
 			'chat.quickReplyDuplicate' => '내용이 이미 존재합니다',
 			'chat.quickReplyMaxReached' => ({required Object max}) => '최대 ${max}개',
 			'chat.quickReplyHint' => '내용 입력...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muted' => 'Muted',
+			'chat.muteMember' => '멤버 음소거',
+			'chat.unmuteMember' => '음소거 해제',
+			'chat.muted' => '음소거됨',
 			'chat.mutedFor' => ({required Object label}) => '채팅 금지 ${label}',
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count}분',
 			'chat.muteUnitHours' => ({required Object count}) => '${count}시간',
@@ -2911,7 +2911,7 @@ extension on TranslationsKoKr {
 			'chat.resendCode' => '인증 코드 재전송',
 			'chat.revoke' => '회수',
 			'chat.scanQrCodeBusinessCard' => 'QR코드 명함 스캔',
-			'chat.privateChat' => 'Private Chat',
+			'chat.privateChat' => '1:1 채팅',
 			'chat.sendFriendRequest' => '친구 추가 요청 보내기',
 			'chat.sendMsgRejected' => '메시지가 전송되었으나 상대방이 거부했습니다.',
 			'chat.sendMessage' => '메시지 보내기',
@@ -2957,7 +2957,7 @@ extension on TranslationsKoKr {
 			'chat.sendNewMessage' => '새 메시지 전송',
 			'chat.markRead' => '읽음으로 표시',
 			'chat.markUnread' => '읽지 않음으로 표시',
-			'chat.pleaseEnterSignature' => 'Please enter signature',
+			'chat.pleaseEnterSignature' => '한 줄 소개를 입력하세요',
 			'chat.exportProfile' => '프로필 내보내기',
 			'chat.setSignature' => '서명 설정',
 			'chat.setAvatar' => '프로필 사진 설정',
@@ -3248,26 +3248,26 @@ extension on TranslationsKoKr {
 			'common.revokeExpired' => '2분이 경과하여 회수할 수 없습니다',
 			'common.quickReplyAddTitle' => '빠른 답장 추가',
 			'common.quickReplyEditTitle' => '빠른 답장 편집',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration7days' => '7 Days',
+			'common.removeAdmin' => '관리자 해제',
+			'common.setAdminConfirm' => '이 멤버를 관리자로 설정하시겠습니까?',
+			'common.removeAdminConfirm' => '이 멤버의 관리자 권한을 해제하시겠습니까?',
+			'common.unmuteMemberConfirm' => '이 멤버의 음소거를 해제하시겠습니까?',
+			'common.kickMemberConfirm' => '이 멤버를 그룹에서 제외하시겠습니까?',
+			'common.setAdminSuccess' => '관리자로 설정했습니다',
+			'common.setAdminFailed' => '관리자 설정에 실패했습니다',
+			'common.removeAdminSuccess' => '관리자를 해제했습니다',
+			'common.removeAdminFailed' => '관리자 해제에 실패했습니다',
+			'common.muteMemberSuccess' => '음소거했습니다',
+			'common.muteMemberFailed' => '음소거에 실패했습니다',
+			'common.unmuteMemberSuccess' => '음소거를 해제했습니다',
+			'common.unmuteMemberFailed' => '음소거 해제에 실패했습니다',
+			'common.kickMemberSuccess' => '멤버를 제외했습니다',
+			'common.kickMemberFailed' => '멤버 제외에 실패했습니다',
+			'common.notMuted' => '음소거 아님',
+			'common.muteDuration' => '음소거 기간',
+			'common.muteDuration1hour' => '1시간',
+			'common.muteDuration1day' => '1일',
+			'common.muteDuration7days' => '7일',
 			'common.muteDuration5min' => '5분',
 			'common.muteDuration10min' => '10분',
 			'common.muteDuration30min' => '30분',
@@ -3281,8 +3281,8 @@ extension on TranslationsKoKr {
 			'common.saveSuccess' => '저장 성공',
 			'common.scanQrcodeAddFriend' => '위 QR코드 패턴을 스캔하여 친구로 추가하세요',
 			'common.search' => '검색',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.searchScope' => '검색 범위',
+			'common.searchAll' => '모든 메시지',
 			'common.searchChatContent' => '채팅 내용 검색',
 			'common.searchChatRecord' => '채팅 기록 검색',
 			'common.searchError' => '검색 오류',
@@ -3323,9 +3323,9 @@ extension on TranslationsKoKr {
 			'common.unknownMessage' => '알 수 없는 메시지',
 			'common.updateLog' => '업데이트 로그',
 			'common.updateNow' => '지금 업데이트',
-			'common.uploading' => 'Uploading',
-			'common.uploadSuccess' => 'Upload successful',
-			'common.uploadFailed' => 'Upload failed',
+			'common.uploading' => '업로드 중',
+			'common.uploadSuccess' => '업로드했습니다',
+			'common.uploadFailed' => '업로드에 실패했습니다',
 			'common.userDataTips' => '앱 실행에 필요한 파일과 채팅 메시지, 친구 관계 등 모든 기록 데이터를 포함합니다.',
 			'common.userDisabledOrDeleted' => '사용자가 비활성화되거나 삭제됨',
 			'common.userNotExist' => '사용자가 존재하지 않습니다',
@@ -3516,8 +3516,8 @@ extension on TranslationsKoKr {
 			'common.expression' => '이모티콘',
 			'common.extendedInfo' => '추가 정보',
 			'common.profession' => '직업',
-			'common.shareFailed' => 'Share failed',
-			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'common.shareFailed' => '공유에 실패했습니다',
+			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} 형식의 프로필을 내보내고 클립보드에 복사했습니다',
 			'common.setRegion' => '지역 설정',
 			'common.deleteOperationAbnormal' => '삭제 작업 비정상, 다시 시도하세요',
 			'common.revoking' => '회수 중...',
@@ -4017,7 +4017,7 @@ extension on TranslationsKoKr {
 		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => '게스트',
-			'group.setAdmin' => 'Set as Admin',
+			'group.setAdmin' => '관리자로 설정',
 			'group.selectGroup' => '그룹 채팅 선택',
 			'group.sureToDissolveGroup' => '이 그룹을 해체하시겠습니까?',
 			'group.sureToLeaveGroup' => '이 그룹을 나가시겠습니까?',
@@ -4201,7 +4201,7 @@ extension on TranslationsKoKr {
 			'main.quote' => '인용',
 			'main.recentlyUsed' => '최근 사용',
 			'main.releaseEnd' => '놓으면 종료',
-			'main.memberDetail' => 'Member Details',
+			'main.memberDetail' => '멤버 상세',
 			'main.replied' => '답장됨',
 			'main.ringing' => '벨 울림...',
 			'main.ruRu' => '러시아어',
@@ -4252,7 +4252,7 @@ extension on TranslationsKoKr {
 			'main.mostUsed' => '가장 많이 사용',
 			'main.school' => '학교',
 			'main.hobbiesAndInterests' => '취미 및 관심사',
-			'main.interests' => 'Interests',
+			'main.interests' => '관심사',
 			'main.selectFromAlbum' => '앨범에서 선택',
 			'main.volumeUp' => '볼륨 높이기',
 			'main.volumeDown' => '볼륨 낮추기',

@@ -66,9 +66,9 @@ quickReplyEmpty: クイック返信がありません。右下をタップして
 quickReplyDuplicate: 内容がすでに存在します
 quickReplyMaxReached: 最大 $max 件
 quickReplyHint: 内容を入力...
-muteMember: Mute Member
-unmuteMember: Unmute
-muted: Muted
+muteMember: "メンバーをミュート"
+unmuteMember: "ミュート解除"
+muted: "ミュート中"
 mutedFor: ミュート $label
 muteUnitMinutes: "$count 分"
 muteUnitHours: "$count 時間"
@@ -80,7 +80,7 @@ reply: 返信
 resendCode: 認証コードを再送
 revoke: 送信取消
 scanQrCodeBusinessCard: QRコード名刺をスキャン
-privateChat: Private Chat
+privateChat: "個人チャット"
 sendFriendRequest: 友達追加リクエストを送信
 sendMsgRejected: メッセージは送信されましたが、相手に拒否されました。
 sendMessage: メッセージ
@@ -126,7 +126,7 @@ momentsReplyingTo: "@{name}に返信中"
 sendNewMessage: 新しいメッセージを送信
 markRead: 既読にする
 markUnread: 未読にする
-pleaseEnterSignature: Please enter signature
+pleaseEnterSignature: "ひとことを入力してください"
 exportProfile: プロフィールをエクスポート
 setSignature: 署名を設定
 setAvatar: アバターを設定

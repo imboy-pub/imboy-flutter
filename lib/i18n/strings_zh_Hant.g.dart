@@ -86,12 +86,12 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get linkEmailFor => '用於登入、身份驗證和接收帳單';
 	@override String get codeSentToEmail => '驗證碼已傳送到郵箱';
 	@override String get codeSentToMobile => '驗證碼已傳送到手機';
-	@override String get currentDevice => '目前設備';
-	@override String get deviceAvailableSpace => '設備可用空間';
-	@override String get deviceList => '設備清單';
-	@override String get deviceName => '設備名稱';
-	@override String get deviceType => '設備類型';
-	@override String get deviceUsedSpace => '設備已使用空間';
+	@override String get currentDevice => '目前裝置';
+	@override String get deviceAvailableSpace => '裝置可用空間';
+	@override String get deviceList => '裝置清單';
+	@override String get deviceName => '裝置名稱';
+	@override String get deviceType => '裝置類型';
+	@override String get deviceUsedSpace => '裝置已使用空間';
 	@override String get email => '郵箱';
 	@override String get forgotPassword => '忘記密碼？';
 	@override String get gender => '性別';
@@ -100,7 +100,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get logOut => '登出';
 	@override String get areYouSureLogOut => '確定要登出嗎？';
 	@override String get login => '登入';
-	@override String get loginDeviceManagement => '登入設備管理';
+	@override String get loginDeviceManagement => '登入裝置管理';
 	@override String get loginEmail => '登入郵箱';
 	@override String get logoutAccount => '註銷帳號';
 	@override String logoutPendingBanner({required Object date}) => '註銷申請已提交，預計 ${date} 完成';
@@ -143,7 +143,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get privacyLogoutAccount => '註銷帳號';
 	@override String get wallet => '錢包';
 	@override String get changeLoginPassword => '修改登入密碼';
-	@override String get otherDevice => '其他設備';
+	@override String get otherDevice => '其他裝置';
 	@override String get loginPassword => '登入密碼';
 	@override String get loginPasswordDesc => '用於登入 IMBoy 帳號';
 	@override String get oldPassword => '舊密碼';
@@ -151,7 +151,7 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get enterNewPassword => '請輸入新密碼';
 	@override String get enterNewPasswordAgain => '請再次輸入新密碼';
 	@override String get myQRCode => '我的二維碼';
-	@override String get profile => 'Profile';
+	@override String get profile => '個人資料';
 	@override String get setGender => '設定性別';
 	@override String get setBirthday => '設定生日';
 	@override String get nicknameRules => '• 暱稱長度為 2-24 個字元 • 不能僅包含空白字元或表情符號 • 不能包含敏感詞彙 • 修改後將在所有聊天中顯示';
@@ -537,9 +537,9 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get quickReplyDuplicate => '內容已存在';
 	@override String quickReplyMaxReached({required Object max}) => '最多 ${max} 條';
 	@override String get quickReplyHint => '輸入內容...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muted => 'Muted';
+	@override String get muteMember => '禁言成員';
+	@override String get unmuteMember => '取消禁言';
+	@override String get muted => '已禁言';
 	@override String mutedFor({required Object label}) => '已被禁言 ${label}';
 	@override String muteUnitMinutes({required Object count}) => '${count} 分鐘';
 	@override String muteUnitHours({required Object count}) => '${count} 小時';
@@ -551,7 +551,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get resendCode => '重發驗證碼';
 	@override String get revoke => '收回';
 	@override String get scanQrCodeBusinessCard => '掃描二維碼卡片';
-	@override String get privateChat => 'Private Chat';
+	@override String get privateChat => '私訊';
 	@override String get sendFriendRequest => '傳送新增好友申請';
 	@override String get sendMsgRejected => '訊息已發出，但被對方拒收了。';
 	@override String get sendMessage => '發訊息';
@@ -604,7 +604,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => '傳送新訊息';
 	@override String get markRead => '標記已讀';
 	@override String get markUnread => '標記未讀';
-	@override String get pleaseEnterSignature => 'Please enter signature';
+	@override String get pleaseEnterSignature => '請輸入個人簽名';
 	@override String get exportProfile => '匯出資料';
 	@override String get setSignature => '設定個性簽名';
 	@override String get setAvatar => '設定頭像';
@@ -766,12 +766,12 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get deleteForEveryone => '刪除所有人的訊息';
 	@override String get deleteForMe => '刪除我的訊息';
 	@override String get deleteTagTips => '刪除標籤後，標籤中的聯絡人不會被刪除';
-	@override String get deleteThisDevice => '刪除該設備';
-	@override String get deleteThisDeviceTips => '刪除後，下次在該設備登入時需要進行安全驗證。';
+	@override String get deleteThisDevice => '刪除該裝置';
+	@override String get deleteThisDeviceTips => '刪除後，下次在該裝置登入時需要進行安全驗證。';
 	@override String get denylistNoteDesc => '被封鎖的使用者無法給你傳送訊息，也無法檢視你的動態。點擊使用者可以檢視詳情。';
 	@override String get denylistNoteTitle => '黑名單說明';
 	@override String get details => '詳情';
-	@override String get deviceDetails => '設備詳情';
+	@override String get deviceDetails => '裝置詳情';
 	@override String get downloaded => '已下載';
 	@override String get edit => '編輯';
 	@override String get editTag => '編輯標籤';
@@ -823,7 +823,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String iosAppIdUnknown({required Object param}) => 'AppStore 未上架或 AppID[${param}]不存在';
 	@override String get koKr => '韓語（韓國）';
 	@override String get languageSetting => '語言設定';
-	@override String get lastActiveTips => '當設備處於安全狀態時，會自動延長登入時間以保持朋友訊息的即時收發，此時會更新最近活躍時間。';
+	@override String get lastActiveTips => '當裝置處於安全狀態時，會自動延長登入時間以保持朋友訊息的即時收發，此時會更新最近活躍時間。';
 	@override String get lastSeenJustNow => '剛剛上線';
 	@override String get lastSeenLongTimeAgo => '很久以前上線';
 	@override String lastSeenMonthsAgo({required Object param}) => '${param}個月前';
@@ -831,7 +831,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get loadMore => '載入更多';
 	@override String get loading => '載入中';
 	@override String get locationMessage => '位置訊息';
-	@override String get loginDeviceManagementTips => '你的帳號在以下設備中登入過，你可以刪除設備，刪除後在該設備登入時需進行安全驗證。';
+	@override String get loginDeviceManagementTips => '你的帳號在以下裝置中登入過，你可以刪除裝置，刪除後在該裝置登入時需進行安全驗證。';
 	@override String get logoutFailed => '退出登入失敗';
 	@override String get messageCall => '發訊息';
 	@override String get messageContent => '訊息內容';
@@ -897,26 +897,26 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get revokeExpired => '超過 2 分鐘，無法撤回';
 	@override String get quickReplyAddTitle => '新增快捷回覆';
 	@override String get quickReplyEditTitle => '編輯快捷回覆';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration7days => '7 Days';
+	@override String get removeAdmin => '取消管理員';
+	@override String get setAdminConfirm => '確定要將此成員設為管理員嗎？';
+	@override String get removeAdminConfirm => '確定要取消此成員的管理員身分嗎？';
+	@override String get unmuteMemberConfirm => '確定要取消禁言此成員嗎？';
+	@override String get kickMemberConfirm => '確定要將此成員移出群聊嗎？';
+	@override String get setAdminSuccess => '已設為管理員';
+	@override String get setAdminFailed => '設定管理員失敗';
+	@override String get removeAdminSuccess => '已取消管理員';
+	@override String get removeAdminFailed => '取消管理員失敗';
+	@override String get muteMemberSuccess => '已禁言';
+	@override String get muteMemberFailed => '禁言失敗';
+	@override String get unmuteMemberSuccess => '已取消禁言';
+	@override String get unmuteMemberFailed => '取消禁言失敗';
+	@override String get kickMemberSuccess => '已移出群聊';
+	@override String get kickMemberFailed => '移出群聊失敗';
+	@override String get notMuted => '未禁言';
+	@override String get muteDuration => '禁言時長';
+	@override String get muteDuration1hour => '1 小時';
+	@override String get muteDuration1day => '1 天';
+	@override String get muteDuration7days => '7 天';
 	@override String get muteDuration5min => '5分鐘';
 	@override String get muteDuration10min => '10分鐘';
 	@override String get muteDuration30min => '30分鐘';
@@ -930,8 +930,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get saveSuccess => '儲存成功';
 	@override String get scanQrcodeAddFriend => '掃一掃上面的二維碼圖案，加我為好友';
 	@override String get search => '搜尋';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String get searchScope => '搜尋範圍';
+	@override String get searchAll => '全部訊息';
 	@override String get searchChatContent => '搜尋聊天內容';
 	@override String get searchChatRecord => '搜尋聊天記錄';
 	@override String get searchError => '搜尋錯誤';
@@ -967,7 +967,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get tipConnectDesc => '無網路';
 	@override String tipConnectDescWithParen({required Object param}) => '（${param}）';
 	@override String tipDeleteContact({required Object param}) => '將聯絡人「${param}」刪除，同時刪除與該聯絡人的聊天記錄';
-	@override String tipDeviceSpace({required Object param1, required Object param2}) => '佔設備 ${param1}% 儲存空間（${param2}）';
+	@override String tipDeviceSpace({required Object param1, required Object param2}) => '佔裝置 ${param1}% 儲存空間（${param2}）';
 	@override String get tipDraft => '草稿內容';
 	@override String get tipFailed => '操作失敗！';
 	@override String get tipSuccess => '操作已完成！';
@@ -978,9 +978,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get unknownMessage => '未知訊息';
 	@override String get updateLog => '更新記錄';
 	@override String get updateNow => '立刻更新';
-	@override String get uploading => 'Uploading';
-	@override String get uploadSuccess => 'Upload successful';
-	@override String get uploadFailed => 'Upload failed';
+	@override String get uploading => '上傳中';
+	@override String get uploadSuccess => '上傳成功';
+	@override String get uploadFailed => '上傳失敗';
 	@override String get userDataTips => '包含應用執行時必要的檔案，以及聊天訊息、好友關係等所有記錄資料。';
 	@override String get userDisabledOrDeleted => '使用者被停用或已刪除';
 	@override String get userNotExist => '使用者不存在';
@@ -1009,8 +1009,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get verificationCodeSentToMobile => '驗證碼將傳送至該手機，請在有效期內完成驗證';
 	@override String get sendFailed => '傳送失敗';
 	@override String get forceOffline => '下線';
-	@override String get forceDeviceOffline => '讓該設備下線';
-	@override String get forceDeviceOfflineConfirm => '將向該設備傳送下線指令，確認繼續？';
+	@override String get forceDeviceOffline => '讓該裝置下線';
+	@override String get forceDeviceOfflineConfirm => '將向該裝置傳送下線指令，確認繼續？';
 	@override String get confirmForceOffline => '確認下線';
 	@override String get forceOfflineCommandSent => '已傳送下線指令';
 	@override String get feedbackSlogan => '你的建議是我們改進的動力';
@@ -1078,7 +1078,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get tagClearAllConfirm => '確定要清空所有標籤嗎？';
 	@override String get tagClearAll => '確認清空';
 	@override String get audioPlayFailed => '播放失敗';
-	@override String forcedOfflineByDevice({required Object device}) => '你已被設備【${device}】強制下線';
+	@override String forcedOfflineByDevice({required Object device}) => '你已被裝置【${device}】強制下線';
 	@override String get loadingTagDataFailed => '載入標籤資料失敗';
 	@override String get pleaseEnterContent => '請輸入內容';
 	@override String get comingSoon => '敬請期待';
@@ -1169,8 +1169,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get expression => '表情符號';
 	@override String get extendedInfo => '擴展資訊';
 	@override String get profession => '職業';
-	@override String get shareFailed => 'Share failed';
-	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get shareFailed => '分享失敗';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} 格式資料已匯出並複製到剪貼簿';
 	@override String get setRegion => '設定地區';
 	@override String get deleteOperationAbnormal => '刪除操作異常，請重試';
 	@override String get revoking => '正在收回...';
@@ -1729,7 +1729,7 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get groupCreatedSuccess => '群組建立成功，邀請你完善群組資訊或直接進入群組';
 	@override String get enterGroupChat => '進入群組';
 	@override String get perfectionGroupInfo => '完善群組資訊';
-	@override String get setAdmin => 'Set as Admin';
+	@override String get setAdmin => '設為管理員';
 	@override String get selectGroup => '選擇群組';
 	@override String get sureToDissolveGroup => '確定要解散本群組嗎？';
 	@override String get sureToLeaveGroup => '確定要退出本群組嗎？';
@@ -1976,7 +1976,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get quote => '引言';
 	@override String get recentlyUsed => '最近使用的';
 	@override String get releaseEnd => '鬆開結束';
-	@override String get memberDetail => 'Member Details';
+	@override String get memberDetail => '成員詳情';
 	@override String get replied => '已回覆';
 	@override String get ringing => '已響鈴...';
 	@override String get ruRu => '俄羅斯俄語';
@@ -2027,7 +2027,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get mostUsed => '常用';
 	@override String get school => '學校';
 	@override String get hobbiesAndInterests => '興趣愛好';
-	@override String get interests => 'Interests';
+	@override String get interests => '興趣愛好';
 	@override String get selectFromAlbum => '從相簿選擇';
 	@override String get volumeUp => '調高音量';
 	@override String get volumeDown => '音量減少';
@@ -2483,12 +2483,12 @@ extension on TranslationsZhHant {
 			'account.linkEmailFor' => '用於登入、身份驗證和接收帳單',
 			'account.codeSentToEmail' => '驗證碼已傳送到郵箱',
 			'account.codeSentToMobile' => '驗證碼已傳送到手機',
-			'account.currentDevice' => '目前設備',
-			'account.deviceAvailableSpace' => '設備可用空間',
-			'account.deviceList' => '設備清單',
-			'account.deviceName' => '設備名稱',
-			'account.deviceType' => '設備類型',
-			'account.deviceUsedSpace' => '設備已使用空間',
+			'account.currentDevice' => '目前裝置',
+			'account.deviceAvailableSpace' => '裝置可用空間',
+			'account.deviceList' => '裝置清單',
+			'account.deviceName' => '裝置名稱',
+			'account.deviceType' => '裝置類型',
+			'account.deviceUsedSpace' => '裝置已使用空間',
 			'account.email' => '郵箱',
 			'account.forgotPassword' => '忘記密碼？',
 			'account.gender' => '性別',
@@ -2497,7 +2497,7 @@ extension on TranslationsZhHant {
 			'account.logOut' => '登出',
 			'account.areYouSureLogOut' => '確定要登出嗎？',
 			'account.login' => '登入',
-			'account.loginDeviceManagement' => '登入設備管理',
+			'account.loginDeviceManagement' => '登入裝置管理',
 			'account.loginEmail' => '登入郵箱',
 			'account.logoutAccount' => '註銷帳號',
 			'account.logoutPendingBanner' => ({required Object date}) => '註銷申請已提交，預計 ${date} 完成',
@@ -2540,7 +2540,7 @@ extension on TranslationsZhHant {
 			'account.privacyLogoutAccount' => '註銷帳號',
 			'account.wallet' => '錢包',
 			'account.changeLoginPassword' => '修改登入密碼',
-			'account.otherDevice' => '其他設備',
+			'account.otherDevice' => '其他裝置',
 			'account.loginPassword' => '登入密碼',
 			'account.loginPasswordDesc' => '用於登入 IMBoy 帳號',
 			'account.oldPassword' => '舊密碼',
@@ -2548,7 +2548,7 @@ extension on TranslationsZhHant {
 			'account.enterNewPassword' => '請輸入新密碼',
 			'account.enterNewPasswordAgain' => '請再次輸入新密碼',
 			'account.myQRCode' => '我的二維碼',
-			'account.profile' => 'Profile',
+			'account.profile' => '個人資料',
 			'account.setGender' => '設定性別',
 			'account.setBirthday' => '設定生日',
 			'account.nicknameRules' => '• 暱稱長度為 2-24 個字元 • 不能僅包含空白字元或表情符號 • 不能包含敏感詞彙 • 修改後將在所有聊天中顯示',
@@ -2897,9 +2897,9 @@ extension on TranslationsZhHant {
 			'chat.quickReplyDuplicate' => '內容已存在',
 			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 條',
 			'chat.quickReplyHint' => '輸入內容...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muted' => 'Muted',
+			'chat.muteMember' => '禁言成員',
+			'chat.unmuteMember' => '取消禁言',
+			'chat.muted' => '已禁言',
 			'chat.mutedFor' => ({required Object label}) => '已被禁言 ${label}',
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count} 分鐘',
 			'chat.muteUnitHours' => ({required Object count}) => '${count} 小時',
@@ -2911,7 +2911,7 @@ extension on TranslationsZhHant {
 			'chat.resendCode' => '重發驗證碼',
 			'chat.revoke' => '收回',
 			'chat.scanQrCodeBusinessCard' => '掃描二維碼卡片',
-			'chat.privateChat' => 'Private Chat',
+			'chat.privateChat' => '私訊',
 			'chat.sendFriendRequest' => '傳送新增好友申請',
 			'chat.sendMsgRejected' => '訊息已發出，但被對方拒收了。',
 			'chat.sendMessage' => '發訊息',
@@ -2964,7 +2964,7 @@ extension on TranslationsZhHant {
 			'chat.sendNewMessage' => '傳送新訊息',
 			'chat.markRead' => '標記已讀',
 			'chat.markUnread' => '標記未讀',
-			'chat.pleaseEnterSignature' => 'Please enter signature',
+			'chat.pleaseEnterSignature' => '請輸入個人簽名',
 			'chat.exportProfile' => '匯出資料',
 			'chat.setSignature' => '設定個性簽名',
 			'chat.setAvatar' => '設定頭像',
@@ -3119,12 +3119,12 @@ extension on TranslationsZhHant {
 			'common.deleteForEveryone' => '刪除所有人的訊息',
 			'common.deleteForMe' => '刪除我的訊息',
 			'common.deleteTagTips' => '刪除標籤後，標籤中的聯絡人不會被刪除',
-			'common.deleteThisDevice' => '刪除該設備',
-			'common.deleteThisDeviceTips' => '刪除後，下次在該設備登入時需要進行安全驗證。',
+			'common.deleteThisDevice' => '刪除該裝置',
+			'common.deleteThisDeviceTips' => '刪除後，下次在該裝置登入時需要進行安全驗證。',
 			'common.denylistNoteDesc' => '被封鎖的使用者無法給你傳送訊息，也無法檢視你的動態。點擊使用者可以檢視詳情。',
 			'common.denylistNoteTitle' => '黑名單說明',
 			'common.details' => '詳情',
-			'common.deviceDetails' => '設備詳情',
+			'common.deviceDetails' => '裝置詳情',
 			'common.downloaded' => '已下載',
 			'common.edit' => '編輯',
 			'common.editTag' => '編輯標籤',
@@ -3176,7 +3176,7 @@ extension on TranslationsZhHant {
 			'common.iosAppIdUnknown' => ({required Object param}) => 'AppStore 未上架或 AppID[${param}]不存在',
 			'common.koKr' => '韓語（韓國）',
 			'common.languageSetting' => '語言設定',
-			'common.lastActiveTips' => '當設備處於安全狀態時，會自動延長登入時間以保持朋友訊息的即時收發，此時會更新最近活躍時間。',
+			'common.lastActiveTips' => '當裝置處於安全狀態時，會自動延長登入時間以保持朋友訊息的即時收發，此時會更新最近活躍時間。',
 			'common.lastSeenJustNow' => '剛剛上線',
 			'common.lastSeenLongTimeAgo' => '很久以前上線',
 			'common.lastSeenMonthsAgo' => ({required Object param}) => '${param}個月前',
@@ -3184,7 +3184,7 @@ extension on TranslationsZhHant {
 			'common.loadMore' => '載入更多',
 			'common.loading' => '載入中',
 			'common.locationMessage' => '位置訊息',
-			'common.loginDeviceManagementTips' => '你的帳號在以下設備中登入過，你可以刪除設備，刪除後在該設備登入時需進行安全驗證。',
+			'common.loginDeviceManagementTips' => '你的帳號在以下裝置中登入過，你可以刪除裝置，刪除後在該裝置登入時需進行安全驗證。',
 			'common.logoutFailed' => '退出登入失敗',
 			'common.messageCall' => '發訊息',
 			'common.messageContent' => '訊息內容',
@@ -3250,26 +3250,26 @@ extension on TranslationsZhHant {
 			'common.revokeExpired' => '超過 2 分鐘，無法撤回',
 			'common.quickReplyAddTitle' => '新增快捷回覆',
 			'common.quickReplyEditTitle' => '編輯快捷回覆',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration7days' => '7 Days',
+			'common.removeAdmin' => '取消管理員',
+			'common.setAdminConfirm' => '確定要將此成員設為管理員嗎？',
+			'common.removeAdminConfirm' => '確定要取消此成員的管理員身分嗎？',
+			'common.unmuteMemberConfirm' => '確定要取消禁言此成員嗎？',
+			'common.kickMemberConfirm' => '確定要將此成員移出群聊嗎？',
+			'common.setAdminSuccess' => '已設為管理員',
+			'common.setAdminFailed' => '設定管理員失敗',
+			'common.removeAdminSuccess' => '已取消管理員',
+			'common.removeAdminFailed' => '取消管理員失敗',
+			'common.muteMemberSuccess' => '已禁言',
+			'common.muteMemberFailed' => '禁言失敗',
+			'common.unmuteMemberSuccess' => '已取消禁言',
+			'common.unmuteMemberFailed' => '取消禁言失敗',
+			'common.kickMemberSuccess' => '已移出群聊',
+			'common.kickMemberFailed' => '移出群聊失敗',
+			'common.notMuted' => '未禁言',
+			'common.muteDuration' => '禁言時長',
+			'common.muteDuration1hour' => '1 小時',
+			'common.muteDuration1day' => '1 天',
+			'common.muteDuration7days' => '7 天',
 			'common.muteDuration5min' => '5分鐘',
 			'common.muteDuration10min' => '10分鐘',
 			'common.muteDuration30min' => '30分鐘',
@@ -3283,8 +3283,8 @@ extension on TranslationsZhHant {
 			'common.saveSuccess' => '儲存成功',
 			'common.scanQrcodeAddFriend' => '掃一掃上面的二維碼圖案，加我為好友',
 			'common.search' => '搜尋',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.searchScope' => '搜尋範圍',
+			'common.searchAll' => '全部訊息',
 			'common.searchChatContent' => '搜尋聊天內容',
 			'common.searchChatRecord' => '搜尋聊天記錄',
 			'common.searchError' => '搜尋錯誤',
@@ -3314,7 +3314,7 @@ extension on TranslationsZhHant {
 			'common.tipConnectDesc' => '無網路',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '（${param}）',
 			'common.tipDeleteContact' => ({required Object param}) => '將聯絡人「${param}」刪除，同時刪除與該聯絡人的聊天記錄',
-			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '佔設備 ${param1}% 儲存空間（${param2}）',
+			'common.tipDeviceSpace' => ({required Object param1, required Object param2}) => '佔裝置 ${param1}% 儲存空間（${param2}）',
 			'common.tipDraft' => '草稿內容',
 			'common.tipFailed' => '操作失敗！',
 			'common.tipSuccess' => '操作已完成！',
@@ -3325,9 +3325,9 @@ extension on TranslationsZhHant {
 			'common.unknownMessage' => '未知訊息',
 			'common.updateLog' => '更新記錄',
 			'common.updateNow' => '立刻更新',
-			'common.uploading' => 'Uploading',
-			'common.uploadSuccess' => 'Upload successful',
-			'common.uploadFailed' => 'Upload failed',
+			'common.uploading' => '上傳中',
+			'common.uploadSuccess' => '上傳成功',
+			'common.uploadFailed' => '上傳失敗',
 			'common.userDataTips' => '包含應用執行時必要的檔案，以及聊天訊息、好友關係等所有記錄資料。',
 			'common.userDisabledOrDeleted' => '使用者被停用或已刪除',
 			'common.userNotExist' => '使用者不存在',
@@ -3356,8 +3356,8 @@ extension on TranslationsZhHant {
 			'common.verificationCodeSentToMobile' => '驗證碼將傳送至該手機，請在有效期內完成驗證',
 			'common.sendFailed' => '傳送失敗',
 			'common.forceOffline' => '下線',
-			'common.forceDeviceOffline' => '讓該設備下線',
-			'common.forceDeviceOfflineConfirm' => '將向該設備傳送下線指令，確認繼續？',
+			'common.forceDeviceOffline' => '讓該裝置下線',
+			'common.forceDeviceOfflineConfirm' => '將向該裝置傳送下線指令，確認繼續？',
 			'common.confirmForceOffline' => '確認下線',
 			'common.forceOfflineCommandSent' => '已傳送下線指令',
 			'common.feedbackSlogan' => '你的建議是我們改進的動力',
@@ -3425,7 +3425,7 @@ extension on TranslationsZhHant {
 			'common.tagClearAllConfirm' => '確定要清空所有標籤嗎？',
 			'common.tagClearAll' => '確認清空',
 			'common.audioPlayFailed' => '播放失敗',
-			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被設備【${device}】強制下線',
+			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被裝置【${device}】強制下線',
 			'common.loadingTagDataFailed' => '載入標籤資料失敗',
 			'common.pleaseEnterContent' => '請輸入內容',
 			'common.comingSoon' => '敬請期待',
@@ -3518,8 +3518,8 @@ extension on TranslationsZhHant {
 			'common.expression' => '表情符號',
 			'common.extendedInfo' => '擴展資訊',
 			'common.profession' => '職業',
-			'common.shareFailed' => 'Share failed',
-			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'common.shareFailed' => '分享失敗',
+			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} 格式資料已匯出並複製到剪貼簿',
 			'common.setRegion' => '設定地區',
 			'common.deleteOperationAbnormal' => '刪除操作異常，請重試',
 			'common.revoking' => '正在收回...',
@@ -4026,7 +4026,7 @@ extension on TranslationsZhHant {
 			'group.groupCreatedSuccess' => '群組建立成功，邀請你完善群組資訊或直接進入群組',
 			'group.enterGroupChat' => '進入群組',
 			'group.perfectionGroupInfo' => '完善群組資訊',
-			'group.setAdmin' => 'Set as Admin',
+			'group.setAdmin' => '設為管理員',
 			'group.selectGroup' => '選擇群組',
 			'group.sureToDissolveGroup' => '確定要解散本群組嗎？',
 			'group.sureToLeaveGroup' => '確定要退出本群組嗎？',
@@ -4201,7 +4201,7 @@ extension on TranslationsZhHant {
 			'main.quote' => '引言',
 			'main.recentlyUsed' => '最近使用的',
 			'main.releaseEnd' => '鬆開結束',
-			'main.memberDetail' => 'Member Details',
+			'main.memberDetail' => '成員詳情',
 			'main.replied' => '已回覆',
 			'main.ringing' => '已響鈴...',
 			'main.ruRu' => '俄羅斯俄語',
@@ -4252,7 +4252,7 @@ extension on TranslationsZhHant {
 			'main.mostUsed' => '常用',
 			'main.school' => '學校',
 			'main.hobbiesAndInterests' => '興趣愛好',
-			'main.interests' => 'Interests',
+			'main.interests' => '興趣愛好',
 			'main.selectFromAlbum' => '從相簿選擇',
 			'main.volumeUp' => '調高音量',
 			'main.volumeDown' => '音量減少',

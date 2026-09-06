@@ -212,26 +212,26 @@ muteNotificationsHint: Bei Aktivierung erhalten Sie keine Benachrichtigungen, se
 revokeExpired: Mehr als 2 Minuten, Widerruf nicht möglich
 quickReplyAddTitle: Schnellantwort hinzufügen
 quickReplyEditTitle: Schnellantwort bearbeiten
-removeAdmin: Remove Admin
-setAdminConfirm: Set this member as admin?
-removeAdminConfirm: Remove admin role from this member?
-unmuteMemberConfirm: Unmute this member?
-kickMemberConfirm: Remove this member from the group?
-setAdminSuccess: Admin set
-setAdminFailed: Failed to set admin
-removeAdminSuccess: Admin removed
-removeAdminFailed: Failed to remove admin
-muteMemberSuccess: Member muted
-muteMemberFailed: Failed to mute member
-unmuteMemberSuccess: Member unmuted
-unmuteMemberFailed: Failed to unmute member
-kickMemberSuccess: Member removed
-kickMemberFailed: Failed to remove member
-notMuted: Not Muted
-muteDuration: Mute Duration
-muteDuration1hour: 1 Hour
-muteDuration1day: 1 Day
-muteDuration7days: 7 Days
+removeAdmin: "Admin entfernen"
+setAdminConfirm: "Dieses Mitglied als Admin festlegen?"
+removeAdminConfirm: "Admin-Rolle dieses Mitglieds entziehen?"
+unmuteMemberConfirm: "Stummschaltung dieses Mitglieds aufheben?"
+kickMemberConfirm: "Dieses Mitglied aus der Gruppe entfernen?"
+setAdminSuccess: "Admin festgelegt"
+setAdminFailed: "Admin konnte nicht festgelegt werden"
+removeAdminSuccess: "Admin entfernt"
+removeAdminFailed: "Admin konnte nicht entfernt werden"
+muteMemberSuccess: "Mitglied stummgeschaltet"
+muteMemberFailed: "Stummschalten fehlgeschlagen"
+unmuteMemberSuccess: "Stummschaltung aufgehoben"
+unmuteMemberFailed: "Aufheben der Stummschaltung fehlgeschlagen"
+kickMemberSuccess: "Mitglied entfernt"
+kickMemberFailed: "Mitglied konnte nicht entfernt werden"
+notMuted: "Nicht stummgeschaltet"
+muteDuration: "Stummschaltungsdauer"
+muteDuration1hour: "1 Stunde"
+muteDuration1day: "1 Tag"
+muteDuration7days: "7 Tage"
 muteDuration5min: 5 Min.
 muteDuration10min: 10 Min.
 muteDuration30min: 30 Min.
@@ -245,8 +245,8 @@ saveQrCode: QR-Code speichern
 saveSuccess: Erfolgreich gespeichert
 scanQrcodeAddFriend: Scannen Sie den QR-Code, um mich als Freund hinzuzufügen
 search: Suche
-searchScope: Search scope
-searchAll: All messages
+searchScope: "Suchbereich"
+searchAll: "Alle Nachrichten"
 searchChatContent: Chat-Inhalt durchsuchen
 searchChatRecord: Chat-Verlauf durchsuchen
 searchError: Suchfehler
@@ -293,9 +293,9 @@ unknown: Unbekannt
 unknownMessage: Unbekannte Nachricht
 updateLog: Update-Protokoll
 updateNow: Jetzt aktualisieren
-uploading: Uploading
-uploadSuccess: Upload successful
-uploadFailed: Upload failed
+uploading: "Wird hochgeladen…"
+uploadSuccess: "Hochgeladen"
+uploadFailed: "Hochladen fehlgeschlagen"
 userDataTips: Enthält notwendige App-Dateien sowie alle Daten wie Chatnachrichten und Kontakte.
 userDisabledOrDeleted: Benutzer deaktiviert oder gelöscht
 userNotExist: Benutzer existiert nicht
@@ -484,8 +484,8 @@ personalBackground: Persönlicher Hintergrund
 expression: Emoji
 extendedInfo: Erweiterte Informationen
 profession: Beruf
-shareFailed: Share failed
-exportSuccessThenCopiedToClipboard: "$param format profile exported and copied to clipboard"
+shareFailed: "Teilen fehlgeschlagen"
+exportSuccessThenCopiedToClipboard: "Profil im $param-Format exportiert und in die Zwischenablage kopiert"
 setRegion: Region festlegen
 deleteOperationAbnormal: Löschvorgang anomal, bitte versuchen Sie es erneut
 revoking: Wird widerrufen...
@@ -677,7 +677,7 @@ e2eeDecryptReasonOtherDevice: "• Anmeldung auf anderem Gerät"
 e2eeDecryptReasonKeyExpired: "• Geräteschlüssel abgelaufen"
 e2eeDecryptReasonDataCorrupt: "• App-Daten beschädigt"
 e2eeDecryptChooseSolution: 'Lösung wählen:'
-e2eeDecryptRecreateHint: "Hinweis: Nach der Neuerstellung muss die Gegenseite deinen neuen Schlüssel abrufen; während der Änderung noch nicht zugestellte verschlüsselte Nachrichten werden möglicherweise nicht automatisch erneut gesendet. Der Nachrichtenverlauf ist nicht betroffen."
+e2eeDecryptRecreateHint: "Hinweis: Nach der Neuerstellung muss die Gegenseite Ihren neuen Schlüssel abrufen; während der Änderung noch nicht zugestellte verschlüsselte Nachrichten werden möglicherweise nicht automatisch erneut gesendet. Der Nachrichtenverlauf ist nicht betroffen."
 e2eePeerKeyChanged: "Die Sicherheitsnummer dieses Kontakts hat sich geändert (möglicherweise wurde die App neu installiert oder das Gerät gewechselt). Wenn dir Sicherheit wichtig ist, überprüfe die Identität über einen anderen Kanal."
 e2eeDecryptActionRecreateKey: Schlüssel neu erstellen (empfohlen)
 e2eeDecryptActionRelogin: Neu anmelden

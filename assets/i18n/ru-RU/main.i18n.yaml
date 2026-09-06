@@ -62,7 +62,7 @@ pleaseSelect: Выберите
 quote: Цитата
 recentlyUsed: Недавно использованные
 releaseEnd: Отпустите для завершения
-memberDetail: Member Details
+memberDetail: "Сведения об участнике"
 replied: Ответлено
 ringing: Звонок...
 ruRu: Русский (Россия)
@@ -113,7 +113,7 @@ availableCount: Доступно
 mostUsed: Наиболее используемые
 school: Школа
 hobbiesAndInterests: Хобби и интересы
-interests: Interests
+interests: "Интересы"
 selectFromAlbum: Выбрать из альбома
 volumeUp: Увеличить громкость
 volumeDown: Уменьшить громкость

@@ -145,7 +145,7 @@ class _Translations$account$ru_RU extends Translations$account$zh_CN {
 	@override String get enterNewPassword => 'Пожалуйста, введите новый пароль';
 	@override String get enterNewPasswordAgain => 'Пожалуйста, введите новый пароль ещё раз';
 	@override String get myQRCode => 'Мой QR-код';
-	@override String get profile => 'Profile';
+	@override String get profile => 'Профиль';
 	@override String get setGender => 'Установить пол';
 	@override String get setBirthday => 'Установить дату рождения';
 	@override String get nicknameRules => '• 2–24 символа • Нельзя только пробелы или только эмодзи • Нельзя чувствительные слова • После изменения отображается во всех чатах';
@@ -537,9 +537,9 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get quickReplyDuplicate => 'Такой ответ уже существует';
 	@override String quickReplyMaxReached({required Object max}) => 'Максимум ${max}';
 	@override String get quickReplyHint => 'Введите текст...';
-	@override String get muteMember => 'Mute Member';
-	@override String get unmuteMember => 'Unmute';
-	@override String get muted => 'Muted';
+	@override String get muteMember => 'Замьютить участника';
+	@override String get unmuteMember => 'Размьютить';
+	@override String get muted => 'Замьючен';
 	@override String mutedFor({required Object label}) => 'Мут ${label}';
 	@override String muteUnitMinutes({required Object count}) => '${count} мин';
 	@override String muteUnitHours({required Object count}) => '${count} ч';
@@ -551,7 +551,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get resendCode => 'Отправить код снова';
 	@override String get revoke => 'Отозвать';
 	@override String get scanQrCodeBusinessCard => 'Сканировать QR-код визитки';
-	@override String get privateChat => 'Private Chat';
+	@override String get privateChat => 'Личный чат';
 	@override String get sendFriendRequest => 'Отправить запрос дружбы';
 	@override String get sendMsgRejected => 'Сообщение отклонено собеседником';
 	@override String get sendMessage => 'Отправить сообщение';
@@ -597,7 +597,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Отправить новое сообщение';
 	@override String get markRead => 'Пометить как прочитанное';
 	@override String get markUnread => 'Пометить как непрочитанное';
-	@override String get pleaseEnterSignature => 'Please enter signature';
+	@override String get pleaseEnterSignature => 'Введите подпись';
 	@override String get exportProfile => 'Экспортировать профиль';
 	@override String get setSignature => 'Установить подпись';
 	@override String get setAvatar => 'Установить аватар';
@@ -895,26 +895,26 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get revokeExpired => 'Прошло более 2 минут, отзыв невозможен';
 	@override String get quickReplyAddTitle => 'Новый быстрый ответ';
 	@override String get quickReplyEditTitle => 'Изменить быстрый ответ';
-	@override String get removeAdmin => 'Remove Admin';
-	@override String get setAdminConfirm => 'Set this member as admin?';
-	@override String get removeAdminConfirm => 'Remove admin role from this member?';
-	@override String get unmuteMemberConfirm => 'Unmute this member?';
-	@override String get kickMemberConfirm => 'Remove this member from the group?';
-	@override String get setAdminSuccess => 'Admin set';
-	@override String get setAdminFailed => 'Failed to set admin';
-	@override String get removeAdminSuccess => 'Admin removed';
-	@override String get removeAdminFailed => 'Failed to remove admin';
-	@override String get muteMemberSuccess => 'Member muted';
-	@override String get muteMemberFailed => 'Failed to mute member';
-	@override String get unmuteMemberSuccess => 'Member unmuted';
-	@override String get unmuteMemberFailed => 'Failed to unmute member';
-	@override String get kickMemberSuccess => 'Member removed';
-	@override String get kickMemberFailed => 'Failed to remove member';
-	@override String get notMuted => 'Not Muted';
-	@override String get muteDuration => 'Mute Duration';
-	@override String get muteDuration1hour => '1 Hour';
-	@override String get muteDuration1day => '1 Day';
-	@override String get muteDuration7days => '7 Days';
+	@override String get removeAdmin => 'Снять права администратора';
+	@override String get setAdminConfirm => 'Назначить этого участника администратором?';
+	@override String get removeAdminConfirm => 'Снять с этого участника права администратора?';
+	@override String get unmuteMemberConfirm => 'Размьютить этого участника?';
+	@override String get kickMemberConfirm => 'Убрать этого участника из группы?';
+	@override String get setAdminSuccess => 'Администратор назначен';
+	@override String get setAdminFailed => 'Не удалось назначить администратора';
+	@override String get removeAdminSuccess => 'Права администратора сняты';
+	@override String get removeAdminFailed => 'Не удалось снять права администратора';
+	@override String get muteMemberSuccess => 'Участник замьючен';
+	@override String get muteMemberFailed => 'Не удалось замьютить участника';
+	@override String get unmuteMemberSuccess => 'Участник размьючен';
+	@override String get unmuteMemberFailed => 'Не удалось размьютить участника';
+	@override String get kickMemberSuccess => 'Участник убран';
+	@override String get kickMemberFailed => 'Не удалось убрать участника';
+	@override String get notMuted => 'Не замьючен';
+	@override String get muteDuration => 'Длительность мьюта';
+	@override String get muteDuration1hour => '1 час';
+	@override String get muteDuration1day => '1 день';
+	@override String get muteDuration7days => '7 дней';
 	@override String get muteDuration5min => '5 минут';
 	@override String get muteDuration10min => '10 минут';
 	@override String get muteDuration30min => '30 минут';
@@ -928,8 +928,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get saveSuccess => 'Успешно сохранено';
 	@override String get scanQrcodeAddFriend => 'Отсканируйте QR-код выше, чтобы добавить меня в друзья';
 	@override String get search => 'Поиск';
-	@override String get searchScope => 'Search scope';
-	@override String get searchAll => 'All messages';
+	@override String get searchScope => 'Область поиска';
+	@override String get searchAll => 'Все сообщения';
 	@override String get searchChatContent => 'Найти содержание чата';
 	@override String get searchChatRecord => 'Найти историю чата';
 	@override String get searchError => 'Ошибка поиска';
@@ -985,9 +985,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get unknownMessage => 'Неизвестное сообщение';
 	@override String get updateLog => 'Журнал обновлений';
 	@override String get updateNow => 'Обновить сейчас';
-	@override String get uploading => 'Uploading';
-	@override String get uploadSuccess => 'Upload successful';
-	@override String get uploadFailed => 'Upload failed';
+	@override String get uploading => 'Загрузка…';
+	@override String get uploadSuccess => 'Загружено';
+	@override String get uploadFailed => 'Не удалось загрузить';
 	@override String get userDataTips => 'Включает сообщения, контакты и данные приложения';
 	@override String get userDisabledOrDeleted => 'Пользователь отключён или удалён';
 	@override String get userNotExist => 'Пользователь не существует';
@@ -1176,8 +1176,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get expression => 'Эмодзи';
 	@override String get extendedInfo => 'Дополнительная информация';
 	@override String get profession => 'Профессия';
-	@override String get shareFailed => 'Share failed';
-	@override String exportSuccessThenCopiedToClipboard({required Object param}) => '${param} format profile exported and copied to clipboard';
+	@override String get shareFailed => 'Не удалось поделиться';
+	@override String exportSuccessThenCopiedToClipboard({required Object param}) => 'Профиль в формате ${param} экспортирован и скопирован в буфер обмена';
 	@override String get setRegion => 'Установить регион';
 	@override String get deleteOperationAbnormal => 'Неверная операция удаления, попробуйте снова';
 	@override String get revoking => 'Отзыв...';
@@ -1729,7 +1729,7 @@ class _Translations$group$ru_RU extends Translations$group$zh_CN {
 	@override String get groupOwner => 'Owner';
 	@override String get groupAdmin => 'Admin';
 	@override String get groupGuest => 'Гость';
-	@override String get setAdmin => 'Set as Admin';
+	@override String get setAdmin => 'Назначить администратором';
 	@override String get selectGroup => 'Выбрать групповой чат';
 	@override String get sureToDissolveGroup => 'Распустить эту группу?';
 	@override String get sureToLeaveGroup => 'Покинуть эту группу?';
@@ -1985,7 +1985,7 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get quote => 'Цитата';
 	@override String get recentlyUsed => 'Недавно использованные';
 	@override String get releaseEnd => 'Отпустите для завершения';
-	@override String get memberDetail => 'Member Details';
+	@override String get memberDetail => 'Сведения об участнике';
 	@override String get replied => 'Ответлено';
 	@override String get ringing => 'Звонок...';
 	@override String get ruRu => 'Русский (Россия)';
@@ -2036,7 +2036,7 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get mostUsed => 'Наиболее используемые';
 	@override String get school => 'Школа';
 	@override String get hobbiesAndInterests => 'Хобби и интересы';
-	@override String get interests => 'Interests';
+	@override String get interests => 'Интересы';
 	@override String get selectFromAlbum => 'Выбрать из альбома';
 	@override String get volumeUp => 'Увеличить громкость';
 	@override String get volumeDown => 'Уменьшить громкость';
@@ -2551,7 +2551,7 @@ extension on TranslationsRuRu {
 			'account.enterNewPassword' => 'Пожалуйста, введите новый пароль',
 			'account.enterNewPasswordAgain' => 'Пожалуйста, введите новый пароль ещё раз',
 			'account.myQRCode' => 'Мой QR-код',
-			'account.profile' => 'Profile',
+			'account.profile' => 'Профиль',
 			'account.setGender' => 'Установить пол',
 			'account.setBirthday' => 'Установить дату рождения',
 			'account.nicknameRules' => '• 2–24 символа • Нельзя только пробелы или только эмодзи • Нельзя чувствительные слова • После изменения отображается во всех чатах',
@@ -2906,9 +2906,9 @@ extension on TranslationsRuRu {
 			'chat.quickReplyDuplicate' => 'Такой ответ уже существует',
 			'chat.quickReplyMaxReached' => ({required Object max}) => 'Максимум ${max}',
 			'chat.quickReplyHint' => 'Введите текст...',
-			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
-			'chat.muted' => 'Muted',
+			'chat.muteMember' => 'Замьютить участника',
+			'chat.unmuteMember' => 'Размьютить',
+			'chat.muted' => 'Замьючен',
 			'chat.mutedFor' => ({required Object label}) => 'Мут ${label}',
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count} мин',
 			'chat.muteUnitHours' => ({required Object count}) => '${count} ч',
@@ -2920,7 +2920,7 @@ extension on TranslationsRuRu {
 			'chat.resendCode' => 'Отправить код снова',
 			'chat.revoke' => 'Отозвать',
 			'chat.scanQrCodeBusinessCard' => 'Сканировать QR-код визитки',
-			'chat.privateChat' => 'Private Chat',
+			'chat.privateChat' => 'Личный чат',
 			'chat.sendFriendRequest' => 'Отправить запрос дружбы',
 			'chat.sendMsgRejected' => 'Сообщение отклонено собеседником',
 			'chat.sendMessage' => 'Отправить сообщение',
@@ -2966,7 +2966,7 @@ extension on TranslationsRuRu {
 			'chat.sendNewMessage' => 'Отправить новое сообщение',
 			'chat.markRead' => 'Пометить как прочитанное',
 			'chat.markUnread' => 'Пометить как непрочитанное',
-			'chat.pleaseEnterSignature' => 'Please enter signature',
+			'chat.pleaseEnterSignature' => 'Введите подпись',
 			'chat.exportProfile' => 'Экспортировать профиль',
 			'chat.setSignature' => 'Установить подпись',
 			'chat.setAvatar' => 'Установить аватар',
@@ -3257,26 +3257,26 @@ extension on TranslationsRuRu {
 			'common.revokeExpired' => 'Прошло более 2 минут, отзыв невозможен',
 			'common.quickReplyAddTitle' => 'Новый быстрый ответ',
 			'common.quickReplyEditTitle' => 'Изменить быстрый ответ',
-			'common.removeAdmin' => 'Remove Admin',
-			'common.setAdminConfirm' => 'Set this member as admin?',
-			'common.removeAdminConfirm' => 'Remove admin role from this member?',
-			'common.unmuteMemberConfirm' => 'Unmute this member?',
-			'common.kickMemberConfirm' => 'Remove this member from the group?',
-			'common.setAdminSuccess' => 'Admin set',
-			'common.setAdminFailed' => 'Failed to set admin',
-			'common.removeAdminSuccess' => 'Admin removed',
-			'common.removeAdminFailed' => 'Failed to remove admin',
-			'common.muteMemberSuccess' => 'Member muted',
-			'common.muteMemberFailed' => 'Failed to mute member',
-			'common.unmuteMemberSuccess' => 'Member unmuted',
-			'common.unmuteMemberFailed' => 'Failed to unmute member',
-			'common.kickMemberSuccess' => 'Member removed',
-			'common.kickMemberFailed' => 'Failed to remove member',
-			'common.notMuted' => 'Not Muted',
-			'common.muteDuration' => 'Mute Duration',
-			'common.muteDuration1hour' => '1 Hour',
-			'common.muteDuration1day' => '1 Day',
-			'common.muteDuration7days' => '7 Days',
+			'common.removeAdmin' => 'Снять права администратора',
+			'common.setAdminConfirm' => 'Назначить этого участника администратором?',
+			'common.removeAdminConfirm' => 'Снять с этого участника права администратора?',
+			'common.unmuteMemberConfirm' => 'Размьютить этого участника?',
+			'common.kickMemberConfirm' => 'Убрать этого участника из группы?',
+			'common.setAdminSuccess' => 'Администратор назначен',
+			'common.setAdminFailed' => 'Не удалось назначить администратора',
+			'common.removeAdminSuccess' => 'Права администратора сняты',
+			'common.removeAdminFailed' => 'Не удалось снять права администратора',
+			'common.muteMemberSuccess' => 'Участник замьючен',
+			'common.muteMemberFailed' => 'Не удалось замьютить участника',
+			'common.unmuteMemberSuccess' => 'Участник размьючен',
+			'common.unmuteMemberFailed' => 'Не удалось размьютить участника',
+			'common.kickMemberSuccess' => 'Участник убран',
+			'common.kickMemberFailed' => 'Не удалось убрать участника',
+			'common.notMuted' => 'Не замьючен',
+			'common.muteDuration' => 'Длительность мьюта',
+			'common.muteDuration1hour' => '1 час',
+			'common.muteDuration1day' => '1 день',
+			'common.muteDuration7days' => '7 дней',
 			'common.muteDuration5min' => '5 минут',
 			'common.muteDuration10min' => '10 минут',
 			'common.muteDuration30min' => '30 минут',
@@ -3290,8 +3290,8 @@ extension on TranslationsRuRu {
 			'common.saveSuccess' => 'Успешно сохранено',
 			'common.scanQrcodeAddFriend' => 'Отсканируйте QR-код выше, чтобы добавить меня в друзья',
 			'common.search' => 'Поиск',
-			'common.searchScope' => 'Search scope',
-			'common.searchAll' => 'All messages',
+			'common.searchScope' => 'Область поиска',
+			'common.searchAll' => 'Все сообщения',
 			'common.searchChatContent' => 'Найти содержание чата',
 			'common.searchChatRecord' => 'Найти историю чата',
 			'common.searchError' => 'Ошибка поиска',
@@ -3332,9 +3332,9 @@ extension on TranslationsRuRu {
 			'common.unknownMessage' => 'Неизвестное сообщение',
 			'common.updateLog' => 'Журнал обновлений',
 			'common.updateNow' => 'Обновить сейчас',
-			'common.uploading' => 'Uploading',
-			'common.uploadSuccess' => 'Upload successful',
-			'common.uploadFailed' => 'Upload failed',
+			'common.uploading' => 'Загрузка…',
+			'common.uploadSuccess' => 'Загружено',
+			'common.uploadFailed' => 'Не удалось загрузить',
 			'common.userDataTips' => 'Включает сообщения, контакты и данные приложения',
 			'common.userDisabledOrDeleted' => 'Пользователь отключён или удалён',
 			'common.userNotExist' => 'Пользователь не существует',
@@ -3525,8 +3525,8 @@ extension on TranslationsRuRu {
 			'common.expression' => 'Эмодзи',
 			'common.extendedInfo' => 'Дополнительная информация',
 			'common.profession' => 'Профессия',
-			'common.shareFailed' => 'Share failed',
-			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => '${param} format profile exported and copied to clipboard',
+			'common.shareFailed' => 'Не удалось поделиться',
+			'common.exportSuccessThenCopiedToClipboard' => ({required Object param}) => 'Профиль в формате ${param} экспортирован и скопирован в буфер обмена',
 			'common.setRegion' => 'Установить регион',
 			'common.deleteOperationAbnormal' => 'Неверная операция удаления, попробуйте снова',
 			'common.revoking' => 'Отзыв...',
@@ -4026,7 +4026,7 @@ extension on TranslationsRuRu {
 		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Гость',
-			'group.setAdmin' => 'Set as Admin',
+			'group.setAdmin' => 'Назначить администратором',
 			'group.selectGroup' => 'Выбрать групповой чат',
 			'group.sureToDissolveGroup' => 'Распустить эту группу?',
 			'group.sureToLeaveGroup' => 'Покинуть эту группу?',
@@ -4210,7 +4210,7 @@ extension on TranslationsRuRu {
 			'main.quote' => 'Цитата',
 			'main.recentlyUsed' => 'Недавно использованные',
 			'main.releaseEnd' => 'Отпустите для завершения',
-			'main.memberDetail' => 'Member Details',
+			'main.memberDetail' => 'Сведения об участнике',
 			'main.replied' => 'Ответлено',
 			'main.ringing' => 'Звонок...',
 			'main.ruRu' => 'Русский (Россия)',
@@ -4261,7 +4261,7 @@ extension on TranslationsRuRu {
 			'main.mostUsed' => 'Наиболее используемые',
 			'main.school' => 'Школа',
 			'main.hobbiesAndInterests' => 'Хобби и интересы',
-			'main.interests' => 'Interests',
+			'main.interests' => 'Интересы',
 			'main.selectFromAlbum' => 'Выбрать из альбома',
 			'main.volumeUp' => 'Увеличить громкость',
 			'main.volumeDown' => 'Уменьшить громкость',

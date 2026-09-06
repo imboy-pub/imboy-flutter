@@ -212,26 +212,26 @@ muteNotificationsHint: عند التفعيل لن تصلك تنبيهات الر
 revokeExpired: مرّت أكثر من دقيقتين، لا يمكن السحب
 quickReplyAddTitle: رد سريع جديد
 quickReplyEditTitle: تعديل رد سريع
-removeAdmin: Remove Admin
-setAdminConfirm: Set this member as admin?
-removeAdminConfirm: Remove admin role from this member?
-unmuteMemberConfirm: Unmute this member?
-kickMemberConfirm: Remove this member from the group?
-setAdminSuccess: Admin set
-setAdminFailed: Failed to set admin
-removeAdminSuccess: Admin removed
-removeAdminFailed: Failed to remove admin
-muteMemberSuccess: Member muted
-muteMemberFailed: Failed to mute member
-unmuteMemberSuccess: Member unmuted
-unmuteMemberFailed: Failed to unmute member
-kickMemberSuccess: Member removed
-kickMemberFailed: Failed to remove member
-notMuted: Not Muted
-muteDuration: Mute Duration
-muteDuration1hour: 1 Hour
-muteDuration1day: 1 Day
-muteDuration7days: 7 Days
+removeAdmin: "إزالة الإشراف"
+setAdminConfirm: "هل تريد تعيين هذا العضو مشرفًا؟"
+removeAdminConfirm: "هل تريد إزالة الإشراف من هذا العضو؟"
+unmuteMemberConfirm: "هل تريد إلغاء كتم هذا العضو؟"
+kickMemberConfirm: "إزالة هذا العضو من المجموعة؟"
+setAdminSuccess: "تم تعيين المشرف"
+setAdminFailed: "تعذّر تعيين المشرف"
+removeAdminSuccess: "تمت إزالة الإشراف"
+removeAdminFailed: "تعذّرت إزالة الإشراف"
+muteMemberSuccess: "تم كتم العضو"
+muteMemberFailed: "تعذّر كتم العضو"
+unmuteMemberSuccess: "تم إلغاء الكتم"
+unmuteMemberFailed: "تعذّر إلغاء الكتم"
+kickMemberSuccess: "تمت إزالة العضو"
+kickMemberFailed: "تعذّرت إزالة العضو"
+notMuted: "غير مكتوم"
+muteDuration: "مدة الكتم"
+muteDuration1hour: "ساعة واحدة"
+muteDuration1day: "يوم واحد"
+muteDuration7days: "7 أيام"
 muteDuration5min: 5 دقائق
 muteDuration10min: 10 دقائق
 muteDuration30min: 30 دقيقة
@@ -245,8 +245,8 @@ saveQrCode: حفظ رمز QR
 saveSuccess: تم الحفظ بنجاح
 scanQrcodeAddFriend: امسح رمز QR أعلاه لإضافتني كصديق
 search: بحث
-searchScope: Search scope
-searchAll: All messages
+searchScope: "نطاق البحث"
+searchAll: "كل الرسائل"
 searchChatContent: البحث في محتوى الدردشة
 searchChatRecord: البحث في سجل الدردشة
 searchError: خطأ في البحث
@@ -270,11 +270,23 @@ sureDeleteData: هل أنت متأكد من الحذف؟ لا يمكن التر�
 sureDeleteGroupChatRecord: هل أنت متأكد من حذف سجل المجموعة؟
 switchEnvironment: تبديل البيئة
 timeDaysAgo(plural):
+  one: "منذ يوم واحد"
+  two: "منذ يومين"
+  few: "منذ $n أيام"
+  many: "منذ $n يومًا"
   other: منذ $n يوم
 timeHoursAgo(plural):
+  one: "منذ ساعة واحدة"
+  two: "منذ ساعتين"
+  few: "منذ $n ساعات"
+  many: "منذ $n ساعةً"
   other: منذ $n ساعة
 timeJustNow: الآن
 timeMinutesAgo(plural):
+  one: "منذ دقيقة واحدة"
+  two: "منذ دقيقتين"
+  few: "منذ $n دقائق"
+  many: "منذ $n دقيقةً"
   other: منذ $n دقيقة
 tipConnectDesc: لا يوجد اتصال بالشبكة
 tipConnectDescWithParen: "($param)"
@@ -290,9 +302,9 @@ unknown: غير معروف
 unknownMessage: رسالة غير معروفة
 updateLog: سجل التحديث
 updateNow: التحديث الآن
-uploading: Uploading
-uploadSuccess: Upload successful
-uploadFailed: Upload failed
+uploading: "جارٍ الرفع"
+uploadSuccess: "تم الرفع"
+uploadFailed: "تعذّر الرفع"
 userDataTips: يحتوي على الملفات الضرورية لتشغيل التطبيق، وجميع بيانات السجل مثل رسائل الدردشة وعلاقات الأصدقاء.
 userDisabledOrDeleted: تم تعطيل المستخدم أو حذفه
 userNotExist: المستخدم غير موجود
@@ -481,8 +493,8 @@ personalBackground: الخلفية الشخصية
 expression: رموز تعبيرية
 extendedInfo: معلومات موسعة
 profession: المهنة
-shareFailed: Share failed
-exportSuccessThenCopiedToClipboard: "$param format profile exported and copied to clipboard"
+shareFailed: "تعذّرت المشاركة"
+exportSuccessThenCopiedToClipboard: "تم تصدير الملف الشخصي بتنسيق $param ونسخه إلى الحافظة"
 setRegion: تعيين المنطقة
 deleteOperationAbnormal: استثناء في عملية الحذف، يرجى المحاولة مرة أخرى
 revoking: جارٍ السحب...

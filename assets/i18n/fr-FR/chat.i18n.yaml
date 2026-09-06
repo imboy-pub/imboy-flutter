@@ -66,9 +66,9 @@ quickReplyEmpty: Aucune réponse rapide. Touchez en bas à droite pour ajouter
 quickReplyDuplicate: Contenu déjà existant
 quickReplyMaxReached: Max. $max réponses
 quickReplyHint: Saisir le contenu...
-muteMember: Mute Member
-unmuteMember: Unmute
-muted: Muted
+muteMember: "Mettre le membre en sourdine"
+unmuteMember: "Retirer la mise en sourdine"
+muted: "En sourdine"
 mutedFor: 'Mu : $label'
 muteUnitMinutes: "$count min"
 muteUnitHours: "$count h"
@@ -80,7 +80,7 @@ reply: Répondre
 resendCode: Renvoyer le code
 revoke: Retirer
 scanQrCodeBusinessCard: Scanner la carte de visite QR
-privateChat: Private Chat
+privateChat: "Conversation privée"
 sendFriendRequest: Envoyer une demande d’ami
 sendMsgRejected: Message envoyé mais rejeté par votre interlocuteur.
 sendMessage: Envoyer un message
@@ -126,7 +126,7 @@ momentsReplyingTo: Réponse à @{name}
 sendNewMessage: Envoyer un nouveau message
 markRead: Marquer comme lu
 markUnread: Marquer comme non lu
-pleaseEnterSignature: Please enter signature
+pleaseEnterSignature: "Saisissez votre signature"
 exportProfile: Exporter le profil
 setSignature: Définir la signature
 setAvatar: Définir l'avatar
