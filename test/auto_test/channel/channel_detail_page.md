@@ -1,6 +1,6 @@
 # `page/channel/channel_detail_page.dart`
 
-> 功能点 13 个 | bug 发现 11 / 解决 11 / 待处理 0
+> 功能点 13 个 | bug 发现 12 / 解决 12 / 待处理 0
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -8,7 +8,7 @@
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 频道消息图片附件渲染（view_url 授权） | 已通过 | 批次90 | 1 | 1 | 0 | ⭐BUG#124b 真机复验闭环（08-16 alpha.32）：qa-batch84-admin 发图全链路证据——nginx 23:36:36 `presign?scope=channel&scope_ref=106933346608875520` 200 402B（客户端上传带 channel scope）→ 23:36:37 confirm 落库（attachment id=107384663800285184 scope=channel scope_ref=频道ID creator=50）→ 23:36:38 `view_url?object_key=u50/channel/20260816/...` 200 352B（渲染授权成功）→ 消息流 ImageView 渲染 + 点击全屏预览正常；头像 view_url 亦 200。代码侧：读鉴权 channel 分支 has_channel_attachment_access（创建者 role 短路/订阅者放行）+ can_upload channel 分支 + EUnit 34 用例全绿（d891c6fd，随 alpha.32 上线）。遗留：存量「干饭」两条 private 附件生产回填 SQL（scope→channel+scope_ref）仍待人工拍板（历史数据修复，不影响本功能点） |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 频道详情加载、头部渲染与未读清零 | 已通过 | 批次25 | 1 | 1 | 0 | |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 头部统计加载与发布后权威刷新 | 已通过 | 批次25 | 1 | 1 | 0 | |
-| 无待办 | - | `page/channel/channel_detail_page.dart` | 消息卡片点赞落库与计数回显 | 已通过 | 批次25 | 2 | 2 | 0 | |
+| 无待办 | - | `page/channel/channel_detail_page.dart` | 消息卡片点赞落库与计数回显 | 已通过 | 批次117 | 3 | 3 | 0 | 批次117 回归闭环（imboy 798a86e1+app f69a3a82）：用户报「点赞/取消点赞报错」复现为触发器 fn_update_channel_message_reaction_summary 在 00000084 后 COALESCE(json,jsonb) 类型冲突 42846 回滚，迁移 00000089 改 jsonb_object_agg 根治；连带修复 GET /reaction 被 add_reaction 吞（读一次=点赞一次，已按 method 分派）与 get_message_reactions binary MessageId 恒「消息不属于该频道」+误查 msg_reaction 表两缺陷；AT-CL1/2 macOS 真实 UI 链路全绿（UI 计数 0→1→0 与服务端 channel_reaction/列表接口逐项一致）。排障副产品：本地 9801 config 表 pub.imboy.app_*_1 四条 sign_key 为错旧 ios key 致 init 解密失败→UI 登录链断（config_ds:set 修正，环境数据不入库）。历史：批次25 修 2 bug |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 发布栏文本发布与键盘避让 | 已通过 | 批次25 | 1 | 1 | 0 | |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 发布栏语音录制发送与发送反馈 | 已通过 | 批次25 | 3 | 3 | 0 | |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 发布栏附件上传 scope 传参授权 | 已通过 | 批次25 | 1 | 1 | 0 | |

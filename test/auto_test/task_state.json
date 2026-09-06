@@ -387,5 +387,22 @@
     ],
     "test_env_quirks": "行内 PopupMenuButton 是 ListTile trailing 子节点而非标题 Text 的祖先，find.ancestor 结构性恒空（误配到 AppBar 菜单）→ 须 tile祖先→descendant 两段定位（踩 3 轮）；CS1 触底后 ListView 懒加载致顶部行未渲染，断言顶部行前须滚回顶部；app header 认证用 authorization（const tokenKey），curl 用 token 头会 401 干扰排查；造数须同步校准 channel.subscriber_count",
     "commits": "imboyapp: 本批次 provider 修复+2 测试+台账 pathspec 提交；imboy: channel_subscription_repo 分页修复（热更 9801 已生效）；均为提交后补记"
+  },
+  "session_2026_09_06_batch117": {
+    "note": "批次117（用户直派）：频道消息点赞/取消点赞报错全案闭环——一个用户症状剥出服务端三层缺陷+一环境配置漂移，curl 六步+EUnit 10 用例+macOS 真实 UI 集成测试三层验证全绿。",
+    "fixes": [
+      "P0 服务端触发器 fn_update_channel_message_reaction_summary：00000084 把空对象兜底改 '{}'::jsonb 后聚合仍用 json_object_agg（json），COALESCE(json,jsonb) 无公共类型→首次点赞 42846 cannot_coerce 回滚整个反应事务；迁移 00000089 统一 jsonb_object_agg（列类型 jsonb），本地 4323 已应用（schema_migrations 88→89），9801 热更四个模块（798a86e1）",
+      "P1 GET /reaction 无独立路由被 add_reaction 吞掉→「读一次=点赞一次」写副作用；channel_handler_message 按 method 分派（镜像 workspace_handler branding 模式）",
+      "P1 channel_logic:get_message_reactions：binary MessageId 未 decode_positive_id 直传 find_by_id→恒「消息不属于该频道」；且数据源误走 msg_reaction_ds（msg_type='channel' 恒空）→改 channel_logic_stats:list_message_reactions 按 channel_reaction 聚合（与写入同表）；channel_logic_common 导出 decode_positive_id",
+      "环境配置漂移（本地 9801，不入库）：config 表 pub.imboy.app_*_1 四条 sign_key 为错旧 ios 测试 key（OBsZGPTCW+…），真 app pkg=pub.imboy.app 命中后 init 配置解密失败→login_rsa_pub_key 落不了盘→UI 登录链断（退登/新装后无法登录）；config_ds:set 修正为客户端 solidified_key（教训：psql 直插明文会破坏 config 加密存储，必须走 config_ds:set）",
+      "测试基建：FlowApiClient 增 accessToken 注入口——集成测试独立 login 会触发「另一设备登录」把 App 会话挤下线（run2 实证 quitLogin 删库），复用主会话 token 规避"
+    ],
+    "tests": "AT-CL1 点赞（UI 计数 0→1+服务端 channel_reaction like=1+GET /reaction 可见+无失败 toast）/ AT-CL2 取消（回落+列表回空）run5 All tests passed；EUnit channel_logic_message_reactions_tests 8/8 + channel_reaction_summary_migration_tests 2/2；curl 全链六步（副作用消除/点赞/列表/取消/回空/终态 {}）；前端消费字段 reaction_summary+my_reactions 消息列表随行验证 OK",
+    "test_env_quirks": "channel_message_like_acceptance_test 重跑前需清残留：DELETE channel_reaction WHERE message_id=110252446493968384 AND user_id=1000000056 + reaction_summary 置 {}（配方在测试头注）；运行需 API_BASE_URL 与 API_BASE_URL_OVERRIDE 两个 dart-define（FlowApiClient 读前者，app 读后者）",
+    "commits": {
+      "imboy": "798a86e1 fix(channel) 迁移00000089+method分派+get_message_reactions 修复+EUnit",
+      "imboyapp": "f69a3a82 test(channel) AT-CL 集成测试+FlowApiClient token 注入"
+    },
+    "ledger": "channel_detail_page.md 点赞行批次25→批次117（3/3），README 155页面/1748功能点/阻塞193（不变，bug 发现=解决）"
   }
 }
