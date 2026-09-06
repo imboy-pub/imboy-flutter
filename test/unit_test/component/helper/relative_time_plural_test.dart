@@ -44,4 +44,29 @@ void main() {
       expect(zh.common.timeDaysAgo(n: 2), '2天前');
     });
   });
+
+  group('俄语 CLDR 四分支选择（a2ab55d4 resolver 修复的回归锁）', () {
+    test('one/few/many/other 按 CLDR 规则命中', () async {
+      final ru = await AppLocale.ruRu.build();
+      // one：n%10=1 且 n%100≠11（含 21）
+      expect(ru.common.timeDaysAgo(n: 1), '1 день назад');
+      expect(ru.common.timeMinutesAgo(n: 21), '21 минуту назад');
+      // few：n%10=2..4 且 n%100≠12..14
+      expect(ru.common.timeHoursAgo(n: 2), '2 часа назад');
+      // many：n%10=0 或 5..9 或 n%100=11..14
+      expect(ru.common.timeDaysAgo(n: 5), '5 дней назад');
+      expect(ru.common.timeMinutesAgo(n: 11), '11 минут назад');
+    });
+  });
+
+  group('阿拉伯语 CLDR 分支选择（Round-3 补分支的回归锁）', () {
+    test('one/two/few/many/other 按 CLDR 规则命中', () async {
+      final ar = await AppLocale.arSa.build();
+      expect(ar.common.timeDaysAgo(n: 1), 'منذ يوم واحد'); // one
+      expect(ar.common.timeHoursAgo(n: 2), 'منذ ساعتين'); // two（双数）
+      expect(ar.common.timeMinutesAgo(n: 7), 'منذ 7 دقائق'); // few（3-10 复数）
+      expect(ar.common.timeDaysAgo(n: 11), 'منذ 11 يومًا'); // many（11-99 宾格单数）
+      expect(ar.common.timeHoursAgo(n: 100), 'منذ 100 ساعة'); // other（整百）
+    });
+  });
 }
