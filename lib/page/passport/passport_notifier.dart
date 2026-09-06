@@ -476,6 +476,9 @@ class PassportNotifier extends _$PassportNotifier {
   String _localizedAuthErrMsg(String raw) {
     return switch (raw) {
       'errorPassword' => t.common.errorPassword,
+      // 发码频控（throttle per_minute_once）：60 秒内重复请求，
+      // 后端返回英文错误码，此前裸显给用户
+      'per_minute_once' => t.common.throttleWarning,
       _ => raw,
     };
   }
@@ -729,10 +732,11 @@ class PassportNotifier extends _$PassportNotifier {
       if (errorMsg.contains('%s')) {
         errorMsg = errorMsg.replaceFirst('%s', account);
       }
-      safeUpdateState(
-        (state) => state.copyWith(error: _localizedAuthErrMsg(errorMsg)),
-      );
-      return errorMsg;
+      final localized = _localizedAuthErrMsg(errorMsg);
+      safeUpdateState((state) => state.copyWith(error: localized));
+      // 返回本地化后的消息：调用方（注册页下一步/验证码页重发）直接
+      // snackBar/toast 展示，不能裸显 per_minute_once 这类英文错误码
+      return localized;
     }
   }
 
