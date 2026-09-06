@@ -754,7 +754,7 @@ e2eeBackupErrUrlHttp: 伺服器回傳錯誤
 e2eeBackupErrUrlEmpty: 伺服器回傳的內容為空
 e2eeBackupErrUrlTooLarge: 檔案過大（超過 10MB 上限）
 passwordEncryptFailed: 密碼加密失敗
-initConfigTimeout: '配置獲取超時: 請檢查網路連線或服務端狀態'
+initConfigTimeout: '配置獲取超時：請檢查網路連線或服務端狀態'
 initConfigNetworkError(code): 網路故障或服務故障 (HTTP $code)
 initConfigProtocolError: 服務故障協議有誤
 initConfigFetchFailed: 配置獲取失敗，請檢查網路連線

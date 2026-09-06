@@ -4109,8 +4109,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '密码加密失败'
 	String get passwordEncryptFailed => '密码加密失败';
 
-	/// zh-CN: '配置获取超时: 请检查网络连接或服务端状态'
-	String get initConfigTimeout => '配置获取超时: 请检查网络连接或服务端状态';
+	/// zh-CN: '配置获取超时：请检查网络连接或服务端状态'
+	String get initConfigTimeout => '配置获取超时：请检查网络连接或服务端状态';
 
 	/// zh-CN: '网络故障或服务故障 (HTTP $code)'
 	String initConfigNetworkError({required Object code}) => '网络故障或服务故障 (HTTP ${code})';
@@ -8067,7 +8067,7 @@ extension on Translations {
 			'common.e2eeBackupErrUrlEmpty' => '服务器返回的内容为空',
 			'common.e2eeBackupErrUrlTooLarge' => '文件过大（超过 10MB 上限）',
 			'common.passwordEncryptFailed' => '密码加密失败',
-			'common.initConfigTimeout' => '配置获取超时: 请检查网络连接或服务端状态',
+			'common.initConfigTimeout' => '配置获取超时：请检查网络连接或服务端状态',
 			'common.initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
 			'common.initConfigProtocolError' => '服务故障协议有误',
 			'common.initConfigFetchFailed' => '配置获取失败，请检查网络连接',

@@ -1441,7 +1441,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrUrlEmpty => '伺服器回傳的內容為空';
 	@override String get e2eeBackupErrUrlTooLarge => '檔案過大（超過 10MB 上限）';
 	@override String get passwordEncryptFailed => '密碼加密失敗';
-	@override String get initConfigTimeout => '配置獲取超時: 請檢查網路連線或服務端狀態';
+	@override String get initConfigTimeout => '配置獲取超時：請檢查網路連線或服務端狀態';
 	@override String initConfigNetworkError({required Object code}) => '網路故障或服務故障 (HTTP ${code})';
 	@override String get initConfigProtocolError => '服務故障協議有誤';
 	@override String get initConfigFetchFailed => '配置獲取失敗，請檢查網路連線';
@@ -2148,7 +2148,7 @@ class Translations$momentNotify$zh_Hant extends Translations$momentNotify$zh_CN 
 	@override String get actionComment => '評論了你';
 	@override String get markAllRead => '全部已讀';
 	@override String get clearAll => '全部清空';
-	@override String get clearConfirmTitle => '清空所有通知?';
+	@override String get clearConfirmTitle => '清空所有通知？';
 	@override String get clearConfirmMessage => '清空後無法恢復';
 	@override String get confirm => '確定';
 	@override String get cancel => '關閉';
@@ -3790,7 +3790,7 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrUrlEmpty' => '伺服器回傳的內容為空',
 			'common.e2eeBackupErrUrlTooLarge' => '檔案過大（超過 10MB 上限）',
 			'common.passwordEncryptFailed' => '密碼加密失敗',
-			'common.initConfigTimeout' => '配置獲取超時: 請檢查網路連線或服務端狀態',
+			'common.initConfigTimeout' => '配置獲取超時：請檢查網路連線或服務端狀態',
 			'common.initConfigNetworkError' => ({required Object code}) => '網路故障或服務故障 (HTTP ${code})',
 			'common.initConfigProtocolError' => '服務故障協議有誤',
 			'common.initConfigFetchFailed' => '配置獲取失敗，請檢查網路連線',
@@ -4346,7 +4346,7 @@ extension on TranslationsZhHant {
 			'momentNotify.actionComment' => '評論了你',
 			'momentNotify.markAllRead' => '全部已讀',
 			'momentNotify.clearAll' => '全部清空',
-			'momentNotify.clearConfirmTitle' => '清空所有通知?',
+			'momentNotify.clearConfirmTitle' => '清空所有通知？',
 			'momentNotify.clearConfirmMessage' => '清空後無法恢復',
 			'momentNotify.confirm' => '確定',
 			'momentNotify.cancel' => '關閉',
