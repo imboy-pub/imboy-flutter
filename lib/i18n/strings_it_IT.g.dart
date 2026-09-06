@@ -540,12 +540,12 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get muteMember => 'Silenzia il membro';
 	@override String get unmuteMember => 'Rimuovi il silenzio';
 	@override String get muted => 'Silenziato';
-	@override String mutedFor({required Object label}) => 'Mutato: ${label}';
+	@override String mutedFor({required Object label}) => 'Silenziato: ${label}';
 	@override String muteUnitMinutes({required Object count}) => '${count} min';
 	@override String muteUnitHours({required Object count}) => '${count} h';
 	@override String muteUnitDays({required Object count}) => '${count} gg';
-	@override String get youAreMuted => 'Sei stato mutato';
-	@override String youAreMutedWithTime({required Object minutes}) => 'Sei mutato, ancora ${minutes} min.';
+	@override String get youAreMuted => 'Sei stato silenziato';
+	@override String youAreMutedWithTime({required Object minutes}) => 'Sei silenziato, ancora ${minutes} min.';
 	@override String get repliedAt => 'Risposto il';
 	@override String get reply => 'Rispondi';
 	@override String get resendCode => 'Invia di nuovo codice';
@@ -2903,12 +2903,12 @@ extension on TranslationsItIt {
 			'chat.muteMember' => 'Silenzia il membro',
 			'chat.unmuteMember' => 'Rimuovi il silenzio',
 			'chat.muted' => 'Silenziato',
-			'chat.mutedFor' => ({required Object label}) => 'Mutato: ${label}',
+			'chat.mutedFor' => ({required Object label}) => 'Silenziato: ${label}',
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count} min',
 			'chat.muteUnitHours' => ({required Object count}) => '${count} h',
 			'chat.muteUnitDays' => ({required Object count}) => '${count} gg',
-			'chat.youAreMuted' => 'Sei stato mutato',
-			'chat.youAreMutedWithTime' => ({required Object minutes}) => 'Sei mutato, ancora ${minutes} min.',
+			'chat.youAreMuted' => 'Sei stato silenziato',
+			'chat.youAreMutedWithTime' => ({required Object minutes}) => 'Sei silenziato, ancora ${minutes} min.',
 			'chat.repliedAt' => 'Risposto il',
 			'chat.reply' => 'Rispondi',
 			'chat.resendCode' => 'Invia di nuovo codice',

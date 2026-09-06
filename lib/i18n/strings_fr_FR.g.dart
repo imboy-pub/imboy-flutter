@@ -899,7 +899,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get setAdminConfirm => 'Définir ce membre comme administrateur ?';
 	@override String get removeAdminConfirm => 'Retirer le rôle d\'administrateur à ce membre ?';
 	@override String get unmuteMemberConfirm => 'Retirer la mise en sourdine de ce membre ?';
-	@override String get kickMemberConfirm => 'Retirer ce membre du groupe ?';
+	@override String get kickMemberConfirm => 'Supprimer ce membre du groupe ?';
 	@override String get setAdminSuccess => 'Administrateur défini';
 	@override String get setAdminFailed => 'Impossible de définir l\'administrateur';
 	@override String get removeAdminSuccess => 'Administrateur retiré';
@@ -908,8 +908,8 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get muteMemberFailed => 'Échec de la mise en sourdine';
 	@override String get unmuteMemberSuccess => 'Mise en sourdine retirée';
 	@override String get unmuteMemberFailed => 'Impossible de retirer la mise en sourdine';
-	@override String get kickMemberSuccess => 'Membre retiré';
-	@override String get kickMemberFailed => 'Impossible de retirer le membre';
+	@override String get kickMemberSuccess => 'Membre supprimé';
+	@override String get kickMemberFailed => 'Impossible de supprimer le membre';
 	@override String get notMuted => 'Non mis en sourdine';
 	@override String get muteDuration => 'Durée de la mise en sourdine';
 	@override String get muteDuration1hour => '1 heure';
@@ -3255,7 +3255,7 @@ extension on TranslationsFrFr {
 			'common.setAdminConfirm' => 'Définir ce membre comme administrateur ?',
 			'common.removeAdminConfirm' => 'Retirer le rôle d\'administrateur à ce membre ?',
 			'common.unmuteMemberConfirm' => 'Retirer la mise en sourdine de ce membre ?',
-			'common.kickMemberConfirm' => 'Retirer ce membre du groupe ?',
+			'common.kickMemberConfirm' => 'Supprimer ce membre du groupe ?',
 			'common.setAdminSuccess' => 'Administrateur défini',
 			'common.setAdminFailed' => 'Impossible de définir l\'administrateur',
 			'common.removeAdminSuccess' => 'Administrateur retiré',
@@ -3264,8 +3264,8 @@ extension on TranslationsFrFr {
 			'common.muteMemberFailed' => 'Échec de la mise en sourdine',
 			'common.unmuteMemberSuccess' => 'Mise en sourdine retirée',
 			'common.unmuteMemberFailed' => 'Impossible de retirer la mise en sourdine',
-			'common.kickMemberSuccess' => 'Membre retiré',
-			'common.kickMemberFailed' => 'Impossible de retirer le membre',
+			'common.kickMemberSuccess' => 'Membre supprimé',
+			'common.kickMemberFailed' => 'Impossible de supprimer le membre',
 			'common.notMuted' => 'Non mis en sourdine',
 			'common.muteDuration' => 'Durée de la mise en sourdine',
 			'common.muteDuration1hour' => '1 heure',

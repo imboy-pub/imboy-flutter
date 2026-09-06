@@ -69,12 +69,12 @@ quickReplyHint: Inserisci contenuto...
 muteMember: "Silenzia il membro"
 unmuteMember: "Rimuovi il silenzio"
 muted: "Silenziato"
-mutedFor: 'Mutato: $label'
+mutedFor: "Silenziato: $label"
 muteUnitMinutes: "$count min"
 muteUnitHours: "$count h"
 muteUnitDays: "$count gg"
-youAreMuted: Sei stato mutato
-youAreMutedWithTime: Sei mutato, ancora $minutes min.
+youAreMuted: "Sei stato silenziato"
+youAreMutedWithTime: "Sei silenziato, ancora $minutes min."
 repliedAt: Risposto il
 reply: Rispondi
 resendCode: Invia di nuovo codice

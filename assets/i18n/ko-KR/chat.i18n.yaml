@@ -66,9 +66,9 @@ quickReplyEmpty: 빠른 답장이 없습니다. 우측 하단을 눌러 추가�
 quickReplyDuplicate: 내용이 이미 존재합니다
 quickReplyMaxReached: 최대 $max개
 quickReplyHint: 내용 입력...
-muteMember: "멤버 음소거"
-unmuteMember: "음소거 해제"
-muted: "음소거됨"
+muteMember: "구성원 채팅 금지"
+unmuteMember: "채팅 금지 해제"
+muted: "채팅 금지됨"
 mutedFor: 채팅 금지 $label
 muteUnitMinutes: "$count분"
 muteUnitHours: "$count시간"

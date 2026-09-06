@@ -899,7 +899,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get setAdminConfirm => 'このメンバーを管理者に設定しますか？';
 	@override String get removeAdminConfirm => 'このメンバーの管理者権限を解除しますか？';
 	@override String get unmuteMemberConfirm => 'このメンバーのミュートを解除しますか？';
-	@override String get kickMemberConfirm => 'このメンバーをグループから除外しますか？';
+	@override String get kickMemberConfirm => 'このメンバーをグループから削除しますか？';
 	@override String get setAdminSuccess => '管理者に設定しました';
 	@override String get setAdminFailed => '管理者の設定に失敗しました';
 	@override String get removeAdminSuccess => '管理者を解除しました';
@@ -908,8 +908,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get muteMemberFailed => 'ミュートに失敗しました';
 	@override String get unmuteMemberSuccess => 'ミュートを解除しました';
 	@override String get unmuteMemberFailed => 'ミュート解除に失敗しました';
-	@override String get kickMemberSuccess => 'メンバーを除外しました';
-	@override String get kickMemberFailed => 'メンバーの除外に失敗しました';
+	@override String get kickMemberSuccess => 'メンバーを削除しました';
+	@override String get kickMemberFailed => 'メンバーの削除に失敗しました';
 	@override String get notMuted => 'ミュートされていません';
 	@override String get muteDuration => 'ミュート期間';
 	@override String get muteDuration1hour => '1時間';
@@ -3252,7 +3252,7 @@ extension on TranslationsJaJp {
 			'common.setAdminConfirm' => 'このメンバーを管理者に設定しますか？',
 			'common.removeAdminConfirm' => 'このメンバーの管理者権限を解除しますか？',
 			'common.unmuteMemberConfirm' => 'このメンバーのミュートを解除しますか？',
-			'common.kickMemberConfirm' => 'このメンバーをグループから除外しますか？',
+			'common.kickMemberConfirm' => 'このメンバーをグループから削除しますか？',
 			'common.setAdminSuccess' => '管理者に設定しました',
 			'common.setAdminFailed' => '管理者の設定に失敗しました',
 			'common.removeAdminSuccess' => '管理者を解除しました',
@@ -3261,8 +3261,8 @@ extension on TranslationsJaJp {
 			'common.muteMemberFailed' => 'ミュートに失敗しました',
 			'common.unmuteMemberSuccess' => 'ミュートを解除しました',
 			'common.unmuteMemberFailed' => 'ミュート解除に失敗しました',
-			'common.kickMemberSuccess' => 'メンバーを除外しました',
-			'common.kickMemberFailed' => 'メンバーの除外に失敗しました',
+			'common.kickMemberSuccess' => 'メンバーを削除しました',
+			'common.kickMemberFailed' => 'メンバーの削除に失敗しました',
 			'common.notMuted' => 'ミュートされていません',
 			'common.muteDuration' => 'ミュート期間',
 			'common.muteDuration1hour' => '1時間',

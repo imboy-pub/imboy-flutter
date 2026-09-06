@@ -899,7 +899,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get setAdminConfirm => 'Назначить этого участника администратором?';
 	@override String get removeAdminConfirm => 'Снять с этого участника права администратора?';
 	@override String get unmuteMemberConfirm => 'Размьютить этого участника?';
-	@override String get kickMemberConfirm => 'Убрать этого участника из группы?';
+	@override String get kickMemberConfirm => 'Удалить этого участника из группы?';
 	@override String get setAdminSuccess => 'Администратор назначен';
 	@override String get setAdminFailed => 'Не удалось назначить администратора';
 	@override String get removeAdminSuccess => 'Права администратора сняты';
@@ -908,8 +908,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get muteMemberFailed => 'Не удалось замьютить участника';
 	@override String get unmuteMemberSuccess => 'Участник размьючен';
 	@override String get unmuteMemberFailed => 'Не удалось размьютить участника';
-	@override String get kickMemberSuccess => 'Участник убран';
-	@override String get kickMemberFailed => 'Не удалось убрать участника';
+	@override String get kickMemberSuccess => 'Участник удалён';
+	@override String get kickMemberFailed => 'Не удалось удалить участника';
 	@override String get notMuted => 'Не замьючен';
 	@override String get muteDuration => 'Длительность мьюта';
 	@override String get muteDuration1hour => '1 час';
@@ -3261,7 +3261,7 @@ extension on TranslationsRuRu {
 			'common.setAdminConfirm' => 'Назначить этого участника администратором?',
 			'common.removeAdminConfirm' => 'Снять с этого участника права администратора?',
 			'common.unmuteMemberConfirm' => 'Размьютить этого участника?',
-			'common.kickMemberConfirm' => 'Убрать этого участника из группы?',
+			'common.kickMemberConfirm' => 'Удалить этого участника из группы?',
 			'common.setAdminSuccess' => 'Администратор назначен',
 			'common.setAdminFailed' => 'Не удалось назначить администратора',
 			'common.removeAdminSuccess' => 'Права администратора сняты',
@@ -3270,8 +3270,8 @@ extension on TranslationsRuRu {
 			'common.muteMemberFailed' => 'Не удалось замьютить участника',
 			'common.unmuteMemberSuccess' => 'Участник размьючен',
 			'common.unmuteMemberFailed' => 'Не удалось размьютить участника',
-			'common.kickMemberSuccess' => 'Участник убран',
-			'common.kickMemberFailed' => 'Не удалось убрать участника',
+			'common.kickMemberSuccess' => 'Участник удалён',
+			'common.kickMemberFailed' => 'Не удалось удалить участника',
 			'common.notMuted' => 'Не замьючен',
 			'common.muteDuration' => 'Длительность мьюта',
 			'common.muteDuration1hour' => '1 час',
