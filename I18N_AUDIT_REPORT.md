@@ -829,3 +829,20 @@ Round-3 的 36 键 × 8 locale 英文残留能潜伏十轮，根因是审计器�
 - 拉丁 locale（de/fr/it）不做此检测（与 en 存在大量合法同形词 Video/Status/min/h，假阳性不可控——已注释在案）。
 - 回归测试 +2（用例 13 命中/用例 14 豁免矩阵），13/13 全绿。
 - **首跑实抓 12 条假阳性教训**：`%w[]` 不解析引号，`"WeChat Pay"` 多词条目被拆成带引号废词条——多词豁免值必须用普通数组书写。修复后真仓 check/strict 双 PASS、en_residue=0（同时证明并行会话当前未引入新英文残留键）。
+
+## 8.13 Push 就绪度证书（2026-09-06，等用户授权后可即时执行）
+
+```text
+i18n 战役提交链（02b4cc48..HEAD，含 cc2a0787）：34 笔
+  DCO 签核（Signed-off-by）：34/34 全部具备 ✓
+  路径审计：全部限于 assets/i18n/**、lib/i18n/**、I18N_*.md、docs/、
+            战役授权的 9 业务文件（走查战利品修复波及）✓
+gitleaks 8.30.1 全 push 面（origin/main..HEAD）：245 笔提交 / 4.40MB diff
+  no leaks found ✓（含并行线历史未推提交）
+最终 HEAD 门态：strict PASS / 审计器 13/13 / UI Gate 50/50 ✓
+残余标点修复（cc2a0787）：initConfigTimeout 全角冒号 ×2、
+  clearConfirmTitle 全角问号 ×1；审核包漂移复验=0（尾随空格类
+  均为有意拼接排版：momentsReplySeparator/atMentionYouTag/paymentAmount）
+```
+
+**执行面**：`git push origin main` 一条命令即可（无 force 需求，imboyapp 未做历史重写）。本证书不构成 push 授权——授权仍单独等用户明示。
