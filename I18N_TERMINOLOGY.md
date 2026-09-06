@@ -116,7 +116,8 @@ Message ≠ Chat ≠ Channel Post ≠ Comment
 | Leave | Leave | 退出（自己离开）| 见 §4 | 用 Delete 词根（自身退出不是删除） |
 | Block | Block | 拉黑/屏蔽 | ja ブロック / ko 차단 / de Blockieren / fr Bloquer / it Blocca / ru Заблокировать / ar حظر | — |
 | Report | Report | 举报 | ja 通報 / ko 신고 / de Melden / fr Signaler / it Segnala / ru Пожаловаться / ar إبلاغ | 与投诉 complaint（de Beschwerde 线）区分 |
-| Mute | Mute | 禁言/免打扰 | ja ミュート / ko 뮤트 / de Stumm / fr Muet / it Silenzia / ru Без звука（通知语境）| 禁言（群治理）与免打扰（个人通知）若同键复用需上下文可辨 |
+| Mute | Mute | 禁言/免打扰 | **成员禁言（群治理）**：ja ミュート / ko 채팅 금지 / de Stummschalten / fr mise en sourdine / it Silenzia / ru мьют（Замьютить 族）/ ar كتم；**通知免打扰**：各语言另用通知语境词（ko 음소거 等）| 禁言与免打扰若同键复用需上下文可辨；ko 两概念**必须区分**（禁言≠음소거，2026-09-06 Round-6 对齐既有语料）；it 弃英语借词 Mutato→Silenzia（正向对齐） |
+| Kick（移出群聊） | Remove from group | 移出群聊 | 确认弹窗动词与菜单键 `common.removeMember` 同词：ja 削除 / ko 제거 / de entfernen / fr Supprimer / it Rimuovere / ru Удалить / ar إزالة | 同一操作流内菜单与弹窗用词必须一致（Round-6 对齐）；勿用 ja 除外 / ko 제외 / ru Убрать 等近义词制造分裂 |
 
 ## 9. 支付与注销
 
@@ -136,13 +137,19 @@ Message ≠ Chat ≠ Channel Post ≠ Comment
 已解决（2026-09-06 用户拍板统一台式）：用家 15 处→使用者（§5 User 钉定词）、賬號 10 处→帳號，零残留。
 
 ### ja-JP
-敬体です・ます；按钮体言止め；**購読者（禁 登録者）**；安全番号（PINNED）；红包=お年玉（PINNED）。日中同形规避变体约 21 键待母语复核（字号 小さめ/中くるい 等——若审核接受同形原形「小/中/大/特大」则 untranslated 工具存在盲区，见 P9 报告）。
+敬体です・ます；按钮体言止め；**購読者（禁 登録者）**；安全番号（PINNED）；红包=お年玉（PINNED）；kick 动词=削除（对齐 common.removeMember，Round-6）。日中同形规避变体约 21 键待母语复核（字号 小さめ/中くるい 等——若审核接受同形原形「小/中/大/特大」则 untranslated 工具存在盲区，见 P9 报告）。
+
+### ko-KR
+존댓말（합니다体）；成员=**구성원**（37:10 主流，Round-6 钉定）；禁言=**채팅 금지**、通知静音=**음소거**（两概念严格区分，Round-6）；kick 动词=제거（对齐 메뉴 키）。
+
+### it-IT
+非敬体（tu 体全包一致，Round-3 复验）；mute=Silenziare/Silenziato（Round-6 弃英语借词 Mutato，Telegram-it 同款）；上传=caricare。
 
 ### ru-RU
 CLDR 复数：`timeMinutesAgo(plural)` 等必须保持 one/few/many/other 四分支（2026-09-05 已补全）；时间状语用宾格（минуту назад）；数字+名词组合用属格固定式规避（«Участников: $count»）。
 
 ### ar-SA
-数字沿用西方数字（既有惯例 PINNED）；拉丁白名单=品牌/技术词；RTL 语境下占位符按语序放置；「→」方向语义在 RTL 中取反向（P15 裁决 discussInGroupGuide 用 ←）。
+数字沿用西方数字（既有惯例 PINNED）；拉丁白名单=品牌/技术词；RTL 语境下占位符按语序放置；「→」方向语义在 RTL 中取反向（P15 裁决 discussInGroupGuide 用 ←）；管理员双概念并存（群管理员=مشرف / 系统管理员=المسؤول，各 11 键，Round-6 实证勿强行统一）；复数节点须全 CLDR 分支（Round-3 补 one/two/few/many）。
 
 ### 全语言技术字段（RTL 局部 LTR 白名单，只记录不大改）
 URL、ID、Hash、安全码显示值、颜色值（#RRGGBB）、日期模板（YYYY-MM-DD）——这些字段在 RTL 界面中如需强制 LTR，应在字段级 widget 局部包 Directionality(ltr)（lib/run.dart 全局层已移除，见 P6）。
