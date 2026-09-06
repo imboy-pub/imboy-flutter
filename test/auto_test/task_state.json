@@ -373,5 +373,19 @@
       "maintain": "workspace 其余 18 行维持：无工作区账号类 6 行（需 UI 登录切号）、失败+无缓存叠加类（需清 SQLCipher 缓存不可行）、create 幂等/409、invite 故障注入、branding 非 Owner、members/overview 空态",
       "commits": "见 git log 批次115"
     }
+  },
+  "session_2026_09_06_batch116": {
+    "note": "批次116：new_friend 4 行 + channel_subscriber 3 行阻塞解除（README 阻塞 200→193），2 个真 bug 修复（客户端 NF uk 拼接 / 服务端订阅者分页游标语义）。",
+    "fixes": [
+      "P1 new_friend_provider delete 的 uk 拼接缺下划线（from+to ≠ 模型 from_to）→ indexWhere 恒 miss → removeAt(-1) RangeError，表现为删除后列表无反应（库已删 UI 不刷新）；已修 + index==-1 防御",
+      "P0 服务端 channel_subscription_repo:list_by_channel 把 offset 型 cursor 当 `cs.id <` 游标（TSID 大整数与条数永不可比）→ 第二页恒空、尾部订阅者 UI 永久不可见；改 LIMIT/OFFSET + cs.id DESC 稳定排序；修复过程二坑：热更版委托子句 (0,Limit)→(Limit,0) 参数反置致 LIMIT 0 首页恒空——curl 只验了第二页漏掉首页，被测试内 DIAG-CS0 原始信封（ok=true code=0 list=[]）抓出，收敛为单子句 guard Cursor>=0",
+      "环境坑（非产品 bug）：直插 SQL 造数绕过订阅流致 channel.subscriber_count=0，移除事务 subscriber_count-1 撞 chk_channel_subscriber_count>=0 CHECK 回滚→「移除订阅者失败」；校准计数器=实际行数后闭环（配方入测试头注）"
+    ],
+    "tests": "integration_test/contact/new_friend_acceptance_test.dart（AT-NF1 左滑删除/NF2 查看资料/NF3 三状态标签/NF4 已发送标签 全绿）；integration_test/channel/channel_subscriber_acceptance_test.dart（AT-CS1 分页 30+6/CS2 查看资料/CS3 移除订阅者 全绿+DB 双实证；CS4 邀请入口未出现走降级分支，行保持阻塞）",
+    "blocked_remain": [
+      "channel_subscriber 邀请选人弹层过滤：需私有频道+第二台设备（批次116 实测 extra canInvite=true 下入口仍未出现）"
+    ],
+    "test_env_quirks": "行内 PopupMenuButton 是 ListTile trailing 子节点而非标题 Text 的祖先，find.ancestor 结构性恒空（误配到 AppBar 菜单）→ 须 tile祖先→descendant 两段定位（踩 3 轮）；CS1 触底后 ListView 懒加载致顶部行未渲染，断言顶部行前须滚回顶部；app header 认证用 authorization（const tokenKey），curl 用 token 头会 401 干扰排查；造数须同步校准 channel.subscriber_count",
+    "commits": "imboyapp: 本批次 provider 修复+2 测试+台账 pathspec 提交；imboy: channel_subscription_repo 分页修复（热更 9801 已生效）；均为提交后补记"
   }
 }
