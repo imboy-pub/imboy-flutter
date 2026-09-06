@@ -58,11 +58,11 @@ class FlowApiClient {
   final String _deviceId;
   final String? _deviceTypeOverride;
 
-  String? _accessToken;
+  /// 可直接注入的会话 token：集成测试复用 App 主会话时设置它，
+  /// 避免独立 login 触发「另一设备登录」把 App 会话挤下线。
+  String? accessToken;
   String? _refreshToken;
   String? _currentUid;
-
-  String? get accessToken => _accessToken;
   String? get currentUid => _currentUid;
 
   FlowApiClient({required this.baseUrl, String? deviceId, String? deviceType})
@@ -127,8 +127,8 @@ class FlowApiClient {
 
   Future<Map<String, String>> _authHeaders() async {
     final h = await _defaultHeaders();
-    if (_accessToken != null && _accessToken!.isNotEmpty) {
-      h['authorization'] = 'Bearer $_accessToken';
+    if (accessToken != null && accessToken!.isNotEmpty) {
+      h['authorization'] = 'Bearer $accessToken';
     }
     return h;
   }
@@ -170,7 +170,7 @@ class FlowApiClient {
     final body = _parse(resp);
     if (body['code'] == 0) {
       final p = body['payload'] as Map<String, dynamic>?;
-      _accessToken = p?['token'] as String?;
+      accessToken = p?['token'] as String?;
       _refreshToken = p?['refreshtoken'] as String?;
       _currentUid = '${p?['uid'] ?? ''}';
       _log('登录成功: uid=$_currentUid');
@@ -200,7 +200,7 @@ class FlowApiClient {
     final body = _parse(resp);
     if (body['code'] == 0) {
       final p = body['payload'] as Map<String, dynamic>?;
-      _accessToken = p?['token'] as String?;
+      accessToken = p?['token'] as String?;
       _refreshToken = p?['refreshtoken'] as String?;
     }
     return body;
