@@ -66,7 +66,7 @@ void main() {
       // i18n: accountSecurityEnhance = "提升账户安全"
       expect(find.text('提升账户安全'), findsOneWidget);
       // i18n: bindMobileAndEmailTips
-      expect(find.text('绑定手机号和邮箱，让您的账户更安全'), findsOneWidget);
+      expect(find.text('绑定手机号和邮箱，让你的账户更安全'), findsOneWidget);
 
       await _unmount(tester);
     });

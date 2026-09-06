@@ -710,3 +710,17 @@ zh-Hant: 用戶→使用者 1 处（词系对齐：使用者 27 vs 用戶 1 → 
 
 至止所有可机做的产品语义裁决全部执行完毕。发布门保持：Gate 1-3 PASS，
 Gate 4 = BLOCKED_NO_REVIEWER（唯一剩余），Release = NO-GO 待母语审核。
+
+## 8.10 译文改值波次的全量回归验证（2026-09-06，HEAD=bbc2deda + 断言修复）
+
+§8.8/§8.9 两波译文改值（zh-CN 17 处 + zh-Hant 73 处）晚于 §8.7.2 的全量跑，
+证据链存在缺口，本轮补齐：
+
+```text
+改值引用排查：test/integration_test 中旧值特征串（您/用家/用戶/賬號）扫描
+  → 命中 1 处硬编码断言 manage_account_page_test.dart:69（旧文案「让您的账户更安全」）
+  → 断言跟随改值更新，单跑 9/9 全绿
+全量 flutter test 复跑（含修复）：+6107 / ~240 skip / -7，与 §8.7.2 基线完全同型
+  → 7 个 loading 失败逐一比对该基线（2 假日志 + channel_public barrel + file_picker 族）
+  → 零新增失败：两波译文改值经全量验证零回归
+结论：当前 HEAD 的"全量绿（除已知非 i18n 既有失败）"证据重新闭合。
