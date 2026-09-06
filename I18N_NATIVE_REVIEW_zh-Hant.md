@@ -24,14 +24,14 @@
 | 13 | T1 | `account.changeMobile` | 更换手机号 | 更換手機號 | | ✅ |
 | 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | 驗證碼已傳送到郵箱 | | ✅ |
 | 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | 驗證碼已傳送到手機 | | ✅ |
-| 16 | T1 | `account.currentDevice` | 当前设备 | 目前設備 | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | 目前裝置 | | ✅ |
 | 17 | T1 | `account.currentMobile` | 当前手机号 | 目前手機號 | | ✅ |
-| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | 設備可用空間 | | ✅ |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | 裝置可用空間 | | ✅ |
 | 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | 裝置金鑰已重新整理 | | ✅ |
-| 20 | T1 | `account.deviceList` | 设备列表 | 設備清單 | | ✅ |
-| 21 | T1 | `account.deviceName` | 设备名称 | 設備名稱 | | ✅ |
-| 22 | T1 | `account.deviceType` | 设备类型 | 設備類型 | | ✅ |
-| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | 設備已使用空間 | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | 裝置清單 | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | 裝置名稱 | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | 裝置類型 | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | 裝置已使用空間 | | ✅ |
 | 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | 裝置 ID | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | other:「$n天前」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | other:「$n小時前」 | | ✅ |

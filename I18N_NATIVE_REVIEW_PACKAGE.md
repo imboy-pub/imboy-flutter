@@ -56,9 +56,9 @@
 | 22 | T1 | `account.deviceType` | 设备类型 | نوع الجهاز | | ✅ |
 | 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | المساحة المستخدمة في الجهاز | | ✅ |
 | 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | معرّف الجهاز | | ✅ |
-| 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | other:「منذ $n يوم」 | | ✅ |
-| 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | other:「منذ $n ساعة」 | | ✅ |
-| 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | other:「منذ $n دقيقة」 | | ✅ |
+| 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | one:「منذ يوم واحد」/two:「منذ يومين」/few:「منذ $n أيام」/many:「منذ $n يومًا」/other:「منذ $n يوم」 | | ✅ |
+| 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | one:「منذ ساعة واحدة」/two:「منذ ساعتين」/few:「منذ $n ساعات」/many:「منذ $n ساعةً」/other:「منذ $n ساعة」 | | ✅ |
+| 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「منذ دقيقة واحدة」/two:「منذ دقيقتين」/few:「منذ $n دقائق」/many:「منذ $n دقيقةً」/other:「منذ $n دقيقة」 | | ✅ |
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | قارن رمز الأمان مع الطرف الآخر وجهاً لوجه أو عبر الهاتف. إذا تطابق الرمزان فهذا يعني أن اتصالكما ليس خاضعاً لتنصت وسيط؛ وإذا اختلف فأوقف المحادثة فوراً وتحقق من هوية الطرف الآخر عبر قناة أخرى. تُحفظ حالة التحقق على هذا الجهاز فقط. | | ✅ |
 | 29 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | المفتاح العام لتدقيق الامتثال الصادر من الخادم لا يطابق القيمة المثبتة محلياً. إذا كان هذا تدويراً مقصوداً للمفتاح من المسؤول، فانقر على «تأكيد التدوير»؛ وإلا فلا تُكمل إرسال الرسائل المشفّرة، واتصل بالمسؤول للتحقق. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | لحماية رسائلك، تم إنشاء مفتاح تشفير جديد من طرف إلى طرف على هذا الجهاز. الرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ولا يمكن عرضها إلا بعد استعادة المفتاح. يمكنك الاستعادة عبر "استيراد نسخة احتياطية محلية". | | ✅ |
@@ -96,7 +96,7 @@
 | 27 | T2 | `common.timeMinutesAgo(plural)` | other:「$n分钟前」 | one:「Vor $n Minute」 / other:「Vor $n Minuten」 | | ✅ |
 | 28 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokal gepinnten Wert überein. Handelt es sich um eine beabsichtigte Schlüsselrotation durch den Administrator, tippen Sie auf „Rotation bestätigen“; andernfalls senden Sie keine weiteren verschlüsselten Nachrichten und kontaktieren Sie den Administrator zur Prüfung. | | ⚠️ 长度比2.88 |
 | 29 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Vergleichen Sie den Sicherheitscode persönlich oder telefonisch mit der anderen Person. Bei Übereinstimmung wird Ihre Kommunikation nicht abgehört; bei Abweichung beenden Sie sofort das Gespräch und verifizieren Sie die Identität über einen anderen Kanal. Der Verifizierungsstatus wird nur auf diesem Gerät gespeichert. | | ✅ |
-| 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Zum Schutz deiner Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt. Ältere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Du kannst ihn über „Lokales Backup importieren“ wiederherstellen. | | ✅ |
+| 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Zum Schutz Ihrer Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt. Ältere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Sie können ihn über „Lokales Backup importieren“ wiederherstellen. | | ✅ |
 
 ### fr-FR
 
@@ -292,14 +292,14 @@
 | 13 | T1 | `account.changeMobile` | 更换手机号 | 更換手機號 | | ✅ |
 | 14 | T1 | `account.codeSentToEmail` | 验证码已发送到邮箱 | 驗證碼已傳送到郵箱 | | ✅ |
 | 15 | T1 | `account.codeSentToMobile` | 验证码已发送到手机 | 驗證碼已傳送到手機 | | ✅ |
-| 16 | T1 | `account.currentDevice` | 当前设备 | 目前設備 | | ✅ |
+| 16 | T1 | `account.currentDevice` | 当前设备 | 目前裝置 | | ✅ |
 | 17 | T1 | `account.currentMobile` | 当前手机号 | 目前手機號 | | ✅ |
-| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | 設備可用空間 | | ✅ |
+| 18 | T1 | `account.deviceAvailableSpace` | 设备可用空间 | 裝置可用空間 | | ✅ |
 | 19 | T1 | `account.deviceKeyRefreshed` | 设备密钥已刷新 | 裝置金鑰已重新整理 | | ✅ |
-| 20 | T1 | `account.deviceList` | 设备列表 | 設備清單 | | ✅ |
-| 21 | T1 | `account.deviceName` | 设备名称 | 設備名稱 | | ✅ |
-| 22 | T1 | `account.deviceType` | 设备类型 | 設備類型 | | ✅ |
-| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | 設備已使用空間 | | ✅ |
+| 20 | T1 | `account.deviceList` | 设备列表 | 裝置清單 | | ✅ |
+| 21 | T1 | `account.deviceName` | 设备名称 | 裝置名稱 | | ✅ |
+| 22 | T1 | `account.deviceType` | 设备类型 | 裝置類型 | | ✅ |
+| 23 | T1 | `account.deviceUsedSpace` | 设备已使用空间 | 裝置已使用空間 | | ✅ |
 | 24 | T1 | `account.e2eeDeviceIdLabel` | 设备 ID | 裝置 ID | | ✅ |
 | 25 | T2 | `common.timeDaysAgo(plural)` | other:「$n天前」 | other:「$n天前」 | | ✅ |
 | 26 | T2 | `common.timeHoursAgo(plural)` | other:「$n小时前」 | other:「$n小時前」 | | ✅ |
