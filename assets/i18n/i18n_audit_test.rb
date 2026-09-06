@@ -20,6 +20,8 @@
 #  10. used_missing 检出（代码引用了但 locale 缺失）
 #  11. 别名访问器 tr. 构成真实引用，不得标 unused candidate
 #  12. locale 局部变量访问器 zh./en. 构成真实引用（moment 契约键误删教训）
+#  13. 非拉丁 locale 值与 en-US 逐字节相同 => latin_residue 结构失败（Round-3 盲区）
+#  14. 豁免矩阵：PINNED 角色词 / 与基准同值 / 色值 URL => 不判 latin_residue
 
 require "tmpdir"
 require "fileutils"
@@ -259,6 +261,39 @@ test "locale_local_accessor_counts_as_reference" do |dir|
   assert out.include?("common.orphan"), "unreferenced key must stay a candidate: #{out}"
   assert !out.include?("common.hint"),
          "key referenced via zh./en. local accessors must NOT be flagged unused: #{out}"
+end
+
+# 13 ── 非拉丁 locale 英文残留（值 == en-US 值）必须判结构失败
+test "latin_residue_fails_check" do |dir|
+  i18n = write_fixture(dir, locales: {
+    "zh-CN" => { "common.i18n.yaml" => "upload: 上传中\nshare: 分享失败\n" },
+    "en-US" => { "common.i18n.yaml" => "upload: Uploading\nshare: Share failed\n" },
+    "ru-RU" => { "common.i18n.yaml" => "upload: Uploading\nshare: Ошибка отправки\n" }
+  })
+  out, _e, status = run_audit(i18n, dir, "check")
+  assert status.exitstatus == 1, "en-copy value in ru must fail check"
+  assert out.include?("[latin_residue]"), "failure must be categorized latin_residue: #{out}"
+  assert out.include?("upload"), "the offending key must be listed: #{out}"
+  assert !out.include?("share"), "properly translated key must not be flagged: #{out}"
+
+  # summary 列也须可见
+  out, _e, status = run_audit(i18n, dir, "summary")
+  assert status.success?, "summary exited #{status.exitstatus}"
+  line = out.lines.find { |l| l.start_with?("ru-RU") }
+  assert line.include?("en_residue=1"), "summary must report en_residue column: #{line}"
+end
+
+# 14 ── 豁免矩阵：PINNED 角色词 / 与基准同值 / 色值 URL / 拉丁 locale 均不判
+test "latin_residue_exemptions" do |dir|
+  i18n = write_fixture(dir, locales: {
+    "zh-CN" => { "common.i18n.yaml" => "role: 群主\nnow: now\ncolor: \"#2474E5\"\nlink: \"https://x.example\"\nupload: 上传中\n" },
+    "en-US" => { "common.i18n.yaml" => "role: Owner\nnow: now\ncolor: \"#2474E5\"\nlink: \"https://x.example\"\nupload: Uploading\n" },
+    "ja-JP" => { "common.i18n.yaml" => "role: Owner\nnow: now\ncolor: \"#2474E5\"\nlink: \"https://x.example\"\nupload: アップロード中\n" },
+    "de-DE" => { "common.i18n.yaml" => "role: Owner\nnow: now\ncolor: \"#2474E5\"\nlink: \"https://x.example\"\nupload: Uploading\n" }
+  })
+  out, _e, status = run_audit(i18n, dir, "check")
+  assert status.exitstatus == 0, "exempt values must not fail: #{out}"
+  assert out.include?("latin_residue=0"), "clean structural line must include latin_residue=0: #{out}"
 end
 
 # ── runner ──────────────────────────────────────────────────────────────

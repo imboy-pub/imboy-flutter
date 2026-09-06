@@ -16,12 +16,17 @@
 # * placeholder 归一化：$name / ${name} / {name} 都归一为参数名再比对。
 # * 静态引用 + unused 分析：结果只给 candidate / unknown / indirect，
 #   永不输出 confirmed_unused —— 删除属 P3/P4 裁决且必须人工确认。
+# * 英文残留门（Round-3 追加）：非拉丁 locale（zh-Hant/ja/ko/ru/ar）的值
+#   与 en-US 逐字节相同（且不同于 zh-CN 基准、不在 PINNED/品牌/技术豁免
+#   清单）判结构缺陷。Round-3 实证 36 键 × 8 locale 以 en 拷贝形态潜伏
+#   （missing/placeholder 门均不覆盖此形态）。
 #
 # 用法：ruby i18n_audit.rb help
 #
 # check 退出码约定：
 #   exit 1 —— 重复键 / 空值 / null / 非字符串叶子 / YAML 语法错误 /
-#             placeholder 不一致 / 非法 alias / 真性 extra / 未登记 locale 目录
+#             placeholder 不一致 / 非法 alias / 真性 extra / 未登记 locale 目录 /
+#             非拉丁 locale 英文残留（latin_residue）
 #   exit 0 —— 结构干净。missing / used_missing / unused 候选只作为信息项打印；
 #             设 I18N_AUDIT_STRICT=1 时 missing 或 used_missing > 0 也判失败
 #             （完整发布门，供 P16/P17 使用）。
@@ -315,12 +320,15 @@ def mode_help
       help
     Env: I18N_AUDIT_ROOT / I18N_AUDIT_REPO_ROOT（测试夹具用）,
          I18N_AUDIT_STRICT, I18N_AUDIT_SCAN_DIRS, LIST, TOP, I18N_AUDIT_JSON
+    英文残留门（Round-3）：check 对非拉丁 locale 的「值==en-US 且 !=基准 且
+    不在 PINNED/品牌/技术豁免」判结构失败；summary 以 en_residue 列展示。
   TEXT
 end
 
 def mode_summary(base, legal, ignored)
   puts "BASE=#{BASE_LOCALE} keys=#{base.logical.size} leaves=#{base.leaf_count}"
   puts "ignored dirs: #{ignored.join(', ')}" unless ignored.empty?
+  en_data = legal.include?("en-US") ? load_locale("en-US") : nil
   legal.each do |loc|
     next if loc == BASE_LOCALE
     d = load_locale(loc)
@@ -328,6 +336,7 @@ def mode_summary(base, legal, ignored)
     extra = d.logical.keys - base.logical.keys
     ph = placeholder_diff(base, d)
     same = base.logical.count { |k, bv| d.logical[k] == bv }
+    residue = latin_residue_keys(base, en_data, loc).size
     han = d.logical.count { |_, v| v.is_a?(String) && v.match?(/\p{Han}/) }
     latin = d.logical.count { |_, v| v.is_a?(String) && v.match?(/[A-Za-z]/) }
     cyr = d.logical.count { |_, v| v.is_a?(String) && v.match?(/\p{Cyrillic}/) }
@@ -339,6 +348,7 @@ def mode_summary(base, legal, ignored)
       "extra=#{extra.size.to_s.ljust(4)}",
       "placeholder_mismatch=#{ph.size.to_s.ljust(3)}",
       "same_as_base=#{same.to_s.ljust(5)}",
+      "en_residue=#{residue.to_s.ljust(3)}",
       "empty=#{d.empty.size + d.nulls.size}",
       "han=#{han} latin=#{latin} cyrillic=#{cyr} arabic=#{arb}"
     ].join(" ")
@@ -354,6 +364,7 @@ def mode_check(base, legal, ignored, unknown)
   end
 
   per_locale_missing = {}
+  en_data = legal.include?("en-US") ? load_locale("en-US") : nil
   legal.each do |loc|
     d = load_locale(loc)
     d.errors.each  { |e| failures << ["yaml", "#{loc}: #{e}"] }
@@ -367,6 +378,9 @@ def mode_check(base, legal, ignored, unknown)
     per_locale_missing[loc] = [missing.size, used_missing.size]
     placeholder_diff(base, d).each { |k| failures << ["placeholder", "#{loc}: #{k}"] }
     extra.each { |k| failures << ["extra", "#{loc}: #{k}（plural 分支之外的多余键）"] }
+    latin_residue_keys(base, en_data, loc).each do |k|
+      failures << ["latin_residue", "#{loc}: #{k}（值与 en-US 相同——疑似未翻译英文拷贝）"]
+    end
   end
 
   unused = classify_unused(base, refs_static, dynamic_ns)
@@ -377,7 +391,7 @@ def mode_check(base, legal, ignored, unknown)
   puts "locales: #{legal.size} legal | ignored: #{ignored.empty? ? '-' : ignored.join(', ')} | base=#{BASE_LOCALE}"
   cats = failures.group_by(&:first).transform_values(&:count)
   if failures.empty?
-    puts "structural: duplicate=0 empty=0 null=0 non_string=0 syntax=0 placeholder=0 illegal_alias=0 extra=0 unknown_locale=0"
+    puts "structural: duplicate=0 empty=0 null=0 non_string=0 syntax=0 placeholder=0 illegal_alias=0 extra=0 unknown_locale=0 latin_residue=0"
   else
     puts "structural defects:"
     failures.first(40).each { |c, m| puts "  [#{c}] #{m}" }
@@ -468,6 +482,33 @@ def allowed_scripts_for(locale)
   when /\Aru-/ then Set[:cyrillic, :latin]
   when /\Aar-/ then Set[:arabic, :latin]
   else Set[:latin]
+  end
+end
+
+# ── 英文残留门（Round-3 追加）───────────────────────────────────────────
+# 拉丁文字 locale（en/de/fr/it）与 en-US 存在大量合法同形词（Video/Status/
+# min/h），逐字节比对假阳性不可控，不做此检测。检测面 = 非拉丁 locale。
+LATIN_SCRIPT_LOCALES = %w[en-US de-DE fr-FR it-IT].freeze
+# 整值豁免：PINNED 拉丁角色词（用户 2026-09-06 拍板）/ 品牌 / 通用缩写。
+# 注意 %w[] 不解析引号，多词条目必须用普通数组书写（首跑实抓 12 条假阳性）。
+LATIN_RESIDUE_EXEMPT_VALUES = [
+  "OK", "AI", "Admin", "Owner", "Member", "Guest", "Moderator", "Subscriber",
+  "Alipay", "WeChat", "WeChat Pay", "Huabei",
+].freeze
+
+def latin_residue_keys(base, en_data, loc)
+  return [] if LATIN_SCRIPT_LOCALES.include?(loc) || loc == BASE_LOCALE
+  return [] if en_data.nil? # 夹具无 en-US 时不检测
+  d = load_locale(loc)
+  d.logical.filter_map do |k, v|
+    next unless v.is_a?(String)
+    next if v.start_with?("@:")
+    next unless v.match?(/[A-Za-z]/)
+    next if LATIN_RESIDUE_EXEMPT_VALUES.include?(v.strip)
+    next if v.match?(/\A#/) || v.match?(%r{\Ahttps?://}) # 色值 / URL 技术值
+    next unless v == en_data.logical[k]
+    next if base.logical[k] == v # 与基准同值（same_as_base 已另行统计）
+    k
   end
 end
 

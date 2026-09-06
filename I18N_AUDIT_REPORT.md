@@ -820,3 +820,12 @@ git diff --check                        CLEAN（slang 平铺 map 3 行尾随空�
 ### 8.12.5 审核包同步
 
 de 包（e2eeRecoveryNewDeviceBody Sie 化 2 处）、ar 包（复数行 3 处展开新分支）、zh-Hant 包（裝置 6 处）+ 主包（de2+ar3+裝置6）已同步；集群 36 键不在审核包选取集（Tier1=安全/支付域）。
+
+### 8.12.6 审计器英文残留门（Round-3 盲区根治，2026-09-06 追加）
+
+Round-3 的 36 键 × 8 locale 英文残留能潜伏十轮，根因是审计器只门 missing/placeholder，**不门「非拉丁 locale 的纯英文值」**——而并行功能线正以「en 值拷贝」模式持续加键。根治：
+
+- `latin_residue` 结构门（`assets/i18n/i18n_audit.rb`）：非拉丁 locale（zh-Hant/ja/ko/ru/ar）的值与 en-US **逐字节相同**、且不同于 zh-CN 基准、且不在豁免清单（PINNED 拉丁角色词 / Alipay·WeChat·WeChat Pay·Huabei 品牌 / `#色值` / URL）→ check 判结构失败（普通+strict 均硬失败）。summary 新增 `en_residue=N` 列。
+- 拉丁 locale（de/fr/it）不做此检测（与 en 存在大量合法同形词 Video/Status/min/h，假阳性不可控——已注释在案）。
+- 回归测试 +2（用例 13 命中/用例 14 豁免矩阵），13/13 全绿。
+- **首跑实抓 12 条假阳性教训**：`%w[]` 不解析引号，`"WeChat Pay"` 多词条目被拆成带引号废词条——多词豁免值必须用普通数组书写。修复后真仓 check/strict 双 PASS、en_residue=0（同时证明并行会话当前未引入新英文残留键）。
