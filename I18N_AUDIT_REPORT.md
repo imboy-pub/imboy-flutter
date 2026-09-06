@@ -846,3 +846,22 @@ gitleaks 8.30.1 全 push 面（origin/main..HEAD）：245 笔提交 / 4.40MB dif
 ```
 
 **执行面**：`git push origin main` 一条命令即可（无 force 需求，imboyapp 未做历史重写）。本证书不构成 push 授权——授权仍单独等用户明示。
+
+## 14. 母语审核回填 → 热修 SOP（CONDITIONAL GO 风险路径的运营闭环）
+
+**审核人侧**（每语言一份 `I18N_NATIVE_REVIEW_<locale>.md`，约 30 行）：
+1. 逐行核对「zh-CN（基准）」与「译文」列；结论列填 `APPROVED` / `CHANGES_REQUESTED` / `BLOCKED_NO_REVIEWER`；
+2. 有异议在「建议译文」列写出推荐译文；填审核人姓名与日期；
+3. ⚠️ 列为 AI 预筛观察项（长度比等），不构成驳回依据。
+
+**集成者侧**（回填回收后）：
+1. 全部 `APPROVED` → 报告 §8 主包总览表回写 → 发布状态升格 `GO`（纯文档操作，零代码变更）；
+2. 任一 `CHANGES_REQUESTED` → 热修流水线（多轮验证过的既定链路）：
+   `assets/i18n/<locale>/<ns>.i18n.yaml` 值级替换（守卫式，当前值须精确匹配包内旧值）
+   → `dart run slang` → `I18N_AUDIT_STRICT=1 ruby assets/i18n/i18n_audit.rb check`
+   → 审核包同步该行 → `flutter test test/unit_test/i18n_ui_gate_test.dart` → 提交（-s DCO）；
+3. 审核包即为工单：每行自带 Key、基准文案、现译文三要素，无需另建 issue；
+4. 任何新键走同链路（英文残留门已在 check/strict 硬失败拦截 en 拷贝形态）。
+
+**快速入口**：`ruby assets/i18n/i18n_audit.rb check`（日常）／`I18N_AUDIT_STRICT=1 …`（发布门）／
+`ruby assets/i18n/i18n_audit_test.rb`（工具回归 13 用例）。
