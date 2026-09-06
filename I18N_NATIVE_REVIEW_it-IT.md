@@ -5,6 +5,18 @@
 > 并由集成者回写主包总览表。审核人：________　日期：________
 
 
+## Al revisore / alla revisora
+Ciao! IMBoy è un'app di messaggistica cifrata end-to-end (auto-ospitabile). Prima della pubblicazione facciamo rileggere i testi dell'interfaccia da madrelingua — grazie per la disponibilità!
+
+**Come procedere**: scorri la tabella qui sotto riga per riga e controlla la colonna «it-IT 译文» (traduzione italiana; la colonna cinese è solo di riferimento, non serve sapere il cinese):
+
+- traduzione corretta → scrivi `✅` nella sesta colonna (intestazione 结论, attualmente vuota);
+- traduzione da correggere → scrivi `✗` nella sesta colonna e scrivi la tua proposta nell'ultima colonna (intestazione 建议译文, contiene ✅ per impostazione predefinita).
+
+30 righe in totale, circa 15–20 minuti. Nomi propri e marchi (Alipay, WeChat Pay, Huabei…) restano volutamente in caratteri latini: modificali solo se davvero errati.
+
+Quando hai finito, rimanda semplicemente questo file alla persona che ti ha contattato. Grazie mille!
+
 ### it-IT
 
 | # | Tier | Key | zh-CN（基准） | it-IT 译文 | 结论 | 建议译文 |

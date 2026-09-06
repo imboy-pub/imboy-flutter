@@ -4,6 +4,9 @@
 > 结论口径（任务书 P17，只接受以下三种）：
 > **APPROVED**（本行译文可发布）／ **CHANGES_REQUESTED**（在"建议译文"列写出替换文本）／ **BLOCKED_NO_REVIEWER**（该语言整行标无人审核）。
 > 审核人只需审本包内文案；包外键已由自动门（missing/placeholder/duplicate/结构）与 widget 级 UI Gate 覆盖。
+>
+> **分发**：见 [I18N_NATIVE_REVIEW_DISTRIBUTION.md](./I18N_NATIVE_REVIEW_DISTRIBUTION.md)（含各语言一句话邀约与回填流程）。
+> 8 份按语言分发版均已内嵌审核人母语导读（2026-09-06），发文件即发完整说明。
 
 ## 选取规则（可复现）
 

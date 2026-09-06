@@ -5,6 +5,18 @@
 > 并由集成者回写主包总览表。审核人：________　日期：________
 
 
+## Au relecteur / à la relectrice
+Bonjour ! IMBoy est une application de messagerie chiffrée de bout en bout (auto-hébergeable). Avant la publication, nous faisons relire nos textes d'interface par des locuteurs natifs — merci pour votre aide !
+
+**Mode d'emploi** : parcourez le tableau ci-dessous ligne par ligne et vérifiez la colonne « fr-FR 译文 » (traduction française ; la colonne chinoise n'est qu'une référence, pas besoin de lire le chinois) :
+
+- traduction correcte → écrivez `✅` dans la sixième colonne (en-tête 结论, vide pour l'instant) ;
+- traduction à corriger → écrivez `✗` dans la sixième colonne et proposez votre version dans la dernière colonne (en-tête 建议译文, qui contient ✅ par défaut).
+
+30 lignes au total, 15 à 20 minutes environ. Les noms propres et marques (Alipay, WeChat Pay, Huabei…) restent volontairement en caractères latins — ne les modifiez que s'ils sont réellement erronés.
+
+Une fois terminé, renvoyez simplement ce fichier à la personne qui vous a contacté. Merci beaucoup !
+
 ### fr-FR
 
 | # | Tier | Key | zh-CN（基准） | fr-FR 译文 | 结论 | 建议译文 |

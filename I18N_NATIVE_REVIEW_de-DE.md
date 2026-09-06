@@ -5,6 +5,18 @@
 > 并由集成者回写主包总览表。审核人：________　日期：________
 
 
+## An den Prüfer / die Prüferin
+Hallo! IMBoy ist eine Chat-App mit Ende-zu-Ende-Verschlüsselung (selbst hostbar). Vor der Veröffentlichung lassen wir die Oberflächentexte von Muttersprachlern gegengelesen – danke, dass Du mithilfst!
+
+**So geht's**: Gehe die Tabelle unten Zeile für Zeile durch und prüfe die Spalte „de-DE 译文“ (deutsche Übersetzung; die chinesische Spalte ist nur die Referenz, Du musst kein Chinesisch können):
+
+- Übersetzung passt → schreibe `✅` in die sechste Spalte (Titel 结论, noch leer)
+- Übersetzung passt nicht → schreibe `✗` in die sechste Spalte und trage Deine Empfehlung in die letzte Spalte (Titel 建议译文, dort steht derzeit ✅) ein
+
+Insgesamt 30 Zeilen, ca. 15–20 Minuten. Eigennamen und Marken (Alipay, WeChat Pay, Huabei u. a.) bleiben bewusst lateinisch – bitte nur ändern, wenn wirklich falsch.
+
+Wenn Du fertig bist, schicke diese Datei einfach an die Person zurück, die Dich eingeladen hat. Vielen Dank!
+
 ### de-DE
 
 | # | Tier | Key | zh-CN（基准） | de-DE 译文 | 结论 | 建议译文 |

@@ -849,6 +849,10 @@ gitleaks 8.30.1 全 push 面（origin/main..HEAD）：245 笔提交 / 4.40MB dif
 
 ## 14. 母语审核回填 → 热修 SOP（CONDITIONAL GO 风险路径的运营闭环）
 
+> 分发执行细则（每语言发送文件 + 一句话邀约 + 收取口径 + 无人可审的降级路径）：
+> 见 [I18N_NATIVE_REVIEW_DISTRIBUTION.md](./I18N_NATIVE_REVIEW_DISTRIBUTION.md)（2026-09-06）。
+> 8 份分发版均已内嵌审核人母语导读，文件即完整说明。
+
 **审核人侧**（每语言一份 `I18N_NATIVE_REVIEW_<locale>.md`，约 30 行）：
 1. 逐行核对「zh-CN（基准）」与「译文」列；结论列填 `APPROVED` / `CHANGES_REQUESTED` / `BLOCKED_NO_REVIEWER`；
 2. 有异议在「建议译文」列写出推荐译文；填审核人姓名与日期；
