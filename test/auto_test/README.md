@@ -66,11 +66,11 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1494 | 85.5% |
-| 阻塞 | 254 | 14.5% |
+| 无待办 | 1515 | 86.7% |
+| 阻塞 | 233 | 13.3% |
 | **合计** | **1748** | 100% |
 
-bug 累计：**发现 207 / 解决 203 / 待处理 4**
+bug 累计：**发现 211 / 解决 207 / 待处理 4**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -92,10 +92,10 @@ bug 累计：**发现 207 / 解决 203 / 待处理 4**
 | [single](single/) | 5 | 48 | 0 | 46 | 2 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 25 | 11 |
-| [search](search/) | 3 | 35 | 0 | 14 | 21 |
+| [search](search/) | 3 | 35 | 0 | 34 | 1 |
 | [live_room](live_room/) | 3 | 33 | 0 | 5 | 28 |
 | [scanner](scanner/) | 3 | 30 | 0 | 28 | 2 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 11 | 1 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 12 | 0 |
 | [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 11 | 1 |
 | [splash](splash/) | 1 | 12 | 0 | 12 | 0 |
