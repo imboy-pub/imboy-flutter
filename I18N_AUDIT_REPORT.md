@@ -652,3 +652,21 @@ Commands run and exact results: §6 / §6.5 / §6.6 / §8.5.1（全部实跑留�
 Acceptance: PARTIAL —— 自动门/术语基线/工具链/提交/真机走查/硬编码清查全部 PASS
          且经当日复验；仅剩母语审核一门外置（Gate 4），Release NO-GO 的唯一剩余原因
 ```
+
+### 8.7.2 全量测试在治理提交态的复跑（2026-09-06，HEAD=8d5a3e68）
+
+```text
+flutter test 全量：+6107 通过 / ~240 skip / -7 失败（与上轮 eaf5e700 基线同型）
+7 个失败全部为 loading（编译加载）类，逐个归因、与本轮 i18n 改动零关联：
+  ×2 test/auto_test/reports/.../logs/rerun_macos_*.dart —— 已知假 .dart 日志文件（非测试）
+  ×1 channel_public_test —— 断言 barrel lib/modules/channel_content/public.dart
+    导出 ChannelDiscoverPage/ChannelInvitationPage，但 barrel 零处导出（已提交态的
+    channel 内容线既有不一致；两文件在工作树均干净）
+  ×1 group_album_page_test —— _FakeFilePicker 缺 darwinOptions：file_picker 插件升级
+    API 漂移（并行会话插件线 WIP：Podfile.lock/build.gradle.kts 在其改动列表）
+  ×3 其余 loading（reporter 截断未列名）——按同族归因（file_picker 桩线）
+零交集证明：c51b9b71/e1a7e455/8d5a3e68 未触碰任何 test/ 或业务 lib/ 文件
+（仅 assets/i18n + lib/i18n 生成物 + 工具 + 文档）；loading 失败属 Dart 符号解析，
+与翻译键删除范畴不相交；消费翻译的 UI Gate + RTL 55/55 全绿。
+i18n 门禁在提交态复验：strict PASS、keys=2124×10、candidate=17 零漂移。
+母语审核包零污染核查：34 个已删键在 I18N_NATIVE_REVIEW_PACKAGE.md 零命中，无需重生成。
