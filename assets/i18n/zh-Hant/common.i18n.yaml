@@ -449,6 +449,9 @@ changeSuccess: 更改成功
 lengthOk: 長度符合
 confirmNewPassword: 確認新密碼
 validationPassed: 驗證通過
+momentsContentHint: 寫點什麼...
+momentsAddMedia: 新增媒體
+momentsAllowUidsLabel: 允許可見 UID 列表（逗號分隔）
 momentsNoData: 暫無動態
 momentsDeleteConfirm: 確定刪除這條動態嗎？
 momentsDeleteCommentConfirm: 確定刪除這條評論嗎？

@@ -454,6 +454,9 @@ changeSuccess: 修改成功
 lengthOk: 长度符合
 confirmNewPassword: 确认新密码
 validationPassed: 验证通过
+momentsContentHint: 写点什么...
+momentsAddMedia: 添加媒体
+momentsAllowUidsLabel: 允许可见 UID 列表（逗号分隔）
 momentsNoData: 暂无动态
 momentsDeleteConfirm: 确定删除这条动态吗？
 momentsDeleteCommentConfirm: 确定删除这条评论吗？

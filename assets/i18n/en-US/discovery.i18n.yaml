@@ -7,6 +7,7 @@ peopleNearby: Nearby people
 scanResult: Scan result
 myChannels: My Channels
 otherUsersCanFindMe: Other users can find me through search
+momentsDenyUidsLabel: Hidden from these UIDs (comma-separated)
 moments: Moments
 momentsWriteComment: Write a comment...
 momentsVisibility: Visibility

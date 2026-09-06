@@ -8,6 +8,7 @@ peopleNearby: أشخاص قريبون
 scanResult: نتيجة المسح
 myChannels: قنواتي
 otherUsersCanFindMe: يمكن للمستخدمين الآخرين العثور علي من خلال البحث
+momentsDenyUidsLabel: قائمة UID المخفي عنهم (مفصولة بفواصل)
 moments: اللحظات
 momentsWriteComment: اكتب تعليقاً...
 momentsVisibility: الظهور

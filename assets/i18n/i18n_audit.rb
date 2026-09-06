@@ -204,11 +204,17 @@ def scan_refs
         parts = m.delete_prefix("t.").split(".")
         parts.each_index { |i| static << parts.take(i + 1).join(".") }
       end
-      # 别名访问器形态（如 final tr = translations ?? t 的可注入翻译模式）
-      # 同样构成真实引用；unused 判定宁可多算 used（保守），不可漏算导致误删
-      src.scan(/\btr(?:\.[A-Za-z0-9_]+)+/).each do |m|
-        parts = m.delete_prefix("tr.").split(".")
-        parts.each_index { |i| static << parts.take(i + 1).join(".") }
+      # 别名访问器形态，同样构成真实引用；unused 判定宁可多算 used（保守）：
+      #   tr  —— final tr = translations ?? t 的可注入翻译模式
+      #   zh/en —— 测试中按 locale 命名的 Translations 局部变量
+      #   （moment_create_i18n_test 契约键曾被 zh. 盲区误删，P4 误删根因之三）
+      accessors = ENV["I18N_AUDIT_ACCESSORS"]&.split(",") || %w[t tr zh en]
+      accessors.delete("t")
+      accessors.each do |acc|
+        src.scan(/\b#{Regexp.escape(acc)}(?:\.[A-Za-z0-9_]+)+/).each do |m|
+          parts = m.delete_prefix("#{acc}.").split(".")
+          parts.each_index { |i| static << parts.take(i + 1).join(".") }
+        end
       end
       src.scan(/\bt(?:\.[A-Za-z0-9_]+)*\s*\[/).each do |m|
         # 排除转义序列（如字符串中的 \t[）与测试代码里的同名变量

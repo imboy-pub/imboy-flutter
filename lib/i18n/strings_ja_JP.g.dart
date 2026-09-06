@@ -1134,6 +1134,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get lengthOk => '長さはOKです';
 	@override String get confirmNewPassword => '新しいパスワードを確認';
 	@override String get validationPassed => '検証に合格しました';
+	@override String get momentsContentHint => '何か書く...';
+	@override String get momentsAddMedia => 'メディアを追加';
+	@override String get momentsAllowUidsLabel => '公開対象 UID リスト（カンマ区切り）';
 	@override String get momentsNoData => 'モーメントはありません';
 	@override String get momentsDeleteConfirm => 'このモーメントを削除しますか？';
 	@override String get momentsDeleteCommentConfirm => 'このコメントを削除しますか？';
@@ -1643,6 +1646,7 @@ class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'スキャン結果';
 	@override String get myChannels => 'マイチャンネル';
 	@override String get otherUsersCanFindMe => '他のユーザーが検索で私を見つけることができます';
+	@override String get momentsDenyUidsLabel => '除外対象 UID リスト（カンマ区切り）';
 	@override String get moments => 'モーメンツ';
 	@override String get momentsWriteComment => 'コメントを書く...';
 	@override String get momentsVisibility => '公開範囲';
@@ -3477,6 +3481,9 @@ extension on TranslationsJaJp {
 			'common.lengthOk' => '長さはOKです',
 			'common.confirmNewPassword' => '新しいパスワードを確認',
 			'common.validationPassed' => '検証に合格しました',
+			'common.momentsContentHint' => '何か書く...',
+			'common.momentsAddMedia' => 'メディアを追加',
+			'common.momentsAllowUidsLabel' => '公開対象 UID リスト（カンマ区切り）',
 			'common.momentsNoData' => 'モーメントはありません',
 			'common.momentsDeleteConfirm' => 'このモーメントを削除しますか？',
 			'common.momentsDeleteCommentConfirm' => 'このコメントを削除しますか？',
@@ -3492,11 +3499,11 @@ extension on TranslationsJaJp {
 			'common.momentReportReasonSpam' => 'スパム・広告',
 			'common.momentReportReasonHarassment' => '嫌がらせ',
 			'common.momentReportReasonPorn' => 'わいせつ',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '詐欺',
 			'common.momentReportReasonInfringement' => '著作権侵害',
 			'common.momentReportReasonOther' => 'その他',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => '理由を選択',
 			'common.momentsLoadMoreComments' => 'コメントをさらに読み込む',
 			'common.momentsUploadFailed' => 'メディアのアップロードに失敗しました。後でもう一度お試しください',
@@ -3952,6 +3959,7 @@ extension on TranslationsJaJp {
 			'discovery.scanResult' => 'スキャン結果',
 			'discovery.myChannels' => 'マイチャンネル',
 			'discovery.otherUsersCanFindMe' => '他のユーザーが検索で私を見つけることができます',
+			'discovery.momentsDenyUidsLabel' => '除外対象 UID リスト（カンマ区切り）',
 			'discovery.moments' => 'モーメンツ',
 			'discovery.momentsWriteComment' => 'コメントを書く...',
 			'discovery.momentsVisibility' => '公開範囲',
@@ -4005,12 +4013,12 @@ extension on TranslationsJaJp {
 			'group.groupName' => 'グループ名',
 			'group.mutualGroupsWithHer' => '相手との共通グループチャット',
 			'group.groupOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'ゲスト',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'グループチャットを選択',
-			_ => null,
-		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'このグループを解散してもよろしいですか？',
 			'group.sureToLeaveGroup' => 'このグループを退出してもよろしいですか？',
 			'group.groupAlbumNameHint' => 'アルバム名を入力',
@@ -4519,12 +4527,12 @@ extension on TranslationsJaJp {
 			'workspace.taskAssigneeLabel' => '担当者（ワークスペースメンバー）',
 			'workspace.taskAssigneeNone' => '担当者を未指定',
 			'workspace.taskAssigneeRefresh' => '担当者候補を更新',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'タスクを作成',
 			'workspace.taskSubmitSave' => '保存する',
 			'workspace.taskCreatedToast' => 'タスクを作成しました',
 			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'タスクを保存しました',
 			'workspace.taskFilterAll' => 'すべて',
 			'workspace.taskStatusTodo' => 'TODO',

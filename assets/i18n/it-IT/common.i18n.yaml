@@ -451,6 +451,9 @@ changeSuccess: Modificato con successo
 lengthOk: Lunghezza OK
 confirmNewPassword: Conferma nuova password
 validationPassed: Convalida superata
+momentsContentHint: Scrivi qualcosa...
+momentsAddMedia: Aggiungi media
+momentsAllowUidsLabel: UID visibili (separati da virgola)
 momentsNoData: Nessun momento
 momentsDeleteConfirm: Eliminare questo momento ?
 momentsDeleteCommentConfirm: Eliminare questo commento ?

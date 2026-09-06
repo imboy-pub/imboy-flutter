@@ -1136,6 +1136,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get lengthOk => '長度符合';
 	@override String get confirmNewPassword => '確認新密碼';
 	@override String get validationPassed => '驗證通過';
+	@override String get momentsContentHint => '寫點什麼...';
+	@override String get momentsAddMedia => '新增媒體';
+	@override String get momentsAllowUidsLabel => '允許可見 UID 列表（逗號分隔）';
 	@override String get momentsNoData => '暫無動態';
 	@override String get momentsDeleteConfirm => '確定刪除這條動態嗎？';
 	@override String get momentsDeleteCommentConfirm => '確定刪除這條評論嗎？';
@@ -1643,6 +1646,7 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String get scanResult => '掃描結果';
 	@override String get myChannels => '我的頻道';
 	@override String get otherUsersCanFindMe => '其他使用者可以通過搜尋找到我';
+	@override String get momentsDenyUidsLabel => '不給誰看 UID 列表（逗號分隔）';
 	@override String get moments => '動態';
 	@override String get momentsWriteComment => '寫評論...';
 	@override String get momentsVisibility => '可見性';
@@ -3479,6 +3483,9 @@ extension on TranslationsZhHant {
 			'common.lengthOk' => '長度符合',
 			'common.confirmNewPassword' => '確認新密碼',
 			'common.validationPassed' => '驗證通過',
+			'common.momentsContentHint' => '寫點什麼...',
+			'common.momentsAddMedia' => '新增媒體',
+			'common.momentsAllowUidsLabel' => '允許可見 UID 列表（逗號分隔）',
 			'common.momentsNoData' => '暫無動態',
 			'common.momentsDeleteConfirm' => '確定刪除這條動態嗎？',
 			'common.momentsDeleteCommentConfirm' => '確定刪除這條評論嗎？',
@@ -3492,11 +3499,11 @@ extension on TranslationsZhHant {
 			'common.momentsReportSubmitted' => '舉報已提交',
 			'common.momentsReportFailed' => '舉報失敗，請稍後重試',
 			'common.momentReportReasonSpam' => '垃圾廣告',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonHarassment' => '騷擾霸凌',
 			'common.momentReportReasonPorn' => '色情或不雅內容',
 			'common.momentReportReasonFraud' => '欺詐詐騙',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonInfringement' => '侵權抄襲',
 			'common.momentReportReasonOther' => '其他原因',
 			'common.momentReportReasonPrompt' => '請選擇舉報原因',
@@ -3952,6 +3959,7 @@ extension on TranslationsZhHant {
 			'discovery.scanResult' => '掃描結果',
 			'discovery.myChannels' => '我的頻道',
 			'discovery.otherUsersCanFindMe' => '其他使用者可以通過搜尋找到我',
+			'discovery.momentsDenyUidsLabel' => '不給誰看 UID 列表（逗號分隔）',
 			'discovery.moments' => '動態',
 			'discovery.momentsWriteComment' => '寫評論...',
 			'discovery.momentsVisibility' => '可見性',
@@ -4005,12 +4013,12 @@ extension on TranslationsZhHant {
 			'group.groupName' => '群組名稱',
 			'group.mutualGroupsWithHer' => '我和他的共同群組',
 			'group.groupOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => '嘉賓',
 			'group.groupInfo' => '群組資訊',
 			'group.groupMemberRoleLabel' => '成員',
-			_ => null,
-		} ?? switch (path) {
 			'group.noMemberWithRole' => ({required Object roleName}) => '暫無${roleName}',
 			'group.moreActions' => '更多選項',
 			'group.touchContactAddMember' => '點擊聯絡人新增為群組成員',
@@ -4519,12 +4527,12 @@ extension on TranslationsZhHant {
 			'workspace.taskAssigneeLabel' => '負責人（工作區成員）',
 			'workspace.taskAssigneeNone' => '暫不指派',
 			'workspace.taskAssigneeRefresh' => '重新整理負責人候選',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => '建立任務',
 			'workspace.taskSubmitSave' => '儲存',
 			'workspace.taskCreatedToast' => '任務已建立',
 			'workspace.taskExistingToast' => '相同標題的任務已存在，直接使用既有任務',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => '任務已儲存',
 			'workspace.taskFilterAll' => '所有',
 			'workspace.taskStatusTodo' => '待辦',

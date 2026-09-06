@@ -448,6 +448,9 @@ changeSuccess: 수정 성공
 lengthOk: 길이 적합
 confirmNewPassword: 새 비밀번호 확인
 validationPassed: 검증 통과
+momentsContentHint: 무엇을 공유하시겠어요?...
+momentsAddMedia: 미디어 추가
+momentsAllowUidsLabel: 공개할 UID 목록 (쉼표로 구분)
 momentsNoData: 모멘트가 없습니다
 momentsDeleteConfirm: 이 모멘트를 삭제하시겠습니까?
 momentsDeleteCommentConfirm: 이 댓글을 삭제하시겠습니까?

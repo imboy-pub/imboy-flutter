@@ -1134,6 +1134,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get lengthOk => '길이 적합';
 	@override String get confirmNewPassword => '새 비밀번호 확인';
 	@override String get validationPassed => '검증 통과';
+	@override String get momentsContentHint => '무엇을 공유하시겠어요?...';
+	@override String get momentsAddMedia => '미디어 추가';
+	@override String get momentsAllowUidsLabel => '공개할 UID 목록 (쉼표로 구분)';
 	@override String get momentsNoData => '모멘트가 없습니다';
 	@override String get momentsDeleteConfirm => '이 모멘트를 삭제하시겠습니까?';
 	@override String get momentsDeleteCommentConfirm => '이 댓글을 삭제하시겠습니까?';
@@ -1643,6 +1646,7 @@ class _Translations$discovery$ko_KR extends Translations$discovery$zh_CN {
 	@override String get scanResult => '스캔 결과';
 	@override String get myChannels => '내 채널';
 	@override String get otherUsersCanFindMe => '다른 사용자가 검색을 통해 찾을 수 있습니다';
+	@override String get momentsDenyUidsLabel => '제외할 UID 목록 (쉼표로 구분)';
 	@override String get moments => '모멘트';
 	@override String get momentsWriteComment => '댓글을 입력하세요...';
 	@override String get momentsVisibility => '공개 범위';
@@ -3477,6 +3481,9 @@ extension on TranslationsKoKr {
 			'common.lengthOk' => '길이 적합',
 			'common.confirmNewPassword' => '새 비밀번호 확인',
 			'common.validationPassed' => '검증 통과',
+			'common.momentsContentHint' => '무엇을 공유하시겠어요?...',
+			'common.momentsAddMedia' => '미디어 추가',
+			'common.momentsAllowUidsLabel' => '공개할 UID 목록 (쉼표로 구분)',
 			'common.momentsNoData' => '모멘트가 없습니다',
 			'common.momentsDeleteConfirm' => '이 모멘트를 삭제하시겠습니까?',
 			'common.momentsDeleteCommentConfirm' => '이 댓글을 삭제하시겠습니까?',
@@ -3492,11 +3499,11 @@ extension on TranslationsKoKr {
 			'common.momentReportReasonSpam' => '스팸·광고',
 			'common.momentReportReasonHarassment' => '괴롭힘',
 			'common.momentReportReasonPorn' => '음란물',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '사기',
 			'common.momentReportReasonInfringement' => '저작권 침해',
 			'common.momentReportReasonOther' => '기타',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => '사유 선택',
 			'common.momentsLoadMoreComments' => '댓글 더 보기',
 			'common.momentsUploadFailed' => '미디어 업로드 실패, 나중에 다시 시도해주세요',
@@ -3952,6 +3959,7 @@ extension on TranslationsKoKr {
 			'discovery.scanResult' => '스캔 결과',
 			'discovery.myChannels' => '내 채널',
 			'discovery.otherUsersCanFindMe' => '다른 사용자가 검색을 통해 찾을 수 있습니다',
+			'discovery.momentsDenyUidsLabel' => '제외할 UID 목록 (쉼표로 구분)',
 			'discovery.moments' => '모멘트',
 			'discovery.momentsWriteComment' => '댓글을 입력하세요...',
 			'discovery.momentsVisibility' => '공개 범위',
@@ -4005,12 +4013,12 @@ extension on TranslationsKoKr {
 			'group.groupName' => '그룹 채팅 이름',
 			'group.mutualGroupsWithHer' => '해당 사용자와의 공통 그룹 채팅',
 			'group.groupOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => '게스트',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => '그룹 채팅 선택',
-			_ => null,
-		} ?? switch (path) {
 			'group.sureToDissolveGroup' => '이 그룹을 해체하시겠습니까?',
 			'group.sureToLeaveGroup' => '이 그룹을 나가시겠습니까?',
 			'group.groupAlbumNameHint' => '앨범 이름을 입력하세요',
@@ -4519,12 +4527,12 @@ extension on TranslationsKoKr {
 			'workspace.taskAssigneeLabel' => '담당자(워크스페이스 구성원)',
 			'workspace.taskAssigneeNone' => '지정 안 함',
 			'workspace.taskAssigneeRefresh' => '담당자 후보 새로 고침',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => '작업 만들기',
 			'workspace.taskSubmitSave' => '저장',
 			'workspace.taskCreatedToast' => '작업이 생성되었습니다',
 			'workspace.taskExistingToast' => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => '작업이 저장되었습니다',
 			'workspace.taskFilterAll' => '전체',
 			'workspace.taskStatusTodo' => '할 일',

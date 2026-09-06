@@ -1143,6 +1143,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get lengthOk => 'Длина в порядке';
 	@override String get confirmNewPassword => 'Подтвердите новый пароль';
 	@override String get validationPassed => 'Проверка пройдена';
+	@override String get momentsContentHint => 'Поделитесь чем-нибудь...';
+	@override String get momentsAddMedia => 'Добавить медиа';
+	@override String get momentsAllowUidsLabel => 'UID с доступом (через запятую)';
 	@override String get momentsNoData => 'Нет публикаций';
 	@override String get momentsDeleteConfirm => 'Удалить эту публикацию?';
 	@override String get momentsDeleteCommentConfirm => 'Удалить этот комментарий?';
@@ -1652,6 +1655,7 @@ class _Translations$discovery$ru_RU extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'Результат сканирования';
 	@override String get myChannels => 'Мои каналы';
 	@override String get otherUsersCanFindMe => 'Другие пользователи могут найти меня через поиск';
+	@override String get momentsDenyUidsLabel => 'Скрыть от UID (через запятую)';
 	@override String get moments => 'Моменты';
 	@override String get momentsWriteComment => 'Написать комментарий...';
 	@override String get momentsVisibility => 'Видимость';
@@ -3486,6 +3490,9 @@ extension on TranslationsRuRu {
 			'common.lengthOk' => 'Длина в порядке',
 			'common.confirmNewPassword' => 'Подтвердите новый пароль',
 			'common.validationPassed' => 'Проверка пройдена',
+			'common.momentsContentHint' => 'Поделитесь чем-нибудь...',
+			'common.momentsAddMedia' => 'Добавить медиа',
+			'common.momentsAllowUidsLabel' => 'UID с доступом (через запятую)',
 			'common.momentsNoData' => 'Нет публикаций',
 			'common.momentsDeleteConfirm' => 'Удалить эту публикацию?',
 			'common.momentsDeleteCommentConfirm' => 'Удалить этот комментарий?',
@@ -3501,11 +3508,11 @@ extension on TranslationsRuRu {
 			'common.momentReportReasonSpam' => 'Спам или реклама',
 			'common.momentReportReasonHarassment' => 'Домогательства',
 			'common.momentReportReasonPorn' => 'Порнография',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Мошенничество',
 			'common.momentReportReasonInfringement' => 'Нарушение авторских прав',
 			'common.momentReportReasonOther' => 'Другое',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'Выберите причину',
 			'common.momentsLoadMoreComments' => 'Ещё комментарии',
 			'common.momentsUploadFailed' => 'Не удалось загрузить медиа, попробуйте позже',
@@ -3961,6 +3968,7 @@ extension on TranslationsRuRu {
 			'discovery.scanResult' => 'Результат сканирования',
 			'discovery.myChannels' => 'Мои каналы',
 			'discovery.otherUsersCanFindMe' => 'Другие пользователи могут найти меня через поиск',
+			'discovery.momentsDenyUidsLabel' => 'Скрыть от UID (через запятую)',
 			'discovery.moments' => 'Моменты',
 			'discovery.momentsWriteComment' => 'Написать комментарий...',
 			'discovery.momentsVisibility' => 'Видимость',
@@ -4014,12 +4022,12 @@ extension on TranslationsRuRu {
 			'group.groupName' => 'Название группы',
 			'group.mutualGroupsWithHer' => 'Общие группы',
 			'group.groupOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Гость',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'Выбрать групповой чат',
-			_ => null,
-		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'Распустить эту группу?',
 			'group.sureToLeaveGroup' => 'Покинуть эту группу?',
 			'group.groupAlbumNameHint' => 'Введите название альбома',
@@ -4528,12 +4536,12 @@ extension on TranslationsRuRu {
 			'workspace.taskAssigneeLabel' => 'Ответственный (участник рабочего пространства)',
 			'workspace.taskAssigneeNone' => 'Пока не назначать',
 			'workspace.taskAssigneeRefresh' => 'Обновить список кандидатов',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'Создать задачу',
 			'workspace.taskSubmitSave' => _root.common.buttonSave,
 			'workspace.taskCreatedToast' => 'Задача создана',
 			'workspace.taskExistingToast' => 'Задача с таким названием уже существует, используется она',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'Задача сохранена',
 			'workspace.taskFilterAll' => 'Все',
 			'workspace.taskStatusTodo' => 'К выполнению',

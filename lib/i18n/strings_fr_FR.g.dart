@@ -1137,6 +1137,9 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get lengthOk => 'Longueur correcte';
 	@override String get confirmNewPassword => 'Confirmer le nouveau mot de passe';
 	@override String get validationPassed => 'Validation réussie.';
+	@override String get momentsContentHint => 'Écrire quelque chose...';
+	@override String get momentsAddMedia => 'Ajouter un média';
+	@override String get momentsAllowUidsLabel => 'UIDs autorisés (séparés par virgule)';
 	@override String get momentsNoData => 'Aucun moment';
 	@override String get momentsDeleteConfirm => 'Supprimer ce moment ?';
 	@override String get momentsDeleteCommentConfirm => 'Supprimer ce commentaire ?';
@@ -1646,6 +1649,7 @@ class _Translations$discovery$fr_FR extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'Résultat du scan';
 	@override String get myChannels => 'Mes canaux';
 	@override String get otherUsersCanFindMe => 'D\'autres utilisateurs peuvent me trouver via la recherche.';
+	@override String get momentsDenyUidsLabel => 'UIDs exclus (séparés par virgule)';
 	@override String get moments => 'Fil d\'actualité';
 	@override String get momentsWriteComment => 'Écrire un commentaire...';
 	@override String get momentsVisibility => 'Visibilité';
@@ -3480,6 +3484,9 @@ extension on TranslationsFrFr {
 			'common.lengthOk' => 'Longueur correcte',
 			'common.confirmNewPassword' => 'Confirmer le nouveau mot de passe',
 			'common.validationPassed' => 'Validation réussie.',
+			'common.momentsContentHint' => 'Écrire quelque chose...',
+			'common.momentsAddMedia' => 'Ajouter un média',
+			'common.momentsAllowUidsLabel' => 'UIDs autorisés (séparés par virgule)',
 			'common.momentsNoData' => 'Aucun moment',
 			'common.momentsDeleteConfirm' => 'Supprimer ce moment ?',
 			'common.momentsDeleteCommentConfirm' => 'Supprimer ce commentaire ?',
@@ -3495,11 +3502,11 @@ extension on TranslationsFrFr {
 			'common.momentReportReasonSpam' => 'Spam ou publicité',
 			'common.momentReportReasonHarassment' => 'Harcèlement',
 			'common.momentReportReasonPorn' => 'Contenu pornographique',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Fraude ou arnaque',
 			'common.momentReportReasonInfringement' => 'Violation de droits',
 			'common.momentReportReasonOther' => 'Autre',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'Sélectionner un motif',
 			'common.momentsLoadMoreComments' => 'Charger plus de commentaires',
 			'common.momentsUploadFailed' => 'Échec de l\'envoi du média. Réessayez plus tard.',
@@ -3955,6 +3962,7 @@ extension on TranslationsFrFr {
 			'discovery.scanResult' => 'Résultat du scan',
 			'discovery.myChannels' => 'Mes canaux',
 			'discovery.otherUsersCanFindMe' => 'D\'autres utilisateurs peuvent me trouver via la recherche.',
+			'discovery.momentsDenyUidsLabel' => 'UIDs exclus (séparés par virgule)',
 			'discovery.moments' => 'Fil d\'actualité',
 			'discovery.momentsWriteComment' => 'Écrire un commentaire...',
 			'discovery.momentsVisibility' => 'Visibilité',
@@ -4008,12 +4016,12 @@ extension on TranslationsFrFr {
 			'group.groupName' => 'Nom du groupe',
 			'group.mutualGroupsWithHer' => 'Groupes communs avec lui/elle',
 			'group.groupOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Invité d\'honneur',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'Sélectionner un groupe.',
-			_ => null,
-		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'Confirmer la dissolution du groupe ?',
 			'group.sureToLeaveGroup' => 'Confirmer le départ du groupe ?',
 			'group.groupAlbumNameHint' => 'Nom de l\'album',
@@ -4522,12 +4530,12 @@ extension on TranslationsFrFr {
 			'workspace.taskAssigneeLabel' => 'Responsable (membre de l\'espace de travail)',
 			'workspace.taskAssigneeNone' => 'Ne pas affecter pour l\'instant',
 			'workspace.taskAssigneeRefresh' => 'Actualiser les candidats responsables',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'Créer la tâche',
 			'workspace.taskSubmitSave' => 'Enregistrer',
 			'workspace.taskCreatedToast' => 'Tâche créée',
 			'workspace.taskExistingToast' => 'Une tâche du même titre existe déjà, la tâche existante est utilisée directement',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'Tâche enregistrée',
 			'workspace.taskFilterAll' => 'Tout',
 			'workspace.taskStatusTodo' => 'À faire',

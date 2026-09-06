@@ -7,6 +7,7 @@ peopleNearby: 附近的人
 scanResult: 扫描结果
 myChannels: 我的频道
 otherUsersCanFindMe: 其他用户可以通过搜索找到我
+momentsDenyUidsLabel: 不给谁看 UID 列表（逗号分隔）
 moments: 朋友圈
 momentsWriteComment: 写评论...
 momentsVisibility: 可见性

@@ -457,6 +457,9 @@ changeSuccess: Успешно изменено
 lengthOk: Длина в порядке
 confirmNewPassword: Подтвердите новый пароль
 validationPassed: Проверка пройдена
+momentsContentHint: Поделитесь чем-нибудь...
+momentsAddMedia: Добавить медиа
+momentsAllowUidsLabel: UID с доступом (через запятую)
 momentsNoData: Нет публикаций
 momentsDeleteConfirm: Удалить эту публикацию?
 momentsDeleteCommentConfirm: Удалить этот комментарий?

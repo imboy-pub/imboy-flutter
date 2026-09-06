@@ -451,6 +451,9 @@ changeSuccess: Modifié avec succès.
 lengthOk: Longueur correcte
 confirmNewPassword: Confirmer le nouveau mot de passe
 validationPassed: Validation réussie.
+momentsContentHint: Écrire quelque chose...
+momentsAddMedia: Ajouter un média
+momentsAllowUidsLabel: UIDs autorisés (séparés par virgule)
 momentsNoData: Aucun moment
 momentsDeleteConfirm: Supprimer ce moment ?
 momentsDeleteCommentConfirm: Supprimer ce commentaire ?

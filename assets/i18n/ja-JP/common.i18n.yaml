@@ -448,6 +448,9 @@ changeSuccess: 変更しました
 lengthOk: 長さはOKです
 confirmNewPassword: 新しいパスワードを確認
 validationPassed: 検証に合格しました
+momentsContentHint: 何か書く...
+momentsAddMedia: メディアを追加
+momentsAllowUidsLabel: 公開対象 UID リスト（カンマ区切り）
 momentsNoData: モーメントはありません
 momentsDeleteConfirm: このモーメントを削除しますか？
 momentsDeleteCommentConfirm: このコメントを削除しますか？

@@ -8,6 +8,7 @@ peopleNearby: 近くの人
 scanResult: スキャン結果
 myChannels: マイチャンネル
 otherUsersCanFindMe: 他のユーザーが検索で私を見つけることができます
+momentsDenyUidsLabel: 除外対象 UID リスト（カンマ区切り）
 moments: モーメンツ
 momentsWriteComment: コメントを書く...
 momentsVisibility: 公開範囲

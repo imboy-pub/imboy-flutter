@@ -724,3 +724,37 @@ Gate 4 = BLOCKED_NO_REVIEWER（唯一剩余），Release = NO-GO 待母语审核
   → 7 个 loading 失败逐一比对该基线（2 假日志 + channel_public barrel + file_picker 族）
   → 零新增失败：两波译文改值经全量验证零回归
 结论：当前 HEAD 的"全量绿（除已知非 i18n 既有失败）"证据重新闭合。
+
+## 8.11 §8.7.2 归因修正 + P4 误删键恢复（2026-09-06，重大更正）
+
+**更正**：§8.7.2/§8.10 所述"7 个 loading 失败与 i18n 零关联"**不成立**——其中
+`moment_create_i18n_test.dart` 是 **P4 误删造成的 i18n 回归**：该 08-06 契约测试以
+`final zh = await AppLocale.zhCn.build()` 的 **locale 局部变量访问器**断言
+`common.momentsContentHint / momentsAddMedia / momentsAllowUidsLabel` 与
+`discovery.momentsDenyUidsLabel`，而审计扫描仅认 `t.`/`tr.`（当时），4 键被判
+"零引用"进入 703 删除清单（3f5ff07a）→ 测试自 09-05 起编译失败，历次全量跑
+被"file_picker 桩"家族归因掩盖。这是第三种访问器盲区（继 t→tr 之后）。
+
+**修复**：
+```text
+恢复 4 键 × 10 locale（值取自 3f5ff07a^ 历史，零翻译新造）：
+  common: momentsContentHint / momentsAddMedia / momentsAllowUidsLabel
+  discovery: momentsDenyUidsLabel
+i18n_audit.rb：访问器集合改为可配置（I18N_AUDIT_ACCESSORS），默认 t/tr/zh/en
+审计回归 10→11（新增 locale_local_accessor_counts_as_reference）；prune selftest 5/5
+slang 重生成；keys=2128×10；strict PASS；unused candidate=17 不变
+验证：moment_create_i18n_test 复活（59/59 含 UI Gate+RTL）；manage_account 9/9
+```
+
+**其余失败归因修订**（dart analyze test/ 编译错误全集 = 6 文件）：
+2 假 .dart 日志 + channel_public（barrel 缺导出）+ group_album 与 group_file
+（file_picker darwinOptions 插件漂移）+ moment_create_i18n（i18n，本轮已修）。
+历史 -7 中第 7 项无法回溯枚举（reporter 截断），记 UNKNOWN=1，不声称非 i18n。
+
+**本轮一次全量复跑作废**：运行期间树遭并行会话实时改写（manage_account 中途
+报 loading 失败而前后单跑 9/9；login_page 7 条 did-not-complete 属并行
+passport/jverify 线中途编辑），活树快照不可作证据；干净全量复跑待并行线安静后补。
+
+**教训**：① unused 判定的访问器集合必须是"宁可多算"的可配置白名单，任何
+`<var>.ns.key` 形态的测试契约都可能成为盲区；② 全量证据链覆盖到最后一次值变更
+之外，还要覆盖"每次全量跑自身是否在安静树上"（树变异中跑=无效证据）。

@@ -448,6 +448,9 @@ changeSuccess: نجح التعديل
 lengthOk: الطول صحيح
 confirmNewPassword: تأكيد كلمة المرور الجديدة
 validationPassed: نجح التحقق
+momentsContentHint: شارك شيئاً...
+momentsAddMedia: إضافة وسائط
+momentsAllowUidsLabel: قائمة UID المسموح لهم (مفصولة بفواصل)
 momentsNoData: لا توجد منشورات
 momentsDeleteConfirm: حذف هذا المنشور؟
 momentsDeleteCommentConfirm: حذف هذا التعليق؟

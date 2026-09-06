@@ -1137,6 +1137,9 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get lengthOk => 'Länge in Ordnung';
 	@override String get confirmNewPassword => 'Neues Passwort bestätigen';
 	@override String get validationPassed => 'Validierung bestanden';
+	@override String get momentsContentHint => 'Etwas schreiben...';
+	@override String get momentsAddMedia => 'Medien hinzufügen';
+	@override String get momentsAllowUidsLabel => 'Sichtbar für UIDs (kommagetrennt)';
 	@override String get momentsNoData => 'Keine Momente';
 	@override String get momentsDeleteConfirm => 'Diesen Moment wirklich löschen?';
 	@override String get momentsDeleteCommentConfirm => 'Diesen Kommentar wirklich löschen?';
@@ -1646,6 +1649,7 @@ class _Translations$discovery$de_DE extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'Scan-Ergebnis';
 	@override String get myChannels => 'Meine Kanäle';
 	@override String get otherUsersCanFindMe => 'Andere Benutzer können mich durch Suche finden';
+	@override String get momentsDenyUidsLabel => 'Ausgeschlossen UIDs (kommagetrennt)';
 	@override String get moments => 'Momente';
 	@override String get momentsWriteComment => 'Kommentar schreiben...';
 	@override String get momentsVisibility => 'Sichtbarkeit';
@@ -3480,6 +3484,9 @@ extension on TranslationsDeDe {
 			'common.lengthOk' => 'Länge in Ordnung',
 			'common.confirmNewPassword' => 'Neues Passwort bestätigen',
 			'common.validationPassed' => 'Validierung bestanden',
+			'common.momentsContentHint' => 'Etwas schreiben...',
+			'common.momentsAddMedia' => 'Medien hinzufügen',
+			'common.momentsAllowUidsLabel' => 'Sichtbar für UIDs (kommagetrennt)',
 			'common.momentsNoData' => 'Keine Momente',
 			'common.momentsDeleteConfirm' => 'Diesen Moment wirklich löschen?',
 			'common.momentsDeleteCommentConfirm' => 'Diesen Kommentar wirklich löschen?',
@@ -3495,11 +3502,11 @@ extension on TranslationsDeDe {
 			'common.momentReportReasonSpam' => 'Spam oder Werbung',
 			'common.momentReportReasonHarassment' => 'Belästigung',
 			'common.momentReportReasonPorn' => 'Pornografie',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Betrug',
 			'common.momentReportReasonInfringement' => 'Urheberrechtsverletzung',
 			'common.momentReportReasonOther' => 'Sonstiges',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'Grund auswählen',
 			'common.momentsLoadMoreComments' => 'Weitere Kommentare laden',
 			'common.momentsUploadFailed' => 'Medien-Upload fehlgeschlagen. Bitte später erneut versuchen.',
@@ -3955,6 +3962,7 @@ extension on TranslationsDeDe {
 			'discovery.scanResult' => 'Scan-Ergebnis',
 			'discovery.myChannels' => 'Meine Kanäle',
 			'discovery.otherUsersCanFindMe' => 'Andere Benutzer können mich durch Suche finden',
+			'discovery.momentsDenyUidsLabel' => 'Ausgeschlossen UIDs (kommagetrennt)',
 			'discovery.moments' => 'Momente',
 			'discovery.momentsWriteComment' => 'Kommentar schreiben...',
 			'discovery.momentsVisibility' => 'Sichtbarkeit',
@@ -4008,12 +4016,12 @@ extension on TranslationsDeDe {
 			'group.groupName' => 'Gruppenname',
 			'group.mutualGroupsWithHer' => 'Gemeinsame Gruppen',
 			'group.groupOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Ehrengast',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'Gruppe auswählen',
-			_ => null,
-		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'Gruppe wirklich auflösen?',
 			'group.sureToLeaveGroup' => 'Gruppe wirklich verlassen?',
 			'group.groupAlbumNameHint' => 'Albumname eingeben',
@@ -4522,12 +4530,12 @@ extension on TranslationsDeDe {
 			'workspace.taskAssigneeLabel' => 'Verantwortlich (Arbeitsbereich-Mitglied)',
 			'workspace.taskAssigneeNone' => 'Vorerst nicht zuweisen',
 			'workspace.taskAssigneeRefresh' => 'Kandidaten aktualisieren',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'Aufgabe erstellen',
 			'workspace.taskSubmitSave' => 'Speichern',
 			'workspace.taskCreatedToast' => 'Aufgabe erstellt',
 			'workspace.taskExistingToast' => 'Aufgabe mit gleichem Titel existiert bereits, vorhandene Aufgabe wird verwendet',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'Aufgabe gespeichert',
 			'workspace.taskFilterAll' => 'Alle',
 			'workspace.taskStatusTodo' => 'Offen',

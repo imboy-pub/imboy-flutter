@@ -1137,6 +1137,9 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get lengthOk => 'Lunghezza OK';
 	@override String get confirmNewPassword => 'Conferma nuova password';
 	@override String get validationPassed => 'Convalida superata';
+	@override String get momentsContentHint => 'Scrivi qualcosa...';
+	@override String get momentsAddMedia => 'Aggiungi media';
+	@override String get momentsAllowUidsLabel => 'UID visibili (separati da virgola)';
 	@override String get momentsNoData => 'Nessun momento';
 	@override String get momentsDeleteConfirm => 'Eliminare questo momento ?';
 	@override String get momentsDeleteCommentConfirm => 'Eliminare questo commento ?';
@@ -1646,6 +1649,7 @@ class _Translations$discovery$it_IT extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'Risultato scansione';
 	@override String get myChannels => 'I miei canali';
 	@override String get otherUsersCanFindMe => 'Altri utenti possono trovarmi tramite ricerca';
+	@override String get momentsDenyUidsLabel => 'UID esclusi (separati da virgola)';
 	@override String get moments => 'Momenti';
 	@override String get momentsWriteComment => 'Scrivi un commento...';
 	@override String get momentsVisibility => 'Visibilità';
@@ -3480,6 +3484,9 @@ extension on TranslationsItIt {
 			'common.lengthOk' => 'Lunghezza OK',
 			'common.confirmNewPassword' => 'Conferma nuova password',
 			'common.validationPassed' => 'Convalida superata',
+			'common.momentsContentHint' => 'Scrivi qualcosa...',
+			'common.momentsAddMedia' => 'Aggiungi media',
+			'common.momentsAllowUidsLabel' => 'UID visibili (separati da virgola)',
 			'common.momentsNoData' => 'Nessun momento',
 			'common.momentsDeleteConfirm' => 'Eliminare questo momento ?',
 			'common.momentsDeleteCommentConfirm' => 'Eliminare questo commento ?',
@@ -3495,11 +3502,11 @@ extension on TranslationsItIt {
 			'common.momentReportReasonSpam' => 'Spam o pubblicità',
 			'common.momentReportReasonHarassment' => 'Molestie',
 			'common.momentReportReasonPorn' => 'Pornografia',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Frode o truffa',
 			'common.momentReportReasonInfringement' => 'Violazione del copyright',
 			'common.momentReportReasonOther' => 'Altro',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'Seleziona un motivo',
 			'common.momentsLoadMoreComments' => 'Carica altri commenti',
 			'common.momentsUploadFailed' => 'Caricamento media fallito. Riprova più tardi.',
@@ -3955,6 +3962,7 @@ extension on TranslationsItIt {
 			'discovery.scanResult' => 'Risultato scansione',
 			'discovery.myChannels' => 'I miei canali',
 			'discovery.otherUsersCanFindMe' => 'Altri utenti possono trovarmi tramite ricerca',
+			'discovery.momentsDenyUidsLabel' => 'UID esclusi (separati da virgola)',
 			'discovery.moments' => 'Momenti',
 			'discovery.momentsWriteComment' => 'Scrivi un commento...',
 			'discovery.momentsVisibility' => 'Visibilità',
@@ -4008,12 +4016,12 @@ extension on TranslationsItIt {
 			'group.groupName' => 'Nome gruppo',
 			'group.mutualGroupsWithHer' => 'Gruppi comuni con lui/lei',
 			'group.groupOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Ospite d\'onore',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'Seleziona una chat di gruppo',
-			_ => null,
-		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'Sei sicuro di voler sciogliere questo gruppo?',
 			'group.sureToLeaveGroup' => 'Sei sicuro di voler uscire da questo gruppo?',
 			'group.groupAlbumNameHint' => 'Nome album',
@@ -4522,12 +4530,12 @@ extension on TranslationsItIt {
 			'workspace.projectMemberTransferDesc' => 'Dopo il trasferimento l\'altro otterrà il pieno controllo di gestione di questo progetto',
 			'workspace.projectMemberTransferDoneToast' => 'Responsabilità del progetto trasferita',
 			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'Trasferisci la responsabilità del progetto a ${name}',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMembersEntry' => 'Membri',
 			'workspace.projectMembersTitle' => 'Membri del progetto',
 			'workspace.projectMilestoneAlreadyReachedToast' => 'Questa milestone è già stata raggiunta',
 			'workspace.projectMilestoneCreateSubmit' => 'Crea',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestoneCreateTitle' => 'Nuova milestone',
 			'workspace.projectMilestoneCreatedToast' => 'Milestone creata',
 			'workspace.projectMilestoneDueDateInvalid' => 'Il formato della data deve essere YYYY-MM-DD',

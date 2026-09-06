@@ -19,6 +19,7 @@
 #   9. missing 是信息项（check 通过）；I18N_AUDIT_STRICT=1 时判失败
 #  10. used_missing 检出（代码引用了但 locale 缺失）
 #  11. 别名访问器 tr. 构成真实引用，不得标 unused candidate
+#  12. locale 局部变量访问器 zh./en. 构成真实引用（moment 契约键误删教训）
 
 require "tmpdir"
 require "fileutils"
@@ -243,6 +244,21 @@ test "alias_accessor_tr_counts_as_reference" do |dir|
   assert out.include?("common.orphan"), "unreferenced key must stay a candidate: #{out}"
   assert !out.include?("common.aliased"),
          "key referenced via tr. accessor must NOT be flagged unused: #{out}"
+end
+
+# 12 ── locale 局部变量访问器 zh./en.（AppLocale.build 注入模式）构成真实引用
+test "locale_local_accessor_counts_as_reference" do |dir|
+  locale_files = { "common.i18n.yaml" => "hint: \"提示文案\"\norphan: \"孤儿键\"\n" }
+  i18n = write_fixture(dir, locales: {
+    "zh-CN" => locale_files,
+    "en-US" => locale_files
+  }, dart: {
+    "lib/page.dart" => "final zh = await AppLocale.zhCn.build();\nfinal en = await AppLocale.enUs.build();\nexpect(zh.common.hint, isNotEmpty);\nexpect(en.common.hint, isNotEmpty);\n"
+  })
+  out, _e, _s = run_audit(i18n, dir, "unused")
+  assert out.include?("common.orphan"), "unreferenced key must stay a candidate: #{out}"
+  assert !out.include?("common.hint"),
+         "key referenced via zh./en. local accessors must NOT be flagged unused: #{out}"
 end
 
 # ── runner ──────────────────────────────────────────────────────────────

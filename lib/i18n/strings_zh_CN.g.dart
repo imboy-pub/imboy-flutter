@@ -3152,6 +3152,15 @@ class Translations$common$zh_CN {
 	/// zh-CN: '验证通过'
 	String get validationPassed => '验证通过';
 
+	/// zh-CN: '写点什么...'
+	String get momentsContentHint => '写点什么...';
+
+	/// zh-CN: '添加媒体'
+	String get momentsAddMedia => '添加媒体';
+
+	/// zh-CN: '允许可见 UID 列表（逗号分隔）'
+	String get momentsAllowUidsLabel => '允许可见 UID 列表（逗号分隔）';
+
 	/// zh-CN: '暂无动态'
 	String get momentsNoData => '暂无动态';
 
@@ -4585,6 +4594,9 @@ class Translations$discovery$zh_CN {
 
 	/// zh-CN: '其他用户可以通过搜索找到我'
 	String get otherUsersCanFindMe => '其他用户可以通过搜索找到我';
+
+	/// zh-CN: '不给谁看 UID 列表（逗号分隔）'
+	String get momentsDenyUidsLabel => '不给谁看 UID 列表（逗号分隔）';
 
 	/// zh-CN: '朋友圈'
 	String get moments => '朋友圈';
@@ -7734,6 +7746,9 @@ extension on Translations {
 			'common.lengthOk' => '长度符合',
 			'common.confirmNewPassword' => '确认新密码',
 			'common.validationPassed' => '验证通过',
+			'common.momentsContentHint' => '写点什么...',
+			'common.momentsAddMedia' => '添加媒体',
+			'common.momentsAllowUidsLabel' => '允许可见 UID 列表（逗号分隔）',
 			'common.momentsNoData' => '暂无动态',
 			'common.momentsDeleteConfirm' => '确定删除这条动态吗？',
 			'common.momentsDeleteCommentConfirm' => '确定删除这条评论吗？',
@@ -7742,11 +7757,11 @@ extension on Translations {
 			'common.momentsPublishFailed' => '发布失败',
 			'common.momentsAllowComment' => '允许评论',
 			'common.momentsNoComments' => '暂无评论',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentsCommentFailed' => '评论失败，请稍后重试',
 			'common.momentsDeleteFailed' => '删除失败，请稍后重试',
 			'common.momentsReportSubmitted' => '举报已提交',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentsReportFailed' => '举报失败，请稍后重试',
 			'common.momentReportReasonSpam' => '垃圾广告',
 			'common.momentReportReasonHarassment' => '骚扰霸凌',
@@ -8202,6 +8217,7 @@ extension on Translations {
 			'discovery.scanResult' => '扫描结果',
 			'discovery.myChannels' => '我的频道',
 			'discovery.otherUsersCanFindMe' => '其他用户可以通过搜索找到我',
+			'discovery.momentsDenyUidsLabel' => '不给谁看 UID 列表（逗号分隔）',
 			'discovery.moments' => '朋友圈',
 			'discovery.momentsWriteComment' => '写评论...',
 			'discovery.momentsVisibility' => '可见性',
@@ -8255,12 +8271,12 @@ extension on Translations {
 			'group.groupName' => '群聊名称',
 			'group.mutualGroupsWithHer' => '我和他的共同群聊',
 			'group.groupOwner' => '群主',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => '管理员',
 			'group.groupGuest' => '嘉宾',
 			'group.groupInfo' => '群聊信息',
 			'group.groupMemberRoleLabel' => '成员',
-			_ => null,
-		} ?? switch (path) {
 			'group.noMemberWithRole' => ({required Object roleName}) => '暂无${roleName}',
 			'group.moreActions' => '更多操作',
 			'group.touchContactAddMember' => '点击联系人添加为群成员',
@@ -8769,12 +8785,12 @@ extension on Translations {
 			'workspace.taskAssigneeLabel' => '负责人（工作区成员）',
 			'workspace.taskAssigneeNone' => '暂不指派',
 			'workspace.taskAssigneeRefresh' => '刷新负责人候选',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => '创建任务',
 			'workspace.taskSubmitSave' => '保存',
 			'workspace.taskCreatedToast' => '任务已创建',
 			'workspace.taskExistingToast' => '相同标题的任务已存在，直接使用既有任务',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => '任务已保存',
 			'workspace.taskFilterAll' => '全部',
 			'workspace.taskStatusTodo' => '待办',

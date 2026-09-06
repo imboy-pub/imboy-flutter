@@ -7,6 +7,7 @@ peopleNearby: 附近的朋友
 scanResult: 掃描結果
 myChannels: 我的頻道
 otherUsersCanFindMe: 其他使用者可以通過搜尋找到我
+momentsDenyUidsLabel: 不給誰看 UID 列表（逗號分隔）
 moments: 動態
 momentsWriteComment: 寫評論...
 momentsVisibility: 可見性

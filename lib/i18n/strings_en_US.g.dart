@@ -1134,6 +1134,9 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get lengthOk => 'Length OK';
 	@override String get confirmNewPassword => 'Confirm New Password';
 	@override String get validationPassed => 'Validation passed';
+	@override String get momentsContentHint => 'Share something...';
+	@override String get momentsAddMedia => 'Add media';
+	@override String get momentsAllowUidsLabel => 'Visible to these UIDs (comma-separated)';
 	@override String get momentsNoData => 'No moments yet';
 	@override String get momentsDeleteConfirm => 'Are you sure you want to delete this moment?';
 	@override String get momentsDeleteCommentConfirm => 'Are you sure you want to delete this comment?';
@@ -1646,6 +1649,7 @@ class _Translations$discovery$en_US extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'Scan result';
 	@override String get myChannels => 'My Channels';
 	@override String get otherUsersCanFindMe => 'Other users can find me through search';
+	@override String get momentsDenyUidsLabel => 'Hidden from these UIDs (comma-separated)';
 	@override String get moments => 'Moments';
 	@override String get momentsWriteComment => 'Write a comment...';
 	@override String get momentsVisibility => 'Visibility';
@@ -3477,6 +3481,9 @@ extension on TranslationsEnUs {
 			'common.lengthOk' => 'Length OK',
 			'common.confirmNewPassword' => 'Confirm New Password',
 			'common.validationPassed' => 'Validation passed',
+			'common.momentsContentHint' => 'Share something...',
+			'common.momentsAddMedia' => 'Add media',
+			'common.momentsAllowUidsLabel' => 'Visible to these UIDs (comma-separated)',
 			'common.momentsNoData' => 'No moments yet',
 			'common.momentsDeleteConfirm' => 'Are you sure you want to delete this moment?',
 			'common.momentsDeleteCommentConfirm' => 'Are you sure you want to delete this comment?',
@@ -3495,11 +3502,11 @@ extension on TranslationsEnUs {
 			'common.momentReportReasonFraud' => 'Fraud or scam',
 			'common.momentReportReasonInfringement' => 'Copyright infringement',
 			'common.momentReportReasonOther' => 'Other',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'Select a reason',
 			'common.momentsLoadMoreComments' => 'Load more comments',
 			'common.momentsUploadFailed' => 'Media upload failed, please try again',
-			_ => null,
-		} ?? switch (path) {
 			'common.saveFailed' => 'Save failed',
 			'common.confirm' => 'Confirm',
 			'common.success' => 'Success',
@@ -3955,6 +3962,7 @@ extension on TranslationsEnUs {
 			'discovery.scanResult' => 'Scan result',
 			'discovery.myChannels' => 'My Channels',
 			'discovery.otherUsersCanFindMe' => 'Other users can find me through search',
+			'discovery.momentsDenyUidsLabel' => 'Hidden from these UIDs (comma-separated)',
 			'discovery.moments' => 'Moments',
 			'discovery.momentsWriteComment' => 'Write a comment...',
 			'discovery.momentsVisibility' => 'Visibility',
@@ -4008,12 +4016,12 @@ extension on TranslationsEnUs {
 			'group.groupName' => 'Group chat name',
 			'group.mutualGroupsWithHer' => 'Groups in common',
 			'group.groupOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Guest',
 			'group.groupInfo' => 'Group Info',
 			'group.groupMemberRoleLabel' => 'Member',
-			_ => null,
-		} ?? switch (path) {
 			'group.noMemberWithRole' => ({required Object roleName}) => 'No ${roleName} yet',
 			'group.moreActions' => 'More Actions',
 			'group.touchContactAddMember' => 'Tap contacts to add group members',
@@ -4522,12 +4530,12 @@ extension on TranslationsEnUs {
 			'workspace.taskAssigneeLabel' => 'Assignee (Workspace Member)',
 			'workspace.taskAssigneeNone' => 'Unassigned',
 			'workspace.taskAssigneeRefresh' => 'Refresh assignee candidates',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'Create task',
 			'workspace.taskSubmitSave' => 'Save',
 			'workspace.taskCreatedToast' => 'Task created',
 			'workspace.taskExistingToast' => 'A task with the same title already exists; reusing it',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'Task saved',
 			'workspace.taskFilterAll' => 'All',
 			'workspace.taskStatusTodo' => 'To do',

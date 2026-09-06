@@ -1134,6 +1134,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get lengthOk => 'الطول صحيح';
 	@override String get confirmNewPassword => 'تأكيد كلمة المرور الجديدة';
 	@override String get validationPassed => 'نجح التحقق';
+	@override String get momentsContentHint => 'شارك شيئاً...';
+	@override String get momentsAddMedia => 'إضافة وسائط';
+	@override String get momentsAllowUidsLabel => 'قائمة UID المسموح لهم (مفصولة بفواصل)';
 	@override String get momentsNoData => 'لا توجد منشورات';
 	@override String get momentsDeleteConfirm => 'حذف هذا المنشور؟';
 	@override String get momentsDeleteCommentConfirm => 'حذف هذا التعليق؟';
@@ -1643,6 +1646,7 @@ class _Translations$discovery$ar_SA extends Translations$discovery$zh_CN {
 	@override String get scanResult => 'نتيجة المسح';
 	@override String get myChannels => 'قنواتي';
 	@override String get otherUsersCanFindMe => 'يمكن للمستخدمين الآخرين العثور علي من خلال البحث';
+	@override String get momentsDenyUidsLabel => 'قائمة UID المخفي عنهم (مفصولة بفواصل)';
 	@override String get moments => 'اللحظات';
 	@override String get momentsWriteComment => 'اكتب تعليقاً...';
 	@override String get momentsVisibility => 'الظهور';
@@ -3477,6 +3481,9 @@ extension on TranslationsArSa {
 			'common.lengthOk' => 'الطول صحيح',
 			'common.confirmNewPassword' => 'تأكيد كلمة المرور الجديدة',
 			'common.validationPassed' => 'نجح التحقق',
+			'common.momentsContentHint' => 'شارك شيئاً...',
+			'common.momentsAddMedia' => 'إضافة وسائط',
+			'common.momentsAllowUidsLabel' => 'قائمة UID المسموح لهم (مفصولة بفواصل)',
 			'common.momentsNoData' => 'لا توجد منشورات',
 			'common.momentsDeleteConfirm' => 'حذف هذا المنشور؟',
 			'common.momentsDeleteCommentConfirm' => 'حذف هذا التعليق؟',
@@ -3492,11 +3499,11 @@ extension on TranslationsArSa {
 			'common.momentReportReasonSpam' => 'مزعج أو إعلانات',
 			'common.momentReportReasonHarassment' => 'مضايقة',
 			'common.momentReportReasonPorn' => 'محتوى إباحي',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'احتيال',
 			'common.momentReportReasonInfringement' => 'انتهاك حقوق النشر',
 			'common.momentReportReasonOther' => 'أخرى',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'اختر السبب',
 			'common.momentsLoadMoreComments' => 'المزيد من التعليقات',
 			'common.momentsUploadFailed' => 'تعذّر رفع الوسائط، حاول لاحقاً',
@@ -3952,6 +3959,7 @@ extension on TranslationsArSa {
 			'discovery.scanResult' => 'نتيجة المسح',
 			'discovery.myChannels' => 'قنواتي',
 			'discovery.otherUsersCanFindMe' => 'يمكن للمستخدمين الآخرين العثور علي من خلال البحث',
+			'discovery.momentsDenyUidsLabel' => 'قائمة UID المخفي عنهم (مفصولة بفواصل)',
 			'discovery.moments' => 'اللحظات',
 			'discovery.momentsWriteComment' => 'اكتب تعليقاً...',
 			'discovery.momentsVisibility' => 'الظهور',
@@ -4005,12 +4013,12 @@ extension on TranslationsArSa {
 			'group.groupName' => 'اسم الدردشة الجماعية',
 			'group.mutualGroupsWithHer' => 'المجموعات المشتركة بيني وبينه',
 			'group.groupOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'ضيف',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'اختيار مجموعة',
-			_ => null,
-		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'هل أنت متأكد من حل هذه المجموعة؟',
 			'group.sureToLeaveGroup' => 'هل أنت متأكد من مغادرة هذه المجموعة؟',
 			'group.groupAlbumNameHint' => 'أدخل اسم الألبوم',
@@ -4519,12 +4527,12 @@ extension on TranslationsArSa {
 			'workspace.taskAssigneeLabel' => 'المسؤول (عضو مساحة العمل)',
 			'workspace.taskAssigneeNone' => 'بدون تعيين حالياً',
 			'workspace.taskAssigneeRefresh' => 'تحديث قائمة المرشحين للمسؤولية',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'إنشاء المهمة',
 			'workspace.taskSubmitSave' => 'حفظ',
 			'workspace.taskCreatedToast' => 'تم إنشاء المهمة',
 			'workspace.taskExistingToast' => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'تم حفظ المهمة',
 			'workspace.taskFilterAll' => 'الكل',
 			'workspace.taskStatusTodo' => 'قيد الانتظار',

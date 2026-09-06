@@ -8,6 +8,7 @@ peopleNearby: Люди рядом
 scanResult: Результат сканирования
 myChannels: Мои каналы
 otherUsersCanFindMe: Другие пользователи могут найти меня через поиск
+momentsDenyUidsLabel: Скрыть от UID (через запятую)
 moments: Моменты
 momentsWriteComment: Написать комментарий...
 momentsVisibility: Видимость

@@ -8,6 +8,7 @@ peopleNearby: Personnes à proximité
 scanResult: Résultat du scan
 myChannels: Mes canaux
 otherUsersCanFindMe: D'autres utilisateurs peuvent me trouver via la recherche.
+momentsDenyUidsLabel: UIDs exclus (séparés par virgule)
 moments: Fil d'actualité
 momentsWriteComment: Écrire un commentaire...
 momentsVisibility: Visibilité
