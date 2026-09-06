@@ -170,6 +170,16 @@ class UserApi extends HttpClient {
     return true;
   }
 
+  /// 用户域错误码本地化：后端部分失败只回英文错误码（如 errorPassword），
+  /// 裸显给用户不可读；有对应 i18n 键的翻译，其余原样透出
+  /// （后端多为中文文案，如「已设置过密码，请使用修改密码」）。
+  String _localizedUserErrMsg(String raw) {
+    return switch (raw) {
+      'errorPassword' => t.common.errorPassword,
+      _ => raw,
+    };
+  }
+
   Future<bool> changePassword({
     required String newPwd,
     required String existingPwd,
@@ -189,14 +199,18 @@ class UserApi extends HttpClient {
     if (resp.ok) {
       return true;
     }
-    AppLoading.showError(resp.msg);
+    AppLoading.showError(_localizedUserErrMsg(resp.msg));
     return false;
   }
 
   Future<bool> setPassword({required String newPwd}) async {
     IMBoyHttpResponse resp = await post(
       API.userSetPassword,
-      data: {'new_pwd': newPwd, 'rsa_encrypt': '0'},
+      // 契约：调用方传入的 newPwd 是 md5+RSA-OAEP 密文（provider 层
+      // _encryptPassword 产出），必须声明 rsa_encrypt='1' 让服务端解密
+      // 后存储。此前写死 '0'：服务端把 RSA 密文当明文直接 hash，导致
+      // UI 设密后的密码任何登录形态都验证不过（批次120 AT-AS 实证）。
+      data: {'new_pwd': newPwd, 'rsa_encrypt': '1'},
     );
 
     iPrint("> on UserApi/setPassword resp: ${resp.payload.toString()}");
@@ -204,10 +218,13 @@ class UserApi extends HttpClient {
       StorageService.to.remove(Keys.needSetPwd);
       return true;
     }
-    if (resp.msg == 'have_set') {
+    // 后端对已有密码账号返回中文文案（elib_response:error 透传
+    // user_logic 的「已设置过密码，请使用修改密码」）；此态下设置页
+    // 引导使命已完成，清除 needSetPwd 标记避免下次启动重复引导。
+    if (resp.msg.contains('已设置过密码')) {
       StorageService.to.remove(Keys.needSetPwd);
     }
-    AppLoading.showError(resp.msg);
+    AppLoading.showError(_localizedUserErrMsg(resp.msg));
     return false;
   }
 
