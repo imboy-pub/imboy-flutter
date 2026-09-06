@@ -869,3 +869,25 @@ gitleaks 8.30.1 全 push 面（origin/main..HEAD）：245 笔提交 / 4.40MB dif
 ### 8.14 Round-3 补译词汇语料对齐（2026-09-06，第五审计维度）
 
 逐概念（禁言/管理员/移出/上传/搜索/资料/成员）对照 Round-3 补译词汇与各语言既有语料分布，修正 28 处分裂：ko 三项概念对齐（채팅 금지/구성원/제거）、ja/ru/fr kick 动词对齐菜单键、it 语料 3 键 Mutato→Silenziato（正向对齐）。判定保留：ar 管理员双概念（مشرف/المسؤول 各 11 键）、fr téléverser（语料 3:7 混用、语义更精确）、ru мьют/Замьютить 同根家族。验证：slang+strict PASS+13/13+61/61。
+
+## 8.15 语言可达性验证 + 终验证书（2026-09-06）
+
+**首启语言链路验证（只读）**：`lib/run.dart` 初始化顺序正确——无保存偏好时
+`LocaleSettings.useDeviceLocale()` 跟随系统语言（slang 匹配不到设备语言才回落
+base_locale）；有保存偏好时恢复用户选择；运行时切换经 locale stream 实时重建。
+**10 语言译文对非中文用户真实可达**（语言选择页 lib/page/mine/language/ 在案）。
+
+**i18n 家族终验（最终 HEAD）**：
+
+```text
+ruby i18n_audit_test.rb                    13/13（含 latin_residue 门两用例）
+I18N_AUDIT_STRICT=1 i18n_audit.rb check    RESULT: PASS (strict)
+relative_time_plural_test                   7/7（en/zh + ru/ar 分支选择锁）
+moment_create_i18n_test                     4/4（注意：并行线已将其从 test/moment/
+                                           迁至 test/unit_test/page/moment/，旧路径失效）
+untranslated 模式                           zh-Hant 9 键同值=繁简同形合法串；
+                                           其余语言零中文残留
+```
+
+防御纵深四层终态：审计门（结构+英文残留）→ UI Gate（动态布局×3 视口）→
+复数选择锁（运行时 resolver）→ RTL 源码守卫。
