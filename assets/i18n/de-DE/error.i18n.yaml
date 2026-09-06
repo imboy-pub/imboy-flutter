@@ -5,8 +5,6 @@ networkTroubleshootingStep1: 1. Telefoneinstellungen öffnen, WLAN eingeschaltet
 networkTroubleshootingStep2: 2. Einstellungen - Allgemein - Mobilfunkdaten, Schalter eingeschaltet lassen.
 networkTroubleshootingStep3: 3. Keine Verbindung? Prüfen Sie WLAN-Internetzugang oder kontaktieren Sie den Netzbetreiber.
 suggestCheckNetwork: Überprüfen Sie die Netzwerkeinstellungen.
-e2eeStartRecoveryBtn(required): Wiederherstellung starten ($required Treuhänder nötig)
-e2eeInsufficientShardBtn(required, current): Zu wenige Fragmente ($required nötig, $current vorhanden)
 e2eeErrTimeout: Zeitüberschreitung beim Verschlüsseln. Netzwerk prüfen und erneut versuchen.
 e2eeErrNetwork: Netzwerkfehler beim Verschlüsseln, Nachricht nicht gesendet
 liveRoomTitleRequired: Titel erforderlich

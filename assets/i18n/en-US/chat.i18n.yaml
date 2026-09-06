@@ -161,7 +161,6 @@ e2eeActivated: Active
 e2eeCreatedAtLabel: Created At
 e2eeGeneratingKey: "Generating key, please wait..."
 e2eeNewKeyGenerated: "New E2EE key pair generated!"
-e2eeReadyWithShards(count): Ready ($count shards)
 webFeatureMultiDevice: Multi-Device Sync
 webFeatureMultiDeviceDesc: "Switch seamlessly between phone and computer, messages sync in real time"
 webFeatureE2EE: End-to-End Encryption
@@ -173,8 +172,6 @@ webQRStatusScanned: Please tap "Confirm Login" on your phone
 webQRStatusVerifying: Verifying...
 webQRStatusExpired: Please click refresh to scan again
 e2eeErrInvalidFormat: "Message format error, encryption failed"
-e2eeSocialStatus(status): "Status: $status"
-e2eeProxyNeedAtLeast(count): Please select at least $count proxies
 e2eeRecreatingKey: Recreating key...
 e2eeKeyRecreated: Key recreated successfully
 e2eeRecoveryNewDeviceTitle: New device detected

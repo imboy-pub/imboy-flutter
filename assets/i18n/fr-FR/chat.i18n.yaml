@@ -162,7 +162,6 @@ e2eeActivated: Actif
 e2eeCreatedAtLabel: Créée le
 e2eeGeneratingKey: Génération de la clé, patientez...
 e2eeNewKeyGenerated: Nouvelle paire de clés E2EE créée !
-e2eeReadyWithShards(count): Prêt ($count fragments)
 webFeatureMultiDevice: Multi-appareils
 webFeatureMultiDeviceDesc: Basculez entre mobile et PC, synchronisation en temps réel
 webFeatureE2EE: E2EE
@@ -174,8 +173,6 @@ webQRStatusScanned: Sur le mobile, appuyez sur « Connexion »
 webQRStatusVerifying: Vérification...
 webQRStatusExpired: Actualisez et rescannez
 e2eeErrInvalidFormat: Format de message invalide, échec du chiffrement
-e2eeSocialStatus(status): 'Statut : $status'
-e2eeProxyNeedAtLeast(count): Au moins $count dépositaires
 e2eeRecreatingKey: Recréation de la clé...
 e2eeKeyRecreated: Clé recréée
 e2eeRecoveryNewDeviceTitle: Nouvel appareil détecté

@@ -145,26 +145,12 @@ e2eeKeyIdLabel: 金鑰 ID
 e2eeWarnIrreversible: • 此操作不可撤銷
 e2eeWarnNeedRestoreOrNew: • 需要從備份恢復或生成新金鑰
 gotIt: 了解了
-e2eeProxyUser(uid): '代理使用者: $uid'
-e2eeShardLabel(index, total): 金鑰分片 $index / $total
-e2eeUsedShards(count): 已使用 $count 個代理分片
-e2eeRecoveryProgressLabel(collected, total): '進度: $collected / $total 個分片'
-e2eeCollectingShards(collected, total): 正在收集金鑰分片 ($collected/$total)...
 webQRLoggingIn: 登入中...
 webQRExpired: 二維碼已過期
 webQRRefresh: 重新整理二維碼
 webSwitchToQR: 使用 QR 碼登入
 e2eeErrDefault: 端到端加密失敗，訊息未傳送
 e2eeErrPeerDeviceNotReady: 有成員的裝置尚未完成安全設定，訊息未傳送；請稍後重試
-e2eeSocialThresholdHint(count): 恢復金鑰時需要 $count 個代理協助
-e2eeSocialProxyNeeded(count): 需要 $count 個信任的聯絡人作為代理
-e2eeSocialProxyDefaultName(uid): 使用者 $uid
-e2eeSocialSentCount(sent, total): 已傳送到 $sent 個代理裝置（共 $total 個）
-e2eeSocialShardOf(idx, total): 金鑰分片 $idx / $total
-e2eeSocialUserShard(uid): 使用者 $uid 的金鑰分片
-e2eeTransferQRExpiry(time): 二維碼將在 $time 過期
-e2eeProxyMinCount(count): 請至少選擇 $count 個代理
-e2eeProxySelectedCount(selected, total): 已選 $selected / $total
 liveRoomTitleLabel: 直播間標題
 liveRoomTitleHint: 請輸入直播間標題
 lightModel: 淺色模式

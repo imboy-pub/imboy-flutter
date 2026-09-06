@@ -633,7 +633,6 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get e2eeCreatedAtLabel => '생성 시간';
 	@override String get e2eeGeneratingKey => '키를 생성하는 중입니다. 잠시만 기다려 주세요...';
 	@override String get e2eeNewKeyGenerated => '새 E2EE 키 쌍이 생성되었습니다!';
-	@override String e2eeReadyWithShards({required Object count}) => '준비 완료 (샤드 ${count}개)';
 	@override String get webFeatureMultiDevice => '다중 기기 동기화';
 	@override String get webFeatureMultiDeviceDesc => '휴대폰과 PC 간에 자유롭게 전환하며 메시지가 실시간으로 동기화됩니다';
 	@override String get webFeatureE2EE => '종단간 암호화';
@@ -645,8 +644,6 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get webQRStatusVerifying => '확인 중...';
 	@override String get webQRStatusExpired => '새로고침을 눌러 다시 스캔해주세요';
 	@override String get e2eeErrInvalidFormat => '메시지 형식 오류, 암호화 실패';
-	@override String e2eeSocialStatus({required Object status}) => '상태: ${status}';
-	@override String e2eeProxyNeedAtLeast({required Object count}) => '대리자를 최소 ${count}명 선택해주세요';
 	@override String get e2eeRecreatingKey => '키를 다시 만드는 중...';
 	@override String get e2eeKeyRecreated => '키가 다시 만들어졌습니다';
 	@override String get e2eeRecoveryNewDeviceTitle => '새 기기 로그인 감지';
@@ -1306,7 +1303,6 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String orderNoLabel({required Object no}) => '주문 번호: ${no}';
 	@override String get orderStatusCancelled => '취소됨';
 	@override String get orderStatusUnknown => '알 수 없음';
-	@override String removeReactionConfirm({required Object emoji}) => '${emoji} 리액션을 제거하시겠습니까?';
 	@override String get fileOpenFailed => '이 파일을 열 수 없습니다';
 	@override String get e2eeLocalBackup => '로컬 백업';
 	@override String get e2eeLocalBackupDesc => '암호화된 백업 파일을 로컬 또는 클라우드에 내보냅니다';
@@ -1343,8 +1339,6 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeKeyGenerateFailed => '키 생성 실패, 다시 시도해주세요';
 	@override String get e2eeKeyDeleted => '키가 삭제되었습니다';
 	@override String get e2eeDeleteFailed => '삭제 실패, 다시 시도해주세요';
-	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => '사용 가능한 샤드: ${available}개, ${required}명의 대리자 필요';
-	@override String e2eeContactingProxy({required Object name}) => '연락 중: ${name}';
 	@override String get webFeatureNotification => '데스크톱 알림';
 	@override String get webFeatureNotificationDesc => '페이지를 보지 않을 때도 새 메시지 알림을 받습니다';
 	@override String get webQRConfirmOnPhone => '휴대폰에서 로그인을 확인해주세요';
@@ -1415,8 +1409,6 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => '가져오기 완료';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE 키가 복구되었습니다!';
 	@override String get e2eeBackupImportSuccessNote => '참고: 그룹 채팅 기록은 복원되었습니다. 1:1 대화 기록은 복원할 수 없습니다 — E2EE 설계상 1:1 키는 기기 간에 백업되지 않습니다';
-	@override String e2eeBackupDeviceLabel({required Object id}) => '기기 ${id}';
-	@override String e2eeBackupCreatedAtLabel({required Object time}) => '생성일 ${time}';
 	@override String get e2eeBackupCreatedAtRow => '생성 시간';
 	@override String get e2eeBackupCloudUploadBtn => '클라우드에 백업';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})';
@@ -1442,10 +1434,6 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrUrlHttp => '서버에서 오류를 반환했습니다';
 	@override String get e2eeBackupErrUrlEmpty => '서버에서 빈 콘텐츠를 반환했습니다';
 	@override String get e2eeBackupErrUrlTooLarge => '파일이 너무 큽니다 (10MB 제한 초과)';
-	@override String e2eeSocialCreateNeedMore({required Object count}) => '대리자를 ${count}명 더 추가해주세요';
-	@override String e2eeSocialTotalShardsInfo({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다';
-	@override String e2eeSocialThresholdInfo({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다';
-	@override String e2eeTransferScanError({required Object error}) => '스캔 오류: ${error}';
 	@override String get passwordEncryptFailed => '비밀번호 암호화 실패';
 	@override String get initConfigTimeout => '설정 불러오기 시간 초과: 네트워크 연결 또는 서버 상태를 확인해주세요';
 	@override String initConfigNetworkError({required Object code}) => '네트워크 또는 서버 오류 (HTTP ${code})';
@@ -1455,10 +1443,6 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get downloadFileNotFound => '다운로드 파일이 없습니다. 다시 시도해주세요';
 	@override String downloadHashRetrying({required Object retry, required Object max}) => '파일 검증 실패, 다시 다운로드하는 중 (${retry}/${max})';
 	@override String get downloadHashFailed => '파일 검증이 여러 번 실패했습니다. 네트워크를 확인하고 다시 시도해주세요';
-	@override String e2eeSocialMoreShards({required Object count}) => '샤드 ${count}개 더...';
-	@override String e2eeProxyGetKeyFailed({required Object name}) => '${name}의 공개 키를 가져오지 못했습니다';
-	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => '최소 ${count}명의 신뢰하는 연락처가 필요하며, ${selected}명 선택됨';
-	@override String e2eeProxyConfirmCount({required Object count}) => '선택 확인 (대리자 ${count}명)';
 	@override String get buttonBackHome => '홈으로';
 	@override String get featureNotEnabled => '이 기능은 활성화되어 있지 않습니다';
 	@override String featureDisabledName({required Object name}) => '${name} 기능이 활성화되어 있지 않아 일시적으로 접근할 수 없습니다';
@@ -1473,7 +1457,6 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get redPacketDetail => '복주머니 상세';
 	@override String get transferSend => '송금하기';
 	@override String get greetingDefault => '새해 복 많이 받으세요';
-	@override String grabAmountYuan({required Object amount}) => '받은 금액: ${amount}위안';
 	@override String transferAmountYuan({required Object amount}) => '송금액: ${amount}위안';
 	@override String get insufficientBalance => '잔액 부족';
 	@override String get withdrawSuccess => '출금 완료';
@@ -1674,7 +1657,6 @@ class _Translations$discovery$ko_KR extends Translations$discovery$zh_CN {
 	@override String get momentActionDelete => '삭제';
 	@override String get momentActionReport => '신고';
 	@override String get momentActionCancel => '취소';
-	@override String momentViewAllComments({required Object count}) => '댓글 ${count}개 모두 보기';
 	@override String momentLikedBy({required Object names}) => '${names}님이 좋아합니다';
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 외 ${count}명이 좋아합니다';
 	@override String get momentContentPlaceholder => '지금 이 순간의 생각...';
@@ -1710,8 +1692,6 @@ class _Translations$error$ko_KR extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. 휴대전화 설정 - 일반 - 셀룰러 데이터를 열고 셀룰러 데이터 스위치를 켜 주세요.';
 	@override String get networkTroubleshootingStep3 => '3. 여전히 네트워크에 연결할 수 없는 경우, 휴대전화가 연결된 Wi-Fi가 인터넷에 액세스할 수 있는지 확인하거나 네트워크 운영자에게 문의해 주세요.';
 	@override String get suggestCheckNetwork => '네트워크 설정을 확인하는 것이 좋습니다.';
-	@override String e2eeStartRecoveryBtn({required Object required}) => '키 복구 시작 (${required}명의 대리자 필요)';
-	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => '샤드 부족 (${required}개 필요, 현재 ${current}개)';
 	@override String get e2eeErrTimeout => '암호화 시간 초과, 네트워크 연결을 확인하고 다시 시도해주세요';
 	@override String get e2eeErrNetwork => '네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다';
 	@override String get liveRoomTitleRequired => '제목을 입력해주세요';
@@ -2076,26 +2056,12 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get e2eeWarnIrreversible => '• 이 작업은 되돌릴 수 없습니다';
 	@override String get e2eeWarnNeedRestoreOrNew => '• 백업에서 복구하거나 새 키를 생성해야 합니다';
 	@override String get gotIt => '확인';
-	@override String e2eeProxyUser({required Object uid}) => '대리자: ${uid}';
-	@override String e2eeShardLabel({required Object index, required Object total}) => '샤드 ${index} / ${total}';
-	@override String e2eeUsedShards({required Object count}) => '대리자 샤드 ${count}개 사용됨';
-	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => '진행률: ${collected} / ${total} 샤드';
-	@override String e2eeCollectingShards({required Object collected, required Object total}) => '샤드 수집 중 (${collected}/${total})...';
 	@override String get webQRLoggingIn => '로그인 중...';
 	@override String get webQRExpired => 'QR 코드가 만료되었습니다';
 	@override String get webQRRefresh => 'QR 코드 새로고침';
 	@override String get webSwitchToQR => 'QR 코드로 로그인';
 	@override String get e2eeErrDefault => '종단간 암호화 실패, 메시지가 전송되지 않았습니다';
 	@override String get e2eeErrPeerDeviceNotReady => '일부 멤버의 기기에서 보안 설정이 완료되지 않아 메시지가 전송되지 않았습니다. 잠시 후 다시 시도해 주세요';
-	@override String e2eeSocialThresholdHint({required Object count}) => '키 복구 시 ${count}명의 대리자가 필요합니다';
-	@override String e2eeSocialProxyNeeded({required Object count}) => '${count}명의 신뢰하는 연락처가 대리자로 필요합니다';
-	@override String e2eeSocialProxyDefaultName({required Object uid}) => '사용자 ${uid}';
-	@override String e2eeSocialSentCount({required Object sent, required Object total}) => '대리자 기기 ${sent}개에 전송됨 (전체 ${total}개)';
-	@override String e2eeSocialShardOf({required Object idx, required Object total}) => '샤드 ${idx} / ${total}';
-	@override String e2eeSocialUserShard({required Object uid}) => '사용자 ${uid}의 키 샤드';
-	@override String e2eeTransferQRExpiry({required Object time}) => 'QR 코드가 ${time}에 만료됩니다';
-	@override String e2eeProxyMinCount({required Object count}) => '대리자를 최소 ${count}명 선택해주세요';
-	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => '${selected} / ${total} 선택됨';
 	@override String get liveRoomTitleLabel => '라이브 룸 제목';
 	@override String get liveRoomTitleHint => '라이브 룸 제목을 입력하세요';
 	@override String get lightModel => '라이트 모드';
@@ -3025,7 +2991,6 @@ extension on TranslationsKoKr {
 			'chat.e2eeCreatedAtLabel' => '생성 시간',
 			'chat.e2eeGeneratingKey' => '키를 생성하는 중입니다. 잠시만 기다려 주세요...',
 			'chat.e2eeNewKeyGenerated' => '새 E2EE 키 쌍이 생성되었습니다!',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => '준비 완료 (샤드 ${count}개)',
 			'chat.webFeatureMultiDevice' => '다중 기기 동기화',
 			'chat.webFeatureMultiDeviceDesc' => '휴대폰과 PC 간에 자유롭게 전환하며 메시지가 실시간으로 동기화됩니다',
 			'chat.webFeatureE2EE' => '종단간 암호화',
@@ -3037,8 +3002,6 @@ extension on TranslationsKoKr {
 			'chat.webQRStatusVerifying' => '확인 중...',
 			'chat.webQRStatusExpired' => '새로고침을 눌러 다시 스캔해주세요',
 			'chat.e2eeErrInvalidFormat' => '메시지 형식 오류, 암호화 실패',
-			'chat.e2eeSocialStatus' => ({required Object status}) => '상태: ${status}',
-			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '대리자를 최소 ${count}명 선택해주세요',
 			'chat.e2eeRecreatingKey' => '키를 다시 만드는 중...',
 			'chat.e2eeKeyRecreated' => '키가 다시 만들어졌습니다',
 			'chat.e2eeRecoveryNewDeviceTitle' => '새 기기 로그인 감지',
@@ -3529,11 +3492,11 @@ extension on TranslationsKoKr {
 			'common.momentReportReasonSpam' => '스팸·광고',
 			'common.momentReportReasonHarassment' => '괴롭힘',
 			'common.momentReportReasonPorn' => '음란물',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '사기',
 			'common.momentReportReasonInfringement' => '저작권 침해',
 			'common.momentReportReasonOther' => '기타',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => '사유 선택',
 			'common.momentsLoadMoreComments' => '댓글 더 보기',
 			'common.momentsUploadFailed' => '미디어 업로드 실패, 나중에 다시 시도해주세요',
@@ -3685,7 +3648,6 @@ extension on TranslationsKoKr {
 			'common.orderNoLabel' => ({required Object no}) => '주문 번호: ${no}',
 			'common.orderStatusCancelled' => '취소됨',
 			'common.orderStatusUnknown' => '알 수 없음',
-			'common.removeReactionConfirm' => ({required Object emoji}) => '${emoji} 리액션을 제거하시겠습니까?',
 			'common.fileOpenFailed' => '이 파일을 열 수 없습니다',
 			'common.e2eeLocalBackup' => '로컬 백업',
 			'common.e2eeLocalBackupDesc' => '암호화된 백업 파일을 로컬 또는 클라우드에 내보냅니다',
@@ -3722,8 +3684,6 @@ extension on TranslationsKoKr {
 			'common.e2eeKeyGenerateFailed' => '키 생성 실패, 다시 시도해주세요',
 			'common.e2eeKeyDeleted' => '키가 삭제되었습니다',
 			'common.e2eeDeleteFailed' => '삭제 실패, 다시 시도해주세요',
-			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '사용 가능한 샤드: ${available}개, ${required}명의 대리자 필요',
-			'common.e2eeContactingProxy' => ({required Object name}) => '연락 중: ${name}',
 			'common.webFeatureNotification' => '데스크톱 알림',
 			'common.webFeatureNotificationDesc' => '페이지를 보지 않을 때도 새 메시지 알림을 받습니다',
 			'common.webQRConfirmOnPhone' => '휴대폰에서 로그인을 확인해주세요',
@@ -3794,8 +3754,6 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupImportSuccessTitle' => '가져오기 완료',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 키가 복구되었습니다!',
 			'common.e2eeBackupImportSuccessNote' => '참고: 그룹 채팅 기록은 복원되었습니다. 1:1 대화 기록은 복원할 수 없습니다 — E2EE 설계상 1:1 키는 기기 간에 백업되지 않습니다',
-			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '기기 ${id}',
-			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => '생성일 ${time}',
 			'common.e2eeBackupCreatedAtRow' => '생성 시간',
 			'common.e2eeBackupCloudUploadBtn' => '클라우드에 백업',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})',
@@ -3821,10 +3779,6 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupErrUrlHttp' => '서버에서 오류를 반환했습니다',
 			'common.e2eeBackupErrUrlEmpty' => '서버에서 빈 콘텐츠를 반환했습니다',
 			'common.e2eeBackupErrUrlTooLarge' => '파일이 너무 큽니다 (10MB 제한 초과)',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '대리자를 ${count}명 더 추가해주세요',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '키가 ${count}개 샤드로 분할되었습니다',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count}명의 대리자가 키를 복구할 수 있습니다',
-			'common.e2eeTransferScanError' => ({required Object error}) => '스캔 오류: ${error}',
 			'common.passwordEncryptFailed' => '비밀번호 암호화 실패',
 			'common.initConfigTimeout' => '설정 불러오기 시간 초과: 네트워크 연결 또는 서버 상태를 확인해주세요',
 			'common.initConfigNetworkError' => ({required Object code}) => '네트워크 또는 서버 오류 (HTTP ${code})',
@@ -3834,10 +3788,6 @@ extension on TranslationsKoKr {
 			'common.downloadFileNotFound' => '다운로드 파일이 없습니다. 다시 시도해주세요',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '파일 검증 실패, 다시 다운로드하는 중 (${retry}/${max})',
 			'common.downloadHashFailed' => '파일 검증이 여러 번 실패했습니다. 네트워크를 확인하고 다시 시도해주세요',
-			'common.e2eeSocialMoreShards' => ({required Object count}) => '샤드 ${count}개 더...',
-			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => '${name}의 공개 키를 가져오지 못했습니다',
-			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '최소 ${count}명의 신뢰하는 연락처가 필요하며, ${selected}명 선택됨',
-			'common.e2eeProxyConfirmCount' => ({required Object count}) => '선택 확인 (대리자 ${count}명)',
 			'common.buttonBackHome' => '홈으로',
 			'common.featureNotEnabled' => '이 기능은 활성화되어 있지 않습니다',
 			'common.featureDisabledName' => ({required Object name}) => '${name} 기능이 활성화되어 있지 않아 일시적으로 접근할 수 없습니다',
@@ -3852,7 +3802,6 @@ extension on TranslationsKoKr {
 			'common.redPacketDetail' => '복주머니 상세',
 			'common.transferSend' => '송금하기',
 			'common.greetingDefault' => '새해 복 많이 받으세요',
-			'common.grabAmountYuan' => ({required Object amount}) => '받은 금액: ${amount}위안',
 			'common.transferAmountYuan' => ({required Object amount}) => '송금액: ${amount}위안',
 			'common.insufficientBalance' => '잔액 부족',
 			'common.withdrawSuccess' => '출금 완료',
@@ -4017,7 +3966,6 @@ extension on TranslationsKoKr {
 			'discovery.momentActionDelete' => '삭제',
 			'discovery.momentActionReport' => '신고',
 			'discovery.momentActionCancel' => '취소',
-			'discovery.momentViewAllComments' => ({required Object count}) => '댓글 ${count}개 모두 보기',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names}님이 좋아합니다',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 외 ${count}명이 좋아합니다',
 			'discovery.momentContentPlaceholder' => '지금 이 순간의 생각...',
@@ -4043,11 +3991,7 @@ extension on TranslationsKoKr {
 			'error.networkTroubleshootingStep1' => '1. 휴대전화 설정을 열고 Wi-Fi 스위치를 켜 주세요.',
 			'error.networkTroubleshootingStep2' => '2. 휴대전화 설정 - 일반 - 셀룰러 데이터를 열고 셀룰러 데이터 스위치를 켜 주세요.',
 			'error.networkTroubleshootingStep3' => '3. 여전히 네트워크에 연결할 수 없는 경우, 휴대전화가 연결된 Wi-Fi가 인터넷에 액세스할 수 있는지 확인하거나 네트워크 운영자에게 문의해 주세요.',
-			_ => null,
-		} ?? switch (path) {
 			'error.suggestCheckNetwork' => '네트워크 설정을 확인하는 것이 좋습니다.',
-			'error.e2eeStartRecoveryBtn' => ({required Object required}) => '키 복구 시작 (${required}명의 대리자 필요)',
-			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => '샤드 부족 (${required}개 필요, 현재 ${current}개)',
 			'error.e2eeErrTimeout' => '암호화 시간 초과, 네트워크 연결을 확인하고 다시 시도해주세요',
 			'error.e2eeErrNetwork' => '네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다',
 			'error.liveRoomTitleRequired' => '제목을 입력해주세요',
@@ -4065,6 +4009,8 @@ extension on TranslationsKoKr {
 			'group.groupGuest' => '게스트',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => '그룹 채팅 선택',
+			_ => null,
+		} ?? switch (path) {
 			'group.sureToDissolveGroup' => '이 그룹을 해체하시겠습니까?',
 			'group.sureToLeaveGroup' => '이 그룹을 나가시겠습니까?',
 			'group.groupAlbumNameHint' => '앨범 이름을 입력하세요',
@@ -4331,26 +4277,12 @@ extension on TranslationsKoKr {
 			'main.e2eeWarnIrreversible' => '• 이 작업은 되돌릴 수 없습니다',
 			'main.e2eeWarnNeedRestoreOrNew' => '• 백업에서 복구하거나 새 키를 생성해야 합니다',
 			'main.gotIt' => '확인',
-			'main.e2eeProxyUser' => ({required Object uid}) => '대리자: ${uid}',
-			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '샤드 ${index} / ${total}',
-			'main.e2eeUsedShards' => ({required Object count}) => '대리자 샤드 ${count}개 사용됨',
-			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '진행률: ${collected} / ${total} 샤드',
-			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '샤드 수집 중 (${collected}/${total})...',
 			'main.webQRLoggingIn' => '로그인 중...',
 			'main.webQRExpired' => 'QR 코드가 만료되었습니다',
 			'main.webQRRefresh' => 'QR 코드 새로고침',
 			'main.webSwitchToQR' => 'QR 코드로 로그인',
 			'main.e2eeErrDefault' => '종단간 암호화 실패, 메시지가 전송되지 않았습니다',
 			'main.e2eeErrPeerDeviceNotReady' => '일부 멤버의 기기에서 보안 설정이 완료되지 않아 메시지가 전송되지 않았습니다. 잠시 후 다시 시도해 주세요',
-			'main.e2eeSocialThresholdHint' => ({required Object count}) => '키 복구 시 ${count}명의 대리자가 필요합니다',
-			'main.e2eeSocialProxyNeeded' => ({required Object count}) => '${count}명의 신뢰하는 연락처가 대리자로 필요합니다',
-			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => '사용자 ${uid}',
-			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => '대리자 기기 ${sent}개에 전송됨 (전체 ${total}개)',
-			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => '샤드 ${idx} / ${total}',
-			'main.e2eeSocialUserShard' => ({required Object uid}) => '사용자 ${uid}의 키 샤드',
-			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'QR 코드가 ${time}에 만료됩니다',
-			'main.e2eeProxyMinCount' => ({required Object count}) => '대리자를 최소 ${count}명 선택해주세요',
-			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '${selected} / ${total} 선택됨',
 			'main.liveRoomTitleLabel' => '라이브 룸 제목',
 			'main.liveRoomTitleHint' => '라이브 룸 제목을 입력하세요',
 			'main.lightModel' => '라이트 모드',
@@ -4557,8 +4489,6 @@ extension on TranslationsKoKr {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB만 지원합니다. 잘못된 값은 기본 테마 색상으로 대체됩니다',
 			'workspace.brandingColorInvalid' => '기본 색상 형식이 잘못되었습니다. #RRGGBB / #AARRGGBB만 지원합니다',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingSaved' => '브랜드 설정이 저장되었습니다',
 			'workspace.brandingPreview' => '기본 색상 미리보기',
 			'workspace.brandingPreviewApplied' => '현재 기본 색상은 워크스페이스 안에서 적용됩니다',
@@ -4593,6 +4523,8 @@ extension on TranslationsKoKr {
 			'workspace.taskSubmitSave' => '저장',
 			'workspace.taskCreatedToast' => '작업이 생성되었습니다',
 			'workspace.taskExistingToast' => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => '작업이 저장되었습니다',
 			'workspace.taskFilterAll' => '전체',
 			'workspace.taskStatusTodo' => '할 일',

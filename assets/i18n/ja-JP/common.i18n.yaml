@@ -617,7 +617,6 @@ orderDetailLoadFailed: 注文詳細の読み込みに失敗しました
 orderNoLabel(no): '注文番号: $no'
 orderStatusCancelled: キャンセル済み
 orderStatusUnknown: 不明
-removeReactionConfirm(emoji): "$emoji リアクションを削除しますか？"
 fileOpenFailed: このファイルを開けません
 e2eeLocalBackup: ローカルバックアップ
 e2eeLocalBackupDesc: 暗号化バックアップをローカルまたはクラウドに書き出します
@@ -654,8 +653,6 @@ e2eeGoBackup: バックアップへ
 e2eeKeyGenerateFailed: キーの生成に失敗しました。もう一度お試しください
 e2eeKeyDeleted: キーを削除しました
 e2eeDeleteFailed: 削除に失敗しました。もう一度お試しください
-e2eeShardAvailableInfo(available, required): '利用可能なシャード: $available 個、復元には $required 人の代理者の協力が必要です'
-e2eeContactingProxy(name): '連絡中: $name'
 webFeatureNotification: デスクトップ通知
 webFeatureNotificationDesc: アプリを開いていなくても新着メッセージをお知らせ
 webQRConfirmOnPhone: スマートフォンでログインを確認してください
@@ -726,8 +723,6 @@ e2eeBackupErrImportFailed: 読み込みに失敗しました。パスワード�
 e2eeBackupImportSuccessTitle: 読み込み完了
 e2eeBackupImportSuccessBody: E2EEキーを復元しました！
 e2eeBackupImportSuccessNote: "注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません"
-e2eeBackupDeviceLabel(id): デバイス $id
-e2eeBackupCreatedAtLabel(time): 作成日時 $time
 e2eeBackupCreatedAtRow: 作成日時
 e2eeBackupCloudUploadBtn: クラウドにバックアップ
 e2eeBackupCloudUploadSuccess(version): クラウドにバックアップしました（バージョン $version）
@@ -753,10 +748,6 @@ e2eeBackupErrUrlTls: 安全な接続に失敗しました、サーバー証明�
 e2eeBackupErrUrlHttp: サーバーがエラーを返しました
 e2eeBackupErrUrlEmpty: サーバーが空のコンテンツを返しました
 e2eeBackupErrUrlTooLarge: ファイルが大きすぎます（10MB制限を超過）
-e2eeSocialCreateNeedMore(count): 先に $count 人の代理者を追加してください
-e2eeSocialTotalShardsInfo(count): キーを $count 個のシャードに分割しました
-e2eeSocialThresholdInfo(count): "$count 人の代理者の協力でキーを復元できます"
-e2eeTransferScanError(error): 'スキャンエラー: $error'
 passwordEncryptFailed: パスワードの暗号化に失敗しました
 initConfigTimeout: 設定の取得がタイムアウトしました：ネットワーク接続またはサーバーの状態を確認してください
 initConfigNetworkError(code): ネットワークまたはサーバーの障害です (HTTP $code)
@@ -766,10 +757,6 @@ saveFailedRetry: 保存に失敗しました。もう一度お試しください
 downloadFileNotFound: ダウンロードファイルが存在しません。もう一度お試しください
 downloadHashRetrying(retry, max): ファイルの検証に失敗しました。再ダウンロード中 ($retry/$max)
 downloadHashFailed: ファイルの検証が複数回失敗しました。ネットワークを確認して再度お試しください
-e2eeSocialMoreShards(count): 他 $count 個のシャード...
-e2eeProxyGetKeyFailed(name): "$name の公開鍵の取得に失敗しました"
-e2eeProxyNeedMore(count, selected): 最低 $count 人の信頼できる連絡先が必要です。$selected 人選択中
-e2eeProxyConfirmCount(count): 選択を確認（代理者 $count 人）
 buttonBackHome: ホームへ
 featureNotEnabled: この機能は現在利用できません
 featureDisabledName(name): "$name 機能が無効のため、一時的に利用できません"
@@ -784,7 +771,6 @@ redPacketSend: お年玉を送る
 redPacketDetail: お年玉の詳細
 transferSend: 送金を開始
 greetingDefault: 謹賀新年
-grabAmountYuan(amount): 受取金額：$amount 元
 transferAmountYuan(amount): 送金金額：$amount 元
 insufficientBalance: 残高不足
 withdrawSuccess: 出金しました

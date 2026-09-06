@@ -620,7 +620,6 @@ orderDetailLoadFailed: Bestelldetails konnten nicht geladen werden
 orderNoLabel(no): 'Bestellnr.: $no'
 orderStatusCancelled: Abgesagt
 orderStatusUnknown: Unbekannt
-removeReactionConfirm(emoji): Reaktion $emoji wirklich entfernen?
 fileOpenFailed: Datei kann nicht geöffnet werden
 e2eeLocalBackup: Lokales Backup
 e2eeLocalBackupDesc: Verschlüsseltes Backup lokal oder in der Cloud speichern
@@ -657,8 +656,6 @@ e2eeGoBackup: Zum Backup
 e2eeKeyGenerateFailed: Schlüsselerstellung fehlgeschlagen. Bitte erneut versuchen.
 e2eeKeyDeleted: Schlüssel gelöscht
 e2eeDeleteFailed: Löschen fehlgeschlagen. Bitte erneut versuchen.
-e2eeShardAvailableInfo(available, required): 'Verfügbare Fragmente: $available, benötigt: $required Treuhänder'
-e2eeContactingProxy(name): 'Verbinde mit: $name'
 webFeatureNotification: Desktop-Benachrichtigungen
 webFeatureNotificationDesc: Neue Nachrichten auch bei inaktiver App
 webQRConfirmOnPhone: Bitte am Handy bestätigen
@@ -729,8 +726,6 @@ e2eeBackupErrImportFailed: Import fehlgeschlagen. Passwort prüfen.
 e2eeBackupImportSuccessTitle: Importiert
 e2eeBackupImportSuccessBody: E2EE-Schlüssel wiederhergestellt!
 e2eeBackupImportSuccessNote: "Hinweis: Gruppenchat-Verlauf wurde wiederhergestellt. Einzelchat-Verlauf ist nicht wiederherstellbar – E2EE-bedingt werden 1:1-Schlüssel nie geräteübergreifend gesichert"
-e2eeBackupDeviceLabel(id): Gerät $id
-e2eeBackupCreatedAtLabel(time): Erstellt $time
 e2eeBackupCreatedAtRow: Erstellt am
 e2eeBackupCloudUploadBtn: In die Cloud sichern
 e2eeBackupCloudUploadSuccess(version): In der Cloud gesichert (Version $version)
@@ -756,10 +751,6 @@ e2eeBackupErrUrlTls: Sichere Verbindung fehlgeschlagen, Serverzertifikat konnte 
 e2eeBackupErrUrlHttp: Server hat einen Fehler zurückgegeben
 e2eeBackupErrUrlEmpty: Server hat leeren Inhalt zurückgegeben
 e2eeBackupErrUrlTooLarge: Datei zu groß (10MB-Limit überschritten)
-e2eeSocialCreateNeedMore(count): Zuerst $count Treuhänder hinzufügen
-e2eeSocialTotalShardsInfo(count): Schlüssel in $count Fragmente geteilt
-e2eeSocialThresholdInfo(count): "$count Treuhänder für Wiederherstellung nötig"
-e2eeTransferScanError(error): 'Scan-Fehler: $error'
 passwordEncryptFailed: Passwort-Verschlüsselung fehlgeschlagen
 initConfigTimeout: 'Zeitüberschreitung: Netzwerk oder Server prüfen'
 initConfigNetworkError(code): Netzwerk- oder Serverfehler (HTTP $code)
@@ -769,10 +760,6 @@ saveFailedRetry: Speichern fehlgeschlagen. Bitte erneut versuchen.
 downloadFileNotFound: Download-Datei nicht vorhanden. Bitte erneut versuchen.
 downloadHashRetrying(retry, max): Prüfung fehlgeschlagen, erneut laden ($retry/$max)
 downloadHashFailed: Mehrfachprüfung fehlgeschlagen. Netzwerk prüfen.
-e2eeSocialMoreShards(count): Weitere $count Fragmente...
-e2eeProxyGetKeyFailed(name): Öffentlicher Schlüssel von $name nicht verfügbar
-e2eeProxyNeedMore(count, selected): Mindestens $count nötig, $selected gewählt
-e2eeProxyConfirmCount(count): Bestätigen ($count Treuhänder)
 buttonBackHome: Zum Start
 featureNotEnabled: Funktion nicht verfügbar
 featureDisabledName(name): "$name-Funktion nicht verfügbar"
@@ -787,7 +774,6 @@ redPacketSend: Geschenk senden
 redPacketDetail: Geschenk-Details
 transferSend: Überweisung starten
 greetingDefault: Frohes neues Jahr
-grabAmountYuan(amount): 'Erhalten: $amount Yuan'
 transferAmountYuan(amount): 'Überwiesen: $amount Yuan'
 insufficientBalance: Guthaben unzureichend
 withdrawSuccess: Auszahlung erfolgreich

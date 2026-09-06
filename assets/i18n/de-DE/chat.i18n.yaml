@@ -162,7 +162,6 @@ e2eeActivated: Aktiv
 e2eeCreatedAtLabel: Erstellt am
 e2eeGeneratingKey: Schlüssel wird erstellt, bitte warten...
 e2eeNewKeyGenerated: Neues E2EE-Schlüsselpaar erstellt!
-e2eeReadyWithShards(count): Bereit ($count Fragmente)
 webFeatureMultiDevice: Multi-Geräte-Sync
 webFeatureMultiDeviceDesc: Nahtlos zwischen Handy und PC wechseln, Nachrichten in Echtzeit synchronisieren
 webFeatureE2EE: E2EE
@@ -174,8 +173,6 @@ webQRStatusScanned: Am Handy „Anmelden" antippen
 webQRStatusVerifying: Wird geprüft...
 webQRStatusExpired: Aktualisieren und erneut scannen
 e2eeErrInvalidFormat: Ungültiges Nachrichtenformat, Verschlüsselung fehlgeschlagen
-e2eeSocialStatus(status): 'Status: $status'
-e2eeProxyNeedAtLeast(count): Mindestens $count Treuhänder wählen
 e2eeRecreatingKey: Schlüssel wird neu erstellt...
 e2eeKeyRecreated: Schlüssel neu erstellt
 e2eeRecoveryNewDeviceTitle: Neue Gerätenutzung erkannt

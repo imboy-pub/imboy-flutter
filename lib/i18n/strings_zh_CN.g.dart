@@ -1682,9 +1682,6 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '新的 E2EE 密钥对已生成！'
 	String get e2eeNewKeyGenerated => '新的 E2EE 密钥对已生成！';
 
-	/// zh-CN: '准备就绪（$count 个分片）'
-	String e2eeReadyWithShards({required Object count}) => '准备就绪（${count} 个分片）';
-
 	/// zh-CN: '多设备同步'
 	String get webFeatureMultiDevice => '多设备同步';
 
@@ -1717,12 +1714,6 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '消息格式错误，加密失败'
 	String get e2eeErrInvalidFormat => '消息格式错误，加密失败';
-
-	/// zh-CN: '状态: $status'
-	String e2eeSocialStatus({required Object status}) => '状态: ${status}';
-
-	/// zh-CN: '请选择至少 $count 个代理'
-	String e2eeProxyNeedAtLeast({required Object count}) => '请选择至少 ${count} 个代理';
 
 	/// zh-CN: '正在重新创建密钥...'
 	String get e2eeRecreatingKey => '正在重新创建密钥...';
@@ -3686,9 +3677,6 @@ class Translations$common$zh_CN {
 	/// zh-CN: '未知'
 	String get orderStatusUnknown => '未知';
 
-	/// zh-CN: '确定要移除 $emoji 反应吗？'
-	String removeReactionConfirm({required Object emoji}) => '确定要移除 ${emoji} 反应吗？';
-
 	/// zh-CN: '无法打开该文件'
 	String get fileOpenFailed => '无法打开该文件';
 
@@ -3796,12 +3784,6 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '删除失败，请重试'
 	String get e2eeDeleteFailed => '删除失败，请重试';
-
-	/// zh-CN: '可用分片: $available 个，需要 $required 个代理协助'
-	String e2eeShardAvailableInfo({required Object available, required Object required}) => '可用分片: ${available} 个，需要 ${required} 个代理协助';
-
-	/// zh-CN: '正在联系: $name'
-	String e2eeContactingProxy({required Object name}) => '正在联系: ${name}';
 
 	/// zh-CN: '桌面通知'
 	String get webFeatureNotification => '桌面通知';
@@ -4040,12 +4022,6 @@ class Translations$common$zh_CN {
 	/// zh-CN: '注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份'
 	String get e2eeBackupImportSuccessNote => '注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份';
 
-	/// zh-CN: '设备 $id'
-	String e2eeBackupDeviceLabel({required Object id}) => '设备 ${id}';
-
-	/// zh-CN: '创建于 $time'
-	String e2eeBackupCreatedAtLabel({required Object time}) => '创建于 ${time}';
-
 	/// zh-CN: '创建时间'
 	String get e2eeBackupCreatedAtRow => '创建时间';
 
@@ -4121,18 +4097,6 @@ class Translations$common$zh_CN {
 	/// zh-CN: '文件过大（超过 10MB 上限）'
 	String get e2eeBackupErrUrlTooLarge => '文件过大（超过 10MB 上限）';
 
-	/// zh-CN: '请先添加 $count 个代理'
-	String e2eeSocialCreateNeedMore({required Object count}) => '请先添加 ${count} 个代理';
-
-	/// zh-CN: '密钥已分割成 $count 个分片'
-	String e2eeSocialTotalShardsInfo({required Object count}) => '密钥已分割成 ${count} 个分片';
-
-	/// zh-CN: '需要 $count 个代理协助即可恢复密钥'
-	String e2eeSocialThresholdInfo({required Object count}) => '需要 ${count} 个代理协助即可恢复密钥';
-
-	/// zh-CN: '扫描错误: $error'
-	String e2eeTransferScanError({required Object error}) => '扫描错误: ${error}';
-
 	/// zh-CN: '密码加密失败'
 	String get passwordEncryptFailed => '密码加密失败';
 
@@ -4162,18 +4126,6 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '文件多次校验失败，请检查网络后重试'
 	String get downloadHashFailed => '文件多次校验失败，请检查网络后重试';
-
-	/// zh-CN: '还有 $count 个分片...'
-	String e2eeSocialMoreShards({required Object count}) => '还有 ${count} 个分片...';
-
-	/// zh-CN: '获取 $name 的公钥失败'
-	String e2eeProxyGetKeyFailed({required Object name}) => '获取 ${name} 的公钥失败';
-
-	/// zh-CN: '至少需要 $count 个信任的联系人，已选择 $selected 个'
-	String e2eeProxyNeedMore({required Object count, required Object selected}) => '至少需要 ${count} 个信任的联系人，已选择 ${selected} 个';
-
-	/// zh-CN: '确认选择 ($count 个代理)'
-	String e2eeProxyConfirmCount({required Object count}) => '确认选择 (${count} 个代理)';
 
 	/// zh-CN: '返回首页'
 	String get buttonBackHome => '返回首页';
@@ -4228,9 +4180,6 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '大吉大利，恭喜发财'
 	String get redPacketDialogSubtitle => '大吉大利，恭喜发财';
-
-	/// zh-CN: '领到金额：$amount 元'
-	String grabAmountYuan({required Object amount}) => '领到金额：${amount} 元';
 
 	/// zh-CN: '转账金额：$amount 元'
 	String transferAmountYuan({required Object amount}) => '转账金额：${amount} 元';
@@ -4682,9 +4631,6 @@ class Translations$discovery$zh_CN {
 	/// zh-CN: '取消'
 	String get momentActionCancel => '取消';
 
-	/// zh-CN: '查看全部 ${count} 条评论'
-	String momentViewAllComments({required Object count}) => '查看全部 ${count} 条评论';
-
 	/// zh-CN: '${names} 赞了'
 	String momentLikedBy({required Object names}) => '${names} 赞了';
 
@@ -4768,12 +4714,6 @@ class Translations$error$zh_CN {
 
 	/// zh-CN: '建议检查网络设置。'
 	String get suggestCheckNetwork => '建议检查网络设置。';
-
-	/// zh-CN: '开始恢复密钥（需要 $required 个代理协助）'
-	String e2eeStartRecoveryBtn({required Object required}) => '开始恢复密钥（需要 ${required} 个代理协助）';
-
-	/// zh-CN: '分片不足（需要 $required 个，当前 $current 个）'
-	String e2eeInsufficientShardBtn({required Object required, required Object current}) => '分片不足（需要 ${required} 个，当前 ${current} 个）';
 
 	/// zh-CN: '加密超时，请检查网络连接后重试'
 	String get e2eeErrTimeout => '加密超时，请检查网络连接后重试';
@@ -5705,21 +5645,6 @@ class Translations$main$zh_CN {
 	/// zh-CN: '我知道了'
 	String get gotIt => '我知道了';
 
-	/// zh-CN: '代理用户: $uid'
-	String e2eeProxyUser({required Object uid}) => '代理用户: ${uid}';
-
-	/// zh-CN: '分片 $index / $total'
-	String e2eeShardLabel({required Object index, required Object total}) => '分片 ${index} / ${total}';
-
-	/// zh-CN: '已使用 $count 个代理分片'
-	String e2eeUsedShards({required Object count}) => '已使用 ${count} 个代理分片';
-
-	/// zh-CN: '进度: $collected / $total 个分片'
-	String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => '进度: ${collected} / ${total} 个分片';
-
-	/// zh-CN: '正在收集分片 ($collected/$total)...'
-	String e2eeCollectingShards({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...';
-
 	/// zh-CN: '登录中...'
 	String get webQRLoggingIn => '登录中...';
 
@@ -5824,33 +5749,6 @@ class Translations$main$zh_CN {
 
 	/// zh-CN: '无法获取设备信息，未上报'
 	String get safetyNumberReportUnavailable => '无法获取设备信息，未上报';
-
-	/// zh-CN: '恢复密钥时需要 $count 个代理协助'
-	String e2eeSocialThresholdHint({required Object count}) => '恢复密钥时需要 ${count} 个代理协助';
-
-	/// zh-CN: '需要 $count 个信任的联系人作为代理'
-	String e2eeSocialProxyNeeded({required Object count}) => '需要 ${count} 个信任的联系人作为代理';
-
-	/// zh-CN: '用户 $uid'
-	String e2eeSocialProxyDefaultName({required Object uid}) => '用户 ${uid}';
-
-	/// zh-CN: '已发送到 $sent 个代理设备（共 $total 个）'
-	String e2eeSocialSentCount({required Object sent, required Object total}) => '已发送到 ${sent} 个代理设备（共 ${total} 个）';
-
-	/// zh-CN: '分片 $idx / $total'
-	String e2eeSocialShardOf({required Object idx, required Object total}) => '分片 ${idx} / ${total}';
-
-	/// zh-CN: '用户 $uid 的密钥分片'
-	String e2eeSocialUserShard({required Object uid}) => '用户 ${uid} 的密钥分片';
-
-	/// zh-CN: '二维码将在 $time 过期'
-	String e2eeTransferQRExpiry({required Object time}) => '二维码将在 ${time} 过期';
-
-	/// zh-CN: '请至少选择 $count 个代理'
-	String e2eeProxyMinCount({required Object count}) => '请至少选择 ${count} 个代理';
-
-	/// zh-CN: '已选 $selected / $total'
-	String e2eeProxySelectedCount({required Object selected, required Object total}) => '已选 ${selected} / ${total}';
 
 	/// zh-CN: '直播间标题'
 	String get liveRoomTitleLabel => '直播间标题';
@@ -7351,7 +7249,6 @@ extension on Translations {
 			'chat.e2eeCreatedAtLabel' => '创建时间',
 			'chat.e2eeGeneratingKey' => '正在生成密钥，请稍候...',
 			'chat.e2eeNewKeyGenerated' => '新的 E2EE 密钥对已生成！',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => '准备就绪（${count} 个分片）',
 			'chat.webFeatureMultiDevice' => '多设备同步',
 			'chat.webFeatureMultiDeviceDesc' => '在手机和电脑之间无缝切换，消息实时同步',
 			'chat.webFeatureE2EE' => '端到端加密',
@@ -7363,8 +7260,6 @@ extension on Translations {
 			'chat.webQRStatusVerifying' => '正在验证...',
 			'chat.webQRStatusExpired' => '请点击刷新重新扫码',
 			'chat.e2eeErrInvalidFormat' => '消息格式错误，加密失败',
-			'chat.e2eeSocialStatus' => ({required Object status}) => '状态: ${status}',
-			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '请选择至少 ${count} 个代理',
 			'chat.e2eeRecreatingKey' => '正在重新创建密钥...',
 			'chat.e2eeKeyRecreated' => '密钥已重新创建',
 			'chat.e2eeRecoveryNewDeviceTitle' => '检测到新设备登录',
@@ -7847,11 +7742,11 @@ extension on Translations {
 			'common.momentsPublishFailed' => '发布失败',
 			'common.momentsAllowComment' => '允许评论',
 			'common.momentsNoComments' => '暂无评论',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentsCommentFailed' => '评论失败，请稍后重试',
 			'common.momentsDeleteFailed' => '删除失败，请稍后重试',
 			'common.momentsReportSubmitted' => '举报已提交',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentsReportFailed' => '举报失败，请稍后重试',
 			'common.momentReportReasonSpam' => '垃圾广告',
 			'common.momentReportReasonHarassment' => '骚扰霸凌',
@@ -8016,7 +7911,6 @@ extension on Translations {
 			'common.orderNoLabel' => ({required Object no}) => '订单号: ${no}',
 			'common.orderStatusCancelled' => '已取消',
 			'common.orderStatusUnknown' => '未知',
-			'common.removeReactionConfirm' => ({required Object emoji}) => '确定要移除 ${emoji} 反应吗？',
 			'common.fileOpenFailed' => '无法打开该文件',
 			'common.e2eeLocalBackup' => '本地备份',
 			'common.e2eeLocalBackupDesc' => '导出加密备份文件到本地或云端',
@@ -8053,8 +7947,6 @@ extension on Translations {
 			'common.e2eeKeyGenerateFailed' => '密钥生成失败，请重试',
 			'common.e2eeKeyDeleted' => '密钥已删除',
 			'common.e2eeDeleteFailed' => '删除失败，请重试',
-			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '可用分片: ${available} 个，需要 ${required} 个代理协助',
-			'common.e2eeContactingProxy' => ({required Object name}) => '正在联系: ${name}',
 			'common.webFeatureNotification' => '桌面通知',
 			'common.webFeatureNotificationDesc' => '即使不在页面也能收到新消息提醒',
 			'common.webQRConfirmOnPhone' => '请在手机上确认登录',
@@ -8134,8 +8026,6 @@ extension on Translations {
 			'common.e2eeBackupImportSuccessTitle' => '导入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 密钥已成功恢复！',
 			'common.e2eeBackupImportSuccessNote' => '注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份',
-			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '设备 ${id}',
-			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => '创建于 ${time}',
 			'common.e2eeBackupCreatedAtRow' => '创建时间',
 			'common.e2eeBackupCloudUploadBtn' => '备份到云端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已备份到云端（版本 ${version}）',
@@ -8161,10 +8051,6 @@ extension on Translations {
 			'common.e2eeBackupErrUrlHttp' => '服务器返回错误',
 			'common.e2eeBackupErrUrlEmpty' => '服务器返回的内容为空',
 			'common.e2eeBackupErrUrlTooLarge' => '文件过大（超过 10MB 上限）',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '请先添加 ${count} 个代理',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '密钥已分割成 ${count} 个分片',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '需要 ${count} 个代理协助即可恢复密钥',
-			'common.e2eeTransferScanError' => ({required Object error}) => '扫描错误: ${error}',
 			'common.passwordEncryptFailed' => '密码加密失败',
 			'common.initConfigTimeout' => '配置获取超时: 请检查网络连接或服务端状态',
 			'common.initConfigNetworkError' => ({required Object code}) => '网络故障或服务故障 (HTTP ${code})',
@@ -8175,10 +8061,6 @@ extension on Translations {
 			'common.downloadFileNotFound' => '下载文件不存在，请重试',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '文件校验失败，正在重新下载 (${retry}/${max})',
 			'common.downloadHashFailed' => '文件多次校验失败，请检查网络后重试',
-			'common.e2eeSocialMoreShards' => ({required Object count}) => '还有 ${count} 个分片...',
-			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => '获取 ${name} 的公钥失败',
-			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '至少需要 ${count} 个信任的联系人，已选择 ${selected} 个',
-			'common.e2eeProxyConfirmCount' => ({required Object count}) => '确认选择 (${count} 个代理)',
 			'common.buttonBackHome' => '返回首页',
 			'common.featureNotEnabled' => '当前功能未启用',
 			'common.featureDisabledName' => ({required Object name}) => '${name} 功能未启用，暂时无法访问',
@@ -8197,7 +8079,6 @@ extension on Translations {
 			'common.redPacketBrand' => 'IMBoy 红包',
 			'common.redPacketDialogTitle' => '送你一个红包',
 			'common.redPacketDialogSubtitle' => '大吉大利，恭喜发财',
-			'common.grabAmountYuan' => ({required Object amount}) => '领到金额：${amount} 元',
 			'common.transferAmountYuan' => ({required Object amount}) => '转账金额：${amount} 元',
 			'common.insufficientBalance' => '余额不足',
 			'common.withdrawSuccess' => '提现成功',
@@ -8336,7 +8217,6 @@ extension on Translations {
 			'discovery.momentActionDelete' => '删除',
 			'discovery.momentActionReport' => '举报',
 			'discovery.momentActionCancel' => '取消',
-			'discovery.momentViewAllComments' => ({required Object count}) => '查看全部 ${count} 条评论',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} 赞了',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人赞了',
 			'discovery.momentContentPlaceholder' => '这一刻的想法...',
@@ -8361,11 +8241,7 @@ extension on Translations {
 			'error.networkTroubleshootingStep1' => '1.打开手机设置并把Wi-Fi开关保持开启状态。',
 			'error.networkTroubleshootingStep2' => '2.打开手机设置-通用-蜂窝移动网络，并把蜂窝移动数据开关保持开启状态。',
 			'error.networkTroubleshootingStep3' => '3.如果仍无法连接网络，请检查手机接入的Wi-Fi是否已接入互联网或者咨询网络运营商。',
-			_ => null,
-		} ?? switch (path) {
 			'error.suggestCheckNetwork' => '建议检查网络设置。',
-			'error.e2eeStartRecoveryBtn' => ({required Object required}) => '开始恢复密钥（需要 ${required} 个代理协助）',
-			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => '分片不足（需要 ${required} 个，当前 ${current} 个）',
 			'error.e2eeErrTimeout' => '加密超时，请检查网络连接后重试',
 			'error.e2eeErrNetwork' => '网络错误，加密失败，消息未发送',
 			'error.liveRoomTitleRequired' => '标题不能为空',
@@ -8383,6 +8259,8 @@ extension on Translations {
 			'group.groupGuest' => '嘉宾',
 			'group.groupInfo' => '群聊信息',
 			'group.groupMemberRoleLabel' => '成员',
+			_ => null,
+		} ?? switch (path) {
 			'group.noMemberWithRole' => ({required Object roleName}) => '暂无${roleName}',
 			'group.moreActions' => '更多操作',
 			'group.touchContactAddMember' => '点击联系人添加为群成员',
@@ -8649,11 +8527,6 @@ extension on Translations {
 			'main.e2eeWarnIrreversible' => '• 此操作不可撤销',
 			'main.e2eeWarnNeedRestoreOrNew' => '• 需要从备份恢复或生成新密钥',
 			'main.gotIt' => '我知道了',
-			'main.e2eeProxyUser' => ({required Object uid}) => '代理用户: ${uid}',
-			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '分片 ${index} / ${total}',
-			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 个代理分片',
-			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '进度: ${collected} / ${total} 个分片',
-			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '正在收集分片 (${collected}/${total})...',
 			'main.webQRLoggingIn' => '登录中...',
 			'main.webQRExpired' => '二维码已过期',
 			'main.webQRRefresh' => '刷新二维码',
@@ -8689,15 +8562,6 @@ extension on Translations {
 			'main.safetyNumberReporting' => '正在上报验证结果...',
 			'main.safetyNumberReportRejected' => '服务端拒绝了该验证事件（签名/时效不符），未标记',
 			'main.safetyNumberReportUnavailable' => '无法获取设备信息，未上报',
-			'main.e2eeSocialThresholdHint' => ({required Object count}) => '恢复密钥时需要 ${count} 个代理协助',
-			'main.e2eeSocialProxyNeeded' => ({required Object count}) => '需要 ${count} 个信任的联系人作为代理',
-			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => '用户 ${uid}',
-			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => '已发送到 ${sent} 个代理设备（共 ${total} 个）',
-			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => '分片 ${idx} / ${total}',
-			'main.e2eeSocialUserShard' => ({required Object uid}) => '用户 ${uid} 的密钥分片',
-			'main.e2eeTransferQRExpiry' => ({required Object time}) => '二维码将在 ${time} 过期',
-			'main.e2eeProxyMinCount' => ({required Object count}) => '请至少选择 ${count} 个代理',
-			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '已选 ${selected} / ${total}',
 			'main.liveRoomTitleLabel' => '直播间标题',
 			'main.liveRoomTitleHint' => '请输入直播间标题',
 			'main.lightModel' => '浅色模式',
@@ -8875,8 +8739,6 @@ extension on Translations {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '仅支持 #RRGGBB / #AARRGGBB；非法值回落默认主题色',
 			'workspace.brandingColorInvalid' => '主色格式不正确，仅支持 #RRGGBB / #AARRGGBB',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingSaved' => '品牌设置已保存',
 			'workspace.brandingPreview' => '主色预览',
 			'workspace.brandingPreviewApplied' => '当前主色将在工作区内生效',
@@ -8911,6 +8773,8 @@ extension on Translations {
 			'workspace.taskSubmitSave' => '保存',
 			'workspace.taskCreatedToast' => '任务已创建',
 			'workspace.taskExistingToast' => '相同标题的任务已存在，直接使用既有任务',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => '任务已保存',
 			'workspace.taskFilterAll' => '全部',
 			'workspace.taskStatusTodo' => '待办',

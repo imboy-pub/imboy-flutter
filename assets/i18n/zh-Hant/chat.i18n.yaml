@@ -168,7 +168,6 @@ e2eeActivated: 已啟用
 e2eeCreatedAtLabel: 建立時間
 e2eeGeneratingKey: 正在生成金鑰，請稍候...
 e2eeNewKeyGenerated: 新的 E2EE 金鑰對已生成！
-e2eeReadyWithShards(count): 準備就緒（$count 個分片）
 webFeatureMultiDevice: 多裝置同步
 webFeatureMultiDeviceDesc: 在手機和電腦之間無縫切換，訊息實時同步
 webFeatureE2EE: 端對端加密
@@ -180,8 +179,6 @@ webQRStatusScanned: 請在手機上點選"確認登入"
 webQRStatusVerifying: 正在驗證...
 webQRStatusExpired: 請點選重新整理重新掃碼
 e2eeErrInvalidFormat: 訊息格式錯誤，加密失敗
-e2eeSocialStatus(status): '狀態: $status'
-e2eeProxyNeedAtLeast(count): 請選擇至少 $count 個代理
 e2eeRecreatingKey: 正在重新建立金鑰...
 e2eeKeyRecreated: 金鑰已重新建立
 e2eeRecoveryNewDeviceTitle: 檢測到新裝置登入

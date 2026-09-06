@@ -620,7 +620,6 @@ orderDetailLoadFailed: Dettagli ordine non disponibili
 orderNoLabel(no): 'Ordine n°: $no'
 orderStatusCancelled: Annullato
 orderStatusUnknown: Sconosciuto
-removeReactionConfirm(emoji): Rimuovere la reazione $emoji ?
 fileOpenFailed: Impossibile aprire questo file
 e2eeLocalBackup: Backup locale
 e2eeLocalBackupDesc: Esporta un backup cifrato in locale o nel cloud
@@ -657,8 +656,6 @@ e2eeGoBackup: Backup
 e2eeKeyGenerateFailed: Generazione fallita. Riprova.
 e2eeKeyDeleted: Chiave eliminata
 e2eeDeleteFailed: Eliminazione fallita. Riprova.
-e2eeShardAvailableInfo(available, required): 'Frammenti: $available disponibili, $required garanti richiesti'
-e2eeContactingProxy(name): 'Connessione a: $name'
 webFeatureNotification: Notifiche desktop
 webFeatureNotificationDesc: Ricevi i nuovi messaggi anche in background
 webQRConfirmOnPhone: Conferma sul mobile
@@ -729,8 +726,6 @@ e2eeBackupErrImportFailed: Importazione fallita. Controlla la password.
 e2eeBackupImportSuccessTitle: Importata
 e2eeBackupImportSuccessBody: Chiave E2EE ripristinata !
 e2eeBackupImportSuccessNote: "Nota: la cronologia delle chat di gruppo è stata ripristinata. La cronologia delle chat individuali non è recuperabile — per design E2EE le chiavi 1:1 non vengono mai salvate tra dispositivi"
-e2eeBackupDeviceLabel(id): Dispositivo $id
-e2eeBackupCreatedAtLabel(time): Creato il $time
 e2eeBackupCreatedAtRow: Creato il
 e2eeBackupCloudUploadBtn: Backup su cloud
 e2eeBackupCloudUploadSuccess(version): Backup su cloud completato (versione $version)
@@ -756,10 +751,6 @@ e2eeBackupErrUrlTls: Connessione sicura non riuscita, impossibile verificare il 
 e2eeBackupErrUrlHttp: Il server ha restituito un errore
 e2eeBackupErrUrlEmpty: Il server ha restituito contenuto vuoto
 e2eeBackupErrUrlTooLarge: File troppo grande (supera il limite di 10 MB)
-e2eeSocialCreateNeedMore(count): Aggiungi prima $count garanti
-e2eeSocialTotalShardsInfo(count): Chiave divisa in $count frammenti
-e2eeSocialThresholdInfo(count): "$count garanti sufficienti per il ripristino"
-e2eeTransferScanError(error): 'Errore scansione: $error'
 passwordEncryptFailed: Cifratura password fallita
 initConfigTimeout: 'Timeout: controlla la rete o il server'
 initConfigNetworkError(code): Errore di rete o server (HTTP $code)
@@ -769,10 +760,6 @@ saveFailedRetry: Salvataggio fallito. Riprova.
 downloadFileNotFound: File scaricato inesistente. Riprova.
 downloadHashRetrying(retry, max): Verifica fallita, riscaricamento ($retry/$max)
 downloadHashFailed: Verifiche multiple fallite. Controlla la rete.
-e2eeSocialMoreShards(count): Altri $count frammenti...
-e2eeProxyGetKeyFailed(name): Chiave pubblica di $name non disponibile
-e2eeProxyNeedMore(count, selected): "$count richiesti minimo, $selected scelti"
-e2eeProxyConfirmCount(count): Conferma ($count garanti)
 buttonBackHome: Home
 featureNotEnabled: Funzione non disponibile
 featureDisabledName(name): Funzione $name non disponibile
@@ -787,7 +774,6 @@ redPacketSend: Invia busta
 redPacketDetail: Dettagli busta
 transferSend: Avvia bonifico
 greetingDefault: Buon anno
-grabAmountYuan(amount): 'Ricevuto: $amount yuan'
 transferAmountYuan(amount): 'Inviato: $amount yuan'
 insufficientBalance: Saldo insufficiente
 withdrawSuccess: Prelievo riuscito

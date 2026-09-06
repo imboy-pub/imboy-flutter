@@ -618,7 +618,6 @@ orderDetailLoadFailed: 訂單詳情載入失敗
 orderNoLabel(no): '訂單號: $no'
 orderStatusCancelled: 已撤銷
 orderStatusUnknown: 不明
-removeReactionConfirm(emoji): 確定要移除 $emoji 反應嗎？
 fileOpenFailed: 無法開啟該檔案
 e2eeLocalBackup: 本地備份
 e2eeLocalBackupDesc: 匯出加密備份檔案到本地或雲端
@@ -655,8 +654,6 @@ e2eeGoBackup: 去備份
 e2eeKeyGenerateFailed: 金鑰生成失敗，請重試
 e2eeKeyDeleted: 金鑰已刪除
 e2eeDeleteFailed: 刪除失敗，請重試
-e2eeShardAvailableInfo(available, required): '可用分片: $available 個，需要 $required 個代理協助'
-e2eeContactingProxy(name): '正在聯絡: $name'
 webFeatureNotification: 桌面版通知
 webFeatureNotificationDesc: 即使不在頁面也能收到新訊息提醒
 webQRConfirmOnPhone: 請在手機上確認登入
@@ -728,8 +725,6 @@ e2eeBackupErrImportFailed: 匯入失敗，請檢查密碼是否正確
 e2eeBackupImportSuccessTitle: 匯入成功
 e2eeBackupImportSuccessBody: E2EE 金鑰已成功恢復！
 e2eeBackupImportSuccessNote: "注意：群聊歷史已隨備份恢復；單聊歷史無法恢復——依端對端加密規範，單聊金鑰不跨裝置備份"
-e2eeBackupDeviceLabel(id): 裝置 $id
-e2eeBackupCreatedAtLabel(time): 建立於 $time
 e2eeBackupCreatedAtRow: 建立時間
 e2eeBackupCloudUploadBtn: 備份到雲端
 e2eeBackupCloudUploadSuccess(version): 已備份到雲端（版本 $version）
@@ -755,10 +750,6 @@ e2eeBackupErrUrlTls: 安全連線失敗，無法驗證伺服器憑證
 e2eeBackupErrUrlHttp: 伺服器回傳錯誤
 e2eeBackupErrUrlEmpty: 伺服器回傳的內容為空
 e2eeBackupErrUrlTooLarge: 檔案過大（超過 10MB 上限）
-e2eeSocialCreateNeedMore(count): 請先新增 $count 個代理
-e2eeSocialTotalShardsInfo(count): 金鑰已分割成 $count 個分片
-e2eeSocialThresholdInfo(count): 需要 $count 個代理協助即可恢復金鑰
-e2eeTransferScanError(error): '掃描錯誤: $error'
 passwordEncryptFailed: 密碼加密失敗
 initConfigTimeout: '配置獲取超時: 請檢查網路連線或服務端狀態'
 initConfigNetworkError(code): 網路故障或服務故障 (HTTP $code)
@@ -769,10 +760,6 @@ saveFailedRetry: 儲存失敗，請重試
 downloadFileNotFound: 下載檔案不存在，請重試
 downloadHashRetrying(retry, max): 檔案校驗失敗，正在重新下載 ($retry/$max)
 downloadHashFailed: 檔案多次校驗失敗，請檢查網路後重試
-e2eeSocialMoreShards(count): 還有 $count 個分片...
-e2eeProxyGetKeyFailed(name): 獲取 $name 的公鑰失敗
-e2eeProxyNeedMore(count, selected): 至少需要 $count 個信任的聯絡人，已選擇 $selected 個
-e2eeProxyConfirmCount(count): 確認選擇 ($count 個代理)
 buttonBackHome: 返回首頁
 featureNotEnabled: 當前功能未啟用
 featureDisabledName(name): $name 功能未啟用，暫時無法訪問
@@ -787,7 +774,6 @@ redPacketSend: 發紅包
 redPacketDetail: 紅包詳情
 transferSend: 發起轉賬
 greetingDefault: 恭喜發財，大吉大利
-grabAmountYuan(amount): 領到金額：$amount 元
 transferAmountYuan(amount): 轉賬金額：$amount 元
 insufficientBalance: 餘額不足
 withdrawSuccess: 提現成功

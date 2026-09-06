@@ -146,26 +146,12 @@ e2eeKeyIdLabel: ID ключа
 e2eeWarnIrreversible: "• Это действие необратимо"
 e2eeWarnNeedRestoreOrNew: "• Нужно восстановить из копии или создать новый ключ"
 gotIt: Понятно
-e2eeProxyUser(uid): 'Посредник: $uid'
-e2eeShardLabel(index, total): Фрагмент $index / $total
-e2eeUsedShards(count): 'Использовано фрагментов посредников: $count'
-e2eeRecoveryProgressLabel(collected, total): 'Прогресс: $collected / $total фрагментов'
-e2eeCollectingShards(collected, total): Сбор фрагментов ($collected/$total)...
 webQRLoggingIn: Вход...
 webQRExpired: Срок действия QR-кода истёк
 webQRRefresh: Обновить QR-код
 webSwitchToQR: Войти по QR-коду
 e2eeErrDefault: Ошибка сквозного шифрования, сообщение не отправлено
 e2eeErrPeerDeviceNotReady: Настройка безопасности не завершена на устройствах некоторых участников, сообщение не отправлено; повторите попытку позже
-e2eeSocialThresholdHint(count): Для восстановления нужно $count посредников
-e2eeSocialProxyNeeded(count): Нужно $count доверенных контактов как посредников
-e2eeSocialProxyDefaultName(uid): Пользователь $uid
-e2eeSocialSentCount(sent, total): Отправлено $sent из $total устройств
-e2eeSocialShardOf(idx, total): Фрагмент $idx / $total
-e2eeSocialUserShard(uid): Фрагмент ключа пользователя $uid
-e2eeTransferQRExpiry(time): Срок QR-кода истекает $time
-e2eeProxyMinCount(count): Выберите минимум $count посредников
-e2eeProxySelectedCount(selected, total): Выбрано $selected / $total
 liveRoomTitleLabel: Название трансляции
 liveRoomTitleHint: Введите название трансляции
 lightModel: Светлая тема

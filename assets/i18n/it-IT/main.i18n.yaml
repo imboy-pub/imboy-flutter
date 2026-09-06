@@ -146,26 +146,12 @@ e2eeKeyIdLabel: ID chiave
 e2eeWarnIrreversible: "• Operazione irreversibile"
 e2eeWarnNeedRestoreOrNew: "• Ripristina da backup o genera una nuova chiave"
 gotIt: Capito
-e2eeProxyUser(uid): 'Garante: $uid'
-e2eeShardLabel(index, total): Frammento $index / $total
-e2eeUsedShards(count): "$count frammenti usati"
-e2eeRecoveryProgressLabel(collected, total): 'Avanzamento: $collected / $total frammenti'
-e2eeCollectingShards(collected, total): Raccolta frammenti ($collected/$total)...
 webQRLoggingIn: Accesso...
 webQRExpired: QR code scaduto
 webQRRefresh: Aggiorna QR code
 webSwitchToQR: Accesso via QR code
 e2eeErrDefault: E2EE fallito, messaggio non inviato
 e2eeErrPeerDeviceNotReady: La configurazione di sicurezza del dispositivo di alcuni membri non è completata, messaggio non inviato; riprova più tardi
-e2eeSocialThresholdHint(count): "$count garanti richiesti per il ripristino"
-e2eeSocialProxyNeeded(count): "$count contatti fidati richiesti come garanti"
-e2eeSocialProxyDefaultName(uid): Utente $uid
-e2eeSocialSentCount(sent, total): Inviati a $sent su $total garanti
-e2eeSocialShardOf(idx, total): Frammento $idx / $total
-e2eeSocialUserShard(uid): Frammento di chiave di $uid
-e2eeTransferQRExpiry(time): QR code scade il $time
-e2eeProxyMinCount(count): Almeno $count garanti
-e2eeProxySelectedCount(selected, total): "$selected / $total scelti"
 liveRoomTitleLabel: Titolo live
 liveRoomTitleHint: Titolo live
 lightModel: Modalità chiara

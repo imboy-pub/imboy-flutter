@@ -620,7 +620,6 @@ orderDetailLoadFailed: Détails de la commande indisponibles
 orderNoLabel(no): 'Commande n° : $no'
 orderStatusCancelled: Annulée
 orderStatusUnknown: Inconnu
-removeReactionConfirm(emoji): Retirer la réaction $emoji ?
 fileOpenFailed: Impossible d'ouvrir ce fichier
 e2eeLocalBackup: Sauvegarde locale
 e2eeLocalBackupDesc: Exporter une sauvegarde chiffrée localement ou dans le cloud
@@ -657,8 +656,6 @@ e2eeGoBackup: Sauvegarde
 e2eeKeyGenerateFailed: Échec de la génération. Réessayez.
 e2eeKeyDeleted: Clé supprimée
 e2eeDeleteFailed: Échec de la suppression. Réessayez.
-e2eeShardAvailableInfo(available, required): 'Fragments : $available disponibles, $required dépositaires requis'
-e2eeContactingProxy(name): 'Connexion à : $name'
 webFeatureNotification: Notifications bureau
 webFeatureNotificationDesc: Recevez les nouveaux messages même en arrière-plan
 webQRConfirmOnPhone: Confirmez sur le mobile
@@ -729,8 +726,6 @@ e2eeBackupErrImportFailed: Échec de l'import. Vérifiez le mot de passe.
 e2eeBackupImportSuccessTitle: Importée
 e2eeBackupImportSuccessBody: Clé E2EE restaurée !
 e2eeBackupImportSuccessNote: "À noter : l'historique des discussions de groupe a été restauré. L'historique des conversations individuelles est irrécupérable — par conception E2EE, les clés 1:1 ne sont jamais sauvegardées entre appareils"
-e2eeBackupDeviceLabel(id): Appareil $id
-e2eeBackupCreatedAtLabel(time): Créée le $time
 e2eeBackupCreatedAtRow: Créée le
 e2eeBackupCloudUploadBtn: Sauvegarder dans le cloud
 e2eeBackupCloudUploadSuccess(version): Sauvegardé dans le cloud (version $version)
@@ -756,10 +751,6 @@ e2eeBackupErrUrlTls: Échec de la connexion sécurisée, impossible de vérifier
 e2eeBackupErrUrlHttp: Le serveur a renvoyé une erreur
 e2eeBackupErrUrlEmpty: Le serveur a renvoyé un contenu vide
 e2eeBackupErrUrlTooLarge: Fichier trop volumineux (dépasse la limite de 10 Mo)
-e2eeSocialCreateNeedMore(count): Ajoutez d'abord $count dépositaires
-e2eeSocialTotalShardsInfo(count): Clé divisée en $count fragments
-e2eeSocialThresholdInfo(count): "$count dépositaires suffisent pour restaurer"
-e2eeTransferScanError(error): 'Erreur de scan : $error'
 passwordEncryptFailed: Échec du chiffrement du mot de passe
 initConfigTimeout: 'Délai dépassé : vérifiez le réseau ou le serveur'
 initConfigNetworkError(code): Erreur réseau ou serveur (HTTP $code)
@@ -769,10 +760,6 @@ saveFailedRetry: Échec de l'enregistrement. Réessayez.
 downloadFileNotFound: Fichier téléchargé introuvable. Réessayez.
 downloadHashRetrying(retry, max): Vérification échouée, retéléchargement ($retry/$max)
 downloadHashFailed: Vérifications multiples échouées. Vérifiez le réseau.
-e2eeSocialMoreShards(count): "$count fragments de plus..."
-e2eeProxyGetKeyFailed(name): Clé publique de $name indisponible
-e2eeProxyNeedMore(count, selected): "$count requis minimum, $selected choisis"
-e2eeProxyConfirmCount(count): Confirmer ($count dépositaires)
 buttonBackHome: Accueil
 featureNotEnabled: Fonction indisponible
 featureDisabledName(name): Fonction $name indisponible
@@ -787,7 +774,6 @@ redPacketSend: Envoyer une enveloppe
 redPacketDetail: Détails de l'enveloppe
 transferSend: Démarrer un transfert
 greetingDefault: Bonne année
-grabAmountYuan(amount): 'Reçu : $amount yuan'
 transferAmountYuan(amount): 'Transfert : $amount yuan'
 insufficientBalance: Solde insuffisant
 withdrawSuccess: Retrait effectué

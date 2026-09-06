@@ -633,7 +633,6 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get e2eeCreatedAtLabel => '作成日時';
 	@override String get e2eeGeneratingKey => 'キーを生成中です。お待ちください...';
 	@override String get e2eeNewKeyGenerated => '新しいE2EEキーペアを生成しました！';
-	@override String e2eeReadyWithShards({required Object count}) => '準備完了（シャード ${count} 個）';
 	@override String get webFeatureMultiDevice => 'マルチデバイス同期';
 	@override String get webFeatureMultiDeviceDesc => 'スマートフォンとPCをシームレスに切り替え、メッセージをリアルタイム同期';
 	@override String get webFeatureE2EE => 'エンドツーエンド暗号化';
@@ -645,8 +644,6 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get webQRStatusVerifying => '確認中...';
 	@override String get webQRStatusExpired => '更新ボタンを押して再度スキャンしてください';
 	@override String get e2eeErrInvalidFormat => 'メッセージの形式が正しくありません。暗号化に失敗しました';
-	@override String e2eeSocialStatus({required Object status}) => 'ステータス: ${status}';
-	@override String e2eeProxyNeedAtLeast({required Object count}) => '最低 ${count} 人の代理者を選択してください';
 	@override String get e2eeRecreatingKey => 'キーを再作成中...';
 	@override String get e2eeKeyRecreated => 'キーを再作成しました';
 	@override String get e2eeRecoveryNewDeviceTitle => '新しいデバイスのログインを検出しました';
@@ -1306,7 +1303,6 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String orderNoLabel({required Object no}) => '注文番号: ${no}';
 	@override String get orderStatusCancelled => 'キャンセル済み';
 	@override String get orderStatusUnknown => '不明';
-	@override String removeReactionConfirm({required Object emoji}) => '${emoji} リアクションを削除しますか？';
 	@override String get fileOpenFailed => 'このファイルを開けません';
 	@override String get e2eeLocalBackup => 'ローカルバックアップ';
 	@override String get e2eeLocalBackupDesc => '暗号化バックアップをローカルまたはクラウドに書き出します';
@@ -1343,8 +1339,6 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeKeyGenerateFailed => 'キーの生成に失敗しました。もう一度お試しください';
 	@override String get e2eeKeyDeleted => 'キーを削除しました';
 	@override String get e2eeDeleteFailed => '削除に失敗しました。もう一度お試しください';
-	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => '利用可能なシャード: ${available} 個、復元には ${required} 人の代理者の協力が必要です';
-	@override String e2eeContactingProxy({required Object name}) => '連絡中: ${name}';
 	@override String get webFeatureNotification => 'デスクトップ通知';
 	@override String get webFeatureNotificationDesc => 'アプリを開いていなくても新着メッセージをお知らせ';
 	@override String get webQRConfirmOnPhone => 'スマートフォンでログインを確認してください';
@@ -1415,8 +1409,6 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => '読み込み完了';
 	@override String get e2eeBackupImportSuccessBody => 'E2EEキーを復元しました！';
 	@override String get e2eeBackupImportSuccessNote => '注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません';
-	@override String e2eeBackupDeviceLabel({required Object id}) => 'デバイス ${id}';
-	@override String e2eeBackupCreatedAtLabel({required Object time}) => '作成日時 ${time}';
 	@override String get e2eeBackupCreatedAtRow => '作成日時';
 	@override String get e2eeBackupCloudUploadBtn => 'クラウドにバックアップ';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）';
@@ -1442,10 +1434,6 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrUrlHttp => 'サーバーがエラーを返しました';
 	@override String get e2eeBackupErrUrlEmpty => 'サーバーが空のコンテンツを返しました';
 	@override String get e2eeBackupErrUrlTooLarge => 'ファイルが大きすぎます（10MB制限を超過）';
-	@override String e2eeSocialCreateNeedMore({required Object count}) => '先に ${count} 人の代理者を追加してください';
-	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'キーを ${count} 個のシャードに分割しました';
-	@override String e2eeSocialThresholdInfo({required Object count}) => '${count} 人の代理者の協力でキーを復元できます';
-	@override String e2eeTransferScanError({required Object error}) => 'スキャンエラー: ${error}';
 	@override String get passwordEncryptFailed => 'パスワードの暗号化に失敗しました';
 	@override String get initConfigTimeout => '設定の取得がタイムアウトしました：ネットワーク接続またはサーバーの状態を確認してください';
 	@override String initConfigNetworkError({required Object code}) => 'ネットワークまたはサーバーの障害です (HTTP ${code})';
@@ -1455,10 +1443,6 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get downloadFileNotFound => 'ダウンロードファイルが存在しません。もう一度お試しください';
 	@override String downloadHashRetrying({required Object retry, required Object max}) => 'ファイルの検証に失敗しました。再ダウンロード中 (${retry}/${max})';
 	@override String get downloadHashFailed => 'ファイルの検証が複数回失敗しました。ネットワークを確認して再度お試しください';
-	@override String e2eeSocialMoreShards({required Object count}) => '他 ${count} 個のシャード...';
-	@override String e2eeProxyGetKeyFailed({required Object name}) => '${name} の公開鍵の取得に失敗しました';
-	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => '最低 ${count} 人の信頼できる連絡先が必要です。${selected} 人選択中';
-	@override String e2eeProxyConfirmCount({required Object count}) => '選択を確認（代理者 ${count} 人）';
 	@override String get buttonBackHome => 'ホームへ';
 	@override String get featureNotEnabled => 'この機能は現在利用できません';
 	@override String featureDisabledName({required Object name}) => '${name} 機能が無効のため、一時的に利用できません';
@@ -1473,7 +1457,6 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get redPacketDetail => 'お年玉の詳細';
 	@override String get transferSend => '送金を開始';
 	@override String get greetingDefault => '謹賀新年';
-	@override String grabAmountYuan({required Object amount}) => '受取金額：${amount} 元';
 	@override String transferAmountYuan({required Object amount}) => '送金金額：${amount} 元';
 	@override String get insufficientBalance => '残高不足';
 	@override String get withdrawSuccess => '出金しました';
@@ -1674,7 +1657,6 @@ class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
 	@override String get momentActionDelete => '削除';
 	@override String get momentActionReport => '通報';
 	@override String get momentActionCancel => 'キャンセル';
-	@override String momentViewAllComments({required Object count}) => 'すべてのコメント（${count}）を見る';
 	@override String momentLikedBy({required Object names}) => '${names}がいいねしました';
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 他${count}人がいいねしました';
 	@override String momentLikesCountOnly({required Object count}) => '${count}人がいいねしました';
@@ -1710,8 +1692,6 @@ class _Translations$error$ja_JP extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. スマートフォンの設定 - 一般 - モバイルデータ通信を開き、モバイルデータ通信スイッチをオンにします。';
 	@override String get networkTroubleshootingStep3 => '3. まだネットワークに接続できない場合、スマートフォンが接続しているWi-Fiがインターネットにアクセスできるかどうかを確認するか、ネットワーク事業者にお問い合わせください。';
 	@override String get suggestCheckNetwork => 'ネットワーク設定を確認することをお勧めします。';
-	@override String e2eeStartRecoveryBtn({required Object required}) => 'キーの復元を開始（${required} 人の代理者の協力が必要）';
-	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'シャード不足（必要 ${required} 個、現在 ${current} 個）';
 	@override String get e2eeErrTimeout => '暗号化がタイムアウトしました。ネットワーク接続を確認して再度お試しください';
 	@override String get e2eeErrNetwork => 'ネットワークエラーのため暗号化に失敗しました。メッセージは送信されませんでした';
 	@override String get liveRoomTitleRequired => 'タイトルを入力してください';
@@ -2076,26 +2056,12 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get e2eeWarnIrreversible => '• この操作は取り消せません';
 	@override String get e2eeWarnNeedRestoreOrNew => '• バックアップから復元するか、新しいキーを生成する必要があります';
 	@override String get gotIt => '了解';
-	@override String e2eeProxyUser({required Object uid}) => '代理ユーザー: ${uid}';
-	@override String e2eeShardLabel({required Object index, required Object total}) => 'シャード ${index} / ${total}';
-	@override String e2eeUsedShards({required Object count}) => '${count} 個の代理シャードを使用しました';
-	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => '進捗: ${collected} / ${total} シャード';
-	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'シャードを収集中 (${collected}/${total})...';
 	@override String get webQRLoggingIn => 'ログイン中...';
 	@override String get webQRExpired => 'QRコードの有効期限が切れました';
 	@override String get webQRRefresh => 'QRコードを更新';
 	@override String get webSwitchToQR => 'QRコードでログイン';
 	@override String get e2eeErrDefault => 'エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした';
 	@override String get e2eeErrPeerDeviceNotReady => 'メンバーのデバイスでセキュリティ設定が未完了のため、メッセージは送信されませんでした。しばらくしてから再試行してください';
-	@override String e2eeSocialThresholdHint({required Object count}) => 'キーの復元には ${count} 人の代理者の協力が必要です';
-	@override String e2eeSocialProxyNeeded({required Object count}) => '${count} 人の信頼できる連絡先を代理者として追加してください';
-	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'ユーザー ${uid}';
-	@override String e2eeSocialSentCount({required Object sent, required Object total}) => '${sent} / ${total} 件の代理デバイスに送信済み';
-	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'シャード ${idx} / ${total}';
-	@override String e2eeSocialUserShard({required Object uid}) => 'ユーザー ${uid} のキーシャード';
-	@override String e2eeTransferQRExpiry({required Object time}) => 'QRコードは ${time} に期限切れになります';
-	@override String e2eeProxyMinCount({required Object count}) => '最低 ${count} 人の代理者を選択してください';
-	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => '選択中 ${selected} / ${total}';
 	@override String get liveRoomTitleLabel => '配信ルーム名';
 	@override String get liveRoomTitleHint => '配信ルーム名を入力';
 	@override String get lightModel => 'ライトモード';
@@ -3025,7 +2991,6 @@ extension on TranslationsJaJp {
 			'chat.e2eeCreatedAtLabel' => '作成日時',
 			'chat.e2eeGeneratingKey' => 'キーを生成中です。お待ちください...',
 			'chat.e2eeNewKeyGenerated' => '新しいE2EEキーペアを生成しました！',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備完了（シャード ${count} 個）',
 			'chat.webFeatureMultiDevice' => 'マルチデバイス同期',
 			'chat.webFeatureMultiDeviceDesc' => 'スマートフォンとPCをシームレスに切り替え、メッセージをリアルタイム同期',
 			'chat.webFeatureE2EE' => 'エンドツーエンド暗号化',
@@ -3037,8 +3002,6 @@ extension on TranslationsJaJp {
 			'chat.webQRStatusVerifying' => '確認中...',
 			'chat.webQRStatusExpired' => '更新ボタンを押して再度スキャンしてください',
 			'chat.e2eeErrInvalidFormat' => 'メッセージの形式が正しくありません。暗号化に失敗しました',
-			'chat.e2eeSocialStatus' => ({required Object status}) => 'ステータス: ${status}',
-			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '最低 ${count} 人の代理者を選択してください',
 			'chat.e2eeRecreatingKey' => 'キーを再作成中...',
 			'chat.e2eeKeyRecreated' => 'キーを再作成しました',
 			'chat.e2eeRecoveryNewDeviceTitle' => '新しいデバイスのログインを検出しました',
@@ -3529,11 +3492,11 @@ extension on TranslationsJaJp {
 			'common.momentReportReasonSpam' => 'スパム・広告',
 			'common.momentReportReasonHarassment' => '嫌がらせ',
 			'common.momentReportReasonPorn' => 'わいせつ',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '詐欺',
 			'common.momentReportReasonInfringement' => '著作権侵害',
 			'common.momentReportReasonOther' => 'その他',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => '理由を選択',
 			'common.momentsLoadMoreComments' => 'コメントをさらに読み込む',
 			'common.momentsUploadFailed' => 'メディアのアップロードに失敗しました。後でもう一度お試しください',
@@ -3685,7 +3648,6 @@ extension on TranslationsJaJp {
 			'common.orderNoLabel' => ({required Object no}) => '注文番号: ${no}',
 			'common.orderStatusCancelled' => 'キャンセル済み',
 			'common.orderStatusUnknown' => '不明',
-			'common.removeReactionConfirm' => ({required Object emoji}) => '${emoji} リアクションを削除しますか？',
 			'common.fileOpenFailed' => 'このファイルを開けません',
 			'common.e2eeLocalBackup' => 'ローカルバックアップ',
 			'common.e2eeLocalBackupDesc' => '暗号化バックアップをローカルまたはクラウドに書き出します',
@@ -3722,8 +3684,6 @@ extension on TranslationsJaJp {
 			'common.e2eeKeyGenerateFailed' => 'キーの生成に失敗しました。もう一度お試しください',
 			'common.e2eeKeyDeleted' => 'キーを削除しました',
 			'common.e2eeDeleteFailed' => '削除に失敗しました。もう一度お試しください',
-			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '利用可能なシャード: ${available} 個、復元には ${required} 人の代理者の協力が必要です',
-			'common.e2eeContactingProxy' => ({required Object name}) => '連絡中: ${name}',
 			'common.webFeatureNotification' => 'デスクトップ通知',
 			'common.webFeatureNotificationDesc' => 'アプリを開いていなくても新着メッセージをお知らせ',
 			'common.webQRConfirmOnPhone' => 'スマートフォンでログインを確認してください',
@@ -3794,8 +3754,6 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupImportSuccessTitle' => '読み込み完了',
 			'common.e2eeBackupImportSuccessBody' => 'E2EEキーを復元しました！',
 			'common.e2eeBackupImportSuccessNote' => '注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません',
-			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'デバイス ${id}',
-			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => '作成日時 ${time}',
 			'common.e2eeBackupCreatedAtRow' => '作成日時',
 			'common.e2eeBackupCloudUploadBtn' => 'クラウドにバックアップ',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）',
@@ -3821,10 +3779,6 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupErrUrlHttp' => 'サーバーがエラーを返しました',
 			'common.e2eeBackupErrUrlEmpty' => 'サーバーが空のコンテンツを返しました',
 			'common.e2eeBackupErrUrlTooLarge' => 'ファイルが大きすぎます（10MB制限を超過）',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '先に ${count} 人の代理者を追加してください',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'キーを ${count} 個のシャードに分割しました',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} 人の代理者の協力でキーを復元できます',
-			'common.e2eeTransferScanError' => ({required Object error}) => 'スキャンエラー: ${error}',
 			'common.passwordEncryptFailed' => 'パスワードの暗号化に失敗しました',
 			'common.initConfigTimeout' => '設定の取得がタイムアウトしました：ネットワーク接続またはサーバーの状態を確認してください',
 			'common.initConfigNetworkError' => ({required Object code}) => 'ネットワークまたはサーバーの障害です (HTTP ${code})',
@@ -3834,10 +3788,6 @@ extension on TranslationsJaJp {
 			'common.downloadFileNotFound' => 'ダウンロードファイルが存在しません。もう一度お試しください',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'ファイルの検証に失敗しました。再ダウンロード中 (${retry}/${max})',
 			'common.downloadHashFailed' => 'ファイルの検証が複数回失敗しました。ネットワークを確認して再度お試しください',
-			'common.e2eeSocialMoreShards' => ({required Object count}) => '他 ${count} 個のシャード...',
-			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => '${name} の公開鍵の取得に失敗しました',
-			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '最低 ${count} 人の信頼できる連絡先が必要です。${selected} 人選択中',
-			'common.e2eeProxyConfirmCount' => ({required Object count}) => '選択を確認（代理者 ${count} 人）',
 			'common.buttonBackHome' => 'ホームへ',
 			'common.featureNotEnabled' => 'この機能は現在利用できません',
 			'common.featureDisabledName' => ({required Object name}) => '${name} 機能が無効のため、一時的に利用できません',
@@ -3852,7 +3802,6 @@ extension on TranslationsJaJp {
 			'common.redPacketDetail' => 'お年玉の詳細',
 			'common.transferSend' => '送金を開始',
 			'common.greetingDefault' => '謹賀新年',
-			'common.grabAmountYuan' => ({required Object amount}) => '受取金額：${amount} 元',
 			'common.transferAmountYuan' => ({required Object amount}) => '送金金額：${amount} 元',
 			'common.insufficientBalance' => '残高不足',
 			'common.withdrawSuccess' => '出金しました',
@@ -4017,7 +3966,6 @@ extension on TranslationsJaJp {
 			'discovery.momentActionDelete' => '削除',
 			'discovery.momentActionReport' => '通報',
 			'discovery.momentActionCancel' => 'キャンセル',
-			'discovery.momentViewAllComments' => ({required Object count}) => 'すべてのコメント（${count}）を見る',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names}がいいねしました',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 他${count}人がいいねしました',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}人がいいねしました',
@@ -4043,11 +3991,7 @@ extension on TranslationsJaJp {
 			'error.networkTroubleshootingStep1' => '1. スマートフォンの設定を開き、Wi-Fiスイッチをオンにします。',
 			'error.networkTroubleshootingStep2' => '2. スマートフォンの設定 - 一般 - モバイルデータ通信を開き、モバイルデータ通信スイッチをオンにします。',
 			'error.networkTroubleshootingStep3' => '3. まだネットワークに接続できない場合、スマートフォンが接続しているWi-Fiがインターネットにアクセスできるかどうかを確認するか、ネットワーク事業者にお問い合わせください。',
-			_ => null,
-		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'ネットワーク設定を確認することをお勧めします。',
-			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'キーの復元を開始（${required} 人の代理者の協力が必要）',
-			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'シャード不足（必要 ${required} 個、現在 ${current} 個）',
 			'error.e2eeErrTimeout' => '暗号化がタイムアウトしました。ネットワーク接続を確認して再度お試しください',
 			'error.e2eeErrNetwork' => 'ネットワークエラーのため暗号化に失敗しました。メッセージは送信されませんでした',
 			'error.liveRoomTitleRequired' => 'タイトルを入力してください',
@@ -4065,6 +4009,8 @@ extension on TranslationsJaJp {
 			'group.groupGuest' => 'ゲスト',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'グループチャットを選択',
+			_ => null,
+		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'このグループを解散してもよろしいですか？',
 			'group.sureToLeaveGroup' => 'このグループを退出してもよろしいですか？',
 			'group.groupAlbumNameHint' => 'アルバム名を入力',
@@ -4331,26 +4277,12 @@ extension on TranslationsJaJp {
 			'main.e2eeWarnIrreversible' => '• この操作は取り消せません',
 			'main.e2eeWarnNeedRestoreOrNew' => '• バックアップから復元するか、新しいキーを生成する必要があります',
 			'main.gotIt' => '了解',
-			'main.e2eeProxyUser' => ({required Object uid}) => '代理ユーザー: ${uid}',
-			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'シャード ${index} / ${total}',
-			'main.e2eeUsedShards' => ({required Object count}) => '${count} 個の代理シャードを使用しました',
-			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '進捗: ${collected} / ${total} シャード',
-			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => 'シャードを収集中 (${collected}/${total})...',
 			'main.webQRLoggingIn' => 'ログイン中...',
 			'main.webQRExpired' => 'QRコードの有効期限が切れました',
 			'main.webQRRefresh' => 'QRコードを更新',
 			'main.webSwitchToQR' => 'QRコードでログイン',
 			'main.e2eeErrDefault' => 'エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした',
 			'main.e2eeErrPeerDeviceNotReady' => 'メンバーのデバイスでセキュリティ設定が未完了のため、メッセージは送信されませんでした。しばらくしてから再試行してください',
-			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'キーの復元には ${count} 人の代理者の協力が必要です',
-			'main.e2eeSocialProxyNeeded' => ({required Object count}) => '${count} 人の信頼できる連絡先を代理者として追加してください',
-			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'ユーザー ${uid}',
-			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => '${sent} / ${total} 件の代理デバイスに送信済み',
-			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'シャード ${idx} / ${total}',
-			'main.e2eeSocialUserShard' => ({required Object uid}) => 'ユーザー ${uid} のキーシャード',
-			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'QRコードは ${time} に期限切れになります',
-			'main.e2eeProxyMinCount' => ({required Object count}) => '最低 ${count} 人の代理者を選択してください',
-			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '選択中 ${selected} / ${total}',
 			'main.liveRoomTitleLabel' => '配信ルーム名',
 			'main.liveRoomTitleHint' => '配信ルーム名を入力',
 			'main.lightModel' => 'ライトモード',
@@ -4557,8 +4489,6 @@ extension on TranslationsJaJp {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB のみ対応。無効な値はデフォルトのテーマカラーに戻ります',
 			'workspace.brandingColorInvalid' => 'メインカラーの形式が正しくありません。#RRGGBB / #AARRGGBB のみ対応しています',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingSaved' => 'ブランド設定を保存しました',
 			'workspace.brandingPreview' => 'メインカラープレビュー',
 			'workspace.brandingPreviewApplied' => '現在のメインカラーはワークスペース内で反映されます',
@@ -4593,6 +4523,8 @@ extension on TranslationsJaJp {
 			'workspace.taskSubmitSave' => '保存する',
 			'workspace.taskCreatedToast' => 'タスクを作成しました',
 			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'タスクを保存しました',
 			'workspace.taskFilterAll' => 'すべて',
 			'workspace.taskStatusTodo' => 'TODO',

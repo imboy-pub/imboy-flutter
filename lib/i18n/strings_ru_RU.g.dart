@@ -633,7 +633,6 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get e2eeCreatedAtLabel => 'Создан';
 	@override String get e2eeGeneratingKey => 'Создание ключа, подождите...';
 	@override String get e2eeNewKeyGenerated => 'Новая пара ключей E2EE создана!';
-	@override String e2eeReadyWithShards({required Object count}) => 'Готово (фрагментов: ${count})';
 	@override String get webFeatureMultiDevice => 'Синхронизация устройств';
 	@override String get webFeatureMultiDeviceDesc => 'Переключайтесь между телефоном и ПК, сообщения синхронизируются в реальном времени';
 	@override String get webFeatureE2EE => 'Сквозное шифрование';
@@ -645,8 +644,6 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get webQRStatusVerifying => 'Проверка...';
 	@override String get webQRStatusExpired => 'Обновите и отсканируйте снова';
 	@override String get e2eeErrInvalidFormat => 'Неверный формат сообщения, шифрование не выполнено';
-	@override String e2eeSocialStatus({required Object status}) => 'Статус: ${status}';
-	@override String e2eeProxyNeedAtLeast({required Object count}) => 'Выберите минимум ${count} посредников';
 	@override String get e2eeRecreatingKey => 'Создание ключа заново...';
 	@override String get e2eeKeyRecreated => 'Ключ создан заново';
 	@override String get e2eeRecoveryNewDeviceTitle => 'Обнаружен вход с нового устройства';
@@ -1315,7 +1312,6 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String orderNoLabel({required Object no}) => 'Заказ: ${no}';
 	@override String get orderStatusCancelled => 'Отменено';
 	@override String get orderStatusUnknown => 'Неизвестно';
-	@override String removeReactionConfirm({required Object emoji}) => 'Убрать реакцию ${emoji}?';
 	@override String get fileOpenFailed => 'Не удаётся открыть этот файл';
 	@override String get e2eeLocalBackup => 'Локальная резервная копия';
 	@override String get e2eeLocalBackupDesc => 'Экспорт зашифрованной резервной копии на устройство или в облако';
@@ -1352,8 +1348,6 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeKeyGenerateFailed => 'Не удалось создать ключ, попробуйте ещё раз';
 	@override String get e2eeKeyDeleted => 'Ключ удалён';
 	@override String get e2eeDeleteFailed => 'Не удалось удалить, попробуйте ещё раз';
-	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => 'Доступно фрагментов: ${available}, нужно посредников: ${required}';
-	@override String e2eeContactingProxy({required Object name}) => 'Связь с: ${name}';
 	@override String get webFeatureNotification => 'Уведомления на рабочем столе';
 	@override String get webFeatureNotificationDesc => 'Получайте уведомления о новых сообщениях даже с закрытой вкладкой';
 	@override String get webQRConfirmOnPhone => 'Подтвердите вход на телефоне';
@@ -1424,8 +1418,6 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'Импорт выполнен';
 	@override String get e2eeBackupImportSuccessBody => 'Ключ E2EE восстановлен!';
 	@override String get e2eeBackupImportSuccessNote => 'Примечание: история групповых чатов восстановлена. История личных переписок недоступна — по принципам E2EE ключи 1:1 никогда не сохраняются между устройствами';
-	@override String e2eeBackupDeviceLabel({required Object id}) => 'Устройство ${id}';
-	@override String e2eeBackupCreatedAtLabel({required Object time}) => 'Создано ${time}';
 	@override String get e2eeBackupCreatedAtRow => 'Дата создания';
 	@override String get e2eeBackupCloudUploadBtn => 'Сохранить в облако';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Сохранено в облаке (версия ${version})';
@@ -1451,10 +1443,6 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrUrlHttp => 'Сервер вернул ошибку';
 	@override String get e2eeBackupErrUrlEmpty => 'Сервер вернул пустое содержимое';
 	@override String get e2eeBackupErrUrlTooLarge => 'Файл слишком велик (превышает лимит 10 МБ)';
-	@override String e2eeSocialCreateNeedMore({required Object count}) => 'Добавьте ещё ${count} посредников';
-	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'Ключ разделён на ${count} фрагментов';
-	@override String e2eeSocialThresholdInfo({required Object count}) => 'Для восстановления хватит ${count} посредников';
-	@override String e2eeTransferScanError({required Object error}) => 'Ошибка сканирования: ${error}';
 	@override String get passwordEncryptFailed => 'Не удалось зашифровать пароль';
 	@override String get initConfigTimeout => 'Тайм-аут загрузки настроек: проверьте сеть или состояние сервера';
 	@override String initConfigNetworkError({required Object code}) => 'Сетевой сбой или сбой сервера (HTTP ${code})';
@@ -1464,10 +1452,6 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get downloadFileNotFound => 'Файл загрузки не найден, попробуйте ещё раз';
 	@override String downloadHashRetrying({required Object retry, required Object max}) => 'Ошибка проверки файла, перезагрузка (${retry}/${max})';
 	@override String get downloadHashFailed => 'Многократная ошибка проверки файла, проверьте сеть и попробуйте ещё раз';
-	@override String e2eeSocialMoreShards({required Object count}) => 'Ещё фрагментов: ${count}...';
-	@override String e2eeProxyGetKeyFailed({required Object name}) => 'Не удалось получить открытый ключ: ${name}';
-	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => 'Нужно минимум ${count} доверенных контактов, выбрано ${selected}';
-	@override String e2eeProxyConfirmCount({required Object count}) => 'Подтвердить (посредников: ${count})';
 	@override String get buttonBackHome => 'На главную';
 	@override String get featureNotEnabled => 'Эта функция отключена';
 	@override String featureDisabledName({required Object name}) => 'Функция ${name} отключена и временно недоступна';
@@ -1482,7 +1466,6 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get redPacketDetail => 'Детали конверта';
 	@override String get transferSend => 'Сделать перевод';
 	@override String get greetingDefault => 'Счастья и процветания!';
-	@override String grabAmountYuan({required Object amount}) => 'Получено: ${amount} юаней';
 	@override String transferAmountYuan({required Object amount}) => 'Перевод: ${amount} юаней';
 	@override String get insufficientBalance => 'Недостаточно средств';
 	@override String get withdrawSuccess => 'Вывод выполнен';
@@ -1683,7 +1666,6 @@ class _Translations$discovery$ru_RU extends Translations$discovery$zh_CN {
 	@override String get momentActionDelete => 'Удалить';
 	@override String get momentActionReport => 'Пожаловаться';
 	@override String get momentActionCancel => 'Отмена';
-	@override String momentViewAllComments({required Object count}) => 'Все комментарии (${count})';
 	@override String momentLikedBy({required Object names}) => '${names} оценили это';
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} и еще ${count} оценили это';
 	@override String momentLikesCountOnly({required Object count}) => '${count} человек оценили это';
@@ -1719,8 +1701,6 @@ class _Translations$error$ru_RU extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. Включите мобильные данные';
 	@override String get networkTroubleshootingStep3 => '3. Проверьте интернет или обратитесь к оператору';
 	@override String get suggestCheckNetwork => 'Рекомендуется проверить настройки сети.';
-	@override String e2eeStartRecoveryBtn({required Object required}) => 'Начать восстановление (нужно посредников: ${required})';
-	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'Недостаточно фрагментов (нужно ${required}, есть ${current})';
 	@override String get e2eeErrTimeout => 'Превышено время шифрования, проверьте сеть и попробуйте ещё раз';
 	@override String get e2eeErrNetwork => 'Сетевая ошибка, шифрование не выполнено, сообщение не отправлено';
 	@override String get liveRoomTitleRequired => 'Введите название';
@@ -2085,26 +2065,12 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get e2eeWarnIrreversible => '• Это действие необратимо';
 	@override String get e2eeWarnNeedRestoreOrNew => '• Нужно восстановить из копии или создать новый ключ';
 	@override String get gotIt => 'Понятно';
-	@override String e2eeProxyUser({required Object uid}) => 'Посредник: ${uid}';
-	@override String e2eeShardLabel({required Object index, required Object total}) => 'Фрагмент ${index} / ${total}';
-	@override String e2eeUsedShards({required Object count}) => 'Использовано фрагментов посредников: ${count}';
-	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => 'Прогресс: ${collected} / ${total} фрагментов';
-	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'Сбор фрагментов (${collected}/${total})...';
 	@override String get webQRLoggingIn => 'Вход...';
 	@override String get webQRExpired => 'Срок действия QR-кода истёк';
 	@override String get webQRRefresh => 'Обновить QR-код';
 	@override String get webSwitchToQR => 'Войти по QR-коду';
 	@override String get e2eeErrDefault => 'Ошибка сквозного шифрования, сообщение не отправлено';
 	@override String get e2eeErrPeerDeviceNotReady => 'Настройка безопасности не завершена на устройствах некоторых участников, сообщение не отправлено; повторите попытку позже';
-	@override String e2eeSocialThresholdHint({required Object count}) => 'Для восстановления нужно ${count} посредников';
-	@override String e2eeSocialProxyNeeded({required Object count}) => 'Нужно ${count} доверенных контактов как посредников';
-	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'Пользователь ${uid}';
-	@override String e2eeSocialSentCount({required Object sent, required Object total}) => 'Отправлено ${sent} из ${total} устройств';
-	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'Фрагмент ${idx} / ${total}';
-	@override String e2eeSocialUserShard({required Object uid}) => 'Фрагмент ключа пользователя ${uid}';
-	@override String e2eeTransferQRExpiry({required Object time}) => 'Срок QR-кода истекает ${time}';
-	@override String e2eeProxyMinCount({required Object count}) => 'Выберите минимум ${count} посредников';
-	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => 'Выбрано ${selected} / ${total}';
 	@override String get liveRoomTitleLabel => 'Название трансляции';
 	@override String get liveRoomTitleHint => 'Введите название трансляции';
 	@override String get lightModel => 'Светлая тема';
@@ -3034,7 +3000,6 @@ extension on TranslationsRuRu {
 			'chat.e2eeCreatedAtLabel' => 'Создан',
 			'chat.e2eeGeneratingKey' => 'Создание ключа, подождите...',
 			'chat.e2eeNewKeyGenerated' => 'Новая пара ключей E2EE создана!',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Готово (фрагментов: ${count})',
 			'chat.webFeatureMultiDevice' => 'Синхронизация устройств',
 			'chat.webFeatureMultiDeviceDesc' => 'Переключайтесь между телефоном и ПК, сообщения синхронизируются в реальном времени',
 			'chat.webFeatureE2EE' => 'Сквозное шифрование',
@@ -3046,8 +3011,6 @@ extension on TranslationsRuRu {
 			'chat.webQRStatusVerifying' => 'Проверка...',
 			'chat.webQRStatusExpired' => 'Обновите и отсканируйте снова',
 			'chat.e2eeErrInvalidFormat' => 'Неверный формат сообщения, шифрование не выполнено',
-			'chat.e2eeSocialStatus' => ({required Object status}) => 'Статус: ${status}',
-			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Выберите минимум ${count} посредников',
 			'chat.e2eeRecreatingKey' => 'Создание ключа заново...',
 			'chat.e2eeKeyRecreated' => 'Ключ создан заново',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Обнаружен вход с нового устройства',
@@ -3538,11 +3501,11 @@ extension on TranslationsRuRu {
 			'common.momentReportReasonSpam' => 'Спам или реклама',
 			'common.momentReportReasonHarassment' => 'Домогательства',
 			'common.momentReportReasonPorn' => 'Порнография',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Мошенничество',
 			'common.momentReportReasonInfringement' => 'Нарушение авторских прав',
 			'common.momentReportReasonOther' => 'Другое',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'Выберите причину',
 			'common.momentsLoadMoreComments' => 'Ещё комментарии',
 			'common.momentsUploadFailed' => 'Не удалось загрузить медиа, попробуйте позже',
@@ -3694,7 +3657,6 @@ extension on TranslationsRuRu {
 			'common.orderNoLabel' => ({required Object no}) => 'Заказ: ${no}',
 			'common.orderStatusCancelled' => 'Отменено',
 			'common.orderStatusUnknown' => 'Неизвестно',
-			'common.removeReactionConfirm' => ({required Object emoji}) => 'Убрать реакцию ${emoji}?',
 			'common.fileOpenFailed' => 'Не удаётся открыть этот файл',
 			'common.e2eeLocalBackup' => 'Локальная резервная копия',
 			'common.e2eeLocalBackupDesc' => 'Экспорт зашифрованной резервной копии на устройство или в облако',
@@ -3731,8 +3693,6 @@ extension on TranslationsRuRu {
 			'common.e2eeKeyGenerateFailed' => 'Не удалось создать ключ, попробуйте ещё раз',
 			'common.e2eeKeyDeleted' => 'Ключ удалён',
 			'common.e2eeDeleteFailed' => 'Не удалось удалить, попробуйте ещё раз',
-			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => 'Доступно фрагментов: ${available}, нужно посредников: ${required}',
-			'common.e2eeContactingProxy' => ({required Object name}) => 'Связь с: ${name}',
 			'common.webFeatureNotification' => 'Уведомления на рабочем столе',
 			'common.webFeatureNotificationDesc' => 'Получайте уведомления о новых сообщениях даже с закрытой вкладкой',
 			'common.webQRConfirmOnPhone' => 'Подтвердите вход на телефоне',
@@ -3803,8 +3763,6 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupImportSuccessTitle' => 'Импорт выполнен',
 			'common.e2eeBackupImportSuccessBody' => 'Ключ E2EE восстановлен!',
 			'common.e2eeBackupImportSuccessNote' => 'Примечание: история групповых чатов восстановлена. История личных переписок недоступна — по принципам E2EE ключи 1:1 никогда не сохраняются между устройствами',
-			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Устройство ${id}',
-			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'Создано ${time}',
 			'common.e2eeBackupCreatedAtRow' => 'Дата создания',
 			'common.e2eeBackupCloudUploadBtn' => 'Сохранить в облако',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Сохранено в облаке (версия ${version})',
@@ -3830,10 +3788,6 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupErrUrlHttp' => 'Сервер вернул ошибку',
 			'common.e2eeBackupErrUrlEmpty' => 'Сервер вернул пустое содержимое',
 			'common.e2eeBackupErrUrlTooLarge' => 'Файл слишком велик (превышает лимит 10 МБ)',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Добавьте ещё ${count} посредников',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Ключ разделён на ${count} фрагментов',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Для восстановления хватит ${count} посредников',
-			'common.e2eeTransferScanError' => ({required Object error}) => 'Ошибка сканирования: ${error}',
 			'common.passwordEncryptFailed' => 'Не удалось зашифровать пароль',
 			'common.initConfigTimeout' => 'Тайм-аут загрузки настроек: проверьте сеть или состояние сервера',
 			'common.initConfigNetworkError' => ({required Object code}) => 'Сетевой сбой или сбой сервера (HTTP ${code})',
@@ -3843,10 +3797,6 @@ extension on TranslationsRuRu {
 			'common.downloadFileNotFound' => 'Файл загрузки не найден, попробуйте ещё раз',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Ошибка проверки файла, перезагрузка (${retry}/${max})',
 			'common.downloadHashFailed' => 'Многократная ошибка проверки файла, проверьте сеть и попробуйте ещё раз',
-			'common.e2eeSocialMoreShards' => ({required Object count}) => 'Ещё фрагментов: ${count}...',
-			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Не удалось получить открытый ключ: ${name}',
-			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => 'Нужно минимум ${count} доверенных контактов, выбрано ${selected}',
-			'common.e2eeProxyConfirmCount' => ({required Object count}) => 'Подтвердить (посредников: ${count})',
 			'common.buttonBackHome' => 'На главную',
 			'common.featureNotEnabled' => 'Эта функция отключена',
 			'common.featureDisabledName' => ({required Object name}) => 'Функция ${name} отключена и временно недоступна',
@@ -3861,7 +3811,6 @@ extension on TranslationsRuRu {
 			'common.redPacketDetail' => 'Детали конверта',
 			'common.transferSend' => 'Сделать перевод',
 			'common.greetingDefault' => 'Счастья и процветания!',
-			'common.grabAmountYuan' => ({required Object amount}) => 'Получено: ${amount} юаней',
 			'common.transferAmountYuan' => ({required Object amount}) => 'Перевод: ${amount} юаней',
 			'common.insufficientBalance' => 'Недостаточно средств',
 			'common.withdrawSuccess' => 'Вывод выполнен',
@@ -4026,7 +3975,6 @@ extension on TranslationsRuRu {
 			'discovery.momentActionDelete' => 'Удалить',
 			'discovery.momentActionReport' => 'Пожаловаться',
 			'discovery.momentActionCancel' => 'Отмена',
-			'discovery.momentViewAllComments' => ({required Object count}) => 'Все комментарии (${count})',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} оценили это',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} и еще ${count} оценили это',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} человек оценили это',
@@ -4052,11 +4000,7 @@ extension on TranslationsRuRu {
 			'error.networkTroubleshootingStep1' => '1. Включите Wi-Fi в настройках телефона',
 			'error.networkTroubleshootingStep2' => '2. Включите мобильные данные',
 			'error.networkTroubleshootingStep3' => '3. Проверьте интернет или обратитесь к оператору',
-			_ => null,
-		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'Рекомендуется проверить настройки сети.',
-			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'Начать восстановление (нужно посредников: ${required})',
-			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Недостаточно фрагментов (нужно ${required}, есть ${current})',
 			'error.e2eeErrTimeout' => 'Превышено время шифрования, проверьте сеть и попробуйте ещё раз',
 			'error.e2eeErrNetwork' => 'Сетевая ошибка, шифрование не выполнено, сообщение не отправлено',
 			'error.liveRoomTitleRequired' => 'Введите название',
@@ -4074,6 +4018,8 @@ extension on TranslationsRuRu {
 			'group.groupGuest' => 'Гость',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'Выбрать групповой чат',
+			_ => null,
+		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'Распустить эту группу?',
 			'group.sureToLeaveGroup' => 'Покинуть эту группу?',
 			'group.groupAlbumNameHint' => 'Введите название альбома',
@@ -4340,26 +4286,12 @@ extension on TranslationsRuRu {
 			'main.e2eeWarnIrreversible' => '• Это действие необратимо',
 			'main.e2eeWarnNeedRestoreOrNew' => '• Нужно восстановить из копии или создать новый ключ',
 			'main.gotIt' => 'Понятно',
-			'main.e2eeProxyUser' => ({required Object uid}) => 'Посредник: ${uid}',
-			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Фрагмент ${index} / ${total}',
-			'main.e2eeUsedShards' => ({required Object count}) => 'Использовано фрагментов посредников: ${count}',
-			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => 'Прогресс: ${collected} / ${total} фрагментов',
-			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => 'Сбор фрагментов (${collected}/${total})...',
 			'main.webQRLoggingIn' => 'Вход...',
 			'main.webQRExpired' => 'Срок действия QR-кода истёк',
 			'main.webQRRefresh' => 'Обновить QR-код',
 			'main.webSwitchToQR' => 'Войти по QR-коду',
 			'main.e2eeErrDefault' => 'Ошибка сквозного шифрования, сообщение не отправлено',
 			'main.e2eeErrPeerDeviceNotReady' => 'Настройка безопасности не завершена на устройствах некоторых участников, сообщение не отправлено; повторите попытку позже',
-			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Для восстановления нужно ${count} посредников',
-			'main.e2eeSocialProxyNeeded' => ({required Object count}) => 'Нужно ${count} доверенных контактов как посредников',
-			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'Пользователь ${uid}',
-			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'Отправлено ${sent} из ${total} устройств',
-			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'Фрагмент ${idx} / ${total}',
-			'main.e2eeSocialUserShard' => ({required Object uid}) => 'Фрагмент ключа пользователя ${uid}',
-			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'Срок QR-кода истекает ${time}',
-			'main.e2eeProxyMinCount' => ({required Object count}) => 'Выберите минимум ${count} посредников',
-			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => 'Выбрано ${selected} / ${total}',
 			'main.liveRoomTitleLabel' => 'Название трансляции',
 			'main.liveRoomTitleHint' => 'Введите название трансляции',
 			'main.lightModel' => 'Светлая тема',
@@ -4566,8 +4498,6 @@ extension on TranslationsRuRu {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Поддерживается только #RRGGBB / #AARRGGBB; при недопустимом значении используется цвет темы по умолчанию',
 			'workspace.brandingColorInvalid' => 'Неверный формат основного цвета, поддерживается только #RRGGBB / #AARRGGBB',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingSaved' => 'Настройки бренда сохранены',
 			'workspace.brandingPreview' => 'Предпросмотр основного цвета',
 			'workspace.brandingPreviewApplied' => 'Текущий основной цвет применяется внутри рабочего пространства',
@@ -4602,6 +4532,8 @@ extension on TranslationsRuRu {
 			'workspace.taskSubmitSave' => _root.common.buttonSave,
 			'workspace.taskCreatedToast' => 'Задача создана',
 			'workspace.taskExistingToast' => 'Задача с таким названием уже существует, используется она',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'Задача сохранена',
 			'workspace.taskFilterAll' => 'Все',
 			'workspace.taskStatusTodo' => 'К выполнению',

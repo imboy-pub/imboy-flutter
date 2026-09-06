@@ -162,7 +162,6 @@ e2eeActivated: Активно
 e2eeCreatedAtLabel: Создан
 e2eeGeneratingKey: Создание ключа, подождите...
 e2eeNewKeyGenerated: Новая пара ключей E2EE создана!
-e2eeReadyWithShards(count): 'Готово (фрагментов: $count)'
 webFeatureMultiDevice: Синхронизация устройств
 webFeatureMultiDeviceDesc: Переключайтесь между телефоном и ПК, сообщения синхронизируются в реальном времени
 webFeatureE2EE: Сквозное шифрование
@@ -174,8 +173,6 @@ webQRStatusScanned: Нажмите «Подтвердить вход» на те
 webQRStatusVerifying: Проверка...
 webQRStatusExpired: Обновите и отсканируйте снова
 e2eeErrInvalidFormat: Неверный формат сообщения, шифрование не выполнено
-e2eeSocialStatus(status): 'Статус: $status'
-e2eeProxyNeedAtLeast(count): Выберите минимум $count посредников
 e2eeRecreatingKey: Создание ключа заново...
 e2eeKeyRecreated: Ключ создан заново
 e2eeRecoveryNewDeviceTitle: Обнаружен вход с нового устройства

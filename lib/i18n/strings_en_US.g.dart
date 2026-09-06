@@ -633,7 +633,6 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get e2eeCreatedAtLabel => 'Created At';
 	@override String get e2eeGeneratingKey => 'Generating key, please wait...';
 	@override String get e2eeNewKeyGenerated => 'New E2EE key pair generated!';
-	@override String e2eeReadyWithShards({required Object count}) => 'Ready (${count} shards)';
 	@override String get webFeatureMultiDevice => 'Multi-Device Sync';
 	@override String get webFeatureMultiDeviceDesc => 'Switch seamlessly between phone and computer, messages sync in real time';
 	@override String get webFeatureE2EE => 'End-to-End Encryption';
@@ -645,8 +644,6 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get webQRStatusVerifying => 'Verifying...';
 	@override String get webQRStatusExpired => 'Please click refresh to scan again';
 	@override String get e2eeErrInvalidFormat => 'Message format error, encryption failed';
-	@override String e2eeSocialStatus({required Object status}) => 'Status: ${status}';
-	@override String e2eeProxyNeedAtLeast({required Object count}) => 'Please select at least ${count} proxies';
 	@override String get e2eeRecreatingKey => 'Recreating key...';
 	@override String get e2eeKeyRecreated => 'Key recreated successfully';
 	@override String get e2eeRecoveryNewDeviceTitle => 'New device detected';
@@ -1305,7 +1302,6 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String orderNoLabel({required Object no}) => 'Order No: ${no}';
 	@override String get orderStatusCancelled => 'Cancelled';
 	@override String get orderStatusUnknown => 'Unknown';
-	@override String removeReactionConfirm({required Object emoji}) => 'Remove ${emoji} reaction?';
 	@override String get fileOpenFailed => 'Unable to open this file';
 	@override String get e2eeLocalBackup => 'Local Backup';
 	@override String get e2eeLocalBackupDesc => 'Export encrypted backup file locally or to cloud';
@@ -1342,8 +1338,6 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeKeyGenerateFailed => 'Key generation failed, please try again';
 	@override String get e2eeKeyDeleted => 'Key deleted';
 	@override String get e2eeDeleteFailed => 'Deletion failed, please try again';
-	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => 'Available shards: ${available}, need ${required} proxy helpers';
-	@override String e2eeContactingProxy({required Object name}) => 'Contacting: ${name}';
 	@override String get webFeatureNotification => 'Desktop Notifications';
 	@override String get webFeatureNotificationDesc => 'Receive new message alerts even when you\'re away from the page';
 	@override String get webQRConfirmOnPhone => 'Please confirm login on your phone';
@@ -1419,8 +1413,6 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'Import successful';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE key has been restored successfully!';
 	@override String get e2eeBackupImportSuccessNote => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices';
-	@override String e2eeBackupDeviceLabel({required Object id}) => 'Device ${id}';
-	@override String e2eeBackupCreatedAtLabel({required Object time}) => 'Created at ${time}';
 	@override String get e2eeBackupCreatedAtRow => 'Created at';
 	@override String get e2eeBackupCloudUploadBtn => 'Back up to cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Backed up to cloud (version ${version})';
@@ -1446,10 +1438,6 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrUrlHttp => 'Server returned an error';
 	@override String get e2eeBackupErrUrlEmpty => 'Server returned empty content';
 	@override String get e2eeBackupErrUrlTooLarge => 'File too large (exceeds 10MB limit)';
-	@override String e2eeSocialCreateNeedMore({required Object count}) => 'Please add ${count} proxies first';
-	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'Key has been split into ${count} shards';
-	@override String e2eeSocialThresholdInfo({required Object count}) => 'Need ${count} proxies to recover key';
-	@override String e2eeTransferScanError({required Object error}) => 'Scan error: ${error}';
 	@override String get passwordEncryptFailed => 'Password encryption failed';
 	@override String get initConfigTimeout => 'Config fetch timed out: please check network or server status';
 	@override String initConfigNetworkError({required Object code}) => 'Network or server error (HTTP ${code})';
@@ -1460,10 +1448,6 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get downloadFileNotFound => 'Download file not found, please retry';
 	@override String downloadHashRetrying({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})';
 	@override String get downloadHashFailed => 'File verification failed repeatedly, please check your network and retry';
-	@override String e2eeSocialMoreShards({required Object count}) => '${count} more shards...';
-	@override String e2eeProxyGetKeyFailed({required Object name}) => 'Failed to get public key for ${name}';
-	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => 'Need at least ${count} trusted contacts — ${selected} selected';
-	@override String e2eeProxyConfirmCount({required Object count}) => 'Confirm Selection (${count} proxies)';
 	@override String get buttonBackHome => 'Back to Home';
 	@override String get featureNotEnabled => 'This feature is not enabled';
 	@override String featureDisabledName({required Object name}) => '${name} is not enabled and temporarily unavailable';
@@ -1478,7 +1462,6 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get redPacketDetail => 'Red Packet Details';
 	@override String get transferSend => 'Send Transfer';
 	@override String get greetingDefault => 'Best wishes!';
-	@override String grabAmountYuan({required Object amount}) => 'Grabbed: ${amount} CNY';
 	@override String transferAmountYuan({required Object amount}) => 'Transfer: ${amount} CNY';
 	@override String get insufficientBalance => 'Insufficient Balance';
 	@override String get withdrawSuccess => 'Withdrawal Successful';
@@ -1677,7 +1660,6 @@ class _Translations$discovery$en_US extends Translations$discovery$zh_CN {
 	@override String get momentActionDelete => 'Delete';
 	@override String get momentActionReport => 'Report';
 	@override String get momentActionCancel => 'Cancel';
-	@override String momentViewAllComments({required Object count}) => 'View all ${count} comments';
 	@override String momentLikedBy({required Object names}) => '${names} liked this';
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} and ${count} others liked this';
 	@override String get momentContentPlaceholder => 'What\'s on your mind...';
@@ -1713,8 +1695,6 @@ class _Translations$error$en_US extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. Open phone \'Settings\' - \'General\' - \'Cellular Data\' and keep \'Cellular Data\' switch on.';
 	@override String get networkTroubleshootingStep3 => '3. If still unable to connect to network, please check if the \'Wi-Fi\' connected by phone has access to Internet or contact network operator.';
 	@override String get suggestCheckNetwork => 'Please check your network settings.';
-	@override String e2eeStartRecoveryBtn({required Object required}) => 'Start Key Recovery (need ${required} proxy helpers)';
-	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'Insufficient shards (need ${required}, have ${current})';
 	@override String get e2eeErrTimeout => 'Encryption timed out, please check your connection and retry';
 	@override String get e2eeErrNetwork => 'Network error, encryption failed, message not sent';
 	@override String get liveRoomTitleRequired => 'Title cannot be empty';
@@ -2078,11 +2058,6 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get e2eeWarnIrreversible => '• This action cannot be undone';
 	@override String get e2eeWarnNeedRestoreOrNew => '• Must restore from backup or generate a new key';
 	@override String get gotIt => 'Got it';
-	@override String e2eeProxyUser({required Object uid}) => 'Proxy user: ${uid}';
-	@override String e2eeShardLabel({required Object index, required Object total}) => 'Shard ${index} / ${total}';
-	@override String e2eeUsedShards({required Object count}) => 'Used ${count} proxy shards';
-	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => 'Progress: ${collected} / ${total} shards';
-	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'Collecting shards (${collected}/${total})...';
 	@override String get webQRLoggingIn => 'Logging in...';
 	@override String get webQRExpired => 'QR code expired';
 	@override String get webQRRefresh => 'Refresh QR Code';
@@ -2118,15 +2093,6 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get safetyNumberReporting => 'Reporting verification result...';
 	@override String get safetyNumberReportRejected => 'The server rejected this verification event (signature/expiry mismatch); not marked';
 	@override String get safetyNumberReportUnavailable => 'Could not get device info; not reported';
-	@override String e2eeSocialThresholdHint({required Object count}) => 'Need ${count} proxies to recover key';
-	@override String e2eeSocialProxyNeeded({required Object count}) => 'Need ${count} trusted contacts as proxies';
-	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'User ${uid}';
-	@override String e2eeSocialSentCount({required Object sent, required Object total}) => 'Sent to ${sent} proxy devices (out of ${total})';
-	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'Shard ${idx} / ${total}';
-	@override String e2eeSocialUserShard({required Object uid}) => 'Key shard for user ${uid}';
-	@override String e2eeTransferQRExpiry({required Object time}) => 'QR code expires at ${time}';
-	@override String e2eeProxyMinCount({required Object count}) => 'Please select at least ${count} proxies';
-	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => 'Selected ${selected} / ${total}';
 	@override String get liveRoomTitleLabel => 'Live Room Title';
 	@override String get liveRoomTitleHint => 'Enter live room title';
 	@override String channelPriceLabel({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}';
@@ -3028,7 +2994,6 @@ extension on TranslationsEnUs {
 			'chat.e2eeCreatedAtLabel' => 'Created At',
 			'chat.e2eeGeneratingKey' => 'Generating key, please wait...',
 			'chat.e2eeNewKeyGenerated' => 'New E2EE key pair generated!',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Ready (${count} shards)',
 			'chat.webFeatureMultiDevice' => 'Multi-Device Sync',
 			'chat.webFeatureMultiDeviceDesc' => 'Switch seamlessly between phone and computer, messages sync in real time',
 			'chat.webFeatureE2EE' => 'End-to-End Encryption',
@@ -3040,8 +3005,6 @@ extension on TranslationsEnUs {
 			'chat.webQRStatusVerifying' => 'Verifying...',
 			'chat.webQRStatusExpired' => 'Please click refresh to scan again',
 			'chat.e2eeErrInvalidFormat' => 'Message format error, encryption failed',
-			'chat.e2eeSocialStatus' => ({required Object status}) => 'Status: ${status}',
-			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Please select at least ${count} proxies',
 			'chat.e2eeRecreatingKey' => 'Recreating key...',
 			'chat.e2eeKeyRecreated' => 'Key recreated successfully',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'New device detected',
@@ -3532,11 +3495,11 @@ extension on TranslationsEnUs {
 			'common.momentReportReasonFraud' => 'Fraud or scam',
 			'common.momentReportReasonInfringement' => 'Copyright infringement',
 			'common.momentReportReasonOther' => 'Other',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'Select a reason',
 			'common.momentsLoadMoreComments' => 'Load more comments',
 			'common.momentsUploadFailed' => 'Media upload failed, please try again',
+			_ => null,
+		} ?? switch (path) {
 			'common.saveFailed' => 'Save failed',
 			'common.confirm' => 'Confirm',
 			'common.success' => 'Success',
@@ -3684,7 +3647,6 @@ extension on TranslationsEnUs {
 			'common.orderNoLabel' => ({required Object no}) => 'Order No: ${no}',
 			'common.orderStatusCancelled' => 'Cancelled',
 			'common.orderStatusUnknown' => 'Unknown',
-			'common.removeReactionConfirm' => ({required Object emoji}) => 'Remove ${emoji} reaction?',
 			'common.fileOpenFailed' => 'Unable to open this file',
 			'common.e2eeLocalBackup' => 'Local Backup',
 			'common.e2eeLocalBackupDesc' => 'Export encrypted backup file locally or to cloud',
@@ -3721,8 +3683,6 @@ extension on TranslationsEnUs {
 			'common.e2eeKeyGenerateFailed' => 'Key generation failed, please try again',
 			'common.e2eeKeyDeleted' => 'Key deleted',
 			'common.e2eeDeleteFailed' => 'Deletion failed, please try again',
-			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => 'Available shards: ${available}, need ${required} proxy helpers',
-			'common.e2eeContactingProxy' => ({required Object name}) => 'Contacting: ${name}',
 			'common.webFeatureNotification' => 'Desktop Notifications',
 			'common.webFeatureNotificationDesc' => 'Receive new message alerts even when you\'re away from the page',
 			'common.webQRConfirmOnPhone' => 'Please confirm login on your phone',
@@ -3798,8 +3758,6 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupImportSuccessTitle' => 'Import successful',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
 			'common.e2eeBackupImportSuccessNote' => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices',
-			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Device ${id}',
-			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'Created at ${time}',
 			'common.e2eeBackupCreatedAtRow' => 'Created at',
 			'common.e2eeBackupCloudUploadBtn' => 'Back up to cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backed up to cloud (version ${version})',
@@ -3825,10 +3783,6 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupErrUrlHttp' => 'Server returned an error',
 			'common.e2eeBackupErrUrlEmpty' => 'Server returned empty content',
 			'common.e2eeBackupErrUrlTooLarge' => 'File too large (exceeds 10MB limit)',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Please add ${count} proxies first',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Key has been split into ${count} shards',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'Need ${count} proxies to recover key',
-			'common.e2eeTransferScanError' => ({required Object error}) => 'Scan error: ${error}',
 			'common.passwordEncryptFailed' => 'Password encryption failed',
 			'common.initConfigTimeout' => 'Config fetch timed out: please check network or server status',
 			'common.initConfigNetworkError' => ({required Object code}) => 'Network or server error (HTTP ${code})',
@@ -3839,10 +3793,6 @@ extension on TranslationsEnUs {
 			'common.downloadFileNotFound' => 'Download file not found, please retry',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'File verification failed, re-downloading (${retry}/${max})',
 			'common.downloadHashFailed' => 'File verification failed repeatedly, please check your network and retry',
-			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} more shards...',
-			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Failed to get public key for ${name}',
-			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => 'Need at least ${count} trusted contacts — ${selected} selected',
-			'common.e2eeProxyConfirmCount' => ({required Object count}) => 'Confirm Selection (${count} proxies)',
 			'common.buttonBackHome' => 'Back to Home',
 			'common.featureNotEnabled' => 'This feature is not enabled',
 			'common.featureDisabledName' => ({required Object name}) => '${name} is not enabled and temporarily unavailable',
@@ -3857,7 +3807,6 @@ extension on TranslationsEnUs {
 			'common.redPacketDetail' => 'Red Packet Details',
 			'common.transferSend' => 'Send Transfer',
 			'common.greetingDefault' => 'Best wishes!',
-			'common.grabAmountYuan' => ({required Object amount}) => 'Grabbed: ${amount} CNY',
 			'common.transferAmountYuan' => ({required Object amount}) => 'Transfer: ${amount} CNY',
 			'common.insufficientBalance' => 'Insufficient Balance',
 			'common.withdrawSuccess' => 'Withdrawal Successful',
@@ -4020,7 +3969,6 @@ extension on TranslationsEnUs {
 			'discovery.momentActionDelete' => 'Delete',
 			'discovery.momentActionReport' => 'Report',
 			'discovery.momentActionCancel' => 'Cancel',
-			'discovery.momentViewAllComments' => ({required Object count}) => 'View all ${count} comments',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} liked this',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} and ${count} others liked this',
 			'discovery.momentContentPlaceholder' => 'What\'s on your mind...',
@@ -4046,11 +3994,7 @@ extension on TranslationsEnUs {
 			'error.networkTroubleshootingStep1' => '1. Open phone \'Settings\' and keep \'Wi-Fi\' switch on.',
 			'error.networkTroubleshootingStep2' => '2. Open phone \'Settings\' - \'General\' - \'Cellular Data\' and keep \'Cellular Data\' switch on.',
 			'error.networkTroubleshootingStep3' => '3. If still unable to connect to network, please check if the \'Wi-Fi\' connected by phone has access to Internet or contact network operator.',
-			_ => null,
-		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'Please check your network settings.',
-			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'Start Key Recovery (need ${required} proxy helpers)',
-			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Insufficient shards (need ${required}, have ${current})',
 			'error.e2eeErrTimeout' => 'Encryption timed out, please check your connection and retry',
 			'error.e2eeErrNetwork' => 'Network error, encryption failed, message not sent',
 			'error.liveRoomTitleRequired' => 'Title cannot be empty',
@@ -4068,6 +4012,8 @@ extension on TranslationsEnUs {
 			'group.groupGuest' => 'Guest',
 			'group.groupInfo' => 'Group Info',
 			'group.groupMemberRoleLabel' => 'Member',
+			_ => null,
+		} ?? switch (path) {
 			'group.noMemberWithRole' => ({required Object roleName}) => 'No ${roleName} yet',
 			'group.moreActions' => 'More Actions',
 			'group.touchContactAddMember' => 'Tap contacts to add group members',
@@ -4333,11 +4279,6 @@ extension on TranslationsEnUs {
 			'main.e2eeWarnIrreversible' => '• This action cannot be undone',
 			'main.e2eeWarnNeedRestoreOrNew' => '• Must restore from backup or generate a new key',
 			'main.gotIt' => 'Got it',
-			'main.e2eeProxyUser' => ({required Object uid}) => 'Proxy user: ${uid}',
-			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Shard ${index} / ${total}',
-			'main.e2eeUsedShards' => ({required Object count}) => 'Used ${count} proxy shards',
-			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => 'Progress: ${collected} / ${total} shards',
-			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => 'Collecting shards (${collected}/${total})...',
 			'main.webQRLoggingIn' => 'Logging in...',
 			'main.webQRExpired' => 'QR code expired',
 			'main.webQRRefresh' => 'Refresh QR Code',
@@ -4373,15 +4314,6 @@ extension on TranslationsEnUs {
 			'main.safetyNumberReporting' => 'Reporting verification result...',
 			'main.safetyNumberReportRejected' => 'The server rejected this verification event (signature/expiry mismatch); not marked',
 			'main.safetyNumberReportUnavailable' => 'Could not get device info; not reported',
-			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'Need ${count} proxies to recover key',
-			'main.e2eeSocialProxyNeeded' => ({required Object count}) => 'Need ${count} trusted contacts as proxies',
-			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'User ${uid}',
-			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'Sent to ${sent} proxy devices (out of ${total})',
-			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'Shard ${idx} / ${total}',
-			'main.e2eeSocialUserShard' => ({required Object uid}) => 'Key shard for user ${uid}',
-			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'QR code expires at ${time}',
-			'main.e2eeProxyMinCount' => ({required Object count}) => 'Please select at least ${count} proxies',
-			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => 'Selected ${selected} / ${total}',
 			'main.liveRoomTitleLabel' => 'Live Room Title',
 			'main.liveRoomTitleHint' => 'Enter live room title',
 			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}',
@@ -4560,8 +4492,6 @@ extension on TranslationsEnUs {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Only #RRGGBB / #AARRGGBB; invalid values fall back to the default theme color',
 			'workspace.brandingColorInvalid' => 'Invalid color format; only #RRGGBB / #AARRGGBB is supported',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingSaved' => 'Branding saved',
 			'workspace.brandingPreview' => 'Primary color preview',
 			'workspace.brandingPreviewApplied' => 'This primary color applies inside the workspace',
@@ -4596,6 +4526,8 @@ extension on TranslationsEnUs {
 			'workspace.taskSubmitSave' => 'Save',
 			'workspace.taskCreatedToast' => 'Task created',
 			'workspace.taskExistingToast' => 'A task with the same title already exists; reusing it',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'Task saved',
 			'workspace.taskFilterAll' => 'All',
 			'workspace.taskStatusTodo' => 'To do',

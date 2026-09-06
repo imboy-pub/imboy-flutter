@@ -146,26 +146,12 @@ e2eeKeyIdLabel: ID de clé
 e2eeWarnIrreversible: "• Action irréversible"
 e2eeWarnNeedRestoreOrNew: "• Restaurer depuis une sauvegarde ou générer une nouvelle clé"
 gotIt: Compris
-e2eeProxyUser(uid): 'Dépositaire : $uid'
-e2eeShardLabel(index, total): Fragment $index / $total
-e2eeUsedShards(count): "$count fragments utilisés"
-e2eeRecoveryProgressLabel(collected, total): 'Progression : $collected / $total fragments'
-e2eeCollectingShards(collected, total): Collecte des fragments ($collected/$total)...
 webQRLoggingIn: Connexion...
 webQRExpired: QR code expiré
 webQRRefresh: Actualiser le QR code
 webSwitchToQR: Connexion par QR code
 e2eeErrDefault: Échec E2EE, message non envoyé
 e2eeErrPeerDeviceNotReady: "L'installation de sécurité n'est pas terminée sur l'appareil de certains membres, message non envoyé ; réessayez plus tard"
-e2eeSocialThresholdHint(count): "$count dépositaires requis pour la restauration"
-e2eeSocialProxyNeeded(count): "$count contacts de confiance requis comme dépositaires"
-e2eeSocialProxyDefaultName(uid): Utilisateur $uid
-e2eeSocialSentCount(sent, total): Envoyés à $sent sur $total dépositaires
-e2eeSocialShardOf(idx, total): Fragment $idx / $total
-e2eeSocialUserShard(uid): Fragment de clé de $uid
-e2eeTransferQRExpiry(time): QR code expire le $time
-e2eeProxyMinCount(count): Au moins $count dépositaires
-e2eeProxySelectedCount(selected, total): "$selected / $total choisis"
 liveRoomTitleLabel: Titre du live
 liveRoomTitleHint: Titre du live
 lightModel: Mode clair

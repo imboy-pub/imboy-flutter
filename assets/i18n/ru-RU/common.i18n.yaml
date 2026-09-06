@@ -626,7 +626,6 @@ orderDetailLoadFailed: Не удалось загрузить заказ
 orderNoLabel(no): 'Заказ: $no'
 orderStatusCancelled: Отменено
 orderStatusUnknown: Неизвестно
-removeReactionConfirm(emoji): Убрать реакцию $emoji?
 fileOpenFailed: Не удаётся открыть этот файл
 e2eeLocalBackup: Локальная резервная копия
 e2eeLocalBackupDesc: Экспорт зашифрованной резервной копии на устройство или в облако
@@ -663,8 +662,6 @@ e2eeGoBackup: Создать копию
 e2eeKeyGenerateFailed: Не удалось создать ключ, попробуйте ещё раз
 e2eeKeyDeleted: Ключ удалён
 e2eeDeleteFailed: Не удалось удалить, попробуйте ещё раз
-e2eeShardAvailableInfo(available, required): 'Доступно фрагментов: $available, нужно посредников: $required'
-e2eeContactingProxy(name): 'Связь с: $name'
 webFeatureNotification: Уведомления на рабочем столе
 webFeatureNotificationDesc: Получайте уведомления о новых сообщениях даже с закрытой вкладкой
 webQRConfirmOnPhone: Подтвердите вход на телефоне
@@ -735,8 +732,6 @@ e2eeBackupErrImportFailed: Не удалось импортировать, пр�
 e2eeBackupImportSuccessTitle: Импорт выполнен
 e2eeBackupImportSuccessBody: Ключ E2EE восстановлен!
 e2eeBackupImportSuccessNote: "Примечание: история групповых чатов восстановлена. История личных переписок недоступна — по принципам E2EE ключи 1:1 никогда не сохраняются между устройствами"
-e2eeBackupDeviceLabel(id): Устройство $id
-e2eeBackupCreatedAtLabel(time): Создано $time
 e2eeBackupCreatedAtRow: Дата создания
 e2eeBackupCloudUploadBtn: Сохранить в облако
 e2eeBackupCloudUploadSuccess(version): Сохранено в облаке (версия $version)
@@ -762,10 +757,6 @@ e2eeBackupErrUrlTls: Ошибка защищённого соединения, �
 e2eeBackupErrUrlHttp: Сервер вернул ошибку
 e2eeBackupErrUrlEmpty: Сервер вернул пустое содержимое
 e2eeBackupErrUrlTooLarge: Файл слишком велик (превышает лимит 10 МБ)
-e2eeSocialCreateNeedMore(count): Добавьте ещё $count посредников
-e2eeSocialTotalShardsInfo(count): Ключ разделён на $count фрагментов
-e2eeSocialThresholdInfo(count): Для восстановления хватит $count посредников
-e2eeTransferScanError(error): 'Ошибка сканирования: $error'
 passwordEncryptFailed: Не удалось зашифровать пароль
 initConfigTimeout: 'Тайм-аут загрузки настроек: проверьте сеть или состояние сервера'
 initConfigNetworkError(code): Сетевой сбой или сбой сервера (HTTP $code)
@@ -775,10 +766,6 @@ saveFailedRetry: Не удалось сохранить, попробуйте е
 downloadFileNotFound: Файл загрузки не найден, попробуйте ещё раз
 downloadHashRetrying(retry, max): Ошибка проверки файла, перезагрузка ($retry/$max)
 downloadHashFailed: Многократная ошибка проверки файла, проверьте сеть и попробуйте ещё раз
-e2eeSocialMoreShards(count): 'Ещё фрагментов: $count...'
-e2eeProxyGetKeyFailed(name): 'Не удалось получить открытый ключ: $name'
-e2eeProxyNeedMore(count, selected): Нужно минимум $count доверенных контактов, выбрано $selected
-e2eeProxyConfirmCount(count): 'Подтвердить (посредников: $count)'
 buttonBackHome: На главную
 featureNotEnabled: Эта функция отключена
 featureDisabledName(name): Функция $name отключена и временно недоступна
@@ -793,7 +780,6 @@ redPacketSend: Отправить конверт
 redPacketDetail: Детали конверта
 transferSend: Сделать перевод
 greetingDefault: Счастья и процветания!
-grabAmountYuan(amount): 'Получено: $amount юаней'
 transferAmountYuan(amount): 'Перевод: $amount юаней'
 insufficientBalance: Недостаточно средств
 withdrawSuccess: Вывод выполнен

@@ -630,7 +630,6 @@ orderDetailLoadFailed: 订单详情加载失败
 orderNoLabel(no): "订单号: $no"
 orderStatusCancelled: 已取消
 orderStatusUnknown: 未知
-removeReactionConfirm(emoji): 确定要移除 $emoji 反应吗？
 fileOpenFailed: 无法打开该文件
 e2eeLocalBackup: 本地备份
 e2eeLocalBackupDesc: 导出加密备份文件到本地或云端
@@ -667,8 +666,6 @@ e2eeGoBackup: 去备份
 e2eeKeyGenerateFailed: 密钥生成失败，请重试
 e2eeKeyDeleted: 密钥已删除
 e2eeDeleteFailed: 删除失败，请重试
-e2eeShardAvailableInfo(available, required): "可用分片: $available 个，需要 $required 个代理协助"
-e2eeContactingProxy(name): "正在联系: $name"
 webFeatureNotification: 桌面通知
 webFeatureNotificationDesc: 即使不在页面也能收到新消息提醒
 webQRConfirmOnPhone: 请在手机上确认登录
@@ -748,8 +745,6 @@ e2eeBackupErrImportFailed: 导入失败，请检查密码是否正确
 e2eeBackupImportSuccessTitle: 导入成功
 e2eeBackupImportSuccessBody: E2EE 密钥已成功恢复！
 e2eeBackupImportSuccessNote: "注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份"
-e2eeBackupDeviceLabel(id): 设备 $id
-e2eeBackupCreatedAtLabel(time): 创建于 $time
 e2eeBackupCreatedAtRow: 创建时间
 e2eeBackupCloudUploadBtn: 备份到云端
 e2eeBackupCloudUploadSuccess(version): 已备份到云端（版本 $version）
@@ -775,10 +770,6 @@ e2eeBackupErrUrlTls: 安全连接失败，无法验证服务器证书
 e2eeBackupErrUrlHttp: 服务器返回错误
 e2eeBackupErrUrlEmpty: 服务器返回的内容为空
 e2eeBackupErrUrlTooLarge: 文件过大（超过 10MB 上限）
-e2eeSocialCreateNeedMore(count): 请先添加 $count 个代理
-e2eeSocialTotalShardsInfo(count): 密钥已分割成 $count 个分片
-e2eeSocialThresholdInfo(count): 需要 $count 个代理协助即可恢复密钥
-e2eeTransferScanError(error): "扫描错误: $error"
 passwordEncryptFailed: 密码加密失败
 initConfigTimeout: "配置获取超时: 请检查网络连接或服务端状态"
 initConfigNetworkError(code): 网络故障或服务故障 (HTTP $code)
@@ -789,10 +780,6 @@ saveFailedRetry: 保存失败，请重试
 downloadFileNotFound: 下载文件不存在，请重试
 downloadHashRetrying(retry, max): 文件校验失败，正在重新下载 ($retry/$max)
 downloadHashFailed: 文件多次校验失败，请检查网络后重试
-e2eeSocialMoreShards(count): 还有 $count 个分片...
-e2eeProxyGetKeyFailed(name): 获取 $name 的公钥失败
-e2eeProxyNeedMore(count, selected): 至少需要 $count 个信任的联系人，已选择 $selected 个
-e2eeProxyConfirmCount(count): 确认选择 ($count 个代理)
 buttonBackHome: 返回首页
 featureNotEnabled: 当前功能未启用
 featureDisabledName(name): $name 功能未启用，暂时无法访问
@@ -811,7 +798,6 @@ redPacketView: 查看红包
 redPacketBrand: IMBoy 红包
 redPacketDialogTitle: 送你一个红包
 redPacketDialogSubtitle: 大吉大利，恭喜发财
-grabAmountYuan(amount): "领到金额：$amount 元"
 transferAmountYuan(amount): "转账金额：$amount 元"
 insufficientBalance: 余额不足
 withdrawSuccess: 提现成功

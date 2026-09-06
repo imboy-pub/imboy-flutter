@@ -633,7 +633,6 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get e2eeCreatedAtLabel => 'تاريخ الإنشاء';
 	@override String get e2eeGeneratingKey => 'جارٍ إنشاء المفتاح، انتظر...';
 	@override String get e2eeNewKeyGenerated => 'تم إنشاء زوج مفاتيح E2EE جديد!';
-	@override String e2eeReadyWithShards({required Object count}) => 'جاهز (${count} شظية)';
 	@override String get webFeatureMultiDevice => 'مزامنة الأجهزة';
 	@override String get webFeatureMultiDeviceDesc => 'بدّل بحرية بين الهاتف والكمبيوتر، وتُزامَل الرسائل لحظياً';
 	@override String get webFeatureE2EE => 'تشفير من طرف إلى طرف';
@@ -645,8 +644,6 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get webQRStatusVerifying => 'جارٍ التحقق...';
 	@override String get webQRStatusExpired => 'حدّث وأعد المسح';
 	@override String get e2eeErrInvalidFormat => 'تنسيق الرسالة خاطئ، فشل التشفير';
-	@override String e2eeSocialStatus({required Object status}) => 'الحالة: ${status}';
-	@override String e2eeProxyNeedAtLeast({required Object count}) => 'اختر ${count} وكلاء على الأقل';
 	@override String get e2eeRecreatingKey => 'جارٍ إعادة إنشاء المفتاح...';
 	@override String get e2eeKeyRecreated => 'تمت إعادة إنشاء المفتاح';
 	@override String get e2eeRecoveryNewDeviceTitle => 'تم رصد دخول من جهاز جديد';
@@ -1306,7 +1303,6 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String orderNoLabel({required Object no}) => 'رقم الطلب: ${no}';
 	@override String get orderStatusCancelled => 'ملغى';
 	@override String get orderStatusUnknown => 'غير معروف';
-	@override String removeReactionConfirm({required Object emoji}) => 'إزالة تفاعل ${emoji}؟';
 	@override String get fileOpenFailed => 'تعذّر فتح هذا الملف';
 	@override String get e2eeLocalBackup => 'نسخة محلية احتياطية';
 	@override String get e2eeLocalBackupDesc => 'تصدير نسخة مشفّرة إلى الجهاز أو السحابة';
@@ -1343,8 +1339,6 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeKeyGenerateFailed => 'تعذّر إنشاء المفتاح، أعد المحاولة';
 	@override String get e2eeKeyDeleted => 'تم حذف المفتاح';
 	@override String get e2eeDeleteFailed => 'تعذّر الحذف، أعد المحاولة';
-	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => 'الشظايا المتاحة: ${available}، يلزم ${required} وكيلاً';
-	@override String e2eeContactingProxy({required Object name}) => 'جارٍ التواصل مع: ${name}';
 	@override String get webFeatureNotification => 'إشعارات سطح المكتب';
 	@override String get webFeatureNotificationDesc => 'تصلك تنبيهات الرسائل الجديدة حتى مع إغلاق الصفحة';
 	@override String get webQRConfirmOnPhone => 'أكّد الدخول على هاتفك';
@@ -1415,8 +1409,6 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'تم الاستيراد';
 	@override String get e2eeBackupImportSuccessBody => 'تمت استعادة مفتاح E2EE!';
 	@override String get e2eeBackupImportSuccessNote => 'ملاحظة: تمت استعادة سجل المحادثات الجماعية. لا يمكن استعادة سجل المحادثات الفردية — فوفقًا لتصميم التشفير التام، لا يتم نسخ مفاتيح المحادثات الفردية بين الأجهزة';
-	@override String e2eeBackupDeviceLabel({required Object id}) => 'جهاز ${id}';
-	@override String e2eeBackupCreatedAtLabel({required Object time}) => 'أُنشئ ${time}';
 	@override String get e2eeBackupCreatedAtRow => 'تاريخ الإنشاء';
 	@override String get e2eeBackupCloudUploadBtn => 'النسخ الاحتياطي إلى السحابة';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})';
@@ -1442,10 +1434,6 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrUrlHttp => 'أرجع الخادم خطأ';
 	@override String get e2eeBackupErrUrlEmpty => 'أرجع الخادم محتوى فارغًا';
 	@override String get e2eeBackupErrUrlTooLarge => 'الملف كبير جدًا (يتجاوز حد 10 ميجابايت)';
-	@override String e2eeSocialCreateNeedMore({required Object count}) => 'أضف ${count} وكلاء آخرين';
-	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا';
-	@override String e2eeSocialThresholdInfo({required Object count}) => 'يكفي ${count} وكيل للاستعادة';
-	@override String e2eeTransferScanError({required Object error}) => 'خطأ المسح: ${error}';
 	@override String get passwordEncryptFailed => 'تعذّر تشفير كلمة المرور';
 	@override String get initConfigTimeout => 'انتهت مهلة تحميل الإعدادات: تحقق من الشبكة أو حالة الخادم';
 	@override String initConfigNetworkError({required Object code}) => 'عطل شبكة أو عطل خادم (HTTP ${code})';
@@ -1455,10 +1443,6 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get downloadFileNotFound => 'ملف التنزيل غير موجود، أعد المحاولة';
 	@override String downloadHashRetrying({required Object retry, required Object max}) => 'فشل التحقق من الملف، إعادة التنزيل (${retry}/${max})';
 	@override String get downloadHashFailed => 'فشل التحقق من الملف عدة مرات، تحقق من الشبكة وأعد المحاولة';
-	@override String e2eeSocialMoreShards({required Object count}) => '${count} شظايا إضافية...';
-	@override String e2eeProxyGetKeyFailed({required Object name}) => 'تعذّر الحصول على المفتاح العام لـ ${name}';
-	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => 'يلزم ${count} جهة موثوقة على الأقل، محدد ${selected}';
-	@override String e2eeProxyConfirmCount({required Object count}) => 'تأكيد الاختيار (${count} وكيل)';
 	@override String get buttonBackHome => 'الرئيسية';
 	@override String get featureNotEnabled => 'هذه الميزة غير مفعّلة';
 	@override String featureDisabledName({required Object name}) => 'ميزة ${name} غير مفعّلة وغير متاحة مؤقتاً';
@@ -1473,7 +1457,6 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get redPacketDetail => 'تفاصيل المغلف';
 	@override String get transferSend => 'تحويل أموال';
 	@override String get greetingDefault => 'كل عام وأنتم بخير وازدهار';
-	@override String grabAmountYuan({required Object amount}) => 'المبلغ الملتقط: ${amount} يوان';
 	@override String transferAmountYuan({required Object amount}) => 'مبلغ التحويل: ${amount} يوان';
 	@override String get insufficientBalance => 'رصيد غير كافٍ';
 	@override String get withdrawSuccess => 'تم السحب';
@@ -1674,7 +1657,6 @@ class _Translations$discovery$ar_SA extends Translations$discovery$zh_CN {
 	@override String get momentActionDelete => 'حذف';
 	@override String get momentActionReport => 'إبلاغ';
 	@override String get momentActionCancel => 'إلغاء';
-	@override String momentViewAllComments({required Object count}) => 'عرض كل التعليقات (${count})';
 	@override String momentLikedBy({required Object names}) => 'أعجب ${names}';
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} و${count} آخرون أعجبوا';
 	@override String get momentContentPlaceholder => 'بماذا تفكر...';
@@ -1710,8 +1692,6 @@ class _Translations$error$ar_SA extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. افتح إعدادات الهاتف - عام - بيانات الهاتف المحمول، وقم بإبقاء مفتاح بيانات الهاتف المحمول قيد التشغيل.';
 	@override String get networkTroubleshootingStep3 => '3. إذا كنت لا تزال غير قادر على الاتصال بالشبكة، يرجى التحقق مما إذا كان Wi-Fi المتصل بالهاتف متصلاً بالإنترنت أو استشارة مشغل الشبكة.';
 	@override String get suggestCheckNetwork => 'يُقترح التحقق من إعدادات الشبكة.';
-	@override String e2eeStartRecoveryBtn({required Object required}) => 'بدء الاستعادة (يلزم ${required} وكيلاً)';
-	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'شظايا غير كافية (يلزم ${required}، المتاح ${current})';
 	@override String get e2eeErrTimeout => 'انتهت مهلة التشفير، تحقق من الشبكة وأعد المحاولة';
 	@override String get e2eeErrNetwork => 'خطأ شبكة، فشل التشفير، لم تُرسل الرسالة';
 	@override String get liveRoomTitleRequired => 'أدخل العنوان';
@@ -2076,26 +2056,12 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get e2eeWarnIrreversible => '• هذا الإجراء غير قابل للتراجع';
 	@override String get e2eeWarnNeedRestoreOrNew => '• يجب الاستعادة من نسخة أو إنشاء مفتاح جديد';
 	@override String get gotIt => 'فهمت';
-	@override String e2eeProxyUser({required Object uid}) => 'الوكيل: ${uid}';
-	@override String e2eeShardLabel({required Object index, required Object total}) => 'شظية ${index} / ${total}';
-	@override String e2eeUsedShards({required Object count}) => 'تم استخدام ${count} شظية وكلاء';
-	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => 'التقدم: ${collected} / ${total} شظية';
-	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'جارٍ جمع الشظايا (${collected}/${total})...';
 	@override String get webQRLoggingIn => 'جارٍ الدخول...';
 	@override String get webQRExpired => 'انتهت صلاحية رمز QR';
 	@override String get webQRRefresh => 'تحديث رمز QR';
 	@override String get webSwitchToQR => 'الدخول برمز QR';
 	@override String get e2eeErrDefault => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة';
 	@override String get e2eeErrPeerDeviceNotReady => 'لم تكتمل إعدادات الأمان على أجهزة بعض الأعضاء، لم تُرسل الرسالة؛ يُرجى المحاولة لاحقاً';
-	@override String e2eeSocialThresholdHint({required Object count}) => 'يلزم ${count} وكيل للاستعادة';
-	@override String e2eeSocialProxyNeeded({required Object count}) => 'يلزم ${count} جهة اتصال موثوقة كوكلاء';
-	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'المستخدم ${uid}';
-	@override String e2eeSocialSentCount({required Object sent, required Object total}) => 'أُرسل إلى ${sent} من أصل ${total} جهاز';
-	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'شظية ${idx} / ${total}';
-	@override String e2eeSocialUserShard({required Object uid}) => 'شظية مفتاح المستخدم ${uid}';
-	@override String e2eeTransferQRExpiry({required Object time}) => 'تنتهي صلاحية رمز QR في ${time}';
-	@override String e2eeProxyMinCount({required Object count}) => 'اختر ${count} وكلاء على الأقل';
-	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => 'محدد: ${selected} / ${total}';
 	@override String get liveRoomTitleLabel => 'عنوان الغرفة';
 	@override String get liveRoomTitleHint => 'أدخل عنوان الغرفة';
 	@override String get lightModel => 'الوضع الفاتح';
@@ -3025,7 +2991,6 @@ extension on TranslationsArSa {
 			'chat.e2eeCreatedAtLabel' => 'تاريخ الإنشاء',
 			'chat.e2eeGeneratingKey' => 'جارٍ إنشاء المفتاح، انتظر...',
 			'chat.e2eeNewKeyGenerated' => 'تم إنشاء زوج مفاتيح E2EE جديد!',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => 'جاهز (${count} شظية)',
 			'chat.webFeatureMultiDevice' => 'مزامنة الأجهزة',
 			'chat.webFeatureMultiDeviceDesc' => 'بدّل بحرية بين الهاتف والكمبيوتر، وتُزامَل الرسائل لحظياً',
 			'chat.webFeatureE2EE' => 'تشفير من طرف إلى طرف',
@@ -3037,8 +3002,6 @@ extension on TranslationsArSa {
 			'chat.webQRStatusVerifying' => 'جارٍ التحقق...',
 			'chat.webQRStatusExpired' => 'حدّث وأعد المسح',
 			'chat.e2eeErrInvalidFormat' => 'تنسيق الرسالة خاطئ، فشل التشفير',
-			'chat.e2eeSocialStatus' => ({required Object status}) => 'الحالة: ${status}',
-			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'اختر ${count} وكلاء على الأقل',
 			'chat.e2eeRecreatingKey' => 'جارٍ إعادة إنشاء المفتاح...',
 			'chat.e2eeKeyRecreated' => 'تمت إعادة إنشاء المفتاح',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'تم رصد دخول من جهاز جديد',
@@ -3529,11 +3492,11 @@ extension on TranslationsArSa {
 			'common.momentReportReasonSpam' => 'مزعج أو إعلانات',
 			'common.momentReportReasonHarassment' => 'مضايقة',
 			'common.momentReportReasonPorn' => 'محتوى إباحي',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'احتيال',
 			'common.momentReportReasonInfringement' => 'انتهاك حقوق النشر',
 			'common.momentReportReasonOther' => 'أخرى',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'اختر السبب',
 			'common.momentsLoadMoreComments' => 'المزيد من التعليقات',
 			'common.momentsUploadFailed' => 'تعذّر رفع الوسائط، حاول لاحقاً',
@@ -3685,7 +3648,6 @@ extension on TranslationsArSa {
 			'common.orderNoLabel' => ({required Object no}) => 'رقم الطلب: ${no}',
 			'common.orderStatusCancelled' => 'ملغى',
 			'common.orderStatusUnknown' => 'غير معروف',
-			'common.removeReactionConfirm' => ({required Object emoji}) => 'إزالة تفاعل ${emoji}؟',
 			'common.fileOpenFailed' => 'تعذّر فتح هذا الملف',
 			'common.e2eeLocalBackup' => 'نسخة محلية احتياطية',
 			'common.e2eeLocalBackupDesc' => 'تصدير نسخة مشفّرة إلى الجهاز أو السحابة',
@@ -3722,8 +3684,6 @@ extension on TranslationsArSa {
 			'common.e2eeKeyGenerateFailed' => 'تعذّر إنشاء المفتاح، أعد المحاولة',
 			'common.e2eeKeyDeleted' => 'تم حذف المفتاح',
 			'common.e2eeDeleteFailed' => 'تعذّر الحذف، أعد المحاولة',
-			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => 'الشظايا المتاحة: ${available}، يلزم ${required} وكيلاً',
-			'common.e2eeContactingProxy' => ({required Object name}) => 'جارٍ التواصل مع: ${name}',
 			'common.webFeatureNotification' => 'إشعارات سطح المكتب',
 			'common.webFeatureNotificationDesc' => 'تصلك تنبيهات الرسائل الجديدة حتى مع إغلاق الصفحة',
 			'common.webQRConfirmOnPhone' => 'أكّد الدخول على هاتفك',
@@ -3794,8 +3754,6 @@ extension on TranslationsArSa {
 			'common.e2eeBackupImportSuccessTitle' => 'تم الاستيراد',
 			'common.e2eeBackupImportSuccessBody' => 'تمت استعادة مفتاح E2EE!',
 			'common.e2eeBackupImportSuccessNote' => 'ملاحظة: تمت استعادة سجل المحادثات الجماعية. لا يمكن استعادة سجل المحادثات الفردية — فوفقًا لتصميم التشفير التام، لا يتم نسخ مفاتيح المحادثات الفردية بين الأجهزة',
-			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'جهاز ${id}',
-			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'أُنشئ ${time}',
 			'common.e2eeBackupCreatedAtRow' => 'تاريخ الإنشاء',
 			'common.e2eeBackupCloudUploadBtn' => 'النسخ الاحتياطي إلى السحابة',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})',
@@ -3821,10 +3779,6 @@ extension on TranslationsArSa {
 			'common.e2eeBackupErrUrlHttp' => 'أرجع الخادم خطأ',
 			'common.e2eeBackupErrUrlEmpty' => 'أرجع الخادم محتوى فارغًا',
 			'common.e2eeBackupErrUrlTooLarge' => 'الملف كبير جدًا (يتجاوز حد 10 ميجابايت)',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'أضف ${count} وكلاء آخرين',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'قُسّم المفتاح إلى ${count} شظايا',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => 'يكفي ${count} وكيل للاستعادة',
-			'common.e2eeTransferScanError' => ({required Object error}) => 'خطأ المسح: ${error}',
 			'common.passwordEncryptFailed' => 'تعذّر تشفير كلمة المرور',
 			'common.initConfigTimeout' => 'انتهت مهلة تحميل الإعدادات: تحقق من الشبكة أو حالة الخادم',
 			'common.initConfigNetworkError' => ({required Object code}) => 'عطل شبكة أو عطل خادم (HTTP ${code})',
@@ -3834,10 +3788,6 @@ extension on TranslationsArSa {
 			'common.downloadFileNotFound' => 'ملف التنزيل غير موجود، أعد المحاولة',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'فشل التحقق من الملف، إعادة التنزيل (${retry}/${max})',
 			'common.downloadHashFailed' => 'فشل التحقق من الملف عدة مرات، تحقق من الشبكة وأعد المحاولة',
-			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} شظايا إضافية...',
-			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'تعذّر الحصول على المفتاح العام لـ ${name}',
-			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => 'يلزم ${count} جهة موثوقة على الأقل، محدد ${selected}',
-			'common.e2eeProxyConfirmCount' => ({required Object count}) => 'تأكيد الاختيار (${count} وكيل)',
 			'common.buttonBackHome' => 'الرئيسية',
 			'common.featureNotEnabled' => 'هذه الميزة غير مفعّلة',
 			'common.featureDisabledName' => ({required Object name}) => 'ميزة ${name} غير مفعّلة وغير متاحة مؤقتاً',
@@ -3852,7 +3802,6 @@ extension on TranslationsArSa {
 			'common.redPacketDetail' => 'تفاصيل المغلف',
 			'common.transferSend' => 'تحويل أموال',
 			'common.greetingDefault' => 'كل عام وأنتم بخير وازدهار',
-			'common.grabAmountYuan' => ({required Object amount}) => 'المبلغ الملتقط: ${amount} يوان',
 			'common.transferAmountYuan' => ({required Object amount}) => 'مبلغ التحويل: ${amount} يوان',
 			'common.insufficientBalance' => 'رصيد غير كافٍ',
 			'common.withdrawSuccess' => 'تم السحب',
@@ -4017,7 +3966,6 @@ extension on TranslationsArSa {
 			'discovery.momentActionDelete' => 'حذف',
 			'discovery.momentActionReport' => 'إبلاغ',
 			'discovery.momentActionCancel' => 'إلغاء',
-			'discovery.momentViewAllComments' => ({required Object count}) => 'عرض كل التعليقات (${count})',
 			'discovery.momentLikedBy' => ({required Object names}) => 'أعجب ${names}',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} و${count} آخرون أعجبوا',
 			'discovery.momentContentPlaceholder' => 'بماذا تفكر...',
@@ -4043,11 +3991,7 @@ extension on TranslationsArSa {
 			'error.networkTroubleshootingStep1' => '1. افتح إعدادات الهاتف وقم بإبقاء مفتاح Wi-Fi قيد التشغيل.',
 			'error.networkTroubleshootingStep2' => '2. افتح إعدادات الهاتف - عام - بيانات الهاتف المحمول، وقم بإبقاء مفتاح بيانات الهاتف المحمول قيد التشغيل.',
 			'error.networkTroubleshootingStep3' => '3. إذا كنت لا تزال غير قادر على الاتصال بالشبكة، يرجى التحقق مما إذا كان Wi-Fi المتصل بالهاتف متصلاً بالإنترنت أو استشارة مشغل الشبكة.',
-			_ => null,
-		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'يُقترح التحقق من إعدادات الشبكة.',
-			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'بدء الاستعادة (يلزم ${required} وكيلاً)',
-			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'شظايا غير كافية (يلزم ${required}، المتاح ${current})',
 			'error.e2eeErrTimeout' => 'انتهت مهلة التشفير، تحقق من الشبكة وأعد المحاولة',
 			'error.e2eeErrNetwork' => 'خطأ شبكة، فشل التشفير، لم تُرسل الرسالة',
 			'error.liveRoomTitleRequired' => 'أدخل العنوان',
@@ -4065,6 +4009,8 @@ extension on TranslationsArSa {
 			'group.groupGuest' => 'ضيف',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'اختيار مجموعة',
+			_ => null,
+		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'هل أنت متأكد من حل هذه المجموعة؟',
 			'group.sureToLeaveGroup' => 'هل أنت متأكد من مغادرة هذه المجموعة؟',
 			'group.groupAlbumNameHint' => 'أدخل اسم الألبوم',
@@ -4331,26 +4277,12 @@ extension on TranslationsArSa {
 			'main.e2eeWarnIrreversible' => '• هذا الإجراء غير قابل للتراجع',
 			'main.e2eeWarnNeedRestoreOrNew' => '• يجب الاستعادة من نسخة أو إنشاء مفتاح جديد',
 			'main.gotIt' => 'فهمت',
-			'main.e2eeProxyUser' => ({required Object uid}) => 'الوكيل: ${uid}',
-			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'شظية ${index} / ${total}',
-			'main.e2eeUsedShards' => ({required Object count}) => 'تم استخدام ${count} شظية وكلاء',
-			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => 'التقدم: ${collected} / ${total} شظية',
-			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => 'جارٍ جمع الشظايا (${collected}/${total})...',
 			'main.webQRLoggingIn' => 'جارٍ الدخول...',
 			'main.webQRExpired' => 'انتهت صلاحية رمز QR',
 			'main.webQRRefresh' => 'تحديث رمز QR',
 			'main.webSwitchToQR' => 'الدخول برمز QR',
 			'main.e2eeErrDefault' => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة',
 			'main.e2eeErrPeerDeviceNotReady' => 'لم تكتمل إعدادات الأمان على أجهزة بعض الأعضاء، لم تُرسل الرسالة؛ يُرجى المحاولة لاحقاً',
-			'main.e2eeSocialThresholdHint' => ({required Object count}) => 'يلزم ${count} وكيل للاستعادة',
-			'main.e2eeSocialProxyNeeded' => ({required Object count}) => 'يلزم ${count} جهة اتصال موثوقة كوكلاء',
-			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'المستخدم ${uid}',
-			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'أُرسل إلى ${sent} من أصل ${total} جهاز',
-			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'شظية ${idx} / ${total}',
-			'main.e2eeSocialUserShard' => ({required Object uid}) => 'شظية مفتاح المستخدم ${uid}',
-			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'تنتهي صلاحية رمز QR في ${time}',
-			'main.e2eeProxyMinCount' => ({required Object count}) => 'اختر ${count} وكلاء على الأقل',
-			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => 'محدد: ${selected} / ${total}',
 			'main.liveRoomTitleLabel' => 'عنوان الغرفة',
 			'main.liveRoomTitleHint' => 'أدخل عنوان الغرفة',
 			'main.lightModel' => 'الوضع الفاتح',
@@ -4557,8 +4489,6 @@ extension on TranslationsArSa {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'يُدعم #RRGGBB / #AARRGGBB فقط؛ القيم غير الصالحة تعود إلى لون السمة الافتراضي',
 			'workspace.brandingColorInvalid' => 'تنسيق اللون الأساسي غير صحيح، يُدعم #RRGGBB / #AARRGGBB فقط',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingSaved' => 'تم حفظ إعدادات العلامة',
 			'workspace.brandingPreview' => 'معاينة اللون الأساسي',
 			'workspace.brandingPreviewApplied' => 'سيُطبَّق اللون الأساسي الحالي داخل مساحة العمل',
@@ -4593,6 +4523,8 @@ extension on TranslationsArSa {
 			'workspace.taskSubmitSave' => 'حفظ',
 			'workspace.taskCreatedToast' => 'تم إنشاء المهمة',
 			'workspace.taskExistingToast' => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'تم حفظ المهمة',
 			'workspace.taskFilterAll' => 'الكل',
 			'workspace.taskStatusTodo' => 'قيد الانتظار',

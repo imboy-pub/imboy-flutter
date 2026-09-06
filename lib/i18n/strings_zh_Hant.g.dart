@@ -640,7 +640,6 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get e2eeCreatedAtLabel => '建立時間';
 	@override String get e2eeGeneratingKey => '正在生成金鑰，請稍候...';
 	@override String get e2eeNewKeyGenerated => '新的 E2EE 金鑰對已生成！';
-	@override String e2eeReadyWithShards({required Object count}) => '準備就緒（${count} 個分片）';
 	@override String get webFeatureMultiDevice => '多裝置同步';
 	@override String get webFeatureMultiDeviceDesc => '在手機和電腦之間無縫切換，訊息實時同步';
 	@override String get webFeatureE2EE => '端對端加密';
@@ -652,8 +651,6 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get webQRStatusVerifying => '正在驗證...';
 	@override String get webQRStatusExpired => '請點選重新整理重新掃碼';
 	@override String get e2eeErrInvalidFormat => '訊息格式錯誤，加密失敗';
-	@override String e2eeSocialStatus({required Object status}) => '狀態: ${status}';
-	@override String e2eeProxyNeedAtLeast({required Object count}) => '請選擇至少 ${count} 個代理';
 	@override String get e2eeRecreatingKey => '正在重新建立金鑰...';
 	@override String get e2eeKeyRecreated => '金鑰已重新建立';
 	@override String get e2eeRecoveryNewDeviceTitle => '檢測到新裝置登入';
@@ -1308,7 +1305,6 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String orderNoLabel({required Object no}) => '訂單號: ${no}';
 	@override String get orderStatusCancelled => '已撤銷';
 	@override String get orderStatusUnknown => '不明';
-	@override String removeReactionConfirm({required Object emoji}) => '確定要移除 ${emoji} 反應嗎？';
 	@override String get fileOpenFailed => '無法開啟該檔案';
 	@override String get e2eeLocalBackup => '本地備份';
 	@override String get e2eeLocalBackupDesc => '匯出加密備份檔案到本地或雲端';
@@ -1345,8 +1341,6 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeKeyGenerateFailed => '金鑰生成失敗，請重試';
 	@override String get e2eeKeyDeleted => '金鑰已刪除';
 	@override String get e2eeDeleteFailed => '刪除失敗，請重試';
-	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => '可用分片: ${available} 個，需要 ${required} 個代理協助';
-	@override String e2eeContactingProxy({required Object name}) => '正在聯絡: ${name}';
 	@override String get webFeatureNotification => '桌面版通知';
 	@override String get webFeatureNotificationDesc => '即使不在頁面也能收到新訊息提醒';
 	@override String get webQRConfirmOnPhone => '請在手機上確認登入';
@@ -1418,8 +1412,6 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => '匯入成功';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE 金鑰已成功恢復！';
 	@override String get e2eeBackupImportSuccessNote => '注意：群聊歷史已隨備份恢復；單聊歷史無法恢復——依端對端加密規範，單聊金鑰不跨裝置備份';
-	@override String e2eeBackupDeviceLabel({required Object id}) => '裝置 ${id}';
-	@override String e2eeBackupCreatedAtLabel({required Object time}) => '建立於 ${time}';
 	@override String get e2eeBackupCreatedAtRow => '建立時間';
 	@override String get e2eeBackupCloudUploadBtn => '備份到雲端';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '已備份到雲端（版本 ${version}）';
@@ -1445,10 +1437,6 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrUrlHttp => '伺服器回傳錯誤';
 	@override String get e2eeBackupErrUrlEmpty => '伺服器回傳的內容為空';
 	@override String get e2eeBackupErrUrlTooLarge => '檔案過大（超過 10MB 上限）';
-	@override String e2eeSocialCreateNeedMore({required Object count}) => '請先新增 ${count} 個代理';
-	@override String e2eeSocialTotalShardsInfo({required Object count}) => '金鑰已分割成 ${count} 個分片';
-	@override String e2eeSocialThresholdInfo({required Object count}) => '需要 ${count} 個代理協助即可恢復金鑰';
-	@override String e2eeTransferScanError({required Object error}) => '掃描錯誤: ${error}';
 	@override String get passwordEncryptFailed => '密碼加密失敗';
 	@override String get initConfigTimeout => '配置獲取超時: 請檢查網路連線或服務端狀態';
 	@override String initConfigNetworkError({required Object code}) => '網路故障或服務故障 (HTTP ${code})';
@@ -1459,10 +1447,6 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get downloadFileNotFound => '下載檔案不存在，請重試';
 	@override String downloadHashRetrying({required Object retry, required Object max}) => '檔案校驗失敗，正在重新下載 (${retry}/${max})';
 	@override String get downloadHashFailed => '檔案多次校驗失敗，請檢查網路後重試';
-	@override String e2eeSocialMoreShards({required Object count}) => '還有 ${count} 個分片...';
-	@override String e2eeProxyGetKeyFailed({required Object name}) => '獲取 ${name} 的公鑰失敗';
-	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => '至少需要 ${count} 個信任的聯絡人，已選擇 ${selected} 個';
-	@override String e2eeProxyConfirmCount({required Object count}) => '確認選擇 (${count} 個代理)';
 	@override String get buttonBackHome => '返回首頁';
 	@override String get featureNotEnabled => '當前功能未啟用';
 	@override String featureDisabledName({required Object name}) => '${name} 功能未啟用，暫時無法訪問';
@@ -1477,7 +1461,6 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get redPacketDetail => '紅包詳情';
 	@override String get transferSend => '發起轉賬';
 	@override String get greetingDefault => '恭喜發財，大吉大利';
-	@override String grabAmountYuan({required Object amount}) => '領到金額：${amount} 元';
 	@override String transferAmountYuan({required Object amount}) => '轉賬金額：${amount} 元';
 	@override String get insufficientBalance => '餘額不足';
 	@override String get withdrawSuccess => '提現成功';
@@ -1674,7 +1657,6 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String get momentActionDelete => '刪除';
 	@override String get momentActionReport => '舉報';
 	@override String get momentActionCancel => '取消動作';
-	@override String momentViewAllComments({required Object count}) => '查看全部 ${count} 條評論';
 	@override String momentLikedBy({required Object names}) => '${names} 讚了';
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} 等${count}人讚了';
 	@override String get momentContentPlaceholder => '這一刻的想法...';
@@ -1710,8 +1692,6 @@ class Translations$error$zh_Hant extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2.開啟手機設定-一般-流動數據，並把流動數據開關保持開啟狀態。';
 	@override String get networkTroubleshootingStep3 => '3.如仍無法連接網路，請檢查手機連接的 Wi-Fi 是否已連上互聯網或聯絡電訊商。';
 	@override String get suggestCheckNetwork => '建議檢查網路設定。';
-	@override String e2eeStartRecoveryBtn({required Object required}) => '開始恢復金鑰（需要 ${required} 個代理協助）';
-	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => '分片不足（需要 ${required} 個，當前 ${current} 個）';
 	@override String get e2eeErrTimeout => '加密超時，請檢查網路連線後重試';
 	@override String get e2eeErrNetwork => '網路錯誤，加密失敗，訊息未傳送';
 	@override String get liveRoomTitleRequired => '標題不能為空';
@@ -2076,26 +2056,12 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get e2eeWarnIrreversible => '• 此操作不可撤銷';
 	@override String get e2eeWarnNeedRestoreOrNew => '• 需要從備份恢復或生成新金鑰';
 	@override String get gotIt => '了解了';
-	@override String e2eeProxyUser({required Object uid}) => '代理使用者: ${uid}';
-	@override String e2eeShardLabel({required Object index, required Object total}) => '金鑰分片 ${index} / ${total}';
-	@override String e2eeUsedShards({required Object count}) => '已使用 ${count} 個代理分片';
-	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => '進度: ${collected} / ${total} 個分片';
-	@override String e2eeCollectingShards({required Object collected, required Object total}) => '正在收集金鑰分片 (${collected}/${total})...';
 	@override String get webQRLoggingIn => '登入中...';
 	@override String get webQRExpired => '二維碼已過期';
 	@override String get webQRRefresh => '重新整理二維碼';
 	@override String get webSwitchToQR => '使用 QR 碼登入';
 	@override String get e2eeErrDefault => '端到端加密失敗，訊息未傳送';
 	@override String get e2eeErrPeerDeviceNotReady => '有成員的裝置尚未完成安全設定，訊息未傳送；請稍後重試';
-	@override String e2eeSocialThresholdHint({required Object count}) => '恢復金鑰時需要 ${count} 個代理協助';
-	@override String e2eeSocialProxyNeeded({required Object count}) => '需要 ${count} 個信任的聯絡人作為代理';
-	@override String e2eeSocialProxyDefaultName({required Object uid}) => '使用者 ${uid}';
-	@override String e2eeSocialSentCount({required Object sent, required Object total}) => '已傳送到 ${sent} 個代理裝置（共 ${total} 個）';
-	@override String e2eeSocialShardOf({required Object idx, required Object total}) => '金鑰分片 ${idx} / ${total}';
-	@override String e2eeSocialUserShard({required Object uid}) => '使用者 ${uid} 的金鑰分片';
-	@override String e2eeTransferQRExpiry({required Object time}) => '二維碼將在 ${time} 過期';
-	@override String e2eeProxyMinCount({required Object count}) => '請至少選擇 ${count} 個代理';
-	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => '已選 ${selected} / ${total}';
 	@override String get liveRoomTitleLabel => '直播間標題';
 	@override String get liveRoomTitleHint => '請輸入直播間標題';
 	@override String get lightModel => '淺色模式';
@@ -3032,7 +2998,6 @@ extension on TranslationsZhHant {
 			'chat.e2eeCreatedAtLabel' => '建立時間',
 			'chat.e2eeGeneratingKey' => '正在生成金鑰，請稍候...',
 			'chat.e2eeNewKeyGenerated' => '新的 E2EE 金鑰對已生成！',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => '準備就緒（${count} 個分片）',
 			'chat.webFeatureMultiDevice' => '多裝置同步',
 			'chat.webFeatureMultiDeviceDesc' => '在手機和電腦之間無縫切換，訊息實時同步',
 			'chat.webFeatureE2EE' => '端對端加密',
@@ -3044,8 +3009,6 @@ extension on TranslationsZhHant {
 			'chat.webQRStatusVerifying' => '正在驗證...',
 			'chat.webQRStatusExpired' => '請點選重新整理重新掃碼',
 			'chat.e2eeErrInvalidFormat' => '訊息格式錯誤，加密失敗',
-			'chat.e2eeSocialStatus' => ({required Object status}) => '狀態: ${status}',
-			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => '請選擇至少 ${count} 個代理',
 			'chat.e2eeRecreatingKey' => '正在重新建立金鑰...',
 			'chat.e2eeKeyRecreated' => '金鑰已重新建立',
 			'chat.e2eeRecoveryNewDeviceTitle' => '檢測到新裝置登入',
@@ -3529,11 +3492,11 @@ extension on TranslationsZhHant {
 			'common.momentsReportSubmitted' => '舉報已提交',
 			'common.momentsReportFailed' => '舉報失敗，請稍後重試',
 			'common.momentReportReasonSpam' => '垃圾廣告',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonHarassment' => '騷擾霸凌',
 			'common.momentReportReasonPorn' => '色情或不雅內容',
 			'common.momentReportReasonFraud' => '欺詐詐騙',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonInfringement' => '侵權抄襲',
 			'common.momentReportReasonOther' => '其他原因',
 			'common.momentReportReasonPrompt' => '請選擇舉報原因',
@@ -3687,7 +3650,6 @@ extension on TranslationsZhHant {
 			'common.orderNoLabel' => ({required Object no}) => '訂單號: ${no}',
 			'common.orderStatusCancelled' => '已撤銷',
 			'common.orderStatusUnknown' => '不明',
-			'common.removeReactionConfirm' => ({required Object emoji}) => '確定要移除 ${emoji} 反應嗎？',
 			'common.fileOpenFailed' => '無法開啟該檔案',
 			'common.e2eeLocalBackup' => '本地備份',
 			'common.e2eeLocalBackupDesc' => '匯出加密備份檔案到本地或雲端',
@@ -3724,8 +3686,6 @@ extension on TranslationsZhHant {
 			'common.e2eeKeyGenerateFailed' => '金鑰生成失敗，請重試',
 			'common.e2eeKeyDeleted' => '金鑰已刪除',
 			'common.e2eeDeleteFailed' => '刪除失敗，請重試',
-			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => '可用分片: ${available} 個，需要 ${required} 個代理協助',
-			'common.e2eeContactingProxy' => ({required Object name}) => '正在聯絡: ${name}',
 			'common.webFeatureNotification' => '桌面版通知',
 			'common.webFeatureNotificationDesc' => '即使不在頁面也能收到新訊息提醒',
 			'common.webQRConfirmOnPhone' => '請在手機上確認登入',
@@ -3797,8 +3757,6 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupImportSuccessTitle' => '匯入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 金鑰已成功恢復！',
 			'common.e2eeBackupImportSuccessNote' => '注意：群聊歷史已隨備份恢復；單聊歷史無法恢復——依端對端加密規範，單聊金鑰不跨裝置備份',
-			'common.e2eeBackupDeviceLabel' => ({required Object id}) => '裝置 ${id}',
-			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => '建立於 ${time}',
 			'common.e2eeBackupCreatedAtRow' => '建立時間',
 			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
@@ -3824,10 +3782,6 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrUrlHttp' => '伺服器回傳錯誤',
 			'common.e2eeBackupErrUrlEmpty' => '伺服器回傳的內容為空',
 			'common.e2eeBackupErrUrlTooLarge' => '檔案過大（超過 10MB 上限）',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => '請先新增 ${count} 個代理',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => '金鑰已分割成 ${count} 個分片',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '需要 ${count} 個代理協助即可恢復金鑰',
-			'common.e2eeTransferScanError' => ({required Object error}) => '掃描錯誤: ${error}',
 			'common.passwordEncryptFailed' => '密碼加密失敗',
 			'common.initConfigTimeout' => '配置獲取超時: 請檢查網路連線或服務端狀態',
 			'common.initConfigNetworkError' => ({required Object code}) => '網路故障或服務故障 (HTTP ${code})',
@@ -3838,10 +3792,6 @@ extension on TranslationsZhHant {
 			'common.downloadFileNotFound' => '下載檔案不存在，請重試',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => '檔案校驗失敗，正在重新下載 (${retry}/${max})',
 			'common.downloadHashFailed' => '檔案多次校驗失敗，請檢查網路後重試',
-			'common.e2eeSocialMoreShards' => ({required Object count}) => '還有 ${count} 個分片...',
-			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => '獲取 ${name} 的公鑰失敗',
-			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '至少需要 ${count} 個信任的聯絡人，已選擇 ${selected} 個',
-			'common.e2eeProxyConfirmCount' => ({required Object count}) => '確認選擇 (${count} 個代理)',
 			'common.buttonBackHome' => '返回首頁',
 			'common.featureNotEnabled' => '當前功能未啟用',
 			'common.featureDisabledName' => ({required Object name}) => '${name} 功能未啟用，暫時無法訪問',
@@ -3856,7 +3806,6 @@ extension on TranslationsZhHant {
 			'common.redPacketDetail' => '紅包詳情',
 			'common.transferSend' => '發起轉賬',
 			'common.greetingDefault' => '恭喜發財，大吉大利',
-			'common.grabAmountYuan' => ({required Object amount}) => '領到金額：${amount} 元',
 			'common.transferAmountYuan' => ({required Object amount}) => '轉賬金額：${amount} 元',
 			'common.insufficientBalance' => '餘額不足',
 			'common.withdrawSuccess' => '提現成功',
@@ -4017,7 +3966,6 @@ extension on TranslationsZhHant {
 			'discovery.momentActionDelete' => '刪除',
 			'discovery.momentActionReport' => '舉報',
 			'discovery.momentActionCancel' => '取消動作',
-			'discovery.momentViewAllComments' => ({required Object count}) => '查看全部 ${count} 條評論',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} 讚了',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人讚了',
 			'discovery.momentContentPlaceholder' => '這一刻的想法...',
@@ -4043,11 +3991,7 @@ extension on TranslationsZhHant {
 			'error.networkTroubleshootingStep1' => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。',
 			'error.networkTroubleshootingStep2' => '2.開啟手機設定-一般-流動數據，並把流動數據開關保持開啟狀態。',
 			'error.networkTroubleshootingStep3' => '3.如仍無法連接網路，請檢查手機連接的 Wi-Fi 是否已連上互聯網或聯絡電訊商。',
-			_ => null,
-		} ?? switch (path) {
 			'error.suggestCheckNetwork' => '建議檢查網路設定。',
-			'error.e2eeStartRecoveryBtn' => ({required Object required}) => '開始恢復金鑰（需要 ${required} 個代理協助）',
-			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => '分片不足（需要 ${required} 個，當前 ${current} 個）',
 			'error.e2eeErrTimeout' => '加密超時，請檢查網路連線後重試',
 			'error.e2eeErrNetwork' => '網路錯誤，加密失敗，訊息未傳送',
 			'error.liveRoomTitleRequired' => '標題不能為空',
@@ -4065,6 +4009,8 @@ extension on TranslationsZhHant {
 			'group.groupGuest' => '嘉賓',
 			'group.groupInfo' => '群組資訊',
 			'group.groupMemberRoleLabel' => '成員',
+			_ => null,
+		} ?? switch (path) {
 			'group.noMemberWithRole' => ({required Object roleName}) => '暫無${roleName}',
 			'group.moreActions' => '更多選項',
 			'group.touchContactAddMember' => '點擊聯絡人新增為群組成員',
@@ -4331,26 +4277,12 @@ extension on TranslationsZhHant {
 			'main.e2eeWarnIrreversible' => '• 此操作不可撤銷',
 			'main.e2eeWarnNeedRestoreOrNew' => '• 需要從備份恢復或生成新金鑰',
 			'main.gotIt' => '了解了',
-			'main.e2eeProxyUser' => ({required Object uid}) => '代理使用者: ${uid}',
-			'main.e2eeShardLabel' => ({required Object index, required Object total}) => '金鑰分片 ${index} / ${total}',
-			'main.e2eeUsedShards' => ({required Object count}) => '已使用 ${count} 個代理分片',
-			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => '進度: ${collected} / ${total} 個分片',
-			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => '正在收集金鑰分片 (${collected}/${total})...',
 			'main.webQRLoggingIn' => '登入中...',
 			'main.webQRExpired' => '二維碼已過期',
 			'main.webQRRefresh' => '重新整理二維碼',
 			'main.webSwitchToQR' => '使用 QR 碼登入',
 			'main.e2eeErrDefault' => '端到端加密失敗，訊息未傳送',
 			'main.e2eeErrPeerDeviceNotReady' => '有成員的裝置尚未完成安全設定，訊息未傳送；請稍後重試',
-			'main.e2eeSocialThresholdHint' => ({required Object count}) => '恢復金鑰時需要 ${count} 個代理協助',
-			'main.e2eeSocialProxyNeeded' => ({required Object count}) => '需要 ${count} 個信任的聯絡人作為代理',
-			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => '使用者 ${uid}',
-			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => '已傳送到 ${sent} 個代理裝置（共 ${total} 個）',
-			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => '金鑰分片 ${idx} / ${total}',
-			'main.e2eeSocialUserShard' => ({required Object uid}) => '使用者 ${uid} 的金鑰分片',
-			'main.e2eeTransferQRExpiry' => ({required Object time}) => '二維碼將在 ${time} 過期',
-			'main.e2eeProxyMinCount' => ({required Object count}) => '請至少選擇 ${count} 個代理',
-			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '已選 ${selected} / ${total}',
 			'main.liveRoomTitleLabel' => '直播間標題',
 			'main.liveRoomTitleHint' => '請輸入直播間標題',
 			'main.lightModel' => '淺色模式',
@@ -4557,8 +4489,6 @@ extension on TranslationsZhHant {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '僅支援 #RRGGBB / #AARRGGBB；非法值改用預設主題色',
 			'workspace.brandingColorInvalid' => '主色格式不正確，僅支援 #RRGGBB / #AARRGGBB',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingSaved' => '品牌設定已儲存',
 			'workspace.brandingPreview' => '主色預覽',
 			'workspace.brandingPreviewApplied' => '目前主色將在工作區內生效',
@@ -4593,6 +4523,8 @@ extension on TranslationsZhHant {
 			'workspace.taskSubmitSave' => '儲存',
 			'workspace.taskCreatedToast' => '任務已建立',
 			'workspace.taskExistingToast' => '相同標題的任務已存在，直接使用既有任務',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => '任務已儲存',
 			'workspace.taskFilterAll' => '所有',
 			'workspace.taskStatusTodo' => '待辦',

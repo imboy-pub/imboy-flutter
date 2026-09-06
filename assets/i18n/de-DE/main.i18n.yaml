@@ -146,26 +146,12 @@ e2eeKeyIdLabel: Schlüssel-ID
 e2eeWarnIrreversible: "• Vorgang nicht umkehrbar"
 e2eeWarnNeedRestoreOrNew: "• Aus Backup wiederherstellen oder neuen Schlüssel erstellen"
 gotIt: Verstanden
-e2eeProxyUser(uid): 'Treuhänder: $uid'
-e2eeShardLabel(index, total): Fragment $index / $total
-e2eeUsedShards(count): "$count Treuhänder-Fragmente verwendet"
-e2eeRecoveryProgressLabel(collected, total): 'Fortschritt: $collected / $total Fragmente'
-e2eeCollectingShards(collected, total): Sammle Fragmente ($collected/$total)...
 webQRLoggingIn: Anmeldung...
 webQRExpired: QR-Code abgelaufen
 webQRRefresh: QR-Code aktualisieren
 webSwitchToQR: Per QR-Code anmelden
 e2eeErrDefault: E2EE fehlgeschlagen, Nachricht nicht gesendet
 e2eeErrPeerDeviceNotReady: Die Sicherheitseinrichtung einiger Mitglieder ist nicht abgeschlossen, Nachricht nicht gesendet; bitte später erneut versuchen
-e2eeSocialThresholdHint(count): Für Wiederherstellung sind $count Treuhänder nötig
-e2eeSocialProxyNeeded(count): "$count vertrauenswürdige Kontakte als Treuhänder nötig"
-e2eeSocialProxyDefaultName(uid): Benutzer $uid
-e2eeSocialSentCount(sent, total): An $sent von $total Treuhänder gesendet
-e2eeSocialShardOf(idx, total): Fragment $idx / $total
-e2eeSocialUserShard(uid): Schlüsselfragment von $uid
-e2eeTransferQRExpiry(time): QR-Code läuft $time ab
-e2eeProxyMinCount(count): Mindestens $count Treuhänder wählen
-e2eeProxySelectedCount(selected, total): "$selected / $total gewählt"
 liveRoomTitleLabel: Livestream-Titel
 liveRoomTitleHint: Livestream-Titel eingeben
 lightModel: Heller Modus

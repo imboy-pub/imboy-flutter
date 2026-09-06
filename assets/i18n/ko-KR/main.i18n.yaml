@@ -146,26 +146,12 @@ e2eeKeyIdLabel: 키 ID
 e2eeWarnIrreversible: "• 이 작업은 되돌릴 수 없습니다"
 e2eeWarnNeedRestoreOrNew: "• 백업에서 복구하거나 새 키를 생성해야 합니다"
 gotIt: 확인
-e2eeProxyUser(uid): '대리자: $uid'
-e2eeShardLabel(index, total): 샤드 $index / $total
-e2eeUsedShards(count): 대리자 샤드 $count개 사용됨
-e2eeRecoveryProgressLabel(collected, total): '진행률: $collected / $total 샤드'
-e2eeCollectingShards(collected, total): 샤드 수집 중 ($collected/$total)...
 webQRLoggingIn: 로그인 중...
 webQRExpired: QR 코드가 만료되었습니다
 webQRRefresh: QR 코드 새로고침
 webSwitchToQR: QR 코드로 로그인
 e2eeErrDefault: 종단간 암호화 실패, 메시지가 전송되지 않았습니다
 e2eeErrPeerDeviceNotReady: 일부 멤버의 기기에서 보안 설정이 완료되지 않아 메시지가 전송되지 않았습니다. 잠시 후 다시 시도해 주세요
-e2eeSocialThresholdHint(count): 키 복구 시 $count명의 대리자가 필요합니다
-e2eeSocialProxyNeeded(count): "$count명의 신뢰하는 연락처가 대리자로 필요합니다"
-e2eeSocialProxyDefaultName(uid): 사용자 $uid
-e2eeSocialSentCount(sent, total): 대리자 기기 $sent개에 전송됨 (전체 $total개)
-e2eeSocialShardOf(idx, total): 샤드 $idx / $total
-e2eeSocialUserShard(uid): 사용자 $uid의 키 샤드
-e2eeTransferQRExpiry(time): QR 코드가 $time에 만료됩니다
-e2eeProxyMinCount(count): 대리자를 최소 $count명 선택해주세요
-e2eeProxySelectedCount(selected, total): "$selected / $total 선택됨"
 liveRoomTitleLabel: 라이브 룸 제목
 liveRoomTitleHint: 라이브 룸 제목을 입력하세요
 lightModel: 라이트 모드

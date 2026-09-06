@@ -617,7 +617,6 @@ orderDetailLoadFailed: 주문 상세를 불러오지 못했습니다
 orderNoLabel(no): '주문 번호: $no'
 orderStatusCancelled: 취소됨
 orderStatusUnknown: 알 수 없음
-removeReactionConfirm(emoji): "$emoji 리액션을 제거하시겠습니까?"
 fileOpenFailed: 이 파일을 열 수 없습니다
 e2eeLocalBackup: 로컬 백업
 e2eeLocalBackupDesc: 암호화된 백업 파일을 로컬 또는 클라우드에 내보냅니다
@@ -654,8 +653,6 @@ e2eeGoBackup: 백업하러 가기
 e2eeKeyGenerateFailed: 키 생성 실패, 다시 시도해주세요
 e2eeKeyDeleted: 키가 삭제되었습니다
 e2eeDeleteFailed: 삭제 실패, 다시 시도해주세요
-e2eeShardAvailableInfo(available, required): '사용 가능한 샤드: $available개, $required명의 대리자 필요'
-e2eeContactingProxy(name): '연락 중: $name'
 webFeatureNotification: 데스크톱 알림
 webFeatureNotificationDesc: 페이지를 보지 않을 때도 새 메시지 알림을 받습니다
 webQRConfirmOnPhone: 휴대폰에서 로그인을 확인해주세요
@@ -726,8 +723,6 @@ e2eeBackupErrImportFailed: 가져오기 실패, 비밀번호를 확인해주세�
 e2eeBackupImportSuccessTitle: 가져오기 완료
 e2eeBackupImportSuccessBody: E2EE 키가 복구되었습니다!
 e2eeBackupImportSuccessNote: "참고: 그룹 채팅 기록은 복원되었습니다. 1:1 대화 기록은 복원할 수 없습니다 — E2EE 설계상 1:1 키는 기기 간에 백업되지 않습니다"
-e2eeBackupDeviceLabel(id): 기기 $id
-e2eeBackupCreatedAtLabel(time): 생성일 $time
 e2eeBackupCreatedAtRow: 생성 시간
 e2eeBackupCloudUploadBtn: 클라우드에 백업
 e2eeBackupCloudUploadSuccess(version): 클라우드에 백업했습니다 (버전 $version)
@@ -753,10 +748,6 @@ e2eeBackupErrUrlTls: 보안 연결 실패, 서버 인증서를 검증할 수 없
 e2eeBackupErrUrlHttp: 서버에서 오류를 반환했습니다
 e2eeBackupErrUrlEmpty: 서버에서 빈 콘텐츠를 반환했습니다
 e2eeBackupErrUrlTooLarge: 파일이 너무 큽니다 (10MB 제한 초과)
-e2eeSocialCreateNeedMore(count): 대리자를 $count명 더 추가해주세요
-e2eeSocialTotalShardsInfo(count): 키가 $count개 샤드로 분할되었습니다
-e2eeSocialThresholdInfo(count): "$count명의 대리자가 키를 복구할 수 있습니다"
-e2eeTransferScanError(error): '스캔 오류: $error'
 passwordEncryptFailed: 비밀번호 암호화 실패
 initConfigTimeout: '설정 불러오기 시간 초과: 네트워크 연결 또는 서버 상태를 확인해주세요'
 initConfigNetworkError(code): 네트워크 또는 서버 오류 (HTTP $code)
@@ -766,10 +757,6 @@ saveFailedRetry: 저장 실패, 다시 시도해주세요
 downloadFileNotFound: 다운로드 파일이 없습니다. 다시 시도해주세요
 downloadHashRetrying(retry, max): 파일 검증 실패, 다시 다운로드하는 중 ($retry/$max)
 downloadHashFailed: 파일 검증이 여러 번 실패했습니다. 네트워크를 확인하고 다시 시도해주세요
-e2eeSocialMoreShards(count): 샤드 $count개 더...
-e2eeProxyGetKeyFailed(name): "$name의 공개 키를 가져오지 못했습니다"
-e2eeProxyNeedMore(count, selected): 최소 $count명의 신뢰하는 연락처가 필요하며, $selected명 선택됨
-e2eeProxyConfirmCount(count): 선택 확인 (대리자 $count명)
 buttonBackHome: 홈으로
 featureNotEnabled: 이 기능은 활성화되어 있지 않습니다
 featureDisabledName(name): "$name 기능이 활성화되어 있지 않아 일시적으로 접근할 수 없습니다"
@@ -784,7 +771,6 @@ redPacketSend: 복주머니 보내기
 redPacketDetail: 복주머니 상세
 transferSend: 송금하기
 greetingDefault: 새해 복 많이 받으세요
-grabAmountYuan(amount): '받은 금액: $amount위안'
 transferAmountYuan(amount): '송금액: $amount위안'
 insufficientBalance: 잔액 부족
 withdrawSuccess: 출금 완료

@@ -146,26 +146,12 @@ e2eeKeyIdLabel: キー ID
 e2eeWarnIrreversible: "• この操作は取り消せません"
 e2eeWarnNeedRestoreOrNew: "• バックアップから復元するか、新しいキーを生成する必要があります"
 gotIt: 了解
-e2eeProxyUser(uid): '代理ユーザー: $uid'
-e2eeShardLabel(index, total): シャード $index / $total
-e2eeUsedShards(count): "$count 個の代理シャードを使用しました"
-e2eeRecoveryProgressLabel(collected, total): '進捗: $collected / $total シャード'
-e2eeCollectingShards(collected, total): シャードを収集中 ($collected/$total)...
 webQRLoggingIn: ログイン中...
 webQRExpired: QRコードの有効期限が切れました
 webQRRefresh: QRコードを更新
 webSwitchToQR: QRコードでログイン
 e2eeErrDefault: エンドツーエンド暗号化に失敗しました。メッセージは送信されませんでした
 e2eeErrPeerDeviceNotReady: メンバーのデバイスでセキュリティ設定が未完了のため、メッセージは送信されませんでした。しばらくしてから再試行してください
-e2eeSocialThresholdHint(count): キーの復元には $count 人の代理者の協力が必要です
-e2eeSocialProxyNeeded(count): "$count 人の信頼できる連絡先を代理者として追加してください"
-e2eeSocialProxyDefaultName(uid): ユーザー $uid
-e2eeSocialSentCount(sent, total): "$sent / $total 件の代理デバイスに送信済み"
-e2eeSocialShardOf(idx, total): シャード $idx / $total
-e2eeSocialUserShard(uid): ユーザー $uid のキーシャード
-e2eeTransferQRExpiry(time): QRコードは $time に期限切れになります
-e2eeProxyMinCount(count): 最低 $count 人の代理者を選択してください
-e2eeProxySelectedCount(selected, total): 選択中 $selected / $total
 liveRoomTitleLabel: 配信ルーム名
 liveRoomTitleHint: 配信ルーム名を入力
 lightModel: ライトモード

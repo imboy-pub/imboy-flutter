@@ -145,11 +145,6 @@ e2eeKeyIdLabel: 密钥 ID
 e2eeWarnIrreversible: • 此操作不可撤销
 e2eeWarnNeedRestoreOrNew: • 需要从备份恢复或生成新密钥
 gotIt: 我知道了
-e2eeProxyUser(uid): "代理用户: $uid"
-e2eeShardLabel(index, total): 分片 $index / $total
-e2eeUsedShards(count): 已使用 $count 个代理分片
-e2eeRecoveryProgressLabel(collected, total): "进度: $collected / $total 个分片"
-e2eeCollectingShards(collected, total): 正在收集分片 ($collected/$total)...
 webQRLoggingIn: 登录中...
 webQRExpired: 二维码已过期
 webQRRefresh: 刷新二维码
@@ -185,15 +180,6 @@ safetyNumberVerifyFailed: 获取安全码失败，请稍后重试
 safetyNumberReporting: 正在上报验证结果...
 safetyNumberReportRejected: 服务端拒绝了该验证事件（签名/时效不符），未标记
 safetyNumberReportUnavailable: 无法获取设备信息，未上报
-e2eeSocialThresholdHint(count): 恢复密钥时需要 $count 个代理协助
-e2eeSocialProxyNeeded(count): 需要 $count 个信任的联系人作为代理
-e2eeSocialProxyDefaultName(uid): 用户 $uid
-e2eeSocialSentCount(sent, total): 已发送到 $sent 个代理设备（共 $total 个）
-e2eeSocialShardOf(idx, total): 分片 $idx / $total
-e2eeSocialUserShard(uid): 用户 $uid 的密钥分片
-e2eeTransferQRExpiry(time): 二维码将在 $time 过期
-e2eeProxyMinCount(count): 请至少选择 $count 个代理
-e2eeProxySelectedCount(selected, total): 已选 $selected / $total
 liveRoomTitleLabel: 直播间标题
 liveRoomTitleHint: 请输入直播间标题
 lightModel: 浅色模式

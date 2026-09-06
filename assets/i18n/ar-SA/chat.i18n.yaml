@@ -162,7 +162,6 @@ e2eeActivated: مفعّل
 e2eeCreatedAtLabel: تاريخ الإنشاء
 e2eeGeneratingKey: جارٍ إنشاء المفتاح، انتظر...
 e2eeNewKeyGenerated: تم إنشاء زوج مفاتيح E2EE جديد!
-e2eeReadyWithShards(count): جاهز ($count شظية)
 webFeatureMultiDevice: مزامنة الأجهزة
 webFeatureMultiDeviceDesc: بدّل بحرية بين الهاتف والكمبيوتر، وتُزامَل الرسائل لحظياً
 webFeatureE2EE: تشفير من طرف إلى طرف
@@ -174,8 +173,6 @@ webQRStatusScanned: اضغط «تأكيد الدخول» على هاتفك
 webQRStatusVerifying: جارٍ التحقق...
 webQRStatusExpired: حدّث وأعد المسح
 e2eeErrInvalidFormat: تنسيق الرسالة خاطئ، فشل التشفير
-e2eeSocialStatus(status): 'الحالة: $status'
-e2eeProxyNeedAtLeast(count): اختر $count وكلاء على الأقل
 e2eeRecreatingKey: جارٍ إعادة إنشاء المفتاح...
 e2eeKeyRecreated: تمت إعادة إنشاء المفتاح
 e2eeRecoveryNewDeviceTitle: تم رصد دخول من جهاز جديد

@@ -169,7 +169,6 @@ e2eeActivated: 已激活
 e2eeCreatedAtLabel: 创建时间
 e2eeGeneratingKey: 正在生成密钥，请稍候...
 e2eeNewKeyGenerated: 新的 E2EE 密钥对已生成！
-e2eeReadyWithShards(count): 准备就绪（$count 个分片）
 webFeatureMultiDevice: 多设备同步
 webFeatureMultiDeviceDesc: 在手机和电脑之间无缝切换，消息实时同步
 webFeatureE2EE: 端到端加密
@@ -181,8 +180,6 @@ webQRStatusScanned: 请在手机上点击"确认登录"
 webQRStatusVerifying: 正在验证...
 webQRStatusExpired: 请点击刷新重新扫码
 e2eeErrInvalidFormat: 消息格式错误，加密失败
-e2eeSocialStatus(status): "状态: $status"
-e2eeProxyNeedAtLeast(count): 请选择至少 $count 个代理
 e2eeRecreatingKey: 正在重新创建密钥...
 e2eeKeyRecreated: 密钥已重新创建
 e2eeRecoveryNewDeviceTitle: 检测到新设备登录

@@ -617,7 +617,6 @@ orderDetailLoadFailed: تعذّر تحميل الطلب
 orderNoLabel(no): 'رقم الطلب: $no'
 orderStatusCancelled: ملغى
 orderStatusUnknown: غير معروف
-removeReactionConfirm(emoji): إزالة تفاعل $emoji؟
 fileOpenFailed: تعذّر فتح هذا الملف
 e2eeLocalBackup: نسخة محلية احتياطية
 e2eeLocalBackupDesc: تصدير نسخة مشفّرة إلى الجهاز أو السحابة
@@ -654,8 +653,6 @@ e2eeGoBackup: إنشاء نسخة
 e2eeKeyGenerateFailed: تعذّر إنشاء المفتاح، أعد المحاولة
 e2eeKeyDeleted: تم حذف المفتاح
 e2eeDeleteFailed: تعذّر الحذف، أعد المحاولة
-e2eeShardAvailableInfo(available, required): 'الشظايا المتاحة: $available، يلزم $required وكيلاً'
-e2eeContactingProxy(name): 'جارٍ التواصل مع: $name'
 webFeatureNotification: إشعارات سطح المكتب
 webFeatureNotificationDesc: تصلك تنبيهات الرسائل الجديدة حتى مع إغلاق الصفحة
 webQRConfirmOnPhone: أكّد الدخول على هاتفك
@@ -726,8 +723,6 @@ e2eeBackupErrImportFailed: تعذّر الاستيراد، تحقق من كلم�
 e2eeBackupImportSuccessTitle: تم الاستيراد
 e2eeBackupImportSuccessBody: تمت استعادة مفتاح E2EE!
 e2eeBackupImportSuccessNote: "ملاحظة: تمت استعادة سجل المحادثات الجماعية. لا يمكن استعادة سجل المحادثات الفردية — فوفقًا لتصميم التشفير التام، لا يتم نسخ مفاتيح المحادثات الفردية بين الأجهزة"
-e2eeBackupDeviceLabel(id): جهاز $id
-e2eeBackupCreatedAtLabel(time): أُنشئ $time
 e2eeBackupCreatedAtRow: تاريخ الإنشاء
 e2eeBackupCloudUploadBtn: النسخ الاحتياطي إلى السحابة
 e2eeBackupCloudUploadSuccess(version): تم النسخ إلى السحابة (الإصدار $version)
@@ -753,10 +748,6 @@ e2eeBackupErrUrlTls: فشل الاتصال الآمن، تعذر التحقق م
 e2eeBackupErrUrlHttp: أرجع الخادم خطأ
 e2eeBackupErrUrlEmpty: أرجع الخادم محتوى فارغًا
 e2eeBackupErrUrlTooLarge: الملف كبير جدًا (يتجاوز حد 10 ميجابايت)
-e2eeSocialCreateNeedMore(count): أضف $count وكلاء آخرين
-e2eeSocialTotalShardsInfo(count): قُسّم المفتاح إلى $count شظايا
-e2eeSocialThresholdInfo(count): يكفي $count وكيل للاستعادة
-e2eeTransferScanError(error): 'خطأ المسح: $error'
 passwordEncryptFailed: تعذّر تشفير كلمة المرور
 initConfigTimeout: 'انتهت مهلة تحميل الإعدادات: تحقق من الشبكة أو حالة الخادم'
 initConfigNetworkError(code): عطل شبكة أو عطل خادم (HTTP $code)
@@ -766,10 +757,6 @@ saveFailedRetry: تعذّر الحفظ، أعد المحاولة
 downloadFileNotFound: ملف التنزيل غير موجود، أعد المحاولة
 downloadHashRetrying(retry, max): فشل التحقق من الملف، إعادة التنزيل ($retry/$max)
 downloadHashFailed: فشل التحقق من الملف عدة مرات، تحقق من الشبكة وأعد المحاولة
-e2eeSocialMoreShards(count): "$count شظايا إضافية..."
-e2eeProxyGetKeyFailed(name): تعذّر الحصول على المفتاح العام لـ $name
-e2eeProxyNeedMore(count, selected): يلزم $count جهة موثوقة على الأقل، محدد $selected
-e2eeProxyConfirmCount(count): تأكيد الاختيار ($count وكيل)
 buttonBackHome: الرئيسية
 featureNotEnabled: هذه الميزة غير مفعّلة
 featureDisabledName(name): ميزة $name غير مفعّلة وغير متاحة مؤقتاً
@@ -784,7 +771,6 @@ redPacketSend: إرسال مغلف
 redPacketDetail: تفاصيل المغلف
 transferSend: تحويل أموال
 greetingDefault: كل عام وأنتم بخير وازدهار
-grabAmountYuan(amount): 'المبلغ الملتقط: $amount يوان'
 transferAmountYuan(amount): 'مبلغ التحويل: $amount يوان'
 insufficientBalance: رصيد غير كافٍ
 withdrawSuccess: تم السحب

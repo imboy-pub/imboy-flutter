@@ -633,7 +633,6 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get e2eeCreatedAtLabel => 'Créée le';
 	@override String get e2eeGeneratingKey => 'Génération de la clé, patientez...';
 	@override String get e2eeNewKeyGenerated => 'Nouvelle paire de clés E2EE créée !';
-	@override String e2eeReadyWithShards({required Object count}) => 'Prêt (${count} fragments)';
 	@override String get webFeatureMultiDevice => 'Multi-appareils';
 	@override String get webFeatureMultiDeviceDesc => 'Basculez entre mobile et PC, synchronisation en temps réel';
 	@override String get webFeatureE2EE => 'E2EE';
@@ -645,8 +644,6 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get webQRStatusVerifying => 'Vérification...';
 	@override String get webQRStatusExpired => 'Actualisez et rescannez';
 	@override String get e2eeErrInvalidFormat => 'Format de message invalide, échec du chiffrement';
-	@override String e2eeSocialStatus({required Object status}) => 'Statut : ${status}';
-	@override String e2eeProxyNeedAtLeast({required Object count}) => 'Au moins ${count} dépositaires';
 	@override String get e2eeRecreatingKey => 'Recréation de la clé...';
 	@override String get e2eeKeyRecreated => 'Clé recréée';
 	@override String get e2eeRecoveryNewDeviceTitle => 'Nouvel appareil détecté';
@@ -1309,7 +1306,6 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String orderNoLabel({required Object no}) => 'Commande n° : ${no}';
 	@override String get orderStatusCancelled => 'Annulée';
 	@override String get orderStatusUnknown => 'Inconnu';
-	@override String removeReactionConfirm({required Object emoji}) => 'Retirer la réaction ${emoji} ?';
 	@override String get fileOpenFailed => 'Impossible d\'ouvrir ce fichier';
 	@override String get e2eeLocalBackup => 'Sauvegarde locale';
 	@override String get e2eeLocalBackupDesc => 'Exporter une sauvegarde chiffrée localement ou dans le cloud';
@@ -1346,8 +1342,6 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeKeyGenerateFailed => 'Échec de la génération. Réessayez.';
 	@override String get e2eeKeyDeleted => 'Clé supprimée';
 	@override String get e2eeDeleteFailed => 'Échec de la suppression. Réessayez.';
-	@override String e2eeShardAvailableInfo({required Object available, required Object required}) => 'Fragments : ${available} disponibles, ${required} dépositaires requis';
-	@override String e2eeContactingProxy({required Object name}) => 'Connexion à : ${name}';
 	@override String get webFeatureNotification => 'Notifications bureau';
 	@override String get webFeatureNotificationDesc => 'Recevez les nouveaux messages même en arrière-plan';
 	@override String get webQRConfirmOnPhone => 'Confirmez sur le mobile';
@@ -1418,8 +1412,6 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'Importée';
 	@override String get e2eeBackupImportSuccessBody => 'Clé E2EE restaurée !';
 	@override String get e2eeBackupImportSuccessNote => 'À noter : l\'historique des discussions de groupe a été restauré. L\'historique des conversations individuelles est irrécupérable — par conception E2EE, les clés 1:1 ne sont jamais sauvegardées entre appareils';
-	@override String e2eeBackupDeviceLabel({required Object id}) => 'Appareil ${id}';
-	@override String e2eeBackupCreatedAtLabel({required Object time}) => 'Créée le ${time}';
 	@override String get e2eeBackupCreatedAtRow => 'Créée le';
 	@override String get e2eeBackupCloudUploadBtn => 'Sauvegarder dans le cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Sauvegardé dans le cloud (version ${version})';
@@ -1445,10 +1437,6 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrUrlHttp => 'Le serveur a renvoyé une erreur';
 	@override String get e2eeBackupErrUrlEmpty => 'Le serveur a renvoyé un contenu vide';
 	@override String get e2eeBackupErrUrlTooLarge => 'Fichier trop volumineux (dépasse la limite de 10 Mo)';
-	@override String e2eeSocialCreateNeedMore({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires';
-	@override String e2eeSocialTotalShardsInfo({required Object count}) => 'Clé divisée en ${count} fragments';
-	@override String e2eeSocialThresholdInfo({required Object count}) => '${count} dépositaires suffisent pour restaurer';
-	@override String e2eeTransferScanError({required Object error}) => 'Erreur de scan : ${error}';
 	@override String get passwordEncryptFailed => 'Échec du chiffrement du mot de passe';
 	@override String get initConfigTimeout => 'Délai dépassé : vérifiez le réseau ou le serveur';
 	@override String initConfigNetworkError({required Object code}) => 'Erreur réseau ou serveur (HTTP ${code})';
@@ -1458,10 +1446,6 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get downloadFileNotFound => 'Fichier téléchargé introuvable. Réessayez.';
 	@override String downloadHashRetrying({required Object retry, required Object max}) => 'Vérification échouée, retéléchargement (${retry}/${max})';
 	@override String get downloadHashFailed => 'Vérifications multiples échouées. Vérifiez le réseau.';
-	@override String e2eeSocialMoreShards({required Object count}) => '${count} fragments de plus...';
-	@override String e2eeProxyGetKeyFailed({required Object name}) => 'Clé publique de ${name} indisponible';
-	@override String e2eeProxyNeedMore({required Object count, required Object selected}) => '${count} requis minimum, ${selected} choisis';
-	@override String e2eeProxyConfirmCount({required Object count}) => 'Confirmer (${count} dépositaires)';
 	@override String get buttonBackHome => 'Accueil';
 	@override String get featureNotEnabled => 'Fonction indisponible';
 	@override String featureDisabledName({required Object name}) => 'Fonction ${name} indisponible';
@@ -1476,7 +1460,6 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get redPacketDetail => 'Détails de l\'enveloppe';
 	@override String get transferSend => 'Démarrer un transfert';
 	@override String get greetingDefault => 'Bonne année';
-	@override String grabAmountYuan({required Object amount}) => 'Reçu : ${amount} yuan';
 	@override String transferAmountYuan({required Object amount}) => 'Transfert : ${amount} yuan';
 	@override String get insufficientBalance => 'Solde insuffisant';
 	@override String get withdrawSuccess => 'Retrait effectué';
@@ -1677,7 +1660,6 @@ class _Translations$discovery$fr_FR extends Translations$discovery$zh_CN {
 	@override String get momentActionDelete => 'Supprimer';
 	@override String get momentActionReport => 'Signaler';
 	@override String get momentActionCancel => 'Annuler';
-	@override String momentViewAllComments({required Object count}) => 'Voir les ${count} commentaires';
 	@override String momentLikedBy({required Object names}) => '${names} aiment ça';
 	@override String momentAndOthersLiked({required Object names, required Object count}) => '${names} et ${count} autres aiment ça';
 	@override String get momentContentPlaceholder => 'À quoi pensez-vous...';
@@ -1713,8 +1695,6 @@ class _Translations$error$fr_FR extends Translations$error$zh_CN {
 	@override String get networkTroubleshootingStep2 => '2. Ouvrez les paramètres du téléphone - Général - Données cellulaires et gardez les données cellulaires activées.';
 	@override String get networkTroubleshootingStep3 => '3. Si toujours impossible de se connecter au réseau, vérifiez si le Wi-Fi du téléphone a accès à Internet ou contactez l\'opérateur réseau.';
 	@override String get suggestCheckNetwork => 'Il est suggéré de vérifier les paramètres réseau.';
-	@override String e2eeStartRecoveryBtn({required Object required}) => 'Démarrer la restauration (${required} dépositaires requis)';
-	@override String e2eeInsufficientShardBtn({required Object required, required Object current}) => 'Fragments insuffisants (${required} requis, ${current} actuels)';
 	@override String get e2eeErrTimeout => 'Délai de chiffrement dépassé. Vérifiez le réseau et réessayez.';
 	@override String get e2eeErrNetwork => 'Erreur réseau, échec du chiffrement, message non envoyé';
 	@override String get liveRoomTitleRequired => 'Titre requis';
@@ -2079,26 +2059,12 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get e2eeWarnIrreversible => '• Action irréversible';
 	@override String get e2eeWarnNeedRestoreOrNew => '• Restaurer depuis une sauvegarde ou générer une nouvelle clé';
 	@override String get gotIt => 'Compris';
-	@override String e2eeProxyUser({required Object uid}) => 'Dépositaire : ${uid}';
-	@override String e2eeShardLabel({required Object index, required Object total}) => 'Fragment ${index} / ${total}';
-	@override String e2eeUsedShards({required Object count}) => '${count} fragments utilisés';
-	@override String e2eeRecoveryProgressLabel({required Object collected, required Object total}) => 'Progression : ${collected} / ${total} fragments';
-	@override String e2eeCollectingShards({required Object collected, required Object total}) => 'Collecte des fragments (${collected}/${total})...';
 	@override String get webQRLoggingIn => 'Connexion...';
 	@override String get webQRExpired => 'QR code expiré';
 	@override String get webQRRefresh => 'Actualiser le QR code';
 	@override String get webSwitchToQR => 'Connexion par QR code';
 	@override String get e2eeErrDefault => 'Échec E2EE, message non envoyé';
 	@override String get e2eeErrPeerDeviceNotReady => 'L\'installation de sécurité n\'est pas terminée sur l\'appareil de certains membres, message non envoyé ; réessayez plus tard';
-	@override String e2eeSocialThresholdHint({required Object count}) => '${count} dépositaires requis pour la restauration';
-	@override String e2eeSocialProxyNeeded({required Object count}) => '${count} contacts de confiance requis comme dépositaires';
-	@override String e2eeSocialProxyDefaultName({required Object uid}) => 'Utilisateur ${uid}';
-	@override String e2eeSocialSentCount({required Object sent, required Object total}) => 'Envoyés à ${sent} sur ${total} dépositaires';
-	@override String e2eeSocialShardOf({required Object idx, required Object total}) => 'Fragment ${idx} / ${total}';
-	@override String e2eeSocialUserShard({required Object uid}) => 'Fragment de clé de ${uid}';
-	@override String e2eeTransferQRExpiry({required Object time}) => 'QR code expire le ${time}';
-	@override String e2eeProxyMinCount({required Object count}) => 'Au moins ${count} dépositaires';
-	@override String e2eeProxySelectedCount({required Object selected, required Object total}) => '${selected} / ${total} choisis';
 	@override String get liveRoomTitleLabel => 'Titre du live';
 	@override String get liveRoomTitleHint => 'Titre du live';
 	@override String get lightModel => 'Mode clair';
@@ -3028,7 +2994,6 @@ extension on TranslationsFrFr {
 			'chat.e2eeCreatedAtLabel' => 'Créée le',
 			'chat.e2eeGeneratingKey' => 'Génération de la clé, patientez...',
 			'chat.e2eeNewKeyGenerated' => 'Nouvelle paire de clés E2EE créée !',
-			'chat.e2eeReadyWithShards' => ({required Object count}) => 'Prêt (${count} fragments)',
 			'chat.webFeatureMultiDevice' => 'Multi-appareils',
 			'chat.webFeatureMultiDeviceDesc' => 'Basculez entre mobile et PC, synchronisation en temps réel',
 			'chat.webFeatureE2EE' => 'E2EE',
@@ -3040,8 +3005,6 @@ extension on TranslationsFrFr {
 			'chat.webQRStatusVerifying' => 'Vérification...',
 			'chat.webQRStatusExpired' => 'Actualisez et rescannez',
 			'chat.e2eeErrInvalidFormat' => 'Format de message invalide, échec du chiffrement',
-			'chat.e2eeSocialStatus' => ({required Object status}) => 'Statut : ${status}',
-			'chat.e2eeProxyNeedAtLeast' => ({required Object count}) => 'Au moins ${count} dépositaires',
 			'chat.e2eeRecreatingKey' => 'Recréation de la clé...',
 			'chat.e2eeKeyRecreated' => 'Clé recréée',
 			'chat.e2eeRecoveryNewDeviceTitle' => 'Nouvel appareil détecté',
@@ -3532,11 +3495,11 @@ extension on TranslationsFrFr {
 			'common.momentReportReasonSpam' => 'Spam ou publicité',
 			'common.momentReportReasonHarassment' => 'Harcèlement',
 			'common.momentReportReasonPorn' => 'Contenu pornographique',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Fraude ou arnaque',
 			'common.momentReportReasonInfringement' => 'Violation de droits',
 			'common.momentReportReasonOther' => 'Autre',
+			_ => null,
+		} ?? switch (path) {
 			'common.momentReportReasonPrompt' => 'Sélectionner un motif',
 			'common.momentsLoadMoreComments' => 'Charger plus de commentaires',
 			'common.momentsUploadFailed' => 'Échec de l\'envoi du média. Réessayez plus tard.',
@@ -3688,7 +3651,6 @@ extension on TranslationsFrFr {
 			'common.orderNoLabel' => ({required Object no}) => 'Commande n° : ${no}',
 			'common.orderStatusCancelled' => 'Annulée',
 			'common.orderStatusUnknown' => 'Inconnu',
-			'common.removeReactionConfirm' => ({required Object emoji}) => 'Retirer la réaction ${emoji} ?',
 			'common.fileOpenFailed' => 'Impossible d\'ouvrir ce fichier',
 			'common.e2eeLocalBackup' => 'Sauvegarde locale',
 			'common.e2eeLocalBackupDesc' => 'Exporter une sauvegarde chiffrée localement ou dans le cloud',
@@ -3725,8 +3687,6 @@ extension on TranslationsFrFr {
 			'common.e2eeKeyGenerateFailed' => 'Échec de la génération. Réessayez.',
 			'common.e2eeKeyDeleted' => 'Clé supprimée',
 			'common.e2eeDeleteFailed' => 'Échec de la suppression. Réessayez.',
-			'common.e2eeShardAvailableInfo' => ({required Object available, required Object required}) => 'Fragments : ${available} disponibles, ${required} dépositaires requis',
-			'common.e2eeContactingProxy' => ({required Object name}) => 'Connexion à : ${name}',
 			'common.webFeatureNotification' => 'Notifications bureau',
 			'common.webFeatureNotificationDesc' => 'Recevez les nouveaux messages même en arrière-plan',
 			'common.webQRConfirmOnPhone' => 'Confirmez sur le mobile',
@@ -3797,8 +3757,6 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupImportSuccessTitle' => 'Importée',
 			'common.e2eeBackupImportSuccessBody' => 'Clé E2EE restaurée !',
 			'common.e2eeBackupImportSuccessNote' => 'À noter : l\'historique des discussions de groupe a été restauré. L\'historique des conversations individuelles est irrécupérable — par conception E2EE, les clés 1:1 ne sont jamais sauvegardées entre appareils',
-			'common.e2eeBackupDeviceLabel' => ({required Object id}) => 'Appareil ${id}',
-			'common.e2eeBackupCreatedAtLabel' => ({required Object time}) => 'Créée le ${time}',
 			'common.e2eeBackupCreatedAtRow' => 'Créée le',
 			'common.e2eeBackupCloudUploadBtn' => 'Sauvegarder dans le cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Sauvegardé dans le cloud (version ${version})',
@@ -3824,10 +3782,6 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupErrUrlHttp' => 'Le serveur a renvoyé une erreur',
 			'common.e2eeBackupErrUrlEmpty' => 'Le serveur a renvoyé un contenu vide',
 			'common.e2eeBackupErrUrlTooLarge' => 'Fichier trop volumineux (dépasse la limite de 10 Mo)',
-			'common.e2eeSocialCreateNeedMore' => ({required Object count}) => 'Ajoutez d\'abord ${count} dépositaires',
-			'common.e2eeSocialTotalShardsInfo' => ({required Object count}) => 'Clé divisée en ${count} fragments',
-			'common.e2eeSocialThresholdInfo' => ({required Object count}) => '${count} dépositaires suffisent pour restaurer',
-			'common.e2eeTransferScanError' => ({required Object error}) => 'Erreur de scan : ${error}',
 			'common.passwordEncryptFailed' => 'Échec du chiffrement du mot de passe',
 			'common.initConfigTimeout' => 'Délai dépassé : vérifiez le réseau ou le serveur',
 			'common.initConfigNetworkError' => ({required Object code}) => 'Erreur réseau ou serveur (HTTP ${code})',
@@ -3837,10 +3791,6 @@ extension on TranslationsFrFr {
 			'common.downloadFileNotFound' => 'Fichier téléchargé introuvable. Réessayez.',
 			'common.downloadHashRetrying' => ({required Object retry, required Object max}) => 'Vérification échouée, retéléchargement (${retry}/${max})',
 			'common.downloadHashFailed' => 'Vérifications multiples échouées. Vérifiez le réseau.',
-			'common.e2eeSocialMoreShards' => ({required Object count}) => '${count} fragments de plus...',
-			'common.e2eeProxyGetKeyFailed' => ({required Object name}) => 'Clé publique de ${name} indisponible',
-			'common.e2eeProxyNeedMore' => ({required Object count, required Object selected}) => '${count} requis minimum, ${selected} choisis',
-			'common.e2eeProxyConfirmCount' => ({required Object count}) => 'Confirmer (${count} dépositaires)',
 			'common.buttonBackHome' => 'Accueil',
 			'common.featureNotEnabled' => 'Fonction indisponible',
 			'common.featureDisabledName' => ({required Object name}) => 'Fonction ${name} indisponible',
@@ -3855,7 +3805,6 @@ extension on TranslationsFrFr {
 			'common.redPacketDetail' => 'Détails de l\'enveloppe',
 			'common.transferSend' => 'Démarrer un transfert',
 			'common.greetingDefault' => 'Bonne année',
-			'common.grabAmountYuan' => ({required Object amount}) => 'Reçu : ${amount} yuan',
 			'common.transferAmountYuan' => ({required Object amount}) => 'Transfert : ${amount} yuan',
 			'common.insufficientBalance' => 'Solde insuffisant',
 			'common.withdrawSuccess' => 'Retrait effectué',
@@ -4020,7 +3969,6 @@ extension on TranslationsFrFr {
 			'discovery.momentActionDelete' => 'Supprimer',
 			'discovery.momentActionReport' => 'Signaler',
 			'discovery.momentActionCancel' => 'Annuler',
-			'discovery.momentViewAllComments' => ({required Object count}) => 'Voir les ${count} commentaires',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} aiment ça',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} et ${count} autres aiment ça',
 			'discovery.momentContentPlaceholder' => 'À quoi pensez-vous...',
@@ -4046,11 +3994,7 @@ extension on TranslationsFrFr {
 			'error.networkTroubleshootingStep1' => '1. Ouvrez les paramètres du téléphone et gardez le Wi-Fi activé.',
 			'error.networkTroubleshootingStep2' => '2. Ouvrez les paramètres du téléphone - Général - Données cellulaires et gardez les données cellulaires activées.',
 			'error.networkTroubleshootingStep3' => '3. Si toujours impossible de se connecter au réseau, vérifiez si le Wi-Fi du téléphone a accès à Internet ou contactez l\'opérateur réseau.',
-			_ => null,
-		} ?? switch (path) {
 			'error.suggestCheckNetwork' => 'Il est suggéré de vérifier les paramètres réseau.',
-			'error.e2eeStartRecoveryBtn' => ({required Object required}) => 'Démarrer la restauration (${required} dépositaires requis)',
-			'error.e2eeInsufficientShardBtn' => ({required Object required, required Object current}) => 'Fragments insuffisants (${required} requis, ${current} actuels)',
 			'error.e2eeErrTimeout' => 'Délai de chiffrement dépassé. Vérifiez le réseau et réessayez.',
 			'error.e2eeErrNetwork' => 'Erreur réseau, échec du chiffrement, message non envoyé',
 			'error.liveRoomTitleRequired' => 'Titre requis',
@@ -4068,6 +4012,8 @@ extension on TranslationsFrFr {
 			'group.groupGuest' => 'Invité d\'honneur',
 			'group.setAdmin' => 'Set as Admin',
 			'group.selectGroup' => 'Sélectionner un groupe.',
+			_ => null,
+		} ?? switch (path) {
 			'group.sureToDissolveGroup' => 'Confirmer la dissolution du groupe ?',
 			'group.sureToLeaveGroup' => 'Confirmer le départ du groupe ?',
 			'group.groupAlbumNameHint' => 'Nom de l\'album',
@@ -4334,26 +4280,12 @@ extension on TranslationsFrFr {
 			'main.e2eeWarnIrreversible' => '• Action irréversible',
 			'main.e2eeWarnNeedRestoreOrNew' => '• Restaurer depuis une sauvegarde ou générer une nouvelle clé',
 			'main.gotIt' => 'Compris',
-			'main.e2eeProxyUser' => ({required Object uid}) => 'Dépositaire : ${uid}',
-			'main.e2eeShardLabel' => ({required Object index, required Object total}) => 'Fragment ${index} / ${total}',
-			'main.e2eeUsedShards' => ({required Object count}) => '${count} fragments utilisés',
-			'main.e2eeRecoveryProgressLabel' => ({required Object collected, required Object total}) => 'Progression : ${collected} / ${total} fragments',
-			'main.e2eeCollectingShards' => ({required Object collected, required Object total}) => 'Collecte des fragments (${collected}/${total})...',
 			'main.webQRLoggingIn' => 'Connexion...',
 			'main.webQRExpired' => 'QR code expiré',
 			'main.webQRRefresh' => 'Actualiser le QR code',
 			'main.webSwitchToQR' => 'Connexion par QR code',
 			'main.e2eeErrDefault' => 'Échec E2EE, message non envoyé',
 			'main.e2eeErrPeerDeviceNotReady' => 'L\'installation de sécurité n\'est pas terminée sur l\'appareil de certains membres, message non envoyé ; réessayez plus tard',
-			'main.e2eeSocialThresholdHint' => ({required Object count}) => '${count} dépositaires requis pour la restauration',
-			'main.e2eeSocialProxyNeeded' => ({required Object count}) => '${count} contacts de confiance requis comme dépositaires',
-			'main.e2eeSocialProxyDefaultName' => ({required Object uid}) => 'Utilisateur ${uid}',
-			'main.e2eeSocialSentCount' => ({required Object sent, required Object total}) => 'Envoyés à ${sent} sur ${total} dépositaires',
-			'main.e2eeSocialShardOf' => ({required Object idx, required Object total}) => 'Fragment ${idx} / ${total}',
-			'main.e2eeSocialUserShard' => ({required Object uid}) => 'Fragment de clé de ${uid}',
-			'main.e2eeTransferQRExpiry' => ({required Object time}) => 'QR code expire le ${time}',
-			'main.e2eeProxyMinCount' => ({required Object count}) => 'Au moins ${count} dépositaires',
-			'main.e2eeProxySelectedCount' => ({required Object selected, required Object total}) => '${selected} / ${total} choisis',
 			'main.liveRoomTitleLabel' => 'Titre du live',
 			'main.liveRoomTitleHint' => 'Titre du live',
 			'main.lightModel' => 'Mode clair',
@@ -4560,8 +4492,6 @@ extension on TranslationsFrFr {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Seuls #RRGGBB / #AARRGGBB sont pris en charge ; une valeur invalide retombe sur la couleur du thème par défaut',
 			'workspace.brandingColorInvalid' => 'Format de couleur principale invalide, seuls #RRGGBB / #AARRGGBB sont pris en charge',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingSaved' => 'Paramètres de marque enregistrés',
 			'workspace.brandingPreview' => 'Aperçu de la couleur principale',
 			'workspace.brandingPreviewApplied' => 'La couleur principale actuelle prendra effet dans l\'espace de travail',
@@ -4596,6 +4526,8 @@ extension on TranslationsFrFr {
 			'workspace.taskSubmitSave' => 'Enregistrer',
 			'workspace.taskCreatedToast' => 'Tâche créée',
 			'workspace.taskExistingToast' => 'Une tâche du même titre existe déjà, la tâche existante est utilisée directement',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => 'Tâche enregistrée',
 			'workspace.taskFilterAll' => 'Tout',
 			'workspace.taskStatusTodo' => 'À faire',

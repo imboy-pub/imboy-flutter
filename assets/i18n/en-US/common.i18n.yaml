@@ -616,7 +616,6 @@ orderDetailLoadFailed: Failed to load order details
 orderNoLabel(no): "Order No: $no"
 orderStatusCancelled: Cancelled
 orderStatusUnknown: Unknown
-removeReactionConfirm(emoji): Remove $emoji reaction?
 fileOpenFailed: Unable to open this file
 e2eeLocalBackup: Local Backup
 e2eeLocalBackupDesc: Export encrypted backup file locally or to cloud
@@ -653,8 +652,6 @@ e2eeGoBackup: Go Backup
 e2eeKeyGenerateFailed: "Key generation failed, please try again"
 e2eeKeyDeleted: Key deleted
 e2eeDeleteFailed: "Deletion failed, please try again"
-e2eeShardAvailableInfo(available, required): "Available shards: $available, need $required proxy helpers"
-e2eeContactingProxy(name): "Contacting: $name"
 webFeatureNotification: Desktop Notifications
 webFeatureNotificationDesc: Receive new message alerts even when you're away from the page
 webQRConfirmOnPhone: Please confirm login on your phone
@@ -730,8 +727,6 @@ e2eeBackupErrImportFailed: "Import failed, please check your password"
 e2eeBackupImportSuccessTitle: Import successful
 e2eeBackupImportSuccessBody: "E2EE key has been restored successfully!"
 e2eeBackupImportSuccessNote: "Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices"
-e2eeBackupDeviceLabel(id): Device $id
-e2eeBackupCreatedAtLabel(time): Created at $time
 e2eeBackupCreatedAtRow: Created at
 e2eeBackupCloudUploadBtn: Back up to cloud
 e2eeBackupCloudUploadSuccess(version): Backed up to cloud (version $version)
@@ -757,10 +752,6 @@ e2eeBackupErrUrlTls: Secure connection failed, unable to verify server certifica
 e2eeBackupErrUrlHttp: Server returned an error
 e2eeBackupErrUrlEmpty: Server returned empty content
 e2eeBackupErrUrlTooLarge: File too large (exceeds 10MB limit)
-e2eeSocialCreateNeedMore(count): Please add $count proxies first
-e2eeSocialTotalShardsInfo(count): Key has been split into $count shards
-e2eeSocialThresholdInfo(count): Need $count proxies to recover key
-e2eeTransferScanError(error): "Scan error: $error"
 passwordEncryptFailed: Password encryption failed
 initConfigTimeout: "Config fetch timed out: please check network or server status"
 initConfigNetworkError(code): Network or server error (HTTP $code)
@@ -771,10 +762,6 @@ saveFailedRetry: "Save failed, please try again"
 downloadFileNotFound: "Download file not found, please retry"
 downloadHashRetrying(retry, max): "File verification failed, re-downloading ($retry/$max)"
 downloadHashFailed: "File verification failed repeatedly, please check your network and retry"
-e2eeSocialMoreShards(count): $count more shards...
-e2eeProxyGetKeyFailed(name): Failed to get public key for $name
-e2eeProxyNeedMore(count, selected): Need at least $count trusted contacts — $selected selected
-e2eeProxyConfirmCount(count): Confirm Selection ($count proxies)
 buttonBackHome: Back to Home
 featureNotEnabled: This feature is not enabled
 featureDisabledName(name): $name is not enabled and temporarily unavailable
@@ -789,7 +776,6 @@ redPacketSend: Send Red Packet
 redPacketDetail: Red Packet Details
 transferSend: Send Transfer
 greetingDefault: Best wishes!
-grabAmountYuan(amount): "Grabbed: $amount CNY"
 transferAmountYuan(amount): "Transfer: $amount CNY"
 insufficientBalance: Insufficient Balance
 withdrawSuccess: Withdrawal Successful
