@@ -16,4 +16,4 @@
 | 无待办 | - | ``page/passport/signup_page.dart`` | 拦截账号或密码为空并提示 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/passport/signup_page.dart`` | 点击一键登录展示占位提示 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/passport/signup_page.dart`` | 跳转返回登录页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
-| 阻塞 | 需产生新账号且用户授权 | `page/passport/signup_page.dart` | 下一步发送验证码并跳验证页 | 未测 | - | 0 | 0 | 0 | 邮箱 / 手机两条链路；批次24续3 只看 UI 未提交 |
+| 无待办 | - | `page/passport/signup_page.dart` | 下一步发送验证码并跳验证页 | 已通过 | 批次119 | 0 | 0 | 0 | 批次119 解阻（app 791f70be+imboy 83a9aea5）：本地 sms.switch=off 修复后零外发注册链实测；发码经 API 触发（第三方 IntlPhoneNumberInput UI 输入自动化受限，见 task_state），验证码页内交互全 UI 真链；邮箱链因 local 配真实 SMTP 会真发信，按约束不测 |

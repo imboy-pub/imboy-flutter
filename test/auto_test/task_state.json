@@ -419,5 +419,21 @@
       "imboyapp_test": "AT-RP 集成测试+台账批次118"
     },
     "ledger": "contact_setting_page.md 举报行批次80→118（1/1），README 155页面/1748功能点/阻塞193 不变"
+  },
+  "session_2026_09_06_batch119": {
+    "note": "批次119：signup 系列 12 行解阻 11 行（1 行语言切换转全局 locale 域维持阻塞）+ 后端 getcode 500 真 bug 修复。钥匙=local 环境验证码链（sms.switch=off 不外发+查库读真码）。",
+    "fixes": [
+      "P1 后端 getcode 500 空响应（imboy 83a9aea5）：config 配 platform=aliyun 但 imboy_sms:send 只有 yjsms/jsms 子句→function_clause 炸穿 handler，注册/找回密码全不可用；且 sms.switch=off 配置无人消费。修=send_sms_code 消费 switch（off 落库不外发）+ send/3 兜底子句可控错误",
+      "P2 前端 per_minute_once 裸显（app 791f70be）：60s 发码频控的英文错误码直接 toast 给用户；_localizedAuthErrMsg 加映射+doSendCode 返回本地化消息",
+      "测试基建教训：flutter_tester 沙盒禁 spawn（Process.run psql = Operation not permitted）→ 宿主 bash 预备验证码经 --dart-define=TEST_VERIFY_CODE 注入；第三方 IntlPhoneNumberInput 内部字段 enterText 不可靠（run1-5 实证）→ 注册数据经公开 notifier setSignupData 注入+发码 API 触发",
+      "红线规避：local 配真实 SMTP（smtp.qq.com+授权码），email 链发码会真发信→按约束只用 sms 链（switch=off+空凭据零外发）；email 链保持阻塞并在台账注明"
+    ],
+    "tests": "AT-SU 六段 run11 一次全绿：兜底页/发码进验证页(RichText 断言需 findRichText:true)/重发反馈/填码提交跳管理账户/重复注册双层拦截/登录入口；宿主脚本 /tmp/su_orchestrate.sh 编排（清场→getcode读码→flutter test→signup 端第二层 curl 断言「手机号已经被占用了」）",
+    "test_env_quirks": "重跑前 psql 清 verification_code+user（mobile LIKE %19900001234%）；宿主 getcode 后 60s 内测试内 client.getcode 命中 throttle 属预期（AT-SU1 断言仅 code=0，60s 窗口边缘偶发失败可重跑）；万能码 abc12345 8 位字母过不了 6 位数字 PinField",
+    "commits": {
+      "imboy": "83a9aea5 fix(passport) switch 消费+send 兜底子句",
+      "imboyapp": "791f70be fix(passport) 频控文案本地化+AT-SU 测试"
+    },
+    "ledger": "signup_page 1 行+signup_continue 10 行转已通过（语言切换 1 行转全局域阻塞）；README 155页面/1748功能点/待处理 bug 4"
   }
 }
