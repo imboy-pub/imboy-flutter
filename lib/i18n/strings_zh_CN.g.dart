@@ -174,8 +174,8 @@ class Translations$account$zh_CN {
 	/// zh-CN: '数据留存说明'
 	String get logoutRetainedHeader => '数据留存说明';
 
-	/// zh-CN: '删除完成后：审计日志与财务记录依法留存并匿名化；您拥有的群/工作区/频道将优先转移给继任成员'
-	String get logoutRetainedNote => '删除完成后：审计日志与财务记录依法留存并匿名化；您拥有的群/工作区/频道将优先转移给继任成员';
+	/// zh-CN: '删除完成后：审计日志与财务记录依法留存并匿名化；你拥有的群/工作区/频道将优先转移给继任成员'
+	String get logoutRetainedNote => '删除完成后：审计日志与财务记录依法留存并匿名化；你拥有的群/工作区/频道将优先转移给继任成员';
 
 	/// zh-CN: '手机'
 	String get mobile => '手机';
@@ -1871,8 +1871,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '返回'
 	String get buttonBack => '返回';
 
-	/// zh-CN: '绑定手机号和邮箱，让您的账户更安全'
-	String get bindMobileAndEmailTips => '绑定手机号和邮箱，让您的账户更安全';
+	/// zh-CN: '绑定手机号和邮箱，让你的账户更安全'
+	String get bindMobileAndEmailTips => '绑定手机号和邮箱，让你的账户更安全';
 
 	/// zh-CN: '立即绑定'
 	String get bindNow => '立即绑定';
@@ -1985,8 +1985,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '发送失败'
 	String get chatStatusFailed => '发送失败';
 
-	/// zh-CN: '对方已将您加入黑名单'
-	String get chatErrorInDenylist => '对方已将您加入黑名单';
+	/// zh-CN: '对方已将你加入黑名单'
+	String get chatErrorInDenylist => '对方已将你加入黑名单';
 
 	/// zh-CN: '检查更新'
 	String get checkForUpdates => '检查更新';
@@ -2351,8 +2351,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '无更新说明'
 	String get noUpdateDescription => '无更新说明';
 
-	/// zh-CN: '您还没有授权获取经纬度'
-	String get notAuthorizedLatLong => '您还没有授权获取经纬度';
+	/// zh-CN: '你还没有授权获取经纬度'
+	String get notAuthorizedLatLong => '你还没有授权获取经纬度';
 
 	/// zh-CN: '未登录'
 	String get notLoggedIn => '未登录';
@@ -2366,8 +2366,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '未填写'
 	String get notFilled => '未填写';
 
-	/// zh-CN: '您没有安装任何地图APP哦'
-	String get notInstallAnyMapApp => '您没有安装任何地图APP哦';
+	/// zh-CN: '你没有安装任何地图APP哦'
+	String get notInstallAnyMapApp => '你没有安装任何地图APP哦';
 
 	/// zh-CN: '没有收到验证码？'
 	String get notReceiveCoeQ => '没有收到验证码？';
@@ -2375,8 +2375,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '未设置'
 	String get notSet => '未设置';
 
-	/// zh-CN: '您还没有打开位置信息服务'
-	String get notTurnedLocationService => '您还没有打开位置信息服务';
+	/// zh-CN: '你还没有打开位置信息服务'
+	String get notTurnedLocationService => '你还没有打开位置信息服务';
 
 	/// zh-CN: '未检测到新版本'
 	String get nowNewVersion => '未检测到新版本';
@@ -2783,8 +2783,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '已发送下线指令'
 	String get forceOfflineCommandSent => '已发送下线指令';
 
-	/// zh-CN: '您的建议是我们改进的动力'
-	String get feedbackSlogan => '您的建议是我们改进的动力';
+	/// zh-CN: '你的建议是我们改进的动力'
+	String get feedbackSlogan => '你的建议是我们改进的动力';
 
 	/// zh-CN: '新建反馈'
 	String get newFeedback => '新建反馈';
@@ -2807,11 +2807,11 @@ class Translations$common$zh_CN {
 	/// zh-CN: '为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。'
 	String get setPasswordSecurityTips => '为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。';
 
-	/// zh-CN: '已隐藏您的位置'
-	String get locationHidden => '已隐藏您的位置';
+	/// zh-CN: '已隐藏你的位置'
+	String get locationHidden => '已隐藏你的位置';
 
-	/// zh-CN: '已显示您的位置'
-	String get locationVisible => '已显示您的位置';
+	/// zh-CN: '已显示你的位置'
+	String get locationVisible => '已显示你的位置';
 
 	/// zh-CN: '暂无附近的人'
 	String get noNearbyPeople => '暂无附近的人';
@@ -2978,8 +2978,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '播放失败'
 	String get audioPlayFailed => '播放失败';
 
-	/// zh-CN: '您已被设备【$device】强制下线'
-	String forcedOfflineByDevice({required Object device}) => '您已被设备【${device}】强制下线';
+	/// zh-CN: '你已被设备【$device】强制下线'
+	String forcedOfflineByDevice({required Object device}) => '你已被设备【${device}】强制下线';
 
 	/// zh-CN: '加载标签数据失败'
 	String get loadingTagDataFailed => '加载标签数据失败';
@@ -3401,14 +3401,14 @@ class Translations$common$zh_CN {
 	/// zh-CN: '好友请求'
 	String get notificationFriendRequest => '好友请求';
 
-	/// zh-CN: '$requesterName 请求添加您为好友'
-	String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} 请求添加您为好友';
+	/// zh-CN: '$requesterName 请求添加你为好友'
+	String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} 请求添加你为好友';
 
 	/// zh-CN: '群邀请'
 	String get notificationGroupInvite => '群邀请';
 
-	/// zh-CN: '$inviterName 邀请您加入群组 $groupName'
-	String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} 邀请您加入群组 ${groupName}';
+	/// zh-CN: '$inviterName 邀请你加入群组 $groupName'
+	String notificationGroupInviteBody({required Object inviterName, required Object groupName}) => '${inviterName} 邀请你加入群组 ${groupName}';
 
 	/// zh-CN: '你撤回了一条消息'
 	String get youRevokedMessage => '你撤回了一条消息';
@@ -3440,8 +3440,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '暂无收藏内容，快去收藏一些有趣的消息吧'
 	String get noFavoritesYet => '暂无收藏内容，快去收藏一些有趣的消息吧';
 
-	/// zh-CN: '这是正文内容，您可以在这里看到不同字体大小的显示效果。'
-	String get fontPreviewText => '这是正文内容，您可以在这里看到不同字体大小的显示效果。';
+	/// zh-CN: '这是正文内容，你可以在这里看到不同字体大小的显示效果。'
+	String get fontPreviewText => '这是正文内容，你可以在这里看到不同字体大小的显示效果。';
 
 	/// zh-CN: '更小'
 	String get smaller => '更小';
@@ -3701,14 +3701,14 @@ class Translations$common$zh_CN {
 	/// zh-CN: '未检测到 E2EE 密钥'
 	String get e2eeNoKeyDetected => '未检测到 E2EE 密钥';
 
-	/// zh-CN: '您需要先生成密钥对或从备份中恢复'
-	String get e2eeNoKeyDesc => '您需要先生成密钥对或从备份中恢复';
+	/// zh-CN: '你需要先生成密钥对或从备份中恢复'
+	String get e2eeNoKeyDesc => '你需要先生成密钥对或从备份中恢复';
 
 	/// zh-CN: '关于端到端加密'
 	String get e2eeAboutTitle => '关于端到端加密';
 
-	/// zh-CN: '• 您的消息在发送前已加密，服务器无法查看内容'
-	String get e2eeInfoPoint1 => '• 您的消息在发送前已加密，服务器无法查看内容';
+	/// zh-CN: '• 你的消息在发送前已加密，服务器无法查看内容'
+	String get e2eeInfoPoint1 => '• 你的消息在发送前已加密，服务器无法查看内容';
 
 	/// zh-CN: '• 更换设备或删除密钥后，旧消息可能无法解密'
 	String get e2eeInfoPoint2 => '• 更换设备或删除密钥后，旧消息可能无法解密';
@@ -3830,8 +3830,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '此消息无法解密，可能原因是：'
 	String get e2eeDecryptFailedReasons => '此消息无法解密，可能原因是：';
 
-	/// zh-CN: '• 您在其他设备上登录'
-	String get e2eeDecryptReasonOtherDevice => '• 您在其他设备上登录';
+	/// zh-CN: '• 你在其他设备上登录'
+	String get e2eeDecryptReasonOtherDevice => '• 你在其他设备上登录';
 
 	/// zh-CN: '• 设备密钥已过期'
 	String get e2eeDecryptReasonKeyExpired => '• 设备密钥已过期';
@@ -3950,8 +3950,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '备份导出成功'
 	String get e2eeBackupExportSuccessTitle => '备份导出成功';
 
-	/// zh-CN: '您的 E2EE 密钥备份已成功生成。'
-	String get e2eeBackupExportSuccessBody => '您的 E2EE 密钥备份已成功生成。';
+	/// zh-CN: '你的 E2EE 密钥备份已成功生成。'
+	String get e2eeBackupExportSuccessBody => '你的 E2EE 密钥备份已成功生成。';
 
 	/// zh-CN: '重要提示：'
 	String get e2eeBackupImportantNoteColon => '重要提示：';
@@ -6751,7 +6751,7 @@ extension on Translations {
 			'account.logoutCancelRequest' => '撤销注销申请',
 			'account.logoutCancelledNote' => '注销申请已撤销',
 			'account.logoutRetainedHeader' => '数据留存说明',
-			'account.logoutRetainedNote' => '删除完成后：审计日志与财务记录依法留存并匿名化；您拥有的群/工作区/频道将优先转移给继任成员',
+			'account.logoutRetainedNote' => '删除完成后：审计日志与财务记录依法留存并匿名化；你拥有的群/工作区/频道将优先转移给继任成员',
 			'account.mobile' => '手机',
 			'account.mobileQuickLogin' => '一键登录',
 			'account.myAccount' => '我的账号',
@@ -7309,7 +7309,7 @@ extension on Translations {
 			'common.buttonAccomplish' => '完成',
 			'common.buttonAdd' => '添加',
 			'common.buttonBack' => '返回',
-			'common.bindMobileAndEmailTips' => '绑定手机号和邮箱，让您的账户更安全',
+			'common.bindMobileAndEmailTips' => '绑定手机号和邮箱，让你的账户更安全',
 			'common.bindNow' => '立即绑定',
 			'common.buttonCancel' => '取消',
 			'common.buttonCreate' => '创建',
@@ -7347,7 +7347,7 @@ extension on Translations {
 			'common.chatSettingUnpinnedSuccess' => '取消置顶',
 			'common.chatSettings' => '聊天设置',
 			'common.chatStatusFailed' => '发送失败',
-			'common.chatErrorInDenylist' => '对方已将您加入黑名单',
+			'common.chatErrorInDenylist' => '对方已将你加入黑名单',
 			'common.checkForUpdates' => '检查更新',
 			'common.clearAll' => '清除全部',
 			'common.clearChatRecord' => '清空聊天记录',
@@ -7469,15 +7469,15 @@ extension on Translations {
 			'common.noPermission' => '没有权限',
 			'common.noReply' => '暂无回复',
 			'common.noUpdateDescription' => '无更新说明',
-			'common.notAuthorizedLatLong' => '您还没有授权获取经纬度',
+			'common.notAuthorizedLatLong' => '你还没有授权获取经纬度',
 			'common.notLoggedIn' => '未登录',
 			'common.notBad' => '还不错',
 			'common.notBound' => '未绑定',
 			'common.notFilled' => '未填写',
-			'common.notInstallAnyMapApp' => '您没有安装任何地图APP哦',
+			'common.notInstallAnyMapApp' => '你没有安装任何地图APP哦',
 			'common.notReceiveCoeQ' => '没有收到验证码？',
 			'common.notSet' => '未设置',
-			'common.notTurnedLocationService' => '您还没有打开位置信息服务',
+			'common.notTurnedLocationService' => '你还没有打开位置信息服务',
 			'common.nowNewVersion' => '未检测到新版本',
 			'common.offlineNotification' => '下线通知',
 			'common.operationFailedAgainLater' => '操作失败，请稍后重试',
@@ -7611,7 +7611,7 @@ extension on Translations {
 			'common.forceDeviceOfflineConfirm' => '将向该设备发送下线指令，确认继续？',
 			'common.confirmForceOffline' => '确认下线',
 			'common.forceOfflineCommandSent' => '已发送下线指令',
-			'common.feedbackSlogan' => '您的建议是我们改进的动力',
+			'common.feedbackSlogan' => '你的建议是我们改进的动力',
 			'common.newFeedback' => '新建反馈',
 			'common.feedbackHistory' => '反馈历史',
 			'common.confirmDelete' => '确认删除',
@@ -7619,8 +7619,8 @@ extension on Translations {
 			'common.feedbackContent' => '反馈内容',
 			'common.officialReply' => '官方回复',
 			'common.setPasswordSecurityTips' => '为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。',
-			'common.locationHidden' => '已隐藏您的位置',
-			'common.locationVisible' => '已显示您的位置',
+			'common.locationHidden' => '已隐藏你的位置',
+			'common.locationVisible' => '已显示你的位置',
 			'common.noNearbyPeople' => '暂无附近的人',
 			'common.clickSearchButtonToFind' => '点击上方的搜索按钮查找附近的人',
 			'common.operationFailed' => _root.common.error,
@@ -7676,7 +7676,7 @@ extension on Translations {
 			'common.tagClearAllConfirm' => '确定要清空所有标签吗？',
 			'common.tagClearAll' => '确认清空',
 			'common.audioPlayFailed' => '播放失败',
-			'common.forcedOfflineByDevice' => ({required Object device}) => '您已被设备【${device}】强制下线',
+			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被设备【${device}】强制下线',
 			'common.loadingTagDataFailed' => '加载标签数据失败',
 			'common.pleaseEnterContent' => '请输入内容',
 			'common.comingSoon' => '敬请期待',
@@ -7819,9 +7819,9 @@ extension on Translations {
 			'common.noNewRegisteredUsers' => '当前没有新注册的用户 请稍后再来查看',
 			'common.newRegisteredUsersTip' => '这里显示最近注册的用户，你可以主动添加他们为好友',
 			'common.notificationFriendRequest' => '好友请求',
-			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} 请求添加您为好友',
+			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} 请求添加你为好友',
 			'common.notificationGroupInvite' => '群邀请',
-			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} 邀请您加入群组 ${groupName}',
+			'common.notificationGroupInviteBody' => ({required Object inviterName, required Object groupName}) => '${inviterName} 邀请你加入群组 ${groupName}',
 			'common.youRevokedMessage' => '你撤回了一条消息',
 			'common.otherRevokedMessage' => '对方撤回了一条消息',
 			'common.networkFailureTryAgain' => '网络故障，请重试！',
@@ -7832,7 +7832,7 @@ extension on Translations {
 			'common.lastSeenDaysAgo' => ({required num n}) => _root.common.timeDaysAgo(n: n),
 			'common.fontSettings' => _root.common.fontSizeSetting,
 			'common.noFavoritesYet' => '暂无收藏内容，快去收藏一些有趣的消息吧',
-			'common.fontPreviewText' => '这是正文内容，您可以在这里看到不同字体大小的显示效果。',
+			'common.fontPreviewText' => '这是正文内容，你可以在这里看到不同字体大小的显示效果。',
 			'common.smaller' => '更小',
 			'common.currentFontScale' => ({required Object param1, required Object param2}) => '当前：${param1} ${param2}%',
 			'common.groupAnnouncementExpiry' => ({required Object time}) => '有效期至: ${time}',
@@ -7919,9 +7919,9 @@ extension on Translations {
 			'common.e2eeCurrentKeyInfo' => '当前密钥信息',
 			'common.e2eeE2EEEnabled' => '端到端加密已启用',
 			'common.e2eeNoKeyDetected' => '未检测到 E2EE 密钥',
-			'common.e2eeNoKeyDesc' => '您需要先生成密钥对或从备份中恢复',
+			'common.e2eeNoKeyDesc' => '你需要先生成密钥对或从备份中恢复',
 			'common.e2eeAboutTitle' => '关于端到端加密',
-			'common.e2eeInfoPoint1' => '• 您的消息在发送前已加密，服务器无法查看内容',
+			'common.e2eeInfoPoint1' => '• 你的消息在发送前已加密，服务器无法查看内容',
 			'common.e2eeInfoPoint2' => '• 更换设备或删除密钥后，旧消息可能无法解密',
 			'common.e2eeInfoPoint3' => '• 请定期备份密钥以防数据丢失',
 			'common.e2eeExportBackup' => '导出备份',
@@ -7962,7 +7962,7 @@ extension on Translations {
 			'common.e2eeErrPeerNotOnboarded' => '对方还没有在任何设备上登录过，暂时无法加密发送；请等对方登录后再试',
 			'common.e2eeDecryptFailed' => '消息无法解密',
 			'common.e2eeDecryptFailedReasons' => '此消息无法解密，可能原因是：',
-			'common.e2eeDecryptReasonOtherDevice' => '• 您在其他设备上登录',
+			'common.e2eeDecryptReasonOtherDevice' => '• 你在其他设备上登录',
 			'common.e2eeDecryptReasonKeyExpired' => '• 设备密钥已过期',
 			'common.e2eeDecryptReasonDataCorrupt' => '• 应用数据损坏',
 			'common.e2eeDecryptChooseSolution' => '请选择解决方案：',
@@ -8002,7 +8002,7 @@ extension on Translations {
 			'common.e2eeBackupErrExportFailed' => '导出失败，请重试',
 			'common.e2eeBackupErrShareFailed' => '分享失败，请重试',
 			'common.e2eeBackupExportSuccessTitle' => '备份导出成功',
-			'common.e2eeBackupExportSuccessBody' => '您的 E2EE 密钥备份已成功生成。',
+			'common.e2eeBackupExportSuccessBody' => '你的 E2EE 密钥备份已成功生成。',
 			'common.e2eeBackupImportantNoteColon' => '重要提示：',
 			'common.e2eeBackupKeepSafe' => '• 请妥善保管备份文件和密码',
 			'common.e2eeBackupStoreMultipleLoc' => '• 建议将文件存储到多个安全位置',

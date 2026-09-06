@@ -172,9 +172,9 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get e2eeDeviceIdLabel => '裝置 ID';
 	@override String get webQRLoginTitle => '掃碼登入';
 	@override String get webQRLoginHint => '使用 ImBoy 手機版掃描二維碼';
-	@override String get webSwitchToPassword => '使用賬號密碼登入';
-	@override String get webPasswordLoginTitle => '賬號登入';
-	@override String get webAccountHint => '請輸入賬號/手機號/郵箱';
+	@override String get webSwitchToPassword => '使用帳號密碼登入';
+	@override String get webPasswordLoginTitle => '帳號登入';
+	@override String get webAccountHint => '請輸入帳號/手機號/郵箱';
 	@override String get webPasswordHint => '請輸入密碼';
 	@override String get pleaseRelogin => '請重新登入';
 	@override String get otherLoginMethods => '其他登入方式';
@@ -350,7 +350,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get updateRoleSuccess => '角色已變更';
 	@override String get updateRoleFailed => '角色更新失敗';
 	@override String get selectFromContacts => '從聯絡人選擇';
-	@override String get searchContactsHint => '搜尋暱稱或賬號';
+	@override String get searchContactsHint => '搜尋暱稱或帳號';
 	@override String get noContactsToAdd => '所有好友都已是管理員';
 	@override String get selectRole => '選擇角色';
 	@override String get noAdmins => '暫無管理員';
@@ -370,7 +370,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get subscribedAt => '訂閱於';
 	@override String get viewProfile => '查看資料';
 	@override String get inviteFromContacts => '邀請好友';
-	@override String get inviteSearchHint => '搜尋暱稱或賬號';
+	@override String get inviteSearchHint => '搜尋暱稱或帳號';
 	@override String get noContactsToInvite => '所有好友都已被邀請或已訂閱';
 	@override String get inviteSuccess => '邀請已傳送';
 	@override String get inviteFailed => '邀請傳送失敗';
@@ -562,7 +562,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get sureOpenTheFile => '確定要開啟檔案嗎？';
 	@override String get titleMessage => '訊息';
 	@override String get unpin => '取消置頂';
-	@override String get userData => '用家資料';
+	@override String get userData => '使用者資料';
 	@override String get video => '影片';
 	@override String get videoMessage => '[影片]';
 	@override String get viewAttachments => '瀏覽附件';
@@ -768,7 +768,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get deleteTagTips => '刪除標籤後，標籤中的聯絡人不會被刪除';
 	@override String get deleteThisDevice => '刪除該設備';
 	@override String get deleteThisDeviceTips => '刪除後，下次在該設備登入時需要進行安全驗證。';
-	@override String get denylistNoteDesc => '被封鎖的用家無法給您傳送訊息，也無法檢視您的動態。點擊用家可以檢視詳情。';
+	@override String get denylistNoteDesc => '被封鎖的使用者無法給您傳送訊息，也無法檢視您的動態。點擊使用者可以檢視詳情。';
 	@override String get denylistNoteTitle => '黑名單說明';
 	@override String get details => '詳情';
 	@override String get deviceDetails => '設備詳情';
@@ -982,8 +982,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get uploadSuccess => 'Upload successful';
 	@override String get uploadFailed => 'Upload failed';
 	@override String get userDataTips => '包含應用執行時必要的檔案，以及聊天訊息、好友關係等所有記錄資料。';
-	@override String get userDisabledOrDeleted => '用家被停用或已刪除';
-	@override String get userNotExist => '用家不存在';
+	@override String get userDisabledOrDeleted => '使用者被停用或已刪除';
+	@override String get userNotExist => '使用者不存在';
 	@override String get version => '軟體版本';
 	@override String get videoCall => '影片通話';
 	@override String get viewAllGroupMember => '檢視全部群組成員';
@@ -997,7 +997,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get warning => '警告：';
 	@override String get webpageLoading => '網頁載入中...';
 	@override String get yesterday => '昨日';
-	@override String get confirmRemoveFromDenylist => '確認將此用家移出黑名單？';
+	@override String get confirmRemoveFromDenylist => '確認將此使用者移出黑名單？';
 	@override String get buttonRemove => '移除';
 	@override String get removedFromDenylist => '已移出黑名單';
 	@override String get newEmailAddress => '新郵箱地址';
@@ -1044,11 +1044,11 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get privacySettings => '隱私設定';
 	@override String get searchSettings => '搜尋設定';
 	@override String get allowSearchByAccount => '允許通過帳號搜尋';
-	@override String get allowSearchByAccountDesc => '其他用家可以通過您的帳號找到您';
+	@override String get allowSearchByAccountDesc => '其他使用者可以通過您的帳號找到您';
 	@override String get allowAddByPhone => '允許通過手機號新增';
-	@override String get allowAddByPhoneDesc => '其他用家可以通過您的手機號新增您為好友';
+	@override String get allowAddByPhoneDesc => '其他使用者可以通過您的手機號新增您為好友';
 	@override String get allowAddByQR => '允許通過二維碼新增';
-	@override String get allowAddByQRDesc => '其他用家可以通過掃描您的二維碼新增您為好友';
+	@override String get allowAddByQRDesc => '其他使用者可以通過掃描您的二維碼新增您為好友';
 	@override String get statusSettings => '狀態設定';
 	@override String get showOnlineStatus => '顯示上線狀態';
 	@override String get showOnlineStatusDesc => '關閉後，好友看不到您的上線狀態和最後上線時間；訊息傳送不受影響';
@@ -1209,9 +1209,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get retryingSend => '正在重試傳送...';
 	@override String get quickReplyOk => '好';
 	@override String get quickReplyOkThanks => '好的，謝謝';
-	@override String get noDetailedInfo => '該用家還沒有設定個人簽名等詳細資訊';
-	@override String get noNewRegisteredUsers => '目前沒有新註冊的用家 請稍後再來檢視';
-	@override String get newRegisteredUsersTip => '這裡顯示最近註冊的用家，您可以主動新增他們為好友';
+	@override String get noDetailedInfo => '該使用者還沒有設定個人簽名等詳細資訊';
+	@override String get noNewRegisteredUsers => '目前沒有新註冊的使用者 請稍後再來檢視';
+	@override String get newRegisteredUsersTip => '這裡顯示最近註冊的使用者，您可以主動新增他們為好友';
 	@override String get notificationFriendRequest => '好友請求';
 	@override String notificationFriendRequestBody({required Object requesterName}) => '${requesterName} 請求新增您為好友';
 	@override String get notificationGroupInvite => '群邀請';
@@ -1349,7 +1349,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String webQRExpiresIn({required Object seconds}) => '${seconds} 秒後過期';
 	@override String get webQRStatusFailed => '登入失敗，請重試';
 	@override String get webQRStatusSuccess => '正在跳轉...';
-	@override String get webLoginEmptyError => '請輸入賬號和密碼';
+	@override String get webLoginEmptyError => '請輸入帳號和密碼';
 	@override String get webQRGenerateFailed => '生成二維碼失敗';
 	@override String get webQRTokenInvalid => '登入令牌無效';
 	@override String get e2eeErrNoRecipientKey => '無法獲取對方裝置金鑰，訊息未傳送';
@@ -1467,19 +1467,19 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get withdrawConfirm => '確認提現';
 	@override String get withdrawFeeNotice => '手續費與到帳時間以實際結算為準';
 	@override String get withdrawAmountError => '請輸入不低於0.01元的金額';
-	@override String get withdrawAccountEmpty => '請輸入提現賬號';
+	@override String get withdrawAccountEmpty => '請輸入提現帳號';
 	@override String get withdrawMethod => '提現方式';
 	@override String get withdrawAmountLabel => '提現金額';
 	@override String get withdrawAlipay => '支付寶';
 	@override String get withdrawWechat => 'WeChat';
 	@override String walletBalanceLabel({required Object balance}) => '錢包餘額 ￥${balance}';
-	@override String get withdrawAccountHintAlipay => '提現賬號（郵箱或手機號）';
-	@override String get withdrawAccountHintWechat => '提現賬號（微信號）';
+	@override String get withdrawAccountHintAlipay => '提現帳號（郵箱或手機號）';
+	@override String get withdrawAccountHintWechat => '提現帳號（微信號）';
 	@override String get withdrawAlipayFormatError => '請輸入正確的支付寶郵箱或手機號';
 	@override String get withdrawWechatFormatError => '請輸入正確的微信號（6-20位，字母開頭）';
 	@override String withdrawConfirmAmount({required Object amount}) => '提現金額：￥${amount}';
 	@override String withdrawConfirmMethod({required Object method}) => '提現方式：${method}';
-	@override String withdrawConfirmAccount({required Object account}) => '提現賬號：${account}';
+	@override String withdrawConfirmAccount({required Object account}) => '提現帳號：${account}';
 	@override String get showPassword => '顯示密碼';
 	@override String get hidePassword => '隱藏密碼';
 	@override String get turnOnFlashlight => '打開手電筒';
@@ -1638,11 +1638,11 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	// Translations
 	@override String get findNearbyPeople => '搜尋附近的人';
 	@override String get moment => '動態';
-	@override String get nearbyPeopleExplain => '附近的用家可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。\n您的電話號碼將會被隱藏。';
+	@override String get nearbyPeopleExplain => '附近的使用者可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。\n您的電話號碼將會被隱藏。';
 	@override String get peopleNearby => '附近的朋友';
 	@override String get scanResult => '掃描結果';
 	@override String get myChannels => '我的頻道';
-	@override String get otherUsersCanFindMe => '其他用家可以通過搜尋找到我';
+	@override String get otherUsersCanFindMe => '其他使用者可以通過搜尋找到我';
 	@override String get moments => '動態';
 	@override String get momentsWriteComment => '寫評論...';
 	@override String get momentsVisibility => '可見性';
@@ -2033,7 +2033,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get takePhoto => '拍攝照片';
 	@override String get deletingInProgressPleaseWait => '正在刪除中，請稍候...';
 	@override String get collecting => '加入收藏中...';
-	@override String get user => '用家';
+	@override String get user => '使用者';
 	@override String get recommended => '推薦';
 	@override String get larger => '放大';
 	@override String get fillIn => '填寫';
@@ -2565,9 +2565,9 @@ extension on TranslationsZhHant {
 			'account.e2eeDeviceIdLabel' => '裝置 ID',
 			'account.webQRLoginTitle' => '掃碼登入',
 			'account.webQRLoginHint' => '使用 ImBoy 手機版掃描二維碼',
-			'account.webSwitchToPassword' => '使用賬號密碼登入',
-			'account.webPasswordLoginTitle' => '賬號登入',
-			'account.webAccountHint' => '請輸入賬號/手機號/郵箱',
+			'account.webSwitchToPassword' => '使用帳號密碼登入',
+			'account.webPasswordLoginTitle' => '帳號登入',
+			'account.webAccountHint' => '請輸入帳號/手機號/郵箱',
 			'account.webPasswordHint' => '請輸入密碼',
 			'account.pleaseRelogin' => '請重新登入',
 			'account.otherLoginMethods' => '其他登入方式',
@@ -2715,7 +2715,7 @@ extension on TranslationsZhHant {
 			'channel.updateRoleSuccess' => '角色已變更',
 			'channel.updateRoleFailed' => '角色更新失敗',
 			'channel.selectFromContacts' => '從聯絡人選擇',
-			'channel.searchContactsHint' => '搜尋暱稱或賬號',
+			'channel.searchContactsHint' => '搜尋暱稱或帳號',
 			'channel.noContactsToAdd' => '所有好友都已是管理員',
 			'channel.selectRole' => '選擇角色',
 			'channel.noAdmins' => '暫無管理員',
@@ -2735,7 +2735,7 @@ extension on TranslationsZhHant {
 			'channel.subscribedAt' => '訂閱於',
 			'channel.viewProfile' => '查看資料',
 			'channel.inviteFromContacts' => '邀請好友',
-			'channel.inviteSearchHint' => '搜尋暱稱或賬號',
+			'channel.inviteSearchHint' => '搜尋暱稱或帳號',
 			'channel.noContactsToInvite' => '所有好友都已被邀請或已訂閱',
 			'channel.inviteSuccess' => '邀請已傳送',
 			'channel.inviteFailed' => '邀請傳送失敗',
@@ -2918,7 +2918,7 @@ extension on TranslationsZhHant {
 			'chat.sureOpenTheFile' => '確定要開啟檔案嗎？',
 			'chat.titleMessage' => '訊息',
 			'chat.unpin' => '取消置頂',
-			'chat.userData' => '用家資料',
+			'chat.userData' => '使用者資料',
 			'chat.video' => '影片',
 			'chat.videoMessage' => '[影片]',
 			'chat.viewAttachments' => '瀏覽附件',
@@ -3117,7 +3117,7 @@ extension on TranslationsZhHant {
 			'common.deleteTagTips' => '刪除標籤後，標籤中的聯絡人不會被刪除',
 			'common.deleteThisDevice' => '刪除該設備',
 			'common.deleteThisDeviceTips' => '刪除後，下次在該設備登入時需要進行安全驗證。',
-			'common.denylistNoteDesc' => '被封鎖的用家無法給您傳送訊息，也無法檢視您的動態。點擊用家可以檢視詳情。',
+			'common.denylistNoteDesc' => '被封鎖的使用者無法給您傳送訊息，也無法檢視您的動態。點擊使用者可以檢視詳情。',
 			'common.denylistNoteTitle' => '黑名單說明',
 			'common.details' => '詳情',
 			'common.deviceDetails' => '設備詳情',
@@ -3325,8 +3325,8 @@ extension on TranslationsZhHant {
 			'common.uploadSuccess' => 'Upload successful',
 			'common.uploadFailed' => 'Upload failed',
 			'common.userDataTips' => '包含應用執行時必要的檔案，以及聊天訊息、好友關係等所有記錄資料。',
-			'common.userDisabledOrDeleted' => '用家被停用或已刪除',
-			'common.userNotExist' => '用家不存在',
+			'common.userDisabledOrDeleted' => '使用者被停用或已刪除',
+			'common.userNotExist' => '使用者不存在',
 			'common.version' => '軟體版本',
 			'common.videoCall' => '影片通話',
 			'common.viewAllGroupMember' => '檢視全部群組成員',
@@ -3340,7 +3340,7 @@ extension on TranslationsZhHant {
 			'common.warning' => '警告：',
 			'common.webpageLoading' => '網頁載入中...',
 			'common.yesterday' => '昨日',
-			'common.confirmRemoveFromDenylist' => '確認將此用家移出黑名單？',
+			'common.confirmRemoveFromDenylist' => '確認將此使用者移出黑名單？',
 			'common.buttonRemove' => '移除',
 			'common.removedFromDenylist' => '已移出黑名單',
 			'common.newEmailAddress' => '新郵箱地址',
@@ -3387,11 +3387,11 @@ extension on TranslationsZhHant {
 			'common.privacySettings' => '隱私設定',
 			'common.searchSettings' => '搜尋設定',
 			'common.allowSearchByAccount' => '允許通過帳號搜尋',
-			'common.allowSearchByAccountDesc' => '其他用家可以通過您的帳號找到您',
+			'common.allowSearchByAccountDesc' => '其他使用者可以通過您的帳號找到您',
 			'common.allowAddByPhone' => '允許通過手機號新增',
-			'common.allowAddByPhoneDesc' => '其他用家可以通過您的手機號新增您為好友',
+			'common.allowAddByPhoneDesc' => '其他使用者可以通過您的手機號新增您為好友',
 			'common.allowAddByQR' => '允許通過二維碼新增',
-			'common.allowAddByQRDesc' => '其他用家可以通過掃描您的二維碼新增您為好友',
+			'common.allowAddByQRDesc' => '其他使用者可以通過掃描您的二維碼新增您為好友',
 			'common.statusSettings' => '狀態設定',
 			'common.showOnlineStatus' => '顯示上線狀態',
 			'common.showOnlineStatusDesc' => '關閉後，好友看不到您的上線狀態和最後上線時間；訊息傳送不受影響',
@@ -3554,9 +3554,9 @@ extension on TranslationsZhHant {
 			'common.retryingSend' => '正在重試傳送...',
 			'common.quickReplyOk' => '好',
 			'common.quickReplyOkThanks' => '好的，謝謝',
-			'common.noDetailedInfo' => '該用家還沒有設定個人簽名等詳細資訊',
-			'common.noNewRegisteredUsers' => '目前沒有新註冊的用家 請稍後再來檢視',
-			'common.newRegisteredUsersTip' => '這裡顯示最近註冊的用家，您可以主動新增他們為好友',
+			'common.noDetailedInfo' => '該使用者還沒有設定個人簽名等詳細資訊',
+			'common.noNewRegisteredUsers' => '目前沒有新註冊的使用者 請稍後再來檢視',
+			'common.newRegisteredUsersTip' => '這裡顯示最近註冊的使用者，您可以主動新增他們為好友',
 			'common.notificationFriendRequest' => '好友請求',
 			'common.notificationFriendRequestBody' => ({required Object requesterName}) => '${requesterName} 請求新增您為好友',
 			'common.notificationGroupInvite' => '群邀請',
@@ -3694,7 +3694,7 @@ extension on TranslationsZhHant {
 			'common.webQRExpiresIn' => ({required Object seconds}) => '${seconds} 秒後過期',
 			'common.webQRStatusFailed' => '登入失敗，請重試',
 			'common.webQRStatusSuccess' => '正在跳轉...',
-			'common.webLoginEmptyError' => '請輸入賬號和密碼',
+			'common.webLoginEmptyError' => '請輸入帳號和密碼',
 			'common.webQRGenerateFailed' => '生成二維碼失敗',
 			'common.webQRTokenInvalid' => '登入令牌無效',
 			'common.e2eeErrNoRecipientKey' => '無法獲取對方裝置金鑰，訊息未傳送',
@@ -3812,19 +3812,19 @@ extension on TranslationsZhHant {
 			'common.withdrawConfirm' => '確認提現',
 			'common.withdrawFeeNotice' => '手續費與到帳時間以實際結算為準',
 			'common.withdrawAmountError' => '請輸入不低於0.01元的金額',
-			'common.withdrawAccountEmpty' => '請輸入提現賬號',
+			'common.withdrawAccountEmpty' => '請輸入提現帳號',
 			'common.withdrawMethod' => '提現方式',
 			'common.withdrawAmountLabel' => '提現金額',
 			'common.withdrawAlipay' => '支付寶',
 			'common.withdrawWechat' => 'WeChat',
 			'common.walletBalanceLabel' => ({required Object balance}) => '錢包餘額 ￥${balance}',
-			'common.withdrawAccountHintAlipay' => '提現賬號（郵箱或手機號）',
-			'common.withdrawAccountHintWechat' => '提現賬號（微信號）',
+			'common.withdrawAccountHintAlipay' => '提現帳號（郵箱或手機號）',
+			'common.withdrawAccountHintWechat' => '提現帳號（微信號）',
 			'common.withdrawAlipayFormatError' => '請輸入正確的支付寶郵箱或手機號',
 			'common.withdrawWechatFormatError' => '請輸入正確的微信號（6-20位，字母開頭）',
 			'common.withdrawConfirmAmount' => ({required Object amount}) => '提現金額：￥${amount}',
 			'common.withdrawConfirmMethod' => ({required Object method}) => '提現方式：${method}',
-			'common.withdrawConfirmAccount' => ({required Object account}) => '提現賬號：${account}',
+			'common.withdrawConfirmAccount' => ({required Object account}) => '提現帳號：${account}',
 			'common.showPassword' => '顯示密碼',
 			'common.hidePassword' => '隱藏密碼',
 			'common.turnOnFlashlight' => '打開手電筒',
@@ -3947,11 +3947,11 @@ extension on TranslationsZhHant {
 			'contact.tagInputHint' => '輸入標籤...',
 			'discovery.findNearbyPeople' => '搜尋附近的人',
 			'discovery.moment' => '動態',
-			'discovery.nearbyPeopleExplain' => '附近的用家可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。\n您的電話號碼將會被隱藏。',
+			'discovery.nearbyPeopleExplain' => '附近的使用者可以檢視您的個人資料並給您發送訊息。這可能會幫助您找到新朋友，但也可能會引起過多的關注。您可以隨時停止分享您的個人資料。\n您的電話號碼將會被隱藏。',
 			'discovery.peopleNearby' => '附近的朋友',
 			'discovery.scanResult' => '掃描結果',
 			'discovery.myChannels' => '我的頻道',
-			'discovery.otherUsersCanFindMe' => '其他用家可以通過搜尋找到我',
+			'discovery.otherUsersCanFindMe' => '其他使用者可以通過搜尋找到我',
 			'discovery.moments' => '動態',
 			'discovery.momentsWriteComment' => '寫評論...',
 			'discovery.momentsVisibility' => '可見性',
@@ -4254,7 +4254,7 @@ extension on TranslationsZhHant {
 			'main.takePhoto' => '拍攝照片',
 			'main.deletingInProgressPleaseWait' => '正在刪除中，請稍候...',
 			'main.collecting' => '加入收藏中...',
-			'main.user' => '用家',
+			'main.user' => '使用者',
 			'main.recommended' => '推薦',
 			'main.larger' => '放大',
 			'main.fillIn' => '填寫',

@@ -92,7 +92,7 @@ changeRole: 變更角色
 updateRoleSuccess: 角色已變更
 updateRoleFailed: 角色更新失敗
 selectFromContacts: 從聯絡人選擇
-searchContactsHint: 搜尋暱稱或賬號
+searchContactsHint: 搜尋暱稱或帳號
 noContactsToAdd: 所有好友都已是管理員
 selectRole: 選擇角色
 noAdmins: 暫無管理員
@@ -112,7 +112,7 @@ removeSubscriberFailed: 移除訂閱者失敗
 subscribedAt: 訂閱於
 viewProfile: 查看資料
 inviteFromContacts: 邀請好友
-inviteSearchHint: 搜尋暱稱或賬號
+inviteSearchHint: 搜尋暱稱或帳號
 noContactsToInvite: 所有好友都已被邀請或已訂閱
 inviteSuccess: 邀請已傳送
 inviteFailed: 邀請傳送失敗

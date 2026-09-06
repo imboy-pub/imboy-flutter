@@ -94,9 +94,9 @@ payCancelled: 付款已取消
 e2eeDeviceIdLabel: 裝置 ID
 webQRLoginTitle: 掃碼登入
 webQRLoginHint: 使用 ImBoy 手機版掃描二維碼
-webSwitchToPassword: 使用賬號密碼登入
-webPasswordLoginTitle: 賬號登入
-webAccountHint: 請輸入賬號/手機號/郵箱
+webSwitchToPassword: 使用帳號密碼登入
+webPasswordLoginTitle: 帳號登入
+webAccountHint: 請輸入帳號/手機號/郵箱
 webPasswordHint: 請輸入密碼
 pleaseRelogin: 請重新登入
 otherLoginMethods: "其他登入方式"

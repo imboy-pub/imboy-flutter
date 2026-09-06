@@ -26,7 +26,7 @@ awaitingVerification: 等待验证
 buttonAccomplish: 完成
 buttonAdd: 添加
 buttonBack: 返回
-bindMobileAndEmailTips: 绑定手机号和邮箱，让您的账户更安全
+bindMobileAndEmailTips: 绑定手机号和邮箱，让你的账户更安全
 bindNow: 立即绑定
 buttonCancel: 取消
 buttonCreate: 创建
@@ -64,7 +64,7 @@ chatSettingPinnedSuccess: 置顶成功
 chatSettingUnpinnedSuccess: 取消置顶
 chatSettings: 聊天设置
 chatStatusFailed: 发送失败
-chatErrorInDenylist: 对方已将您加入黑名单
+chatErrorInDenylist: 对方已将你加入黑名单
 checkForUpdates: 检查更新
 clearAll: 清除全部
 clearChatRecord: 清空聊天记录
@@ -186,15 +186,15 @@ noNewFriends: 没有新的好友
 noPermission: 没有权限
 noReply: 暂无回复
 noUpdateDescription: 无更新说明
-notAuthorizedLatLong: 您还没有授权获取经纬度
+notAuthorizedLatLong: 你还没有授权获取经纬度
 notLoggedIn: 未登录
 notBad: 还不错
 notBound: 未绑定
 notFilled: 未填写
-notInstallAnyMapApp: 您没有安装任何地图APP哦
+notInstallAnyMapApp: 你没有安装任何地图APP哦
 notReceiveCoeQ: 没有收到验证码？
 notSet: 未设置
-notTurnedLocationService: 您还没有打开位置信息服务
+notTurnedLocationService: 你还没有打开位置信息服务
 nowNewVersion: 未检测到新版本
 offlineNotification: 下线通知
 operationFailedAgainLater: 操作失败，请稍后重试
@@ -331,7 +331,7 @@ forceDeviceOffline: 让该设备下线
 forceDeviceOfflineConfirm: 将向该设备发送下线指令，确认继续？
 confirmForceOffline: 确认下线
 forceOfflineCommandSent: 已发送下线指令
-feedbackSlogan: 您的建议是我们改进的动力
+feedbackSlogan: 你的建议是我们改进的动力
 newFeedback: 新建反馈
 feedbackHistory: 反馈历史
 confirmDelete: 确认删除
@@ -339,8 +339,8 @@ verificationCode: 验证码
 feedbackContent: 反馈内容
 officialReply: 官方回复
 setPasswordSecurityTips: 为了提升账号安全，同时防止因无法获取验证码导致无法登录，请设置登录密码。
-locationHidden: 已隐藏您的位置
-locationVisible: 已显示您的位置
+locationHidden: 已隐藏你的位置
+locationVisible: 已显示你的位置
 noNearbyPeople: 暂无附近的人
 clickSearchButtonToFind: 点击上方的搜索按钮查找附近的人
 operationFailed: "@:common.error"
@@ -396,7 +396,7 @@ profileShareProfile: 分享资料
 tagClearAllConfirm: 确定要清空所有标签吗？
 tagClearAll: 确认清空
 audioPlayFailed: 播放失败
-forcedOfflineByDevice: 您已被设备【$device】强制下线
+forcedOfflineByDevice: 你已被设备【$device】强制下线
 loadingTagDataFailed: 加载标签数据失败
 pleaseEnterContent: 请输入内容
 comingSoon: 敬请期待
@@ -538,9 +538,9 @@ noNewRegisteredUsers: "当前没有新注册的用户
 请稍后再来查看"
 newRegisteredUsersTip: 这里显示最近注册的用户，你可以主动添加他们为好友
 notificationFriendRequest: 好友请求
-notificationFriendRequestBody(requesterName): $requesterName 请求添加您为好友
+notificationFriendRequestBody(requesterName): $requesterName 请求添加你为好友
 notificationGroupInvite: 群邀请
-notificationGroupInviteBody(inviterName, groupName): $inviterName 邀请您加入群组 $groupName
+notificationGroupInviteBody(inviterName, groupName): $inviterName 邀请你加入群组 $groupName
 youRevokedMessage: 你撤回了一条消息
 otherRevokedMessage: 对方撤回了一条消息
 networkFailureTryAgain: 网络故障，请重试！
@@ -551,7 +551,7 @@ lastSeenHoursAgo: "@:common.timeHoursAgo"
 lastSeenDaysAgo: "@:common.timeDaysAgo"
 fontSettings: "@:common.fontSizeSetting"
 noFavoritesYet: 暂无收藏内容，快去收藏一些有趣的消息吧
-fontPreviewText: 这是正文内容，您可以在这里看到不同字体大小的显示效果。
+fontPreviewText: 这是正文内容，你可以在这里看到不同字体大小的显示效果。
 smaller: 更小
 currentFontScale: "当前：$param1 $param2%"
 groupAnnouncementExpiry(time): "有效期至: $time"
@@ -638,9 +638,9 @@ e2eeDeleteKeyDesc: 删除本地存储的密钥（无法恢复）
 e2eeCurrentKeyInfo: 当前密钥信息
 e2eeE2EEEnabled: 端到端加密已启用
 e2eeNoKeyDetected: 未检测到 E2EE 密钥
-e2eeNoKeyDesc: 您需要先生成密钥对或从备份中恢复
+e2eeNoKeyDesc: 你需要先生成密钥对或从备份中恢复
 e2eeAboutTitle: 关于端到端加密
-e2eeInfoPoint1: • 您的消息在发送前已加密，服务器无法查看内容
+e2eeInfoPoint1: • 你的消息在发送前已加密，服务器无法查看内容
 e2eeInfoPoint2: • 更换设备或删除密钥后，旧消息可能无法解密
 e2eeInfoPoint3: • 请定期备份密钥以防数据丢失
 e2eeExportBackup: 导出备份
@@ -681,7 +681,7 @@ e2eeErrNoRecipientKey: 无法获取对方设备密钥，消息未发送
 e2eeErrPeerNotOnboarded: 对方还没有在任何设备上登录过，暂时无法加密发送；请等对方登录后再试
 e2eeDecryptFailed: 消息无法解密
 e2eeDecryptFailedReasons: 此消息无法解密，可能原因是：
-e2eeDecryptReasonOtherDevice: • 您在其他设备上登录
+e2eeDecryptReasonOtherDevice: • 你在其他设备上登录
 e2eeDecryptReasonKeyExpired: • 设备密钥已过期
 e2eeDecryptReasonDataCorrupt: • 应用数据损坏
 e2eeDecryptChooseSolution: 请选择解决方案：
@@ -721,7 +721,7 @@ e2eeBackupErrNoKeyData: 无法获取密钥数据
 e2eeBackupErrExportFailed: 导出失败，请重试
 e2eeBackupErrShareFailed: 分享失败，请重试
 e2eeBackupExportSuccessTitle: 备份导出成功
-e2eeBackupExportSuccessBody: 您的 E2EE 密钥备份已成功生成。
+e2eeBackupExportSuccessBody: 你的 E2EE 密钥备份已成功生成。
 e2eeBackupImportantNoteColon: 重要提示：
 e2eeBackupKeepSafe: • 请妥善保管备份文件和密码
 e2eeBackupStoreMultipleLoc: • 建议将文件存储到多个安全位置

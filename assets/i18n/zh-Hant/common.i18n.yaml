@@ -84,7 +84,7 @@ deleteForMe: 刪除我的訊息
 deleteTagTips: 刪除標籤後，標籤中的聯絡人不會被刪除
 deleteThisDevice: 刪除該設備
 deleteThisDeviceTips: 刪除後，下次在該設備登入時需要進行安全驗證。
-denylistNoteDesc: 被封鎖的用家無法給您傳送訊息，也無法檢視您的動態。點擊用家可以檢視詳情。
+denylistNoteDesc: 被封鎖的使用者無法給您傳送訊息，也無法檢視您的動態。點擊使用者可以檢視詳情。
 denylistNoteTitle: 黑名單說明
 details: 詳情
 deviceDetails: 設備詳情
@@ -295,8 +295,8 @@ uploading: Uploading
 uploadSuccess: Upload successful
 uploadFailed: Upload failed
 userDataTips: 包含應用執行時必要的檔案，以及聊天訊息、好友關係等所有記錄資料。
-userDisabledOrDeleted: 用家被停用或已刪除
-userNotExist: 用家不存在
+userDisabledOrDeleted: 使用者被停用或已刪除
+userNotExist: 使用者不存在
 version: 軟體版本
 videoCall: 影片通話
 viewAllGroupMember: 檢視全部群組成員
@@ -310,7 +310,7 @@ waitingPeerAccept: 等待對方接受邀請...
 warning: 警告：
 webpageLoading: 網頁載入中...
 yesterday: 昨日
-confirmRemoveFromDenylist: 確認將此用家移出黑名單？
+confirmRemoveFromDenylist: 確認將此使用者移出黑名單？
 buttonRemove: 移除
 removedFromDenylist: 已移出黑名單
 newEmailAddress: 新郵箱地址
@@ -357,11 +357,11 @@ privacyLogoutAccountConfirm: 確定要註銷帳號嗎？此操作將永久刪除
 privacySettings: 隱私設定
 searchSettings: 搜尋設定
 allowSearchByAccount: 允許通過帳號搜尋
-allowSearchByAccountDesc: 其他用家可以通過您的帳號找到您
+allowSearchByAccountDesc: 其他使用者可以通過您的帳號找到您
 allowAddByPhone: 允許通過手機號新增
-allowAddByPhoneDesc: 其他用家可以通過您的手機號新增您為好友
+allowAddByPhoneDesc: 其他使用者可以通過您的手機號新增您為好友
 allowAddByQR: 允許通過二維碼新增
-allowAddByQRDesc: 其他用家可以通過掃描您的二維碼新增您為好友
+allowAddByQRDesc: 其他使用者可以通過掃描您的二維碼新增您為好友
 statusSettings: 狀態設定
 showOnlineStatus: 顯示上線狀態
 showOnlineStatusDesc: 關閉後，好友看不到您的上線狀態和最後上線時間；訊息傳送不受影響
@@ -522,9 +522,9 @@ permissionOnlySupportAndroidAndIos: Permission 只支援 Android 和 iOS
 retryingSend: 正在重試傳送...
 quickReplyOk: 好
 quickReplyOkThanks: 好的，謝謝
-noDetailedInfo: 該用家還沒有設定個人簽名等詳細資訊
-noNewRegisteredUsers: 目前沒有新註冊的用家 請稍後再來檢視
-newRegisteredUsersTip: 這裡顯示最近註冊的用家，您可以主動新增他們為好友
+noDetailedInfo: 該使用者還沒有設定個人簽名等詳細資訊
+noNewRegisteredUsers: 目前沒有新註冊的使用者 請稍後再來檢視
+newRegisteredUsersTip: 這裡顯示最近註冊的使用者，您可以主動新增他們為好友
 notificationFriendRequest: 好友請求
 notificationFriendRequestBody(requesterName): $requesterName 請求新增您為好友
 notificationGroupInvite: 群邀請
@@ -662,7 +662,7 @@ webQRLoginSuccess: 登入成功
 webQRExpiresIn(seconds): $seconds 秒後過期
 webQRStatusFailed: 登入失敗，請重試
 webQRStatusSuccess: 正在跳轉...
-webLoginEmptyError: 請輸入賬號和密碼
+webLoginEmptyError: 請輸入帳號和密碼
 webQRGenerateFailed: 生成二維碼失敗
 webQRTokenInvalid: 登入令牌無效
 e2eeErrNoRecipientKey: 無法獲取對方裝置金鑰，訊息未傳送
@@ -780,19 +780,19 @@ withdrawSuccess: 提現成功
 withdrawConfirm: 確認提現
 withdrawFeeNotice: 手續費與到帳時間以實際結算為準
 withdrawAmountError: 請輸入不低於0.01元的金額
-withdrawAccountEmpty: 請輸入提現賬號
+withdrawAccountEmpty: 請輸入提現帳號
 withdrawMethod: 提現方式
 withdrawAmountLabel: 提現金額
 withdrawAlipay: 支付寶
 withdrawWechat: WeChat
 walletBalanceLabel(balance): "錢包餘額 ￥$balance"
-withdrawAccountHintAlipay: 提現賬號（郵箱或手機號）
-withdrawAccountHintWechat: 提現賬號（微信號）
+withdrawAccountHintAlipay: 提現帳號（郵箱或手機號）
+withdrawAccountHintWechat: 提現帳號（微信號）
 withdrawAlipayFormatError: 請輸入正確的支付寶郵箱或手機號
 withdrawWechatFormatError: 請輸入正確的微信號（6-20位，字母開頭）
 withdrawConfirmAmount(amount): "提現金額：￥$amount"
 withdrawConfirmMethod(method): "提現方式：$method"
-withdrawConfirmAccount(account): "提現賬號：$account"
+withdrawConfirmAccount(account): "提現帳號：$account"
 showPassword: 顯示密碼
 hidePassword: 隱藏密碼
 turnOnFlashlight: 打開手電筒
