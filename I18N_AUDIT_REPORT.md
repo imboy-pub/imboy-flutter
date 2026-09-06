@@ -261,6 +261,106 @@ apply：10 locale 共删 6687 行（含级联父键），各 locale -666~-670 �
   幽灵键类别自此免疫
 ```
 
+## 8.6 P17 终验复验（2026-09-06，HEAD=eaf5e700）
+
+母语审核结果未到位前提下的机器侧全门复验（基线漂移检查 + Gate 1-3 复跑）：
+
+```text
+Gate 1 自动门:  PASS（复验零漂移）
+  I18N_AUDIT_STRICT=1 ruby i18n_audit.rb check → RESULT: PASS (strict)，EXIT=0
+  10 locale 全部 keys=2158、missing=0、extra=0、placeholder=0、duplicate=0、
+  illegal_alias=0、empty=0、dynamic access risk=0 —— 与 §2 After 终态一致，零漂移
+  same_as_base 抽查（ar-SA=30）：全部为 @: alias 结构等价 / 技术值（https://...、
+  #2474E5）/ 英文角色词（Owner/Member/Guest），无未翻译泄露
+  工具链回归: i18n_audit_test.rb 9/9、i18n_key_prune.rb selftest 4/4
+  slang 同步: dart run slang 重生成仅时间戳行差异（07:17→23:43 UTC），
+  已手工复原字节原状——生成物与 YAML 完全同步
+  unused candidate=54：维持 §8.5.1 遗留口径（并行新代码产生，未授权处置）
+Gate 2 术语:   PASS*（I18N_TERMINOLOGY.md 基线在库；*未经母语确认，维持 §8 口径）
+Gate 3 UI/RTL: PASS（flutter test UI Gate + RTL 55/55 All tests passed!;
+  真机走查证据 8 截图在 .claude/reports/i18n-walkthrough-2026-09-05/，维持 §7.4）
+Gate 4 母语审核: BLOCKED_NO_REVIEWER
+  I18N_NATIVE_REVIEW_PACKAGE.md 总览表 8 语言（ar/de/fr/it/ja/ko/ru/zh-Hant）
+  审核人/结论/日期全部空白——无任何 APPROVED / CHANGES_REQUESTED 填写
+
+Final Decision: NO-GO（唯一原因 = Gate 4；Gate 1-3 复验全 PASS）
+解锁路径: 8 位母语审核人按审核包口径填写结论 → 全 APPROVED 可转 GO；
+  任一 CHANGES_REQUESTED 须修复译文并复审后闭环。
+```
+
+## 8.7 P17 期间缺陷发现与 Round-2 档案（2026-09-06 追加）
+
+复验 unused 候选（§8.6 遗留的 54 个）时发现**两个工具级缺陷**，均已闭环：
+
+### 缺陷一：上轮 P4 执行参数键静默漏删（~37 键）
+
+**现象**：717 批准清单中 703 键获准删除，但 3f5ff07a 实删约 666 键（zh-CN −682 行）；
+2789 − 665 = 2124 与"删后终态"吻合——差值 37 即被漏删的参数形态键。
+
+**实证**：`git show 3f5ff07a -- assets/i18n/zh-CN/chat.i18n.yaml` 中普通键
+`e2eeReady: 准备就绪` 有删除行，而 `e2eeReadyWithShards(count): ...` 无任何改动；
+当日 apply 的行级匹配无法命中 `name(param):` 形态，删后"逐键实测消失"校验存在同源盲区，
+37 键假阴性通过。**当时 reported keys=2124 实为漏删产物，非用户批准语义下的终态。**
+
+**现状**：34 个参数形态漏删键 + 1 个普通形态键（collectedVideoFormatIncorrect…，删除后遭并行
+会话回填、其功能代码尚未落地）今日仍在树上，合计 35 键，全部零引用（见下）。
+
+### 缺陷二：审计器 `tr.` 别名访问器盲区（本轮已修复）
+
+**现象**：`final tr = translations ?? t` 可注入翻译模式下 `tr.discovery.momentLikedBy(...)` 等
+引用不被 `\bt\.` 扫描命中，导致 3 个在用键被误标 unused：
+`discovery.momentLikedBy` / `discovery.momentAndOthersLiked` / `discovery.momentLikesCountOnly`
+（moment_interactions.dart:842-851，全仓 `tr.` 引用共 4 处）。该盲区同样污染了原始 717 档案
+——此 3 键当时即为假候选（2 个参数形态受缺陷一"保护"未被删，1 个普通形态删后由并行线回填，
+殊途同归未造成破坏）。**全量测试通过存在运气成分，方法学上不可复用。**
+
+**修复**：`i18n_audit.rb` scan_refs 增加 `\btr\.` 扫描（保守方向：宁可多算 used）；
+回归测试 9/9 → **10/10**（新增 `alias_accessor_tr_counts_as_reference`）。
+修复后真实仓 candidate 54 → **51**（3 个在用键正确出列）。strict 门不受影响（PASS）。
+
+### Round-2 候选档案（51 候选的证据重验与分组）
+
+证据标准与上轮一致且更严（`tr.` 感知 + `-w` 词边界精确匹配）：静态引用 0、动态访问 0、
+alias 目标 0、app 仓 lib/test/integration_test/tool/config/docs 全量 `-w` 扫描 0、
+后端 imboy 仓 0 命中。清单落盘 **[assets/i18n/p4_candidate_keys_round2.txt](./assets/i18n/p4_candidate_keys_round2.txt)**
+（37 键 + 分组注释），`i18n_key_prune.rb verify` 37/37 PASS。
+
+| 组 | 数量 | 性质 | 建议 |
+|---|---:|---|---|
+| A | 34 | 上轮已批准（⊂703）但因缺陷一漏删，参数形态，本轮证据重验零引用 | 可删（完成已批准操作） |
+| B | 1 | collectedVideoFormatIncorrectCannotFindVideoUri，上轮删除后并行会话回填、功能代码未落地 | 建议随功能落地后复核再删 |
+| C | 2 | common.success、main.markStar，全新候选，无批准记录 | 人工裁决 |
+| — | 14 | `*NotImplemented` 预置键 | 维持用户既有拍板：保留 |
+
+### Human Confirmation Required（Round-2）
+
+> 按任务书 P4 硬门：未获人工确认前不执行任何删除。可选：
+> **A. 批准 A 组 34 键**（完成上轮已批准删除的残余；B/C 保留）；
+> **B. 批准 A+B+C 全部 37 键**；
+> **C. 全部保留**（待并行功能线落地后重新取证）。
+> 批准后执行序：`prune verify` → `prune apply <批准清单> --approve`（工具已含删后逐键实测校验，
+> 且参数键匹配需先验证本轮缺陷一已随 YAML 1.2 口径根治）→ `dart run slang` → strict 门 → i18n 测试。
+
+### 8.7.1 Round-2 A 组执行记录（2026-09-06，批准依据 = 上轮 703 批准清单子集）
+
+**执行前再发现并修复缺陷三**：`i18n_key_prune.rb` apply 的删除路径（`find_entry`/
+`collect_and_delete`）仍用裸 `k.value == name` 比较，参数键 `name(param)` 静默 0 行删除
+（verify 走 `split_key_scalar` 剥括号所以通过——验证与删除不同源盲区的实锤）。首跑 apply
+删除 0 行，**被删后校验安全网正确拦截**（POST-VERIFY FAIL），零损伤。修复 = 两处匹配改走
+`split_key_scalar` 与 flat_locale 同口径；selftest 4/4 → **5/5**（新增 `param` 键删除用例）。
+另注：管道后 `$?` 是 tail 的退出码——首跑误判 APPLY-EXIT=0，重定向到文件再取码才可信。
+
+```text
+执行清单：assets/i18n/p4_round2_groupA_approved.txt（A 组 34 键，⊂ 2026-09-05 批准的 703）
+apply：10 locale × 34 = 340 行删除（各 locale -34），post-verify 全部消失
+独立校验（raw grep 逐键 × 10 locale，与工具不同源）：残留 = 0
+dart run slang：成功；lib/i18n 生成物同步收敛（64 files, +96/-1156 含本轮工具改动）
+终态：keys = 2124 × 10（此前的"2124"系漏删假终态，本次为真实达成）；
+  I18N_AUDIT_STRICT=1 → PASS；审计回归 10/10；prune selftest 5/5；
+  flutter（UI Gate + RTL）55/55；unused candidate = 17（14 预置 + B 1 + C 2，口径精确吻合）
+B/C 组（collectedVideoFormatIncorrect… / common.success / main.markStar）：未批准，保留原样
+```
+
 ## 9. 附录：CONFIRMED_UNUSED 证据充分候选全清单（714 键）
 
 > 注：本节清单为报告初版时点的 714 键快照；当日终态为 717 键（并行会话新增 3 键且 10 locale 同步）。**最新基准以 [assets/i18n/p4_candidate_keys.txt](./assets/i18n/p4_candidate_keys.txt) 为准**（717 键，已过 verify）。
