@@ -9,6 +9,7 @@ import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -829,8 +830,17 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
 
   /// 点击搜索结果
   void _onResultTap(MessageSearchResult result) {
-    // 跳转到聊天页面，定位到该消息
-    final peerId = result.type == 'C2C' ? result.toId : result.fromId;
+    // 跳转到聊天页面，定位到该消息。
+    // 对端判定与 web_search_page 对齐：C2G 的会话目标是群（msg_c2g.to_id）；
+    // C2C 按「我是否为发送者」取另一端——此前恒取 toId，收到的消息
+    // 会打开「与自己聊天」的会话。
+    final String peerId;
+    if (result.type == 'C2G') {
+      peerId = result.toId;
+    } else {
+      final isAuthor = result.fromId == UserRepoLocal.to.currentUid;
+      peerId = isAuthor ? result.toId : result.fromId;
+    }
 
     Navigator.of(context).push(
       CupertinoPageRoute<dynamic>(

@@ -553,6 +553,12 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
                 ),
                 onTap: () {
                   _searchController.text = search;
+                  // 必须显式退出「最近搜索」态：此前只调 _performSearch，
+                  // showRecent 仍为 true，结果被最近搜索区遮蔽——
+                  // 用户点最近搜索词表现为「点了没反应」。
+                  setState(() {
+                    _state = _state.copyWith(showRecent: false);
+                  });
                   _performSearch(search);
                 },
               );
@@ -804,7 +810,10 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           context.push('/chat/${item.metadata!['conversationId']}');
         }
       case SearchItemType.contact:
-        context.push('/people_info/${item.id}');
+        // 资料页路由注册在 /contact 子树下：/contact/people/:id（与
+        // contact_page 的跳转一致）。此前推 /people_info/:id 不存在，
+        // 点联系人结果无反应。
+        context.push('/contact/people/${item.id}');
       case SearchItemType.group:
         // 群聊点击进入会话，统一走 /chat/:peerId?type=C2G
         context.push('/chat/${item.id}?type=C2G');
