@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -141,7 +142,7 @@ void main() {
             '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
         const wrongKey =
             'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789';
-        const canary = 'sqlcipher-device-canary';
+        final canary = _randomCanary();
         Database? db;
         Database? wrongKeyDb;
 
@@ -226,4 +227,12 @@ void main() {
       expect(key2, isNot(equals(key1)));
     });
   });
+}
+
+String _randomCanary() {
+  final random = Random.secure();
+  return List.generate(
+    32,
+    (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+  ).join();
 }
