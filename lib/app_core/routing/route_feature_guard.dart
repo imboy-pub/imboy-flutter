@@ -49,6 +49,12 @@ class RouteFeatureGuard {
           path.startsWith('/channel/invitations/')) {
         return FeatureKeys.channelInvitation;
       }
+      if (path == '/channel/orders' ||
+          path.startsWith('/channel/orders/') ||
+          path == '/channel/order' ||
+          path.startsWith('/channel/order/')) {
+        return FeatureKeys.channelOrder;
+      }
       return FeatureKeys.channel;
     }
 
