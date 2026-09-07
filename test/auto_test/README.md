@@ -66,42 +66,43 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1622 | 92.8% |
+| 无待办 | 1640 | 93.8% |
+| 待首测 | 1 | 0.1% |
 | 待修复 | 2 | 0.1% |
-| 阻塞 | 124 | 7.1% |
+| 阻塞 | 105 | 6.0% |
 | **合计** | **1748** | 100% |
 
-bug 累计：**发现 226 / 解决 220 / 待处理 6**
+bug 累计：**发现 226 / 解决 222 / 待处理 4**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
 ## 模块索引
 
-| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 待修复 | 阻塞 |
-|---|---|---|---|---|---|---|
-| [group](group/) | 26 | 293 | 2 | 288 | 2 | 3 |
-| [mine](mine/) | 21 | 250 | 0 | 243 | 0 | 7 |
-| [workspace](workspace/) | 18 | 199 | 0 | 189 | 0 | 10 |
-| [channel](channel/) | 13 | 146 | 0 | 144 | 0 | 2 |
-| [contact](contact/) | 13 | 126 | 1 | 125 | 0 | 1 |
-| [personal_info](personal_info/) | 8 | 88 | 2 | 69 | 0 | 19 |
-| [passport](passport/) | 7 | 82 | 0 | 70 | 0 | 12 |
-| [chat](chat/) | 6 | 76 | 0 | 60 | 0 | 16 |
-| [moment](moment/) | 6 | 74 | 0 | 73 | 0 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 53 | 0 | 8 |
-| [user_tag](user_tag/) | 5 | 58 | 0 | 58 | 0 | 0 |
-| [single](single/) | 5 | 48 | 0 | 46 | 0 | 2 |
-| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 |
-| [settings](settings/) | 3 | 36 | 0 | 25 | 0 | 11 |
-| [search](search/) | 3 | 35 | 0 | 34 | 0 | 1 |
-| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 28 |
-| [scanner](scanner/) | 3 | 30 | 0 | 28 | 0 | 2 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 12 | 0 | 0 |
-| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 |
-| [mention](mention/) | 1 | 12 | 0 | 11 | 0 | 1 |
-| [splash](splash/) | 1 | 12 | 0 | 12 | 0 | 0 |
-| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 |
-| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 |
+| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 待首测 | 待修复 | 阻塞 |
+|---|---|---|---|---|---|---|---|
+| [group](group/) | 26 | 293 | 2 | 288 | 0 | 2 | 3 |
+| [mine](mine/) | 21 | 250 | 0 | 243 | 0 | 0 | 7 |
+| [workspace](workspace/) | 18 | 199 | 0 | 189 | 0 | 0 | 10 |
+| [channel](channel/) | 13 | 146 | 0 | 144 | 0 | 0 | 2 |
+| [contact](contact/) | 13 | 126 | 1 | 125 | 0 | 0 | 1 |
+| [personal_info](personal_info/) | 8 | 88 | 0 | 87 | 1 | 0 | 0 |
+| [passport](passport/) | 7 | 82 | 0 | 70 | 0 | 0 | 12 |
+| [chat](chat/) | 6 | 76 | 0 | 60 | 0 | 0 | 16 |
+| [moment](moment/) | 6 | 74 | 0 | 73 | 0 | 0 | 1 |
+| [wallet](wallet/) | 5 | 61 | 1 | 53 | 0 | 0 | 8 |
+| [user_tag](user_tag/) | 5 | 58 | 0 | 58 | 0 | 0 | 0 |
+| [single](single/) | 5 | 48 | 0 | 46 | 0 | 0 | 2 |
+| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 | 0 |
+| [settings](settings/) | 3 | 36 | 0 | 25 | 0 | 0 | 11 |
+| [search](search/) | 3 | 35 | 0 | 34 | 0 | 0 | 1 |
+| [live_room](live_room/) | 3 | 33 | 0 | 5 | 0 | 0 | 28 |
+| [scanner](scanner/) | 3 | 30 | 0 | 28 | 0 | 0 | 2 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
+| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
+| [mention](mention/) | 1 | 12 | 0 | 11 | 0 | 0 | 1 |
+| [splash](splash/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
+| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 | 0 |
+| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 | 0 |
 
 ## 页面清单
 
@@ -239,8 +240,8 @@ bug 累计：**发现 226 / 解决 220 / 待处理 6**
 
 ### personal_info
 
-- [more_page](personal_info/more_page.md) — 10 功能点 ⚠️ 1 待处理
-- [personal_info_page](personal_info/personal_info_page.md) — 12 功能点 ⚠️ 1 待处理
+- [more_page](personal_info/more_page.md) — 10 功能点
+- [personal_info_page](personal_info/personal_info_page.md) — 12 功能点
 - [privacy_settings_page](personal_info/privacy_settings_page.md) — 10 功能点
 - [profile_page](personal_info/profile_page.md) — 12 功能点
 - [set_gender_page](personal_info/set_gender_page.md) — 10 功能点
