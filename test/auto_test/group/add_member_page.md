@@ -14,5 +14,5 @@
 | 无待办 | - | ``page/group/group_detail/add_member_page.dart`` | A-Z 索引栏拖动定位联系人 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/group_detail/add_member_page.dart`` | 未选中时完成按钮置灰禁用 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/group_detail/add_member_page.dart`` | 点左上角关闭退出选人页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
-| 阻塞 | 需本地库零好友数据的测试账号或测试数据（构造需删好友，破坏性） | `page/group/group_detail/add_member_page.dart` | 无联系人时展示暂无数据空态 | 未测 | 批次29 | 0 | 0 | 0 | uid50 本地库 3 好友；选人页列表/禁选/完成钮已正常 |
+| 无待办 | 零联系人测试账号 51799（本地 9801） | `page/group/group_detail/add_member_page.dart` | 无联系人时展示暂无数据空态 | 已通过 | 批次123 | 0 | 0 | 0 | GF11 51799 深链 /group/add_member 渲染 NoDataView「暂无数据」（macOS 集成测试） |
 | 无待办 | - | `page/group/group_detail/add_member_page.dart` | 提交添加选中成员入群 | 已通过 | 批次114 | 0 | 0 | 0 | 批次114 沙箱：勾选 SmokeAlice → 完成(1) → joinGroup 成功自动 pop；与 RM1 移出闭环还原 |

@@ -13,4 +13,4 @@
 | 无待办 | - | ``page/group/group_select/group_select_page.dart`` | 展示群头像合成九宫格图 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/group_select/group_select_page.dart`` | 长列表滚动与分隔线渲染 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/group_select/group_select_page.dart`` | 点返回退回发起聊天页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
-| 阻塞 | 需本地库零群会话的测试账号或测试数据（构造需退群，破坏性不可逆）+ 该页无活入口 | `page/group/group_select/group_select_page.dart` | 无群会话时展示暂无数据空态 | 未测 | 批次29 | 0 | 0 | 0 | items.isEmpty→NoDataView(noData) 代码证实 L59-60；全仓无 push 调用 /select 路由（仅路由定义），页面不可达；本机 3 群会话 |
+| 无待办 | 零群会话测试账号 51799 深链直达（本地 9801） | `page/group/group_select/group_select_page.dart` | 无群会话时展示暂无数据空态 | 已通过 | 批次123 | 0 | 0 | 0 | GF10 51799 深链 /group/select 渲染 NoDataView「暂无数据」；原「页面不可达」阻塞以 deep_link 直达解除（macOS 集成测试） |

@@ -14,6 +14,6 @@
 | 无待办 | - | ``page/group/launch_chat/launch_chat_page.dart`` | 快捷入口跳转选择群聊页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/launch_chat/launch_chat_page.dart`` | 快捷入口跳转面对面建群页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/launch_chat/launch_chat_page.dart`` | 点取消退出选择联系人页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
-| 阻塞 | 需本地库零好友数据的测试账号或测试数据（构造需删好友，破坏性影响第三方） | `page/group/launch_chat/launch_chat_page.dart` | 无好友时展示暂无数据空态 | 未测 | 批次29 | 0 | 0 | 0 | items.isEmpty→NoDataView(noData) 代码证实 L255-256；uid50 本地 3 好友，删好友不可逆 |
+| 无待办 | 零好友测试账号 51799（hmac_sha512 新体系，本地 9801） | `page/group/launch_chat/launch_chat_page.dart` | 无好友时展示暂无数据空态 | 已通过 | 批次123 | 0 | 0 | 0 | GF9 51799 登录深链 /group/launch_chat 渲染 NoDataView「暂无数据」（macOS 集成测试）。前置顺带修复登录链 2 bug（不属本页计数）：①passport_notifier RSA 部署下新账号恒发 RSA(md5) 且不回退致 hmac 新账号 UI 登录必败→wasMd5||viaRsa 时明文回退+降 rsa_encrypt=0；②passport_logic do_login account 分支缺 mobile 回退致手机号注册用户登录报账号不存在 |
 | 无待办 | - | `page/group/launch_chat/launch_chat_page.dart` | 提交建群并防重复点击 | 已通过 | 批次114 | 0 | 0 | 0 | 批次114 沙箱：勾选好友 → 完成(1) → groupAdd 建群成功；防抖由 _isCreatingGroup 状态实现（提交窗口极短，运行时实证成功路径） |
 | 无待办 | - | `page/group/launch_chat/launch_chat_page.dart` | 建群成功弹出双入口引导层 | 已通过 | 批次114 | 0 | 0 | 0 | 批次114 沙箱：群聊已创建弹层（进入群聊/完善群信息/取消）→ 完善群信息进群详情实证 |

@@ -12,7 +12,7 @@
 | 无待办 | - | ``page/group/face_to_face/face_to_face_page.dart`` | 展示面对面建群提示卡片 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/face_to_face/face_to_face_page.dart`` | 输入框激活态边框高亮切换 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/face_to_face/face_to_face_page.dart`` | 点返回退出面对面建群页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
-| 阻塞 | 需测试环境（触发=输满四位发起真实匹配，可能建群） | `page/group/face_to_face/face_to_face_page.dart` | 匹配失败展示红色错误文案 | 未测 | 批次29 | 0 | 0 | 0 | errorInfo 非空时 iosRed 渲染，代码证实；生产不可触发 |
+| 无待办 | - | `page/group/face_to_face/face_to_face_page.dart` | 匹配失败展示红色错误文案 | 已通过 | 批次123 | 0 | 0 | 0 | GF4 服务端节流实证失败反馈：HTTP 同码占位占满 per-uid 3 秒节流窗后 UI 输第 4 位，toast 弹服务端原文「在处理中，请稍后重试」；页内 errorInfo/iosRed 红字为独立机制且输码主链无赋值触发点（macOS 集成测试，本地 9801 写库授权） |
 | 无待办 | - | `page/group/face_to_face/face_to_face_page.dart` | 小屏下输入框尺寸自适应缩小 | 已通过 | 批次29 | 0 | 0 | 0 | 本机恰 360dp 命中 boxSize=56 分支，四位回显无溢出 |
-| 阻塞 | 需授权写生产数据 | `page/group/face_to_face/face_to_face_page.dart` | 输满四位自动发起建群匹配 | 未测 | - | 0 | 0 | 0 | 会在服务端创建群 |
-| 阻塞 | 需授权写生产数据 | `page/group/face_to_face/face_to_face_page.dart` | 匹配成功跳转建群确认页 | 未测 | - | 0 | 0 | 0 | 依赖真实匹配成功 |
+| 无待办 | 本地 9801+TEST_ALLOW_GROUP_WRITES | `page/group/face_to_face/face_to_face_page.dart` | 输满四位自动发起建群匹配 | 已通过 | 批次123 | 0 | 0 | 0 | GF1 输码 1357 自动触发 face2face 并跳确认页，DB 断言 group_random_code 落本人匹配行（macOS 集成测试） |
+| 无待办 | 本地 9801+TEST_ALLOW_GROUP_WRITES | `page/group/face_to_face/face_to_face_page.dart` | 匹配成功跳转建群确认页 | 已通过 | 批次123 | 0 | 0 | 0 | GF2 断言确认页元素齐备：进入该群/面对面建群 AppBar/暗号 chip/确认提示/四位码逐字符展示 |
