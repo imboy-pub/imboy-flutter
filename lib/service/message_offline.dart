@@ -386,7 +386,7 @@ class MessageOfflineService {
       _lastResult = 'failed_exception';
       _lastPullFinishedAt = DateTime.now();
       _markPullFailure();
-      iPrint('拉取离线消息异常: $e');
+      iPrint('拉取离线消息异常: ${e.runtimeType}');
       _logPullMetrics('failed_exception');
       AppLoading.showError('${t.common.pullOfflineMessagesAbnormal}: $e');
       return false;
@@ -505,7 +505,7 @@ class MessageOfflineService {
       }
       iPrint('$type 离线消息处理完成');
     } on Object catch (e) {
-      iPrint('处理 $type 离线消息失败: $e');
+      iPrint('处理 $type 离线消息失败: ${e.runtimeType}');
       rethrow;
     }
   }
@@ -526,8 +526,8 @@ class MessageOfflineService {
       if (resp.code != 0) {
         iPrint('发送离线消息确认失败: ${resp.msg}');
       }
-    } on Object catch (e, s) {
-      iPrint('发送离线消息确认异常: $e $s');
+    } on Object catch (e) {
+      iPrint('发送离线消息确认异常: ${e.runtimeType}');
     }
   }
 }

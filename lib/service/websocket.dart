@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart'
-    show kIsWeb, kDebugMode, visibleForTesting;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/widgets.dart'
     show AppLifecycleState, WidgetsBinding, WidgetsBindingObserver;
 import 'package:imboy/service/app_logger.dart';
@@ -24,7 +23,6 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/store/api/user_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/network_monitor.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/service/exponential_backoff.dart';
@@ -178,7 +176,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
             unawaited(openSocket(from: event.source));
           }
         }).catchError((Object e) {
-          iPrint('> ws: 重连请求处理失败: $e');
+          iPrint('> ws: 重连请求处理失败: ${e.runtimeType}');
         }),
       );
     }
@@ -244,7 +242,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         _sendV1Heartbeat();
       }
     } catch (e) {
-      iPrint('> ws: probe failed, connection likely dead: $e');
+      iPrint('> ws: probe failed, connection likely dead: ${e.runtimeType}');
       _cancelStream();
       _updateStatus(SocketStatus.disconnected);
       _backoff.reset();
@@ -266,7 +264,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         try {
           callback(newStatus);
         } catch (e) {
-          iPrint('> ws: 状态回调执行失败: $e');
+          iPrint('> ws: 状态回调执行失败: ${e.runtimeType}');
         }
       }
 
@@ -447,9 +445,9 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         cancelOnError: true,
       );
       AppLogger.info('WebSocket 连接成功: ${Env.effectiveWsUrl}');
-    } catch (e, s) {
+    } catch (e) {
       if (isCurrentAttempt()) {
-        AppLogger.error('WebSocket 连接失败: ${Env.effectiveWsUrl}', e, s);
+        AppLogger.error('WebSocket 连接失败: ${e.runtimeType}');
         await _handleConnectionFailure(e);
         // 【修复】异常发生时确保清理 WebSocket 资源
         _cancelStream();
@@ -542,7 +540,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       final bytes = ImboyFrame.heartbeatPing(seq);
       _channel!.sink.add(bytes);
     } catch (e) {
-      iPrint('> ws: v2 heartbeat 发送失败: $e');
+      iPrint('> ws: v2 heartbeat 发送失败: ${e.runtimeType}');
     }
   }
 
@@ -561,7 +559,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       _channel!.sink.add('ping');
       _v1PongTimer = Timer(_v1PongTimeout, _handleV1HeartbeatTimeout);
     } catch (e) {
-      iPrint('> ws: v1 heartbeat 发送失败: $e');
+      iPrint('> ws: v1 heartbeat 发送失败: ${e.runtimeType}');
     }
   }
 
@@ -596,7 +594,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
             try {
               _channel?.sink.add(ImboyFrame.heartbeatPong(seq));
             } catch (e) {
-              iPrint('> ws: v2 pong 回包失败: $e');
+              iPrint('> ws: v2 pong 回包失败: ${e.runtimeType}');
             }
           }
           break;
@@ -688,9 +686,12 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       // 无封包的业务 payload 解析——与下方 msgC2C/S2C 分支同款逻辑，下游
       // contentHash 去重保证重复投递安全。
       if (_tryDecodeUnframedPayload(bytes)) return;
-      iPrint('> ws: v2 帧解析失败（格式错误且非 protobuf/JSON），忽略: $e');
-    } catch (e, s) {
-      iPrint('> ws: v2 帧处理异常: $e\n$s');
+      iPrint(
+        '> ws: v2 帧解析失败（格式错误且非 protobuf/JSON），'
+        '忽略: ${e.runtimeType}',
+      );
+    } catch (e) {
+      iPrint('> ws: v2 帧处理异常: ${e.runtimeType}');
     }
   }
 
@@ -797,10 +798,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
             break;
           }
         }
-        // 仍为空且是 ACK 类响应：打印原始帧以定位服务端真实字段名
+        // 仍为空且是 ACK 类响应：只记录帧长，禁止把原始帧写入日志。
         if (messageId.isEmpty &&
             (action == 'CLIENT_ACK_ERROR' || action == 'CLIENT_ACK_CONFIRM')) {
-          iPrint('⚠️ [WS] $action 缺 msgId，原始帧: $message');
+          iPrint('⚠️ [WS] $action 缺 msgId [${message.length} bytes]');
         }
       }
 
@@ -839,7 +840,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           WebSocketMessageReceivedEvent(type: messageType, data: msg),
         );
       } catch (e) {
-        iPrint('[WS] dispatch error: $e');
+        iPrint('[WS] dispatch error: ${e.runtimeType}');
       }
     } catch (e) {
       iPrint('[WS] parse error: ${e.runtimeType}');
@@ -851,7 +852,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     try {
       AckManager.to.sendAckDirect(type, messageId);
     } catch (e) {
-      iPrint('[WS_ACK] $type ACK fail: $e');
+      iPrint('[WS_ACK] $type ACK fail: ${e.runtimeType}');
     }
   }
 
@@ -859,7 +860,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     try {
       AckManager.to.sendAck(type, messageId);
     } catch (e) {
-      iPrint('[WS_ACK] fail: $e');
+      iPrint('[WS_ACK] fail: ${e.runtimeType}');
     }
   }
 
@@ -899,7 +900,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         AckManager.to.ackConfirmed(messageId);
         iPrint('✅ [WS] CLIENT_ACK确认收到: msgId=$messageId');
       } catch (e) {
-        iPrint('⚠️ [WS] AckManager处理失败: $e');
+        iPrint('⚠️ [WS] AckManager处理失败: ${e.runtimeType}');
       }
     }
 
@@ -912,7 +913,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           '⚠️ [WS] CLIENT_ACK_ERROR收到: msgId=$messageId（收据被拒 reason=$reason）',
         );
       } catch (e) {
-        iPrint('⚠️ [WS] AckManager处理失败: $e');
+        iPrint('⚠️ [WS] AckManager处理失败: ${e.runtimeType}');
       }
     }
   }
@@ -926,7 +927,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         'timestamp': DateTimeHelper.millisecond(),
       });
     } catch (e) {
-      iPrint('> ws: 原始消息处理失败: $e');
+      iPrint('> ws: 原始消息处理失败: ${e.runtimeType}');
     }
   }
 
@@ -964,8 +965,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           } else {
             await Future<void>.delayed(minDelay);
           }
-        } catch (e, s) {
-          iPrint('> ws: flushMessageQueue failed: $e\n$s');
+        } catch (e) {
+          iPrint('> ws: flushMessageQueue failed: ${e.runtimeType}');
           _messageQueue.enqueue(
             queued.id,
             queued.data,
@@ -994,8 +995,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       String token = await UserRepoLocal.to.accessToken;
       if (!tokenExpired(token)) return token;
       return await _refreshAccessToken();
-    } catch (e, s) {
-      iPrint("$e; $s");
+    } catch (e) {
+      iPrint('> ws: token refresh failed: ${e.runtimeType}');
       UserRepoLocal.to.quitLogin();
       navigateToSignIn(source: 'websocket_relogin');
       return '';
@@ -1013,7 +1014,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 处理连接丢失
   void _onError(Object e) {
-    iPrint("_onError $e;");
+    iPrint('_onError ${e.runtimeType}');
     if (_status == SocketStatus.disconnected) return;
     iPrint('> ws_onError: 连接丢失');
     _updateStatus(SocketStatus.disconnected);
@@ -1094,7 +1095,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
       return true;
     } catch (e) {
-      iPrint('> ws: 网络连通性检查异常: $e');
+      iPrint('> ws: 网络连通性检查异常: ${e.runtimeType}');
       return true;
     }
   }
@@ -1133,7 +1134,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         // 此处不再做本地待确认簿记。
         return true;
       } catch (e) {
-        iPrint('> ws: 消息发送失败: $e');
+        iPrint('> ws: 消息发送失败: ${e.runtimeType}');
         await _handleSendFailure(message, messageId);
         return false;
       }
@@ -1183,7 +1184,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         _channel!.sink.add(payload);
         return true;
       } catch (e) {
-        iPrint('> ws: 直接发送消息失败: $e');
+        iPrint('> ws: 直接发送消息失败: ${e.runtimeType}');
         return false;
       }
     }
@@ -1205,21 +1206,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     }
   }
 
-  /// 安全记录消息发送日志（不泄露敏感信息）
-  ///
-  /// 在生产环境中只输出消息类型和大小，不输出完整内容
-  /// 在开发环境中可通过 'debug_log_websocket_full' 开关启用详细日志
+  /// 安全记录消息发送日志（不泄露敏感信息）。
   void _logMessageSent(String message, String? messageId) {
     final id = messageId ?? 'unknown';
-    if (kDebugMode &&
-        StorageService.to.getBool('debug_log_websocket_full') == true) {
-      // 开发环境且启用详细日志时输出完整内容
-      iPrint('> ws: 消息已发送 ($id): $message ;');
-    } else {
-      // 默认只输出消息类型和大小（不包含敏感内容）
-      final msgType = _getMessageTypeInfo(message);
-      iPrint('> ws: 消息已发送 ($id) [$msgType] [${message.length} bytes]');
-    }
+    final msgType = _getMessageTypeInfo(message);
+    iPrint('> ws: 消息已发送 ($id) [$msgType] [${message.length} bytes]');
   }
 
   /// 提取消息类型信息（不包含敏感内容）

@@ -256,9 +256,10 @@ class MessageRepo implements MessageRepository {
         if (updated > 0) return true;
       }
       return false;
-    } on Exception catch (e, s) {
+    } on Exception catch (e) {
       func_helper.iPrint(
-        '[MessageRepo] updateStatusInAnyTable failed id=$messageId status=$status: $e\n$s',
+        '[MessageRepo] updateStatusInAnyTable failed id=$messageId '
+        'status=$status error=${e.runtimeType}',
       );
       return false;
     }
@@ -610,7 +611,7 @@ class MessageRepo implements MessageRepository {
     String optimizedOrderBy =
         orderBy ?? "${MessageRepo.createdAt} DESC, ${MessageRepo.autoId} DESC";
 
-    func_helper.iPrint("searchLeading_tag kwd $kwd, where $where");
+    func_helper.iPrint('searchLeading_tag query started');
 
     try {
       List<Map<String, dynamic>> maps = await _db.query(
@@ -853,7 +854,7 @@ class MessageRepo implements MessageRepository {
         }
 
         if (msgId.isEmpty) {
-          func_helper.iPrint("离线消息缺少id，跳过: ${msgData.toString()}");
+          func_helper.iPrint('离线消息缺少id，跳过');
           continue;
         }
 
@@ -1068,7 +1069,10 @@ class MessageRepo implements MessageRepository {
             // 调用回调函数处理 S2C 消息
             await onS2CMessage(msgData);
           } on Object catch (e) {
-            func_helper.iPrint("处理 S2C 消息失败: ${msgData['id']}, 错误: $e");
+            func_helper.iPrint(
+              '处理 S2C 消息失败: ${msgData['id']}, '
+              'error=${e.runtimeType}',
+            );
           }
         }
       }
@@ -1084,7 +1088,7 @@ class MessageRepo implements MessageRepository {
       // 向上抛之后由 message_offline.dart 的拉取外层 catch 接住 —— 那里
       // 有失败计数、_markPullFailure()、指标上报和用户可见提示，
       // 是这条链上唯一有处理能力的一层。异常不会逃逸成未捕获崩溃。
-      func_helper.iPrint("批量插入离线消息失败: $e");
+      func_helper.iPrint('批量插入离线消息失败: ${e.runtimeType}');
       Error.throwWithStackTrace(e, s);
     }
     return ackMsgIds;
@@ -1191,7 +1195,7 @@ class MessageRepo implements MessageRepository {
           isShow: 1,
         );
         conv.id = await conversationRepo.insert(conv);
-        func_helper.iPrint("创建新会话: ${conv.toJson()}, 未读数: ${agg.unreadDelta}");
+        func_helper.iPrint('创建新会话: type=${conv.type}, 未读数: ${agg.unreadDelta}');
       } else {
         // 更新现有会话，总是更新最后消息信息
         int newUnreadNum = existing.unreadNum + agg.unreadDelta;
@@ -1213,7 +1217,8 @@ class MessageRepo implements MessageRepository {
         // 重新获取更新后的会话
         conv = (await conversationRepo.findById(existing.id)) ?? existing;
         func_helper.iPrint(
-          "更新会话: ${conv.toJson()}, 新增未读数: ${agg.unreadDelta}, 总未读数: $newUnreadNum",
+          '更新会话: type=${conv.type}, '
+          '新增未读数: ${agg.unreadDelta}, 总未读数: $newUnreadNum',
         );
       }
 
@@ -1333,7 +1338,7 @@ class MessageRepo implements MessageRepository {
 
     if (kDebugMode) {
       func_helper.iPrint(
-        '🔍 [DEBUG _derivePreview] 返回: msgType=$effectiveMsgType, subtitle=$subtitle',
+        '🔍 [DEBUG _derivePreview] 返回: msgType=$effectiveMsgType',
       );
     }
     return (msgType: effectiveMsgType, subtitle: subtitle);

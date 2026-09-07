@@ -11,7 +11,7 @@ import 'package:imboy/page/group/group_list/group_list_service.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_provider.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
-import 'package:imboy/modules/channel_content/public.dart';
+import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/events/message_events.dart';
@@ -465,7 +465,7 @@ class MessageS2CService {
     final oldMsg = await messageRepo.find(revokeMsgId);
 
     if (oldMsg != null) {
-      iPrint("找到要撤回的消息: ${oldMsg.toJson()}");
+      iPrint('找到要撤回的消息: $revokeMsgId');
 
       // 使用公共辅助类处理撤回（消除代码重复）
       await MessageActions.convertMessageToRevoked(
@@ -536,15 +536,13 @@ class MessageS2CService {
     final account = parseModelString(payload['account']);
     final gid = parseModelString(payload['gid']);
     if (gid.isEmpty || userId.isEmpty) {
-      iPrint('[S2C] group_member_join 缺 gid/from，忽略: $payload');
+      iPrint('[S2C] group_member_join 缺 gid/from，忽略');
       return;
     }
 
     iPrint('🔔 [S2C] 收到 group_member_join 消息');
     iPrint('  ├─ userId: $userId');
-    iPrint('  ├─ nickname: $nickname');
     iPrint('  ├─ gid: $gid');
-    iPrint('  └─ 完整 payload: $payload');
 
     final joinRes = await GroupListService().memberJoin(
       groupId: gid,
@@ -581,7 +579,7 @@ class MessageS2CService {
   static Future<void> _handleGroupDissolve(Map<String, dynamic> payload) async {
     final gid = parseModelString(payload['gid']);
     if (gid.isEmpty) {
-      iPrint('[S2C] group_dissolve 缺 gid，忽略: $payload');
+      iPrint('[S2C] group_dissolve 缺 gid，忽略');
       return;
     }
     await GroupDetailService().cleanData(gid);
@@ -603,7 +601,7 @@ class MessageS2CService {
     final gid = parseModelString(payload['gid']);
     final userId = parseModelString(payload['leave_uid']);
     if (gid.isEmpty || userId.isEmpty) {
-      iPrint('[S2C] group_member_leave 缺 gid/leave_uid，忽略: $payload');
+      iPrint('[S2C] group_member_leave 缺 gid/leave_uid，忽略');
       return;
     }
 
@@ -1013,7 +1011,7 @@ class MessageS2CService {
     final parsed = parseGroupMemberMutePayload(payload);
     switch (parsed) {
       case GroupMemberMuteParseError(:final reason):
-        iPrint('[S2C] group_member_mute 解析失败: $reason, payload=$payload');
+        iPrint('[S2C] group_member_mute 解析失败: $reason');
         return;
       case GroupMemberMutePayload(
         :final gid,

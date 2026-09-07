@@ -18,6 +18,8 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/page/chat/chat/attachment_handler.dart';
 import 'package:imboy/service/e2ee/attachment_binding.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 
@@ -252,5 +254,33 @@ void main() {
             '若默认参数与常量脱钩，翻开关将不生效',
       );
     });
+  });
+
+  test('策略未初始化时上传前 fail-closed，不退回明文附件', () async {
+    EncryptionModeService.debugFetcher = () async =>
+        throw StateError('offline');
+    EncryptionModeService.debugSet(
+      mode: EncryptionMode.plaintext,
+      initialized: false,
+    );
+    addTearDown(() {
+      EncryptionModeService.debugFetcher = null;
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.plaintext,
+        initialized: false,
+      );
+    });
+
+    final handler = _handler(type: 'C2C', peerId: '2002', selfUid: '1001');
+    await expectLater(
+      handler.payloadWillBeEncryptedForTest(),
+      throwsA(
+        isA<E2eeSecurityException>().having(
+          (e) => e.reason,
+          'reason',
+          'policy_not_initialized',
+        ),
+      ),
+    );
   });
 }

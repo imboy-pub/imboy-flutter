@@ -5,7 +5,7 @@ library;
 
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart'
     show AssetEntity, AssetType;
@@ -245,19 +245,18 @@ class ChatAttachmentHandler {
   /// 因此这里必须与发送入口共享两条判据：群级 E2EE 开启时，即使全局策略
   /// 是 plaintext，消息 payload 仍会进入 `encryptPayload`，附件也必须封装。
   ///
-  /// PolicyGate 拿不到策略时抛 [E2eeSecurityException]：拿不准 → 不封装，
-  /// 退回今天已知的明文行为（这条消息随后会被 `sendWsMsg` 的同一道门拒发）。
+  /// PolicyGate 拿不到策略时抛 [E2eeSecurityException]：必须让异常中止上传，
+  /// 不能先把原文件明文上传、再等 `sendWsMsg` 拒绝消息。
   Future<bool> _payloadWillBeEncrypted() async {
     if (type.toUpperCase() == 'C2G' &&
         await GroupSessionService.to.isGroupE2EE(peerId)) {
       return true;
     }
-    try {
-      return E2EEService.shouldEncryptOutgoingPayload(type);
-    } on Object {
-      return false;
-    }
+    return E2EEService.shouldEncryptOutgoingPayload(type);
   }
+
+  @visibleForTesting
+  Future<bool> payloadWillBeEncryptedForTest() => _payloadWillBeEncrypted();
 
   Future<AttachmentSealRequest?> _sealFor(
     String messageId,

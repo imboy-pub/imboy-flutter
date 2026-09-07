@@ -39,6 +39,9 @@ class E2EEService {
   static final Map<String, int> _userKeyCacheTimestamp = {};
   static final Map<String, int> _groupKeyCacheTimestamp = {};
 
+  static Future<List<Map<String, dynamic>>> Function(String gid)?
+  debugGroupMemberKeysLoader;
+
   /// 缓存 TTL（30 分钟），超过此时间的缓存条目将被视为过期
   static const int _cacheTtlMs = 30 * 60 * 1000;
 
@@ -109,8 +112,10 @@ class E2EEService {
     _groupKeyCacheByDevice.clear();
     _userKidCacheByDevice.clear();
     _groupKidCacheByDevice.clear();
+    _groupUidCacheByDevice.clear();
     _userKeyCacheTimestamp.clear();
     _groupKeyCacheTimestamp.clear();
+    debugGroupMemberKeysLoader = null;
   }
 
   /// 清理E2EE缓存（用于退出登录等场景）
@@ -121,6 +126,7 @@ class E2EEService {
     _groupKeyCacheByDevice.clear();
     _userKidCacheByDevice.clear();
     _groupKidCacheByDevice.clear();
+    _groupUidCacheByDevice.clear();
     _userKeyCacheTimestamp.clear();
     _groupKeyCacheTimestamp.clear();
     iPrint('E2EE: 缓存已清理');
@@ -140,6 +146,9 @@ class E2EEService {
   static void clearAllKeyCache() {
     _userKeyCacheByDevice.clear();
     _groupKeyCacheByDevice.clear();
+    _userKidCacheByDevice.clear();
+    _groupKidCacheByDevice.clear();
+    _groupUidCacheByDevice.clear();
     _userKeyCacheTimestamp.clear();
     _groupKeyCacheTimestamp.clear();
     iPrint('E2EE: 已清除所有公钥缓存');
@@ -644,9 +653,8 @@ class E2EEService {
       return _decryptFailedPayload(payload, reason: 'crypto_store_unavailable');
     } on Object catch (e) {
       // 其余一律归为稳定、无秘密的通用分类（ADR 15 §5：不上送 oracle 细节）。
-      // 本地日志仅记异常类型与消息（不含密文），供真机排障区分
-      // TOFU 指纹变更 / prekey 失配 / 棘轮失配等根因。
-      iPrint('[e2ee] v3 协议解密异常: ${e.runtimeType}: $e');
+      // 异常消息可能携带密文或会话细节，日志只保留类型。
+      iPrint('[e2ee] v3 协议解密异常: ${e.runtimeType}');
       return _decryptFailedPayload(payload, reason: 'decrypt_error');
     }
 
@@ -922,6 +930,8 @@ class E2EEService {
     // 缓存过期时清除旧数据，确保不使用已撤销的公钥
     if (_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
       _groupKeyCacheByDevice.remove(gid);
+      _groupKidCacheByDevice.remove(gid);
+      _groupUidCacheByDevice.remove(gid);
       _groupKeyCacheTimestamp.remove(gid);
     }
 
@@ -929,7 +939,10 @@ class E2EEService {
     int attempt = 0;
     while (attempt < maxRetries) {
       try {
-        final members = await E2EEApi().groupMemberKeys(gid: gid);
+        final loader = debugGroupMemberKeysLoader;
+        final members = loader == null
+            ? await E2EEApi().groupMemberKeys(gid: gid)
+            : await loader(gid);
         final didToPem = <String, String>{};
         final didToKid = <String, String>{};
         final didToUid = <String, String>{};
@@ -949,20 +962,6 @@ class E2EEService {
           }
         }
 
-        // 【F-08 复核回退】群密钥同单聊语义：保留带 TTL 门槛的抗抖动回退
-        // （对齐 VERIFIED 版 BUG-07：后端无 revoked 显式标志前，抗抖动优先于即时吊销）。
-        if (didToPem.isEmpty && forceRefresh) {
-          final cached = _groupKeyCacheByDevice[gid];
-          if (cached != null &&
-              cached.isNotEmpty &&
-              !_isCacheExpired(_groupKeyCacheTimestamp, gid)) {
-            iPrint(
-              '⚠️ [E2EE] 群 API 返回空，使用未过期缓存（抗抖动）: gid=$gid, 设备数=${cached.length}',
-            );
-            return _groupKeyResult(gid, cached);
-          }
-        }
-
         _groupKeyCacheByDevice[gid] = didToPem;
         _groupKidCacheByDevice[gid] = didToKid;
         _groupUidCacheByDevice[gid] = didToUid;
@@ -971,7 +970,14 @@ class E2EEService {
       } catch (e) {
         attempt++;
         if (attempt >= maxRetries) {
-          // 🔧 修复：API 调用失败时回退到未过期的缓存（用于测试环境）
+          if (forceRefresh) {
+            _groupKeyCacheByDevice.remove(gid);
+            _groupKidCacheByDevice.remove(gid);
+            _groupUidCacheByDevice.remove(gid);
+            _groupKeyCacheTimestamp.remove(gid);
+            iPrint('获取群组设备密钥强刷失败（已重试$maxRetries次）: $e');
+            rethrow;
+          }
           final cached = _groupKeyCacheByDevice[gid];
           if (cached != null &&
               cached.isNotEmpty &&

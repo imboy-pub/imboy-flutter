@@ -105,7 +105,7 @@ class ConversationRepo {
     String peerId,
     Map<String, dynamic> data,
   ) async {
-    iPrint("ConversationRepo_updateByPeerId $id, ${data.toString()}");
+    iPrint('ConversationRepo_updateByPeerId type=$type');
     data.remove(ConversationRepo.id);
     if (data.containsKey(ConversationRepo.payload) &&
         data[ConversationRepo.payload] is Map<String, dynamic>) {
@@ -135,7 +135,7 @@ class ConversationRepo {
     Transaction? txn,
     bool autoIncrement = true,
   }) async {
-    iPrint("ConversationRepo_save ${obj.toJson().toString()}");
+    iPrint('ConversationRepo_save type=${obj.type} lastMsgId=${obj.lastMsgId}');
     final ConversationModel? oldObj = await findByPeerId(
       obj.type,
       obj.peerId.toString(),
@@ -321,8 +321,8 @@ class ConversationRepo {
       // if(e['t'])
       try {
         item2.add(ConversationModel.fromJson(e));
-      } on Object catch (e, s) {
-        iPrint("ConversationRepo/list err $e; $s");
+      } on Object catch (e) {
+        iPrint('ConversationRepo/list error=${e.runtimeType}');
       }
     }
     return item2;

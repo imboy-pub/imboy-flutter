@@ -4,13 +4,9 @@
 /// 本端和对端分别显示参与聚合的设备数量。任一新设备加入/移除，聚合码都会变化。
 ///
 /// 实现：
-/// - 本端 identity：OlmSessionService.localCurve25519Identity（权威副本）；
-/// - 对端 identity：E2EEService.getUserDevicePublicKeys 返回全部设备；
-/// - "已验证"状态仅本地持久化（SecureStorage per-peer）。
-///
-/// TODO（阶段 B）：比对一致后上报 `POST /api/v1/e2ee/trust/record`
-/// （method=manual_number，to_state=verified）。需要 actor_device_generation /
-/// target_identity_version 字段的客户端数据通路 + wire 往返验证，见台账 IMB-2026-006。
+/// - 设备集合：OlmApi.listDevices 返回的双方全部活跃 Olm 设备；
+/// - identity：本机当前设备取本地权威副本，其余设备走签名校验 + TOFU；
+/// - 服务端 trust 记录成功后，本地状态按 peer 绑定当前 60 位聚合码。
 library;
 
 import 'package:flutter/cupertino.dart';
@@ -69,7 +65,10 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
       if (!mounted) return;
       setState(() {
         _result = result;
-        _verified = verifiedAt != null && verifiedAt.isNotEmpty;
+        _verified = SafetyNumberService.isCurrentNumberVerified(
+          verifiedAt,
+          result.number,
+        );
       });
     } on ArgumentError catch (e) {
       iPrint('[SafetyNumber] 无法生成: $e');
@@ -105,7 +104,7 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
       case TrustRecordOutcome.recorded:
         await StorageSecureService.to.write(
           key: _verifiedPrefix + widget.peerUid,
-          value: DateTime.now().toIso8601String(),
+          value: result.number,
         );
         setState(() => _verified = true);
         AppLoading.showToast(t.main.safetyNumberMarkedVerified);

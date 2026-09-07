@@ -274,7 +274,9 @@ class MessageService with EventSubscriptionManager {
       }
     } on Object catch (e) {
       iPrint(
-        '❌ [STATUS_UPDATE] 更新消息状态失败: messageId=${event.messageId}, status=${event.newStatus}, error=$e',
+        '❌ [STATUS_UPDATE] 更新消息状态失败: '
+        'messageId=${event.messageId}, status=${event.newStatus}, '
+        'error=${e.runtimeType}',
       );
     }
   }
@@ -511,7 +513,10 @@ class MessageService with EventSubscriptionManager {
             e2ee = e2ee.cast<String, dynamic>();
           }
         } on Object catch (e) {
-          iPrint('❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, error=$e');
+          iPrint(
+            '❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, '
+            'error=${e.runtimeType}',
+          );
         }
       } else if (e2eeRaw is Map<String, dynamic>) {
         e2ee = e2eeRaw.cast<String, dynamic>();
@@ -570,7 +575,10 @@ class MessageService with EventSubscriptionManager {
             payload = parseModelJsonMap(decoded);
           }
         } on Object catch (e) {
-          iPrint('❌ [Payload] 无法解析 payload 字符串: msgId=$msgId, error=$e');
+          iPrint(
+            '❌ [Payload] 无法解析 payload 字符串: msgId=$msgId, '
+            'error=${e.runtimeType}',
+          );
         }
       }
     }
@@ -761,7 +769,7 @@ class MessageService with EventSubscriptionManager {
   /// 手动清理接收标记（供特殊情况使用）
   void clearReceivingMark(String receivingMsgKey) {
     _receivingMessages.remove(receivingMsgKey);
-    iPrint('🧹 [DEDUP] 手动清理接收标记: $receivingMsgKey');
+    iPrint('🧹 [DEDUP] 手动清理接收标记');
   }
 
   /// 清理所有接收标记（用于测试或调试）
@@ -1029,10 +1037,9 @@ class MessageService with EventSubscriptionManager {
         );
       }
 
-      iPrint('✅ 消息后台处理完成: $msgId, peer: ${peerInfo['title']}');
-    } on Object catch (e, stack) {
-      iPrint('❌ 消息后台处理失败: $msgId, 错误: $e');
-      iPrint('堆栈: $stack');
+      iPrint('✅ 消息后台处理完成: $msgId');
+    } on Object catch (e) {
+      iPrint('❌ 消息后台处理失败: $msgId, error=${e.runtimeType}');
 
       // 处理失败，从 UI 中移除该消息
       // Failed to process, remove message from UI
@@ -1562,7 +1569,10 @@ class MessageService with EventSubscriptionManager {
             e2ee = decoded.cast<String, dynamic>();
           }
         } on Object catch (e) {
-          iPrint('❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, error=$e');
+          iPrint(
+            '❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, '
+            'error=${e.runtimeType}',
+          );
         }
       } else if (e2eeRaw is Map<String, dynamic>) {
         e2ee = e2eeRaw.cast<String, dynamic>();
@@ -1630,7 +1640,7 @@ class MessageService with EventSubscriptionManager {
       );
       return payload;
     } on Object catch (e) {
-      iPrint('❌ [E2EE] 解密失败: msgId=$msgId, error=$e');
+      iPrint('❌ [E2EE] 解密失败: msgId=$msgId, error=${e.runtimeType}');
 
       // 检查是否是密钥不匹配错误
       // 【审计修复 F-04】收窄判定：只匹配 decryptE2EEMessage 抛出的精确异常

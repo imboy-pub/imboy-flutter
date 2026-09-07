@@ -40,7 +40,8 @@ typedef OlmWrapFn =
 /// - 每个发送者对每个会话域（群 gid / 单聊对端 uid）持有自己的 outbound
 ///   GroupSession（Megolm 标准语义，单聊即 2 人房间）；
 /// - session key 在任何 encrypt 之前导出（棘轮推进后旧 index 不可再导出）；
-/// - 导出 key 用接收方各设备 RSA-OAEP-256 公钥包裹，经具名 action
+/// - 导出 key 经 Olm 会话逐设备包裹（v3 Olm-only，E2EE-011；RSA `ek` 仅存于
+///   compliance 审计条目），经具名 action
 ///   `e2ee_room_key` 消息分发（C2G/C2C 同名 action）——服务端视 payload 为
 ///   不透明字节（后端 EUnit c2g_e2ee_room_key_relayed_opaque_and_skips_gate
 ///   与 C2C 管道保真集成测试守护透传）；

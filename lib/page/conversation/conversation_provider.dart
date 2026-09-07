@@ -328,7 +328,7 @@ class ConversationNotifier extends _$ConversationNotifier {
       // 个人会话：获取联系人标题
       computedTitle = await _getContactTitle(obj.peerId.toString());
     }
-    iPrint("${obj.peerId} computedTitle $computedTitle");
+    iPrint('ConversationNotifier: title computed type=${obj.type}');
     // 存量纠正：修复前 _getGroupTitle/_getContactTitle 缺名时返回 peerId，
     // 已经把 gid/uid 写进了 title 落库。这类历史脏值只靠新逻辑清不掉
     // （title 非空 → 渲染层兜底永远碰不到），必须在这里主动抹掉一次。
@@ -632,8 +632,10 @@ class ConversationNotifier extends _$ConversationNotifier {
           success: true,
         ),
       );
-    } catch (e, s) {
-      iPrint('ConversationNotifier: authoritative sync failed: $e; $s');
+    } catch (e) {
+      iPrint(
+        'ConversationNotifier: authoritative sync failed: ${e.runtimeType}',
+      );
       AppEventBus.fireTracked(
         ConversationAuthoritySyncEvent(
           trigger: trigger,
@@ -752,8 +754,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       }
       state = state.copyWith(conversationMap: newMap, isLoading: false);
       return li;
-    } catch (e, s) {
-      iPrint('conversationsList error: $e; $s');
+    } catch (e) {
+      iPrint('conversationsList error=${e.runtimeType}');
       return [];
     } finally {
       if (ref.mounted) {
@@ -819,7 +821,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       }
     } catch (e) {
       iPrint(
-        '[ConversationProvider] _cleanupExpiredBurnLastMessages failed: $e',
+        '[ConversationProvider] _cleanupExpiredBurnLastMessages failed: '
+        '${e.runtimeType}',
       );
     }
   }
@@ -840,8 +843,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       removeConversationFromMap(cm.uk3);
       removeConversationRemind(cm.uk3);
       return true;
-    } catch (e, s) {
-      iPrint('removeConversation error: $e; $s');
+    } catch (e) {
+      iPrint('removeConversation error=${e.runtimeType}');
       return false;
     }
   }
@@ -858,8 +861,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       if (uk3.isNotEmpty) {
         removeConversationFromMap(uk3);
       }
-    } catch (e, s) {
-      iPrint('hideConversation error: $e, $s');
+    } catch (e) {
+      iPrint('hideConversation error=${e.runtimeType}');
     }
   }
 
@@ -890,8 +893,8 @@ class ConversationNotifier extends _$ConversationNotifier {
         whereArgs: whereArgs,
       );
       return await (ConversationRepo()).search(where, whereArgs);
-    } catch (e, s) {
-      iPrint('updateLastMsg error: $e; $s');
+    } catch (e) {
+      iPrint('updateLastMsg error=${e.runtimeType}');
       return [];
     }
   }
@@ -910,8 +913,8 @@ class ConversationNotifier extends _$ConversationNotifier {
           'updateConversationByMsgId: 更新会话 ${item.uk3} 的 lastMsgStatus 为 ${item.lastMsgStatus}',
         );
       }
-    } catch (e, s) {
-      iPrint('updateConversationByMsgId error: $e; $s');
+    } catch (e) {
+      iPrint('updateConversationByMsgId error=${e.runtimeType}');
     }
   }
 
@@ -979,8 +982,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       if (count != null) {
         await setConversationRemind(cm, count);
       }
-    } catch (e, s) {
-      iPrint('recalculateConversationRemind error: $e; $s');
+    } catch (e) {
+      iPrint('recalculateConversationRemind error=${e.runtimeType}');
     }
   }
 
@@ -1007,8 +1010,8 @@ class ConversationNotifier extends _$ConversationNotifier {
         await _setLastReadAutoId(cm, maxAutoId);
         await recalculateConversationRemind(cm);
       }
-    } catch (e, s) {
-      iPrint('advanceReadWatermarkByMsgIds error: $e; $s');
+    } catch (e) {
+      iPrint('advanceReadWatermarkByMsgIds error=${e.runtimeType}');
     }
   }
 
@@ -1028,8 +1031,8 @@ class ConversationNotifier extends _$ConversationNotifier {
         await _setLastReadAutoId(cm, maxAutoId);
         await recalculateConversationRemind(cm);
       }
-    } catch (e, s) {
-      iPrint('advanceWatermarkToLatest error: $e; $s');
+    } catch (e) {
+      iPrint('advanceWatermarkToLatest error=${e.runtimeType}');
     }
   }
 
@@ -1044,8 +1047,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       if (c != null) {
         return c.title;
       }
-    } catch (e, s) {
-      iPrint('_getContactTitle error for $peerId: $e; $s');
+    } catch (e) {
+      iPrint('_getContactTitle error=${e.runtimeType}');
     }
 
     // 同 _getGroupTitle：缺名不返回 uid，避免把内部 ID 写进 title 落库

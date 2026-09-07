@@ -381,4 +381,51 @@ void main() {
       expect(device.publicKey, 'pem_content');
     });
   });
+
+  group('group device key force refresh', () {
+    test('empty authoritative result does not reuse cached devices', () async {
+      E2EEService.setGroupDeviceKeyCacheForTest('g1', {
+        'revoked-device': 'old-key',
+      });
+      E2EEService.debugGroupMemberKeysLoader = (_) async => [];
+
+      final result = await E2EEService.getGroupDevicePublicKeys(
+        'g1',
+        maxRetries: 1,
+        retryDelay: Duration.zero,
+        forceRefresh: true,
+      );
+
+      expect(result['didToPem'], isEmpty);
+    });
+
+    test(
+      'failed authoritative refresh clears cache and fails closed',
+      () async {
+        E2EEService.setGroupDeviceKeyCacheForTest('g2', {
+          'revoked-device': 'old-key',
+        });
+        E2EEService.debugGroupMemberKeysLoader = (_) async =>
+            throw StateError('key endpoint unavailable');
+
+        await expectLater(
+          E2EEService.getGroupDevicePublicKeys(
+            'g2',
+            maxRetries: 1,
+            retryDelay: Duration.zero,
+            forceRefresh: true,
+          ),
+          throwsA(isA<StateError>()),
+        );
+
+        E2EEService.debugGroupMemberKeysLoader = (_) async => [];
+        final retry = await E2EEService.getGroupDevicePublicKeys(
+          'g2',
+          maxRetries: 1,
+          retryDelay: Duration.zero,
+        );
+        expect(retry['didToPem'], isEmpty);
+      },
+    );
+  });
 }

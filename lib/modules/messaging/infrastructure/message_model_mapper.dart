@@ -72,11 +72,13 @@ extension MessageModelMapper on MessageModel {
       iPrint('✅ toTypeMessage: E2EE 解密成功，id=$id');
       return decoded;
     } on Object catch (e) {
-      iPrint('⚠️ toTypeMessage: E2EE 解密失败，id=$id, error=$e');
+      iPrint(
+        '⚠️ toTypeMessage: E2EE 解密失败，id=$id, '
+        'error=${e.runtimeType}',
+      );
       return <String, dynamic>{
         '_e2ee_failed': true,
         '_e2ee_reason': 'decrypt_failed',
-        '_e2ee_error': e.toString(),
       };
     }
   }
@@ -152,7 +154,10 @@ extension MessageModelMapper on MessageModel {
           }
           payloadData = decoded;
         } catch (e) {
-          iPrint('⚠️ toTypeMessage: payload 解析失败，id=$id, error=$e');
+          iPrint(
+            '⚠️ toTypeMessage: payload 解析失败，id=$id, '
+            'error=${e.runtimeType}',
+          );
           return TextMessage(
             authorId: fromId.toString(),
             createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
@@ -170,7 +175,10 @@ extension MessageModelMapper on MessageModel {
     } else if (payload is Map<String, dynamic>) {
       payloadData = payload as Map<String, dynamic>;
     } else {
-      iPrint('⚠️ toTypeMessage: payload 无效或为空，id=$id, payload=$payload');
+      iPrint(
+        '⚠️ toTypeMessage: payload 无效或为空，id=$id, '
+        'type=${payload.runtimeType}',
+      );
       return TextMessage(
         authorId: fromId.toString(),
         createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
