@@ -345,9 +345,17 @@ class CryptoStore {
         );
       });
       return true;
-    } catch (_) {
-      // UNIQUE constraint violation → 重复消息，事务已回滚
-      return false;
+    } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError('crypto_inbox_dedupe.message_id')) {
+        return false;
+      }
+      throw CryptoStoreUnavailableException(
+        'inbox commit failed: ${e.runtimeType}',
+      );
+    } on Object catch (e) {
+      throw CryptoStoreUnavailableException(
+        'inbox commit failed: ${e.runtimeType}',
+      );
     }
   }
 

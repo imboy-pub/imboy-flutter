@@ -258,6 +258,24 @@ void main() {
       await store.purgeDedupe(olderThanMs: 0);
       expect(await store.isDuplicate('old-msg'), isFalse);
     });
+
+    test('存储故障不伪装成 duplicate', () async {
+      await db.execute('DROP TABLE crypto_inbox_dedupe');
+
+      await expectLater(
+        store.dedupeAndPersistSession(
+          messageId: 'store-failure',
+          peerUid: '100',
+          peerDeviceId: 'dev-S',
+          pickle: 'must-rollback',
+        ),
+        throwsA(isA<CryptoStoreUnavailableException>()),
+      );
+      expect(
+        await store.loadSession(peerUid: '100', peerDeviceId: 'dev-S'),
+        isNull,
+      );
+    });
   });
 
   group('事务原子性验证', () {
