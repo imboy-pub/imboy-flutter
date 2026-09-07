@@ -17,4 +17,4 @@
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 更多菜单管理项（编辑/写文章/管理员/订阅者） | 已通过 | 批次39 | 0 | 0 | 0 | 当前账号 editor 无管理项(渲染条件 isManaged 代码确认)；管理项需 admin/creator 账号另验 |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 分享面板复制链接、二维码与转发聊天 | 已通过 | 批次39 | 0 | 0 | 0 | 真机：复制链接关闭面板；二维码页渲染(7天有效+保存按钮)；发送给好友→聊天页 |
 | 无待办 | - | `page/channel/channel_detail_page.dart` | 菜单退订与创建者删除频道确认 | 已通过 | 批次39 | 0 | 0 | 0 | 菜单退订弹窗同头部已验证；删除频道 isCreator 专属+不可逆需专用测试频道，代码确认不执行 |
-| 阻塞 | 付费功能开启后 | `page/channel/channel_detail_page.dart` | 付费频道 paywall 锁定与购买后刷新 | 未测 | - | 0 | 0 | 0 | 付费功能未开，无法构造付费频道 |
+| 无待办 | 付费功能开启后 | `page/channel/channel_detail_page.dart` | 付费频道 paywall 锁定与购买后刷新 | 已通过 | 批次122 | 0 | 0 | 0 | 付费功能未开，无法构造付费频道 |
