@@ -155,16 +155,19 @@ class QrLoginConfirmContent extends StatelessWidget {
         const SizedBox(height: 40),
         SizedBox(
           width: double.infinity,
-          height: 48,
           child: CupertinoButton(
+            minimumSize: const Size(0, 48),
+            padding: EdgeInsets.zero,
             color: AppColors.primary,
             borderRadius: BorderRadius.circular(24),
             onPressed: onConfirm,
             child: Text(
               t.passport.qrLoginAction,
+              // 实底按钮文字必须显式 onPrimary，否则主题字色叠蓝底（同注销账号页 bug）。
               style: context.textStyle(
                 FontSizeType.medium,
                 fontWeight: FontWeight.w600,
+                color: AppColors.onPrimary,
               ),
             ),
           ),
@@ -172,8 +175,9 @@ class QrLoginConfirmContent extends StatelessWidget {
         AppSpacing.verticalMedium,
         SizedBox(
           width: double.infinity,
-          height: 48,
           child: CupertinoButton(
+            minimumSize: const Size(0, 48),
+            padding: EdgeInsets.zero,
             onPressed: onCancel,
             child: Text(
               t.common.buttonCancel,
@@ -227,10 +231,11 @@ class QrLoginConfirmContent extends StatelessWidget {
         const SizedBox(height: 40),
         SizedBox(
           width: 200,
-          height: 48,
           child: OutlinedButton(
             onPressed: onClose,
             style: OutlinedButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(0, 48),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),

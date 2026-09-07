@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/scanner/qr_login_confirm_content.dart';
 import 'package:imboy/page/scanner/qr_login_confirm_rules.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 void main() {
   Widget wrap(Widget child) => MaterialApp(home: child);
@@ -198,6 +199,20 @@ void main() {
       );
       expect(btnSize.height, greaterThanOrEqualTo(44.0));
       expect(size.width, greaterThan(0)); // sanity
+    });
+
+    testWidgets('实底确认按钮文字显式 onPrimary（防实底彩底叠主题字色回归）', (tester) async {
+      await tester.pumpWidget(
+        wrap(build(const QrLoginConfirmAwaitingConfirm())),
+      );
+      final text = tester.widget<Text>(find.text('确认登录'));
+      expect(
+        text.style?.color,
+        AppColors.onPrimary,
+        reason:
+            'primary 实底按钮文字必须显式白色，'
+            'context.textStyle 携带主题字色会叠出红/蓝底彩字（注销账号页同款 bug）',
+      );
     });
   });
 }

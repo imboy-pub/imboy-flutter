@@ -414,9 +414,12 @@ class LogoutAccountPage extends ConsumerWidget {
               ? CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.account.logoutAccount,
+                  // 红色实底按钮上的文字必须显式用 onPrimary：
+                  // context.textStyle 携带主题字色（浅色=蓝），叠红底变红底蓝字。
                   style: context.textStyle(
                     FontSizeType.body,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.onPrimary,
                   ),
                 ),
         ),
