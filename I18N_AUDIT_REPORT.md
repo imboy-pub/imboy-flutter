@@ -853,7 +853,7 @@ gitleaks 8.30.1 全 push 面（origin/main..HEAD）：245 笔提交 / 4.40MB dif
 > 见 [I18N_NATIVE_REVIEW_DISTRIBUTION.md](./I18N_NATIVE_REVIEW_DISTRIBUTION.md)（2026-09-06）。
 > 8 份分发版均已内嵌审核人母语导读，文件即完整说明。
 
-**审核人侧**（每语言一份 `I18N_NATIVE_REVIEW_<locale>.md`，约 30 行）：
+**审核人侧**（每语言一份 `I18N_NATIVE_REVIEW_<locale>.md`，31 行，含 2026-09-08 增补行）：
 1. 逐行核对「zh-CN（基准）」与「译文」列；结论列填 `APPROVED` / `CHANGES_REQUESTED` / `BLOCKED_NO_REVIEWER`；
 2. 有异议在「建议译文」列写出推荐译文；填审核人姓名与日期；
 3. ⚠️ 列为 AI 预筛观察项（长度比等），不构成驳回依据。
