@@ -189,16 +189,22 @@ GoRouter createAppRouter({
       ),
       // 忘记密码验证码页（原生×go_router 混用修复：原 forgot_password_page
       // 原生 push，页内重置成功后 context.go('/sign_in') 失灵）
+      // 参数解析 extra 优先、query 兜底：deep link/web shell 刷新场景
+      // 丢失 extra，query（account/accountType）让页面可独立直达
+      // （批次124 集成测试依赖此路径）。
       GoRoute(
         path: '/forgot_password/pin',
         name: 'forgot_password_pin',
         pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
+          final query = state.uri.queryParameters;
+          String param(String key, String def) =>
+              (extra[key] ?? query[key])?.toString() ?? def;
           return CupertinoPage(
             key: state.pageKey,
             child: PinCodeVerificationPage(
-              account: extra['account']?.toString() ?? '',
-              accountType: extra['accountType']?.toString() ?? 'mobile',
+              account: param('account', ''),
+              accountType: param('accountType', 'mobile'),
             ),
           );
         },
