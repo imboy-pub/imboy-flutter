@@ -34,8 +34,6 @@ class DbEncryptionKeyService {
   }
 
   /// 检查指定用户是否已有加密密钥
-  ///
-  /// 用于判断是否需要从明文迁移到加密数据库。
   static Future<bool> hasKey(String uid) async {
     final existing = await StorageSecureService.to.read(key: _storageKey(uid));
     return existing != null && existing.isNotEmpty;

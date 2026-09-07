@@ -2,20 +2,16 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:path/path.dart' as p;
-
 import 'package:imboy/service/db_encryption_key_service.dart';
 import 'package:imboy/service/sqflite_init.dart';
 
-/// 数据库加密迁移相关测试
+/// 数据库加密与 fail-closed 打开策略测试
 ///
 /// 测试范围：
 /// - 平台加密支持检测 (isEncryptionSupported)
-/// - 加密密钥与数据库初始化的集成
+/// - 加密密钥与数据库初始化契约
 /// - openEncryptedDatabase 参数传递逻辑
-///
-/// 注意：实际的 SQLCipher 加密迁移 (_migrateToEncryptedIfNeeded) 为私有方法，
-/// 且依赖真实文件系统和 SQLCipher 库，需要在集成测试中验证。
+/// - SqliteService 不得无密码探测、备份或删除已有数据库
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -113,18 +109,11 @@ void main() {
   });
 
   group('openEncryptedDatabase contract', () {
-    test('accepts null password on unsupported platforms', () {
-      // openEncryptedDatabase should handle null password gracefully
-      // The function signature: openEncryptedDatabase(path, {String? password, ...})
-      // When isEncryptionSupported is false, effectivePassword = null
-      //
-      // This is a contract test - we verify the API accepts null
-      // without calling the actual function (which needs a DB file)
-      expect(
-        () => openEncryptedDatabase('/nonexistent/test.db', password: null),
-        // Should throw because path doesn't exist, not because password is null
-        throwsA(isA<Object>()),
-      );
+    test('keeps null password limited to unsupported platform adapter', () {
+      final adapter = File(
+        'lib/service/sqflite_init_stub.dart',
+      ).readAsStringSync();
+      expect(adapter, contains('isEncryptionSupported ? password : null'));
     });
 
     test('function signature supports all callback parameters', () {
@@ -149,22 +138,6 @@ void main() {
       // (controlled by `if (isEncryptionSupported)` in SqliteService)
     });
 
-    test('backup file naming convention uses .pre_encrypt.bak suffix', () {
-      // Validate the naming convention used in _migrateToEncryptedIfNeeded
-      const dbPath = '/data/data/com.example/databases/dev_12345.db';
-      final backupPath = '$dbPath.pre_encrypt.bak';
-      final tempPath = '$dbPath.encrypted.tmp';
-
-      expect(
-        backupPath,
-        '/data/data/com.example/databases/dev_12345.db.pre_encrypt.bak',
-      );
-      expect(
-        tempPath,
-        '/data/data/com.example/databases/dev_12345.db.encrypted.tmp',
-      );
-    });
-
     test('key deletion prevents database access', () async {
       const uid = 'delete_key_user';
 
@@ -182,77 +155,52 @@ void main() {
     });
   });
 
-  group('encryption backup cleanup', () {
-    late Directory tempDir;
+  group('SQLCipher fail-closed source guard', () {
+    late String source;
 
-    setUp(() {
-      tempDir = Directory.systemTemp.createTempSync('imboy_backup_test_');
+    setUpAll(() {
+      source = File('lib/service/sqlite.dart').readAsStringSync();
     });
 
-    tearDown(() {
-      if (tempDir.existsSync()) {
-        tempDir.deleteSync(recursive: true);
-      }
+    test('does not open an existing database without a password', () {
+      expect(source, isNot(contains('password: null')));
+      expect(source, isNot(contains('Retrying database open without')));
     });
 
-    test('expired backup file is deleted after 7 days', () async {
-      final dbPath = p.join(tempDir.path, 'test.db');
-      final backupPath = '$dbPath.pre_encrypt.bak';
-      final backupFile = File(backupPath);
-
-      // Create a backup file
-      await backupFile.writeAsString('fake backup data');
-      expect(await backupFile.exists(), isTrue);
-
-      // Set modification time to 8 days ago
-      final eightDaysAgo = DateTime.now().subtract(const Duration(days: 8));
-      await backupFile.setLastModified(eightDaysAgo);
-
-      // Verify the file's modification time
-      final stat = await backupFile.stat();
-      expect(DateTime.now().difference(stat.modified).inDays >= 7, isTrue);
+    test('does not create plaintext migration backups', () {
+      expect(source, isNot(contains('.plain.bak')));
+      expect(source, isNot(contains('.pre_encrypt.bak')));
+      expect(source, isNot(contains('_cleanupEncryptionBackups')));
     });
 
-    test('recent backup file is preserved within 7 days', () async {
-      final dbPath = p.join(tempDir.path, 'test2.db');
-      final backupPath = '$dbPath.pre_encrypt.bak';
-      final backupFile = File(backupPath);
+    test(
+      'does not delete or copy an existing database during verification',
+      () {
+        final verification = source.substring(
+          source.indexOf('Future<bool> _verifyEncryptedDatabase'),
+          source.indexOf('/// 打开数据库时的配置回调'),
+        );
+        expect(verification, isNot(contains('.delete(')));
+        expect(verification, isNot(contains('.copy(')));
+        expect(verification, contains('password: password'));
+      },
+    );
 
-      // Create a backup file (just now - within 7 days)
-      await backupFile.writeAsString('recent backup data');
-      expect(await backupFile.exists(), isTrue);
+    test(
+      'verification failure stops initialization before migration preflight',
+      () {
+        final verificationGuard = source.indexOf(
+          '!await _verifyEncryptedDatabase(path, password)',
+        );
+        final failureReturn = source.indexOf('return null;', verificationGuard);
+        final migrationPreflight = source.indexOf(
+          'DatabaseMigrationOrchestrator.to.prepareForOpen',
+        );
 
-      // Verify the file's modification time is recent
-      final stat = await backupFile.stat();
-      expect(DateTime.now().difference(stat.modified).inDays < 7, isTrue);
-    });
-
-    test('cleanup handles non-existent backup file gracefully', () async {
-      final dbPath = p.join(tempDir.path, 'nonexistent.db');
-      final backupPath = '$dbPath.pre_encrypt.bak';
-      final backupFile = File(backupPath);
-
-      // File doesn't exist - should not throw
-      expect(await backupFile.exists(), isFalse);
-    });
-
-    test('backup file naming is deterministic from db path', () {
-      const dbPath1 = '/data/user/0/com.example/databases/dev_alice.db';
-      const dbPath2 = '/data/user/0/com.example/databases/dev_bob.db';
-
-      expect(
-        '$dbPath1.pre_encrypt.bak',
-        endsWith('dev_alice.db.pre_encrypt.bak'),
-      );
-      expect(
-        '$dbPath2.pre_encrypt.bak',
-        endsWith('dev_bob.db.pre_encrypt.bak'),
-      );
-      // Different users get different backup files
-      expect(
-        '$dbPath1.pre_encrypt.bak',
-        isNot(equals('$dbPath2.pre_encrypt.bak')),
-      );
-    });
+        expect(verificationGuard, greaterThanOrEqualTo(0));
+        expect(failureReturn, greaterThan(verificationGuard));
+        expect(failureReturn, lessThan(migrationPreflight));
+      },
+    );
   });
 }

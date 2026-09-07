@@ -240,21 +240,15 @@ class SqliteService {
 
     // 获取加密密钥（支持加密的平台才启用）
     String? password;
-    bool encrypted = false;
     final uid = UserRepoLocal.to.currentUid;
     if (isEncryptionSupported) {
       password = await DbEncryptionKeyService.getOrCreateKey(uid);
 
-      if (exists) {
-        // 已有数据库：检测是否已加密，未加密则尝试迁移
-        encrypted = await _migrateToEncryptedIfNeeded(path, password);
-      } else {
-        // 新建数据库：SQLCipher 直接创建加密数据库
-        encrypted = true;
+      if (exists && !await _verifyEncryptedDatabase(path, password)) {
+        // 错钥、明文库或损坏库都必须保留原文件并停止初始化。客户端不能
+        // 通过无密码探测来区分它们，更不能自动复制、删除或重建用户数据。
+        return null;
       }
-
-      // 清理过期的加密迁移备份文件（7 天后自动删除）
-      unawaited(_cleanupEncryptionBackups(path));
     }
 
     // 【WP5】打开前协调：预检（quick/fk check）+ 若需要版本迁移则在
@@ -268,7 +262,7 @@ class SqliteService {
         env: currentEnv,
         uid: uid,
         targetVersion: _dbVersion,
-        password: encrypted ? password : null,
+        password: password,
         unsyncedOutboxProbe: _unsyncedOutboxProbe,
       );
       if (!decision.proceed) {
@@ -286,8 +280,7 @@ class SqliteService {
     try {
       return await openEncryptedDatabase(
         path,
-        // 迁移失败时回退到无密码打开（明文模式）
-        password: encrypted ? password : null,
+        password: password,
         version: _dbVersion,
         onConfigure: _onConfigure,
         onCreate: _onCreate,
@@ -296,121 +289,35 @@ class SqliteService {
         onOpen: _onOpen,
       );
     } catch (e) {
-      AppLogger.error('Failed to open database: $e');
-      // 二次兜底：用密码打开失败，尝试无密码打开
-      if (encrypted && password != null) {
-        try {
-          AppLogger.warning('Retrying database open without encryption...');
-          return await openEncryptedDatabase(
-            path,
-            password: null,
-            version: _dbVersion,
-            onConfigure: _onConfigure,
-            onCreate: _onCreate,
-            onUpgrade: _onUpgrade,
-            onDowngrade: _onDowngrade,
-            onOpen: _onOpen,
-          );
-        } catch (fallbackError) {
-          AppLogger.error('Fallback open also failed: $fallbackError');
-        }
-      }
-      // 返回 null 触发降级处理，避免应用崩溃
+      AppLogger.error('Failed to open database (${e.runtimeType})');
       return null;
     }
   }
 
-  /// 检测并迁移未加密数据库到加密数据库
+  /// 验证已有数据库只能由当前账号的 SQLCipher 密钥打开。
   ///
-  /// 迁移策略：
-  /// 1. 尝试用密码打开数据库（检测是否已加密）
-  /// 2. 如果成功 → 已加密，返回 true
-  /// 3. 如果失败 → 文件是明文的，SQLCipher 无法打开明文文件
-  ///    → 备份原文件 → 删除 → 返回 true（让调用方创建新的加密数据库）
-  ///    → 数据从服务器重新同步
-  ///
-  /// 返回 true 表示数据库已加密或已删除可重建
-  /// 返回 false 表示迁移失败且无法恢复
-  Future<bool> _migrateToEncryptedIfNeeded(String path, String password) async {
-    // 先尝试用密码打开，如果成功说明已经加密
+  /// 失败可能表示错钥、旧明文库或文件损坏；这些状态不能在客户端安全
+  /// 区分，因此统一 fail-closed，并保留原文件供经授权的恢复流程处理。
+  Future<bool> _verifyEncryptedDatabase(String path, String password) async {
+    Database? testDb;
     try {
-      final testDb = await openEncryptedDatabase(path, password: password);
+      testDb = await openEncryptedDatabase(path, password: password);
       await testDb.rawQuery('SELECT count(*) FROM sqlite_master');
       await testDb.close();
-      iPrint('✅ Database already encrypted');
-      return true;
-    } catch (_) {
-      // 密码打开失败：可能是明文库（正常迁移），也可能是加密库 key 不匹配
-      // 或文件损坏（崩溃后遗症）——后者一旦走到「备份→删除→重建」就是
-      // 不可逆的数据丢失（2026-08-09 真机事故实证：崩溃后 key 读取失败，
-      // 旧库被当明文删除重建，全部历史消息丢失且生产无归档不可恢复）。
-      // 删库前必须用无密码打开验证确属明文：能打开才允许走迁移；
-      // 打不开则保留原库降级（数据在，可另路恢复），绝不删库。
-      try {
-        final plainDb = await openEncryptedDatabase(path, password: null);
-        await plainDb.rawQuery('SELECT count(*) FROM sqlite_master');
-        await plainDb.close();
-        iPrint('🔄 Database is plaintext, migrating to encrypted');
-      } catch (_) {
-        AppLogger.error(
-          '[_migrateToEncryptedIfNeeded] password open AND plaintext open '
-          'both failed: key mismatch or corrupt DB. NOT deleting $path — '
-          'data preserved.',
-        );
-        return false;
-      }
-    }
-
-    final file = File(path);
-    if (!await file.exists() || await file.length() == 0) {
-      // 空文件或不存在 → 直接创建加密数据库
-      return true;
-    }
-
-    // 文件是明文的，SQLCipher 无法打开
-    // 策略：备份 → 删除 → 让调用方创建新的加密库
-    final backupPath = '$path.plain.bak';
-    try {
-      await file.copy(backupPath);
-      iPrint('📦 Backed up plaintext database to $backupPath');
-    } catch (e) {
-      AppLogger.error('Failed to backup plaintext database: $e');
-    }
-
-    try {
-      await file.delete();
-      iPrint('🗑️ Deleted plaintext database (backup preserved)');
       return true;
     } catch (e) {
-      AppLogger.error('Failed to delete plaintext database: $e');
-      return false;
-    }
-  }
-
-  /// 清理过期的加密迁移备份文件
-  ///
-  /// 在加密迁移成功后，备份文件保留 7 天。
-  /// 超过 7 天的备份自动删除，避免占用存储空间。
-  static Future<void> _cleanupEncryptionBackups(
-    String dbPath, {
-    Duration maxAge = const Duration(days: 7),
-  }) async {
-    // 清理两种命名模式的备份文件
-    final backupPaths = ['$dbPath.plain.bak', '$dbPath.pre_encrypt.bak'];
-    try {
-      for (final backupPath in backupPaths) {
-        final backupFile = File(backupPath);
-        if (!await backupFile.exists()) continue;
-
-        final stat = await backupFile.stat();
-        if (DateTime.now().difference(stat.modified) > maxAge) {
-          await backupFile.delete();
-          iPrint('🗑️ Deleted expired encryption backup: $backupPath');
+      if (testDb != null && testDb.isOpen) {
+        try {
+          await testDb.close();
+        } catch (_) {
+          // 关闭探测句柄失败同样保持 fail-closed；不得继续主打开流程。
         }
       }
-    } catch (e) {
-      // 清理失败不影响正常功能，仅记录日志
-      AppLogger.debug('Encryption backup cleanup failed: $e');
+      AppLogger.error(
+        '[sqlite] encrypted database verification failed (${e.runtimeType}); '
+        'original file preserved',
+      );
+      return false;
     }
   }
 

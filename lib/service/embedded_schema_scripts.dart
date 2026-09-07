@@ -5,7 +5,7 @@ import 'package:imboy/service/migrations/manifest_all.dart';
 // 背景：assets/migrations/*.sql 曾在部分设备/构建下被 rootBundle.loadString 报
 // "Unable to load asset"（资源包未包含该文件，常见于增量构建未刷新
 // flutter_assets）。baseline_schema.sql 失败会导致新用户首次建库必然失败并连带
-// 触发 SQLCipher 无密钥兜底重开（sqlcipherCodecAttach: no key）；upgrade/
+// 造成 SQLCipher 建库失败（sqlcipherCodecAttach: no key）；upgrade/
 // downgrade.sql 失败则更隐蔽——MigrationService._loadMigrationScripts 原先 catch
 // 住异常返回空 map，版本迁移会被静默跳过而不报错。三者都是数据库能否正确
 // 建立/迁移的阻断点，因此都不适合继续依赖资源包这一层间接性。
