@@ -5,7 +5,7 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 阻塞 | 需无任何工作区的账号 | `page/workspace/workspace_groups_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R1 | 0 | 0 | 0 | 现有AB账号均有工作区 |
+| 无待办 | 零工作区账号 | `page/workspace/workspace_groups_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 已通过 | 批次121 | 0 | 0 | 0 | 批次121实测(AT-WS1~WS4,macOS)：零工作区登录落点=bootstrap 引导页（还没有工作区+创建/加入/切换到个人/重试四入口）整页空态实证；tab 页 WorkspaceEmptyView 为防御分支（零工作区时 shell 不挂载），空态职责由引导页等价承担（AT-WS3） |
 | 无待办 | - | `page/workspace/workspace_groups_page.dart` | 进入群组导航先显示加载态后渲染群列表 | 已通过 | 批次W2R1 | 0 | 0 | 0 | 加载帧瞬态以请求渲染链判定 |
 | 无待办 | - | `page/workspace/workspace_groups_page.dart` | 加载失败展示服务端错误消息与重试按钮，点重试重新拉取 | 已通过 | 批次115 | 0 | 0 | 0 | 批次115 沙箱：adapterForTest 注入业务失败（app.main 前设置才打到已构造实例）→ WorkspaceErrorView+重试；解除后重试恢复空列表态 |
 | 无待办 | - | `page/workspace/workspace_groups_page.dart` | 群卡渲染群头像（无头像展示占位图标）+群名+「N 名成员」副标题+聊天气泡图标 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |

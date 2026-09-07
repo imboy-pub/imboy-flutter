@@ -5,9 +5,9 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 阻塞 | 需无任何工作区的账号 | `page/workspace/workspace_channels_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R1 | 0 | 0 | 0 | 现有AB账号均有工作区 |
+| 无待办 | 零工作区账号 | `page/workspace/workspace_channels_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 已通过 | 批次121 | 0 | 0 | 0 | 批次121实测(AT-WS1~WS4,macOS)：零工作区登录落点=bootstrap 引导页（还没有工作区+创建/加入/切换到个人/重试四入口）整页空态实证；tab 页 WorkspaceEmptyView 为防御分支（零工作区时 shell 不挂载），空态职责由引导页等价承担（AT-WS2） |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 进入频道导航先显示加载态后渲染频道列表 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
-| 阻塞 | 需页面级无缓存与加载失败叠加场景 | `page/workspace/workspace_channels_page.dart` | 加载失败展示服务端错误消息与重试按钮，点重试重新拉取 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3实测：断网切Tab重拉确有发起但失败保留缓存不显错误视图；断网冷启动卡splash约2.5min后落init层无网络+重试（启动层非页面级），页面级错误态仍不可达 |
+| 无待办 | 幽灵工作区注入(非法wsId=999999999) | `page/workspace/workspace_channels_page.dart` | 加载失败展示服务端错误消息与重试按钮，点重试重新拉取 | 已通过 | 批次121 | 0 | 0 | 0 | 批次121实测(AT-WS6,macOS)：幽灵工作区注入驱动 shell 挂载，非法 wsId 服务端 403「非工作区成员，禁止访问该资源」透出 WorkspaceErrorView+重试按钮可点，点重试仍 403 保持错误视图（waitFor 30s） |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 频道卡渲染天线圆标+频道名+「N 人订阅」副标题+右箭头 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 频道列表为空时空态展示标题与副标题提示 | 已通过 | 批次115 | 0 | 0 | 0 | 批次115 沙箱：空工作区 → 「还没有工作区频道」+副标题 |
 | 无待办 | - | `page/workspace/workspace_channels_page.dart` | 点击频道卡进入频道详情页 /workspace/:wsId/channels/:channelId | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |

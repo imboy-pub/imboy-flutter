@@ -5,8 +5,8 @@
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 阻塞 | 需壳挂载但当前工作区为空的时序或产品决策 | `page/workspace/workspace_members_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 未测 | 批次W2R3 | 0 | 0 | 0 | W2R3实测：无工作区账号被壳bootstrap拦截（整页_NoWorkspaceEntry空态），WorkspaceShellPage不挂载Tab不可达，防御分支产品逻辑上互斥 |
-| 阻塞 | 成员页无下拉刷新且切Tab不失效，列表错误态不可触达 | `page/workspace/workspace_members_page.dart` | 成员列表先显示加载态，加载失败展示错误消息与重试按钮重新拉取 | 未测 | 批次W2R2 | 0 | 0 | 0 | 断网实测：仅 init 层错误视图+重试可用（恢复后重试成功）；观察项：列表级刷新入口缺失 |
+| 无待办 | 零工作区账号 | `page/workspace/workspace_members_page.dart` | 无当前工作区时整页空态提示先加入或创建工作区 | 已通过 | 批次121 | 0 | 0 | 0 | 批次121实测(AT-WS1~WS4,macOS)：零工作区登录落点=bootstrap 引导页（还没有工作区+创建/加入/切换到个人/重试四入口）整页空态实证；tab 页 WorkspaceEmptyView 为防御分支（零工作区时 shell 不挂载），空态职责由引导页等价承担（AT-WS5 深链 /workspace/members 被「请先选择或创建一个工作区」拦截） |
+| 无待办 | 幽灵工作区注入(非法wsId=999999999) | `page/workspace/workspace_members_page.dart` | 成员列表先显示加载态，加载失败展示错误消息与重试按钮重新拉取 | 已通过 | 批次121 | 0 | 0 | 0 | 批次121实测(AT-WS7,macOS)：同 WS6 幽灵注入法，403 透出+重试可点；members provider 分页拉取错误视图渲染慢，waitFor 放宽 30s（与 WS6 同款） |
 | 无待办 | - | `page/workspace/workspace_members_page.dart` | 成员行渲染头像/昵称（空则账号）/@账号/角色徽标（Owner/Member/Guest 三色） | 已通过 | 批次W2R4 | 1 | 1 | 0 | W2R4 重设计页（ea682e31 单卡片分组+细分隔线+成员数小节头）复测：甲/乙行头像/昵称独占整行/@账号单行截断/Owner蓝·Member绿·Guest灰三色徽标（乙 Guest 态实测）均正常 |
 | 阻塞 | 成员列表恒含Owner，空态不可达 | `page/workspace/workspace_members_page.dart` | 成员列表为空时空态展示标题与副标题提示 | 未测 | 批次W2R2 | 0 | 0 | 0 | 缺空列表场景 |
 | 无待办 | - | `page/workspace/workspace_members_page.dart` | Owner 顶部展示邀请按钮，点击进入邀请向导页 /workspace/:wsId/members/invite | 已通过 | 批次W2R4 | 0 | 0 | 0 | W2R4 重设计页：FilledButton 邀请按钮进向导页实测正常（WS2；见邀请向导页行1） |
