@@ -817,17 +817,31 @@ class PassportNotifier extends _$PassportNotifier {
       return;
     }
 
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: message as Widget,
-          backgroundColor: AppColors.iosRed,
-          duration: const Duration(seconds: 5),
-          behavior: SnackBarBehavior.fixed,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-      );
+    try {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: message as Widget,
+            backgroundColor: AppColors.iosRed,
+            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.fixed,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+    } catch (e) {
+      // 当前路由栈没有 Material Scaffold 时 ScaffoldMessenger 断言崩溃
+      // （_scaffolds.isNotEmpty）：忘记密码验证码页是 CupertinoPageScaffold，
+      // 深链直达该页后重发频控/重置失败的 snackBar 反馈会直接抛异常，
+      // 用户看不到任何提示（批次124 FP4 实证）。降级为 toast 反馈。
+      iPrint('[passport] snackBar 无 Scaffold 宿主，降级 toast: $e');
+      final text = message is Text ? (message.data ?? '') : message.toString();
+      if (strNoEmpty(text)) {
+        AppLoading.showError(text);
+      }
+    }
   }
 
   /// 初始化极光认证SDK
