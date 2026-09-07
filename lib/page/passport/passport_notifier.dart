@@ -521,17 +521,28 @@ class PassportNotifier extends _$PassportNotifier {
         API.login,
         data: postData,
       );
+      iPrint(
+        '[passport] login resp ok=${resp2.ok} '
+        'err=${resp2.error?.message} rsa=${data['rsa_encrypt']}',
+      );
 
       if (!resp2.ok) {
         final errMsg = resp2.error?.message ?? '';
         final wasMd5 = data['pwd_was_md5'] == true;
-        if (wasMd5 && errMsg.contains('errorPassword')) {
+        final viaRsa = data['rsa_encrypt'] == '1';
+        if (errMsg.contains('errorPassword') && (wasMd5 || viaRsa)) {
           // 新账号（hmac_sha512 存储）只接受明文；md5 传输必 errorPassword。
-          // 回退明文重试一次；存量账号 md5 一次成功，不会走到这里。
+          // RSA 部署（login_pwd_rsa_encrypt=1）下 UI 恒发 RSA(md5(密码))，
+          // 新账号同样必败且 pwd_was_md5=false——此前这里不回退，
+          // 表现为新注册账号永远无法登录（批次123 GF9 实证）。
+          // 回退明文重试一次；RSA 场景必须同时降 rsa_encrypt=0，
+          // 否则服务端 safe_rsa_decrypt 会把明文当密文解出空串。
+          // 存量账号 md5 一次成功，不会走到这里。
           if (kDebugMode) {
             debugPrint('[passport] md5 登录失败，回退明文重试（新账号 hmac 契约）');
           }
           postData['pwd'] = password;
+          postData['rsa_encrypt'] = '0';
           final retry = await HttpClient.client.post(API.login, data: postData);
           if (!retry.ok) {
             safeUpdateState(
