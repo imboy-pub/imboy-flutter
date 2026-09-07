@@ -60,7 +60,12 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
 
   @override
   void dispose() {
-    AppLoading.dismiss();
+    // 此处曾无条件 AppLoading.dismiss()：失败路径刚弹出的服务端错误 toast
+    // 会被页面卸载兜底清掉（用户永远看不到失败原因），且在 deactivated
+    // widget 状态下 dismiss 会在 EasyLoading overlay 上抛
+    // "Looking up a deactivated widget's ancestor is unsafe" 未捕获异常
+    // （批次123 GF8 实证崩测试绑定）。loading 的收尾已由按钮回调的
+    // finally 负责（成功 dismiss / 失败靠 toast 自身 duration），这里不能再碰。
     ssMsg?.cancel();
     _localeSubscription?.cancel();
     NetworkMonitorService.to.removeNetworkChangeListener(_onNetworkChanged);
@@ -271,14 +276,19 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       ),
       child: SizedBox(
         width: double.infinity,
-        height: 50,
         child: CupertinoButton.filled(
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          minimumSize: const Size(0, 50),
+          padding: EdgeInsets.zero,
           borderRadius: BorderRadius.circular(14),
           onPressed: _isJoiningGroup
               ? null
               : () async {
                   setState(() => _isJoiningGroup = true);
+                  // 失败时不能走 finally 的 dismiss：API 层已把服务端失败
+                  // 原因（如 gid not exist）作为 error toast 弹出，dismiss
+                  // 会把它立刻清掉，用户永远看不到失败提示（批次123 GF8）。
+                  // toast 自带 duration 会自动消失，故失败路径跳过 dismiss。
+                  var failed = false;
                   try {
                     AppLoading.show(status: t.common.loading);
                     final res = await ref
@@ -288,6 +298,15 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                         res['memberList'] as List<PeopleModel>? ?? [];
                     Map<String, dynamic> group =
                         res['group'] as Map<String, dynamic>;
+                    // groupFace2faceSave 对服务端失败（如匹配码失效 gid not
+                    // exist）吞错返回空 map——空 group 意味着建群未成功，
+                    // 必须留在本页（错误 toast 已由 API 层弹出），否则会
+                    // 带着空群信息跳进聊天页并向本地库插 id=0 脏行。
+                    if (group.isEmpty) {
+                      failed = true;
+                      iPrint('[FaceToFaceConfirm] save 返回空 group，视为失败');
+                      return;
+                    }
                     await GroupRepo().save('', group);
                     // `?? ''` 只挡得住 null —— 无名群后端返回的 title 就是**空字符串**，
                     // 于是空串一路传到聊天页，标题栏整个是空的（QA#60，比显示 gid 还糟）。
@@ -313,10 +332,11 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
                       );
                     }
                   } catch (e) {
+                    failed = true;
                     iPrint('[FaceToFaceConfirm] 入群失败: $e');
                     AppLoading.showError(t.common.tipFailed);
                   } finally {
-                    AppLoading.dismiss();
+                    if (!failed) AppLoading.dismiss();
                     if (mounted) setState(() => _isJoiningGroup = false);
                   }
                 },
