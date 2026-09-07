@@ -51,13 +51,16 @@ class SetRegionNotifier extends _$SetRegionNotifier {
 
       final cachedSelected = await RegionCache.loadSelectedRegion();
       if (!ref.mounted) return;
-      if (cachedSelected.isNotEmpty) {
+      // 缓存加载是异步的：若用户此时已做出新选择（hasChanged=true），
+      // initData 会把 selectedRegion/hasChanged 整体重置，静默吞掉刚点的
+      // 选择，且「完成」按钮随之失活（批次125 地区保存场景实证）。
+      if (cachedSelected.isNotEmpty && !state.hasChanged) {
         initData(cachedSelected);
       }
 
       final cachedPath = await RegionCache.loadRegionPath();
       if (!ref.mounted) return;
-      if (cachedPath.isNotEmpty) {
+      if (cachedPath.isNotEmpty && !state.hasChanged) {
         state = state.copyWith(regionPath: cachedPath);
       }
 

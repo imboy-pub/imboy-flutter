@@ -319,7 +319,10 @@ class AttachmentApi {
       debugPrint(
         '[upload][presignCompat] stack=${s.toString().split('\n').take(3).join(' | ')}',
       );
-      errorCallback(e);
+      // 调用方 onError 回调签名是 (Error)，dio/文件读取抛的是 Exception——
+      // 直接透传会在回调参数隐式转型处抛 TypeError，把真正的失败原因吞掉
+      // （批次125 头像上传实证）。非 Error 统一包装，保住原始错误信息。
+      errorCallback(e is Error ? e : StateError('upload failed: $e'));
     }
   }
 
@@ -360,7 +363,9 @@ class AttachmentApi {
         IMBoyHttpResponse.payloadStr(meta, 'object_key') ?? '',
       );
     } on Object catch (e) {
-      errorCallback(e);
+      // 同 uploadFileViaPresignCompat：非 Error 的 Exception 包装后回调，
+      // 避免在调用方 (Error) 签名处抛 TypeError 吞掉真实失败原因。
+      errorCallback(e is Error ? e : StateError('upload failed: $e'));
     }
   }
 
