@@ -728,7 +728,7 @@ e2eeBackupErrValidateFailed: Validierung fehlgeschlagen. Format prüfen.
 e2eeBackupErrImportFailed: Import fehlgeschlagen. Passwort prüfen.
 e2eeBackupImportSuccessTitle: Importiert
 e2eeBackupImportSuccessBody: E2EE-Schlüssel wiederhergestellt!
-e2eeBackupImportSuccessNote: "Hinweis: Gruppenchat-Verlauf wurde wiederhergestellt. Einzelchat-Verlauf ist nicht wiederherstellbar – E2EE-bedingt werden 1:1-Schlüssel nie geräteübergreifend gesichert"
+e2eeBackupImportSuccessNote: "Hinweis: Nur Gruppensitzungen, die in dieser Sicherung enthalten und erfolgreich gespeichert wurden, können den zugehörigen Verlauf entschlüsseln. Einzelchats sind nicht wiederherstellbar, da 1:1-Schlüssel nicht geräteübergreifend gesichert werden."
 e2eeBackupCreatedAtRow: Erstellt am
 e2eeBackupCloudUploadBtn: In die Cloud sichern
 e2eeBackupCloudUploadSuccess(version): In der Cloud gesichert (Version $version)

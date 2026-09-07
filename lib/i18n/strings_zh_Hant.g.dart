@@ -1414,7 +1414,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => '匯入失敗，請檢查密碼是否正確';
 	@override String get e2eeBackupImportSuccessTitle => '匯入成功';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE 金鑰已成功恢復！';
-	@override String get e2eeBackupImportSuccessNote => '注意：群聊歷史已隨備份恢復；單聊歷史無法恢復——依端對端加密規範，單聊金鑰不跨裝置備份';
+	@override String get e2eeBackupImportSuccessNote => '注意：只有備份中包含且成功寫入的群聊工作階段可用於讀取對應歷史；單聊歷史無法恢復，因為單聊金鑰不跨裝置備份';
 	@override String get e2eeBackupCreatedAtRow => '建立時間';
 	@override String get e2eeBackupCloudUploadBtn => '備份到雲端';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '已備份到雲端（版本 ${version}）';
@@ -3763,7 +3763,7 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupErrImportFailed' => '匯入失敗，請檢查密碼是否正確',
 			'common.e2eeBackupImportSuccessTitle' => '匯入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 金鑰已成功恢復！',
-			'common.e2eeBackupImportSuccessNote' => '注意：群聊歷史已隨備份恢復；單聊歷史無法恢復——依端對端加密規範，單聊金鑰不跨裝置備份',
+			'common.e2eeBackupImportSuccessNote' => '注意：只有備份中包含且成功寫入的群聊工作階段可用於讀取對應歷史；單聊歷史無法恢復，因為單聊金鑰不跨裝置備份',
 			'common.e2eeBackupCreatedAtRow' => '建立時間',
 			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',

@@ -729,7 +729,7 @@ e2eeBackupErrValidateFailed: "File validation failed, please check file format"
 e2eeBackupErrImportFailed: "Import failed, please check your password"
 e2eeBackupImportSuccessTitle: Import successful
 e2eeBackupImportSuccessBody: "E2EE key has been restored successfully!"
-e2eeBackupImportSuccessNote: "Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices"
+e2eeBackupImportSuccessNote: "Note: Only group sessions included in this backup and written successfully can unlock their corresponding history. One-to-one history cannot be recovered because 1:1 keys are not backed up across devices."
 e2eeBackupCreatedAtRow: Created at
 e2eeBackupCloudUploadBtn: Back up to cloud
 e2eeBackupCloudUploadSuccess(version): Backed up to cloud (version $version)

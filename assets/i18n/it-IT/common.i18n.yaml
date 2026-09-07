@@ -728,7 +728,7 @@ e2eeBackupErrValidateFailed: Validazione fallita. Controlla il formato.
 e2eeBackupErrImportFailed: Importazione fallita. Controlla la password.
 e2eeBackupImportSuccessTitle: Importata
 e2eeBackupImportSuccessBody: Chiave E2EE ripristinata !
-e2eeBackupImportSuccessNote: "Nota: la cronologia delle chat di gruppo è stata ripristinata. La cronologia delle chat individuali non è recuperabile — per design E2EE le chiavi 1:1 non vengono mai salvate tra dispositivi"
+e2eeBackupImportSuccessNote: "Nota: solo le sessioni di gruppo incluse in questo backup e salvate correttamente consentono di leggere la cronologia corrispondente. La cronologia individuale non è recuperabile perché le chiavi 1:1 non vengono salvate tra dispositivi."
 e2eeBackupCreatedAtRow: Creato il
 e2eeBackupCloudUploadBtn: Backup su cloud
 e2eeBackupCloudUploadSuccess(version): Backup su cloud completato (versione $version)

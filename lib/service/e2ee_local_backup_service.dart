@@ -282,6 +282,27 @@ class E2EELocalBackupService {
     return unpackBackupBytes(bytes: fileBytes, password: password);
   }
 
+  /// 恢复备份中包含的 Megolm inbound session。
+  ///
+  /// 任一安全存储写入失败即向上传播，调用方不得显示完整恢复成功。
+  /// 已完成的写入无法由 Secure Storage 原子回滚，因此重试必须保持幂等。
+  static Future<int> restoreMegolmSessions(
+    Map<String, dynamic> backup, {
+    @visibleForTesting
+    Future<void> Function(String key, String value)? writeForTest,
+  }) async {
+    final section = parseMegolmSection(backup[kMegolmSectionKey]);
+    final entries = megolmRestoreEntries(section);
+    for (final entry in entries.entries) {
+      if (writeForTest != null) {
+        await writeForTest(entry.key, entry.value);
+      } else {
+        await StorageSecureService.to.write(key: entry.key, value: entry.value);
+      }
+    }
+    return entries.length;
+  }
+
   /// 解包加密备份字节（importBackup 与云备份恢复共用）
   ///
   /// @throws ArgumentError 密码错误（GCM 认证失败）/ 格式无效 / 校验和不匹配

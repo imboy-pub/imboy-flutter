@@ -1414,7 +1414,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Importazione fallita. Controlla la password.';
 	@override String get e2eeBackupImportSuccessTitle => 'Importata';
 	@override String get e2eeBackupImportSuccessBody => 'Chiave E2EE ripristinata !';
-	@override String get e2eeBackupImportSuccessNote => 'Nota: la cronologia delle chat di gruppo è stata ripristinata. La cronologia delle chat individuali non è recuperabile — per design E2EE le chiavi 1:1 non vengono mai salvate tra dispositivi';
+	@override String get e2eeBackupImportSuccessNote => 'Nota: solo le sessioni di gruppo incluse in questo backup e salvate correttamente consentono di leggere la cronologia corrispondente. La cronologia individuale non è recuperabile perché le chiavi 1:1 non vengono salvate tra dispositivi.';
 	@override String get e2eeBackupCreatedAtRow => 'Creato il';
 	@override String get e2eeBackupCloudUploadBtn => 'Backup su cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Backup su cloud completato (versione ${version})';
@@ -3763,7 +3763,7 @@ extension on TranslationsItIt {
 			'common.e2eeBackupErrImportFailed' => 'Importazione fallita. Controlla la password.',
 			'common.e2eeBackupImportSuccessTitle' => 'Importata',
 			'common.e2eeBackupImportSuccessBody' => 'Chiave E2EE ripristinata !',
-			'common.e2eeBackupImportSuccessNote' => 'Nota: la cronologia delle chat di gruppo è stata ripristinata. La cronologia delle chat individuali non è recuperabile — per design E2EE le chiavi 1:1 non vengono mai salvate tra dispositivi',
+			'common.e2eeBackupImportSuccessNote' => 'Nota: solo le sessioni di gruppo incluse in questo backup e salvate correttamente consentono di leggere la cronologia corrispondente. La cronologia individuale non è recuperabile perché le chiavi 1:1 non vengono salvate tra dispositivi.',
 			'common.e2eeBackupCreatedAtRow' => 'Creato il',
 			'common.e2eeBackupCloudUploadBtn' => 'Backup su cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backup su cloud completato (versione ${version})',

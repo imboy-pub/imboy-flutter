@@ -1423,7 +1423,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'تعذّر الاستيراد، تحقق من كلمة المرور';
 	@override String get e2eeBackupImportSuccessTitle => 'تم الاستيراد';
 	@override String get e2eeBackupImportSuccessBody => 'تمت استعادة مفتاح E2EE!';
-	@override String get e2eeBackupImportSuccessNote => 'ملاحظة: تمت استعادة سجل المحادثات الجماعية. لا يمكن استعادة سجل المحادثات الفردية — فوفقًا لتصميم التشفير التام، لا يتم نسخ مفاتيح المحادثات الفردية بين الأجهزة';
+	@override String get e2eeBackupImportSuccessNote => 'ملاحظة: لا يمكن قراءة السجل المقابل إلا عبر جلسات المجموعة المضمّنة في هذه النسخة الاحتياطية والمحفوظة بنجاح. لا يمكن استعادة سجل المحادثات الفردية لأن مفاتيح 1:1 لا تُنسخ احتياطيًا بين الأجهزة.';
 	@override String get e2eeBackupCreatedAtRow => 'تاريخ الإنشاء';
 	@override String get e2eeBackupCloudUploadBtn => 'النسخ الاحتياطي إلى السحابة';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})';
@@ -3772,7 +3772,7 @@ extension on TranslationsArSa {
 			'common.e2eeBackupErrImportFailed' => 'تعذّر الاستيراد، تحقق من كلمة المرور',
 			'common.e2eeBackupImportSuccessTitle' => 'تم الاستيراد',
 			'common.e2eeBackupImportSuccessBody' => 'تمت استعادة مفتاح E2EE!',
-			'common.e2eeBackupImportSuccessNote' => 'ملاحظة: تمت استعادة سجل المحادثات الجماعية. لا يمكن استعادة سجل المحادثات الفردية — فوفقًا لتصميم التشفير التام، لا يتم نسخ مفاتيح المحادثات الفردية بين الأجهزة',
+			'common.e2eeBackupImportSuccessNote' => 'ملاحظة: لا يمكن قراءة السجل المقابل إلا عبر جلسات المجموعة المضمّنة في هذه النسخة الاحتياطية والمحفوظة بنجاح. لا يمكن استعادة سجل المحادثات الفردية لأن مفاتيح 1:1 لا تُنسخ احتياطيًا بين الأجهزة.',
 			'common.e2eeBackupCreatedAtRow' => 'تاريخ الإنشاء',
 			'common.e2eeBackupCloudUploadBtn' => 'النسخ الاحتياطي إلى السحابة',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})',

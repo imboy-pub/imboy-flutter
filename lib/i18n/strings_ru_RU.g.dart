@@ -1420,7 +1420,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Не удалось импортировать, проверьте пароль';
 	@override String get e2eeBackupImportSuccessTitle => 'Импорт выполнен';
 	@override String get e2eeBackupImportSuccessBody => 'Ключ E2EE восстановлен!';
-	@override String get e2eeBackupImportSuccessNote => 'Примечание: история групповых чатов восстановлена. История личных переписок недоступна — по принципам E2EE ключи 1:1 никогда не сохраняются между устройствами';
+	@override String get e2eeBackupImportSuccessNote => 'Примечание: прочитать соответствующую историю позволяют только групповые сессии, включённые в эту резервную копию и успешно сохранённые. Историю личных чатов восстановить нельзя, поскольку ключи 1:1 не копируются между устройствами.';
 	@override String get e2eeBackupCreatedAtRow => 'Дата создания';
 	@override String get e2eeBackupCloudUploadBtn => 'Сохранить в облако';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Сохранено в облаке (версия ${version})';
@@ -3769,7 +3769,7 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupErrImportFailed' => 'Не удалось импортировать, проверьте пароль',
 			'common.e2eeBackupImportSuccessTitle' => 'Импорт выполнен',
 			'common.e2eeBackupImportSuccessBody' => 'Ключ E2EE восстановлен!',
-			'common.e2eeBackupImportSuccessNote' => 'Примечание: история групповых чатов восстановлена. История личных переписок недоступна — по принципам E2EE ключи 1:1 никогда не сохраняются между устройствами',
+			'common.e2eeBackupImportSuccessNote' => 'Примечание: прочитать соответствующую историю позволяют только групповые сессии, включённые в эту резервную копию и успешно сохранённые. Историю личных чатов восстановить нельзя, поскольку ключи 1:1 не копируются между устройствами.',
 			'common.e2eeBackupCreatedAtRow' => 'Дата создания',
 			'common.e2eeBackupCloudUploadBtn' => 'Сохранить в облако',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Сохранено в облаке (версия ${version})',

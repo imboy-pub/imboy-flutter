@@ -1414,7 +1414,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Échec de l\'import. Vérifiez le mot de passe.';
 	@override String get e2eeBackupImportSuccessTitle => 'Importée';
 	@override String get e2eeBackupImportSuccessBody => 'Clé E2EE restaurée !';
-	@override String get e2eeBackupImportSuccessNote => 'À noter : l\'historique des discussions de groupe a été restauré. L\'historique des conversations individuelles est irrécupérable — par conception E2EE, les clés 1:1 ne sont jamais sauvegardées entre appareils';
+	@override String get e2eeBackupImportSuccessNote => 'Remarque : seules les sessions de groupe incluses dans cette sauvegarde et enregistrées avec succès permettent de lire l\'historique correspondant. L\'historique individuel ne peut pas être restauré, car les clés 1:1 ne sont pas sauvegardées entre appareils.';
 	@override String get e2eeBackupCreatedAtRow => 'Créée le';
 	@override String get e2eeBackupCloudUploadBtn => 'Sauvegarder dans le cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Sauvegardé dans le cloud (version ${version})';
@@ -3763,7 +3763,7 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupErrImportFailed' => 'Échec de l\'import. Vérifiez le mot de passe.',
 			'common.e2eeBackupImportSuccessTitle' => 'Importée',
 			'common.e2eeBackupImportSuccessBody' => 'Clé E2EE restaurée !',
-			'common.e2eeBackupImportSuccessNote' => 'À noter : l\'historique des discussions de groupe a été restauré. L\'historique des conversations individuelles est irrécupérable — par conception E2EE, les clés 1:1 ne sont jamais sauvegardées entre appareils',
+			'common.e2eeBackupImportSuccessNote' => 'Remarque : seules les sessions de groupe incluses dans cette sauvegarde et enregistrées avec succès permettent de lire l\'historique correspondant. L\'historique individuel ne peut pas être restauré, car les clés 1:1 ne sont pas sauvegardées entre appareils.',
 			'common.e2eeBackupCreatedAtRow' => 'Créée le',
 			'common.e2eeBackupCloudUploadBtn' => 'Sauvegarder dans le cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Sauvegardé dans le cloud (version ${version})',

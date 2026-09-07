@@ -725,7 +725,7 @@ e2eeBackupErrValidateFailed: ファイルの検証に失敗しました。ファ
 e2eeBackupErrImportFailed: 読み込みに失敗しました。パスワードが正しいか確認してください
 e2eeBackupImportSuccessTitle: 読み込み完了
 e2eeBackupImportSuccessBody: E2EEキーを復元しました！
-e2eeBackupImportSuccessNote: "注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません"
+e2eeBackupImportSuccessNote: "注意：このバックアップに含まれ、正常に保存されたグループセッションのみ、対応する履歴を読み取れます。1対1の鍵は端末間でバックアップされないため、個別チャットの履歴は復元できません。"
 e2eeBackupCreatedAtRow: 作成日時
 e2eeBackupCloudUploadBtn: クラウドにバックアップ
 e2eeBackupCloudUploadSuccess(version): クラウドにバックアップしました（バージョン $version）

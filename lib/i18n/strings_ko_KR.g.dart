@@ -1411,7 +1411,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => '가져오기 실패, 비밀번호를 확인해주세요';
 	@override String get e2eeBackupImportSuccessTitle => '가져오기 완료';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE 키가 복구되었습니다!';
-	@override String get e2eeBackupImportSuccessNote => '참고: 그룹 채팅 기록은 복원되었습니다. 1:1 대화 기록은 복원할 수 없습니다 — E2EE 설계상 1:1 키는 기기 간에 백업되지 않습니다';
+	@override String get e2eeBackupImportSuccessNote => '참고: 이 백업에 포함되고 정상적으로 저장된 그룹 세션만 해당 기록을 읽는 데 사용할 수 있습니다. 1:1 키는 기기 간에 백업되지 않으므로 개인 대화 기록은 복원할 수 없습니다.';
 	@override String get e2eeBackupCreatedAtRow => '생성 시간';
 	@override String get e2eeBackupCloudUploadBtn => '클라우드에 백업';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})';
@@ -3760,7 +3760,7 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupErrImportFailed' => '가져오기 실패, 비밀번호를 확인해주세요',
 			'common.e2eeBackupImportSuccessTitle' => '가져오기 완료',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 키가 복구되었습니다!',
-			'common.e2eeBackupImportSuccessNote' => '참고: 그룹 채팅 기록은 복원되었습니다. 1:1 대화 기록은 복원할 수 없습니다 — E2EE 설계상 1:1 키는 기기 간에 백업되지 않습니다',
+			'common.e2eeBackupImportSuccessNote' => '참고: 이 백업에 포함되고 정상적으로 저장된 그룹 세션만 해당 기록을 읽는 데 사용할 수 있습니다. 1:1 키는 기기 간에 백업되지 않으므로 개인 대화 기록은 복원할 수 없습니다.',
 			'common.e2eeBackupCreatedAtRow' => '생성 시간',
 			'common.e2eeBackupCloudUploadBtn' => '클라우드에 백업',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})',

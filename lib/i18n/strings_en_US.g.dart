@@ -1415,7 +1415,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Import failed, please check your password';
 	@override String get e2eeBackupImportSuccessTitle => 'Import successful';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE key has been restored successfully!';
-	@override String get e2eeBackupImportSuccessNote => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices';
+	@override String get e2eeBackupImportSuccessNote => 'Note: Only group sessions included in this backup and written successfully can unlock their corresponding history. One-to-one history cannot be recovered because 1:1 keys are not backed up across devices.';
 	@override String get e2eeBackupCreatedAtRow => 'Created at';
 	@override String get e2eeBackupCloudUploadBtn => 'Back up to cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Backed up to cloud (version ${version})';
@@ -3764,7 +3764,7 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupErrImportFailed' => 'Import failed, please check your password',
 			'common.e2eeBackupImportSuccessTitle' => 'Import successful',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
-			'common.e2eeBackupImportSuccessNote' => 'Note: Group chat history has been restored. One-to-one history cannot be recovered — by E2EE design, 1:1 keys are never backed up across devices',
+			'common.e2eeBackupImportSuccessNote' => 'Note: Only group sessions included in this backup and written successfully can unlock their corresponding history. One-to-one history cannot be recovered because 1:1 keys are not backed up across devices.',
 			'common.e2eeBackupCreatedAtRow' => 'Created at',
 			'common.e2eeBackupCloudUploadBtn' => 'Back up to cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backed up to cloud (version ${version})',

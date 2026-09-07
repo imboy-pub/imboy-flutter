@@ -1411,7 +1411,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => '読み込みに失敗しました。パスワードが正しいか確認してください';
 	@override String get e2eeBackupImportSuccessTitle => '読み込み完了';
 	@override String get e2eeBackupImportSuccessBody => 'E2EEキーを復元しました！';
-	@override String get e2eeBackupImportSuccessNote => '注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません';
+	@override String get e2eeBackupImportSuccessNote => '注意：このバックアップに含まれ、正常に保存されたグループセッションのみ、対応する履歴を読み取れます。1対1の鍵は端末間でバックアップされないため、個別チャットの履歴は復元できません。';
 	@override String get e2eeBackupCreatedAtRow => '作成日時';
 	@override String get e2eeBackupCloudUploadBtn => 'クラウドにバックアップ';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）';
@@ -3760,7 +3760,7 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupErrImportFailed' => '読み込みに失敗しました。パスワードが正しいか確認してください',
 			'common.e2eeBackupImportSuccessTitle' => '読み込み完了',
 			'common.e2eeBackupImportSuccessBody' => 'E2EEキーを復元しました！',
-			'common.e2eeBackupImportSuccessNote' => '注意：グループチャットの履歴は復元されました。1対1の履歴は復元できません——E2EEの設計上、1対1の鍵は端末間でバックアップされません',
+			'common.e2eeBackupImportSuccessNote' => '注意：このバックアップに含まれ、正常に保存されたグループセッションのみ、対応する履歴を読み取れます。1対1の鍵は端末間でバックアップされないため、個別チャットの履歴は復元できません。',
 			'common.e2eeBackupCreatedAtRow' => '作成日時',
 			'common.e2eeBackupCloudUploadBtn' => 'クラウドにバックアップ',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）',

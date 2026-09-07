@@ -1414,7 +1414,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeBackupErrImportFailed => 'Import fehlgeschlagen. Passwort prüfen.';
 	@override String get e2eeBackupImportSuccessTitle => 'Importiert';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE-Schlüssel wiederhergestellt!';
-	@override String get e2eeBackupImportSuccessNote => 'Hinweis: Gruppenchat-Verlauf wurde wiederhergestellt. Einzelchat-Verlauf ist nicht wiederherstellbar – E2EE-bedingt werden 1:1-Schlüssel nie geräteübergreifend gesichert';
+	@override String get e2eeBackupImportSuccessNote => 'Hinweis: Nur Gruppensitzungen, die in dieser Sicherung enthalten und erfolgreich gespeichert wurden, können den zugehörigen Verlauf entschlüsseln. Einzelchats sind nicht wiederherstellbar, da 1:1-Schlüssel nicht geräteübergreifend gesichert werden.';
 	@override String get e2eeBackupCreatedAtRow => 'Erstellt am';
 	@override String get e2eeBackupCloudUploadBtn => 'In die Cloud sichern';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'In der Cloud gesichert (Version ${version})';
@@ -3763,7 +3763,7 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupErrImportFailed' => 'Import fehlgeschlagen. Passwort prüfen.',
 			'common.e2eeBackupImportSuccessTitle' => 'Importiert',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE-Schlüssel wiederhergestellt!',
-			'common.e2eeBackupImportSuccessNote' => 'Hinweis: Gruppenchat-Verlauf wurde wiederhergestellt. Einzelchat-Verlauf ist nicht wiederherstellbar – E2EE-bedingt werden 1:1-Schlüssel nie geräteübergreifend gesichert',
+			'common.e2eeBackupImportSuccessNote' => 'Hinweis: Nur Gruppensitzungen, die in dieser Sicherung enthalten und erfolgreich gespeichert wurden, können den zugehörigen Verlauf entschlüsseln. Einzelchats sind nicht wiederherstellbar, da 1:1-Schlüssel nicht geräteübergreifend gesichert werden.',
 			'common.e2eeBackupCreatedAtRow' => 'Erstellt am',
 			'common.e2eeBackupCloudUploadBtn' => 'In die Cloud sichern',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'In der Cloud gesichert (Version ${version})',

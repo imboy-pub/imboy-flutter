@@ -97,6 +97,40 @@ void main() {
     });
   });
 
+  group('restoreMegolmSessions（恢复结果不可误报）', () {
+    test('全部写入成功时返回实际恢复数', () async {
+      final written = <String, String>{};
+
+      final restored = await E2EELocalBackupService.restoreMegolmSessions({
+        kMegolmSectionKey: {'c2g:session-a': 'pickle-a'},
+      }, writeForTest: (key, value) async => written[key] = value);
+
+      expect(restored, 1);
+      expect(written, {'megolm_inbound_c2g:session-a': 'pickle-a'});
+    });
+
+    test('任一安全存储写入失败时立即失败，不报告完整恢复', () async {
+      final attempted = <String>[];
+
+      expect(
+        () => E2EELocalBackupService.restoreMegolmSessions(
+          {
+            kMegolmSectionKey: {
+              'c2g:session-a': 'pickle-a',
+              'c2g:session-b': 'pickle-b',
+            },
+          },
+          writeForTest: (key, value) async {
+            attempted.add(key);
+            throw StateError('secure_storage_write_failed');
+          },
+        ),
+        throwsA(isA<StateError>()),
+      );
+      expect(attempted, ['megolm_inbound_c2g:session-a']);
+    });
+  });
+
   group('pack/unpack 往返（正向可用性）', () {
     test('Megolm 段逐条保真，且 Olm pickle 不出现在包内任何位置', () async {
       final bytes = await E2EELocalBackupService.packBackupBytes(

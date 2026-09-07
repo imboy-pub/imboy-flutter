@@ -4028,8 +4028,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: 'E2EE 密钥已成功恢复！'
 	String get e2eeBackupImportSuccessBody => 'E2EE 密钥已成功恢复！';
 
-	/// zh-CN: '注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份'
-	String get e2eeBackupImportSuccessNote => '注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份';
+	/// zh-CN: '注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份'
+	String get e2eeBackupImportSuccessNote => '注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份';
 
 	/// zh-CN: '创建时间'
 	String get e2eeBackupCreatedAtRow => '创建时间';
@@ -8040,7 +8040,7 @@ extension on Translations {
 			'common.e2eeBackupErrImportFailed' => '导入失败，请检查密码是否正确',
 			'common.e2eeBackupImportSuccessTitle' => '导入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 密钥已成功恢复！',
-			'common.e2eeBackupImportSuccessNote' => '注意：群聊历史已随备份恢复；单聊历史无法恢复——按端到端加密规范，单聊密钥不跨设备备份',
+			'common.e2eeBackupImportSuccessNote' => '注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份',
 			'common.e2eeBackupCreatedAtRow' => '创建时间',
 			'common.e2eeBackupCloudUploadBtn' => '备份到云端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已备份到云端（版本 ${version}）',

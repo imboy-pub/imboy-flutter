@@ -7,7 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/e2ee_backup_url_download_service.dart';
@@ -607,7 +606,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
       await _applyRestoredKeys(result);
     } on Exception catch (e) {
-      iPrint('[E2EEBackupImport] 导入备份失败: $e');
+      iPrint('[E2EEBackupImport] 导入备份失败: ${e.runtimeType}');
       if (mounted) _showError(t.common.e2eeBackupErrImportFailed);
     } finally {
       if (mounted) setState(() => _isImporting = false);
@@ -680,7 +679,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     } on ArgumentError {
       if (mounted) _showError(t.common.e2eeBackupErrCloudPwd);
     } on Exception catch (e) {
-      iPrint('[E2EEBackupImport] 云端恢复失败: $e');
+      iPrint('[E2EEBackupImport] 云端恢复失败: ${e.runtimeType}');
       if (mounted) _showError(t.common.e2eeBackupErrCloudRestoreFailed);
     } finally {
       if (mounted) setState(() => _isCloudRestoring = false);
@@ -690,6 +689,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   /// 恢复成功后的统一后处理：保存密钥四元组到安全存储 + 成功弹窗。
   /// 文件导入与云端恢复两条路径共用。
   Future<void> _applyRestoredKeys(Map<String, dynamic> result) async {
+    // Megolm session 必须全部成功写入才进入成功态；重试是幂等的。
+    final restored = await E2EELocalBackupService.restoreMegolmSessions(result);
+
     await StorageSecureService.to.savePrivateKey(
       result['private_key'] as String,
     );
@@ -699,21 +701,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     // 破坏 E2EE-013「加密写入绑定已认证设备」的授权边界。故此处不再 setDeviceId。
     await StorageSecureService.to.setKeyId(result['key_id'] as String);
 
-    // P3-1：回填 Megolm inbound session（换设备后群聊历史可恢复）。
-    // 单条写失败不整体回滚——已恢复的会话仍有价值，失败项只是该会话历史读不到。
-    final section = parseMegolmSection(result[kMegolmSectionKey]);
-    final entries = megolmRestoreEntries(section);
-    var restored = 0;
-    for (final e in entries.entries) {
-      try {
-        await StorageSecureService.to.write(key: e.key, value: e.value);
-        restored++;
-      } on Object catch (err) {
-        iPrint('⚠️ [RESTORE] Megolm 会话回填失败: ${e.key}, $err');
-      }
-    }
-    if (entries.isNotEmpty) {
-      iPrint('[RESTORE] Megolm 会话回填 $restored/${entries.length}');
+    if (restored > 0) {
+      iPrint('[RESTORE] Megolm 会话回填 $restored');
     }
 
     if (!mounted) return;
