@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart' show Database;
 
 import 'package:imboy/service/db_encryption_key_service.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/sqflite_init.dart';
 
 /// SQLCipher 加密与 fail-closed 打开集成测试
@@ -194,6 +196,95 @@ void main() {
           if (wrongKeyDb != null && wrongKeyDb.isOpen) {
             await wrongKeyDb.close();
           }
+          if (await runDir.exists()) await runDir.delete(recursive: true);
+        }
+      },
+    );
+  });
+
+  group('SQLCipher Crypto Inbox - Restart Recovery', () {
+    test(
+      'staged decrypt result survives close/reopen without plaintext bytes',
+      () async {
+        expect(
+          isEncryptionSupported,
+          isTrue,
+          reason: '该验收只能在项目声明支持 SQLCipher 的真实设备执行',
+        );
+
+        final root = await getTemporaryDirectory();
+        final runDir = await Directory(
+          p.join(
+            root.path,
+            'imboy_crypto_inbox_${DateTime.now().microsecondsSinceEpoch}',
+          ),
+        ).create();
+        final dbPath = p.join(runDir.path, 'crypto-inbox.db');
+        const key =
+            '13579bdf02468ace13579bdf02468ace13579bdf02468ace13579bdf02468ace';
+        final canary = _randomCanary();
+        final messageId =
+            'device-inbox-${DateTime.now().microsecondsSinceEpoch}';
+        final digest = 'digest-$canary';
+        Database? db;
+
+        try {
+          db = await openEncryptedDatabase(dbPath, password: key);
+          var cryptoStore = CryptoStore(db);
+          await cryptoStore.ensureSchema();
+          expect(
+            await cryptoStore.stageInbound(
+              messageId: messageId,
+              scope: 'olm:device-test:c2c:peer',
+              ciphertextDigest: digest,
+              frameJson: '{"ciphertext":"redacted"}',
+            ),
+            InboundStageResult.staged,
+          );
+          expect(
+            await cryptoStore.commitInboundResult(
+              messageId: messageId,
+              scope: 'olm:device-test:c2c:peer',
+              ciphertextDigest: digest,
+              decryptedPayload: canary,
+            ),
+            isTrue,
+          );
+          await db.close();
+          db = null;
+
+          final raw = latin1.decode(
+            await File(dbPath).readAsBytes(),
+            allowInvalid: true,
+          );
+          expect(raw.contains(canary), isFalse);
+
+          db = await openEncryptedDatabase(dbPath, password: key);
+          cryptoStore = CryptoStore(db);
+          await cryptoStore.ensureSchema();
+          expect(await cryptoStore.loadInboundResult(messageId), canary);
+
+          await cryptoStore.completeInbound(messageId);
+          expect(
+            await cryptoStore.stageInbound(
+              messageId: messageId,
+              scope: 'olm:device-test:c2c:peer',
+              ciphertextDigest: digest,
+              frameJson: '{"ciphertext":"redacted"}',
+            ),
+            InboundStageResult.processed,
+          );
+          expect(
+            await cryptoStore.stageInbound(
+              messageId: messageId,
+              scope: 'olm:device-test:c2c:peer',
+              ciphertextDigest: '$digest-tampered',
+              frameJson: '{"ciphertext":"tampered"}',
+            ),
+            InboundStageResult.replay,
+          );
+        } finally {
+          if (db != null && db.isOpen) await db.close();
           if (await runDir.exists()) await runDir.delete(recursive: true);
         }
       },
