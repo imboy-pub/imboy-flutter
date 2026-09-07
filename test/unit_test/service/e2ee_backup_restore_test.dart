@@ -86,6 +86,7 @@ Future<String> _createValidBackup({
     publicKey: publicKey,
     deviceId: deviceId,
     keyId: keyId,
+    secureEntriesForTest: const {},
   );
 }
 
@@ -130,6 +131,7 @@ void main() {
         publicKey: 'test-public-key-pem',
         deviceId: 'dev-rk-1',
         keyId: 'kid-rk-1',
+        secureEntriesForTest: const {},
       );
       final restored = await E2EELocalBackupService.unpackBackupBytes(
         bytes: bytes,
@@ -233,6 +235,25 @@ void main() {
       expect(result['private_key'], equals(_kFakePrivateKey));
       expect(result['public_key'], equals(_kFakePublicKey));
       expect(result['file_size'], isPositive);
+    });
+
+    test('安全存储不可读时拒绝生成不完整备份', () async {
+      await expectLater(
+        E2EELocalBackupService.packBackupBytes(
+          password: _kValidPassword,
+          privateKey: _kFakePrivateKey,
+          publicKey: _kFakePublicKey,
+          deviceId: _kDeviceId,
+          keyId: _kKeyId,
+        ),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            'backup_secret_collection_failed',
+          ),
+        ),
+      );
     });
 
     // 7. 空/不存在文件路径恢复应优雅失败 / Non-existent file graceful failure

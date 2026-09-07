@@ -135,6 +135,7 @@ void main() {
       publicKey: 'test-pub',
       deviceId: 'test-device',
       keyId: 'test-key-id',
+      secureEntriesForTest: const {},
     );
     expect(filePath, contains('imboy_e2ee_backup_'));
     await File(filePath).delete().catchError((_) => File(filePath));

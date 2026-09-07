@@ -24,7 +24,7 @@ import 'e2ee_crypto_service.dart';
 /// - 使用 PBKDF2-HMAC-SHA256 派生密钥（310,000 次迭代）
 /// - 使用 AES-256-GCM 加密私钥
 /// - SHA-256 校验和验证文件完整性
-/// - 备份文件完全由用户控制，服务器不存储
+/// - 本地备份文件由用户控制；云备份服务器仅存储加密包
 ///
 /// @author Imboy Team
 /// @since 2026-01-31
@@ -101,6 +101,7 @@ class E2EELocalBackupService {
     required String deviceId,
     required String keyId,
     String? userNotes,
+    @visibleForTesting Map<String, String>? secureEntriesForTest,
   }) async {
     final backupFile = await packBackupBytes(
       password: password,
@@ -109,6 +110,7 @@ class E2EELocalBackupService {
       deviceId: deviceId,
       keyId: keyId,
       userNotes: userNotes,
+      secureEntriesForTest: secureEntriesForTest,
     );
 
     // 保存到临时目录
@@ -138,16 +140,16 @@ class E2EELocalBackupService {
     // 1. 验证密码强度
     _validatePassword(password);
 
-    // P3-1：Megolm inbound session 段——换设备后群聊历史可恢复的唯一材料。
-    // 收集失败不阻断备份（RSA 私钥仍值得备份），但留日志不静默。
-    Map<String, String> megolmSection = const {};
+    // Megolm inbound session 是群历史解密材料。安全存储不可读时必须
+    // 拒绝导出；否则 UI 会把一份不完整的 RSA-only 包报告为备份成功。
+    final Map<String, String> all;
     try {
-      final all =
-          secureEntriesForTest ?? await StorageSecureService.to.readAll();
-      megolmSection = collectMegolmSection(all);
+      all = secureEntriesForTest ?? await StorageSecureService.to.readAll();
     } on Object catch (e) {
-      iPrint('⚠️ [BACKUP] Megolm 段收集失败，仅备份 RSA 私钥: $e');
+      iPrint('[BACKUP] secret collection failed: ${e.runtimeType}');
+      throw StateError('backup_secret_collection_failed');
     }
+    final megolmSection = collectMegolmSection(all);
 
     // 2. 构建备份数据（JSON）
     final backupData = {

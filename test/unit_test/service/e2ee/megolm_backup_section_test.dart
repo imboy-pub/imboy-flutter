@@ -40,6 +40,7 @@ void main() {
         // 以下都不得进备份
         'olm_account_pickle': 'olm-acc', // 双棘轮发送态：还原会 key reuse
         'olm_session_1001:did-x': 'olm-sess',
+        'crypto_identity_pin_peer:did': 'tofu-pin',
         'group_e2ee_mode_1900000000000': '1', // 服务端权威，可重拉
         'e2ee_private_key': 'rsa-priv', // 另有专门字段
       });
@@ -47,6 +48,7 @@ void main() {
       expect(section.keys.toSet(), {'c2c:sess-A', '1900000000000:sess-B'});
       expect(section['c2c:sess-A'], 'key-A');
       expect(section.keys.any((k) => k.startsWith('olm')), isFalse);
+      expect(section.keys.any((k) => k.startsWith('crypto_')), isFalse);
     });
 
     test('空值条目跳过', () {
@@ -107,6 +109,7 @@ void main() {
           'megolm_inbound_c2c:sess-A': 'exported-key-A',
           'megolm_inbound_1900000000000:sess-B': 'exported-key-B',
           'olm_account_pickle': 'must-not-appear',
+          'crypto_identity_pin_peer:did': 'must-not-appear-either',
         },
       );
 
@@ -125,6 +128,7 @@ void main() {
         '1900000000000:sess-B': 'exported-key-B',
       });
       expect(jsonEncode(restored).contains('must-not-appear'), isFalse);
+      expect(jsonEncode(restored).contains('must-not-appear-either'), isFalse);
     }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('无群会话时段为空但字段存在（与 v1 旧包可区分）', () async {

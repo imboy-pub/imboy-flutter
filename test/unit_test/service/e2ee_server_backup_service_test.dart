@@ -28,6 +28,7 @@ void main() {
       publicKey: publicKey,
       deviceId: deviceId,
       keyId: keyId,
+      secureEntriesForTest: const {},
     );
   }
 
