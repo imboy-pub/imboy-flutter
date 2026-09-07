@@ -8,6 +8,8 @@
 > **分发**：见 [I18N_NATIVE_REVIEW_DISTRIBUTION.md](./I18N_NATIVE_REVIEW_DISTRIBUTION.md)（含各语言一句话邀约与回填流程）。
 > 8 份按语言分发版均已内嵌审核人母语导读（2026-09-06），发文件即发完整说明。
 
+> 2026-09-08 增补：common.e2eeBackupImportSuccessNote 于包生成后更新译文（E2EE 备份导入语义精确化），已作为 31† 行纳入各语言包。
+
 ## 选取规则（可复现）
 
 1. **Tier 1 高风险域**：键名或 zh-CN 值命中 安全/隐私/支付/删除/注销/封禁/验证 等正则（RISK_NAME ∪ RISK_VALUE），按 key 字母序，每语言上限 24 条。
@@ -65,6 +67,7 @@
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | قارن رمز الأمان مع الطرف الآخر وجهاً لوجه أو عبر الهاتف. إذا تطابق الرمزان فهذا يعني أن اتصالكما ليس خاضعاً لتنصت وسيط؛ وإذا اختلف فأوقف المحادثة فوراً وتحقق من هوية الطرف الآخر عبر قناة أخرى. تُحفظ حالة التحقق على هذا الجهاز فقط. | | ✅ |
 | 29 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | المفتاح العام لتدقيق الامتثال الصادر من الخادم لا يطابق القيمة المثبتة محلياً. إذا كان هذا تدويراً مقصوداً للمفتاح من المسؤول، فانقر على «تأكيد التدوير»؛ وإلا فلا تُكمل إرسال الرسائل المشفّرة، واتصل بالمسؤول للتحقق. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | لحماية رسائلك، تم إنشاء مفتاح تشفير جديد من طرف إلى طرف على هذا الجهاز. الرسائل السابقة مشفّرة بمفتاح الجهاز القديم، ولا يمكن عرضها إلا بعد استعادة المفتاح. يمكنك الاستعادة عبر "استيراد نسخة احتياطية محلية". | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | ملاحظة: لا يمكن قراءة السجل المقابل إلا عبر جلسات المجموعة المضمّنة في هذه النسخة الاحتياطية والمحفوظة بنجاح. لا يمكن استعادة سجل المحادثات الفردية لأن مفاتيح 1:1 لا تُنسخ احتياطيًا بين الأجهزة. | | ✅ |
 
 ### de-DE
 
@@ -100,6 +103,7 @@
 | 28 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokal gepinnten Wert überein. Handelt es sich um eine beabsichtigte Schlüsselrotation durch den Administrator, tippen Sie auf „Rotation bestätigen“; andernfalls senden Sie keine weiteren verschlüsselten Nachrichten und kontaktieren Sie den Administrator zur Prüfung. | | ⚠️ 长度比2.88 |
 | 29 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Vergleichen Sie den Sicherheitscode persönlich oder telefonisch mit der anderen Person. Bei Übereinstimmung wird Ihre Kommunikation nicht abgehört; bei Abweichung beenden Sie sofort das Gespräch und verifizieren Sie die Identität über einen anderen Kanal. Der Verifizierungsstatus wird nur auf diesem Gerät gespeichert. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Zum Schutz Ihrer Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt. Ältere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Sie können ihn über „Lokales Backup importieren“ wiederherstellen. | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | Hinweis: Nur Gruppensitzungen, die in dieser Sicherung enthalten und erfolgreich gespeichert wurden, können den zugehörigen Verlauf entschlüsseln. Einzelchats sind nicht wiederherstellbar, da 1:1-Schlüssel nicht geräteübergreifend gesichert werden. | | ✅ |
 
 ### fr-FR
 
@@ -135,6 +139,7 @@
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Comparez le code de sécurité avec votre correspondant en personne ou par téléphone. S'il correspond, vos communications ne sont pas interceptées par un intermédiaire ; dans le cas contraire, arrêtez immédiatement la conversation et vérifiez son identité par un autre canal. L'état de vérification n'est conservé que sur cet appareil. | | ✅ |
 | 29 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | La clé publique d'audit de conformité fournie par le serveur ne correspond pas à la valeur épinglée localement. S'il s'agit d'une rotation de clés voulue par l'administrateur, appuyez sur « Confirmer la rotation » ; sinon, n'envoyez plus de messages chiffrés et contactez l'administrateur pour vérification. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Pour protéger vos messages, une nouvelle clé de chiffrement de bout en bout a été générée sur cet appareil. Les anciens messages ont été chiffrés avec la clé de l'ancien appareil et ne seront visibles qu'après restauration de la clé. Vous pouvez la restaurer via « Importer une sauvegarde locale ». | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | Remarque : seules les sessions de groupe incluses dans cette sauvegarde et enregistrées avec succès permettent de lire l'historique correspondant. L'historique individuel ne peut pas être restauré, car les clés 1:1 ne sont pas sauvegardées entre appareils. | | ✅ |
 
 ### it-IT
 
@@ -170,6 +175,7 @@
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Confronta il codice di sicurezza con l'altro di persona o al telefono. Se corrisponde, le vostre comunicazioni non sono intercettate da un attacco man-in-the-middle; se non corrisponde, interrompi subito la conversazione e verifica l'identità dell'altro tramite un altro canale. Lo stato di verifica è salvato solo su questo dispositivo. | | ✅ |
 | 29 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | La chiave pubblica di audit di conformità distribuita dal server non corrisponde al valore bloccato localmente. Se si tratta di una rotazione della chiave intenzionale dell'amministratore, tocca «Conferma rotazione»; in caso contrario non continuare a inviare messaggi cifrati e contatta l'amministratore per una verifica. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave di crittografia end-to-end. I messaggi precedenti sono stati crittografati con la chiave del vecchio dispositivo e saranno visibili solo dopo il ripristino della chiave. Puoi ripristinarla tramite "Importa backup locale". | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | Nota: solo le sessioni di gruppo incluse in questo backup e salvate correttamente consentono di leggere la cronologia corrispondente. La cronologia individuale non è recuperabile perché le chiavi 1:1 non vengono salvate tra dispositivi. | | ✅ |
 
 ### ja-JP
 
@@ -205,6 +211,7 @@
 | 28 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。 | | ✅ |
 | 29 | T3 | `discovery.nearbyPeopleExplain` | 附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。 你的电话号码将会被隐藏。 | 近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。 電話番号は非表示になります。 | | ✅ |
 | 30 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | 対面または電話で、相手と安全番号を照合してください。一致していれば、通信が中間者によって盗聴されていないことを意味します。一致しない場合は、直ちに会話を中止し、別の手段で相手の身元を確認してください。検証状態はこの端末にのみ保存されます。 | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | 注意：このバックアップに含まれ、正常に保存されたグループセッションのみ、対応する履歴を読み取れます。1対1の鍵は端末間でバックアップされないため、個別チャットの履歴は復元できません。 | | ✅ |
 
 ### ko-KR
 
@@ -240,6 +247,7 @@
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | 대면 또는 전화로 상대방과 보안 번호를 비교해 주세요. 일치하면 두 사람의 통신에 중간자가 없는 것이고, 일치하지 않으면 즉시 대화를 중단하고 다른 경로로 상대방의 신원을 확인하세요. 검증 상태는 이 기기에만 저장됩니다. | | ✅ |
 | 29 | T3 | `discovery.nearbyPeopleExplain` | 附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。 你的电话号码将会被隐藏。 | 주변 사용자가 귀하의 프로필을 보고 메시지를 보낼 수 있습니다. 이는 새 친구를 찾는 데 도움이 될 수 있지만 과도한 주의를 끌 수도 있습니다. 언제든지 프로필 공유를 중단할 수 있습니다. 전화번호는 숨겨집니다. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | 메시지를 보호하기 위해 이 기기에서 새로운 종단간 암호화 키를 생성했습니다. 이전 메시지는 이전 기기의 키로 암호화되어 있어 키를 복원해야 볼 수 있습니다. "로컬 백업 가져오기"를 통해 복원할 수 있습니다. | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | 참고: 이 백업에 포함되고 정상적으로 저장된 그룹 세션만 해당 기록을 읽는 데 사용할 수 있습니다. 1:1 키는 기기 간에 백업되지 않으므로 개인 대화 기록은 복원할 수 없습니다. | | ✅ |
 
 ### ru-RU
 
@@ -275,6 +283,7 @@
 | 28 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | Открытый ключ комплаенс-аудита, выданный сервером, не совпадает с локально зафиксированным значением. Если это намеренная ротация ключа администратором, нажмите «Подтвердить ротацию»; иначе не отправляйте зашифрованные сообщения и обратитесь к администратору для проверки. | | ✅ |
 | 29 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Сравните код безопасности с собеседником лично или по телефону. Если коды совпадают, ваша связь не прослушивается посредником; если нет — немедленно прекратите разговор и проверьте личность собеседника другим способом. Статус проверки хранится только на этом устройстве. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Для защиты сообщений на этом устройстве создан новый ключ сквозного шифрования. Прошлые сообщения зашифрованы ключом со старого устройства, и их можно будет увидеть только после восстановления ключа. Вы можете восстановить его через «Импорт локальной резервной копии». | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | Примечание: прочитать соответствующую историю позволяют только групповые сессии, включённые в эту резервную копию и успешно сохранённые. Историю личных чатов восстановить нельзя, поскольку ключи 1:1 не копируются между устройствами. | | ✅ |
 
 ### zh-Hant
 
@@ -311,4 +320,5 @@
 你的電話號碼將會被隱藏。 |  | ⚠️ 改值待复审 |✅ 
 | 29 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | 請透過面對面或電話與對方比對安全碼。若一致，表示你們的通訊沒有被中間人監聽；若不一致，請立即停止對話，並透過其他管道核實對方身分。驗證狀態僅保存在本機。 | | ✅ |
 | 30 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | 伺服器下發的合規稽核公開金鑰與本地固定值不一致。若這是管理員有意進行的金鑰輪替，請點擊「確認輪替」；否則請勿繼續傳送加密訊息，並請聯絡管理員查明。 | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | 注意：只有備份中包含且成功寫入的群聊工作階段可用於讀取對應歷史；單聊歷史無法恢復，因為單聊金鑰不跨裝置備份 | | ✅ |
 

@@ -10,14 +10,14 @@
 
 | 语言 | 发送文件 | 一句话邀约（复制即用） |
 |---|---|---|
-| 繁體中文 | `I18N_NATIVE_REVIEW_zh-Hant.md` | 幫我校一份繁中 UI 文案（30 行，約 15 分鐘），逐行打 ✅ 或給建議，感謝！ |
-| 日本語 | `I18N_NATIVE_REVIEW_ja-JP.md` | 日本語UI文案の最終チェックをお願いできますか？30行・15分ほどで、各行に✅か修正案を書くだけです。 |
-| 한국어 | `I18N_NATIVE_REVIEW_ko-KR.md` | 한국어 UI 문구를 검토해 주실 수 있을까요? 30행, 15분 정도면 끝나고, 각 행에 ✅ 또는 수정안만 적으면 됩니다. |
-| Deutsch | `I18N_NATIVE_REVIEW_de-DE.md` | Kannst du unsere deutschen UI-Texte gegenlesen? Ca. 30 Zeilen, 15–20 Min., pro Zeile ✅ oder Verbesserung. Danke! |
-| Français | `I18N_NATIVE_REVIEW_fr-FR.md` | Peux-tu relire nos textes UI en français ? ~30 lignes, 15–20 min : ✅ ou correction par ligne. Merci ! |
-| Italiano | `I18N_NATIVE_REVIEW_it-IT.md` | Puoi rileggere i testi UI in italiano? ~30 righe, 15–20 min: ✅ o correzione per riga. Grazie! |
-| Русский | `I18N_NATIVE_REVIEW_ru-RU.md` | Можешь вычитать наши русские тексты интерфейса? ~30 строк, 15–20 минут: ✅ или свой вариант. Спасибо! |
-| العربية | `I18N_NATIVE_REVIEW_ar-SA.md` | هل يمكنك مراجعة نصوص الواجهة العربية؟ 30 سطرًا، 15–20 دقيقة: ✅ أو تصحيح لكل سطر. شكرًا! |
+| 繁體中文 | `I18N_NATIVE_REVIEW_zh-Hant.md` | 幫我校一份繁中 UI 文案（31 行，約 15 分鐘），逐行打 ✅ 或給建議，感謝！ |
+| 日本語 | `I18N_NATIVE_REVIEW_ja-JP.md` | 日本語UI文案の最終チェックをお願いできますか？31行・15分ほどで、各行に✅か修正案を書くだけです。 |
+| 한국어 | `I18N_NATIVE_REVIEW_ko-KR.md` | 한국어 UI 문구를 검토해 주실 수 있을까요? 31행, 15분 정도면 끝나고, 각 행에 ✅ 또는 수정안만 적으면 됩니다. |
+| Deutsch | `I18N_NATIVE_REVIEW_de-DE.md` | Kannst du unsere deutschen UI-Texte gegenlesen? Ca. 31 Zeilen, 15–20 Min., pro Zeile ✅ oder Verbesserung. Danke! |
+| Français | `I18N_NATIVE_REVIEW_fr-FR.md` | Peux-tu relire nos textes UI en français ? ~31 lignes, 15–20 min : ✅ ou correction par ligne. Merci ! |
+| Italiano | `I18N_NATIVE_REVIEW_it-IT.md` | Puoi rileggere i testi UI in italiano? ~31 righe, 15–20 min: ✅ o correzione per riga. Grazie! |
+| Русский | `I18N_NATIVE_REVIEW_ru-RU.md` | Можешь вычитать наши русские тексты интерфейса? ~31 строк, 15–20 минут: ✅ или свой вариант. Спасибо! |
+| العربية | `I18N_NATIVE_REVIEW_ar-SA.md` | هل يمكنك مراجعة نصوص الواجهة العربية؟ 31 سطرًا، 15–20 دقيقة: ✅ أو تصحيح لكل سطر. شكرًا! |
 
 渠道随意：微信/Telegram/邮件附件均可——文件是纯 Markdown，任何编辑器（含手机备忘录式逐条回复）都能处理。
 

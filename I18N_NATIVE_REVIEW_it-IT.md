@@ -13,7 +13,7 @@ Ciao! IMBoy è un'app di messaggistica cifrata end-to-end (auto-ospitabile). Pri
 - traduzione corretta → scrivi `✅` nella sesta colonna (intestazione 结论, attualmente vuota);
 - traduzione da correggere → scrivi `✗` nella sesta colonna e scrivi la tua proposta nell'ultima colonna (intestazione 建议译文, contiene ✅ per impostazione predefinita).
 
-30 righe in totale, circa 15–20 minuti. Nomi propri e marchi (Alipay, WeChat Pay, Huabei…) restano volutamente in caratteri latini: modificali solo se davvero errati.
+31 righe in totale, circa 15–20 minuti. Nomi propri e marchi (Alipay, WeChat Pay, Huabei…) restano volutamente in caratteri latini: modificali solo se davvero errati.
 
 Quando hai finito, rimanda semplicemente questo file alla persona che ti ha contattato. Grazie mille!
 
@@ -51,4 +51,6 @@ Quando hai finito, rimanda semplicemente questo file alla persona che ti ha cont
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Confronta il codice di sicurezza con l'altro di persona o al telefono. Se corrisponde, le vostre comunicazioni non sono intercettate da un attacco man-in-the-middle; se non corrisponde, interrompi subito la conversazione e verifica l'identità dell'altro tramite un altro canale. Lo stato di verifica è salvato solo su questo dispositivo. | | ✅ |
 | 29 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | La chiave pubblica di audit di conformità distribuita dal server non corrisponde al valore bloccato localmente. Se si tratta di una rotazione della chiave intenzionale dell'amministratore, tocca «Conferma rotazione»; in caso contrario non continuare a inviare messaggi cifrati e contatta l'amministratore per una verifica. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Per proteggere i messaggi, su questo dispositivo è stata generata una nuova chiave di crittografia end-to-end. I messaggi precedenti sono stati crittografati con la chiave del vecchio dispositivo e saranno visibili solo dopo il ripristino della chiave. Puoi ripristinarla tramite "Importa backup locale". | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | Nota: solo le sessioni di gruppo incluse in questo backup e salvate correttamente consentono di leggere la cronologia corrispondente. La cronologia individuale non è recuperabile perché le chiavi 1:1 non vengono salvate tra dispositivi. | | ✅ |
+> † 2026-09-08 增补：包生成后该键译文被更新（E2EE 备份导入语义精确化），纳入本轮审核范围。
 

@@ -13,7 +13,7 @@ Hallo! IMBoy ist eine Chat-App mit Ende-zu-Ende-Verschlüsselung (selbst hostbar
 - Übersetzung passt → schreibe `✅` in die sechste Spalte (Titel 结论, noch leer)
 - Übersetzung passt nicht → schreibe `✗` in die sechste Spalte und trage Deine Empfehlung in die letzte Spalte (Titel 建议译文, dort steht derzeit ✅) ein
 
-Insgesamt 30 Zeilen, ca. 15–20 Minuten. Eigennamen und Marken (Alipay, WeChat Pay, Huabei u. a.) bleiben bewusst lateinisch – bitte nur ändern, wenn wirklich falsch.
+Insgesamt 31 Zeilen, ca. 15–20 Minuten. Eigennamen und Marken (Alipay, WeChat Pay, Huabei u. a.) bleiben bewusst lateinisch – bitte nur ändern, wenn wirklich falsch.
 
 Wenn Du fertig bist, schicke diese Datei einfach an die Person zurück, die Dich eingeladen hat. Vielen Dank!
 
@@ -51,4 +51,6 @@ Wenn Du fertig bist, schicke diese Datei einfach an die Person zurück, die Dich
 | 28 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokal gepinnten Wert überein. Handelt es sich um eine beabsichtigte Schlüsselrotation durch den Administrator, tippen Sie auf „Rotation bestätigen“; andernfalls senden Sie keine weiteren verschlüsselten Nachrichten und kontaktieren Sie den Administrator zur Prüfung. | | ⚠️ 长度比2.88 |
 | 29 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Vergleichen Sie den Sicherheitscode persönlich oder telefonisch mit der anderen Person. Bei Übereinstimmung wird Ihre Kommunikation nicht abgehört; bei Abweichung beenden Sie sofort das Gespräch und verifizieren Sie die Identität über einen anderen Kanal. Der Verifizierungsstatus wird nur auf diesem Gerät gespeichert. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Zum Schutz Ihrer Nachrichten wurde auf diesem Gerät ein neuer Ende-zu-Ende-Verschlüsselungsschlüssel erzeugt. Ältere Nachrichten wurden mit dem Schlüssel des alten Geräts verschlüsselt und sind erst nach Wiederherstellung des Schlüssels sichtbar. Sie können ihn über „Lokales Backup importieren“ wiederherstellen. | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | Hinweis: Nur Gruppensitzungen, die in dieser Sicherung enthalten und erfolgreich gespeichert wurden, können den zugehörigen Verlauf entschlüsseln. Einzelchats sind nicht wiederherstellbar, da 1:1-Schlüssel nicht geräteübergreifend gesichert werden. | | ✅ |
+> † 2026-09-08 增补：包生成后该键译文被更新（E2EE 备份导入语义精确化），纳入本轮审核范围。
 

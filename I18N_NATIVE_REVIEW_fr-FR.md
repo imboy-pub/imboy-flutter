@@ -13,7 +13,7 @@ Bonjour ! IMBoy est une application de messagerie chiffrée de bout en bout (aut
 - traduction correcte → écrivez `✅` dans la sixième colonne (en-tête 结论, vide pour l'instant) ;
 - traduction à corriger → écrivez `✗` dans la sixième colonne et proposez votre version dans la dernière colonne (en-tête 建议译文, qui contient ✅ par défaut).
 
-30 lignes au total, 15 à 20 minutes environ. Les noms propres et marques (Alipay, WeChat Pay, Huabei…) restent volontairement en caractères latins — ne les modifiez que s'ils sont réellement erronés.
+31 lignes au total, 15 à 20 minutes environ. Les noms propres et marques (Alipay, WeChat Pay, Huabei…) restent volontairement en caractères latins — ne les modifiez que s'ils sont réellement erronés.
 
 Une fois terminé, renvoyez simplement ce fichier à la personne qui vous a contacté. Merci beaucoup !
 
@@ -51,4 +51,6 @@ Une fois terminé, renvoyez simplement ce fichier à la personne qui vous a cont
 | 28 | T3 | `main.safetyNumberHint` | 请通过面对面或电话与对方比对安全码。若一致，说明你们的通信没有被中间人监听；若不一致，请立即停止对话并通过其他渠道核实对方身份。验证状态仅保存在本机。 | Comparez le code de sécurité avec votre correspondant en personne ou par téléphone. S'il correspond, vos communications ne sont pas interceptées par un intermédiaire ; dans le cas contraire, arrêtez immédiatement la conversation et vérifiez son identité par un autre canal. L'état de vérification n'est conservé que sur cet appareil. | | ✅ |
 | 29 | T3 | `common.complianceKeyChangedBody` | 服务端下发的合规审计公钥与本地固定值不一致。若这是管理员有意的密钥轮换，请点击"确认轮换"；否则请勿继续发送加密消息，并联系管理员核查。 | La clé publique d'audit de conformité fournie par le serveur ne correspond pas à la valeur épinglée localement. S'il s'agit d'une rotation de clés voulue par l'administrateur, appuyez sur « Confirmer la rotation » ; sinon, n'envoyez plus de messages chiffrés et contactez l'administrateur pour vérification. | | ✅ |
 | 30 | T3 | `chat.e2eeRecoveryNewDeviceBody` | 为保护消息安全，本设备已生成新的端到端加密密钥。 历史消息使用旧设备的密钥加密，需先恢复密钥才能查看。你可以通过「本地备份导入」恢复。 | Pour protéger vos messages, une nouvelle clé de chiffrement de bout en bout a été générée sur cet appareil. Les anciens messages ont été chiffrés avec la clé de l'ancien appareil et ne seront visibles qu'après restauration de la clé. Vous pouvez la restaurer via « Importer une sauvegarde locale ». | | ✅ |
+| 31† | T1 | `common.e2eeBackupImportSuccessNote` | 注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份 | Remarque : seules les sessions de groupe incluses dans cette sauvegarde et enregistrées avec succès permettent de lire l'historique correspondant. L'historique individuel ne peut pas être restauré, car les clés 1:1 ne sont pas sauvegardées entre appareils. | | ✅ |
+> † 2026-09-08 增补：包生成后该键译文被更新（E2EE 备份导入语义精确化），纳入本轮审核范围。
 
