@@ -802,6 +802,8 @@ class OlmSessionService {
     required int messageType,
     required String ciphertext,
     String? messageId,
+    String? inboxScope,
+    String? ciphertextDigest,
   }) async {
     await ensureInitialized();
     final lockKey = '$peerUid:$peerDeviceId';
@@ -843,6 +845,9 @@ class OlmSessionService {
           peerDeviceId,
           session,
           messageId,
+          decryptedPayload: result.plaintext as String,
+          inboxScope: inboxScope,
+          ciphertextDigest: ciphertextDigest,
         );
         // 入站会话建立后，本端可能需补传 OTK
         unawaited(
@@ -878,6 +883,9 @@ class OlmSessionService {
         peerDeviceId,
         session,
         messageId,
+        decryptedPayload: plaintext,
+        inboxScope: inboxScope,
+        ciphertextDigest: ciphertextDigest,
       );
       return plaintext;
     });
@@ -889,18 +897,36 @@ class OlmSessionService {
     String peerUid,
     String peerDeviceId,
     vod.Session session,
-    String? messageId,
-  ) async {
+    String? messageId, {
+    String? decryptedPayload,
+    String? inboxScope,
+    String? ciphertextDigest,
+  }) async {
     if (messageId != null) {
       final store = await _requireStore(peerUid, peerDeviceId);
       final pickleKey = await _pickleKey();
-      final accepted = await store.dedupeAndPersistSession(
-        messageId: messageId,
-        peerUid: peerUid,
-        peerDeviceId: peerDeviceId,
-        pickle: session.toPickleEncrypted(pickleKey),
-      );
+      final hasRecoveryContext =
+          inboxScope != null &&
+          inboxScope.isNotEmpty &&
+          ciphertextDigest != null &&
+          ciphertextDigest.isNotEmpty;
+      late final bool accepted;
+      try {
+        accepted = await store.dedupeAndPersistSession(
+          messageId: messageId,
+          peerUid: peerUid,
+          peerDeviceId: peerDeviceId,
+          pickle: session.toPickleEncrypted(pickleKey),
+          scope: hasRecoveryContext ? inboxScope : null,
+          ciphertextDigest: hasRecoveryContext ? ciphertextDigest : null,
+          decryptedPayload: hasRecoveryContext ? decryptedPayload : null,
+        );
+      } on Object {
+        _sessions.remove(_sessionKey(peerUid, peerDeviceId));
+        rethrow;
+      }
       if (!accepted) {
+        _sessions.remove(_sessionKey(peerUid, peerDeviceId));
         throw DuplicateMessageException(messageId);
       }
       _sessions[_sessionKey(peerUid, peerDeviceId)] = session;

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/encryption_mode.dart';
@@ -623,23 +624,64 @@ class E2EEService {
       );
     }
 
+    final messageId = outerHeader['message_id']?.toString() ?? '';
+    final inboxScope = [
+      outerHeader['protocol'],
+      outerHeader['session_ref'],
+      outerHeader['scope'],
+      outerHeader['conversation_id'],
+    ].join(':');
+    final ciphertextDigest = crypto.sha256
+        .convert(
+          CanonicalCbor.encode({
+            'protected_header': envelope['protected_header'],
+            'ciphertext': ciphertextB64,
+            'protocol_metadata': protocolMetadata,
+          }),
+        )
+        .toString();
+    final store = await OlmSessionService.to.cryptoStore;
+    if (store == null) {
+      return _decryptFailedPayload(payload, reason: 'crypto_store_unavailable');
+    }
+
+    try {
+      final staged = await store.stageInbound(
+        messageId: messageId,
+        scope: inboxScope,
+        ciphertextDigest: ciphertextDigest,
+        frameJson: jsonEncode(payload),
+      );
+      if (staged == InboundStageResult.replay) {
+        return _decryptFailedPayload(payload, reason: 'duplicate_message');
+      }
+      if (staged == InboundStageResult.processed) {
+        return _decryptFailedPayload(payload, reason: 'already_processed');
+      }
+    } on CryptoStoreUnavailableException {
+      return _decryptFailedPayload(payload, reason: 'crypto_store_unavailable');
+    }
+
     String innerFrameB64;
     try {
-      // 协议路由：从 protocol_metadata 中解析 suite
-      final metadata = <String, dynamic>{
-        ...protocolMetadata,
-        'protocol': outerHeader['protocol'],
-        'version': outerHeader['protocol_version'],
-        // S2.3c: 透传 message_id 供 OlmProtocol dedupe
-        'message_id':
-            outerHeader['message_id']?.toString() ??
-            payload['id']?.toString() ??
-            '',
-      };
-      final ciphertextStr = utf8.decode(base64Url.decode(ciphertextB64));
-      innerFrameB64 = await E2eeProtocolRegistry.resolve(
-        metadata,
-      ).decrypt(ciphertext: ciphertextStr, metadata: metadata);
+      final recovered = await store.loadInboundResult(messageId);
+      if (recovered != null) {
+        innerFrameB64 = recovered;
+      } else {
+        // 协议路由：从 protocol_metadata 中解析 suite
+        final metadata = <String, dynamic>{
+          ...protocolMetadata,
+          'protocol': outerHeader['protocol'],
+          'version': outerHeader['protocol_version'],
+          'message_id': messageId,
+          'inbox_scope': inboxScope,
+          'ciphertext_digest': ciphertextDigest,
+        };
+        final ciphertextStr = utf8.decode(base64Url.decode(ciphertextB64));
+        innerFrameB64 = await E2eeProtocolRegistry.resolve(
+          metadata,
+        ).decrypt(ciphertext: ciphertextStr, metadata: metadata);
+      }
     } on DuplicateMessageException {
       // ADR 15 §7.1：重复密文幂等返回，ratchet 未重复推进。
       // 与"解密失败"语义不同——上层据此静默跳过，不应向用户报错。

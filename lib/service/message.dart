@@ -7,6 +7,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/service/active_conversation_notifier.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/message_conversation_utils.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -363,7 +365,10 @@ class MessageService with EventSubscriptionManager {
     } else if (action != null && action.isNotEmpty) {
       // 内容 action 可能携带 E2EE 密文；必须先解密再交给 action 处理器。
       // 控制 action（已读/撤回/输入状态/ACK）保持原有明文元数据路径。
-      await _receiveActionMessage(action, type, data);
+      final committed = await _receiveActionMessage(action, type, data);
+      if (committed && (type == 'C2C' || type == 'C2G')) {
+        AckManager.to.sendAck(type, msgId);
+      }
     } else if (type == 'MSG_READ') {
       await _receiveReadReceipt(data);
     } else {
@@ -371,7 +376,10 @@ class MessageService with EventSubscriptionManager {
         case 'C2C':
         case 'C2G':
         case 'C2S':
-          await _receiveMessage(data);
+          final committed = await _receiveMessage(data);
+          if (committed && (type == 'C2C' || type == 'C2G')) {
+            AckManager.to.sendAck(type, msgId);
+          }
           break;
         case 'ERROR':
           await _handleError(data);
@@ -382,14 +390,27 @@ class MessageService with EventSubscriptionManager {
     }
   }
 
-  Future<void> _receiveActionMessage(
+  /// 离线拉取与实时 WS 共用同一条认证、解密和最终持久化语义。
+  /// ACK 由各自 transport 在返回 true 后发送。
+  Future<bool> persistInboundMessage(Map<String, dynamic> data) {
+    final action = data['action']?.toString() ?? '';
+    if (action.isNotEmpty) {
+      return _receiveActionMessage(
+        action,
+        data['type']?.toString() ?? '',
+        data,
+      );
+    }
+    return _receiveMessage(data);
+  }
+
+  Future<bool> _receiveActionMessage(
     String action,
     String type,
     Map<String, dynamic> data,
   ) async {
     if (!_isEncryptedEditAction(action, data)) {
-      await _messageActions.handleActionMessage(action, data);
-      return;
+      return _messageActions.handleActionMessage(action, data);
     }
 
     final msgId = parseModelString(data['id']);
@@ -407,13 +428,19 @@ class MessageService with EventSubscriptionManager {
       ),
     );
     if (decrypted['_e2ee_failed'] == true) {
+      if (decrypted['_e2ee_reason']?.toString() == 'already_processed') {
+        return true;
+      }
       iPrint(
         '🚫 [E2EE] 编辑 action 解密失败，拒绝执行: msgId=$msgId, reason=${decrypted['_e2ee_reason']}',
       );
-      return;
+      return false;
     }
     final actionData = Map<String, dynamic>.from(data)..['payload'] = decrypted;
-    await _messageActions.handleActionMessage(action, actionData);
+    if (!await _messageActions.handleActionMessage(action, actionData)) {
+      return false;
+    }
+    return _completeInboundIfStaged(data, msgId);
   }
 
   bool _isEncryptedEditAction(String action, Map<String, dynamic> data) {
@@ -484,43 +511,31 @@ class MessageService with EventSubscriptionManager {
   ///   "payload": "base64_nonce.base64_ciphertext"
   /// }
   /// ```
-  Future<void> _receiveMessage(Map<String, dynamic> data) async {
+  Future<bool> _receiveMessage(Map<String, dynamic> data) async {
     final startTime = DateTimeHelper.millisecond();
     final msgId = parseModelString(data['id']);
     // chatType 持会话类型 (C2C/C2G/C2S)，对齐 WebSocket API v2.0 顶层 `type` 字段
     final chatType = parseModelString(data['type']);
     if (msgId.isEmpty || chatType.isEmpty) {
       iPrint('❌ [消息格式] 缺少 id/type 字段: id=$msgId, type=$chatType');
-      return;
+      return false;
     }
     iPrint('⏱️ [1] _receiveMessage 开始: $startTime, msgId: $msgId');
 
-    // ACK已在websocket.dart:_onMessage中发送，此处不再重复发送
-    // ACK发送已移至websocket.dart，确保在最早期发送，避免任何处理延迟
+    final repo = getMessageRepo(chatType);
+    final existing = await repo.find(msgId);
 
     // v2.0: 从顶层读取 e2ee 字段（可能是字符串形式的 JSON）
     final e2eeRaw = data['e2ee'];
-    Map<String, dynamic>? e2ee;
+    final e2ee = _parseE2eeMetadata(e2eeRaw);
+    if (e2eeRaw != null && e2eeRaw.toString().isNotEmpty && e2ee == null) {
+      iPrint('❌ [E2EE] e2ee 元数据解析失败: msgId=$msgId');
+    }
 
-    // 解析 e2ee（可能是字符串或 Map<String, dynamic>）
-    if (e2eeRaw != null && e2eeRaw.toString().isNotEmpty) {
-      if (e2eeRaw is String) {
-        try {
-          e2ee = jsonDecode(e2eeRaw) as Map<String, dynamic>?;
-          if (e2ee is! Map<String, dynamic>) {
-            e2ee = null;
-          } else {
-            e2ee = e2ee.cast<String, dynamic>();
-          }
-        } on Object catch (e) {
-          iPrint(
-            '❌ [E2EE] e2ee 字符串解析失败: msgId=$msgId, '
-            'error=${e.runtimeType}',
-          );
-        }
-      } else if (e2eeRaw is Map<String, dynamic>) {
-        e2ee = e2eeRaw.cast<String, dynamic>();
-      }
+    // legacy/普通消息没有 PFv3 持久信封身份，只能沿用消息行幂等语义。
+    // PFv3 必须继续验证 crypto_inbox_digest，禁止同 ID 篡改帧绕过认证后获 ACK。
+    if (existing != null && e2ee?['meta_version'] != 3) {
+      return true;
     }
 
     // v2.0: 处理 E2EE 消息（payload 为字符串）
@@ -551,7 +566,7 @@ class MessageService with EventSubscriptionManager {
       final isV3 = e2ee['meta_version'] == 3;
       if (!isV3 && (payloadRaw is! String || payloadRaw.isEmpty)) {
         iPrint('❌ [E2EE] E2EE 消息的 payload 应该是密文字符串: msgId=$msgId');
-        return;
+        return false;
       }
 
       // v2.0 E2EE 格式：使用新的解密方法
@@ -583,8 +598,16 @@ class MessageService with EventSubscriptionManager {
       }
     }
 
-    if (payload == null) return;
+    if (payload == null) return false;
+    if (payload['_e2ee_failed'] == true) {
+      return existing != null &&
+          payload['_e2ee_reason']?.toString() == 'already_processed';
+    }
     data['payload'] = payload;
+
+    if (existing != null) {
+      return _completeInboundIfStaged(data, msgId);
+    }
 
     final senderDid = data['sender_did'];
     if (senderDid != null && payload['sender_did'] == null) {
@@ -607,8 +630,6 @@ class MessageService with EventSubscriptionManager {
 
     // 确保 payload 为 non-nullable（用于后续调用）
     final nonNullPayload = payload;
-    final repo = getMessageRepo(chatType);
-
     // === 去重检查（廉价内存检查优先，昂贵的数据库查询放最后） ===
 
     // 1. 检查消息是否正在接收中（TTL 5 秒，内存 Map<String, dynamic>）
@@ -621,7 +642,7 @@ class MessageService with EventSubscriptionManager {
       final timestamp = _receivingMessages[receivingMsgKey]!;
       if (now - timestamp < ttlMs) {
         iPrint('消息正在处理中，跳过重复: $msgId');
-        return;
+        return false;
       }
       _receivingMessages.remove(receivingMsgKey);
     }
@@ -630,7 +651,8 @@ class MessageService with EventSubscriptionManager {
     // 2. 检查消息是否正在加载（page_view 场景，内存 Set）
     if (_loadingMessageIds.contains(msgId)) {
       iPrint('⚠️ 消息正在加载中（page_view），跳过重复显示: $msgId');
-      return;
+      _receivingMessages.remove(receivingMsgKey);
+      return false;
     }
 
     // 3. 基于内容的去重检查（LRU 缓存，内存 Map<String, dynamic>）
@@ -638,19 +660,8 @@ class MessageService with EventSubscriptionManager {
     iPrint('🔑 [去重检查] contentHash=$contentHash, msgId=$msgId');
 
     if (_recentMessageContents.containsKey(contentHash)) {
-      final previousMsgId = _recentMessageContents[contentHash]!.msgId;
-      iPrint(
-        '⚠️ [内容重复] 检测到重复消息: 之前msgId=$previousMsgId, 当前msgId=$msgId, from=${data['from']}, to=${data['to']}, type=$chatType',
-      );
-      return;
-    }
-    _addToContentHashCache(contentHash, msgId);
-
-    // 4. 数据库查询（最昂贵的检查，放最后）
-    final existing = await repo.find(msgId);
-    if (existing != null) {
-      iPrint('⚠️ 消息已存在（数据库检查），跳过处理: $msgId');
-      return;
+      iPrint('⚠️ [内容重复] 移除无最终消息行的过期缓存: $msgId');
+      _recentMessageContents.remove(contentHash);
     }
 
     iPrint('⏱️ [3] 去重检查完成: +${DateTimeHelper.millisecond() - startTime}ms');
@@ -669,7 +680,7 @@ class MessageService with EventSubscriptionManager {
       final messageType = data['msg_type']?.toString() ?? '';
       if (messageType.isEmpty) {
         iPrint('❌ [消息格式] 缺少 msg_type 字段: msgId=$msgId');
-        return;
+        return false;
       }
 
       // v2.0: 使用 switch 处理不同的 msg_type，构造会话副标题
@@ -726,16 +737,48 @@ class MessageService with EventSubscriptionManager {
 
       // 后台异步处理数据存储和完整消息转换（不阻塞UI）
       // Process data storage and full message conversion asynchronously in background (non-blocking)
-      await _processMessageInBackground(
+      final committed = await _processMessageInBackground(
         data,
         nonNullPayload,
         tempConv,
         tempMsg,
         repo,
       );
+      if (!committed) return false;
+      if (!await _completeInboundIfStaged(data, msgId)) return false;
+      _addToContentHashCache(contentHash, msgId);
+      return true;
     } finally {
-      // 优化：TTL 自动过期，无需手动清理
-      // 清理由 _cleanExpiredReceivingMarks 自动处理
+      _receivingMessages.remove(receivingMsgKey);
+    }
+  }
+
+  Future<bool> _completeInboundIfStaged(
+    Map<String, dynamic> data,
+    String messageId,
+  ) async {
+    final e2ee = _parseE2eeMetadata(data['e2ee']);
+    if (e2ee?['meta_version'] != 3) return true;
+    try {
+      final store = await OlmSessionService.to.cryptoStore;
+      if (store == null) return false;
+      await store.completeInbound(messageId);
+      return true;
+    } on Object catch (e) {
+      iPrint('[E2EE_INBOX] completion failed: ${e.runtimeType}');
+      return false;
+    }
+  }
+
+  Map<String, dynamic>? _parseE2eeMetadata(Object? raw) {
+    if (raw is Map<String, dynamic>) return raw;
+    if (raw is Map) return Map<String, dynamic>.from(raw);
+    if (raw is! String || raw.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      return decoded is Map ? Map<String, dynamic>.from(decoded) : null;
+    } on Object {
+      return null;
     }
   }
 
@@ -874,7 +917,7 @@ class MessageService with EventSubscriptionManager {
 
   /// 在后台异步处理消息数据存储
   /// Process message data storage asynchronously in background
-  Future<void> _processMessageInBackground(
+  Future<bool> _processMessageInBackground(
     Map<String, dynamic> data,
     Map<String, dynamic> payload,
     ConversationModel tempConv,
@@ -1006,7 +1049,7 @@ class MessageService with EventSubscriptionManager {
       // 与原 existed>0 守卫语义一致，但更彻底：未读已不会自增，且连 fireData 都不发
       if (!isNewRow) {
         iPrint('⚠️ 消息已存在（数据库检查），跳过后续处理: $msgId');
-        return;
+        return true;
       }
 
       // 单一来源：以会话快照统一同步会话与提醒，避免局部字段漂移
@@ -1038,12 +1081,14 @@ class MessageService with EventSubscriptionManager {
       }
 
       iPrint('✅ 消息后台处理完成: $msgId');
+      return true;
     } on Object catch (e) {
       iPrint('❌ 消息后台处理失败: $msgId, error=${e.runtimeType}');
 
       // 处理失败，从 UI 中移除该消息
       // Failed to process, remove message from UI
       _handleMessageProcessingFailure(msgId, chatType, tempConv, e);
+      return false;
     }
   }
 
@@ -1097,7 +1142,7 @@ class MessageService with EventSubscriptionManager {
         'action': 'delete_message',
         'msg_id': msgId,
         'conversation_uk3': tempConv.uk3,
-        'error': error.toString(),
+        'error_type': error.runtimeType.toString(),
       };
 
       // 触发 UI 删除该消息
@@ -1116,7 +1161,7 @@ class MessageService with EventSubscriptionManager {
 
       iPrint('✅ 失败消息清理完成: $msgId');
     } on Object catch (e) {
-      iPrint('❌ 清理失败消息时出错: $e');
+      iPrint('❌ 清理失败消息时出错: ${e.runtimeType}');
     }
   }
 

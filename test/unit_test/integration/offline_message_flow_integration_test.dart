@@ -90,6 +90,67 @@ void main() {
     });
 
     group('消息批量处理', () {
+      test('REST 内部 id 必须被业务 msg_id 覆盖后再进入 PFv3', () {
+        final source = <String, dynamic>{
+          'id': 'database-row-id',
+          'msg_id': 'protected-message-id',
+          'type': 'stale-type',
+          'e2ee': {'meta_version': 3},
+        };
+
+        final normalized = MessageOfflineService.normalizeForReceive(
+          source,
+          'C2C',
+        );
+
+        expect(normalized['id'], 'protected-message-id');
+        expect(normalized['type'], 'C2C');
+        expect(source['id'], 'database-row-id', reason: '不得原地修改 HTTP 响应');
+        expect(
+          MessageOfflineService.requiresSecureReceivePath(normalized),
+          isTrue,
+        );
+      });
+
+      test('room key 即使无顶层 e2ee 也必须走安全接收路径', () {
+        expect(
+          MessageOfflineService.requiresSecureReceivePath({
+            'type': 'C2G',
+            'action': 'e2ee_room_key',
+            'payload': {'msg_type': 'e2ee_room_key'},
+          }),
+          isTrue,
+        );
+      });
+
+      test('非聊天或空 e2ee 消息保留普通批量路径', () {
+        expect(
+          MessageOfflineService.requiresSecureReceivePath({
+            'type': 'C2C',
+            'e2ee': '',
+          }),
+          isFalse,
+        );
+        expect(
+          MessageOfflineService.requiresSecureReceivePath({
+            'type': 'S2C',
+            'e2ee': {'meta_version': 3},
+          }),
+          isFalse,
+        );
+      });
+
+      test('离线 ACK 非成功响应必须 fail-closed', () {
+        expect(
+          () => MessageOfflineService.requireAckAccepted(0),
+          returnsNormally,
+        );
+        expect(
+          () => MessageOfflineService.requireAckAccepted(5001),
+          throwsA(isA<StateError>()),
+        );
+      });
+
       test('应该能够处理 C2C 离线消息格式', () async {
         // 模拟离线消息数据
         final offlineMessages = [

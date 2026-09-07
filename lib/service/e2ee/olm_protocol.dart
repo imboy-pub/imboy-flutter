@@ -99,6 +99,8 @@ class OlmProtocol implements E2eeSessionProtocol {
         int.tryParse(metadata['message_type']?.toString() ?? '1') ?? 1;
     // S2.3c: 透传 message_id 供 CryptoStore dedupe
     final messageId = metadata['message_id']?.toString();
+    final inboxScope = metadata['inbox_scope']?.toString();
+    final ciphertextDigest = metadata['ciphertext_digest']?.toString();
     try {
       return await OlmSessionService.to.decryptC2CMessage(
         peerUid: peerUid,
@@ -108,18 +110,20 @@ class OlmProtocol implements E2eeSessionProtocol {
         messageId: (messageId != null && messageId.isNotEmpty)
             ? messageId
             : null,
+        inboxScope: (inboxScope != null && inboxScope.isNotEmpty)
+            ? inboxScope
+            : null,
+        ciphertextDigest:
+            (ciphertextDigest != null && ciphertextDigest.isNotEmpty)
+            ? ciphertextDigest
+            : null,
       );
     } on E2eeDecryptException {
       rethrow;
     } on DuplicateMessageException {
       rethrow; // S2.3: 重复投递信号，调用方静默跳过
     } on Object catch (e) {
-      // 本地日志仅记异常类型与消息（不含密文），供真机排障区分
-      // TOFU 指纹变更 / prekey 失配 / 棘轮失配等根因。
-      iPrint(
-        '[olm] decryptC2CMessage 异常: ${e.runtimeType}: $e '
-        '(peer=$peerUid:$peerDeviceId, msgType=$messageType)',
-      );
+      iPrint('[olm] decryptC2CMessage 异常: ${e.runtimeType}');
       throw const E2eeDecryptException('decrypt_error');
     }
   }

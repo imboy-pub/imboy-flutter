@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message.dart';
-import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:xid/xid.dart';
@@ -72,7 +71,7 @@ class MessageActions {
   /// - 消息编辑：message_edit, message_edit_ack
   ///
   /// 注意：S2C 消息的 action（服务端通知）在 MessageS2CService.switchS2C 中处理
-  Future<void> handleActionMessage(
+  Future<bool> handleActionMessage(
     String action,
     Map<String, dynamic> data,
   ) async {
@@ -108,22 +107,23 @@ class MessageActions {
           break;
         case 'e2ee_room_key':
           // P0-B B4：Megolm 群会话密钥分发（不渲染、不落聊天库）
-          await GroupSessionService.to.handleRoomKeyMessage(data);
-          break;
+          return await GroupSessionService.to.handleRoomKeyMessage(data);
         default:
           iPrint('⚠️ [handleActionMessage] 未知的action类型: $action');
       }
-    } on Object catch (e, s) {
+      return true;
+    } on Object catch (e) {
       iPrint(
-        '❌ [handleActionMessage] 处理action消息异常: action=$action, error=$e\nstacktrace=$s',
+        '❌ [handleActionMessage] 处理action消息异常: '
+        'action=$action, error=${e.runtimeType}',
       );
+      return false;
     }
   }
 
   Future<void> _handleReadAction(Map<String, dynamic> data) async {
     try {
       final msgType = parseModelString(data['type']);
-      final msgId = parseModelString(data['id']);
       final payload = parseModelJsonMap(data['payload']) ?? {};
       final fromId = parseModelString(data['from']);
       final currentUid = UserRepoLocal.to.currentUid;
@@ -134,39 +134,25 @@ class MessageActions {
       final ids = idsRaw is List
           ? idsRaw.map((e) => e.toString()).toList()
           : <String>[];
-      if (ids.isEmpty) {
-        // 直接发送 ACK 确认
-        AckManager.to.sendAckDirect(msgType, msgId);
-        return;
-      }
+      if (ids.isEmpty) return;
 
       final repo = MessageService.to.getMessageRepo(msgType);
       final updated = <Message>[];
       for (final id in ids) {
-        // 发布状态更新事件
-        AppEventBus.fire(
-          MessageStatusUpdateRequestedEvent(
-            messageId: id,
-            messageType: msgType,
-            newStatus: IMBoyMessageStatus.seen,
-          ),
+        final m = await MessageService.to.updateStatus(
+          repo,
+          id,
+          IMBoyMessageStatus.seen,
         );
-        // 注意：原代码使用了返回值，这里需要从 repo 重新获取
-        final m = await repo.find(id);
-        if (m != null && m.status == IMBoyMessageStatus.seen) {
-          // 注意：阅后即焚标记已移至 Chat Provider 处理
-          // Chat Provider 会监听 MessageStatusUpdateRequestedEvent 并处理
-          updated.add(await m.toTypeMessage());
-        }
+        if (m == null) throw StateError('read target update failed');
+        updated.add(await m.toTypeMessage());
       }
       if (updated.isNotEmpty) {
         AppEventBus.fireData(updated);
       }
-
-      // 直接发送 ACK 确认
-      AckManager.to.sendAckDirect(msgType, msgId);
-    } on Object catch (e, s) {
-      iPrint('❌ [_handleReadAction] 处理已读消息失败: error=$e\nstacktrace=$s');
+    } on Object catch (e) {
+      iPrint('❌ [_handleReadAction] 处理已读消息失败: ${e.runtimeType}');
+      rethrow;
     }
   }
 
@@ -184,8 +170,6 @@ class MessageActions {
         iPrint(
           '⚠️ [_handleReadAckAction] 不是发送自己的消息，忽略: fromId=$fromId, currentUid=$currentUid',
         );
-        // 仍然发送 ACK 确认
-        AckManager.to.sendAckDirect(msgType, msgId);
         return;
       }
 
@@ -197,47 +181,33 @@ class MessageActions {
 
       iPrint('📖 [_handleReadAckAction] 处理已读确认: msgId=$msgId, msgIds=$msgIds');
 
-      if (msgIds.isEmpty) {
-        // 单条消息已读确认
-        // 发送 ACK 确认
-        AckManager.to.sendAckDirect(msgType, msgId);
-        return;
-      }
+      if (msgIds.isEmpty) return;
 
       final repo = MessageService.to.getMessageRepo(msgType);
       final updated = <Message>[];
 
       for (final id in msgIds) {
-        // 发布状态更新事件（更新为已读状态）
-        AppEventBus.fire(
-          MessageStatusUpdateRequestedEvent(
-            messageId: id,
-            messageType: msgType,
-            newStatus: IMBoyMessageStatus.seen,
-          ),
+        final m = await MessageService.to.updateStatus(
+          repo,
+          id,
+          IMBoyMessageStatus.seen,
         );
-
-        final m = await repo.find(id);
-        if (m != null) {
-          updated.add(await m.toTypeMessage());
-        }
+        if (m == null) throw StateError('read ACK target update failed');
+        updated.add(await m.toTypeMessage());
       }
 
       if (updated.isNotEmpty) {
         AppEventBus.fireData(updated);
       }
-
-      // 发送 ACK 确认
-      AckManager.to.sendAckDirect(msgType, msgId);
-    } on Object catch (e, s) {
-      iPrint('❌ [_handleReadAckAction] 处理已读确认失败: error=$e\nstacktrace=$s');
+    } on Object catch (e) {
+      iPrint('❌ [_handleReadAckAction] 处理已读确认失败: ${e.runtimeType}');
+      rethrow;
     }
   }
 
   Future<void> _handleReactionAction(Map<String, dynamic> data) async {
     try {
       final msgType = parseModelString(data['type']);
-      final msgId = parseModelString(data['id']);
       final payload = parseModelJsonMap(data['payload']) ?? {};
 
       final originalMsgId = payload['original_msg_id']?.toString() ?? '';
@@ -247,18 +217,12 @@ class MessageActions {
           payload['user_id']?.toString() ?? data['from']?.toString() ?? '';
 
       if (originalMsgId.isEmpty || emoji.isEmpty || reactorId.isEmpty) {
-        // 直接发送 ACK 确认
-        AckManager.to.sendAckDirect(msgType, msgId);
-        return;
+        throw const FormatException('invalid reaction action');
       }
 
       final repo = MessageService.to.getMessageRepo(msgType);
       final msg = await repo.find(originalMsgId);
-      if (msg == null) {
-        // 直接发送 ACK 确认
-        AckManager.to.sendAckDirect(msgType, msgId);
-        return;
-      }
+      if (msg == null) throw StateError('reaction target missing');
 
       final newPayload = Map<String, dynamic>.from(msg.payloadMap);
       final reactionsRaw = newPayload['reactions'];
@@ -285,20 +249,18 @@ class MessageActions {
       }
 
       newPayload['reactions'] = reactions;
-      await repo.update({
+      final updatedRows = await repo.update({
         'id': originalMsgId,
         'payload': json.encode(newPayload),
       });
+      if (updatedRows != 1) throw StateError('reaction target update failed');
 
       final updated = await repo.find(originalMsgId);
-      if (updated != null) {
-        AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
-      }
-
-      // 直接发送 ACK 确认
-      AckManager.to.sendAckDirect(msgType, msgId);
-    } on Object catch (e, s) {
-      iPrint('❌ [_handleReactionAction] 处理消息表情失败: error=$e\nstacktrace=$s');
+      if (updated == null) throw StateError('updated reaction missing');
+      AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
+    } on Object catch (e) {
+      iPrint('❌ [_handleReactionAction] 处理消息表情失败: ${e.runtimeType}');
+      rethrow;
     }
   }
 
@@ -353,8 +315,7 @@ class MessageActions {
     final originalMsg = await repo.find(originalMsgId);
 
     if (originalMsg == null) {
-      iPrint('❌ 未找到要确认撤回的原始消息: originalMsgId=$originalMsgId');
-      return;
+      throw StateError('revoke ACK target missing');
     }
 
     // 检查是否是我们自己撤回的
@@ -381,9 +342,6 @@ class MessageActions {
       // 对方撤回的通知
       await _processPeerRevoke(originalMsg, repo, data);
     }
-
-    // 发送ACK
-    AckManager.to.sendAckDirect(msgType, parseModelString(data['id']));
   }
 
   /// Process revoke request
@@ -407,8 +365,7 @@ class MessageActions {
     final originalMsg = await repo.find(originalMsgId);
 
     if (originalMsg == null) {
-      iPrint('❌ 未找到要撤回的原始消息: originalMsgId=$originalMsgId');
-      return;
+      throw StateError('revoke target missing');
     }
 
     // 处理对方撤回
@@ -495,8 +452,7 @@ class MessageActions {
     final originalMsg = await repo.find(originalMsgId);
 
     if (originalMsg == null) {
-      iPrint('❌ 未找到要确认编辑的原始消息: originalMsgId=$originalMsgId');
-      return;
+      throw StateError('edit ACK target missing');
     }
 
     // 检查是否是我们自己编辑的
@@ -510,25 +466,22 @@ class MessageActions {
           payload['edited_at'] ?? DateTimeHelper.millisecond();
       newPayload['is_edited'] = true;
 
-      await repo.update({
+      final updatedRows = await repo.update({
         'id': originalMsgId,
         'payload': json.encode(newPayload),
         'status': IMBoyMessageStatus.sent,
       });
+      if (updatedRows != 1) throw StateError('edit target update failed');
 
       final updatedMsg = await repo.find(originalMsgId);
-      if (updatedMsg != null) {
-        final updatedMessage = await updatedMsg.toTypeMessage();
-        AppEventBus.fireData([updatedMessage], 'List<Message>');
-        await _updateConversationAfterEdit(updatedMsg, newContent);
-      }
+      if (updatedMsg == null) throw StateError('edited message missing');
+      final updatedMessage = await updatedMsg.toTypeMessage();
+      AppEventBus.fireData([updatedMessage], 'List<Message>');
+      await _updateConversationAfterEdit(updatedMsg, newContent);
     } else {
       // 对方编辑的通知
       await _processPeerEdit(originalMsg, repo, data, newContent);
     }
-
-    // 发送ACK
-    AckManager.to.sendAckDirect(msgType, parseModelString(data['id']));
   }
 
   /// Process edit request
@@ -559,8 +512,7 @@ class MessageActions {
     final originalMsg = await repo.find(originalMsgId);
 
     if (originalMsg == null) {
-      iPrint('❌ 未找到要编辑的原始消息: originalMsgId=$originalMsgId');
-      return;
+      throw StateError('edit target missing');
     }
 
     // 处理对方编辑
@@ -624,27 +576,23 @@ class MessageActions {
         'status': IMBoyMessageStatus.sent,
         'payload': json.encode(newPayload),
       });
+      if (updateResult != 1) throw StateError('edit target update failed');
 
       iPrint('🔄 对方编辑更新数据库结果: $updateResult, msgId=${msg.id}');
 
       // 重新获取更新后的消息
       final updatedMsg = await repo.find(msg.id.toString());
-      if (updatedMsg != null) {
-        iPrint('🔄 重新获取更新后的消息成功: msgId=${updatedMsg.id}');
+      if (updatedMsg == null) throw StateError('edited message missing');
+      iPrint('🔄 重新获取更新后的消息成功: msgId=${updatedMsg.id}');
 
-        final updatedMessage = await updatedMsg.toTypeMessage();
-        iPrint('🔄 触发编辑消息更新事件: msgId=${updatedMsg.id}');
+      final updatedMessage = await updatedMsg.toTypeMessage();
+      iPrint('🔄 触发编辑消息更新事件: msgId=${updatedMsg.id}');
 
-        // 更新UI
-        AppEventBus.fireData([updatedMessage], 'List<Message>');
-
-        // 更新会话
-        await _updateConversationAfterEdit(updatedMsg, newContent);
-      } else {
-        iPrint('❌ 重新获取更新后的消息失败');
-      }
+      AppEventBus.fireData([updatedMessage], 'List<Message>');
+      await _updateConversationAfterEdit(updatedMsg, newContent);
     } on Object catch (e) {
-      iPrint('❌ 处理对方编辑消息异常: $e');
+      iPrint('❌ 处理对方编辑消息异常: ${e.runtimeType}');
+      rethrow;
     }
   }
 
@@ -710,7 +658,8 @@ class MessageActions {
         iPrint('编辑的消息不是会话的最后一条消息，无需更新会话');
       }
     } on Object catch (e) {
-      iPrint('更新会话编辑状态异常: $e');
+      iPrint('更新会话编辑状态异常: ${e.runtimeType}');
+      rethrow;
     }
   }
 
@@ -737,8 +686,9 @@ class MessageActions {
 
       // 更新会话
       await _updateConversationAfterRevoke(msg);
-    } on Object catch (e, s) {
-      iPrint('❌ 处理对方撤回消息异常: $e; $s');
+    } on Object catch (e) {
+      iPrint('❌ 处理对方撤回消息异常: ${e.runtimeType}');
+      rethrow;
     }
   }
 
@@ -799,8 +749,9 @@ class MessageActions {
       } else {
         iPrint('撤回的消息不是会话的最后一条消息，无需更新会话');
       }
-    } on Object catch (e, s) {
-      iPrint('更新会话撤回状态异常: $e; $s');
+    } on Object catch (e) {
+      iPrint('更新会话撤回状态异常: ${e.runtimeType}');
+      rethrow;
     }
   }
 
@@ -1051,8 +1002,9 @@ class MessageActions {
         );
         // iPrint('✅ [INPUT] 触发输入状态事件: from=$fromId, status=$status');
       }
-    } on Object catch (e, s) {
-      iPrint('❌ [_handleInputAction] 处理输入状态异常: $e; $s');
+    } on Object catch (e) {
+      iPrint('❌ [_handleInputAction] 处理输入状态异常: ${e.runtimeType}');
+      rethrow;
     }
   }
 
@@ -1155,24 +1107,22 @@ class MessageActions {
         'status': revokeStatus, // 30 或 31
         'payload': json.encode(newPayload),
       });
+      if (updateResult != 1) throw StateError('revoke target update failed');
 
       iPrint('🔄 撤回更新数据库结果: $updateResult, originalMsgId=${originalMsg.id}');
 
       // 重新获取更新后的消息
       final updatedMsg = await repo.find(originalMsg.id.toString());
-      if (updatedMsg != null) {
-        iPrint('🔄 重新获取更新后的消息成功: msgId=${updatedMsg.id}');
+      if (updatedMsg == null) throw StateError('revoked message missing');
+      iPrint('🔄 重新获取更新后的消息成功: msgId=${updatedMsg.id}');
 
-        final updatedMessage = await updatedMsg.toTypeMessage();
-        iPrint('🔄 触发撤回消息更新事件: msgId=${updatedMsg.id}');
+      final updatedMessage = await updatedMsg.toTypeMessage();
+      iPrint('🔄 触发撤回消息更新事件: msgId=${updatedMsg.id}');
 
-        // 更新 UI
-        AppEventBus.fireData([updatedMessage], 'List<Message>');
-      } else {
-        iPrint('❌ 重新获取更新后的消息失败');
-      }
-    } on Object catch (e, s) {
-      iPrint('❌ [convertMessageToRevoked] 处理异常: $e; $s');
+      AppEventBus.fireData([updatedMessage], 'List<Message>');
+    } on Object catch (e) {
+      iPrint('❌ [convertMessageToRevoked] 处理异常: ${e.runtimeType}');
+      rethrow;
     }
   }
 

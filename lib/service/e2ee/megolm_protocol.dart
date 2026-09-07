@@ -8,7 +8,9 @@
 library;
 
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/group_session_service.dart';
+import 'package:imboy/service/olm_session_service.dart';
 
 class MegolmProtocol implements E2eeSessionProtocol {
   MegolmProtocol();
@@ -74,19 +76,58 @@ class MegolmProtocol implements E2eeSessionProtocol {
   }) async {
     final gid = metadata['gid']?.toString() ?? '';
     final sessionId = metadata['session_id']?.toString() ?? '';
+    final messageId = metadata['message_id']?.toString() ?? '';
+    final inboxScope = metadata['inbox_scope']?.toString() ?? '';
+    final ciphertextDigest = metadata['ciphertext_digest']?.toString() ?? '';
     try {
+      final store = await OlmSessionService.to.cryptoStore;
+      if (messageId.isNotEmpty &&
+          inboxScope.isNotEmpty &&
+          ciphertextDigest.isNotEmpty) {
+        if (store == null) {
+          throw const CryptoStoreUnavailableException(
+            'inbox store unavailable',
+          );
+        }
+        final recovered = await store.loadInboundResult(messageId);
+        if (recovered != null) return recovered;
+      }
+
+      late final String plaintext;
       if (gid.isNotEmpty) {
-        return await GroupSessionService.to.decryptGroupMessage(
+        plaintext = await GroupSessionService.to.decryptGroupMessage(
           gid: gid,
           sessionId: sessionId,
           ciphertext: ciphertext,
         );
+      } else {
+        plaintext = await GroupSessionService.to.decryptC2CMessage(
+          sessionId: sessionId,
+          ciphertext: ciphertext,
+        );
       }
-      return await GroupSessionService.to.decryptC2CMessage(
-        sessionId: sessionId,
-        ciphertext: ciphertext,
-      );
+
+      if (messageId.isNotEmpty &&
+          inboxScope.isNotEmpty &&
+          ciphertextDigest.isNotEmpty) {
+        final accepted = await store!.commitInboundResult(
+          messageId: messageId,
+          scope: inboxScope,
+          ciphertextDigest: ciphertextDigest,
+          decryptedPayload: plaintext,
+        );
+        if (!accepted) {
+          final recovered = await store.loadInboundResult(messageId);
+          if (recovered != null) return recovered;
+          throw DuplicateMessageException(messageId);
+        }
+      }
+      return plaintext;
     } on E2eeDecryptException {
+      rethrow;
+    } on DuplicateMessageException {
+      rethrow;
+    } on CryptoStoreUnavailableException {
       rethrow;
     } catch (_) {
       throw const E2eeDecryptException('decrypt_error');

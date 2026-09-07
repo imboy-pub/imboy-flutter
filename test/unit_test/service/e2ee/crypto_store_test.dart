@@ -39,7 +39,7 @@ void main() {
       // 不抛即通过
     });
 
-    test('四张表存在', () async {
+    test('密码状态表存在', () async {
       final tables = await db.rawQuery(
         "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'crypto_%'",
       );
@@ -51,6 +51,8 @@ void main() {
           'crypto_outbox',
           'crypto_inbox_dedupe',
           'crypto_identity_pin',
+          'crypto_inbox_staging',
+          'crypto_inbox_digest',
         ]),
       );
     });
@@ -196,6 +198,106 @@ void main() {
   });
 
   group('Inbox dedupe（接收侧原子性）', () {
+    test('密文先暂存，解密结果提交后可恢复', () async {
+      expect(
+        await store.stageInbound(
+          messageId: 'staged-001',
+          scope: 'megolm:s1:g1',
+          ciphertextDigest: 'digest-001',
+          frameJson: '{"ciphertext":"redacted"}',
+        ),
+        InboundStageResult.staged,
+      );
+      expect(await store.loadInboundResult('staged-001'), isNull);
+
+      expect(
+        await store.commitInboundResult(
+          messageId: 'staged-001',
+          scope: 'megolm:s1:g1',
+          ciphertextDigest: 'digest-001',
+          decryptedPayload: 'verified-inner-frame',
+        ),
+        isTrue,
+      );
+      expect(
+        await store.loadInboundResult('staged-001'),
+        'verified-inner-frame',
+      );
+    });
+
+    test('完成后保留 ciphertext digest，换 message-id 重放被拒绝', () async {
+      await store.stageInbound(
+        messageId: 'staged-002',
+        scope: 'megolm:s1:g1',
+        ciphertextDigest: 'digest-002',
+        frameJson: '{}',
+      );
+      await store.commitInboundResult(
+        messageId: 'staged-002',
+        scope: 'megolm:s1:g1',
+        ciphertextDigest: 'digest-002',
+        decryptedPayload: 'verified',
+      );
+      await store.completeInbound('staged-002');
+
+      expect(await store.loadInboundResult('staged-002'), isNull);
+      expect(
+        await store.stageInbound(
+          messageId: 'staged-002',
+          scope: 'megolm:s1:g1',
+          ciphertextDigest: 'digest-002',
+          frameJson: '{}',
+        ),
+        InboundStageResult.processed,
+      );
+      expect(
+        await store.stageInbound(
+          messageId: 'changed-id',
+          scope: 'megolm:s1:g1',
+          ciphertextDigest: 'digest-002',
+          frameJson: '{}',
+        ),
+        InboundStageResult.replay,
+      );
+    });
+
+    test('缺少暂存行时提交整体回滚', () async {
+      await expectLater(
+        store.commitInboundResult(
+          messageId: 'missing-stage',
+          scope: 'olm:s1:c2c',
+          ciphertextDigest: 'missing-digest',
+          decryptedPayload: 'must-not-commit',
+        ),
+        throwsA(isA<CryptoStoreUnavailableException>()),
+      );
+      expect(await store.isDuplicate('missing-stage'), isFalse);
+    });
+
+    test('待处理密文达到上限后 fail-closed', () async {
+      final batch = db.batch();
+      final now = DateTime.now().millisecondsSinceEpoch;
+      for (var i = 0; i < CryptoStore.maxPendingInbound; i++) {
+        batch.rawInsert(
+          '''INSERT INTO crypto_inbox_staging
+             (message_id, scope, ciphertext_digest, frame_json, created_at, updated_at)
+             VALUES (?, ?, ?, '{}', ?, ?)''',
+          ['capacity-$i', 'scope', 'digest-$i', now, now],
+        );
+      }
+      await batch.commit(noResult: true);
+
+      await expectLater(
+        store.stageInbound(
+          messageId: 'over-capacity',
+          scope: 'scope',
+          ciphertextDigest: 'over-capacity-digest',
+          frameJson: '{}',
+        ),
+        throwsA(isA<CryptoStoreUnavailableException>()),
+      );
+    });
+
     test('dedupeAndPersistSession 原子：首次处理返回 true', () async {
       final accepted = await store.dedupeAndPersistSession(
         messageId: 'inbound-001',

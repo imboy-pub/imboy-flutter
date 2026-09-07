@@ -9,6 +9,8 @@
 /// 做 session pickle 持久化（master pickle key 仍留在 Keychain/Keystore）。
 library;
 
+import 'dart:convert';
+
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
 /// 事务存储自身不可用（DB 故障/锁超时/schema 缺失）。
@@ -24,18 +26,26 @@ class CryptoStoreUnavailableException implements Exception {
   String toString() => 'CryptoStoreUnavailableException: $message';
 }
 
+enum InboundStageResult { staged, existing, processed, replay }
+
 /// 密码学状态事务存储。
 ///
-/// 五张表：
+/// 密码状态表：
 /// - `crypto_olm_session`: per-peer Olm session pickle（ratchet 状态）
 /// - `crypto_outbox`: 已加密待发送的消息（崩溃恢复重发）
 /// - `crypto_inbox_dedupe`: 已处理入站消息 ID（防重复 ratchet advance）
 /// - `crypto_identity_pin`: TOFU identity fingerprint 固定（S3）
 /// - `crypto_capability_hwm`: 协商协议等级高水位（S6 降级检测）
+/// - `crypto_inbox_staging`: 有界入站密文与可恢复解密结果
+/// - `crypto_inbox_digest`: 持久密文摘要（Megolm 换 message-id 重放防护）
 class CryptoStore {
   CryptoStore(this._db);
 
   final Database _db;
+
+  static const int maxPendingInbound = 512;
+  static const int maxInboundFrameBytes = 256 * 1024;
+  static const int inboundRetentionMs = 7 * 24 * 60 * 60 * 1000;
 
   /// 底层 SQLCipher 句柄是否仍打开。
   ///
@@ -99,6 +109,30 @@ class CryptoStore {
         session_id    TEXT PRIMARY KEY,
         last_sequence INTEGER NOT NULL,
         updated_at    INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000)
+      )
+    ''');
+
+    await _db.execute('''
+      CREATE TABLE IF NOT EXISTS crypto_inbox_staging (
+        message_id        TEXT PRIMARY KEY,
+        scope             TEXT NOT NULL,
+        ciphertext_digest TEXT NOT NULL,
+        frame_json         TEXT NOT NULL,
+        decrypted_payload TEXT,
+        status             TEXT NOT NULL DEFAULT 'pending',
+        created_at         INTEGER NOT NULL,
+        updated_at         INTEGER NOT NULL,
+        UNIQUE (scope, ciphertext_digest)
+      )
+    ''');
+
+    await _db.execute('''
+      CREATE TABLE IF NOT EXISTS crypto_inbox_digest (
+        scope             TEXT NOT NULL,
+        ciphertext_digest TEXT NOT NULL,
+        message_id        TEXT NOT NULL,
+        processed_at      INTEGER NOT NULL,
+        PRIMARY KEY (scope, ciphertext_digest)
       )
     ''');
   }
@@ -318,6 +352,191 @@ class CryptoStore {
 
   // ─── Inbox Dedupe（接收侧）──────────────────────────────────────────────────
 
+  Future<InboundStageResult> stageInbound({
+    required String messageId,
+    required String scope,
+    required String ciphertextDigest,
+    required String frameJson,
+  }) async {
+    if (messageId.isEmpty || scope.isEmpty || ciphertextDigest.isEmpty) {
+      throw const CryptoStoreUnavailableException('invalid inbox identity');
+    }
+    if (utf8.encode(frameJson).length > maxInboundFrameBytes) {
+      throw const CryptoStoreUnavailableException('inbox frame too large');
+    }
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    try {
+      return await _db.transaction((txn) async {
+        await txn.rawDelete(
+          '''DELETE FROM crypto_inbox_staging
+             WHERE status = 'pending' AND created_at < ?''',
+          [now - inboundRetentionMs],
+        );
+
+        final sameId = await txn.rawQuery(
+          'SELECT scope, ciphertext_digest FROM crypto_inbox_staging WHERE message_id = ?',
+          [messageId],
+        );
+        if (sameId.isNotEmpty) {
+          final row = sameId.first;
+          return row['scope'] == scope &&
+                  row['ciphertext_digest'] == ciphertextDigest
+              ? InboundStageResult.existing
+              : InboundStageResult.replay;
+        }
+
+        final knownDigest = await txn.rawQuery(
+          '''SELECT message_id FROM crypto_inbox_digest
+             WHERE scope = ? AND ciphertext_digest = ?''',
+          [scope, ciphertextDigest],
+        );
+        if (knownDigest.isNotEmpty) {
+          return knownDigest.first['message_id'] == messageId
+              ? InboundStageResult.processed
+              : InboundStageResult.replay;
+        }
+
+        final knownMessage = await txn.rawQuery(
+          'SELECT 1 FROM crypto_inbox_digest WHERE message_id = ? LIMIT 1',
+          [messageId],
+        );
+        if (knownMessage.isNotEmpty) return InboundStageResult.replay;
+
+        final countRows = await txn.rawQuery(
+          'SELECT COUNT(*) AS count FROM crypto_inbox_staging',
+        );
+        final count = countRows.first['count'] as int? ?? 0;
+        if (count >= maxPendingInbound) {
+          throw const CryptoStoreUnavailableException('inbox capacity reached');
+        }
+
+        await txn.rawInsert(
+          '''INSERT INTO crypto_inbox_staging
+             (message_id, scope, ciphertext_digest, frame_json, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?)''',
+          [messageId, scope, ciphertextDigest, frameJson, now, now],
+        );
+        return InboundStageResult.staged;
+      });
+    } on CryptoStoreUnavailableException {
+      rethrow;
+    } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError()) return InboundStageResult.replay;
+      throw CryptoStoreUnavailableException(
+        'inbox stage failed: ${e.runtimeType}',
+      );
+    } on Object catch (e) {
+      throw CryptoStoreUnavailableException(
+        'inbox stage failed: ${e.runtimeType}',
+      );
+    }
+  }
+
+  Future<String?> loadInboundResult(String messageId) async {
+    try {
+      final rows = await _db.rawQuery(
+        '''SELECT decrypted_payload FROM crypto_inbox_staging
+           WHERE message_id = ? AND status = 'decrypted' ''',
+        [messageId],
+      );
+      return rows.isEmpty ? null : rows.first['decrypted_payload'] as String?;
+    } on Object catch (e) {
+      throw CryptoStoreUnavailableException(
+        'inbox recovery failed: ${e.runtimeType}',
+      );
+    }
+  }
+
+  Future<bool> commitInboundResult({
+    required String messageId,
+    required String scope,
+    required String ciphertextDigest,
+    required String decryptedPayload,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    try {
+      await _db.transaction((txn) async {
+        await _insertInboundDedupe(
+          txn,
+          messageId: messageId,
+          scope: scope,
+          ciphertextDigest: ciphertextDigest,
+          now: now,
+        );
+        await _persistInboundResult(
+          txn,
+          messageId: messageId,
+          scope: scope,
+          ciphertextDigest: ciphertextDigest,
+          decryptedPayload: decryptedPayload,
+          now: now,
+        );
+      });
+      return true;
+    } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError()) return false;
+      throw CryptoStoreUnavailableException(
+        'inbox commit failed: ${e.runtimeType}',
+      );
+    } on Object catch (e) {
+      throw CryptoStoreUnavailableException(
+        'inbox commit failed: ${e.runtimeType}',
+      );
+    }
+  }
+
+  Future<void> completeInbound(String messageId) async {
+    try {
+      await _db.rawDelete(
+        'DELETE FROM crypto_inbox_staging WHERE message_id = ?',
+        [messageId],
+      );
+    } on Object catch (e) {
+      throw CryptoStoreUnavailableException(
+        'inbox completion failed: ${e.runtimeType}',
+      );
+    }
+  }
+
+  Future<void> _insertInboundDedupe(
+    Transaction txn, {
+    required String messageId,
+    required String scope,
+    required String ciphertextDigest,
+    required int now,
+  }) async {
+    await txn.rawInsert(
+      'INSERT INTO crypto_inbox_dedupe (message_id, processed_at) VALUES (?, ?)',
+      [messageId, now],
+    );
+    await txn.rawInsert(
+      '''INSERT INTO crypto_inbox_digest
+         (scope, ciphertext_digest, message_id, processed_at)
+         VALUES (?, ?, ?, ?)''',
+      [scope, ciphertextDigest, messageId, now],
+    );
+  }
+
+  Future<void> _persistInboundResult(
+    Transaction txn, {
+    required String messageId,
+    required String scope,
+    required String ciphertextDigest,
+    required String decryptedPayload,
+    required int now,
+  }) async {
+    final updated = await txn.rawUpdate(
+      '''UPDATE crypto_inbox_staging
+         SET decrypted_payload = ?, status = 'decrypted', updated_at = ?
+         WHERE message_id = ? AND scope = ? AND ciphertext_digest = ?''',
+      [decryptedPayload, now, messageId, scope, ciphertextDigest],
+    );
+    if (updated != 1) {
+      throw StateError('staged inbox row missing');
+    }
+  }
+
   /// 原子操作：dedupe 检查 + ratchet advance（session persist）。
   ///
   /// 返回 true 表示首次处理（已推进 ratchet）；
@@ -327,6 +546,9 @@ class CryptoStore {
     required String peerUid,
     required String peerDeviceId,
     required String pickle,
+    String? scope,
+    String? ciphertextDigest,
+    String? decryptedPayload,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     try {
@@ -343,6 +565,25 @@ class CryptoStore {
              DO UPDATE SET pickle = excluded.pickle, updated_at = excluded.updated_at''',
           [peerUid, peerDeviceId, pickle, now, now],
         );
+        if (decryptedPayload != null) {
+          if (scope == null || ciphertextDigest == null) {
+            throw StateError('inbox identity missing');
+          }
+          await txn.rawInsert(
+            '''INSERT INTO crypto_inbox_digest
+               (scope, ciphertext_digest, message_id, processed_at)
+               VALUES (?, ?, ?, ?)''',
+            [scope, ciphertextDigest, messageId, now],
+          );
+          await _persistInboundResult(
+            txn,
+            messageId: messageId,
+            scope: scope,
+            ciphertextDigest: ciphertextDigest,
+            decryptedPayload: decryptedPayload,
+            now: now,
+          );
+        }
       });
       return true;
     } on DatabaseException catch (e) {
@@ -372,10 +613,15 @@ class CryptoStore {
   Future<void> purgeDedupe({required int olderThanMs}) async {
     if (olderThanMs <= 0) {
       await _db.rawDelete('DELETE FROM crypto_inbox_dedupe');
+      await _db.rawDelete('DELETE FROM crypto_inbox_digest');
     } else {
       final cutoff = DateTime.now().millisecondsSinceEpoch - olderThanMs;
       await _db.rawDelete(
         'DELETE FROM crypto_inbox_dedupe WHERE processed_at < ?',
+        [cutoff],
+      );
+      await _db.rawDelete(
+        'DELETE FROM crypto_inbox_digest WHERE processed_at < ?',
         [cutoff],
       );
     }

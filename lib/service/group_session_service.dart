@@ -378,11 +378,11 @@ class GroupSessionService {
   // ===== 接收侧 =====
 
   /// 处理入站 e2ee_room_key 消息（message_actions.dart 分发过来）
-  Future<void> handleRoomKeyMessage(Map<String, dynamic> data) async {
+  Future<bool> handleRoomKeyMessage(Map<String, dynamic> data) async {
     try {
       final payload = parseModelJsonMap(data['payload']);
-      if (payload == null) return;
-      if (payload['msg_type']?.toString() != roomKeyAction) return;
+      if (payload == null) return true;
+      if (payload['msg_type']?.toString() != roomKeyAction) return true;
 
       // 域一致性校验（安全关键）：opaque payload 声明的域（gid/scope）必须与后端
       // 已鉴权的传输层字段（type + to）一致，否则任意用户可构造 type=C2G,to=群A
@@ -399,32 +399,32 @@ class GroupSessionService {
         // 群 key 只能来自对应群的 C2G 通道（gid 必须等于后端校验过的 is_member 目标）
         if (envelopeType != 'C2G' || gid != envelopeTo) {
           AppLogger.error('[group_session] 群 room key 域不匹配，丢弃 gid=$gid');
-          return;
+          return true;
         }
       } else if (scope == c2cScope) {
         // 单聊 key 只能来自 C2C 通道（session_id 高熵全局唯一，无需锚定 to）
         if (envelopeType != 'C2C') {
           AppLogger.error('[group_session] c2c room key 非 C2C 通道，丢弃');
-          return;
+          return true;
         }
       } else {
-        return; // 既非群 key 也非 c2c key，无法判定会话域
+        return true; // 既非群 key 也非 c2c key，无法判定会话域
       }
       final storageScope = gid.isNotEmpty ? gid : c2cScope;
       final sessionId = payload['session_id']?.toString() ?? '';
       final keys = payload['keys'];
       if (sessionId.isEmpty || keys is! List) {
-        return;
+        return true;
       }
       if (keys.length > _maxRoomKeyEntries) {
         AppLogger.error(
           '[group_session] room key keys 超限，丢弃 scope=$storageScope',
         );
-        return;
+        return true;
       }
 
       final entry = pickMyKeyEntry(keys, deviceId);
-      if (entry == null) return; // 本设备不在分发列表
+      if (entry == null) return true; // 本设备不在分发列表
 
       // 接收状态机（ADR 13 §4 + E2EE-011）：v3（meta_version>=3）Olm-only，
       // 任何 Olm 失败（缺 sid / 伪造 sid / 认证失败 / 会话不可用 / 无 olm）一律拒绝，
@@ -437,7 +437,7 @@ class GroupSessionService {
         senderUid: data['from']?.toString() ?? '',
         olmRequired: olmRequired,
       );
-      if (exported == null) return;
+      if (exported == null) return true;
 
       await ensureInitialized();
       final inbound = vod.InboundGroupSession.import(exported);
@@ -445,13 +445,13 @@ class GroupSessionService {
         AppLogger.error(
           '[group_session] session_id 不匹配，丢弃 scope=$storageScope',
         );
-        return;
+        return true;
       }
-      _inbound['$storageScope:$sessionId'] = inbound;
       await StorageSecureService.to.write(
         key: '$_inboundKeyPrefix$storageScope:$sessionId',
         value: exported,
       );
+      _inbound['$storageScope:$sessionId'] = inbound;
       // 安全：不从 room key 反推群策略旗标——e2ee_room_key 是任意成员可发的 C2G
       // 具名 action（后端仅校验 is_member，不校验群主/群 e2ee_mode），据此翻转
       // 本地强制加密旗标会让普通成员越权触发"仅群主可决策"的群级策略。旗标权威
@@ -460,8 +460,10 @@ class GroupSessionService {
       iPrint(
         '[group_session] 收到 room key scope=$storageScope session=$sessionId',
       );
-    } on Object catch (e, s) {
-      AppLogger.error('[group_session] handleRoomKeyMessage error', e, s);
+      return true;
+    } on Object catch (e) {
+      iPrint('[group_session] room key persistence failed: ${e.runtimeType}');
+      return false;
     }
   }
 

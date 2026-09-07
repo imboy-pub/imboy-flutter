@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -13,6 +14,7 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/e2ee_health_check_service.dart';
 
 import 'message_s2c.dart';
+import 'message.dart';
 
 /// 离线消息处理服务
 class MessageOfflineService {
@@ -35,6 +37,34 @@ class MessageOfflineService {
   static const Duration _minPullInterval = Duration(milliseconds: 1200);
   static const Duration _idlePullCooldown = Duration(seconds: 5);
   static const Duration _maxFailureBackoff = Duration(seconds: 30);
+
+  @visibleForTesting
+  static Map<String, dynamic> normalizeForReceive(
+    Map<String, dynamic> message,
+    String type,
+  ) {
+    final normalized = Map<String, dynamic>.from(message)..['type'] = type;
+    final businessId = normalized['msg_id']?.toString() ?? '';
+    if (businessId.isNotEmpty) normalized['id'] = businessId;
+    return normalized;
+  }
+
+  @visibleForTesting
+  static bool requiresSecureReceivePath(Map<String, dynamic> message) {
+    final type = message['type']?.toString();
+    final e2ee = message['e2ee'];
+    return (type == 'C2C' || type == 'C2G') &&
+        (message['action']?.toString() == 'e2ee_room_key' ||
+            (e2ee is Map && e2ee.isNotEmpty) ||
+            (e2ee is String && e2ee.isNotEmpty));
+  }
+
+  @visibleForTesting
+  static void requireAckAccepted(int responseCode) {
+    if (responseCode != 0) {
+      throw StateError('offline ACK rejected: code=$responseCode');
+    }
+  }
 
   /// 游标：各类消息最后一条消息的时间戳（毫秒）
   ///
@@ -388,7 +418,7 @@ class MessageOfflineService {
       _markPullFailure();
       iPrint('拉取离线消息异常: ${e.runtimeType}');
       _logPullMetrics('failed_exception');
-      AppLoading.showError('${t.common.pullOfflineMessagesAbnormal}: $e');
+      AppLoading.showError(t.common.pullOfflineMessagesAbnormal);
       return false;
     }
   }
@@ -480,26 +510,41 @@ class MessageOfflineService {
       final processedMessages = <Map<String, dynamic>>[];
       for (final msg in messages) {
         if (msg is Map<String, dynamic>) {
-          // 创建新的消息副本，避免修改原始数据
-          final msgCopy = Map<String, dynamic>.from(msg);
-          msgCopy['type'] = type;
-          processedMessages.add(msgCopy);
+          processedMessages.add(normalizeForReceive(msg, type));
         }
       }
 
-      // 使用静态方法批量插入消息
-      final msgIds =
-          await MessageRepo(
-            tableName: MessageRepo.getTableName(type),
-          ).batchInsertOfflineMessages(
-            processedMessages,
-            onS2CMessage: (msgData) async {
-              // 处理 S2C 消息
-              await MessageS2CService.switchS2C(msgData);
-            },
-          );
+      final encryptedAckIds = <String>[];
+      final ordinaryMessages = <Map<String, dynamic>>[];
+      for (final msg in processedMessages) {
+        if (!requiresSecureReceivePath(msg)) {
+          ordinaryMessages.add(msg);
+          continue;
+        }
 
-      if (msgIds != null && msgIds.isNotEmpty) {
+        final committed = await MessageService.to.persistInboundMessage(msg);
+        if (!committed) {
+          throw StateError('encrypted offline message not committed');
+        }
+        final msgId = (msg['msg_id'] ?? msg['id'])?.toString() ?? '';
+        if (msgId.isNotEmpty) encryptedAckIds.add(msgId);
+      }
+
+      final ordinaryAckIds = ordinaryMessages.isEmpty
+          ? <String>[]
+          : await MessageRepo(
+                  tableName: MessageRepo.getTableName(type),
+                ).batchInsertOfflineMessages(
+                  ordinaryMessages,
+                  onS2CMessage: (msgData) async {
+                    // 处理 S2C 消息
+                    await MessageS2CService.switchS2C(msgData);
+                  },
+                ) ??
+                <String>[];
+      final msgIds = {...encryptedAckIds, ...ordinaryAckIds}.toList();
+
+      if (msgIds.isNotEmpty) {
         // 发送确认消息
         await _sendOfflineAck(type, msgIds);
       }
@@ -512,22 +557,16 @@ class MessageOfflineService {
 
   /// 发送离线消息确认
   Future<void> _sendOfflineAck(String type, List<String> msgIds) async {
-    try {
-      final resp = await HttpClient.client.post(
-        API.msgOfflineAck,
-        // 带 did 走服务端按设备送达标记（不再按 uid 删行），
-        // 修复双端登录时一端确认导致另一离线端永久丢消息
-        data: {
-          'type': type,
-          'msg_ids': msgIds,
-          if (deviceId.isNotEmpty) 'did': deviceId,
-        },
-      );
-      if (resp.code != 0) {
-        iPrint('发送离线消息确认失败: ${resp.msg}');
-      }
-    } on Object catch (e) {
-      iPrint('发送离线消息确认异常: ${e.runtimeType}');
-    }
+    final resp = await HttpClient.client.post(
+      API.msgOfflineAck,
+      // 带 did 走服务端按设备送达标记（不再按 uid 删行），
+      // 修复双端登录时一端确认导致另一离线端永久丢消息
+      data: {
+        'type': type,
+        'msg_ids': msgIds,
+        if (deviceId.isNotEmpty) 'did': deviceId,
+      },
+    );
+    requireAckAccepted(resp.code);
   }
 }

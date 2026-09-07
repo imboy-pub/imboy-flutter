@@ -96,6 +96,29 @@ void main() {
   });
 
   group('Xid 出站消息经 JSON *_SERVER_ACK 确认（机制A已删除）', () {
+    test('C2C/C2G 内容与 action 不得在 WebSocket 层提前 ACK', () async {
+      for (final msg in [
+        {
+          'id': '101',
+          'type': 'C2C',
+          'msg_type': 'text',
+          'payload': {'text': 'ciphertext-placeholder'},
+        },
+        {
+          'id': '102',
+          'type': 'C2G',
+          'msg_type': 'text',
+          'action': 'message_edit',
+          'payload': {'content': 'ciphertext-placeholder'},
+        },
+      ]) {
+        svc.handleV2BinaryForTest(_s2cFrame(msg));
+      }
+
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      expect(fake.capturingSink.sent, isEmpty);
+    });
+
     test('C2C_SERVER_ACK 转发下游且不触发反向 ACK', () async {
       final forwarded = AppEventBus.on<WebSocketMessageReceivedEvent>().first;
 

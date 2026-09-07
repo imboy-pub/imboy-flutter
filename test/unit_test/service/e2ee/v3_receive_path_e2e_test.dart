@@ -19,9 +19,9 @@
 ///
 /// ## 本次接线
 ///
-/// 新增 `E2EEService.decryptInboundV3`（纯函数，无 DB/事件/provider 副作用）
-/// 作为 v3 的唯一进入点，并在 `_receiveMessage` / `_handleE2EEMessage`
-/// 两处对 v3 放行 + 分流。
+/// 新增 `E2EEService.decryptInboundV3` 作为 v3 的唯一进入点，并在
+/// `_receiveMessage` / `_handleE2EEMessage` 两处对 v3 放行 + 分流。当前入口会
+/// 使用 SQLCipher 暂存密文及可恢复解密结果，但不触发事件或 provider。
 ///
 /// ## 为什么以纯函数为边界而不是 processMessage
 ///
@@ -31,7 +31,7 @@
 /// 内嵌基线 DDL 是 v16 而当前 schema 是 v24）。
 /// 详见 `evidence/E2EE-v3-receive-path-not-wired.md`。
 ///
-/// 因此当前的可验证边界是 `decryptInboundV3`。它与此前被测的
+/// 因此当前可独立验证的密码接收边界是 `decryptInboundV3`。它与此前被测的
 /// `decryptIncomingPayload` 有本质区别：**它是生产路径实际调用的入口**
 /// （`message.dart::_handleE2EEMessage` 第 0 步直接调用它），
 /// 而不是一条生产不走的旁路。
@@ -50,6 +50,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee_service.dart' hide RecipientDevice;
 import 'package:imboy/config/init.dart';
 
@@ -223,6 +224,51 @@ void main() {
       );
       expect(result['_e2ee_v3_verified'], isTrue);
       expect(result['body'], equals(plainBody));
+    });
+
+    test('已完成同帧可幂等确认，同 ID 篡改密文必须拒绝', () async {
+      const msgId = 'inbound-v3-retry-001';
+      final data = await buildV3Message(msgId);
+      final first = await E2EEService.decryptInboundV3(data: data);
+      expect(first?['_e2ee_failed'], isNot(true));
+
+      // 恒等协议替代了真实 OlmProtocol，因此测试需显式复刻协议层的
+      // digest + 解密结果原子提交，再进入最终消息已持久化后的 complete。
+      final staged = (await db.query(
+        'crypto_inbox_staging',
+        where: 'message_id = ?',
+        whereArgs: [msgId],
+      )).single;
+      final e2eeBeforeTamper = data['e2ee'] as Map;
+      final devicesBeforeTamper = e2eeBeforeTamper['devices'] as Map;
+      final envelopeBeforeTamper = devicesBeforeTamper[deviceId] as Map;
+      final innerFrame = utf8.decode(
+        base64Url.decode(envelopeBeforeTamper['ciphertext'] as String),
+      );
+      final store = CryptoStore(db);
+      expect(
+        await store.commitInboundResult(
+          messageId: msgId,
+          scope: staged['scope'] as String,
+          ciphertextDigest: staged['ciphertext_digest'] as String,
+          decryptedPayload: innerFrame,
+        ),
+        isTrue,
+      );
+      await store.completeInbound(msgId);
+      final retry = await E2EEService.decryptInboundV3(data: data);
+      expect(retry?['_e2ee_reason'], 'already_processed');
+
+      final e2ee = Map<String, dynamic>.from(data['e2ee'] as Map);
+      final devices = Map<String, dynamic>.from(e2ee['devices'] as Map);
+      final envelope = Map<String, dynamic>.from(devices[deviceId] as Map);
+      envelope['ciphertext'] = '${envelope['ciphertext']}A';
+      devices[deviceId] = envelope;
+      e2ee['devices'] = devices;
+      data['e2ee'] = e2ee;
+
+      final tampered = await E2EEService.decryptInboundV3(data: data);
+      expect(tampered?['_e2ee_reason'], 'duplicate_message');
     });
 
     test('非 v3 信封必须返回 null，交回 v1/v2 路径处理', () async {
