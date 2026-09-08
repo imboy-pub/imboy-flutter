@@ -1,6 +1,6 @@
 # `page/workspace/workspace_invite_page.dart`
 
-> 功能点 17 个 | bug 发现 1 / 解决 0 / 待处理 1
+> 功能点 17 个 | bug 发现 2 / 解决 1 / 待处理 1
 > 索引：[../README.md](../README.md)
 
 | 计划变化 | 计划时间 | 页面path | 功能介绍 | 测试状态 | 测试轮次 | 发现bug | 解决bug | 待处理bug | 备注 |
@@ -15,7 +15,7 @@
 | 阻塞 | 需模板资源缺失的工作区（常规创建必带 General/Announcements，无法触发定位失败） | `page/workspace/workspace_invite_page.dart` | 模板资源定位失败时对应勾选项禁用并提示不可用 | 未测 | 批次W2R2 | 0 | 0 | 0 | 缺负向场景构造手段 |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 提交后结果区三条独立展示状态（加入工作区/加群/订阅频道各一行 running→success/failed） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 发送后三行独立流转至「成功」绿勾；logcat 三个独立请求 members/invite→group_member/join→channel/subscribe；DB ws_member=1 |
 | 阻塞 | 需故障注入使工作区邀请失败（后端拒 members/invite） | `page/workspace/workspace_invite_page.dart` | 工作区邀请失败时整单失败，两条可选关系不再发起（保持待处理） | 未测 | 批次W2R2 | 0 | 0 | 0 | UI 无失败注入手段 |
-| 阻塞 | 需故障注入使可选关系失败（join/subscribe 被拒） | `page/workspace/workspace_invite_page.dart` | 可选关系单条失败互不影响，失败行支持单独重试 | 未测 | 批次W2R2 | 0 | 0 | 0 | UI 无失败注入手段 |
+| 阻塞 | 待环境恢复后跑 AT-WIV1（测试已就绪，批次133 编写；另发现并修复产品缺口：_ResultsSection 失败行此前未接重试按钮 UI） | `page/workspace/workspace_invite_page.dart` | 可选关系单条失败互不影响，失败行支持单独重试 | 未测 | 批次W2R2 | 1 | 1 | 0 | 注入手段=adapterForTest 拦 /api/v1/group/add；macOS 磁盘 96% 满+fs I/O 挂起致本地 sqlite disk I/O error，WIV 测试未跑完（run1/2 均挂），恢复后重验；重试按钮 UI 缺口已修（workspace-invite-row-retry） |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 提交后返回成员管理页可见新成员（成员列表与 Overview 已失效刷新） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 返回成员页第三张卡显示走查AT戊(Member)；成员列表已失效刷新 |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | Owner 顶部展示团队码卡片（生成/复制/撤销），非 Owner 不显示该卡片 | 已通过 | 批次W2R5 | 0 | 0 | 0 | ACC_A(Owner) 见「团队码邀请」卡片+生成/复制/撤销；UID_F(Member) 成员页无邀请按钮、邀请页不可达（代码 _isOwner 守卫+服务端 403 兜底） |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 生成/重新生成团队码：展示 8 位码，重生成即撤旧码（一工作区恒一个 active 码） | 已通过 | 批次W2R5 | 0 | 0 | 0 | 生成 T4EEWZHR→重生成 39F8V2Y2：UI 码更新，DB 旧码 status=revoked、新码 active（uk_ws_active 唯一约束）；单次点击仅 1 个 POST |

@@ -581,5 +581,27 @@
    "invite 可选关系条：下轮启动测试构造（复用 adapterForTest+驱动邀请向导 UI）",
    "GF 挂死：验证 51730 本地态假设（清态重试或 signOutFirst）"
   ]
+ },
+ "session_2026_09_09_batch133": {
+  "note": "批次133（automation 第六轮）：invite 可选关系条——发现并修复真产品缺口（失败行无重试 UI），AT-WIV1 测试编写完成但被环境阻塞（macOS fs I/O 降级），阻塞行维持并更新计划时间。主块跳过。",
+  "product_fix": {
+   "gap": "_ResultsSection 接收 onRetryGroup/onRetryChannel 但 build 未接线——failed 行只有 xmark 图标+message，无重试入口（_retryGroup/_retryChannel 死代码）。台账行『失败行支持单独重试』的产品缺口",
+   "fix": "_ResultRow 加 onRetry 参数；failed 态显示 workspace-invite-row-retry IconButton（arrow_clockwise）；group/channel 行分别接线 onRetryGroup/onRetryChannel",
+   "commit": "fix(workspace) 提交（本轮）"
+  },
+  "test_ready": {
+   "file": "integration_test/workspace/workspace_invite_relations_test.dart（AT-WIV1）",
+   "flow": "注入 /api/v1/group/add 失败 → 搜索 SmokeAlice（workspace-invite-search-btn）→ 选候选（workspace-invite-candidate-1000000051）→ 提交（workspace-invite-submit）→ 断言 workspace/channel 成功+group 失败互不影响 → 解除拦截点 workspace-invite-row-retry → group 转成功",
+   "status": "代码完成+analyze 通过；run1/2 未跑完（见 env_degradation），环境恢复后重跑"
+  },
+  "env_degradation": {
+   "symptom": "23:00 起 macOS 文件系统间歇挂起：ls/find 普通路径挂死 60s+、本地 sqlite 间歇 disk I/O error（FMDatabase Code=10，非磁盘满——Data 卷余 17Gi 但使用率 96%）；GF1/GF7 与 WIV run1/2 挂死均与此相关（叠加 manifest 回滚）",
+   "impact": "依赖本地 sqlite 的集成测试间歇失败；WVM 恢复段断言（批次131）亦受扰",
+   "suggestion": "建议人工检查 macOS 磁盘健康（fsck/First Aid）+清理至 <90% 使用率；恢复后重跑 AT-WIV1（define 见文件头注）"
+  },
+  "next_actions": [
+   "环境恢复后：跑 AT-WIV1（预期绿）→ 台账行转已通过（阻塞-1）",
+   "GF 二分已定性文件级（51730 恢复链假设），与 fs 降级叠加，待环境一并验证"
+  ]
  }
 }
