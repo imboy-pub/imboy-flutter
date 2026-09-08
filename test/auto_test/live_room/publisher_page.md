@@ -13,6 +13,6 @@
 | 阻塞 | 需可用 WHIP 媒体服务器 | `page/live_room/publisher/publisher_page.dart` | 连接中禁用按钮并显示连接中文案 | 未测 | - | 0 | 0 | 0 | — |
 | 阻塞 | 需可用 WHIP 媒体服务器 | `page/live_room/publisher/publisher_page.dart` | 点击停止推流断开并释放采集 | 未测 | - | 0 | 0 | 0 | — |
 | 阻塞 | 需可用 WHIP 媒体服务器 | `page/live_room/publisher/publisher_page.dart` | 左上角状态徽章显示当前推流状态 | 未测 | - | 0 | 0 | 0 | — |
-| 阻塞 | 需从列表页携带房间进入 | `page/live_room/publisher/publisher_page.dart` | 右上角脱敏展示房间推流密钥 | 未测 | - | 0 | 0 | 0 | — |
-| 阻塞 | 需从列表页携带房间进入 | `page/live_room/publisher/publisher_page.dart` | 标题栏显示房间名或默认标题 | 未测 | - | 0 | 0 | 0 | — |
+| 阻塞 | 列表导航可达（批次142 修列表重复键 bug 后 my_list 含 own 房间，点非直播行即携房间进本页）；推流本身仍需 WHIP 服务器 | `page/live_room/publisher/publisher_page.dart` | 右上角脱敏展示房间推流密钥 | 未测 | - | 0 | 0 | 0 | — |
+| 阻塞 | 列表导航可达（批次142 后同上）；推流本身仍需 WHIP 服务器 | `page/live_room/publisher/publisher_page.dart` | 标题栏显示房间名或默认标题 | 未测 | - | 0 | 0 | 0 | — |
 | 阻塞 | 需可用 WHIP 媒体服务器 | `page/live_room/publisher/publisher_page.dart` | 退出页面停止推流并熄灭摄像头指示灯 | 未测 | - | 0 | 0 | 0 | 代码注释明写建议真机验证释放顺序 |

@@ -700,5 +700,20 @@
   },
   "session_2026_09_09_batch141": {
     "note": "批次141（automation 第十四轮）：fs 卡死持续（Documents ls >30s 挂死）。磁盘实测仍 98% 满——df -h / 的 50% 是系统快照卷假象，判断磁盘必须看 /System/Volumes/Data（409Gi/460Gi 可用12Gi）。例行 regen 155/1748/bug2、恒等式 0 违反，台账无变更。发现并行会话两个未跟踪产物（docs/screenshots/alpha17-pgyer、integration_test/settings/e2ee_backup_recovery_acceptance_test.dart）未动未提交。"
+  },
+  "session_2026_09_09_batch142": {
+    "note": "批次142（automation 第十五轮）：fs 卡死持续但完成重大离线推进——发现并修复 live_room 后端真 bug（P1）：page_with_total 返回 atom 键而 live_room_handler list/my_list 用 binary 键读写→同一 map 并存 atom list(真实数据)+binary \"list\"(空)→JSON 重复 \"list\" 键→Dart jsonDecode 保留后者→客户端房间列表永远空。同时证伪批次138「status=0 被 my_list 过滤」旧定性（repo page_by_uid 只按 user_id 查）。修复 imboy 0e1de5b5（atom 键读写与全仓 9 处消费者口径一致；erlfmt/gitleaks/conventional 全绿+DCO），make compile GREEN，9801 热加载后 curl 复验：my_list 单 list 键含 fixture 房间。另实证 /start 纯 DB 翻转 status=1 无媒体依赖→公开列表条目可本地构造；路由守卫无 live_room 映射→flag 硬关不影响页面深链。台账：live_room_list_page bug 1/1/0+六行阻塞前置更新为数据就绪口径，publisher/subscriber 四行「列表导航可达」标注。剩余真阻塞=WHIP 媒体服务器（推拉流/摄像头/渲染类，用户决策）+环境 fs 卡死。",
+    "live_room_real_bug": {
+      "root_cause": "elib_pg:page_with_total 返回 #{total=>..,page=>..,size=>..,list=>Rows} 全 atom 键；live_room_handler.erl 旧 L39/L53 maps:get(<<\"list\">>, Data, []) binary 键恒取默认[]，Data#{<<\"list\">> => Rows2} 新增 binary 键与 atom 键并存；JSON 编码重复键，客户端保留后者",
+      "fix": "imboy 0e1de5b5 两处改 maps:get(list, Data, []) + Data#{list => Rows2}",
+      "verify": "9801 热加载（erl -name probe142@127.0.0.1 -setcookie imboy + rpc:call code:load_binary）→ curl my_list 单键含房间 111596538331138048；公开 list 空语义正确",
+      "note": "9801 重启会回滚到 alpha.72 release 旧 beam，需重热加载——与批次128 manifest 回滚同类"
+    },
+    "env_status": "fs 卡死持续；磁盘 98% 未清；live_room 域数据类阻塞已全部解锁为「待环境」",
+    "next_actions": [
+      "环境恢复第一优先：AT-WIV1（invite 行转已通过）",
+      "环境恢复第二优先：live_room 列表页六条数据类条目实测（造数配方在台账行：curl create/start/UPDATE cover）",
+      "WHIP 媒体服务器搭建=用户决策（推拉流/摄像头/渲染类仍阻塞）"
+    ]
   }
 }
