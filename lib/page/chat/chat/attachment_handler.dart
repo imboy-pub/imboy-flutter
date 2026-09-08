@@ -20,6 +20,7 @@ import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:imboy/service/e2ee/attachment_binding.dart';
 import 'package:imboy/service/e2ee/attachment_conversation_ref.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/api/attachment_api.dart';
@@ -258,17 +259,37 @@ class ChatAttachmentHandler {
   @visibleForTesting
   Future<bool> payloadWillBeEncryptedForTest() => _payloadWillBeEncrypted();
 
+  /// 本刀的 fail-closed 语义：payload 将被加密（required E2EE）却拿不到
+  /// 绑定输入（如登出半态 senderUid 为空、scope 派生退化）时，**必须在
+  /// 上传前中止**——绝不能先把明文附件传上对象存储、再等 `sendWsMsg`
+  /// 拒绝消息（那时附件已明文出网，ATT-01 在上传侧就输了）。
+  ///
+  /// 明文会话（PlaintextAllowed）与开关关闭时 seal 为 null 是**合法**路径：
+  /// 不加密就不需要绑定值，照旧明文上传。
   Future<AttachmentSealRequest?> _sealFor(
     String messageId,
     String attachmentId,
-  ) async => buildSealRequest(
-    rolloutEnabled: sealRollout,
-    payloadWillBeEncrypted: await _payloadWillBeEncrypted(),
-    messageId: messageId,
-    conversationId: sealConversationId,
-    senderUid: _currentUser.id,
-    attachmentId: attachmentId,
-  );
+  ) async {
+    final bool encrypted = await _payloadWillBeEncrypted();
+    final seal = buildSealRequest(
+      rolloutEnabled: sealRollout,
+      payloadWillBeEncrypted: encrypted,
+      messageId: messageId,
+      conversationId: sealConversationId,
+      senderUid: _currentUser.id,
+      attachmentId: attachmentId,
+    );
+    if (seal == null && encrypted && sealRollout) {
+      throw E2eeSecurityException('attachment_binding_missing:$attachmentId');
+    }
+    return seal;
+  }
+
+  @visibleForTesting
+  Future<AttachmentSealRequest?> sealRequestForTest(
+    String messageId,
+    String attachmentId,
+  ) => _sealFor(messageId, attachmentId);
 
   /// 把 descriptor 放进消息 metadata —— 它会被 `getMsgFromTMsg`
   /// 原样并入 payload，从而随 PFv3 一起加密。

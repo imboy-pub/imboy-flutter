@@ -17,6 +17,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/e2ee/attachment_descriptor.dart';
 import 'package:imboy/service/e2ee/attachment_encryptor.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
@@ -473,7 +474,10 @@ class AttachmentApi {
   /// ⚠️ 设计 §3.3：缩略图是独立对象，**不加密 = 预览即泄漏**——拿到缩略图
   /// 就看得到画面内容，ATT-04 在缩略图上直接失败。因此两者要么一起封装，
   /// 要么一起明文；**只封装本体是自欺**。
-  /// 故：只传其一时按 fail-safe 处理——见函数体内的一致性闸门。
+  /// 故：只传其一时**上传前直接失败**（fail-closed）——降级双明文会把
+  /// required E2EE 会话的附件静默送去对象存储（调用方还以为已加密），
+  /// 比失败更糟。正常调用方（ChatAttachmentHandler）两次判定的输入完全
+  /// 一致，此闸门只在将来判定漂移时触发（E2EE-062 第七刀教训）。
   static Future<Map<String, dynamic>> uploadVideoViaPresign(
     AssetEntity entity, {
     String scope = 'private',
@@ -482,11 +486,9 @@ class AttachmentApi {
     AttachmentSealRequest? thumbSeal,
   }) async {
     // 一致性闸门（判据在 AttachmentSealPolicy，不在这里各写一份 if）：
-    // 只有一个时**两个都不封装**，退回今天已知的明文行为，
-    // 而不是交付一个「本体加密、预览裸奔」的假象。
+    // 只有一个时拒绝整次上传——先于任何文件 IO，上传 seam 零调用。
     if (!AttachmentSealPolicy.sealTogether(videoSeal, thumbSeal)) {
-      videoSeal = null;
-      thumbSeal = null;
+      throw const E2eeSecurityException('attachment_partial_seal');
     }
     final File? file = await entity.file;
     if (file == null) {

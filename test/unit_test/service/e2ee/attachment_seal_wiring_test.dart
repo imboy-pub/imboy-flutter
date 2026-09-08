@@ -22,6 +22,8 @@ import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart'
+    show AssetEntity;
 
 ChatAttachmentHandler _handler({
   required String type,
@@ -282,5 +284,159 @@ void main() {
         ),
       ),
     );
+  });
+
+  // ────────────────────────────────────────────────────────────────────────
+  // 7. required E2EE 绑定缺失必须上传前失败（ATT-01 上传侧 fail-closed 重开刀）
+  //
+  // 旧行为：绑定输入缺失 → seal=null → 明文附件**先**上传成功、消息稍后被
+  // sendWsMsg 拒绝——附件已明文躺在对象存储里。本组钉住：上传动作开始之前
+  // 必须以 typed 异常中止（= 上传 seam 零调用的可验证形态：异常先于一切 IO）。
+  // ────────────────────────────────────────────────────────────────────────
+  group('7. required E2EE + 绑定缺失 → 上传前失败，绝不静默明文上传', () {
+    void setStrict() {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.strictE2ee,
+        initialized: true,
+      );
+      addTearDown(() {
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.plaintext,
+          initialized: false,
+        );
+      });
+    }
+
+    test(
+      '⚠️ required + senderUid 缺失（登出半态）→ 抛 attachment_binding_missing',
+      () async {
+        setStrict();
+        // c2cKey('', '2002') 回退字符串序得 'c2c::2002'（非空），因此
+        // missingBinding 精确来自 senderUid 为空——真实缺口形态。
+        final h = _handler(type: 'C2C', peerId: '2002', selfUid: '');
+        await expectLater(
+          h.sealRequestForTest('msg-1', 'image'),
+          throwsA(
+            isA<E2eeSecurityException>().having(
+              (e) => e.reason,
+              'reason',
+              'attachment_binding_missing:image',
+            ),
+          ),
+        );
+      },
+    );
+
+    test('⚠️ required + messageId 缺失 → 同样上传前失败', () async {
+      setStrict();
+      final h = _handler(type: 'C2C', peerId: '2002', selfUid: '1001');
+      await expectLater(
+        h.sealRequestForTest('', 'file'),
+        throwsA(
+          isA<E2eeSecurityException>().having(
+            (e) => e.reason,
+            'reason',
+            'attachment_binding_missing:file',
+          ),
+        ),
+      );
+    });
+
+    test('明文部署（PlaintextAllowed）+ 绑定缺失 → 合法：不封装也不失败', () async {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.plaintext,
+        initialized: true,
+      );
+      addTearDown(() {
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.plaintext,
+          initialized: false,
+        );
+      });
+      final h = _handler(type: 'C2C', peerId: '2002', selfUid: '');
+      expect(await h.sealRequestForTest('msg-1', 'image'), isNull);
+    });
+
+    test('推出开关关闭 + required → 合法：维持已知明文行为，不失败', () async {
+      setStrict();
+      final h = _handler(
+        type: 'C2C',
+        peerId: '2002',
+        selfUid: '',
+        sealRollout: false,
+      );
+      expect(await h.sealRequestForTest('msg-1', 'image'), isNull);
+    });
+
+    test('required + 全部就绪 → 实例链路确实给出封装请求（防恒抛回归）', () async {
+      setStrict();
+      final h = _handler(type: 'C2C', peerId: '2002', selfUid: '1001');
+      final seal = await h.sealRequestForTest('msg-1', 'image');
+      expect(seal, isNotNull);
+      expect(
+        seal!.bindingHash,
+        equals(
+          AttachmentBinding.compute(
+            messageId: 'msg-1',
+            conversationId: 'c2c:1001:2002',
+            senderUid: '1001',
+          ),
+        ),
+      );
+    });
+  });
+
+  group('8. 视频 partial seal → 上传前失败（先于一切 IO，上传 seam 零调用）', () {
+    test('⚠️ 只封本体不封缩略图 → 抛 attachment_partial_seal', () async {
+      final seal = AttachmentSealRequest(
+        bindingHash: AttachmentBinding.compute(
+          messageId: 'msg-1',
+          conversationId: 'c2c:1:2',
+          senderUid: '1001',
+        ),
+        attachmentId: 'video',
+      );
+      // AssetEntity 为纯字段实体，VM 可实例化；闸门位于 entity.file 之前，
+      // 抛出即证明未触达任何 presign/PUT/confirm（缩略图/视频均未上传）。
+      await expectLater(
+        AttachmentApi.uploadVideoViaPresign(
+          AssetEntity(id: '0', typeInt: 2, width: 1, height: 1),
+          videoSeal: seal,
+          thumbSeal: null,
+        ),
+        throwsA(
+          isA<E2eeSecurityException>().having(
+            (e) => e.reason,
+            'reason',
+            'attachment_partial_seal',
+          ),
+        ),
+      );
+    });
+
+    test('⚠️ 反向：只封缩略图不封本体 → 同样上传前失败', () async {
+      final seal = AttachmentSealRequest(
+        bindingHash: AttachmentBinding.compute(
+          messageId: 'msg-1',
+          conversationId: 'c2c:1:2',
+          senderUid: '1001',
+        ),
+        attachmentId: 'video_thumb',
+      );
+      await expectLater(
+        AttachmentApi.uploadVideoViaPresign(
+          AssetEntity(id: '0', typeInt: 2, width: 1, height: 1),
+          videoSeal: null,
+          thumbSeal: seal,
+        ),
+        throwsA(
+          isA<E2eeSecurityException>().having(
+            (e) => e.reason,
+            'reason',
+            'attachment_partial_seal',
+          ),
+        ),
+      );
+    });
   });
 }
