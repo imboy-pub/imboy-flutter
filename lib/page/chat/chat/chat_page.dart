@@ -264,9 +264,12 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 保存 ChatNotifier 引用，用于在 dispose 中安全访问
     _chatNotifier = ref.read(chatProvider.notifier);
 
-    // 透明 AI 徽章：C2C 查本地 contact 拿对端 account_type（不触网）
+    // 透明 AI 徽章 + 发送豁免数据源：C2C 查对端 account_type。
+    // 本地 contact 无行（如从 AI 广场首聊 agent）时向服务端同步一次——
+    // user/show 仅对 AI 助手回吐 account_type=1（真人不下发），经
+    // syncByUid 落库后徽章与发送豁免均离线可判。
     if (widget.type == 'C2C') {
-      ContactRepo().findByUid(widget.peerId, autoFetch: false).then((ct) {
+      ContactRepo().findByUid(widget.peerId).then((ct) {
         if (mounted && ct != null && ct.accountType != _peerAccountType) {
           setState(() => _peerAccountType = ct.accountType);
         }

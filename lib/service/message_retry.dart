@@ -13,6 +13,7 @@ import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
@@ -421,15 +422,25 @@ class MessageRetry with EventSubscriptionManager {
   /// 群级 E2EE 强制（P0-B B4，独立于全局策略）或 PolicyGate 要求加密。
   /// 判据本身取不到时（策略未就绪会抛 [E2eeSecurityException]）一律按
   /// **需要加密**处理——未知即拦，不得 fail-open。
+  ///
+  /// 透明 AI：对端是 AI 助手（account_type=1）时按产品设计明文（agent 无设备
+  /// 密钥），豁免在 try 之前解析，agent 会话的重试不被 fail-closed 误拦。
   Future<bool> _isPlaintextRetryBlocked(MessageModel msg) async {
     final chatType = msg.type ?? 'C2C';
+    final int peerAccountType = await ContactRepo().accountTypeOfUid(
+      msg.toId.toString(),
+    );
     bool encryptionRequired;
     try {
       final groupMegolm =
           chatType == 'C2G' &&
           await GroupSessionService.to.isGroupE2EE(msg.toId.toString());
       encryptionRequired =
-          groupMegolm || E2EEService.shouldEncryptOutgoingPayload(chatType);
+          groupMegolm ||
+          E2EEService.shouldEncryptOutgoingPayload(
+            chatType,
+            peerAccountType: peerAccountType,
+          );
     } on Object {
       encryptionRequired = true;
     }

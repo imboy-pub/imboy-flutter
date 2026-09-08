@@ -161,9 +161,19 @@ class E2EEService {
   /// WebSocket API v2.0: msg_type/action 在顶层，不在 payload 内。
   /// action 操作消息由调用方拦截；此处只按后端 policy 判定 C2C/C2G。
   ///
+  /// 透明 AI 豁免：C2C 对端是 AI 助手（account_type=1）时恒返回 false——
+  /// AI 助手绝不进入端到端加密会话（服务端红线，产品在 AI 广场透明卡明示），
+  /// agent 也没有设备密钥，required 部署下若仍要求加密会把会话整条夹死
+  /// （发送端 `peer_has_no_device` / 服务端 policy_violation）。
+  /// 该豁免先于 [PolicyGate]：策略未初始化也不得阻断 agent 会话。
+  ///
   /// fail-closed（ADR 14 §S1.1 / CB-01/02）：策略未初始化时对 C2C/C2G 抛
   /// [E2eeSecurityException]，绝不静默以 plaintext 默认继续发送。
-  static bool shouldEncryptOutgoingPayload(String chatType) {
+  static bool shouldEncryptOutgoingPayload(
+    String chatType, {
+    int peerAccountType = 0,
+  }) {
+    if (chatType == 'C2C' && peerAccountType == 1) return false;
     final decision = PolicyGate.requireReadyForSend(chatType);
     return decision is EncryptRequired;
   }

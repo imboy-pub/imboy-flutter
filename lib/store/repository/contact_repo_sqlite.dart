@@ -231,6 +231,18 @@ class ContactRepo implements ContactRepository {
     }
   }
 
+  /// 解析对端账号类型（0=真人 1=AI 助手 2=官方机器人）。
+  ///
+  /// 透明 AI 发送豁免的统一数据源（chat_network_service / message_retry /
+  /// attachment_handler 共用）：本地 contact 表无行时（首聊陌生人）按需向
+  /// 服务端同步一次——user/show 对 AI 助手回吐 account_type=1 并经
+  /// [ContactApi.syncByUid] 落库，之后离线可判。
+  Future<int> accountTypeOfUid(String uid, {bool autoFetch = true}) async {
+    if (uid.isEmpty) return 0;
+    final ContactModel? ct = await findByUid(uid, autoFetch: autoFetch);
+    return ct?.accountType ?? 0;
+  }
+
   // 根据ID删除信息
   @override
   Future<int> delete(String uid) async {

@@ -26,6 +26,7 @@ import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -248,12 +249,19 @@ class ChatAttachmentHandler {
   ///
   /// PolicyGate 拿不到策略时抛 [E2eeSecurityException]：必须让异常中止上传，
   /// 不能先把原文件明文上传、再等 `sendWsMsg` 拒绝消息。
+  ///
+  /// 透明 AI：C2C 对端是 AI 助手时按产品设计明文（agent 无设备密钥），
+  /// 豁免先于 PolicyGate，附件不封装、上传不被 fail-closed 误拦。
   Future<bool> _payloadWillBeEncrypted() async {
     if (type.toUpperCase() == 'C2G' &&
         await GroupSessionService.to.isGroupE2EE(peerId)) {
       return true;
     }
-    return E2EEService.shouldEncryptOutgoingPayload(type);
+    final int peerAccountType = await ContactRepo().accountTypeOfUid(peerId);
+    return E2EEService.shouldEncryptOutgoingPayload(
+      type,
+      peerAccountType: peerAccountType,
+    );
   }
 
   @visibleForTesting

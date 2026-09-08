@@ -28,6 +28,7 @@ import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
@@ -330,7 +331,13 @@ class ChatNetworkService {
     if (chatType == 'C2G' && await GroupSessionService.to.isGroupE2EE(toId)) {
       return true;
     }
-    return E2EEService.shouldEncryptOutgoingPayload(chatType);
+    // 透明 AI：对端是 AI 助手时按产品设计明文（agent 无设备密钥，
+    // required 部署下仍要求加密会以 peer_has_no_device 卡死会话）。
+    final int peerAccountType = await ContactRepo().accountTypeOfUid(toId);
+    return E2EEService.shouldEncryptOutgoingPayload(
+      chatType,
+      peerAccountType: peerAccountType,
+    );
   }
 
   @visibleForTesting
@@ -651,9 +658,15 @@ class ChatNetworkService {
     // 服务端 fail-closed 门会拒明文）
     final bool groupMegolm =
         chatType == 'C2G' && await GroupSessionService.to.isGroupE2EE(toId);
+    // 透明 AI：对端是 AI 助手时按产品设计明文，与 _shouldEncryptOutbound 同判据
+    final int peerAccountType = await ContactRepo().accountTypeOfUid(toId);
     final bool needEncrypt =
         (action.isEmpty || action == 'message_edit') &&
-        (groupMegolm || E2EEService.shouldEncryptOutgoingPayload(chatType));
+        (groupMegolm ||
+            E2EEService.shouldEncryptOutgoingPayload(
+              chatType,
+              peerAccountType: peerAccountType,
+            ));
     if (!needEncrypt) return null;
 
     // 发送路径全量 Megolm（vodozemac）：C2G 群会话、C2C 二人会话。
