@@ -10,13 +10,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/config/router/generated_product_feature_routes.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/page/conversation/conversation_tap_dispatcher.dart';
-import 'package:imboy/page/conversation/widget/subscribed_channel_strip.dart';
 import 'package:imboy/page/conversation/widget/right_button.dart'
     show RightButton;
 import 'package:imboy/page/group/group_avatar_cache.dart'
@@ -24,6 +24,7 @@ import 'package:imboy/page/group/group_avatar_cache.dart'
 import 'package:imboy/page/web_shell/web_shell.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/service/events/message_events.dart';
 import 'package:imboy/service/websocket_events.dart'
     show WebSocketStatusChangedEvent;
 import 'package:imboy/store/model/conversation_model.dart';
@@ -84,6 +85,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   StreamSubscription<dynamic>? _connectivitySubscription;
   StreamSubscription<dynamic>? _websocketStatusSubscription;
   StreamSubscription<dynamic>? _authoritySyncSub;
+  StreamSubscription<dynamic>? _e2eeRecoverySub;
 
   /// 是否需在列表顶部常驻显示 E2EE 密钥恢复横幅（换设备/重装后未完成恢复）。
   bool _e2eeRecoveryNeeded = false;
@@ -103,6 +105,13 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     super.initState();
     _e2eeRecoveryNeeded =
         StorageService.to.getBool(kE2eeRecoveryNeededKey) ?? false;
+    // 密钥恢复成功后即时撤下横幅（横幅是 initState 快照，无通知则常驻）
+    _e2eeRecoverySub = AppEventBus.on<E2EERecoveryCompletedEvent>().listen((_) {
+      if (!mounted) return;
+      if (_e2eeRecoveryNeeded) {
+        setState(() => _e2eeRecoveryNeeded = false);
+      }
+    });
     unawaited(initData());
 
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) async {
@@ -127,6 +136,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     _connectivitySubscription?.cancel();
     _websocketStatusSubscription?.cancel();
     _authoritySyncSub?.cancel();
+    _e2eeRecoverySub?.cancel();
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -299,7 +309,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
           SliverToBoxAdapter(child: NetworkFailureTips()),
 
         if (AppFeatureRegistry.isEnabled(FeatureKeys.channel))
-          const SliverToBoxAdapter(child: SubscribedChannelStrip()),
+          SliverToBoxAdapter(
+            child: compiledSubscribedChannelStrip() ?? const SizedBox.shrink(),
+          ),
 
         if (state.isLoading)
           const SliverFillRemaining(child: ShimmerList())

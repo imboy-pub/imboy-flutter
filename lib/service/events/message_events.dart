@@ -178,6 +178,19 @@ enum MessageFailureReason {
   other,
 }
 
+/// E2EE 密钥恢复完成事件。
+///
+/// 密钥恢复（备份导入/云端恢复）成功后触发：写入方负责清除
+/// kE2eeRecoveryNeededKey 横幅标记，会话页监听本事件即时撤下
+/// 「恢复待办」横幅——横幅状态是 initState 一次性快照，
+/// 不通知则用户恢复成功回到会话页仍见常驻横幅。
+final class E2EERecoveryCompletedEvent extends AppEvent {
+  const E2EERecoveryCompletedEvent();
+
+  @override
+  List<Object?> get props => const [];
+}
+
 /// E2EE密钥不匹配事件
 ///
 /// 当接收端无法解密消息（设备密钥不匹配）时触发，

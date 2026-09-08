@@ -16,7 +16,11 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/message_events.dart';
+import 'package:imboy/service/storage.dart';
 
 /// E2EE 备份导入页面
 ///
@@ -762,6 +766,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     if (restored > 0) {
       iPrint('[RESTORE] Megolm 会话回填 $restored');
     }
+
+    // 密钥已恢复，清除会话页「恢复待办」横幅标记并通知撤下——
+    // 否则横幅常驻（唯一清除入口此前只有横幅 ×）
+    await StorageService.to.setBool(kE2eeRecoveryNeededKey, false);
+    AppEventBus.fire(const E2EERecoveryCompletedEvent());
 
     if (!mounted) return;
     _showSuccessDialog(result);
