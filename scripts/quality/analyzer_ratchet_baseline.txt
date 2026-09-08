@@ -1,4 +1,7 @@
 # IMBoy 全仓 analyzer ratchet 基线（门脚本生成，勿手改）
 # 再生成：bash scripts/quality/check_analyzer_ratchet.sh --update-baseline
-# 日期：2026-08-29 ｜ Dart SDK version: 3.13.1 (stable) (Tue Aug 18 01:00:59 2026 -0700) on "macos_arm64"
+# 日期：2026-09-08 ｜ Dart SDK version: 3.13.2 (stable) (Tue Aug 25 01:01:12 2026 -0700) on "macos_arm64"
 # 格式：count<TAB>severity|code|file（指纹=(severity,规则代码,文件)；不记行号）
+2	INFO|DEPRECATED_MEMBER_USE|lib/main.dart
+1	INFO|NO_LEADING_UNDERSCORES_FOR_LOCAL_IDENTIFIERS|integration_test/demo_flow/group_local_message_flow_test.dart
+1	INFO|USE_NULL_AWARE_ELEMENTS|test/unit_test/store/api/fail_open_contract_test.dart
