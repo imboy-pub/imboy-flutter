@@ -791,5 +791,20 @@
       "未恢复轮次：轻量例行（离线推进已收口；后端类问题可走 eunit 通道）",
       "WHIP 媒体服务器=用户决策"
     ]
+  },
+  "session_2026_09_09_batch148": {
+    "note": "批次148（automation 第二十一轮）：fs 卡死持续。将三组解锁配方从代码读证升级为 wire 实测（curl 9801，无需 app）：①live_room start→status=1→公开 list 可见 AT-LIVE-FIXTURE-138（单 list 键，viewer_count=0），房间留作直播中 fixture；②wallet mock topup 100 分 code=0，bob 余额 1980→2080 分（本地余额 fixture 就位，红包/充值 UI 测试可直接用）；③workspace 同名幂等：同/异 request_id 均返回 status=existing 且 id 一致（fixture AT-WS-IDEM-148）。⚠新发现：紧邻重试（10ms）撞「在处理中」在途锁 code=1，实测 >1.5s 过窗——幂等测试两次创建需留间隔。台账 4 行备注增强（live_room 2+wallet 1+workspace 1）。后端类验证已全部前置完成，环境恢复后 34 条实测只剩纯 UI 断言工作。",
+    "wire_verified": {
+      "live_room": "start code=0 → 公开 list status=1 可见（fixture id=111596538331138048 留直播中）",
+      "wallet": "topup {amount:100} code=0，bob balance=2080 分（¥20.80）",
+      "workspace_idem": "同名同/异 request_id → status=existing；在途锁 >1.5s 过窗"
+    },
+    "env_status": "fs 卡死持续 97%",
+    "next_actions": [
+      "环境恢复第一优先：AT-WIV1（invite 行转已通过）",
+      "环境恢复第二优先：34 条数据类实测——后端 fixture/配方全部就绪且 wire 已验",
+      "未恢复轮次：轻量例行",
+      "WHIP 媒体服务器=用户决策"
+    ]
   }
 }

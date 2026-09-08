@@ -9,7 +9,7 @@
 | 无待办 | - | `page/wallet/wallet_page.dart` | 校验充值金额 1~10000 元 | 已通过 | 批次67 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/wallet_page.dart` | 弹出支付方式选择列表 | 已通过 | 批次67 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/wallet_page.dart` | 门控生产环境 mock 支付通道 | 已通过 | 批次22 | 1 | 1 | 0 | BUG#82 资金红线；生产遗留一笔 mock 充值待用户决定如何处理 |
-| 阻塞 | 待环境恢复执行（本地走 in-app mock 支付通道闭环——沙箱模式已可走通充值，批次22 门控已验；绝不触生产 mock 通道=BUG#82 红线） | `page/wallet/wallet_page.dart` | 提交充值订单并刷新余额 | 未测 | - | 0 | 0 | 0 | 从未实充；批次144:本地路径解锁（9801+本地 PG，非生产） |
+| 阻塞 | 待环境恢复执行（本地走 in-app mock 支付通道闭环——沙箱模式已可走通充值，批次22 门控已验；绝不触生产 mock 通道=BUG#82 红线；批次148 wire 实测：POST /wallet/topup 100 分 code=0，bob 余额 1980→2080 分已就位） | `page/wallet/wallet_page.dart` | 提交充值订单并刷新余额 | 未测 | - | 0 | 0 | 0 | 从未实充；批次144:本地路径解锁（9801+本地 PG，非生产）；批次148:topup API 实测通过 |
 | 无待办 | - | `page/wallet/wallet_page.dart` | 更多菜单跳转提现页 | 已通过 | 批次67 | 0 | 0 | 0 | |
 | 无待办 | - | `page/wallet/wallet_page.dart` | 渲染余额卡片与加载态 | 已通过 | 批次78 | 0 | 0 | 0 | 真机：总资产 ¥0.00 卡片正常渲染，GET /wallet/balance + /wallet/transactions?page=1&size=20 双请求成功（pro.imboy.pub），流水空态「暂无流水记录」正常 |
 | 无待办 | - | `page/wallet/wallet_page.dart` | 下拉刷新余额与流水 | 已通过 | 批次66 | 0 | 0 | 0 | 真机下拉触发 GET /wallet/balance + /wallet/transactions?page=1&size=20 双请求成功重拉 |
