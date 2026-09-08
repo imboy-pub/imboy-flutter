@@ -134,7 +134,9 @@ class _ComplianceKeyPageState extends State<ComplianceKeyPage> {
                       _infoTile(t.main.complianceKeyInfoKeyId, key.keyId),
                       _infoTile(
                         t.main.complianceKeyInfoAlgorithm,
-                        key.algorithm ?? 'RSA-OAEP-256',
+                        // 服务端未下发 algorithm 时不得凭空宣称 RSA-OAEP-256，
+                        // 与加密状态页同口径：未知显示中性占位 '-'
+                        key.algorithm ?? '-',
                       ),
                       _infoTile(
                         t.main.complianceKeyInfoFetchedAt,

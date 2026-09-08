@@ -112,7 +112,9 @@ extension MessageModelMapper on MessageModel {
               authorId: fromId.toString(),
               createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
               id: id.toString(),
-              text: t.chat.encryptedMessagePlaceholder,
+              text: E2EEService.e2eeFailedPlaceholderText(
+                v3Result['_e2ee_reason'],
+              ),
               status: MessageStatus.error,
               metadata: {
                 'conversation_uk3': conversationUk3,
@@ -132,7 +134,9 @@ extension MessageModelMapper on MessageModel {
               authorId: fromId.toString(),
               createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
               id: id.toString(),
-              text: t.chat.encryptedMessagePlaceholder,
+              text: E2EEService.e2eeFailedPlaceholderText(
+                payloadData['_e2ee_reason'],
+              ),
               status: MessageStatus.error,
               metadata: {
                 'conversation_uk3': conversationUk3,
