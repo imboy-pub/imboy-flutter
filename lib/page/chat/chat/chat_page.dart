@@ -1514,12 +1514,16 @@ class ChatPageState extends ConsumerState<ChatPage>
       },
     );
     final canEdit = canEditMessage(message);
+    // E2EE 解密失败占位行（text 仅为「[加密消息]」占位）：长按菜单只保留
+    // 删除/举报，防止占位串被复制/转发为真实文本（与 _onMessageTap 对称）。
+    final isE2EEFailedPlaceholder = message.metadata?['_e2ee_failed'] == true;
 
     showMessageActionMenu(
       context: c1,
       message: message,
       isSentByMe: caps.isSentByMe,
       canEdit: canEdit,
+      e2eeFailed: isE2EEFailedPlaceholder,
       // R-01 消息举报上下文：c2c scope=对话对端 uid；c2g scope=群 ID
       reportChatType: _chatType,
       reportScopeId: widget.peerId,
@@ -2498,7 +2502,11 @@ class ChatPageState extends ConsumerState<ChatPage>
               final ok = await ComplianceKeyService.instance.confirmRotation(
                 accept: true,
               );
-              AppLoading.showToast(ok ? t.main.e2eeErrComplianceChanged : '');
+              AppLoading.showToast(
+                ok
+                    ? t.main.complianceKeyRotationConfirmed
+                    : t.main.complianceKeyRotationNoPending,
+              );
             },
             child: Text(t.common.complianceKeyChangedActionConfirm),
           ),

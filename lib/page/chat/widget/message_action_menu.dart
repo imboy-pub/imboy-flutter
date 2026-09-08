@@ -44,6 +44,7 @@ class MessageActionMenu extends StatefulWidget {
     this.canEdit = false,
     this.reportChatType = 'c2c',
     this.reportScopeId = '',
+    this.e2eeFailed = false,
   });
 
   final Message message;
@@ -67,6 +68,11 @@ class MessageActionMenu extends StatefulWidget {
 
   /// R-01 消息举报上下文：c2c=对话对端 uid；c2g=群 ID。
   final String reportScopeId;
+
+  /// E2EE 解密失败占位行门控：true 时仅保留删除/举报入口，
+  /// Copy/Forward/Reply/Collect/Reaction/Edit/Retry/撤回一律不渲染，
+  /// 防止把「[加密消息]」占位串当真实文本复制/转发出去。
+  final bool e2eeFailed;
 
   @override
   State<MessageActionMenu> createState() => _MessageActionMenuState();
@@ -112,23 +118,24 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 快速反应区域
-          _buildReactionSection(context),
+          // 快速反应区域（E2EE 解密失败占位行不提供 reaction）
+          if (!widget.e2eeFailed) _buildReactionSection(context),
 
           // 分割线
-          Container(
-            height: 1,
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.transparent,
-                  Theme.of(context).dividerColor.withValues(alpha: 0.5),
-                  AppColors.transparent,
-                ],
+          if (!widget.e2eeFailed)
+            Container(
+              height: 1,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.transparent,
+                    Theme.of(context).dividerColor.withValues(alpha: 0.5),
+                    AppColors.transparent,
+                  ],
+                ),
               ),
             ),
-          ),
 
           // 操作按钮区域
           _buildActionSection(context),
@@ -214,59 +221,60 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         children: [
-          // 第一行操作：通用操作
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildActionButton(
-                context: context,
-                icon: CupertinoIcons.arrowshape_turn_up_left,
-                label: t.main.quote,
-                // 本菜单所有动作一律 "先关菜单、再执行"。
-                // 反过来（先执行再关）时，onClose 里的 Navigator.pop() 会把
-                // 动作刚 push 上去的路由弹掉 —— 真机实测：点「转发」，
-                // SendToPage 被自己的 onClose 反手关掉，菜单反而留在原地，
-                // 表现为"转发按钮完全没反应"。不 push 路由的动作（复制/引用等）
-                // 顺序无所谓，统一成同一种写法，避免以后新增动作再踩。
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  widget.onClose?.call();
-                  widget.onReply();
-                },
-              ),
-              _buildActionButton(
-                context: context,
-                icon: CupertinoIcons.doc_on_doc,
-                label: t.common.buttonCopy,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  widget.onClose?.call();
-                  widget.onCopy();
-                },
-              ),
-              _buildActionButton(
-                context: context,
-                icon: CupertinoIcons.arrow_up_right,
-                label: t.chat.forward,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  widget.onClose?.call();
-                  widget.onForward();
-                },
-              ),
-              if (widget.onCollect != null)
+          // 第一行操作：通用操作（E2EE 解密失败占位行不可引用/复制/转发/收藏）
+          if (!widget.e2eeFailed)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 _buildActionButton(
                   context: context,
-                  icon: CupertinoIcons.bookmark_fill,
-                  label: t.main.favorites,
+                  icon: CupertinoIcons.arrowshape_turn_up_left,
+                  label: t.main.quote,
+                  // 本菜单所有动作一律 "先关菜单、再执行"。
+                  // 反过来（先执行再关）时，onClose 里的 Navigator.pop() 会把
+                  // 动作刚 push 上去的路由弹掉 —— 真机实测：点「转发」，
+                  // SendToPage 被自己的 onClose 反手关掉，菜单反而留在原地，
+                  // 表现为"转发按钮完全没反应"。不 push 路由的动作（复制/引用等）
+                  // 顺序无所谓，统一成同一种写法，避免以后新增动作再踩。
                   onTap: () {
                     HapticFeedback.lightImpact();
                     widget.onClose?.call();
-                    widget.onCollect!();
+                    widget.onReply();
                   },
                 ),
-            ],
-          ),
+                _buildActionButton(
+                  context: context,
+                  icon: CupertinoIcons.doc_on_doc,
+                  label: t.common.buttonCopy,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    widget.onClose?.call();
+                    widget.onCopy();
+                  },
+                ),
+                _buildActionButton(
+                  context: context,
+                  icon: CupertinoIcons.arrow_up_right,
+                  label: t.chat.forward,
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    widget.onClose?.call();
+                    widget.onForward();
+                  },
+                ),
+                if (widget.onCollect != null)
+                  _buildActionButton(
+                    context: context,
+                    icon: CupertinoIcons.bookmark_fill,
+                    label: t.main.favorites,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      widget.onClose?.call();
+                      widget.onCollect!();
+                    },
+                  ),
+              ],
+            ),
 
           // 第二行操作：保存和发送者操作
           AppSpacing.verticalSmall,
@@ -274,7 +282,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // 保存按钮（适用于图片、文件、视频、语音）
-              if (widget.onSave != null)
+              if (!widget.e2eeFailed && widget.onSave != null)
                 _buildActionButton(
                   context: context,
                   icon: CupertinoIcons.arrow_down_to_line,
@@ -289,7 +297,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
               // 发送者可见的操作
               if (widget.isSentByMe) ...[
                 // 重试按钮（仅发送失败的消息）
-                if (widget.onRetry != null)
+                if (!widget.e2eeFailed && widget.onRetry != null)
                   _buildActionButton(
                     context: context,
                     icon: CupertinoIcons.arrow_clockwise,
@@ -301,7 +309,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                     },
                   ),
                 // 编辑按钮（仅文本消息且发送后2分钟内）
-                if (widget.canEdit)
+                if (!widget.e2eeFailed && widget.canEdit)
                   _buildActionButton(
                     context: context,
                     icon: CupertinoIcons.pencil,
@@ -313,7 +321,7 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                     },
                   ),
                 // 撤回按钮（发送者专有）
-                if (widget.onRevoke != null)
+                if (!widget.e2eeFailed && widget.onRevoke != null)
                   _buildActionButton(
                     context: context,
                     icon: CupertinoIcons.square_stack,
@@ -679,6 +687,7 @@ void showMessageActionMenu({
   bool canEdit = false,
   String reportChatType = 'c2c',
   String reportScopeId = '',
+  bool e2eeFailed = false,
 }) {
   showCupertinoModalPopup<void>(
     context: context,
@@ -690,6 +699,7 @@ void showMessageActionMenu({
           isSentByMe: isSentByMe,
           reportChatType: reportChatType,
           reportScopeId: reportScopeId,
+          e2eeFailed: e2eeFailed,
           onReply: onReply,
           onCopy: onCopy,
           onEdit: onEdit,
