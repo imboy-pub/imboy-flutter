@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/repository/message_fts_repo.dart';
 
 void main() {
@@ -87,6 +89,50 @@ void main() {
       expect(result.conversationUk3, 'C2C_a_b');
       expect(result.snippet, '搜索<b>关键词</b>');
       expect(result.rank, -1.5);
+    });
+  });
+
+  group('MessageFtsRepo 索引幂等（in-memory FTS5）', () {
+    test('重复索引同 id 不产生双行，重索引后命中新文本', () async {
+      sqfliteFfiInit;
+      databaseFactory = databaseFactoryFfi;
+      final db = await databaseFactory.openDatabase(inMemoryDatabasePath);
+      SqliteService.setDbForTest(db);
+      addTearDown(() async {
+        SqliteService.setDbForTest(null);
+        await db.close();
+      });
+      await db.execute(
+        'CREATE VIRTUAL TABLE msg_c2c_fts USING fts5('
+        'id, conversation_uk3, text_content)',
+      );
+
+      final repo = MessageFtsRepo();
+
+      // 首次索引：占位文本（E2EE 失败行落库形态）
+      await repo.indexC2cMessage(
+        id: 'm1',
+        conversationUk3: 'c1',
+        textContent: '[encrypt placeholder]',
+      );
+      // 幂等重复索引：占位行恢复明文后 update 重索引
+      await repo.indexC2cMessage(
+        id: 'm1',
+        conversationUk3: 'c1',
+        textContent: 'recovered plaintext hello',
+      );
+
+      final rows = await db.query(
+        'msg_c2c_fts',
+        where: 'id = ?',
+        whereArgs: ['m1'],
+      );
+      expect(rows, hasLength(1), reason: '重复索引不得产生双行');
+      expect(rows.first['text_content'], 'recovered plaintext hello');
+
+      // 明文关键词必须可搜（占位残留时搜不到）
+      final hits = await repo.searchC2c(query: 'plaintext');
+      expect(hits.map((h) => h.id), contains('m1'));
     });
   });
 }

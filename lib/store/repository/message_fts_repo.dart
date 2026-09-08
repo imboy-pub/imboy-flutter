@@ -42,6 +42,9 @@ class MessageFtsRepo {
   }) async {
     if (textContent.trim().isEmpty) return;
     try {
+      // 先删后插保证幂等：FTS5 无唯一约束，裸 INSERT 重复索引会产生
+      // 双行（搜索同 id 命中两条）；update 后重索引路径必然重复。
+      await _db.execute('DELETE FROM msg_c2c_fts WHERE id = ?', [id]);
       await _db.execute(
         'INSERT INTO msg_c2c_fts(id, conversation_uk3, text_content) VALUES(?, ?, ?)',
         [id, conversationUk3, textContent],
@@ -59,6 +62,8 @@ class MessageFtsRepo {
   }) async {
     if (textContent.trim().isEmpty) return;
     try {
+      // 幂等化，同 indexC2cMessage
+      await _db.execute('DELETE FROM msg_c2g_fts WHERE id = ?', [id]);
       await _db.execute(
         'INSERT INTO msg_c2g_fts(id, conversation_uk3, text_content) VALUES(?, ?, ?)',
         [id, conversationUk3, textContent],

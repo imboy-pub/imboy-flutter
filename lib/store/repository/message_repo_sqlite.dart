@@ -358,6 +358,16 @@ class MessageRepo implements MessageRepository {
     updateData.remove(MessageRepo.id);
     updateData.remove(MessageRepo.autoId);
 
+    // payload 更新后重索引 FTS：FTS 仅在 insert/batchInsert 时写入，
+    // E2EE 占位行恢复明文、消息编辑等 payload 更新若不重索引，
+    // 搜索命中的仍是旧文本（占位串），已恢复的消息按明文搜不到。
+    if (data.containsKey(MessageRepo.payload)) {
+      final msgId = data[MessageRepo.id]?.toString() ?? '';
+      if (msgId.isNotEmpty) {
+        unawaited(_reindexFtsAfterPayloadUpdate(msgId));
+      }
+    }
+
     func_helper.iPrint("message_repo/update $tableName ;");
     if (txn != null) {
       return await txn.update(
@@ -1345,6 +1355,34 @@ class MessageRepo implements MessageRepository {
   }
 
   /// 将消息写入 FTS 索引（fire-and-forget，不阻塞主流程）
+  /// payload 更新后重索引 FTS（update 内异步触发，不阻塞主更新）。
+  /// update 只有 id+payload，回读一行补齐 conversation_uk3/msg_type
+  /// 后复用 [_indexMessageToFts]；索引函数自身幂等（先删后插）。
+  Future<void> _reindexFtsAfterPayloadUpdate(String id) async {
+    try {
+      final row = await find(id);
+      if (row == null) return;
+      final ftsType = tableName == MessageRepo.c2cTable
+          ? 'C2C'
+          : tableName == MessageRepo.c2gTable
+          ? 'C2G'
+          : '';
+      if (ftsType.isEmpty) return;
+      await _indexMessageToFts(
+        type: ftsType,
+        id: id,
+        conversationUk3: row.conversationUk3,
+        msgTypeField: row.msgType ?? '',
+        payload: row.payloadMap,
+      );
+    } on Object catch (e) {
+      AppLogger.error(
+        '[message_repo_sqlite] FTS reindex after update failed: '
+        'errType=${e.runtimeType}',
+      );
+    }
+  }
+
   static Future<void> _indexMessageToFts({
     required String type,
     required String id,
