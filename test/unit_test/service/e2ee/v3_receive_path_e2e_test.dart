@@ -341,4 +341,62 @@ void main() {
       expect(result['body'], plainBody);
     });
   });
+
+  group('PFv3 失败行自愈重试', () {
+    test('含 _e2ee_raw 的 v3 失败行重试必须解出明文（修复前恒跳过）', () async {
+      final data = await buildV3Message('retry-v3-001');
+      // 生产落库形状：_handleE2EEMessage v3 失败分支透传 _e2ee_raw，
+      // 落库侧 identical() 补偿替换为 {payload, e2ee} 浅拷贝
+      final failed = {
+        '_e2ee_failed': true,
+        '_e2ee_reason': 'decrypt_error',
+        // 生产落库形状：落库侧 identical() 补偿的 8 键浅拷贝
+        // （上下文绑定验证要求 id/from/to/type/msg_type/sender_did）
+        '_e2ee_raw': {
+          'id': data['id'],
+          'from': data['from'],
+          'to': data['to'],
+          'type': data['type'],
+          'msg_type': data['msg_type'],
+          'sender_did': data['sender_did'],
+          'payload': data['payload'],
+          'e2ee': data['e2ee'],
+        },
+      };
+
+      final result = await E2EEService.retryDecryptFailedMessage(failed);
+
+      expect(
+        result['_e2ee_failed'],
+        isNot(true),
+        reason: 'v3 重试必须解出明文而不是保持失败占位',
+      );
+      expect(result['body'], equals(plainBody));
+    });
+
+    test('密文损坏时 v3 重试必须保持失败占位（幂等失败语义）', () async {
+      final data = await buildV3Message('retry-v3-broken');
+      final e2ee = Map<String, dynamic>.from(data['e2ee'] as Map);
+      e2ee['devices'] = <String, dynamic>{}; // 抹掉本机信封
+      final failed = {
+        '_e2ee_failed': true,
+        '_e2ee_reason': 'decrypt_error',
+        '_e2ee_raw': {
+          'id': data['id'],
+          'from': data['from'],
+          'to': data['to'],
+          'type': data['type'],
+          'msg_type': data['msg_type'],
+          'sender_did': data['sender_did'],
+          'payload': data['payload'],
+          'e2ee': e2ee,
+        },
+      };
+
+      final result = await E2EEService.retryDecryptFailedMessage(failed);
+
+      expect(result['_e2ee_failed'], isTrue);
+      expect(result['_e2ee_reason'], isNotNull);
+    });
+  });
 }

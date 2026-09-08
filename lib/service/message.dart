@@ -616,11 +616,20 @@ class MessageService with EventSubscriptionManager {
       // 避免服务端无限重投 + 消息凭空消失。
       //
       // _e2ee_raw 若直接引用原始 data，会与下方 data['payload'] 赋值互指
-      // 成环（json.encode 落库抛异常），替换为仅含自愈重试所需字段的浅拷贝
-      // （retryDecryptFailedMessage 只读 _e2ee_raw.payload / .e2ee）。
+      // 成环（json.encode 落库抛异常），替换为仅含自愈重试所需字段的浅拷贝：
+      // legacy 路径只读 _e2ee_raw.payload / .e2ee；PFv3 路径改走
+      // decryptInboundV3，其上下文绑定验证（_validateContextBinding）
+      // 还要求 id/from/to/type/msg_type/sender_did 六键齐备，
+      // 缺任何一键都会 context_mismatch_* 恒拒。
       final raw = payload['_e2ee_raw'];
       if (identical(raw, data)) {
         payload['_e2ee_raw'] = {
+          'id': data['id'],
+          'from': data['from'],
+          'to': data['to'],
+          'type': data['type'],
+          'msg_type': data['msg_type'],
+          'sender_did': data['sender_did'],
           'payload': data['payload'],
           'e2ee': data['e2ee'],
         };
@@ -1584,6 +1593,10 @@ class MessageService with EventSubscriptionManager {
           ),
           '_e2ee_failed': true,
           '_e2ee_reason': v3Result['_e2ee_reason'],
+          // 保留原始密文供自愈重试（C3-β，与 v1/v2、Megolm 失败分支同
+          // 语义）：缺此键失败行重试恒跳过，单聊 PFv3 消息永远救不回。
+          // raw 与 data 同引用时由落库侧 identical() 补偿浅拷贝防成环。
+          '_e2ee_raw': v3Result['_e2ee_raw'],
         };
       }
       iPrint('✅ [E2EE] v3 解密成功: msgId=$msgId');

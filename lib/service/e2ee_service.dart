@@ -1087,8 +1087,19 @@ class E2EEService {
       Map<String, dynamic>? rawE2ee;
 
       if (rawPayload is Map<String, dynamic>) {
-        rawCiphertext = rawPayload['payload']?.toString();
         final e2eeData = rawPayload['e2ee'];
+        // PFv3：密文在 e2ee.devices 内、顶层 payload 恒空串，走抽顶层
+        // 密文的 legacy 路径恒失败；须改走 v3 完整解密路径重解
+        if (e2eeData is Map && e2eeData['meta_version'] == 3) {
+          final v3Result = await decryptInboundV3(data: rawPayload);
+          if (v3Result == null || v3Result['_e2ee_failed'] == true) {
+            iPrint('❌ [E2EE] v3 重试解密失败');
+            return failedPayload;
+          }
+          iPrint('✅ [E2EE] v3 重试解密成功');
+          return v3Result;
+        }
+        rawCiphertext = rawPayload['payload']?.toString();
         if (e2eeData is Map<String, dynamic>) {
           rawE2ee = e2eeData.cast<String, dynamic>();
         }
