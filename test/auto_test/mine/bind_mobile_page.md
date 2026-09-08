@@ -11,9 +11,9 @@
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 手机号格式校验行实时反馈 | 已通过 | 批次29 | 0 | 0 | 0 | 短号 123→「待输入」，11 位→「正确」实时切换（mobileOk=长度>8） |
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 限制验证码为六位纯数字 | 已通过 | 批次29 | 0 | 0 | 0 | 输入 abc12345678 后仅剩 123456（digitsOnly+6位截断） |
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 判定获取验证码按钮可用态 | 已通过 | 批次29 | 0 | 0 | 0 | 禁用态实测：手机号无效时点击无网络请求（onPressed=null 拦截）；可用态代码证实 L93-98（未点击防真实发短信） |
-| 阻塞 | 待可用测试手机号与短信通道 | `page/mine/account_security/bind_mobile_page.dart` | 发送验证码后倒计时回显 | 未测 | - | 0 | 0 | 0 | 需真实发短信 |
-| 阻塞 | 待可用测试手机号与短信通道 | `page/mine/account_security/bind_mobile_page.dart` | 发送验证码失败弹出错误提示 | 未测 | - | 0 | 0 | 0 | 需真实发短信 |
+| 阻塞 | 待环境恢复执行（批次146 解锁：sms.switch=off 本地验证码照常落库不外发（passport_logic L723-729），发码成功即倒计时，码从 verification_code 表读） | `page/mine/account_security/bind_mobile_page.dart` | 发送验证码后倒计时回显 | 未测 | - | 0 | 0 | 0 | 需真实发短信；批次146:本地落库口径解锁 |
+| 阻塞 | 待环境恢复执行（adapterForTest 拦 getcode 注入失败，配方=WIV1 同款） | `page/mine/account_security/bind_mobile_page.dart` | 发送验证码失败弹出错误提示 | 未测 | - | 0 | 0 | 0 | 需真实发短信；批次146:注入口径解锁 |
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 验证码长度校验行回显进度 | 已通过 | 批次29 | 0 | 0 | 0 | 过滤后 123456 → 长度检查实时 6/6（codeLength 驱动） |
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 判定提交按钮启用与禁用态 | 已通过 | 批次29 | 0 | 0 | 0 | 禁用态实测：点击无请求（onPressed=null）；可用态代码证实 canSubmit 公式 L100-105/L122-127（未点击防真实改绑） |
-| 阻塞 | 待专用可改绑测试账号 | `page/mine/account_security/bind_mobile_page.dart` | 提交成功后自动返回上一页 | 未测 | - | 0 | 0 | 0 | 会改动账号绑定关系 |
+| 阻塞 | 待环境恢复执行（可弃用本地测试账号：改绑目标用本地新手机号、码查表，改动仅及本地账号非生产） | `page/mine/account_security/bind_mobile_page.dart` | 提交成功后自动返回上一页 | 未测 | - | 0 | 0 | 0 | 会改动账号绑定关系；批次146:本地一次性账号口径解锁 |
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 表单标签本地化随语言切换 | 已通过 | 批次72 | 1 | 1 | 0 | 真机复验通过（APK 已含 eeaacbd4）：切 English 后全页无中文残留——Mobile/Verification code/Get verification code/Format check/Pending input/Bind now 全英文化 |

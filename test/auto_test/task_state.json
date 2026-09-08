@@ -758,5 +758,28 @@
       "下轮离线可选：mine 7 条万能码核验/passport 重置码批次124 配方核对",
       "WHIP 媒体服务器=用户决策"
     ]
+  },
+  "session_2026_09_09_batch146": {
+    "note": "批次146（automation 第十九轮）：fs 卡死持续（97%）。mine 7 条+passport 3 条解锁，核心证据：passport_logic L684/L714 验证码双分支照常落库（verification_code_ds:save），L723-729 sms.switch=off（local）不外发但「供万能码/查库验证」——本地发码链路全通。①bind_email/bind_mobile 倒计时 2 行：发码成功即倒计时；②失败提示 2 行：adapterForTest 拦 getcode；③改绑成功/失败 3 行：可弃用本地账号+码查表（改动仅及本地）；④forgot_password 重置码 2 行：批次124 配方同款（forgot_password_acceptance_test 已含链路代码）；⑤signup_continue 语言切换 1 行：批次119 沙盒注码配方，同文件 10 场景已全绿仅此一条遗留。⚠「万能码 abc12345」不适用于 6 位数字 PinField（8 位字母物理无法输入）——正确配方=verification_code 表直读真码后宿主注入。累计数据类解锁 34 条（live_room 8+chat 2+wallet 7+workspace/group 7+mine/passport 10）。",
+    "verification_code_recipe": {
+      "落库": "passport_logic.erl L684(email)/L714(mobile) verification_code_ds:save",
+      "本地不外发": "config_ds:env([sms,switch])=off 时跳过 imboy_sms:send（L727-731）",
+      "码获取": "PG 4323 verification_code 表直读（万能码 abc12345 不能过 6 位 PinField）",
+      "先例": "批次119 signup_acceptance_test / 批次124 forgot_password_acceptance_test"
+    },
+    "env_status": "fs 卡死持续 97%；数据类解锁累计 34 条",
+    "blocked_final_classes": {
+      "数据类待环境": 34,
+      "settings避碰": 11,
+      "真机类": "约15",
+      "外部条件": "约5（第二台设备/视频素材）",
+      "用户决策": "WHIP+bailian+资金生产实测"
+    },
+    "next_actions": [
+      "环境恢复第一优先：AT-WIV1（invite 行转已通过）",
+      "环境恢复第二优先：34 条数据类逐条实测（配方全在台账行）",
+      "离线工作基本收口：仅剩 settings 域待并行会话提交后跟进",
+      "WHIP 媒体服务器=用户决策"
+    ]
   }
 }

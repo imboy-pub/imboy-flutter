@@ -14,6 +14,6 @@
 | 无待办 | - | `page/passport/forgot_password_page.dart` | 渲染手机链路下一步按钮 | 已通过 | 批次24续3 | 0 | 0 | 0 | |
 | 无待办 | - | ``page/passport/forgot_password_page.dart`` | 拦截邮箱为空并提示 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/passport/forgot_password_page.dart`` | 拦截手机号为空并提示 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
-| 阻塞 | 需收到真实重置验证码 | `page/passport/forgot_password_page.dart` | 邮箱发送重置码并跳验证页 | 未测 | - | 0 | 0 | 0 | 批次24续3 只看 UI 未提交 |
-| 阻塞 | 需收到真实重置验证码 | `page/passport/forgot_password_page.dart` | 手机发送重置码并跳验证页 | 未测 | - | 0 | 0 | 0 | 批次24续3 只看 UI 未提交 |
+| 阻塞 | 待环境恢复执行（批次146 解锁：批次124 配方同款——本地发码落库（email/mobile 双分支均 verification_code_ds:save），码从表直读输 PinField；批次124 forgot_password_acceptance_test 已含该链路测试代码） | `page/passport/forgot_password_page.dart` | 邮箱发送重置码并跳验证页 | 未测 | - | 0 | 0 | 0 | 批次24续3 只看 UI 未提交；批次146:本地查表口径解锁 |
+| 阻塞 | 待环境恢复执行（同上，mobile 分支；批次124 已修 find_password 缺 mobile 分支 bug） | `page/passport/forgot_password_page.dart` | 手机发送重置码并跳验证页 | 未测 | - | 0 | 0 | 0 | 批次24续3 只看 UI 未提交；批次146:本地查表口径解锁 |
 | 无待办 | - | ``page/passport/forgot_password_page.dart`` | 返回按钮退回上一页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
