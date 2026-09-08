@@ -119,9 +119,14 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       ChatExtendEvent obj,
     ) async {
       if (obj.type == 'join_group') {
+        // S2C 链的 payload['userId'] 是 String（parseModelString 产物），
+        // memberList 的 PeopleModel.id 是 int——`int == String` 恒 false，
+        // 去重恒失效：服务端对同一次加入的重复推送（实测一次 B 加入连推
+        // 3 条不同 msgId）会把对端成员重复插入，人数膨胀（批次127 GF5
+        // 实测 1→4 而非 1→2，且曾被误判为「确认页消失」）。统一转 int 再比。
         final i = memberList.indexWhere(
           (e) =>
-              e.id == obj.payload['userId'] &&
+              e.id == parseModelInt(obj.payload['userId']) &&
               widget.gid == obj.payload['groupId'],
         );
         if (i == -1) {
