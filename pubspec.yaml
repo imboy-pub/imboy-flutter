@@ -4,7 +4,7 @@ description: A new Flutter project for IM.
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0-alpha.16+6
+version: 1.0.0-alpha.17
 
 environment:
   sdk: ^3.8.0
@@ -317,8 +317,6 @@ dependency_overrides:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  postgres: ^3.5.12                       # Test DB access for integration pg_helper (6.x API: Connection/Endpoint)
 
   # ┌─ Code Generation ─────────────────────────────────────────────┐
   build_runner: ^2.16.1                # Code generation for Riverpod, slang, envied
