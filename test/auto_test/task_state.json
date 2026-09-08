@@ -781,5 +781,15 @@
       "离线工作基本收口：仅剩 settings 域待并行会话提交后跟进",
       "WHIP 媒体服务器=用户决策"
     ]
+  },
+  "session_2026_09_09_batch147": {
+    "note": "批次147（automation 第二十轮）：fs 卡死持续。发现 eunit 不依赖被冻结的 app 容器（仅 flutter 集成测试受影响）——为 0e1de5b5 补回归测试 test/api/live_room_handler_tests.erl（imboy 9d6d80ce，erlfmt/gitleaks/conventional 全绿+DCO）。套件锁死：响应 map 单 atom list 键、无 binary <<\"list\">> 共存、行值透出；my_list/list 两用例 mock live_room_logic/auth_ds/elib_param/elib_response （?WITH_MECKS+cowboy_req_h，self()!{resp_data,D} 捕获 payload——agent_task handler_tests 同款惯例）。金丝雀验证：临时还原 binary 键旧实现 → 两用例如期失败（抓到 binary 键共存）；恢复修复 → 2/2 绿；源码零残留（git diff 干净）。此为环境冻结期首次真跑测试。eunit 可跑意味着：后端修复可在冻结期照常 TDD，后续后端类问题均可走此通道。",
+    "env_status": "fs 卡死持续 97%；并行 WIP（docs/screenshots、integration_test/settings）未动",
+    "next_actions": [
+      "环境恢复第一优先：AT-WIV1（invite 行转已通过）",
+      "环境恢复第二优先：34 条数据类实测（配方在台账行）",
+      "未恢复轮次：轻量例行（离线推进已收口；后端类问题可走 eunit 通道）",
+      "WHIP 媒体服务器=用户决策"
+    ]
   }
 }
