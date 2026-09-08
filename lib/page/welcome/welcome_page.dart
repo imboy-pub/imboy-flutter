@@ -271,30 +271,24 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     ),
                     AppSpacing.verticalRegular,
                     // Skip Link
+                    // 用 CupertinoButton（与上方 Next 同源）而非裸
+                    // GestureDetector+Center：后者在真机/模拟器上热区与视觉
+                    // 位置错位（点文字中心无响应，welcomeSeen 永不置位）；
+                    // CupertinoButton 自带 >=44px 命中热区且行为已知可靠。
                     if (_currentPage < _pages(context).length - 1)
-                      Semantics(
-                        button: true,
-                        label: context.t.welcome.skip,
-                        child: GestureDetector(
-                          onTap: () {
-                            _markWelcomeSeen();
-                            context.go('/sign_in');
-                          },
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              minWidth: 44,
-                              minHeight: 44,
-                            ),
-                            child: Center(
-                              child: Text(
-                                context.t.welcome.skip,
-                                style: context.textStyle(
-                                  FontSizeType.normal,
-                                  color: AppColors.slateText,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(44, 44),
+                        onPressed: () {
+                          _markWelcomeSeen();
+                          context.go('/sign_in');
+                        },
+                        child: Text(
+                          context.t.welcome.skip,
+                          style: context.textStyle(
+                            FontSizeType.normal,
+                            color: AppColors.slateText,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       )
