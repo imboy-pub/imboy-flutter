@@ -338,7 +338,8 @@ class GroupSessionService {
     } on E2eeSecurityException {
       rethrow;
     } on Object catch (e) {
-      iPrint('[group_session] 获取合规密钥发生未预期异常: $e');
+      // Finding 014：网络/策略异常原文可能携带响应体片段，只记类型
+      iPrint('[group_session] 获取合规密钥发生未预期异常: ${e.runtimeType}');
       throw const E2eeSecurityException('compliance_key_unavailable');
     }
   }
@@ -505,20 +506,25 @@ class GroupSessionService {
             type,
             body,
           );
-        } on OlmAuthenticationException catch (e) {
+        } on OlmAuthenticationException {
           // 认证失败 → 拒绝，禁止降级 RSA（防 downgrade）。v3/legacy 一致。
-          AppLogger.error('[group_session] room key Olm 认证失败，拒绝该条目', e);
+          AppLogger.error('[group_session] room key Olm 认证失败，拒绝该条目');
           return null;
         } on Object catch (e) {
           if (olmRequired) {
             // v3 Olm-only：会话不可用等任何失败一律拒绝，不回退 RSA。
+            // Finding 014：不记录异常对象（可能含密文/会话材料），只记类型
             AppLogger.error(
-              '[group_session] v3 room key Olm 解包失败，拒绝（不回退 RSA）',
-              e,
+              '[group_session] v3 room key Olm 解包失败，拒绝（不回退 RSA） '
+              'errType=${e.runtimeType}',
             );
             return null;
           }
-          iPrint('[group_session] legacy room key Olm 不可用，回退 RSA: $e');
+          // Finding 014：同上，legacy 回退路径也只记类型
+          iPrint(
+            '[group_session] legacy room key Olm 不可用，回退 RSA: '
+            '${e.runtimeType}',
+          );
         }
       } else if (olmRequired) {
         // v3 声明 Olm 但字段不全（缺 sid / 伪造结构）→ 拒绝，不回退 RSA。
@@ -694,9 +700,13 @@ class GroupSessionService {
       try {
         wrapped = await olmWrap(did, exportedKey);
       } on Object catch (e) {
-        AppLogger.error('[group_session] olmWrap 异常，该 did 仅 RSA: $did', e);
+        // Finding 014：异常可能携带 room key 密文/底层 Olm 错误原文，只记类型
+        AppLogger.error(
+          '[group_session] olmWrap 异常，该 did 仅 RSA: $did '
+          'errType=${e.runtimeType}',
+        );
         if (strict) {
-          throw E2eeSecurityException('olm_wrap_failed: $e');
+          throw E2eeSecurityException('olm_wrap_failed: ${e.runtimeType}');
         }
         continue;
       }

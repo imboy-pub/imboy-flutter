@@ -68,13 +68,25 @@ void main() {
     expect(message, isNot(t.main.e2eeErrDefault));
   });
 
-  test('未知异常落兜底文案并附带原始大小写的错误码', () {
+  test('未知异常落兜底稳定文案，不回显原始错误（Finding 014）', () {
     final message = service.getE2EEErrorMessage(
       Exception('Whatever_UNKNOWN_Error'),
     );
-    expect(message, contains(t.main.e2eeErrDefault));
-    // 兜底分支附带原始错误码（保留大小写，不用 toLowerCase 后的值），
-    // 让用户截图时开发者能直接定位。
-    expect(message, contains('Whatever_UNKNOWN_Error'));
+    expect(message, t.main.e2eeErrDefault);
+    // Finding 014 重开：异常 toString 可能携带明文/密文/库错误原文，
+    // 兜底文案不得再拼接原始错误字符串（此前"截断 80 字符进 toast"
+    // 的可诊断性取舍由稳定错误码路由 + 服务端日志接管）。
+    expect(message, isNot(contains('Whatever_UNKNOWN_Error')));
+  });
+
+  test('路由分支可诊断性回归：稳定错误码仍映射到专用文案', () {
+    // 兜底去掉原文拼接后，olm_wrap_failed 等稳定错误码的路由必须保持，
+    // 否则用户与开发者彻底失去区分故障类型的能力。
+    // 入参形态对应 attachOlmWraps strict 模式抛出：
+    // `olm_wrap_failed: <runtimeType>`（不携带底层异常原文）。
+    final message = service.getE2EEErrorMessage(
+      'E2eeSecurityException: olm_wrap_failed: StateError',
+    );
+    expect(message, t.main.e2eeErrPeerDeviceNotReady);
   });
 }

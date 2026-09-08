@@ -247,8 +247,12 @@ class OlmSessionService {
         );
         _accountCreatedThisLoad = false;
         return _account!;
-      } catch (e, s) {
-        AppLogger.error('[olm] account unpickle failed, regenerating', e, s);
+      } catch (e) {
+        // Finding 014：不输出异常对象/stackTrace（Rust 层错误可能回显 pickle 片段）
+        AppLogger.error(
+          '[olm] account unpickle failed (errType=${e.runtimeType}), '
+          'regenerating',
+        );
         // pickle 损坏：重建身份（旧 Session 因依赖旧身份将失效，符合密钥重置语义）
       }
     }
@@ -530,11 +534,11 @@ class OlmSessionService {
       );
       _sessions[key] = session;
       return session;
-    } catch (e, s) {
+    } catch (e) {
+      // Finding 014：Rust 层 unpickle 错误可能携带 pickle/会话材料片段，只记类型
       AppLogger.error(
-        '[olm] session unpickle failed $peerUid:$peerDeviceId',
-        e,
-        s,
+        '[olm] session unpickle failed $peerUid:$peerDeviceId '
+        '(errType=${e.runtimeType})',
       );
       return null;
     }
@@ -684,7 +688,11 @@ class OlmSessionService {
       );
       return (type: r.messageType, body: r.ciphertext);
     } on Object catch (e) {
-      iPrint('[olm] wrapRoomKey 回退 RSA（$peerUid:$peerDeviceId）: $e');
+      // Finding 014：异常可能携带 room key 密文/底层 Olm 错误原文，只记类型
+      iPrint(
+        '[olm] wrapRoomKey 回退 RSA（$peerUid:$peerDeviceId）: '
+        '${e.runtimeType}',
+      );
       return null;
     }
   }
@@ -835,8 +843,9 @@ class OlmSessionService {
             config: legacyOlmSessionConfig(),
           );
         } on Object catch (e) {
+          // Finding 014：不把底层库错误原文（可能含 prekey 密文）拼进异常消息
           throw OlmAuthenticationException(
-            'createInboundSession 失败（prekey 密文无效）: $e',
+            'createInboundSession 失败（prekey 密文无效）: ${e.runtimeType}',
           );
         }
         session = result.session as vod.Session;
@@ -876,7 +885,8 @@ class OlmSessionService {
           ciphertext: ciphertext,
         );
       } on Object catch (e) {
-        throw OlmAuthenticationException('olm decrypt 认证失败: $e');
+        // Finding 014：不把底层库错误原文（可能含密文片段）拼进异常消息
+        throw OlmAuthenticationException('olm decrypt 认证失败: ${e.runtimeType}');
       }
       await _persistSessionWithDedupe(
         peerUid,
@@ -1006,6 +1016,7 @@ class OlmSessionService {
 void unawaited(Future<void> future) {
   // ignore: unawaited_futures
   future.catchError((Object e, StackTrace s) {
-    AppLogger.error('[olm] background task failed', e, s);
+    // Finding 014：后台任务异常可能携带密钥/密文材料，只记异常类型
+    AppLogger.error('[olm] background task failed (errType=${e.runtimeType})');
   });
 }

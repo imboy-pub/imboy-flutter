@@ -119,8 +119,9 @@ class ChatNetworkService {
           '📤 [ChatNetworkService.addMessage] 数据库插入完成: msgId=${obj.id}, result=$insertResult',
         );
       } catch (e) {
+        // Finding 014：sqflite 异常会回显 SQL 参数（含消息预览/标题），只记类型
         iPrint(
-          '❌ [ChatNetworkService.addMessage] 数据库插入异常: msgId=${obj.id}, error=$e',
+          '❌ [ChatNetworkService.addMessage] 数据库插入异常: msgId=${obj.id}, errType=${e.runtimeType}',
         );
         rethrow;
       }
@@ -155,11 +156,11 @@ class ChatNetworkService {
 
       await syncMessagesToState();
       return sent;
-    } catch (e, stack) {
+    } catch (e) {
+      // Finding 014：不输出异常对象与 stackTrace（可能含 payload/密文片段）
       iPrint(
-        '❌ [ChatNetworkService.addMessage] 异常: msgId=${message.id}, error=$e',
+        '❌ [ChatNetworkService.addMessage] 异常: msgId=${message.id}, errType=${e.runtimeType}',
       );
-      iPrint('❌ [ChatNetworkService.addMessage] stackTrace: $stack');
       rethrow;
     }
   }
@@ -406,12 +407,11 @@ class ChatNetworkService {
         await MessageRepo(
           tableName: MessageRepo.getTableName(obj.type ?? 'C2C'),
         ).update({MessageRepo.id: obj.id, MessageRepo.e2ee: e2ee});
-      } catch (e, stackTrace) {
-        iPrint('❌ [E2EE] v2.0 加密失败: msgId=${obj.id}, error=$e');
+      } catch (e) {
+        // Finding 014：不输出异常对象/stackTrace（加密链异常可能携带明文/密文片段）
+        iPrint('❌ [E2EE] v2.0 加密失败: msgId=${obj.id}, errType=${e.runtimeType}');
         AppLogger.error(
-          'E2EE加密失败(sendWsMsg) - msgId:${obj.id} msgType:${obj.type} to:${obj.toId}',
-          e,
-          stackTrace,
+          'E2EE加密失败(sendWsMsg) - msgId:${obj.id} msgType:${obj.type} to:${obj.toId} errType=${e.runtimeType}',
         );
         AppLoading.showToast(getE2EEErrorMessage(e));
         if (obj.id.isNotEmpty) {
@@ -522,12 +522,13 @@ class ChatNetworkService {
           iPrint(
             'ChatNetworkService.sendMessage: E2EE v2.0 加密成功 (${msg['id']})',
           );
-        } catch (e, stackTrace) {
-          iPrint('ChatNetworkService.sendMessage: E2EE v2.0 加密失败: $e');
+        } catch (e) {
+          // Finding 014：不输出异常对象/stackTrace（加密链异常可能携带明文/密文片段）
+          iPrint(
+            'ChatNetworkService.sendMessage: E2EE v2.0 加密失败: errType=${e.runtimeType}',
+          );
           AppLogger.error(
-            'E2EE加密失败 - msgId:${msg['id']?.toString()} msgType:${msg['type']?.toString()} to:${msg['to']?.toString()}',
-            e,
-            stackTrace,
+            'E2EE加密失败 - msgId:${msg['id']?.toString()} msgType:${msg['type']?.toString()} to:${msg['to']?.toString()} errType=${e.runtimeType}',
           );
           AppLoading.showToast(getE2EEErrorMessage(e));
           return false;
@@ -587,7 +588,10 @@ class ChatNetworkService {
       iPrint('✅ [sendWithRetry] 消息已提交到重试队列: msgId=$messageId');
       return true;
     } catch (e) {
-      iPrint('❌ [sendWithRetry] 消息发送失败: msgId=$messageId, 错误: $e');
+      // Finding 014：WS 发送异常可能回显报文内容，只记类型
+      iPrint(
+        '❌ [sendWithRetry] 消息发送失败: msgId=$messageId, errType=${e.runtimeType}',
+      );
       await updateMessageStatus(messageId, IMBoyMessageStatus.error);
       return false;
     }
@@ -613,7 +617,8 @@ class ChatNetworkService {
         }
       }
     } catch (e) {
-      iPrint('更新消息状态失败: $messageId, $e');
+      // Finding 014：sqflite 异常会回显 SQL 参数，只记类型
+      iPrint('更新消息状态失败: $messageId, errType=${e.runtimeType}');
     }
   }
 
@@ -954,14 +959,10 @@ class ChatNetworkService {
     if (errorStr.contains('invalid') || errorStr.contains('格式')) {
       return t.chat.e2eeErrInvalidFormat;
     }
-    // 兜底：未匹配任何已知错误码。附带原始错误字符串（截断 80 字符），
-    // 让用户截图反馈时开发者能直接定位根因——release 构建无 iPrint/AppLogger
-    // 日志，文案是唯一可诊断通道。此前只返回笼统文案，用户与开发者都无法定位。
-    // 用 error.toString()（原始大小写）而非 errorStr（已 toLowerCase），
-    // 保证错误码原文可读。
-    final raw = error.toString();
-    final snippet = raw.length > 80 ? raw.substring(0, 80) : raw;
-    return '${t.main.e2eeErrDefault}（$snippet）';
+    // 兜底：未匹配任何已知错误码。Finding 014：异常 toString 可能携带
+    // 明文/密文/库错误原文，不得进入用户可见文案，只返回稳定默认文案。
+    // 定位手段 = 上方各稳定错误码路由（文案本身即错误码语义）+ 服务端日志。
+    return t.main.e2eeErrDefault;
   }
 
   // ===== 群组操作 =====

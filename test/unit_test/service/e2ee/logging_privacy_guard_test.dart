@@ -51,6 +51,25 @@ void main() {
         r'处理 $type 离线消息失败: $e',
         r'发送离线消息确认异常: $e $s',
       ],
+      // Finding 014 重开轮：E2EE 三个 service 的日志/toast 边界
+      'lib/service/olm_session_service.dart': [
+        r"regenerating', e, s)",
+        r"', e, s)",
+        r': $e',
+      ],
+      'lib/service/group_session_service.dart': [
+        r': $e',
+        r"', e)",
+        r'olm_wrap_failed: $e',
+      ],
+      'lib/page/chat/chat/services/chat_network_service.dart': [
+        r'error=$e',
+        r'加密失败: $e',
+        r'错误: $e',
+        r'stackTrace: $stack',
+        r'e, stackTrace,',
+        r'（$snippet）',
+      ],
     };
 
     for (final entry in forbiddenByFile.entries) {
@@ -62,6 +81,24 @@ void main() {
           reason: '${entry.key} 重新引入了敏感日志: $fragment',
         );
       }
+    }
+  });
+
+  test('E2EE 服务异常日志保留稳定标识（异常 runtimeType）用于诊断', () {
+    // Finding 014 允许的诊断形态：只记 e.runtimeType + 固定上下文标签，
+    // 不得回退为完整异常对象/stackTrace/库错误原文。
+    const filesWithRuntimeTypeGuard = <String>[
+      'lib/service/olm_session_service.dart',
+      'lib/service/group_session_service.dart',
+      'lib/page/chat/chat/services/chat_network_service.dart',
+    ];
+    for (final path in filesWithRuntimeTypeGuard) {
+      final source = File(path).readAsStringSync();
+      expect(
+        source,
+        contains('runtimeType'),
+        reason: '$path 丢失了异常类型标识（errType=runtimeType 形态）',
+      );
     }
   });
 }
