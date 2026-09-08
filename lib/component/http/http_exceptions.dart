@@ -9,10 +9,11 @@ class HttpException implements Exception {
   int get code => _code ?? -1;
 
   HttpException([this._message, this._code]);
-  //
-  // String toString() {
-  //   return "code:$code--message=$message";
-  // }
+
+  /// 直接展示 message（人话文案）；未覆写时 UI 若插值异常对象会显示
+  /// "Instance of 'BadRequestException'" 这类调试文案（BUG：申诉页偶现）。
+  @override
+  String toString() => message;
 }
 
 /// 客户端请求错误
