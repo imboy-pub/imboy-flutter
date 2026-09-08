@@ -91,7 +91,7 @@ dependencies:
   video_compress: ^3.1.4             # Video compression before upload
   file_picker: ^12.2.0               # File picker
   open_file: ^4.0.0                   # File opening with default apps (updated: 3.5.10 → 4.0.0)
-  image: ^4.8.0                      # Image manipulation library
+  image: ^4.9.2                      # Image manipulation library
   video_player: ^2.11.1               # Video playback support
   flutter_local_notifications: ^22.0.0 # Local notifications support (updated: 21.0.0 → 22.0.0)
 
