@@ -699,6 +699,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancelSend => '離すと送信をキャンセル';
 	@override String get voiceSlideHint => '上にスワイプでキャンセル / 文字起こし';
 	@override String get encryptedMessagePlaceholder => '[暗号化メッセージ]';
+	@override String get e2eeDecryptStoreUnavailable => '暗号化ストレージに一時的にアクセスできないため、このメッセージを復号できませんでした。アプリを再起動してもう一度お試しください';
 	@override String get invalidMessagePlaceholder => '[無効なメッセージ]';
 	@override String get videoCallPlaceholder => '[ビデオ通話]';
 	@override String get voiceCallPlaceholder => '[音声通話]';
@@ -1590,6 +1591,12 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get voiceSttPreviewTitle => '音声文字起こしプレビュー';
 	@override String get e2eeRecoveryKeyTitle => 'リカバリーキー';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'リカバリーキーをコピーしました。${seconds}秒後にクリップボードから自動的に消去されます。すぐに保存してください';
+	@override String get e2eeErrAttachmentSeal => '暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください';
+	@override String get e2eeRetryFailedMessages => '復号に失敗したメッセージを再試行';
+	@override String e2eeRetryFailedDone({required Object count}) => '復号に失敗したメッセージ ${count} 件を再試行しました';
+	@override String get e2eeModeStandard => '標準モード';
+	@override String get e2eeModeCompliance => 'コンプライアンス暗号化';
+	@override String get e2eeModeStrict => 'エンドツーエンド暗号化';
 	@override String get e2eeRecoveryKeySaveNote => 'このリカバリーキーを今すぐ保存してください（スクリーンショットまたはパスワード管理ツールへ）。パスフレーズを忘れた場合、バックアップを復号する唯一の手段です。紛失するとバックアップは永久に復元できません。';
 	@override String get e2eeUseRecoveryKey => 'リカバリーキーを生成（パスフレーズ忘れ時のバックアップ手段）';
 	@override String get e2eeErrPeerNotOnboarded => '相手はまだどのデバイスでもログインしたことがないため、暗号化して送信できません。相手のログイン後にもう一度お試しください';
@@ -1728,6 +1735,7 @@ class _Translations$error$ja_JP extends Translations$error$zh_CN {
 	@override String get suggestCheckNetwork => 'ネットワーク設定を確認することをお勧めします。';
 	@override String get e2eeErrTimeout => '暗号化がタイムアウトしました。ネットワーク接続を確認して再度お試しください';
 	@override String get e2eeErrNetwork => 'ネットワークエラーのため暗号化に失敗しました。メッセージは送信されませんでした';
+	@override String get e2eeErrPolicyNotReady => 'エンドツーエンド暗号化のポリシーがまだ準備できていません。後でもう一度お試しください';
 	@override String get liveRoomTitleRequired => 'タイトルを入力してください';
 }
 
@@ -2109,6 +2117,9 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get safetyNumberPeerDevice => '相手のデバイス';
 	@override String get safetyNumberReportRejected => 'サーバーがこの検証イベントを拒否しました（署名/有効期限の不一致）。マークされていません';
 	@override String get safetyNumberReportUnavailable => 'デバイス情報を取得できないため、未報告です';
+	@override String get safetyNumberVerified => '✓ 確認済み';
+	@override String get safetyNumberNotVerified => '未確認';
+	@override String safetyNumberDeviceCount({required Object count}) => '${count} 台のデバイス';
 	@override String get safetyNumberReporting => '検証結果を報告中...';
 	@override String get safetyNumberVerifyFailed => '安全番号の取得に失敗しました。後でもう一度お試しください';
 	@override String get complianceKeyInfoTitle => 'コンプライアンス監査キー';
@@ -2125,6 +2136,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get complianceKeyInfoServerKey => 'サーバーから配信された公開鍵';
 	@override String get e2eeErrComplianceChanged => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください';
 	@override String get e2eeErrComplianceUnavailable => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください';
+	@override String get e2eeErrComplianceExpired => 'コンプライアンスキーの有効期限が切れました。管理者に連絡してください';
 	@override String get e2eeErrDeviceNotReady => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください';
 	@override String get e2eeErrProtocolMismatch => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください';
 	@override String get e2eeErrSessionExportFailed => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください';
@@ -3081,6 +3093,7 @@ extension on TranslationsJaJp {
 			'chat.voiceReleaseCancelSend' => '離すと送信をキャンセル',
 			'chat.voiceSlideHint' => '上にスワイプでキャンセル / 文字起こし',
 			'chat.encryptedMessagePlaceholder' => '[暗号化メッセージ]',
+			'chat.e2eeDecryptStoreUnavailable' => '暗号化ストレージに一時的にアクセスできないため、このメッセージを復号できませんでした。アプリを再起動してもう一度お試しください',
 			'chat.invalidMessagePlaceholder' => '[無効なメッセージ]',
 			'chat.videoCallPlaceholder' => '[ビデオ通話]',
 			'chat.voiceCallPlaceholder' => '[音声通話]',
@@ -3528,9 +3541,9 @@ extension on TranslationsJaJp {
 			'common.addRemarkToFavorites' => 'コレクションに備考を追加',
 			'common.deleteThisCollection' => 'このコレクションを削除',
 			'common.changeSuccess' => '変更しました',
-			'common.lengthOk' => '長さはOKです',
 			_ => null,
 		} ?? switch (path) {
+			'common.lengthOk' => '長さはOKです',
 			'common.confirmNewPassword' => '新しいパスワードを確認',
 			'common.validationPassed' => '検証に合格しました',
 			'common.momentsContentHint' => '何か書く...',
@@ -3959,6 +3972,12 @@ extension on TranslationsJaJp {
 			'common.voiceSttPreviewTitle' => '音声文字起こしプレビュー',
 			'common.e2eeRecoveryKeyTitle' => 'リカバリーキー',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'リカバリーキーをコピーしました。${seconds}秒後にクリップボードから自動的に消去されます。すぐに保存してください',
+			'common.e2eeErrAttachmentSeal' => '暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください',
+			'common.e2eeRetryFailedMessages' => '復号に失敗したメッセージを再試行',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => '復号に失敗したメッセージ ${count} 件を再試行しました',
+			'common.e2eeModeStandard' => '標準モード',
+			'common.e2eeModeCompliance' => 'コンプライアンス暗号化',
+			'common.e2eeModeStrict' => 'エンドツーエンド暗号化',
 			'common.e2eeRecoveryKeySaveNote' => 'このリカバリーキーを今すぐ保存してください（スクリーンショットまたはパスワード管理ツールへ）。パスフレーズを忘れた場合、バックアップを復号する唯一の手段です。紛失するとバックアップは永久に復元できません。',
 			'common.e2eeUseRecoveryKey' => 'リカバリーキーを生成（パスフレーズ忘れ時のバックアップ手段）',
 			'common.e2eeErrPeerNotOnboarded' => '相手はまだどのデバイスでもログインしたことがないため、暗号化して送信できません。相手のログイン後にもう一度お試しください',
@@ -4036,6 +4055,8 @@ extension on TranslationsJaJp {
 			'discovery.momentsDraftKeep' => '保存',
 			'discovery.openChannel' => 'チャンネルを開く',
 			'discovery.paidChannelLocked' => '有料チャンネルの内容はロックされています',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.webQRScanned' => 'スキャン済み',
 			'discovery.momentActionMore' => 'その他の操作',
 			'discovery.momentAtCount' => ({required Object count}) => '${count}名',
@@ -4043,8 +4064,6 @@ extension on TranslationsJaJp {
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '${name} 他${count}名に通知しました',
 			'discovery.momentAtWho' => '誰に通知しますか？',
 			'discovery.momentLocation' => '位置情報',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentLocationNone' => '位置情報を表示しない',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
@@ -4054,6 +4073,7 @@ extension on TranslationsJaJp {
 			'error.suggestCheckNetwork' => 'ネットワーク設定を確認することをお勧めします。',
 			'error.e2eeErrTimeout' => '暗号化がタイムアウトしました。ネットワーク接続を確認して再度お試しください',
 			'error.e2eeErrNetwork' => 'ネットワークエラーのため暗号化に失敗しました。メッセージは送信されませんでした',
+			'error.e2eeErrPolicyNotReady' => 'エンドツーエンド暗号化のポリシーがまだ準備できていません。後でもう一度お試しください',
 			'error.liveRoomTitleRequired' => 'タイトルを入力してください',
 			'group.enterSameGroup' => '近くの友達と同じグループチャットに入る',
 			'group.enterTheGroup' => 'このグループに入る',
@@ -4354,6 +4374,9 @@ extension on TranslationsJaJp {
 			'main.safetyNumberPeerDevice' => '相手のデバイス',
 			'main.safetyNumberReportRejected' => 'サーバーがこの検証イベントを拒否しました（署名/有効期限の不一致）。マークされていません',
 			'main.safetyNumberReportUnavailable' => 'デバイス情報を取得できないため、未報告です',
+			'main.safetyNumberVerified' => '✓ 確認済み',
+			'main.safetyNumberNotVerified' => '未確認',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} 台のデバイス',
 			'main.safetyNumberReporting' => '検証結果を報告中...',
 			'main.safetyNumberVerifyFailed' => '安全番号の取得に失敗しました。後でもう一度お試しください',
 			'main.complianceKeyInfoTitle' => 'コンプライアンス監査キー',
@@ -4370,6 +4393,7 @@ extension on TranslationsJaJp {
 			'main.complianceKeyInfoServerKey' => 'サーバーから配信された公開鍵',
 			'main.e2eeErrComplianceChanged' => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください',
 			'main.e2eeErrComplianceUnavailable' => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください',
+			'main.e2eeErrComplianceExpired' => 'コンプライアンスキーの有効期限が切れました。管理者に連絡してください',
 			'main.e2eeErrDeviceNotReady' => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください',
 			'main.e2eeErrProtocolMismatch' => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください',
 			'main.e2eeErrSessionExportFailed' => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください',
@@ -4545,6 +4569,8 @@ extension on TranslationsJaJp {
 			'workspace.brandingLogoHint' => 'https://…（ワークスペースLogo画像のURL）',
 			'workspace.brandingColorLabel' => 'メインカラー primaryColor',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB のみ対応。無効な値はデフォルトのテーマカラーに戻ります',
 			'workspace.brandingColorInvalid' => 'メインカラーの形式が正しくありません。#RRGGBB / #AARRGGBB のみ対応しています',
 			'workspace.brandingSaved' => 'ブランド設定を保存しました',
@@ -4557,8 +4583,6 @@ extension on TranslationsJaJp {
 			'workspace.projectNameHint' => '例：サイトリニューアル',
 			'workspace.projectNameRequired' => 'プロジェクト名は空にできません',
 			'workspace.projectDescLabel' => 'プロジェクトの説明（任意）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => 'このプロジェクトは何を成果として届けますか？',
 			'workspace.projectSubmit' => '作成',
 			'workspace.projectCreateSuccess' => 'プロジェクトを作成しました',

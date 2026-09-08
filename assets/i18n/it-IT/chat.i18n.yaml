@@ -204,6 +204,7 @@ voiceReleaseCancelSend: "Rilascia per annullare l'invio"
 voiceSlideHint: "Scorri su per annullare / convertire in testo"
 
 encryptedMessagePlaceholder: "[Messaggio crittografato]"
+e2eeDecryptStoreUnavailable: "L'archivio crittografato è temporaneamente inaccessibile, impossibile decifrare questo messaggio. Riavvia l'app e riprova"
 invalidMessagePlaceholder: "[Messaggio non valido]"
 videoCallPlaceholder: "[Videochiamata]"
 voiceCallPlaceholder: "[Chiamata vocale]"

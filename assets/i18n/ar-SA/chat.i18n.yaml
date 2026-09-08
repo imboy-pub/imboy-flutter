@@ -204,6 +204,7 @@ burnReadBadge: يُحرق بعد القراءة
 alipayLoginInterrupted: انقطعت عملية تسجيل الدخول عبر Alipay بسبب النظام، حاول مرة أخرى
 
 encryptedMessagePlaceholder: "[رسالة مشفّرة]"
+e2eeDecryptStoreUnavailable: "يتعذر الوصول إلى التخزين المشفّر مؤقتاً، ولم يتم فك تشفير هذه الرسالة. يرجى إعادة تشغيل التطبيق والمحاولة مجدداً"
 invalidMessagePlaceholder: "[رسالة غير صالحة]"
 videoCallPlaceholder: "[مكالمة فيديو]"
 voiceCallPlaceholder: "[مكالمة صوتية]"

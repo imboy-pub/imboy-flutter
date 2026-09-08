@@ -699,6 +699,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancelSend => 'Отпустите — отменить отправку';
 	@override String get voiceSlideHint => 'Вверх — отмена / в текст';
 	@override String get encryptedMessagePlaceholder => '[Зашифрованное сообщение]';
+	@override String get e2eeDecryptStoreUnavailable => 'Зашифрованное хранилище временно недоступно, расшифровать это сообщение не удалось. Перезапустите приложение и попробуйте снова';
 	@override String get invalidMessagePlaceholder => '[Недействительное сообщение]';
 	@override String get videoCallPlaceholder => '[Видеозвонок]';
 	@override String get voiceCallPlaceholder => '[Аудиозвонок]';
@@ -1547,6 +1548,12 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get declineCall => 'Отклонить';
 	@override String get e2eeErrPeerNotOnboarded => 'Собеседник ещё не входил ни на одном устройстве, зашифрованная отправка пока невозможна; дождитесь его входа и повторите';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Ключ восстановления скопирован; буфер обмена будет очищен через ${seconds} сек, сохраните его как можно скорее';
+	@override String get e2eeErrAttachmentSeal => 'Не удалось запечатать зашифрованное вложение, файл не загружен. Повторите попытку позже';
+	@override String get e2eeRetryFailedMessages => 'Повторить сообщения с ошибкой расшифровки';
+	@override String e2eeRetryFailedDone({required Object count}) => 'Повторно обработано сообщений с ошибкой расшифровки: ${count}';
+	@override String get e2eeModeStandard => 'Стандартный режим';
+	@override String get e2eeModeCompliance => 'Комплаенс-шифрование';
+	@override String get e2eeModeStrict => 'Сквозное шифрование';
 	@override String get e2eeRecoveryKeySaveNote => 'Немедленно сохраните этот ключ восстановления (скриншот или менеджер паролей). Если забудете парольную фразу, это единственная возможность расшифровать резервную копию; без него восстановление станет невозможным навсегда.';
 	@override String get e2eeRecoveryKeyTitle => 'Ключ восстановления';
 	@override String get e2eeUseRecoveryKey => 'Создать ключ восстановления (запасной доступ при забытой парольной фразе)';
@@ -1737,6 +1744,7 @@ class _Translations$error$ru_RU extends Translations$error$zh_CN {
 	@override String get suggestCheckNetwork => 'Рекомендуется проверить настройки сети.';
 	@override String get e2eeErrTimeout => 'Превышено время шифрования, проверьте сеть и попробуйте ещё раз';
 	@override String get e2eeErrNetwork => 'Сетевая ошибка, шифрование не выполнено, сообщение не отправлено';
+	@override String get e2eeErrPolicyNotReady => 'Политика сквозного шифрования ещё не готова, повторите попытку позже';
 	@override String get liveRoomTitleRequired => 'Введите название';
 }
 
@@ -2122,6 +2130,7 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get complianceKeyInfoTitle => 'Ключ комплаенс-аудита';
 	@override String get e2eeErrComplianceChanged => 'Ключ комплаенс-аудита изменён, сообщение не отправлено. Подтвердите ротацию и повторите';
 	@override String get e2eeErrComplianceUnavailable => 'Комплаенс-ключ временно недоступен, сообщение не отправлено. Повторите позже';
+	@override String get e2eeErrComplianceExpired => 'Срок действия комплаенс-ключа истёк, обратитесь к администратору';
 	@override String get e2eeErrDeviceNotReady => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите';
 	@override String get e2eeErrProtocolMismatch => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите';
 	@override String get e2eeErrSessionExportFailed => 'Не удалось создать сеансовый ключ группы. Повторите позже';
@@ -2134,6 +2143,9 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get safetyNumberPeerDevice => 'Устройство собеседника';
 	@override String get safetyNumberReportRejected => 'Сервер отклонил событие проверки (подпись/срок не совпадают), статус не изменён';
 	@override String get safetyNumberReportUnavailable => 'Не удалось получить информацию об устройстве, не отправлено';
+	@override String get safetyNumberVerified => '✓ Проверено';
+	@override String get safetyNumberNotVerified => 'Не проверено';
+	@override String safetyNumberDeviceCount({required Object count}) => 'Устройств: ${count}';
 	@override String get safetyNumberReporting => 'Отправка результата проверки...';
 	@override String get safetyNumberTitle => 'Проверка кода безопасности';
 	@override String get safetyNumberVerifyFailed => 'Не удалось получить код безопасности. Повторите позже';
@@ -3090,6 +3102,7 @@ extension on TranslationsRuRu {
 			'chat.voiceReleaseCancelSend' => 'Отпустите — отменить отправку',
 			'chat.voiceSlideHint' => 'Вверх — отмена / в текст',
 			'chat.encryptedMessagePlaceholder' => '[Зашифрованное сообщение]',
+			'chat.e2eeDecryptStoreUnavailable' => 'Зашифрованное хранилище временно недоступно, расшифровать это сообщение не удалось. Перезапустите приложение и попробуйте снова',
 			'chat.invalidMessagePlaceholder' => '[Недействительное сообщение]',
 			'chat.videoCallPlaceholder' => '[Видеозвонок]',
 			'chat.voiceCallPlaceholder' => '[Аудиозвонок]',
@@ -3537,9 +3550,9 @@ extension on TranslationsRuRu {
 			'common.addRemarkToFavorites' => 'Добавить примечание в избранное',
 			'common.deleteThisCollection' => 'Удалить эту коллекцию',
 			'common.changeSuccess' => 'Успешно изменено',
-			'common.lengthOk' => 'Длина в порядке',
 			_ => null,
 		} ?? switch (path) {
+			'common.lengthOk' => 'Длина в порядке',
 			'common.confirmNewPassword' => 'Подтвердите новый пароль',
 			'common.validationPassed' => 'Проверка пройдена',
 			'common.momentsContentHint' => 'Поделитесь чем-нибудь...',
@@ -3916,6 +3929,12 @@ extension on TranslationsRuRu {
 			'common.declineCall' => 'Отклонить',
 			'common.e2eeErrPeerNotOnboarded' => 'Собеседник ещё не входил ни на одном устройстве, зашифрованная отправка пока невозможна; дождитесь его входа и повторите',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Ключ восстановления скопирован; буфер обмена будет очищен через ${seconds} сек, сохраните его как можно скорее',
+			'common.e2eeErrAttachmentSeal' => 'Не удалось запечатать зашифрованное вложение, файл не загружен. Повторите попытку позже',
+			'common.e2eeRetryFailedMessages' => 'Повторить сообщения с ошибкой расшифровки',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Повторно обработано сообщений с ошибкой расшифровки: ${count}',
+			'common.e2eeModeStandard' => 'Стандартный режим',
+			'common.e2eeModeCompliance' => 'Комплаенс-шифрование',
+			'common.e2eeModeStrict' => 'Сквозное шифрование',
 			'common.e2eeRecoveryKeySaveNote' => 'Немедленно сохраните этот ключ восстановления (скриншот или менеджер паролей). Если забудете парольную фразу, это единственная возможность расшифровать резервную копию; без него восстановление станет невозможным навсегда.',
 			'common.e2eeRecoveryKeyTitle' => 'Ключ восстановления',
 			'common.e2eeUseRecoveryKey' => 'Создать ключ восстановления (запасной доступ при забытой парольной фразе)',
@@ -4045,6 +4064,8 @@ extension on TranslationsRuRu {
 			'discovery.momentsDraftKeep' => 'Сохранить',
 			'discovery.openChannel' => 'Открыть канал',
 			'discovery.paidChannelLocked' => 'Содержимое платного канала заблокировано',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.webQRScanned' => 'Отсканировано',
 			'discovery.momentActionMore' => 'Другие действия',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} чел.',
@@ -4052,8 +4073,6 @@ extension on TranslationsRuRu {
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'Напоминание: ${name} и ещё ${count} чел.',
 			'discovery.momentAtWho' => 'Кого напомнить?',
 			'discovery.momentLocation' => 'Местоположение',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentLocationNone' => 'Не показывать местоположение',
 			'error.restartRequired' => 'Требуется перезапуск приложения',
 			'error.pleaseCheckNetwork' => 'Пожалуйста, проверьте настройки сети.',
@@ -4063,6 +4082,7 @@ extension on TranslationsRuRu {
 			'error.suggestCheckNetwork' => 'Рекомендуется проверить настройки сети.',
 			'error.e2eeErrTimeout' => 'Превышено время шифрования, проверьте сеть и попробуйте ещё раз',
 			'error.e2eeErrNetwork' => 'Сетевая ошибка, шифрование не выполнено, сообщение не отправлено',
+			'error.e2eeErrPolicyNotReady' => 'Политика сквозного шифрования ещё не готова, повторите попытку позже',
 			'error.liveRoomTitleRequired' => 'Введите название',
 			'group.enterSameGroup' => 'Войти в одну группу с друзьями рядом',
 			'group.enterTheGroup' => 'Войти в эту группу',
@@ -4367,6 +4387,7 @@ extension on TranslationsRuRu {
 			'main.complianceKeyInfoTitle' => 'Ключ комплаенс-аудита',
 			'main.e2eeErrComplianceChanged' => 'Ключ комплаенс-аудита изменён, сообщение не отправлено. Подтвердите ротацию и повторите',
 			'main.e2eeErrComplianceUnavailable' => 'Комплаенс-ключ временно недоступен, сообщение не отправлено. Повторите позже',
+			'main.e2eeErrComplianceExpired' => 'Срок действия комплаенс-ключа истёк, обратитесь к администратору',
 			'main.e2eeErrDeviceNotReady' => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите',
 			'main.e2eeErrProtocolMismatch' => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите',
 			'main.e2eeErrSessionExportFailed' => 'Не удалось создать сеансовый ключ группы. Повторите позже',
@@ -4379,6 +4400,9 @@ extension on TranslationsRuRu {
 			'main.safetyNumberPeerDevice' => 'Устройство собеседника',
 			'main.safetyNumberReportRejected' => 'Сервер отклонил событие проверки (подпись/срок не совпадают), статус не изменён',
 			'main.safetyNumberReportUnavailable' => 'Не удалось получить информацию об устройстве, не отправлено',
+			'main.safetyNumberVerified' => '✓ Проверено',
+			'main.safetyNumberNotVerified' => 'Не проверено',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => 'Устройств: ${count}',
 			'main.safetyNumberReporting' => 'Отправка результата проверки...',
 			'main.safetyNumberTitle' => 'Проверка кода безопасности',
 			'main.safetyNumberVerifyFailed' => 'Не удалось получить код безопасности. Повторите позже',
@@ -4554,6 +4578,8 @@ extension on TranslationsRuRu {
 			'workspace.brandingLogoHint' => 'https://... (адрес изображения логотипа рабочего пространства)',
 			'workspace.brandingColorLabel' => 'Основной цвет primaryColor',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorHelper' => 'Поддерживается только #RRGGBB / #AARRGGBB; при недопустимом значении используется цвет темы по умолчанию',
 			'workspace.brandingColorInvalid' => 'Неверный формат основного цвета, поддерживается только #RRGGBB / #AARRGGBB',
 			'workspace.brandingSaved' => 'Настройки бренда сохранены',
@@ -4566,8 +4592,6 @@ extension on TranslationsRuRu {
 			'workspace.projectNameHint' => 'Например: редизайн сайта',
 			'workspace.projectNameRequired' => 'Название проекта не может быть пустым',
 			'workspace.projectDescLabel' => 'Описание проекта (необязательно)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => 'Что должен дать этот проект?',
 			'workspace.projectSubmit' => 'Создать',
 			'workspace.projectCreateSuccess' => 'Проект создан',

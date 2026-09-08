@@ -699,6 +699,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get messageInputHint => '說點什麼...';
 	@override String get invalidMessageType => '[不支援的訊息]';
 	@override String get encryptedMessagePlaceholder => '[加密訊息]';
+	@override String get e2eeDecryptStoreUnavailable => '暫時無法存取加密儲存，未能解密此訊息；請重新啟動應用程式後重試';
 	@override String get invalidMessagePlaceholder => '[無效訊息]';
 	@override String get videoCallPlaceholder => '[視訊通話]';
 	@override String get voiceCallPlaceholder => '[語音通話]';
@@ -1541,6 +1542,12 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get complianceKeyChangedTitle => '合規稽核金鑰已變更';
 	@override String get declineCall => '拒接';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => '恢復金鑰已複製，${seconds} 秒後將自動清除剪貼簿，請盡快儲存';
+	@override String get e2eeErrAttachmentSeal => '加密附件封裝失敗，檔案未上傳；請稍後重試';
+	@override String get e2eeRetryFailedMessages => '重試解密失敗的訊息';
+	@override String e2eeRetryFailedDone({required Object count}) => '已重試 ${count} 條解密失敗的訊息';
+	@override String get e2eeModeStandard => '標準模式';
+	@override String get e2eeModeCompliance => '合規加密';
+	@override String get e2eeModeStrict => '端對端加密';
 	@override String get e2eeRecoveryKeySaveNote => '請立即儲存這串恢復金鑰（截圖或存入密碼管理員）。忘記密碼時，它是解密備份的唯一憑據；一旦遺失，備份將永久無法還原。';
 	@override String get e2eeRecoveryKeyTitle => '恢復金鑰';
 	@override String get e2eeUseRecoveryKey => '產生恢復金鑰（忘記密碼時的備用憑據）';
@@ -1728,6 +1735,7 @@ class Translations$error$zh_Hant extends Translations$error$zh_CN {
 	@override String get suggestCheckNetwork => '建議檢查網路設定。';
 	@override String get e2eeErrTimeout => '加密超時，請檢查網路連線後重試';
 	@override String get e2eeErrNetwork => '網路錯誤，加密失敗，訊息未傳送';
+	@override String get e2eeErrPolicyNotReady => '端對端加密策略尚未就緒，請稍後重試';
 	@override String get liveRoomTitleRequired => '標題不能為空';
 }
 
@@ -2113,6 +2121,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get complianceKeyInfoTitle => '合規稽核金鑰';
 	@override String get e2eeErrComplianceChanged => '合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試';
 	@override String get e2eeErrComplianceUnavailable => '合規金鑰暫時無法使用，訊息未傳送，請稍後重試';
+	@override String get e2eeErrComplianceExpired => '合規金鑰已過期，請聯絡管理員';
 	@override String get e2eeErrDeviceNotReady => '目前裝置未完成安全初始化，請登出後重新登入再試';
 	@override String get e2eeErrProtocolMismatch => '加密協定設定異常，請更新應用程式後重試';
 	@override String get e2eeErrSessionExportFailed => '群組會話金鑰產生失敗，請稍後重試';
@@ -2125,6 +2134,9 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get safetyNumberPeerDevice => '對方裝置';
 	@override String get safetyNumberReportRejected => '伺服器拒絕了該驗證事件（簽章/時效不符），未標記';
 	@override String get safetyNumberReportUnavailable => '無法取得裝置資訊，未上報';
+	@override String get safetyNumberVerified => '✓ 已驗證';
+	@override String get safetyNumberNotVerified => '未驗證';
+	@override String safetyNumberDeviceCount({required Object count}) => '${count} 台裝置';
 	@override String get safetyNumberReporting => '正在上報驗證結果...';
 	@override String get safetyNumberTitle => '安全碼驗證';
 	@override String get safetyNumberVerifyFailed => '取得安全碼失敗，請稍後重試';
@@ -3081,6 +3093,7 @@ extension on TranslationsZhHant {
 			'chat.messageInputHint' => '說點什麼...',
 			'chat.invalidMessageType' => '[不支援的訊息]',
 			'chat.encryptedMessagePlaceholder' => '[加密訊息]',
+			'chat.e2eeDecryptStoreUnavailable' => '暫時無法存取加密儲存，未能解密此訊息；請重新啟動應用程式後重試',
 			'chat.invalidMessagePlaceholder' => '[無效訊息]',
 			'chat.videoCallPlaceholder' => '[視訊通話]',
 			'chat.voiceCallPlaceholder' => '[語音通話]',
@@ -3528,9 +3541,9 @@ extension on TranslationsZhHant {
 			'common.shareWithOtherFriends' => '分享給其他好友',
 			'common.addTagsToFavorites' => '為收藏新增標籤',
 			'common.addRemarkToFavorites' => '為收藏新增備註',
-			'common.deleteThisCollection' => '刪除此收藏',
 			_ => null,
 		} ?? switch (path) {
+			'common.deleteThisCollection' => '刪除此收藏',
 			'common.changeSuccess' => '更改成功',
 			'common.lengthOk' => '長度符合',
 			'common.confirmNewPassword' => '確認新密碼',
@@ -3910,6 +3923,12 @@ extension on TranslationsZhHant {
 			'common.complianceKeyChangedTitle' => '合規稽核金鑰已變更',
 			'common.declineCall' => '拒接',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => '恢復金鑰已複製，${seconds} 秒後將自動清除剪貼簿，請盡快儲存',
+			'common.e2eeErrAttachmentSeal' => '加密附件封裝失敗，檔案未上傳；請稍後重試',
+			'common.e2eeRetryFailedMessages' => '重試解密失敗的訊息',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => '已重試 ${count} 條解密失敗的訊息',
+			'common.e2eeModeStandard' => '標準模式',
+			'common.e2eeModeCompliance' => '合規加密',
+			'common.e2eeModeStrict' => '端對端加密',
 			'common.e2eeRecoveryKeySaveNote' => '請立即儲存這串恢復金鑰（截圖或存入密碼管理員）。忘記密碼時，它是解密備份的唯一憑據；一旦遺失，備份將永久無法還原。',
 			'common.e2eeRecoveryKeyTitle' => '恢復金鑰',
 			'common.e2eeUseRecoveryKey' => '產生恢復金鑰（忘記密碼時的備用憑據）',
@@ -4036,6 +4055,8 @@ extension on TranslationsZhHant {
 			'discovery.momentActionMore' => '更多選項',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} 人按讚',
 			'discovery.openChannel' => '開啟頻道',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.paidChannelLocked' => '付費頻道內容已鎖定',
 			'discovery.webQRScanned' => '已掃描',
 			'discovery.momentLocation' => '打卡地點',
@@ -4043,8 +4064,6 @@ extension on TranslationsZhHant {
 			'discovery.momentAtWho' => '提醒誰看',
 			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name} 查看',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人查看',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAtCount' => ({required Object count}) => '${count} 人查看',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.pleaseCheckNetwork' => '請檢查你的網路設定。',
@@ -4054,6 +4073,7 @@ extension on TranslationsZhHant {
 			'error.suggestCheckNetwork' => '建議檢查網路設定。',
 			'error.e2eeErrTimeout' => '加密超時，請檢查網路連線後重試',
 			'error.e2eeErrNetwork' => '網路錯誤，加密失敗，訊息未傳送',
+			'error.e2eeErrPolicyNotReady' => '端對端加密策略尚未就緒，請稍後重試',
 			'error.liveRoomTitleRequired' => '標題不能為空',
 			'group.enterSameGroup' => '與身邊的朋友進入同一個群組聊天',
 			'group.enterTheGroup' => '進入該群組',
@@ -4358,6 +4378,7 @@ extension on TranslationsZhHant {
 			'main.complianceKeyInfoTitle' => '合規稽核金鑰',
 			'main.e2eeErrComplianceChanged' => '合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試',
 			'main.e2eeErrComplianceUnavailable' => '合規金鑰暫時無法使用，訊息未傳送，請稍後重試',
+			'main.e2eeErrComplianceExpired' => '合規金鑰已過期，請聯絡管理員',
 			'main.e2eeErrDeviceNotReady' => '目前裝置未完成安全初始化，請登出後重新登入再試',
 			'main.e2eeErrProtocolMismatch' => '加密協定設定異常，請更新應用程式後重試',
 			'main.e2eeErrSessionExportFailed' => '群組會話金鑰產生失敗，請稍後重試',
@@ -4370,6 +4391,9 @@ extension on TranslationsZhHant {
 			'main.safetyNumberPeerDevice' => '對方裝置',
 			'main.safetyNumberReportRejected' => '伺服器拒絕了該驗證事件（簽章/時效不符），未標記',
 			'main.safetyNumberReportUnavailable' => '無法取得裝置資訊，未上報',
+			'main.safetyNumberVerified' => '✓ 已驗證',
+			'main.safetyNumberNotVerified' => '未驗證',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} 台裝置',
 			'main.safetyNumberReporting' => '正在上報驗證結果...',
 			'main.safetyNumberTitle' => '安全碼驗證',
 			'main.safetyNumberVerifyFailed' => '取得安全碼失敗，請稍後重試',
@@ -4545,6 +4569,8 @@ extension on TranslationsZhHant {
 			'workspace.brandingLogoHint' => 'https://…（工作區 Logo 圖片網址）',
 			'workspace.brandingColorLabel' => '品牌主色 primaryColor',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorHelper' => '僅支援 #RRGGBB / #AARRGGBB；非法值改用預設主題色',
 			'workspace.brandingColorInvalid' => '主色格式不正確，僅支援 #RRGGBB / #AARRGGBB',
 			'workspace.brandingSaved' => '品牌設定已儲存',
@@ -4557,8 +4583,6 @@ extension on TranslationsZhHant {
 			'workspace.projectNameHint' => '例如：官網改版',
 			'workspace.projectNameRequired' => '專案名稱不能為空',
 			'workspace.projectDescLabel' => '專案描述（選填）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => '這個專案要交付什麼？',
 			'workspace.projectSubmit' => '建立',
 			'workspace.projectCreateSuccess' => '專案建立成功',

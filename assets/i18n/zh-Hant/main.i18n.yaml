@@ -169,6 +169,7 @@ complianceKeyInfoServerKey: 伺服器下發的公開金鑰
 complianceKeyInfoTitle: 合規稽核金鑰
 e2eeErrComplianceChanged: 合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試
 e2eeErrComplianceUnavailable: 合規金鑰暫時無法使用，訊息未傳送，請稍後重試
+e2eeErrComplianceExpired: "合規金鑰已過期，請聯絡管理員"
 e2eeErrDeviceNotReady: 目前裝置未完成安全初始化，請登出後重新登入再試
 e2eeErrProtocolMismatch: 加密協定設定異常，請更新應用程式後重試
 e2eeErrSessionExportFailed: 群組會話金鑰產生失敗，請稍後重試
@@ -181,6 +182,9 @@ safetyNumberNoDevices: 對方尚未啟用端對端加密
 safetyNumberPeerDevice: 對方裝置
 safetyNumberReportRejected: 伺服器拒絕了該驗證事件（簽章/時效不符），未標記
 safetyNumberReportUnavailable: 無法取得裝置資訊，未上報
+safetyNumberVerified: "✓ 已驗證"
+safetyNumberNotVerified: "未驗證"
+safetyNumberDeviceCount(count): "$count 台裝置"
 safetyNumberReporting: 正在上報驗證結果...
 safetyNumberTitle: 安全碼驗證
 safetyNumberVerifyFailed: 取得安全碼失敗，請稍後重試

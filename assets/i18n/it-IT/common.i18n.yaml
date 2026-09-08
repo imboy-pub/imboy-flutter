@@ -825,6 +825,12 @@ complianceKeyChangedTitle: La chiave di audit di conformità è cambiata
 declineCall: Rifiuta
 e2eeErrPeerNotOnboarded: "L'altro non ha ancora effettuato l'accesso da nessun dispositivo, impossibile inviare in cifratura per ora; attendi che l'altro effettui l'accesso e riprova"
 e2eeRecoveryKeyCopiedAutoClear(seconds): "Chiave di recupero copiata, gli appunti verranno cancellati automaticamente tra $seconds secondi, salvala al più presto"
+e2eeErrAttachmentSeal: "Impossibile sigillare l'allegato crittografato, il file non è stato caricato. Riprova più tardi"
+e2eeRetryFailedMessages: "Riprova i messaggi non decifrati"
+e2eeRetryFailedDone(count): "Ritentata la decifratura di $count messaggi"
+e2eeModeStandard: "Modalità standard"
+e2eeModeCompliance: "Crittografia di conformità"
+e2eeModeStrict: "Crittografia end-to-end"
 e2eeRecoveryKeySaveNote: "Salva subito questa chiave di recupero (screenshot o conservala in un gestore di password). Se dimentichi la passphrase è l'unico strumento per decifrare il backup; se la perdi, il backup non sarà più recuperabile."
 e2eeRecoveryKeyTitle: Chiave di recupero
 e2eeUseRecoveryKey: "Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)"

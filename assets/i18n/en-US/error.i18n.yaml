@@ -6,4 +6,5 @@ networkTroubleshootingStep3: "3. If still unable to connect to network, please c
 suggestCheckNetwork: Please check your network settings.
 e2eeErrTimeout: "Encryption timed out, please check your connection and retry"
 e2eeErrNetwork: "Network error, encryption failed, message not sent"
+e2eeErrPolicyNotReady: "End-to-end encryption policy is not ready yet, please try again later"
 liveRoomTitleRequired: Title cannot be empty

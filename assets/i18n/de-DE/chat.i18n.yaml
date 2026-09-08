@@ -202,6 +202,7 @@ voiceSlideHint: "Nach oben wischen: Abbrechen / In Text umwandeln"
 alipayLoginInterrupted: Alipay-Anmeldung vom System unterbrochen, bitte erneut versuchen
 
 encryptedMessagePlaceholder: "[Verschlüsselte Nachricht]"
+e2eeDecryptStoreUnavailable: "Der verschlüsselte Speicher ist vorübergehend nicht zugänglich; diese Nachricht konnte nicht entschlüsselt werden. Bitte starten Sie die App neu und versuchen Sie es erneut"
 invalidMessagePlaceholder: "[Ungültige Nachricht]"
 videoCallPlaceholder: "[Videoanruf]"
 voiceCallPlaceholder: "[Sprachanruf]"

@@ -877,7 +877,13 @@ redPacketTotalAmount: Gesamtbetrag
 redPacketView: Geschenk ansehen
 e2eeErrPeerNotOnboarded: Die Gegenseite war noch auf keinem Gerät angemeldet, verschlüsseltes Senden derzeit nicht möglich. Bitte warten Sie, bis sich die Gegenseite angemeldet hat, und versuchen Sie es erneut
 e2eeRecoveryKeyTitle: Wiederherstellungsschlüssel
-e2eeRecoveryKeyCopiedAutoClear: Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in $seconds Sek. automatisch geleert. Bitte schnellstmöglich sichern
+e2eeRecoveryKeyCopiedAutoClear(seconds): Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in $seconds Sek. automatisch geleert. Bitte schnellstmöglich sichern
+e2eeErrAttachmentSeal: "Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen"
+e2eeRetryFailedMessages: "Nachrichten mit Entschlüsselungsfehler erneut versuchen"
+e2eeRetryFailedDone(count): "$count Nachrichten mit Entschlüsselungsfehler erneut versucht"
+e2eeModeStandard: "Standardmodus"
+e2eeModeCompliance: "Compliance-Verschlüsselung"
+e2eeModeStrict: "Ende-zu-Ende-Verschlüsselung"
 e2eeRecoveryKeySaveNote: Bitte sichern Sie diesen Wiederherstellungsschlüssel sofort (Screenshot oder Passwort-Manager). Bei vergessener Passphrase ist er der einzige Schlüssel zum Entschlüsseln des Backups; geht er verloren, ist das Backup dauerhaft nicht wiederherstellbar.
 e2eeUseRecoveryKey: Wiederherstellungsschlüssel erstellen (Ersatz-Zugang bei vergessener Passphrase)
 complianceKeyChangedTitle: Compliance-Audit-Schlüssel hat sich geändert

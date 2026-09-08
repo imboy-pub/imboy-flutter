@@ -1837,6 +1837,9 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '[加密消息]'
 	String get encryptedMessagePlaceholder => '[加密消息]';
 
+	/// zh-CN: '暂时无法访问加密存储，未能解密此消息；请重启应用后重试'
+	String get e2eeDecryptStoreUnavailable => '暂时无法访问加密存储，未能解密此消息；请重启应用后重试';
+
 	/// zh-CN: '[无效消息]'
 	String get invalidMessagePlaceholder => '[无效消息]';
 
@@ -3970,6 +3973,24 @@ class Translations$common$zh_CN {
 	/// zh-CN: '恢复密钥已复制，$seconds 秒后将自动清除剪贴板，请尽快保存'
 	String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => '恢复密钥已复制，${seconds} 秒后将自动清除剪贴板，请尽快保存';
 
+	/// zh-CN: '加密附件封装失败，文件未上传；请稍后重试'
+	String get e2eeErrAttachmentSeal => '加密附件封装失败，文件未上传；请稍后重试';
+
+	/// zh-CN: '重试解密失败的消息'
+	String get e2eeRetryFailedMessages => '重试解密失败的消息';
+
+	/// zh-CN: '已重试 $count 条解密失败的消息'
+	String e2eeRetryFailedDone({required Object count}) => '已重试 ${count} 条解密失败的消息';
+
+	/// zh-CN: '标准模式'
+	String get e2eeModeStandard => '标准模式';
+
+	/// zh-CN: '合规加密'
+	String get e2eeModeCompliance => '合规加密';
+
+	/// zh-CN: '端到端加密'
+	String get e2eeModeStrict => '端到端加密';
+
 	/// zh-CN: '备份密码 *'
 	String get e2eeBackupPwdLabel => '备份密码 *';
 
@@ -4803,6 +4824,9 @@ class Translations$error$zh_CN {
 
 	/// zh-CN: '网络错误，加密失败，消息未发送'
 	String get e2eeErrNetwork => '网络错误，加密失败，消息未发送';
+
+	/// zh-CN: '端到端加密策略尚未就绪，请稍后重试'
+	String get e2eeErrPolicyNotReady => '端到端加密策略尚未就绪，请稍后重试';
 
 	/// zh-CN: '标题不能为空'
 	String get liveRoomTitleRequired => '标题不能为空';
@@ -5752,6 +5776,9 @@ class Translations$main$zh_CN {
 	/// zh-CN: '合规密钥暂不可用，消息未发送，请稍后重试'
 	String get e2eeErrComplianceUnavailable => '合规密钥暂不可用，消息未发送，请稍后重试';
 
+	/// zh-CN: '合规密钥已过期，请联系管理员'
+	String get e2eeErrComplianceExpired => '合规密钥已过期，请联系管理员';
+
 	/// zh-CN: '当前设备未完成安全初始化，请退出重新登录后重试'
 	String get e2eeErrDeviceNotReady => '当前设备未完成安全初始化，请退出重新登录后重试';
 
@@ -5832,6 +5859,15 @@ class Translations$main$zh_CN {
 
 	/// zh-CN: '无法获取设备信息，未上报'
 	String get safetyNumberReportUnavailable => '无法获取设备信息，未上报';
+
+	/// zh-CN: '✓ 已验证'
+	String get safetyNumberVerified => '✓ 已验证';
+
+	/// zh-CN: '未验证'
+	String get safetyNumberNotVerified => '未验证';
+
+	/// zh-CN: '$count 台设备'
+	String safetyNumberDeviceCount({required Object count}) => '${count} 台设备';
 
 	/// zh-CN: '直播间标题'
 	String get liveRoomTitleLabel => '直播间标题';
@@ -7380,6 +7416,7 @@ extension on Translations {
 			'chat.extraItems' => '附加项',
 			'chat.invalidMessageType' => '[不支持的消息]',
 			'chat.encryptedMessagePlaceholder' => '[加密消息]',
+			'chat.e2eeDecryptStoreUnavailable' => '暂时无法访问加密存储，未能解密此消息；请重启应用后重试',
 			'chat.invalidMessagePlaceholder' => '[无效消息]',
 			'chat.videoCallPlaceholder' => '[视频通话]',
 			'chat.voiceCallPlaceholder' => '[语音通话]',
@@ -7827,9 +7864,9 @@ extension on Translations {
 			'common.understood' => '明白了',
 			'common.noProblem' => '没问题',
 			'common.onMyWay' => '马上到',
-			'common.operationOptions' => '操作选项',
 			_ => null,
 		} ?? switch (path) {
+			'common.operationOptions' => '操作选项',
 			'common.copyTextContent' => '复制文本内容',
 			'common.shareWithOtherFriends' => '分享给其他好友',
 			'common.addTagsToFavorites' => '为收藏添加标签',
@@ -8088,6 +8125,12 @@ extension on Translations {
 			'common.e2eeRecoveryKeyTitle' => '恢复密钥',
 			'common.e2eeRecoveryKeySaveNote' => '请立即保存这串恢复密钥（截图或存入密码管理器）。忘记口令时，它是解密备份的唯一凭据；一旦丢失，备份将永久无法恢复。',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => '恢复密钥已复制，${seconds} 秒后将自动清除剪贴板，请尽快保存',
+			'common.e2eeErrAttachmentSeal' => '加密附件封装失败，文件未上传；请稍后重试',
+			'common.e2eeRetryFailedMessages' => '重试解密失败的消息',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => '已重试 ${count} 条解密失败的消息',
+			'common.e2eeModeStandard' => '标准模式',
+			'common.e2eeModeCompliance' => '合规加密',
+			'common.e2eeModeStrict' => '端到端加密',
 			'common.e2eeBackupPwdLabel' => '备份密码 *',
 			'common.e2eeBackupPwdHint' => '至少 12 位，包含大小写字母、数字和特殊符号',
 			'common.e2eeBackupConfirmPwdLabel' => '确认密码 *',
@@ -8335,6 +8378,8 @@ extension on Translations {
 			'discovery.momentsDraftKeep' => '保留',
 			'discovery.openChannel' => '打开频道',
 			'discovery.paidChannelLocked' => '付费频道内容已锁定',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.webQRScanned' => '已扫描',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}人赞了',
 			'discovery.momentLocation' => '所在位置',
@@ -8342,8 +8387,6 @@ extension on Translations {
 			'discovery.momentAtWho' => '提醒谁看',
 			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name}',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAtCount' => ({required Object count}) => '${count}人',
 			'error.restartRequired' => '需要重启应用',
 			'error.pleaseCheckNetwork' => '请检查你的网络设置。',
@@ -8353,6 +8396,7 @@ extension on Translations {
 			'error.suggestCheckNetwork' => '建议检查网络设置。',
 			'error.e2eeErrTimeout' => '加密超时，请检查网络连接后重试',
 			'error.e2eeErrNetwork' => '网络错误，加密失败，消息未发送',
+			'error.e2eeErrPolicyNotReady' => '端到端加密策略尚未就绪，请稍后重试',
 			'error.liveRoomTitleRequired' => '标题不能为空',
 			'group.enterSameGroup' => '与身边的朋友进入同一个群聊',
 			'group.enterTheGroup' => '进入该群',
@@ -8642,6 +8686,7 @@ extension on Translations {
 			'main.e2eeErrPeerDeviceNotReady' => '有成员的设备尚未完成安全设置，消息未发送；请稍后重试',
 			'main.e2eeErrComplianceChanged' => '合规审计密钥已变更，消息未发送，请确认轮换后重试',
 			'main.e2eeErrComplianceUnavailable' => '合规密钥暂不可用，消息未发送，请稍后重试',
+			'main.e2eeErrComplianceExpired' => '合规密钥已过期，请联系管理员',
 			'main.e2eeErrDeviceNotReady' => '当前设备未完成安全初始化，请退出重新登录后重试',
 			'main.e2eeErrSessionExportFailed' => '群会话密钥生成失败，请稍后重试',
 			'main.e2eeErrProtocolMismatch' => '加密协议配置异常，请更新应用后重试',
@@ -8669,6 +8714,9 @@ extension on Translations {
 			'main.safetyNumberReporting' => '正在上报验证结果...',
 			'main.safetyNumberReportRejected' => '服务端拒绝了该验证事件（签名/时效不符），未标记',
 			'main.safetyNumberReportUnavailable' => '无法获取设备信息，未上报',
+			'main.safetyNumberVerified' => '✓ 已验证',
+			'main.safetyNumberNotVerified' => '未验证',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} 台设备',
 			'main.liveRoomTitleLabel' => '直播间标题',
 			'main.liveRoomTitleHint' => '请输入直播间标题',
 			'main.lightModel' => '浅色模式',
@@ -8844,6 +8892,8 @@ extension on Translations {
 			'workspace.brandingLogoHint' => 'https://...（工作区 Logo 图片地址）',
 			'workspace.brandingColorLabel' => '主色 primaryColor',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorHelper' => '仅支持 #RRGGBB / #AARRGGBB；非法值回落默认主题色',
 			'workspace.brandingColorInvalid' => '主色格式不正确，仅支持 #RRGGBB / #AARRGGBB',
 			'workspace.brandingSaved' => '品牌设置已保存',
@@ -8856,8 +8906,6 @@ extension on Translations {
 			'workspace.projectNameHint' => '例如：官网改版',
 			'workspace.projectNameRequired' => '项目名称不能为空',
 			'workspace.projectDescLabel' => '项目描述（可选）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => '这个项目要交付什么？',
 			'workspace.projectSubmit' => '创建',
 			'workspace.projectCreateSuccess' => '项目创建成功',

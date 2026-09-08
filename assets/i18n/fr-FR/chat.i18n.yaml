@@ -204,6 +204,7 @@ voiceReleaseCancelSend: "Relâchez pour annuler l'envoi"
 voiceSlideHint: "Glissez vers le haut : annuler / convertir en texte"
 
 encryptedMessagePlaceholder: "[Message chiffré]"
+e2eeDecryptStoreUnavailable: "Le stockage chiffré est temporairement inaccessible ; ce message n'a pas pu être déchiffré. Veuillez redémarrer l'application et réessayer"
 invalidMessagePlaceholder: "[Message invalide]"
 videoCallPlaceholder: "[Appel vidéo]"
 voiceCallPlaceholder: "[Appel audio]"

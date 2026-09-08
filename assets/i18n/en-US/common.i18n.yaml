@@ -830,6 +830,12 @@ e2eeRecoveryKeyTitle: Recovery Key
 e2eeUseRecoveryKey: Generate recovery key (backup credential if you forget your passphrase)
 e2eeRecoveryKeySaveNote: "Save this recovery key now (take a screenshot or store it in a password manager). If you forget your passphrase, it is the only credential that can decrypt your backup; once lost, the backup cannot be recovered."
 e2eeRecoveryKeyCopiedAutoClear(seconds): "Recovery key copied. The clipboard will be cleared in $seconds seconds — save it now."
+e2eeErrAttachmentSeal: "Failed to seal the encrypted attachment; the file was not uploaded. Please try again later"
+e2eeRetryFailedMessages: "Retry messages that failed to decrypt"
+e2eeRetryFailedDone(count): "Retried $count messages that failed to decrypt"
+e2eeModeStandard: "Standard mode"
+e2eeModeCompliance: "Compliance encryption"
+e2eeModeStrict: "End-to-end encryption"
 enterAmount: Please enter an amount
 expandFull: Expand
 justNow: Just now

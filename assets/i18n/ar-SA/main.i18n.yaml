@@ -157,6 +157,7 @@ liveRoomTitleHint: أدخل عنوان الغرفة
 lightModel: الوضع الفاتح
 e2eeErrComplianceChanged: تغيّر مفتاح تدقيق الامتثال، ولم تُرسل الرسالة. أكّد تدوير المفتاح ثم أعد المحاولة
 e2eeErrComplianceUnavailable: مفتاح الامتثال غير متاح حالياً، ولم تُرسل الرسالة. حاول لاحقاً
+e2eeErrComplianceExpired: "انتهت صلاحية مفتاح الامتثال، يرجى التواصل مع المسؤول"
 e2eeErrDeviceNotReady: لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة
 e2eeErrProtocolMismatch: هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة
 e2eeErrSessionExportFailed: تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً
@@ -184,5 +185,8 @@ safetyNumberVerifyFailed: تعذّر الحصول على رمز الأمان. ح
 safetyNumberReporting: جارٍ الإبلاغ عن نتيجة التحقق...
 safetyNumberReportRejected: رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة
 safetyNumberReportUnavailable: تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ
+safetyNumberVerified: "✓ تم التحقق"
+safetyNumberNotVerified: "غير مُتحقق"
+safetyNumberDeviceCount(count): "$count أجهزة"
 
 complianceKeyNotConfigured: "لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر"

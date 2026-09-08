@@ -205,6 +205,7 @@ voiceReleaseCancelSend: 離すと送信をキャンセル
 voiceSlideHint: 上にスワイプでキャンセル / 文字起こし
 
 encryptedMessagePlaceholder: "[暗号化メッセージ]"
+e2eeDecryptStoreUnavailable: "暗号化ストレージに一時的にアクセスできないため、このメッセージを復号できませんでした。アプリを再起動してもう一度お試しください"
 invalidMessagePlaceholder: "[無効なメッセージ]"
 videoCallPlaceholder: "[ビデオ通話]"
 voiceCallPlaceholder: "[音声通話]"

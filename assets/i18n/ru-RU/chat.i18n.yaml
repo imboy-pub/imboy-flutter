@@ -204,6 +204,7 @@ voiceReleaseCancelSend: "Отпустите — отменить отправк�
 voiceSlideHint: "Вверх — отмена / в текст"
 
 encryptedMessagePlaceholder: "[Зашифрованное сообщение]"
+e2eeDecryptStoreUnavailable: "Зашифрованное хранилище временно недоступно, расшифровать это сообщение не удалось. Перезапустите приложение и попробуйте снова"
 invalidMessagePlaceholder: "[Недействительное сообщение]"
 videoCallPlaceholder: "[Видеозвонок]"
 voiceCallPlaceholder: "[Аудиозвонок]"

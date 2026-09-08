@@ -7,4 +7,5 @@ networkTroubleshootingStep3: 3. Keine Verbindung? Prüfen Sie WLAN-Internetzugan
 suggestCheckNetwork: Überprüfen Sie die Netzwerkeinstellungen.
 e2eeErrTimeout: Zeitüberschreitung beim Verschlüsseln. Netzwerk prüfen und erneut versuchen.
 e2eeErrNetwork: Netzwerkfehler beim Verschlüsseln, Nachricht nicht gesendet
+e2eeErrPolicyNotReady: "Die Ende-zu-Ende-Verschlüsselungsrichtlinie ist noch nicht bereit. Bitte später erneut versuchen"
 liveRoomTitleRequired: Titel erforderlich

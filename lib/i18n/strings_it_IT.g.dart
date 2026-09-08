@@ -699,6 +699,7 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancelSend => 'Rilascia per annullare l\'invio';
 	@override String get voiceSlideHint => 'Scorri su per annullare / convertire in testo';
 	@override String get encryptedMessagePlaceholder => '[Messaggio crittografato]';
+	@override String get e2eeDecryptStoreUnavailable => 'L\'archivio crittografato è temporaneamente inaccessibile, impossibile decifrare questo messaggio. Riavvia l\'app e riprova';
 	@override String get invalidMessagePlaceholder => '[Messaggio non valido]';
 	@override String get videoCallPlaceholder => '[Videochiamata]';
 	@override String get voiceCallPlaceholder => '[Chiamata vocale]';
@@ -1541,6 +1542,12 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get declineCall => 'Rifiuta';
 	@override String get e2eeErrPeerNotOnboarded => 'L\'altro non ha ancora effettuato l\'accesso da nessun dispositivo, impossibile inviare in cifratura per ora; attendi che l\'altro effettui l\'accesso e riprova';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Chiave di recupero copiata, gli appunti verranno cancellati automaticamente tra ${seconds} secondi, salvala al più presto';
+	@override String get e2eeErrAttachmentSeal => 'Impossibile sigillare l\'allegato crittografato, il file non è stato caricato. Riprova più tardi';
+	@override String get e2eeRetryFailedMessages => 'Riprova i messaggi non decifrati';
+	@override String e2eeRetryFailedDone({required Object count}) => 'Ritentata la decifratura di ${count} messaggi';
+	@override String get e2eeModeStandard => 'Modalità standard';
+	@override String get e2eeModeCompliance => 'Crittografia di conformità';
+	@override String get e2eeModeStrict => 'Crittografia end-to-end';
 	@override String get e2eeRecoveryKeySaveNote => 'Salva subito questa chiave di recupero (screenshot o conservala in un gestore di password). Se dimentichi la passphrase è l\'unico strumento per decifrare il backup; se la perdi, il backup non sarà più recuperabile.';
 	@override String get e2eeRecoveryKeyTitle => 'Chiave di recupero';
 	@override String get e2eeUseRecoveryKey => 'Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)';
@@ -1731,6 +1738,7 @@ class _Translations$error$it_IT extends Translations$error$zh_CN {
 	@override String get suggestCheckNetwork => 'Si consiglia di controllare le impostazioni di rete.';
 	@override String get e2eeErrTimeout => 'Timeout cifratura. Controlla la rete e riprova.';
 	@override String get e2eeErrNetwork => 'Errore di rete, cifratura fallita, messaggio non inviato';
+	@override String get e2eeErrPolicyNotReady => 'I criteri di crittografia end-to-end non sono ancora pronti, riprova più tardi';
 	@override String get liveRoomTitleRequired => 'Titolo richiesto';
 }
 
@@ -2116,6 +2124,7 @@ class _Translations$main$it_IT extends Translations$main$zh_CN {
 	@override String get complianceKeyInfoTitle => 'Chiave di audit di conformità';
 	@override String get e2eeErrComplianceChanged => 'La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova';
 	@override String get e2eeErrComplianceUnavailable => 'Chiave di conformità temporaneamente non disponibile, messaggio non inviato; riprova più tardi';
+	@override String get e2eeErrComplianceExpired => 'La chiave di conformità è scaduta, contatta l\'amministratore';
 	@override String get e2eeErrDeviceNotReady => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova';
 	@override String get e2eeErrProtocolMismatch => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova';
 	@override String get e2eeErrSessionExportFailed => 'Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi';
@@ -2128,6 +2137,9 @@ class _Translations$main$it_IT extends Translations$main$zh_CN {
 	@override String get safetyNumberPeerDevice => 'Dispositivo dell\'altro';
 	@override String get safetyNumberReportRejected => 'Il server ha rifiutato l\'evento di verifica (firma/validità non corrispondenti), non segnato';
 	@override String get safetyNumberReportUnavailable => 'Impossibile ottenere le informazioni del dispositivo, non riportato';
+	@override String get safetyNumberVerified => '✓ Verificato';
+	@override String get safetyNumberNotVerified => 'Non verificato';
+	@override String safetyNumberDeviceCount({required Object count}) => '${count} dispositivo/i';
 	@override String get safetyNumberReporting => 'Invio del risultato della verifica in corso...';
 	@override String get safetyNumberTitle => 'Verifica del codice di sicurezza';
 	@override String get safetyNumberVerifyFailed => 'Impossibile ottenere il codice di sicurezza, riprova più tardi';
@@ -3084,6 +3096,7 @@ extension on TranslationsItIt {
 			'chat.voiceReleaseCancelSend' => 'Rilascia per annullare l\'invio',
 			'chat.voiceSlideHint' => 'Scorri su per annullare / convertire in testo',
 			'chat.encryptedMessagePlaceholder' => '[Messaggio crittografato]',
+			'chat.e2eeDecryptStoreUnavailable' => 'L\'archivio crittografato è temporaneamente inaccessibile, impossibile decifrare questo messaggio. Riavvia l\'app e riprova',
 			'chat.invalidMessagePlaceholder' => '[Messaggio non valido]',
 			'chat.videoCallPlaceholder' => '[Videochiamata]',
 			'chat.voiceCallPlaceholder' => '[Chiamata vocale]',
@@ -3531,9 +3544,9 @@ extension on TranslationsItIt {
 			'common.addRemarkToFavorites' => 'Aggiungi nota ai preferiti',
 			'common.deleteThisCollection' => 'Elimina questa raccolta',
 			'common.changeSuccess' => 'Modificato con successo',
-			'common.lengthOk' => 'Lunghezza OK',
 			_ => null,
 		} ?? switch (path) {
+			'common.lengthOk' => 'Lunghezza OK',
 			'common.confirmNewPassword' => 'Conferma nuova password',
 			'common.validationPassed' => 'Convalida superata',
 			'common.momentsContentHint' => 'Scrivi qualcosa...',
@@ -3910,6 +3923,12 @@ extension on TranslationsItIt {
 			'common.declineCall' => 'Rifiuta',
 			'common.e2eeErrPeerNotOnboarded' => 'L\'altro non ha ancora effettuato l\'accesso da nessun dispositivo, impossibile inviare in cifratura per ora; attendi che l\'altro effettui l\'accesso e riprova',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Chiave di recupero copiata, gli appunti verranno cancellati automaticamente tra ${seconds} secondi, salvala al più presto',
+			'common.e2eeErrAttachmentSeal' => 'Impossibile sigillare l\'allegato crittografato, il file non è stato caricato. Riprova più tardi',
+			'common.e2eeRetryFailedMessages' => 'Riprova i messaggi non decifrati',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Ritentata la decifratura di ${count} messaggi',
+			'common.e2eeModeStandard' => 'Modalità standard',
+			'common.e2eeModeCompliance' => 'Crittografia di conformità',
+			'common.e2eeModeStrict' => 'Crittografia end-to-end',
 			'common.e2eeRecoveryKeySaveNote' => 'Salva subito questa chiave di recupero (screenshot o conservala in un gestore di password). Se dimentichi la passphrase è l\'unico strumento per decifrare il backup; se la perdi, il backup non sarà più recuperabile.',
 			'common.e2eeRecoveryKeyTitle' => 'Chiave di recupero',
 			'common.e2eeUseRecoveryKey' => 'Genera chiave di recupero (strumento di riserva in caso di passphrase dimenticata)',
@@ -4039,6 +4058,8 @@ extension on TranslationsItIt {
 			'discovery.openChannel' => 'Apri canale',
 			'discovery.paidChannelLocked' => 'Contenuto bloccato (a pagamento)',
 			'discovery.webQRScanned' => 'Scansionato',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionMore' => 'Altre azioni',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} persone',
 			'discovery.momentAtReminded' => ({required Object name}) => 'Ha avvisato ${name}',
@@ -4046,8 +4067,6 @@ extension on TranslationsItIt {
 			'discovery.momentAtWho' => 'Chi avvisare',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => 'Piace a ${count} persone',
 			'discovery.momentLocation' => 'Posizione',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentLocationNone' => 'Non mostrare la posizione',
 			'error.restartRequired' => 'Riavvio richiesto',
 			'error.pleaseCheckNetwork' => 'Controlla le impostazioni di rete.',
@@ -4057,6 +4076,7 @@ extension on TranslationsItIt {
 			'error.suggestCheckNetwork' => 'Si consiglia di controllare le impostazioni di rete.',
 			'error.e2eeErrTimeout' => 'Timeout cifratura. Controlla la rete e riprova.',
 			'error.e2eeErrNetwork' => 'Errore di rete, cifratura fallita, messaggio non inviato',
+			'error.e2eeErrPolicyNotReady' => 'I criteri di crittografia end-to-end non sono ancora pronti, riprova più tardi',
 			'error.liveRoomTitleRequired' => 'Titolo richiesto',
 			'group.enterSameGroup' => 'Entra nella stessa chat di gruppo con gli amici vicini',
 			'group.enterTheGroup' => 'Entra nel gruppo',
@@ -4361,6 +4381,7 @@ extension on TranslationsItIt {
 			'main.complianceKeyInfoTitle' => 'Chiave di audit di conformità',
 			'main.e2eeErrComplianceChanged' => 'La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova',
 			'main.e2eeErrComplianceUnavailable' => 'Chiave di conformità temporaneamente non disponibile, messaggio non inviato; riprova più tardi',
+			'main.e2eeErrComplianceExpired' => 'La chiave di conformità è scaduta, contatta l\'amministratore',
 			'main.e2eeErrDeviceNotReady' => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova',
 			'main.e2eeErrProtocolMismatch' => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova',
 			'main.e2eeErrSessionExportFailed' => 'Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi',
@@ -4373,6 +4394,9 @@ extension on TranslationsItIt {
 			'main.safetyNumberPeerDevice' => 'Dispositivo dell\'altro',
 			'main.safetyNumberReportRejected' => 'Il server ha rifiutato l\'evento di verifica (firma/validità non corrispondenti), non segnato',
 			'main.safetyNumberReportUnavailable' => 'Impossibile ottenere le informazioni del dispositivo, non riportato',
+			'main.safetyNumberVerified' => '✓ Verificato',
+			'main.safetyNumberNotVerified' => 'Non verificato',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} dispositivo/i',
 			'main.safetyNumberReporting' => 'Invio del risultato della verifica in corso...',
 			'main.safetyNumberTitle' => 'Verifica del codice di sicurezza',
 			'main.safetyNumberVerifyFailed' => 'Impossibile ottenere il codice di sicurezza, riprova più tardi',
@@ -4548,6 +4572,8 @@ extension on TranslationsItIt {
 			'workspace.projectCreateSuccess' => 'Progetto creato con successo',
 			'workspace.projectCreateTitle' => 'Nuovo progetto',
 			'workspace.projectDescHint' => 'Cosa deve consegnare questo progetto?',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectDescLabel' => 'Descrizione del progetto (opzionale)',
 			'workspace.projectDetailTitle' => 'Dettagli progetto',
 			'workspace.projectGuestReadonly' => 'Come Ospite (Guest) il progetto è in sola lettura',
@@ -4560,8 +4586,6 @@ extension on TranslationsItIt {
 			'workspace.projectInsightsTabActivity' => 'Attività del progetto',
 			'workspace.projectInsightsTabPinned' => 'Messaggi in evidenza',
 			'workspace.projectInsightsTabPosts' => 'Post correlati',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectInsightsTabResources' => 'Link alle risorse',
 			'workspace.projectLoadMore' => 'Carica altro',
 			'workspace.projectMarkDone' => 'Segna come completato',

@@ -200,6 +200,7 @@ extraItems: 附加项
 invalidMessageType: "[不支持的消息]"
 
 encryptedMessagePlaceholder: "[加密消息]"
+e2eeDecryptStoreUnavailable: "暂时无法访问加密存储，未能解密此消息；请重启应用后重试"
 invalidMessagePlaceholder: "[无效消息]"
 videoCallPlaceholder: "[视频通话]"
 voiceCallPlaceholder: "[语音通话]"

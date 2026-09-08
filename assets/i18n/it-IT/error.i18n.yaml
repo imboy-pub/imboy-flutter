@@ -7,4 +7,5 @@ networkTroubleshootingStep3: 3. Se ancora impossibile connettersi alla rete, ver
 suggestCheckNetwork: Si consiglia di controllare le impostazioni di rete.
 e2eeErrTimeout: Timeout cifratura. Controlla la rete e riprova.
 e2eeErrNetwork: Errore di rete, cifratura fallita, messaggio non inviato
+e2eeErrPolicyNotReady: "I criteri di crittografia end-to-end non sono ancora pronti, riprova più tardi"
 liveRoomTitleRequired: Titolo richiesto

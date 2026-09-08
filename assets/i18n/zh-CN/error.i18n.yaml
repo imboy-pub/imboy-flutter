@@ -6,4 +6,5 @@ networkTroubleshootingStep3: 3.如果仍无法连接网络，请检查手机接�
 suggestCheckNetwork: 建议检查网络设置。
 e2eeErrTimeout: 加密超时，请检查网络连接后重试
 e2eeErrNetwork: 网络错误，加密失败，消息未发送
+e2eeErrPolicyNotReady: "端到端加密策略尚未就绪，请稍后重试"
 liveRoomTitleRequired: 标题不能为空

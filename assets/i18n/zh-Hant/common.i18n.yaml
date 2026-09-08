@@ -824,7 +824,13 @@ complianceKeyChangedActionKeep: 暫不確認
 complianceKeyChangedBody: 伺服器下發的合規稽核公開金鑰與本地固定值不一致。若這是管理員有意進行的金鑰輪替，請點擊「確認輪替」；否則請勿繼續傳送加密訊息，並請聯絡管理員查明。
 complianceKeyChangedTitle: 合規稽核金鑰已變更
 declineCall: 拒接
-e2eeRecoveryKeyCopiedAutoClear: 恢復金鑰已複製，$seconds 秒後將自動清除剪貼簿，請盡快儲存
+e2eeRecoveryKeyCopiedAutoClear(seconds): 恢復金鑰已複製，$seconds 秒後將自動清除剪貼簿，請盡快儲存
+e2eeErrAttachmentSeal: "加密附件封裝失敗，檔案未上傳；請稍後重試"
+e2eeRetryFailedMessages: "重試解密失敗的訊息"
+e2eeRetryFailedDone(count): "已重試 $count 條解密失敗的訊息"
+e2eeModeStandard: "標準模式"
+e2eeModeCompliance: "合規加密"
+e2eeModeStrict: "端對端加密"
 e2eeRecoveryKeySaveNote: 請立即儲存這串恢復金鑰（截圖或存入密碼管理員）。忘記密碼時，它是解密備份的唯一憑據；一旦遺失，備份將永久無法還原。
 e2eeRecoveryKeyTitle: 恢復金鑰
 e2eeUseRecoveryKey: 產生恢復金鑰（忘記密碼時的備用憑據）

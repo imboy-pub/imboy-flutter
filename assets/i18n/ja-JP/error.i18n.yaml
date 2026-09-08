@@ -7,4 +7,5 @@ networkTroubleshootingStep3: 3. まだネットワークに接続できない場
 suggestCheckNetwork: ネットワーク設定を確認することをお勧めします。
 e2eeErrTimeout: 暗号化がタイムアウトしました。ネットワーク接続を確認して再度お試しください
 e2eeErrNetwork: ネットワークエラーのため暗号化に失敗しました。メッセージは送信されませんでした
+e2eeErrPolicyNotReady: "エンドツーエンド暗号化のポリシーがまだ準備できていません。後でもう一度お試しください"
 liveRoomTitleRequired: タイトルを入力してください

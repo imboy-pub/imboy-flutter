@@ -699,6 +699,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancelSend => 'Relâchez pour annuler l\'envoi';
 	@override String get voiceSlideHint => 'Glissez vers le haut : annuler / convertir en texte';
 	@override String get encryptedMessagePlaceholder => '[Message chiffré]';
+	@override String get e2eeDecryptStoreUnavailable => 'Le stockage chiffré est temporairement inaccessible ; ce message n\'a pas pu être déchiffré. Veuillez redémarrer l\'application et réessayer';
 	@override String get invalidMessagePlaceholder => '[Message invalide]';
 	@override String get videoCallPlaceholder => '[Appel vidéo]';
 	@override String get voiceCallPlaceholder => '[Appel audio]';
@@ -1541,6 +1542,12 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get declineCall => 'Refuser';
 	@override String get e2eeErrPeerNotOnboarded => 'Votre correspondant ne s\'est encore connecté sur aucun appareil ; l\'envoi chiffré est impossible pour l\'instant. Réessayez une fois qu\'il sera connecté';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Clé de récupération copiée ; le presse-papiers sera effacé automatiquement dans ${seconds} secondes, enregistrez-la sans tarder';
+	@override String get e2eeErrAttachmentSeal => 'Échec du scellement de la pièce jointe chiffrée ; le fichier n\'a pas été téléversé. Veuillez réessayer plus tard';
+	@override String get e2eeRetryFailedMessages => 'Réessayer les messages dont le déchiffrement a échoué';
+	@override String e2eeRetryFailedDone({required Object count}) => '${count} messages dont le déchiffrement a échoué ont été réessayés';
+	@override String get e2eeModeStandard => 'Mode standard';
+	@override String get e2eeModeCompliance => 'Chiffrement de conformité';
+	@override String get e2eeModeStrict => 'Chiffrement de bout en bout';
 	@override String get e2eeRecoveryKeySaveNote => 'Enregistrez immédiatement cette clé de récupération (capture d\'écran ou gestionnaire de mots de passe). Si vous oubliez votre phrase secrète, c\'est le seul moyen de déchiffrer la sauvegarde ; une fois perdue, la sauvegarde sera définitivement irrécupérable.';
 	@override String get e2eeRecoveryKeyTitle => 'Clé de récupération';
 	@override String get e2eeUseRecoveryKey => 'Générer une clé de récupération (secours en cas d\'oubli de la phrase secrète)';
@@ -1731,6 +1738,7 @@ class _Translations$error$fr_FR extends Translations$error$zh_CN {
 	@override String get suggestCheckNetwork => 'Il est suggéré de vérifier les paramètres réseau.';
 	@override String get e2eeErrTimeout => 'Délai de chiffrement dépassé. Vérifiez le réseau et réessayez.';
 	@override String get e2eeErrNetwork => 'Erreur réseau, échec du chiffrement, message non envoyé';
+	@override String get e2eeErrPolicyNotReady => 'La stratégie de chiffrement de bout en bout n\'est pas encore prête, veuillez réessayer plus tard';
 	@override String get liveRoomTitleRequired => 'Titre requis';
 }
 
@@ -2116,6 +2124,7 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get complianceKeyInfoTitle => 'Clé d\'audit de conformité';
 	@override String get e2eeErrComplianceChanged => 'La clé d\'audit de conformité a changé, message non envoyé. Confirmez la rotation puis réessayez';
 	@override String get e2eeErrComplianceUnavailable => 'Clé de conformité momentanément indisponible, message non envoyé. Réessayez plus tard';
+	@override String get e2eeErrComplianceExpired => 'La clé de conformité a expiré, veuillez contacter l\'administrateur';
 	@override String get e2eeErrDeviceNotReady => 'L\'initialisation de sécurité de cet appareil n\'est pas terminée. Déconnectez-vous, reconnectez-vous puis réessayez';
 	@override String get e2eeErrProtocolMismatch => 'Configuration du protocole de chiffrement anormale. Mettez à jour l\'application puis réessayez';
 	@override String get e2eeErrSessionExportFailed => 'Échec de la génération de la clé de session de groupe. Réessayez plus tard';
@@ -2128,6 +2137,9 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get safetyNumberPeerDevice => 'Appareil du correspondant';
 	@override String get safetyNumberReportRejected => 'Le serveur a rejeté cet événement de vérification (signature ou horodatage incorrect) ; non marqué';
 	@override String get safetyNumberReportUnavailable => 'Informations d\'appareil indisponibles ; non signalé';
+	@override String get safetyNumberVerified => '✓ Vérifié';
+	@override String get safetyNumberNotVerified => 'Non vérifié';
+	@override String safetyNumberDeviceCount({required Object count}) => '${count} appareil(s)';
 	@override String get safetyNumberReporting => 'Envoi du résultat de vérification...';
 	@override String get safetyNumberTitle => 'Vérification du code de sécurité';
 	@override String get safetyNumberVerifyFailed => 'Échec de la récupération du code de sécurité. Réessayez plus tard';
@@ -3084,6 +3096,7 @@ extension on TranslationsFrFr {
 			'chat.voiceReleaseCancelSend' => 'Relâchez pour annuler l\'envoi',
 			'chat.voiceSlideHint' => 'Glissez vers le haut : annuler / convertir en texte',
 			'chat.encryptedMessagePlaceholder' => '[Message chiffré]',
+			'chat.e2eeDecryptStoreUnavailable' => 'Le stockage chiffré est temporairement inaccessible ; ce message n\'a pas pu être déchiffré. Veuillez redémarrer l\'application et réessayer',
 			'chat.invalidMessagePlaceholder' => '[Message invalide]',
 			'chat.videoCallPlaceholder' => '[Appel vidéo]',
 			'chat.voiceCallPlaceholder' => '[Appel audio]',
@@ -3531,9 +3544,9 @@ extension on TranslationsFrFr {
 			'common.addRemarkToFavorites' => 'Ajouter une remarque aux favoris',
 			'common.deleteThisCollection' => 'Supprimer cette collection',
 			'common.changeSuccess' => 'Modifié avec succès.',
-			'common.lengthOk' => 'Longueur correcte',
 			_ => null,
 		} ?? switch (path) {
+			'common.lengthOk' => 'Longueur correcte',
 			'common.confirmNewPassword' => 'Confirmer le nouveau mot de passe',
 			'common.validationPassed' => 'Validation réussie.',
 			'common.momentsContentHint' => 'Écrire quelque chose...',
@@ -3910,6 +3923,12 @@ extension on TranslationsFrFr {
 			'common.declineCall' => 'Refuser',
 			'common.e2eeErrPeerNotOnboarded' => 'Votre correspondant ne s\'est encore connecté sur aucun appareil ; l\'envoi chiffré est impossible pour l\'instant. Réessayez une fois qu\'il sera connecté',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Clé de récupération copiée ; le presse-papiers sera effacé automatiquement dans ${seconds} secondes, enregistrez-la sans tarder',
+			'common.e2eeErrAttachmentSeal' => 'Échec du scellement de la pièce jointe chiffrée ; le fichier n\'a pas été téléversé. Veuillez réessayer plus tard',
+			'common.e2eeRetryFailedMessages' => 'Réessayer les messages dont le déchiffrement a échoué',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => '${count} messages dont le déchiffrement a échoué ont été réessayés',
+			'common.e2eeModeStandard' => 'Mode standard',
+			'common.e2eeModeCompliance' => 'Chiffrement de conformité',
+			'common.e2eeModeStrict' => 'Chiffrement de bout en bout',
 			'common.e2eeRecoveryKeySaveNote' => 'Enregistrez immédiatement cette clé de récupération (capture d\'écran ou gestionnaire de mots de passe). Si vous oubliez votre phrase secrète, c\'est le seul moyen de déchiffrer la sauvegarde ; une fois perdue, la sauvegarde sera définitivement irrécupérable.',
 			'common.e2eeRecoveryKeyTitle' => 'Clé de récupération',
 			'common.e2eeUseRecoveryKey' => 'Générer une clé de récupération (secours en cas d\'oubli de la phrase secrète)',
@@ -4039,6 +4058,8 @@ extension on TranslationsFrFr {
 			'discovery.openChannel' => 'Ouvrir le canal',
 			'discovery.paidChannelLocked' => 'Contenu verrouillé (payant)',
 			'discovery.webQRScanned' => 'Scanné',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionMore' => 'Plus d\'actions',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} personnes',
 			'discovery.momentAtReminded' => ({required Object name}) => 'A notifié ${name}',
@@ -4046,8 +4067,6 @@ extension on TranslationsFrFr {
 			'discovery.momentAtWho' => 'Qui avertir ?',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} personnes ont aimé',
 			'discovery.momentLocation' => 'Position',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentLocationNone' => 'Ne pas afficher la position',
 			'error.restartRequired' => 'Redémarrage requis',
 			'error.pleaseCheckNetwork' => 'Vérifiez vos paramètres réseau.',
@@ -4057,6 +4076,7 @@ extension on TranslationsFrFr {
 			'error.suggestCheckNetwork' => 'Il est suggéré de vérifier les paramètres réseau.',
 			'error.e2eeErrTimeout' => 'Délai de chiffrement dépassé. Vérifiez le réseau et réessayez.',
 			'error.e2eeErrNetwork' => 'Erreur réseau, échec du chiffrement, message non envoyé',
+			'error.e2eeErrPolicyNotReady' => 'La stratégie de chiffrement de bout en bout n\'est pas encore prête, veuillez réessayer plus tard',
 			'error.liveRoomTitleRequired' => 'Titre requis',
 			'group.enterSameGroup' => 'Entrer dans le même groupe que les amis à proximité',
 			'group.enterTheGroup' => 'Rejoindre ce groupe',
@@ -4361,6 +4381,7 @@ extension on TranslationsFrFr {
 			'main.complianceKeyInfoTitle' => 'Clé d\'audit de conformité',
 			'main.e2eeErrComplianceChanged' => 'La clé d\'audit de conformité a changé, message non envoyé. Confirmez la rotation puis réessayez',
 			'main.e2eeErrComplianceUnavailable' => 'Clé de conformité momentanément indisponible, message non envoyé. Réessayez plus tard',
+			'main.e2eeErrComplianceExpired' => 'La clé de conformité a expiré, veuillez contacter l\'administrateur',
 			'main.e2eeErrDeviceNotReady' => 'L\'initialisation de sécurité de cet appareil n\'est pas terminée. Déconnectez-vous, reconnectez-vous puis réessayez',
 			'main.e2eeErrProtocolMismatch' => 'Configuration du protocole de chiffrement anormale. Mettez à jour l\'application puis réessayez',
 			'main.e2eeErrSessionExportFailed' => 'Échec de la génération de la clé de session de groupe. Réessayez plus tard',
@@ -4373,6 +4394,9 @@ extension on TranslationsFrFr {
 			'main.safetyNumberPeerDevice' => 'Appareil du correspondant',
 			'main.safetyNumberReportRejected' => 'Le serveur a rejeté cet événement de vérification (signature ou horodatage incorrect) ; non marqué',
 			'main.safetyNumberReportUnavailable' => 'Informations d\'appareil indisponibles ; non signalé',
+			'main.safetyNumberVerified' => '✓ Vérifié',
+			'main.safetyNumberNotVerified' => 'Non vérifié',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} appareil(s)',
 			'main.safetyNumberReporting' => 'Envoi du résultat de vérification...',
 			'main.safetyNumberTitle' => 'Vérification du code de sécurité',
 			'main.safetyNumberVerifyFailed' => 'Échec de la récupération du code de sécurité. Réessayez plus tard',
@@ -4548,6 +4572,8 @@ extension on TranslationsFrFr {
 			'workspace.brandingLogoHint' => 'https://… (URL de l\'image du Logo de l\'espace de travail)',
 			'workspace.brandingColorLabel' => 'Couleur principale primaryColor',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorHelper' => 'Seuls #RRGGBB / #AARRGGBB sont pris en charge ; une valeur invalide retombe sur la couleur du thème par défaut',
 			'workspace.brandingColorInvalid' => 'Format de couleur principale invalide, seuls #RRGGBB / #AARRGGBB sont pris en charge',
 			'workspace.brandingSaved' => 'Paramètres de marque enregistrés',
@@ -4560,8 +4586,6 @@ extension on TranslationsFrFr {
 			'workspace.projectNameHint' => 'Ex. : refonte du site web',
 			'workspace.projectNameRequired' => 'Le nom du projet est requis',
 			'workspace.projectDescLabel' => 'Description du projet (facultatif)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => 'Que doit livrer ce projet ?',
 			'workspace.projectSubmit' => 'Créer',
 			'workspace.projectCreateSuccess' => 'Projet créé avec succès',

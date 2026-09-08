@@ -204,6 +204,7 @@ voiceReleaseCancelSend: 놓으면 전송 취소
 voiceSlideHint: "위로 스와이프: 취소 / 텍스트 변환"
 
 encryptedMessagePlaceholder: "[암호화된 메시지]"
+e2eeDecryptStoreUnavailable: "암호화 저장소에 일시적으로 접근할 수 없어 이 메시지를 복호화하지 못했습니다. 앱을 재시작한 후 다시 시도해 주세요"
 invalidMessagePlaceholder: "[잘못된 메시지]"
 videoCallPlaceholder: "[영상 통화]"
 voiceCallPlaceholder: "[음성 통화]"

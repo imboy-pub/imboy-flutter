@@ -7,4 +7,5 @@ networkTroubleshootingStep3: 3. 여전히 네트워크에 연결할 수 없는 �
 suggestCheckNetwork: 네트워크 설정을 확인하는 것이 좋습니다.
 e2eeErrTimeout: 암호화 시간 초과, 네트워크 연결을 확인하고 다시 시도해주세요
 e2eeErrNetwork: 네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다
+e2eeErrPolicyNotReady: "종단 간 암호화 정책이 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요"
 liveRoomTitleRequired: 제목을 입력해주세요

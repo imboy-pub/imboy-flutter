@@ -897,10 +897,15 @@ class ChatNetworkService {
     if (errorStr.contains('policy_not_initialized')) {
       // 真因就是 policy 端点拉不到（网络/后端不可达）；这条文案给出了最关键的
       // 事实——"消息未发送"，避免用户以为已经发出去了。
-      // ponytail: 复用既有 i18n 键而非新增专用键——i18n 文件本轮由并发任务占用。
-      // 升级：加 e2eeErrPolicyNotReady（"安全策略未就绪，消息未发送，请稍后重试"），
-      // 把"能做什么"也说清楚。
-      return t.error.e2eeErrNetwork;
+      // ponytail: 曾复用 e2eeErrNetwork——已升级专属键 e2eeErrPolicyNotReady，
+      // 把"能做什么"（稍后重试）也说清楚。
+      return t.error.e2eeErrPolicyNotReady;
+    }
+    if (errorStr.contains('compliance_key_expired')) {
+      // 合规密钥已过期：与"已轮换"（changed，需用户确认）和"拿不到"
+      // （unavailable，稍后重试）语义都不同——密钥存在但有效期已过，
+      // 用户侧重试无效，只能联系管理员。
+      return t.main.e2eeErrComplianceExpired;
     }
     if (errorStr.contains('compliance_key_changed')) {
       // 合规审计密钥与本地 TOFU 固定不一致（审计 P1-1）：fail-closed 拒发，

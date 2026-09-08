@@ -203,6 +203,7 @@ messageInputHint: 說點什麼...
 invalidMessageType: "[不支援的訊息]"
 
 encryptedMessagePlaceholder: "[加密訊息]"
+e2eeDecryptStoreUnavailable: "暫時無法存取加密儲存，未能解密此訊息；請重新啟動應用程式後重試"
 invalidMessagePlaceholder: "[無效訊息]"
 videoCallPlaceholder: "[視訊通話]"
 voiceCallPlaceholder: "[語音通話]"

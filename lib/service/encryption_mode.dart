@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 加密模式枚举
 enum EncryptionMode {
@@ -64,11 +65,11 @@ extension EncryptionModeExt on EncryptionMode {
   String get displayName {
     switch (this) {
       case EncryptionMode.plaintext:
-        return '标准模式';
+        return t.common.e2eeModeStandard;
       case EncryptionMode.complianceE2ee:
-        return '合规加密';
+        return t.common.e2eeModeCompliance;
       case EncryptionMode.strictE2ee:
-        return '端到端加密';
+        return t.common.e2eeModeStrict;
     }
   }
 

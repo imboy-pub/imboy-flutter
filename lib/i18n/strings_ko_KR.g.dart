@@ -699,6 +699,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancelSend => '놓으면 전송 취소';
 	@override String get voiceSlideHint => '위로 스와이프: 취소 / 텍스트 변환';
 	@override String get encryptedMessagePlaceholder => '[암호화된 메시지]';
+	@override String get e2eeDecryptStoreUnavailable => '암호화 저장소에 일시적으로 접근할 수 없어 이 메시지를 복호화하지 못했습니다. 앱을 재시작한 후 다시 시도해 주세요';
 	@override String get invalidMessagePlaceholder => '[잘못된 메시지]';
 	@override String get videoCallPlaceholder => '[영상 통화]';
 	@override String get voiceCallPlaceholder => '[음성 통화]';
@@ -1538,6 +1539,12 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get declineCall => '거절';
 	@override String get e2eeErrPeerNotOnboarded => '상대방이 어떤 기기에서도 로그인한 적이 없어 암호화 전송이 일시적으로 불가합니다. 상대방이 로그인한 후 다시 시도해 주세요';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => '복구 키가 복사되었습니다. ${seconds}초 후 클립보드에서 자동으로 지워지니 빨리 저장해 주세요';
+	@override String get e2eeErrAttachmentSeal => '암호화 첨부 파일 봉인에 실패하여 파일이 업로드되지 않았습니다. 잠시 후 다시 시도해 주세요';
+	@override String get e2eeRetryFailedMessages => '복호화에 실패한 메시지 다시 시도';
+	@override String e2eeRetryFailedDone({required Object count}) => '복호화에 실패한 메시지 ${count}건을 다시 시도했습니다';
+	@override String get e2eeModeStandard => '표준 모드';
+	@override String get e2eeModeCompliance => '컴플라이언스 암호화';
+	@override String get e2eeModeStrict => '종단 간 암호화';
 	@override String get e2eeRecoveryKeySaveNote => '이 복구 키를 즉시 저장하세요(스크린샷 또는 비밀번호 관리자에 보관). 암호를 잊었을 때 백업을 복호화할 수 있는 유일한 수단이며, 잃어버리면 백업을 영구히 복구할 수 없습니다.';
 	@override String get e2eeRecoveryKeyTitle => '복구 키';
 	@override String get e2eeUseRecoveryKey => '복구 키 생성(암호 분실 시 대비용)';
@@ -1728,6 +1735,7 @@ class _Translations$error$ko_KR extends Translations$error$zh_CN {
 	@override String get suggestCheckNetwork => '네트워크 설정을 확인하는 것이 좋습니다.';
 	@override String get e2eeErrTimeout => '암호화 시간 초과, 네트워크 연결을 확인하고 다시 시도해주세요';
 	@override String get e2eeErrNetwork => '네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다';
+	@override String get e2eeErrPolicyNotReady => '종단 간 암호화 정책이 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요';
 	@override String get liveRoomTitleRequired => '제목을 입력해주세요';
 }
 
@@ -2113,6 +2121,7 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get complianceKeyInfoTitle => '컴플라이언스 감사 키';
 	@override String get e2eeErrComplianceChanged => '컴플라이언스 감사 키가 변경되어 메시지를 보내지 않았습니다. 교체를 확인한 후 다시 시도해 주세요';
 	@override String get e2eeErrComplianceUnavailable => '컴플라이언스 키를 일시적으로 사용할 수 없어 메시지를 보내지 않았습니다. 잠시 후 다시 시도해 주세요';
+	@override String get e2eeErrComplianceExpired => '컴플라이언스 키가 만료되었습니다. 관리자에게 문의해 주세요';
 	@override String get e2eeErrDeviceNotReady => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요';
 	@override String get e2eeErrProtocolMismatch => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요';
 	@override String get e2eeErrSessionExportFailed => '그룹 세션 키 생성에 실패했습니다. 잠시 후 다시 시도해 주세요';
@@ -2125,6 +2134,9 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get safetyNumberPeerDevice => '상대방 기기';
 	@override String get safetyNumberReportRejected => '서버가 이 검증 이벤트를 거부했습니다(서명/시효 불일치). 표시하지 않았습니다';
 	@override String get safetyNumberReportUnavailable => '기기 정보를 가져올 수 없어 보고하지 않았습니다';
+	@override String get safetyNumberVerified => '✓ 확인됨';
+	@override String get safetyNumberNotVerified => '확인 안 됨';
+	@override String safetyNumberDeviceCount({required Object count}) => '기기 ${count}대';
 	@override String get safetyNumberReporting => '검증 결과 보고 중...';
 	@override String get safetyNumberTitle => '보안 번호 검증';
 	@override String get safetyNumberVerifyFailed => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요';
@@ -3081,6 +3093,7 @@ extension on TranslationsKoKr {
 			'chat.voiceReleaseCancelSend' => '놓으면 전송 취소',
 			'chat.voiceSlideHint' => '위로 스와이프: 취소 / 텍스트 변환',
 			'chat.encryptedMessagePlaceholder' => '[암호화된 메시지]',
+			'chat.e2eeDecryptStoreUnavailable' => '암호화 저장소에 일시적으로 접근할 수 없어 이 메시지를 복호화하지 못했습니다. 앱을 재시작한 후 다시 시도해 주세요',
 			'chat.invalidMessagePlaceholder' => '[잘못된 메시지]',
 			'chat.videoCallPlaceholder' => '[영상 통화]',
 			'chat.voiceCallPlaceholder' => '[음성 통화]',
@@ -3528,9 +3541,9 @@ extension on TranslationsKoKr {
 			'common.addRemarkToFavorites' => '즐겨찾기에 메모 추가',
 			'common.deleteThisCollection' => '이 수집 항목 삭제',
 			'common.changeSuccess' => '수정 성공',
-			'common.lengthOk' => '길이 적합',
 			_ => null,
 		} ?? switch (path) {
+			'common.lengthOk' => '길이 적합',
 			'common.confirmNewPassword' => '새 비밀번호 확인',
 			'common.validationPassed' => '검증 통과',
 			'common.momentsContentHint' => '무엇을 공유하시겠어요?...',
@@ -3907,6 +3920,12 @@ extension on TranslationsKoKr {
 			'common.declineCall' => '거절',
 			'common.e2eeErrPeerNotOnboarded' => '상대방이 어떤 기기에서도 로그인한 적이 없어 암호화 전송이 일시적으로 불가합니다. 상대방이 로그인한 후 다시 시도해 주세요',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => '복구 키가 복사되었습니다. ${seconds}초 후 클립보드에서 자동으로 지워지니 빨리 저장해 주세요',
+			'common.e2eeErrAttachmentSeal' => '암호화 첨부 파일 봉인에 실패하여 파일이 업로드되지 않았습니다. 잠시 후 다시 시도해 주세요',
+			'common.e2eeRetryFailedMessages' => '복호화에 실패한 메시지 다시 시도',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => '복호화에 실패한 메시지 ${count}건을 다시 시도했습니다',
+			'common.e2eeModeStandard' => '표준 모드',
+			'common.e2eeModeCompliance' => '컴플라이언스 암호화',
+			'common.e2eeModeStrict' => '종단 간 암호화',
 			'common.e2eeRecoveryKeySaveNote' => '이 복구 키를 즉시 저장하세요(스크린샷 또는 비밀번호 관리자에 보관). 암호를 잊었을 때 백업을 복호화할 수 있는 유일한 수단이며, 잃어버리면 백업을 영구히 복구할 수 없습니다.',
 			'common.e2eeRecoveryKeyTitle' => '복구 키',
 			'common.e2eeUseRecoveryKey' => '복구 키 생성(암호 분실 시 대비용)',
@@ -4036,6 +4055,8 @@ extension on TranslationsKoKr {
 			'discovery.openChannel' => '채널 열기',
 			'discovery.paidChannelLocked' => '유료 채널 콘텐츠가 잠겨 있습니다',
 			'discovery.webQRScanned' => '스캔 완료',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionMore' => '더 보기',
 			'discovery.momentAtCount' => ({required Object count}) => '${count}명',
 			'discovery.momentAtReminded' => ({required Object name}) => '${name}님에게 알림을 보냈습니다',
@@ -4043,8 +4064,6 @@ extension on TranslationsKoKr {
 			'discovery.momentAtWho' => '알림 받을 사람',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}명이 좋아합니다',
 			'discovery.momentLocation' => '위치',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentLocationNone' => '위치 표시 안 함',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
@@ -4054,6 +4073,7 @@ extension on TranslationsKoKr {
 			'error.suggestCheckNetwork' => '네트워크 설정을 확인하는 것이 좋습니다.',
 			'error.e2eeErrTimeout' => '암호화 시간 초과, 네트워크 연결을 확인하고 다시 시도해주세요',
 			'error.e2eeErrNetwork' => '네트워크 오류로 암호화 실패, 메시지가 전송되지 않았습니다',
+			'error.e2eeErrPolicyNotReady' => '종단 간 암호화 정책이 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요',
 			'error.liveRoomTitleRequired' => '제목을 입력해주세요',
 			'group.enterSameGroup' => '주변 친구와 같은 그룹 채팅에 들어가세요',
 			'group.enterTheGroup' => '그룹 입장',
@@ -4358,6 +4378,7 @@ extension on TranslationsKoKr {
 			'main.complianceKeyInfoTitle' => '컴플라이언스 감사 키',
 			'main.e2eeErrComplianceChanged' => '컴플라이언스 감사 키가 변경되어 메시지를 보내지 않았습니다. 교체를 확인한 후 다시 시도해 주세요',
 			'main.e2eeErrComplianceUnavailable' => '컴플라이언스 키를 일시적으로 사용할 수 없어 메시지를 보내지 않았습니다. 잠시 후 다시 시도해 주세요',
+			'main.e2eeErrComplianceExpired' => '컴플라이언스 키가 만료되었습니다. 관리자에게 문의해 주세요',
 			'main.e2eeErrDeviceNotReady' => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요',
 			'main.e2eeErrProtocolMismatch' => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요',
 			'main.e2eeErrSessionExportFailed' => '그룹 세션 키 생성에 실패했습니다. 잠시 후 다시 시도해 주세요',
@@ -4370,6 +4391,9 @@ extension on TranslationsKoKr {
 			'main.safetyNumberPeerDevice' => '상대방 기기',
 			'main.safetyNumberReportRejected' => '서버가 이 검증 이벤트를 거부했습니다(서명/시효 불일치). 표시하지 않았습니다',
 			'main.safetyNumberReportUnavailable' => '기기 정보를 가져올 수 없어 보고하지 않았습니다',
+			'main.safetyNumberVerified' => '✓ 확인됨',
+			'main.safetyNumberNotVerified' => '확인 안 됨',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => '기기 ${count}대',
 			'main.safetyNumberReporting' => '검증 결과 보고 중...',
 			'main.safetyNumberTitle' => '보안 번호 검증',
 			'main.safetyNumberVerifyFailed' => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요',
@@ -4545,6 +4569,8 @@ extension on TranslationsKoKr {
 			'workspace.brandingLogoHint' => 'https://…(워크스페이스 Logo 이미지 주소)',
 			'workspace.brandingColorLabel' => '기본 색상 primaryColor',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB만 지원합니다. 잘못된 값은 기본 테마 색상으로 대체됩니다',
 			'workspace.brandingColorInvalid' => '기본 색상 형식이 잘못되었습니다. #RRGGBB / #AARRGGBB만 지원합니다',
 			'workspace.brandingSaved' => '브랜드 설정이 저장되었습니다',
@@ -4557,8 +4583,6 @@ extension on TranslationsKoKr {
 			'workspace.projectNameHint' => '예: 공식 홈페이지 리뉴얼',
 			'workspace.projectNameRequired' => '프로젝트 이름은 필수입니다',
 			'workspace.projectDescLabel' => '프로젝트 설명(선택)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => '이 프로젝트로 무엇을 전달하나요?',
 			'workspace.projectSubmit' => '만들기',
 			'workspace.projectCreateSuccess' => '프로젝트가 생성되었습니다',

@@ -699,6 +699,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get burnReadBadge => 'يُحرق بعد القراءة';
 	@override String get alipayLoginInterrupted => 'انقطعت عملية تسجيل الدخول عبر Alipay بسبب النظام، حاول مرة أخرى';
 	@override String get encryptedMessagePlaceholder => '[رسالة مشفّرة]';
+	@override String get e2eeDecryptStoreUnavailable => 'يتعذر الوصول إلى التخزين المشفّر مؤقتاً، ولم يتم فك تشفير هذه الرسالة. يرجى إعادة تشغيل التطبيق والمحاولة مجدداً';
 	@override String get invalidMessagePlaceholder => '[رسالة غير صالحة]';
 	@override String get videoCallPlaceholder => '[مكالمة فيديو]';
 	@override String get voiceCallPlaceholder => '[مكالمة صوتية]';
@@ -1572,6 +1573,12 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeErrPeerNotOnboarded => 'لم يسجّل الطرف الآخر الدخول على أي جهاز بعد، فلا يمكن الإرسال المشفّر مؤقتاً؛ انتظر تسجيل دخوله ثم أعد المحاولة';
 	@override String get e2eeRecoveryKeyTitle => 'مفتاح الاستعادة';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'تم نسخ مفتاح الاستعادة، وسيُمسَح الحافظة تلقائياً بعد ${seconds} ثانية، يرجى حفظه سريعاً';
+	@override String get e2eeErrAttachmentSeal => 'فشل تغليف المرفق المشفّر، ولم يتم تحميل الملف. حاول مرة أخرى لاحقاً';
+	@override String get e2eeRetryFailedMessages => 'إعادة محاولة الرسائل التي فشل فك تشفيرها';
+	@override String e2eeRetryFailedDone({required Object count}) => 'تمت إعادة محاولة ${count} رسالة فشل فك تشفيرها';
+	@override String get e2eeModeStandard => 'الوضع القياسي';
+	@override String get e2eeModeCompliance => 'تشفير الامتثال';
+	@override String get e2eeModeStrict => 'التشفير من الطرف إلى الطرف';
 	@override String get e2eeRecoveryKeySaveNote => 'احفظ مفتاح الاستعادة هذا فوراً (بلقطة شاشة أو في مدير كلمات المرور). عند نسيان عبارة المرور، فهو الدليل الوحيد لفك تشفير النسخة الاحتياطية؛ وإذا فُقد فلن يمكن استعادة النسخة الاحتياطية أبداً.';
 	@override String get e2eeUseRecoveryKey => 'إنشاء مفتاح استعادة (دليل احتياطي عند نسيان عبارة المرور)';
 	@override String get initConfigDecryptFailed => 'فشل فك تشفير الإعدادات: مفتاح الأمان في التطبيق لا يطابق الخادم، يرجى تحديث إصدار التطبيق أو الاتصال بالمسؤول';
@@ -1740,6 +1747,7 @@ class _Translations$error$ar_SA extends Translations$error$zh_CN {
 	@override String get suggestCheckNetwork => 'يُقترح التحقق من إعدادات الشبكة.';
 	@override String get e2eeErrTimeout => 'انتهت مهلة التشفير، تحقق من الشبكة وأعد المحاولة';
 	@override String get e2eeErrNetwork => 'خطأ شبكة، فشل التشفير، لم تُرسل الرسالة';
+	@override String get e2eeErrPolicyNotReady => 'سياسة التشفير من الطرف إلى الطرف ليست جاهزة بعد، حاول مرة أخرى لاحقاً';
 	@override String get liveRoomTitleRequired => 'أدخل العنوان';
 }
 
@@ -2113,6 +2121,7 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get lightModel => 'الوضع الفاتح';
 	@override String get e2eeErrComplianceChanged => 'تغيّر مفتاح تدقيق الامتثال، ولم تُرسل الرسالة. أكّد تدوير المفتاح ثم أعد المحاولة';
 	@override String get e2eeErrComplianceUnavailable => 'مفتاح الامتثال غير متاح حالياً، ولم تُرسل الرسالة. حاول لاحقاً';
+	@override String get e2eeErrComplianceExpired => 'انتهت صلاحية مفتاح الامتثال، يرجى التواصل مع المسؤول';
 	@override String get e2eeErrDeviceNotReady => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة';
 	@override String get e2eeErrProtocolMismatch => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة';
 	@override String get e2eeErrSessionExportFailed => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً';
@@ -2140,6 +2149,9 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get safetyNumberReporting => 'جارٍ الإبلاغ عن نتيجة التحقق...';
 	@override String get safetyNumberReportRejected => 'رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة';
 	@override String get safetyNumberReportUnavailable => 'تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ';
+	@override String get safetyNumberVerified => '✓ تم التحقق';
+	@override String get safetyNumberNotVerified => 'غير مُتحقق';
+	@override String safetyNumberDeviceCount({required Object count}) => '${count} أجهزة';
 	@override String get complianceKeyNotConfigured => 'لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر';
 }
 
@@ -3093,6 +3105,7 @@ extension on TranslationsArSa {
 			'chat.burnReadBadge' => 'يُحرق بعد القراءة',
 			'chat.alipayLoginInterrupted' => 'انقطعت عملية تسجيل الدخول عبر Alipay بسبب النظام، حاول مرة أخرى',
 			'chat.encryptedMessagePlaceholder' => '[رسالة مشفّرة]',
+			'chat.e2eeDecryptStoreUnavailable' => 'يتعذر الوصول إلى التخزين المشفّر مؤقتاً، ولم يتم فك تشفير هذه الرسالة. يرجى إعادة تشغيل التطبيق والمحاولة مجدداً',
 			'chat.invalidMessagePlaceholder' => '[رسالة غير صالحة]',
 			'chat.videoCallPlaceholder' => '[مكالمة فيديو]',
 			'chat.voiceCallPlaceholder' => '[مكالمة صوتية]',
@@ -3540,9 +3553,9 @@ extension on TranslationsArSa {
 			'common.addRemarkToFavorites' => 'إضافة ملاحظة للمفضلة',
 			'common.deleteThisCollection' => 'حذف هذه المفضلة',
 			'common.changeSuccess' => 'نجح التعديل',
-			'common.lengthOk' => 'الطول صحيح',
 			_ => null,
 		} ?? switch (path) {
+			'common.lengthOk' => 'الطول صحيح',
 			'common.confirmNewPassword' => 'تأكيد كلمة المرور الجديدة',
 			'common.validationPassed' => 'نجح التحقق',
 			'common.momentsContentHint' => 'شارك شيئاً...',
@@ -3941,6 +3954,12 @@ extension on TranslationsArSa {
 			'common.e2eeErrPeerNotOnboarded' => 'لم يسجّل الطرف الآخر الدخول على أي جهاز بعد، فلا يمكن الإرسال المشفّر مؤقتاً؛ انتظر تسجيل دخوله ثم أعد المحاولة',
 			'common.e2eeRecoveryKeyTitle' => 'مفتاح الاستعادة',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'تم نسخ مفتاح الاستعادة، وسيُمسَح الحافظة تلقائياً بعد ${seconds} ثانية، يرجى حفظه سريعاً',
+			'common.e2eeErrAttachmentSeal' => 'فشل تغليف المرفق المشفّر، ولم يتم تحميل الملف. حاول مرة أخرى لاحقاً',
+			'common.e2eeRetryFailedMessages' => 'إعادة محاولة الرسائل التي فشل فك تشفيرها',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => 'تمت إعادة محاولة ${count} رسالة فشل فك تشفيرها',
+			'common.e2eeModeStandard' => 'الوضع القياسي',
+			'common.e2eeModeCompliance' => 'تشفير الامتثال',
+			'common.e2eeModeStrict' => 'التشفير من الطرف إلى الطرف',
 			'common.e2eeRecoveryKeySaveNote' => 'احفظ مفتاح الاستعادة هذا فوراً (بلقطة شاشة أو في مدير كلمات المرور). عند نسيان عبارة المرور، فهو الدليل الوحيد لفك تشفير النسخة الاحتياطية؛ وإذا فُقد فلن يمكن استعادة النسخة الاحتياطية أبداً.',
 			'common.e2eeUseRecoveryKey' => 'إنشاء مفتاح استعادة (دليل احتياطي عند نسيان عبارة المرور)',
 			'common.initConfigDecryptFailed' => 'فشل فك تشفير الإعدادات: مفتاح الأمان في التطبيق لا يطابق الخادم، يرجى تحديث إصدار التطبيق أو الاتصال بالمسؤول',
@@ -4048,6 +4067,8 @@ extension on TranslationsArSa {
 			'discovery.openChannel' => 'فتح القناة',
 			'discovery.paidChannelLocked' => 'محتوى القناة المدفوعة مقفل',
 			'discovery.webQRScanned' => 'تم المسح',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionMore' => 'المزيد من الإجراءات',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} أعجبوا',
 			'discovery.momentLocation' => 'الموقع الحالي',
@@ -4055,8 +4076,6 @@ extension on TranslationsArSa {
 			'discovery.momentAtWho' => 'من تريد تنبيهه؟',
 			'discovery.momentAtReminded' => ({required Object name}) => 'نبّهت ${name}',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'نبّهت ${name} و${count} آخرين',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAtCount' => ({required Object count}) => '${count} أشخاص',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
@@ -4066,6 +4085,7 @@ extension on TranslationsArSa {
 			'error.suggestCheckNetwork' => 'يُقترح التحقق من إعدادات الشبكة.',
 			'error.e2eeErrTimeout' => 'انتهت مهلة التشفير، تحقق من الشبكة وأعد المحاولة',
 			'error.e2eeErrNetwork' => 'خطأ شبكة، فشل التشفير، لم تُرسل الرسالة',
+			'error.e2eeErrPolicyNotReady' => 'سياسة التشفير من الطرف إلى الطرف ليست جاهزة بعد، حاول مرة أخرى لاحقاً',
 			'error.liveRoomTitleRequired' => 'أدخل العنوان',
 			'group.enterSameGroup' => 'انضم إلى نفس المجموعة مع الأصدقاء من حولك',
 			'group.enterTheGroup' => 'الانضمام إلى هذه المجموعة',
@@ -4358,6 +4378,7 @@ extension on TranslationsArSa {
 			'main.lightModel' => 'الوضع الفاتح',
 			'main.e2eeErrComplianceChanged' => 'تغيّر مفتاح تدقيق الامتثال، ولم تُرسل الرسالة. أكّد تدوير المفتاح ثم أعد المحاولة',
 			'main.e2eeErrComplianceUnavailable' => 'مفتاح الامتثال غير متاح حالياً، ولم تُرسل الرسالة. حاول لاحقاً',
+			'main.e2eeErrComplianceExpired' => 'انتهت صلاحية مفتاح الامتثال، يرجى التواصل مع المسؤول',
 			'main.e2eeErrDeviceNotReady' => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة',
 			'main.e2eeErrProtocolMismatch' => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة',
 			'main.e2eeErrSessionExportFailed' => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً',
@@ -4385,6 +4406,9 @@ extension on TranslationsArSa {
 			'main.safetyNumberReporting' => 'جارٍ الإبلاغ عن نتيجة التحقق...',
 			'main.safetyNumberReportRejected' => 'رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة',
 			'main.safetyNumberReportUnavailable' => 'تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ',
+			'main.safetyNumberVerified' => '✓ تم التحقق',
+			'main.safetyNumberNotVerified' => 'غير مُتحقق',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} أجهزة',
 			'main.complianceKeyNotConfigured' => 'لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر',
 			'mention.mentionAll' => 'الجميع',
 			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
@@ -4557,6 +4581,8 @@ extension on TranslationsArSa {
 			'workspace.brandingLogoHint' => 'https://… (عنوان صورة Logo لمساحة العمل)',
 			'workspace.brandingColorLabel' => 'اللون الأساسي primaryColor',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorHelper' => 'يُدعم #RRGGBB / #AARRGGBB فقط؛ القيم غير الصالحة تعود إلى لون السمة الافتراضي',
 			'workspace.brandingColorInvalid' => 'تنسيق اللون الأساسي غير صحيح، يُدعم #RRGGBB / #AARRGGBB فقط',
 			'workspace.brandingSaved' => 'تم حفظ إعدادات العلامة',
@@ -4569,8 +4595,6 @@ extension on TranslationsArSa {
 			'workspace.projectNameHint' => 'مثال: إعادة تصميم الموقع',
 			'workspace.projectNameRequired' => 'لا يمكن أن يكون اسم المشروع فارغاً',
 			'workspace.projectDescLabel' => 'وصف المشروع (اختياري)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => 'ماذا سيقدّم هذا المشروع؟',
 			'workspace.projectSubmit' => 'إنشاء',
 			'workspace.projectCreateSuccess' => 'تم إنشاء المشروع بنجاح',

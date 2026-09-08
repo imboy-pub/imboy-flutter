@@ -699,6 +699,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get voiceSlideHint => 'Nach oben wischen: Abbrechen / In Text umwandeln';
 	@override String get alipayLoginInterrupted => 'Alipay-Anmeldung vom System unterbrochen, bitte erneut versuchen';
 	@override String get encryptedMessagePlaceholder => '[Verschlüsselte Nachricht]';
+	@override String get e2eeDecryptStoreUnavailable => 'Der verschlüsselte Speicher ist vorübergehend nicht zugänglich; diese Nachricht konnte nicht entschlüsselt werden. Bitte starten Sie die App neu und versuchen Sie es erneut';
 	@override String get invalidMessagePlaceholder => '[Ungültige Nachricht]';
 	@override String get videoCallPlaceholder => '[Videoanruf]';
 	@override String get voiceCallPlaceholder => '[Sprachanruf]';
@@ -1594,6 +1595,12 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeErrPeerNotOnboarded => 'Die Gegenseite war noch auf keinem Gerät angemeldet, verschlüsseltes Senden derzeit nicht möglich. Bitte warten Sie, bis sich die Gegenseite angemeldet hat, und versuchen Sie es erneut';
 	@override String get e2eeRecoveryKeyTitle => 'Wiederherstellungsschlüssel';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in ${seconds} Sek. automatisch geleert. Bitte schnellstmöglich sichern';
+	@override String get e2eeErrAttachmentSeal => 'Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen';
+	@override String get e2eeRetryFailedMessages => 'Nachrichten mit Entschlüsselungsfehler erneut versuchen';
+	@override String e2eeRetryFailedDone({required Object count}) => '${count} Nachrichten mit Entschlüsselungsfehler erneut versucht';
+	@override String get e2eeModeStandard => 'Standardmodus';
+	@override String get e2eeModeCompliance => 'Compliance-Verschlüsselung';
+	@override String get e2eeModeStrict => 'Ende-zu-Ende-Verschlüsselung';
 	@override String get e2eeRecoveryKeySaveNote => 'Bitte sichern Sie diesen Wiederherstellungsschlüssel sofort (Screenshot oder Passwort-Manager). Bei vergessener Passphrase ist er der einzige Schlüssel zum Entschlüsseln des Backups; geht er verloren, ist das Backup dauerhaft nicht wiederherstellbar.';
 	@override String get e2eeUseRecoveryKey => 'Wiederherstellungsschlüssel erstellen (Ersatz-Zugang bei vergessener Passphrase)';
 	@override String get complianceKeyChangedTitle => 'Compliance-Audit-Schlüssel hat sich geändert';
@@ -1731,6 +1738,7 @@ class _Translations$error$de_DE extends Translations$error$zh_CN {
 	@override String get suggestCheckNetwork => 'Überprüfen Sie die Netzwerkeinstellungen.';
 	@override String get e2eeErrTimeout => 'Zeitüberschreitung beim Verschlüsseln. Netzwerk prüfen und erneut versuchen.';
 	@override String get e2eeErrNetwork => 'Netzwerkfehler beim Verschlüsseln, Nachricht nicht gesendet';
+	@override String get e2eeErrPolicyNotReady => 'Die Ende-zu-Ende-Verschlüsselungsrichtlinie ist noch nicht bereit. Bitte später erneut versuchen';
 	@override String get liveRoomTitleRequired => 'Titel erforderlich';
 }
 
@@ -2112,6 +2120,9 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get safetyNumberPeerDevice => 'Gerät der Gegenseite';
 	@override String get safetyNumberReportRejected => 'Der Server hat das Verifizierungsereignis abgelehnt (Signatur/Gültigkeit passt nicht), nicht markiert';
 	@override String get safetyNumberReportUnavailable => 'Geräteinformationen nicht verfügbar, nicht gemeldet';
+	@override String get safetyNumberVerified => '✓ Verifiziert';
+	@override String get safetyNumberNotVerified => 'Nicht verifiziert';
+	@override String safetyNumberDeviceCount({required Object count}) => '${count} Gerät(e)';
 	@override String get safetyNumberReporting => 'Verifizierungsergebnis wird gemeldet...';
 	@override String get safetyNumberVerifyFailed => 'Sicherheitscode konnte nicht abgerufen werden. Bitte später erneut versuchen';
 	@override String get complianceKeyInfoTitle => 'Compliance-Audit-Schlüssel';
@@ -2128,6 +2139,7 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get complianceKeyInfoServerKey => 'Vom Server bereitgestellter öffentlicher Schlüssel';
 	@override String get e2eeErrComplianceChanged => 'Compliance-Audit-Schlüssel hat sich geändert, Nachricht nicht gesendet. Bitte Rotation bestätigen und erneut versuchen';
 	@override String get e2eeErrComplianceUnavailable => 'Compliance-Schlüssel derzeit nicht verfügbar, Nachricht nicht gesendet. Bitte später erneut versuchen';
+	@override String get e2eeErrComplianceExpired => 'Der Compliance-Schlüssel ist abgelaufen. Bitte kontaktieren Sie den Administrator';
 	@override String get e2eeErrDeviceNotReady => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen';
 	@override String get e2eeErrProtocolMismatch => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen';
 	@override String get e2eeErrSessionExportFailed => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen';
@@ -3084,6 +3096,7 @@ extension on TranslationsDeDe {
 			'chat.voiceSlideHint' => 'Nach oben wischen: Abbrechen / In Text umwandeln',
 			'chat.alipayLoginInterrupted' => 'Alipay-Anmeldung vom System unterbrochen, bitte erneut versuchen',
 			'chat.encryptedMessagePlaceholder' => '[Verschlüsselte Nachricht]',
+			'chat.e2eeDecryptStoreUnavailable' => 'Der verschlüsselte Speicher ist vorübergehend nicht zugänglich; diese Nachricht konnte nicht entschlüsselt werden. Bitte starten Sie die App neu und versuchen Sie es erneut',
 			'chat.invalidMessagePlaceholder' => '[Ungültige Nachricht]',
 			'chat.videoCallPlaceholder' => '[Videoanruf]',
 			'chat.voiceCallPlaceholder' => '[Sprachanruf]',
@@ -3531,9 +3544,9 @@ extension on TranslationsDeDe {
 			'common.addRemarkToFavorites' => 'Bemerkung zu Favoriten hinzufügen',
 			'common.deleteThisCollection' => 'Diese Sammlung löschen',
 			'common.changeSuccess' => 'Erfolgreich geändert',
-			'common.lengthOk' => 'Länge in Ordnung',
 			_ => null,
 		} ?? switch (path) {
+			'common.lengthOk' => 'Länge in Ordnung',
 			'common.confirmNewPassword' => 'Neues Passwort bestätigen',
 			'common.validationPassed' => 'Validierung bestanden',
 			'common.momentsContentHint' => 'Etwas schreiben...',
@@ -3963,6 +3976,12 @@ extension on TranslationsDeDe {
 			'common.e2eeErrPeerNotOnboarded' => 'Die Gegenseite war noch auf keinem Gerät angemeldet, verschlüsseltes Senden derzeit nicht möglich. Bitte warten Sie, bis sich die Gegenseite angemeldet hat, und versuchen Sie es erneut',
 			'common.e2eeRecoveryKeyTitle' => 'Wiederherstellungsschlüssel',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in ${seconds} Sek. automatisch geleert. Bitte schnellstmöglich sichern',
+			'common.e2eeErrAttachmentSeal' => 'Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen',
+			'common.e2eeRetryFailedMessages' => 'Nachrichten mit Entschlüsselungsfehler erneut versuchen',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => '${count} Nachrichten mit Entschlüsselungsfehler erneut versucht',
+			'common.e2eeModeStandard' => 'Standardmodus',
+			'common.e2eeModeCompliance' => 'Compliance-Verschlüsselung',
+			'common.e2eeModeStrict' => 'Ende-zu-Ende-Verschlüsselung',
 			'common.e2eeRecoveryKeySaveNote' => 'Bitte sichern Sie diesen Wiederherstellungsschlüssel sofort (Screenshot oder Passwort-Manager). Bei vergessener Passphrase ist er der einzige Schlüssel zum Entschlüsseln des Backups; geht er verloren, ist das Backup dauerhaft nicht wiederherstellbar.',
 			'common.e2eeUseRecoveryKey' => 'Wiederherstellungsschlüssel erstellen (Ersatz-Zugang bei vergessener Passphrase)',
 			'common.complianceKeyChangedTitle' => 'Compliance-Audit-Schlüssel hat sich geändert',
@@ -4039,6 +4058,8 @@ extension on TranslationsDeDe {
 			'discovery.momentsDraftKeep' => 'Behalten',
 			'discovery.openChannel' => 'Kanal öffnen',
 			'discovery.paidChannelLocked' => 'Inhalt gesperrt (Kostenpflichtig)',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.webQRScanned' => 'Gescannt',
 			'discovery.momentActionMore' => 'Weitere Aktionen',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} Personen',
@@ -4046,8 +4067,6 @@ extension on TranslationsDeDe {
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'Benachrichtigt: ${name} und ${count} weitere',
 			'discovery.momentAtWho' => 'Wen benachrichtigen?',
 			'discovery.momentLocation' => 'Standort',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentLocationNone' => 'Standort nicht anzeigen',
 			'error.restartRequired' => 'App-Neustart erforderlich',
 			'error.pleaseCheckNetwork' => 'Bitte überprüfen Sie Ihre Netzwerkeinstellungen.',
@@ -4057,6 +4076,7 @@ extension on TranslationsDeDe {
 			'error.suggestCheckNetwork' => 'Überprüfen Sie die Netzwerkeinstellungen.',
 			'error.e2eeErrTimeout' => 'Zeitüberschreitung beim Verschlüsseln. Netzwerk prüfen und erneut versuchen.',
 			'error.e2eeErrNetwork' => 'Netzwerkfehler beim Verschlüsseln, Nachricht nicht gesendet',
+			'error.e2eeErrPolicyNotReady' => 'Die Ende-zu-Ende-Verschlüsselungsrichtlinie ist noch nicht bereit. Bitte später erneut versuchen',
 			'error.liveRoomTitleRequired' => 'Titel erforderlich',
 			'group.enterSameGroup' => 'Mit Freunden in der Nähe denselben Gruppenchat beitreten',
 			'group.enterTheGroup' => 'Der Gruppe beitreten',
@@ -4357,6 +4377,9 @@ extension on TranslationsDeDe {
 			'main.safetyNumberPeerDevice' => 'Gerät der Gegenseite',
 			'main.safetyNumberReportRejected' => 'Der Server hat das Verifizierungsereignis abgelehnt (Signatur/Gültigkeit passt nicht), nicht markiert',
 			'main.safetyNumberReportUnavailable' => 'Geräteinformationen nicht verfügbar, nicht gemeldet',
+			'main.safetyNumberVerified' => '✓ Verifiziert',
+			'main.safetyNumberNotVerified' => 'Nicht verifiziert',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} Gerät(e)',
 			'main.safetyNumberReporting' => 'Verifizierungsergebnis wird gemeldet...',
 			'main.safetyNumberVerifyFailed' => 'Sicherheitscode konnte nicht abgerufen werden. Bitte später erneut versuchen',
 			'main.complianceKeyInfoTitle' => 'Compliance-Audit-Schlüssel',
@@ -4373,6 +4396,7 @@ extension on TranslationsDeDe {
 			'main.complianceKeyInfoServerKey' => 'Vom Server bereitgestellter öffentlicher Schlüssel',
 			'main.e2eeErrComplianceChanged' => 'Compliance-Audit-Schlüssel hat sich geändert, Nachricht nicht gesendet. Bitte Rotation bestätigen und erneut versuchen',
 			'main.e2eeErrComplianceUnavailable' => 'Compliance-Schlüssel derzeit nicht verfügbar, Nachricht nicht gesendet. Bitte später erneut versuchen',
+			'main.e2eeErrComplianceExpired' => 'Der Compliance-Schlüssel ist abgelaufen. Bitte kontaktieren Sie den Administrator',
 			'main.e2eeErrDeviceNotReady' => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen',
 			'main.e2eeErrProtocolMismatch' => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen',
 			'main.e2eeErrSessionExportFailed' => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen',
@@ -4548,6 +4572,8 @@ extension on TranslationsDeDe {
 			'workspace.brandingLogoHint' => 'https://… (URL des Arbeitsbereich-Logos)',
 			'workspace.brandingColorLabel' => 'Hauptfarbe primaryColor',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorHelper' => 'Nur #RRGGBB / #AARRGGBB; ungültige Werte fallen auf die Standard-Designfarbe zurück',
 			'workspace.brandingColorInvalid' => 'Ungültiges Format der Hauptfarbe, nur #RRGGBB / #AARRGGBB',
 			'workspace.brandingSaved' => 'Branding-Einstellungen gespeichert',
@@ -4560,8 +4586,6 @@ extension on TranslationsDeDe {
 			'workspace.projectNameHint' => 'z. B. Website-Relaunch',
 			'workspace.projectNameRequired' => 'Projektname darf nicht leer sein',
 			'workspace.projectDescLabel' => 'Projektbeschreibung (optional)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => 'Was soll dieses Projekt liefern?',
 			'workspace.projectSubmit' => 'Erstellen',
 			'workspace.projectCreateSuccess' => 'Projekt erstellt',

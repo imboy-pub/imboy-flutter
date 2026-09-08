@@ -166,6 +166,9 @@ safetyNumberNoDevices: 相手はまだエンドツーエンド暗号化を有効
 safetyNumberPeerDevice: 相手のデバイス
 safetyNumberReportRejected: サーバーがこの検証イベントを拒否しました（署名/有効期限の不一致）。マークされていません
 safetyNumberReportUnavailable: デバイス情報を取得できないため、未報告です
+safetyNumberVerified: "✓ 確認済み"
+safetyNumberNotVerified: "未確認"
+safetyNumberDeviceCount(count): "$count 台のデバイス"
 safetyNumberReporting: 検証結果を報告中...
 safetyNumberVerifyFailed: 安全番号の取得に失敗しました。後でもう一度お試しください
 # --- コンプライアンス監査キー ---
@@ -184,6 +187,7 @@ complianceKeyInfoServerKey: サーバーから配信された公開鍵
 # --- E2EE エラー ---
 e2eeErrComplianceChanged: コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください
 e2eeErrComplianceUnavailable: コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください
+e2eeErrComplianceExpired: "コンプライアンスキーの有効期限が切れました。管理者に連絡してください"
 e2eeErrDeviceNotReady: このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください
 e2eeErrProtocolMismatch: 暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください
 e2eeErrSessionExportFailed: グループセッションキーの生成に失敗しました。後でもう一度お試しください

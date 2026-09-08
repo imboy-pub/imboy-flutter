@@ -169,6 +169,7 @@ complianceKeyInfoServerKey: Открытый ключ сервера
 complianceKeyInfoTitle: Ключ комплаенс-аудита
 e2eeErrComplianceChanged: Ключ комплаенс-аудита изменён, сообщение не отправлено. Подтвердите ротацию и повторите
 e2eeErrComplianceUnavailable: Комплаенс-ключ временно недоступен, сообщение не отправлено. Повторите позже
+e2eeErrComplianceExpired: "Срок действия комплаенс-ключа истёк, обратитесь к администратору"
 e2eeErrDeviceNotReady: Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите
 e2eeErrProtocolMismatch: Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите
 e2eeErrSessionExportFailed: Не удалось создать сеансовый ключ группы. Повторите позже
@@ -181,6 +182,9 @@ safetyNumberNoDevices: У собеседника не включено скво�
 safetyNumberPeerDevice: Устройство собеседника
 safetyNumberReportRejected: "Сервер отклонил событие проверки (подпись/срок не совпадают), статус не изменён"
 safetyNumberReportUnavailable: Не удалось получить информацию об устройстве, не отправлено
+safetyNumberVerified: "✓ Проверено"
+safetyNumberNotVerified: "Не проверено"
+safetyNumberDeviceCount(count): "Устройств: $count"
 safetyNumberReporting: Отправка результата проверки...
 safetyNumberTitle: Проверка кода безопасности
 safetyNumberVerifyFailed: Не удалось получить код безопасности. Повторите позже

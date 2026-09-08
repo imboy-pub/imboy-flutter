@@ -822,6 +822,12 @@ complianceKeyChangedTitle: 컴플라이언스 감사 키가 변경되었습니�
 declineCall: 거절
 e2eeErrPeerNotOnboarded: 상대방이 어떤 기기에서도 로그인한 적이 없어 암호화 전송이 일시적으로 불가합니다. 상대방이 로그인한 후 다시 시도해 주세요
 e2eeRecoveryKeyCopiedAutoClear(seconds): 복구 키가 복사되었습니다. $seconds초 후 클립보드에서 자동으로 지워지니 빨리 저장해 주세요
+e2eeErrAttachmentSeal: "암호화 첨부 파일 봉인에 실패하여 파일이 업로드되지 않았습니다. 잠시 후 다시 시도해 주세요"
+e2eeRetryFailedMessages: "복호화에 실패한 메시지 다시 시도"
+e2eeRetryFailedDone(count): "복호화에 실패한 메시지 $count건을 다시 시도했습니다"
+e2eeModeStandard: "표준 모드"
+e2eeModeCompliance: "컴플라이언스 암호화"
+e2eeModeStrict: "종단 간 암호화"
 e2eeRecoveryKeySaveNote: "이 복구 키를 즉시 저장하세요(스크린샷 또는 비밀번호 관리자에 보관). 암호를 잊었을 때 백업을 복호화할 수 있는 유일한 수단이며, 잃어버리면 백업을 영구히 복구할 수 없습니다."
 e2eeRecoveryKeyTitle: 복구 키
 e2eeUseRecoveryKey: 복구 키 생성(암호 분실 시 대비용)

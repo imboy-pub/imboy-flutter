@@ -7,4 +7,5 @@ networkTroubleshootingStep3: 3. Si toujours impossible de se connecter au résea
 suggestCheckNetwork: Il est suggéré de vérifier les paramètres réseau.
 e2eeErrTimeout: Délai de chiffrement dépassé. Vérifiez le réseau et réessayez.
 e2eeErrNetwork: Erreur réseau, échec du chiffrement, message non envoyé
+e2eeErrPolicyNotReady: "La stratégie de chiffrement de bout en bout n'est pas encore prête, veuillez réessayer plus tard"
 liveRoomTitleRequired: Titre requis

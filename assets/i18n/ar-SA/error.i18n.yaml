@@ -7,4 +7,5 @@ networkTroubleshootingStep3: 3. إذا كنت لا تزال غير قادر عل
 suggestCheckNetwork: يُقترح التحقق من إعدادات الشبكة.
 e2eeErrTimeout: انتهت مهلة التشفير، تحقق من الشبكة وأعد المحاولة
 e2eeErrNetwork: خطأ شبكة، فشل التشفير، لم تُرسل الرسالة
+e2eeErrPolicyNotReady: "سياسة التشفير من الطرف إلى الطرف ليست جاهزة بعد، حاول مرة أخرى لاحقاً"
 liveRoomTitleRequired: أدخل العنوان

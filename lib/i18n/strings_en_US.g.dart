@@ -699,6 +699,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get voiceReleaseCancel => 'Release to cancel';
 	@override String get voiceSlideHint => 'Slide up to cancel / convert to text';
 	@override String get encryptedMessagePlaceholder => '[Encrypted message]';
+	@override String get e2eeDecryptStoreUnavailable => 'Encrypted storage is temporarily unavailable and this message could not be decrypted. Please restart the app and try again';
 	@override String get invalidMessagePlaceholder => '[Invalid message]';
 	@override String get videoCallPlaceholder => '[Video call]';
 	@override String get voiceCallPlaceholder => '[Voice call]';
@@ -1546,6 +1547,12 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeUseRecoveryKey => 'Generate recovery key (backup credential if you forget your passphrase)';
 	@override String get e2eeRecoveryKeySaveNote => 'Save this recovery key now (take a screenshot or store it in a password manager). If you forget your passphrase, it is the only credential that can decrypt your backup; once lost, the backup cannot be recovered.';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Recovery key copied. The clipboard will be cleared in ${seconds} seconds — save it now.';
+	@override String get e2eeErrAttachmentSeal => 'Failed to seal the encrypted attachment; the file was not uploaded. Please try again later';
+	@override String get e2eeRetryFailedMessages => 'Retry messages that failed to decrypt';
+	@override String e2eeRetryFailedDone({required Object count}) => 'Retried ${count} messages that failed to decrypt';
+	@override String get e2eeModeStandard => 'Standard mode';
+	@override String get e2eeModeCompliance => 'Compliance encryption';
+	@override String get e2eeModeStrict => 'End-to-end encryption';
 	@override String get enterAmount => 'Please enter an amount';
 	@override String get expandFull => 'Expand';
 	@override String get justNow => 'Just now';
@@ -1731,6 +1738,7 @@ class _Translations$error$en_US extends Translations$error$zh_CN {
 	@override String get suggestCheckNetwork => 'Please check your network settings.';
 	@override String get e2eeErrTimeout => 'Encryption timed out, please check your connection and retry';
 	@override String get e2eeErrNetwork => 'Network error, encryption failed, message not sent';
+	@override String get e2eeErrPolicyNotReady => 'End-to-end encryption policy is not ready yet, please try again later';
 	@override String get liveRoomTitleRequired => 'Title cannot be empty';
 }
 
@@ -2100,6 +2108,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get e2eeErrPeerDeviceNotReady => 'Some members\' devices haven\'t finished security setup, message not sent; please try again later';
 	@override String get e2eeErrComplianceChanged => 'Compliance audit key changed, message not sent. Confirm rotation and retry';
 	@override String get e2eeErrComplianceUnavailable => 'Compliance key temporarily unavailable, message not sent, please try again later';
+	@override String get e2eeErrComplianceExpired => 'The compliance key has expired, please contact the administrator';
 	@override String get e2eeErrDeviceNotReady => 'Your device hasn\'t finished security initialization, please log out and back in then retry';
 	@override String get e2eeErrSessionExportFailed => 'Group session key generation failed, please try again later';
 	@override String get e2eeErrProtocolMismatch => 'Encryption protocol mismatch, please update the app and retry';
@@ -2127,6 +2136,9 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get safetyNumberReporting => 'Reporting verification result...';
 	@override String get safetyNumberReportRejected => 'The server rejected this verification event (signature/expiry mismatch); not marked';
 	@override String get safetyNumberReportUnavailable => 'Could not get device info; not reported';
+	@override String get safetyNumberVerified => '✓ Verified';
+	@override String get safetyNumberNotVerified => 'Not verified';
+	@override String safetyNumberDeviceCount({required Object count}) => '${count} device(s)';
 	@override String get liveRoomTitleLabel => 'Live Room Title';
 	@override String get liveRoomTitleHint => 'Enter live room title';
 	@override String channelPriceLabel({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}';
@@ -3084,6 +3096,7 @@ extension on TranslationsEnUs {
 			'chat.voiceReleaseCancel' => 'Release to cancel',
 			'chat.voiceSlideHint' => 'Slide up to cancel / convert to text',
 			'chat.encryptedMessagePlaceholder' => '[Encrypted message]',
+			'chat.e2eeDecryptStoreUnavailable' => 'Encrypted storage is temporarily unavailable and this message could not be decrypted. Please restart the app and try again',
 			'chat.invalidMessagePlaceholder' => '[Invalid message]',
 			'chat.videoCallPlaceholder' => '[Video call]',
 			'chat.voiceCallPlaceholder' => '[Voice call]',
@@ -3531,9 +3544,9 @@ extension on TranslationsEnUs {
 			'common.lengthOk' => 'Length OK',
 			'common.confirmNewPassword' => 'Confirm New Password',
 			'common.validationPassed' => 'Validation passed',
-			'common.momentsContentHint' => 'Share something...',
 			_ => null,
 		} ?? switch (path) {
+			'common.momentsContentHint' => 'Share something...',
 			'common.momentsAddMedia' => 'Add media',
 			'common.momentsAllowUidsLabel' => 'Visible to these UIDs (comma-separated)',
 			'common.momentsNoData' => 'No moments yet',
@@ -3915,6 +3928,12 @@ extension on TranslationsEnUs {
 			'common.e2eeUseRecoveryKey' => 'Generate recovery key (backup credential if you forget your passphrase)',
 			'common.e2eeRecoveryKeySaveNote' => 'Save this recovery key now (take a screenshot or store it in a password manager). If you forget your passphrase, it is the only credential that can decrypt your backup; once lost, the backup cannot be recovered.',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Recovery key copied. The clipboard will be cleared in ${seconds} seconds — save it now.',
+			'common.e2eeErrAttachmentSeal' => 'Failed to seal the encrypted attachment; the file was not uploaded. Please try again later',
+			'common.e2eeRetryFailedMessages' => 'Retry messages that failed to decrypt',
+			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Retried ${count} messages that failed to decrypt',
+			'common.e2eeModeStandard' => 'Standard mode',
+			'common.e2eeModeCompliance' => 'Compliance encryption',
+			'common.e2eeModeStrict' => 'End-to-end encryption',
 			'common.enterAmount' => 'Please enter an amount',
 			'common.expandFull' => 'Expand',
 			'common.justNow' => 'Just now',
@@ -4039,6 +4058,8 @@ extension on TranslationsEnUs {
 			'discovery.openChannel' => 'Open Channel',
 			'discovery.paidChannelLocked' => 'Paid Channel Content Locked',
 			'discovery.webQRScanned' => 'Scanned',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentLocation' => 'Location',
 			'discovery.momentLocationNone' => 'Do not show location',
 			'discovery.momentAtWho' => 'Remind who',
@@ -4046,8 +4067,6 @@ extension on TranslationsEnUs {
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'Reminded ${name} and ${count} others',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} people',
 			'discovery.momentActionMore' => 'More',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} people liked this',
 			'error.restartRequired' => 'Restart Required',
 			'error.pleaseCheckNetwork' => 'Please check your network settings.',
@@ -4057,6 +4076,7 @@ extension on TranslationsEnUs {
 			'error.suggestCheckNetwork' => 'Please check your network settings.',
 			'error.e2eeErrTimeout' => 'Encryption timed out, please check your connection and retry',
 			'error.e2eeErrNetwork' => 'Network error, encryption failed, message not sent',
+			'error.e2eeErrPolicyNotReady' => 'End-to-end encryption policy is not ready yet, please try again later',
 			'error.liveRoomTitleRequired' => 'Title cannot be empty',
 			'group.enterSameGroup' => 'Join the same group chat with friends nearby',
 			'group.enterTheGroup' => 'Enter this group',
@@ -4345,6 +4365,7 @@ extension on TranslationsEnUs {
 			'main.e2eeErrPeerDeviceNotReady' => 'Some members\' devices haven\'t finished security setup, message not sent; please try again later',
 			'main.e2eeErrComplianceChanged' => 'Compliance audit key changed, message not sent. Confirm rotation and retry',
 			'main.e2eeErrComplianceUnavailable' => 'Compliance key temporarily unavailable, message not sent, please try again later',
+			'main.e2eeErrComplianceExpired' => 'The compliance key has expired, please contact the administrator',
 			'main.e2eeErrDeviceNotReady' => 'Your device hasn\'t finished security initialization, please log out and back in then retry',
 			'main.e2eeErrSessionExportFailed' => 'Group session key generation failed, please try again later',
 			'main.e2eeErrProtocolMismatch' => 'Encryption protocol mismatch, please update the app and retry',
@@ -4372,6 +4393,9 @@ extension on TranslationsEnUs {
 			'main.safetyNumberReporting' => 'Reporting verification result...',
 			'main.safetyNumberReportRejected' => 'The server rejected this verification event (signature/expiry mismatch); not marked',
 			'main.safetyNumberReportUnavailable' => 'Could not get device info; not reported',
+			'main.safetyNumberVerified' => '✓ Verified',
+			'main.safetyNumberNotVerified' => 'Not verified',
+			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} device(s)',
 			'main.liveRoomTitleLabel' => 'Live Room Title',
 			'main.liveRoomTitleHint' => 'Enter live room title',
 			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}',
@@ -4548,6 +4572,8 @@ extension on TranslationsEnUs {
 			'workspace.brandingLogoHint' => 'https://… (workspace logo image URL)',
 			'workspace.brandingColorLabel' => 'Primary color',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorHelper' => 'Only #RRGGBB / #AARRGGBB; invalid values fall back to the default theme color',
 			'workspace.brandingColorInvalid' => 'Invalid color format; only #RRGGBB / #AARRGGBB is supported',
 			'workspace.brandingSaved' => 'Branding saved',
@@ -4560,8 +4586,6 @@ extension on TranslationsEnUs {
 			'workspace.projectNameHint' => 'e.g. Website revamp',
 			'workspace.projectNameRequired' => 'Project name is required',
 			'workspace.projectDescLabel' => 'Description (optional)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => 'What does this project deliver?',
 			'workspace.projectSubmit' => 'Create',
 			'workspace.projectCreateSuccess' => 'Project created',

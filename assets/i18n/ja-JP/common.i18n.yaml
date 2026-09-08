@@ -880,7 +880,13 @@ voiceSttNotConfigured: 文字起こし機能は未設定です
 voiceSttPreviewTitle: 音声文字起こしプレビュー
 # --- E2EE リカバリーキー ---
 e2eeRecoveryKeyTitle: リカバリーキー
-e2eeRecoveryKeyCopiedAutoClear: リカバリーキーをコピーしました。$seconds秒後にクリップボードから自動的に消去されます。すぐに保存してください
+e2eeRecoveryKeyCopiedAutoClear(seconds): リカバリーキーをコピーしました。$seconds秒後にクリップボードから自動的に消去されます。すぐに保存してください
+e2eeErrAttachmentSeal: "暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください"
+e2eeRetryFailedMessages: "復号に失敗したメッセージを再試行"
+e2eeRetryFailedDone(count): "復号に失敗したメッセージ $count 件を再試行しました"
+e2eeModeStandard: "標準モード"
+e2eeModeCompliance: "コンプライアンス暗号化"
+e2eeModeStrict: "エンドツーエンド暗号化"
 e2eeRecoveryKeySaveNote: このリカバリーキーを今すぐ保存してください（スクリーンショットまたはパスワード管理ツールへ）。パスフレーズを忘れた場合、バックアップを復号する唯一の手段です。紛失するとバックアップは永久に復元できません。
 e2eeUseRecoveryKey: リカバリーキーを生成（パスフレーズ忘れ時のバックアップ手段）
 e2eeErrPeerNotOnboarded: 相手はまだどのデバイスでもログインしたことがないため、暗号化して送信できません。相手のログイン後にもう一度お試しください

@@ -200,6 +200,7 @@ voiceReleaseCancel: Release to cancel
 voiceSlideHint: Slide up to cancel / convert to text
 
 encryptedMessagePlaceholder: "[Encrypted message]"
+e2eeDecryptStoreUnavailable: "Encrypted storage is temporarily unavailable and this message could not be decrypted. Please restart the app and try again"
 invalidMessagePlaceholder: "[Invalid message]"
 videoCallPlaceholder: "[Video call]"
 voiceCallPlaceholder: "[Voice call]"
