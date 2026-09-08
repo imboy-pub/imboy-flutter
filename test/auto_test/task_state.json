@@ -818,5 +818,20 @@
       "未恢复轮次：轻量例行（离线推进+wire 验证均已收口）",
       "WHIP 媒体服务器=用户决策"
     ]
+  },
+  "session_2026_09_09_batch150": {
+    "note": "批次150（automation 第二十三轮）：fs 卡死持续（97%）。§0：待首测 0/待修复 0→主块跳过。三态例行：待重验尾部=red_packet BUG#111 同源两行（解阻塞条件=环境恢复+UI 执行，余额 fixture 已就位，评估不变不硬试）；回归复测 0 条；阻塞尾部=AT-WIV1 行（解阻塞条件=用户环境三步，已评估）。本轮做恢复前保障巡检：9801 存活（token 有效）、三件套 fixture 全部完好（直播中房间 status=1 在公开列表/余额 2080 分/幂等工作区 AT-WS-IDEM-148 在库）——环境恢复后执行队列可零准备启动。台账无变更。",
+    "fixture_check": {
+      "backend": "9801 http=200",
+      "live_room": "AT-LIVE-FIXTURE-138 status=1 在公开列表",
+      "balance": "smoke_bob=2080 分",
+      "ws_idem": "AT-WS-IDEM-148 在库"
+    },
+    "env_status": "fs 卡死持续 97%",
+    "next_actions": [
+      "用户环境三步（重启/删 local_office_1000000056.db*/清盘<90%）后：AT-WIV1 → 34 条数据类实测",
+      "WHIP 媒体服务器=用户决策",
+      "未恢复轮次：轻量例行+fixture 巡检"
+    ]
   }
 }
