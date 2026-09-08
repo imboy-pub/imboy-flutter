@@ -536,5 +536,19 @@
    "下轮 automation：§0 统计（主块预计跳过）+ 三态例行阻塞 tail 尾部推进（现 tail=workspace_picker_page 后已无 workspace 行，tail 会前移）",
    "GF7 专项排查可选：用 --plain-name AT-GF1 验证 face_to_face 文件其他场景是否也挂（二分定位文件级 vs 场景级）"
   ]
+ },
+ "session_2026_09_09_batch130": {
+  "note": "批次130（automation 第三轮）：三态例行阻塞条 workspace_overview『成员预览空态』解除（AT-WOV1 一次全绿），阻塞 94→93。无待首测/待修复，主块跳过。",
+  "at_wov1": {
+   "scope": "workspace_overview_page『成员预览为空时展示暂无成员提示文案』（批次W2R2 起阻塞）",
+   "construction": "『工作区恒有Owner成员』推翻：adapterForTest 拦 /workspaces/{id}/overview 返回 code=0+payload={}（WorkspaceOverview 默认构造 memberPreview=[]），无需删改 DB 成员行；恢复=解除拦截+invalidate workspaceOverviewProvider（autoDispose.family）重新拉取",
+   "result": "run1 一次全绿（00:49 +1）：空态文案（t.workspace.membersEmpty）✓ + 重新拉取成员恢复 ✓",
+   "evidence": "test/auto_test/reports/batch130/wov_run1.log",
+   "recipe_note": "批次128~130 空态/失败/加载三型构造基建成型：adapterForTest（app.main 前装）+ 无条件 quitLogin 重登（401 排空 4s）+ invalidate 归零 state + 深链断言；后续同类『空态不可达』阻塞行可直接复用"
+  },
+  "gf7_note": "GF7 二分排查本轮未做（预算给 WOV 构造），留下轮可选：--plain-name AT-GF1 验证 face_to_face 文件其他场景是否同挂（文件级 vs 场景级二分）",
+  "next_actions": [
+   "下轮 automation：三态例行阻塞 tail 尾部推进（workspace 域还有 workspace_members_page『成员列表空态』同类，可复用 AT-WOV1 配方）"
+  ]
  }
 }

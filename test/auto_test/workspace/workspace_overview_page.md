@@ -15,4 +15,4 @@
 | 无待办 | - | `page/workspace/workspace_overview_page.dart` | Channel 置顶内容区块展示空态说明（不聚合群公告） | 已通过 | 批次W2R4 | 0 | 0 | 0 | W2R4：空态文案「群公告不在此聚合」在位 |
 | 无待办 | - | `page/workspace/workspace_overview_page.dart` | 最近文件区块展示空态说明（附件在频道内查看） | 已通过 | 批次W2R4 | 0 | 0 | 0 | W2R4：空态文案「最近上传的文件将在此展示」在位 |
 | 无待办 | - | `page/workspace/workspace_overview_page.dart` | 成员预览展示头像+昵称（空则账号）+角色徽标，最多 8 个 | 已通过 | 批次W2R4 | 0 | 0 | 0 | W2R4 重点复测（47461adc 新增成员卡）：头像+昵称+角色徽标渲染正常，「查看全部」进新路由 /workspace/members 正常；WS1 甲(Owner)/乙、WS2 仅甲（8 个上限仍未触发，沿用批次W2R2） |
-| 阻塞 | 工作区恒有Owner成员，空态不可达 | `page/workspace/workspace_overview_page.dart` | 成员预览为空时展示暂无成员提示文案 | 未测 | 批次W2R2 | 0 | 0 | 0 | 缺空成员场景 |
+| 无待办 | - | `page/workspace/workspace_overview_page.dart` | 成员预览为空时展示暂无成员提示文案 | 已通过 | 批次130 | 0 | 0 | 0 | AT-WOV1 全绿（integration_test/workspace/workspace_overview_empty_members_test.dart）：adapterForTest 注入空 overview payload（code=0+member_preview 缺省）→ 壳 Overview 成员预览显示 t.workspace.membersEmpty 文案 → 解除拦截 invalidate workspaceOverviewProvider 重新拉取 → 成员行恢复；无需删改 DB 成员行 |
