@@ -10,7 +10,7 @@
 | 无待办 | - | `page/group/task/group_task_detail_page.dart` | 未截止时展示提交作业按钮 | 已通过 | 批次21 | 0 | 0 | 0 | |
 | 无待办 | - | `page/group/task/group_task_detail_page.dart` | 提交按钮使用动作语义文案 | 已通过 | 批次21 | 1 | 1 | 0 | |
 | 无待办 | - | `page/group/task/group_task_detail_page.dart` | 详情页隐藏内部任务ID | 已通过 | 批次21 | 1 | 1 | 0 | |
-| 阻塞 | 待环境恢复执行（批次145 解锁：group/task 路由 6 端点本地 9801 全在（create/assign/submit/review/list/update），本地 smoke 群建任务+提交作业=测试数据非生产写） | `page/group/task/group_task_detail_page.dart` | 实际提交作业并刷新详情 | 未测 | - | 0 | 0 | 0 | 批次21未执行，提交作业写生产数据需授权；批次145:本地路径解锁（9801+本地群） |
+| 阻塞 | 待环境恢复执行（批次149 修正：6 端点在但被 plugin feature 门拦——curl 实测 code=5190「功能未启用」（imboy_plugin_registry api_feature_rules default=group_task）；需先经 imboyadmin 插件门禁启用 group_task feature（W2R2 配方，需 IMBOY_PLUGIN_LIFECYCLE_ENABLED=true 的后端）再走本地建任务+提交流程） | `page/group/task/group_task_detail_page.dart` | 实际提交作业并刷新详情 | 未测 | - | 0 | 0 | 0 | 批次21未执行，提交作业写生产数据需授权；批次145:本地路径解锁；批次149:发现 feature 门 5190 前置 |
 | 无待办 | - | ``page/group/task/group_task_detail_page.dart`` | 展示待批改作业数量统计 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/task/group_task_detail_page.dart`` | 格式化截止时间与无截止文案 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/group/task/group_task_detail_page.dart`` | 可选展示任务描述信息行 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：IMBoy 有群(P0#2 重建验证,2成员)可访问群功能；本页功能批次详验真机/代码证据充分，稳定功能无回归 |

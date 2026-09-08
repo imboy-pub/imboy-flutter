@@ -806,5 +806,17 @@
       "未恢复轮次：轻量例行",
       "WHIP 媒体服务器=用户决策"
     ]
+  },
+  "session_2026_09_09_batch149": {
+    "note": "批次149（automation 第二十二轮）：fs 卡死持续。补齐最后两组配方 wire 验证：①getcode 双通道落库 ✓——email(at-batch149@imboy.pub→574864)/sms(13800001489→145020) 均 code=0 且 verification_code 表可读、有效期 10 分钟，mine/passport 10 条配方坐实；②group task 发现 feature 门 ⚠——curl create/list 均 code=5190「功能未启用」，根因 imboy_plugin_registry api_feature_rules(default=group_task) 默认未启用，配方修正为「先经 imboyadmin 插件门禁启用 group_task feature（W2R2 配方，需 IMBOY_PLUGIN_LIFECYCLE_ENABLED=true 后端）再走本地建任务」，2 行台账已如实修正。至此 34 条解锁中 wire 已验证 4 组（live_room/wallet/workspace 幂等/getcode），group task 2 条降级为「待环境+待启用 feature」（仍计数据类但多一步前置）。",
+    "getcode_recipe": "POST /passport/getcode {type:sms|email, account, scene} → 码落库 → verification_code 表直读（id 列即账号标识）",
+    "group_task_gate": "5190 功能未启用 = plugin api_feature_rules 门；启用途径=imboyadmin 插件门禁（W2R2 配方）",
+    "env_status": "fs 卡死持续 97%",
+    "next_actions": [
+      "环境恢复第一优先：AT-WIV1（invite 行转已通过）",
+      "环境恢复第二优先：34 条数据类实测（group task 2 条需先启用 feature）",
+      "未恢复轮次：轻量例行（离线推进+wire 验证均已收口）",
+      "WHIP 媒体服务器=用户决策"
+    ]
   }
 }
