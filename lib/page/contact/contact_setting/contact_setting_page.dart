@@ -127,7 +127,9 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
               ),
               ImBoySettingsTile(
                 title: Text(t.main.safetyNumberTitle),
-                leading: _buildIcon(CupertinoIcons.shield, AppColors.iosGreen),
+                // B3: 安全码入口与 chat_setting_page 同名入口（蓝色系）及
+                // 本页主导色统一为 iosBlue，消除「同一功能两种颜色」。
+                leading: _buildIcon(CupertinoIcons.shield, AppColors.iosBlue),
                 onTap: () => Navigator.push(
                   context,
                   CupertinoPageRoute<void>(

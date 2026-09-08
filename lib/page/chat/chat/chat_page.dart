@@ -591,6 +591,10 @@ class ChatPageState extends ConsumerState<ChatPage>
   bool _isMuted = false;
   String? _muteMessage;
 
+  // B1: E2EE 密钥不匹配弹窗去重守卫——dialog 展示期间丢弃后续事件，
+  // 弹窗关闭后由 whenComplete 复位（之后的新事件可再次弹出）。
+  bool _e2eeMismatchDialogShowing = false;
+
   void _setupEventListeners() {
     try {
       // 初始化事件订阅管理器
@@ -2379,8 +2383,13 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   /// 显示E2EE密钥不匹配对话框
   ///
-  /// 当检测到E2EE密钥不匹配时，引导用户选择解决方案
+  /// 当检测到E2EE密钥不匹配时，引导用户选择解决方案。
+  ///
+  /// B1: 每条解密失败消息各 fire 一次事件，离线批量收到 N 条会堆叠 N 个
+  /// 模态框——dialog 已展示期间直接丢弃新事件，关闭后复位允许再弹。
   void _showE2EEKeyMismatchDialog() {
+    if (_e2eeMismatchDialogShowing) return;
+    _e2eeMismatchDialogShowing = true;
     showDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
@@ -2427,7 +2436,10 @@ class ChatPageState extends ConsumerState<ChatPage>
           ),
         ],
       ),
-    );
+    ).whenComplete(() {
+      // 弹窗被任一动作按钮关闭后复位，后续新事件允许再次弹出。
+      _e2eeMismatchDialogShowing = false;
+    });
   }
 
   /// 合规审计密钥变更确认对话框（审计 P1-1）。

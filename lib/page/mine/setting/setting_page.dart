@@ -196,7 +196,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               ImBoySettingsTile(
                 title: Text(t.group.e2eeKeyManagement),
                 subtitle: Text(t.group.e2eeKeyManagementSubtitle),
-                leading: _buildIcon(CupertinoIcons.lock, AppColors.iosGreen),
+                // B3: 与同 section 的「刷新设备密钥」「合规审计密钥」统一为
+                // iosBlue（密钥/安全类入口同为蓝色），iosGreen 留给非安全项。
+                leading: _buildIcon(CupertinoIcons.lock, AppColors.iosBlue),
                 onTap: () => Navigator.push(
                   context,
                   CupertinoPageRoute<void>(

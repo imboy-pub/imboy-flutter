@@ -337,16 +337,16 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
     );
   }
 
-  /// 获取当前加密模式（从会话选项或默认配置）
-  EncryptionMode get _currentEncryptionMode {
+  /// 获取当前加密模式（从会话选项或全局 policy）；null 表示未知。
+  ///
+  /// B2: 会话 options 未携带 encryption_mode 且全局 policy 尚未成功拉取
+  /// （EncryptionModeService.isInitialized == false，对外不区分首次加载中
+  /// 与拉取失败重试两态）时返回 null。此时 [EncryptionModeService.current]
+  /// 仍是默认值 plaintext，直接展示会把已加密会话谎报成「标准模式」。
+  EncryptionMode? get _currentEncryptionMode {
     final modeStr = widget.options?['encryption_mode'] as String?;
     if (modeStr != null) return EncryptionModeExt.fromApiString(modeStr);
-    // ponytail: 会话 options 没带 encryption_mode 时回退到全局 policy。
-    // 上限：此时显示的是"这个部署的策略"而非"这个会话的真实模式"；且
-    // EncryptionModeService 未初始化（policy 接口没拉到）时 _current 默认
-    // plaintext，会把实际已加密的会话显示成明文——宁可误报明文也不误报加密。
-    // 升级触发：后端支持按会话/按群覆盖加密模式，或需要区分"未知/加载中"态
-    // （避免未初始化时直接展示 plaintext）时，改为拉会话级 policy 并加载中态。
+    if (!EncryptionModeService.isInitialized) return null;
     return EncryptionModeService.current; // fall back to global policy
   }
 
@@ -367,12 +367,16 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
     final mode = _currentEncryptionMode;
     return [
       _buildSettingTile(
-        title: mode.displayName,
-        icon: _encryptionIcon(mode),
-        iconColor: mode.requiresEncryption
+        // B2: policy 未知/加载中时显示中性占位「-」，不展示任何具体模式名，
+        // 避免把已加密会话谎报成「标准模式」。
+        title: mode?.displayName ?? '-',
+        icon: mode == null ? CupertinoIcons.lock : _encryptionIcon(mode),
+        iconColor: mode != null && mode.requiresEncryption
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-        subtitle: mode == EncryptionMode.complianceE2ee
+        subtitle: mode == null
+            ? null
+            : mode == EncryptionMode.complianceE2ee
             ? t.main.msgProtectedByComplianceKey
             : mode == EncryptionMode.strictE2ee
             ? t.common.msgOnlyVisibleToParties

@@ -96,11 +96,13 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('renders 默认未加密提示', (tester) async {
+    testWidgets('renders 默认未知加密态占位', (tester) async {
       await _pump(tester);
-      // 默认 options=null → 走"未加密"提示分支
-      // i18n: msgNotEncrypted = "消息未加密传输"
-      expect(find.text('消息未加密传输'), findsOneWidget);
+      // B2: options=null 且 EncryptionModeService 未初始化（widget 测试无
+      // policy 拉取链路）→ 加密模式未知，显示中性占位 '-'，
+      // 不得把实际可能已加密的会话谎报成"消息未加密传输"或具体模式名。
+      expect(find.text('-'), findsOneWidget);
+      expect(find.text('消息未加密传输'), findsNothing);
       await _unmount(tester);
     });
 

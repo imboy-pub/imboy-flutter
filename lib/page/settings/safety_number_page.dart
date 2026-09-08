@@ -188,14 +188,14 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
                         AppSpacing.verticalRegular,
                         _verified
                             ? Text(
-                                '✓ 已验证',
+                                t.main.safetyNumberVerified,
                                 style: TextStyle(
                                   color: AppColors.iosGreen,
                                   fontSize: FontSizeType.medium.size,
                                 ),
                               )
                             : Text(
-                                '未验证',
+                                t.main.safetyNumberNotVerified,
                                 style: TextStyle(
                                   color: AppColors.alipaySimTextGrey,
                                   fontSize: FontSizeType.medium.size,
@@ -204,7 +204,8 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
                         AppSpacing.verticalSmall,
                         Text(
                           '${t.main.safetyNumberPeerDevice}: '
-                          '${result.localDeviceCount}台设备 ↔ ${result.remoteDeviceCount}台设备',
+                          '${t.main.safetyNumberDeviceCount(count: result.localDeviceCount)} ↔ '
+                          '${t.main.safetyNumberDeviceCount(count: result.remoteDeviceCount)}',
                           style: TextStyle(
                             color: AppColors.alipaySimTextGrey,
                             fontSize: FontSizeType.small.size,
