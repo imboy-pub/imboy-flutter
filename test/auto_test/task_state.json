@@ -625,5 +625,14 @@
    "环境恢复后：AT-WIV1 重验 → invite 行转已通过（阻塞-1）",
    "GF1/GF7 与同一 fs 卡死叠加，环境恢复后一并验证"
   ]
+ },
+ "session_2026_09_09_batch136": {
+  "note": "批次136（automation 第九轮）：环境探测——fs ls 已不挂但 bob 库文件 unlink 也挂死（rm 3 分钟无返回）=内核级 fs 状态，测试循环无法自愈。AT-WIV1 run4 仍 disk I/O error+拦截 0 次（库打不开）。台账无变更。",
+  "verdict": "必须人工重启 macOS（或 First Aid 修 Data 卷）。重启后：①bob 库文件卡死随 fs 重建解除（或手动删 Documents 下 local_office_1000000056.db*）②重跑 AT-WIV1（预期绿→invite 行转已通过）③GF1/GF7 一并验证",
+  "evidence": "test/auto_test/reports/batch136/wiv_run4.log（disk I/O error 1 次/拦截 0 次=库打不开）",
+  "next_actions": [
+   "【用户】重启 macOS + 删 Documents 下 local_office_1000000056.db* + 磁盘清理至 <90%",
+   "【下轮 automation】探测 Documents 目录 ls 是否 <5s → 恢复则跑 AT-WIV1 → invite 行转已通过"
+  ]
  }
 }
