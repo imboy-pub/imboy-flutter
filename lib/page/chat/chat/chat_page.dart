@@ -1220,6 +1220,13 @@ class ChatPageState extends ConsumerState<ChatPage>
     // E2EE 解密失败的「[加密消息]」气泡：点击引导用户前往密钥恢复中心，
     // 接通设备转移 / 社交恢复 / 本地备份导入，避免撞墙后无引导的死胡同。
     if (message.metadata?['_e2ee_failed'] == true) {
+      // crypto_store_unavailable 是可重试瞬态故障（加密存储暂不可访问，
+      // 重启可恢复），气泡文案指引的也是重启重试；按「换设备/导入备份」
+      // 引导走恢复流程对该故障无效。轻提示对齐占位文案，其余照旧引导。
+      if (message.metadata?['_e2ee_reason'] == 'crypto_store_unavailable') {
+        AppLoading.showToast(t.chat.e2eeDecryptStoreUnavailable);
+        return;
+      }
       showE2EERecoveryGuide(context, scene: E2EERecoveryScene.decryptFailed);
       return;
     }
