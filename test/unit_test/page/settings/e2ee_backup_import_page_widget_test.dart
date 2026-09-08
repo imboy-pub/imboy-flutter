@@ -42,12 +42,15 @@ void main() {
   E2EEBackupImportPage page({
     String? initialFilePath,
     bool probeFailure = false,
+    bool hasCloudBackup = false,
+    void Function()? onProbe,
   }) {
     return E2EEBackupImportPage(
       initialFilePath: initialFilePath,
       cloudBackupProbe: () async {
+        onProbe?.call();
         if (probeFailure) throw Exception('test-only cloud probe failure');
-        return const E2EEBackupInfo(hasBackup: false);
+        return E2EEBackupInfo(hasBackup: hasCloudBackup);
       },
     );
   }
@@ -178,9 +181,25 @@ void main() {
     });
 
     testWidgets('L14 云端备份探测失败时按无备份静默处理（无恢复卡）', (tester) async {
-      await pumpPage(tester, wrap(page(probeFailure: true)));
+      var probeCalls = 0;
+      await pumpPage(
+        tester,
+        wrap(page(probeFailure: true, onProbe: () => probeCalls++)),
+      );
 
+      expect(probeCalls, 1, reason: '页面初始化应且仅应执行一次云备份探测');
       expect(find.text(t.common.e2eeBackupCloudRestoreTitle), findsNothing);
+    });
+
+    testWidgets('L14 云端存在备份时展示恢复入口', (tester) async {
+      var probeCalls = 0;
+      await pumpPage(
+        tester,
+        wrap(page(hasCloudBackup: true, onProbe: () => probeCalls++)),
+      );
+
+      expect(probeCalls, 1, reason: '页面初始化应且仅应执行一次云备份探测');
+      expect(find.text(t.common.e2eeBackupCloudRestoreTitle), findsOneWidget);
     });
 
     testWidgets('L13 警告卡片始终展示覆盖密钥风险提示', (tester) async {
