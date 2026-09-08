@@ -114,16 +114,16 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # 💬 Chat & Messaging                                             │
   # └─────────────────────────────────────────────────────────────────┘
-  flutter_chat_core: 2.9.0             # Core chat data models
-  flutter_chat_ui: 2.11.1               # Chat UI components
-  flyer_chat_audio_message: 0.0.13      # Audio message component
-  flyer_chat_file_message: 2.4.0       # File message component
-  flyer_chat_image_message: 2.3.0      # Image message component
-  flyer_chat_location_message: 0.0.13   # Location message component
-  flyer_chat_system_message: 2.2.0     # System message component
-  flyer_chat_text_message: 2.6.0       # Text message component
-  flyer_chat_text_stream_message: 2.3.0 # Text stream message component
-  flyer_chat_video_message: 0.0.13      # Video message component
+  flutter_chat_core: any             # Core chat data models
+  flutter_chat_ui: any               # Chat UI components
+  flyer_chat_audio_message: any      # Audio message component
+  flyer_chat_file_message: any       # File message component
+  flyer_chat_image_message: any      # Image message component
+  flyer_chat_location_message: any   # Location message component
+  flyer_chat_system_message: any     # System message component
+  flyer_chat_text_message: any       # Text message component
+  flyer_chat_text_stream_message: any # Text stream message component
+  flyer_chat_video_message: any      # Video message component
 
   emoji_picker_flutter: ^4.4.0       # Emoji picker integration
   highlight_text: ^1.8.0            # Text highlighting support
