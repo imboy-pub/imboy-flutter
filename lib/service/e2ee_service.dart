@@ -938,7 +938,7 @@ class E2EEService {
             iPrint('⚠️ [E2EE] API 失败，使用缓存: uid=$uid, 设备数=${cached.length}');
             return _userKeyResult(uid, cached);
           }
-          iPrint('获取用户设备密钥失败（已重试$maxRetries次）: $e');
+          iPrint('获取用户设备密钥失败（已重试$maxRetries次）: errType=${e.runtimeType}');
           rethrow;
         }
         iPrint('获取用户设备密钥失败，第$attempt次重试...');
@@ -1017,7 +1017,7 @@ class E2EEService {
             _groupKidCacheByDevice.remove(gid);
             _groupUidCacheByDevice.remove(gid);
             _groupKeyCacheTimestamp.remove(gid);
-            iPrint('获取群组设备密钥强刷失败（已重试$maxRetries次）: $e');
+            iPrint('获取群组设备密钥强刷失败（已重试$maxRetries次）: errType=${e.runtimeType}');
             rethrow;
           }
           final cached = _groupKeyCacheByDevice[gid];
@@ -1027,7 +1027,7 @@ class E2EEService {
             iPrint('⚠️ [E2EE] API 失败，使用缓存: gid=$gid, 设备数=${cached.length}');
             return _groupKeyResult(gid, cached);
           }
-          iPrint('获取群组设备密钥失败（已重试$maxRetries次）: $e');
+          iPrint('获取群组设备密钥失败（已重试$maxRetries次）: errType=${e.runtimeType}');
           rethrow;
         }
         iPrint('获取群组设备密钥失败，第$attempt次重试...');
@@ -1117,7 +1117,7 @@ class E2EEService {
       iPrint('✅ [E2EE] 重试解密成功');
       return result;
     } catch (e) {
-      iPrint('❌ [E2EE] 重试解密失败: $e');
+      iPrint('❌ [E2EE] 重试解密失败: errType=${e.runtimeType}');
       return failedPayload;
     }
   }
