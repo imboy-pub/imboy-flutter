@@ -1,0 +1,20 @@
+title: 조치 및 이의신청
+actionsSection: 나에 대한 조치
+actionsEmpty: 조치 기록이 없습니다
+appealsSection: 내 이의신청
+appealsEmpty: 이의신청 기록이 없습니다
+dialogTitle: 이의신청 제출
+reasonPlaceholder: 사유를 입력하세요 (필수)
+submit: 제출
+submitFailed: 제출 실패
+appealedTag: 신청됨
+appealableTag: 신청 가능
+actionWarning: 경고
+actionGroupMute: 그룹 음소거
+actionGroupKick: 그룹 제외
+actionReject: 콘텐츠 거부
+actionAccountRestrict: 계정 제한
+actionContentRemoval: 콘텐츠 삭제
+statusPending: 검토 중
+statusAccepted: 뒤집힘
+statusRejected: 유지

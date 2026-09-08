@@ -1,0 +1,20 @@
+title: الإجراءات والاستئناف
+actionsSection: إجراءات ضدّي
+actionsEmpty: لا توجد إجراءات
+appealsSection: استئنافاتي
+appealsEmpty: لا توجد استئنافات
+dialogTitle: تقديم استئناف
+reasonPlaceholder: اذكر السبب (مطلوب)
+submit: إرسال
+submitFailed: فشل الإرسال
+appealedTag: مستأنف
+appealableTag: قابل للاستئناف
+actionWarning: تحذير
+actionGroupMute: كتم في المجموعة
+actionGroupKick: طرد من المجموعة
+actionReject: رفض المحتوى
+actionAccountRestrict: تقييد الحساب
+actionContentRemoval: إزالة المحتوى
+statusPending: قيد المراجعة
+statusAccepted: تم الإلغاء
+statusRejected: تم التأكيد

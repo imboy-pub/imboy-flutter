@@ -20,20 +20,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	Translations({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.zhCn,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ) {
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <zh-CN>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	dynamic operator[](String key) => $meta.getTranslation(key);
+	dynamic operator[](String key) => _meta.getTranslation(key);
 
 	late final Translations _root = this; // ignore: unused_field
 
@@ -43,6 +44,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$account$zh_CN account = Translations$account$zh_CN.internal(_root);
 	late final Translations$agent$zh_CN agent = Translations$agent$zh_CN.internal(_root);
 	late final Translations$agentTask$zh_CN agentTask = Translations$agentTask$zh_CN.internal(_root);
+	late final Translations$appeal$zh_CN appeal = Translations$appeal$zh_CN.internal(_root);
 	late final Translations$billing$zh_CN billing = Translations$billing$zh_CN.internal(_root);
 	late final Translations$channel$zh_CN channel = Translations$channel$zh_CN.internal(_root);
 	late final Translations$chat$zh_CN chat = Translations$chat$zh_CN.internal(_root);
@@ -478,6 +480,75 @@ class Translations$agentTask$zh_CN {
 
 	/// zh-CN: '拒绝'
 	String get reject => '拒绝';
+}
+
+// Path: appeal
+class Translations$appeal$zh_CN {
+	Translations$appeal$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '处置与申诉'
+	String get title => '处置与申诉';
+
+	/// zh-CN: '针对我的处置'
+	String get actionsSection => '针对我的处置';
+
+	/// zh-CN: '暂无处置记录'
+	String get actionsEmpty => '暂无处置记录';
+
+	/// zh-CN: '我的申诉'
+	String get appealsSection => '我的申诉';
+
+	/// zh-CN: '暂无申诉记录'
+	String get appealsEmpty => '暂无申诉记录';
+
+	/// zh-CN: '发起申诉'
+	String get dialogTitle => '发起申诉';
+
+	/// zh-CN: '请说明申诉理由（必填）'
+	String get reasonPlaceholder => '请说明申诉理由（必填）';
+
+	/// zh-CN: '提交申诉'
+	String get submit => '提交申诉';
+
+	/// zh-CN: '申诉提交失败'
+	String get submitFailed => '申诉提交失败';
+
+	/// zh-CN: '已申诉'
+	String get appealedTag => '已申诉';
+
+	/// zh-CN: '可申诉'
+	String get appealableTag => '可申诉';
+
+	/// zh-CN: '警告'
+	String get actionWarning => '警告';
+
+	/// zh-CN: '群禁言'
+	String get actionGroupMute => '群禁言';
+
+	/// zh-CN: '移出群聊'
+	String get actionGroupKick => '移出群聊';
+
+	/// zh-CN: '驳回内容'
+	String get actionReject => '驳回内容';
+
+	/// zh-CN: '账号受限'
+	String get actionAccountRestrict => '账号受限';
+
+	/// zh-CN: '内容删除'
+	String get actionContentRemoval => '内容删除';
+
+	/// zh-CN: '待复审'
+	String get statusPending => '待复审';
+
+	/// zh-CN: '已翻案'
+	String get statusAccepted => '已翻案';
+
+	/// zh-CN: '已维持'
+	String get statusRejected => '已维持';
 }
 
 // Path: billing
@@ -6867,6 +6938,26 @@ extension on Translations {
 			'agentTask.awaitingApproval' => '待审批',
 			'agentTask.approve' => '批准',
 			'agentTask.reject' => '拒绝',
+			'appeal.title' => '处置与申诉',
+			'appeal.actionsSection' => '针对我的处置',
+			'appeal.actionsEmpty' => '暂无处置记录',
+			'appeal.appealsSection' => '我的申诉',
+			'appeal.appealsEmpty' => '暂无申诉记录',
+			'appeal.dialogTitle' => '发起申诉',
+			'appeal.reasonPlaceholder' => '请说明申诉理由（必填）',
+			'appeal.submit' => '提交申诉',
+			'appeal.submitFailed' => '申诉提交失败',
+			'appeal.appealedTag' => '已申诉',
+			'appeal.appealableTag' => '可申诉',
+			'appeal.actionWarning' => '警告',
+			'appeal.actionGroupMute' => '群禁言',
+			'appeal.actionGroupKick' => '移出群聊',
+			'appeal.actionReject' => '驳回内容',
+			'appeal.actionAccountRestrict' => '账号受限',
+			'appeal.actionContentRemoval' => '内容删除',
+			'appeal.statusPending' => '待复审',
+			'appeal.statusAccepted' => '已翻案',
+			'appeal.statusRejected' => '已维持',
 			'billing.title' => '套餐订阅',
 			'billing.planPeriodMonthly' => '月付',
 			'billing.planPeriodYearly' => '年付',
@@ -7223,6 +7314,8 @@ extension on Translations {
 			'chat.sendNewMessage' => '发送新消息',
 			'chat.markRead' => '标记已读',
 			'chat.markUnread' => '标记未读',
+			_ => null,
+		} ?? switch (path) {
 			'chat.pleaseEnterSignature' => '请输入个性签名',
 			'chat.exportProfile' => '导出资料',
 			'chat.setSignature' => '设置个性签名',
@@ -7243,8 +7336,6 @@ extension on Translations {
 			'chat.createdAtLabel' => ({required Object time}) => '创建时间: ${time}',
 			'chat.expiredAtLabel' => ({required Object time}) => '过期时间: ${time}',
 			'chat.myReceivedTab' => '我收到的',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderStatusLabel' => ({required Object status}) => '状态: ${status}',
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '创建时间: ${time}',
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付时间: ${time}',
@@ -7737,6 +7828,8 @@ extension on Translations {
 			'common.noProblem' => '没问题',
 			'common.onMyWay' => '马上到',
 			'common.operationOptions' => '操作选项',
+			_ => null,
+		} ?? switch (path) {
 			'common.copyTextContent' => '复制文本内容',
 			'common.shareWithOtherFriends' => '分享给其他好友',
 			'common.addTagsToFavorites' => '为收藏添加标签',
@@ -7757,8 +7850,6 @@ extension on Translations {
 			'common.momentsPublishFailed' => '发布失败',
 			'common.momentsAllowComment' => '允许评论',
 			'common.momentsNoComments' => '暂无评论',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentsCommentFailed' => '评论失败，请稍后重试',
 			'common.momentsDeleteFailed' => '删除失败，请稍后重试',
 			'common.momentsReportSubmitted' => '举报已提交',
@@ -8251,6 +8342,8 @@ extension on Translations {
 			'discovery.momentAtWho' => '提醒谁看',
 			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name}',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAtCount' => ({required Object count}) => '${count}人',
 			'error.restartRequired' => '需要重启应用',
 			'error.pleaseCheckNetwork' => '请检查你的网络设置。',
@@ -8271,8 +8364,6 @@ extension on Translations {
 			'group.groupName' => '群聊名称',
 			'group.mutualGroupsWithHer' => '我和他的共同群聊',
 			'group.groupOwner' => '群主',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAdmin' => '管理员',
 			'group.groupGuest' => '嘉宾',
 			'group.groupInfo' => '群聊信息',
@@ -8765,6 +8856,8 @@ extension on Translations {
 			'workspace.projectNameHint' => '例如：官网改版',
 			'workspace.projectNameRequired' => '项目名称不能为空',
 			'workspace.projectDescLabel' => '项目描述（可选）',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectDescHint' => '这个项目要交付什么？',
 			'workspace.projectSubmit' => '创建',
 			'workspace.projectCreateSuccess' => '项目创建成功',
@@ -8785,8 +8878,6 @@ extension on Translations {
 			'workspace.taskAssigneeLabel' => '负责人（工作区成员）',
 			'workspace.taskAssigneeNone' => '暂不指派',
 			'workspace.taskAssigneeRefresh' => '刷新负责人候选',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => '创建任务',
 			'workspace.taskSubmitSave' => '保存',
 			'workspace.taskCreatedToast' => '任务已创建',

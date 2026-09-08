@@ -16,22 +16,22 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsKoKr({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.koKr,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <ko-KR>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsKoKr _root = this; // ignore: unused_field
 
@@ -42,6 +42,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$account$ko_KR account = _Translations$account$ko_KR._(_root);
 	@override late final _Translations$agent$ko_KR agent = _Translations$agent$ko_KR._(_root);
 	@override late final _Translations$agentTask$ko_KR agentTask = _Translations$agentTask$ko_KR._(_root);
+	@override late final _Translations$appeal$ko_KR appeal = _Translations$appeal$ko_KR._(_root);
 	@override late final _Translations$billing$ko_KR billing = _Translations$billing$ko_KR._(_root);
 	@override late final _Translations$channel$ko_KR channel = _Translations$channel$ko_KR._(_root);
 	@override late final _Translations$chat$ko_KR chat = _Translations$chat$ko_KR._(_root);
@@ -222,6 +223,35 @@ class _Translations$agentTask$ko_KR extends Translations$agentTask$zh_CN {
 	@override String get awaitingApproval => '승인 대기 중';
 	@override String get approve => '승인';
 	@override String get reject => '거절';
+}
+
+// Path: appeal
+class _Translations$appeal$ko_KR extends Translations$appeal$zh_CN {
+	_Translations$appeal$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '조치 및 이의신청';
+	@override String get actionsSection => '나에 대한 조치';
+	@override String get actionsEmpty => '조치 기록이 없습니다';
+	@override String get appealsSection => '내 이의신청';
+	@override String get appealsEmpty => '이의신청 기록이 없습니다';
+	@override String get dialogTitle => '이의신청 제출';
+	@override String get reasonPlaceholder => '사유를 입력하세요 (필수)';
+	@override String get submit => '제출';
+	@override String get submitFailed => '제출 실패';
+	@override String get appealedTag => '신청됨';
+	@override String get appealableTag => '신청 가능';
+	@override String get actionWarning => '경고';
+	@override String get actionGroupMute => '그룹 음소거';
+	@override String get actionGroupKick => '그룹 제외';
+	@override String get actionReject => '콘텐츠 거부';
+	@override String get actionAccountRestrict => '계정 제한';
+	@override String get actionContentRemoval => '콘텐츠 삭제';
+	@override String get statusPending => '검토 중';
+	@override String get statusAccepted => '뒤집힘';
+	@override String get statusRejected => '유지';
 }
 
 // Path: billing
@@ -2609,6 +2639,26 @@ extension on TranslationsKoKr {
 			'agentTask.awaitingApproval' => '승인 대기 중',
 			'agentTask.approve' => '승인',
 			'agentTask.reject' => '거절',
+			'appeal.title' => '조치 및 이의신청',
+			'appeal.actionsSection' => '나에 대한 조치',
+			'appeal.actionsEmpty' => '조치 기록이 없습니다',
+			'appeal.appealsSection' => '내 이의신청',
+			'appeal.appealsEmpty' => '이의신청 기록이 없습니다',
+			'appeal.dialogTitle' => '이의신청 제출',
+			'appeal.reasonPlaceholder' => '사유를 입력하세요 (필수)',
+			'appeal.submit' => '제출',
+			'appeal.submitFailed' => '제출 실패',
+			'appeal.appealedTag' => '신청됨',
+			'appeal.appealableTag' => '신청 가능',
+			'appeal.actionWarning' => '경고',
+			'appeal.actionGroupMute' => '그룹 음소거',
+			'appeal.actionGroupKick' => '그룹 제외',
+			'appeal.actionReject' => '콘텐츠 거부',
+			'appeal.actionAccountRestrict' => '계정 제한',
+			'appeal.actionContentRemoval' => '콘텐츠 삭제',
+			'appeal.statusPending' => '검토 중',
+			'appeal.statusAccepted' => '뒤집힘',
+			'appeal.statusRejected' => '유지',
 			'billing.title' => '구독 플랜',
 			'billing.planPeriodMonthly' => '월간',
 			'billing.planPeriodYearly' => '연간',
@@ -2965,6 +3015,8 @@ extension on TranslationsKoKr {
 			'chat.messageId' => '메시지 ID',
 			'chat.chatType' => '채팅 유형',
 			'chat.deletingMessage' => '삭제 중...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.deletingLocalMessage' => '로컬 메시지 삭제 중...',
 			'chat.quickReplyReceived' => '받았습니다',
 			'chat.quickReplyThanks' => '감사합니다',
@@ -2985,8 +3037,6 @@ extension on TranslationsKoKr {
 			'chat.orderStatusRefunded' => '환불됨',
 			'chat.orderStatusExpired' => '만료됨',
 			'chat.defaultFileName' => '파일',
-			_ => null,
-		} ?? switch (path) {
 			'chat.fileUrlInvalid' => '파일 링크가 잘못되었습니다',
 			'chat.e2eeStatusAvailable' => '사용 가능',
 			'chat.e2eeGenerateNewKey' => '새 키 생성',
@@ -3479,6 +3529,8 @@ extension on TranslationsKoKr {
 			'common.deleteThisCollection' => '이 수집 항목 삭제',
 			'common.changeSuccess' => '수정 성공',
 			'common.lengthOk' => '길이 적합',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmNewPassword' => '새 비밀번호 확인',
 			'common.validationPassed' => '검증 통과',
 			'common.momentsContentHint' => '무엇을 공유하시겠어요?...',
@@ -3499,8 +3551,6 @@ extension on TranslationsKoKr {
 			'common.momentReportReasonSpam' => '스팸·광고',
 			'common.momentReportReasonHarassment' => '괴롭힘',
 			'common.momentReportReasonPorn' => '음란물',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '사기',
 			'common.momentReportReasonInfringement' => '저작권 침해',
 			'common.momentReportReasonOther' => '기타',
@@ -3993,6 +4043,8 @@ extension on TranslationsKoKr {
 			'discovery.momentAtWho' => '알림 받을 사람',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}명이 좋아합니다',
 			'discovery.momentLocation' => '위치',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentLocationNone' => '위치 표시 안 함',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
@@ -4013,8 +4065,6 @@ extension on TranslationsKoKr {
 			'group.groupName' => '그룹 채팅 이름',
 			'group.mutualGroupsWithHer' => '해당 사용자와의 공통 그룹 채팅',
 			'group.groupOwner' => 'Owner',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => '게스트',
 			'group.setAdmin' => '관리자로 설정',
@@ -4507,6 +4557,8 @@ extension on TranslationsKoKr {
 			'workspace.projectNameHint' => '예: 공식 홈페이지 리뉴얼',
 			'workspace.projectNameRequired' => '프로젝트 이름은 필수입니다',
 			'workspace.projectDescLabel' => '프로젝트 설명(선택)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectDescHint' => '이 프로젝트로 무엇을 전달하나요?',
 			'workspace.projectSubmit' => '만들기',
 			'workspace.projectCreateSuccess' => '프로젝트가 생성되었습니다',
@@ -4527,8 +4579,6 @@ extension on TranslationsKoKr {
 			'workspace.taskAssigneeLabel' => '담당자(워크스페이스 구성원)',
 			'workspace.taskAssigneeNone' => '지정 안 함',
 			'workspace.taskAssigneeRefresh' => '담당자 후보 새로 고침',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => '작업 만들기',
 			'workspace.taskSubmitSave' => '저장',
 			'workspace.taskCreatedToast' => '작업이 생성되었습니다',

@@ -1,0 +1,20 @@
+title: Enforcement & Appeals
+actionsSection: Actions on me
+actionsEmpty: No enforcement actions
+appealsSection: My appeals
+appealsEmpty: No appeals submitted
+dialogTitle: Submit an appeal
+reasonPlaceholder: Explain your reason (required)
+submit: Submit appeal
+submitFailed: Failed to submit appeal
+appealedTag: Appealed
+appealableTag: Appealable
+actionWarning: Warning
+actionGroupMute: Group mute
+actionGroupKick: Removed from group
+actionReject: Content rejected
+actionAccountRestrict: Account restricted
+actionContentRemoval: Content removed
+statusPending: Under review
+statusAccepted: Overturned
+statusRejected: Upheld

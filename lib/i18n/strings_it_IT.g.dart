@@ -16,22 +16,22 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsItIt({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.itIt,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <it-IT>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsItIt _root = this; // ignore: unused_field
 
@@ -42,6 +42,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$account$it_IT account = _Translations$account$it_IT._(_root);
 	@override late final _Translations$agent$it_IT agent = _Translations$agent$it_IT._(_root);
 	@override late final _Translations$agentTask$it_IT agentTask = _Translations$agentTask$it_IT._(_root);
+	@override late final _Translations$appeal$it_IT appeal = _Translations$appeal$it_IT._(_root);
 	@override late final _Translations$billing$it_IT billing = _Translations$billing$it_IT._(_root);
 	@override late final _Translations$channel$it_IT channel = _Translations$channel$it_IT._(_root);
 	@override late final _Translations$chat$it_IT chat = _Translations$chat$it_IT._(_root);
@@ -222,6 +223,35 @@ class _Translations$agentTask$it_IT extends Translations$agentTask$zh_CN {
 	@override String get awaitingApproval => 'In attesa di approvazione';
 	@override String get approve => 'Approva';
 	@override String get reject => 'Rifiuta';
+}
+
+// Path: appeal
+class _Translations$appeal$it_IT extends Translations$appeal$zh_CN {
+	_Translations$appeal$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Sanzioni e ricorsi';
+	@override String get actionsSection => 'Sanzioni su di me';
+	@override String get actionsEmpty => 'Nessuna sanzione';
+	@override String get appealsSection => 'I miei ricorsi';
+	@override String get appealsEmpty => 'Nessun ricorso';
+	@override String get dialogTitle => 'Presenta ricorso';
+	@override String get reasonPlaceholder => 'Indica il motivo (obbligatorio)';
+	@override String get submit => 'Invia';
+	@override String get submitFailed => 'Invio non riuscito';
+	@override String get appealedTag => 'Ricorso presentato';
+	@override String get appealableTag => 'Ricorso possibile';
+	@override String get actionWarning => 'Avvertimento';
+	@override String get actionGroupMute => 'Silenzio di gruppo';
+	@override String get actionGroupKick => 'Rimosso dal gruppo';
+	@override String get actionReject => 'Contenuto respinto';
+	@override String get actionAccountRestrict => 'Account limitato';
+	@override String get actionContentRemoval => 'Contenuto rimosso';
+	@override String get statusPending => 'In revisione';
+	@override String get statusAccepted => 'Annullata';
+	@override String get statusRejected => 'Confermata';
 }
 
 // Path: billing
@@ -2612,6 +2642,26 @@ extension on TranslationsItIt {
 			'agentTask.awaitingApproval' => 'In attesa di approvazione',
 			'agentTask.approve' => 'Approva',
 			'agentTask.reject' => 'Rifiuta',
+			'appeal.title' => 'Sanzioni e ricorsi',
+			'appeal.actionsSection' => 'Sanzioni su di me',
+			'appeal.actionsEmpty' => 'Nessuna sanzione',
+			'appeal.appealsSection' => 'I miei ricorsi',
+			'appeal.appealsEmpty' => 'Nessun ricorso',
+			'appeal.dialogTitle' => 'Presenta ricorso',
+			'appeal.reasonPlaceholder' => 'Indica il motivo (obbligatorio)',
+			'appeal.submit' => 'Invia',
+			'appeal.submitFailed' => 'Invio non riuscito',
+			'appeal.appealedTag' => 'Ricorso presentato',
+			'appeal.appealableTag' => 'Ricorso possibile',
+			'appeal.actionWarning' => 'Avvertimento',
+			'appeal.actionGroupMute' => 'Silenzio di gruppo',
+			'appeal.actionGroupKick' => 'Rimosso dal gruppo',
+			'appeal.actionReject' => 'Contenuto respinto',
+			'appeal.actionAccountRestrict' => 'Account limitato',
+			'appeal.actionContentRemoval' => 'Contenuto rimosso',
+			'appeal.statusPending' => 'In revisione',
+			'appeal.statusAccepted' => 'Annullata',
+			'appeal.statusRejected' => 'Confermata',
 			'billing.title' => 'Abbonamenti',
 			'billing.planPeriodMonthly' => 'Mensile',
 			'billing.planPeriodYearly' => 'Annuale',
@@ -2968,6 +3018,8 @@ extension on TranslationsItIt {
 			'chat.messageId' => 'ID messaggio',
 			'chat.chatType' => 'Tipo di chat',
 			'chat.deletingMessage' => 'Eliminazione in corso...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.deletingLocalMessage' => 'Eliminazione messaggio locale in corso...',
 			'chat.quickReplyReceived' => 'Ricevuto',
 			'chat.quickReplyThanks' => 'Grazie',
@@ -2988,8 +3040,6 @@ extension on TranslationsItIt {
 			'chat.orderStatusRefunded' => 'Rimborsato',
 			'chat.orderStatusExpired' => 'Scaduto',
 			'chat.defaultFileName' => 'File',
-			_ => null,
-		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'Link file non valido',
 			'chat.e2eeStatusAvailable' => 'Disponibile',
 			'chat.e2eeGenerateNewKey' => 'Genera nuova chiave',
@@ -3482,6 +3532,8 @@ extension on TranslationsItIt {
 			'common.deleteThisCollection' => 'Elimina questa raccolta',
 			'common.changeSuccess' => 'Modificato con successo',
 			'common.lengthOk' => 'Lunghezza OK',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmNewPassword' => 'Conferma nuova password',
 			'common.validationPassed' => 'Convalida superata',
 			'common.momentsContentHint' => 'Scrivi qualcosa...',
@@ -3502,8 +3554,6 @@ extension on TranslationsItIt {
 			'common.momentReportReasonSpam' => 'Spam o pubblicità',
 			'common.momentReportReasonHarassment' => 'Molestie',
 			'common.momentReportReasonPorn' => 'Pornografia',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Frode o truffa',
 			'common.momentReportReasonInfringement' => 'Violazione del copyright',
 			'common.momentReportReasonOther' => 'Altro',
@@ -3996,6 +4046,8 @@ extension on TranslationsItIt {
 			'discovery.momentAtWho' => 'Chi avvisare',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => 'Piace a ${count} persone',
 			'discovery.momentLocation' => 'Posizione',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentLocationNone' => 'Non mostrare la posizione',
 			'error.restartRequired' => 'Riavvio richiesto',
 			'error.pleaseCheckNetwork' => 'Controlla le impostazioni di rete.',
@@ -4016,8 +4068,6 @@ extension on TranslationsItIt {
 			'group.groupName' => 'Nome gruppo',
 			'group.mutualGroupsWithHer' => 'Gruppi comuni con lui/lei',
 			'group.groupOwner' => 'Owner',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Ospite d\'onore',
 			'group.setAdmin' => 'Imposta come amministratore',
@@ -4510,6 +4560,8 @@ extension on TranslationsItIt {
 			'workspace.projectInsightsTabActivity' => 'Attività del progetto',
 			'workspace.projectInsightsTabPinned' => 'Messaggi in evidenza',
 			'workspace.projectInsightsTabPosts' => 'Post correlati',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectInsightsTabResources' => 'Link alle risorse',
 			'workspace.projectLoadMore' => 'Carica altro',
 			'workspace.projectMarkDone' => 'Segna come completato',
@@ -4530,8 +4582,6 @@ extension on TranslationsItIt {
 			'workspace.projectMemberTransferDesc' => 'Dopo il trasferimento l\'altro otterrà il pieno controllo di gestione di questo progetto',
 			'workspace.projectMemberTransferDoneToast' => 'Responsabilità del progetto trasferita',
 			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'Trasferisci la responsabilità del progetto a ${name}',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMembersEntry' => 'Membri',
 			'workspace.projectMembersTitle' => 'Membri del progetto',
 			'workspace.projectMilestoneAlreadyReachedToast' => 'Questa milestone è già stata raggiunta',

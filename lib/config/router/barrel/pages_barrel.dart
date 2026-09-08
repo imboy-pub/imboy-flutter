@@ -70,6 +70,7 @@ export 'package:imboy/page/mine/account_security/account_security_page.dart';
 export 'package:imboy/page/mine/change_password/change_password_page.dart';
 export 'package:imboy/page/mine/change_password/set_password_page.dart';
 export 'package:imboy/page/mine/denylist/denylist_page.dart';
+export 'package:imboy/page/mine/appeal/appeal_page.dart';
 export 'package:imboy/page/mine/storage_space/storage_space_page.dart';
 export 'package:imboy/page/mine/user_device/user_device_page.dart';
 export 'package:imboy/modules/ops_governance/public.dart';

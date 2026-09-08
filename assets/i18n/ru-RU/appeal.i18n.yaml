@@ -1,0 +1,20 @@
+title: Меры и обжалование
+actionsSection: Меры в отношении меня
+actionsEmpty: Мер нет
+appealsSection: Мои обжалования
+appealsEmpty: Обжалований нет
+dialogTitle: Подать обжалование
+reasonPlaceholder: Укажите причину (обязательно)
+submit: Отправить
+submitFailed: Не удалось отправить
+appealedTag: Обжаловано
+appealableTag: Можно обжаловать
+actionWarning: Предупреждение
+actionGroupMute: Мут в группе
+actionGroupKick: Исключён из группы
+actionReject: Контент отклонён
+actionAccountRestrict: Аккаунт ограничен
+actionContentRemoval: Контент удалён
+statusPending: На рассмотрении
+statusAccepted: Отменено
+statusRejected: Оставлено

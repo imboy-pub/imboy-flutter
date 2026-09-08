@@ -1,0 +1,20 @@
+title: Maßnahmen & Einspruch
+actionsSection: Maßnahmen gegen mich
+actionsEmpty: Keine Maßnahmen
+appealsSection: Meine Einsprüche
+appealsEmpty: Keine Einsprüche
+dialogTitle: Einspruch einlegen
+reasonPlaceholder: Begründung angeben (erforderlich)
+submit: Einspruch senden
+submitFailed: Senden fehlgeschlagen
+appealedTag: Eingesprochen
+appealableTag: Einspruch möglich
+actionWarning: Warnung
+actionGroupMute: Gruppen-Stummschaltung
+actionGroupKick: Aus Gruppe entfernt
+actionReject: Inhalt abgelehnt
+actionAccountRestrict: Konto eingeschränkt
+actionContentRemoval: Inhalt entfernt
+statusPending: In Prüfung
+statusAccepted: Aufgehoben
+statusRejected: Aufrechterhalten

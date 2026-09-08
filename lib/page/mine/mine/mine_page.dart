@@ -139,6 +139,15 @@ class _MinePageState extends ConsumerState<MinePage> {
                     ),
                     onTap: () => context.push('/devices'),
                   ),
+                  // R-04.1：处置与申诉入口
+                  ImBoySettingsTile(
+                    title: Text(t.appeal.title),
+                    leading: _buildIcon(
+                      CupertinoIcons.exclamationmark_shield_fill,
+                      AppColors.iosRed,
+                    ),
+                    onTap: () => context.push('/mine/appeal'),
+                  ),
                 ],
               ),
             ),

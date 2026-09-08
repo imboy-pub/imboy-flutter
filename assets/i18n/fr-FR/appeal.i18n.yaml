@@ -1,0 +1,20 @@
+title: Sanctions & recours
+actionsSection: Sanctions me concernant
+actionsEmpty: Aucune sanction
+appealsSection: Mes recours
+appealsEmpty: Aucun recours
+dialogTitle: Faire un recours
+reasonPlaceholder: Indiquez le motif (obligatoire)
+submit: Envoyer
+submitFailed: Échec de l'envoi
+appealedTag: Recours déposé
+appealableTag: Recours possible
+actionWarning: Avertissement
+actionGroupMute: Muet du groupe
+actionGroupKick: Exclu du groupe
+actionReject: Contenu rejeté
+actionAccountRestrict: Compte restreint
+actionContentRemoval: Contenu supprimé
+statusPending: En examen
+statusAccepted: Annulée
+statusRejected: Maintenue

@@ -16,22 +16,22 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsZhHant({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.zhHant,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <zh-Hant>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsZhHant _root = this; // ignore: unused_field
 
@@ -42,6 +42,7 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	@override late final Translations$account$zh_Hant account = Translations$account$zh_Hant.internal(_root);
 	@override late final Translations$agent$zh_Hant agent = Translations$agent$zh_Hant.internal(_root);
 	@override late final Translations$agentTask$zh_Hant agentTask = Translations$agentTask$zh_Hant.internal(_root);
+	@override late final Translations$appeal$zh_Hant appeal = Translations$appeal$zh_Hant.internal(_root);
 	@override late final Translations$billing$zh_Hant billing = Translations$billing$zh_Hant.internal(_root);
 	@override late final Translations$channel$zh_Hant channel = Translations$channel$zh_Hant.internal(_root);
 	@override late final Translations$chat$zh_Hant chat = Translations$chat$zh_Hant.internal(_root);
@@ -222,6 +223,35 @@ class Translations$agentTask$zh_Hant extends Translations$agentTask$zh_CN {
 	@override String get awaitingApproval => '待審批';
 	@override String get approve => '核准';
 	@override String get reject => '拒絕';
+}
+
+// Path: appeal
+class Translations$appeal$zh_Hant extends Translations$appeal$zh_CN {
+	Translations$appeal$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '處置與申訴';
+	@override String get actionsSection => '針對我的處置';
+	@override String get actionsEmpty => '暫無處置記錄';
+	@override String get appealsSection => '我的申訴';
+	@override String get appealsEmpty => '暫無申訴記錄';
+	@override String get dialogTitle => '發起申訴';
+	@override String get reasonPlaceholder => '請說明申訴理由（必填）';
+	@override String get submit => '提交申訴';
+	@override String get submitFailed => '申訴提交失敗';
+	@override String get appealedTag => '已申訴';
+	@override String get appealableTag => '可申訴';
+	@override String get actionWarning => '警告';
+	@override String get actionGroupMute => '群禁言';
+	@override String get actionGroupKick => '移出群聊';
+	@override String get actionReject => '駁回內容';
+	@override String get actionAccountRestrict => '帳號受限';
+	@override String get actionContentRemoval => '內容刪除';
+	@override String get statusPending => '待複審';
+	@override String get statusAccepted => '已翻案';
+	@override String get statusRejected => '已維持';
 }
 
 // Path: billing
@@ -2609,6 +2639,26 @@ extension on TranslationsZhHant {
 			'agentTask.awaitingApproval' => '待審批',
 			'agentTask.approve' => '核准',
 			'agentTask.reject' => '拒絕',
+			'appeal.title' => '處置與申訴',
+			'appeal.actionsSection' => '針對我的處置',
+			'appeal.actionsEmpty' => '暫無處置記錄',
+			'appeal.appealsSection' => '我的申訴',
+			'appeal.appealsEmpty' => '暫無申訴記錄',
+			'appeal.dialogTitle' => '發起申訴',
+			'appeal.reasonPlaceholder' => '請說明申訴理由（必填）',
+			'appeal.submit' => '提交申訴',
+			'appeal.submitFailed' => '申訴提交失敗',
+			'appeal.appealedTag' => '已申訴',
+			'appeal.appealableTag' => '可申訴',
+			'appeal.actionWarning' => '警告',
+			'appeal.actionGroupMute' => '群禁言',
+			'appeal.actionGroupKick' => '移出群聊',
+			'appeal.actionReject' => '駁回內容',
+			'appeal.actionAccountRestrict' => '帳號受限',
+			'appeal.actionContentRemoval' => '內容刪除',
+			'appeal.statusPending' => '待複審',
+			'appeal.statusAccepted' => '已翻案',
+			'appeal.statusRejected' => '已維持',
 			'billing.title' => '方案訂閱',
 			'billing.planPeriodMonthly' => '月繳',
 			'billing.planPeriodYearly' => '年繳',
@@ -2965,6 +3015,8 @@ extension on TranslationsZhHant {
 			'chat.markRead' => '標記已讀',
 			'chat.markUnread' => '標記未讀',
 			'chat.pleaseEnterSignature' => '請輸入個人簽名',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => '匯出資料',
 			'chat.setSignature' => '設定個性簽名',
 			'chat.setAvatar' => '設定頭像',
@@ -2985,8 +3037,6 @@ extension on TranslationsZhHant {
 			'chat.expiredAtLabel' => ({required Object time}) => '過期時間: ${time}',
 			'chat.myReceivedTab' => '我接收的',
 			'chat.orderStatusLabel' => ({required Object status}) => '狀態: ${status}',
-			_ => null,
-		} ?? switch (path) {
 			'chat.orderCreatedAtLabel' => ({required Object time}) => '建立時間: ${time}',
 			'chat.orderPaymentAtLabel' => ({required Object time}) => '支付時間: ${time}',
 			'chat.orderStatusPending' => '待付款',
@@ -3479,6 +3529,8 @@ extension on TranslationsZhHant {
 			'common.addTagsToFavorites' => '為收藏新增標籤',
 			'common.addRemarkToFavorites' => '為收藏新增備註',
 			'common.deleteThisCollection' => '刪除此收藏',
+			_ => null,
+		} ?? switch (path) {
 			'common.changeSuccess' => '更改成功',
 			'common.lengthOk' => '長度符合',
 			'common.confirmNewPassword' => '確認新密碼',
@@ -3499,8 +3551,6 @@ extension on TranslationsZhHant {
 			'common.momentsReportSubmitted' => '舉報已提交',
 			'common.momentsReportFailed' => '舉報失敗，請稍後重試',
 			'common.momentReportReasonSpam' => '垃圾廣告',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonHarassment' => '騷擾霸凌',
 			'common.momentReportReasonPorn' => '色情或不雅內容',
 			'common.momentReportReasonFraud' => '欺詐詐騙',
@@ -3993,6 +4043,8 @@ extension on TranslationsZhHant {
 			'discovery.momentAtWho' => '提醒誰看',
 			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name} 查看',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人查看',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAtCount' => ({required Object count}) => '${count} 人查看',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.pleaseCheckNetwork' => '請檢查你的網路設定。',
@@ -4013,8 +4065,6 @@ extension on TranslationsZhHant {
 			'group.groupName' => '群組名稱',
 			'group.mutualGroupsWithHer' => '我和他的共同群組',
 			'group.groupOwner' => 'Owner',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => '嘉賓',
 			'group.groupInfo' => '群組資訊',
@@ -4507,6 +4557,8 @@ extension on TranslationsZhHant {
 			'workspace.projectNameHint' => '例如：官網改版',
 			'workspace.projectNameRequired' => '專案名稱不能為空',
 			'workspace.projectDescLabel' => '專案描述（選填）',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectDescHint' => '這個專案要交付什麼？',
 			'workspace.projectSubmit' => '建立',
 			'workspace.projectCreateSuccess' => '專案建立成功',
@@ -4527,8 +4579,6 @@ extension on TranslationsZhHant {
 			'workspace.taskAssigneeLabel' => '負責人（工作區成員）',
 			'workspace.taskAssigneeNone' => '暫不指派',
 			'workspace.taskAssigneeRefresh' => '重新整理負責人候選',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => '建立任務',
 			'workspace.taskSubmitSave' => '儲存',
 			'workspace.taskCreatedToast' => '任務已建立',

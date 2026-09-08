@@ -16,22 +16,22 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsArSa({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.arSa,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <ar-SA>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsArSa _root = this; // ignore: unused_field
 
@@ -42,6 +42,7 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$account$ar_SA account = _Translations$account$ar_SA._(_root);
 	@override late final _Translations$agent$ar_SA agent = _Translations$agent$ar_SA._(_root);
 	@override late final _Translations$agentTask$ar_SA agentTask = _Translations$agentTask$ar_SA._(_root);
+	@override late final _Translations$appeal$ar_SA appeal = _Translations$appeal$ar_SA._(_root);
 	@override late final _Translations$billing$ar_SA billing = _Translations$billing$ar_SA._(_root);
 	@override late final _Translations$channel$ar_SA channel = _Translations$channel$ar_SA._(_root);
 	@override late final _Translations$chat$ar_SA chat = _Translations$chat$ar_SA._(_root);
@@ -222,6 +223,35 @@ class _Translations$agentTask$ar_SA extends Translations$agentTask$zh_CN {
 	@override String get awaitingApproval => 'بانتظار الموافقة';
 	@override String get approve => 'موافقة';
 	@override String get reject => 'رفض';
+}
+
+// Path: appeal
+class _Translations$appeal$ar_SA extends Translations$appeal$zh_CN {
+	_Translations$appeal$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'الإجراءات والاستئناف';
+	@override String get actionsSection => 'إجراءات ضدّي';
+	@override String get actionsEmpty => 'لا توجد إجراءات';
+	@override String get appealsSection => 'استئنافاتي';
+	@override String get appealsEmpty => 'لا توجد استئنافات';
+	@override String get dialogTitle => 'تقديم استئناف';
+	@override String get reasonPlaceholder => 'اذكر السبب (مطلوب)';
+	@override String get submit => 'إرسال';
+	@override String get submitFailed => 'فشل الإرسال';
+	@override String get appealedTag => 'مستأنف';
+	@override String get appealableTag => 'قابل للاستئناف';
+	@override String get actionWarning => 'تحذير';
+	@override String get actionGroupMute => 'كتم في المجموعة';
+	@override String get actionGroupKick => 'طرد من المجموعة';
+	@override String get actionReject => 'رفض المحتوى';
+	@override String get actionAccountRestrict => 'تقييد الحساب';
+	@override String get actionContentRemoval => 'إزالة المحتوى';
+	@override String get statusPending => 'قيد المراجعة';
+	@override String get statusAccepted => 'تم الإلغاء';
+	@override String get statusRejected => 'تم التأكيد';
 }
 
 // Path: billing
@@ -2621,6 +2651,26 @@ extension on TranslationsArSa {
 			'agentTask.awaitingApproval' => 'بانتظار الموافقة',
 			'agentTask.approve' => 'موافقة',
 			'agentTask.reject' => 'رفض',
+			'appeal.title' => 'الإجراءات والاستئناف',
+			'appeal.actionsSection' => 'إجراءات ضدّي',
+			'appeal.actionsEmpty' => 'لا توجد إجراءات',
+			'appeal.appealsSection' => 'استئنافاتي',
+			'appeal.appealsEmpty' => 'لا توجد استئنافات',
+			'appeal.dialogTitle' => 'تقديم استئناف',
+			'appeal.reasonPlaceholder' => 'اذكر السبب (مطلوب)',
+			'appeal.submit' => 'إرسال',
+			'appeal.submitFailed' => 'فشل الإرسال',
+			'appeal.appealedTag' => 'مستأنف',
+			'appeal.appealableTag' => 'قابل للاستئناف',
+			'appeal.actionWarning' => 'تحذير',
+			'appeal.actionGroupMute' => 'كتم في المجموعة',
+			'appeal.actionGroupKick' => 'طرد من المجموعة',
+			'appeal.actionReject' => 'رفض المحتوى',
+			'appeal.actionAccountRestrict' => 'تقييد الحساب',
+			'appeal.actionContentRemoval' => 'إزالة المحتوى',
+			'appeal.statusPending' => 'قيد المراجعة',
+			'appeal.statusAccepted' => 'تم الإلغاء',
+			'appeal.statusRejected' => 'تم التأكيد',
 			'billing.title' => 'الاشتراكات',
 			'billing.planPeriodMonthly' => 'شهري',
 			'billing.planPeriodYearly' => 'سنوي',
@@ -2977,6 +3027,8 @@ extension on TranslationsArSa {
 			'chat.messageId' => 'معرف الرسالة',
 			'chat.chatType' => 'نوع الدردشة',
 			'chat.deletingMessage' => 'جارٍ حذف الرسالة...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.deletingLocalMessage' => 'جارٍ حذف الرسائل المحلية...',
 			'chat.quickReplyReceived' => 'تم الاستلام',
 			'chat.quickReplyThanks' => 'شكراً',
@@ -2997,8 +3049,6 @@ extension on TranslationsArSa {
 			'chat.orderStatusRefunded' => 'تم الاسترداد',
 			'chat.orderStatusExpired' => 'منتهٍ',
 			'chat.defaultFileName' => 'ملف',
-			_ => null,
-		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'رابط الملف غير صالح',
 			'chat.e2eeStatusAvailable' => 'متاح',
 			'chat.e2eeGenerateNewKey' => 'إنشاء مفتاح جديد',
@@ -3317,10 +3367,10 @@ extension on TranslationsArSa {
 			'common.sureDeleteData' => 'هل أنت متأكد من الحذف؟ لا يمكن التراجع عن الحذف.',
 			'common.sureDeleteGroupChatRecord' => 'هل أنت متأكد من حذف سجل المجموعة؟',
 			'common.switchEnvironment' => 'تبديل البيئة',
-			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, one: 'منذ يوم واحد', two: 'منذ يومين', few: 'منذ ${n} أيام', many: 'منذ ${n} يومًا', other: 'منذ ${n} يوم', ),
-			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, one: 'منذ ساعة واحدة', two: 'منذ ساعتين', few: 'منذ ${n} ساعات', many: 'منذ ${n} ساعةً', other: 'منذ ${n} ساعة', ),
+			'common.timeDaysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, one: 'منذ يوم واحد', two: 'منذ يومين', few: 'منذ ${n} أيام', many: 'منذ ${n} يومًا', other: 'منذ ${n} يوم', ), 
+			'common.timeHoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, one: 'منذ ساعة واحدة', two: 'منذ ساعتين', few: 'منذ ${n} ساعات', many: 'منذ ${n} ساعةً', other: 'منذ ${n} ساعة', ), 
 			'common.timeJustNow' => 'الآن',
-			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, one: 'منذ دقيقة واحدة', two: 'منذ دقيقتين', few: 'منذ ${n} دقائق', many: 'منذ ${n} دقيقةً', other: 'منذ ${n} دقيقة', ),
+			'common.timeMinutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(n, one: 'منذ دقيقة واحدة', two: 'منذ دقيقتين', few: 'منذ ${n} دقائق', many: 'منذ ${n} دقيقةً', other: 'منذ ${n} دقيقة', ), 
 			'common.tipConnectDesc' => 'لا يوجد اتصال بالشبكة',
 			'common.tipConnectDescWithParen' => ({required Object param}) => '(${param})',
 			'common.tipDeleteContact' => ({required Object param}) => 'حذف جهة الاتصال "${param}"، وحذف سجل الدردشة مع جهة الاتصال هذه في نفس الوقت',
@@ -3491,6 +3541,8 @@ extension on TranslationsArSa {
 			'common.deleteThisCollection' => 'حذف هذه المفضلة',
 			'common.changeSuccess' => 'نجح التعديل',
 			'common.lengthOk' => 'الطول صحيح',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmNewPassword' => 'تأكيد كلمة المرور الجديدة',
 			'common.validationPassed' => 'نجح التحقق',
 			'common.momentsContentHint' => 'شارك شيئاً...',
@@ -3511,8 +3563,6 @@ extension on TranslationsArSa {
 			'common.momentReportReasonSpam' => 'مزعج أو إعلانات',
 			'common.momentReportReasonHarassment' => 'مضايقة',
 			'common.momentReportReasonPorn' => 'محتوى إباحي',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'احتيال',
 			'common.momentReportReasonInfringement' => 'انتهاك حقوق النشر',
 			'common.momentReportReasonOther' => 'أخرى',
@@ -4005,6 +4055,8 @@ extension on TranslationsArSa {
 			'discovery.momentAtWho' => 'من تريد تنبيهه؟',
 			'discovery.momentAtReminded' => ({required Object name}) => 'نبّهت ${name}',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'نبّهت ${name} و${count} آخرين',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAtCount' => ({required Object count}) => '${count} أشخاص',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
@@ -4025,8 +4077,6 @@ extension on TranslationsArSa {
 			'group.groupName' => 'اسم الدردشة الجماعية',
 			'group.mutualGroupsWithHer' => 'المجموعات المشتركة بيني وبينه',
 			'group.groupOwner' => 'Owner',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'ضيف',
 			'group.setAdmin' => 'تعيين مشرفًا',
@@ -4519,6 +4569,8 @@ extension on TranslationsArSa {
 			'workspace.projectNameHint' => 'مثال: إعادة تصميم الموقع',
 			'workspace.projectNameRequired' => 'لا يمكن أن يكون اسم المشروع فارغاً',
 			'workspace.projectDescLabel' => 'وصف المشروع (اختياري)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectDescHint' => 'ماذا سيقدّم هذا المشروع؟',
 			'workspace.projectSubmit' => 'إنشاء',
 			'workspace.projectCreateSuccess' => 'تم إنشاء المشروع بنجاح',
@@ -4539,8 +4591,6 @@ extension on TranslationsArSa {
 			'workspace.taskAssigneeLabel' => 'المسؤول (عضو مساحة العمل)',
 			'workspace.taskAssigneeNone' => 'بدون تعيين حالياً',
 			'workspace.taskAssigneeRefresh' => 'تحديث قائمة المرشحين للمسؤولية',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'إنشاء المهمة',
 			'workspace.taskSubmitSave' => 'حفظ',
 			'workspace.taskCreatedToast' => 'تم إنشاء المهمة',

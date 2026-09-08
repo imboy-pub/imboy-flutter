@@ -101,6 +101,12 @@ List<RouteBase> mineRoutes() => [
         CupertinoPage(key: state.pageKey, child: DenylistPage()),
   ),
   GoRoute(
+    path: '/mine/appeal',
+    name: 'appeal',
+    pageBuilder: (context, state) =>
+        CupertinoPage(key: state.pageKey, child: const AppealPage()),
+  ),
+  GoRoute(
     path: '/storage_space',
     name: 'storage_space',
     pageBuilder: (context, state) =>

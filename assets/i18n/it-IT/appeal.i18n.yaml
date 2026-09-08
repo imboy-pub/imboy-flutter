@@ -1,0 +1,20 @@
+title: Sanzioni e ricorsi
+actionsSection: Sanzioni su di me
+actionsEmpty: Nessuna sanzione
+appealsSection: I miei ricorsi
+appealsEmpty: Nessun ricorso
+dialogTitle: Presenta ricorso
+reasonPlaceholder: Indica il motivo (obbligatorio)
+submit: Invia
+submitFailed: Invio non riuscito
+appealedTag: Ricorso presentato
+appealableTag: Ricorso possibile
+actionWarning: Avvertimento
+actionGroupMute: Silenzio di gruppo
+actionGroupKick: Rimosso dal gruppo
+actionReject: Contenuto respinto
+actionAccountRestrict: Account limitato
+actionContentRemoval: Contenuto rimosso
+statusPending: In revisione
+statusAccepted: Annullata
+statusRejected: Confermata

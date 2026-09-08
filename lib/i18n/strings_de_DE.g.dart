@@ -16,22 +16,22 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsDeDe({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.deDe,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <de-DE>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsDeDe _root = this; // ignore: unused_field
 
@@ -42,6 +42,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$account$de_DE account = _Translations$account$de_DE._(_root);
 	@override late final _Translations$agent$de_DE agent = _Translations$agent$de_DE._(_root);
 	@override late final _Translations$agentTask$de_DE agentTask = _Translations$agentTask$de_DE._(_root);
+	@override late final _Translations$appeal$de_DE appeal = _Translations$appeal$de_DE._(_root);
 	@override late final _Translations$billing$de_DE billing = _Translations$billing$de_DE._(_root);
 	@override late final _Translations$channel$de_DE channel = _Translations$channel$de_DE._(_root);
 	@override late final _Translations$chat$de_DE chat = _Translations$chat$de_DE._(_root);
@@ -222,6 +223,35 @@ class _Translations$agentTask$de_DE extends Translations$agentTask$zh_CN {
 	@override String get awaitingApproval => 'Genehmigung ausstehend';
 	@override String get approve => 'Genehmigen';
 	@override String get reject => 'Ablehnen';
+}
+
+// Path: appeal
+class _Translations$appeal$de_DE extends Translations$appeal$zh_CN {
+	_Translations$appeal$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Maßnahmen & Einspruch';
+	@override String get actionsSection => 'Maßnahmen gegen mich';
+	@override String get actionsEmpty => 'Keine Maßnahmen';
+	@override String get appealsSection => 'Meine Einsprüche';
+	@override String get appealsEmpty => 'Keine Einsprüche';
+	@override String get dialogTitle => 'Einspruch einlegen';
+	@override String get reasonPlaceholder => 'Begründung angeben (erforderlich)';
+	@override String get submit => 'Einspruch senden';
+	@override String get submitFailed => 'Senden fehlgeschlagen';
+	@override String get appealedTag => 'Eingesprochen';
+	@override String get appealableTag => 'Einspruch möglich';
+	@override String get actionWarning => 'Warnung';
+	@override String get actionGroupMute => 'Gruppen-Stummschaltung';
+	@override String get actionGroupKick => 'Aus Gruppe entfernt';
+	@override String get actionReject => 'Inhalt abgelehnt';
+	@override String get actionAccountRestrict => 'Konto eingeschränkt';
+	@override String get actionContentRemoval => 'Inhalt entfernt';
+	@override String get statusPending => 'In Prüfung';
+	@override String get statusAccepted => 'Aufgehoben';
+	@override String get statusRejected => 'Aufrechterhalten';
 }
 
 // Path: billing
@@ -2612,6 +2642,26 @@ extension on TranslationsDeDe {
 			'agentTask.awaitingApproval' => 'Genehmigung ausstehend',
 			'agentTask.approve' => 'Genehmigen',
 			'agentTask.reject' => 'Ablehnen',
+			'appeal.title' => 'Maßnahmen & Einspruch',
+			'appeal.actionsSection' => 'Maßnahmen gegen mich',
+			'appeal.actionsEmpty' => 'Keine Maßnahmen',
+			'appeal.appealsSection' => 'Meine Einsprüche',
+			'appeal.appealsEmpty' => 'Keine Einsprüche',
+			'appeal.dialogTitle' => 'Einspruch einlegen',
+			'appeal.reasonPlaceholder' => 'Begründung angeben (erforderlich)',
+			'appeal.submit' => 'Einspruch senden',
+			'appeal.submitFailed' => 'Senden fehlgeschlagen',
+			'appeal.appealedTag' => 'Eingesprochen',
+			'appeal.appealableTag' => 'Einspruch möglich',
+			'appeal.actionWarning' => 'Warnung',
+			'appeal.actionGroupMute' => 'Gruppen-Stummschaltung',
+			'appeal.actionGroupKick' => 'Aus Gruppe entfernt',
+			'appeal.actionReject' => 'Inhalt abgelehnt',
+			'appeal.actionAccountRestrict' => 'Konto eingeschränkt',
+			'appeal.actionContentRemoval' => 'Inhalt entfernt',
+			'appeal.statusPending' => 'In Prüfung',
+			'appeal.statusAccepted' => 'Aufgehoben',
+			'appeal.statusRejected' => 'Aufrechterhalten',
 			'billing.title' => 'Abo-Pläne',
 			'billing.planPeriodMonthly' => 'Monatlich',
 			'billing.planPeriodYearly' => 'Jährlich',
@@ -2968,6 +3018,8 @@ extension on TranslationsDeDe {
 			'chat.messageId' => 'Nachrichten-ID',
 			'chat.chatType' => 'Chat-Typ',
 			'chat.deletingMessage' => 'Wird gelöscht...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.deletingLocalMessage' => 'Lokale Nachricht wird gelöscht...',
 			'chat.quickReplyReceived' => 'Erhalten',
 			'chat.quickReplyThanks' => 'Danke',
@@ -2988,8 +3040,6 @@ extension on TranslationsDeDe {
 			'chat.orderStatusRefunded' => 'Erstattet',
 			'chat.orderStatusExpired' => 'Abgelaufen',
 			'chat.defaultFileName' => 'Datei',
-			_ => null,
-		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'Dateilink ungültig',
 			'chat.e2eeStatusAvailable' => 'Verfügbar',
 			'chat.e2eeGenerateNewKey' => 'Neuen Schlüssel erstellen',
@@ -3482,6 +3532,8 @@ extension on TranslationsDeDe {
 			'common.deleteThisCollection' => 'Diese Sammlung löschen',
 			'common.changeSuccess' => 'Erfolgreich geändert',
 			'common.lengthOk' => 'Länge in Ordnung',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmNewPassword' => 'Neues Passwort bestätigen',
 			'common.validationPassed' => 'Validierung bestanden',
 			'common.momentsContentHint' => 'Etwas schreiben...',
@@ -3502,8 +3554,6 @@ extension on TranslationsDeDe {
 			'common.momentReportReasonSpam' => 'Spam oder Werbung',
 			'common.momentReportReasonHarassment' => 'Belästigung',
 			'common.momentReportReasonPorn' => 'Pornografie',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Betrug',
 			'common.momentReportReasonInfringement' => 'Urheberrechtsverletzung',
 			'common.momentReportReasonOther' => 'Sonstiges',
@@ -3996,6 +4046,8 @@ extension on TranslationsDeDe {
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'Benachrichtigt: ${name} und ${count} weitere',
 			'discovery.momentAtWho' => 'Wen benachrichtigen?',
 			'discovery.momentLocation' => 'Standort',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentLocationNone' => 'Standort nicht anzeigen',
 			'error.restartRequired' => 'App-Neustart erforderlich',
 			'error.pleaseCheckNetwork' => 'Bitte überprüfen Sie Ihre Netzwerkeinstellungen.',
@@ -4016,8 +4068,6 @@ extension on TranslationsDeDe {
 			'group.groupName' => 'Gruppenname',
 			'group.mutualGroupsWithHer' => 'Gemeinsame Gruppen',
 			'group.groupOwner' => 'Owner',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Ehrengast',
 			'group.setAdmin' => 'Als Admin festlegen',
@@ -4510,6 +4560,8 @@ extension on TranslationsDeDe {
 			'workspace.projectNameHint' => 'z. B. Website-Relaunch',
 			'workspace.projectNameRequired' => 'Projektname darf nicht leer sein',
 			'workspace.projectDescLabel' => 'Projektbeschreibung (optional)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectDescHint' => 'Was soll dieses Projekt liefern?',
 			'workspace.projectSubmit' => 'Erstellen',
 			'workspace.projectCreateSuccess' => 'Projekt erstellt',
@@ -4530,8 +4582,6 @@ extension on TranslationsDeDe {
 			'workspace.taskAssigneeLabel' => 'Verantwortlich (Arbeitsbereich-Mitglied)',
 			'workspace.taskAssigneeNone' => 'Vorerst nicht zuweisen',
 			'workspace.taskAssigneeRefresh' => 'Kandidaten aktualisieren',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'Aufgabe erstellen',
 			'workspace.taskSubmitSave' => 'Speichern',
 			'workspace.taskCreatedToast' => 'Aufgabe erstellt',

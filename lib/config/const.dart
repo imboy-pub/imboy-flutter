@@ -319,6 +319,11 @@ class API {
   // 用户数据导出
   static const userExportData = '/api/v1/user/export_data';
 
+  // 处置申诉（R-04）
+  static const appealCreate = '/api/v1/appeal/create';
+  static const appealMy = '/api/v1/appeal/my';
+  static const appealActions = '/api/v1/appeal/actions';
+
   // 投诉举报
   static const reportCreate = '/api/v1/report/create';
   static const groupReportCreate = '/api/v1/group/report/create';

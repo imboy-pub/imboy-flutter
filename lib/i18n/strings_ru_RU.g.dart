@@ -16,22 +16,22 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsRuRu({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.ruRu,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <ru-RU>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsRuRu _root = this; // ignore: unused_field
 
@@ -42,6 +42,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$account$ru_RU account = _Translations$account$ru_RU._(_root);
 	@override late final _Translations$agent$ru_RU agent = _Translations$agent$ru_RU._(_root);
 	@override late final _Translations$agentTask$ru_RU agentTask = _Translations$agentTask$ru_RU._(_root);
+	@override late final _Translations$appeal$ru_RU appeal = _Translations$appeal$ru_RU._(_root);
 	@override late final _Translations$billing$ru_RU billing = _Translations$billing$ru_RU._(_root);
 	@override late final _Translations$channel$ru_RU channel = _Translations$channel$ru_RU._(_root);
 	@override late final _Translations$chat$ru_RU chat = _Translations$chat$ru_RU._(_root);
@@ -222,6 +223,35 @@ class _Translations$agentTask$ru_RU extends Translations$agentTask$zh_CN {
 	@override String get awaitingApproval => 'Ожидает утверждения';
 	@override String get approve => 'Утвердить';
 	@override String get reject => 'Отклонить';
+}
+
+// Path: appeal
+class _Translations$appeal$ru_RU extends Translations$appeal$zh_CN {
+	_Translations$appeal$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Меры и обжалование';
+	@override String get actionsSection => 'Меры в отношении меня';
+	@override String get actionsEmpty => 'Мер нет';
+	@override String get appealsSection => 'Мои обжалования';
+	@override String get appealsEmpty => 'Обжалований нет';
+	@override String get dialogTitle => 'Подать обжалование';
+	@override String get reasonPlaceholder => 'Укажите причину (обязательно)';
+	@override String get submit => 'Отправить';
+	@override String get submitFailed => 'Не удалось отправить';
+	@override String get appealedTag => 'Обжаловано';
+	@override String get appealableTag => 'Можно обжаловать';
+	@override String get actionWarning => 'Предупреждение';
+	@override String get actionGroupMute => 'Мут в группе';
+	@override String get actionGroupKick => 'Исключён из группы';
+	@override String get actionReject => 'Контент отклонён';
+	@override String get actionAccountRestrict => 'Аккаунт ограничен';
+	@override String get actionContentRemoval => 'Контент удалён';
+	@override String get statusPending => 'На рассмотрении';
+	@override String get statusAccepted => 'Отменено';
+	@override String get statusRejected => 'Оставлено';
 }
 
 // Path: billing
@@ -2618,6 +2648,26 @@ extension on TranslationsRuRu {
 			'agentTask.awaitingApproval' => 'Ожидает утверждения',
 			'agentTask.approve' => 'Утвердить',
 			'agentTask.reject' => 'Отклонить',
+			'appeal.title' => 'Меры и обжалование',
+			'appeal.actionsSection' => 'Меры в отношении меня',
+			'appeal.actionsEmpty' => 'Мер нет',
+			'appeal.appealsSection' => 'Мои обжалования',
+			'appeal.appealsEmpty' => 'Обжалований нет',
+			'appeal.dialogTitle' => 'Подать обжалование',
+			'appeal.reasonPlaceholder' => 'Укажите причину (обязательно)',
+			'appeal.submit' => 'Отправить',
+			'appeal.submitFailed' => 'Не удалось отправить',
+			'appeal.appealedTag' => 'Обжаловано',
+			'appeal.appealableTag' => 'Можно обжаловать',
+			'appeal.actionWarning' => 'Предупреждение',
+			'appeal.actionGroupMute' => 'Мут в группе',
+			'appeal.actionGroupKick' => 'Исключён из группы',
+			'appeal.actionReject' => 'Контент отклонён',
+			'appeal.actionAccountRestrict' => 'Аккаунт ограничен',
+			'appeal.actionContentRemoval' => 'Контент удалён',
+			'appeal.statusPending' => 'На рассмотрении',
+			'appeal.statusAccepted' => 'Отменено',
+			'appeal.statusRejected' => 'Оставлено',
 			'billing.title' => 'Подписки',
 			'billing.planPeriodMonthly' => 'Ежемесячно',
 			'billing.planPeriodYearly' => 'Ежегодно',
@@ -2974,6 +3024,8 @@ extension on TranslationsRuRu {
 			'chat.messageId' => 'ID сообщения',
 			'chat.chatType' => 'Тип чата',
 			'chat.deletingMessage' => 'Удаление...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.deletingLocalMessage' => 'Удаление локального сообщения...',
 			'chat.quickReplyReceived' => 'Получено',
 			'chat.quickReplyThanks' => 'Спасибо',
@@ -2994,8 +3046,6 @@ extension on TranslationsRuRu {
 			'chat.orderStatusRefunded' => 'Возврат оформлен',
 			'chat.orderStatusExpired' => 'Истекло',
 			'chat.defaultFileName' => 'Файл',
-			_ => null,
-		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'Недействительная ссылка на файл',
 			'chat.e2eeStatusAvailable' => 'Доступно',
 			'chat.e2eeGenerateNewKey' => 'Создать новый ключ',
@@ -3488,6 +3538,8 @@ extension on TranslationsRuRu {
 			'common.deleteThisCollection' => 'Удалить эту коллекцию',
 			'common.changeSuccess' => 'Успешно изменено',
 			'common.lengthOk' => 'Длина в порядке',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmNewPassword' => 'Подтвердите новый пароль',
 			'common.validationPassed' => 'Проверка пройдена',
 			'common.momentsContentHint' => 'Поделитесь чем-нибудь...',
@@ -3508,8 +3560,6 @@ extension on TranslationsRuRu {
 			'common.momentReportReasonSpam' => 'Спам или реклама',
 			'common.momentReportReasonHarassment' => 'Домогательства',
 			'common.momentReportReasonPorn' => 'Порнография',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => 'Мошенничество',
 			'common.momentReportReasonInfringement' => 'Нарушение авторских прав',
 			'common.momentReportReasonOther' => 'Другое',
@@ -4002,6 +4052,8 @@ extension on TranslationsRuRu {
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'Напоминание: ${name} и ещё ${count} чел.',
 			'discovery.momentAtWho' => 'Кого напомнить?',
 			'discovery.momentLocation' => 'Местоположение',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentLocationNone' => 'Не показывать местоположение',
 			'error.restartRequired' => 'Требуется перезапуск приложения',
 			'error.pleaseCheckNetwork' => 'Пожалуйста, проверьте настройки сети.',
@@ -4022,8 +4074,6 @@ extension on TranslationsRuRu {
 			'group.groupName' => 'Название группы',
 			'group.mutualGroupsWithHer' => 'Общие группы',
 			'group.groupOwner' => 'Owner',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'Гость',
 			'group.setAdmin' => 'Назначить администратором',
@@ -4516,6 +4566,8 @@ extension on TranslationsRuRu {
 			'workspace.projectNameHint' => 'Например: редизайн сайта',
 			'workspace.projectNameRequired' => 'Название проекта не может быть пустым',
 			'workspace.projectDescLabel' => 'Описание проекта (необязательно)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectDescHint' => 'Что должен дать этот проект?',
 			'workspace.projectSubmit' => 'Создать',
 			'workspace.projectCreateSuccess' => 'Проект создан',
@@ -4536,8 +4588,6 @@ extension on TranslationsRuRu {
 			'workspace.taskAssigneeLabel' => 'Ответственный (участник рабочего пространства)',
 			'workspace.taskAssigneeNone' => 'Пока не назначать',
 			'workspace.taskAssigneeRefresh' => 'Обновить список кандидатов',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'Создать задачу',
 			'workspace.taskSubmitSave' => _root.common.buttonSave,
 			'workspace.taskCreatedToast' => 'Задача создана',

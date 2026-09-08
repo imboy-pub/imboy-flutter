@@ -16,22 +16,22 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsJaJp({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.jaJp,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <ja-JP>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsJaJp _root = this; // ignore: unused_field
 
@@ -42,6 +42,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$account$ja_JP account = _Translations$account$ja_JP._(_root);
 	@override late final _Translations$agent$ja_JP agent = _Translations$agent$ja_JP._(_root);
 	@override late final _Translations$agentTask$ja_JP agentTask = _Translations$agentTask$ja_JP._(_root);
+	@override late final _Translations$appeal$ja_JP appeal = _Translations$appeal$ja_JP._(_root);
 	@override late final _Translations$billing$ja_JP billing = _Translations$billing$ja_JP._(_root);
 	@override late final _Translations$channel$ja_JP channel = _Translations$channel$ja_JP._(_root);
 	@override late final _Translations$chat$ja_JP chat = _Translations$chat$ja_JP._(_root);
@@ -222,6 +223,35 @@ class _Translations$agentTask$ja_JP extends Translations$agentTask$zh_CN {
 	@override String get awaitingApproval => '承認待ち';
 	@override String get approve => '承認';
 	@override String get reject => '拒否';
+}
+
+// Path: appeal
+class _Translations$appeal$ja_JP extends Translations$appeal$zh_CN {
+	_Translations$appeal$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '処分と異議申立て';
+	@override String get actionsSection => '自分への処分';
+	@override String get actionsEmpty => '処分記録はありません';
+	@override String get appealsSection => '自分の申立て';
+	@override String get appealsEmpty => '申立てはありません';
+	@override String get dialogTitle => '異議を申し立てる';
+	@override String get reasonPlaceholder => '理由を記入してください（必須）';
+	@override String get submit => '申立てを送信';
+	@override String get submitFailed => '送信に失敗しました';
+	@override String get appealedTag => '申立て済み';
+	@override String get appealableTag => '申立て可能';
+	@override String get actionWarning => '警告';
+	@override String get actionGroupMute => 'グループミュート';
+	@override String get actionGroupKick => 'グループから削除';
+	@override String get actionReject => 'コンテンツ却下';
+	@override String get actionAccountRestrict => 'アカウント制限';
+	@override String get actionContentRemoval => 'コンテンツ削除';
+	@override String get statusPending => '審査中';
+	@override String get statusAccepted => '取り消し';
+	@override String get statusRejected => '維持';
 }
 
 // Path: billing
@@ -2609,6 +2639,26 @@ extension on TranslationsJaJp {
 			'agentTask.awaitingApproval' => '承認待ち',
 			'agentTask.approve' => '承認',
 			'agentTask.reject' => '拒否',
+			'appeal.title' => '処分と異議申立て',
+			'appeal.actionsSection' => '自分への処分',
+			'appeal.actionsEmpty' => '処分記録はありません',
+			'appeal.appealsSection' => '自分の申立て',
+			'appeal.appealsEmpty' => '申立てはありません',
+			'appeal.dialogTitle' => '異議を申し立てる',
+			'appeal.reasonPlaceholder' => '理由を記入してください（必須）',
+			'appeal.submit' => '申立てを送信',
+			'appeal.submitFailed' => '送信に失敗しました',
+			'appeal.appealedTag' => '申立て済み',
+			'appeal.appealableTag' => '申立て可能',
+			'appeal.actionWarning' => '警告',
+			'appeal.actionGroupMute' => 'グループミュート',
+			'appeal.actionGroupKick' => 'グループから削除',
+			'appeal.actionReject' => 'コンテンツ却下',
+			'appeal.actionAccountRestrict' => 'アカウント制限',
+			'appeal.actionContentRemoval' => 'コンテンツ削除',
+			'appeal.statusPending' => '審査中',
+			'appeal.statusAccepted' => '取り消し',
+			'appeal.statusRejected' => '維持',
 			'billing.title' => 'プラン登録',
 			'billing.planPeriodMonthly' => '月額',
 			'billing.planPeriodYearly' => '年額',
@@ -2965,6 +3015,8 @@ extension on TranslationsJaJp {
 			'chat.messageId' => 'メッセージID',
 			'chat.chatType' => 'チャットタイプ',
 			'chat.deletingMessage' => '削除中...',
+			_ => null,
+		} ?? switch (path) {
 			'chat.deletingLocalMessage' => 'ローカルメッセージ削除中...',
 			'chat.quickReplyReceived' => '受信しました',
 			'chat.quickReplyThanks' => 'ありがとう',
@@ -2985,8 +3037,6 @@ extension on TranslationsJaJp {
 			'chat.orderStatusRefunded' => '返金済み',
 			'chat.orderStatusExpired' => '期限切れ',
 			'chat.defaultFileName' => 'ファイル',
-			_ => null,
-		} ?? switch (path) {
 			'chat.fileUrlInvalid' => 'ファイルリンクが無効です',
 			'chat.e2eeStatusAvailable' => '利用可能',
 			'chat.e2eeGenerateNewKey' => '新しいキーを生成',
@@ -3479,6 +3529,8 @@ extension on TranslationsJaJp {
 			'common.deleteThisCollection' => 'このコレクションを削除',
 			'common.changeSuccess' => '変更しました',
 			'common.lengthOk' => '長さはOKです',
+			_ => null,
+		} ?? switch (path) {
 			'common.confirmNewPassword' => '新しいパスワードを確認',
 			'common.validationPassed' => '検証に合格しました',
 			'common.momentsContentHint' => '何か書く...',
@@ -3499,8 +3551,6 @@ extension on TranslationsJaJp {
 			'common.momentReportReasonSpam' => 'スパム・広告',
 			'common.momentReportReasonHarassment' => '嫌がらせ',
 			'common.momentReportReasonPorn' => 'わいせつ',
-			_ => null,
-		} ?? switch (path) {
 			'common.momentReportReasonFraud' => '詐欺',
 			'common.momentReportReasonInfringement' => '著作権侵害',
 			'common.momentReportReasonOther' => 'その他',
@@ -3993,6 +4043,8 @@ extension on TranslationsJaJp {
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '${name} 他${count}名に通知しました',
 			'discovery.momentAtWho' => '誰に通知しますか？',
 			'discovery.momentLocation' => '位置情報',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentLocationNone' => '位置情報を表示しない',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
@@ -4013,8 +4065,6 @@ extension on TranslationsJaJp {
 			'group.groupName' => 'グループ名',
 			'group.mutualGroupsWithHer' => '相手との共通グループチャット',
 			'group.groupOwner' => 'Owner',
-			_ => null,
-		} ?? switch (path) {
 			'group.groupAdmin' => 'Admin',
 			'group.groupGuest' => 'ゲスト',
 			'group.setAdmin' => '管理者に設定',
@@ -4507,6 +4557,8 @@ extension on TranslationsJaJp {
 			'workspace.projectNameHint' => '例：サイトリニューアル',
 			'workspace.projectNameRequired' => 'プロジェクト名は空にできません',
 			'workspace.projectDescLabel' => 'プロジェクトの説明（任意）',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectDescHint' => 'このプロジェクトは何を成果として届けますか？',
 			'workspace.projectSubmit' => '作成',
 			'workspace.projectCreateSuccess' => 'プロジェクトを作成しました',
@@ -4527,8 +4579,6 @@ extension on TranslationsJaJp {
 			'workspace.taskAssigneeLabel' => '担当者（ワークスペースメンバー）',
 			'workspace.taskAssigneeNone' => '担当者を未指定',
 			'workspace.taskAssigneeRefresh' => '担当者候補を更新',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => 'タスクを作成',
 			'workspace.taskSubmitSave' => '保存する',
 			'workspace.taskCreatedToast' => 'タスクを作成しました',
