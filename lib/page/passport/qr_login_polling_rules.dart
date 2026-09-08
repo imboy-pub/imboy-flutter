@@ -32,8 +32,11 @@ final class TransitionToScanned extends PollingDecision {
 
 /// 收到合法 `confirmed + token`，调用方应转 `confirming` 并落地 token。
 final class RequestCompleteLogin extends PollingDecision {
-  const RequestCompleteLogin(this.token);
+  const RequestCompleteLogin(this.token, {this.uid});
   final String token;
+
+  /// 扫码者 uid（批次126 起后端随 confirmed 透传），客户端落地登录态用。
+  final String? uid;
 }
 
 /// 转入 `expired`，停止轮询。
@@ -72,7 +75,10 @@ PollingDecision derivePollingDecision({
     QrStatusStopPolling() => const StopSilently(),
     QrStatusWaiting() => const KeepPolling(),
     QrStatusScanned() => const TransitionToScanned(),
-    QrStatusConfirmed(:final token) => RequestCompleteLogin(token),
+    QrStatusConfirmed(:final token, :final uid) => RequestCompleteLogin(
+      token,
+      uid: uid,
+    ),
     QrStatusExpired() => const TransitionToExpired(),
     QrStatusCancelled() => const TransitionToCancelledThenRefresh(),
     QrStatusUnknown(:final rawStatus) =>

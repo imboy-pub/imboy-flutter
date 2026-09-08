@@ -120,10 +120,15 @@ final class QrStatusScanned extends QrStatusEvent {
 }
 
 final class QrStatusConfirmed extends QrStatusEvent {
-  const QrStatusConfirmed(this.token);
+  const QrStatusConfirmed(this.token, {this.uid});
 
   /// 后端 `token` 字段（JWT），调用方应保存到 SecureTokenStorageService。
   final String token;
+
+  /// 后端 `uid` 字段（批次126 起随 confirmed 透传）：客户端 QR 登录落地
+  /// 需要写 currentUid 建立登录态，token 是加密串客户端解不出 uid。
+  /// 兼容旧后端：缺失时为 null。
+  final String? uid;
 }
 
 final class QrStatusExpired extends QrStatusEvent {
@@ -174,8 +179,14 @@ QrStatusEvent parseQrStatusResponse({
       return const QrStatusScanned();
     case 'confirmed':
       final token = _readNonEmptyString(payload, 'token');
+      // uid 后端为整数（TSID 可能超出 JS 安全整数）且可能缺省（旧后端），
+      // 字符串或正整数均接受
+      final uidRaw = payload['uid'];
+      final String? uid = uidRaw is int && uidRaw > 0
+          ? uidRaw.toString()
+          : _readNonEmptyString(payload, 'uid');
       if (token == null) return QrStatusUnknown(rawStatus);
-      return QrStatusConfirmed(token);
+      return QrStatusConfirmed(token, uid: uid);
     case 'expired':
       return const QrStatusExpired();
     case 'cancelled':

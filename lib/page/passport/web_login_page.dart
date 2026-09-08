@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -221,9 +222,9 @@ class QRLogin extends _$QRLogin {
             return;
           case TransitionToScanned():
             state = state.copyWith(status: QRLoginStatus.scanned);
-          case RequestCompleteLogin(:final token):
+          case RequestCompleteLogin(:final token, :final uid):
             state = state.copyWith(status: QRLoginStatus.confirming);
-            await _completeLogin(token);
+            await _completeLogin(token, uid: uid);
           case TransitionToExpired():
             state = state.copyWith(status: QRLoginStatus.expired);
             timer.cancel();
@@ -261,7 +262,7 @@ class QRLogin extends _$QRLogin {
   }
 
   /// 完成登录
-  Future<void> _completeLogin(String? token) async {
+  Future<void> _completeLogin(String? token, {String? uid}) async {
     switch (deriveCompleteLoginDecision(token: token)) {
       case RejectInvalidToken():
         state = state.copyWith(
@@ -272,6 +273,16 @@ class QRLogin extends _$QRLogin {
       case ProceedWithToken(:final token):
         try {
           await SecureTokenStorageService.saveToken(token);
+          // QR 登录必须落 currentUid 建立登录态：路由守卫 isLoggedIn 以
+          // currentUid 为依据，只写 token 会在跳 /web_shell 时被守卫弹回
+          // 登录页（批次126 实证）。uid 由后端 confirmed 响应透传。
+          if (uid != null && uid.isNotEmpty) {
+            await StorageService.to.setString(Keys.currentUid, uid);
+            final existing = StorageService.getMap(Keys.currentUser);
+            if (existing.isEmpty || (existing['uid'] ?? '').toString() != uid) {
+              await StorageService.setMap(Keys.currentUser, {'uid': uid});
+            }
+          }
           state = state.copyWith(status: QRLoginStatus.success);
           _pollTimer?.cancel();
           _expireTimer?.cancel();
@@ -320,9 +331,9 @@ class QRLogin extends _$QRLogin {
             return;
           case TransitionToScanned():
             state = state.copyWith(status: QRLoginStatus.scanned);
-          case RequestCompleteLogin(:final token):
+          case RequestCompleteLogin(:final token, :final uid):
             state = state.copyWith(status: QRLoginStatus.confirming);
-            _completeLogin(token);
+            _completeLogin(token, uid: uid);
           case TransitionToExpired():
             state = state.copyWith(status: QRLoginStatus.expired);
             _stopSseSession();
@@ -944,8 +955,9 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
         // 登录按钮
         SizedBox(
           width: double.infinity,
-          height: 48,
           child: CupertinoButton.filled(
+            minimumSize: const Size(0, 48),
+            padding: EdgeInsets.zero,
             borderRadius: BorderRadius.circular(24),
             child: Text(
               t.account.login,
@@ -983,6 +995,20 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             },
           ),
         ),
+        // 拦截提示：账号/密码为空等客户端校验错误经 [PassportNotifier.setError]
+        // 写入 state.error，此前页面无渲染位，用户看不到任何反馈
+        // （批次126 空值提交场景实证）。
+        if (passportState.error.isNotEmpty) ...[
+          AppSpacing.verticalRegular,
+          Text(
+            passportState.error,
+            textAlign: TextAlign.center,
+            style: context.textStyle(
+              FontSizeType.small,
+              color: AppColors.iosRed,
+            ),
+          ),
+        ],
         AppSpacing.verticalRegular,
         // 忘记密码
         CupertinoButton(
