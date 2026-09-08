@@ -715,5 +715,20 @@
       "环境恢复第二优先：live_room 列表页六条数据类条目实测（造数配方在台账行：curl create/start/UPDATE cover）",
       "WHIP 媒体服务器搭建=用户决策（推拉流/摄像头/渲染类仍阻塞）"
     ]
+  },
+  "session_2026_09_09_batch143": {
+    "note": "批次143（automation 第十六轮）：fs 卡死持续（磁盘微降至 97%）。继续离线推进 chat 域数据构造类：①@成员/@所有人拦截行——实证本地库已有 8 个双 smoke 账号群（110610282598107136 产品研发群 6 人等），数据前置就绪，阻塞更新为「待环境」；②quick_reply 未登录态行——代码实证 L221 _uid.isEmpty→SizedBox.shrink 隐藏 FAB，quitLogin 配方现成（批次128 同款+4s 排空），阻塞更新为「待环境+测试路径已记」。wallet 域线索（下轮）：余额类 7 行可用本地 mock topup 解阻（POST /api/v1/wallet/topup 仅本地，red_packet_flow_test.dart L120 既有先例；生产资金实测仍属人工授权）；提现渠道拒绝 2 行不可构造维持。",
+    "chat_data_ready": {
+      "at_mention_row": "候选群=PG 4323 实查 8 个（产品研发群 6 人/羽毛球 4 人/Alpha 内测 4 人等）",
+      "quick_reply_row": "lib/page/chat/widget/quick_reply_manage_page.dart L221 门控证实"
+    },
+    "wallet_next_lead": "red_packet 5 行+wallet_page 2 行 blocker 改写口径已定：本地 mock topup 可造余额，生产资金验证另列人工；需逐行核对原文案后 Edit（勿用 python replace）",
+    "env_status": "fs 卡死持续；数据构造类阻塞持续推进中（live_room 6 条+chat 2 条已解锁为待环境）",
+    "next_actions": [
+      "环境恢复第一优先：AT-WIV1（invite 行转已通过）",
+      "环境恢复第二优先：live_room 列表页六条+chat 两条数据类实测",
+      "下轮离线：wallet 域 7 行 blocker 更新（mock topup 口径）",
+      "WHIP 媒体服务器=用户决策"
+    ]
   }
 }
