@@ -15,6 +15,11 @@
 
 set -euo pipefail
 
+# git 钩子会注入 GIT_DIR/GIT_WORK_TREE 等变量；flutter 工具链内部调用 git
+# （版本探测）会被劫持到 imboyapp 仓库，导致 Flutter SDK 版本误判为
+# 0.0.0-unknown，patrol 的 SDK 版本约束解析失败。此处清理后再跑测试。
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
