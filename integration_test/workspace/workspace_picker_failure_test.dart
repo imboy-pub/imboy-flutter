@@ -63,6 +63,7 @@ class _MineFailAdapter implements HttpClientAdapter {
 
   final HttpClientAdapter _inner;
   bool failMine = false;
+  int delayMineSeconds = 0;
 
   @override
   Future<ResponseBody> fetch(
@@ -70,7 +71,8 @@ class _MineFailAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    if (failMine && options.uri.path.endsWith('/workspaces/mine')) {
+    final isMine = options.uri.path.endsWith('/workspaces/mine');
+    if (failMine && isMine) {
       flowLog('[AT-WPF] 拦截 workspaces/mine（注入业务失败）');
       return ResponseBody.fromString(
         jsonEncode(<String, dynamic>{
@@ -83,6 +85,13 @@ class _MineFailAdapter implements HttpClientAdapter {
           Headers.contentTypeHeader: <String>[Headers.jsonContentType],
         },
       );
+    }
+    if (delayMineSeconds > 0 && isMine) {
+      // 延迟放行：让 loadMine 在途（isLoading=true）窗口足够长，
+      // 供 picker 首屏 loading 视图断言（AT-WPF2）。
+      flowLog('[AT-WPF] 延迟 ${delayMineSeconds}s 放行 workspaces/mine');
+      await Future<void>.delayed(Duration(seconds: delayMineSeconds));
+      flowLog('[AT-WPF] 延迟放行完成');
     }
     return _inner.fetch(options, requestStream, cancelFuture);
   }
