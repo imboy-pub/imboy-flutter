@@ -32,10 +32,13 @@
 // 环境限制（非产品 bug）：本地 public_base_url=127.0.0.1:3902，且 F-13
 // SSRF 加固拒一切内网图源——本地上传的真头像也**下载不了**（生产不受
 // 影响，与生产行为一致的安全特性）。因此：
-//   - 行5 预览正向路径（有真实可下载头像）本地不可验，转真机；
-//     本地验 avatar 空的防误触分支（点头像不开预览）。
 //   - AT-PI09 上传成功后页面重渲染会异步抛已知 Security Block 图片错误，
 //     场景内装白名单过滤器吞掉该噪音（计数留痕），其余错误照常失败。
+// 行5 预览正向路径（批次127 补齐）：F-13 只拒内网，公网 https 放行
+// （"拒绝内网"而非域名白名单，见 imboy_cache_manager.dart F-13 注释）。
+// 造值=服务端 user.avatar 置官网公网图（imboy.pub 静态资源，带 viewUrl
+// 追加的 s/a/v query 亦 200），_boot 重登经 login_resp.avatar 进本地缓存；
+// 测毕 tearDownAll 恢复空串（AT-PI05/PI06 依赖 avatar 空前置）。
 //
 // 运行（单场景 --plain-name；define 与批次123/124 同配方）：
 //   flutter test integration_test/personal_info/personal_info_acceptance_test.dart \
@@ -72,6 +75,7 @@ import 'package:imboy/page/qrcode/user_qrcode_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:photo_manager/photo_manager.dart' show AssetEntity;
+import 'package:photo_view/photo_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../flows/pg_helper.dart';
@@ -86,6 +90,11 @@ const _account = '51730';
 String? _origGender;
 String? _origSign;
 String? _origRegion;
+String? _origAvatar;
+
+/// AT-PI13 正向路径造值：公网可下载头像（imboy.pub 官方静态资源，
+/// F-13 公网放行；带 viewUrl 追加的 s/a/v query 亦返回 200）。
+const String _pi13Avatar = 'https://imboy.pub/imboy-logo-480X480.png';
 
 final _pngBytes = Uint8List.fromList(
   base64Decode(
@@ -265,21 +274,24 @@ void main() {
 
   setUpAll(() async {
     final r = await TestPg.execute(
-      'SELECT gender::text, sign, region FROM "user" WHERE id = @id',
+      'SELECT gender::text, sign, region, avatar FROM "user" WHERE id = @id',
       {'id': int.parse(_uid)},
     );
     _origGender = (r[0][0] ?? '').toString();
     _origSign = (r[0][1] ?? '').toString();
     _origRegion = (r[0][2] ?? '').toString();
+    _origAvatar = (r[0][3] ?? '').toString();
   });
 
   tearDownAll(() async {
     await TestPg.execute(
-      'UPDATE "user" SET gender = @g, sign = @s, region = @r WHERE id = @id',
+      'UPDATE "user" SET gender = @g, sign = @s, region = @r, avatar = @a '
+      'WHERE id = @id',
       {
         'g': _origGender ?? '0',
         's': _origSign ?? '',
         'r': _origRegion ?? '',
+        'a': _origAvatar ?? '',
         'id': int.parse(_uid),
       },
     );
@@ -820,5 +832,73 @@ void main() {
     expect(cards.isNotEmpty, isTrue, reason: '分组卡片应有圆角阴影容器');
     final deco = cards.first.decoration as BoxDecoration;
     expect(deco.borderRadius, isNotNull, reason: '卡片应有圆角');
+  });
+
+  testWidgets('AT-PI13 点头像打开大图预览（正向：公网真实头像）', (tester) async {
+    // 造值须在 _boot 前：重登后 login_resp.avatar 才会进本地缓存。
+    // 幂等：tearDownAll 恢复原值；重复跑直接覆写同值。
+    await TestPg.execute('UPDATE "user" SET avatar = @v WHERE id = @id', {
+      'v': _pi13Avatar,
+      'id': int.parse(_uid),
+    });
+    if (!await _boot(tester)) return;
+    expect(
+      UserRepoLocal.to.current.avatar,
+      _pi13Avatar,
+      reason: '重登后本地缓存应携带服务端公网 avatar',
+    );
+    _openPersonalInfo(tester);
+    await _waitForPersonalInfo(tester);
+
+    // 列表页头像：avatarImageProvider 对完整 URL 走 viewUrl 链路，
+    // 图片未加载完成前 ImageProvider 已是网络 provider（非 fallback Icon）。
+    // 行为主断言：点头像 → 预览页打开（关闭按钮 xmark 出现）。
+    await tester.tap(find.byType(Hero).first, warnIfMissed: false);
+    expect(
+      await _waitFor(
+        tester,
+        () => tester.any(find.byIcon(CupertinoIcons.xmark)),
+      ),
+      isTrue,
+      reason: 'avatar 非空点头像应打开大图预览页（xmark 关闭按钮）',
+    );
+    expect(
+      tester.any(find.byType(PhotoView)),
+      isTrue,
+      reason: '预览页应挂载 PhotoView',
+    );
+
+    // Functional Evidence：头像 URL（含 viewUrl 追加的授权 query 形态）
+    // 真实可下载——imboy.pub 静态服务器忽略未知 query 参数。
+    await tester.runAsync(() async {
+      final client = HttpClient();
+      try {
+        final withQuery = Uri.parse(
+          '$_pi13Avatar?s=at-pi13&a=acceptance&v=1757280000',
+        );
+        final req = await client.getUrl(withQuery);
+        final resp = await req.close();
+        expect(resp.statusCode, 200, reason: '带授权 query 的头像 URL 应 200');
+        expect(
+          resp.headers.contentType?.toString() ?? '',
+          contains('image'),
+          reason: '响应应为图片类型',
+        );
+        await resp.drain<void>();
+      } finally {
+        client.close();
+      }
+    });
+
+    // Hero 动画 + 网络图片加载缓冲后截图留证
+    await _pump(tester, seconds: 4);
+    await takeScreenshot(tester, 'AT-PI13-avatar-preview');
+
+    await tester.tap(find.byIcon(CupertinoIcons.xmark), warnIfMissed: false);
+    expect(
+      await _waitFor(tester, () => tester.any(find.byType(PersonalInfoPage))),
+      isTrue,
+      reason: '点关闭应返回个人信息页',
+    );
   });
 }
