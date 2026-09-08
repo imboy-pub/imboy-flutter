@@ -120,12 +120,13 @@ class _FakeFilePicker extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    void Function(FilePickerStatus)? onFileLoading,
+    dynamic Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
     AndroidOptions androidOptions = const AndroidOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
   }) async {
     pickCallCount++;
     return pickResult ?? const [];
@@ -137,12 +138,13 @@ class _FakeFilePicker extends FilePickerPlatform {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    void Function(FilePickerStatus)? onFileLoading,
+    dynamic Function(FilePickerStatus)? onFileLoading,
     int compressionQuality = 0,
     AndroidOptions androidOptions = const AndroidOptions(),
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
   }) async {
     pickCallCount++;
     final files = pickResult ?? const <PlatformFile>[];
@@ -170,6 +172,9 @@ final class _FakePickedFile extends PlatformFile {
 
   @override
   Future<int> length() async => _bytes?.length ?? 0;
+
+  @override
+  int lengthSync() => _bytes?.length ?? 0;
 
   @override
   Future<Uint8List> readAsBytes() async => _bytes ?? Uint8List(0);
