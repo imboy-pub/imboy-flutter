@@ -388,8 +388,14 @@ class ChatEventSubscriptionManager {
   /// 监听消息状态更新事件
   void _setupMessageStateListener(VoidCallback onMountedStateChanged) {
     _ssMsgState = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((event) {
-      // 检查数据类型，只处理消息列表类型的事件
-      if (event.dataType != 'MessageList' && event.dataType != 'messages') {
+      // 检查数据类型，只处理消息列表类型的事件。
+      // 'List<Message>' 是全仓 12 处 fire 点（重试确认/撤回/编辑/阅后即焚/
+      // WebRTC 信令等状态刷新）实际使用的 dataType，此前不认它=这些
+      // 刷新全部空投（消息状态变更 UI 不跟随）；各 fire 点均为单元素
+      // 列表且元素经 toTypeMessage() 产出，e.first 语义与之等效。
+      if (event.dataType != 'MessageList' &&
+          event.dataType != 'messages' &&
+          event.dataType != 'List<Message>') {
         return;
       }
 
