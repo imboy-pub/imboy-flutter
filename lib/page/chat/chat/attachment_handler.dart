@@ -579,8 +579,11 @@ class ChatAttachmentHandler {
       for (final file in files) {
         await _uploadImagePlatformFile(context, file);
       }
-    } catch (e) {
-      debugPrint('[attachment_handler] handleImageFileSelection error: $e');
+    } on Object catch (e) {
+      debugPrint(
+        '[attachment_handler] handleImageFileSelection error, '
+        'errType=${e.runtimeType}',
+      );
     }
   }
 
@@ -606,8 +609,10 @@ class ChatAttachmentHandler {
           width = decoded.width;
           height = decoded.height;
         }
-      } catch (e) {
-        debugPrint('[attachment_handler] decodeImage error: $e');
+      } on Object catch (e) {
+        debugPrint(
+          '[attachment_handler] decodeImage error, errType=${e.runtimeType}',
+        );
       }
 
       final fileName = file.name.isNotEmpty ? file.name : '${Xid()}.jpg';
@@ -672,7 +677,10 @@ class ChatAttachmentHandler {
         }
       }
     } on StateError catch (e) {
-      debugPrint('[chat] handleImageSelection: permission error: $e');
+      debugPrint(
+        '[attachment_handler] handleImageSelection permission error, '
+        'errType=${e.runtimeType}',
+      );
     }
   }
 
@@ -836,47 +844,57 @@ class ChatAttachmentHandler {
     String longitude,
   ) async {
     if (imageBytes == null) return;
-    final image = img.decodeImage(imageBytes)!;
-    final result = img.encodeJpg(image, quality: 65);
-    final s = _uploadScope;
-    final String messageId = Xid().toString();
-    final seal = await _sealFor(messageId, 'location_thumb');
-    await AttachmentApi.uploadBytesViaPresignCompat(
-      "location",
-      result,
-      (Map<String, dynamic> resp, String imgUrl) async {
-        // imgUrl 现为 object_key（presign），Garage 不支持 &width 缩放，直接存
-        final message = CustomMessage(
-          authorId: _currentUser.id,
-          createdAt: DateTime.fromMillisecondsSinceEpoch(
-            DateTimeHelper.millisecond(),
-            isUtc: true,
-          ),
-          id: messageId,
-          // ⚠️ 经纬度本身在 payload 里：加密会话下随 payload 加密，
-          // 非加密会话下明文——与地图快照是否封装无关。
-          metadata: _withBurnMetadata(
-            _withDescriptor({
-              'msg_type': 'location',
-              'peer_id': peerId,
-              'title': title,
-              'address': address,
-              'latitude': latitude,
-              'longitude': longitude,
-              'thumb': imgUrl,
-              'size': resp['data']['size'],
-              'file_hash256': resp['data']['file_hash256'].toString(),
-            }, seal),
-          ),
-        );
-        await _sendMessage(message);
-      },
-      (Error error) => debugPrint("Location upload error: ${error.toString()}"),
-      process: false,
-      scope: s.scope,
-      scopeRef: s.scopeRef,
-      seal: seal,
-    );
+    try {
+      final image = img.decodeImage(imageBytes)!;
+      final result = img.encodeJpg(image, quality: 65);
+      final s = _uploadScope;
+      final String messageId = Xid().toString();
+      final seal = await _sealFor(messageId, 'location_thumb');
+      await AttachmentApi.uploadBytesViaPresignCompat(
+        "location",
+        result,
+        (Map<String, dynamic> resp, String imgUrl) async {
+          // imgUrl 现为 object_key（presign），Garage 不支持 &width 缩放，直接存
+          final message = CustomMessage(
+            authorId: _currentUser.id,
+            createdAt: DateTime.fromMillisecondsSinceEpoch(
+              DateTimeHelper.millisecond(),
+              isUtc: true,
+            ),
+            id: messageId,
+            // ⚠️ 经纬度本身在 payload 里：加密会话下随 payload 加密，
+            // 非加密会话下明文——与地图快照是否封装无关。
+            metadata: _withBurnMetadata(
+              _withDescriptor({
+                'msg_type': 'location',
+                'peer_id': peerId,
+                'title': title,
+                'address': address,
+                'latitude': latitude,
+                'longitude': longitude,
+                'thumb': imgUrl,
+                'size': resp['data']['size'],
+                'file_hash256': resp['data']['file_hash256'].toString(),
+              }, seal),
+            ),
+          );
+          await _sendMessage(message);
+        },
+        (Error error) =>
+            debugPrint('Location upload error, errType=${error.runtimeType}'),
+        process: false,
+        scope: s.scope,
+        scopeRef: s.scopeRef,
+        seal: seal,
+      );
+    } on Object catch (e) {
+      final p = _attachmentFailurePresentation(e);
+      debugPrint(
+        '[attachment_handler] handleLocationSelection failed, ${p.log}',
+      );
+      // 位置消息上传失败同样必须有可见反馈（与图片/语音同口径）
+      AppLoading.showError(p.toast);
+    }
   }
 
   // sendExpressionMessage 已删除：唯一调用方是假贴图面板（16 个硬编码 emoji，

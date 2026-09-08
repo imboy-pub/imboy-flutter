@@ -542,6 +542,7 @@ class E2EEHealthCheckService {
 
       return recoveredCount;
     } catch (e) {
+      debugPrint('[E2EE_HEALTH] 重试解密失败消息中断, errType=${e.runtimeType}');
       return 0;
     }
   }
