@@ -496,5 +496,27 @@
    "lesson": "commit 消息文件必须用专属路径（非共享 /tmp 根）；heredoc 不得与依赖它的命令用 && 短路结构；commit 后必须 git log -1 核对消息+内容双匹配（lefthook 静默吞/串消息两型）",
    "residue": "并行会话的 i18n 340 行删除未入库（其消息已在 940bc11e 中被顶掉），原文留档 /tmp/a02fa620_orig_msg.txt"
   }
+ },
+ "session_2026_09_09_batch128": {
+  "note": "批次128（automation 首轮触发）：三态例行阻塞条 workspace_picker『失败+无缓存』构造验收 AT-WPF1 全绿，阻塞 96→95。无待首测/待修复，主块跳过。",
+  "at_wpf1": {
+   "scope": "workspace_picker_page『加载失败且无缓存数据时显示错误视图，点重试重新拉取』（批次W2R2 起阻塞）",
+   "blocker_overturned": "『清数据则卡登录不可达』定性推翻：provider 层 workspaces 仅 loadMine 成功时填充（state 初始空），无需清任何数据——真正难点是 WorkspaceShellNotifier 常驻（keepAlive），启动期成功首载后 workspaces 残留致 hasWorkspace=true 永走列表分支",
+   "construction_recipe": "①登录后 select(chat) 归位持久化体验 ②container.invalidate(workspaceShellProvider) 强制 state 归零 ③failMine=true 下 select(workspace) 触发壳首载被拦 ④兜底手动 loadMine ⑤深链 /workspace 断言错误视图+无缓存反证 ⑥解除拦截 tap 重试 → 列表恢复",
+   "result": "run12 全绿（01:05 +1）：error=simulated_ws_mine_down/hasWs=false/n=0，错误视图+重试按钮+无缓存反证+重试恢复列表全过",
+   "evidence": "test/auto_test/reports/batch128/wpf_run12.log（run1~11 为迭代史）"
+  },
+  "test_env_quirks_batch128": [
+   "HttpClient.adapterForTest 拦截在『沿用已登录态启动链』下曾失效（run4），无条件 quitLogin 重登路径必生效（run3 实证）",
+   "quitLogin 后残留 token 的异步 401 链（e2ee/report_device_key）会触发 http_auth_expired_callback 的 navigateToSignIn(in-flight) 与 performLogin 互踩踢掉新会话——需真实时间排空 4s+（批次120 同款）",
+   "单次 tap 可能被 Overlay 吞——ensureVisible+缓冲+双 tap（批次114 教训再现）",
+   "壳 Overview 不渲染 WorkspaceErrorView（仅列表类页面），错误视图断言以 picker 页为载体"
+  ],
+  "env_incident_fixed": "21:47~23:48 环境故障定案：9801 节点被重启回滚到 alpha.71 release beam（manifest_hash=旧12项 b6f00f4c），客户端 6fdab1d6 收敛后编译期 hash=742ac633（7项）→ App 启动 fail-closed 锁死 → GF7 三连挂死+WPF 前几轮挂死全是同一根因。修复=热加载 imboy/ebin/（15:49 编译，含 742ac633 宏）的 imboy_feature+app_manifest_handler 双 beam 到 9801（hotload_feature.escript 配方）。注意：9801 重启会再次丢失，需重新热加载或升级 release",
+  "gf7_reverify": "GF7 挂死根因已随 manifest 修复解除（启动锁死→正常），本轮时间预算已尽未重跑，留下轮优先验证：flutter test integration_test/group/face_to_face_acceptance_test.dart -d macos --plain-name AT-GF7 + 批次127 配方 define",
+  "next_actions": [
+   "GF7 重验（manifest 修复后应绿）",
+   "下轮 automation：§0 统计（无待首测/待修复→主块跳过）+ 三态例行阻塞 tail 尾部推进"
+  ]
  }
 }
