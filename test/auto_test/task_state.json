@@ -550,5 +550,17 @@
   "next_actions": [
    "下轮 automation：三态例行阻塞 tail 尾部推进（workspace 域还有 workspace_members_page『成员列表空态』同类，可复用 AT-WOV1 配方）"
   ]
+ },
+ "session_2026_09_09_batch131": {
+  "note": "批次131（automation 第四轮）：三态例行阻塞条 workspace_members_page『成员列表空态』解除（AT-WVM1 全绿），阻塞 93→92。无待首测/待修复，主块跳过。",
+  "at_wvm1": {
+   "scope": "workspace_members_page『成员列表为空时空态展示标题与副标题提示』（批次W2R2 起阻塞）",
+   "construction": "adapterForTest 拦 members 接口（path 含 /members 且 query 含 page）返回 code=0+payload={}（WorkspacePageResult 默认 list=[]）→ 深链静态路由 /workspace/members（页面读 currentWorkspaceProvider，非 :workspaceId 参数路由）→ 断言 membersEmpty 标题+副标题稳定展示",
+   "result": "run6 全绿（01:03 +1，run1 深链路径错/run4-5 恢复断言超范围后收窄到行描述）",
+   "lesson": "①members 路由=/workspace/members 静态路径（无 :workspaceId）②python str.replace 不匹配时静默跳过——批量替换后必须 grep 复核 ③恢复段断言超出台账行描述时应收窄（空成员场景行只描述空态展示）"
+  },
+  "next_actions": [
+   "下轮 automation：三态例行阻塞 tail 尾部推进（workspace 域 Picker/Members/Overview 空态族已清，tail 前移）；GF7 二分排查仍可选"
+  ]
  }
 }
