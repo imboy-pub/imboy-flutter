@@ -428,12 +428,13 @@ class MessageService with EventSubscriptionManager {
       ),
     );
     if (decrypted['_e2ee_failed'] == true) {
-      if (decrypted['_e2ee_reason']?.toString() == 'already_processed') {
+      final reason = decrypted['_e2ee_reason']?.toString();
+      // ADR 15 §7.1：duplicate_message（同 id+scope+digest 合法重投）与
+      // already_processed 同为幂等语义——静默跳过，不落占位、不弹错。
+      if (reason == 'already_processed' || reason == 'duplicate_message') {
         return true;
       }
-      iPrint(
-        '🚫 [E2EE] 编辑 action 解密失败，拒绝执行: msgId=$msgId, reason=${decrypted['_e2ee_reason']}',
-      );
+      iPrint('🚫 [E2EE] 编辑 action 解密失败，拒绝执行: msgId=$msgId, reason=$reason');
       return false;
     }
     final actionData = Map<String, dynamic>.from(data)..['payload'] = decrypted;
@@ -600,8 +601,30 @@ class MessageService with EventSubscriptionManager {
 
     if (payload == null) return false;
     if (payload['_e2ee_failed'] == true) {
-      return existing != null &&
-          payload['_e2ee_reason']?.toString() == 'already_processed';
+      final reason = payload['_e2ee_reason']?.toString();
+      // ADR 15 §7.1 / crypto_store.stageInbound：duplicate_message（同 id+
+      // scope+digest 合法重投）与 already_processed 同为幂等语义——
+      // 静默跳过：不落占位、不弹错，ACK 视同已处理。
+      if (reason == 'already_processed' || reason == 'duplicate_message') {
+        return true;
+      }
+      // 其余解密失败不再在此短路丢弃：继续走下方与离线同步
+      // （persistInboundMessage → 本函数）完全相同的落库路径，落
+      // _e2ee_failed 占位行——用户可见失败气泡，健康检查服务可按
+      // payload LIKE '%_e2ee_failed%' 扫描；ACK 语义与离线路径一致：
+      // 落库成功（_processMessageInBackground 返回 true）才 ACK，
+      // 避免服务端无限重投 + 消息凭空消失。
+      //
+      // _e2ee_raw 若直接引用原始 data，会与下方 data['payload'] 赋值互指
+      // 成环（json.encode 落库抛异常），替换为仅含自愈重试所需字段的浅拷贝
+      // （retryDecryptFailedMessage 只读 _e2ee_raw.payload / .e2ee）。
+      final raw = payload['_e2ee_raw'];
+      if (identical(raw, data)) {
+        payload['_e2ee_raw'] = {
+          'payload': data['payload'],
+          'e2ee': data['e2ee'],
+        };
+      }
     }
     data['payload'] = payload;
 
@@ -1511,6 +1534,16 @@ class MessageService with EventSubscriptionManager {
   /// Check if message can be edited.
   bool canEditMessage(MessageModel msg) => actions.canEditMessage(msg);
 
+  /// E2EE 解密失败占位行的显示文案（入站链路 A3）：
+  /// - `crypto_store_unavailable` 是可重试故障（加密存储暂时不可访问，
+  ///   重启应用可恢复），用引导重试文案；
+  /// - 其余 reason 一律用通用加密占位，不暴露失败细节（ADR 15 §5）。
+  String _e2eeFailedPlaceholderText(Object? reason) {
+    return reason == 'crypto_store_unavailable'
+        ? t.chat.e2eeDecryptStoreUnavailable
+        : t.chat.encryptedMessagePlaceholder;
+  }
+
   /// 处理 E2EE 消息解密（v2.0 格式）
   ///
   /// ## v2.0 E2EE 格式
@@ -1556,7 +1589,7 @@ class MessageService with EventSubscriptionManager {
         );
         return {
           'msg_type': originalMsgType,
-          'text': '[消息解密失败]',
+          'text': _e2eeFailedPlaceholderText(v3Result['_e2ee_reason']),
           '_e2ee_failed': true,
           '_e2ee_reason': v3Result['_e2ee_reason'],
         };
@@ -1596,7 +1629,7 @@ class MessageService with EventSubscriptionManager {
       iPrint('❌ [E2EE] payload 为空: msgId=$msgId');
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'text': '[加密消息]',
+        'text': _e2eeFailedPlaceholderText('empty_payload'),
         '_e2ee_failed': true,
         '_e2ee_reason': 'empty_payload',
       };
@@ -1628,7 +1661,7 @@ class MessageService with EventSubscriptionManager {
       iPrint('❌ [E2EE] e2ee 元数据为空: msgId=$msgId');
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'text': '[消息解密失败]',
+        'text': _e2eeFailedPlaceholderText('missing_e2ee_metadata'),
         '_e2ee_failed': true,
         '_e2ee_reason': 'missing_e2ee_metadata',
         // 不保存原始密文，避免将密文写入 SQLite
@@ -1709,14 +1742,15 @@ class MessageService with EventSubscriptionManager {
           ),
         );
 
-        // 密钥不匹配：保存原始密文，支持自愈机制重试恢复 (C3)
+        // 密钥不匹配：保存原始密文，支持自愈机制重试恢复 (C3)。
+        // 文案走通用加密占位：重登引导由 E2EEKeyMismatchEvent 监听者
+        // （chat_page）与失败气泡点击（showE2EERecoveryGuide）负责，
+        // 此处不再内嵌「点击下方按钮重新登录」类误导性指引。
         return {
           'msg_type': originalMsgType,
-          'text':
-              '🔒 此消息无法解密\n\n可能原因：\n• 您在其他设备上登录\n• 设备密钥已过期\n\n建议：\n点击下方按钮重新登录以获取最新密钥',
+          'text': _e2eeFailedPlaceholderText('key_mismatch'),
           '_e2ee_failed': true,
           '_e2ee_reason': 'key_mismatch',
-          '_show_relogin_button': true, // 标记需要显示重新登录按钮
           '_e2ee_raw': data, // 存储完整密文以便后续重试自愈解密 (C3)
         };
       }
@@ -1724,7 +1758,7 @@ class MessageService with EventSubscriptionManager {
       // 其他解密错误：保存原始密文，支持自愈机制重试恢复 (C3)
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'text': '[消息解密失败]',
+        'text': _e2eeFailedPlaceholderText('decrypt_error'),
         '_e2ee_failed': true,
         '_e2ee_reason': 'decrypt_error',
         '_e2ee_raw': data, // 存储完整密文以便后续重试自愈解密 (C3)
