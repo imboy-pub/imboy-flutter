@@ -616,5 +616,14 @@
    "环境人工修复后：AT-WIV1 重验 → invite 行转已通过（阻塞-1）",
    "GF 挂死与同一 fs 卡死叠加，一并验证"
   ]
+ },
+ "session_2026_09_09_batch135": {
+  "note": "批次135（automation 第八轮）：环境探测——bob 库目录 ls 仍挂死（fs 卡死未解除），AT-WIV1 维持待环境。三态例行阻塞 tail=invite 行自身（依赖环境），维持。台账无变更。",
+  "housekeeping": "补提交批次128/133 遗留的 WPF 适配器 delayMine 档（9fe8e288）——当时决定独立 loading 文件后遗漏",
+  "env_status": "与批次134 一致：其余 fs 正常，pub.imboy.app/Documents 下 bob 库元数据操作挂死；等人工重启/First Aid/清盘",
+  "next_actions": [
+   "环境恢复后：AT-WIV1 重验 → invite 行转已通过（阻塞-1）",
+   "GF1/GF7 与同一 fs 卡死叠加，环境恢复后一并验证"
+  ]
  }
 }
