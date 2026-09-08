@@ -147,14 +147,15 @@ bool _authorized() {
 }
 
 Future<List<String>> _loadAnnouncements(String gid) async {
-  final response = await HttpClient.client.dio.get<dynamic>(
+  final response = await HttpClient.client.get(
     '/api/v1/group_notice/page',
     queryParameters: {'gid': gid, 'page': 1, 'size': 50},
   );
-  final body = response.data;
-  if (body is! Map) return const [];
+  if (response.code != 0) {
+    fail('群公告回读失败: code=${response.code}, msg=${response.msg}');
+  }
   return _asList(
-    body['payload'],
+    response.payload,
   ).map((item) => item is Map ? item.values.join('|') : '$item').toList();
 }
 

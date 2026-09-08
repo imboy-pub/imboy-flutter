@@ -141,7 +141,9 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
           ),
         ),
       ],
-      child: _isLoading
+      // 自带滚动体必须传 body:（模板对 child 的兜底容器是
+      // SingleChildScrollView>Column，同轴嵌套 ListView → 无界高度崩）
+      body: _isLoading
           ? const Center(child: CupertinoActivityIndicator())
           : ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),

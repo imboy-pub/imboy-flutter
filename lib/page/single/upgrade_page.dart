@@ -704,50 +704,51 @@ class UpgradeCardState extends State<UpgradeCard> {
                 ),
 
                 ///按钮列表
-                SizedBox(
-                  height: 44,
-                  child: Row(
-                    children: <Widget>[
-                      Visibility(
-                        visible: widget.negativeBtn.isNotEmpty,
-                        child: Expanded(
-                          child: CupertinoButton(
-                            onPressed: widget.negativeCallback,
-                            child: Text(
-                              widget.negativeBtn,
-                              style: context.textStyle(
-                                FontSizeType.medium,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.iosGray,
-                              ),
+                Row(
+                  children: <Widget>[
+                    Visibility(
+                      visible: widget.negativeBtn.isNotEmpty,
+                      child: Expanded(
+                        child: CupertinoButton(
+                          minimumSize: const Size(0, 44),
+                          padding: EdgeInsets.zero,
+                          onPressed: widget.negativeCallback,
+                          child: Text(
+                            widget.negativeBtn,
+                            style: context.textStyle(
+                              FontSizeType.medium,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.iosGray,
                             ),
                           ),
                         ),
                       ),
-                      Container(
-                        height: 44,
-                        width: 0.5,
-                        color: isDark
-                            ? AppColors.darkDivider
-                            : AppColors.lightDivider,
-                      ),
-                      Visibility(
-                        visible: widget.positiveBtn.isNotEmpty,
-                        child: Expanded(
-                          child: CupertinoButton(
-                            onPressed: widget.positiveCallback,
-                            child: Text(
-                              widget.positiveBtn,
-                              style: context.textStyle(
-                                FontSizeType.medium,
-                                fontWeight: FontWeight.w600,
-                              ),
+                    ),
+                    Container(
+                      height: 44,
+                      width: 0.5,
+                      color: isDark
+                          ? AppColors.darkDivider
+                          : AppColors.lightDivider,
+                    ),
+                    Visibility(
+                      visible: widget.positiveBtn.isNotEmpty,
+                      child: Expanded(
+                        child: CupertinoButton(
+                          minimumSize: const Size(0, 44),
+                          padding: EdgeInsets.zero,
+                          onPressed: widget.positiveCallback,
+                          child: Text(
+                            widget.positiveBtn,
+                            style: context.textStyle(
+                              FontSizeType.medium,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

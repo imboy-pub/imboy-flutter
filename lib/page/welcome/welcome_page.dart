@@ -242,8 +242,9 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     // Button
                     SizedBox(
                       width: double.infinity,
-                      height: 56,
                       child: CupertinoButton(
+                        minimumSize: const Size(0, 56),
+                        padding: EdgeInsets.zero,
                         color: AppColors.primary,
                         onPressed: () {
                           if (_currentPage < _pages(context).length - 1) {

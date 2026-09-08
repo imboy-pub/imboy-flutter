@@ -17,8 +17,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/config/router/generated_product_feature_routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/channel/channel_detail_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -113,4 +113,4 @@ class _DiscussInGroupBanner extends ConsumerWidget {
 
 /// 默认内容区：现有频道内容页（发帖/评论模型，无聊天输入框）。
 Widget defaultWorkspaceChannelDetailEntry(String channelId) =>
-    ChannelDetailPage(channelId: channelId, autoLoadStats: false);
+    compiledChannelDetailPage(channelId) ?? const SizedBox.shrink();

@@ -237,8 +237,9 @@ class ChangePasswordPage extends ConsumerWidget {
       ),
       child: SizedBox(
         width: double.infinity,
-        height: 50,
         child: CupertinoButton(
+          minimumSize: const Size(0, 50),
+          padding: EdgeInsets.zero,
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(14),
           onPressed: state.canSubmit

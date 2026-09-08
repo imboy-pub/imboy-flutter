@@ -7,16 +7,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/modules/channel_content/public.dart';
 import 'package:imboy/modules/social_graph/public.dart';
+import 'package:imboy/config/router/generated_product_feature_routes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
-import 'package:imboy/page/conversation/subscribed_channel_strip_provider.dart'
-    show subscribedChannelStripProvider;
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
@@ -77,10 +75,11 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   }
 
   List<Widget> _buildPageList() {
+    final channelPage = compiledChannelListPage();
     return [
       const ConversationPage(),
       ContactPage(),
-      if (_isTabEnabled('channel_tab')) const ChannelListPage(),
+      if (_isTabEnabled('channel_tab') && channelPage != null) channelPage,
       MinePage(),
     ];
   }
@@ -208,16 +207,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
           icon: CupertinoIcons.antenna_radiowaves_left_right,
           activeIcon: CupertinoIcons.antenna_radiowaves_left_right,
           label: t.channel.title,
-          remindCount: channelEnabled
-              ? (ref.watch(subscribedChannelStripProvider).value?.fold<int>(0, (
-                      sum,
-                      s,
-                    ) {
-                      if (s.isMuted) return sum;
-                      return sum + s.unreadCount;
-                    }) ??
-                    0)
-              : 0,
+          remindCount: channelEnabled ? compiledChannelUnreadCount(ref) : 0,
           tabKey: const Key('tab_channel'),
         ),
       _NavigationItemData(

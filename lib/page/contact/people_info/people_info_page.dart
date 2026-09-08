@@ -318,8 +318,8 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
               ),
               child: SizedBox(
                 width: double.infinity,
-                height: 50,
                 child: CupertinoButton(
+                  minimumSize: const Size(0, 50),
                   padding: EdgeInsets.zero,
                   color: AppColors.primary,
                   disabledColor: AppColors.primary,

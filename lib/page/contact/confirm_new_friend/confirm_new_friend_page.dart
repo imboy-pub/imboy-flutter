@@ -165,8 +165,9 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
       ),
       child: SizedBox(
         width: double.infinity,
-        height: 50,
         child: CupertinoButton(
+          minimumSize: const Size(0, 50),
+          padding: EdgeInsets.zero,
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(14),
           onPressed: _isSubmitting
@@ -174,36 +175,38 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
               : () async {
                   FocusScope.of(context).unfocus();
                   setState(() => _isSubmitting = true);
-                  Map<String, dynamic> p2 =
-                      json.decode(widget.payload) as Map<String, dynamic>;
-                  p2['to'] = {
-                    "remark": _remarkC.text,
-                    "account": UserRepoLocal.to.current.account,
-                    "nickname": UserRepoLocal.to.current.nickname,
-                    "avatar": UserRepoLocal.to.current.avatar,
-                    "sign": UserRepoLocal.to.current.sign,
-                    "gender": UserRepoLocal.to.current.gender,
-                    "role": providerState.role,
-                    "donotlookhim": providerState.donotlookhim,
-                    "donotlethimlook": providerState.donotlethimlook,
-                    "tag": providerState.peerTag.isEmpty
-                        ? ''
-                        : "${providerState.peerTag},",
-                  };
-                  final ok = await ref
-                      .read(confirmNewFriendProvider.notifier)
-                      .confirm(from: widget.from, to: widget.to, payload: p2);
-                  if (!context.mounted) return;
-                  if (ok) {
-                    // confirm() 里的 _receivedConfirmFriend 只把 status 写进
-                    // SQLite，父页 newFriendProvider 的内存列表没动 —— 返回后
-                    // 那一条仍渲染成「接受」按钮。必须重载列表再 pop。
-                    await ref.read(newFriendProvider.notifier).initData();
+                  try {
+                    Map<String, dynamic> p2 =
+                        json.decode(widget.payload) as Map<String, dynamic>;
+                    p2['to'] = {
+                      "remark": _remarkC.text,
+                      "account": UserRepoLocal.to.current.account,
+                      "nickname": UserRepoLocal.to.current.nickname,
+                      "avatar": UserRepoLocal.to.current.avatar,
+                      "sign": UserRepoLocal.to.current.sign,
+                      "gender": UserRepoLocal.to.current.gender,
+                      "role": providerState.role,
+                      "donotlookhim": providerState.donotlookhim,
+                      "donotlethimlook": providerState.donotlethimlook,
+                      "tag": providerState.peerTag.isEmpty
+                          ? ''
+                          : "${providerState.peerTag},",
+                    };
+                    final ok = await ref
+                        .read(confirmNewFriendProvider.notifier)
+                        .confirm(from: widget.from, to: widget.to, payload: p2);
                     if (!context.mounted) return;
-                    Navigator.of(context).pop();
-                    return;
+                    if (ok) {
+                      // confirm() 里的 _receivedConfirmFriend 只把 status 写进
+                      // SQLite，父页 newFriendProvider 的内存列表没动 —— 返回后
+                      // 那一条仍渲染成「接受」按钮。必须重载列表再 pop。
+                      await ref.read(newFriendProvider.notifier).initData();
+                      if (!context.mounted) return;
+                      Navigator.of(context).pop();
+                    }
+                  } finally {
+                    if (mounted) setState(() => _isSubmitting = false);
                   }
-                  setState(() => _isSubmitting = false);
                 },
           child: _isSubmitting
               ? const SizedBox(
@@ -216,6 +219,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
                   style: context.textStyle(
                     FontSizeType.body,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.onPrimary,
                   ),
                 ),
         ),

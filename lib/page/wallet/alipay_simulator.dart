@@ -226,8 +226,9 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: SizedBox(
                 width: double.infinity,
-                height: 48,
                 child: CupertinoButton(
+                  minimumSize: const Size(0, 48),
+                  padding: EdgeInsets.zero,
                   color: AppColors.alipaySimRed,
                   borderRadius: BorderRadius.circular(24),
                   onPressed: () {
@@ -387,8 +388,9 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: SizedBox(
                 width: double.infinity,
-                height: 48,
                 child: CupertinoButton(
+                  minimumSize: const Size(0, 48),
+                  padding: EdgeInsets.zero,
                   color: AppColors.alipaySimBlue,
                   borderRadius: BorderRadius.circular(8),
                   onPressed: () {
@@ -655,8 +657,9 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: SizedBox(
             width: double.infinity,
-            height: 48,
             child: CupertinoButton(
+              minimumSize: const Size(0, 48),
+              padding: EdgeInsets.zero,
               color: AppColors.lightSurface,
               borderRadius: BorderRadius.circular(8),
               onPressed: () {
@@ -794,8 +797,9 @@ class _AlipaySimulatorState extends State<AlipaySimulator> {
                       // Red prominent Done button inside Merchant App
                       SizedBox(
                         width: double.infinity,
-                        height: 48,
                         child: CupertinoButton(
+                          minimumSize: const Size(0, 48),
+                          padding: EdgeInsets.zero,
                           color: AppColors.alipaySimRed,
                           borderRadius: BorderRadius.circular(24),
                           onPressed: () {

@@ -332,8 +332,9 @@ class UserCollectDetailPage extends ConsumerWidget {
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 24),
               width: double.infinity,
-              height: 48,
               child: CupertinoButton(
+                minimumSize: const Size(0, 48),
+                padding: EdgeInsets.zero,
                 borderRadius: AppRadius.borderRadiusMedium,
                 onPressed: () => Navigator.pop(context),
                 child: Text(

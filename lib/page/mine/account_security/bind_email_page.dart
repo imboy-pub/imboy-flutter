@@ -268,8 +268,8 @@ class _BindEmailPageState extends ConsumerState<BindEmailPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: SizedBox(
         width: double.infinity,
-        height: 50,
         child: CupertinoButton(
+          minimumSize: const Size(0, 50),
           padding: EdgeInsets.zero,
           color: AppColors.primary,
           disabledColor: AppColors.primary.withValues(alpha: 0.3),

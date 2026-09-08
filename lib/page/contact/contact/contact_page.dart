@@ -101,6 +101,27 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   }
 
   @override
+  void didUpdateWidget(covariant ContactPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 常驻容器（IndexedStack/常复用的 PageView item）里 initState 首轮
+    // loadData 可能落在 token/网络就绪之前，失败后没有重载入口（09-04
+    // macOS 实证：服务端有好友、本地空、零同步请求）。宿主 rebuild 时若
+    // 真实联系人仍为空且无进行中的加载则补拉一次（幂等；菜单入口行
+    // 不算真实联系人）。
+    final s = ref.read(contactProvider);
+    if (!s.isLoading &&
+        !s.contactList.any(isRealContact) &&
+        !_dataReloadInFlight) {
+      _dataReloadInFlight = true;
+      ref.read(contactProvider.notifier).loadData().whenComplete(() {
+        _dataReloadInFlight = false;
+      });
+    }
+  }
+
+  bool _dataReloadInFlight = false;
+
+  @override
   void dispose() {
     _localeSubscription?.cancel();
     _searchCtrl.dispose();

@@ -457,9 +457,9 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
   }) {
     return SizedBox(
       width: double.infinity,
-      height: 48,
       child: isDestructive
           ? CupertinoButton(
+              minimumSize: const Size(0, 48),
               padding: const EdgeInsets.symmetric(vertical: 12),
               borderRadius: AppRadius.borderRadiusMedium,
               color: color.withValues(alpha: 0.1),
@@ -474,6 +474,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
               ),
             )
           : CupertinoButton.filled(
+              minimumSize: const Size(0, 48),
               padding: const EdgeInsets.symmetric(vertical: 12),
               borderRadius: AppRadius.borderRadiusMedium,
               onPressed: onTap,

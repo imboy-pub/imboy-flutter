@@ -167,8 +167,9 @@ class WalletPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
       child: CupertinoButton(
+        minimumSize: const Size(0, 50),
+        padding: EdgeInsets.zero,
         color: color,
         borderRadius: AppRadius.borderRadiusMedium,
         onPressed: onPressed,

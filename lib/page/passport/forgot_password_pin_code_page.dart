@@ -319,8 +319,9 @@ class _PinCodeVerificationPageState
                               delay: 1,
                               child: SizedBox(
                                 width: double.infinity,
-                                height: 52,
                                 child: CupertinoButton(
+                                  minimumSize: const Size(0, 52),
+                                  padding: EdgeInsets.zero,
                                   color: AppColors.primary,
                                   onPressed: () async {
                                     FocusScope.of(context).unfocus();

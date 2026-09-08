@@ -146,7 +146,7 @@ void main() {
         // [功能点 8]：提交前收起键盘避免遮挡
         // [功能点 6 & 7]：提交中按钮禁用并显示转圈，以及最终点击完成提交
         final accomplishButton = find.byWidgetPredicate((w) {
-          if (w is! ElevatedButton) return false;
+          if (w is! CupertinoButton) return false;
           final child = w.child;
           if (child is! Text) return false;
           final text = child.data?.trim();

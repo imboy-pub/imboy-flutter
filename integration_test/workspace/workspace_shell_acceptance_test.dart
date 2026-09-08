@@ -126,8 +126,18 @@ void main() {
     // adapterForTest 打不到已构造实例的 Dio（run4 教训：invalidate 后仍
     // AsyncData([])——拦截未命中真实请求）
     final failover = _FailoverAdapter();
+    final container0 = ProviderScope.containerOf(
+      tester.element(find.byType(Navigator).first),
+      listen: false,
+    );
     HttpClient.adapterForTest = failover;
-    addTearDown(() => HttpClient.adapterForTest = null);
+    addTearDown(() {
+      HttpClient.adapterForTest = null;
+      // 还原体验持久化，避免污染后续测试（启动进壳而非 chat 首页）
+      container0
+          .read(productExperienceProvider.notifier)
+          .select(ProductExperience.chat);
+    });
 
     app.main();
     await _pump(tester, seconds: 12);

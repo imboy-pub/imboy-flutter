@@ -192,8 +192,9 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
                 if (!isCompleted)
                   SizedBox(
                     width: double.infinity,
-                    height: 44,
                     child: CupertinoButton.filled(
+                      minimumSize: const Size(0, 44),
+                      padding: EdgeInsets.zero,
                       borderRadius: BorderRadius.circular(12),
                       onPressed: _isSubmitting ? null : _submitTask,
                       child: _isSubmitting

@@ -171,8 +171,9 @@ class ChangeInfoPageState extends ConsumerState<ChangeInfoPage> {
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
-              height: 48,
               child: CupertinoButton.filled(
+                minimumSize: const Size(0, 48),
+                padding: EdgeInsets.zero,
                 borderRadius: BorderRadius.circular(25),
                 onPressed: state.valueChanged
                     ? () async {

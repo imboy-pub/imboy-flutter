@@ -409,8 +409,9 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
             const SizedBox(height: AppSpacing.regular),
             if (_voteStatus == 1)
               SizedBox(
-                height: 44,
                 child: CupertinoButton.filled(
+                  minimumSize: const Size(0, 44),
+                  padding: EdgeInsets.zero,
                   onPressed: (_selectedOptionIds.isEmpty || _isSubmitting)
                       ? null
                       : _submitVote,

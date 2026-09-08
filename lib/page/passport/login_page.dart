@@ -540,8 +540,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
   Widget _buildLoginButton(VoidCallback onPressed, {bool isEnabled = true}) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
       child: CupertinoButton.filled(
+        minimumSize: const Size(0, 50),
         key: const Key('login_submit_button'),
         padding: EdgeInsets.zero,
         onPressed: (_isLoading || !isEnabled)
