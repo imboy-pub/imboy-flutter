@@ -603,5 +603,18 @@
    "环境恢复后：跑 AT-WIV1（预期绿）→ 台账行转已通过（阻塞-1）",
    "GF 二分已定性文件级（51730 恢复链假设），与 fs 降级叠加，待环境一并验证"
   ]
+ },
+ "session_2026_09_09_batch134": {
+  "note": "批次134（automation 第七轮）：环境部分恢复（fs 响应恢复）但 bob 本地库 I/O 挂死持续——AT-WIV1 run3 仍 disk I/O error，且库文件目录 ls 也挂死（文件系统级卡死）。invite 行维持阻塞。",
+  "env_detail": {
+   "healthy": "其余路径 fs 响应正常（regen/git/常规读写均正常）",
+   "stuck": "~/Library/Containers/pub.imboy.app/Data/Documents/ 下 bob 库（local_office_1000000056.db+wal/shm）元数据操作挂死——quitLogin 删库重建无法自愈（wal/shm 残留或 inode 卡死）",
+   "user_action_needed": "需人工：①重启 macOS（清 fs 卡死）或对 Data 卷跑 First Aid ②手动删 pub.imboy.app/Data/Documents/local_office_1000000056.db*（含 -wal/-shm）③磁盘清理至 <90%",
+   "after_recovery": "直接重跑 AT-WIV1（define 见测试头注）预期绿 → 台账 invite 行转已通过"
+  },
+  "next_actions": [
+   "环境人工修复后：AT-WIV1 重验 → invite 行转已通过（阻塞-1）",
+   "GF 挂死与同一 fs 卡死叠加，一并验证"
+  ]
  }
 }
