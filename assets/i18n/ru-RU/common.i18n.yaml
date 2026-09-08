@@ -834,6 +834,7 @@ e2eeRecoveryKeyCopiedAutoClear(seconds): "Ключ восстановления 
 e2eeErrAttachmentSeal: "Не удалось запечатать зашифрованное вложение, файл не загружен. Повторите попытку позже"
 e2eeRetryFailedMessages: "Повторить сообщения с ошибкой расшифровки"
 e2eeRetryFailedDone(count): "Повторно обработано сообщений с ошибкой расшифровки: $count"
+e2eeRetryFailedNone: "Нет сообщений для повтора"
 e2eeModeStandard: "Стандартный режим"
 e2eeModeCompliance: "Комплаенс-шифрование"
 e2eeModeStrict: "Сквозное шифрование"

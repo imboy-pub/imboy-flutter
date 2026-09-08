@@ -1545,6 +1545,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeErrAttachmentSeal => 'Échec du scellement de la pièce jointe chiffrée ; le fichier n\'a pas été téléversé. Veuillez réessayer plus tard';
 	@override String get e2eeRetryFailedMessages => 'Réessayer les messages dont le déchiffrement a échoué';
 	@override String e2eeRetryFailedDone({required Object count}) => '${count} messages dont le déchiffrement a échoué ont été réessayés';
+	@override String get e2eeRetryFailedNone => 'Aucun message à réessayer';
 	@override String get e2eeModeStandard => 'Mode standard';
 	@override String get e2eeModeCompliance => 'Chiffrement de conformité';
 	@override String get e2eeModeStrict => 'Chiffrement de bout en bout';
@@ -3926,6 +3927,7 @@ extension on TranslationsFrFr {
 			'common.e2eeErrAttachmentSeal' => 'Échec du scellement de la pièce jointe chiffrée ; le fichier n\'a pas été téléversé. Veuillez réessayer plus tard',
 			'common.e2eeRetryFailedMessages' => 'Réessayer les messages dont le déchiffrement a échoué',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '${count} messages dont le déchiffrement a échoué ont été réessayés',
+			'common.e2eeRetryFailedNone' => 'Aucun message à réessayer',
 			'common.e2eeModeStandard' => 'Mode standard',
 			'common.e2eeModeCompliance' => 'Chiffrement de conformité',
 			'common.e2eeModeStrict' => 'Chiffrement de bout en bout',
@@ -4057,9 +4059,9 @@ extension on TranslationsFrFr {
 			'discovery.momentsDraftKeep' => 'Conserver',
 			'discovery.openChannel' => 'Ouvrir le canal',
 			'discovery.paidChannelLocked' => 'Contenu verrouillé (payant)',
-			'discovery.webQRScanned' => 'Scanné',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.webQRScanned' => 'Scanné',
 			'discovery.momentActionMore' => 'Plus d\'actions',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} personnes',
 			'discovery.momentAtReminded' => ({required Object name}) => 'A notifié ${name}',
@@ -4571,9 +4573,9 @@ extension on TranslationsFrFr {
 			'workspace.brandingLogoLabel' => 'URL du Logo',
 			'workspace.brandingLogoHint' => 'https://… (URL de l\'image du Logo de l\'espace de travail)',
 			'workspace.brandingColorLabel' => 'Couleur principale primaryColor',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Seuls #RRGGBB / #AARRGGBB sont pris en charge ; une valeur invalide retombe sur la couleur du thème par défaut',
 			'workspace.brandingColorInvalid' => 'Format de couleur principale invalide, seuls #RRGGBB / #AARRGGBB sont pris en charge',
 			'workspace.brandingSaved' => 'Paramètres de marque enregistrés',

@@ -15,6 +15,7 @@ import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// Temporary compatibility service for the security_privacy module shell.
 /// New upper-layer imports should prefer
@@ -851,6 +852,16 @@ class E2EEService {
     return null; // 全部比对通过，上下文一致
   }
 
+  /// E2EE 解密失败占位行的显示文案（message.dart 与本类共用）：
+  /// - `crypto_store_unavailable` 是可重试故障（加密存储暂时不可访问，
+  ///   重启应用可恢复），用引导重试文案；
+  /// - 其余 reason 一律用通用加密占位，不暴露失败细节（ADR 15 §5）。
+  static String e2eeFailedPlaceholderText(Object? reason) {
+    return reason == 'crypto_store_unavailable'
+        ? t.chat.e2eeDecryptStoreUnavailable
+        : t.chat.encryptedMessagePlaceholder;
+  }
+
   static Map<String, dynamic> _decryptFailedPayload(
     Map<String, dynamic> payload, {
     required String reason,
@@ -858,7 +869,7 @@ class E2EEService {
     final msgType = payload['msg_type']?.toString() ?? 'text';
     return {
       'msg_type': msgType, // 保留原始消息类型
-      'text': '[加密消息]',
+      'text': e2eeFailedPlaceholderText(reason),
       '_e2ee_failed': true,
       '_e2ee_reason': reason,
       '_e2ee_raw': payload,

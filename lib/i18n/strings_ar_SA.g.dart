@@ -1576,6 +1576,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeErrAttachmentSeal => 'فشل تغليف المرفق المشفّر، ولم يتم تحميل الملف. حاول مرة أخرى لاحقاً';
 	@override String get e2eeRetryFailedMessages => 'إعادة محاولة الرسائل التي فشل فك تشفيرها';
 	@override String e2eeRetryFailedDone({required Object count}) => 'تمت إعادة محاولة ${count} رسالة فشل فك تشفيرها';
+	@override String get e2eeRetryFailedNone => 'لا توجد رسائل لإعادة المحاولة';
 	@override String get e2eeModeStandard => 'الوضع القياسي';
 	@override String get e2eeModeCompliance => 'تشفير الامتثال';
 	@override String get e2eeModeStrict => 'التشفير من الطرف إلى الطرف';
@@ -3957,6 +3958,7 @@ extension on TranslationsArSa {
 			'common.e2eeErrAttachmentSeal' => 'فشل تغليف المرفق المشفّر، ولم يتم تحميل الملف. حاول مرة أخرى لاحقاً',
 			'common.e2eeRetryFailedMessages' => 'إعادة محاولة الرسائل التي فشل فك تشفيرها',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'تمت إعادة محاولة ${count} رسالة فشل فك تشفيرها',
+			'common.e2eeRetryFailedNone' => 'لا توجد رسائل لإعادة المحاولة',
 			'common.e2eeModeStandard' => 'الوضع القياسي',
 			'common.e2eeModeCompliance' => 'تشفير الامتثال',
 			'common.e2eeModeStrict' => 'التشفير من الطرف إلى الطرف',
@@ -4066,9 +4068,9 @@ extension on TranslationsArSa {
 			'discovery.momentsDraftKeep' => 'حفظ',
 			'discovery.openChannel' => 'فتح القناة',
 			'discovery.paidChannelLocked' => 'محتوى القناة المدفوعة مقفل',
-			'discovery.webQRScanned' => 'تم المسح',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.webQRScanned' => 'تم المسح',
 			'discovery.momentActionMore' => 'المزيد من الإجراءات',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} أعجبوا',
 			'discovery.momentLocation' => 'الموقع الحالي',
@@ -4580,9 +4582,9 @@ extension on TranslationsArSa {
 			'workspace.brandingLogoLabel' => 'عنوان Logo',
 			'workspace.brandingLogoHint' => 'https://… (عنوان صورة Logo لمساحة العمل)',
 			'workspace.brandingColorLabel' => 'اللون الأساسي primaryColor',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'يُدعم #RRGGBB / #AARRGGBB فقط؛ القيم غير الصالحة تعود إلى لون السمة الافتراضي',
 			'workspace.brandingColorInvalid' => 'تنسيق اللون الأساسي غير صحيح، يُدعم #RRGGBB / #AARRGGBB فقط',
 			'workspace.brandingSaved' => 'تم حفظ إعدادات العلامة',

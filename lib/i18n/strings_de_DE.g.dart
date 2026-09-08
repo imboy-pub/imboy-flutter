@@ -1598,6 +1598,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeErrAttachmentSeal => 'Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen';
 	@override String get e2eeRetryFailedMessages => 'Nachrichten mit Entschlüsselungsfehler erneut versuchen';
 	@override String e2eeRetryFailedDone({required Object count}) => '${count} Nachrichten mit Entschlüsselungsfehler erneut versucht';
+	@override String get e2eeRetryFailedNone => 'Keine Nachrichten zum Wiederholen';
 	@override String get e2eeModeStandard => 'Standardmodus';
 	@override String get e2eeModeCompliance => 'Compliance-Verschlüsselung';
 	@override String get e2eeModeStrict => 'Ende-zu-Ende-Verschlüsselung';
@@ -3979,6 +3980,7 @@ extension on TranslationsDeDe {
 			'common.e2eeErrAttachmentSeal' => 'Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen',
 			'common.e2eeRetryFailedMessages' => 'Nachrichten mit Entschlüsselungsfehler erneut versuchen',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '${count} Nachrichten mit Entschlüsselungsfehler erneut versucht',
+			'common.e2eeRetryFailedNone' => 'Keine Nachrichten zum Wiederholen',
 			'common.e2eeModeStandard' => 'Standardmodus',
 			'common.e2eeModeCompliance' => 'Compliance-Verschlüsselung',
 			'common.e2eeModeStrict' => 'Ende-zu-Ende-Verschlüsselung',
@@ -4057,9 +4059,9 @@ extension on TranslationsDeDe {
 			'discovery.momentsDraftDiscard' => 'Verwerfen',
 			'discovery.momentsDraftKeep' => 'Behalten',
 			'discovery.openChannel' => 'Kanal öffnen',
-			'discovery.paidChannelLocked' => 'Inhalt gesperrt (Kostenpflichtig)',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.paidChannelLocked' => 'Inhalt gesperrt (Kostenpflichtig)',
 			'discovery.webQRScanned' => 'Gescannt',
 			'discovery.momentActionMore' => 'Weitere Aktionen',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} Personen',
@@ -4571,9 +4573,9 @@ extension on TranslationsDeDe {
 			'workspace.brandingLogoLabel' => 'Logo-URL',
 			'workspace.brandingLogoHint' => 'https://… (URL des Arbeitsbereich-Logos)',
 			'workspace.brandingColorLabel' => 'Hauptfarbe primaryColor',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Nur #RRGGBB / #AARRGGBB; ungültige Werte fallen auf die Standard-Designfarbe zurück',
 			'workspace.brandingColorInvalid' => 'Ungültiges Format der Hauptfarbe, nur #RRGGBB / #AARRGGBB',
 			'workspace.brandingSaved' => 'Branding-Einstellungen gespeichert',

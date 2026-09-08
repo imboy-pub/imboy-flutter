@@ -3982,6 +3982,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '已重试 $count 条解密失败的消息'
 	String e2eeRetryFailedDone({required Object count}) => '已重试 ${count} 条解密失败的消息';
 
+	/// zh-CN: '没有需要重试的解密失败消息'
+	String get e2eeRetryFailedNone => '没有需要重试的解密失败消息';
+
 	/// zh-CN: '标准模式'
 	String get e2eeModeStandard => '标准模式';
 
@@ -8128,6 +8131,7 @@ extension on Translations {
 			'common.e2eeErrAttachmentSeal' => '加密附件封装失败，文件未上传；请稍后重试',
 			'common.e2eeRetryFailedMessages' => '重试解密失败的消息',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '已重试 ${count} 条解密失败的消息',
+			'common.e2eeRetryFailedNone' => '没有需要重试的解密失败消息',
 			'common.e2eeModeStandard' => '标准模式',
 			'common.e2eeModeCompliance' => '合规加密',
 			'common.e2eeModeStrict' => '端到端加密',
@@ -8377,9 +8381,9 @@ extension on Translations {
 			'discovery.momentsDraftDiscard' => '不保留',
 			'discovery.momentsDraftKeep' => '保留',
 			'discovery.openChannel' => '打开频道',
-			'discovery.paidChannelLocked' => '付费频道内容已锁定',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.paidChannelLocked' => '付费频道内容已锁定',
 			'discovery.webQRScanned' => '已扫描',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}人赞了',
 			'discovery.momentLocation' => '所在位置',
@@ -8891,9 +8895,9 @@ extension on Translations {
 			'workspace.brandingLogoLabel' => 'Logo 地址',
 			'workspace.brandingLogoHint' => 'https://...（工作区 Logo 图片地址）',
 			'workspace.brandingColorLabel' => '主色 primaryColor',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '仅支持 #RRGGBB / #AARRGGBB；非法值回落默认主题色',
 			'workspace.brandingColorInvalid' => '主色格式不正确，仅支持 #RRGGBB / #AARRGGBB',
 			'workspace.brandingSaved' => '品牌设置已保存',

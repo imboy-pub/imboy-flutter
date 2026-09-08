@@ -1551,6 +1551,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeErrAttachmentSeal => 'Не удалось запечатать зашифрованное вложение, файл не загружен. Повторите попытку позже';
 	@override String get e2eeRetryFailedMessages => 'Повторить сообщения с ошибкой расшифровки';
 	@override String e2eeRetryFailedDone({required Object count}) => 'Повторно обработано сообщений с ошибкой расшифровки: ${count}';
+	@override String get e2eeRetryFailedNone => 'Нет сообщений для повтора';
 	@override String get e2eeModeStandard => 'Стандартный режим';
 	@override String get e2eeModeCompliance => 'Комплаенс-шифрование';
 	@override String get e2eeModeStrict => 'Сквозное шифрование';
@@ -3932,6 +3933,7 @@ extension on TranslationsRuRu {
 			'common.e2eeErrAttachmentSeal' => 'Не удалось запечатать зашифрованное вложение, файл не загружен. Повторите попытку позже',
 			'common.e2eeRetryFailedMessages' => 'Повторить сообщения с ошибкой расшифровки',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Повторно обработано сообщений с ошибкой расшифровки: ${count}',
+			'common.e2eeRetryFailedNone' => 'Нет сообщений для повтора',
 			'common.e2eeModeStandard' => 'Стандартный режим',
 			'common.e2eeModeCompliance' => 'Комплаенс-шифрование',
 			'common.e2eeModeStrict' => 'Сквозное шифрование',
@@ -4063,9 +4065,9 @@ extension on TranslationsRuRu {
 			'discovery.momentsDraftDiscard' => 'Не сохранять',
 			'discovery.momentsDraftKeep' => 'Сохранить',
 			'discovery.openChannel' => 'Открыть канал',
-			'discovery.paidChannelLocked' => 'Содержимое платного канала заблокировано',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.paidChannelLocked' => 'Содержимое платного канала заблокировано',
 			'discovery.webQRScanned' => 'Отсканировано',
 			'discovery.momentActionMore' => 'Другие действия',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} чел.',
@@ -4577,9 +4579,9 @@ extension on TranslationsRuRu {
 			'workspace.brandingLogoLabel' => 'Адрес логотипа',
 			'workspace.brandingLogoHint' => 'https://... (адрес изображения логотипа рабочего пространства)',
 			'workspace.brandingColorLabel' => 'Основной цвет primaryColor',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Поддерживается только #RRGGBB / #AARRGGBB; при недопустимом значении используется цвет темы по умолчанию',
 			'workspace.brandingColorInvalid' => 'Неверный формат основного цвета, поддерживается только #RRGGBB / #AARRGGBB',
 			'workspace.brandingSaved' => 'Настройки бренда сохранены',

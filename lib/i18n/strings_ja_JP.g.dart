@@ -1594,6 +1594,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeErrAttachmentSeal => '暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください';
 	@override String get e2eeRetryFailedMessages => '復号に失敗したメッセージを再試行';
 	@override String e2eeRetryFailedDone({required Object count}) => '復号に失敗したメッセージ ${count} 件を再試行しました';
+	@override String get e2eeRetryFailedNone => '再試行が必要なメッセージはありません';
 	@override String get e2eeModeStandard => '標準モード';
 	@override String get e2eeModeCompliance => 'コンプライアンス暗号化';
 	@override String get e2eeModeStrict => 'エンドツーエンド暗号化';
@@ -3975,6 +3976,7 @@ extension on TranslationsJaJp {
 			'common.e2eeErrAttachmentSeal' => '暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください',
 			'common.e2eeRetryFailedMessages' => '復号に失敗したメッセージを再試行',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '復号に失敗したメッセージ ${count} 件を再試行しました',
+			'common.e2eeRetryFailedNone' => '再試行が必要なメッセージはありません',
 			'common.e2eeModeStandard' => '標準モード',
 			'common.e2eeModeCompliance' => 'コンプライアンス暗号化',
 			'common.e2eeModeStrict' => 'エンドツーエンド暗号化',
@@ -4054,9 +4056,9 @@ extension on TranslationsJaJp {
 			'discovery.momentsDraftDiscard' => '破棄',
 			'discovery.momentsDraftKeep' => '保存',
 			'discovery.openChannel' => 'チャンネルを開く',
-			'discovery.paidChannelLocked' => '有料チャンネルの内容はロックされています',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.paidChannelLocked' => '有料チャンネルの内容はロックされています',
 			'discovery.webQRScanned' => 'スキャン済み',
 			'discovery.momentActionMore' => 'その他の操作',
 			'discovery.momentAtCount' => ({required Object count}) => '${count}名',
@@ -4568,9 +4570,9 @@ extension on TranslationsJaJp {
 			'workspace.brandingLogoLabel' => 'LogoのURL',
 			'workspace.brandingLogoHint' => 'https://…（ワークスペースLogo画像のURL）',
 			'workspace.brandingColorLabel' => 'メインカラー primaryColor',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB のみ対応。無効な値はデフォルトのテーマカラーに戻ります',
 			'workspace.brandingColorInvalid' => 'メインカラーの形式が正しくありません。#RRGGBB / #AARRGGBB のみ対応しています',
 			'workspace.brandingSaved' => 'ブランド設定を保存しました',

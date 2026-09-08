@@ -828,6 +828,7 @@ e2eeRecoveryKeyCopiedAutoClear(seconds): "Chiave di recupero copiata, gli appunt
 e2eeErrAttachmentSeal: "Impossibile sigillare l'allegato crittografato, il file non è stato caricato. Riprova più tardi"
 e2eeRetryFailedMessages: "Riprova i messaggi non decifrati"
 e2eeRetryFailedDone(count): "Ritentata la decifratura di $count messaggi"
+e2eeRetryFailedNone: "Nessun messaggio da riprovare"
 e2eeModeStandard: "Modalità standard"
 e2eeModeCompliance: "Crittografia di conformità"
 e2eeModeStrict: "Crittografia end-to-end"

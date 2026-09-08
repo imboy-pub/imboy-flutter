@@ -322,10 +322,18 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
   Future<void> _retryFailedMessages() async {
     if (_isRetrying) return;
     setState(() => _isRetrying = true);
-    final count = await E2EEHealthCheckService.to.retryFailedMessages();
-    if (!mounted) return;
-    setState(() => _isRetrying = false);
-    AppLoading.showToast(t.common.e2eeRetryFailedDone(count: count));
+    try {
+      final count = await E2EEHealthCheckService.to.retryFailedMessages();
+      if (!mounted) return;
+      // count == 0：没有需要重试的失败消息，用中性提示避免误导用户以为失败
+      AppLoading.showToast(
+        count == 0
+            ? t.common.e2eeRetryFailedNone
+            : t.common.e2eeRetryFailedDone(count: count),
+      );
+    } finally {
+      if (mounted) setState(() => _isRetrying = false);
+    }
   }
 
   /// 构建重试解密失败消息入口卡片
@@ -918,7 +926,7 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
         });
       }
     } on Exception catch (e) {
-      iPrint('[E2EEKeyRecovery] 读取密钥信息失败: $e');
+      iPrint('[E2EEKeyRecovery] 读取密钥信息失败, errType=${e.runtimeType}');
       // 读取错误 ≠ 确认无密钥：进入错误态，禁止任何密钥生成/删除入口
       setState(() {
         _keyInfo = {};

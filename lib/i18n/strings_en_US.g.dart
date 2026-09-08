@@ -1550,6 +1550,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeErrAttachmentSeal => 'Failed to seal the encrypted attachment; the file was not uploaded. Please try again later';
 	@override String get e2eeRetryFailedMessages => 'Retry messages that failed to decrypt';
 	@override String e2eeRetryFailedDone({required Object count}) => 'Retried ${count} messages that failed to decrypt';
+	@override String get e2eeRetryFailedNone => 'No failed messages to retry';
 	@override String get e2eeModeStandard => 'Standard mode';
 	@override String get e2eeModeCompliance => 'Compliance encryption';
 	@override String get e2eeModeStrict => 'End-to-end encryption';
@@ -3931,6 +3932,7 @@ extension on TranslationsEnUs {
 			'common.e2eeErrAttachmentSeal' => 'Failed to seal the encrypted attachment; the file was not uploaded. Please try again later',
 			'common.e2eeRetryFailedMessages' => 'Retry messages that failed to decrypt',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Retried ${count} messages that failed to decrypt',
+			'common.e2eeRetryFailedNone' => 'No failed messages to retry',
 			'common.e2eeModeStandard' => 'Standard mode',
 			'common.e2eeModeCompliance' => 'Compliance encryption',
 			'common.e2eeModeStrict' => 'End-to-end encryption',
@@ -4057,9 +4059,9 @@ extension on TranslationsEnUs {
 			'discovery.momentsDraftKeep' => 'Keep',
 			'discovery.openChannel' => 'Open Channel',
 			'discovery.paidChannelLocked' => 'Paid Channel Content Locked',
-			'discovery.webQRScanned' => 'Scanned',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.webQRScanned' => 'Scanned',
 			'discovery.momentLocation' => 'Location',
 			'discovery.momentLocationNone' => 'Do not show location',
 			'discovery.momentAtWho' => 'Remind who',
@@ -4571,9 +4573,9 @@ extension on TranslationsEnUs {
 			'workspace.brandingLogoLabel' => 'Logo URL',
 			'workspace.brandingLogoHint' => 'https://… (workspace logo image URL)',
 			'workspace.brandingColorLabel' => 'Primary color',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Only #RRGGBB / #AARRGGBB; invalid values fall back to the default theme color',
 			'workspace.brandingColorInvalid' => 'Invalid color format; only #RRGGBB / #AARRGGBB is supported',
 			'workspace.brandingSaved' => 'Branding saved',

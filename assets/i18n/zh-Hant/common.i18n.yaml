@@ -828,6 +828,7 @@ e2eeRecoveryKeyCopiedAutoClear(seconds): 恢復金鑰已複製，$seconds 秒後
 e2eeErrAttachmentSeal: "加密附件封裝失敗，檔案未上傳；請稍後重試"
 e2eeRetryFailedMessages: "重試解密失敗的訊息"
 e2eeRetryFailedDone(count): "已重試 $count 條解密失敗的訊息"
+e2eeRetryFailedNone: "沒有需要重試的解密失敗訊息"
 e2eeModeStandard: "標準模式"
 e2eeModeCompliance: "合規加密"
 e2eeModeStrict: "端對端加密"

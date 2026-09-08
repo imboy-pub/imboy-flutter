@@ -884,6 +884,7 @@ e2eeRecoveryKeyCopiedAutoClear(seconds): リカバリーキーをコピーしま
 e2eeErrAttachmentSeal: "暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください"
 e2eeRetryFailedMessages: "復号に失敗したメッセージを再試行"
 e2eeRetryFailedDone(count): "復号に失敗したメッセージ $count 件を再試行しました"
+e2eeRetryFailedNone: "再試行が必要なメッセージはありません"
 e2eeModeStandard: "標準モード"
 e2eeModeCompliance: "コンプライアンス暗号化"
 e2eeModeStrict: "エンドツーエンド暗号化"

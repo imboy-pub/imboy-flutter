@@ -881,6 +881,7 @@ e2eeRecoveryKeyCopiedAutoClear(seconds): Wiederherstellungsschlüssel kopiert. D
 e2eeErrAttachmentSeal: "Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen"
 e2eeRetryFailedMessages: "Nachrichten mit Entschlüsselungsfehler erneut versuchen"
 e2eeRetryFailedDone(count): "$count Nachrichten mit Entschlüsselungsfehler erneut versucht"
+e2eeRetryFailedNone: "Keine Nachrichten zum Wiederholen"
 e2eeModeStandard: "Standardmodus"
 e2eeModeCompliance: "Compliance-Verschlüsselung"
 e2eeModeStrict: "Ende-zu-Ende-Verschlüsselung"

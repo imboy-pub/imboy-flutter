@@ -1545,6 +1545,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeErrAttachmentSeal => '加密附件封裝失敗，檔案未上傳；請稍後重試';
 	@override String get e2eeRetryFailedMessages => '重試解密失敗的訊息';
 	@override String e2eeRetryFailedDone({required Object count}) => '已重試 ${count} 條解密失敗的訊息';
+	@override String get e2eeRetryFailedNone => '沒有需要重試的解密失敗訊息';
 	@override String get e2eeModeStandard => '標準模式';
 	@override String get e2eeModeCompliance => '合規加密';
 	@override String get e2eeModeStrict => '端對端加密';
@@ -3926,6 +3927,7 @@ extension on TranslationsZhHant {
 			'common.e2eeErrAttachmentSeal' => '加密附件封裝失敗，檔案未上傳；請稍後重試',
 			'common.e2eeRetryFailedMessages' => '重試解密失敗的訊息',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '已重試 ${count} 條解密失敗的訊息',
+			'common.e2eeRetryFailedNone' => '沒有需要重試的解密失敗訊息',
 			'common.e2eeModeStandard' => '標準模式',
 			'common.e2eeModeCompliance' => '合規加密',
 			'common.e2eeModeStrict' => '端對端加密',
@@ -4054,9 +4056,9 @@ extension on TranslationsZhHant {
 			'discovery.momentsDraftKeep' => '保留草稿',
 			'discovery.momentActionMore' => '更多選項',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} 人按讚',
-			'discovery.openChannel' => '開啟頻道',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.openChannel' => '開啟頻道',
 			'discovery.paidChannelLocked' => '付費頻道內容已鎖定',
 			'discovery.webQRScanned' => '已掃描',
 			'discovery.momentLocation' => '打卡地點',
@@ -4568,9 +4570,9 @@ extension on TranslationsZhHant {
 			'workspace.brandingLogoLabel' => 'Logo 網址',
 			'workspace.brandingLogoHint' => 'https://…（工作區 Logo 圖片網址）',
 			'workspace.brandingColorLabel' => '品牌主色 primaryColor',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '僅支援 #RRGGBB / #AARRGGBB；非法值改用預設主題色',
 			'workspace.brandingColorInvalid' => '主色格式不正確，僅支援 #RRGGBB / #AARRGGBB',
 			'workspace.brandingSaved' => '品牌設定已儲存',

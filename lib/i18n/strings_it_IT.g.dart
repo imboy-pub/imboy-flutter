@@ -1545,6 +1545,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeErrAttachmentSeal => 'Impossibile sigillare l\'allegato crittografato, il file non è stato caricato. Riprova più tardi';
 	@override String get e2eeRetryFailedMessages => 'Riprova i messaggi non decifrati';
 	@override String e2eeRetryFailedDone({required Object count}) => 'Ritentata la decifratura di ${count} messaggi';
+	@override String get e2eeRetryFailedNone => 'Nessun messaggio da riprovare';
 	@override String get e2eeModeStandard => 'Modalità standard';
 	@override String get e2eeModeCompliance => 'Crittografia di conformità';
 	@override String get e2eeModeStrict => 'Crittografia end-to-end';
@@ -3926,6 +3927,7 @@ extension on TranslationsItIt {
 			'common.e2eeErrAttachmentSeal' => 'Impossibile sigillare l\'allegato crittografato, il file non è stato caricato. Riprova più tardi',
 			'common.e2eeRetryFailedMessages' => 'Riprova i messaggi non decifrati',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Ritentata la decifratura di ${count} messaggi',
+			'common.e2eeRetryFailedNone' => 'Nessun messaggio da riprovare',
 			'common.e2eeModeStandard' => 'Modalità standard',
 			'common.e2eeModeCompliance' => 'Crittografia di conformità',
 			'common.e2eeModeStrict' => 'Crittografia end-to-end',
@@ -4057,9 +4059,9 @@ extension on TranslationsItIt {
 			'discovery.momentsDraftKeep' => 'Conserva',
 			'discovery.openChannel' => 'Apri canale',
 			'discovery.paidChannelLocked' => 'Contenuto bloccato (a pagamento)',
-			'discovery.webQRScanned' => 'Scansionato',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.webQRScanned' => 'Scansionato',
 			'discovery.momentActionMore' => 'Altre azioni',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} persone',
 			'discovery.momentAtReminded' => ({required Object name}) => 'Ha avvisato ${name}',
@@ -4571,9 +4573,9 @@ extension on TranslationsItIt {
 			'workspace.projectCreateEntry' => 'Nuovo progetto',
 			'workspace.projectCreateSuccess' => 'Progetto creato con successo',
 			'workspace.projectCreateTitle' => 'Nuovo progetto',
-			'workspace.projectDescHint' => 'Cosa deve consegnare questo progetto?',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectDescHint' => 'Cosa deve consegnare questo progetto?',
 			'workspace.projectDescLabel' => 'Descrizione del progetto (opzionale)',
 			'workspace.projectDetailTitle' => 'Dettagli progetto',
 			'workspace.projectGuestReadonly' => 'Come Ospite (Guest) il progetto è in sola lettura',

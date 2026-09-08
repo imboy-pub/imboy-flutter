@@ -859,6 +859,7 @@ e2eeRecoveryKeyCopiedAutoClear(seconds): تم نسخ مفتاح الاستعاد
 e2eeErrAttachmentSeal: "فشل تغليف المرفق المشفّر، ولم يتم تحميل الملف. حاول مرة أخرى لاحقاً"
 e2eeRetryFailedMessages: "إعادة محاولة الرسائل التي فشل فك تشفيرها"
 e2eeRetryFailedDone(count): "تمت إعادة محاولة $count رسالة فشل فك تشفيرها"
+e2eeRetryFailedNone: "لا توجد رسائل لإعادة المحاولة"
 e2eeModeStandard: "الوضع القياسي"
 e2eeModeCompliance: "تشفير الامتثال"
 e2eeModeStrict: "التشفير من الطرف إلى الطرف"

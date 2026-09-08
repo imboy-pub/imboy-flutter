@@ -833,6 +833,7 @@ e2eeRecoveryKeyCopiedAutoClear(seconds): "Recovery key copied. The clipboard wil
 e2eeErrAttachmentSeal: "Failed to seal the encrypted attachment; the file was not uploaded. Please try again later"
 e2eeRetryFailedMessages: "Retry messages that failed to decrypt"
 e2eeRetryFailedDone(count): "Retried $count messages that failed to decrypt"
+e2eeRetryFailedNone: "No failed messages to retry"
 e2eeModeStandard: "Standard mode"
 e2eeModeCompliance: "Compliance encryption"
 e2eeModeStrict: "End-to-end encryption"

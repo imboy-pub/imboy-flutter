@@ -1542,6 +1542,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeErrAttachmentSeal => '암호화 첨부 파일 봉인에 실패하여 파일이 업로드되지 않았습니다. 잠시 후 다시 시도해 주세요';
 	@override String get e2eeRetryFailedMessages => '복호화에 실패한 메시지 다시 시도';
 	@override String e2eeRetryFailedDone({required Object count}) => '복호화에 실패한 메시지 ${count}건을 다시 시도했습니다';
+	@override String get e2eeRetryFailedNone => '재시도할 메시지가 없습니다';
 	@override String get e2eeModeStandard => '표준 모드';
 	@override String get e2eeModeCompliance => '컴플라이언스 암호화';
 	@override String get e2eeModeStrict => '종단 간 암호화';
@@ -3923,6 +3924,7 @@ extension on TranslationsKoKr {
 			'common.e2eeErrAttachmentSeal' => '암호화 첨부 파일 봉인에 실패하여 파일이 업로드되지 않았습니다. 잠시 후 다시 시도해 주세요',
 			'common.e2eeRetryFailedMessages' => '복호화에 실패한 메시지 다시 시도',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '복호화에 실패한 메시지 ${count}건을 다시 시도했습니다',
+			'common.e2eeRetryFailedNone' => '재시도할 메시지가 없습니다',
 			'common.e2eeModeStandard' => '표준 모드',
 			'common.e2eeModeCompliance' => '컴플라이언스 암호화',
 			'common.e2eeModeStrict' => '종단 간 암호화',
@@ -4054,9 +4056,9 @@ extension on TranslationsKoKr {
 			'discovery.momentsDraftKeep' => '보관',
 			'discovery.openChannel' => '채널 열기',
 			'discovery.paidChannelLocked' => '유료 채널 콘텐츠가 잠겨 있습니다',
-			'discovery.webQRScanned' => '스캔 완료',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.webQRScanned' => '스캔 완료',
 			'discovery.momentActionMore' => '더 보기',
 			'discovery.momentAtCount' => ({required Object count}) => '${count}명',
 			'discovery.momentAtReminded' => ({required Object name}) => '${name}님에게 알림을 보냈습니다',
@@ -4568,9 +4570,9 @@ extension on TranslationsKoKr {
 			'workspace.brandingLogoLabel' => 'Logo 주소',
 			'workspace.brandingLogoHint' => 'https://…(워크스페이스 Logo 이미지 주소)',
 			'workspace.brandingColorLabel' => '기본 색상 primaryColor',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB만 지원합니다. 잘못된 값은 기본 테마 색상으로 대체됩니다',
 			'workspace.brandingColorInvalid' => '기본 색상 형식이 잘못되었습니다. #RRGGBB / #AARRGGBB만 지원합니다',
 			'workspace.brandingSaved' => '브랜드 설정이 저장되었습니다',

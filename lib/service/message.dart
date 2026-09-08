@@ -1534,16 +1534,6 @@ class MessageService with EventSubscriptionManager {
   /// Check if message can be edited.
   bool canEditMessage(MessageModel msg) => actions.canEditMessage(msg);
 
-  /// E2EE 解密失败占位行的显示文案（入站链路 A3）：
-  /// - `crypto_store_unavailable` 是可重试故障（加密存储暂时不可访问，
-  ///   重启应用可恢复），用引导重试文案；
-  /// - 其余 reason 一律用通用加密占位，不暴露失败细节（ADR 15 §5）。
-  String _e2eeFailedPlaceholderText(Object? reason) {
-    return reason == 'crypto_store_unavailable'
-        ? t.chat.e2eeDecryptStoreUnavailable
-        : t.chat.encryptedMessagePlaceholder;
-  }
-
   /// 处理 E2EE 消息解密（v2.0 格式）
   ///
   /// ## v2.0 E2EE 格式
@@ -1589,7 +1579,9 @@ class MessageService with EventSubscriptionManager {
         );
         return {
           'msg_type': originalMsgType,
-          'text': _e2eeFailedPlaceholderText(v3Result['_e2ee_reason']),
+          'text': E2EEService.e2eeFailedPlaceholderText(
+            v3Result['_e2ee_reason'],
+          ),
           '_e2ee_failed': true,
           '_e2ee_reason': v3Result['_e2ee_reason'],
         };
@@ -1629,7 +1621,7 @@ class MessageService with EventSubscriptionManager {
       iPrint('❌ [E2EE] payload 为空: msgId=$msgId');
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'text': _e2eeFailedPlaceholderText('empty_payload'),
+        'text': E2EEService.e2eeFailedPlaceholderText('empty_payload'),
         '_e2ee_failed': true,
         '_e2ee_reason': 'empty_payload',
       };
@@ -1661,7 +1653,7 @@ class MessageService with EventSubscriptionManager {
       iPrint('❌ [E2EE] e2ee 元数据为空: msgId=$msgId');
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'text': _e2eeFailedPlaceholderText('missing_e2ee_metadata'),
+        'text': E2EEService.e2eeFailedPlaceholderText('missing_e2ee_metadata'),
         '_e2ee_failed': true,
         '_e2ee_reason': 'missing_e2ee_metadata',
         // 不保存原始密文，避免将密文写入 SQLite
@@ -1748,7 +1740,7 @@ class MessageService with EventSubscriptionManager {
         // 此处不再内嵌「点击下方按钮重新登录」类误导性指引。
         return {
           'msg_type': originalMsgType,
-          'text': _e2eeFailedPlaceholderText('key_mismatch'),
+          'text': E2EEService.e2eeFailedPlaceholderText('key_mismatch'),
           '_e2ee_failed': true,
           '_e2ee_reason': 'key_mismatch',
           '_e2ee_raw': data, // 存储完整密文以便后续重试自愈解密 (C3)
@@ -1758,7 +1750,7 @@ class MessageService with EventSubscriptionManager {
       // 其他解密错误：保存原始密文，支持自愈机制重试恢复 (C3)
       return {
         'msg_type': originalMsgType, // 保留原始消息类型
-        'text': _e2eeFailedPlaceholderText('decrypt_error'),
+        'text': E2EEService.e2eeFailedPlaceholderText('decrypt_error'),
         '_e2ee_failed': true,
         '_e2ee_reason': 'decrypt_error',
         '_e2ee_raw': data, // 存储完整密文以便后续重试自愈解密 (C3)
