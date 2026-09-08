@@ -10,6 +10,7 @@ import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
+import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -690,6 +691,16 @@ class E2EEHealthCheckService {
         'payload': result,
         'e2ee': null, // 清除失败标记
       });
+
+      // DB 已修复还需通知会话页回填占位行：否则内存中的
+      // [加密消息] 占位不刷新，用户须重进会话才能看到明文
+      // （dataType 必须为 'messages'，监听器过滤器只认
+      // 'MessageList'/'messages'；单条粒度 fire，见
+      // ChatEventSubscriptionManager 只处理 e.first 的契约）
+      final updated = await repo.find(msg.id);
+      if (updated != null) {
+        AppEventBus.fireData([await updated.toTypeMessage()], 'messages');
+      }
 
       return true;
     } catch (e) {
