@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/message_s2c.dart';
 
 /// MessageS2CService 单元测试
 ///
@@ -236,6 +237,57 @@ void main() {
         expect(action.isNotEmpty, isTrue);
         expect(method.startsWith('_handle'), isTrue);
       });
+    });
+  });
+
+  group('MessageS2CService - TOFU 密钥变更告警频控', () {
+    test('窗口内首次事件应 fire', () {
+      // Arrange：每个 uid 独立计数
+      // Act / Assert
+      expect(
+        MessageS2CService.shouldFirePeerKeyChanged('tofu_uid_a', 1_000_000),
+        isTrue,
+      );
+    });
+
+    test('同 uid 窗口内重复事件不应 fire（防 toast 连发）', () {
+      // Arrange
+      const uid = 'tofu_uid_b';
+      const t0 = 2_000_000;
+      // Act
+      final first = MessageS2CService.shouldFirePeerKeyChanged(uid, t0);
+      final second = MessageS2CService.shouldFirePeerKeyChanged(
+        uid,
+        t0 + MessageS2CService.peerKeyChangedWarnWindowMs - 1,
+      );
+      // Assert
+      expect(first, isTrue);
+      expect(second, isFalse);
+    });
+
+    test('窗口到期后同 uid 事件应再次 fire（真实重装不被吞）', () {
+      // Arrange
+      const uid = 'tofu_uid_c';
+      const t0 = 3_000_000;
+      // Act
+      MessageS2CService.shouldFirePeerKeyChanged(uid, t0);
+      final afterWindow = MessageS2CService.shouldFirePeerKeyChanged(
+        uid,
+        t0 + MessageS2CService.peerKeyChangedWarnWindowMs,
+      );
+      // Assert
+      expect(afterWindow, isTrue);
+    });
+
+    test('不同 uid 互不影响频控', () {
+      // Arrange
+      const t0 = 4_000_000;
+      // Act
+      final u1 = MessageS2CService.shouldFirePeerKeyChanged('tofu_uid_d', t0);
+      final u2 = MessageS2CService.shouldFirePeerKeyChanged('tofu_uid_e', t0);
+      // Assert
+      expect(u1, isTrue);
+      expect(u2, isTrue);
     });
   });
 }

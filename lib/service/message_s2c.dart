@@ -92,6 +92,26 @@ class MessageS2CService {
   @visibleForTesting
   static const int s2cPullOfflineTtlMs = 2 * 1000; // pull_offline_msg 短 TTL
 
+  /// TOFU 密钥变更告警的提示频控（uid -> 上次 fire 时间戳 ms）：
+  /// 同一 uid 在窗口内只 fire 一次，防服务端重发/离线批处理时 toast 连发。
+  /// 报文级去重（_processedS2CIds）拦不住不同 msg_id 携带的重复事件。
+  /// 注意：只频控 UI 告警事件；公钥缓存清理/会话失效不频控，总是执行。
+  static final Map<String, int> _peerKeyChangedFiredAtMs = {};
+  @visibleForTesting
+  static const int peerKeyChangedWarnWindowMs = 60 * 1000;
+
+  /// 判定并登记：本次 e2ee_device_key_changed 是否应 fire UI 告警事件。
+  /// 判定与状态更新二合一，单测可直接传 nowMs 驱动时间推进。
+  @visibleForTesting
+  static bool shouldFirePeerKeyChanged(String uid, int nowMs) {
+    final lastMs = _peerKeyChangedFiredAtMs[uid];
+    if (lastMs != null && nowMs - lastMs < peerKeyChangedWarnWindowMs) {
+      return false;
+    }
+    _peerKeyChangedFiredAtMs[uid] = nowMs;
+    return true;
+  }
+
   /// 构建 S2C 去重 key：优先用帧 id；id 为空时回退到 action+from+to+server_ts 复合 key
   @visibleForTesting
   static String buildS2CDedupKey(
@@ -909,10 +929,16 @@ class MessageS2CService {
         );
       }
       iPrint('🔑 E2EE: 已清除用户 $uid 的公钥缓存（密钥已变更）');
-      // TOFU 安全告警：通知 UI 层（若正打开与该 uid 的 C2C 会话）提示"对方安全码已变更"
-      AppEventBus.fire(
-        E2EEPeerKeyChangedEvent(uid: uid, deviceId: deviceId, keyId: keyId),
-      );
+      // TOFU 安全告警：通知 UI 层（若正打开与该 uid 的 C2C 会话）提示"对方安全码已变更"。
+      // 同 uid 走 60s 频控，防重发/离线批处理时 toast 连发。
+      if (shouldFirePeerKeyChanged(
+        uid,
+        DateTime.now().millisecondsSinceEpoch,
+      )) {
+        AppEventBus.fire(
+          E2EEPeerKeyChangedEvent(uid: uid, deviceId: deviceId, keyId: keyId),
+        );
+      }
     }
   }
 
