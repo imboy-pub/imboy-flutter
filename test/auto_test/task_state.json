@@ -634,5 +634,40 @@
    "【用户】重启 macOS + 删 Documents 下 local_office_1000000056.db* + 磁盘清理至 <90%",
    "【下轮 automation】探测 Documents 目录 ls 是否 <5s → 恢复则跑 AT-WIV1 → invite 行转已通过"
   ]
+ },
+ "session_2026_09_09_batch137": {
+  "note": "批次137（automation 第十轮）：fs 卡死未恢复（ls Documents 仍挂死）→ AT-WIV1 维持待环境。本轮做 92 条阻塞全量分类盘点（纯文本，不改表格），产出后续可执行清单。",
+  "blocked_inventory_92": {
+   "by_module": {
+    "live_room": 28,
+    "chat": 16,
+    "settings": 11,
+    "wallet": 8,
+    "mine": 7,
+    "workspace": 6,
+    "group": 3,
+    "passport": 3,
+    "channel": 2,
+    "scanner": 2,
+    "single": 2,
+    "contact": 1,
+    "mention": 1,
+    "moment": 1,
+    "search": 1
+   },
+   "by_nature": {
+    "生产写授权类（纯人工）": "约 28 条（授权 14+生产 14：钱包余额/直播创建/生产群写等）——永久人工决策",
+    "真机类": "约 13 条（真机飞行模式/相机/断网/EMUI 特有）——需真机+人工配合",
+    "外部条件类": "第二台设备 3+素材 1+凭据 1+决策 1——需人工准备",
+    "本地数据构造类（automation 可解，优先）": "live_room 需后端房间数据（本地 9801 可造房间 fixture，batch113 造数先例）、chat 需可用群+两成员在线（本地双 smoke 账号可构造）等——后续轮次优先消化"
+   },
+   "live_room_28 特别注记": "后端 live_room 冻结未实现（台账原文），造数前需确认本地后端 live_room API 可用性；不可用则该 28 条维持『待后端实现』"
+  },
+  "env_status": "fs 卡死持续（ls Documents >30s 挂），AT-WIV1/GF 均待人工重启 macOS+清盘",
+  "next_actions": [
+   "环境恢复：AT-WIV1 重验（invite 行）+ GF1/GF7 验证",
+   "后续轮次优先：live_room 造数可行性探测（curl 9801 live_room API）→ 可用则批量解 28 条阻塞中纯数据类",
+   "其余：按盘点清单逐类推进"
+  ]
  }
 }
