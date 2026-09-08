@@ -1,7 +1,27 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/e2ee_health_check_service.dart';
+
+/// 恒定失败的出口：不建连接，直接给一个 503。
+/// 本项目的 HttpClient 用 Http2Adapter 自己管 socket，绕过 dart:io 的
+/// HttpOverrides；不注入的话 syncFriendPublicKey / checkUserKeyVersion
+/// 等用例会真的打到 pro.imboy.pub。
+class _AlwaysFailingAdapter implements HttpClientAdapter {
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    return ResponseBody.fromString('', 503);
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +34,9 @@ void main() {
   final store = <String, String?>{};
 
   setUpAll(() async {
+    // 单测绝不出网：HTTP 出口恒返 503，走失败分支（断言本就兼容该路径）。
+    HttpClient.adapterForTest = _AlwaysFailingAdapter();
+
     // 设置 Mock 处理器
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(storageChannel, (call) async {
@@ -43,6 +66,7 @@ void main() {
   });
 
   tearDownAll(() async {
+    HttpClient.adapterForTest = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(storageChannel, null);
   });
