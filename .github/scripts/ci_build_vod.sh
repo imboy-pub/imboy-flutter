@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
 # CI 专用：构建 vodozemac FFI 动态库并摆到测试硬编码的 spike 路径。
-# 背景：test/unit_test/service/e2ee 多个测试 vod.init(libraryPath: '../spikes/e2ee-group/rust/target/release/')，
-# 本地 macOS 找不到该文件时回退到 flutter_vodozemac 包内 macos 预编译 dylib 故可通过；
-# pub 包 linux/ 只有 CMakeLists.txt 无预编译 .so → Linux CI 必崩 setUpAll。
-# 这里用 pub 包自带 rust 源码 cargo build 出 cdylib，摆到测试查找路径。
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
-# 只在 Linux 需要：macOS 上 VM 测试回退 pub 包内预编译 dylib；
-# 构建 job（APK/iOS）由 flutter_vodozemac 插件自身 cargokit 构建，不需要本脚本产物
+# 只在 Linux 需要：移动端由 flutter_vodozemac 插件自身构建。
 if [ "$(uname -s)" != "Linux" ]; then
   echo "[ci_build_vod] 非 Linux（$(uname -s)），跳过"
   exit 0

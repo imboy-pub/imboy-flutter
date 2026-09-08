@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+BACKEND_DIR="$(cd "$PROJECT_DIR/../imboy" && pwd)"
+python3 "$BACKEND_DIR/scripts/generate_product_features.py" \
+  --check --require-profile full-selected || {
+  echo "测试版本必须使用 full-selected 全 features 生成物" >&2
+  exit 2
+}
+cd "$PROJECT_DIR"
+
 ANDROID_DEVICE_ID="${ANDROID_DEVICE_ID:-XWE6R19916004085}"
 ANDROID_TEST_ABI="${ANDROID_TEST_ABI:-$(adb -s "$ANDROID_DEVICE_ID" shell getprop ro.product.cpu.abi | tr -d '\r')}"
 TEST_FILE="integration_test/e2ee_cross_platform_group_interop_test.dart"

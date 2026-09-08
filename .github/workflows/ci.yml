@@ -104,8 +104,7 @@ jobs:
   # ----------------------------------------------------------------
   # E2EE Suite — 加密套件门（阻塞）
   # 基线 2026-08-02：588 例全绿 + dart analyze lib 零 issue。
-  # 依赖 vodozemac FFI 的用例在无 spike dylib 时自动 skip（spikes/ 未跟踪入仓，
-  # CI 重建 dylib 为后续任务，见 summary 输出）。
+  # CI 从 flutter_vodozemac 包内 Rust 源码重建测试动态库。
   # ----------------------------------------------------------------
   e2ee:
     name: E2EE Suite Gate
@@ -144,7 +143,7 @@ jobs:
           echo "## E2EE suite" >> "$GITHUB_STEP_SUMMARY"
           tail -3 e2ee-suite.log >> "$GITHUB_STEP_SUMMARY" || true
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "注：依赖 vodozemac FFI 的用例在无 spike dylib 时自动 skip；dylib 未跟踪入仓（spikes/），CI 重建为后续任务。" >> "$GITHUB_STEP_SUMMARY"
+          echo "动态库由 flutter_vodozemac 包内 Rust 源码重建；FFI 用例不得因缺库跳过。" >> "$GITHUB_STEP_SUMMARY"
 
   test:
     name: Run Integration Tests

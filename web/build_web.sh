@@ -2,6 +2,8 @@
 # ImBoy Web 生产构建脚本
 
 cd "$(dirname "$0")/.."
+test -s web/pkg/vodozemac_bindings_dart.js
+test -s web/pkg/vodozemac_bindings_dart_bg.wasm
 echo "🔨 构建 ImBoy Web 应用（生产版本）..."
 flutter build web --release --no-tree-shake-icons
 
