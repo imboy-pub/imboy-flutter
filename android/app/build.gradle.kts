@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -15,6 +16,10 @@ val localProperties = gradleLocalProperties(rootDir, providers)
 val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toIntOrNull() ?: 1
 val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 val localNdkVersion = localProperties.getProperty("flutter.ndkVersion") ?: "28.2.13676358"
+val productFeatures = Properties().apply {
+    file("product-features.properties").inputStream().use { load(it) }
+}
+val locationCompiled = productFeatures.getProperty("location") == "true"
 
 // cat /Users/leeyi/dev/flutter/bin/internal/engine.version
 //val flutterEngineVersion = "18818009497c581ede5d8a3b8b833b81d00cebb7"
@@ -171,14 +176,15 @@ dependencies {
 
     implementation("cn.jiguang.sdk:jverification:3.2.8")
 
-    // 高德地图 SDK - 使用 api 确保 Flutter 插件可以访问
-    // 注意：3dmap 已包含 location 和 search 功能，无需单独添加 location SDK
-    // 3dmap:10.0.600 包含: 地图显示、定位、地理围栏、坐标转换等核心功能
-    api("com.amap.api:3dmap:10.0.600")  // 高德3D地图 SDK（包含 location 功能）
-
-    // 以下依赖已注释，因为 3dmap 已包含这些功能
-    // api("com.amap.api:location:6.4.9")  // 重复类：与 3dmap 冲突
-    // api("com.amap.api:search:9.7.1")     // 重复类：与 3dmap 冲突
+    // Flutter 会为 pubspec 中的 Android 插件生成全量注册表；即使 Base
+    // 没有 location 功能，amap_flutter_location 的注册仍需它的运行时 SDK。
+    // 3dmap:10.0.600 自身打包了 location 类，与独立 location SDK 同时在
+    // classpath 会 checkDebugDuplicateClasses 重复类冲突，两者必须互斥。
+    if (locationCompiled) {
+        api("com.amap.api:3dmap:10.0.600")
+    } else {
+        api("com.amap.api:location:6.5.0")
+    }
 
     // 移除了 navi-3dmap 依赖（与 3dmap 有重复类冲突）
 //    implementation("com.amap.api:navi-3dmap:10.0.600_3dmap10.0.600")

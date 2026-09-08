@@ -39,6 +39,15 @@ done
 
 cd "$PROJECT_DIR"
 
+for asset in \
+  web/pkg/vodozemac_bindings_dart.js \
+  web/pkg/vodozemac_bindings_dart_bg.wasm; do
+  if [ ! -s "$asset" ]; then
+    echo "❌ 缺少 Web E2EE 运行产物：$asset" >&2
+    exit 4
+  fi
+done
+
 # ─── 环境检查 / Environment check ──────────────────────────
 echo "==> [1/4] 环境检查 / Environment check"
 if ! command -v flutter >/dev/null 2>&1; then

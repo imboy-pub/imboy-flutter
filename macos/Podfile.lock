@@ -136,7 +136,7 @@ PODS:
     - FlutterMacOS
   - PromisesObjC (2.4.1)
   - Sentry/HybridSDK (8.58.4)
-  - sentry_flutter (9.28.0):
+  - sentry_flutter (9.29.0):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.58.4)
@@ -307,7 +307,7 @@ SPEC CHECKSUMS:
   device_info_plus: 4fb280989f669696856f8b129e4a5e3cd6c48f76
   dynamic_color: 4f4c0d2861eb7ff36a2a5e8e2d441e1b6c681ddf
   emoji_picker_flutter: 51ca408e289d84d1e460016b2a28721ec754fcf7
-  file_picker_darwin: 5c32d1a83c7cd2e4e2d2eaea629cf830b3b5dc49
+  file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
   file_saver: 0b49fcd0f67d6e24737b757ee1eb1d3d8ca392fb
   file_selector_macos: 9e9e068e90ebee155097d00e89ae91edb2374db7
   Firebase: 5523dd53ebe603451b4e1befcd99fa20a5c015cd
@@ -340,7 +340,7 @@ SPEC CHECKSUMS:
   photo_manager: c303e4476f6c220274119f0212a7753e45edd4a2
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   Sentry: 5321d74bdd28d6f6f8beaa1ca06f1fdc746bff49
-  sentry_flutter: 771dee2d190e0952aa3873211c4a3a10f0c1ef04
+  sentry_flutter: 17c933e05c5a55e6b84512402c38a5c84a82e83b
   share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_sqlcipher: a4c2f17db76d2f86dfe044937d3a851d8880cbb9

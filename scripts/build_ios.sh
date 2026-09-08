@@ -2,6 +2,12 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BACKEND_ROOT="$(cd "$ROOT_DIR/../imboy" && pwd)"
+python3 "$BACKEND_ROOT/scripts/generate_product_features.py" \
+  --check --require-profile full-selected || {
+  echo "测试/演示版本必须使用 full-selected 全 features 生成物" >&2
+  exit 2
+}
 cd "$ROOT_DIR"
 
 if [[ $# -lt 1 ]]; then

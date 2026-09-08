@@ -4,6 +4,9 @@
 # 或直接重命名此文件为 build.yaml
 targets:
   $default:
+    sources:
+      exclude:
+        - test/auto_test/reports/**
     builders:
       # Slang 配置
       slang:

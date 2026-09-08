@@ -58,24 +58,20 @@ flutter test test/unit_test/api/                 # Tier 1 API 契约（pre-push 
 
 #### e2ee 测试的 vodozemac 动态库依赖（macOS 本机）
 
-`service/e2ee/` 与 `group_session_service_test.dart` 的 `setUpAll` 会
-`dlopen('vodozemac_bindings_dart')`。`flutter test` 的 darwin 目标不走 pod
-构建，cargokit 不会自动产出 macOS 动态库 → 缺失时这些文件全部挂在
-setUpAll（不是代码回归）。本机一次性补齐（需 Rust 工具链）：
+`service/e2ee/` 与 `group_session_service_test.dart` 的 `setUpAll` 会加载
+`flutter_vodozemac` 提供的原生动态库。宿主测试前先按锁定版本构建：
 
 ```bash
-cd ~/.pub-cache/hosted/pub.dev/flutter_vodozemac-0.7.1/rust
-cargo build --release --target aarch64-apple-darwin
-mkdir -p /usr/local/lib/vodozemac_bindings_dart.framework
-cp target/aarch64-apple-darwin/release/libvodozemac_bindings_dart.dylib \
-   /usr/local/lib/vodozemac_bindings_dart.framework/vodozemac_bindings_dart
+cd ~/.pub-cache/hosted/pub.dev/flutter_vodozemac-0.8.1/rust
+cargo build --release
+mkdir -p ~/project/imboy.pub/spikes/e2ee-group/rust/target/release
+cp target/release/libvodozemac_bindings_dart.dylib \
+  ~/project/imboy.pub/spikes/e2ee-group/rust/target/release/
 ```
 
-该动态库必须与当前 `pubspec.lock` 中的 `flutter_vodozemac` 同版本构建；
-升级 `vodozemac` 后不能继续复用旧版 spike 库，否则会出现 `The message didn't contain a version`
-一类的 FFI ABI 错误。当前锁定版本为 `flutter_vodozemac 0.7.1` / `vodozemac 0.7.0`。
-
-真机/真机构建不受影响（iOS/Android 由 pod/gradle 正常链接）。
+动态库必须与 `pubspec.lock` 中的插件版本一致；当前依赖为
+`flutter_vodozemac ^0.8.1` / `vodozemac ^0.8.0`。Linux CI 由
+`.github/scripts/ci_build_vod.sh` 构建并布置 `.so`；Android/iOS 由插件构建。
 
 
 ### `auto_test/` —— 测试计划表（文档）

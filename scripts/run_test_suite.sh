@@ -12,6 +12,12 @@ interrupted() {
 trap interrupted INT TERM
 
 APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BACKEND_ROOT="$(cd "$APP_ROOT/../imboy" && pwd)"
+python3 "$BACKEND_ROOT/scripts/generate_product_features.py" \
+  --check --require-profile full-selected || {
+  echo "测试版本必须使用 full-selected 全 features 生成物" >&2
+  exit 2
+}
 MODE="full"
 DEVICE="${IMBOY_TEST_DEVICE:-${TEST_DEVICE:-}}"
 ARTIFACT_DIR="${IMBOY_TEST_ARTIFACT_DIR:-/Users/leeyi/project/imboy.pub/imboy-test-report/app/$(date '+%Y%m%d-%H%M%S')-$$}"

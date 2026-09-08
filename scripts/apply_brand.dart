@@ -19,6 +19,17 @@ import 'dart:io';
 
 void main() {
   final root = Directory.current.path;
+  final backendRoot = Directory('$root/../imboy').absolute.path;
+  final profileCheck = Process.runSync('python3', [
+    '$backendRoot/scripts/generate_product_features.py',
+    '--check',
+    '--require-profile',
+    'full-selected',
+  ]);
+  if (profileCheck.exitCode != 0) {
+    stderr.write(profileCheck.stderr);
+    _fail('颜色/白标版本必须使用 full-selected 全 features 生成物');
+  }
   final brand = _parseBrand(File('$root/brand.yaml'));
 
   final name = _require(brand, 'app_name');

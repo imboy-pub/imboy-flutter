@@ -35,7 +35,7 @@ import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 
 import 'package:imboy/config/init.dart' show appName;
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/channel_content/public.dart';
+import 'package:imboy/config/router/generated_product_feature_routes.dart';
 import 'package:imboy/modules/messaging/public.dart' show MessagingFacade;
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
@@ -78,7 +78,7 @@ class WebShellBootstrap extends ConsumerWidget {
       // Tab 中栏内容 — 与 BottomNavigationPage._buildPageList() 顺序对齐
       messageTab: const ConversationPage(),
       contactTab: ContactPage(),
-      channelTab: const ChannelListPage(),
+      channelTab: compiledChannelListPage() ?? const SizedBox.shrink(),
       mineTab: MinePage(),
 
       // 2.6 Chat selection → 真实 ChatPanel

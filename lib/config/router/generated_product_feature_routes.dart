@@ -2,10 +2,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/config/routes.dart';
-import 'package:imboy/modules/moment_social/public.dart';
-import 'package:imboy/component/location/widget.dart';
-import 'package:imboy/page/contact/people_nearby/people_nearby_page.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
 import 'package:imboy/page/channel/channel_list_page.dart';
 import 'package:imboy/page/conversation/subscribed_channel_strip_provider.dart';
@@ -14,81 +10,21 @@ import 'routes/channel_routes.dart';
 import 'routes/channel_discover_routes.dart';
 import 'routes/channel_invitation_routes.dart';
 import 'routes/channel_order_routes.dart';
-import 'routes/group_vote_routes.dart';
-import 'routes/group_schedule_routes.dart';
-import 'routes/group_task_routes.dart';
 
 const productFeatureRouteManifestHash =
-    "sha256:b59aae27976015823e315e9a5ee42bb2af3970cec92c97df04b517b4674d1457";
+    "sha256:742ac6339a119cadb6d191166f2fdea5dfcc9f3714034b152a80f6f23d820668";
 const productFeatureRouteSchemaVersion = 1;
 const productFeatureRouteFeatures = <String>[
+  "bot_webhook",
   "channel",
   "channel_discover",
   "channel_invitation",
   "channel_order",
   "core",
   "e2ee",
-  "group_schedule",
-  "group_task",
-  "group_vote",
-  "location",
-  "moment",
 ];
 
 List<RouteBase> compiledProductFeatureRoutes() => <RouteBase>[
-  GoRoute(
-    path: AppRoutes.momentFeed,
-    name: 'moment_feed',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const MomentFeedPage()),
-  ),
-  GoRoute(
-    path: AppRoutes.momentCreate,
-    name: 'moment_create',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const MomentCreatePage()),
-  ),
-  GoRoute(
-    path: '/moment_notify',
-    name: 'moment_notify',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const MomentNotifyPage()),
-  ),
-  GoRoute(
-    path: '${AppRoutes.momentRoot}/:momentId',
-    name: 'moment_detail',
-    pageBuilder: (context, state) => CupertinoPage(
-      key: state.pageKey,
-      child: MomentDetailPage(momentId: state.pathParameters['momentId'] ?? ''),
-    ),
-  ),
-  GoRoute(
-    path: '/contact/people_nearby',
-    name: 'people_nearby',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const PeopleNearbyPage()),
-  ),
-  GoRoute(
-    path: '/map_location_picker',
-    name: 'map_location_picker',
-    pageBuilder: (context, state) {
-      final extra = state.extra as Map<String, dynamic>? ?? {};
-      return CupertinoPage(
-        key: state.pageKey,
-        child: MapLocationPicker(
-          arguments: {
-            'lat': extra['lat'] as double? ?? 39.909187,
-            'lng': extra['lng'] as double? ?? 116.397451,
-            'citycode': extra['citycode']?.toString() ?? '',
-            'isMapImage': extra['isMapImage'] as bool? ?? false,
-          },
-        ),
-      );
-    },
-  ),
-  ...groupVoteRoutes(),
-  ...groupScheduleRoutes(),
-  ...groupTaskRoutes(),
   ...channelRoutes(
     featureRoutes: <RouteBase>[
       ...channelDiscoverRoutes(),

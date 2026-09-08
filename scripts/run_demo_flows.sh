@@ -8,6 +8,12 @@ set -u
 set -o pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BACKEND_ROOT="$(cd "$REPO_ROOT/../imboy" && pwd)"
+python3 "$BACKEND_ROOT/scripts/generate_product_features.py" \
+  --check --require-profile full-selected || {
+  printf '错误：演示版本必须使用 full-selected 全 features 生成物\n' >&2
+  exit 2
+}
 cd "$REPO_ROOT" || exit 1
 
 DEMO_FLOW_MODEL="${DEMO_FLOW_MODEL:-deepseek-v4-flash}"

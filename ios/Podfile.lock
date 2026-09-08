@@ -113,7 +113,7 @@ PODS:
     - Flutter
   - integration_test (0.0.1):
     - Flutter
-  - JCore (5.5.1)
+  - JCore (5.5.2)
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -165,7 +165,7 @@ PODS:
   - sensors_plus (0.0.1):
     - Flutter
   - Sentry/HybridSDK (8.58.4)
-  - sentry_flutter (9.28.0):
+  - sentry_flutter (9.29.0):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.58.4)
@@ -215,7 +215,7 @@ DEPENDENCIES:
   - amap_flutter_location_plus (from `.symlinks/plugins/amap_flutter_location_plus/ios`)
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - audio_waveforms (from `.symlinks/plugins/audio_waveforms/ios`)
-  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/darwin`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - emoji_picker_flutter (from `.symlinks/plugins/emoji_picker_flutter/ios`)
@@ -294,7 +294,7 @@ EXTERNAL SOURCES:
   audio_waveforms:
     :path: ".symlinks/plugins/audio_waveforms/ios"
   camera_avfoundation:
-    :path: ".symlinks/plugins/camera_avfoundation/ios"
+    :path: ".symlinks/plugins/camera_avfoundation/darwin"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   device_info_plus:
@@ -393,7 +393,7 @@ SPEC CHECKSUMS:
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   emoji_picker_flutter: ece213fc274bdddefb77d502d33080dc54e616cc
-  file_picker_darwin: 5c32d1a83c7cd2e4e2d2eaea629cf830b3b5dc49
+  file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
   file_saver: 33b08000e02d10789a0acf35b9decf5bce5ca9de
   Firebase: 5523dd53ebe603451b4e1befcd99fa20a5c015cd
   firebase_core: 22b31970001508f6e63945bedcb7b9de68819aa5
@@ -417,7 +417,7 @@ SPEC CHECKSUMS:
   ic_storage_space: d2c12892dec7eabbf6757df81e72539a16aa7dc6
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
-  JCore: 28b16cf0cbc90d08f0e4d7930bdd5a515bd3b8a1
+  JCore: b41d85eaa51714f5712ebca96a82e901376f56c1
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: b59df3fbdfc48b67706141b8539e1ba41b3eb840
   jverify: 16302a55a8c5ad64c1e77c4e3e823f56c6079580
@@ -436,7 +436,7 @@ SPEC CHECKSUMS:
   r_upgrade: 5c37115e210f79501aa194b0146f7c1866c39e8c
   sensors_plus: b70a93b69dafdabd26ce4ac3f4d0529ab9acc4ca
   Sentry: 5321d74bdd28d6f6f8beaa1ca06f1fdc746bff49
-  sentry_flutter: 771dee2d190e0952aa3873211c4a3a10f0c1ef04
+  sentry_flutter: 17c933e05c5a55e6b84512402c38a5c84a82e83b
   share_handler_ios: e2244e990f826b2c8eaa291ac3831569438ba0fb
   share_handler_ios_models: fc638c9b4330dc7f082586c92aee9dfa0b87b871
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
@@ -447,7 +447,7 @@ SPEC CHECKSUMS:
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   video_compress: f2133a07762889d67f0711ac831faa26f956980e
   video_player_avfoundation: 3453f792138786248960ca029747fcd9f318ef52
-  wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
+  wakelock_plus: d4ca1e4e4bc9de42cb55d57b5bdc158af318e3c6
   WebRTC-SDK: e6006119cd730d6315d875e4a421b6cc8bb88833
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
   WechatOpenSDK-XCFramework: 5df9b250e9839dcc306ad8b00f46822eead1ed47
