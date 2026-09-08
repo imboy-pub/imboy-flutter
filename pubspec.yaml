@@ -320,6 +320,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  postgres: ^3.5.12                       # Test DB access for integration pg_helper (6.x API: Connection/Endpoint)
+
   # ┌─ Code Generation ─────────────────────────────────────────────┐
   build_runner: ^2.12.2                # Code generation for Riverpod, slang, envied
   riverpod_generator: 4.0.8            # pin: 4.0.4 传递依赖 mockito 5.7.0 (^13) 与自身 analyzer ^12 冲突，builder 无法编译
