@@ -383,7 +383,9 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
             ),
             const SizedBox(height: AppSpacing.small),
             Text(
-              'File: ${_generatedFilePath?.split('/').last ?? ""}',
+              t.common.e2eeBackupGeneratedFile(
+                name: _generatedFilePath?.split('/').last ?? '',
+              ),
               style: context
                   .textStyle(FontSizeType.small)
                   .copyWith(fontFamily: 'monospace'),

@@ -51,6 +51,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   Map<String, dynamic>? _backupInfo;
   E2EEBackupInfo? _cloudInfo;
 
+  /// 云端备份探测失败标记（如网络抖动）：true 时在云端恢复入口位置渲染重试按钮，
+  /// 防止用户误以为无云端备份而走"生成新密钥"危险路径。
+  bool _cloudProbeFailed = false;
+
   /// 当前选中文件的来源：'picker' / 'url' / null。
   /// 'url' 来源的文件是本页下载到临时目录的，dispose 时需删除；
   /// 'picker' 来源由系统管理，不归本页清理。
@@ -96,6 +100,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             if (_cloudInfo?.hasBackup == true) ...[
               const SizedBox(height: AppSpacing.regular),
               _buildCloudRestoreCard(),
+            ] else if (_cloudInfo == null && _cloudProbeFailed) ...[
+              const SizedBox(height: AppSpacing.regular),
+              _buildCloudProbeRetry(),
             ],
             const SizedBox(height: AppSpacing.xLarge),
             _buildFileSelector(),
@@ -309,7 +316,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             ),
             _buildInfoRow(
               t.common.e2eeBackupFileSizeLabel,
-              '${_backupInfo!['file_size']} bytes',
+              t.common.e2eeBackupFileBytes(
+                bytes: _backupInfo!['file_size'].toString(),
+              ),
             ),
             AppSpacing.verticalSmall,
             Text(
@@ -611,9 +620,18 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       );
 
       await _applyRestoredKeys(result);
-    } on Exception catch (e) {
-      iPrint('[E2EEBackupImport] 导入备份失败: ${e.runtimeType}');
-      if (mounted) _showError(t.common.e2eeBackupErrImportFailed);
+    } on Object catch (e) {
+      // importBackup 的口令错误/格式无效/校验和不匹配均为 ArgumentError，
+      // 只 implements Error 不 implements Exception，on Exception 捕不到
+      // （同 _verifyFile 的处理原因）。
+      iPrint('[E2EEBackupImport] 导入备份失败: errType=${e.runtimeType}');
+      if (mounted) {
+        _showError(
+          e is ArgumentError
+              ? t.common.e2eeBackupErrCloudPwd
+              : t.common.e2eeBackupErrImportFailed,
+        );
+      }
     } finally {
       if (mounted) setState(() => _isImporting = false);
     }
@@ -625,10 +643,43 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       final probe = widget.cloudBackupProbe;
       final info = await (probe?.call() ?? E2EEBackupApi().info());
       if (!mounted) return;
-      setState(() => _cloudInfo = info);
-    } on Exception {
-      // 探测失败按无云端备份处理，不打扰用户
+      setState(() {
+        _cloudInfo = info;
+        _cloudProbeFailed = false;
+      });
+    } on Object catch (e) {
+      // 探测失败（如网络抖动）若按无云端备份处理，用户会误走"生成新密钥"
+      // 危险路径——置失败标记，由 build 在云端恢复入口位置渲染重试按钮。
+      iPrint('[E2EEBackupImport] 云端备份探测失败: errType=${e.runtimeType}');
+      if (mounted) setState(() => _cloudProbeFailed = true);
     }
+  }
+
+  /// 云端备份探测失败时的重试入口（高度对齐文件内既有行样式 48）。
+  Widget _buildCloudProbeRetry() {
+    return CupertinoButton(
+      minimumSize: const Size(double.infinity, 48),
+      padding: EdgeInsets.zero,
+      onPressed: _isCloudRestoring ? null : _probeCloudBackup,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            CupertinoIcons.refresh,
+            size: 20,
+            color: AppColors.iosBlue,
+          ),
+          AppSpacing.horizontalSmall,
+          Text(
+            t.common.buttonRetry,
+            style: context.textStyle(
+              FontSizeType.footnote,
+              color: AppColors.iosBlue,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 弹出口令输入确认框（恢复会覆盖本地密钥，需显式确认）
