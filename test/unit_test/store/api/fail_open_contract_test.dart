@@ -18,6 +18,7 @@
 /// 用例就会被限流返 429。
 library;
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -30,6 +31,7 @@ import 'package:imboy/service/mention_service.dart';
 import 'package:imboy/service/group_task_service.dart';
 import 'package:imboy/store/api/agent_api.dart';
 import 'package:imboy/store/api/denylist_api.dart';
+import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/store/api/feedback_api.dart';
 import 'package:imboy/store/api/group_category_api.dart';
 import 'package:imboy/store/api/group_schedule_api.dart';
@@ -46,6 +48,34 @@ class _AlwaysFailingAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     return ResponseBody.fromString('', 503);
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+/// 恒定返回同一状态码与 JSON 体的出口：用来构造"业务失败
+/// （HTTP 200 + code != 0）"和"畸形成功响应（HTTP 200 + code 0 但
+/// payload 形状不对）"这两种 503 出口覆盖不到的分支。
+class _StaticJsonAdapter implements HttpClientAdapter {
+  _StaticJsonAdapter(this.statusCode, this.body);
+
+  final int statusCode;
+  final Map<String, dynamic> body;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    return ResponseBody.fromString(
+      jsonEncode(body),
+      statusCode,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
   }
 
   @override
@@ -168,5 +198,242 @@ void main() {
       'AgentApi.agentList',
       () => AgentApi.to.agentList(),
     );
+  });
+
+  // E2EEApi 的五个查询方法已 fail-closed：传输失败、业务失败、畸形成功
+  // 响应一律抛错，绝不把失败压成空集合/"没有密钥"。reportDeviceKey 的
+  // 契约刻意保持不变（失败返回 E2EEReportResult(ok:false)，由调用方
+  // 决定重试），末尾有回归用例锁住。
+  //
+  // null 取舍：getComplianceKey / keyStatus 在 ok 且 payload 为 null 时
+  // 返回 null——null 是这两条链路契约里写明的"无密钥/无法确认"空语义，
+  // 下游（PolicyGate 拒发、恢复引导跳过）对 null 本来就是 fail-closed
+  // 处理；只有 payload 非 Map 非 null 的畸形成功响应才抛 FormatException。
+  //
+  // 注意：adapterForTest 只对**之后构造**的实例生效，所以下面每个用例
+  // 都先换 adapter、再在用例内现建 E2EEApi。
+  group('E2EE 查询 fail-closed', () {
+    /// 把出口临时换成恒返 [statusCode] + JSON [body] 的 adapter，
+    /// 用例结束恢复 null，不污染同文件其他用例。
+    void useAdapter(int statusCode, Map<String, dynamic> body) {
+      HttpClient.adapterForTest = _StaticJsonAdapter(statusCode, body);
+      addTearDown(() => HttpClient.adapterForTest = null);
+    }
+
+    Map<String, dynamic> envelope({int code = 0, dynamic payload}) {
+      return {
+        'code': code,
+        'msg': code == 0 ? 'success' : 'business error',
+        if (payload != null) 'payload': payload,
+      };
+    }
+
+    test('传输失败（恒返 503）：五个查询方法全部抛错', () async {
+      HttpClient.adapterForTest = _AlwaysFailingAdapter();
+      addTearDown(() => HttpClient.adapterForTest = null);
+      final api = E2EEApi();
+      await expectLater(api.userKeys(uid: '1'), throwsA(isA<Exception>()));
+      await expectLater(
+        api.groupMemberKeys(gid: '1'),
+        throwsA(isA<Exception>()),
+      );
+      await expectLater(api.getComplianceKey(), throwsA(isA<Exception>()));
+      await expectLater(api.keyStatus(), throwsA(isA<Exception>()));
+      await expectLater(api.pullNotifications(), throwsA(isA<Exception>()));
+    });
+
+    test('业务失败（HTTP 200 + code != 0）：五个查询方法全部抛错', () async {
+      useAdapter(200, envelope(code: 1));
+      final api = E2EEApi();
+      await expectLater(api.userKeys(uid: '1'), throwsA(isA<Exception>()));
+      await expectLater(
+        api.groupMemberKeys(gid: '1'),
+        throwsA(isA<Exception>()),
+      );
+      await expectLater(api.getComplianceKey(), throwsA(isA<Exception>()));
+      await expectLater(api.keyStatus(), throwsA(isA<Exception>()));
+      await expectLater(api.pullNotifications(), throwsA(isA<Exception>()));
+    });
+
+    test('userKeys 畸形成功：缺 devices 抛 FormatException', () async {
+      useAdapter(200, envelope(payload: <String, dynamic>{}));
+      await expectLater(
+        E2EEApi().userKeys(uid: '1'),
+        throwsA(
+          isA<FormatException>().having(
+            (e) => e.message,
+            'message',
+            contains('userKeys'),
+          ),
+        ),
+      );
+    });
+
+    test('userKeys 畸形成功：devices 非 List 抛 FormatException', () async {
+      useAdapter(200, envelope(payload: {'devices': 'oops'}));
+      await expectLater(
+        E2EEApi().userKeys(uid: '1'),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('userKeys 畸形成功：devices 元素非 Map 抛 FormatException', () async {
+      useAdapter(
+        200,
+        envelope(
+          payload: {
+            'devices': ['oops'],
+          },
+        ),
+      );
+      await expectLater(
+        E2EEApi().userKeys(uid: '1'),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('userKeys 畸形成功：payload 非 Map（如 String）抛 FormatException', () async {
+      useAdapter(200, envelope(payload: 'oops'));
+      await expectLater(
+        E2EEApi().userKeys(uid: '1'),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('groupMemberKeys 畸形成功：缺 members 抛 FormatException', () async {
+      useAdapter(200, envelope(payload: <String, dynamic>{}));
+      await expectLater(
+        E2EEApi().groupMemberKeys(gid: '1'),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('groupMemberKeys 畸形成功：members 非 List 抛 FormatException', () async {
+      useAdapter(200, envelope(payload: {'members': 42}));
+      await expectLater(
+        E2EEApi().groupMemberKeys(gid: '1'),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('groupMemberKeys 畸形成功：payload 非 Map 抛 FormatException', () async {
+      useAdapter(200, envelope(payload: 'oops'));
+      await expectLater(
+        E2EEApi().groupMemberKeys(gid: '1'),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('getComplianceKey 畸形成功：payload 非 Map 非 null 抛错', () async {
+      useAdapter(200, envelope(payload: 'oops'));
+      await expectLater(
+        E2EEApi().getComplianceKey(),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('keyStatus 畸形成功：payload 非 Map 非 null 抛错', () async {
+      useAdapter(200, envelope(payload: [1, 2]));
+      await expectLater(E2EEApi().keyStatus(), throwsA(isA<FormatException>()));
+    });
+
+    test('pullNotifications 畸形成功：Map 缺 notifications/list 抛错', () async {
+      useAdapter(200, envelope(payload: {'count': 0}));
+      await expectLater(
+        E2EEApi().pullNotifications(),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('pullNotifications 畸形成功：payload 非 Map 非 List 抛错', () async {
+      useAdapter(200, envelope(payload: 3));
+      await expectLater(
+        E2EEApi().pullNotifications(),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('合法空语义：devices=[] 返回 []，不是失败', () async {
+      useAdapter(200, envelope(payload: {'devices': <dynamic>[]}));
+      expect(await E2EEApi().userKeys(uid: '1'), isEmpty);
+    });
+
+    test('合法空语义：members=[] 返回 []', () async {
+      useAdapter(200, envelope(payload: {'members': <dynamic>[]}));
+      expect(await E2EEApi().groupMemberKeys(gid: '1'), isEmpty);
+    });
+
+    test('合法空语义：notifications=[] 返回 []', () async {
+      useAdapter(
+        200,
+        envelope(payload: {'notifications': <dynamic>[], 'count': 0}),
+      );
+      expect(await E2EEApi().pullNotifications(), isEmpty);
+    });
+
+    test('合法空语义：getComplianceKey ok 且 payload 为 null 返回 null', () async {
+      // 无 payload 键：契约里的"无密钥"空语义。下游 PolicyGate 对 null
+      // 拒发，仍是 fail-closed。
+      useAdapter(200, envelope());
+      expect(await E2EEApi().getComplianceKey(), isNull);
+    });
+
+    test('合法空语义：keyStatus ok 且 payload 为 null 返回 null', () async {
+      useAdapter(200, envelope());
+      expect(await E2EEApi().keyStatus(), isNull);
+    });
+
+    test('pullNotifications 顶层 List 形状仍兼容', () async {
+      useAdapter(
+        200,
+        envelope(
+          payload: [
+            {'user_id': 'u1'},
+          ],
+        ),
+      );
+      final list = await E2EEApi().pullNotifications();
+      expect(list, hasLength(1));
+      expect(list.first['user_id'], 'u1');
+    });
+
+    test('reportDeviceKey 业务失败仍返回 ok:false（契约不变，不抛错）', () async {
+      useAdapter(200, envelope(code: 1));
+      final r = await E2EEApi().reportDeviceKey(
+        deviceId: 'dev-1',
+        deviceType: 'android',
+        publicKey: '-----BEGIN PUBLIC KEY-----',
+        keyId: 'kid-1',
+      );
+      expect(r.ok, isFalse);
+      expect(r.otherDeviceCount, 0);
+      expect(r.hasOtherDevice, isFalse);
+    });
+
+    test('reportDeviceKey 恒返 503 也返回 ok:false（契约不变）', () async {
+      HttpClient.adapterForTest = _AlwaysFailingAdapter();
+      addTearDown(() => HttpClient.adapterForTest = null);
+      final r = await E2EEApi().reportDeviceKey(
+        deviceId: 'dev-1',
+        deviceType: 'android',
+        publicKey: '-----BEGIN PUBLIC KEY-----',
+        keyId: 'kid-1',
+      );
+      expect(r.ok, isFalse);
+      expect(r.hasOtherDevice, isFalse);
+    });
+
+    test('reportDeviceKey 成功返回 other_device_count（契约不变）', () async {
+      useAdapter(200, envelope(payload: {'other_device_count': 2}));
+      final r = await E2EEApi().reportDeviceKey(
+        deviceId: 'dev-1',
+        deviceType: 'android',
+        publicKey: '-----BEGIN PUBLIC KEY-----',
+        keyId: 'kid-1',
+      );
+      expect(r.ok, isTrue);
+      expect(r.otherDeviceCount, 2);
+      expect(r.hasOtherDevice, isTrue);
+    });
   });
 }

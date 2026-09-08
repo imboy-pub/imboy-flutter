@@ -24,6 +24,31 @@ class E2EEReportResult {
   bool get hasOtherDevice => otherDeviceCount > 0;
 }
 
+/// 校验 ok 响应的列表形 payload（如 devices/members）。
+///
+/// fail-closed：业务失败走 [IMBoyHttpResponse.throwIfFailed]；
+/// 成功但形状不对（payload 非 Map、键缺失/非 List、元素非 Map）抛
+/// [FormatException]，错误信息只含方法名与期望形状，不含 payload 内容。
+List<Map<String, dynamic>> _listPayloadOrThrow(
+  dynamic payload,
+  String method,
+  String key,
+) {
+  if (payload is! Map) {
+    throw FormatException('E2EEApi.$method: 期望 payload 为含 $key 列表的 Map');
+  }
+  final rows = payload[key];
+  if (rows is! List) {
+    throw FormatException('E2EEApi.$method: 期望 payload.$key 为 List');
+  }
+  for (final row in rows) {
+    if (row is! Map) {
+      throw FormatException('E2EEApi.$method: 期望 payload.$key 元素均为 Map');
+    }
+  }
+  return rows.map((e) => (e as Map).cast<String, dynamic>()).toList();
+}
+
 class E2EEApi extends HttpClient {
   /// 上报当前设备的 E2EE 公钥
   ///
@@ -76,33 +101,23 @@ class E2EEApi extends HttpClient {
   }
 
   Future<List<Map<String, dynamic>>> userKeys({required String uid}) async {
-    IMBoyHttpResponse resp = await get(
+    final IMBoyHttpResponse resp = await get(
       API.e2eeUserKeys,
       queryParameters: {'uid': uid},
     );
-    if (!resp.ok) return [];
-    final payload = resp.payload;
-    final devices = payload['devices'];
-    if (devices is List) {
-      return devices.map((e) => (e as Map).cast<String, dynamic>()).toList();
-    }
-    return [];
+    resp.throwIfFailed();
+    return _listPayloadOrThrow(resp.payload, 'userKeys', 'devices');
   }
 
   Future<List<Map<String, dynamic>>> groupMemberKeys({
     required String gid,
   }) async {
-    IMBoyHttpResponse resp = await get(
+    final IMBoyHttpResponse resp = await get(
       API.e2eeGroupMemberKeys,
       queryParameters: {'gid': gid},
     );
-    if (!resp.ok) return [];
-    final payload = resp.payload;
-    final members = payload['members'];
-    if (members is List) {
-      return members.map((e) => (e as Map).cast<String, dynamic>()).toList();
-    }
-    return [];
+    resp.throwIfFailed();
+    return _listPayloadOrThrow(resp.payload, 'groupMemberKeys', 'members');
   }
 
   void debugLogUserKeys(List<Map<String, dynamic>> list) {
@@ -113,27 +128,45 @@ class E2EEApi extends HttpClient {
   ///
   /// 返回 {key_id, public_key} 或 null
   /// 用于 compliance_e2ee 模式的双密钥加密
+  ///
+  /// fail-closed：传输/业务失败抛错（后端"无活跃合规密钥"即业务失败）。
+  /// ok 且 payload 为 null 视为契约中的"无密钥"空语义返回 null；
+  /// ok 但 payload 非 Map 视为畸形成功响应抛 [FormatException]。
   Future<Map<String, dynamic>?> getComplianceKey() async {
-    IMBoyHttpResponse resp = await get(API.e2eeComplianceKey);
-    if (!resp.ok) return null;
-    return resp.payload is Map<String, dynamic>
-        ? resp.payload as Map<String, dynamic>
-        : null;
+    final IMBoyHttpResponse resp = await get(API.e2eeComplianceKey);
+    resp.throwIfFailed();
+    final p = resp.payload;
+    if (p == null) return null;
+    if (p is Map<String, dynamic>) return p;
+    throw const FormatException(
+      'E2EEApi.getComplianceKey: 期望 payload 为 Map 或 null',
+    );
   }
 
   /// GET /api/v1/e2ee/key/status — 查询当前设备密钥的服务端注册状态
   ///
   /// 返回 {has_valid_key, recovery_options, recommended_method} 或 null
+  ///
+  /// fail-closed：传输/业务失败抛错；ok 且 payload 为 null 返回 null
+  /// （调用方按"无法确认注册状态"处理）；ok 但 payload 非 Map 抛
+  /// [FormatException]。
   Future<Map<String, dynamic>?> keyStatus() async {
     final IMBoyHttpResponse resp = await get(API.e2eeKeyStatus);
-    if (!resp.ok) return null;
+    resp.throwIfFailed();
     final p = resp.payload;
-    return p is Map<String, dynamic> ? p : null;
+    if (p == null) return null;
+    if (p is Map<String, dynamic>) return p;
+    throw const FormatException('E2EEApi.keyStatus: 期望 payload 为 Map 或 null');
   }
 
   /// GET /api/v1/e2ee/notifications/pull — 拉取待处理的 E2EE 通知
   ///
   /// 支持增量拉取，返回好友的密钥变更记录
+  ///
+  /// fail-closed：传输/业务失败抛错；ok 但 payload 不是 List、也不是含
+  /// notifications/list 列表的 Map 时抛 [FormatException]。
+  /// 列表内非 Map 元素沿用既有防御行为过滤（见
+  /// [IMBoyHttpResponse.payloadList] 的注释）。
   Future<List<Map<String, dynamic>>> pullNotifications({
     int since = 0,
     int limit = 50,
@@ -142,7 +175,7 @@ class E2EEApi extends HttpClient {
       API.e2eeNotificationsPull,
       queryParameters: {'since': since, 'limit': limit},
     );
-    if (!resp.ok) return [];
+    resp.throwIfFailed();
     final p = resp.payload;
     if (p is List) {
       return p.whereType<Map<String, dynamic>>().toList();
@@ -153,6 +186,8 @@ class E2EEApi extends HttpClient {
         return list.whereType<Map<String, dynamic>>().toList();
       }
     }
-    return [];
+    throw const FormatException(
+      'E2EEApi.pullNotifications: 期望 payload 为 List 或含 notifications 列表的 Map',
+    );
   }
 }
