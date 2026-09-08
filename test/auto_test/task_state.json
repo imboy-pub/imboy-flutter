@@ -562,5 +562,24 @@
   "next_actions": [
    "下轮 automation：三态例行阻塞 tail 尾部推进（workspace 域 Picker/Members/Overview 空态族已清，tail 前移）；GF7 二分排查仍可选"
   ]
+ },
+ "session_2026_09_09_batch132": {
+  "note": "批次132（automation 第五轮）：三态例行阻塞 tail=workspace_invite『可选关系失败注入+单独重试』评估完成（解阻塞手段已具备，测试构造量大留待专项）；GF7 二分排查完成——挂死定性为 face_to_face 文件级。台账无变更，主块跳过。",
+  "invite_blocker_assessment": {
+   "row": "workspace_invite_page『可选关系单条失败互不影响，失败行支持单独重试』（理由：UI 无失败注入手段）",
+   "assessment": "解阻塞手段已具备：批次128 基建 adapterForTest 可注入 group join/channel invite 失败；产品侧 WorkspaceInviteResultsController 已完整实现独立 phase+retryGroup/retryChannel",
+   "cost": "测试需驱动完整邀请 UI 向导（user/search 搜索→选结果→提交），工作量 2-5 轮迭代，未在本轮启动",
+   "disposition": "维持阻塞，计划时间更新为『测试构造下轮启动（基建已具备）』——未改动台账（留给测试构造完成后一次性回写）"
+  },
+  "gf7_bisect_verdict": {
+   "result": "AT-GF1 与 AT-GF7 同位置挂死（启动期 Connectivity 事件后零 FLOW，flutter_tester 退出）——挂死为 face_to_face_acceptance_test 文件级，非 GF7 场景级",
+   "contrast": "同环境同时段 workspace 域三个测试文件（WPF/WOV/WVM）全部正常",
+   "hypothesis": "51730 载体的 autoLogin 恢复链挂住（GF 文件 define 用 51730 且不 quitLogin；workspace 文件用 smoke_bob 且无条件重登）。51730 本地态或其恢复链在多轮测试后异常",
+   "next_probe": "跑 GF1 时加 signOutFirst（或手动清 51730 本地态）验证；台账 GF1~GF11 行在批次123 均已绿，挂死不影响台账准确性"
+  },
+  "next_actions": [
+   "invite 可选关系条：下轮启动测试构造（复用 adapterForTest+驱动邀请向导 UI）",
+   "GF 挂死：验证 51730 本地态假设（清态重试或 signOutFirst）"
+  ]
  }
 }
