@@ -104,6 +104,12 @@ void main() {
     ) async {
       _IdentityProtocol.activeSessionId = sessionId;
 
+      // message_id 必须逐条唯一：crypto_inbox 按 message_id 全局 dedupe
+      // （ADR 15 §7.1，生产上正确且必须的重放防护）。此前硬编码 'msg-001'
+      // 令第二条起全部被 dedupe 拒为 duplicate_message——那是 fixture 缺陷，
+      // 不是序列检查。需要测「同一 message_id 重复投递」时由用例显式复用。
+      final messageId = 'msg-$sessionId-$sequence';
+
       final result = await E2eeOutboundRouter.encryptV3(
         suite: ProtocolSuite.olm,
         plaintext: jsonEncode(originalPayload),
@@ -111,7 +117,7 @@ void main() {
           RecipientDevice(deviceId: 'dev-1', keyId: 'k1', publicKey: 'pk-1'),
         ],
         context: const E2eeContext(peerUid: '200', scope: 'c2c'),
-        messageId: 'msg-001',
+        messageId: messageId,
         senderUid: '100',
         senderDid: 'dev-sender',
         destination: '200',
@@ -123,7 +129,7 @@ void main() {
       );
 
       return {
-        'id': 'msg-001',
+        'id': messageId,
         'type': 'C2C',
         'from': '100',
         'to': '200',
