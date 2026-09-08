@@ -287,7 +287,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
           _getStrengthLabel(strength),
           style: context.textStyle(
             FontSizeType.small,
-            color: AppColors.textSecondary,
+            color: AppColors.getTextSecondary(Theme.of(context).brightness),
           ),
         ),
       ],
@@ -316,8 +316,9 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
     return SizedBox(
       width: double.infinity,
-      height: 48,
       child: CupertinoButton.filled(
+        minimumSize: const Size(0, 48),
+        padding: EdgeInsets.zero,
         onPressed: isEnabled ? _handleExport : null,
         child: _isExporting
             ? const SizedBox(

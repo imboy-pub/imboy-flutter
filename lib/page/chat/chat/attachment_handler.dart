@@ -291,6 +291,31 @@ class ChatAttachmentHandler {
     String attachmentId,
   ) => _sealFor(messageId, attachmentId);
 
+  /// 附件链路失败时给用户看的文案 + 日志 token（C 区：错误呈现）。
+  ///
+  /// - E2EE 封装失败（`attachment_binding_missing` / `attachment_partial_seal`，
+  ///   均在上传前抛出：未上传任何明文，可安全重试）→ 专用提示
+  ///   [Translatables.common.e2eeErrAttachmentSeal]；
+  /// - 其余（网络失败、文件 IO 等）→ 通用 [Translatables.common.uploadFailed]。
+  ///
+  /// [log] 按 Finding 014 口径收窄：只含 errType 与稳定上下文标识
+  /// （E2eeSecurityException.reason 是机器可读枚举，不含密钥/明文/PII），
+  /// 不输出完整异常对象。
+  static ({String toast, String log}) _attachmentFailurePresentation(Object e) {
+    if (e is E2eeSecurityException) {
+      final isSealFailure =
+          e.reason.startsWith('attachment_binding_missing') ||
+          e.reason.startsWith('attachment_partial_seal');
+      return (
+        toast: isSealFailure
+            ? t.common.e2eeErrAttachmentSeal
+            : t.common.uploadFailed,
+        log: 'errType=${e.runtimeType} reason=${e.reason}',
+      );
+    }
+    return (toast: t.common.uploadFailed, log: 'errType=${e.runtimeType}');
+  }
+
   /// 把 descriptor 放进消息 metadata —— 它会被 `getMsgFromTMsg`
   /// 原样并入 payload，从而随 PFv3 一起加密。
   ///
@@ -364,7 +389,10 @@ class ChatAttachmentHandler {
       );
       await _sendMessage(message);
     } on Object catch (e) {
-      debugPrint('[attachment_handler] onMessageCreated error: $e');
+      final p = _attachmentFailurePresentation(e);
+      debugPrint('[attachment_handler] uploadFile failed, ${p.log}');
+      // 静默 catch 会让用户以为"点了发送什么都没发生"，必须给可见反馈
+      AppLoading.showError(p.toast);
     }
   }
 
@@ -395,9 +423,13 @@ class ChatAttachmentHandler {
 
       if (!context.mounted || entity == null) return;
       await uploadCameraAsset(context, entity);
-    } catch (e) {
+    } on Object catch (e) {
+      // 014 口径：相机异常只落 errType，toast 用稳定文案不拼 $e
+      debugPrint(
+        '[attachment_handler] pickCamera error, errType=${e.runtimeType}',
+      );
       if (context.mounted) {
-        AppLoading.showToast('${t.common.cameraShootFailed}: $e');
+        AppLoading.showToast(t.common.cameraShootFailed);
       }
     }
   }
@@ -427,9 +459,13 @@ class ChatAttachmentHandler {
           seal: seal,
         );
       } on Object catch (e) {
-        debugPrint('[attachment_handler] handleImageUploadPresign error: $e');
-        // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈
-        AppLoading.showError(t.common.uploadFailed);
+        final p = _attachmentFailurePresentation(e);
+        debugPrint(
+          '[attachment_handler] handleImageUploadPresign failed, ${p.log}',
+        );
+        // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈；
+        // E2EE 封装失败（未上传明文、可安全重试）给专用文案
+        AppLoading.showError(p.toast);
       }
     } else if (entity.type == AssetType.video) {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
@@ -447,9 +483,10 @@ class ChatAttachmentHandler {
         );
         await handleVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {
-        debugPrint('[attachment_handler] handleVideoUpload error: $e');
+        final p = _attachmentFailurePresentation(e);
+        debugPrint('[attachment_handler] handleVideoUpload failed, ${p.log}');
         // 同上：视频压缩/上传失败此前完全无提示（BUG#65）
-        AppLoading.showError(t.common.uploadFailed);
+        AppLoading.showError(p.toast);
       }
     }
     // 上传后删除临时文件
@@ -612,7 +649,12 @@ class ChatAttachmentHandler {
       );
       await _sendMessage(message);
     } on Object catch (e) {
-      debugPrint('[attachment_handler] _uploadImagePlatformFile error: $e');
+      final p = _attachmentFailurePresentation(e);
+      debugPrint(
+        '[attachment_handler] _uploadImagePlatformFile failed, ${p.log}',
+      );
+      // 静默 catch 会让用户以为"点了发送什么都没发生"，必须给可见反馈
+      AppLoading.showError(p.toast);
     }
   }
 
@@ -658,9 +700,13 @@ class ChatAttachmentHandler {
           seal: seal,
         );
       } on Object catch (e) {
-        debugPrint('[attachment_handler] handleImageUploadPresign error: $e');
-        // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈
-        AppLoading.showError(t.common.uploadFailed);
+        final p = _attachmentFailurePresentation(e);
+        debugPrint(
+          '[attachment_handler] handleImageUploadPresign failed, ${p.log}',
+        );
+        // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈；
+        // E2EE 封装失败（未上传明文、可安全重试）给专用文案
+        AppLoading.showError(p.toast);
       }
     } else if (entity.type == AssetType.video) {
       // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
@@ -678,8 +724,11 @@ class ChatAttachmentHandler {
         );
         await handleSelectedVideoUpload(resp, messageId: messageId, seal: seal);
       } on Object catch (e) {
-        debugPrint('[attachment_handler] handleSelectedVideoUpload error: $e');
-        AppLoading.showError(t.common.uploadFailed);
+        final p = _attachmentFailurePresentation(e);
+        debugPrint(
+          '[attachment_handler] handleSelectedVideoUpload failed, ${p.log}',
+        );
+        AppLoading.showError(p.toast);
       }
     }
   }
@@ -769,7 +818,10 @@ class ChatAttachmentHandler {
       await obj.file.delete(recursive: true);
       await _sendMessage(message);
     } on Object catch (e) {
-      debugPrint('[attachment_handler] onMessageCreated error: $e');
+      final p = _attachmentFailurePresentation(e);
+      debugPrint('[attachment_handler] handleVoiceSelection failed, ${p.log}');
+      // 同 C1：语音上传失败此前完全无提示，必须给可见反馈
+      AppLoading.showError(p.toast);
     }
   }
 

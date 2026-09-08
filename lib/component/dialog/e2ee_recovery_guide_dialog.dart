@@ -111,10 +111,21 @@ class E2EERecoveryBanner extends StatelessWidget {
               GestureDetector(
                 onTap: onDismiss,
                 behavior: HitTestBehavior.opaque,
-                child: Icon(
-                  CupertinoIcons.xmark_circle_fill,
-                  size: 18,
-                  color: scheme.onSecondaryContainer,
+                // 44×44 最小触达区：视觉图标保持 18，用 SizedBox 扩命中区
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Center(
+                    child: Semantics(
+                      label: t.common.buttonClose,
+                      button: true,
+                      child: Icon(
+                        CupertinoIcons.xmark_circle_fill,
+                        size: 18,
+                        color: scheme.onSecondaryContainer,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],

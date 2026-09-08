@@ -190,7 +190,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               ),
               style: context.textStyle(
                 FontSizeType.footnote,
-                color: AppColors.textSecondary,
+                color: AppColors.getTextSecondary(Theme.of(context).brightness),
               ),
             ),
             AppSpacing.verticalMedium,
@@ -380,8 +380,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
     return SizedBox(
       width: double.infinity,
-      height: 48,
       child: CupertinoButton.filled(
+        minimumSize: const Size(0, 48),
+        padding: EdgeInsets.zero,
         onPressed: isEnabled ? _handleImport : null,
         child: _isImporting
             ? const SizedBox(
@@ -513,7 +514,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               t.common.e2eeBackupUrlImportHint,
               style: context.textStyle(
                 FontSizeType.footnote,
-                color: AppColors.textSecondary,
+                color: AppColors.getTextSecondary(Theme.of(context).brightness),
               ),
             ),
             AppSpacing.verticalMedium,
@@ -738,7 +739,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               t.common.e2eeBackupImportSuccessNote,
               style: context.textStyle(
                 FontSizeType.small,
-                color: AppColors.textSecondary,
+                color: AppColors.getTextSecondary(Theme.of(context).brightness),
               ),
             ),
           ],

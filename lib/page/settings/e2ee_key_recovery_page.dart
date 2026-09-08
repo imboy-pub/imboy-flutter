@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_export_page.dart';
 import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
+import 'package:imboy/service/e2ee_health_check_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -32,6 +33,14 @@ class E2EEKeyRecoveryPage extends StatefulWidget {
 class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
   bool _isLoading = true;
   Map<String, dynamic> _keyInfo = {};
+
+  /// 密钥信息读取失败标记：错误态与空态必须分离——
+  /// 读取错误若伪装成「未检测到密钥」空态，旁边的「生成新密钥」CTA
+  /// 会诱导用户重置密钥，导致旧消息永久无法解密。
+  bool _loadError = false;
+
+  /// 重试解密失败的消息（自愈）进行中
+  bool _isRetrying = false;
 
   @override
   void initState() {
@@ -64,6 +73,9 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
               padding: EdgeInsets.only(top: 120),
               child: Center(child: CupertinoActivityIndicator()),
             )
+          : _loadError
+          // 错误态：只提示重试，不渲染空态 CTA 与任何密钥生成/删除入口
+          ? _buildLoadErrorCard(context)
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -104,6 +116,11 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   status: t.chat.e2eeStatusAvailable,
                   onTap: () => _showLocalBackupOptions(context),
                 ),
+
+                AppSpacing.verticalMedium,
+
+                // 自愈入口：密钥恢复后补解密此前失败的历史消息
+                _buildRetryFailedCard(context),
 
                 AppSpacing.verticalLarge,
 
@@ -290,6 +307,121 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
                   Text(t.chat.e2eeGenerateNewKey),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 重试解密失败的消息（自愈能力接线）
+  ///
+  /// 密钥恢复/导入完成后，本地可能残留此前解密失败的历史消息；
+  /// 全量扫描并重试解密（[E2EEHealthCheckService.retryFailedMessages]
+  /// 不传会话则扫描全部会话），完成后提示恢复条数。
+  Future<void> _retryFailedMessages() async {
+    if (_isRetrying) return;
+    setState(() => _isRetrying = true);
+    final count = await E2EEHealthCheckService.to.retryFailedMessages();
+    if (!mounted) return;
+    setState(() => _isRetrying = false);
+    AppLoading.showToast(t.common.e2eeRetryFailedDone(count: count));
+  }
+
+  /// 构建重试解密失败消息入口卡片
+  Widget _buildRetryFailedCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: AppColors.transparent,
+      child: GestureDetector(
+        onTap: _isRetrying ? null : _retryFailedMessages,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: AppSpacing.allRegular,
+          decoration: BoxDecoration(
+            color: isDark
+                ? AppColors.darkSurfaceGroupedTertiary
+                : AppColors.lightSurface,
+            borderRadius: AppRadius.borderRadiusMedium,
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: _isRetrying
+                    ? const CupertinoActivityIndicator()
+                    : const Icon(
+                        CupertinoIcons.arrow_clockwise,
+                        color: AppColors.iosBlue,
+                        size: 24,
+                      ),
+              ),
+              AppSpacing.horizontalRegular,
+              Expanded(
+                child: Text(
+                  t.common.e2eeRetryFailedMessages,
+                  style: context.textStyle(
+                    FontSizeType.medium,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (!_isRetrying)
+                const Icon(
+                  CupertinoIcons.chevron_forward,
+                  color: AppColors.iosGray,
+                  size: 18,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建加载失败卡片（错误态，与空态分离）
+  ///
+  /// 复用 [t.common.loadError] / [t.common.buttonRetry] 既有通用键；
+  /// 呈现方式对齐 safety_number_page / compliance_key_page 的
+  /// 「错误文案 + 重试」模式，但绝不提供「生成新密钥」入口。
+  Widget _buildLoadErrorCard(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
+        borderRadius: AppRadius.borderRadiusMedium,
+      ),
+      child: Padding(
+        padding: AppSpacing.allLarge,
+        child: Column(
+          children: [
+            Icon(
+              CupertinoIcons.exclamationmark_triangle_fill,
+              color: AppColors.getIosOrange(brightness),
+              size: 48,
+            ),
+            AppSpacing.verticalRegular,
+            Text(
+              t.common.loadError,
+              style: context.textStyle(
+                FontSizeType.large,
+                fontWeight: FontWeight.bold,
+                color: AppColors.getIosOrange(brightness),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            AppSpacing.verticalRegular,
+            CupertinoButton.filled(
+              onPressed: _loadKeyInfo,
+              child: Text(t.common.buttonRetry),
             ),
           ],
         ),
@@ -775,17 +907,22 @@ class _E2EEKeyRecoveryPageState extends State<E2EEKeyRecoveryPage> {
             'key_id': keyId ?? t.common.unknown,
             'created_at': createdAt ?? t.common.unknown,
           };
+          _loadError = false;
           _isLoading = false;
         });
       } else {
         setState(() {
           _keyInfo = {};
+          _loadError = false;
           _isLoading = false;
         });
       }
-    } on Exception {
+    } on Exception catch (e) {
+      iPrint('[E2EEKeyRecovery] 读取密钥信息失败: $e');
+      // 读取错误 ≠ 确认无密钥：进入错误态，禁止任何密钥生成/删除入口
       setState(() {
         _keyInfo = {};
+        _loadError = true;
         _isLoading = false;
       });
     }
