@@ -518,5 +518,23 @@
    "GF7 重验（manifest 修复后应绿）",
    "下轮 automation：§0 统计（无待首测/待修复→主块跳过）+ 三态例行阻塞 tail 尾部推进"
   ]
+ },
+ "session_2026_09_09_batch129": {
+  "note": "批次129（automation 第二轮）：三态例行阻塞条 workspace_picker『首屏 loading→列表』解除（AT-WPF2 一次全绿），阻塞 95→94。无待首测/待修复，主块跳过。",
+  "at_wpf2": {
+   "scope": "workspace_picker_page『无任何工作区数据时首屏显示加载视图，加载完成后切换为列表』（批次W2R2 起阻塞）",
+   "construction": "同 AT-WPF1 基建+延迟档：_DelayedMineAdapter delayMineSeconds=6 挂住 loadMine → 在途窗口（isLoading=true）深链 /workspace 断言 WorkspaceLoadingView → 放行后真实成功断言切列表",
+   "result": "run1 一次全绿（00:51 +1）：loading 视图 ✓ + 延迟放行 + 切列表 ✓",
+   "evidence": "test/auto_test/reports/batch129/wpf2_run1.log"
+  },
+  "gf7_reverify": {
+   "result": "仍挂死（启动期 Connectivity 事件后零 FLOW，flutter_tester 退出）——manifest 已修复仍挂，存在独立于 manifest 的框架层挂死原因",
+   "contrast": "同环境 workspace_picker_failure_test（AT-WPF1/2）正常跑通——挂死与 face_to_face 文件/其 define 组合相关（51730 登录链？）或间歇性 Live binding 问题",
+   "disposition": "台账行 GF7 本身批次123 已绿，挂死不影响台账准确性；专项排查（flutter run 交互式/窗口焦点/define 二分）另立，不入本轮"
+  },
+  "next_actions": [
+   "下轮 automation：§0 统计（主块预计跳过）+ 三态例行阻塞 tail 尾部推进（现 tail=workspace_picker_page 后已无 workspace 行，tail 会前移）",
+   "GF7 专项排查可选：用 --plain-name AT-GF1 验证 face_to_face 文件其他场景是否也挂（二分定位文件级 vs 场景级）"
+  ]
  }
 }
