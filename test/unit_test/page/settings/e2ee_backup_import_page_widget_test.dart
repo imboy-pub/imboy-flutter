@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
+import 'package:imboy/store/api/e2ee_backup_api.dart';
 
 /// lib/page/settings/e2ee_backup_import_page.dart 的 widget 渲染测试。
 ///
@@ -19,9 +20,8 @@ import 'package:imboy/service/e2ee_crypto_service.dart';
 /// L10（非法文件 SnackBar）的确定性断言——文件选择器（documentsui）
 /// 无法从外部注入 .enc 文件，深链 query 又不映射 extra。
 ///
-/// 网络隔离：HttpClient 用 IOHttpClientAdapter + _buildHttpClient，
-/// flutter test 的 HttpOverrides 禁网 → initState 的 _probeCloudBackup
-/// 请求失败被 catch 静默吞掉（L436-438），不会真打生产。
+/// 网络隔离：每个页面实例通过 cloudBackupProbe 注入本地结果，
+/// initState 不构造 E2EEBackupApi，不读取 token，也不产生 HTTP 请求。
 /// packBackupBytes 内 readAll() 平台通道在测试环境抛
 /// MissingPluginException 同样被吞，仅备份 RSA 假密钥对。
 ///
@@ -36,6 +36,19 @@ void main() {
       child: ProviderScope(
         child: MaterialApp(builder: AppLoading.init(), home: page),
       ),
+    );
+  }
+
+  E2EEBackupImportPage page({
+    String? initialFilePath,
+    bool probeFailure = false,
+  }) {
+    return E2EEBackupImportPage(
+      initialFilePath: initialFilePath,
+      cloudBackupProbe: () async {
+        if (probeFailure) throw Exception('test-only cloud probe failure');
+        return const E2EEBackupInfo(hasBackup: false);
+      },
     );
   }
 
@@ -95,10 +108,7 @@ void main() {
       addTearDown(() => tmpDir.deleteSync(recursive: true));
       final file = makeValidBackup(tmpDir);
 
-      await pumpPage(
-        tester,
-        wrap(E2EEBackupImportPage(initialFilePath: file.path)),
-      );
+      await pumpPage(tester, wrap(page(initialFilePath: file.path)));
 
       // 元信息卡：标题 + 版本/算法/文件大小行 + 校验通过文案
       expect(find.text(t.common.e2eeBackupInfoTitle), findsOneWidget);
@@ -120,10 +130,7 @@ void main() {
       addTearDown(() => tmpDir.deleteSync(recursive: true));
       final file = makeValidBackup(tmpDir);
 
-      await pumpPage(
-        tester,
-        wrap(E2EEBackupImportPage(initialFilePath: file.path)),
-      );
+      await pumpPage(tester, wrap(page(initialFilePath: file.path)));
 
       final btn = tester.widget<CupertinoButton>(
         find.widgetWithText(CupertinoButton, t.common.e2eeBackupImportBtn),
@@ -137,10 +144,7 @@ void main() {
       final fake = File('${tmpDir.path}/fake.enc');
       fake.writeAsBytesSync('this is not a real e2ee backup file'.codeUnits);
 
-      await pumpPage(
-        tester,
-        wrap(E2EEBackupImportPage(initialFilePath: fake.path)),
-      );
+      await pumpPage(tester, wrap(page(initialFilePath: fake.path)));
 
       // SnackBar 校验失败提示
       expect(
@@ -159,7 +163,7 @@ void main() {
     });
 
     testWidgets('L11 未选文件时密码框禁用、导入按钮禁用', (tester) async {
-      await pumpPage(tester, wrap(const E2EEBackupImportPage()));
+      await pumpPage(tester, wrap(page()));
 
       final pwdField = tester
           .widgetList<TextField>(find.byType(TextField))
@@ -174,14 +178,13 @@ void main() {
     });
 
     testWidgets('L14 云端备份探测失败时按无备份静默处理（无恢复卡）', (tester) async {
-      await pumpPage(tester, wrap(const E2EEBackupImportPage()));
+      await pumpPage(tester, wrap(page(probeFailure: true)));
 
-      // 测试环境禁网 → info() 抛异常 → catch 静默 → 不显示云端恢复卡
       expect(find.text(t.common.e2eeBackupCloudRestoreTitle), findsNothing);
     });
 
     testWidgets('L13 警告卡片始终展示覆盖密钥风险提示', (tester) async {
-      await tester.pumpWidget(wrap(const E2EEBackupImportPage()));
+      await tester.pumpWidget(wrap(page()));
       await tester.pump();
 
       expect(find.text(t.common.e2eeBackupImportGuide), findsOneWidget);

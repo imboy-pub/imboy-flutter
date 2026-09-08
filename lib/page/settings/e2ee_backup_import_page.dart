@@ -27,8 +27,13 @@ import 'package:imboy/component/ui/app_loading.dart';
 /// - 恢复私钥到安全存储
 class E2EEBackupImportPage extends StatefulWidget {
   final String? initialFilePath;
+  final Future<E2EEBackupInfo> Function()? cloudBackupProbe;
 
-  const E2EEBackupImportPage({super.key, this.initialFilePath});
+  const E2EEBackupImportPage({
+    super.key,
+    this.initialFilePath,
+    this.cloudBackupProbe,
+  });
 
   @override
   // ignore: library_private_types_in_public_api
@@ -616,7 +621,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   /// 云端备份存在性探测（决定是否显示"从云端恢复"入口）
   Future<void> _probeCloudBackup() async {
     try {
-      final info = await E2EEBackupApi().info();
+      final probe = widget.cloudBackupProbe;
+      final info = await (probe?.call() ?? E2EEBackupApi().info());
       if (!mounted) return;
       setState(() => _cloudInfo = info);
     } on Exception {
