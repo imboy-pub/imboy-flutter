@@ -229,6 +229,14 @@ class E2EEHealthCheckService {
           );
         }
       }
+
+      // 有对端公钥成功同步 → 旧解密失败行的密钥条件可能已恢复，自动重试
+      // 占位行。此前 retryFailedMessages 只有设置页手动「全量扫描」入口，
+      // WS 重连/前台恢复拿到新公钥后占位行永远等不到重试；成功行写库后由
+      // 'messages' 通道回填打开中的会话页（见 _retryDecryptMessage 尾部）。
+      if (successCount > 0) {
+        unawaited(_retryFailedMessagesOnce());
+      }
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ [E2EE_HEALTH] 拉取/应用 E2EE 密钥通知失败: $e');
@@ -506,6 +514,21 @@ class E2EEHealthCheckService {
   // ================================================================
   // 解密失败消息重试
   // ================================================================
+
+  /// 全表扫描重试防重入：WS 重连风暴下 pullKeyNotifications 可能被
+  /// 密集触发，扫描（LIKE 全表）不叠加执行即可，无需排队。
+  bool _isRetryingFailed = false;
+
+  /// [retryFailedMessages] 的去抖包装：进行中则直接跳过本轮。
+  Future<void> _retryFailedMessagesOnce() async {
+    if (_isRetryingFailed) return;
+    _isRetryingFailed = true;
+    try {
+      await retryFailedMessages();
+    } finally {
+      _isRetryingFailed = false;
+    }
+  }
 
   /// 重试解密失败的消息
   ///
