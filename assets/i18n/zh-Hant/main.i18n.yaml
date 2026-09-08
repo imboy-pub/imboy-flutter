@@ -170,6 +170,8 @@ complianceKeyInfoTitle: 合規稽核金鑰
 e2eeErrComplianceChanged: 合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試
 e2eeErrComplianceUnavailable: 合規金鑰暫時無法使用，訊息未傳送，請稍後重試
 e2eeErrComplianceExpired: "合規金鑰已過期，請聯絡管理員"
+complianceKeyRotationConfirmed: "合規金鑰輪換已確認，可重新發送訊息"
+complianceKeyRotationNoPending: "沒有待確認的金鑰變更"
 e2eeErrDeviceNotReady: 目前裝置未完成安全初始化，請登出後重新登入再試
 e2eeErrProtocolMismatch: 加密協定設定異常，請更新應用程式後重試
 e2eeErrSessionExportFailed: 群組會話金鑰產生失敗，請稍後重試

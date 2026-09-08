@@ -153,6 +153,8 @@ e2eeErrPeerDeviceNotReady: "Some members' devices haven't finished security setu
 e2eeErrComplianceChanged: "Compliance audit key changed, message not sent. Confirm rotation and retry"
 e2eeErrComplianceUnavailable: "Compliance key temporarily unavailable, message not sent, please try again later"
 e2eeErrComplianceExpired: "The compliance key has expired, please contact the administrator"
+complianceKeyRotationConfirmed: "Compliance key rotation confirmed, you can resend the message"
+complianceKeyRotationNoPending: "No pending key change to confirm"
 e2eeErrDeviceNotReady: "Your device hasn't finished security initialization, please log out and back in then retry"
 e2eeErrSessionExportFailed: "Group session key generation failed, please try again later"
 e2eeErrProtocolMismatch: "Encryption protocol mismatch, please update the app and retry"

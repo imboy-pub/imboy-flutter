@@ -1437,6 +1437,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupVersionLabel => '版本號';
 	@override String get e2eeBackupAlgorithmLabel => '演算法';
 	@override String get e2eeBackupFileSizeLabel => '檔案大小';
+	@override String e2eeBackupFileBytes({required Object bytes}) => '${bytes} 位元組';
+	@override String e2eeBackupGeneratedFile({required Object name}) => '檔案：${name}';
 	@override String get e2eeBackupFileValid => '✓ 檔案格式有效';
 	@override String get e2eeBackupImportPwdHint => '請輸入備份時設定的密碼';
 	@override String get e2eeBackupImportBtn => '匯入金鑰';
@@ -2123,6 +2125,8 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get e2eeErrComplianceChanged => '合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試';
 	@override String get e2eeErrComplianceUnavailable => '合規金鑰暫時無法使用，訊息未傳送，請稍後重試';
 	@override String get e2eeErrComplianceExpired => '合規金鑰已過期，請聯絡管理員';
+	@override String get complianceKeyRotationConfirmed => '合規金鑰輪換已確認，可重新發送訊息';
+	@override String get complianceKeyRotationNoPending => '沒有待確認的金鑰變更';
 	@override String get e2eeErrDeviceNotReady => '目前裝置未完成安全初始化，請登出後重新登入再試';
 	@override String get e2eeErrProtocolMismatch => '加密協定設定異常，請更新應用程式後重試';
 	@override String get e2eeErrSessionExportFailed => '群組會話金鑰產生失敗，請稍後重試';
@@ -3819,6 +3823,8 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupVersionLabel' => '版本號',
 			'common.e2eeBackupAlgorithmLabel' => '演算法',
 			'common.e2eeBackupFileSizeLabel' => '檔案大小',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} 位元組',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => '檔案：${name}',
 			'common.e2eeBackupFileValid' => '✓ 檔案格式有效',
 			'common.e2eeBackupImportPwdHint' => '請輸入備份時設定的密碼',
 			'common.e2eeBackupImportBtn' => '匯入金鑰',
@@ -4054,10 +4060,10 @@ extension on TranslationsZhHant {
 			'discovery.momentsDraftKeepMessage' => '保留後下次進入可繼續編輯',
 			'discovery.momentsDraftDiscard' => '捨棄',
 			'discovery.momentsDraftKeep' => '保留草稿',
-			'discovery.momentActionMore' => '更多選項',
-			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} 人按讚',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentActionMore' => '更多選項',
+			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} 人按讚',
 			'discovery.openChannel' => '開啟頻道',
 			'discovery.paidChannelLocked' => '付費頻道內容已鎖定',
 			'discovery.webQRScanned' => '已掃描',
@@ -4381,6 +4387,8 @@ extension on TranslationsZhHant {
 			'main.e2eeErrComplianceChanged' => '合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試',
 			'main.e2eeErrComplianceUnavailable' => '合規金鑰暫時無法使用，訊息未傳送，請稍後重試',
 			'main.e2eeErrComplianceExpired' => '合規金鑰已過期，請聯絡管理員',
+			'main.complianceKeyRotationConfirmed' => '合規金鑰輪換已確認，可重新發送訊息',
+			'main.complianceKeyRotationNoPending' => '沒有待確認的金鑰變更',
 			'main.e2eeErrDeviceNotReady' => '目前裝置未完成安全初始化，請登出後重新登入再試',
 			'main.e2eeErrProtocolMismatch' => '加密協定設定異常，請更新應用程式後重試',
 			'main.e2eeErrSessionExportFailed' => '群組會話金鑰產生失敗，請稍後重試',
@@ -4566,12 +4574,12 @@ extension on TranslationsZhHant {
 			'workspace.restoreConfirm' => '確認還原',
 			'workspace.archivedBanner' => '工作區已封存：內容可查看，寫入操作已停用；Owner 可在成員頁還原',
 			'workspace.brandingTitle' => '工作區品牌',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingNameLabel' => '品牌名稱',
 			'workspace.brandingLogoLabel' => 'Logo 網址',
 			'workspace.brandingLogoHint' => 'https://…（工作區 Logo 圖片網址）',
 			'workspace.brandingColorLabel' => '品牌主色 primaryColor',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '僅支援 #RRGGBB / #AARRGGBB；非法值改用預設主題色',
 			'workspace.brandingColorInvalid' => '主色格式不正確，僅支援 #RRGGBB / #AARRGGBB',

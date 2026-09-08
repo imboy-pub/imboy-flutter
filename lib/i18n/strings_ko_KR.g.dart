@@ -1434,6 +1434,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeBackupVersionLabel => '버전';
 	@override String get e2eeBackupAlgorithmLabel => '알고리즘';
 	@override String get e2eeBackupFileSizeLabel => '파일 크기';
+	@override String e2eeBackupFileBytes({required Object bytes}) => '${bytes} 바이트';
+	@override String e2eeBackupGeneratedFile({required Object name}) => '파일: ${name}';
 	@override String get e2eeBackupFileValid => '✓ 파일 형식이 유효합니다';
 	@override String get e2eeBackupImportPwdHint => '백업 시 설정한 비밀번호를 입력하세요';
 	@override String get e2eeBackupImportBtn => '키 가져오기';
@@ -2123,6 +2125,8 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get e2eeErrComplianceChanged => '컴플라이언스 감사 키가 변경되어 메시지를 보내지 않았습니다. 교체를 확인한 후 다시 시도해 주세요';
 	@override String get e2eeErrComplianceUnavailable => '컴플라이언스 키를 일시적으로 사용할 수 없어 메시지를 보내지 않았습니다. 잠시 후 다시 시도해 주세요';
 	@override String get e2eeErrComplianceExpired => '컴플라이언스 키가 만료되었습니다. 관리자에게 문의해 주세요';
+	@override String get complianceKeyRotationConfirmed => '컴플라이언스 키 교체가 확인되었습니다. 메시지를 다시 보낼 수 있습니다';
+	@override String get complianceKeyRotationNoPending => '확인 대기 중인 키 변경이 없습니다';
 	@override String get e2eeErrDeviceNotReady => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요';
 	@override String get e2eeErrProtocolMismatch => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요';
 	@override String get e2eeErrSessionExportFailed => '그룹 세션 키 생성에 실패했습니다. 잠시 후 다시 시도해 주세요';
@@ -3816,6 +3820,8 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupVersionLabel' => '버전',
 			'common.e2eeBackupAlgorithmLabel' => '알고리즘',
 			'common.e2eeBackupFileSizeLabel' => '파일 크기',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} 바이트',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => '파일: ${name}',
 			'common.e2eeBackupFileValid' => '✓ 파일 형식이 유효합니다',
 			'common.e2eeBackupImportPwdHint' => '백업 시 설정한 비밀번호를 입력하세요',
 			'common.e2eeBackupImportBtn' => '키 가져오기',
@@ -4054,10 +4060,10 @@ extension on TranslationsKoKr {
 			'discovery.momentsDraftKeepMessage' => '보관하면 다음에 이어서 편집할 수 있습니다',
 			'discovery.momentsDraftDiscard' => '버리기',
 			'discovery.momentsDraftKeep' => '보관',
-			'discovery.openChannel' => '채널 열기',
-			'discovery.paidChannelLocked' => '유료 채널 콘텐츠가 잠겨 있습니다',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.openChannel' => '채널 열기',
+			'discovery.paidChannelLocked' => '유료 채널 콘텐츠가 잠겨 있습니다',
 			'discovery.webQRScanned' => '스캔 완료',
 			'discovery.momentActionMore' => '더 보기',
 			'discovery.momentAtCount' => ({required Object count}) => '${count}명',
@@ -4381,6 +4387,8 @@ extension on TranslationsKoKr {
 			'main.e2eeErrComplianceChanged' => '컴플라이언스 감사 키가 변경되어 메시지를 보내지 않았습니다. 교체를 확인한 후 다시 시도해 주세요',
 			'main.e2eeErrComplianceUnavailable' => '컴플라이언스 키를 일시적으로 사용할 수 없어 메시지를 보내지 않았습니다. 잠시 후 다시 시도해 주세요',
 			'main.e2eeErrComplianceExpired' => '컴플라이언스 키가 만료되었습니다. 관리자에게 문의해 주세요',
+			'main.complianceKeyRotationConfirmed' => '컴플라이언스 키 교체가 확인되었습니다. 메시지를 다시 보낼 수 있습니다',
+			'main.complianceKeyRotationNoPending' => '확인 대기 중인 키 변경이 없습니다',
 			'main.e2eeErrDeviceNotReady' => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요',
 			'main.e2eeErrProtocolMismatch' => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요',
 			'main.e2eeErrSessionExportFailed' => '그룹 세션 키 생성에 실패했습니다. 잠시 후 다시 시도해 주세요',
@@ -4566,12 +4574,12 @@ extension on TranslationsKoKr {
 			'workspace.restoreConfirm' => '복원 확인',
 			'workspace.archivedBanner' => '워크스페이스가 보관되었습니다: 콘텐츠는 볼 수 있지만 쓰기 작업은 비활성화됩니다. Owner는 구성원 페이지에서 복원할 수 있습니다',
 			'workspace.brandingTitle' => '워크스페이스 브랜드',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingNameLabel' => '브랜드 이름',
 			'workspace.brandingLogoLabel' => 'Logo 주소',
 			'workspace.brandingLogoHint' => 'https://…(워크스페이스 Logo 이미지 주소)',
 			'workspace.brandingColorLabel' => '기본 색상 primaryColor',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB만 지원합니다. 잘못된 값은 기본 테마 색상으로 대체됩니다',
 			'workspace.brandingColorInvalid' => '기본 색상 형식이 잘못되었습니다. #RRGGBB / #AARRGGBB만 지원합니다',

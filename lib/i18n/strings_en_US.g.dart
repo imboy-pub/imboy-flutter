@@ -1438,6 +1438,8 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeBackupVersionLabel => 'Version';
 	@override String get e2eeBackupAlgorithmLabel => 'Algorithm';
 	@override String get e2eeBackupFileSizeLabel => 'File size';
+	@override String e2eeBackupFileBytes({required Object bytes}) => '${bytes} bytes';
+	@override String e2eeBackupGeneratedFile({required Object name}) => 'File: ${name}';
 	@override String get e2eeBackupFileValid => '✓ File format is valid';
 	@override String get e2eeBackupImportPwdHint => 'Enter the password set during backup';
 	@override String get e2eeBackupImportBtn => 'Import key';
@@ -2110,6 +2112,8 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get e2eeErrComplianceChanged => 'Compliance audit key changed, message not sent. Confirm rotation and retry';
 	@override String get e2eeErrComplianceUnavailable => 'Compliance key temporarily unavailable, message not sent, please try again later';
 	@override String get e2eeErrComplianceExpired => 'The compliance key has expired, please contact the administrator';
+	@override String get complianceKeyRotationConfirmed => 'Compliance key rotation confirmed, you can resend the message';
+	@override String get complianceKeyRotationNoPending => 'No pending key change to confirm';
 	@override String get e2eeErrDeviceNotReady => 'Your device hasn\'t finished security initialization, please log out and back in then retry';
 	@override String get e2eeErrSessionExportFailed => 'Group session key generation failed, please try again later';
 	@override String get e2eeErrProtocolMismatch => 'Encryption protocol mismatch, please update the app and retry';
@@ -3820,6 +3824,8 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupVersionLabel' => 'Version',
 			'common.e2eeBackupAlgorithmLabel' => 'Algorithm',
 			'common.e2eeBackupFileSizeLabel' => 'File size',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} bytes',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => 'File: ${name}',
 			'common.e2eeBackupFileValid' => '✓ File format is valid',
 			'common.e2eeBackupImportPwdHint' => 'Enter the password set during backup',
 			'common.e2eeBackupImportBtn' => 'Import key',
@@ -4057,10 +4063,10 @@ extension on TranslationsEnUs {
 			'discovery.momentsDraftKeepMessage' => 'You can continue editing next time',
 			'discovery.momentsDraftDiscard' => 'Discard',
 			'discovery.momentsDraftKeep' => 'Keep',
-			'discovery.openChannel' => 'Open Channel',
-			'discovery.paidChannelLocked' => 'Paid Channel Content Locked',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.openChannel' => 'Open Channel',
+			'discovery.paidChannelLocked' => 'Paid Channel Content Locked',
 			'discovery.webQRScanned' => 'Scanned',
 			'discovery.momentLocation' => 'Location',
 			'discovery.momentLocationNone' => 'Do not show location',
@@ -4368,6 +4374,8 @@ extension on TranslationsEnUs {
 			'main.e2eeErrComplianceChanged' => 'Compliance audit key changed, message not sent. Confirm rotation and retry',
 			'main.e2eeErrComplianceUnavailable' => 'Compliance key temporarily unavailable, message not sent, please try again later',
 			'main.e2eeErrComplianceExpired' => 'The compliance key has expired, please contact the administrator',
+			'main.complianceKeyRotationConfirmed' => 'Compliance key rotation confirmed, you can resend the message',
+			'main.complianceKeyRotationNoPending' => 'No pending key change to confirm',
 			'main.e2eeErrDeviceNotReady' => 'Your device hasn\'t finished security initialization, please log out and back in then retry',
 			'main.e2eeErrSessionExportFailed' => 'Group session key generation failed, please try again later',
 			'main.e2eeErrProtocolMismatch' => 'Encryption protocol mismatch, please update the app and retry',
@@ -4569,12 +4577,12 @@ extension on TranslationsEnUs {
 			'workspace.restoreConfirm' => 'Restore',
 			'workspace.archivedBanner' => 'Workspace archived: content is viewable, writes are disabled; the Owner can restore it on the Members page',
 			'workspace.brandingTitle' => 'Workspace branding',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'Brand name',
 			'workspace.brandingLogoLabel' => 'Logo URL',
 			'workspace.brandingLogoHint' => 'https://… (workspace logo image URL)',
 			'workspace.brandingColorLabel' => 'Primary color',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Only #RRGGBB / #AARRGGBB; invalid values fall back to the default theme color',
 			'workspace.brandingColorInvalid' => 'Invalid color format; only #RRGGBB / #AARRGGBB is supported',

@@ -170,6 +170,8 @@ complianceKeyInfoTitle: Chiave di audit di conformità
 e2eeErrComplianceChanged: "La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova"
 e2eeErrComplianceUnavailable: "Chiave di conformità temporaneamente non disponibile, messaggio non inviato; riprova più tardi"
 e2eeErrComplianceExpired: "La chiave di conformità è scaduta, contatta l'amministratore"
+complianceKeyRotationConfirmed: "Rotazione della chiave di conformità confermata, puoi inviare nuovamente il messaggio"
+complianceKeyRotationNoPending: "Nessuna modifica della chiave in attesa di conferma"
 e2eeErrDeviceNotReady: "Questo dispositivo non ha completato l'inizializzazione di sicurezza; esci, accedi di nuovo e riprova"
 e2eeErrProtocolMismatch: "Configurazione del protocollo di cifratura anomala; aggiorna l'app e riprova"
 e2eeErrSessionExportFailed: "Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi"

@@ -1443,6 +1443,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeBackupVersionLabel => 'Версия';
 	@override String get e2eeBackupAlgorithmLabel => 'Алгоритм';
 	@override String get e2eeBackupFileSizeLabel => 'Размер файла';
+	@override String e2eeBackupFileBytes({required Object bytes}) => '${bytes} байт';
+	@override String e2eeBackupGeneratedFile({required Object name}) => 'Файл: ${name}';
 	@override String get e2eeBackupFileValid => '✓ Формат файла корректен';
 	@override String get e2eeBackupImportPwdHint => 'Введите пароль, заданный при создании копии';
 	@override String get e2eeBackupImportBtn => 'Импортировать ключ';
@@ -2132,6 +2134,8 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get e2eeErrComplianceChanged => 'Ключ комплаенс-аудита изменён, сообщение не отправлено. Подтвердите ротацию и повторите';
 	@override String get e2eeErrComplianceUnavailable => 'Комплаенс-ключ временно недоступен, сообщение не отправлено. Повторите позже';
 	@override String get e2eeErrComplianceExpired => 'Срок действия комплаенс-ключа истёк, обратитесь к администратору';
+	@override String get complianceKeyRotationConfirmed => 'Ротация ключа соответствия подтверждена, сообщение можно отправить повторно';
+	@override String get complianceKeyRotationNoPending => 'Нет ожидающих подтверждения изменений ключа';
 	@override String get e2eeErrDeviceNotReady => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите';
 	@override String get e2eeErrProtocolMismatch => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите';
 	@override String get e2eeErrSessionExportFailed => 'Не удалось создать сеансовый ключ группы. Повторите позже';
@@ -3825,6 +3829,8 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupVersionLabel' => 'Версия',
 			'common.e2eeBackupAlgorithmLabel' => 'Алгоритм',
 			'common.e2eeBackupFileSizeLabel' => 'Размер файла',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} байт',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => 'Файл: ${name}',
 			'common.e2eeBackupFileValid' => '✓ Формат файла корректен',
 			'common.e2eeBackupImportPwdHint' => 'Введите пароль, заданный при создании копии',
 			'common.e2eeBackupImportBtn' => 'Импортировать ключ',
@@ -4063,10 +4069,10 @@ extension on TranslationsRuRu {
 			'discovery.momentsDraftKeepTitle' => 'Сохранить черновик?',
 			'discovery.momentsDraftKeepMessage' => 'Сможете продолжить в следующий раз',
 			'discovery.momentsDraftDiscard' => 'Не сохранять',
-			'discovery.momentsDraftKeep' => 'Сохранить',
-			'discovery.openChannel' => 'Открыть канал',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftKeep' => 'Сохранить',
+			'discovery.openChannel' => 'Открыть канал',
 			'discovery.paidChannelLocked' => 'Содержимое платного канала заблокировано',
 			'discovery.webQRScanned' => 'Отсканировано',
 			'discovery.momentActionMore' => 'Другие действия',
@@ -4390,6 +4396,8 @@ extension on TranslationsRuRu {
 			'main.e2eeErrComplianceChanged' => 'Ключ комплаенс-аудита изменён, сообщение не отправлено. Подтвердите ротацию и повторите',
 			'main.e2eeErrComplianceUnavailable' => 'Комплаенс-ключ временно недоступен, сообщение не отправлено. Повторите позже',
 			'main.e2eeErrComplianceExpired' => 'Срок действия комплаенс-ключа истёк, обратитесь к администратору',
+			'main.complianceKeyRotationConfirmed' => 'Ротация ключа соответствия подтверждена, сообщение можно отправить повторно',
+			'main.complianceKeyRotationNoPending' => 'Нет ожидающих подтверждения изменений ключа',
 			'main.e2eeErrDeviceNotReady' => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите',
 			'main.e2eeErrProtocolMismatch' => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите',
 			'main.e2eeErrSessionExportFailed' => 'Не удалось создать сеансовый ключ группы. Повторите позже',
@@ -4575,12 +4583,12 @@ extension on TranslationsRuRu {
 			'workspace.restoreConfirm' => 'Подтвердить восстановление',
 			'workspace.archivedBanner' => 'Рабочее пространство в архиве: контент доступен для просмотра, запись отключена; Owner может восстановить его на странице участников',
 			'workspace.brandingTitle' => 'Бренд рабочего пространства',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'Название бренда',
 			'workspace.brandingLogoLabel' => 'Адрес логотипа',
 			'workspace.brandingLogoHint' => 'https://... (адрес изображения логотипа рабочего пространства)',
 			'workspace.brandingColorLabel' => 'Основной цвет primaryColor',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Поддерживается только #RRGGBB / #AARRGGBB; при недопустимом значении используется цвет темы по умолчанию',
 			'workspace.brandingColorInvalid' => 'Неверный формат основного цвета, поддерживается только #RRGGBB / #AARRGGBB',

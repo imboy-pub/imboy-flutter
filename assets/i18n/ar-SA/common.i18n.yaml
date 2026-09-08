@@ -729,6 +729,8 @@ e2eeBackupInfoTitle: معلومات النسخة
 e2eeBackupVersionLabel: الإصدار
 e2eeBackupAlgorithmLabel: الخوارزمية
 e2eeBackupFileSizeLabel: حجم الملف
+e2eeBackupFileBytes(bytes): "$bytes بايت"
+e2eeBackupGeneratedFile(name): "الملف: $name"
 e2eeBackupFileValid: "✓ تنسيق الملف صالح"
 e2eeBackupImportPwdHint: أدخل كلمة المرور المحددة عند الإنشاء
 e2eeBackupImportBtn: استيراد المفتاح

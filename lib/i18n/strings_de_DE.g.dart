@@ -1437,6 +1437,8 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeBackupVersionLabel => 'Version';
 	@override String get e2eeBackupAlgorithmLabel => 'Algorithmus';
 	@override String get e2eeBackupFileSizeLabel => 'Dateigröße';
+	@override String e2eeBackupFileBytes({required Object bytes}) => '${bytes} Bytes';
+	@override String e2eeBackupGeneratedFile({required Object name}) => 'Datei: ${name}';
 	@override String get e2eeBackupFileValid => '✓ Format gültig';
 	@override String get e2eeBackupImportPwdHint => 'Backup-Passwort eingeben';
 	@override String get e2eeBackupImportBtn => 'Schlüssel importieren';
@@ -2141,6 +2143,8 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get e2eeErrComplianceChanged => 'Compliance-Audit-Schlüssel hat sich geändert, Nachricht nicht gesendet. Bitte Rotation bestätigen und erneut versuchen';
 	@override String get e2eeErrComplianceUnavailable => 'Compliance-Schlüssel derzeit nicht verfügbar, Nachricht nicht gesendet. Bitte später erneut versuchen';
 	@override String get e2eeErrComplianceExpired => 'Der Compliance-Schlüssel ist abgelaufen. Bitte kontaktieren Sie den Administrator';
+	@override String get complianceKeyRotationConfirmed => 'Compliance-Schlüsselrotation bestätigt, Nachricht kann erneut gesendet werden';
+	@override String get complianceKeyRotationNoPending => 'Keine ausstehende Schlüsseländerung zu bestätigen';
 	@override String get e2eeErrDeviceNotReady => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen';
 	@override String get e2eeErrProtocolMismatch => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen';
 	@override String get e2eeErrSessionExportFailed => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen';
@@ -3819,6 +3823,8 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupVersionLabel' => 'Version',
 			'common.e2eeBackupAlgorithmLabel' => 'Algorithmus',
 			'common.e2eeBackupFileSizeLabel' => 'Dateigröße',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} Bytes',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => 'Datei: ${name}',
 			'common.e2eeBackupFileValid' => '✓ Format gültig',
 			'common.e2eeBackupImportPwdHint' => 'Backup-Passwort eingeben',
 			'common.e2eeBackupImportBtn' => 'Schlüssel importieren',
@@ -4057,10 +4063,10 @@ extension on TranslationsDeDe {
 			'discovery.momentsDraftKeepTitle' => 'Entwurf behalten?',
 			'discovery.momentsDraftKeepMessage' => 'Beim nächsten Mal weiterbearbeiten',
 			'discovery.momentsDraftDiscard' => 'Verwerfen',
-			'discovery.momentsDraftKeep' => 'Behalten',
-			'discovery.openChannel' => 'Kanal öffnen',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftKeep' => 'Behalten',
+			'discovery.openChannel' => 'Kanal öffnen',
 			'discovery.paidChannelLocked' => 'Inhalt gesperrt (Kostenpflichtig)',
 			'discovery.webQRScanned' => 'Gescannt',
 			'discovery.momentActionMore' => 'Weitere Aktionen',
@@ -4399,6 +4405,8 @@ extension on TranslationsDeDe {
 			'main.e2eeErrComplianceChanged' => 'Compliance-Audit-Schlüssel hat sich geändert, Nachricht nicht gesendet. Bitte Rotation bestätigen und erneut versuchen',
 			'main.e2eeErrComplianceUnavailable' => 'Compliance-Schlüssel derzeit nicht verfügbar, Nachricht nicht gesendet. Bitte später erneut versuchen',
 			'main.e2eeErrComplianceExpired' => 'Der Compliance-Schlüssel ist abgelaufen. Bitte kontaktieren Sie den Administrator',
+			'main.complianceKeyRotationConfirmed' => 'Compliance-Schlüsselrotation bestätigt, Nachricht kann erneut gesendet werden',
+			'main.complianceKeyRotationNoPending' => 'Keine ausstehende Schlüsseländerung zu bestätigen',
 			'main.e2eeErrDeviceNotReady' => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen',
 			'main.e2eeErrProtocolMismatch' => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen',
 			'main.e2eeErrSessionExportFailed' => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen',
@@ -4569,12 +4577,12 @@ extension on TranslationsDeDe {
 			'workspace.restoreConfirm' => 'Wiederherstellung bestätigen',
 			'workspace.archivedBanner' => 'Arbeitsbereich archiviert: Inhalte sichtbar, Schreibzugriffe deaktiviert; der Owner kann auf der Mitgliedseite wiederherstellen',
 			'workspace.brandingTitle' => 'Arbeitsbereich-Branding',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'Brandname',
 			'workspace.brandingLogoLabel' => 'Logo-URL',
 			'workspace.brandingLogoHint' => 'https://… (URL des Arbeitsbereich-Logos)',
 			'workspace.brandingColorLabel' => 'Hauptfarbe primaryColor',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Nur #RRGGBB / #AARRGGBB; ungültige Werte fallen auf die Standard-Designfarbe zurück',
 			'workspace.brandingColorInvalid' => 'Ungültiges Format der Hauptfarbe, nur #RRGGBB / #AARRGGBB',

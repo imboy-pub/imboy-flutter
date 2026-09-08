@@ -1437,6 +1437,8 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeBackupVersionLabel => 'Version';
 	@override String get e2eeBackupAlgorithmLabel => 'Algorithme';
 	@override String get e2eeBackupFileSizeLabel => 'Taille';
+	@override String e2eeBackupFileBytes({required Object bytes}) => '${bytes} octets';
+	@override String e2eeBackupGeneratedFile({required Object name}) => 'Fichier : ${name}';
 	@override String get e2eeBackupFileValid => '✓ Format valide';
 	@override String get e2eeBackupImportPwdHint => 'Mot de passe de la sauvegarde';
 	@override String get e2eeBackupImportBtn => 'Importer la clé';
@@ -2126,6 +2128,8 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get e2eeErrComplianceChanged => 'La clé d\'audit de conformité a changé, message non envoyé. Confirmez la rotation puis réessayez';
 	@override String get e2eeErrComplianceUnavailable => 'Clé de conformité momentanément indisponible, message non envoyé. Réessayez plus tard';
 	@override String get e2eeErrComplianceExpired => 'La clé de conformité a expiré, veuillez contacter l\'administrateur';
+	@override String get complianceKeyRotationConfirmed => 'Rotation de la clé de conformité confirmée, le message peut être renvoyé';
+	@override String get complianceKeyRotationNoPending => 'Aucun changement de clé en attente de confirmation';
 	@override String get e2eeErrDeviceNotReady => 'L\'initialisation de sécurité de cet appareil n\'est pas terminée. Déconnectez-vous, reconnectez-vous puis réessayez';
 	@override String get e2eeErrProtocolMismatch => 'Configuration du protocole de chiffrement anormale. Mettez à jour l\'application puis réessayez';
 	@override String get e2eeErrSessionExportFailed => 'Échec de la génération de la clé de session de groupe. Réessayez plus tard';
@@ -3819,6 +3823,8 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupVersionLabel' => 'Version',
 			'common.e2eeBackupAlgorithmLabel' => 'Algorithme',
 			'common.e2eeBackupFileSizeLabel' => 'Taille',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} octets',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => 'Fichier : ${name}',
 			'common.e2eeBackupFileValid' => '✓ Format valide',
 			'common.e2eeBackupImportPwdHint' => 'Mot de passe de la sauvegarde',
 			'common.e2eeBackupImportBtn' => 'Importer la clé',
@@ -4057,10 +4063,10 @@ extension on TranslationsFrFr {
 			'discovery.momentsDraftKeepMessage' => 'Vous pourrez continuer la prochaine fois',
 			'discovery.momentsDraftDiscard' => 'Ne pas conserver',
 			'discovery.momentsDraftKeep' => 'Conserver',
-			'discovery.openChannel' => 'Ouvrir le canal',
-			'discovery.paidChannelLocked' => 'Contenu verrouillé (payant)',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.openChannel' => 'Ouvrir le canal',
+			'discovery.paidChannelLocked' => 'Contenu verrouillé (payant)',
 			'discovery.webQRScanned' => 'Scanné',
 			'discovery.momentActionMore' => 'Plus d\'actions',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} personnes',
@@ -4384,6 +4390,8 @@ extension on TranslationsFrFr {
 			'main.e2eeErrComplianceChanged' => 'La clé d\'audit de conformité a changé, message non envoyé. Confirmez la rotation puis réessayez',
 			'main.e2eeErrComplianceUnavailable' => 'Clé de conformité momentanément indisponible, message non envoyé. Réessayez plus tard',
 			'main.e2eeErrComplianceExpired' => 'La clé de conformité a expiré, veuillez contacter l\'administrateur',
+			'main.complianceKeyRotationConfirmed' => 'Rotation de la clé de conformité confirmée, le message peut être renvoyé',
+			'main.complianceKeyRotationNoPending' => 'Aucun changement de clé en attente de confirmation',
 			'main.e2eeErrDeviceNotReady' => 'L\'initialisation de sécurité de cet appareil n\'est pas terminée. Déconnectez-vous, reconnectez-vous puis réessayez',
 			'main.e2eeErrProtocolMismatch' => 'Configuration du protocole de chiffrement anormale. Mettez à jour l\'application puis réessayez',
 			'main.e2eeErrSessionExportFailed' => 'Échec de la génération de la clé de session de groupe. Réessayez plus tard',
@@ -4569,12 +4577,12 @@ extension on TranslationsFrFr {
 			'workspace.restoreConfirm' => 'Confirmer la restauration',
 			'workspace.archivedBanner' => 'Espace de travail archivé : le contenu reste consultable, les écritures sont désactivées ; l\'Owner peut restaurer depuis la page des membres',
 			'workspace.brandingTitle' => 'Marque de l\'espace de travail',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'Nom de marque',
 			'workspace.brandingLogoLabel' => 'URL du Logo',
 			'workspace.brandingLogoHint' => 'https://… (URL de l\'image du Logo de l\'espace de travail)',
 			'workspace.brandingColorLabel' => 'Couleur principale primaryColor',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'Seuls #RRGGBB / #AARRGGBB sont pris en charge ; une valeur invalide retombe sur la couleur du thème par défaut',
 			'workspace.brandingColorInvalid' => 'Format de couleur principale invalide, seuls #RRGGBB / #AARRGGBB sont pris en charge',

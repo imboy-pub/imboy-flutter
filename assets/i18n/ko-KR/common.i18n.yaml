@@ -717,6 +717,8 @@ e2eeBackupInfoTitle: 백업 정보
 e2eeBackupVersionLabel: 버전
 e2eeBackupAlgorithmLabel: 알고리즘
 e2eeBackupFileSizeLabel: 파일 크기
+e2eeBackupFileBytes(bytes): "$bytes 바이트"
+e2eeBackupGeneratedFile(name): "파일: $name"
 e2eeBackupFileValid: "✓ 파일 형식이 유효합니다"
 e2eeBackupImportPwdHint: 백업 시 설정한 비밀번호를 입력하세요
 e2eeBackupImportBtn: 키 가져오기

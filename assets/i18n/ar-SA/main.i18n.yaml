@@ -158,6 +158,8 @@ lightModel: الوضع الفاتح
 e2eeErrComplianceChanged: تغيّر مفتاح تدقيق الامتثال، ولم تُرسل الرسالة. أكّد تدوير المفتاح ثم أعد المحاولة
 e2eeErrComplianceUnavailable: مفتاح الامتثال غير متاح حالياً، ولم تُرسل الرسالة. حاول لاحقاً
 e2eeErrComplianceExpired: "انتهت صلاحية مفتاح الامتثال، يرجى التواصل مع المسؤول"
+complianceKeyRotationConfirmed: "تم تأكيد تدوير مفتاح الامتثال، يمكنك إعادة إرسال الرسالة"
+complianceKeyRotationNoPending: "لا يوجد تغيير مفتاح في انتظار التأكيد"
 e2eeErrDeviceNotReady: لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة
 e2eeErrProtocolMismatch: هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة
 e2eeErrSessionExportFailed: تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً

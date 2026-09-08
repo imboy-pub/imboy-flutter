@@ -717,6 +717,8 @@ e2eeBackupInfoTitle: バックアップ情報
 e2eeBackupVersionLabel: バージョン
 e2eeBackupAlgorithmLabel: アルゴリズム
 e2eeBackupFileSizeLabel: ファイルサイズ
+e2eeBackupFileBytes(bytes): "$bytes バイト"
+e2eeBackupGeneratedFile(name): "ファイル：$name"
 e2eeBackupFileValid: "✓ ファイル形式は有効です"
 e2eeBackupImportPwdHint: バックアップ作成時のパスワードを入力
 e2eeBackupImportBtn: キーを読み込む

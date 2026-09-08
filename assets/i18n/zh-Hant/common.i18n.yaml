@@ -719,6 +719,8 @@ e2eeBackupInfoTitle: 備份資訊
 e2eeBackupVersionLabel: 版本號
 e2eeBackupAlgorithmLabel: 演算法
 e2eeBackupFileSizeLabel: 檔案大小
+e2eeBackupFileBytes(bytes): "$bytes 位元組"
+e2eeBackupGeneratedFile(name): "檔案：$name"
 e2eeBackupFileValid: ✓ 檔案格式有效
 e2eeBackupImportPwdHint: 請輸入備份時設定的密碼
 e2eeBackupImportBtn: 匯入金鑰

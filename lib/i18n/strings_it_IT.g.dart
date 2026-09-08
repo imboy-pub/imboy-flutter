@@ -1437,6 +1437,8 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeBackupVersionLabel => 'Versione';
 	@override String get e2eeBackupAlgorithmLabel => 'Algoritmo';
 	@override String get e2eeBackupFileSizeLabel => 'Dimensione';
+	@override String e2eeBackupFileBytes({required Object bytes}) => '${bytes} byte';
+	@override String e2eeBackupGeneratedFile({required Object name}) => 'File: ${name}';
 	@override String get e2eeBackupFileValid => '✓ Formato valido';
 	@override String get e2eeBackupImportPwdHint => 'Password del backup';
 	@override String get e2eeBackupImportBtn => 'Importa chiave';
@@ -2126,6 +2128,8 @@ class _Translations$main$it_IT extends Translations$main$zh_CN {
 	@override String get e2eeErrComplianceChanged => 'La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova';
 	@override String get e2eeErrComplianceUnavailable => 'Chiave di conformità temporaneamente non disponibile, messaggio non inviato; riprova più tardi';
 	@override String get e2eeErrComplianceExpired => 'La chiave di conformità è scaduta, contatta l\'amministratore';
+	@override String get complianceKeyRotationConfirmed => 'Rotazione della chiave di conformità confermata, puoi inviare nuovamente il messaggio';
+	@override String get complianceKeyRotationNoPending => 'Nessuna modifica della chiave in attesa di conferma';
 	@override String get e2eeErrDeviceNotReady => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova';
 	@override String get e2eeErrProtocolMismatch => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova';
 	@override String get e2eeErrSessionExportFailed => 'Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi';
@@ -3819,6 +3823,8 @@ extension on TranslationsItIt {
 			'common.e2eeBackupVersionLabel' => 'Versione',
 			'common.e2eeBackupAlgorithmLabel' => 'Algoritmo',
 			'common.e2eeBackupFileSizeLabel' => 'Dimensione',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} byte',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => 'File: ${name}',
 			'common.e2eeBackupFileValid' => '✓ Formato valido',
 			'common.e2eeBackupImportPwdHint' => 'Password del backup',
 			'common.e2eeBackupImportBtn' => 'Importa chiave',
@@ -4057,10 +4063,10 @@ extension on TranslationsItIt {
 			'discovery.momentsDraftKeepMessage' => 'Potrai continuare la prossima volta',
 			'discovery.momentsDraftDiscard' => 'Non conservare',
 			'discovery.momentsDraftKeep' => 'Conserva',
-			'discovery.openChannel' => 'Apri canale',
-			'discovery.paidChannelLocked' => 'Contenuto bloccato (a pagamento)',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.openChannel' => 'Apri canale',
+			'discovery.paidChannelLocked' => 'Contenuto bloccato (a pagamento)',
 			'discovery.webQRScanned' => 'Scansionato',
 			'discovery.momentActionMore' => 'Altre azioni',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} persone',
@@ -4384,6 +4390,8 @@ extension on TranslationsItIt {
 			'main.e2eeErrComplianceChanged' => 'La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova',
 			'main.e2eeErrComplianceUnavailable' => 'Chiave di conformità temporaneamente non disponibile, messaggio non inviato; riprova più tardi',
 			'main.e2eeErrComplianceExpired' => 'La chiave di conformità è scaduta, contatta l\'amministratore',
+			'main.complianceKeyRotationConfirmed' => 'Rotazione della chiave di conformità confermata, puoi inviare nuovamente il messaggio',
+			'main.complianceKeyRotationNoPending' => 'Nessuna modifica della chiave in attesa di conferma',
 			'main.e2eeErrDeviceNotReady' => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova',
 			'main.e2eeErrProtocolMismatch' => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova',
 			'main.e2eeErrSessionExportFailed' => 'Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi',
@@ -4569,12 +4577,12 @@ extension on TranslationsItIt {
 			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'Scollega ${name}',
 			'workspace.projectChannelUnlinkedToast' => 'Scollegato',
 			'workspace.projectChannelsEntry' => 'Canali del progetto',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectChannelsTitle' => 'Canali del progetto',
 			'workspace.projectCreateEntry' => 'Nuovo progetto',
 			'workspace.projectCreateSuccess' => 'Progetto creato con successo',
 			'workspace.projectCreateTitle' => 'Nuovo progetto',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectDescHint' => 'Cosa deve consegnare questo progetto?',
 			'workspace.projectDescLabel' => 'Descrizione del progetto (opzionale)',
 			'workspace.projectDetailTitle' => 'Dettagli progetto',

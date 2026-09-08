@@ -1434,6 +1434,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeBackupVersionLabel => 'バージョン';
 	@override String get e2eeBackupAlgorithmLabel => 'アルゴリズム';
 	@override String get e2eeBackupFileSizeLabel => 'ファイルサイズ';
+	@override String e2eeBackupFileBytes({required Object bytes}) => '${bytes} バイト';
+	@override String e2eeBackupGeneratedFile({required Object name}) => 'ファイル：${name}';
 	@override String get e2eeBackupFileValid => '✓ ファイル形式は有効です';
 	@override String get e2eeBackupImportPwdHint => 'バックアップ作成時のパスワードを入力';
 	@override String get e2eeBackupImportBtn => 'キーを読み込む';
@@ -2138,6 +2140,8 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get e2eeErrComplianceChanged => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください';
 	@override String get e2eeErrComplianceUnavailable => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください';
 	@override String get e2eeErrComplianceExpired => 'コンプライアンスキーの有効期限が切れました。管理者に連絡してください';
+	@override String get complianceKeyRotationConfirmed => 'コンプライアンスキーのローテーションを確認しました。メッセージを再送信できます';
+	@override String get complianceKeyRotationNoPending => '確認待ちのキー変更はありません';
 	@override String get e2eeErrDeviceNotReady => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください';
 	@override String get e2eeErrProtocolMismatch => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください';
 	@override String get e2eeErrSessionExportFailed => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください';
@@ -3816,6 +3820,8 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupVersionLabel' => 'バージョン',
 			'common.e2eeBackupAlgorithmLabel' => 'アルゴリズム',
 			'common.e2eeBackupFileSizeLabel' => 'ファイルサイズ',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} バイト',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => 'ファイル：${name}',
 			'common.e2eeBackupFileValid' => '✓ ファイル形式は有効です',
 			'common.e2eeBackupImportPwdHint' => 'バックアップ作成時のパスワードを入力',
 			'common.e2eeBackupImportBtn' => 'キーを読み込む',
@@ -4054,10 +4060,10 @@ extension on TranslationsJaJp {
 			'discovery.momentsDraftKeepTitle' => '下書きを保存しますか？',
 			'discovery.momentsDraftKeepMessage' => '保存すれば次回編集を再開できます',
 			'discovery.momentsDraftDiscard' => '破棄',
-			'discovery.momentsDraftKeep' => '保存',
-			'discovery.openChannel' => 'チャンネルを開く',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftKeep' => '保存',
+			'discovery.openChannel' => 'チャンネルを開く',
 			'discovery.paidChannelLocked' => '有料チャンネルの内容はロックされています',
 			'discovery.webQRScanned' => 'スキャン済み',
 			'discovery.momentActionMore' => 'その他の操作',
@@ -4396,6 +4402,8 @@ extension on TranslationsJaJp {
 			'main.e2eeErrComplianceChanged' => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください',
 			'main.e2eeErrComplianceUnavailable' => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください',
 			'main.e2eeErrComplianceExpired' => 'コンプライアンスキーの有効期限が切れました。管理者に連絡してください',
+			'main.complianceKeyRotationConfirmed' => 'コンプライアンスキーのローテーションを確認しました。メッセージを再送信できます',
+			'main.complianceKeyRotationNoPending' => '確認待ちのキー変更はありません',
 			'main.e2eeErrDeviceNotReady' => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください',
 			'main.e2eeErrProtocolMismatch' => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください',
 			'main.e2eeErrSessionExportFailed' => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください',
@@ -4566,12 +4574,12 @@ extension on TranslationsJaJp {
 			'workspace.restoreConfirm' => '復元を確認',
 			'workspace.archivedBanner' => 'ワークスペースはアーカイブ済みです：コンテンツは閲覧でき、書き込み操作は無効になっています。Ownerはメンバーページから復元できます',
 			'workspace.brandingTitle' => 'ワークスペースブランド',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'ブランド名',
 			'workspace.brandingLogoLabel' => 'LogoのURL',
 			'workspace.brandingLogoHint' => 'https://…（ワークスペースLogo画像のURL）',
 			'workspace.brandingColorLabel' => 'メインカラー primaryColor',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '#RRGGBB / #AARRGGBB のみ対応。無効な値はデフォルトのテーマカラーに戻ります',
 			'workspace.brandingColorInvalid' => 'メインカラーの形式が正しくありません。#RRGGBB / #AARRGGBB のみ対応しています',

@@ -720,6 +720,8 @@ e2eeBackupInfoTitle: Backup-Info
 e2eeBackupVersionLabel: Version
 e2eeBackupAlgorithmLabel: Algorithmus
 e2eeBackupFileSizeLabel: Dateigröße
+e2eeBackupFileBytes(bytes): "$bytes Bytes"
+e2eeBackupGeneratedFile(name): "Datei: $name"
 e2eeBackupFileValid: "✓ Format gültig"
 e2eeBackupImportPwdHint: Backup-Passwort eingeben
 e2eeBackupImportBtn: Schlüssel importieren

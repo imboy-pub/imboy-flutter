@@ -726,6 +726,8 @@ e2eeBackupInfoTitle: Информация о копии
 e2eeBackupVersionLabel: Версия
 e2eeBackupAlgorithmLabel: Алгоритм
 e2eeBackupFileSizeLabel: Размер файла
+e2eeBackupFileBytes(bytes): "$bytes байт"
+e2eeBackupGeneratedFile(name): "Файл: $name"
 e2eeBackupFileValid: "✓ Формат файла корректен"
 e2eeBackupImportPwdHint: Введите пароль, заданный при создании копии
 e2eeBackupImportBtn: Импортировать ключ

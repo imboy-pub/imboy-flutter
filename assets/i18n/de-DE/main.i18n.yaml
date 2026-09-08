@@ -185,6 +185,8 @@ complianceKeyInfoServerKey: Vom Server bereitgestellter öffentlicher Schlüssel
 e2eeErrComplianceChanged: Compliance-Audit-Schlüssel hat sich geändert, Nachricht nicht gesendet. Bitte Rotation bestätigen und erneut versuchen
 e2eeErrComplianceUnavailable: Compliance-Schlüssel derzeit nicht verfügbar, Nachricht nicht gesendet. Bitte später erneut versuchen
 e2eeErrComplianceExpired: "Der Compliance-Schlüssel ist abgelaufen. Bitte kontaktieren Sie den Administrator"
+complianceKeyRotationConfirmed: "Compliance-Schlüsselrotation bestätigt, Nachricht kann erneut gesendet werden"
+complianceKeyRotationNoPending: "Keine ausstehende Schlüsseländerung zu bestätigen"
 e2eeErrDeviceNotReady: Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen
 e2eeErrProtocolMismatch: Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen
 e2eeErrSessionExportFailed: Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen

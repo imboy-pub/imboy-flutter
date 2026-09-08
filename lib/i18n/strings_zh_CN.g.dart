@@ -4099,6 +4099,12 @@ class Translations$common$zh_CN {
 	/// zh-CN: '文件大小'
 	String get e2eeBackupFileSizeLabel => '文件大小';
 
+	/// zh-CN: '$bytes 字节'
+	String e2eeBackupFileBytes({required Object bytes}) => '${bytes} 字节';
+
+	/// zh-CN: '文件：$name'
+	String e2eeBackupGeneratedFile({required Object name}) => '文件：${name}';
+
 	/// zh-CN: '✓ 文件格式有效'
 	String get e2eeBackupFileValid => '✓ 文件格式有效';
 
@@ -5781,6 +5787,12 @@ class Translations$main$zh_CN {
 
 	/// zh-CN: '合规密钥已过期，请联系管理员'
 	String get e2eeErrComplianceExpired => '合规密钥已过期，请联系管理员';
+
+	/// zh-CN: '合规密钥轮换已确认，可重新发送消息'
+	String get complianceKeyRotationConfirmed => '合规密钥轮换已确认，可重新发送消息';
+
+	/// zh-CN: '没有待确认的密钥变更'
+	String get complianceKeyRotationNoPending => '没有待确认的密钥变更';
 
 	/// zh-CN: '当前设备未完成安全初始化，请退出重新登录后重试'
 	String get e2eeErrDeviceNotReady => '当前设备未完成安全初始化，请退出重新登录后重试';
@@ -8170,6 +8182,8 @@ extension on Translations {
 			'common.e2eeBackupVersionLabel' => '版本号',
 			'common.e2eeBackupAlgorithmLabel' => '算法',
 			'common.e2eeBackupFileSizeLabel' => '文件大小',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} 字节',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => '文件：${name}',
 			'common.e2eeBackupFileValid' => '✓ 文件格式有效',
 			'common.e2eeBackupImportPwdHint' => '请输入备份时设置的密码',
 			'common.e2eeBackupImportBtn' => '导入密钥',
@@ -8379,10 +8393,10 @@ extension on Translations {
 			'discovery.momentsDraftKeepTitle' => '保留草稿？',
 			'discovery.momentsDraftKeepMessage' => '保留后下次进入可继续编辑',
 			'discovery.momentsDraftDiscard' => '不保留',
-			'discovery.momentsDraftKeep' => '保留',
-			'discovery.openChannel' => '打开频道',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftKeep' => '保留',
+			'discovery.openChannel' => '打开频道',
 			'discovery.paidChannelLocked' => '付费频道内容已锁定',
 			'discovery.webQRScanned' => '已扫描',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}人赞了',
@@ -8691,6 +8705,8 @@ extension on Translations {
 			'main.e2eeErrComplianceChanged' => '合规审计密钥已变更，消息未发送，请确认轮换后重试',
 			'main.e2eeErrComplianceUnavailable' => '合规密钥暂不可用，消息未发送，请稍后重试',
 			'main.e2eeErrComplianceExpired' => '合规密钥已过期，请联系管理员',
+			'main.complianceKeyRotationConfirmed' => '合规密钥轮换已确认，可重新发送消息',
+			'main.complianceKeyRotationNoPending' => '没有待确认的密钥变更',
 			'main.e2eeErrDeviceNotReady' => '当前设备未完成安全初始化，请退出重新登录后重试',
 			'main.e2eeErrSessionExportFailed' => '群会话密钥生成失败，请稍后重试',
 			'main.e2eeErrProtocolMismatch' => '加密协议配置异常，请更新应用后重试',
@@ -8891,12 +8907,12 @@ extension on Translations {
 			'workspace.restoreConfirm' => '确认恢复',
 			'workspace.archivedBanner' => '工作区已归档：内容可查看，写操作已禁用；Owner 可在成员页恢复',
 			'workspace.brandingTitle' => '工作区品牌',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingNameLabel' => '品牌名称',
 			'workspace.brandingLogoLabel' => 'Logo 地址',
 			'workspace.brandingLogoHint' => 'https://...（工作区 Logo 图片地址）',
 			'workspace.brandingColorLabel' => '主色 primaryColor',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => '仅支持 #RRGGBB / #AARRGGBB；非法值回落默认主题色',
 			'workspace.brandingColorInvalid' => '主色格式不正确，仅支持 #RRGGBB / #AARRGGBB',

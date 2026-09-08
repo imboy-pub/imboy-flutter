@@ -1446,6 +1446,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeBackupVersionLabel => 'الإصدار';
 	@override String get e2eeBackupAlgorithmLabel => 'الخوارزمية';
 	@override String get e2eeBackupFileSizeLabel => 'حجم الملف';
+	@override String e2eeBackupFileBytes({required Object bytes}) => '${bytes} بايت';
+	@override String e2eeBackupGeneratedFile({required Object name}) => 'الملف: ${name}';
 	@override String get e2eeBackupFileValid => '✓ تنسيق الملف صالح';
 	@override String get e2eeBackupImportPwdHint => 'أدخل كلمة المرور المحددة عند الإنشاء';
 	@override String get e2eeBackupImportBtn => 'استيراد المفتاح';
@@ -2123,6 +2125,8 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get e2eeErrComplianceChanged => 'تغيّر مفتاح تدقيق الامتثال، ولم تُرسل الرسالة. أكّد تدوير المفتاح ثم أعد المحاولة';
 	@override String get e2eeErrComplianceUnavailable => 'مفتاح الامتثال غير متاح حالياً، ولم تُرسل الرسالة. حاول لاحقاً';
 	@override String get e2eeErrComplianceExpired => 'انتهت صلاحية مفتاح الامتثال، يرجى التواصل مع المسؤول';
+	@override String get complianceKeyRotationConfirmed => 'تم تأكيد تدوير مفتاح الامتثال، يمكنك إعادة إرسال الرسالة';
+	@override String get complianceKeyRotationNoPending => 'لا يوجد تغيير مفتاح في انتظار التأكيد';
 	@override String get e2eeErrDeviceNotReady => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة';
 	@override String get e2eeErrProtocolMismatch => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة';
 	@override String get e2eeErrSessionExportFailed => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً';
@@ -3828,6 +3832,8 @@ extension on TranslationsArSa {
 			'common.e2eeBackupVersionLabel' => 'الإصدار',
 			'common.e2eeBackupAlgorithmLabel' => 'الخوارزمية',
 			'common.e2eeBackupFileSizeLabel' => 'حجم الملف',
+			'common.e2eeBackupFileBytes' => ({required Object bytes}) => '${bytes} بايت',
+			'common.e2eeBackupGeneratedFile' => ({required Object name}) => 'الملف: ${name}',
 			'common.e2eeBackupFileValid' => '✓ تنسيق الملف صالح',
 			'common.e2eeBackupImportPwdHint' => 'أدخل كلمة المرور المحددة عند الإنشاء',
 			'common.e2eeBackupImportBtn' => 'استيراد المفتاح',
@@ -4066,10 +4072,10 @@ extension on TranslationsArSa {
 			'discovery.momentsDraftKeepMessage' => 'يمكنك المتابعة في المرة القادمة',
 			'discovery.momentsDraftDiscard' => 'عدم الحفظ',
 			'discovery.momentsDraftKeep' => 'حفظ',
-			'discovery.openChannel' => 'فتح القناة',
-			'discovery.paidChannelLocked' => 'محتوى القناة المدفوعة مقفل',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.openChannel' => 'فتح القناة',
+			'discovery.paidChannelLocked' => 'محتوى القناة المدفوعة مقفل',
 			'discovery.webQRScanned' => 'تم المسح',
 			'discovery.momentActionMore' => 'المزيد من الإجراءات',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} أعجبوا',
@@ -4381,6 +4387,8 @@ extension on TranslationsArSa {
 			'main.e2eeErrComplianceChanged' => 'تغيّر مفتاح تدقيق الامتثال، ولم تُرسل الرسالة. أكّد تدوير المفتاح ثم أعد المحاولة',
 			'main.e2eeErrComplianceUnavailable' => 'مفتاح الامتثال غير متاح حالياً، ولم تُرسل الرسالة. حاول لاحقاً',
 			'main.e2eeErrComplianceExpired' => 'انتهت صلاحية مفتاح الامتثال، يرجى التواصل مع المسؤول',
+			'main.complianceKeyRotationConfirmed' => 'تم تأكيد تدوير مفتاح الامتثال، يمكنك إعادة إرسال الرسالة',
+			'main.complianceKeyRotationNoPending' => 'لا يوجد تغيير مفتاح في انتظار التأكيد',
 			'main.e2eeErrDeviceNotReady' => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة',
 			'main.e2eeErrProtocolMismatch' => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة',
 			'main.e2eeErrSessionExportFailed' => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً',
@@ -4578,12 +4586,12 @@ extension on TranslationsArSa {
 			'workspace.restoreConfirm' => 'تأكيد الاستعادة',
 			'workspace.archivedBanner' => 'مساحة العمل مؤرشفة: يمكن عرض المحتوى وعمليات الكتابة معطّلة؛ يمكن لـ Owner الاستعادة من صفحة الأعضاء',
 			'workspace.brandingTitle' => 'علامة مساحة العمل',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'اسم العلامة',
 			'workspace.brandingLogoLabel' => 'عنوان Logo',
 			'workspace.brandingLogoHint' => 'https://… (عنوان صورة Logo لمساحة العمل)',
 			'workspace.brandingColorLabel' => 'اللون الأساسي primaryColor',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorHelper' => 'يُدعم #RRGGBB / #AARRGGBB فقط؛ القيم غير الصالحة تعود إلى لون السمة الافتراضي',
 			'workspace.brandingColorInvalid' => 'تنسيق اللون الأساسي غير صحيح، يُدعم #RRGGBB / #AARRGGBB فقط',
