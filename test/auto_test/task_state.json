@@ -453,5 +453,48 @@
   "lessons": "flutter_tester 本地存储跨轮持久→缓存残留可污染跨场景断言（quitLogin 重登刷缓存）；EasyLoading toast 3s 与提交后 pump 等待竞速；启动期旧 token 401 风暴 http_auth_expired 迟到踢会话（app 登录竞态疑真 bug 待立项）；磁盘满会让 Docker VM 无法启动、4323/9801 全链瘫痪",
   "final": "批次120 全部收官：五场景 AT-AS1~5 实跑全绿（orch14 AS1-3+AS4 final4/AS5 run3）；elib_password verify 候选补 sha256(md5hex(P)) 修复改密链（imboy 69b7eca3 热更+手工 curl 闭环 code=0）；台账 8 行阻塞全解（set_password 4/change_password 2/logout_account 2）；bug 216→220/212→216/待处理 4 恒等式保持",
   "env_note": "Docker Desktop VM(Docker.raw) 磁盘满曾致 4323/9801 全瘫；恢复=重启 Docker Desktop+docker builder prune -af 释放 17.5GB；bootstrap 含主动清残留 token 防启动期 401 风暴踢会话"
+ },
+ "session_2026_09_08_batch127": {
+  "note": "批次127：阶段一 personal_info 待首测清零（AT-PI13 正向路径）+ 阶段二 face_to_face_confirm 2 条待修复闭环（真根因=join_group 去重 int/String 类型失配，推翻批次123『确认页被移出路由树』定性）。",
+  "at_pi13": {
+   "scope": "personal_info_page 行13 点头像打开大图预览（正向路径），批次125 因『F-13 SSRF 拒本地 127.0.0.1 图源』阻塞转真机",
+   "unblock_recipe": "F-13 只拒内网（localhost/127/10/192.168/172.16-31/0.0.0.0/::1/云元数据），公网 https 放行（设计注释：拒绝内网而非域名白名单）。造值=服务端 user.avatar 置公网 URL https://imboy.pub/imboy-logo-480X480.png（带 viewUrl 追加 s/a/v query 亦 200，已 curl 实证），_boot 无条件重登经 login_resp.avatar（passport_logic login_resp 带 avatar 字段）进本地缓存",
+   "result": "run1 一次全绿（00:30 +1）：列表页(192宽)+预览页(原图 w=0)两次真实下载 329351 bytes 成功，PhotoView/xmark 挂载+关闭返回断言全过；tearDownAll 恢复 avatar 空（AT-PI05/PI06 依赖空前置）。台账行13 已回写 无待办/已通过/批次127",
+   "evidence": "test/auto_test/reports/batch127/at_pi13_run1.log、at_pi13_run2.log",
+   "env_limit": "test runner 不支持 binding.takeScreenshot（MissingPluginException 跳过）+宿主 screencapture 无 TCC 权限——视觉快照缺，功能证据=下载日志+断言链（符合 LOOP_PROMPT logcat 主判据）"
+  },
+  "f2f_root_cause": {
+   "verdict": "批次123『join_group 事件处理后确认页被移出路由树（GoRouter extra 传参嫌疑）』定性被推翻。诊断探针（integration_test/group/f2f_diag_probe_test.dart，对照实验）实证：确认页全程存活（PROBE-2a 虚拟时钟+8s 存活排除 Timer 型；PROBE-1 手动 fire S2C 同构 payload 后存活且人数正确刷 2）",
+   "true_root_cause": "face_to_face_confirm_page initData 监听器去重条件 `e.id == obj.payload['userId']`：PeopleModel.id 是 int、S2C payload['userId'] 是 parseModelString 产物 String，int==String 恒 false → 去重恒失效。服务端对同一次 B 加入连推 3 条不同 msgId 的 group_member_join（GF5 日志实证），全部插入 → 人数 1→4 而非 1→2，「2 人」断言永假",
+   "fix": "face_to_face_confirm_page.dart 去重条件统一 parseModelInt(obj.payload['userId']) 再比较（注释含根因）",
+   "verified": "修复后 PROBE-3 真实 B HTTP join → 人数=2 ✓；AT-GF5 单跑全绿（00:19，KNOWN-ISSUE 分支未触发+DB 成员行断言过）reports/batch127/gf5_run2_fixed.log；单测 face_to_face_state 5/5 绿",
+   "regression_note": "同事件其他消费者无同款失配：chat_event_subscription_manager（groupId String==String，isFirst bool）与 group_detail_page（people as PeopleModel，leave 侧有 int.tryParse 防御）。潜在 P3 记录：group_detail_page addMember 无去重，重复推送可能重复加成员（等回归复测轮验证群详情场景，未扩大范围）",
+   "secondary_finding": "服务端 face2face join 对同一加入连推 3 条 notify（服务端重复推送，客户端幂等已修可防御；服务端侧去重另记账不扩大本轮范围）。memberJoin detail 404（通知先于建群）实为正确 fail-safe：save 前本地无群行，B 成员行不入本地库由 faceToFaceSave 全量 memberList 兜底"
+  },
+  "full_run_caveat": "face_to_face_acceptance 全文件跑（+4 ~7 skip）的 7 skip 为编排问题非产品回归：前序场景停在子页面（群列表/面对面页），后续 _boot 检测不到主 Shell 稳定态走 markTestSkipped（DIAG 页面文本实证）；批次123 基线=逐场景 --plain-name 单跑。验收以单跑为准",
+  "test_env_quirks": [
+   "flutter test runner 不支持 binding.takeScreenshot；宿主 screencapture 需 TCC 屏幕录制权限（本会话无）；Android 真机另有 EMUI screencap 黑帧坑",
+   "go_router 18.0.1 RouteMatchBase 无 uri getter，路由栈打印用 router.routeInformationProvider.value.uri",
+   "FlowConfig 是 integration_test/flows/test_utils.dart 的测试侧类，非 lib/ 产品类",
+   "HTTP face2face 是 GET+query+authorization 头（非 POST+token 头），对端 B 载体 account=51734/mobile=51798/uid=111279969973569536"
+  ],
+  "next_actions": [
+   "GF7 回归挂死定性（见 gf7_hang）留待下轮重验；GF3/GF8 因同页面主链已由 GF5 复验覆盖+修改零交集，不再单独跑",
+   "三态例行阻塞条评估结论：workspace_picker『失败+无缓存』有构造解（测试内 repo 清本地 sqlite 缓存 + adapterForTest 注入 500），可转验收测试（下轮处理）",
+   "并行会话需知：其 i18n 消息提交被顶（原文 /tmp/a02fa620_orig_msg.txt 留档），i18n 改动未入库需重提"
+  ],
+  "automation": "2026-09-08 用户创建每40分钟一轮自动化循环（automation-a020c1a0-437e-456f-9383-5186b3fc2c44，cron */40 * * * *），按 LOOP_PROMPT 规程推进台账",
+  "gf7_hang": {
+   "symptom": "AT-GF7 --plain-name 连续 3 次挂死（21:48/21:57/22:10），flutter_tester 框架层 stream_channel/_GuaranteeSink listener.dart 通道挂死，测试体零 [FLOW] 日志（app.main 未执行到 boot），240s 硬超时也 0 输出",
+   "causality_ruling": "与批次127 修改无因果：修改=join_group 事件回调内 3 行类型对齐，与 GF7 链（faceToFaceSave+pushReplacement）零交集；同文件同配方 AT-GF5 复验全绿（00:19）；批次123 GF7 基线绿",
+   "hypothesis": "macOS Live binding 挂死先例（批次记忆 60% 挂死率）或 22:08 起 automation 循环与会话并发操作同环境（未证实）",
+   "disposition": "非阻塞收尾：GF7 留待下轮（automation 或人工）环境恢复后重验；不伪装通过"
+  },
+  "commit_incident": {
+   "what": "22:56 提交竞态：并行会话的 git commit（i18n 消息，/tmp/c1_msg.txt 撞名）吞入我 staged 的 confirm_page 修复，HEAD=a02fa620 消息与内容不符；我方 amend 两次定型 940bc11e fix(group)（内容不变仅换消息）",
+   "root_cause_chain": "①我的 cd 路径 typo（imboy.project）致 heredoc 写 /tmp/c1_msg.txt 被 && 短路 ②heredoc 后独立语句 git commit -F /tmp/c1_msg.txt 照常执行，读到并行会话写入的 i18n 消息 ③/tmp 消息文件路径撞车",
+   "lesson": "commit 消息文件必须用专属路径（非共享 /tmp 根）；heredoc 不得与依赖它的命令用 && 短路结构；commit 后必须 git log -1 核对消息+内容双匹配（lefthook 静默吞/串消息两型）",
+   "residue": "并行会话的 i18n 340 行删除未入库（其消息已在 940bc11e 中被顶掉），原文留档 /tmp/a02fa620_orig_msg.txt"
+  }
  }
 }
