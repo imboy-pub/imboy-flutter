@@ -12,9 +12,9 @@
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 点击候选行选中显示对勾并展开角色选择与可选项区（未选中时不显示提交区） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 点候选行出对勾+展开角色分段+可选项+发送邀请按钮；未选中时无提交区 |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 角色分段按钮在成员/访客间切换（默认成员） | 已通过 | 批次W2R2 | 0 | 0 | 0 | Member 默认选中；Guest↔Member 双向切换正常 |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 可选项「加入 General 群」「订阅 Announcements 频道」默认勾选可取消 | 已通过 | 批次W2R2 | 0 | 0 | 0 | 两项默认勾选；取消 General 勾选再勾回正常 |
-| 阻塞 | 需模板资源缺失的工作区（常规创建必带 General/Announcements，无法触发定位失败） | `page/workspace/workspace_invite_page.dart` | 模板资源定位失败时对应勾选项禁用并提示不可用 | 未测 | 批次W2R2 | 0 | 0 | 0 | 缺负向场景构造手段 |
+| 阻塞 | 待环境恢复执行（批次145 解锁负向构造：本地 PG 对某工作区 DELETE 其 General 群行（如 AT-WS-空区-115 本就 0 channel 可用）→ 本页定位失败勾选项禁用路径可实测） | `page/workspace/workspace_invite_page.dart` | 模板资源定位失败时对应勾选项禁用并提示不可用 | 未测 | 批次W2R2 | 0 | 0 | 0 | 缺负向场景构造手段；批次145:DB 直改/空区工作区即负向 fixture |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 提交后结果区三条独立展示状态（加入工作区/加群/订阅频道各一行 running→success/failed） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 发送后三行独立流转至「成功」绿勾；logcat 三个独立请求 members/invite→group_member/join→channel/subscribe；DB ws_member=1 |
-| 阻塞 | 需故障注入使工作区邀请失败（后端拒 members/invite） | `page/workspace/workspace_invite_page.dart` | 工作区邀请失败时整单失败，两条可选关系不再发起（保持待处理） | 未测 | 批次W2R2 | 0 | 0 | 0 | UI 无失败注入手段 |
+| 阻塞 | 待环境恢复执行（批次145 解锁：adapterForTest 同 WIV1 配方拦 /api/v1/workspaces/:id/members/invite 注入失败，整单失败断言不改测试目标） | `page/workspace/workspace_invite_page.dart` | 工作区邀请失败时整单失败，两条可选关系不再发起（保持待处理） | 未测 | 批次W2R2 | 0 | 0 | 0 | UI 无失败注入手段；批次145:adapterForTest 即注入手段（WIV1 已证可行） |
 | 阻塞 | 待环境恢复后跑 AT-WIV1（测试已就绪，批次133 编写；另发现并修复产品缺口：_ResultsSection 失败行此前未接重试按钮 UI） | `page/workspace/workspace_invite_page.dart` | 可选关系单条失败互不影响，失败行支持单独重试 | 未测 | 批次W2R2 | 1 | 1 | 0 | 注入手段=adapterForTest 拦 /api/v1/group/add；macOS 磁盘 96% 满+fs I/O 挂起致本地 sqlite disk I/O error，WIV 测试未跑完（run1/2 均挂），恢复后重验；重试按钮 UI 缺口已修（workspace-invite-row-retry） |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | 提交后返回成员管理页可见新成员（成员列表与 Overview 已失效刷新） | 已通过 | 批次W2R2 | 0 | 0 | 0 | 返回成员页第三张卡显示走查AT戊(Member)；成员列表已失效刷新 |
 | 无待办 | - | `page/workspace/workspace_invite_page.dart` | Owner 顶部展示团队码卡片（生成/复制/撤销），非 Owner 不显示该卡片 | 已通过 | 批次W2R5 | 0 | 0 | 0 | ACC_A(Owner) 见「团队码邀请」卡片+生成/复制/撤销；UID_F(Member) 成员页无邀请按钮、邀请页不可达（代码 _isOwner 守卫+服务端 403 兜底） |

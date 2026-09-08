@@ -741,5 +741,22 @@
       "剩余离线可做：逐模块复查剩余阻塞是否还有过期定性（settings 11/mine 7/workspace 6 等）",
       "WHIP 媒体服务器=用户决策"
     ]
+  },
+  "session_2026_09_09_batch145": {
+    "note": "批次145（automation 第十八轮）：fs 卡死持续（97%）。剩余阻塞全量复查完成，7 行再解锁：①workspace_create 幂等行——同 owner+同名再创建即语义键幂等命中（workspace_ds check_semantic_idempotent existing 路径），API 先建同名再 UI 建；②workspace_create 409 行——上限=?MAX_WORKSPACES_PER_OWNER=100（workspace_ds L45），bob 现有 2 个，setUpAll API 循环建 98 个即触发（W2R3「不经济」是手工口径，API 循环为平凡操作）；③branding 非 Owner 行——smoke_alice 经邀请 API 入 BobWS 即非 Owner；④invite 模板缺失行——AT-WS-空区-115 本就 0 channel，现成负向 fixture；⑤invite 必选关系失败行——adapterForTest 同 WIV1 配方；⑥⑦group task 2 行——task 6 端点本地 9801 全在，本地群建任务+提交=测试数据非生产写。累计数据类解锁 24 条（live_room 8+chat 2+wallet 7+workspace/group 7）。settings 11 条（E2EE 密钥管理，可弃用本地账号可构造）本轮主动跳过：并行会话在 integration_test/settings/ 有未跟踪测试 WIP，避免碰撞；mine 7 条待核万能码 abc12345 是否覆盖邮箱/短信验证码场景。",
+    "remaining_blocked_classes": {
+      "真机类": "group 断网/single 升级/scanner 等约 15 条",
+      "外部条件": "第二台设备（channel 邀请/scanner 名片）、真实视频素材（moment）",
+      "用户决策": "WHIP 媒体服务器（live_room 推拉流类）、bailian 凭据（contact 助手）、资金生产实测",
+      "待核实": "mine 7 条（万能码 abc12345 覆盖面）、moment 视频本地可否构造、passport 重置码本地通道（批次124 配方）",
+      "主动避碰": "settings 11 条——并行会话 WIP 域"
+    },
+    "env_status": "fs 卡死持续 97%；数据类解锁累计 24 条",
+    "next_actions": [
+      "环境恢复第一优先：AT-WIV1（invite 行转已通过）",
+      "环境恢复第二优先：24 条数据类逐条实测（配方全在台账行）",
+      "下轮离线可选：mine 7 条万能码核验/passport 重置码批次124 配方核对",
+      "WHIP 媒体服务器=用户决策"
+    ]
   }
 }
