@@ -1,701 +1,704 @@
 {
- "goal": "integration_test/ 全部 70 文件执行 + 非 PASS 项收口（README.md 权威索引）",
- "baseline_ledger": "test/auto_test/reports/full_run_2026-09-01/STATUS.md",
- "baseline_final_report": "test/auto_test/reports/full_run_2026-09-01/FINAL_REPORT.md",
- "state_model": "baseline_ledger 是完整 70 项唯一清单；pending_tasks 和 remaining_cases 是 2026-09-02 逐项覆盖。最终状态按 case 路径用覆盖项替换基线项后计算，已 PASS 项不重跑。",
- "baseline_summary": {
-  "executed": 70,
-  "total": 70,
-  "PASS": 46,
-  "PASS_SKIPS": 1,
-  "SKIP": 17,
-  "FAIL": 5,
-  "TIMEOUT": 1,
-  "session": "2026-09-01/02"
- },
- "current_session": {
-  "started": "2026-09-02T09:2x",
-  "device": "XWE6R19916004085 (MRD-AL00)",
-  "backend": "127.0.0.1:9800 e2ee_mode=required (strict) OK",
-  "pg": "127.0.0.1:4323 OK",
-  "resume_2026_09_04": {
-   "note": "午间会话继续收口剩余 SKIP。环境验证全通过后执行：9801 登录/注册 API 实测 OK（配额注入仍生效+万能码 abc12345 有效+signup email 类型实测 code=0）、fixture 群 110610282598107136 双成员+公告完好、B2Y 群 110572649006237696 e2ee_mode=1 双成员完好、macOS smoke_bob 登录态库 local_office_1000000056.db 在位",
-   "fix_build_duplicate_class": "并行会话（feature_flags/product-features 重构，12:04 仍活跃）在 build.gradle.kts 引入 amap 重复类冲突：location=true 时 3dmap:10.0.600 与无条件依赖的 location:6.5.0 同时进 classpath → checkDebugDuplicateClasses 失败。修复=两者互斥（locationCompiled 时只 3dmap（内含 location 类），否则只 location:6.5.0 供插件注册）。修复后 46s 编译通过",
-   "verdict_android_storage_blocked": "【真机安装水位定案】app-debug.apk 282M（kernel_blob 220M debug 固有+第三方 AAR so 全 ABI 138M），真机可用 1.1G（清 local/tmp 42M+anr 后） streamed install 仍 INSTALL_FAILED_INSUFFICIENT_STORAGE（含自动卸载重装二次失败）；09-03 同 APK 成功时 freeDisk=1.96G → EMUI 水位约需 ≥1.6G 可用，缺口 ~500M。设备 Cache 仅 145M（trim-caches 无效）、/sdcard 仅 90M、/data 系统区为用户数据（微信/支付宝不可动）→ 无合法清理途径。ABI 瘦身路线已尽力：flutter 工具强制传 -Ptarget-platform（properties 无法覆盖）、flutter 插件 afterEvaluate 覆盖 defaultConfig.ndk.abiFilters、packaging.jniLibs.excludes+Variant API 双路均验证设置成功但对依赖 AAR so 打包无效（AGP 8.14 行为），且即使生效也仅省 ~150M 填不平缺口。#46/#21/#44 Android 侧转 blocked（environment_issue=storage watermark），待用户手动清理设备空间（如卸载微信聊天记录备份/系统清理）后重试 run_46/run_21/run_44 脚本",
-   "mod_mac_ping_contact_fallback": "#17 mac_peer_c2c_ping 测试增强：会话列表无 PEER 会话时回退走联系人路径（rail/底栏联系人 tab→好友项→发消息进 ChatPage/面板）。原 09-03 blocker『bob mac 新设备解不开旧 C2C 密文→重登不重建会话行』的等价解法：发送本身建立本地会话行，断言链不降级。另适配桌面双分支（ChatPage 移动端/ValueKey C2C 面板 web shell）+timeout 5min+descendant rail finder（树上多个 person_2 干扰）。ContactPage didUpdateWidget 幂等补拉防御落盘。最终 8 轮执行 5 轮被 macOS Live binding 间歇挂死挡在测试体首段（框架级，5min timeout 打不断），3 轮进入主流程验证到联系人路径细节。blocked 定案见 remaining_cases",
-   "fix_contact_page_reload": "ContactPage didUpdateWidget 幂等补拉（contact_page.dart）：常驻容器（IndexedStack/PageView）中 initState 首轮 loadData 可能落在 token/网络就绪前，失败后无重载入口（桌面联系人永久空白无刷新手段，UX 死角）。宿主 rebuild 时真实联系人仍空且无 in-flight 加载则补拉。analyze 零问题。注：桌面 web shell 场景该钩子不触发（WebShellBootstrap 不 watch webShellProvider，切 tab 不重建 tabs 实例）——完整修复需 web shell 侧激活感知，另立项",
-   "android_oneclick_login_acceptance": "2026-09-04 用户在 MRD-AL00 Android 真机确认一键登录成功。生产后端已切换到 commit 0838c8bbe7bbc000af032b9cb4f6d8b196aa28fc（blue/9800，full-selected manifest），客户端使用 armeabi-v7a release 包；复核 MainActivity 前台、进程稳定、无 FATAL EXCEPTION/应用初始化失败。此结果是独立业务验收，不属于 integration_test/ 70 文件账本；当前统计为 62 PASS + 1 PASS_SKIPS + 7 SKIP。",
-   "resume_after_login_2026_09_04": "用户明确同意覆盖安装后，以 169MiB armeabi-v7a Debug 测试 APK 执行 #46。首次真实执行到群、双成员、群详情断言均通过，但公告 marker 断言失败；只读 PG 复核公告存在、已发布、未删除且未过期。根因=测试绕过产品 HttpClient.get 直接 dio.get 后错误假设原始 body 顶层 payload；已改为产品同款 IMBoyHttpResponse.payload，非零业务码 fail-fast，analyze 通过。修复后 Android 复验曾因设备空间不足失败；用户清理后 /data 可用空间升至 2.2GiB，Debug APK 安装成功。首次重跑暴露本地 9801 仍加载旧 app_manifest_handler/imboy_feature，返回缺少 manifest_hash/schema/compiled_features 的旧契约；仅对本地节点热加载当前两个 beam 后，manifest 恢复 full-selected hash b59aae27...、schema=1 和 11 项 compiled_features。最终 Android MRD-AL00 真机重跑 +1 All tests passed（00:55）：smoke_bob 登录、目标群、双成员、群详情、公告 marker 与详情页挂载全部通过，日志 logs/device_group_member_readback.log。#21 注册测试随后真实推进到验证码页，修复了欢迎页误判、脚本漏传业务写授权和 MaterialPinField 输入定位三处测试问题；最终修复后复验安装时空间已回落到 828MiB，再次 INSTALL_FAILED_INSUFFICIENT_STORAGE，故 #21 仍保持 SKIP。84MiB Release App 已恢复安装。未执行生产写入。"
+  "goal": "integration_test/ 全部 70 文件执行 + 非 PASS 项收口（README.md 权威索引）",
+  "baseline_ledger": "test/auto_test/reports/full_run_2026-09-01/STATUS.md",
+  "baseline_final_report": "test/auto_test/reports/full_run_2026-09-01/FINAL_REPORT.md",
+  "state_model": "baseline_ledger 是完整 70 项唯一清单；pending_tasks 和 remaining_cases 是 2026-09-02 逐项覆盖。最终状态按 case 路径用覆盖项替换基线项后计算，已 PASS 项不重跑。",
+  "baseline_summary": {
+    "executed": 70,
+    "total": 70,
+    "PASS": 46,
+    "PASS_SKIPS": 1,
+    "SKIP": 17,
+    "FAIL": 5,
+    "TIMEOUT": 1,
+    "session": "2026-09-01/02"
   },
-  "resume_2026_09_03_evening": {
-   "note": "傍晚会话（18:50+）继续收口剩余 10 SKIP；imboyapp 工作树有并行会话活跃 WIP（feature_flags/路由重构，18:51~19:00+ 仍在更新 generated 文件），真机/macOS flutter test 全部排队等待稳定窗口，期间只做后端侧与状态持久化",
-   "backend_node_9801": "imboy9801@127.0.0.1 (beam 51136, release embedded, cookie=imboy)",
-   "smoke_uids": "smoke_alice=1000000051 smoke_bob=1000000056",
-   "done_backend_prep": [
-    "register 配额阻塞定案+解除：本地无 license→社区版 max_users=100，库内 46248 历史测试账号恒超限（quota_guard→imboy_license:check_user_quota）。以 remsh escript 运行时注入 application:set_env(imboy, community_max_users, 1000000)+load_and_validate() 重物化 persistent_term（零文件改动，节点重启即恢复 100）；API 实证万能码注册成功（qa_probe_1788433149 落库 user 表 id=110611241225160704）",
-    "万能码机制确认：verification_code_ds:is_master_code 仅非生产 env 生效，sys.local.config verification_master_code=abc12345；register 闭环无需 PG 轮询 hack",
-    "#46 readback fixture 已建：gid=110610282598107136 title=P0-TEST-GROUP-READBACK-20260903-R1（群/add→群/edit 改名→group_member/join 邀请 1000000056→group_notice/add 发公告 P0-GROUP-READBACK-MARKER-20260903-R1）；成员回读=[1000000056,1000000051] 双证",
-    "register_flow_test.dart 测试增强完成（analyze 零问题）：①submitFinder 补『下一步』（signup_page 实际按钮文案 t.common.nextStep，原 finder 从未真机验证过必 fail）②新增 TEST_REG_CODE 注入分支——等 MaterialPinField 挂载→enterText 万能码→点『注册』→断言 ManageAccountPage 挂载（注册成功跳 /manage_account）③未注入码时保持原验证码人工介入 skip 行为不变"
-   ],
-   "pending_runs": [
-    "#46 readback：pm clear→真机 smoke_bob UI 登录→flutter test --dart-define APP_ENV=local_office,TEST_PHONE=smoke_bob,TEST_PASSWORD=admin888,TEST_EXPECTED_UID=1000000056,TEST_GROUP_OWNER_UID=1000000051,TEST_GROUP_MEMBER_UID=1000000056,TEST_GROUP_ID=110610282598107136,TEST_GROUP_TITLE=P0-TEST-GROUP-READBACK-20260903-R1,TEST_GROUP_ANNOUNCEMENT=P0-GROUP-READBACK-MARKER-20260903-R1（adb reverse tcp:9801 已设）",
-    "#21 register：pm clear→flutter test TEST_ALLOW_REGISTER=true,TEST_REG_CODE=abc12345,APP_ENV=local_office + requireBusinessWriteAuthorization 需 API_BASE_URL/APP_ENV 显式（local_office 为 nonProduction ✓）",
-    "mac 三项+#44：参数已核对（TEST_ALLOW_C2C_PING/DEVICE_KEY_REPORT 等 + smoke 双号 UID），等并行 WIP 稳定后编排"
-   ],
-   "device_note": "真机当前无 pub.imboy.app（被卸载）；本地 APK build 18:34 为并行 WIP 代码所建，测试须在工作树稳定后重建"
-  }
- },
- "pending_tasks": [
-  {
-   "id": "T1",
-   "case": "integration_test/chat/c2c_plaintext_reject_test.dart",
-   "prior_result": "FAIL(疑似strict拒收回归)",
-   "action": "remsh 只读验证 imboy_policy:validate_message_write 一行定音；若坐实 policy 放行则记录根因（修复需另立项，阶段一不改码）",
-   "status": "done-diagnosis",
-   "owner": "main",
-   "verdict": "误判非回归：服务端 fail-closed 完好。证据链：1) remsh 实证 validate_message_write(C2C,text,<<>>,null,P)={error,encrypted_message_required} 且 message_encryption_required()=true; 2) msg_store_staging 09-01 晚 0 行=明文从未 stage; 3) msg_c2c 该窗仅 5 条全部 has_e2ee=t 的 A→B 密文(其他 E2EE 测试产物 20:30~21:05); 4) conversation 表 0 行。UI 出现 C2C 会话 = app pm clear 重登后从 history 拉密文历史在 UI 层重建会话(与明文无关)。FINAL_REPORT『疑似回归』判定被推翻。",
-   "followup": "测试断言过宽(任意 C2C 会话出现即判泄漏)→修正为检查明文内容 msgText 后真机复跑"
+  "current_session": {
+    "started": "2026-09-02T09:2x",
+    "device": "XWE6R19916004085 (MRD-AL00)",
+    "backend": "127.0.0.1:9800 e2ee_mode=required (strict) OK",
+    "pg": "127.0.0.1:4323 OK",
+    "resume_2026_09_04": {
+      "note": "午间会话继续收口剩余 SKIP。环境验证全通过后执行：9801 登录/注册 API 实测 OK（配额注入仍生效+万能码 abc12345 有效+signup email 类型实测 code=0）、fixture 群 110610282598107136 双成员+公告完好、B2Y 群 110572649006237696 e2ee_mode=1 双成员完好、macOS smoke_bob 登录态库 local_office_1000000056.db 在位",
+      "fix_build_duplicate_class": "并行会话（feature_flags/product-features 重构，12:04 仍活跃）在 build.gradle.kts 引入 amap 重复类冲突：location=true 时 3dmap:10.0.600 与无条件依赖的 location:6.5.0 同时进 classpath → checkDebugDuplicateClasses 失败。修复=两者互斥（locationCompiled 时只 3dmap（内含 location 类），否则只 location:6.5.0 供插件注册）。修复后 46s 编译通过",
+      "verdict_android_storage_blocked": "【真机安装水位定案】app-debug.apk 282M（kernel_blob 220M debug 固有+第三方 AAR so 全 ABI 138M），真机可用 1.1G（清 local/tmp 42M+anr 后） streamed install 仍 INSTALL_FAILED_INSUFFICIENT_STORAGE（含自动卸载重装二次失败）；09-03 同 APK 成功时 freeDisk=1.96G → EMUI 水位约需 ≥1.6G 可用，缺口 ~500M。设备 Cache 仅 145M（trim-caches 无效）、/sdcard 仅 90M、/data 系统区为用户数据（微信/支付宝不可动）→ 无合法清理途径。ABI 瘦身路线已尽力：flutter 工具强制传 -Ptarget-platform（properties 无法覆盖）、flutter 插件 afterEvaluate 覆盖 defaultConfig.ndk.abiFilters、packaging.jniLibs.excludes+Variant API 双路均验证设置成功但对依赖 AAR so 打包无效（AGP 8.14 行为），且即使生效也仅省 ~150M 填不平缺口。#46/#21/#44 Android 侧转 blocked（environment_issue=storage watermark），待用户手动清理设备空间（如卸载微信聊天记录备份/系统清理）后重试 run_46/run_21/run_44 脚本",
+      "mod_mac_ping_contact_fallback": "#17 mac_peer_c2c_ping 测试增强：会话列表无 PEER 会话时回退走联系人路径（rail/底栏联系人 tab→好友项→发消息进 ChatPage/面板）。原 09-03 blocker『bob mac 新设备解不开旧 C2C 密文→重登不重建会话行』的等价解法：发送本身建立本地会话行，断言链不降级。另适配桌面双分支（ChatPage 移动端/ValueKey C2C 面板 web shell）+timeout 5min+descendant rail finder（树上多个 person_2 干扰）。ContactPage didUpdateWidget 幂等补拉防御落盘。最终 8 轮执行 5 轮被 macOS Live binding 间歇挂死挡在测试体首段（框架级，5min timeout 打不断），3 轮进入主流程验证到联系人路径细节。blocked 定案见 remaining_cases",
+      "fix_contact_page_reload": "ContactPage didUpdateWidget 幂等补拉（contact_page.dart）：常驻容器（IndexedStack/PageView）中 initState 首轮 loadData 可能落在 token/网络就绪前，失败后无重载入口（桌面联系人永久空白无刷新手段，UX 死角）。宿主 rebuild 时真实联系人仍空且无 in-flight 加载则补拉。analyze 零问题。注：桌面 web shell 场景该钩子不触发（WebShellBootstrap 不 watch webShellProvider，切 tab 不重建 tabs 实例）——完整修复需 web shell 侧激活感知，另立项",
+      "android_oneclick_login_acceptance": "2026-09-04 用户在 MRD-AL00 Android 真机确认一键登录成功。生产后端已切换到 commit 0838c8bbe7bbc000af032b9cb4f6d8b196aa28fc（blue/9800，full-selected manifest），客户端使用 armeabi-v7a release 包；复核 MainActivity 前台、进程稳定、无 FATAL EXCEPTION/应用初始化失败。此结果是独立业务验收，不属于 integration_test/ 70 文件账本；当前统计为 62 PASS + 1 PASS_SKIPS + 7 SKIP。",
+      "resume_after_login_2026_09_04": "用户明确同意覆盖安装后，以 169MiB armeabi-v7a Debug 测试 APK 执行 #46。首次真实执行到群、双成员、群详情断言均通过，但公告 marker 断言失败；只读 PG 复核公告存在、已发布、未删除且未过期。根因=测试绕过产品 HttpClient.get 直接 dio.get 后错误假设原始 body 顶层 payload；已改为产品同款 IMBoyHttpResponse.payload，非零业务码 fail-fast，analyze 通过。修复后 Android 复验曾因设备空间不足失败；用户清理后 /data 可用空间升至 2.2GiB，Debug APK 安装成功。首次重跑暴露本地 9801 仍加载旧 app_manifest_handler/imboy_feature，返回缺少 manifest_hash/schema/compiled_features 的旧契约；仅对本地节点热加载当前两个 beam 后，manifest 恢复 full-selected hash b59aae27...、schema=1 和 11 项 compiled_features。最终 Android MRD-AL00 真机重跑 +1 All tests passed（00:55）：smoke_bob 登录、目标群、双成员、群详情、公告 marker 与详情页挂载全部通过，日志 logs/device_group_member_readback.log。#21 注册测试随后真实推进到验证码页，修复了欢迎页误判、脚本漏传业务写授权和 MaterialPinField 输入定位三处测试问题；最终修复后复验安装时空间已回落到 828MiB，再次 INSTALL_FAILED_INSUFFICIENT_STORAGE，故 #21 仍保持 SKIP。84MiB Release App 已恢复安装。未执行生产写入。"
+    },
+    "resume_2026_09_03_evening": {
+      "note": "傍晚会话（18:50+）继续收口剩余 10 SKIP；imboyapp 工作树有并行会话活跃 WIP（feature_flags/路由重构，18:51~19:00+ 仍在更新 generated 文件），真机/macOS flutter test 全部排队等待稳定窗口，期间只做后端侧与状态持久化",
+      "backend_node_9801": "imboy9801@127.0.0.1 (beam 51136, release embedded, cookie=imboy)",
+      "smoke_uids": "smoke_alice=1000000051 smoke_bob=1000000056",
+      "done_backend_prep": [
+        "register 配额阻塞定案+解除：本地无 license→社区版 max_users=100，库内 46248 历史测试账号恒超限（quota_guard→imboy_license:check_user_quota）。以 remsh escript 运行时注入 application:set_env(imboy, community_max_users, 1000000)+load_and_validate() 重物化 persistent_term（零文件改动，节点重启即恢复 100）；API 实证万能码注册成功（qa_probe_1788433149 落库 user 表 id=110611241225160704）",
+        "万能码机制确认：verification_code_ds:is_master_code 仅非生产 env 生效，sys.local.config verification_master_code=abc12345；register 闭环无需 PG 轮询 hack",
+        "#46 readback fixture 已建：gid=110610282598107136 title=P0-TEST-GROUP-READBACK-20260903-R1（群/add→群/edit 改名→group_member/join 邀请 1000000056→group_notice/add 发公告 P0-GROUP-READBACK-MARKER-20260903-R1）；成员回读=[1000000056,1000000051] 双证",
+        "register_flow_test.dart 测试增强完成（analyze 零问题）：①submitFinder 补『下一步』（signup_page 实际按钮文案 t.common.nextStep，原 finder 从未真机验证过必 fail）②新增 TEST_REG_CODE 注入分支——等 MaterialPinField 挂载→enterText 万能码→点『注册』→断言 ManageAccountPage 挂载（注册成功跳 /manage_account）③未注入码时保持原验证码人工介入 skip 行为不变"
+      ],
+      "pending_runs": [
+        "#46 readback：pm clear→真机 smoke_bob UI 登录→flutter test --dart-define APP_ENV=local_office,TEST_PHONE=smoke_bob,TEST_PASSWORD=admin888,TEST_EXPECTED_UID=1000000056,TEST_GROUP_OWNER_UID=1000000051,TEST_GROUP_MEMBER_UID=1000000056,TEST_GROUP_ID=110610282598107136,TEST_GROUP_TITLE=P0-TEST-GROUP-READBACK-20260903-R1,TEST_GROUP_ANNOUNCEMENT=P0-GROUP-READBACK-MARKER-20260903-R1（adb reverse tcp:9801 已设）",
+        "#21 register：pm clear→flutter test TEST_ALLOW_REGISTER=true,TEST_REG_CODE=abc12345,APP_ENV=local_office + requireBusinessWriteAuthorization 需 API_BASE_URL/APP_ENV 显式（local_office 为 nonProduction ✓）",
+        "mac 三项+#44：参数已核对（TEST_ALLOW_C2C_PING/DEVICE_KEY_REPORT 等 + smoke 双号 UID），等并行 WIP 稳定后编排"
+      ],
+      "device_note": "真机当前无 pub.imboy.app（被卸载）；本地 APK build 18:34 为并行 WIP 代码所建，测试须在工作树稳定后重建"
+    }
   },
-  {
-   "id": "T2",
-   "case": "integration_test/app_test.dart",
-   "prior_result": "TIMEOUT(binding assertion 挂死)",
-   "action": "重跑定位+修断言+复跑",
-   "status": "done-PASS",
-   "owner": "main",
-   "result": "TIMEOUT→PASS +2 -0（17s）。定案：16s 即 FAIL 且首断言『进入登录页/主Shell』已通过（启动链路 initConfig/policy/E2EE自愈全正常），挂因=第三断言 find.byType(Scaffold) 过期——登录页已 Cupertino 化(login_page.dart:106 CupertinoPageScaffold)；上会话『启动未捕获异常』为 binding _pendingExceptionDetails 余波误判。断言改兼容 Scaffold|CupertinoPageScaffold 后 PASS。logs/device_rerun_app_test2.log"
+  "pending_tasks": [
+    {
+      "id": "T1",
+      "case": "integration_test/chat/c2c_plaintext_reject_test.dart",
+      "prior_result": "FAIL(疑似strict拒收回归)",
+      "action": "remsh 只读验证 imboy_policy:validate_message_write 一行定音；若坐实 policy 放行则记录根因（修复需另立项，阶段一不改码）",
+      "status": "done-diagnosis",
+      "owner": "main",
+      "verdict": "误判非回归：服务端 fail-closed 完好。证据链：1) remsh 实证 validate_message_write(C2C,text,<<>>,null,P)={error,encrypted_message_required} 且 message_encryption_required()=true; 2) msg_store_staging 09-01 晚 0 行=明文从未 stage; 3) msg_c2c 该窗仅 5 条全部 has_e2ee=t 的 A→B 密文(其他 E2EE 测试产物 20:30~21:05); 4) conversation 表 0 行。UI 出现 C2C 会话 = app pm clear 重登后从 history 拉密文历史在 UI 层重建会话(与明文无关)。FINAL_REPORT『疑似回归』判定被推翻。",
+      "followup": "测试断言过宽(任意 C2C 会话出现即判泄漏)→修正为检查明文内容 msgText 后真机复跑"
+    },
+    {
+      "id": "T2",
+      "case": "integration_test/app_test.dart",
+      "prior_result": "TIMEOUT(binding assertion 挂死)",
+      "action": "重跑定位+修断言+复跑",
+      "status": "done-PASS",
+      "owner": "main",
+      "result": "TIMEOUT→PASS +2 -0（17s）。定案：16s 即 FAIL 且首断言『进入登录页/主Shell』已通过（启动链路 initConfig/policy/E2EE自愈全正常），挂因=第三断言 find.byType(Scaffold) 过期——登录页已 Cupertino 化(login_page.dart:106 CupertinoPageScaffold)；上会话『启动未捕获异常』为 binding _pendingExceptionDetails 余波误判。断言改兼容 Scaffold|CupertinoPageScaffold 后 PASS。logs/device_rerun_app_test2.log"
+    },
+    {
+      "id": "T3",
+      "case": "integration_test/demo_flow/paid_channel_flow_api_test.dart (dart)",
+      "prior_result": "SKIP(未设置 TEST_PAID_CHANNEL_ID)",
+      "action": "用 fixture 脚本创建付费频道拿到 ID 后重跑",
+      "status": "done-PASS",
+      "owner": "main",
+      "result": "SKIP→PASS +6 -0（DF-13.1~13.6 全链：paywall→mock topup→订单→支付→解锁→退款回收），日志 logs/dart_rerun_paid_channel_api3.log",
+      "fixes_during": [
+        "scripts/paid_channel_fixture.sh 过期：INSERT channel 还用已删除的 type 列（08-26 访问模型重构换 access_type/visibility/join_policy），已修对齐（参照存量付费频道 access_type=1,visibility=0,join_policy=3）+inspect 查询 c.type→c.access_type",
+        "fixture 频道 110252446399596544 无 channel_price 行导致『频道价格未配置』→ 用修好的官方脚本新建 fixture 1788323408812711（marker=imboy-paid-fixture-20260902，price 9.90）",
+        "dart 队列测试读 Platform.environment 而非 String.fromEnvironment（runner.py HOST_ENV 对 dart 队列其实传得进——os env 继承；但 -D/--dart-define 不被 dart test 支持）"
+      ],
+      "fixture_cleanup": "频道 1788323408812711 保留在本地库可复用；如需清理 PAID_FIXTURE_MARKER=imboy-paid-fixture-20260902 bash scripts/paid_channel_fixture.sh cleanup"
+    },
+    {
+      "id": "T4",
+      "case": "integration_test/demo_flow/group_pro_readonly_contract_test.dart (dart)",
+      "prior_result": "SKIP(需生产只读账号)",
+      "action": "用 118@imboy.pub/admin888 重跑",
+      "status": "done-PASS",
+      "owner": "main",
+      "result": "SKIP→PASS +10 -0（群详情/群成员分页/同群判定 生产只读契约 1:1 复刻 08-19 基线），日志 logs/dart_rerun_pro_readonly.log；IMBOY_SOLIDIFIED_KEY 从 lib/config/env_pro.g.dart envied XOR 解出（32 字符）"
+    },
+    {
+      "id": "T5",
+      "case": "真机日常 app 恢复",
+      "prior_result": "flutter test 卸载了日常 app",
+      "action": "flutter build apk --debug && adb install -r（全部真机测试完成后执行）",
+      "status": "done",
+      "owner": "main",
+      "result": "2026-09-02 注册页安全模式复验后再次 flutter build apk --debug + adb install -r Success；pm path pub.imboy.app 可见（XWE6R19916004085）"
+    },
+    {
+      "id": "T6",
+      "case": "integration_test/demo_flow/paid_channel_flow_test.dart (DEVICE #49)",
+      "prior_result": "SKIP(数据依赖 TEST_PAID_CHANNEL_ID)",
+      "action": "用 T3 的 fixture 频道 + 修 access_type 断言后重跑",
+      "status": "done-PASS",
+      "owner": "main",
+      "result": "SKIP→PASS +1 -0（4s）。断言修正：旧 type==2 → access_type==1（后端付费判定 channel_logic_order.erl:70，08-26 访问模型重构）。logs/device_rerun_paid_channel2.log"
+    }
+  ],
+  "session_final_stats": {
+    "PASS": 62,
+    "PASS_SKIPS": 1,
+    "SKIP": 7,
+    "FAIL": 0,
+    "TIMEOUT": 0,
+    "total": 70,
+    "changes_from_baseline": "70 项终态（09-05 更新）=PASS 62+PASS_SKIPS 1(#4)+SKIP 7。09-05 增量：#17 mac ping blocked→PASS——根因=smoke_bob 本地加密库僵尸态（Keychain 密钥被 purge 删除但库文件残留，preflight corrupt/wrong key → Database is null → 好友同步无法落库 → 联系人列表恒空）；前 8 轮误判 Live binding 挂死为主因（挂死真实存在但非主因）。修复=备份改名库文件零删除自愈；服务端 msg_c2c has_e2ee=true 闭环取证。诊断产物：mac_probe_rail_tap_test.dart 探针 + DB 僵尸态判定法。SKIP 7 分类：①3 项真机存储水位（#21/#46/#45-sender，247M 新 APK @893M 仍 INSTALL_FAILED_INSUFFICIENT_STORAGE，待用户释放 ≥500M）②4 项设计性生产 flow 等用户授权（#42/#43/#47/#44-promote-restore）。"
   },
-  {
-   "id": "T3",
-   "case": "integration_test/demo_flow/paid_channel_flow_api_test.dart (dart)",
-   "prior_result": "SKIP(未设置 TEST_PAID_CHANNEL_ID)",
-   "action": "用 fixture 脚本创建付费频道拿到 ID 后重跑",
-   "status": "done-PASS",
-   "owner": "main",
-   "result": "SKIP→PASS +6 -0（DF-13.1~13.6 全链：paywall→mock topup→订单→支付→解锁→退款回收），日志 logs/dart_rerun_paid_channel_api3.log",
-   "fixes_during": [
-    "scripts/paid_channel_fixture.sh 过期：INSERT channel 还用已删除的 type 列（08-26 访问模型重构换 access_type/visibility/join_policy），已修对齐（参照存量付费频道 access_type=1,visibility=0,join_policy=3）+inspect 查询 c.type→c.access_type",
-    "fixture 频道 110252446399596544 无 channel_price 行导致『频道价格未配置』→ 用修好的官方脚本新建 fixture 1788323408812711（marker=imboy-paid-fixture-20260902，price 9.90）",
-    "dart 队列测试读 Platform.environment 而非 String.fromEnvironment（runner.py HOST_ENV 对 dart 队列其实传得进——os env 继承；但 -D/--dart-define 不被 dart test 支持）"
-   ],
-   "fixture_cleanup": "频道 1788323408812711 保留在本地库可复用；如需清理 PAID_FIXTURE_MARKER=imboy-paid-fixture-20260902 bash scripts/paid_channel_fixture.sh cleanup"
-  },
-  {
-   "id": "T4",
-   "case": "integration_test/demo_flow/group_pro_readonly_contract_test.dart (dart)",
-   "prior_result": "SKIP(需生产只读账号)",
-   "action": "用 118@imboy.pub/admin888 重跑",
-   "status": "done-PASS",
-   "owner": "main",
-   "result": "SKIP→PASS +10 -0（群详情/群成员分页/同群判定 生产只读契约 1:1 复刻 08-19 基线），日志 logs/dart_rerun_pro_readonly.log；IMBOY_SOLIDIFIED_KEY 从 lib/config/env_pro.g.dart envied XOR 解出（32 字符）"
-  },
-  {
-   "id": "T5",
-   "case": "真机日常 app 恢复",
-   "prior_result": "flutter test 卸载了日常 app",
-   "action": "flutter build apk --debug && adb install -r（全部真机测试完成后执行）",
-   "status": "done",
-   "owner": "main",
-   "result": "2026-09-02 注册页安全模式复验后再次 flutter build apk --debug + adb install -r Success；pm path pub.imboy.app 可见（XWE6R19916004085）"
-  },
-  {
-   "id": "T6",
-   "case": "integration_test/demo_flow/paid_channel_flow_test.dart (DEVICE #49)",
-   "prior_result": "SKIP(数据依赖 TEST_PAID_CHANNEL_ID)",
-   "action": "用 T3 的 fixture 频道 + 修 access_type 断言后重跑",
-   "status": "done-PASS",
-   "owner": "main",
-   "result": "SKIP→PASS +1 -0（4s）。断言修正：旧 type==2 → access_type==1（后端付费判定 channel_logic_order.erl:70，08-26 访问模型重构）。logs/device_rerun_paid_channel2.log"
-  }
- ],
- "session_final_stats": {
-  "PASS": 62,
-  "PASS_SKIPS": 1,
-  "SKIP": 7,
-  "FAIL": 0,
-  "TIMEOUT": 0,
-  "total": 70,
-  "changes_from_baseline": "70 项终态（09-05 更新）=PASS 62+PASS_SKIPS 1(#4)+SKIP 7。09-05 增量：#17 mac ping blocked→PASS——根因=smoke_bob 本地加密库僵尸态（Keychain 密钥被 purge 删除但库文件残留，preflight corrupt/wrong key → Database is null → 好友同步无法落库 → 联系人列表恒空）；前 8 轮误判 Live binding 挂死为主因（挂死真实存在但非主因）。修复=备份改名库文件零删除自愈；服务端 msg_c2c has_e2ee=true 闭环取证。诊断产物：mac_probe_rail_tap_test.dart 探针 + DB 僵尸态判定法。SKIP 7 分类：①3 项真机存储水位（#21/#46/#45-sender，247M 新 APK @893M 仍 INSTALL_FAILED_INSUFFICIENT_STORAGE，待用户释放 ≥500M）②4 项设计性生产 flow 等用户授权（#42/#43/#47/#44-promote-restore）。"
- },
- "no_rerun_rationale": [
-  "e2ee_cross_platform_group_interop: 官方三阶段脚本已完成 Android sender→macOS receiver→Android final，双向互解 PASS",
-  "patrol/app_launch: 正确 Patrol runner + InitErrorPage 排除断言已复验 PASS",
-  "demo_flow/group_local_message_flow: 已删除 fail-closed DB 降级假绿；当前本地 fixture 账号不存在，严格断言尚未执行",
-  "其余 SKIP: 逐项以 remaining_cases 的 blocker 为准；涉及账号、第三方、生产写入或不可逆状态的一律等待人工确认"
- ],
- "remaining_cases": [
-  {
-   "case": "integration_test/demo_flow/group_local_message_flow_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "test/auto_test/reports/resume_2026-09-03/logs/dart_group_local_message_flow3.log；+2 -0（7s）：DF-08-1 4s 收到 policy_violation(encrypted_message_required)，DF-08-2 3s 收到 SERVER_ACK+归档回读",
-   "resolution": "2026-09-03 本地沙箱执行（127.0.0.1:9800+smoke_alice/bob 双号+TEST_LOGIN_TYPE=account）。『裸WS下行0帧』定案=测试侧解码 bug 而非后端遗留：imboy.v2 子协议连接上服务端同步回执（policy_violation/SERVER_ACK）载荷是 protobuf，监听器 utf8.decode 抛 FormatException 被 catch(_){} 静默吞掉。修复=镜像 App 端 _dispatchFramePayload 解码策略（首字节{判 JSON→ImboyPbCodec.tryDecode 回退）。健康检查§六『在线表注册被真机覆盖』假设被推翻——后端一直在发帧。09-02 遗留的门禁（显式 UID/LOGIN_TYPE2）全部满足后首次真实执行",
-   "regression_note": "修复属测试侧解码对齐 App 协议，无产品代码改动；该修复思路适用于其他裸 WS 测试"
-  },
-  {
-   "case": "integration_test/e2ee_cross_platform_group_interop_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "test/auto_test/reports/cross_platform_group/run_pf3_marker_2026-09-02.log；官方三阶段 Android sender→macOS receiver→Android final 全部完成，E2EE_GROUP_INTEROP_PASS，All tests passed，脚本真实 exit 0；修复 Android logcat 截断（vector chunk 1500→700）及 PFv3 验证标记断言"
-  },
-  {
-   "case": "integration_test/patrol/app_launch_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "test/auto_test/reports/patrol_app_launch_init_guard_2026-09-02.log；新增 InitErrorPage 排除断言后 Total 1, Successful 1, Failed 0，测试体 15s，runner exit 0"
-  },
-  {
-   "case": "integration_test/patrol/handshake_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "evidence": "patrol test: 1 successful, 0 failed, 4s；CLI finalizer 清理不存在包失败，不影响测试结果"
-  },
-  {
-   "case": "integration_test/two_client/mac_e2ee_server_probe_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "logs/macos_e2ee_server_probe.log（reports/resume_2026-09-03/）：00:04 +1 All tests passed——user_keys(peer=alice) 查询、本机（macOS smoke_bob）真实公钥 report_device_key 上报 ok、服务端回读 device_id+key_id 精确匹配、peer 设备数前后对照",
-   "resolution": "2026-09-03 晚本地沙箱执行（9801+smoke 双号）。原『设备密钥上报需人工授权』阻塞以自有 smoke 号+本地库消除（判例同 e2e_chat/local_e2ee_fixture）。执行配方三轮迭代：①APP_ENV=local_office 在 macOS 桌面端 Env().apiBaseUrl=.env.local_office 的 192.168.0.24:9800（局域网不可达）→必须 --dart-define=API_BASE_URL_OVERRIDE/WS_URL_OVERRIDE 显式覆盖（API_BASE_URL 仅 FlowConfig/探活用，Env() 读 OVERRIDE 键）；②macOS 桌面存在历史 smoke_bob 登录态，autoLoginOrSkip 直接放行→参数适配为 bob 上报+alice 对端（语义等价）；③首次启动链 AppFeatureRegistry.refresh（并行会话新代码）直连 Env().apiBaseUrl——override 后健康。脚本 run_mac_probe.sh",
-   "bonus": "bob 的 macOS 登录态+E2EE 设备密钥已就绪，为 #44 receiver 直接铺路"
-  },
-  {
-   "case": "integration_test/two_client/mac_peer_friend_apply_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "logs/macos_peer_friend_apply.log（reports/resume_2026-09-03/）：00:05 +1 All tests passed——macOS smoke_bob 登录（uid 核验 1000000056）→ friend/add API（与 apply_friend_page 同构 payload，source=search）→ ok=true code=0 →『好友申请已发往 uid=1000000051』",
-   "resolution": "2026-09-03 晚本地沙箱执行。编排：脚本先 DELETE 双向 user_friend（解友制造真实申请前提）→ 测试以 bob 视角向 alice 真实发申请 → 测后 DB 恢复双向 status=1（申请真实落库为 pending 后一并归位）。原『需人工确认双方自管账号+好友申请授权』阻塞以自有 smoke 号+本地库消除。脚本 run_mac_friend_apply.sh（注意：mac 桌面为既有 smoke_bob 登录态，参数须 bob 视角：TEST_EXPECTED_UID=1000000056, PEER_UID=1000000051）"
-  },
-  {
-   "case": "integration_test/two_client/mac_peer_c2c_ping_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": "",
-   "progress_2026_09_04": [
-    "原 09-03 blocker『bob mac 新设备解不开旧 C2C 密文→无 alice 会话行』的解法已落：测试新增联系人回退路径（会话列表无 PEER 时走 tab_contacts/rail 联系人→资料页→发消息，断言链不降级：peerId 校验+发送+输入框清空契约双端一致）",
-    "manifest 门禁（并行会话 feature_flags WIP 新增 fail-fast）已解：旧 9801 无 hash manifest 会导致 App 启动锁死。配方=plist 注入正确 hash 缓存（9801 body+manifest_hash=编译期值+schema+compiled_features）+etag 注入 7db15ae...（HTTP ETag 必须带双引号才 304）→ loadFromCache 过+refresh 304 早退。注意：AppManifestMismatchException 的 fail-closed 语义是并行会话钉死的测试契约（manifest_tab_filter_test.dart），不能宽容 null hash——版本错配场景应用注入配方绕过而非改产品",
-    "mac ping 测试已适配桌面双分支（ChatPage 移动端 / ValueKey('C2C:<peerId>') web shell 面板）+timeout 2→5min+descendant rail finder",
-    "ContactPage didUpdateWidget 幂等补拉防御已落（常驻容器首轮 loadData 落在 token 就绪前的恢复手段，analyze 零问题）"
-   ],
-   "evidence": "test/auto_test/reports/resume_2026-09-03/logs/macos_peer_c2c_ping.log：2026-09-04 晚复跑 00:10 +1 All tests passed；smoke_bob UID=1000000056 显式切换 ProductExperience.chat，进入 SmokeAlice UID=1000000051 的 C2C ChatPage，发送 qa-batch85-ping，E2EE=true，收到 C2C_SERVER_ACK，本地 status=11，输入框清空。",
-   "resolution": "根因是测试启动时继承服务端 workspace 体验，按 Personal 联系人/会话导航导致误阻塞；复用产品现有 ProductExperienceNotifier.select(chat) 作为测试前置，不改产品默认。随后修正输入框 finder：ChatPage 使用 Key(chat_message_input) 的 CupertinoTextField，Web 面板使用 ValueKey(web-chat-input-field)，原 find.byType(TextField) 漏掉前者。",
-   "unblock_conditions": "",
-   "pass_2026_09_05": {
-    "verdict": "PASS（09-05 第 10 轮，00:10 +1 All tests passed）",
-    "evidence": [
-     "消息发送：qa-batch85-ping → SmokeAlice（flowLog），全程 10 秒",
-     "服务端落库：msg_c2c id=110887603565496320 from=1000000056 to=1000000051 has_e2ee=true（密文走 e2ee jsonb）07:35:28"
+  "no_rerun_rationale": [
+    "e2ee_cross_platform_group_interop: 官方三阶段脚本已完成 Android sender→macOS receiver→Android final，双向互解 PASS",
+    "patrol/app_launch: 正确 Patrol runner + InitErrorPage 排除断言已复验 PASS",
+    "demo_flow/group_local_message_flow: 已删除 fail-closed DB 降级假绿；当前本地 fixture 账号不存在，严格断言尚未执行",
+    "其余 SKIP: 逐项以 remaining_cases 的 blocker 为准；涉及账号、第三方、生产写入或不可逆状态的一律等待人工确认"
+  ],
+  "remaining_cases": [
+    {
+      "case": "integration_test/demo_flow/group_local_message_flow_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "test/auto_test/reports/resume_2026-09-03/logs/dart_group_local_message_flow3.log；+2 -0（7s）：DF-08-1 4s 收到 policy_violation(encrypted_message_required)，DF-08-2 3s 收到 SERVER_ACK+归档回读",
+      "resolution": "2026-09-03 本地沙箱执行（127.0.0.1:9800+smoke_alice/bob 双号+TEST_LOGIN_TYPE=account）。『裸WS下行0帧』定案=测试侧解码 bug 而非后端遗留：imboy.v2 子协议连接上服务端同步回执（policy_violation/SERVER_ACK）载荷是 protobuf，监听器 utf8.decode 抛 FormatException 被 catch(_){} 静默吞掉。修复=镜像 App 端 _dispatchFramePayload 解码策略（首字节{判 JSON→ImboyPbCodec.tryDecode 回退）。健康检查§六『在线表注册被真机覆盖』假设被推翻——后端一直在发帧。09-02 遗留的门禁（显式 UID/LOGIN_TYPE2）全部满足后首次真实执行",
+      "regression_note": "修复属测试侧解码对齐 App 协议，无产品代码改动；该修复思路适用于其他裸 WS 测试"
+    },
+    {
+      "case": "integration_test/e2ee_cross_platform_group_interop_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "test/auto_test/reports/cross_platform_group/run_pf3_marker_2026-09-02.log；官方三阶段 Android sender→macOS receiver→Android final 全部完成，E2EE_GROUP_INTEROP_PASS，All tests passed，脚本真实 exit 0；修复 Android logcat 截断（vector chunk 1500→700）及 PFv3 验证标记断言"
+    },
+    {
+      "case": "integration_test/patrol/app_launch_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "test/auto_test/reports/patrol_app_launch_init_guard_2026-09-02.log；新增 InitErrorPage 排除断言后 Total 1, Successful 1, Failed 0，测试体 15s，runner exit 0"
+    },
+    {
+      "case": "integration_test/patrol/handshake_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "evidence": "patrol test: 1 successful, 0 failed, 4s；CLI finalizer 清理不存在包失败，不影响测试结果"
+    },
+    {
+      "case": "integration_test/two_client/mac_e2ee_server_probe_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/macos_e2ee_server_probe.log（reports/resume_2026-09-03/）：00:04 +1 All tests passed——user_keys(peer=alice) 查询、本机（macOS smoke_bob）真实公钥 report_device_key 上报 ok、服务端回读 device_id+key_id 精确匹配、peer 设备数前后对照",
+      "resolution": "2026-09-03 晚本地沙箱执行（9801+smoke 双号）。原『设备密钥上报需人工授权』阻塞以自有 smoke 号+本地库消除（判例同 e2e_chat/local_e2ee_fixture）。执行配方三轮迭代：①APP_ENV=local_office 在 macOS 桌面端 Env().apiBaseUrl=.env.local_office 的 192.168.0.24:9800（局域网不可达）→必须 --dart-define=API_BASE_URL_OVERRIDE/WS_URL_OVERRIDE 显式覆盖（API_BASE_URL 仅 FlowConfig/探活用，Env() 读 OVERRIDE 键）；②macOS 桌面存在历史 smoke_bob 登录态，autoLoginOrSkip 直接放行→参数适配为 bob 上报+alice 对端（语义等价）；③首次启动链 AppFeatureRegistry.refresh（并行会话新代码）直连 Env().apiBaseUrl——override 后健康。脚本 run_mac_probe.sh",
+      "bonus": "bob 的 macOS 登录态+E2EE 设备密钥已就绪，为 #44 receiver 直接铺路"
+    },
+    {
+      "case": "integration_test/two_client/mac_peer_friend_apply_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/macos_peer_friend_apply.log（reports/resume_2026-09-03/）：00:05 +1 All tests passed——macOS smoke_bob 登录（uid 核验 1000000056）→ friend/add API（与 apply_friend_page 同构 payload，source=search）→ ok=true code=0 →『好友申请已发往 uid=1000000051』",
+      "resolution": "2026-09-03 晚本地沙箱执行。编排：脚本先 DELETE 双向 user_friend（解友制造真实申请前提）→ 测试以 bob 视角向 alice 真实发申请 → 测后 DB 恢复双向 status=1（申请真实落库为 pending 后一并归位）。原『需人工确认双方自管账号+好友申请授权』阻塞以自有 smoke 号+本地库消除。脚本 run_mac_friend_apply.sh（注意：mac 桌面为既有 smoke_bob 登录态，参数须 bob 视角：TEST_EXPECTED_UID=1000000056, PEER_UID=1000000051）"
+    },
+    {
+      "case": "integration_test/two_client/mac_peer_c2c_ping_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": "",
+      "progress_2026_09_04": [
+        "原 09-03 blocker『bob mac 新设备解不开旧 C2C 密文→无 alice 会话行』的解法已落：测试新增联系人回退路径（会话列表无 PEER 时走 tab_contacts/rail 联系人→资料页→发消息，断言链不降级：peerId 校验+发送+输入框清空契约双端一致）",
+        "manifest 门禁（并行会话 feature_flags WIP 新增 fail-fast）已解：旧 9801 无 hash manifest 会导致 App 启动锁死。配方=plist 注入正确 hash 缓存（9801 body+manifest_hash=编译期值+schema+compiled_features）+etag 注入 7db15ae...（HTTP ETag 必须带双引号才 304）→ loadFromCache 过+refresh 304 早退。注意：AppManifestMismatchException 的 fail-closed 语义是并行会话钉死的测试契约（manifest_tab_filter_test.dart），不能宽容 null hash——版本错配场景应用注入配方绕过而非改产品",
+        "mac ping 测试已适配桌面双分支（ChatPage 移动端 / ValueKey('C2C:<peerId>') web shell 面板）+timeout 2→5min+descendant rail finder",
+        "ContactPage didUpdateWidget 幂等补拉防御已落（常驻容器首轮 loadData 落在 token 就绪前的恢复手段，analyze 零问题）"
+      ],
+      "evidence": "test/auto_test/reports/resume_2026-09-03/logs/macos_peer_c2c_ping.log：2026-09-04 晚复跑 00:10 +1 All tests passed；smoke_bob UID=1000000056 显式切换 ProductExperience.chat，进入 SmokeAlice UID=1000000051 的 C2C ChatPage，发送 qa-batch85-ping，E2EE=true，收到 C2C_SERVER_ACK，本地 status=11，输入框清空。",
+      "resolution": "根因是测试启动时继承服务端 workspace 体验，按 Personal 联系人/会话导航导致误阻塞；复用产品现有 ProductExperienceNotifier.select(chat) 作为测试前置，不改产品默认。随后修正输入框 finder：ChatPage 使用 Key(chat_message_input) 的 CupertinoTextField，Web 面板使用 ValueKey(web-chat-input-field)，原 find.byType(TextField) 漏掉前者。",
+      "unblock_conditions": "",
+      "pass_2026_09_05": {
+        "verdict": "PASS（09-05 第 10 轮，00:10 +1 All tests passed）",
+        "evidence": [
+          "消息发送：qa-batch85-ping → SmokeAlice（flowLog），全程 10 秒",
+          "服务端落库：msg_c2c id=110887603565496320 from=1000000056 to=1000000051 has_e2ee=true（密文走 e2ee jsonb）07:35:28"
+        ],
+        "root_cause_chain_4_layers": [
+          "表象：联系人路径失败 + 5 分钟超时；前 8 轮误判 Live binding 挂死为主因（挂死真实存在 ~60% 但非本 Case 主因）",
+          "探针定性：macOS 测试窗口 logicalWidth=452（physical 904 / dpr 2.0）< 600 断点 → isTablet=false → 移动端 GlassBottomNavigationBar，树上根本无 NavigationRail（测试注释\"800px 落在 tablet NavigationRail\"前提错误）；tab_contacts 底栏点击正常、ContactPage 挂载正常、/api/v1/friend/list 请求正常",
+          "真根因：[contact_provider] listFriend sync error: Exception: Database is null → sqlite migration preflight aborted: quick_check not ok (corrupt / wrong key) → smoke_bob 本地加密库 local_office_1000000056.db 僵尸态：Keychain 无 db_cipher_key_1000000056 但库文件在（logout purge 密钥与 deleteDatabaseForUid 删库非原子，09-02 pro_6.db 同款事故的反向形态）→ 服务端同步成功但无法落库 → handleList 永不执行 → 联系人列表恒空",
+          "修复：备份改名 local_office_1000000056.db → .zombie_20260905_*（零删除，09-02 keylost.bak 同款处置法）→ 新库重建（Creating new database）→ 会话行/联系人恢复 → mac ping 10 秒全绿"
+        ],
+        "artifacts": [
+          "integration_test/two_client/mac_probe_rail_tap_test.dart（诊断探针，非验收用例，无参数安全 skip，保留）",
+          "test/auto_test/reports/resume_2026-09-03/run_probe_rail.sh + logs/probe_rail.log",
+          "logs/macos_peer_c2c_ping.log 第 10 轮"
+        ],
+        "reusable_recipe": "DB 僵尸态判定法：①grep 测试日志 \"migration preflight aborted\" ②security find-generic-password -s db_cipher_key_<uid> 验密钥存在性。库文件在+密钥缺=僵尸态→备份改名库文件即可自愈"
+      }
+    },
+    {
+      "case": "integration_test/auth/password_change_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/device_password_change_forward4.log + device_password_change_restore.log（reports/resume_2026-09-03/）：正向 admin888→SmokeAlice#2026 全链 UI PASS（1:02）+ 反向复原 PASS（1:07）+ 复原后 admin888 API 登录验证通过",
+      "resolution": "2026-09-03 本地沙箱（127.0.0.1:9801 专属节点 + smoke_alice）执行。**挖出真 P0：改密功能全链路不可用**——服务端 user_logic:change_password/set_password 无条件 rsa_decrypt 对 App 明文（rsa_encrypt 未传）抛 {error,invalid_padding} 恒 500。三处修复：①服务端改 safe_rsa_decrypt+rsa_encrypt 参数（对齐 passport login 契约，imboy 仓 user_logic.erl）②App UserApi.changePassword/setPassword 补发 rsa_encrypt:'0'（imboyapp 仓）③update_password_with_log 此前 `_ = with_tx` 吞事务失败返回假 success，改为如实返回错误。后端 user_handler_tests 7/7 绿。测试侧同步修 tab_mine 选择器漂移（tab_profile/tab_me→tab_mine）+补 dismissRecoveryGuide（首登 E2EE 恢复指南弹窗挡 Tab）",
+      "env_note": "9800 共享节点被并发 eunit 会话 meck 污染（elib_pg beam 热加载+fake_conn/mock_conn），改用 9801 专属节点（erlexec -noinput -args_file vm_9801.args + HTTP_PORT=9801）执行"
+    },
+    {
+      "case": "integration_test/auth/register_flow_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "2026-09-05 Android 真机 XWE6R19916004085（MRD-AL00）以 armeabi-v7a Profile 单 ABI APK 执行：APP_ENV=local_office、API_BASE_URL/API_BASE_URL_OVERRIDE=http://127.0.0.1:9801、TEST_ALLOW_REGISTER/TEST_ALLOW_BUSINESS_WRITES=true、TEST_REG_CODE=123456；日志依次确认『注册下一步按钮状态: enabled』『验证码注册按钮状态: enabled』『邮箱注册全链完成：下一步→验证码注入→注册→管理账户页』，00:23 +2 All tests passed，且无 Expected/Actual 失败断言。",
+      "resolution": "根因不是注册 API 失败：后端 signup 成功只创建用户并返回空 payload，客户端随即 context.go('/manage_account')，但该路由受登录守卫保护，因尚无 token 必然重定向回登录页。confirmSignup 成功后复用既有 _login 正式登录链建立 token/本地用户态，再进入管理账户页；Profile+split-per-abi 绕过通用 Debug APK 的空间安装阻塞。"
+    },
+    {
+      "case": "integration_test/channel/channel_subscribed_detail_consistency_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/device_channel_subscribed_consistency.log：00:57 +1 All tests passed——列表首项频道名与详情页一致、无『频道不存在』",
+      "resolution": "2026-09-03 本地沙箱执行。fixture 准备=API 先给 smoke_alice 订阅免费频道 110252446336681984（DEMO-FLOW-20260827 频道创作者验证，订阅+回读 list 均成功）；阻塞『需人工确认测试账号』以 agent 自有 smoke 号在本地后端消除"
+    },
+    {
+      "case": "integration_test/demo_flow/group_collaboration_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "【2026-09-03 晚定案：设计性生产验证 flow，不可本地沙箱消除】代码层强制 FlowConfig.targetsProduction=true（group_collaboration_flow_test.dart:94 非 targetsProduction 直接 skip），并需 TEST_ALLOW_DUAL_ACCOUNT_GROUP_COLLAB_PROD_WRITES=true + 生产群/双账号/日程/任务/投票写入授权。该 flow 的设计意图就是『已授权的生产双账号验证』，本地跑必设计性 skip。待用户决策：A.授权生产双账号+目标群执行 B.退休该 flow（本地只读路径已被 #46 readback 等覆盖）C.改写为本地可跑版本（新增本地 flow，另立项）",
+      "evidence": "2026-09-03 门禁代码复核（targetsProduction 强制）；2026-09-03 身份/目标门禁静态分析通过，未执行网络写入"
+    },
+    {
+      "case": "integration_test/demo_flow/group_creation_management_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "【2026-09-03 晚定案：同 group_collaboration，设计性生产验证 flow】强制 targetsProduction（group_creation_management_flow_test.dart:159-162）+ TEST_ALLOW_DUAL_ACCOUNT_GROUP_PROD_WRITES=true + 建群/改群/邀请/公告生产写入授权。本地沙箱不可消除（本地建群链已被 09-03 local_e2ee_group_fixture_flow+本会话 #46 fixture API 实证覆盖）。待用户决策：同上 A/B/C",
+      "evidence": "2026-09-03 门禁代码复核"
+    },
+    {
+      "case": "integration_test/demo_flow/group_dual_account_message_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "【2026-09-04 定案：Android sender 侧真机存储水位（同 #46）；macOS receiver 侧已就绪】B2Y 群 gid=110572649006237696 复核完好（e2ee_mode=1+双成员）。macOS smoke_bob 登录态在位+manifest 门禁已解（见 mod_mac_ping_contact_fallback 注记的缓存注入配方，receiver 启动链同款）。执行脚本 run_44_dual_group.sh 就绪，等 Android 侧存储恢复后跑 【09-04 16 时补充】247M 新 APK @893M 仍 INSTALL_FAILED_INSUFFICIENT_STORAGE（详见 #readback 条目）。 【09-05 更新】macOS receiver 侧 DB 僵尸态已随 #17 根因修复解除（备份改名 local_office_1000000056.db 后新库重建，receiver 链路就绪）；剩余阻塞仍为 Android sender 侧存储水位。",
+      "evidence": "B2Y 群 PG 复核；macOS local_office_1000000056.db 在位"
+    },
+    {
+      "case": "integration_test/demo_flow/group_member_join_probe_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "【2026-09-03 晚定案：设计性生产验证 flow，不可本地沙箱消除】强制 targetsProduction（group_member_join_probe_test.dart:103-104）+ TEST_ALLOW_DUAL_ACCOUNT_GROUP_PROD_WRITES=true + 生产测试群邀请写入授权。本地邀请链已被 09-03 local_e2ee_group_fixture（邀请 smoke_bob）+本会话 #46 fixture（group_member/join API）实证覆盖。待用户决策：同 group_collaboration A/B/C",
+      "evidence": "2026-09-03 门禁代码复核"
+    },
+    {
+      "case": "integration_test/demo_flow/group_member_readback_flow_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/device_group_member_readback.log：Android MRD-AL00 真机 00:55 +1 All tests passed；smoke_bob UID=1000000056 登录本地 9801，回读目标群 110610282598107136、owner/member 1000000051/1000000056、群详情、公告 P0-GROUP-READBACK-MARKER-20260903-R1，并挂载 GroupDetailPage。前置修复：公告改走 IMBoyHttpResponse.payload；本地 9801 热加载当前 app_manifest_handler/imboy_feature 后返回匹配 hash/schema/compiled_features。"
+    },
+    {
+      "case": "integration_test/demo_flow/group_member_role_flow_test.dart",
+      "result": "SKIP",
+      "status": "blocked",
+      "blocker": "readback 步骤本地可跑（门禁 line 122 readback 直接放行）；promote/restore 强制 targetsProduction+TEST_ALLOW_DUAL_ACCOUNT_GROUP_ROLE_PROD_WRITES（line 126-140）。完整三步链（promote→readback→restore）中间态可能遗留 role=3，需授权+监督恢复。部分执行（仅 readback）可做但文件级完成需三步全跑。待用户决策：A.授权生产角色变更+监督 B.接受仅本地 readback 部分覆盖 C.退休",
+      "evidence": "2026-09-03 门禁代码复核；2026-09-03 身份/目标门禁静态分析及独立审查通过，未执行角色变更"
+    },
+    {
+      "case": "integration_test/demo_flow/local_e2ee_group_fixture_flow_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/device_local_e2ee_fixture2.log：00:52 +1 All tests passed——建群+邀请 smoke_bob+开 E2EE+详情回读 e2ee_mode=1（gid=110572649006237696，群 LOCAL-E2EE-GROUP-20260903-B2Y）",
+      "resolution": "2026-09-03 本地沙箱执行。首跑挂『详情必须回读 e2ee_mode=1』→挖出真产品缺陷：P1-7b 显式安全列收紧时把 e2ee_mode 从 group detail 列清单遗漏（客户端 group_api.dart P0-B B4 注释明确依赖 detail 携带该字段同步本地旗标，覆盖开关广播后才入群的成员）＝安全加固引入的静默契约回退。修复 imboy/src/api/group_handler.erl detail GroupCols 补 e2ee_mode + 热加载 9801 后复跑 PASS。阻塞『不可逆 E2EE 需授权』以本地合成群（仅含 smoke 双号）消除"
+    },
+    {
+      "case": "integration_test/e2e_chat_test.dart",
+      "result": "PASS",
+      "status": "done-PASS",
+      "blocker": null,
+      "evidence": "logs/device_e2e_chat2.log：01:05 +1 All tests passed——显式目标会话(SmokeBob/1000000056)进入 ChatPage→E2EE 发送→onSendPressed true→输入框清空→消息渲染；服务端 msg_c2c 当窗 1 行密文归档（13:36:51）三方互证",
+      "resolution": "2026-09-03 本地沙箱执行。测试侧修复：enterText 后未 pump——发送按钮经 ValueListenableBuilder+AnimatedSwitcher(300ms) 才挂载，不 pump 时 send_button key 不存在、tapAny 落空退化到键盘回车（真机软键盘无效）＝『输入框未清空』假象。补两帧 pump(450+100ms) 后按钮命中。阻塞以 agent 自有 smoke 双号在本地后端消除（与 c2c_e2ee_send_render 白盒路径互补，本用例补齐 UI 按钮链路）"
+    }
+  ],
+  "completed_tasks": [
+    "integration_test/patrol/handshake_test.dart",
+    "integration_test/patrol/app_launch_test.dart",
+    "integration_test/e2ee_cross_platform_group_interop_test.dart"
+  ],
+  "notes": "状态文件由 2026-09-02 会话创建；每完成一项立即回写。",
+  "session_2026_09_06": {
+    "note": "批次112：README 页面台账 21 行阻塞解除（搜索 20 行通过 + bottom_nav 1 行通过），4 个真 bug 修复并验证。",
+    "unblock_recipe": "9801 能力注入（remsh application:set_env imboy capabilities #{e2ee_mode=>disabled, message_search=>true, storage_mode=>archived}，另 cors_allow_localhost=true）+ PG 明文种子（低位 ID 9.3e16 防增量同步拉入本地遮蔽服务端路径 + 生僻字标记词 防本地 FTS 命中短路）+ macOS flutter test 集成测试（TEST_ALLOW_SEARCH_ACCEPTANCE 门，配方见 integration_test/search/*.dart 头注）",
+    "fixes": [
+      "P1 message_search_page 对端判定（C2C 恒取 toId/C2G 取 fromId，imboyapp 8b5b7290）",
+      "P0 后端 fts 六处 SQL（C2G 列名/jsonb 操作符/参数双记账/C2C 中文分词等——C2G 搜索与筛选搜索家族从未可用，imboy 23f96d4e）",
+      "P2 web_search 最近搜索点击不退出 showRecent（点了没反应，8b5b7290）",
+      "P1 web_search 联系人跳转 /people_info 路由不存在（应 /contact/people/:id，8b5b7290）"
     ],
-    "root_cause_chain_4_layers": [
-     "表象：联系人路径失败 + 5 分钟超时；前 8 轮误判 Live binding 挂死为主因（挂死真实存在 ~60% 但非本 Case 主因）",
-     "探针定性：macOS 测试窗口 logicalWidth=452（physical 904 / dpr 2.0）< 600 断点 → isTablet=false → 移动端 GlassBottomNavigationBar，树上根本无 NavigationRail（测试注释\"800px 落在 tablet NavigationRail\"前提错误）；tab_contacts 底栏点击正常、ContactPage 挂载正常、/api/v1/friend/list 请求正常",
-     "真根因：[contact_provider] listFriend sync error: Exception: Database is null → sqlite migration preflight aborted: quick_check not ok (corrupt / wrong key) → smoke_bob 本地加密库 local_office_1000000056.db 僵尸态：Keychain 无 db_cipher_key_1000000056 但库文件在（logout purge 密钥与 deleteDatabaseForUid 删库非原子，09-02 pro_6.db 同款事故的反向形态）→ 服务端同步成功但无法落库 → handleList 永不执行 → 联系人列表恒空",
-     "修复：备份改名 local_office_1000000056.db → .zombie_20260905_*（零删除，09-02 keylost.bak 同款处置法）→ 新库重建（Creating new database）→ 会话行/联系人恢复 → mac ping 10 秒全绿"
+    "tests": "integration_test/search/ 四件全绿（ms_core 3 行/ms_history 2 行/sc 5 行/web_search 10 行+AT-BN1）",
+    "blocked_remain": [
+      "web_search 群组行：本地群 shadow 数据未同步（真机日常账号可测）",
+      "web_login 9 行：flutter drive web 挂死定性（web 运行时设施需专项）",
+      "upgrade 2 行（断网重试/哈希重试）：需真机构造故障，设备存储水位 893M 问题待用户清理"
     ],
-    "artifacts": [
-     "integration_test/two_client/mac_probe_rail_tap_test.dart（诊断探针，非验收用例，无参数安全 skip，保留）",
-     "test/auto_test/reports/resume_2026-09-03/run_probe_rail.sh + logs/probe_rail.log",
-     "logs/macos_peer_c2c_ping.log 第 10 轮"
+    "test_env_quirks": "桌面集成测试 IME 附件脱落（enterText 静默失效→重进路由规避）；ListView 懒加载裁剪不可见分组（触底滚动后断言）；macOS 僵尸库判定法再现并按备份改名自愈（local_office_1000000056.db.zombie_20260906_0805）",
+    "commits": "imboy 23f96d4e / imboyapp 8b5b7290 + 1cf74f0c（台账）；误吞 staged 事故已 soft reset 补救（pathspec 重提，并行会话 78 文件 index 完好）",
+    "batch_113": {
+      "date": "2026-09-06",
+      "scope": "group_member_page 12 行「需建 20 人以上测试群」阻塞全解除",
+      "seed_data": "本地 PG 4323：user 1000000071~1000000091（GMSmoke01~21，密码复用 smoke_bob hash）+ 群 100000000000000120 22 人（bob 群主/01 管理员/02 副群主/03 嘉宾/04~21 成员，04/05 禁言 2天/3小时）。教训：user INSERT 与 group_member 角色行的 uid 段错位一次（LEFT JOIN 静默丢行 total 21≠22），重写成员行修复",
+      "tests": [
+        "integration_test/group/group_member_acceptance_test.dart（AT-GM1/2/3/5/7/8/9/10/11/12，11 断言组，All passed）",
+        "integration_test/group/gm_pagination_failover_test.dart（AT-GM4 故障注入，All passed）"
+      ],
+      "bugs": {
+        "imboy_group_member_handler_swallow_ds_error": "page action 把 page_with_user_info 错误吞成 total=0 空列表 success——客户端停在不完整第一页且 hasMore=false，第 2 页静默永久丢失；修复为 elib_response:error + eunit 失败路径用例（group_member_handler_tests 6/6 绿）",
+        "imboyapp_pagination_no_rollback_on_business_fail": "_loadData 仅网络异常回滚 _currentPage，业务失败（ok=false→payload null）不回滚导致跳页漏成员；补 else 分支回滚（group_member_page.dart）"
+      },
+      "quirks": [
+        "flutter_tester 沙箱禁止 spawn 子进程（Process.run erl → ProcessException: Operation not permitted）——故障注入改用 HttpClient.adapterForTest 包装 adapter（页面每次 new GroupMemberApi，实例拦截器够不着）",
+        "code:load_binary 要求 beam 模块名与目标一致（stub 名错报 module name in object code is gml_stub）",
+        "ListView 懒加载视口裁剪：禁言徽章/远端行需滚动到视口内才可断言（两度踩）",
+        "EasyRefresh 在列表底部纯 overscroll 不再触发 onLoad，恢复测试需回顶经 onRefresh 重载后再触底",
+        "服务端 page 序=m.id desc（非 role DESC），筛选断言前先弄清真实顺序",
+        "客户端回滚断言链 dio validateStatus 全放行+code!=0→ok=false",
+        "dart:io Process.run erl 需绝对路径 /opt/homebrew/bin/erl（flutter test 进程 PATH 不含）"
+      ],
+      "imboy_eunit": "handler 套件 6/6 绿（含新增失败路径用例）；group 邻居 9 套件全绿；全量 eunit 11 失败为并行线 flake（D 链 user_ds/user_logic、F 线 imboy_feature/policy、workspace_archive、stress 成功率），与本批次无关（imboy 树当时干净）",
+      "commits": "见 git log（imboy handler 修复+eunit；imboyapp 客户端修复+2 测试文件+台账）"
+    },
+    "batch_114": {
+      "date": "2026-09-06",
+      "scope": "group 域批量收尾 15 行（member_detail 5 + group_detail 3 + change_info 1 + add_member 1 + remove_member 2 + launch_chat 2 + group_announcement 1）",
+      "tests": [
+        "integration_test/group/member_detail_actions_test.dart（AT-MD1~5 管理操作链，All passed）",
+        "integration_test/group/group_manage_pages_test.dart（AT-GD/CI/AM/RM1/RM2 + AT-E2E/AT-DG，All passed）",
+        "integration_test/group/launch_chat_announcement_test.dart（AT-AN/AT-LC1/AT-LC2，All passed）"
+      ],
+      "write_ops_note": "全部写操作打本地 9801+本地库假数据（GMSmoke 假人/SmokeAlice 测试号），无生产数据无真人打扰；AM→RM 闭环（alice 进→出还原）、GMSmoke06 移出后 SQL 补回维持 22 人基线；群级 E2EE 0→1 单向开启（本地测试群接受）",
+      "quirks": [
+        "tap 被 AppLoading toast Overlay 吞掉——统一 ensureVisible+tap(first)+toast 后 pump 缓冲（member_detail 链踩两次）",
+        "测试幂等自愈三件套：遗留禁言先解禁、遗留管理员先取消、群名两值翻转",
+        "ActionSheet 关闭后文案不存在——断言需重开 sheet 验证",
+        "勾选后按钮文本变「完成(N)」——用 textContaining",
+        "postFrame 里的自动 pop 无法轮询捕捉——对照法（带参挂载 vs 空参退出）",
+        "go_router 嵌套路由 push 必须带父前缀 /group/announcement（二踩静默失败）",
+        "tester.widget<T>(find.text) 类型断言错误——应找 ancestor CupertinoButton"
+      ],
+      "maintain": "维持行：launch_chat 空态+add_member 空态（需零好友账号 UI 登录）、group_select（无活入口）、group_task×2（需先造任务数据）",
+      "commits": "见 git log 批次114"
+    },
+    "batch_115": {
+      "date": "2026-09-06",
+      "scope": "workspace 壳验收 6 行（groups 他区反例/空态/失败重试 + channels 反例/空态 + projects 下拉刷新）",
+      "seed_data": "SQL：第二区群改名 AT-WS2-General/频道 at-ws2-announcements 作反例标记；新建空工作区 100000000000000210「AT-WS-空区-115」（bob owner，无群无频道）",
+      "tests": [
+        "integration_test/workspace/workspace_shell_acceptance_test.dart（AT-WG1/WC1/WG2/WC2/WF/WP，All passed）"
+      ],
+      "quirks": [
+        "adapterForTest 必须在 app.main() 之前设置——WorkspaceApi 等实例构造早，晚设置打不到已构造实例的 Dio（invalidate 后仍 AsyncData([])，拦截日志是假象）",
+        "Riverpod 2 AsyncLoading 保留前值(value+error 字段)——轮询 read 判 AsyncError 而非看 UI",
+        "IndexedStack offstage 子树渲染对 onstage finder 不可见——错误视图断言前先把 destination 切到目标页",
+        "两区模板群/频道同名单纯文字无法区分他区反例——SQL 改名做标记",
+        "shell 切体验=container.read(productExperienceProvider.notifier).select(workspace)；切区=workspaceShellProvider.selectWorkspace"
+      ],
+      "maintain": "workspace 其余 18 行维持：无工作区账号类 6 行（需 UI 登录切号）、失败+无缓存叠加类（需清 SQLCipher 缓存不可行）、create 幂等/409、invite 故障注入、branding 非 Owner、members/overview 空态",
+      "commits": "见 git log 批次115"
+    }
+  },
+  "session_2026_09_06_batch116": {
+    "note": "批次116：new_friend 4 行 + channel_subscriber 3 行阻塞解除（README 阻塞 200→193），2 个真 bug 修复（客户端 NF uk 拼接 / 服务端订阅者分页游标语义）。",
+    "fixes": [
+      "P1 new_friend_provider delete 的 uk 拼接缺下划线（from+to ≠ 模型 from_to）→ indexWhere 恒 miss → removeAt(-1) RangeError，表现为删除后列表无反应（库已删 UI 不刷新）；已修 + index==-1 防御",
+      "P0 服务端 channel_subscription_repo:list_by_channel 把 offset 型 cursor 当 `cs.id <` 游标（TSID 大整数与条数永不可比）→ 第二页恒空、尾部订阅者 UI 永久不可见；改 LIMIT/OFFSET + cs.id DESC 稳定排序；修复过程二坑：热更版委托子句 (0,Limit)→(Limit,0) 参数反置致 LIMIT 0 首页恒空——curl 只验了第二页漏掉首页，被测试内 DIAG-CS0 原始信封（ok=true code=0 list=[]）抓出，收敛为单子句 guard Cursor>=0",
+      "环境坑（非产品 bug）：直插 SQL 造数绕过订阅流致 channel.subscriber_count=0，移除事务 subscriber_count-1 撞 chk_channel_subscriber_count>=0 CHECK 回滚→「移除订阅者失败」；校准计数器=实际行数后闭环（配方入测试头注）"
     ],
-    "reusable_recipe": "DB 僵尸态判定法：①grep 测试日志 \"migration preflight aborted\" ②security find-generic-password -s db_cipher_key_<uid> 验密钥存在性。库文件在+密钥缺=僵尸态→备份改名库文件即可自愈"
-   }
+    "tests": "integration_test/contact/new_friend_acceptance_test.dart（AT-NF1 左滑删除/NF2 查看资料/NF3 三状态标签/NF4 已发送标签 全绿）；integration_test/channel/channel_subscriber_acceptance_test.dart（AT-CS1 分页 30+6/CS2 查看资料/CS3 移除订阅者 全绿+DB 双实证；CS4 邀请入口未出现走降级分支，行保持阻塞）",
+    "blocked_remain": [
+      "channel_subscriber 邀请选人弹层过滤：需私有频道+第二台设备（批次116 实测 extra canInvite=true 下入口仍未出现）"
+    ],
+    "test_env_quirks": "行内 PopupMenuButton 是 ListTile trailing 子节点而非标题 Text 的祖先，find.ancestor 结构性恒空（误配到 AppBar 菜单）→ 须 tile祖先→descendant 两段定位（踩 3 轮）；CS1 触底后 ListView 懒加载致顶部行未渲染，断言顶部行前须滚回顶部；app header 认证用 authorization（const tokenKey），curl 用 token 头会 401 干扰排查；造数须同步校准 channel.subscriber_count",
+    "commits": "imboyapp: 本批次 provider 修复+2 测试+台账 pathspec 提交；imboy: channel_subscription_repo 分页修复（热更 9801 已生效）；均为提交后补记"
   },
-  {
-   "case": "integration_test/auth/password_change_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "logs/device_password_change_forward4.log + device_password_change_restore.log（reports/resume_2026-09-03/）：正向 admin888→SmokeAlice#2026 全链 UI PASS（1:02）+ 反向复原 PASS（1:07）+ 复原后 admin888 API 登录验证通过",
-   "resolution": "2026-09-03 本地沙箱（127.0.0.1:9801 专属节点 + smoke_alice）执行。**挖出真 P0：改密功能全链路不可用**——服务端 user_logic:change_password/set_password 无条件 rsa_decrypt 对 App 明文（rsa_encrypt 未传）抛 {error,invalid_padding} 恒 500。三处修复：①服务端改 safe_rsa_decrypt+rsa_encrypt 参数（对齐 passport login 契约，imboy 仓 user_logic.erl）②App UserApi.changePassword/setPassword 补发 rsa_encrypt:'0'（imboyapp 仓）③update_password_with_log 此前 `_ = with_tx` 吞事务失败返回假 success，改为如实返回错误。后端 user_handler_tests 7/7 绿。测试侧同步修 tab_mine 选择器漂移（tab_profile/tab_me→tab_mine）+补 dismissRecoveryGuide（首登 E2EE 恢复指南弹窗挡 Tab）",
-   "env_note": "9800 共享节点被并发 eunit 会话 meck 污染（elib_pg beam 热加载+fake_conn/mock_conn），改用 9801 专属节点（erlexec -noinput -args_file vm_9801.args + HTTP_PORT=9801）执行"
+  "session_2026_09_06_batch117": {
+    "note": "批次117（用户直派）：频道消息点赞/取消点赞报错全案闭环——一个用户症状剥出服务端三层缺陷+一环境配置漂移，curl 六步+EUnit 10 用例+macOS 真实 UI 集成测试三层验证全绿。",
+    "fixes": [
+      "P0 服务端触发器 fn_update_channel_message_reaction_summary：00000084 把空对象兜底改 '{}'::jsonb 后聚合仍用 json_object_agg（json），COALESCE(json,jsonb) 无公共类型→首次点赞 42846 cannot_coerce 回滚整个反应事务；迁移 00000089 统一 jsonb_object_agg（列类型 jsonb），本地 4323 已应用（schema_migrations 88→89），9801 热更四个模块（798a86e1）",
+      "P1 GET /reaction 无独立路由被 add_reaction 吞掉→「读一次=点赞一次」写副作用；channel_handler_message 按 method 分派（镜像 workspace_handler branding 模式）",
+      "P1 channel_logic:get_message_reactions：binary MessageId 未 decode_positive_id 直传 find_by_id→恒「消息不属于该频道」；且数据源误走 msg_reaction_ds（msg_type='channel' 恒空）→改 channel_logic_stats:list_message_reactions 按 channel_reaction 聚合（与写入同表）；channel_logic_common 导出 decode_positive_id",
+      "环境配置漂移（本地 9801，不入库）：config 表 pub.imboy.app_*_1 四条 sign_key 为错旧 ios 测试 key（OBsZGPTCW+…），真 app pkg=pub.imboy.app 命中后 init 配置解密失败→login_rsa_pub_key 落不了盘→UI 登录链断（退登/新装后无法登录）；config_ds:set 修正为客户端 solidified_key（教训：psql 直插明文会破坏 config 加密存储，必须走 config_ds:set）",
+      "测试基建：FlowApiClient 增 accessToken 注入口——集成测试独立 login 会触发「另一设备登录」把 App 会话挤下线（run2 实证 quitLogin 删库），复用主会话 token 规避"
+    ],
+    "tests": "AT-CL1 点赞（UI 计数 0→1+服务端 channel_reaction like=1+GET /reaction 可见+无失败 toast）/ AT-CL2 取消（回落+列表回空）run5 All tests passed；EUnit channel_logic_message_reactions_tests 8/8 + channel_reaction_summary_migration_tests 2/2；curl 全链六步（副作用消除/点赞/列表/取消/回空/终态 {}）；前端消费字段 reaction_summary+my_reactions 消息列表随行验证 OK",
+    "test_env_quirks": "channel_message_like_acceptance_test 重跑前需清残留：DELETE channel_reaction WHERE message_id=110252446493968384 AND user_id=1000000056 + reaction_summary 置 {}（配方在测试头注）；运行需 API_BASE_URL 与 API_BASE_URL_OVERRIDE 两个 dart-define（FlowApiClient 读前者，app 读后者）",
+    "commits": {
+      "imboy": "798a86e1 fix(channel) 迁移00000089+method分派+get_message_reactions 修复+EUnit",
+      "imboyapp": "f69a3a82 test(channel) AT-CL 集成测试+FlowApiClient token 注入"
+    },
+    "ledger": "channel_detail_page.md 点赞行批次25→批次117（3/3），README 155页面/1748功能点/阻塞193（不变，bug 发现=解决）"
   },
-  {
-   "case": "integration_test/auth/register_flow_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "2026-09-05 Android 真机 XWE6R19916004085（MRD-AL00）以 armeabi-v7a Profile 单 ABI APK 执行：APP_ENV=local_office、API_BASE_URL/API_BASE_URL_OVERRIDE=http://127.0.0.1:9801、TEST_ALLOW_REGISTER/TEST_ALLOW_BUSINESS_WRITES=true、TEST_REG_CODE=123456；日志依次确认『注册下一步按钮状态: enabled』『验证码注册按钮状态: enabled』『邮箱注册全链完成：下一步→验证码注入→注册→管理账户页』，00:23 +2 All tests passed，且无 Expected/Actual 失败断言。",
-   "resolution": "根因不是注册 API 失败：后端 signup 成功只创建用户并返回空 payload，客户端随即 context.go('/manage_account')，但该路由受登录守卫保护，因尚无 token 必然重定向回登录页。confirmSignup 成功后复用既有 _login 正式登录链建立 token/本地用户态，再进入管理账户页；Profile+split-per-abi 绕过通用 Debug APK 的空间安装阻塞。"
+  "session_2026_09_06_batch118": {
+    "note": "批次118（用户直派）：资料设置页投诉报「投诉失败，请稍后再试」全案——本地 curl/生产探针接口均正常，真因是前端把后端可读原因全部吞成通用失败文案；修复=ReportApi 消息透出，四处入口同步，AT-RP 两行 macOS 全链一次全绿。",
+    "fixes": [
+      "UI 吞后端消息：ReportApi.create/createMessage 只返回 bool，resp.msg 里的后端可读原因（「您已举报过该对象」「举报原因不能为空」等）全部丢弃，失败一律显示「投诉失败，请稍后再试」；改返回 (bool,String) + friendlyError 过滤网络层噪音后透出（镜像 E2EE 文案路由「文案=唯一诊断通道」惯例），contact_setting/group_detail/message_action_menu/channel_message_feed 四处入口同步",
+      "定位过程要点：本地 9801 curl 投诉成功；生产探针（测试号 15001 登录+举报）code=0 正常、路由存在（902 签名门 vs 不存在路径空响应的判别法）；后端 create 有 already_reported 幂等——用户场景最可能是重复举报被旧版 UI 吞成通用文案，具体原因已被掩盖，修复后会显示真实原因",
+      "顺带发现（生产,未修）：report/create 对不存在的 target_id（999999）也 code=0 落库，服务端缺目标存在性校验，记入 task_state 供后续批次"
+    ],
+    "tests": "AT-RP1 首次投诉（toast 投诉已提交）/ AT-RP2 重复投诉（toast 您已举报过该对象+断言不再出现通用失败文案）run1 一次全绿；message_action_menu 单测 26/26 回归（_FakeReportApi 适配新签名）；数据自愈配方（report_ticket 清场 SQL）在测试头注",
+    "test_env_quirks": "投诉工单幂等（reporter+target 唯一）：重跑 AT-RP 前须 DELETE FROM report_ticket WHERE reporter_uid=1000000056 AND target_type='user' AND target_id=1000000051；生产探针用测试号 15001@imboy.pub/admin888（FlowApiClient deviceType:'android' 过签名门）",
+    "commits": {
+      "imboyapp_fix": "ReportApi 消息透出+四入口+单测适配",
+      "imboyapp_test": "AT-RP 集成测试+台账批次118"
+    },
+    "ledger": "contact_setting_page.md 举报行批次80→118（1/1），README 155页面/1748功能点/阻塞193 不变"
   },
-  {
-   "case": "integration_test/channel/channel_subscribed_detail_consistency_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "logs/device_channel_subscribed_consistency.log：00:57 +1 All tests passed——列表首项频道名与详情页一致、无『频道不存在』",
-   "resolution": "2026-09-03 本地沙箱执行。fixture 准备=API 先给 smoke_alice 订阅免费频道 110252446336681984（DEMO-FLOW-20260827 频道创作者验证，订阅+回读 list 均成功）；阻塞『需人工确认测试账号』以 agent 自有 smoke 号在本地后端消除"
+  "session_2026_09_06_batch119": {
+    "note": "批次119：signup 系列 12 行解阻 11 行（1 行语言切换转全局 locale 域维持阻塞）+ 后端 getcode 500 真 bug 修复。钥匙=local 环境验证码链（sms.switch=off 不外发+查库读真码）。",
+    "fixes": [
+      "P1 后端 getcode 500 空响应（imboy 83a9aea5）：config 配 platform=aliyun 但 imboy_sms:send 只有 yjsms/jsms 子句→function_clause 炸穿 handler，注册/找回密码全不可用；且 sms.switch=off 配置无人消费。修=send_sms_code 消费 switch（off 落库不外发）+ send/3 兜底子句可控错误",
+      "P2 前端 per_minute_once 裸显（app 791f70be）：60s 发码频控的英文错误码直接 toast 给用户；_localizedAuthErrMsg 加映射+doSendCode 返回本地化消息",
+      "测试基建教训：flutter_tester 沙盒禁 spawn（Process.run psql = Operation not permitted）→ 宿主 bash 预备验证码经 --dart-define=TEST_VERIFY_CODE 注入；第三方 IntlPhoneNumberInput 内部字段 enterText 不可靠（run1-5 实证）→ 注册数据经公开 notifier setSignupData 注入+发码 API 触发",
+      "红线规避：local 配真实 SMTP（smtp.qq.com+授权码），email 链发码会真发信→按约束只用 sms 链（switch=off+空凭据零外发）；email 链保持阻塞并在台账注明"
+    ],
+    "tests": "AT-SU 六段 run11 一次全绿：兜底页/发码进验证页(RichText 断言需 findRichText:true)/重发反馈/填码提交跳管理账户/重复注册双层拦截/登录入口；宿主脚本 /tmp/su_orchestrate.sh 编排（清场→getcode读码→flutter test→signup 端第二层 curl 断言「手机号已经被占用了」）",
+    "test_env_quirks": "重跑前 psql 清 verification_code+user（mobile LIKE %19900001234%）；宿主 getcode 后 60s 内测试内 client.getcode 命中 throttle 属预期（AT-SU1 断言仅 code=0，60s 窗口边缘偶发失败可重跑）；万能码 abc12345 8 位字母过不了 6 位数字 PinField",
+    "commits": {
+      "imboy": "83a9aea5 fix(passport) switch 消费+send 兜底子句",
+      "imboyapp": "791f70be fix(passport) 频控文案本地化+AT-SU 测试"
+    },
+    "ledger": "signup_page 1 行+signup_continue 10 行转已通过（语言切换 1 行转全局域阻塞）；README 155页面/1748功能点/待处理 bug 4"
   },
-  {
-   "case": "integration_test/demo_flow/group_collaboration_flow_test.dart",
-   "result": "SKIP",
-   "status": "blocked",
-   "blocker": "【2026-09-03 晚定案：设计性生产验证 flow，不可本地沙箱消除】代码层强制 FlowConfig.targetsProduction=true（group_collaboration_flow_test.dart:94 非 targetsProduction 直接 skip），并需 TEST_ALLOW_DUAL_ACCOUNT_GROUP_COLLAB_PROD_WRITES=true + 生产群/双账号/日程/任务/投票写入授权。该 flow 的设计意图就是『已授权的生产双账号验证』，本地跑必设计性 skip。待用户决策：A.授权生产双账号+目标群执行 B.退休该 flow（本地只读路径已被 #46 readback 等覆盖）C.改写为本地可跑版本（新增本地 flow，另立项）",
-   "evidence": "2026-09-03 门禁代码复核（targetsProduction 强制）；2026-09-03 身份/目标门禁静态分析通过，未执行网络写入"
+  "session_2026_09_06_batch120": {
+    "batch": 120,
+    "scope": "mine 域账号安全链 8 行阻塞（set_password 4+change_password 2+logout_account 2），载体批次119 一次性账号 SmokeEmpty(account=51730/id=111174215241304064)",
+    "bugs_found_fixed": [
+      "P0 前端契约：UserApi.setPassword 传 md5+RSA 密文却声明 rsa_encrypt=0，服务端不解密直接 hash，UI 设密的密码任何登录形态验证不过（账号锁死级）；修=声明 rsa_encrypt=1，curl md5 登录 code=0 回归",
+      "后端：passport_logic:login_resp 漏拼 mobile 键，登录缓存 mobile 恒空，needGuide 恒真，set_password『已绑→主导航』分支永不可达；修=补字段（imboy c5921d61 热更 9801+curl 验证）",
+      "前端：UserApi.changePassword 裸显英文码 errorPassword；修=_localizedUserErrMsg 映射 t.common.errorPassword",
+      "顺手清理：setPassword 的 have_set 死分支（后端无此码）改为按真实文案含「已设置过密码」判断保留 needSetPwd 清理语义"
+    ],
+    "tests": "integration_test/mine/account_security_lifecycle_test.dart AT-AS1~5；基建 integration_test/flows/pg_helper.dart（纯 dart PG 直连 4323，突破 flutter_tester 禁 spawn）",
+    "verified": "AS1 设密失败兜底/AS2 未绑引导页/AS3 已绑主导航(mobile 回归) 三场景 macos 实跑全绿(orch11)；AS4 错误路径(密码错误 toast)实证",
+    "pending": "AS4 成功链（二次提交未落库待查，疑迟到401踢会话）与 AS5 注销终章未闭环——Docker Desktop VM 磁盘满致 imboy_pg18(4323) 瘫痪，9801 后端同依赖；恢复后 bash /tmp/as_orchestrate.sh 续跑（脚本自洽造数）",
+    "ledger": "解阻 5 行（set_password 4+change_password 1）；change_password 成功链 1 行改阻塞理由；logout_account 2 行阻塞理由更新为待环境恢复；发现 216→219/解决 212→215",
+    "commits": "imboy c5921d61（mobile 补发+eunit 桩）；imboyapp 13235669（本地化+契约修复+测试+基建）——均未 push",
+    "lessons": "flutter_tester 本地存储跨轮持久→缓存残留可污染跨场景断言（quitLogin 重登刷缓存）；EasyLoading toast 3s 与提交后 pump 等待竞速；启动期旧 token 401 风暴 http_auth_expired 迟到踢会话（app 登录竞态疑真 bug 待立项）；磁盘满会让 Docker VM 无法启动、4323/9801 全链瘫痪",
+    "final": "批次120 全部收官：五场景 AT-AS1~5 实跑全绿（orch14 AS1-3+AS4 final4/AS5 run3）；elib_password verify 候选补 sha256(md5hex(P)) 修复改密链（imboy 69b7eca3 热更+手工 curl 闭环 code=0）；台账 8 行阻塞全解（set_password 4/change_password 2/logout_account 2）；bug 216→220/212→216/待处理 4 恒等式保持",
+    "env_note": "Docker Desktop VM(Docker.raw) 磁盘满曾致 4323/9801 全瘫；恢复=重启 Docker Desktop+docker builder prune -af 释放 17.5GB；bootstrap 含主动清残留 token 防启动期 401 风暴踢会话"
   },
-  {
-   "case": "integration_test/demo_flow/group_creation_management_flow_test.dart",
-   "result": "SKIP",
-   "status": "blocked",
-   "blocker": "【2026-09-03 晚定案：同 group_collaboration，设计性生产验证 flow】强制 targetsProduction（group_creation_management_flow_test.dart:159-162）+ TEST_ALLOW_DUAL_ACCOUNT_GROUP_PROD_WRITES=true + 建群/改群/邀请/公告生产写入授权。本地沙箱不可消除（本地建群链已被 09-03 local_e2ee_group_fixture_flow+本会话 #46 fixture API 实证覆盖）。待用户决策：同上 A/B/C",
-   "evidence": "2026-09-03 门禁代码复核"
+  "session_2026_09_08_batch127": {
+    "note": "批次127：阶段一 personal_info 待首测清零（AT-PI13 正向路径）+ 阶段二 face_to_face_confirm 2 条待修复闭环（真根因=join_group 去重 int/String 类型失配，推翻批次123『确认页被移出路由树』定性）。",
+    "at_pi13": {
+      "scope": "personal_info_page 行13 点头像打开大图预览（正向路径），批次125 因『F-13 SSRF 拒本地 127.0.0.1 图源』阻塞转真机",
+      "unblock_recipe": "F-13 只拒内网（localhost/127/10/192.168/172.16-31/0.0.0.0/::1/云元数据），公网 https 放行（设计注释：拒绝内网而非域名白名单）。造值=服务端 user.avatar 置公网 URL https://imboy.pub/imboy-logo-480X480.png（带 viewUrl 追加 s/a/v query 亦 200，已 curl 实证），_boot 无条件重登经 login_resp.avatar（passport_logic login_resp 带 avatar 字段）进本地缓存",
+      "result": "run1 一次全绿（00:30 +1）：列表页(192宽)+预览页(原图 w=0)两次真实下载 329351 bytes 成功，PhotoView/xmark 挂载+关闭返回断言全过；tearDownAll 恢复 avatar 空（AT-PI05/PI06 依赖空前置）。台账行13 已回写 无待办/已通过/批次127",
+      "evidence": "test/auto_test/reports/batch127/at_pi13_run1.log、at_pi13_run2.log",
+      "env_limit": "test runner 不支持 binding.takeScreenshot（MissingPluginException 跳过）+宿主 screencapture 无 TCC 权限——视觉快照缺，功能证据=下载日志+断言链（符合 LOOP_PROMPT logcat 主判据）"
+    },
+    "f2f_root_cause": {
+      "verdict": "批次123『join_group 事件处理后确认页被移出路由树（GoRouter extra 传参嫌疑）』定性被推翻。诊断探针（integration_test/group/f2f_diag_probe_test.dart，对照实验）实证：确认页全程存活（PROBE-2a 虚拟时钟+8s 存活排除 Timer 型；PROBE-1 手动 fire S2C 同构 payload 后存活且人数正确刷 2）",
+      "true_root_cause": "face_to_face_confirm_page initData 监听器去重条件 `e.id == obj.payload['userId']`：PeopleModel.id 是 int、S2C payload['userId'] 是 parseModelString 产物 String，int==String 恒 false → 去重恒失效。服务端对同一次 B 加入连推 3 条不同 msgId 的 group_member_join（GF5 日志实证），全部插入 → 人数 1→4 而非 1→2，「2 人」断言永假",
+      "fix": "face_to_face_confirm_page.dart 去重条件统一 parseModelInt(obj.payload['userId']) 再比较（注释含根因）",
+      "verified": "修复后 PROBE-3 真实 B HTTP join → 人数=2 ✓；AT-GF5 单跑全绿（00:19，KNOWN-ISSUE 分支未触发+DB 成员行断言过）reports/batch127/gf5_run2_fixed.log；单测 face_to_face_state 5/5 绿",
+      "regression_note": "同事件其他消费者无同款失配：chat_event_subscription_manager（groupId String==String，isFirst bool）与 group_detail_page（people as PeopleModel，leave 侧有 int.tryParse 防御）。潜在 P3 记录：group_detail_page addMember 无去重，重复推送可能重复加成员（等回归复测轮验证群详情场景，未扩大范围）",
+      "secondary_finding": "服务端 face2face join 对同一加入连推 3 条 notify（服务端重复推送，客户端幂等已修可防御；服务端侧去重另记账不扩大本轮范围）。memberJoin detail 404（通知先于建群）实为正确 fail-safe：save 前本地无群行，B 成员行不入本地库由 faceToFaceSave 全量 memberList 兜底"
+    },
+    "full_run_caveat": "face_to_face_acceptance 全文件跑（+4 ~7 skip）的 7 skip 为编排问题非产品回归：前序场景停在子页面（群列表/面对面页），后续 _boot 检测不到主 Shell 稳定态走 markTestSkipped（DIAG 页面文本实证）；批次123 基线=逐场景 --plain-name 单跑。验收以单跑为准",
+    "test_env_quirks": [
+      "flutter test runner 不支持 binding.takeScreenshot；宿主 screencapture 需 TCC 屏幕录制权限（本会话无）；Android 真机另有 EMUI screencap 黑帧坑",
+      "go_router 18.0.1 RouteMatchBase 无 uri getter，路由栈打印用 router.routeInformationProvider.value.uri",
+      "FlowConfig 是 integration_test/flows/test_utils.dart 的测试侧类，非 lib/ 产品类",
+      "HTTP face2face 是 GET+query+authorization 头（非 POST+token 头），对端 B 载体 account=51734/mobile=51798/uid=111279969973569536"
+    ],
+    "next_actions": [
+      "GF7 回归挂死定性（见 gf7_hang）留待下轮重验；GF3/GF8 因同页面主链已由 GF5 复验覆盖+修改零交集，不再单独跑",
+      "三态例行阻塞条评估结论：workspace_picker『失败+无缓存』有构造解（测试内 repo 清本地 sqlite 缓存 + adapterForTest 注入 500），可转验收测试（下轮处理）",
+      "并行会话需知：其 i18n 消息提交被顶（原文 /tmp/a02fa620_orig_msg.txt 留档），i18n 改动未入库需重提"
+    ],
+    "automation": "2026-09-08 用户创建每40分钟一轮自动化循环（automation-a020c1a0-437e-456f-9383-5186b3fc2c44，cron */40 * * * *），按 LOOP_PROMPT 规程推进台账",
+    "gf7_hang": {
+      "symptom": "AT-GF7 --plain-name 连续 3 次挂死（21:48/21:57/22:10），flutter_tester 框架层 stream_channel/_GuaranteeSink listener.dart 通道挂死，测试体零 [FLOW] 日志（app.main 未执行到 boot），240s 硬超时也 0 输出",
+      "causality_ruling": "与批次127 修改无因果：修改=join_group 事件回调内 3 行类型对齐，与 GF7 链（faceToFaceSave+pushReplacement）零交集；同文件同配方 AT-GF5 复验全绿（00:19）；批次123 GF7 基线绿",
+      "hypothesis": "macOS Live binding 挂死先例（批次记忆 60% 挂死率）或 22:08 起 automation 循环与会话并发操作同环境（未证实）",
+      "disposition": "非阻塞收尾：GF7 留待下轮（automation 或人工）环境恢复后重验；不伪装通过"
+    },
+    "commit_incident": {
+      "what": "22:56 提交竞态：并行会话的 git commit（i18n 消息，/tmp/c1_msg.txt 撞名）吞入我 staged 的 confirm_page 修复，HEAD=a02fa620 消息与内容不符；我方 amend 两次定型 940bc11e fix(group)（内容不变仅换消息）",
+      "root_cause_chain": "①我的 cd 路径 typo（imboy.project）致 heredoc 写 /tmp/c1_msg.txt 被 && 短路 ②heredoc 后独立语句 git commit -F /tmp/c1_msg.txt 照常执行，读到并行会话写入的 i18n 消息 ③/tmp 消息文件路径撞车",
+      "lesson": "commit 消息文件必须用专属路径（非共享 /tmp 根）；heredoc 不得与依赖它的命令用 && 短路结构；commit 后必须 git log -1 核对消息+内容双匹配（lefthook 静默吞/串消息两型）",
+      "residue": "并行会话的 i18n 340 行删除未入库（其消息已在 940bc11e 中被顶掉），原文留档 /tmp/a02fa620_orig_msg.txt"
+    }
   },
-  {
-   "case": "integration_test/demo_flow/group_dual_account_message_flow_test.dart",
-   "result": "SKIP",
-   "status": "blocked",
-   "blocker": "【2026-09-04 定案：Android sender 侧真机存储水位（同 #46）；macOS receiver 侧已就绪】B2Y 群 gid=110572649006237696 复核完好（e2ee_mode=1+双成员）。macOS smoke_bob 登录态在位+manifest 门禁已解（见 mod_mac_ping_contact_fallback 注记的缓存注入配方，receiver 启动链同款）。执行脚本 run_44_dual_group.sh 就绪，等 Android 侧存储恢复后跑 【09-04 16 时补充】247M 新 APK @893M 仍 INSTALL_FAILED_INSUFFICIENT_STORAGE（详见 #readback 条目）。 【09-05 更新】macOS receiver 侧 DB 僵尸态已随 #17 根因修复解除（备份改名 local_office_1000000056.db 后新库重建，receiver 链路就绪）；剩余阻塞仍为 Android sender 侧存储水位。",
-   "evidence": "B2Y 群 PG 复核；macOS local_office_1000000056.db 在位"
+  "session_2026_09_09_batch128": {
+    "note": "批次128（automation 首轮触发）：三态例行阻塞条 workspace_picker『失败+无缓存』构造验收 AT-WPF1 全绿，阻塞 96→95。无待首测/待修复，主块跳过。",
+    "at_wpf1": {
+      "scope": "workspace_picker_page『加载失败且无缓存数据时显示错误视图，点重试重新拉取』（批次W2R2 起阻塞）",
+      "blocker_overturned": "『清数据则卡登录不可达』定性推翻：provider 层 workspaces 仅 loadMine 成功时填充（state 初始空），无需清任何数据——真正难点是 WorkspaceShellNotifier 常驻（keepAlive），启动期成功首载后 workspaces 残留致 hasWorkspace=true 永走列表分支",
+      "construction_recipe": "①登录后 select(chat) 归位持久化体验 ②container.invalidate(workspaceShellProvider) 强制 state 归零 ③failMine=true 下 select(workspace) 触发壳首载被拦 ④兜底手动 loadMine ⑤深链 /workspace 断言错误视图+无缓存反证 ⑥解除拦截 tap 重试 → 列表恢复",
+      "result": "run12 全绿（01:05 +1）：error=simulated_ws_mine_down/hasWs=false/n=0，错误视图+重试按钮+无缓存反证+重试恢复列表全过",
+      "evidence": "test/auto_test/reports/batch128/wpf_run12.log（run1~11 为迭代史）"
+    },
+    "test_env_quirks_batch128": [
+      "HttpClient.adapterForTest 拦截在『沿用已登录态启动链』下曾失效（run4），无条件 quitLogin 重登路径必生效（run3 实证）",
+      "quitLogin 后残留 token 的异步 401 链（e2ee/report_device_key）会触发 http_auth_expired_callback 的 navigateToSignIn(in-flight) 与 performLogin 互踩踢掉新会话——需真实时间排空 4s+（批次120 同款）",
+      "单次 tap 可能被 Overlay 吞——ensureVisible+缓冲+双 tap（批次114 教训再现）",
+      "壳 Overview 不渲染 WorkspaceErrorView（仅列表类页面），错误视图断言以 picker 页为载体"
+    ],
+    "env_incident_fixed": "21:47~23:48 环境故障定案：9801 节点被重启回滚到 alpha.71 release beam（manifest_hash=旧12项 b6f00f4c），客户端 6fdab1d6 收敛后编译期 hash=742ac633（7项）→ App 启动 fail-closed 锁死 → GF7 三连挂死+WPF 前几轮挂死全是同一根因。修复=热加载 imboy/ebin/（15:49 编译，含 742ac633 宏）的 imboy_feature+app_manifest_handler 双 beam 到 9801（hotload_feature.escript 配方）。注意：9801 重启会再次丢失，需重新热加载或升级 release",
+    "gf7_reverify": "GF7 挂死根因已随 manifest 修复解除（启动锁死→正常），本轮时间预算已尽未重跑，留下轮优先验证：flutter test integration_test/group/face_to_face_acceptance_test.dart -d macos --plain-name AT-GF7 + 批次127 配方 define",
+    "next_actions": [
+      "GF7 重验（manifest 修复后应绿）",
+      "下轮 automation：§0 统计（无待首测/待修复→主块跳过）+ 三态例行阻塞 tail 尾部推进"
+    ]
   },
-  {
-   "case": "integration_test/demo_flow/group_member_join_probe_test.dart",
-   "result": "SKIP",
-   "status": "blocked",
-   "blocker": "【2026-09-03 晚定案：设计性生产验证 flow，不可本地沙箱消除】强制 targetsProduction（group_member_join_probe_test.dart:103-104）+ TEST_ALLOW_DUAL_ACCOUNT_GROUP_PROD_WRITES=true + 生产测试群邀请写入授权。本地邀请链已被 09-03 local_e2ee_group_fixture（邀请 smoke_bob）+本会话 #46 fixture（group_member/join API）实证覆盖。待用户决策：同 group_collaboration A/B/C",
-   "evidence": "2026-09-03 门禁代码复核"
+  "session_2026_09_09_batch129": {
+    "note": "批次129（automation 第二轮）：三态例行阻塞条 workspace_picker『首屏 loading→列表』解除（AT-WPF2 一次全绿），阻塞 95→94。无待首测/待修复，主块跳过。",
+    "at_wpf2": {
+      "scope": "workspace_picker_page『无任何工作区数据时首屏显示加载视图，加载完成后切换为列表』（批次W2R2 起阻塞）",
+      "construction": "同 AT-WPF1 基建+延迟档：_DelayedMineAdapter delayMineSeconds=6 挂住 loadMine → 在途窗口（isLoading=true）深链 /workspace 断言 WorkspaceLoadingView → 放行后真实成功断言切列表",
+      "result": "run1 一次全绿（00:51 +1）：loading 视图 ✓ + 延迟放行 + 切列表 ✓",
+      "evidence": "test/auto_test/reports/batch129/wpf2_run1.log"
+    },
+    "gf7_reverify": {
+      "result": "仍挂死（启动期 Connectivity 事件后零 FLOW，flutter_tester 退出）——manifest 已修复仍挂，存在独立于 manifest 的框架层挂死原因",
+      "contrast": "同环境 workspace_picker_failure_test（AT-WPF1/2）正常跑通——挂死与 face_to_face 文件/其 define 组合相关（51730 登录链？）或间歇性 Live binding 问题",
+      "disposition": "台账行 GF7 本身批次123 已绿，挂死不影响台账准确性；专项排查（flutter run 交互式/窗口焦点/define 二分）另立，不入本轮"
+    },
+    "next_actions": [
+      "下轮 automation：§0 统计（主块预计跳过）+ 三态例行阻塞 tail 尾部推进（现 tail=workspace_picker_page 后已无 workspace 行，tail 会前移）",
+      "GF7 专项排查可选：用 --plain-name AT-GF1 验证 face_to_face 文件其他场景是否也挂（二分定位文件级 vs 场景级）"
+    ]
   },
-  {
-   "case": "integration_test/demo_flow/group_member_readback_flow_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "logs/device_group_member_readback.log：Android MRD-AL00 真机 00:55 +1 All tests passed；smoke_bob UID=1000000056 登录本地 9801，回读目标群 110610282598107136、owner/member 1000000051/1000000056、群详情、公告 P0-GROUP-READBACK-MARKER-20260903-R1，并挂载 GroupDetailPage。前置修复：公告改走 IMBoyHttpResponse.payload；本地 9801 热加载当前 app_manifest_handler/imboy_feature 后返回匹配 hash/schema/compiled_features。"
+  "session_2026_09_09_batch130": {
+    "note": "批次130（automation 第三轮）：三态例行阻塞条 workspace_overview『成员预览空态』解除（AT-WOV1 一次全绿），阻塞 94→93。无待首测/待修复，主块跳过。",
+    "at_wov1": {
+      "scope": "workspace_overview_page『成员预览为空时展示暂无成员提示文案』（批次W2R2 起阻塞）",
+      "construction": "『工作区恒有Owner成员』推翻：adapterForTest 拦 /workspaces/{id}/overview 返回 code=0+payload={}（WorkspaceOverview 默认构造 memberPreview=[]），无需删改 DB 成员行；恢复=解除拦截+invalidate workspaceOverviewProvider（autoDispose.family）重新拉取",
+      "result": "run1 一次全绿（00:49 +1）：空态文案（t.workspace.membersEmpty）✓ + 重新拉取成员恢复 ✓",
+      "evidence": "test/auto_test/reports/batch130/wov_run1.log",
+      "recipe_note": "批次128~130 空态/失败/加载三型构造基建成型：adapterForTest（app.main 前装）+ 无条件 quitLogin 重登（401 排空 4s）+ invalidate 归零 state + 深链断言；后续同类『空态不可达』阻塞行可直接复用"
+    },
+    "gf7_note": "GF7 二分排查本轮未做（预算给 WOV 构造），留下轮可选：--plain-name AT-GF1 验证 face_to_face 文件其他场景是否同挂（文件级 vs 场景级二分）",
+    "next_actions": [
+      "下轮 automation：三态例行阻塞 tail 尾部推进（workspace 域还有 workspace_members_page『成员列表空态』同类，可复用 AT-WOV1 配方）"
+    ]
   },
-  {
-   "case": "integration_test/demo_flow/group_member_role_flow_test.dart",
-   "result": "SKIP",
-   "status": "blocked",
-   "blocker": "readback 步骤本地可跑（门禁 line 122 readback 直接放行）；promote/restore 强制 targetsProduction+TEST_ALLOW_DUAL_ACCOUNT_GROUP_ROLE_PROD_WRITES（line 126-140）。完整三步链（promote→readback→restore）中间态可能遗留 role=3，需授权+监督恢复。部分执行（仅 readback）可做但文件级完成需三步全跑。待用户决策：A.授权生产角色变更+监督 B.接受仅本地 readback 部分覆盖 C.退休",
-   "evidence": "2026-09-03 门禁代码复核；2026-09-03 身份/目标门禁静态分析及独立审查通过，未执行角色变更"
+  "session_2026_09_09_batch131": {
+    "note": "批次131（automation 第四轮）：三态例行阻塞条 workspace_members_page『成员列表空态』解除（AT-WVM1 全绿），阻塞 93→92。无待首测/待修复，主块跳过。",
+    "at_wvm1": {
+      "scope": "workspace_members_page『成员列表为空时空态展示标题与副标题提示』（批次W2R2 起阻塞）",
+      "construction": "adapterForTest 拦 members 接口（path 含 /members 且 query 含 page）返回 code=0+payload={}（WorkspacePageResult 默认 list=[]）→ 深链静态路由 /workspace/members（页面读 currentWorkspaceProvider，非 :workspaceId 参数路由）→ 断言 membersEmpty 标题+副标题稳定展示",
+      "result": "run6 全绿（01:03 +1，run1 深链路径错/run4-5 恢复断言超范围后收窄到行描述）",
+      "lesson": "①members 路由=/workspace/members 静态路径（无 :workspaceId）②python str.replace 不匹配时静默跳过——批量替换后必须 grep 复核 ③恢复段断言超出台账行描述时应收窄（空成员场景行只描述空态展示）"
+    },
+    "next_actions": [
+      "下轮 automation：三态例行阻塞 tail 尾部推进（workspace 域 Picker/Members/Overview 空态族已清，tail 前移）；GF7 二分排查仍可选"
+    ]
   },
-  {
-   "case": "integration_test/demo_flow/local_e2ee_group_fixture_flow_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "logs/device_local_e2ee_fixture2.log：00:52 +1 All tests passed——建群+邀请 smoke_bob+开 E2EE+详情回读 e2ee_mode=1（gid=110572649006237696，群 LOCAL-E2EE-GROUP-20260903-B2Y）",
-   "resolution": "2026-09-03 本地沙箱执行。首跑挂『详情必须回读 e2ee_mode=1』→挖出真产品缺陷：P1-7b 显式安全列收紧时把 e2ee_mode 从 group detail 列清单遗漏（客户端 group_api.dart P0-B B4 注释明确依赖 detail 携带该字段同步本地旗标，覆盖开关广播后才入群的成员）＝安全加固引入的静默契约回退。修复 imboy/src/api/group_handler.erl detail GroupCols 补 e2ee_mode + 热加载 9801 后复跑 PASS。阻塞『不可逆 E2EE 需授权』以本地合成群（仅含 smoke 双号）消除"
+  "session_2026_09_09_batch132": {
+    "note": "批次132（automation 第五轮）：三态例行阻塞 tail=workspace_invite『可选关系失败注入+单独重试』评估完成（解阻塞手段已具备，测试构造量大留待专项）；GF7 二分排查完成——挂死定性为 face_to_face 文件级。台账无变更，主块跳过。",
+    "invite_blocker_assessment": {
+      "row": "workspace_invite_page『可选关系单条失败互不影响，失败行支持单独重试』（理由：UI 无失败注入手段）",
+      "assessment": "解阻塞手段已具备：批次128 基建 adapterForTest 可注入 group join/channel invite 失败；产品侧 WorkspaceInviteResultsController 已完整实现独立 phase+retryGroup/retryChannel",
+      "cost": "测试需驱动完整邀请 UI 向导（user/search 搜索→选结果→提交），工作量 2-5 轮迭代，未在本轮启动",
+      "disposition": "维持阻塞，计划时间更新为『测试构造下轮启动（基建已具备）』——未改动台账（留给测试构造完成后一次性回写）"
+    },
+    "gf7_bisect_verdict": {
+      "result": "AT-GF1 与 AT-GF7 同位置挂死（启动期 Connectivity 事件后零 FLOW，flutter_tester 退出）——挂死为 face_to_face_acceptance_test 文件级，非 GF7 场景级",
+      "contrast": "同环境同时段 workspace 域三个测试文件（WPF/WOV/WVM）全部正常",
+      "hypothesis": "51730 载体的 autoLogin 恢复链挂住（GF 文件 define 用 51730 且不 quitLogin；workspace 文件用 smoke_bob 且无条件重登）。51730 本地态或其恢复链在多轮测试后异常",
+      "next_probe": "跑 GF1 时加 signOutFirst（或手动清 51730 本地态）验证；台账 GF1~GF11 行在批次123 均已绿，挂死不影响台账准确性"
+    },
+    "next_actions": [
+      "invite 可选关系条：下轮启动测试构造（复用 adapterForTest+驱动邀请向导 UI）",
+      "GF 挂死：验证 51730 本地态假设（清态重试或 signOutFirst）"
+    ]
   },
-  {
-   "case": "integration_test/e2e_chat_test.dart",
-   "result": "PASS",
-   "status": "done-PASS",
-   "blocker": null,
-   "evidence": "logs/device_e2e_chat2.log：01:05 +1 All tests passed——显式目标会话(SmokeBob/1000000056)进入 ChatPage→E2EE 发送→onSendPressed true→输入框清空→消息渲染；服务端 msg_c2c 当窗 1 行密文归档（13:36:51）三方互证",
-   "resolution": "2026-09-03 本地沙箱执行。测试侧修复：enterText 后未 pump——发送按钮经 ValueListenableBuilder+AnimatedSwitcher(300ms) 才挂载，不 pump 时 send_button key 不存在、tapAny 落空退化到键盘回车（真机软键盘无效）＝『输入框未清空』假象。补两帧 pump(450+100ms) 后按钮命中。阻塞以 agent 自有 smoke 双号在本地后端消除（与 c2c_e2ee_send_render 白盒路径互补，本用例补齐 UI 按钮链路）"
+  "session_2026_09_09_batch133": {
+    "note": "批次133（automation 第六轮）：invite 可选关系条——发现并修复真产品缺口（失败行无重试 UI），AT-WIV1 测试编写完成但被环境阻塞（macOS fs I/O 降级），阻塞行维持并更新计划时间。主块跳过。",
+    "product_fix": {
+      "gap": "_ResultsSection 接收 onRetryGroup/onRetryChannel 但 build 未接线——failed 行只有 xmark 图标+message，无重试入口（_retryGroup/_retryChannel 死代码）。台账行『失败行支持单独重试』的产品缺口",
+      "fix": "_ResultRow 加 onRetry 参数；failed 态显示 workspace-invite-row-retry IconButton（arrow_clockwise）；group/channel 行分别接线 onRetryGroup/onRetryChannel",
+      "commit": "fix(workspace) 提交（本轮）"
+    },
+    "test_ready": {
+      "file": "integration_test/workspace/workspace_invite_relations_test.dart（AT-WIV1）",
+      "flow": "注入 /api/v1/group/add 失败 → 搜索 SmokeAlice（workspace-invite-search-btn）→ 选候选（workspace-invite-candidate-1000000051）→ 提交（workspace-invite-submit）→ 断言 workspace/channel 成功+group 失败互不影响 → 解除拦截点 workspace-invite-row-retry → group 转成功",
+      "status": "代码完成+analyze 通过；run1/2 未跑完（见 env_degradation），环境恢复后重跑"
+    },
+    "env_degradation": {
+      "symptom": "23:00 起 macOS 文件系统间歇挂起：ls/find 普通路径挂死 60s+、本地 sqlite 间歇 disk I/O error（FMDatabase Code=10，非磁盘满——Data 卷余 17Gi 但使用率 96%）；GF1/GF7 与 WIV run1/2 挂死均与此相关（叠加 manifest 回滚）",
+      "impact": "依赖本地 sqlite 的集成测试间歇失败；WVM 恢复段断言（批次131）亦受扰",
+      "suggestion": "建议人工检查 macOS 磁盘健康（fsck/First Aid）+清理至 <90% 使用率；恢复后重跑 AT-WIV1（define 见文件头注）"
+    },
+    "next_actions": [
+      "环境恢复后：跑 AT-WIV1（预期绿）→ 台账行转已通过（阻塞-1）",
+      "GF 二分已定性文件级（51730 恢复链假设），与 fs 降级叠加，待环境一并验证"
+    ]
+  },
+  "session_2026_09_09_batch134": {
+    "note": "批次134（automation 第七轮）：环境部分恢复（fs 响应恢复）但 bob 本地库 I/O 挂死持续——AT-WIV1 run3 仍 disk I/O error，且库文件目录 ls 也挂死（文件系统级卡死）。invite 行维持阻塞。",
+    "env_detail": {
+      "healthy": "其余路径 fs 响应正常（regen/git/常规读写均正常）",
+      "stuck": "~/Library/Containers/pub.imboy.app/Data/Documents/ 下 bob 库（local_office_1000000056.db+wal/shm）元数据操作挂死——quitLogin 删库重建无法自愈（wal/shm 残留或 inode 卡死）",
+      "user_action_needed": "需人工：①重启 macOS（清 fs 卡死）或对 Data 卷跑 First Aid ②手动删 pub.imboy.app/Data/Documents/local_office_1000000056.db*（含 -wal/-shm）③磁盘清理至 <90%",
+      "after_recovery": "直接重跑 AT-WIV1（define 见测试头注）预期绿 → 台账 invite 行转已通过"
+    },
+    "next_actions": [
+      "环境人工修复后：AT-WIV1 重验 → invite 行转已通过（阻塞-1）",
+      "GF 挂死与同一 fs 卡死叠加，一并验证"
+    ]
+  },
+  "session_2026_09_09_batch135": {
+    "note": "批次135（automation 第八轮）：环境探测——bob 库目录 ls 仍挂死（fs 卡死未解除），AT-WIV1 维持待环境。三态例行阻塞 tail=invite 行自身（依赖环境），维持。台账无变更。",
+    "housekeeping": "补提交批次128/133 遗留的 WPF 适配器 delayMine 档（9fe8e288）——当时决定独立 loading 文件后遗漏",
+    "env_status": "与批次134 一致：其余 fs 正常，pub.imboy.app/Documents 下 bob 库元数据操作挂死；等人工重启/First Aid/清盘",
+    "next_actions": [
+      "环境恢复后：AT-WIV1 重验 → invite 行转已通过（阻塞-1）",
+      "GF1/GF7 与同一 fs 卡死叠加，环境恢复后一并验证"
+    ]
+  },
+  "session_2026_09_09_batch136": {
+    "note": "批次136（automation 第九轮）：环境探测——fs ls 已不挂但 bob 库文件 unlink 也挂死（rm 3 分钟无返回）=内核级 fs 状态，测试循环无法自愈。AT-WIV1 run4 仍 disk I/O error+拦截 0 次（库打不开）。台账无变更。",
+    "verdict": "必须人工重启 macOS（或 First Aid 修 Data 卷）。重启后：①bob 库文件卡死随 fs 重建解除（或手动删 Documents 下 local_office_1000000056.db*）②重跑 AT-WIV1（预期绿→invite 行转已通过）③GF1/GF7 一并验证",
+    "evidence": "test/auto_test/reports/batch136/wiv_run4.log（disk I/O error 1 次/拦截 0 次=库打不开）",
+    "next_actions": [
+      "【用户】重启 macOS + 删 Documents 下 local_office_1000000056.db* + 磁盘清理至 <90%",
+      "【下轮 automation】探测 Documents 目录 ls 是否 <5s → 恢复则跑 AT-WIV1 → invite 行转已通过"
+    ]
+  },
+  "session_2026_09_09_batch137": {
+    "note": "批次137（automation 第十轮）：fs 卡死未恢复（ls Documents 仍挂死）→ AT-WIV1 维持待环境。本轮做 92 条阻塞全量分类盘点（纯文本，不改表格），产出后续可执行清单。",
+    "blocked_inventory_92": {
+      "by_module": {
+        "live_room": 28,
+        "chat": 16,
+        "settings": 11,
+        "wallet": 8,
+        "mine": 7,
+        "workspace": 6,
+        "group": 3,
+        "passport": 3,
+        "channel": 2,
+        "scanner": 2,
+        "single": 2,
+        "contact": 1,
+        "mention": 1,
+        "moment": 1,
+        "search": 1
+      },
+      "by_nature": {
+        "生产写授权类（纯人工）": "约 28 条（授权 14+生产 14：钱包余额/直播创建/生产群写等）——永久人工决策",
+        "真机类": "约 13 条（真机飞行模式/相机/断网/EMUI 特有）——需真机+人工配合",
+        "外部条件类": "第二台设备 3+素材 1+凭据 1+决策 1——需人工准备",
+        "本地数据构造类（automation 可解，优先）": "live_room 需后端房间数据（本地 9801 可造房间 fixture，batch113 造数先例）、chat 需可用群+两成员在线（本地双 smoke 账号可构造）等——后续轮次优先消化"
+      },
+      "live_room_28 特别注记": "后端 live_room 冻结未实现（台账原文），造数前需确认本地后端 live_room API 可用性；不可用则该 28 条维持『待后端实现』"
+    },
+    "env_status": "fs 卡死持续（ls Documents >30s 挂），AT-WIV1/GF 均待人工重启 macOS+清盘",
+    "next_actions": [
+      "环境恢复：AT-WIV1 重验（invite 行）+ GF1/GF7 验证",
+      "后续轮次优先：live_room 造数可行性探测（curl 9801 live_room API）→ 可用则批量解 28 条阻塞中纯数据类",
+      "其余：按盘点清单逐类推进"
+    ]
+  },
+  "session_2026_09_09_batch138": {
+    "note": "批次138（automation 第十一轮）：live_room 后端本地可用性实证——list/create/my_list 三接口全通（推翻台账『后端冻结未实现』旧认知）；fixture 房间已建。fs 卡死持续，集成测试仍不可跑。台账无变更。",
+    "live_room_probe": {
+      "list": "code=0 空列表（未开播房间不进列表——产品逻辑合理）",
+      "create": "code=0 成功：房间 id=111596538331138048 title=AT-LIVE-FIXTURE-138 owner=bob stream_key 已生成",
+      "my_list": "total=1 但 list_n=0（status=0 未开播被过滤）",
+      "implication": "live_room 28 条阻塞中『需后端有房间数据』类：房间数据已可造（curl create）；但列表可见性需开播状态（status!=0）——开播需 RTMP 推流环境（本地无流媒体服务器），超出 automation 范围，需用户决策是否搭本地推流环境（如 ffmpeg+nginx-rtmp）",
+      "fixture_cleanup": "如需清理：DELETE FROM live_room WHERE id=111596538331138048（本地 4323）"
+    },
+    "env_status": "fs 卡死持续（FS_STUCK），AT-WIV1/GF 仍待人工重启 macOS",
+    "next_actions": [
+      "环境恢复后第一优先：AT-WIV1（invite 行转已通过）",
+      "live_room 开播环境（RTMP）是否搭建=用户决策，非 automation 范围"
+    ]
+  },
+  "session_2026_09_09_batch139": {
+    "note": "批次139（automation 第十二轮）：fs 卡死持续（Documents ls 20s 无返回）——AT-WIV1 与测试类工作全部待环境。三态例行：阻塞 tail=invite 行（依赖环境）维持，台账无变更。regen+恒等式 0 违反确认。",
+    "env_status": "与批次136~138 一致：需人工重启 macOS+删坏库文件+磁盘清理",
+    "next_actions": [
+      "环境恢复后：AT-WIV1 → invite 行转已通过；GF 一并验证"
+    ]
+  },
+  "session_2026_09_09_batch140": {
+    "note": "批次140（automation 第十三轮）：fs 卡死持续（探测 25s 超时），测试类工作待环境。例行 regen+恒等式 0 违反。阻塞 92 不变，台账无变更。",
+    "next_actions": [
+      "同批次139：环境恢复后 AT-WIV1 优先"
+    ]
+  },
+  "session_2026_09_09_batch141": {
+    "note": "批次141（automation 第十四轮）：fs 卡死持续（Documents ls >30s 挂死）。磁盘实测仍 98% 满——df -h / 的 50% 是系统快照卷假象，判断磁盘必须看 /System/Volumes/Data（409Gi/460Gi 可用12Gi）。例行 regen 155/1748/bug2、恒等式 0 违反，台账无变更。发现并行会话两个未跟踪产物（docs/screenshots/alpha17-pgyer、integration_test/settings/e2ee_backup_recovery_acceptance_test.dart）未动未提交。"
   }
- ],
- "completed_tasks": [
-  "integration_test/patrol/handshake_test.dart",
-  "integration_test/patrol/app_launch_test.dart",
-  "integration_test/e2ee_cross_platform_group_interop_test.dart"
- ],
- "notes": "状态文件由 2026-09-02 会话创建；每完成一项立即回写。",
- "session_2026_09_06": {
-  "note": "批次112：README 页面台账 21 行阻塞解除（搜索 20 行通过 + bottom_nav 1 行通过），4 个真 bug 修复并验证。",
-  "unblock_recipe": "9801 能力注入（remsh application:set_env imboy capabilities #{e2ee_mode=>disabled, message_search=>true, storage_mode=>archived}，另 cors_allow_localhost=true）+ PG 明文种子（低位 ID 9.3e16 防增量同步拉入本地遮蔽服务端路径 + 生僻字标记词 防本地 FTS 命中短路）+ macOS flutter test 集成测试（TEST_ALLOW_SEARCH_ACCEPTANCE 门，配方见 integration_test/search/*.dart 头注）",
-  "fixes": [
-   "P1 message_search_page 对端判定（C2C 恒取 toId/C2G 取 fromId，imboyapp 8b5b7290）",
-   "P0 后端 fts 六处 SQL（C2G 列名/jsonb 操作符/参数双记账/C2C 中文分词等——C2G 搜索与筛选搜索家族从未可用，imboy 23f96d4e）",
-   "P2 web_search 最近搜索点击不退出 showRecent（点了没反应，8b5b7290）",
-   "P1 web_search 联系人跳转 /people_info 路由不存在（应 /contact/people/:id，8b5b7290）"
-  ],
-  "tests": "integration_test/search/ 四件全绿（ms_core 3 行/ms_history 2 行/sc 5 行/web_search 10 行+AT-BN1）",
-  "blocked_remain": [
-   "web_search 群组行：本地群 shadow 数据未同步（真机日常账号可测）",
-   "web_login 9 行：flutter drive web 挂死定性（web 运行时设施需专项）",
-   "upgrade 2 行（断网重试/哈希重试）：需真机构造故障，设备存储水位 893M 问题待用户清理"
-  ],
-  "test_env_quirks": "桌面集成测试 IME 附件脱落（enterText 静默失效→重进路由规避）；ListView 懒加载裁剪不可见分组（触底滚动后断言）；macOS 僵尸库判定法再现并按备份改名自愈（local_office_1000000056.db.zombie_20260906_0805）",
-  "commits": "imboy 23f96d4e / imboyapp 8b5b7290 + 1cf74f0c（台账）；误吞 staged 事故已 soft reset 补救（pathspec 重提，并行会话 78 文件 index 完好）",
-  "batch_113": {
-   "date": "2026-09-06",
-   "scope": "group_member_page 12 行「需建 20 人以上测试群」阻塞全解除",
-   "seed_data": "本地 PG 4323：user 1000000071~1000000091（GMSmoke01~21，密码复用 smoke_bob hash）+ 群 100000000000000120 22 人（bob 群主/01 管理员/02 副群主/03 嘉宾/04~21 成员，04/05 禁言 2天/3小时）。教训：user INSERT 与 group_member 角色行的 uid 段错位一次（LEFT JOIN 静默丢行 total 21≠22），重写成员行修复",
-   "tests": [
-    "integration_test/group/group_member_acceptance_test.dart（AT-GM1/2/3/5/7/8/9/10/11/12，11 断言组，All passed）",
-    "integration_test/group/gm_pagination_failover_test.dart（AT-GM4 故障注入，All passed）"
-   ],
-   "bugs": {
-    "imboy_group_member_handler_swallow_ds_error": "page action 把 page_with_user_info 错误吞成 total=0 空列表 success——客户端停在不完整第一页且 hasMore=false，第 2 页静默永久丢失；修复为 elib_response:error + eunit 失败路径用例（group_member_handler_tests 6/6 绿）",
-    "imboyapp_pagination_no_rollback_on_business_fail": "_loadData 仅网络异常回滚 _currentPage，业务失败（ok=false→payload null）不回滚导致跳页漏成员；补 else 分支回滚（group_member_page.dart）"
-   },
-   "quirks": [
-    "flutter_tester 沙箱禁止 spawn 子进程（Process.run erl → ProcessException: Operation not permitted）——故障注入改用 HttpClient.adapterForTest 包装 adapter（页面每次 new GroupMemberApi，实例拦截器够不着）",
-    "code:load_binary 要求 beam 模块名与目标一致（stub 名错报 module name in object code is gml_stub）",
-    "ListView 懒加载视口裁剪：禁言徽章/远端行需滚动到视口内才可断言（两度踩）",
-    "EasyRefresh 在列表底部纯 overscroll 不再触发 onLoad，恢复测试需回顶经 onRefresh 重载后再触底",
-    "服务端 page 序=m.id desc（非 role DESC），筛选断言前先弄清真实顺序",
-    "客户端回滚断言链 dio validateStatus 全放行+code!=0→ok=false",
-    "dart:io Process.run erl 需绝对路径 /opt/homebrew/bin/erl（flutter test 进程 PATH 不含）"
-   ],
-   "imboy_eunit": "handler 套件 6/6 绿（含新增失败路径用例）；group 邻居 9 套件全绿；全量 eunit 11 失败为并行线 flake（D 链 user_ds/user_logic、F 线 imboy_feature/policy、workspace_archive、stress 成功率），与本批次无关（imboy 树当时干净）",
-   "commits": "见 git log（imboy handler 修复+eunit；imboyapp 客户端修复+2 测试文件+台账）"
-  },
-  "batch_114": {
-   "date": "2026-09-06",
-   "scope": "group 域批量收尾 15 行（member_detail 5 + group_detail 3 + change_info 1 + add_member 1 + remove_member 2 + launch_chat 2 + group_announcement 1）",
-   "tests": [
-    "integration_test/group/member_detail_actions_test.dart（AT-MD1~5 管理操作链，All passed）",
-    "integration_test/group/group_manage_pages_test.dart（AT-GD/CI/AM/RM1/RM2 + AT-E2E/AT-DG，All passed）",
-    "integration_test/group/launch_chat_announcement_test.dart（AT-AN/AT-LC1/AT-LC2，All passed）"
-   ],
-   "write_ops_note": "全部写操作打本地 9801+本地库假数据（GMSmoke 假人/SmokeAlice 测试号），无生产数据无真人打扰；AM→RM 闭环（alice 进→出还原）、GMSmoke06 移出后 SQL 补回维持 22 人基线；群级 E2EE 0→1 单向开启（本地测试群接受）",
-   "quirks": [
-    "tap 被 AppLoading toast Overlay 吞掉——统一 ensureVisible+tap(first)+toast 后 pump 缓冲（member_detail 链踩两次）",
-    "测试幂等自愈三件套：遗留禁言先解禁、遗留管理员先取消、群名两值翻转",
-    "ActionSheet 关闭后文案不存在——断言需重开 sheet 验证",
-    "勾选后按钮文本变「完成(N)」——用 textContaining",
-    "postFrame 里的自动 pop 无法轮询捕捉——对照法（带参挂载 vs 空参退出）",
-    "go_router 嵌套路由 push 必须带父前缀 /group/announcement（二踩静默失败）",
-    "tester.widget<T>(find.text) 类型断言错误——应找 ancestor CupertinoButton"
-   ],
-   "maintain": "维持行：launch_chat 空态+add_member 空态（需零好友账号 UI 登录）、group_select（无活入口）、group_task×2（需先造任务数据）",
-   "commits": "见 git log 批次114"
-  },
-  "batch_115": {
-   "date": "2026-09-06",
-   "scope": "workspace 壳验收 6 行（groups 他区反例/空态/失败重试 + channels 反例/空态 + projects 下拉刷新）",
-   "seed_data": "SQL：第二区群改名 AT-WS2-General/频道 at-ws2-announcements 作反例标记；新建空工作区 100000000000000210「AT-WS-空区-115」（bob owner，无群无频道）",
-   "tests": [
-    "integration_test/workspace/workspace_shell_acceptance_test.dart（AT-WG1/WC1/WG2/WC2/WF/WP，All passed）"
-   ],
-   "quirks": [
-    "adapterForTest 必须在 app.main() 之前设置——WorkspaceApi 等实例构造早，晚设置打不到已构造实例的 Dio（invalidate 后仍 AsyncData([])，拦截日志是假象）",
-    "Riverpod 2 AsyncLoading 保留前值(value+error 字段)——轮询 read 判 AsyncError 而非看 UI",
-    "IndexedStack offstage 子树渲染对 onstage finder 不可见——错误视图断言前先把 destination 切到目标页",
-    "两区模板群/频道同名单纯文字无法区分他区反例——SQL 改名做标记",
-    "shell 切体验=container.read(productExperienceProvider.notifier).select(workspace)；切区=workspaceShellProvider.selectWorkspace"
-   ],
-   "maintain": "workspace 其余 18 行维持：无工作区账号类 6 行（需 UI 登录切号）、失败+无缓存叠加类（需清 SQLCipher 缓存不可行）、create 幂等/409、invite 故障注入、branding 非 Owner、members/overview 空态",
-   "commits": "见 git log 批次115"
-  }
- },
- "session_2026_09_06_batch116": {
-  "note": "批次116：new_friend 4 行 + channel_subscriber 3 行阻塞解除（README 阻塞 200→193），2 个真 bug 修复（客户端 NF uk 拼接 / 服务端订阅者分页游标语义）。",
-  "fixes": [
-   "P1 new_friend_provider delete 的 uk 拼接缺下划线（from+to ≠ 模型 from_to）→ indexWhere 恒 miss → removeAt(-1) RangeError，表现为删除后列表无反应（库已删 UI 不刷新）；已修 + index==-1 防御",
-   "P0 服务端 channel_subscription_repo:list_by_channel 把 offset 型 cursor 当 `cs.id <` 游标（TSID 大整数与条数永不可比）→ 第二页恒空、尾部订阅者 UI 永久不可见；改 LIMIT/OFFSET + cs.id DESC 稳定排序；修复过程二坑：热更版委托子句 (0,Limit)→(Limit,0) 参数反置致 LIMIT 0 首页恒空——curl 只验了第二页漏掉首页，被测试内 DIAG-CS0 原始信封（ok=true code=0 list=[]）抓出，收敛为单子句 guard Cursor>=0",
-   "环境坑（非产品 bug）：直插 SQL 造数绕过订阅流致 channel.subscriber_count=0，移除事务 subscriber_count-1 撞 chk_channel_subscriber_count>=0 CHECK 回滚→「移除订阅者失败」；校准计数器=实际行数后闭环（配方入测试头注）"
-  ],
-  "tests": "integration_test/contact/new_friend_acceptance_test.dart（AT-NF1 左滑删除/NF2 查看资料/NF3 三状态标签/NF4 已发送标签 全绿）；integration_test/channel/channel_subscriber_acceptance_test.dart（AT-CS1 分页 30+6/CS2 查看资料/CS3 移除订阅者 全绿+DB 双实证；CS4 邀请入口未出现走降级分支，行保持阻塞）",
-  "blocked_remain": [
-   "channel_subscriber 邀请选人弹层过滤：需私有频道+第二台设备（批次116 实测 extra canInvite=true 下入口仍未出现）"
-  ],
-  "test_env_quirks": "行内 PopupMenuButton 是 ListTile trailing 子节点而非标题 Text 的祖先，find.ancestor 结构性恒空（误配到 AppBar 菜单）→ 须 tile祖先→descendant 两段定位（踩 3 轮）；CS1 触底后 ListView 懒加载致顶部行未渲染，断言顶部行前须滚回顶部；app header 认证用 authorization（const tokenKey），curl 用 token 头会 401 干扰排查；造数须同步校准 channel.subscriber_count",
-  "commits": "imboyapp: 本批次 provider 修复+2 测试+台账 pathspec 提交；imboy: channel_subscription_repo 分页修复（热更 9801 已生效）；均为提交后补记"
- },
- "session_2026_09_06_batch117": {
-  "note": "批次117（用户直派）：频道消息点赞/取消点赞报错全案闭环——一个用户症状剥出服务端三层缺陷+一环境配置漂移，curl 六步+EUnit 10 用例+macOS 真实 UI 集成测试三层验证全绿。",
-  "fixes": [
-   "P0 服务端触发器 fn_update_channel_message_reaction_summary：00000084 把空对象兜底改 '{}'::jsonb 后聚合仍用 json_object_agg（json），COALESCE(json,jsonb) 无公共类型→首次点赞 42846 cannot_coerce 回滚整个反应事务；迁移 00000089 统一 jsonb_object_agg（列类型 jsonb），本地 4323 已应用（schema_migrations 88→89），9801 热更四个模块（798a86e1）",
-   "P1 GET /reaction 无独立路由被 add_reaction 吞掉→「读一次=点赞一次」写副作用；channel_handler_message 按 method 分派（镜像 workspace_handler branding 模式）",
-   "P1 channel_logic:get_message_reactions：binary MessageId 未 decode_positive_id 直传 find_by_id→恒「消息不属于该频道」；且数据源误走 msg_reaction_ds（msg_type='channel' 恒空）→改 channel_logic_stats:list_message_reactions 按 channel_reaction 聚合（与写入同表）；channel_logic_common 导出 decode_positive_id",
-   "环境配置漂移（本地 9801，不入库）：config 表 pub.imboy.app_*_1 四条 sign_key 为错旧 ios 测试 key（OBsZGPTCW+…），真 app pkg=pub.imboy.app 命中后 init 配置解密失败→login_rsa_pub_key 落不了盘→UI 登录链断（退登/新装后无法登录）；config_ds:set 修正为客户端 solidified_key（教训：psql 直插明文会破坏 config 加密存储，必须走 config_ds:set）",
-   "测试基建：FlowApiClient 增 accessToken 注入口——集成测试独立 login 会触发「另一设备登录」把 App 会话挤下线（run2 实证 quitLogin 删库），复用主会话 token 规避"
-  ],
-  "tests": "AT-CL1 点赞（UI 计数 0→1+服务端 channel_reaction like=1+GET /reaction 可见+无失败 toast）/ AT-CL2 取消（回落+列表回空）run5 All tests passed；EUnit channel_logic_message_reactions_tests 8/8 + channel_reaction_summary_migration_tests 2/2；curl 全链六步（副作用消除/点赞/列表/取消/回空/终态 {}）；前端消费字段 reaction_summary+my_reactions 消息列表随行验证 OK",
-  "test_env_quirks": "channel_message_like_acceptance_test 重跑前需清残留：DELETE channel_reaction WHERE message_id=110252446493968384 AND user_id=1000000056 + reaction_summary 置 {}（配方在测试头注）；运行需 API_BASE_URL 与 API_BASE_URL_OVERRIDE 两个 dart-define（FlowApiClient 读前者，app 读后者）",
-  "commits": {
-   "imboy": "798a86e1 fix(channel) 迁移00000089+method分派+get_message_reactions 修复+EUnit",
-   "imboyapp": "f69a3a82 test(channel) AT-CL 集成测试+FlowApiClient token 注入"
-  },
-  "ledger": "channel_detail_page.md 点赞行批次25→批次117（3/3），README 155页面/1748功能点/阻塞193（不变，bug 发现=解决）"
- },
- "session_2026_09_06_batch118": {
-  "note": "批次118（用户直派）：资料设置页投诉报「投诉失败，请稍后再试」全案——本地 curl/生产探针接口均正常，真因是前端把后端可读原因全部吞成通用失败文案；修复=ReportApi 消息透出，四处入口同步，AT-RP 两行 macOS 全链一次全绿。",
-  "fixes": [
-   "UI 吞后端消息：ReportApi.create/createMessage 只返回 bool，resp.msg 里的后端可读原因（「您已举报过该对象」「举报原因不能为空」等）全部丢弃，失败一律显示「投诉失败，请稍后再试」；改返回 (bool,String) + friendlyError 过滤网络层噪音后透出（镜像 E2EE 文案路由「文案=唯一诊断通道」惯例），contact_setting/group_detail/message_action_menu/channel_message_feed 四处入口同步",
-   "定位过程要点：本地 9801 curl 投诉成功；生产探针（测试号 15001 登录+举报）code=0 正常、路由存在（902 签名门 vs 不存在路径空响应的判别法）；后端 create 有 already_reported 幂等——用户场景最可能是重复举报被旧版 UI 吞成通用文案，具体原因已被掩盖，修复后会显示真实原因",
-   "顺带发现（生产,未修）：report/create 对不存在的 target_id（999999）也 code=0 落库，服务端缺目标存在性校验，记入 task_state 供后续批次"
-  ],
-  "tests": "AT-RP1 首次投诉（toast 投诉已提交）/ AT-RP2 重复投诉（toast 您已举报过该对象+断言不再出现通用失败文案）run1 一次全绿；message_action_menu 单测 26/26 回归（_FakeReportApi 适配新签名）；数据自愈配方（report_ticket 清场 SQL）在测试头注",
-  "test_env_quirks": "投诉工单幂等（reporter+target 唯一）：重跑 AT-RP 前须 DELETE FROM report_ticket WHERE reporter_uid=1000000056 AND target_type='user' AND target_id=1000000051；生产探针用测试号 15001@imboy.pub/admin888（FlowApiClient deviceType:'android' 过签名门）",
-  "commits": {
-   "imboyapp_fix": "ReportApi 消息透出+四入口+单测适配",
-   "imboyapp_test": "AT-RP 集成测试+台账批次118"
-  },
-  "ledger": "contact_setting_page.md 举报行批次80→118（1/1），README 155页面/1748功能点/阻塞193 不变"
- },
- "session_2026_09_06_batch119": {
-  "note": "批次119：signup 系列 12 行解阻 11 行（1 行语言切换转全局 locale 域维持阻塞）+ 后端 getcode 500 真 bug 修复。钥匙=local 环境验证码链（sms.switch=off 不外发+查库读真码）。",
-  "fixes": [
-   "P1 后端 getcode 500 空响应（imboy 83a9aea5）：config 配 platform=aliyun 但 imboy_sms:send 只有 yjsms/jsms 子句→function_clause 炸穿 handler，注册/找回密码全不可用；且 sms.switch=off 配置无人消费。修=send_sms_code 消费 switch（off 落库不外发）+ send/3 兜底子句可控错误",
-   "P2 前端 per_minute_once 裸显（app 791f70be）：60s 发码频控的英文错误码直接 toast 给用户；_localizedAuthErrMsg 加映射+doSendCode 返回本地化消息",
-   "测试基建教训：flutter_tester 沙盒禁 spawn（Process.run psql = Operation not permitted）→ 宿主 bash 预备验证码经 --dart-define=TEST_VERIFY_CODE 注入；第三方 IntlPhoneNumberInput 内部字段 enterText 不可靠（run1-5 实证）→ 注册数据经公开 notifier setSignupData 注入+发码 API 触发",
-   "红线规避：local 配真实 SMTP（smtp.qq.com+授权码），email 链发码会真发信→按约束只用 sms 链（switch=off+空凭据零外发）；email 链保持阻塞并在台账注明"
-  ],
-  "tests": "AT-SU 六段 run11 一次全绿：兜底页/发码进验证页(RichText 断言需 findRichText:true)/重发反馈/填码提交跳管理账户/重复注册双层拦截/登录入口；宿主脚本 /tmp/su_orchestrate.sh 编排（清场→getcode读码→flutter test→signup 端第二层 curl 断言「手机号已经被占用了」）",
-  "test_env_quirks": "重跑前 psql 清 verification_code+user（mobile LIKE %19900001234%）；宿主 getcode 后 60s 内测试内 client.getcode 命中 throttle 属预期（AT-SU1 断言仅 code=0，60s 窗口边缘偶发失败可重跑）；万能码 abc12345 8 位字母过不了 6 位数字 PinField",
-  "commits": {
-   "imboy": "83a9aea5 fix(passport) switch 消费+send 兜底子句",
-   "imboyapp": "791f70be fix(passport) 频控文案本地化+AT-SU 测试"
-  },
-  "ledger": "signup_page 1 行+signup_continue 10 行转已通过（语言切换 1 行转全局域阻塞）；README 155页面/1748功能点/待处理 bug 4"
- },
- "session_2026_09_06_batch120": {
-  "batch": 120,
-  "scope": "mine 域账号安全链 8 行阻塞（set_password 4+change_password 2+logout_account 2），载体批次119 一次性账号 SmokeEmpty(account=51730/id=111174215241304064)",
-  "bugs_found_fixed": [
-   "P0 前端契约：UserApi.setPassword 传 md5+RSA 密文却声明 rsa_encrypt=0，服务端不解密直接 hash，UI 设密的密码任何登录形态验证不过（账号锁死级）；修=声明 rsa_encrypt=1，curl md5 登录 code=0 回归",
-   "后端：passport_logic:login_resp 漏拼 mobile 键，登录缓存 mobile 恒空，needGuide 恒真，set_password『已绑→主导航』分支永不可达；修=补字段（imboy c5921d61 热更 9801+curl 验证）",
-   "前端：UserApi.changePassword 裸显英文码 errorPassword；修=_localizedUserErrMsg 映射 t.common.errorPassword",
-   "顺手清理：setPassword 的 have_set 死分支（后端无此码）改为按真实文案含「已设置过密码」判断保留 needSetPwd 清理语义"
-  ],
-  "tests": "integration_test/mine/account_security_lifecycle_test.dart AT-AS1~5；基建 integration_test/flows/pg_helper.dart（纯 dart PG 直连 4323，突破 flutter_tester 禁 spawn）",
-  "verified": "AS1 设密失败兜底/AS2 未绑引导页/AS3 已绑主导航(mobile 回归) 三场景 macos 实跑全绿(orch11)；AS4 错误路径(密码错误 toast)实证",
-  "pending": "AS4 成功链（二次提交未落库待查，疑迟到401踢会话）与 AS5 注销终章未闭环——Docker Desktop VM 磁盘满致 imboy_pg18(4323) 瘫痪，9801 后端同依赖；恢复后 bash /tmp/as_orchestrate.sh 续跑（脚本自洽造数）",
-  "ledger": "解阻 5 行（set_password 4+change_password 1）；change_password 成功链 1 行改阻塞理由；logout_account 2 行阻塞理由更新为待环境恢复；发现 216→219/解决 212→215",
-  "commits": "imboy c5921d61（mobile 补发+eunit 桩）；imboyapp 13235669（本地化+契约修复+测试+基建）——均未 push",
-  "lessons": "flutter_tester 本地存储跨轮持久→缓存残留可污染跨场景断言（quitLogin 重登刷缓存）；EasyLoading toast 3s 与提交后 pump 等待竞速；启动期旧 token 401 风暴 http_auth_expired 迟到踢会话（app 登录竞态疑真 bug 待立项）；磁盘满会让 Docker VM 无法启动、4323/9801 全链瘫痪",
-  "final": "批次120 全部收官：五场景 AT-AS1~5 实跑全绿（orch14 AS1-3+AS4 final4/AS5 run3）；elib_password verify 候选补 sha256(md5hex(P)) 修复改密链（imboy 69b7eca3 热更+手工 curl 闭环 code=0）；台账 8 行阻塞全解（set_password 4/change_password 2/logout_account 2）；bug 216→220/212→216/待处理 4 恒等式保持",
-  "env_note": "Docker Desktop VM(Docker.raw) 磁盘满曾致 4323/9801 全瘫；恢复=重启 Docker Desktop+docker builder prune -af 释放 17.5GB；bootstrap 含主动清残留 token 防启动期 401 风暴踢会话"
- },
- "session_2026_09_08_batch127": {
-  "note": "批次127：阶段一 personal_info 待首测清零（AT-PI13 正向路径）+ 阶段二 face_to_face_confirm 2 条待修复闭环（真根因=join_group 去重 int/String 类型失配，推翻批次123『确认页被移出路由树』定性）。",
-  "at_pi13": {
-   "scope": "personal_info_page 行13 点头像打开大图预览（正向路径），批次125 因『F-13 SSRF 拒本地 127.0.0.1 图源』阻塞转真机",
-   "unblock_recipe": "F-13 只拒内网（localhost/127/10/192.168/172.16-31/0.0.0.0/::1/云元数据），公网 https 放行（设计注释：拒绝内网而非域名白名单）。造值=服务端 user.avatar 置公网 URL https://imboy.pub/imboy-logo-480X480.png（带 viewUrl 追加 s/a/v query 亦 200，已 curl 实证），_boot 无条件重登经 login_resp.avatar（passport_logic login_resp 带 avatar 字段）进本地缓存",
-   "result": "run1 一次全绿（00:30 +1）：列表页(192宽)+预览页(原图 w=0)两次真实下载 329351 bytes 成功，PhotoView/xmark 挂载+关闭返回断言全过；tearDownAll 恢复 avatar 空（AT-PI05/PI06 依赖空前置）。台账行13 已回写 无待办/已通过/批次127",
-   "evidence": "test/auto_test/reports/batch127/at_pi13_run1.log、at_pi13_run2.log",
-   "env_limit": "test runner 不支持 binding.takeScreenshot（MissingPluginException 跳过）+宿主 screencapture 无 TCC 权限——视觉快照缺，功能证据=下载日志+断言链（符合 LOOP_PROMPT logcat 主判据）"
-  },
-  "f2f_root_cause": {
-   "verdict": "批次123『join_group 事件处理后确认页被移出路由树（GoRouter extra 传参嫌疑）』定性被推翻。诊断探针（integration_test/group/f2f_diag_probe_test.dart，对照实验）实证：确认页全程存活（PROBE-2a 虚拟时钟+8s 存活排除 Timer 型；PROBE-1 手动 fire S2C 同构 payload 后存活且人数正确刷 2）",
-   "true_root_cause": "face_to_face_confirm_page initData 监听器去重条件 `e.id == obj.payload['userId']`：PeopleModel.id 是 int、S2C payload['userId'] 是 parseModelString 产物 String，int==String 恒 false → 去重恒失效。服务端对同一次 B 加入连推 3 条不同 msgId 的 group_member_join（GF5 日志实证），全部插入 → 人数 1→4 而非 1→2，「2 人」断言永假",
-   "fix": "face_to_face_confirm_page.dart 去重条件统一 parseModelInt(obj.payload['userId']) 再比较（注释含根因）",
-   "verified": "修复后 PROBE-3 真实 B HTTP join → 人数=2 ✓；AT-GF5 单跑全绿（00:19，KNOWN-ISSUE 分支未触发+DB 成员行断言过）reports/batch127/gf5_run2_fixed.log；单测 face_to_face_state 5/5 绿",
-   "regression_note": "同事件其他消费者无同款失配：chat_event_subscription_manager（groupId String==String，isFirst bool）与 group_detail_page（people as PeopleModel，leave 侧有 int.tryParse 防御）。潜在 P3 记录：group_detail_page addMember 无去重，重复推送可能重复加成员（等回归复测轮验证群详情场景，未扩大范围）",
-   "secondary_finding": "服务端 face2face join 对同一加入连推 3 条 notify（服务端重复推送，客户端幂等已修可防御；服务端侧去重另记账不扩大本轮范围）。memberJoin detail 404（通知先于建群）实为正确 fail-safe：save 前本地无群行，B 成员行不入本地库由 faceToFaceSave 全量 memberList 兜底"
-  },
-  "full_run_caveat": "face_to_face_acceptance 全文件跑（+4 ~7 skip）的 7 skip 为编排问题非产品回归：前序场景停在子页面（群列表/面对面页），后续 _boot 检测不到主 Shell 稳定态走 markTestSkipped（DIAG 页面文本实证）；批次123 基线=逐场景 --plain-name 单跑。验收以单跑为准",
-  "test_env_quirks": [
-   "flutter test runner 不支持 binding.takeScreenshot；宿主 screencapture 需 TCC 屏幕录制权限（本会话无）；Android 真机另有 EMUI screencap 黑帧坑",
-   "go_router 18.0.1 RouteMatchBase 无 uri getter，路由栈打印用 router.routeInformationProvider.value.uri",
-   "FlowConfig 是 integration_test/flows/test_utils.dart 的测试侧类，非 lib/ 产品类",
-   "HTTP face2face 是 GET+query+authorization 头（非 POST+token 头），对端 B 载体 account=51734/mobile=51798/uid=111279969973569536"
-  ],
-  "next_actions": [
-   "GF7 回归挂死定性（见 gf7_hang）留待下轮重验；GF3/GF8 因同页面主链已由 GF5 复验覆盖+修改零交集，不再单独跑",
-   "三态例行阻塞条评估结论：workspace_picker『失败+无缓存』有构造解（测试内 repo 清本地 sqlite 缓存 + adapterForTest 注入 500），可转验收测试（下轮处理）",
-   "并行会话需知：其 i18n 消息提交被顶（原文 /tmp/a02fa620_orig_msg.txt 留档），i18n 改动未入库需重提"
-  ],
-  "automation": "2026-09-08 用户创建每40分钟一轮自动化循环（automation-a020c1a0-437e-456f-9383-5186b3fc2c44，cron */40 * * * *），按 LOOP_PROMPT 规程推进台账",
-  "gf7_hang": {
-   "symptom": "AT-GF7 --plain-name 连续 3 次挂死（21:48/21:57/22:10），flutter_tester 框架层 stream_channel/_GuaranteeSink listener.dart 通道挂死，测试体零 [FLOW] 日志（app.main 未执行到 boot），240s 硬超时也 0 输出",
-   "causality_ruling": "与批次127 修改无因果：修改=join_group 事件回调内 3 行类型对齐，与 GF7 链（faceToFaceSave+pushReplacement）零交集；同文件同配方 AT-GF5 复验全绿（00:19）；批次123 GF7 基线绿",
-   "hypothesis": "macOS Live binding 挂死先例（批次记忆 60% 挂死率）或 22:08 起 automation 循环与会话并发操作同环境（未证实）",
-   "disposition": "非阻塞收尾：GF7 留待下轮（automation 或人工）环境恢复后重验；不伪装通过"
-  },
-  "commit_incident": {
-   "what": "22:56 提交竞态：并行会话的 git commit（i18n 消息，/tmp/c1_msg.txt 撞名）吞入我 staged 的 confirm_page 修复，HEAD=a02fa620 消息与内容不符；我方 amend 两次定型 940bc11e fix(group)（内容不变仅换消息）",
-   "root_cause_chain": "①我的 cd 路径 typo（imboy.project）致 heredoc 写 /tmp/c1_msg.txt 被 && 短路 ②heredoc 后独立语句 git commit -F /tmp/c1_msg.txt 照常执行，读到并行会话写入的 i18n 消息 ③/tmp 消息文件路径撞车",
-   "lesson": "commit 消息文件必须用专属路径（非共享 /tmp 根）；heredoc 不得与依赖它的命令用 && 短路结构；commit 后必须 git log -1 核对消息+内容双匹配（lefthook 静默吞/串消息两型）",
-   "residue": "并行会话的 i18n 340 行删除未入库（其消息已在 940bc11e 中被顶掉），原文留档 /tmp/a02fa620_orig_msg.txt"
-  }
- },
- "session_2026_09_09_batch128": {
-  "note": "批次128（automation 首轮触发）：三态例行阻塞条 workspace_picker『失败+无缓存』构造验收 AT-WPF1 全绿，阻塞 96→95。无待首测/待修复，主块跳过。",
-  "at_wpf1": {
-   "scope": "workspace_picker_page『加载失败且无缓存数据时显示错误视图，点重试重新拉取』（批次W2R2 起阻塞）",
-   "blocker_overturned": "『清数据则卡登录不可达』定性推翻：provider 层 workspaces 仅 loadMine 成功时填充（state 初始空），无需清任何数据——真正难点是 WorkspaceShellNotifier 常驻（keepAlive），启动期成功首载后 workspaces 残留致 hasWorkspace=true 永走列表分支",
-   "construction_recipe": "①登录后 select(chat) 归位持久化体验 ②container.invalidate(workspaceShellProvider) 强制 state 归零 ③failMine=true 下 select(workspace) 触发壳首载被拦 ④兜底手动 loadMine ⑤深链 /workspace 断言错误视图+无缓存反证 ⑥解除拦截 tap 重试 → 列表恢复",
-   "result": "run12 全绿（01:05 +1）：error=simulated_ws_mine_down/hasWs=false/n=0，错误视图+重试按钮+无缓存反证+重试恢复列表全过",
-   "evidence": "test/auto_test/reports/batch128/wpf_run12.log（run1~11 为迭代史）"
-  },
-  "test_env_quirks_batch128": [
-   "HttpClient.adapterForTest 拦截在『沿用已登录态启动链』下曾失效（run4），无条件 quitLogin 重登路径必生效（run3 实证）",
-   "quitLogin 后残留 token 的异步 401 链（e2ee/report_device_key）会触发 http_auth_expired_callback 的 navigateToSignIn(in-flight) 与 performLogin 互踩踢掉新会话——需真实时间排空 4s+（批次120 同款）",
-   "单次 tap 可能被 Overlay 吞——ensureVisible+缓冲+双 tap（批次114 教训再现）",
-   "壳 Overview 不渲染 WorkspaceErrorView（仅列表类页面），错误视图断言以 picker 页为载体"
-  ],
-  "env_incident_fixed": "21:47~23:48 环境故障定案：9801 节点被重启回滚到 alpha.71 release beam（manifest_hash=旧12项 b6f00f4c），客户端 6fdab1d6 收敛后编译期 hash=742ac633（7项）→ App 启动 fail-closed 锁死 → GF7 三连挂死+WPF 前几轮挂死全是同一根因。修复=热加载 imboy/ebin/（15:49 编译，含 742ac633 宏）的 imboy_feature+app_manifest_handler 双 beam 到 9801（hotload_feature.escript 配方）。注意：9801 重启会再次丢失，需重新热加载或升级 release",
-  "gf7_reverify": "GF7 挂死根因已随 manifest 修复解除（启动锁死→正常），本轮时间预算已尽未重跑，留下轮优先验证：flutter test integration_test/group/face_to_face_acceptance_test.dart -d macos --plain-name AT-GF7 + 批次127 配方 define",
-  "next_actions": [
-   "GF7 重验（manifest 修复后应绿）",
-   "下轮 automation：§0 统计（无待首测/待修复→主块跳过）+ 三态例行阻塞 tail 尾部推进"
-  ]
- },
- "session_2026_09_09_batch129": {
-  "note": "批次129（automation 第二轮）：三态例行阻塞条 workspace_picker『首屏 loading→列表』解除（AT-WPF2 一次全绿），阻塞 95→94。无待首测/待修复，主块跳过。",
-  "at_wpf2": {
-   "scope": "workspace_picker_page『无任何工作区数据时首屏显示加载视图，加载完成后切换为列表』（批次W2R2 起阻塞）",
-   "construction": "同 AT-WPF1 基建+延迟档：_DelayedMineAdapter delayMineSeconds=6 挂住 loadMine → 在途窗口（isLoading=true）深链 /workspace 断言 WorkspaceLoadingView → 放行后真实成功断言切列表",
-   "result": "run1 一次全绿（00:51 +1）：loading 视图 ✓ + 延迟放行 + 切列表 ✓",
-   "evidence": "test/auto_test/reports/batch129/wpf2_run1.log"
-  },
-  "gf7_reverify": {
-   "result": "仍挂死（启动期 Connectivity 事件后零 FLOW，flutter_tester 退出）——manifest 已修复仍挂，存在独立于 manifest 的框架层挂死原因",
-   "contrast": "同环境 workspace_picker_failure_test（AT-WPF1/2）正常跑通——挂死与 face_to_face 文件/其 define 组合相关（51730 登录链？）或间歇性 Live binding 问题",
-   "disposition": "台账行 GF7 本身批次123 已绿，挂死不影响台账准确性；专项排查（flutter run 交互式/窗口焦点/define 二分）另立，不入本轮"
-  },
-  "next_actions": [
-   "下轮 automation：§0 统计（主块预计跳过）+ 三态例行阻塞 tail 尾部推进（现 tail=workspace_picker_page 后已无 workspace 行，tail 会前移）",
-   "GF7 专项排查可选：用 --plain-name AT-GF1 验证 face_to_face 文件其他场景是否也挂（二分定位文件级 vs 场景级）"
-  ]
- },
- "session_2026_09_09_batch130": {
-  "note": "批次130（automation 第三轮）：三态例行阻塞条 workspace_overview『成员预览空态』解除（AT-WOV1 一次全绿），阻塞 94→93。无待首测/待修复，主块跳过。",
-  "at_wov1": {
-   "scope": "workspace_overview_page『成员预览为空时展示暂无成员提示文案』（批次W2R2 起阻塞）",
-   "construction": "『工作区恒有Owner成员』推翻：adapterForTest 拦 /workspaces/{id}/overview 返回 code=0+payload={}（WorkspaceOverview 默认构造 memberPreview=[]），无需删改 DB 成员行；恢复=解除拦截+invalidate workspaceOverviewProvider（autoDispose.family）重新拉取",
-   "result": "run1 一次全绿（00:49 +1）：空态文案（t.workspace.membersEmpty）✓ + 重新拉取成员恢复 ✓",
-   "evidence": "test/auto_test/reports/batch130/wov_run1.log",
-   "recipe_note": "批次128~130 空态/失败/加载三型构造基建成型：adapterForTest（app.main 前装）+ 无条件 quitLogin 重登（401 排空 4s）+ invalidate 归零 state + 深链断言；后续同类『空态不可达』阻塞行可直接复用"
-  },
-  "gf7_note": "GF7 二分排查本轮未做（预算给 WOV 构造），留下轮可选：--plain-name AT-GF1 验证 face_to_face 文件其他场景是否同挂（文件级 vs 场景级二分）",
-  "next_actions": [
-   "下轮 automation：三态例行阻塞 tail 尾部推进（workspace 域还有 workspace_members_page『成员列表空态』同类，可复用 AT-WOV1 配方）"
-  ]
- },
- "session_2026_09_09_batch131": {
-  "note": "批次131（automation 第四轮）：三态例行阻塞条 workspace_members_page『成员列表空态』解除（AT-WVM1 全绿），阻塞 93→92。无待首测/待修复，主块跳过。",
-  "at_wvm1": {
-   "scope": "workspace_members_page『成员列表为空时空态展示标题与副标题提示』（批次W2R2 起阻塞）",
-   "construction": "adapterForTest 拦 members 接口（path 含 /members 且 query 含 page）返回 code=0+payload={}（WorkspacePageResult 默认 list=[]）→ 深链静态路由 /workspace/members（页面读 currentWorkspaceProvider，非 :workspaceId 参数路由）→ 断言 membersEmpty 标题+副标题稳定展示",
-   "result": "run6 全绿（01:03 +1，run1 深链路径错/run4-5 恢复断言超范围后收窄到行描述）",
-   "lesson": "①members 路由=/workspace/members 静态路径（无 :workspaceId）②python str.replace 不匹配时静默跳过——批量替换后必须 grep 复核 ③恢复段断言超出台账行描述时应收窄（空成员场景行只描述空态展示）"
-  },
-  "next_actions": [
-   "下轮 automation：三态例行阻塞 tail 尾部推进（workspace 域 Picker/Members/Overview 空态族已清，tail 前移）；GF7 二分排查仍可选"
-  ]
- },
- "session_2026_09_09_batch132": {
-  "note": "批次132（automation 第五轮）：三态例行阻塞 tail=workspace_invite『可选关系失败注入+单独重试』评估完成（解阻塞手段已具备，测试构造量大留待专项）；GF7 二分排查完成——挂死定性为 face_to_face 文件级。台账无变更，主块跳过。",
-  "invite_blocker_assessment": {
-   "row": "workspace_invite_page『可选关系单条失败互不影响，失败行支持单独重试』（理由：UI 无失败注入手段）",
-   "assessment": "解阻塞手段已具备：批次128 基建 adapterForTest 可注入 group join/channel invite 失败；产品侧 WorkspaceInviteResultsController 已完整实现独立 phase+retryGroup/retryChannel",
-   "cost": "测试需驱动完整邀请 UI 向导（user/search 搜索→选结果→提交），工作量 2-5 轮迭代，未在本轮启动",
-   "disposition": "维持阻塞，计划时间更新为『测试构造下轮启动（基建已具备）』——未改动台账（留给测试构造完成后一次性回写）"
-  },
-  "gf7_bisect_verdict": {
-   "result": "AT-GF1 与 AT-GF7 同位置挂死（启动期 Connectivity 事件后零 FLOW，flutter_tester 退出）——挂死为 face_to_face_acceptance_test 文件级，非 GF7 场景级",
-   "contrast": "同环境同时段 workspace 域三个测试文件（WPF/WOV/WVM）全部正常",
-   "hypothesis": "51730 载体的 autoLogin 恢复链挂住（GF 文件 define 用 51730 且不 quitLogin；workspace 文件用 smoke_bob 且无条件重登）。51730 本地态或其恢复链在多轮测试后异常",
-   "next_probe": "跑 GF1 时加 signOutFirst（或手动清 51730 本地态）验证；台账 GF1~GF11 行在批次123 均已绿，挂死不影响台账准确性"
-  },
-  "next_actions": [
-   "invite 可选关系条：下轮启动测试构造（复用 adapterForTest+驱动邀请向导 UI）",
-   "GF 挂死：验证 51730 本地态假设（清态重试或 signOutFirst）"
-  ]
- },
- "session_2026_09_09_batch133": {
-  "note": "批次133（automation 第六轮）：invite 可选关系条——发现并修复真产品缺口（失败行无重试 UI），AT-WIV1 测试编写完成但被环境阻塞（macOS fs I/O 降级），阻塞行维持并更新计划时间。主块跳过。",
-  "product_fix": {
-   "gap": "_ResultsSection 接收 onRetryGroup/onRetryChannel 但 build 未接线——failed 行只有 xmark 图标+message，无重试入口（_retryGroup/_retryChannel 死代码）。台账行『失败行支持单独重试』的产品缺口",
-   "fix": "_ResultRow 加 onRetry 参数；failed 态显示 workspace-invite-row-retry IconButton（arrow_clockwise）；group/channel 行分别接线 onRetryGroup/onRetryChannel",
-   "commit": "fix(workspace) 提交（本轮）"
-  },
-  "test_ready": {
-   "file": "integration_test/workspace/workspace_invite_relations_test.dart（AT-WIV1）",
-   "flow": "注入 /api/v1/group/add 失败 → 搜索 SmokeAlice（workspace-invite-search-btn）→ 选候选（workspace-invite-candidate-1000000051）→ 提交（workspace-invite-submit）→ 断言 workspace/channel 成功+group 失败互不影响 → 解除拦截点 workspace-invite-row-retry → group 转成功",
-   "status": "代码完成+analyze 通过；run1/2 未跑完（见 env_degradation），环境恢复后重跑"
-  },
-  "env_degradation": {
-   "symptom": "23:00 起 macOS 文件系统间歇挂起：ls/find 普通路径挂死 60s+、本地 sqlite 间歇 disk I/O error（FMDatabase Code=10，非磁盘满——Data 卷余 17Gi 但使用率 96%）；GF1/GF7 与 WIV run1/2 挂死均与此相关（叠加 manifest 回滚）",
-   "impact": "依赖本地 sqlite 的集成测试间歇失败；WVM 恢复段断言（批次131）亦受扰",
-   "suggestion": "建议人工检查 macOS 磁盘健康（fsck/First Aid）+清理至 <90% 使用率；恢复后重跑 AT-WIV1（define 见文件头注）"
-  },
-  "next_actions": [
-   "环境恢复后：跑 AT-WIV1（预期绿）→ 台账行转已通过（阻塞-1）",
-   "GF 二分已定性文件级（51730 恢复链假设），与 fs 降级叠加，待环境一并验证"
-  ]
- },
- "session_2026_09_09_batch134": {
-  "note": "批次134（automation 第七轮）：环境部分恢复（fs 响应恢复）但 bob 本地库 I/O 挂死持续——AT-WIV1 run3 仍 disk I/O error，且库文件目录 ls 也挂死（文件系统级卡死）。invite 行维持阻塞。",
-  "env_detail": {
-   "healthy": "其余路径 fs 响应正常（regen/git/常规读写均正常）",
-   "stuck": "~/Library/Containers/pub.imboy.app/Data/Documents/ 下 bob 库（local_office_1000000056.db+wal/shm）元数据操作挂死——quitLogin 删库重建无法自愈（wal/shm 残留或 inode 卡死）",
-   "user_action_needed": "需人工：①重启 macOS（清 fs 卡死）或对 Data 卷跑 First Aid ②手动删 pub.imboy.app/Data/Documents/local_office_1000000056.db*（含 -wal/-shm）③磁盘清理至 <90%",
-   "after_recovery": "直接重跑 AT-WIV1（define 见测试头注）预期绿 → 台账 invite 行转已通过"
-  },
-  "next_actions": [
-   "环境人工修复后：AT-WIV1 重验 → invite 行转已通过（阻塞-1）",
-   "GF 挂死与同一 fs 卡死叠加，一并验证"
-  ]
- },
- "session_2026_09_09_batch135": {
-  "note": "批次135（automation 第八轮）：环境探测——bob 库目录 ls 仍挂死（fs 卡死未解除），AT-WIV1 维持待环境。三态例行阻塞 tail=invite 行自身（依赖环境），维持。台账无变更。",
-  "housekeeping": "补提交批次128/133 遗留的 WPF 适配器 delayMine 档（9fe8e288）——当时决定独立 loading 文件后遗漏",
-  "env_status": "与批次134 一致：其余 fs 正常，pub.imboy.app/Documents 下 bob 库元数据操作挂死；等人工重启/First Aid/清盘",
-  "next_actions": [
-   "环境恢复后：AT-WIV1 重验 → invite 行转已通过（阻塞-1）",
-   "GF1/GF7 与同一 fs 卡死叠加，环境恢复后一并验证"
-  ]
- },
- "session_2026_09_09_batch136": {
-  "note": "批次136（automation 第九轮）：环境探测——fs ls 已不挂但 bob 库文件 unlink 也挂死（rm 3 分钟无返回）=内核级 fs 状态，测试循环无法自愈。AT-WIV1 run4 仍 disk I/O error+拦截 0 次（库打不开）。台账无变更。",
-  "verdict": "必须人工重启 macOS（或 First Aid 修 Data 卷）。重启后：①bob 库文件卡死随 fs 重建解除（或手动删 Documents 下 local_office_1000000056.db*）②重跑 AT-WIV1（预期绿→invite 行转已通过）③GF1/GF7 一并验证",
-  "evidence": "test/auto_test/reports/batch136/wiv_run4.log（disk I/O error 1 次/拦截 0 次=库打不开）",
-  "next_actions": [
-   "【用户】重启 macOS + 删 Documents 下 local_office_1000000056.db* + 磁盘清理至 <90%",
-   "【下轮 automation】探测 Documents 目录 ls 是否 <5s → 恢复则跑 AT-WIV1 → invite 行转已通过"
-  ]
- },
- "session_2026_09_09_batch137": {
-  "note": "批次137（automation 第十轮）：fs 卡死未恢复（ls Documents 仍挂死）→ AT-WIV1 维持待环境。本轮做 92 条阻塞全量分类盘点（纯文本，不改表格），产出后续可执行清单。",
-  "blocked_inventory_92": {
-   "by_module": {
-    "live_room": 28,
-    "chat": 16,
-    "settings": 11,
-    "wallet": 8,
-    "mine": 7,
-    "workspace": 6,
-    "group": 3,
-    "passport": 3,
-    "channel": 2,
-    "scanner": 2,
-    "single": 2,
-    "contact": 1,
-    "mention": 1,
-    "moment": 1,
-    "search": 1
-   },
-   "by_nature": {
-    "生产写授权类（纯人工）": "约 28 条（授权 14+生产 14：钱包余额/直播创建/生产群写等）——永久人工决策",
-    "真机类": "约 13 条（真机飞行模式/相机/断网/EMUI 特有）——需真机+人工配合",
-    "外部条件类": "第二台设备 3+素材 1+凭据 1+决策 1——需人工准备",
-    "本地数据构造类（automation 可解，优先）": "live_room 需后端房间数据（本地 9801 可造房间 fixture，batch113 造数先例）、chat 需可用群+两成员在线（本地双 smoke 账号可构造）等——后续轮次优先消化"
-   },
-   "live_room_28 特别注记": "后端 live_room 冻结未实现（台账原文），造数前需确认本地后端 live_room API 可用性；不可用则该 28 条维持『待后端实现』"
-  },
-  "env_status": "fs 卡死持续（ls Documents >30s 挂），AT-WIV1/GF 均待人工重启 macOS+清盘",
-  "next_actions": [
-   "环境恢复：AT-WIV1 重验（invite 行）+ GF1/GF7 验证",
-   "后续轮次优先：live_room 造数可行性探测（curl 9801 live_room API）→ 可用则批量解 28 条阻塞中纯数据类",
-   "其余：按盘点清单逐类推进"
-  ]
- },
- "session_2026_09_09_batch138": {
-  "note": "批次138（automation 第十一轮）：live_room 后端本地可用性实证——list/create/my_list 三接口全通（推翻台账『后端冻结未实现』旧认知）；fixture 房间已建。fs 卡死持续，集成测试仍不可跑。台账无变更。",
-  "live_room_probe": {
-   "list": "code=0 空列表（未开播房间不进列表——产品逻辑合理）",
-   "create": "code=0 成功：房间 id=111596538331138048 title=AT-LIVE-FIXTURE-138 owner=bob stream_key 已生成",
-   "my_list": "total=1 但 list_n=0（status=0 未开播被过滤）",
-   "implication": "live_room 28 条阻塞中『需后端有房间数据』类：房间数据已可造（curl create）；但列表可见性需开播状态（status!=0）——开播需 RTMP 推流环境（本地无流媒体服务器），超出 automation 范围，需用户决策是否搭本地推流环境（如 ffmpeg+nginx-rtmp）",
-   "fixture_cleanup": "如需清理：DELETE FROM live_room WHERE id=111596538331138048（本地 4323）"
-  },
-  "env_status": "fs 卡死持续（FS_STUCK），AT-WIV1/GF 仍待人工重启 macOS",
-  "next_actions": [
-   "环境恢复后第一优先：AT-WIV1（invite 行转已通过）",
-   "live_room 开播环境（RTMP）是否搭建=用户决策，非 automation 范围"
-  ]
- },
- "session_2026_09_09_batch139": {
-  "note": "批次139（automation 第十二轮）：fs 卡死持续（Documents ls 20s 无返回）——AT-WIV1 与测试类工作全部待环境。三态例行：阻塞 tail=invite 行（依赖环境）维持，台账无变更。regen+恒等式 0 违反确认。",
-  "env_status": "与批次136~138 一致：需人工重启 macOS+删坏库文件+磁盘清理",
-  "next_actions": [
-   "环境恢复后：AT-WIV1 → invite 行转已通过；GF 一并验证"
-  ]
- },
- "session_2026_09_09_batch140": {
-  "note": "批次140（automation 第十三轮）：fs 卡死持续（探测 25s 超时），测试类工作待环境。例行 regen+恒等式 0 违反。阻塞 92 不变，台账无变更。",
-  "next_actions": [
-   "同批次139：环境恢复后 AT-WIV1 优先"
-  ]
- }
 }
