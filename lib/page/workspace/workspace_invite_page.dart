@@ -508,12 +508,14 @@ class _ResultsSection extends StatelessWidget {
                 key: const ValueKey('workspace-invite-result-group'),
                 label: t.workspace.inviteResultGroup,
                 result: s.group,
+                onRetry: onRetryGroup,
               ),
               AppSpacing.verticalSmall,
               _ResultRow(
                 key: const ValueKey('workspace-invite-result-channel'),
                 label: t.workspace.inviteResultChannel,
                 result: s.channel,
+                onRetry: onRetryChannel,
               ),
             ],
           ),
@@ -527,7 +529,17 @@ class _ResultRow extends StatelessWidget {
   final String label;
   final WorkspaceRelationResult result;
 
-  const _ResultRow({super.key, required this.label, required this.result});
+  /// failed 态的单行重试入口（批次133：controller 的 retryGroup/
+  /// retryChannel 此前未接 UI，失败行只能看不能重试——台账行
+  /// 「失败行支持单独重试」的产品缺口）。
+  final VoidCallback? onRetry;
+
+  const _ResultRow({
+    super.key,
+    required this.label,
+    required this.result,
+    this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -566,6 +578,14 @@ class _ResultRow extends StatelessWidget {
           style: TextStyle(fontSize: FontSizeType.footnote.size, color: color),
           overflow: TextOverflow.ellipsis,
         ),
+        if (result.phase == WorkspaceRelationPhase.failed && onRetry != null)
+          IconButton(
+            key: const ValueKey('workspace-invite-row-retry'),
+            visualDensity: VisualDensity.compact,
+            onPressed: onRetry,
+            icon: const Icon(CupertinoIcons.arrow_clockwise, size: 18),
+            tooltip: t.common.buttonRetry,
+          ),
       ],
     );
   }
