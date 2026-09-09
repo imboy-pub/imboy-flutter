@@ -207,7 +207,14 @@ class LaunchChatService {
 
   Future<bool> joinGroup(String gid, List<String> memberUserIds) async {
     final provider = GroupMemberApi();
-    final payload = await provider.join(gid: gid, memberUserIds: memberUserIds);
+    // join 失败改为抛 GroupMemberApiException（批次152）；此处保持既有
+    // 「失败返回 false」语义
+    Map<String, dynamic>? payload;
+    try {
+      payload = await provider.join(gid: gid, memberUserIds: memberUserIds);
+    } on GroupMemberApiException {
+      return false;
+    }
 
     if (payload != null) {
       final gRepo = GroupRepo();

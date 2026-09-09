@@ -3,6 +3,18 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 
+/// GroupMember API 失败（透传服务端 envelope code 与消息）。
+class GroupMemberApiException implements Exception {
+  final int code;
+  final String message;
+
+  const GroupMemberApiException(this.code, this.message);
+
+  @override
+  String toString() =>
+      message.isEmpty ? 'GroupMemberApiException($code)' : message;
+}
+
 class GroupMemberApi extends HttpClient {
   Future<Map<String, dynamic>?> page({
     required String gid,
@@ -34,7 +46,9 @@ class GroupMemberApi extends HttpClient {
     );
 
     if (!resp.ok) {
-      return null;
+      // 失败必须抛出并透传服务端消息：邀请向导把 join 包成 Future<void>
+      // 可选关系，null 返回会把失败伪装成成功（批次152 实测）。
+      throw GroupMemberApiException(resp.code, resp.msg);
     }
     return resp.payload is Map<String, dynamic>
         ? resp.payload as Map<String, dynamic>
