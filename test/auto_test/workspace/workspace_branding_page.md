@@ -15,4 +15,4 @@
 | 无待办 | - | `page/workspace/workspace_branding_page.dart` | 非法色值点保存 toast 提示色值非法且不发请求 | 已通过 | 批次W2R1 | 0 | 0 | 0 |  |
 | 无待办 | - | `page/workspace/workspace_branding_page.dart` | 保存成功 toast 提示并自动返回，壳内工作区名称/主色立即生效 | 已通过 | 批次W2R2FIX | 1 | 1 | 0 | 真机toast+自动返回+壳图标FF0000+DB写入+重进回填；根因API请求/响应均缺branding嵌套键，修workspace_api读写契约 |
 | 无待办 | - | `page/workspace/workspace_branding_page.dart` | 已归档工作区顶部展示归档横幅且保存按钮禁用（服务端 980 兜底） | 已通过 | 批次W2R3 | 0 | 0 | 0 | WS2归档态：橙横幅+保存灰禁，点击零网络请求（logcat无Request） |
-| 阻塞 | 待环境恢复执行（批次145 解锁：smoke_alice 经邀请成为 BobWS 成员后即非 Owner；服务端仅 Owner 可改的拒绝响应可实测，编辑页深链 /workspace/:wsId/branding 非 Owner 也可达） | `page/workspace/workspace_branding_page.dart` | 非 Owner 保存被服务端拒绝并透出错误消息（仅 Owner 可改） | 未测 | 批次W2R1 | 0 | 0 | 0 | 治理区仅Owner可见无深链入口；批次145:非 Owner 身份可经邀请 API 构造 |
+| 无待办 | - | `page/workspace/workspace_branding_page.dart` | 非 Owner 保存被服务端拒绝并透出错误消息（仅 Owner 可改） | 已通过 | 批次155 | 0 | 0 | 0 | 真机：alice（BobWS-T27 member，批次153 WIV1 产物）深链 branding 编辑页可达 → 保存 403 toast「仅工作区 Owner 可执行该操作」透出 + 停留编辑页 + wire code=403 msg 同源 + DB 区名未变；测试=workspace_acceptance_batch155_test.dart AT-WBR1 |

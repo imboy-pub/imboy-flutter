@@ -905,5 +905,19 @@
       "workspace 域余 2 条（create_page 幂等 toast 行 L15 + branding 非 Owner 拒绝 L18）配方已具备可同款解锁",
       "待处理 bug 2 条（transfer 金额下限/assistant_plaza）均待用户拍板，automation 不越权"
     ]
+  },
+  "session_2026_09_09_batch155": {
+    "note": "批次155（automation 第二十八轮）：workspace 域余 2 条阻塞解锁转绿（阻塞 88→86）。AT-WIDEM 创建页幂等命中（bob 同名 IDEM-148 → toast「已存在同名工作区，直接进入」+进 Overview + wire status=existing id 不变 + active 计数不变；⚠count 检查先于语义幂等须 active<100）；AT-WBR1 非 Owner branding 403（alice 深链编辑页可达 → 保存 403 toast「仅工作区 Owner 可执行该操作」透出+停留+wire 同源+DB 名未变；alice member 身份复用批次153 WIV1 产物零新 fixture）。macOS run1 一次全绿（批次154 固化坑预防性生效）+ 真机 run2 All tests passed。零产品代码修改。",
+    "status": "done-2-PASS",
+    "test_file": "integration_test/workspace/workspace_acceptance_batch155_test.dart",
+    "runs": {
+      "run1_macos": "All tests passed（一次全绿）",
+      "run2_device": "All tests passed（真机终验）"
+    },
+    "next_actions": [
+      "workspace 域阻塞清零；阻塞 86 条进入他域尾部推进",
+      "用户决策类大占比：live_room 28（RTMP）/settings 11（bailian）/资金/WHIP",
+      "待处理 bug 2 条待用户拍板"
+    ]
   }
 }
