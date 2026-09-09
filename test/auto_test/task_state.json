@@ -858,5 +858,19 @@
       "第二优先：34 条数据类逐条实测",
       "WHIP 媒体服务器=用户决策"
     ]
+  },
+  "session_2026_09_09_batch153": {
+    "note": "批次153（automation 第二十六轮）：★AT-WIV1 转绿（run18 后环境清理重试，run17/18 卡死为 97% 磁盘+僵尸 dart 进程的环境 flake；run19 排掉 channel fixture 因素后 run20 全绿：「单条失败互不影响 ✓ + 失败行单独重试 ✓ + All tests passed」）。invite 行转已通过（阻塞 92→91，无待办+1）。本轮排障链：run17/18 早期挂死→强清 run1 时代僵尸 dart 进程群；run19 主断言过但 channel 行失败→curl 复现=服务端「只有邀请制频道支持邀请功能」（channel_logic_invitation L28：join_policy 须 1/3）；DB 实证模板 Announcements join_policy=0。fixture 修正=该频道 join_policy→1（curl 邀请 code=0 验证），测试前置清理删验证行。⚠产品决策待用户拍板：workspace 模板创建的 Announcements join_policy=0 与邀请向导 invitation 流不匹配——模板是否改邀请制（workspace_ds create_template）或向导按策略分流，属 channel access model 域设计决策，automation 不越权定。",
+    "at_wiv1_final": "run20 All tests passed；行转已通过（批次153）",
+    "fixture_state": {
+      "channel": "BobWS-T27 Announcements join_policy=1（邀请制）",
+      "cleanup": "测试 setUp 每轮 DELETE channel_invitation(channel,invitee)"
+    },
+    "env_status": "fs 已恢复；磁盘 97% 环境偶发 flake（run16/17 卡死教训：跑前清僵尸 dart 进程）",
+    "next_actions": [
+      "第二优先：34 条数据类逐条实测（workspace 域余 5 条已具备同款配方）",
+      "用户拍板：模板 Announcements join_policy（影响其余 workspace 邀请类条目）",
+      "settings 11 条避碰中；WHIP/资金/bailian=用户决策"
+    ]
   }
 }
