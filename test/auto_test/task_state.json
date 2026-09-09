@@ -919,5 +919,26 @@
       "用户决策类大占比：live_room 28（RTMP）/settings 11（bailian）/资金/WHIP",
       "待处理 bug 2 条待用户拍板"
     ]
+  },
+  "session_2026_09_09_batch156": {
+    "note": "批次156（automation 第二十九轮）：wallet 域 2 行解锁+1 真 bug 修复闭环（阻塞 86→84）。AT-WTOP1 充值全链（mock 通道：金额弹窗→「模拟支付（开发环境）」→toast 充值成功+DB +100 分+UI 余额刷新；mock 门=PaymentConfig.isMockPayAllowed 仅非生产展示，BUG#82 红线不触生产；余额断言用相对基线——写死绝对值在二次运行失配 run2 教训）；AT-WFLOW2 触底加载流水→**发现并修复真 bug（P1）**：_scrollController 挂了监听但从未传入 IosPageTemplate(controller:)→滚动事件永不到达、流水>20 条翻页完全失效；修复=controller 透传模板（参照 contact_tag_list_page）；真机复验触底加载 27/27 条与 DB 一致，wallet 单测 16 绿。macOS run3+真机 run4 All tests passed。 withdraw 提现失败行维持阻塞（生产受理制同步失败分支不可构造）。",
+    "status": "done-2-PASS-1-BUGFIX",
+    "test_file": "integration_test/wallet/wallet_acceptance_batch156_test.dart",
+    "bugfix": {
+      "bug": "wallet 流水触底加载完全失效（controller 未挂模板）",
+      "fix": "lib/page/wallet/wallet_page.dart IosPageTemplate 传 controller: _scrollController",
+      "verify": "集成测试触底加载 27/27 + wallet 单测 16 绿"
+    },
+    "runs": {
+      "run1_macos": "WTOP1 PASS（写死余额断言）/WFLOW2 FAIL（拖不触发——bug 本体）",
+      "run2_macos": "controller 修复后仍 FAIL：余额绝对值断言失配（上轮充值持久化）",
+      "run3_macos": "相对基线断言修复：All tests passed（触底加载 26/26）",
+      "run4_device": "真机终验：All tests passed（触底加载 27/27）"
+    },
+    "next_actions": [
+      "阻塞 84 条：wallet 余提现失败 1（渠道拒绝不可构造维持）",
+      "用户决策类大占比：live_room 28/settings 11/chat 16RTC/资金红线",
+      "待处理 bug 2 条待用户拍板"
+    ]
   }
 }
