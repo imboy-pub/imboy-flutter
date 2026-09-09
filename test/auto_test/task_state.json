@@ -833,5 +833,14 @@
       "WHIP 媒体服务器=用户决策",
       "未恢复轮次：轻量例行+fixture 巡检"
     ]
+  },
+  "session_2026_09_09_batch151": {
+    "note": "批次151（automation 第二十四轮）：fs 卡死持续（97%）。§0：待首测 0/待修复 0→主块跳过。三态例行尾部均维持已评估状态（待重验=red_packet BUG#111 两行、阻塞尾部=AT-WIV1，解阻塞条件不变不硬试）。并行 WIP 检查：docs/screenshots 与 integration_test/settings 仍未跟踪未动（settings 域继续避碰）；fixture 抽检：直播中房间仍在公开列表 status=1。台账无变更。",
+    "env_status": "fs 卡死持续 97%",
+    "next_actions": [
+      "用户环境三步（重启/删 local_office_1000000056.db*/清盘<90%）后：AT-WIV1 → 34 条数据类实测",
+      "WHIP 媒体服务器=用户决策",
+      "未恢复轮次：轻量例行+fixture 巡检"
+    ]
   }
 }
