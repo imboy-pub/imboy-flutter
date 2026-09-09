@@ -842,5 +842,21 @@
       "WHIP 媒体服务器=用户决策",
       "未恢复轮次：轻量例行+fixture 巡检"
     ]
+  },
+  "session_2026_09_09_batch152": {
+    "note": "批次152（automation 第二十五轮）：★环境恢复（fs 卡死解除，9801 未重启无回滚）。AT-WIV1 首跑 bring-up 共 8 轮（run2~16 不含被环境干扰的），修 5 处测试侧问题+发现 1 个真产品 bug 并修复：①搜索框 finder 歧义（壳层同名组件）→descendant 收窄；②tester.enterText 在 integration_test live binding 下不落控制器（读回=\"\"）→控制器直写；③关键词必须精确账号 smoke_alice（pg_jieba FTS 只命中精确账号串，SmokeAlice/Alice 均 0）；④拦截端点原假设 /group/add 实为 /group_member/join；⑤前置清理遗留 channel_invitation（服务端「已邀请」会把 channel 行打成失败）；★产品 bug：GroupMemberApi.join 失败返回 null 不抛异常→邀请向导把群加入失败显示为成功（workspace 域「失败抛异常」约定漏网）。修复=失败抛 GroupMemberApiException 透传服务端 msg；另两调用方（launch_chat/add_member）加 catch 保持既有 false 语义。run14 主断言已过（joinGroup 失败不影响 invite/channel+失败行显示注入 msg），唯 channel 行因历史遗留邀请被打失败（run15/16 前置清理代码已加）；run16 非确定性挂死（97% 磁盘环境 flake）。⚠教训：pkill -f 自匹配会杀自己 shell（用 [x] 括号规避）；复合命令里 pkill 模式勿含本命令字符串。",
+    "at_wiv1_status": "主断言已过；前置清理已就位；下轮直接复跑 run17 预期转绿→invite 行转已通过",
+    "product_fix_files": [
+      "lib/store/api/group_member_api.dart（join 抛 GroupMemberApiException）",
+      "lib/page/group/launch_chat/launch_chat_provider.dart（catch 保持 false）",
+      "lib/page/group/group_detail/add_member_provider.dart（同上）"
+    ],
+    "env_status": "fs 已恢复；磁盘仍 97%（环境 flake 偶发，长跑注意）",
+    "next_actions": [
+      "下轮第一优先：复跑 AT-WIV1（run17）→ 绿则 invite 行转已通过（阻塞 92→91）",
+      "复跑命令与 dart-define 见 integration_test/workspace/workspace_invite_relations_test.dart 头注",
+      "第二优先：34 条数据类逐条实测",
+      "WHIP 媒体服务器=用户决策"
+    ]
   }
 }

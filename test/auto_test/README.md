@@ -70,7 +70,7 @@
 | 阻塞 | 92 | 5.3% |
 | **合计** | **1748** | 100% |
 
-bug 累计：**发现 230 / 解决 228 / 待处理 2**
+bug 累计：**发现 231 / 解决 228 / 待处理 3**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -80,7 +80,7 @@ bug 累计：**发现 230 / 解决 228 / 待处理 2**
 |---|---|---|---|---|---|
 | [group](group/) | 26 | 293 | 0 | 290 | 3 |
 | [mine](mine/) | 21 | 250 | 0 | 243 | 7 |
-| [workspace](workspace/) | 18 | 199 | 0 | 193 | 6 |
+| [workspace](workspace/) | 18 | 199 | 1 | 193 | 6 |
 | [channel](channel/) | 13 | 146 | 0 | 144 | 2 |
 | [contact](contact/) | 13 | 126 | 1 | 125 | 1 |
 | [personal_info](personal_info/) | 8 | 88 | 0 | 88 | 0 |
@@ -322,7 +322,7 @@ bug 累计：**发现 230 / 解决 228 / 待处理 2**
 - [workspace_channels_page](workspace/workspace_channels_page.md) — 8 功能点
 - [workspace_create_page](workspace/workspace_create_page.md) — 10 功能点
 - [workspace_groups_page](workspace/workspace_groups_page.md) — 8 功能点
-- [workspace_invite_page](workspace/workspace_invite_page.md) — 17 功能点
+- [workspace_invite_page](workspace/workspace_invite_page.md) — 17 功能点 ⚠️ 1 待处理
 - [workspace_join_page](workspace/workspace_join_page.md) — 11 功能点
 - [workspace_members_page](workspace/workspace_members_page.md) — 13 功能点
 - [workspace_overview_page](workspace/workspace_overview_page.md) — 11 功能点
