@@ -940,5 +940,29 @@
       "用户决策类大占比：live_room 28/settings 11/chat 16RTC/资金红线",
       "待处理 bug 2 条待用户拍板"
     ]
+  },
+  "session_2026_09_10_batch157": {
+    "note": "批次157（automation 第三十轮）：4 行阻塞解锁转绿（阻塞 84→80）。AT-BM1 绑定手机倒计时回显（notifier.updateMobile 构造+tape 获取验证码→按钮 Ns 倒计时+verification_code 落库，id 带 +86 前缀；sms.switch=off 不外发）；AT-LR1/2/3 直播间列表 LIVE 徽章+观看人数/点击进观看页/标题栏渲染（fixture AT-LIVE-FIXTURE-138 status=1，无需 RTMP 拉流即可验证导航与 UI）。macOS run19+真机 run20 All tests passed。红线评估：email 发码无环境开关（elib_email:send 无条件外发）且本地 smtp=真实 QQ 邮箱→bind_email/forgot email 类行维持阻塞并已补台账红线备注。AT-FP1 forgot 手机行暂缓：live binding 下 TabBar 深链/切换不稳定（run8~17 未收敛）拆出专项。零产品代码修改。",
+    "status": "done-4-PASS",
+    "test_file": "integration_test/misc/acceptance_batch157_test.dart",
+    "runs": {
+      "run1_10": "AT-FP1 TabBar 切 tab 多轮未收敛（tap/drag/animateTo 皆试）+多次 patch 落盘竞态",
+      "run18": "FP1 拆出后编译过",
+      "run19_macos": "All tests passed（4 场景）",
+      "run20_device": "真机 All tests passed"
+    },
+    "lessons": [
+      "python patch 后必须 grep 验证落盘（多次 patch 与 dart format 竞态丢失）",
+      "PhoneInputWidget/onChanged 类组件控制器直写不触发回调→直调 notifier.updateMobile（onInputChanged 同一落点）",
+      "verification_code 落库 id 带 +86 国家码前缀，查表断言用全号",
+      "forgot_password TabBar 默认邮箱 tab，手机区懒加载；live binding 下 tap/drag/animateTo 切 tab 均未收敛→专项",
+      "原生 MaterialPageRoute push 页不随 go_router go() 退出，跨栈场景 find 会命中残留页文本",
+      "email 发码无环境开关+本地真实 SMTP=测试即真实发信——红线，email 类验证码行永久人工域"
+    ],
+    "next_actions": [
+      "阻塞 80 条：live_room 余拉流功能类（WHIP）/FP1 手机行专项/bind_mobile 发码失败注入 1",
+      "用户决策类：live_room RTMP/settings bailian/资金/真实触达",
+      "待处理 bug 2 条待用户拍板"
+    ]
   }
 }

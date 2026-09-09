@@ -11,7 +11,7 @@
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 手机号格式校验行实时反馈 | 已通过 | 批次29 | 0 | 0 | 0 | 短号 123→「待输入」，11 位→「正确」实时切换（mobileOk=长度>8） |
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 限制验证码为六位纯数字 | 已通过 | 批次29 | 0 | 0 | 0 | 输入 abc12345678 后仅剩 123456（digitsOnly+6位截断） |
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 判定获取验证码按钮可用态 | 已通过 | 批次29 | 0 | 0 | 0 | 禁用态实测：手机号无效时点击无网络请求（onPressed=null 拦截）；可用态代码证实 L93-98（未点击防真实发短信） |
-| 阻塞 | 待环境恢复执行（批次146 解锁：sms.switch=off 本地验证码照常落库不外发（passport_logic L723-729），发码成功即倒计时，码从 verification_code 表读） | `page/mine/account_security/bind_mobile_page.dart` | 发送验证码后倒计时回显 | 未测 | - | 0 | 0 | 0 | 需真实发短信；批次146:本地落库口径解锁 |
+| 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 发送验证码后倒计时回显 | 已通过 | 批次157 | 0 | 0 | 0 | 真机：notifier.updateMobile 构造手机号（PhoneInputWidget onChanged 回调控制器直写不触发）→tap 获取验证码 → 按钮倒计时回显 + verification_code 落库（id 带 +86 前缀；sms.switch=off 不外发）；测试=misc/acceptance_batch157_test.dart AT-BM1 |
 | 阻塞 | 待环境恢复执行（adapterForTest 拦 getcode 注入失败，配方=WIV1 同款） | `page/mine/account_security/bind_mobile_page.dart` | 发送验证码失败弹出错误提示 | 未测 | - | 0 | 0 | 0 | 需真实发短信；批次146:注入口径解锁 |
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 验证码长度校验行回显进度 | 已通过 | 批次29 | 0 | 0 | 0 | 过滤后 123456 → 长度检查实时 6/6（codeLength 驱动） |
 | 无待办 | - | `page/mine/account_security/bind_mobile_page.dart` | 判定提交按钮启用与禁用态 | 已通过 | 批次29 | 0 | 0 | 0 | 禁用态实测：点击无请求（onPressed=null）；可用态代码证实 canSubmit 公式 L100-105/L122-127（未点击防真实改绑） |
