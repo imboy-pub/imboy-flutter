@@ -46,12 +46,12 @@ class ErrorCode {
   static const int FORBIDDEN = 403;
   static const int ACCESS_DENIED = 403;
 
-  /// 消息不存在
-  static const int MESSAGE_NOT_FOUND = 404;
+  /// 资源不存在
+  static const int NOT_FOUND = 404;
   static const int USER_NOT_FOUND = 404;
   static const int FRIEND_NOT_FOUND = 404;
   static const int GROUP_NOT_FOUND = 404;
-  static const int NOT_FOUND = 404;
+  static const int MESSAGE_NOT_FOUND = 404;
 
   /// 错误码 405
   static const int METHOD_NOT_ALLOWED = 405;
@@ -89,8 +89,8 @@ class ErrorCode {
   static const int PARAM_INVALID = 422;
 
   /// 错误码 423
-  static const int ACCOUNT_LOCKED = 423;
   static const int LOCKED = 423;
+  static const int ACCOUNT_LOCKED = 423;
 
   /// 请求过于频繁
   static const int TOO_MANY_REQUESTS = 429;
@@ -438,6 +438,87 @@ class ErrorCode {
   /// 错误码 5306
   static const int TASK_PERMISSION_DENIED = 5306;
 
+  /// 错误码 5401
+  static const int WECHAT_LOGIN_FAILED = 5401;
+
+  /// 错误码 5402
+  static const int WECHAT_CODE_INVALID = 5402;
+
+  /// 错误码 5403
+  static const int TEACHING_PROVIDER_UNCONFIGURED = 5403;
+
+  /// 错误码 5404
+  static const int TEACHING_IDENTITY_NONE = 5404;
+
+  /// 错误码 5420
+  static const int TEACHING_CONTEXT_INVALID = 5420;
+
+  /// 错误码 5421
+  static const int TEACHING_CONTEXT_INACTIVE = 5421;
+
+  /// 错误码 5422
+  static const int TEACHING_LEARNER_NOT_GUARDED = 5422;
+
+  /// 错误码 5423
+  static const int TEACHING_NOT_GUARDIAN = 5423;
+
+  /// 错误码 5424
+  static const int TEACHING_NOT_STAFF = 5424;
+
+  /// 错误码 5425
+  static const int TEACHING_STAFF_WRITE_DENIED = 5425;
+
+  /// 错误码 5426
+  static const int TEACHING_CROSS_ORG = 5426;
+
+  /// 错误码 5427
+  static const int TEACHING_BIND_DUPLICATE_IN_ORG = 5427;
+
+  /// 错误码 5428
+  static const int TEACHING_BIND_INVALID_TARGET = 5428;
+
+  /// 错误码 5429
+  static const int TEACHING_BIND_NOT_AUTHORIZED = 5429;
+
+  /// 错误码 5440
+  static const int ASSIGNMENT_NOT_FOUND = 5440;
+
+  /// 错误码 5441
+  static const int SUBMISSION_ASSETS_INVALID = 5441;
+
+  /// 错误码 5442
+  static const int ASSIGNMENT_CLOSED = 5442;
+
+  /// 错误码 5443
+  static const int SUBMISSION_NOT_FOUND = 5443;
+
+  /// 错误码 5444
+  static const int SUBMISSION_WITHDRAWN = 5444;
+
+  /// 错误码 5460
+  static const int IDEMPOTENCY_CONFLICT = 5460;
+
+  /// 错误码 5461
+  static const int IDEMPOTENCY_KEY_REQUIRED = 5461;
+
+  /// 错误码 5480
+  static const int REVIEW_DRAFT_NOT_FOUND = 5480;
+
+  /// 错误码 5481
+  static const int SUBMISSION_REVIEWED = 5481;
+
+  /// 错误码 5482
+  static const int REVIEW_SUBMISSION_WITHDRAWN = 5482;
+
+  /// 错误码 5483
+  static const int REVIEW_CONFIRM_MISMATCH = 5483;
+
+  /// 错误码 5484
+  static const int REVIEW_FIELD_NOT_ACCEPTED = 5484;
+
+  /// 错误码 5485
+  static const int REVIEW_EMPTY_CONTENT = 5485;
+
   // =====================================================================
   // 错误消息映射
   // =====================================================================
@@ -563,6 +644,33 @@ class ErrorCode {
     5304: '作业已批改，无法修改',
     5305: '作业已过期，无法提交',
     5306: '无权限操作此作业',
+    5401: '微信登录失败',
+    5402: '微信登录凭证无效或已使用',
+    5403: '登录服务未配置',
+    5404: '该微信未绑定教学账号，请联系机构',
+    5420: '所选身份不属于当前用户',
+    5421: '所选身份已失效',
+    5422: '未监护该学员',
+    5423: '无监护提交权限',
+    5424: '非本班任课老师',
+    5425: '当前教学角色无操作权限',
+    5426: '跨机构访问被拒绝',
+    5427: '该账号在同机构已绑定其他学员',
+    5428: '目标账号不存在或不可用',
+    5429: '无学员绑定操作权限',
+    5440: '作业不存在',
+    5441: '提交附件不合规',
+    5442: '作业已截止或关闭',
+    5443: '提交不存在',
+    5444: '该提交已撤回',
+    5460: '请求与幂等键已绑定内容冲突',
+    5461: '缺少幂等键',
+    5480: '无可发布的回评草稿',
+    5481: '该提交已有发布回评，不可撤回',
+    5482: '提交已撤回，无法发布回评',
+    5483: '发布确认学员不一致',
+    5484: '请求包含服务端保留字段',
+    5485: '回评内容为空',
   };
 
   /// 获取错误码对应的默认消息
