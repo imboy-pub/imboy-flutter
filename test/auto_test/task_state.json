@@ -872,5 +872,38 @@
       "用户拍板：模板 Announcements join_policy（影响其余 workspace 邀请类条目）",
       "settings 11 条避碰中；WHIP/资金/bailian=用户决策"
     ]
+  },
+  "session_2026_09_09_batch154": {
+    "note": "批次154（automation 第二十七轮）：三态例行只剩阻塞。解锁 workspace 域尾部3条全绿（阻塞 91→88）。AT-WCL1 创建页409上限toast透出：API循环建97 fixture 触顶100（three_second_once 节流须>3.3s间隔），toast文案widget树捕获+页面停留+wire code=409 msg同源三重证据；AT-WIV2 空区-115（0群0频道）勾选禁用+不可用副标题；AT-WIV3 adapterForTest拦members/invite注入失败，wire计数 invite=1/groupJoin=0/channelInv=0。真机 run9 + macOS run8 双端 All tests passed。本批零产品代码修改（纯测试+台账）。",
+    "status": "done-3-PASS",
+    "test_file": "integration_test/workspace/workspace_acceptance_batch154_test.dart",
+    "runs": {
+      "run1_device": "FAIL 环境：adb reverse 缺 4323（TestPg SocketException）——reverse 随 app 重启丢失",
+      "run2_device": "WCL1/WIV2 PASS；WIV3 前置断言 onChanged=null",
+      "run3_device": "诊断 groupsN=0：请求未发起",
+      "run5_macos": "定案①：onstage 向导 workspaceId=空区旧实例——go_router 同分支仅参数变化 go() 不换页（dio探针 ok=true 排除通道问题）",
+      "run6_macos": "回壳导航修复生效（onstage=LIM ready=true）；新断言 inviteN=0：tap 未命中 ListView 底部提交键",
+      "run7_macos": "ensureVisible 修复 tap；新发现②：invite 有拦截器日志但 adapter 计数=0——keepAlive workspaceApiProvider 已构造实例不装载 adapterForTest，请求真实打到服务端（smoke_alice 真实入区/入群，已 DELETE 清污+member_count 回写）",
+      "run8_macos": "invalidate(provider) 修复：All tests passed（3 场景）",
+      "run9_device": "真机终验：All tests passed（3 场景）"
+    },
+    "lessons": [
+      "adb reverse 三端口（9800/9801/4323）随 app 重启丢失，跑前必查",
+      "POST /workspaces per-owner three_second_once 节流，循环建区须 >3s 间隔",
+      "go_router：同路由分支仅参数变化的 go() 不重建 onstage 页面——须先回主壳再导航",
+      "keepAlive Provider 的 API 实例在构造时才读静态 adapterForTest——测试注入须先 invalidate",
+      "flutter_test find 默认 skipOffstage=true（栈下旧实例不可见，但 widget 树计时序要防多实例）",
+      "EasyLoading toast 文案在 integration_test 的 widget 树中可捕获（find.textContaining 可用）——修正此前「不进语义树」判读的适用范围",
+      "Android 真机 binding.takeScreenshot 会阻塞（i18n 测试注释），本批未使用；外部 screencap 在该 EMUI 上黑帧"
+    ],
+    "fixture_state": {
+      "workspaces": "AT-WS-LIM154-1..97 已全部置 archived（bob active 恢复 3 个：空区-115/BobWS-T27/IDEM-148）；LIM154-1=111720650783328256 可 restore 复用（WIV3 fixture，General+Announcements 齐全）",
+      "pollution": "run7 真实 invite 的 workspace_member/group_member 各 1 行已 DELETE，member_count 冗余列已回写 1"
+    },
+    "next_actions": [
+      "阻塞 88 条按尾部推进：live_room 28（RTMP 环境待用户决策）/settings 11（bailian=用户决策）/WHIP/资金=用户决策类",
+      "workspace 域余 2 条（create_page 幂等 toast 行 L15 + branding 非 Owner 拒绝 L18）配方已具备可同款解锁",
+      "待处理 bug 2 条（transfer 金额下限/assistant_plaza）均待用户拍板，automation 不越权"
+    ]
   }
 }
