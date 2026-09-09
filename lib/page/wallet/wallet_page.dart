@@ -219,6 +219,10 @@ class _WalletPageState extends ConsumerState<WalletPage> {
     return IosPageTemplate(
       title: t.account.wallet,
       useLargeTitle: false,
+      // 触底加载流水依赖滚动监听：controller 必须挂到模板的
+      // CustomScrollView，否则 _onScroll 永不触发、第 2 页永远加载不出
+      // （批次156 实测发现的失效 bug，参照 contact_tag_list_page 用法）
+      controller: _scrollController,
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
