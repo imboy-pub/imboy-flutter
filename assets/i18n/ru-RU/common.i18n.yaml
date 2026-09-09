@@ -650,6 +650,11 @@ e2eeGenerateKeyConfirm: Создать новую пару ключей E2EE?
 e2eeWarnOldMessagesLost: "• Старые сообщения нельзя будет расшифровать"
 e2eeWarnNeedNewBackup: "• Потребуется создать новую резервную копию"
 e2eeConfirmGenerate: Создать
+aiPlaintextConfirmTitle: Незашифрованный чат с ИИ-ассистентом
+aiPlaintextConfirmBody: Сообщения и вложения в этом чате НЕ защищены сквозным шифрованием; сервер может их прочитать.
+aiPlaintextConfirmNote: Это устройство запомнит подтверждение и спросит снова, если личность или ключ собеседника изменятся.
+aiPlaintextConfirmOk: Понятно, отправить
+aiPlaintextConfirmCancel: Отмена
 e2eeDeleteKeyConfirm: Удалить текущий ключ?
 e2eeWarnCannotRestore: "• После удаления восстановление невозможно"
 e2eeWarnAllMsgsLost: "• Все сообщения E2EE нельзя будет расшифровать"

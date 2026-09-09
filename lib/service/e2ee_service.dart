@@ -12,6 +12,7 @@ import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
+import 'package:imboy/service/e2ee/ai_plaintext_gate.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
@@ -156,26 +157,53 @@ class E2EEService {
     iPrint('E2EE: 已清除所有公钥缓存');
   }
 
-  /// 检查是否需要对消息进行端到端加密（经 [PolicyGate] 决策）。
+  /// 检查是否需要对消息进行端到端加密。
   ///
   /// WebSocket API v2.0: msg_type/action 在顶层，不在 payload 内。
   /// action 操作消息由调用方拦截；此处只按后端 policy 判定 C2C/C2G。
   ///
-  /// 透明 AI 豁免：C2C 对端是 AI 助手（account_type=1）时恒返回 false——
-  /// AI 助手绝不进入端到端加密会话（服务端红线，产品在 AI 广场透明卡明示），
-  /// agent 也没有设备密钥，required 部署下若仍要求加密会把会话整条夹死
-  /// （发送端 `peer_has_no_device` / 服务端 policy_violation）。
-  /// 该豁免先于 [PolicyGate]：策略未初始化也不得阻断 agent 会话。
+  /// == 判定顺序（LT02-SEC-01 / AI-ID=B）==
+  ///
+  /// 1. [PolicyGate] 先行：策略未初始化 → 抛 [E2eeSecurityException]
+  ///    （fail-closed，豁免不再先于策略门——策略未就绪时 agent 会话一并
+  ///    等待，绝不以「未初始化」为缺口放行明文）。
+  /// 2. 明文部署（PlaintextAllowed）→ false：部署级明文与 AI 门无关。
+  /// 3. required/compliance（EncryptRequired）→ 明文只有一条合法通道：
+  ///    [AiPlaintextGate]（用户显式确认绑定四元组）。传 [toId] 时经共享门
+  ///    判定；[interactiveConfirm] 仅 UI 语境（消息发送/附件上传）为 true，
+  ///    retry 等非 UI 语境必须 false（不弹窗、不放行）。
+  ///
+  /// == 已删除的旧短路 ==
+  ///
+  /// 旧实现 `chatType == 'C2C' && peerAccountType == 1 → return false`
+  /// 以**未签名、可污染**的裸徽章（contact.account_type，user/show 免鉴权
+  /// 回吐）直接豁免明文，且先于 PolicyGate（finding LT02-SEC-01
+  /// HIGH/OPEN）。AI-ID=B 后：account_type 只能渲染 UI badge；授权明文
+  /// 必须存在与当前四元组（deployment identity + target uid + 对端身份
+  /// 指纹 + version）匹配的用户确认记录。本地 DB 污染/伪造响应 → 无确认
+  /// → 仍走 E2EE（agent 无设备密钥时发送端拒发），绝不静默明文出网。
+  ///
+  /// 消息/附件/重试三条出设备路径都汇流到本谓词 → [AiPlaintextGate]
+  /// 单一入口；禁止在 caller 各写一份 guard。
   ///
   /// fail-closed（ADR 14 §S1.1 / CB-01/02）：策略未初始化时对 C2C/C2G 抛
   /// [E2eeSecurityException]，绝不静默以 plaintext 默认继续发送。
-  static bool shouldEncryptOutgoingPayload(
+  static Future<bool> shouldEncryptOutgoingPayload(
     String chatType, {
-    int peerAccountType = 0,
-  }) {
-    if (chatType == 'C2C' && peerAccountType == 1) return false;
+    String? toId,
+    bool interactiveConfirm = false,
+  }) async {
     final decision = PolicyGate.requireReadyForSend(chatType);
-    return decision is EncryptRequired;
+    if (decision is! EncryptRequired) return false;
+    if (toId != null &&
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: chatType,
+          toId: toId,
+          interactive: interactiveConfirm,
+        )) {
+      return false;
+    }
+    return true;
   }
 
   /// 构建 E2EE 数据（v2.0 格式）

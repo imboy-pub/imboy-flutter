@@ -345,4 +345,54 @@ void main() {
       expect(await _statusOf(id), IMBoyMessageStatus.sent);
     });
   });
+
+  group('LT02-SEC-01（AI-ID=B）：agent 徽章对端的明文重试闸门', () {
+    test('⚠️ strict + 对端 account_type=1（无有效用户确认）→ 明文行不得重发，'
+        '落终态 error', () async {
+      // 旧短路：badge=1 → 豁免先于策略 → 库中明文行原样重发 WS（漏洞面）。
+      // AI-ID=B：无用户确认 → 共享门 fail-closed → encryptionRequired=true
+      // → 明文行被闸门拦下，落终态 error 并出队。
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.strictE2ee,
+        initialized: true,
+      );
+      addTearDown(() {
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.plaintext,
+          initialized: false,
+        );
+      });
+
+      // 把 2002 的联系人行置为 AI 助手徽章（本地污染面：user/show 伪造
+      // 响应即可到达此态）。徽章只进 UI，不授权明文重发。
+      final db = (await SqliteService.to.db)!;
+      await db.update(
+        'contact',
+        {'account_type': 1},
+        where: 'peer_id = ?',
+        whereArgs: [2002],
+      );
+      addTearDown(() async {
+        await db.update(
+          'contact',
+          {'account_type': 0},
+          where: 'peer_id = ?',
+          whereArgs: [2002],
+        );
+      });
+
+      const id = 'sm00000000000000t010';
+      final msg = await _insertMsg(id, status: IMBoyMessageStatus.error);
+      // 该行是明文（e2ee 为空），策略却要求加密 → 正是「该加密却是明文」。
+      expect(msg.e2ee, isNull);
+      retry.addToRetryQueue(id, 'C2C');
+      _makeDue(retry, id);
+      await retry.retryFailedMessages();
+
+      // 不重发明文：零 WS 发送 + 落终态 error + 出队
+      expect(sendRequests.where((e) => e.messageId == id), isEmpty);
+      expect(await _statusOf(id), IMBoyMessageStatus.error);
+      expect(retry.getRetryInfo(id), isNull);
+    });
+  });
 }

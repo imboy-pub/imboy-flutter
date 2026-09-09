@@ -1357,6 +1357,11 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeWarnOldMessagesLost => '• Old messages will be unreadable';
 	@override String get e2eeWarnNeedNewBackup => '• A new backup file will need to be generated';
 	@override String get e2eeConfirmGenerate => 'Confirm Generate';
+	@override String get aiPlaintextConfirmTitle => 'Plaintext chat with AI assistant';
+	@override String get aiPlaintextConfirmBody => 'Messages and attachments in this chat are NOT end-to-end encrypted; the server can read them.';
+	@override String get aiPlaintextConfirmNote => 'This device will remember your confirmation and ask again if the peer\'s identity or key changes.';
+	@override String get aiPlaintextConfirmOk => 'I understand, send';
+	@override String get aiPlaintextConfirmCancel => 'Cancel';
 	@override String get e2eeDeleteKeyConfirm => 'Delete the current key?';
 	@override String get e2eeWarnCannotRestore => '• Cannot be recovered after deletion';
 	@override String get e2eeWarnAllMsgsLost => '• All E2EE messages will be unreadable';
@@ -3743,6 +3748,11 @@ extension on TranslationsEnUs {
 			'common.e2eeWarnOldMessagesLost' => '• Old messages will be unreadable',
 			'common.e2eeWarnNeedNewBackup' => '• A new backup file will need to be generated',
 			'common.e2eeConfirmGenerate' => 'Confirm Generate',
+			'common.aiPlaintextConfirmTitle' => 'Plaintext chat with AI assistant',
+			'common.aiPlaintextConfirmBody' => 'Messages and attachments in this chat are NOT end-to-end encrypted; the server can read them.',
+			'common.aiPlaintextConfirmNote' => 'This device will remember your confirmation and ask again if the peer\'s identity or key changes.',
+			'common.aiPlaintextConfirmOk' => 'I understand, send',
+			'common.aiPlaintextConfirmCancel' => 'Cancel',
 			'common.e2eeDeleteKeyConfirm' => 'Delete the current key?',
 			'common.e2eeWarnCannotRestore' => '• Cannot be recovered after deletion',
 			'common.e2eeWarnAllMsgsLost' => '• All E2EE messages will be unreadable',
@@ -4058,13 +4068,13 @@ extension on TranslationsEnUs {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} and ${count} others liked this',
 			'discovery.momentContentPlaceholder' => 'What\'s on your mind...',
 			'discovery.momentShowFull' => 'Show full',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentCollapse' => 'Collapse',
 			'discovery.momentsDraftKeepTitle' => 'Keep draft?',
 			'discovery.momentsDraftKeepMessage' => 'You can continue editing next time',
 			'discovery.momentsDraftDiscard' => 'Discard',
 			'discovery.momentsDraftKeep' => 'Keep',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.openChannel' => 'Open Channel',
 			'discovery.paidChannelLocked' => 'Paid Channel Content Locked',
 			'discovery.webQRScanned' => 'Scanned',
@@ -4572,13 +4582,13 @@ extension on TranslationsEnUs {
 			'workspace.archiveTitle' => 'Archive workspace',
 			'workspace.archiveDesc' => 'Archiving makes it read-only for everyone (writes rejected by the server); restore anytime',
 			'workspace.archiveConfirm' => 'Archive',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreTitle' => 'Restore workspace',
 			'workspace.restoreDesc' => 'Restoring re-enables read and write',
 			'workspace.restoreConfirm' => 'Restore',
 			'workspace.archivedBanner' => 'Workspace archived: content is viewable, writes are disabled; the Owner can restore it on the Members page',
 			'workspace.brandingTitle' => 'Workspace branding',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'Brand name',
 			'workspace.brandingLogoLabel' => 'Logo URL',
 			'workspace.brandingLogoHint' => 'https://… (workspace logo image URL)',

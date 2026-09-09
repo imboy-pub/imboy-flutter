@@ -16,12 +16,15 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/page/chat/chat/attachment_handler.dart';
+import 'package:imboy/service/e2ee/ai_plaintext_gate.dart';
 import 'package:imboy/service/e2ee/attachment_binding.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart'
     show AssetEntity;
 
@@ -437,6 +440,106 @@ void main() {
           ),
         ),
       );
+    });
+  });
+
+  group('9. LT02-SEC-01：AI 明文通道封装判定经共享身份门（AI-ID=B）', () {
+    const contactDdl = '''
+      CREATE TABLE contact (
+        user_id INTEGER,
+        peer_id INTEGER,
+        nickname TEXT,
+        avatar TEXT,
+        account TEXT,
+        status INTEGER,
+        remark TEXT,
+        tag TEXT,
+        region TEXT,
+        sign TEXT,
+        source TEXT,
+        gender INTEGER,
+        is_friend INTEGER,
+        is_from INTEGER,
+        category_id INTEGER,
+        account_type INTEGER,
+        last_seen_at INTEGER,
+        updated_at INTEGER
+      )
+    ''';
+    const agentPeer = 2002;
+
+    late Database db;
+
+    setUpAll(() async {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+      await db.execute(contactDdl);
+      // 本地污染面：contact 行被写 account_type=1（user/show 伪造响应或本地
+      // 直写都可到达此态）。徽章数据源在位，但**授权**只能来自 AiPlaintextGate
+      // 的用户确认记录（四元组持久化）。
+      await db.insert('contact', {
+        'user_id': '',
+        'peer_id': agentPeer,
+        'nickname': 'ai-peer',
+        'avatar': '',
+        'account': 'acc$agentPeer',
+        'status': 1,
+        'is_friend': 1,
+        'account_type': 1,
+        'updated_at': 1751850000000,
+      });
+      SqliteService.setDbForTest(db);
+    });
+
+    tearDownAll(() async {
+      SqliteService.setDbForTest(null);
+      await db.close();
+    });
+
+    void setStrict() {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.strictE2ee,
+        initialized: true,
+      );
+      addTearDown(() {
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.plaintext,
+          initialized: false,
+        );
+      });
+    }
+
+    test(
+      '⚠️ required + 本地徽章 account_type=1 + 无有效确认 → 附件必须封装（fail-closed）',
+      () async {
+        setStrict();
+        // 旧短路：badge=1 → 不加密 → seal=null → 原文件明文直传对象存储（漏洞）。
+        // AI-ID=B：无用户确认 → 仍按加密判定 → 附件先封装再上传。
+        final h = _handler(type: 'C2C', peerId: '$agentPeer', selfUid: '1001');
+        expect(await h.payloadWillBeEncryptedForTest(), isTrue);
+        expect(await h.sealRequestForTest('msg-1', 'image'), isNotNull);
+      },
+    );
+
+    test('required + 有效用户确认（四元组在位）→ 明文会话 seal=null 合法路径', () async {
+      setStrict();
+      // 预置与生产同源的确认记录：四元组 = (deployment, uid, 指纹, version)。
+      final binding = await AiPlaintextGate.debugCurrentBinding('$agentPeer');
+      final store = SqliteAiPlaintextConfirmationStore();
+      await store.ensureSchema();
+      await store.save(
+        AiPlaintextConfirmation(
+          deploymentId: binding.deploymentId,
+          targetUid: '$agentPeer',
+          peerIdentityFingerprint: binding.fingerprint,
+          identityVersion: binding.version,
+          confirmedAt: 1751850000000,
+        ),
+      );
+      final h = _handler(type: 'C2C', peerId: '$agentPeer', selfUid: '1001');
+      expect(await h.payloadWillBeEncryptedForTest(), isFalse);
+      expect(await h.sealRequestForTest('msg-1', 'image'), isNull);
     });
   });
 }

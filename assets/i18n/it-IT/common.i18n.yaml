@@ -644,6 +644,11 @@ e2eeGenerateKeyConfirm: Creare una nuova coppia di chiavi E2EE ?
 e2eeWarnOldMessagesLost: "• Vecchi messaggi indecifrabili"
 e2eeWarnNeedNewBackup: "• Nuovo backup richiesto"
 e2eeConfirmGenerate: Genera
+aiPlaintextConfirmTitle: Chat in chiaro con l'assistente IA
+aiPlaintextConfirmBody: Messaggi e allegati in questa chat NON sono cifrati end-to-end; il server può leggerli.
+aiPlaintextConfirmNote: Questo dispositivo ricorderà la conferma e chiederà di nuovo se l'identità o la chiave del contatto cambia.
+aiPlaintextConfirmOk: Ho capito, invia
+aiPlaintextConfirmCancel: Annulla
 e2eeDeleteKeyConfirm: Eliminare la chiave attuale ?
 e2eeWarnCannotRestore: "• Eliminazione irreversibile"
 e2eeWarnAllMsgsLost: "• Tutti i messaggi E2EE indecifrabili"

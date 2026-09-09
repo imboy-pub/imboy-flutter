@@ -1370,6 +1370,11 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeWarnOldMessagesLost => '• لن يمكن فك الرسائل القديمة';
 	@override String get e2eeWarnNeedNewBackup => '• ستحتاج إلى إنشاء نسخة احتياطية جديدة';
 	@override String get e2eeConfirmGenerate => 'إنشاء';
+	@override String get aiPlaintextConfirmTitle => 'محادثة غير مشفرة مع المساعد الذكي';
+	@override String get aiPlaintextConfirmBody => 'الرسائل والمرفقات في هذه المحادثة ليست مشفرة طرفًا إلى طرف؛ يمكن للخادم قراءتها.';
+	@override String get aiPlaintextConfirmNote => 'سيتذكر هذا الجهاز تأكيدك وسيعيد السؤال إذا تغيّرت هوية الطرف الآخر أو مفتاحه.';
+	@override String get aiPlaintextConfirmOk => 'فهمت، إرسال';
+	@override String get aiPlaintextConfirmCancel => 'إلغاء';
 	@override String get e2eeDeleteKeyConfirm => 'حذف المفتاح الحالي؟';
 	@override String get e2eeWarnCannotRestore => '• لا يمكن الاستعادة بعد الحذف';
 	@override String get e2eeWarnAllMsgsLost => '• لن يمكن فك جميع رسائل E2EE';
@@ -3756,6 +3761,11 @@ extension on TranslationsArSa {
 			'common.e2eeWarnOldMessagesLost' => '• لن يمكن فك الرسائل القديمة',
 			'common.e2eeWarnNeedNewBackup' => '• ستحتاج إلى إنشاء نسخة احتياطية جديدة',
 			'common.e2eeConfirmGenerate' => 'إنشاء',
+			'common.aiPlaintextConfirmTitle' => 'محادثة غير مشفرة مع المساعد الذكي',
+			'common.aiPlaintextConfirmBody' => 'الرسائل والمرفقات في هذه المحادثة ليست مشفرة طرفًا إلى طرف؛ يمكن للخادم قراءتها.',
+			'common.aiPlaintextConfirmNote' => 'سيتذكر هذا الجهاز تأكيدك وسيعيد السؤال إذا تغيّرت هوية الطرف الآخر أو مفتاحه.',
+			'common.aiPlaintextConfirmOk' => 'فهمت، إرسال',
+			'common.aiPlaintextConfirmCancel' => 'إلغاء',
 			'common.e2eeDeleteKeyConfirm' => 'حذف المفتاح الحالي؟',
 			'common.e2eeWarnCannotRestore' => '• لا يمكن الاستعادة بعد الحذف',
 			'common.e2eeWarnAllMsgsLost' => '• لن يمكن فك جميع رسائل E2EE',
@@ -4067,13 +4077,13 @@ extension on TranslationsArSa {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} و${count} آخرون أعجبوا',
 			'discovery.momentContentPlaceholder' => 'بماذا تفكر...',
 			'discovery.momentShowFull' => 'عرض الكل',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentCollapse' => 'طي',
 			'discovery.momentsDraftKeepTitle' => 'حفظ المسودة؟',
 			'discovery.momentsDraftKeepMessage' => 'يمكنك المتابعة في المرة القادمة',
 			'discovery.momentsDraftDiscard' => 'عدم الحفظ',
 			'discovery.momentsDraftKeep' => 'حفظ',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.openChannel' => 'فتح القناة',
 			'discovery.paidChannelLocked' => 'محتوى القناة المدفوعة مقفل',
 			'discovery.webQRScanned' => 'تم المسح',
@@ -4581,13 +4591,13 @@ extension on TranslationsArSa {
 			'workspace.archiveTitle' => 'أرشفة مساحة العمل',
 			'workspace.archiveDesc' => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت',
 			'workspace.archiveConfirm' => 'تأكيد الأرشفة',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreTitle' => 'استعادة مساحة العمل',
 			'workspace.restoreDesc' => 'بعد الاستعادة تعود مساحة العمل للقراءة والكتابة',
 			'workspace.restoreConfirm' => 'تأكيد الاستعادة',
 			'workspace.archivedBanner' => 'مساحة العمل مؤرشفة: يمكن عرض المحتوى وعمليات الكتابة معطّلة؛ يمكن لـ Owner الاستعادة من صفحة الأعضاء',
 			'workspace.brandingTitle' => 'علامة مساحة العمل',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'اسم العلامة',
 			'workspace.brandingLogoLabel' => 'عنوان Logo',
 			'workspace.brandingLogoHint' => 'https://… (عنوان صورة Logo لمساحة العمل)',

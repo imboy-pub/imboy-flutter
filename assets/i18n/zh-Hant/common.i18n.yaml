@@ -642,6 +642,11 @@ e2eeGenerateKeyConfirm: 確定要生成新的 E2EE 金鑰對嗎？
 e2eeWarnOldMessagesLost: • 舊訊息將無法解密
 e2eeWarnNeedNewBackup: • 需要重新生成備份檔案
 e2eeConfirmGenerate: 確認生成
+aiPlaintextConfirmTitle: 與 AI 助手的明文會話
+aiPlaintextConfirmBody: 本會話訊息和附件不是端到端加密，伺服器可以看到內容。
+aiPlaintextConfirmNote: 確認後本裝置將記住本次確認；對方身分或金鑰變更後會再次詢問。
+aiPlaintextConfirmOk: 已知曉，繼續傳送
+aiPlaintextConfirmCancel: 取消
 e2eeDeleteKeyConfirm: 確定要刪除當前金鑰嗎？
 e2eeWarnCannotRestore: • 刪除後無法恢復
 e2eeWarnAllMsgsLost: • 所有 E2EE 訊息將無法解密

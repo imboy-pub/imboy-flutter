@@ -1361,6 +1361,11 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeWarnOldMessagesLost => '• Anciens messages indéchiffrables';
 	@override String get e2eeWarnNeedNewBackup => '• Nouvelle sauvegarde requise';
 	@override String get e2eeConfirmGenerate => 'Générer';
+	@override String get aiPlaintextConfirmTitle => 'Discussion en clair avec l\'assistant IA';
+	@override String get aiPlaintextConfirmBody => 'Les messages et pièces jointes de cette discussion ne sont PAS chiffrés de bout en bout ; le serveur peut les lire.';
+	@override String get aiPlaintextConfirmNote => 'Cet appareil mémorisera votre confirmation et redemandera si l\'identité ou la clé du correspondant change.';
+	@override String get aiPlaintextConfirmOk => 'Compris, envoyer';
+	@override String get aiPlaintextConfirmCancel => 'Annuler';
 	@override String get e2eeDeleteKeyConfirm => 'Supprimer la clé actuelle ?';
 	@override String get e2eeWarnCannotRestore => '• Suppression irréversible';
 	@override String get e2eeWarnAllMsgsLost => '• Tous les messages E2EE indéchiffrables';
@@ -3747,6 +3752,11 @@ extension on TranslationsFrFr {
 			'common.e2eeWarnOldMessagesLost' => '• Anciens messages indéchiffrables',
 			'common.e2eeWarnNeedNewBackup' => '• Nouvelle sauvegarde requise',
 			'common.e2eeConfirmGenerate' => 'Générer',
+			'common.aiPlaintextConfirmTitle' => 'Discussion en clair avec l\'assistant IA',
+			'common.aiPlaintextConfirmBody' => 'Les messages et pièces jointes de cette discussion ne sont PAS chiffrés de bout en bout ; le serveur peut les lire.',
+			'common.aiPlaintextConfirmNote' => 'Cet appareil mémorisera votre confirmation et redemandera si l\'identité ou la clé du correspondant change.',
+			'common.aiPlaintextConfirmOk' => 'Compris, envoyer',
+			'common.aiPlaintextConfirmCancel' => 'Annuler',
 			'common.e2eeDeleteKeyConfirm' => 'Supprimer la clé actuelle ?',
 			'common.e2eeWarnCannotRestore' => '• Suppression irréversible',
 			'common.e2eeWarnAllMsgsLost' => '• Tous les messages E2EE indéchiffrables',
@@ -4058,13 +4068,13 @@ extension on TranslationsFrFr {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} et ${count} autres aiment ça',
 			'discovery.momentContentPlaceholder' => 'À quoi pensez-vous...',
 			'discovery.momentShowFull' => 'Voir tout',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentCollapse' => 'Réduire',
 			'discovery.momentsDraftKeepTitle' => 'Conserver le brouillon ?',
 			'discovery.momentsDraftKeepMessage' => 'Vous pourrez continuer la prochaine fois',
 			'discovery.momentsDraftDiscard' => 'Ne pas conserver',
 			'discovery.momentsDraftKeep' => 'Conserver',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.openChannel' => 'Ouvrir le canal',
 			'discovery.paidChannelLocked' => 'Contenu verrouillé (payant)',
 			'discovery.webQRScanned' => 'Scanné',
@@ -4572,13 +4582,13 @@ extension on TranslationsFrFr {
 			'workspace.archiveTitle' => 'Archiver l\'espace de travail',
 			'workspace.archiveDesc' => 'Après archivage, tous les membres passent en lecture seule (les écritures sont refusées par le serveur) ; restauration possible à tout moment',
 			'workspace.archiveConfirm' => 'Confirmer l\'archivage',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreTitle' => 'Restaurer l\'espace de travail',
 			'workspace.restoreDesc' => 'Après restauration, l\'espace de travail redevient accessible en lecture et en écriture',
 			'workspace.restoreConfirm' => 'Confirmer la restauration',
 			'workspace.archivedBanner' => 'Espace de travail archivé : le contenu reste consultable, les écritures sont désactivées ; l\'Owner peut restaurer depuis la page des membres',
 			'workspace.brandingTitle' => 'Marque de l\'espace de travail',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'Nom de marque',
 			'workspace.brandingLogoLabel' => 'URL du Logo',
 			'workspace.brandingLogoHint' => 'https://… (URL de l\'image du Logo de l\'espace de travail)',

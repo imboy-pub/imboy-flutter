@@ -1361,6 +1361,11 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeWarnOldMessagesLost => '• Vecchi messaggi indecifrabili';
 	@override String get e2eeWarnNeedNewBackup => '• Nuovo backup richiesto';
 	@override String get e2eeConfirmGenerate => 'Genera';
+	@override String get aiPlaintextConfirmTitle => 'Chat in chiaro con l\'assistente IA';
+	@override String get aiPlaintextConfirmBody => 'Messaggi e allegati in questa chat NON sono cifrati end-to-end; il server può leggerli.';
+	@override String get aiPlaintextConfirmNote => 'Questo dispositivo ricorderà la conferma e chiederà di nuovo se l\'identità o la chiave del contatto cambia.';
+	@override String get aiPlaintextConfirmOk => 'Ho capito, invia';
+	@override String get aiPlaintextConfirmCancel => 'Annulla';
 	@override String get e2eeDeleteKeyConfirm => 'Eliminare la chiave attuale ?';
 	@override String get e2eeWarnCannotRestore => '• Eliminazione irreversibile';
 	@override String get e2eeWarnAllMsgsLost => '• Tutti i messaggi E2EE indecifrabili';
@@ -3747,6 +3752,11 @@ extension on TranslationsItIt {
 			'common.e2eeWarnOldMessagesLost' => '• Vecchi messaggi indecifrabili',
 			'common.e2eeWarnNeedNewBackup' => '• Nuovo backup richiesto',
 			'common.e2eeConfirmGenerate' => 'Genera',
+			'common.aiPlaintextConfirmTitle' => 'Chat in chiaro con l\'assistente IA',
+			'common.aiPlaintextConfirmBody' => 'Messaggi e allegati in questa chat NON sono cifrati end-to-end; il server può leggerli.',
+			'common.aiPlaintextConfirmNote' => 'Questo dispositivo ricorderà la conferma e chiederà di nuovo se l\'identità o la chiave del contatto cambia.',
+			'common.aiPlaintextConfirmOk' => 'Ho capito, invia',
+			'common.aiPlaintextConfirmCancel' => 'Annulla',
 			'common.e2eeDeleteKeyConfirm' => 'Eliminare la chiave attuale ?',
 			'common.e2eeWarnCannotRestore' => '• Eliminazione irreversibile',
 			'common.e2eeWarnAllMsgsLost' => '• Tutti i messaggi E2EE indecifrabili',
@@ -4058,13 +4068,13 @@ extension on TranslationsItIt {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => 'A ${names} e altri ${count} piace',
 			'discovery.momentContentPlaceholder' => 'A cosa stai pensando...',
 			'discovery.momentShowFull' => 'Mostra tutto',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentCollapse' => 'Comprimi',
 			'discovery.momentsDraftKeepTitle' => 'Conservare la bozza?',
 			'discovery.momentsDraftKeepMessage' => 'Potrai continuare la prossima volta',
 			'discovery.momentsDraftDiscard' => 'Non conservare',
 			'discovery.momentsDraftKeep' => 'Conserva',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.openChannel' => 'Apri canale',
 			'discovery.paidChannelLocked' => 'Contenuto bloccato (a pagamento)',
 			'discovery.webQRScanned' => 'Scansionato',
@@ -4572,13 +4582,13 @@ extension on TranslationsItIt {
 			'workspace.projectChannelLinkTitle' => 'Seleziona i canali da collegare',
 			'workspace.projectChannelLinkedToast' => 'Canale collegato',
 			'workspace.projectChannelNoCandidate' => 'Nessun canale candidato collegabile',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectChannelUnlinkDesc' => 'Dopo lo scollegamento i contenuti del canale non verranno più aggregati in questo progetto',
 			'workspace.projectChannelUnlinkSubmit' => 'Scollega',
 			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'Scollega ${name}',
 			'workspace.projectChannelUnlinkedToast' => 'Scollegato',
 			'workspace.projectChannelsEntry' => 'Canali del progetto',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectChannelsTitle' => 'Canali del progetto',
 			'workspace.projectCreateEntry' => 'Nuovo progetto',
 			'workspace.projectCreateSuccess' => 'Progetto creato con successo',

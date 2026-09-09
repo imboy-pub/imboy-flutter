@@ -3823,6 +3823,21 @@ class Translations$common$zh_CN {
 	/// zh-CN: '确认生成'
 	String get e2eeConfirmGenerate => '确认生成';
 
+	/// zh-CN: '与 AI 助手的明文会话'
+	String get aiPlaintextConfirmTitle => '与 AI 助手的明文会话';
+
+	/// zh-CN: '本会话消息和附件不是端到端加密，服务端可以看到内容。'
+	String get aiPlaintextConfirmBody => '本会话消息和附件不是端到端加密，服务端可以看到内容。';
+
+	/// zh-CN: '确认后本设备将记住本次确认；对方身份或密钥变更后会再次询问。'
+	String get aiPlaintextConfirmNote => '确认后本设备将记住本次确认；对方身份或密钥变更后会再次询问。';
+
+	/// zh-CN: '已知晓，继续发送'
+	String get aiPlaintextConfirmOk => '已知晓，继续发送';
+
+	/// zh-CN: '取消'
+	String get aiPlaintextConfirmCancel => '取消';
+
 	/// zh-CN: '确定要删除当前密钥吗？'
 	String get e2eeDeleteKeyConfirm => '确定要删除当前密钥吗？';
 
@@ -8090,6 +8105,11 @@ extension on Translations {
 			'common.e2eeWarnOldMessagesLost' => '• 旧消息将无法解密',
 			'common.e2eeWarnNeedNewBackup' => '• 需要重新生成备份文件',
 			'common.e2eeConfirmGenerate' => '确认生成',
+			'common.aiPlaintextConfirmTitle' => '与 AI 助手的明文会话',
+			'common.aiPlaintextConfirmBody' => '本会话消息和附件不是端到端加密，服务端可以看到内容。',
+			'common.aiPlaintextConfirmNote' => '确认后本设备将记住本次确认；对方身份或密钥变更后会再次询问。',
+			'common.aiPlaintextConfirmOk' => '已知晓，继续发送',
+			'common.aiPlaintextConfirmCancel' => '取消',
 			'common.e2eeDeleteKeyConfirm' => '确定要删除当前密钥吗？',
 			'common.e2eeWarnCannotRestore' => '• 删除后无法恢复',
 			'common.e2eeWarnAllMsgsLost' => '• 所有 E2EE 消息将无法解密',
@@ -8388,13 +8408,13 @@ extension on Translations {
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} 赞了',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人赞了',
 			'discovery.momentContentPlaceholder' => '这一刻的想法...',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentShowFull' => '全文',
 			'discovery.momentCollapse' => '收起',
 			'discovery.momentsDraftKeepTitle' => '保留草稿？',
 			'discovery.momentsDraftKeepMessage' => '保留后下次进入可继续编辑',
 			'discovery.momentsDraftDiscard' => '不保留',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftKeep' => '保留',
 			'discovery.openChannel' => '打开频道',
 			'discovery.paidChannelLocked' => '付费频道内容已锁定',
@@ -8902,13 +8922,13 @@ extension on Translations {
 			'workspace.archiveTitle' => '归档工作区',
 			'workspace.archiveDesc' => '归档后全员只读（写操作被服务端拒绝），可随时恢复',
 			'workspace.archiveConfirm' => '确认归档',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreTitle' => '恢复工作区',
 			'workspace.restoreDesc' => '恢复后工作区恢复读写',
 			'workspace.restoreConfirm' => '确认恢复',
 			'workspace.archivedBanner' => '工作区已归档：内容可查看，写操作已禁用；Owner 可在成员页恢复',
 			'workspace.brandingTitle' => '工作区品牌',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingNameLabel' => '品牌名称',
 			'workspace.brandingLogoLabel' => 'Logo 地址',
 			'workspace.brandingLogoHint' => 'https://...（工作区 Logo 图片地址）',

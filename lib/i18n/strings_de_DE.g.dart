@@ -1361,6 +1361,11 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeWarnOldMessagesLost => '• Alte Nachrichten nicht mehr entschlüsselbar';
 	@override String get e2eeWarnNeedNewBackup => '• Neues Backup erforderlich';
 	@override String get e2eeConfirmGenerate => 'Erstellen';
+	@override String get aiPlaintextConfirmTitle => 'Klartext-Chat mit KI-Assistent';
+	@override String get aiPlaintextConfirmBody => 'Nachrichten und Anhänge in diesem Chat sind NICHT Ende-zu-Ende-verschlüsselt; der Server kann sie lesen.';
+	@override String get aiPlaintextConfirmNote => 'Dieses Gerät merkt sich die Bestätigung und fragt erneut, wenn sich Identität oder Schlüssel des Gegenübers ändern.';
+	@override String get aiPlaintextConfirmOk => 'Verstanden, senden';
+	@override String get aiPlaintextConfirmCancel => 'Abbrechen';
 	@override String get e2eeDeleteKeyConfirm => 'Aktuellen Schlüssel wirklich löschen?';
 	@override String get e2eeWarnCannotRestore => '• Nach Löschen nicht wiederherstellbar';
 	@override String get e2eeWarnAllMsgsLost => '• Alle E2EE-Nachrichten nicht mehr entschlüsselbar';
@@ -3747,6 +3752,11 @@ extension on TranslationsDeDe {
 			'common.e2eeWarnOldMessagesLost' => '• Alte Nachrichten nicht mehr entschlüsselbar',
 			'common.e2eeWarnNeedNewBackup' => '• Neues Backup erforderlich',
 			'common.e2eeConfirmGenerate' => 'Erstellen',
+			'common.aiPlaintextConfirmTitle' => 'Klartext-Chat mit KI-Assistent',
+			'common.aiPlaintextConfirmBody' => 'Nachrichten und Anhänge in diesem Chat sind NICHT Ende-zu-Ende-verschlüsselt; der Server kann sie lesen.',
+			'common.aiPlaintextConfirmNote' => 'Dieses Gerät merkt sich die Bestätigung und fragt erneut, wenn sich Identität oder Schlüssel des Gegenübers ändern.',
+			'common.aiPlaintextConfirmOk' => 'Verstanden, senden',
+			'common.aiPlaintextConfirmCancel' => 'Abbrechen',
 			'common.e2eeDeleteKeyConfirm' => 'Aktuellen Schlüssel wirklich löschen?',
 			'common.e2eeWarnCannotRestore' => '• Nach Löschen nicht wiederherstellbar',
 			'common.e2eeWarnAllMsgsLost' => '• Alle E2EE-Nachrichten nicht mehr entschlüsselbar',
@@ -4058,13 +4068,13 @@ extension on TranslationsDeDe {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} und ${count} weiteren gefällt das',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} Personen gefiel dies',
 			'discovery.momentContentPlaceholder' => 'Woran denken Sie...',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentShowFull' => 'Vollständig anzeigen',
 			'discovery.momentCollapse' => 'Einklappen',
 			'discovery.momentsDraftKeepTitle' => 'Entwurf behalten?',
 			'discovery.momentsDraftKeepMessage' => 'Beim nächsten Mal weiterbearbeiten',
 			'discovery.momentsDraftDiscard' => 'Verwerfen',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftKeep' => 'Behalten',
 			'discovery.openChannel' => 'Kanal öffnen',
 			'discovery.paidChannelLocked' => 'Inhalt gesperrt (Kostenpflichtig)',
@@ -4572,13 +4582,13 @@ extension on TranslationsDeDe {
 			'workspace.archiveTitle' => 'Arbeitsbereich archivieren',
 			'workspace.archiveDesc' => 'Nach der Archivierung gilt für alle nur Lesen (Schreibzugriffe werden vom Server abgelehnt); jederzeit wiederherstellbar',
 			'workspace.archiveConfirm' => 'Archivierung bestätigen',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreTitle' => 'Arbeitsbereich wiederherstellen',
 			'workspace.restoreDesc' => 'Nach der Wiederherstellung ist der Arbeitsbereich wieder les- und schreibbar',
 			'workspace.restoreConfirm' => 'Wiederherstellung bestätigen',
 			'workspace.archivedBanner' => 'Arbeitsbereich archiviert: Inhalte sichtbar, Schreibzugriffe deaktiviert; der Owner kann auf der Mitgliedseite wiederherstellen',
 			'workspace.brandingTitle' => 'Arbeitsbereich-Branding',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'Brandname',
 			'workspace.brandingLogoLabel' => 'Logo-URL',
 			'workspace.brandingLogoHint' => 'https://… (URL des Arbeitsbereich-Logos)',

@@ -1358,6 +1358,11 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeWarnOldMessagesLost => '• 古いメッセージは復号できなくなります';
 	@override String get e2eeWarnNeedNewBackup => '• バックアップファイルを再作成する必要があります';
 	@override String get e2eeConfirmGenerate => '生成';
+	@override String get aiPlaintextConfirmTitle => 'AIアシスタントとの平文チャット';
+	@override String get aiPlaintextConfirmBody => 'このチャットのメッセージと添付ファイルはエンドツーエンドで暗号化されず、サーバーが内容を参照できます。';
+	@override String get aiPlaintextConfirmNote => '確認後もこの端末は確認を記憶し、相手の身元や鍵が変わると再度確認します。';
+	@override String get aiPlaintextConfirmOk => '了解して送信';
+	@override String get aiPlaintextConfirmCancel => 'キャンセル';
 	@override String get e2eeDeleteKeyConfirm => '現在のキーを削除しますか？';
 	@override String get e2eeWarnCannotRestore => '• 削除後に復元できません';
 	@override String get e2eeWarnAllMsgsLost => '• すべてのE2EEメッセージが復号できなくなります';
@@ -3744,6 +3749,11 @@ extension on TranslationsJaJp {
 			'common.e2eeWarnOldMessagesLost' => '• 古いメッセージは復号できなくなります',
 			'common.e2eeWarnNeedNewBackup' => '• バックアップファイルを再作成する必要があります',
 			'common.e2eeConfirmGenerate' => '生成',
+			'common.aiPlaintextConfirmTitle' => 'AIアシスタントとの平文チャット',
+			'common.aiPlaintextConfirmBody' => 'このチャットのメッセージと添付ファイルはエンドツーエンドで暗号化されず、サーバーが内容を参照できます。',
+			'common.aiPlaintextConfirmNote' => '確認後もこの端末は確認を記憶し、相手の身元や鍵が変わると再度確認します。',
+			'common.aiPlaintextConfirmOk' => '了解して送信',
+			'common.aiPlaintextConfirmCancel' => 'キャンセル',
 			'common.e2eeDeleteKeyConfirm' => '現在のキーを削除しますか？',
 			'common.e2eeWarnCannotRestore' => '• 削除後に復元できません',
 			'common.e2eeWarnAllMsgsLost' => '• すべてのE2EEメッセージが復号できなくなります',
@@ -4055,13 +4065,13 @@ extension on TranslationsJaJp {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 他${count}人がいいねしました',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}人がいいねしました',
 			'discovery.momentContentPlaceholder' => '今の思い...',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentShowFull' => 'すべて表示',
 			'discovery.momentCollapse' => '折りたたむ',
 			'discovery.momentsDraftKeepTitle' => '下書きを保存しますか？',
 			'discovery.momentsDraftKeepMessage' => '保存すれば次回編集を再開できます',
 			'discovery.momentsDraftDiscard' => '破棄',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftKeep' => '保存',
 			'discovery.openChannel' => 'チャンネルを開く',
 			'discovery.paidChannelLocked' => '有料チャンネルの内容はロックされています',
@@ -4569,13 +4579,13 @@ extension on TranslationsJaJp {
 			'workspace.archiveTitle' => 'ワークスペースをアーカイブ',
 			'workspace.archiveDesc' => 'アーカイブ後は全員が閲覧のみ可能（書き込み操作はサーバーで拒否されます）。いつでも復元できます',
 			'workspace.archiveConfirm' => 'アーカイブを確認',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreTitle' => 'ワークスペースを復元',
 			'workspace.restoreDesc' => '復元すると、ワークスペースは読み書き可能に戻ります',
 			'workspace.restoreConfirm' => '復元を確認',
 			'workspace.archivedBanner' => 'ワークスペースはアーカイブ済みです：コンテンツは閲覧でき、書き込み操作は無効になっています。Ownerはメンバーページから復元できます',
 			'workspace.brandingTitle' => 'ワークスペースブランド',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'ブランド名',
 			'workspace.brandingLogoLabel' => 'LogoのURL',
 			'workspace.brandingLogoHint' => 'https://…（ワークスペースLogo画像のURL）',

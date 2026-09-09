@@ -640,6 +640,11 @@ e2eeGenerateKeyConfirm: Generate a new E2EE key pair?
 e2eeWarnOldMessagesLost: • Old messages will be unreadable
 e2eeWarnNeedNewBackup: • A new backup file will need to be generated
 e2eeConfirmGenerate: Confirm Generate
+aiPlaintextConfirmTitle: Plaintext chat with AI assistant
+aiPlaintextConfirmBody: Messages and attachments in this chat are NOT end-to-end encrypted; the server can read them.
+aiPlaintextConfirmNote: This device will remember your confirmation and ask again if the peer's identity or key changes.
+aiPlaintextConfirmOk: I understand, send
+aiPlaintextConfirmCancel: Cancel
 e2eeDeleteKeyConfirm: Delete the current key?
 e2eeWarnCannotRestore: • Cannot be recovered after deletion
 e2eeWarnAllMsgsLost: • All E2EE messages will be unreadable

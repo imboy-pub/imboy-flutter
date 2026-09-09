@@ -641,6 +641,11 @@ e2eeGenerateKeyConfirm: 新しいE2EEキーペアを生成しますか？
 e2eeWarnOldMessagesLost: "• 古いメッセージは復号できなくなります"
 e2eeWarnNeedNewBackup: "• バックアップファイルを再作成する必要があります"
 e2eeConfirmGenerate: 生成
+aiPlaintextConfirmTitle: AIアシスタントとの平文チャット
+aiPlaintextConfirmBody: このチャットのメッセージと添付ファイルはエンドツーエンドで暗号化されず、サーバーが内容を参照できます。
+aiPlaintextConfirmNote: 確認後もこの端末は確認を記憶し、相手の身元や鍵が変わると再度確認します。
+aiPlaintextConfirmOk: 了解して送信
+aiPlaintextConfirmCancel: キャンセル
 e2eeDeleteKeyConfirm: 現在のキーを削除しますか？
 e2eeWarnCannotRestore: "• 削除後に復元できません"
 e2eeWarnAllMsgsLost: "• すべてのE2EEメッセージが復号できなくなります"

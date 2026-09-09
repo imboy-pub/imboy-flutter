@@ -1360,6 +1360,11 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeWarnOldMessagesLost => '• 舊訊息將無法解密';
 	@override String get e2eeWarnNeedNewBackup => '• 需要重新生成備份檔案';
 	@override String get e2eeConfirmGenerate => '確認生成';
+	@override String get aiPlaintextConfirmTitle => '與 AI 助手的明文會話';
+	@override String get aiPlaintextConfirmBody => '本會話訊息和附件不是端到端加密，伺服器可以看到內容。';
+	@override String get aiPlaintextConfirmNote => '確認後本裝置將記住本次確認；對方身分或金鑰變更後會再次詢問。';
+	@override String get aiPlaintextConfirmOk => '已知曉，繼續傳送';
+	@override String get aiPlaintextConfirmCancel => '取消';
 	@override String get e2eeDeleteKeyConfirm => '確定要刪除當前金鑰嗎？';
 	@override String get e2eeWarnCannotRestore => '• 刪除後無法恢復';
 	@override String get e2eeWarnAllMsgsLost => '• 所有 E2EE 訊息將無法解密';
@@ -3746,6 +3751,11 @@ extension on TranslationsZhHant {
 			'common.e2eeWarnOldMessagesLost' => '• 舊訊息將無法解密',
 			'common.e2eeWarnNeedNewBackup' => '• 需要重新生成備份檔案',
 			'common.e2eeConfirmGenerate' => '確認生成',
+			'common.aiPlaintextConfirmTitle' => '與 AI 助手的明文會話',
+			'common.aiPlaintextConfirmBody' => '本會話訊息和附件不是端到端加密，伺服器可以看到內容。',
+			'common.aiPlaintextConfirmNote' => '確認後本裝置將記住本次確認；對方身分或金鑰變更後會再次詢問。',
+			'common.aiPlaintextConfirmOk' => '已知曉，繼續傳送',
+			'common.aiPlaintextConfirmCancel' => '取消',
 			'common.e2eeDeleteKeyConfirm' => '確定要刪除當前金鑰嗎？',
 			'common.e2eeWarnCannotRestore' => '• 刪除後無法恢復',
 			'common.e2eeWarnAllMsgsLost' => '• 所有 E2EE 訊息將無法解密',
@@ -4055,13 +4065,13 @@ extension on TranslationsZhHant {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人讚了',
 			'discovery.momentContentPlaceholder' => '這一刻的想法...',
 			'discovery.momentShowFull' => '展開全文',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentCollapse' => '收合',
 			'discovery.momentsDraftKeepTitle' => '要保留草稿嗎？',
 			'discovery.momentsDraftKeepMessage' => '保留後下次進入可繼續編輯',
 			'discovery.momentsDraftDiscard' => '捨棄',
 			'discovery.momentsDraftKeep' => '保留草稿',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentActionMore' => '更多選項',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} 人按讚',
 			'discovery.openChannel' => '開啟頻道',
@@ -4569,13 +4579,13 @@ extension on TranslationsZhHant {
 			'workspace.archiveTitle' => '封存工作區',
 			'workspace.archiveDesc' => '封存後全員唯讀（寫入操作會被伺服器端拒絕），可隨時還原',
 			'workspace.archiveConfirm' => '確認封存',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreTitle' => '還原工作區',
 			'workspace.restoreDesc' => '還原後工作區即可讀寫',
 			'workspace.restoreConfirm' => '確認還原',
 			'workspace.archivedBanner' => '工作區已封存：內容可查看，寫入操作已停用；Owner 可在成員頁還原',
 			'workspace.brandingTitle' => '工作區品牌',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingNameLabel' => '品牌名稱',
 			'workspace.brandingLogoLabel' => 'Logo 網址',
 			'workspace.brandingLogoHint' => 'https://…（工作區 Logo 圖片網址）',

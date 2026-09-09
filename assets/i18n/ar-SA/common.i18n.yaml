@@ -653,6 +653,11 @@ e2eeGenerateKeyConfirm: إنشاء زوج مفاتيح E2EE جديد؟
 e2eeWarnOldMessagesLost: "• لن يمكن فك الرسائل القديمة"
 e2eeWarnNeedNewBackup: "• ستحتاج إلى إنشاء نسخة احتياطية جديدة"
 e2eeConfirmGenerate: إنشاء
+aiPlaintextConfirmTitle: محادثة غير مشفرة مع المساعد الذكي
+aiPlaintextConfirmBody: الرسائل والمرفقات في هذه المحادثة ليست مشفرة طرفًا إلى طرف؛ يمكن للخادم قراءتها.
+aiPlaintextConfirmNote: سيتذكر هذا الجهاز تأكيدك وسيعيد السؤال إذا تغيّرت هوية الطرف الآخر أو مفتاحه.
+aiPlaintextConfirmOk: فهمت، إرسال
+aiPlaintextConfirmCancel: إلغاء
 e2eeDeleteKeyConfirm: حذف المفتاح الحالي؟
 e2eeWarnCannotRestore: "• لا يمكن الاستعادة بعد الحذف"
 e2eeWarnAllMsgsLost: "• لن يمكن فك جميع رسائل E2EE"

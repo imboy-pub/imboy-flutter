@@ -1367,6 +1367,11 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeWarnOldMessagesLost => '• Старые сообщения нельзя будет расшифровать';
 	@override String get e2eeWarnNeedNewBackup => '• Потребуется создать новую резервную копию';
 	@override String get e2eeConfirmGenerate => 'Создать';
+	@override String get aiPlaintextConfirmTitle => 'Незашифрованный чат с ИИ-ассистентом';
+	@override String get aiPlaintextConfirmBody => 'Сообщения и вложения в этом чате НЕ защищены сквозным шифрованием; сервер может их прочитать.';
+	@override String get aiPlaintextConfirmNote => 'Это устройство запомнит подтверждение и спросит снова, если личность или ключ собеседника изменятся.';
+	@override String get aiPlaintextConfirmOk => 'Понятно, отправить';
+	@override String get aiPlaintextConfirmCancel => 'Отмена';
 	@override String get e2eeDeleteKeyConfirm => 'Удалить текущий ключ?';
 	@override String get e2eeWarnCannotRestore => '• После удаления восстановление невозможно';
 	@override String get e2eeWarnAllMsgsLost => '• Все сообщения E2EE нельзя будет расшифровать';
@@ -3753,6 +3758,11 @@ extension on TranslationsRuRu {
 			'common.e2eeWarnOldMessagesLost' => '• Старые сообщения нельзя будет расшифровать',
 			'common.e2eeWarnNeedNewBackup' => '• Потребуется создать новую резервную копию',
 			'common.e2eeConfirmGenerate' => 'Создать',
+			'common.aiPlaintextConfirmTitle' => 'Незашифрованный чат с ИИ-ассистентом',
+			'common.aiPlaintextConfirmBody' => 'Сообщения и вложения в этом чате НЕ защищены сквозным шифрованием; сервер может их прочитать.',
+			'common.aiPlaintextConfirmNote' => 'Это устройство запомнит подтверждение и спросит снова, если личность или ключ собеседника изменятся.',
+			'common.aiPlaintextConfirmOk' => 'Понятно, отправить',
+			'common.aiPlaintextConfirmCancel' => 'Отмена',
 			'common.e2eeDeleteKeyConfirm' => 'Удалить текущий ключ?',
 			'common.e2eeWarnCannotRestore' => '• После удаления восстановление невозможно',
 			'common.e2eeWarnAllMsgsLost' => '• Все сообщения E2EE нельзя будет расшифровать',
@@ -4064,13 +4074,13 @@ extension on TranslationsRuRu {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} и еще ${count} оценили это',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} человек оценили это',
 			'discovery.momentContentPlaceholder' => 'О чём вы думаете...',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentShowFull' => 'Показать полностью',
 			'discovery.momentCollapse' => 'Свернуть',
 			'discovery.momentsDraftKeepTitle' => 'Сохранить черновик?',
 			'discovery.momentsDraftKeepMessage' => 'Сможете продолжить в следующий раз',
 			'discovery.momentsDraftDiscard' => 'Не сохранять',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftKeep' => 'Сохранить',
 			'discovery.openChannel' => 'Открыть канал',
 			'discovery.paidChannelLocked' => 'Содержимое платного канала заблокировано',
@@ -4578,13 +4588,13 @@ extension on TranslationsRuRu {
 			'workspace.archiveTitle' => 'Архивировать рабочее пространство',
 			'workspace.archiveDesc' => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент',
 			'workspace.archiveConfirm' => 'Подтвердить архивацию',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreTitle' => 'Восстановить рабочее пространство',
 			'workspace.restoreDesc' => 'После восстановления рабочее пространство снова доступно для чтения и записи',
 			'workspace.restoreConfirm' => 'Подтвердить восстановление',
 			'workspace.archivedBanner' => 'Рабочее пространство в архиве: контент доступен для просмотра, запись отключена; Owner может восстановить его на странице участников',
 			'workspace.brandingTitle' => 'Бренд рабочего пространства',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingNameLabel' => 'Название бренда',
 			'workspace.brandingLogoLabel' => 'Адрес логотипа',
 			'workspace.brandingLogoHint' => 'https://... (адрес изображения логотипа рабочего пространства)',

@@ -5,6 +5,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/gestures.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/dialog/ai_plaintext_confirm_dialog.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 
 // Barrel exports - 减少导入语句
@@ -264,10 +265,16 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 保存 ChatNotifier 引用，用于在 dispose 中安全访问
     _chatNotifier = ref.read(chatProvider.notifier);
 
-    // 透明 AI 徽章 + 发送豁免数据源：C2C 查对端 account_type。
+    // LT02-SEC-01（AI-ID=B）：注册 AI 明文首次确认弹窗处理器（幂等）。
+    // 消息/附件路径在共享身份门要求确认时经全局 navigator 弹出本会话
+    // 确认框；retry 等非 UI 语境不注册、不弹窗、不放行。
+    registerAiPlaintextPromptHandler();
+
+    // 透明 AI 徽章数据源：C2C 查对端 account_type（仅 UI 徽章渲染；
+    // 不再参与发送豁免判定——豁免只由 AiPlaintextGate 用户确认授权）。
     // 本地 contact 无行（如从 AI 广场首聊 agent）时向服务端同步一次——
     // user/show 仅对 AI 助手回吐 account_type=1（真人不下发），经
-    // syncByUid 落库后徽章与发送豁免均离线可判。
+    // syncByUid 落库后徽章离线可判。
     if (widget.type == 'C2C') {
       ContactRepo().findByUid(widget.peerId).then((ct) {
         if (mounted && ct != null && ct.accountType != _peerAccountType) {

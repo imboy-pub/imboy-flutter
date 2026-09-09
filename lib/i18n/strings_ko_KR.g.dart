@@ -1358,6 +1358,11 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeWarnOldMessagesLost => '• 이전 메시지를 복호화할 수 없습니다';
 	@override String get e2eeWarnNeedNewBackup => '• 백업 파일을 다시 생성해야 합니다';
 	@override String get e2eeConfirmGenerate => '생성 확인';
+	@override String get aiPlaintextConfirmTitle => 'AI 어시스턴트와의 평문 채팅';
+	@override String get aiPlaintextConfirmBody => '이 채팅의 메시지와 첨부파일은 종단간 암호화되지 않으며 서버가 내용을 볼 수 있습니다.';
+	@override String get aiPlaintextConfirmNote => '확인 후 이 기기는 확인을 기억하며, 상대의 신원 또는 키가 변경되면 다시 묻습니다.';
+	@override String get aiPlaintextConfirmOk => '확인했으며 전송';
+	@override String get aiPlaintextConfirmCancel => '취소';
 	@override String get e2eeDeleteKeyConfirm => '현재 키를 삭제하시겠습니까?';
 	@override String get e2eeWarnCannotRestore => '• 삭제 후 복구할 수 없습니다';
 	@override String get e2eeWarnAllMsgsLost => '• 모든 E2EE 메시지를 복호화할 수 없습니다';
@@ -3744,6 +3749,11 @@ extension on TranslationsKoKr {
 			'common.e2eeWarnOldMessagesLost' => '• 이전 메시지를 복호화할 수 없습니다',
 			'common.e2eeWarnNeedNewBackup' => '• 백업 파일을 다시 생성해야 합니다',
 			'common.e2eeConfirmGenerate' => '생성 확인',
+			'common.aiPlaintextConfirmTitle' => 'AI 어시스턴트와의 평문 채팅',
+			'common.aiPlaintextConfirmBody' => '이 채팅의 메시지와 첨부파일은 종단간 암호화되지 않으며 서버가 내용을 볼 수 있습니다.',
+			'common.aiPlaintextConfirmNote' => '확인 후 이 기기는 확인을 기억하며, 상대의 신원 또는 키가 변경되면 다시 묻습니다.',
+			'common.aiPlaintextConfirmOk' => '확인했으며 전송',
+			'common.aiPlaintextConfirmCancel' => '취소',
 			'common.e2eeDeleteKeyConfirm' => '현재 키를 삭제하시겠습니까?',
 			'common.e2eeWarnCannotRestore' => '• 삭제 후 복구할 수 없습니다',
 			'common.e2eeWarnAllMsgsLost' => '• 모든 E2EE 메시지를 복호화할 수 없습니다',
@@ -4055,13 +4065,13 @@ extension on TranslationsKoKr {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 외 ${count}명이 좋아합니다',
 			'discovery.momentContentPlaceholder' => '지금 이 순간의 생각...',
 			'discovery.momentShowFull' => '전체 보기',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentCollapse' => '접기',
 			'discovery.momentsDraftKeepTitle' => '초안을 보관하시겠습니까?',
 			'discovery.momentsDraftKeepMessage' => '보관하면 다음에 이어서 편집할 수 있습니다',
 			'discovery.momentsDraftDiscard' => '버리기',
 			'discovery.momentsDraftKeep' => '보관',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.openChannel' => '채널 열기',
 			'discovery.paidChannelLocked' => '유료 채널 콘텐츠가 잠겨 있습니다',
 			'discovery.webQRScanned' => '스캔 완료',
@@ -4569,13 +4579,13 @@ extension on TranslationsKoKr {
 			'workspace.archiveTitle' => '워크스페이스 보관',
 			'workspace.archiveDesc' => '보관 후 전원 읽기 전용이 됩니다(쓰기 작업은 서버에서 거부). 언제든지 복원할 수 있습니다',
 			'workspace.archiveConfirm' => '보관 확인',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreTitle' => '워크스페이스 복원',
 			'workspace.restoreDesc' => '복원 후 워크스페이스는 읽기/쓰기가 다시 활성화됩니다',
 			'workspace.restoreConfirm' => '복원 확인',
 			'workspace.archivedBanner' => '워크스페이스가 보관되었습니다: 콘텐츠는 볼 수 있지만 쓰기 작업은 비활성화됩니다. Owner는 구성원 페이지에서 복원할 수 있습니다',
 			'workspace.brandingTitle' => '워크스페이스 브랜드',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingNameLabel' => '브랜드 이름',
 			'workspace.brandingLogoLabel' => 'Logo 주소',
 			'workspace.brandingLogoHint' => 'https://…(워크스페이스 Logo 이미지 주소)',

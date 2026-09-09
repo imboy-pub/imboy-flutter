@@ -3,9 +3,15 @@
 ///
 /// SQL duplicated from assets/migrations/upgrade.sql per the project
 /// pattern (same trade-off as the v17/v18 tests).
+///
+/// LT02-SEC-01（AI-ID=B）追加污染负例：本地 `account_type=1` 只是 UI 徽章
+/// 数据源；共享明文身份门（AiPlaintextGate）在无有效用户确认时必须
+/// fail-closed——徽章列被伪造/污染不能单独授权明文。
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/e2ee/ai_plaintext_gate.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 /// V23 时点的 contact 表（baseline v16 起未变）。
@@ -89,6 +95,55 @@ void main() {
       final official = await db.query('contact', where: 'peer_id = 300');
       expect(ai.single['account_type'], 1);
       expect(official.single['account_type'], 2);
+    });
+  });
+
+  group('LT02-SEC-01（AI-ID=B）：污染负例 — 徽章列不授权明文', () {
+    late Database db;
+
+    setUp(() async {
+      db = await openDatabase(inMemoryDatabasePath);
+      await db.execute(_v23ContactDDL);
+      await db.execute(_v24Upgrade);
+      // 本地污染：直写 account_type=1（伪造 user/show 落库与本地直写同态）。
+      await db.insert('contact', {
+        'user_id': '',
+        'peer_id': 200,
+        'nickname': 'ai-bot',
+        'account_type': 1,
+      });
+      SqliteService.setDbForTest(db);
+    });
+
+    tearDown(() async {
+      SqliteService.setDbForTest(null);
+      AiPlaintextGate.debugReset();
+      await db.close();
+    });
+
+    test('本地 DB account_type=1 且无有效用户确认 → 共享门 fail-closed', () async {
+      // 共享门未接线任何确认存储（seams 空）→ 明文通道不授权；
+      // 伪造/污染的徽章列不能单独触发明文豁免（user/show 伪造负例同理：
+      // 该响应只影响徽章投影，不产生确认记录）。
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '200',
+        ),
+        isFalse,
+      );
+    });
+
+    test('生产徽章探针读到污染值 1，但确认缺失仍不放行（探针与授权分离）', () async {
+      // 显式接线生产默认探针（读真实 contact 表）+ 无确认存储。
+      AiPlaintextGate.useProductionBadgeProbe();
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '200',
+        ),
+        isFalse,
+      );
     });
   });
 }

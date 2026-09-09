@@ -5,15 +5,21 @@
 // 复用 stale cache。本测试断言新 gate 对上述状态一律 fail-closed 抛
 // typed [E2eeSecurityException]，并在生产谓词 shouldEncryptOutgoingPayload
 // 上验证。
+//
+// LT02-SEC-01（AI-ID=B）：裸 `peerAccountType=1` 短路已删除——透明 AI 豁免
+// 只能经共享身份门 AiPlaintextGate（用户显式确认绑定四元组）授权，见
+// ai_plaintext_identity_gate_test.dart。
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/compliance_key_service.dart';
+import 'package:imboy/service/e2ee/ai_plaintext_gate.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
 
 void main() {
   tearDown(() {
-    // 复位静态策略，避免测试间污染。
+    // 复位静态策略与共享门 seam，避免测试间污染。
+    AiPlaintextGate.debugReset();
     EncryptionModeService.debugSet(
       mode: EncryptionMode.plaintext,
       initialized: false,
@@ -86,31 +92,61 @@ void main() {
   });
 
   group('生产谓词 shouldEncryptOutgoingPayload 经 gate fail-closed', () {
-    test('未初始化 + C2C → 抛 E2eeSecurityException（send/encrypt=0）', () {
+    test('未初始化 + C2C → 抛 E2eeSecurityException（send/encrypt=0）', () async {
       EncryptionModeService.debugSet(
         mode: EncryptionMode.plaintext,
         initialized: false,
       );
-      expect(
-        () => E2EEService.shouldEncryptOutgoingPayload('C2C'),
+      await expectLater(
+        E2EEService.shouldEncryptOutgoingPayload('C2C'),
         throwsA(isA<E2eeSecurityException>()),
       );
     });
 
-    test('已初始化 strict + C2C → true（要求加密）', () {
+    test('已初始化 strict + C2C → true（要求加密）', () async {
       EncryptionModeService.debugSet(
         mode: EncryptionMode.strictE2ee,
         initialized: true,
       );
-      expect(E2EEService.shouldEncryptOutgoingPayload('C2C'), isTrue);
+      expect(await E2EEService.shouldEncryptOutgoingPayload('C2C'), isTrue);
     });
 
-    test('已确认 plaintext + C2C → false（明文部署，不抛）', () {
+    test('已确认 plaintext + C2C → false（明文部署，不抛）', () async {
       EncryptionModeService.debugSet(
         mode: EncryptionMode.plaintext,
         initialized: true,
       );
-      expect(E2EEService.shouldEncryptOutgoingPayload('C2C'), isFalse);
+      expect(await E2EEService.shouldEncryptOutgoingPayload('C2C'), isFalse);
+    });
+  });
+
+  group('LT02-SEC-01：裸 account_type=1 不再短路明文豁免（AI-ID=B）', () {
+    test('strict + C2C + 对端 account_type=1（无有效用户确认）→ 仍要求加密', () async {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.strictE2ee,
+        initialized: true,
+      );
+      // 裸徽章只允许渲染 AI badge，绝不授权明文。共享门未接线/无确认时
+      // fail-closed：策略要求加密 → 必须加密（agent 无设备密钥时发送端
+      // 加密失败 → 拒发，绝不静默明文出网）。
+      expect(
+        await E2EEService.shouldEncryptOutgoingPayload('C2C', toId: '456'),
+        isTrue,
+      );
+    });
+
+    test('strict + C2C + 徽章 + 未接线共享门 → fail-closed 加密', () async {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.strictE2ee,
+        initialized: true,
+      );
+      // review CONCERN-b：真 null 未接线（debugReset 恢复的是生产默认接线，
+      // 非 null 语义）——存储 seam 显式置 null 验证门自身的 fail-closed 分支。
+      AiPlaintextGate.confirmationStore = null;
+      expect(
+        await E2EEService.shouldEncryptOutgoingPayload('C2C', toId: '456'),
+        isTrue,
+      );
     });
   });
 

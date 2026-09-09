@@ -644,6 +644,11 @@ e2eeGenerateKeyConfirm: Créer une nouvelle paire de clés E2EE ?
 e2eeWarnOldMessagesLost: "• Anciens messages indéchiffrables"
 e2eeWarnNeedNewBackup: "• Nouvelle sauvegarde requise"
 e2eeConfirmGenerate: Générer
+aiPlaintextConfirmTitle: Discussion en clair avec l'assistant IA
+aiPlaintextConfirmBody: Les messages et pièces jointes de cette discussion ne sont PAS chiffrés de bout en bout ; le serveur peut les lire.
+aiPlaintextConfirmNote: Cet appareil mémorisera votre confirmation et redemandera si l'identité ou la clé du correspondant change.
+aiPlaintextConfirmOk: Compris, envoyer
+aiPlaintextConfirmCancel: Annuler
 e2eeDeleteKeyConfirm: Supprimer la clé actuelle ?
 e2eeWarnCannotRestore: "• Suppression irréversible"
 e2eeWarnAllMsgsLost: "• Tous les messages E2EE indéchiffrables"

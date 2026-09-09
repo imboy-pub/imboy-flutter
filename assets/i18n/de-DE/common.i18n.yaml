@@ -644,6 +644,11 @@ e2eeGenerateKeyConfirm: Neues E2EE-Schlüsselpaar erstellen?
 e2eeWarnOldMessagesLost: "• Alte Nachrichten nicht mehr entschlüsselbar"
 e2eeWarnNeedNewBackup: "• Neues Backup erforderlich"
 e2eeConfirmGenerate: Erstellen
+aiPlaintextConfirmTitle: Klartext-Chat mit KI-Assistent
+aiPlaintextConfirmBody: Nachrichten und Anhänge in diesem Chat sind NICHT Ende-zu-Ende-verschlüsselt; der Server kann sie lesen.
+aiPlaintextConfirmNote: Dieses Gerät merkt sich die Bestätigung und fragt erneut, wenn sich Identität oder Schlüssel des Gegenübers ändern.
+aiPlaintextConfirmOk: Verstanden, senden
+aiPlaintextConfirmCancel: Abbrechen
 e2eeDeleteKeyConfirm: Aktuellen Schlüssel wirklich löschen?
 e2eeWarnCannotRestore: "• Nach Löschen nicht wiederherstellbar"
 e2eeWarnAllMsgsLost: "• Alle E2EE-Nachrichten nicht mehr entschlüsselbar"

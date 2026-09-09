@@ -641,6 +641,11 @@ e2eeGenerateKeyConfirm: 새 E2EE 키 쌍을 생성하시겠습니까?
 e2eeWarnOldMessagesLost: "• 이전 메시지를 복호화할 수 없습니다"
 e2eeWarnNeedNewBackup: "• 백업 파일을 다시 생성해야 합니다"
 e2eeConfirmGenerate: 생성 확인
+aiPlaintextConfirmTitle: AI 어시스턴트와의 평문 채팅
+aiPlaintextConfirmBody: 이 채팅의 메시지와 첨부파일은 종단간 암호화되지 않으며 서버가 내용을 볼 수 있습니다.
+aiPlaintextConfirmNote: 확인 후 이 기기는 확인을 기억하며, 상대의 신원 또는 키가 변경되면 다시 묻습니다.
+aiPlaintextConfirmOk: 확인했으며 전송
+aiPlaintextConfirmCancel: 취소
 e2eeDeleteKeyConfirm: 현재 키를 삭제하시겠습니까?
 e2eeWarnCannotRestore: "• 삭제 후 복구할 수 없습니다"
 e2eeWarnAllMsgsLost: "• 모든 E2EE 메시지를 복호화할 수 없습니다"
