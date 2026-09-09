@@ -9,7 +9,7 @@
 // 修复=_ResultRow failed 态加 workspace-invite-row-retry IconButton。
 //
 // 场景：
-//   AT-WIV1 注入 /api/v1/group/add 业务失败（joinGroup 被拒）→
+//   AT-WIV1 注入 /api/v1/group_member/join 业务失败（joinGroup 被拒）→
 //   搜索选中 SmokeAlice → 提交邀请 → 断言 workspace 行成功 + group 行
 //   失败（互不影响）+ channel 行成功 → 解除拦截点 group 行重试按钮 →
 //   group 行转成功。
@@ -37,7 +37,6 @@ import 'dart:io' as io show HttpClient;
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -46,6 +45,7 @@ import 'package:imboy/page/workspace/workspace_invite_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:integration_test/integration_test.dart';
 
+import '../flows/pg_helper.dart';
 import '../flows/test_utils.dart';
 
 const _expectedUid = String.fromEnvironment(
@@ -54,13 +54,16 @@ const _expectedUid = String.fromEnvironment(
 );
 const _inviteeUid = '1000000051'; // SmokeAlice
 const _wsId = '110073884375779328'; // BobWS-T27（General 群+Announcements 频道）
+// BobWS-T27 的 Announcements 频道（批次152 实测 id），用于前置清理遗留邀请
+const _announcementsChannelId = '110073884407236608';
 const _allowFlag = String.fromEnvironment(
   'TEST_ALLOW_WORKSPACE_ACCEPTANCE',
   defaultValue: 'false',
 );
 const _allow = _allowFlag == 'true' || _allowFlag == 'True';
 
-/// 只拦 /api/v1/group/add（joinGroup 可选关系）的故障注入适配器。
+/// 只拦 /api/v1/group_member/join（joinGroup 可选关系；批次152 实证
+/// 该端点才是邀请向导群加入的真实路径，原假设 /group/add 有误）的故障注入适配器。
 class _FailGroupAddAdapter implements HttpClientAdapter {
   _FailGroupAddAdapter()
     : _inner = IOHttpClientAdapter(createHttpClient: () => io.HttpClient());
@@ -74,8 +77,8 @@ class _FailGroupAddAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    if (failGroupAdd && options.uri.path == '/api/v1/group/add') {
-      flowLog('[AT-WIV] 拦截 group/add（注入 joinGroup 失败）');
+    if (failGroupAdd && options.uri.path == '/api/v1/group_member/join') {
+      flowLog('[AT-WIV] 拦截 group_member/join（注入 joinGroup 失败）');
       return ResponseBody.fromString(
         jsonEncode(<String, dynamic>{
           'code': 1,
@@ -160,6 +163,14 @@ void main() {
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
+    // 前置清理：删除往轮遗留的 Announcements 频道邀请（服务端「已邀请」
+    // 会把本轮 channel 行打成失败，run14 实证）
+    await TestPg.execute(
+      'DELETE FROM channel_invitation '
+      'WHERE channel_id = @c AND invitee_uid = @u',
+      {'c': _announcementsChannelId, 'u': _inviteeUid},
+    );
+
     await _bootAndRelogin(tester);
 
     // 深链邀请向导（BobWS-T27：General 群 + Announcements 频道齐全）
@@ -177,12 +188,50 @@ void main() {
     );
 
     // 搜索被邀人（SmokeAlice）→ 点搜索按钮 → 选中候选
-    await tester.enterText(find.byType(CupertinoSearchTextField), 'SmokeAlice');
-    await _pump(tester, seconds: 1);
-    await tester.tap(
-      find.byKey(const ValueKey('workspace-invite-search-btn')),
-      warnIfMissed: false,
+    // （descendant 收窄：壳层另有 CupertinoSearchTextField，byType 会命中多个）
+    flowLog('[AT-WIV] 向导页就绪，开始搜索 SmokeAlice');
+    // run9 实证：integration_test live binding 下 tester.enterText 不落控制器
+    // （读回=""，_search 空 keyword 早退——此前所有 tap 均正常触发但空转）。
+    // 改为直接经控制器写文本；触发路径（按钮/回车）保持真实用户路径。
+    final fieldEt = tester.widget<EditableText>(
+      find.descendant(
+        of: find.byType(WorkspaceInvitePage),
+        matching: find.byType(EditableText),
+      ),
     );
+    // 关键词=账号串（批次152 FTS 实测：后端 pg_jieba tsvector 只命中
+    // 精确账号 smoke_alice；SmokeAlice/Alice/alice 均 0 结果）
+    fieldEt.controller.text = 'smoke_alice';
+    await _pump(tester, seconds: 1);
+    flowLog(
+      '[AT-WIV] 页面实例数=${find.byType(WorkspaceInvitePage).evaluate().length}，'
+      '字段文本="${fieldEt.controller.text}"',
+    );
+    // IME done 提交（enterText 后字段仍聚焦，onSubmitted=真实用户回车路径）；
+    // 必须在按钮 tap 之前——tap 会移走焦点使 receiveAction no-op（run4/5 实证）
+    flowLog('[AT-WIV] 发起键盘 done 提交');
+    try {
+      await tester.testTextInput
+          .receiveAction(TextInputAction.done)
+          .timeout(const Duration(seconds: 5));
+      flowLog('[AT-WIV] done action 已返回');
+    } catch (e) {
+      flowLog('[AT-WIV] done action 失败/超时：$e');
+    }
+    await _pump(tester, seconds: 3);
+    // 按钮双 tap 兜底（批次114/128 配方）
+    final searchBtn = find.descendant(
+      of: find.byType(WorkspaceInvitePage),
+      matching: find.byKey(const ValueKey('workspace-invite-search-btn')),
+    );
+    await tester.ensureVisible(searchBtn);
+    await _pump(tester, seconds: 1);
+    flowLog('[AT-WIV] 按钮 rect=${tester.getRect(searchBtn)}，发起 tap');
+    await tester.tap(searchBtn);
+    await _pump(tester, seconds: 1);
+    await tester.tap(searchBtn);
+    await _pump(tester, seconds: 2);
+    flowLog('[AT-WIV] tap 已派发，观察搜索请求');
     final candidateSeen = await _waitFor(
       tester,
       () => tester.any(
