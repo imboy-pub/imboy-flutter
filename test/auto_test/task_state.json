@@ -1238,5 +1238,51 @@
       "backend": "9801 alpha.71 运行 beam（编译期裁剪版 feature 清单）",
       "license": "max_users=100 is_valid=false"
     }
+  },
+  "session_2026_09_10_batch168": {
+    "note": "批次168（automation 第四十一轮）：upgrade_page 两行真机解锁（阻塞 57→55，README 1693/96.9%）。定性：下载管线（RUpgrade 流+SHA256 校验重试）Android-only（Platform.isAndroid 门），macOS 点立即更新仅弹平台提示——原「待真机」阻塞理由准确。密封配方=TestPg 临时 app_version android 行（跑完 DELETE，零共享残留）+ AppUpgradeService.checkAndPrompt(fromManual:true) 走真实 /app_version/check→UpgradePage（fileHash 随 payload）+ 测试进程内 HttpServer 绑定设备侧回环 19802 供真实字节。AT-UP1：url=127.0.0.1:1 无监听→STATUS_FAILED(4)→卡片变「继续下载」可反复重发；AT-UP2：file_hash 错值→下载成功→立即安装→校验失败删文件自动重下（服务器 3 次请求=初始+2 重下）→toast (1/2)→达上限「文件多次校验失败」。断言锚定终态 toast+服务器请求数（RUpgrade 同 URL 任务去重时序裁量使严格轮次计数不可靠）。设备四坑：①EMUI9 息屏→app 不渲染帧→集成测试等首帧挂死（run1/run2 冻结根因；解=KEYCODE_WAKEUP+wm dismiss-keyguard+svc power stayon usb，跑前必做）；②r_upgrade 原生持久化 lastId 跨 run 残留→upgradeApk 走 upgradeWithId 恢复旧任务而非新建（run7 根因；解=跑前 adb uninstall 重置）；③路由转场动画期间命中测试被拦截→tap 静默丢失（run3/run4 场景2根因；解=点击前 10s 缓冲 pump）；④flutter test 跑完自动卸载 app→pm grant 无法预先做→宿主轮询 pm list packages 出现即 grant（运行中窗口充足）。app_version 表无 file_hash 默认行但列存在；macos 平台无升级行=check 返回 updatable:false。",
+    "runs": [
+      {
+        "run": 1,
+        "result": "挂死（EMUI9 息屏锁屏致首帧等待冻结，96 分钟零输出，杀）"
+      },
+      {
+        "run": 2,
+        "result": "挂死同 run1（定性屏幕锁定根因）"
+      },
+      {
+        "run": 3,
+        "result": "FAIL AT-UP2 下载完成断言超时（场景2 tap 静默丢失=转场期命中拦截）"
+      },
+      {
+        "run": 4,
+        "result": "FAIL 同 run3（+弹出校验通过=AT-UP1 收尾确认）"
+      },
+      {
+        "run": 5,
+        "result": "SKIP boot 未达稳定态（fresh install 后无 shell 标记）"
+      },
+      {
+        "run": 6,
+        "result": "FAIL AT-UP2 严格轮次计数 3≠2（toast 残留+RUpgrade 去重裁量）→改锚定终态 toast+服务器请求数"
+      },
+      {
+        "run": 7,
+        "result": "FAIL AT-UP1 无 FAILED 事件（r_upgrade lastId 跨 run 残留→恢复旧任务分支）→定案跑前 uninstall"
+      },
+      {
+        "run": 8,
+        "device": "XWE6R19916004085",
+        "result": "All tests passed（AT-UP1+UP2 全链，03:07）"
+      }
+    ],
+    "commits": {
+      "pending": "批次168 测试+upgrade_page 台账+README+task_state（待 pathspec 提交）"
+    },
+    "env": {
+      "device": "XWE6R19916004085 (EMUI9 sdk28)",
+      "reverse": "9801+4323",
+      "grant": "宿主轮询 pm list 即 grant"
+    }
   }
 }
