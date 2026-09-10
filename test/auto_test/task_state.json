@@ -998,5 +998,38 @@
       "剩余 78 条阻塞均为用户决策域：live_room ~25 条等 RTMP/WHIP 开播拍板、chat/rtc_room 12 条需双设备、settings ~11 条等 bailian 授权、email 类红线行永久人工",
       "2 条待处理 bug 等 user 拍板（转账金额下限不一致、assistant_plaza）"
     ]
+  },
+  "session_2026_09_10_batch159": {
+    "note": "批次159（automation 第三十二轮）：红包域 5 行阻塞解锁转绿（阻塞 78→73）。AT-RP1 单聊确认框收款人昵称（mock topup 200 分→确认框「用户：Alice」=ContactRepo 显示名非裸 TSID，L9/L15）；AT-RP2 群聊确认框「红包个数：2个」（L16）；AT-RP3 真提交 0.5 元红包：red_packet 落库 scope_type=C2C/scope_id=1000000051（L17 B-11 会话上下文）+pop 回传→E2EE 7101B WS 发送→msg_c2c redPacket 行+气泡渲染（L18）。mock topup=POST /wallet/topup 仅本地（DF-18 契约），零生产资金。",
+    "runs": [
+      {
+        "run": 12,
+        "device": "macos",
+        "result": "AT-RP3 单跑 All tests passed（msg_c2c 表修正后）"
+      },
+      {
+        "run": 13,
+        "device": "macos",
+        "result": "全文件回归"
+      }
+    ],
+    "lessons": [
+      "同账号双登录互踢链：FlowApiClient 登录→踢 app 会话（device_kicked 4000）→app 自动 quitLogin 删本地库→会话页打不开；修复=API 登录全部前置，app 登录殿后",
+      "冷启动登录后 init 会再落一次 home，立即深链被覆盖→深链须带回锚重试环（3 次）",
+      "/chat/:peerId 路由 type 默认 C2C，群聊深链必须显式 ?type=C2G（否则静默按单聊打开）",
+      "聊天附加面板 CarouselSlider 分页 perPage=8，红包/转账在第 2 页（drag -500 翻页）；面板已开标记=首页「照片」",
+      "「发红包」文案与 AppBar 标题同文案会假匹配弹窗断言，弹窗标记应取「取消」按钮",
+      "进红包页 loadBalance 异步，未完成时发送被「余额不足」静默拦截→先等余额条非 ￥0.00",
+      "C2C 出站消息表=msg_c2c（msg_c2s 恒空）；E2EE strict 下全新容器首次发消息自动走 olm claim 建会话，无需预置",
+      "run4 中途 kill 后残留脏容器导致后续所有 run 卡 splash（WS connect 挂起 CPU 归零）——清 ~/Library/Containers/pub.imboy.app/Data/Documents/local_office_*.db* 立即恢复；sqlite 报 error 26 是 SQLCipher 加密属预期非损坏"
+    ],
+    "fixture_state": {
+      "smoke_bob": "uid=1000000056 余额约 250+ 分（topup 200×多轮-红包 50），本地库已重建",
+      "alice": "uid=1000000051 联系人标题 Alice"
+    },
+    "next_actions": [
+      "批次160 候选（配方已备）：chat_page @成员与@所有人拦截（批次143 群数据就绪）、quick_reply 未登录态隐藏 FAB（quitLogin 配方）、signup_continue 语言切换（批次119 沙盒注码）",
+      "剩余 73 条阻塞=用户决策域为主：live_room ~24 RTMP、rtc_room 9 双设备、e2ee 备份/恢复 10 条可弃用账号口径（大工程）、email 红线永久人工、withdraw 渠道拒绝、bailian 凭据"
+    ]
   }
 }
