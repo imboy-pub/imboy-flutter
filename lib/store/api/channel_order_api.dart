@@ -77,12 +77,20 @@ class ChannelOrderApi extends HttpClient {
   }
 
   /// 分页查询我的订单。
+  ///
+  /// BUG#151：此前 `!resp.ok` 时静默 return null，网络/业务失败被
+  /// channelMyOrdersProvider 压成空列表，订单列表页的失败态分支成
+  /// 死代码。对齐 throwIfFailed 治理模式（该页面已具备失败态 UI），
+  /// 失败改抛异常，让 FutureProvider 进入 error 态供用户重试。
   Future<Map<String, dynamic>?> myOrders({int page = 1, int size = 20}) async {
     IMBoyHttpResponse resp = await get(
       API.channelMyOrders,
       queryParameters: {'page': page, 'size': size},
     );
-    if (!resp.ok || resp.payload == null) {
+    if (!resp.ok) {
+      resp.throwIfFailed();
+    }
+    if (resp.payload == null) {
       return null;
     }
     return Map<String, dynamic>.from(

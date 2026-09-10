@@ -1376,5 +1376,45 @@
       "imboy": "见提交"
     },
     "ledger": "test/auto_test/channel/channel_subscriber_page.md 阻塞行 -> 无待办 批次170"
+  },
+  "session_2026_09_11_batch171": {
+    "batch": 171,
+    "date": "2026-09-11",
+    "target": "channel_order_list_page 加载失败态展示与点击重试（批次122 遗留阻塞行，channel 模块最后一条）",
+    "verdict": "PASS",
+    "blocking_change": "53 -> 52",
+    "bugs": [
+      {
+        "id": "BUG#151",
+        "side": "imboyapp 客户端",
+        "symptom": "订单列表页失败态分支为死代码：加载失败时用户看到「暂无订单记录」（error 文案与空态共用 noOrders），无重试引导",
+        "root_cause": "ChannelOrderApi.myOrders 对业务/网络失败静默 return null → channelMyOrdersProvider 把失败压成空列表 → async.when error 分支永不可达；正是 http_response.throwIfFailed 注释所述治理模式的漏网之鱼",
+        "fix": "myOrders 失败改 resp.throwIfFailed() 抛异常（provider error 态可达）+ 页面 error 分支文案改 common.loadError 与空态可区分",
+        "verify": "widget test OL1-4 4/4（注入抛错 api 驱动失败态渲染/点击重试计数增加/失败恢复后空态/正常路径）+ 契约测试 MO1-5 5/5 + 集成 run2 绿（真实路由空态，无误入失败态）"
+      }
+    ],
+    "test_files": [
+      "test/unit_test/page/channel/channel_order_list_page_error_retry_test.dart",
+      "integration_test/channel/channel_order_list_acceptance_batch171_test.dart"
+    ],
+    "runs": [
+      {
+        "run": 1,
+        "result": "FAIL",
+        "reason": "断言硬编码「暂无订单」，实际 i18n 文案为「暂无订单记录」（widget test 用 key 引用不受影响）"
+      },
+      {
+        "run": 2,
+        "result": "PASS 00:21",
+        "reason": "修正文案后全绿"
+      }
+    ],
+    "recipe_notes": [
+      "订单列表页路由 /channel/orders 可直 push（channelRoutes 子路由），无需经付费频道详情 paid+channelOrder 双条件入口",
+      "widget test 样板：TranslationProvider(ProviderScope(overrides: [channelOrderApiProvider.overrideWithValue(fake)], child: MaterialApp(home: 页面)))",
+      "widget test 中 autoDispose FutureProvider 在帧循环下会多次重建，调用计数断言须用相对断言（greaterThan）",
+      "集成测试断言 i18n 文案时以 strings_zh_CN.g.dart 实际值为准，勿凭语义猜（同一 key 不同 locale 文件可能有差）"
+    ],
+    "ledger": "test/auto_test/channel/channel_order_list_page.md 阻塞行 -> 无待办 批次171（channel 模块阻塞清零）"
   }
 }

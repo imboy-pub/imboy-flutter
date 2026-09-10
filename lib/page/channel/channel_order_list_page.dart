@@ -59,8 +59,10 @@ class ChannelOrderListPage extends ConsumerWidget {
       appBar: GlassAppBar(title: t.channel.myOrders),
       body: async.when(
         loading: () => const ShimmerList(),
+        // BUG#151：失败态文案原与空态共用 noOrders，用户加载失败时看到
+        // 「暂无订单」有误导；改 loadError 明确可重试语义。
         error: (_, _) => NoDataView(
-          text: t.channel.noOrders,
+          text: t.common.loadError,
           icon: CupertinoIcons.doc_plaintext,
           onTop: () => ref.invalidate(channelMyOrdersProvider),
         ),
