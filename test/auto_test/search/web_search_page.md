@@ -13,7 +13,7 @@
 | 无待办 | - | `page/search/web_search_page.dart` | 结果标题与摘要关键词高亮 | 已通过 | 批次112 | 0 | 0 | 0 | 批次112 沙箱：TextHighlight 高亮渲染 | |
 | 无待办 | - | `page/search/web_search_page.dart` | 点会话/消息结果进入聊天 | 已通过 | 批次112 | 0 | 0 | 0 | 批次112 沙箱：消息结果→ChatPage peerId=对端 | |
 | 无待办 | - | `page/search/web_search_page.dart` | 点联系人结果进入资料页 | 已通过 | 批次112 | 1 | 1 | 0 | 批次112 沙箱：PeopleInfoPage 挂载。连带修复 P1 路由 bug（推 /people_info/:id 不存在→/contact/people/:id，imboyapp 8b5b7290；此前点联系人结果恒无反应） | |
-| 阻塞 | 需本地库群 shadow 行数据（真机日常包长期登录账号可测） | `page/search/web_search_page.dart` | 点群组结果进入群聊会话 | 未测 | 批次112 | 0 | 0 | 0 | 批次112 沙箱评估：代码路径与已验证的消息/联系人点击同构（context.push）；本地群表无测试群数据（shadow 同步未落），数据齐备后单独验证 | |
+| 无待办 | - | `page/search/web_search_page.dart` | 点群组结果进入群聊会话 | 已通过 | 批次169 | 0 | 0 | 0 | 批次169 复查推翻原阻塞前提：群结果来自**本地 SQLite** GroupRepo.search（非服务端 fts shadow），而本地群 110610282598107136 批次143 起已存在。配方=GroupRepo.save 本地播种（0 字节空库也可）→ /web_search UI 输入触发防抖搜索 → 点结果行 → /chat/<gid>?type=C2G 群聊页（AppBar 群名+说点什么... 锚点）。两坑：①高亮渲染把命中词拆成独立 span（IMBoy ￼群+产品研发 分段），完整群名 find.text 永不命中；②高亮 span 自带手势吞点击，须点行内副标题触发行 onTap。run7 绿 |
 | 无待办 | - | `page/search/web_search_page.dart` | 加载最近搜索并点击回填 | 已通过 | 批次112 | 1 | 1 | 0 | 批次112 沙箱：回填+重搜请求实证。连带修复 P2 UX bug（onTap 不退出 showRecent 态，结果被遮蔽=点了没反应，imboyapp 8b5b7290） | |
 | 无待办 | - | `page/search/web_search_page.dart` | 清除本地搜索历史记录 | 已通过 | 批次112 | 0 | 0 | 0 | 批次112 沙箱：清空后历史区空 | |
 | 无待办 | - | `page/search/web_search_page.dart` | 无结果态与搜索错误态展示 | 已通过 | 批次112 | 0 | 0 | 0 | 批次112 沙箱：无结果空态（slash_circle+查询词回显）；错误态为防御性渲染（四路子搜索各自 fail-soft） | |

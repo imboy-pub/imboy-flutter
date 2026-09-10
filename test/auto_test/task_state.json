@@ -1284,5 +1284,45 @@
       "reverse": "9801+4323",
       "grant": "宿主轮询 pm list 即 grant"
     }
+  },
+  "session_2026_09_11_batch169": {
+    "note": "批次169（automation 第四十二轮）：web_search_page「点群组结果进入群聊会话」行解锁（阻塞 55→54，README 1694/96.9%）。复查推翻批次112 阻塞前提：群结果来自本地 SQLite GroupRepo.search（title/introduction LIKE + owner_uid=当前用户 + status=1），非服务端 fts shadow；本地群 110610282598107136（IMBoy 产品研发群）批次143 起已存在。配方=GroupRepo.save 本地播种（macOS 容器库被重置为 0 字节也不怕，boot 登录后播种即补齐索引）→ /web_search UI 输入（enterText→onChanged→300ms 防抖）→ 点结果行 → /chat/<gid>?type=C2G。三坑：①push location 中文 query 编码不可靠→改 UI 输入；②高亮渲染把命中词拆独立 span（可见文本呈 IMBoy \\uFFFC群+产品研发 分段），完整群名 find.text 永不命中→用 textContaining；③高亮 span 自带手势吞点击→点行内副标题（introduction 文本）触发行 onTap。聊天页锚点=AppBar 群名(含成员数后缀)+输入框占位符说点什么...（send_button 仅输入后出现；搜索页 push 后仍在栈下，勿用离栈类断言）。",
+    "runs": [
+      {
+        "run": 1,
+        "result": "FAIL 群结果未渲染（中文 query 未编码致 q 参数失效）"
+      },
+      {
+        "run": 2,
+        "result": "FAIL 同 run1（改 UI 输入仍无果→需双向诊断）"
+      },
+      {
+        "run": 3,
+        "result": "DIAG：直接 GroupRepo.search 命中=1（种子 OK）+ 可见文本显示结果已渲染但标题被高亮拆分"
+      },
+      {
+        "run": 4,
+        "result": "FAIL 点高亮片段不导航（span 手势吞点击）"
+      },
+      {
+        "run": 5,
+        "result": "DIAG：同 run4 确认"
+      },
+      {
+        "run": 6,
+        "result": "导航成功但断言锚点错（send_button 未出现；DIAG 显示已入聊天页）"
+      },
+      {
+        "run": 7,
+        "device": "macos",
+        "result": "All tests passed（00:22）"
+      }
+    ],
+    "commits": {
+      "pending": "批次169 测试+web_search 台账+README+task_state（待 pathspec 提交）"
+    },
+    "env": {
+      "db": "macOS 容器库 0 字节空库（boot 登录后播种补齐）"
+    }
   }
 }
