@@ -11,6 +11,7 @@ import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/message_conversation_utils.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
+import 'package:imboy/service/mention_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -1092,6 +1093,21 @@ class MessageService with EventSubscriptionManager {
       AppEventBus.fireData(savedConv);
       final tMsg = await msg.toTypeMessage();
       AppEventBus.fireData(tMsg);
+
+      // BUG#148 接线：新消息 @ 当前用户时广播 NewMentionEvent，驱动
+      // mention_list_page 自动刷新。此前唯一发射端 handleMentionMessage
+      // 无任何调用方（死代码），监听端永远收不到事件。判定口径与 C7-β
+      // mentionIncrement 一致：自己发的、或正在该会话页内不广播。
+      if (mentionIncrement > 0) {
+        unawaited(
+          MentionService.to.handleMentionMessage({
+            'id': 0,
+            'group_id': data['to'],
+            'msg_id': msgId,
+            'mentions': extractMentionIdsFromPayload(payload) ?? <String>[],
+          }),
+        );
+      }
 
       // 触发消息通知（如果需要）
       // 只有当用户不在当前会话且消息不是自己发送的时候才显示通知
