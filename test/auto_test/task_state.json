@@ -1137,5 +1137,25 @@
   "commits": {
    "pending": "4 台账页头冻结注记+task_state（待 pathspec 提交）"
   }
+ },
+ "session_2026_09_10_batch164": {
+  "note": "批次164（automation 第三十七轮）：chat_page「发送红包与转账」行解锁（阻塞 60→59）。原阻塞理由「允许写生产资金流水」属过期口径——批次144/159 已证本地资金链（topup 打 9801+imboy_v1，无生产写）。转账侧 macOS 全链绿：附加面板转账项（仅 C2C，CarouselSlider 翻页配方）→/transfer_send（extra {to}）→金额框=hintText '0.00' 的 TextFormField（WalletAmountField 无 labelText，run1 教训）→¥5.00+二次确认（金额摘要+收款人 Alice=ContactRepo title）→transfer_order 落库（pending/500分/默认备注'转账给好友'）+wallet 精确扣 500 分+msg_c2c msg_type=transfer 新鲜行+聊天页转账卡片渲染。金额取 ¥5.00 避开「转账金额下限不一致」待拍板 bug 的边界值。",
+  "runs": [
+   {
+    "run": 1,
+    "result": "FAIL 金额框 label 谓词落空（WalletAmountField 渲染独立 Text+hint '0.00'）"
+   },
+   {
+    "run": 2,
+    "device": "macos",
+    "result": "All tests passed（全链 1 场景 6 断言）"
+   }
+  ],
+  "commits": {
+   "pending": "批次164 测试+chat_page 台账+README+task_state（待 pathspec 提交）"
+  },
+  "env": {
+   "container_bak": ".bak164a/.bak164b"
+  }
  }
 }
