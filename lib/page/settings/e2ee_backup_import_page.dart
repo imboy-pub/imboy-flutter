@@ -368,6 +368,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       autocorrect: false,
       controller: _passwordController,
       obscureText: true,
+      // isEnabled 依赖 controller.text；缺 onChanged 时输入不触发 setState，
+      // 「导入密钥」按钮停留在禁用态（BUG#132 同源，见导出页同款修复）。
+      onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
         labelText: t.common.e2eeBackupPwdLabel,
         hintText: t.common.e2eeBackupImportPwdHint,
