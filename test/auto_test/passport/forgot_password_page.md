@@ -14,6 +14,6 @@
 | 无待办 | - | `page/passport/forgot_password_page.dart` | 渲染手机链路下一步按钮 | 已通过 | 批次24续3 | 0 | 0 | 0 | |
 | 无待办 | - | ``page/passport/forgot_password_page.dart`` | 拦截邮箱为空并提示 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
 | 无待办 | - | ``page/passport/forgot_password_page.dart`` | 拦截手机号为空并提示 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |
-| 阻塞 | 待环境恢复执行（批次146 解锁：批次124 配方同款——本地发码落库（email/mobile 双分支均 verification_code_ds:save），码从表直读输 PinField；批次124 forgot_password_acceptance_test 已含该链路测试代码） | `page/passport/forgot_password_page.dart` | 邮箱发送重置码并跳验证页 | 未测 | - | 0 | 0 | 0 | 批次24续3 只看 UI 未提交；批次146:本地查表口径解锁 |
-| 阻塞 | 待环境恢复执行（同上，mobile 分支；批次124 已修 find_password 缺 mobile 分支 bug） | `page/passport/forgot_password_page.dart` | 手机发送重置码并跳验证页 | 未测 | - | 0 | 0 | 0 | 批次24续3 只看 UI 未提交；批次146:本地查表口径解锁 |
+| 阻塞 | 永久人工域：email 发码会经真实 QQ SMTP 外发（无 sms.switch 类开关），自动化=触达真实第三方，违红外线；仅人工验收 | `page/passport/forgot_password_page.dart` | 邮箱发送重置码并跳验证页 | 未测 | - | 0 | 0 | 0 | 批次24续3 只看 UI 未提交；批次146:本地查表口径解锁；批次158 定性为 email 红线（同 bind_email） |
+| 无待办 | - | `page/passport/forgot_password_page.dart` | 手机发送重置码并跳验证页 | 已通过 | 批次158 | 0 | 0 | 0 | macOS 通道（真机 live binding 8 轮失败的 FP1 经 macOS 一次走通；TabBar 切换真机已于批次24续3 单独过）：深链入口页→TabBar controller.animateTo 直驱切手机 tab→enterText→下一步→跳验证码页 RichText 断言 + verification_code 落库新鲜（sms.switch=off 不外发）；测试=passport/forgot_password_entry_acceptance_test.dart AT-FPE1 |
 | 无待办 | - | ``page/passport/forgot_password_page.dart`` | 返回按钮退回上一页 | 已通过 | 批次80 | 0 | 0 | 0 | 批次80 回归确认：批次详验真机/代码证据充分，稳定功能无回归 |

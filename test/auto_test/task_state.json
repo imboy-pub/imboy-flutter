@@ -964,5 +964,39 @@
       "用户决策类：live_room RTMP/settings bailian/资金/真实触达",
       "待处理 bug 2 条待用户拍板"
     ]
+  },
+  "session_2026_09_10_batch158": {
+    "note": "批次158（automation 第三十一轮）：2 行阻塞解锁转绿（阻塞 80→78）。AT-FPE1 忘记密码入口页手机发码跳验证页——此前真机 live binding 八轮失败的 FP1 经 macOS 通道一次走通（TabBar controller.animateTo 直驱确定性切 tab，macOS 深链/enterText 可靠=批次124 同源）；断言：默认邮箱 tab→切手机 tab→enterText 19900001234→下一步→PinCodeVerificationPage RichText「验证码已发送到手机+8619900001234」+verification_code 落库新鲜（sms.switch=off 不外发，DB age<90s）。AT-BM2 绑定手机发码失败提示——HttpClient.client.dio 直换单例 adapter 拦 /passport/getcode 注入业务失败（静态 adapterForTest 仅构造时生效对 serviceContainer 单例无效=新注入口径）；断言：失败 toast 透出注入串+无倒计时+DB 零落库；载体=smoke_bob（51730 已绑手机点行弹解绑 sheet 按设计不可达绑定页=批次158 实证，已回写 account_security 行为旁证）。email 发码行定性永久红线（elib_email:send 无条件外发真实 QQ SMTP）维持阻塞。macOS run21+run22 全绿（run20 因僵尸 batch157 进程+孤儿 IMBoy.app 容器互踢挂死作废，清进程后重跑）。坑：PG numeric 经驱动回 String 且带小数，is num 恒 false、int.tryParse 对小数串 null，须 double.tryParse().toInt()；integration_test 场景失败后下一场景可能楔死不启动（FlutterError.onError masking），失败即单独 --plain-name 重跑。未 push。",
+    "runs": [
+      {
+        "run": 20,
+        "device": "macos",
+        "result": "作废（僵尸进程互踢挂死，非测试本身问题）"
+      },
+      {
+        "run": 21,
+        "device": "macos",
+        "result": "AT-FPE1 PASS + AT-BM2 skip（boot 未回主 Shell）"
+      },
+      {
+        "run": 22,
+        "device": "macos",
+        "result": "All tests passed（2/2）"
+      }
+    ],
+    "lessons": [
+      "TestPg EXTRACT(EPOCH) 返回 PG numeric→Dart String 带小数，解析必须 double.tryParse",
+      "已绑手机账号的「绑定手机号」行=解绑 sheet 分支，绑定页仅未绑账号可达（产品设计）",
+      "HttpClient.client 是 serviceContainer 单例：注入出口用 dio.httpClientAdapter 直换+tearDown 恢复",
+      "integration_test 同文件场景失败会楔死后续场景；僵尸 flutter test/IMBoy.app 必须先清（批次153 同款）"
+    ],
+    "fixture_state": {
+      "smoke_bob": "uid=1000000056，登录态留在容器（batch158 收尾）",
+      "51730": "uid=111174215241304064，密码 hash 未动（未消费码未重置）"
+    },
+    "next_actions": [
+      "剩余 78 条阻塞均为用户决策域：live_room ~25 条等 RTMP/WHIP 开播拍板、chat/rtc_room 12 条需双设备、settings ~11 条等 bailian 授权、email 类红线行永久人工",
+      "2 条待处理 bug 等 user 拍板（转账金额下限不一致、assistant_plaza）"
+    ]
   }
 }
