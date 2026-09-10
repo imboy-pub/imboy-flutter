@@ -12,8 +12,8 @@
 | 无待办 | - | `page/settings/e2ee_key_recovery_page.dart` | 点击备份卡片弹出底部操作面板 | 已通过 | 批次31 | 0 | 0 | 0 | 真机点「本地备份」卡 → 底部面板（纱罩+导出备份+导入备份）；星标五档=代码证实 List.generate(5) star_fill/star（L481-491，securityLevel=4，图标不进语义树） |
 | 无待办 | - | `page/settings/e2ee_key_recovery_page.dart` | 面板点击导出跳转备份导出页 | 已通过 | 批次31 | 0 | 0 | 0 | 真机面板点「导出备份」→ 「导出 E2EE 备份」页（重要提示卡/密码框×2/生成恢复密钥/密码强度条/生成备份文件与备份到云端按钮禁用） |
 | 无待办 | - | `page/settings/e2ee_key_recovery_page.dart` | 面板点击导入跳转备份导入页 | 已通过 | 批次31 | 0 | 0 | 0 | 真机面板点「导入备份」→ 「导入 E2EE 备份」页（导入说明警告卡/选择备份文件入口/密码框与导入密钥按钮禁用） |
-| 阻塞 | 需可弃用测试账号（须先删除密钥） | `page/settings/e2ee_key_recovery_page.dart` | 无密钥时展示空态卡片与生成入口 | 未测 | - | 0 | 0 | 0 | — |
-| 阻塞 | 需可弃用测试账号（生成不可逆） | `page/settings/e2ee_key_recovery_page.dart` | 点击生成新密钥弹出不可逆警告 | 未测 | - | 0 | 0 | 0 | 危险操作未执行 |
-| 阻塞 | 需可弃用测试账号 | `page/settings/e2ee_key_recovery_page.dart` | 确认生成后展示新密钥成功弹窗 | 未测 | - | 0 | 0 | 0 | — |
-| 阻塞 | 需可弃用测试账号 | `page/settings/e2ee_key_recovery_page.dart` | 成功弹窗点击去备份跳转导出页 | 未测 | - | 0 | 0 | 0 | — |
-| 阻塞 | 需可弃用测试账号（删除不可逆） | `page/settings/e2ee_key_recovery_page.dart` | 删除密钥经两阶段高摩擦确认执行 | 未测 | - | 0 | 0 | 0 | 执行后历史消息永久不可解密 |
+| 无待办 | - | `page/settings/e2ee_key_recovery_page.dart` | 无密钥时展示空态卡片与生成入口 | 已通过 | 批次161 | 0 | 0 | 0 | macOS：UI 两阶段删除后空态「未检测到 E2EE 密钥」+指引+生成入口全渲染；测试=settings/e2ee_key_recovery_acceptance_test.dart AT-EK |
+| 无待办 | - | `page/settings/e2ee_key_recovery_page.dart` | 点击生成新密钥弹出不可逆警告 | 已通过 | 批次161 | 0 | 0 | 0 | macOS：警告框「确定要生成新的 E2EE 密钥对吗？」+确认生成；测试=…AT-EK |
+| 无待办 | - | `page/settings/e2ee_key_recovery_page.dart` | 确认生成后展示新密钥成功弹窗 | 已通过 | 批次161 | 0 | 0 | 0 | macOS：regenerateAndReportDeviceKey 上报服务端后弹「密钥生成成功」（脱敏设备/密钥 ID+橙色注意区）；测试=…AT-EK |
+| 无待办 | - | `page/settings/e2ee_key_recovery_page.dart` | 成功弹窗点击去备份跳转导出页 | 已通过 | 批次161 | 0 | 0 | 0 | macOS：弹窗「去备份」→Navigator push 导出页（生成备份文件钮可达）；测试=…AT-EK |
+| 无待办 | - | `page/settings/e2ee_key_recovery_page.dart` | 删除密钥经两阶段高摩擦确认执行 | 已通过 | 批次161 | 0 | 0 | 0 | macOS：一阶段「确定要删除当前密钥吗？」→继续→二阶段「确认删除」→执行→空态（ disposable 生命周期口径：删除后流程内重新生成上报，起终点密钥态一致自愈）；测试=…AT-EK |

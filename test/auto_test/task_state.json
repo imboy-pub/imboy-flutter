@@ -1055,5 +1055,28 @@
       "剩余 70 条=用户决策域：live_room ~24 RTMP、rtc_room 9 双设备、e2ee 备份/恢复 10 条（可弃用账号口径大工程）、email 红线、bailian 凭据、withdraw 渠道拒绝、scanner 暗色视觉轮、upgrade 断网构造",
       "2 条待处理 bug 等拍板（转账金额下限、assistant_plaza）"
     ]
+  },
+  "session_2026_09_10_batch161": {
+    "note": "批次161（automation 第三十四轮）：E2EE 密钥恢复域 6 行解锁（阻塞 70→64）。密钥生命周期口径替代可弃用账号口径——E2EE 密钥为全局键（无 uid 后缀），把生命周期设计成闭环：AT-EK-DEL 删除两阶段高摩擦（继续→确认删除）→AT-EK-EMPTY 空态卡片+生成入口→AT-EK-EXP 无密钥导出失败 toast「无法获取密钥数据」→AT-EK-GEN 不可逆警告「确定要生成新的 E2EE 密钥对吗？」→AT-EK-OK 生成成功弹窗（regenerateAndReportDeviceKey 上报）→AT-EK-GO 去备份跳导出页→收尾密钥重建非空态（起终点一致容器自愈）。",
+    "runs": [
+      {
+        "run": 16,
+        "device": "macos",
+        "result": "All tests passed（全链 1 场景）"
+      }
+    ],
+    "lessons": [
+      "E2EE 密钥 secure storage 键全局无 uid 后缀（e2ee_private_key 等 5 键）——「可弃用账号」不能隔离密钥，正确口径=密钥生命周期闭环（删了再生成）",
+      "危险卡片文案（删除密钥/生成新密钥）页面渲染多处，ensureVisible/tap 须 .first（Too many elements）",
+      "Navigator.push 的命令式路由不被 go() 同路径顶掉，回断言必须 nav.pop()",
+      "bob 密钥删除影响面=旧 olm 会话失效，新会话经 olm claim 自愈（批次159 实证），本地库无历史可损失"
+    ],
+    "fixture_state": {
+      "smoke_bob": "密钥已重新生成并上报（kid 已换新），后续 E2EE 消息自愈"
+    },
+    "next_actions": [
+      "备份导入 4 行待后续：需备份文件（导出成功分支产出 .enc）+ initialFile 注入（widget 测试有先例）；云恢复 2 行需先备份到云端",
+      "其余 64-6=58 条减去导入相关后全部为决策域"
+    ]
   }
 }
