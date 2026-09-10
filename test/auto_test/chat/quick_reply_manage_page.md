@@ -14,5 +14,5 @@
 | 无待办 | — | `page/chat/widget/quick_reply_manage_page.dart` | 点铅笔按钮编辑短语 | 已通过 | 批次27 | 0 | 0 | 0 | 集成测试通过。点击铅笔按钮，输入新文本即可更新短语。 |
 | 无待办 | — | `page/chat/widget/quick_reply_manage_page.dart` | 左划删除单条快捷回复 | 已通过 | 批次27 | 0 | 0 | 0 | 集成测试通过。向左侧滑动短语，即可将 Reply-C 成功删除。 |
 | 无待办 | — | `page/chat/widget/quick_reply_manage_page.dart` | 拖拽手柄调整条目顺序 | 已通过 | 批次27 | 0 | 0 | 0 | 集成测试通过。拖动 drag_handle 手柄即可自由调整 ReorderableListView。 |
-| 阻塞 | 待环境恢复执行（批次143 代码实证 L221 _uid.isEmpty→SizedBox.shrink 隐藏 FAB；quitLogin 配方现成=批次128 workspace 测试同款+4s 排空） | `page/chat/widget/quick_reply_manage_page.dart` | 未登录态隐藏新增按钮 | 未测 | - | 0 | 0 | 0 | 测试路径：quitLogin→深链本页→断言 add FAB 缺席+空态文案 |
+| 无待办 | - | `page/chat/widget/quick_reply_manage_page.dart` | 未登录态隐藏新增按钮 | 已通过 | 批次160 | 0 | 0 | 0 | macOS：quitLogin→Navigator 直接 push 页面（无路由注册，公开 widget 可直推）→空态文案「暂无快捷回复，点击右下角添加」+byIcon(CupertinoIcons.add) findsNothing；测试=misc/acceptance_batch160_test.dart AT-QR1 |
 | 无待办 | — | `page/chat/widget/quick_reply_manage_page.dart` | 输入框最大长度限制生效 | 已通过 | 批次27 | 0 | 0 | 0 | 集成测试通过。断言验证输入框 TextField 的 maxLength 属性强校验为 200 字符。 |

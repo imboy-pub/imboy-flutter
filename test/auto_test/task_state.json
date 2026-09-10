@@ -1031,5 +1031,29 @@
       "批次160 候选（配方已备）：chat_page @成员与@所有人拦截（批次143 群数据就绪）、quick_reply 未登录态隐藏 FAB（quitLogin 配方）、signup_continue 语言切换（批次119 沙盒注码）",
       "剩余 73 条阻塞=用户决策域为主：live_room ~24 RTMP、rtc_room 9 双设备、e2ee 备份/恢复 10 条可弃用账号口径（大工程）、email 红线永久人工、withdraw 渠道拒绝、bailian 凭据"
     ]
+  },
+  "session_2026_09_10_batch160": {
+    "note": "批次160（automation 第三十三轮）：3 行阻塞解锁转绿（阻塞 73→70），首跑即全绿。AT-MN1 群内@成员与@所有人拦截（bob role=1 载体：打@弹列表→候选李/李思远/林/林潇/周/周舟无「所有人」=UI 层 isAdmin 拦截；点选成员输入框插入@昵称；发送侧 DeniedAll 由纯函数单测+服务端 check_admin 兜底）；AT-SUL10 signup_continue 语言切换实时重建（沙盒注码：getcode 落库+TestPg 直读+setSignupData 注入 push /sign_up/continue，全程不提交注册零账号产生；LocaleSettings zh↔en 断言重发验证码↔Resend verification code）；AT-QR1 未登录态快捷回复 FAB 隐藏（quitLogin→Navigator 直推页面（无路由注册公开 widget 可直推）→空态文案+byIcon add findsNothing）。",
+    "runs": [
+      {
+        "run": 14,
+        "device": "macos",
+        "result": "首跑 All tests passed（3/3）"
+      }
+    ],
+    "lessons": [
+      "quick_reply_manage 无路由注册：登录态经 chat_input 管理入口进，未登录态测试用 Navigator.push 直推公开 widget（auth redirect 不影响）",
+      "@所有人拦截是三层：UI 列表 isAdmin 不渲染（member 可测）+发送闸门 DeniedAll（纯函数+服务端）；member 载体只能测 UI 层",
+      "MentionCandidate displayName=alias 优先于 nickname；候选含单字别名",
+      "TestPg.scalar 只回第一列，多列需 SQL 内拼接 code || ',' || age"
+    ],
+    "fixture_state": {
+      "smoke_bob": "uid=1000000056（未登录态收尾，下次 _boot 自动重登）",
+      "19900001235": "getcode 已发但未注册，60s 频控内重跑可复用码"
+    },
+    "next_actions": [
+      "剩余 70 条=用户决策域：live_room ~24 RTMP、rtc_room 9 双设备、e2ee 备份/恢复 10 条（可弃用账号口径大工程）、email 红线、bailian 凭据、withdraw 渠道拒绝、scanner 暗色视觉轮、upgrade 断网构造",
+      "2 条待处理 bug 等拍板（转账金额下限、assistant_plaza）"
+    ]
   }
 }

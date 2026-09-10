@@ -15,5 +15,5 @@
 | 无待办 | - | `page/passport/signup_continue_page.dart` | 提交注册失败错误提示 | 已通过 | 批次119 | 0 | 0 | 0 | AT-SU4 宿主层：signup 端返回「手机号已经被占用了」透出 |
 | 无待办 | - | `page/passport/signup_continue_page.dart` | 弹出结果 SnackBar 提示 | 已通过 | 批次119 | 0 | 0 | 0 | 历史修复（ScaffoldMessenger+fixed）复验：成功/频控 toast 均正常弹出可视 |
 | 无待办 | - | `page/passport/signup_continue_page.dart` | 页面滚动布局不溢出 | 已通过 | 批次119 | 0 | 0 | 0 | 历史修复（居中对齐+底部留白）复验：全流程无 RenderFlex 溢出异常 |
-| 阻塞 | 待环境恢复执行（批次146 解锁：本地注册=批次119 AT-SU1~3 沙盒注码配方（真码从 verification_code 表注入），非生产注册无授权顾虑；注册成功页内切语言断言重建） | `page/passport/signup_continue_page.dart` | 语言切换实时重建页面 | 未测 | - | 0 | 0 | 0 | 批次119 同文件 10 场景已全绿，仅语言切换一条因当时注册授权顾虑遗留 |
+| 无待办 | - | `page/passport/signup_continue_page.dart` | 语言切换实时重建页面 | 已通过 | 批次160 | 0 | 0 | 0 | macOS：沙盒注码口径（getcode 落库不外发+TestPg 直读，setSignupData 注入 push /sign_up/continue，全程不提交注册零账号产生）→页内 LocaleSettings zh↔en 断言「重发验证码」↔「Resend verification code」实时重建；测试=misc/acceptance_batch160_test.dart AT-SUL10 |
 | 无待办 | - | `page/passport/signup_continue_page.dart` | 底部返回登录入口跳转 | 已通过 | 批次119 | 0 | 0 | 0 | AT-SU5：「登录」入口 go(/sign_in) 跳转成功 |
