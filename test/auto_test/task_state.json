@@ -1116,5 +1116,26 @@
    "container_bak": ".bak162~.bak162f 多轮清理",
    "accounts": "smoke_bob 1000000056"
   }
+ },
+ "session_2026_09_10_batch163": {
+  "note": "批次163（automation 第三十六轮）：live_room_list 5 行攻坚中途被用户叫停——『直播间功能暂时不做，不要测试相关WHIP功能了』（2026-09-10）。已删未跟踪测试文件 acceptance_batch163_test.dart（run1 造数遭「设备已被移除」瞬时 401、run2 过 BASE/COVER/CREATE 后败于 REFRESH 的 ListView 缺席=pop 过渡期 publisher AppBar 渲染房间标题假匹配、run3 败于 CREATE 段）。冻结决策已固化进 4 台账页头（list/publisher/subscriber/rtc_room）。阻塞数维持 60；解冻需用户重新授权。",
+  "runs": [
+   {
+    "run": 1,
+    "result": "FAIL 造数 create 401 设备已被移除（瞬时，repo 探针后为 true）"
+   },
+   {
+    "run": 2,
+    "result": "FAIL AT-LRL-REFRESH 前 drag 无 ListView（pop 过渡期假匹配 publisher 标题）"
+   },
+   {
+    "run": 3,
+    "result": "FAIL AT-LRL-CREATE 段（随后用户叫停）"
+   }
+  ],
+  "decision": "USER_FREEZE：live_room/WHIP/rtc_room 域暂缓",
+  "commits": {
+   "pending": "4 台账页头冻结注记+task_state（待 pathspec 提交）"
+  }
  }
 }
