@@ -1222,5 +1222,21 @@
       "backend": "127.0.0.1:9801 capability 加密必需",
       "group": "110610282598107136 (bob role=1/alice role=4/e2ee_mode=0)"
     }
+  },
+  "session_2026_09_10_batch167": {
+    "note": "批次167（automation 第四十轮）：group_task×2 + bind_mobile×1 三行攻坚，全部环境墙定性、0 行解锁（阻塞维持 57）。【墙1=编译期裁剪】group_task 5190 门溯源：feature_gate_middleware→imboy_feature:enabled=compiled∧policy；rpc 实证 9801 运行 beam IMBOY_COMPILED_FEATURES 仅 7 项（无 group_task/group_vote/group_schedule/location/moment/appeal），当前 main 生成头=agent_hub 预设（config/product-feature-manifests/agent_hub.json）而 base manifest（config/product-feature-manifest.json）含全部 11 项——解锁需以 base/full-selected 重建+重启 9801（与 75/560 漂移对齐同拍板），重启后 policy 放行配方已通：adm 登录（GET /api/adm/passport/meta 取 csrf+RSA-OAEP-SHA256 加密密码+本地万能验证码 1234）→PUT /api/adm/admin/config/policy {features:{group_task:{enabled:true}}}（注意：值必须为 toggle 形状 {enabled:bool}，裸布尔被 normalize 静默丢弃；PUT 须打在 9801 本节点，config_ds:set 只 flush 本节点 imboy_cache，跨节点 TTL 10 天不失效）。【墙2=license 配额】bind_mobile 一次性账号 signup 被 402 用户数达授权上限拦：rpc 实证 license max_users=100 且 is_valid=false，库 68856 用户；重签 license 属授权机制待用户拍板。【墙3】batch160 AT160L 账号不在库（沙盒自清理），member160_* 伪手机号 fixture 密码不可考。【产出】bind_mobile 测试文件已就绪（analyze 零问题，signup 通即绿）；台账三行解阻条件精确化；probe 全程 rpc:call 纪律、无 crash.dump 残留、policy saved 配置确认未被污染（PUT 均未落库）。",
+    "runs": [
+      {
+        "run": 1,
+        "result": "FAIL 402 用户数已达授权上限（signup 前置，license max_users=100/is_valid=false/库 68856）"
+      }
+    ],
+    "commits": {
+      "pending": "批次167 测试文件+三台账页+task_state（待 pathspec 提交）"
+    },
+    "env": {
+      "backend": "9801 alpha.71 运行 beam（编译期裁剪版 feature 清单）",
+      "license": "max_users=100 is_valid=false"
+    }
   }
 }
