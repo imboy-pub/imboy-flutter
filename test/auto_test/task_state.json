@@ -1455,5 +1455,54 @@
       "EasyLoading toast 文本在集成测试 pump 窗口内 tester.any 可抓（真机 a11y 轮询抓不到是时机问题，批次75 教训不适用于 integration tester）"
     ],
     "ledger": "scanner_result_page.md + withdraw_page.md 阻塞行 -> 无待办 批次172"
+  },
+  "session_2026_09_11_batch173": {
+    "batch": 173,
+    "date": "2026-09-11",
+    "target": "scanner_page 扫到用户名片跳转个人资料页",
+    "verdict": "PASS",
+    "blocking_change": "50 -> 49",
+    "row": {
+      "row": "scanner_page 扫到用户名片跳转个人资料页",
+      "unlock": "「第二台设备」不成立：名片码=确定性 URL（buildUserQrcodeUrl），mobile_scanner 7.x Barcode/BarcodeCapture 公开可构造，从 widget 树取 MobileScanner.onDetect 公开回调手动驱动。真机必要原因：macOS 相机权限必拒 _startFailed 移除 MobileScanner",
+      "evidence": "run6 绿（真机 EMUI）：相机就绪 → onDetect(构造名片码) → GET /api/v1/user/qrcode（dio 带 token）→ pushReplacement /people_info/1000000051?scene=qrcode → Alice 资料页渲染",
+      "test_file": "integration_test/scanner/scanner_user_qrcode_people_info_realdevice_batch173_test.dart"
+    },
+    "runs": [
+      {
+        "run": "1-2",
+        "result": "静默退出",
+        "reason": "nohup 后台跑 flutter test 真机构建静默死 + vodozemac NDK 偶发失败（重试自愈）——真机跑必须前台或完整重定向"
+      },
+      {
+        "run": 3,
+        "result": "FAIL",
+        "reason": "断言锚点「发消息」未渲染：people_info detail 接口判 alice 非 bob 好友（relation 单向数据），改用资料页专属结构「备注和标签」作锚点"
+      },
+      {
+        "run": 4,
+        "result": "卡死",
+        "reason": "EMUI 系统相机权限弹窗挂起（grant 循环时机晚于弹窗），授权后 app 被系统回收"
+      },
+      {
+        "run": 5,
+        "result": "FAIL",
+        "reason": "Failed to start Dart Development Service——历史 flutter_tester/DDS 残留进程占端口，pkill 清理后恢复"
+      },
+      {
+        "run": 6,
+        "result": "PASS 00:40",
+        "reason": "权限就绪+DDS 清理后全绿"
+      }
+    ],
+    "recipe_notes": [
+      "mobile_scanner 7.x 扫码逻辑测试法：BarcodeCapture(barcodes: [Barcode(rawValue: url)]) 构造 + tester.widget<MobileScanner>(find.byType).onDetect! 手动驱动，无需相机画面",
+      "二维码 URL 构造用 buildUserQrcodeUrl(uid, baseUrl: ...)（自带测试注入参数，防拼接漂移）",
+      "真机 flutter test 的 DDS 端口冲突：Failed to start Dart Development Service → pkill -f 'development-service' + flutter_tester 后重跑",
+      "flutter test 真机跑勿用 nohup 后台（静默 0 字节退出），前台或完整重定向；vodozemac NDK 构建偶发失败重试即过",
+      "EMUI 真机流程坑：权限弹窗挂起期间 app 可能被系统回收；安装后立即 pm grant CAMERA（幂等循环）",
+      "4323 沙盒库 bob-alice relation 单向：people_info detail 判 isFriend=0（qrcode 端点却报 isfriend=true，两接口数据源不同）——好友条件渲染的按钮不作断言锚点"
+    ],
+    "ledger": "scanner_page.md 阻塞行 -> 无待办 批次173"
   }
 }
