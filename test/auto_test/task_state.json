@@ -1416,5 +1416,44 @@
       "集成测试断言 i18n 文案时以 strings_zh_CN.g.dart 实际值为准，勿凭语义猜（同一 key 不同 locale 文件可能有差）"
     ],
     "ledger": "test/auto_test/channel/channel_order_list_page.md 阻塞行 -> 无待办 批次171（channel 模块阻塞清零）"
+  },
+  "session_2026_09_11_batch172": {
+    "batch": 172,
+    "date": "2026-09-11",
+    "target": "双行批次：scanner_result 暗色对比度 + withdraw 提现失败错误提示",
+    "verdict": "PASS",
+    "blocking_change": "52 -> 50",
+    "rows": [
+      {
+        "row": "scanner_result_page 暗色主题下文字与底色对比达标",
+        "unlock": "两个外部依赖均可消除：主题用生产同源 AppTheme.getDarkTheme() 直 pump；scanResult 是构造参数无需真扫",
+        "evidence": "widget test SR-D1~D4+SR-L1 5/5（WCAG 2.1 程序化计算：正文 AA、AppBar 玻璃底合成、FAB UI 组件 3.0、置灰可辨识、亮色回归）",
+        "test_file": "test/unit_test/page/scanner/scanner_result_page_dark_contrast_test.dart"
+      },
+      {
+        "row": "withdraw_page 提现失败错误提示",
+        "unlock": "两层定性：①本地校验失败提示链（用户主体交互）集成实证；②resp.msg 同步透传（B1#16）被页面本地余额校验先拦+受理制异步结算域，同步 UI 不可达，代码链审读确认在位，异步呈现转产品决策域",
+        "evidence": "集成测试 AT-WD1a~e run1 一次全绿（账号空/金额0/格式错/超余额 toast「余额不足」，零提现单写入 tx_type=10 计数不变）",
+        "test_file": "integration_test/wallet/withdraw_error_toast_acceptance_batch172_test.dart"
+      }
+    ],
+    "runs": [
+      {
+        "test": "scanner 对比度 widget",
+        "result": "5/5 一次过（仅 analyze 提示清理一轮）"
+      },
+      {
+        "test": "withdraw 集成 run1",
+        "result": "PASS 00:32 一次过"
+      }
+    ],
+    "recipe_notes": [
+      "WCAG 对比度公式：sRGB 线性化→相对亮度 L=0.2126R+0.7152G+0.0722B→ratio=(L1+0.05)/(L2+0.05)；alpha 叠加先合成再算",
+      "暗色主题测试勿切系统主题：直接 AppTheme.getDarkTheme() pump（生产同源构建函数）",
+      "wallet_transaction 表字段是 tx_type smallint（提现=10，withdrawal_logic L33），无 transaction_type 列",
+      "提现页本地校验顺序：Form validate（字段错误）→ amountFen<1 toast → 超余额 toast → 二次确认弹窗 → API；「渠道拒绝」异步域测试构造不了属产品域非测试阻塞",
+      "EasyLoading toast 文本在集成测试 pump 窗口内 tester.any 可抓（真机 a11y 轮询抓不到是时机问题，批次75 教训不适用于 integration tester）"
+    ],
+    "ledger": "scanner_result_page.md + withdraw_page.md 阻塞行 -> 无待办 批次172"
   }
 }

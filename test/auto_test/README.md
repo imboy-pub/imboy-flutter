@@ -66,8 +66,8 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1696 | 97.0% |
-| 阻塞 | 52 | 3.0% |
+| 无待办 | 1698 | 97.1% |
+| 阻塞 | 50 | 2.9% |
 | **合计** | **1748** | 100% |
 
 bug 累计：**发现 236 / 解决 234 / 待处理 2**
@@ -87,14 +87,14 @@ bug 累计：**发现 236 / 解决 234 / 待处理 2**
 | [passport](passport/) | 7 | 82 | 0 | 81 | 1 |
 | [chat](chat/) | 6 | 76 | 0 | 64 | 12 |
 | [moment](moment/) | 6 | 74 | 0 | 73 | 1 |
-| [wallet](wallet/) | 5 | 61 | 1 | 60 | 1 |
+| [wallet](wallet/) | 5 | 61 | 1 | 61 | 0 |
 | [user_tag](user_tag/) | 5 | 58 | 0 | 58 | 0 |
 | [single](single/) | 5 | 48 | 0 | 48 | 0 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
 | [settings](settings/) | 3 | 36 | 0 | 35 | 1 |
 | [search](search/) | 3 | 35 | 0 | 35 | 0 |
 | [live_room](live_room/) | 3 | 33 | 0 | 8 | 25 |
-| [scanner](scanner/) | 3 | 30 | 0 | 28 | 2 |
+| [scanner](scanner/) | 3 | 30 | 0 | 29 | 1 |
 | [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 12 | 0 |
 | [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 |
 | [mention](mention/) | 1 | 12 | 0 | 12 | 0 |
