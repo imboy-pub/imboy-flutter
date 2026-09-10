@@ -1157,5 +1157,25 @@
   "env": {
    "container_bak": ".bak164a/.bak164b"
   }
+ },
+ "session_2026_09_10_batch165": {
+  "note": "批次165（automation 第三十八轮）：chat_page「E2EE 解密失败引导与密钥重建」行解锁（阻塞 59→58）。造数配方=向本地 msg_c2c 注入与 _handleE2EEMessage 失败分支同构的失败行（payload {msg_type,text:'[加密消息]',_e2ee_failed:true,_e2ee_reason:'olm_decrypt_error'}，e2ee 列留空），等价「历史消息由已失密钥加密」终态；解密引擎由 e2ee 单测/集成域覆盖。全链：占位气泡→点按弹「无法解密此消息」引导框（稍后关/去恢复）→恢复中心→生成新密钥→警告→成功弹窗→去备份→密钥非空自愈（批次161 同链）。run1 教训：真实离线密文行（payload 非法 JSON）走 encrypted_payload 分支也渲染「[加密消息]」但 metadata 无 _e2ee_failed（点按无动作，另一 UX 缺口未立项），注入行用树序 .last 消歧。",
+  "runs": [
+   {
+    "run": 1,
+    "result": "FAIL AT-DG2 点中真实离线行的占位气泡（metadata 无 _e2ee_failed，tap 无动作）"
+   },
+   {
+    "run": 2,
+    "device": "macos",
+    "result": "All tests passed（全链 5 断言）"
+   }
+  ],
+  "commits": {
+   "pending": "批次165 测试+chat_page 台账+README+task_state（待 pathspec 提交）"
+  },
+  "env": {
+   "container_bak": ".bak165a/.bak165b"
+  }
  }
 }
