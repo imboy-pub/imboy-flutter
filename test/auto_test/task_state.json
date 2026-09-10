@@ -1324,5 +1324,57 @@
     "env": {
       "db": "macOS 容器库 0 字节空库（boot 登录后播种补齐）"
     }
+  },
+  "session_2026_09_11_batch170": {
+    "batch": 170,
+    "date": "2026-09-11",
+    "target": "channel_subscriber_page 邀请选人弹层过滤待处理邀请并发送（批次116 遗留阻塞行）",
+    "verdict": "PASS",
+    "blocking_change": "54 -> 53",
+    "bugs": [
+      {
+        "id": "BUG#149",
+        "side": "imboy 后端",
+        "symptom": "私有邀请制频道创建者邀请任何人必拒「您不是频道订阅者，无法邀请他人」",
+        "root_cause": "channel_ds:create_channel 事务只插 channel+channel_admin 行，不插创建者 channel_subscription 行；channel_logic_invitation:create_invitation 校验真实订阅表",
+        "fix": "创建事务内补 upsert_active(创建者)+increment_subscribers(+1)，订阅/计数/守卫同事务",
+        "verify": "eunit channel_ds_tests 17/17（含 2 新回归用例）；9801 热更后 curl 实证 create 返回 subscriber_count=1 + 邀请 success"
+      },
+      {
+        "id": "BUG#150",
+        "side": "imboyapp 客户端",
+        "symptom": "发送邀请成功后二次打开邀请弹层必失败（弹层不出现）",
+        "root_cause": "channel_invitation_rules.extractPendingInviteeIds 用 as String? 硬转服务端 int 型 invitee_uid（bigint 原样透传）抛 TypeError，被外层 catch 吞掉致 showCupertinoModalPopup 不执行",
+        "fix": "改 toString() 容错（与 filterContactsForInvitation 的 peer_id 同款）；补 rules 单测",
+        "verify": "rules 单测 15/15；集成测试 AT-CS2c 空态过滤断言过"
+      }
+    ],
+    "test_file": "integration_test/channel/channel_subscriber_invite_acceptance_batch170_test.dart",
+    "runs": [
+      {
+        "run": 1,
+        "result": "FAIL AT-CS2c",
+        "reason": "BUG#150 现行：二次弹层 invitee_uid int as String? 抛错"
+      },
+      {
+        "run": 2,
+        "result": "PASS 00:33",
+        "reason": "BUG#150 修复后全绿"
+      }
+    ],
+    "recipe_notes": [
+      "私有频道 API 直建：POST /api/v1/channel/create visibility=1&access_type=0&join_policy=1（无 UI 创建页依赖）",
+      "频道创建上限 20（MaxChannels）：跑前清 channel/name LIKE batch170% 残留",
+      "弹层候选来自本地 SQLite contact 表（user_id=currentUid AND is_friend=1），ContactRepo().insert 播种",
+      "getSentInvitations 是 inviter 维度（不分频道），过滤断言前需清 bob 全部历史邀请行",
+      "subscribers 页 extra {'canInvite': true} 与频道详情 manage_subscribers 出口同参",
+      "imboy 单跑 eunit 前勿 stash：eunit-local 会用当前 src 重编 ebin，stash 期间编译会把热更 beam 打回旧版（本次踩坑）",
+      "channel_ds_tests 3 个 update 存量用例 mock ensure_writable_tx/abort_on_error 想拦截 write_tx 同模块内部调用，meck 不拦截 → 单跑撞 503；改为整体 mock write_tx/2（对齐 reaction 用例）后单跑也绿"
+    ],
+    "commits": {
+      "imboyapp": "见提交",
+      "imboy": "见提交"
+    },
+    "ledger": "test/auto_test/channel/channel_subscriber_page.md 阻塞行 -> 无待办 批次170"
   }
 }

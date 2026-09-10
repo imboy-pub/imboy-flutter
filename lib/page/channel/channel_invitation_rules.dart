@@ -43,7 +43,7 @@ bool canSendChannelInvitation(String channelType) => channelType == 'private';
 /// 从已发邀请列表中提取待处理（status == 0）的被邀请者 UID 列表。
 ///
 /// [sentInvitations] 后端返回的已发邀请列表，每条记录至少含：
-///   - `invitee_uid`（String）
+///   - `invitee_uid`（String 或 int，服务端 bigint 原样透传）
 ///   - `status`（int，0 = 待处理，1 = 已接受，2 = 已拒绝，3 = 已过期，4 = 已取消）
 ///
 /// 跳过 invitee_uid 为空或 null 的记录，防止脏数据混入过滤集合。
@@ -55,7 +55,14 @@ List<String> extractPendingInviteeIds(
         final status = inv['status'];
         return status == 0;
       })
-      .map((inv) => (inv['invitee_uid'] as String? ?? '').trim())
+      .map((inv) {
+        // BUG#150：服务端 /channel/invitations/sent 的 invitee_uid 是 int
+        //（bigint 原样透传），`as String?` 硬转抛 TypeError，令邀请弹层
+        // 整体打不开；与 filterContactsForInvitation 的 peer_id 同款
+        // toString 容错（int/String 互通）。
+        final uid = inv['invitee_uid']?.toString() ?? '';
+        return uid.trim();
+      })
       .where((uid) => uid.isNotEmpty)
       .toList();
 }

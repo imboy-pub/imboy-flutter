@@ -126,6 +126,18 @@ void main() {
       expect(extractPendingInviteeIds([]), isEmpty);
     });
 
+    test('BUG#150：invitee_uid 为 int（服务端 bigint 原样透传）时同样提取', () {
+      final sentInvitations = [
+        {'invitee_uid': 1001, 'status': 0},
+        {'invitee_uid': 1002, 'status': 1}, // 已接受
+        {'invitee_uid': 1003, 'status': 0},
+      ];
+      // 修复前 `as String?` 硬转抛 TypeError，邀请弹层整体打不开
+      final result = extractPendingInviteeIds(sentInvitations);
+      expect(result, containsAll(['1001', '1003']));
+      expect(result.length, 2);
+    });
+
     test('全部已处理时返回空集合', () {
       final sentInvitations = [
         {'invitee_uid': '1001', 'status': 1},
