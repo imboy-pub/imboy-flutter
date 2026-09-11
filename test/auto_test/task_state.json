@@ -1724,6 +1724,16 @@
       "C. sender 端重发：客户端上线事件触发 room-key 重分发（改动面：客户端，依赖在线事件可靠性）",
       "D. room-key 入密钥备份体系（与 e2ee_key_backups 融合，改动面最大但与路径3方案A一致）"
     ],
-    "关联": "批次181 TX 腿全绿但 RX 腿需 receiver 先在线的根因即此缺口；修复后批次181 回环可改为离线时序验证"
+    "关联": "批次181 TX 腿全绿但 RX 腿需 receiver 先在线的根因即此缺口；修复后批次181 回环可改为离线时序验证",
+    "全量单测回归": {
+      "命令": "flutter test test/（全量）",
+      "结果": "+6303 ~240 -9（Some tests failed）",
+      "失败分解": {
+        "2×loading假失败": "test/auto_test/reports/full_run_2026-09-01/logs/ 下 rerun_*.dart 系历史日志拷贝被 flutter test 递归误扫；该目录在 .gitignore 不入库→fresh clone 口径不存在；本地已改后缀 .dart.log 根治",
+        "7×registry/manifest域": "route_smoke(注册表覆盖) + route_feature_guard×2 + overseas_baseline×2 + mine_page×2 全部同根因：imboyapp 当前 product-features 生成 manifest 为裁剪版（缺 moment_feed/nearby/group_vote/group_schedule 等，朋友圈被 featureFlag 拦），而测试按 full-selected 断言——批次167 编译期裁剪的既有债务（manifest 收缩 vs 测试期望失配），非本轮回归；manifest 生成文件=moya 碰撞区不可动，修法（测试按 profile 参数化 or 重生成 full-selected）待拍板"
+      },
+      "判定": "扣除 2 假失败与 7 状态债后，本轮零真回归（6303 过 + 240 skip）",
+      "附注": "flutter test test/ 会递归扫 reports/ 归档目录——后续全量跑用 flutter test test/unit_test 或先清 reports 下 .dart"
+    }
   }
 }
