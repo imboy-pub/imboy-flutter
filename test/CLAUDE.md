@@ -6,6 +6,11 @@
 
 ---
 
+## test账号
+
+* 账号1:15001@imboy.pub   密码 admin888
+* 账号2:15002@imboy.pub   密码 admin888
+
 ## 目录结构
 
 ```

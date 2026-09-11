@@ -36,6 +36,11 @@ void main() {
     expect(AppFeatureRegistry.isEnabled('not_compiled'), isFalse);
   });
 
+  test('server cannot enable a locally disabled feature', () {
+    AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.liveRoom: true});
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.liveRoom), isFalse);
+  });
+
   test('maps route paths to feature keys', () {
     expect(
       RouteFeatureGuard.featureForPath('/channel/discover'),

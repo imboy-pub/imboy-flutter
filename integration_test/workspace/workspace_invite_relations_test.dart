@@ -62,14 +62,29 @@ const _allowFlag = String.fromEnvironment(
 );
 const _allow = _allowFlag == 'true' || _allowFlag == 'True';
 
-/// 只拦 /api/v1/group_member/join（joinGroup 可选关系；批次152 实证
-/// 该端点才是邀请向导群加入的真实路径，原假设 /group/add 有误）的故障注入适配器。
-class _FailGroupAddAdapter implements HttpClientAdapter {
-  _FailGroupAddAdapter()
+/// 邀请向导故障注入适配器（批次153 改名符实）：
+/// - failGroupAdd：拦 /api/v1/group_member/join（可选关系群加入，批次152
+///   实证该端点才是真实路径，原假设 /group/add 有误）
+/// - failWsInvite：拦 members/invite（必选关系主流程）
+class _FailInjectionAdapter implements HttpClientAdapter {
+  _FailInjectionAdapter()
     : _inner = IOHttpClientAdapter(createHttpClient: () => io.HttpClient());
 
   final HttpClientAdapter _inner;
   bool failGroupAdd = false;
+  bool failWsInvite = false;
+
+  ResponseBody _inject(String msg) => ResponseBody.fromString(
+    jsonEncode(<String, dynamic>{
+      'code': 1,
+      'msg': msg,
+      'payload': <String, dynamic>{},
+    }),
+    200,
+    headers: <String, List<String>>{
+      Headers.contentTypeHeader: <String>[Headers.jsonContentType],
+    },
+  );
 
   @override
   Future<ResponseBody> fetch(
@@ -79,17 +94,11 @@ class _FailGroupAddAdapter implements HttpClientAdapter {
   ) async {
     if (failGroupAdd && options.uri.path == '/api/v1/group_member/join') {
       flowLog('[AT-WIV] 拦截 group_member/join（注入 joinGroup 失败）');
-      return ResponseBody.fromString(
-        jsonEncode(<String, dynamic>{
-          'code': 1,
-          'msg': 'simulated_group_join_down',
-          'payload': <String, dynamic>{},
-        }),
-        200,
-        headers: <String, List<String>>{
-          Headers.contentTypeHeader: <String>[Headers.jsonContentType],
-        },
-      );
+      return _inject('simulated_group_join_down');
+    }
+    if (failWsInvite && options.uri.path.endsWith('/members/invite')) {
+      flowLog('[AT-WIV] 拦截 members/invite（注入必选关系失败）');
+      return _inject('simulated_ws_invite_down');
     }
     return _inner.fetch(options, requestStream, cancelFuture);
   }
@@ -151,6 +160,98 @@ Future<void> _bootAndRelogin(WidgetTester tester) async {
   expect(UserRepoLocal.to.currentUid, _expectedUid, reason: '必须是 smoke_bob');
 }
 
+/// 公共前置（AT-WIV1/2 共用）：fixture 清理 → 登录 → 深链向导 →
+/// 搜索并选中候选。返回注入适配器，用例各自再设 fail 标志。
+Future<_FailInjectionAdapter> _setupAndSelectCandidate(
+  WidgetTester tester,
+) async {
+  final adapter = _FailInjectionAdapter();
+  HttpClient.adapterForTest = adapter;
+  addTearDown(() => HttpClient.adapterForTest = null);
+
+  // 前置清理：删除往轮遗留的 Announcements 频道邀请（服务端「已邀请」
+  // 会把本轮 channel 行打成失败，run14 实证）
+  await TestPg.execute(
+    'DELETE FROM channel_invitation '
+    'WHERE channel_id = @c AND invitee_uid = @u',
+    {'c': _announcementsChannelId, 'u': _inviteeUid},
+  );
+
+  await _bootAndRelogin(tester);
+
+  // 深链邀请向导（BobWS-T27：General 群 + Announcements 频道齐全）
+  GoRouter.of(
+    tester.element(find.byType(Navigator).first),
+  ).go('/workspace/$_wsId/members/invite');
+  expect(
+    await _waitFor(
+      tester,
+      () => tester.any(find.byType(WorkspaceInvitePage)),
+      seconds: 10,
+    ),
+    isTrue,
+    reason: '前置：邀请向导页可达',
+  );
+
+  // 搜索被邀人（批次152 收口配方）：
+  // - descendant 收窄：壳层另有 CupertinoSearchTextField，byType 命中多个
+  // - run9 实证：live binding 下 tester.enterText 不落控制器（读回=""，
+  //   _search 空 keyword 早退）→ 控制器直写；触发路径保持真实用户路径
+  // - 关键词=账号串：pg_jieba FTS 只命中精确账号 smoke_alice
+  flowLog('[AT-WIV] 向导页就绪，开始搜索 smoke_alice');
+  final fieldEt = tester.widget<EditableText>(
+    find.descendant(
+      of: find.byType(WorkspaceInvitePage),
+      matching: find.byType(EditableText),
+    ),
+  );
+  fieldEt.controller.text = 'smoke_alice';
+  await _pump(tester, seconds: 1);
+  flowLog(
+    '[AT-WIV] 页面实例数=${find.byType(WorkspaceInvitePage).evaluate().length}，'
+    '字段文本="${fieldEt.controller.text}"',
+  );
+  // IME done 提交（onSubmitted=真实用户回车路径）；必须在按钮 tap 之前
+  // ——tap 会移走焦点使 receiveAction no-op（run4/5 实证）
+  flowLog('[AT-WIV] 发起键盘 done 提交');
+  try {
+    await tester.testTextInput
+        .receiveAction(TextInputAction.done)
+        .timeout(const Duration(seconds: 5));
+    flowLog('[AT-WIV] done action 已返回');
+  } catch (e) {
+    flowLog('[AT-WIV] done action 失败/超时：$e');
+  }
+  await _pump(tester, seconds: 3);
+  // 按钮双 tap 兜底（批次114/128 配方）
+  final searchBtn = find.descendant(
+    of: find.byType(WorkspaceInvitePage),
+    matching: find.byKey(const ValueKey('workspace-invite-search-btn')),
+  );
+  await tester.ensureVisible(searchBtn);
+  await _pump(tester, seconds: 1);
+  flowLog('[AT-WIV] 按钮 rect=${tester.getRect(searchBtn)}，发起 tap');
+  await tester.tap(searchBtn);
+  await _pump(tester, seconds: 1);
+  await tester.tap(searchBtn);
+  await _pump(tester, seconds: 2);
+  flowLog('[AT-WIV] tap 已派发，观察搜索请求');
+  final candidateSeen = await _waitFor(
+    tester,
+    () => tester.any(
+      find.byKey(const ValueKey('workspace-invite-candidate-$_inviteeUid')),
+    ),
+    seconds: 15,
+  );
+  expect(candidateSeen, isTrue, reason: '前置：搜索应出 SmokeAlice 候选行');
+  await tester.tap(
+    find.byKey(const ValueKey('workspace-invite-candidate-$_inviteeUid')),
+    warnIfMissed: false,
+  );
+  await _pump(tester, seconds: 1);
+  return adapter;
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -159,92 +260,7 @@ void main() {
       markTestSkipped('需 TEST_ALLOW_WORKSPACE_ACCEPTANCE=true');
       return;
     }
-    final adapter = _FailGroupAddAdapter();
-    HttpClient.adapterForTest = adapter;
-    addTearDown(() => HttpClient.adapterForTest = null);
-
-    // 前置清理：删除往轮遗留的 Announcements 频道邀请（服务端「已邀请」
-    // 会把本轮 channel 行打成失败，run14 实证）
-    await TestPg.execute(
-      'DELETE FROM channel_invitation '
-      'WHERE channel_id = @c AND invitee_uid = @u',
-      {'c': _announcementsChannelId, 'u': _inviteeUid},
-    );
-
-    await _bootAndRelogin(tester);
-
-    // 深链邀请向导（BobWS-T27：General 群 + Announcements 频道齐全）
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/workspace/$_wsId/members/invite');
-    expect(
-      await _waitFor(
-        tester,
-        () => tester.any(find.byType(WorkspaceInvitePage)),
-        seconds: 10,
-      ),
-      isTrue,
-      reason: '前置：邀请向导页可达',
-    );
-
-    // 搜索被邀人（SmokeAlice）→ 点搜索按钮 → 选中候选
-    // （descendant 收窄：壳层另有 CupertinoSearchTextField，byType 会命中多个）
-    flowLog('[AT-WIV] 向导页就绪，开始搜索 SmokeAlice');
-    // run9 实证：integration_test live binding 下 tester.enterText 不落控制器
-    // （读回=""，_search 空 keyword 早退——此前所有 tap 均正常触发但空转）。
-    // 改为直接经控制器写文本；触发路径（按钮/回车）保持真实用户路径。
-    final fieldEt = tester.widget<EditableText>(
-      find.descendant(
-        of: find.byType(WorkspaceInvitePage),
-        matching: find.byType(EditableText),
-      ),
-    );
-    // 关键词=账号串（批次152 FTS 实测：后端 pg_jieba tsvector 只命中
-    // 精确账号 smoke_alice；SmokeAlice/Alice/alice 均 0 结果）
-    fieldEt.controller.text = 'smoke_alice';
-    await _pump(tester, seconds: 1);
-    flowLog(
-      '[AT-WIV] 页面实例数=${find.byType(WorkspaceInvitePage).evaluate().length}，'
-      '字段文本="${fieldEt.controller.text}"',
-    );
-    // IME done 提交（enterText 后字段仍聚焦，onSubmitted=真实用户回车路径）；
-    // 必须在按钮 tap 之前——tap 会移走焦点使 receiveAction no-op（run4/5 实证）
-    flowLog('[AT-WIV] 发起键盘 done 提交');
-    try {
-      await tester.testTextInput
-          .receiveAction(TextInputAction.done)
-          .timeout(const Duration(seconds: 5));
-      flowLog('[AT-WIV] done action 已返回');
-    } catch (e) {
-      flowLog('[AT-WIV] done action 失败/超时：$e');
-    }
-    await _pump(tester, seconds: 3);
-    // 按钮双 tap 兜底（批次114/128 配方）
-    final searchBtn = find.descendant(
-      of: find.byType(WorkspaceInvitePage),
-      matching: find.byKey(const ValueKey('workspace-invite-search-btn')),
-    );
-    await tester.ensureVisible(searchBtn);
-    await _pump(tester, seconds: 1);
-    flowLog('[AT-WIV] 按钮 rect=${tester.getRect(searchBtn)}，发起 tap');
-    await tester.tap(searchBtn);
-    await _pump(tester, seconds: 1);
-    await tester.tap(searchBtn);
-    await _pump(tester, seconds: 2);
-    flowLog('[AT-WIV] tap 已派发，观察搜索请求');
-    final candidateSeen = await _waitFor(
-      tester,
-      () => tester.any(
-        find.byKey(const ValueKey('workspace-invite-candidate-$_inviteeUid')),
-      ),
-      seconds: 15,
-    );
-    expect(candidateSeen, isTrue, reason: '前置：搜索应出 SmokeAlice 候选行');
-    await tester.tap(
-      find.byKey(const ValueKey('workspace-invite-candidate-$_inviteeUid')),
-      warnIfMissed: false,
-    );
-    await _pump(tester, seconds: 1);
+    final adapter = await _setupAndSelectCandidate(tester);
 
     // 注入 joinGroup 失败后提交（invite 主流程与 channel 可选放行）
     adapter.failGroupAdd = true;
@@ -296,6 +312,42 @@ void main() {
     );
     expect(groupRecovered, isTrue, reason: '失败行重试应转成功');
     flowLog('[AT-WIV] 失败行单独重试 ✓');
+    await _pump(tester, seconds: 1);
+
+    // ---- 场景 B（AT-WIV2）：必选关系失败整单失败且可选关系不发起 ----
+    // 同一 testWidgets 内顺序执行：本仓集成测试约束=每文件单 testWidgets
+    // （同进程二次 app.main() 必挂，批次153 实证）。场景 A 后候选仍选中，
+    // 二次提交走同一向导页面。
+    adapter.failWsInvite = true;
+    flowLog('[AT-WIV] 场景B：注入 members/invite 失败，再次提交');
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('workspace-invite-submit')),
+    );
+    await _pump(tester, seconds: 1);
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-invite-submit')),
+      warnIfMissed: false,
+    );
+
+    // workspace 行失败（透出注入消息）；group/channel 两可选行被
+    // controller.submit 的 catch 重置回「未执行」（前置失败不发起）
+    final wsFailed = await _waitFor(
+      tester,
+      () => tester.any(find.textContaining('simulated_ws_invite_down')),
+      seconds: 20,
+    );
+    expect(wsFailed, isTrue, reason: '必选关系失败应在 workspace 行透出注入消息');
+    final idleCount = tester.allWidgets
+        .whereType<Text>()
+        .where((w) => w.data == '未执行')
+        .length;
+    expect(idleCount, greaterThanOrEqualTo(2), reason: '可选两行应保持未执行（前置失败不再发起）');
+    final successIconsB = tester.allWidgets
+        .whereType<Icon>()
+        .where((w) => w.icon == CupertinoIcons.check_mark_circled)
+        .length;
+    expect(successIconsB, 0, reason: '必选失败时不应有任何成功行');
+    flowLog('[AT-WIV] 必选失败整单失败且可选不发起 ✓');
     await _pump(tester, seconds: 1);
   });
 }

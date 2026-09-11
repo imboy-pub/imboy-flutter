@@ -22,7 +22,9 @@ class AppFeatureRegistry {
   static const Set<String> _localDisabledKeys = {
     // 钱包已解禁：后端 /api/v1/wallet/{balance,transactions,recharge/*} 已实现并通过测试，
     // 沙箱(mock)模式可走通充值闭环；真实支付 SDK(fluwx/tobias/flutter_stripe)待接入。
-    FeatureKeys.liveRoom, // 后端待实现：WHIP 服务器 + 直播列表 API
+    // 2026-09-10 产品决策：直播间暂时不做。保留代码并隐藏入口；
+    // 只有用户重新批准该业务域后才能从本集合移除。
+    FeatureKeys.liveRoom,
   };
 
   static Map<String, dynamic> get snapshot {
