@@ -104,6 +104,12 @@ extension MessageModelMapper on MessageModel {
         );
         if (v3Result != null) {
           if (v3Result['_e2ee_failed'] == true) {
+            // 发生率度量：读时解密失败，密文行每次渲染都会重试，
+            // 同行同原因本次启动只计一次（E2EEDecryptFailureMetrics 口径）
+            E2EEDecryptFailureMetrics.count(
+              v3Result['_e2ee_reason'],
+              dedupKey: 'r:$id',
+            );
             // fail-closed：不回落 v1/v2、不暴露密文，只给出稳定的失败分类
             iPrint(
               '⚠️ toTypeMessage: v3 解密失败，id=$id, reason=${v3Result['_e2ee_reason']}',
@@ -130,6 +136,11 @@ extension MessageModelMapper on MessageModel {
         } else {
           payloadData = await _decryptLegacyPayload();
           if (payloadData.containsKey('_e2ee_failed')) {
+            // 发生率度量：与 v3 失败分支同口径（每次启动按行去重）
+            E2EEDecryptFailureMetrics.count(
+              payloadData['_e2ee_reason'],
+              dedupKey: 'r:$id',
+            );
             return TextMessage(
               authorId: fromId.toString(),
               createdAt: DateTimeHelper.millisecondToDateTime(createdAt),

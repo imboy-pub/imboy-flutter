@@ -1,6 +1,7 @@
 import 'package:imboy/component/chat/message_scroll_provider.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/init.dart' show deviceId;
 import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/service/events/events.dart';
@@ -244,6 +245,10 @@ class ChatArchiveService {
       peerId: peerId,
       afterSeq: afterSeq,
       limit: limit,
+      // 发生率压降路径2：携带本机 DID，服务端不下发 per_device fan-out
+      // 信封不含本机的收件消息（该类消息恢复密钥也永远解不开）。
+      // 与 /msg/offline 的 did 同源（config/init.dart 全局，启动时取自 DeviceExt）
+      did: deviceId,
     );
     if (result == null) {
       // BUG#119：API 失败（401/5xx/超时/解析失败）与「服务端确认无数据」

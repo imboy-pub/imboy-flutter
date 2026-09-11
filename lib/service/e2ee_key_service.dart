@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -9,6 +10,7 @@ import 'package:pointycastle/pointycastle.dart';
 import 'package:imboy/config/init.dart' as init_config;
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/component/extension/device_ext.dart';
+import 'e2ee_backup_setup_service.dart';
 import 'e2ee_crypto_service.dart';
 import 'storage_secure.dart';
 
@@ -143,6 +145,11 @@ class E2EEKeyService {
       await storage.savePublicKey(publicKeyPem);
       await storage.setDeviceId(deviceId);
       await storage.setKeyCreatedAt(createdAt);
+
+      // 密钥变化自动重传云端备份（发生率压降路径3）：口令已缓存时用新密钥
+      // 重新打包上传；无缓存口令（首启向导未完成）静默跳过——首次上传由
+      // 强制备份向导完成后落地。fire-and-forget，不阻塞密钥生成主链路。
+      unawaited(E2EEBackupSetupService.to.uploadWithCachedPassphrase());
 
       // 返回密钥信息
       return {

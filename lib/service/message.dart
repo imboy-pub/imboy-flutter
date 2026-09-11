@@ -609,6 +609,9 @@ class MessageService with EventSubscriptionManager {
       if (reason == 'already_processed' || reason == 'duplicate_message') {
         return true;
       }
+      // 发生率度量（唯一持久化计数点）：占位行即将落库；幂等重投已在
+      // 上方拦截、不落占位故不计数（口径见 E2EEDecryptFailureMetrics）
+      E2EEDecryptFailureMetrics.count(reason);
       // 其余解密失败不再在此短路丢弃：继续走下方与离线同步
       // （persistInboundMessage → 本函数）完全相同的落库路径，落
       // _e2ee_failed 占位行——用户可见失败气泡，健康检查服务可按

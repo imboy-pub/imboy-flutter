@@ -31,6 +31,7 @@ class _FakeMsgApi extends MsgApi {
     required String peerId,
     int afterSeq = 0,
     int limit = 50,
+    String did = '',
   }) async {
     historyCalls++;
     return historyResult;

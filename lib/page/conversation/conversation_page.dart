@@ -34,6 +34,9 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
+import 'package:imboy/page/settings/e2ee_backup_setup_page.dart';
+import 'package:imboy/service/e2ee_backup_setup_service.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -100,6 +103,22 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
     setState(() => _searchQuery = q);
   }
 
+  /// 首启强制备份向导（发生率压降路径3）：有密钥 + 未完成备份设置 +
+  /// 服务端确无云端备份才推；网络失败静默跳过、下次启动重查（判定链
+  /// 见 E2EEBackupSetupService.shouldPromptNow）。
+  Future<void> _maybePromptBackupSetup() async {
+    if (!UserRepoLocal.to.isLoggedIn) return;
+    final prompt = await E2EEBackupSetupService.to.shouldPromptNow();
+    if (!prompt || !mounted) return;
+    E2EEBackupSetupService.to.markPrompted();
+    if (!mounted) return;
+    // rootNavigator：会话页宿于工作区/底部壳的分支导航器，若推进分支，
+    // 底部 tab 栏仍在且可切换——用户点别的 tab 即绕过「不可跳过」向导
+    await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(builder: (_) => const E2EEBackupSetupPage()),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -113,6 +132,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
       }
     });
     unawaited(initData());
+    // 首启强制备份向导（发生率压降路径3）：判定链见 _maybePromptBackupSetup
+    unawaited(_maybePromptBackupSetup());
 
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) async {
       if (!mounted) return;

@@ -16,6 +16,9 @@ class MsgApi extends HttpClient {
   /// - [peerId]    对端 ID（uid 或 group_id）
   /// - [afterSeq]  从该 conv_seq 之后查询（0 表示从头）
   /// - [limit]     每页条数，最大 100，默认 50
+  /// - [did]       本设备 DID（可选）。携带时服务端不下发 per_device
+  ///   fan-out 信封不含本机的收件消息（发生率压降路径2：该类消息恢复
+  ///   密钥也永远解不开）；缺省保持旧语义
   ///
   /// 返回值（解析自 payload）：
   /// ```json
@@ -32,6 +35,7 @@ class MsgApi extends HttpClient {
     required String peerId,
     int afterSeq = 0,
     int limit = 50,
+    String did = '',
   }) async {
     final resp = await get(
       API.msgHistory,
@@ -40,6 +44,7 @@ class MsgApi extends HttpClient {
         'peer_id': peerId,
         'after_seq': afterSeq,
         'limit': limit.clamp(1, 100),
+        if (did.isNotEmpty) 'did': did,
       },
     );
     if (!resp.ok || resp.payload == null) return null;

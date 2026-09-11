@@ -1237,6 +1237,15 @@ class ChatPageState extends ConsumerState<ChatPage>
         AppLoading.showToast(t.chat.e2eeDecryptStoreUnavailable);
         return;
       }
+      // 「注定解不开」类：消息构造时就不含本设备的信封（典型为换设备后
+      // 同步回的历史），恢复密钥无济于事——引导去恢复只会制造一条
+      // 走不通的出路。给边界说明即可。
+      if (E2EEService.isUnrecoverableDecryptFailure(
+        message.metadata?['_e2ee_reason'],
+      )) {
+        AppLoading.showToast(t.chat.e2eeMsgBeforeDeviceTapHint);
+        return;
+      }
       showE2EERecoveryGuide(context, scene: E2EERecoveryScene.decryptFailed);
       return;
     }

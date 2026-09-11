@@ -762,10 +762,21 @@ e2eeBackupErrImportFailed: 导入失败，请检查密码是否正确
 e2eeBackupImportSuccessTitle: 导入成功
 e2eeBackupImportSuccessBody: E2EE 密钥已成功恢复！
 e2eeBackupImportSuccessNote: "注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份"
+e2eeBackupDeviceKeySyncPending: "提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步"
 e2eeBackupCreatedAtRow: 创建时间
 e2eeBackupCloudUploadBtn: 备份到云端
 e2eeBackupCloudUploadSuccess(version): 已备份到云端（版本 $version）
 e2eeBackupErrCloudUploadFailed: 云端备份失败，请重试
+e2eeBackupSetupTitle: 保护你的加密历史
+e2eeBackupSetupBody: 设置恢复口令并上传云端备份后，换机或重装才能找回加密聊天历史；没有备份，历史消息在新设备上将无法解密。
+e2eeBackupSetupPwdHint: 自选恢复口令，或点击下方生成随机恢复密钥
+e2eeBackupSetupWeakHint: 口令偏短，建议 12 位以上，或点击下方「生成恢复密钥」改用随机密钥
+e2eeBackupSetupSubmit: 完成并上传云端备份
+e2eeBackupSetupLater: 稍后再说（下次启动仍会提醒）
+e2eeBackupSetupBlockedToast: 请先完成密钥备份设置
+e2eeBackupSetupPostponedToast: 已稍后，下次启动会再次提醒
+e2eeBackupSetupPwdTooShort: 口令至少 8 位
+e2eeBackupSetupSavedNote: 恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。
 e2eeBackupCloudRestoreTitle: 从云端备份恢复
 e2eeBackupCloudRestoreHint(version): 检测到云端备份（版本 $version）
 e2eeBackupCloudRestoreBtn: 从云端恢复

@@ -54,6 +54,52 @@ class E2EEHealthCheckResult {
   }
 }
 
+/// 解密失败占位盘点（发生率度量·存量口径）
+///
+/// 与 `E2EEDecryptFailureMetrics` 的累计口径互补：现存占位会被自愈恢复
+/// （retryFailedMessages）与密钥恢复消化后下降；累计只增不减。
+class E2EEFailureInventory {
+  /// 现存占位行总数（msg_c2c + msg_c2g）
+  final int total;
+
+  /// 现存按 _e2ee_reason 分桶
+  final Map<String, int> byReason;
+
+  /// 累计发生快照（E2EEDecryptFailureMetrics：落库事件 + 启动内去重的读时失败）
+  final Map<String, int> occurrences;
+
+  final DateTime checkedAt;
+
+  const E2EEFailureInventory({
+    required this.total,
+    required this.byReason,
+    required this.occurrences,
+    required this.checkedAt,
+  });
+
+  /// 其中「注定解不开」类（换机前历史，设计内边界）现存条数
+  int get unrecoverableCount => byReason.entries
+      .where((e) => E2EEService.isUnrecoverableDecryptFailure(e.key))
+      .fold(0, (sum, e) => sum + e.value);
+
+  /// 理论上可自愈/可恢复的现存条数（路径4 的直接观测指标，应趋零）
+  int get recoverableCount => total - unrecoverableCount;
+
+  Map<String, dynamic> toMap() => {
+    'total': total,
+    'by_reason': byReason,
+    'unrecoverable': unrecoverableCount,
+    'recoverable': recoverableCount,
+    'occurrences': occurrences,
+    'checked_at': checkedAt.toUtc().toIso8601String(),
+  };
+
+  @override
+  String toString() =>
+      'E2EEFailureInventory(total: $total, byReason: $byReason, '
+      'occurrences: $occurrences)';
+}
+
 /// E2EE 健康检查服务
 ///
 /// 负责：
@@ -492,12 +538,17 @@ class E2EEHealthCheckService {
         status = 'healthy';
       }
 
+      // 发生率度量（存量盘点 + 累计发生）：「[加密消息] 占位发生率
+      // 压到一辈子遇不到」目标的验证仪表
+      final failures = await failureInventory();
+
       return {
         'has_key': hasKey,
         'key_info': keyInfo,
         'server_key_status': serverKeyStatus,
         'pending_notifications': notifications,
         'pending_notifications_count': notifications.length,
+        'decrypt_failures': failures.toMap(),
         'status': status,
         'checked_at': DateTime.now().toUtc().toIso8601String(),
       };
@@ -641,30 +692,29 @@ class E2EEHealthCheckService {
     }
   }
 
-  /// 检查消息是否为 E2EE 解密失败消息
-  bool _isE2EEFailedMessage(MessageModel msg) {
-    final payload = msg.payload;
-    if (payload == null) return false;
-
-    Map<String, dynamic>? payloadMap;
-
+  /// 从 payload 字段（String JSON 或 Map）提取占位行的 _e2ee_reason；
+  /// 非占位行返回 null。纯函数：[failureInventory] 的分桶核心，单测直接覆盖。
+  static String? failedPayloadReason(dynamic payload) {
+    Map<String, dynamic>? m;
     if (payload is String) {
       try {
         final decoded = jsonDecode(payload);
-        if (decoded is Map<String, dynamic>) {
-          payloadMap = decoded;
-        }
+        if (decoded is Map<String, dynamic>) m = decoded;
       } catch (_) {
-        return false;
+        return null;
       }
     } else if (payload is Map<String, dynamic>) {
-      payloadMap = payload;
+      m = payload;
     }
-
-    if (payloadMap == null) return false;
-
+    if (m == null) return null;
     // 检查是否有 _e2ee_failed 标记
-    return payloadMap['_e2ee_failed'] == true;
+    if (m['_e2ee_failed'] != true) return null;
+    return E2EEDecryptFailureMetrics.normalizeReason(m['_e2ee_reason']);
+  }
+
+  /// 检查消息是否为 E2EE 解密失败消息
+  bool _isE2EEFailedMessage(MessageModel msg) {
+    return failedPayloadReason(msg.payload) != null;
   }
 
   /// 重试解密单条消息
@@ -790,5 +840,53 @@ class E2EEHealthCheckService {
     } catch (e) {
       return 0.0;
     }
+  }
+
+  /// 全库盘点现存解密失败占位行（发生率度量·存量口径）。
+  ///
+  /// 扫描 msg_c2c/msg_c2g 中 payload 含 _e2ee_failed 的行，按 reason 分桶，
+  /// 并附带 E2EEDecryptFailureMetrics 的累计发生快照（见 [E2EEFailureInventory]）。
+  /// LIKE 全表扫描只在调用时发生：按需调用（健康检查/诊断），不挂自动轮询。
+  Future<E2EEFailureInventory> failureInventory() async {
+    final byReason = <String, int>{};
+    var total = 0;
+    try {
+      final db = await SqliteService.to.db;
+      if (db != null) {
+        for (final table in [MessageRepo.c2cTable, MessageRepo.c2gTable]) {
+          // 检查表是否存在
+          final tableExists = Sqflite.firstIntValue(
+            await db.rawQuery(
+              "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
+              [table],
+            ),
+          );
+          if (tableExists == null || tableExists == 0) {
+            continue;
+          }
+
+          final maps = await db.query(
+            table,
+            columns: ['payload'],
+            where: 'payload LIKE ?',
+            whereArgs: ['%_e2ee_failed%'],
+          );
+          for (final map in maps) {
+            final reason = failedPayloadReason(map['payload']);
+            if (reason == null) continue;
+            total++;
+            byReason[reason] = (byReason[reason] ?? 0) + 1;
+          }
+        }
+      }
+    } catch (e, s) {
+      AppLogger.error('[e2ee_health_check_service] failureInventory', e, s);
+    }
+    return E2EEFailureInventory(
+      total: total,
+      byReason: byReason,
+      occurrences: await E2EEDecryptFailureMetrics.snapshot(),
+      checkedAt: DateTime.now(),
+    );
   }
 }

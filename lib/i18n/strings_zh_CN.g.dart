@@ -1813,6 +1813,12 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '部分加密聊天记录暂时无法显示，恢复密钥后即可查看，点此恢复'
 	String get e2eeRecoveryBannerText => '部分加密聊天记录暂时无法显示，恢复密钥后即可查看，点此恢复';
 
+	/// zh-CN: '此消息发送于本设备加入之前，无法在本设备显示'
+	String get e2eeMsgBeforeDevice => '此消息发送于本设备加入之前，无法在本设备显示';
+
+	/// zh-CN: '该消息加密时未包含本设备（如换设备前的历史消息），无法在此解密；不影响本设备收发的新消息'
+	String get e2eeMsgBeforeDeviceTapHint => '该消息加密时未包含本设备（如换设备前的历史消息），无法在此解密；不影响本设备收发的新消息';
+
 	/// zh-CN: '创建直播间'
 	String get liveRoomCreateTitle => '创建直播间';
 
@@ -4147,6 +4153,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份'
 	String get e2eeBackupImportSuccessNote => '注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份';
 
+	/// zh-CN: '提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步'
+	String get e2eeBackupDeviceKeySyncPending => '提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步';
+
 	/// zh-CN: '创建时间'
 	String get e2eeBackupCreatedAtRow => '创建时间';
 
@@ -4158,6 +4167,36 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '云端备份失败，请重试'
 	String get e2eeBackupErrCloudUploadFailed => '云端备份失败，请重试';
+
+	/// zh-CN: '保护你的加密历史'
+	String get e2eeBackupSetupTitle => '保护你的加密历史';
+
+	/// zh-CN: '设置恢复口令并上传云端备份后，换机或重装才能找回加密聊天历史；没有备份，历史消息在新设备上将无法解密。'
+	String get e2eeBackupSetupBody => '设置恢复口令并上传云端备份后，换机或重装才能找回加密聊天历史；没有备份，历史消息在新设备上将无法解密。';
+
+	/// zh-CN: '自选恢复口令，或点击下方生成随机恢复密钥'
+	String get e2eeBackupSetupPwdHint => '自选恢复口令，或点击下方生成随机恢复密钥';
+
+	/// zh-CN: '口令偏短，建议 12 位以上，或点击下方「生成恢复密钥」改用随机密钥'
+	String get e2eeBackupSetupWeakHint => '口令偏短，建议 12 位以上，或点击下方「生成恢复密钥」改用随机密钥';
+
+	/// zh-CN: '完成并上传云端备份'
+	String get e2eeBackupSetupSubmit => '完成并上传云端备份';
+
+	/// zh-CN: '稍后再说（下次启动仍会提醒）'
+	String get e2eeBackupSetupLater => '稍后再说（下次启动仍会提醒）';
+
+	/// zh-CN: '请先完成密钥备份设置'
+	String get e2eeBackupSetupBlockedToast => '请先完成密钥备份设置';
+
+	/// zh-CN: '已稍后，下次启动会再次提醒'
+	String get e2eeBackupSetupPostponedToast => '已稍后，下次启动会再次提醒';
+
+	/// zh-CN: '口令至少 8 位'
+	String get e2eeBackupSetupPwdTooShort => '口令至少 8 位';
+
+	/// zh-CN: '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。'
+	String get e2eeBackupSetupSavedNote => '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。';
 
 	/// zh-CN: '从云端备份恢复'
 	String get e2eeBackupCloudRestoreTitle => '从云端备份恢复';
@@ -7438,6 +7477,8 @@ extension on Translations {
 			'chat.e2eeRecoveryLater' => '稍后',
 			'chat.e2eeRecoveryGoRecover' => '去恢复',
 			'chat.e2eeRecoveryBannerText' => '部分加密聊天记录暂时无法显示，恢复密钥后即可查看，点此恢复',
+			'chat.e2eeMsgBeforeDevice' => '此消息发送于本设备加入之前，无法在本设备显示',
+			'chat.e2eeMsgBeforeDeviceTapHint' => '该消息加密时未包含本设备（如换设备前的历史消息），无法在此解密；不影响本设备收发的新消息',
 			'chat.liveRoomCreateTitle' => '创建直播间',
 			'chat.liveRoomCreating' => '创建中...',
 			'chat.liveRoomWatch' => '观看直播',
@@ -7892,10 +7933,10 @@ extension on Translations {
 			'common.noGroupAnnouncement' => '暂无群公告',
 			'common.featureComingSoon' => '功能暂未实现',
 			'common.understood' => '明白了',
-			'common.noProblem' => '没问题',
-			'common.onMyWay' => '马上到',
 			_ => null,
 		} ?? switch (path) {
+			'common.noProblem' => '没问题',
+			'common.onMyWay' => '马上到',
 			'common.operationOptions' => '操作选项',
 			'common.copyTextContent' => '复制文本内容',
 			'common.shareWithOtherFriends' => '分享给其他好友',
@@ -8213,10 +8254,21 @@ extension on Translations {
 			'common.e2eeBackupImportSuccessTitle' => '导入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 密钥已成功恢复！',
 			'common.e2eeBackupImportSuccessNote' => '注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份',
+			'common.e2eeBackupDeviceKeySyncPending' => '提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步',
 			'common.e2eeBackupCreatedAtRow' => '创建时间',
 			'common.e2eeBackupCloudUploadBtn' => '备份到云端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已备份到云端（版本 ${version}）',
 			'common.e2eeBackupErrCloudUploadFailed' => '云端备份失败，请重试',
+			'common.e2eeBackupSetupTitle' => '保护你的加密历史',
+			'common.e2eeBackupSetupBody' => '设置恢复口令并上传云端备份后，换机或重装才能找回加密聊天历史；没有备份，历史消息在新设备上将无法解密。',
+			'common.e2eeBackupSetupPwdHint' => '自选恢复口令，或点击下方生成随机恢复密钥',
+			'common.e2eeBackupSetupWeakHint' => '口令偏短，建议 12 位以上，或点击下方「生成恢复密钥」改用随机密钥',
+			'common.e2eeBackupSetupSubmit' => '完成并上传云端备份',
+			'common.e2eeBackupSetupLater' => '稍后再说（下次启动仍会提醒）',
+			'common.e2eeBackupSetupBlockedToast' => '请先完成密钥备份设置',
+			'common.e2eeBackupSetupPostponedToast' => '已稍后，下次启动会再次提醒',
+			'common.e2eeBackupSetupPwdTooShort' => '口令至少 8 位',
+			'common.e2eeBackupSetupSavedNote' => '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。',
 			'common.e2eeBackupCloudRestoreTitle' => '从云端备份恢复',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '检测到云端备份（版本 ${version}）',
 			'common.e2eeBackupCloudRestoreBtn' => '从云端恢复',
@@ -8395,6 +8447,8 @@ extension on Translations {
 			'discovery.momentsVisibility' => '可见性',
 			'discovery.momentsVisibilityPublic' => '公开',
 			'discovery.momentsVisibilityPartial' => '部分可见',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentsVisibilityExclude' => '不给谁看',
 			'discovery.momentsDraftRestored' => '已恢复上次未发送的草稿',
 			'discovery.momentsFeedStale' => '网络异常，显示的是缓存内容',
@@ -8408,8 +8462,6 @@ extension on Translations {
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} 赞了',
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人赞了',
 			'discovery.momentContentPlaceholder' => '这一刻的想法...',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentShowFull' => '全文',
 			'discovery.momentCollapse' => '收起',
 			'discovery.momentsDraftKeepTitle' => '保留草稿？',
@@ -8909,6 +8961,8 @@ extension on Translations {
 			'workspace.roleMember' => 'Member',
 			'workspace.roleGuest' => 'Guest',
 			'workspace.removeMemberTitle' => ({required Object name}) => '移除工作区成员 ${name}',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.removeMemberDesc' => '移除后其工作区访问即失效；若其仍有未完成任务或负责的项目，服务端会返回冲突清单并取消本次移除',
 			'workspace.removeMemberConfirm' => '确认移除',
 			'workspace.changeRoleTitle' => ({required Object name}) => '修改 ${name} 的工作区角色',
@@ -8922,8 +8976,6 @@ extension on Translations {
 			'workspace.archiveTitle' => '归档工作区',
 			'workspace.archiveDesc' => '归档后全员只读（写操作被服务端拒绝），可随时恢复',
 			'workspace.archiveConfirm' => '确认归档',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreTitle' => '恢复工作区',
 			'workspace.restoreDesc' => '恢复后工作区恢复读写',
 			'workspace.restoreConfirm' => '确认恢复',

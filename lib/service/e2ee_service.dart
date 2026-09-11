@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -7,6 +8,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:imboy/service/encrypter.dart';
 import 'package:imboy/service/rsa.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
@@ -17,6 +19,80 @@ import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+/// 解密失败发生率度量 —— 「[加密消息] 占位发生率压到一辈子遇不到」的验证仪表。
+///
+/// 两个互补口径（存量口径见 `E2EEHealthCheckService.failureInventory()`）：
+/// - **累计发生**（本类，只增不减）：占位产生即按 reason 分桶计数并持久化，
+///   反映「这台设备的用户到底遇到过几次」；
+/// - **存量盘点**（健康检查服务）：DB 内现存占位行扫描，被自愈恢复
+///   （路径4 retryFailedMessages）消化后会下降。
+///
+/// 计数点只有两类：
+/// - message.dart 落库漏斗：占位行即将持久化（唯一持久化事件点）；
+/// - mapper toTypeMessage 读时解密失败：密文行每次渲染都会重试，传 dedupKey
+///   做本次启动内去重，避免逐帧渲染造成的计数膨胀。
+///
+/// 幂等重投（duplicate_message / already_processed）不落占位故不计数；
+/// 服务端 ACK 前重投的极端序列可能对同一行重复计数，对趋势判断无影响。
+class E2EEDecryptFailureMetrics {
+  E2EEDecryptFailureMetrics._();
+
+  static const _storeKey = 'e2ee_decrypt_fail_metrics';
+
+  /// 本次启动内去重（读时解密失败按「reason×行」计一次）
+  static final Set<String> _seenDedupKeys = {};
+
+  /// 归一化失败原因：空值归 unknown，保证分桶键稳定
+  static String normalizeReason(Object? reason) {
+    final r = reason?.toString() ?? '';
+    return r.isEmpty ? 'unknown' : r;
+  }
+
+  /// 记一次占位产生（fire-and-forget：度量绝不阻塞消息主链路）。
+  ///
+  /// [dedupKey] 提供时同一 key 本次启动只计一次（读时解密场景传 `'r:<msgId>'`）。
+  static void count(Object? reason, {String? dedupKey}) {
+    unawaited(_bump(reason, dedupKey: dedupKey));
+  }
+
+  /// [count] 的可等待版：测试确定性用，生产调用方请用 [count]。
+  static Future<void> countAwait(Object? reason, {String? dedupKey}) =>
+      _bump(reason, dedupKey: dedupKey);
+
+  static Future<void> _bump(Object? reason, {String? dedupKey}) async {
+    try {
+      final key = normalizeReason(reason);
+      if (dedupKey != null && !_seenDedupKeys.add('$key|$dedupKey')) {
+        return;
+      }
+      final m = StorageService.getMap(_storeKey);
+      m[key] = ((m[key] as int?) ?? 0) + 1;
+      await StorageService.setMap(_storeKey, m);
+      iPrint('📊 [E2EE_METRICS] decrypt failure: $key total=${m[key]}');
+    } catch (_) {
+      // 度量失败静默：不影响消息主链路
+    }
+  }
+
+  /// 累计计数快照（reason → 次数）
+  static Future<Map<String, int>> snapshot() async {
+    try {
+      final m = StorageService.getMap(_storeKey);
+      return m.map(
+        (k, v) => MapEntry(k, v is int ? v : int.tryParse('$v') ?? 0),
+      );
+    } catch (_) {
+      return <String, int>{};
+    }
+  }
+
+  /// 清零（仅测试用）
+  static Future<void> resetForTest() async {
+    _seenDedupKeys.clear();
+    await StorageService.setMap(_storeKey, <String, dynamic>{});
+  }
+}
 
 /// Temporary compatibility service for the security_privacy module shell.
 /// New upper-layer imports should prefer
@@ -890,14 +966,30 @@ class E2EEService {
     return null; // 全部比对通过，上下文一致
   }
 
+  /// 「注定解不开」类失败：密文在构造时就**不含本设备的信封**，
+  /// 恢复密钥也无济于事（fan-out per_device 的 devices map 里没有本机 DID，
+  /// 或整份 fan-out 元数据缺失）。典型场景：换设备/重装后从服务端同步回
+  /// 的历史消息——发送时本设备尚不存在。这不是故障，是历史边界；
+  /// UI 据此把它与「可恢复失败」区分开，不再引导用户去恢复密钥。
+  static bool isUnrecoverableDecryptFailure(Object? reason) {
+    return reason == 'no_device_envelope' ||
+        reason == 'fan_out_missing_devices';
+  }
+
   /// E2EE 解密失败占位行的显示文案（message.dart 与本类共用）：
   /// - `crypto_store_unavailable` 是可重试故障（加密存储暂时不可访问，
   ///   重启应用可恢复），用引导重试文案；
+  /// - 「注定解不开」类（[isUnrecoverableDecryptFailure]）用边界说明文案，
+  ///   不把它呈现为故障；
   /// - 其余 reason 一律用通用加密占位，不暴露失败细节（ADR 15 §5）。
   static String e2eeFailedPlaceholderText(Object? reason) {
-    return reason == 'crypto_store_unavailable'
-        ? t.chat.e2eeDecryptStoreUnavailable
-        : t.chat.encryptedMessagePlaceholder;
+    if (reason == 'crypto_store_unavailable') {
+      return t.chat.e2eeDecryptStoreUnavailable;
+    }
+    if (isUnrecoverableDecryptFailure(reason)) {
+      return t.chat.e2eeMsgBeforeDevice;
+    }
+    return t.chat.encryptedMessagePlaceholder;
   }
 
   static Map<String, dynamic> _decryptFailedPayload(

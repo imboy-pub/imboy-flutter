@@ -5,6 +5,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
+import 'package:imboy/service/e2ee_backup_setup_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -472,6 +473,10 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
 
       if (!mounted) return;
       if (result.ok) {
+        // 云端上传成功＝备份设置完成（发生率压降路径3）：缓存口令供密钥
+        // 变化自动重传 + 落完成标记，老用户不再被首启强制向导打扰
+        await E2EEBackupSetupService.to.completeSetup(passphrase: password);
+        if (!mounted) return;
         _showSuccess(
           t.common.e2eeBackupCloudUploadSuccess(version: result.backupVersion),
         );
