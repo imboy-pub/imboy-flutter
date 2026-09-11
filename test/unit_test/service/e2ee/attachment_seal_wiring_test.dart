@@ -4,11 +4,12 @@
 /// message_id 提前到上传之前生成、按闸门决定是否传 `seal`、descriptor 进
 /// **加密** payload。
 ///
-/// ⚠️ 上传动作本身依赖文件 IO 与静态 `AttachmentApi`，进不了单测；
-/// 因此可验收的是**判定与绑定输入**（纯函数）+ **meta 的哈希语义**（走注入
-/// seam）。「handler 真的把 seal 传下去了」只有真机腿能证，见 evidence 残留。
+/// 上传动作本身依赖文件 IO 与静态 `AttachmentApi`，本文件用源码契约锁住八个
+/// 生产入口的 anchor/final message ID 同值，再用纯函数与注入 seam 验证判定、
+/// 绑定输入和 meta 哈希；真实网络、对象存储与设备文件生命周期仍需真机证据。
 library;
 
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -63,6 +64,57 @@ AttachmentSealRequest? _build({
 );
 
 void main() {
+  test('群聊上传的 8 个生产入口复用同一 messageId 作为 anchor 与最终消息 ID', () {
+    final source = File(
+      'lib/page/chat/chat/attachment_handler.dart',
+    ).readAsStringSync();
+
+    expect(
+      RegExp(r'anchorMsgId:\s*messageId,').allMatches(source),
+      hasLength(8),
+      reason: '文件、图片、视频/缩略图、语音、位置上传都必须携带 anchor_msg_id',
+    );
+
+    final flows = <RegExp>[
+      RegExp(
+        r'uploadFile\(.*?anchorMsgId:\s*messageId,.*?FileMessage\(.*?id:\s*messageId,',
+        dotAll: true,
+      ),
+      RegExp(
+        r'uploadCameraAsset\(.*?uploadImageEntityViaPresign\(.*?anchorMsgId:\s*messageId,.*?handleImageUploadPresign\(.*?messageId:\s*messageId,',
+        dotAll: true,
+      ),
+      RegExp(
+        r"uploadCameraAsset\(.*?uploadVideoViaPresign\(.*?anchorMsgId:\s*messageId,.*?thumbSeal:\s*await _sealFor\(messageId,\s*'video_thumb'\).*?handleVideoUpload\(.*?messageId:\s*messageId,",
+        dotAll: true,
+      ),
+      RegExp(
+        r'_uploadImagePlatformFile\(.*?anchorMsgId:\s*messageId,.*?ImageMessage\(.*?id:\s*messageId,',
+        dotAll: true,
+      ),
+      RegExp(
+        r'uploadSelectedAsset\(.*?uploadImageEntityViaPresign\(.*?anchorMsgId:\s*messageId,.*?handleImageUploadPresign\(.*?messageId:\s*messageId,',
+        dotAll: true,
+      ),
+      RegExp(
+        r"uploadSelectedAsset\(.*?uploadVideoViaPresign\(.*?anchorMsgId:\s*messageId,.*?thumbSeal:\s*await _sealFor\(messageId,\s*'video_thumb'\).*?handleSelectedVideoUpload\(.*?messageId:\s*messageId,",
+        dotAll: true,
+      ),
+      RegExp(
+        r'handleVoiceSelection\(.*?anchorMsgId:\s*messageId,.*?AudioMessage\(.*?id:\s*messageId,',
+        dotAll: true,
+      ),
+      RegExp(
+        r'handleLocationSelection\(.*?CustomMessage\(.*?id:\s*messageId,.*?anchorMsgId:\s*messageId,',
+        dotAll: true,
+      ),
+    ];
+
+    for (final flow in flows) {
+      expect(source, matches(flow));
+    }
+  });
+
   group('1. buildSealRequest：正向可用性（防「恒 null 也满分」）', () {
     test('全部就绪时确实封装，且绑定值就是方案甲的那个值', () {
       final req = _build();
@@ -477,7 +529,7 @@ void main() {
       await db.execute(contactDdl);
       // 本地污染面：contact 行被写 account_type=1（user/show 伪造响应或本地
       // 直写都可到达此态）。徽章数据源在位，但**授权**只能来自 AiPlaintextGate
-      // 的用户确认记录（四元组持久化）。
+      // 的用户确认记录（五元组持久化）。
       await db.insert('contact', {
         'user_id': '',
         'peer_id': agentPeer,
@@ -522,15 +574,18 @@ void main() {
       },
     );
 
-    test('required + 有效用户确认（四元组在位）→ 明文会话 seal=null 合法路径', () async {
+    test('required + 有效用户确认（五元组在位）→ 明文会话 seal=null 合法路径', () async {
       setStrict();
-      // 预置与生产同源的确认记录：四元组 = (deployment, uid, 指纹, version)。
+      // 预置与生产同源的确认记录：五元组 = (deployment, owner, target, 指纹, version)。
+      AiPlaintextGate.currentUserIdResolver = () => '1001';
+      addTearDown(AiPlaintextGate.debugReset);
       final binding = await AiPlaintextGate.debugCurrentBinding('$agentPeer');
       final store = SqliteAiPlaintextConfirmationStore();
       await store.ensureSchema();
       await store.save(
         AiPlaintextConfirmation(
           deploymentId: binding.deploymentId,
+          ownerUid: binding.ownerUid,
           targetUid: '$agentPeer',
           peerIdentityFingerprint: binding.fingerprint,
           identityVersion: binding.version,

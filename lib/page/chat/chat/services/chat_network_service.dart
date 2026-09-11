@@ -321,7 +321,7 @@ class ChatNetworkService {
   /// 会在调用 [encryptPayload] 之前直接把 C2G payload 按明文发出。
   ///
   /// LT02-SEC-01（AI-ID=B）：AI 明文豁免只经共享身份门
-  /// [AiPlaintextGate]（用户显式确认绑定四元组）授权；本地徽章
+  /// [AiPlaintextGate]（用户显式确认绑定五元组）授权；本地徽章
   /// account_type 只能渲染 UI badge，不再单独授权明文。本路径是
   /// **UI 语境**（用户点击发送），允许触发首次确认弹窗。
   Future<bool> _shouldEncryptOutbound({

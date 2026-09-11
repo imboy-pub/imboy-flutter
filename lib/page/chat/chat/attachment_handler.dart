@@ -250,7 +250,7 @@ class ChatAttachmentHandler {
   /// 不能先把原文件明文上传、再等 `sendWsMsg` 拒绝消息。
   ///
   /// LT02-SEC-01（AI-ID=B）：AI 明文豁免只经共享身份门 [AiPlaintextGate]
-  /// 授权（用户显式确认绑定四元组）。本地徽章 account_type 只能渲染 UI
+  /// 授权（用户显式确认绑定五元组）。本地徽章 account_type 只能渲染 UI
   /// badge，不再单独让附件免封装明文直传。本路径是 **UI 语境**（用户主动
   /// 上传附件），允许触发首次确认弹窗；确认后附件不封装，先于消息侧判定
   /// 且与消息侧同一结论（ATT-01 上传序不变）。

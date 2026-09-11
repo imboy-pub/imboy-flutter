@@ -1,9 +1,9 @@
 /// LT02-SEC-01（AI-ID=B）：AI 明文会话首次发送前的显式确认弹窗。
 ///
-/// 决策工件：`RR/decisions/AI-ID-2026-09-09.md`（AI-ID = B）。弹窗必须
+/// 当前实现变体为 AI-ID=B；当前决策包已建立，但用户尚未选择。弹窗必须
 /// 明示「本会话消息和附件不是端到端加密」；用户拒绝 = 不落确认记录 =
 /// 共享门 fail-closed（消息按策略加密/拒发）。昵称、头像或 AI badge 的
-/// 展示不构成身份确认——只有本弹窗的用户显式操作才落四元组确认记录。
+/// 展示不构成身份确认——只有本弹窗的用户显式操作才落五元组确认记录。
 ///
 /// 弹窗由 [registerAiPlaintextPromptHandler] 注册进
 /// `AiPlaintextGate.promptHandler`（ChatPage initState 单次调用）；

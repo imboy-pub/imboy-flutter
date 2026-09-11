@@ -245,7 +245,7 @@ class E2EEService {
   ///    等待，绝不以「未初始化」为缺口放行明文）。
   /// 2. 明文部署（PlaintextAllowed）→ false：部署级明文与 AI 门无关。
   /// 3. required/compliance（EncryptRequired）→ 明文只有一条合法通道：
-  ///    [AiPlaintextGate]（用户显式确认绑定四元组）。传 [toId] 时经共享门
+  ///    [AiPlaintextGate]（用户显式确认绑定五元组）。传 [toId] 时经共享门
   ///    判定；[interactiveConfirm] 仅 UI 语境（消息发送/附件上传）为 true，
   ///    retry 等非 UI 语境必须 false（不弹窗、不放行）。
   ///
@@ -255,8 +255,8 @@ class E2EEService {
   /// 以**未签名、可污染**的裸徽章（contact.account_type，user/show 免鉴权
   /// 回吐）直接豁免明文，且先于 PolicyGate（finding LT02-SEC-01
   /// HIGH/OPEN）。AI-ID=B 后：account_type 只能渲染 UI badge；授权明文
-  /// 必须存在与当前四元组（deployment identity + target uid + 对端身份
-  /// 指纹 + version）匹配的用户确认记录。本地 DB 污染/伪造响应 → 无确认
+  /// 必须存在与当前五元组（deployment identity + owner uid + target uid +
+  /// 对端身份指纹 + version）匹配的用户确认记录。本地 DB 污染/伪造响应 → 无确认
   /// → 仍走 E2EE（agent 无设备密钥时发送端拒发），绝不静默明文出网。
   ///
   /// 消息/附件/重试三条出设备路径都汇流到本谓词 → [AiPlaintextGate]

@@ -271,6 +271,7 @@ void main() {
         },
       );
       expect(confirmBody?['scope'], 'group');
+      expect(confirmBody?['scope_ref'], '963201');
       expect(confirmBody?['anchor_msg_id'], '112159964677801984');
     });
 

@@ -7,7 +7,7 @@
 // 上验证。
 //
 // LT02-SEC-01（AI-ID=B）：裸 `peerAccountType=1` 短路已删除——透明 AI 豁免
-// 只能经共享身份门 AiPlaintextGate（用户显式确认绑定四元组）授权，见
+// 只能经共享身份门 AiPlaintextGate（用户显式确认绑定五元组）授权，见
 // ai_plaintext_identity_gate_test.dart。
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/compliance_key_service.dart';

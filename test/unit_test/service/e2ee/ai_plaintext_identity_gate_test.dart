@@ -1,8 +1,8 @@
 // LT02-SEC-01（AI-ID=B）：AI 明文通道的共享身份门守护测试。
 //
-// 用户决策工件：RR/decisions/AI-ID-2026-09-09.md（AI-ID=B，sha256 aab64496...）。
-// B 语义：每个 AI 会话首次明文发送前用户显式确认；确认绑定四元组
-// （deployment identity + 稳定 target uid + 对端身份公钥/指纹 + 当前 version）
+// 当前实现采用 AI-ID=B；当前决策包已建立但用户尚未选择，B 不代表已批准。
+// B 语义：每个 AI 会话首次明文发送前用户显式确认；确认绑定五元组
+// （deployment identity + 本机 owner uid + target uid + 对端指纹 + version）
 // 本地持久化；身份或 version 变化后必须重新确认；昵称/头像/AI badge 不构成
 // 确认；peerAccountType 只能用于 UI badge，不能单独授权明文。
 //
@@ -33,26 +33,47 @@ class _FakeIdentitySource implements AiPeerIdentitySource {
 class _FakeStore implements AiConfirmationStore {
   final Map<String, AiPlaintextConfirmation> byUid = {};
   int saveCount = 0;
+  int deleteCount = 0;
+  Future<void> Function()? onLoad;
+  Future<void> Function()? onSave;
 
   @override
-  Future<AiPlaintextConfirmation?> load({required String targetUid}) async =>
-      byUid[targetUid];
+  Future<AiPlaintextConfirmation?> load({
+    required String ownerUid,
+    required String targetUid,
+  }) async {
+    await onLoad?.call();
+    final rec = byUid[targetUid];
+    return rec?.ownerUid == ownerUid ? rec : null;
+  }
 
   @override
   Future<void> save(AiPlaintextConfirmation rec) async {
     byUid[rec.targetUid] = rec;
     saveCount++;
+    await onSave?.call();
+  }
+
+  @override
+  Future<void> delete({
+    required String ownerUid,
+    required String targetUid,
+  }) async {
+    if (byUid[targetUid]?.ownerUid == ownerUid) byUid.remove(targetUid);
+    deleteCount++;
   }
 }
 
 AiPlaintextConfirmation _rec({
   String deploymentId = 'deploy-1',
+  String ownerUid = 'user-1',
   String targetUid = '456',
   String fingerprint = 'fp-A',
   int version = 3,
   int confirmedAt = 1700000000000,
 }) => AiPlaintextConfirmation(
   deploymentId: deploymentId,
+  ownerUid: ownerUid,
   targetUid: targetUid,
   peerIdentityFingerprint: fingerprint,
   identityVersion: version,
@@ -73,6 +94,7 @@ void _wire({
       );
   AiPlaintextGate.confirmationStore = store ?? _FakeStore();
   AiPlaintextGate.deploymentIdResolver = () => 'deploy-1';
+  AiPlaintextGate.currentUserIdResolver = () => 'user-1';
   AiPlaintextGate.promptHandler = prompt;
 }
 
@@ -178,6 +200,7 @@ void main() {
       );
       AiPlaintextGate.confirmationStore = _FakeStore();
       AiPlaintextGate.deploymentIdResolver = () => 'deploy-1';
+      AiPlaintextGate.currentUserIdResolver = () => 'user-1';
 
       AiPlaintextGate.confirmationStore = null;
       expect(
@@ -202,6 +225,16 @@ void main() {
         const AiPeerIdentity(fingerprint: 'fp-A', version: 3),
       );
       AiPlaintextGate.deploymentIdResolver = null;
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isFalse,
+      );
+
+      AiPlaintextGate.deploymentIdResolver = () => 'deploy-1';
+      AiPlaintextGate.currentUserIdResolver = null;
       expect(
         await AiPlaintextGate.plaintextChannelAuthorized(
           chatType: 'C2C',
@@ -283,7 +316,7 @@ void main() {
   });
 
   group('AiPlaintextGate — 有效确认正通道（LT02-SEC-01 A02）', () {
-    test('四元组全部匹配 + agent 徽章 → 放行明文通道', () async {
+    test('五元组全部匹配 + agent 徽章 → 放行明文通道', () async {
       final store = _FakeStore();
       store.byUid['456'] = _rec();
       _wire(store: store);
@@ -317,7 +350,26 @@ void main() {
       expect(promptCalls, 0);
     });
 
-    test('交互式首次确认：用户确认 → 落库四元组并放行', () async {
+    test('已有确认读取期间本机账号变化 → fail-closed', () async {
+      var ownerUid = 'user-1';
+      final store = _FakeStore();
+      store.byUid['456'] = _rec();
+      store.onLoad = () async {
+        ownerUid = 'user-2';
+      };
+      _wire(store: store);
+      AiPlaintextGate.currentUserIdResolver = () => ownerUid;
+
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isFalse,
+      );
+    });
+
+    test('交互式首次确认：用户确认 → 落库五元组并放行', () async {
       final store = _FakeStore();
       _wire(store: store, prompt: (req) async => true);
       expect(
@@ -332,6 +384,7 @@ void main() {
       final rec = store.byUid['456'];
       expect(rec, isNotNull);
       expect(rec!.deploymentId, 'deploy-1');
+      expect(rec.ownerUid, 'user-1');
       expect(rec.targetUid, '456');
       expect(rec.peerIdentityFingerprint, 'fp-A');
       expect(rec.identityVersion, 3);
@@ -349,6 +402,148 @@ void main() {
         isFalse,
       );
       expect(store.saveCount, 0);
+    });
+
+    test('确认弹窗期间 agent 徽章撤销 → 不落库、不放行', () async {
+      final store = _FakeStore();
+      var badge = true;
+      _wire(
+        store: store,
+        prompt: (req) async {
+          badge = false;
+          return true;
+        },
+      );
+      AiPlaintextGate.agentBadgeProbe = (uid) async => badge;
+
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+          interactive: true,
+        ),
+        isFalse,
+      );
+      expect(store.saveCount, 0);
+    });
+
+    test('确认弹窗期间 deployment 变化 → 不落库、不放行', () async {
+      final store = _FakeStore();
+      var deploymentId = 'deploy-1';
+      _wire(
+        store: store,
+        prompt: (req) async {
+          deploymentId = 'deploy-2';
+          return true;
+        },
+      );
+      AiPlaintextGate.deploymentIdResolver = () => deploymentId;
+
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+          interactive: true,
+        ),
+        isFalse,
+      );
+      expect(store.saveCount, 0);
+    });
+
+    test('确认弹窗期间本机账号变化 → 不落库、不放行', () async {
+      final store = _FakeStore();
+      var ownerUid = 'user-1';
+      _wire(
+        store: store,
+        prompt: (req) async {
+          ownerUid = 'user-2';
+          return true;
+        },
+      );
+      AiPlaintextGate.currentUserIdResolver = () => ownerUid;
+
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+          interactive: true,
+        ),
+        isFalse,
+      );
+      expect(store.saveCount, 0);
+    });
+
+    test('确认弹窗期间 identity 变化 → 不落库、不放行', () async {
+      final store = _FakeStore();
+      final source = _FakeIdentitySource(
+        const AiPeerIdentity(fingerprint: 'fp-A', version: 3),
+      );
+      _wire(
+        source: source,
+        store: store,
+        prompt: (req) async {
+          source.current = const AiPeerIdentity(
+            fingerprint: 'fp-B',
+            version: 4,
+          );
+          return true;
+        },
+      );
+
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+          interactive: true,
+        ),
+        isFalse,
+      );
+      expect(store.saveCount, 0);
+    });
+
+    test('确认记录保存期间 identity 变化 → 撤销记录、不放行', () async {
+      final source = _FakeIdentitySource(
+        const AiPeerIdentity(fingerprint: 'fp-A', version: 3),
+      );
+      final store = _FakeStore();
+      store.onSave = () async {
+        source.current = const AiPeerIdentity(fingerprint: 'fp-B', version: 4);
+      };
+      _wire(source: source, store: store, prompt: (req) async => true);
+
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+          interactive: true,
+        ),
+        isFalse,
+      );
+      expect(store.saveCount, 1);
+      expect(store.deleteCount, 1);
+      expect(store.byUid['456'], isNull);
+    });
+
+    test('确认记录保存期间本机账号变化 → 撤销原账号记录、不放行', () async {
+      final store = _FakeStore();
+      var ownerUid = 'user-1';
+      store.onSave = () async {
+        ownerUid = 'user-2';
+      };
+      _wire(store: store, prompt: (req) async => true);
+      AiPlaintextGate.currentUserIdResolver = () => ownerUid;
+
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+          interactive: true,
+        ),
+        isFalse,
+      );
+      expect(store.saveCount, 1);
+      expect(store.deleteCount, 1);
+      expect(store.byUid['456'], isNull);
     });
 
     test('身份变化后必须重新确认：旧确认失效，重新确认绑定新指纹', () async {
@@ -454,7 +649,7 @@ void main() {
       await db.close();
     });
 
-    test('ensureSchema 幂等建表；save/load 四元组往返一致', () async {
+    test('ensureSchema 幂等建表；save/load 五元组往返一致', () async {
       final store = SqliteAiPlaintextConfirmationStore();
       await store.ensureSchema();
       await store.ensureSchema(); // 幂等
@@ -462,13 +657,14 @@ void main() {
       await store.save(
         const AiPlaintextConfirmation(
           deploymentId: 'deploy-1',
+          ownerUid: 'user-1',
           targetUid: '456',
           peerIdentityFingerprint: 'fp-A',
           identityVersion: 3,
           confirmedAt: 1700000000001,
         ),
       );
-      final loaded = await store.load(targetUid: '456');
+      final loaded = await store.load(ownerUid: 'user-1', targetUid: '456');
       expect(loaded, isNotNull);
       expect(loaded!.deploymentId, 'deploy-1');
       expect(loaded.targetUid, '456');
@@ -481,12 +677,21 @@ void main() {
       final store = SqliteAiPlaintextConfirmationStore();
       await store.ensureSchema();
 
-      expect(await store.load(targetUid: 'nope'), isNull);
+      expect(await store.load(ownerUid: 'user-1', targetUid: 'nope'), isNull);
 
       await store.save(_rec(fingerprint: 'fp-1'));
       await store.save(_rec(fingerprint: 'fp-2'));
-      final loaded = await store.load(targetUid: '456');
+      final loaded = await store.load(ownerUid: 'user-1', targetUid: '456');
       expect(loaded!.peerIdentityFingerprint, 'fp-2');
+    });
+
+    test('delete 撤销当前账号的目标确认', () async {
+      final store = SqliteAiPlaintextConfirmationStore();
+      await store.save(_rec());
+
+      await store.delete(ownerUid: 'user-1', targetUid: '456');
+
+      expect(await store.load(ownerUid: 'user-1', targetUid: '456'), isNull);
     });
 
     test('C1 懒初始化：不经 ensureSchema，写入→重开 store→读回一致', () async {
@@ -496,7 +701,7 @@ void main() {
       await writer.save(_rec(confirmedAt: 1700000000002));
 
       final reopened = SqliteAiPlaintextConfirmationStore();
-      final loaded = await reopened.load(targetUid: '456');
+      final loaded = await reopened.load(ownerUid: 'user-1', targetUid: '456');
       expect(loaded, isNotNull);
       expect(loaded!.deploymentId, 'deploy-1');
       expect(loaded.targetUid, '456');
