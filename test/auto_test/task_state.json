@@ -1610,5 +1610,25 @@
     ],
     "recipe_notes": "回归批次176→178 总口径：moya 26f032f6/3d7991d8+15f9326e 全改动面=boot 路径（moment/channel 金丝雀）+C2C 加密管线（批次177 转绿）+conversation 页+strict 接收门——全部零回退；chat 域唯余 group_chat 历史阻塞（需后端配套，独立立项）",
     "ledger": "无台账行变化；阻塞维持 48/97.3%"
+  },
+  "session_2026_09_11_batch179": {
+    "batch": 179,
+    "date": "2026-09-11",
+    "target": "C2G E2EE 域定性：group_chat 历史 skip 理由复核 + 出站 Megolm 编排当前 HEAD 实测",
+    "verdict": "PASS",
+    "blocking_change": "48 -> 48（无台账行变化；C2G 缺口重新定性）",
+    "row": {
+      "row": "group_chat skip 理由更正 + S15 出站帧实测绿",
+      "unlock": "侦察证明后端配套已存在：group_member_keys 路由 + e2ee_room_key 不透明中继（服务端 EUnit c2g_e2ee_room_key_relayed_opaque_and_skips_gate）+ set_e2ee_mode；S15 e2ee_group_outbound_frame_test macOS 全绿（群 Megolm 密文+room-key 分发编排，真原生库）。旧 skip 理由「需后端配套」过时，已更正为：真实缺口=双客户端回环的入站解密（需第二真实客户端/真机）",
+      "evidence": "S15 All tests passed 00:00（离线白盒）；group_chat 更正后 3 skip 注记生效；下一批次候选=真机双客户端 C2G 回环（bob macOS 发→alice 真机解密渲染，配方参照批次161/E-02 真机链）",
+      "test_file": "integration_test/e2ee_group_outbound_frame_test.dart（实测）+ integration_test/chat/group_chat_test.dart（注记更正）",
+      "fixtures": "无新增"
+    },
+    "runs": [
+      "run1 S15 +1 PASS",
+      "run2 group_chat +0 ~3 skip（新注记）"
+    ],
+    "recipe_notes": "C2G E2EE 两段论：出站（会话建立+room-key 分发+加密）=完整且实测绿；入站解密回环=唯一缺口，攻击路径必须是双真实客户端，伪信封路线（旧 fixture ①②③ 弯路）已证死路勿重走",
+    "ledger": "无台账行变化；阻塞维持 48/97.3%"
   }
 }
