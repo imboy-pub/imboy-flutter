@@ -1673,6 +1673,38 @@
     "阻塞": "真机 XWE6R19916004085 USB 掉线（adb 空列表+USB 枚举无华为，物理层），轮询 9+ 分钟未回连",
     "复用资产": "staging 里的 marker 消息等待投递；alice 上线后直接跑 receiver（等历史投递+进群聊页断言 marker 渲染）或重发新 marker",
     "复现命令": "receiver: flutter test integration_test/chat/c2g_e2ee_loop_receiver_test.dart -d XWE6R19916004085 + 批次177 define 配方 + TEST_PHONE=smoke_alice TEST_EXPECTED_UID=1000000051 C2G_E2EE_LOOP_MARKER=$(cat /tmp/b181_marker) > /tmp/b181_rx2.log；sender 已绿无需重跑",
-    "结论": "批次179 定性的「双客户端入站回环」缺口收窄为纯 RX 腿执行问题；TX 链+后端暂存/重试机制已全部实证"
+    "结论": "批次179 定性的「双客户端入站回环」缺口收窄为纯 RX 腿执行问题；TX 链+后端暂存/重试机制已全部实证",
+    "rx腿_planB_评估": {
+      "结论": "macOS 双实例并行回环不可行（已证伪，勿再尝试）",
+      "根因": "flutter_secure_storage 的 e2ee_private_key 等键名不含 uid，两实例共享同一 macOS Keychain 域（同 bundle id）→ alice 登录生成新 E2EE 密钥覆盖 bob 私钥",
+      "已排除项": [
+        "本地 SQLite 已按 uid 分库（databaseNameForUid = ${currentEnv}_$uid.db）不互踩",
+        "iOS/Android 模拟器被用户铁律禁止做功能验证",
+        "room-key 帧后端无暂存不补发（msg_store_staging 仅 C2G text 有记录）→ 时序必须 receiver 先在线，串行方案不可行"
+      ],
+      "新实证": "staging 消息 23:20:58 被 worker 处理并正式落库 msg_c2g（id=112093735531317248，e2ee payload 完整）→ alice 上线拉群历史必能拿到密文，回环唯一悬念=room-key 离线路径（已证无补发→alice 必须在发送时在线）"
+    }
+  },
+  "session_2026_09_11_batch182": {
+    "批次": 182,
+    "日期": "2026-09-11",
+    "主题": "R22/DC-2/agent-hub 合入 imboy main 后客户端面双金丝雀复扫 + macOS 双实例回环证伪",
+    "复扫范围": "imboy main 新增 372ed208(DC-2 teaching 5486 拆分)/00d704a3(moya teaching)/4f609675(AI 视频理解)/3717e12a(agent-hub preset)/a7d76cc2(agent boundary)——均不触 C2C/C2G/E2EE/群组契约面",
+    "金丝雀": [
+      {
+        "腿": "conversation_test(浅 boot 链)",
+        "run1": "FAIL +0 -3：第一用例 5 分钟整体超时(isolate 卡死，后两用例连坐断言)；卡点=conv_01 截图后 checkPreconditions/waitForEntryState 首轮 pump，事件序列与 b178 成功轮完全一致后静默",
+        "run2": "PASS 00:14 +3(与批次178 完全一致) → run1 定性偶发 flake 非回归",
+        "根因排查": "后端健康探针绿(passport/login 200/22ms，首轮 5s 空响应系探针路径错用 /api/v1/user/login 应为 /api/v1/passport/login)；e2ee/notifications/pull 正常响应"
+      },
+      {
+        "腿": "channel_subscriber_invite_acceptance_batch170(深链含写操作)",
+        "结果": "PASS 00:45 +1",
+        "备注": "顺带证明批次181 TX 后 bob 本地数据面(群会话+Megolm outbound session)不引发启动链问题"
+      }
+    ],
+    "判定": "R22 等新合入对 imboyapp 客户端测试面零回归；首轮红为 app 主 isolate 启动期偶发卡死(与 imboy-cache-lifecycle-flake/批次173 vodozemac 偶发同族)，复跑即绿",
+    "双实例回环证伪(补入 batch181 评估)": "flutter_secure_storage e2ee_private_key 键名不含 uid，两 macOS 实例共享同一 Keychain 域(同 bundle id)→alice 登录生成新密钥覆盖 bob 私钥；本地库已按 uid 分库不互踩；room-key 帧后端无暂存不补发→回环时序必须 receiver 先在线，双实例/串行均不可行，RX 腿只能等真机",
+    "遗留": "真机 USB 离线未回连；批次181 RX 腿待真机(复用配方在 batch181)"
   }
 }
