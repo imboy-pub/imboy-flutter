@@ -10,7 +10,10 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
+import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
+
+import '../../helper/sqflite_test_helper.dart';
 
 /// lib/page/settings/e2ee_backup_import_page.dart 的 widget 渲染测试。
 ///
@@ -44,9 +47,11 @@ void main() {
     bool probeFailure = false,
     bool hasCloudBackup = false,
     void Function()? onProbe,
+    Future<bool> Function(Map<String, dynamic> restored)? deviceKeyReporter,
   }) {
     return E2EEBackupImportPage(
       initialFilePath: initialFilePath,
+      deviceKeyReporter: deviceKeyReporter,
       cloudBackupProbe: () async {
         onProbe?.call();
         if (probeFailure) throw Exception('test-only cloud probe failure');
@@ -209,6 +214,104 @@ void main() {
       expect(find.text(t.common.e2eeBackupImportGuide), findsOneWidget);
       expect(find.text(t.common.e2eeBackupImportReplaceKey), findsOneWidget);
       expect(find.text(t.common.e2eeBackupImportTrustedSource), findsOneWidget);
+    });
+
+    testWidgets('P0-1 导入成功后以恢复的公钥回写服务端设备登记', (tester) async {
+      mockSqfliteSqlcipher();
+      final tmpDir = Directory.systemTemp.createTempSync('e2ee_restore_');
+      addTearDown(() => tmpDir.deleteSync(recursive: true));
+
+      Map<String, dynamic>? reported;
+      const pwd = 'TestPwd123!@#';
+      final file = File('${tmpDir.path}/real_backup.enc');
+
+      await tester.runAsync(() async {
+        // 与 buildValidBackupBytes 的「纯头部占位」不同：此处必须真正通过
+        // importBackup 的 GCM 认证，故用生产同款 packBackupBytes 加密。
+        final bytes = await E2EELocalBackupService.packBackupBytes(
+          password: pwd,
+          privateKey: 'FAKE_PRIVATE_KEY_PEM',
+          publicKey: 'FAKE_PUBLIC_KEY_PEM',
+          deviceId: 'backup-src-device',
+          keyId: 'backup-key-id',
+        );
+        file.writeAsBytesSync(bytes);
+
+        await tester.pumpWidget(
+          wrap(
+            page(
+              initialFilePath: file.path,
+              deviceKeyReporter: (restored) async {
+                reported = restored;
+                return true;
+              },
+            ),
+          ),
+        );
+        await tester.pump();
+        await Future<void>.delayed(const Duration(milliseconds: 400));
+        await tester.pump();
+
+        final pwdField = tester
+            .widgetList<TextField>(find.byType(TextField))
+            .where((w) => w.obscureText)
+            .first;
+        await tester.enterText(find.byWidget(pwdField), pwd);
+        await tester.pump();
+
+        final importBtn = find.widgetWithText(
+          CupertinoButton,
+          t.common.e2eeBackupImportBtn,
+        );
+        // 页面在 800×600 测试视口下高于一屏，导入按钮落在视口外，
+        // 不先滚入可视区则 tap 命中测试失败（derived offset 不在 render tree 内）
+        await tester.ensureVisible(importBtn);
+        await tester.pump();
+        expect(
+          tester.widget<CupertinoButton>(importBtn).onPressed,
+          isNotNull,
+          reason: '前置：合法文件 + 已填密码时导入按钮应可用，否则后续流程无从触发',
+        );
+        await tester.tap(importBtn);
+        // PBKDF2-HMAC-SHA256 310k 迭代 + AES-GCM 解密是纯 Dart 的秒级真实计算
+        // （实测本用例约 15~35s，不是挂起），固定等待不可靠；轮询至回写发生
+        // 或超时（240 × 250ms = 60s，给慢 CI 留余量）
+        for (var i = 0; i < 240 && reported == null; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 250));
+          await tester.pump();
+        }
+
+        // 路径4：回写之后还有「清横幅 → 自动重试解密失败消息 → 成功弹窗」
+        // 链条，重试扫描不得阻断恢复成功态。轮询至弹窗标题出现或超时
+        // （测试环境 sqflite mock 返回空结果，recovered=0，弹窗应可达）。
+        for (
+          var i = 0;
+          i < 40 &&
+              !tester.any(find.text(t.common.e2eeBackupImportSuccessTitle));
+          i++
+        ) {
+          await Future<void>.delayed(const Duration(milliseconds: 250));
+          await tester.pump();
+        }
+        expect(
+          tester.any(find.text(t.common.e2eeBackupImportSuccessTitle)),
+          isTrue,
+          reason: '路径4：恢复后自动重试解密失败消息不得阻断成功弹窗',
+        );
+      });
+
+      // 回写之后的 setBool / 成功弹窗可能触及未 mock 的平台通道；本用例只锁
+      // 「回写被调用且携带恢复的公钥」这一行为，其余异常不参与断言。
+      while (tester.takeException() != null) {}
+
+      expect(
+        reported,
+        isNotNull,
+        reason:
+            '恢复成功后必须回写服务端公钥，否则对端仍按登录时上报的新公钥'
+            '加密，本机用刚恢复的旧私钥解不开',
+      );
+      expect(reported!['public_key'], 'FAKE_PUBLIC_KEY_PEM');
     });
   });
 }
