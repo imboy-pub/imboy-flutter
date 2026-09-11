@@ -1630,5 +1630,25 @@
     ],
     "recipe_notes": "C2G E2EE 两段论：出站（会话建立+room-key 分发+加密）=完整且实测绿；入站解密回环=唯一缺口，攻击路径必须是双真实客户端，伪信封路线（旧 fixture ①②③ 弯路）已证死路勿重走",
     "ledger": "无台账行变化；阻塞维持 48/97.3%"
+  },
+  "session_2026_09_11_batch180": {
+    "batch": 180,
+    "date": "2026-09-11",
+    "target": "moya index 污染处置（用户拍板：归档落库）——5 个 staged 文件提交",
+    "verdict": "DONE",
+    "blocking_change": "不适用（账务外处置动作）",
+    "row": {
+      "row": "五把钥匙之一「moya index 处置」已转",
+      "unlock": "提交 a43cd5e2：e2ee_backup_recovery_acceptance_test.dart（751行，AT-KR01~04/BI01~03，TEST_ALLOW_E2EE_BACKUP_MUTATION 门）+ workspace_invite_relations_test 加固 + app_feature_registry liveRoom 禁用产品决策注释 + 配套单测 + test/CLAUDE.md 测试账号备忘",
+      "evidence": "hooks 全绿（gitleaks no leaks / dart-fmt / dart-analyze no issues / conventional）；app_feature_registry_test 6/6 PASS 提交前验证",
+      "test_file": "无新增执行",
+      "fixtures": "无"
+    },
+    "runs": [
+      "run1 提交瞬时 hook 失败",
+      "run2 a43cd5e2 成功"
+    ],
+    "recipe_notes": "曝光提示：test/CLAUDE.md 含 15001/15002@imboy.pub+admin888（与全测试套件同密码），仓为 gitee 公开仓，推送时该信息随之公开（推送仍待另行拍板，本批不动远端）",
+    "ledger": "无台账行变化；剩余四把钥匙：9801 全量重建/license 重签/bailian 凭据/GF7 断网授权；自助候选=真机双客户端 C2G 回环（批次179 列）"
   }
 }
