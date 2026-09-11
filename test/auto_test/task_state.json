@@ -1504,5 +1504,49 @@
       "4323 沙盒库 bob-alice relation 单向：people_info detail 判 isFriend=0（qrcode 端点却报 isfriend=true，两接口数据源不同）——好友条件渲染的按钮不作断言锚点"
     ],
     "ledger": "scanner_page.md 阻塞行 -> 无待办 批次173"
+  },
+  "session_2026_09_11_batch174": {
+    "batch": 174,
+    "date": "2026-09-11",
+    "target": "moment_feed_page 视频进入可视区自动播放与点播",
+    "verdict": "PASS",
+    "blocking_change": "49 -> 48",
+    "row": {
+      "row": "moment_feed_page 视频进入可视区自动播放与点播",
+      "unlock": "三层拆解：①素材=ffmpeg testsrc 生成+base64 嵌入源码运行时写沙盒 tmp（app 进程无权读项目目录）；②feed 数据=facade 注入绕过 5190（moment 双向编译裁剪：服务端 agent_hub 清单+客户端 compiledProductFeatures 均无 moment，与 group_task 同源墙待重建）；③ATS=Info.plist 加 NSAllowsLocalNetworking（AVFoundation 播本地 http 被原配置拦）",
+      "evidence": "run9 绿 00:24：Range bytes=0-1 探测 206→bytes=0-10997 全量→VideoPlayer 真渲染+播放角标消失；点播兜底与自动播放共用 _initVideoController/play，macOS WiFi 分支不可达属环境差异，代码确认",
+      "test_file": "integration_test/moment/moment_feed_video_playback_batch174_test.dart",
+      "fixtures": "test/fixtures/moment_b174_media.dart（base64 嵌入）+ moment_b174.mp4/.jpg（原始素材）"
+    },
+    "runs": [
+      {
+        "run": 1,
+        "result": "FAIL",
+        "reason": "pump 裸页面缺 ProviderScope/TranslationProvider wrapper"
+      },
+      {
+        "run": 2,
+        "result": "编译失败",
+        "reason": "analyze 期 MaterialApp 未导入"
+      },
+      {
+        "run": "3-8",
+        "result": "FAIL 递进",
+        "reason": "五层环境墙逐层剥开：server 相对路径 PathNotFound（app cwd 非 project root）→ 绝对路径被 macOS App Sandbox 拒（Operation not permitted）→ Info.plist ATS 无本地网络豁免 → AVPlayer Range 探测需 206 → Content-Length 显式"
+      },
+      {
+        "run": 9,
+        "result": "PASS 00:24",
+        "reason": "base64 嵌入+沙盒 tmp+Range/206 全方案生效"
+      }
+    ],
+    "recipe_notes": [
+      "macOS 被测 app 进程读项目目录必被 App Sandbox 拒（Operation not permitted）；测试素材走 base64 嵌入+Directory.systemTemp",
+      "AVFoundation/AVPlayer 播本地 http 需 Info.plist NSAppTransportSecurity 加 NSAllowsLocalNetworking（已加，生产 https 不受影响）",
+      "AVPlayer initialize 先发 Range: bytes=0-1 探测——测试内嵌服务器必须正确回 206+Content-Range；且响应必须显式 Content-Length（chunked 会 moov 解析失败）",
+      "moment 特性为双向编译裁剪：服务端 API 5190 + 客户端 compiledProductFeatures 7 特性清单均无 moment——moment/服务端相关行的解锁依赖重建拍板（与 group_task 同因）",
+      "MomentFeedPage 支持 facade 注入（constructor 参数），播放行为测试可完全绕开 feed API"
+    ],
+    "ledger": "moment_feed_page.md 阻塞行 -> 无待办 批次174"
   }
 }

@@ -52,6 +52,8 @@
 			<false/>
 			<key>NSAllowsArbitraryLoadsInWebContent</key>
 			<false/>
+			<key>NSAllowsLocalNetworking</key>
+			<true/>
 		</dict>
 		<key>NSAppleMusicUsageDescription</key>
 		<string>IMBoy does not need this permission</string>
