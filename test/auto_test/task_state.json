@@ -1706,5 +1706,24 @@
     "判定": "R22 等新合入对 imboyapp 客户端测试面零回归；首轮红为 app 主 isolate 启动期偶发卡死(与 imboy-cache-lifecycle-flake/批次173 vodozemac 偶发同族)，复跑即绿",
     "双实例回环证伪(补入 batch181 评估)": "flutter_secure_storage e2ee_private_key 键名不含 uid，两 macOS 实例共享同一 Keychain 域(同 bundle id)→alice 登录生成新密钥覆盖 bob 私钥；本地库已按 uid 分库不互踩；room-key 帧后端无暂存不补发→回环时序必须 receiver 先在线，双实例/串行均不可行，RX 腿只能等真机",
     "遗留": "真机 USB 离线未回连；批次181 RX 腿待真机(复用配方在 batch181)"
+  },
+  "session_2026_09_11_batch183": {
+    "批次": 183,
+    "日期": "2026-09-11",
+    "主题": "真产品缺口定性：C2G E2EE room-key 无离线路径 → 离线成员永久解不开错过的群消息",
+    "定性": "设计缺口（非测试问题、非回归），建议 P1（C2G E2EE 可用性 + 与占位发生率压降目标直接冲突）",
+    "证据链（三方交叉）": [
+      "① 客户端：lib/store/api/ 全层零 room-key 拉取/请求端点，roomKey 符号仅存在于 group_session_service.dart（发送侧分发 handleOutbound + 接收侧推送处理 handleInboundRoomKey，message_actions.dart 分发）；chat_page 解密失败只走 showE2EERecoveryGuide 恢复引导，无重取密钥路径",
+      "② 后端：23:16:53 实测窗口 msg_store_staging 仅 c2g text 一条（c2gloopmtx3nf2a），msg_delivery 仅两条 s2c（均为发送者 bob 自己的回执，含 room-key 帧 id rk_1789139813322_609785）→ 离线成员 alice 无任何持久化记录 = 分发被丢弃",
+      "③ 后端 EUnit（msg_c2g_logic_tests L1066+）只断言在线透传（存储/入队/投递逐字节），无离线补发用例；grep src/ 无 room_key 专属补发逻辑"
+    ],
+    "影响": "C2G E2EE 群中任一成员在他人发送消息时离线 → 上线后能拉到密文（msg_c2c 历史链路）但拿不到 room-key → Megolm 无法建立 inbound session → 永久渲染解密失败占位。与 E2EE 占位发生率压降目标（一辈子遇不到）直接冲突；对比 C2C Olm 有 OTP 池+claim 授权门（778a18ca）可上线后补取",
+    "修复方向（产品级决策，四选一，待拍板勿擅动）": [
+      "A. 后端补发：room-key 帧对离线成员入 staging/delivery，上线重放（改动面：msg_c2g_logic 投递展开，需保持不透明性）",
+      "B. 上线拉取：新增 room-key 拉取端点+客户端解密失败回退触发（改动面：后端 API+客户端 API 层+chat_page 回退）",
+      "C. sender 端重发：客户端上线事件触发 room-key 重分发（改动面：客户端，依赖在线事件可靠性）",
+      "D. room-key 入密钥备份体系（与 e2ee_key_backups 融合，改动面最大但与路径3方案A一致）"
+    ],
+    "关联": "批次181 TX 腿全绿但 RX 腿需 receiver 先在线的根因即此缺口；修复后批次181 回环可改为离线时序验证"
   }
 }
