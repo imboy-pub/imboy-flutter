@@ -1650,5 +1650,29 @@
     ],
     "recipe_notes": "曝光提示：test/CLAUDE.md 含 15001/15002@imboy.pub+admin888（与全测试套件同密码），仓为 gitee 公开仓，推送时该信息随之公开（推送仍待另行拍板，本批不动远端）",
     "ledger": "无台账行变化；剩余四把钥匙：9801 全量重建/license 重签/bailian 凭据/GF7 断网授权；自助候选=真机双客户端 C2G 回环（批次179 列）"
+  },
+  "session_2026_09_11_batch181": {
+    "批次": 181,
+    "日期": "2026-09-11",
+    "主题": "C2G E2EE 双端回环：TX 侧 macOS 全链实测绿，RX 侧真机物理阻塞",
+    "提交": "45da76ae（两个回环测试文件）",
+    "TX侧结果": {
+      "fixture": "群 110073884384167936 set_e2ee_mode=1（curl 仅群主，DB复核 e2ee_mode=1）",
+      "发送": "群详情同步旗标→isGroupE2EE→白盒 sendMessage(C2G)→Megolm 加密→WS 提交→C2G_SERVER_ACK",
+      "msgId": "c2gloopmtx3nf2a",
+      "marker": "c2gloop1789099787",
+      "判定": "All tests passed（/tmp/b181_tx.log）"
+    },
+    "新实证（后端离线投递机制）": [
+      "C2G E2EE 消息不入 msg_c2g/msg_c2g_timeline，先落 msg_store_staging（type=c2g）",
+      "staging 记录含完整 Megolm e2ee payload：ciphertext+protected_header（protocol=megolm, session_id=RSssuE9j1bZaoyZPEk4i1+MLIMGlbyAbAsxAWtUSp4c, gid 正确）",
+      "to_id_list={alice 1000000051, bob 1000000056}；processed_at 为空",
+      "alice 离线期间 retry_count 0→9 持续递增=staging+重试投递机制在工作",
+      "room-key 帧走 e2ee_room_key 不透明中继（WS 层 [C2G/e2ee_room_key/PLAIN] 1626 bytes 已发）；其离线路径（是否补发/上线拉取）未实证，属 RX 腿遗留问题"
+    ],
+    "阻塞": "真机 XWE6R19916004085 USB 掉线（adb 空列表+USB 枚举无华为，物理层），轮询 9+ 分钟未回连",
+    "复用资产": "staging 里的 marker 消息等待投递；alice 上线后直接跑 receiver（等历史投递+进群聊页断言 marker 渲染）或重发新 marker",
+    "复现命令": "receiver: flutter test integration_test/chat/c2g_e2ee_loop_receiver_test.dart -d XWE6R19916004085 + 批次177 define 配方 + TEST_PHONE=smoke_alice TEST_EXPECTED_UID=1000000051 C2G_E2EE_LOOP_MARKER=$(cat /tmp/b181_marker) > /tmp/b181_rx2.log；sender 已绿无需重跑",
+    "结论": "批次179 定性的「双客户端入站回环」缺口收窄为纯 RX 腿执行问题；TX 链+后端暂存/重试机制已全部实证"
   }
 }
