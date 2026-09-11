@@ -108,158 +108,167 @@ Future<void> _ensureGroupFixture() async {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('群聊', () {
-    testWidgets(
-      '进入已有群聊页面可访问',
-      (tester) async {
-        await ensureAppLaunched(tester, maxSeconds: 10);
-        if (!await checkPreconditions(tester)) return;
-        await _ensureGroupFixture();
-        await settle(tester, maxSeconds: 2);
-        await _dismissRecoveryGuideIfVisible(tester);
+  group(
+    '群聊',
+    () {
+      testWidgets(
+        '进入已有群聊页面可访问',
+        (tester) async {
+          await ensureAppLaunched(tester, maxSeconds: 10);
+          if (!await checkPreconditions(tester)) return;
+          await _ensureGroupFixture();
+          await settle(tester, maxSeconds: 2);
+          await _dismissRecoveryGuideIfVisible(tester);
 
-        if (!await _openConversationTab(tester)) {
-          markTestSkipped('无法进入会话列表');
-          return;
-        }
-        await settle(tester, maxSeconds: 2);
-        await _dismissRecoveryGuideIfVisible(tester);
-        await takeScreenshot(tester, 'group_readonly_01_conv_list');
+          if (!await _openConversationTab(tester)) {
+            markTestSkipped('无法进入会话列表');
+            return;
+          }
+          await settle(tester, maxSeconds: 2);
+          await _dismissRecoveryGuideIfVisible(tester);
+          await takeScreenshot(tester, 'group_readonly_01_conv_list');
 
-        // 不能用标题文本猜测群聊：群名可能为空、包含任意语言，且 C2C
-        // 会话标题也可能包含“群”字。直接读取现有会话模型的 C2G 类型。
-        final groupItem = await _waitForExistingGroupItem(tester);
-        if (groupItem == null) {
-          markTestSkipped('当前测试账号没有可识别的已有群聊会话');
-          return;
-        }
+          // 不能用标题文本猜测群聊：群名可能为空、包含任意语言，且 C2C
+          // 会话标题也可能包含“群”字。直接读取现有会话模型的 C2G 类型。
+          final groupItem = await _waitForExistingGroupItem(tester);
+          if (groupItem == null) {
+            markTestSkipped('当前测试账号没有可识别的已有群聊会话');
+            return;
+          }
 
-        await safeTap(tester, groupItem.first);
-        await settle(tester, maxSeconds: 3);
-        await takeScreenshot(tester, 'group_readonly_02_chat_page');
+          await safeTap(tester, groupItem.first);
+          await settle(tester, maxSeconds: 3);
+          await takeScreenshot(tester, 'group_readonly_02_chat_page');
 
-        expect(
-          find.byType(ChatPage),
-          findsOneWidget,
-          reason: '已有 C2G 会话应能进入群聊页面',
-        );
-        drainKnownFrameworkExceptions(tester);
-      },
-      semanticsEnabled: false,
-      timeout: const Timeout(Duration(minutes: 5)),
-    );
-
-    testWidgets('进入已有群聊并发送文本消息', (tester) async {
-      if (!requireBusinessWriteAuthorization()) return;
-      await ensureAppLaunched(tester, maxSeconds: 3);
-      if (!await checkPreconditions(tester)) return;
-      await _ensureGroupFixture();
-      await settle(tester, maxSeconds: 2);
-
-      if (!await _openConversationTab(tester)) {
-        markTestSkipped('无法进入会话列表');
-        return;
-      }
-      await settle(tester, maxSeconds: 2);
-      await takeScreenshot(tester, 'group_01_conv_list');
-
-      // 优先找群聊标识，回退第一个会话
-      final groupFinder = _anyText(['群', 'Group', '群聊']);
-      final listTile = find.byType(ListTile);
-      final target = tester.any(groupFinder)
-          ? groupFinder.first
-          : tester.any(listTile)
-          ? listTile.first
-          : null;
-
-      if (target == null) {
-        markTestSkipped('未找到群聊会话');
-        return;
-      }
-
-      await safeTap(tester, target);
-      await settle(tester, maxSeconds: 2);
-      await takeScreenshot(tester, 'group_02_chat_page');
-
-      final inputField = find.byType(TextField);
-      if (!tester.any(inputField)) {
-        markTestSkipped('聊天页无输入框（可能被禁言）');
-        return;
-      }
-
-      final msg = '[GROUP-E2E] ${DateTime.now().millisecondsSinceEpoch}';
-      await tester.enterText(inputField.first, msg);
-
-      final sent = await tapAny(tester, [
-        find.byIcon(Icons.send),
-        find.text('发送'),
-        find.text('Send'),
-      ]);
-      if (!sent) {
-        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-        await settle(tester, maxSeconds: 2);
-      }
-
-      await settle(tester, maxSeconds: 3);
-      await takeScreenshot(tester, 'group_03_after_send');
-
-      expect(
-        find.textContaining('[GROUP-E2E]'),
-        findsWidgets,
-        reason: '发送后消息应出现在聊天列表中',
+          expect(
+            find.byType(ChatPage),
+            findsOneWidget,
+            reason: '已有 C2G 会话应能进入群聊页面',
+          );
+          drainKnownFrameworkExceptions(tester);
+        },
+        semanticsEnabled: false,
+        timeout: const Timeout(Duration(minutes: 5)),
       );
-      drainKnownFrameworkExceptions(tester);
-    }, timeout: const Timeout(Duration(minutes: 5)));
 
-    testWidgets(
-      '从已有群聊进入群详情页可访问',
-      (tester) async {
-        await ensureAppLaunched(tester, maxSeconds: 10);
+      testWidgets('进入已有群聊并发送文本消息', (tester) async {
+        if (!requireBusinessWriteAuthorization()) return;
+        await ensureAppLaunched(tester, maxSeconds: 3);
         if (!await checkPreconditions(tester)) return;
         await _ensureGroupFixture();
         await settle(tester, maxSeconds: 2);
-        await _dismissRecoveryGuideIfVisible(tester);
 
         if (!await _openConversationTab(tester)) {
           markTestSkipped('无法进入会话列表');
           return;
         }
         await settle(tester, maxSeconds: 2);
-        await _dismissRecoveryGuideIfVisible(tester);
+        await takeScreenshot(tester, 'group_01_conv_list');
 
-        final groupItem = await _waitForExistingGroupItem(tester);
-        if (groupItem == null) {
-          markTestSkipped('当前测试账号没有可识别的已有群聊会话');
+        // 优先找群聊标识，回退第一个会话
+        final groupFinder = _anyText(['群', 'Group', '群聊']);
+        final listTile = find.byType(ListTile);
+        final target = tester.any(groupFinder)
+            ? groupFinder.first
+            : tester.any(listTile)
+            ? listTile.first
+            : null;
+
+        if (target == null) {
+          markTestSkipped('未找到群聊会话');
           return;
         }
 
-        await safeTap(tester, groupItem.first);
+        await safeTap(tester, target);
+        await settle(tester, maxSeconds: 2);
+        await takeScreenshot(tester, 'group_02_chat_page');
+
+        final inputField = find.byType(TextField);
+        if (!tester.any(inputField)) {
+          markTestSkipped('聊天页无输入框（可能被禁言）');
+          return;
+        }
+
+        final msg = '[GROUP-E2E] ${DateTime.now().millisecondsSinceEpoch}';
+        await tester.enterText(inputField.first, msg);
+
+        final sent = await tapAny(tester, [
+          find.byIcon(Icons.send),
+          find.text('发送'),
+          find.text('Send'),
+        ]);
+        if (!sent) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await settle(tester, maxSeconds: 2);
+        }
+
         await settle(tester, maxSeconds: 3);
-        if (!tester.any(find.byType(ChatPage))) {
-          markTestSkipped('已有群聊会话未进入聊天页面');
-          return;
-        }
-        await _dismissRecoveryGuideIfVisible(tester);
-
-        final settingsButton = find.byIcon(Icons.more_horiz);
-        if (!tester.any(settingsButton)) {
-          markTestSkipped('群聊页面未找到群详情入口');
-          return;
-        }
-        await safeTap(tester, settingsButton.first);
-        await settle(tester, maxSeconds: 4);
+        await takeScreenshot(tester, 'group_03_after_send');
 
         expect(
-          find.byType(GroupDetailPage),
-          findsOneWidget,
-          reason: '已有群聊应能打开群详情页',
+          find.textContaining('[GROUP-E2E]'),
+          findsWidgets,
+          reason: '发送后消息应出现在聊天列表中',
         );
         drainKnownFrameworkExceptions(tester);
-      },
-      semanticsEnabled: false,
-      timeout: const Timeout(Duration(minutes: 5)),
-    );
-  }, skip: '阻塞：群密文解密失败卡 OLM identity 拉取链，需后端配套（见 _ensureGroupFixture 取证 ①②③）');
+      }, timeout: const Timeout(Duration(minutes: 5)));
+
+      testWidgets(
+        '从已有群聊进入群详情页可访问',
+        (tester) async {
+          await ensureAppLaunched(tester, maxSeconds: 10);
+          if (!await checkPreconditions(tester)) return;
+          await _ensureGroupFixture();
+          await settle(tester, maxSeconds: 2);
+          await _dismissRecoveryGuideIfVisible(tester);
+
+          if (!await _openConversationTab(tester)) {
+            markTestSkipped('无法进入会话列表');
+            return;
+          }
+          await settle(tester, maxSeconds: 2);
+          await _dismissRecoveryGuideIfVisible(tester);
+
+          final groupItem = await _waitForExistingGroupItem(tester);
+          if (groupItem == null) {
+            markTestSkipped('当前测试账号没有可识别的已有群聊会话');
+            return;
+          }
+
+          await safeTap(tester, groupItem.first);
+          await settle(tester, maxSeconds: 3);
+          if (!tester.any(find.byType(ChatPage))) {
+            markTestSkipped('已有群聊会话未进入聊天页面');
+            return;
+          }
+          await _dismissRecoveryGuideIfVisible(tester);
+
+          final settingsButton = find.byIcon(Icons.more_horiz);
+          if (!tester.any(settingsButton)) {
+            markTestSkipped('群聊页面未找到群详情入口');
+            return;
+          }
+          await safeTap(tester, settingsButton.first);
+          await settle(tester, maxSeconds: 4);
+
+          expect(
+            find.byType(GroupDetailPage),
+            findsOneWidget,
+            reason: '已有群聊应能打开群详情页',
+          );
+          drainKnownFrameworkExceptions(tester);
+        },
+        semanticsEnabled: false,
+        timeout: const Timeout(Duration(minutes: 5)),
+      );
+    },
+    skip:
+        '阻塞：本 fixture 用伪信封（非真实密钥协商产物）故入站必解密失败。'
+        '批次179 定性：出站侧已完整——后端三件套在位（group_member_keys/'
+        'e2ee_room_key 不透明中继/set_e2ee_mode）+ S15 e2ee_group_outbound_frame '
+        'macOS 实测绿；真实缺口=双客户端回环的入站解密（需第二真实客户端/真机'
+        '跑真 Megolm 会话）。勿再以伪信封攻击入站链。',
+  );
 }
 
 bool _isOnConvList(WidgetTester t) =>
