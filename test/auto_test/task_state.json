@@ -1589,5 +1589,26 @@
     ],
     "recipe_notes": "排查链：OTP 存量充足排除耗尽→olm_one_time_key.consumed_at 零消耗锁定服务端前置拒→claim_keys 读码定位 ensure_claim_authorized 好友门→API 契约(friend/add+confirm)→token 注入防互踢。诊断铁律：chat_network_service catch 刻意不输出异常内容（Finding 014），errType 只见 _Exception 须服务端 DB 消费记录交叉定位；FlowApiClient.login 的 type 按 @ 推断，smoke_bob 须显式 type:'account'+明文（md5 会 errorPassword）",
     "ledger": "无台账行变化（该测试属 AI_TEST_INDEX P0 白盒清单，状态仍「待真机采集」）；阻塞维持 48/97.3%"
+  },
+  "session_2026_09_11_batch178": {
+    "batch": 178,
+    "date": "2026-09-11",
+    "target": "消息管线回归复扫收尾：conversation_page（moya 向导触发点+21行）+ strict 明文拒收接收侧 + group_chat 现状盘点",
+    "verdict": "PASS",
+    "blocking_change": "48 -> 48（chat 域回归零回退）",
+    "row": {
+      "row": "chat 面回归补全（接批次176/177）",
+      "unlock": "conversation_test +3 PASS 00:14（会话列表 Slidable 渲染+侧滑菜单 置顶/删除，向导未误弹）；c2c_plaintext_reject +1 PASS 00:15（对端裸 WS 直发明文→strict 拒收不建会话不落库）；group_chat 3 skip=历史已知阻塞（_ensureGroupFixture 取证①②③：群密文解密卡 OLM identity 拉取链需后端配套），非本轮回归",
+      "evidence": "三文件均为真实执行：conversation/明文拒收转绿，group_chat 按 guard 诚实跳过；moya 大提交触碰的 chat/conversation/e2ee 域至此全部复扫完毕",
+      "test_file": "integration_test/chat/conversation_test.dart + c2c_plaintext_reject_test.dart + group_chat_test.dart",
+      "fixtures": "无新增"
+    },
+    "runs": [
+      "run1 conversation +3 PASS 00:14",
+      "run2 plaintext_reject +1 PASS 00:15",
+      "run3 group_chat +0 ~3 All tests skipped"
+    ],
+    "recipe_notes": "回归批次176→178 总口径：moya 26f032f6/3d7991d8+15f9326e 全改动面=boot 路径（moment/channel 金丝雀）+C2C 加密管线（批次177 转绿）+conversation 页+strict 接收门——全部零回退；chat 域唯余 group_chat 历史阻塞（需后端配套，独立立项）",
+    "ledger": "无台账行变化；阻塞维持 48/97.3%"
   }
 }
