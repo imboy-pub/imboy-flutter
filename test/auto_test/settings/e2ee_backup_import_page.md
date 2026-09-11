@@ -16,4 +16,4 @@
 | 无待办 | - | `page/settings/e2ee_backup_import_page.dart` | 导入成功弹窗展示脱敏设备与密钥标识 | 已通过 | 批次162 | 0 | 0 | 0 | 弹窗含 `Device ID: xxxx…xxxx`/`Key ID: xxxx…xxxx`（_maskId 前4后4）；device_id 仅作归档展示不覆盖本机 |
 | 无待办 | - | `page/settings/e2ee_backup_import_page.dart` | 云端恢复弹出口令确认框可取消 | 已通过 | 批次162 | 0 | 0 | 0 | macOS 通道：本地 9801 真上传（已备份到云端）→导入页云卡出现→「从云端恢复」→口令框（placeholder 备份口令）→取消→框关闭不执行恢复 |
 | 无待办 | - | `page/settings/e2ee_backup_import_page.dart` | 云端口令错误时提示口令不正确 | 已通过 | 批次162 | 0 | 0 | 0 | 错误口令→toast「口令错误或备份损坏」（e2eeBackupErrCloudPwd，ArgumentError 分支）；无备份分支另提示未测（需清云端备份） |
-| 阻塞 | 需可弃用测试账号且有群聊历史 | `page/settings/e2ee_backup_import_page.dart` | 恢复后回填群聊会话密钥 | 未测 | - | 0 | 0 | 0 | 单条写失败不整体回滚；备份需含 Megolm 会话（当前 smoke_bob 本地无群历史入备份） |
+| 阻塞 | 需可弃用测试账号且有群聊历史 | `page/settings/e2ee_backup_import_page.dart` | 恢复后回填群聊会话密钥 | 未测 | - | 0 | 0 | 0 | 单条写失败不整体回滚；备份需含 Megolm 会话（当前 smoke_bob 本地无群历史入备份）。批次175盘点：该行已被并行会话 staged 测试 `integration_test/settings/e2ee_backup_recovery_acceptance_test.dart`（AT-BI01/BI03；Megolm inbound 伪会话预置方案，无需真群历史）认领，且该测试要求人工授权的可弃用账号+MUTATION 门；待其经用户处置（moya index 污染归因）落地后复验解锁，本账本不重复建设 |
