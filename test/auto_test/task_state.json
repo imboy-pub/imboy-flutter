@@ -1548,5 +1548,25 @@
       "MomentFeedPage 支持 facade 注入（constructor 参数），播放行为测试可完全绕开 feed API"
     ],
     "ledger": "moment_feed_page.md 阻塞行 -> 无待办 批次174"
+  },
+  "session_2026_09_11_batch176": {
+    "batch": 176,
+    "date": "2026-09-11",
+    "target": "moya E2EE 大提交(26f032f6/3d7991d8)回归复扫——首启备份向导+mapper/i18n 变更是否打回批次170~174 既有绿灯行",
+    "verdict": "PASS",
+    "blocking_change": "48 -> 48（回归零回退）",
+    "row": {
+      "row": "批次170~174 解锁行回归保持",
+      "unlock": "向导触发判定三条件：本机有E2EE密钥+设备无完成标记+服务端无云备份；bob 有 v2 备份(e2ee_key_backups 08:31 moya 向导验收真实上传)→走静默补标记分支不弹窗",
+      "evidence": "金丝雀1 batch174 moment 全 boot 链 PASS 00:49（VideoPlayer 真渲染；封面图 Security Block loopback 为图片缓存组件固有防护噪音非回归）；金丝雀2 batch170 channel 邀请全链 PASS 00:33（含 BUG#149 锁 subscriber_count==1、邀请落库 status=0、已邀请过滤空态、夹具自清理）",
+      "test_file": "integration_test/moment/moment_feed_video_playback_batch174_test.dart + integration_test/channel/channel_subscriber_invite_acceptance_batch170_test.dart",
+      "fixtures": "无新增；批次174 可再生二进制残留(mp4/jpg)已删除，base64 还原 sanity 10998B ftyp 正确"
+    },
+    "runs": [
+      "run1 moment 00:49 All tests passed",
+      "run2 channel 00:33 All tests passed"
+    ],
+    "recipe_notes": "回归复扫口径：boot 路径风险用最深+最浅两条链金丝雀采样，先读触发条件做静态预检再跑真验证；批次174 交付复核自洽（base64→systemTemp+Range/206+NSAllowsLocalNetworking 均在位，compaction 前旧读快照不可当实况）",
+    "ledger": "无状态变化（回归保持绿）不触台账；阻塞维持 48/97.3%；五把解锁钥匙仍待拍板（见批次175 盘点）"
   }
 }
