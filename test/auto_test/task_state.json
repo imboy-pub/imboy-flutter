@@ -1568,5 +1568,26 @@
     ],
     "recipe_notes": "回归复扫口径：boot 路径风险用最深+最浅两条链金丝雀采样，先读触发条件做静态预检再跑真验证；批次174 交付复核自洽（base64→systemTemp+Range/206+NSAllowsLocalNetworking 均在位，compaction 前旧读快照不可当实况）",
     "ledger": "无状态变化（回归保持绿）不触台账；阻塞维持 48/97.3%；五把解锁钥匙仍待拍板（见批次175 盘点）"
+  },
+  "session_2026_09_11_batch177": {
+    "batch": 177,
+    "date": "2026-09-11",
+    "target": "消息管线回归复扫（批次176 延伸）：C2C E2EE 全链（白盒发送→OLM claim→对端密文落库→ChatPage 回显），覆盖 moya 大提交的 mapper/chat_page/msg_api 改动面",
+    "verdict": "PASS",
+    "blocking_change": "48 -> 48（管线健康；测试夹具缺口修复转绿，无新增阻塞）",
+    "row": {
+      "row": "C2C-E2EE-SEND-RENDER-001 macOS 通道转绿（真机采集门仍另计）",
+      "unlock": "根因=imboy 778a18ca P1 安全修复的 OTK claim 授权门（好友或同群），测试合成对端 at20260830210132b 与 smoke_bob 无关系→claim_not_authorized（特征：报错 _Exception、OTP 零消耗、失败仅 1 秒）。修复=测试内复用 App 主会话 token（UserRepoLocal.to.accessToken 注入 FlowApiClient）走 friend/add+confirm 铺底；严禁以本端账号独立 login（互踢把 App 挤下线，run3 实证全链 401 设备已被移除）",
+      "evidence": "run4 全绿 01:19：add=0/confirm=0→加密成功→两条消息密文落库断言（protocol=olm，payload 无明文）→ChatPage 回显；DB 侧 OTP 今日真实消耗 1 条+user_friend 双向行落库",
+      "test_file": "integration_test/chat/c2c_e2ee_send_render_test.dart（633d5d64）",
+      "fixtures": "好友链铺底持久化（幂等重入容忍已好友报错）；对端=at20260830210132b@at.local（email 明文登录）"
+    },
+    "runs": [
+      "run1 失败 _Exception(claim_not_authorized 根因定位)",
+      "run2/run3 夹具试错(401 互踢)",
+      "run4 All tests passed 01:19"
+    ],
+    "recipe_notes": "排查链：OTP 存量充足排除耗尽→olm_one_time_key.consumed_at 零消耗锁定服务端前置拒→claim_keys 读码定位 ensure_claim_authorized 好友门→API 契约(friend/add+confirm)→token 注入防互踢。诊断铁律：chat_network_service catch 刻意不输出异常内容（Finding 014），errType 只见 _Exception 须服务端 DB 消费记录交叉定位；FlowApiClient.login 的 type 按 @ 推断，smoke_bob 须显式 type:'account'+明文（md5 会 errorPassword）",
+    "ledger": "无台账行变化（该测试属 AI_TEST_INDEX P0 白盒清单，状态仍「待真机采集」）；阻塞维持 48/97.3%"
   }
 }
