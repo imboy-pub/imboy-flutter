@@ -88,6 +88,39 @@ void main() {
 
     final now = DateTime.now().millisecondsSinceEpoch;
 
+    // ===== 2.5 claim 授权门铺底：OTK claim 要求「双方好友或同群」
+    //（imboy 778a18ca P1 安全修复），合成对端账号与本端默认无关，
+    // 不铺底 claim 必被 claim_not_authorized 拒（且 OTP 零消耗，
+    // 批次177 实证：报错形如 E2EE v2.0 加密失败 errType=_Exception）。
+    // 客户端必须复用 App 主会话 token（channel_message_like 同款）：
+    // 以本端账号独立 login 会触发「另一设备登录」互踢把 App 挤下线
+    //（批次177 run3 实证：铺底后全链 401 设备已被移除）。
+    // 重复运行时 add 的「已是好友」类报错可容忍。
+    final selfApi = FlowApiClient(baseUrl: base, deviceId: 'c2csend-self');
+    selfApi.accessToken = await UserRepoLocal.to.accessToken;
+    if (selfApi.accessToken == null || selfApi.accessToken!.isEmpty) {
+      markTestSkipped('无法取得 App 主会话 token，无法铺好友链');
+      return;
+    }
+    final addRes = await selfApi.post(
+      '/api/v1/friend/add',
+      data: {
+        'to': peerUid,
+        'payload': <String, dynamic>{
+          'from': <String, dynamic>{'source': 'search'},
+        },
+        'created_at': now,
+      },
+    );
+    final confirmRes = await peer.post(
+      '/api/v1/friend/confirm',
+      data: {'from': selfUid, 'to': peerUid, 'payload': <String, dynamic>{}},
+    );
+    flowLog(
+      '好友链铺底: add=${addRes['code']}(${addRes['msg']}) '
+      'confirm=${confirmRes['code']}(${confirmRes['msg']})',
+    );
+
     // ===== 3. 白盒发送第一条：生产 sendMessage 全链 =====
     final text1 = 'e2ee-link-$now';
     final msgId1 = 'c2csend1${now.toRadixString(36)}';
