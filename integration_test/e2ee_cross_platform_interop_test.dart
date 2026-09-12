@@ -114,7 +114,7 @@ void main() {
         .setMockMethodCallHandler(secureStorageChannel, null);
   });
 
-  _registerInteropTest('Android/macOS C2C Olm/PFv3 双向互解', () async {
+  _registerInteropTest('Android-macOS C2C Olm-PFv3 双向互解', () async {
     switch (_role) {
       case 'sender':
         await _runSender(secureStore);
@@ -379,5 +379,13 @@ Map<String, dynamic> _map(Object? value) {
 
 void _printVector(Map<String, dynamic> vector) {
   final encoded = base64Url.encode(utf8.encode(jsonEncode(vector)));
-  debugPrintSynchronously('E2EE_INTEROP_VECTOR_B64:$encoded');
+  const chunkSize = 700;
+  final total = (encoded.length + chunkSize - 1) ~/ chunkSize;
+  for (var i = 0; i < total; i++) {
+    final end = (i + 1) * chunkSize;
+    debugPrintSynchronously(
+      'E2EE_INTEROP_VECTOR_B64_CHUNK:${i + 1}/$total:'
+      '${encoded.substring(i * chunkSize, end.clamp(0, encoded.length))}',
+    );
+  }
 }

@@ -24,6 +24,62 @@ class E2EEReportResult {
   bool get hasOtherDevice => otherDeviceCount > 0;
 }
 
+@immutable
+class E2EEGroupHistoryGrant {
+  const E2EEGroupHistoryGrant({
+    required this.gid,
+    required this.sessionId,
+    required this.generationNo,
+    required this.startSeq,
+    required this.endSeq,
+  });
+
+  final String gid;
+  final String sessionId;
+  final int generationNo;
+  final int startSeq;
+  final int endSeq;
+
+  factory E2EEGroupHistoryGrant.fromPayload(
+    dynamic payload, {
+    required String expectedGid,
+    required String expectedSessionId,
+  }) {
+    if (payload is! Map) {
+      throw const FormatException(
+        'E2EEApi.groupHistoryGrant: 期望 payload 为 Map',
+      );
+    }
+    final gid = payload['gid']?.toString() ?? '';
+    final sessionId = payload['session_id']?.toString() ?? '';
+    final epochId = payload['epoch_id']?.toString() ?? '';
+    final generationNo = _positiveInt(payload['generation_no']);
+    final startSeq = _positiveInt(payload['start_seq']);
+    final endSeq = _positiveInt(payload['end_seq']);
+    if (gid != expectedGid ||
+        sessionId != expectedSessionId ||
+        epochId != expectedSessionId ||
+        generationNo == null ||
+        startSeq == null ||
+        endSeq == null ||
+        endSeq < startSeq) {
+      throw const FormatException('E2EEApi.groupHistoryGrant: 授权范围字段不合法');
+    }
+    return E2EEGroupHistoryGrant(
+      gid: gid,
+      sessionId: sessionId,
+      generationNo: generationNo,
+      startSeq: startSeq,
+      endSeq: endSeq,
+    );
+  }
+}
+
+int? _positiveInt(dynamic value) {
+  final parsed = value is int ? value : int.tryParse(value?.toString() ?? '');
+  return parsed != null && parsed > 0 ? parsed : null;
+}
+
 /// 校验 ok 响应的列表形 payload（如 devices/members）。
 ///
 /// fail-closed：业务失败走 [IMBoyHttpResponse.throwIfFailed]；
@@ -118,6 +174,22 @@ class E2EEApi extends HttpClient {
     );
     resp.throwIfFailed();
     return _listPayloadOrThrow(resp.payload, 'groupMemberKeys', 'members');
+  }
+
+  Future<E2EEGroupHistoryGrant> groupHistoryGrant({
+    required String gid,
+    required String sessionId,
+  }) async {
+    final IMBoyHttpResponse resp = await get(
+      API.e2eeGroupHistoryGrant,
+      queryParameters: {'gid': gid, 'session_id': sessionId},
+    );
+    resp.throwIfFailed();
+    return E2EEGroupHistoryGrant.fromPayload(
+      resp.payload,
+      expectedGid: gid,
+      expectedSessionId: sessionId,
+    );
   }
 
   void debugLogUserKeys(List<Map<String, dynamic>> list) {

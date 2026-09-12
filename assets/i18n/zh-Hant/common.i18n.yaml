@@ -735,6 +735,9 @@ e2eeBackupErrImportFailed: 匯入失敗，請檢查密碼是否正確
 e2eeBackupImportSuccessTitle: 匯入成功
 e2eeBackupImportSuccessBody: E2EE 金鑰已成功恢復！
 e2eeBackupImportSuccessNote: "注意：只有備份中包含且成功寫入的群聊工作階段可用於讀取對應歷史；單聊歷史無法恢復，因為單聊金鑰不跨裝置備份"
+e2eeBackupHistoryGrantTitle: 恢復歷史群組金鑰
+e2eeBackupHistoryGrantBody(count): "此操作將授權本裝置恢復 $count 個群組金鑰，並只依各自的入群世代與訊息序號範圍解密歷史。身分金鑰已單獨恢復；取消不會恢復這些群組金鑰。"
+e2eeBackupHistoryRestoreResult(restored, omitted): "歷史群組金鑰：已授權恢復 $restored 個，已省略 $omitted 個"
 e2eeBackupCreatedAtRow: 建立時間
 e2eeBackupCloudUploadBtn: 備份到雲端
 e2eeBackupCloudUploadSuccess(version): 已備份到雲端（版本 $version）

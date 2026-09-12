@@ -733,6 +733,9 @@ e2eeBackupErrImportFailed: 가져오기 실패, 비밀번호를 확인해주세�
 e2eeBackupImportSuccessTitle: 가져오기 완료
 e2eeBackupImportSuccessBody: E2EE 키가 복구되었습니다!
 e2eeBackupImportSuccessNote: "참고: 이 백업에 포함되고 정상적으로 저장된 그룹 세션만 해당 기록을 읽는 데 사용할 수 있습니다. 1:1 키는 기기 간에 백업되지 않으므로 개인 대화 기록은 복원할 수 없습니다."
+e2eeBackupHistoryGrantTitle: 이전 그룹 키 복원
+e2eeBackupHistoryGrantBody(count): "이 기기에 $count개의 그룹 키 복원을 별도로 승인하며, 각 가입 세대와 메시지 순번 범위 안에서만 기록을 복호화합니다. 신원 키는 이미 복원되었습니다. 취소하면 이 그룹 키들은 복원하지 않습니다."
+e2eeBackupHistoryRestoreResult(restored, omitted): "이전 그룹 키: $restored개 승인 및 복원, $omitted개 제외"
 e2eeBackupCreatedAtRow: 생성 시간
 e2eeBackupCloudUploadBtn: 클라우드에 백업
 e2eeBackupCloudUploadSuccess(version): 클라우드에 백업했습니다 (버전 $version)

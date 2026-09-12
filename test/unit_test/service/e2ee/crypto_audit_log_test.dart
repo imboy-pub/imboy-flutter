@@ -149,6 +149,7 @@ void main() {
         AuditEventType.kdfMigrated,
         AuditEventType.trustStateVerified,
         AuditEventType.sessionEstablished,
+        AuditEventType.historicalRoomKeyGranted,
       ];
       for (final t in types) {
         await log.append(t, peerUid: '1');

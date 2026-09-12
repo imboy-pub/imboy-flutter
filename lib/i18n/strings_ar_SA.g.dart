@@ -1462,6 +1462,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'تم الاستيراد';
 	@override String get e2eeBackupImportSuccessBody => 'تمت استعادة مفتاح E2EE!';
 	@override String get e2eeBackupImportSuccessNote => 'ملاحظة: لا يمكن قراءة السجل المقابل إلا عبر جلسات المجموعة المضمّنة في هذه النسخة الاحتياطية والمحفوظة بنجاح. لا يمكن استعادة سجل المحادثات الفردية لأن مفاتيح 1:1 لا تُنسخ احتياطيًا بين الأجهزة.';
+	@override String get e2eeBackupHistoryGrantTitle => 'استعادة مفاتيح المجموعة التاريخية';
+	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'يمنح هذا الجهاز تفويضًا منفصلًا لاستعادة ${count} من مفاتيح المجموعة وفك سجل الرسائل ضمن جيل العضوية ونطاق تسلسل الرسائل الخاص بكل مفتاح فقط. تمت استعادة مفاتيح الهوية بالفعل؛ الإلغاء يتجاوز مفاتيح المجموعة هذه.';
+	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'مفاتيح المجموعة التاريخية: تم تفويض واستعادة ${restored}، وتم تجاوز ${omitted}';
 	@override String get e2eeBackupCreatedAtRow => 'تاريخ الإنشاء';
 	@override String get e2eeBackupCloudUploadBtn => 'النسخ الاحتياطي إلى السحابة';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})';
@@ -3853,6 +3856,9 @@ extension on TranslationsArSa {
 			'common.e2eeBackupImportSuccessTitle' => 'تم الاستيراد',
 			'common.e2eeBackupImportSuccessBody' => 'تمت استعادة مفتاح E2EE!',
 			'common.e2eeBackupImportSuccessNote' => 'ملاحظة: لا يمكن قراءة السجل المقابل إلا عبر جلسات المجموعة المضمّنة في هذه النسخة الاحتياطية والمحفوظة بنجاح. لا يمكن استعادة سجل المحادثات الفردية لأن مفاتيح 1:1 لا تُنسخ احتياطيًا بين الأجهزة.',
+			'common.e2eeBackupHistoryGrantTitle' => 'استعادة مفاتيح المجموعة التاريخية',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'يمنح هذا الجهاز تفويضًا منفصلًا لاستعادة ${count} من مفاتيح المجموعة وفك سجل الرسائل ضمن جيل العضوية ونطاق تسلسل الرسائل الخاص بكل مفتاح فقط. تمت استعادة مفاتيح الهوية بالفعل؛ الإلغاء يتجاوز مفاتيح المجموعة هذه.',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'مفاتيح المجموعة التاريخية: تم تفويض واستعادة ${restored}، وتم تجاوز ${omitted}',
 			'common.e2eeBackupCreatedAtRow' => 'تاريخ الإنشاء',
 			'common.e2eeBackupCloudUploadBtn' => 'النسخ الاحتياطي إلى السحابة',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})',
@@ -4074,11 +4080,11 @@ extension on TranslationsArSa {
 			'discovery.momentActionReport' => 'إبلاغ',
 			'discovery.momentActionCancel' => 'إلغاء',
 			'discovery.momentLikedBy' => ({required Object names}) => 'أعجب ${names}',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} و${count} آخرون أعجبوا',
 			'discovery.momentContentPlaceholder' => 'بماذا تفكر...',
 			'discovery.momentShowFull' => 'عرض الكل',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentCollapse' => 'طي',
 			'discovery.momentsDraftKeepTitle' => 'حفظ المسودة؟',
 			'discovery.momentsDraftKeepMessage' => 'يمكنك المتابعة في المرة القادمة',
@@ -4588,11 +4594,11 @@ extension on TranslationsArSa {
 			'workspace.brandingEntry' => 'إعدادات العلامة (الاسم / Logo / اللون الأساسي)',
 			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
 			'workspace.restoreEntry' => 'استعادة مساحة العمل',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'أرشفة مساحة العمل',
 			'workspace.archiveDesc' => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت',
 			'workspace.archiveConfirm' => 'تأكيد الأرشفة',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreTitle' => 'استعادة مساحة العمل',
 			'workspace.restoreDesc' => 'بعد الاستعادة تعود مساحة العمل للقراءة والكتابة',
 			'workspace.restoreConfirm' => 'تأكيد الاستعادة',

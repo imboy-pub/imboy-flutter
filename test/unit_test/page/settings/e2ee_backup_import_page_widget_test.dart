@@ -234,6 +234,7 @@ void main() {
           publicKey: 'FAKE_PUBLIC_KEY_PEM',
           deviceId: 'backup-src-device',
           keyId: 'backup-key-id',
+          secureEntriesForTest: const {},
         );
         file.writeAsBytesSync(bytes);
 

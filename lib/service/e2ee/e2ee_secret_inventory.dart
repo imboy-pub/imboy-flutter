@@ -26,7 +26,8 @@ class E2eeSecretPurgeException implements Exception {
 /// 单一入口枚举并清除全部秘密类别：
 /// - RSA 身份/历史私钥/社交恢复分片（`e2ee_*`，含 backup/recovery 元数据与 DID/kid）；
 /// - Olm account pickle / pickle key / session pickles（`olm_*`）；
-/// - Megolm inbound session pickles（`megolm_inbound_*`）与群旗标（`group_e2ee_mode_*`）;
+/// - Megolm inbound session、历史授权与恢复标记（`megolm_*`）以及群旗标
+///   （`group_e2ee_mode_*`）;
 /// - SQLCipher DB key（`db_cipher_key_*`，删除后旧库无法打开）；
 /// - MLS 预留（`mls_*`，尚无写入方）；
 /// - 各服务内存缓存与本地备份临时文件。
@@ -73,6 +74,8 @@ class E2eeSecretInventory {
     'e2ee_', // RSA 身份/历史/分片/DID/kid + backup/recovery 元数据
     'olm_', // Olm account pickle / pickle key / session pickles
     'megolm_inbound_', // Megolm inbound session pickles
+    'megolm_history_grant_', // 当前账号从后端取得的群历史授权
+    'megolm_restored_history_grant_', // 备份恢复会话的范围门 marker
     'group_e2ee_mode_', // 群 E2EE 旗标（服务端权威，可重拉）
     'db_cipher_key_', // SQLCipher DB key（按 uid）
     'mls_', // MLS 预留

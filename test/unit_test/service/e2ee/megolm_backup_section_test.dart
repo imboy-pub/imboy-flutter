@@ -1,125 +1,193 @@
-// P3-1：备份载荷 Megolm 段的纯函数守护 + 打包/解包往返实证。
-//
-// == 关闭的缺口 ==
-//
-// standard/gap-matrix.md B4：备份仅含 RSA 私钥 → 换设备后**群聊历史全灭**。
-// 本文件证明 Megolm inbound session 进出备份载荷保真。
-//
-// == 守护 ==
-//
-// 1. 【正向可用性】pack→unpack 往返后 Megolm 段逐条一致——只写不读（或反之）必红；
-// 2. 【范围纪律】Olm session pickle（`olm_*`）**不得**进备份——跨设备还原双棘轮
-//    会 key reuse / ratchet 分叉。收集器只认 megolm 前缀，且往返后全包不含该值；
-// 3. 【向后兼容】v1 旧备份无该字段 → 解析为空 map 而非抛错（缺可选段不得让
-//    整包恢复失败，否则老用户的 RSA 私钥也恢复不了）；
-// 4. 【上限】超 kMaxMegolmSessions 截断，不撑爆载荷；
-// 5. 【脏数据韧性】非字符串值 / 空键单条跳过，不整包丢弃。
-library;
-
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
+import 'package:imboy/store/api/e2ee_api.dart';
 
 const String _pw = 'TestPass123';
-// 合成 fixture，非真实密钥（packBackupBytes 只做不透明字符串搬运）
 const String _priv =
     '-----BEGIN PRIVATE KEY-----\nFAKE\n-----END PRIVATE KEY-----'; // gitleaks:allow
 const String _pub =
     '-----BEGIN PUBLIC KEY-----\nFAKE\n-----END PUBLIC KEY-----'; // gitleaks:allow
 
+String _grant(
+  String gid,
+  String sessionId, {
+  int generationNo = 2,
+  int startSeq = 481,
+  int endSeq = 900,
+}) => jsonEncode(
+  MegolmHistoryGrant(
+    scope: gid,
+    sessionId: sessionId,
+    generationNo: generationNo,
+    startSeq: startSeq,
+    endSeq: endSeq,
+  ).toJson(),
+);
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('collectMegolmSection（收集范围纪律）', () {
-    test('只收 megolm_inbound_ 前缀；Olm pickle / 群旗标一律不进备份', () {
+  group('Megolm backup section v2', () {
+    test('只收有权威 grant 的群 session；C2C、缺 grant 和非法 grant 均省略', () {
       final section = collectMegolmSection({
-        'megolm_inbound_c2c:sess-A': 'key-A',
-        'megolm_inbound_1900000000000:sess-B': 'key-B',
-        // 以下都不得进备份
-        'olm_account_pickle': 'olm-acc', // 双棘轮发送态：还原会 key reuse
-        'olm_session_1001:did-x': 'olm-sess',
-        'crypto_identity_pin_peer:did': 'tofu-pin',
-        'group_e2ee_mode_1900000000000': '1', // 服务端权威，可重拉
-        'e2ee_private_key': 'rsa-priv', // 另有专门字段
+        'megolm_inbound_100:session-ok': 'key-ok',
+        'megolm_history_grant_100:session-ok': _grant('100', 'session-ok'),
+        'megolm_inbound_c2c:session-c2c': 'key-c2c',
+        'megolm_inbound_101:session-no-grant': 'key-no-grant',
+        'megolm_inbound_102:session-mismatch': 'key-mismatch',
+        'megolm_history_grant_102:session-mismatch': _grant(
+          '999',
+          'session-mismatch',
+        ),
+        'olm_account_pickle': 'must-not-appear',
       });
 
-      expect(section.keys.toSet(), {'c2c:sess-A', '1900000000000:sess-B'});
-      expect(section['c2c:sess-A'], 'key-A');
-      expect(section.keys.any((k) => k.startsWith('olm')), isFalse);
-      expect(section.keys.any((k) => k.startsWith('crypto_')), isFalse);
+      expect(section.sessions, hasLength(1));
+      expect(section.sessions.single.scope, '100');
+      expect(section.sessions.single.exportedKey, 'key-ok');
+      expect(section.omittedSessionCount, 3);
+      expect(jsonEncode(section.toJson()), isNot(contains('key-c2c')));
+      expect(jsonEncode(section.toJson()), isNot(contains('must-not-appear')));
     });
 
-    test('空值条目跳过', () {
+    test('grant 严格绑定 scope/session/epoch 与有效范围', () {
+      final valid = MegolmHistoryGrant.parse(
+        _grant('100', 'session-a', startSeq: 5, endSeq: 8),
+        expectedScope: '100',
+        expectedSessionId: 'session-a',
+      );
+      expect(valid, isNotNull);
+      expect(valid!.allows(4), isFalse);
+      expect(valid.allows(5), isTrue);
+      expect(valid.allows(8), isTrue);
+      expect(valid.allows(9), isFalse);
+      expect(valid.allows(null), isFalse);
+
+      final invalid = jsonDecode(_grant('100', 'session-a'))
+        ..['epoch_id'] = 'other-session';
       expect(
-        collectMegolmSection({
-          'megolm_inbound_c2c:s1': '',
-          'megolm_inbound_c2c:s2': 'v',
-        }),
-        {'c2c:s2': 'v'},
+        MegolmHistoryGrant.parse(
+          invalid,
+          expectedScope: '100',
+          expectedSessionId: 'session-a',
+        ),
+        isNull,
       );
     });
 
-    test('超上限截断而非撑爆载荷', () {
-      final all = <String, String>{};
-      for (var i = 0; i < kMaxMegolmSessions + 50; i++) {
-        all['${kMegolmInboundPrefix}g:s$i'] = 'k$i';
+    test('旧字符串 map 不恢复 session，只统计省略数', () {
+      final section = parseMegolmSection({
+        '100:session-a': 'legacy-key-a',
+        'c2c:session-b': 'legacy-key-b',
+      });
+      expect(section.sessions, isEmpty);
+      expect(section.omittedSessionCount, 2);
+    });
+
+    test('v2 sessions 缺失或类型错误时明确拒绝损坏备份', () {
+      for (final raw in [
+        {'format_version': kMegolmSectionFormatVersion},
+        {
+          'format_version': kMegolmSectionFormatVersion,
+          'sessions': <String, dynamic>{},
+        },
+      ]) {
+        expect(() => parseMegolmSection(raw), throwsA(isA<FormatException>()));
       }
-      expect(collectMegolmSection(all).length, kMaxMegolmSessions);
+    });
+
+    test('超上限截断并计入省略数', () {
+      final entries = <String, String>{};
+      for (var i = 0; i < kMaxMegolmSessions + 2; i++) {
+        entries['megolm_inbound_100:s$i'] = 'key-$i';
+        entries['megolm_history_grant_100:s$i'] = _grant('100', 's$i');
+      }
+      final section = collectMegolmSection(entries);
+      expect(section.sessions, hasLength(kMaxMegolmSessions));
+      expect(section.omittedSessionCount, 2);
     });
   });
 
-  group('parseMegolmSection（向后兼容 + 脏数据韧性）', () {
-    test('缺字段（v1 旧备份载荷）→ 空 map，不抛错', () {
-      expect(parseMegolmSection(null), isEmpty);
-      expect(parseMegolmSection('not-a-map'), isEmpty);
-      expect(parseMegolmSection(123), isEmpty);
-    });
+  group('restoreMegolmSessions', () {
+    final backup = {
+      kMegolmSectionKey: MegolmBackupSection(
+        sessions: [
+          MegolmBackupSession(
+            scope: '100',
+            sessionId: 'session-a',
+            exportedKey: 'key-a',
+            grant: const MegolmHistoryGrant(
+              scope: '100',
+              sessionId: 'session-a',
+              generationNo: 2,
+              startSeq: 481,
+              endSeq: 900,
+            ),
+          ),
+        ],
+      ).toJson(),
+    };
 
-    test('非字符串值 / 空键单条跳过，其余保留', () {
-      expect(
-        parseMegolmSection({'g:s1': 'ok', 'g:s2': 42, '': 'ek', 'g:s3': ''}),
-        {'g:s1': 'ok'},
+    test('没有独立授权时底层 API 拒绝且零写入', () async {
+      final written = <String>[];
+      await expectLater(
+        E2EELocalBackupService.restoreMegolmSessions(
+          backup,
+          historicalGrantConfirmed: false,
+          auditBeforeRestore: (_) async {},
+          writeForTest: (key, value) async => written.add(key),
+        ),
+        throwsA(isA<StateError>()),
       );
-    });
-  });
-
-  group('megolmRestoreEntries（回填补前缀）', () {
-    test('键补回 megolm_inbound_ 前缀', () {
-      expect(megolmRestoreEntries({'c2c:s1': 'v1'}), {
-        'megolm_inbound_c2c:s1': 'v1',
-      });
+      expect(written, isEmpty);
     });
 
-    test('空键/空值不产生垃圾写入项', () {
-      expect(megolmRestoreEntries({'': 'v', 'k': ''}), isEmpty);
-    });
-  });
-
-  group('restoreMegolmSessions（恢复结果不可误报）', () {
-    test('全部写入成功时返回实际恢复数', () async {
+    test('授权后先写恢复 grant marker，最后写入 key', () async {
       final written = <String, String>{};
-
-      final restored = await E2EELocalBackupService.restoreMegolmSessions({
-        kMegolmSectionKey: {'c2g:session-a': 'pickle-a'},
-      }, writeForTest: (key, value) async => written[key] = value);
+      final order = <String>[];
+      final restored = await E2EELocalBackupService.restoreMegolmSessions(
+        backup,
+        historicalGrantConfirmed: true,
+        auditBeforeRestore: (_) async {},
+        writeForTest: (key, value) async {
+          order.add(key);
+          written[key] = value;
+        },
+      );
 
       expect(restored, 1);
-      expect(written, {'megolm_inbound_c2g:session-a': 'pickle-a'});
+      expect(order, [
+        'megolm_restored_history_grant_100:session-a',
+        'megolm_history_grant_100:session-a',
+        'megolm_inbound_100:session-a',
+      ]);
+      expect(written['megolm_inbound_100:session-a'], 'key-a');
+    });
+
+    test('审计失败时历史 key 零写入', () async {
+      final written = <String>[];
+      await expectLater(
+        E2EELocalBackupService.restoreMegolmSessions(
+          backup,
+          historicalGrantConfirmed: true,
+          auditBeforeRestore: (_) async => throw StateError('audit_failed'),
+          writeForTest: (key, value) async => written.add(key),
+        ),
+        throwsA(isA<StateError>()),
+      );
+      expect(written, isEmpty);
     });
 
     test('任一安全存储写入失败时立即失败，不报告完整恢复', () async {
       final attempted = <String>[];
-
-      expect(
-        () => E2EELocalBackupService.restoreMegolmSessions(
-          {
-            kMegolmSectionKey: {
-              'c2g:session-a': 'pickle-a',
-              'c2g:session-b': 'pickle-b',
-            },
-          },
+      await expectLater(
+        E2EELocalBackupService.restoreMegolmSessions(
+          backup,
+          historicalGrantConfirmed: true,
+          auditBeforeRestore: (_) async {},
           writeForTest: (key, value) async {
             attempted.add(key);
             throw StateError('secure_storage_write_failed');
@@ -127,23 +195,31 @@ void main() {
         ),
         throwsA(isA<StateError>()),
       );
-      expect(attempted, ['megolm_inbound_c2g:session-a']);
+      expect(attempted, ['megolm_restored_history_grant_100:session-a']);
     });
   });
 
-  group('pack/unpack 往返（正向可用性）', () {
-    test('Megolm 段逐条保真，且 Olm pickle 不出现在包内任何位置', () async {
+  group('pack/unpack', () {
+    test('导出前按 session 刷新服务端有限授权快照', () async {
       final bytes = await E2EELocalBackupService.packBackupBytes(
         password: _pw,
         privateKey: _priv,
         publicKey: _pub,
         deviceId: 'dev-EXAMPLE',
         keyId: 'key-EXAMPLE',
-        secureEntriesForTest: const {
-          'megolm_inbound_c2c:sess-A': 'exported-key-A',
-          'megolm_inbound_1900000000000:sess-B': 'exported-key-B',
-          'olm_account_pickle': 'must-not-appear',
-          'crypto_identity_pin_peer:did': 'must-not-appear-either',
+        secureEntriesForTest: {
+          'megolm_inbound_100:session-a': 'exported-key-a',
+        },
+        historyGrantLoaderForTest: (gid, sessionId) async {
+          expect(gid, '100');
+          expect(sessionId, 'session-a');
+          return const E2EEGroupHistoryGrant(
+            gid: '100',
+            sessionId: 'session-a',
+            generationNo: 2,
+            startSeq: 481,
+            endSeq: 900,
+          );
         },
       );
 
@@ -151,35 +227,102 @@ void main() {
         bytes: bytes,
         password: _pw,
       );
-
-      // 既有字段不回归
-      expect(restored['private_key'], _priv);
-      expect(restored['key_id'], 'key-EXAMPLE');
-
-      final section = restored[kMegolmSectionKey] as Map<String, String>;
-      expect(section, {
-        'c2c:sess-A': 'exported-key-A',
-        '1900000000000:sess-B': 'exported-key-B',
-      });
-      expect(jsonEncode(restored).contains('must-not-appear'), isFalse);
-      expect(jsonEncode(restored).contains('must-not-appear-either'), isFalse);
+      final section = E2EELocalBackupService.megolmBackupSection(restored);
+      expect(section.sessions, hasLength(1));
+      expect(section.sessions.single.grant.endSeq, 900);
     }, timeout: const Timeout(Duration(minutes: 2)));
 
-    test('无群会话时段为空但字段存在（与 v1 旧包可区分）', () async {
+    test('授权刷新失败时中止备份，不静默生成缺群历史的成功包', () async {
+      await expectLater(
+        E2EELocalBackupService.packBackupBytes(
+          password: _pw,
+          privateKey: _priv,
+          publicKey: _pub,
+          deviceId: 'dev-EXAMPLE',
+          keyId: 'key-EXAMPLE',
+          secureEntriesForTest: {
+            'megolm_inbound_100:session-a': 'must-not-appear',
+            'megolm_history_grant_100:session-a': _grant('100', 'session-a'),
+          },
+          historyGrantLoaderForTest: (_, _) async =>
+              throw StateError('forbidden'),
+        ),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            'backup_secret_collection_failed',
+          ),
+        ),
+      );
+    }, timeout: const Timeout(Duration(minutes: 2)));
+
+    test('非法和 C2C 条目不占群 session 刷新上限', () async {
+      final entries = <String, String>{};
+      for (var i = 0; i < kMaxMegolmSessions; i++) {
+        entries['megolm_inbound_c2c:session-$i'] = 'c2c-key-$i';
+      }
+      entries['megolm_inbound_100:session-valid'] = 'group-key';
+
+      var loaderCalls = 0;
       final bytes = await E2EELocalBackupService.packBackupBytes(
         password: _pw,
         privateKey: _priv,
         publicKey: _pub,
         deviceId: 'dev-EXAMPLE',
         keyId: 'key-EXAMPLE',
-        secureEntriesForTest: const {'e2ee_private_key': 'rsa'},
+        secureEntriesForTest: entries,
+        historyGrantLoaderForTest: (gid, sessionId) async {
+          loaderCalls++;
+          return E2EEGroupHistoryGrant(
+            gid: gid,
+            sessionId: sessionId,
+            generationNo: 2,
+            startSeq: 481,
+            endSeq: 900,
+          );
+        },
       );
+
       final restored = await E2EELocalBackupService.unpackBackupBytes(
         bytes: bytes,
         password: _pw,
       );
-      expect(restored[kMegolmSectionKey], isEmpty);
+      final section = E2EELocalBackupService.megolmBackupSection(restored);
+
+      expect(loaderCalls, 1);
+      expect(section.sessions, hasLength(1));
+      expect(section.sessions.single.sessionId, 'session-valid');
+      expect(section.omittedSessionCount, kMaxMegolmSessions);
+    }, timeout: const Timeout(Duration(minutes: 2)));
+
+    test('v2 group session 与 grant 往返；C2C 和 Olm pickle 不进入包', () async {
+      final bytes = await E2EELocalBackupService.packBackupBytes(
+        password: _pw,
+        privateKey: _priv,
+        publicKey: _pub,
+        deviceId: 'dev-EXAMPLE',
+        keyId: 'key-EXAMPLE',
+        secureEntriesForTest: {
+          'megolm_inbound_100:session-a': 'exported-key-a',
+          'megolm_history_grant_100:session-a': _grant('100', 'session-a'),
+          'megolm_inbound_c2c:session-b': 'must-not-appear',
+          'olm_account_pickle': 'must-not-appear-either',
+        },
+      );
+
+      final restored = await E2EELocalBackupService.unpackBackupBytes(
+        bytes: bytes,
+        password: _pw,
+      );
+      final section = E2EELocalBackupService.megolmBackupSection(restored);
+
       expect(restored['private_key'], _priv);
+      expect(section.sessions, hasLength(1));
+      expect(section.sessions.single.scope, '100');
+      expect(section.sessions.single.grant.startSeq, 481);
+      expect(section.omittedSessionCount, 1);
+      expect(jsonEncode(restored), isNot(contains('must-not-appear')));
     }, timeout: const Timeout(Duration(minutes: 2)));
   });
 }

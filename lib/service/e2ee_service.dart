@@ -496,6 +496,7 @@ class E2EEService {
   /// 结果测了一条生产不走的路。
   static Future<Map<String, dynamic>?> decryptInboundV3({
     required Map<String, dynamic> data,
+    int? trustedArchiveConvSeq,
   }) async {
     final e2ee = data['e2ee'];
     if (e2ee is! Map) return null;
@@ -507,11 +508,15 @@ class E2EEService {
     if (E2eeProtocolRegistry.all().isEmpty) {
       E2eeBootstrap.ensureRegistered();
     }
-    return decryptIncomingPayload(payload: data);
+    return decryptIncomingPayload(
+      payload: data,
+      trustedArchiveConvSeq: trustedArchiveConvSeq,
+    );
   }
 
   static Future<Map<String, dynamic>> decryptIncomingPayload({
     required Map<String, dynamic> payload,
+    int? trustedArchiveConvSeq,
   }) async {
     final e2ee = payload['e2ee'];
     if (e2ee == null || e2ee == '') return payload;
@@ -531,6 +536,22 @@ class E2EEService {
         e2eeData['protocol'] == 'megolm' &&
         (e2eeData['gid']?.toString() ?? '').isNotEmpty;
     if (isMegolmGroup) {
+      final gid = e2eeData['gid'].toString();
+      final outerType = (payload['type'] ?? payload['chat_type'])
+          ?.toString()
+          .toUpperCase();
+      final outerGid = (payload['to'] ?? payload['group_id'])?.toString();
+      if (outerType != 'C2G' || outerGid != gid) {
+        return _decryptFailedPayload(payload, reason: 'group_scope_mismatch');
+      }
+      final metadata = Map<String, dynamic>.from(e2eeData)
+        ..remove('_archive_conv_seq')
+        ..remove('history_conv_seq');
+      final outerConvSeq = payload['conv_seq'];
+      final trustedConvSeq = outerConvSeq ?? trustedArchiveConvSeq;
+      if (trustedConvSeq != null) {
+        metadata['history_conv_seq'] = trustedConvSeq;
+      }
       // PFv3: ciphertext 在 e2ee 元数据；v2: 在顶层 payload
       final ciphertext =
           e2eeData['ciphertext']?.toString() ??
@@ -542,7 +563,7 @@ class E2EEService {
       try {
         final plaintext = await decryptE2EEMessage(
           ciphertext: ciphertext,
-          e2ee: e2eeData,
+          e2ee: metadata,
         );
         final decoded = jsonDecode(plaintext);
         if (decoded is! Map<String, dynamic>) {

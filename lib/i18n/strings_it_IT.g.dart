@@ -1453,6 +1453,9 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'Importata';
 	@override String get e2eeBackupImportSuccessBody => 'Chiave E2EE ripristinata !';
 	@override String get e2eeBackupImportSuccessNote => 'Nota: solo le sessioni di gruppo incluse in questo backup e salvate correttamente consentono di leggere la cronologia corrispondente. La cronologia individuale non è recuperabile perché le chiavi 1:1 non vengono salvate tra dispositivi.';
+	@override String get e2eeBackupHistoryGrantTitle => 'Ripristina chiavi di gruppo storiche';
+	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'Questa azione autorizza separatamente il dispositivo a ripristinare ${count} chiavi di gruppo e a decifrare la cronologia solo entro la generazione di appartenenza e l\'intervallo di sequenza di ogni chiave. Le chiavi identità sono già ripristinate; annullando queste chiavi di gruppo vengono ignorate.';
+	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Chiavi di gruppo storiche: ${restored} autorizzate e ripristinate, ${omitted} omesse';
 	@override String get e2eeBackupCreatedAtRow => 'Creato il';
 	@override String get e2eeBackupCloudUploadBtn => 'Backup su cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Backup su cloud completato (versione ${version})';
@@ -3844,6 +3847,9 @@ extension on TranslationsItIt {
 			'common.e2eeBackupImportSuccessTitle' => 'Importata',
 			'common.e2eeBackupImportSuccessBody' => 'Chiave E2EE ripristinata !',
 			'common.e2eeBackupImportSuccessNote' => 'Nota: solo le sessioni di gruppo incluse in questo backup e salvate correttamente consentono di leggere la cronologia corrispondente. La cronologia individuale non è recuperabile perché le chiavi 1:1 non vengono salvate tra dispositivi.',
+			'common.e2eeBackupHistoryGrantTitle' => 'Ripristina chiavi di gruppo storiche',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'Questa azione autorizza separatamente il dispositivo a ripristinare ${count} chiavi di gruppo e a decifrare la cronologia solo entro la generazione di appartenenza e l\'intervallo di sequenza di ogni chiave. Le chiavi identità sono già ripristinate; annullando queste chiavi di gruppo vengono ignorate.',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Chiavi di gruppo storiche: ${restored} autorizzate e ripristinate, ${omitted} omesse',
 			'common.e2eeBackupCreatedAtRow' => 'Creato il',
 			'common.e2eeBackupCloudUploadBtn' => 'Backup su cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backup su cloud completato (versione ${version})',
@@ -4065,11 +4071,11 @@ extension on TranslationsItIt {
 			'discovery.momentActionReport' => 'Segnala',
 			'discovery.momentActionCancel' => 'Annulla',
 			'discovery.momentLikedBy' => ({required Object names}) => 'A ${names} piace',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => 'A ${names} e altri ${count} piace',
 			'discovery.momentContentPlaceholder' => 'A cosa stai pensando...',
 			'discovery.momentShowFull' => 'Mostra tutto',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentCollapse' => 'Comprimi',
 			'discovery.momentsDraftKeepTitle' => 'Conservare la bozza?',
 			'discovery.momentsDraftKeepMessage' => 'Potrai continuare la prossima volta',
@@ -4579,11 +4585,11 @@ extension on TranslationsItIt {
 			'workspace.projectChannelEmptySubtitle' => 'Dopo aver collegato un canale dell\'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto',
 			'workspace.projectChannelEmptyTitle' => 'Nessun canale collegato per ora',
 			'workspace.projectChannelLinkExistingToast' => 'Questo canale è già collegato',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectChannelLinkTitle' => 'Seleziona i canali da collegare',
 			'workspace.projectChannelLinkedToast' => 'Canale collegato',
 			'workspace.projectChannelNoCandidate' => 'Nessun canale candidato collegabile',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectChannelUnlinkDesc' => 'Dopo lo scollegamento i contenuti del canale non verranno più aggregati in questo progetto',
 			'workspace.projectChannelUnlinkSubmit' => 'Scollega',
 			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'Scollega ${name}',

@@ -1,78 +1,266 @@
-/// P3-1：备份载荷的 Megolm inbound session 段（换设备后群聊历史可恢复）。
-///
-/// == 为什么需要 ==
-///
-/// 备份载荷此前只含 RSA 私钥（`e2ee_local_backup_service.packBackupBytes`），
-/// 而群聊密文由 Megolm inbound session 解密。换设备后新 deviceId 拿不到任何
-/// Megolm session → **群聊历史全灭**（用户可感知的最大洞，见
-/// standard/gap-matrix.md B4）。
-///
-/// == 范围（有意如此）==
-///
-/// - **收**：`megolm_inbound_<scope>:<sessionId>` —— 群聊/单聊 Megolm 收包密钥，
-///   是「读历史」所需的全部材料，且天然只读（不含发送侧棘轮态）。
-/// - **不收 Olm session pickle**：Olm 是 1:1 双棘轮，session 状态含发送侧棘轮
-///   位置；跨设备还原会造成 **key reuse / ratchet 分叉**。行业通行做法同样不备份
-///   （Signal / Matrix 换设备后 1:1 历史不可恢复），该限制须在 UI 明示而非偷偷绕过。
-/// - **不收群旗标 `group_e2ee_mode_*`**：服务端权威，登录后可重拉。
-///
-/// 本模块是**纯函数**（不碰 storage），使备份格式可脱离 secure storage 单测。
-library;
+import 'dart:convert';
 
-/// 备份载荷中 Megolm 段的字段名（载荷 v2 起存在；v1 载荷无此字段）。
 const String kMegolmSectionKey = 'megolm_inbound';
-
-/// secure storage 中 Megolm inbound session 的键前缀（与 GroupSessionService 一致）。
 const String kMegolmInboundPrefix = 'megolm_inbound_';
-
-/// 单次备份纳入的 inbound session 条数上限。
-///
-/// 防超大载荷把备份包撑爆（云备份 put 有体积上限，本地文件有 64MiB 解析上限）。
-/// 超出时保留**最先枚举到的** N 条——不静默扩容，也不整包失败。
+const String kMegolmHistoryGrantPrefix = 'megolm_history_grant_';
+const String kMegolmRestoredGrantPrefix = 'megolm_restored_history_grant_';
+const int kMegolmSectionFormatVersion = 2;
 const int kMaxMegolmSessions = 2000;
 
-/// 从 secure storage 全量键值中筛出 Megolm inbound 段。
-///
-/// [allEntries] 通常来自 `StorageSecureService.to.readAll()`。
-/// 返回 map 的键是**去前缀后的 `scope:sessionId`**（载荷更紧凑，回填时补回前缀）。
-Map<String, String> collectMegolmSection(Map<String, String> allEntries) {
-  final out = <String, String>{};
-  for (final e in allEntries.entries) {
-    if (!e.key.startsWith(kMegolmInboundPrefix)) continue;
-    if (e.value.isEmpty) continue;
-    if (out.length >= kMaxMegolmSessions) break;
-    out[e.key.substring(kMegolmInboundPrefix.length)] = e.value;
+class MegolmHistoryGrant {
+  const MegolmHistoryGrant({
+    required this.scope,
+    required this.sessionId,
+    required this.generationNo,
+    required this.startSeq,
+    required this.endSeq,
+  });
+
+  final String scope;
+  final String sessionId;
+  final int generationNo;
+  final int startSeq;
+  final int endSeq;
+
+  String get epochId => sessionId;
+
+  bool allows(int? convSeq) {
+    if (convSeq == null || convSeq < startSeq) return false;
+    return convSeq <= endSeq;
+  }
+
+  Map<String, dynamic> toJson() => {
+    'version': 1,
+    'scope': scope,
+    'session_id': sessionId,
+    'epoch_id': epochId,
+    'generation_no': generationNo,
+    'start_seq': startSeq,
+    'end_seq': endSeq,
+    'source': 'server_history_grant',
+  };
+
+  static MegolmHistoryGrant? parse(
+    dynamic raw, {
+    required String expectedScope,
+    required String expectedSessionId,
+  }) {
+    Map<dynamic, dynamic>? map;
+    if (raw is String) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map) map = decoded;
+      } on FormatException {
+        return null;
+      }
+    } else if (raw is Map) {
+      map = raw;
+    }
+    if (map == null || map['version'] != 1) return null;
+
+    final scope = map['scope'];
+    final sessionId = map['session_id'];
+    final epochId = map['epoch_id'];
+    final generationNo = _positiveInt(map['generation_no']);
+    final startSeq = _positiveInt(map['start_seq']);
+    final endSeq = _positiveInt(map['end_seq']);
+    if (scope != expectedScope ||
+        sessionId != expectedSessionId ||
+        epochId != expectedSessionId ||
+        map['source'] != 'server_history_grant' ||
+        generationNo == null ||
+        startSeq == null ||
+        endSeq == null ||
+        endSeq < startSeq) {
+      return null;
+    }
+    return MegolmHistoryGrant(
+      scope: scope as String,
+      sessionId: sessionId as String,
+      generationNo: generationNo,
+      startSeq: startSeq,
+      endSeq: endSeq,
+    );
+  }
+}
+
+class MegolmBackupSession {
+  const MegolmBackupSession({
+    required this.scope,
+    required this.sessionId,
+    required this.exportedKey,
+    required this.grant,
+  });
+
+  final String scope;
+  final String sessionId;
+  final String exportedKey;
+  final MegolmHistoryGrant grant;
+
+  String get suffix => '$scope:$sessionId';
+
+  Map<String, dynamic> toJson() => {
+    'scope': scope,
+    'session_id': sessionId,
+    'exported_key': exportedKey,
+    'grant': grant.toJson(),
+  };
+
+  static MegolmBackupSession? parse(dynamic raw) {
+    if (raw is! Map) return null;
+    final scope = raw['scope'];
+    final sessionId = raw['session_id'];
+    final exportedKey = raw['exported_key'];
+    if (scope is! String ||
+        !_isGroupScope(scope) ||
+        sessionId is! String ||
+        sessionId.isEmpty ||
+        exportedKey is! String ||
+        exportedKey.isEmpty) {
+      return null;
+    }
+    final grant = MegolmHistoryGrant.parse(
+      raw['grant'],
+      expectedScope: scope,
+      expectedSessionId: sessionId,
+    );
+    if (grant == null) return null;
+    return MegolmBackupSession(
+      scope: scope,
+      sessionId: sessionId,
+      exportedKey: exportedKey,
+      grant: grant,
+    );
+  }
+}
+
+class MegolmBackupSection {
+  const MegolmBackupSection({
+    required this.sessions,
+    this.omittedSessionCount = 0,
+  });
+
+  final List<MegolmBackupSession> sessions;
+  final int omittedSessionCount;
+
+  bool get isEmpty => sessions.isEmpty;
+
+  Map<String, dynamic> toJson() => {
+    'format_version': kMegolmSectionFormatVersion,
+    'sessions': sessions.map((e) => e.toJson()).toList(growable: false),
+    'omitted_session_count': omittedSessionCount,
+  };
+}
+
+MegolmBackupSection collectMegolmSection(Map<String, String> allEntries) {
+  final sessions = <MegolmBackupSession>[];
+  var omitted = 0;
+  for (final entry in allEntries.entries) {
+    if (!entry.key.startsWith(kMegolmInboundPrefix) || entry.value.isEmpty) {
+      continue;
+    }
+    final suffix = entry.key.substring(kMegolmInboundPrefix.length);
+    final separator = suffix.indexOf(':');
+    if (separator <= 0 || separator == suffix.length - 1) {
+      omitted++;
+      continue;
+    }
+    final scope = suffix.substring(0, separator);
+    final sessionId = suffix.substring(separator + 1);
+    if (!_isGroupScope(scope)) {
+      omitted++;
+      continue;
+    }
+    final grant = MegolmHistoryGrant.parse(
+      allEntries['$kMegolmHistoryGrantPrefix$suffix'],
+      expectedScope: scope,
+      expectedSessionId: sessionId,
+    );
+    if (grant == null || sessions.length >= kMaxMegolmSessions) {
+      omitted++;
+      continue;
+    }
+    sessions.add(
+      MegolmBackupSession(
+        scope: scope,
+        sessionId: sessionId,
+        exportedKey: entry.value,
+        grant: grant,
+      ),
+    );
+  }
+  return MegolmBackupSection(
+    sessions: List.unmodifiable(sessions),
+    omittedSessionCount: omitted,
+  );
+}
+
+MegolmBackupSection parseMegolmSection(dynamic raw) {
+  if (raw is! Map) {
+    return const MegolmBackupSection(sessions: []);
+  }
+  if (raw['format_version'] != kMegolmSectionFormatVersion) {
+    final legacyCount = raw.entries
+        .where(
+          (e) =>
+              e.key is String &&
+              e.value is String &&
+              (e.value as String).isNotEmpty,
+        )
+        .length;
+    return MegolmBackupSection(
+      sessions: const [],
+      omittedSessionCount: legacyCount,
+    );
+  }
+  final rows = raw['sessions'];
+  if (rows is! List) {
+    throw const FormatException('Megolm v2 sessions 结构无效');
+  }
+  final sessions = <MegolmBackupSession>[];
+  var omitted = _nonNegativeInt(raw['omitted_session_count']) ?? 0;
+  for (final row in rows) {
+    final parsed = MegolmBackupSession.parse(row);
+    if (parsed == null || sessions.length >= kMaxMegolmSessions) {
+      omitted++;
+    } else {
+      sessions.add(parsed);
+    }
+  }
+  return MegolmBackupSection(
+    sessions: List.unmodifiable(sessions),
+    omittedSessionCount: omitted,
+  );
+}
+
+List<MapEntry<String, String>> megolmRestoreEntries(
+  MegolmBackupSection section,
+) {
+  final out = <MapEntry<String, String>>[];
+  for (final session in section.sessions) {
+    final grantJson = jsonEncode(session.grant.toJson());
+    out.add(
+      MapEntry('$kMegolmRestoredGrantPrefix${session.suffix}', grantJson),
+    );
+    out.add(MapEntry('$kMegolmHistoryGrantPrefix${session.suffix}', grantJson));
+    out.add(
+      MapEntry('$kMegolmInboundPrefix${session.suffix}', session.exportedKey),
+    );
   }
   return out;
 }
 
-/// 解析备份载荷里的 Megolm 段。
-///
-/// fail-closed 取舍：结构不符一律返回空 map 而非抛错——**旧版备份（v1，无该
-/// 字段）必须仍能恢复 RSA 私钥**，不能因为缺少可选段就让整个恢复失败。
-/// 值非字符串的条目单条跳过（不整包丢弃）。
-Map<String, String> parseMegolmSection(dynamic raw) {
-  if (raw is! Map) return const {};
-  final out = <String, String>{};
-  for (final e in raw.entries) {
-    final k = e.key;
-    final v = e.value;
-    if (k is! String || k.isEmpty) continue;
-    if (v is! String || v.isEmpty) continue;
-    if (out.length >= kMaxMegolmSessions) break;
-    out[k] = v;
-  }
-  return out;
+bool _isGroupScope(String scope) {
+  final value = BigInt.tryParse(scope);
+  return value != null && value > BigInt.zero;
 }
 
-/// 把解析出的 Megolm 段转成 secure storage 的待写入项（键补回前缀）。
-///
-/// 返回 key→value；调用方负责真正写入（保持本模块纯函数可测）。
-Map<String, String> megolmRestoreEntries(Map<String, String> section) {
-  final out = <String, String>{};
-  for (final e in section.entries) {
-    if (e.key.isEmpty || e.value.isEmpty) continue;
-    out['$kMegolmInboundPrefix${e.key}'] = e.value;
-  }
-  return out;
+int? _positiveInt(dynamic value) {
+  final parsed = value is int ? value : int.tryParse(value?.toString() ?? '');
+  return parsed != null && parsed > 0 ? parsed : null;
+}
+
+int? _nonNegativeInt(dynamic value) {
+  final parsed = value is int ? value : int.tryParse(value?.toString() ?? '');
+  return parsed != null && parsed >= 0 ? parsed : null;
 }

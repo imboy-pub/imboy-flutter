@@ -290,6 +290,7 @@ class API {
   // E2EE
   static const e2eeUserKeys = '/api/v1/e2ee/user_keys';
   static const e2eeGroupMemberKeys = '/api/v1/e2ee/group_member_keys';
+  static const e2eeGroupHistoryGrant = '/api/v1/e2ee/group_history_grant';
   static const e2eeReportDeviceKey = '/api/v1/e2ee/report_device_key';
   static const e2eeKeyStatus = '/api/v1/e2ee/key/status';
   static const e2eeNotificationsPull = '/api/v1/e2ee/notifications/pull';

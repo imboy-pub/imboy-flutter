@@ -1450,6 +1450,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => '가져오기 완료';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE 키가 복구되었습니다!';
 	@override String get e2eeBackupImportSuccessNote => '참고: 이 백업에 포함되고 정상적으로 저장된 그룹 세션만 해당 기록을 읽는 데 사용할 수 있습니다. 1:1 키는 기기 간에 백업되지 않으므로 개인 대화 기록은 복원할 수 없습니다.';
+	@override String get e2eeBackupHistoryGrantTitle => '이전 그룹 키 복원';
+	@override String e2eeBackupHistoryGrantBody({required Object count}) => '이 기기에 ${count}개의 그룹 키 복원을 별도로 승인하며, 각 가입 세대와 메시지 순번 범위 안에서만 기록을 복호화합니다. 신원 키는 이미 복원되었습니다. 취소하면 이 그룹 키들은 복원하지 않습니다.';
+	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => '이전 그룹 키: ${restored}개 승인 및 복원, ${omitted}개 제외';
 	@override String get e2eeBackupCreatedAtRow => '생성 시간';
 	@override String get e2eeBackupCloudUploadBtn => '클라우드에 백업';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})';
@@ -3841,6 +3844,9 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupImportSuccessTitle' => '가져오기 완료',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 키가 복구되었습니다!',
 			'common.e2eeBackupImportSuccessNote' => '참고: 이 백업에 포함되고 정상적으로 저장된 그룹 세션만 해당 기록을 읽는 데 사용할 수 있습니다. 1:1 키는 기기 간에 백업되지 않으므로 개인 대화 기록은 복원할 수 없습니다.',
+			'common.e2eeBackupHistoryGrantTitle' => '이전 그룹 키 복원',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => '이 기기에 ${count}개의 그룹 키 복원을 별도로 승인하며, 각 가입 세대와 메시지 순번 범위 안에서만 기록을 복호화합니다. 신원 키는 이미 복원되었습니다. 취소하면 이 그룹 키들은 복원하지 않습니다.',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => '이전 그룹 키: ${restored}개 승인 및 복원, ${omitted}개 제외',
 			'common.e2eeBackupCreatedAtRow' => '생성 시간',
 			'common.e2eeBackupCloudUploadBtn' => '클라우드에 백업',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})',
@@ -4062,11 +4068,11 @@ extension on TranslationsKoKr {
 			'discovery.momentActionReport' => '신고',
 			'discovery.momentActionCancel' => '취소',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names}님이 좋아합니다',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 외 ${count}명이 좋아합니다',
 			'discovery.momentContentPlaceholder' => '지금 이 순간의 생각...',
 			'discovery.momentShowFull' => '전체 보기',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentCollapse' => '접기',
 			'discovery.momentsDraftKeepTitle' => '초안을 보관하시겠습니까?',
 			'discovery.momentsDraftKeepMessage' => '보관하면 다음에 이어서 편집할 수 있습니다',
@@ -4576,11 +4582,11 @@ extension on TranslationsKoKr {
 			'workspace.brandingEntry' => '브랜드 설정(이름 / Logo / 기본 색상)',
 			'workspace.archiveEntry' => '워크스페이스 보관',
 			'workspace.restoreEntry' => '워크스페이스 복원',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => '워크스페이스 보관',
 			'workspace.archiveDesc' => '보관 후 전원 읽기 전용이 됩니다(쓰기 작업은 서버에서 거부). 언제든지 복원할 수 있습니다',
 			'workspace.archiveConfirm' => '보관 확인',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreTitle' => '워크스페이스 복원',
 			'workspace.restoreDesc' => '복원 후 워크스페이스는 읽기/쓰기가 다시 활성화됩니다',
 			'workspace.restoreConfirm' => '복원 확인',

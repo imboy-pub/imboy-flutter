@@ -43,6 +43,8 @@ class AuditEventType {
 
   /// Olm 会话建立（X3DH 完成）。
   static const String sessionEstablished = 'session_established';
+
+  static const String historicalRoomKeyGranted = 'historical_room_key_granted';
 }
 
 /// 单条审计事件。

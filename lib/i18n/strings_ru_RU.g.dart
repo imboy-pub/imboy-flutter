@@ -1459,6 +1459,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'Импорт выполнен';
 	@override String get e2eeBackupImportSuccessBody => 'Ключ E2EE восстановлен!';
 	@override String get e2eeBackupImportSuccessNote => 'Примечание: прочитать соответствующую историю позволяют только групповые сессии, включённые в эту резервную копию и успешно сохранённые. Историю личных чатов восстановить нельзя, поскольку ключи 1:1 не копируются между устройствами.';
+	@override String get e2eeBackupHistoryGrantTitle => 'Восстановить исторические ключи групп';
+	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'Это отдельно разрешит устройству восстановить ${count} ключей групп и расшифровывать историю только в пределах поколения членства и диапазона номеров сообщений каждого ключа. Ключи идентификации уже восстановлены; отмена пропустит эти ключи групп.';
+	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Исторические ключи групп: ${restored} разрешено и восстановлено, ${omitted} пропущено';
 	@override String get e2eeBackupCreatedAtRow => 'Дата создания';
 	@override String get e2eeBackupCloudUploadBtn => 'Сохранить в облако';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Сохранено в облаке (версия ${version})';
@@ -3850,6 +3853,9 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupImportSuccessTitle' => 'Импорт выполнен',
 			'common.e2eeBackupImportSuccessBody' => 'Ключ E2EE восстановлен!',
 			'common.e2eeBackupImportSuccessNote' => 'Примечание: прочитать соответствующую историю позволяют только групповые сессии, включённые в эту резервную копию и успешно сохранённые. Историю личных чатов восстановить нельзя, поскольку ключи 1:1 не копируются между устройствами.',
+			'common.e2eeBackupHistoryGrantTitle' => 'Восстановить исторические ключи групп',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'Это отдельно разрешит устройству восстановить ${count} ключей групп и расшифровывать историю только в пределах поколения членства и диапазона номеров сообщений каждого ключа. Ключи идентификации уже восстановлены; отмена пропустит эти ключи групп.',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Исторические ключи групп: ${restored} разрешено и восстановлено, ${omitted} пропущено',
 			'common.e2eeBackupCreatedAtRow' => 'Дата создания',
 			'common.e2eeBackupCloudUploadBtn' => 'Сохранить в облако',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Сохранено в облаке (версия ${version})',
@@ -4071,11 +4077,11 @@ extension on TranslationsRuRu {
 			'discovery.momentActionReport' => 'Пожаловаться',
 			'discovery.momentActionCancel' => 'Отмена',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} оценили это',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} и еще ${count} оценили это',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} человек оценили это',
 			'discovery.momentContentPlaceholder' => 'О чём вы думаете...',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentShowFull' => 'Показать полностью',
 			'discovery.momentCollapse' => 'Свернуть',
 			'discovery.momentsDraftKeepTitle' => 'Сохранить черновик?',
@@ -4585,11 +4591,11 @@ extension on TranslationsRuRu {
 			'workspace.brandingEntry' => 'Настройки бренда (название / логотип / основной цвет)',
 			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
 			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Архивировать рабочее пространство',
 			'workspace.archiveDesc' => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент',
 			'workspace.archiveConfirm' => 'Подтвердить архивацию',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreTitle' => 'Восстановить рабочее пространство',
 			'workspace.restoreDesc' => 'После восстановления рабочее пространство снова доступно для чтения и записи',
 			'workspace.restoreConfirm' => 'Подтвердить восстановление',

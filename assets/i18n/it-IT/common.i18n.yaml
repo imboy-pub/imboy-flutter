@@ -736,6 +736,9 @@ e2eeBackupErrImportFailed: Importazione fallita. Controlla la password.
 e2eeBackupImportSuccessTitle: Importata
 e2eeBackupImportSuccessBody: Chiave E2EE ripristinata !
 e2eeBackupImportSuccessNote: "Nota: solo le sessioni di gruppo incluse in questo backup e salvate correttamente consentono di leggere la cronologia corrispondente. La cronologia individuale non è recuperabile perché le chiavi 1:1 non vengono salvate tra dispositivi."
+e2eeBackupHistoryGrantTitle: Ripristina chiavi di gruppo storiche
+e2eeBackupHistoryGrantBody(count): "Questa azione autorizza separatamente il dispositivo a ripristinare $count chiavi di gruppo e a decifrare la cronologia solo entro la generazione di appartenenza e l'intervallo di sequenza di ogni chiave. Le chiavi identità sono già ripristinate; annullando queste chiavi di gruppo vengono ignorate."
+e2eeBackupHistoryRestoreResult(restored, omitted): "Chiavi di gruppo storiche: $restored autorizzate e ripristinate, $omitted omesse"
 e2eeBackupCreatedAtRow: Creato il
 e2eeBackupCloudUploadBtn: Backup su cloud
 e2eeBackupCloudUploadSuccess(version): Backup su cloud completato (versione $version)

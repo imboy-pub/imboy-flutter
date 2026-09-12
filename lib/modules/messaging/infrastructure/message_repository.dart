@@ -93,6 +93,7 @@ abstract interface class MessageRepository {
   Future<List<String>?> batchInsertOfflineMessages(
     List<Map<String, dynamic>> messages, {
     Future<void> Function(Map<String, dynamic>)? onS2CMessage,
+    bool trustedArchive = false,
   });
 
   /// 计算与某用户的消息数量。

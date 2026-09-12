@@ -96,6 +96,6 @@ final_output="$(env ORG_GRADLE_PROJECT_imboyE2eeTestAbi="$ANDROID_TEST_ABI" ORG_
   --dart-define=TEST_INTEROP_ROLE=final \
   --dart-define=TEST_INTEROP_VECTOR_B64="$receiver_vector" 2>&1)"
 printf '%s\n' "$final_output" | tail -n 20
-printf '%s\n' "$final_output" | rg -q 'E2EE_GROUP_INTEROP_PASS: Android/macOS C2G 双向互解'
-printf '%s\n' "$final_output" | rg -q 'All tests passed!'
+printf '%s\n' "$final_output" | grep -Fq 'E2EE_GROUP_INTEROP_PASS: Android/macOS C2G 双向互解'
+printf '%s\n' "$final_output" | grep -Fq 'All tests passed!'
 echo "Android ↔ macOS C2G Megolm/Olm 双向互解通过"

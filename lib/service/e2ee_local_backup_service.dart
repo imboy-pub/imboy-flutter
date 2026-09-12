@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/store/api/e2ee_api.dart';
 
 import 'e2ee_crypto_service.dart';
 
@@ -102,6 +103,9 @@ class E2EELocalBackupService {
     required String keyId,
     String? userNotes,
     @visibleForTesting Map<String, String>? secureEntriesForTest,
+    @visibleForTesting
+    Future<E2EEGroupHistoryGrant> Function(String gid, String sessionId)?
+    historyGrantLoaderForTest,
   }) async {
     final backupFile = await packBackupBytes(
       password: password,
@@ -111,6 +115,7 @@ class E2EELocalBackupService {
       keyId: keyId,
       userNotes: userNotes,
       secureEntriesForTest: secureEntriesForTest,
+      historyGrantLoaderForTest: historyGrantLoaderForTest,
     );
 
     // 保存到临时目录
@@ -136,6 +141,9 @@ class E2EELocalBackupService {
     required String keyId,
     String? userNotes,
     @visibleForTesting Map<String, String>? secureEntriesForTest,
+    @visibleForTesting
+    Future<E2EEGroupHistoryGrant> Function(String gid, String sessionId)?
+    historyGrantLoaderForTest,
   }) async {
     // 1. 验证密码强度
     _validatePassword(password);
@@ -144,7 +152,17 @@ class E2EELocalBackupService {
     // 拒绝导出；否则 UI 会把一份不完整的 RSA-only 包报告为备份成功。
     final Map<String, String> all;
     try {
-      all = secureEntriesForTest ?? await StorageSecureService.to.readAll();
+      all = Map<String, String>.from(
+        secureEntriesForTest ?? await StorageSecureService.to.readAll(),
+      );
+      if (secureEntriesForTest == null || historyGrantLoaderForTest != null) {
+        await _refreshHistoryGrants(
+          all,
+          historyGrantLoaderForTest ??
+              (gid, sessionId) =>
+                  E2EEApi().groupHistoryGrant(gid: gid, sessionId: sessionId),
+        );
+      }
     } on Object catch (e) {
       iPrint('[BACKUP] secret collection failed: ${e.runtimeType}');
       throw StateError('backup_secret_collection_failed');
@@ -160,7 +178,7 @@ class E2EELocalBackupService {
       'key_id': keyId,
       'created_at': DateTime.now().toUtc().toIso8601String(),
       // 空段也写入：让「新格式但确实没有群会话」与「旧格式备份」可区分
-      kMegolmSectionKey: megolmSection,
+      kMegolmSectionKey: megolmSection.toJson(),
     };
 
     // 3. 计算校验和
@@ -196,6 +214,50 @@ class E2EELocalBackupService {
       ciphertext: encryptedResult['ciphertext']!,
       userNotes: userNotes,
     );
+  }
+
+  static Future<void> _refreshHistoryGrants(
+    Map<String, String> entries,
+    Future<E2EEGroupHistoryGrant> Function(String gid, String sessionId) loader,
+  ) async {
+    final candidates = <(String, String, String)>[];
+    for (final key in entries.keys.where(
+      (key) => key.startsWith(kMegolmInboundPrefix),
+    )) {
+      final suffix = key.substring(kMegolmInboundPrefix.length);
+      final separator = suffix.indexOf(':');
+      if (separator <= 0 || separator == suffix.length - 1) continue;
+      final gid = suffix.substring(0, separator);
+      final sessionId = suffix.substring(separator + 1);
+      final parsedGid = BigInt.tryParse(gid);
+      if (parsedGid == null || parsedGid <= BigInt.zero) continue;
+      candidates.add((suffix, gid, sessionId));
+    }
+    for (final candidate in candidates) {
+      entries.remove('$kMegolmHistoryGrantPrefix${candidate.$1}');
+    }
+    for (final candidate in candidates.take(kMaxMegolmSessions)) {
+      final (suffix, gid, sessionId) = candidate;
+      try {
+        final remote = await loader(gid, sessionId);
+        final grant = MegolmHistoryGrant(
+          scope: gid,
+          sessionId: remote.sessionId,
+          generationNo: remote.generationNo,
+          startSeq: remote.startSeq,
+          endSeq: remote.endSeq,
+        );
+        entries['$kMegolmHistoryGrantPrefix$suffix'] = jsonEncode(
+          grant.toJson(),
+        );
+      } on Object catch (e) {
+        iPrint(
+          '[BACKUP] bounded history grant unavailable '
+          'scope=$gid error=${e.runtimeType}',
+        );
+        rethrow;
+      }
+    }
   }
 
   // ================================================================
@@ -288,20 +350,30 @@ class E2EELocalBackupService {
   /// 已完成的写入无法由 Secure Storage 原子回滚，因此重试必须保持幂等。
   static Future<int> restoreMegolmSessions(
     Map<String, dynamic> backup, {
+    required bool historicalGrantConfirmed,
+    required Future<void> Function(MegolmBackupSection section)
+    auditBeforeRestore,
     @visibleForTesting
     Future<void> Function(String key, String value)? writeForTest,
   }) async {
     final section = parseMegolmSection(backup[kMegolmSectionKey]);
+    if (!historicalGrantConfirmed && !section.isEmpty) {
+      throw StateError('historical_room_key_grant_required');
+    }
+    if (!section.isEmpty) await auditBeforeRestore(section);
     final entries = megolmRestoreEntries(section);
-    for (final entry in entries.entries) {
+    for (final entry in entries) {
       if (writeForTest != null) {
         await writeForTest(entry.key, entry.value);
       } else {
         await StorageSecureService.to.write(key: entry.key, value: entry.value);
       }
     }
-    return entries.length;
+    return section.sessions.length;
   }
+
+  static MegolmBackupSection megolmBackupSection(Map<String, dynamic> backup) =>
+      parseMegolmSection(backup[kMegolmSectionKey]);
 
   /// 解包加密备份字节（importBackup 与云备份恢复共用）
   ///
@@ -406,7 +478,9 @@ class E2EELocalBackupService {
       'public_key': backupData['public_key'],
       'created_at': backupData['created_at'],
       'file_size': fileBytes.length,
-      kMegolmSectionKey: parseMegolmSection(backupData[kMegolmSectionKey]),
+      kMegolmSectionKey: parseMegolmSection(
+        backupData[kMegolmSectionKey],
+      ).toJson(),
     };
   }
 

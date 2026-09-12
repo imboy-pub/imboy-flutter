@@ -1453,6 +1453,9 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'Importiert';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE-Schlüssel wiederhergestellt!';
 	@override String get e2eeBackupImportSuccessNote => 'Hinweis: Nur Gruppensitzungen, die in dieser Sicherung enthalten und erfolgreich gespeichert wurden, können den zugehörigen Verlauf entschlüsseln. Einzelchats sind nicht wiederherstellbar, da 1:1-Schlüssel nicht geräteübergreifend gesichert werden.';
+	@override String get e2eeBackupHistoryGrantTitle => 'Historische Gruppenschlüssel wiederherstellen';
+	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'Dies autorisiert dieses Gerät separat, ${count} Gruppenschlüssel wiederherzustellen und Verlauf nur innerhalb der jeweiligen Mitgliedschaftsgeneration und Nachrichtensequenz zu entschlüsseln. Identitätsschlüssel wurden bereits wiederhergestellt; Abbrechen überspringt diese Gruppenschlüssel.';
+	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Historische Gruppenschlüssel: ${restored} autorisiert und wiederhergestellt, ${omitted} ausgelassen';
 	@override String get e2eeBackupCreatedAtRow => 'Erstellt am';
 	@override String get e2eeBackupCloudUploadBtn => 'In die Cloud sichern';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'In der Cloud gesichert (Version ${version})';
@@ -3844,6 +3847,9 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupImportSuccessTitle' => 'Importiert',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE-Schlüssel wiederhergestellt!',
 			'common.e2eeBackupImportSuccessNote' => 'Hinweis: Nur Gruppensitzungen, die in dieser Sicherung enthalten und erfolgreich gespeichert wurden, können den zugehörigen Verlauf entschlüsseln. Einzelchats sind nicht wiederherstellbar, da 1:1-Schlüssel nicht geräteübergreifend gesichert werden.',
+			'common.e2eeBackupHistoryGrantTitle' => 'Historische Gruppenschlüssel wiederherstellen',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'Dies autorisiert dieses Gerät separat, ${count} Gruppenschlüssel wiederherzustellen und Verlauf nur innerhalb der jeweiligen Mitgliedschaftsgeneration und Nachrichtensequenz zu entschlüsseln. Identitätsschlüssel wurden bereits wiederhergestellt; Abbrechen überspringt diese Gruppenschlüssel.',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Historische Gruppenschlüssel: ${restored} autorisiert und wiederhergestellt, ${omitted} ausgelassen',
 			'common.e2eeBackupCreatedAtRow' => 'Erstellt am',
 			'common.e2eeBackupCloudUploadBtn' => 'In die Cloud sichern',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'In der Cloud gesichert (Version ${version})',
@@ -4065,11 +4071,11 @@ extension on TranslationsDeDe {
 			'discovery.momentActionReport' => 'Melden',
 			'discovery.momentActionCancel' => 'Abbrechen',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} gefällt das',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} und ${count} weiteren gefällt das',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} Personen gefiel dies',
 			'discovery.momentContentPlaceholder' => 'Woran denken Sie...',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentShowFull' => 'Vollständig anzeigen',
 			'discovery.momentCollapse' => 'Einklappen',
 			'discovery.momentsDraftKeepTitle' => 'Entwurf behalten?',
@@ -4579,11 +4585,11 @@ extension on TranslationsDeDe {
 			'workspace.brandingEntry' => 'Branding (Name / Logo / Hauptfarbe)',
 			'workspace.archiveEntry' => 'Arbeitsbereich archivieren',
 			'workspace.restoreEntry' => 'Arbeitsbereich wiederherstellen',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Arbeitsbereich archivieren',
 			'workspace.archiveDesc' => 'Nach der Archivierung gilt für alle nur Lesen (Schreibzugriffe werden vom Server abgelehnt); jederzeit wiederherstellbar',
 			'workspace.archiveConfirm' => 'Archivierung bestätigen',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreTitle' => 'Arbeitsbereich wiederherstellen',
 			'workspace.restoreDesc' => 'Nach der Wiederherstellung ist der Arbeitsbereich wieder les- und schreibbar',
 			'workspace.restoreConfirm' => 'Wiederherstellung bestätigen',

@@ -737,6 +737,9 @@ e2eeBackupErrImportFailed: "Import failed, please check your password"
 e2eeBackupImportSuccessTitle: Import successful
 e2eeBackupImportSuccessBody: "E2EE key has been restored successfully!"
 e2eeBackupImportSuccessNote: "Note: Only group sessions included in this backup and written successfully can unlock their corresponding history. One-to-one history cannot be recovered because 1:1 keys are not backed up across devices."
+e2eeBackupHistoryGrantTitle: Restore historical group keys
+e2eeBackupHistoryGrantBody(count): "This separately authorizes this device to restore $count group keys and decrypt history only within each membership generation and message sequence range. Identity keys are already restored; canceling skips these group keys."
+e2eeBackupHistoryRestoreResult(restored, omitted): "Historical group keys: $restored authorized and restored, $omitted omitted"
 e2eeBackupCreatedAtRow: Created at
 e2eeBackupCloudUploadBtn: Back up to cloud
 e2eeBackupCloudUploadSuccess(version): Backed up to cloud (version $version)

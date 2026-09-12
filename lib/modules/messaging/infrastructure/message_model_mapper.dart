@@ -29,6 +29,12 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 /// repositories), removing the `model → repository` layering violation. Method
 /// body is a verbatim relocation — zero behavior change.
 extension MessageModelMapper on MessageModel {
+  int? get _archiveConvSeq {
+    final raw = e2ee?['_archive_conv_seq'];
+    final parsed = raw is int ? raw : int.tryParse(raw?.toString() ?? '');
+    return parsed != null && parsed > 0 ? parsed : null;
+  }
+
   /// 把持久化行还原成 `decryptInboundV3` 期望的**入站帧**形状。
   ///
   /// PFv3 的 context binding（ADR 15 §3.3）逐项比对帧顶层字段与受认证的
@@ -59,9 +65,14 @@ extension MessageModelMapper on MessageModel {
   /// 不向上层暴露 oracle 细节）。
   Future<Map<String, dynamic>> _decryptLegacyPayload() async {
     try {
+      final metadata = Map<String, dynamic>.from(e2ee!);
+      final archiveConvSeq = metadata.remove('_archive_conv_seq');
+      if (archiveConvSeq != null) {
+        metadata['history_conv_seq'] = archiveConvSeq;
+      }
       final decryptedJson = await E2EEService.decryptE2EEMessage(
         ciphertext: payload as String,
-        e2ee: e2ee!,
+        e2ee: metadata,
       );
       final decoded = jsonDecode(decryptedJson);
       if (decoded is! Map<String, dynamic>) {
@@ -101,6 +112,7 @@ extension MessageModelMapper on MessageModel {
         // 与实时路径 message.dart::_handleE2EEMessage 同一分流范式与同一返回形状。
         final v3Result = await E2EEService.decryptInboundV3(
           data: _toInboundFrame(),
+          trustedArchiveConvSeq: _archiveConvSeq,
         );
         if (v3Result != null) {
           if (v3Result['_e2ee_failed'] == true) {

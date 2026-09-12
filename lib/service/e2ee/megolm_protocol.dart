@@ -79,6 +79,10 @@ class MegolmProtocol implements E2eeSessionProtocol {
     final messageId = metadata['message_id']?.toString() ?? '';
     final inboxScope = metadata['inbox_scope']?.toString() ?? '';
     final ciphertextDigest = metadata['ciphertext_digest']?.toString() ?? '';
+    final convSeqRaw = metadata['history_conv_seq'];
+    final convSeq = convSeqRaw is int
+        ? convSeqRaw
+        : int.tryParse(convSeqRaw?.toString() ?? '');
     try {
       final store = await OlmSessionService.to.cryptoStore;
       if (messageId.isNotEmpty &&
@@ -99,6 +103,7 @@ class MegolmProtocol implements E2eeSessionProtocol {
           gid: gid,
           sessionId: sessionId,
           ciphertext: ciphertext,
+          convSeq: convSeq,
         );
       } else {
         plaintext = await GroupSessionService.to.decryptC2CMessage(

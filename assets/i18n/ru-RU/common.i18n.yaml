@@ -742,6 +742,9 @@ e2eeBackupErrImportFailed: Не удалось импортировать, пр�
 e2eeBackupImportSuccessTitle: Импорт выполнен
 e2eeBackupImportSuccessBody: Ключ E2EE восстановлен!
 e2eeBackupImportSuccessNote: "Примечание: прочитать соответствующую историю позволяют только групповые сессии, включённые в эту резервную копию и успешно сохранённые. Историю личных чатов восстановить нельзя, поскольку ключи 1:1 не копируются между устройствами."
+e2eeBackupHistoryGrantTitle: Восстановить исторические ключи групп
+e2eeBackupHistoryGrantBody(count): "Это отдельно разрешит устройству восстановить $count ключей групп и расшифровывать историю только в пределах поколения членства и диапазона номеров сообщений каждого ключа. Ключи идентификации уже восстановлены; отмена пропустит эти ключи групп."
+e2eeBackupHistoryRestoreResult(restored, omitted): "Исторические ключи групп: $restored разрешено и восстановлено, $omitted пропущено"
 e2eeBackupCreatedAtRow: Дата создания
 e2eeBackupCloudUploadBtn: Сохранить в облако
 e2eeBackupCloudUploadSuccess(version): Сохранено в облаке (версия $version)

@@ -1454,6 +1454,9 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'Import successful';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE key has been restored successfully!';
 	@override String get e2eeBackupImportSuccessNote => 'Note: Only group sessions included in this backup and written successfully can unlock their corresponding history. One-to-one history cannot be recovered because 1:1 keys are not backed up across devices.';
+	@override String get e2eeBackupHistoryGrantTitle => 'Restore historical group keys';
+	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'This separately authorizes this device to restore ${count} group keys and decrypt history only within each membership generation and message sequence range. Identity keys are already restored; canceling skips these group keys.';
+	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Historical group keys: ${restored} authorized and restored, ${omitted} omitted';
 	@override String get e2eeBackupCreatedAtRow => 'Created at';
 	@override String get e2eeBackupCloudUploadBtn => 'Back up to cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Backed up to cloud (version ${version})';
@@ -3845,6 +3848,9 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupImportSuccessTitle' => 'Import successful',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE key has been restored successfully!',
 			'common.e2eeBackupImportSuccessNote' => 'Note: Only group sessions included in this backup and written successfully can unlock their corresponding history. One-to-one history cannot be recovered because 1:1 keys are not backed up across devices.',
+			'common.e2eeBackupHistoryGrantTitle' => 'Restore historical group keys',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'This separately authorizes this device to restore ${count} group keys and decrypt history only within each membership generation and message sequence range. Identity keys are already restored; canceling skips these group keys.',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Historical group keys: ${restored} authorized and restored, ${omitted} omitted',
 			'common.e2eeBackupCreatedAtRow' => 'Created at',
 			'common.e2eeBackupCloudUploadBtn' => 'Back up to cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backed up to cloud (version ${version})',
@@ -4065,11 +4071,11 @@ extension on TranslationsEnUs {
 			'discovery.momentActionReport' => 'Report',
 			'discovery.momentActionCancel' => 'Cancel',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} liked this',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} and ${count} others liked this',
 			'discovery.momentContentPlaceholder' => 'What\'s on your mind...',
 			'discovery.momentShowFull' => 'Show full',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentCollapse' => 'Collapse',
 			'discovery.momentsDraftKeepTitle' => 'Keep draft?',
 			'discovery.momentsDraftKeepMessage' => 'You can continue editing next time',
@@ -4579,11 +4585,11 @@ extension on TranslationsEnUs {
 			'workspace.brandingEntry' => 'Branding (name / logo / primary color)',
 			'workspace.archiveEntry' => 'Archive workspace',
 			'workspace.restoreEntry' => 'Restore workspace',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Archive workspace',
 			'workspace.archiveDesc' => 'Archiving makes it read-only for everyone (writes rejected by the server); restore anytime',
 			'workspace.archiveConfirm' => 'Archive',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreTitle' => 'Restore workspace',
 			'workspace.restoreDesc' => 'Restoring re-enables read and write',
 			'workspace.restoreConfirm' => 'Restore',

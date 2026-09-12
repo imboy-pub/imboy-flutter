@@ -745,6 +745,9 @@ e2eeBackupErrImportFailed: تعذّر الاستيراد، تحقق من كلم�
 e2eeBackupImportSuccessTitle: تم الاستيراد
 e2eeBackupImportSuccessBody: تمت استعادة مفتاح E2EE!
 e2eeBackupImportSuccessNote: "ملاحظة: لا يمكن قراءة السجل المقابل إلا عبر جلسات المجموعة المضمّنة في هذه النسخة الاحتياطية والمحفوظة بنجاح. لا يمكن استعادة سجل المحادثات الفردية لأن مفاتيح 1:1 لا تُنسخ احتياطيًا بين الأجهزة."
+e2eeBackupHistoryGrantTitle: استعادة مفاتيح المجموعة التاريخية
+e2eeBackupHistoryGrantBody(count): "يمنح هذا الجهاز تفويضًا منفصلًا لاستعادة $count من مفاتيح المجموعة وفك سجل الرسائل ضمن جيل العضوية ونطاق تسلسل الرسائل الخاص بكل مفتاح فقط. تمت استعادة مفاتيح الهوية بالفعل؛ الإلغاء يتجاوز مفاتيح المجموعة هذه."
+e2eeBackupHistoryRestoreResult(restored, omitted): "مفاتيح المجموعة التاريخية: تم تفويض واستعادة $restored، وتم تجاوز $omitted"
 e2eeBackupCreatedAtRow: تاريخ الإنشاء
 e2eeBackupCloudUploadBtn: النسخ الاحتياطي إلى السحابة
 e2eeBackupCloudUploadSuccess(version): تم النسخ إلى السحابة (الإصدار $version)

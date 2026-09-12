@@ -315,6 +315,9 @@ class MessageS2CService {
         case 'e2ee_trust_changed':
           await _handleE2EETrustChanged(payloadMap);
           break;
+        case 'policy_violation':
+          _handlePolicyViolation(payloadMap);
+          break;
         // ==================== 频道消息处理 ====================
         case 'channel_message':
           // 频道消息推送
@@ -407,6 +410,20 @@ class MessageS2CService {
   // ============================================
   // S2C Action 处理方法
   // ============================================
+
+  static void _handlePolicyViolation(Map<String, dynamic> payload) {
+    const rotateReasons = {
+      'e2ee_session_unattested',
+      'e2ee_session_stale',
+      'e2ee_session_conflict',
+      'e2ee_session_generation_mismatch',
+    };
+    final reason = payload['reason']?.toString() ?? '';
+    final gid = payload['gid']?.toString() ?? '';
+    if (gid.isNotEmpty && rotateReasons.contains(reason)) {
+      GroupSessionService.to.markGroupStale(gid);
+    }
+  }
 
   /// 处理拉取离线消息
   ///

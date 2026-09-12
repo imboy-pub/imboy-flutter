@@ -1450,6 +1450,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => '読み込み完了';
 	@override String get e2eeBackupImportSuccessBody => 'E2EEキーを復元しました！';
 	@override String get e2eeBackupImportSuccessNote => '注意：このバックアップに含まれ、正常に保存されたグループセッションのみ、対応する履歴を読み取れます。1対1の鍵は端末間でバックアップされないため、個別チャットの履歴は復元できません。';
+	@override String get e2eeBackupHistoryGrantTitle => '過去のグループ鍵を復元';
+	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'この端末に ${count} 個のグループ鍵の復元を個別に許可し、それぞれの参加世代とメッセージ連番の範囲内だけで履歴を復号します。ID 鍵はすでに復元済みです。キャンセルするとこれらのグループ鍵は復元しません。';
+	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => '過去のグループ鍵：${restored} 個を許可して復元、${omitted} 個を省略';
 	@override String get e2eeBackupCreatedAtRow => '作成日時';
 	@override String get e2eeBackupCloudUploadBtn => 'クラウドにバックアップ';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）';
@@ -3841,6 +3844,9 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupImportSuccessTitle' => '読み込み完了',
 			'common.e2eeBackupImportSuccessBody' => 'E2EEキーを復元しました！',
 			'common.e2eeBackupImportSuccessNote' => '注意：このバックアップに含まれ、正常に保存されたグループセッションのみ、対応する履歴を読み取れます。1対1の鍵は端末間でバックアップされないため、個別チャットの履歴は復元できません。',
+			'common.e2eeBackupHistoryGrantTitle' => '過去のグループ鍵を復元',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'この端末に ${count} 個のグループ鍵の復元を個別に許可し、それぞれの参加世代とメッセージ連番の範囲内だけで履歴を復号します。ID 鍵はすでに復元済みです。キャンセルするとこれらのグループ鍵は復元しません。',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => '過去のグループ鍵：${restored} 個を許可して復元、${omitted} 個を省略',
 			'common.e2eeBackupCreatedAtRow' => '作成日時',
 			'common.e2eeBackupCloudUploadBtn' => 'クラウドにバックアップ',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）',
@@ -4062,11 +4068,11 @@ extension on TranslationsJaJp {
 			'discovery.momentActionReport' => '通報',
 			'discovery.momentActionCancel' => 'キャンセル',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names}がいいねしました',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 他${count}人がいいねしました',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}人がいいねしました',
 			'discovery.momentContentPlaceholder' => '今の思い...',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentShowFull' => 'すべて表示',
 			'discovery.momentCollapse' => '折りたたむ',
 			'discovery.momentsDraftKeepTitle' => '下書きを保存しますか？',
@@ -4576,11 +4582,11 @@ extension on TranslationsJaJp {
 			'workspace.brandingEntry' => 'ブランド設定（名前 / Logo / メインカラー）',
 			'workspace.archiveEntry' => 'ワークスペースをアーカイブ',
 			'workspace.restoreEntry' => 'ワークスペースを復元',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'ワークスペースをアーカイブ',
 			'workspace.archiveDesc' => 'アーカイブ後は全員が閲覧のみ可能（書き込み操作はサーバーで拒否されます）。いつでも復元できます',
 			'workspace.archiveConfirm' => 'アーカイブを確認',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreTitle' => 'ワークスペースを復元',
 			'workspace.restoreDesc' => '復元すると、ワークスペースは読み書き可能に戻ります',
 			'workspace.restoreConfirm' => '復元を確認',

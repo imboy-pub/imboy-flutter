@@ -1453,6 +1453,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => '匯入成功';
 	@override String get e2eeBackupImportSuccessBody => 'E2EE 金鑰已成功恢復！';
 	@override String get e2eeBackupImportSuccessNote => '注意：只有備份中包含且成功寫入的群聊工作階段可用於讀取對應歷史；單聊歷史無法恢復，因為單聊金鑰不跨裝置備份';
+	@override String get e2eeBackupHistoryGrantTitle => '恢復歷史群組金鑰';
+	@override String e2eeBackupHistoryGrantBody({required Object count}) => '此操作將授權本裝置恢復 ${count} 個群組金鑰，並只依各自的入群世代與訊息序號範圍解密歷史。身分金鑰已單獨恢復；取消不會恢復這些群組金鑰。';
+	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => '歷史群組金鑰：已授權恢復 ${restored} 個，已省略 ${omitted} 個';
 	@override String get e2eeBackupCreatedAtRow => '建立時間';
 	@override String get e2eeBackupCloudUploadBtn => '備份到雲端';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '已備份到雲端（版本 ${version}）';
@@ -3844,6 +3847,9 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupImportSuccessTitle' => '匯入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 金鑰已成功恢復！',
 			'common.e2eeBackupImportSuccessNote' => '注意：只有備份中包含且成功寫入的群聊工作階段可用於讀取對應歷史；單聊歷史無法恢復，因為單聊金鑰不跨裝置備份',
+			'common.e2eeBackupHistoryGrantTitle' => '恢復歷史群組金鑰',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => '此操作將授權本裝置恢復 ${count} 個群組金鑰，並只依各自的入群世代與訊息序號範圍解密歷史。身分金鑰已單獨恢復；取消不會恢復這些群組金鑰。',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => '歷史群組金鑰：已授權恢復 ${restored} 個，已省略 ${omitted} 個',
 			'common.e2eeBackupCreatedAtRow' => '建立時間',
 			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
@@ -4062,11 +4068,11 @@ extension on TranslationsZhHant {
 			'discovery.momentActionReport' => '舉報',
 			'discovery.momentActionCancel' => '取消動作',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} 讚了',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人讚了',
 			'discovery.momentContentPlaceholder' => '這一刻的想法...',
 			'discovery.momentShowFull' => '展開全文',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentCollapse' => '收合',
 			'discovery.momentsDraftKeepTitle' => '要保留草稿嗎？',
 			'discovery.momentsDraftKeepMessage' => '保留後下次進入可繼續編輯',
@@ -4576,11 +4582,11 @@ extension on TranslationsZhHant {
 			'workspace.brandingEntry' => '品牌設定（名稱 / Logo / 主色）',
 			'workspace.archiveEntry' => '封存工作區',
 			'workspace.restoreEntry' => '還原工作區',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => '封存工作區',
 			'workspace.archiveDesc' => '封存後全員唯讀（寫入操作會被伺服器端拒絕），可隨時還原',
 			'workspace.archiveConfirm' => '確認封存',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreTitle' => '還原工作區',
 			'workspace.restoreDesc' => '還原後工作區即可讀寫',
 			'workspace.restoreConfirm' => '確認還原',

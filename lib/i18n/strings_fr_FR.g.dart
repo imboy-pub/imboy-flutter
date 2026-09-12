@@ -1453,6 +1453,9 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeBackupImportSuccessTitle => 'Importée';
 	@override String get e2eeBackupImportSuccessBody => 'Clé E2EE restaurée !';
 	@override String get e2eeBackupImportSuccessNote => 'Remarque : seules les sessions de groupe incluses dans cette sauvegarde et enregistrées avec succès permettent de lire l\'historique correspondant. L\'historique individuel ne peut pas être restauré, car les clés 1:1 ne sont pas sauvegardées entre appareils.';
+	@override String get e2eeBackupHistoryGrantTitle => 'Restaurer les clés de groupe historiques';
+	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'Cette action autorise séparément cet appareil à restaurer ${count} clés de groupe et à déchiffrer l\'historique uniquement dans la génération d\'adhésion et la plage de séquence de chaque clé. Les clés d\'identité sont déjà restaurées ; annuler ignore ces clés de groupe.';
+	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Clés de groupe historiques : ${restored} autorisées et restaurées, ${omitted} omises';
 	@override String get e2eeBackupCreatedAtRow => 'Créée le';
 	@override String get e2eeBackupCloudUploadBtn => 'Sauvegarder dans le cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Sauvegardé dans le cloud (version ${version})';
@@ -3844,6 +3847,9 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupImportSuccessTitle' => 'Importée',
 			'common.e2eeBackupImportSuccessBody' => 'Clé E2EE restaurée !',
 			'common.e2eeBackupImportSuccessNote' => 'Remarque : seules les sessions de groupe incluses dans cette sauvegarde et enregistrées avec succès permettent de lire l\'historique correspondant. L\'historique individuel ne peut pas être restauré, car les clés 1:1 ne sont pas sauvegardées entre appareils.',
+			'common.e2eeBackupHistoryGrantTitle' => 'Restaurer les clés de groupe historiques',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'Cette action autorise séparément cet appareil à restaurer ${count} clés de groupe et à déchiffrer l\'historique uniquement dans la génération d\'adhésion et la plage de séquence de chaque clé. Les clés d\'identité sont déjà restaurées ; annuler ignore ces clés de groupe.',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Clés de groupe historiques : ${restored} autorisées et restaurées, ${omitted} omises',
 			'common.e2eeBackupCreatedAtRow' => 'Créée le',
 			'common.e2eeBackupCloudUploadBtn' => 'Sauvegarder dans le cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Sauvegardé dans le cloud (version ${version})',
@@ -4065,11 +4071,11 @@ extension on TranslationsFrFr {
 			'discovery.momentActionReport' => 'Signaler',
 			'discovery.momentActionCancel' => 'Annuler',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} aiment ça',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} et ${count} autres aiment ça',
 			'discovery.momentContentPlaceholder' => 'À quoi pensez-vous...',
 			'discovery.momentShowFull' => 'Voir tout',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentCollapse' => 'Réduire',
 			'discovery.momentsDraftKeepTitle' => 'Conserver le brouillon ?',
 			'discovery.momentsDraftKeepMessage' => 'Vous pourrez continuer la prochaine fois',
@@ -4579,11 +4585,11 @@ extension on TranslationsFrFr {
 			'workspace.brandingEntry' => 'Paramètres de marque (nom / Logo / couleur principale)',
 			'workspace.archiveEntry' => 'Archiver l\'espace de travail',
 			'workspace.restoreEntry' => 'Restaurer l\'espace de travail',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Archiver l\'espace de travail',
 			'workspace.archiveDesc' => 'Après archivage, tous les membres passent en lecture seule (les écritures sont refusées par le serveur) ; restauration possible à tout moment',
 			'workspace.archiveConfirm' => 'Confirmer l\'archivage',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreTitle' => 'Restaurer l\'espace de travail',
 			'workspace.restoreDesc' => 'Après restauration, l\'espace de travail redevient accessible en lecture et en écriture',
 			'workspace.restoreConfirm' => 'Confirmer la restauration',

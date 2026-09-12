@@ -93,7 +93,11 @@ run_and_extract_vector() {
     printf '%s\n' "$output" >&2
     return 1
   fi
-  printf '%s\n' "$output" | reassemble_vector
+  if [ "$role" = "final" ]; then
+    printf '%s\n' "$output" | grep -Fq 'E2EE_INTEROP_PASS: Android/macOS C2C Olm 双向互解'
+    return
+  fi
+  reassemble_vector "$output"
 }
 
 echo "[1/3] Android sender: 生成 Olm/PFv3 密文"
@@ -105,7 +109,6 @@ reply_vector="$(run_and_extract_vector receiver macos "$sender_vector")"
 test -n "$reply_vector"
 
 echo "[3/3] Android final: 解密 macOS 回复"
-final_vector="$(run_and_extract_vector final android "$reply_vector")"
-test -n "$final_vector"
+run_and_extract_vector final android "$reply_vector"
 
 echo "Android ↔ macOS C2C Olm/PFv3 双向互解通过"

@@ -4153,6 +4153,15 @@ class Translations$common$zh_CN {
 	/// zh-CN: '注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份'
 	String get e2eeBackupImportSuccessNote => '注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份';
 
+	/// zh-CN: '恢复历史群密钥'
+	String get e2eeBackupHistoryGrantTitle => '恢复历史群密钥';
+
+	/// zh-CN: '此操作将授权本设备恢复 $count 个群密钥，并仅按各自的入群世代和消息序号范围解密历史。身份密钥已单独恢复；取消不会恢复这些群密钥。'
+	String e2eeBackupHistoryGrantBody({required Object count}) => '此操作将授权本设备恢复 ${count} 个群密钥，并仅按各自的入群世代和消息序号范围解密历史。身份密钥已单独恢复；取消不会恢复这些群密钥。';
+
+	/// zh-CN: '历史群密钥：已授权恢复 $restored 个，已省略 $omitted 个'
+	String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => '历史群密钥：已授权恢复 ${restored} 个，已省略 ${omitted} 个';
+
 	/// zh-CN: '提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步'
 	String get e2eeBackupDeviceKeySyncPending => '提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步';
 
@@ -8254,6 +8263,9 @@ extension on Translations {
 			'common.e2eeBackupImportSuccessTitle' => '导入成功',
 			'common.e2eeBackupImportSuccessBody' => 'E2EE 密钥已成功恢复！',
 			'common.e2eeBackupImportSuccessNote' => '注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份',
+			'common.e2eeBackupHistoryGrantTitle' => '恢复历史群密钥',
+			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => '此操作将授权本设备恢复 ${count} 个群密钥，并仅按各自的入群世代和消息序号范围解密历史。身份密钥已单独恢复；取消不会恢复这些群密钥。',
+			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => '历史群密钥：已授权恢复 ${restored} 个，已省略 ${omitted} 个',
 			'common.e2eeBackupDeviceKeySyncPending' => '提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步',
 			'common.e2eeBackupCreatedAtRow' => '创建时间',
 			'common.e2eeBackupCloudUploadBtn' => '备份到云端',
@@ -8444,11 +8456,11 @@ extension on Translations {
 			'discovery.momentsDenyUidsLabel' => '不给谁看 UID 列表（逗号分隔）',
 			'discovery.moments' => '朋友圈',
 			'discovery.momentsWriteComment' => '写评论...',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentsVisibility' => '可见性',
 			'discovery.momentsVisibilityPublic' => '公开',
 			'discovery.momentsVisibilityPartial' => '部分可见',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsVisibilityExclude' => '不给谁看',
 			'discovery.momentsDraftRestored' => '已恢复上次未发送的草稿',
 			'discovery.momentsFeedStale' => '网络异常，显示的是缓存内容',
@@ -8958,11 +8970,11 @@ extension on Translations {
 			'workspace.inviteCodeRevoke' => '撤销',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '有效期至 ${expiresAt}',
 			'workspace.roleOwner' => 'Owner',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.roleMember' => 'Member',
 			'workspace.roleGuest' => 'Guest',
 			'workspace.removeMemberTitle' => ({required Object name}) => '移除工作区成员 ${name}',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.removeMemberDesc' => '移除后其工作区访问即失效；若其仍有未完成任务或负责的项目，服务端会返回冲突清单并取消本次移除',
 			'workspace.removeMemberConfirm' => '确认移除',
 			'workspace.changeRoleTitle' => ({required Object name}) => '修改 ${name} 的工作区角色',

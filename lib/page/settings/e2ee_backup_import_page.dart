@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -9,6 +11,8 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
+import 'package:imboy/service/e2ee/megolm_backup_section.dart';
+import 'package:imboy/service/e2ee/crypto_audit_log.dart';
 import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/e2ee_backup_url_download_service.dart';
 import 'package:imboy/service/e2ee_health_check_service.dart';
@@ -24,6 +28,8 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/message_events.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/group_session_service.dart';
 
 /// E2EE 备份导入页面
 ///
@@ -38,12 +44,17 @@ class E2EEBackupImportPage extends StatefulWidget {
 
   /// 恢复成功后回写服务端设备公钥的实现（测试注入用；null 走真实 [E2EEApi]）。
   final Future<bool> Function(Map<String, dynamic> restored)? deviceKeyReporter;
+  final Future<bool> Function(int sessionCount)? historicalKeyGrantConfirmer;
+  final Future<void> Function(MegolmBackupSection section)?
+  historicalKeyGrantAuditor;
 
   const E2EEBackupImportPage({
     super.key,
     this.initialFilePath,
     this.cloudBackupProbe,
     this.deviceKeyReporter,
+    this.historicalKeyGrantConfirmer,
+    this.historicalKeyGrantAuditor,
   });
 
   @override
@@ -761,9 +772,6 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   /// 恢复成功后的统一后处理：保存密钥四元组到安全存储 + 成功弹窗。
   /// 文件导入与云端恢复两条路径共用。
   Future<void> _applyRestoredKeys(Map<String, dynamic> result) async {
-    // Megolm session 必须全部成功写入才进入成功态；重试是幂等的。
-    final restored = await E2EELocalBackupService.restoreMegolmSessions(result);
-
     await StorageSecureService.to.savePrivateKey(
       result['private_key'] as String,
     );
@@ -772,6 +780,18 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     // 不得覆盖当前物理设备 DID——否则本机会冒充备份来源设备，
     // 破坏 E2EE-013「加密写入绑定已认证设备」的授权边界。故此处不再 setDeviceId。
     await StorageSecureService.to.setKeyId(result['key_id'] as String);
+
+    final section = E2EELocalBackupService.megolmBackupSection(result);
+    var restored = 0;
+    if (!section.isEmpty &&
+        await _confirmHistoricalKeyGrant(section.sessions.length)) {
+      restored = await E2EELocalBackupService.restoreMegolmSessions(
+        result,
+        historicalGrantConfirmed: true,
+        auditBeforeRestore: _auditHistoricalKeyGrant,
+      );
+      GroupSessionService.to.clearMemory();
+    }
 
     if (restored > 0) {
       iPrint('[RESTORE] Megolm 会话回填 $restored');
@@ -809,7 +829,70 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     }
 
     if (!mounted) return;
-    _showSuccessDialog(result, deviceKeySynced: synced, recovered: recovered);
+    _showSuccessDialog(
+      result,
+      deviceKeySynced: synced,
+      recovered: recovered,
+      restored: restored,
+      omitted:
+          section.omittedSessionCount +
+          (restored == 0 ? section.sessions.length : 0),
+    );
+  }
+
+  Future<bool> _confirmHistoricalKeyGrant(int sessionCount) async {
+    final confirmer = widget.historicalKeyGrantConfirmer;
+    if (confirmer != null) return confirmer(sessionCount);
+    if (!mounted) return false;
+    return await showCupertinoDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => CupertinoAlertDialog(
+            title: Text(t.common.e2eeBackupHistoryGrantTitle),
+            content: Text(
+              t.common.e2eeBackupHistoryGrantBody(count: sessionCount),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(t.common.buttonCancel),
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(t.common.buttonConfirm),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  Future<void> _auditHistoricalKeyGrant(MegolmBackupSection section) async {
+    final auditor = widget.historicalKeyGrantAuditor;
+    if (auditor != null) return auditor(section);
+    final db = await SqliteService.to.db;
+    if (db == null) throw StateError('crypto_audit_store_unavailable');
+    final log = CryptoAuditLog(db);
+    await log.ensureSchema();
+    for (final session in section.sessions) {
+      final sessionHash = crypto.sha256
+          .convert(utf8.encode(session.sessionId))
+          .toString()
+          .substring(0, 16);
+      await log.append(
+        AuditEventType.historicalRoomKeyGranted,
+        peerUid: session.scope,
+        peerDeviceId: sessionHash,
+        detail: jsonEncode({
+          'gid': session.scope,
+          'generation_no': session.grant.generationNo,
+          'start_seq': session.grant.startSeq,
+          'end_seq': session.grant.endSeq,
+          'source': 'backup_restore',
+        }),
+      );
+    }
   }
 
   /// 用恢复得到的公钥回写服务端该设备的登记公钥。
@@ -854,6 +937,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     Map<String, dynamic> result, {
     required bool deviceKeySynced,
     int recovered = 0,
+    int restored = 0,
+    int omitted = 0,
   }) {
     showCupertinoDialog<void>(
       context: context,
@@ -875,6 +960,17 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             AppSpacing.verticalMedium,
             Text(
               t.common.e2eeBackupImportSuccessNote,
+              style: context.textStyle(
+                FontSizeType.small,
+                color: AppColors.getTextSecondary(Theme.of(context).brightness),
+              ),
+            ),
+            AppSpacing.verticalSmall,
+            Text(
+              t.common.e2eeBackupHistoryRestoreResult(
+                restored: restored,
+                omitted: omitted,
+              ),
               style: context.textStyle(
                 FontSizeType.small,
                 color: AppColors.getTextSecondary(Theme.of(context).brightness),

@@ -827,6 +827,7 @@ class MessageRepo implements MessageRepository {
   Future<List<String>?> batchInsertOfflineMessages(
     List<Map<String, dynamic>> messages, {
     Future<void> Function(Map<String, dynamic>)? onS2CMessage,
+    bool trustedArchive = false,
   }) async {
     if (messages.isEmpty) return null;
 
@@ -893,14 +894,26 @@ class MessageRepo implements MessageRepository {
 
           // 检查消息是否已存在
           final List<Map<String, Object?>> existing = await txn.rawQuery(
-            'SELECT COUNT(*) as count FROM $tableName WHERE id = ?',
+            'SELECT ${MessageRepo.payload}, ${MessageRepo.e2ee}, '
+            '${MessageRepo.from}, ${MessageRepo.to}, ${MessageRepo.type}, '
+            '${MessageRepo.msgType} '
+            'FROM $tableName WHERE id = ?',
             [msgId],
           );
-          final int existingCount = (existing.first['count'] as int?) ?? 0;
-
-          if (existingCount > 0) {
+          if (existing.isNotEmpty) {
+            final upgraded =
+                trustedArchive &&
+                await _upgradeFailedMegolmArchive(
+                  txn,
+                  tableName,
+                  msgId,
+                  existing.single,
+                  msgData,
+                );
             addAckId(msgId);
-            func_helper.iPrint("离线消息已存在，跳过: $msgId");
+            func_helper.iPrint(
+              upgraded ? "历史密文已修复失败占位: $msgId" : "离线消息已存在，跳过: $msgId",
+            );
             continue;
           }
 
@@ -911,7 +924,21 @@ class MessageRepo implements MessageRepository {
           // MessageModelMapper.toTypeMessage() 解密（decrypt-on-read）。
           Map<String, dynamic> payload = {};
           String? rawPayloadCipher; // 非 null 表示原始密文/协议空 payload，原样落库
-          final e2ee = msgData['e2ee'];
+          dynamic e2ee = msgData['e2ee'];
+          if (e2ee is Map) {
+            final normalized = Map<String, dynamic>.from(e2ee);
+            normalized.remove('_archive_conv_seq');
+            if (trustedArchive) {
+              final rawSeq = msgData['conv_seq'];
+              final convSeq = rawSeq is int
+                  ? rawSeq
+                  : int.tryParse(rawSeq?.toString() ?? '');
+              if (convSeq != null && convSeq > 0) {
+                normalized['_archive_conv_seq'] = convSeq;
+              }
+            }
+            e2ee = normalized;
+          }
           final hasE2ee =
               (e2ee is Map && e2ee.isNotEmpty) ||
               (e2ee is String && e2ee.isNotEmpty);
@@ -1102,6 +1129,65 @@ class MessageRepo implements MessageRepository {
       Error.throwWithStackTrace(e, s);
     }
     return ackMsgIds;
+  }
+
+  static Future<bool> _upgradeFailedMegolmArchive(
+    Transaction txn,
+    String tableName,
+    String msgId,
+    Map<String, Object?> existing,
+    Map<String, dynamic> incoming,
+  ) async {
+    Map<String, dynamic>? decodeMap(dynamic raw) {
+      if (raw is Map) return Map<String, dynamic>.from(raw);
+      if (raw is! String || raw.isEmpty) return null;
+      try {
+        final decoded = jsonDecode(raw);
+        return decoded is Map ? Map<String, dynamic>.from(decoded) : null;
+      } on FormatException {
+        return null;
+      }
+    }
+
+    final placeholder = decodeMap(existing[payload]);
+    final raw = placeholder?['_e2ee_raw'];
+    final original = raw is Map ? Map<String, dynamic>.from(raw) : null;
+    final originalE2ee = decodeMap(original?['e2ee']);
+    final incomingE2ee = decodeMap(incoming['e2ee']);
+    if (placeholder?['_e2ee_failed'] != true ||
+        original == null ||
+        originalE2ee?['protocol'] != 'megolm' ||
+        incomingE2ee?['protocol'] != 'megolm') {
+      return false;
+    }
+    final originalMetadata = originalE2ee!;
+    final incomingMetadata = incomingE2ee!;
+
+    bool same(dynamic a, dynamic b) => a?.toString() == b?.toString();
+    final immutableMatch =
+        same(original['id'] ?? original['msg_id'], msgId) &&
+        same(original['from'], incoming['from']) &&
+        same(original['to'], incoming['to']) &&
+        same(original['type'], incoming['type']) &&
+        same(original['msg_type'], incoming['msg_type']) &&
+        same(original['payload'], incoming['payload']) &&
+        same(originalMetadata['gid'], incomingMetadata['gid']) &&
+        same(originalMetadata['session_id'], incomingMetadata['session_id']);
+    final rawSeq = incoming['conv_seq'];
+    final convSeq = rawSeq is int
+        ? rawSeq
+        : int.tryParse(rawSeq?.toString() ?? '');
+    if (!immutableMatch || convSeq == null || convSeq <= 0) return false;
+
+    incomingMetadata.remove('_archive_conv_seq');
+    incomingMetadata['_archive_conv_seq'] = convSeq;
+    final updated = await txn.update(
+      tableName,
+      {payload: incoming['payload'], e2ee: jsonEncode(incomingMetadata)},
+      where: '$id = ?',
+      whereArgs: [msgId],
+    );
+    return updated == 1;
   }
 
   static int _parseCreatedAt(dynamic raw) {

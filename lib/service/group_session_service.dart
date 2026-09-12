@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:imboy/service/e2ee/vodozemac_init.dart';
+import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
@@ -18,6 +19,7 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 
 /// Megolm 会话套件标识（e2ee 元数据 e2ee_suite 字段，区分既有 RSA+AES 套件）
@@ -74,6 +76,8 @@ class GroupSessionService {
 
   /// 接收侧：'$storageScope:$sessionId' → inbound 会话（内存缓存，落地在安全存储）
   final Map<String, vod.InboundGroupSession> _inbound = {};
+  final Map<String, MegolmHistoryGrant?> _restoredGrants = {};
+  final Set<String> _restoredGrantLookups = {};
 
   /// 成员/设备集合可能已变化的会话域（S2C join/leave 标记，下次发送强刷公钥并 rotate）
   final Set<String> _staleGids = {};
@@ -86,6 +90,8 @@ class GroupSessionService {
   void clearMemory() {
     _outbound.clear();
     _inbound.clear();
+    _restoredGrants.clear();
+    _restoredGrantLookups.clear();
     _staleGids.clear();
     _sendLocks.clear();
   }
@@ -112,6 +118,10 @@ class GroupSessionService {
   @visibleForTesting
   OlmWrapFn? debugOlmWrap;
 
+  @visibleForTesting
+  Future<E2EEGroupHistoryGrant> Function(String gid, String sessionId)?
+  debugHistoryGrantLoader;
+
   // ===== 群级 E2EE 旗标（来源：S2C group_e2ee_mode 广播 / 群详情 / 收到 room key）=====
 
   /// 旗标存安全存储（与私钥同级保护，防本机篡改清零导致明文降级）
@@ -133,6 +143,9 @@ class GroupSessionService {
   void markGroupStale(String gid) {
     if (gid.isNotEmpty) _staleGids.add(gid);
   }
+
+  @visibleForTesting
+  bool debugIsGroupStale(String gid) => _staleGids.contains(gid);
 
   // ===== 发送侧 =====
 
@@ -453,6 +466,7 @@ class GroupSessionService {
         value: exported,
       );
       _inbound['$storageScope:$sessionId'] = inbound;
+      await _storeAuthoritativeHistoryGrant(storageScope, sessionId);
       // 安全：不从 room key 反推群策略旗标——e2ee_room_key 是任意成员可发的 C2G
       // 具名 action（后端仅校验 is_member，不校验群主/群 e2ee_mode），据此翻转
       // 本地强制加密旗标会让普通成员越权触发"仅群主可决策"的群级策略。旗标权威
@@ -583,7 +597,8 @@ class GroupSessionService {
     required String gid,
     required String sessionId,
     required String ciphertext,
-  }) => _decryptScoped(gid, sessionId, ciphertext);
+    int? convSeq,
+  }) => _decryptScoped(gid, sessionId, ciphertext, convSeq: convSeq);
 
   /// 解密 Megolm 单聊消息（session_id 全局唯一，C2C 统一存 'c2c' 域）
   Future<String> decryptC2CMessage({
@@ -594,9 +609,13 @@ class GroupSessionService {
   Future<String> _decryptScoped(
     String storageScope,
     String sessionId,
-    String ciphertext,
-  ) async {
+    String ciphertext, {
+    int? convSeq,
+  }) async {
     await ensureInitialized();
+    if (storageScope != c2cScope) {
+      await _enforceRestoredHistoryGrant(storageScope, sessionId, convSeq);
+    }
     var inbound = _inbound['$storageScope:$sessionId'];
     if (inbound == null) {
       final exported = await StorageSecureService.to.read(
@@ -625,7 +644,112 @@ class GroupSessionService {
       key: '$_inboundKeyPrefix$storageScope:$sessionId',
       value: exported,
     );
+    await _storeAuthoritativeHistoryGrant(storageScope, sessionId);
   }
+
+  Future<void> _storeAuthoritativeHistoryGrant(
+    String storageScope,
+    String sessionId,
+  ) async {
+    final gid = BigInt.tryParse(storageScope);
+    if (gid == null || gid <= BigInt.zero) return;
+    try {
+      final grant = await _loadAuthoritativeHistoryGrant(
+        storageScope,
+        sessionId,
+      );
+      await StorageSecureService.to.write(
+        key: '$kMegolmHistoryGrantPrefix$storageScope:$sessionId',
+        value: jsonEncode(grant.toJson()),
+      );
+    } on Object catch (e) {
+      iPrint(
+        '[group_session] history grant unavailable '
+        'scope=$storageScope error=${e.runtimeType}',
+      );
+    }
+  }
+
+  Future<MegolmHistoryGrant> _loadAuthoritativeHistoryGrant(
+    String gid,
+    String sessionId,
+  ) async {
+    final remote =
+        await (debugHistoryGrantLoader ??
+            (gid, sid) => E2EEApi().groupHistoryGrant(
+              gid: gid,
+              sessionId: sid,
+            ))(gid, sessionId);
+    return MegolmHistoryGrant(
+      scope: gid,
+      sessionId: remote.sessionId,
+      generationNo: remote.generationNo,
+      startSeq: remote.startSeq,
+      endSeq: remote.endSeq,
+    );
+  }
+
+  @visibleForTesting
+  Future<void> debugStoreAuthoritativeHistoryGrant(
+    String gid,
+    String sessionId,
+  ) => _storeAuthoritativeHistoryGrant(gid, sessionId);
+
+  Future<void> _enforceRestoredHistoryGrant(
+    String gid,
+    String sessionId,
+    int? convSeq,
+  ) async {
+    final suffix = '$gid:$sessionId';
+    if (!_restoredGrantLookups.contains(suffix)) {
+      final raw = await StorageSecureService.to.read(
+        key: '$kMegolmRestoredGrantPrefix$suffix',
+      );
+      if (raw != null) {
+        _restoredGrants[suffix] = MegolmHistoryGrant.parse(
+          raw,
+          expectedScope: gid,
+          expectedSessionId: sessionId,
+        );
+      }
+      _restoredGrantLookups.add(suffix);
+    }
+    if (!_restoredGrants.containsKey(suffix)) return;
+    var grant = _restoredGrants[suffix];
+    if (grant != null && convSeq != null && convSeq > grant.endSeq) {
+      try {
+        final refreshed = await _loadAuthoritativeHistoryGrant(gid, sessionId);
+        if (refreshed.generationNo != grant.generationNo ||
+            refreshed.startSeq != grant.startSeq ||
+            refreshed.endSeq < convSeq) {
+          throw StateError('historical_room_key_scope_denied');
+        }
+        final encoded = jsonEncode(refreshed.toJson());
+        await StorageSecureService.to.write(
+          key: '$kMegolmRestoredGrantPrefix$suffix',
+          value: encoded,
+        );
+        await StorageSecureService.to.write(
+          key: '$kMegolmHistoryGrantPrefix$suffix',
+          value: encoded,
+        );
+        _restoredGrants[suffix] = refreshed;
+        grant = refreshed;
+      } on Object {
+        throw StateError('historical_room_key_scope_denied');
+      }
+    }
+    if (grant == null || !grant.allows(convSeq)) {
+      throw StateError('historical_room_key_scope_denied');
+    }
+  }
+
+  @visibleForTesting
+  Future<void> debugEnforceRestoredHistoryGrant(
+    String gid,
+    String sessionId,
+    int? convSeq,
+  ) => _enforceRestoredHistoryGrant(gid, sessionId, convSeq);
 
   // ===== 纯函数（可独立单测，不依赖原生库）=====
 

@@ -733,6 +733,9 @@ e2eeBackupErrImportFailed: 読み込みに失敗しました。パスワード�
 e2eeBackupImportSuccessTitle: 読み込み完了
 e2eeBackupImportSuccessBody: E2EEキーを復元しました！
 e2eeBackupImportSuccessNote: "注意：このバックアップに含まれ、正常に保存されたグループセッションのみ、対応する履歴を読み取れます。1対1の鍵は端末間でバックアップされないため、個別チャットの履歴は復元できません。"
+e2eeBackupHistoryGrantTitle: 過去のグループ鍵を復元
+e2eeBackupHistoryGrantBody(count): "この端末に $count 個のグループ鍵の復元を個別に許可し、それぞれの参加世代とメッセージ連番の範囲内だけで履歴を復号します。ID 鍵はすでに復元済みです。キャンセルするとこれらのグループ鍵は復元しません。"
+e2eeBackupHistoryRestoreResult(restored, omitted): "過去のグループ鍵：$restored 個を許可して復元、$omitted 個を省略"
 e2eeBackupCreatedAtRow: 作成日時
 e2eeBackupCloudUploadBtn: クラウドにバックアップ
 e2eeBackupCloudUploadSuccess(version): クラウドにバックアップしました（バージョン $version）

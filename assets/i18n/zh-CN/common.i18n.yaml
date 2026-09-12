@@ -762,6 +762,9 @@ e2eeBackupErrImportFailed: 导入失败，请检查密码是否正确
 e2eeBackupImportSuccessTitle: 导入成功
 e2eeBackupImportSuccessBody: E2EE 密钥已成功恢复！
 e2eeBackupImportSuccessNote: "注意：仅备份中包含且成功写入的群聊会话可用于读取对应历史；单聊历史无法恢复，因为单聊密钥不跨设备备份"
+e2eeBackupHistoryGrantTitle: 恢复历史群密钥
+e2eeBackupHistoryGrantBody(count): "此操作将授权本设备恢复 $count 个群密钥，并仅按各自的入群世代和消息序号范围解密历史。身份密钥已单独恢复；取消不会恢复这些群密钥。"
+e2eeBackupHistoryRestoreResult(restored, omitted): "历史群密钥：已授权恢复 $restored 个，已省略 $omitted 个"
 e2eeBackupDeviceKeySyncPending: "提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步"
 e2eeBackupCreatedAtRow: 创建时间
 e2eeBackupCloudUploadBtn: 备份到云端

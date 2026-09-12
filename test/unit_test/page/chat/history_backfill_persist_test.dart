@@ -11,6 +11,8 @@
 /// iPrint），UI 就永久「暂无数据」——即使消息其实已落库。
 library;
 
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -203,7 +205,10 @@ void main() {
       final shaped = rows.map(archiveRowToOfflineShape).toList(growable: false);
 
       final repo = MessageRepo(tableName: MessageRepo.getTableName('C2C'));
-      final msgIds = await repo.batchInsertOfflineMessages(shaped);
+      final msgIds = await repo.batchInsertOfflineMessages(
+        shaped,
+        trustedArchive: true,
+      );
 
       // 落库成功（与 A-24 契约一致：失败会抛，不会静默返回 null）
       expect(msgIds, isNotNull, reason: '整批插入失败会向上抛，不会返回 null');
@@ -247,7 +252,10 @@ void main() {
       expect(shaped.single['to'], int.parse(_groupId));
 
       final repo = MessageRepo(tableName: MessageRepo.getTableName('C2G'));
-      final msgIds = await repo.batchInsertOfflineMessages(shaped);
+      final msgIds = await repo.batchInsertOfflineMessages(
+        shaped,
+        trustedArchive: true,
+      );
       expect(msgIds, hasLength(1));
 
       final items = await repo.pageForConversation(
@@ -270,8 +278,8 @@ void main() {
       final shaped = rows.map(archiveRowToOfflineShape).toList(growable: false);
       final repo = MessageRepo(tableName: MessageRepo.getTableName('C2C'));
 
-      await repo.batchInsertOfflineMessages(shaped);
-      await repo.batchInsertOfflineMessages(shaped);
+      await repo.batchInsertOfflineMessages(shaped, trustedArchive: true);
+      await repo.batchInsertOfflineMessages(shaped, trustedArchive: true);
 
       final List<Map<String, Object?>> all = await db.rawQuery(
         'SELECT COUNT(*) AS c FROM msg_c2c',
@@ -281,6 +289,120 @@ void main() {
         1,
         reason: 'msg_id 去重：重复拉取不得重复落库',
       );
+    });
+
+    test('只有 trustedArchive 路径把服务端 conv_seq 写入 E2EE 内部元数据', () async {
+      final repo = MessageRepo(tableName: MessageRepo.getTableName('C2G'));
+      Map<String, dynamic> row(int id, int convSeq) => {
+        'msg_id': id,
+        'chat_type': 'c2g',
+        'type': 'C2G',
+        'conv_seq': convSeq,
+        'msg_type': 'text',
+        'from': int.parse(_currentUid),
+        'to': int.parse(_groupId),
+        'e2ee': {'protocol': 'megolm', 'gid': _groupId, '_archive_conv_seq': 1},
+        'payload': 'ciphertext',
+        'created_at': 1750000000000,
+      };
+
+      await repo.batchInsertOfflineMessages([
+        row(1817128709888510000, 481),
+      ], trustedArchive: true);
+      await repo.batchInsertOfflineMessages([row(1817128709888510001, 999)]);
+
+      final trusted = await repo.find('1817128709888510000');
+      final untrusted = await repo.find('1817128709888510001');
+      expect(trusted!.e2ee!['_archive_conv_seq'], 481);
+      expect(untrusted!.e2ee!.containsKey('_archive_conv_seq'), isFalse);
+    });
+
+    test('可信 archive 仅在 Megolm 原始信封完全一致时升级失败占位', () async {
+      const msgId = 1817128709888511000;
+      final e2ee = {
+        'protocol': 'megolm',
+        'gid': _groupId,
+        'session_id': 'session-a',
+      };
+      final raw = {
+        'id': msgId,
+        'from': int.parse(_currentUid),
+        'to': int.parse(_groupId),
+        'type': 'C2G',
+        'msg_type': 'text',
+        'payload': 'ciphertext-a',
+        'e2ee': e2ee,
+      };
+      await db.insert(MessageRepo.c2gTable, {
+        MessageRepo.id: msgId,
+        MessageRepo.type: 'C2G',
+        MessageRepo.from: int.parse(_currentUid),
+        MessageRepo.to: int.parse(_groupId),
+        MessageRepo.payload: jsonEncode({
+          '_e2ee_failed': true,
+          '_e2ee_raw': raw,
+        }),
+        MessageRepo.createdAt: 1750000000000,
+        MessageRepo.isAuthor: 1,
+        MessageRepo.topicId: 0,
+        MessageRepo.conversationUk3: 'C2G_${_currentUid}_$_groupId',
+        MessageRepo.status: 2,
+        MessageRepo.msgType: 'text',
+        MessageRepo.action: '',
+        MessageRepo.e2ee: jsonEncode(e2ee),
+      });
+
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.batchInsertOfflineMessages([
+        {...raw, 'msg_id': msgId, 'conv_seq': 481},
+      ], trustedArchive: true);
+
+      final repaired = await repo.find(msgId.toString());
+      expect(repaired!.payload, 'ciphertext-a');
+      expect(repaired.e2ee!['_archive_conv_seq'], 481);
+    });
+
+    test('可信 archive 与失败占位 ciphertext 不一致时保持原行', () async {
+      const msgId = 1817128709888511001;
+      final e2ee = {
+        'protocol': 'megolm',
+        'gid': _groupId,
+        'session_id': 'session-a',
+      };
+      final raw = {
+        'id': msgId,
+        'from': int.parse(_currentUid),
+        'to': int.parse(_groupId),
+        'type': 'C2G',
+        'msg_type': 'text',
+        'payload': 'ciphertext-a',
+        'e2ee': e2ee,
+      };
+      final placeholder = jsonEncode({'_e2ee_failed': true, '_e2ee_raw': raw});
+      await db.insert(MessageRepo.c2gTable, {
+        MessageRepo.id: msgId,
+        MessageRepo.type: 'C2G',
+        MessageRepo.from: int.parse(_currentUid),
+        MessageRepo.to: int.parse(_groupId),
+        MessageRepo.payload: placeholder,
+        MessageRepo.createdAt: 1750000000000,
+        MessageRepo.isAuthor: 1,
+        MessageRepo.topicId: 0,
+        MessageRepo.conversationUk3: 'C2G_${_currentUid}_$_groupId',
+        MessageRepo.status: 2,
+        MessageRepo.msgType: 'text',
+        MessageRepo.action: '',
+        MessageRepo.e2ee: jsonEncode(e2ee),
+      });
+
+      final repo = MessageRepo(tableName: MessageRepo.c2gTable);
+      await repo.batchInsertOfflineMessages([
+        {...raw, 'msg_id': msgId, 'payload': 'ciphertext-b', 'conv_seq': 481},
+      ], trustedArchive: true);
+
+      final unchanged = await repo.find(msgId.toString());
+      expect(unchanged!.payload, isA<Map<String, dynamic>>());
+      expect(unchanged.e2ee!.containsKey('_archive_conv_seq'), isFalse);
     });
   });
 }

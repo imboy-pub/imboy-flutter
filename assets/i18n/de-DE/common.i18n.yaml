@@ -736,6 +736,9 @@ e2eeBackupErrImportFailed: Import fehlgeschlagen. Passwort prüfen.
 e2eeBackupImportSuccessTitle: Importiert
 e2eeBackupImportSuccessBody: E2EE-Schlüssel wiederhergestellt!
 e2eeBackupImportSuccessNote: "Hinweis: Nur Gruppensitzungen, die in dieser Sicherung enthalten und erfolgreich gespeichert wurden, können den zugehörigen Verlauf entschlüsseln. Einzelchats sind nicht wiederherstellbar, da 1:1-Schlüssel nicht geräteübergreifend gesichert werden."
+e2eeBackupHistoryGrantTitle: Historische Gruppenschlüssel wiederherstellen
+e2eeBackupHistoryGrantBody(count): "Dies autorisiert dieses Gerät separat, $count Gruppenschlüssel wiederherzustellen und Verlauf nur innerhalb der jeweiligen Mitgliedschaftsgeneration und Nachrichtensequenz zu entschlüsseln. Identitätsschlüssel wurden bereits wiederhergestellt; Abbrechen überspringt diese Gruppenschlüssel."
+e2eeBackupHistoryRestoreResult(restored, omitted): "Historische Gruppenschlüssel: $restored autorisiert und wiederhergestellt, $omitted ausgelassen"
 e2eeBackupCreatedAtRow: Erstellt am
 e2eeBackupCloudUploadBtn: In die Cloud sichern
 e2eeBackupCloudUploadSuccess(version): In der Cloud gesichert (Version $version)

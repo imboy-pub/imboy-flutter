@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/message_s2c.dart';
 
 /// MessageS2CService 单元测试
@@ -74,6 +75,7 @@ void main() {
         'online',
         'offline',
         'hide',
+        'policy_violation',
         'channel_message',
         'channel_subscribed',
         'channel_unsubscribed',
@@ -150,6 +152,35 @@ void main() {
     });
   });
 
+  group('MessageS2CService - E2EE session policy recovery', () {
+    setUp(GroupSessionService.to.clearMemory);
+    tearDown(GroupSessionService.to.clearMemory);
+
+    test('session conflict 应标记群会话 stale 供下次发送 rotate', () async {
+      await MessageS2CService.switchS2C({
+        'id': '',
+        'type': 'S2C',
+        'action': 'policy_violation',
+        'payload': {'reason': 'e2ee_session_conflict', 'gid': 42},
+        'server_ts': 1,
+      });
+
+      expect(GroupSessionService.to.debugIsGroupStale('42'), isTrue);
+    });
+
+    test('不可由 rotate 修复的 policy 错误不应标记 stale', () async {
+      await MessageS2CService.switchS2C({
+        'id': '',
+        'type': 'S2C',
+        'action': 'policy_violation',
+        'payload': {'reason': 'e2ee_sender_device_missing', 'gid': 43},
+        'server_ts': 2,
+      });
+
+      expect(GroupSessionService.to.debugIsGroupStale('43'), isFalse);
+    });
+  });
+
   group('MessageS2CService - message_read_sync payload 契约', () {
     // 【多端已读同步】_handleMessageReadSync 依赖 msg_id + peer 两个字段
     // （peer = 后端 To，即原消息发送者 id，与本地会话 peerId 同源）；
@@ -214,6 +245,7 @@ void main() {
         'please_refresh_token': '_handlePleaseRefreshToken',
         'app_upgrade': '_handleAppUpgrade',
         'device_force_offline': '_handleDeviceForceOffline',
+        'policy_violation': '_handlePolicyViolation',
         'channel_message': '_handleChannelMessage',
         'channel_subscribed': '_handleChannelSubscribed',
         'channel_unsubscribed': '_handleChannelUnsubscribed',
