@@ -102,9 +102,9 @@ class ErrorCode {
 
   /// 服务器内部错误
   static const int INTERNAL_SERVER_ERROR = 500;
-  static const int SERVER_ERROR = 500;
-  static const int BUSINESS_FAILED = 500;
   static const int OPERATION_FAILED = 500;
+  static const int BUSINESS_FAILED = 500;
+  static const int SERVER_ERROR = 500;
 
   /// 错误码 501
   static const int NOT_IMPLEMENTED = 501;
@@ -480,6 +480,15 @@ class ErrorCode {
   /// 错误码 5429
   static const int TEACHING_BIND_NOT_AUTHORIZED = 5429;
 
+  /// 错误码 5430
+  static const int TEACHING_CLASS_NOT_VISIBLE = 5430;
+
+  /// 错误码 5431
+  static const int TEACHING_LEARNER_NOT_IN_CLASS = 5431;
+
+  /// 错误码 5432
+  static const int TEACHING_GUARDIAN_SETUP_REQUIRED = 5432;
+
   /// 错误码 5440
   static const int ASSIGNMENT_NOT_FOUND = 5440;
 
@@ -518,6 +527,12 @@ class ErrorCode {
 
   /// 错误码 5485
   static const int REVIEW_EMPTY_CONTENT = 5485;
+
+  /// 错误码 5486
+  static const int REVIEW_PUBLISHED_DRAFT = 5486;
+
+  /// 错误码 5487
+  static const int REVIEW_CHAR_REVIEWS_INVALID = 5487;
 
   // =====================================================================
   // 错误消息映射
@@ -658,6 +673,9 @@ class ErrorCode {
     5427: '该账号在同机构已绑定其他学员',
     5428: '目标账号不存在或不可用',
     5429: '无学员绑定操作权限',
+    5430: '班级不存在或不可见',
+    5431: '学员不在本班或已移出',
+    5432: '监护关系需完善',
     5440: '作业不存在',
     5441: '提交附件不合规',
     5442: '作业已截止或关闭',
@@ -671,6 +689,8 @@ class ErrorCode {
     5483: '发布确认学员不一致',
     5484: '请求包含服务端保留字段',
     5485: '回评内容为空',
+    5486: '回评已发布，不能再保存草稿',
+    5487: '逐字点评字卡数据不合规',
   };
 
   /// 获取错误码对应的默认消息
