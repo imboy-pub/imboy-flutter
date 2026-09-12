@@ -252,5 +252,45 @@ void main() {
         expect(confirmBody?['scope_ref'], 'c2c:1:2');
       },
     );
+
+    test('anchorMsgId 透传 → confirmBody 带 anchor_msg_id（群附件锚点）', () async {
+      Map<String, dynamic>? confirmBody;
+      await AttachmentApi.uploadViaPresign(
+        bytes,
+        'a.jpg',
+        'image/jpeg',
+        process: false,
+        scope: 'group',
+        scopeRef: '963201',
+        anchorMsgId: '112159964677801984',
+        presignFn: (String f, String m) async => okPresign(),
+        putFn: (String u, Uint8List b, String m, bool p) async {},
+        confirmFn: (Map<String, dynamic> body) async {
+          confirmBody = body;
+          return IMBoyHttpResponse.success(<String, dynamic>{});
+        },
+      );
+      expect(confirmBody?['scope'], 'group');
+      expect(confirmBody?['anchor_msg_id'], '112159964677801984');
+    });
+
+    test('anchorMsgId 缺省/null → confirmBody 不带 anchor_msg_id（零改动兼容）', () async {
+      Map<String, dynamic>? confirmBody;
+      await AttachmentApi.uploadViaPresign(
+        bytes,
+        'a.jpg',
+        'image/jpeg',
+        process: false,
+        scope: 'group',
+        scopeRef: '963201',
+        presignFn: (String f, String m) async => okPresign(),
+        putFn: (String u, Uint8List b, String m, bool p) async {},
+        confirmFn: (Map<String, dynamic> body) async {
+          confirmBody = body;
+          return IMBoyHttpResponse.success(<String, dynamic>{});
+        },
+      );
+      expect(confirmBody?.containsKey('anchor_msg_id'), isFalse);
+    });
   });
 }

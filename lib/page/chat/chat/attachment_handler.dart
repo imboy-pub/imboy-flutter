@@ -376,6 +376,8 @@ class ChatAttachmentHandler {
         mime,
         scope: s.scope,
         scopeRef: s.scopeRef,
+        // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
+        anchorMsgId: messageId,
         seal: seal,
       );
       final message = FileMessage(
@@ -460,6 +462,9 @@ class ChatAttachmentHandler {
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
+          // 群附件消息锚点：messageId 即最终消息 id，服务端按 scope 消费
+          // （group 校验必需，c2c/private 忽略）
+          anchorMsgId: messageId,
           seal: seal,
         );
         await handleImageUploadPresign(
@@ -487,6 +492,8 @@ class ChatAttachmentHandler {
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
+          // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
+          anchorMsgId: messageId,
           videoSeal: seal,
           // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
           thumbSeal: await _sealFor(messageId, 'video_thumb'),
@@ -640,6 +647,7 @@ class ChatAttachmentHandler {
         mime,
         scope: s.scope,
         scopeRef: s.scopeRef,
+        anchorMsgId: messageId,
         seal: seal,
       );
 
@@ -709,6 +717,9 @@ class ChatAttachmentHandler {
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
+          // 群附件消息锚点：messageId 即最终消息 id，服务端按 scope 消费
+          // （group 校验必需，c2c/private 忽略）
+          anchorMsgId: messageId,
           seal: seal,
         );
         await handleImageUploadPresign(
@@ -736,6 +747,8 @@ class ChatAttachmentHandler {
           entity,
           scope: s.scope,
           scopeRef: s.scopeRef,
+          // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
+          anchorMsgId: messageId,
           videoSeal: seal,
           // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
           thumbSeal: await _sealFor(messageId, 'video_thumb'),
@@ -810,6 +823,7 @@ class ChatAttachmentHandler {
         process: false,
         scope: s.scope,
         scopeRef: s.scopeRef,
+        anchorMsgId: messageId,
         seal: seal,
       );
       final message = AudioMessage(
@@ -895,6 +909,8 @@ class ChatAttachmentHandler {
         process: false,
         scope: s.scope,
         scopeRef: s.scopeRef,
+        // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
+        anchorMsgId: messageId,
         seal: seal,
       );
     } on Object catch (e) {

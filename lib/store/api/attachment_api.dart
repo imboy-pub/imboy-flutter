@@ -166,6 +166,12 @@ class AttachmentApi {
     // 默认 private 保持既有非聊天面调用方行为（后端 presign/confirm 默认亦为 private）。
     String scope = 'private',
     String? scopeRef,
+
+    /// 群附件消息锚点（group attachment anchor）：C2G 会话上传时传客户端
+    /// 预生成的消息 id（Xid）——服务端 attachment 落库与消息锚定共用同值，
+    /// group scope 缺失时 confirm 会 400「群附件缺少消息锚点」。
+    /// 非 group scope 服务端忽略该字段；缺省 null 保持既有调用方零改动。
+    String? anchorMsgId,
     // 以下三个为 @visibleForTesting 注入 seam：默认 null 走真实实现，
     // 调用方零改动；测试注入 fake 以脱离 HttpClient/Dio/网络验证编排逻辑。
     PresignFn? presignFn,
@@ -255,6 +261,8 @@ class AttachmentApi {
       if (sealed != null) 'cipher': AttachmentDescriptor.supportedCipher,
       'scope': scope,
       if (scopeRef != null && scopeRef.isNotEmpty) 'scope_ref': scopeRef,
+      if (anchorMsgId != null && anchorMsgId.isNotEmpty)
+        'anchor_msg_id': anchorMsgId,
     };
     final IMBoyHttpResponse confirmResp = confirmFn != null
         ? await confirmFn(confirmBody)
@@ -340,6 +348,7 @@ class AttachmentApi {
     bool process = true,
     String scope = 'private',
     String? scopeRef,
+    String? anchorMsgId,
     AttachmentSealRequest? seal,
   }) async {
     try {
@@ -357,6 +366,7 @@ class AttachmentApi {
         process: process,
         scope: scope,
         scopeRef: scopeRef,
+        anchorMsgId: anchorMsgId,
         seal: seal,
       );
       await callback(
@@ -395,6 +405,7 @@ class AttachmentApi {
     bool process = true,
     String scope = 'private',
     String? scopeRef,
+    String? anchorMsgId,
     AttachmentSealRequest? seal,
     // 与 [uploadViaPresign] 同一组注入 seam：默认 null 走真实实现。
     // 这里透传是为了让「meta 里的 file_hash256 与服务端同值」这条不变量
@@ -410,6 +421,7 @@ class AttachmentApi {
       process: process,
       scope: scope,
       scopeRef: scopeRef,
+      anchorMsgId: anchorMsgId,
       seal: seal,
       presignFn: presignFn,
       putFn: putFn,
@@ -432,6 +444,7 @@ class AttachmentApi {
     bool process = true,
     String scope = 'private',
     String? scopeRef,
+    String? anchorMsgId,
     AttachmentSealRequest? seal,
   }) async {
     final Uint8List? bytes = await entity.originBytes;
@@ -452,6 +465,7 @@ class AttachmentApi {
       process: process,
       scope: scope,
       scopeRef: scopeRef,
+      anchorMsgId: anchorMsgId,
       seal: seal,
     );
     return <String, dynamic>{
@@ -482,6 +496,7 @@ class AttachmentApi {
     AssetEntity entity, {
     String scope = 'private',
     String? scopeRef,
+    String? anchorMsgId,
     AttachmentSealRequest? videoSeal,
     AttachmentSealRequest? thumbSeal,
   }) async {
@@ -521,6 +536,7 @@ class AttachmentApi {
       process: false,
       scope: scope,
       scopeRef: scopeRef,
+      anchorMsgId: anchorMsgId,
       seal: thumbSeal,
     );
     // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
@@ -564,6 +580,7 @@ class AttachmentApi {
       'video/mp4',
       scope: scope,
       scopeRef: scopeRef,
+      anchorMsgId: anchorMsgId,
       seal: videoSeal,
     );
 
