@@ -44,7 +44,7 @@ dependencies:
   connectivity_plus: ^7.2.0        # Network status monitoring (WiFi/Cellular)
   webview_flutter: ^4.14.0         # WebView integration for in-app browsing
   url_launcher: ^6.3.2              # URL handling for opening links in browser/apps
-  mime: ^2.0.0                      # MIME type detection for file handling
+  mime: ^2.1.0                      # MIME type detection for file handling
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🌐 Web Platform Support                                         │
