@@ -36,7 +36,7 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🌐 Network & Web                                               │
   # └─────────────────────────────────────────────────────────────────┘
-  dio: ^5.10.0                     # HTTP client (updated: 5.9.2 → 5.10.0)
+  dio: ^5.11.1                     # HTTP client (updated: 5.9.2 → 5.10.0)
   dio_http2_adapter: ^2.7.0       # HTTP/2 support for improved performance
   web_socket_channel: ^3.0.3      # WebSocket support for real-time communication
   protobuf: ^6.0.0                # Protocol Buffers runtime for binary WS frames
