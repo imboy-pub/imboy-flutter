@@ -75,11 +75,6 @@ class ChatThemeConfig {
     }
   }
 
-  /// 从 ThemeData 创建聊天主题
-  static ChatTheme fromThemeData(ThemeData themeData) {
-    return ChatTheme.fromThemeData(themeData);
-  }
-
   /// 构建亮色聊天主题 - Material 3适配
   static ChatTheme _buildLightChatTheme({
     double fontScale = 1.0,
