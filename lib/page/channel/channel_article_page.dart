@@ -421,9 +421,15 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     final channel = ref.watch(channelDetailProvider).channel;
     final title = channel?.name ?? t.channel.title;
 
+    // 沉浸阅读页是被 push 进来的全屏页（频道内容卡片单击 / 卡片底部「评论」），
+    // 必须给用户一条返回上一页的路。这里显式打开 GlassAppBar 的返回键：
+    // 它的 automaticallyImplyLeading **默认 false**，且仍在 `Navigator.canPop`
+    // 为 false 时（深链直开、栈底）自动隐藏，不会留下点了没反应的死键。
+    // 样式与频道模块其它子页（channel_detail/compose/edit…）同源，均为
+    // GlassBackButton，避免返回键跨页不一致。
     if (widget.message == null) {
       return Scaffold(
-        appBar: GlassAppBar(title: title),
+        appBar: GlassAppBar(title: title, automaticallyImplyLeading: true),
         body: NoDataView(
           icon: CupertinoIcons.doc_text,
           text: t.common.loadError,
@@ -432,7 +438,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     }
 
     return Scaffold(
-      appBar: GlassAppBar(title: title),
+      appBar: GlassAppBar(title: title, automaticallyImplyLeading: true),
       body: Column(
         children: [
           Expanded(
@@ -766,9 +772,8 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 Container(
                   width: double.infinity,
                   height: 200,
-                  color: AppColors.getIosSeparator(
-                    Theme.of(context).brightness,
-                  ).withValues(alpha: 0.12),
+                  color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                      .withValues(alpha: 0.12),
                 ),
               Container(
                 padding: AppSpacing.allMedium,

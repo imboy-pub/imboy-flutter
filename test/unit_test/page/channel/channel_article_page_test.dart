@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:imboy/component/chat/composer_emoji_panel.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_article_page.dart';
@@ -68,9 +69,29 @@ Widget _buildAccessibleTestApp(
   );
 }
 
+/// 上一页占位文案（用于断言「确实退回去了」）。
+const String _previousPageText = '上一页占位';
+
+/// 把阅读页 push 到一条已有路由之上 —— 复刻真实入口
+/// （channel_message_item 单击卡片 → `context.push('/channel/:id/article/:mid')`）。
+///
+/// 为什么不能直接 `home: ChannelArticlePage(...)`：`GlassAppBar` 只在
+/// `automaticallyImplyLeading && Navigator.canPop(context)` 时生成返回键，
+/// 而 home 是栈底、canPop 恒 false ⇒ 无论开关怎么配都测不到返回键（假绿）。
+Widget _buildRootApp(ChannelService service, GlobalKey<NavigatorState> navKey) {
+  return TranslationProvider(
+    child: ProviderScope(
+      overrides: [channelServiceProvider.overrideWithValue(service)],
+      child: MaterialApp(
+        navigatorKey: navKey,
+        home: const Scaffold(body: Center(child: Text(_previousPageText))),
+      ),
+    ),
+  );
+}
+
 void main() {
   late _MockChannelService service;
-
   setUp(() {
     service = _MockChannelService();
     when(
@@ -236,5 +257,63 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CupertinoModalSurface), findsOneWidget);
+  });
+
+  // 背景：阅读页此前写作 `GlassAppBar(title: title)`，而 GlassAppBar 的
+  // automaticallyImplyLeading **默认 false** ⇒ 左上角没有返回键。沉浸阅读页是
+  // 被 push 进来的全屏页，用户在左上角找不到退路（只能靠系统返回手势）。
+  group('左上角返回上一页', () {
+    /// push 阅读页并等动画结束；返回 navKey 供断言栈状态。
+    Future<void> pushArticle(
+      WidgetTester tester,
+      GlobalKey<NavigatorState> navKey,
+      ChannelMessageModel? message,
+    ) async {
+      await tester.pumpWidget(_buildRootApp(service, navKey));
+      navKey.currentState!.push(
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              ChannelArticlePage(channelId: '1001', message: message),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('有上一页时展示返回键，点击即回到上一页', (tester) async {
+      final navKey = GlobalKey<NavigatorState>();
+      await pushArticle(tester, navKey, _fakeMessage(content: '正文内容'));
+
+      expect(find.byType(ChannelArticlePage), findsOneWidget);
+      expect(
+        find.byType(GlassBackButton),
+        findsOneWidget,
+        reason: '阅读页左上角必须有返回上一页按钮',
+      );
+
+      await tester.tap(find.byType(GlassBackButton));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ChannelArticlePage), findsNothing);
+      expect(find.text(_previousPageText), findsOneWidget);
+    });
+
+    testWidgets('message 丢失的降级态同样可返回', (tester) async {
+      final navKey = GlobalKey<NavigatorState>();
+      await pushArticle(tester, navKey, null);
+
+      // 降级分支（无 message）也要有退路，否则深链落到空态就卡死。
+      expect(find.text(t.common.loadError), findsOneWidget);
+      expect(find.byType(GlassBackButton), findsOneWidget);
+    });
+
+    testWidgets('栈底（无上一页）不显示返回键，避免死键', (tester) async {
+      // 对照组：深链直开时 canPop=false，返回键必须缺席，
+      // 否则点了没反应，比没有更糟。
+      await tester.pumpWidget(_buildTestApp(service, _fakeMessage()));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ChannelArticlePage), findsOneWidget);
+      expect(find.byType(GlassBackButton), findsNothing);
+    });
   });
 }
