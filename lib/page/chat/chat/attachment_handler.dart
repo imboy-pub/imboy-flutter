@@ -5,6 +5,7 @@ library;
 
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart'
@@ -365,7 +366,8 @@ class ChatAttachmentHandler {
     try {
       final Uint8List bytes = await File(path).readAsBytes();
       final String mime = lookupMimeType(path) ?? 'application/octet-stream';
-      final int fileSize = await file.length();
+      // file_picker 4.x platform_interface: length() 可返回 null，本地路径兜底取实际大小
+      final int fileSize = (await file.length()) ?? File(path).lengthSync();
       final s = _uploadScope;
       // message_id 必须在上传**之前**生成：它是绑定值（方案甲）的输入。
       final String messageId = Xid().toString();
