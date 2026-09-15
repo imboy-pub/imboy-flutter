@@ -17,6 +17,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
 import 'generated_product_feature_routes.dart';
 
 // ============================================================================
@@ -32,6 +33,9 @@ import 'routes/group_routes.dart';
 import 'routes/mine_routes.dart';
 import 'routes/group_feature_routes.dart';
 import 'routes/workspace_routes.dart';
+
+// 企业+客服纵切（app-amendment-001）：路由定义在 owned path 内，此处仅注册
+import 'package:imboy/modules/enterprise/presentation/enterprise_routes.dart';
 
 bool _matchesPublicPath(String currentPath, String publicPath) {
   if (publicPath == AppRoutes.initial) {
@@ -467,6 +471,9 @@ GoRouter createAppRouter({
 
       // 工作区路由（WP5/T8：切换器/创建流/频道详情/邀请/Branding）
       ...workspaceRoutes(),
+
+      // 企业路由（app-amendment-001 §2.2：显式企业入口，个人导航不变）
+      ...enterpriseRoutes(),
 
       // 个人中心路由
       ...mineRoutes(),

@@ -499,4 +499,24 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
 
   // ==================== 兼容旧路径 ====================
   const SmokeRoute(name: 'people_info_top', location: '/people_info/1001'),
+
+  // ==================== 企业（app-amendment-001：A4 纵切） ====================
+  // 两页 initState 均发起企业 API 异步加载（与 workspace_overview 同类），
+  // 无头环境留 pending timer；结构契约由 test/enterprise 单测断言。
+  const SmokeRoute(
+    name: 'enterprise_home',
+    location: '/enterprise',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'app-amendment-001：EnterpriseHomePage initState 企业 API 异步加载，'
+        '无头环境留 pending timer；企业纵切契约由 test/enterprise 断言',
+  ),
+  const SmokeRoute(
+    name: 'enterprise_conversation',
+    location: '/enterprise/7001/conversations/7002?contact_name=e2e',
+    status: RouteStatus.quarantine,
+    skipReason:
+        'app-amendment-001：EnterpriseConversationPage after_id 异步拉取，'
+        '无头环境留 pending timer；企业会话契约由 test/enterprise 断言',
+  ),
 ];
