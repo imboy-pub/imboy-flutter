@@ -7,7 +7,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0-alpha.17
 
 environment:
-  sdk: ^3.8.0
+  sdk: ^3.13.3
 
 hooks:
   user_defines:
@@ -39,7 +39,7 @@ dependencies:
   dio: ^5.11.1                     # HTTP client
   dio_http2_adapter: ^2.9.0       # HTTP/2 support for improved performance
   web_socket_channel: ^3.0.3      # WebSocket support for real-time communication
-  protobuf: ^6.0.0                # Protocol Buffers runtime for binary WS frames
+  protobuf: ^6.1.0                # Protocol Buffers runtime for binary WS frames
   fixnum: ^1.1.0                  # 64-bit integer support (protobuf generated code)
   connectivity_plus: ^7.2.0        # Network status monitoring (WiFi/Cellular)
   webview_flutter: ^4.14.0         # WebView integration for in-app browsing
@@ -49,16 +49,16 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🌐 Web Platform Support                                         │
   # └─────────────────────────────────────────────────────────────────┘
-  sqflite_common: ^2.5.11           # sqflite 公共接口（Web 支持）(updated: 2.5.0 → 2.5.11)
-  sqflite_common_ffi: ^2.4.2        # 桌面端 FFI 实现（Windows/Linux/macOS）(updated: 2.4.0+2 → 2.4.2)
-  sqflite_common_ffi_web: ^1.1.1    # Web 平台 SQLite 实现（支持 sqlite3 3.x）
+  sqflite_common: ^2.5.12           # sqflite 公共接口（Web 支持）(updated: 2.5.0 → 2.5.11)
+  sqflite_common_ffi: ^2.4.3        # 桌面端 FFI 实现（Windows/Linux/macOS）(updated: 2.4.0+2 → 2.4.2)
+  sqflite_common_ffi_web: ^1.1.3    # Web 平台 SQLite 实现（支持 sqlite3 3.x）
   web: ^1.1.0                       # 浏览器 API 封装（IndexedDB、Blob 等）
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 💾 Data & Storage                                               │
   # └─────────────────────────────────────────────────────────────────┘
   shared_preferences: ^2.5.4       # Local key-value storage
-  flutter_secure_storage: ^11.0.0  # Secure storage for sensitive data (tokens, keys)
+  flutter_secure_storage: ^11.1.1  # Secure storage for sensitive data (tokens, keys)
   sqflite_sqlcipher: ^3.4.0          # SQLCipher encrypted SQLite (drop-in sqflite replacement)
   # sqflite: ^2.4.2                 # 已被 sqflite_sqlcipher 替代
   path: ^1.9.0                     # Path manipulation utilities
@@ -69,8 +69,8 @@ dependencies:
   dynamic_color: ^2.1.0           # 2.x returns material_ui ColorScheme, incompatible with Flutter ColorScheme
   # dynamic_color 2.x 的 toColorScheme 返回 material_ui 包的 ColorScheme 类型，
   # lib/theme/dynamic_color_manager.dart 直接 import 该类型，故需显式声明此依赖。
-  material_ui: ^1.1.1             # transitive dep of dynamic_color 2.x, imported directly by dynamic_color_manager.dart
-  cross_cache: any                 # Cross-platform caching strategy
+  material_ui: ^1.2.0                 # transitive dep of dynamic_color 2.x, imported directly by dynamic_color_manager.dart
+  cross_cache: ^1.1.1                 # Cross-platform caching strategy
   # device_info_plus 12+ 同样迁移到 win32 6.x API（LOCAL_MACHINE / Win32Result.value）。
   # HttpClient 链路（User-Agent / 设备标识）间接依赖，API 测试必经路径。
   # 11.5.0 是 win32 5.x 代的最后版本，与本块 win32/win32_registry pin 同命运。
@@ -89,11 +89,11 @@ dependencies:
   photo_manager: 3.12.0               # Media management; 3.12.0 breaks current Android Kotlin build
   carousel_slider_plus: ^7.1.2       # 聊天附件面板左右滑动分页
   video_compress: ^3.1.4             # Video compression before upload
-  file_picker: ^12.2.0               # File picker
+  file_picker: ^13.0.0                 # File picker
   open_file: ^4.0.0                   # File opening with default apps (updated: 3.5.10 → 4.0.0)
-  image: ^4.9.2                      # Image manipulation library
+  image: ^4.10.1                      # Image manipulation library
   video_player: ^2.11.1               # Video playback support
-  flutter_local_notifications: ^22.0.0 # Local notifications support (updated: 21.0.0 → 22.0.0)
+  flutter_local_notifications: ^22.3.1 # Local notifications support (updated: 21.0.0 → 22.0.0)
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 🔊 Audio                                                       │
@@ -103,7 +103,7 @@ dependencies:
   flutter_webrtc: ^1.6.0
   # livekit_client 2.11.0 稳定版兼容 flutter_webrtc 1.6.0；此前 pin 的 2.9.0-dev.0
   # 是唯一兼容 flutter_webrtc 1.5.2 的预览版，现已随 webrtc 1.6 一并解锁升级。
-  livekit_client: ^2.11.0   # LiveKit SFU 群通话（与 flutter_webrtc 共享 native webrtc 库）
+  livekit_client: ^2.12.0   # LiveKit SFU 群通话（与 flutter_webrtc 共享 native webrtc 库）
   audio_waveforms:                     # iOS 16 register SIGSEGV 修复（gitee fork leeyi 分支）
     #path: plugin/audio_waveforms
     git:
@@ -161,7 +161,7 @@ dependencies:
   # 🔳 QR Code                                                     │
   # └─────────────────────────────────────────────────────────────────┘
   qr_flutter: ^4.1.0                  # QR code generation
-  mobile_scanner: ^7.2.0               # QR code scanning
+  mobile_scanner: ^7.4.2                # QR code scanning
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # 🔧 Utilities                                                   │
@@ -179,7 +179,7 @@ dependencies:
   xid: ^1.2.1                        # Unique ID generation
   ntp: ^2.0.0                        # Network Time Protocol (time sync)
   equatable: ^2.0.7                  # Object equality comparisons
-  synchronized: ^3.4.0               # Synchronization primitives
+  synchronized: ^3.4.2               # Synchronization primitives
   share_plus: ^13.2.0                # Sharing functionality (updated: 13.0.0 → 13.2.0)
   share_handler: ^0.0.25             # Receive files opened from external apps (E2EE backup import)
   wakelock_plus: 1.8.0               # Keep screen on; 1.7.0 is incompatible with current Kotlin APIs
@@ -200,16 +200,16 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🔥 Firebase & Analytics                                          │
   # └─────────────────────────────────────────────────────────────────┘
-  firebase_core: 4.14.0             # 与当前 macOS Podfile.lock 的 Firebase SDK 12.15 保持一致
-  firebase_messaging: 16.6.0        # 与当前 macOS Podfile.lock 的原生插件版本保持一致
+  firebase_core: 4.15.0             # 与当前 macOS Podfile.lock 的 Firebase SDK 12.15 保持一致
+  firebase_messaging: 16.7.0        # 与当前 macOS Podfile.lock 的原生插件版本保持一致
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🛡️ Error Tracking & Monitoring                                    │
   # └─────────────────────────────────────────────────────────────────┘
-  sentry_flutter: 9.29.0             # Sentry; 9.26.0 no longer exposes the generated Android plugin class
+  sentry_flutter: 9.30.0             # Sentry; 9.26.0 no longer exposes the generated Android plugin class
 
-  envied: ^1.3.8                    # Environment variables management (updated: 1.3.2 → 1.3.8)
-  pin_code_fields: ^9.3.0             # PIN code input fields
+  envied: ^1.3.9                    # Environment variables management (updated: 1.3.2 → 1.3.8)
+  pin_code_fields: ^10.0.0                 # PIN code input fields
   intl_phone_number_input: ^0.7.5    # Phone number input with validation
   jverify:                            # JVerification (gitee fork dev-3.x: SwiftPM + carrier SDK 适配)
     git:
@@ -228,7 +228,7 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   # provider: ^6.1.5+1                # ⚠️ DEPRECATED: 已迁移到 Riverpod
   visibility_detector: ^0.4.0+2    # Widget visibility detection
-  slang: ^4.19.1                    # Internationalization code generation (updated: 4.14.0 → 4.18.0)
+  slang: ^4.19.2                    # Internationalization code generation (updated: 4.14.0 → 4.18.0)
   slang_flutter: ^4.18.0             # Flutter slang integration (updated: 4.14.0 → 4.18.0)
   go_router: ^18.0.1                 # Declarative routing (go_router)
   flutter_riverpod: ^3.4.3            # pin: riverpod 4.0.4 栈与传递依赖 mockito 5.7.0 的 analyzer 需求冲突，回退 4.0.3 栈
@@ -321,7 +321,7 @@ dev_dependencies:
   # ┌─ Code Generation ─────────────────────────────────────────────┐
   build_runner: ^2.16.1                # Code generation for Riverpod, slang, envied
   riverpod_generator: ^4.0.9            # pin: 4.0.4 传递依赖 mockito 5.7.0 (^13) 与自身 analyzer ^12 冲突，builder 无法编译
-  envied_generator: ^1.3.8             # Environment variables code generation (updated: 1.3.2 → 1.3.8)
+  envied_generator: ^1.3.9             # Environment variables code generation (updated: 1.3.2 → 1.3.8)
 
   # ┌─ Code Quality & Linting ───────────────────────────────────────┐
   analyzer: ^13.3.0                  # AST-based repository quality gates
@@ -361,7 +361,7 @@ dev_dependencies:
   #   FilePicker 覆写（test/unit_test/page/group/…）
   # path_provider_platform_interface：flutter_test_config mock path provider
   cross_file: any
-  file_picker_platform_interface: ^3.3.0
+  file_picker_platform_interface: ^4.0.0
   path_provider_platform_interface: any
   postgres: ^3.5.12
 flutter:
