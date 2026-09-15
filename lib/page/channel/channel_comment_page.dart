@@ -281,7 +281,13 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
     final t = context.t;
 
     return Scaffold(
-      appBar: GlassAppBar(title: '${t.channel.comment} (${_comments.length})'),
+      // 频道消息评论页是 `/channel/:channelId/message/:messageId/comments`
+      // 嵌套子路由（见 channel_routes.dart），进入时栈上必有频道详情页，
+      // GlassAppBar 默认不生成返回键，必须显式打开。
+      appBar: GlassAppBar(
+        title: '${t.channel.comment} (${_comments.length})',
+        automaticallyImplyLeading: true,
+      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {

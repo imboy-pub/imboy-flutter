@@ -157,7 +157,12 @@ class _TransferSendPageState extends ConsumerState<TransferSendPage> {
       backgroundColor: AppColors.getSurfaceGrouped(
         Theme.of(context).brightness,
       ),
-      appBar: GlassAppBar(title: t.common.transferSend),
+      // 由聊天「+」面板 push（extra_item → '/transfer_send'），
+      // GlassAppBar 的 automaticallyImplyLeading 默认 false，必须显式打开。
+      appBar: GlassAppBar(
+        title: t.common.transferSend,
+        automaticallyImplyLeading: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Form(

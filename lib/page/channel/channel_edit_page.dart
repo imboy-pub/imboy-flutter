@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -314,7 +316,12 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
 
     if (_isLoading) {
       return Scaffold(
-        appBar: GlassAppBar(title: t.channel.editChannel),
+        // 加载态 AppBar 也要与主态一致地显式打开返回键：频道编辑页是 push
+        // 进来的，加载期间（尤其慢网）不能把用户困在转圈页面上。
+        appBar: GlassAppBar(
+          title: t.channel.editChannel,
+          automaticallyImplyLeading: true,
+        ),
         body: const Center(child: CupertinoActivityIndicator()),
       );
     }
@@ -534,9 +541,8 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
             Container(
               padding: AppSpacing.allMedium,
               decoration: BoxDecoration(
-                color: AppColors.getIosSeparator(
-                  Theme.of(context).brightness,
-                ).withValues(alpha: 0.1),
+                color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                    .withValues(alpha: 0.1),
                 borderRadius: AppRadius.borderRadiusSmall,
               ),
               child: Row(

@@ -13,6 +13,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'channel_di_provider.dart';
+
 import 'package:imboy/component/ui/app_loading.dart';
 
 /// 频道邀请中心页（私有频道）
@@ -281,9 +282,8 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
                 : () => context.push('/channel/$channelId'),
             titleAlignment: ListTileTitleAlignment.top,
             dense: false,
-            subtitleTextStyle: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(height: 1.35),
+            subtitleTextStyle: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(height: 1.35),
           );
         },
       ),
@@ -295,14 +295,24 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
     final t = context.t;
     if (_isLoading) {
       return Scaffold(
-        appBar: GlassAppBar(title: t.common.channelInvitations),
+        // 加载态与失败态都要给返回键（主态已有）：本页由频道详情
+        // '/channel/invitations' push 进来，失败态只剩「重试」时用户会被困住。
+        appBar: GlassAppBar(
+          title: t.common.channelInvitations,
+          automaticallyImplyLeading: true,
+        ),
         body: const Center(child: CupertinoActivityIndicator()),
       );
     }
 
     if (_error != null) {
       return Scaffold(
-        appBar: GlassAppBar(title: t.common.channelInvitations),
+        // 加载态与失败态都要给返回键（主态已有）：本页由频道详情
+        // '/channel/invitations' push 进来，失败态只剩「重试」时用户会被困住。
+        appBar: GlassAppBar(
+          title: t.common.channelInvitations,
+          automaticallyImplyLeading: true,
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

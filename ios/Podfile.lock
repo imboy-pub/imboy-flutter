@@ -23,32 +23,32 @@ PODS:
     - FlutterMacOS
   - file_saver (0.3.1):
     - Flutter
-  - Firebase/CoreOnly (12.18.0):
-    - FirebaseCore (~> 12.18.0)
-  - Firebase/Messaging (12.18.0):
+  - Firebase/CoreOnly (12.19.0):
+    - FirebaseCore (~> 12.19.0)
+  - Firebase/Messaging (12.19.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 12.18.0)
-  - firebase_core (4.14.0):
-    - Firebase/CoreOnly (= 12.18.0)
+    - FirebaseMessaging (~> 12.19.0)
+  - firebase_core (4.15.0):
+    - Firebase/CoreOnly (= 12.19.0)
     - Flutter
-  - firebase_messaging (16.6.0):
-    - Firebase/Messaging (= 12.18.0)
+  - firebase_messaging (16.7.0):
+    - Firebase/Messaging (= 12.19.0)
     - firebase_core
     - Flutter
-  - FirebaseCore (12.18.0):
-    - FirebaseCoreInternal (~> 12.18.0)
+  - FirebaseCore (12.19.0):
+    - FirebaseCoreInternal (~> 12.19.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
-  - FirebaseCoreInternal (12.18.0):
+  - FirebaseCoreInternal (12.19.0):
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
-  - FirebaseInstallations (12.18.0):
-    - FirebaseCore (~> 12.18.0)
+  - FirebaseInstallations (12.19.0):
+    - FirebaseCore (~> 12.19.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/UserDefaults (~> 8.1)
     - PromisesObjC (~> 2.4)
-  - FirebaseMessaging (12.18.0):
-    - FirebaseCore (~> 12.18.0)
-    - FirebaseInstallations (~> 12.18.0)
+  - FirebaseMessaging (12.19.0):
+    - FirebaseCore (~> 12.19.0)
+    - FirebaseInstallations (~> 12.19.0)
     - GoogleDataTransport (~> 10.1)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/Environment (~> 8.1)
@@ -113,7 +113,7 @@ PODS:
     - Flutter
   - integration_test (0.0.1):
     - Flutter
-  - JCore (5.5.2)
+  - JCore (5.5.3)
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -123,7 +123,7 @@ PODS:
     - Flutter
     - JCore (>= 5.4.0)
     - JVerification (= 3.4.7)
-  - livekit_client (2.11.0):
+  - livekit_client (2.12.0):
     - Flutter
     - flutter_webrtc
     - WebRTC-SDK (= 144.7559.09)
@@ -165,7 +165,7 @@ PODS:
   - sensors_plus (0.0.1):
     - Flutter
   - Sentry/HybridSDK (8.58.4)
-  - sentry_flutter (9.29.0):
+  - sentry_flutter (9.30.0):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.58.4)
@@ -395,13 +395,13 @@ SPEC CHECKSUMS:
   emoji_picker_flutter: ece213fc274bdddefb77d502d33080dc54e616cc
   file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
   file_saver: 33b08000e02d10789a0acf35b9decf5bce5ca9de
-  Firebase: 5523dd53ebe603451b4e1befcd99fa20a5c015cd
-  firebase_core: 22b31970001508f6e63945bedcb7b9de68819aa5
-  firebase_messaging: e0eae0e66bd04d3c1856ad08ad84ac75e0673a55
-  FirebaseCore: 96787d19ee32dc2242cc487b301bc616afeb398b
-  FirebaseCoreInternal: 93b2d5f9e184c6818a04433891c358b0720a6a38
-  FirebaseInstallations: 933b2747e8594084c9117b65e8358fce29d7ced7
-  FirebaseMessaging: 422bb80cbf8ff83e69e50bea4d4984fc4704f665
+  Firebase: 7ca191e43724142f79fae653547b3382c45413cc
+  firebase_core: 55de508663ceda7d1dc369a32b327a5655019ae2
+  firebase_messaging: df68cb5feefa02766144a50fa5348362a0127008
+  FirebaseCore: c990214798d7c568ad436a15ba7da25c7a278c9a
+  FirebaseCoreInternal: 656b1c2fd5a1c5976183dc54b73deda78fb26ee3
+  FirebaseInstallations: f70a49eed611f5602f373e40974b3b01556ac217
+  FirebaseMessaging: c15f48126adbe8b4d3238a5e1fa24bab3ad3e472
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   flutter_local_notifications: 643a3eda1ce1c0599413ca31672536d423dee214
   flutter_secure_storage_darwin: 46e401699982ee74142909676535e0f6a7321e58
@@ -417,11 +417,11 @@ SPEC CHECKSUMS:
   ic_storage_space: d2c12892dec7eabbf6757df81e72539a16aa7dc6
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
-  JCore: b41d85eaa51714f5712ebca96a82e901376f56c1
+  JCore: 3e14acb18c4dc2615008c5cb385a9ae627688a01
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: b59df3fbdfc48b67706141b8539e1ba41b3eb840
   jverify: 16302a55a8c5ad64c1e77c4e3e823f56c6079580
-  livekit_client: 35ee4fef4e184950cc40a5c2a580a84a616d588f
+  livekit_client: bf9de63fed5bbbbba717f7995d595ff30c9a8b58
   map_launcher: 8051ad5783913cafce93f2414c6858f2904fd8df
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
@@ -436,7 +436,7 @@ SPEC CHECKSUMS:
   r_upgrade: 5c37115e210f79501aa194b0146f7c1866c39e8c
   sensors_plus: b70a93b69dafdabd26ce4ac3f4d0529ab9acc4ca
   Sentry: 5321d74bdd28d6f6f8beaa1ca06f1fdc746bff49
-  sentry_flutter: 17c933e05c5a55e6b84512402c38a5c84a82e83b
+  sentry_flutter: 52a33f5c4c91b05015a6d8c0b26c155776a07d7f
   share_handler_ios: e2244e990f826b2c8eaa291ac3831569438ba0fb
   share_handler_ios_models: fc638c9b4330dc7f082586c92aee9dfa0b87b871
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a

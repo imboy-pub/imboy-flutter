@@ -84,7 +84,12 @@ class ChannelOrderDetailPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(brightness),
-      appBar: GlassAppBar(title: t.channel.orderDetail),
+      // 由订单列表 push（channel_order_list_page → '/channel/order/:orderNo'），
+      // GlassAppBar 默认不生成返回键，必须显式打开。
+      appBar: GlassAppBar(
+        title: t.channel.orderDetail,
+        automaticallyImplyLeading: true,
+      ),
       body: async.when(
         loading: () => const ShimmerList(),
         error: (_, _) => NoDataView(

@@ -186,7 +186,12 @@ class _RedPacketSendPageState extends ConsumerState<RedPacketSendPage> {
       backgroundColor: AppColors.getSurfaceGrouped(
         Theme.of(context).brightness,
       ),
-      appBar: GlassAppBar(title: t.common.redPacketSend),
+      // 由聊天「+」面板 push（extra_item → '/red_packet_send'），
+      // GlassAppBar 的 automaticallyImplyLeading 默认 false，必须显式打开。
+      appBar: GlassAppBar(
+        title: t.common.redPacketSend,
+        automaticallyImplyLeading: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Form(

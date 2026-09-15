@@ -141,15 +141,19 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
 
     if (_isLoading) {
       return Scaffold(
-        appBar: GlassAppBar(title: ""),
+        // 加载态也要有返回键：红包详情是 push 进来的，用户在 loading 期间
+        // 同样需要能退出去（主态用的 SliverAppBar 默认就有返回键，别让次态漏掉）。
+        appBar: GlassAppBar(title: "", automaticallyImplyLeading: true),
         body: const Center(child: CupertinoActivityIndicator()),
       );
     }
 
     if (_packet == null) {
       return Scaffold(
+        // 失败态（红包不存在）最不能没有退路：否则用户被卡在一句提示上。
         appBar: GlassAppBar(
           title: t.common.redPacketDetail,
+          automaticallyImplyLeading: true,
           backgroundColor: headerRed,
         ),
         body: Center(child: Text(t.common.redPacketNotFound)),
@@ -337,9 +341,8 @@ class _RedPacketDetailPageState extends ConsumerState<RedPacketDetailPage> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.getIosOrange(
-                                brightness,
-                              ).withValues(alpha: 0.15),
+                              color: AppColors.getIosOrange(brightness)
+                                  .withValues(alpha: 0.15),
                               borderRadius: AppRadius.borderRadiusTiny,
                             ),
                             child: Row(

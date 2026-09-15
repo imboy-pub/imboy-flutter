@@ -162,7 +162,12 @@ class _WithdrawPageState extends ConsumerState<WithdrawPage> {
 
     return Scaffold(
       backgroundColor: AppColors.getSurfaceGrouped(brightness),
-      appBar: GlassAppBar(title: t.common.withdraw),
+      // 由钱包页 push（wallet_page → '/wallet/withdraw'），
+      // GlassAppBar 的 automaticallyImplyLeading 默认 false，必须显式打开。
+      appBar: GlassAppBar(
+        title: t.common.withdraw,
+        automaticallyImplyLeading: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.regular),
         child: Form(

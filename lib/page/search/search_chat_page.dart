@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -19,6 +20,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
 import 'search_provider.dart';
 
 /// 聊天记录搜索页面 - 极致 iOS 17 Premium 风格
@@ -146,7 +148,12 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
     // 而本页 Column 含 Expanded → RenderFlex unbounded height 异常导致整页
     // 白屏(无搜索框/无列表)。改用 Scaffold 给 Column 有界高度（QA#20）。
     return Scaffold(
-      appBar: GlassAppBar(title: t.common.searchChatContent),
+      // 被 push 进来的子页（聊天设置 / 群详情 → 搜索聊天记录），
+      // GlassAppBar 的 automaticallyImplyLeading 默认 false，必须显式打开才有返回键。
+      appBar: GlassAppBar(
+        title: t.common.searchChatContent,
+        automaticallyImplyLeading: true,
+      ),
       body: Column(
         children: [
           // 搜索栏

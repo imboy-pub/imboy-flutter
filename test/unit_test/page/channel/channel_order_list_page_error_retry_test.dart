@@ -12,10 +12,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_order_list_page.dart';
 import 'package:imboy/page/channel/channel_purchase_provider.dart';
 import 'package:imboy/store/api/channel_order_api.dart';
+
+/// 上一页占位文案（OL-5 断言「确实退回去了」用）。
+const String _previousPageText = '上一页占位';
 
 /// 可编程 fake：按注入的 thrower/载荷行为响应 myOrders。
 class _StubOrderApi extends ChannelOrderApi {
@@ -124,5 +128,44 @@ void main() {
 
     expect(find.text('付费频道A'), findsOneWidget);
     expect(find.text(t.common.loadError), findsNothing);
+  });
+
+  // 2026-09-15：本页此前 `GlassAppBar(title: ...)` 没开 automaticallyImplyLeading
+  // （默认 false）⇒ 从频道详情点「我的订单」进来后左上角没有返回键，出不去。
+  // 注意必须把页面 push 到已有路由之上才有 canPop（home: 直挂时恒 false，测不出）。
+  testWidgets('OL-5 被 push 进入时左上角有返回键，点击可退回上一页', (tester) async {
+    final navKey = GlobalKey<NavigatorState>();
+    final api = _StubOrderApi(
+      payload: const <String, dynamic>{'list': <Map<String, dynamic>>[]},
+    );
+
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [channelOrderApiProvider.overrideWithValue(api)],
+          child: MaterialApp(
+            navigatorKey: navKey,
+            home: const Scaffold(body: Center(child: Text(_previousPageText))),
+          ),
+        ),
+      ),
+    );
+    navKey.currentState!.push(
+      MaterialPageRoute<void>(builder: (_) => const ChannelOrderListPage()),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ChannelOrderListPage), findsOneWidget);
+    expect(
+      find.byType(GlassBackButton),
+      findsOneWidget,
+      reason: '订单页左上角必须有返回上一页按钮',
+    );
+
+    await tester.tap(find.byType(GlassBackButton));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ChannelOrderListPage), findsNothing);
+    expect(find.text(_previousPageText), findsOneWidget);
   });
 }

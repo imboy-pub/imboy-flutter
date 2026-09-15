@@ -56,7 +56,12 @@ class ChannelOrderListPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(brightness),
-      appBar: GlassAppBar(title: t.channel.myOrders),
+      // 由频道详情「我的订单」push（channel_detail_page → '/channel/orders'），
+      // GlassAppBar 默认不生成返回键，必须显式打开。
+      appBar: GlassAppBar(
+        title: t.channel.myOrders,
+        automaticallyImplyLeading: true,
+      ),
       body: async.when(
         loading: () => const ShimmerList(),
         // BUG#151：失败态文案原与空态共用 noOrders，用户加载失败时看到
