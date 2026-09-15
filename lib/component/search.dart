@@ -13,11 +13,11 @@ Widget searchBar(
   String? queryTips,
   String? searchLabel,
   Widget? leading,
-  final Iterable<Widget>? trailing,
-  final TextEditingController? controller,
-  final FocusNode? focusNode,
-  final ValueChanged<String>? onChanged,
-  final Null Function(dynamic value)? onTapForItem,
+  Iterable<Widget>? trailing,
+  TextEditingController? controller,
+  FocusNode? focusNode,
+  ValueChanged<String>? onChanged,
+  Null Function(dynamic value)? onTapForItem,
   Future<List<dynamic>> Function(dynamic query)? doSearch,
   Widget Function(List<dynamic>)? doBuildResults,
 }) {
@@ -41,9 +41,8 @@ Widget searchBar(
         RoundedRectangleBorder(borderRadius: AppRadius.borderRadiusSmall),
       ),
       backgroundColor: WidgetStateProperty.all(
-        Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        Theme.of(context).colorScheme.surfaceContainerHighest
+            .withValues(alpha: 0.3),
       ),
       side: WidgetStateProperty.all(
         BorderSide(
