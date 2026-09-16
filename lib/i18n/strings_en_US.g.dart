@@ -50,6 +50,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaint$en_US complaint = _Translations$complaint$en_US._(_root);
 	@override late final _Translations$complaintReason$en_US complaintReason = _Translations$complaintReason$en_US._(_root);
 	@override late final _Translations$contact$en_US contact = _Translations$contact$en_US._(_root);
+	@override late final _Translations$customerService$en_US customerService = _Translations$customerService$en_US._(_root);
 	@override late final _Translations$discovery$en_US discovery = _Translations$discovery$en_US._(_root);
 	@override late final _Translations$error$en_US error = _Translations$error$en_US._(_root);
 	@override late final _Translations$group$en_US group = _Translations$group$en_US._(_root);
@@ -1681,6 +1682,45 @@ class _Translations$contact$en_US extends Translations$contact$zh_CN {
 	@override String get friendRequestSent => 'Sent';
 	@override String get channelMaxTagsCount => 'Maximum 8 tags allowed';
 	@override String get tagInputHint => 'Enter tag...';
+}
+
+// Path: customerService
+class _Translations$customerService$en_US extends Translations$customerService$zh_CN {
+	_Translations$customerService$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get entryTitle => 'Support Workspace';
+	@override String get entrySubtitle => 'Claim and handle queued customer conversations';
+	@override String get title => 'Support Workspace';
+	@override String get tabQueued => 'Queued';
+	@override String get tabActive => 'Active';
+	@override String get tabClosed => 'Closed';
+	@override String get countUnavailable => '--';
+	@override String get waitingJustNow => 'just now';
+	@override String waitingMinutes({required Object n}) => '${n} min';
+	@override String waitingHoursMinutes({required Object h, required Object m}) => '${h} h ${m} min';
+	@override String waitingDaysHours({required Object d, required Object h}) => '${d} d ${h} h';
+	@override String get sourceLabel => 'Source';
+	@override String get queuedEmptyTitle => 'No queued conversations';
+	@override String get queuedEmptyHint => 'Pull to refresh — new conversations will appear here';
+	@override String get loadingMore => 'Loading more…';
+	@override String get loadMoreFailed => 'Failed to load more, scroll up to retry';
+	@override String get noMore => 'No more conversations';
+	@override String get claimAction => 'Claim';
+	@override String get claimSuccess => 'Claimed';
+	@override String get claimConflict => 'This conversation was claimed by another seat or its state changed. The queue has been refreshed';
+	@override String get claimOffboardingRequired => 'Offboarding handover in progress; claiming is unavailable';
+	@override String get claimForbidden => 'Seat is suspended; claiming is unavailable';
+	@override String get claimFailed => 'Claim failed, please try again later';
+	@override String get activeEmptyTitle => 'No active conversations';
+	@override String get activeEmptyHint => 'Claim a conversation from the queue and it will appear here';
+	@override String get closedEmptyTitle => 'No closed conversations';
+	@override String get closedEmptyHint => 'Conversation history will arrive in a later release';
+	@override String get loadFailedTitle => 'Failed to load';
+	@override String get offlineHint => 'Network unavailable, please check your connection and retry';
+	@override String get seatSuspendedNotice => 'Seat suspended; the queue is read-only';
 }
 
 // Path: discovery
@@ -4048,6 +4088,38 @@ extension on TranslationsEnUs {
 			'contact.friendRequestSent' => 'Sent',
 			'contact.channelMaxTagsCount' => 'Maximum 8 tags allowed',
 			'contact.tagInputHint' => 'Enter tag...',
+			'customerService.entryTitle' => 'Support Workspace',
+			'customerService.entrySubtitle' => 'Claim and handle queued customer conversations',
+			'customerService.title' => 'Support Workspace',
+			'customerService.tabQueued' => 'Queued',
+			'customerService.tabActive' => 'Active',
+			'customerService.tabClosed' => 'Closed',
+			'customerService.countUnavailable' => '--',
+			'customerService.waitingJustNow' => 'just now',
+			'customerService.waitingMinutes' => ({required Object n}) => '${n} min',
+			'customerService.waitingHoursMinutes' => ({required Object h, required Object m}) => '${h} h ${m} min',
+			'customerService.waitingDaysHours' => ({required Object d, required Object h}) => '${d} d ${h} h',
+			'customerService.sourceLabel' => 'Source',
+			'customerService.queuedEmptyTitle' => 'No queued conversations',
+			'customerService.queuedEmptyHint' => 'Pull to refresh — new conversations will appear here',
+			'customerService.loadingMore' => 'Loading more…',
+			'customerService.loadMoreFailed' => 'Failed to load more, scroll up to retry',
+			'customerService.noMore' => 'No more conversations',
+			'customerService.claimAction' => 'Claim',
+			'customerService.claimSuccess' => 'Claimed',
+			'customerService.claimConflict' => 'This conversation was claimed by another seat or its state changed. The queue has been refreshed',
+			'customerService.claimOffboardingRequired' => 'Offboarding handover in progress; claiming is unavailable',
+			'customerService.claimForbidden' => 'Seat is suspended; claiming is unavailable',
+			'customerService.claimFailed' => 'Claim failed, please try again later',
+			_ => null,
+		} ?? switch (path) {
+			'customerService.activeEmptyTitle' => 'No active conversations',
+			'customerService.activeEmptyHint' => 'Claim a conversation from the queue and it will appear here',
+			'customerService.closedEmptyTitle' => 'No closed conversations',
+			'customerService.closedEmptyHint' => 'Conversation history will arrive in a later release',
+			'customerService.loadFailedTitle' => 'Failed to load',
+			'customerService.offlineHint' => 'Network unavailable, please check your connection and retry',
+			'customerService.seatSuspendedNotice' => 'Seat suspended; the queue is read-only',
 			'discovery.findNearbyPeople' => 'Find nearby people',
 			'discovery.moment' => 'Moments',
 			'discovery.nearbyPeopleExplain' => 'Nearby users can view your profile and send you messages. This may help you find new friends, but may also attract unwanted attention. You can stop sharing at any time.\nYour phone number stays hidden.',
@@ -4071,8 +4143,6 @@ extension on TranslationsEnUs {
 			'discovery.momentActionReport' => 'Report',
 			'discovery.momentActionCancel' => 'Cancel',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} liked this',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} and ${count} others liked this',
 			'discovery.momentContentPlaceholder' => 'What\'s on your mind...',
 			'discovery.momentShowFull' => 'Show full',
@@ -4555,6 +4625,8 @@ extension on TranslationsEnUs {
 			'workspace.resultIdle' => 'Not run',
 			'workspace.resultRunning' => 'Running',
 			'workspace.resultSuccess' => 'Success',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.resultFailed' => 'Failed',
 			'workspace.joinEntry' => 'Join Workspace',
 			'workspace.joinTitle' => 'Join Workspace',
@@ -4585,8 +4657,6 @@ extension on TranslationsEnUs {
 			'workspace.brandingEntry' => 'Branding (name / logo / primary color)',
 			'workspace.archiveEntry' => 'Archive workspace',
 			'workspace.restoreEntry' => 'Restore workspace',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Archive workspace',
 			'workspace.archiveDesc' => 'Archiving makes it read-only for everyone (writes rejected by the server); restore anytime',
 			'workspace.archiveConfirm' => 'Archive',

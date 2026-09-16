@@ -1,0 +1,40 @@
+# CSM-01（§12.5.1 / §12.7）— 客服坐席工作台命名空间
+# 入口 / 工作台 / 待接队列 / CAS 接单的移动端文案。
+# 术语：坐席（seat）、待接（queued）、接单（claim）。
+# ==================== 入口（权限驱动可见） ====================
+entryTitle: "客服工作台"
+entrySubtitle: "接单并处理排队中的客户会话"
+# ==================== 工作台框架（三视图 Tab） ====================
+title: "客服工作台"
+tabQueued: "待接"
+tabActive: "处理中"
+tabClosed: "已关闭"
+# 服务端未返回计数的徽标占位（不本地推断计数）
+countUnavailable: "--"
+# ==================== 待接列表（键集分页） ====================
+waitingJustNow: "刚刚"
+waitingMinutes: "$n 分钟"
+waitingHoursMinutes: "$h 小时 $m 分"
+waitingDaysHours: "$d 天 $h 小时"
+sourceLabel: "来源"
+queuedEmptyTitle: "暂无待接会话"
+queuedEmptyHint: "下拉刷新，新会话会出现在这里"
+loadingMore: "正在加载更多…"
+loadMoreFailed: "加载更多失败，上滑重试"
+noMore: "没有更多了"
+# ==================== CAS 接单 ====================
+claimAction: "接单"
+claimSuccess: "接单成功"
+claimConflict: "该会话已被其他坐席接单或状态已变化，已为你刷新最新队列"
+claimOffboardingRequired: "当前处于离职交接，暂时不能接单"
+claimForbidden: "坐席已被暂停，暂不能接单"
+claimFailed: "接单失败，请稍后重试"
+# ==================== 处理中 / 已关闭（本卡无服务端列表源，诚实空态） ====================
+activeEmptyTitle: "暂无处理中会话"
+activeEmptyHint: "从待接列表接单后，会话会显示在这里"
+closedEmptyTitle: "暂无已关闭会话"
+closedEmptyHint: "历史会话归档将在后续版本提供"
+# ==================== 状态（错误 / 离线） ====================
+loadFailedTitle: "加载失败"
+offlineHint: "网络不可用，请检查网络后重试"
+seatSuspendedNotice: "坐席已被暂停，队列仅可查看"

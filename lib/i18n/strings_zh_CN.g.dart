@@ -52,6 +52,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$complaint$zh_CN complaint = Translations$complaint$zh_CN.internal(_root);
 	late final Translations$complaintReason$zh_CN complaintReason = Translations$complaintReason$zh_CN.internal(_root);
 	late final Translations$contact$zh_CN contact = Translations$contact$zh_CN.internal(_root);
+	late final Translations$customerService$zh_CN customerService = Translations$customerService$zh_CN.internal(_root);
 	late final Translations$discovery$zh_CN discovery = Translations$discovery$zh_CN.internal(_root);
 	late final Translations$error$zh_CN error = Translations$error$zh_CN.internal(_root);
 	late final Translations$group$zh_CN group = Translations$group$zh_CN.internal(_root);
@@ -4730,6 +4731,105 @@ class Translations$contact$zh_CN {
 	String get tagInputHint => '输入标签...';
 }
 
+// Path: customerService
+class Translations$customerService$zh_CN {
+	Translations$customerService$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '客服工作台'
+	String get entryTitle => '客服工作台';
+
+	/// zh-CN: '接单并处理排队中的客户会话'
+	String get entrySubtitle => '接单并处理排队中的客户会话';
+
+	/// zh-CN: '客服工作台'
+	String get title => '客服工作台';
+
+	/// zh-CN: '待接'
+	String get tabQueued => '待接';
+
+	/// zh-CN: '处理中'
+	String get tabActive => '处理中';
+
+	/// zh-CN: '已关闭'
+	String get tabClosed => '已关闭';
+
+	/// zh-CN: '--'
+	String get countUnavailable => '--';
+
+	/// zh-CN: '刚刚'
+	String get waitingJustNow => '刚刚';
+
+	/// zh-CN: '$n 分钟'
+	String waitingMinutes({required Object n}) => '${n} 分钟';
+
+	/// zh-CN: '$h 小时 $m 分'
+	String waitingHoursMinutes({required Object h, required Object m}) => '${h} 小时 ${m} 分';
+
+	/// zh-CN: '$d 天 $h 小时'
+	String waitingDaysHours({required Object d, required Object h}) => '${d} 天 ${h} 小时';
+
+	/// zh-CN: '来源'
+	String get sourceLabel => '来源';
+
+	/// zh-CN: '暂无待接会话'
+	String get queuedEmptyTitle => '暂无待接会话';
+
+	/// zh-CN: '下拉刷新，新会话会出现在这里'
+	String get queuedEmptyHint => '下拉刷新，新会话会出现在这里';
+
+	/// zh-CN: '正在加载更多…'
+	String get loadingMore => '正在加载更多…';
+
+	/// zh-CN: '加载更多失败，上滑重试'
+	String get loadMoreFailed => '加载更多失败，上滑重试';
+
+	/// zh-CN: '没有更多了'
+	String get noMore => '没有更多了';
+
+	/// zh-CN: '接单'
+	String get claimAction => '接单';
+
+	/// zh-CN: '接单成功'
+	String get claimSuccess => '接单成功';
+
+	/// zh-CN: '该会话已被其他坐席接单或状态已变化，已为你刷新最新队列'
+	String get claimConflict => '该会话已被其他坐席接单或状态已变化，已为你刷新最新队列';
+
+	/// zh-CN: '当前处于离职交接，暂时不能接单'
+	String get claimOffboardingRequired => '当前处于离职交接，暂时不能接单';
+
+	/// zh-CN: '坐席已被暂停，暂不能接单'
+	String get claimForbidden => '坐席已被暂停，暂不能接单';
+
+	/// zh-CN: '接单失败，请稍后重试'
+	String get claimFailed => '接单失败，请稍后重试';
+
+	/// zh-CN: '暂无处理中会话'
+	String get activeEmptyTitle => '暂无处理中会话';
+
+	/// zh-CN: '从待接列表接单后，会话会显示在这里'
+	String get activeEmptyHint => '从待接列表接单后，会话会显示在这里';
+
+	/// zh-CN: '暂无已关闭会话'
+	String get closedEmptyTitle => '暂无已关闭会话';
+
+	/// zh-CN: '历史会话归档将在后续版本提供'
+	String get closedEmptyHint => '历史会话归档将在后续版本提供';
+
+	/// zh-CN: '加载失败'
+	String get loadFailedTitle => '加载失败';
+
+	/// zh-CN: '网络不可用，请检查网络后重试'
+	String get offlineHint => '网络不可用，请检查网络后重试';
+
+	/// zh-CN: '坐席已被暂停，队列仅可查看'
+	String get seatSuspendedNotice => '坐席已被暂停，队列仅可查看';
+}
+
 // Path: discovery
 class Translations$discovery$zh_CN {
 	Translations$discovery$zh_CN.internal(this._root);
@@ -8446,6 +8546,38 @@ extension on Translations {
 			'contact.friendRequestSent' => '已发送',
 			'contact.channelMaxTagsCount' => '最多可添加 8 个标签',
 			'contact.tagInputHint' => '输入标签...',
+			'customerService.entryTitle' => '客服工作台',
+			'customerService.entrySubtitle' => '接单并处理排队中的客户会话',
+			'customerService.title' => '客服工作台',
+			'customerService.tabQueued' => '待接',
+			'customerService.tabActive' => '处理中',
+			'customerService.tabClosed' => '已关闭',
+			'customerService.countUnavailable' => '--',
+			'customerService.waitingJustNow' => '刚刚',
+			'customerService.waitingMinutes' => ({required Object n}) => '${n} 分钟',
+			'customerService.waitingHoursMinutes' => ({required Object h, required Object m}) => '${h} 小时 ${m} 分',
+			_ => null,
+		} ?? switch (path) {
+			'customerService.waitingDaysHours' => ({required Object d, required Object h}) => '${d} 天 ${h} 小时',
+			'customerService.sourceLabel' => '来源',
+			'customerService.queuedEmptyTitle' => '暂无待接会话',
+			'customerService.queuedEmptyHint' => '下拉刷新，新会话会出现在这里',
+			'customerService.loadingMore' => '正在加载更多…',
+			'customerService.loadMoreFailed' => '加载更多失败，上滑重试',
+			'customerService.noMore' => '没有更多了',
+			'customerService.claimAction' => '接单',
+			'customerService.claimSuccess' => '接单成功',
+			'customerService.claimConflict' => '该会话已被其他坐席接单或状态已变化，已为你刷新最新队列',
+			'customerService.claimOffboardingRequired' => '当前处于离职交接，暂时不能接单',
+			'customerService.claimForbidden' => '坐席已被暂停，暂不能接单',
+			'customerService.claimFailed' => '接单失败，请稍后重试',
+			'customerService.activeEmptyTitle' => '暂无处理中会话',
+			'customerService.activeEmptyHint' => '从待接列表接单后，会话会显示在这里',
+			'customerService.closedEmptyTitle' => '暂无已关闭会话',
+			'customerService.closedEmptyHint' => '历史会话归档将在后续版本提供',
+			'customerService.loadFailedTitle' => '加载失败',
+			'customerService.offlineHint' => '网络不可用，请检查网络后重试',
+			'customerService.seatSuspendedNotice' => '坐席已被暂停，队列仅可查看',
 			'discovery.findNearbyPeople' => '找附近的人',
 			'discovery.moment' => '朋友圈',
 			'discovery.nearbyPeopleExplain' => '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n你的电话号码将会被隐藏。',
@@ -8456,8 +8588,6 @@ extension on Translations {
 			'discovery.momentsDenyUidsLabel' => '不给谁看 UID 列表（逗号分隔）',
 			'discovery.moments' => '朋友圈',
 			'discovery.momentsWriteComment' => '写评论...',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsVisibility' => '可见性',
 			'discovery.momentsVisibilityPublic' => '公开',
 			'discovery.momentsVisibilityPartial' => '部分可见',
@@ -8940,6 +9070,8 @@ extension on Translations {
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成员',
 			'workspace.inviteTitle' => '邀请工作区成员',
 			'workspace.inviteDesc' => '仅支持邀请已注册用户；加入工作区不自动入群或订阅频道——可同时加入 General 群，并发送 Announcements 频道邀请',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteSearchHint' => '按用户名 / 用户 ID 搜索',
 			'workspace.inviteEntry' => '邀请工作区成员',
 			'workspace.inviteJoinGroupOption' => '同时加入 General 群（成为群成员）',
@@ -8970,8 +9102,6 @@ extension on Translations {
 			'workspace.inviteCodeRevoke' => '撤销',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '有效期至 ${expiresAt}',
 			'workspace.roleOwner' => 'Owner',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.roleMember' => 'Member',
 			'workspace.roleGuest' => 'Guest',
 			'workspace.removeMemberTitle' => ({required Object name}) => '移除工作区成员 ${name}',

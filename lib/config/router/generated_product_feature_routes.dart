@@ -10,6 +10,7 @@ import 'package:imboy/page/channel/channel_detail_page.dart';
 import 'package:imboy/page/channel/channel_list_page.dart';
 import 'package:imboy/page/conversation/subscribed_channel_strip_provider.dart';
 import 'package:imboy/page/conversation/widget/subscribed_channel_strip.dart';
+
 import 'routes/channel_routes.dart';
 import 'routes/channel_discover_routes.dart';
 import 'routes/channel_invitation_routes.dart';
@@ -19,7 +20,7 @@ import 'routes/group_schedule_routes.dart';
 import 'routes/group_task_routes.dart';
 
 const productFeatureRouteManifestHash =
-    "sha256:b6f00f4cd9f203a82c8cb63e4d0f95b1dd843e647e0c4cafe3b5af49bb4e39d9";
+    "sha256:9f5bc3e8da2783272733a14e8bf599afdcd83d82dca1d06b32c52f37d8f55bb7";
 const productFeatureRouteSchemaVersion = 1;
 const productFeatureRouteFeatures = <String>[
   "bot_webhook",
@@ -28,7 +29,9 @@ const productFeatureRouteFeatures = <String>[
   "channel_invitation",
   "channel_order",
   "core",
+  "customer_service",
   "e2ee",
+  "enterprise_business",
   "group_schedule",
   "group_task",
   "group_vote",

@@ -82,4 +82,8 @@ class AppRoutes {
   // ==================== @提及 ====================
   /// @提及列表
   static const mentionList = '/mention';
+
+  // ==================== 客服坐席（CSM-01 §12.5.1）====================
+  /// 坐席工作台（待接/处理中/已关闭；入口权限驱动可见）
+  static const csWorkspace = '/customer_service/workspace';
 }

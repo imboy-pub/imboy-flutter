@@ -11,6 +11,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/quick_action_grid.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
@@ -108,6 +109,9 @@ class _MinePageState extends ConsumerState<MinePage> {
                     ),
                     onTap: () => _switchExperience(ProductExperience.workspace),
                   ),
+                  // CSM-01 §12.5.1：客服工作台入口（合格坐席可见，权限判定在
+                  // owned 模块内；普通用户渲染为空占位）
+                  const CsWorkspaceEntryTile(),
                 ],
               ),
             ),

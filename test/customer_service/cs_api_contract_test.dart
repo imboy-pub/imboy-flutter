@@ -113,30 +113,66 @@ void main() {
       expect(items.single.contactId, '7266418340025468941');
     });
 
-    test('claim/close：动作 POST 且无提交 body', () async {
+    test('claim：CAS POST 带 {expected_version}；close POST 无提交 body', () async {
       final adapter = useAdapter(200, okEnvelope());
       final api = CsApi();
 
-      await api.claim(sessionId);
+      // CSM-01 §12.5.1：claim 携带 expected_version（A0 冻结参数表
+      // cs_actions:session_claim：{expected_version, int, required}）
+      await api.claim(sessionId, expectedVersion: 7);
       await api.close(sessionId);
 
       expect(adapter.requests, hasLength(2));
-      for (final (method, path, data, _) in adapter.requests) {
-        expect(method, 'POST');
-        expect(
-          path,
-          anyOf(
-            '/api/v1/cs/sessions/$sessionId/claim',
-            '/api/v1/cs/sessions/$sessionId/close',
-          ),
-        );
-        // 动作端点不接受任何键（含 key_ref）——提交面为空
-        expect(
-          data,
-          anyOf(isNull, ''),
-          reason: 'claim/close 不得携带任何提交字段（含 key_ref）',
-        );
-      }
+      final (claimMethod, claimPath, claimData, _) = adapter.requests[0];
+      expect(claimMethod, 'POST');
+      expect(claimPath, '/api/v1/cs/sessions/$sessionId/claim');
+      final claimBody = Map<String, dynamic>.from(claimData as Map);
+      expect(claimBody.keys.toSet(), {'expected_version'});
+      expect(claimBody['expected_version'], 7);
+
+      final (closeMethod, closePath, closeData, _) = adapter.requests[1];
+      expect(closeMethod, 'POST');
+      expect(closePath, '/api/v1/cs/sessions/$sessionId/close');
+      // close 属后续卡（后端同样要求 expected_version，届时按 A0 合同补）；
+      // 本卡客户端保持无提交 body 的既有形状。
+      expect(closeData, anyOf(isNull, ''));
+    });
+
+    test('queuePage：键集分页 query 仅含非空 after_id/limit（A0 冻结键名）', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'sessions': [
+              {
+                'session_id': 7266418340025468950,
+                'contact_id': 7266418340025468951,
+                'version': 3,
+              },
+            ],
+            'next_after_id': '7266418340025468950',
+            'total': 12,
+          },
+        ),
+      );
+      final api = CsApi();
+
+      // 第二页请求（带 after_id 游标）
+      await api.queuePage(afterId: '7266418340025468940', limit: 20);
+
+      final req = adapter.requests.single;
+      expect(req.$1, 'GET');
+      expect(req.$2, '/api/v1/cs/sessions/queue');
+      expect(req.$4, {'after_id': '7266418340025468940', 'limit': 20});
+      // 首页（无游标）不得携带 after_id（仅 limit）
+      final first = await api.queuePage(limit: kCsQueuePageSize);
+      final firstReq = adapter.requests[1];
+      expect(firstReq.$4, {'limit': 20});
+      expect(first.items.single.sessionId, '7266418340025468950');
+      expect(first.nextAfterId, '7266418340025468950');
+      expect(first.hasMore, isTrue);
+      expect(first.total, 12);
+      expect(req.$3, isNull);
     });
 
     test('transfer：body 键白名单 == {to_identity_id}', () async {
@@ -172,20 +208,21 @@ void main() {
     test('错误映射：401/403/409 镜像 EnterpriseApiException 判定属性', () async {
       useAdapter(401, {'code': 401, 'msg': 'unauthorized'});
       var api = CsApi();
-      var e401 = await _capture(() => api.claim(sessionId));
+      var e401 = await _capture(() => api.claim(sessionId, expectedVersion: 1));
       expect(e401, isA<CsApiException>());
       expect((e401! as CsApiException).isUnauthorized, isTrue);
 
       // 403：坐席被 suspend 后写操作被拒（降级只读）
       useAdapter(403, {'code': 403, 'msg': 'forbidden'});
       api = CsApi();
-      var e403 = await _capture(() => api.claim(sessionId));
+      var e403 = await _capture(() => api.claim(sessionId, expectedVersion: 1));
       expect((e403! as CsApiException).isForbidden, isTrue);
 
       useAdapter(409, {'code': 409, 'msg': 'offboarding_required'});
       api = CsApi();
-      var e409 = await _capture(() => api.claim(sessionId));
+      var e409 = await _capture(() => api.claim(sessionId, expectedVersion: 1));
       expect((e409! as CsApiException).isOffboardingRequired, isTrue);
+      expect((e409 as CsApiException).isConflict, isTrue);
     });
   });
 
@@ -194,7 +231,7 @@ void main() {
       final adapter = useAdapter(200, okEnvelope());
       final api = CsApi();
 
-      await api.claim(sessionId);
+      await api.claim(sessionId, expectedVersion: 2);
       await api.close(sessionId);
       await api.transfer(sessionId, toIdentityId: 'x');
       await api.rate(sessionId, score: 4);
