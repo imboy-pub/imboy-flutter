@@ -199,6 +199,61 @@ void main() {
       expect(sent.senderType, EnterpriseSenderType.businessIdentity);
     });
 
+    test('sendMessage 提交面键白名单（W2 新合同：禁止 key_ref，密文不上链提交面）', () async {
+      // W2-APP 消费的合同（contracts-w2.md）：CS 访客发消息不再接受 key_ref
+      // （提交即 422 unexpected_argument.key_ref）；profile PATCH 不再接受
+      // profile_cipher/profile_key_version。客户端提交面必须保持
+      // {content, asset_id?} 白名单——任何键漂移（如加回 key_ref）即回归。
+      Future<Map<String, dynamic>?> captureBody({
+        required String content,
+        EntityId assetId = '',
+      }) async {
+        final adapter = useAdapter(
+          200,
+          okEnvelope(
+            payload: {
+              'id': 7266418340025468934,
+              'conversation_id': 7266418340025468933,
+              'organization_id': 7266418340025468930,
+              'sender_type': 'business_identity',
+              'content': content,
+              'created_at': '1789000000002',
+            },
+          ),
+        );
+        final api = EnterpriseApi();
+        await api.sendMessage(
+          orgId,
+          convId,
+          content: content,
+          assetId: assetId,
+        );
+        expect(adapter.requests, hasLength(1));
+        return Map<String, dynamic>.from(adapter.requests.single.$3 as Map);
+      }
+
+      // 分支一：纯文本（asset_id 留空不得出现在提交面）
+      final bodyText = await captureBody(content: 'hi');
+      expect(bodyText!.keys.toSet(), {'content'});
+
+      // 分支二：带附件
+      final bodyAsset = await captureBody(content: 'see file', assetId: 'a1');
+      expect(bodyAsset!.keys.toSet(), {'content', 'asset_id'});
+
+      // 显式负例（防回归钉死新合同）：两个分支的提交面都不得含
+      // key_ref / profile_cipher / profile_key_version 或任何密文形键
+      // （bodyText/bodyAsset 经上方断言后已被流分析提升为非空）
+      for (final body in [bodyText, bodyAsset]) {
+        expect(body.containsKey('key_ref'), isFalse);
+        expect(body.containsKey('profile_cipher'), isFalse);
+        expect(body.containsKey('profile_key_version'), isFalse);
+        expect(
+          body.keys.where((k) => k.endsWith('_cipher') || k.endsWith('_key')),
+          isEmpty,
+        );
+      }
+    });
+
     test('ackDelivered：delivery-only POST，无 DELETE 语义', () async {
       final adapter = useAdapter(200, okEnvelope());
       final api = EnterpriseApi();
