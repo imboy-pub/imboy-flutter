@@ -4828,6 +4828,99 @@ class Translations$customerService$zh_CN {
 
 	/// zh-CN: '坐席已被暂停，队列仅可查看'
 	String get seatSuspendedNotice => '坐席已被暂停，队列仅可查看';
+
+	/// zh-CN: '客服会话'
+	String get sessionTitle => '客服会话';
+
+	/// zh-CN: '消息通道暂不可用，等待服务端补齐会话绑定'
+	String get channelUnavailable => '消息通道暂不可用，等待服务端补齐会话绑定';
+
+	/// zh-CN: '客户'
+	String get visitorLabel => '客户';
+
+	/// zh-CN: '坐席'
+	String get seatLabel => '坐席';
+
+	/// zh-CN: '输入回复内容…'
+	String get inputHint => '输入回复内容…';
+
+	/// zh-CN: '附件'
+	String get attachAction => '附件';
+
+	/// zh-CN: '附件已上传'
+	String get attachUploaded => '附件已上传';
+
+	/// zh-CN: '附件预览（企业安全通道）'
+	String get attachPreviewTitle => '附件预览（企业安全通道）';
+
+	/// zh-CN: '转接'
+	String get transferAction => '转接';
+
+	/// zh-CN: '转接给同组织坐席'
+	String get transferTitle => '转接给同组织坐席';
+
+	/// zh-CN: '暂无可转接的同组织客服坐席'
+	String get transferEmpty => '暂无可转接的同组织客服坐席';
+
+	/// zh-CN: '确认转接'
+	String get transferConfirmTitle => '确认转接';
+
+	/// zh-CN: '将当前会话转交给 $name？转接后你将不再经办此会话。'
+	String transferConfirmBody({required Object name}) => '将当前会话转交给 ${name}？转接后你将不再经办此会话。';
+
+	/// zh-CN: '转接成功'
+	String get transferSuccess => '转接成功';
+
+	/// zh-CN: '会话状态已变化（可能已被转接或关闭），已为你刷新最新状态'
+	String get transferConflict => '会话状态已变化（可能已被转接或关闭），已为你刷新最新状态';
+
+	/// zh-CN: '转接失败，请稍后重试'
+	String get transferFailed => '转接失败，请稍后重试';
+
+	/// zh-CN: '关闭会话'
+	String get closeAction => '关闭会话';
+
+	/// zh-CN: '确认关闭会话'
+	String get closeTitle => '确认关闭会话';
+
+	/// zh-CN: '关闭后客户将进入评分环节，会话进入只读。'
+	String get closeBody => '关闭后客户将进入评分环节，会话进入只读。';
+
+	/// zh-CN: '关闭原因（可选）'
+	String get closeReasonLabel => '关闭原因（可选）';
+
+	/// zh-CN: '关闭原因不能超过 $max 字'
+	String closeReasonTooLong({required Object max}) => '关闭原因不能超过 ${max} 字';
+
+	/// zh-CN: '会话已关闭'
+	String get closeSuccess => '会话已关闭';
+
+	/// zh-CN: '会话状态已变化（可能已被关闭或转接），已为你刷新最新状态'
+	String get closeConflict => '会话状态已变化（可能已被关闭或转接），已为你刷新最新状态';
+
+	/// zh-CN: '关闭失败，请稍后重试'
+	String get closeFailed => '关闭失败，请稍后重试';
+
+	/// zh-CN: '会话已关闭，等待客户评分'
+	String get waitingRatingTitle => '会话已关闭，等待客户评分';
+
+	/// zh-CN: '客户已完成评分'
+	String get ratedTitle => '客户已完成评分';
+
+	/// zh-CN: '客户评分：$score 星'
+	String ratingScoreLabel({required Object score}) => '客户评分：${score} 星';
+
+	/// zh-CN: '坐席已被暂停（suspend），消息通道已切换为只读，后台收发已停止'
+	String get readOnlySuspended => '坐席已被暂停（suspend），消息通道已切换为只读，后台收发已停止';
+
+	/// zh-CN: '当前处于离职交接，会话经办权已移交，此会话已只读'
+	String get offboardingRequired => '当前处于离职交接，会话经办权已移交，此会话已只读';
+
+	/// zh-CN: '会话已关闭，内容仅供查看'
+	String get closedReadonly => '会话已关闭，内容仅供查看';
+
+	/// zh-CN: '会话已评分结束，内容仅供查看'
+	String get ratedReadonly => '会话已评分结束，内容仅供查看';
 }
 
 // Path: discovery
@@ -8578,6 +8671,37 @@ extension on Translations {
 			'customerService.loadFailedTitle' => '加载失败',
 			'customerService.offlineHint' => '网络不可用，请检查网络后重试',
 			'customerService.seatSuspendedNotice' => '坐席已被暂停，队列仅可查看',
+			'customerService.sessionTitle' => '客服会话',
+			'customerService.channelUnavailable' => '消息通道暂不可用，等待服务端补齐会话绑定',
+			'customerService.visitorLabel' => '客户',
+			'customerService.seatLabel' => '坐席',
+			'customerService.inputHint' => '输入回复内容…',
+			'customerService.attachAction' => '附件',
+			'customerService.attachUploaded' => '附件已上传',
+			'customerService.attachPreviewTitle' => '附件预览（企业安全通道）',
+			'customerService.transferAction' => '转接',
+			'customerService.transferTitle' => '转接给同组织坐席',
+			'customerService.transferEmpty' => '暂无可转接的同组织客服坐席',
+			'customerService.transferConfirmTitle' => '确认转接',
+			'customerService.transferConfirmBody' => ({required Object name}) => '将当前会话转交给 ${name}？转接后你将不再经办此会话。',
+			'customerService.transferSuccess' => '转接成功',
+			'customerService.transferConflict' => '会话状态已变化（可能已被转接或关闭），已为你刷新最新状态',
+			'customerService.transferFailed' => '转接失败，请稍后重试',
+			'customerService.closeAction' => '关闭会话',
+			'customerService.closeTitle' => '确认关闭会话',
+			'customerService.closeBody' => '关闭后客户将进入评分环节，会话进入只读。',
+			'customerService.closeReasonLabel' => '关闭原因（可选）',
+			'customerService.closeReasonTooLong' => ({required Object max}) => '关闭原因不能超过 ${max} 字',
+			'customerService.closeSuccess' => '会话已关闭',
+			'customerService.closeConflict' => '会话状态已变化（可能已被关闭或转接），已为你刷新最新状态',
+			'customerService.closeFailed' => '关闭失败，请稍后重试',
+			'customerService.waitingRatingTitle' => '会话已关闭，等待客户评分',
+			'customerService.ratedTitle' => '客户已完成评分',
+			'customerService.ratingScoreLabel' => ({required Object score}) => '客户评分：${score} 星',
+			'customerService.readOnlySuspended' => '坐席已被暂停（suspend），消息通道已切换为只读，后台收发已停止',
+			'customerService.offboardingRequired' => '当前处于离职交接，会话经办权已移交，此会话已只读',
+			'customerService.closedReadonly' => '会话已关闭，内容仅供查看',
+			'customerService.ratedReadonly' => '会话已评分结束，内容仅供查看',
 			'discovery.findNearbyPeople' => '找附近的人',
 			'discovery.moment' => '朋友圈',
 			'discovery.nearbyPeopleExplain' => '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n你的电话号码将会被隐藏。',
@@ -9039,6 +9163,8 @@ extension on Translations {
 			'workspace.createNameLabel' => '工作区名称',
 			'workspace.createNameHint' => '例如：官网改版项目组',
 			'workspace.createNameRequired' => '工作区名称不能为空',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createSubmit' => '创建',
 			'workspace.createEntry' => '创建工作区',
 			'workspace.createSuccess' => '工作区创建成功',
@@ -9070,8 +9196,6 @@ extension on Translations {
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成员',
 			'workspace.inviteTitle' => '邀请工作区成员',
 			'workspace.inviteDesc' => '仅支持邀请已注册用户；加入工作区不自动入群或订阅频道——可同时加入 General 群，并发送 Announcements 频道邀请',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteSearchHint' => '按用户名 / 用户 ID 搜索',
 			'workspace.inviteEntry' => '邀请工作区成员',
 			'workspace.inviteJoinGroupOption' => '同时加入 General 群（成为群成员）',

@@ -15,9 +15,12 @@
 /// / 409 冲突或 offboarding_required；镜像 [EnterpriseApiException] 判定属性。
 library;
 
+import 'package:dio/dio.dart';
+
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
+import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// queue 键集分页默认每页条数（与服务端 page_view limit 语义一致）。
@@ -69,6 +72,11 @@ class CsQueueItem {
   /// 最后一条消息的安全摘要（服务端脱敏后下发；缺省为空则 UI 隐藏）。
   final String lastMessageSummary;
 
+  /// 租户与会话绑定（A0 投影含 organization_id；conversation_id 服务端
+  /// 给出即用——缺省时由会话详情补齐，禁止任何个人 IM fallback）。
+  final String organizationId;
+  final String conversationId;
+
   const CsQueueItem({
     required this.sessionId,
     required this.contactId,
@@ -78,6 +86,8 @@ class CsQueueItem {
     this.status = '',
     this.source = '',
     this.lastMessageSummary = '',
+    this.organizationId = '',
+    this.conversationId = '',
   });
 
   factory CsQueueItem.fromJson(Map<String, dynamic> json) {
@@ -90,6 +100,8 @@ class CsQueueItem {
       status: parseModelString(json['status']),
       source: parseModelString(json['source']),
       lastMessageSummary: parseModelString(json['last_message_summary']),
+      organizationId: entityIdOf(json['organization_id']),
+      conversationId: entityIdOf(json['conversation_id']),
     );
   }
 }
@@ -195,6 +207,52 @@ class CsClaimResult {
   }
 }
 
+/// 坐席会话详情（CSB-03：GET /api/v1/cs/sessions/:id 回显投影，宽容解析）。
+class CsSessionDetail {
+  final String sessionId;
+  final String organizationId;
+
+  /// 会话绑定的企业会话（消息通道的必要输入；服务端缺省为空——缺失时
+  /// 消息通道显示可解释不可用态，禁止任何个人 IM fallback）。
+  final String conversationId;
+  final String status;
+  final int version;
+
+  /// 访客评分（0 = 未评分；坐席端只展示评分状态，不代访客评分）。
+  final int rating;
+  final String contactId;
+  final String assigneeIdentityId;
+
+  const CsSessionDetail({
+    required this.sessionId,
+    this.organizationId = '',
+    this.conversationId = '',
+    this.status = '',
+    this.version = 0,
+    this.rating = 0,
+    this.contactId = '',
+    this.assigneeIdentityId = '',
+  });
+
+  bool get isClosed => status == 'closed';
+
+  bool get hasRating => rating > 0;
+
+  factory CsSessionDetail.fromJson(dynamic payload) {
+    final map = payload is Map ? payload : const <String, dynamic>{};
+    return CsSessionDetail(
+      sessionId: entityIdOf(map['session_id'] ?? map['id']),
+      organizationId: entityIdOf(map['organization_id']),
+      conversationId: entityIdOf(map['conversation_id']),
+      status: parseModelString(map['status']),
+      version: parseModelInt(map['version']),
+      rating: parseModelInt(map['rating']),
+      contactId: entityIdOf(map['contact_id']),
+      assigneeIdentityId: entityIdOf(map['business_identity_id']),
+    );
+  }
+}
+
 /// 客服（坐席侧）API 客户端。
 class CsApi extends HttpClient {
   /// 排队会话列表（W2 冻结形状：GET、无 query 参数；返回条目列表）。
@@ -236,22 +294,170 @@ class CsApi extends HttpClient {
     return CsClaimResult.fromJson(sessionId, resp.payload);
   }
 
-  /// transfer：转接给目标业务身份。
+  /// transfer：转接给目标业务身份（CAS，§12.5.1 CSM-02）。
+  ///
+  /// A0 冻结参数表（cs_actions:session_transfer）：`to_identity_id`（tsid）
+  /// 与 `expected_version`（int）均必填。并发/状态竞争 409（[CsApiException.isConflict]），
+  /// 调用方刷新真实状态后提示，不做乐观伪成功。
   Future<void> transfer(
     String sessionId, {
     required String toIdentityId,
+    required int expectedVersion,
   }) async {
     final resp = await post(
       '/api/v1/cs/sessions/$sessionId/transfer',
-      data: {'to_identity_id': toIdentityId},
+      data: {
+        'to_identity_id': toIdentityId,
+        'expected_version': expectedVersion,
+      },
     );
     _ensureOk(resp);
   }
 
-  /// close：结束会话。
-  Future<void> close(String sessionId) async {
-    final resp = await post('/api/v1/cs/sessions/$sessionId/close');
+  /// close：结束会话（CAS + 可选 reason，§12.5.1 CSM-02）。
+  ///
+  /// A0 冻结参数表（cs_actions:session_close）：`expected_version` 必填、
+  /// `reason` 可选（审计文本，调用方先经 [csSanitizeCloseReason] 白名单清洗）。
+  Future<void> close(
+    String sessionId, {
+    required int expectedVersion,
+    String? reason,
+  }) async {
+    final resp = await post(
+      '/api/v1/cs/sessions/$sessionId/close',
+      data: {
+        'expected_version': expectedVersion,
+        if (reason != null && reason.isNotEmpty) 'reason': reason,
+      },
+    );
     _ensureOk(resp);
+  }
+
+  /// 坐席会话详情（CSB-03）：GET /api/v1/cs/sessions/:id。
+  ///
+  /// 用途：claim/transfer/close 冲突后刷新真实状态、close 后回显 rating
+  /// 状态（坐席端只展示评分状态，不代访客评分）。
+  Future<CsSessionDetail> sessionDetail(String sessionId) async {
+    final resp = await get('/api/v1/cs/sessions/$sessionId');
+    _ensureOk(resp);
+    return CsSessionDetail.fromJson(resp.payload);
+  }
+
+  /// 坐席侧企业消息历史（A0 冻结读路径）：GET
+  /// `/api/v1/enterprise/conversations/:conversationId/messages`，
+  /// query 仅携带非空 `after_id`/`limit`（EB 真源键集分页；游标缺省语义
+  /// = 全量首拉）。
+  ///
+  /// payload 形状：EB `list_messages` 返回裸消息数组（宽容兼容
+  /// `{messages: [...]}` / `{list: [...]}` 包裹）。
+  Future<List<EnterpriseMessage>> conversationMessages(
+    String conversationId, {
+    String afterId = '',
+    int limit = 0,
+  }) async {
+    final resp = await get(
+      '/api/v1/enterprise/conversations/$conversationId/messages',
+      queryParameters: {
+        if (afterId.isNotEmpty) 'after_id': afterId,
+        if (limit > 0) 'limit': limit,
+      },
+    );
+    _ensureOk(resp);
+    final payload = resp.payload;
+    List<dynamic> raw;
+    if (payload is List) {
+      raw = payload;
+    } else if (payload is Map) {
+      raw =
+          (payload['messages'] ?? payload['list'] ?? const <dynamic>[])
+              as List<dynamic>;
+    } else {
+      raw = const <dynamic>[];
+    }
+    return raw
+        .whereType<Map<dynamic, dynamic>>()
+        .map((m) => EnterpriseMessage.fromJson(Map<String, dynamic>.from(m)))
+        .toList(growable: false);
+  }
+
+  /// 坐席出站消息（复用 EB 写真源端点，F-SEC-02：conversation.write）：
+  /// POST `/api/v1/enterprise/organizations/{orgId}/conversations/{conversationId}/messages`。
+  ///
+  /// A0/EB 冻结提交面：`client_msg_id`（幂等键，重试必须复用同一 id）、
+  /// `sender_type`（坐席恒 business_identity）、`body`、`identity_id`
+  /// （经办业务身份）。禁止走个人 C2C/attachment 通道。
+  Future<EnterpriseMessage> sendConversationMessage(
+    String orgId,
+    String conversationId, {
+    required String body,
+    required String clientMsgId,
+    required String identityId,
+  }) async {
+    final resp = await post(
+      '/api/v1/enterprise/organizations/$orgId/conversations/$conversationId/messages',
+      data: {
+        'client_msg_id': clientMsgId,
+        'sender_type': EnterpriseSenderType.businessIdentity.wireName,
+        'body': body,
+        'identity_id': identityId,
+      },
+    );
+    _ensureOk(resp);
+    final map = IMBoyHttpResponse.payloadAsMap(resp.payload);
+    return EnterpriseMessage.fromJson(map);
+  }
+
+  /// delivery ACK（幂等，delivery-only；EB 合同 `recipient_ref` 必填）。
+  ///
+  /// 成功与否都不触发本地删除/隐藏语义——本地只置投递标记。
+  Future<void> ackDelivery(
+    String orgId,
+    String conversationId,
+    String messageId, {
+    required String recipientRef,
+    String deviceId = '',
+  }) async {
+    final resp = await post(
+      '/api/v1/enterprise/organizations/$orgId/conversations/$conversationId/messages/$messageId/ack',
+      data: {
+        'recipient_ref': recipientRef,
+        if (deviceId.isNotEmpty) 'device_id': deviceId,
+      },
+    );
+    _ensureOk(resp);
+  }
+
+  /// 企业附件三步上传（presign → 短期 presigned PUT → confirm）。
+  ///
+  /// EB-D06 纪律：`upload_url` 仅在内存中使用到 PUT 完成为止，本方法
+  /// 不返回、不记录、不持久化该 URL；confirm 走独立请求重新鉴权。
+  /// 只允许企业附件通道，禁止个人 attachment fallback。
+  Future<EnterpriseAsset> uploadEnterpriseAsset(
+    String orgId, {
+    required String fileName,
+    required String mime,
+    required int size,
+    required Stream<List<int>> byteStream,
+  }) async {
+    final enterpriseApi = EnterpriseApi();
+    final presign = await enterpriseApi.presignAsset(
+      orgId,
+      fileName: fileName,
+      mime: mime,
+      size: size,
+    );
+    // 短期 presigned PUT：直传对象存储，走裸 dio（不叠 IMBoy 鉴权头；
+    // 失败 fail-closed 抛出，upload_url 随请求结束即弃）。
+    final putResp = await dio.put<Object>(
+      presign.uploadUrl,
+      data: byteStream,
+      options: Options(headers: {'Content-Type': mime}),
+    );
+    final status = putResp.statusCode;
+    if (status == null || status < 200 || status >= 300) {
+      throw CsApiException(status ?? 0, 'asset PUT failed');
+    }
+    return enterpriseApi.confirmAsset(orgId, presign.assetId);
   }
 
   /// rating：会话评分（1..5）。

@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -16,6 +17,8 @@ import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_page.dart'
     show CsWorkspaceCounters;
+import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart'
+    show kCsWorkspacePath;
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -196,6 +199,14 @@ class _CsQueueViewState extends State<CsQueueView> {
       AppLoading.showToast(t.claimSuccess);
       // 接单成功后刷新：徽标与列表以服务端真实状态为准。
       await _refresh();
+      if (!mounted) return;
+      // 接单即经办（CSM-02）：进入坐席会话页（企业消息通道 + 转接/关闭）。
+      context.push(
+        '$kCsWorkspacePath/sessions/${item.sessionId}'
+        '?org_id=${Uri.encodeComponent(item.organizationId)}'
+        '&conversation_id=${Uri.encodeComponent(item.conversationId)}'
+        '&contact_name=${Uri.encodeComponent(item.contactName)}',
+      );
     } on CsApiException catch (e) {
       if (!mounted) return;
       // 不做乐观伪成功：先刷新真实状态，再按语义提示。

@@ -1721,6 +1721,37 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get loadFailedTitle => 'Failed to load';
 	@override String get offlineHint => 'Network unavailable, please check your connection and retry';
 	@override String get seatSuspendedNotice => 'Seat suspended; the queue is read-only';
+	@override String get sessionTitle => 'Support Conversation';
+	@override String get channelUnavailable => 'Message channel unavailable — waiting for session binding';
+	@override String get visitorLabel => 'Customer';
+	@override String get seatLabel => 'Seat';
+	@override String get inputHint => 'Type a reply…';
+	@override String get attachAction => 'Attach';
+	@override String get attachUploaded => 'Attachment uploaded';
+	@override String get attachPreviewTitle => 'Attachment preview (enterprise secure channel)';
+	@override String get transferAction => 'Transfer';
+	@override String get transferTitle => 'Transfer to a seat in this organization';
+	@override String get transferEmpty => 'No eligible customer-service seats in this organization';
+	@override String get transferConfirmTitle => 'Confirm transfer';
+	@override String transferConfirmBody({required Object name}) => 'Transfer this conversation to ${name}? You will no longer handle it.';
+	@override String get transferSuccess => 'Transferred';
+	@override String get transferConflict => 'Conversation state changed (transferred or closed elsewhere). Refreshed to the latest state';
+	@override String get transferFailed => 'Transfer failed, please try again later';
+	@override String get closeAction => 'Close conversation';
+	@override String get closeTitle => 'Confirm close';
+	@override String get closeBody => 'After closing, the customer will be asked to rate; the conversation becomes read-only.';
+	@override String get closeReasonLabel => 'Reason (optional)';
+	@override String closeReasonTooLong({required Object max}) => 'Reason must be at most ${max} characters';
+	@override String get closeSuccess => 'Conversation closed';
+	@override String get closeConflict => 'Conversation state changed (closed or transferred elsewhere). Refreshed to the latest state';
+	@override String get closeFailed => 'Close failed, please try again later';
+	@override String get waitingRatingTitle => 'Closed — waiting for the customer to rate';
+	@override String get ratedTitle => 'The customer has rated this conversation';
+	@override String ratingScoreLabel({required Object score}) => 'Customer rating: ${score} stars';
+	@override String get readOnlySuspended => 'Seat suspended; the channel is read-only and background sync has stopped';
+	@override String get offboardingRequired => 'Offboarding handover in progress; handling has been handed over and this conversation is read-only';
+	@override String get closedReadonly => 'Conversation closed; content is view-only';
+	@override String get ratedReadonly => 'Conversation rated and finished; content is view-only';
 }
 
 // Path: discovery
@@ -4120,6 +4151,37 @@ extension on TranslationsEnUs {
 			'customerService.loadFailedTitle' => 'Failed to load',
 			'customerService.offlineHint' => 'Network unavailable, please check your connection and retry',
 			'customerService.seatSuspendedNotice' => 'Seat suspended; the queue is read-only',
+			'customerService.sessionTitle' => 'Support Conversation',
+			'customerService.channelUnavailable' => 'Message channel unavailable — waiting for session binding',
+			'customerService.visitorLabel' => 'Customer',
+			'customerService.seatLabel' => 'Seat',
+			'customerService.inputHint' => 'Type a reply…',
+			'customerService.attachAction' => 'Attach',
+			'customerService.attachUploaded' => 'Attachment uploaded',
+			'customerService.attachPreviewTitle' => 'Attachment preview (enterprise secure channel)',
+			'customerService.transferAction' => 'Transfer',
+			'customerService.transferTitle' => 'Transfer to a seat in this organization',
+			'customerService.transferEmpty' => 'No eligible customer-service seats in this organization',
+			'customerService.transferConfirmTitle' => 'Confirm transfer',
+			'customerService.transferConfirmBody' => ({required Object name}) => 'Transfer this conversation to ${name}? You will no longer handle it.',
+			'customerService.transferSuccess' => 'Transferred',
+			'customerService.transferConflict' => 'Conversation state changed (transferred or closed elsewhere). Refreshed to the latest state',
+			'customerService.transferFailed' => 'Transfer failed, please try again later',
+			'customerService.closeAction' => 'Close conversation',
+			'customerService.closeTitle' => 'Confirm close',
+			'customerService.closeBody' => 'After closing, the customer will be asked to rate; the conversation becomes read-only.',
+			'customerService.closeReasonLabel' => 'Reason (optional)',
+			'customerService.closeReasonTooLong' => ({required Object max}) => 'Reason must be at most ${max} characters',
+			'customerService.closeSuccess' => 'Conversation closed',
+			'customerService.closeConflict' => 'Conversation state changed (closed or transferred elsewhere). Refreshed to the latest state',
+			'customerService.closeFailed' => 'Close failed, please try again later',
+			'customerService.waitingRatingTitle' => 'Closed — waiting for the customer to rate',
+			'customerService.ratedTitle' => 'The customer has rated this conversation',
+			'customerService.ratingScoreLabel' => ({required Object score}) => 'Customer rating: ${score} stars',
+			'customerService.readOnlySuspended' => 'Seat suspended; the channel is read-only and background sync has stopped',
+			'customerService.offboardingRequired' => 'Offboarding handover in progress; handling has been handed over and this conversation is read-only',
+			'customerService.closedReadonly' => 'Conversation closed; content is view-only',
+			'customerService.ratedReadonly' => 'Conversation rated and finished; content is view-only',
 			'discovery.findNearbyPeople' => 'Find nearby people',
 			'discovery.moment' => 'Moments',
 			'discovery.nearbyPeopleExplain' => 'Nearby users can view your profile and send you messages. This may help you find new friends, but may also attract unwanted attention. You can stop sharing at any time.\nYour phone number stays hidden.',
@@ -4594,6 +4656,8 @@ extension on TranslationsEnUs {
 			'workspace.overviewPinnedContent' => 'Pinned channel posts',
 			'workspace.overviewPinnedEmpty' => 'No pinned channel posts yet; Group Notices are not aggregated here (they belong to each group)',
 			'workspace.overviewRecentFiles' => 'Recent files',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => 'Recently uploaded files will appear here; attachments are also available inside each channel',
 			'workspace.membersTitle' => 'Workspace Members',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} members',
@@ -4625,8 +4689,6 @@ extension on TranslationsEnUs {
 			'workspace.resultIdle' => 'Not run',
 			'workspace.resultRunning' => 'Running',
 			'workspace.resultSuccess' => 'Success',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.resultFailed' => 'Failed',
 			'workspace.joinEntry' => 'Join Workspace',
 			'workspace.joinTitle' => 'Join Workspace',

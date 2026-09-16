@@ -24,6 +24,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/modules/customer_service/public.dart';
+import 'package:imboy/modules/enterprise/domain/enterprise_models.dart'
+    show EnterpriseSenderType;
 import 'package:imboy/service/storage.dart';
 
 const String sessionId = '7266418340025468940';
@@ -113,29 +115,181 @@ void main() {
       expect(items.single.contactId, '7266418340025468941');
     });
 
-    test('claim：CAS POST 带 {expected_version}；close POST 无提交 body', () async {
+    test(
+      'claim/close：CAS POST 带 {expected_version}（close 可选 reason）',
+      () async {
+        final adapter = useAdapter(200, okEnvelope());
+        final api = CsApi();
+
+        // A0 冻结参数表：claim/close 的 expected_version 均必填（CSM-01 补
+        // claim、CSM-02 补 close）；reason 可选且经 csSanitizeCloseReason 清洗。
+        await api.claim(sessionId, expectedVersion: 7);
+        await api.close(sessionId, expectedVersion: 8);
+        await api.close(sessionId, expectedVersion: 8, reason: '已解决');
+
+        expect(adapter.requests, hasLength(3));
+        final (claimMethod, claimPath, claimData, _) = adapter.requests[0];
+        expect(claimMethod, 'POST');
+        expect(claimPath, '/api/v1/cs/sessions/$sessionId/claim');
+        final claimBody = Map<String, dynamic>.from(claimData as Map);
+        expect(claimBody.keys.toSet(), {'expected_version'});
+        expect(claimBody['expected_version'], 7);
+
+        final (closeMethod, closePath, closeData, _) = adapter.requests[1];
+        expect(closeMethod, 'POST');
+        expect(closePath, '/api/v1/cs/sessions/$sessionId/close');
+        expect(Map<String, dynamic>.from(closeData as Map).keys.toSet(), {
+          'expected_version',
+        });
+
+        // reason 空缺时不出现键；给出时键白名单 {expected_version, reason}
+        final (m3, _, d3, _) = adapter.requests[2];
+        expect(m3, 'POST');
+        final body3 = Map<String, dynamic>.from(d3 as Map);
+        expect(body3.keys.toSet(), {'expected_version', 'reason'});
+        expect(body3['reason'], '已解决');
+      },
+    );
+
+    test('sessionDetail：GET /api/v1/cs/sessions/:id，回显投影宽容解析', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'session_id': 7266418340025468940,
+            'organization_id': 7266418340025468901,
+            'conversation_id': 7266418340025468950,
+            'status': 'active',
+            'version': 9,
+            'rating': 0,
+            'contact_id': 7266418340025468941,
+            'business_identity_id': 7266418340025468902,
+          },
+        ),
+      );
+      final api = CsApi();
+
+      final detail = await api.sessionDetail(sessionId);
+
+      final req = adapter.requests.single;
+      expect(req.$1, 'GET');
+      expect(req.$2, '/api/v1/cs/sessions/$sessionId');
+      expect(detail.sessionId, sessionId);
+      expect(detail.organizationId, '7266418340025468901');
+      expect(detail.conversationId, '7266418340025468950');
+      expect(detail.status, 'active');
+      expect(detail.version, 9);
+      expect(detail.hasRating, isFalse);
+      expect(detail.assigneeIdentityId, '7266418340025468902');
+    });
+
+    test('conversationMessages：A0 坐席读路径 + after_id/limit 游标，裸数组解析', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: [
+            {
+              'id': 7266418340025468960,
+              'conversation_id': 7266418340025468950,
+              'organization_id': 7266418340025468901,
+              'sender_type': 'contact',
+              'sender_contact_id': 7266418340025468941,
+              'sender_business_identity_id': null,
+              'content': '订单还没收到',
+              'delivered': false,
+            },
+          ],
+        ),
+      );
+      final api = CsApi();
+
+      final messages = await api.conversationMessages(
+        '7266418340025468950',
+        afterId: '7266418340025468959',
+        limit: 20,
+      );
+
+      final req = adapter.requests.single;
+      expect(req.$1, 'GET');
+      // A0 冻结坐席读路径（无 /organizations/ 段）
+      expect(
+        req.$2,
+        '/api/v1/enterprise/conversations/7266418340025468950/messages',
+      );
+      expect(req.$4, {'after_id': '7266418340025468959', 'limit': 20});
+      expect(messages.single.id, '7266418340025468960');
+      expect(messages.single.senderType, EnterpriseSenderType.contact);
+      expect(messages.single.senderXorValid, isTrue);
+    });
+
+    test('sendConversationMessage：EB 写真源提交面键白名单（幂等 client_msg_id）', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'id': 7266418340025468961,
+            'conversation_id': 7266418340025468950,
+            'organization_id': 7266418340025468901,
+            'sender_type': 'business_identity',
+            'sender_contact_id': null,
+            'sender_business_identity_id': 7266418340025468902,
+            'content': '您好，正在为您核实',
+          },
+        ),
+      );
+      final api = CsApi();
+
+      final sent = await api.sendConversationMessage(
+        '7266418340025468901',
+        '7266418340025468950',
+        body: '您好，正在为您核实',
+        clientMsgId: 'cmid-1',
+        identityId: '7266418340025468902',
+      );
+
+      final req = adapter.requests.single;
+      expect(req.$1, 'POST');
+      expect(
+        req.$2,
+        '/api/v1/enterprise/organizations/7266418340025468901'
+        '/conversations/7266418340025468950/messages',
+      );
+      final body = Map<String, dynamic>.from(req.$3 as Map);
+      expect(body.keys.toSet(), {
+        'client_msg_id',
+        'sender_type',
+        'body',
+        'identity_id',
+      });
+      expect(body['client_msg_id'], 'cmid-1');
+      expect(body['sender_type'], 'business_identity');
+      // F-SEC-02 负例：提交面不得出现 content/asset_id 旧键形
+      expect(body.containsKey('content'), isFalse);
+      expect(sent.id, '7266418340025468961');
+      expect(sent.senderType, EnterpriseSenderType.businessIdentity);
+    });
+
+    test('ackDelivery：delivery-only，recipient_ref 必填（EB 合同）', () async {
       final adapter = useAdapter(200, okEnvelope());
       final api = CsApi();
 
-      // CSM-01 §12.5.1：claim 携带 expected_version（A0 冻结参数表
-      // cs_actions:session_claim：{expected_version, int, required}）
-      await api.claim(sessionId, expectedVersion: 7);
-      await api.close(sessionId);
+      await api.ackDelivery(
+        '7266418340025468901',
+        '7266418340025468950',
+        '7266418340025468960',
+        recipientRef: 'seat:7266418340025468902',
+      );
 
-      expect(adapter.requests, hasLength(2));
-      final (claimMethod, claimPath, claimData, _) = adapter.requests[0];
-      expect(claimMethod, 'POST');
-      expect(claimPath, '/api/v1/cs/sessions/$sessionId/claim');
-      final claimBody = Map<String, dynamic>.from(claimData as Map);
-      expect(claimBody.keys.toSet(), {'expected_version'});
-      expect(claimBody['expected_version'], 7);
-
-      final (closeMethod, closePath, closeData, _) = adapter.requests[1];
-      expect(closeMethod, 'POST');
-      expect(closePath, '/api/v1/cs/sessions/$sessionId/close');
-      // close 属后续卡（后端同样要求 expected_version，届时按 A0 合同补）；
-      // 本卡客户端保持无提交 body 的既有形状。
-      expect(closeData, anyOf(isNull, ''));
+      final req = adapter.requests.single;
+      expect(req.$1, 'POST');
+      expect(
+        req.$2,
+        '/api/v1/enterprise/organizations/7266418340025468901'
+        '/conversations/7266418340025468950/messages/7266418340025468960/ack',
+      );
+      final body = Map<String, dynamic>.from(req.$3 as Map);
+      expect(body.keys.toSet(), {'recipient_ref'});
+      expect(body['recipient_ref'], 'seat:7266418340025468902');
     });
 
     test('queuePage：键集分页 query 仅含非空 after_id/limit（A0 冻结键名）', () async {
@@ -175,20 +329,30 @@ void main() {
       expect(req.$3, isNull);
     });
 
-    test('transfer：body 键白名单 == {to_identity_id}', () async {
-      final adapter = useAdapter(200, okEnvelope());
-      final api = CsApi();
+    test(
+      'transfer：CAS body 键白名单 == {to_identity_id, expected_version}',
+      () async {
+        final adapter = useAdapter(200, okEnvelope());
+        final api = CsApi();
 
-      await api.transfer(sessionId, toIdentityId: '7266418340025468942');
+        // CSM-02 §12.5.1：A0 冻结参数表（cs_actions:session_transfer）要求
+        // to_identity_id 与 expected_version 均必填。
+        await api.transfer(
+          sessionId,
+          toIdentityId: '7266418340025468942',
+          expectedVersion: 6,
+        );
 
-      expect(adapter.requests, hasLength(1));
-      final req = adapter.requests.single;
-      expect(req.$1, 'POST');
-      expect(req.$2, '/api/v1/cs/sessions/$sessionId/transfer');
-      final body = Map<String, dynamic>.from(req.$3 as Map);
-      expect(body.keys.toSet(), {'to_identity_id'});
-      expect(body['to_identity_id'], '7266418340025468942');
-    });
+        expect(adapter.requests, hasLength(1));
+        final req = adapter.requests.single;
+        expect(req.$1, 'POST');
+        expect(req.$2, '/api/v1/cs/sessions/$sessionId/transfer');
+        final body = Map<String, dynamic>.from(req.$3 as Map);
+        expect(body.keys.toSet(), {'to_identity_id', 'expected_version'});
+        expect(body['to_identity_id'], '7266418340025468942');
+        expect(body['expected_version'], 6);
+      },
+    );
 
     test('rate：body 键白名单 == {score}', () async {
       final adapter = useAdapter(200, okEnvelope());
@@ -232,8 +396,8 @@ void main() {
       final api = CsApi();
 
       await api.claim(sessionId, expectedVersion: 2);
-      await api.close(sessionId);
-      await api.transfer(sessionId, toIdentityId: 'x');
+      await api.close(sessionId, expectedVersion: 3, reason: '已解决');
+      await api.transfer(sessionId, toIdentityId: 'x', expectedVersion: 3);
       await api.rate(sessionId, score: 4);
 
       // 全量收集提交面 body
