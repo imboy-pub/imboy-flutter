@@ -256,8 +256,21 @@ class CsSessionFlow {
   }
 
   /// 附件查看：仅经企业 content 鉴权代理（每次请求重新鉴权）。
-  Future<String> viewAsset(String assetId) =>
-      _enterpriseApi.fetchAssetContentText(orgId, assetId);
+  ///
+  /// 降级门控（§12.5.1 CSM-03）：写入口被清（canSend=false）后 download
+  /// 同样拒绝发请求（旧 JWT 不再可用）；请求侧 403 / offboarding 409
+  /// 同样触发降级。返回 null = 已降级/通道缺失（UI 不弹预览）。
+  Future<String?> viewAsset(String assetId) async {
+    if (!machine.canSend) return null;
+    if (conversationId.isEmpty) return null;
+    try {
+      return await _enterpriseApi.fetchAssetContentText(orgId, assetId);
+    } on EnterpriseApiException catch (e) {
+      if (e.isForbidden) machine.markSuspended();
+      if (e.isOffboardingRequired) machine.markOffboarding();
+      return null;
+    }
+  }
 
   // ==================== 会话动作 ====================
 

@@ -170,6 +170,11 @@ class _CsSessionPageState extends State<CsSessionPage> {
     try {
       final preview = await _flow.viewAsset(message.assetId);
       if (!mounted) return;
+      // null = 已降级（flow 已同步状态机）：刷新 UI 呈现只读态，不弹预览
+      if (preview == null) {
+        setState(() {});
+        return;
+      }
       final t = context.t.customerService;
       showDialog<void>(
         context: context,
