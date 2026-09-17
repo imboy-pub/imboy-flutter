@@ -37,6 +37,9 @@ import 'routes/workspace_routes.dart';
 // 企业+客服纵切（app-amendment-001）：路由定义在 owned path 内，此处仅注册
 import 'package:imboy/modules/enterprise/presentation/enterprise_routes.dart';
 
+// Organization V1（ORG-13）：路由定义在 owned path 内，此处仅注册（精确行租约）
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
+
 bool _matchesPublicPath(String currentPath, String publicPath) {
   if (publicPath == AppRoutes.initial) {
     return currentPath == AppRoutes.initial;
@@ -474,6 +477,9 @@ GoRouter createAppRouter({
 
       // 企业路由（app-amendment-001 §2.2：显式企业入口，个人导航不变）
       ...enterpriseRoutes(),
+
+      // 组织路由（ORG-13：入口/切换/成员/邀请/部门，个人导航不变）
+      ...organizationRoutes(),
 
       // 个人中心路由
       ...mineRoutes(),
