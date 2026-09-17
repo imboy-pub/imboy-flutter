@@ -92,7 +92,10 @@ class CsQueueItem {
 
   factory CsQueueItem.fromJson(Map<String, dynamic> json) {
     return CsQueueItem(
-      sessionId: entityIdOf(json['session_id']),
+      // 后端 seat 队列投影主键为 `id`（seat_session_view 白名单）；
+      // `session_id` 仅 widget 建会话响应有别名——`id` 优先，避免接单
+      // URL 拼空（历史漂移：曾只读 session_id 致 /sessions//claim）。
+      sessionId: entityIdOf(json['id'] ?? json['session_id']),
       contactId: entityIdOf(json['contact_id']),
       contactName: parseModelString(json['contact_name']),
       waitingSince: parseModelString(json['waiting_since']),
@@ -460,11 +463,15 @@ class CsApi extends HttpClient {
     return enterpriseApi.confirmAsset(orgId, presign.assetId);
   }
 
-  /// rating：会话评分（1..5）。
-  Future<void> rate(String sessionId, {required int score}) async {
+  /// rating：会话评分（1..5，CAS——expected_version 取自会话视图 version）。
+  Future<void> rate(
+    String sessionId, {
+    required int rating,
+    required int expectedVersion,
+  }) async {
     final resp = await post(
       '/api/v1/cs/sessions/$sessionId/rating',
-      data: {'score': score},
+      data: {'rating': rating, 'expected_version': expectedVersion},
     );
     _ensureOk(resp);
   }

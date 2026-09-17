@@ -354,19 +354,20 @@ void main() {
       },
     );
 
-    test('rate：body 键白名单 == {score}', () async {
+    test('rate：body 键白名单 == {rating, expected_version}', () async {
       final adapter = useAdapter(200, okEnvelope());
       final api = CsApi();
 
-      await api.rate(sessionId, score: 5);
+      await api.rate(sessionId, rating: 5, expectedVersion: 7);
 
       expect(adapter.requests, hasLength(1));
       final req = adapter.requests.single;
       expect(req.$1, 'POST');
       expect(req.$2, '/api/v1/cs/sessions/$sessionId/rating');
       final body = Map<String, dynamic>.from(req.$3 as Map);
-      expect(body.keys.toSet(), {'score'});
-      expect(body['score'], 5);
+      expect(body.keys.toSet(), {'rating', 'expected_version'});
+      expect(body['rating'], 5);
+      expect(body['expected_version'], 7);
     });
 
     test('错误映射：401/403/409 镜像 EnterpriseApiException 判定属性', () async {
@@ -398,7 +399,7 @@ void main() {
       await api.claim(sessionId, expectedVersion: 2);
       await api.close(sessionId, expectedVersion: 3, reason: '已解决');
       await api.transfer(sessionId, toIdentityId: 'x', expectedVersion: 3);
-      await api.rate(sessionId, score: 4);
+      await api.rate(sessionId, rating: 4, expectedVersion: 3);
 
       // 全量收集提交面 body
       final bodies = adapter.requests

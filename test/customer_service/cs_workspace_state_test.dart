@@ -70,7 +70,8 @@ Map<String, dynamic> okEnvelope({dynamic payload}) => {
 };
 
 Map<String, dynamic> itemJson(String id, {int version = 1}) => {
-  'session_id': id,
+  // 后端 seat 队列投影主键为 `id`（对齐 seat_session_view 白名单）。
+  'id': id,
   'contact_id': '8266418340025468999',
   'contact_name': '访客$id',
   'waiting_since': '1789000000000',
