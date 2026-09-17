@@ -30,7 +30,8 @@ class OrganizationApiException implements Exception {
   /// 403：非成员 / 角色不足（owner/admin 门）/ archived fail-closed。
   bool get isForbidden => code == 403;
 
-  /// 404：目标不存在（跨 Org 探测同样 404，不做租户枚举）。
+  /// 404：目标不存在（跨 Org 资源同样 404，不做租户枚举；组织/部门等
+  /// 读面对非成员会先撞 403——授权门先于存在性判定）。
   bool get isNotFound => code == 404;
 
   /// 409：状态冲突（已归档/幂等冲突/层级成环等）。
@@ -243,7 +244,8 @@ class OrganizationApi extends HttpClient {
     return _list(resp, OrganizationDepartment.fromJson);
   }
 
-  /// 部门详情（含成员列表；跨 Org/不存在 = 404）。
+  /// 部门详情（含成员列表；非成员 403 且先于存在性判定；存在但跨
+  /// Org/不存在 = 404）。
   Future<(OrganizationDepartment, List<DepartmentMember>)> departmentDetail(
     EntityId orgId,
     EntityId departmentId,

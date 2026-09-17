@@ -3,7 +3,8 @@
 /// 兼职模型：一人可属多部门；部门 membership 与 Workspace membership
 /// 完全独立。管理操作（建/改名/移动/归档/加减成员/局部 admin）入口按
 /// 我的组织角色做**入口隐藏**（owner/admin 全量可见；member 仍可浏览
-/// 列表——服务端对读面不设门，对写面 403 兜底）。
+/// 列表——服务端读面与写面同基线：仅限本组织在职成员，非成员/已离场
+/// 一律 403，门先于存在性判定）。
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -40,6 +41,10 @@ class _OrganizationDepartmentsPageState
   bool _loading = false;
   String? _error;
 
+  /// 非成员/已离场撞上服务端读面 403（组织详情页本应已拦截，
+  /// 这里兜底手输路由与「停留期间被移出」两种边缘）。
+  bool _forbidden = false;
+
   /// 浏览展开态：orgId → 已展开的部门 id 集合（本地 UI 态，非事实）。
   final Set<EntityId> _expanded = <EntityId>{};
 
@@ -60,6 +65,7 @@ class _OrganizationDepartmentsPageState
     setState(() {
       _loading = true;
       _error = null;
+      _forbidden = false;
     });
     try {
       final depts = await _api.departments(widget.orgId);
@@ -68,6 +74,12 @@ class _OrganizationDepartmentsPageState
       if (!mounted) return;
       setState(() {
         _depts = depts;
+      });
+    } on OrganizationApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _forbidden = e.isForbidden;
+        _error = e.isForbidden ? null : e.toString();
       });
     } on Object catch (e) {
       if (!mounted) return;
@@ -182,6 +194,17 @@ class _OrganizationDepartmentsPageState
                     ),
                   ),
             ],
+          ),
+        ),
+      );
+    } on OrganizationApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text(
+            e.isForbidden
+                ? '无权查看该部门（仅限本组织在职成员）'
+                : '加载部门失败：${e.message} (${e.code})',
           ),
         ),
       );
@@ -345,31 +368,46 @@ class _OrganizationDepartmentsPageState
             ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: OrgStateView(
-          loading: _loading && _depts.isEmpty,
-          error: _error,
-          empty: !_loading && _error == null && _depts.isEmpty,
-          emptyText: _canGovern ? '暂无部门，点击右上角新建' : '暂无部门',
-          onRetry: _refresh,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-            children: [
-              ..._buildNodes('', 0),
-              if (_canGovern)
-                ListTile(
-                  dense: true,
-                  title: Text(
-                    '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。',
-                    style: context.textStyle(FontSizeType.small),
+      body: _forbidden
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.lock_outline, size: 40),
+                  const SizedBox(height: AppSpacing.small),
+                  const Text('无权查看（仅限本组织在职成员）'),
+                  const SizedBox(height: AppSpacing.regular),
+                  TextButton(onPressed: _refresh, child: const Text('重新加载')),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _refresh,
+              child: OrgStateView(
+                loading: _loading && _depts.isEmpty,
+                error: _error,
+                empty: !_loading && _error == null && _depts.isEmpty,
+                emptyText: _canGovern ? '暂无部门，点击右上角新建' : '暂无部门',
+                onRetry: _refresh,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.small,
                   ),
+                  children: [
+                    ..._buildNodes('', 0),
+                    if (_canGovern)
+                      ListTile(
+                        dense: true,
+                        title: Text(
+                          '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。',
+                          style: context.textStyle(FontSizeType.small),
+                        ),
+                      ),
+                  ],
                 ),
-            ],
-          ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 }
