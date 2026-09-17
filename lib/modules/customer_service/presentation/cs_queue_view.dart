@@ -435,8 +435,8 @@ class _QueueTile extends StatelessWidget {
                     ],
                     Expanded(
                       child: Text(
-                        item.lastMessageSummary.isNotEmpty
-                            ? item.lastMessageSummary
+                        item.hasLastMessage
+                            ? context.t.chat.encryptedMessagePlaceholder
                             : context.t.common.dataNotFound,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

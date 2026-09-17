@@ -5,8 +5,8 @@
 ///   为 null → 无更多页；计数**只来自服务端键**（total / total_by_status），
 ///   服务端未提供时为 null（禁止本地行数推断）；
 /// - 列表 payload 双键兼容：A0 真源 `sessions` 优先、W2 冻结 `list` 兜底；
-/// - DTO 字段：TSID 一律 String；version / source / last_message_summary
-///   宽容解析；
+/// - DTO 字段：TSID 一律 String；contact / queued_at / last_message 按后端真实
+///   嵌套投影解析；
 /// - claim CAS：成功（回显投影解析）与 409 冲突分支（CsApiException 判定）；
 /// - 等待时长格式化纯函数（csWaitingSince）。
 ///
@@ -73,12 +73,16 @@ Map<String, dynamic> itemJson(String id, {int version = 1}) => {
   // 后端 seat 队列投影主键为 `id`（对齐 seat_session_view 白名单）。
   'id': id,
   'contact_id': '8266418340025468999',
-  'contact_name': '访客$id',
-  'waiting_since': '1789000000000',
+  'contact': {'masked_name': '访客$id'},
+  'queued_at': 1789000000,
   'version': version,
   'status': 'queued',
   'source': 'widget',
-  'last_message_summary': '订单still没有收到',
+  'last_message': {
+    'id': '7266418340025468800',
+    'sender_type': 'contact',
+    'created_at': 1789000001,
+  },
 };
 
 void main() {
@@ -229,13 +233,17 @@ void main() {
       expect(bare.contactId, '7266418340025468941');
       expect(bare.version, 0, reason: '服务端未给 version → 0（不得发起 CAS）');
       expect(bare.source, '');
-      expect(bare.lastMessageSummary, '');
+      expect(bare.contactName, '');
+      expect(bare.waitingSince, '');
+      expect(bare.hasLastMessage, isFalse);
 
       final full = page.items[1];
       expect(full.version, 4);
       expect(full.status, 'queued');
       expect(full.source, 'widget');
-      expect(full.lastMessageSummary, '订单still没有收到');
+      expect(full.contactName, '访客7266418340025468950');
+      expect(full.waitingSince, '1789000000000');
+      expect(full.hasLastMessage, isTrue);
     });
   });
 

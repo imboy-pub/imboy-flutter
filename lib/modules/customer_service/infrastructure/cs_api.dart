@@ -55,7 +55,7 @@ class CsQueueItem {
   final String contactId;
   final String contactName;
 
-  /// 排队起始（毫秒时间戳字符串；服务端缺省为空）。
+  /// 排队起始（毫秒时间戳字符串；由服务端 epoch 秒规范化，缺省为空）。
   final String waitingSince;
 
   /// 服务端会话乐观锁版本（claim 的 `expected_version` 来源；
@@ -69,8 +69,8 @@ class CsQueueItem {
   /// 来源渠道（widget 直访 / 其它接入面；服务端缺省为空则 UI 隐藏渠道标识）。
   final String source;
 
-  /// 最后一条消息的安全摘要（服务端脱敏后下发；缺省为空则 UI 隐藏）。
-  final String lastMessageSummary;
+  /// 服务端只下发末条消息元数据，不下发正文；用于显示安全占位。
+  final bool hasLastMessage;
 
   /// 租户与会话绑定（A0 投影含 organization_id；conversation_id 服务端
   /// 给出即用——缺省时由会话详情补齐，禁止任何个人 IM fallback）。
@@ -85,28 +85,38 @@ class CsQueueItem {
     this.version = 0,
     this.status = '',
     this.source = '',
-    this.lastMessageSummary = '',
+    this.hasLastMessage = false,
     this.organizationId = '',
     this.conversationId = '',
   });
 
   factory CsQueueItem.fromJson(Map<String, dynamic> json) {
+    final contact = json['contact'];
+    final lastMessage = json['last_message'];
     return CsQueueItem(
       // 后端 seat 队列投影主键为 `id`（seat_session_view 白名单）；
       // `session_id` 仅 widget 建会话响应有别名——`id` 优先，避免接单
       // URL 拼空（历史漂移：曾只读 session_id 致 /sessions//claim）。
       sessionId: entityIdOf(json['id'] ?? json['session_id']),
       contactId: entityIdOf(json['contact_id']),
-      contactName: parseModelString(json['contact_name']),
-      waitingSince: parseModelString(json['waiting_since']),
+      contactName: contact is Map
+          ? parseModelString(contact['masked_name'])
+          : '',
+      waitingSince: _epochSecondsToMilliseconds(json['queued_at']),
       version: parseModelInt(json['version']),
       status: parseModelString(json['status']),
       source: parseModelString(json['source']),
-      lastMessageSummary: parseModelString(json['last_message_summary']),
+      hasLastMessage:
+          lastMessage is Map && entityIdOf(lastMessage['id']).isNotEmpty,
       organizationId: entityIdOf(json['organization_id']),
       conversationId: entityIdOf(json['conversation_id']),
     );
   }
+}
+
+String _epochSecondsToMilliseconds(dynamic value) {
+  final seconds = int.tryParse(parseModelString(value));
+  return seconds == null || seconds <= 0 ? '' : '${seconds * 1000}';
 }
 
 /// queue 列表页（键集分页 + 服务端计数元数据）。
