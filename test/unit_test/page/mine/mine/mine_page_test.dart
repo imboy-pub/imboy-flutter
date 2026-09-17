@@ -17,8 +17,9 @@ import 'package:imboy/service/storage.dart';
 ///   - InsetGrouped Scaffold 背景（surfaceGrouped）
 ///   - 大标题 'titleMine'（"我的"）
 ///   - Profile Card：用户 nickname / 'ImBoy ID: $uid' / QR 入口图标 / chevron
-///   - 4 个 Section 菜单项：wallet / favorites / storageSpace / loginDeviceManagement /
-///     setting / feedback
+///   - 6 个 ImBoySettingsTile：switchToWorkspace / storageSpace /
+///     loginDeviceManagement / appeal / setting / feedback
+///     （钱包 QuickAction 受 feature flag 控制，默认配置不渲染）
 ///   - Section 内菜单 icon 容器使用 10% alpha 背景 + iconColor 应用
 ///
 /// 不验证 channel feature flag 菜单（依赖 AppFeatureRegistry snapshot 状态，
@@ -157,22 +158,29 @@ void main() {
   });
 
   group('MinePage menu sections', () {
-    testWidgets('renders wallet / favorites / storage / devices menu items', (
-      tester,
-    ) async {
-      await _pumpMine(tester);
+    testWidgets(
+      'renders quick actions & storage / devices menu items (wallet flag-gated)',
+      (tester) async {
+        await _pumpMine(tester);
 
-      // 钱包(QuickAction) / 存储空间 / 登录设备管理 / 设置 / 反馈建议
-      expect(find.text('钱包'), findsOneWidget);
-      expect(find.text('存储空间'), findsOneWidget);
-      expect(find.text('登录设备管理'), findsOneWidget);
-      expect(find.text('设置'), findsOneWidget);
-      expect(find.text('反馈建议'), findsOneWidget);
-      // 收藏 已从设置分组 Tile 移走，现只在 QuickActionGrid 里出现一次
-      // （菜单重组：QuickActionGrid = 钱包/我的频道/收藏）
-      expect(find.text('收藏'), findsOneWidget);
-      expect(find.text('我的频道'), findsOneWidget);
-    });
+        // 钱包 QuickAction 受 feature flag 控制：wallet 未列入编译期特性
+        // 清单（config/product-feature-manifest.json selected_features 未选），
+        // isEnabled('wallet') 恒为 false，当前配置下不渲染。
+        expect(find.text('钱包'), findsNothing);
+        // 我的频道(channel flag 默认开，编译期清单已含) / 收藏(无条件)
+        expect(find.text('我的频道'), findsOneWidget);
+        expect(find.text('收藏'), findsOneWidget);
+
+        // 存储空间 / 登录设备管理 / 设置 / 反馈建议
+        expect(find.text('存储空间'), findsOneWidget);
+        expect(find.text('登录设备管理'), findsOneWidget);
+        expect(find.text('设置'), findsOneWidget);
+        expect(find.text('反馈建议'), findsOneWidget);
+        // 收藏 已从设置分组 Tile 移走，现只在 QuickActionGrid 里出现一次
+        // （菜单重组：QuickActionGrid = 我的频道/收藏 + feature-gated 钱包）
+        expect(find.text('收藏'), findsOneWidget);
+      },
+    );
 
     testWidgets('renders chevron next to each menu item + profile', (
       tester,
@@ -185,15 +193,18 @@ void main() {
         findsOneWidget,
         reason: 'profile card 右侧应有 chevron_right',
       );
-      // 5 个 ImBoySettingsTile（switchToWorkspace/storageSpace/
-      // loginDeviceManagement/setting/feedback）默认 trailing 为
+      // 6 个 ImBoySettingsTile（switchToWorkspace/storageSpace/
+      // loginDeviceManagement/appeal/setting/feedback）默认 trailing 为
       // CupertinoListTileChevron，内部渲染 CupertinoIcons.right_chevron。
       // favorites 已移入 QuickActionGrid，不是 Tile。
       // 2026-08-31：新增「切换到工作区」直达 tile（4→5）。
+      // R-04.1：新增「处置与申诉」tile（5→6，此前登记滞后）。
+      // CSM-01 客服入口是 CsWorkspaceEntryTile，普通用户渲染为
+      // SizedBox.shrink（不占位、无 chevron），不影响计数。
       expect(
         find.byIcon(CupertinoIcons.right_chevron),
-        findsNWidgets(5),
-        reason: '5 个设置项每项右侧应有 CupertinoListTileChevron',
+        findsNWidgets(6),
+        reason: '6 个设置项每项右侧应有 CupertinoListTileChevron',
       );
     });
   });

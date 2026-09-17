@@ -146,7 +146,7 @@ bool isQuarantined(SmokeRoute r) =>
     r.status == RouteStatus.quarantine ||
     leakyRoutesQuarantine.contains(r.name);
 
-/// 全部 123 条路由（与 extract_routes.dart 输出一一对应；WP5 新增 5 条工作区路由）
+/// 全部 126 条路由（与 extract_routes.dart 输出一一对应；WP5 新增 5 条工作区路由）
 final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   // ==================== 认证 / 启动 ====================
   const SmokeRoute(name: 'splash', location: '/'),
@@ -288,6 +288,8 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(name: 'dark_model', location: '/dark_model'),
   const SmokeRoute(name: 'font_size', location: '/font_size'),
   const SmokeRoute(name: 'logout_account', location: '/logout_account'),
+  // R-04.1：处置与申诉（mine_page「处置与申诉」入口跳转目标）
+  const SmokeRoute(name: 'appeal', location: '/mine/appeal'),
 
   // ==================== E2EE ====================
   const SmokeRoute(name: 'e2ee_key_recovery', location: '/e2ee_key_recovery'),
@@ -518,5 +520,15 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
     skipReason:
         'app-amendment-001：EnterpriseConversationPage after_id 异步拉取，'
         '无头环境留 pending timer；企业会话契约由 test/enterprise 断言',
+  ),
+
+  // ==================== 客服工作台（CSM-01/02） ====================
+  const SmokeRoute(
+    name: 'cs_workspace',
+    location: '/customer_service/workspace',
+  ),
+  const SmokeRoute(
+    name: 'cs_session',
+    location: '/customer_service/workspace/sessions/1',
   ),
 ];
