@@ -7,9 +7,9 @@
 
 | 指标 | 数量 |
 |---|---:|
-| 页面台账总数 | 155 |
+| 页面台账总数 | 164 |
 | 已有关联规格的样板页 | 19 |
-| 待分级并补规格的页面 | 136 |
+| 待分级并补规格的页面 | 145 |
 | 源码映射缺失 | 0 |
 
 ## 页面队列
@@ -50,6 +50,10 @@
 | contact | [people_nearby_page](contact/people_nearby_page.md) | `lib/page/contact/people_nearby/people_nearby_page.dart` | 11 | 待分级并补规格 | — |
 | contact | [recently_registered_user_page](contact/recently_registered_user_page.md) | `lib/page/contact/recently_registered_user/recently_registered_user_page.dart` | 8 | 待分级并补规格 | — |
 | conversation | [conversation_page](conversation/conversation_page.md) | `lib/page/conversation/conversation_page.dart` | 12 | 已有样板（需继续细化） | `C2C-PLAINTEXT-REJECT-001`<br>`TWO-CLIENT-MAC-C2C-PING-001`<br>`CONVERSATION-LIST-001` |
+| customer_service | [cs_session_page](customer_service/cs_session_page.md) | `lib/modules/customer_service/presentation/cs_session_page.dart` | 17 | 待分级并补规格 | — |
+| customer_service | [cs_workspace_page](customer_service/cs_workspace_page.md) | `lib/modules/customer_service/presentation/cs_workspace_page.dart` | 1 | 待分级并补规格 | — |
+| enterprise | [enterprise_conversation_page](enterprise/enterprise_conversation_page.md) | `lib/modules/enterprise/presentation/enterprise_conversation_page.dart` | 5 | 待分级并补规格 | — |
+| enterprise | [enterprise_home_page](enterprise/enterprise_home_page.md) | `lib/modules/enterprise/presentation/enterprise_home_page.dart` | 11 | 待分级并补规格 | — |
 | group | [add_member_page](group/add_member_page.md) | `lib/page/group/group_detail/add_member_page.dart` | 11 | 待分级并补规格 | — |
 | group | [change_info_page](group/change_info_page.md) | `lib/page/group/group_detail/change_info_page.dart` | 10 | 待分级并补规格 | — |
 | group | [face_to_face_confirm_page](group/face_to_face_confirm_page.md) | `lib/page/group/face_to_face/face_to_face_confirm_page.dart` | 10 | 待分级并补规格 | — |
@@ -107,6 +111,11 @@
 | moment | [moment_feed_page](moment/moment_feed_page.md) | `lib/page/moment/moment_feed_page.dart` | 13 | 待分级并补规格 | — |
 | moment | [moment_friend_picker_page](moment/moment_friend_picker_page.md) | `lib/page/moment/moment_friend_picker/moment_friend_picker_page.dart` | 12 | 待分级并补规格 | — |
 | moment | [moment_notify_page](moment/moment_notify_page.md) | `lib/page/moment/moment_notify/moment_notify_page.dart` | 12 | 待分级并补规格 | — |
+| organization | [organization_departments_page](organization/organization_departments_page.md) | `lib/modules/organization/presentation/organization_departments_page.dart` | 19 | 待分级并补规格 | — |
+| organization | [organization_detail_page](organization/organization_detail_page.md) | `lib/modules/organization/presentation/organization_detail_page.dart` | 19 | 待分级并补规格 | — |
+| organization | [organization_home_page](organization/organization_home_page.md) | `lib/modules/organization/presentation/organization_home_page.dart` | 4 | 待分级并补规格 | — |
+| organization | [organization_invitations_page](organization/organization_invitations_page.md) | `lib/modules/organization/presentation/organization_invitations_page.dart` | 11 | 待分级并补规格 | — |
+| organization | [organization_members_page](organization/organization_members_page.md) | `lib/modules/organization/presentation/organization_members_page.dart` | 10 | 待分级并补规格 | — |
 | passport | [forgot_password_page](passport/forgot_password_page.md) | `lib/page/passport/forgot_password_page.dart` | 12 | 待分级并补规格 | — |
 | passport | [forgot_password_pin_code_page](passport/forgot_password_pin_code_page.md) | `lib/page/passport/forgot_password_pin_code_page.dart` | 12 | 待分级并补规格 | — |
 | passport | [login_page](passport/login_page.md) | `lib/page/passport/login_page.dart` | 12 | 已有样板（需继续细化） | `PASSPORT-LOGIN-001` |

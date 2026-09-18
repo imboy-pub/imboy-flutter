@@ -646,8 +646,8 @@ def generate_domain_matrix(root: Path) -> dict:
     matrix = {
         'schema_version': DOMAIN_SCHEMA_VERSION,
         'generated_from': {
-            'app_head': discovery.git_head(root),
-            'backend_head': discovery.git_head(root.parent / 'imboy'),
+            'app_head': 'see-catalog',
+            'backend_head': 'see-catalog',
             'manifest_profile': 'full-selected',
             'selected_features': selected,
             'capability_count': len(capabilities),

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "f8cc55fdfd0c1af97c17c3b5a5077caa69adb2e2",
-    "backend_head": "196d9359869034f13ac895665a842e325dfa9b8b",
+    "app_head": "see-catalog",
+    "backend_head": "see-catalog",
     "manifest_profile": "full-selected",
     "selected_features": [
       "e2ee",

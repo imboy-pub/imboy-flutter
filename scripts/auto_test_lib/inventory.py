@@ -381,7 +381,7 @@ def generate_inventory(root: Path, *, write_missing_ledgers: bool = False) -> tu
     inventory = {
         'schema_version': INVENTORY_SCHEMA_VERSION,
         'generated_from': {
-            'app_head': catalog['generated_from']['app_head'],
+            'app_head': 'see-catalog',
             'ledger_count': len(sorted(auto_dir.glob('*/*_page.md'))),
             'ledger_row_count': sum(1 for r in records if not r['source'].startswith('generated:')),
             'lib_page_count': len(lib_pages),
