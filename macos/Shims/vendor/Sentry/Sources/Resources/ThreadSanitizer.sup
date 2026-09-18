@@ -1,0 +1,14 @@
+# ThreadSanitizer suppressions file
+# For syntax details, see https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions
+
+# Races to fix
+race:returnResponse
+race:enableNetworkBreadcrumbs
+race:disable
+race:URLSessionDataTaskMock
+race:getOriginalImplementation
+race:SentrySpanContext
+
+# False positives
+# SentryLog isn't 100% thread safe, which we accept. For more information read the code docs of SentryLog.
+race:SentryLog

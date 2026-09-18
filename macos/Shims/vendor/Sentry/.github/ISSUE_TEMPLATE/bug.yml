@@ -1,0 +1,115 @@
+name: 🐞 Bug Report
+description: Tell us about something that's not working the way we (probably) intend.
+labels: ["Cocoa", "Bug"]
+body:
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Which platform do you use?
+      multiple: true
+      options:
+        - iOS
+        - iPadOS
+        - tvOS
+        - macOS
+        - watchOS
+        - visionOS
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: In which environment does this happen?
+      multiple: true
+      options:
+        - Production
+        - Develop
+        - TestFlight
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installed
+    attributes:
+      label: Installed
+      description: sentry-cocoa installed with
+      options:
+        - Swift Package Manager
+        - CocoaPods
+        - Carthage
+        - Manually
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which version of sentry-cocoa do you use?
+      placeholder: 8.15.0 ← should look like this
+    validations:
+      required: true
+
+  - type: input
+    id: xcode-version
+    attributes:
+      label: Xcode Version
+      description: Which version of Xcode do you use?
+      placeholder: 15.4 ← should look like this
+    validations:
+      required: true
+
+  - type: input
+    id: previous-versions
+    attributes:
+      label: Did it work on previous versions?
+      description: If yes, which ones?
+    validations:
+      required: false
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to Reproduce
+      description: How can we see what you're seeing? Specific is terrific.
+      placeholder: |-
+        1. foo
+        2. bar
+        3. baz
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Result
+      description: Logs? Screenshots? Yes, please.
+    validations:
+      required: true
+
+  - type: input
+    id: submit-a-pr
+    attributes:
+      label: Are you willing to submit a PR?
+      description: We accept contributions!
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |-
+        ## Thanks 🙏
+        Check our [triage docs](https://open.sentry.io/triage/) for what to expect next.
+    validations:
+      required: false

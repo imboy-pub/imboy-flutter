@@ -1,0 +1,144 @@
+import _SentryPrivate
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
+import XCTest
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
+    
+    private class Fixture {
+        private let dateProvider = TestCurrentDateProvider()
+        private let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
+        let options = Options()
+        let fileManager: SentryFileManager
+        
+        init() throws {
+            options.tracesSampleRate = 0.1
+            options.tracesSampler = { _ in return 0 } 
+            options.dsn = TestConstants.dsnAsString(username: "SentryAppStartTrackingIntegrationTests")
+            
+            fileManager = try TestFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+        }
+    }
+    
+    private var fixture: Fixture!
+    private var sut: SentryAppStartTrackingIntegration!
+
+    override class func setUp() {
+        super.setUp()
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+        clearTestState()
+    }
+    
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
+        SentrySDKInternal.setAppStartMeasurement(nil)
+        sut = SentryAppStartTrackingIntegration()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+        fixture.fileManager.deleteAppState()
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
+        SentrySDKInternal.setAppStartMeasurement(nil)
+        sut.stop()
+        clearTestState()
+    }
+    
+    func testAppStartMeasuringEnabledAndSampleRate_properlySetupTracker() throws {
+        sut.install(with: fixture.options)
+
+        let tracker = try XCTUnwrap(Dynamic(sut).tracker.asObject as? SentryAppStartTracker, "SentryAppStartTrackingIntegration should have a tracker")
+        try assertTrackerSetupAndRunning(tracker)
+    }
+
+    func testUnistall_stopsTracker() throws {
+        sut.install(with: fixture.options)
+
+        let tracker = try XCTUnwrap(Dynamic(sut).tracker.asObject as? SentryAppStartTracker, "SentryAppStartTrackingIntegration should have a tracker")
+        try assertTrackerSetupAndRunning(tracker)
+        sut.uninstall()
+        
+        let isRunning = Dynamic(tracker).isRunning.asBool ?? true
+        XCTAssertFalse(isRunning, "AppStartTracking should not be running")
+    }
+    
+    func testNoSampleRate_noTracker() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.0
+        options.tracesSampler = nil
+        sut.install(with: options)
+
+        let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
+        XCTAssertNil(tracker)
+    }
+    
+    func testHybridSDKModeEnabled_properlySetupTracker() throws {
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        
+        let options = fixture.options
+        options.tracesSampleRate = 0.0
+        options.tracesSampler = nil
+        sut.install(with: options)
+        
+        let tracker = try XCTUnwrap(Dynamic(sut).tracker.asObject as? SentryAppStartTracker, "SentryAppStartTrackingIntegration should have a tracker")
+        try assertTrackerSetupAndRunning(tracker)
+    }
+    
+    func testOnlyAppStartMeasuringEnabled_noTracker() {
+        let options = fixture.options
+        options.tracesSampleRate = 0.0
+        options.tracesSampler = nil
+        sut.install(with: options)
+        
+        let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
+        XCTAssertNil(tracker)
+    }
+    
+    func testAutoPerformanceTrackingDisabled_noTracker() {
+        let options = fixture.options
+        options.enableAutoPerformanceTracing = false
+        sut.install(with: options)
+        
+        let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
+        XCTAssertNil(tracker)
+    }
+    
+    func test_PerformanceTrackingDisabled() {
+        let options = fixture.options
+        options.enableAutoPerformanceTracing = false
+        let result = sut.install(with: options)
+        
+        XCTAssertFalse(result)
+    }
+    
+    func test_PerformanceV2Enabled() {
+        let options = fixture.options
+        options.enablePerformanceV2 = true
+        
+        XCTAssertEqual(self.sut.install(with: options), true)
+        
+        let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
+        XCTAssertEqual(Dynamic(tracker).enablePerformanceV2.asBool, true)
+    }
+
+    func assertTrackerSetupAndRunning(_ tracker: SentryAppStartTracker) throws {
+        _ = try XCTUnwrap(Dynamic(tracker).dispatchQueue.asAnyObject as? SentryDispatchQueueWrapper, "Tracker does not have a dispatch queue.")
+        
+        XCTAssertFalse(try XCTUnwrap(Dynamic(tracker).enablePerformanceV2.asBool))
+
+        let appStateManager = Dynamic(tracker).appStateManager.asObject as? SentryAppStateManager
+
+        XCTAssertEqual(appStateManager, SentryDependencyContainer.sharedInstance().appStateManager)
+
+        XCTAssertTrue(tracker.isRunning, "AppStartTracking should be running")
+    }
+    
+}
+#endif

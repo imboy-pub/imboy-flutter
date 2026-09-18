@@ -1,0 +1,31 @@
+parent_config: ../.swiftlint.yml
+
+opt_in_rules:
+  - test_case_accessibility
+
+custom_rules:
+  avoid_background_qos_for_dispatch_queue:
+    name: "Avoid background QoS for dispatch queues in tests"
+    regex: 'qos:\s*\.background'
+    message: "Avoid background QoS for dispatch queues in tests, as in CI, work on dispatch queues with background QoS can take a long time to run and lead to flaky tests."
+    severity: error
+
+  avoid_dispatch_groups_in_tests:
+    name: "Avoid DispatchGroups in tests"
+    regex: 'DispatchGroup\(\)'
+    message: "Avoid dispatch groups in tests as waiting on them doesn't fail the test. Consider to use a XCTestExpectation instead, which will fail the test if the expectation is not fulfilled and also have the possibility for asserting for overfulfilled expectations."
+    severity: error
+
+disabled_rules:
+  - force_cast
+  - force_try
+  - force_unwrapping
+  - function_body_length
+  - identifier_name
+  - large_tuple
+  - type_body_length
+  - weak_delegate
+
+file_length:
+  warning: 1000
+  error: 1000

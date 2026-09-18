@@ -1,0 +1,134 @@
+name: iOS-Swift
+include:
+  - ../Shared/feature-flags.yml
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  DebugV9: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
+fileGroups:
+  - ../Shared/Config
+  - iOS-Swift.yml
+  - ../../Plans/iOS-Swift_Base.xctestplan
+  - ../../Plans/iOS-Benchmarking_Base.xctestplan
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  iOS-Swift:
+    type: application
+    platform: auto
+    sources:
+      - iOS-Swift
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+      - target: iOS-SwiftClip
+      - target: SentrySampleShared/SentrySampleShared
+      - target: iOS-Swift-ShareExtension
+    configFiles:
+      Debug: iOS-Swift.xcconfig
+      DebugV9: iOS-Swift.xcconfig
+      Release: iOS-Swift.xcconfig
+      Test: iOS-Swift.xcconfig
+      TestCI: iOS-Swift.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+  iOS-SwiftClip:
+    type: application.on-demand-install-capable
+    platform: auto
+    sources:
+      - iOS-SwiftClip
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-SwiftClip.xcconfig
+      DebugV9: iOS-SwiftClip.xcconfig
+      Release: iOS-SwiftClip.xcconfig
+      Test: iOS-SwiftClip.xcconfig
+      TestCI: iOS-SwiftClip.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+  iOS-Swift-UITests:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - iOS-Swift-UITests
+    dependencies:
+      - target: SentrySampleShared/SentrySampleUITestShared
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-UITests.xcconfig
+      DebugV9: iOS-Swift-UITests.xcconfig
+      Release: iOS-Swift-UITests.xcconfig
+      Test: iOS-Swift-UITests.xcconfig
+      TestCI: iOS-Swift-UITests.xcconfig
+  iOS-Benchmarking:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      - iOS-Benchmarking
+      - ../Shared/SampleAssets.xcassets
+    dependencies:
+      - target: SentrySampleShared/SentrySampleUITestShared
+    configFiles:
+      Debug: iOS-Benchmarking.xcconfig
+      DebugV9: iOS-Benchmarking.xcconfig
+      Release: iOS-Benchmarking.xcconfig
+      Test: iOS-Benchmarking.xcconfig
+      TestCI: iOS-Benchmarking.xcconfig
+  iOS-Swift-ShareExtension:
+    type: app-extension
+    platform: auto
+    sources:
+      - iOS-Swift-ShareExtension
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-ShareExtension.xcconfig
+      DebugV9: iOS-Swift-ShareExtension.xcconfig
+      Release: iOS-Swift-ShareExtension.xcconfig
+      Test: iOS-Swift-ShareExtension.xcconfig
+      TestCI: iOS-Swift-ShareExtension.xcconfig
+schemes:
+  iOS-Swift:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        iOS-Swift: all
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/iOS-Swift_Base.xctestplan
+  iOS-Benchmarking:
+    build:
+      targets:
+        iOS-Swift: test
+        iOS-Benchmarking: test
+    test:
+      config: Debug
+      testPlans:
+        - path: ../../Plans/iOS-Benchmarking_Base.xctestplan

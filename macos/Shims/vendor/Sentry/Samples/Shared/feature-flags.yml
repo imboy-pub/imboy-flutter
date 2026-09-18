@@ -1,0 +1,146 @@
+schemeTemplates:
+  SampleAppScheme:
+    run:
+      commandLineArguments:
+        # special
+        "--io.sentry.special.schema-environment-variable-precedence": true
+        "--io.sentry.special.disable-everything": false
+        "--io.sentry.special.skip-sentry-init": false
+        "--io.sentry.special.wipe-data": false
+        "--io.sentry.special.disable-debug-mode": false
+
+        # screenshot
+        "--io.sentry.screenshot.disable": false
+        "--io.sentry.screenshot.disable-view-renderer-v2": false
+        "--io.sentry.screenshot.disable-fast-view-rendering": false
+        "--io.sentry.screenshot.disable-mask-all-images": false
+        "--io.sentry.screenshot.disable-mask-all-text": false
+
+        # session replay
+        "--io.sentry.session-replay.disable": false
+        "--io.sentry.session-replay.disable-view-renderer-v2": false
+        "--io.sentry.session-replay.enable-fast-view-rendering": false
+        "--io.sentry.session-replay.disable-mask-all-images": false
+        "--io.sentry.session-replay.disable-mask-all-text": false
+        "--io.sentry.session-replay.enable-in-unreliable-environment": false
+
+        # user feedback
+        "--io.sentry.feedback.use-custom-feedback-button": false
+        "--io.sentry.feedback.dont-use-sentry-user": false
+        "--io.sentry.feedback.require-name": false
+        "--io.sentry.feedback.require-email": false
+        "--io.sentry.feedback.no-animations": false
+        "--io.sentry.feedback.no-widget-icon": false
+        "--io.sentry.feedback.no-widget-text": false
+        "--io.sentry.feedback.all-defaults": false
+        "--io.sentry.feedback.no-auto-inject-widget": false
+        "--io.sentry.feedback.no-screenshots": false
+        "--io.sentry.feedback.no-shake-gesture": false
+
+        # profiling
+        "--io.sentry.profiling.disable-ui-profiling": false
+        "--io.sentry.profiling.profile-lifecycle-manual": false
+        "--io.sentry.profiling.slow-load-method": false
+        "--io.sentry.profiling.disable-app-start-profiling": false
+        "--io.sentry.profiling.continuous-profiler-immediate-stop": false
+
+        # networking
+        "--io.sentry.networking.disable-breadcrumbs": false
+        "--io.sentry.networking.disable-tracking": false
+        "--io.sentry.networking.disable-failed-request-tracking": false
+
+        # performance
+        "--io.sentry.performance.disable-app-hang-tracking-v2": false
+        "--io.sentry.performance.disable-time-to-full-display-tracing": false
+        "--io.sentry.performance.disable-performance-v2": false
+        "--io.sentry.other.disable-attach-view-hierarchy": false
+        "--io.sentry.other.disable-attach-screenshot": false
+        "--io.sentry.performance.disable-file-io-tracing": false
+        "--io.sentry.performance.disable-automatic-session-tracking": false
+        "--io.sentry.other.disable-metrickit-integration": false
+        "--io.sentry.other.disable-metrickit-raw-payloads": false
+        "--io.sentry.performance.disable-watchdog-tracking": false
+        "--io.sentry.tracing.disable-tracing": false
+        "--io.sentry.other.disable-crash-handler": false
+        "--io.sentry.other.disable-swizzling": false
+        "--io.sentry.performance.disable-core-data-tracing": false
+        "--io.sentry.performance.disable-uiviewcontroller-tracing": false
+        "--io.sentry.other.disable-automatic-breadcrumbs": false
+        "--io.sentry.performance.disable-anr-tracking": false
+        "--io.sentry.performance.disable-auto-performance-tracing": false
+        "--io.sentry.performance.disable-ui-tracing": false
+        "--io.sentry.other.disable-filemanager-swizzling": false
+
+        # events
+        "--io.sentry.events.reject-all": false
+
+        # other
+        "--io.sentry.other.base64-attachment-data": false
+        "--io.sentry.other.disable-http-transport": false
+        "--io.sentry.other.disable-spotlight": false
+        "--io.sentry.other.reject-screenshots-in-before-capture-screenshot": false
+        "--io.sentry.other.reject-view-hierarchy-in-before-capture-view-hierarchy": false
+        "--io.sentry.other.reject-all-spans": false
+
+      environmentVariables:
+        # events
+        - variable: "--io.sentry.events.sampleRate"
+          value:
+          isEnabled: false
+
+        # session replay
+        - variable: "--io.sentry.session-replay.on-error-sample-rate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.session-replay.session-sample-rate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.session-replay.quality"
+          value:
+          isEnabled: false
+
+        # tracing
+        - variable: "--io.sentry.tracing.tracesSampleRate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.tracing.tracesSamplerValue"
+          value:
+          isEnabled: false
+
+        # profiling
+        - variable: "--io.sentry.profiling.profilesSampleRate"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.profiling.profilesSamplerValue"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.profiling.profile-session-sample-rate"
+          value:
+          isEnabled: false
+
+        # performance
+        - variable: "--io.sentry.performance.sessionTrackingIntervalMillis"
+          value:
+          isEnabled: false
+
+        # scope/user
+        - variable: "--io.sentry.scope.user.username"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.scope.user.name"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.scope.user.email"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.scope.user.id"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.scope.sdk-environment"
+          value:
+          isEnabled: false
+
+        # other
+        - variable: "--io.sentry.special.dsn"
+          value:
+          isEnabled: false

@@ -34,7 +34,34 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  flutter_install_all_macos_pods File.dirname(File.realpath(__FILE__))
+  # hardening2 A4: flutter_sound 9.30.0 declares pluginClass FlutterSoundPlugin
+  # for macOS but ships no macos/ implementation (pod install fails). Route it
+  # to a local no-op shim so the GeneratedPluginRegistrant link holds; every
+  # other plugin keeps the stock helper flow.
+  plugins_root = File.dirname(File.realpath(__FILE__))
+  symlink_dir = File.expand_path(File.join('Flutter', 'ephemeral', '.symlinks'), plugins_root)
+  system('rm', '-rf', symlink_dir)
+  system('mkdir', '-p', File.join(symlink_dir, 'plugins'))
+  plugins_file = File.join(plugins_root, '..', '.flutter-plugins-dependencies')
+  dependencies_hash = flutter_parse_plugins_file(plugins_file)
+  plugin_pods = flutter_get_plugins_list(dependencies_hash, 'macos')
+  symlink_plugins_dir = File.join(symlink_dir, 'plugins')
+  plugin_pods.each do |plugin_hash|
+    plugin_name = plugin_hash['name']
+    plugin_path = plugin_hash['path']
+    next unless plugin_name && plugin_path && plugin_hash.fetch('native_build', true)
+    shared_darwin = plugin_hash.fetch('shared_darwin_source', false)
+    platform_directory = shared_darwin ? 'darwin' : 'macos'
+    symlink = File.join(symlink_plugins_dir, plugin_name)
+    File.symlink(plugin_path, symlink)
+    relative = flutter_relative_path_from_podfile(symlink)
+    if plugin_name == 'flutter_sound'
+      pod plugin_name, path: File.join('Shims', 'flutter_sound', 'macos')
+    else
+      pod plugin_name, path: File.join(relative, platform_directory)
+    end
+  end
+  flutter_install_macos_engine_pod(plugins_root)
   target 'RunnerTests' do
     inherit! :search_paths
   end
@@ -49,6 +76,10 @@ post_install do |installer|
     end
   end
 end
+
+# hardening2 A4: github.com git endpoint unreachable from this network;
+# vendored from codeload tarball 8.58.4 so pod install never needs to clone it.
+pod 'Sentry', :path => 'Shims/vendor/Sentry'
 
 #pod 'JVerification'
 pod 'PhoneNumberKit', '~> 3.8.0'

@@ -1,0 +1,386 @@
+default_platform(:ios)
+
+platform :ios do
+  before_all do |lane|
+    ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "10" # sometimes running xcodebuild commands is slow on CI runners. give them more time than the default of 10 seconds. see https://github.com/fastlane-old/gym/issues/188#issuecomment-190320592 and https://docs.fastlane.tools/advanced/lanes/
+  end
+
+  ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
+  ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
+  ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ShareExtension/Info.plist"
+
+  # Helper method to run tests with common configuration
+  def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false)
+    configuration = if is_ci then 'TestCI' else 'Test' end
+    result_bundle_path = "test_results/#{result_bundle_name}.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
+    
+    run_tests(
+      workspace: "Sentry.xcworkspace",
+      scheme: scheme,
+      configuration: configuration,
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}",
+      device: device,
+      address_sanitizer: address_sanitizer
+    )
+  end
+
+  lane :prepare_xcframework_signing do
+    setup_ci if is_ci
+
+    sync_code_signing(
+      type: "appstore",
+      readonly: true,
+      app_identifier: ["io.sentry.sample.iOS-Swift"], # Any app identifier will do
+    )
+  end
+
+  lane :bump_build_number do
+    increment_build_number(
+      build_number: ENV["FASTLANE_BUILD_NUMBER"],
+      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj"
+    )
+  end
+
+  # The version for all Info.plist must be a period-separated list of at most three non-negative integers
+  # for App Store Connect. If we are on a preview we to remove these suffixes.
+  lane :remove_preview_version_suffixes do
+    version = get_version_number(
+      xcodeproj: "Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      target: "iOS-Swift"
+      )
+    new_version = version.split("-", -1)[0]
+
+    # We also need to replace the MARKETING_VERSION otherwise the build will fail with
+    # error: The CFBundleShortVersionString of an App Clip ('8.9.0-beta.1') must match that of its containing parent app ('8.9.0').
+    sh "sed -i '' 's/MARKETING_VERSION = #{version}/MARKETING_VERSION = #{new_version}/g' ../Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"
+
+    set_info_plist_value(
+      path: ios_swift_infoplist_path,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
+    set_info_plist_value(
+      path: ios_swift_clip_infoplist_path,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
+    set_info_plist_value(
+      path: ios_swift_share_extension_infoplist_path,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
+
+    sentryInfoPlistPath = "./Sources/Resources/Info.plist"
+    set_info_plist_value(
+      path: sentryInfoPlistPath,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
+    set_info_plist_value(
+      path: sentryInfoPlistPath,
+      key: "CFBundleVersion",
+      value: new_version
+    )
+  end
+
+  desc "Run match for local development"
+  lane :match_local do
+    sync_code_signing(
+      type: "development",
+      app_identifier: [
+        "io.sentry.*",
+        "io.sentry.cocoa.perf-test-app-plain",
+        "io.sentry.cocoa.perf-test-app-sentry",
+        "io.sentry.iOS-Benchmarking.xctrunner",
+        "io.sentry.iOS-Swift-UITests.xctrunner",
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ],
+      readonly: true
+    )
+    sync_code_signing(
+      type: "appstore",
+      app_identifier: [
+        "io.sentry.*",
+        "io.sentry.cocoa.perf-test-app-plain",
+        "io.sentry.cocoa.perf-test-app-sentry",
+        "io.sentry.iOS-Benchmarking.xctrunner",
+        "io.sentry.iOS-Swift-UITests.xctrunner",
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ],
+      readonly: true
+    )
+  end
+
+  desc "Build iOS-Swift with Release"
+  lane :build_ios_swift do
+    setup_ci if is_ci
+
+    sync_code_signing(
+      type: "appstore",
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ],
+    )
+
+    # We must use build_ios_app because otherwise the build will succeed but it will not create the .ipa file. 
+    # The log output will print a warning: "No output path received from gym"
+    # See: https://github.com/fastlane/fastlane/issues/22276#issuecomment-2491517911
+    build_ios_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift",
+      include_bitcode: false,
+      include_symbols: true,
+      export_method: "app-store",
+      archive_path: "iOS-Swift"
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") if is_ci
+  end
+
+  lane :build_ios_swift_for_tests do
+    setup_ci(
+      force: true
+    ) if is_ci
+
+    sync_code_signing(
+      type: "development",
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ]
+    )
+
+    build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Swift",
+      derived_data_path: "DerivedData",
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") if is_ci
+  end
+
+  lane :build_ios_swift_ui_test do
+    setup_ci(
+      force: true
+    ) if is_ci
+
+    sync_code_signing(
+      type: "development",
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip", 
+        "io.sentry.sample.iOS-Swift.ShareExtension", 
+        "io.sentry.iOS-Swift-UITests.xctrunner"
+      ],
+    )
+
+    # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
+    sh "set -o pipefail && NSUnbufferedIO=YES xcodebuild -workspace ../Sentry.xcworkspace -scheme iOS-Swift-UITests -derivedDataPath ../DerivedData -destination 'generic/platform=iOS' -configuration Test build-for-testing 2>&1 | xcbeautify"
+
+    delete_keychain(name: "fastlane_tmp_keychain") if is_ci
+  end
+
+  lane :build_ios_benchmark_test do
+    setup_ci(
+      force: true
+    ) if is_ci
+
+    sync_code_signing(
+      type: "development",
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift", 
+        "io.sentry.sample.iOS-Swift.Clip", 
+        "io.sentry.sample.iOS-Swift.ShareExtension", 
+        "io.sentry.iOS-Benchmarking.xctrunner"
+      ],
+    )
+
+    build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "iOS-Benchmarking",
+      xcargs: "build-for-testing",
+      derived_data_path: "DerivedData",
+      skip_archive: true,
+      skip_package_dependencies_resolution: true
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") if is_ci
+  end
+
+  lane :ui_critical_tests_ios_swiftui_all do
+    run_ui_tests(
+      scheme: "SwiftUITestSampleAll",
+      result_bundle_name: "ui_critical_tests_ios_swiftui_all"
+    )
+  end
+
+  lane :ui_critical_tests_ios_swiftui_envelope do
+    run_ui_tests(
+      scheme: "SwiftUITestSampleEnvelope",
+      result_bundle_name: "ui_critical_tests_ios_swiftui_envelope"
+    )
+  end
+
+  desc "Upload iOS-Swift to TestFlight and symbols to Sentry"
+  lane :ios_swift_to_testflight do
+
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_KEY"]
+    )
+
+    testflight(
+      skip_waiting_for_build_processing: true,
+    )
+
+    sentry_upload_dif(
+      auth_token: ENV["SENTRY_AUTH_TOKEN"],
+      org_slug: 'sentry-sdks',
+      project_slug: 'sentry-cocoa',
+      include_sources: true
+    )
+  end
+
+  lane :ui_tests_ios_swiftui do |options|
+    run_ui_tests(
+      scheme: "iOS-SwiftUI",
+      result_bundle_name: "ui_tests_ios_swiftui",
+      device: options[:device]
+    )
+  end
+  
+  lane :ui_tests_ios_swift6 do |options|
+    run_ui_tests(
+      scheme: "iOS-Swift6",
+      result_bundle_name: "ui_tests_ios_swift6",
+      device: options[:device]
+    )
+  end
+
+  lane :ui_tests_ios_objc do
+    run_ui_tests(
+      scheme: "iOS-ObjectiveC",
+      result_bundle_name: "ui_tests_ios_objc"
+    )
+  end
+
+  lane :ui_tests_ios_swift do |options|
+    run_ui_tests(
+      scheme: "iOS-Swift",
+      result_bundle_name: "ui_tests_ios_swift",
+      device: options[:device],
+      address_sanitizer: options[:address_sanitizer]
+    )
+  end
+
+  lane :ui_tests_tvos_swift do
+    run_ui_tests(
+      scheme: "tvOS-Swift",
+      result_bundle_name: "ui_tests_tvos_swift"
+    )
+  end
+  
+  desc "Run Duplication test"
+  lane :duplication_test do
+    # FileUtils resolves relative paths to the `fastlane` directory, while lanes resolve relative to root.
+    result_bundle_path = "test_results/duplication_test.xcresult"
+    FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
+    run_tests(
+      project: "./Tests/DuplicatedSDKTest/DuplicatedSDKTest.xcodeproj",
+      scheme: "DuplicatedSDKTest",
+      device: "iPhone 16 Pro (18.5)",
+      xcodebuild_formatter: "xcbeautify --report junit",
+      result_bundle: true,
+      result_bundle_path: "fastlane/#{result_bundle_path}"
+    )
+  end
+
+  desc "Build Perf-test app without Sentry"
+  lane :build_perf_test_app_plain do
+    setup_ci(
+      force: true
+    ) if is_ci
+
+    sync_code_signing(
+      type: "development",
+      app_identifier: [
+        "io.sentry.cocoa.perf-test-app-plain"
+      ]
+    )
+
+    build_app(
+      project: "Tests/Perf/test-app-plain/test-app-plain.xcodeproj",
+      scheme: "test-app-plain",
+      include_bitcode: false,
+      include_symbols: false,
+      export_method: "development",
+      output_directory: "Tests/Perf/",
+      output_name: "test-app-plain.ipa",
+      skip_package_dependencies_resolution: true
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") if is_ci
+  end
+
+  desc "Build Perf-test app with Sentry"
+  lane :build_perf_test_app_sentry do
+    setup_ci(
+      force: true
+    ) if is_ci
+
+    sync_code_signing(
+      type: "development",
+      app_identifier: [
+        "io.sentry.cocoa.perf-test-app-sentry"
+      ],
+    )
+
+    build_app(
+      project: "Tests/Perf/test-app-sentry/test-app-sentry.xcodeproj",
+      scheme: "test-app-sentry",
+      include_bitcode: false,
+      include_symbols: false,
+      export_method: "development",
+      output_directory: "Tests/Perf/",
+      output_name: "test-app-sentry.ipa",
+      skip_package_dependencies_resolution: true
+    )
+
+    delete_keychain(name: "fastlane_tmp_keychain") if is_ci
+  end
+
+  desc "Generate all provisioning profiles for development"
+  lane :setup_code_signing do
+    sync_code_signing(
+      type: "development",
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ],
+      readonly: false
+    )
+    sync_code_signing(
+      type: "appstore",
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ],
+      readonly: false
+    )
+  end
+end

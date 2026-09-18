@@ -1,0 +1,11 @@
+#include "../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-SwiftUI
+INFOPLIST_FILE = macOS-SwiftUI/Info.plist
+CODE_SIGN_ENTITLEMENTS = macOS-SwiftUI/macOS-SwiftUI.entitlements
+
+SUPPORTED_PLATFORMS = macosx
+
+MACOSX_DEPLOYMENT_TARGET = 12.4
+
+DEVELOPMENT_ASSET_PATHS = "macOS-SwiftUI/Preview Content"

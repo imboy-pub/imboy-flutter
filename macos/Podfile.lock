@@ -19,33 +19,33 @@ PODS:
     - FlutterMacOS
   - file_selector_macos (0.0.1):
     - FlutterMacOS
-  - Firebase/CoreOnly (12.18.0):
-    - FirebaseCore (~> 12.18.0)
-  - Firebase/Messaging (12.18.0):
+  - Firebase/CoreOnly (12.19.0):
+    - FirebaseCore (~> 12.19.0)
+  - Firebase/Messaging (12.19.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 12.18.0)
-  - firebase_core (4.14.0):
-    - Firebase/CoreOnly (~> 12.18.0)
+    - FirebaseMessaging (~> 12.19.0)
+  - firebase_core (4.15.0):
+    - Firebase/CoreOnly (~> 12.19.0)
     - FlutterMacOS
-  - firebase_messaging (16.6.0):
-    - Firebase/CoreOnly (~> 12.18.0)
-    - Firebase/Messaging (~> 12.18.0)
+  - firebase_messaging (16.7.0):
+    - Firebase/CoreOnly (~> 12.19.0)
+    - Firebase/Messaging (~> 12.19.0)
     - firebase_core
     - FlutterMacOS
-  - FirebaseCore (12.18.0):
-    - FirebaseCoreInternal (~> 12.18.0)
+  - FirebaseCore (12.19.0):
+    - FirebaseCoreInternal (~> 12.19.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
-  - FirebaseCoreInternal (12.18.0):
+  - FirebaseCoreInternal (12.19.0):
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
-  - FirebaseInstallations (12.18.0):
-    - FirebaseCore (~> 12.18.0)
+  - FirebaseInstallations (12.19.0):
+    - FirebaseCore (~> 12.19.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/UserDefaults (~> 8.1)
     - PromisesObjC (~> 2.4)
-  - FirebaseMessaging (12.18.0):
-    - FirebaseCore (~> 12.18.0)
-    - FirebaseInstallations (~> 12.18.0)
+  - FirebaseMessaging (12.19.0):
+    - FirebaseCore (~> 12.19.0)
+    - FirebaseInstallations (~> 12.19.0)
     - GoogleDataTransport (~> 10.1)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/Environment (~> 8.1)
@@ -57,7 +57,7 @@ PODS:
   - flutter_secure_storage_darwin (10.0.0):
     - Flutter
     - FlutterMacOS
-  - flutter_sound (0.0.1):
+  - flutter_sound (9.30.0):
     - FlutterMacOS
   - flutter_vodozemac (0.0.1):
     - FlutterMacOS
@@ -104,7 +104,7 @@ PODS:
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
-  - livekit_client (2.11.0):
+  - livekit_client (2.12.0):
     - flutter_webrtc
     - FlutterMacOS
     - WebRTC-SDK (= 144.7559.09)
@@ -135,8 +135,11 @@ PODS:
     - Flutter
     - FlutterMacOS
   - PromisesObjC (2.4.1)
+  - Sentry (8.58.4):
+    - Sentry/Core (= 8.58.4)
+  - Sentry/Core (8.58.4)
   - Sentry/HybridSDK (8.58.4)
-  - sentry_flutter (9.29.0):
+  - sentry_flutter (9.30.0):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.58.4)
@@ -182,7 +185,7 @@ DEPENDENCIES:
   - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - flutter_secure_storage_darwin (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
-  - flutter_sound (from `Flutter/ephemeral/.symlinks/plugins/flutter_sound/macos`)
+  - flutter_sound (from `Shims/flutter_sound/macos`)
   - flutter_vodozemac (from `Flutter/ephemeral/.symlinks/plugins/flutter_vodozemac/macos`)
   - flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
@@ -197,6 +200,7 @@ DEPENDENCIES:
   - patrol (from `Flutter/ephemeral/.symlinks/plugins/patrol/darwin`)
   - PhoneNumberKit (~> 3.8.0)
   - photo_manager (from `Flutter/ephemeral/.symlinks/plugins/photo_manager/darwin`)
+  - Sentry (from `Shims/vendor/Sentry`)
   - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
   - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
   - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -221,7 +225,6 @@ SPEC REPOS:
     - nanopb
     - PhoneNumberKit
     - PromisesObjC
-    - Sentry
     - SQLCipher
     - WebRTC-SDK
 
@@ -253,7 +256,7 @@ EXTERNAL SOURCES:
   flutter_secure_storage_darwin:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin
   flutter_sound:
-    :path: Flutter/ephemeral/.symlinks/plugins/flutter_sound/macos
+    :path: Shims/flutter_sound/macos
   flutter_vodozemac:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_vodozemac/macos
   flutter_webrtc:
@@ -280,6 +283,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/patrol/darwin
   photo_manager:
     :path: Flutter/ephemeral/.symlinks/plugins/photo_manager/darwin
+  Sentry:
+    :path: Shims/vendor/Sentry
   sentry_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos
   share_plus:
@@ -310,16 +315,16 @@ SPEC CHECKSUMS:
   file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
   file_saver: 0b49fcd0f67d6e24737b757ee1eb1d3d8ca392fb
   file_selector_macos: 9e9e068e90ebee155097d00e89ae91edb2374db7
-  Firebase: 5523dd53ebe603451b4e1befcd99fa20a5c015cd
-  firebase_core: 5f190df25ceffc6489da57874358a952e5ef259b
-  firebase_messaging: b252762164122b64d4452b39f73333bd9807f05d
-  FirebaseCore: 96787d19ee32dc2242cc487b301bc616afeb398b
-  FirebaseCoreInternal: 93b2d5f9e184c6818a04433891c358b0720a6a38
-  FirebaseInstallations: 933b2747e8594084c9117b65e8358fce29d7ced7
-  FirebaseMessaging: 422bb80cbf8ff83e69e50bea4d4984fc4704f665
+  Firebase: 7ca191e43724142f79fae653547b3382c45413cc
+  firebase_core: 43e1937898a25c5d76bc3ac4e58539465c9f219d
+  firebase_messaging: cf6920ca401d6870c1095a15cec1d4b9ca92b89f
+  FirebaseCore: c990214798d7c568ad436a15ba7da25c7a278c9a
+  FirebaseCoreInternal: 656b1c2fd5a1c5976183dc54b73deda78fb26ee3
+  FirebaseInstallations: f70a49eed611f5602f373e40974b3b01556ac217
+  FirebaseMessaging: c15f48126adbe8b4d3238a5e1fa24bab3ad3e472
   flutter_local_notifications: 1fc7ffb10a83d6a2eeeeddb152d43f1944b0aad0
   flutter_secure_storage_darwin: 46e401699982ee74142909676535e0f6a7321e58
-  flutter_sound: 21e7dbf1f4cb57f294d985a32e46e89bc910ad02
+  flutter_sound: 16d263661cb25a9f900a9401d4d7421431b877eb
   flutter_vodozemac: fd2ea9cb3e2a37beaac883a369811fbfe042fc53
   flutter_webrtc: 7dd2a2ad0e9c96dad0ae96c42d9a7786d96d8be6
   FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
@@ -329,7 +334,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: 4e0c2ad9fa0d0d18b5c4df8bf57b461cba35b0bb
   ic_storage_space: e207731aed98a6126d5712cc63c4bcc6e04d6d1d
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
-  livekit_client: 460012174c3d89ec033071d507c1440555b0d88f
+  livekit_client: 5ae2163a4d92c6793490fa1ca9ac0c58fdbc5cbb
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   open_file_mac: 76f06c8597551249bdb5e8fd8827a98eae0f4585
@@ -340,7 +345,7 @@ SPEC CHECKSUMS:
   photo_manager: c303e4476f6c220274119f0212a7753e45edd4a2
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   Sentry: 5321d74bdd28d6f6f8beaa1ca06f1fdc746bff49
-  sentry_flutter: 17c933e05c5a55e6b84512402c38a5c84a82e83b
+  sentry_flutter: 52a33f5c4c91b05015a6d8c0b26c155776a07d7f
   share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_sqlcipher: a4c2f17db76d2f86dfe044937d3a851d8880cbb9
@@ -352,6 +357,6 @@ SPEC CHECKSUMS:
   WebRTC-SDK: e6006119cd730d6315d875e4a421b6cc8bb88833
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: 330caf7d6ee80ee060575e9b2d328dc144f0c356
+PODFILE CHECKSUM: 066404e9f88d4763854bb20639873365042dc5ce
 
 COCOAPODS: 1.16.2

@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "8B08670F-1D9F-4BCD-8044-7962C112E797",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:iOS-Swift.xcodeproj",
+      "identifier" : "637AFDA5243B02760034958B",
+      "name" : "iOS-Swift"
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "UserFeedbackUITests\/testAddingAndRemovingScreenshots()",
+        "UserFeedbackUITests\/testAddingScreenshots()",
+        "UserFeedbackUITests\/testSubmitCustomButton()",
+        "UserFeedbackUITests\/testSubmitFullyFilledCustomForm()",
+        "UserFeedbackUITests\/testSubmitFullyFilledForm()"
+      ],
+      "target" : {
+        "containerPath" : "container:iOS-Swift.xcodeproj",
+        "identifier" : "0217293F044A3AEED8E37A25",
+        "name" : "iOS-Swift-UITests"
+      }
+    }
+  ],
+  "version" : 1
+}

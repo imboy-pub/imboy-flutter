@@ -1,0 +1,61 @@
+import Foundation
+import SentryTestUtils
+
+// We should replace the use of DispatchGroup in tests with XCTestExpectation.
+// This is a workaround to enable the swiftlint rule to avoid adding new occurrences
+// of DispatchGroup in tests.
+// swiftlint:disable avoid_dispatch_groups_in_tests
+public class TestRequestManager: NSObject, RequestManager {
+    
+    private var nextResponse: () -> HTTPURLResponse? = { return nil }
+    var nextError: NSError?
+    public var isReady: Bool
+    
+    var requests = Invocations<URLRequest>()
+    
+    private let queue = DispatchQueue(label: "TestRequestManager")
+    private let group = DispatchGroup()
+    
+    public required init(session: URLSession) {
+        self.isReady = true
+    }
+    
+    var responseDelay = 0.0
+    let responseDispatchGroup = DispatchGroup()
+    var waitForResponseDispatchGroup = false
+    
+    public func add( _ request: URLRequest, completionHandler: SentryRequestOperationFinished? = nil) {
+        
+        requests.record(request)
+        
+        let response = self.nextResponse()
+        let error = self.nextError
+        group.enter()
+        queue.asyncAfter(deadline: .now() + responseDelay, execute: {
+            
+            if self.waitForResponseDispatchGroup {
+                self.responseDispatchGroup.waitWithTimeout()
+            }
+            
+            if let handler = completionHandler {
+                handler(response, error)
+            }
+            self.group.leave()
+        })
+    }
+    
+    public func waitForAllRequests(timeout: Double = 100) {
+        group.waitWithTimeout(timeout: timeout)
+    }
+    
+    func returnResponse(response: HTTPURLResponse?) {
+        nextResponse = { return response }
+    }
+    
+    func returnResponse(response: @escaping () -> HTTPURLResponse?) {
+        nextResponse = response
+    }
+    
+}
+
+// swiftlint:enable avoid_dispatch_groups_in_tests
