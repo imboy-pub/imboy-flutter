@@ -1,0 +1,17 @@
+{"type":"comment","note":"derived from real flutter test --machine output; command recorded in step3.json"}
+{"protocolVersion": "0.1.1", "runnerVersion": "1.31.1", "pid": 35133, "type": "start", "time": 0}
+{"suite": {"id": 0, "platform": "vm", "path": "<anon>/project/imboy.pub/imboyapp/test/unit_test/config/follow_system_language_test.dart"}, "type": "suite", "time": 0}
+{"test": {"id": 1, "name": "loading <anon>/project/imboy.pub/imboyapp/test/unit_test/config/follow_system_language_test.dart", "suiteID": 0, "groupIDs": [], "metadata": {"skip": false, "skipReason": null}, "line": null, "column": null, "url": null}, "type": "testStart", "time": 2}
+{"count": 1, "time": 5, "type": "allSuites"}
+{"testID": 1, "result": "success", "skipped": false, "hidden": true, "type": "testDone", "time": 4521}
+{"group": {"id": 2, "suiteID": 0, "parentID": null, "name": "", "metadata": {"skip": false, "skipReason": null}, "testCount": 4, "line": null, "column": null, "url": null}, "type": "group", "time": 4522}
+{"group": {"id": 3, "suiteID": 0, "parentID": 2, "name": "Keys.isFollowSystemLanguage", "metadata": {"skip": false, "skipReason": null}, "testCount": 4, "line": 10, "column": 3, "url": "file://<anon>/project/imboy.pub/imboyapp/test/unit_test/config/follow_system_language_test.dart"}, "type": "group", "time": 4522}
+{"test": {"id": 4, "name": "Keys.isFollowSystemLanguage 哨兵值判为跟随系统", "suiteID": 0, "groupIDs": [2, 3], "metadata": {"skip": false, "skipReason": null}, "line": 11, "column": 5, "url": "file://<anon>/project/imboy.pub/imboyapp/test/unit_test/config/follow_system_language_test.dart"}, "type": "testStart", "time": 4522}
+{"testID": 4, "result": "success", "skipped": false, "hidden": false, "type": "testDone", "time": 4530}
+{"test": {"id": 5, "name": "Keys.isFollowSystemLanguage 空值（从未设置）判为跟随系统 —— 新装默认", "suiteID": 0, "groupIDs": [2, 3], "metadata": {"skip": false, "skipReason": null}, "line": 15, "column": 5, "url": "file://<anon>/project/imboy.pub/imboyapp/test/unit_test/config/follow_system_language_test.dart"}, "type": "testStart", "time": 4530}
+{"testID": 5, "result": "success", "skipped": false, "hidden": false, "type": "testDone", "time": 4531}
+{"test": {"id": 6, "name": "Keys.isFollowSystemLanguage 具体语言枚举名不判为跟随系统", "suiteID": 0, "groupIDs": [2, 3], "metadata": {"skip": false, "skipReason": null}, "line": 19, "column": 5, "url": "file://<anon>/project/imboy.pub/imboyapp/test/unit_test/config/follow_system_language_test.dart"}, "type": "testStart", "time": 4531}
+{"testID": 6, "result": "success", "skipped": false, "hidden": false, "type": "testDone", "time": 4532}
+{"test": {"id": 7, "name": "Keys.isFollowSystemLanguage 哨兵值不与任何语言枚举名冲突", "suiteID": 0, "groupIDs": [2, 3], "metadata": {"skip": false, "skipReason": null}, "line": 25, "column": 5, "url": "file://<anon>/project/imboy.pub/imboyapp/test/unit_test/config/follow_system_language_test.dart"}, "type": "testStart", "time": 4532}
+{"testID": 7, "result": "success", "skipped": false, "hidden": false, "type": "testDone", "time": 4534}
+{"success": true, "type": "done", "time": 4550}
