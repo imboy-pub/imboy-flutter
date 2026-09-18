@@ -3,6 +3,9 @@
 
 测试工具会在 AI_SCREENSHOT_HOLD_MS > 0 时输出 [AI_SCREENSHOT] 标记并暂停；
 本脚本监听标记、通过 adb exec-out screencap 保存 PNG。默认不读取仓内凭证。
+
+命令构造与 preflight 复用 scripts/auto_test_lib/target_config.py，
+保证 run 与 capture 校验的是同一份最终生效 APP/API/WS/凭证配置。
 """
 from __future__ import annotations
 
@@ -16,6 +19,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'scripts'))
+from auto_test_lib.target_config import build_flutter_test_command, effective_target_config  # noqa: E402
+
 MARKER = re.compile(r'\[AI_SCREENSHOT\]\s+(.+)$')
 
 
@@ -64,22 +70,27 @@ def main() -> int:
         parser.error('--target 必须是存在的 integration_test 文件')
     if args.hold_ms < 1000:
         parser.error('--hold-ms 至少 1000，保证 ADB 有抓屏窗口')
+    # preflight：在启动任何子进程前校验最终生效配置（远程/缺凭证/不一致一律 BLOCKED）
+    env = dict(os.environ)
+    env['IMBOY_APP_ENV'] = args.app_env
+    cfg = effective_target_config(
+        env=env,
+        device_id=args.device,
+        platform=args.platform,
+        target=args.target,
+        hold_ms=args.hold_ms,
+    )
+    blocked = list(cfg.blocked_codes)
+    if not cfg.consistent:
+        blocked.append(cfg.inconsistency_code)
     if args.platform == 'ios' and not os.environ.get('IMBOY_IOS_SCREENSHOT_COMMAND'):
-        print('BLOCKED: iOS 真机截图需要 IMBOY_IOS_SCREENSHOT_COMMAND；不启动测试。', file=sys.stderr)
+        blocked.append('IOS_CAPTURE_COMMAND_MISSING')
+    if blocked:
+        print(f'BLOCKED: {"; ".join(sorted(set(blocked)))}；不启动测试子进程。', file=sys.stderr)
         return 2
-    for name in ('IMBOY_TEST_PHONE', 'IMBOY_TEST_PASSWORD'):
-        if not os.environ.get(name):
-            print(f'BLOCKED: 缺少 {name}；不启动真机测试。', file=sys.stderr)
-            return 2
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
-    command = [
-        'flutter', 'test', args.target, '-d', args.device,
-        f'--dart-define=APP_ENV={args.app_env}',
-        f'--dart-define=TEST_PHONE={os.environ["IMBOY_TEST_PHONE"]}',
-        f'--dart-define=TEST_PASSWORD={os.environ["IMBOY_TEST_PASSWORD"]}',
-        f'--dart-define=AI_SCREENSHOT_HOLD_MS={args.hold_ms}',
-    ]
+    command = build_flutter_test_command(cfg)
     process = subprocess.Popen(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
     captured = 0
     assert process.stdout is not None
@@ -99,7 +110,6 @@ def main() -> int:
         if not saved:
             print(f'\nWARN: {args.platform} 截图失败: {name}', file=sys.stderr)
             continue
-        destination.write_bytes(shot.stdout)
         captured += 1
         print(f'AI_SCREENSHOT_SAVED: {destination}')
     code = process.wait()
