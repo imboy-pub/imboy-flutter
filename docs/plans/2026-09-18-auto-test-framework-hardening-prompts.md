@@ -5,38 +5,41 @@
 **System under test**: `Flutter/Dart + Erlang/OTP + Cowboy`
 **Harness implementation**: `Python stdlib + shell`
 **ECC mode**: `plugin`
-**Steps**: 8
-**Scope**: `all`
+**Steps**: 15
+**Scope**: `all-pages-all-functions + deep-domain`
 
-> 严格按 Step 1 -> Step 8 串行执行。每步 PASS、本地提交并核对证据后才能启动下一步；不 push。
-> 为节省 Token，首个 agent 读取计划对应 Step 和拥有文件，后续 agent 只读取 HANDOFF、diff、失败证据和必要源码。
+> 严格按 Step 依赖 DAG 和 Wave 执行；同一 Wave 中资源与文件租约不冲突的任务必须并行。框架先可信化，再用源码白盒发现和 Android 真机/macOS 黑盒操作模拟人工测试员，把每个可达页面的每个用户可见功能至少执行一次；E2EE 与企业协作领域追加多角色、安全和恢复验收。
+> 为节省 Token，确定性脚本负责发现、核销、续跑和汇总；AI 只处理无法静态判定的入口、首个失败根因和语义审查，不重复阅读 PASS 日志。
 
 ## 单个 ZCODE 会话（推荐）
 
-将下面整段作为一个全新 ZCODE 会话的首条消息。不需要再逐条粘贴后文的 8 条 `/ecc:orchestrate` 命令。
+将下面整段作为一个全新 ZCODE 会话的首条消息。它会自行按 15 步执行，不需要再逐条粘贴后文命令。
 
 ```text
-你是本任务的唯一 Coordinator 和执行者。工作目录固定为 /Users/leeyi/project/imboy.pub/imboyapp，计划唯一真源是 docs/plans/2026-09-18-auto-test-framework-hardening-plan.md。被测系统是 Flutter/Dart 客户端 + ../imboy 的 Erlang/OTP/Cowboy 后端；测试控制面只用 Python stdlib + shell。
+你是本任务的唯一 Coordinator 和执行者。工作目录固定为 /Users/leeyi/project/imboy.pub/imboyapp，计划唯一真源是 docs/plans/2026-09-18-auto-test-framework-hardening-plan.md。被测系统是 Flutter/Dart 客户端 + ../imboy 的 Erlang/OTP/Cowboy 后端；Python stdlib + shell 只是测试调度、结果判定和证据归档控制面。
 
-目标：在这一个会话内严格按 Step 1 -> Step 8 串行执行。不要让我逐步再粘贴提示词，也不要在安全的本地步骤之间等待确认。每步必须先通过该 Step 的 Acceptance IDs、产生可复现证据并做独立本地提交，然后才继续下一步。任一步 PARTIAL/BLOCKED/FAIL 都立即停止，不跳步，不把 BLOCKED/SKIP/PLANNED 当 PASS。
+目标：在一个 ZCODE 会话内按计划的 Step 依赖 DAG/Wave 执行完 Step 1 -> Step 15；ready 且租约不冲突的工作必须并行，不为形式而串行。执行期不向用户提问、不等待确认；基于当前条件做安全范围内的最优覆盖，缺条件或未授权动作只 BLOCKED 相关项并继续。允许按需重构全部 auto-test 资产但不得修改 Flutter/Erlang 产品行为；在 Android 真机/macOS 从真实入口逐页执行可见功能等价类，并深测 E2EE、Enterprise/Organization、Workspace、Group、Channel、Moment、Project。整个会话只交付一个 HTML 报告文档。
+
+会话结束时只回复 `test-report.html` 的绝对路径和 Overall verdict，不另写第二份测试总结；所有细节只在该 HTML 中。
 
 启动时：
-1. 完整读取计划、当前及父级 AGENTS.md/CLAUDE.md，确认 git 根。分别记录 App HEAD/dirty state 和 Backend HEAD/dirty state；后端只读，不修改、启停、迁移或写数据。
-2. 盘点已有改动并视为他人所有；不 reset/clean/stash/restore，不覆盖、不吸收无关 diff。如果与本计划拥有文件冲突且无法无损兼容，按停止条件报告。
-3. 创建或恢复唯一 RUN_ROOT=test/auto_test/reports/hardening-<UTC>，保存 coordinator.json，只记录 step、base_sha、acceptance、command、exit_code、evidence path/hash、verdict、commit。恢复时继续原 RUN_ROOT，不另建一份运行状态。
+1. 完整读取计划及适用的AGENTS.md/CLAUDE.md，确认App与Backend是独立Git根；记录两仓HEAD、branch、dirty/untracked、staged/unstaged binary diff及untracked文件SHA-256和已有协调器。既有改动视为他人所有，不reset/clean/stash/restore，不覆盖或吸收无关diff；后续用基线哈希证明字节不变。
+2. 创建或恢复唯一RUN_ROOT=test/auto_test/reports/hardening-<UTC>；有效且原Coordinator不活跃才续跑。不匹配或已有active Coordinator时不得接管/建worker/写仓库；创建独立只读blocked RUN_ROOT，采集HEAD/status与协调器摘要，用renderer或stdlib html.escape固定模板生成唯一最小HTML，Overall=BLOCKED、reason=BLOCKED_ACTIVE_COORDINATOR或BLOCKED_RUN_ROOT_MISMATCH后结束。正常run记录step/head/ID/命令/退出码/证据hash/verdict/commit且不写秘密或真实联系人。
+3. 后端默认只读。只有 D2 全部成立时才允许本地隔离 fixture 写入：解析后的 API/WS 地址全部是 127.0.0.0/8、::1 或本机 Unix socket，Backend HEAD/profile 可验证、专用账号归属已确认、数据带本 run marker 且可定向销毁；private/dev 标签不构成本机授权。不得自行启停节点、迁移数据库、改 Erlang/Cowboy 产品代码或访问远程/生产环境。
 
-每个 Step 使用同一个循环：
-1. 只读取计划中当前 Step、其依赖、拥有边界、Acceptance 和 Out of scope；按需用 rg/find 定位直接调用者，不全仓重复扫描。Step 1 对现有 App/Backend 实现只读，仅可新增匿名 machine-event 夹具和基线证据。
-2. 先写或确认能失败的最小测试，再做根因级最小修复；优先复用已有 helper、Flutter machine events 和 Python stdlib，不新增第三方依赖，不修改 Flutter 产品业务逻辑或现有集成测试业务断言。
-3. 运行当前 Step 的定向测试和所有对应 Acceptance；记录完整命令、退出码、摘要、证据路径及 SHA-256。无执行证据不得 PASS。
-4. 审查 diff 的正确性、fail-closed、脱敏、兼容性和范围。只 stage 当前 Step 拥有文件，使用 leeyi <leeyisoft@qq.com> 作者/提交者创建独立本地提交；不使用 git add -A，不 push。
-5. 按计划第 12 节写入简短交付记录，更新 coordinator.json。只有 verdict=PASS 才继续下一 Step。
+每个 Step 使用同一闭环：
+1. 只读取当前 Step、依赖、拥有文件、Acceptance 和 Out of scope；先由 rg/find/stdlib 生成集合差与摘要，再读取直接相关源码。Step 1 仅可新增匿名夹具和证据；只读 Step 无 diff 时记录 NO_COMMIT_READ_ONLY，不创建空提交。
+2. 写步骤先建立最小失败测试，再做根因级最小修改；复用已有 helper、Flutter machine events 和 Python stdlib，不新增第三方依赖，不修改 Flutter/Erlang 产品功能或现有业务断言。
+3. 执行当前 Acceptance，记录命令、退出码、摘要、证据路径和 SHA-256。0 executed、skip、TODO、skeleton、截图但无 oracle、历史报告或 exit 0 均不得冒充 PASS。
+4. 独立审查fail-closed、脱敏、兼容性和范围。worker不commit；Coordinator持GIT_COMMIT lease后只提交单Step精确路径，再在该commit HEAD重跑Acceptance；不用git add -A，不push。状态分三层：scheduler WAITING/READY/RUNNING/DONE/INTERRUPTED，target PASS/PASS_WITH_SKIPS/FLAKY/BLOCKED/FAIL/PLANNED，scope PASS/PARTIAL/BLOCKED。H依赖要求Acceptance PASS，S依赖只要求终态并精确传播受影响shard；Step15始终执行。
 
-强制人工门：H1_DEVICE、H2_REMOTE、H2_BACKEND_MUTATION、H3_EXTERNAL_IMPACT、H4_VISUAL_UPLOAD、H5_BASELINE_REPLACE、H6_RELEASE 全部未授权。不操作真实设备，不访问远程/生产后端，不使用真实账号、联系方式或用户数据，不联系或影响第三方，不上传截图，不替换基线，不 push/发布/部署。命中人工门时，输出门 ID、阻断原因、需要的用户输入和下一条安全命令，然后停止；不用环境变量、旧对话或历史 PASS 代替本轮授权。
+并发调度：任一时刻含Coordinator最多8个active agent，即最多7个worker；累计创建数不限。coordinator.json记录agent_id/step/status/lease，创建前断言ACTIVE worker<7；只有Coordinator创建agent，每个ready Step默认一个primary worker，审查角色复用或随后串行；下方Chain仅供单步调试，禁止并行启动完整Chain。Step2/3/4按精确owned-path并行，不改CLI、公共入口/类型/helper，Step5唯一集成；Step10/12 App并行，Backend持BACKEND_EXEC串行；Step14冻结源码后Android/macOS各一只读worker。lease以RUN_ROOT/leases原子mkdir获取并记录owner/进程/heartbeat；超时不自动抢占，确认owner和设备进程停止、核对fixture写入后才接管。
 
-Token 约束：不读全量页面台账、完整 task_state 或历史 reports；先用确定性脚本生成集合差和摘要。PASS 不进行 AI 重分析。失败时最多读取 6 个直接相关源文件、120 行日志、最近一次 PASS 摘要和本次 diff；先报首个可复现根因，不粘贴完整日志。
+设备与安全门：D1授权Step11/13/14使用当次可见Android真机和本机macOS；D2仅授权已验证的本地隔离、专用账号、可销毁run-marker数据。H1其他设备、H2远程/后端变更、H3第三方影响、H4截图上传、H5基线替换、H6发布均未授权。命中门时不询问：停止该动作、记录BLOCKED与安全替代，继续独立shard；不得用真实用户/联系人、通知第三方、真实支付、push或部署。
 
-Step 8 必须在当前 HEAD 上将统一 gate 连续运行两次，两次都退出 0，第二次不得产生 diff。最终输出：App/Backend HEAD、Step 1-8 verdict/提交、ATF-001..ATF-703 证据索引、双跑 gate 退出码、dirty/untracked 归属、未执行的设备/远程/视觉/外部验收，以及总结论 PASS/PARTIAL/BLOCKED。未执行外部验收时，不得声称产品 E2E PASS。
+全量核销规则：tracked inventory/domain只保存required/excluded声明，不保存运行PASS；本轮结果写RUN_ROOT。每个function_id含page/entry/control/action/oracle/platform/requirement/fixture/target，Android与macOS每个适用项本轮恰有一次结果。A/local-write缓存仅限当前RUN_ROOT续跑，并绑定HEAD/tree/dependency、环境、设备状态、fixture namespace/marker/generation和账号匿名指纹；任一变化即失效。AI只读计数/hash和异常包，不重读PASS日志。
+
+Step15在最终HEAD双跑gate并执行inventory/domain --check；B/C祖先证据只可经closure compatibility rebind，A/E2EE真客户端/local-write必须最终两仓HEAD。无论上游结果均生成唯一面向用户文档RUN_ROOT/test-report.html，不生成第二份总结。HTML离线自包含，含两仓基线、pilot/耗时、Step/Acceptance证据、精确计数、八域及Overall、FAIL/FLAKY/BLOCKED/NEW_ENTRY和待决策项；只允许PASS/PARTIAL/BLOCKED且不得含秘密/真实联系人/截图二进制。
 ```
 
 ## Steps overview
@@ -50,101 +53,103 @@ Step 8 必须在当前 HEAD 上将统一 gate 连续运行两次，两次都退�
 | 5 | catalog、双向发现和 impact | impl, test | `ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer` |
 | 6 | 状态、证据和缓存迁移 | refactor, migration | `ecc:architect,ecc:refactor-cleaner,ecc:tdd-guide,ecc:flutter-reviewer` |
 | 7 | CI 和统一自动验收入口 | impl, test, build | `ecc:tdd-guide,ecc:e2e-runner,ecc:build-error-resolver,ecc:flutter-reviewer` |
-| 8 | 当前 HEAD 最终验收 | test, review | `ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer` |
+| 8 | 框架当前 HEAD 验收 | test, review | `ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer` |
+| 9 | 全页面功能清单、领域矩阵和隔离夹具 | plan, test, review | `ecc:planner,ecc:architect,ecc:e2e-runner,ecc:code-reviewer` |
+| 10 | E2EE App/Backend 确定性安全门 | test, security | `ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer` |
+| 11 | Android/macOS E2EE 真客户端验收 | test, security, device | `ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer` |
+| 12 | Enterprise/Organization 合同与租户边界 | test, security | `ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer` |
+| 13 | Workspace/Group 真机多角色验收 | test, security, device | `ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer` |
+| 14 | 全页面一次遍历与 Channel/Moment/Project 深测 | test, device | `ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer` |
+| 15 | 当前 HEAD 总收口 | test, review | `ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer` |
 
 ---
 
 ## Step 1 - 当前事实、夹具和边界基线
 
-**Intent**: 对现有实现只读地冻结当前资产和缺陷基线，仅新增不含凭证的 machine-event 夹具与证据；不启动设备、Flutter 测试或网络。
-**Tags**: test, review
-**Chain rationale**: `tdd-guide` 约束夹具可验证性，`e2e-runner` 校验事件语义，Flutter 与通用 reviewer 复核当前事实和边界。
-
 ```bash
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-1] 在 /Users/leeyi/project/imboy.pub/imboyapp 执行 Step 1：只读核对 App 与 ../imboy 后端的 AGENTS/CLAUDE、HEAD、dirty state，统计25 specs及 integration/page/ledger 漂移；仅新增五类匿名 flutter machine-event 夹具与基线证据，不启动 Flutter、设备、Erlang 节点或网络。保留并行改动。Acceptance: ATF-001 两仓事实完整；ATF-002 夹具可由 stdlib 解析且无凭证；ATF-003 外部动作未执行。Out of scope: 修框架、改 App/Backend 产品代码、更新台账状态。"
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-1] 只读核对两仓HEAD/dirty及资产计数，用git diff --binary、cached diff和untracked逐文件SHA建基线；新增五类匿名machine-event夹具，并冻结config/result/requirements最小接口草图，不建共享实现、不启动Flutter/设备/后端/网络。Acceptance: ATF-001 基线与集合差完整；ATF-002 stdlib可解析且无秘密；ATF-003 进程/套接字探测无外部动作。Out of scope: 修框架、改产品、更新历史结论。"
 ```
 
 ## Step 2 - 截图采集和目标配置修复
 
-**Intent**: 用最小 TDD 修复截图成功路径和父子进程目标配置漂移，并复核外部目标安全门。
-**Tags**: impl, test, security
-**Chain rationale**: TDD 先固定两个已知回归；`e2e-runner` 检查采集行为；Flutter reviewer 检查命令构造；security reviewer 关闭目标绕过风险。
-
 ```bash
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-2] 串行执行 Step 2；仅拥有 capture 脚本、auto_test capture/命令构造代码及其 stdlib 测试。先用 mock 复现成功截图后的未定义变量和父子目标漂移，再做最小修复；run/capture 必须共享最终 APP/API/WS 配置，日志不得泄露凭证，远程/缺条件须在启动子进程前 BLOCKED。Acceptance: ATF-101 双 checkpoint 成功；ATF-102 父子目标一致且错配 fail closed；ATF-103 远程/缺设备/缺凭证不启动进程。Out of scope: 真机、视觉基线、Flutter 业务测试。"
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-2] Wave1并行分支，只写capture/target-config新模块、截图脚本及其stdlib测试，不改scripts/auto_test.py。先复现成功截图未定义变量与父子目标漂移，再统一最终APP/API/WS配置；preflight验证实际子进程目标，日志脱敏，远程或缺条件启动前BLOCKED。Acceptance: ATF-101 双checkpoint；ATF-102 配置一致且错配关闭；ATF-103 远程/缺设备/凭证不启动。Out of scope: 真机截图、视觉基线、业务断言。"
 ```
 
 ## Step 3 - 结构化结果和唯一 target
 
-**Intent**: 以 Flutter machine events 代替退出码判定，并把执行粒度收敛到唯一 target。
-**Tags**: impl, test
-**Chain rationale**: `tdd-guide` 固定状态矩阵，`e2e-runner` 验证 runner 行为，Flutter reviewer 复核实现和兼容性。
-
 ```bash
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-3] 串行执行 Step 3；用 Step 1 machine-event 夹具先写失败测试，再让 runner 解析 flutter test --machine，输出 PASS/PASS_WITH_SKIPS/BLOCKED/FAIL/PLANNED，0 executed 不得 PASS；按 target 去重执行，case 只映射结果，冲突风险或关键 requirements 使 validate 返回 64，render-report 返回对应退出码。Acceptance: ATF-201 全 SKIP 非 PASS；ATF-202 混合 skip 退出2且 FAIL 退出1；ATF-203 重复 target 只执行一次且冲突被拒。Out of scope: 改写现有集成测试业务断言。"
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-3] Wave1只写runner/result/report与stdlib测试。解析真实脱敏+合成events；0 executed/oracle_count<1非PASS，result JSON含status/reason/counts，target去重。验证INFRA_FAIL->PASS为FLAKY、三次infra为BLOCKED、业务FAIL零重试、指纹变化新序列；实现唯一HTML renderer。Acceptance: ATF-201 全SKIP关闭；ATF-202 重试/退出码正确；ATF-203 target一次且冲突拒绝；ATF-204 HTML转义脱敏、稳定且无第二报告。Out of scope: 设备、业务断言。"
 ```
 
 ## Step 4 - requirements 与外部影响门
 
-**Intent**: 把说明性 requirements 变成 fail-closed 的类型化 preflight，并禁止通用 runner 自动执行外部影响动作。
-**Tags**: impl, security
-**Chain rationale**: TDD 覆盖每个门的正负路径，Flutter reviewer 检查 runner 集成，security reviewer 对外部影响和权限放大做终审。
-
 ```bash
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-4] 串行执行 Step 4；把自由文本 requires/risk 收敛为计划列出的有限枚举和四类风险模式，preflight 在任何 Flutter/ADB/Patrol/网络子进程前完成。local-write 只允许明确本地目标；external-impact 通用 runner 永远 BLOCKED，allow env 不能代替用户本轮确认；迁移现有 specs 时不得扩大权限。Acceptance: ATF-301 requirements 正负测试齐全且未知值 fail closed；ATF-302 远程写不能自动执行；ATF-303 规格迁移无静默放权。Out of scope: 获取账号、使用联系方式或影响第三方。"
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-4] Wave1并行分支，只写schema/policy/迁移新模块、fixtures与stdlib测试，不改CLI/公共helper或批量spec。requires/risk用有限枚举且preflight先于子进程；local-write只准解析后全为127/8、::1或本机Unix socket，private/dev标签不授权，external-impact永远BLOCKED。Acceptance: ATF-301 未知值关闭；ATF-302 非loopback/远程写不自动执行；ATF-303 迁移无放权。Out of scope: 账号、联系方式、第三方影响。"
 ```
 
 ## Step 5 - catalog、双向发现和 impact
 
-**Intent**: 建立唯一 target catalog，并用双向资产发现阻止页面、测试和映射静默漂移。
-**Tags**: impl, test
-**Chain rationale**: TDD 固定集合差和稳定生成，`e2e-runner` 检查测试资产语义，Flutter reviewer 审查 catalog 与现有入口兼容性。
-
 ```bash
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-5] 串行执行 Step 5；建立稳定排序的 test/auto_test/catalog.json，一条唯一 target 含 sources/dependencies/risk/requirements/tags，显式排除必须有 reason。双向扫描所有 integration_test/**/*_test.dart 和 lib/page/**/*_page.dart；catalog/覆盖生成支持只读 --check；impact 仅输出命中 target 加固定 smoke，未映射源码直接失败。Acceptance: ATF-401 当前测试全收录或排除；ATF-402 当前页面双向差集为0；ATF-403 重复生成字节一致且 --check 通过。Out of scope: 批量补 E2E 或改 155 份历史结论。"
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-5] H:2/3/4 Acceptance全PASS后由唯一CONTROL_ENTRY writer接入CLI并迁移spec；catalog双向扫描integration_test、lib/page、modules presentation与路由。排除码只准PLATFORM_NA/FEATURE_DISABLED/UNREACHABLE_DEAD_CODE/DUPLICATE_EQUIVALENCE，环境/TODO/skip不得排除；生成支持--check。Acceptance: ATF-401 测试全收录；ATF-402 页面/路由差集0；ATF-403 重复生成字节一致。Out of scope: 补页面E2E、改产品。"
 ```
 
 ## Step 6 - 状态、证据和缓存迁移
 
-**Intent**: 在保留旧历史的同时拆出稳定状态、证据和缓存合同，消除对 ignored reports 的恢复依赖。
-**Tags**: refactor, migration
-**Chain rationale**: Architect 先守住数据边界，refactor cleaner 控制重复，TDD 验证迁移和缓存，Flutter reviewer 做最终实现审查。
-
 ```bash
-/ecc:orchestrate custom "ecc:architect,ecc:refactor-cleaner,ecc:tdd-guide,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-6] 串行执行 Step 6；保留旧 task_state 内容但停止追加，新增最小 state/evidence schema 与本地运行态，fresh clone 从 catalog 生成完整 UNKNOWN 计划。缓存键绑定 App HEAD、Backend HEAD、target/dependency hash、API/WS/profile 指纹、设备和 fixture，任一变化必须 miss；schema 拒绝秘密和无证据 PASS。Acceptance: ATF-501 无旧报告仍可计划；ATF-502 App/Backend/环境缓存失效测试通过；ATF-503 schema、哈希和脱敏负向测试通过。Out of scope: 删除历史证据或继承旧 HEAD PASS。"
+/ecc:orchestrate custom "ecc:architect,ecc:refactor-cleaner,ecc:tdd-guide,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-6] 运行态只写ignored RUN_ROOT。精确cache绑定两仓HEAD及target/runner/config/closure/环境；HEAD变即miss。仅B/C证据允许完整hash相同时compatibility rebind；A/E2EE/local-write必须最终HEAD且绑定RUN_ID、fixture、账号、设备状态。Acceptance: ATF-501 fresh clone可计划；ATF-502 cache/rebind正负闭环；ATF-503 拒绝秘密、非法NA/降级等级、缺hash及空/损坏lease。Out of scope: 删除旧证据或沿用过期PASS。"
 ```
 
 ## Step 7 - CI 和统一自动验收入口
 
-**Intent**: 让本地和 CI 复用一个无设备 gate，并用负向自检证明门禁不会假绿。
-**Tags**: impl, test, build
-**Chain rationale**: TDD 和 E2E runner 验证 gate；build resolver 处理 CI/脚本错误；Flutter reviewer 确保项目入口一致。
-
 ```bash
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:build-error-resolver,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-7] 串行执行 Step 7；新增 scripts/check_auto_test_framework.sh 作为本地与 CI 唯一无设备 gate，串行运行 Python tooling tests、strict validate、catalog/generated --check、脱敏负向测试、py_compile 和 git diff --check；run_test_suite.sh 复用该入口，不复制逻辑。连续运行两次必须稳定且零 diff，并用临时 fixture 验证缺页、未知 requirement、全 SKIP、target 冲突和凭证字段会失败。Acceptance: ATF-601、ATF-602、ATF-603 全部有退出码和证据。Out of scope: 真机、Patrol、远程后端和发布流程。"
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:build-error-resolver,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-7] 建立本地/CI唯一无设备gate，运行tooling tests、strict validate、catalog/generated --check、脱敏、py_compile与diff check；run_test_suite复用它，旧run_all_integration_tests改兼容壳或退役，删除固定设备/生产URL/账号与关键词判PASS。Acceptance: ATF-601 双跑零diff；ATF-602 缺页/未知requirement/全SKIP/冲突/秘密注入均失败；ATF-603 CI与本地同入口。Out of scope: 真机、远程、发布。"
 ```
 
-## Step 8 - 当前 HEAD 最终验收
-
-**Intent**: 在当前 HEAD 上独立复核全部自动门和证据边界，不执行被人工门保护的外部验收。
-**Tags**: test, review
-**Chain rationale**: TDD/E2E reviewer 复跑确定性门，Flutter reviewer 检查项目契约，通用 reviewer 最终核对证据和范围。
+## Step 8 - 框架当前 HEAD 验收
 
 ```bash
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-8] 在全部前置 Step 本地提交后只读收口当前 HEAD：运行统一 gate 两次、P0 plan、diff/status 检查，审计 help/退出码、SKIP 语义、最终目标一致性、catalog 双向覆盖、fresh-clone 计划、证据脱敏和旧入口兼容。只允许修复本计划引入的回归，不放宽 fail-closed。Acceptance: ATF-701 所有 ID 有命令/退出码/证据；ATF-702 仅任务拥有文件且无秘密/产物；ATF-703 结论为 PASS/PARTIAL/BLOCKED，未执行设备/远程/视觉不得称产品 E2E PASS。Out of scope: 真机验收、远程验收、发布和 push。"
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-8] 只读收口当前HEAD：统一gate双跑、P0 plan、diff/status，审计SKIP、目标、catalog、fresh-clone、脱敏与旧入口；只可修本计划回归。Acceptance: ATF-701 所有旧ID有命令/证据；ATF-702 本任务diff/commit仅含owned files，启动前无关dirty字节不变且无秘密产物；ATF-703 只报PASS/PARTIAL/BLOCKED，框架PASS不冒充产品PASS。Out of scope: 真机、远程、发布；无diff记NO_COMMIT_READ_ONLY。"
 ```
 
-## Batch execution
-
-下面仅用于顺序粘贴；不得并发执行。任一步非 PASS 时停止，不执行后续命令。
+## Step 9 - 全页面功能清单、领域矩阵和隔离夹具
 
 ```bash
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-1] 在 /Users/leeyi/project/imboy.pub/imboyapp 执行 Step 1：只读核对 App 与 ../imboy 后端的 AGENTS/CLAUDE、HEAD、dirty state，统计25 specs及 integration/page/ledger 漂移；仅新增五类匿名 flutter machine-event 夹具与基线证据，不启动 Flutter、设备、Erlang 节点或网络。保留并行改动。Acceptance: ATF-001 两仓事实完整；ATF-002 夹具可由 stdlib 解析且无凭证；ATF-003 外部动作未执行。Out of scope: 修框架、改 App/Backend 产品代码、更新台账状态。"
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-2] 串行执行 Step 2；仅拥有 capture 脚本、auto_test capture/命令构造代码及其 stdlib 测试。先用 mock 复现成功截图后的未定义变量和父子目标漂移，再做最小修复；run/capture 必须共享最终 APP/API/WS 配置，日志不得泄露凭证，远程/缺条件须在启动子进程前 BLOCKED。Acceptance: ATF-101 双 checkpoint 成功；ATF-102 父子目标一致且错配 fail closed；ATF-103 远程/缺设备/缺凭证不启动进程。Out of scope: 真机、视觉基线、Flutter 业务测试。"
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-3] 串行执行 Step 3；用 Step 1 machine-event 夹具先写失败测试，再让 runner 解析 flutter test --machine，输出 PASS/PASS_WITH_SKIPS/BLOCKED/FAIL/PLANNED，0 executed 不得 PASS；按 target 去重执行，case 只映射结果，冲突风险或关键 requirements 使 validate 返回 64，render-report 返回对应退出码。Acceptance: ATF-201 全 SKIP 非 PASS；ATF-202 混合 skip 退出2且 FAIL 退出1；ATF-203 重复 target 只执行一次且冲突被拒。Out of scope: 改写现有集成测试业务断言。"
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-4] 串行执行 Step 4；把自由文本 requires/risk 收敛为计划列出的有限枚举和四类风险模式，preflight 在任何 Flutter/ADB/Patrol/网络子进程前完成。local-write 只允许明确本地目标；external-impact 通用 runner 永远 BLOCKED，allow env 不能代替用户本轮确认；迁移现有 specs 时不得扩大权限。Acceptance: ATF-301 requirements 正负测试齐全且未知值 fail closed；ATF-302 远程写不能自动执行；ATF-303 规格迁移无静默放权。Out of scope: 获取账号、使用联系方式或影响第三方。"
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-5] 串行执行 Step 5；建立稳定排序的 test/auto_test/catalog.json，一条唯一 target 含 sources/dependencies/risk/requirements/tags，显式排除必须有 reason。双向扫描所有 integration_test/**/*_test.dart 和 lib/page/**/*_page.dart；catalog/覆盖生成支持只读 --check；impact 仅输出命中 target 加固定 smoke，未映射源码直接失败。Acceptance: ATF-401 当前测试全收录或排除；ATF-402 当前页面双向差集为0；ATF-403 重复生成字节一致且 --check 通过。Out of scope: 批量补 E2E 或改 155 份历史结论。"
-/ecc:orchestrate custom "ecc:architect,ecc:refactor-cleaner,ecc:tdd-guide,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-6] 串行执行 Step 6；保留旧 task_state 内容但停止追加，新增最小 state/evidence schema 与本地运行态，fresh clone 从 catalog 生成完整 UNKNOWN 计划。缓存键绑定 App HEAD、Backend HEAD、target/dependency hash、API/WS/profile 指纹、设备和 fixture，任一变化必须 miss；schema 拒绝秘密和无证据 PASS。Acceptance: ATF-501 无旧报告仍可计划；ATF-502 App/Backend/环境缓存失效测试通过；ATF-503 schema、哈希和脱敏负向测试通过。Out of scope: 删除历史证据或继承旧 HEAD PASS。"
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:build-error-resolver,ecc:flutter-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-7] 串行执行 Step 7；新增 scripts/check_auto_test_framework.sh 作为本地与 CI 唯一无设备 gate，串行运行 Python tooling tests、strict validate、catalog/generated --check、脱敏负向测试、py_compile 和 git diff --check；run_test_suite.sh 复用该入口，不复制逻辑。连续运行两次必须稳定且零 diff，并用临时 fixture 验证缺页、未知 requirement、全 SKIP、target 冲突和凭证字段会失败。Acceptance: ATF-601、ATF-602、ATF-603 全部有退出码和证据。Out of scope: 真机、Patrol、远程后端和发布流程。"
-/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-8] 在全部前置 Step 本地提交后只读收口当前 HEAD：运行统一 gate 两次、P0 plan、diff/status 检查，审计 help/退出码、SKIP 语义、最终目标一致性、catalog 双向覆盖、fresh-clone 计划、证据脱敏和旧入口兼容。只允许修复本计划引入的回归，不放宽 fail-closed。Acceptance: ATF-701 所有 ID 有命令/退出码/证据；ATF-702 仅任务拥有文件且无秘密/产物；ATF-703 结论为 PASS/PARTIAL/BLOCKED，未执行设备/远程/视觉不得称产品 E2E PASS。Out of scope: 真机验收、远程验收、发布和 push。"
+/ecc:orchestrate custom "ecc:planner,ecc:architect,ecc:e2e-runner,ecc:code-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-9] 从路由、页面、台账、manifest和测试生成静态inventory/domain；固定排除码和最低证据等级，运行时未知入口记NEW_ENTRY。定义至少6个匿名账号别名及独立shard fixture；生成零交互preflight，把route drift、Backend、D2缺口映射为局部BLOCKED后继续。Acceptance: DOM-001 静态差集0且有NEW_ENTRY回填；DOM-002 启用能力完整、TODO/skip仅进RUN_ROOT；DOM-003 多角色fixture无秘密。Out of scope: 真实数据、产品代码、等待用户输入。"
+```
+
+## Step 10 - E2EE App/Backend 确定性安全门
+
+```bash
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-10] App侧可与Step12并行；Backend命令统一持BACKEND_EXEC后才跑run_e2ee_suite、make e2ee-verify及PG模块。验证明文降级、错身份/设备/签名、replay/tamper、C2C/C2G边界、room-key、附件/恢复、群历史、日志均关闭。Acceptance: E2EE-001 当前两仓实跑0skip；E2EE-002 安全负向通过；E2EE-003 未执行/TODO/D级逐capability BLOCKED且不阻断无关shard。Out of scope: 产品逻辑、启停迁移、真实数据。"
+```
+
+## Step 11 - Android/macOS E2EE 真客户端验收
+
+```bash
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-11] 用flutter devices当次Android ID和macOS先跑两条跨端E2EE互操作；勿用默认ID。仅在D2全部满足时执行双向C2C/C2G真聊天、重启重进及UI/WS/ACK/本地持久化/后端密文交叉取证，否则精确BLOCKED。Acceptance: E2EE-101 离线Olm/Megolm互操作0skip；E2EE-102 隔离真聊天通过或前置阻断；E2EE-103 设备证据脱敏且不外传。Out of scope: iOS、远程后端、未确认账号、修缺陷。"
+```
+
+## Step 12 - Enterprise/Organization 合同与租户边界
+
+```bash
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-12] App侧organization/enterprise/customer_service及workspace/group合同可与Step10并行；Backend scoped EUnit及../imboy/scripts/enterprise_business_feature_matrix.sh、customer_service_feature_matrix.sh统一持BACKEND_EXEC串行。Acceptance: ENT-001 两仓B/C与租户负向实跑；ENT-002 owner/default workspace/成员生命周期/消息资产CS/停用保留有断言或逐项BLOCKED；ENT-003 跨租户、非成员、降权token、归档暂停关闭，skip不假绿。Out of scope: 产品代码、迁移。"
+```
+
+## Step 13 - Workspace/Group 真机多角色验收
+
+```bash
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-13] 仅在D2满足时，用Android真机/macOS模拟owner/admin/member/nonmember：登录、Personal/Workspace切换、org/workspace选择、跨A/B租户边界及Group创建/加入/移除/转让/禁言/E2EE/notice/task/vote/schedule/file/album/tag/category；只清理run marker数据。Acceptance: WG-001 两端导航与重启无skip；WG-002 角色/IDOR有UI+API证据；WG-003 Group能力执行或具体BLOCKED。Out of scope: 远程租户、真实联系人、不可逆清理、修缺陷。"
+```
+
+## Step 14 - 全页面一次遍历与 Channel/Moment/Project 深测
+
+```bash
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:security-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-14] PhaseA冻结后双平台跑20页pilot，独立fixture且同正式oracle；每平台至少30个duration样本，结果计入覆盖并从PhaseB排除。PhaseB平台fixture隔离，跨端单worker持双设备。首次NEW_ENTRY暂停全部worker，集中修复提交后清空并重跑全部A/local-write；freeze-v2后新缺口只BLOCKED不提交。infra重试≤2且通过仍FLAKY。Acceptance: FULL-001、FULL-002、FULL-003守恒可续跑；CPM-001、CPM-002、CPM-003逐项裁决。Out of scope: 远程、真实支付/通知、产品修复。"
+```
+
+## Step 15 - 当前 HEAD 总收口
+
+```bash
+/ecc:orchestrate custom "ecc:tdd-guide,ecc:e2e-runner,ecc:flutter-reviewer,ecc:code-reviewer" "[Plan: docs/plans/2026-09-18-auto-test-framework-hardening-plan.md#step-15] 无论上游结果始终执行：最终HEAD gate双跑、inventory/domain --check；B/C仅经closure rebind，A/E2EE/local-write必须最终HEAD。只生成RUN_ROOT/test-report.html，不生成第二份总结；离线单文件含两仓基线、pilot/耗时、15步/Acceptance、精确计数、八域/Overall、FAIL/FLAKY/BLOCKED/NEW_ENTRY及待决策项。Acceptance: FINAL-001 current-HEAD证据；FINAL-002 无假绿；FINAL-003 diff/秘密/push检查；FINAL-004 HTML转义脱敏、证据一致、重复字节相同。Out of scope: 修产品、远程/发布。"
 ```
