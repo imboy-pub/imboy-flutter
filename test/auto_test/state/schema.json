@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "description": "imboyapp auto-test stable state & evidence schema (plan Step 6, run hardening-20260918T151153Z). Enums here are the declaration; scripts/auto_test_lib/state.py and evidence.py enforce them and tests keep both in sync.",
+  "state_layers": {
+    "run": {
+      "fields": {
+        "schema_version": "const 1",
+        "run_id": "non-empty string",
+        "scheduler_state": "enum layers.scheduler_state",
+        "scope_verdict": "enum layers.scope_verdict or empty until rolled up"
+      }
+    },
+    "step": {
+      "fields": {
+        "step": "non-empty id",
+        "scheduler_state": "enum layers.scheduler_state",
+        "scope_verdict": "enum layers.scope_verdict"
+      }
+    },
+    "target": {
+      "fields": {
+        "target": "non-empty path/id",
+        "test_status": "enum layers.test_status_with_unknown; UNKNOWN is the plan-time placeholder only"
+      }
+    }
+  },
+  "layers": {
+    "scheduler_state": ["WAITING", "READY", "RUNNING", "DONE", "INTERRUPTED"],
+    "test_status": ["PASS", "PASS_WITH_SKIPS", "BLOCKED", "FAIL", "FLAKY", "PLANNED"],
+    "test_status_with_unknown": ["PASS", "PASS_WITH_SKIPS", "BLOCKED", "FAIL", "FLAKY", "PLANNED", "UNKNOWN"],
+    "scope_verdict": ["PASS", "PARTIAL", "BLOCKED"]
+  },
+  "evidence": {
+    "manifest_fields": [
+      "schema_version",
+      "run_id",
+      "head",
+      "backend_head",
+      "tested_tree_sha256",
+      "catalog_sha256",
+      "target",
+      "target_sha256",
+      "runner_sha256",
+      "config_sha256",
+      "dependency_closure",
+      "environment",
+      "device",
+      "fixture",
+      "result",
+      "command_fingerprint",
+      "artifacts"
+    ],
+    "head": "40-char lowercase hex git sha",
+    "backend_head": "40-char hex sha or NOT_APPLICABLE",
+    "backend_head_not_applicable_rule": "legal only when the target requirements contain no backend.*, credentials.* or fixture.* entry (API/WS/persistence/cross-client oracles)",
+    "dependency_closure_fields": ["algorithm", "manifest_path", "manifest_sha256", "content_sha256"],
+    "credential_field_name_pattern": "(?i)(password|token|secret|api[_-]?key|bearer)",
+    "result_statuses": ["PASS", "PASS_WITH_SKIPS", "BLOCKED", "FAIL", "FLAKY", "PLANNED"],
+    "pass_requires_executed": ">= 1",
+    "evidence_levels": {
+      "A": "real client device -> isolated backend -> peer/persistence black-box evidence",
+      "B": "current-HEAD replayable app/backend integration or contract test",
+      "C": "unit/component/pure-function test",
+      "D": "docs/TODO/test-name/history/static inference; can never carry PASS alone"
+    },
+    "required_evidence_level_floor": {
+      "device_or_local_write": "A",
+      "backend_credentials_fixture_requirements": "B",
+      "pure_function": "C"
+    },
+    "spec_may_only": "raise the floor, never lower it"
+  },
+  "cache": {
+    "exact_hit": "all CacheKey fields equal (app/backend head, target/runner/config/dependency hashes, environment & device fingerprints, level, extra_binding)",
+    "run_scoped_keys": {
+      "when": "level A or local-write",
+      "extra_bindings": ["run_id", "fixture_namespace", "marker", "account_fingerprint", "seed_generation", "session_state_generation"],
+      "rebindable": false
+    },
+    "compatibility_rebind": {
+      "allowed_levels": ["B", "C"],
+      "conditions": [
+        "evidence head is an ancestor of the final head (git merge-base --is-ancestor)",
+        "closure/runner/config/env content hashes fully equal"
+      ],
+      "always_refused": ["level A", "E2EE real client", "local-write"]
+    }
+  },
+  "lease": {
+    "location": "RUN_ROOT/leases/<resource>/owner.json",
+    "acquire": "atomic mkdir + tmp file fsync + atomic rename to owner.json",
+    "owner_required_fields": ["run", "step", "agent", "process", "resource"],
+    "corrupt_conditions": ["missing owner.json", "empty owner", "truncated JSON", "schema error"],
+    "corrupt_handling": "CORRUPT_LEASE, fail closed",
+    "stale": "heartbeat gap > 120s is mark-only, never preempted",
+    "double_release": "error"
+  }
+}
