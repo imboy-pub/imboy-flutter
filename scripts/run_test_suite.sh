@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # IMBoy Flutter 客户端确定性测试编排器。
 # mobile-mcp 由 Claude Code 在本脚本完成后单独执行。
+# Step 7（hardening-20260918T151153Z）：框架验收复用统一 gate
+# scripts/check_auto_test_framework.sh（本地/CI 同一入口）；设备自动发现仅限
+# Android 真机；product-feature-manifest 漂移由 gate 记为 BLOCKED_PRODUCT_DRIFT
+# 环境项，不再在解析参数前阻断本入口。
 
 set -uo pipefail
 
@@ -13,11 +17,9 @@ trap interrupted INT TERM
 
 APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_ROOT="$(cd "$APP_ROOT/../imboy" && pwd)"
-python3 "$BACKEND_ROOT/scripts/generate_product_features.py" \
-  --check --require-profile full-selected || {
-  echo "测试版本必须使用 full-selected 全 features 生成物" >&2
-  exit 2
-}
+# product-feature-manifest 漂移不再在此前置阻断（Step 7 收编）：
+# 统一由 scripts/check_auto_test_framework.sh 只读检查并以 BLOCKED_PRODUCT_DRIFT
+# 环境项上报，本脚本不得重生成产品路由。
 MODE="full"
 DEVICE="${IMBOY_TEST_DEVICE:-${TEST_DEVICE:-}}"
 ARTIFACT_DIR="${IMBOY_TEST_ARTIFACT_DIR:-/Users/leeyi/project/imboy.pub/imboy-test-report/app/$(date '+%Y%m%d-%H%M%S')-$$}"
@@ -202,6 +204,7 @@ choose_real_device() {
   local json
   json="$(flutter devices --machine 2>/dev/null || true)"
   if [[ -n "$json" ]] && command -v python3 >/dev/null 2>&1; then
+    # 自动选择仅限 Android 真机（Step 7：不自动选 iOS；iOS 必须显式 --device）
     DEVICE="$(printf '%s' "$json" | python3 -c '
 import json, sys
 try:
@@ -210,7 +213,7 @@ except Exception:
     devices = []
 for device in devices:
     platform = str(device.get("targetPlatform", "")).lower()
-    if platform.startswith(("android", "ios")) and not device.get("emulator", False):
+    if platform.startswith("android") and not device.get("emulator", False):
         print(device.get("id", ""))
         break
 ')"
@@ -240,8 +243,9 @@ echo "设备: ${DEVICE:-自动选择}"
 echo "产物: $ARTIFACT_DIR"
 
 # L0/L1：静态、纯逻辑、Widget、SQLite ffi、协议和服务测试。
+# 框架验收复用统一 gate（Step 7）：本地与 CI 同一入口，不复制判断逻辑。
 run_step "app_analyze" required "$APP_ROOT" flutter analyze
-run_step "app_ai_test_specs" required "$APP_ROOT" python3 scripts/auto_test.py validate
+run_step "auto_test_framework_gate" required "$APP_ROOT" bash scripts/check_auto_test_framework.sh
 if [[ "$MODE" == "quick" ]]; then
   QUICK_TEST_FILES=()
   while IFS= read -r test_file; do

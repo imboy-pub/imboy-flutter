@@ -31,6 +31,21 @@ jobs:
         run: python3 scripts/auto_test.py validate
 
   # ----------------------------------------------------------------
+  # 0.2) Auto-test 框架统一验收 gate（Step 7, 2026-09-18）
+  # 与本地完全同一入口命令；无设备、无网络后端、无视觉模型。
+  # product-feature-manifest 漂移检查需要 ../imboy（不在 GitHub 托管）；
+  # 缺席时 gate 把它记为 BLOCKED_PRODUCT_DRIFT 环境项并继续（不重生成路由）。
+  # ----------------------------------------------------------------
+  auto-test-framework:
+    name: Auto-test framework gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unified framework gate (same entry as local)
+        run: bash scripts/check_auto_test_framework.sh
+
+  # ----------------------------------------------------------------
   # 0.5) SQLite 迁移治理 Gate（WP6，2026-08-27）
   # 单一真源 manifest + 全版本升级/降级矩阵 + 故障注入 + 快照/恢复。
   # 退出码：0 PASS / 1 FAIL / 2 BLOCKED（BLOCKED 不当 PASS）。
