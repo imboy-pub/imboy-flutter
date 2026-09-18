@@ -134,11 +134,7 @@ class TestCaptureScript(unittest.TestCase):
 
     def _run_main(self, argv, env_patch=None):
         module = load_capture_module()
-        target_dir = ROOT / 'integration_test' / 'unit_test'
-        target_dir.mkdir(parents=True, exist_ok=True)
-        fake_target = target_dir / 'anon_test.dart'
-        if not fake_target.exists():
-            fake_target.write_text('// anonymous fixture for tooling test\n')
+        tmp_root_holder = {}
         events = iter([
             '[AI_SCREENSHOT] first checkpoint\n',
             'some log line\n',
@@ -169,7 +165,11 @@ class TestCaptureScript(unittest.TestCase):
                 return 0
 
         with tempfile.TemporaryDirectory() as tmp:
-            self.tmp = type('T', (), {'name': tmp})()
+            tmp_root = Path(tmp) / 'root'
+            target_dir = tmp_root / 'integration_test' / 'unit_test'
+            target_dir.mkdir(parents=True, exist_ok=True)
+            (target_dir / 'anon_test.dart').write_text('// anonymous fixture for tooling test\n')
+            tmp_root_holder['path'] = tmp_root
             argv_out = [
                 'capture_integration_screenshots.py',
                 '--target', 'integration_test/unit_test/anon_test.dart',
@@ -179,6 +179,7 @@ class TestCaptureScript(unittest.TestCase):
                 '--app-env', 'local',
             ]
             with unittest.mock.patch.object(module.sys, 'argv', argv_out), \
+                 unittest.mock.patch.object(module, 'ROOT', tmp_root_holder['path']), \
                  unittest.mock.patch.dict(module.os.environ, env, clear=True), \
                  unittest.mock.patch.object(module.subprocess, 'Popen', return_value=FakeProcess()), \
                  unittest.mock.patch.object(module, 'capture_android', side_effect=fake_capture_android), \
@@ -206,10 +207,11 @@ class TestCaptureScript(unittest.TestCase):
             'IMBOY_TEST_PHONE': '+10000000000',
             'IMBOY_TEST_PASSWORD': 'placeholder-not-real',
         }
-        target_dir = ROOT / 'integration_test' / 'unit_test'
-        target_dir.mkdir(parents=True, exist_ok=True)
-        (target_dir / 'anon_test.dart').write_text('// anonymous fixture for tooling test\n')
         with tempfile.TemporaryDirectory() as tmp:
+            tmp_root = Path(tmp) / 'root'
+            target_dir = tmp_root / 'integration_test' / 'unit_test'
+            target_dir.mkdir(parents=True, exist_ok=True)
+            (target_dir / 'anon_test.dart').write_text('// anonymous fixture for tooling test\n')
             argv = [
                 'capture_integration_screenshots.py',
                 '--target', 'integration_test/unit_test/anon_test.dart',
@@ -219,6 +221,7 @@ class TestCaptureScript(unittest.TestCase):
                 '--app-env', 'local',
             ]
             with unittest.mock.patch.object(module.sys, 'argv', argv), \
+                 unittest.mock.patch.object(module, 'ROOT', tmp_root), \
                  unittest.mock.patch.dict(module.os.environ, env, clear=True), \
                  unittest.mock.patch.object(module.subprocess, 'Popen') as popen, \
                  unittest.mock.patch.object(module.subprocess, 'run') as sub_run:
@@ -236,10 +239,11 @@ class TestCaptureScript(unittest.TestCase):
             'IMBOY_APP_ENV': 'local',
             'IMBOY_API_BASE_URL_OVERRIDE': 'http://127.0.0.1:9800',
         }
-        target_dir = ROOT / 'integration_test' / 'unit_test'
-        target_dir.mkdir(parents=True, exist_ok=True)
-        (target_dir / 'anon_test.dart').write_text('// anonymous fixture for tooling test\n')
         with tempfile.TemporaryDirectory() as tmp:
+            tmp_root = Path(tmp) / 'root'
+            target_dir = tmp_root / 'integration_test' / 'unit_test'
+            target_dir.mkdir(parents=True, exist_ok=True)
+            (target_dir / 'anon_test.dart').write_text('// anonymous fixture for tooling test\n')
             argv = [
                 'capture_integration_screenshots.py',
                 '--target', 'integration_test/unit_test/anon_test.dart',
@@ -249,6 +253,7 @@ class TestCaptureScript(unittest.TestCase):
                 '--app-env', 'local',
             ]
             with unittest.mock.patch.object(module.sys, 'argv', argv), \
+                 unittest.mock.patch.object(module, 'ROOT', tmp_root), \
                  unittest.mock.patch.dict(module.os.environ, env, clear=True), \
                  unittest.mock.patch.object(module.subprocess, 'Popen') as popen:
                 err = io.StringIO()
