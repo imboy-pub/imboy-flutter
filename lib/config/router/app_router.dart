@@ -38,6 +38,9 @@ import 'routes/workspace_routes.dart';
 import 'package:imboy/modules/enterprise/presentation/enterprise_routes.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart';
 
+// Organization V1（ORG-13）：路由定义在 owned path 内，此处仅注册（精确行租约）
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
+
 bool _matchesPublicPath(String currentPath, String publicPath) {
   if (publicPath == AppRoutes.initial) {
     return currentPath == AppRoutes.initial;
@@ -478,6 +481,9 @@ GoRouter createAppRouter({
 
       // 客服坐席工作台路由（CSM-01 §12.5.1：入口权限驱动可见）
       ...csWorkspaceRoutes(),
+
+      // 组织路由（ORG-13：入口/切换/成员/邀请/部门，个人导航不变）
+      ...organizationRoutes(),
 
       // 个人中心路由
       ...mineRoutes(),
