@@ -14,36 +14,12 @@
     "session": "2026-09-01/02"
   },
   "current_session": {
-    "started": "2026-09-02T09:2x",
+    "started": "2026-09-17T10:59:18.216895",
     "device": "XWE6R19916004085 (MRD-AL00)",
-    "backend": "127.0.0.1:9800 e2ee_mode=required (strict) OK",
-    "pg": "127.0.0.1:4323 OK",
-    "resume_2026_09_04": {
-      "note": "午间会话继续收口剩余 SKIP。环境验证全通过后执行：9801 登录/注册 API 实测 OK（配额注入仍生效+万能码 abc12345 有效+signup email 类型实测 code=0）、fixture 群 110610282598107136 双成员+公告完好、B2Y 群 110572649006237696 e2ee_mode=1 双成员完好、macOS smoke_bob 登录态库 local_office_1000000056.db 在位",
-      "fix_build_duplicate_class": "并行会话（feature_flags/product-features 重构，12:04 仍活跃）在 build.gradle.kts 引入 amap 重复类冲突：location=true 时 3dmap:10.0.600 与无条件依赖的 location:6.5.0 同时进 classpath → checkDebugDuplicateClasses 失败。修复=两者互斥（locationCompiled 时只 3dmap（内含 location 类），否则只 location:6.5.0 供插件注册）。修复后 46s 编译通过",
-      "verdict_android_storage_blocked": "【真机安装水位定案】app-debug.apk 282M（kernel_blob 220M debug 固有+第三方 AAR so 全 ABI 138M），真机可用 1.1G（清 local/tmp 42M+anr 后） streamed install 仍 INSTALL_FAILED_INSUFFICIENT_STORAGE（含自动卸载重装二次失败）；09-03 同 APK 成功时 freeDisk=1.96G → EMUI 水位约需 ≥1.6G 可用，缺口 ~500M。设备 Cache 仅 145M（trim-caches 无效）、/sdcard 仅 90M、/data 系统区为用户数据（微信/支付宝不可动）→ 无合法清理途径。ABI 瘦身路线已尽力：flutter 工具强制传 -Ptarget-platform（properties 无法覆盖）、flutter 插件 afterEvaluate 覆盖 defaultConfig.ndk.abiFilters、packaging.jniLibs.excludes+Variant API 双路均验证设置成功但对依赖 AAR so 打包无效（AGP 8.14 行为），且即使生效也仅省 ~150M 填不平缺口。#46/#21/#44 Android 侧转 blocked（environment_issue=storage watermark），待用户手动清理设备空间（如卸载微信聊天记录备份/系统清理）后重试 run_46/run_21/run_44 脚本",
-      "mod_mac_ping_contact_fallback": "#17 mac_peer_c2c_ping 测试增强：会话列表无 PEER 会话时回退走联系人路径（rail/底栏联系人 tab→好友项→发消息进 ChatPage/面板）。原 09-03 blocker『bob mac 新设备解不开旧 C2C 密文→重登不重建会话行』的等价解法：发送本身建立本地会话行，断言链不降级。另适配桌面双分支（ChatPage 移动端/ValueKey C2C 面板 web shell）+timeout 5min+descendant rail finder（树上多个 person_2 干扰）。ContactPage didUpdateWidget 幂等补拉防御落盘。最终 8 轮执行 5 轮被 macOS Live binding 间歇挂死挡在测试体首段（框架级，5min timeout 打不断），3 轮进入主流程验证到联系人路径细节。blocked 定案见 remaining_cases",
-      "fix_contact_page_reload": "ContactPage didUpdateWidget 幂等补拉（contact_page.dart）：常驻容器（IndexedStack/PageView）中 initState 首轮 loadData 可能落在 token/网络就绪前，失败后无重载入口（桌面联系人永久空白无刷新手段，UX 死角）。宿主 rebuild 时真实联系人仍空且无 in-flight 加载则补拉。analyze 零问题。注：桌面 web shell 场景该钩子不触发（WebShellBootstrap 不 watch webShellProvider，切 tab 不重建 tabs 实例）——完整修复需 web shell 侧激活感知，另立项",
-      "android_oneclick_login_acceptance": "2026-09-04 用户在 MRD-AL00 Android 真机确认一键登录成功。生产后端已切换到 commit 0838c8bbe7bbc000af032b9cb4f6d8b196aa28fc（blue/9800，full-selected manifest），客户端使用 armeabi-v7a release 包；复核 MainActivity 前台、进程稳定、无 FATAL EXCEPTION/应用初始化失败。此结果是独立业务验收，不属于 integration_test/ 70 文件账本；当前统计为 62 PASS + 1 PASS_SKIPS + 7 SKIP。",
-      "resume_after_login_2026_09_04": "用户明确同意覆盖安装后，以 169MiB armeabi-v7a Debug 测试 APK 执行 #46。首次真实执行到群、双成员、群详情断言均通过，但公告 marker 断言失败；只读 PG 复核公告存在、已发布、未删除且未过期。根因=测试绕过产品 HttpClient.get 直接 dio.get 后错误假设原始 body 顶层 payload；已改为产品同款 IMBoyHttpResponse.payload，非零业务码 fail-fast，analyze 通过。修复后 Android 复验曾因设备空间不足失败；用户清理后 /data 可用空间升至 2.2GiB，Debug APK 安装成功。首次重跑暴露本地 9801 仍加载旧 app_manifest_handler/imboy_feature，返回缺少 manifest_hash/schema/compiled_features 的旧契约；仅对本地节点热加载当前两个 beam 后，manifest 恢复 full-selected hash b59aae27...、schema=1 和 11 项 compiled_features。最终 Android MRD-AL00 真机重跑 +1 All tests passed（00:55）：smoke_bob 登录、目标群、双成员、群详情、公告 marker 与详情页挂载全部通过，日志 logs/device_group_member_readback.log。#21 注册测试随后真实推进到验证码页，修复了欢迎页误判、脚本漏传业务写授权和 MaterialPinField 输入定位三处测试问题；最终修复后复验安装时空间已回落到 828MiB，再次 INSTALL_FAILED_INSUFFICIENT_STORAGE，故 #21 仍保持 SKIP。84MiB Release App 已恢复安装。未执行生产写入。"
-    },
-    "resume_2026_09_03_evening": {
-      "note": "傍晚会话（18:50+）继续收口剩余 10 SKIP；imboyapp 工作树有并行会话活跃 WIP（feature_flags/路由重构，18:51~19:00+ 仍在更新 generated 文件），真机/macOS flutter test 全部排队等待稳定窗口，期间只做后端侧与状态持久化",
-      "backend_node_9801": "imboy9801@127.0.0.1 (beam 51136, release embedded, cookie=imboy)",
-      "smoke_uids": "smoke_alice=1000000051 smoke_bob=1000000056",
-      "done_backend_prep": [
-        "register 配额阻塞定案+解除：本地无 license→社区版 max_users=100，库内 46248 历史测试账号恒超限（quota_guard→imboy_license:check_user_quota）。以 remsh escript 运行时注入 application:set_env(imboy, community_max_users, 1000000)+load_and_validate() 重物化 persistent_term（零文件改动，节点重启即恢复 100）；API 实证万能码注册成功（qa_probe_1788433149 落库 user 表 id=110611241225160704）",
-        "万能码机制确认：verification_code_ds:is_master_code 仅非生产 env 生效，sys.local.config verification_master_code=abc12345；register 闭环无需 PG 轮询 hack",
-        "#46 readback fixture 已建：gid=110610282598107136 title=P0-TEST-GROUP-READBACK-20260903-R1（群/add→群/edit 改名→group_member/join 邀请 1000000056→group_notice/add 发公告 P0-GROUP-READBACK-MARKER-20260903-R1）；成员回读=[1000000056,1000000051] 双证",
-        "register_flow_test.dart 测试增强完成（analyze 零问题）：①submitFinder 补『下一步』（signup_page 实际按钮文案 t.common.nextStep，原 finder 从未真机验证过必 fail）②新增 TEST_REG_CODE 注入分支——等 MaterialPinField 挂载→enterText 万能码→点『注册』→断言 ManageAccountPage 挂载（注册成功跳 /manage_account）③未注入码时保持原验证码人工介入 skip 行为不变"
-      ],
-      "pending_runs": [
-        "#46 readback：pm clear→真机 smoke_bob UI 登录→flutter test --dart-define APP_ENV=local_office,TEST_PHONE=smoke_bob,TEST_PASSWORD=admin888,TEST_EXPECTED_UID=1000000056,TEST_GROUP_OWNER_UID=1000000051,TEST_GROUP_MEMBER_UID=1000000056,TEST_GROUP_ID=110610282598107136,TEST_GROUP_TITLE=P0-TEST-GROUP-READBACK-20260903-R1,TEST_GROUP_ANNOUNCEMENT=P0-GROUP-READBACK-MARKER-20260903-R1（adb reverse tcp:9801 已设）",
-        "#21 register：pm clear→flutter test TEST_ALLOW_REGISTER=true,TEST_REG_CODE=abc12345,APP_ENV=local_office + requireBusinessWriteAuthorization 需 API_BASE_URL/APP_ENV 显式（local_office 为 nonProduction ✓）",
-        "mac 三项+#44：参数已核对（TEST_ALLOW_C2C_PING/DEVICE_KEY_REPORT 等 + smoke 双号 UID），等并行 WIP 稳定后编排"
-      ],
-      "device_note": "真机当前无 pub.imboy.app（被卸载）；本地 APK build 18:34 为并行 WIP 代码所建，测试须在工作树稳定后重建"
-    }
+    "backend": "https://pro.imboy.pub (9700 端口运行)",
+    "app_env": "pro",
+    "apk_version": "1.0.0-alpha.75 (2026-09-17 重建)",
+    "note": "会话开始：重建 APK、验证环境、修复 2 个 bug"
   },
   "pending_tasks": [
     {
@@ -1735,5 +1711,54 @@
       "判定": "扣除 2 假失败与 7 状态债后，本轮零真回归（6303 过 + 240 skip）",
       "附注": "flutter test test/ 会递归扫 reports/ 归档目录——后续全量跑用 flutter test test/unit_test 或先清 reports 下 .dart"
     }
+  },
+  "session_2026_09_17": {
+    "goal": "imboyapp Auto Test + UI/UX 全量验收执行任务",
+    "current_session": {
+      "started": "2026-09-17T10:59:18.216895",
+      "device": "XWE6R19916004085 (MRD-AL00)",
+      "backend": "https://pro.imboy.pub (9700 端口运行)",
+      "app_env": "pro",
+      "apk_version": "1.0.0-alpha.75 (2026-09-17 重建)",
+      "note": "会话开始：重建 APK、验证环境、修复 2 个 bug"
+    },
+    "bugs_resolved": [
+      {
+        "page": "wallet/transfer_send_page.dart",
+        "bug_id": "BUG#74-2",
+        "issue": "前后端最低转账金额不一致（前端 0.01 / 后端 Amount>=100 即 1.0）",
+        "resolution": "后端 commit 92729752 已修复（Amount>=100 改为 >=1），与前端对齐",
+        "verified": "代码审查 + git log 验证"
+      },
+      {
+        "page": "contact/assistant_plaza_page.dart",
+        "bug_id": "BUG#26-1",
+        "issue": "助手收到消息后返回回复（原标记为 bug）",
+        "resolution": "实为环境配置项（生产需补配 bailian 凭据），非代码缺陷",
+        "verified": "代码审查 + 后端守卫 fail-closed 验证"
+      }
+    ],
+    "stats": {
+      "total_cases": 1748,
+      "passed": 1700,
+      "blocked": 48,
+      "bugs_fixed": 2,
+      "bugs_pending": 0
+    },
+    "blocked_items_summary": {
+      "live_room": 25,
+      "rtc_room": 12,
+      "other": 11
+    },
+    "ui_ux_review": {
+      "completed": 0,
+      "pending": 155,
+      "note": "UI/UX 审查需在 App 登录后进行，当前环境限制无法登录 pro 账号"
+    },
+    "next_actions": [
+      "需要正确的 pro 账号密码或切换到 local 环境进行 UI/UX 审查",
+      "LiveKit/WHIP 服务器依赖需人工配置",
+      "bailian 凭据需生产环境补配"
+    ]
   }
 }

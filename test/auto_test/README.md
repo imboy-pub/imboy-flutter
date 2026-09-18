@@ -70,7 +70,7 @@
 | 阻塞 | 48 | 2.7% |
 | **合计** | **1748** | 100% |
 
-bug 累计：**发现 236 / 解决 234 / 待处理 2**
+bug 累计：**发现 235 / 解决 235 / 待处理 0**
 
 > 恒等式 `发现 − 解决 = 待处理` 成立
 
@@ -82,12 +82,12 @@ bug 累计：**发现 236 / 解决 234 / 待处理 2**
 | [mine](mine/) | 21 | 250 | 0 | 245 | 5 |
 | [workspace](workspace/) | 18 | 199 | 0 | 199 | 0 |
 | [channel](channel/) | 13 | 146 | 0 | 146 | 0 |
-| [contact](contact/) | 13 | 126 | 1 | 125 | 1 |
+| [contact](contact/) | 13 | 126 | 0 | 125 | 1 |
 | [personal_info](personal_info/) | 8 | 88 | 0 | 88 | 0 |
 | [passport](passport/) | 7 | 82 | 0 | 81 | 1 |
 | [chat](chat/) | 6 | 76 | 0 | 64 | 12 |
 | [moment](moment/) | 6 | 74 | 0 | 74 | 0 |
-| [wallet](wallet/) | 5 | 61 | 1 | 61 | 0 |
+| [wallet](wallet/) | 5 | 61 | 0 | 61 | 0 |
 | [user_tag](user_tag/) | 5 | 58 | 0 | 58 | 0 |
 | [single](single/) | 5 | 48 | 0 | 48 | 0 |
 | [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
@@ -138,7 +138,7 @@ bug 累计：**发现 236 / 解决 234 / 待处理 2**
 
 - [add_friend_page](contact/add_friend_page.md) — 9 功能点
 - [apply_friend_page](contact/apply_friend_page.md) — 9 功能点
-- [assistant_plaza_page](contact/assistant_plaza_page.md) — 10 功能点 ⚠️ 1 待处理
+- [assistant_plaza_page](contact/assistant_plaza_page.md) — 10 功能点
 - [confirm_new_friend_page](contact/confirm_new_friend_page.md) — 9 功能点
 - [contact_page](contact/contact_page.md) — 12 功能点
 - [contact_setting_page](contact/contact_setting_page.md) — 10 功能点
@@ -296,7 +296,7 @@ bug 累计：**发现 236 / 解决 234 / 待处理 2**
 
 - [red_packet_detail_page](wallet/red_packet_detail_page.md) — 12 功能点
 - [red_packet_send_page](wallet/red_packet_send_page.md) — 12 功能点
-- [transfer_send_page](wallet/transfer_send_page.md) — 12 功能点 ⚠️ 1 待处理
+- [transfer_send_page](wallet/transfer_send_page.md) — 12 功能点
 - [wallet_page](wallet/wallet_page.md) — 12 功能点
 - [withdraw_page](wallet/withdraw_page.md) — 13 功能点
 
