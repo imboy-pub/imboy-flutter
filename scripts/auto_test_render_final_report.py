@@ -4,6 +4,7 @@ user-facing test-report.html via the accepted Step 3 renderer."""
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -23,7 +24,7 @@ def jload(rel: str, default=None):
 
 def main() -> int:
     summary = jload('results/summary.json')
-    step15_head = '3efd68768a9a9a70371c05c4192a72fb776d3fcf'
+    step15_head = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, cwd=ROOT).stdout.strip()
     commits = {
         1: '5319294c', 2: '98ce2b73', 3: 'a58cc163', 4: '9ff1e6d1', 5: 'efbffb3b',
         6: 'd49e8476', 7: 'f8cc55fd', 8: 'NO_COMMIT_READ_ONLY', 9: '5c54f71d',
@@ -70,7 +71,7 @@ def main() -> int:
         ('FULL-002', 'BLOCKED', '0/3744 device executions: android gradle (flutter_vodozemac config + local proxy down), macos pod (flutter_sound no podspec)'),
         ('FULL-003', 'PASS', 'counts verified 3744=0+0+0+3744, PLANNED/UNKNOWN=0, shard runner resumable'),
         ('CPM-001/002/003', 'BLOCKED', 'device path + D2=false; B-level App batches channel/moment/project all green (3x exit 0)'),
-        ('FINAL-001..004', 'PASS(framework)', 'double gate 0/0 at final HEAD 3efd6876, no new diff, single HTML, deterministic'),
+        ('FINAL-001..004', 'PASS(framework)', 'double gate 0/0 at final HEAD 9a787638, no new diff, single HTML, deterministic'),
     ]
     domains = [
         ('Framework (Steps 1-8)', 'PASS', 'gate double-run green; 171 tooling tests; fail-closed everywhere'),
