@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "run_id": "hardening-20260918T151153Z",
+  "note": "隔离 fixture 合同：只有匿名别名与角色/范围声明，不含任何真实凭证；凭证由运行期隔离环境注入，绝不写入 tracked 文件",
+  "accounts": [
+    {
+      "alias": "orgA_owner",
+      "role": "owner",
+      "org": "org_a",
+      "scope": ["workspace_a1", "workspace_a2"],
+      "purpose": "org A 治理写路径：组织/部门/邀请/默认 workspace/项目与频道管理"
+    },
+    {
+      "alias": "orgA_admin",
+      "role": "admin",
+      "org": "org_a",
+      "scope": ["workspace_a1"],
+      "purpose": "org A 管理员正负路径：可治理、不可转移 owner"
+    },
+    {
+      "alias": "orgA_member",
+      "role": "member",
+      "org": "org_a",
+      "scope": ["workspace_a1"],
+      "purpose": "org A 普通成员：业务写 + 治理端点 403 负向；兼 C2C/C2G 设备身份 user_device_b"
+    },
+    {
+      "alias": "orgA_nonmember",
+      "role": "nonmember",
+      "org": "none",
+      "scope": [],
+      "purpose": "org A 非成员：跨租户 IDOR / 可见性边界负向"
+    },
+    {
+      "alias": "orgB_owner",
+      "role": "owner",
+      "org": "org_b",
+      "scope": ["workspace_b1"],
+      "purpose": "org B owner：跨 org/workspace 隔离对照写路径"
+    },
+    {
+      "alias": "orgB_member",
+      "role": "member",
+      "org": "org_b",
+      "scope": ["workspace_b1"],
+      "purpose": "org B 成员：跨租户不可见性负向"
+    }
+  ],
+  "device_identities": [
+    {
+      "device_alias": "user_device_a",
+      "account_alias": "orgA_owner",
+      "platform": "android",
+      "purpose": "互异 C2C/C2G 设备身份 A（Android 真机）"
+    },
+    {
+      "device_alias": "user_device_b",
+      "account_alias": "orgA_member",
+      "platform": "macos",
+      "purpose": "互异 C2C/C2G 设备身份 B（本机 macOS）"
+    }
+  ],
+  "shard_namespace_rule": "hardening-20260918T151153Z/<platform>/<shard>",
+  "run_marker_rule": "at_hardening-20260918T151153Z",
+  "isolation_rules": [
+    "每个并行 shard 使用独立 namespace、账号集、org/workspace 与 run marker",
+    "跨设备共享对象的 journey 由单个 worker 同时持两个设备 lease 串行执行",
+    "清理只允许删除本 run marker 创建的数据"
+  ],
+  "account_shortfall_policy": "账号不足时：同 namespace 内串行复用，或整组 capability 标 BLOCKED_ACCOUNT_SHORTFALL；绝不并行共享写 fixture，绝不使用未知归属账号",
+  "credential_policy": "本合同只含别名；禁止写入密码、验证码、access token、私钥、完整手机号或未脱敏第三方标识"
+}
