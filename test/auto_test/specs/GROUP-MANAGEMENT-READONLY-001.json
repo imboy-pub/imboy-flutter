@@ -31,13 +31,13 @@
   "type": "flutter",
   "target": "integration_test/group/group_management_readonly_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
   "group_management_01_list"
  ],
- "safe_to_execute": true
+ "safe_to_execute": true,
+ "risk_mode": "device-readonly"
 }

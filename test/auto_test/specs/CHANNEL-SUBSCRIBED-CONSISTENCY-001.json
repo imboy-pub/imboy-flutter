@@ -31,14 +31,14 @@
   "type": "flutter",
   "target": "integration_test/channel/channel_subscribed_detail_consistency_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
   "consist_01_list",
   "consist_02_detail"
  ],
- "safe_to_execute": true
+ "safe_to_execute": true,
+ "risk_mode": "device-readonly"
 }

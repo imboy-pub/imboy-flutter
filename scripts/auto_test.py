@@ -25,9 +25,17 @@ AUTO = ROOT / 'test' / 'auto_test'
 SPECS = AUTO / 'specs'
 REPORTS = AUTO / 'reports'
 BASELINES = AUTO / 'baselines'
+CATALOG = AUTO / 'catalog.json'
 VALID_RISKS = {'P0', 'P1', 'P2'}
+VALID_RISK_MODES = {'pure-local', 'device-readonly', 'local-write', 'external-impact'}
 VALID_RUNNERS = {'flutter', 'patrol'}
 VALID_VISUAL_RESULTS = {'PASS', 'FAIL', 'REVIEW', 'BLOCKED'}
+sys.path.insert(0, str(ROOT / 'scripts'))
+from auto_test_lib.requirements import REQUIREMENTS  # noqa: E402
+from auto_test_lib import discovery  # noqa: E402
+from auto_test_lib.machine_events import parse_machine_events  # noqa: E402
+from auto_test_lib.result import overall_exit_code, plan_unique_targets  # noqa: E402
+from auto_test_lib.target_config import effective_target_config  # noqa: E402
 CORE_MODULE_PRIORITY = {
     'passport': 0,
     'conversation': 1,
@@ -78,6 +86,13 @@ def validate(specs: list[tuple[Path, dict]]) -> list[str]:
             for source in spec['sources']:
                 if not isinstance(source, str) or not (ROOT / source).is_file():
                     errors.append(f'{name}: source 不存在: {source}')
+        dependencies = spec.get('dependencies', [])
+        if not isinstance(dependencies, list):
+            errors.append(f'{name}: dependencies 必须是列表')
+        else:
+            for dependency in dependencies:
+                if not isinstance(dependency, str) or not (ROOT / dependency).is_file():
+                    errors.append(f'{name}: dependency 不存在: {dependency}')
         if not isinstance(spec['assertions'], dict) or not spec['assertions'].get('functional'):
             errors.append(f'{name}: assertions.functional 不能为空')
         visual = spec['visual']
@@ -92,6 +107,13 @@ def validate(specs: list[tuple[Path, dict]]) -> list[str]:
             errors.append(f'{name}: runner.target 不存在: {target}')
         if not isinstance(runner.get('requires'), list):
             errors.append(f'{name}: runner.requires 必须是列表')
+        else:
+            for requirement in runner['requires']:
+                if requirement not in REQUIREMENTS:
+                    errors.append(f'{name}: 未知 requirement: {requirement}（合法枚举见 auto_test_lib.requirements）')
+        risk_mode = spec.get('risk_mode')
+        if risk_mode is not None and risk_mode not in VALID_RISK_MODES:
+            errors.append(f'{name}: risk_mode 必须是 {sorted(VALID_RISK_MODES)}')
         checkpoints = spec.get('checkpoints')
         if checkpoints is not None and (
             not isinstance(checkpoints, list)
@@ -168,11 +190,20 @@ def _flutter_env_defines() -> list[str]:
 
 
 def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir: Path) -> int:
+    """唯一 target 执行：机器事件判定结果；preflight 在启动子进程前挡下不满足项。"""
+    plan_specs = [spec for _, spec in specs]
+    plan, conflicts = plan_unique_targets(plan_specs)
+    if conflicts:
+        print('❌ 同一 target 存在冲突安全属性，拒绝执行：', file=sys.stderr)
+        for conflict in conflicts:
+            print(f"  {conflict['target']}: {conflict}", file=sys.stderr)
+        return 64
     api_url, ws_url = _target_urls()
-    remote_allowed = os.environ.get('IMBOY_ALLOW_REMOTE_TEST') == '1'
-    env_defines = _flutter_env_defines()
+    env = dict(os.environ)
+    cfg = effective_target_config(env=env, device_id=device, platform='android')
+    env_defines = cfg.dart_defines
     results = []
-    for _, spec in specs:
+    for spec in plan:
         runner = spec['runner']
         status, reason, code = 'PLANNED', 'dry-run；未触发设备或网络操作', 0
         command = [runner['type']]
@@ -184,24 +215,47 @@ def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir
             status, reason, code = 'BLOCKED', 'case 标记为高风险，必须由专用受控测试替代', 2
         elif not device:
             status, reason, code = 'BLOCKED', '缺少 --device 真机 ID', 2
-        elif (not is_local_url(api_url) or (ws_url and not is_local_url(ws_url))) and not remote_allowed:
-            status, reason, code = 'BLOCKED', '远程地址需 IMBOY_ALLOW_REMOTE_TEST=1', 2
+        elif not cfg.consistent or 'REMOTE_TARGET_FORBIDDEN' in cfg.blocked_codes:
+            status, reason, code = 'BLOCKED', f'目标配置不一致或远程目标被拒绝（{cfg.inconsistency_code}）', 2
         elif execute:
-            completed = subprocess.run(command, cwd=ROOT, check=False)
+            completed = subprocess.run(
+                command + ['--machine'],
+                cwd=ROOT,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                check=False,
+            )
+            events_path = artifact_dir / f"{spec['id']}.events.jsonl"
+            artifact_dir.mkdir(parents=True, exist_ok=True)
+            events_path.write_text(completed.stdout or '', encoding='utf-8')
+            parsed = parse_machine_events(
+                (completed.stdout or '').splitlines(),
+                completed.returncode,
+                None,
+            )
+            status = parsed.test_status
+            reason = f'{parsed.reason_code} executed={parsed.executed} skipped={parsed.skipped} failed={parsed.failed}'
             code = completed.returncode
-            status = 'PASS' if code == 0 else 'FAIL'
-            reason = '执行完成' if code == 0 else f'退出码 {code}'
+            if status == 'FAIL':
+                code = 1
+            elif status in ('BLOCKED', 'PASS_WITH_SKIPS', 'FLAKY'):
+                code = 2
+            results.append({'id': spec['id'], 'status': status, 'reason': reason, 'command': command, 'exit_code': code,
+                            'executed': parsed.executed, 'skipped': parsed.skipped, 'failed': parsed.failed})
+            print(f"[{status}] {spec['id']}: {reason}")
+            continue
         results.append({'id': spec['id'], 'status': status, 'reason': reason, 'command': command, 'exit_code': code})
         print(f"[{status}] {spec['id']}: {reason}")
 
     artifact_dir.mkdir(parents=True, exist_ok=True)
     (artifact_dir / 'summary.json').write_text(json.dumps({
         'generated_at': datetime.now(timezone.utc).isoformat(),
-        'api_url': api_url,
+        'api_url_host': cfg.api_host_resolved,
+        'target_fingerprint': cfg.fingerprint,
         'results': results,
     }, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    render_report(artifact_dir / 'summary.json', [], artifact_dir / 'report.md')
-    return 1 if any(item['status'] == 'FAIL' for item in results) else 2 if any(item['status'] == 'BLOCKED' for item in results) else 0
+    return overall_exit_code(results)
 
 
 def capture_case(spec: dict, device: str, output: Path, hold_ms: int, app_env: str, platform: str, execute: bool) -> int:
@@ -698,25 +752,53 @@ def main() -> int:
     next_batch_parser = sub.add_parser('next-batch')
     next_batch_parser.add_argument('--limit', type=int, default=12)
     sub.add_parser('coverage-report')
-    sub.add_parser('validate')
+    validate_parser = sub.add_parser('validate')
+    validate_parser.add_argument('--strict', action='store_true', help='schema/枚举错误返回 64')
+    catalog_parser = sub.add_parser('catalog')
+    catalog_parser.add_argument('--check', action='store_true', help='只比较，不写文件')
+    catalog_parser.add_argument('--smoke', action='append', default=[], help='impact 固定 smoke target')
     args = parser.parse_args()
     try:
         specs = load_specs()
     except ValueError as exc:
         print(f'❌ {exc}', file=sys.stderr)
-        return 1
+        return 64
     errors = validate(specs)
     if errors:
         print('\n'.join(f'❌ {error}' for error in errors), file=sys.stderr)
-        return 1
+        return 64 if getattr(args, 'strict', False) else 1
     if args.command == 'validate':
         print(f'✅ {len(specs)} 个 AI 真机规格校验通过')
     elif args.command == 'plan':
         print_plan(select(specs, args.phase))
+    elif args.command == 'catalog':
+        current = discovery.generate_catalog(ROOT)
+        if args.check:
+            if not CATALOG.is_file():
+                print(f'❌ catalog 不存在: {CATALOG.relative_to(ROOT)}', file=sys.stderr)
+                return 1
+            disk = json.loads(CATALOG.read_text(encoding='utf-8'))
+            issues = discovery.catalog_diff(current, disk)
+            if issues:
+                print('\n'.join(f'❌ {issue}' for issue in issues), file=sys.stderr)
+                return 1
+            print(f'✅ catalog 与当前源码一致（{len(current["entries"])} targets / {len(current["pages"])} pages）')
+            return 0
+        CATALOG.write_text(json.dumps(current, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+        print(f'✅ 已生成 {CATALOG.relative_to(ROOT)}（{len(current["entries"])} targets / {len(current["pages"])} pages）')
+        return 0
     elif args.command == 'impact':
         changed = {Path(path).as_posix() for path in args.changed}
-        affected = [(path, spec) for path, spec in specs if changed.intersection(spec['sources'] + spec.get('dependencies', []))]
+        catalog_disk = json.loads(CATALOG.read_text(encoding='utf-8')) if CATALOG.is_file() else discovery.generate_catalog(ROOT)
+        try:
+            targets = discovery.impact_targets(catalog_disk, sorted(changed), smoke=args.smoke)
+        except ValueError as exc:
+            print(f'❌ {exc}', file=sys.stderr)
+            return 1
+        target_set = set(targets)
+        affected = [(path, spec) for path, spec in specs if spec['runner']['target'] in target_set]
         print_plan(affected)
+        print(f'impact: {len(targets)} unique targets（含 smoke {len(args.smoke)}）')
         if not affected:
             print('未命中样板规格；该改动仍可能需要人工判断。')
     elif args.command == 'capture':
@@ -789,6 +871,11 @@ def main() -> int:
         except ValueError as exc:
             print(f'❌ {exc}', file=sys.stderr)
             return 1
+        summary = json.loads(Path(args.summary).read_text(encoding='utf-8'))
+        results = summary.get('results', [])
+        code = overall_exit_code(results)
+        print(f'render-report 退出码与总结论一致: {code}（{len(results)} results）')
+        return code
     else:
         if args.execute and args.dry_run:
             parser.error('--execute 与 --dry-run 不能同时使用')

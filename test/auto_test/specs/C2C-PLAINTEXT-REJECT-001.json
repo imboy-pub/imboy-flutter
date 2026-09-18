@@ -10,7 +10,7 @@
  ],
  "dependencies": [
   "lib/service/message_s2c.dart",
-  "lib/service/e2ee/protocol/encrypt_payload.dart"
+  "lib/service/e2ee/e2ee_protocol.dart"
  ],
  "assertions": {
   "functional": [
@@ -34,13 +34,16 @@
   "type": "flutter",
   "target": "integration_test/chat/c2c_plaintext_reject_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
   "c2cplat_01_no_leak"
  ],
- "safe_to_execute": true
+ "safe_to_execute": true,
+ "risk_mode": "local-write",
+ "migration_notes": [
+  "dependency path fix 2026-09-18: lib/service/e2ee/protocol/encrypt_payload.dart -> lib/service/e2ee/e2ee_protocol.dart (source tree moved)"
+ ]
 }

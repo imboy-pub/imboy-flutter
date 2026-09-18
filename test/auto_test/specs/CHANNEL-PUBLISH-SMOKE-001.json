@@ -30,14 +30,14 @@
   "type": "flutter",
   "target": "integration_test/channel/channel_publish_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
   "pub_01_channel_list",
   "pub_02_detail"
  ],
- "safe_to_execute": true
+ "safe_to_execute": true,
+ "risk_mode": "device-readonly"
 }

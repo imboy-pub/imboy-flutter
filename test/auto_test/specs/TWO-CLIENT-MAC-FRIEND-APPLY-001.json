@@ -32,14 +32,14 @@
   "type": "flutter",
   "target": "integration_test/two_client/mac_peer_friend_apply_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.macos",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
   "mac_peer_01_main_shell",
   "mac_peer_02_after_apply"
  ],
- "safe_to_execute": false
+ "safe_to_execute": false,
+ "risk_mode": "device-readonly"
 }

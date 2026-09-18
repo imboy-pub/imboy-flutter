@@ -32,9 +32,8 @@
   "type": "flutter",
   "target": "integration_test/chat/voice_render_verify_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
@@ -42,5 +41,6 @@
   "voice_01_chat_page",
   "voice_02_bubble_render"
  ],
- "safe_to_execute": true
+ "safe_to_execute": true,
+ "risk_mode": "device-readonly"
 }

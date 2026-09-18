@@ -1,0 +1,3816 @@
+{
+  "schema_version": 1,
+  "generated_from": {
+    "app_head": "9ff1e6d135ad71c5e3fca2c380449750e458e69b",
+    "backend_head": "196d9359869034f13ac895665a842e325dfa9b8b",
+    "integration_test_count": 130,
+    "lib_page_count": 164,
+    "module_page_count": 9,
+    "route_page_component_count": 140,
+    "spec_count": 25
+  },
+  "entries": [
+    {
+      "id": "test:integration_test/app_test.dart",
+      "target": "integration_test/app_test.dart",
+      "target_sha256": "47be7b10e7cf529a4f3882783e9f3952b14389d0af3cdaf3ec8a51bd14b24676",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "app_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/auth/password_change_test.dart",
+      "target": "integration_test/auth/password_change_test.dart",
+      "target_sha256": "a77e55f5792290507928256ffecf9dee8ad543dabdf8fbe7369f617413576969",
+      "sources": [
+        "lib/page/mine/change_password/change_password_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/mine/mine/mine_page.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "auth"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/auth/register_flow_test.dart",
+      "target": "integration_test/auth/register_flow_test.dart",
+      "target_sha256": "f5926cc7baf811e38dd492da8d82e321f11e1662dda173d821b0c143e2aa4f56",
+      "sources": [
+        "lib/page/passport/signup_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/passport/signup_continue_page.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "backend.local",
+        "device.android"
+      ],
+      "tags": [
+        "auth"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/channel_discover_readonly_test.dart",
+      "target": "integration_test/channel/channel_discover_readonly_test.dart",
+      "target_sha256": "c9aa7f8271470071dd06467934968cdf9311b7080724bdd91d9c2b8801668d6c",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "channel"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/channel_e2e_test.dart",
+      "target": "integration_test/channel/channel_e2e_test.dart",
+      "target_sha256": "29e1c1468790cdf93081fe8482468439009ff4a66c6262f71ac1302a2def3a70",
+      "sources": [
+        "lib/page/channel/channel_create_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/channel/channel_detail_page.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "channel"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/channel_edit_persistence_test.dart",
+      "target": "integration_test/channel/channel_edit_persistence_test.dart",
+      "target_sha256": "65af2d2f60605c0a862945551443fbfeb8c79a9ac3b27bb2ec1e68320da8b8bb",
+      "sources": [
+        "lib/page/channel/channel_edit_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/channel/channel_detail_page.dart"
+      ],
+      "risk": "device-readonly",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "channel"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/channel_message_like_acceptance_test.dart",
+      "target": "integration_test/channel/channel_message_like_acceptance_test.dart",
+      "target_sha256": "63b8ccd9509b42cfbb1138f69ddaf51eb75ada2a43aa6eb99e6ddceee84de9ae",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "channel"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/channel_order_list_acceptance_batch171_test.dart",
+      "target": "integration_test/channel/channel_order_list_acceptance_batch171_test.dart",
+      "target_sha256": "a4a3313cb1929689c41993f488ab55cb86f04ea32833fc81eb8d668f704d88a6",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "channel"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/channel_publish_test.dart",
+      "target": "integration_test/channel/channel_publish_test.dart",
+      "target_sha256": "a6357db774935a75706552267292340ef539a77108059122a0798fc9245f23e4",
+      "sources": [
+        "lib/page/channel/channel_detail_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/channel/channel_list_page.dart"
+      ],
+      "risk": "device-readonly",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "channel"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/channel_subscribed_detail_consistency_test.dart",
+      "target": "integration_test/channel/channel_subscribed_detail_consistency_test.dart",
+      "target_sha256": "883f433a16639b83516e9035e6c36428ebb3051c64baacdafe4a1be00b28f9cb",
+      "sources": [
+        "lib/page/channel/channel_detail_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/channel/channel_list_page.dart"
+      ],
+      "risk": "device-readonly",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "channel"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/channel_subscriber_acceptance_test.dart",
+      "target": "integration_test/channel/channel_subscriber_acceptance_test.dart",
+      "target_sha256": "39cdf2eda6032e6e4008b26f17e79ba60b86d3f08b0bea6db868ba99c6907341",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "channel"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/channel_subscriber_invite_acceptance_batch170_test.dart",
+      "target": "integration_test/channel/channel_subscriber_invite_acceptance_batch170_test.dart",
+      "target_sha256": "95c6a3ce05205bc15b9ff0314d7a30be7ae2d9d211e79e58233497dc01e348be",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "channel"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/channel/paid_channel_acceptance_test.dart",
+      "target": "integration_test/channel/paid_channel_acceptance_test.dart",
+      "target_sha256": "f5ec96570f168a93e7aec890fe569b19948414ab4e117784d70763b1103a4276",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "channel"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat/c2c_e2ee_send_render_test.dart",
+      "target": "integration_test/chat/c2c_e2ee_send_render_test.dart",
+      "target_sha256": "3f90a59c5165b13bb5c4242dac5b66d37a1af7ee5688c0cae75b43f983d9f947",
+      "sources": [
+        "integration_test/chat/c2c_e2ee_send_render_test.dart",
+        "lib/page/chat/chat/chat_page.dart",
+        "lib/page/chat/chat/services/chat_network_service.dart"
+      ],
+      "dependencies": [
+        "lib/page/chat/chat/chat_provider.dart",
+        "lib/service/encryption_mode.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "chat"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat/c2c_plaintext_reject_test.dart",
+      "target": "integration_test/chat/c2c_plaintext_reject_test.dart",
+      "target_sha256": "20d8d6a91fb3b5768a93d2ba316bf1290dc9d3246061926a18c6b178c3a0baa9",
+      "sources": [
+        "lib/page/chat/chat/services/chat_network_service.dart",
+        "lib/page/conversation/conversation_page.dart"
+      ],
+      "dependencies": [
+        "lib/service/e2ee/e2ee_protocol.dart",
+        "lib/service/message_s2c.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "chat"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat/c2g_e2ee_loop_receiver_test.dart",
+      "target": "integration_test/chat/c2g_e2ee_loop_receiver_test.dart",
+      "target_sha256": "3e90c6552f34850ccedb5e1c2cfa6e4c8578b4034af77cdb48d171bcff78780e",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "chat"
+      ],
+      "enabled": false,
+      "oracle_hint": false
+    },
+    {
+      "id": "test:integration_test/chat/c2g_e2ee_loop_sender_test.dart",
+      "target": "integration_test/chat/c2g_e2ee_loop_sender_test.dart",
+      "target_sha256": "7ccabb229a449254c2b27b27712ec6697afc0f2c049eb291411d0648a83bb008",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "chat"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat/chat_setting_locale_test.dart",
+      "target": "integration_test/chat/chat_setting_locale_test.dart",
+      "target_sha256": "dd134edf8eb4bcd2df66d4864483aad5d17804a4bccf66f55b02c22c5ec57633",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "chat"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat/conversation_test.dart",
+      "target": "integration_test/chat/conversation_test.dart",
+      "target_sha256": "514acf73b1170a83b7b9899c8d28a1d103155817dbfec1754676029498f7ed5a",
+      "sources": [
+        "lib/page/conversation/conversation_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/conversation/conversation_provider.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "backend.local",
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "chat"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat/group_chat_test.dart",
+      "target": "integration_test/chat/group_chat_test.dart",
+      "target_sha256": "e5a6da792c415cecbe2de43c4e0aa3855ff82b7ddc078c3bbd30e079ac795046",
+      "sources": [
+        "lib/page/chat/chat/chat_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/group/group_list/group_list_page.dart",
+        "lib/service/websocket.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "chat"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat/quick_reply_manage_test.dart",
+      "target": "integration_test/chat/quick_reply_manage_test.dart",
+      "target_sha256": "97346c4bf404e471aa0fcb0f1af1a660e13cb320a8d9f4004b54e30e2d6e7637",
+      "sources": [
+        "lib/page/chat/widget/quick_reply_manage_page.dart"
+      ],
+      "dependencies": [
+        "lib/service/quick_reply_service.dart"
+      ],
+      "risk": "device-readonly",
+      "requirements": [
+        "credentials.primary",
+        "device.android",
+        "fixture.disposable_account"
+      ],
+      "tags": [
+        "chat"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat/single_chat_readonly_test.dart",
+      "target": "integration_test/chat/single_chat_readonly_test.dart",
+      "target_sha256": "cb91ab6242ffedfbdebc505fe279457298b355ebbd8dffa6d36262921650dc7f",
+      "sources": [
+        "lib/page/chat/chat/chat_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/conversation/conversation_page.dart"
+      ],
+      "risk": "device-readonly",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "chat"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/chat/voice_render_verify_test.dart",
+      "target": "integration_test/chat/voice_render_verify_test.dart",
+      "target_sha256": "d492d5faefd0227d9fb83fe343af09a8ad245cc26c2837238600608b5f726481",
+      "sources": [
+        "lib/page/chat/chat/chat_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/chat/widget/chat_input.dart"
+      ],
+      "risk": "device-readonly",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "chat"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/contact/add_friend_request_test.dart",
+      "target": "integration_test/contact/add_friend_request_test.dart",
+      "target_sha256": "0c1c8ec293c609a1072431c7c9e42d42b9c6d9d5fe597b82578a456d801e0b39",
+      "sources": [
+        "lib/page/contact/new_friend/add_friend_page.dart",
+        "lib/page/contact/new_friend/new_friend_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/contact/contact/contact_page.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "contact"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/contact/assistant_plaza_ai_chat_test.dart",
+      "target": "integration_test/contact/assistant_plaza_ai_chat_test.dart",
+      "target_sha256": "4ea72dc0d35ac8c997c29075186e14def2b1eac0839c2d5193a65c3a6bb66cb3",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "contact"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/contact/confirm_new_friend_test.dart",
+      "target": "integration_test/contact/confirm_new_friend_test.dart",
+      "target_sha256": "593be63278f0481a26644cdb0e31849a283ee7e4c2daca62b3a274da4009507f",
+      "sources": [
+        "lib/page/contact/apply_friend/apply_friend_page.dart",
+        "lib/page/contact/new_friend/new_friend_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/contact/confirm_new_friend/confirm_new_friend_page.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "contact"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/contact/contact_report_acceptance_test.dart",
+      "target": "integration_test/contact/contact_report_acceptance_test.dart",
+      "target_sha256": "a4486f9564cedb634f08a1b2623dafa9fe3f6bcd23c52edff884b699db951164",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "contact"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/contact/friend_management_test.dart",
+      "target": "integration_test/contact/friend_management_test.dart",
+      "target_sha256": "aa4af2b1f76fc36fe3873a6e224ded4c7fc02fa94562f2e98f65c7750a961b8f",
+      "sources": [
+        "lib/page/contact/people_info/people_info_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/contact/contact/contact_page.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "contact"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/contact/new_friend_acceptance_test.dart",
+      "target": "integration_test/contact/new_friend_acceptance_test.dart",
+      "target_sha256": "1df06b78a9c4fd4aeb7090e620261e0b3657d122d8ab1ab24deece3784290ded",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "contact"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/customer_service/cs_degradation_acceptance_test.dart",
+      "target": "integration_test/customer_service/cs_degradation_acceptance_test.dart",
+      "target_sha256": "961c17ba856a2918a4fd17517e80f932115c5ea35f6d20b766048e4ee6bb4b79",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "customer_service"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/d04_account_deletion_flow_test.dart",
+      "target": "integration_test/d04_account_deletion_flow_test.dart",
+      "target_sha256": "dd6524f0d1cc58869dc15dcb76f885e49ff45c6640b9b5a8c0a4803a2469a9ef",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "d04_account_deletion_flow_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/channel_creator_flow_test.dart",
+      "target": "integration_test/demo_flow/channel_creator_flow_test.dart",
+      "target_sha256": "e3d534231a253c4b0851a7a28d514c2fedf932580177054f4a10e7c8e8f8b350",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/channel_readonly_flow_test.dart",
+      "target": "integration_test/demo_flow/channel_readonly_flow_test.dart",
+      "target_sha256": "f864c8d9c235812f39d6bb98867b87395cea8d0551481701220b851104e707f1",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/contact_management_flow_api_test.dart",
+      "target": "integration_test/demo_flow/contact_management_flow_api_test.dart",
+      "target_sha256": "5b396c73800b76f97c07783b22b1a03de6a94b72516024fba741d1ad9a7f12fd",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/conversation_flow_test.dart",
+      "target": "integration_test/demo_flow/conversation_flow_test.dart",
+      "target_sha256": "7b22cfd434f42521f8afd65cfae3f3707fd81f4d9e10869514391cca7ecbc105",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/dual_account_message_flow_test.dart",
+      "target": "integration_test/demo_flow/dual_account_message_flow_test.dart",
+      "target_sha256": "f642b29efdc54177ede6983f59031e8f1e894ab3e5ea8e84f22e9aeae198ce67",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/friend_flow_api_test.dart",
+      "target": "integration_test/demo_flow/friend_flow_api_test.dart",
+      "target_sha256": "0279d13449c04262c6f56db041a321c6179f4dc0ae8c022db2ddd1cab66e4466",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_chat_flow_test.dart",
+      "target": "integration_test/demo_flow/group_chat_flow_test.dart",
+      "target_sha256": "f37175009447774cfe0dd497f888c4e5dd2014a186ae1ef7e757d2403a5084f0",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_collaboration_flow_test.dart",
+      "target": "integration_test/demo_flow/group_collaboration_flow_test.dart",
+      "target_sha256": "e9878eb1738a4f5ad4838e2588314ab884f5ca7d09132aa400e7772bffc56d22",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_collaboration_local_api_flow_test.dart",
+      "target": "integration_test/demo_flow/group_collaboration_local_api_flow_test.dart",
+      "target_sha256": "62ef608ca1bc29494cb44fb49e2cb0dcd118f2c61ff88506e9d125c109bbe072",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_content_local_api_flow_test.dart",
+      "target": "integration_test/demo_flow/group_content_local_api_flow_test.dart",
+      "target_sha256": "51d4fa31239bc669fbbb80bc4847611cf1b1dc40a85815b2724c40cd69298dd8",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_creation_management_flow_test.dart",
+      "target": "integration_test/demo_flow/group_creation_management_flow_test.dart",
+      "target_sha256": "fca5414c98e3e8a561fe5490d99472b15d5875efa35940eb089e91105907d327",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_dual_account_message_flow_test.dart",
+      "target": "integration_test/demo_flow/group_dual_account_message_flow_test.dart",
+      "target_sha256": "a4bc31e7663e0fcbaff91c0b92f51d8de40c369da194c5a1c79439d119169197",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_local_creation_flow_test.dart",
+      "target": "integration_test/demo_flow/group_local_creation_flow_test.dart",
+      "target_sha256": "48ab0b4f258749b44b603a30442d0ae2433b774e1735eb4ddbff490368e217f8",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_local_management_flow_test.dart",
+      "target": "integration_test/demo_flow/group_local_management_flow_test.dart",
+      "target_sha256": "c99bae0147d79e3266c257fc7ff608c6a07fb2f8cf2d50657f65228307e61563",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_local_message_flow_test.dart",
+      "target": "integration_test/demo_flow/group_local_message_flow_test.dart",
+      "target_sha256": "db8025a5cfde1e0f941a1a6112a7471ead6e7f1fc177cae036f7887f7d71ddee",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_member_join_probe_test.dart",
+      "target": "integration_test/demo_flow/group_member_join_probe_test.dart",
+      "target_sha256": "9f596a6702f91fecc83decb4f160e6af6935e8cf894dc6c397e3ea01c50cc581",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_member_readback_flow_test.dart",
+      "target": "integration_test/demo_flow/group_member_readback_flow_test.dart",
+      "target_sha256": "51fabc151585b2bb6550c364f303fd5de7abe69efb086e2954e728c143dd775b",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_member_role_flow_test.dart",
+      "target": "integration_test/demo_flow/group_member_role_flow_test.dart",
+      "target_sha256": "77658e567eeb5150c96152ec19d6012d7a10e7ab6c5b8546d74b39865b2dbff3",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_organization_local_api_flow_test.dart",
+      "target": "integration_test/demo_flow/group_organization_local_api_flow_test.dart",
+      "target_sha256": "4bf8987ce92d04352e15701f4b3252f9112c8e123839c3b148fa8d7f282fceb9",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/group_pro_readonly_contract_test.dart",
+      "target": "integration_test/demo_flow/group_pro_readonly_contract_test.dart",
+      "target_sha256": "890dc2b953cb39fe26643ba3108580b0a739031eca558275e1a17e9b1d2a74df",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/local_e2ee_group_fixture_flow_test.dart",
+      "target": "integration_test/demo_flow/local_e2ee_group_fixture_flow_test.dart",
+      "target_sha256": "caa008799f51fec317788d02f0416a1a2a8ebf098288a146e08b39c89510deb7",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/moments_flow_test.dart",
+      "target": "integration_test/demo_flow/moments_flow_test.dart",
+      "target_sha256": "4453886d6304c37ad9f930d4d4a11998cbc910ff86e896d86aca994cd66cc8ac",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/paid_channel_flow_api_test.dart",
+      "target": "integration_test/demo_flow/paid_channel_flow_api_test.dart",
+      "target_sha256": "b15e7c5218fa915e68248f7fb762ceb29cceb31a6dafc1f64e15861afed0328c",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/paid_channel_flow_test.dart",
+      "target": "integration_test/demo_flow/paid_channel_flow_test.dart",
+      "target_sha256": "1a9f79a776aa6b7012e93395029d1155cb869aea87197b131f16ad5a1f94eff7",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/qrcode_invite_flow_test.dart",
+      "target": "integration_test/demo_flow/qrcode_invite_flow_test.dart",
+      "target_sha256": "b9a5b1281521f523ecad8659d9560f3b7ee829b7cf35e85e6fc762fc6e41f2e0",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/red_packet_flow_test.dart",
+      "target": "integration_test/demo_flow/red_packet_flow_test.dart",
+      "target_sha256": "e79ca75c1d6831121373d47947e6c50da90ad8b259f59b49c3c901b8de27cbc5",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/single_chat_flow_test.dart",
+      "target": "integration_test/demo_flow/single_chat_flow_test.dart",
+      "target_sha256": "a5f22f647279cbafe9a6909d8b573c5db55243f87e4b937b536bdb70030e53f1",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/wallet_transfer_flow_test.dart",
+      "target": "integration_test/demo_flow/wallet_transfer_flow_test.dart",
+      "target_sha256": "636ae8c23056d10a3d5267aa3f1f0e921907d619a0525801bb3aec59040f33e7",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/e2e_chat_test.dart",
+      "target": "integration_test/e2e_chat_test.dart",
+      "target_sha256": "ec67202c88e185e49c63390a473bf4819fc5165dcf891e5dd025d6b04ab50262",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "e2e_chat_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/e2ee_c2c_outbound_frame_test.dart",
+      "target": "integration_test/e2ee_c2c_outbound_frame_test.dart",
+      "target_sha256": "bfccb4c455766e4eaa2975ba4a3f9f4a612be31c6d7de6449edbcf9f67056073",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "e2ee_c2c_outbound_frame_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/e2ee_cross_platform_group_interop_test.dart",
+      "target": "integration_test/e2ee_cross_platform_group_interop_test.dart",
+      "target_sha256": "0fd42b48023117f768cd1c78145aed22df97d918c6f3ee0c444621abb76623eb",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "e2ee_cross_platform_group_interop_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/e2ee_cross_platform_interop_test.dart",
+      "target": "integration_test/e2ee_cross_platform_interop_test.dart",
+      "target_sha256": "50a605a87dcc348596659e692bf6f2ff21216ab9d1cc9cf64a2142a9aa368623",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "e2ee_cross_platform_interop_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/e2ee_group_outbound_frame_test.dart",
+      "target": "integration_test/e2ee_group_outbound_frame_test.dart",
+      "target_sha256": "3fca8aa87a482f138c119e72cde8504a933aa17d1d091cd36b1f61cce7571e7e",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "e2ee_group_outbound_frame_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/e2ee_megolm_device_test.dart",
+      "target": "integration_test/e2ee_megolm_device_test.dart",
+      "target_sha256": "bc00dfbaaeff75a611d83513ae6485fcb5857a57db113f38fddd223f957ca421",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "e2ee_megolm_device_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/e2ee_olm_device_test.dart",
+      "target": "integration_test/e2ee_olm_device_test.dart",
+      "target_sha256": "b9224f4599d141ddf08095dbfa75c883428d907ac5af94b63575341a149da8c6",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "e2ee_olm_device_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/enterprise/enterprise_cs_e2e_test.dart",
+      "target": "integration_test/enterprise/enterprise_cs_e2e_test.dart",
+      "target_sha256": "3135d4502af6f0093b840b1b31d69f2105c05c4eb643a9e9dd8de16e31d1f3cb",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "enterprise"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/f2f_diag_probe_test.dart",
+      "target": "integration_test/group/f2f_diag_probe_test.dart",
+      "target_sha256": "1f8d1d5cd07c5e74e5c3fe957b2b55615faec213edcef63866c2a1779a8b5e2f",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/face_to_face_acceptance_test.dart",
+      "target": "integration_test/group/face_to_face_acceptance_test.dart",
+      "target_sha256": "d9444a0cdbcdbb182964e5e2ed5d71e40b0da01fd6674c5e26590961562b8438",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/gm_pagination_failover_test.dart",
+      "target": "integration_test/group/gm_pagination_failover_test.dart",
+      "target_sha256": "ef05ba75ea920e6c8d045e9a61051c841328db62d6e0771ed1f94aa77a2b230d",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/group_collaboration_readonly_test.dart",
+      "target": "integration_test/group/group_collaboration_readonly_test.dart",
+      "target_sha256": "6b4ba4ea6a8b0d9d318ab98d706e33dc95053204cda902e584e8ee678575ef58",
+      "sources": [
+        "lib/page/group/schedule/group_schedule_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/group/schedule/group_schedule_detail_page.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android",
+        "fixture.existing_group"
+      ],
+      "tags": [
+        "group"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/group_creation_readonly_test.dart",
+      "target": "integration_test/group/group_creation_readonly_test.dart",
+      "target_sha256": "adb5bdad1bede0d9901c7fd0e95329ac04ea35a7d4b9bbad74217ee048ff118e",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/group_detail_readonly_test.dart",
+      "target": "integration_test/group/group_detail_readonly_test.dart",
+      "target_sha256": "a79d9667743ca3fdd5457128e36a2d09449219a4cacb9eedf7f75fe5d8bffe8b",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/group_manage_pages_test.dart",
+      "target": "integration_test/group/group_manage_pages_test.dart",
+      "target_sha256": "a5313e86e9981f40aea4c074a4a82010d273832b7d3ec7e26ec94dda69ec97f4",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/group_management_longpress_readonly_test.dart",
+      "target": "integration_test/group/group_management_longpress_readonly_test.dart",
+      "target_sha256": "b4f3a18156d008540db808ec1adc191be89cde3c2fd6b06ef64cbb26d399bff2",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/group_management_readonly_test.dart",
+      "target": "integration_test/group/group_management_readonly_test.dart",
+      "target_sha256": "45c36e2c3cde003304ed4d6775961629d821648fb759d77cc7145c45fc5f14b3",
+      "sources": [
+        "lib/page/group/group_list/group_list_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/group/group_detail/group_detail_page.dart"
+      ],
+      "risk": "device-readonly",
+      "requirements": [
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "group"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/group_member_acceptance_test.dart",
+      "target": "integration_test/group/group_member_acceptance_test.dart",
+      "target_sha256": "01baa1099289516494d2239aae25ac58bd05dbf1e0d2af820cae85f3be3f8614",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/launch_chat_announcement_test.dart",
+      "target": "integration_test/group/launch_chat_announcement_test.dart",
+      "target_sha256": "816ca318e6ac9ea97b341f104ff9c7190a28e621c1eb88849f95262af1c99d33",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/group/member_detail_actions_test.dart",
+      "target": "integration_test/group/member_detail_actions_test.dart",
+      "target_sha256": "4d264d971a321103bd4aecb4976505358c409706af3f6271d2a7129966bbb9c2",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "group"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/i18n_rtl_walkthrough_test.dart",
+      "target": "integration_test/i18n_rtl_walkthrough_test.dart",
+      "target_sha256": "8c213a01ef20836aa70c4105e6395292e6ca39ad456ba583c1c3ba6ac120afa5",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "i18n_rtl_walkthrough_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/mention/mention_auto_refresh_acceptance_batch166_test.dart",
+      "target": "integration_test/mention/mention_auto_refresh_acceptance_batch166_test.dart",
+      "target_sha256": "a8ab8e6467ddc9769eae6abe1454330bd014e43e78a3c41d4b15e3b50b9a4b28",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "mention"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/mine/account_security_lifecycle_test.dart",
+      "target": "integration_test/mine/account_security_lifecycle_test.dart",
+      "target_sha256": "39daebe3742ad3c24024082e96b42359a967a7d47f917a97881cbeca5bba54b8",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "mine"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/mine/bind_mobile_auto_return_acceptance_batch167_test.dart",
+      "target": "integration_test/mine/bind_mobile_auto_return_acceptance_batch167_test.dart",
+      "target_sha256": "d0236f37853165e76c58be2f27a9ce38e1ce50215831c949b3123678f9d5f5ae",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "mine"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/mine/mine_subpages_smoke_test.dart",
+      "target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "target_sha256": "6e42d653ea2e5f6867d330771f8840d863a75f849e4998ce37389adb0830ca8b",
+      "sources": [
+        "lib/page/settings/e2ee_backup_import_page.dart"
+      ],
+      "dependencies": [
+        "lib/service/e2ee_backup_url_download_service.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android",
+        "fixture.disposable_account"
+      ],
+      "tags": [
+        "mine"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/misc/acceptance_batch157_test.dart",
+      "target": "integration_test/misc/acceptance_batch157_test.dart",
+      "target_sha256": "d655be23b24cf625dfbb4390634dd05893a87bf13b0802d6cb5649794cae3723",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "misc"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/misc/acceptance_batch160_test.dart",
+      "target": "integration_test/misc/acceptance_batch160_test.dart",
+      "target_sha256": "72aa11dd815bbe1ebf8794d27e656716fc74c2438fb4eb8349ee8e108f9bec1e",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "misc"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/moment/moment_feed_video_playback_batch174_test.dart",
+      "target": "integration_test/moment/moment_feed_video_playback_batch174_test.dart",
+      "target_sha256": "ca4c76ec3ad727e399f7978234dfa0a65f77a4525f64d1596982597ecb1afc28",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "moment"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/passport/forgot_password_acceptance_test.dart",
+      "target": "integration_test/passport/forgot_password_acceptance_test.dart",
+      "target_sha256": "f0ad8d123a45f6113a97bd5005f88c0fc10d8dd8d36958e93cc813b502d39c8f",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "passport"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/passport/forgot_password_entry_acceptance_test.dart",
+      "target": "integration_test/passport/forgot_password_entry_acceptance_test.dart",
+      "target_sha256": "bf70216c392dfd4249d323c263cac5eb88767aaa4349a6a899d69100a69fbb11",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "passport"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/passport/signup_acceptance_test.dart",
+      "target": "integration_test/passport/signup_acceptance_test.dart",
+      "target_sha256": "232b2a2508f7bc9b07adfa1ae41d033cdfb7e3a425e5f0e073d0222f2f7316ad",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "passport"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/passport/web_login_acceptance_test.dart",
+      "target": "integration_test/passport/web_login_acceptance_test.dart",
+      "target_sha256": "854b293a03b92d4e401bf67df3efca9ec40e2570ecc1e9724a7f8becea8474a7",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "passport"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/patrol/app_launch_test.dart",
+      "target": "integration_test/patrol/app_launch_test.dart",
+      "target_sha256": "18cfe057b4588dd9a2999f73110230661fd5c69927c50197843bb4a79f0a1293",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "patrol"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/patrol/handshake_test.dart",
+      "target": "integration_test/patrol/handshake_test.dart",
+      "target_sha256": "4a972e332c46c901c5f8b25f8b28880643aa7d0ac2eb8412d2f0f478f21dc7bd",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "patrol"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/personal_info/personal_info_acceptance_test.dart",
+      "target": "integration_test/personal_info/personal_info_acceptance_test.dart",
+      "target_sha256": "b368ca10dec7ea9cac0f1edc3a5624bbd4fff667766d2cd7f1e6267f7035f06c",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "personal_info"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/r01_message_report_realdevice_test.dart",
+      "target": "integration_test/r01_message_report_realdevice_test.dart",
+      "target_sha256": "d6393871211f8bea7a74eadb7acadee06d094aae01af28be3e38d349aafe50f4",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "r01_message_report_realdevice_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/scanner/scanner_user_qrcode_people_info_realdevice_batch173_test.dart",
+      "target": "integration_test/scanner/scanner_user_qrcode_people_info_realdevice_batch173_test.dart",
+      "target_sha256": "dc4d6235a2a208ddde57c495409a511ee20a8612301fc5da719b8865484120eb",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "scanner"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/search/ms_core_acceptance_test.dart",
+      "target": "integration_test/search/ms_core_acceptance_test.dart",
+      "target_sha256": "2993e3aa40743d80def6e7b738171e0cdadac2e364107b0648db1b066ee85215",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "search"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/search/ms_history_acceptance_test.dart",
+      "target": "integration_test/search/ms_history_acceptance_test.dart",
+      "target_sha256": "0a378ec42f1d756ccf09a25282be5727d547dd610f9019a8b8752811e2880ff8",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "search"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/search/sc_acceptance_test.dart",
+      "target": "integration_test/search/sc_acceptance_test.dart",
+      "target_sha256": "57a2cb9af19e485881ca43facfc24cb5aa55833f71c87671f2eb3bf35a77aa68",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "search"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/search/web_search_acceptance_test.dart",
+      "target": "integration_test/search/web_search_acceptance_test.dart",
+      "target_sha256": "3ac6f2eb994d2519dc6e11eb47e1e58bb34615ff7cdb33c0033373ef0b8f1474",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "search"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/search/web_search_group_click_acceptance_batch169_test.dart",
+      "target": "integration_test/search/web_search_group_click_acceptance_batch169_test.dart",
+      "target_sha256": "adbcd53b29d8ad4806d4a52c0ed91fb7d45de6d075125ebaa605f435fc624856",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "search"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/settings/e2ee_backup_import_acceptance_test.dart",
+      "target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
+      "target_sha256": "3d652cb754ad1e5bb151d242c20ce738dd49efa5ec9453730f65789c2d7cd02e",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "settings"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/settings/e2ee_backup_recovery_acceptance_test.dart",
+      "target": "integration_test/settings/e2ee_backup_recovery_acceptance_test.dart",
+      "target_sha256": "673898f049f56dcd5222cfa619a72d025870b06a2f285028fd2c79bff36f484e",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "settings"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/settings/e2ee_backup_setup_wizard_test.dart",
+      "target": "integration_test/settings/e2ee_backup_setup_wizard_test.dart",
+      "target_sha256": "4da336780836989efb6313aa7520613110ee619707f1732defb08c11ae3af67f",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "settings"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/settings/e2ee_boundary_no_device_envelope_test.dart",
+      "target": "integration_test/settings/e2ee_boundary_no_device_envelope_test.dart",
+      "target_sha256": "b01111542ad35c6d9c637c0f55868e4a16228eba05f78cb14280b3aab6398ce8",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "settings"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/settings/e2ee_decrypt_guide_acceptance_batch165_test.dart",
+      "target": "integration_test/settings/e2ee_decrypt_guide_acceptance_batch165_test.dart",
+      "target_sha256": "dbfb4ccfe6f58af049641db040a586253b80c0fb0a3b392d891c2432b4a52355",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "settings"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/settings/e2ee_key_recovery_acceptance_test.dart",
+      "target": "integration_test/settings/e2ee_key_recovery_acceptance_test.dart",
+      "target_sha256": "f362dad7abe268a36c8027193658af9c49703dacf77533cebe9903965d664a38",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "settings"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/single/upgrade_failure_retry_realdevice_batch168_test.dart",
+      "target": "integration_test/single/upgrade_failure_retry_realdevice_batch168_test.dart",
+      "target_sha256": "188b42738bfd48e4e1e095a9deb550565341db9ea2d316532a52603fa293bcf7",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "single"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/smoke/smoke_test.dart",
+      "target": "integration_test/smoke/smoke_test.dart",
+      "target_sha256": "8b391a884b45c62711a93e01bcfb1e589722bab3462d8135b6a0be7215f43277",
+      "sources": [
+        "lib/page/passport/login_page.dart"
+      ],
+      "dependencies": [
+        "lib/main.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "backend.local",
+        "credentials.primary",
+        "device.android"
+      ],
+      "tags": [
+        "smoke"
+      ],
+      "enabled": true,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/sqlcipher_migration_test.dart",
+      "target": "integration_test/sqlcipher_migration_test.dart",
+      "target_sha256": "c6804f3f34dab7efdb955f39e626ba1a00fdc7d999c50744d87737a6ce9b7662",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "sqlcipher_migration_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/sqlite_migration/sqlite_migration_device_acceptance_test.dart",
+      "target": "integration_test/sqlite_migration/sqlite_migration_device_acceptance_test.dart",
+      "target_sha256": "c74c90818cafdfa355bb8dcda952d40bb225e44f7e4a71575dd645b229e07518",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "sqlite_migration"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/sqlite_migration/sqlite_migration_kill_replay_test.dart",
+      "target": "integration_test/sqlite_migration/sqlite_migration_kill_replay_test.dart",
+      "target_sha256": "9119be8171b60b5c5fd7c87a20766fcbf4660fc34740736eff53f61185884df6",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "sqlite_migration"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/two_client/mac_e2ee_server_probe_test.dart",
+      "target": "integration_test/two_client/mac_e2ee_server_probe_test.dart",
+      "target_sha256": "4c48c6d519985fc4acbf9798b31ce1ba8b725a8890ee9e529f7c14d1a74fa09e",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "two_client"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/two_client/mac_peer_c2c_ping_test.dart",
+      "target": "integration_test/two_client/mac_peer_c2c_ping_test.dart",
+      "target_sha256": "3a5fea2cd8cf1c012a9199f61a7f2a9cb6e5214ac7e3c46e796f1c0ec5965f46",
+      "sources": [
+        "lib/page/chat/chat/chat_page.dart",
+        "lib/page/conversation/conversation_page.dart"
+      ],
+      "dependencies": [
+        "lib/service/websocket.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.macos"
+      ],
+      "tags": [
+        "two_client"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/two_client/mac_peer_friend_apply_test.dart",
+      "target": "integration_test/two_client/mac_peer_friend_apply_test.dart",
+      "target_sha256": "2a7561eae3f34087577488390f0ce3bbbaa4ef8294054c19843a6829b7d6093d",
+      "sources": [
+        "lib/page/contact/new_friend/add_friend_page.dart",
+        "lib/page/contact/new_friend/new_friend_page.dart"
+      ],
+      "dependencies": [
+        "lib/service/websocket.dart"
+      ],
+      "risk": "device-readonly",
+      "requirements": [
+        "credentials.primary",
+        "device.macos"
+      ],
+      "tags": [
+        "two_client"
+      ],
+      "enabled": false,
+      "oracle_hint": false
+    },
+    {
+      "id": "test:integration_test/two_client/mac_probe_rail_tap_test.dart",
+      "target": "integration_test/two_client/mac_probe_rail_tap_test.dart",
+      "target_sha256": "bb1aacb156979cce1e9297fee83dc009ca5d523ec4587c321ff3062a3256d708",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "two_client"
+      ],
+      "enabled": false,
+      "oracle_hint": false
+    },
+    {
+      "id": "test:integration_test/wallet/red_packet_acceptance_batch159_test.dart",
+      "target": "integration_test/wallet/red_packet_acceptance_batch159_test.dart",
+      "target_sha256": "0ee9d5338c5aec9d95dbf8f1e31c4c898b8dd9b4712ff16c3a1a4f833186f509",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "wallet"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/wallet/transfer_acceptance_batch164_test.dart",
+      "target": "integration_test/wallet/transfer_acceptance_batch164_test.dart",
+      "target_sha256": "66dce61a3a473c34a82f73858bfb7ca0fa7b154fff69df69be3c55db874c278c",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "wallet"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/wallet/wallet_acceptance_batch156_test.dart",
+      "target": "integration_test/wallet/wallet_acceptance_batch156_test.dart",
+      "target_sha256": "a99744e23409a0344a663e2b71c49d6ccf4befec1258a96bb2177654dfaf44ee",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "wallet"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/wallet/wallet_readonly_test.dart",
+      "target": "integration_test/wallet/wallet_readonly_test.dart",
+      "target_sha256": "fb9e30b7ee3f870599c5dffa153142c7a487e4d63dc803621a4fbd16e9133a13",
+      "sources": [
+        "lib/page/wallet/transfer_send_page.dart",
+        "lib/page/wallet/wallet_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/wallet/wallet_amount.dart",
+        "lib/page/wallet/wallet_provider.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "credentials.primary",
+        "device.android",
+        "fixture.local_write"
+      ],
+      "tags": [
+        "wallet"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/wallet/withdraw_error_toast_acceptance_batch172_test.dart",
+      "target": "integration_test/wallet/withdraw_error_toast_acceptance_batch172_test.dart",
+      "target_sha256": "a2cda6ac8c4ab241ee4cf685f7610112ecc2220eda9a11d33e4b55df24ee14ee",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "wallet"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/workspace/workspace_acceptance_batch154_test.dart",
+      "target": "integration_test/workspace/workspace_acceptance_batch154_test.dart",
+      "target_sha256": "4550a8097df1821cd595905fa3bb468bfa6d60fd4727227b349558e382ca9b14",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "workspace"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/workspace/workspace_acceptance_batch155_test.dart",
+      "target": "integration_test/workspace/workspace_acceptance_batch155_test.dart",
+      "target_sha256": "e1ad51edb862acdbcfde014d9b23c9880d249f33c4a8c539a05137c7a98808c1",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "workspace"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/workspace/workspace_empty_acceptance_test.dart",
+      "target": "integration_test/workspace/workspace_empty_acceptance_test.dart",
+      "target_sha256": "f16ee172e6fe000fdd9697bdbb2acedca5e3a2992d11790bd15038b739162b25",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "workspace"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/workspace/workspace_invite_relations_test.dart",
+      "target": "integration_test/workspace/workspace_invite_relations_test.dart",
+      "target_sha256": "a12d924c8f7719738d794650cf36594494822e5950c70ea74a02082c45c7219d",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "workspace"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/workspace/workspace_members_empty_test.dart",
+      "target": "integration_test/workspace/workspace_members_empty_test.dart",
+      "target_sha256": "eaacc0ee02e928eadc16c86bf6dae164a6229432c53324e620eb68231b3f06cc",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "workspace"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/workspace/workspace_overview_empty_members_test.dart",
+      "target": "integration_test/workspace/workspace_overview_empty_members_test.dart",
+      "target_sha256": "e56c1f82e15e30f205152db5138a317bbedb6bb1ff73d4940be80ebbb283ef32",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "workspace"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/workspace/workspace_picker_failure_test.dart",
+      "target": "integration_test/workspace/workspace_picker_failure_test.dart",
+      "target_sha256": "80ff0fce3858595f3223c2caa965bc26e41b3082d25ef2f211dbe99a33e350cd",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "workspace"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/workspace/workspace_picker_loading_test.dart",
+      "target": "integration_test/workspace/workspace_picker_loading_test.dart",
+      "target_sha256": "d49b0c206baa551d30f7ac53c4eb7d4cb08cb867b90330e206cfaec367baae63",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "workspace"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/workspace/workspace_shell_acceptance_test.dart",
+      "target": "integration_test/workspace/workspace_shell_acceptance_test.dart",
+      "target_sha256": "2be119b2567db6a9852710a22d42264f3abfdfe7c533ee93e2db3c0ee85a4cbc",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "workspace"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    }
+  ],
+  "pages": [
+    {
+      "page": "lib/modules/customer_service/presentation/cs_session_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/customer_service/presentation/cs_workspace_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/enterprise/presentation/enterprise_conversation_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/enterprise/presentation/enterprise_home_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_departments_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_home_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_invitations_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_members_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/billing/plan_list_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/bottom_navigation/bottom_navigation_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_admin_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_article_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_comment_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_compose_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_create_page.dart",
+      "mapped_targets": [
+        "integration_test/channel/channel_e2e_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_detail_page.dart",
+      "mapped_targets": [
+        "integration_test/channel/channel_publish_test.dart",
+        "integration_test/channel/channel_subscribed_detail_consistency_test.dart"
+      ],
+      "dependency_targets": [
+        "integration_test/channel/channel_e2e_test.dart",
+        "integration_test/channel/channel_edit_persistence_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_discover_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_edit_page.dart",
+      "mapped_targets": [
+        "integration_test/channel/channel_edit_persistence_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_invitation_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_list_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [
+        "integration_test/channel/channel_publish_test.dart",
+        "integration_test/channel/channel_subscribed_detail_consistency_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_order_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_order_list_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_subscriber_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/chat/chat/chat_page.dart",
+      "mapped_targets": [
+        "integration_test/chat/c2c_e2ee_send_render_test.dart",
+        "integration_test/chat/group_chat_test.dart",
+        "integration_test/chat/single_chat_readonly_test.dart",
+        "integration_test/chat/voice_render_verify_test.dart",
+        "integration_test/two_client/mac_peer_c2c_ping_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/chat/chat_setting/chat_setting_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/chat/rtc_room/rtc_room_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/chat/send_to/send_to_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/chat/widget/quick_reply_manage_page.dart",
+      "mapped_targets": [
+        "integration_test/chat/quick_reply_manage_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/chat_shell/chat_shell_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/apply_friend/apply_friend_page.dart",
+      "mapped_targets": [
+        "integration_test/contact/confirm_new_friend_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/assistant_plaza/assistant_plaza_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/confirm_new_friend/confirm_new_friend_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [
+        "integration_test/contact/confirm_new_friend_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/contact/contact_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [
+        "integration_test/contact/add_friend_request_test.dart",
+        "integration_test/contact/friend_management_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/contact_setting/contact_setting_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/contact_setting_tag/contact_setting_tag_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/new_friend/add_friend_page.dart",
+      "mapped_targets": [
+        "integration_test/contact/add_friend_request_test.dart",
+        "integration_test/two_client/mac_peer_friend_apply_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/new_friend/new_friend_page.dart",
+      "mapped_targets": [
+        "integration_test/contact/add_friend_request_test.dart",
+        "integration_test/contact/confirm_new_friend_test.dart",
+        "integration_test/two_client/mac_peer_friend_apply_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/people_info/people_info_page.dart",
+      "mapped_targets": [
+        "integration_test/contact/friend_management_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/people_info_more/people_info_more_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/people_info_more/people_info_same_group_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/people_nearby/people_nearby_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/contact/recently_registered_user/recently_registered_user_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/conversation/conversation_page.dart",
+      "mapped_targets": [
+        "integration_test/chat/c2c_plaintext_reject_test.dart",
+        "integration_test/chat/conversation_test.dart",
+        "integration_test/two_client/mac_peer_c2c_ping_test.dart"
+      ],
+      "dependency_targets": [
+        "integration_test/chat/single_chat_readonly_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/error/init_error_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/album/group_album_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/album/group_album_photo_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/album/group_album_photo_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/announcement/group_announcement_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/category/group_category_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/category/group_category_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/face_to_face/face_to_face_confirm_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/face_to_face/face_to_face_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/file/group_file_audio_preview_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/file/group_file_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/group_detail/add_member_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/group_detail/change_info_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/group_detail/group_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [
+        "integration_test/group/group_management_readonly_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/group_detail/remove_member_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/group_discovery/group_discovery_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/group_list/group_list_page.dart",
+      "mapped_targets": [
+        "integration_test/group/group_management_readonly_test.dart"
+      ],
+      "dependency_targets": [
+        "integration_test/chat/group_chat_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/group_member/group_member_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/group_member/group_member_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/group_select/group_select_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/launch_chat/launch_chat_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/schedule/group_schedule_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [
+        "integration_test/group/group_collaboration_readonly_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/schedule/group_schedule_page.dart",
+      "mapped_targets": [
+        "integration_test/group/group_collaboration_readonly_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/tag/group_tag_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/task/group_task_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/task/group_task_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/vote/group_vote_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/group/vote/group_vote_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/live_room/live_room_list/live_room_list_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/live_room/publisher/publisher_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/live_room/subscriber/subscriber_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mention/mention_list_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/account_security/account_security_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/account_security/bind_email_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/account_security/bind_mobile_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/appeal/appeal_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/change_password/change_password_page.dart",
+      "mapped_targets": [
+        "integration_test/auth/password_change_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/change_password/set_password_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/dark_model/dark_model_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/denylist/denylist_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/feedback/feedback_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/feedback/feedback_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/font_size/font_size_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/language/language_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/logout_account/logout_account_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/mine/mine_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [
+        "integration_test/auth/password_change_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/select_region/select_region_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/setting/setting_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/storage_space/storage_space_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/user_collect/user_collect_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/user_collect/user_collect_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/user_device/change_name_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/user_device/user_device_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/mine/user_device/user_device_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/moment/moment_create_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/moment/moment_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/moment/moment_feed_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/moment/moment_friend_picker/moment_at_picker_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/moment/moment_friend_picker/moment_friend_picker_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/moment/moment_notify/moment_notify_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/passport/forgot_password_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/passport/forgot_password_pin_code_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/passport/login_page.dart",
+      "mapped_targets": [
+        "integration_test/smoke/smoke_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/passport/manage_account_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/passport/signup_continue_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [
+        "integration_test/auth/register_flow_test.dart"
+      ],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/passport/signup_page.dart",
+      "mapped_targets": [
+        "integration_test/auth/register_flow_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/passport/web_login_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/personal_info/personal_info/personal_info_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/personal_info/profile/profile_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/personal_info/profile/widgets/privacy_settings_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/personal_info/set_gender/set_gender_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/personal_info/set_nickname/set_nickname_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/personal_info/set_region/set_region_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/personal_info/update/update_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/personal_info/widget/more_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/qrcode/channel_qrcode_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/qrcode/group_qrcode_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/qrcode/qrcode_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/qrcode/user_qrcode_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/scanner/qr_login_confirm_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/scanner/scanner_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/scanner/scanner_result_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/search/message_search_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/search/search_chat_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/search/web_search_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/settings/compliance_key_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/settings/e2ee_backup_export_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/settings/e2ee_backup_import_page.dart",
+      "mapped_targets": [
+        "integration_test/mine/mine_subpages_smoke_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/settings/e2ee_backup_setup_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/settings/e2ee_key_recovery_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/settings/safety_number_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/single/markdown_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/single/network_failure_guidance_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/single/terms_of_service_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/single/upgrade_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/single/video_viewer_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/splash/splash_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/user_tag/contact_tag_detail/contact_tag_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/user_tag/contact_tag_detail/select_tag_friend_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/user_tag/contact_tag_list/contact_tag_list_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/user_tag/user_tag_relation/tag_relation_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/user_tag/user_tag_save/user_tag_save_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/wallet/red_packet_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/wallet/red_packet_send_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/wallet/transfer_send_page.dart",
+      "mapped_targets": [
+        "integration_test/wallet/wallet_readonly_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/wallet/wallet_page.dart",
+      "mapped_targets": [
+        "integration_test/wallet/wallet_readonly_test.dart"
+      ],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/wallet/withdraw_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/web_shell/web_shell_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/welcome/welcome_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/project/home/project_create_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/project/home/project_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/project/tasks/task_form_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/project/w2/project_channels_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/project/w2/project_insights_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/project/w2/project_members_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/project/w2/project_milestones_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_branding_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_channel_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_channels_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_create_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_groups_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_invite_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_join_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_members_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_overview_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_picker_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace/workspace_projects_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/workspace_shell/workspace_shell_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    }
+  ],
+  "exclusions": [],
+  "ledger_issues": []
+}

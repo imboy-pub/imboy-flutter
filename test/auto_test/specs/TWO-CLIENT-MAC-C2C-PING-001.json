@@ -33,9 +33,8 @@
   "type": "flutter",
   "target": "integration_test/two_client/mac_peer_c2c_ping_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.macos",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
@@ -43,5 +42,6 @@
   "mac_ping_02_chat_page",
   "mac_ping_03_after_send"
  ],
- "safe_to_execute": false
+ "safe_to_execute": false,
+ "risk_mode": "local-write"
 }

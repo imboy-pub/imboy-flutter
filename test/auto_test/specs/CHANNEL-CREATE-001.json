@@ -35,9 +35,8 @@
   "type": "flutter",
   "target": "integration_test/channel/channel_e2e_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
@@ -49,5 +48,6 @@
   "channel_create_06_input",
   "channel_create_07_after_publish"
  ],
- "safe_to_execute": false
+ "safe_to_execute": false,
+ "risk_mode": "local-write"
 }

@@ -37,9 +37,8 @@
   "type": "flutter",
   "target": "integration_test/chat/c2c_e2ee_send_render_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
@@ -50,5 +49,6 @@
   "e2eesend_05_peer_history_second"
  ],
  "safe_to_execute": true,
- "notes": "与 e2ee_c2c_outbound_frame_test（离线白盒帧格式）互补：本测试走生产全链（真登录态/真设备密钥/真 WS/真落库/真 UI）。后端 history 接口的 e2ee 信封以 JSON 字符串透传。UI 插入由页面层 chatService.insertMessage 负责，provider.addMessage 不含该步——白盒调用需与 ChatPage._sendTextMessage 同构。"
+ "notes": "与 e2ee_c2c_outbound_frame_test（离线白盒帧格式）互补：本测试走生产全链（真登录态/真设备密钥/真 WS/真落库/真 UI）。后端 history 接口的 e2ee 信封以 JSON 字符串透传。UI 插入由页面层 chatService.insertMessage 负责，provider.addMessage 不含该步——白盒调用需与 ChatPage._sendTextMessage 同构。",
+ "risk_mode": "local-write"
 }

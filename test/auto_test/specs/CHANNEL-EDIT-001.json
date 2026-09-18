@@ -33,9 +33,8 @@
   "type": "flutter",
   "target": "integration_test/channel/channel_edit_persistence_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
@@ -43,5 +42,6 @@
   "edit_02_edit_page",
   "edit_03_after_save"
  ],
- "safe_to_execute": false
+ "safe_to_execute": false,
+ "risk_mode": "device-readonly"
 }

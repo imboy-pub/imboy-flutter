@@ -33,9 +33,8 @@
   "type": "flutter",
   "target": "integration_test/contact/friend_management_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
@@ -44,5 +43,6 @@
   "friend_03_contact_list",
   "friend_detail"
  ],
- "safe_to_execute": false
+ "safe_to_execute": false,
+ "risk_mode": "local-write"
 }

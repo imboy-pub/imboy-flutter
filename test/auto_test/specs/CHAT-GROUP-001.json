@@ -35,9 +35,8 @@
   "type": "flutter",
   "target": "integration_test/chat/group_chat_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
@@ -47,5 +46,6 @@
   "group_02_chat_page",
   "group_03_after_send"
  ],
- "safe_to_execute": false
+ "safe_to_execute": false,
+ "risk_mode": "local-write"
 }

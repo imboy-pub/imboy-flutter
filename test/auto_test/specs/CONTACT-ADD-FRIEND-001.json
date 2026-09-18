@@ -36,9 +36,8 @@
   "type": "flutter",
   "target": "integration_test/contact/add_friend_request_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
@@ -48,5 +47,6 @@
   "add_friend_04_results",
   "add_friend_05_profile"
  ],
- "safe_to_execute": false
+ "safe_to_execute": false,
+ "risk_mode": "local-write"
 }

@@ -36,9 +36,8 @@
   "type": "flutter",
   "target": "integration_test/contact/confirm_new_friend_test.dart",
   "requires": [
-   "device",
-   "credentials",
-   "authorized_test_accounts"
+   "device.android",
+   "credentials.primary"
   ]
  },
  "checkpoints": [
@@ -49,5 +48,6 @@
   "confirm_friend_05_confirm_page",
   "confirm_friend_06_after_accept"
  ],
- "safe_to_execute": false
+ "safe_to_execute": false,
+ "risk_mode": "local-write"
 }
