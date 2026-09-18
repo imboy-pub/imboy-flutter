@@ -1,0 +1,10 @@
+{"time": 100, "type": "start", "protocolVersion": "0.12.0", "runnerVersion": "flutter 3.38.0"}
+{"time": 101, "type": "suite", "suite": {"id": 0, "platform": "vm", "path": "integration_test/anon/anon_test.dart"}}
+{"time": 102, "type": "testStart", "test": {"id": 1, "name": "loading integration_test/anon/anon_test.dart", "suiteID": 0, "groupIDs": [], "metadata": {"skip": false, "skipReason": null}}}
+{"time": 103, "type": "testDone", "testID": 1, "result": "success", "hidden": true}
+{"time": 110, "type": "testStart", "test": {"id": 2, "name": "group anon ok path", "suiteID": 0, "groupIDs": [1], "metadata": {"skip": false, "skipReason": null}}}
+{"time": 111, "type": "print", "testID": 2, "messageType": "print", "message": "oracle: expect x1"}
+{"time": 113, "type": "testDone", "testID": 2, "result": "success", "hidden": false, "skipped": false}
+{"time": 120, "type": "testStart", "test": {"id": 3, "name": "group anon skipped path", "suiteID": 0, "groupIDs": [1], "metadata": {"skip": true, "skipReason": "anonymous fixture"}}}
+{"time": 123, "type": "testDone", "testID": 3, "result": "skipped", "hidden": false, "skipped": true}
+{"time": 200, "type": "done", "success": true}

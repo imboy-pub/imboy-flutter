@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "purpose": "Wave1 frozen interface sketch; JSON contracts only, no shared implementation",
+  "effective_target_config": {
+    "owner_step": "step2",
+    "input": {
+      "app_env": "str|None (IMBOY_APP_ENV)",
+      "api_url": "str|None (resolved override chain)",
+      "ws_url": "str|None",
+      "device_id": "str|None",
+      "platform": "android|ios|macos",
+      "test_credentials_present": {"IMBOY_TEST_PHONE": "bool", "IMBOY_TEST_PASSWORD": "bool"},
+      "env_source": "parent|child"
+    },
+    "output": {
+      "dart_defines": ["--dart-define=KEY=VALUE"],
+      "api_host_resolved": "str|None (urlsplit hostname)",
+      "ws_host_resolved": "str|None",
+      "fingerprint": "sha256 of sorted effective values, no secrets included",
+      "consistent": "bool",
+      "inconsistency_code": "APP_ENV_PRO_WITH_LOCAL_URL | API_WS_ORIGIN_MISMATCH | REMOTE_WITHOUT_ALLOWLIST | NONE"
+    },
+    "invariants": [
+      "parent and child compute the same fingerprint for identical inputs",
+      "APP_ENV in {pro,prod,production} + loopback api/ws => consistent=false, code=APP_ENV_PRO_WITH_LOCAL_URL",
+      "any non-loopback host without explicit remote allowlist => BLOCKED_REMOTE_TARGET before subprocess spawn",
+      "secrets never appear in fingerprint, command argv, logs or manifests"
+    ]
+  },
+  "machine_event_parser": {
+    "owner_step": "step3",
+    "input": {"events_path": "path to jsonl", "process_exit_code": "int|None", "process_stderr_tail": "str|None"},
+    "record_type": {
+      "ParsedResult": {
+        "test_status": "PASS|PASS_WITH_SKIPS|BLOCKED|FAIL|FLAKY|PLANNED",
+        "executed": "int >= 0",
+        "skipped": "int >= 0",
+        "failed": "int >= 0",
+        "oracle_count": "int >= 0 (print events matching oracle marker or expect in error/stack lines)",
+        "reason_code": "NONE|ALL_SKIPPED|ZERO_EXECUTED|BUSINESS_ASSERTION_FAIL|RUNNER_CRASH|INFRA_FAIL|INFRA_RETRY_EXHAUSTED|MULTIPLE_ATTEMPT_MERGE_INVALID",
+        "failure_class": "business|infra|unknown",
+        "first_failure": {"test_id": "int|None", "name": "str|None", "message": "str|None", "is_failure": "bool|None"}
+      }
+    },
+    "invariants": [
+      "executed counts only visible testDone events (hidden loading excluded)",
+      "executed==0 never maps to PASS regardless of exit code",
+      "done.success=false + isFailure=true error => FAIL zero-retry",
+      "missing done event or error with isFailure=false on loading => RUNNER_CRASH",
+      "retry classification needs attempt sequence keyed by (app_head,backend_head,target_sha,config_sha,fixture_fp,device_fp)"
+    ]
+  },
+  "requirements_policy": {
+    "owner_step": "step4",
+    "requirement_enum": [
+      "device.android", "device.ios", "device.macos",
+      "credentials.primary", "credentials.peer",
+      "backend.local", "backend.strict_e2ee",
+      "fixture.existing_group", "fixture.disposable_account", "fixture.local_write",
+      "authorization.business_write", "authorization.external_readonly"
+    ],
+    "risk_enum": ["pure-local", "device-readonly", "local-write", "external-impact"],
+    "error_codes": ["UNKNOWN_REQUIREMENT", "UNKNOWN_RISK", "REMOTE_TARGET_FORBIDDEN", "EXTERNAL_IMPACT_ALWAYS_BLOCKED", "BACKEND_IDENTITY_UNVERIFIED", "CREDENTIALS_MISSING", "DEVICE_MISSING", "LOCAL_WRITE_NON_LOOPBACK"],
+    "legacy_mapping": {
+      "device": "device.android (platform-specific)",
+      "credentials": "credentials.primary",
+      "authorized_test_accounts": "credentials.primary",
+      "backend": "backend.local",
+      "existing_group": "fixture.existing_group",
+      "disposable_account_for_import": "fixture.disposable_account",
+      "disposable_local_profile": "fixture.disposable_account",
+      "local_fixture_for_write": "fixture.local_write",
+      "local_or_authorized_remote": "backend.local (remote part unrepresentable => migrate to BLOCKED note)",
+      "logged_out_state": "no requirement (state precondition, not env)"
+    },
+    "invariants": [
+      "unknown requirement/risk value fails validate with exit 64",
+      "external-impact risk is always BLOCKED in generic runner regardless of env vars",
+      "local-write requires all resolved hosts in 127.0.0.0/8, ::1 or unix socket path",
+      "requirements unmet => no flutter/adb/patrol/network subprocess spawned"
+    ]
+  }
+}

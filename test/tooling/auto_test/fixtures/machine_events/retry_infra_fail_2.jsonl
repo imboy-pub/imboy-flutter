@@ -1,0 +1,8 @@
+{"time": 100, "type": "start", "protocolVersion": "0.12.0", "runnerVersion": "flutter 3.38.0"}
+{"time": 101, "type": "suite", "suite": {"id": 0, "platform": "vm", "path": "integration_test/anon/anon_test.dart"}}
+{"time": 102, "type": "testStart", "test": {"id": 1, "name": "loading integration_test/anon/anon_test.dart", "suiteID": 0, "groupIDs": [], "metadata": {"skip": false, "skipReason": null}}}
+{"time": 103, "type": "testDone", "testID": 1, "result": "success", "hidden": true}
+{"time": 110, "type": "testStart", "test": {"id": 2, "name": "group anon infra victim", "suiteID": 0, "groupIDs": [1], "metadata": {"skip": false, "skipReason": null}}}
+{"time": 112, "type": "error", "testID": 2, "result": "error", "message": "TimeoutException after 00:30:00 (transport)", "isFailure": false, "stackTrace": "anonymous stack frame"}
+{"time": 113, "type": "testDone", "testID": 2, "result": "error", "hidden": false, "skipped": false}
+{"time": 200, "type": "done", "success": false}
