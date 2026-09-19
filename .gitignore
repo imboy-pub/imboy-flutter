@@ -148,3 +148,6 @@ spikes/**/target/
 
 # AI 真机回归的可提交规格与准则；单次截图、日志与运行报告不入库。
 test/auto_test/reports/
+
+# hardening2 run local credentials (never commit)
+test/auto_test/credentials.local.json
