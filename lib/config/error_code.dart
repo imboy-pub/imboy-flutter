@@ -261,6 +261,12 @@ class ErrorCode {
   // 其余：各子系统扩展错误码
   // =====================================================================
 
+  /// 错误码 705
+  static const int TOKEN_EXPIRED_REFRESHABLE = 705;
+
+  /// 错误码 706
+  static const int TOKEN_MALFORMED = 706;
+
   /// 错误码 5000
   static const int E2EE_TRANSFER_INVALID_SESSION = 5000;
 
@@ -489,6 +495,9 @@ class ErrorCode {
   /// 错误码 5432
   static const int TEACHING_GUARDIAN_SETUP_REQUIRED = 5432;
 
+  /// 错误码 5433
+  static const int TEACHING_ORG_OWNER_REQUIRED = 5433;
+
   /// 错误码 5440
   static const int ASSIGNMENT_NOT_FOUND = 5440;
 
@@ -676,6 +685,7 @@ class ErrorCode {
     5430: '班级不存在或不可见',
     5431: '学员不在本班或已移出',
     5432: '监护关系需完善',
+    5433: '仅机构管理员可操作机构设置',
     5440: '作业不存在',
     5441: '提交附件不合规',
     5442: '作业已截止或关闭',
