@@ -31,6 +31,10 @@ const _expectedUid = String.fromEnvironment('TEST_EXPECTED_UID');
 const _gid = String.fromEnvironment('H2_C2G_GID');
 const _runTag = String.fromEnvironment('H2_RUN_TAG');
 const _allow = bool.fromEnvironment('H2_C2G_REAL_RUN', defaultValue: false);
+const _freshLogin = bool.fromEnvironment(
+  'H2_C2G_FRESH_LOGIN',
+  defaultValue: false,
+);
 
 /// 体验选择页（ChatShellBootstrap）单次软选择：出现即 select(chat)。
 /// 登录已持久化的账号冷启动直接落在该页，而 flows 的入口白名单
@@ -49,8 +53,22 @@ Future<void> _softSelectChatExperienceOnce(WidgetTester tester) async {
 
 /// mac 持久登录的可能不是授权账号（如上轮新成员测试留下的 spare7 会话）：
 /// 先切号到期望账号（quitLogin 清 E2EE 秘密与本地库 → 导回欢迎页）。
+/// 另：A 侧 Android 每轮卸载重装 → 设备身份密钥每轮更换，本侧持久缓存
+/// 的旧身份指纹会让 room-key Olm 解包 IdentityChangedException 拒解
+/// （orch8 实证，fail-closed 无自动恢复）。真实 run 传
+/// H2_C2G_FRESH_LOGIN=true 对「已是本账号」的会话也强制清态重登，
+/// 等价「好友换新设备」后的全新信任建立。
 Future<void> _switchToExpectedAccount(WidgetTester tester) async {
   final current = UserRepoLocal.to.currentUid;
+  if (_freshLogin && current == _expectedUid && current.isNotEmpty) {
+    // ignore: avoid_print
+    print('[H2-C2G] B 侧强制换新登录（清旧设备身份信任），quitLogin');
+    await UserRepoLocal.to.quitLogin();
+    final ctx = tester.element(find.byType(Navigator).first);
+    GoRouter.of(ctx).go('/welcome');
+    await settle(tester, maxSeconds: 6);
+    return;
+  }
   if (current == _expectedUid || current.isEmpty) return;
   // ignore: avoid_print
   print('[H2-C2G] B 侧切号：$current → $_expectedUid，quitLogin');

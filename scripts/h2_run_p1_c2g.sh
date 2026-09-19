@@ -79,11 +79,14 @@ pkill -f "flutter_tools.snapshot --no-color run --machine" 2>/dev/null || true
 pkill -x IMBoy 2>/dev/null || true
 sleep 2
 
-# 2. B 侧（macOS）后台
+# 2. B 侧（macOS）后台。FRESH_LOGIN：A 每轮重装换设备身份，B 持久缓存
+# 旧指纹会 IdentityChangedException 拒解 room-key（orch8 实证）——每轮
+# 清 E2EE 状态重登，重建对 A 新设备的信任。
 log "启动 B 侧(macOS)"
 ( cd "$PROJ" && flutter test integration_test/two_client/h2_c2g_mac_b_side_test.dart \
     -d macos --no-pub "${COMMON_DEF[@]}" \
     --dart-define=TEST_PHONE=$B_ACC --dart-define=TEST_EXPECTED_UID=$B_UID \
+    --dart-define=H2_C2G_FRESH_LOGIN=true \
     > "$OUT/b_side.log" 2>&1 ) &
 B_PID=$!
 READY=0
