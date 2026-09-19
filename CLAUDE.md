@@ -2,7 +2,7 @@
 
 # ImBoy App - 架构文档 / Architecture Document
 
-> 最后更新 / Last updated：2026-07-25 CST | Flutter 客户端 | 双语文档规则见根级 [CLAUDE.md](../CLAUDE.md)
+> 最后更新 / Last updated：2026-09-19 CST（schema 版本与模块索引对齐代码）| Flutter 客户端 | 双语文档规则见根级 [CLAUDE.md](../CLAUDE.md)；三端术语以后端仓 `docs/glossary.md` 为准
 
 ---
 
@@ -28,7 +28,7 @@
 | 框架 | Flutter / Dart 3.8+ |
 | 状态管理 | Riverpod（100% 迁移完成，0 GetX） |
 | 路由 | go_router |
-| 本地数据库 | SQLite (sqflite 2.4+ + SQLCipher)，当前 schema v31（manifest 单一真源） |
+| 本地数据库 | SQLite (sqflite 2.4+ + SQLCipher)，当前 schema v32（manifest 单一真源） |
 | 网络 | Dio 5.10 |
 | 实时通讯 | WebSocket + WebRTC |
 | 国际化 | slang ^4.18.0，默认语言 zh-CN |
@@ -85,7 +85,7 @@ scripts/           # 构建/测试脚本
 
 ### SQLite 版本
 
-当前 `_dbVersion = 31`（以 `lib/service/sqlite.dart` 为准；v31 = 频道访问模型三字段）。
+当前 `_dbVersion = 32`（以 `lib/service/sqlite.dart` 为准；v32 = `group.user_id_sum` 死列退役，对齐服务端迁移 00000079）。
 **迁移唯一真源是 `lib/service/migrations/manifest_all.dart` 的类型化清单**（2026-08-27 起）：
 assets/migrations/*.sql 与 embedded 常量都是生成物。改迁移必须改 manifest 后跑
 `dart run tool/generate_sqlite_migrations.dart --check`；统一测试门
@@ -139,6 +139,9 @@ flutter build ios                   # iOS 发布构建
 | `lib/modules/identity/` | 身份认证与账户 | — |
 | `lib/modules/security_privacy/` | 安全与隐私（E2EE/DND） | — |
 | `lib/modules/ops_governance/` | 运营治理（举报/审核） | — |
+| `lib/modules/organization/` | 组织（租户）：成员/邀请/部门/默认工作区 | — |
+| `lib/modules/enterprise/` | 企业托管消息（联系人/会话/资产，本地 sqflite store） | — |
+| `lib/modules/customer_service/` | 客服坐席工作台（入口闸/会话状态机/队列） | — |
 
 ---
 
