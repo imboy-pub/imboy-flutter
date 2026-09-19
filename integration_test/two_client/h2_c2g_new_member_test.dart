@@ -13,10 +13,12 @@
 // 运行（编排脚本启动，勿单跑）：flutter test <file> -d macos ...
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart' show TextMessage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/page/chat_shell/chat_shell_bootstrap.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/service/group_session_service.dart';
@@ -32,6 +34,24 @@ const _expectedUid = String.fromEnvironment('TEST_EXPECTED_UID');
 const _gid = String.fromEnvironment('H2_C2G_GID');
 const _runTag = String.fromEnvironment('H2_RUN_TAG');
 const _allow = bool.fromEnvironment('H2_C2G_REAL_RUN', defaultValue: false);
+
+/// 白盒收信检测：直接查 chatProvider 内存消息列表（网络层解密入库即真）。
+/// orch9 教训：Live binding 下 pump 驱动的 UI 文本断言在气泡渲染后会挂起
+/// ——观察窗循环不依赖渲染，UI 断言仅收尾一次。
+bool _inboxContains(WidgetTester tester, String marker) {
+  try {
+    final ctx = tester.element(find.byType(ChatPage).first);
+    final container = ProviderScope.containerOf(ctx);
+    final messages = container
+        .read(chatProvider.notifier)
+        .chatService
+        ?.messages;
+    return messages?.any((m) => m is TextMessage && m.text.contains(marker)) ??
+        false;
+  } catch (_) {
+    return false;
+  }
+}
 
 /// 体验选择页（ChatShellBootstrap）单次软选择：出现即 select(chat)。
 Future<void> _softSelectChatExperienceOnce(WidgetTester tester) async {
@@ -213,30 +233,45 @@ void main() {
     }
     expect(find.byType(ChatPage), findsOneWidget, reason: '群聊页应已打开');
 
-    // 观察 600 秒：A 轮询到本设备密钥上线后轮转 S2（预分发 room-key 到
-    // 本设备）再发 m3；m1/m2 若出现即破坏「新成员不可见历史」语义，立即
-    // 失败。m3 可能经 WS 实时帧或 offline 拉取+grant 兜底到达，均计可见。
+    // 观察 600 秒（白盒，见 _inboxContains 教训注释）：A 轮询到本设备密钥
+    // 上线后轮转 S2（预分发 room-key 到本设备）再发 m3；m1/m2 若出现在内存
+    // 列表即破坏「新成员不可见历史」语义，立即失败。m3 可能经 WS 实时帧或
+    // offline 拉取+grant 兜底到达，均计可见。
     var sawM3 = false;
     for (var i = 0; i < 600; i++) {
-      await tester.pump(const Duration(seconds: 1));
-      expect(
-        tester.any(find.textContaining(m1, findRichText: true)),
-        isFalse,
-        reason: '新成员不应看到入群前的 m1（历史 room-key 前向隔离被破坏）',
-      );
-      expect(
-        tester.any(find.textContaining(m2, findRichText: true)),
-        isFalse,
-        reason: '新成员不应看到入群前的 m2（历史 room-key 前向隔离被破坏）',
-      );
-      sawM3 = sawM3 || tester.any(find.textContaining(m3, findRichText: true));
+      await Future<void>.delayed(const Duration(seconds: 1));
+      final leakedM1 = _inboxContains(tester, m1);
+      final leakedM2 = _inboxContains(tester, m2);
+      if (leakedM1 || leakedM2) {
+        fail(
+          '新成员不应看到入群前的 m1/m2（历史 room-key 前向隔离被破坏）：'
+          'm1=$leakedM1 m2=$leakedM2',
+        );
+      }
+      sawM3 = sawM3 || _inboxContains(tester, m3);
       if (i % 30 == 29) {
         // ignore: avoid_print
-        print('[H2-C2G-NEW] 等待 m3（key-request 分享）${i + 1}s sawM3=$sawM3');
+        print('[H2-C2G-NEW] 等待 m3（世代内消息）${i + 1}s sawM3=$sawM3');
       }
       if (sawM3 && i > 20) break;
     }
     expect(sawM3, isTrue, reason: '新成员应看到入群后的 m3（room-key 已分发到其设备）');
+    await settle(tester, maxSeconds: 4);
+    expect(
+      tester.any(find.textContaining(m3, findRichText: true)),
+      isTrue,
+      reason: '新成员 UI 应渲染 m3',
+    );
+    expect(
+      tester.any(find.textContaining(m1, findRichText: true)),
+      isFalse,
+      reason: '新成员 UI 不应渲染 m1',
+    );
+    expect(
+      tester.any(find.textContaining(m2, findRichText: true)),
+      isFalse,
+      reason: '新成员 UI 不应渲染 m2',
+    );
     await takeScreenshot(tester, 'h2_c2g_new_member_isolated');
     // ignore: avoid_print
     print('[H2-C2G-NEW] PASS：m1/m2 不可见，m3 可见');

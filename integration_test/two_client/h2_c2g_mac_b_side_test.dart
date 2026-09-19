@@ -36,6 +36,24 @@ const _freshLogin = bool.fromEnvironment(
   defaultValue: false,
 );
 
+/// 白盒收信检测：直接查 chatProvider 内存消息列表（网络层解密入库即真）。
+/// orch9 教训：Live binding 下 pump 驱动的 UI 文本断言在气泡渲染后会挂起
+/// （心跳停在 150s，m2 永不发出）——等待循环不依赖渲染，UI 断言仅收尾一次。
+bool _inboxContains(WidgetTester tester, String marker) {
+  try {
+    final ctx = tester.element(find.byType(ChatPage).first);
+    final container = ProviderScope.containerOf(ctx);
+    final messages = container
+        .read(chatProvider.notifier)
+        .chatService
+        ?.messages;
+    return messages?.any((m) => m is TextMessage && m.text.contains(marker)) ??
+        false;
+  } catch (_) {
+    return false;
+  }
+}
+
 /// 体验选择页（ChatShellBootstrap）单次软选择：出现即 select(chat)。
 /// 登录已持久化的账号冷启动直接落在该页，而 flows 的入口白名单
 /// （Login/Welcome/MainShell）不含它——不在此处处理会永远「入口超时」。
@@ -207,19 +225,26 @@ void main() {
     // ignore: avoid_print
     print('[H2-C2G] B 侧就绪，等待 A 的 marker=$aMarker');
 
-    // A 在 EMUI9 上要走完整首启登录（可达 10 分钟），等待窗口给足 15 分钟
+    // A 在 EMUI9 上要走完整首启登录（可达 10 分钟），等待窗口给足 15 分钟。
+    // 白盒检测（见 _inboxContains 教训注释）：网络层解密入库即视为收到。
     var received = false;
     for (var i = 0; i < 900 && !received; i++) {
-      await tester.pump(const Duration(seconds: 1));
+      await Future<void>.delayed(const Duration(seconds: 1));
       if (i % 15 == 14) {
         // ignore: avoid_print
         print('[H2-C2G] B 侧等待 A 群消息 ${(i + 1)}s');
       }
-      received = tester.any(find.textContaining(aMarker, findRichText: true));
+      received = _inboxContains(tester, aMarker);
     }
     if (!received) {
       fail('900 秒内 B 侧未解密 A 的群消息（room-key Olm 分发 / Megolm 入站解密断裂）');
     }
+    await settle(tester, maxSeconds: 4);
+    expect(
+      tester.any(find.textContaining(aMarker, findRichText: true)),
+      isTrue,
+      reason: 'B 侧应渲染 A 的群消息',
+    );
     await takeScreenshot(tester, 'h2_c2g_macB_02_received');
     // ignore: avoid_print
     print('[H2-C2G] B 侧已解密 A 的群消息：$aMarker');

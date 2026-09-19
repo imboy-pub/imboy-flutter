@@ -45,6 +45,24 @@ const _allow = bool.fromEnvironment('H2_C2G_REAL_RUN', defaultValue: false);
 /// 15s 覆盖正常抖动（重试+网络 RTT）。
 const _keySettleDelay = Duration(seconds: 15);
 
+/// 白盒收信检测：直接查 chatProvider 内存消息列表（网络层解密入库即真）。
+/// orch9 教训：Live binding 下 pump 驱动的 UI 文本断言在气泡渲染后会挂起
+/// ——等待循环不依赖渲染，UI 断言仅收尾一次。
+bool _inboxContains(WidgetTester tester, String marker) {
+  try {
+    final ctx = tester.element(find.byType(ChatPage).first);
+    final container = ProviderScope.containerOf(ctx);
+    final messages = container
+        .read(chatProvider.notifier)
+        .chatService
+        ?.messages;
+    return messages?.any((m) => m is TextMessage && m.text.contains(marker)) ??
+        false;
+  } catch (_) {
+    return false;
+  }
+}
+
 /// 体验选择页（ChatShellBootstrap）单次软选择：出现即 select(chat)。
 /// 登录已持久化的账号冷启动直接落在该页，而 flows 的入口白名单
 /// （Login/Welcome/MainShell）不含它——不在此处处理会永远「入口超时」。
@@ -246,19 +264,26 @@ void main() {
     // ignore: avoid_print
     print('[H2-C2G] A 侧已发送 m1：$aMarker');
 
-    // 等 B 回复 m2 解密渲染（B 要等 A 先上线才会回，给足 8 分钟）
+    // 等 B 回复 m2（B 要等 A 先上线才会回，给足 8 分钟）。白盒检测：
+    // orch9 教训（pump 驱动 UI 断言在气泡渲染后挂起），UI 断言仅收尾一次。
     var received = false;
     for (var i = 0; i < 480 && !received; i++) {
-      await tester.pump(const Duration(seconds: 1));
+      await Future<void>.delayed(const Duration(seconds: 1));
       if (i % 15 == 14) {
         // ignore: avoid_print
         print('[H2-C2G] A 侧等待 B 回复 ${(i + 1)}s');
       }
-      received = tester.any(find.textContaining(bMarker, findRichText: true));
+      received = _inboxContains(tester, bMarker);
     }
     if (!received) {
       fail('480 秒内 A 侧未解密 B 的群回复（room-key / Megolm 入站断裂）');
     }
+    await settle(tester, maxSeconds: 4);
+    expect(
+      tester.any(find.textContaining(bMarker, findRichText: true)),
+      isTrue,
+      reason: 'A 侧应渲染 B 的回复',
+    );
     await takeScreenshot(tester, 'h2_c2g_andA_03_reply_decrypted');
     // ignore: avoid_print
     print('[H2-C2G] A 侧已解密 B 的回复：$bMarker');
@@ -304,10 +329,11 @@ void main() {
     await Future<void>.delayed(_keySettleDelay);
     final ok3 = await _sendGroupText(tester, _gid, selfUid, m3Marker);
     expect(ok3, isTrue, reason: 'A 侧 m3（新成员在场）发送应成功');
+    // _sendGroupText 内 insertMessage 已入列表，白盒确认回显即可
     var sawM3 = false;
-    for (var i = 0; i < 60 && !sawM3; i++) {
-      await tester.pump(const Duration(seconds: 1));
-      sawM3 = tester.any(find.textContaining(m3Marker, findRichText: true));
+    for (var i = 0; i < 30 && !sawM3; i++) {
+      await Future<void>.delayed(const Duration(seconds: 1));
+      sawM3 = _inboxContains(tester, m3Marker);
     }
     expect(sawM3, isTrue, reason: 'A 侧应看到自己的 m3 回显');
     await takeScreenshot(tester, 'h2_c2g_andA_04_m3_sent');
