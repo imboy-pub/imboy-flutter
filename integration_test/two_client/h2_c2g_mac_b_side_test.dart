@@ -292,7 +292,7 @@ void main() {
     // m3 的 S2 room-key 由 A 侧预分发（spare7 设备上线后轮转），不再依赖
     // 本侧在线。
     // ignore: avoid_print
-    print('[H2-C2G] B 侧 sawM3=让位(不适用) PASS');
+    print('[H2-C2G] B 侧 PASS（sawM3=让位不适用，mac 槽已交新成员）');
     drainKnownFrameworkExceptions(tester);
   }, timeout: const Timeout(Duration(minutes: 25)));
 }
