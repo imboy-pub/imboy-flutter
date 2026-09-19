@@ -141,7 +141,7 @@ class _OrganizationInvitationsPageState
                 ScaffoldMessenger.maybeOf(ctx)
                     ?.showSnackBar(const SnackBar(content: Text('已复制口令')));
               },
-              icon: const Icon(Icons.copy),
+              icon: const Icon(CupertinoIcons.doc_on_doc),
               label: const Text('复制口令'),
             ),
             TextButton(
@@ -213,7 +213,7 @@ class _OrganizationInvitationsPageState
               button: true,
               label: '创建邀请',
               child: IconButton(
-                icon: const Icon(Icons.add),
+                icon: const Icon(CupertinoIcons.add),
                 tooltip: '创建邀请',
                 onPressed: _create,
               ),
@@ -281,7 +281,7 @@ class _OrganizationInvitationsPageState
 
   Widget? _buildActionChip(OrgInvitation inv) {
     if (widget.mineMode && inv.isPending) {
-      return const Icon(Icons.chevron_right);
+      return const Icon(CupertinoIcons.chevron_right);
     }
     if (!widget.mineMode && inv.isPending) {
       return TextButton(onPressed: () => _revoke(inv), child: const Text('撤销'));
@@ -304,13 +304,13 @@ class _OrganizationInvitationsPageState
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.check_circle_outline),
+              leading: const Icon(CupertinoIcons.checkmark_circle),
               title: const Text('凭口令接受'),
               onTap: () => Navigator.of(ctx).pop('accept'),
             ),
             ListTile(
               leading: Icon(
-                Icons.cancel_outlined,
+                CupertinoIcons.xmark_circle,
                 color: Theme.of(ctx).colorScheme.error,
               ),
               title: Text(

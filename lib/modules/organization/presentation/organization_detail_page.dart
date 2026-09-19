@@ -173,7 +173,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
                   for (final b in report.blockers)
                     ListTile(
                       dense: true,
-                      leading: const Icon(Icons.block),
+                      leading: const Icon(CupertinoIcons.nosign),
                       title: Text(
                         b.code,
                         maxLines: 1,
@@ -227,7 +227,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
               button: true,
               label: '修改组织名称',
               child: IconButton(
-                icon: const Icon(Icons.edit),
+                icon: const Icon(CupertinoIcons.pencil),
                 tooltip: '修改名称',
                 onPressed: _rename,
               ),
@@ -272,7 +272,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
     ),
     if (org.isArchived)
       const ListTile(
-        leading: Icon(Icons.lock_outline),
+        leading: Icon(CupertinoIcons.lock),
         title: Text('组织已归档（只读）'),
         subtitle: Text('归档期间全部写操作被拒绝，仅恢复操作可用'),
       ),
@@ -294,20 +294,20 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       ListTile(
         leading: const Icon(CupertinoIcons.person_2),
         title: Text('成员列表${canGovern ? '' : '（仅 owner/admin 可查看）'}'),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(CupertinoIcons.chevron_right),
         onTap: () => context.push('$kOrganizationHomePath/${org.id}/members'),
       ),
       ListTile(
         leading: const Icon(CupertinoIcons.mail),
         title: Text('邀请管理${canGovern ? '' : '（仅 owner/admin 可管理）'}'),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(CupertinoIcons.chevron_right),
         onTap: () =>
             context.push('$kOrganizationHomePath/${org.id}/invitations'),
       ),
       ListTile(
         leading: const Icon(CupertinoIcons.tree),
         title: Text('部门目录${canGovern ? '' : '（管理操作仅限授权者）'}'),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(CupertinoIcons.chevron_right),
         onTap: () =>
             context.push('$kOrganizationHomePath/${org.id}/departments'),
       ),
@@ -328,7 +328,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
     if (!org.isArchived && org.canGovern)
       ListTile(
         leading: Icon(
-          Icons.archive_outlined,
+          CupertinoIcons.archivebox,
           color: Theme.of(context).colorScheme.error,
         ),
         title: Text(
@@ -340,7 +340,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       ),
     if (org.isArchived && org.canGovern)
       ListTile(
-        leading: const Icon(Icons.unarchive_outlined),
+        leading: const Icon(CupertinoIcons.tray),
         title: const Text('恢复组织'),
         subtitle: const Text('回到 active 态'),
         onTap: _restore,

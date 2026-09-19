@@ -197,13 +197,13 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
           children: [
             if (m.isGovernable)
               ListTile(
-                leading: const Icon(Icons.swap_horiz),
+                leading: const Icon(CupertinoIcons.arrow_swap),
                 title: Text(m.isAdmin ? '降级为成员' : '升级为管理员'),
                 onTap: () => Navigator.of(ctx).pop('role'),
               ),
             if (m.isGovernable && iAmOwner)
               ListTile(
-                leading: const Icon(Icons.verified_user_outlined),
+                leading: const Icon(CupertinoIcons.shield_fill),
                 title: Text('转移所有者给「${m.displayName}」'),
                 onTap: () => Navigator.of(ctx).pop('transfer'),
               ),
@@ -221,7 +221,7 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
               ),
             if (!m.isGovernable)
               const ListTile(
-                leading: Icon(Icons.info_outline),
+                leading: Icon(CupertinoIcons.info),
                 title: Text('Owner 不可在此变更；请使用「转移所有者」'),
               ),
           ],
@@ -279,7 +279,7 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  trailing: const Icon(Icons.more_vert),
+                  trailing: const Icon(CupertinoIcons.ellipsis),
                   onTap: () => _openMemberActions(m),
                 ),
               if (_page < _totalPage)

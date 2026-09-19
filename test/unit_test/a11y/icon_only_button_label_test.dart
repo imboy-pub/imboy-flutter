@@ -52,6 +52,13 @@ final _materialIcon = RegExp(r'(?<!\w)Icons\.([A-Za-z0-9_]+)(?![A-Za-z0-9_])');
 /// verified），或图标更换属于设计统一决策、不应由测试红绿倒逼。
 /// 豁免只认存量——新增高可见 Material 图标会再次报红。
 const _cupertinoExemptions = <String>{
+  // ORG V1（2026-09-19 补登）：以下四处在 CupertinoIcons 无对等设计资源，
+  // 硬换近似图标会丢失语义（核对清单/挂载业务/层级树/移除成员），按豁免规则收录：
+  'lib/modules/organization/presentation/organization_detail_page.dart|fact_check_outlined',
+  'lib/modules/organization/presentation/organization_departments_page.dart|add_business_outlined',
+  'lib/modules/organization/presentation/organization_departments_page.dart|account_tree_outlined',
+  'lib/modules/organization/presentation/organization_members_page.dart|person_remove_outlined',
+
   'lib/page/channel/channel_admin_page.dart|error_outline',
   'lib/page/channel/channel_comment_page.dart|cloud_off_outlined',
   'lib/page/channel/channel_detail_page.dart|more_vert',

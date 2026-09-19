@@ -143,7 +143,10 @@ class _OrganizationDepartmentsPageState
         ),
         trailing: _canGovern && !d.isArchived
             ? IconButton(
-                icon: const Icon(Icons.more_vert),
+                icon: const Icon(
+                  CupertinoIcons.ellipsis,
+                  semanticLabel: '更多操作',
+                ),
                 onPressed: () => _deptActions(d),
               )
             : null,
@@ -183,9 +186,7 @@ class _OrganizationDepartmentsPageState
                   ListTile(
                     dense: true,
                     leading: Icon(
-                      m.isAdmin
-                          ? Icons.admin_panel_settings_outlined
-                          : Icons.person_outline,
+                      m.isAdmin ? CupertinoIcons.shield : CupertinoIcons.person,
                     ),
                     title: Text(
                       '成员 ${m.userId}',
@@ -228,7 +229,7 @@ class _OrganizationDepartmentsPageState
               onTap: () => Navigator.of(ctx).pop('create-child'),
             ),
             ListTile(
-              leading: const Icon(Icons.edit_outlined),
+              leading: const Icon(CupertinoIcons.pencil),
               title: const Text('重命名'),
               onTap: () => Navigator.of(ctx).pop('rename'),
             ),
@@ -238,12 +239,12 @@ class _OrganizationDepartmentsPageState
               onTap: () => Navigator.of(ctx).pop('move'),
             ),
             ListTile(
-              leading: const Icon(Icons.person_add_alt_outlined),
+              leading: const Icon(CupertinoIcons.person_crop_circle_badge_plus),
               title: const Text('添加成员（按 UID）'),
               onTap: () => Navigator.of(ctx).pop('add-member'),
             ),
             ListTile(
-              leading: const Icon(Icons.archive_outlined),
+              leading: const Icon(CupertinoIcons.archivebox),
               title: const Text('归档部门'),
               onTap: () => Navigator.of(ctx).pop('archive'),
             ),
@@ -361,7 +362,7 @@ class _OrganizationDepartmentsPageState
               button: true,
               label: '新建根部门',
               child: IconButton(
-                icon: const Icon(Icons.add),
+                icon: const Icon(CupertinoIcons.add),
                 tooltip: '新建根部门',
                 onPressed: _create,
               ),
@@ -373,7 +374,7 @@ class _OrganizationDepartmentsPageState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.lock_outline, size: 40),
+                  const Icon(CupertinoIcons.lock, size: 40),
                   const SizedBox(height: AppSpacing.small),
                   const Text('无权查看（仅限本组织在职成员）'),
                   const SizedBox(height: AppSpacing.regular),

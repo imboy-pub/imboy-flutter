@@ -119,7 +119,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
             button: true,
             label: '创建组织',
             child: IconButton(
-              icon: const Icon(Icons.add),
+              icon: const Icon(CupertinoIcons.add),
               tooltip: '创建组织',
               onPressed: _createOrg,
             ),
@@ -155,7 +155,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
                     '${orgRoleLabel(o.memberRole.isEmpty ? 'member' : o.memberRole)}'
                     '${o.isArchived ? ' · ${orgStatusLabel(o.status)}' : ''}',
                   ),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(CupertinoIcons.chevron_right),
                   onTap: () => context.push('$kOrganizationHomePath/${o.id}'),
                 ),
             ],
