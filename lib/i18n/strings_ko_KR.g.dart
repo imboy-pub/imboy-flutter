@@ -64,6 +64,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$mention$ko_KR mention = _Translations$mention$ko_KR._(_root);
 	@override late final _Translations$momentFriendPicker$ko_KR momentFriendPicker = _Translations$momentFriendPicker$ko_KR._(_root);
 	@override late final _Translations$momentNotify$ko_KR momentNotify = _Translations$momentNotify$ko_KR._(_root);
+	@override late final _Translations$organization$ko_KR organization = _Translations$organization$ko_KR._(_root);
 	@override late final _Translations$passport$ko_KR passport = _Translations$passport$ko_KR._(_root);
 	@override late final _Translations$splash$ko_KR splash = _Translations$splash$ko_KR._(_root);
 	@override late final _Translations$welcome$ko_KR welcome = _Translations$welcome$ko_KR._(_root);
@@ -2211,6 +2212,21 @@ class _Translations$momentNotify$ko_KR extends Translations$momentNotify$zh_CN {
 	@override String get loadFailed => '불러오기 실패, 나중에 다시 시도해주세요';
 }
 
+// Path: organization
+class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
+	_Translations$organization$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$organization$common$ko_KR common = _Translations$organization$common$ko_KR._(_root);
+	@override late final _Translations$organization$home$ko_KR home = _Translations$organization$home$ko_KR._(_root);
+	@override late final _Translations$organization$detail$ko_KR detail = _Translations$organization$detail$ko_KR._(_root);
+	@override late final _Translations$organization$members$ko_KR members = _Translations$organization$members$ko_KR._(_root);
+	@override late final _Translations$organization$invitations$ko_KR invitations = _Translations$organization$invitations$ko_KR._(_root);
+	@override late final _Translations$organization$departments$ko_KR departments = _Translations$organization$departments$ko_KR._(_root);
+}
+
 // Path: passport
 class _Translations$passport$ko_KR extends Translations$passport$zh_CN {
 	_Translations$passport$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
@@ -2518,6 +2534,190 @@ class _Translations$account$alipaySim$ko_KR extends Translations$account$alipayS
 	@override String get storeName => '정보기술 플래그십 스토어';
 	@override String get paymentAmount => '금액:';
 	@override String get balanceSource => '계정 잔액';
+}
+
+// Path: organization.common
+class _Translations$organization$common$ko_KR extends Translations$organization$common$zh_CN {
+	_Translations$organization$common$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get moreActions => '더보기';
+	@override String get rename => '이름 바꾸기';
+	@override String get close => '닫기';
+	@override String get reload => '새로고침';
+	@override String get createFailed => '생성 실패';
+	@override String get addFailed => '추가 실패';
+	@override String get confirmArchive => '보관 확인';
+	@override String get forbidden403 => '이 작업을 수행할 권한이 없습니다(403)';
+	@override String get noMembers => '멤버가 없습니다';
+	@override String get targetUidHint => '상대 사용자 UID(숫자)';
+	@override String get uidMustBePositive => '사용자 UID는 양의 정수여야 합니다';
+	@override String get loading => '불러오는 중…';
+	@override String get loadMore => '더 불러오기';
+}
+
+// Path: organization.home
+class _Translations$organization$home$ko_KR extends Translations$organization$home$zh_CN {
+	_Translations$organization$home$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get createOrg => '조직 만들기';
+	@override String get orgNameLabel => '조직 이름(1-200자)';
+	@override String createFailedWith({required Object msg, required Object code}) => '생성 실패: ${msg} (${code})';
+	@override String get tabOrg => '조직';
+	@override String get myInvitations => '내 초대';
+	@override String get emptyHint => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요';
+}
+
+// Path: organization.detail
+class _Translations$organization$detail$ko_KR extends Translations$organization$detail$zh_CN {
+	_Translations$organization$detail$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '조직 상세';
+	@override String get notFound => '조직을 찾을 수 없습니다';
+	@override String get archiveOrg => '조직 보관';
+	@override String get archiveConfirmBody => '보관하면 조직은 읽기 전용이 되며 모든 쓰기 작업은 fail-closed로 차단됩니다. 복원(restore)으로만 잠금 해제됩니다. 멤버와 데이터는 삭제되지 않습니다.';
+	@override String get restoreOrg => '조직 복원';
+	@override String get restoreConfirmBody => '복원하면 조직은 active 상태로 돌아가고 쓰기가 다시 열립니다.';
+	@override String get confirmRestore => '복원 확인';
+	@override String get restoreFailed => '복원 실패';
+	@override String get archiveFailed => '보관 실패';
+	@override String get renameOrgTitle => '조직 이름 변경';
+	@override String get renameOrgLabel => '조직 이름(1-200자)';
+	@override String get renameAction => '이름 변경';
+	@override String get renameFailed => '이름 변경 실패';
+	@override String get deletionPreflight => '계정 삭제 사전 점검';
+	@override String get deletionPreflightDesc => '이 계정의 삭제를 막고 있는 의존 도메인을 확인합니다';
+	@override String observedAt({required Object ts}) => '관찰 시각: ${ts}';
+	@override String factDomains({required Object domains}) => '대상 의존 도메인: ${domains}';
+	@override String get noBlockers => '차단 항목 없음';
+	@override String get blockers => '차단 항목:';
+	@override String get factUnavailable => '의존 도메인 사실을 사용할 수 없어 삭제 사전 점검이 거부되었습니다(fail-closed)';
+	@override String preflightFailed({required Object msg, required Object code}) => '사전 점검 실패: ${msg} (${code})';
+	@override String myRoleAndStatus({required Object role, required Object status}) => '내 역할: ${role} · 상태: ${status}';
+	@override String get archivedBadge => '조직이 보관됨(읽기 전용)';
+	@override String get archivedHint => '보관 중에는 모든 쓰기 작업이 거부되며 복원만 가능합니다';
+	@override String defaultWsSet({required Object id}) => '기본 Workspace: ${id}';
+	@override String get defaultWsUnset => '기본 Workspace: 미설정';
+	@override String get defaultWsNote => '사실을 가리킬 뿐 어떠한 workspace 멤버십도 나타내지 않습니다';
+	@override String get memberList => '멤버 목록';
+	@override String get memberListRestricted => '멤버 목록(owner/admin만 볼 수 있음)';
+	@override String get invitationManage => '초대 관리';
+	@override String get invitationManageRestricted => '초대 관리(owner/admin만 가능)';
+	@override String get deptEntry => '부서 목록';
+	@override String get deptEntryRestricted => '부서 목록(관리 작업은 권한자만)';
+	@override String get more => '더보기';
+	@override String get archiveEntrySubtitle => '읽기 전용으로 전환, 언제든 복원 가능';
+	@override String get restoreEntrySubtitle => 'active 상태로 복귀';
+}
+
+// Path: organization.members
+class _Translations$organization$members$ko_KR extends Translations$organization$members$zh_CN {
+	_Translations$organization$members$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '멤버';
+	@override String loadMoreFailed({required Object err}) => '추가 불러오기 실패: ${err}';
+	@override String get changeRole => '역할 변경';
+	@override String changeRoleBody({required Object name, required Object from, required Object to}) => '‘${name}’의 역할을 ${from}에서 ${to}(으)로 변경합니다.';
+	@override String get confirmChange => '변경 확인';
+	@override String get changeRoleFailed => '역할 변경 실패';
+	@override String get removeMember => '멤버 제거';
+	@override String removeMemberBody({required Object name}) => '‘${name}’을(를) 이 조직에서 제거합니다. 계정 자체는 삭제되지 않습니다.';
+	@override String get confirmRemove => '제거 확인';
+	@override String get removeFailed => '제거 실패';
+	@override String get transferOwner => '소유자 이전';
+	@override String transferOwnerBody({required Object name}) => '조직에는 owner가 정확히 한 명 있습니다(C04): ‘${name}’을(를) 소유자로 지정합니다.\n당신은 일반 관리자/멤버로 강등됩니다. 이 작업은 조직 통제권에 직접 영향을 줍니다.';
+	@override String get confirmTransfer => '이전 확인';
+	@override String get transferFailed => '이전 실패';
+	@override String get demoteToMember => '멤버로 강등';
+	@override String get promoteToAdmin => '관리자로 승격';
+	@override String transferOwnerTo({required Object name}) => '‘${name}’에게 소유자 이전';
+	@override String get ownerCannotChangeHere => 'Owner는 여기서 변경할 수 없습니다. ‘소유자 이전’을 사용하세요';
+	@override String get empty => '멤버가 없습니다';
+}
+
+// Path: organization.invitations
+class _Translations$organization$invitations$ko_KR extends Translations$organization$invitations$zh_CN {
+	_Translations$organization$invitations$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get inviteMember => '멤버 초대';
+	@override String get invitationCreated => '초대가 생성되었습니다';
+	@override String get tokenOnceNotice => '수령 토큰(token)은 이번 한 번만 표시됩니다. 지금 바로 복사해 상대에게 전달하세요:';
+	@override String get tokenCopied => '토큰이 복사되었습니다';
+	@override String get copyToken => '토큰 복사';
+	@override String inviteFailed({required Object msg, required Object code}) => '초대 실패: ${msg} (${code})';
+	@override String get acceptTitle => '초대 수락';
+	@override String get acceptTokenHint => '초대한 사람에게 받은 수령 토큰(token)을 붙여넣으세요';
+	@override String get acceptFailed => '수락 실패';
+	@override String get rejectTitle => '초대 거절';
+	@override String get rejectBody => '거절하면 초대는 종결 상태가 되어 다시 수락할 수 없습니다.';
+	@override String get confirmReject => '거절 확인';
+	@override String get rejectFailed => '거절 실패';
+	@override String get revokeTitle => '초대 철회';
+	@override String get revokeBody => '철회하면 초대는 종결 상태가 되어 대상 사용자가 토큰으로 수락할 수 없게 됩니다.';
+	@override String get confirmRevoke => '철회 확인';
+	@override String get revokeFailed => '철회 실패';
+	@override String get myInvitations => '내 초대';
+	@override String get manageInvitations => '초대 관리';
+	@override String get createInvitation => '초대 만들기';
+	@override String get empty => '초대가 없습니다';
+	@override String get emptyRecord => '초대 기록이 없습니다';
+	@override String orgLine({required Object orgId}) => '조직 ${orgId}';
+	@override String invitationLine({required Object invitationId}) => '초대 ${invitationId}';
+	@override String targetLine({required Object targetUserId, required Object subtitle}) => '대상 ${targetUserId} · ${subtitle}';
+	@override String get acceptNotice => '수락하려면 초대한 사람이 제공한 수령 토큰(token)이 필요합니다.\n수락 후 멤버십은 서버 기준을 따릅니다.';
+	@override String get revokeAction => '철회';
+	@override String get acceptWithToken => '토큰으로 수락';
+	@override String get rejectAction => '거절';
+}
+
+// Path: organization.departments
+class _Translations$organization$departments$ko_KR extends Translations$organization$departments$zh_CN {
+	_Translations$organization$departments$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '부서 목록';
+	@override String deptIdSubtitle({required Object id}) => '부서 ${id}';
+	@override String statusLine({required Object status}) => '상태: ${status}';
+	@override String memberUidLine({required Object userId}) => '멤버 ${userId}';
+	@override String get viewForbiddenDetail => '이 부서를 볼 권한이 없습니다(이 조직의 재직 멤버만 가능)';
+	@override String get viewForbidden => '볼 권한이 없습니다(이 조직의 재직 멤버만 가능)';
+	@override String loadFailedWith({required Object msg, required Object code}) => '부서 불러오기 실패: ${msg} (${code})';
+	@override String loadFailed({required Object err}) => '부서 불러오기 실패: ${err}';
+	@override String get createSubHere => '이 아래에 하위 부서 만들기';
+	@override String get movePickParent => '이동(새 상위 부서 선택)';
+	@override String get addMemberByUid => '멤버 추가(UID로)';
+	@override String get archiveDept => '부서 보관';
+	@override String get createRootDept => '루트 부서 만들기';
+	@override String get deptNameLabel => '부서 이름';
+	@override String createUnder({required Object parent}) => '‘${parent}’ 아래에 만들기';
+	@override String get renameDept => '부서 이름 바꾸기';
+	@override String get newNameLabel => '새 이름';
+	@override String get renameFailed => '이름 바꾸기 실패';
+	@override String get moveDept => '부서 이동';
+	@override String get newParentIdHint => '새 상위 부서 ID(비우면 루트로)';
+	@override String get moveFailed => '이동 실패';
+	@override String get addDeptMember => '부서 멤버 추가';
+	@override String archiveConfirmBody({required Object name}) => '‘${name}’을(를) 보관하면 이 부서는 읽기 전용이 됩니다(멤버십은 유지).';
+	@override String get archiveFailed => '보관 실패';
+	@override String get emptyWithHint => '부서가 없습니다. 오른쪽 위에서 만들어 보세요';
+	@override String get empty => '부서가 없습니다';
+	@override String get emptySubtitle => '겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다.';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -4452,6 +4652,138 @@ extension on TranslationsKoKr {
 			'momentNotify.cancel' => '취소',
 			'momentNotify.delete' => '삭제',
 			'momentNotify.loadFailed' => '불러오기 실패, 나중에 다시 시도해주세요',
+			'organization.common.moreActions' => '더보기',
+			'organization.common.rename' => '이름 바꾸기',
+			'organization.common.close' => '닫기',
+			'organization.common.reload' => '새로고침',
+			'organization.common.createFailed' => '생성 실패',
+			'organization.common.addFailed' => '추가 실패',
+			'organization.common.confirmArchive' => '보관 확인',
+			'organization.common.forbidden403' => '이 작업을 수행할 권한이 없습니다(403)',
+			'organization.common.noMembers' => '멤버가 없습니다',
+			'organization.common.targetUidHint' => '상대 사용자 UID(숫자)',
+			'organization.common.uidMustBePositive' => '사용자 UID는 양의 정수여야 합니다',
+			'organization.common.loading' => '불러오는 중…',
+			'organization.common.loadMore' => '더 불러오기',
+			'organization.home.createOrg' => '조직 만들기',
+			'organization.home.orgNameLabel' => '조직 이름(1-200자)',
+			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '생성 실패: ${msg} (${code})',
+			'organization.home.tabOrg' => '조직',
+			'organization.home.myInvitations' => '내 초대',
+			'organization.home.emptyHint' => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요',
+			'organization.detail.title' => '조직 상세',
+			'organization.detail.notFound' => '조직을 찾을 수 없습니다',
+			'organization.detail.archiveOrg' => '조직 보관',
+			'organization.detail.archiveConfirmBody' => '보관하면 조직은 읽기 전용이 되며 모든 쓰기 작업은 fail-closed로 차단됩니다. 복원(restore)으로만 잠금 해제됩니다. 멤버와 데이터는 삭제되지 않습니다.',
+			'organization.detail.restoreOrg' => '조직 복원',
+			'organization.detail.restoreConfirmBody' => '복원하면 조직은 active 상태로 돌아가고 쓰기가 다시 열립니다.',
+			'organization.detail.confirmRestore' => '복원 확인',
+			'organization.detail.restoreFailed' => '복원 실패',
+			'organization.detail.archiveFailed' => '보관 실패',
+			'organization.detail.renameOrgTitle' => '조직 이름 변경',
+			'organization.detail.renameOrgLabel' => '조직 이름(1-200자)',
+			'organization.detail.renameAction' => '이름 변경',
+			'organization.detail.renameFailed' => '이름 변경 실패',
+			'organization.detail.deletionPreflight' => '계정 삭제 사전 점검',
+			'organization.detail.deletionPreflightDesc' => '이 계정의 삭제를 막고 있는 의존 도메인을 확인합니다',
+			'organization.detail.observedAt' => ({required Object ts}) => '관찰 시각: ${ts}',
+			'organization.detail.factDomains' => ({required Object domains}) => '대상 의존 도메인: ${domains}',
+			'organization.detail.noBlockers' => '차단 항목 없음',
+			'organization.detail.blockers' => '차단 항목:',
+			'organization.detail.factUnavailable' => '의존 도메인 사실을 사용할 수 없어 삭제 사전 점검이 거부되었습니다(fail-closed)',
+			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => '사전 점검 실패: ${msg} (${code})',
+			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => '내 역할: ${role} · 상태: ${status}',
+			'organization.detail.archivedBadge' => '조직이 보관됨(읽기 전용)',
+			'organization.detail.archivedHint' => '보관 중에는 모든 쓰기 작업이 거부되며 복원만 가능합니다',
+			'organization.detail.defaultWsSet' => ({required Object id}) => '기본 Workspace: ${id}',
+			'organization.detail.defaultWsUnset' => '기본 Workspace: 미설정',
+			'organization.detail.defaultWsNote' => '사실을 가리킬 뿐 어떠한 workspace 멤버십도 나타내지 않습니다',
+			'organization.detail.memberList' => '멤버 목록',
+			'organization.detail.memberListRestricted' => '멤버 목록(owner/admin만 볼 수 있음)',
+			'organization.detail.invitationManage' => '초대 관리',
+			'organization.detail.invitationManageRestricted' => '초대 관리(owner/admin만 가능)',
+			'organization.detail.deptEntry' => '부서 목록',
+			'organization.detail.deptEntryRestricted' => '부서 목록(관리 작업은 권한자만)',
+			'organization.detail.more' => '더보기',
+			'organization.detail.archiveEntrySubtitle' => '읽기 전용으로 전환, 언제든 복원 가능',
+			'organization.detail.restoreEntrySubtitle' => 'active 상태로 복귀',
+			'organization.members.title' => '멤버',
+			'organization.members.loadMoreFailed' => ({required Object err}) => '추가 불러오기 실패: ${err}',
+			'organization.members.changeRole' => '역할 변경',
+			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => '‘${name}’의 역할을 ${from}에서 ${to}(으)로 변경합니다.',
+			'organization.members.confirmChange' => '변경 확인',
+			'organization.members.changeRoleFailed' => '역할 변경 실패',
+			'organization.members.removeMember' => '멤버 제거',
+			'organization.members.removeMemberBody' => ({required Object name}) => '‘${name}’을(를) 이 조직에서 제거합니다. 계정 자체는 삭제되지 않습니다.',
+			'organization.members.confirmRemove' => '제거 확인',
+			'organization.members.removeFailed' => '제거 실패',
+			'organization.members.transferOwner' => '소유자 이전',
+			'organization.members.transferOwnerBody' => ({required Object name}) => '조직에는 owner가 정확히 한 명 있습니다(C04): ‘${name}’을(를) 소유자로 지정합니다.\n당신은 일반 관리자/멤버로 강등됩니다. 이 작업은 조직 통제권에 직접 영향을 줍니다.',
+			'organization.members.confirmTransfer' => '이전 확인',
+			'organization.members.transferFailed' => '이전 실패',
+			'organization.members.demoteToMember' => '멤버로 강등',
+			'organization.members.promoteToAdmin' => '관리자로 승격',
+			'organization.members.transferOwnerTo' => ({required Object name}) => '‘${name}’에게 소유자 이전',
+			'organization.members.ownerCannotChangeHere' => 'Owner는 여기서 변경할 수 없습니다. ‘소유자 이전’을 사용하세요',
+			'organization.members.empty' => '멤버가 없습니다',
+			'organization.invitations.inviteMember' => '멤버 초대',
+			'organization.invitations.invitationCreated' => '초대가 생성되었습니다',
+			'organization.invitations.tokenOnceNotice' => '수령 토큰(token)은 이번 한 번만 표시됩니다. 지금 바로 복사해 상대에게 전달하세요:',
+			'organization.invitations.tokenCopied' => '토큰이 복사되었습니다',
+			'organization.invitations.copyToken' => '토큰 복사',
+			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => '초대 실패: ${msg} (${code})',
+			'organization.invitations.acceptTitle' => '초대 수락',
+			'organization.invitations.acceptTokenHint' => '초대한 사람에게 받은 수령 토큰(token)을 붙여넣으세요',
+			'organization.invitations.acceptFailed' => '수락 실패',
+			'organization.invitations.rejectTitle' => '초대 거절',
+			'organization.invitations.rejectBody' => '거절하면 초대는 종결 상태가 되어 다시 수락할 수 없습니다.',
+			'organization.invitations.confirmReject' => '거절 확인',
+			'organization.invitations.rejectFailed' => '거절 실패',
+			'organization.invitations.revokeTitle' => '초대 철회',
+			'organization.invitations.revokeBody' => '철회하면 초대는 종결 상태가 되어 대상 사용자가 토큰으로 수락할 수 없게 됩니다.',
+			'organization.invitations.confirmRevoke' => '철회 확인',
+			'organization.invitations.revokeFailed' => '철회 실패',
+			'organization.invitations.myInvitations' => '내 초대',
+			'organization.invitations.manageInvitations' => '초대 관리',
+			'organization.invitations.createInvitation' => '초대 만들기',
+			'organization.invitations.empty' => '초대가 없습니다',
+			'organization.invitations.emptyRecord' => '초대 기록이 없습니다',
+			'organization.invitations.orgLine' => ({required Object orgId}) => '조직 ${orgId}',
+			'organization.invitations.invitationLine' => ({required Object invitationId}) => '초대 ${invitationId}',
+			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => '대상 ${targetUserId} · ${subtitle}',
+			'organization.invitations.acceptNotice' => '수락하려면 초대한 사람이 제공한 수령 토큰(token)이 필요합니다.\n수락 후 멤버십은 서버 기준을 따릅니다.',
+			'organization.invitations.revokeAction' => '철회',
+			'organization.invitations.acceptWithToken' => '토큰으로 수락',
+			'organization.invitations.rejectAction' => '거절',
+			'organization.departments.title' => '부서 목록',
+			'organization.departments.deptIdSubtitle' => ({required Object id}) => '부서 ${id}',
+			'organization.departments.statusLine' => ({required Object status}) => '상태: ${status}',
+			'organization.departments.memberUidLine' => ({required Object userId}) => '멤버 ${userId}',
+			'organization.departments.viewForbiddenDetail' => '이 부서를 볼 권한이 없습니다(이 조직의 재직 멤버만 가능)',
+			'organization.departments.viewForbidden' => '볼 권한이 없습니다(이 조직의 재직 멤버만 가능)',
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '부서 불러오기 실패: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => '부서 불러오기 실패: ${err}',
+			'organization.departments.createSubHere' => '이 아래에 하위 부서 만들기',
+			'organization.departments.movePickParent' => '이동(새 상위 부서 선택)',
+			'organization.departments.addMemberByUid' => '멤버 추가(UID로)',
+			'organization.departments.archiveDept' => '부서 보관',
+			'organization.departments.createRootDept' => '루트 부서 만들기',
+			'organization.departments.deptNameLabel' => '부서 이름',
+			'organization.departments.createUnder' => ({required Object parent}) => '‘${parent}’ 아래에 만들기',
+			'organization.departments.renameDept' => '부서 이름 바꾸기',
+			'organization.departments.newNameLabel' => '새 이름',
+			'organization.departments.renameFailed' => '이름 바꾸기 실패',
+			'organization.departments.moveDept' => '부서 이동',
+			'organization.departments.newParentIdHint' => '새 상위 부서 ID(비우면 루트로)',
+			'organization.departments.moveFailed' => '이동 실패',
+			'organization.departments.addDeptMember' => '부서 멤버 추가',
+			'organization.departments.archiveConfirmBody' => ({required Object name}) => '‘${name}’을(를) 보관하면 이 부서는 읽기 전용이 됩니다(멤버십은 유지).',
+			'organization.departments.archiveFailed' => '보관 실패',
+			'organization.departments.emptyWithHint' => '부서가 없습니다. 오른쪽 위에서 만들어 보세요',
+			'organization.departments.empty' => '부서가 없습니다',
+			'organization.departments.emptySubtitle' => '겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다.',
+			_ => null,
+		} ?? switch (path) {
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',
@@ -4582,8 +4914,6 @@ extension on TranslationsKoKr {
 			'workspace.brandingEntry' => '브랜드 설정(이름 / Logo / 기본 색상)',
 			'workspace.archiveEntry' => '워크스페이스 보관',
 			'workspace.restoreEntry' => '워크스페이스 복원',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveTitle' => '워크스페이스 보관',
 			'workspace.archiveDesc' => '보관 후 전원 읽기 전용이 됩니다(쓰기 작업은 서버에서 거부). 언제든지 복원할 수 있습니다',
 			'workspace.archiveConfirm' => '보관 확인',

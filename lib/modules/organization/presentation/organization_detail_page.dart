@@ -10,6 +10,8 @@ library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
@@ -115,38 +117,45 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
   Future<void> _archive() async {
     final ok = await orgConfirmDangerAction(
       context,
-      title: '归档组织',
-      consequence:
-          '归档后组织进入只读态，全部写操作 fail-closed，仅恢复（restore）可解锁。'
-          '成员与数据不会被删除。',
-      confirmText: '确认归档',
+      title: t.organization.detail.archiveOrg,
+      consequence: t.organization.detail.archiveConfirmBody,
+      confirmText: t.organization.common.confirmArchive,
     );
     if (ok) {
-      await _runCommand(() => _api.archive(widget.orgId), '归档失败');
+      await _runCommand(
+        () => _api.archive(widget.orgId),
+        t.organization.detail.archiveFailed,
+      );
     }
   }
 
   Future<void> _restore() async {
     final ok = await orgConfirmDangerAction(
       context,
-      title: '恢复组织',
-      consequence: '恢复后组织回到 active 态，写入口重新开放。',
-      confirmText: '确认恢复',
+      title: t.organization.detail.restoreOrg,
+      consequence: t.organization.detail.restoreConfirmBody,
+      confirmText: t.organization.detail.confirmRestore,
     );
     if (ok) {
-      await _runCommand(() => _api.restore(widget.orgId), '恢复失败');
+      await _runCommand(
+        () => _api.restore(widget.orgId),
+        t.organization.detail.restoreFailed,
+      );
     }
   }
 
   Future<void> _rename() async {
     final name = await orgPromptInput(
       context,
-      title: '修改组织名称',
-      hint: '组织名称（1-200 字符）',
+      title: t.organization.detail.renameOrgTitle,
+      hint: t.organization.detail.renameOrgLabel,
       initial: _org?.name ?? '',
     );
     if (name == null) return;
-    await _runCommand(() => _api.update(widget.orgId, name: name), '改名失败');
+    await _runCommand(
+      () => _api.update(widget.orgId, name: name),
+      t.organization.detail.renameFailed,
+    );
   }
 
   Future<void> _showPreflight() async {
@@ -156,24 +165,32 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('账号删除预检'),
+          title: Text(t.organization.detail.deletionPreflight),
           content: SizedBox(
             width: double.maxFinite,
             child: ListView(
               shrinkWrap: true,
               children: [
-                Text('观察时刻：${flexTsLabel(report.observedAt)}'),
+                Text(
+                  t.organization.detail.observedAt(
+                    ts: flexTsLabel(report.observedAt),
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.small),
-                Text('覆盖依赖域：${report.factDomains.join('、')}'),
+                Text(
+                  t.organization.detail.factDomains(
+                    domains: report.factDomains.join('、'),
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.small),
                 if (report.blockers.isEmpty)
-                  const Text('无阻塞项')
+                  Text(t.organization.detail.noBlockers)
                 else ...[
-                  const Text('阻塞项：'),
+                  Text(t.organization.detail.blockers),
                   for (final b in report.blockers)
                     ListTile(
                       dense: true,
-                      leading: const Icon(Icons.block),
+                      leading: const Icon(CupertinoIcons.nosign),
                       title: Text(
                         b.code,
                         maxLines: 1,
@@ -192,7 +209,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('关闭'),
+              child: Text(t.organization.common.close),
             ),
           ],
         ),
@@ -203,8 +220,11 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
         SnackBar(
           content: Text(
             e.isFactsUnavailable
-                ? '依赖域事实不可用，删除预检被拒绝（fail-closed）'
-                : '预检失败：${e.message} (${e.code})',
+                ? t.organization.detail.factUnavailable
+                : t.organization.detail.preflightFailed(
+                    msg: e.message,
+                    code: e.code,
+                  ),
           ),
         ),
       );
@@ -217,7 +237,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          org?.name ?? '组织详情',
+          org?.name ?? t.organization.detail.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -225,10 +245,10 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
           if (org != null && org.canGovern && !org.isArchived)
             Semantics(
               button: true,
-              label: '修改组织名称',
+              label: t.organization.detail.renameOrgTitle,
               child: IconButton(
-                icon: const Icon(Icons.edit),
-                tooltip: '修改名称',
+                icon: const Icon(CupertinoIcons.pencil),
+                tooltip: t.organization.detail.renameAction,
                 onPressed: _rename,
               ),
             ),
@@ -242,7 +262,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
           permissionDenied: _permissionDenied,
           empty:
               !_loading && _error == null && !_permissionDenied && _org == null,
-          emptyText: '组织不存在',
+          emptyText: t.organization.detail.notFound,
           onRetry: _refresh,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -266,24 +286,30 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       ),
       title: Text(org.name, maxLines: 2, overflow: TextOverflow.ellipsis),
       subtitle: Text(
-        '我的角色：${orgRoleLabel(org.memberRole.isEmpty ? 'member' : org.memberRole)}'
-        ' · 状态：${orgStatusLabel(org.status)}',
+        t.organization.detail.myRoleAndStatus(
+          role: orgRoleLabel(
+            org.memberRole.isEmpty ? 'member' : org.memberRole,
+          ),
+          status: orgStatusLabel(org.status),
+        ),
       ),
     ),
     if (org.isArchived)
-      const ListTile(
-        leading: Icon(Icons.lock_outline),
-        title: Text('组织已归档（只读）'),
-        subtitle: Text('归档期间全部写操作被拒绝，仅恢复操作可用'),
+      ListTile(
+        leading: Icon(CupertinoIcons.lock),
+        title: Text(t.organization.detail.archivedBadge),
+        subtitle: Text(t.organization.detail.archivedHint),
       ),
     ListTile(
       leading: const Icon(CupertinoIcons.square_stack_3d_up),
       title: Text(
         _defaultWs?.isSet == true
-            ? '默认 Workspace：${_defaultWs!.defaultWorkspaceId}'
-            : '默认 Workspace：未设置',
+            ? t.organization.detail.defaultWsSet(
+                id: _defaultWs!.defaultWorkspaceId,
+              )
+            : t.organization.detail.defaultWsUnset,
       ),
-      subtitle: const Text('指向事实，不代表任何 workspace 成员身份'),
+      subtitle: Text(t.organization.detail.defaultWsNote),
     ),
   ];
 
@@ -293,21 +319,33 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       const Divider(),
       ListTile(
         leading: const Icon(CupertinoIcons.person_2),
-        title: Text('成员列表${canGovern ? '' : '（仅 owner/admin 可查看）'}'),
-        trailing: const Icon(Icons.chevron_right),
+        title: Text(
+          canGovern
+              ? t.organization.detail.memberList
+              : t.organization.detail.memberListRestricted,
+        ),
+        trailing: const Icon(CupertinoIcons.chevron_right),
         onTap: () => context.push('$kOrganizationHomePath/${org.id}/members'),
       ),
       ListTile(
         leading: const Icon(CupertinoIcons.mail),
-        title: Text('邀请管理${canGovern ? '' : '（仅 owner/admin 可管理）'}'),
-        trailing: const Icon(Icons.chevron_right),
+        title: Text(
+          canGovern
+              ? t.organization.detail.invitationManage
+              : t.organization.detail.invitationManageRestricted,
+        ),
+        trailing: const Icon(CupertinoIcons.chevron_right),
         onTap: () =>
             context.push('$kOrganizationHomePath/${org.id}/invitations'),
       ),
       ListTile(
         leading: const Icon(CupertinoIcons.tree),
-        title: Text('部门目录${canGovern ? '' : '（管理操作仅限授权者）'}'),
-        trailing: const Icon(Icons.chevron_right),
+        title: Text(
+          canGovern
+              ? t.organization.detail.deptEntry
+              : t.organization.detail.deptEntryRestricted,
+        ),
+        trailing: const Icon(CupertinoIcons.chevron_right),
         onTap: () =>
             context.push('$kOrganizationHomePath/${org.id}/departments'),
       ),
@@ -316,33 +354,36 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
 
   List<Widget> _buildDangerZone(Organization org) => [
     const Divider(),
-    const ListTile(
-      title: Text('更多', style: TextStyle(fontWeight: FontWeight.w600)),
+    ListTile(
+      title: Text(
+        t.organization.detail.more,
+        style: TextStyle(fontWeight: FontWeight.w600),
+      ),
     ),
     ListTile(
       leading: const Icon(Icons.fact_check_outlined),
-      title: const Text('账号删除预检'),
-      subtitle: const Text('查看本账号被哪些依赖域阻塞删除'),
+      title: Text(t.organization.detail.deletionPreflight),
+      subtitle: Text(t.organization.detail.deletionPreflightDesc),
       onTap: _showPreflight,
     ),
     if (!org.isArchived && org.canGovern)
       ListTile(
         leading: Icon(
-          Icons.archive_outlined,
+          CupertinoIcons.archivebox,
           color: Theme.of(context).colorScheme.error,
         ),
         title: Text(
-          '归档组织',
+          t.organization.detail.archiveOrg,
           style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
-        subtitle: const Text('进入只读态；可随时恢复'),
+        subtitle: Text(t.organization.detail.archiveEntrySubtitle),
         onTap: _archive,
       ),
     if (org.isArchived && org.canGovern)
       ListTile(
-        leading: const Icon(Icons.unarchive_outlined),
-        title: const Text('恢复组织'),
-        subtitle: const Text('回到 active 态'),
+        leading: const Icon(CupertinoIcons.tray),
+        title: Text(t.organization.detail.restoreOrg),
+        subtitle: Text(t.organization.detail.restoreEntrySubtitle),
         onTap: _restore,
       ),
   ];

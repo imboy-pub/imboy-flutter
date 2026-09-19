@@ -64,6 +64,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$mention$ru_RU mention = _Translations$mention$ru_RU._(_root);
 	@override late final _Translations$momentFriendPicker$ru_RU momentFriendPicker = _Translations$momentFriendPicker$ru_RU._(_root);
 	@override late final _Translations$momentNotify$ru_RU momentNotify = _Translations$momentNotify$ru_RU._(_root);
+	@override late final _Translations$organization$ru_RU organization = _Translations$organization$ru_RU._(_root);
 	@override late final _Translations$passport$ru_RU passport = _Translations$passport$ru_RU._(_root);
 	@override late final _Translations$splash$ru_RU splash = _Translations$splash$ru_RU._(_root);
 	@override late final _Translations$welcome$ru_RU welcome = _Translations$welcome$ru_RU._(_root);
@@ -2220,6 +2221,21 @@ class _Translations$momentNotify$ru_RU extends Translations$momentNotify$zh_CN {
 	@override String get loadFailed => 'Не удалось загрузить, попробуйте позже';
 }
 
+// Path: organization
+class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
+	_Translations$organization$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$organization$common$ru_RU common = _Translations$organization$common$ru_RU._(_root);
+	@override late final _Translations$organization$home$ru_RU home = _Translations$organization$home$ru_RU._(_root);
+	@override late final _Translations$organization$detail$ru_RU detail = _Translations$organization$detail$ru_RU._(_root);
+	@override late final _Translations$organization$members$ru_RU members = _Translations$organization$members$ru_RU._(_root);
+	@override late final _Translations$organization$invitations$ru_RU invitations = _Translations$organization$invitations$ru_RU._(_root);
+	@override late final _Translations$organization$departments$ru_RU departments = _Translations$organization$departments$ru_RU._(_root);
+}
+
 // Path: passport
 class _Translations$passport$ru_RU extends Translations$passport$zh_CN {
 	_Translations$passport$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
@@ -2527,6 +2543,190 @@ class _Translations$account$alipaySim$ru_RU extends Translations$account$alipayS
 	@override String get paymentAmount => 'Сумма:';
 	@override String get selectMethod => 'Выберите способ оплаты';
 	@override String get storeName => 'Флагманский магазин информационных технологий';
+}
+
+// Path: organization.common
+class _Translations$organization$common$ru_RU extends Translations$organization$common$zh_CN {
+	_Translations$organization$common$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get moreActions => 'Ещё действия';
+	@override String get rename => 'Переименовать';
+	@override String get close => 'Закрыть';
+	@override String get reload => 'Обновить';
+	@override String get createFailed => 'Не удалось создать';
+	@override String get addFailed => 'Не удалось добавить';
+	@override String get confirmArchive => 'Подтвердить архивацию';
+	@override String get forbidden403 => 'Нет прав на это действие (403)';
+	@override String get noMembers => 'Пока нет участников';
+	@override String get targetUidHint => 'UID другого пользователя (число)';
+	@override String get uidMustBePositive => 'UID пользователя должен быть положительным целым числом';
+	@override String get loading => 'Загрузка…';
+	@override String get loadMore => 'Загрузить ещё';
+}
+
+// Path: organization.home
+class _Translations$organization$home$ru_RU extends Translations$organization$home$zh_CN {
+	_Translations$organization$home$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get createOrg => 'Создать организацию';
+	@override String get orgNameLabel => 'Название организации (1-200 символов)';
+	@override String createFailedWith({required Object msg, required Object code}) => 'Не удалось создать: ${msg} (${code})';
+	@override String get tabOrg => 'Организации';
+	@override String get myInvitations => 'Мои приглашения';
+	@override String get emptyHint => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху';
+}
+
+// Path: organization.detail
+class _Translations$organization$detail$ru_RU extends Translations$organization$detail$zh_CN {
+	_Translations$organization$detail$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Об организации';
+	@override String get notFound => 'Организация не найдена';
+	@override String get archiveOrg => 'Архивировать организацию';
+	@override String get archiveConfirmBody => 'После архивации организация переходит в режим только для чтения; все операции записи отклоняются (fail-closed), разблокировать может только восстановление (restore). Участники и данные не удаляются.';
+	@override String get restoreOrg => 'Восстановить организацию';
+	@override String get restoreConfirmBody => 'После восстановления организация возвращается в состояние active, запись снова открывается.';
+	@override String get confirmRestore => 'Подтвердить восстановление';
+	@override String get restoreFailed => 'Не удалось восстановить';
+	@override String get archiveFailed => 'Не удалось архивировать';
+	@override String get renameOrgTitle => 'Переименовать организацию';
+	@override String get renameOrgLabel => 'Название организации (1-200 символов)';
+	@override String get renameAction => 'Переименовать';
+	@override String get renameFailed => 'Не удалось переименовать';
+	@override String get deletionPreflight => 'Предпроверка удаления аккаунта';
+	@override String get deletionPreflightDesc => 'Посмотрите, какие зависимые домены блокируют удаление этого аккаунта';
+	@override String observedAt({required Object ts}) => 'Момент наблюдения: ${ts}';
+	@override String factDomains({required Object domains}) => 'Затронутые зависимые домены: ${domains}';
+	@override String get noBlockers => 'Нет блокирующих пунктов';
+	@override String get blockers => 'Блокирующие пункты:';
+	@override String get factUnavailable => 'Факты зависимых доменов недоступны, предпроверка удаления отклонена (fail-closed)';
+	@override String preflightFailed({required Object msg, required Object code}) => 'Предпроверка не пройдена: ${msg} (${code})';
+	@override String myRoleAndStatus({required Object role, required Object status}) => 'Моя роль: ${role} · Статус: ${status}';
+	@override String get archivedBadge => 'Организация в архиве (только чтение)';
+	@override String get archivedHint => 'Во время архивации все операции записи отклоняются; доступно только восстановление';
+	@override String defaultWsSet({required Object id}) => 'Workspace по умолчанию: ${id}';
+	@override String get defaultWsUnset => 'Workspace по умолчанию: не задан';
+	@override String get defaultWsNote => 'Только факт-указатель; не означает членства ни в каком workspace';
+	@override String get memberList => 'Участники';
+	@override String get memberListRestricted => 'Участники (видят только owner/admin)';
+	@override String get invitationManage => 'Управление приглашениями';
+	@override String get invitationManageRestricted => 'Управление приглашениями (только owner/admin)';
+	@override String get deptEntry => 'Справочник отделов';
+	@override String get deptEntryRestricted => 'Справочник отделов (управление — только уполномоченным ролям)';
+	@override String get more => 'Ещё';
+	@override String get archiveEntrySubtitle => 'Переход в режим только для чтения; можно восстановить в любой момент';
+	@override String get restoreEntrySubtitle => 'Возврат в active';
+}
+
+// Path: organization.members
+class _Translations$organization$members$ru_RU extends Translations$organization$members$zh_CN {
+	_Translations$organization$members$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Участники';
+	@override String loadMoreFailed({required Object err}) => 'Не удалось загрузить ещё: ${err}';
+	@override String get changeRole => 'Изменить роль';
+	@override String changeRoleBody({required Object name, required Object from, required Object to}) => 'Роль «${name}» будет изменена с ${from} на ${to}.';
+	@override String get confirmChange => 'Подтвердить изменение';
+	@override String get changeRoleFailed => 'Не удалось изменить роль';
+	@override String get removeMember => 'Исключить участника';
+	@override String removeMemberBody({required Object name}) => '«${name}» будет исключён из этой организации. Его аккаунт не будет удалён.';
+	@override String get confirmRemove => 'Подтвердить исключение';
+	@override String get removeFailed => 'Не удалось исключить';
+	@override String get transferOwner => 'Передать права владельца';
+	@override String transferOwnerBody({required Object name}) => 'У организации ровно один owner (C04): подтверждаете назначение «${name}» владельцем?\nВы будете понижены до обычного администратора/участника. Это напрямую влияет на контроль над организацией.';
+	@override String get confirmTransfer => 'Подтвердить передачу';
+	@override String get transferFailed => 'Не удалось передать';
+	@override String get demoteToMember => 'Понизить до участника';
+	@override String get promoteToAdmin => 'Повысить до администратора';
+	@override String transferOwnerTo({required Object name}) => 'Передать права владельца «${name}»';
+	@override String get ownerCannotChangeHere => 'Owner здесь не меняется; используйте «Передать права владельца»';
+	@override String get empty => 'Пока нет участников';
+}
+
+// Path: organization.invitations
+class _Translations$organization$invitations$ru_RU extends Translations$organization$invitations$zh_CN {
+	_Translations$organization$invitations$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get inviteMember => 'Пригласить участника';
+	@override String get invitationCreated => 'Приглашение создано';
+	@override String get tokenOnceNotice => 'Токен получения (token) показывается только один раз; сразу скопируйте и передайте его получателю вне приложения:';
+	@override String get tokenCopied => 'Токен скопирован';
+	@override String get copyToken => 'Скопировать токен';
+	@override String inviteFailed({required Object msg, required Object code}) => 'Не удалось пригласить: ${msg} (${code})';
+	@override String get acceptTitle => 'Принять приглашение';
+	@override String get acceptTokenHint => 'Вставьте токен получения (token), полученный от пригласившего';
+	@override String get acceptFailed => 'Не удалось принять';
+	@override String get rejectTitle => 'Отклонить приглашение';
+	@override String get rejectBody => 'После отклонения приглашение переходит в конечное состояние и больше не может быть принято.';
+	@override String get confirmReject => 'Подтвердить отклонение';
+	@override String get rejectFailed => 'Не удалось отклонить';
+	@override String get revokeTitle => 'Отозвать приглашение';
+	@override String get revokeBody => 'После отзыва приглашение переходит в конечное состояние, и целевой пользователь больше не сможет принять его по токену.';
+	@override String get confirmRevoke => 'Подтвердить отзыв';
+	@override String get revokeFailed => 'Не удалось отозвать';
+	@override String get myInvitations => 'Мои приглашения';
+	@override String get manageInvitations => 'Управление приглашениями';
+	@override String get createInvitation => 'Создать приглашение';
+	@override String get empty => 'Нет приглашений';
+	@override String get emptyRecord => 'Записей о приглашениях нет';
+	@override String orgLine({required Object orgId}) => 'Организация ${orgId}';
+	@override String invitationLine({required Object invitationId}) => 'Приглашение ${invitationId}';
+	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'Цель ${targetUserId} · ${subtitle}';
+	@override String get acceptNotice => 'Для принятия нужен токен получения (token) от пригласившего;\nпосле принятия членство определяет сервер.';
+	@override String get revokeAction => 'Отозвать';
+	@override String get acceptWithToken => 'Принять по токену';
+	@override String get rejectAction => 'Отклонить';
+}
+
+// Path: organization.departments
+class _Translations$organization$departments$ru_RU extends Translations$organization$departments$zh_CN {
+	_Translations$organization$departments$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Справочник отделов';
+	@override String deptIdSubtitle({required Object id}) => 'Отдел ${id}';
+	@override String statusLine({required Object status}) => 'Статус: ${status}';
+	@override String memberUidLine({required Object userId}) => 'Участник ${userId}';
+	@override String get viewForbiddenDetail => 'Нет доступа к этому отделу (только действующие участники этой организации)';
+	@override String get viewForbidden => 'Нет доступа (только действующие участники этой организации)';
+	@override String loadFailedWith({required Object msg, required Object code}) => 'Не удалось загрузить отдел: ${msg} (${code})';
+	@override String loadFailed({required Object err}) => 'Не удалось загрузить отдел: ${err}';
+	@override String get createSubHere => 'Создать подотдел здесь';
+	@override String get movePickParent => 'Переместить (выбрать новый родительский отдел)';
+	@override String get addMemberByUid => 'Добавить участника (по UID)';
+	@override String get archiveDept => 'Архивировать отдел';
+	@override String get createRootDept => 'Создать корневой отдел';
+	@override String get deptNameLabel => 'Название отдела';
+	@override String createUnder({required Object parent}) => 'Создать внутри «${parent}»';
+	@override String get renameDept => 'Переименовать отдел';
+	@override String get newNameLabel => 'Новое название';
+	@override String get renameFailed => 'Не удалось переименовать';
+	@override String get moveDept => 'Переместить отдел';
+	@override String get newParentIdHint => 'ID нового родительского отдела (пусто = корень)';
+	@override String get moveFailed => 'Не удалось переместить';
+	@override String get addDeptMember => 'Добавить участника отдела';
+	@override String archiveConfirmBody({required Object name}) => 'После архивации «${name}» отдел переходит в режим только для чтения (членство сохраняется).';
+	@override String get archiveFailed => 'Не удалось архивировать';
+	@override String get emptyWithHint => 'Отделов пока нет — создайте первый кнопкой справа вверху';
+	@override String get empty => 'Пока нет отделов';
+	@override String get emptySubtitle => 'Модель совместительства: один участник может состоять в нескольких отделах; участник отдела сначала должен быть участником этой организации.';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -4461,6 +4661,138 @@ extension on TranslationsRuRu {
 			'momentNotify.cancel' => 'Отмена',
 			'momentNotify.delete' => 'Удалить',
 			'momentNotify.loadFailed' => 'Не удалось загрузить, попробуйте позже',
+			'organization.common.moreActions' => 'Ещё действия',
+			'organization.common.rename' => 'Переименовать',
+			'organization.common.close' => 'Закрыть',
+			'organization.common.reload' => 'Обновить',
+			'organization.common.createFailed' => 'Не удалось создать',
+			'organization.common.addFailed' => 'Не удалось добавить',
+			'organization.common.confirmArchive' => 'Подтвердить архивацию',
+			'organization.common.forbidden403' => 'Нет прав на это действие (403)',
+			'organization.common.noMembers' => 'Пока нет участников',
+			'organization.common.targetUidHint' => 'UID другого пользователя (число)',
+			'organization.common.uidMustBePositive' => 'UID пользователя должен быть положительным целым числом',
+			'organization.common.loading' => 'Загрузка…',
+			'organization.common.loadMore' => 'Загрузить ещё',
+			'organization.home.createOrg' => 'Создать организацию',
+			'organization.home.orgNameLabel' => 'Название организации (1-200 символов)',
+			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Не удалось создать: ${msg} (${code})',
+			'organization.home.tabOrg' => 'Организации',
+			'organization.home.myInvitations' => 'Мои приглашения',
+			'organization.home.emptyHint' => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху',
+			'organization.detail.title' => 'Об организации',
+			'organization.detail.notFound' => 'Организация не найдена',
+			'organization.detail.archiveOrg' => 'Архивировать организацию',
+			'organization.detail.archiveConfirmBody' => 'После архивации организация переходит в режим только для чтения; все операции записи отклоняются (fail-closed), разблокировать может только восстановление (restore). Участники и данные не удаляются.',
+			'organization.detail.restoreOrg' => 'Восстановить организацию',
+			'organization.detail.restoreConfirmBody' => 'После восстановления организация возвращается в состояние active, запись снова открывается.',
+			'organization.detail.confirmRestore' => 'Подтвердить восстановление',
+			'organization.detail.restoreFailed' => 'Не удалось восстановить',
+			'organization.detail.archiveFailed' => 'Не удалось архивировать',
+			'organization.detail.renameOrgTitle' => 'Переименовать организацию',
+			'organization.detail.renameOrgLabel' => 'Название организации (1-200 символов)',
+			'organization.detail.renameAction' => 'Переименовать',
+			'organization.detail.renameFailed' => 'Не удалось переименовать',
+			'organization.detail.deletionPreflight' => 'Предпроверка удаления аккаунта',
+			'organization.detail.deletionPreflightDesc' => 'Посмотрите, какие зависимые домены блокируют удаление этого аккаунта',
+			'organization.detail.observedAt' => ({required Object ts}) => 'Момент наблюдения: ${ts}',
+			'organization.detail.factDomains' => ({required Object domains}) => 'Затронутые зависимые домены: ${domains}',
+			'organization.detail.noBlockers' => 'Нет блокирующих пунктов',
+			'organization.detail.blockers' => 'Блокирующие пункты:',
+			'organization.detail.factUnavailable' => 'Факты зависимых доменов недоступны, предпроверка удаления отклонена (fail-closed)',
+			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => 'Предпроверка не пройдена: ${msg} (${code})',
+			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => 'Моя роль: ${role} · Статус: ${status}',
+			'organization.detail.archivedBadge' => 'Организация в архиве (только чтение)',
+			'organization.detail.archivedHint' => 'Во время архивации все операции записи отклоняются; доступно только восстановление',
+			'organization.detail.defaultWsSet' => ({required Object id}) => 'Workspace по умолчанию: ${id}',
+			'organization.detail.defaultWsUnset' => 'Workspace по умолчанию: не задан',
+			'organization.detail.defaultWsNote' => 'Только факт-указатель; не означает членства ни в каком workspace',
+			'organization.detail.memberList' => 'Участники',
+			'organization.detail.memberListRestricted' => 'Участники (видят только owner/admin)',
+			'organization.detail.invitationManage' => 'Управление приглашениями',
+			'organization.detail.invitationManageRestricted' => 'Управление приглашениями (только owner/admin)',
+			'organization.detail.deptEntry' => 'Справочник отделов',
+			'organization.detail.deptEntryRestricted' => 'Справочник отделов (управление — только уполномоченным ролям)',
+			'organization.detail.more' => 'Ещё',
+			'organization.detail.archiveEntrySubtitle' => 'Переход в режим только для чтения; можно восстановить в любой момент',
+			'organization.detail.restoreEntrySubtitle' => 'Возврат в active',
+			'organization.members.title' => 'Участники',
+			'organization.members.loadMoreFailed' => ({required Object err}) => 'Не удалось загрузить ещё: ${err}',
+			'organization.members.changeRole' => 'Изменить роль',
+			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => 'Роль «${name}» будет изменена с ${from} на ${to}.',
+			'organization.members.confirmChange' => 'Подтвердить изменение',
+			'organization.members.changeRoleFailed' => 'Не удалось изменить роль',
+			'organization.members.removeMember' => 'Исключить участника',
+			'organization.members.removeMemberBody' => ({required Object name}) => '«${name}» будет исключён из этой организации. Его аккаунт не будет удалён.',
+			'organization.members.confirmRemove' => 'Подтвердить исключение',
+			'organization.members.removeFailed' => 'Не удалось исключить',
+			'organization.members.transferOwner' => 'Передать права владельца',
+			'organization.members.transferOwnerBody' => ({required Object name}) => 'У организации ровно один owner (C04): подтверждаете назначение «${name}» владельцем?\nВы будете понижены до обычного администратора/участника. Это напрямую влияет на контроль над организацией.',
+			'organization.members.confirmTransfer' => 'Подтвердить передачу',
+			'organization.members.transferFailed' => 'Не удалось передать',
+			'organization.members.demoteToMember' => 'Понизить до участника',
+			'organization.members.promoteToAdmin' => 'Повысить до администратора',
+			'organization.members.transferOwnerTo' => ({required Object name}) => 'Передать права владельца «${name}»',
+			'organization.members.ownerCannotChangeHere' => 'Owner здесь не меняется; используйте «Передать права владельца»',
+			'organization.members.empty' => 'Пока нет участников',
+			'organization.invitations.inviteMember' => 'Пригласить участника',
+			'organization.invitations.invitationCreated' => 'Приглашение создано',
+			'organization.invitations.tokenOnceNotice' => 'Токен получения (token) показывается только один раз; сразу скопируйте и передайте его получателю вне приложения:',
+			'organization.invitations.tokenCopied' => 'Токен скопирован',
+			'organization.invitations.copyToken' => 'Скопировать токен',
+			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'Не удалось пригласить: ${msg} (${code})',
+			'organization.invitations.acceptTitle' => 'Принять приглашение',
+			'organization.invitations.acceptTokenHint' => 'Вставьте токен получения (token), полученный от пригласившего',
+			'organization.invitations.acceptFailed' => 'Не удалось принять',
+			'organization.invitations.rejectTitle' => 'Отклонить приглашение',
+			'organization.invitations.rejectBody' => 'После отклонения приглашение переходит в конечное состояние и больше не может быть принято.',
+			'organization.invitations.confirmReject' => 'Подтвердить отклонение',
+			'organization.invitations.rejectFailed' => 'Не удалось отклонить',
+			'organization.invitations.revokeTitle' => 'Отозвать приглашение',
+			'organization.invitations.revokeBody' => 'После отзыва приглашение переходит в конечное состояние, и целевой пользователь больше не сможет принять его по токену.',
+			'organization.invitations.confirmRevoke' => 'Подтвердить отзыв',
+			'organization.invitations.revokeFailed' => 'Не удалось отозвать',
+			'organization.invitations.myInvitations' => 'Мои приглашения',
+			'organization.invitations.manageInvitations' => 'Управление приглашениями',
+			'organization.invitations.createInvitation' => 'Создать приглашение',
+			'organization.invitations.empty' => 'Нет приглашений',
+			'organization.invitations.emptyRecord' => 'Записей о приглашениях нет',
+			'organization.invitations.orgLine' => ({required Object orgId}) => 'Организация ${orgId}',
+			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'Приглашение ${invitationId}',
+			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'Цель ${targetUserId} · ${subtitle}',
+			'organization.invitations.acceptNotice' => 'Для принятия нужен токен получения (token) от пригласившего;\nпосле принятия членство определяет сервер.',
+			'organization.invitations.revokeAction' => 'Отозвать',
+			'organization.invitations.acceptWithToken' => 'Принять по токену',
+			'organization.invitations.rejectAction' => 'Отклонить',
+			'organization.departments.title' => 'Справочник отделов',
+			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Отдел ${id}',
+			'organization.departments.statusLine' => ({required Object status}) => 'Статус: ${status}',
+			'organization.departments.memberUidLine' => ({required Object userId}) => 'Участник ${userId}',
+			'organization.departments.viewForbiddenDetail' => 'Нет доступа к этому отделу (только действующие участники этой организации)',
+			'organization.departments.viewForbidden' => 'Нет доступа (только действующие участники этой организации)',
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Не удалось загрузить отдел: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => 'Не удалось загрузить отдел: ${err}',
+			'organization.departments.createSubHere' => 'Создать подотдел здесь',
+			'organization.departments.movePickParent' => 'Переместить (выбрать новый родительский отдел)',
+			'organization.departments.addMemberByUid' => 'Добавить участника (по UID)',
+			'organization.departments.archiveDept' => 'Архивировать отдел',
+			'organization.departments.createRootDept' => 'Создать корневой отдел',
+			'organization.departments.deptNameLabel' => 'Название отдела',
+			'organization.departments.createUnder' => ({required Object parent}) => 'Создать внутри «${parent}»',
+			'organization.departments.renameDept' => 'Переименовать отдел',
+			'organization.departments.newNameLabel' => 'Новое название',
+			'organization.departments.renameFailed' => 'Не удалось переименовать',
+			'organization.departments.moveDept' => 'Переместить отдел',
+			'organization.departments.newParentIdHint' => 'ID нового родительского отдела (пусто = корень)',
+			'organization.departments.moveFailed' => 'Не удалось переместить',
+			'organization.departments.addDeptMember' => 'Добавить участника отдела',
+			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'После архивации «${name}» отдел переходит в режим только для чтения (членство сохраняется).',
+			'organization.departments.archiveFailed' => 'Не удалось архивировать',
+			'organization.departments.emptyWithHint' => 'Отделов пока нет — создайте первый кнопкой справа вверху',
+			'organization.departments.empty' => 'Пока нет отделов',
+			'organization.departments.emptySubtitle' => 'Модель совместительства: один участник может состоять в нескольких отделах; участник отдела сначала должен быть участником этой организации.',
+			_ => null,
+		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',
@@ -4591,8 +4923,6 @@ extension on TranslationsRuRu {
 			'workspace.brandingEntry' => 'Настройки бренда (название / логотип / основной цвет)',
 			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
 			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Архивировать рабочее пространство',
 			'workspace.archiveDesc' => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент',
 			'workspace.archiveConfirm' => 'Подтвердить архивацию',

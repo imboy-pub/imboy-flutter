@@ -531,4 +531,21 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
     name: 'cs_session',
     location: '/customer_service/workspace/sessions/1',
   ),
+
+  // ==================== 企业组织（ORG V1） ====================
+  // location 按 router.namedLocation 形态补登（orgId 假参沿用 9001 惯例）。
+  const SmokeRoute(name: 'organization_home', location: '/organization'),
+  const SmokeRoute(name: 'organization_detail', location: '/organization/9001'),
+  const SmokeRoute(
+    name: 'organization_members',
+    location: '/organization/9001/members',
+  ),
+  const SmokeRoute(
+    name: 'organization_invitations',
+    location: '/organization/9001/invitations',
+  ),
+  const SmokeRoute(
+    name: 'organization_departments',
+    location: '/organization/9001/departments',
+  ),
 ];

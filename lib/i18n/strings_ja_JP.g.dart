@@ -64,6 +64,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$mention$ja_JP mention = _Translations$mention$ja_JP._(_root);
 	@override late final _Translations$momentFriendPicker$ja_JP momentFriendPicker = _Translations$momentFriendPicker$ja_JP._(_root);
 	@override late final _Translations$momentNotify$ja_JP momentNotify = _Translations$momentNotify$ja_JP._(_root);
+	@override late final _Translations$organization$ja_JP organization = _Translations$organization$ja_JP._(_root);
 	@override late final _Translations$passport$ja_JP passport = _Translations$passport$ja_JP._(_root);
 	@override late final _Translations$splash$ja_JP splash = _Translations$splash$ja_JP._(_root);
 	@override late final _Translations$welcome$ja_JP welcome = _Translations$welcome$ja_JP._(_root);
@@ -2211,6 +2212,21 @@ class _Translations$momentNotify$ja_JP extends Translations$momentNotify$zh_CN {
 	@override String get loadFailed => '読み込みに失敗しました。後でもう一度お試しください';
 }
 
+// Path: organization
+class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
+	_Translations$organization$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$organization$common$ja_JP common = _Translations$organization$common$ja_JP._(_root);
+	@override late final _Translations$organization$home$ja_JP home = _Translations$organization$home$ja_JP._(_root);
+	@override late final _Translations$organization$detail$ja_JP detail = _Translations$organization$detail$ja_JP._(_root);
+	@override late final _Translations$organization$members$ja_JP members = _Translations$organization$members$ja_JP._(_root);
+	@override late final _Translations$organization$invitations$ja_JP invitations = _Translations$organization$invitations$ja_JP._(_root);
+	@override late final _Translations$organization$departments$ja_JP departments = _Translations$organization$departments$ja_JP._(_root);
+}
+
 // Path: passport
 class _Translations$passport$ja_JP extends Translations$passport$zh_CN {
 	_Translations$passport$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
@@ -2518,6 +2534,190 @@ class _Translations$account$alipaySim$ja_JP extends Translations$account$alipayS
 	@override String get paymentAmount => '金額：';
 	@override String get selectMethod => '支払い方法を選択';
 	@override String get storeName => '情報テクノロジー旗艦店';
+}
+
+// Path: organization.common
+class _Translations$organization$common$ja_JP extends Translations$organization$common$zh_CN {
+	_Translations$organization$common$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get moreActions => 'その他の操作';
+	@override String get rename => '名前を変更';
+	@override String get close => '閉じる';
+	@override String get reload => '再読み込み';
+	@override String get createFailed => '作成に失敗しました';
+	@override String get addFailed => '追加に失敗しました';
+	@override String get confirmArchive => 'アーカイブを確認';
+	@override String get forbidden403 => 'この操作を実行する権限がありません（403）';
+	@override String get noMembers => 'メンバーがいません';
+	@override String get targetUidHint => '相手ユーザーの UID（数値）';
+	@override String get uidMustBePositive => 'ユーザー UID は正の整数である必要があります';
+	@override String get loading => '読み込み中…';
+	@override String get loadMore => 'さらに読み込む';
+}
+
+// Path: organization.home
+class _Translations$organization$home$ja_JP extends Translations$organization$home$zh_CN {
+	_Translations$organization$home$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get createOrg => '組織を作成';
+	@override String get orgNameLabel => '組織名（1-200 文字）';
+	@override String createFailedWith({required Object msg, required Object code}) => '作成に失敗しました：${msg} (${code})';
+	@override String get tabOrg => '組織';
+	@override String get myInvitations => '自分の招待';
+	@override String get emptyHint => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください';
+}
+
+// Path: organization.detail
+class _Translations$organization$detail$ja_JP extends Translations$organization$detail$zh_CN {
+	_Translations$organization$detail$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '組織の詳細';
+	@override String get notFound => '組織が見つかりません';
+	@override String get archiveOrg => '組織をアーカイブ';
+	@override String get archiveConfirmBody => 'アーカイブ後、組織は読み取り専用になり、すべての書き込み操作は fail-closed となります。復元（restore）のみが解除できます。メンバーとデータは削除されません。';
+	@override String get restoreOrg => '組織を復元';
+	@override String get restoreConfirmBody => '復元後、組織は active 状態に戻り、書き込みが再度可能になります。';
+	@override String get confirmRestore => '復元を確認';
+	@override String get restoreFailed => '復元に失敗しました';
+	@override String get archiveFailed => 'アーカイブに失敗しました';
+	@override String get renameOrgTitle => '組織名を変更';
+	@override String get renameOrgLabel => '組織名（1-200 文字）';
+	@override String get renameAction => '名前を変更';
+	@override String get renameFailed => '名前の変更に失敗しました';
+	@override String get deletionPreflight => 'アカウント削除の事前チェック';
+	@override String get deletionPreflightDesc => 'このアカウントの削除をブロックしている依存ドメインを確認';
+	@override String observedAt({required Object ts}) => '観察時刻：${ts}';
+	@override String factDomains({required Object domains}) => '対象の依存ドメイン：${domains}';
+	@override String get noBlockers => 'ブロック項目なし';
+	@override String get blockers => 'ブロック項目：';
+	@override String get factUnavailable => '依存ドメインの事実を取得できないため、削除の事前チェックは拒否されました（fail-closed）';
+	@override String preflightFailed({required Object msg, required Object code}) => '事前チェック失敗：${msg} (${code})';
+	@override String myRoleAndStatus({required Object role, required Object status}) => '自分のロール：${role} · 状態：${status}';
+	@override String get archivedBadge => '組織はアーカイブ済み（読み取り専用）';
+	@override String get archivedHint => 'アーカイブ中はすべての書き込み操作が拒否され、復元のみ可能です';
+	@override String defaultWsSet({required Object id}) => 'デフォルト Workspace：${id}';
+	@override String get defaultWsUnset => 'デフォルト Workspace：未設定';
+	@override String get defaultWsNote => '事実を示すだけで、いかなる workspace メンバーシップも表しません';
+	@override String get memberList => 'メンバー一覧';
+	@override String get memberListRestricted => 'メンバー一覧（owner/admin のみ閲覧可）';
+	@override String get invitationManage => '招待の管理';
+	@override String get invitationManageRestricted => '招待の管理（owner/admin のみ操作可）';
+	@override String get deptEntry => '部門ディレクトリ';
+	@override String get deptEntryRestricted => '部門ディレクトリ（管理操作は権限者のみ）';
+	@override String get more => 'もっと見る';
+	@override String get archiveEntrySubtitle => '読み取り専用になります。いつでも復元できます';
+	@override String get restoreEntrySubtitle => 'active 状態に戻す';
+}
+
+// Path: organization.members
+class _Translations$organization$members$ja_JP extends Translations$organization$members$zh_CN {
+	_Translations$organization$members$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'メンバー';
+	@override String loadMoreFailed({required Object err}) => '追加読み込みに失敗：${err}';
+	@override String get changeRole => 'ロールを変更';
+	@override String changeRoleBody({required Object name, required Object from, required Object to}) => '「${name}」のロールを ${from} から ${to} に変更します。';
+	@override String get confirmChange => '変更を確認';
+	@override String get changeRoleFailed => 'ロールの変更に失敗しました';
+	@override String get removeMember => 'メンバーを削除';
+	@override String removeMemberBody({required Object name}) => '「${name}」をこの組織から削除します。アカウント自体は削除されません。';
+	@override String get confirmRemove => '削除を確認';
+	@override String get removeFailed => '削除に失敗しました';
+	@override String get transferOwner => 'オーナーを譲渡';
+	@override String transferOwnerBody({required Object name}) => '組織には owner が必ず 1 人です（C04）：「${name}」をオーナーに設定します。\nあなたは通常の管理者/メンバーに降格します。この操作は組織の管理権に直接影響します。';
+	@override String get confirmTransfer => '譲渡を確認';
+	@override String get transferFailed => '譲渡に失敗しました';
+	@override String get demoteToMember => 'メンバーに降格';
+	@override String get promoteToAdmin => '管理者に昇格';
+	@override String transferOwnerTo({required Object name}) => '「${name}」にオーナーを譲渡';
+	@override String get ownerCannotChangeHere => 'Owner はここでは変更できません。「オーナーを譲渡」をご利用ください';
+	@override String get empty => 'メンバーがいません';
+}
+
+// Path: organization.invitations
+class _Translations$organization$invitations$ja_JP extends Translations$organization$invitations$zh_CN {
+	_Translations$organization$invitations$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get inviteMember => 'メンバーを招待';
+	@override String get invitationCreated => '招待を作成しました';
+	@override String get tokenOnceNotice => '受領トークン（token）は今回のみ表示されます。今すぐコピーして、相手に安全な手段で渡してください：';
+	@override String get tokenCopied => 'トークンをコピーしました';
+	@override String get copyToken => 'トークンをコピー';
+	@override String inviteFailed({required Object msg, required Object code}) => '招待に失敗しました：${msg} (${code})';
+	@override String get acceptTitle => '招待を受諾';
+	@override String get acceptTokenHint => '招待者から受け取った受領トークン（token）を貼り付け';
+	@override String get acceptFailed => '受諾に失敗しました';
+	@override String get rejectTitle => '招待を拒否';
+	@override String get rejectBody => '拒否すると招待は終了状態になり、再度受諾できません。';
+	@override String get confirmReject => '拒否を確認';
+	@override String get rejectFailed => '拒否に失敗しました';
+	@override String get revokeTitle => '招待を取り消し';
+	@override String get revokeBody => '取り消すと招待は終了状態になり、対象ユーザーはトークンで受諾できなくなります。';
+	@override String get confirmRevoke => '取り消しを確認';
+	@override String get revokeFailed => '取り消しに失敗しました';
+	@override String get myInvitations => '自分の招待';
+	@override String get manageInvitations => '招待の管理';
+	@override String get createInvitation => '招待を作成';
+	@override String get empty => '招待がありません';
+	@override String get emptyRecord => '招待の記録がありません';
+	@override String orgLine({required Object orgId}) => '組織 ${orgId}';
+	@override String invitationLine({required Object invitationId}) => '招待 ${invitationId}';
+	@override String targetLine({required Object targetUserId, required Object subtitle}) => '対象 ${targetUserId} · ${subtitle}';
+	@override String get acceptNotice => '受諾には招待者が発行した受領トークン（token）が必要です；\n受諾後のメンバーシップはサーバーが正となります。';
+	@override String get revokeAction => '取り消し';
+	@override String get acceptWithToken => 'トークンで受諾';
+	@override String get rejectAction => '拒否';
+}
+
+// Path: organization.departments
+class _Translations$organization$departments$ja_JP extends Translations$organization$departments$zh_CN {
+	_Translations$organization$departments$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '部門ディレクトリ';
+	@override String deptIdSubtitle({required Object id}) => '部門 ${id}';
+	@override String statusLine({required Object status}) => '状態：${status}';
+	@override String memberUidLine({required Object userId}) => 'メンバー ${userId}';
+	@override String get viewForbiddenDetail => 'この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）';
+	@override String get viewForbidden => '閲覧権限がありません（本組織の在籍メンバーのみ）';
+	@override String loadFailedWith({required Object msg, required Object code}) => '部門の読み込みに失敗：${msg} (${code})';
+	@override String loadFailed({required Object err}) => '部門の読み込みに失敗：${err}';
+	@override String get createSubHere => 'この下に子部門を作成';
+	@override String get movePickParent => '移動（新しい親部門を選択）';
+	@override String get addMemberByUid => 'メンバーを追加（UID 指定）';
+	@override String get archiveDept => '部門をアーカイブ';
+	@override String get createRootDept => 'ルート部門を作成';
+	@override String get deptNameLabel => '部門名';
+	@override String createUnder({required Object parent}) => '「${parent}」の下に作成';
+	@override String get renameDept => '部門名を変更';
+	@override String get newNameLabel => '新しい名前';
+	@override String get renameFailed => '名前の変更に失敗しました';
+	@override String get moveDept => '部門を移動';
+	@override String get newParentIdHint => '新しい親部門 ID（空欄 = ルートへ）';
+	@override String get moveFailed => '移動に失敗しました';
+	@override String get addDeptMember => '部門メンバーを追加';
+	@override String archiveConfirmBody({required Object name}) => '「${name}」をアーカイブすると、この部門は読み取り専用になります（メンバーシップは保持）。';
+	@override String get archiveFailed => 'アーカイブに失敗しました';
+	@override String get emptyWithHint => '部門がありません。右上から作成してください';
+	@override String get empty => '部門がありません';
+	@override String get emptySubtitle => '兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -4452,6 +4652,138 @@ extension on TranslationsJaJp {
 			'momentNotify.cancel' => 'キャンセル',
 			'momentNotify.delete' => '削除',
 			'momentNotify.loadFailed' => '読み込みに失敗しました。後でもう一度お試しください',
+			'organization.common.moreActions' => 'その他の操作',
+			'organization.common.rename' => '名前を変更',
+			'organization.common.close' => '閉じる',
+			'organization.common.reload' => '再読み込み',
+			'organization.common.createFailed' => '作成に失敗しました',
+			'organization.common.addFailed' => '追加に失敗しました',
+			'organization.common.confirmArchive' => 'アーカイブを確認',
+			'organization.common.forbidden403' => 'この操作を実行する権限がありません（403）',
+			'organization.common.noMembers' => 'メンバーがいません',
+			'organization.common.targetUidHint' => '相手ユーザーの UID（数値）',
+			'organization.common.uidMustBePositive' => 'ユーザー UID は正の整数である必要があります',
+			'organization.common.loading' => '読み込み中…',
+			'organization.common.loadMore' => 'さらに読み込む',
+			'organization.home.createOrg' => '組織を作成',
+			'organization.home.orgNameLabel' => '組織名（1-200 文字）',
+			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '作成に失敗しました：${msg} (${code})',
+			'organization.home.tabOrg' => '組織',
+			'organization.home.myInvitations' => '自分の招待',
+			'organization.home.emptyHint' => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください',
+			'organization.detail.title' => '組織の詳細',
+			'organization.detail.notFound' => '組織が見つかりません',
+			'organization.detail.archiveOrg' => '組織をアーカイブ',
+			'organization.detail.archiveConfirmBody' => 'アーカイブ後、組織は読み取り専用になり、すべての書き込み操作は fail-closed となります。復元（restore）のみが解除できます。メンバーとデータは削除されません。',
+			'organization.detail.restoreOrg' => '組織を復元',
+			'organization.detail.restoreConfirmBody' => '復元後、組織は active 状態に戻り、書き込みが再度可能になります。',
+			'organization.detail.confirmRestore' => '復元を確認',
+			'organization.detail.restoreFailed' => '復元に失敗しました',
+			'organization.detail.archiveFailed' => 'アーカイブに失敗しました',
+			'organization.detail.renameOrgTitle' => '組織名を変更',
+			'organization.detail.renameOrgLabel' => '組織名（1-200 文字）',
+			'organization.detail.renameAction' => '名前を変更',
+			'organization.detail.renameFailed' => '名前の変更に失敗しました',
+			'organization.detail.deletionPreflight' => 'アカウント削除の事前チェック',
+			'organization.detail.deletionPreflightDesc' => 'このアカウントの削除をブロックしている依存ドメインを確認',
+			'organization.detail.observedAt' => ({required Object ts}) => '観察時刻：${ts}',
+			'organization.detail.factDomains' => ({required Object domains}) => '対象の依存ドメイン：${domains}',
+			'organization.detail.noBlockers' => 'ブロック項目なし',
+			'organization.detail.blockers' => 'ブロック項目：',
+			'organization.detail.factUnavailable' => '依存ドメインの事実を取得できないため、削除の事前チェックは拒否されました（fail-closed）',
+			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => '事前チェック失敗：${msg} (${code})',
+			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => '自分のロール：${role} · 状態：${status}',
+			'organization.detail.archivedBadge' => '組織はアーカイブ済み（読み取り専用）',
+			'organization.detail.archivedHint' => 'アーカイブ中はすべての書き込み操作が拒否され、復元のみ可能です',
+			'organization.detail.defaultWsSet' => ({required Object id}) => 'デフォルト Workspace：${id}',
+			'organization.detail.defaultWsUnset' => 'デフォルト Workspace：未設定',
+			'organization.detail.defaultWsNote' => '事実を示すだけで、いかなる workspace メンバーシップも表しません',
+			'organization.detail.memberList' => 'メンバー一覧',
+			'organization.detail.memberListRestricted' => 'メンバー一覧（owner/admin のみ閲覧可）',
+			'organization.detail.invitationManage' => '招待の管理',
+			'organization.detail.invitationManageRestricted' => '招待の管理（owner/admin のみ操作可）',
+			'organization.detail.deptEntry' => '部門ディレクトリ',
+			'organization.detail.deptEntryRestricted' => '部門ディレクトリ（管理操作は権限者のみ）',
+			'organization.detail.more' => 'もっと見る',
+			'organization.detail.archiveEntrySubtitle' => '読み取り専用になります。いつでも復元できます',
+			'organization.detail.restoreEntrySubtitle' => 'active 状態に戻す',
+			'organization.members.title' => 'メンバー',
+			'organization.members.loadMoreFailed' => ({required Object err}) => '追加読み込みに失敗：${err}',
+			'organization.members.changeRole' => 'ロールを変更',
+			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => '「${name}」のロールを ${from} から ${to} に変更します。',
+			'organization.members.confirmChange' => '変更を確認',
+			'organization.members.changeRoleFailed' => 'ロールの変更に失敗しました',
+			'organization.members.removeMember' => 'メンバーを削除',
+			'organization.members.removeMemberBody' => ({required Object name}) => '「${name}」をこの組織から削除します。アカウント自体は削除されません。',
+			'organization.members.confirmRemove' => '削除を確認',
+			'organization.members.removeFailed' => '削除に失敗しました',
+			'organization.members.transferOwner' => 'オーナーを譲渡',
+			'organization.members.transferOwnerBody' => ({required Object name}) => '組織には owner が必ず 1 人です（C04）：「${name}」をオーナーに設定します。\nあなたは通常の管理者/メンバーに降格します。この操作は組織の管理権に直接影響します。',
+			'organization.members.confirmTransfer' => '譲渡を確認',
+			'organization.members.transferFailed' => '譲渡に失敗しました',
+			'organization.members.demoteToMember' => 'メンバーに降格',
+			'organization.members.promoteToAdmin' => '管理者に昇格',
+			'organization.members.transferOwnerTo' => ({required Object name}) => '「${name}」にオーナーを譲渡',
+			'organization.members.ownerCannotChangeHere' => 'Owner はここでは変更できません。「オーナーを譲渡」をご利用ください',
+			'organization.members.empty' => 'メンバーがいません',
+			'organization.invitations.inviteMember' => 'メンバーを招待',
+			'organization.invitations.invitationCreated' => '招待を作成しました',
+			'organization.invitations.tokenOnceNotice' => '受領トークン（token）は今回のみ表示されます。今すぐコピーして、相手に安全な手段で渡してください：',
+			'organization.invitations.tokenCopied' => 'トークンをコピーしました',
+			'organization.invitations.copyToken' => 'トークンをコピー',
+			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => '招待に失敗しました：${msg} (${code})',
+			'organization.invitations.acceptTitle' => '招待を受諾',
+			'organization.invitations.acceptTokenHint' => '招待者から受け取った受領トークン（token）を貼り付け',
+			'organization.invitations.acceptFailed' => '受諾に失敗しました',
+			'organization.invitations.rejectTitle' => '招待を拒否',
+			'organization.invitations.rejectBody' => '拒否すると招待は終了状態になり、再度受諾できません。',
+			'organization.invitations.confirmReject' => '拒否を確認',
+			'organization.invitations.rejectFailed' => '拒否に失敗しました',
+			'organization.invitations.revokeTitle' => '招待を取り消し',
+			'organization.invitations.revokeBody' => '取り消すと招待は終了状態になり、対象ユーザーはトークンで受諾できなくなります。',
+			'organization.invitations.confirmRevoke' => '取り消しを確認',
+			'organization.invitations.revokeFailed' => '取り消しに失敗しました',
+			'organization.invitations.myInvitations' => '自分の招待',
+			'organization.invitations.manageInvitations' => '招待の管理',
+			'organization.invitations.createInvitation' => '招待を作成',
+			'organization.invitations.empty' => '招待がありません',
+			'organization.invitations.emptyRecord' => '招待の記録がありません',
+			'organization.invitations.orgLine' => ({required Object orgId}) => '組織 ${orgId}',
+			'organization.invitations.invitationLine' => ({required Object invitationId}) => '招待 ${invitationId}',
+			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => '対象 ${targetUserId} · ${subtitle}',
+			'organization.invitations.acceptNotice' => '受諾には招待者が発行した受領トークン（token）が必要です；\n受諾後のメンバーシップはサーバーが正となります。',
+			'organization.invitations.revokeAction' => '取り消し',
+			'organization.invitations.acceptWithToken' => 'トークンで受諾',
+			'organization.invitations.rejectAction' => '拒否',
+			'organization.departments.title' => '部門ディレクトリ',
+			'organization.departments.deptIdSubtitle' => ({required Object id}) => '部門 ${id}',
+			'organization.departments.statusLine' => ({required Object status}) => '状態：${status}',
+			'organization.departments.memberUidLine' => ({required Object userId}) => 'メンバー ${userId}',
+			'organization.departments.viewForbiddenDetail' => 'この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）',
+			'organization.departments.viewForbidden' => '閲覧権限がありません（本組織の在籍メンバーのみ）',
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '部門の読み込みに失敗：${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => '部門の読み込みに失敗：${err}',
+			'organization.departments.createSubHere' => 'この下に子部門を作成',
+			'organization.departments.movePickParent' => '移動（新しい親部門を選択）',
+			'organization.departments.addMemberByUid' => 'メンバーを追加（UID 指定）',
+			'organization.departments.archiveDept' => '部門をアーカイブ',
+			'organization.departments.createRootDept' => 'ルート部門を作成',
+			'organization.departments.deptNameLabel' => '部門名',
+			'organization.departments.createUnder' => ({required Object parent}) => '「${parent}」の下に作成',
+			'organization.departments.renameDept' => '部門名を変更',
+			'organization.departments.newNameLabel' => '新しい名前',
+			'organization.departments.renameFailed' => '名前の変更に失敗しました',
+			'organization.departments.moveDept' => '部門を移動',
+			'organization.departments.newParentIdHint' => '新しい親部門 ID（空欄 = ルートへ）',
+			'organization.departments.moveFailed' => '移動に失敗しました',
+			'organization.departments.addDeptMember' => '部門メンバーを追加',
+			'organization.departments.archiveConfirmBody' => ({required Object name}) => '「${name}」をアーカイブすると、この部門は読み取り専用になります（メンバーシップは保持）。',
+			'organization.departments.archiveFailed' => 'アーカイブに失敗しました',
+			'organization.departments.emptyWithHint' => '部門がありません。右上から作成してください',
+			'organization.departments.empty' => '部門がありません',
+			'organization.departments.emptySubtitle' => '兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。',
+			_ => null,
+		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',
@@ -4582,8 +4914,6 @@ extension on TranslationsJaJp {
 			'workspace.brandingEntry' => 'ブランド設定（名前 / Logo / メインカラー）',
 			'workspace.archiveEntry' => 'ワークスペースをアーカイブ',
 			'workspace.restoreEntry' => 'ワークスペースを復元',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveTitle' => 'ワークスペースをアーカイブ',
 			'workspace.archiveDesc' => 'アーカイブ後は全員が閲覧のみ可能（書き込み操作はサーバーで拒否されます）。いつでも復元できます',
 			'workspace.archiveConfirm' => 'アーカイブを確認',

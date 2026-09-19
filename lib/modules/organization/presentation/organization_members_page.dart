@@ -8,6 +8,8 @@ library;
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
+import 'package:imboy/i18n/strings.g.dart';
+
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
@@ -111,8 +113,9 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
       });
     } on Object catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.maybeOf(context)
-          ?.showSnackBar(SnackBar(content: Text('加载更多失败：$e')));
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(t.organization.members.loadMoreFailed(err: e))),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -141,15 +144,18 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
     final target = m.isAdmin ? 'member' : 'admin';
     final ok = await orgConfirmDangerAction(
       context,
-      title: '变更角色',
-      consequence:
-          '将「${m.displayName}」的角色由 ${orgRoleLabel(m.role)} 调整为 ${orgRoleLabel(target)}。',
-      confirmText: '确认变更',
+      title: t.organization.members.changeRole,
+      consequence: t.organization.members.changeRoleBody(
+        name: m.displayName,
+        from: orgRoleLabel(m.role),
+        to: orgRoleLabel(target),
+      ),
+      confirmText: t.organization.members.confirmChange,
     );
     if (ok) {
       await _runCommand(
         () => _api.changeRole(widget.orgId, m.userId, role: target),
-        '角色变更失败',
+        t.organization.members.changeRoleFailed,
       );
     }
   }
@@ -157,14 +163,14 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
   Future<void> _remove(OrganizationMember m) async {
     final ok = await orgConfirmDangerAction(
       context,
-      title: '移除成员',
-      consequence: '将「${m.displayName}」移出本组织。该操作不会删除其账号。',
-      confirmText: '确认移除',
+      title: t.organization.members.removeMember,
+      consequence: t.organization.members.removeMemberBody(name: m.displayName),
+      confirmText: t.organization.members.confirmRemove,
     );
     if (ok) {
       await _runCommand(
         () => _api.removeMember(widget.orgId, m.userId),
-        '移除失败',
+        t.organization.members.removeFailed,
       );
     }
   }
@@ -172,16 +178,16 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
   Future<void> _transferOwner(OrganizationMember m) async {
     final ok = await orgConfirmDangerAction(
       context,
-      title: '转移所有者',
-      consequence:
-          '组织有且仅有一个 owner（C04）：确认将「${m.displayName}」设为所有者，'
-          '你将降级为普通管理员/成员。该操作直接影响组织控制权。',
-      confirmText: '确认转移',
+      title: t.organization.members.transferOwner,
+      consequence: t.organization.members.transferOwnerBody(
+        name: m.displayName,
+      ),
+      confirmText: t.organization.members.confirmTransfer,
     );
     if (ok) {
       await _runCommand(
         () => _api.transferOwner(widget.orgId, m.userId),
-        '转移失败',
+        t.organization.members.transferFailed,
       );
     }
   }
@@ -197,14 +203,20 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
           children: [
             if (m.isGovernable)
               ListTile(
-                leading: const Icon(Icons.swap_horiz),
-                title: Text(m.isAdmin ? '降级为成员' : '升级为管理员'),
+                leading: const Icon(CupertinoIcons.arrow_swap),
+                title: Text(
+                  m.isAdmin
+                      ? t.organization.members.demoteToMember
+                      : t.organization.members.promoteToAdmin,
+                ),
                 onTap: () => Navigator.of(ctx).pop('role'),
               ),
             if (m.isGovernable && iAmOwner)
               ListTile(
-                leading: const Icon(Icons.verified_user_outlined),
-                title: Text('转移所有者给「${m.displayName}」'),
+                leading: const Icon(CupertinoIcons.shield_fill),
+                title: Text(
+                  t.organization.members.transferOwnerTo(name: m.displayName),
+                ),
                 onTap: () => Navigator.of(ctx).pop('transfer'),
               ),
             if (m.isGovernable)
@@ -214,15 +226,15 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
                   color: Theme.of(ctx).colorScheme.error,
                 ),
                 title: Text(
-                  '移除成员',
+                  t.organization.members.removeMember,
                   style: TextStyle(color: Theme.of(ctx).colorScheme.error),
                 ),
                 onTap: () => Navigator.of(ctx).pop('remove'),
               ),
             if (!m.isGovernable)
-              const ListTile(
-                leading: Icon(Icons.info_outline),
-                title: Text('Owner 不可在此变更；请使用「转移所有者」'),
+              ListTile(
+                leading: Icon(CupertinoIcons.info),
+                title: Text(t.organization.members.ownerCannotChangeHere),
               ),
           ],
         ),
@@ -241,7 +253,7 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('成员')),
+      appBar: AppBar(title: Text(t.organization.members.title)),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: OrgStateView(
@@ -253,7 +265,7 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
               !_permissionDenied &&
               _error == null &&
               _members.isEmpty,
-          emptyText: '暂无成员',
+          emptyText: t.organization.common.noMembers,
           onRetry: _refresh,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -279,13 +291,17 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  trailing: const Icon(Icons.more_vert),
+                  trailing: const Icon(CupertinoIcons.ellipsis),
                   onTap: () => _openMemberActions(m),
                 ),
               if (_page < _totalPage)
                 TextButton(
                   onPressed: _loadingMore ? null : _loadMore,
-                  child: Text(_loadingMore ? '加载中…' : '加载更多'),
+                  child: Text(
+                    _loadingMore
+                        ? t.organization.common.loading
+                        : t.organization.common.loadMore,
+                  ),
                 ),
             ],
           ),

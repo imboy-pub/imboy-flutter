@@ -64,6 +64,7 @@ class TranslationsDeDe extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$mention$de_DE mention = _Translations$mention$de_DE._(_root);
 	@override late final _Translations$momentFriendPicker$de_DE momentFriendPicker = _Translations$momentFriendPicker$de_DE._(_root);
 	@override late final _Translations$momentNotify$de_DE momentNotify = _Translations$momentNotify$de_DE._(_root);
+	@override late final _Translations$organization$de_DE organization = _Translations$organization$de_DE._(_root);
 	@override late final _Translations$passport$de_DE passport = _Translations$passport$de_DE._(_root);
 	@override late final _Translations$splash$de_DE splash = _Translations$splash$de_DE._(_root);
 	@override late final _Translations$welcome$de_DE welcome = _Translations$welcome$de_DE._(_root);
@@ -2214,6 +2215,21 @@ class _Translations$momentNotify$de_DE extends Translations$momentNotify$zh_CN {
 	@override String get loadFailed => 'Laden fehlgeschlagen. Bitte später erneut versuchen.';
 }
 
+// Path: organization
+class _Translations$organization$de_DE extends Translations$organization$zh_CN {
+	_Translations$organization$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$organization$common$de_DE common = _Translations$organization$common$de_DE._(_root);
+	@override late final _Translations$organization$home$de_DE home = _Translations$organization$home$de_DE._(_root);
+	@override late final _Translations$organization$detail$de_DE detail = _Translations$organization$detail$de_DE._(_root);
+	@override late final _Translations$organization$members$de_DE members = _Translations$organization$members$de_DE._(_root);
+	@override late final _Translations$organization$invitations$de_DE invitations = _Translations$organization$invitations$de_DE._(_root);
+	@override late final _Translations$organization$departments$de_DE departments = _Translations$organization$departments$de_DE._(_root);
+}
+
 // Path: passport
 class _Translations$passport$de_DE extends Translations$passport$zh_CN {
 	_Translations$passport$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
@@ -2521,6 +2537,190 @@ class _Translations$account$alipaySim$de_DE extends Translations$account$alipayS
 	@override String get energy => 'Nach erfolgreicher Zahlung 5 g grüne Energie erhalten';
 	@override String get alipaySuccess => 'Zahlung erfolgreich';
 	@override String get storeName => 'IT-Flagship-Store';
+}
+
+// Path: organization.common
+class _Translations$organization$common$de_DE extends Translations$organization$common$zh_CN {
+	_Translations$organization$common$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get moreActions => 'Weitere Aktionen';
+	@override String get rename => 'Umbenennen';
+	@override String get close => 'Schließen';
+	@override String get reload => 'Neu laden';
+	@override String get createFailed => 'Erstellen fehlgeschlagen';
+	@override String get addFailed => 'Hinzufügen fehlgeschlagen';
+	@override String get confirmArchive => 'Archivieren bestätigen';
+	@override String get forbidden403 => 'Keine Berechtigung für diese Aktion (403)';
+	@override String get noMembers => 'Noch keine Mitglieder';
+	@override String get targetUidHint => 'UID des anderen Nutzers (numerisch)';
+	@override String get uidMustBePositive => 'Die Nutzer-UID muss eine positive Ganzzahl sein';
+	@override String get loading => 'Wird geladen…';
+	@override String get loadMore => 'Mehr laden';
+}
+
+// Path: organization.home
+class _Translations$organization$home$de_DE extends Translations$organization$home$zh_CN {
+	_Translations$organization$home$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get createOrg => 'Organisation erstellen';
+	@override String get orgNameLabel => 'Organisationsname (1-200 Zeichen)';
+	@override String createFailedWith({required Object msg, required Object code}) => 'Erstellen fehlgeschlagen: ${msg} (${code})';
+	@override String get tabOrg => 'Organisationen';
+	@override String get myInvitations => 'Meine Einladungen';
+	@override String get emptyHint => 'Du bist noch keiner Organisation beigetreten\nZum Aktualisieren nach unten ziehen oder oben rechts erstellen';
+}
+
+// Path: organization.detail
+class _Translations$organization$detail$de_DE extends Translations$organization$detail$zh_CN {
+	_Translations$organization$detail$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Organisationsdetails';
+	@override String get notFound => 'Organisation nicht gefunden';
+	@override String get archiveOrg => 'Organisation archivieren';
+	@override String get archiveConfirmBody => 'Nach der Archivierung ist die Organisation schreibgeschützt; alle Schreiboperationen scheitern kontrolliert (fail-closed), nur Wiederherstellen (restore) entsperrt sie. Mitglieder und Daten werden nicht gelöscht.';
+	@override String get restoreOrg => 'Organisation wiederherstellen';
+	@override String get restoreConfirmBody => 'Nach der Wiederherstellung kehrt die Organisation in den active-Zustand zurück und Schreibzugriffe werden wieder geöffnet.';
+	@override String get confirmRestore => 'Wiederherstellen bestätigen';
+	@override String get restoreFailed => 'Wiederherstellen fehlgeschlagen';
+	@override String get archiveFailed => 'Archivieren fehlgeschlagen';
+	@override String get renameOrgTitle => 'Organisation umbenennen';
+	@override String get renameOrgLabel => 'Organisationsname (1-200 Zeichen)';
+	@override String get renameAction => 'Umbenennen';
+	@override String get renameFailed => 'Umbenennen fehlgeschlagen';
+	@override String get deletionPreflight => 'Löschvorprüfung des Kontos';
+	@override String get deletionPreflightDesc => 'Anzeigen, welche Abhängigkeitsbereiche die Löschung dieses Kontos blockieren';
+	@override String observedAt({required Object ts}) => 'Beobachtet am: ${ts}';
+	@override String factDomains({required Object domains}) => 'Abgedeckte Abhängigkeitsbereiche: ${domains}';
+	@override String get noBlockers => 'Keine Blocker';
+	@override String get blockers => 'Blocker:';
+	@override String get factUnavailable => 'Fakten der Abhängigkeitsbereiche nicht verfügbar, Löschvorprüfung abgelehnt (fail-closed)';
+	@override String preflightFailed({required Object msg, required Object code}) => 'Vorprüfung fehlgeschlagen: ${msg} (${code})';
+	@override String myRoleAndStatus({required Object role, required Object status}) => 'Meine Rolle: ${role} · Status: ${status}';
+	@override String get archivedBadge => 'Organisation archiviert (schreibgeschützt)';
+	@override String get archivedHint => 'Während der Archivierung werden alle Schreiboperationen abgelehnt; nur Wiederherstellen ist möglich';
+	@override String defaultWsSet({required Object id}) => 'Standard-Workspace: ${id}';
+	@override String get defaultWsUnset => 'Standard-Workspace: nicht festgelegt';
+	@override String get defaultWsNote => 'Nur ein Verweis-Fakt; steht für keine Workspace-Mitgliedschaft';
+	@override String get memberList => 'Mitglieder';
+	@override String get memberListRestricted => 'Mitglieder (nur für owner/admin sichtbar)';
+	@override String get invitationManage => 'Einladungsverwaltung';
+	@override String get invitationManageRestricted => 'Einladungsverwaltung (nur owner/admin)';
+	@override String get deptEntry => 'Abteilungsverzeichnis';
+	@override String get deptEntryRestricted => 'Abteilungsverzeichnis (Verwaltung nur für Berechtigte)';
+	@override String get more => 'Mehr';
+	@override String get archiveEntrySubtitle => 'Wird schreibgeschützt; jederzeit wiederherstellbar';
+	@override String get restoreEntrySubtitle => 'Zurück zu active';
+}
+
+// Path: organization.members
+class _Translations$organization$members$de_DE extends Translations$organization$members$zh_CN {
+	_Translations$organization$members$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Mitglieder';
+	@override String loadMoreFailed({required Object err}) => 'Nachladen fehlgeschlagen: ${err}';
+	@override String get changeRole => 'Rolle ändern';
+	@override String changeRoleBody({required Object name, required Object from, required Object to}) => 'Die Rolle von „${name}“ wird von ${from} zu ${to} geändert.';
+	@override String get confirmChange => 'Änderung bestätigen';
+	@override String get changeRoleFailed => 'Rollenänderung fehlgeschlagen';
+	@override String get removeMember => 'Mitglied entfernen';
+	@override String removeMemberBody({required Object name}) => '„${name}“ wird aus dieser Organisation entfernt. Das Konto wird nicht gelöscht.';
+	@override String get confirmRemove => 'Entfernen bestätigen';
+	@override String get removeFailed => 'Entfernen fehlgeschlagen';
+	@override String get transferOwner => 'Eigentümerschaft übertragen';
+	@override String transferOwnerBody({required Object name}) => 'Eine Organisation hat genau einen Owner (C04): Bestätige, „${name}“ zum Eigentümer zu machen.\nDu wirst zum normalen Admin/Mitglied herabgestuft. Dies beeinflusst direkt die Kontrolle über die Organisation.';
+	@override String get confirmTransfer => 'Übertragung bestätigen';
+	@override String get transferFailed => 'Übertragung fehlgeschlagen';
+	@override String get demoteToMember => 'Zum Mitglied herabstufen';
+	@override String get promoteToAdmin => 'Zum Admin befördern';
+	@override String transferOwnerTo({required Object name}) => 'Eigentümerschaft an „${name}“ übertragen';
+	@override String get ownerCannotChangeHere => 'Der Owner kann hier nicht geändert werden; verwende „Eigentümerschaft übertragen“';
+	@override String get empty => 'Keine Mitglieder';
+}
+
+// Path: organization.invitations
+class _Translations$organization$invitations$de_DE extends Translations$organization$invitations$zh_CN {
+	_Translations$organization$invitations$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get inviteMember => 'Mitglied einladen';
+	@override String get invitationCreated => 'Einladung erstellt';
+	@override String get tokenOnceNotice => 'Der Empfangs-Token (token) wird nur einmal angezeigt; kopiere ihn jetzt und übermittle ihn außerhalb der App:';
+	@override String get tokenCopied => 'Token kopiert';
+	@override String get copyToken => 'Token kopieren';
+	@override String inviteFailed({required Object msg, required Object code}) => 'Einladung fehlgeschlagen: ${msg} (${code})';
+	@override String get acceptTitle => 'Einladung annehmen';
+	@override String get acceptTokenHint => 'Füge den Empfangs-Token (token) ein, den dir die einladende Person gegeben hat';
+	@override String get acceptFailed => 'Annehmen fehlgeschlagen';
+	@override String get rejectTitle => 'Einladung ablehnen';
+	@override String get rejectBody => 'Nach der Ablehnung geht die Einladung in einen Endzustand und kann nicht mehr angenommen werden.';
+	@override String get confirmReject => 'Ablehnung bestätigen';
+	@override String get rejectFailed => 'Ablehnen fehlgeschlagen';
+	@override String get revokeTitle => 'Einladung widerrufen';
+	@override String get revokeBody => 'Nach dem Widerruf geht die Einladung in einen Endzustand; die Zielperson kann sie nicht mehr mit dem Token annehmen.';
+	@override String get confirmRevoke => 'Widerruf bestätigen';
+	@override String get revokeFailed => 'Widerrufen fehlgeschlagen';
+	@override String get myInvitations => 'Meine Einladungen';
+	@override String get manageInvitations => 'Einladungsverwaltung';
+	@override String get createInvitation => 'Einladung erstellen';
+	@override String get empty => 'Keine Einladungen';
+	@override String get emptyRecord => 'Keine Einladungsdatensätze';
+	@override String orgLine({required Object orgId}) => 'Organisation ${orgId}';
+	@override String invitationLine({required Object invitationId}) => 'Einladung ${invitationId}';
+	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'Ziel ${targetUserId} · ${subtitle}';
+	@override String get acceptNotice => 'Zum Annehmen wird der Empfangs-Token (token) der einladenden Person benötigt;\nnach der Annahme ist die Mitgliedschaft serverseitig maßgeblich.';
+	@override String get revokeAction => 'Widerrufen';
+	@override String get acceptWithToken => 'Mit Token annehmen';
+	@override String get rejectAction => 'Ablehnen';
+}
+
+// Path: organization.departments
+class _Translations$organization$departments$de_DE extends Translations$organization$departments$zh_CN {
+	_Translations$organization$departments$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Abteilungsverzeichnis';
+	@override String deptIdSubtitle({required Object id}) => 'Abteilung ${id}';
+	@override String statusLine({required Object status}) => 'Status: ${status}';
+	@override String memberUidLine({required Object userId}) => 'Mitglied ${userId}';
+	@override String get viewForbiddenDetail => 'Kein Zugriff auf diese Abteilung (nur aktive Mitglieder dieser Organisation)';
+	@override String get viewForbidden => 'Kein Zugriff (nur aktive Mitglieder dieser Organisation)';
+	@override String loadFailedWith({required Object msg, required Object code}) => 'Abteilung konnte nicht geladen werden: ${msg} (${code})';
+	@override String loadFailed({required Object err}) => 'Abteilung konnte nicht geladen werden: ${err}';
+	@override String get createSubHere => 'Hier eine Unterabteilung erstellen';
+	@override String get movePickParent => 'Verschieben (neue übergeordnete Abteilung wählen)';
+	@override String get addMemberByUid => 'Mitglied hinzufügen (per UID)';
+	@override String get archiveDept => 'Abteilung archivieren';
+	@override String get createRootDept => 'Root-Abteilung erstellen';
+	@override String get deptNameLabel => 'Abteilungsname';
+	@override String createUnder({required Object parent}) => 'Unter „${parent}“ erstellen';
+	@override String get renameDept => 'Abteilung umbenennen';
+	@override String get newNameLabel => 'Neuer Name';
+	@override String get renameFailed => 'Umbenennen fehlgeschlagen';
+	@override String get moveDept => 'Abteilung verschieben';
+	@override String get newParentIdHint => 'ID der neuen übergeordneten Abteilung (leer = auf Root-Ebene)';
+	@override String get moveFailed => 'Verschieben fehlgeschlagen';
+	@override String get addDeptMember => 'Abteilungsmitglied hinzufügen';
+	@override String archiveConfirmBody({required Object name}) => 'Nach der Archivierung von „${name}“ ist die Abteilung schreibgeschützt (Mitgliedschaften bleiben erhalten).';
+	@override String get archiveFailed => 'Archivieren fehlgeschlagen';
+	@override String get emptyWithHint => 'Noch keine Abteilungen – erstelle oben rechts eine';
+	@override String get empty => 'Keine Abteilungen';
+	@override String get emptySubtitle => 'Mehrfachmitgliedschaft: Ein Mitglied kann mehreren Abteilungen angehören; Abteilungsmitglieder müssen zuerst Mitglieder dieser Organisation sein.';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -4455,6 +4655,138 @@ extension on TranslationsDeDe {
 			'momentNotify.cancel' => 'Abbrechen',
 			'momentNotify.delete' => 'Löschen',
 			'momentNotify.loadFailed' => 'Laden fehlgeschlagen. Bitte später erneut versuchen.',
+			'organization.common.moreActions' => 'Weitere Aktionen',
+			'organization.common.rename' => 'Umbenennen',
+			'organization.common.close' => 'Schließen',
+			'organization.common.reload' => 'Neu laden',
+			'organization.common.createFailed' => 'Erstellen fehlgeschlagen',
+			'organization.common.addFailed' => 'Hinzufügen fehlgeschlagen',
+			'organization.common.confirmArchive' => 'Archivieren bestätigen',
+			'organization.common.forbidden403' => 'Keine Berechtigung für diese Aktion (403)',
+			'organization.common.noMembers' => 'Noch keine Mitglieder',
+			'organization.common.targetUidHint' => 'UID des anderen Nutzers (numerisch)',
+			'organization.common.uidMustBePositive' => 'Die Nutzer-UID muss eine positive Ganzzahl sein',
+			'organization.common.loading' => 'Wird geladen…',
+			'organization.common.loadMore' => 'Mehr laden',
+			'organization.home.createOrg' => 'Organisation erstellen',
+			'organization.home.orgNameLabel' => 'Organisationsname (1-200 Zeichen)',
+			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Erstellen fehlgeschlagen: ${msg} (${code})',
+			'organization.home.tabOrg' => 'Organisationen',
+			'organization.home.myInvitations' => 'Meine Einladungen',
+			'organization.home.emptyHint' => 'Du bist noch keiner Organisation beigetreten\nZum Aktualisieren nach unten ziehen oder oben rechts erstellen',
+			'organization.detail.title' => 'Organisationsdetails',
+			'organization.detail.notFound' => 'Organisation nicht gefunden',
+			'organization.detail.archiveOrg' => 'Organisation archivieren',
+			'organization.detail.archiveConfirmBody' => 'Nach der Archivierung ist die Organisation schreibgeschützt; alle Schreiboperationen scheitern kontrolliert (fail-closed), nur Wiederherstellen (restore) entsperrt sie. Mitglieder und Daten werden nicht gelöscht.',
+			'organization.detail.restoreOrg' => 'Organisation wiederherstellen',
+			'organization.detail.restoreConfirmBody' => 'Nach der Wiederherstellung kehrt die Organisation in den active-Zustand zurück und Schreibzugriffe werden wieder geöffnet.',
+			'organization.detail.confirmRestore' => 'Wiederherstellen bestätigen',
+			'organization.detail.restoreFailed' => 'Wiederherstellen fehlgeschlagen',
+			'organization.detail.archiveFailed' => 'Archivieren fehlgeschlagen',
+			'organization.detail.renameOrgTitle' => 'Organisation umbenennen',
+			'organization.detail.renameOrgLabel' => 'Organisationsname (1-200 Zeichen)',
+			'organization.detail.renameAction' => 'Umbenennen',
+			'organization.detail.renameFailed' => 'Umbenennen fehlgeschlagen',
+			'organization.detail.deletionPreflight' => 'Löschvorprüfung des Kontos',
+			'organization.detail.deletionPreflightDesc' => 'Anzeigen, welche Abhängigkeitsbereiche die Löschung dieses Kontos blockieren',
+			'organization.detail.observedAt' => ({required Object ts}) => 'Beobachtet am: ${ts}',
+			'organization.detail.factDomains' => ({required Object domains}) => 'Abgedeckte Abhängigkeitsbereiche: ${domains}',
+			'organization.detail.noBlockers' => 'Keine Blocker',
+			'organization.detail.blockers' => 'Blocker:',
+			'organization.detail.factUnavailable' => 'Fakten der Abhängigkeitsbereiche nicht verfügbar, Löschvorprüfung abgelehnt (fail-closed)',
+			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => 'Vorprüfung fehlgeschlagen: ${msg} (${code})',
+			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => 'Meine Rolle: ${role} · Status: ${status}',
+			'organization.detail.archivedBadge' => 'Organisation archiviert (schreibgeschützt)',
+			'organization.detail.archivedHint' => 'Während der Archivierung werden alle Schreiboperationen abgelehnt; nur Wiederherstellen ist möglich',
+			'organization.detail.defaultWsSet' => ({required Object id}) => 'Standard-Workspace: ${id}',
+			'organization.detail.defaultWsUnset' => 'Standard-Workspace: nicht festgelegt',
+			'organization.detail.defaultWsNote' => 'Nur ein Verweis-Fakt; steht für keine Workspace-Mitgliedschaft',
+			'organization.detail.memberList' => 'Mitglieder',
+			'organization.detail.memberListRestricted' => 'Mitglieder (nur für owner/admin sichtbar)',
+			'organization.detail.invitationManage' => 'Einladungsverwaltung',
+			'organization.detail.invitationManageRestricted' => 'Einladungsverwaltung (nur owner/admin)',
+			'organization.detail.deptEntry' => 'Abteilungsverzeichnis',
+			'organization.detail.deptEntryRestricted' => 'Abteilungsverzeichnis (Verwaltung nur für Berechtigte)',
+			'organization.detail.more' => 'Mehr',
+			'organization.detail.archiveEntrySubtitle' => 'Wird schreibgeschützt; jederzeit wiederherstellbar',
+			'organization.detail.restoreEntrySubtitle' => 'Zurück zu active',
+			'organization.members.title' => 'Mitglieder',
+			'organization.members.loadMoreFailed' => ({required Object err}) => 'Nachladen fehlgeschlagen: ${err}',
+			'organization.members.changeRole' => 'Rolle ändern',
+			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => 'Die Rolle von „${name}“ wird von ${from} zu ${to} geändert.',
+			'organization.members.confirmChange' => 'Änderung bestätigen',
+			'organization.members.changeRoleFailed' => 'Rollenänderung fehlgeschlagen',
+			'organization.members.removeMember' => 'Mitglied entfernen',
+			'organization.members.removeMemberBody' => ({required Object name}) => '„${name}“ wird aus dieser Organisation entfernt. Das Konto wird nicht gelöscht.',
+			'organization.members.confirmRemove' => 'Entfernen bestätigen',
+			'organization.members.removeFailed' => 'Entfernen fehlgeschlagen',
+			'organization.members.transferOwner' => 'Eigentümerschaft übertragen',
+			'organization.members.transferOwnerBody' => ({required Object name}) => 'Eine Organisation hat genau einen Owner (C04): Bestätige, „${name}“ zum Eigentümer zu machen.\nDu wirst zum normalen Admin/Mitglied herabgestuft. Dies beeinflusst direkt die Kontrolle über die Organisation.',
+			'organization.members.confirmTransfer' => 'Übertragung bestätigen',
+			'organization.members.transferFailed' => 'Übertragung fehlgeschlagen',
+			'organization.members.demoteToMember' => 'Zum Mitglied herabstufen',
+			'organization.members.promoteToAdmin' => 'Zum Admin befördern',
+			'organization.members.transferOwnerTo' => ({required Object name}) => 'Eigentümerschaft an „${name}“ übertragen',
+			'organization.members.ownerCannotChangeHere' => 'Der Owner kann hier nicht geändert werden; verwende „Eigentümerschaft übertragen“',
+			'organization.members.empty' => 'Keine Mitglieder',
+			'organization.invitations.inviteMember' => 'Mitglied einladen',
+			'organization.invitations.invitationCreated' => 'Einladung erstellt',
+			'organization.invitations.tokenOnceNotice' => 'Der Empfangs-Token (token) wird nur einmal angezeigt; kopiere ihn jetzt und übermittle ihn außerhalb der App:',
+			'organization.invitations.tokenCopied' => 'Token kopiert',
+			'organization.invitations.copyToken' => 'Token kopieren',
+			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'Einladung fehlgeschlagen: ${msg} (${code})',
+			'organization.invitations.acceptTitle' => 'Einladung annehmen',
+			'organization.invitations.acceptTokenHint' => 'Füge den Empfangs-Token (token) ein, den dir die einladende Person gegeben hat',
+			'organization.invitations.acceptFailed' => 'Annehmen fehlgeschlagen',
+			'organization.invitations.rejectTitle' => 'Einladung ablehnen',
+			'organization.invitations.rejectBody' => 'Nach der Ablehnung geht die Einladung in einen Endzustand und kann nicht mehr angenommen werden.',
+			'organization.invitations.confirmReject' => 'Ablehnung bestätigen',
+			'organization.invitations.rejectFailed' => 'Ablehnen fehlgeschlagen',
+			'organization.invitations.revokeTitle' => 'Einladung widerrufen',
+			'organization.invitations.revokeBody' => 'Nach dem Widerruf geht die Einladung in einen Endzustand; die Zielperson kann sie nicht mehr mit dem Token annehmen.',
+			'organization.invitations.confirmRevoke' => 'Widerruf bestätigen',
+			'organization.invitations.revokeFailed' => 'Widerrufen fehlgeschlagen',
+			'organization.invitations.myInvitations' => 'Meine Einladungen',
+			'organization.invitations.manageInvitations' => 'Einladungsverwaltung',
+			'organization.invitations.createInvitation' => 'Einladung erstellen',
+			'organization.invitations.empty' => 'Keine Einladungen',
+			'organization.invitations.emptyRecord' => 'Keine Einladungsdatensätze',
+			'organization.invitations.orgLine' => ({required Object orgId}) => 'Organisation ${orgId}',
+			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'Einladung ${invitationId}',
+			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'Ziel ${targetUserId} · ${subtitle}',
+			'organization.invitations.acceptNotice' => 'Zum Annehmen wird der Empfangs-Token (token) der einladenden Person benötigt;\nnach der Annahme ist die Mitgliedschaft serverseitig maßgeblich.',
+			'organization.invitations.revokeAction' => 'Widerrufen',
+			'organization.invitations.acceptWithToken' => 'Mit Token annehmen',
+			'organization.invitations.rejectAction' => 'Ablehnen',
+			'organization.departments.title' => 'Abteilungsverzeichnis',
+			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Abteilung ${id}',
+			'organization.departments.statusLine' => ({required Object status}) => 'Status: ${status}',
+			'organization.departments.memberUidLine' => ({required Object userId}) => 'Mitglied ${userId}',
+			'organization.departments.viewForbiddenDetail' => 'Kein Zugriff auf diese Abteilung (nur aktive Mitglieder dieser Organisation)',
+			'organization.departments.viewForbidden' => 'Kein Zugriff (nur aktive Mitglieder dieser Organisation)',
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Abteilung konnte nicht geladen werden: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => 'Abteilung konnte nicht geladen werden: ${err}',
+			'organization.departments.createSubHere' => 'Hier eine Unterabteilung erstellen',
+			'organization.departments.movePickParent' => 'Verschieben (neue übergeordnete Abteilung wählen)',
+			'organization.departments.addMemberByUid' => 'Mitglied hinzufügen (per UID)',
+			'organization.departments.archiveDept' => 'Abteilung archivieren',
+			'organization.departments.createRootDept' => 'Root-Abteilung erstellen',
+			'organization.departments.deptNameLabel' => 'Abteilungsname',
+			'organization.departments.createUnder' => ({required Object parent}) => 'Unter „${parent}“ erstellen',
+			'organization.departments.renameDept' => 'Abteilung umbenennen',
+			'organization.departments.newNameLabel' => 'Neuer Name',
+			'organization.departments.renameFailed' => 'Umbenennen fehlgeschlagen',
+			'organization.departments.moveDept' => 'Abteilung verschieben',
+			'organization.departments.newParentIdHint' => 'ID der neuen übergeordneten Abteilung (leer = auf Root-Ebene)',
+			'organization.departments.moveFailed' => 'Verschieben fehlgeschlagen',
+			'organization.departments.addDeptMember' => 'Abteilungsmitglied hinzufügen',
+			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'Nach der Archivierung von „${name}“ ist die Abteilung schreibgeschützt (Mitgliedschaften bleiben erhalten).',
+			'organization.departments.archiveFailed' => 'Archivieren fehlgeschlagen',
+			'organization.departments.emptyWithHint' => 'Noch keine Abteilungen – erstelle oben rechts eine',
+			'organization.departments.empty' => 'Keine Abteilungen',
+			'organization.departments.emptySubtitle' => 'Mehrfachmitgliedschaft: Ein Mitglied kann mehreren Abteilungen angehören; Abteilungsmitglieder müssen zuerst Mitglieder dieser Organisation sein.',
+			_ => null,
+		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'Anmeldeverlauf anzeigen',
 			'passport.hintEmail' => 'Bitte E-Mail eingeben',
 			'passport.hintMobile' => 'Bitte Mobilfunknummer eingeben',
@@ -4585,8 +4917,6 @@ extension on TranslationsDeDe {
 			'workspace.brandingEntry' => 'Branding (Name / Logo / Hauptfarbe)',
 			'workspace.archiveEntry' => 'Arbeitsbereich archivieren',
 			'workspace.restoreEntry' => 'Arbeitsbereich wiederherstellen',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Arbeitsbereich archivieren',
 			'workspace.archiveDesc' => 'Nach der Archivierung gilt für alle nur Lesen (Schreibzugriffe werden vom Server abgelehnt); jederzeit wiederherstellbar',
 			'workspace.archiveConfirm' => 'Archivierung bestätigen',
