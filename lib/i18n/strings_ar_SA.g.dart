@@ -64,6 +64,7 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$mention$ar_SA mention = _Translations$mention$ar_SA._(_root);
 	@override late final _Translations$momentFriendPicker$ar_SA momentFriendPicker = _Translations$momentFriendPicker$ar_SA._(_root);
 	@override late final _Translations$momentNotify$ar_SA momentNotify = _Translations$momentNotify$ar_SA._(_root);
+	@override late final _Translations$organization$ar_SA organization = _Translations$organization$ar_SA._(_root);
 	@override late final _Translations$passport$ar_SA passport = _Translations$passport$ar_SA._(_root);
 	@override late final _Translations$splash$ar_SA splash = _Translations$splash$ar_SA._(_root);
 	@override late final _Translations$welcome$ar_SA welcome = _Translations$welcome$ar_SA._(_root);
@@ -2223,6 +2224,21 @@ class _Translations$momentNotify$ar_SA extends Translations$momentNotify$zh_CN {
 	@override String get loadFailed => 'تعذّر التحميل، حاول لاحقاً';
 }
 
+// Path: organization
+class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
+	_Translations$organization$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$organization$common$ar_SA common = _Translations$organization$common$ar_SA._(_root);
+	@override late final _Translations$organization$home$ar_SA home = _Translations$organization$home$ar_SA._(_root);
+	@override late final _Translations$organization$detail$ar_SA detail = _Translations$organization$detail$ar_SA._(_root);
+	@override late final _Translations$organization$members$ar_SA members = _Translations$organization$members$ar_SA._(_root);
+	@override late final _Translations$organization$invitations$ar_SA invitations = _Translations$organization$invitations$ar_SA._(_root);
+	@override late final _Translations$organization$departments$ar_SA departments = _Translations$organization$departments$ar_SA._(_root);
+}
+
 // Path: passport
 class _Translations$passport$ar_SA extends Translations$passport$zh_CN {
 	_Translations$passport$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
@@ -2530,6 +2546,190 @@ class _Translations$account$alipaySim$ar_SA extends Translations$account$alipayS
 	@override String get storeName => 'المتجر الرئيسي لتقنية المعلومات';
 	@override String get paymentAmount => 'المبلغ:';
 	@override String get balanceSource => 'رصيد الحساب';
+}
+
+// Path: organization.common
+class _Translations$organization$common$ar_SA extends Translations$organization$common$zh_CN {
+	_Translations$organization$common$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get moreActions => 'المزيد من الإجراءات';
+	@override String get rename => 'إعادة تسمية';
+	@override String get close => 'إغلاق';
+	@override String get reload => 'إعادة تحميل';
+	@override String get createFailed => 'فشل الإنشاء';
+	@override String get addFailed => 'فشل الإضافة';
+	@override String get confirmArchive => 'تأكيد الأرشفة';
+	@override String get forbidden403 => 'لا تملك صلاحية تنفيذ هذا الإجراء (403)';
+	@override String get noMembers => 'لا يوجد أعضاء';
+	@override String get targetUidHint => 'UID المستخدم الآخر (رقم)';
+	@override String get uidMustBePositive => 'يجب أن يكون UID المستخدم عدداً صحيحاً موجباً';
+	@override String get loading => 'جارٍ التحميل…';
+	@override String get loadMore => 'تحميل المزيد';
+}
+
+// Path: organization.home
+class _Translations$organization$home$ar_SA extends Translations$organization$home$zh_CN {
+	_Translations$organization$home$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get createOrg => 'إنشاء منظمة';
+	@override String get orgNameLabel => 'اسم المنظمة (1-200 حرفاً)';
+	@override String createFailedWith({required Object msg, required Object code}) => 'فشل الإنشاء: ${msg} (${code})';
+	@override String get tabOrg => 'المنظمات';
+	@override String get myInvitations => 'دعواتي';
+	@override String get emptyHint => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين';
+}
+
+// Path: organization.detail
+class _Translations$organization$detail$ar_SA extends Translations$organization$detail$zh_CN {
+	_Translations$organization$detail$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'تفاصيل المنظمة';
+	@override String get notFound => 'المنظمة غير موجودة';
+	@override String get archiveOrg => 'أرشفة المنظمة';
+	@override String get archiveConfirmBody => 'بعد الأرشفة تدخل المنظمة في وضع القراءة فقط، وتُرفض جميع عمليات الكتابة (fail-closed)، ولا يمكن فك القفل إلا بالاستعادة (restore). لن يتم حذف الأعضاء ولا البيانات.';
+	@override String get restoreOrg => 'استعادة المنظمة';
+	@override String get restoreConfirmBody => 'بعد الاستعادة تعود المنظمة إلى الحالة active وتُتاح عمليات الكتابة من جديد.';
+	@override String get confirmRestore => 'تأكيد الاستعادة';
+	@override String get restoreFailed => 'فشلت الاستعادة';
+	@override String get archiveFailed => 'فشلت الأرشفة';
+	@override String get renameOrgTitle => 'إعادة تسمية المنظمة';
+	@override String get renameOrgLabel => 'اسم المنظمة (1-200 حرفاً)';
+	@override String get renameAction => 'تغيير الاسم';
+	@override String get renameFailed => 'فشلت إعادة التسمية';
+	@override String get deletionPreflight => 'فحص مسبق لحذف الحساب';
+	@override String get deletionPreflightDesc => 'اعرض مجالات الاعتماد التي تمنع حذف هذا الحساب';
+	@override String observedAt({required Object ts}) => 'وقت الملاحظة: ${ts}';
+	@override String factDomains({required Object domains}) => 'مجالات الاعتماد المشمولة: ${domains}';
+	@override String get noBlockers => 'لا توجد عوائق';
+	@override String get blockers => 'العوائق:';
+	@override String get factUnavailable => 'حقائق مجالات الاعتماد غير متاحة، ورُفض الفحص المسبق للحذف (fail-closed)';
+	@override String preflightFailed({required Object msg, required Object code}) => 'فشل الفحص المسبق: ${msg} (${code})';
+	@override String myRoleAndStatus({required Object role, required Object status}) => 'دوري: ${role} · الحالة: ${status}';
+	@override String get archivedBadge => 'المنظمة مؤرشفة (قراءة فقط)';
+	@override String get archivedHint => 'أثناء الأرشفة تُرفض جميع عمليات الكتابة، ولا يتاح إلا الاستعادة';
+	@override String defaultWsSet({required Object id}) => 'مساحة العمل الافتراضية (Workspace): ${id}';
+	@override String get defaultWsUnset => 'مساحة العمل الافتراضية (Workspace): غير محددة';
+	@override String get defaultWsNote => 'حقيقة إشارة فقط؛ لا تعني أي عضوية في أي workspace';
+	@override String get memberList => 'قائمة الأعضاء';
+	@override String get memberListRestricted => 'قائمة الأعضاء (يراها owner/admin فقط)';
+	@override String get invitationManage => 'إدارة الدعوات';
+	@override String get invitationManageRestricted => 'إدارة الدعوات (owner/admin فقط)';
+	@override String get deptEntry => 'دليل الأقسام';
+	@override String get deptEntryRestricted => 'دليل الأقسام (الإدارة للمصرّح لهم فقط)';
+	@override String get more => 'المزيد';
+	@override String get archiveEntrySubtitle => 'يدخل وضع القراءة فقط؛ يمكن استعادته في أي وقت';
+	@override String get restoreEntrySubtitle => 'العودة إلى الحالة active';
+}
+
+// Path: organization.members
+class _Translations$organization$members$ar_SA extends Translations$organization$members$zh_CN {
+	_Translations$organization$members$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'الأعضاء';
+	@override String loadMoreFailed({required Object err}) => 'فشل تحميل المزيد: ${err}';
+	@override String get changeRole => 'تغيير الدور';
+	@override String changeRoleBody({required Object name, required Object from, required Object to}) => 'سيتم تغيير دور «${name}» من ${from} إلى ${to}.';
+	@override String get confirmChange => 'تأكيد التغيير';
+	@override String get changeRoleFailed => 'فشل تغيير الدور';
+	@override String get removeMember => 'إزالة العضو';
+	@override String removeMemberBody({required Object name}) => 'سيتم إخراج «${name}» من هذه المنظمة. لن يتم حذف حسابه.';
+	@override String get confirmRemove => 'تأكيد الإزالة';
+	@override String get removeFailed => 'فشلت الإزالة';
+	@override String get transferOwner => 'نقل الملكية';
+	@override String transferOwnerBody({required Object name}) => 'للمنظمة مالك واحد فقط (C04): أكّد تعيين «${name}» مالكاً،\nوسيتم تخفيضك إلى مسؤول/عضو عادي. يؤثر هذا الإجراء مباشرة في السيطرة على المنظمة.';
+	@override String get confirmTransfer => 'تأكيد النقل';
+	@override String get transferFailed => 'فشل النقل';
+	@override String get demoteToMember => 'تخفيض إلى عضو';
+	@override String get promoteToAdmin => 'ترقية إلى مسؤول';
+	@override String transferOwnerTo({required Object name}) => 'نقل الملكية إلى «${name}»';
+	@override String get ownerCannotChangeHere => 'لا يمكن تغيير Owner هنا؛ استخدم «نقل الملكية»';
+	@override String get empty => 'لا يوجد أعضاء';
+}
+
+// Path: organization.invitations
+class _Translations$organization$invitations$ar_SA extends Translations$organization$invitations$zh_CN {
+	_Translations$organization$invitations$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get inviteMember => 'دعوة عضو';
+	@override String get invitationCreated => 'تم إنشاء الدعوة';
+	@override String get tokenOnceNotice => 'يُعرض رمز الاستلام (token) هذه المرة فقط؛ انسخه فوراً وسلّمه للمستلم خارج التطبيق:';
+	@override String get tokenCopied => 'تم نسخ الرمز';
+	@override String get copyToken => 'نسخ الرمز';
+	@override String inviteFailed({required Object msg, required Object code}) => 'فشلت الدعوة: ${msg} (${code})';
+	@override String get acceptTitle => 'قبول الدعوة';
+	@override String get acceptTokenHint => 'الصق رمز الاستلام (token) الذي أعطاك إياه المُدعي';
+	@override String get acceptFailed => 'فشل القبول';
+	@override String get rejectTitle => 'رفض الدعوة';
+	@override String get rejectBody => 'بعد الرفض تدخل الدعوة في حالة نهائية ولا يمكن قبولها مجدداً.';
+	@override String get confirmReject => 'تأكيد الرفض';
+	@override String get rejectFailed => 'فشل الرفض';
+	@override String get revokeTitle => 'إلغاء الدعوة';
+	@override String get revokeBody => 'بعد الإلغاء تدخل الدعوة في حالة نهائية، ولن يتمكن المستخدم المستهدف من قبولها بالرمز.';
+	@override String get confirmRevoke => 'تأكيد الإلغاء';
+	@override String get revokeFailed => 'فشل الإلغاء';
+	@override String get myInvitations => 'دعواتي';
+	@override String get manageInvitations => 'إدارة الدعوات';
+	@override String get createInvitation => 'إنشاء دعوة';
+	@override String get empty => 'لا توجد دعوات';
+	@override String get emptyRecord => 'لا توجد سجلات دعوات';
+	@override String orgLine({required Object orgId}) => 'المنظمة ${orgId}';
+	@override String invitationLine({required Object invitationId}) => 'الدعوة ${invitationId}';
+	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'الهدف ${targetUserId} · ${subtitle}';
+	@override String get acceptNotice => 'يتطلب القبول رمز الاستلام (token) الذي يقدمه المُدعي؛\nوبعد القبول يكون القرار في العضوية للخادم.';
+	@override String get revokeAction => 'إلغاء';
+	@override String get acceptWithToken => 'قبول بالرمز';
+	@override String get rejectAction => 'رفض';
+}
+
+// Path: organization.departments
+class _Translations$organization$departments$ar_SA extends Translations$organization$departments$zh_CN {
+	_Translations$organization$departments$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'دليل الأقسام';
+	@override String deptIdSubtitle({required Object id}) => 'القسم ${id}';
+	@override String statusLine({required Object status}) => 'الحالة: ${status}';
+	@override String memberUidLine({required Object userId}) => 'العضو ${userId}';
+	@override String get viewForbiddenDetail => 'لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)';
+	@override String get viewForbidden => 'لا تملك صلاحية العرض (للأعضاء العاملين في هذه المنظمة فقط)';
+	@override String loadFailedWith({required Object msg, required Object code}) => 'فشل تحميل القسم: ${msg} (${code})';
+	@override String loadFailed({required Object err}) => 'فشل تحميل القسم: ${err}';
+	@override String get createSubHere => 'إنشاء قسم فرعي هنا';
+	@override String get movePickParent => 'نقل (اختيار قسم أب جديد)';
+	@override String get addMemberByUid => 'إضافة عضو (بمعرّف UID)';
+	@override String get archiveDept => 'أرشفة القسم';
+	@override String get createRootDept => 'إنشاء قسم جذري';
+	@override String get deptNameLabel => 'اسم القسم';
+	@override String createUnder({required Object parent}) => 'إنشاء داخل «${parent}»';
+	@override String get renameDept => 'إعادة تسمية القسم';
+	@override String get newNameLabel => 'الاسم الجديد';
+	@override String get renameFailed => 'فشلت إعادة التسمية';
+	@override String get moveDept => 'نقل القسم';
+	@override String get newParentIdHint => 'معرّف القسم الأب الجديد (اتركه فارغاً = المستوى الجذري)';
+	@override String get moveFailed => 'فشل النقل';
+	@override String get addDeptMember => 'إضافة عضو إلى القسم';
+	@override String archiveConfirmBody({required Object name}) => 'بعد أرشفة «${name}» يدخل القسم في وضع القراءة فقط (تُحفظ العضويات).';
+	@override String get archiveFailed => 'فشلت الأرشفة';
+	@override String get emptyWithHint => 'لا توجد أقسام، أنشئ قسماً من الزر في أعلى اليمين';
+	@override String get empty => 'لا توجد أقسام';
+	@override String get emptySubtitle => 'نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة.';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -4464,6 +4664,138 @@ extension on TranslationsArSa {
 			'momentNotify.cancel' => 'إلغاء',
 			'momentNotify.delete' => 'حذف',
 			'momentNotify.loadFailed' => 'تعذّر التحميل، حاول لاحقاً',
+			'organization.common.moreActions' => 'المزيد من الإجراءات',
+			'organization.common.rename' => 'إعادة تسمية',
+			'organization.common.close' => 'إغلاق',
+			'organization.common.reload' => 'إعادة تحميل',
+			'organization.common.createFailed' => 'فشل الإنشاء',
+			'organization.common.addFailed' => 'فشل الإضافة',
+			'organization.common.confirmArchive' => 'تأكيد الأرشفة',
+			'organization.common.forbidden403' => 'لا تملك صلاحية تنفيذ هذا الإجراء (403)',
+			'organization.common.noMembers' => 'لا يوجد أعضاء',
+			'organization.common.targetUidHint' => 'UID المستخدم الآخر (رقم)',
+			'organization.common.uidMustBePositive' => 'يجب أن يكون UID المستخدم عدداً صحيحاً موجباً',
+			'organization.common.loading' => 'جارٍ التحميل…',
+			'organization.common.loadMore' => 'تحميل المزيد',
+			'organization.home.createOrg' => 'إنشاء منظمة',
+			'organization.home.orgNameLabel' => 'اسم المنظمة (1-200 حرفاً)',
+			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'فشل الإنشاء: ${msg} (${code})',
+			'organization.home.tabOrg' => 'المنظمات',
+			'organization.home.myInvitations' => 'دعواتي',
+			'organization.home.emptyHint' => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين',
+			'organization.detail.title' => 'تفاصيل المنظمة',
+			'organization.detail.notFound' => 'المنظمة غير موجودة',
+			'organization.detail.archiveOrg' => 'أرشفة المنظمة',
+			'organization.detail.archiveConfirmBody' => 'بعد الأرشفة تدخل المنظمة في وضع القراءة فقط، وتُرفض جميع عمليات الكتابة (fail-closed)، ولا يمكن فك القفل إلا بالاستعادة (restore). لن يتم حذف الأعضاء ولا البيانات.',
+			'organization.detail.restoreOrg' => 'استعادة المنظمة',
+			'organization.detail.restoreConfirmBody' => 'بعد الاستعادة تعود المنظمة إلى الحالة active وتُتاح عمليات الكتابة من جديد.',
+			'organization.detail.confirmRestore' => 'تأكيد الاستعادة',
+			'organization.detail.restoreFailed' => 'فشلت الاستعادة',
+			'organization.detail.archiveFailed' => 'فشلت الأرشفة',
+			'organization.detail.renameOrgTitle' => 'إعادة تسمية المنظمة',
+			'organization.detail.renameOrgLabel' => 'اسم المنظمة (1-200 حرفاً)',
+			'organization.detail.renameAction' => 'تغيير الاسم',
+			'organization.detail.renameFailed' => 'فشلت إعادة التسمية',
+			'organization.detail.deletionPreflight' => 'فحص مسبق لحذف الحساب',
+			'organization.detail.deletionPreflightDesc' => 'اعرض مجالات الاعتماد التي تمنع حذف هذا الحساب',
+			'organization.detail.observedAt' => ({required Object ts}) => 'وقت الملاحظة: ${ts}',
+			'organization.detail.factDomains' => ({required Object domains}) => 'مجالات الاعتماد المشمولة: ${domains}',
+			'organization.detail.noBlockers' => 'لا توجد عوائق',
+			'organization.detail.blockers' => 'العوائق:',
+			'organization.detail.factUnavailable' => 'حقائق مجالات الاعتماد غير متاحة، ورُفض الفحص المسبق للحذف (fail-closed)',
+			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => 'فشل الفحص المسبق: ${msg} (${code})',
+			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => 'دوري: ${role} · الحالة: ${status}',
+			'organization.detail.archivedBadge' => 'المنظمة مؤرشفة (قراءة فقط)',
+			'organization.detail.archivedHint' => 'أثناء الأرشفة تُرفض جميع عمليات الكتابة، ولا يتاح إلا الاستعادة',
+			'organization.detail.defaultWsSet' => ({required Object id}) => 'مساحة العمل الافتراضية (Workspace): ${id}',
+			'organization.detail.defaultWsUnset' => 'مساحة العمل الافتراضية (Workspace): غير محددة',
+			'organization.detail.defaultWsNote' => 'حقيقة إشارة فقط؛ لا تعني أي عضوية في أي workspace',
+			'organization.detail.memberList' => 'قائمة الأعضاء',
+			'organization.detail.memberListRestricted' => 'قائمة الأعضاء (يراها owner/admin فقط)',
+			'organization.detail.invitationManage' => 'إدارة الدعوات',
+			'organization.detail.invitationManageRestricted' => 'إدارة الدعوات (owner/admin فقط)',
+			'organization.detail.deptEntry' => 'دليل الأقسام',
+			'organization.detail.deptEntryRestricted' => 'دليل الأقسام (الإدارة للمصرّح لهم فقط)',
+			'organization.detail.more' => 'المزيد',
+			'organization.detail.archiveEntrySubtitle' => 'يدخل وضع القراءة فقط؛ يمكن استعادته في أي وقت',
+			'organization.detail.restoreEntrySubtitle' => 'العودة إلى الحالة active',
+			'organization.members.title' => 'الأعضاء',
+			'organization.members.loadMoreFailed' => ({required Object err}) => 'فشل تحميل المزيد: ${err}',
+			'organization.members.changeRole' => 'تغيير الدور',
+			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => 'سيتم تغيير دور «${name}» من ${from} إلى ${to}.',
+			'organization.members.confirmChange' => 'تأكيد التغيير',
+			'organization.members.changeRoleFailed' => 'فشل تغيير الدور',
+			'organization.members.removeMember' => 'إزالة العضو',
+			'organization.members.removeMemberBody' => ({required Object name}) => 'سيتم إخراج «${name}» من هذه المنظمة. لن يتم حذف حسابه.',
+			'organization.members.confirmRemove' => 'تأكيد الإزالة',
+			'organization.members.removeFailed' => 'فشلت الإزالة',
+			'organization.members.transferOwner' => 'نقل الملكية',
+			'organization.members.transferOwnerBody' => ({required Object name}) => 'للمنظمة مالك واحد فقط (C04): أكّد تعيين «${name}» مالكاً،\nوسيتم تخفيضك إلى مسؤول/عضو عادي. يؤثر هذا الإجراء مباشرة في السيطرة على المنظمة.',
+			'organization.members.confirmTransfer' => 'تأكيد النقل',
+			'organization.members.transferFailed' => 'فشل النقل',
+			'organization.members.demoteToMember' => 'تخفيض إلى عضو',
+			'organization.members.promoteToAdmin' => 'ترقية إلى مسؤول',
+			'organization.members.transferOwnerTo' => ({required Object name}) => 'نقل الملكية إلى «${name}»',
+			'organization.members.ownerCannotChangeHere' => 'لا يمكن تغيير Owner هنا؛ استخدم «نقل الملكية»',
+			'organization.members.empty' => 'لا يوجد أعضاء',
+			'organization.invitations.inviteMember' => 'دعوة عضو',
+			'organization.invitations.invitationCreated' => 'تم إنشاء الدعوة',
+			'organization.invitations.tokenOnceNotice' => 'يُعرض رمز الاستلام (token) هذه المرة فقط؛ انسخه فوراً وسلّمه للمستلم خارج التطبيق:',
+			'organization.invitations.tokenCopied' => 'تم نسخ الرمز',
+			'organization.invitations.copyToken' => 'نسخ الرمز',
+			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'فشلت الدعوة: ${msg} (${code})',
+			'organization.invitations.acceptTitle' => 'قبول الدعوة',
+			'organization.invitations.acceptTokenHint' => 'الصق رمز الاستلام (token) الذي أعطاك إياه المُدعي',
+			'organization.invitations.acceptFailed' => 'فشل القبول',
+			'organization.invitations.rejectTitle' => 'رفض الدعوة',
+			'organization.invitations.rejectBody' => 'بعد الرفض تدخل الدعوة في حالة نهائية ولا يمكن قبولها مجدداً.',
+			'organization.invitations.confirmReject' => 'تأكيد الرفض',
+			'organization.invitations.rejectFailed' => 'فشل الرفض',
+			'organization.invitations.revokeTitle' => 'إلغاء الدعوة',
+			'organization.invitations.revokeBody' => 'بعد الإلغاء تدخل الدعوة في حالة نهائية، ولن يتمكن المستخدم المستهدف من قبولها بالرمز.',
+			'organization.invitations.confirmRevoke' => 'تأكيد الإلغاء',
+			'organization.invitations.revokeFailed' => 'فشل الإلغاء',
+			'organization.invitations.myInvitations' => 'دعواتي',
+			'organization.invitations.manageInvitations' => 'إدارة الدعوات',
+			'organization.invitations.createInvitation' => 'إنشاء دعوة',
+			'organization.invitations.empty' => 'لا توجد دعوات',
+			'organization.invitations.emptyRecord' => 'لا توجد سجلات دعوات',
+			'organization.invitations.orgLine' => ({required Object orgId}) => 'المنظمة ${orgId}',
+			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'الدعوة ${invitationId}',
+			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'الهدف ${targetUserId} · ${subtitle}',
+			'organization.invitations.acceptNotice' => 'يتطلب القبول رمز الاستلام (token) الذي يقدمه المُدعي؛\nوبعد القبول يكون القرار في العضوية للخادم.',
+			'organization.invitations.revokeAction' => 'إلغاء',
+			'organization.invitations.acceptWithToken' => 'قبول بالرمز',
+			'organization.invitations.rejectAction' => 'رفض',
+			'organization.departments.title' => 'دليل الأقسام',
+			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'القسم ${id}',
+			'organization.departments.statusLine' => ({required Object status}) => 'الحالة: ${status}',
+			'organization.departments.memberUidLine' => ({required Object userId}) => 'العضو ${userId}',
+			'organization.departments.viewForbiddenDetail' => 'لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)',
+			'organization.departments.viewForbidden' => 'لا تملك صلاحية العرض (للأعضاء العاملين في هذه المنظمة فقط)',
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'فشل تحميل القسم: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => 'فشل تحميل القسم: ${err}',
+			'organization.departments.createSubHere' => 'إنشاء قسم فرعي هنا',
+			'organization.departments.movePickParent' => 'نقل (اختيار قسم أب جديد)',
+			'organization.departments.addMemberByUid' => 'إضافة عضو (بمعرّف UID)',
+			'organization.departments.archiveDept' => 'أرشفة القسم',
+			'organization.departments.createRootDept' => 'إنشاء قسم جذري',
+			'organization.departments.deptNameLabel' => 'اسم القسم',
+			'organization.departments.createUnder' => ({required Object parent}) => 'إنشاء داخل «${parent}»',
+			'organization.departments.renameDept' => 'إعادة تسمية القسم',
+			'organization.departments.newNameLabel' => 'الاسم الجديد',
+			'organization.departments.renameFailed' => 'فشلت إعادة التسمية',
+			'organization.departments.moveDept' => 'نقل القسم',
+			'organization.departments.newParentIdHint' => 'معرّف القسم الأب الجديد (اتركه فارغاً = المستوى الجذري)',
+			'organization.departments.moveFailed' => 'فشل النقل',
+			'organization.departments.addDeptMember' => 'إضافة عضو إلى القسم',
+			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'بعد أرشفة «${name}» يدخل القسم في وضع القراءة فقط (تُحفظ العضويات).',
+			'organization.departments.archiveFailed' => 'فشلت الأرشفة',
+			'organization.departments.emptyWithHint' => 'لا توجد أقسام، أنشئ قسماً من الزر في أعلى اليمين',
+			'organization.departments.empty' => 'لا توجد أقسام',
+			'organization.departments.emptySubtitle' => 'نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة.',
+			_ => null,
+		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',
@@ -4594,8 +4926,6 @@ extension on TranslationsArSa {
 			'workspace.brandingEntry' => 'إعدادات العلامة (الاسم / Logo / اللون الأساسي)',
 			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
 			'workspace.restoreEntry' => 'استعادة مساحة العمل',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveTitle' => 'أرشفة مساحة العمل',
 			'workspace.archiveDesc' => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت',
 			'workspace.archiveConfirm' => 'تأكيد الأرشفة',

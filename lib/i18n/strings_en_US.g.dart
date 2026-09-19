@@ -65,6 +65,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$mention$en_US mention = _Translations$mention$en_US._(_root);
 	@override late final _Translations$momentFriendPicker$en_US momentFriendPicker = _Translations$momentFriendPicker$en_US._(_root);
 	@override late final _Translations$momentNotify$en_US momentNotify = _Translations$momentNotify$en_US._(_root);
+	@override late final _Translations$organization$en_US organization = _Translations$organization$en_US._(_root);
 	@override late final _Translations$passport$en_US passport = _Translations$passport$en_US._(_root);
 	@override late final _Translations$splash$en_US splash = _Translations$splash$en_US._(_root);
 	@override late final _Translations$welcome$en_US welcome = _Translations$welcome$en_US._(_root);
@@ -2285,6 +2286,21 @@ class _Translations$momentNotify$en_US extends Translations$momentNotify$zh_CN {
 	@override String get loadFailed => 'Load failed, please retry';
 }
 
+// Path: organization
+class _Translations$organization$en_US extends Translations$organization$zh_CN {
+	_Translations$organization$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$organization$common$en_US common = _Translations$organization$common$en_US._(_root);
+	@override late final _Translations$organization$home$en_US home = _Translations$organization$home$en_US._(_root);
+	@override late final _Translations$organization$detail$en_US detail = _Translations$organization$detail$en_US._(_root);
+	@override late final _Translations$organization$members$en_US members = _Translations$organization$members$en_US._(_root);
+	@override late final _Translations$organization$invitations$en_US invitations = _Translations$organization$invitations$en_US._(_root);
+	@override late final _Translations$organization$departments$en_US departments = _Translations$organization$departments$en_US._(_root);
+}
+
 // Path: passport
 class _Translations$passport$en_US extends Translations$passport$zh_CN {
 	_Translations$passport$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -2592,6 +2608,190 @@ class _Translations$account$alipaySim$en_US extends Translations$account$alipayS
 	@override String get storeName => 'InfoTech Flagship Store';
 	@override String get paymentAmount => 'Amount: ';
 	@override String get balanceSource => 'Account Balance';
+}
+
+// Path: organization.common
+class _Translations$organization$common$en_US extends Translations$organization$common$zh_CN {
+	_Translations$organization$common$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get moreActions => 'More actions';
+	@override String get rename => 'Rename';
+	@override String get close => 'Close';
+	@override String get reload => 'Reload';
+	@override String get createFailed => 'Creation failed';
+	@override String get addFailed => 'Failed to add';
+	@override String get confirmArchive => 'Confirm archive';
+	@override String get forbidden403 => 'You are not allowed to perform this action (403)';
+	@override String get noMembers => 'No members yet';
+	@override String get targetUidHint => 'The other user\'s UID (numeric)';
+	@override String get uidMustBePositive => 'User UID must be a positive integer';
+	@override String get loading => 'Loading…';
+	@override String get loadMore => 'Load more';
+}
+
+// Path: organization.home
+class _Translations$organization$home$en_US extends Translations$organization$home$zh_CN {
+	_Translations$organization$home$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get createOrg => 'Create organization';
+	@override String get orgNameLabel => 'Organization name (1-200 characters)';
+	@override String createFailedWith({required Object msg, required Object code}) => 'Creation failed: ${msg} (${code})';
+	@override String get tabOrg => 'Organizations';
+	@override String get myInvitations => 'My invitations';
+	@override String get emptyHint => 'You haven\'t joined any organization yet\nPull down to refresh, or tap the top-right button to create one';
+}
+
+// Path: organization.detail
+class _Translations$organization$detail$en_US extends Translations$organization$detail$zh_CN {
+	_Translations$organization$detail$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Organization details';
+	@override String get notFound => 'Organization not found';
+	@override String get archiveOrg => 'Archive organization';
+	@override String get archiveConfirmBody => 'Once archived, the organization becomes read-only; all write operations fail closed, and only restore can unlock it. Members and data will not be deleted.';
+	@override String get restoreOrg => 'Restore organization';
+	@override String get restoreConfirmBody => 'Once restored, the organization returns to the active state and write access is reopened.';
+	@override String get confirmRestore => 'Confirm restore';
+	@override String get restoreFailed => 'Restore failed';
+	@override String get archiveFailed => 'Archive failed';
+	@override String get renameOrgTitle => 'Rename organization';
+	@override String get renameOrgLabel => 'Organization name (1-200 characters)';
+	@override String get renameAction => 'Rename';
+	@override String get renameFailed => 'Rename failed';
+	@override String get deletionPreflight => 'Account deletion preflight';
+	@override String get deletionPreflightDesc => 'See which dependency domains are blocking this account\'s deletion';
+	@override String observedAt({required Object ts}) => 'Observed at: ${ts}';
+	@override String factDomains({required Object domains}) => 'Covered dependency domains: ${domains}';
+	@override String get noBlockers => 'No blockers';
+	@override String get blockers => 'Blockers:';
+	@override String get factUnavailable => 'Dependency domain facts unavailable; deletion preflight rejected (fail-closed)';
+	@override String preflightFailed({required Object msg, required Object code}) => 'Preflight failed: ${msg} (${code})';
+	@override String myRoleAndStatus({required Object role, required Object status}) => 'My role: ${role} · Status: ${status}';
+	@override String get archivedBadge => 'Organization archived (read-only)';
+	@override String get archivedHint => 'All write operations are rejected while archived; only restore is available';
+	@override String defaultWsSet({required Object id}) => 'Default Workspace: ${id}';
+	@override String get defaultWsUnset => 'Default Workspace: not set';
+	@override String get defaultWsNote => 'A pointer fact only; does not represent any workspace membership';
+	@override String get memberList => 'Members';
+	@override String get memberListRestricted => 'Members (visible to owner/admin only)';
+	@override String get invitationManage => 'Invitation management';
+	@override String get invitationManageRestricted => 'Invitation management (owner/admin only)';
+	@override String get deptEntry => 'Departments';
+	@override String get deptEntryRestricted => 'Departments (management restricted to authorized roles)';
+	@override String get more => 'More';
+	@override String get archiveEntrySubtitle => 'Becomes read-only; can be restored anytime';
+	@override String get restoreEntrySubtitle => 'Back to active';
+}
+
+// Path: organization.members
+class _Translations$organization$members$en_US extends Translations$organization$members$zh_CN {
+	_Translations$organization$members$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Members';
+	@override String loadMoreFailed({required Object err}) => 'Failed to load more: ${err}';
+	@override String get changeRole => 'Change role';
+	@override String changeRoleBody({required Object name, required Object from, required Object to}) => 'The role of “${name}” will be changed from ${from} to ${to}.';
+	@override String get confirmChange => 'Confirm change';
+	@override String get changeRoleFailed => 'Role change failed';
+	@override String get removeMember => 'Remove member';
+	@override String removeMemberBody({required Object name}) => '“${name}” will be removed from this organization. Their account will not be deleted.';
+	@override String get confirmRemove => 'Confirm removal';
+	@override String get removeFailed => 'Removal failed';
+	@override String get transferOwner => 'Transfer ownership';
+	@override String transferOwnerBody({required Object name}) => 'An organization has exactly one owner (C04): confirm making “${name}” the owner.\nYou will be demoted to regular admin/member. This directly affects control of the organization.';
+	@override String get confirmTransfer => 'Confirm transfer';
+	@override String get transferFailed => 'Transfer failed';
+	@override String get demoteToMember => 'Demote to member';
+	@override String get promoteToAdmin => 'Promote to admin';
+	@override String transferOwnerTo({required Object name}) => 'Transfer ownership to “${name}”';
+	@override String get ownerCannotChangeHere => 'The owner cannot be changed here; use “Transfer ownership”';
+	@override String get empty => 'No members yet';
+}
+
+// Path: organization.invitations
+class _Translations$organization$invitations$en_US extends Translations$organization$invitations$zh_CN {
+	_Translations$organization$invitations$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get inviteMember => 'Invite member';
+	@override String get invitationCreated => 'Invitation created';
+	@override String get tokenOnceNotice => 'The claim token is shown only once. Copy it now and share it with the recipient out-of-band:';
+	@override String get tokenCopied => 'Token copied';
+	@override String get copyToken => 'Copy token';
+	@override String inviteFailed({required Object msg, required Object code}) => 'Invitation failed: ${msg} (${code})';
+	@override String get acceptTitle => 'Accept invitation';
+	@override String get acceptTokenHint => 'Paste the claim token you received from the inviter';
+	@override String get acceptFailed => 'Failed to accept';
+	@override String get rejectTitle => 'Reject invitation';
+	@override String get rejectBody => 'Once rejected, the invitation enters a terminal state and can no longer be accepted.';
+	@override String get confirmReject => 'Confirm rejection';
+	@override String get rejectFailed => 'Failed to reject';
+	@override String get revokeTitle => 'Revoke invitation';
+	@override String get revokeBody => 'Once revoked, the invitation enters a terminal state and the target user can no longer accept it with the token.';
+	@override String get confirmRevoke => 'Confirm revocation';
+	@override String get revokeFailed => 'Failed to revoke';
+	@override String get myInvitations => 'My invitations';
+	@override String get manageInvitations => 'Invitation management';
+	@override String get createInvitation => 'Create invitation';
+	@override String get empty => 'No invitations';
+	@override String get emptyRecord => 'No invitation records';
+	@override String orgLine({required Object orgId}) => 'Organization ${orgId}';
+	@override String invitationLine({required Object invitationId}) => 'Invitation ${invitationId}';
+	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'Target ${targetUserId} · ${subtitle}';
+	@override String get acceptNotice => 'Accepting requires the claim token provided by the inviter;\nafter acceptance, membership is subject to the server.';
+	@override String get revokeAction => 'Revoke';
+	@override String get acceptWithToken => 'Accept with token';
+	@override String get rejectAction => 'Reject';
+}
+
+// Path: organization.departments
+class _Translations$organization$departments$en_US extends Translations$organization$departments$zh_CN {
+	_Translations$organization$departments$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Departments';
+	@override String deptIdSubtitle({required Object id}) => 'Department ${id}';
+	@override String statusLine({required Object status}) => 'Status: ${status}';
+	@override String memberUidLine({required Object userId}) => 'Member ${userId}';
+	@override String get viewForbiddenDetail => 'Not allowed to view this department (active members of this organization only)';
+	@override String get viewForbidden => 'No access (active members of this organization only)';
+	@override String loadFailedWith({required Object msg, required Object code}) => 'Failed to load department: ${msg} (${code})';
+	@override String loadFailed({required Object err}) => 'Failed to load department: ${err}';
+	@override String get createSubHere => 'Create sub-department here';
+	@override String get movePickParent => 'Move (choose new parent)';
+	@override String get addMemberByUid => 'Add member (by UID)';
+	@override String get archiveDept => 'Archive department';
+	@override String get createRootDept => 'Create root department';
+	@override String get deptNameLabel => 'Department name';
+	@override String createUnder({required Object parent}) => 'Create under “${parent}”';
+	@override String get renameDept => 'Rename department';
+	@override String get newNameLabel => 'New name';
+	@override String get renameFailed => 'Rename failed';
+	@override String get moveDept => 'Move department';
+	@override String get newParentIdHint => 'New parent department ID (leave empty = promote to root)';
+	@override String get moveFailed => 'Move failed';
+	@override String get addDeptMember => 'Add department member';
+	@override String archiveConfirmBody({required Object name}) => 'Once “${name}” is archived, the department becomes read-only (memberships are kept).';
+	@override String get archiveFailed => 'Archive failed';
+	@override String get emptyWithHint => 'No departments yet — tap the top-right button to create one';
+	@override String get empty => 'No departments';
+	@override String get emptySubtitle => 'Multi-membership model: one member may belong to multiple departments; department members must first be members of this organization.';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -4587,6 +4787,138 @@ extension on TranslationsEnUs {
 			'momentNotify.cancel' => 'Cancel',
 			'momentNotify.delete' => 'Delete',
 			'momentNotify.loadFailed' => 'Load failed, please retry',
+			'organization.common.moreActions' => 'More actions',
+			'organization.common.rename' => 'Rename',
+			'organization.common.close' => 'Close',
+			'organization.common.reload' => 'Reload',
+			'organization.common.createFailed' => 'Creation failed',
+			'organization.common.addFailed' => 'Failed to add',
+			'organization.common.confirmArchive' => 'Confirm archive',
+			'organization.common.forbidden403' => 'You are not allowed to perform this action (403)',
+			'organization.common.noMembers' => 'No members yet',
+			'organization.common.targetUidHint' => 'The other user\'s UID (numeric)',
+			'organization.common.uidMustBePositive' => 'User UID must be a positive integer',
+			'organization.common.loading' => 'Loading…',
+			'organization.common.loadMore' => 'Load more',
+			'organization.home.createOrg' => 'Create organization',
+			'organization.home.orgNameLabel' => 'Organization name (1-200 characters)',
+			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Creation failed: ${msg} (${code})',
+			'organization.home.tabOrg' => 'Organizations',
+			'organization.home.myInvitations' => 'My invitations',
+			'organization.home.emptyHint' => 'You haven\'t joined any organization yet\nPull down to refresh, or tap the top-right button to create one',
+			'organization.detail.title' => 'Organization details',
+			'organization.detail.notFound' => 'Organization not found',
+			'organization.detail.archiveOrg' => 'Archive organization',
+			'organization.detail.archiveConfirmBody' => 'Once archived, the organization becomes read-only; all write operations fail closed, and only restore can unlock it. Members and data will not be deleted.',
+			'organization.detail.restoreOrg' => 'Restore organization',
+			'organization.detail.restoreConfirmBody' => 'Once restored, the organization returns to the active state and write access is reopened.',
+			'organization.detail.confirmRestore' => 'Confirm restore',
+			'organization.detail.restoreFailed' => 'Restore failed',
+			'organization.detail.archiveFailed' => 'Archive failed',
+			'organization.detail.renameOrgTitle' => 'Rename organization',
+			'organization.detail.renameOrgLabel' => 'Organization name (1-200 characters)',
+			'organization.detail.renameAction' => 'Rename',
+			'organization.detail.renameFailed' => 'Rename failed',
+			'organization.detail.deletionPreflight' => 'Account deletion preflight',
+			'organization.detail.deletionPreflightDesc' => 'See which dependency domains are blocking this account\'s deletion',
+			'organization.detail.observedAt' => ({required Object ts}) => 'Observed at: ${ts}',
+			'organization.detail.factDomains' => ({required Object domains}) => 'Covered dependency domains: ${domains}',
+			'organization.detail.noBlockers' => 'No blockers',
+			'organization.detail.blockers' => 'Blockers:',
+			'organization.detail.factUnavailable' => 'Dependency domain facts unavailable; deletion preflight rejected (fail-closed)',
+			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => 'Preflight failed: ${msg} (${code})',
+			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => 'My role: ${role} · Status: ${status}',
+			'organization.detail.archivedBadge' => 'Organization archived (read-only)',
+			'organization.detail.archivedHint' => 'All write operations are rejected while archived; only restore is available',
+			'organization.detail.defaultWsSet' => ({required Object id}) => 'Default Workspace: ${id}',
+			'organization.detail.defaultWsUnset' => 'Default Workspace: not set',
+			'organization.detail.defaultWsNote' => 'A pointer fact only; does not represent any workspace membership',
+			'organization.detail.memberList' => 'Members',
+			'organization.detail.memberListRestricted' => 'Members (visible to owner/admin only)',
+			'organization.detail.invitationManage' => 'Invitation management',
+			'organization.detail.invitationManageRestricted' => 'Invitation management (owner/admin only)',
+			'organization.detail.deptEntry' => 'Departments',
+			'organization.detail.deptEntryRestricted' => 'Departments (management restricted to authorized roles)',
+			'organization.detail.more' => 'More',
+			'organization.detail.archiveEntrySubtitle' => 'Becomes read-only; can be restored anytime',
+			'organization.detail.restoreEntrySubtitle' => 'Back to active',
+			'organization.members.title' => 'Members',
+			'organization.members.loadMoreFailed' => ({required Object err}) => 'Failed to load more: ${err}',
+			'organization.members.changeRole' => 'Change role',
+			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => 'The role of “${name}” will be changed from ${from} to ${to}.',
+			'organization.members.confirmChange' => 'Confirm change',
+			'organization.members.changeRoleFailed' => 'Role change failed',
+			'organization.members.removeMember' => 'Remove member',
+			'organization.members.removeMemberBody' => ({required Object name}) => '“${name}” will be removed from this organization. Their account will not be deleted.',
+			'organization.members.confirmRemove' => 'Confirm removal',
+			'organization.members.removeFailed' => 'Removal failed',
+			'organization.members.transferOwner' => 'Transfer ownership',
+			'organization.members.transferOwnerBody' => ({required Object name}) => 'An organization has exactly one owner (C04): confirm making “${name}” the owner.\nYou will be demoted to regular admin/member. This directly affects control of the organization.',
+			'organization.members.confirmTransfer' => 'Confirm transfer',
+			'organization.members.transferFailed' => 'Transfer failed',
+			_ => null,
+		} ?? switch (path) {
+			'organization.members.demoteToMember' => 'Demote to member',
+			'organization.members.promoteToAdmin' => 'Promote to admin',
+			'organization.members.transferOwnerTo' => ({required Object name}) => 'Transfer ownership to “${name}”',
+			'organization.members.ownerCannotChangeHere' => 'The owner cannot be changed here; use “Transfer ownership”',
+			'organization.members.empty' => 'No members yet',
+			'organization.invitations.inviteMember' => 'Invite member',
+			'organization.invitations.invitationCreated' => 'Invitation created',
+			'organization.invitations.tokenOnceNotice' => 'The claim token is shown only once. Copy it now and share it with the recipient out-of-band:',
+			'organization.invitations.tokenCopied' => 'Token copied',
+			'organization.invitations.copyToken' => 'Copy token',
+			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'Invitation failed: ${msg} (${code})',
+			'organization.invitations.acceptTitle' => 'Accept invitation',
+			'organization.invitations.acceptTokenHint' => 'Paste the claim token you received from the inviter',
+			'organization.invitations.acceptFailed' => 'Failed to accept',
+			'organization.invitations.rejectTitle' => 'Reject invitation',
+			'organization.invitations.rejectBody' => 'Once rejected, the invitation enters a terminal state and can no longer be accepted.',
+			'organization.invitations.confirmReject' => 'Confirm rejection',
+			'organization.invitations.rejectFailed' => 'Failed to reject',
+			'organization.invitations.revokeTitle' => 'Revoke invitation',
+			'organization.invitations.revokeBody' => 'Once revoked, the invitation enters a terminal state and the target user can no longer accept it with the token.',
+			'organization.invitations.confirmRevoke' => 'Confirm revocation',
+			'organization.invitations.revokeFailed' => 'Failed to revoke',
+			'organization.invitations.myInvitations' => 'My invitations',
+			'organization.invitations.manageInvitations' => 'Invitation management',
+			'organization.invitations.createInvitation' => 'Create invitation',
+			'organization.invitations.empty' => 'No invitations',
+			'organization.invitations.emptyRecord' => 'No invitation records',
+			'organization.invitations.orgLine' => ({required Object orgId}) => 'Organization ${orgId}',
+			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'Invitation ${invitationId}',
+			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'Target ${targetUserId} · ${subtitle}',
+			'organization.invitations.acceptNotice' => 'Accepting requires the claim token provided by the inviter;\nafter acceptance, membership is subject to the server.',
+			'organization.invitations.revokeAction' => 'Revoke',
+			'organization.invitations.acceptWithToken' => 'Accept with token',
+			'organization.invitations.rejectAction' => 'Reject',
+			'organization.departments.title' => 'Departments',
+			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Department ${id}',
+			'organization.departments.statusLine' => ({required Object status}) => 'Status: ${status}',
+			'organization.departments.memberUidLine' => ({required Object userId}) => 'Member ${userId}',
+			'organization.departments.viewForbiddenDetail' => 'Not allowed to view this department (active members of this organization only)',
+			'organization.departments.viewForbidden' => 'No access (active members of this organization only)',
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Failed to load department: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => 'Failed to load department: ${err}',
+			'organization.departments.createSubHere' => 'Create sub-department here',
+			'organization.departments.movePickParent' => 'Move (choose new parent)',
+			'organization.departments.addMemberByUid' => 'Add member (by UID)',
+			'organization.departments.archiveDept' => 'Archive department',
+			'organization.departments.createRootDept' => 'Create root department',
+			'organization.departments.deptNameLabel' => 'Department name',
+			'organization.departments.createUnder' => ({required Object parent}) => 'Create under “${parent}”',
+			'organization.departments.renameDept' => 'Rename department',
+			'organization.departments.newNameLabel' => 'New name',
+			'organization.departments.renameFailed' => 'Rename failed',
+			'organization.departments.moveDept' => 'Move department',
+			'organization.departments.newParentIdHint' => 'New parent department ID (leave empty = promote to root)',
+			'organization.departments.moveFailed' => 'Move failed',
+			'organization.departments.addDeptMember' => 'Add department member',
+			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'Once “${name}” is archived, the department becomes read-only (memberships are kept).',
+			'organization.departments.archiveFailed' => 'Archive failed',
+			'organization.departments.emptyWithHint' => 'No departments yet — tap the top-right button to create one',
+			'organization.departments.empty' => 'No departments',
+			'organization.departments.emptySubtitle' => 'Multi-membership model: one member may belong to multiple departments; department members must first be members of this organization.',
 			'passport.loginHistoryToggle' => 'Show login history',
 			'passport.hintEmail' => 'Please enter email',
 			'passport.hintMobile' => 'Please enter mobile number',
@@ -4656,8 +4988,6 @@ extension on TranslationsEnUs {
 			'workspace.overviewPinnedContent' => 'Pinned channel posts',
 			'workspace.overviewPinnedEmpty' => 'No pinned channel posts yet; Group Notices are not aggregated here (they belong to each group)',
 			'workspace.overviewRecentFiles' => 'Recent files',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => 'Recently uploaded files will appear here; attachments are also available inside each channel',
 			'workspace.membersTitle' => 'Workspace Members',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} members',
