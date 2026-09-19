@@ -74,7 +74,7 @@ void main() {
       return;
     }
     var entryReady = false;
-    for (var i = 0; i < 90 && !entryReady; i++) {
+    for (var i = 0; i < 360 && !entryReady; i++) {
       await dismissUpgradeDialog(tester);
       await _softSelectChatExperienceOnce(tester);
       entryReady =
@@ -94,34 +94,46 @@ void main() {
     //（约 80s），Android 真机登录后冷启动链路（群自愈 + E2EE 备份页）
     // 实测 80~85s 挂载，恒差几秒——这里用 performLogin + 自旋大窗口绕开。
     // flutter test 在 Android 上每轮重装 app（数据清空）→ 必走
-    // Welcome 引导页 → 登录页 → performLogin 首启全流程。
-    if (isOnWelcomePage(tester)) {
-      final moved = await leaveWelcomePage(tester);
-      if (!moved) {
-        markTestSkipped('欢迎页无法进入登录页，跳过');
-        return;
+    // Welcome 引导页 → 登录页 → performLogin 首启全流程。低端机页面切换
+    // 慢，welcome→login 与 login 判定均需多轮重试与加长等待。
+    if (!FlowConfig.hasCredentials) {
+      markTestSkipped('未配置 TEST_PHONE / TEST_PASSWORD，跳过');
+      return;
+    }
+    var loginDone = UserRepoLocal.to.isLoggedIn;
+    for (var round = 0; round < 6 && !loginDone; round++) {
+      flowLog(
+        '[H2] 登录重试轮 $round: welcome=${isOnWelcomePage(tester)} login=${isOnLoginPage(tester)}',
+      );
+      if (isOnWelcomePage(tester)) {
+        await leaveWelcomePage(tester);
+        for (var i = 0; i < 90; i++) {
+          if (isOnLoginPage(tester)) break;
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+          await tester.pump(const Duration(milliseconds: 200));
+        }
       }
-      for (var i = 0; i < 20; i++) {
-        if (isOnLoginPage(tester)) break;
-        await Future<void>.delayed(const Duration(milliseconds: 300));
-        await tester.pump(const Duration(milliseconds: 100));
+      if (isOnLoginPage(tester)) {
+        await dismissUpgradeDialog(tester);
+        final ok = await performLogin(
+          tester,
+          phone: FlowConfig.testPhone,
+          password: FlowConfig.testPassword,
+        );
+        if (ok) {
+          loginDone = true;
+          break;
+        }
+        // 登录失败（网络/控件时序）：等 10s 再进下一轮重试
+        await Future<void>.delayed(const Duration(seconds: 10));
+      } else {
+        // 既无 welcome 也无 login（仍在 splash/初始化）：等 15s 再查
+        await Future<void>.delayed(const Duration(seconds: 15));
       }
     }
-    if (isOnLoginPage(tester)) {
-      await dismissUpgradeDialog(tester);
-      if (!FlowConfig.hasCredentials) {
-        markTestSkipped('未配置 TEST_PHONE / TEST_PASSWORD，跳过');
-        return;
-      }
-      final ok = await performLogin(
-        tester,
-        phone: FlowConfig.testPhone,
-        password: FlowConfig.testPassword,
-      );
-      if (!ok) {
-        markTestSkipped('自动登录失败，跳过');
-        return;
-      }
+    if (!loginDone && !UserRepoLocal.to.isLoggedIn) {
+      markTestSkipped('多轮登录未完成（welcome/login 均未达），跳过');
+      return;
     }
     var shellReady = false;
     for (var i = 0; i < 180 && !shellReady; i++) {

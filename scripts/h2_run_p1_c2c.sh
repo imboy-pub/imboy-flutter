@@ -41,18 +41,6 @@ pkill -f "flutter_tools.snapshot --no-color run --machine" 2>/dev/null || true
 pkill -x IMBoy 2>/dev/null || true
 sleep 2
 
-# 3a. A 侧预热（patrol --no-uninstall 装好 app 并完成全新安装的
-# SQLite v0→v21 迁移/群自愈等首启长链；本轮 skip 属预期）
-adb -s "$DEV" shell input keyevent KEYCODE_WAKEUP > /dev/null 2>&1 || true
-log "A 侧预热(patrol --no-uninstall, $A_ACC)"
-( cd "$PROJ" && env ORG_GRADLE_PROJECT_imboyE2eeTestAbi=armeabi-v7a \
-    ORG_GRADLE_PROJECT_imboyE2eeTestNoOrchestrator=true \
-    perl -e 'alarm 900; exec @ARGV' -- \
-    patrol test --target integration_test/two_client/h2_c2c_android_a_side_test.dart \
-    --device "$DEV" --no-uninstall "${COMMON_DEF[@]}" \
-    --dart-define=TEST_PHONE=$A_ACC --dart-define=TEST_EXPECTED_UID=$A_UID \
-    --dart-define=PEER_UID=$B_UID > "$OUT/a_side_warmup.log" 2>&1 )
-log "A 侧预热 exit=$?（skip 预期）"
 # 2. B 侧（macOS）后台启动
 log "TAG=$TAG 启动 B 侧(macOS, $B_ACC)"
 ( cd "$PROJ" && flutter test integration_test/two_client/h2_c2c_mac_b_side_test.dart \
@@ -79,13 +67,14 @@ fi
 log "B 侧就绪=$READY"
 
 
-# 3. A 侧正式（app 已留装，登录态与 DB 就绪，冷启动显著变快）
+# 1. A 侧（Android 真机，flutter test 前台 instrumentation；patrol 模式
+# app 会被 EMUI 冻结——实证 CPU 零增长，弃用）。1200s 宿主硬超时兜底。
+adb -s "$DEV" shell input keyevent KEYCODE_WAKEUP > /dev/null 2>&1 || true
+adb -s "$DEV" shell svc power stayon true > /dev/null 2>&1 || true
 log "启动 A 侧(Android, $A_ACC)"
-( cd "$PROJ" && env ORG_GRADLE_PROJECT_imboyE2eeTestAbi=armeabi-v7a \
-    ORG_GRADLE_PROJECT_imboyE2eeTestNoOrchestrator=true \
-    perl -e 'alarm 1200; exec @ARGV' -- \
-    patrol test --target integration_test/two_client/h2_c2c_android_a_side_test.dart \
-    --device "$DEV" --no-uninstall "${COMMON_DEF[@]}" \
+( cd "$PROJ" && perl -e 'alarm 1200; exec @ARGV' -- \
+    flutter test integration_test/two_client/h2_c2c_android_a_side_test.dart \
+    -d "$DEV" --no-pub "${COMMON_DEF[@]}" \
     --dart-define=TEST_PHONE=$A_ACC --dart-define=TEST_EXPECTED_UID=$A_UID \
     --dart-define=PEER_UID=$B_UID > "$OUT/a_side.log" 2>&1 )
 A_EXIT=$?
@@ -96,10 +85,9 @@ wait $B_PID; B_EXIT=$?
 log "B 侧 exit=$B_EXIT"
 
 # 5. 杀进程重进：两端历史验证
-( cd "$PROJ" && env ORG_GRADLE_PROJECT_imboyE2eeTestAbi=armeabi-v7a \
-    ORG_GRADLE_PROJECT_imboyE2eeTestNoOrchestrator=true \
-    patrol test --target integration_test/two_client/h2_c2c_history_test.dart \
-    --device "$DEV" --no-uninstall "${COMMON_DEF[@]}" \
+( cd "$PROJ" && perl -e 'alarm 1200; exec @ARGV' -- \
+    flutter test integration_test/two_client/h2_c2c_history_test.dart \
+    -d "$DEV" --no-pub "${COMMON_DEF[@]}" \
     --dart-define=TEST_PHONE=$A_ACC --dart-define=TEST_EXPECTED_UID=$A_UID \
     --dart-define=PEER_UID=$B_UID > "$OUT/history_android.log" 2>&1 )
 HA_EXIT=$?
