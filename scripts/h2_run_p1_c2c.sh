@@ -15,6 +15,9 @@ read_cred() { python3 -c "import json;print(json.load(open('$CRED'))['$1'])"; }
 acc() { python3 -c "import json;print(json.load(open('$CRED'))['accounts']['$1']['$2'])"; }
 PW="$(read_cred test_password)"
 KEY_VAL="$(read_cred solidified_key)"; IV_VAL="$(read_cred solidified_key_iv)"
+PG_HOST="$(read_cred pg_host)"; PG_PORT="$(read_cred pg_port)"
+PG_USER="$(read_cred pg_user)"; PG_PASS="$(read_cred pg_password)"
+PG_DB="$(read_cred pg_database)"
 A_ACC="$(acc orgA_owner acc)"; A_UID="$(acc orgA_owner uid)"
 B_ACC="$(acc orgA_member acc)"; B_UID="$(acc orgA_member uid)"
 DEV=XWE6R19916004085
