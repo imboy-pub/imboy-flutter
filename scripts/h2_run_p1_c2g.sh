@@ -57,6 +57,8 @@ echo "GID=$GID" > "$OUT/group.meta"
 # 若提前入群：①A 首条消息的 room-key 分发会对无设备的 spare7 做 Olm claim
 # → fail-closed 拒发（2026-09-19 orch6 实证）；②spare7 会进入 gen1 世代，
 # 「新成员不可见历史」语义被破坏。
+# 同理 new_member 实例也**晚启动**（orch8 起）：mac 双开共享存储/设备身份，
+# 与 B 并行会以 B 身份收帧（orch7 实证）——必须等 B 退出后接管 mac 槽。
 
 COMMON_DEF=(
   "--dart-define=APP_ENV=local"
@@ -69,6 +71,7 @@ COMMON_DEF=(
   "--dart-define=H2_C2G_REAL_RUN=true"
   "--dart-define=H2_C2G_GID=$GID"
   "--dart-define=H2_C2G_M3=h2c2g-M3-$TAG"
+  "--dart-define=H2_C2G_SPARE7_UID=$C_UID"
 )
 
 # macOS 清场
@@ -91,16 +94,7 @@ for i in $(seq 1 210); do
 done
 log "B 侧就绪=$READY"
 
-# 3. 新成员（macOS，spare7）早启动：先登录发布设备密钥——A 发 m3 时
-# ensureOutboundSession 要对全体成员设备做 Olm claim，spare7 没有已发布
-# 的设备密钥就会 fail-closed 拒发（orch6 实证）。登录后它自行轮询入群
-# 状态，入群后才开群聊页进入观察窗（m1/m2 恒不可见、等 m3）。
-log "启动新成员(macOS spare7，早启动发布设备密钥)"
-( cd "$PROJ" && flutter test integration_test/two_client/h2_c2g_new_member_test.dart \
-    -d macos --no-pub "${COMMON_DEF[@]}" \
-    --dart-define=TEST_PHONE=$C_ACC --dart-define=TEST_EXPECTED_UID=$C_UID \
-    > "$OUT/new_member.log" 2>&1 ) &
-NM_PID=$!
+NM_PID=""
 
 log "启动 A 侧(Android)"
 # 强制卸载：上轮中断可能残留半配置会话（E2EE 恢复页等中间态），
@@ -135,6 +129,25 @@ if [ "$JOINED" = "1" ]; then
   log "spare7 入群+generation 行确认=${C_IN_GROUP}（应为 1）"
   PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_DB -t -c \
     "SELECT gm.user_id, gmg.generation_no FROM group_member gm LEFT JOIN group_member_generation gmg ON gmg.group_id=gm.group_id AND gmg.user_id=gm.user_id WHERE gm.group_id=$GID ORDER BY gm.user_id;" 2>&1
+  # 等 B 侧实例退出再启动新成员：mac 双开共享存储/设备身份，并行必串号
+  #（orch7 实证 spare7 以 B 身份收帧）。B 使命在「B 侧已回复」后即完成。
+  for i in $(seq 1 180); do
+    kill -0 $B_PID 2>/dev/null || break
+    sleep 1
+  done
+  if kill -0 $B_PID 2>/dev/null; then
+    log "⚠️ B 侧 3 分钟未退出，为避免双开串号仍启动新成员（有串号风险）"
+  else
+    log "B 侧已退出，mac 槽交新成员"
+  fi
+  # 新成员（macOS，spare7）晚启动：此刻已在群（上方 join 已落地）。登录即
+  # 发布设备密钥，A 侧轮询到设备上线后轮转 S2 分发 room-key 再发 m3。
+  log "启动新成员(macOS spare7，B 退出后)"
+  ( cd "$PROJ" && flutter test integration_test/two_client/h2_c2g_new_member_test.dart \
+      -d macos --no-pub "${COMMON_DEF[@]}" \
+      --dart-define=TEST_PHONE=$C_ACC --dart-define=TEST_EXPECTED_UID=$C_UID \
+      > "$OUT/new_member.log" 2>&1 ) &
+  NM_PID=$!
 else
   log "⚠️ 未等到 B 侧回复标记（A/B 进程可能已退出），跳过 API 入群——新成员链路预期失败"
 fi
@@ -143,7 +156,11 @@ wait $A_PID; A_EXIT=$?
 log "A 侧 exit=$A_EXIT"
 wait $B_PID; B_EXIT=$?
 log "B 侧 exit=$B_EXIT"
-wait $NM_PID; NM_EXIT=$?
+if [ -n "$NM_PID" ]; then
+  wait $NM_PID; NM_EXIT=$?
+else
+  NM_EXIT=99
+fi
 log "新成员 exit=$NM_EXIT"
 
 # 5. 取证

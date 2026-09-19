@@ -29,7 +29,6 @@ import '../flows/test_utils.dart';
 
 const _expectedUid = String.fromEnvironment('TEST_EXPECTED_UID');
 const _gid = String.fromEnvironment('H2_C2G_GID');
-const _m3Marker = String.fromEnvironment('H2_C2G_M3');
 const _runTag = String.fromEnvironment('H2_RUN_TAG');
 const _allow = bool.fromEnvironment('H2_C2G_REAL_RUN', defaultValue: false);
 
@@ -245,16 +244,12 @@ void main() {
     // ignore: avoid_print
     print('[H2-C2G] B 侧已回复：$bMarker msgId=$msgId');
 
-    // 等新成员阶段 A 的第三条（加分项：B 也能看到 m3）
-    var sawM3 = false;
-    if (_m3Marker.isNotEmpty) {
-      for (var i = 0; i < 180 && !sawM3; i++) {
-        await tester.pump(const Duration(seconds: 1));
-        sawM3 = tester.any(find.textContaining(_m3Marker, findRichText: true));
-      }
-    }
+    // m3 阶段本侧已让位：mac 双开共享存储会与 new_member 串身份（orch7
+    // 实证），B 在 m2 使命完成后立即收尾退出，mac 槽交由 spare7 接管。
+    // m3 的 S2 room-key 由 A 侧预分发（spare7 设备上线后轮转），不再依赖
+    // 本侧在线。
     // ignore: avoid_print
-    print('[H2-C2G] B 侧 sawM3=$sawM3 PASS');
+    print('[H2-C2G] B 侧 sawM3=让位(不适用) PASS');
     drainKnownFrameworkExceptions(tester);
   }, timeout: const Timeout(Duration(minutes: 25)));
 }

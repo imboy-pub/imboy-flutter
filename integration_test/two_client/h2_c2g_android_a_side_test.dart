@@ -2,10 +2,15 @@
 //
 // hardening2 P1 · C2G E2EE 真链路 · Android 真机 A 侧（orgA_owner=13000000001，
 // 群主）。前置（编排）：群已建（A 群主+B 成员）、e2ee_mode=1、B 侧已就绪。
-// A：登录 → 旗标同步 → 白盒 Megolm 发送 m1（分发 room-key）→ 等 B 回复 m2 →
-// 再发 m3（此时新成员 spare7 已入群但其设备尚未上线）→ m3 后保持存活
-// ~7 分钟：新成员测试此刻在 mac 上登录 spare7 并发起 room-key 请求，
-// 需要本侧在线应答（分享当前 ratchet，前向隔离入群前的 m1/m2）。
+// A：登录 → 旗标同步 → 预建 Megolm 会话（room-key 先行分发，等对端导入）
+// → 白盒发送 m1 → 等 B 回复 m2 → 轮询 spare7 设备密钥上线（B 退出后
+// new_member 才在 mac 登录，mac 双开共享存储会串身份，故严格串行）→
+// 轮转 S2 预分发 → 发 m3 → 保活等新成员观察窗完成。
+//
+// orch7 教训（2026-09-19）：sendMessage 内部 rotate→room-key→m1 背靠背，
+// B 侧 m1 解密先于 room-key 导入完成 → decrypt_error 且无重试 → 480s 断裂。
+// 修复：发送前显式 ensureOutboundSession 预分发 room-key，静默期后再发正文
+// （_resolveOutbound 幂等复用已建会话，不会二次分发）。
 //
 // 运行（编排脚本启动，勿单跑）：flutter test <file> -d XWE6R19916004085 ...
 
@@ -19,6 +24,7 @@ import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/page/chat_shell/chat_shell_bootstrap.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
+import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/api/group_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -28,9 +34,16 @@ import '../flows/app_launcher.dart';
 import '../flows/test_utils.dart';
 
 const _expectedUid = String.fromEnvironment('TEST_EXPECTED_UID');
+const _spare7Uid = String.fromEnvironment('H2_C2G_SPARE7_UID');
 const _gid = String.fromEnvironment('H2_C2G_GID');
 const _runTag = String.fromEnvironment('H2_RUN_TAG');
 const _allow = bool.fromEnvironment('H2_C2G_REAL_RUN', defaultValue: false);
+
+/// room-key 预分发后的静默期：对端收到 e2ee_room_key 帧后要走 Olm 解包
+/// （可能伴随 prekey claim / history_grant 兜底）才完成会话导入。orch7
+/// 实证背靠背发送时正文解密先于导入完成。macOS 侧导入链路秒级完成，
+/// 15s 覆盖正常抖动（重试+网络 RTT）。
+const _keySettleDelay = Duration(seconds: 15);
 
 /// 体验选择页（ChatShellBootstrap）单次软选择：出现即 select(chat)。
 /// 登录已持久化的账号冷启动直接落在该页，而 flows 的入口白名单
@@ -212,7 +225,15 @@ void main() {
     expect(find.byType(ChatPage), findsOneWidget, reason: '群聊页应已打开');
     await takeScreenshot(tester, 'h2_c2g_andA_01_chat_ready');
 
-    // m1：首条群消息（触发 room-key 按设备 Olm 分发）
+    // m1 前置：预建 Megolm 会话并先行分发 room-key（orch7 竞态修复——
+    // sendMessage 内部 rotate→key→正文背靠背，对端导入未完成即解密必败）。
+    // ensureOutboundSession 幂等：随后 sendMessage 复用同一会话不再分发。
+    await GroupSessionService.to.ensureOutboundSession(gid: _gid);
+    // ignore: avoid_print
+    print('[H2-C2G] A 侧 room-key 已预分发，静默 $_keySettleDelay 等 B 导入');
+    await Future<void>.delayed(_keySettleDelay);
+
+    // m1：首条群消息（room-key 已在握，B 侧可解密）
     final ok1 = await _sendGroupText(tester, _gid, selfUid, aMarker);
     expect(ok1, isTrue, reason: 'A 侧群消息发送应成功（Megolm 出站+room-key 分发+WS）');
     await settle(tester, maxSeconds: 4);
@@ -242,11 +263,45 @@ void main() {
     // ignore: avoid_print
     print('[H2-C2G] A 侧已解密 B 的回复：$bMarker');
 
-    // 新成员阶段：编排哨兵此刻正把 spare7 经 API 入群（世代推进）。
-    // 等 15s 让入群事务落地，再 detail 刷新成员表——ensureOutboundSession
-    // 检测到成员变化后轮转 Megolm 会话（S2），room-key 覆盖 spare7 新设备。
-    await Future<void>.delayed(const Duration(seconds: 15));
+    // 新成员阶段：编排哨兵在「B 侧已回复」后经 API 把 spare7 拉入群（世代
+    // 推进），等 B 侧实例退出后在 mac 上以 spare7 登录（发布设备密钥）。
+    // 本侧轮询群设备快照直到 spare7 的设备密钥可见（最多 8 分钟——覆盖
+    // B 退出+mac 构建+spare7 登录上报），再轮转 S2 分发、静默后发 m3。
+    var spare7Online = false;
+    if (_spare7Uid.isNotEmpty) {
+      for (var i = 0; i < 96 && !spare7Online; i++) {
+        await Future<void>.delayed(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 300));
+        try {
+          final keys = await E2EEService.getGroupDevicePublicKeys(
+            _gid,
+            forceRefresh: true,
+          );
+          final didToUid = keys['didToUid'] ?? const <String, String>{};
+          spare7Online = didToUid.values.any((v) => v == _spare7Uid);
+        } catch (_) {}
+        if (i % 6 == 5) {
+          // ignore: avoid_print
+          print(
+            '[H2-C2G] A 侧等待 spare7 设备上线 ${(i + 1) * 5}s online=$spare7Online',
+          );
+        }
+      }
+      if (!spare7Online) {
+        fail('8 分钟内未见到 spare7 设备密钥（new_member 登录/上报未完成），无法安全发 m3');
+      }
+    } else {
+      // 未传 spare7 uid：退回固定等待（编排保证 join 已落地）
+      await Future<void>.delayed(const Duration(seconds: 15));
+    }
     await GroupApi().detail(gid: _gid);
+    // 成员变化 → 显式 stale + 预分发：S2 轮转的 room-key 覆盖 spare7 设备，
+    // 静默期后再发 m3（与 m1 同法规避 orch7 竞态）。
+    GroupSessionService.to.markGroupStale(_gid);
+    await GroupSessionService.to.ensureOutboundSession(gid: _gid);
+    // ignore: avoid_print
+    print('[H2-C2G] A 侧 S2 room-key 已预分发（含 spare7），静默 $_keySettleDelay');
+    await Future<void>.delayed(_keySettleDelay);
     final ok3 = await _sendGroupText(tester, _gid, selfUid, m3Marker);
     expect(ok3, isTrue, reason: 'A 侧 m3（新成员在场）发送应成功');
     var sawM3 = false;
@@ -259,16 +314,17 @@ void main() {
     // ignore: avoid_print
     print('[H2-C2G] A 侧 m3 已发送并回显：$m3Marker');
 
-    // 保持存活 ~5 分钟：新成员（早启动）此刻应已登录并进入观察窗解 m3。
-    for (var i = 0; i < 300; i++) {
+    // 保持存活 ~7 分钟：spare7 的设备密钥上报早于其主 shell 就绪，m3 可能
+    // 先于其进群聊页到达（offline 拉取+grant 兜底路径），保活覆盖其全程。
+    for (var i = 0; i < 420; i++) {
       await tester.pump(const Duration(seconds: 1));
       if (i % 60 == 59) {
         // ignore: avoid_print
-        print('[H2-C2G] A 侧存活保活 ${i + 1}s（等新成员 key-request 完成）');
+        print('[H2-C2G] A 侧存活保活 ${i + 1}s（等新成员观察窗完成）');
       }
     }
     drainKnownFrameworkExceptions(tester);
     // ignore: avoid_print
     print('[H2-C2G] A 侧 PASS');
-  }, timeout: const Timeout(Duration(minutes: 25)));
+  }, timeout: const Timeout(Duration(minutes: 40)));
 }

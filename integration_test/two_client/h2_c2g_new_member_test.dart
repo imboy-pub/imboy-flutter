@@ -1,12 +1,14 @@
 // integration_test/two_client/h2_c2g_new_member_test.dart
 //
 // hardening2 P1 · C2G E2EE 新成员历史不可见验证（macOS，spare7=13000000007）。
-// 时序（orch7）：本测试**早启动**——先登录发布设备密钥（A 发 m3 时对其
-// 设备做 Olm claim 的前提），再轮询等待编排端把自己经 API 拉入群，入群后
-// 开群聊页进入观察窗。启动时 mac 上持久着 B 的会话——先 quitLogin 切号到
-// spare7（quitLogin 会清 E2EE 秘密与本地库，等价真机换号）。
-// 断言：spare7 进群聊页后 m1/m2 均不可见（新成员无历史 room-key，
-// E2EE 前向隔离语义），m3 可见（A 轮转 S2 会话后 room-key 分发到其设备）。
+// 时序（orch8 起）：本测试**晚启动**——编排先跑完 A(m1)→B(m2) 主链并把
+// spare7 经 API 拉入群、B 侧实例退出后，本测试才启动（mac 双开共享存储
+// 会与 B 串身份——orch7 实证 spare7 以 B 身份收帧，观察无效）。
+// 启动时 mac 上持久着 B 的会话——先 quitLogin 切号到 spare7（清 E2EE
+// 秘密与本地库，等价真机换号），登录即发布设备密钥（A 侧轮询到后轮转
+// S2 分发 room-key 到本设备）。
+// 断言：spare7 进群聊页后 m1/m2 均不可见（新成员世代拿不到历史 room-key，
+// grant 按世代拒绝），m3 可见（S2 room-key 已分发到其设备）。
 //
 // 运行（编排脚本启动，勿单跑）：flutter test <file> -d macos ...
 
@@ -159,8 +161,8 @@ void main() {
     final m2 = 'h2c2g-B2G-$_runTag';
     final m3 = 'h2c2g-M3-$_runTag';
 
-    // 轮询等待编排把自己拉入群（B 回复 m2 后哨兵触发 API join，链路要
-    // 等 A 登录+m1/m2 往返，给足 12 分钟）。判据：成员分页里出现自己。
+    // 轮询确认已在群（orch8 起编排先行 join 再启动本测试，通常首查即中；
+    // 保留轮询兼容 join 落地迟滞）。判据：成员分页里出现自己。
     // detail 端点只回群信息不含成员表（group_handler detail_allowed），
     // 不能用它判断入群。
     var joined = false;
@@ -211,9 +213,9 @@ void main() {
     }
     expect(find.byType(ChatPage), findsOneWidget, reason: '群聊页应已打开');
 
-    // 观察 600 秒：A 在 m2 之后等 15s+detail 刷新才发 m3（会话轮转 S2 分发
-    // room-key 到本设备），入群轮询+观察窗合计要在 A 保活窗（5 分钟）内
-    // 完成；m1/m2 若出现即破坏「新成员不可见历史」语义，立即失败。
+    // 观察 600 秒：A 轮询到本设备密钥上线后轮转 S2（预分发 room-key 到
+    // 本设备）再发 m3；m1/m2 若出现即破坏「新成员不可见历史」语义，立即
+    // 失败。m3 可能经 WS 实时帧或 offline 拉取+grant 兜底到达，均计可见。
     var sawM3 = false;
     for (var i = 0; i < 600; i++) {
       await tester.pump(const Duration(seconds: 1));
@@ -239,5 +241,5 @@ void main() {
     // ignore: avoid_print
     print('[H2-C2G-NEW] PASS：m1/m2 不可见，m3 可见');
     drainKnownFrameworkExceptions(tester);
-  }, timeout: const Timeout(Duration(minutes: 20)));
+  }, timeout: const Timeout(Duration(minutes: 30)));
 }
