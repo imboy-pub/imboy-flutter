@@ -9,6 +9,8 @@ library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:flutter/services.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
@@ -102,15 +104,16 @@ class _OrganizationInvitationsPageState
   Future<void> _create() async {
     final uidText = await orgPromptInput(
       context,
-      title: '邀请成员',
-      hint: '对方用户 UID（数字）',
+      title: t.organization.invitations.inviteMember,
+      hint: t.organization.common.targetUidHint,
     );
     if (uidText == null) return;
     final targetUid = int.tryParse(uidText);
     if (targetUid == null || targetUid <= 0) {
       if (!mounted) return;
-      ScaffoldMessenger.maybeOf(context)
-          ?.showSnackBar(const SnackBar(content: Text('用户 UID 必须是正整数')));
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(t.organization.common.uidMustBePositive)),
+      );
       return;
     }
     try {
@@ -124,12 +127,12 @@ class _OrganizationInvitationsPageState
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
-          title: const Text('邀请已创建'),
+          title: Text(t.organization.invitations.invitationCreated),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('领取口令（token）只显示这一次，请立即复制并线下转交对方：'),
+              Text(t.organization.invitations.tokenOnceNotice),
               const SizedBox(height: AppSpacing.small),
               SelectableText(inv.token),
             ],
@@ -138,51 +141,61 @@ class _OrganizationInvitationsPageState
             TextButton.icon(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: inv.token));
-                ScaffoldMessenger.maybeOf(ctx)
-                    ?.showSnackBar(const SnackBar(content: Text('已复制口令')));
+                ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
+                  SnackBar(
+                    content: Text(t.organization.invitations.tokenCopied),
+                  ),
+                );
               },
               icon: const Icon(CupertinoIcons.doc_on_doc),
-              label: const Text('复制口令'),
+              label: Text(t.organization.invitations.copyToken),
             ),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('关闭'),
+              child: Text(t.organization.common.close),
             ),
           ],
         ),
       );
     } on OrganizationApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.maybeOf(
-        context,
-      )?.showSnackBar(SnackBar(content: Text('邀请失败：${e.message} (${e.code})')));
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text(
+            t.organization.invitations.inviteFailed(
+              msg: e.message,
+              code: e.code,
+            ),
+          ),
+        ),
+      );
     }
   }
 
   Future<void> _accept(OrgInvitation inv) async {
     final token = await orgPromptInput(
       context,
-      title: '接受邀请',
-      hint: '粘贴邀请人给你的领取口令（token）',
+      title: t.organization.invitations.acceptTitle,
+      hint: t.organization.invitations.acceptTokenHint,
     );
     if (token == null) return;
     await _runCommand(
       () => _api.acceptInvitation(inv.organizationId, token: token),
-      '接受失败',
+      t.organization.invitations.acceptFailed,
     );
   }
 
   Future<void> _reject(OrgInvitation inv) async {
     final ok = await orgConfirmDangerAction(
       context,
-      title: '拒绝邀请',
-      consequence: '拒绝后该邀请进入终态，不可再接受。',
-      confirmText: '确认拒绝',
+      title: t.organization.invitations.rejectTitle,
+      consequence: t.organization.invitations.rejectBody,
+      confirmText: t.organization.invitations.confirmReject,
     );
     if (ok) {
       await _runCommand(
         () => _api.rejectInvitation(inv.organizationId, inv.invitationId),
-        '拒绝失败',
+        t.organization.invitations.rejectFailed,
       );
     }
   }
@@ -190,14 +203,14 @@ class _OrganizationInvitationsPageState
   Future<void> _revoke(OrgInvitation inv) async {
     final ok = await orgConfirmDangerAction(
       context,
-      title: '撤销邀请',
-      consequence: '撤销后该邀请进入终态，目标用户无法再凭口令接受。',
-      confirmText: '确认撤销',
+      title: t.organization.invitations.revokeTitle,
+      consequence: t.organization.invitations.revokeBody,
+      confirmText: t.organization.invitations.confirmRevoke,
     );
     if (ok) {
       await _runCommand(
         () => _api.revokeInvitation(inv.organizationId, inv.invitationId),
-        '撤销失败',
+        t.organization.invitations.revokeFailed,
       );
     }
   }
@@ -206,15 +219,19 @@ class _OrganizationInvitationsPageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.mineMode ? '我的邀请' : '邀请管理'),
+        title: Text(
+          widget.mineMode
+              ? t.organization.invitations.myInvitations
+              : t.organization.invitations.manageInvitations,
+        ),
         actions: [
           if (!widget.mineMode)
             Semantics(
               button: true,
-              label: '创建邀请',
+              label: t.organization.invitations.createInvitation,
               child: IconButton(
                 icon: const Icon(CupertinoIcons.add),
-                tooltip: '创建邀请',
+                tooltip: t.organization.invitations.createInvitation,
                 onPressed: _create,
               ),
             ),
@@ -231,7 +248,9 @@ class _OrganizationInvitationsPageState
               !_permissionDenied &&
               _error == null &&
               _items.isEmpty,
-          emptyText: widget.mineMode ? '暂无邀请' : '暂无邀请记录',
+          emptyText: widget.mineMode
+              ? t.organization.invitations.empty
+              : t.organization.invitations.emptyRecord,
           onRetry: _refresh,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -248,15 +267,22 @@ class _OrganizationInvitationsPageState
                   ),
                   title: Text(
                     widget.mineMode
-                        ? '组织 ${inv.organizationId}'
-                        : '邀请 ${inv.invitationId}',
+                        ? t.organization.invitations.orgLine(
+                            orgId: inv.organizationId,
+                          )
+                        : t.organization.invitations.invitationLine(
+                            invitationId: inv.invitationId,
+                          ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Text(
                     widget.mineMode
                         ? invitationSubtitle(inv)
-                        : '目标 ${inv.targetUserId} · ${invitationSubtitle(inv)}',
+                        : t.organization.invitations.targetLine(
+                            targetUserId: inv.targetUserId,
+                            subtitle: invitationSubtitle(inv),
+                          ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -267,8 +293,7 @@ class _OrganizationInvitationsPageState
                 ListTile(
                   dense: true,
                   title: Text(
-                    '接受邀请需要邀请人提供的领取口令（token）；'
-                    '接受成功后成员资格以服务端为准。',
+                    t.organization.invitations.acceptNotice,
                     style: context.textStyle(FontSizeType.small),
                   ),
                 ),
@@ -284,7 +309,10 @@ class _OrganizationInvitationsPageState
       return const Icon(CupertinoIcons.chevron_right);
     }
     if (!widget.mineMode && inv.isPending) {
-      return TextButton(onPressed: () => _revoke(inv), child: const Text('撤销'));
+      return TextButton(
+        onPressed: () => _revoke(inv),
+        child: Text(t.organization.invitations.revokeAction),
+      );
     }
     return null;
   }
@@ -305,7 +333,7 @@ class _OrganizationInvitationsPageState
           children: [
             ListTile(
               leading: const Icon(CupertinoIcons.checkmark_circle),
-              title: const Text('凭口令接受'),
+              title: Text(t.organization.invitations.acceptWithToken),
               onTap: () => Navigator.of(ctx).pop('accept'),
             ),
             ListTile(
@@ -314,7 +342,7 @@ class _OrganizationInvitationsPageState
                 color: Theme.of(ctx).colorScheme.error,
               ),
               title: Text(
-                '拒绝',
+                t.organization.invitations.rejectAction,
                 style: TextStyle(color: Theme.of(ctx).colorScheme.error),
               ),
               onTap: () => Navigator.of(ctx).pop('reject'),

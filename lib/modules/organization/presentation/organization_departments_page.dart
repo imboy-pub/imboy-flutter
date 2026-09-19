@@ -10,6 +10,8 @@ library;
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
+import 'package:imboy/i18n/strings.g.dart';
+
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
@@ -107,7 +109,7 @@ class _OrganizationDepartmentsPageState
         SnackBar(
           content: Text(
             e.isForbidden
-                ? '无权执行该操作（403）'
+                ? t.organization.common.forbidden403
                 : '$failureTitle：${e.message} (${e.code})',
           ),
         ),
@@ -137,15 +139,17 @@ class _OrganizationDepartmentsPageState
         ),
         title: Text(d.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(
-          d.isArchived ? orgStatusLabel(d.status) : '部门 ${d.id}',
+          d.isArchived
+              ? orgStatusLabel(d.status)
+              : t.organization.departments.deptIdSubtitle(id: d.id),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         trailing: _canGovern && !d.isArchived
             ? IconButton(
-                icon: const Icon(
+                icon: Icon(
                   CupertinoIcons.ellipsis,
-                  semanticLabel: '更多操作',
+                  semanticLabel: t.organization.common.moreActions,
                 ),
                 onPressed: () => _deptActions(d),
               )
@@ -176,11 +180,15 @@ class _OrganizationDepartmentsPageState
             children: [
               ListTile(
                 title: Text(dept.name),
-                subtitle: Text('状态：${orgStatusLabel(dept.status)}'),
+                subtitle: Text(
+                  t.organization.departments.statusLine(
+                    status: orgStatusLabel(dept.status),
+                  ),
+                ),
               ),
               const Divider(),
               if (members.isEmpty)
-                const ListTile(title: Text('暂无成员'))
+                ListTile(title: Text(t.organization.common.noMembers))
               else
                 for (final m in members)
                   ListTile(
@@ -189,7 +197,9 @@ class _OrganizationDepartmentsPageState
                       m.isAdmin ? CupertinoIcons.shield : CupertinoIcons.person,
                     ),
                     title: Text(
-                      '成员 ${m.userId}',
+                      t.organization.departments.memberUidLine(
+                        userId: m.userId,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -204,15 +214,19 @@ class _OrganizationDepartmentsPageState
         SnackBar(
           content: Text(
             e.isForbidden
-                ? '无权查看该部门（仅限本组织在职成员）'
-                : '加载部门失败：${e.message} (${e.code})',
+                ? t.organization.departments.viewForbiddenDetail
+                : t.organization.departments.loadFailedWith(
+                    msg: e.message,
+                    code: e.code,
+                  ),
           ),
         ),
       );
     } on Object catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.maybeOf(context)
-          ?.showSnackBar(SnackBar(content: Text('加载部门失败：$e')));
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(t.organization.departments.loadFailed(err: e))),
+      );
     }
   }
 
@@ -225,27 +239,27 @@ class _OrganizationDepartmentsPageState
           children: [
             ListTile(
               leading: const Icon(Icons.add_business_outlined),
-              title: const Text('在其下新建子部门'),
+              title: Text(t.organization.departments.createSubHere),
               onTap: () => Navigator.of(ctx).pop('create-child'),
             ),
             ListTile(
               leading: const Icon(CupertinoIcons.pencil),
-              title: const Text('重命名'),
+              title: Text(t.organization.common.rename),
               onTap: () => Navigator.of(ctx).pop('rename'),
             ),
             ListTile(
               leading: const Icon(Icons.account_tree_outlined),
-              title: const Text('移动（选择新父部门）'),
+              title: Text(t.organization.departments.movePickParent),
               onTap: () => Navigator.of(ctx).pop('move'),
             ),
             ListTile(
               leading: const Icon(CupertinoIcons.person_crop_circle_badge_plus),
-              title: const Text('添加成员（按 UID）'),
+              title: Text(t.organization.departments.addMemberByUid),
               onTap: () => Navigator.of(ctx).pop('add-member'),
             ),
             ListTile(
               leading: const Icon(CupertinoIcons.archivebox),
-              title: const Text('归档部门'),
+              title: Text(t.organization.departments.archiveDept),
               onTap: () => Navigator.of(ctx).pop('archive'),
             ),
           ],
@@ -267,86 +281,91 @@ class _OrganizationDepartmentsPageState
   }
 
   Future<void> _create() async {
-    final name = await orgPromptInput(context, title: '新建根部门', hint: '部门名称');
+    final name = await orgPromptInput(
+      context,
+      title: t.organization.departments.createRootDept,
+      hint: t.organization.departments.deptNameLabel,
+    );
     if (name == null) return;
     await _runCommand(
       () => _api.createDepartment(widget.orgId, name: name),
-      '创建失败',
+      t.organization.common.createFailed,
     );
   }
 
   Future<void> _createChild(OrganizationDepartment parent) async {
     final name = await orgPromptInput(
       context,
-      title: '在「${parent.name}」下新建',
-      hint: '部门名称',
+      title: t.organization.departments.createUnder(parent: parent.name),
+      hint: t.organization.departments.deptNameLabel,
     );
     if (name == null) return;
     await _runCommand(
       () =>
           _api.createDepartment(widget.orgId, name: name, parentId: parent.id),
-      '创建失败',
+      t.organization.common.createFailed,
     );
   }
 
   Future<void> _rename(OrganizationDepartment d) async {
     final name = await orgPromptInput(
       context,
-      title: '重命名部门',
-      hint: '新名称',
+      title: t.organization.departments.renameDept,
+      hint: t.organization.departments.newNameLabel,
       initial: d.name,
     );
     if (name == null) return;
     await _runCommand(
       () => _api.renameDepartment(widget.orgId, d.id, name: name),
-      '重命名失败',
+      t.organization.departments.renameFailed,
     );
   }
 
   Future<void> _move(OrganizationDepartment d) async {
     final target = await orgPromptInput(
       context,
-      title: '移动部门',
-      hint: '新父部门 ID（留空 = 提为根）',
+      title: t.organization.departments.moveDept,
+      hint: t.organization.departments.newParentIdHint,
     );
     if (target == null) return;
     await _runCommand(
       () => _api.moveDepartment(widget.orgId, d.id, newParentId: target),
-      '移动失败',
+      t.organization.departments.moveFailed,
     );
   }
 
   Future<void> _addMember(OrganizationDepartment d) async {
     final uidText = await orgPromptInput(
       context,
-      title: '添加部门成员',
-      hint: '对方用户 UID（数字）',
+      title: t.organization.departments.addDeptMember,
+      hint: t.organization.common.targetUidHint,
     );
     if (uidText == null) return;
     final uid = int.tryParse(uidText);
     if (uid == null || uid <= 0) {
       if (!mounted) return;
-      ScaffoldMessenger.maybeOf(context)
-          ?.showSnackBar(const SnackBar(content: Text('用户 UID 必须是正整数')));
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(t.organization.common.uidMustBePositive)),
+      );
       return;
     }
     await _runCommand(
       () => _api.addDepartmentMember(widget.orgId, d.id, '$uid'),
-      '添加失败',
+      t.organization.common.addFailed,
     );
   }
 
   Future<void> _archive(OrganizationDepartment d) async {
     final ok = await orgConfirmDangerAction(
       context,
-      title: '归档部门',
-      consequence: '归档「${d.name}」后该部门进入只读态（成员关系保留）。',
-      confirmText: '确认归档',
+      title: t.organization.departments.archiveDept,
+      consequence: t.organization.departments.archiveConfirmBody(name: d.name),
+      confirmText: t.organization.common.confirmArchive,
     );
     if (ok) {
       await _runCommand(
         () => _api.archiveDepartment(widget.orgId, d.id),
-        '归档失败',
+        t.organization.departments.archiveFailed,
       );
     }
   }
@@ -355,15 +374,15 @@ class _OrganizationDepartmentsPageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('部门目录'),
+        title: Text(t.organization.departments.title),
         actions: [
           if (_canGovern)
             Semantics(
               button: true,
-              label: '新建根部门',
+              label: t.organization.departments.createRootDept,
               child: IconButton(
                 icon: const Icon(CupertinoIcons.add),
-                tooltip: '新建根部门',
+                tooltip: t.organization.departments.createRootDept,
                 onPressed: _create,
               ),
             ),
@@ -376,9 +395,12 @@ class _OrganizationDepartmentsPageState
                 children: [
                   const Icon(CupertinoIcons.lock, size: 40),
                   const SizedBox(height: AppSpacing.small),
-                  const Text('无权查看（仅限本组织在职成员）'),
+                  Text(t.organization.departments.viewForbidden),
                   const SizedBox(height: AppSpacing.regular),
-                  TextButton(onPressed: _refresh, child: const Text('重新加载')),
+                  TextButton(
+                    onPressed: _refresh,
+                    child: Text(t.organization.common.reload),
+                  ),
                 ],
               ),
             )
@@ -388,7 +410,9 @@ class _OrganizationDepartmentsPageState
                 loading: _loading && _depts.isEmpty,
                 error: _error,
                 empty: !_loading && _error == null && _depts.isEmpty,
-                emptyText: _canGovern ? '暂无部门，点击右上角新建' : '暂无部门',
+                emptyText: _canGovern
+                    ? t.organization.departments.emptyWithHint
+                    : t.organization.departments.empty,
                 onRetry: _refresh,
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -401,7 +425,7 @@ class _OrganizationDepartmentsPageState
                       ListTile(
                         dense: true,
                         title: Text(
-                          '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。',
+                          t.organization.departments.emptySubtitle,
                           style: context.textStyle(FontSizeType.small),
                         ),
                       ),

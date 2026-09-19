@@ -1,0 +1,138 @@
+# Organization 模块词条（ORG V1，FINDING-APP-C 接线 2026-09-19）。
+# 命名空间按页面分组；插值用 ${param} 占位符（slang 生成 named args）。
+common:
+  moreActions: 更多操作
+  rename: 重命名
+  close: 关闭
+  reload: 重新加载
+  createFailed: 创建失败
+  addFailed: 添加失败
+  confirmArchive: 确认归档
+  forbidden403: 无权执行该操作（403）
+  noMembers: 暂无成员
+  targetUidHint: 对方用户 UID（数字）
+  uidMustBePositive: 用户 UID 必须是正整数
+  loading: 加载中…
+  loadMore: 加载更多
+home:
+  createOrg: 创建组织
+  orgNameLabel: 组织名称（1-200 字符）
+  createFailedWith: 创建失败：${msg} (${code})
+  tabOrg: 组织
+  myInvitations: 我的邀请
+  emptyHint: "尚未加入任何组织\n下拉刷新或点击右上角创建"
+detail:
+  title: 组织详情
+  notFound: 组织不存在
+  archiveOrg: 归档组织
+  archiveConfirmBody: 归档后组织进入只读态，全部写操作 fail-closed，仅恢复（restore）可解锁。成员与数据不会被删除。
+  restoreOrg: 恢复组织
+  restoreConfirmBody: 恢复后组织回到 active 态，写入口重新开放。
+  confirmRestore: 确认恢复
+  restoreFailed: 恢复失败
+  archiveFailed: 归档失败
+  renameOrgTitle: 修改组织名称
+  renameOrgLabel: 组织名称（1-200 字符）
+  renameAction: 修改名称
+  renameFailed: 改名失败
+  deletionPreflight: 账号删除预检
+  deletionPreflightDesc: 查看本账号被哪些依赖域阻塞删除
+  observedAt: "观察时刻：${ts}"
+  factDomains: "覆盖依赖域：${domains}"
+  noBlockers: 无阻塞项
+  blockers: "阻塞项："
+  factUnavailable: 依赖域事实不可用，删除预检被拒绝（fail-closed）
+  preflightFailed: "预检失败：${msg} (${code})"
+  myRoleAndStatus: "我的角色：${role} · 状态：${status}"
+  archivedBadge: 组织已归档（只读）
+  archivedHint: 归档期间全部写操作被拒绝，仅恢复操作可用
+  defaultWsSet: "默认 Workspace：${id}"
+  defaultWsUnset: "默认 Workspace：未设置"
+  defaultWsNote: 指向事实，不代表任何 workspace 成员身份
+  memberList: 成员列表
+  memberListRestricted: 成员列表（仅 owner/admin 可查看）
+  invitationManage: 邀请管理
+  invitationManageRestricted: 邀请管理（仅 owner/admin 可管理）
+  deptEntry: 部门目录
+  deptEntryRestricted: 部门目录（管理操作仅限授权者）
+  more: 更多
+  archiveEntrySubtitle: 进入只读态；可随时恢复
+  restoreEntrySubtitle: 回到 active 态
+members:
+  title: 成员
+  loadMoreFailed: "加载更多失败：${err}"
+  changeRole: 变更角色
+  changeRoleBody: "将「${name}」的角色由 ${from} 调整为 ${to}。"
+  confirmChange: 确认变更
+  changeRoleFailed: 角色变更失败
+  removeMember: 移除成员
+  removeMemberBody: "将「${name}」移出本组织。该操作不会删除其账号。"
+  confirmRemove: 确认移除
+  removeFailed: 移除失败
+  transferOwner: 转移所有者
+  transferOwnerBody: "组织有且仅有一个 owner（C04）：确认将「${name}」设为所有者，\n你将降级为普通管理员/成员。该操作直接影响组织控制权。"
+  confirmTransfer: 确认转移
+  transferFailed: 转移失败
+  demoteToMember: 降级为成员
+  promoteToAdmin: 升级为管理员
+  transferOwnerTo: "转移所有者给「${name}」"
+  ownerCannotChangeHere: "Owner 不可在此变更；请使用「转移所有者」"
+  empty: 暂无成员
+invitations:
+  inviteMember: 邀请成员
+  invitationCreated: 邀请已创建
+  tokenOnceNotice: "领取口令（token）只显示这一次，请立即复制并线下转交对方："
+  tokenCopied: 已复制口令
+  copyToken: 复制口令
+  inviteFailed: "邀请失败：${msg} (${code})"
+  acceptTitle: 接受邀请
+  acceptTokenHint: 粘贴邀请人给你的领取口令（token）
+  acceptFailed: 接受失败
+  rejectTitle: 拒绝邀请
+  rejectBody: 拒绝后该邀请进入终态，不可再接受。
+  confirmReject: 确认拒绝
+  rejectFailed: 拒绝失败
+  revokeTitle: 撤销邀请
+  revokeBody: 撤销后该邀请进入终态，目标用户无法再凭口令接受。
+  confirmRevoke: 确认撤销
+  revokeFailed: 撤销失败
+  myInvitations: 我的邀请
+  manageInvitations: 邀请管理
+  createInvitation: 创建邀请
+  empty: 暂无邀请
+  emptyRecord: 暂无邀请记录
+  orgLine: "组织 ${orgId}"
+  invitationLine: "邀请 ${invitationId}"
+  targetLine: "目标 ${targetUserId} · ${subtitle}"
+  acceptNotice: "接受邀请需要邀请人提供的领取口令（token）；\n接受成功后成员资格以服务端为准。"
+  revokeAction: 撤销
+  acceptWithToken: 凭口令接受
+  rejectAction: 拒绝
+departments:
+  title: 部门目录
+  deptIdSubtitle: "部门 ${id}"
+  statusLine: "状态：${status}"
+  memberUidLine: "成员 ${userId}"
+  viewForbiddenDetail: 无权查看该部门（仅限本组织在职成员）
+  viewForbidden: 无权查看（仅限本组织在职成员）
+  loadFailedWith: "加载部门失败：${msg} (${code})"
+  loadFailed: "加载部门失败：${err}"
+  createSubHere: 在其下新建子部门
+  movePickParent: 移动（选择新父部门）
+  addMemberByUid: 添加成员（按 UID）
+  archiveDept: 归档部门
+  createRootDept: 新建根部门
+  deptNameLabel: 部门名称
+  createUnder: "在「${parent}」下新建"
+  renameDept: 重命名部门
+  newNameLabel: 新名称
+  renameFailed: 重命名失败
+  moveDept: 移动部门
+  newParentIdHint: 新父部门 ID（留空 = 提为根）
+  moveFailed: 移动失败
+  addDeptMember: 添加部门成员
+  archiveConfirmBody: "归档「${name}」后该部门进入只读态（成员关系保留）。"
+  archiveFailed: 归档失败
+  emptyWithHint: 暂无部门，点击右上角新建
+  empty: 暂无部门
+  emptySubtitle: 兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。

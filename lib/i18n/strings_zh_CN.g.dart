@@ -67,6 +67,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$mention$zh_CN mention = Translations$mention$zh_CN.internal(_root);
 	late final Translations$momentFriendPicker$zh_CN momentFriendPicker = Translations$momentFriendPicker$zh_CN.internal(_root);
 	late final Translations$momentNotify$zh_CN momentNotify = Translations$momentNotify$zh_CN.internal(_root);
+	late final Translations$organization$zh_CN organization = Translations$organization$zh_CN.internal(_root);
 	late final Translations$passport$zh_CN passport = Translations$passport$zh_CN.internal(_root);
 	late final Translations$splash$zh_CN splash = Translations$splash$zh_CN.internal(_root);
 	late final Translations$welcome$zh_CN welcome = Translations$welcome$zh_CN.internal(_root);
@@ -6264,6 +6265,21 @@ class Translations$momentNotify$zh_CN {
 	String get loadFailed => '加载失败，请稍后重试';
 }
 
+// Path: organization
+class Translations$organization$zh_CN {
+	Translations$organization$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$organization$common$zh_CN common = Translations$organization$common$zh_CN.internal(_root);
+	late final Translations$organization$home$zh_CN home = Translations$organization$home$zh_CN.internal(_root);
+	late final Translations$organization$detail$zh_CN detail = Translations$organization$detail$zh_CN.internal(_root);
+	late final Translations$organization$members$zh_CN members = Translations$organization$members$zh_CN.internal(_root);
+	late final Translations$organization$invitations$zh_CN invitations = Translations$organization$invitations$zh_CN.internal(_root);
+	late final Translations$organization$departments$zh_CN departments = Translations$organization$departments$zh_CN.internal(_root);
+}
+
 // Path: passport
 class Translations$passport$zh_CN {
 	Translations$passport$zh_CN.internal(this._root);
@@ -7099,6 +7115,450 @@ class Translations$account$alipaySim$zh_CN {
 
 	/// zh-CN: '账户余额'
 	String get balanceSource => '账户余额';
+}
+
+// Path: organization.common
+class Translations$organization$common$zh_CN {
+	Translations$organization$common$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '更多操作'
+	String get moreActions => '更多操作';
+
+	/// zh-CN: '重命名'
+	String get rename => '重命名';
+
+	/// zh-CN: '关闭'
+	String get close => '关闭';
+
+	/// zh-CN: '重新加载'
+	String get reload => '重新加载';
+
+	/// zh-CN: '创建失败'
+	String get createFailed => '创建失败';
+
+	/// zh-CN: '添加失败'
+	String get addFailed => '添加失败';
+
+	/// zh-CN: '确认归档'
+	String get confirmArchive => '确认归档';
+
+	/// zh-CN: '无权执行该操作（403）'
+	String get forbidden403 => '无权执行该操作（403）';
+
+	/// zh-CN: '暂无成员'
+	String get noMembers => '暂无成员';
+
+	/// zh-CN: '对方用户 UID（数字）'
+	String get targetUidHint => '对方用户 UID（数字）';
+
+	/// zh-CN: '用户 UID 必须是正整数'
+	String get uidMustBePositive => '用户 UID 必须是正整数';
+
+	/// zh-CN: '加载中…'
+	String get loading => '加载中…';
+
+	/// zh-CN: '加载更多'
+	String get loadMore => '加载更多';
+}
+
+// Path: organization.home
+class Translations$organization$home$zh_CN {
+	Translations$organization$home$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '创建组织'
+	String get createOrg => '创建组织';
+
+	/// zh-CN: '组织名称（1-200 字符）'
+	String get orgNameLabel => '组织名称（1-200 字符）';
+
+	/// zh-CN: '创建失败：${msg} (${code})'
+	String createFailedWith({required Object msg, required Object code}) => '创建失败：${msg} (${code})';
+
+	/// zh-CN: '组织'
+	String get tabOrg => '组织';
+
+	/// zh-CN: '我的邀请'
+	String get myInvitations => '我的邀请';
+
+	/// zh-CN: '尚未加入任何组织 下拉刷新或点击右上角创建'
+	String get emptyHint => '尚未加入任何组织\n下拉刷新或点击右上角创建';
+}
+
+// Path: organization.detail
+class Translations$organization$detail$zh_CN {
+	Translations$organization$detail$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '组织详情'
+	String get title => '组织详情';
+
+	/// zh-CN: '组织不存在'
+	String get notFound => '组织不存在';
+
+	/// zh-CN: '归档组织'
+	String get archiveOrg => '归档组织';
+
+	/// zh-CN: '归档后组织进入只读态，全部写操作 fail-closed，仅恢复（restore）可解锁。成员与数据不会被删除。'
+	String get archiveConfirmBody => '归档后组织进入只读态，全部写操作 fail-closed，仅恢复（restore）可解锁。成员与数据不会被删除。';
+
+	/// zh-CN: '恢复组织'
+	String get restoreOrg => '恢复组织';
+
+	/// zh-CN: '恢复后组织回到 active 态，写入口重新开放。'
+	String get restoreConfirmBody => '恢复后组织回到 active 态，写入口重新开放。';
+
+	/// zh-CN: '确认恢复'
+	String get confirmRestore => '确认恢复';
+
+	/// zh-CN: '恢复失败'
+	String get restoreFailed => '恢复失败';
+
+	/// zh-CN: '归档失败'
+	String get archiveFailed => '归档失败';
+
+	/// zh-CN: '修改组织名称'
+	String get renameOrgTitle => '修改组织名称';
+
+	/// zh-CN: '组织名称（1-200 字符）'
+	String get renameOrgLabel => '组织名称（1-200 字符）';
+
+	/// zh-CN: '修改名称'
+	String get renameAction => '修改名称';
+
+	/// zh-CN: '改名失败'
+	String get renameFailed => '改名失败';
+
+	/// zh-CN: '账号删除预检'
+	String get deletionPreflight => '账号删除预检';
+
+	/// zh-CN: '查看本账号被哪些依赖域阻塞删除'
+	String get deletionPreflightDesc => '查看本账号被哪些依赖域阻塞删除';
+
+	/// zh-CN: '观察时刻：${ts}'
+	String observedAt({required Object ts}) => '观察时刻：${ts}';
+
+	/// zh-CN: '覆盖依赖域：${domains}'
+	String factDomains({required Object domains}) => '覆盖依赖域：${domains}';
+
+	/// zh-CN: '无阻塞项'
+	String get noBlockers => '无阻塞项';
+
+	/// zh-CN: '阻塞项：'
+	String get blockers => '阻塞项：';
+
+	/// zh-CN: '依赖域事实不可用，删除预检被拒绝（fail-closed）'
+	String get factUnavailable => '依赖域事实不可用，删除预检被拒绝（fail-closed）';
+
+	/// zh-CN: '预检失败：${msg} (${code})'
+	String preflightFailed({required Object msg, required Object code}) => '预检失败：${msg} (${code})';
+
+	/// zh-CN: '我的角色：${role} · 状态：${status}'
+	String myRoleAndStatus({required Object role, required Object status}) => '我的角色：${role} · 状态：${status}';
+
+	/// zh-CN: '组织已归档（只读）'
+	String get archivedBadge => '组织已归档（只读）';
+
+	/// zh-CN: '归档期间全部写操作被拒绝，仅恢复操作可用'
+	String get archivedHint => '归档期间全部写操作被拒绝，仅恢复操作可用';
+
+	/// zh-CN: '默认 Workspace：${id}'
+	String defaultWsSet({required Object id}) => '默认 Workspace：${id}';
+
+	/// zh-CN: '默认 Workspace：未设置'
+	String get defaultWsUnset => '默认 Workspace：未设置';
+
+	/// zh-CN: '指向事实，不代表任何 workspace 成员身份'
+	String get defaultWsNote => '指向事实，不代表任何 workspace 成员身份';
+
+	/// zh-CN: '成员列表'
+	String get memberList => '成员列表';
+
+	/// zh-CN: '成员列表（仅 owner/admin 可查看）'
+	String get memberListRestricted => '成员列表（仅 owner/admin 可查看）';
+
+	/// zh-CN: '邀请管理'
+	String get invitationManage => '邀请管理';
+
+	/// zh-CN: '邀请管理（仅 owner/admin 可管理）'
+	String get invitationManageRestricted => '邀请管理（仅 owner/admin 可管理）';
+
+	/// zh-CN: '部门目录'
+	String get deptEntry => '部门目录';
+
+	/// zh-CN: '部门目录（管理操作仅限授权者）'
+	String get deptEntryRestricted => '部门目录（管理操作仅限授权者）';
+
+	/// zh-CN: '更多'
+	String get more => '更多';
+
+	/// zh-CN: '进入只读态；可随时恢复'
+	String get archiveEntrySubtitle => '进入只读态；可随时恢复';
+
+	/// zh-CN: '回到 active 态'
+	String get restoreEntrySubtitle => '回到 active 态';
+}
+
+// Path: organization.members
+class Translations$organization$members$zh_CN {
+	Translations$organization$members$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '成员'
+	String get title => '成员';
+
+	/// zh-CN: '加载更多失败：${err}'
+	String loadMoreFailed({required Object err}) => '加载更多失败：${err}';
+
+	/// zh-CN: '变更角色'
+	String get changeRole => '变更角色';
+
+	/// zh-CN: '将「${name}」的角色由 ${from} 调整为 ${to}。'
+	String changeRoleBody({required Object name, required Object from, required Object to}) => '将「${name}」的角色由 ${from} 调整为 ${to}。';
+
+	/// zh-CN: '确认变更'
+	String get confirmChange => '确认变更';
+
+	/// zh-CN: '角色变更失败'
+	String get changeRoleFailed => '角色变更失败';
+
+	/// zh-CN: '移除成员'
+	String get removeMember => '移除成员';
+
+	/// zh-CN: '将「${name}」移出本组织。该操作不会删除其账号。'
+	String removeMemberBody({required Object name}) => '将「${name}」移出本组织。该操作不会删除其账号。';
+
+	/// zh-CN: '确认移除'
+	String get confirmRemove => '确认移除';
+
+	/// zh-CN: '移除失败'
+	String get removeFailed => '移除失败';
+
+	/// zh-CN: '转移所有者'
+	String get transferOwner => '转移所有者';
+
+	/// zh-CN: '组织有且仅有一个 owner（C04）：确认将「${name}」设为所有者， 你将降级为普通管理员/成员。该操作直接影响组织控制权。'
+	String transferOwnerBody({required Object name}) => '组织有且仅有一个 owner（C04）：确认将「${name}」设为所有者，\n你将降级为普通管理员/成员。该操作直接影响组织控制权。';
+
+	/// zh-CN: '确认转移'
+	String get confirmTransfer => '确认转移';
+
+	/// zh-CN: '转移失败'
+	String get transferFailed => '转移失败';
+
+	/// zh-CN: '降级为成员'
+	String get demoteToMember => '降级为成员';
+
+	/// zh-CN: '升级为管理员'
+	String get promoteToAdmin => '升级为管理员';
+
+	/// zh-CN: '转移所有者给「${name}」'
+	String transferOwnerTo({required Object name}) => '转移所有者给「${name}」';
+
+	/// zh-CN: 'Owner 不可在此变更；请使用「转移所有者」'
+	String get ownerCannotChangeHere => 'Owner 不可在此变更；请使用「转移所有者」';
+
+	/// zh-CN: '暂无成员'
+	String get empty => '暂无成员';
+}
+
+// Path: organization.invitations
+class Translations$organization$invitations$zh_CN {
+	Translations$organization$invitations$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '邀请成员'
+	String get inviteMember => '邀请成员';
+
+	/// zh-CN: '邀请已创建'
+	String get invitationCreated => '邀请已创建';
+
+	/// zh-CN: '领取口令（token）只显示这一次，请立即复制并线下转交对方：'
+	String get tokenOnceNotice => '领取口令（token）只显示这一次，请立即复制并线下转交对方：';
+
+	/// zh-CN: '已复制口令'
+	String get tokenCopied => '已复制口令';
+
+	/// zh-CN: '复制口令'
+	String get copyToken => '复制口令';
+
+	/// zh-CN: '邀请失败：${msg} (${code})'
+	String inviteFailed({required Object msg, required Object code}) => '邀请失败：${msg} (${code})';
+
+	/// zh-CN: '接受邀请'
+	String get acceptTitle => '接受邀请';
+
+	/// zh-CN: '粘贴邀请人给你的领取口令（token）'
+	String get acceptTokenHint => '粘贴邀请人给你的领取口令（token）';
+
+	/// zh-CN: '接受失败'
+	String get acceptFailed => '接受失败';
+
+	/// zh-CN: '拒绝邀请'
+	String get rejectTitle => '拒绝邀请';
+
+	/// zh-CN: '拒绝后该邀请进入终态，不可再接受。'
+	String get rejectBody => '拒绝后该邀请进入终态，不可再接受。';
+
+	/// zh-CN: '确认拒绝'
+	String get confirmReject => '确认拒绝';
+
+	/// zh-CN: '拒绝失败'
+	String get rejectFailed => '拒绝失败';
+
+	/// zh-CN: '撤销邀请'
+	String get revokeTitle => '撤销邀请';
+
+	/// zh-CN: '撤销后该邀请进入终态，目标用户无法再凭口令接受。'
+	String get revokeBody => '撤销后该邀请进入终态，目标用户无法再凭口令接受。';
+
+	/// zh-CN: '确认撤销'
+	String get confirmRevoke => '确认撤销';
+
+	/// zh-CN: '撤销失败'
+	String get revokeFailed => '撤销失败';
+
+	/// zh-CN: '我的邀请'
+	String get myInvitations => '我的邀请';
+
+	/// zh-CN: '邀请管理'
+	String get manageInvitations => '邀请管理';
+
+	/// zh-CN: '创建邀请'
+	String get createInvitation => '创建邀请';
+
+	/// zh-CN: '暂无邀请'
+	String get empty => '暂无邀请';
+
+	/// zh-CN: '暂无邀请记录'
+	String get emptyRecord => '暂无邀请记录';
+
+	/// zh-CN: '组织 ${orgId}'
+	String orgLine({required Object orgId}) => '组织 ${orgId}';
+
+	/// zh-CN: '邀请 ${invitationId}'
+	String invitationLine({required Object invitationId}) => '邀请 ${invitationId}';
+
+	/// zh-CN: '目标 ${targetUserId} · ${subtitle}'
+	String targetLine({required Object targetUserId, required Object subtitle}) => '目标 ${targetUserId} · ${subtitle}';
+
+	/// zh-CN: '接受邀请需要邀请人提供的领取口令（token）； 接受成功后成员资格以服务端为准。'
+	String get acceptNotice => '接受邀请需要邀请人提供的领取口令（token）；\n接受成功后成员资格以服务端为准。';
+
+	/// zh-CN: '撤销'
+	String get revokeAction => '撤销';
+
+	/// zh-CN: '凭口令接受'
+	String get acceptWithToken => '凭口令接受';
+
+	/// zh-CN: '拒绝'
+	String get rejectAction => '拒绝';
+}
+
+// Path: organization.departments
+class Translations$organization$departments$zh_CN {
+	Translations$organization$departments$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '部门目录'
+	String get title => '部门目录';
+
+	/// zh-CN: '部门 ${id}'
+	String deptIdSubtitle({required Object id}) => '部门 ${id}';
+
+	/// zh-CN: '状态：${status}'
+	String statusLine({required Object status}) => '状态：${status}';
+
+	/// zh-CN: '成员 ${userId}'
+	String memberUidLine({required Object userId}) => '成员 ${userId}';
+
+	/// zh-CN: '无权查看该部门（仅限本组织在职成员）'
+	String get viewForbiddenDetail => '无权查看该部门（仅限本组织在职成员）';
+
+	/// zh-CN: '无权查看（仅限本组织在职成员）'
+	String get viewForbidden => '无权查看（仅限本组织在职成员）';
+
+	/// zh-CN: '加载部门失败：${msg} (${code})'
+	String loadFailedWith({required Object msg, required Object code}) => '加载部门失败：${msg} (${code})';
+
+	/// zh-CN: '加载部门失败：${err}'
+	String loadFailed({required Object err}) => '加载部门失败：${err}';
+
+	/// zh-CN: '在其下新建子部门'
+	String get createSubHere => '在其下新建子部门';
+
+	/// zh-CN: '移动（选择新父部门）'
+	String get movePickParent => '移动（选择新父部门）';
+
+	/// zh-CN: '添加成员（按 UID）'
+	String get addMemberByUid => '添加成员（按 UID）';
+
+	/// zh-CN: '归档部门'
+	String get archiveDept => '归档部门';
+
+	/// zh-CN: '新建根部门'
+	String get createRootDept => '新建根部门';
+
+	/// zh-CN: '部门名称'
+	String get deptNameLabel => '部门名称';
+
+	/// zh-CN: '在「${parent}」下新建'
+	String createUnder({required Object parent}) => '在「${parent}」下新建';
+
+	/// zh-CN: '重命名部门'
+	String get renameDept => '重命名部门';
+
+	/// zh-CN: '新名称'
+	String get newNameLabel => '新名称';
+
+	/// zh-CN: '重命名失败'
+	String get renameFailed => '重命名失败';
+
+	/// zh-CN: '移动部门'
+	String get moveDept => '移动部门';
+
+	/// zh-CN: '新父部门 ID（留空 = 提为根）'
+	String get newParentIdHint => '新父部门 ID（留空 = 提为根）';
+
+	/// zh-CN: '移动失败'
+	String get moveFailed => '移动失败';
+
+	/// zh-CN: '添加部门成员'
+	String get addDeptMember => '添加部门成员';
+
+	/// zh-CN: '归档「${name}」后该部门进入只读态（成员关系保留）。'
+	String archiveConfirmBody({required Object name}) => '归档「${name}」后该部门进入只读态（成员关系保留）。';
+
+	/// zh-CN: '归档失败'
+	String get archiveFailed => '归档失败';
+
+	/// zh-CN: '暂无部门，点击右上角新建'
+	String get emptyWithHint => '暂无部门，点击右上角新建';
+
+	/// zh-CN: '暂无部门'
+	String get empty => '暂无部门';
+
+	/// zh-CN: '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。'
+	String get emptySubtitle => '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -9107,6 +9567,138 @@ extension on Translations {
 			'momentNotify.cancel' => '取消',
 			'momentNotify.delete' => '删除',
 			'momentNotify.loadFailed' => '加载失败，请稍后重试',
+			'organization.common.moreActions' => '更多操作',
+			'organization.common.rename' => '重命名',
+			'organization.common.close' => '关闭',
+			'organization.common.reload' => '重新加载',
+			'organization.common.createFailed' => '创建失败',
+			'organization.common.addFailed' => '添加失败',
+			'organization.common.confirmArchive' => '确认归档',
+			'organization.common.forbidden403' => '无权执行该操作（403）',
+			'organization.common.noMembers' => '暂无成员',
+			'organization.common.targetUidHint' => '对方用户 UID（数字）',
+			'organization.common.uidMustBePositive' => '用户 UID 必须是正整数',
+			'organization.common.loading' => '加载中…',
+			'organization.common.loadMore' => '加载更多',
+			'organization.home.createOrg' => '创建组织',
+			'organization.home.orgNameLabel' => '组织名称（1-200 字符）',
+			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '创建失败：${msg} (${code})',
+			'organization.home.tabOrg' => '组织',
+			'organization.home.myInvitations' => '我的邀请',
+			'organization.home.emptyHint' => '尚未加入任何组织\n下拉刷新或点击右上角创建',
+			'organization.detail.title' => '组织详情',
+			'organization.detail.notFound' => '组织不存在',
+			'organization.detail.archiveOrg' => '归档组织',
+			'organization.detail.archiveConfirmBody' => '归档后组织进入只读态，全部写操作 fail-closed，仅恢复（restore）可解锁。成员与数据不会被删除。',
+			'organization.detail.restoreOrg' => '恢复组织',
+			'organization.detail.restoreConfirmBody' => '恢复后组织回到 active 态，写入口重新开放。',
+			'organization.detail.confirmRestore' => '确认恢复',
+			'organization.detail.restoreFailed' => '恢复失败',
+			'organization.detail.archiveFailed' => '归档失败',
+			'organization.detail.renameOrgTitle' => '修改组织名称',
+			'organization.detail.renameOrgLabel' => '组织名称（1-200 字符）',
+			'organization.detail.renameAction' => '修改名称',
+			'organization.detail.renameFailed' => '改名失败',
+			'organization.detail.deletionPreflight' => '账号删除预检',
+			'organization.detail.deletionPreflightDesc' => '查看本账号被哪些依赖域阻塞删除',
+			'organization.detail.observedAt' => ({required Object ts}) => '观察时刻：${ts}',
+			'organization.detail.factDomains' => ({required Object domains}) => '覆盖依赖域：${domains}',
+			'organization.detail.noBlockers' => '无阻塞项',
+			'organization.detail.blockers' => '阻塞项：',
+			'organization.detail.factUnavailable' => '依赖域事实不可用，删除预检被拒绝（fail-closed）',
+			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => '预检失败：${msg} (${code})',
+			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => '我的角色：${role} · 状态：${status}',
+			'organization.detail.archivedBadge' => '组织已归档（只读）',
+			'organization.detail.archivedHint' => '归档期间全部写操作被拒绝，仅恢复操作可用',
+			'organization.detail.defaultWsSet' => ({required Object id}) => '默认 Workspace：${id}',
+			'organization.detail.defaultWsUnset' => '默认 Workspace：未设置',
+			'organization.detail.defaultWsNote' => '指向事实，不代表任何 workspace 成员身份',
+			'organization.detail.memberList' => '成员列表',
+			'organization.detail.memberListRestricted' => '成员列表（仅 owner/admin 可查看）',
+			'organization.detail.invitationManage' => '邀请管理',
+			'organization.detail.invitationManageRestricted' => '邀请管理（仅 owner/admin 可管理）',
+			'organization.detail.deptEntry' => '部门目录',
+			'organization.detail.deptEntryRestricted' => '部门目录（管理操作仅限授权者）',
+			'organization.detail.more' => '更多',
+			'organization.detail.archiveEntrySubtitle' => '进入只读态；可随时恢复',
+			'organization.detail.restoreEntrySubtitle' => '回到 active 态',
+			'organization.members.title' => '成员',
+			_ => null,
+		} ?? switch (path) {
+			'organization.members.loadMoreFailed' => ({required Object err}) => '加载更多失败：${err}',
+			'organization.members.changeRole' => '变更角色',
+			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => '将「${name}」的角色由 ${from} 调整为 ${to}。',
+			'organization.members.confirmChange' => '确认变更',
+			'organization.members.changeRoleFailed' => '角色变更失败',
+			'organization.members.removeMember' => '移除成员',
+			'organization.members.removeMemberBody' => ({required Object name}) => '将「${name}」移出本组织。该操作不会删除其账号。',
+			'organization.members.confirmRemove' => '确认移除',
+			'organization.members.removeFailed' => '移除失败',
+			'organization.members.transferOwner' => '转移所有者',
+			'organization.members.transferOwnerBody' => ({required Object name}) => '组织有且仅有一个 owner（C04）：确认将「${name}」设为所有者，\n你将降级为普通管理员/成员。该操作直接影响组织控制权。',
+			'organization.members.confirmTransfer' => '确认转移',
+			'organization.members.transferFailed' => '转移失败',
+			'organization.members.demoteToMember' => '降级为成员',
+			'organization.members.promoteToAdmin' => '升级为管理员',
+			'organization.members.transferOwnerTo' => ({required Object name}) => '转移所有者给「${name}」',
+			'organization.members.ownerCannotChangeHere' => 'Owner 不可在此变更；请使用「转移所有者」',
+			'organization.members.empty' => '暂无成员',
+			'organization.invitations.inviteMember' => '邀请成员',
+			'organization.invitations.invitationCreated' => '邀请已创建',
+			'organization.invitations.tokenOnceNotice' => '领取口令（token）只显示这一次，请立即复制并线下转交对方：',
+			'organization.invitations.tokenCopied' => '已复制口令',
+			'organization.invitations.copyToken' => '复制口令',
+			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => '邀请失败：${msg} (${code})',
+			'organization.invitations.acceptTitle' => '接受邀请',
+			'organization.invitations.acceptTokenHint' => '粘贴邀请人给你的领取口令（token）',
+			'organization.invitations.acceptFailed' => '接受失败',
+			'organization.invitations.rejectTitle' => '拒绝邀请',
+			'organization.invitations.rejectBody' => '拒绝后该邀请进入终态，不可再接受。',
+			'organization.invitations.confirmReject' => '确认拒绝',
+			'organization.invitations.rejectFailed' => '拒绝失败',
+			'organization.invitations.revokeTitle' => '撤销邀请',
+			'organization.invitations.revokeBody' => '撤销后该邀请进入终态，目标用户无法再凭口令接受。',
+			'organization.invitations.confirmRevoke' => '确认撤销',
+			'organization.invitations.revokeFailed' => '撤销失败',
+			'organization.invitations.myInvitations' => '我的邀请',
+			'organization.invitations.manageInvitations' => '邀请管理',
+			'organization.invitations.createInvitation' => '创建邀请',
+			'organization.invitations.empty' => '暂无邀请',
+			'organization.invitations.emptyRecord' => '暂无邀请记录',
+			'organization.invitations.orgLine' => ({required Object orgId}) => '组织 ${orgId}',
+			'organization.invitations.invitationLine' => ({required Object invitationId}) => '邀请 ${invitationId}',
+			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => '目标 ${targetUserId} · ${subtitle}',
+			'organization.invitations.acceptNotice' => '接受邀请需要邀请人提供的领取口令（token）；\n接受成功后成员资格以服务端为准。',
+			'organization.invitations.revokeAction' => '撤销',
+			'organization.invitations.acceptWithToken' => '凭口令接受',
+			'organization.invitations.rejectAction' => '拒绝',
+			'organization.departments.title' => '部门目录',
+			'organization.departments.deptIdSubtitle' => ({required Object id}) => '部门 ${id}',
+			'organization.departments.statusLine' => ({required Object status}) => '状态：${status}',
+			'organization.departments.memberUidLine' => ({required Object userId}) => '成员 ${userId}',
+			'organization.departments.viewForbiddenDetail' => '无权查看该部门（仅限本组织在职成员）',
+			'organization.departments.viewForbidden' => '无权查看（仅限本组织在职成员）',
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '加载部门失败：${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => '加载部门失败：${err}',
+			'organization.departments.createSubHere' => '在其下新建子部门',
+			'organization.departments.movePickParent' => '移动（选择新父部门）',
+			'organization.departments.addMemberByUid' => '添加成员（按 UID）',
+			'organization.departments.archiveDept' => '归档部门',
+			'organization.departments.createRootDept' => '新建根部门',
+			'organization.departments.deptNameLabel' => '部门名称',
+			'organization.departments.createUnder' => ({required Object parent}) => '在「${parent}」下新建',
+			'organization.departments.renameDept' => '重命名部门',
+			'organization.departments.newNameLabel' => '新名称',
+			'organization.departments.renameFailed' => '重命名失败',
+			'organization.departments.moveDept' => '移动部门',
+			'organization.departments.newParentIdHint' => '新父部门 ID（留空 = 提为根）',
+			'organization.departments.moveFailed' => '移动失败',
+			'organization.departments.addDeptMember' => '添加部门成员',
+			'organization.departments.archiveConfirmBody' => ({required Object name}) => '归档「${name}」后该部门进入只读态（成员关系保留）。',
+			'organization.departments.archiveFailed' => '归档失败',
+			'organization.departments.emptyWithHint' => '暂无部门，点击右上角新建',
+			'organization.departments.empty' => '暂无部门',
+			'organization.departments.emptySubtitle' => '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',
@@ -9163,8 +9755,6 @@ extension on Translations {
 			'workspace.createNameLabel' => '工作区名称',
 			'workspace.createNameHint' => '例如：官网改版项目组',
 			'workspace.createNameRequired' => '工作区名称不能为空',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createSubmit' => '创建',
 			'workspace.createEntry' => '创建工作区',
 			'workspace.createSuccess' => '工作区创建成功',

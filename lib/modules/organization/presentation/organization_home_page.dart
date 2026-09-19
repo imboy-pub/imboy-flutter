@@ -10,6 +10,8 @@ library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
@@ -82,8 +84,8 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   Future<void> _createOrg() async {
     final name = await orgPromptInput(
       context,
-      title: '创建组织',
-      hint: '组织名称（1-200 字符）',
+      title: t.organization.home.createOrg,
+      hint: t.organization.home.orgNameLabel,
     );
     if (name == null) return;
     try {
@@ -92,9 +94,13 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
       await _refresh();
     } on OrganizationApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.maybeOf(
-        context,
-      )?.showSnackBar(SnackBar(content: Text('创建失败：${e.message} (${e.code})')));
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text(
+            t.organization.home.createFailedWith(msg: e.message, code: e.code),
+          ),
+        ),
+      );
     }
   }
 
@@ -102,14 +108,14 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('组织'),
+        title: Text(t.organization.home.tabOrg),
         actions: [
           Semantics(
             button: true,
-            label: '我的邀请',
+            label: t.organization.home.myInvitations,
             child: IconButton(
               icon: const Icon(CupertinoIcons.mail),
-              tooltip: '我的邀请',
+              tooltip: t.organization.home.myInvitations,
               onPressed: () => context.push(
                 '$kOrganizationHomePath/0/invitations?mode=mine',
               ),
@@ -117,10 +123,10 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
           ),
           Semantics(
             button: true,
-            label: '创建组织',
+            label: t.organization.home.createOrg,
             child: IconButton(
               icon: const Icon(CupertinoIcons.add),
-              tooltip: '创建组织',
+              tooltip: t.organization.home.createOrg,
               onPressed: _createOrg,
             ),
           ),
@@ -132,7 +138,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
           loading: _loading && _orgs.isEmpty,
           error: _error,
           empty: !_loading && _error == null && _orgs.isEmpty,
-          emptyText: '尚未加入任何组织\n下拉刷新或点击右上角创建',
+          emptyText: t.organization.home.emptyHint,
           onRetry: _refresh,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
