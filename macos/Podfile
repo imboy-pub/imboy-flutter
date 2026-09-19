@@ -73,13 +73,13 @@ post_install do |installer|
     # 修复macOS部署目标版本问题
     target.build_configurations.each do |config|
       config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '12.4'
+      # Shims 里的 vendored 源（flutter_sound 等）umbrella header 会引入
+      # CocoaPods 拷贝的非模块头；pods 不得以 warnings-as-errors 构建。
+      config.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
+      config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
     end
   end
 end
-
-# hardening2 A4: github.com git endpoint unreachable from this network;
-# vendored from codeload tarball 8.58.4 so pod install never needs to clone it.
-pod 'Sentry', :path => 'Shims/vendor/Sentry'
 
 #pod 'JVerification'
 pod 'PhoneNumberKit', '~> 3.8.0'

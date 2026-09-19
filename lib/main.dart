@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'
     show
@@ -6,13 +5,10 @@ import 'package:flutter/rendering.dart'
         debugPaintLayerBordersEnabled,
         debugPaintSizeEnabled,
         debugPaintTextLayoutBoxes;
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'config/init.dart';
 import 'page/error/init_error_page.dart';
 import 'run.dart';
-import 'service/log_redactor.dart';
-import 'service/sentry_service.dart';
 
 /// 通过 --dart-define=APP_ENV=xxx 指定运行环境
 /// 可用环境: pro, dev, local_home, local_office
@@ -36,7 +32,7 @@ void main() async {
   await bootstrap();
 }
 
-/// 完整启动链：init →（release 且开启时）Sentry 包裹 → run。
+/// 完整启动链：init → run。
 ///
 /// #95：init 失败不再永久白屏——渲染 [InitErrorPage]，用户点「重试」
 /// 重新进入本函数（AppInitializer._initialized 仅在成功后置位，可重入）。
@@ -48,52 +44,5 @@ Future<void> bootstrap() async {
     return;
   }
 
-  if (!kDebugMode && SentryService.isEnabled) {
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = SentryService.dsn;
-        options.tracesSampleRate = 0.2;
-        options.environment = appEnv;
-        // V-02 崩溃上报脱敏：面包屑会自动记录路由与请求，无法逐一审计，
-        // 整体禁用；事件经 LogRedactor 清洗（键+值双层，口径同后端 log_redact）。
-        // 注：SentryStackFrame.vars 为只读（AOT release 亦无局部变量快照），
-        // 栈帧局部变量不做清洗，清洗面覆盖 exception 值/extra/tags。
-        options.sendDefaultPii = false;
-        options.beforeBreadcrumb = (Breadcrumb? breadcrumb, Hint hint) {
-          // 返回 null = 丢弃该面包屑
-          return null;
-        };
-        options.beforeSend = (event, hint) {
-          final exceptions = event.exceptions;
-          if (exceptions != null) {
-            for (final ex in exceptions) {
-              final value = ex.value;
-              if (value != null) {
-                ex.value = LogRedactor.scrubText(value);
-              }
-            }
-          }
-          final extra = event.extra;
-          if (extra != null) {
-            final scrubbed = LogRedactor.scrubDynamic(extra);
-            if (scrubbed is Map) {
-              event.extra = Map<String, dynamic>.from(scrubbed);
-            }
-          }
-          final tags = event.tags;
-          if (tags != null) {
-            event.tags = tags.map(
-              (key, value) => MapEntry(key, LogRedactor.scrubText(value)),
-            );
-          }
-          return event;
-        };
-      },
-      appRunner: () async {
-        await run();
-      },
-    );
-  } else {
-    await run();
-  }
+  await run();
 }

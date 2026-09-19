@@ -135,14 +135,6 @@ PODS:
     - Flutter
     - FlutterMacOS
   - PromisesObjC (2.4.1)
-  - Sentry (8.58.4):
-    - Sentry/Core (= 8.58.4)
-  - Sentry/Core (8.58.4)
-  - Sentry/HybridSDK (8.58.4)
-  - sentry_flutter (9.30.0):
-    - Flutter
-    - FlutterMacOS
-    - Sentry/HybridSDK (= 8.58.4)
   - share_plus (0.0.1):
     - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
@@ -200,8 +192,6 @@ DEPENDENCIES:
   - patrol (from `Flutter/ephemeral/.symlinks/plugins/patrol/darwin`)
   - PhoneNumberKit (~> 3.8.0)
   - photo_manager (from `Flutter/ephemeral/.symlinks/plugins/photo_manager/darwin`)
-  - Sentry (from `Shims/vendor/Sentry`)
-  - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
   - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
   - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite_sqlcipher (from `Flutter/ephemeral/.symlinks/plugins/sqflite_sqlcipher/macos`)
@@ -283,10 +273,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/patrol/darwin
   photo_manager:
     :path: Flutter/ephemeral/.symlinks/plugins/photo_manager/darwin
-  Sentry:
-    :path: Shims/vendor/Sentry
-  sentry_flutter:
-    :path: Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos
   share_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
   shared_preferences_foundation:
@@ -344,8 +330,6 @@ SPEC CHECKSUMS:
   PhoneNumberKit: 460b1ae0347f2447af12749fc42f27fc3eb743b1
   photo_manager: c303e4476f6c220274119f0212a7753e45edd4a2
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
-  Sentry: 5321d74bdd28d6f6f8beaa1ca06f1fdc746bff49
-  sentry_flutter: 52a33f5c4c91b05015a6d8c0b26c155776a07d7f
   share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_sqlcipher: a4c2f17db76d2f86dfe044937d3a851d8880cbb9
@@ -357,6 +341,6 @@ SPEC CHECKSUMS:
   WebRTC-SDK: e6006119cd730d6315d875e4a421b6cc8bb88833
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: 066404e9f88d4763854bb20639873365042dc5ce
+PODFILE CHECKSUM: cc8e20e8ed42fddc0c41121e0e1417959b6c5ddd
 
 COCOAPODS: 1.16.2
