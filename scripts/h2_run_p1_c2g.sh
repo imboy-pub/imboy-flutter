@@ -17,6 +17,9 @@ KEY_VAL="$(read_cred solidified_key)"; IV_VAL="$(read_cred solidified_key_iv)"
 A_ACC="$(acc orgA_owner acc)"; A_UID="$(acc orgA_owner uid)"
 B_ACC="$(acc orgA_member acc)"; B_UID="$(acc orgA_member uid)"
 C_ACC="$(acc spare7 acc)"; C_UID="$(acc spare7 uid)"
+PG_HOST="$(read_cred pg_host)"; PG_PORT="$(read_cred pg_port)"
+PG_USER="$(read_cred pg_user)"; PG_PASS="$(read_cred pg_password)"
+PG_DB="$(read_cred pg_database)"
 DEV=XWE6R19916004085
 WS=ws://127.0.0.1:9800/api/v1/ws
 API=http://127.0.0.1:9800
@@ -50,6 +53,10 @@ log "群已建 gid=$GID name=$GNAME"
 curl -s -X POST "$API/api/v1/group/set_e2ee_mode" -H "Authorization: Bearer $A_TOKEN" -H 'Content-Type: application/json' \
   -d "{\"gid\":\"$GID\",\"e2ee_mode\":1}" | head -c 200; echo
 echo "GID=$GID" > "$OUT/group.meta"
+# 注意：群初始只含 A+B。spare7 在 B 回复 m2 之后才经 API 入群（见哨兵段）——
+# 若提前入群：①A 首条消息的 room-key 分发会对无设备的 spare7 做 Olm claim
+# → fail-closed 拒发（2026-09-19 orch6 实证）；②spare7 会进入 gen1 世代，
+# 「新成员不可见历史」语义被破坏。
 
 COMMON_DEF=(
   "--dart-define=APP_ENV=local"
@@ -84,28 +91,59 @@ for i in $(seq 1 210); do
 done
 log "B 侧就绪=$READY"
 
-# 3. A 侧（Android）：m1 → m2 → m3（m3 前编排已把 spare7 入群）
-# spare7 先入群（SQL，A6 授权数据面；带 run marker 由群名承担）
-PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_DB -t -c \
-  "INSERT INTO group_member (id, group_id, user_id, role, is_join, status, join_mode, created_at) VALUES ((SELECT COALESCE(MAX(id),113437940000010000)+1 FROM group_member), $GID, $C_UID, 3, true, 1, 'h2newmember-$TAG', now()) ON CONFLICT DO NOTHING;" 2>&1 | head -2
-log "spare7 入群完成"
-
-log "启动 A 侧(Android)"
-( cd "$PROJ" && flutter test integration_test/two_client/h2_c2g_android_a_side_test.dart \
-    -d "$DEV" --no-pub "${COMMON_DEF[@]}" \
-    --dart-define=TEST_PHONE=$A_ACC --dart-define=TEST_EXPECTED_UID=$A_UID \
-    > "$OUT/a_side.log" 2>&1 )
-A_EXIT=$?
-log "A 侧 exit=$A_EXIT"
-wait $B_PID; B_EXIT=$?
-log "B 侧 exit=$B_EXIT"
-
-# 4. 新成员（macOS，spare7）
+# 3. 新成员（macOS，spare7）早启动：先登录发布设备密钥——A 发 m3 时
+# ensureOutboundSession 要对全体成员设备做 Olm claim，spare7 没有已发布
+# 的设备密钥就会 fail-closed 拒发（orch6 实证）。登录后它自行轮询入群
+# 状态，入群后才开群聊页进入观察窗（m1/m2 恒不可见、等 m3）。
+log "启动新成员(macOS spare7，早启动发布设备密钥)"
 ( cd "$PROJ" && flutter test integration_test/two_client/h2_c2g_new_member_test.dart \
     -d macos --no-pub "${COMMON_DEF[@]}" \
     --dart-define=TEST_PHONE=$C_ACC --dart-define=TEST_EXPECTED_UID=$C_UID \
-    > "$OUT/new_member.log" 2>&1 )
-NM_EXIT=$?
+    > "$OUT/new_member.log" 2>&1 ) &
+NM_PID=$!
+
+log "启动 A 侧(Android)"
+# 强制卸载：上轮中断可能残留半配置会话（E2EE 恢复页等中间态），
+# 入口白名单（welcome/login/main shell）等不到 → 恒入口超时 skip。
+# 卸载后回归 C2C 已验证路径：全新安装 → Welcome → performLogin。
+adb -s "$DEV" uninstall pub.imboy.app > /dev/null 2>&1 || true
+sleep 1
+( cd "$PROJ" && flutter test integration_test/two_client/h2_c2g_android_a_side_test.dart \
+    -d "$DEV" --no-pub "${COMMON_DEF[@]}" \
+    --dart-define=TEST_PHONE=$A_ACC --dart-define=TEST_EXPECTED_UID=$A_UID \
+    > "$OUT/a_side.log" 2>&1 ) &
+A_PID=$!
+
+# 4. 哨兵：B 回复 m2 之后、A 发 m3 之前（A 侧收到 m2 后有 15s 缓冲），
+# 经 API 让 spare7 入群。API 事务原子建 group_member + group_member_generation
+# 两行——orch3 实证裸 SQL INSERT 缺 generation 行 → 服务端
+# e2ee_session_generation_mismatch 拒发。邀请者须是群成员，用 A 的 token。
+JOINED=0
+for i in $(seq 1 1500); do
+  grep -q "B 侧已回复" "$OUT/b_side.log" 2>/dev/null && { JOINED=1; break; }
+  kill -0 $A_PID 2>/dev/null || break
+  sleep 1
+done
+if [ "$JOINED" = "1" ]; then
+  JOIN_RESP=$(curl -s -X POST "$API/api/v1/group_member/join" -H "Authorization: Bearer $A_TOKEN" -H 'Content-Type: application/json' \
+    -d "{\"gid\":\"$GID\",\"member_uids\":[\"$C_UID\"]}")
+  log "spare7 API 入群响应: $(printf '%s' "$JOIN_RESP" | head -c 200)"
+  sleep 1
+  # 成员行 + generation 行都必须存在且世代未关闭，m3 staging 才放行。
+  C_IN_GROUP=$(PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_DB -t -A -c \
+    "SELECT count(*) FROM group_member gm JOIN group_member_generation gmg ON gmg.group_id=gm.group_id AND gmg.user_id=gm.user_id WHERE gm.group_id=$GID AND gm.user_id=$C_UID AND gm.is_join=true AND gmg.end_seq IS NULL;" 2>&1)
+  log "spare7 入群+generation 行确认=${C_IN_GROUP}（应为 1）"
+  PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_DB -t -c \
+    "SELECT gm.user_id, gmg.generation_no FROM group_member gm LEFT JOIN group_member_generation gmg ON gmg.group_id=gm.group_id AND gmg.user_id=gm.user_id WHERE gm.group_id=$GID ORDER BY gm.user_id;" 2>&1
+else
+  log "⚠️ 未等到 B 侧回复标记（A/B 进程可能已退出），跳过 API 入群——新成员链路预期失败"
+fi
+
+wait $A_PID; A_EXIT=$?
+log "A 侧 exit=$A_EXIT"
+wait $B_PID; B_EXIT=$?
+log "B 侧 exit=$B_EXIT"
+wait $NM_PID; NM_EXIT=$?
 log "新成员 exit=$NM_EXIT"
 
 # 5. 取证

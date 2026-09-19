@@ -4,26 +4,22 @@
 # 幂等：重复执行会新建同名 org（org 名不唯一约束）——故先查已有。
 set -uo pipefail
 
+PROJ="$(cd "$(dirname "$0")/.." && pwd)"
 API=http://127.0.0.1:9800
-RUN_ROOT="$(cd "$(dirname "$0")/.." && pwd)/test/auto_test/reports/hardening2-20260918T211458Z"
+RUN_ROOT="$PROJ/test/auto_test/reports/hardening2-20260918T211458Z"
 OUT="$RUN_ROOT/steps/p2_fixture"
 mkdir -p "$OUT"
 TAG="$(date -u +%H%M%S)"
-A1="$(acc orgA_owner acc)"; A1_UID="$(acc orgA_owner uid)"
-A2="$(acc orgA_admin acc)"; A2_UID="$(acc orgA_admin uid)"
-A3="$(acc orgA_member acc)"; A3_UID="$(acc orgA_member uid)"
-B5="$(acc orgB_owner acc)"; B5_UID="$(acc orgB_owner uid)"
-B6="$(acc orgB_member acc)"; B6_UID="$(acc orgB_member uid)"
 # 凭证与 fixture 账号从 gitignored 本地文件读取（fixture 合同：tracked 禁明文）
 CRED="$PROJ/test/auto_test/credentials.local.json"
 read_cred() { python3 -c "import json;print(json.load(open('$CRED'))['$1'])"; }
 acc() { python3 -c "import json;print(json.load(open('$CRED'))['accounts']['$1']['$2'])"; }
 PW="$(read_cred test_password)"
-KEY_VAL="$(read_cred solidified_key)"; IV_VAL="$(read_cred solidified_key_iv)"
-A_ACC="$(acc orgA_owner acc)"; A_UID="$(acc orgA_owner uid)"
-B_ACC="$(acc orgA_member acc)"; B_UID="$(acc orgA_member uid)"
-PW="$TEST_PASSWORD"
-
+A1="$(acc orgA_owner acc)"; A1_UID="$(acc orgA_owner uid)"
+A2="$(acc orgA_admin acc)"; A2_UID="$(acc orgA_admin uid)"
+A3="$(acc orgA_member acc)"; A3_UID="$(acc orgA_member uid)"
+B5="$(acc orgB_owner acc)"; B5_UID="$(acc orgB_owner uid)"
+B6="$(acc orgB_member acc)"; B6_UID="$(acc orgB_member uid)"
 
 log() { printf '[H2-P2-SEED] %s\n' "$*"; }
 

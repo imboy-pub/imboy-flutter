@@ -1,35 +1,62 @@
 // integration_test/two_client/h2_c2g_new_member_test.dart
 //
 // hardening2 P1 · C2G E2EE 新成员历史不可见验证（macOS，spare7=13000000007）。
-// 前置（编排）：群已建、A/B 已完成 m1/m2 对话、spare7 已入群、A 已发 m3。
+// 时序（orch7）：本测试**早启动**——先登录发布设备密钥（A 发 m3 时对其
+// 设备做 Olm claim 的前提），再轮询等待编排端把自己经 API 拉入群，入群后
+// 开群聊页进入观察窗。启动时 mac 上持久着 B 的会话——先 quitLogin 切号到
+// spare7（quitLogin 会清 E2EE 秘密与本地库，等价真机换号）。
 // 断言：spare7 进群聊页后 m1/m2 均不可见（新成员无历史 room-key，
-// E2EE 前向隔离语义），m3 可见（入群后消息的 room-key 已分发到其设备）。
+// E2EE 前向隔离语义），m3 可见（A 轮转 S2 会话后 room-key 分发到其设备）。
 //
 // 运行（编排脚本启动，勿单跑）：flutter test <file> -d macos ...
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/chat_shell/chat_shell_bootstrap.dart';
+import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/api/group_api.dart';
+import 'package:imboy/store/api/group_member_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../flows/app_launcher.dart';
 import '../flows/test_utils.dart';
 
+const _expectedUid = String.fromEnvironment('TEST_EXPECTED_UID');
 const _gid = String.fromEnvironment('H2_C2G_GID');
 const _runTag = String.fromEnvironment('H2_RUN_TAG');
 const _allow = bool.fromEnvironment('H2_C2G_REAL_RUN', defaultValue: false);
 
-Future<void> _dismissBootPopups(WidgetTester tester) async {
-  for (final label in ['稍后', '以后再说', '取消', '知道了']) {
-    final btn = find.text(label);
-    if (tester.any(btn)) {
-      await tester.tap(btn, warnIfMissed: false);
-      await tester.pump(const Duration(milliseconds: 600));
-    }
+/// 体验选择页（ChatShellBootstrap）单次软选择：出现即 select(chat)。
+Future<void> _softSelectChatExperienceOnce(WidgetTester tester) async {
+  final shell = find.byType(ChatShellBootstrap);
+  if (!tester.any(shell)) return;
+  try {
+    final container = ProviderScope.containerOf(tester.element(shell));
+    await container
+        .read(productExperienceProvider.notifier)
+        .select(ProductExperience.chat);
+    await settle(tester, maxSeconds: 2);
+  } catch (_) {}
+}
+
+Future<bool> _switchToSpare7(WidgetTester tester) async {
+  final current = UserRepoLocal.to.currentUid;
+  if (current == _expectedUid) return true;
+  if (current.isNotEmpty) {
+    // mac 持久着 B 的会话：清状态并导回欢迎页（与既有验收测试同法）
+    // ignore: avoid_print
+    print('[H2-C2G-NEW] 切号：$current → spare7($_expectedUid)，quitLogin');
+    await UserRepoLocal.to.quitLogin();
+    final ctx = tester.element(find.byType(Navigator).first);
+    GoRouter.of(ctx).go('/welcome');
+    await settle(tester, maxSeconds: 6);
   }
+  return UserRepoLocal.to.currentUid == _expectedUid;
 }
 
 void main() {
@@ -42,44 +69,175 @@ void main() {
     }
     installPluginErrorFilter();
     await ensureAppLaunched(tester, maxSeconds: 15);
-    if (!await checkPreconditions(tester)) return;
-    await settle(tester, maxSeconds: 2);
-    await _dismissBootPopups(tester);
+
+    if (!await ensureBackendAvailable()) {
+      markTestSkipped('后端不可达，跳过');
+      return;
+    }
+    var entryReady = false;
+    for (var i = 0; i < 360 && !entryReady; i++) {
+      await dismissUpgradeDialog(tester);
+      await _softSelectChatExperienceOnce(tester);
+      entryReady =
+          isOnLoginPage(tester) ||
+          isOnWelcomePage(tester) ||
+          isOnMainShell(tester);
+      if (!entryReady) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+    }
+    if (!entryReady) {
+      markTestSkipped('App 入口状态超时（含体验选择页处理），跳过');
+      return;
+    }
+    // 切号到 spare7（mac 持久会话是 B 的，首次必切）
+    if (!FlowConfig.hasCredentials) {
+      markTestSkipped('未配置 TEST_PHONE / TEST_PASSWORD，跳过');
+      return;
+    }
+    await _switchToSpare7(tester);
+    var loginDone = UserRepoLocal.to.isLoggedIn;
+    for (var round = 0; round < 6 && !loginDone; round++) {
+      flowLog(
+        '[H2-C2G-NEW] 登录重试轮 $round: welcome=${isOnWelcomePage(tester)} login=${isOnLoginPage(tester)}',
+      );
+      if (isOnWelcomePage(tester)) {
+        await leaveWelcomePage(tester);
+        for (var i = 0; i < 90; i++) {
+          if (isOnLoginPage(tester)) break;
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+          await tester.pump(const Duration(milliseconds: 200));
+        }
+      }
+      if (isOnLoginPage(tester)) {
+        await dismissUpgradeDialog(tester);
+        final ok = await performLogin(
+          tester,
+          phone: FlowConfig.testPhone,
+          password: FlowConfig.testPassword,
+        );
+        if (ok) {
+          loginDone = true;
+          break;
+        }
+        await Future<void>.delayed(const Duration(seconds: 10));
+      } else {
+        await Future<void>.delayed(const Duration(seconds: 15));
+      }
+      await _switchToSpare7(tester);
+      loginDone = UserRepoLocal.to.isLoggedIn;
+    }
+    if (!loginDone && !UserRepoLocal.to.isLoggedIn) {
+      markTestSkipped('多轮登录未完成（welcome/login 均未达），跳过');
+      return;
+    }
+    var shellReady = false;
+    for (var i = 0; i < 180 && !shellReady; i++) {
+      await dismissUpgradeDialog(tester);
+      await dismissE2eeRecoveryDialog(tester);
+      await _softSelectChatExperienceOnce(tester);
+      shellReady = isOnMainShell(tester);
+      if (!shellReady) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+    }
+    if (!shellReady) {
+      markTestSkipped('主 Shell 未挂载（4 分钟大窗口后放弃），跳过');
+      return;
+    }
+
+    final selfUid = UserRepoLocal.to.currentUid;
+    if (selfUid != _expectedUid) {
+      fail('登录账号 UID=$selfUid 与新成员授权账号 $_expectedUid 不一致');
+    }
+    await dismissRecoveryGuide(tester);
+    await _softSelectChatExperienceOnce(tester);
 
     final m1 = 'h2c2g-A2G-$_runTag';
     final m2 = 'h2c2g-B2G-$_runTag';
     final m3 = 'h2c2g-M3-$_runTag';
 
+    // 轮询等待编排把自己拉入群（B 回复 m2 后哨兵触发 API join，链路要
+    // 等 A 登录+m1/m2 往返，给足 12 分钟）。判据：成员分页里出现自己。
+    // detail 端点只回群信息不含成员表（group_handler detail_allowed），
+    // 不能用它判断入群。
+    var joined = false;
+    for (var i = 0; i < 144 && !joined; i++) {
+      try {
+        final p = await GroupMemberApi().page(gid: _gid, size: 50);
+        final raw = p?['list'] ?? p?['items'] ?? p?['data'];
+        if (raw is List) {
+          joined = raw.any((m) {
+            if (m is! Map) return false;
+            final v = m['uid'] ?? m['user_id'] ?? m['id'];
+            return v != null && '$v' == _expectedUid;
+          });
+        }
+      } catch (_) {}
+      if (!joined) {
+        await Future<void>.delayed(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+    }
+    // ignore: avoid_print
+    print('[H2-C2G-NEW] 入群轮询结束 joined=$joined');
+    if (!joined) {
+      fail('12 分钟内 spare7 未入群（编排 join 哨兵或 API 失败），无法验证隔离语义');
+    }
     await GroupApi().detail(gid: _gid);
     final flagOn = await GroupSessionService.to.isGroupE2EE(_gid);
     // ignore: avoid_print
     print('[H2-C2G-NEW] spare7 旗标=$flagOn 进入群聊页');
 
-    final ctx = tester.element(find.byType(Navigator).first);
+    // 打开群聊页：优先深链，失败回退 widget 直推
+    final ctx = tester.element(find.byType(Scaffold).first);
     GoRouter.of(ctx).push('/chat/$_gid?type=C2G');
-    await settle(tester, maxSeconds: 6);
-    expect(tester.any(find.byType(ChatPage)), isTrue, reason: '群聊页应已打开');
+    await settle(tester, maxSeconds: 8);
+    if (!tester.any(find.byType(ChatPage))) {
+      Navigator.of(ctx).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ChatPage(
+            type: 'C2G',
+            peerId: _gid,
+            peerTitle: 'h2-c2g-group',
+            peerAvatar: '',
+            peerSign: '',
+          ),
+        ),
+      );
+      await settle(tester, maxSeconds: 8);
+    }
+    expect(find.byType(ChatPage), findsOneWidget, reason: '群聊页应已打开');
 
-    // 观察 75 秒：m3 应出现（room-key 已分发到 spare7 设备）；
-    // m1/m2 若出现即破坏「新成员不可见历史」语义，立即失败。
+    // 观察 600 秒：A 在 m2 之后等 15s+detail 刷新才发 m3（会话轮转 S2 分发
+    // room-key 到本设备），入群轮询+观察窗合计要在 A 保活窗（5 分钟）内
+    // 完成；m1/m2 若出现即破坏「新成员不可见历史」语义，立即失败。
     var sawM3 = false;
-    for (var i = 0; i < 75; i++) {
+    for (var i = 0; i < 600; i++) {
       await tester.pump(const Duration(seconds: 1));
       expect(
-        tester.any(find.text(m1)),
+        tester.any(find.textContaining(m1, findRichText: true)),
         isFalse,
         reason: '新成员不应看到入群前的 m1（历史 room-key 前向隔离被破坏）',
       );
       expect(
-        tester.any(find.text(m2)),
+        tester.any(find.textContaining(m2, findRichText: true)),
         isFalse,
         reason: '新成员不应看到入群前的 m2（历史 room-key 前向隔离被破坏）',
       );
-      sawM3 = sawM3 || tester.any(find.text(m3));
+      sawM3 = sawM3 || tester.any(find.textContaining(m3, findRichText: true));
+      if (i % 30 == 29) {
+        // ignore: avoid_print
+        print('[H2-C2G-NEW] 等待 m3（key-request 分享）${i + 1}s sawM3=$sawM3');
+      }
+      if (sawM3 && i > 20) break;
     }
     expect(sawM3, isTrue, reason: '新成员应看到入群后的 m3（room-key 已分发到其设备）');
     await takeScreenshot(tester, 'h2_c2g_new_member_isolated');
     // ignore: avoid_print
     print('[H2-C2G-NEW] PASS：m1/m2 不可见，m3 可见');
-  }, timeout: const Timeout(Duration(minutes: 7)));
+    drainKnownFrameworkExceptions(tester);
+  }, timeout: const Timeout(Duration(minutes: 20)));
 }
