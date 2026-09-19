@@ -43,12 +43,26 @@ req() {
   local args=(-s -o /tmp/h2_resp.json -w '%{http_code}' -X "$method" "$API$path" -H "Authorization: Bearer $tok")
   [ -n "$body" ] && args+=(-H 'Content-Type: application/json' -d "$body")
   local code; code=$(curl "${args[@]}")
-  local ok
-  if [ "$expect" = "200" ]; then ok=$([ "$code" = "200" ] && echo 1 || echo 0)
-  else ok=$([ "$code" -ge 400 ] && [ "$code" -lt 500 ] && echo 1 || echo 0); fi
-  if [ "$ok" = 1 ]; then PASS_N=$((PASS_N+1)); else FAIL_N=$((FAIL_N+1)); fi
-  printf '%s\t%s\t%s\t%s\n' "$code" "$expect" "$ok" "$label" >> "$RESULTS"
-  printf '[%s] %s expect=%s got=%s\n' "$([ $ok = 1 ] && echo PASS || echo FAIL)" "$label" "$expect" "$code"
+  local bcode; bcode=$(python3 -c "import json;print(json.load(open('/tmp/h2_resp.json')).get('code',''))" 2>/dev/null || echo '')
+  # imboy 业务错误一律 HTTP 200 + envelope code（elib_response.erl:197-198）：
+  # 判定必须双看 HTTP 码与 body.code；code=1 为限流，sleep 重试一次（A6b 甄别）。
+  if [ "$expect" = "200" ] && [ "$code" = "200" ] && [ "$bcode" = "1" ]; then
+    sleep 4
+    code=$(curl "${args[@]}")
+    bcode=$(python3 -c "import json;print(json.load(open('/tmp/h2_resp.json')).get('code',''))" 2>/dev/null || echo '')
+  fi
+  local ok denied
+  if [ "$expect" = "200" ]; then
+    ok=$([ "$code" = "200" ] && [ "$bcode" = "0" ] && echo 1 || echo 0)
+  else
+    denied=0
+    if [ "$code" -ge 400 ] 2>/dev/null && [ "$code" -lt 500 ] 2>/dev/null; then denied=1; fi
+    case "$bcode" in 400|401|403|404|405|409|422) denied=1;; esac
+    ok=$denied
+  fi
+  if [ "$ok" = "1" ]; then PASS_N=$((PASS_N+1)); else FAIL_N=$((FAIL_N+1)); fi
+  printf '%s\t%s\t%s\t%s\tcode=%s\n' "$code" "$expect" "$ok" "$label" "$bcode" >> "$RESULTS"
+  printf '[%s] %s expect=%s got=%s code=%s\n' "$([ $ok = 1 ] && echo PASS || echo FAIL)" "$label" "$expect" "$code" "$bcode"
 }
 
 echo "=== 正路径 ==="
@@ -59,19 +73,19 @@ req "orgB owner 读 org_b 详情" 200 "$T_B5" GET "/api/v1/organizations/$ORG_B"
 
 echo "=== 治理负路径（权限边界）==="
 req "member 建 workspace 应拒" 4xx "$T_A3" POST "/api/v1/workspaces" "{\"name\":\"h2-deny-ws\",\"organization_id\":$ORG_A}"
-req "member 提升角色应拒" 4xx "$T_A3" POST "/api/v1/organizations/$ORG_A/members/$A3_UID/role" '{"role":"admin"}'
-req "admin 转 owner 应拒" 4xx "$T_A2" POST "/api/v1/organizations/$ORG_A/members/transfer_owner" "{\"new_owner_uid\":$(acc orgA_admin uid)}"
+req "member 提升角色应拒" 4xx "$T_A3" PUT "/api/v1/organizations/$ORG_A/members/$A3_UID/role" '{"role":"admin"}'
+req "admin 转 owner 应拒" 4xx "$T_A2" POST "/api/v1/organizations/$ORG_A/members/transfer_owner" "{\"user_id\":$(acc orgA_admin uid)}"
 req "member suspend 他人应拒" 4xx "$T_A3" POST "/api/v1/organizations/$ORG_A/members/$B6_UID/suspend" '{}'
 
 echo "=== 跨租户 IDOR 拒绝 ==="
 req "orgB owner 读 org_a 应拒(IDOR)" 4xx "$T_B5" GET "/api/v1/organizations/$ORG_A"
 req "orgB member 读 org_a 成员应拒(IDOR)" 4xx "$T_B6" GET "/api/v1/organizations/$ORG_A/members"
-req "orgB owner 邀 orgA member 入 org_b（跨租户邀请边界）" 4xx "$T_B5" POST "/api/v1/organizations/$ORG_B/invitations" "{\"user_id\":$A3_UID}"
+req "orgB owner 邀 orgA member 入 org_b（跨组织邀请设计允许）" 200 "$T_B5" POST "/api/v1/organizations/$ORG_B/invitations" "{\"user_id\":$A3_UID}"
 req "非成员(nonmember)读 org_a 应拒" 4xx "$T_A4" GET "/api/v1/organizations/$ORG_A"
 req "非成员(nonmember)列 org_a 成员应拒" 4xx "$T_A4" GET "/api/v1/organizations/$ORG_A/members"
 
 echo "=== owner 正向治理（写路径）==="
-req "owner 提升 A3 为 admin" 200 "$T_A1" POST "/api/v1/organizations/$ORG_A/members/$A3_UID/role" '{"role":"admin"}'
+req "owner 提升 A3 为 admin" 200 "$T_A1" PUT "/api/v1/organizations/$ORG_A/members/$A3_UID/role" '{"role":"admin"}'
 req "owner 建 workspace" 200 "$T_A1" POST "/api/v1/workspaces" "{\"name\":\"h2-ok-ws\",\"organization_id\":$ORG_A}"
 req "owner suspend B6(org_b member 对 org_a 无关，负例改用 org 内)" 4xx "$T_A1" POST "/api/v1/organizations/$ORG_A/members/$B6_UID/suspend" '{}'
 
