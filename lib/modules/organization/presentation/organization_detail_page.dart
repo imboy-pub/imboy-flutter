@@ -133,7 +133,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
     final ok = await orgConfirmDangerAction(
       context,
       title: t.organization.detail.restoreOrg,
-      consequence: '恢复后组织回到 active 态，写入口重新开放。',
+      consequence: t.organization.detail.restoreConfirmBody,
       confirmText: t.organization.detail.confirmRestore,
     );
     if (ok) {
@@ -383,7 +383,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       ListTile(
         leading: const Icon(CupertinoIcons.tray),
         title: Text(t.organization.detail.restoreOrg),
-        subtitle: const Text('回到 active 态'),
+        subtitle: Text(t.organization.detail.restoreEntrySubtitle),
         onTap: _restore,
       ),
   ];
