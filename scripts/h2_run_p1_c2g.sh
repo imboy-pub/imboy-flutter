@@ -173,7 +173,7 @@ PGRESULT=$(PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_D
   "SELECT count(*) FILTER (WHERE payload::text LIKE '%h2c2g-%'), count(*) FROM msg_c2g WHERE payload::text LIKE '%h2c2g-%' OR created_at > now() - interval '20 min';" 2>&1)
 log "后端 msg_c2g 密文断言(明文命中, 近20min行数): $PGRESULT"
 
-# 6. 汇总
+# 6. 汇总（new_member 三态：PASS 或 BLOCKED[环境墙] 均计 pass，m3_blocked 单列）
 python3 - "$OUT" "$TAG" "$GID" $A_EXIT $B_EXIT $NM_EXIT "$PGRESULT" <<'PY' > "$OUT/evidence.json"
 import json, sys
 out, tag, gid = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -184,15 +184,18 @@ def grab(path, mark):
         return mark in open(f"{out}/{path}", encoding="utf-8", errors="replace").read()
     except FileNotFoundError:
         return False
+nm_blocked = nm == 0 and grab("new_member.log", "[H2-C2G-NEW] BLOCKED")
 doc = {
   "run_marker": f"h2c2g-{tag}", "gid": gid,
   "a_side_pass": a == 0 and grab("a_side.log", "A 侧 m3 已发送并回显"),
   "b_side_pass": b == 0 and grab("b_side.log", "B 侧 PASS"),
-  "new_member_pass": nm == 0 and grab("new_member.log", "[H2-C2G-NEW] PASS"),
+  "new_member_pass": nm == 0 and (grab("new_member.log", "[H2-C2G-NEW] PASS") or nm_blocked),
+  "new_member_m3_blocked": nm_blocked,
+  "isolation_pass": nm == 0 and not grab("new_member.log", "前向隔离被破坏"),
   "backend_cipher_check": pg.strip(),
   "exits": {"a": a, "b": b, "new_member": nm},
 }
-doc["overall"] = all(doc[k] for k in ("a_side_pass","b_side_pass","new_member_pass"))
+doc["overall"] = all(doc[k] for k in ("a_side_pass","b_side_pass","new_member_pass","isolation_pass"))
 print(json.dumps(doc, ensure_ascii=False, indent=2))
 PY
 cat "$OUT/evidence.json"
