@@ -24,10 +24,13 @@ import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
+import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// queue 键集分页默认每页条数（与服务端 page_view limit 语义一致）。
 const int kCsQueuePageSize = 20;
@@ -684,6 +687,55 @@ class CsApi extends HttpClient {
       throw CsApiException(status ?? 0, 'asset PUT failed');
     }
     return enterpriseApi.confirmAsset(orgId, presign.assetId);
+  }
+
+  /// 打开坐席事件 SSE 流（底层；由 [CsSeatEventsStream] 驱动重连/游标/
+  /// 解析，本方法只负责一次建流）。
+  ///
+  /// 契约（SSE-EVENT-CONTRACT-V1）：
+  /// GET `/api/v1/cs/organizations/:org_id/seats/me/events?workspace_id=...`，
+  /// `Last-Event-ID` 头存在时优先于 after_id 查询参数（首连无游标时才带
+  /// after_id）。响应 `Content-Type: text/event-stream`；长连接关闭接收
+  /// 超时（改用宽裕上限，死连接由超时/对端关闭暴露后走重连退避）。
+  /// 非法/跨租户游标返回 400/403 → 抛 [CsSseOpenException]，不静默回退。
+  ///
+  /// Authorization 与普通请求同源（UserRepoLocal token）；token 过期由
+  /// 后续 JSON 面请求刷新，本流重连时取新值。测试经
+  /// `HttpClient.adapterForTest` 拦截，不打真网。
+  Future<Stream<List<int>>> openSeatEventsStream(
+    String orgId,
+    String workspaceId, {
+    String lastEventId = '',
+    String afterId = '',
+  }) async {
+    final tk = await UserRepoLocal.to.accessToken;
+    final resp = await dio.get<ResponseBody>(
+      '/api/v1/cs/organizations/$orgId/seats/me/events',
+      queryParameters: {
+        'workspace_id': workspaceId,
+        if (lastEventId.isEmpty && afterId.isNotEmpty) 'after_id': afterId,
+      },
+      options: Options(
+        responseType: ResponseType.stream,
+        receiveTimeout: const Duration(minutes: 5),
+        sendTimeout: const Duration(minutes: 1),
+        headers: {
+          'accept': 'text/event-stream',
+          'cache-control': 'no-store',
+          if (tk.isNotEmpty) Keys.tokenKey: tk,
+          if (lastEventId.isNotEmpty) 'Last-Event-ID': lastEventId,
+        },
+      ),
+    );
+    final status = resp.statusCode;
+    final contentType = resp.headers.value(Headers.contentTypeHeader) ?? '';
+    final body = resp.data;
+    if (status != 200 ||
+        body == null ||
+        !contentType.contains('text/event-stream')) {
+      throw CsSseOpenException(status ?? 0, contentType);
+    }
+    return body.stream;
   }
 
   // rating 面是访客侧动作（/api/v1/cs/sessions/:id/rating = cs_visit 主体）：
