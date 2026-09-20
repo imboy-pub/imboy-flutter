@@ -91,7 +91,7 @@ Future<bool> _boot(WidgetTester tester) async {
     final currentUid = UserRepoLocal.to.currentUid;
     if (currentUid.isNotEmpty && currentUid != _expectedUid) {
       // ignore: avoid_print
-      print('[AT-CP] 清旧会话：\$currentUid → \$_expectedUid，quitLogin');
+      print('[AT-CP] 清旧会话：$currentUid → $_expectedUid，quitLogin');
       await UserRepoLocal.to.quitLogin();
       final navCtx = tester.element(find.byType(Navigator).first);
       GoRouter.of(navCtx).go('/welcome');
