@@ -16,6 +16,7 @@ import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/rsa.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -33,8 +34,10 @@ typedef OlmWrapped = ({int type, String body});
 ///
 /// peerDeviceId → uid/session 的解析由回调实现方（OlmSessionService）负责，本类型
 /// 不引入用户身份映射——crypto payload builder 与 identity/session lookup 解耦。
-typedef OlmWrapFn =
-    Future<OlmWrapped?> Function(String peerDeviceId, String exportedKey);
+typedef OlmWrapFn = Future<OlmWrapped?> Function(
+  String peerDeviceId,
+  String exportedKey,
+);
 
 /// E2EE 会话服务（vodozemac Megolm，C2G 群聊 + C2C 单聊统一走此套件）
 ///
@@ -56,7 +59,7 @@ class GroupSessionService {
 
   static const String _flagKeyPrefix = 'group_e2ee_mode_';
   static const String _inboundKeyPrefix = 'megolm_inbound_';
-  static const String roomKeyAction = 'e2ee_room_key';
+  static const String roomKeyAction = C2SAction.e2eeRoomKey;
 
   /// room key 分发列表条目上限（成员×设备的合理倍数，防超大列表 CPU/内存 DoS）
   static const int _maxRoomKeyEntries = 4096;

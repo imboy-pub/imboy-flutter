@@ -29,6 +29,7 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/service/group_session_service.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
@@ -331,7 +332,7 @@ class ChatNetworkService {
   }) async {
     // 编辑动作携带正文，必须与普通内容消息使用同一套 E2EE 策略。
     // 其它 action（已读、撤回、输入状态、ACK）仍是非内容控制帧。
-    if (action.isNotEmpty && action != 'message_edit') return false;
+    if (action.isNotEmpty && action != C2SAction.messageEdit) return false;
     if (chatType == 'C2G' && await GroupSessionService.to.isGroupE2EE(toId)) {
       return true;
     }
@@ -518,13 +519,13 @@ class ChatNetworkService {
           );
           // 服务端不能解密编辑正文，但需要这个不敏感的路由引用完成
           // 归属/时间窗校验。正文仍在 PFv3 inner payload 内。
-          if (msgAction == 'message_edit') {
+          if (msgAction == C2SAction.messageEdit) {
             final editOf = payload['original_msg_id']?.toString() ?? '';
             if (editOf.isEmpty) {
               throw const E2eeSecurityException('edit_target_missing');
             }
             protectedE2ee['edit_of'] = editOf;
-            protectedE2ee['relay_action'] = 'message_edit';
+            protectedE2ee['relay_action'] = C2SAction.messageEdit;
           }
           msg['e2ee'] = protectedE2ee;
           msg['payload'] = protected['payload'];
@@ -663,7 +664,7 @@ class ChatNetworkService {
     // LT02-SEC-01（AI-ID=B）：与 _shouldEncryptOutbound 同判据（共享门），
     // 但此处是二次复核，不再触发确认弹窗（interactiveConfirm=false）。
     final bool needEncrypt =
-        (action.isEmpty || action == 'message_edit') &&
+        (action.isEmpty || action == C2SAction.messageEdit) &&
         (groupMegolm ||
             await E2EEService.shouldEncryptOutgoingPayload(
               chatType,
@@ -735,7 +736,7 @@ class ChatNetworkService {
     Map<String, dynamic> plaintext,
     String action,
   ) {
-    if (action != 'message_edit') return encrypted;
+    if (action != C2SAction.messageEdit) return encrypted;
     final editOf = plaintext['original_msg_id']?.toString() ?? '';
     if (editOf.isEmpty) {
       throw const E2eeSecurityException('edit_target_missing');
@@ -745,7 +746,7 @@ class ChatNetworkService {
             (encrypted['e2ee'] as Map).cast<String, dynamic>(),
           )
           ..['edit_of'] = editOf
-          ..['relay_action'] = 'message_edit';
+          ..['relay_action'] = C2SAction.messageEdit;
     return {...encrypted, 'e2ee': e2ee};
   }
 
@@ -831,7 +832,7 @@ class ChatNetworkService {
         action: action.isEmpty ? 'message' : action,
         sessionRef: sessionRef,
         createdAtMs: now,
-        outerMetadata: action == 'message_edit'
+        outerMetadata: action == C2SAction.messageEdit
             ? _editOuterMetadata(plaintext)
             : const {},
         persistOutbox: false,
@@ -871,7 +872,7 @@ class ChatNetworkService {
     if (editOf.isEmpty) {
       throw const E2eeSecurityException('edit_target_missing');
     }
-    return {'edit_of': editOf, 'relay_action': 'message_edit'};
+    return {'edit_of': editOf, 'relay_action': C2SAction.messageEdit};
   }
 
   /// 加密已被上游判定为必需时，空结果只能表示竞态或实现错误。
@@ -1045,7 +1046,7 @@ class ChatNetworkService {
       'from': UserRepoLocal.to.currentUid,
       'to': peerId,
       'msg_type': 'custom',
-      'action': 'message_read',
+      'action': C2SAction.messageRead,
       'e2ee': '',
       'payload': {'msg_ids': msgIds, 'read_at': now},
       'created_at': now,

@@ -25,6 +25,7 @@ import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/config/init.dart' show AppInitializer, navigateToSignIn;
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -446,7 +447,8 @@ class MessageService with EventSubscriptionManager {
   }
 
   bool _isEncryptedEditAction(String action, Map<String, dynamic> data) {
-    if (action != 'message_edit' && action != 'message_edit_ack') return false;
+    if (action != C2SAction.messageEdit && action != C2SAction.messageEditAck)
+      return false;
     final e2ee = data['e2ee'];
     if (e2ee is Map) return e2ee.isNotEmpty;
     return e2ee is String && e2ee.isNotEmpty;

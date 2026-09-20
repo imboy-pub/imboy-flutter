@@ -400,6 +400,46 @@ abstract class MessageType {
 }
 
 // ============================================
+// C2S 上行动作类型 (action)
+// ============================================
+
+/// 客户端→服务端 上行 WS 帧的 action 常量
+///
+/// 与后端真源 `imboy_ws_action_registry` 的 ?BUILTIN_ACTIONS 对齐；
+/// 后端契约门（imboy 仓 `make contract-check`）以本类为 App 侧清单
+/// 做单向比对：App 不得声明 registry 之外的 action。
+abstract class C2SAction {
+  /// 消息已读
+  static const String messageRead = 'message_read';
+
+  /// 已读确认
+  static const String messageReadAck = 'message_read_ack';
+
+  /// 消息撤回
+  static const String messageRevoke = 'message_revoke';
+
+  /// 撤回确认
+  static const String messageRevokeAck = 'message_revoke_ack';
+
+  /// 消息编辑
+  static const String messageEdit = 'message_edit';
+
+  /// 编辑确认
+  static const String messageEditAck = 'message_edit_ack';
+
+  /// 输入中状态
+  static const String messageInput = 'message_input';
+
+  /// Megolm 群会话密钥分发帧（服务端不透明中转）
+  static const String e2eeRoomKey = 'e2ee_room_key';
+
+  /// ⚠️ 服务端 registry 未注册（上行恒回 unknown_action）：表情回应的生效
+  /// 通道是 HTTP messaging API（后端 messaging_logic → msg_reaction_logic）。
+  /// 本 WS 通道去留待拍板（契约漂移登记簿 #9），先按现状收编进清单。
+  static const String messageReaction = 'message_reaction';
+}
+
+// ============================================
 // S2C 系统动作类型 (action)
 // ============================================
 

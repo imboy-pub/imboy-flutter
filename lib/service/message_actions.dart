@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:xid/xid.dart';
@@ -81,31 +82,31 @@ class MessageActions {
 
     try {
       switch (action) {
-        case 'message_read':
+        case C2SAction.messageRead:
           await _handleReadAction(data);
           break;
-        case 'message_read_ack':
+        case C2SAction.messageReadAck:
           await _handleReadAckAction(data);
           break;
-        case 'message_reaction':
+        case C2SAction.messageReaction:
           await _handleReactionAction(data);
           break;
-        case 'message_revoke':
+        case C2SAction.messageRevoke:
           await _handleRevokeAction(data, isAck: false);
           break;
-        case 'message_revoke_ack':
+        case C2SAction.messageRevokeAck:
           await _handleRevokeAction(data, isAck: true);
           break;
-        case 'message_edit':
+        case C2SAction.messageEdit:
           await _handleEditAction(data, isAck: false);
           break;
-        case 'message_edit_ack':
+        case C2SAction.messageEditAck:
           await _handleEditAction(data, isAck: true);
           break;
-        case 'message_input':
+        case C2SAction.messageInput:
           await _handleInputAction(data);
           break;
-        case 'e2ee_room_key':
+        case C2SAction.e2eeRoomKey:
           // P0-B B4：Megolm 群会话密钥分发（不渲染、不落聊天库）
           return await GroupSessionService.to.handleRoomKeyMessage(data);
         default:
@@ -379,7 +380,7 @@ class MessageActions {
       'to': fromId,
       // v2.0: 字段提升到顶层
       'msg_type': 'custom',
-      'action': 'message_revoke_ack',
+      'action': C2SAction.messageRevokeAck,
       'e2ee': '',
       'payload': {
         'original_msg_id': originalMsgId,
@@ -530,7 +531,7 @@ class MessageActions {
       'to': fromId,
       // v2.0: 字段提升到顶层
       'msg_type': 'text',
-      'action': 'message_edit_ack',
+      'action': C2SAction.messageEditAck,
       'e2ee': '',
       'payload': {
         'original_msg_id': originalMsgId,
@@ -796,7 +797,7 @@ class MessageActions {
         'to': toUid,
         // v2.0: 字段提升到顶层
         'msg_type': 'custom',
-        'action': 'message_revoke',
+        'action': C2SAction.messageRevoke,
         'e2ee': '',
         'payload': {'original_msg_id': messageId},
       };
@@ -859,7 +860,7 @@ class MessageActions {
             : msg.fromId.toString(),
         // v2.0: 字段提升到顶层
         'msg_type': 'text',
-        'action': 'message_edit',
+        'action': C2SAction.messageEdit,
         'e2ee': '',
         'payload': {'original_msg_id': messageId, 'content': newContent},
       };
@@ -893,9 +894,8 @@ class MessageActions {
       final now = DateTime.fromMillisecondsSinceEpoch(
         DateTimeHelper.millisecond(),
       );
-      final ok = _toDomainMessage(
-        msg,
-      ).canRevoke(currentUid: _currentUserId(), now: now);
+      final ok = _toDomainMessage(msg)
+          .canRevoke(currentUid: _currentUserId(), now: now);
       if (!ok) {
         iPrint('❌ 消息不满足撤回条件: messageId=${msg.id}, status=${msg.status}');
       }
@@ -916,9 +916,8 @@ class MessageActions {
       final now = DateTime.fromMillisecondsSinceEpoch(
         DateTimeHelper.millisecond(),
       );
-      final ok = _toDomainMessage(
-        msg,
-      ).canEdit(currentUid: _currentUserId(), now: now);
+      final ok = _toDomainMessage(msg)
+          .canEdit(currentUid: _currentUserId(), now: now);
       if (!ok) {
         iPrint('❌ 消息不满足编辑条件: messageId=${msg.id}, status=${msg.status}');
       }
@@ -1030,7 +1029,7 @@ class MessageActions {
         'from': currentUid,
         'to': toId,
         'msg_type': 'custom',
-        'action': 'message_input',
+        'action': C2SAction.messageInput,
         'e2ee': '',
         'payload': {'status': statusStr},
       };

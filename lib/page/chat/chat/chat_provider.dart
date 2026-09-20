@@ -43,6 +43,7 @@ import 'package:imboy/page/chat/chat/providers/chat_audio_handler.dart';
 import 'package:imboy/page/chat/chat/chat_state.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/message_type_constants.dart';
 export 'package:imboy/page/chat/chat/chat_state.dart' show ChatState;
 
 part 'chat_provider.g.dart';
@@ -685,9 +686,8 @@ class ChatNotifier extends _$ChatNotifier {
   }) async {
     try {
       final String tb = MessageRepo.getTableName(conversation.type);
-      final List<MessageModel> items = await MessageRepo(
-        tableName: tb,
-      ).page(page: 1, size: scanLimit, conversationUk3: conversation.uk3);
+      final List<MessageModel> items = await MessageRepo(tableName: tb)
+          .page(page: 1, size: scanLimit, conversationUk3: conversation.uk3);
       if (items.isEmpty) return;
 
       final int nowMs = DateTimeHelper.millisecond();
@@ -879,7 +879,7 @@ class ChatNotifier extends _$ChatNotifier {
         'from': currentUid,
         'to': peerId,
         'msg_type': 'custom',
-        'action': 'message_reaction',
+        'action': C2SAction.messageReaction,
         'e2ee': '',
         'payload': {
           'original_msg_id': messageId,

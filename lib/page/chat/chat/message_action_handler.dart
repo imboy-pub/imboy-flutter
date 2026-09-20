@@ -183,7 +183,7 @@ class MessageActionHandler {
       'to': msg.metadata?['peer_id'],
       // v2.0: 字段提升到顶层
       'msg_type': 'custom',
-      'action': 'message_revoke',
+      'action': C2SAction.messageRevoke,
       'e2ee': '',
       'payload': {'original_msg_id': msg.id},
       'created_at': DateTimeHelper.millisecond(),
