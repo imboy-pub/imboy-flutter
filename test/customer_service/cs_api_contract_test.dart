@@ -500,7 +500,9 @@ void main() {
         '7266418340025468901',
         '7266418340025468950',
         '7266418340025468960',
-        recipientRef: 'seat:7266418340025468902',
+        // APP-M02-A01：recipient_ref 恒为 identity:<business_identity_id>
+        //（`seat:` 前缀=后端 400 契约，客户端绝不产生——本用例钉唯一合法形状）。
+        recipientRef: 'identity:7266418340025468902',
       );
 
       final req = adapter.requests.single;
@@ -512,7 +514,7 @@ void main() {
       );
       final body = Map<String, dynamic>.from(req.$3 as Map);
       expect(body.keys.toSet(), {'recipient_ref'});
-      expect(body['recipient_ref'], 'seat:7266418340025468902');
+      expect(body['recipient_ref'], 'identity:7266418340025468902');
     });
 
     test('错误映射：401/403/409 镜像 EnterpriseApiException 判定属性', () async {

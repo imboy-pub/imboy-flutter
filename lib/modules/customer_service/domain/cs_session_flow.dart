@@ -181,6 +181,10 @@ class CsSessionFlow {
 
   /// delivery ACK：只确认投递；本地只置标记（withDelivered 副本），
   /// 消息本体保留在 [messages] 与 store（真源不删）。
+  ///
+  /// APP-M02-A01：recipient_ref 恒为 `identity:<business_identity_id>`
+  /// （服务端 ACK 面唯一合法形状；`seat:` 前缀为后端 400 契约，客户端
+  /// 绝不产生）。只写 delivery，不删真源。
   Future<void> _ackInbound(List<EnterpriseMessage> fresh) async {
     final undelivered = fresh
         .where((m) => !m.delivered)
@@ -192,7 +196,7 @@ class CsSessionFlow {
         orgId,
         conversationId,
         mid,
-        recipientRef: 'seat:$identityId',
+        recipientRef: 'identity:$identityId',
       );
     }
     await _store.markDelivered(orgId, conversationId, undelivered);

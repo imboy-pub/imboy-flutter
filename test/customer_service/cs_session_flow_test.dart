@@ -241,13 +241,14 @@ void main() {
 
       await flow.loadIncremental();
 
-      // ACK 已发（EB ack 路径）
+      // ACK 已发（EB ack 路径）；recipient_ref 恒为 identity: 前缀
+      //（APP-M02-A01：服务端唯一合法形状，`seat:` 前缀=后端 400 契约）
       final acks = adapter.requests
           .where((r) => r.$2.contains('/ack'))
           .toList();
       expect(acks, hasLength(1));
       final ackBody = Map<String, dynamic>.from(acks.single.$3 as Map);
-      expect(ackBody['recipient_ref'], 'seat:7266418340025468902');
+      expect(ackBody['recipient_ref'], 'identity:7266418340025468902');
 
       // 本地：标记置位但消息保留（delivery-only，不删真源）
       expect(flow.messages, hasLength(1));
