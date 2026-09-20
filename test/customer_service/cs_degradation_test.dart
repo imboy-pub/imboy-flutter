@@ -144,7 +144,7 @@ void main() {
         final store = EnterpriseMemoryStore();
         final adapter = _SeqAdapter([
           (
-            '/cs/sessions/$sessionId',
+            '/sessions/$sessionId',
             [
               (403, {'code': 403, 'msg': 'forbidden'}),
             ],
@@ -267,7 +267,7 @@ void main() {
 
       // A 视角：detail(active v5, assignee=A) + 历史 2 条 + transfer 成功
       final adapterA = _SeqAdapter([
-        ('/cs/sessions/$sessionId', [(200, _detailBody('active', 5))]),
+        ('/sessions/$sessionId', [(200, _detailBody('active', 5))]),
         (
           '/conversations/$conversationId/messages',
           [
@@ -296,7 +296,7 @@ void main() {
       // 历史仍是同样两条（服务端不重写 sender/actor）
       final adapterB = _SeqAdapter([
         (
-          '/cs/sessions/$sessionId',
+          '/sessions/$sessionId',
           [(200, _detailBody('active', 6, assignee: seatB))],
         ),
         (
@@ -348,7 +348,7 @@ void main() {
     test('全链路操作后本地缓存键全部 enterprise_ 前缀（APP-A02）', () async {
       final store = EnterpriseMemoryStore();
       final adapter = _SeqAdapter([
-        ('/cs/sessions/$sessionId', [(200, _detailBody('active', 5))]),
+        ('/sessions/$sessionId', [(200, _detailBody('active', 5))]),
         (
           '/conversations/$conversationId/messages',
           [

@@ -1,20 +1,24 @@
-/// CSM-01（§12.5.1）— 客服工作台入口可见性判定单测
+/// CSM-01（§12.5.1）+ APP-M01-A01 — 客服工作台入口可见性判定单测
 ///
-/// 四态覆盖：
+/// 四态覆盖（csWorkspaceEntryVisible 纯函数与集）：
 /// 1. 合格坐席（active member + active customer_service assignment +
 ///    enabled seat）→ 可见；
 /// 2. 普通用户（无 customer_service 职能 assignment）→ 不可见；
 /// 3. disabled seat（席位停用）→ 不可见；
 /// 4. 错 function（active assignment 但职能是 sales）→ 不可见。
 ///
-/// 判定为纯 Dart（cs_seat_gate.dart），另覆盖掩码名纯函数与
-/// csSeatGateFromUserData 组装（含 suspend/removed 组织降级）。
+/// APP-M01-A01：入口判定数据源切换为 seat-contexts 权威聚合——
+/// `csEntryVisibleFromContexts`（任一「active assignment + enabled seat」
+/// 上下文即可见；空/全 disabled/全缺 assignment → fail-closed 不可见），
+/// 替代旧「首个 Org 的 enterprise 身份列表近似推断」组装
+///（csSeatGateFromUserData 已随入口改造移除）。
+///
+/// 判定为纯 Dart（cs_seat_gate.dart），另覆盖掩码名纯函数。
 library;
 
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/modules/customer_service/public.dart';
-import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 
 CsSeatGateInput _input({
   String memberStatus = 'active',
@@ -75,73 +79,47 @@ void main() {
     });
   });
 
-  group('CSM-01 会话内用户域数据组装（csSeatGateFromUserData）', () {
-    EnterpriseOrg orgWith(String status) => EnterpriseOrg(
-      id: '7266418340025468901',
-      name: 'Acme',
-      memberStatus: EnterpriseMemberStatus.parse(status),
-    );
-
-    BusinessIdentity identity(String fn, String status) => BusinessIdentity(
-      id: '7266418340025468902',
-      organizationId: '7266418340025468901',
-      functionKey: fn,
-      status: status,
-    );
-
-    test('合格坐席：可见', () {
+  group('APP-M01-A01 seat-contexts 组装（csEntryVisibleFromContexts）', () {
+    test('合格坐席：active assignment + enabled seat → 可见', () {
       expect(
-        csSeatGateFromUserData(
-          org: orgWith('active'),
-          identities: [identity(kCsFunctionKey, 'active')],
-        ),
+        csEntryVisibleFromContexts([_FakeContext(eligible: true)]),
         isTrue,
       );
     });
 
-    test('普通用户：无组织 / 无 cs assignment → 不可见', () {
-      expect(csSeatGateFromUserData(org: null, identities: const []), isFalse);
+    test('普通用户：无 assignment（identity 缺失）→ 不可见', () {
       expect(
-        csSeatGateFromUserData(
-          org: orgWith('active'),
-          identities: [identity('sales', 'active')],
-        ),
+        csEntryVisibleFromContexts([_FakeContext(identityId: '')]),
         isFalse,
       );
     });
 
     test('disabled seat：seatEnabled=false → 不可见', () {
       expect(
-        csSeatGateFromUserData(
-          org: orgWith('active'),
-          identities: [identity(kCsFunctionKey, 'active')],
-          seatEnabled: false,
-        ),
+        csEntryVisibleFromContexts([_FakeContext(seatEnabled: false)]),
         isFalse,
       );
     });
 
-    test('组织 suspend/removed：member 非 active → 不可见（降级）', () {
-      for (final status in ['suspended', 'removed']) {
-        expect(
-          csSeatGateFromUserData(
-            org: orgWith(status),
-            identities: [identity(kCsFunctionKey, 'active')],
-          ),
-          isFalse,
-          reason: 'memberStatus=$status 应不可见',
-        );
-      }
-    });
-
-    test('assignment 停用（status != active）→ 不可见', () {
+    test('多 Org：任一上下文合格即可见（不固定首个 Org）', () {
       expect(
-        csSeatGateFromUserData(
-          org: orgWith('active'),
-          identities: [identity(kCsFunctionKey, 'disabled')],
-        ),
-        isFalse,
+        csEntryVisibleFromContexts([
+          _FakeContext(eligible: false),
+          _FakeContext(eligible: true),
+        ]),
+        isTrue,
       );
+      expect(
+        csEntryVisibleFromContexts([
+          _FakeContext(eligible: true),
+          _FakeContext(eligible: false),
+        ]),
+        isTrue,
+      );
+    });
+
+    test('空上下文列表（无 active member Org / 请求失败兜底）→ 不可见', () {
+      expect(csEntryVisibleFromContexts(const []), isFalse);
     });
   });
 
@@ -157,4 +135,16 @@ void main() {
       expect(csMaskContactName('张'), '张*');
     });
   });
+}
+
+/// csEntryVisibleFromContexts 的最小结构桩（CsSeatContextLike）。
+class _FakeContext implements CsSeatContextLike {
+  @override
+  final bool isEligible;
+
+  _FakeContext({
+    bool eligible = true,
+    String identityId = 'identity',
+    bool seatEnabled = true,
+  }) : isEligible = eligible && identityId.isNotEmpty && seatEnabled;
 }

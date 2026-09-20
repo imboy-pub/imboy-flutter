@@ -1,15 +1,20 @@
-/// 客服（坐席侧）API 客户端（amendment §2.4 / plan §5.2 客服 API）
+/// 客服（坐席侧）API 客户端（amendment §2.4 / plan §5.2 + T-2 裁定）
 ///
-/// 契约：plan §5.2 保留 V3 的 session/claim/transfer/close/rating 能力，
-/// 但 V3 具体路径不在冻结件中（契约疑问已在 A4 报告登记）。本客户端按
-/// 最小形状实现：`/api/v1/cs/sessions/...`，路径参数为 session id，动作
-/// 全部为 POST（claim/transfer/close/rating）。
+/// 契约（api-surface-freeze API-SURFACE-FREEZE-V1，权威）：坐席端点全部
+/// **org 作用域**——路径显式携带 organization_id，服务端逐字校验
+/// path org == session.org == 坐席 active member org（客户端申报值只作
+/// 逐字比对，不是授权事实）：
+/// - `GET /api/v1/cs/me/seat-contexts`（唯一主体作用域端点，无 org 键）；
+/// - `GET /api/v1/cs/organizations/:org_id/sessions/queue`（queued 视图）；
+/// - `GET /api/v1/cs/organizations/:org_id/seats/sessions?status=active|closed`
+///   （active/closed 视图；status 必填且仅接受这两值）；
+/// - `GET /api/v1/cs/organizations/:org_id/sessions/:id`（会话详情）；
+/// - `GET /api/v1/cs/organizations/:org_id/transfer-targets`（同 Org 坐席
+///   最小投影；无 owner/admin 权限要求）；
+/// - `POST .../sessions/:id/claim|transfer|close`（CAS 动作，org 在路径）。
 ///
-/// §12.5.1（CSM-01）补充：queue 列表键集分页（`after_id`/`limit`，键名与
-/// A0 冻结的 `conversation_messages`/`seats` 分页一致）与 CAS 接单
-/// （claim 携带 `expected_version`，A0 冻结参数表 cs_actions:session_claim
-/// required）。409 = 并发/状态竞争（CAS 冲突 / offboarding 降级），客户端
-/// 不做乐观伪成功：冲突时刷新真实状态再提示。
+/// 列表统一键集分页（`after_id`/`limit`）+ 服务端计数（`total` /
+/// `total_by_status`，缺省 null——客户端禁止本地推断计数）。
 ///
 /// 错误映射：401 未授权 / 403 被拒绝（含被 suspend 后的 claim 等写操作）
 /// / 409 冲突或 offboarding_required；镜像 [EnterpriseApiException] 判定属性。
@@ -19,6 +24,7 @@ import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -77,6 +83,10 @@ class CsQueueItem {
   final String organizationId;
   final String conversationId;
 
+  /// 经办坐席业务身份（服务端投影 `business_identity_id`；queued 视图
+  /// 接单前可能为空——claim 回显 / detail 回显为准）。
+  final String assigneeIdentityId;
+
   const CsQueueItem({
     required this.sessionId,
     required this.contactId,
@@ -88,6 +98,7 @@ class CsQueueItem {
     this.hasLastMessage = false,
     this.organizationId = '',
     this.conversationId = '',
+    this.assigneeIdentityId = '',
   });
 
   factory CsQueueItem.fromJson(Map<String, dynamic> json) {
@@ -110,6 +121,7 @@ class CsQueueItem {
           lastMessage is Map && entityIdOf(lastMessage['id']).isNotEmpty,
       organizationId: entityIdOf(json['organization_id']),
       conversationId: entityIdOf(json['conversation_id']),
+      assigneeIdentityId: entityIdOf(json['business_identity_id']),
     );
   }
 }
@@ -266,41 +278,215 @@ class CsSessionDetail {
   }
 }
 
+/// 坐席上下文内的 Workspace 引用（BE-S01a 投影 `#{id, name}`）。
+class CsSeatWorkspaceRef {
+  final String id;
+  final String name;
+
+  const CsSeatWorkspaceRef({required this.id, this.name = ''});
+}
+
+/// 坐席上下文（BE-S01a：GET /api/v1/cs/me/seat-contexts 每 Org 一行）。
+///
+/// 服务端已按四张事实表聚合过滤（active member + active workspace +
+/// active customer_service assignment + seat），但**行内仍以字段为准**：
+/// `businessIdentityId` 非空 = active assignment；`seatEnabled` = enabled
+/// seat。两者同时成立才是可用坐席上下文（入口/组织选择器唯一口径）。
+class CsSeatContext implements CsSeatContextLike {
+  final String organizationId;
+  final String organizationName;
+  final List<CsSeatWorkspaceRef> workspaces;
+
+  /// 服务端派生的经办业务身份（客户端不可自报；claim/detail 以服务端
+  /// 回显为准）。
+  final String businessIdentityId;
+  final bool seatEnabled;
+  final List<String> capabilities;
+
+  const CsSeatContext({
+    required this.organizationId,
+    this.organizationName = '',
+    this.workspaces = const <CsSeatWorkspaceRef>[],
+    this.businessIdentityId = '',
+    this.seatEnabled = false,
+    this.capabilities = const <String>[],
+  });
+
+  /// 可用坐席上下文：active assignment（身份非空）+ enabled seat 同时成立。
+  @override
+  bool get isEligible => seatEnabled && businessIdentityId.isNotEmpty;
+
+  factory CsSeatContext.fromJson(dynamic raw) {
+    final map = raw is Map ? raw : const <String, dynamic>{};
+    final workspacesRaw = map['workspaces'];
+    final workspaces = workspacesRaw is List
+        ? workspacesRaw
+              .whereType<Map<dynamic, dynamic>>()
+              .map(
+                (m) => CsSeatWorkspaceRef(
+                  id: entityIdOf(m['id']),
+                  name: parseModelString(m['name']),
+                ),
+              )
+              .toList(growable: false)
+        : const <CsSeatWorkspaceRef>[];
+    final capabilitiesRaw = map['capabilities'];
+    final capabilities = capabilitiesRaw is List
+        ? capabilitiesRaw.map(parseModelString).toList(growable: false)
+        : const <String>[];
+    return CsSeatContext(
+      organizationId: entityIdOf(map['organization_id']),
+      organizationName: parseModelString(map['organization_name']),
+      workspaces: workspaces,
+      businessIdentityId: entityIdOf(map['business_identity_id']),
+      seatEnabled: map['seat_enabled'] == true,
+      capabilities: capabilities,
+    );
+  }
+}
+
+/// seat-contexts 响应（`{contexts: [...], user_id}`）。
+class CsSeatContexts {
+  final List<CsSeatContext> contexts;
+  final String userId;
+
+  const CsSeatContexts({required this.contexts, this.userId = ''});
+
+  factory CsSeatContexts.fromJson(dynamic payload) {
+    final map = payload is Map ? payload : const <String, dynamic>{};
+    final raw = map['contexts'];
+    final contexts = raw is List
+        ? raw.map(CsSeatContext.fromJson).toList(growable: false)
+        : const <CsSeatContext>[];
+    return CsSeatContexts(
+      contexts: contexts,
+      userId: entityIdOf(map['user_id']),
+    );
+  }
+}
+
+/// 转接目标（BE-S01a：GET .../transfer-targets 行投影）。
+///
+/// 服务端已排除调用者本人（认证派生 business_identity_id）；
+/// `available` = active 会话数未达 max_concurrent（store 同语句计数）。
+class CsTransferTarget {
+  final String identityId;
+  final String displayName;
+  final bool available;
+
+  const CsTransferTarget({
+    required this.identityId,
+    this.displayName = '',
+    this.available = false,
+  });
+
+  factory CsTransferTarget.fromJson(dynamic raw) {
+    final map = raw is Map ? raw : const <String, dynamic>{};
+    return CsTransferTarget(
+      identityId: entityIdOf(map['business_identity_id']),
+      displayName: parseModelString(map['display_name']),
+      available: map['available'] == true,
+    );
+  }
+}
+
+/// transfer-targets 页（键集分页；列表键 `targets`）。
+class CsTransferTargetPage {
+  final List<CsTransferTarget> items;
+
+  /// 下一页游标；空 = 无更多页。
+  final String nextAfterId;
+
+  const CsTransferTargetPage({required this.items, this.nextAfterId = ''});
+
+  bool get hasMore => nextAfterId.isNotEmpty;
+
+  factory CsTransferTargetPage.fromJson(dynamic payload) {
+    final map = payload is Map ? payload : const <String, dynamic>{};
+    final raw = map['targets'];
+    final items = raw is List
+        ? raw.map(CsTransferTarget.fromJson).toList(growable: false)
+        : const <CsTransferTarget>[];
+    final nextRaw = map['next_after_id'];
+    return CsTransferTargetPage(
+      items: items,
+      nextAfterId: nextRaw == null ? '' : nextRaw.toString(),
+    );
+  }
+}
+
 /// 客服（坐席侧）API 客户端。
 class CsApi extends HttpClient {
-  /// 排队会话列表（W2 冻结形状：GET、无 query 参数；返回条目列表）。
-  Future<List<CsQueueItem>> queue() async {
-    final resp = await get('/api/v1/cs/sessions/queue');
+  /// 坐席上下文清单（主体作用域，无 org 键；api-surface-freeze 坐席面入口）：
+  /// GET /api/v1/cs/me/seat-contexts。一次返回当前用户全部 active member
+  /// Org 的坐席事实（workspace / active customer_service identity /
+  /// seat enabled / capabilities）。入口与组织选择器以此为准，客户端
+  /// 不手填 TSID、不猜测 Org。
+  Future<CsSeatContexts> seatContexts() async {
+    final resp = await get('/api/v1/cs/me/seat-contexts');
     _ensureOk(resp);
-    return CsQueuePage.fromJson(resp.payload).items;
+    return CsSeatContexts.fromJson(resp.payload);
   }
 
-  /// 排队会话列表（键集分页，§12.5.1）：GET 同路径，query 仅携带非空
-  /// `after_id`/`limit`（A0 冻结分页键名；`after_id` 为上一页末条
-  /// session id，`limit` 每页条数）。返回 [CsQueuePage]（列表 + 游标 +
-  /// 服务端计数元数据）。
-  Future<CsQueuePage> queuePage({String? afterId, int? limit}) async {
+  /// 坐席排队会话列表（queued 视图；T-2 后 org 显式在路径）：
+  /// GET /api/v1/cs/organizations/:org_id/sessions/queue，
+  /// query 仅携带非空 `after_id`/`limit`（A0 冻结分页键名）。返回
+  /// [CsQueuePage]（列表 + 游标 + 服务端计数元数据）。
+  Future<CsQueuePage> queuePage(
+    String orgId, {
+    String? afterId,
+    int? limit,
+  }) async {
     final query = <String, dynamic>{
       if (afterId != null && afterId.isNotEmpty) 'after_id': afterId,
       if (limit != null && limit > 0) 'limit': limit,
     };
-    final resp = await get('/api/v1/cs/sessions/queue', queryParameters: query);
+    final resp = await get(
+      '/api/v1/cs/organizations/$orgId/sessions/queue',
+      queryParameters: query,
+    );
     _ensureOk(resp);
     return CsQueuePage.fromJson(resp.payload);
   }
 
-  /// claim：坐席接单（CAS，§12.5.1）。
+  /// 坐席 active/closed 两视图（CSB-02R）：GET
+  /// /api/v1/cs/organizations/:org_id/seats/sessions。
+  ///
+  /// `status` 必填且仅接受 `active`/`closed`（queued 视图冻结在
+  /// sessions/queue，服务端显式拒绝其他值）；分页与计数口径同
+  /// [queuePage]。返回与队列同形的 [CsQueuePage]。
+  Future<CsQueuePage> seatSessionsPage(
+    String orgId, {
+    required String status,
+    String? afterId,
+    int? limit,
+  }) async {
+    final query = <String, dynamic>{
+      'status': status,
+      if (afterId != null && afterId.isNotEmpty) 'after_id': afterId,
+      if (limit != null && limit > 0) 'limit': limit,
+    };
+    final resp = await get(
+      '/api/v1/cs/organizations/$orgId/seats/sessions',
+      queryParameters: query,
+    );
+    _ensureOk(resp);
+    return CsQueuePage.fromJson(resp.payload);
+  }
+
+  /// claim：坐席接单（CAS，§12.5.1；T-2 后 org 显式在路径）。
   ///
   /// `expectedVersion` 为接单前从 queue 详情读到的会话 [CsQueueItem.version]；
   /// 服务端 A0 冻结参数表要求必填。并发竞争（他坐席先接 / 状态已推进）返回
   /// 409（[CsApiException.isConflict]），调用方必须刷新真实状态后提示，
   /// 不得做乐观伪成功。
   Future<CsClaimResult> claim(
+    String orgId,
     String sessionId, {
     required int expectedVersion,
   }) async {
     final resp = await post(
-      '/api/v1/cs/sessions/$sessionId/claim',
+      '/api/v1/cs/organizations/$orgId/sessions/$sessionId/claim',
       data: {'expected_version': expectedVersion},
     );
     _ensureOk(resp);
@@ -313,12 +499,13 @@ class CsApi extends HttpClient {
   /// 与 `expected_version`（int）均必填。并发/状态竞争 409（[CsApiException.isConflict]），
   /// 调用方刷新真实状态后提示，不做乐观伪成功。
   Future<void> transfer(
+    String orgId,
     String sessionId, {
     required String toIdentityId,
     required int expectedVersion,
   }) async {
     final resp = await post(
-      '/api/v1/cs/sessions/$sessionId/transfer',
+      '/api/v1/cs/organizations/$orgId/sessions/$sessionId/transfer',
       data: {
         'to_identity_id': toIdentityId,
         'expected_version': expectedVersion,
@@ -332,12 +519,13 @@ class CsApi extends HttpClient {
   /// A0 冻结参数表（cs_actions:session_close）：`expected_version` 必填、
   /// `reason` 可选（审计文本，调用方先经 [csSanitizeCloseReason] 白名单清洗）。
   Future<void> close(
+    String orgId,
     String sessionId, {
     required int expectedVersion,
     String? reason,
   }) async {
     final resp = await post(
-      '/api/v1/cs/sessions/$sessionId/close',
+      '/api/v1/cs/organizations/$orgId/sessions/$sessionId/close',
       data: {
         'expected_version': expectedVersion,
         if (reason != null && reason.isNotEmpty) 'reason': reason,
@@ -346,14 +534,39 @@ class CsApi extends HttpClient {
     _ensureOk(resp);
   }
 
-  /// 坐席会话详情（CSB-03）：GET /api/v1/cs/sessions/:id。
+  /// 坐席会话详情（CSB-03）：GET /api/v1/cs/organizations/:org_id/sessions/:id。
   ///
-  /// 用途：claim/transfer/close 冲突后刷新真实状态、close 后回显 rating
-  /// 状态（坐席端只展示评分状态，不代访客评分）。
-  Future<CsSessionDetail> sessionDetail(String sessionId) async {
-    final resp = await get('/api/v1/cs/sessions/$sessionId');
+  /// 用途：打开会话页的**权威** identity/conversation 事实源（路由 query
+  /// 只是展示种子，不作授权事实）、claim/transfer/close 冲突后刷新真实
+  /// 状态、close 后回显 rating 状态（坐席端只展示评分状态，不代访客评分）。
+  Future<CsSessionDetail> sessionDetail(String orgId, String sessionId) async {
+    final resp = await get(
+      '/api/v1/cs/organizations/$orgId/sessions/$sessionId',
+    );
     _ensureOk(resp);
     return CsSessionDetail.fromJson(resp.payload);
+  }
+
+  /// 转接目标最小投影（BE-S01a）：GET
+  /// /api/v1/cs/organizations/:org_id/transfer-targets。
+  ///
+  /// 同 Org 其他可用坐席（identity id / 显示名 / available），服务端已排除
+  /// 调用者本人；无 owner/admin 权限要求——**不复用**治理 identity 列表。
+  Future<CsTransferTargetPage> transferTargets(
+    String orgId, {
+    String? afterId,
+    int? limit,
+  }) async {
+    final query = <String, dynamic>{
+      if (afterId != null && afterId.isNotEmpty) 'after_id': afterId,
+      if (limit != null && limit > 0) 'limit': limit,
+    };
+    final resp = await get(
+      '/api/v1/cs/organizations/$orgId/transfer-targets',
+      queryParameters: query,
+    );
+    _ensureOk(resp);
+    return CsTransferTargetPage.fromJson(resp.payload);
   }
 
   /// 坐席侧企业消息历史（A0 冻结读路径）：GET
@@ -473,18 +686,9 @@ class CsApi extends HttpClient {
     return enterpriseApi.confirmAsset(orgId, presign.assetId);
   }
 
-  /// rating：会话评分（1..5，CAS——expected_version 取自会话视图 version）。
-  Future<void> rate(
-    String sessionId, {
-    required int rating,
-    required int expectedVersion,
-  }) async {
-    final resp = await post(
-      '/api/v1/cs/sessions/$sessionId/rating',
-      data: {'rating': rating, 'expected_version': expectedVersion},
-    );
-    _ensureOk(resp);
-  }
+  // rating 面是访客侧动作（/api/v1/cs/sessions/:id/rating = cs_visit 主体）：
+  // 坐席端只展示评分状态（sessionDetail.rating），不代访客评分——CsApi
+  // 无评分提交面（compile-time 事实，契约测试钉住）。
 
   void _ensureOk(IMBoyHttpResponse resp) {
     if (!resp.ok) {

@@ -4761,6 +4761,15 @@ class Translations$customerService$zh_CN {
 	/// zh-CN: '--'
 	String get countUnavailable => '--';
 
+	/// zh-CN: '组织'
+	String get orgSelectorLabel => '组织';
+
+	/// zh-CN: '暂无可用坐席席位'
+	String get noSeatTitle => '暂无可用坐席席位';
+
+	/// zh-CN: '你还没有启用中的客服坐席席位，请联系组织管理员开通'
+	String get noSeatHint => '你还没有启用中的客服坐席席位，请联系组织管理员开通';
+
 	/// zh-CN: '刚刚'
 	String get waitingJustNow => '刚刚';
 
@@ -4818,8 +4827,8 @@ class Translations$customerService$zh_CN {
 	/// zh-CN: '暂无已关闭会话'
 	String get closedEmptyTitle => '暂无已关闭会话';
 
-	/// zh-CN: '历史会话归档将在后续版本提供'
-	String get closedEmptyHint => '历史会话归档将在后续版本提供';
+	/// zh-CN: '已关闭的会话会归档显示在这里'
+	String get closedEmptyHint => '已关闭的会话会归档显示在这里';
 
 	/// zh-CN: '加载失败'
 	String get loadFailedTitle => '加载失败';
@@ -4862,6 +4871,12 @@ class Translations$customerService$zh_CN {
 
 	/// zh-CN: '暂无可转接的同组织客服坐席'
 	String get transferEmpty => '暂无可转接的同组织客服坐席';
+
+	/// zh-CN: '可转接'
+	String get targetAvailable => '可转接';
+
+	/// zh-CN: '繁忙'
+	String get targetBusy => '繁忙';
 
 	/// zh-CN: '确认转接'
 	String get transferConfirmTitle => '确认转接';
@@ -9106,11 +9121,14 @@ extension on Translations {
 			'customerService.tabActive' => '处理中',
 			'customerService.tabClosed' => '已关闭',
 			'customerService.countUnavailable' => '--',
+			'customerService.orgSelectorLabel' => '组织',
+			'customerService.noSeatTitle' => '暂无可用坐席席位',
+			'customerService.noSeatHint' => '你还没有启用中的客服坐席席位，请联系组织管理员开通',
+			_ => null,
+		} ?? switch (path) {
 			'customerService.waitingJustNow' => '刚刚',
 			'customerService.waitingMinutes' => ({required Object n}) => '${n} 分钟',
 			'customerService.waitingHoursMinutes' => ({required Object h, required Object m}) => '${h} 小时 ${m} 分',
-			_ => null,
-		} ?? switch (path) {
 			'customerService.waitingDaysHours' => ({required Object d, required Object h}) => '${d} 天 ${h} 小时',
 			'customerService.sourceLabel' => '来源',
 			'customerService.queuedEmptyTitle' => '暂无待接会话',
@@ -9127,7 +9145,7 @@ extension on Translations {
 			'customerService.activeEmptyTitle' => '暂无处理中会话',
 			'customerService.activeEmptyHint' => '从待接列表接单后，会话会显示在这里',
 			'customerService.closedEmptyTitle' => '暂无已关闭会话',
-			'customerService.closedEmptyHint' => '历史会话归档将在后续版本提供',
+			'customerService.closedEmptyHint' => '已关闭的会话会归档显示在这里',
 			'customerService.loadFailedTitle' => '加载失败',
 			'customerService.offlineHint' => '网络不可用，请检查网络后重试',
 			'customerService.seatSuspendedNotice' => '坐席已被暂停，队列仅可查看',
@@ -9142,6 +9160,8 @@ extension on Translations {
 			'customerService.transferAction' => '转接',
 			'customerService.transferTitle' => '转接给同组织坐席',
 			'customerService.transferEmpty' => '暂无可转接的同组织客服坐席',
+			'customerService.targetAvailable' => '可转接',
+			'customerService.targetBusy' => '繁忙',
 			'customerService.transferConfirmTitle' => '确认转接',
 			'customerService.transferConfirmBody' => ({required Object name}) => '将当前会话转交给 ${name}？转接后你将不再经办此会话。',
 			'customerService.transferSuccess' => '转接成功',
@@ -9618,13 +9638,13 @@ extension on Translations {
 			'organization.detail.invitationManage' => '邀请管理',
 			'organization.detail.invitationManageRestricted' => '邀请管理（仅 owner/admin 可管理）',
 			'organization.detail.deptEntry' => '部门目录',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.deptEntryRestricted' => '部门目录（管理操作仅限授权者）',
 			'organization.detail.more' => '更多',
 			'organization.detail.archiveEntrySubtitle' => '进入只读态；可随时恢复',
 			'organization.detail.restoreEntrySubtitle' => '回到 active 态',
 			'organization.members.title' => '成员',
-			_ => null,
-		} ?? switch (path) {
 			'organization.members.loadMoreFailed' => ({required Object err}) => '加载更多失败：${err}',
 			'organization.members.changeRole' => '变更角色',
 			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => '将「${name}」的角色由 ${from} 调整为 ${to}。',

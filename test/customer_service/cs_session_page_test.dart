@@ -152,7 +152,7 @@ void main() {
 
   testWidgets('正常态：detail + 历史 → 消息渲染、输入可用', (tester) async {
     final adapter = _SeqAdapter([
-      ('/cs/sessions/$sessionId', [(200, _detailOk)]),
+      ('/sessions/$sessionId', [(200, _detailOk)]),
       ('/conversations/7266418340025468950/messages', [(200, _historyOk)]),
     ]);
 
@@ -167,7 +167,7 @@ void main() {
 
   testWidgets('发送遇 403 → explainKey 只读条 + 输入禁用（清写入口）', (tester) async {
     final adapter = _SeqAdapter([
-      ('/cs/sessions/$sessionId', [(200, _detailOk)]),
+      ('/sessions/$sessionId', [(200, _detailOk)]),
       // 同片段按序消费：第 1 次 = bootstrap GET（历史）；第 2 次 = send
       // POST 被 suspend 拒绝（seat disabled / member suspended /
       // assignment ended / removed 的统一 HTTP 表现）
@@ -211,7 +211,7 @@ void main() {
 
   testWidgets('关闭成功 → 输入禁用 + 评分等待横幅（不代访客评分）', (tester) async {
     final adapter = _SeqAdapter([
-      ('/cs/sessions/$sessionId', [(200, _detailOk)]),
+      ('/sessions/$sessionId', [(200, _detailOk)]),
       ('/conversations/7266418340025468950/messages', [(200, _historyOk)]),
       (
         '/close',

@@ -11,6 +11,10 @@ tabActive: "处理中"
 tabClosed: "已关闭"
 # 服务端未返回计数的徽标占位（不本地推断计数）
 countUnavailable: "--"
+# ==================== 坐席上下文 / 组织选择（seat-contexts 驱动） ====================
+orgSelectorLabel: "组织"
+noSeatTitle: "暂无可用坐席席位"
+noSeatHint: "你还没有启用中的客服坐席席位，请联系组织管理员开通"
 # ==================== 待接列表（键集分页） ====================
 waitingJustNow: "刚刚"
 waitingMinutes: "$n 分钟"
@@ -29,11 +33,11 @@ claimConflict: "该会话已被其他坐席接单或状态已变化，已为你�
 claimOffboardingRequired: "当前处于离职交接，暂时不能接单"
 claimForbidden: "坐席已被暂停，暂不能接单"
 claimFailed: "接单失败，请稍后重试"
-# ==================== 处理中 / 已关闭（本卡无服务端列表源，诚实空态） ====================
+# ==================== 处理中 / 已关闭（服务端 seats/sessions 真实列表） ====================
 activeEmptyTitle: "暂无处理中会话"
 activeEmptyHint: "从待接列表接单后，会话会显示在这里"
 closedEmptyTitle: "暂无已关闭会话"
-closedEmptyHint: "历史会话归档将在后续版本提供"
+closedEmptyHint: "已关闭的会话会归档显示在这里"
 # ==================== 状态（错误 / 离线） ====================
 loadFailedTitle: "加载失败"
 offlineHint: "网络不可用，请检查网络后重试"
@@ -51,6 +55,8 @@ attachPreviewTitle: "附件预览（企业安全通道）"
 transferAction: "转接"
 transferTitle: "转接给同组织坐席"
 transferEmpty: "暂无可转接的同组织客服坐席"
+targetAvailable: "可转接"
+targetBusy: "繁忙"
 transferConfirmTitle: "确认转接"
 transferConfirmBody: "将当前会话转交给 $name？转接后你将不再经办此会话。"
 transferSuccess: "转接成功"
