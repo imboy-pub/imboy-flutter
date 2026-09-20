@@ -80,3 +80,8 @@ readOnlySuspended: "Seat suspended; the channel is read-only and background sync
 offboardingRequired: "Offboarding handover in progress; handling has been handed over and this conversation is read-only"
 closedReadonly: "Conversation closed; content is view-only"
 ratedReadonly: "Conversation rated and finished; content is view-only"
+# ==================== APP-M02 (send/attach failure classes + transfer read-only) ====================
+sendFailed: "Send failed. Please try again later"
+sendConflict: "The session state has changed; the latest state has been refreshed for you"
+attachUploadFailed: "Attachment upload failed. Please retry"
+transferredAway: "This conversation has been transferred to another agent and is read-only for you"

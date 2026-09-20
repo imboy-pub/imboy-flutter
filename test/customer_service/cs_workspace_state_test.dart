@@ -311,9 +311,34 @@ void main() {
       expect(caught, isA<CsApiException>());
       final e = caught as CsApiException;
       expect(e.isConflict, isTrue);
-      expect(e.isOffboardingRequired, isTrue, reason: '409 双通道语义兼容');
+      // APP-M02-A05：普通 409（CAS 竞争）与 offboarding 409 分类分离——
+      // 前者可刷新重试，后者是终态降级；cas_mismatch 不带 offboarding 语义。
+      expect(e.isOffboardingRequired, isFalse, reason: '普通 409 ≠ offboarding');
       expect(e.isForbidden, isFalse);
     });
+
+    test(
+      '409 offboarding_required：isConflict 与 isOffboardingRequired 同时为真',
+      () {
+        final e = CsApiException(409, 'offboarding_required');
+        expect(e.isConflict, isTrue, reason: '同为 409 族');
+        expect(
+          e.isOffboardingRequired,
+          isTrue,
+          reason: 'envelope offboarding 语义',
+        );
+        // 分类函数：offboarding 优先于普通 conflict（A05 终态不可重试）。
+        expect(csClassifySeatFailure(e), CsSeatFailureKind.offboarding);
+        expect(
+          csClassifySeatFailure(CsApiException(409, '{cas_mismatch, ...}')),
+          CsSeatFailureKind.conflict,
+        );
+        expect(
+          csClassifySeatFailure(CsApiException(403, 'forbidden')),
+          CsSeatFailureKind.suspended,
+        );
+      },
+    );
 
     test('version<=0（服务端未回显）时调用方不得发起 CAS claim', () {
       // 契约钉：DTO 无 version → 0；UI 层以 version>0 作为 claim 前置条件。

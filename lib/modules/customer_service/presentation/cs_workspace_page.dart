@@ -13,11 +13,14 @@
 ///   2.0 不溢出，UX 矩阵钉住）。
 library;
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
+import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_paged_list.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_queue_view.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_list_view.dart';
@@ -46,6 +49,18 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
   /// 当前选中 Org（seat-contexts 列表驱动；切换即清空重载）。
   String? _selectedOrgId;
 
+  /// 当前选中 Org 的首个 workspace（SSE 事件流 query 种子；可空由流
+  /// 权威解析）。
+  String _selectedWorkspaceId = '';
+
+  /// APP-M02-A02：坐席事件流（org 作用域）。queue/session/assignment/
+  /// seat 事件只触发三视图权威刷新（debounce 合并，无请求风暴）；
+  /// 信封 payload 不是业务真源。
+  CsSeatEventsStream? _events;
+  final StreamController<void> _refreshSignal =
+      StreamController<void>.broadcast();
+  Timer? _refreshDebounce;
+
   /// 服务端计数（逐 Tab；null = 服务端未提供，UI 显示占位符）。
   int? _queuedTotal;
   int? _activeTotal;
@@ -60,6 +75,9 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
 
   @override
   void dispose() {
+    _refreshDebounce?.cancel();
+    _events?.dispose();
+    _refreshSignal.close();
     _tabController.dispose();
     super.dispose();
   }
@@ -83,7 +101,13 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
         _selectedOrgId = eligible.isEmpty
             ? null
             : eligible.first.organizationId;
+        _selectedWorkspaceId = eligible.isEmpty
+            ? ''
+            : (eligible.first.workspaces.isNotEmpty
+                  ? eligible.first.workspaces.first.id
+                  : '');
       });
+      _startEvents();
     } on Object catch (e) {
       if (!mounted) return;
       setState(() {
@@ -91,7 +115,41 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
         _contextsLoading = false;
         _contexts = const <CsSeatContext>[];
         _selectedOrgId = null;
+        _selectedWorkspaceId = '';
       });
+    }
+  }
+
+  /// APP-M02-A02：按当前 Org（及其首个 workspace）启动坐席事件流。
+  void _startEvents() {
+    _events?.dispose();
+    _events = null;
+    final orgId = _selectedOrgId;
+    if (orgId == null) return;
+    final stream = CsSeatEventsStream(
+      orgId: orgId,
+      workspaceId: _selectedWorkspaceId,
+    );
+    _events = stream;
+    stream.start(onEvent: _onSeatEvent);
+  }
+
+  void _onSeatEvent(CsSseEnvelope e) {
+    switch (e.type) {
+      case CsSseEnvelope.typeQueueChanged:
+      case CsSseEnvelope.typeSessionChanged:
+      case CsSseEnvelope.typeAssignmentChanged:
+      case CsSseEnvelope.typeSeatChanged:
+      case CsSseEnvelope.typeResyncRequired:
+        // 事件只触发权威刷新；250ms debounce 合并事件突发（无风暴）。
+        _refreshDebounce?.cancel();
+        _refreshDebounce = Timer(const Duration(milliseconds: 250), () {
+          if (mounted && !_refreshSignal.isClosed) {
+            _refreshSignal.add(null);
+          }
+        });
+      default:
+        break;
     }
   }
 
@@ -99,12 +157,21 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
   /// 随组件销毁清空），并以新 org 作用域重载。
   void _switchOrg(String orgId) {
     if (orgId == _selectedOrgId) return;
+    String wsId = '';
+    for (final c in _contexts) {
+      if (c.organizationId == orgId) {
+        wsId = c.workspaces.isNotEmpty ? c.workspaces.first.id : '';
+        break;
+      }
+    }
     setState(() {
       _selectedOrgId = orgId;
+      _selectedWorkspaceId = wsId;
       _queuedTotal = null;
       _activeTotal = null;
       _closedTotal = null;
     });
+    _startEvents();
   }
 
   void _onQueuedMeta(CsQueuePage page) {
@@ -273,19 +340,25 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
         CsQueueView(
           key: ValueKey('cs_queued_$orgId'),
           orgId: orgId,
+          workspaceId: _selectedWorkspaceId,
           onPageMeta: _onQueuedMeta,
+          refreshSignal: _refreshSignal.stream,
         ),
         CsSessionListView(
           key: ValueKey('cs_active_$orgId'),
           orgId: orgId,
           status: CsSeatSessionViewStatus.active,
+          workspaceId: _selectedWorkspaceId,
           onPageMeta: _onActiveMeta,
+          refreshSignal: _refreshSignal.stream,
         ),
         CsSessionListView(
           key: ValueKey('cs_closed_$orgId'),
           orgId: orgId,
           status: CsSeatSessionViewStatus.closed,
+          workspaceId: _selectedWorkspaceId,
           onPageMeta: _onClosedMeta,
+          refreshSignal: _refreshSignal.stream,
         ),
       ],
     );

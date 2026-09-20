@@ -24,13 +24,24 @@ import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
-import 'package:imboy/config/const.dart' show Keys;
+import 'package:imboy/component/http/http_transformer.dart';
 import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
+
+/// SSE 响应透传 transformer：长连接事件流不是 JSON envelope，payload
+/// 原样交付 ResponseBody（鉴权/签名/重试等仍走 HttpClient 统一链路；
+/// CSM-03：本模块不 import 个人域 store/repo）。
+class _StreamPassthroughTransformer extends HttpTransformer {
+  @override
+  IMBoyHttpResponse parse(Response<dynamic> response, String uri) {
+    return IMBoyHttpResponse.success(response.data);
+  }
+}
+
+final _streamPassthroughTransformer = _StreamPassthroughTransformer();
 
 /// queue 键集分页默认每页条数（与服务端 page_view limit 语义一致）。
 const int kCsQueuePageSize = 20;
@@ -51,11 +62,54 @@ class CsApiException implements Exception {
   /// 见 cs_http:classify 的 409 段）。
   bool get isConflict => code == 409;
 
-  /// 409 的 offboarding 降级子语义（envelope `offboarding_required`）。
-  bool get isOffboardingRequired => code == 409;
+  /// 409 的 offboarding 降级子语义（APP-M02-A05 与普通 409 分类分离：
+  /// 服务端 envelope msg 携带 `offboarding_required`；普通 409 是 CAS
+  /// 竞争、可刷新重试，offboarding 是终态降级、不可重试）。
+  bool get isOffboardingRequired =>
+      code == 409 && message.toLowerCase().contains('offboarding');
 
   @override
   String toString() => 'CsApiException($code): $message';
+}
+
+/// 消息附件 id 提取（§3.7 `asset_ids` 形状；兼容单附件 `asset_id` 旧形）。
+List<String> csMessageAssetIds(Map<dynamic, dynamic> raw) {
+  final ids = <String>[];
+  final single = raw['asset_id'];
+  if (single != null && '$single'.isNotEmpty) {
+    ids.add(single.toString());
+  }
+  final list = raw['asset_ids'];
+  if (list is List) {
+    for (final e in list) {
+      final v = e == null ? '' : e.toString();
+      if (v.isNotEmpty && !ids.contains(v)) {
+        ids.add(v);
+      }
+    }
+  }
+  return ids;
+}
+
+/// 会话消息（坐席侧读面）：EB 真源消息 + 该消息绑定的 asset_ids 投影
+///（§3.7 原子绑定回显；查看只经授权 content 代理，客户端不持有
+/// object key / storage URL）。
+class CsConversationMessage {
+  final EnterpriseMessage message;
+
+  /// 服务端回显的附件绑定（空 = 纯文本消息）。
+  final List<String> assetIds;
+
+  const CsConversationMessage({
+    required this.message,
+    this.assetIds = const <String>[],
+  });
+
+  factory CsConversationMessage.fromJson(Map<String, dynamic> json) =>
+      CsConversationMessage(
+        message: EnterpriseMessage.fromJson(json),
+        assetIds: csMessageAssetIds(json),
+      );
 }
 
 /// 客服排队会话条目。
@@ -578,8 +632,9 @@ class CsApi extends HttpClient {
   /// = 全量首拉）。
   ///
   /// payload 形状：EB `list_messages` 返回裸消息数组（宽容兼容
-  /// `{messages: [...]}` / `{list: [...]}` 包裹）。
-  Future<List<EnterpriseMessage>> conversationMessages(
+  /// `{messages: [...]}` / `{list: [...]}` 包裹）。逐行解析为
+  /// [CsConversationMessage]（真源消息 + asset_ids 绑定投影）。
+  Future<List<CsConversationMessage>> conversationMessages(
     String conversationId, {
     String afterId = '',
     int limit = 0,
@@ -605,7 +660,9 @@ class CsApi extends HttpClient {
     }
     return raw
         .whereType<Map<dynamic, dynamic>>()
-        .map((m) => EnterpriseMessage.fromJson(Map<String, dynamic>.from(m)))
+        .map(
+          (m) => CsConversationMessage.fromJson(Map<String, dynamic>.from(m)),
+        )
         .toList(growable: false);
   }
 
@@ -615,12 +672,19 @@ class CsApi extends HttpClient {
   /// A0/EB 冻结提交面：`client_msg_id`（幂等键，重试必须复用同一 id）、
   /// `sender_type`（坐席恒 business_identity）、`body`、`identity_id`
   /// （经办业务身份）。禁止走个人 C2C/attachment 通道。
+  ///
+  /// APP-M02-A03（§3.7）：`assetIds` 非空时提交 `asset_ids`——confirmed
+  /// asset 与消息**原子绑定**（服务端单事务锁定 active+unbound asset；
+  /// 同 client_msg_id + asset_ids 重试返回同一 message，其他重放 409）。
+  /// DEPENDENT_BACKEND_PATCH1：asset_ids 参数与字节上传代理端点由
+  /// BE-PATCH-01 并行交付，客户端按本合同形状实现，联调待真后端。
   Future<EnterpriseMessage> sendConversationMessage(
     String orgId,
     String conversationId, {
     required String body,
     required String clientMsgId,
     required String identityId,
+    List<String> assetIds = const <String>[],
   }) async {
     final resp = await post(
       '/api/v1/enterprise/organizations/$orgId/conversations/$conversationId/messages',
@@ -629,6 +693,7 @@ class CsApi extends HttpClient {
         'sender_type': EnterpriseSenderType.businessIdentity.wireName,
         'body': body,
         'identity_id': identityId,
+        if (assetIds.isNotEmpty) 'asset_ids': assetIds,
       },
     );
     _ensureOk(resp);
@@ -695,21 +760,20 @@ class CsApi extends HttpClient {
   /// 契约（SSE-EVENT-CONTRACT-V1）：
   /// GET `/api/v1/cs/organizations/:org_id/seats/me/events?workspace_id=...`，
   /// `Last-Event-ID` 头存在时优先于 after_id 查询参数（首连无游标时才带
-  /// after_id）。响应 `Content-Type: text/event-stream`；长连接关闭接收
-  /// 超时（改用宽裕上限，死连接由超时/对端关闭暴露后走重连退避）。
+  /// after_id）。响应 `Content-Type: text/event-stream`；长连接放宽接收
+  /// 超时（心跳保活；死连接由超时/对端关闭暴露后走重连退避）。
   /// 非法/跨租户游标返回 400/403 → 抛 [CsSseOpenException]，不静默回退。
   ///
-  /// Authorization 与普通请求同源（UserRepoLocal token）；token 过期由
-  /// 后续 JSON 面请求刷新，本流重连时取新值。测试经
-  /// `HttpClient.adapterForTest` 拦截，不打真网。
+  /// 鉴权/签名/令牌刷新全部走 [HttpClient] 统一链路（透传 transformer
+  /// 只免掉 JSON envelope 解析）；测试经 `HttpClient.adapterForTest`
+  /// 拦截，不打真网。
   Future<Stream<List<int>>> openSeatEventsStream(
     String orgId,
     String workspaceId, {
     String lastEventId = '',
     String afterId = '',
   }) async {
-    final tk = await UserRepoLocal.to.accessToken;
-    final resp = await dio.get<ResponseBody>(
+    final resp = await get(
       '/api/v1/cs/organizations/$orgId/seats/me/events',
       queryParameters: {
         'workspace_id': workspaceId,
@@ -722,18 +786,17 @@ class CsApi extends HttpClient {
         headers: {
           'accept': 'text/event-stream',
           'cache-control': 'no-store',
-          if (tk.isNotEmpty) Keys.tokenKey: tk,
           if (lastEventId.isNotEmpty) 'Last-Event-ID': lastEventId,
         },
       ),
+      httpTransformer: _streamPassthroughTransformer,
     );
-    final status = resp.statusCode;
-    final contentType = resp.headers.value(Headers.contentTypeHeader) ?? '';
-    final body = resp.data;
-    if (status != 200 ||
-        body == null ||
-        !contentType.contains('text/event-stream')) {
-      throw CsSseOpenException(status ?? 0, contentType);
+    if (!resp.ok) {
+      throw CsSseOpenException(resp.code, '');
+    }
+    final body = resp.payload;
+    if (body is! ResponseBody) {
+      throw CsSseOpenException(resp.code, 'unexpected-payload');
     }
     return body.stream;
   }

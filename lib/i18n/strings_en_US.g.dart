@@ -1758,6 +1758,10 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get offboardingRequired => 'Offboarding handover in progress; handling has been handed over and this conversation is read-only';
 	@override String get closedReadonly => 'Conversation closed; content is view-only';
 	@override String get ratedReadonly => 'Conversation rated and finished; content is view-only';
+	@override String get sendFailed => 'Send failed. Please try again later';
+	@override String get sendConflict => 'The session state has changed; the latest state has been refreshed for you';
+	@override String get attachUploadFailed => 'Attachment upload failed. Please retry';
+	@override String get transferredAway => 'This conversation has been transferred to another agent and is read-only for you';
 }
 
 // Path: discovery
@@ -4392,6 +4396,10 @@ extension on TranslationsEnUs {
 			'customerService.offboardingRequired' => 'Offboarding handover in progress; handling has been handed over and this conversation is read-only',
 			'customerService.closedReadonly' => 'Conversation closed; content is view-only',
 			'customerService.ratedReadonly' => 'Conversation rated and finished; content is view-only',
+			'customerService.sendFailed' => 'Send failed. Please try again later',
+			'customerService.sendConflict' => 'The session state has changed; the latest state has been refreshed for you',
+			'customerService.attachUploadFailed' => 'Attachment upload failed. Please retry',
+			'customerService.transferredAway' => 'This conversation has been transferred to another agent and is read-only for you',
 			'discovery.findNearbyPeople' => 'Find nearby people',
 			'discovery.moment' => 'Moments',
 			'discovery.nearbyPeopleExplain' => 'Nearby users can view your profile and send you messages. This may help you find new friends, but may also attract unwanted attention. You can stop sharing at any time.\nYour phone number stays hidden.',
@@ -4857,12 +4865,12 @@ extension on TranslationsEnUs {
 			'organization.members.changeRole' => 'Change role',
 			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => 'The role of “${name}” will be changed from ${from} to ${to}.',
 			'organization.members.confirmChange' => 'Confirm change',
+			_ => null,
+		} ?? switch (path) {
 			'organization.members.changeRoleFailed' => 'Role change failed',
 			'organization.members.removeMember' => 'Remove member',
 			'organization.members.removeMemberBody' => ({required Object name}) => '“${name}” will be removed from this organization. Their account will not be deleted.',
 			'organization.members.confirmRemove' => 'Confirm removal',
-			_ => null,
-		} ?? switch (path) {
 			'organization.members.removeFailed' => 'Removal failed',
 			'organization.members.transferOwner' => 'Transfer ownership',
 			'organization.members.transferOwnerBody' => ({required Object name}) => 'An organization has exactly one owner (C04): confirm making “${name}” the owner.\nYou will be demoted to regular admin/member. This directly affects control of the organization.',

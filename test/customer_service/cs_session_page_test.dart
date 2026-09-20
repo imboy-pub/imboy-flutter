@@ -239,4 +239,45 @@ void main() {
     expect(find.byIcon(Icons.star), findsNothing);
     expect(find.textContaining('提交评分'), findsNothing);
   });
+
+  testWidgets('APP-M02-A04：服务端回显经办人非当前坐席 → 转接只读横幅 + 输入禁用', (tester) async {
+    final transferredDetail = {
+      'code': 0,
+      'msg': 'success',
+      'payload': {
+        'session_id': sessionId,
+        'organization_id': '7266418340025468901',
+        'conversation_id': '7266418340025468950',
+        'status': 'active',
+        'version': 9,
+        'business_identity_id': '7266418340025468999',
+      },
+    };
+    final adapter = _SeqAdapter([
+      ('/sessions/$sessionId', [(200, transferredDetail)]),
+      ('/conversations/7266418340025468950/messages', [(200, _historyOk)]),
+    ]);
+
+    await _pumpPage(tester, adapter);
+
+    expect(
+      find.textContaining('已转交'),
+      findsOneWidget,
+      reason: 'transferredAway 可解释只读横幅出现',
+    );
+    expect(_inputField(tester).enabled, isFalse, reason: '转接后旧坐席立即只读');
+    // 写入口全禁：转接/关闭动作入口不可见（canWrite=false 隐藏），
+    // 附件入口在场但禁用（onPressed=null）。
+    expect(find.byIcon(CupertinoIcons.arrow_2_squarepath), findsNothing);
+    expect(find.byIcon(CupertinoIcons.xmark_circle), findsNothing);
+    final attachButton = tester
+        .widgetList<IconButton>(
+          find.ancestor(
+            of: find.byIcon(CupertinoIcons.paperclip),
+            matching: find.byType(IconButton),
+          ),
+        )
+        .first;
+    expect(attachButton.onPressed, isNull, reason: '附件写入口禁用');
+  });
 }
