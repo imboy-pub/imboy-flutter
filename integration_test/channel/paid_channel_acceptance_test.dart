@@ -86,6 +86,18 @@ Future<bool> _boot(WidgetTester tester) async {
         tester.any(find.text('还没有工作区'))) {
       break;
     }
+    // Keychain 里的旧会话（flutter_secure_storage）不会被清理脚本删除：
+    // 恢复出上一账号时 quitLogin 清态，让本轮按 define 指定账号重登。
+    final currentUid = UserRepoLocal.to.currentUid;
+    if (currentUid.isNotEmpty && currentUid != _expectedUid) {
+      // ignore: avoid_print
+      print('[AT-CP] 清旧会话：\$currentUid → \$_expectedUid，quitLogin');
+      await UserRepoLocal.to.quitLogin();
+      final navCtx = tester.element(find.byType(Navigator).first);
+      GoRouter.of(navCtx).go('/welcome');
+      await _pump(tester, seconds: 4);
+      continue;
+    }
     // 容器数据被外部清理后 welcome_seen 丢失，冷启动会停在欢迎页；
     // 点「跳过」直达登录页（CupertinoButton 热区可靠，见 welcome_page）。
     final skipBtn = find.text('跳过');
