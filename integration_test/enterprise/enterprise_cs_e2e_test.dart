@@ -115,8 +115,8 @@ void main() {
 
       // 步骤 10~12（客服 queue → claim → transfer/close）
       // TODO(A0/device-gate): 用 CsSessionMachine 镜像驱动并断言服务端状态
-      final queue = await csApi.queue();
-      expect(queue, isA<List<CsQueueItem>>());
+      final queue = await csApi.queuePage(orgs.first.id);
+      expect(queue, isA<CsQueuePage>());
 
       // 步骤 13（rating + suspend 降级）
       // TODO(A0/device-gate): close→rating 后由后端触发 suspend，断言：
