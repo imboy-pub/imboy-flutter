@@ -67,9 +67,9 @@ PODS:
   - flutter_sound_core (9.30.0)
   - flutter_vodozemac (0.0.1):
     - Flutter
-  - flutter_webrtc (1.6.0):
+  - flutter_webrtc (1.6.2):
     - Flutter
-    - WebRTC-SDK (= 144.7559.09)
+    - WebRTC-SDK (= 150.7871.01)
   - fluwx (2.0.5):
     - Flutter
     - WechatOpenSDK-XCFramework (~> 2.0.5)
@@ -123,10 +123,10 @@ PODS:
     - Flutter
     - JCore (>= 5.4.0)
     - JVerification (= 3.4.7)
-  - livekit_client (2.12.0):
+  - livekit_client (2.13.0):
     - Flutter
     - flutter_webrtc
-    - WebRTC-SDK (= 144.7559.09)
+    - WebRTC-SDK (= 150.7871.01)
   - map_launcher (0.0.1):
     - Flutter
   - mobile_scanner (7.0.0):
@@ -164,11 +164,6 @@ PODS:
     - Flutter
   - sensors_plus (0.0.1):
     - Flutter
-  - Sentry/HybridSDK (8.58.4)
-  - sentry_flutter (9.30.0):
-    - Flutter
-    - FlutterMacOS
-    - Sentry/HybridSDK (= 8.58.4)
   - share_handler_ios (0.0.14):
     - Flutter
     - share_handler_ios/share_handler_ios_models (= 0.0.14)
@@ -205,11 +200,11 @@ PODS:
     - FlutterMacOS
   - wakelock_plus (0.0.1):
     - Flutter
-  - WebRTC-SDK (144.7559.09)
+  - WebRTC-SDK (150.7871.01)
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
     - FlutterMacOS
-  - WechatOpenSDK-XCFramework (2.0.7)
+  - WechatOpenSDK-XCFramework (2.0.8)
 
 DEPENDENCIES:
   - amap_flutter_location_plus (from `.symlinks/plugins/amap_flutter_location_plus/ios`)
@@ -249,7 +244,6 @@ DEPENDENCIES:
   - photo_manager (from `.symlinks/plugins/photo_manager/darwin`)
   - r_upgrade (from `.symlinks/plugins/r_upgrade/ios`)
   - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
-  - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_handler_ios (from `.symlinks/plugins/share_handler_ios/ios`)
   - share_handler_ios_models (from `/Users/leeyi/.pub-cache/hosted/pub.dev/share_handler_ios-0.0.15/ios/Models`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -281,7 +275,6 @@ SPEC REPOS:
     - nanopb
     - PhoneNumberKit
     - PromisesObjC
-    - Sentry
     - SQLCipher
     - WebRTC-SDK
     - WechatOpenSDK-XCFramework
@@ -357,8 +350,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/r_upgrade/ios"
   sensors_plus:
     :path: ".symlinks/plugins/sensors_plus/ios"
-  sentry_flutter:
-    :path: ".symlinks/plugins/sentry_flutter/ios"
   share_handler_ios:
     :path: ".symlinks/plugins/share_handler_ios/ios"
   share_handler_ios_models:
@@ -408,7 +399,7 @@ SPEC CHECKSUMS:
   flutter_sound: d95194f6476c9ad211d22b3a414d852c12c7ca44
   flutter_sound_core: 7f2626d249d3a57bfa6da892ef7e22d234482c1a
   flutter_vodozemac: 46015daf07988356d46784d05ab0c7afca00ff36
-  flutter_webrtc: f952258e6fa67477d481cfbad2885a4f117922a7
+  flutter_webrtc: 99283145164f482a16bf7122ef407b5d59d43158
   fluwx: 3fc75ea9a5796bd90d53fd9657ff88b3dd9fca70
   FMDB: 728731dd336af3936ce00f91d9d8495f5718a0e6
   geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e
@@ -421,7 +412,7 @@ SPEC CHECKSUMS:
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: b59df3fbdfc48b67706141b8539e1ba41b3eb840
   jverify: 16302a55a8c5ad64c1e77c4e3e823f56c6079580
-  livekit_client: bf9de63fed5bbbbba717f7995d595ff30c9a8b58
+  livekit_client: 55f2f6afa597719985fa4913f6e889eb2b7eacd8
   map_launcher: 8051ad5783913cafce93f2414c6858f2904fd8df
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
@@ -435,8 +426,6 @@ SPEC CHECKSUMS:
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   r_upgrade: 5c37115e210f79501aa194b0146f7c1866c39e8c
   sensors_plus: b70a93b69dafdabd26ce4ac3f4d0529ab9acc4ca
-  Sentry: 5321d74bdd28d6f6f8beaa1ca06f1fdc746bff49
-  sentry_flutter: 52a33f5c4c91b05015a6d8c0b26c155776a07d7f
   share_handler_ios: e2244e990f826b2c8eaa291ac3831569438ba0fb
   share_handler_ios_models: fc638c9b4330dc7f082586c92aee9dfa0b87b871
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
@@ -448,9 +437,9 @@ SPEC CHECKSUMS:
   video_compress: f2133a07762889d67f0711ac831faa26f956980e
   video_player_avfoundation: 3453f792138786248960ca029747fcd9f318ef52
   wakelock_plus: d4ca1e4e4bc9de42cb55d57b5bdc158af318e3c6
-  WebRTC-SDK: e6006119cd730d6315d875e4a421b6cc8bb88833
+  WebRTC-SDK: 7dc931c64c00c735a614382f1a59cf65019c3c17
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
-  WechatOpenSDK-XCFramework: 5df9b250e9839dcc306ad8b00f46822eead1ed47
+  WechatOpenSDK-XCFramework: 5e86024eb6276280a679402e471bd77606114f3c
 
 PODFILE CHECKSUM: 9c1648d44ddca80eddd8db30731bb9443048cad9
 

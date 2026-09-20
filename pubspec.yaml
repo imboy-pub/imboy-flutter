@@ -49,16 +49,16 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🌐 Web Platform Support                                         │
   # └─────────────────────────────────────────────────────────────────┘
-  sqflite_common: ^2.5.12           # sqflite 公共接口（Web 支持）(updated: 2.5.0 → 2.5.11)
+  sqflite_common: ^2.5.13           # sqflite 公共接口（Web 支持）(updated: 2.5.0 → 2.5.11)
   sqflite_common_ffi: ^2.4.3        # 桌面端 FFI 实现（Windows/Linux/macOS）(updated: 2.4.0+2 → 2.4.2)
-  sqflite_common_ffi_web: ^1.1.3    # Web 平台 SQLite 实现（支持 sqlite3 3.x）
+  sqflite_common_ffi_web: ^1.2.0    # Web 平台 SQLite 实现（支持 sqlite3 3.x）
   web: ^1.1.0                       # 浏览器 API 封装（IndexedDB、Blob 等）
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 💾 Data & Storage                                               │
   # └─────────────────────────────────────────────────────────────────┘
   shared_preferences: ^2.5.4       # Local key-value storage
-  flutter_secure_storage: ^11.1.1  # Secure storage for sensitive data (tokens, keys)
+  flutter_secure_storage: ^11.2.0  # Secure storage for sensitive data (tokens, keys)
   sqflite_sqlcipher: ^3.4.0          # SQLCipher encrypted SQLite (drop-in sqflite replacement)
   # sqflite: ^2.4.2                 # 已被 sqflite_sqlcipher 替代
   path: ^1.9.0                     # Path manipulation utilities
@@ -69,7 +69,7 @@ dependencies:
   dynamic_color: ^2.1.0           # 2.x returns material_ui ColorScheme, incompatible with Flutter ColorScheme
   # dynamic_color 2.x 的 toColorScheme 返回 material_ui 包的 ColorScheme 类型，
   # lib/theme/dynamic_color_manager.dart 直接 import 该类型，故需显式声明此依赖。
-  material_ui: ^1.2.0                 # transitive dep of dynamic_color 2.x, imported directly by dynamic_color_manager.dart
+  material_ui: ^1.3.0                 # transitive dep of dynamic_color 2.x, imported directly by dynamic_color_manager.dart
   cross_cache: ^1.1.1                 # Cross-platform caching strategy
   # device_info_plus 12+ 同样迁移到 win32 6.x API（LOCAL_MACHINE / Win32Result.value）。
   # HttpClient 链路（User-Agent / 设备标识）间接依赖，API 测试必经路径。
@@ -89,7 +89,7 @@ dependencies:
   photo_manager: 3.12.0               # Media management; 3.12.0 breaks current Android Kotlin build
   carousel_slider_plus: ^7.1.2       # 聊天附件面板左右滑动分页
   video_compress: ^3.1.4             # Video compression before upload
-  file_picker: ^13.0.0                 # File picker
+  file_picker: ^13.1.0                 # File picker
   open_file: ^4.0.0                   # File opening with default apps (updated: 3.5.10 → 4.0.0)
   image: ^4.10.1                      # Image manipulation library
   video_player: ^2.11.1               # Video playback support
@@ -100,10 +100,10 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   flutter_sound: ^9.30.0            # Audio recording/playback with macOS improvements
   audio_session: ^0.2.4              # Audio session management for focus control (updated: 0.2.2 → 0.2.4)
-  flutter_webrtc: ^1.6.0
+  flutter_webrtc: ^1.6.2+hotfix.3
   # livekit_client 2.11.0 稳定版兼容 flutter_webrtc 1.6.0；此前 pin 的 2.9.0-dev.0
   # 是唯一兼容 flutter_webrtc 1.5.2 的预览版，现已随 webrtc 1.6 一并解锁升级。
-  livekit_client: ^2.12.0   # LiveKit SFU 群通话（与 flutter_webrtc 共享 native webrtc 库）
+  livekit_client: ^2.13.0   # LiveKit SFU 群通话（与 flutter_webrtc 共享 native webrtc 库）
   audio_waveforms:                     # iOS 16 register SIGSEGV 修复（gitee fork leeyi 分支）
     #path: plugin/audio_waveforms
     git:
@@ -336,7 +336,7 @@ dev_dependencies:
     sdk: flutter
   # Patrol：integration_test 的超集，补齐原生权限/通知/WebView 交互。
   # 现有 integration_test 用例与 Key 可直接沿用。Android 已接入，iOS 待 ios/* 解禁。
-  patrol: ^4.8.0
+  patrol: ^4.10.0
 
   # ┌─ AI Testing Framework ────────────────────────────────────────────┐
   # 🤖 AI 驱动测试框架 - MVP 精简版
@@ -358,7 +358,7 @@ dev_dependencies:
   cross_file: any
   file_picker_platform_interface: ^4.0.0
   path_provider_platform_interface: any
-  postgres: ^3.5.12
+  postgres: ^3.5.15
 flutter:
 
   # ┌─ Material Design ───────────────────────────────────────────────┐

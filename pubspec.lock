@@ -631,18 +631,18 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "1fb0cb9de6a189d76980a5a00ae3d4c9ec07e87519fd7368b75f5ebf0126977e"
+      sha256: "98c0b156b6380ba55bc767a14e2e6b3feb246e713ad40092424596fa79005bea"
       url: "https://pub.dev"
     source: hosted
-    version: "13.0.0"
+    version: "13.1.0"
   file_picker_darwin:
     dependency: transitive
     description:
       name: file_picker_darwin
-      sha256: da861ccc4cdbc8bacf1f85d53dede63d40dd7c0b5ff823cd2b564a8daa1bc058
+      sha256: deb3ff69d58656b885c85bc1627f09ecb79860f272a5e7577149582ede4dce5d
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.1.0"
   file_picker_linux:
     dependency: transitive
     description:
@@ -916,10 +916,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_secure_storage
-      sha256: d87713a152ee2f255117bdbbf43da1dea1797e0551e499e0334f0c9dcfafddd2
+      sha256: d4e1fb6b2cb524868929e78dc0282fa000554b22060fb53789dc481c9fc95bb8
       url: "https://pub.dev"
     source: hosted
-    version: "11.1.1"
+    version: "11.2.0"
   flutter_secure_storage_darwin:
     dependency: transitive
     description:
@@ -1030,10 +1030,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_webrtc
-      sha256: e997161d7da3adedd3d430691b20931b0b4d96fa48bb60938d9ba0bf6fca98be
+      sha256: c1d3674f61b14cbe98b60f0cce396835b1483163e644b8cd26fd3fdd55360fb9
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.0"
+    version: "1.6.2+hotfix.3"
   fluwx:
     dependency: "direct main"
     description:
@@ -1506,10 +1506,10 @@ packages:
     dependency: "direct main"
     description:
       name: livekit_client
-      sha256: cda5dbb6f52b8275aff8ed95f01aaa5e7232402313cc6834e788b80eedbdf3a7
+      sha256: a410348effd06f4220c2d6ed9ad3935406e81fffbd1c366eba1c39fe0558f449
       url: "https://pub.dev"
     source: hosted
-    version: "2.12.0"
+    version: "2.13.0"
   logger:
     dependency: "direct main"
     description:
@@ -1570,10 +1570,10 @@ packages:
     dependency: "direct main"
     description:
       name: material_ui
-      sha256: fbfb53cab6c4629438feeade5f3d305f72944bc9d9f25786b19106d32b80ec45
+      sha256: "6d056d60ce745335fcf1c726a4fc46a481a62229f202b65dbc2db5edbbabc7e2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.3.0"
   meta:
     dependency: transitive
     description:
@@ -1834,10 +1834,10 @@ packages:
     dependency: "direct dev"
     description:
       name: patrol
-      sha256: "743678f959a4878807efec59d19f8ebd65cc3d6953fdecce6562c987963f30a8"
+      sha256: "662c50d517b2f159fedbc359a7fb8d0d30cbefea6d5c2a08392a0593079d64d1"
       url: "https://pub.dev"
     source: hosted
-    version: "4.9.0"
+    version: "4.10.0"
   patrol_finders:
     dependency: transitive
     description:
@@ -1986,10 +1986,10 @@ packages:
     dependency: "direct dev"
     description:
       name: postgres
-      sha256: "123de5cbadc56a7e8d9fa485c780b6b56940b4081f4c74f3a5578682757c299b"
+      sha256: "8cff73f10dd29ea644b19eaf834c5ec333924dab50021312cd418d373867901b"
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.12"
+    version: "3.5.15"
   process:
     dependency: transitive
     description:
@@ -2384,10 +2384,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqflite_common
-      sha256: b3ebf7b30c8ae279615f146dfc29ea6ba097299294193107c85a7531ec2346d9
+      sha256: "077e38e82c099534146a2fb31b608c2a3a4489a0f21d9af6b2f5c87b566a1ea0"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.12"
+    version: "2.5.13"
   sqflite_common_ffi:
     dependency: "direct main"
     description:
@@ -2400,10 +2400,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqflite_common_ffi_web
-      sha256: "295a2696b94475d6557005ab45ae22b8b24c6bb1b550f108d236b3aa38d73597"
+      sha256: "8e9cc4bb519ff421985f719a652930eb6eee77a19a33612f589314984dab9312"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.3"
+    version: "1.2.0"
   sqflite_sqlcipher:
     dependency: "direct main"
     description:
