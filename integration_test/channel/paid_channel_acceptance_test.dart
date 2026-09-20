@@ -86,6 +86,14 @@ Future<bool> _boot(WidgetTester tester) async {
         tester.any(find.text('还没有工作区'))) {
       break;
     }
+    // 容器数据被外部清理后 welcome_seen 丢失，冷启动会停在欢迎页；
+    // 点「跳过」直达登录页（CupertinoButton 热区可靠，见 welcome_page）。
+    final skipBtn = find.text('跳过');
+    if (tester.any(skipBtn)) {
+      await tester.tap(skipBtn.first);
+      await _pump(tester, seconds: 3);
+      continue;
+    }
     if (tester.any(find.byKey(const Key('login_submit_button')))) {
       await performLogin(
         tester,
@@ -115,12 +123,11 @@ void _go(WidgetTester tester, String path) {
 /// 当前买家在 fixture 频道的最新订单号（CP4 之后的订单场景依赖）。
 Future<String?> _latestOrderNo() async {
   return await TestPg.scalar(
-        'SELECT order_no FROM channel_order '
-        'WHERE user_id = @uid AND channel_id = @cid '
-        'ORDER BY created_at DESC LIMIT 1',
-        {'uid': int.parse(_expectedUid), 'cid': int.parse(_channelId)},
-      )
-      as String?;
+    'SELECT order_no FROM channel_order '
+    'WHERE user_id = @uid AND channel_id = @cid '
+    'ORDER BY created_at DESC LIMIT 1',
+    {'uid': int.parse(_expectedUid), 'cid': int.parse(_channelId)},
+  ) as String?;
 }
 
 void main() {
