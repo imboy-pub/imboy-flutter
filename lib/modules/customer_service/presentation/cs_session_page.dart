@@ -24,6 +24,7 @@ import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/customer_service/domain/cs_seat_session_machine.dart';
 import 'package:imboy/modules/customer_service/domain/cs_session_actions.dart';
 import 'package:imboy/modules/customer_service/domain/cs_session_flow.dart';
+import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -58,7 +59,7 @@ class CsSessionPage extends StatefulWidget {
 class _CsSessionPageState extends State<CsSessionPage> {
   late final CsSessionFlow _flow;
   final TextEditingController _input = TextEditingController();
-  final EnterpriseApi _enterpriseApi = EnterpriseApi();
+  final CsApi _csApi = CsApi();
 
   bool _busy = false;
   String? _error;
@@ -202,18 +203,22 @@ class _CsSessionPageState extends State<CsSessionPage> {
   Future<void> _openTransfer() async {
     final t = context.t.customerService;
     try {
-      final identities = await _enterpriseApi.businessIdentities(widget.orgId);
+      // 转接目标 = api-surface-freeze 权威端点（同 Org 坐席最小投影，
+      // 服务端排除调用者本人；不复用治理 identity 列表）。
+      final page = await _csApi.transferTargets(
+        widget.orgId,
+        limit: kCsQueuePageSize,
+      );
       if (!mounted) return;
-      final targets = csTransferTargets(
-        identities,
-        organizationId: widget.orgId,
-        excludeIdentityId: widget.identityId,
+      final targets = csTransferTargetOptions(
+        page.items,
+        excludeIdentityId: _flow.identityId,
       );
       if (targets.isEmpty) {
         _toast(t.transferEmpty);
         return;
       }
-      final picked = await showDialog<BusinessIdentity>(
+      final picked = await showDialog<CsTransferTarget>(
         context: context,
         builder: (_) => SimpleDialog(
           title: Text(t.transferTitle),
@@ -223,8 +228,14 @@ class _CsSessionPageState extends State<CsSessionPage> {
                 onPressed: () => Navigator.of(context).pop(target),
                 child: ListTile(
                   leading: const Icon(CupertinoIcons.person_2),
-                  title: Text(target.displayName),
-                  subtitle: Text(target.functionKey),
+                  title: Text(
+                    target.displayName.isEmpty
+                        ? target.identityId
+                        : target.displayName,
+                  ),
+                  subtitle: Text(
+                    target.available ? t.targetAvailable : t.targetBusy,
+                  ),
                 ),
               ),
           ],
@@ -235,7 +246,13 @@ class _CsSessionPageState extends State<CsSessionPage> {
         context: context,
         builder: (dialogContext) => AlertDialog(
           title: Text(t.transferConfirmTitle),
-          content: Text(t.transferConfirmBody(name: picked.displayName)),
+          content: Text(
+            t.transferConfirmBody(
+              name: picked.displayName.isEmpty
+                  ? picked.identityId
+                  : picked.displayName,
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -250,7 +267,7 @@ class _CsSessionPageState extends State<CsSessionPage> {
       );
       if (confirmed != true || !mounted) return;
       setState(() => _busy = true);
-      final failure = await _flow.transferTo(picked.id);
+      final failure = await _flow.transferTo(picked.identityId);
       if (!mounted) return;
       setState(() => _busy = false);
       if (failure == null) {
@@ -263,7 +280,7 @@ class _CsSessionPageState extends State<CsSessionPage> {
       } else {
         _toastFailure(CsSeatFailureKind.conflict);
       }
-    } on EnterpriseApiException catch (e) {
+    } on CsApiException catch (e) {
       if (!mounted) return;
       setState(() => _error = '${e.message} (code=${e.code})');
       if (e.isForbidden) _flow.machine.markSuspended();

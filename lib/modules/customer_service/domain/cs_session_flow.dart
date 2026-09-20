@@ -53,7 +53,11 @@ class CsSessionFlow {
   String conversationId;
 
   /// 经办坐席业务身份（发送的 sender 身份）。
-  final String identityId;
+  ///
+  /// 权威事实只来自服务端（seat-contexts / claim 回显 / detail 回显）；
+  /// 路由 query 携带的 identity 只是展示种子，detail 回显后立即覆盖
+  ///（APP-M01-A04：路由 query 不作授权事实）。
+  String identityId;
 
   /// 已掩码客户名（入站消息展示）。
   final String contactMaskedName;
@@ -88,14 +92,19 @@ class CsSessionFlow {
 
   /// 拉取服务端会话详情（打开页面 / 冲突后刷新真实状态）。
   ///
+  /// 权威事实合并（APP-M01-A04）：detail 回显的 conversation_id 与
+  /// business_identity_id **覆盖**路由 query 种子（query 不作授权事实）。
   /// 同步：closed → 输入禁用；rating 回显 → rated（坐席端只展示状态）。
   /// 403/offboarding → 状态机降级。
   Future<CsSessionDetail?> refreshSessionState() async {
     try {
-      final d = await _csApi.sessionDetail(sessionId);
+      final d = await _csApi.sessionDetail(orgId, sessionId);
       detail = d;
-      if (conversationId.isEmpty && d.conversationId.isNotEmpty) {
+      if (d.conversationId.isNotEmpty) {
         conversationId = d.conversationId;
+      }
+      if (d.assigneeIdentityId.isNotEmpty) {
+        identityId = d.assigneeIdentityId;
       }
       if (d.hasRating) {
         machine.markRated();
@@ -285,6 +294,7 @@ class CsSessionFlow {
     }
     try {
       await _csApi.transfer(
+        orgId,
         sessionId,
         toIdentityId: toIdentityId,
         expectedVersion: version,
@@ -309,7 +319,12 @@ class CsSessionFlow {
       return CsSeatFailureKind.conflict;
     }
     try {
-      await _csApi.close(sessionId, expectedVersion: version, reason: reason);
+      await _csApi.close(
+        orgId,
+        sessionId,
+        expectedVersion: version,
+        reason: reason,
+      );
       machine.markClosed();
       return null;
     } on CsApiException catch (e) {

@@ -85,6 +85,8 @@ Map<String, dynamic> itemJson(String id, {int version = 1}) => {
   },
 };
 
+const String kOrgId = '7266418340025468901';
+
 void main() {
   setUp(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -121,7 +123,7 @@ void main() {
       addTearDown(() => HttpClient.adapterForTest = null);
       final api = CsApi();
 
-      final first = await api.queuePage(limit: 3);
+      final first = await api.queuePage(kOrgId, limit: 3);
       expect(first.items.map((e) => e.sessionId).toList(), [
         '726641834002546891',
         '726641834002546892',
@@ -130,7 +132,11 @@ void main() {
       expect(first.nextAfterId, '726641834002546893');
       expect(first.hasMore, isTrue);
 
-      final second = await api.queuePage(afterId: first.nextAfterId, limit: 3);
+      final second = await api.queuePage(
+        kOrgId,
+        afterId: first.nextAfterId,
+        limit: 3,
+      );
       expect(second.nextAfterId, '');
       expect(second.hasMore, isFalse);
 
@@ -171,14 +177,14 @@ void main() {
       addTearDown(() => HttpClient.adapterForTest = null);
       final api = CsApi();
 
-      final withCounts = await api.queuePage();
+      final withCounts = await api.queuePage(kOrgId);
       expect(withCounts.total, 42);
       expect(withCounts.countOf('queued'), 42);
       expect(withCounts.countOf('active'), 7);
       expect(withCounts.countOf('closed'), isNull);
 
       // 服务端未提供计数 → null（禁止用 items.length=1 推断）
-      final noCounts = await api.queuePage();
+      final noCounts = await api.queuePage(kOrgId);
       expect(noCounts.total, isNull);
       expect(noCounts.totalByStatus, isNull);
       expect(noCounts.countOf('queued'), isNull);
@@ -200,7 +206,7 @@ void main() {
       addTearDown(() => HttpClient.adapterForTest = null);
       final api = CsApi();
 
-      final page = await api.queuePage();
+      final page = await api.queuePage(kOrgId);
       expect(page.items.single.sessionId, '726641834002546891');
     });
 
@@ -227,7 +233,7 @@ void main() {
       addTearDown(() => HttpClient.adapterForTest = null);
       final api = CsApi();
 
-      final page = await api.queuePage();
+      final page = await api.queuePage(kOrgId);
       final bare = page.items[0];
       expect(bare.sessionId, '7266418340025468940');
       expect(bare.contactId, '7266418340025468941');
@@ -266,11 +272,18 @@ void main() {
       addTearDown(() => HttpClient.adapterForTest = null);
       final api = CsApi();
 
-      final result = await api.claim('7266418340025468940', expectedVersion: 7);
+      final result = await api.claim(
+        kOrgId,
+        '7266418340025468940',
+        expectedVersion: 7,
+      );
 
       final req = adapter.requests.single;
       expect(req.$1, 'POST');
-      expect(req.$2, '/api/v1/cs/sessions/7266418340025468940/claim');
+      expect(
+        req.$2,
+        '/api/v1/cs/organizations/$kOrgId/sessions/7266418340025468940/claim',
+      );
       final body = Map<String, dynamic>.from(req.$3 as Map);
       expect(body, {'expected_version': 7});
 
@@ -290,7 +303,7 @@ void main() {
 
       Object? caught;
       try {
-        await api.claim('7266418340025468940', expectedVersion: 7);
+        await api.claim(kOrgId, '7266418340025468940', expectedVersion: 7);
         fail('claim 409 必须 throw（fail-closed，不做伪成功）');
       } on Object catch (e) {
         caught = e;

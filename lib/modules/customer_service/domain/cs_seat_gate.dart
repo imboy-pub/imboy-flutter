@@ -53,6 +53,28 @@ bool csWorkspaceEntryVisible(CsSeatGateInput input) {
   return true;
 }
 
+/// 由 seat-contexts（BE-S01a 权威聚合）判定入口/工作台可见性（纯函数）。
+///
+/// `GET /api/v1/cs/me/seat-contexts` 的每行已由服务端按 active member +
+/// active workspace 聚合；行内 `businessIdentityId` 非空 = active
+/// customer_service assignment、`seatEnabled` = enabled seat。**任一**行
+/// 同时成立即可见（多 Org 用户任一可用席位即入口成立）。
+///
+/// 返回 false 的情形（全部 fail-closed）：空列表（无 active member Org）、
+/// 全部 seat disabled、全部缺 assignment、解析缺字段。
+bool csEntryVisibleFromContexts(Iterable<CsSeatContextLike> contexts) {
+  for (final c in contexts) {
+    if (c.isEligible) return true;
+  }
+  return false;
+}
+
+/// [csEntryVisibleFromContexts] 的最小结构接口（避免 domain 反向依赖
+/// infrastructure 的完整 DTO；CsSeatContext 满足此形状）。
+abstract interface class CsSeatContextLike {
+  bool get isEligible;
+}
+
 /// 客户名掩码（待接列表展示）：保留首字符，其余以 `**` 掩码；
 /// 空名回落 `**`；单字符名掩码为 `*`（不泄露长度为零/一以外的信息）。
 String csMaskContactName(String rawName) {

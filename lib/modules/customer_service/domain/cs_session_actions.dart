@@ -5,7 +5,22 @@
 library;
 
 import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
+import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
+
+/// 转接目标候选（transfer-targets 最小投影，BE-S01a 权威端点）：服务端
+/// 已按同 Org 过滤并排除调用者本人；此处防御性再排除当前经办身份自己、
+/// 并丢弃空 id 行（fail-closed，不出现空目标）。
+List<CsTransferTarget> csTransferTargetOptions(
+  List<CsTransferTarget> targets, {
+  String excludeIdentityId = '',
+}) {
+  return targets
+      .where(
+        (t) => t.identityId.isNotEmpty && t.identityId != excludeIdentityId,
+      )
+      .toList(growable: false);
+}
 
 /// 转接目标候选：只列**同 Org** active customer_service identity，
 /// 并排除当前经办身份自己（转给自己无意义）。

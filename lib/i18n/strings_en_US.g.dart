@@ -1699,6 +1699,9 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get tabActive => 'Active';
 	@override String get tabClosed => 'Closed';
 	@override String get countUnavailable => '--';
+	@override String get orgSelectorLabel => 'Organization';
+	@override String get noSeatTitle => 'No eligible seat available';
+	@override String get noSeatHint => 'You have no enabled customer-service seat. Contact your organization administrator';
 	@override String get waitingJustNow => 'just now';
 	@override String waitingMinutes({required Object n}) => '${n} min';
 	@override String waitingHoursMinutes({required Object h, required Object m}) => '${h} h ${m} min';
@@ -1718,7 +1721,7 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get activeEmptyTitle => 'No active conversations';
 	@override String get activeEmptyHint => 'Claim a conversation from the queue and it will appear here';
 	@override String get closedEmptyTitle => 'No closed conversations';
-	@override String get closedEmptyHint => 'Conversation history will arrive in a later release';
+	@override String get closedEmptyHint => 'Closed conversations will be archived here';
 	@override String get loadFailedTitle => 'Failed to load';
 	@override String get offlineHint => 'Network unavailable, please check your connection and retry';
 	@override String get seatSuspendedNotice => 'Seat suspended; the queue is read-only';
@@ -1733,6 +1736,8 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get transferAction => 'Transfer';
 	@override String get transferTitle => 'Transfer to a seat in this organization';
 	@override String get transferEmpty => 'No eligible customer-service seats in this organization';
+	@override String get targetAvailable => 'Available';
+	@override String get targetBusy => 'Busy';
 	@override String get transferConfirmTitle => 'Confirm transfer';
 	@override String transferConfirmBody({required Object name}) => 'Transfer this conversation to ${name}? You will no longer handle it.';
 	@override String get transferSuccess => 'Transferred';
@@ -4326,6 +4331,9 @@ extension on TranslationsEnUs {
 			'customerService.tabActive' => 'Active',
 			'customerService.tabClosed' => 'Closed',
 			'customerService.countUnavailable' => '--',
+			'customerService.orgSelectorLabel' => 'Organization',
+			'customerService.noSeatTitle' => 'No eligible seat available',
+			'customerService.noSeatHint' => 'You have no enabled customer-service seat. Contact your organization administrator',
 			'customerService.waitingJustNow' => 'just now',
 			'customerService.waitingMinutes' => ({required Object n}) => '${n} min',
 			'customerService.waitingHoursMinutes' => ({required Object h, required Object m}) => '${h} h ${m} min',
@@ -4339,15 +4347,15 @@ extension on TranslationsEnUs {
 			'customerService.claimAction' => 'Claim',
 			'customerService.claimSuccess' => 'Claimed',
 			'customerService.claimConflict' => 'This conversation was claimed by another seat or its state changed. The queue has been refreshed',
+			_ => null,
+		} ?? switch (path) {
 			'customerService.claimOffboardingRequired' => 'Offboarding handover in progress; claiming is unavailable',
 			'customerService.claimForbidden' => 'Seat is suspended; claiming is unavailable',
 			'customerService.claimFailed' => 'Claim failed, please try again later',
-			_ => null,
-		} ?? switch (path) {
 			'customerService.activeEmptyTitle' => 'No active conversations',
 			'customerService.activeEmptyHint' => 'Claim a conversation from the queue and it will appear here',
 			'customerService.closedEmptyTitle' => 'No closed conversations',
-			'customerService.closedEmptyHint' => 'Conversation history will arrive in a later release',
+			'customerService.closedEmptyHint' => 'Closed conversations will be archived here',
 			'customerService.loadFailedTitle' => 'Failed to load',
 			'customerService.offlineHint' => 'Network unavailable, please check your connection and retry',
 			'customerService.seatSuspendedNotice' => 'Seat suspended; the queue is read-only',
@@ -4362,6 +4370,8 @@ extension on TranslationsEnUs {
 			'customerService.transferAction' => 'Transfer',
 			'customerService.transferTitle' => 'Transfer to a seat in this organization',
 			'customerService.transferEmpty' => 'No eligible customer-service seats in this organization',
+			'customerService.targetAvailable' => 'Available',
+			'customerService.targetBusy' => 'Busy',
 			'customerService.transferConfirmTitle' => 'Confirm transfer',
 			'customerService.transferConfirmBody' => ({required Object name}) => 'Transfer this conversation to ${name}? You will no longer handle it.',
 			'customerService.transferSuccess' => 'Transferred',
@@ -4851,13 +4861,13 @@ extension on TranslationsEnUs {
 			'organization.members.removeMember' => 'Remove member',
 			'organization.members.removeMemberBody' => ({required Object name}) => '“${name}” will be removed from this organization. Their account will not be deleted.',
 			'organization.members.confirmRemove' => 'Confirm removal',
+			_ => null,
+		} ?? switch (path) {
 			'organization.members.removeFailed' => 'Removal failed',
 			'organization.members.transferOwner' => 'Transfer ownership',
 			'organization.members.transferOwnerBody' => ({required Object name}) => 'An organization has exactly one owner (C04): confirm making “${name}” the owner.\nYou will be demoted to regular admin/member. This directly affects control of the organization.',
 			'organization.members.confirmTransfer' => 'Confirm transfer',
 			'organization.members.transferFailed' => 'Transfer failed',
-			_ => null,
-		} ?? switch (path) {
 			'organization.members.demoteToMember' => 'Demote to member',
 			'organization.members.promoteToAdmin' => 'Promote to admin',
 			'organization.members.transferOwnerTo' => ({required Object name}) => 'Transfer ownership to “${name}”',

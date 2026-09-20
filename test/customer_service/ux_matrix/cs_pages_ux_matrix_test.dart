@@ -1,16 +1,18 @@
 /// RUN: three-plan-integration-20260918T124045Z-6af21b0d | Card: R-UXAPP-01
+/// RUN: customer-service-web-csww-20260920T051447Z | Card: APP-M01（org 作用域 + 组织选择器改造）
 ///
 /// Customer Service 2 个代表页面的 UI/UX 力学矩阵测试：
 ///
-/// 1. CsQueueView（排队队列，单独 pump 于 Scaffold 内）
-/// 2. CsWorkspacePage（坐席工作台：TabBar 待接/处理中/已关闭 + 队列页）
+/// 1. CsQueueView（待接队列，单独 pump 于 Scaffold 内；org 作用域）
+/// 2. CsWorkspacePage（坐席工作台：seat-contexts 驱动组织选择器 +
+///    TabBar 待接/处理中/已关闭 + FittedBox Tab 修复）
 ///
 /// 每页矩阵（单 testWidgets 内合并多泵）：
 /// - viewport sweep：320x568 / 390x844 / 430x932 @1.0 light
 ///   → takeException isNull + 主内容在可滚动结构内；
 /// - textScale sweep：390x844 @1.3 / @2.0 light → takeException isNull；
 /// - dark：390x844 @1.0 dark → takeException isNull + 关键文本仍可见；
-/// - semantics：主操作「接单」按钮 / Tab 文本存在（机械 find）。
+/// - semantics：主操作「接单」按钮 / Tab 文本 / 组织选择器存在（机械 find）。
 /// - danger confirm：两页无删除/退出/关闭类动作 → N/A（会话关闭确认
 ///   入口在 CsSessionPage 深层，已由 test/customer_service/cs_session_page_test.dart
 ///   覆盖 close 确认链路，不重复）。
@@ -19,6 +21,9 @@
 /// TranslationProvider（zh 默认语言族）。harness 见 test/ux_matrix/。
 library;
 
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_queue_view.dart';
@@ -27,6 +32,7 @@ import 'package:imboy/modules/customer_service/presentation/cs_workspace_page.da
 import '../../ux_matrix/ux_harness.dart';
 
 const String kOrgId = '7266418340025468901';
+const String kOrgName = '示例组织';
 
 Map<String, dynamic> _queueItem(String id, String maskedName) => {
   'id': id,
@@ -39,7 +45,26 @@ Map<String, dynamic> _queueItem(String id, String maskedName) => {
   'last_message': {'id': '7266418340025468961'},
   'organization_id': kOrgId,
   'conversation_id': '7266418340025468950',
+  'business_identity_id': '7266418340025468902',
 };
+
+Map<String, dynamic> _contextsPayload() => uxEnvelope(
+  payload: {
+    'contexts': [
+      {
+        'organization_id': kOrgId,
+        'organization_name': kOrgName,
+        'workspaces': [
+          {'id': '7266418340025468921', 'name': '默认工作区'},
+        ],
+        'business_identity_id': '7266418340025468902',
+        'seat_enabled': true,
+        'capabilities': ['conversation.read', 'conversation.write'],
+      },
+    ],
+    'user_id': '7266418340025468800',
+  },
+);
 
 Map<String, dynamic> _queuePayload() => uxEnvelope(
   payload: {
@@ -53,9 +78,38 @@ Map<String, dynamic> _queuePayload() => uxEnvelope(
   },
 );
 
-/// queue 路由桩（queuePage 与可能的刷新共用同一响应，cursor 停留最后）。
-RouteStubAdapter _queueStub() => RouteStubAdapter([
-  ('/cs/sessions/queue', [(200, _queuePayload())]),
+/// active/closed 空页（工作台 Tab 懒加载即取数；空 payload 宽容解析）。
+Map<String, dynamic> _seatSessionsPayload() => uxEnvelope(
+  payload: {
+    'sessions': <Map<String, dynamic>>[],
+    'next_after_id': null,
+    'total': 0,
+    'total_by_status': <String, dynamic>{},
+  },
+);
+
+/// org 作用域桩（T-2 权威路径）：seat-contexts + queue + seats/sessions。
+/// 记录请求 path（机械钉 org 作用域，不触共享 harness）。
+class _RecordingCsStub extends RouteStubAdapter {
+  _RecordingCsStub(super.routes);
+
+  final List<String> paths = [];
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    paths.add(options.uri.path);
+    return super.fetch(options, requestStream, cancelFuture);
+  }
+}
+
+_RecordingCsStub _csStub() => _RecordingCsStub([
+  ('/seat-contexts', [(200, _contextsPayload())]),
+  ('/sessions/queue', [(200, _queuePayload())]),
+  ('/seats/sessions', [(200, _seatSessionsPayload())]),
 ]);
 
 /// matrix：viewport sweep + textScale sweep + dark，逐泵 takeException。
@@ -119,12 +173,12 @@ void main() {
   testWidgets('CsQueueView：viewport/textScale/dark 矩阵（无 danger 入口 → N/A）', (
     tester,
   ) async {
-    uxInstallStub(_queueStub());
+    uxInstallStub(_csStub());
 
     // CsQueueView 无自带 Scaffold：宿主提供，便于独立 pump。
     await _runMatrix(
       tester,
-      const Scaffold(body: CsQueueView()),
+      const Scaffold(body: CsQueueView(orgId: kOrgId)),
       'cs_queue',
       darkVisibleText: find.text('王**'),
     );
@@ -139,16 +193,24 @@ void main() {
     expect(find.text('刚刚'), findsWidgets);
   });
 
-  testWidgets('CsWorkspacePage：矩阵 + TabBar 结构（无 danger 入口 → N/A）', (
+  testWidgets('CsWorkspacePage：组织选择器 + 矩阵 + TabBar 结构（无 danger 入口 → N/A）', (
     tester,
   ) async {
-    uxInstallStub(_queueStub());
+    final stub = _csStub();
+    uxInstallStub(stub);
 
     await _runMatrix(
       tester,
       const CsWorkspacePage(),
       'cs_workspace',
-      darkVisibleText: find.text('客服工作台'),
+      darkVisibleText: find.text(kOrgName),
+    );
+
+    // APP-M01-A01（机械 find）：组织选择器由 seat-contexts 列表驱动。
+    expect(
+      find.text(kOrgName),
+      findsWidgets,
+      reason: '组织选择器显示 seat-contexts 返回的组织名',
     );
 
     // semantics（机械 find）：三个 Tab 文本 + 徽标计数来自服务端键（2）。
@@ -162,5 +224,17 @@ void main() {
     );
     // 队列页为 TabBarView 当前页：接单按钮可达。
     expect(find.widgetWithText(FilledButton, '接单'), findsWidgets);
+
+    // org 作用域机械钉：请求命中 T-2 权威路径（org 显式在路径）。
+    expect(
+      stub.paths.contains('/api/v1/cs/me/seat-contexts'),
+      isTrue,
+      reason: '工作台上下文来自 seat-contexts（主体作用域端点）',
+    );
+    expect(
+      stub.paths.contains('/api/v1/cs/organizations/$kOrgId/sessions/queue'),
+      isTrue,
+      reason: '队列取数走 org 作用域路径',
+    );
   });
 }

@@ -1,9 +1,13 @@
-/// 待接队列视图（§12.5.1 / CSM-01）
+/// 待接队列视图（§12.5.1 / CSM-01 + APP-M01）
 ///
 /// - 列表项：客户掩码名、等待时长、来源渠道、最后一条安全摘要；
-/// - 服务端键集分页（after_id/limit）+ 下拉刷新 + 触底加载；
+/// - 分页/刷新/触底/空态/错误重试复用 [CsPagedSessionList]（单一实现）；
+/// - 服务端计数原样上报（Tab 徽标唯一数据来源，禁止本地推断）；
 /// - CAS 接单：claim 带 expected_version；409 冲突 → 刷新真实状态并提示，
-///   不做乐观伪成功；空态/加载态/错误态/离线重试。
+///   不做乐观伪成功；
+/// - APP-M01-A04：claim 成功后跳转会话页只携带**服务端权威事实**
+///   （org / session / claim 回显经办 identity / 服务端投影 conversation），
+///   路由 query 仅作展示种子，会话页以服务端 detail 为准。
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -15,8 +19,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/domain/cs_queue_format.dart';
 import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
-import 'package:imboy/modules/customer_service/presentation/cs_workspace_page.dart'
-    show CsWorkspaceCounters;
+import 'package:imboy/modules/customer_service/presentation/cs_paged_list.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart'
     show kCsWorkspacePath;
 import 'package:imboy/theme/default/app_colors.dart';
@@ -24,10 +27,13 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 class CsQueueView extends StatefulWidget {
-  /// 服务端计数元数据上报（Tab 徽标唯一数据来源）。
-  final ValueChanged<CsWorkspaceCounters>? onCounters;
+  /// 组织作用域（seat-contexts 列表选中项；服务端逐字校验）。
+  final String orgId;
 
-  const CsQueueView({super.key, this.onCounters});
+  /// 服务端计数元数据上报（Tab 徽标唯一数据来源）。
+  final ValueChanged<CsQueuePage>? onPageMeta;
+
+  const CsQueueView({super.key, required this.orgId, this.onPageMeta});
 
   @override
   State<CsQueueView> createState() => _CsQueueViewState();
@@ -35,151 +41,19 @@ class CsQueueView extends StatefulWidget {
 
 class _CsQueueViewState extends State<CsQueueView> {
   final CsApi _api = CsApi();
-  final ScrollController _scrollController = ScrollController();
-
-  bool _initialLoading = true;
-  bool _refreshing = false;
-  bool _loadingMore = false;
-  String? _error;
-  String _offlineDetail = '';
-
-  List<CsQueueItem> _items = const <CsQueueItem>[];
-
-  /// 下一页游标（服务端 next_after_id；空 = 无更多页）。
-  String _nextAfterId = '';
-
-  /// 服务端计数元数据（原样上报，不本地推断）。
-  int? _serverTotal;
-  Map<String, int>? _serverTotalByStatus;
+  final GlobalKey<CsPagedSessionListState> _listKey =
+      GlobalKey<CsPagedSessionListState>();
 
   /// claim 进行中的会话（防重复点击）。
   String? _claimingSessionId;
 
+  late CsPagedFetch _fetchPage;
+
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
-    _loadFirstPage();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (!_scrollController.hasClients) return;
-    final position = _scrollController.position;
-    if (position.pixels >= position.maxScrollExtent - 120) {
-      _loadMore();
-    }
-  }
-
-  /// 把服务端计数元数据原样上报（徽标唯一数据来源）。
-  void _emitCounters() {
-    widget.onCounters?.call(
-      CsWorkspaceCounters(
-        queuedTotal: _serverTotal ?? _serverTotalByStatus?['queued'],
-        // active/closed 计数本卡服务端未提供（无坐席侧列表端点）。
-        active: _serverTotalByStatus?['active'],
-        closed: _serverTotalByStatus?['closed'],
-      ),
-    );
-  }
-
-  Future<void> _loadFirstPage() async {
-    setState(() {
-      _initialLoading = true;
-      _error = null;
-      _offlineDetail = '';
-    });
-    try {
-      final page = await _api.queuePage(limit: kCsQueuePageSize);
-      if (!mounted) return;
-      setState(() {
-        _items = page.items;
-        _nextAfterId = page.nextAfterId;
-        _serverTotal = page.total;
-        _serverTotalByStatus = page.totalByStatus;
-        _initialLoading = false;
-      });
-      _emitCounters();
-    } on Object catch (e) {
-      if (!mounted) return;
-      final t = context.t.customerService;
-      setState(() {
-        _error = e.toString();
-        _offlineDetail = _isNetworkError(e) ? t.offlineHint : '';
-        _initialLoading = false;
-      });
-    }
-  }
-
-  bool _isNetworkError(Object e) {
-    final s = e.toString().toLowerCase();
-    return s.contains('socket') ||
-        s.contains('network') ||
-        s.contains('connection');
-  }
-
-  /// 下拉刷新：回到第一页（无 after_id），整页替换。
-  Future<void> _refresh() async {
-    if (_refreshing) return;
-    setState(() => _refreshing = true);
-    try {
-      final page = await _api.queuePage(limit: kCsQueuePageSize);
-      if (!mounted) return;
-      setState(() {
-        _items = page.items;
-        _nextAfterId = page.nextAfterId;
-        _serverTotal = page.total;
-        _serverTotalByStatus = page.totalByStatus;
-        _error = null;
-        _offlineDetail = '';
-      });
-      _emitCounters();
-    } on Object catch (e) {
-      if (!mounted) return;
-      final t = context.t.customerService;
-      setState(() {
-        _error = e.toString();
-        _offlineDetail = _isNetworkError(e) ? t.offlineHint : '';
-      });
-    } finally {
-      if (mounted) {
-        setState(() => _refreshing = false);
-      }
-    }
-  }
-
-  /// 触底加载下一页（after_id = 服务端游标；无游标则不请求）。
-  Future<void> _loadMore() async {
-    if (_loadingMore || _refreshing || _initialLoading) return;
-    if (_nextAfterId.isEmpty) return;
-    setState(() => _loadingMore = true);
-    try {
-      final page = await _api.queuePage(
-        afterId: _nextAfterId,
-        limit: kCsQueuePageSize,
-      );
-      if (!mounted) return;
-      // 键集分页防重：游标之后追加，按 sessionId 去重兜底（乱序重放保护）。
-      final known = _items.map((e) => e.sessionId).toSet();
-      final merged = List<CsQueueItem>.from(_items)
-        ..addAll(page.items.where((e) => !known.contains(e.sessionId)));
-      setState(() {
-        _items = merged;
-        _nextAfterId = page.nextAfterId;
-      });
-    } on Object {
-      // 加载更多失败静默保留当前页（触底会重试），不打断浏览。
-    } finally {
-      if (mounted) {
-        setState(() => _loadingMore = false);
-      }
-    }
+    _fetchPage = ({String? afterId, int? limit}) =>
+        _api.queuePage(widget.orgId, afterId: afterId, limit: limit);
   }
 
   /// CAS 接单：成功 → 提示 + 刷新真实队列；409 → 刷新真实状态并提示。
@@ -188,29 +62,38 @@ class _CsQueueViewState extends State<CsQueueView> {
     if (item.version <= 0) {
       // 服务端未回显 version：无法安全发起 CAS，先刷新拿真实版本。
       AppLoading.showToast(context.t.customerService.claimConflict);
-      await _refresh();
+      await _listKey.currentState?.refresh();
       return;
     }
     setState(() => _claimingSessionId = item.sessionId);
     final t = context.t.customerService;
+    String? assigneeIdentityId;
     try {
-      await _api.claim(item.sessionId, expectedVersion: item.version);
+      final result = await _api.claim(
+        widget.orgId,
+        item.sessionId,
+        expectedVersion: item.version,
+      );
+      assigneeIdentityId = result.assigneeIdentityId;
       if (!mounted) return;
       AppLoading.showToast(t.claimSuccess);
       // 接单成功后刷新：徽标与列表以服务端真实状态为准。
-      await _refresh();
+      await _listKey.currentState?.refresh();
       if (!mounted) return;
-      // 接单即经办（CSM-02）：进入坐席会话页（企业消息通道 + 转接/关闭）。
+      // 接单即经办（CSM-02）：进入坐席会话页。query 只携带服务端权威事实
+      //（claim 回显 identity、服务端投影 conversation）作展示种子；会话页
+      // 以服务端 detail 为权威（APP-M01-A04，路由 query 不作授权事实）。
       context.push(
         '$kCsWorkspacePath/sessions/${item.sessionId}'
-        '?org_id=${Uri.encodeComponent(item.organizationId)}'
+        '?org_id=${Uri.encodeComponent(widget.orgId)}'
         '&conversation_id=${Uri.encodeComponent(item.conversationId)}'
+        '&identity_id=${Uri.encodeComponent(assigneeIdentityId)}'
         '&contact_name=${Uri.encodeComponent(item.contactName)}',
       );
     } on CsApiException catch (e) {
       if (!mounted) return;
       // 不做乐观伪成功：先刷新真实状态，再按语义提示。
-      await _refresh();
+      await _listKey.currentState?.refresh();
       if (!mounted) return;
       if (e.isForbidden) {
         AppLoading.showToast(t.claimForbidden);
@@ -247,113 +130,23 @@ class _CsQueueViewState extends State<CsQueueView> {
   @override
   Widget build(BuildContext context) {
     final t = context.t.customerService;
-    if (_initialLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xLarge),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                CupertinoIcons.wifi_exclamationmark,
-                size: 40,
-                color: AppColors.iosGray3,
-              ),
-              const SizedBox(height: AppSpacing.medium),
-              Text(
-                t.loadFailedTitle,
-                style: context.textStyle(FontSizeType.subheadline),
-              ),
-              if (_offlineDetail.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.tiny),
-                Text(
-                  _offlineDetail,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: AppColors.iosGray,
-                  ),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.regular),
-              OutlinedButton.icon(
-                onPressed: _loadFirstPage,
-                icon: const Icon(CupertinoIcons.arrow_clockwise, size: 16),
-                label: Text(context.t.common.buttonRetry),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    if (_items.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _refresh,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 96),
-              child: Column(
-                children: [
-                  const Icon(
-                    CupertinoIcons.tray,
-                    size: 40,
-                    color: AppColors.iosGray3,
-                  ),
-                  const SizedBox(height: AppSpacing.medium),
-                  Text(
-                    t.queuedEmptyTitle,
-                    style: context.textStyle(FontSizeType.subheadline),
-                  ),
-                  const SizedBox(height: AppSpacing.tiny),
-                  Text(
-                    t.queuedEmptyHint,
-                    style: context.textStyle(
-                      FontSizeType.footnote,
-                      color: AppColors.iosGray,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    return RefreshIndicator(
-      onRefresh: _refresh,
-      child: ListView.separated(
-        controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-        itemCount: _items.length + (_nextAfterId.isNotEmpty ? 1 : 0),
-        separatorBuilder: (_, _) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          if (index >= _items.length) {
-            return Padding(
-              padding: const EdgeInsets.all(AppSpacing.regular),
-              child: Center(
-                child: Text(
-                  t.loadingMore,
-                  style: context.textStyle(
-                    FontSizeType.caption2,
-                    color: AppColors.iosGray,
-                  ),
-                ),
-              ),
-            );
-          }
-          return _QueueTile(
-            item: _items[index],
-            waitingLabel: _waitingLabel(_items[index]),
-            claiming: _claimingSessionId == _items[index].sessionId,
-            onClaim: () => _claim(_items[index]),
-          );
-        },
+    return CsPagedSessionList(
+      key: _listKey,
+      fetchPage: _fetchPage,
+      onPageMeta: widget.onPageMeta,
+      emptyView: CsListEmptyView(
+        icon: CupertinoIcons.tray,
+        title: t.queuedEmptyTitle,
+        hint: t.queuedEmptyHint,
       ),
+      itemBuilder: (context, item) {
+        return _QueueTile(
+          item: item,
+          waitingLabel: _waitingLabel(item),
+          claiming: _claimingSessionId == item.sessionId,
+          onClaim: () => _claim(item),
+        );
+      },
     );
   }
 }
