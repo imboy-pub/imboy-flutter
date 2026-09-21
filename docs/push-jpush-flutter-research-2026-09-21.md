@@ -1,6 +1,11 @@
 # Flutter Push Token 生命周期调研与 JPush SDK 选型（EPGZ-07 W1）
 
 > 日期：2026-09-21 ｜ 基线：imboyapp `60bc4925`（branch run/epgz-07-app-20260921T043945Z）
+> ｜ W2 更新（同日）：**F1/F2/F4 已实现**——push_api.dart body 对齐后端合同
+> （device_type/platform 语义拆分）、loginAfter 注册 / quitLogin 注销接线、
+> _navigateByResult 登录守卫；`test/unit_test/service/push_token_lifecycle_test.dart`
+> 全部转 GREEN（真实 PushApi body 断言 + service 行为测试 + 源码接线断言，
+> HTTP 经 adapterForTest 捕获，零真实网络）。SDK 依赖接线仍归 A6（§4）。
 >
 > 范围：计划 §7.4 的 W1 部分——Flutter 端 push 现状梳理、字段错位（App 侧）、
 > token 生命周期 RED 测试骨架、JPush SDK/plugin 选型建议与给 A6 的接线 handoff。
