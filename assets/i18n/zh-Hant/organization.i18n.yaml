@@ -137,3 +137,24 @@ departments:
   emptyWithHint: "尚無部門，點擊右上角新增"
   empty: "尚無部門"
   emptySubtitle: "兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。"
+# ==================== GZAPP-04 G9：企業選擇器（切換/加入企業） ====================
+picker:
+  title: 切換企業
+  switchEnterprise: 切換企業
+  noneSelected: 未選擇企業
+  emptyHint: "尚未加入任何企業\n點擊下方「加入企業」輸入企業邀請碼"
+  joinEnterprise: 加入企業
+  joinOrgIdLabel: 企業 ID
+  joinOrgIdHint: 向企業管理員獲取（數字 ID）
+  joinOrgIdInvalid: 請輸入有效的企業 ID（數字）
+  joinCodeLabel: 企業邀請碼
+  joinSubmit: 加入
+  joinInvalidCode: 企業邀請碼無效或已失效
+  joinExpiredCode: 企業邀請碼已過期
+  joinFailedWith: "加入失敗：${msg} (${code})"
+# ==================== GZAPP-04 G10：通訊錄（全員視角） ====================
+directory:
+  title: 通訊錄
+  deptSection: 部門
+  allMembersSection: 全部成員
+  membersRestricted: 全員名單僅企業管理員可見；可展開部門查看部門成員。

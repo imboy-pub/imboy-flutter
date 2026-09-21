@@ -2355,6 +2355,8 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$members$ru_RU members = _Translations$organization$members$ru_RU._(_root);
 	@override late final _Translations$organization$invitations$ru_RU invitations = _Translations$organization$invitations$ru_RU._(_root);
 	@override late final _Translations$organization$departments$ru_RU departments = _Translations$organization$departments$ru_RU._(_root);
+	@override late final _Translations$organization$picker$ru_RU picker = _Translations$organization$picker$ru_RU._(_root);
+	@override late final _Translations$organization$directory$ru_RU directory = _Translations$organization$directory$ru_RU._(_root);
 }
 
 // Path: passport
@@ -2848,6 +2850,41 @@ class _Translations$organization$departments$ru_RU extends Translations$organiza
 	@override String get emptyWithHint => 'Отделов пока нет — создайте первый кнопкой справа вверху';
 	@override String get empty => 'Пока нет отделов';
 	@override String get emptySubtitle => 'Модель совместительства: один участник может состоять в нескольких отделах; участник отдела сначала должен быть участником этой организации.';
+}
+
+// Path: organization.picker
+class _Translations$organization$picker$ru_RU extends Translations$organization$picker$zh_CN {
+	_Translations$organization$picker$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Переключить предприятие';
+	@override String get switchEnterprise => 'Переключить предприятие';
+	@override String get noneSelected => 'Предприятие не выбрано';
+	@override String get emptyHint => 'Вы ещё не вступили ни в одно предприятие.\nНажмите «Вступить в предприятие» ниже и введите код приглашения';
+	@override String get joinEnterprise => 'Вступить в предприятие';
+	@override String get joinOrgIdLabel => 'ID предприятия';
+	@override String get joinOrgIdHint => 'Получите у администратора предприятия (числовой ID)';
+	@override String get joinOrgIdInvalid => 'Введите корректный ID предприятия (число)';
+	@override String get joinCodeLabel => 'Код приглашения предприятия';
+	@override String get joinSubmit => 'Вступить';
+	@override String get joinInvalidCode => 'Код приглашения предприятия недействителен или отозван';
+	@override String get joinExpiredCode => 'Срок действия кода приглашения предприятия истёк';
+	@override String joinFailedWith({required Object msg, required Object code}) => 'Не удалось вступить: ${msg} (${code})';
+}
+
+// Path: organization.directory
+class _Translations$organization$directory$ru_RU extends Translations$organization$directory$zh_CN {
+	_Translations$organization$directory$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Справочник';
+	@override String get deptSection => 'Отделы';
+	@override String get allMembersSection => 'Все участники';
+	@override String get membersRestricted => 'Полный список участников доступен только администраторам предприятия; раскройте отдел, чтобы увидеть его участников.';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -5015,6 +5052,23 @@ extension on TranslationsRuRu {
 			'organization.departments.emptyWithHint' => 'Отделов пока нет — создайте первый кнопкой справа вверху',
 			'organization.departments.empty' => 'Пока нет отделов',
 			'organization.departments.emptySubtitle' => 'Модель совместительства: один участник может состоять в нескольких отделах; участник отдела сначала должен быть участником этой организации.',
+			'organization.picker.title' => 'Переключить предприятие',
+			'organization.picker.switchEnterprise' => 'Переключить предприятие',
+			'organization.picker.noneSelected' => 'Предприятие не выбрано',
+			'organization.picker.emptyHint' => 'Вы ещё не вступили ни в одно предприятие.\nНажмите «Вступить в предприятие» ниже и введите код приглашения',
+			'organization.picker.joinEnterprise' => 'Вступить в предприятие',
+			'organization.picker.joinOrgIdLabel' => 'ID предприятия',
+			'organization.picker.joinOrgIdHint' => 'Получите у администратора предприятия (числовой ID)',
+			'organization.picker.joinOrgIdInvalid' => 'Введите корректный ID предприятия (число)',
+			'organization.picker.joinCodeLabel' => 'Код приглашения предприятия',
+			'organization.picker.joinSubmit' => 'Вступить',
+			'organization.picker.joinInvalidCode' => 'Код приглашения предприятия недействителен или отозван',
+			'organization.picker.joinExpiredCode' => 'Срок действия кода приглашения предприятия истёк',
+			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Не удалось вступить: ${msg} (${code})',
+			'organization.directory.title' => 'Справочник',
+			'organization.directory.deptSection' => 'Отделы',
+			'organization.directory.allMembersSection' => 'Все участники',
+			'organization.directory.membersRestricted' => 'Полный список участников доступен только администраторам предприятия; раскройте отдел, чтобы увидеть его участников.',
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',

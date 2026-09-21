@@ -15,6 +15,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
+import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
@@ -104,12 +105,49 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
     }
   }
 
+  /// 通讯录入口（GZAPP-04 G10）：目标企业 = 当前企业指针，回落列表首个
+  /// active 组织；无可进企业时禁用。
+  void _openDirectory() {
+    Organization? target;
+    try {
+      target = CurrentOrganizationStore.forAccount(_accountKey).value;
+    } on Object {
+      target = null;
+    }
+    target =
+        _orgsWhere(target?.id ?? '') ??
+        _orgs.where((o) => !o.isArchived).firstOrNull ??
+        _orgs.firstOrNull;
+    if (target == null) return;
+    context.push(
+      '$kOrganizationHomePath/${target.id}/directory?name=${Uri.encodeComponent(target.name)}',
+    );
+  }
+
+  Organization? _orgsWhere(EntityId orgId) {
+    if (orgId.isEmpty) return null;
+    for (final o in _orgs) {
+      if (o.id == orgId) return o;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.organization.home.tabOrg),
         actions: [
+          Semantics(
+            button: true,
+            label: t.organization.directory.title,
+            child: IconButton(
+              key: const ValueKey('organization-home-directory-entry'),
+              icon: const Icon(CupertinoIcons.person_3),
+              tooltip: t.organization.directory.title,
+              onPressed: _openDirectory,
+            ),
+          ),
           Semantics(
             button: true,
             label: t.organization.home.myInvitations,

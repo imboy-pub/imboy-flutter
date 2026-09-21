@@ -2429,6 +2429,8 @@ class _Translations$organization$en_US extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$members$en_US members = _Translations$organization$members$en_US._(_root);
 	@override late final _Translations$organization$invitations$en_US invitations = _Translations$organization$invitations$en_US._(_root);
 	@override late final _Translations$organization$departments$en_US departments = _Translations$organization$departments$en_US._(_root);
+	@override late final _Translations$organization$picker$en_US picker = _Translations$organization$picker$en_US._(_root);
+	@override late final _Translations$organization$directory$en_US directory = _Translations$organization$directory$en_US._(_root);
 }
 
 // Path: passport
@@ -2922,6 +2924,41 @@ class _Translations$organization$departments$en_US extends Translations$organiza
 	@override String get emptyWithHint => 'No departments yet — tap the top-right button to create one';
 	@override String get empty => 'No departments';
 	@override String get emptySubtitle => 'Multi-membership model: one member may belong to multiple departments; department members must first be members of this organization.';
+}
+
+// Path: organization.picker
+class _Translations$organization$picker$en_US extends Translations$organization$picker$zh_CN {
+	_Translations$organization$picker$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Switch enterprise';
+	@override String get switchEnterprise => 'Switch enterprise';
+	@override String get noneSelected => 'No enterprise selected';
+	@override String get emptyHint => 'You have not joined any enterprise yet.\nTap "Join enterprise" below and enter the invite code';
+	@override String get joinEnterprise => 'Join enterprise';
+	@override String get joinOrgIdLabel => 'Enterprise ID';
+	@override String get joinOrgIdHint => 'Provided by an enterprise admin (numeric ID)';
+	@override String get joinOrgIdInvalid => 'Enter a valid enterprise ID (numeric)';
+	@override String get joinCodeLabel => 'Enterprise invite code';
+	@override String get joinSubmit => 'Join';
+	@override String get joinInvalidCode => 'The enterprise invite code is invalid or revoked';
+	@override String get joinExpiredCode => 'The enterprise invite code has expired';
+	@override String joinFailedWith({required Object msg, required Object code}) => 'Join failed: ${msg} (${code})';
+}
+
+// Path: organization.directory
+class _Translations$organization$directory$en_US extends Translations$organization$directory$zh_CN {
+	_Translations$organization$directory$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Directory';
+	@override String get deptSection => 'Departments';
+	@override String get allMembersSection => 'All members';
+	@override String get membersRestricted => 'The full member list is visible to enterprise admins only; expand a department to see its members.';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -5159,6 +5196,23 @@ extension on TranslationsEnUs {
 			'organization.departments.emptyWithHint' => 'No departments yet — tap the top-right button to create one',
 			'organization.departments.empty' => 'No departments',
 			'organization.departments.emptySubtitle' => 'Multi-membership model: one member may belong to multiple departments; department members must first be members of this organization.',
+			'organization.picker.title' => 'Switch enterprise',
+			'organization.picker.switchEnterprise' => 'Switch enterprise',
+			'organization.picker.noneSelected' => 'No enterprise selected',
+			'organization.picker.emptyHint' => 'You have not joined any enterprise yet.\nTap "Join enterprise" below and enter the invite code',
+			'organization.picker.joinEnterprise' => 'Join enterprise',
+			'organization.picker.joinOrgIdLabel' => 'Enterprise ID',
+			'organization.picker.joinOrgIdHint' => 'Provided by an enterprise admin (numeric ID)',
+			'organization.picker.joinOrgIdInvalid' => 'Enter a valid enterprise ID (numeric)',
+			'organization.picker.joinCodeLabel' => 'Enterprise invite code',
+			'organization.picker.joinSubmit' => 'Join',
+			'organization.picker.joinInvalidCode' => 'The enterprise invite code is invalid or revoked',
+			'organization.picker.joinExpiredCode' => 'The enterprise invite code has expired',
+			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Join failed: ${msg} (${code})',
+			'organization.directory.title' => 'Directory',
+			'organization.directory.deptSection' => 'Departments',
+			'organization.directory.allMembersSection' => 'All members',
+			'organization.directory.membersRestricted' => 'The full member list is visible to enterprise admins only; expand a department to see its members.',
 			'passport.loginHistoryToggle' => 'Show login history',
 			'passport.hintEmail' => 'Please enter email',
 			'passport.hintMobile' => 'Please enter mobile number',

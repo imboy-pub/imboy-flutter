@@ -2349,6 +2349,8 @@ class _Translations$organization$it_IT extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$members$it_IT members = _Translations$organization$members$it_IT._(_root);
 	@override late final _Translations$organization$invitations$it_IT invitations = _Translations$organization$invitations$it_IT._(_root);
 	@override late final _Translations$organization$departments$it_IT departments = _Translations$organization$departments$it_IT._(_root);
+	@override late final _Translations$organization$picker$it_IT picker = _Translations$organization$picker$it_IT._(_root);
+	@override late final _Translations$organization$directory$it_IT directory = _Translations$organization$directory$it_IT._(_root);
 }
 
 // Path: passport
@@ -2842,6 +2844,41 @@ class _Translations$organization$departments$it_IT extends Translations$organiza
 	@override String get emptyWithHint => 'Nessun dipartimento: tocca in alto a destra per crearne uno';
 	@override String get empty => 'Nessun dipartimento';
 	@override String get emptySubtitle => 'Modello di appartenenza multipla: uno stesso membro può appartenere a più dipartimenti; i membri di un dipartimento devono prima essere membri di questa organizzazione.';
+}
+
+// Path: organization.picker
+class _Translations$organization$picker$it_IT extends Translations$organization$picker$zh_CN {
+	_Translations$organization$picker$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Cambia azienda';
+	@override String get switchEnterprise => 'Cambia azienda';
+	@override String get noneSelected => 'Nessuna azienda selezionata';
+	@override String get emptyHint => 'Non hai ancora aderito ad alcuna azienda.\nTocca «Partecipa a un\'azienda» qui sotto e inserisci il codice invito';
+	@override String get joinEnterprise => 'Partecipa a un\'azienda';
+	@override String get joinOrgIdLabel => 'ID azienda';
+	@override String get joinOrgIdHint => 'Fornito da un amministratore dell\'azienda (ID numerico)';
+	@override String get joinOrgIdInvalid => 'Inserisci un ID azienda valido (numerico)';
+	@override String get joinCodeLabel => 'Codice invito dell\'azienda';
+	@override String get joinSubmit => 'Partecipa';
+	@override String get joinInvalidCode => 'Il codice invito dell\'azienda non è valido o è stato revocato';
+	@override String get joinExpiredCode => 'Il codice invito dell\'azienda è scaduto';
+	@override String joinFailedWith({required Object msg, required Object code}) => 'Adesione non riuscita: ${msg} (${code})';
+}
+
+// Path: organization.directory
+class _Translations$organization$directory$it_IT extends Translations$organization$directory$zh_CN {
+	_Translations$organization$directory$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Rubrica';
+	@override String get deptSection => 'Dipartimenti';
+	@override String get allMembersSection => 'Tutti i membri';
+	@override String get membersRestricted => 'L\'elenco completo dei membri è visibile solo agli amministratori dell\'azienda; apri un dipartimento per vedere i suoi membri.';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -5009,6 +5046,23 @@ extension on TranslationsItIt {
 			'organization.departments.emptyWithHint' => 'Nessun dipartimento: tocca in alto a destra per crearne uno',
 			'organization.departments.empty' => 'Nessun dipartimento',
 			'organization.departments.emptySubtitle' => 'Modello di appartenenza multipla: uno stesso membro può appartenere a più dipartimenti; i membri di un dipartimento devono prima essere membri di questa organizzazione.',
+			'organization.picker.title' => 'Cambia azienda',
+			'organization.picker.switchEnterprise' => 'Cambia azienda',
+			'organization.picker.noneSelected' => 'Nessuna azienda selezionata',
+			'organization.picker.emptyHint' => 'Non hai ancora aderito ad alcuna azienda.\nTocca «Partecipa a un\'azienda» qui sotto e inserisci il codice invito',
+			'organization.picker.joinEnterprise' => 'Partecipa a un\'azienda',
+			'organization.picker.joinOrgIdLabel' => 'ID azienda',
+			'organization.picker.joinOrgIdHint' => 'Fornito da un amministratore dell\'azienda (ID numerico)',
+			'organization.picker.joinOrgIdInvalid' => 'Inserisci un ID azienda valido (numerico)',
+			'organization.picker.joinCodeLabel' => 'Codice invito dell\'azienda',
+			'organization.picker.joinSubmit' => 'Partecipa',
+			'organization.picker.joinInvalidCode' => 'Il codice invito dell\'azienda non è valido o è stato revocato',
+			'organization.picker.joinExpiredCode' => 'Il codice invito dell\'azienda è scaduto',
+			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Adesione non riuscita: ${msg} (${code})',
+			'organization.directory.title' => 'Rubrica',
+			'organization.directory.deptSection' => 'Dipartimenti',
+			'organization.directory.allMembersSection' => 'Tutti i membri',
+			'organization.directory.membersRestricted' => 'L\'elenco completo dei membri è visibile solo agli amministratori dell\'azienda; apri un dipartimento per vedere i suoi membri.',
 			'passport.loginHistoryToggle' => 'Mostra cronologia accessi',
 			'passport.hintEmail' => 'Inserisci email',
 			'passport.hintMobile' => 'Inserisci numero di telefono',

@@ -7,16 +7,25 @@
 /// 状态机：idle → submitting → success（joined/unchanged 均成功）|
 /// invalidCode(981) | expiredCode(982) | failed（其它异常，服务端消息
 /// 透出）。错误文案映射（i18n）留在页面——控制器不持有 BuildContext。
+///
+/// GZAPP-04：入口决定端点分支（[WorkspaceJoinEntryKind]）——
+/// workspace（默认，团队码 join ws）| organization（企业邀请码 join org，
+/// 需 organizationId + joinOrgByCode 注入；981/982 语义与 ws 团队码一致）。
 library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'package:imboy/modules/organization/domain/organization_models.dart';
+import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
 /// 团队码长度（后端契约：8 位大写字母数字）。
 const int kWorkspaceJoinCodeLength = 8;
+
+/// 加入入口决定调用哪个端点（GZAPP-04：org code vs ws code）。
+enum WorkspaceJoinEntryKind { workspace, organization }
 
 /// 加入流程阶段。
 enum WorkspaceJoinPhase {
@@ -32,11 +41,14 @@ enum WorkspaceJoinPhase {
 class WorkspaceJoinState {
   final WorkspaceJoinPhase phase;
 
-  /// 成功加入的工作区（仅 success 有值）。
+  /// 成功加入的工作区（仅 success 且 workspace 入口有值）。
   final WorkspaceModel workspace;
 
   /// success 下：unchanged（已是成员，幂等命中）→ 成功提示用 joinAlreadyMember。
   final bool alreadyMember;
+
+  /// 成功加入的企业（仅 success 且 organization 入口有值）。
+  final OrganizationJoinOutcome orgOutcome;
 
   /// failed 的透出消息（invalidCode/expiredCode 由页面映射 i18n）。
   final String message;
@@ -45,6 +57,7 @@ class WorkspaceJoinState {
     this.phase = WorkspaceJoinPhase.idle,
     this.workspace = const WorkspaceModel(id: '', name: '', ownerId: ''),
     this.alreadyMember = false,
+    this.orgOutcome = const OrganizationJoinOutcome(),
     this.message = '',
   });
 
@@ -52,11 +65,13 @@ class WorkspaceJoinState {
     WorkspaceJoinPhase? phase,
     WorkspaceModel? workspace,
     bool? alreadyMember,
+    OrganizationJoinOutcome? orgOutcome,
     String? message,
   }) => WorkspaceJoinState(
     phase: phase ?? this.phase,
     workspace: workspace ?? this.workspace,
     alreadyMember: alreadyMember ?? this.alreadyMember,
+    orgOutcome: orgOutcome ?? this.orgOutcome,
     message: message ?? this.message,
   );
 }
@@ -92,6 +107,17 @@ class WorkspaceCodeInputFormatter extends TextInputFormatter {
 
 /// 「团队码加入」状态机。
 class WorkspaceJoinController extends ChangeNotifier {
+  WorkspaceJoinController({
+    this.entryKind = WorkspaceJoinEntryKind.workspace,
+    this.organizationId = '',
+  });
+
+  /// 入口决定的端点分支（GZAPP-04：org code vs ws code）。
+  final WorkspaceJoinEntryKind entryKind;
+
+  /// organization 入口的目标企业 ID（TSID 字符串；workspace 入口忽略）。
+  final EntityId organizationId;
+
   WorkspaceJoinState _state = const WorkspaceJoinState();
   String _code = '';
 
@@ -121,13 +147,37 @@ class WorkspaceJoinController extends ChangeNotifier {
 
   /// 提交加入。返回是否成功（joined/unchanged 均为 true；失败留在页面，
   /// 由 state.phase/message 驱动页内错误文案）。
+  ///
+  /// 端点分支由 [entryKind] 决定（GZAPP-04）：workspace → joinByCode
+  /// （注入必须非空）；organization → joinOrgByCode（注入必须非空且
+  /// [organizationId] 已配置），organization 分支成功态落在
+  /// state.orgOutcome。
   Future<bool> submit({
-    required Future<WorkspaceJoinResult> Function(String code) joinByCode,
+    Future<WorkspaceJoinResult> Function(String code)? joinByCode,
+    Future<OrganizationJoinOutcome> Function(EntityId orgId, String code)?
+    joinOrgByCode,
   }) async {
     if (!canSubmit || isSubmitting) return false;
+    if (entryKind == WorkspaceJoinEntryKind.workspace && joinByCode == null) {
+      return false;
+    }
+    if (entryKind == WorkspaceJoinEntryKind.organization &&
+        (joinOrgByCode == null || organizationId.isEmpty)) {
+      return false;
+    }
     _set(const WorkspaceJoinState(phase: WorkspaceJoinPhase.submitting));
     try {
-      final result = await joinByCode(_code);
+      if (entryKind == WorkspaceJoinEntryKind.organization) {
+        final outcome = await joinOrgByCode!(organizationId, _code);
+        _set(
+          WorkspaceJoinState(
+            phase: WorkspaceJoinPhase.success,
+            orgOutcome: outcome,
+          ),
+        );
+        return true;
+      }
+      final result = await joinByCode!(_code);
       _set(
         WorkspaceJoinState(
           phase: WorkspaceJoinPhase.success,
@@ -137,20 +187,10 @@ class WorkspaceJoinController extends ChangeNotifier {
       );
       return true;
     } on WorkspaceApiException catch (e) {
-      if (e.isInviteInvalid) {
-        _set(const WorkspaceJoinState(phase: WorkspaceJoinPhase.invalidCode));
-      } else if (e.isInviteExpired) {
-        _set(const WorkspaceJoinState(phase: WorkspaceJoinPhase.expiredCode));
-      } else {
-        // 403 越权 / 980 归档 / 404 等：服务端消息原样透出
-        _set(
-          WorkspaceJoinState(
-            phase: WorkspaceJoinPhase.failed,
-            message: e.message,
-          ),
-        );
-      }
-      return false;
+      return _mapJoinError(e.isInviteInvalid, e.isInviteExpired, e.message);
+    } on OrganizationApiException catch (e) {
+      // 企业邀请码分支：981/982 与 ws 团队码同语义（GZAPP-01 契约）。
+      return _mapJoinError(e.isInviteInvalid, e.isInviteExpired, e.message);
     } catch (e) {
       _set(
         WorkspaceJoinState(
@@ -160,6 +200,20 @@ class WorkspaceJoinController extends ChangeNotifier {
       );
       return false;
     }
+  }
+
+  bool _mapJoinError(bool invalid, bool expired, String message) {
+    if (invalid) {
+      _set(const WorkspaceJoinState(phase: WorkspaceJoinPhase.invalidCode));
+    } else if (expired) {
+      _set(const WorkspaceJoinState(phase: WorkspaceJoinPhase.expiredCode));
+    } else {
+      // 403 越权 / 980 归档 / 404 等：服务端消息原样透出
+      _set(
+        WorkspaceJoinState(phase: WorkspaceJoinPhase.failed, message: message),
+      );
+    }
+    return false;
   }
 
   /// 重置（离开页面/换码重输）。

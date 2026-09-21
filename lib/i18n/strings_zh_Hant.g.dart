@@ -2346,6 +2346,8 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$members$zh_Hant members = Translations$organization$members$zh_Hant.internal(_root);
 	@override late final Translations$organization$invitations$zh_Hant invitations = Translations$organization$invitations$zh_Hant.internal(_root);
 	@override late final Translations$organization$departments$zh_Hant departments = Translations$organization$departments$zh_Hant.internal(_root);
+	@override late final Translations$organization$picker$zh_Hant picker = Translations$organization$picker$zh_Hant.internal(_root);
+	@override late final Translations$organization$directory$zh_Hant directory = Translations$organization$directory$zh_Hant.internal(_root);
 }
 
 // Path: passport
@@ -2839,6 +2841,41 @@ class Translations$organization$departments$zh_Hant extends Translations$organiz
 	@override String get emptyWithHint => '尚無部門，點擊右上角新增';
 	@override String get empty => '尚無部門';
 	@override String get emptySubtitle => '兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。';
+}
+
+// Path: organization.picker
+class Translations$organization$picker$zh_Hant extends Translations$organization$picker$zh_CN {
+	Translations$organization$picker$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '切換企業';
+	@override String get switchEnterprise => '切換企業';
+	@override String get noneSelected => '未選擇企業';
+	@override String get emptyHint => '尚未加入任何企業\n點擊下方「加入企業」輸入企業邀請碼';
+	@override String get joinEnterprise => '加入企業';
+	@override String get joinOrgIdLabel => '企業 ID';
+	@override String get joinOrgIdHint => '向企業管理員獲取（數字 ID）';
+	@override String get joinOrgIdInvalid => '請輸入有效的企業 ID（數字）';
+	@override String get joinCodeLabel => '企業邀請碼';
+	@override String get joinSubmit => '加入';
+	@override String get joinInvalidCode => '企業邀請碼無效或已失效';
+	@override String get joinExpiredCode => '企業邀請碼已過期';
+	@override String joinFailedWith({required Object msg, required Object code}) => '加入失敗：${msg} (${code})';
+}
+
+// Path: organization.directory
+class Translations$organization$directory$zh_Hant extends Translations$organization$directory$zh_CN {
+	Translations$organization$directory$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '通訊錄';
+	@override String get deptSection => '部門';
+	@override String get allMembersSection => '全部成員';
+	@override String get membersRestricted => '全員名單僅企業管理員可見；可展開部門查看部門成員。';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -5006,6 +5043,23 @@ extension on TranslationsZhHant {
 			'organization.departments.emptyWithHint' => '尚無部門，點擊右上角新增',
 			'organization.departments.empty' => '尚無部門',
 			'organization.departments.emptySubtitle' => '兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。',
+			'organization.picker.title' => '切換企業',
+			'organization.picker.switchEnterprise' => '切換企業',
+			'organization.picker.noneSelected' => '未選擇企業',
+			'organization.picker.emptyHint' => '尚未加入任何企業\n點擊下方「加入企業」輸入企業邀請碼',
+			'organization.picker.joinEnterprise' => '加入企業',
+			'organization.picker.joinOrgIdLabel' => '企業 ID',
+			'organization.picker.joinOrgIdHint' => '向企業管理員獲取（數字 ID）',
+			'organization.picker.joinOrgIdInvalid' => '請輸入有效的企業 ID（數字）',
+			'organization.picker.joinCodeLabel' => '企業邀請碼',
+			'organization.picker.joinSubmit' => '加入',
+			'organization.picker.joinInvalidCode' => '企業邀請碼無效或已失效',
+			'organization.picker.joinExpiredCode' => '企業邀請碼已過期',
+			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => '加入失敗：${msg} (${code})',
+			'organization.directory.title' => '通訊錄',
+			'organization.directory.deptSection' => '部門',
+			'organization.directory.allMembersSection' => '全部成員',
+			'organization.directory.membersRestricted' => '全員名單僅企業管理員可見；可展開部門查看部門成員。',
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',

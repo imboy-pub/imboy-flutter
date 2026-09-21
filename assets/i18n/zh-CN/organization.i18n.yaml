@@ -136,3 +136,24 @@ departments:
   emptyWithHint: 暂无部门，点击右上角新建
   empty: 暂无部门
   emptySubtitle: 兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。
+# ==================== GZAPP-04 G9：企业选择器（切换/加入企业） ====================
+picker:
+  title: 切换企业
+  switchEnterprise: 切换企业
+  noneSelected: 未选择企业
+  emptyHint: "尚未加入任何企业\n点击下方「加入企业」输入企业邀请码"
+  joinEnterprise: 加入企业
+  joinOrgIdLabel: 企业 ID
+  joinOrgIdHint: 向企业管理员获取（数字 ID）
+  joinOrgIdInvalid: 请输入有效的企业 ID（数字）
+  joinCodeLabel: 企业邀请码
+  joinSubmit: 加入
+  joinInvalidCode: 企业邀请码无效或已失效
+  joinExpiredCode: 企业邀请码已过期
+  joinFailedWith: "加入失败：${msg} (${code})"
+# ==================== GZAPP-04 G10：通讯录（全员视角） ====================
+directory:
+  title: 通讯录
+  deptSection: 部门
+  allMembersSection: 全部成员
+  membersRestricted: 全员名单仅企业管理员可见；可展开部门查看部门成员。

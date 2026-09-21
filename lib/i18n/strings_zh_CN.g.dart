@@ -6649,6 +6649,8 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$members$zh_CN members = Translations$organization$members$zh_CN.internal(_root);
 	late final Translations$organization$invitations$zh_CN invitations = Translations$organization$invitations$zh_CN.internal(_root);
 	late final Translations$organization$departments$zh_CN departments = Translations$organization$departments$zh_CN.internal(_root);
+	late final Translations$organization$picker$zh_CN picker = Translations$organization$picker$zh_CN.internal(_root);
+	late final Translations$organization$directory$zh_CN directory = Translations$organization$directory$zh_CN.internal(_root);
 }
 
 // Path: passport
@@ -7930,6 +7932,75 @@ class Translations$organization$departments$zh_CN {
 
 	/// zh-CN: '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。'
 	String get emptySubtitle => '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。';
+}
+
+// Path: organization.picker
+class Translations$organization$picker$zh_CN {
+	Translations$organization$picker$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '切换企业'
+	String get title => '切换企业';
+
+	/// zh-CN: '切换企业'
+	String get switchEnterprise => '切换企业';
+
+	/// zh-CN: '未选择企业'
+	String get noneSelected => '未选择企业';
+
+	/// zh-CN: '尚未加入任何企业 点击下方「加入企业」输入企业邀请码'
+	String get emptyHint => '尚未加入任何企业\n点击下方「加入企业」输入企业邀请码';
+
+	/// zh-CN: '加入企业'
+	String get joinEnterprise => '加入企业';
+
+	/// zh-CN: '企业 ID'
+	String get joinOrgIdLabel => '企业 ID';
+
+	/// zh-CN: '向企业管理员获取（数字 ID）'
+	String get joinOrgIdHint => '向企业管理员获取（数字 ID）';
+
+	/// zh-CN: '请输入有效的企业 ID（数字）'
+	String get joinOrgIdInvalid => '请输入有效的企业 ID（数字）';
+
+	/// zh-CN: '企业邀请码'
+	String get joinCodeLabel => '企业邀请码';
+
+	/// zh-CN: '加入'
+	String get joinSubmit => '加入';
+
+	/// zh-CN: '企业邀请码无效或已失效'
+	String get joinInvalidCode => '企业邀请码无效或已失效';
+
+	/// zh-CN: '企业邀请码已过期'
+	String get joinExpiredCode => '企业邀请码已过期';
+
+	/// zh-CN: '加入失败：${msg} (${code})'
+	String joinFailedWith({required Object msg, required Object code}) => '加入失败：${msg} (${code})';
+}
+
+// Path: organization.directory
+class Translations$organization$directory$zh_CN {
+	Translations$organization$directory$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '通讯录'
+	String get title => '通讯录';
+
+	/// zh-CN: '部门'
+	String get deptSection => '部门';
+
+	/// zh-CN: '全部成员'
+	String get allMembersSection => '全部成员';
+
+	/// zh-CN: '全员名单仅企业管理员可见；可展开部门查看部门成员。'
+	String get membersRestricted => '全员名单仅企业管理员可见；可展开部门查看部门成员。';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -10187,6 +10258,23 @@ extension on Translations {
 			'organization.departments.emptyWithHint' => '暂无部门，点击右上角新建',
 			'organization.departments.empty' => '暂无部门',
 			'organization.departments.emptySubtitle' => '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。',
+			'organization.picker.title' => '切换企业',
+			'organization.picker.switchEnterprise' => '切换企业',
+			'organization.picker.noneSelected' => '未选择企业',
+			'organization.picker.emptyHint' => '尚未加入任何企业\n点击下方「加入企业」输入企业邀请码',
+			'organization.picker.joinEnterprise' => '加入企业',
+			'organization.picker.joinOrgIdLabel' => '企业 ID',
+			'organization.picker.joinOrgIdHint' => '向企业管理员获取（数字 ID）',
+			'organization.picker.joinOrgIdInvalid' => '请输入有效的企业 ID（数字）',
+			'organization.picker.joinCodeLabel' => '企业邀请码',
+			'organization.picker.joinSubmit' => '加入',
+			'organization.picker.joinInvalidCode' => '企业邀请码无效或已失效',
+			'organization.picker.joinExpiredCode' => '企业邀请码已过期',
+			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => '加入失败：${msg} (${code})',
+			'organization.directory.title' => '通讯录',
+			'organization.directory.deptSection' => '部门',
+			'organization.directory.allMembersSection' => '全部成员',
+			'organization.directory.membersRestricted' => '全员名单仅企业管理员可见；可展开部门查看部门成员。',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',

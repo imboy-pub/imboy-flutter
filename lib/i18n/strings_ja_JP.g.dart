@@ -2346,6 +2346,8 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$members$ja_JP members = _Translations$organization$members$ja_JP._(_root);
 	@override late final _Translations$organization$invitations$ja_JP invitations = _Translations$organization$invitations$ja_JP._(_root);
 	@override late final _Translations$organization$departments$ja_JP departments = _Translations$organization$departments$ja_JP._(_root);
+	@override late final _Translations$organization$picker$ja_JP picker = _Translations$organization$picker$ja_JP._(_root);
+	@override late final _Translations$organization$directory$ja_JP directory = _Translations$organization$directory$ja_JP._(_root);
 }
 
 // Path: passport
@@ -2839,6 +2841,41 @@ class _Translations$organization$departments$ja_JP extends Translations$organiza
 	@override String get emptyWithHint => '部門がありません。右上から作成してください';
 	@override String get empty => '部門がありません';
 	@override String get emptySubtitle => '兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。';
+}
+
+// Path: organization.picker
+class _Translations$organization$picker$ja_JP extends Translations$organization$picker$zh_CN {
+	_Translations$organization$picker$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '企業を切り替え';
+	@override String get switchEnterprise => '企業を切り替え';
+	@override String get noneSelected => '企業が選択されていません';
+	@override String get emptyHint => 'まだどの企業にも参加していません。\n下の「企業に参加」をタップして招待コードを入力してください';
+	@override String get joinEnterprise => '企業に参加';
+	@override String get joinOrgIdLabel => '企業 ID';
+	@override String get joinOrgIdHint => '企業管理者から入手してください（数値 ID）';
+	@override String get joinOrgIdInvalid => '有効な企業 ID を入力してください（数値）';
+	@override String get joinCodeLabel => '企業招待コード';
+	@override String get joinSubmit => '参加';
+	@override String get joinInvalidCode => '企業招待コードが無効または失効しています';
+	@override String get joinExpiredCode => '企業招待コードの有効期限が切れています';
+	@override String joinFailedWith({required Object msg, required Object code}) => '参加に失敗しました：${msg} (${code})';
+}
+
+// Path: organization.directory
+class _Translations$organization$directory$ja_JP extends Translations$organization$directory$zh_CN {
+	_Translations$organization$directory$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ディレクトリ';
+	@override String get deptSection => '部門';
+	@override String get allMembersSection => 'すべてのメンバー';
+	@override String get membersRestricted => 'メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -5006,6 +5043,23 @@ extension on TranslationsJaJp {
 			'organization.departments.emptyWithHint' => '部門がありません。右上から作成してください',
 			'organization.departments.empty' => '部門がありません',
 			'organization.departments.emptySubtitle' => '兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。',
+			'organization.picker.title' => '企業を切り替え',
+			'organization.picker.switchEnterprise' => '企業を切り替え',
+			'organization.picker.noneSelected' => '企業が選択されていません',
+			'organization.picker.emptyHint' => 'まだどの企業にも参加していません。\n下の「企業に参加」をタップして招待コードを入力してください',
+			'organization.picker.joinEnterprise' => '企業に参加',
+			'organization.picker.joinOrgIdLabel' => '企業 ID',
+			'organization.picker.joinOrgIdHint' => '企業管理者から入手してください（数値 ID）',
+			'organization.picker.joinOrgIdInvalid' => '有効な企業 ID を入力してください（数値）',
+			'organization.picker.joinCodeLabel' => '企業招待コード',
+			'organization.picker.joinSubmit' => '参加',
+			'organization.picker.joinInvalidCode' => '企業招待コードが無効または失効しています',
+			'organization.picker.joinExpiredCode' => '企業招待コードの有効期限が切れています',
+			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => '参加に失敗しました：${msg} (${code})',
+			'organization.directory.title' => 'ディレクトリ',
+			'organization.directory.deptSection' => '部門',
+			'organization.directory.allMembersSection' => 'すべてのメンバー',
+			'organization.directory.membersRestricted' => 'メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。',
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',

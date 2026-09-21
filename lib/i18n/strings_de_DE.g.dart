@@ -2349,6 +2349,8 @@ class _Translations$organization$de_DE extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$members$de_DE members = _Translations$organization$members$de_DE._(_root);
 	@override late final _Translations$organization$invitations$de_DE invitations = _Translations$organization$invitations$de_DE._(_root);
 	@override late final _Translations$organization$departments$de_DE departments = _Translations$organization$departments$de_DE._(_root);
+	@override late final _Translations$organization$picker$de_DE picker = _Translations$organization$picker$de_DE._(_root);
+	@override late final _Translations$organization$directory$de_DE directory = _Translations$organization$directory$de_DE._(_root);
 }
 
 // Path: passport
@@ -2842,6 +2844,41 @@ class _Translations$organization$departments$de_DE extends Translations$organiza
 	@override String get emptyWithHint => 'Noch keine Abteilungen – erstelle oben rechts eine';
 	@override String get empty => 'Keine Abteilungen';
 	@override String get emptySubtitle => 'Mehrfachmitgliedschaft: Ein Mitglied kann mehreren Abteilungen angehören; Abteilungsmitglieder müssen zuerst Mitglieder dieser Organisation sein.';
+}
+
+// Path: organization.picker
+class _Translations$organization$picker$de_DE extends Translations$organization$picker$zh_CN {
+	_Translations$organization$picker$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Unternehmen wechseln';
+	@override String get switchEnterprise => 'Unternehmen wechseln';
+	@override String get noneSelected => 'Kein Unternehmen ausgewählt';
+	@override String get emptyHint => 'Du bist noch keinem Unternehmen beigetreten.\nTippe unten auf „Unternehmen beitreten“ und gib den Einladungscode ein';
+	@override String get joinEnterprise => 'Unternehmen beitreten';
+	@override String get joinOrgIdLabel => 'Unternehmens-ID';
+	@override String get joinOrgIdHint => 'Von einem Unternehmensadmin erhalten (numerische ID)';
+	@override String get joinOrgIdInvalid => 'Gib eine gültige Unternehmens-ID ein (numerisch)';
+	@override String get joinCodeLabel => 'Einladungscode des Unternehmens';
+	@override String get joinSubmit => 'Beitreten';
+	@override String get joinInvalidCode => 'Der Einladungscode des Unternehmens ist ungültig oder wurde widerrufen';
+	@override String get joinExpiredCode => 'Der Einladungscode des Unternehmens ist abgelaufen';
+	@override String joinFailedWith({required Object msg, required Object code}) => 'Beitritt fehlgeschlagen: ${msg} (${code})';
+}
+
+// Path: organization.directory
+class _Translations$organization$directory$de_DE extends Translations$organization$directory$zh_CN {
+	_Translations$organization$directory$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Verzeichnis';
+	@override String get deptSection => 'Abteilungen';
+	@override String get allMembersSection => 'Alle Mitglieder';
+	@override String get membersRestricted => 'Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen.';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -5009,6 +5046,23 @@ extension on TranslationsDeDe {
 			'organization.departments.emptyWithHint' => 'Noch keine Abteilungen – erstelle oben rechts eine',
 			'organization.departments.empty' => 'Keine Abteilungen',
 			'organization.departments.emptySubtitle' => 'Mehrfachmitgliedschaft: Ein Mitglied kann mehreren Abteilungen angehören; Abteilungsmitglieder müssen zuerst Mitglieder dieser Organisation sein.',
+			'organization.picker.title' => 'Unternehmen wechseln',
+			'organization.picker.switchEnterprise' => 'Unternehmen wechseln',
+			'organization.picker.noneSelected' => 'Kein Unternehmen ausgewählt',
+			'organization.picker.emptyHint' => 'Du bist noch keinem Unternehmen beigetreten.\nTippe unten auf „Unternehmen beitreten“ und gib den Einladungscode ein',
+			'organization.picker.joinEnterprise' => 'Unternehmen beitreten',
+			'organization.picker.joinOrgIdLabel' => 'Unternehmens-ID',
+			'organization.picker.joinOrgIdHint' => 'Von einem Unternehmensadmin erhalten (numerische ID)',
+			'organization.picker.joinOrgIdInvalid' => 'Gib eine gültige Unternehmens-ID ein (numerisch)',
+			'organization.picker.joinCodeLabel' => 'Einladungscode des Unternehmens',
+			'organization.picker.joinSubmit' => 'Beitreten',
+			'organization.picker.joinInvalidCode' => 'Der Einladungscode des Unternehmens ist ungültig oder wurde widerrufen',
+			'organization.picker.joinExpiredCode' => 'Der Einladungscode des Unternehmens ist abgelaufen',
+			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Beitritt fehlgeschlagen: ${msg} (${code})',
+			'organization.directory.title' => 'Verzeichnis',
+			'organization.directory.deptSection' => 'Abteilungen',
+			'organization.directory.allMembersSection' => 'Alle Mitglieder',
+			'organization.directory.membersRestricted' => 'Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen.',
 			'passport.loginHistoryToggle' => 'Anmeldeverlauf anzeigen',
 			'passport.hintEmail' => 'Bitte E-Mail eingeben',
 			'passport.hintMobile' => 'Bitte Mobilfunknummer eingeben',

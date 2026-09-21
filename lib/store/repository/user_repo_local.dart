@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
+import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
 import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -258,6 +260,12 @@ class UserRepoLocal extends ChangeNotifier {
       await PushNotificationService.instance.unregisterToken();
 
       iPrint("> quitLogin: Removing storage data");
+      // GZAPP-04 G11：登出清理企业域内存缓存与当前企业指针（账号 scope，
+      // 不影响其他账号）——残留会让换号后串见上一账号的企业上下文。
+      if (logoutUid.isNotEmpty) {
+        OrganizationCache.disposeAccount(logoutUid);
+        CurrentOrganizationStore.disposeAccount(logoutUid);
+      }
       await StorageService.to.remove(Keys.currentUid);
       await StorageService.to.remove(Keys.wsUrl);
       await StorageService.to.remove(Keys.uploadUrl);

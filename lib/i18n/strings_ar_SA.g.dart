@@ -2358,6 +2358,8 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$members$ar_SA members = _Translations$organization$members$ar_SA._(_root);
 	@override late final _Translations$organization$invitations$ar_SA invitations = _Translations$organization$invitations$ar_SA._(_root);
 	@override late final _Translations$organization$departments$ar_SA departments = _Translations$organization$departments$ar_SA._(_root);
+	@override late final _Translations$organization$picker$ar_SA picker = _Translations$organization$picker$ar_SA._(_root);
+	@override late final _Translations$organization$directory$ar_SA directory = _Translations$organization$directory$ar_SA._(_root);
 }
 
 // Path: passport
@@ -2851,6 +2853,41 @@ class _Translations$organization$departments$ar_SA extends Translations$organiza
 	@override String get emptyWithHint => 'لا توجد أقسام، أنشئ قسماً من الزر في أعلى اليمين';
 	@override String get empty => 'لا توجد أقسام';
 	@override String get emptySubtitle => 'نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة.';
+}
+
+// Path: organization.picker
+class _Translations$organization$picker$ar_SA extends Translations$organization$picker$zh_CN {
+	_Translations$organization$picker$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'تبديل المؤسسة';
+	@override String get switchEnterprise => 'تبديل المؤسسة';
+	@override String get noneSelected => 'لم يتم اختيار مؤسسة';
+	@override String get emptyHint => 'لم تنضم إلى أي مؤسسة بعد.\nاضغط «الانضمام إلى مؤسسة» أدناه وأدخل رمز الدعوة';
+	@override String get joinEnterprise => 'الانضمام إلى مؤسسة';
+	@override String get joinOrgIdLabel => 'معرّف المؤسسة';
+	@override String get joinOrgIdHint => 'يتم الحصول عليه من مسؤول المؤسسة (معرّف رقمي)';
+	@override String get joinOrgIdInvalid => 'أدخل معرّف مؤسسة صالحًا (رقمي)';
+	@override String get joinCodeLabel => 'رمز دعوة المؤسسة';
+	@override String get joinSubmit => 'انضمام';
+	@override String get joinInvalidCode => 'رمز دعوة المؤسسة غير صالح أو ملغى';
+	@override String get joinExpiredCode => 'انتهت صلاحية رمز دعوة المؤسسة';
+	@override String joinFailedWith({required Object msg, required Object code}) => 'فشل الانضمام: ${msg} (${code})';
+}
+
+// Path: organization.directory
+class _Translations$organization$directory$ar_SA extends Translations$organization$directory$zh_CN {
+	_Translations$organization$directory$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'الدليل';
+	@override String get deptSection => 'الأقسام';
+	@override String get allMembersSection => 'جميع الأعضاء';
+	@override String get membersRestricted => 'قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه.';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -5018,6 +5055,23 @@ extension on TranslationsArSa {
 			'organization.departments.emptyWithHint' => 'لا توجد أقسام، أنشئ قسماً من الزر في أعلى اليمين',
 			'organization.departments.empty' => 'لا توجد أقسام',
 			'organization.departments.emptySubtitle' => 'نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة.',
+			'organization.picker.title' => 'تبديل المؤسسة',
+			'organization.picker.switchEnterprise' => 'تبديل المؤسسة',
+			'organization.picker.noneSelected' => 'لم يتم اختيار مؤسسة',
+			'organization.picker.emptyHint' => 'لم تنضم إلى أي مؤسسة بعد.\nاضغط «الانضمام إلى مؤسسة» أدناه وأدخل رمز الدعوة',
+			'organization.picker.joinEnterprise' => 'الانضمام إلى مؤسسة',
+			'organization.picker.joinOrgIdLabel' => 'معرّف المؤسسة',
+			'organization.picker.joinOrgIdHint' => 'يتم الحصول عليه من مسؤول المؤسسة (معرّف رقمي)',
+			'organization.picker.joinOrgIdInvalid' => 'أدخل معرّف مؤسسة صالحًا (رقمي)',
+			'organization.picker.joinCodeLabel' => 'رمز دعوة المؤسسة',
+			'organization.picker.joinSubmit' => 'انضمام',
+			'organization.picker.joinInvalidCode' => 'رمز دعوة المؤسسة غير صالح أو ملغى',
+			'organization.picker.joinExpiredCode' => 'انتهت صلاحية رمز دعوة المؤسسة',
+			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'فشل الانضمام: ${msg} (${code})',
+			'organization.directory.title' => 'الدليل',
+			'organization.directory.deptSection' => 'الأقسام',
+			'organization.directory.allMembersSection' => 'جميع الأعضاء',
+			'organization.directory.membersRestricted' => 'قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه.',
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',

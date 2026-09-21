@@ -137,3 +137,24 @@ departments:
   emptyWithHint: "부서가 없습니다. 오른쪽 위에서 만들어 보세요"
   empty: "부서가 없습니다"
   emptySubtitle: "겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다."
+# ==================== GZAPP-04 G9: 기업 선택기(전환/가입) ====================
+picker:
+  title: "기업 전환"
+  switchEnterprise: "기업 전환"
+  noneSelected: "선택된 기업 없음"
+  emptyHint: "아직 가입한 기업이 없습니다.\n아래 \"기업 가입\"을 눌러 초대 코드를 입력하세요"
+  joinEnterprise: "기업 가입"
+  joinOrgIdLabel: "기업 ID"
+  joinOrgIdHint: "기업 관리자에게 받으세요(숫자 ID)"
+  joinOrgIdInvalid: "유효한 기업 ID를 입력하세요(숫자)"
+  joinCodeLabel: "기업 초대 코드"
+  joinSubmit: "가입"
+  joinInvalidCode: "기업 초대 코드가 유효하지 않거나 취소되었습니다"
+  joinExpiredCode: "기업 초대 코드가 만료되었습니다"
+  joinFailedWith: "가입 실패: ${msg} (${code})"
+# ==================== GZAPP-04 G10: 디렉터리(전체 멤버 보기) ====================
+directory:
+  title: "디렉터리"
+  deptSection: "부서"
+  allMembersSection: "전체 멤버"
+  membersRestricted: "전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요."

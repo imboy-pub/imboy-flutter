@@ -40,6 +40,12 @@ class OrganizationApiException implements Exception {
   /// 503：删除预检依赖域事实不可用（fail-closed，C17）。
   bool get isFactsUnavailable => code == 503;
 
+  /// 981：企业邀请码无效/已撤销（GZAPP-01 契约，与 ws 团队码同语义）。
+  bool get isInviteInvalid => code == 981;
+
+  /// 982：企业邀请码已过期（GZAPP-01 契约，与 ws 团队码同语义）。
+  bool get isInviteExpired => code == 982;
+
   @override
   String toString() => 'OrganizationApiException($code): $message';
 }
@@ -384,6 +390,29 @@ class OrganizationApi extends HttpClient {
   Future<void> clearDefaultWorkspace(EntityId orgId) async {
     final resp = await delete('/api/v1/organizations/$orgId/default-workspace');
     _ensureOk(resp);
+  }
+
+  // ==================== 企业邀请码加入（GZAPP-04/GZAPP-01 契约） ====================
+
+  /// 凭企业邀请码加入组织（POST `/organizations/:orgId/join_by_code`
+  /// body `{code}`）。joined | unchanged 均为成功；加入编排（默认 WS /
+  /// 全员群 / 公告频道）由服务端事务完成。
+  ///
+  /// 错误语义（envelope code，GZAPP-01 负例口径）：981 码无效/已撤销、
+  /// 982 码过期、403 越权、404 组织不存在、archived 拒绝——经
+  /// [OrganizationApiException.isInviteInvalid] / [isInviteExpired] 等区分。
+  ///
+  /// 注意：码按 org 发放（同 org 一个 active），后端按 path orgId 消歧，
+  /// 因此**必须**携带目标组织 ID——UI 侧由用户从邀请人处获取。
+  Future<OrganizationJoinOutcome> joinByCode(
+    EntityId orgId, {
+    required String code,
+  }) async {
+    final resp = await post(
+      '/api/v1/organizations/$orgId/join_by_code',
+      data: {'code': code},
+    );
+    return _unwrap(resp, OrganizationJoinOutcome.fromJson);
   }
 
   // ==================== 内部 ====================

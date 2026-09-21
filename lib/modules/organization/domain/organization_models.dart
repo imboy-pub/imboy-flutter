@@ -299,6 +299,37 @@ class DefaultWorkspaceRef {
   bool get isSet => defaultWorkspaceId.isNotEmpty;
 }
 
+/// 企业邀请码加入结果（GZAPP-01 契约：POST
+/// `/organizations/:orgId/join_by_code` body `{code}`）。
+///
+/// status 语义镜像 ws 团队码：`joined`（本次加入）| `unchanged`（已是
+/// 成员，幂等命中）；加入编排（默认 WS / 全员群 / 公告频道）在服务端
+/// 事务内完成，客户端只消费出站事实。响应形态联调窗口在 GZAPP-09，
+/// 解析保持宽容：`organization` 缺失时落空 [Organization]（页面据此
+/// 走「加入成功但详情缺失 → 刷新列表」兜底）。
+class OrganizationJoinOutcome {
+  final String status;
+  final Organization organization;
+
+  const OrganizationJoinOutcome({
+    this.status = 'joined',
+    this.organization = const Organization(id: '', name: ''),
+  });
+
+  factory OrganizationJoinOutcome.fromJson(Map<String, dynamic> json) {
+    final orgRaw = json['organization'];
+    return OrganizationJoinOutcome(
+      status: parseModelString(json['status'], defaultValue: 'joined'),
+      organization: orgRaw is Map<String, dynamic>
+          ? Organization.fromJson(orgRaw)
+          : const Organization(id: '', name: ''),
+    );
+  }
+
+  /// 幂等命中（已是本企业成员）。
+  bool get isAlreadyMember => status == 'unchanged';
+}
+
 /// User 删除预检 blocker（C17 §1.6：五依赖域，缺一拒）。
 class PreflightBlocker {
   final String code;

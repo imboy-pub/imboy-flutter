@@ -2,6 +2,12 @@
 ///
 /// 壳顶栏点击当前工作区名进入；选中后回壳并从 Overview 开始
 /// （不同 branding 的工作区切换时主题各自生效，T12）。
+///
+/// GZAPP-04 G9：本页降级为**企业上下文内部**的 WS 切换——顶部企业行
+/// 展示当前企业（点击 → /organization/picker 企业选择器，数据源
+/// Organization membership）。WS 列表仍为「我已加入的 Workspace」；
+/// 按 org 过滤依赖后端 mine 支持 organization_id 参数（GZAPP-02/09 域，
+/// 缺口已登记），落地前维持全量已加入列表。
 library;
 
 import 'package:flutter/material.dart';
@@ -14,6 +20,9 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 class WorkspacePickerPage extends ConsumerWidget {
@@ -25,70 +34,142 @@ class WorkspacePickerPage extends ConsumerWidget {
     final shell = ref.watch(workspaceShellProvider);
     return Scaffold(
       appBar: AppBar(title: Text(t.workspace.pickerTitle)),
-      body: shell.isLoading && !shell.hasWorkspace
-          ? const WorkspaceLoadingView()
-          : shell.error != null && !shell.hasWorkspace
-          ? WorkspaceErrorView(
-              message: shell.error!,
-              onRetry: () =>
-                  ref.read(workspaceShellProvider.notifier).loadMine(),
-            )
-          : shell.workspaces.isEmpty
-          ? WorkspaceEmptyView(
-              icon: CupertinoIcons.rectangle_stack,
-              title: t.workspace.pickerEmptyTitle,
-              subtitle: t.workspace.pickerEmptySubtitle,
-              actions: [
-                FilledButton.tonalIcon(
-                  key: const ValueKey('workspace-picker-empty-create-entry'),
-                  onPressed: () => context.push('/workspace/create'),
-                  icon: const Icon(CupertinoIcons.add),
-                  label: Text(t.workspace.createEntry),
-                ),
-                AppSpacing.verticalSmall,
-                OutlinedButton.icon(
-                  key: const ValueKey('workspace-picker-empty-join-entry'),
-                  onPressed: () => context.push('/workspace/join'),
-                  icon: const Icon(CupertinoIcons.person_add),
-                  label: Text(t.workspace.joinEntry),
-                ),
-              ],
-            )
-          : ListView.separated(
-              padding: AppSpacing.allRegular,
-              // 列表项 + 底部常驻「创建/加入」双入口 footer（Slack 模式）。
-              itemCount: shell.workspaces.length + 2,
-              separatorBuilder: (_, _) => AppSpacing.verticalSmall,
-              itemBuilder: (context, index) {
-                if (index == shell.workspaces.length) {
-                  return _PickerActionTile(
-                    key: const ValueKey('workspace-picker-create-entry'),
-                    icon: CupertinoIcons.add,
-                    label: t.workspace.createEntry,
-                    onTap: () => context.push('/workspace/create'),
-                  );
-                }
-                if (index == shell.workspaces.length + 1) {
-                  return _PickerActionTile(
-                    key: const ValueKey('workspace-picker-join-entry'),
-                    icon: CupertinoIcons.person_add,
-                    label: t.workspace.joinEntry,
-                    onTap: () => context.push('/workspace/join'),
-                  );
-                }
-                final ws = shell.workspaces[index];
-                return _WorkspaceTile(
-                  ws: ws,
-                  selected: ws.id == shell.currentWorkspaceId,
-                  onTap: () {
-                    ref
-                        .read(workspaceShellProvider.notifier)
-                        .selectWorkspace(ws.id);
-                    Navigator.of(context).pop();
-                  },
-                );
-              },
+      // GZAPP-04：顶部企业行常驻（企业切换入口，§5.1「切换企业」语义）。
+      body: Column(
+        children: [
+          const _OrgContextTile(),
+          Expanded(
+            child: shell.isLoading && !shell.hasWorkspace
+                ? const WorkspaceLoadingView()
+                : shell.error != null && !shell.hasWorkspace
+                ? WorkspaceErrorView(
+                    message: shell.error!,
+                    onRetry: () =>
+                        ref.read(workspaceShellProvider.notifier).loadMine(),
+                  )
+                : shell.workspaces.isEmpty
+                ? WorkspaceEmptyView(
+                    icon: CupertinoIcons.rectangle_stack,
+                    title: t.workspace.pickerEmptyTitle,
+                    subtitle: t.workspace.pickerEmptySubtitle,
+                    actions: [
+                      FilledButton.tonalIcon(
+                        key: const ValueKey(
+                          'workspace-picker-empty-create-entry',
+                        ),
+                        onPressed: () => context.push('/workspace/create'),
+                        icon: const Icon(CupertinoIcons.add),
+                        label: Text(t.workspace.createEntry),
+                      ),
+                      AppSpacing.verticalSmall,
+                      OutlinedButton.icon(
+                        key: const ValueKey(
+                          'workspace-picker-empty-join-entry',
+                        ),
+                        onPressed: () => context.push('/workspace/join'),
+                        icon: const Icon(CupertinoIcons.person_add),
+                        label: Text(t.workspace.joinEntry),
+                      ),
+                    ],
+                  )
+                : ListView.separated(
+                    padding: AppSpacing.allRegular,
+                    // 列表项 + 底部常驻「创建/加入」双入口 footer（Slack 模式）。
+                    itemCount: shell.workspaces.length + 2,
+                    separatorBuilder: (_, _) => AppSpacing.verticalSmall,
+                    itemBuilder: (context, index) {
+                      if (index == shell.workspaces.length) {
+                        return _PickerActionTile(
+                          key: const ValueKey('workspace-picker-create-entry'),
+                          icon: CupertinoIcons.add,
+                          label: t.workspace.createEntry,
+                          onTap: () => context.push('/workspace/create'),
+                        );
+                      }
+                      if (index == shell.workspaces.length + 1) {
+                        return _PickerActionTile(
+                          key: const ValueKey('workspace-picker-join-entry'),
+                          icon: CupertinoIcons.person_add,
+                          label: t.workspace.joinEntry,
+                          onTap: () => context.push('/workspace/join'),
+                        );
+                      }
+                      final ws = shell.workspaces[index];
+                      return _WorkspaceTile(
+                        ws: ws,
+                        selected: ws.id == shell.currentWorkspaceId,
+                        onTap: () {
+                          ref
+                              .read(workspaceShellProvider.notifier)
+                              .selectWorkspace(ws.id);
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 企业上下文行：当前企业名 + 「切换企业」入口（点击打开企业选择器；
+/// 指针缺失时显示占位，仍可进入选择器加入/切换企业）。
+class _OrgContextTile extends StatelessWidget {
+  const _OrgContextTile();
+
+  CurrentOrganizationStore? get _store {
+    try {
+      final uid = UserRepoLocal.to.currentUid;
+      if (uid.isEmpty) return null;
+      return CurrentOrganizationStore.forAccount(uid);
+    } on Object {
+      // 无存储环境（部分 widget 测试）：指针不可用，回落占位展示。
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    final theme = Theme.of(context);
+    final store = _store;
+    final org = store?.value;
+    return ListTile(
+      key: const ValueKey('workspace-picker-org-context'),
+      dense: true,
+      leading: Icon(
+        CupertinoIcons.building_2_fill,
+        color: theme.colorScheme.primary,
+      ),
+      title: Text(
+        org == null || org.name.isEmpty
+            ? t.organization.picker.noneSelected
+            : org.name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            t.organization.picker.switchEnterprise,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.primary,
             ),
+          ),
+          Icon(
+            CupertinoIcons.chevron_right,
+            size: 14,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
+      onTap: () => context.push(kOrganizationPickerPath),
     );
   }
 }

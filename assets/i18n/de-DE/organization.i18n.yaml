@@ -137,3 +137,24 @@ departments:
   emptyWithHint: "Noch keine Abteilungen – erstelle oben rechts eine"
   empty: "Keine Abteilungen"
   emptySubtitle: "Mehrfachmitgliedschaft: Ein Mitglied kann mehreren Abteilungen angehören; Abteilungsmitglieder müssen zuerst Mitglieder dieser Organisation sein."
+# ==================== GZAPP-04 G9: Unternehmensauswahl (wechseln/beitreten) ====================
+picker:
+  title: "Unternehmen wechseln"
+  switchEnterprise: "Unternehmen wechseln"
+  noneSelected: "Kein Unternehmen ausgewählt"
+  emptyHint: "Du bist noch keinem Unternehmen beigetreten.\nTippe unten auf „Unternehmen beitreten“ und gib den Einladungscode ein"
+  joinEnterprise: "Unternehmen beitreten"
+  joinOrgIdLabel: "Unternehmens-ID"
+  joinOrgIdHint: "Von einem Unternehmensadmin erhalten (numerische ID)"
+  joinOrgIdInvalid: "Gib eine gültige Unternehmens-ID ein (numerisch)"
+  joinCodeLabel: "Einladungscode des Unternehmens"
+  joinSubmit: "Beitreten"
+  joinInvalidCode: "Der Einladungscode des Unternehmens ist ungültig oder wurde widerrufen"
+  joinExpiredCode: "Der Einladungscode des Unternehmens ist abgelaufen"
+  joinFailedWith: "Beitritt fehlgeschlagen: ${msg} (${code})"
+# ==================== GZAPP-04 G10: Verzeichnis (Ansicht für alle Mitglieder) ====================
+directory:
+  title: "Verzeichnis"
+  deptSection: "Abteilungen"
+  allMembersSection: "Alle Mitglieder"
+  membersRestricted: "Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen."

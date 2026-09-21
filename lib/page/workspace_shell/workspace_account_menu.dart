@@ -26,6 +26,9 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/organization/domain/organization_models.dart';
+import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart'
@@ -80,34 +83,53 @@ class WorkspaceAccountButton extends ConsumerWidget {
 
 /// 全局区工作区切换 chip：左上角常驻（2026-08-31 三轮收敛：恢复切换入口
 /// 可见性——只藏在账户 Sheet 里用户找不到）。Slack / Notion 惯例位：
-/// 左上 = 工作区上下文（图标 + 名称 + 下箭头），点击进「我的工作区」切换页。
+/// 左上 = 上下文（图标 + 名称 + 下箭头）。
+///
+/// GZAPP-04 G9（§5.1「切换企业」）：chip 语义升级为企业 chip——点击打开
+/// 企业选择器（/organization/picker，数据源 Organization membership）；
+/// 展示名当前企业优先（本地指针），无指针回落当前工作区名。
 class WorkspaceSwitcherChip extends ConsumerWidget {
   const WorkspaceSwitcherChip({super.key});
+
+  static Organization? _currentOrg() {
+    try {
+      final uid = UserRepoLocal.to.currentUid;
+      if (uid.isEmpty) return null;
+      return CurrentOrganizationStore.forAccount(uid).value;
+    } on Object {
+      // 无存储环境（widget 测试）：回落工作区名展示。
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
     final theme = Theme.of(context);
     final current = ref.watch(workspaceShellProvider.select((s) => s.current));
+    final org = _currentOrg();
+    final label = (org != null && org.name.isNotEmpty)
+        ? org.name
+        : (current?.name ?? t.workspace.pickerTitle);
     return CupertinoButton(
       key: const ValueKey('workspace-shell-switcher'),
       padding: EdgeInsets.zero,
       minimumSize: const Size(44, 44),
-      onPressed: () => context.push('/workspace'),
+      onPressed: () => context.push(kOrganizationPickerPath),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 150),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              CupertinoIcons.square_grid_2x2,
+              CupertinoIcons.building_2_fill,
               size: 17,
               color: theme.colorScheme.onSurface,
             ),
             AppSpacing.horizontalTiny,
             Flexible(
               child: Text(
-                current?.name ?? t.workspace.pickerTitle,
+                label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleSmall?.copyWith(

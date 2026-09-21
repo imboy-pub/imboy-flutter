@@ -137,3 +137,24 @@ departments:
   emptyWithHint: "Aucun département — créez-en un en haut à droite"
   empty: "Aucun département"
   emptySubtitle: "Modèle multi-appartenance : un même membre peut appartenir à plusieurs départements ; les membres d'un département doivent d'abord être membres de cette organisation."
+# ==================== GZAPP-04 G9 : sélecteur d'entreprise (changer/rejoindre) ====================
+picker:
+  title: "Changer d'entreprise"
+  switchEnterprise: "Changer d'entreprise"
+  noneSelected: "Aucune entreprise sélectionnée"
+  emptyHint: "Vous n'avez encore rejoint aucune entreprise.\nTouchez « Rejoindre une entreprise » ci-dessous et saisissez le code d'invitation"
+  joinEnterprise: "Rejoindre une entreprise"
+  joinOrgIdLabel: "ID de l'entreprise"
+  joinOrgIdHint: "Fourni par un administrateur de l'entreprise (ID numérique)"
+  joinOrgIdInvalid: "Saisissez un ID d'entreprise valide (numérique)"
+  joinCodeLabel: "Code d'invitation de l'entreprise"
+  joinSubmit: "Rejoindre"
+  joinInvalidCode: "Le code d'invitation de l'entreprise est invalide ou révoqué"
+  joinExpiredCode: "Le code d'invitation de l'entreprise a expiré"
+  joinFailedWith: "Échec de l'adhésion : ${msg} (${code})"
+# ==================== GZAPP-04 G10 : annuaire (vue tous membres) ====================
+directory:
+  title: "Annuaire"
+  deptSection: "Départements"
+  allMembersSection: "Tous les membres"
+  membersRestricted: "La liste complète des membres n'est visible que par les administrateurs de l'entreprise ; ouvrez un département pour voir ses membres."

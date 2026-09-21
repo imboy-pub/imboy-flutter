@@ -2346,6 +2346,8 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$members$ko_KR members = _Translations$organization$members$ko_KR._(_root);
 	@override late final _Translations$organization$invitations$ko_KR invitations = _Translations$organization$invitations$ko_KR._(_root);
 	@override late final _Translations$organization$departments$ko_KR departments = _Translations$organization$departments$ko_KR._(_root);
+	@override late final _Translations$organization$picker$ko_KR picker = _Translations$organization$picker$ko_KR._(_root);
+	@override late final _Translations$organization$directory$ko_KR directory = _Translations$organization$directory$ko_KR._(_root);
 }
 
 // Path: passport
@@ -2839,6 +2841,41 @@ class _Translations$organization$departments$ko_KR extends Translations$organiza
 	@override String get emptyWithHint => '부서가 없습니다. 오른쪽 위에서 만들어 보세요';
 	@override String get empty => '부서가 없습니다';
 	@override String get emptySubtitle => '겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다.';
+}
+
+// Path: organization.picker
+class _Translations$organization$picker$ko_KR extends Translations$organization$picker$zh_CN {
+	_Translations$organization$picker$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '기업 전환';
+	@override String get switchEnterprise => '기업 전환';
+	@override String get noneSelected => '선택된 기업 없음';
+	@override String get emptyHint => '아직 가입한 기업이 없습니다.\n아래 "기업 가입"을 눌러 초대 코드를 입력하세요';
+	@override String get joinEnterprise => '기업 가입';
+	@override String get joinOrgIdLabel => '기업 ID';
+	@override String get joinOrgIdHint => '기업 관리자에게 받으세요(숫자 ID)';
+	@override String get joinOrgIdInvalid => '유효한 기업 ID를 입력하세요(숫자)';
+	@override String get joinCodeLabel => '기업 초대 코드';
+	@override String get joinSubmit => '가입';
+	@override String get joinInvalidCode => '기업 초대 코드가 유효하지 않거나 취소되었습니다';
+	@override String get joinExpiredCode => '기업 초대 코드가 만료되었습니다';
+	@override String joinFailedWith({required Object msg, required Object code}) => '가입 실패: ${msg} (${code})';
+}
+
+// Path: organization.directory
+class _Translations$organization$directory$ko_KR extends Translations$organization$directory$zh_CN {
+	_Translations$organization$directory$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '디렉터리';
+	@override String get deptSection => '부서';
+	@override String get allMembersSection => '전체 멤버';
+	@override String get membersRestricted => '전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요.';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -5006,6 +5043,23 @@ extension on TranslationsKoKr {
 			'organization.departments.emptyWithHint' => '부서가 없습니다. 오른쪽 위에서 만들어 보세요',
 			'organization.departments.empty' => '부서가 없습니다',
 			'organization.departments.emptySubtitle' => '겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다.',
+			'organization.picker.title' => '기업 전환',
+			'organization.picker.switchEnterprise' => '기업 전환',
+			'organization.picker.noneSelected' => '선택된 기업 없음',
+			'organization.picker.emptyHint' => '아직 가입한 기업이 없습니다.\n아래 "기업 가입"을 눌러 초대 코드를 입력하세요',
+			'organization.picker.joinEnterprise' => '기업 가입',
+			'organization.picker.joinOrgIdLabel' => '기업 ID',
+			'organization.picker.joinOrgIdHint' => '기업 관리자에게 받으세요(숫자 ID)',
+			'organization.picker.joinOrgIdInvalid' => '유효한 기업 ID를 입력하세요(숫자)',
+			'organization.picker.joinCodeLabel' => '기업 초대 코드',
+			'organization.picker.joinSubmit' => '가입',
+			'organization.picker.joinInvalidCode' => '기업 초대 코드가 유효하지 않거나 취소되었습니다',
+			'organization.picker.joinExpiredCode' => '기업 초대 코드가 만료되었습니다',
+			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => '가입 실패: ${msg} (${code})',
+			'organization.directory.title' => '디렉터리',
+			'organization.directory.deptSection' => '부서',
+			'organization.directory.allMembersSection' => '전체 멤버',
+			'organization.directory.membersRestricted' => '전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요.',
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',

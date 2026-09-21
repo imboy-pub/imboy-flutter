@@ -137,3 +137,24 @@ departments:
   emptyWithHint: "No departments yet — tap the top-right button to create one"
   empty: "No departments"
   emptySubtitle: "Multi-membership model: one member may belong to multiple departments; department members must first be members of this organization."
+# ==================== GZAPP-04 G9: enterprise picker (switch/join) ====================
+picker:
+  title: "Switch enterprise"
+  switchEnterprise: "Switch enterprise"
+  noneSelected: "No enterprise selected"
+  emptyHint: "You have not joined any enterprise yet.\nTap \"Join enterprise\" below and enter the invite code"
+  joinEnterprise: "Join enterprise"
+  joinOrgIdLabel: "Enterprise ID"
+  joinOrgIdHint: "Provided by an enterprise admin (numeric ID)"
+  joinOrgIdInvalid: "Enter a valid enterprise ID (numeric)"
+  joinCodeLabel: "Enterprise invite code"
+  joinSubmit: "Join"
+  joinInvalidCode: "The enterprise invite code is invalid or revoked"
+  joinExpiredCode: "The enterprise invite code has expired"
+  joinFailedWith: "Join failed: ${msg} (${code})"
+# ==================== GZAPP-04 G10: directory (all-member view) ====================
+directory:
+  title: "Directory"
+  deptSection: "Departments"
+  allMembersSection: "All members"
+  membersRestricted: "The full member list is visible to enterprise admins only; expand a department to see its members."

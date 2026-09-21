@@ -137,3 +137,24 @@ departments:
   emptyWithHint: "Nessun dipartimento: tocca in alto a destra per crearne uno"
   empty: "Nessun dipartimento"
   emptySubtitle: "Modello di appartenenza multipla: uno stesso membro può appartenere a più dipartimenti; i membri di un dipartimento devono prima essere membri di questa organizzazione."
+# ==================== GZAPP-04 G9: selettore azienda (cambia/partecipa) ====================
+picker:
+  title: "Cambia azienda"
+  switchEnterprise: "Cambia azienda"
+  noneSelected: "Nessuna azienda selezionata"
+  emptyHint: "Non hai ancora aderito ad alcuna azienda.\nTocca «Partecipa a un'azienda» qui sotto e inserisci il codice invito"
+  joinEnterprise: "Partecipa a un'azienda"
+  joinOrgIdLabel: "ID azienda"
+  joinOrgIdHint: "Fornito da un amministratore dell'azienda (ID numerico)"
+  joinOrgIdInvalid: "Inserisci un ID azienda valido (numerico)"
+  joinCodeLabel: "Codice invito dell'azienda"
+  joinSubmit: "Partecipa"
+  joinInvalidCode: "Il codice invito dell'azienda non è valido o è stato revocato"
+  joinExpiredCode: "Il codice invito dell'azienda è scaduto"
+  joinFailedWith: "Adesione non riuscita: ${msg} (${code})"
+# ==================== GZAPP-04 G10: rubrica (vista tutti i membri) ====================
+directory:
+  title: "Rubrica"
+  deptSection: "Dipartimenti"
+  allMembersSection: "Tutti i membri"
+  membersRestricted: "L'elenco completo dei membri è visibile solo agli amministratori dell'azienda; apri un dipartimento per vedere i suoi membri."
