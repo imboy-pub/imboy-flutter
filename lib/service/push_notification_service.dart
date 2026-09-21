@@ -26,10 +26,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/notification.dart';
 import 'package:imboy/service/notification_payload_rules.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/push_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -207,19 +209,38 @@ class PushNotificationService {
   ///
   /// 在用户登出时调用（UserRepoLocal.quitLogin 在清除本地登录态前调用，
   /// 请求依赖登录态；后端按 (uid, device_id) 下线 token）。
+  ///
+  /// FULL-06 修正（plan §7「logout 后旧 token 不再投递」）：登出可能发生在
+  /// **上一次注册之后的另一个进程生命周期**里（App 重启/被系统回收后重新
+  /// 打开，用户在登录页直接登出）。此时进程内 `_isRegistered` 已归零，但
+  /// 服务端那条活跃 token 行还在——只按 `_isRegistered` 判据就会**静默跳过
+  /// 注销**，旧 token 继续被投递到一台已登出的设备上。
+  /// 判据因此改为 [hasServerBinding]（进程内状态 **或** 持久化注册记录），
+  /// 同时保留「从未注册过则不发多余请求」的幂等语义。
   Future<void> unregisterToken() async {
-    if (!_isRegistered) return;
+    if (!hasServerBinding()) return;
+    if (!UserRepoLocal.to.isLoggedIn) {
+      iPrint('[Push] 未登录，跳过 token 注销');
+      return;
+    }
 
     try {
       final success = await _api.unregister(deviceId: deviceId);
       if (success) {
         _isRegistered = false;
+        await _clearPersistedRegistration();
         iPrint('[Push] Token 注销成功');
       }
     } catch (e) {
       iPrint('[Push] Token 注销失败: $e');
     }
   }
+
+  /// 本设备是否「在服务端有活跃绑定」（含**本进程之前**的会话）
+  ///
+  /// 覆盖窗口：注册成功 → App 重启 → 登出。只信 `_isRegistered` 会漏掉这段。
+  bool hasServerBinding() =>
+      _isRegistered || _persistedRegisteredDeviceId() == deviceId;
 
   /// 手动设置推送 token（用于非 FCM 的推送方案）
   ///
@@ -253,12 +274,42 @@ class PushNotificationService {
       );
       if (success) {
         _isRegistered = true;
+        await _persistRegistration();
         iPrint('[Push] Token 注册成功: platform=$providerId');
       } else {
         iPrint('[Push] Token 注册失败');
       }
     } catch (e) {
       iPrint('[Push] Token 注册异常: $e');
+    }
+  }
+
+  /// 落持久化注册记录（**只写 device_id**，绝不写 token/RegistrationID：
+  /// 推送 token 是凭据，普通存储不得承载；见 Keys.pushRegisteredDeviceId）。
+  Future<void> _persistRegistration() async {
+    try {
+      await StorageService.to.setString(Keys.pushRegisteredDeviceId, deviceId);
+    } catch (e) {
+      iPrint('[Push] 注册记录落盘失败（进程内状态仍有效）: $e');
+    }
+  }
+
+  Future<void> _clearPersistedRegistration() async {
+    try {
+      await StorageService.to.remove(Keys.pushRegisteredDeviceId);
+    } catch (e) {
+      iPrint('[Push] 注册记录清理失败: $e');
+    }
+  }
+
+  /// 读持久化注册记录；值为 device_id，空/异常一律按「无记录」处理。
+  String? _persistedRegisteredDeviceId() {
+    try {
+      final value = StorageService.to.getString(Keys.pushRegisteredDeviceId);
+      return value.isEmpty ? null : value;
+    } catch (_) {
+      // StorageService 尚未初始化（极早期启动/异常路径）→ 退回进程内状态
+      return null;
     }
   }
 

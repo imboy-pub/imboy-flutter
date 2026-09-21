@@ -366,5 +366,97 @@ void main() {
         1,
       );
     });
+
+    // -------------------------------------------------------------------
+    // FULL-06：logout 后旧 token 不再投递 —— 补「跨进程生命周期」窗口的负例
+    // 注册发生在上一个进程里（App 重启/被回收后重开），进程内 _isRegistered
+    // 已归零而服务端那条活跃 token 行还在；只按进程内状态判据会静默跳过注销。
+    // -------------------------------------------------------------------
+    test('App 重启后登出仍发注销请求（持久化注册记录，plan §7）', () async {
+      // adapter 由 setUp 注入（见 setUp 铁律注释）
+      await loginAs(1001);
+      final svc = PushNotificationService.instance;
+      await svc.setToken('rid-jpush-001', providerId: 'jpush');
+      expect(adapter.requests, hasLength(1));
+      expect(
+        StorageService.to.getString(Keys.pushRegisteredDeviceId),
+        'did-android-1',
+      );
+
+      // 模拟进程重启：进程内状态归零，持久化存储保留
+      svc.resetForTest();
+      expect(svc.isRegistered, isFalse);
+
+      await svc.unregisterToken();
+      expect(adapter.requests, hasLength(2));
+      expect(adapter.requests.last.$2, '/api/v1/push/unregister');
+      expect(adapter.requests.last.$3, {'device_id': 'did-android-1'});
+      // 注销成功后记录清空 → 再次登出静默（幂等语义保留）
+      expect(StorageService.to.getString(Keys.pushRegisteredDeviceId), '');
+      await svc.unregisterToken();
+      expect(adapter.requests, hasLength(2));
+    });
+
+    test('从未注册过则登出不发注销请求（幂等语义保留）', () async {
+      // adapter 由 setUp 注入（见 setUp 铁律注释）
+      await loginAs(1001);
+      await PushNotificationService.instance.unregisterToken();
+      expect(adapter.requests, isEmpty);
+    });
+
+    test('持久化记录属于别的设备 → 不误判为本设备已注册', () async {
+      // adapter 由 setUp 注入（见 setUp 铁律注释）
+      await StorageService.to.setString(
+        Keys.pushRegisteredDeviceId,
+        'did-other',
+      );
+      await loginAs(1001);
+      await PushNotificationService.instance.unregisterToken();
+      expect(adapter.requests, isEmpty);
+      expect(
+        StorageService.to.getString(Keys.pushRegisteredDeviceId),
+        'did-other',
+        reason: '未命中本设备时不得清掉别的设备的记录',
+      );
+    });
+
+    test('注册失败不落持久化标记 → 重启后登出仍静默（不误报已注册）', () async {
+      // adapter 由 setUp 注入（见 setUp 铁律注释）
+      adapter.statusCode = 500;
+      addTearDown(() => adapter.statusCode = 200);
+      await loginAs(1001);
+      final svc = PushNotificationService.instance;
+      await svc.setToken('rid-jpush-001', providerId: 'jpush');
+      expect(svc.isRegistered, isFalse);
+      expect(StorageService.to.getString(Keys.pushRegisteredDeviceId), '');
+      svc.resetForTest();
+      await svc.unregisterToken();
+      // 只应有一次失败的注册请求，没有注销请求
+      expect(adapter.requests, hasLength(1));
+      expect(adapter.requests.single.$2, '/api/v1/push/register');
+    });
+
+    test('未登录时不发注销请求（即使有持久化记录）', () async {
+      // adapter 由 setUp 注入（见 setUp 铁律注释）
+      await StorageService.to.setString(
+        Keys.pushRegisteredDeviceId,
+        'did-android-1',
+      );
+      await PushNotificationService.instance.unregisterToken();
+      expect(adapter.requests, isEmpty);
+    });
+
+    test('持久化只写 device_id、不写 token（凭据不出普通存储）', () {
+      expect(
+        serviceSrc.contains('Keys.pushRegisteredDeviceId, deviceId'),
+        isTrue,
+      );
+      // 反向：持久化调用点附近不得出现 token 值
+      final idx = serviceSrc.indexOf('Future<void> _persistRegistration()');
+      expect(idx, greaterThan(0));
+      final persistBody = serviceSrc.substring(idx, idx + 400);
+      expect(persistBody.contains('_pushToken'), isFalse);
+      expect(persistBody.contains('token'), isFalse);
+    });
   });
 }

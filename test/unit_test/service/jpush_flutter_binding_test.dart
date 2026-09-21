@@ -161,9 +161,44 @@ void main() {
       await wiring.initialize();
       await pumpEventQueue();
       expect(tokens, <String>['rid-1']);
-      // 连接回调再触发：已注入 → 幂等跳过（不重复 setToken）。
+      // 连接回调再触发：rid 未变 → 幂等跳过（不重复 setToken）。
       await plugin.onConnected!(<String, dynamic>{'result': true});
       expect(tokens, <String>['rid-1']);
+    });
+
+    // FULL-06：JPush 会在服务端重新签发 RegistrationID（同一安装内也会变）。
+    // 只按「注入过一次就永久跳过」判据，新 rid 永远不上报 → 服务端继续按旧
+    // rid 推送，表现为「重连后收不到通知」。
+    test('onConnected 后 rid 变化 → 重新注入（生命周期刷新路径）', () async {
+      final plugin = _FakeJPushPlugin(
+        registrationIds: <String>['rid-old', 'rid-new'],
+      );
+      final tokens = <String>[];
+      final wiring = _wiringWith(plugin, injectedTokens: tokens);
+      await wiring.initialize();
+      await pumpEventQueue();
+      expect(tokens, <String>['rid-old']);
+
+      await plugin.onConnected!(<String, dynamic>{'result': true});
+      await pumpEventQueue();
+      expect(tokens, <String>['rid-old', 'rid-new'], reason: '新 rid 必须重新上报');
+
+      // 再触发一次（rid 仍为 rid-new）→ 幂等，不重复上报
+      await plugin.onConnected!(<String, dynamic>{'result': true});
+      await pumpEventQueue();
+      expect(tokens, <String>['rid-old', 'rid-new']);
+    });
+
+    test('onConnected 时 rid 变空 → 不注入空值（等下一轮）', () async {
+      final plugin = _FakeJPushPlugin(registrationIds: <String>['rid-1', '']);
+      final tokens = <String>[];
+      final wiring = _wiringWith(plugin, injectedTokens: tokens);
+      await wiring.initialize();
+      await pumpEventQueue();
+      expect(tokens, <String>['rid-1']);
+      await plugin.onConnected!(<String, dynamic>{'result': true});
+      await pumpEventQueue();
+      expect(tokens, <String>['rid-1'], reason: '空 rid 不得注入');
     });
   });
 

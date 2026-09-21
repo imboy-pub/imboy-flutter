@@ -8,7 +8,9 @@
 /// 2. **RegistrationID 注入**：`setToken(rid)` 走
 ///    [PushNotificationService.instance]（A7 内置守卫：未登录只存 token、
 ///    loginAfter 兜底注册；W4 合并 A7 分支后自动携带
-///    device_type/platform=jpush 字段合同——旧服务签名兼容，无需适配）；
+///    device_type/platform=jpush 字段合同——旧服务签名兼容，无需适配）。
+///    FULL-06：去重判据由「注入过一次就永久跳过」改为「与上次相同才跳过」——
+///    JPush 重新签发 rid 时必须重新上报，否则服务端会一直按旧 rid 推送；
 /// 3. **通知点击路由**：onOpenNotification / 冷启动 getLaunchAppNotification
 ///    → [extractJPushRoutingPayload]（纯函数）→ [parseNotificationPayload]
 ///    → 登录守卫 + go_router 路由（语义镜像 A7 `_navigateByResult`：未登录
@@ -173,7 +175,13 @@ class JPushSdkWiring {
   final int _pollAttempts;
 
   bool _initialized = false;
-  bool _registrationIdInjected = false;
+
+  /// 最近一次成功注入的 RegistrationID（只用于**本地去重**，绝不落日志/存储）。
+  /// FULL-06：判据从「注入过一次就永久跳过」改为「与上次相同才跳过」——
+  /// JPush 会在服务端重新签发 rid（同一安装内也会变），旧判据会让新 rid
+  /// 永远不上报：服务端继续按旧 rid 推送，表现为「重连后收不到通知」。
+  String? _lastInjectedRid;
+  bool get _registrationIdInjected => _lastInjectedRid != null;
 
   /// 初始化：setup + 事件挂接 + RegistrationID 预热 + 冷启动点击补投。
   Future<void> initialize() async {
@@ -244,14 +252,16 @@ class JPushSdkWiring {
 
   /// 拉取并注入 RegistrationID（rid 为空 = 尚未注册成功，静默等待下轮）。
   ///
+  /// rid 与上次相同 → 幂等跳过（onConnected 会反复触发，不去重就会持续重复
+  /// 注册）；rid 变化 → 重新注入（JPush 重新签发路径）。
   /// 日志只打布尔结论，不落 rid 明文（秘密红线）。
   Future<void> _tryInjectRegistrationId() async {
-    if (_registrationIdInjected) return;
     try {
       final String rid = await _plugin.fetchRegistrationId();
       if (rid.isEmpty) return;
+      if (rid == _lastInjectedRid) return;
       await _tokenInjector(rid);
-      _registrationIdInjected = true;
+      _lastInjectedRid = rid;
       iPrint('[JPush] RegistrationID 已注入推送服务');
     } on Exception catch (e) {
       iPrint('[JPush] RegistrationID 获取失败: $e');
