@@ -11,6 +11,8 @@ import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/message_conversation_utils.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
+import 'package:imboy/modules/enterprise_app/public.dart'
+    show hostedMessageNotificationPrefix;
 import 'package:imboy/service/mention_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -447,8 +449,9 @@ class MessageService with EventSubscriptionManager {
   }
 
   bool _isEncryptedEditAction(String action, Map<String, dynamic> data) {
-    if (action != C2SAction.messageEdit && action != C2SAction.messageEditAck)
+    if (action != C2SAction.messageEdit && action != C2SAction.messageEditAck) {
       return false;
+    }
     final e2ee = data['e2ee'];
     if (e2ee is Map) return e2ee.isNotEmpty;
     return e2ee is String && e2ee.isNotEmpty;
@@ -1406,9 +1409,18 @@ class MessageService with EventSubscriptionManager {
       // 获取通知内容
       final content = _getNotificationContent(msg);
 
+      // FULL-05：企业托管消息的通知标题带来源前缀（Application 代发 /
+      // 人工经应用），普通消息前缀为空串——通知面与会话/详情/搜索同一条
+      // 判定（plan §3.3「一致」），且不静默把代发消息通知成普通消息。
+      final rawPayload = msg.payload;
+      final hostedPrefix = hostedMessageNotificationPrefix(
+        rawPayload is Map ? Map<String, dynamic>.from(rawPayload) : null,
+        e2ee: msg.e2ee,
+      );
+
       // 调用通知服务显示通知
       await _notificationService.showMessageNotification(
-        senderName: senderName,
+        senderName: '$hostedPrefix$senderName',
         content: content,
         conversationUk3: conversationUk3,
         peerId: peerId,

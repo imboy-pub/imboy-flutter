@@ -54,6 +54,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$contact$zh_CN contact = Translations$contact$zh_CN.internal(_root);
 	late final Translations$customerService$zh_CN customerService = Translations$customerService$zh_CN.internal(_root);
 	late final Translations$discovery$zh_CN discovery = Translations$discovery$zh_CN.internal(_root);
+	late final Translations$enterpriseApp$zh_CN enterpriseApp = Translations$enterpriseApp$zh_CN.internal(_root);
 	late final Translations$enterpriseOa$zh_CN enterpriseOa = Translations$enterpriseOa$zh_CN.internal(_root);
 	late final Translations$error$zh_CN error = Translations$error$zh_CN.internal(_root);
 	late final Translations$group$zh_CN group = Translations$group$zh_CN.internal(_root);
@@ -5087,6 +5088,255 @@ class Translations$discovery$zh_CN {
 	String momentAtCount({required Object count}) => '${count}人';
 }
 
+// Path: enterpriseApp
+class Translations$enterpriseApp$zh_CN {
+	Translations$enterpriseApp$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '企业应用'
+	String get title => '企业应用';
+
+	/// zh-CN: '应用代发'
+	String get badgeAppDelegated => '应用代发';
+
+	/// zh-CN: '人工经应用'
+	String get badgeHumanDelegated => '人工经应用';
+
+	/// zh-CN: '消息来源'
+	String get originTitle => '消息来源';
+
+	/// zh-CN: '应用代发（Application）'
+	String get originSenderApplication => '应用代发（Application）';
+
+	/// zh-CN: '人工代发（Human sender）'
+	String get originSenderHuman => '人工代发（Human sender）';
+
+	/// zh-CN: '来源应用 $id'
+	String originApplicationId({required Object id}) => '来源应用 ${id}';
+
+	/// zh-CN: '企业托管（非个人会话）'
+	String get originHosted => '企业托管（非个人会话）';
+
+	/// zh-CN: '发送来源'
+	String get originLabelSender => '发送来源';
+
+	/// zh-CN: '加密状态'
+	String get originLabelEncryption => '加密状态';
+
+	/// zh-CN: '非端到端加密'
+	String get originNonE2ee => '非端到端加密';
+
+	/// zh-CN: '端到端加密（Human 直发）'
+	String get originE2ee => '端到端加密（Human 直发）';
+
+	/// zh-CN: '来源信息不一致'
+	String get originMismatchTitle => '来源信息不一致';
+
+	/// zh-CN: '消息同时带有企业应用来源与端到端加密载荷；已按非加密的企业来源展示，不视为 Human 直发的加密消息。'
+	String get originMismatchHint => '消息同时带有企业应用来源与端到端加密载荷；已按非加密的企业来源展示，不视为 Human 直发的加密消息。';
+
+	/// zh-CN: '来源标记无法识别，已按非加密展示'
+	String get originUnrecognized => '来源标记无法识别，已按非加密展示';
+
+	/// zh-CN: '详情'
+	String get actionDetails => '详情';
+
+	/// zh-CN: '企业群'
+	String get groupTitle => '企业群';
+
+	/// zh-CN: '已归档'
+	String get groupArchivedBadge => '已归档';
+
+	/// zh-CN: '归档'
+	String get groupActionArchive => '归档';
+
+	/// zh-CN: '归档企业群'
+	String get groupArchiveTitle => '归档企业群';
+
+	/// zh-CN: '归档是单向操作：归档后该群对全部企业接口不可见，且不可恢复。'
+	String get groupArchiveHint => '归档是单向操作：归档后该群对全部企业接口不可见，且不可恢复。';
+
+	/// zh-CN: '修改群名'
+	String get groupActionRename => '修改群名';
+
+	/// zh-CN: '新群名'
+	String get groupRenameHint => '新群名';
+
+	/// zh-CN: '成员与角色'
+	String get groupMembersTitle => '成员与角色';
+
+	/// zh-CN: '成员'
+	String get groupRoleMember => '成员';
+
+	/// zh-CN: '嘉宾'
+	String get groupRoleGuest => '嘉宾';
+
+	/// zh-CN: '管理员'
+	String get groupRoleAdmin => '管理员';
+
+	/// zh-CN: '群主'
+	String get groupRoleOwner => '群主';
+
+	/// zh-CN: '副群主'
+	String get groupRoleViceOwner => '副群主';
+
+	/// zh-CN: '群主角色不可变更，也不可经应用分配'
+	String get groupRoleOwnerLocked => '群主角色不可变更，也不可经应用分配';
+
+	/// zh-CN: '成员数超过单页上限，已停止加载'
+	String get groupOverLimit => '成员数超过单页上限，已停止加载';
+
+	/// zh-CN: '暂无企业群'
+	String get groupEmpty => '暂无企业群';
+
+	/// zh-CN: '成员检索'
+	String get directoryTitle => '成员检索';
+
+	/// zh-CN: '按姓名或工号检索'
+	String get directoryHint => '按姓名或工号检索';
+
+	/// zh-CN: '无匹配成员'
+	String get directoryEmpty => '无匹配成员';
+
+	/// zh-CN: '受限目录：按页返回，不提供全量导出'
+	String get directoryBounded => '受限目录：按页返回，不提供全量导出';
+
+	/// zh-CN: '加载更多'
+	String get directoryLoadMore => '加载更多';
+
+	/// zh-CN: '已到末页'
+	String get directoryEnd => '已到末页';
+
+	/// zh-CN: '附件留存治理'
+	String get retentionTitle => '附件留存治理';
+
+	/// zh-CN: '留存至 $time'
+	String retentionUntil({required Object time}) => '留存至 ${time}';
+
+	/// zh-CN: '未冻结'
+	String get holdNone => '未冻结';
+
+	/// zh-CN: '已冻结'
+	String get holdHeld => '已冻结';
+
+	/// zh-CN: '冻结原因：$reason'
+	String holdReason({required Object reason}) => '冻结原因：${reason}';
+
+	/// zh-CN: '未清除'
+	String get purgeLive => '未清除';
+
+	/// zh-CN: '已清除'
+	String get purgePurged => '已清除';
+
+	/// zh-CN: '治理记录不可删除'
+	String get retentionNoDelete => '治理记录不可删除';
+
+	/// zh-CN: '留存期只可延长，不可缩短'
+	String get retentionExtendOnly => '留存期只可延长，不可缩短';
+
+	/// zh-CN: '冻结生效中，不可清除'
+	String get purgeBlockedHold => '冻结生效中，不可清除';
+
+	/// zh-CN: '留存未到期，不可清除'
+	String get purgeBlockedRetention => '留存未到期，不可清除';
+
+	/// zh-CN: '已清除，不可回退'
+	String get purgeBlockedPurged => '已清除，不可回退';
+
+	/// zh-CN: '重试'
+	String get actionRetry => '重试';
+
+	/// zh-CN: '重新登录'
+	String get actionSignIn => '重新登录';
+
+	/// zh-CN: '请求不被接受'
+	String get error400Title => '请求不被接受';
+
+	/// zh-CN: '提交的内容不符合要求，请检查后重试。'
+	String get error400Hint => '提交的内容不符合要求，请检查后重试。';
+
+	/// zh-CN: '登录状态已失效'
+	String get error401Title => '登录状态已失效';
+
+	/// zh-CN: '请重新登录后再试。'
+	String get error401Hint => '请重新登录后再试。';
+
+	/// zh-CN: '企业应用已停用'
+	String get error403Title => '企业应用已停用';
+
+	/// zh-CN: '该应用或所属企业已停用，请联系企业管理员。'
+	String get error403Hint => '该应用或所属企业已停用，请联系企业管理员。';
+
+	/// zh-CN: '权限范围不足'
+	String get error403ScopeTitle => '权限范围不足';
+
+	/// zh-CN: '当前凭据未被授予该操作所需的权限范围。'
+	String get error403ScopeHint => '当前凭据未被授予该操作所需的权限范围。';
+
+	/// zh-CN: '超出企业边界'
+	String get error403BoundaryTitle => '超出企业边界';
+
+	/// zh-CN: '该资源不属于当前应用所在的企业或工作区。'
+	String get error403BoundaryHint => '该资源不属于当前应用所在的企业或工作区。';
+
+	/// zh-CN: '资源不存在'
+	String get error404Title => '资源不存在';
+
+	/// zh-CN: '资源不存在，或不在可访问的企业范围内。'
+	String get error404Hint => '资源不存在，或不在可访问的企业范围内。';
+
+	/// zh-CN: '操作冲突'
+	String get error409Title => '操作冲突';
+
+	/// zh-CN: '重复提交或状态已变化，请刷新后重试。'
+	String get error409Hint => '重复提交或状态已变化，请刷新后重试。';
+
+	/// zh-CN: '身份未映射'
+	String get error422IdentityTitle => '身份未映射';
+
+	/// zh-CN: '该成员尚未绑定企业外部身份，请先完成绑定。'
+	String get error422IdentityHint => '该成员尚未绑定企业外部身份，请先完成绑定。';
+
+	/// zh-CN: '请求过于频繁'
+	String get error429Title => '请求过于频繁';
+
+	/// zh-CN: '已触发企业接口限流，请稍后再试。'
+	String get error429Hint => '已触发企业接口限流，请稍后再试。';
+
+	/// zh-CN: '服务内部错误'
+	String get error500Title => '服务内部错误';
+
+	/// zh-CN: '服务暂时异常，请稍后重试。'
+	String get error500Hint => '服务暂时异常，请稍后重试。';
+
+	/// zh-CN: '服务暂不可用'
+	String get error503Title => '服务暂不可用';
+
+	/// zh-CN: '企业服务安全门已关闭，请稍后再试。'
+	String get error503Hint => '企业服务安全门已关闭，请稍后再试。';
+
+	/// zh-CN: '当前构建未绑定企业通道'
+	String get errorUnboundTitle => '当前构建未绑定企业通道';
+
+	/// zh-CN: '企业治理接口需要应用凭据，客户端不内置该凭据；请由部署方绑定通道后再使用。'
+	String get errorUnboundHint => '企业治理接口需要应用凭据，客户端不内置该凭据；请由部署方绑定通道后再使用。';
+
+	/// zh-CN: '网络不可用'
+	String get errorNetworkTitle => '网络不可用';
+
+	/// zh-CN: '请检查网络连接后重试。'
+	String get errorNetworkHint => '请检查网络连接后重试。';
+
+	/// zh-CN: '未知结果'
+	String get errorUnknownTitle => '未知结果';
+
+	/// zh-CN: '服务返回了未识别的结果，请稍后重试。'
+	String get errorUnknownHint => '服务返回了未识别的结果，请稍后重试。';
+}
+
 // Path: enterpriseOa
 class Translations$enterpriseOa$zh_CN {
 	Translations$enterpriseOa$zh_CN.internal(this._root);
@@ -9313,6 +9563,86 @@ extension on Translations {
 			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name}',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人',
 			'discovery.momentAtCount' => ({required Object count}) => '${count}人',
+			'enterpriseApp.title' => '企业应用',
+			'enterpriseApp.badgeAppDelegated' => '应用代发',
+			'enterpriseApp.badgeHumanDelegated' => '人工经应用',
+			'enterpriseApp.originTitle' => '消息来源',
+			'enterpriseApp.originSenderApplication' => '应用代发（Application）',
+			'enterpriseApp.originSenderHuman' => '人工代发（Human sender）',
+			'enterpriseApp.originApplicationId' => ({required Object id}) => '来源应用 ${id}',
+			'enterpriseApp.originHosted' => '企业托管（非个人会话）',
+			'enterpriseApp.originLabelSender' => '发送来源',
+			'enterpriseApp.originLabelEncryption' => '加密状态',
+			'enterpriseApp.originNonE2ee' => '非端到端加密',
+			'enterpriseApp.originE2ee' => '端到端加密（Human 直发）',
+			'enterpriseApp.originMismatchTitle' => '来源信息不一致',
+			'enterpriseApp.originMismatchHint' => '消息同时带有企业应用来源与端到端加密载荷；已按非加密的企业来源展示，不视为 Human 直发的加密消息。',
+			'enterpriseApp.originUnrecognized' => '来源标记无法识别，已按非加密展示',
+			'enterpriseApp.actionDetails' => '详情',
+			'enterpriseApp.groupTitle' => '企业群',
+			'enterpriseApp.groupArchivedBadge' => '已归档',
+			'enterpriseApp.groupActionArchive' => '归档',
+			'enterpriseApp.groupArchiveTitle' => '归档企业群',
+			'enterpriseApp.groupArchiveHint' => '归档是单向操作：归档后该群对全部企业接口不可见，且不可恢复。',
+			'enterpriseApp.groupActionRename' => '修改群名',
+			'enterpriseApp.groupRenameHint' => '新群名',
+			'enterpriseApp.groupMembersTitle' => '成员与角色',
+			'enterpriseApp.groupRoleMember' => '成员',
+			'enterpriseApp.groupRoleGuest' => '嘉宾',
+			'enterpriseApp.groupRoleAdmin' => '管理员',
+			'enterpriseApp.groupRoleOwner' => '群主',
+			'enterpriseApp.groupRoleViceOwner' => '副群主',
+			'enterpriseApp.groupRoleOwnerLocked' => '群主角色不可变更，也不可经应用分配',
+			'enterpriseApp.groupOverLimit' => '成员数超过单页上限，已停止加载',
+			'enterpriseApp.groupEmpty' => '暂无企业群',
+			'enterpriseApp.directoryTitle' => '成员检索',
+			'enterpriseApp.directoryHint' => '按姓名或工号检索',
+			'enterpriseApp.directoryEmpty' => '无匹配成员',
+			'enterpriseApp.directoryBounded' => '受限目录：按页返回，不提供全量导出',
+			'enterpriseApp.directoryLoadMore' => '加载更多',
+			'enterpriseApp.directoryEnd' => '已到末页',
+			'enterpriseApp.retentionTitle' => '附件留存治理',
+			'enterpriseApp.retentionUntil' => ({required Object time}) => '留存至 ${time}',
+			'enterpriseApp.holdNone' => '未冻结',
+			'enterpriseApp.holdHeld' => '已冻结',
+			'enterpriseApp.holdReason' => ({required Object reason}) => '冻结原因：${reason}',
+			'enterpriseApp.purgeLive' => '未清除',
+			'enterpriseApp.purgePurged' => '已清除',
+			'enterpriseApp.retentionNoDelete' => '治理记录不可删除',
+			'enterpriseApp.retentionExtendOnly' => '留存期只可延长，不可缩短',
+			'enterpriseApp.purgeBlockedHold' => '冻结生效中，不可清除',
+			'enterpriseApp.purgeBlockedRetention' => '留存未到期，不可清除',
+			'enterpriseApp.purgeBlockedPurged' => '已清除，不可回退',
+			'enterpriseApp.actionRetry' => '重试',
+			'enterpriseApp.actionSignIn' => '重新登录',
+			'enterpriseApp.error400Title' => '请求不被接受',
+			'enterpriseApp.error400Hint' => '提交的内容不符合要求，请检查后重试。',
+			'enterpriseApp.error401Title' => '登录状态已失效',
+			'enterpriseApp.error401Hint' => '请重新登录后再试。',
+			'enterpriseApp.error403Title' => '企业应用已停用',
+			'enterpriseApp.error403Hint' => '该应用或所属企业已停用，请联系企业管理员。',
+			'enterpriseApp.error403ScopeTitle' => '权限范围不足',
+			'enterpriseApp.error403ScopeHint' => '当前凭据未被授予该操作所需的权限范围。',
+			'enterpriseApp.error403BoundaryTitle' => '超出企业边界',
+			'enterpriseApp.error403BoundaryHint' => '该资源不属于当前应用所在的企业或工作区。',
+			'enterpriseApp.error404Title' => '资源不存在',
+			'enterpriseApp.error404Hint' => '资源不存在，或不在可访问的企业范围内。',
+			'enterpriseApp.error409Title' => '操作冲突',
+			'enterpriseApp.error409Hint' => '重复提交或状态已变化，请刷新后重试。',
+			'enterpriseApp.error422IdentityTitle' => '身份未映射',
+			'enterpriseApp.error422IdentityHint' => '该成员尚未绑定企业外部身份，请先完成绑定。',
+			'enterpriseApp.error429Title' => '请求过于频繁',
+			'enterpriseApp.error429Hint' => '已触发企业接口限流，请稍后再试。',
+			'enterpriseApp.error500Title' => '服务内部错误',
+			'enterpriseApp.error500Hint' => '服务暂时异常，请稍后重试。',
+			'enterpriseApp.error503Title' => '服务暂不可用',
+			'enterpriseApp.error503Hint' => '企业服务安全门已关闭，请稍后再试。',
+			'enterpriseApp.errorUnboundTitle' => '当前构建未绑定企业通道',
+			'enterpriseApp.errorUnboundHint' => '企业治理接口需要应用凭据，客户端不内置该凭据；请由部署方绑定通道后再使用。',
+			'enterpriseApp.errorNetworkTitle' => '网络不可用',
+			'enterpriseApp.errorNetworkHint' => '请检查网络连接后重试。',
+			'enterpriseApp.errorUnknownTitle' => '未知结果',
+			'enterpriseApp.errorUnknownHint' => '服务返回了未识别的结果，请稍后重试。',
 			'enterpriseOa.title' => 'OA',
 			'enterpriseOa.statusLoading' => '正在连接企业办公…',
 			'enterpriseOa.statusErrorTitle' => '无法加载 OA',
@@ -9643,6 +9973,8 @@ extension on Translations {
 			'main.complianceKeyInfoLocalPin' => '本地固定（TOFU）',
 			'main.complianceKeyInfoKeyId' => '密钥 ID',
 			'main.complianceKeyInfoAlgorithm' => '算法',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoFingerprint' => '公钥指纹',
 			'main.complianceKeyInfoFetchedAt' => '获取时间',
 			'main.complianceKeyInfoPinnedAt' => '固定时间',
@@ -9723,8 +10055,6 @@ extension on Translations {
 			'organization.detail.restoreOrg' => '恢复组织',
 			'organization.detail.restoreConfirmBody' => '恢复后组织回到 active 态，写入口重新开放。',
 			'organization.detail.confirmRestore' => '确认恢复',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.restoreFailed' => '恢复失败',
 			'organization.detail.archiveFailed' => '归档失败',
 			'organization.detail.renameOrgTitle' => '修改组织名称',

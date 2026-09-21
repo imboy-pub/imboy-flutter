@@ -51,6 +51,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$fr_FR complaintReason = _Translations$complaintReason$fr_FR._(_root);
 	@override late final _Translations$contact$fr_FR contact = _Translations$contact$fr_FR._(_root);
 	@override late final _Translations$discovery$fr_FR discovery = _Translations$discovery$fr_FR._(_root);
+	@override late final _Translations$enterpriseApp$fr_FR enterpriseApp = _Translations$enterpriseApp$fr_FR._(_root);
 	@override late final _Translations$enterpriseOa$fr_FR enterpriseOa = _Translations$enterpriseOa$fr_FR._(_root);
 	@override late final _Translations$error$fr_FR error = _Translations$error$fr_FR._(_root);
 	@override late final _Translations$group$fr_FR group = _Translations$group$fr_FR._(_root);
@@ -1734,6 +1735,95 @@ class _Translations$discovery$fr_FR extends Translations$discovery$zh_CN {
 	@override String momentLikesCountOnly({required Object count}) => '${count} personnes ont aimé';
 	@override String get momentLocation => 'Position';
 	@override String get momentLocationNone => 'Ne pas afficher la position';
+}
+
+// Path: enterpriseApp
+class _Translations$enterpriseApp$fr_FR extends Translations$enterpriseApp$zh_CN {
+	_Translations$enterpriseApp$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Application d\'entreprise';
+	@override String get badgeAppDelegated => 'Envoyé par l\'application';
+	@override String get badgeHumanDelegated => 'Humain via l\'app';
+	@override String get originTitle => 'Origine du message';
+	@override String get originSenderApplication => 'Envoyé par l\'application (Application)';
+	@override String get originSenderHuman => 'Envoyé pour un humain (Human sender)';
+	@override String originApplicationId({required Object id}) => 'Application source ${id}';
+	@override String get originHosted => 'Hébergé par l\'entreprise (pas une discussion personnelle)';
+	@override String get originLabelSender => 'Origine de l\'expéditeur';
+	@override String get originLabelEncryption => 'Chiffrement';
+	@override String get originNonE2ee => 'Non chiffré de bout en bout';
+	@override String get originE2ee => 'Chiffré de bout en bout (humain direct)';
+	@override String get originMismatchTitle => 'Origine incohérente';
+	@override String get originMismatchHint => 'Ce message porte à la fois une origine d\'application d\'entreprise et une charge chiffrée de bout en bout. Il est affiché comme message d\'entreprise non chiffré, et non comme un message chiffré envoyé directement par un humain.';
+	@override String get originUnrecognized => 'Marqueur d\'origine non reconnu ; affiché comme non chiffré';
+	@override String get actionDetails => 'Détails';
+	@override String get groupTitle => 'Groupe d\'entreprise';
+	@override String get groupArchivedBadge => 'Archivé';
+	@override String get groupActionArchive => 'Archiver';
+	@override String get groupArchiveTitle => 'Archiver le groupe d\'entreprise';
+	@override String get groupArchiveHint => 'L\'archivage est irréversible : le groupe devient invisible pour toutes les API d\'entreprise et ne peut pas être restauré.';
+	@override String get groupActionRename => 'Renommer le groupe';
+	@override String get groupRenameHint => 'Nouveau nom du groupe';
+	@override String get groupMembersTitle => 'Membres et rôles';
+	@override String get groupRoleMember => 'Membre';
+	@override String get groupRoleGuest => 'Invité';
+	@override String get groupRoleAdmin => 'Administrateur';
+	@override String get groupRoleOwner => 'Propriétaire';
+	@override String get groupRoleViceOwner => 'Propriétaire adjoint';
+	@override String get groupRoleOwnerLocked => 'Le rôle de propriétaire ne peut être ni modifié ni attribué par une application';
+	@override String get groupOverLimit => 'Le nombre de membres dépasse la limite de page ; chargement arrêté';
+	@override String get groupEmpty => 'Aucun groupe d\'entreprise';
+	@override String get directoryTitle => 'Recherche de membres';
+	@override String get directoryHint => 'Rechercher par nom ou matricule';
+	@override String get directoryEmpty => 'Aucun membre correspondant';
+	@override String get directoryBounded => 'Annuaire borné : pagination uniquement, aucun export global';
+	@override String get directoryLoadMore => 'Charger plus';
+	@override String get directoryEnd => 'Fin de la liste';
+	@override String get retentionTitle => 'Rétention des pièces jointes';
+	@override String retentionUntil({required Object time}) => 'Conservé jusqu\'au ${time}';
+	@override String get holdNone => 'Non gelé';
+	@override String get holdHeld => 'Gelé';
+	@override String holdReason({required Object reason}) => 'Motif du gel : ${reason}';
+	@override String get purgeLive => 'Non purgé';
+	@override String get purgePurged => 'Purgé';
+	@override String get retentionNoDelete => 'Les enregistrements de gouvernance ne peuvent pas être supprimés';
+	@override String get retentionExtendOnly => 'La rétention ne peut être que prolongée, jamais réduite';
+	@override String get purgeBlockedHold => 'Un gel est actif ; purge bloquée';
+	@override String get purgeBlockedRetention => 'La rétention n\'est pas échue ; purge bloquée';
+	@override String get purgeBlockedPurged => 'Déjà purgé ; irréversible';
+	@override String get actionRetry => 'Réessayer';
+	@override String get actionSignIn => 'Se reconnecter';
+	@override String get error400Title => 'Requête refusée';
+	@override String get error400Hint => 'Le contenu soumis n\'est pas acceptable. Vérifiez puis réessayez.';
+	@override String get error401Title => 'Session expirée';
+	@override String get error401Hint => 'Veuillez vous reconnecter puis réessayer.';
+	@override String get error403Title => 'Application désactivée';
+	@override String get error403Hint => 'Cette application ou son organisation est désactivée. Contactez votre administrateur.';
+	@override String get error403ScopeTitle => 'Portée insuffisante';
+	@override String get error403ScopeHint => 'Les identifiants actuels ne disposent pas de la portée requise pour cette opération.';
+	@override String get error403BoundaryTitle => 'Hors limite d\'entreprise';
+	@override String get error403BoundaryHint => 'Cette ressource n\'appartient pas à l\'entreprise ou à l\'espace de travail de l\'application actuelle.';
+	@override String get error404Title => 'Ressource introuvable';
+	@override String get error404Hint => 'La ressource n\'existe pas ou se trouve hors de votre périmètre d\'entreprise.';
+	@override String get error409Title => 'Conflit d\'opération';
+	@override String get error409Hint => 'Envoi en double ou l\'état a changé. Actualisez puis réessayez.';
+	@override String get error422IdentityTitle => 'Identité non mappée';
+	@override String get error422IdentityHint => 'Ce membre n\'a pas encore d\'identité externe liée. Liez-la d\'abord.';
+	@override String get error429Title => 'Trop de requêtes';
+	@override String get error429Hint => 'Limite de débit de l\'API d\'entreprise atteinte. Réessayez plus tard.';
+	@override String get error500Title => 'Erreur interne du service';
+	@override String get error500Hint => 'Le service est temporairement indisponible. Réessayez plus tard.';
+	@override String get error503Title => 'Service indisponible';
+	@override String get error503Hint => 'Le portail de sécurité de l\'entreprise est fermé. Réessayez plus tard.';
+	@override String get errorUnboundTitle => 'Aucun canal d\'entreprise lié dans cette version';
+	@override String get errorUnboundHint => 'Les API de gouvernance d\'entreprise exigent un justificatif d\'application, qui n\'est jamais embarqué dans le client. Demandez à l\'exploitant de lier un canal.';
+	@override String get errorNetworkTitle => 'Réseau indisponible';
+	@override String get errorNetworkHint => 'Vérifiez votre connexion puis réessayez.';
+	@override String get errorUnknownTitle => 'Résultat inconnu';
+	@override String get errorUnknownHint => 'Le service a renvoyé un résultat non reconnu. Réessayez plus tard.';
 }
 
 // Path: enterpriseOa
@@ -4323,6 +4413,86 @@ extension on TranslationsFrFr {
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} personnes ont aimé',
 			'discovery.momentLocation' => 'Position',
 			'discovery.momentLocationNone' => 'Ne pas afficher la position',
+			'enterpriseApp.title' => 'Application d\'entreprise',
+			'enterpriseApp.badgeAppDelegated' => 'Envoyé par l\'application',
+			'enterpriseApp.badgeHumanDelegated' => 'Humain via l\'app',
+			'enterpriseApp.originTitle' => 'Origine du message',
+			'enterpriseApp.originSenderApplication' => 'Envoyé par l\'application (Application)',
+			'enterpriseApp.originSenderHuman' => 'Envoyé pour un humain (Human sender)',
+			'enterpriseApp.originApplicationId' => ({required Object id}) => 'Application source ${id}',
+			'enterpriseApp.originHosted' => 'Hébergé par l\'entreprise (pas une discussion personnelle)',
+			'enterpriseApp.originLabelSender' => 'Origine de l\'expéditeur',
+			'enterpriseApp.originLabelEncryption' => 'Chiffrement',
+			'enterpriseApp.originNonE2ee' => 'Non chiffré de bout en bout',
+			'enterpriseApp.originE2ee' => 'Chiffré de bout en bout (humain direct)',
+			'enterpriseApp.originMismatchTitle' => 'Origine incohérente',
+			'enterpriseApp.originMismatchHint' => 'Ce message porte à la fois une origine d\'application d\'entreprise et une charge chiffrée de bout en bout. Il est affiché comme message d\'entreprise non chiffré, et non comme un message chiffré envoyé directement par un humain.',
+			'enterpriseApp.originUnrecognized' => 'Marqueur d\'origine non reconnu ; affiché comme non chiffré',
+			'enterpriseApp.actionDetails' => 'Détails',
+			'enterpriseApp.groupTitle' => 'Groupe d\'entreprise',
+			'enterpriseApp.groupArchivedBadge' => 'Archivé',
+			'enterpriseApp.groupActionArchive' => 'Archiver',
+			'enterpriseApp.groupArchiveTitle' => 'Archiver le groupe d\'entreprise',
+			'enterpriseApp.groupArchiveHint' => 'L\'archivage est irréversible : le groupe devient invisible pour toutes les API d\'entreprise et ne peut pas être restauré.',
+			'enterpriseApp.groupActionRename' => 'Renommer le groupe',
+			'enterpriseApp.groupRenameHint' => 'Nouveau nom du groupe',
+			'enterpriseApp.groupMembersTitle' => 'Membres et rôles',
+			'enterpriseApp.groupRoleMember' => 'Membre',
+			'enterpriseApp.groupRoleGuest' => 'Invité',
+			'enterpriseApp.groupRoleAdmin' => 'Administrateur',
+			'enterpriseApp.groupRoleOwner' => 'Propriétaire',
+			'enterpriseApp.groupRoleViceOwner' => 'Propriétaire adjoint',
+			'enterpriseApp.groupRoleOwnerLocked' => 'Le rôle de propriétaire ne peut être ni modifié ni attribué par une application',
+			'enterpriseApp.groupOverLimit' => 'Le nombre de membres dépasse la limite de page ; chargement arrêté',
+			'enterpriseApp.groupEmpty' => 'Aucun groupe d\'entreprise',
+			'enterpriseApp.directoryTitle' => 'Recherche de membres',
+			'enterpriseApp.directoryHint' => 'Rechercher par nom ou matricule',
+			'enterpriseApp.directoryEmpty' => 'Aucun membre correspondant',
+			'enterpriseApp.directoryBounded' => 'Annuaire borné : pagination uniquement, aucun export global',
+			'enterpriseApp.directoryLoadMore' => 'Charger plus',
+			'enterpriseApp.directoryEnd' => 'Fin de la liste',
+			'enterpriseApp.retentionTitle' => 'Rétention des pièces jointes',
+			'enterpriseApp.retentionUntil' => ({required Object time}) => 'Conservé jusqu\'au ${time}',
+			'enterpriseApp.holdNone' => 'Non gelé',
+			'enterpriseApp.holdHeld' => 'Gelé',
+			'enterpriseApp.holdReason' => ({required Object reason}) => 'Motif du gel : ${reason}',
+			'enterpriseApp.purgeLive' => 'Non purgé',
+			'enterpriseApp.purgePurged' => 'Purgé',
+			'enterpriseApp.retentionNoDelete' => 'Les enregistrements de gouvernance ne peuvent pas être supprimés',
+			'enterpriseApp.retentionExtendOnly' => 'La rétention ne peut être que prolongée, jamais réduite',
+			'enterpriseApp.purgeBlockedHold' => 'Un gel est actif ; purge bloquée',
+			'enterpriseApp.purgeBlockedRetention' => 'La rétention n\'est pas échue ; purge bloquée',
+			'enterpriseApp.purgeBlockedPurged' => 'Déjà purgé ; irréversible',
+			'enterpriseApp.actionRetry' => 'Réessayer',
+			'enterpriseApp.actionSignIn' => 'Se reconnecter',
+			'enterpriseApp.error400Title' => 'Requête refusée',
+			'enterpriseApp.error400Hint' => 'Le contenu soumis n\'est pas acceptable. Vérifiez puis réessayez.',
+			'enterpriseApp.error401Title' => 'Session expirée',
+			'enterpriseApp.error401Hint' => 'Veuillez vous reconnecter puis réessayer.',
+			'enterpriseApp.error403Title' => 'Application désactivée',
+			'enterpriseApp.error403Hint' => 'Cette application ou son organisation est désactivée. Contactez votre administrateur.',
+			'enterpriseApp.error403ScopeTitle' => 'Portée insuffisante',
+			'enterpriseApp.error403ScopeHint' => 'Les identifiants actuels ne disposent pas de la portée requise pour cette opération.',
+			'enterpriseApp.error403BoundaryTitle' => 'Hors limite d\'entreprise',
+			'enterpriseApp.error403BoundaryHint' => 'Cette ressource n\'appartient pas à l\'entreprise ou à l\'espace de travail de l\'application actuelle.',
+			'enterpriseApp.error404Title' => 'Ressource introuvable',
+			'enterpriseApp.error404Hint' => 'La ressource n\'existe pas ou se trouve hors de votre périmètre d\'entreprise.',
+			'enterpriseApp.error409Title' => 'Conflit d\'opération',
+			'enterpriseApp.error409Hint' => 'Envoi en double ou l\'état a changé. Actualisez puis réessayez.',
+			'enterpriseApp.error422IdentityTitle' => 'Identité non mappée',
+			'enterpriseApp.error422IdentityHint' => 'Ce membre n\'a pas encore d\'identité externe liée. Liez-la d\'abord.',
+			'enterpriseApp.error429Title' => 'Trop de requêtes',
+			'enterpriseApp.error429Hint' => 'Limite de débit de l\'API d\'entreprise atteinte. Réessayez plus tard.',
+			'enterpriseApp.error500Title' => 'Erreur interne du service',
+			'enterpriseApp.error500Hint' => 'Le service est temporairement indisponible. Réessayez plus tard.',
+			'enterpriseApp.error503Title' => 'Service indisponible',
+			'enterpriseApp.error503Hint' => 'Le portail de sécurité de l\'entreprise est fermé. Réessayez plus tard.',
+			'enterpriseApp.errorUnboundTitle' => 'Aucun canal d\'entreprise lié dans cette version',
+			'enterpriseApp.errorUnboundHint' => 'Les API de gouvernance d\'entreprise exigent un justificatif d\'application, qui n\'est jamais embarqué dans le client. Demandez à l\'exploitant de lier un canal.',
+			'enterpriseApp.errorNetworkTitle' => 'Réseau indisponible',
+			'enterpriseApp.errorNetworkHint' => 'Vérifiez votre connexion puis réessayez.',
+			'enterpriseApp.errorUnknownTitle' => 'Résultat inconnu',
+			'enterpriseApp.errorUnknownHint' => 'Le service a renvoyé un résultat non reconnu. Réessayez plus tard.',
 			'enterpriseOa.title' => 'OA',
 			'enterpriseOa.statusLoading' => 'Connexion à l\'espace entreprise…',
 			'enterpriseOa.statusErrorTitle' => 'Impossible de charger l\'OA',
@@ -4736,6 +4906,8 @@ extension on TranslationsFrFr {
 			'organization.detail.restoreFailed' => 'Échec de la restauration',
 			'organization.detail.archiveFailed' => 'Échec de l\'archivage',
 			'organization.detail.renameOrgTitle' => 'Renommer l\'organisation',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => 'Nom de l\'organisation (1-200 caractères)',
 			'organization.detail.renameAction' => 'Renommer',
 			'organization.detail.renameFailed' => 'Échec du renommage',
@@ -4816,8 +4988,6 @@ extension on TranslationsFrFr {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Membre ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Accès à ce département refusé (membres actifs de cette organisation uniquement)',
 			'organization.departments.viewForbidden' => 'Accès refusé (membres actifs de cette organisation uniquement)',
-			_ => null,
-		} ?? switch (path) {
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Échec du chargement du département : ${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => 'Échec du chargement du département : ${err}',
 			'organization.departments.createSubHere' => 'Créer un sous-département ici',

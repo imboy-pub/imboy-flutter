@@ -8,6 +8,8 @@ import 'package:imboy/component/ui/shimmer_box.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/modules/enterprise_app/public.dart'
+    show HostedMessageBubbleDecoration;
 import 'package:imboy/plugins/builtin/register_builtin_plugins.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/plugins/registry/message_type_registry.dart';
@@ -25,6 +27,7 @@ import 'message_spacing.dart';
 import 'message_audio_builder.dart';
 import 'message_location_builder.dart';
 import 'message_revoked_builder.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 构建自定义消息主入口
@@ -176,7 +179,15 @@ class CustomMessageBuilder extends StatelessWidget {
           ? _wrapWithDefaultBubble(context, fallbackContent, isSentByMe)
           : fallbackContent;
     }
-    return content;
+    // FULL-05：企业托管（Application 代发 / 人工经应用）消息在气泡上叠加来源
+    // 事实与「非 E2EE」标记——企业托管消息不得被渲染成普通 Human 直发的加密
+    // 消息（判定唯一入口见 enterprise_app/domain/enterprise_message_origin.dart）。
+    // 普通 Human 消息原样返回，Human-Human E2EE 渲染链零改动（返回 == content）。
+    return HostedMessageBubbleDecoration.decorate(
+      context: context,
+      metadata: message.metadata,
+      child: content,
+    );
   }
 }
 

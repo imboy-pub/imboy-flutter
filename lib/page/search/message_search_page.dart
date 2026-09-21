@@ -1,10 +1,13 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/modules/enterprise_app/public.dart'
+    show HostedMessageFacts, HostedMessageFactsRow, resolveHostedMessageFacts;
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -16,6 +19,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
 import 'message_search_provider.dart';
 
 /// 消息搜索页面
@@ -799,10 +803,30 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
+              // FULL-05：搜索面与企业托管消息保持一致——命中企业托管消息时
+              // 同样展示来源徽标与非 E2EE 标记（plan §3.3「会话/详情/通知/
+              // 搜索/历史一致」）。普通消息不渲染任何额外内容。
+              _buildHostedFacts(result),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  /// 企业托管消息的来源事实行（复用 enterprise_app 的唯一判定与组件）。
+  Widget _buildHostedFacts(MessageSearchResult result) {
+    final Map<String, dynamic>? metadata = result.payload;
+    if (metadata == null) return const SizedBox.shrink();
+    final HostedMessageFacts facts = resolveHostedMessageFacts(
+      payload: metadata,
+    );
+    if (!facts.showsDelegationBadge && !facts.needsOriginWarning) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.tiny),
+      child: HostedMessageFactsRow(facts: facts),
     );
   }
 

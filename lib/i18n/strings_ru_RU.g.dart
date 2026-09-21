@@ -51,6 +51,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$ru_RU complaintReason = _Translations$complaintReason$ru_RU._(_root);
 	@override late final _Translations$contact$ru_RU contact = _Translations$contact$ru_RU._(_root);
 	@override late final _Translations$discovery$ru_RU discovery = _Translations$discovery$ru_RU._(_root);
+	@override late final _Translations$enterpriseApp$ru_RU enterpriseApp = _Translations$enterpriseApp$ru_RU._(_root);
 	@override late final _Translations$enterpriseOa$ru_RU enterpriseOa = _Translations$enterpriseOa$ru_RU._(_root);
 	@override late final _Translations$error$ru_RU error = _Translations$error$ru_RU._(_root);
 	@override late final _Translations$group$ru_RU group = _Translations$group$ru_RU._(_root);
@@ -1740,6 +1741,95 @@ class _Translations$discovery$ru_RU extends Translations$discovery$zh_CN {
 	@override String get momentAtWho => 'Кого напомнить?';
 	@override String get momentLocation => 'Местоположение';
 	@override String get momentLocationNone => 'Не показывать местоположение';
+}
+
+// Path: enterpriseApp
+class _Translations$enterpriseApp$ru_RU extends Translations$enterpriseApp$zh_CN {
+	_Translations$enterpriseApp$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Корпоративное приложение';
+	@override String get badgeAppDelegated => 'Отправлено приложением';
+	@override String get badgeHumanDelegated => 'Человек через приложение';
+	@override String get originTitle => 'Происхождение сообщения';
+	@override String get originSenderApplication => 'Отправлено приложением (Application)';
+	@override String get originSenderHuman => 'Отправлено от имени человека (Human sender)';
+	@override String originApplicationId({required Object id}) => 'Исходное приложение ${id}';
+	@override String get originHosted => 'Размещено предприятием (не личный чат)';
+	@override String get originLabelSender => 'Источник отправителя';
+	@override String get originLabelEncryption => 'Шифрование';
+	@override String get originNonE2ee => 'Без сквозного шифрования';
+	@override String get originE2ee => 'Сквозное шифрование (человек напрямую)';
+	@override String get originMismatchTitle => 'Противоречивое происхождение';
+	@override String get originMismatchHint => 'Сообщение одновременно содержит корпоративное происхождение и полезную нагрузку со сквозным шифрованием. Оно показывается как нешифрованное корпоративное сообщение, а не как зашифрованное сообщение, отправленное человеком напрямую.';
+	@override String get originUnrecognized => 'Метка происхождения не распознана; показано как нешифрованное';
+	@override String get actionDetails => 'Подробности';
+	@override String get groupTitle => 'Корпоративная группа';
+	@override String get groupArchivedBadge => 'В архиве';
+	@override String get groupActionArchive => 'Архивировать';
+	@override String get groupArchiveTitle => 'Архивировать корпоративную группу';
+	@override String get groupArchiveHint => 'Архивирование необратимо: группа становится невидимой для всех корпоративных API и не может быть восстановлена.';
+	@override String get groupActionRename => 'Переименовать группу';
+	@override String get groupRenameHint => 'Новое название группы';
+	@override String get groupMembersTitle => 'Участники и роли';
+	@override String get groupRoleMember => 'Участник';
+	@override String get groupRoleGuest => 'Гость';
+	@override String get groupRoleAdmin => 'Администратор';
+	@override String get groupRoleOwner => 'Владелец';
+	@override String get groupRoleViceOwner => 'Заместитель владельца';
+	@override String get groupRoleOwnerLocked => 'Роль владельца нельзя изменить и нельзя назначить приложением';
+	@override String get groupOverLimit => 'Число участников превышает лимит страницы; загрузка остановлена';
+	@override String get groupEmpty => 'Корпоративных групп нет';
+	@override String get directoryTitle => 'Поиск участников';
+	@override String get directoryHint => 'Поиск по имени или табельному номеру';
+	@override String get directoryEmpty => 'Подходящих участников нет';
+	@override String get directoryBounded => 'Ограниченный справочник: только постранично, без полного экспорта';
+	@override String get directoryLoadMore => 'Загрузить ещё';
+	@override String get directoryEnd => 'Конец списка';
+	@override String get retentionTitle => 'Хранение вложений';
+	@override String retentionUntil({required Object time}) => 'Хранится до ${time}';
+	@override String get holdNone => 'Без блокировки';
+	@override String get holdHeld => 'Заблокировано';
+	@override String holdReason({required Object reason}) => 'Причина блокировки: ${reason}';
+	@override String get purgeLive => 'Не удалено';
+	@override String get purgePurged => 'Удалено';
+	@override String get retentionNoDelete => 'Записи управления нельзя удалить';
+	@override String get retentionExtendOnly => 'Срок хранения можно только продлить, сократить нельзя';
+	@override String get purgeBlockedHold => 'Действует блокировка; удаление невозможно';
+	@override String get purgeBlockedRetention => 'Срок хранения не истёк; удаление невозможно';
+	@override String get purgeBlockedPurged => 'Уже удалено; откат невозможен';
+	@override String get actionRetry => 'Повторить';
+	@override String get actionSignIn => 'Войти заново';
+	@override String get error400Title => 'Запрос отклонён';
+	@override String get error400Hint => 'Отправленное содержимое недопустимо. Проверьте и повторите.';
+	@override String get error401Title => 'Сессия истекла';
+	@override String get error401Hint => 'Войдите заново и повторите попытку.';
+	@override String get error403Title => 'Приложение отключено';
+	@override String get error403Hint => 'Это приложение или его организация отключены. Обратитесь к администратору.';
+	@override String get error403ScopeTitle => 'Недостаточные права';
+	@override String get error403ScopeHint => 'Текущим учётным данным не выдан требуемый объём прав для этой операции.';
+	@override String get error403BoundaryTitle => 'Вне границы предприятия';
+	@override String get error403BoundaryHint => 'Этот ресурс не принадлежит предприятию или рабочему пространству текущего приложения.';
+	@override String get error404Title => 'Ресурс не найден';
+	@override String get error404Hint => 'Ресурс не существует или находится вне доступной области предприятия.';
+	@override String get error409Title => 'Конфликт операции';
+	@override String get error409Hint => 'Повторная отправка или состояние изменилось. Обновите и повторите.';
+	@override String get error422IdentityTitle => 'Идентичность не сопоставлена';
+	@override String get error422IdentityHint => 'У этого участника ещё не привязана внешняя корпоративная идентичность. Сначала привяжите её.';
+	@override String get error429Title => 'Слишком много запросов';
+	@override String get error429Hint => 'Достигнут лимит частоты корпоративного API. Повторите позже.';
+	@override String get error500Title => 'Внутренняя ошибка сервиса';
+	@override String get error500Hint => 'Сервис временно недоступен. Повторите позже.';
+	@override String get error503Title => 'Сервис недоступен';
+	@override String get error503Hint => 'Корпоративный шлюз безопасности закрыт. Повторите позже.';
+	@override String get errorUnboundTitle => 'В этой сборке корпоративный канал не подключён';
+	@override String get errorUnboundHint => 'Корпоративным API управления нужны учётные данные приложения, которые никогда не встраиваются в клиент. Попросите владельца развёртывания подключить канал.';
+	@override String get errorNetworkTitle => 'Сеть недоступна';
+	@override String get errorNetworkHint => 'Проверьте подключение и повторите.';
+	@override String get errorUnknownTitle => 'Неизвестный результат';
+	@override String get errorUnknownHint => 'Сервис вернул нераспознанный результат. Повторите позже.';
 }
 
 // Path: enterpriseOa
@@ -4329,6 +4419,86 @@ extension on TranslationsRuRu {
 			'discovery.momentAtWho' => 'Кого напомнить?',
 			'discovery.momentLocation' => 'Местоположение',
 			'discovery.momentLocationNone' => 'Не показывать местоположение',
+			'enterpriseApp.title' => 'Корпоративное приложение',
+			'enterpriseApp.badgeAppDelegated' => 'Отправлено приложением',
+			'enterpriseApp.badgeHumanDelegated' => 'Человек через приложение',
+			'enterpriseApp.originTitle' => 'Происхождение сообщения',
+			'enterpriseApp.originSenderApplication' => 'Отправлено приложением (Application)',
+			'enterpriseApp.originSenderHuman' => 'Отправлено от имени человека (Human sender)',
+			'enterpriseApp.originApplicationId' => ({required Object id}) => 'Исходное приложение ${id}',
+			'enterpriseApp.originHosted' => 'Размещено предприятием (не личный чат)',
+			'enterpriseApp.originLabelSender' => 'Источник отправителя',
+			'enterpriseApp.originLabelEncryption' => 'Шифрование',
+			'enterpriseApp.originNonE2ee' => 'Без сквозного шифрования',
+			'enterpriseApp.originE2ee' => 'Сквозное шифрование (человек напрямую)',
+			'enterpriseApp.originMismatchTitle' => 'Противоречивое происхождение',
+			'enterpriseApp.originMismatchHint' => 'Сообщение одновременно содержит корпоративное происхождение и полезную нагрузку со сквозным шифрованием. Оно показывается как нешифрованное корпоративное сообщение, а не как зашифрованное сообщение, отправленное человеком напрямую.',
+			'enterpriseApp.originUnrecognized' => 'Метка происхождения не распознана; показано как нешифрованное',
+			'enterpriseApp.actionDetails' => 'Подробности',
+			'enterpriseApp.groupTitle' => 'Корпоративная группа',
+			'enterpriseApp.groupArchivedBadge' => 'В архиве',
+			'enterpriseApp.groupActionArchive' => 'Архивировать',
+			'enterpriseApp.groupArchiveTitle' => 'Архивировать корпоративную группу',
+			'enterpriseApp.groupArchiveHint' => 'Архивирование необратимо: группа становится невидимой для всех корпоративных API и не может быть восстановлена.',
+			'enterpriseApp.groupActionRename' => 'Переименовать группу',
+			'enterpriseApp.groupRenameHint' => 'Новое название группы',
+			'enterpriseApp.groupMembersTitle' => 'Участники и роли',
+			'enterpriseApp.groupRoleMember' => 'Участник',
+			'enterpriseApp.groupRoleGuest' => 'Гость',
+			'enterpriseApp.groupRoleAdmin' => 'Администратор',
+			'enterpriseApp.groupRoleOwner' => 'Владелец',
+			'enterpriseApp.groupRoleViceOwner' => 'Заместитель владельца',
+			'enterpriseApp.groupRoleOwnerLocked' => 'Роль владельца нельзя изменить и нельзя назначить приложением',
+			'enterpriseApp.groupOverLimit' => 'Число участников превышает лимит страницы; загрузка остановлена',
+			'enterpriseApp.groupEmpty' => 'Корпоративных групп нет',
+			'enterpriseApp.directoryTitle' => 'Поиск участников',
+			'enterpriseApp.directoryHint' => 'Поиск по имени или табельному номеру',
+			'enterpriseApp.directoryEmpty' => 'Подходящих участников нет',
+			'enterpriseApp.directoryBounded' => 'Ограниченный справочник: только постранично, без полного экспорта',
+			'enterpriseApp.directoryLoadMore' => 'Загрузить ещё',
+			'enterpriseApp.directoryEnd' => 'Конец списка',
+			'enterpriseApp.retentionTitle' => 'Хранение вложений',
+			'enterpriseApp.retentionUntil' => ({required Object time}) => 'Хранится до ${time}',
+			'enterpriseApp.holdNone' => 'Без блокировки',
+			'enterpriseApp.holdHeld' => 'Заблокировано',
+			'enterpriseApp.holdReason' => ({required Object reason}) => 'Причина блокировки: ${reason}',
+			'enterpriseApp.purgeLive' => 'Не удалено',
+			'enterpriseApp.purgePurged' => 'Удалено',
+			'enterpriseApp.retentionNoDelete' => 'Записи управления нельзя удалить',
+			'enterpriseApp.retentionExtendOnly' => 'Срок хранения можно только продлить, сократить нельзя',
+			'enterpriseApp.purgeBlockedHold' => 'Действует блокировка; удаление невозможно',
+			'enterpriseApp.purgeBlockedRetention' => 'Срок хранения не истёк; удаление невозможно',
+			'enterpriseApp.purgeBlockedPurged' => 'Уже удалено; откат невозможен',
+			'enterpriseApp.actionRetry' => 'Повторить',
+			'enterpriseApp.actionSignIn' => 'Войти заново',
+			'enterpriseApp.error400Title' => 'Запрос отклонён',
+			'enterpriseApp.error400Hint' => 'Отправленное содержимое недопустимо. Проверьте и повторите.',
+			'enterpriseApp.error401Title' => 'Сессия истекла',
+			'enterpriseApp.error401Hint' => 'Войдите заново и повторите попытку.',
+			'enterpriseApp.error403Title' => 'Приложение отключено',
+			'enterpriseApp.error403Hint' => 'Это приложение или его организация отключены. Обратитесь к администратору.',
+			'enterpriseApp.error403ScopeTitle' => 'Недостаточные права',
+			'enterpriseApp.error403ScopeHint' => 'Текущим учётным данным не выдан требуемый объём прав для этой операции.',
+			'enterpriseApp.error403BoundaryTitle' => 'Вне границы предприятия',
+			'enterpriseApp.error403BoundaryHint' => 'Этот ресурс не принадлежит предприятию или рабочему пространству текущего приложения.',
+			'enterpriseApp.error404Title' => 'Ресурс не найден',
+			'enterpriseApp.error404Hint' => 'Ресурс не существует или находится вне доступной области предприятия.',
+			'enterpriseApp.error409Title' => 'Конфликт операции',
+			'enterpriseApp.error409Hint' => 'Повторная отправка или состояние изменилось. Обновите и повторите.',
+			'enterpriseApp.error422IdentityTitle' => 'Идентичность не сопоставлена',
+			'enterpriseApp.error422IdentityHint' => 'У этого участника ещё не привязана внешняя корпоративная идентичность. Сначала привяжите её.',
+			'enterpriseApp.error429Title' => 'Слишком много запросов',
+			'enterpriseApp.error429Hint' => 'Достигнут лимит частоты корпоративного API. Повторите позже.',
+			'enterpriseApp.error500Title' => 'Внутренняя ошибка сервиса',
+			'enterpriseApp.error500Hint' => 'Сервис временно недоступен. Повторите позже.',
+			'enterpriseApp.error503Title' => 'Сервис недоступен',
+			'enterpriseApp.error503Hint' => 'Корпоративный шлюз безопасности закрыт. Повторите позже.',
+			'enterpriseApp.errorUnboundTitle' => 'В этой сборке корпоративный канал не подключён',
+			'enterpriseApp.errorUnboundHint' => 'Корпоративным API управления нужны учётные данные приложения, которые никогда не встраиваются в клиент. Попросите владельца развёртывания подключить канал.',
+			'enterpriseApp.errorNetworkTitle' => 'Сеть недоступна',
+			'enterpriseApp.errorNetworkHint' => 'Проверьте подключение и повторите.',
+			'enterpriseApp.errorUnknownTitle' => 'Неизвестный результат',
+			'enterpriseApp.errorUnknownHint' => 'Сервис вернул нераспознанный результат. Повторите позже.',
 			'enterpriseOa.title' => 'OA',
 			'enterpriseOa.statusLoading' => 'Подключение к корпоративному рабочему пространству…',
 			'enterpriseOa.statusErrorTitle' => 'Не удалось загрузить OA',
@@ -4742,6 +4912,8 @@ extension on TranslationsRuRu {
 			'organization.detail.restoreFailed' => 'Не удалось восстановить',
 			'organization.detail.archiveFailed' => 'Не удалось архивировать',
 			'organization.detail.renameOrgTitle' => 'Переименовать организацию',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => 'Название организации (1-200 символов)',
 			'organization.detail.renameAction' => 'Переименовать',
 			'organization.detail.renameFailed' => 'Не удалось переименовать',
@@ -4822,8 +4994,6 @@ extension on TranslationsRuRu {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Участник ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Нет доступа к этому отделу (только действующие участники этой организации)',
 			'organization.departments.viewForbidden' => 'Нет доступа (только действующие участники этой организации)',
-			_ => null,
-		} ?? switch (path) {
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Не удалось загрузить отдел: ${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => 'Не удалось загрузить отдел: ${err}',
 			'organization.departments.createSubHere' => 'Создать подотдел здесь',
