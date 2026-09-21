@@ -21,6 +21,51 @@ val productFeatures = Properties().apply {
 }
 val locationCompiled = productFeatures.getProperty("location") == "true"
 
+// ── 白标 flavor 配方（EPGZ-06 W4；计划 §7.3 白标 + §7.4 JPush）──────────────
+// 客户品牌值一律**不入库**：本地/CI 从 android/local.properties（已 gitignore，
+// 见 android/.gitignore:6 / 本工程 git check-ignore 实测）读取 wl.* 与
+// jpush.appKey；缺值回落到与 base 逐值等价的占位（IMBoy / 既有图标 / 既有主色），
+// 绝不编造客户品牌名、图标、资质或密钥。非 ASCII 显示名请写 \uXXXX
+// （java.util.Properties 按 ISO-8859-1 读取 local.properties）。
+//
+// Dart 侧同一份配方的键名合同见
+// lib/modules/enterprise_oa/enterprise_oa_runtime_config.dart（经 --dart-define 下发）：
+//   flutter build apk --debug --flavor gzCustomer \
+//     --dart-define=IMBOY_WL_FLAVOR=gzCustomer \
+//     --dart-define=IMBOY_WL_APPLICATION_ID=<客户 applicationId> \
+//     --dart-define=IMBOY_WL_DISPLAY_NAME=<显示名> \
+//     --dart-define=IMBOY_WL_PRIMARY_COLOR=<#RRGGBB> \
+//     --dart-define=IMBOY_WL_OA_LABEL=<OA Tab 名> \
+//     --dart-define=IMBOY_WL_OA_ORIGIN=<https://oa.example.com> \
+//     --dart-define=IMBOY_WL_OA_ENTRY_ENABLED=true \
+//     --dart-define=IMBOY_WL_OA_APPLICATION_KEY=<OA 应用标识 8..128> \
+//     --dart-define=IMBOY_WL_OA_REDIRECT_URI=<与 origin 同源的 redirect>
+//   （OA 四项未注入时 fail-closed：入口不出现，见 runtime_config 文档）
+//
+// ⚠️ 副作用的代价（有意为之）：本工程一旦有 productFlavor，Android 构建从此
+//    **必须显式带 --flavor**——standard = 原 imboy 基线（applicationId 不变），
+//    gzCustomer = 广州客户白标。仓内 5 处调用点已同步补 --flavor standard。
+// ⚠️ 启动图/图标资产未提供（BLOCKED_EXTERNAL）时沿用 base 资产；客户资产落点：
+//    flavor 级 res 覆盖 main 的 flutter_native_splash 产物——
+//    android/app/src/gzCustomer/res/drawable/launch_background.xml（含 drawable-v21）
+//    覆盖启动图；android/app/src/gzCustomer/res/mipmap-*/wl_ic_launcher.png +
+//    local.properties 里 wl.icon=@mipmap/wl_ic_launcher 覆盖图标。
+val baseApplicationId = "pub.imboy.app"
+val wlFlavorId = "gzCustomer"
+val wlApplicationIdSuffix =
+    localProperties.getProperty("wl.applicationIdSuffix") ?: ".gzcustomer"
+val wlDisplayName =
+    localProperties.getProperty("wl.displayName")?.takeIf { it.isNotBlank() } ?: "IMBoy"
+val wlAppIcon = localProperties.getProperty("wl.icon") ?: "@mipmap/ic_launcher"
+val wlPrimaryColor = localProperties.getProperty("wl.primaryColor") ?: "#2474E5"
+val jpushAppKeyInjected = !localProperties.getProperty("jpush.appKey").isNullOrEmpty()
+// 构建期自证（只报**有无**，绝不回显密钥值）：CI 日志可直接判读推送是否具备真机条件。
+logger.lifecycle(
+    "白标配方: flavor=$wlFlavorId appId=$baseApplicationId$wlApplicationIdSuffix " +
+        "label=$wlDisplayName icon=$wlAppIcon " +
+        "JPush AppKey=${if (jpushAppKeyInjected) "已注入(local.properties)" else "未注入(空占位,真机推送不可用)"}"
+)
+
 // cat /Users/leeyi/dev/flutter/bin/internal/engine.version
 //val flutterEngineVersion = "18818009497c581ede5d8a3b8b833b81d00cebb7"
 
@@ -43,7 +88,8 @@ android {
 
     defaultConfig {
         // 三端统一应用标识（Android/iOS/macOS）：pub.imboy.app
-        applicationId = "pub.imboy.app"
+        // 白标 flavor 在此值上追加 applicationIdSuffix（见 productFlavors）。
+        applicationId = baseApplicationId
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -69,6 +115,32 @@ android {
                 "JPUSH_APPKEY" to (localProperties.getProperty("jpush.appKey") ?: "")
             )
         )
+    }
+
+    // 白标 flavor（单一维度 brand，不 fork 工程结构）。
+    //   standard   基线：与原 imboy 行为逐值等价（applicationId / 显示名 / 图标不变）
+    //   gzCustomer 广州客户白标：值全部来自 local.properties，缺值走与 base 等价的占位
+    flavorDimensions += "brand"
+    productFlavors {
+        create("standard") {
+            dimension = "brand"
+        }
+        create(wlFlavorId) {
+            dimension = "brand"
+            applicationIdSuffix = wlApplicationIdSuffix
+            // 显示名：resValue 落点（Android 惯例；客户也可用 flavor res 覆盖同名 string）
+            resValue("string", "wl_app_name", wlDisplayName)
+            // 主题色占位：客户主色的落点；未提供时 = 项目既有主色 (#2474E5)
+            resValue("color", "wl_primary", wlPrimaryColor)
+            manifestPlaceholders.putAll(
+                mutableMapOf(
+                    // 图标引用：默认沿用 base 图标，客户给图后指向 @mipmap/wl_ic_launcher
+                    "WL_APP_ICON" to wlAppIcon,
+                    // JPush 硬要求：JPUSH_PKGNAME 必须等于最终包名，故随后缀联动
+                    "JPUSH_PKGNAME" to (baseApplicationId + wlApplicationIdSuffix)
+                )
+            )
+        }
     }
 
     signingConfigs {
@@ -144,13 +216,15 @@ android {
     }
 }
 
-// 确保 Kotlin 编译在 Java 之前完成
+// 确保 Kotlin 编译在 Java 之前完成。
+// 白标 flavor 引入后变体任务名带 flavor 前缀（compileStandardDebugJavaWithJavac /
+// compileGzCustomerDebugJavaWithJavac …），原先写死的 compileDebugJavaWithJavac 在
+// 配置期直接报 "Task with name 'compileDebugJavaWithJavac' not found"，因此改为按
+// 实际存在的任务名动态解析：不写死变体，新增 flavor 自动覆盖。
 afterEvaluate {
-    tasks.named("compileDebugJavaWithJavac") {
-        dependsOn("compileDebugKotlin")
-    }
-    tasks.named("compileReleaseJavaWithJavac") {
-        dependsOn("compileReleaseKotlin")
+    tasks.matching { it.name.endsWith("JavaWithJavac") }.configureEach {
+        val kotlinTask = name.removeSuffix("JavaWithJavac") + "Kotlin"
+        tasks.findByName(kotlinTask)?.let { dependsOn(it) }
     }
 }
 

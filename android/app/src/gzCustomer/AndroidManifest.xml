@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  白标 flavor 覆盖层（EPGZ-06 W4；计划 §7.3）。
+
+  只做一件事：把 <application> 的**显示名**与**图标引用**交给 flavor 决定。
+  这不是 fork main manifest——main 的 android:label="IMBoy" /
+  android:icon="@mipmap/ic_launcher" 原样不动（scripts/apply_brand.dart 的正则
+  _stamp 仍然命中且只命中 main 那一处），AGP 的 manifest merger 用本层覆盖。
+
+  值来源：build.gradle.kts 的 manifestPlaceholders / resValue，全部由
+  android/local.properties（已 gitignore）注入，缺值回落到与 base 等价的占位：
+    - 显示名   @string/wl_app_name  ← resValue("string")，缺省 "IMBoy"
+    - 图标     ${WL_APP_ICON}       ← 缺省 "@mipmap/ic_launcher"
+
+  启动图（未提供客户资产，沿用 base）：把 flavor 级
+  android/app/src/gzCustomer/res/drawable/launch_background.xml（含
+  drawable-v21/）放到位即按资源名覆盖 main 的 flutter_native_splash 产物。
+
+  tools:replace 是必需的：这两条属性 main 也声明了，覆盖层必须显式声明优先级，
+  否则 merger 直接报冲突而拒绝构建。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:label="@string/wl_app_name"
+        android:icon="${WL_APP_ICON}"
+        tools:replace="android:label,android:icon" />
+
+</manifest>
