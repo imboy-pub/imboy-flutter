@@ -1,0 +1,26 @@
+# EPGZ-06 — OA aziendale (scheda OA / scheletro WebView / badge messaggi delegati)
+# Testi dei sette stati (loading/ready/error/expired/logged-out/mismatch/oa401),
+# badge di delega OA e marcatore non-E2EE. Piano §7.2 / §4.3.
+title: "OA"
+# ==================== Stati ====================
+statusLoading: "Connessione all'area aziendale…"
+statusErrorTitle: "Impossibile caricare l'OA"
+statusErrorHint: "Errore di rete o servizio temporaneamente non disponibile. Riprova più tardi."
+statusExpiredTitle: "Accesso scaduto"
+statusExpiredHint: "Il codice di single sign-on OA è scaduto o è già stato utilizzato. Accedi di nuovo."
+statusLoggedOutTitle: "Disconnesso dall'OA"
+statusLoggedOutHint: "La sessione OA è terminata. È necessario un nuovo single sign-on."
+statusMismatchTitle: "Navigazione fuori dall'OA aziendale bloccata"
+statusMismatchHint: "È stato rilevato un indirizzo non autorizzato. Il caricamento è stato interrotto per proteggere l'account."
+statusMismatchBlockedHost: "Bloccato: $host"
+statusOa401Title: "Sessione OA non autorizzata"
+statusOa401Hint: "Il servizio OA ha restituito „non autorizzato“. Accedi di nuovo."
+# ==================== Azioni ====================
+actionRetry: "Riprova"
+actionRestartSso: "Accedi di nuovo"
+# ==================== Slot WebView (segnaposto fino a W3) ====================
+webviewSlotHint: "Contenitore pagina OA (integrazione in W3)"
+# ==================== Badge messaggi delegati OA (piano §4.3) ====================
+badgeDelegated: "Tramite OA"
+markerNoE2ee: "Gestito dall'azienda · non crittografato end-to-end"
+senderVia: "inviato tramite $origin"

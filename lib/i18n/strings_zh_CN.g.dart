@@ -54,6 +54,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$contact$zh_CN contact = Translations$contact$zh_CN.internal(_root);
 	late final Translations$customerService$zh_CN customerService = Translations$customerService$zh_CN.internal(_root);
 	late final Translations$discovery$zh_CN discovery = Translations$discovery$zh_CN.internal(_root);
+	late final Translations$enterpriseOa$zh_CN enterpriseOa = Translations$enterpriseOa$zh_CN.internal(_root);
 	late final Translations$error$zh_CN error = Translations$error$zh_CN.internal(_root);
 	late final Translations$group$zh_CN group = Translations$group$zh_CN.internal(_root);
 	late final Translations$groupCategory$zh_CN groupCategory = Translations$groupCategory$zh_CN.internal(_root);
@@ -5086,6 +5087,72 @@ class Translations$discovery$zh_CN {
 	String momentAtCount({required Object count}) => '${count}人';
 }
 
+// Path: enterpriseOa
+class Translations$enterpriseOa$zh_CN {
+	Translations$enterpriseOa$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: 'OA'
+	String get title => 'OA';
+
+	/// zh-CN: '正在连接企业办公…'
+	String get statusLoading => '正在连接企业办公…';
+
+	/// zh-CN: '无法加载 OA'
+	String get statusErrorTitle => '无法加载 OA';
+
+	/// zh-CN: '网络异常或服务暂不可用，请稍后重试'
+	String get statusErrorHint => '网络异常或服务暂不可用，请稍后重试';
+
+	/// zh-CN: '登录已过期'
+	String get statusExpiredTitle => '登录已过期';
+
+	/// zh-CN: 'OA 单点登录凭证已过期或已被使用，请重新登录'
+	String get statusExpiredHint => 'OA 单点登录凭证已过期或已被使用，请重新登录';
+
+	/// zh-CN: '已退出 OA'
+	String get statusLoggedOutTitle => '已退出 OA';
+
+	/// zh-CN: 'OA 会话已退出，需要重新单点登录'
+	String get statusLoggedOutHint => 'OA 会话已退出，需要重新单点登录';
+
+	/// zh-CN: '已阻止离开企业 OA'
+	String get statusMismatchTitle => '已阻止离开企业 OA';
+
+	/// zh-CN: '检测到跳转到未授权地址，已停止加载以保护你的账号'
+	String get statusMismatchHint => '检测到跳转到未授权地址，已停止加载以保护你的账号';
+
+	/// zh-CN: '已拦截：$host'
+	String statusMismatchBlockedHost({required Object host}) => '已拦截：${host}';
+
+	/// zh-CN: 'OA 登录态失效'
+	String get statusOa401Title => 'OA 登录态失效';
+
+	/// zh-CN: 'OA 服务返回未授权，请重新单点登录'
+	String get statusOa401Hint => 'OA 服务返回未授权，请重新单点登录';
+
+	/// zh-CN: '重试'
+	String get actionRetry => '重试';
+
+	/// zh-CN: '重新单点登录'
+	String get actionRestartSso => '重新单点登录';
+
+	/// zh-CN: 'OA 页面容器（集成于 W3 波次）'
+	String get webviewSlotHint => 'OA 页面容器（集成于 W3 波次）';
+
+	/// zh-CN: 'OA 代发'
+	String get badgeDelegated => 'OA 代发';
+
+	/// zh-CN: '企业托管 · 未端到端加密'
+	String get markerNoE2ee => '企业托管 · 未端到端加密';
+
+	/// zh-CN: '经 $origin 代发'
+	String senderVia({required Object origin}) => '经 ${origin} 代发';
+}
+
 // Path: error
 class Translations$error$zh_CN {
 	Translations$error$zh_CN.internal(this._root);
@@ -9240,6 +9307,25 @@ extension on Translations {
 			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name}',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人',
 			'discovery.momentAtCount' => ({required Object count}) => '${count}人',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => '正在连接企业办公…',
+			'enterpriseOa.statusErrorTitle' => '无法加载 OA',
+			'enterpriseOa.statusErrorHint' => '网络异常或服务暂不可用，请稍后重试',
+			'enterpriseOa.statusExpiredTitle' => '登录已过期',
+			'enterpriseOa.statusExpiredHint' => 'OA 单点登录凭证已过期或已被使用，请重新登录',
+			'enterpriseOa.statusLoggedOutTitle' => '已退出 OA',
+			'enterpriseOa.statusLoggedOutHint' => 'OA 会话已退出，需要重新单点登录',
+			'enterpriseOa.statusMismatchTitle' => '已阻止离开企业 OA',
+			'enterpriseOa.statusMismatchHint' => '检测到跳转到未授权地址，已停止加载以保护你的账号',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => '已拦截：${host}',
+			'enterpriseOa.statusOa401Title' => 'OA 登录态失效',
+			'enterpriseOa.statusOa401Hint' => 'OA 服务返回未授权，请重新单点登录',
+			'enterpriseOa.actionRetry' => '重试',
+			'enterpriseOa.actionRestartSso' => '重新单点登录',
+			'enterpriseOa.webviewSlotHint' => 'OA 页面容器（集成于 W3 波次）',
+			'enterpriseOa.badgeDelegated' => 'OA 代发',
+			'enterpriseOa.markerNoE2ee' => '企业托管 · 未端到端加密',
+			'enterpriseOa.senderVia' => ({required Object origin}) => '经 ${origin} 代发',
 			'error.restartRequired' => '需要重启应用',
 			'error.pleaseCheckNetwork' => '请检查你的网络设置。',
 			'error.networkTroubleshootingStep1' => '1.打开手机设置并把Wi-Fi开关保持开启状态。',
@@ -9631,6 +9717,8 @@ extension on Translations {
 			'organization.detail.confirmRestore' => '确认恢复',
 			'organization.detail.restoreFailed' => '恢复失败',
 			'organization.detail.archiveFailed' => '归档失败',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.renameOrgTitle' => '修改组织名称',
 			'organization.detail.renameOrgLabel' => '组织名称（1-200 字符）',
 			'organization.detail.renameAction' => '修改名称',
@@ -9650,8 +9738,6 @@ extension on Translations {
 			'organization.detail.defaultWsUnset' => '默认 Workspace：未设置',
 			'organization.detail.defaultWsNote' => '指向事实，不代表任何 workspace 成员身份',
 			'organization.detail.memberList' => '成员列表',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.memberListRestricted' => '成员列表（仅 owner/admin 可查看）',
 			'organization.detail.invitationManage' => '邀请管理',
 			'organization.detail.invitationManageRestricted' => '邀请管理（仅 owner/admin 可管理）',

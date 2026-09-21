@@ -51,6 +51,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$it_IT complaintReason = _Translations$complaintReason$it_IT._(_root);
 	@override late final _Translations$contact$it_IT contact = _Translations$contact$it_IT._(_root);
 	@override late final _Translations$discovery$it_IT discovery = _Translations$discovery$it_IT._(_root);
+	@override late final _Translations$enterpriseOa$it_IT enterpriseOa = _Translations$enterpriseOa$it_IT._(_root);
 	@override late final _Translations$error$it_IT error = _Translations$error$it_IT._(_root);
 	@override late final _Translations$group$it_IT group = _Translations$group$it_IT._(_root);
 	@override late final _Translations$groupCategory$it_IT groupCategory = _Translations$groupCategory$it_IT._(_root);
@@ -1733,6 +1734,34 @@ class _Translations$discovery$it_IT extends Translations$discovery$zh_CN {
 	@override String momentLikesCountOnly({required Object count}) => 'Piace a ${count} persone';
 	@override String get momentLocation => 'Posizione';
 	@override String get momentLocationNone => 'Non mostrare la posizione';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$it_IT extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => 'Connessione all\'area aziendale…';
+	@override String get statusErrorTitle => 'Impossibile caricare l\'OA';
+	@override String get statusErrorHint => 'Errore di rete o servizio temporaneamente non disponibile. Riprova più tardi.';
+	@override String get statusExpiredTitle => 'Accesso scaduto';
+	@override String get statusExpiredHint => 'Il codice di single sign-on OA è scaduto o è già stato utilizzato. Accedi di nuovo.';
+	@override String get statusLoggedOutTitle => 'Disconnesso dall\'OA';
+	@override String get statusLoggedOutHint => 'La sessione OA è terminata. È necessario un nuovo single sign-on.';
+	@override String get statusMismatchTitle => 'Navigazione fuori dall\'OA aziendale bloccata';
+	@override String get statusMismatchHint => 'È stato rilevato un indirizzo non autorizzato. Il caricamento è stato interrotto per proteggere l\'account.';
+	@override String statusMismatchBlockedHost({required Object host}) => 'Bloccato: ${host}';
+	@override String get statusOa401Title => 'Sessione OA non autorizzata';
+	@override String get statusOa401Hint => 'Il servizio OA ha restituito „non autorizzato“. Accedi di nuovo.';
+	@override String get actionRetry => 'Riprova';
+	@override String get actionRestartSso => 'Accedi di nuovo';
+	@override String get webviewSlotHint => 'Contenitore pagina OA (integrazione in W3)';
+	@override String get badgeDelegated => 'Tramite OA';
+	@override String get markerNoE2ee => 'Gestito dall\'azienda · non crittografato end-to-end';
+	@override String senderVia({required Object origin}) => 'inviato tramite ${origin}';
 }
 
 // Path: error
@@ -4292,6 +4321,25 @@ extension on TranslationsItIt {
 			'discovery.momentLikesCountOnly' => ({required Object count}) => 'Piace a ${count} persone',
 			'discovery.momentLocation' => 'Posizione',
 			'discovery.momentLocationNone' => 'Non mostrare la posizione',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => 'Connessione all\'area aziendale…',
+			'enterpriseOa.statusErrorTitle' => 'Impossibile caricare l\'OA',
+			'enterpriseOa.statusErrorHint' => 'Errore di rete o servizio temporaneamente non disponibile. Riprova più tardi.',
+			'enterpriseOa.statusExpiredTitle' => 'Accesso scaduto',
+			'enterpriseOa.statusExpiredHint' => 'Il codice di single sign-on OA è scaduto o è già stato utilizzato. Accedi di nuovo.',
+			'enterpriseOa.statusLoggedOutTitle' => 'Disconnesso dall\'OA',
+			'enterpriseOa.statusLoggedOutHint' => 'La sessione OA è terminata. È necessario un nuovo single sign-on.',
+			'enterpriseOa.statusMismatchTitle' => 'Navigazione fuori dall\'OA aziendale bloccata',
+			'enterpriseOa.statusMismatchHint' => 'È stato rilevato un indirizzo non autorizzato. Il caricamento è stato interrotto per proteggere l\'account.',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => 'Bloccato: ${host}',
+			'enterpriseOa.statusOa401Title' => 'Sessione OA non autorizzata',
+			'enterpriseOa.statusOa401Hint' => 'Il servizio OA ha restituito „non autorizzato“. Accedi di nuovo.',
+			'enterpriseOa.actionRetry' => 'Riprova',
+			'enterpriseOa.actionRestartSso' => 'Accedi di nuovo',
+			'enterpriseOa.webviewSlotHint' => 'Contenitore pagina OA (integrazione in W3)',
+			'enterpriseOa.badgeDelegated' => 'Tramite OA',
+			'enterpriseOa.markerNoE2ee' => 'Gestito dall\'azienda · non crittografato end-to-end',
+			'enterpriseOa.senderVia' => ({required Object origin}) => 'inviato tramite ${origin}',
 			'error.restartRequired' => 'Riavvio richiesto',
 			'error.pleaseCheckNetwork' => 'Controlla le impostazioni di rete.',
 			'error.networkTroubleshootingStep1' => '1. Apri impostazioni telefono e mantieni l\'interruttore Wi-Fi attivo.',
@@ -4766,6 +4814,8 @@ extension on TranslationsItIt {
 			'organization.departments.viewForbidden' => 'Nessun accesso (solo membri attivi di questa organizzazione)',
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Caricamento del dipartimento non riuscito: ${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => 'Caricamento del dipartimento non riuscito: ${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.createSubHere' => 'Crea qui un sottodipartimento',
 			'organization.departments.movePickParent' => 'Sposta (scegli nuovo dipartimento padre)',
 			'organization.departments.addMemberByUid' => 'Aggiungi membro (per UID)',
@@ -4785,8 +4835,6 @@ extension on TranslationsItIt {
 			'organization.departments.emptyWithHint' => 'Nessun dipartimento: tocca in alto a destra per crearne uno',
 			'organization.departments.empty' => 'Nessun dipartimento',
 			'organization.departments.emptySubtitle' => 'Modello di appartenenza multipla: uno stesso membro può appartenere a più dipartimenti; i membri di un dipartimento devono prima essere membri di questa organizzazione.',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'Mostra cronologia accessi',
 			'passport.hintEmail' => 'Inserisci email',
 			'passport.hintMobile' => 'Inserisci numero di telefono',

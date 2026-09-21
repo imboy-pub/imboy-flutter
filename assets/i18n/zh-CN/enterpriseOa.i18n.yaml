@@ -1,0 +1,26 @@
+# EPGZ-06 — 企业 OA（OA Tab / WebView 骨架 / 代发消息标签）命名空间
+# 状态机七态文案（loading/ready/error/expired/logged-out/mismatch/oa401）
+# 与 OA 代发徽标、非 E2EE 标记。plan §7.2 / §4.3。
+title: "OA"
+# ==================== 状态态文案 ====================
+statusLoading: "正在连接企业办公…"
+statusErrorTitle: "无法加载 OA"
+statusErrorHint: "网络异常或服务暂不可用，请稍后重试"
+statusExpiredTitle: "登录已过期"
+statusExpiredHint: "OA 单点登录凭证已过期或已被使用，请重新登录"
+statusLoggedOutTitle: "已退出 OA"
+statusLoggedOutHint: "OA 会话已退出，需要重新单点登录"
+statusMismatchTitle: "已阻止离开企业 OA"
+statusMismatchHint: "检测到跳转到未授权地址，已停止加载以保护你的账号"
+statusMismatchBlockedHost: "已拦截：$host"
+statusOa401Title: "OA 登录态失效"
+statusOa401Hint: "OA 服务返回未授权，请重新单点登录"
+# ==================== 动作 ====================
+actionRetry: "重试"
+actionRestartSso: "重新单点登录"
+# ==================== WebView 槽位（W3 接线前占位） ====================
+webviewSlotHint: "OA 页面容器（集成于 W3 波次）"
+# ==================== OA 代发消息标签（plan §4.3） ====================
+badgeDelegated: "OA 代发"
+markerNoE2ee: "企业托管 · 未端到端加密"
+senderVia: "经 $origin 代发"

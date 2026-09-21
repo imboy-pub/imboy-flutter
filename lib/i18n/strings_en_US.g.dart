@@ -52,6 +52,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$contact$en_US contact = _Translations$contact$en_US._(_root);
 	@override late final _Translations$customerService$en_US customerService = _Translations$customerService$en_US._(_root);
 	@override late final _Translations$discovery$en_US discovery = _Translations$discovery$en_US._(_root);
+	@override late final _Translations$enterpriseOa$en_US enterpriseOa = _Translations$enterpriseOa$en_US._(_root);
 	@override late final _Translations$error$en_US error = _Translations$error$en_US._(_root);
 	@override late final _Translations$group$en_US group = _Translations$group$en_US._(_root);
 	@override late final _Translations$groupCategory$en_US groupCategory = _Translations$groupCategory$en_US._(_root);
@@ -1813,6 +1814,34 @@ class _Translations$discovery$en_US extends Translations$discovery$zh_CN {
 	@override String momentAtCount({required Object count}) => '${count} people';
 	@override String get momentActionMore => 'More';
 	@override String momentLikesCountOnly({required Object count}) => '${count} people liked this';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$en_US extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => 'Connecting to enterprise workspace…';
+	@override String get statusErrorTitle => 'Unable to load OA';
+	@override String get statusErrorHint => 'Network issue or service temporarily unavailable. Please try again later.';
+	@override String get statusExpiredTitle => 'Sign-in expired';
+	@override String get statusExpiredHint => 'The OA single sign-on code has expired or was already used. Please sign in again.';
+	@override String get statusLoggedOutTitle => 'Signed out of OA';
+	@override String get statusLoggedOutHint => 'The OA session has ended. Single sign-on is required to continue.';
+	@override String get statusMismatchTitle => 'Blocked navigation away from OA';
+	@override String get statusMismatchHint => 'An unauthorized address was detected. Loading was stopped to protect your account.';
+	@override String statusMismatchBlockedHost({required Object host}) => 'Blocked: ${host}';
+	@override String get statusOa401Title => 'OA session unauthorized';
+	@override String get statusOa401Hint => 'The OA service returned unauthorized. Please sign in again.';
+	@override String get actionRetry => 'Retry';
+	@override String get actionRestartSso => 'Sign in again';
+	@override String get webviewSlotHint => 'OA page container (integration in W3)';
+	@override String get badgeDelegated => 'Via OA';
+	@override String get markerNoE2ee => 'Enterprise-hosted · not end-to-end encrypted';
+	@override String senderVia({required Object origin}) => 'sent via ${origin}';
 }
 
 // Path: error
@@ -4442,6 +4471,25 @@ extension on TranslationsEnUs {
 			'discovery.momentAtCount' => ({required Object count}) => '${count} people',
 			'discovery.momentActionMore' => 'More',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} people liked this',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => 'Connecting to enterprise workspace…',
+			'enterpriseOa.statusErrorTitle' => 'Unable to load OA',
+			'enterpriseOa.statusErrorHint' => 'Network issue or service temporarily unavailable. Please try again later.',
+			'enterpriseOa.statusExpiredTitle' => 'Sign-in expired',
+			'enterpriseOa.statusExpiredHint' => 'The OA single sign-on code has expired or was already used. Please sign in again.',
+			'enterpriseOa.statusLoggedOutTitle' => 'Signed out of OA',
+			'enterpriseOa.statusLoggedOutHint' => 'The OA session has ended. Single sign-on is required to continue.',
+			'enterpriseOa.statusMismatchTitle' => 'Blocked navigation away from OA',
+			'enterpriseOa.statusMismatchHint' => 'An unauthorized address was detected. Loading was stopped to protect your account.',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => 'Blocked: ${host}',
+			'enterpriseOa.statusOa401Title' => 'OA session unauthorized',
+			'enterpriseOa.statusOa401Hint' => 'The OA service returned unauthorized. Please sign in again.',
+			'enterpriseOa.actionRetry' => 'Retry',
+			'enterpriseOa.actionRestartSso' => 'Sign in again',
+			'enterpriseOa.webviewSlotHint' => 'OA page container (integration in W3)',
+			'enterpriseOa.badgeDelegated' => 'Via OA',
+			'enterpriseOa.markerNoE2ee' => 'Enterprise-hosted · not end-to-end encrypted',
+			'enterpriseOa.senderVia' => ({required Object origin}) => 'sent via ${origin}',
 			'error.restartRequired' => 'Restart Required',
 			'error.pleaseCheckNetwork' => 'Please check your network settings.',
 			'error.networkTroubleshootingStep1' => '1. Open phone \'Settings\' and keep \'Wi-Fi\' switch on.',
@@ -4846,6 +4894,8 @@ extension on TranslationsEnUs {
 			'organization.detail.factUnavailable' => 'Dependency domain facts unavailable; deletion preflight rejected (fail-closed)',
 			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => 'Preflight failed: ${msg} (${code})',
 			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => 'My role: ${role} · Status: ${status}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.archivedBadge' => 'Organization archived (read-only)',
 			'organization.detail.archivedHint' => 'All write operations are rejected while archived; only restore is available',
 			'organization.detail.defaultWsSet' => ({required Object id}) => 'Default Workspace: ${id}',
@@ -4865,8 +4915,6 @@ extension on TranslationsEnUs {
 			'organization.members.changeRole' => 'Change role',
 			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => 'The role of “${name}” will be changed from ${from} to ${to}.',
 			'organization.members.confirmChange' => 'Confirm change',
-			_ => null,
-		} ?? switch (path) {
 			'organization.members.changeRoleFailed' => 'Role change failed',
 			'organization.members.removeMember' => 'Remove member',
 			'organization.members.removeMemberBody' => ({required Object name}) => '“${name}” will be removed from this organization. Their account will not be deleted.',

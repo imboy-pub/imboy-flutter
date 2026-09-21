@@ -51,6 +51,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$ja_JP complaintReason = _Translations$complaintReason$ja_JP._(_root);
 	@override late final _Translations$contact$ja_JP contact = _Translations$contact$ja_JP._(_root);
 	@override late final _Translations$discovery$ja_JP discovery = _Translations$discovery$ja_JP._(_root);
+	@override late final _Translations$enterpriseOa$ja_JP enterpriseOa = _Translations$enterpriseOa$ja_JP._(_root);
 	@override late final _Translations$error$ja_JP error = _Translations$error$ja_JP._(_root);
 	@override late final _Translations$group$ja_JP group = _Translations$group$ja_JP._(_root);
 	@override late final _Translations$groupCategory$ja_JP groupCategory = _Translations$groupCategory$ja_JP._(_root);
@@ -1730,6 +1731,34 @@ class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
 	@override String get momentAtWho => '誰に通知しますか？';
 	@override String get momentLocation => '位置情報';
 	@override String get momentLocationNone => '位置情報を表示しない';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$ja_JP extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => '企業ワークスペースに接続中…';
+	@override String get statusErrorTitle => 'OA を読み込めません';
+	@override String get statusErrorHint => 'ネットワークエラーまたはサービスが一時的に利用できません。後でもう一度お試しください。';
+	@override String get statusExpiredTitle => 'ログインの有効期限切れ';
+	@override String get statusExpiredHint => 'OA シングルサインオンのコードが期限切れか、すでに使用されました。再度ログインしてください。';
+	@override String get statusLoggedOutTitle => 'OA からログアウトしました';
+	@override String get statusLoggedOutHint => 'OA セッションが終了しました。再度シングルサインオンが必要です。';
+	@override String get statusMismatchTitle => '企業 OA 外への遷移をブロックしました';
+	@override String get statusMismatchHint => '許可されていないアドレスへの遷移を検出したため、アカウント保護のため読み込みを停止しました。';
+	@override String statusMismatchBlockedHost({required Object host}) => 'ブロック：${host}';
+	@override String get statusOa401Title => 'OA セッションが無効です';
+	@override String get statusOa401Hint => 'OA サービスが未承認を返しました。再度ログインしてください。';
+	@override String get actionRetry => '再試行';
+	@override String get actionRestartSso => '再ログイン';
+	@override String get webviewSlotHint => 'OA ページコンテナ（W3 で統合）';
+	@override String get badgeDelegated => 'OA 代送';
+	@override String get markerNoE2ee => '企業管理 · エンドツーエンド暗号化なし';
+	@override String senderVia({required Object origin}) => '${origin} 経由で送信';
 }
 
 // Path: error
@@ -4289,6 +4318,25 @@ extension on TranslationsJaJp {
 			'discovery.momentAtWho' => '誰に通知しますか？',
 			'discovery.momentLocation' => '位置情報',
 			'discovery.momentLocationNone' => '位置情報を表示しない',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => '企業ワークスペースに接続中…',
+			'enterpriseOa.statusErrorTitle' => 'OA を読み込めません',
+			'enterpriseOa.statusErrorHint' => 'ネットワークエラーまたはサービスが一時的に利用できません。後でもう一度お試しください。',
+			'enterpriseOa.statusExpiredTitle' => 'ログインの有効期限切れ',
+			'enterpriseOa.statusExpiredHint' => 'OA シングルサインオンのコードが期限切れか、すでに使用されました。再度ログインしてください。',
+			'enterpriseOa.statusLoggedOutTitle' => 'OA からログアウトしました',
+			'enterpriseOa.statusLoggedOutHint' => 'OA セッションが終了しました。再度シングルサインオンが必要です。',
+			'enterpriseOa.statusMismatchTitle' => '企業 OA 外への遷移をブロックしました',
+			'enterpriseOa.statusMismatchHint' => '許可されていないアドレスへの遷移を検出したため、アカウント保護のため読み込みを停止しました。',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => 'ブロック：${host}',
+			'enterpriseOa.statusOa401Title' => 'OA セッションが無効です',
+			'enterpriseOa.statusOa401Hint' => 'OA サービスが未承認を返しました。再度ログインしてください。',
+			'enterpriseOa.actionRetry' => '再試行',
+			'enterpriseOa.actionRestartSso' => '再ログイン',
+			'enterpriseOa.webviewSlotHint' => 'OA ページコンテナ（W3 で統合）',
+			'enterpriseOa.badgeDelegated' => 'OA 代送',
+			'enterpriseOa.markerNoE2ee' => '企業管理 · エンドツーエンド暗号化なし',
+			'enterpriseOa.senderVia' => ({required Object origin}) => '${origin} 経由で送信',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
 			'error.networkTroubleshootingStep1' => '1. スマートフォンの設定を開き、Wi-Fiスイッチをオンにします。',
@@ -4763,6 +4811,8 @@ extension on TranslationsJaJp {
 			'organization.departments.viewForbidden' => '閲覧権限がありません（本組織の在籍メンバーのみ）',
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '部門の読み込みに失敗：${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => '部門の読み込みに失敗：${err}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.createSubHere' => 'この下に子部門を作成',
 			'organization.departments.movePickParent' => '移動（新しい親部門を選択）',
 			'organization.departments.addMemberByUid' => 'メンバーを追加（UID 指定）',
@@ -4782,8 +4832,6 @@ extension on TranslationsJaJp {
 			'organization.departments.emptyWithHint' => '部門がありません。右上から作成してください',
 			'organization.departments.empty' => '部門がありません',
 			'organization.departments.emptySubtitle' => '兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',

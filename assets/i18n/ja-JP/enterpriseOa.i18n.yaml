@@ -1,0 +1,26 @@
+# EPGZ-06 — 企業 OA（OA タブ / WebView スケルトン / 代送メッセージバッジ）
+# 状態マシン 7 態の文案（loading/ready/error/expired/logged-out/mismatch/oa401）
+# と OA 代送バッジ・非 E2EE マーカー。plan §7.2 / §4.3。
+title: "OA"
+# ==================== 状態 ====================
+statusLoading: "企業ワークスペースに接続中…"
+statusErrorTitle: "OA を読み込めません"
+statusErrorHint: "ネットワークエラーまたはサービスが一時的に利用できません。後でもう一度お試しください。"
+statusExpiredTitle: "ログインの有効期限切れ"
+statusExpiredHint: "OA シングルサインオンのコードが期限切れか、すでに使用されました。再度ログインしてください。"
+statusLoggedOutTitle: "OA からログアウトしました"
+statusLoggedOutHint: "OA セッションが終了しました。再度シングルサインオンが必要です。"
+statusMismatchTitle: "企業 OA 外への遷移をブロックしました"
+statusMismatchHint: "許可されていないアドレスへの遷移を検出したため、アカウント保護のため読み込みを停止しました。"
+statusMismatchBlockedHost: "ブロック：$host"
+statusOa401Title: "OA セッションが無効です"
+statusOa401Hint: "OA サービスが未承認を返しました。再度ログインしてください。"
+# ==================== アクション ====================
+actionRetry: "再試行"
+actionRestartSso: "再ログイン"
+# ==================== WebView スロット（W3 接続までのプレースホルダー） ====================
+webviewSlotHint: "OA ページコンテナ（W3 で統合）"
+# ==================== OA 代送メッセージバッジ（plan §4.3） ====================
+badgeDelegated: "OA 代送"
+markerNoE2ee: "企業管理 · エンドツーエンド暗号化なし"
+senderVia: "$origin 経由で送信"

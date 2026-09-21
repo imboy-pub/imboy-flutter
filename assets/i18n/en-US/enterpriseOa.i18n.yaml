@@ -1,0 +1,26 @@
+# EPGZ-06 — Enterprise OA (OA tab / WebView scaffold / delegated-message badges)
+# Copy for the seven-state machine (loading/ready/error/expired/logged-out/
+# mismatch/oa401) and the OA-delegated badge + non-E2EE marker. Plan §7.2 / §4.3.
+title: "OA"
+# ==================== Status states ====================
+statusLoading: "Connecting to enterprise workspace…"
+statusErrorTitle: "Unable to load OA"
+statusErrorHint: "Network issue or service temporarily unavailable. Please try again later."
+statusExpiredTitle: "Sign-in expired"
+statusExpiredHint: "The OA single sign-on code has expired or was already used. Please sign in again."
+statusLoggedOutTitle: "Signed out of OA"
+statusLoggedOutHint: "The OA session has ended. Single sign-on is required to continue."
+statusMismatchTitle: "Blocked navigation away from OA"
+statusMismatchHint: "An unauthorized address was detected. Loading was stopped to protect your account."
+statusMismatchBlockedHost: "Blocked: $host"
+statusOa401Title: "OA session unauthorized"
+statusOa401Hint: "The OA service returned unauthorized. Please sign in again."
+# ==================== Actions ====================
+actionRetry: "Retry"
+actionRestartSso: "Sign in again"
+# ==================== WebView slot placeholder (until W3 wiring) ====================
+webviewSlotHint: "OA page container (integration in W3)"
+# ==================== OA delegated message badges (plan §4.3) ====================
+badgeDelegated: "Via OA"
+markerNoE2ee: "Enterprise-hosted · not end-to-end encrypted"
+senderVia: "sent via $origin"

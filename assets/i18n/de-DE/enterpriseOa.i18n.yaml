@@ -1,0 +1,26 @@
+# EPGZ-06 — Unternehmens-OA (OA-Tab / WebView-Gerüst / Badge delegierter Nachrichten)
+# Texte für den Sieben-Zustands-Automaten (loading/ready/error/expired/logged-out/
+# mismatch/oa401) sowie OA-Delegations-Badge und Nicht-E2EE-Marker. Plan §7.2 / §4.3.
+title: "OA"
+# ==================== Zustände ====================
+statusLoading: "Verbindung zum Unternehmens-Arbeitsbereich…"
+statusErrorTitle: "OA kann nicht geladen werden"
+statusErrorHint: "Netzwerkfehler oder Dienst vorübergehend nicht verfügbar. Bitte später erneut versuchen."
+statusExpiredTitle: "Anmeldung abgelaufen"
+statusExpiredHint: "Der OA-Single-Sign-on-Code ist abgelaufen oder wurde bereits verwendet. Bitte erneut anmelden."
+statusLoggedOutTitle: "Von OA abgemeldet"
+statusLoggedOutHint: "Die OA-Sitzung wurde beendet. Eine erneute Single-Sign-on-Anmeldung ist erforderlich."
+statusMismatchTitle: "Navigation aus dem Unternehmens-OA blockiert"
+statusMismatchHint: "Es wurde eine nicht autorisierte Adresse erkannt. Das Laden wurde zum Schutz Ihres Kontos gestoppt."
+statusMismatchBlockedHost: "Blockiert: $host"
+statusOa401Title: "OA-Sitzung nicht autorisiert"
+statusOa401Hint: "Der OA-Dienst hat „nicht autorisiert“ zurückgegeben. Bitte erneut anmelden."
+# ==================== Aktionen ====================
+actionRetry: "Erneut versuchen"
+actionRestartSso: "Erneut anmelden"
+# ==================== WebView-Slot (Platzhalter bis W3) ====================
+webviewSlotHint: "OA-Seitencontainer (Integration in W3)"
+# ==================== Badge delegierter OA-Nachrichten (Plan §4.3) ====================
+badgeDelegated: "Über OA"
+markerNoE2ee: "Unternehmensverwaltet · nicht Ende-zu-Ende-verschlüsselt"
+senderVia: "gesendet über $origin"
