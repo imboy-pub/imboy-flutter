@@ -9,14 +9,29 @@ part of 'p2p_call_screen_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// P2P Call Screen Provider
+///
+/// LK-APP-01：媒体面迁移 LiveKit SFU（与群通话 rtc_room_provider 同一模式）。
+/// 信令（邀请/响铃/接听/拒接/挂断）、状态机、悬浮窗 UX 全部保留原有实现；
+/// offer/answer 信令退化为“邀请/接听”通知（payload 仅 media，无 SDP），
+/// ICE candidate 彻底消失——媒体协商由 SFU 完成。
 
 @ProviderFor(P2pCallScreenNotifier)
 final p2pCallScreenProvider = P2pCallScreenNotifierProvider._();
 
 /// P2P Call Screen Provider
+///
+/// LK-APP-01：媒体面迁移 LiveKit SFU（与群通话 rtc_room_provider 同一模式）。
+/// 信令（邀请/响铃/接听/拒接/挂断）、状态机、悬浮窗 UX 全部保留原有实现；
+/// offer/answer 信令退化为“邀请/接听”通知（payload 仅 media，无 SDP），
+/// ICE candidate 彻底消失——媒体协商由 SFU 完成。
 final class P2pCallScreenNotifierProvider
     extends $NotifierProvider<P2pCallScreenNotifier, P2pCallScreenState> {
   /// P2P Call Screen Provider
+  ///
+  /// LK-APP-01：媒体面迁移 LiveKit SFU（与群通话 rtc_room_provider 同一模式）。
+  /// 信令（邀请/响铃/接听/拒接/挂断）、状态机、悬浮窗 UX 全部保留原有实现；
+  /// offer/answer 信令退化为“邀请/接听”通知（payload 仅 media，无 SDP），
+  /// ICE candidate 彻底消失——媒体协商由 SFU 完成。
   P2pCallScreenNotifierProvider._()
     : super(
         from: null,
@@ -45,9 +60,14 @@ final class P2pCallScreenNotifierProvider
 }
 
 String _$p2pCallScreenNotifierHash() =>
-    r'693ed04e4a9b21b8e458fc1a4731186aba98c647';
+    r'c1ab445bbcbf52448355769593422abddb69fc36';
 
 /// P2P Call Screen Provider
+///
+/// LK-APP-01：媒体面迁移 LiveKit SFU（与群通话 rtc_room_provider 同一模式）。
+/// 信令（邀请/响铃/接听/拒接/挂断）、状态机、悬浮窗 UX 全部保留原有实现；
+/// offer/answer 信令退化为“邀请/接听”通知（payload 仅 media，无 SDP），
+/// ICE candidate 彻底消失——媒体协商由 SFU 完成。
 
 abstract class _$P2pCallScreenNotifier extends $Notifier<P2pCallScreenState> {
   P2pCallScreenState build();

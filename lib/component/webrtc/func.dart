@@ -126,13 +126,13 @@ Future<void> incomingCallScreen(
   p2pCallScreenOn = true;
 
   final sid = sessionId(peer.peerId.toString());
-  WebRTCSession? s =
-      webRTCSessions[sid] ??
-      WebRTCSession(
-        peerId: peer.peerId.toString(),
-        sid: sid,
-        media: option['media']?.toString(),
-      );
+  // LK-APP-01：会话仅承载信令标识（peerId/sid/media），媒体面由 LiveKit
+  // Room 管理，不再有跨页共享的 RTCPeerConnection 注册表。
+  final WebRTCSession s = WebRTCSession(
+    peerId: peer.peerId.toString(),
+    sid: sid,
+    media: option['media']?.toString(),
+  );
   option['msgId'] = msgId;
 
   await MessagingFacade.instance.addLocalMsg(
@@ -236,7 +236,6 @@ Future<void> openCallScreen(
   if (session.media == null && option['media'] != null) {
     session.media = option['media']?.toString();
   }
-  webRTCSessions[sid] = session;
 
   p2pEntry = OverlayEntry(
     builder: (context) => P2pCallScreenPage(
