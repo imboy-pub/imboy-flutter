@@ -10,6 +10,8 @@
 /// - /organization/:orgId/invitations    → 邀请治理 或 我的邀请（?mode=mine）
 /// - /organization/:orgId/departments    → 部门目录
 /// - /organization/:orgId/directory      → 通讯录（GZAPP-04 G10：全员视角）
+/// - /organization/:orgId/manage         → 企业管理（GZAPP-05：工作区/群/频道
+///   治理；非 owner/admin 直达时页内给只读 + 无权限态）
 library;
 
 import 'package:flutter/cupertino.dart';
@@ -20,6 +22,7 @@ import 'organization_detail_page.dart';
 import 'organization_directory_page.dart';
 import 'organization_home_page.dart';
 import 'organization_invitations_page.dart';
+import 'organization_manage_page.dart';
 import 'organization_members_page.dart';
 import 'organization_picker_page.dart';
 
@@ -32,6 +35,7 @@ const String kOrganizationInvitationsPath =
 const String kOrganizationDepartmentsPath =
     '$kOrganizationDetailPath/departments';
 const String kOrganizationDirectoryPath = '$kOrganizationDetailPath/directory';
+const String kOrganizationManagePath = '$kOrganizationDetailPath/manage';
 
 List<RouteBase> organizationRoutes() => [
   GoRoute(
@@ -98,6 +102,16 @@ List<RouteBase> organizationRoutes() => [
               child: OrganizationDirectoryPage(
                 orgId: state.pathParameters['orgId'] ?? '',
                 orgName: state.uri.queryParameters['name'] ?? '',
+              ),
+            ),
+          ),
+          GoRoute(
+            path: 'manage',
+            name: 'organization_manage',
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: OrganizationManagePage(
+                orgId: state.pathParameters['orgId'] ?? '',
               ),
             ),
           ),

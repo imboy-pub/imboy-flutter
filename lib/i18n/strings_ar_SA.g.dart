@@ -2360,6 +2360,7 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$ar_SA departments = _Translations$organization$departments$ar_SA._(_root);
 	@override late final _Translations$organization$picker$ar_SA picker = _Translations$organization$picker$ar_SA._(_root);
 	@override late final _Translations$organization$directory$ar_SA directory = _Translations$organization$directory$ar_SA._(_root);
+	@override late final _Translations$organization$manage$ar_SA manage = _Translations$organization$manage$ar_SA._(_root);
 }
 
 // Path: passport
@@ -2888,6 +2889,63 @@ class _Translations$organization$directory$ar_SA extends Translations$organizati
 	@override String get deptSection => 'الأقسام';
 	@override String get allMembersSection => 'جميع الأعضاء';
 	@override String get membersRestricted => 'قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه.';
+}
+
+// Path: organization.manage
+class _Translations$organization$manage$ar_SA extends Translations$organization$manage$zh_CN {
+	_Translations$organization$manage$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get entry => 'إدارة المؤسسة';
+	@override String get entryRestricted => 'إدارة المؤسسة (للمسؤولين فقط)';
+	@override String get title => 'إدارة المؤسسة';
+	@override String get orgNotFound => 'المؤسسة غير موجودة أو لا تملك صلاحية عرضها';
+	@override String roleLine({required Object role}) => 'دوري: ${role}';
+	@override String get readOnlyHint => 'بيانات المؤسسة للقراءة فقط؛ إجراءات الإدارة متاحة للمالك أو المسؤول';
+	@override String get forbiddenTitle => 'لا تملك صلاحية الإدارة';
+	@override String get forbiddenBody => 'إدارة المؤسسة متاحة للمالك والمسؤولين فقط. اطلب من المسؤول تعديل دورك عند الحاجة.';
+	@override String get workspaceSection => 'مساحات العمل';
+	@override String get createWorkspace => 'مساحة عمل جديدة';
+	@override String get workspaceNameHint => 'اسم مساحة العمل';
+	@override String get workspaceEmpty => 'لا توجد مساحات عمل بعد';
+	@override String get workspaceEmptyHint => 'لم تنضم بعد إلى أي مساحة عمل في هذه المؤسسة. أنشئ واحدة من الزر أعلى اليمين.';
+	@override String get workspaceScopeNote => 'تُعرض فقط مساحات العمل التي انضممت إليها؛ أما غيرها في المؤسسة فلا يظهر هنا.';
+	@override String get defaultBadge => 'مساحة العمل الافتراضية';
+	@override String get notDefaultBadge => 'ليست الافتراضية';
+	@override String get archivedBadge => 'مؤرشفة';
+	@override String get ownerBadge => 'أنا المالك';
+	@override String get memberBadge => 'أنا عضو';
+	@override String get setDefault => 'تعيين كمساحة عمل افتراضية';
+	@override String get archiveWorkspace => 'أرشفة مساحة العمل';
+	@override String archiveWorkspaceTitle({required Object name}) => 'أرشفة 「${name}」؟';
+	@override String get archiveWorkspaceBody => 'بعد الأرشفة تصبح مساحة العمل للقراءة فقط وتتوقف مجموعاتها وقنواتها عن الكتابة. إن كانت مساحة العمل الافتراضية للمؤسسة فحدِّد بديلاً أولاً. يمكن التراجع عن الأرشفة.';
+	@override String get restoreWorkspace => 'استعادة مساحة العمل';
+	@override String get resourceSection => 'المجموعات والقنوات';
+	@override String get resourceNeedsWorkspace => 'تحتاج إلى مساحة عمل أولاً لإدارة المجموعات والقنوات.';
+	@override String resourceLoadFailed({required Object err}) => 'فشل التحميل: ${err}';
+	@override String get retry => 'إعادة المحاولة';
+	@override String get groupSection => 'مجموعات المؤسسة';
+	@override String get createGroup => 'مجموعة جديدة';
+	@override String get groupNameHint => 'اسم المجموعة';
+	@override String get groupEmpty => 'لا توجد مجموعات مؤسسة بعد';
+	@override String groupMembers({required Object count}) => 'الأعضاء ${count}';
+	@override String get dissolveGroup => 'حل المجموعة';
+	@override String dissolveGroupTitle({required Object name}) => 'حل 「${name}」؟';
+	@override String get dissolveGroupBody => 'الحل غير قابل للتراجع؛ تنتهي العضوية لكن تبقى الرسائل السابقة وسجلات التدقيق.';
+	@override String get channelSection => 'قنوات المؤسسة';
+	@override String get createChannel => 'قناة جديدة';
+	@override String get channelNameHint => 'اسم القناة';
+	@override String get channelPolicyNote => 'قنوات المؤسسة مجانية وغير عامة دائماً: لا تظهر في الاستكشاف العام، ويشترك الأعضاء عبرها من مساحة العمل.';
+	@override String get channelEmpty => 'لا توجد قنوات مؤسسة بعد';
+	@override String channelSubscribers({required Object count}) => 'المشتركون ${count}';
+	@override String get createChannelFailed => 'فشل إنشاء القناة';
+	@override String get archiveChannel => 'أرشفة القناة';
+	@override String archiveChannelTitle({required Object name}) => 'أرشفة 「${name}」؟';
+	@override String get archiveChannelBody => 'بعد الأرشفة تخرج القناة من الواجهات العامة ولن يراها الأعضاء. يمكن التراجع عن الأرشفة.';
+	@override String get restoreChannel => 'استعادة';
+	@override String get archivedChannelSection => 'القنوات المؤرشفة';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -5072,6 +5130,54 @@ extension on TranslationsArSa {
 			'organization.directory.deptSection' => 'الأقسام',
 			'organization.directory.allMembersSection' => 'جميع الأعضاء',
 			'organization.directory.membersRestricted' => 'قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه.',
+			'organization.manage.entry' => 'إدارة المؤسسة',
+			'organization.manage.entryRestricted' => 'إدارة المؤسسة (للمسؤولين فقط)',
+			'organization.manage.title' => 'إدارة المؤسسة',
+			'organization.manage.orgNotFound' => 'المؤسسة غير موجودة أو لا تملك صلاحية عرضها',
+			'organization.manage.roleLine' => ({required Object role}) => 'دوري: ${role}',
+			'organization.manage.readOnlyHint' => 'بيانات المؤسسة للقراءة فقط؛ إجراءات الإدارة متاحة للمالك أو المسؤول',
+			'organization.manage.forbiddenTitle' => 'لا تملك صلاحية الإدارة',
+			'organization.manage.forbiddenBody' => 'إدارة المؤسسة متاحة للمالك والمسؤولين فقط. اطلب من المسؤول تعديل دورك عند الحاجة.',
+			'organization.manage.workspaceSection' => 'مساحات العمل',
+			'organization.manage.createWorkspace' => 'مساحة عمل جديدة',
+			'organization.manage.workspaceNameHint' => 'اسم مساحة العمل',
+			'organization.manage.workspaceEmpty' => 'لا توجد مساحات عمل بعد',
+			'organization.manage.workspaceEmptyHint' => 'لم تنضم بعد إلى أي مساحة عمل في هذه المؤسسة. أنشئ واحدة من الزر أعلى اليمين.',
+			'organization.manage.workspaceScopeNote' => 'تُعرض فقط مساحات العمل التي انضممت إليها؛ أما غيرها في المؤسسة فلا يظهر هنا.',
+			'organization.manage.defaultBadge' => 'مساحة العمل الافتراضية',
+			'organization.manage.notDefaultBadge' => 'ليست الافتراضية',
+			'organization.manage.archivedBadge' => 'مؤرشفة',
+			'organization.manage.ownerBadge' => 'أنا المالك',
+			'organization.manage.memberBadge' => 'أنا عضو',
+			'organization.manage.setDefault' => 'تعيين كمساحة عمل افتراضية',
+			'organization.manage.archiveWorkspace' => 'أرشفة مساحة العمل',
+			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => 'أرشفة 「${name}」؟',
+			'organization.manage.archiveWorkspaceBody' => 'بعد الأرشفة تصبح مساحة العمل للقراءة فقط وتتوقف مجموعاتها وقنواتها عن الكتابة. إن كانت مساحة العمل الافتراضية للمؤسسة فحدِّد بديلاً أولاً. يمكن التراجع عن الأرشفة.',
+			'organization.manage.restoreWorkspace' => 'استعادة مساحة العمل',
+			'organization.manage.resourceSection' => 'المجموعات والقنوات',
+			'organization.manage.resourceNeedsWorkspace' => 'تحتاج إلى مساحة عمل أولاً لإدارة المجموعات والقنوات.',
+			'organization.manage.resourceLoadFailed' => ({required Object err}) => 'فشل التحميل: ${err}',
+			'organization.manage.retry' => 'إعادة المحاولة',
+			'organization.manage.groupSection' => 'مجموعات المؤسسة',
+			'organization.manage.createGroup' => 'مجموعة جديدة',
+			'organization.manage.groupNameHint' => 'اسم المجموعة',
+			'organization.manage.groupEmpty' => 'لا توجد مجموعات مؤسسة بعد',
+			'organization.manage.groupMembers' => ({required Object count}) => 'الأعضاء ${count}',
+			'organization.manage.dissolveGroup' => 'حل المجموعة',
+			'organization.manage.dissolveGroupTitle' => ({required Object name}) => 'حل 「${name}」؟',
+			'organization.manage.dissolveGroupBody' => 'الحل غير قابل للتراجع؛ تنتهي العضوية لكن تبقى الرسائل السابقة وسجلات التدقيق.',
+			'organization.manage.channelSection' => 'قنوات المؤسسة',
+			'organization.manage.createChannel' => 'قناة جديدة',
+			'organization.manage.channelNameHint' => 'اسم القناة',
+			'organization.manage.channelPolicyNote' => 'قنوات المؤسسة مجانية وغير عامة دائماً: لا تظهر في الاستكشاف العام، ويشترك الأعضاء عبرها من مساحة العمل.',
+			'organization.manage.channelEmpty' => 'لا توجد قنوات مؤسسة بعد',
+			'organization.manage.channelSubscribers' => ({required Object count}) => 'المشتركون ${count}',
+			'organization.manage.createChannelFailed' => 'فشل إنشاء القناة',
+			'organization.manage.archiveChannel' => 'أرشفة القناة',
+			'organization.manage.archiveChannelTitle' => ({required Object name}) => 'أرشفة 「${name}」؟',
+			'organization.manage.archiveChannelBody' => 'بعد الأرشفة تخرج القناة من الواجهات العامة ولن يراها الأعضاء. يمكن التراجع عن الأرشفة.',
+			'organization.manage.restoreChannel' => 'استعادة',
+			'organization.manage.archivedChannelSection' => 'القنوات المؤرشفة',
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',

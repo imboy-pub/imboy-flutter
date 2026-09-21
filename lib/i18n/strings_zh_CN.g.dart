@@ -6651,6 +6651,7 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$departments$zh_CN departments = Translations$organization$departments$zh_CN.internal(_root);
 	late final Translations$organization$picker$zh_CN picker = Translations$organization$picker$zh_CN.internal(_root);
 	late final Translations$organization$directory$zh_CN directory = Translations$organization$directory$zh_CN.internal(_root);
+	late final Translations$organization$manage$zh_CN manage = Translations$organization$manage$zh_CN.internal(_root);
 }
 
 // Path: passport
@@ -8001,6 +8002,159 @@ class Translations$organization$directory$zh_CN {
 
 	/// zh-CN: '全员名单仅企业管理员可见；可展开部门查看部门成员。'
 	String get membersRestricted => '全员名单仅企业管理员可见；可展开部门查看部门成员。';
+}
+
+// Path: organization.manage
+class Translations$organization$manage$zh_CN {
+	Translations$organization$manage$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '企业管理'
+	String get entry => '企业管理';
+
+	/// zh-CN: '企业管理（仅管理员）'
+	String get entryRestricted => '企业管理（仅管理员）';
+
+	/// zh-CN: '企业管理'
+	String get title => '企业管理';
+
+	/// zh-CN: '企业不存在或你无权查看'
+	String get orgNotFound => '企业不存在或你无权查看';
+
+	/// zh-CN: '我的角色：${role}'
+	String roleLine({required Object role}) => '我的角色：${role}';
+
+	/// zh-CN: '企业现状只读；管理动作仅企业所有者/管理员可用'
+	String get readOnlyHint => '企业现状只读；管理动作仅企业所有者/管理员可用';
+
+	/// zh-CN: '无管理权限'
+	String get forbiddenTitle => '无管理权限';
+
+	/// zh-CN: '企业管理仅对企业所有者与管理员开放；需要时请联系管理员调整你的角色。'
+	String get forbiddenBody => '企业管理仅对企业所有者与管理员开放；需要时请联系管理员调整你的角色。';
+
+	/// zh-CN: '工作区'
+	String get workspaceSection => '工作区';
+
+	/// zh-CN: '新建工作区'
+	String get createWorkspace => '新建工作区';
+
+	/// zh-CN: '工作区名称'
+	String get workspaceNameHint => '工作区名称';
+
+	/// zh-CN: '暂无工作区'
+	String get workspaceEmpty => '暂无工作区';
+
+	/// zh-CN: '当前企业下还没有你加入的工作区，可用右上角新建。'
+	String get workspaceEmptyHint => '当前企业下还没有你加入的工作区，可用右上角新建。';
+
+	/// zh-CN: '这里只列出你已加入的工作区；同企业内你未加入的工作区不会出现。'
+	String get workspaceScopeNote => '这里只列出你已加入的工作区；同企业内你未加入的工作区不会出现。';
+
+	/// zh-CN: '默认工作区'
+	String get defaultBadge => '默认工作区';
+
+	/// zh-CN: '非默认'
+	String get notDefaultBadge => '非默认';
+
+	/// zh-CN: '已归档'
+	String get archivedBadge => '已归档';
+
+	/// zh-CN: '我是所有者'
+	String get ownerBadge => '我是所有者';
+
+	/// zh-CN: '我是成员'
+	String get memberBadge => '我是成员';
+
+	/// zh-CN: '设为默认工作区'
+	String get setDefault => '设为默认工作区';
+
+	/// zh-CN: '归档工作区'
+	String get archiveWorkspace => '归档工作区';
+
+	/// zh-CN: '归档「${name}」？'
+	String archiveWorkspaceTitle({required Object name}) => '归档「${name}」？';
+
+	/// zh-CN: '归档后该工作区进入只读，其群与频道一并停写；若它是企业默认工作区，请先指定替代工作区。归档可恢复。'
+	String get archiveWorkspaceBody => '归档后该工作区进入只读，其群与频道一并停写；若它是企业默认工作区，请先指定替代工作区。归档可恢复。';
+
+	/// zh-CN: '恢复工作区'
+	String get restoreWorkspace => '恢复工作区';
+
+	/// zh-CN: '群与频道'
+	String get resourceSection => '群与频道';
+
+	/// zh-CN: '需要先有工作区，才能治理群与频道。'
+	String get resourceNeedsWorkspace => '需要先有工作区，才能治理群与频道。';
+
+	/// zh-CN: '加载失败：${err}'
+	String resourceLoadFailed({required Object err}) => '加载失败：${err}';
+
+	/// zh-CN: '重试'
+	String get retry => '重试';
+
+	/// zh-CN: '企业群'
+	String get groupSection => '企业群';
+
+	/// zh-CN: '新建群'
+	String get createGroup => '新建群';
+
+	/// zh-CN: '群名称'
+	String get groupNameHint => '群名称';
+
+	/// zh-CN: '暂无企业群'
+	String get groupEmpty => '暂无企业群';
+
+	/// zh-CN: '成员 ${count}'
+	String groupMembers({required Object count}) => '成员 ${count}';
+
+	/// zh-CN: '解散群'
+	String get dissolveGroup => '解散群';
+
+	/// zh-CN: '解散「${name}」？'
+	String dissolveGroupTitle({required Object name}) => '解散「${name}」？';
+
+	/// zh-CN: '解散不可恢复；成员关系会终止，但历史消息与审计记录保留。'
+	String get dissolveGroupBody => '解散不可恢复；成员关系会终止，但历史消息与审计记录保留。';
+
+	/// zh-CN: '企业频道'
+	String get channelSection => '企业频道';
+
+	/// zh-CN: '新建频道'
+	String get createChannel => '新建频道';
+
+	/// zh-CN: '频道名称'
+	String get channelNameHint => '频道名称';
+
+	/// zh-CN: '企业频道固定为「免费 + 非公开」：不进入公开发现，成员经工作区订阅。'
+	String get channelPolicyNote => '企业频道固定为「免费 + 非公开」：不进入公开发现，成员经工作区订阅。';
+
+	/// zh-CN: '暂无企业频道'
+	String get channelEmpty => '暂无企业频道';
+
+	/// zh-CN: '订阅 ${count}'
+	String channelSubscribers({required Object count}) => '订阅 ${count}';
+
+	/// zh-CN: '频道创建失败'
+	String get createChannelFailed => '频道创建失败';
+
+	/// zh-CN: '归档频道'
+	String get archiveChannel => '归档频道';
+
+	/// zh-CN: '归档「${name}」？'
+	String archiveChannelTitle({required Object name}) => '归档「${name}」？';
+
+	/// zh-CN: '归档后频道退出公开面，成员不再看到；归档可恢复。'
+	String get archiveChannelBody => '归档后频道退出公开面，成员不再看到；归档可恢复。';
+
+	/// zh-CN: '恢复'
+	String get restoreChannel => '恢复';
+
+	/// zh-CN: '已归档频道'
+	String get archivedChannelSection => '已归档频道';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -10275,6 +10429,54 @@ extension on Translations {
 			'organization.directory.deptSection' => '部门',
 			'organization.directory.allMembersSection' => '全部成员',
 			'organization.directory.membersRestricted' => '全员名单仅企业管理员可见；可展开部门查看部门成员。',
+			'organization.manage.entry' => '企业管理',
+			'organization.manage.entryRestricted' => '企业管理（仅管理员）',
+			'organization.manage.title' => '企业管理',
+			'organization.manage.orgNotFound' => '企业不存在或你无权查看',
+			'organization.manage.roleLine' => ({required Object role}) => '我的角色：${role}',
+			'organization.manage.readOnlyHint' => '企业现状只读；管理动作仅企业所有者/管理员可用',
+			'organization.manage.forbiddenTitle' => '无管理权限',
+			'organization.manage.forbiddenBody' => '企业管理仅对企业所有者与管理员开放；需要时请联系管理员调整你的角色。',
+			'organization.manage.workspaceSection' => '工作区',
+			'organization.manage.createWorkspace' => '新建工作区',
+			'organization.manage.workspaceNameHint' => '工作区名称',
+			'organization.manage.workspaceEmpty' => '暂无工作区',
+			'organization.manage.workspaceEmptyHint' => '当前企业下还没有你加入的工作区，可用右上角新建。',
+			'organization.manage.workspaceScopeNote' => '这里只列出你已加入的工作区；同企业内你未加入的工作区不会出现。',
+			'organization.manage.defaultBadge' => '默认工作区',
+			'organization.manage.notDefaultBadge' => '非默认',
+			'organization.manage.archivedBadge' => '已归档',
+			'organization.manage.ownerBadge' => '我是所有者',
+			'organization.manage.memberBadge' => '我是成员',
+			'organization.manage.setDefault' => '设为默认工作区',
+			'organization.manage.archiveWorkspace' => '归档工作区',
+			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => '归档「${name}」？',
+			'organization.manage.archiveWorkspaceBody' => '归档后该工作区进入只读，其群与频道一并停写；若它是企业默认工作区，请先指定替代工作区。归档可恢复。',
+			'organization.manage.restoreWorkspace' => '恢复工作区',
+			'organization.manage.resourceSection' => '群与频道',
+			'organization.manage.resourceNeedsWorkspace' => '需要先有工作区，才能治理群与频道。',
+			'organization.manage.resourceLoadFailed' => ({required Object err}) => '加载失败：${err}',
+			'organization.manage.retry' => '重试',
+			'organization.manage.groupSection' => '企业群',
+			'organization.manage.createGroup' => '新建群',
+			'organization.manage.groupNameHint' => '群名称',
+			'organization.manage.groupEmpty' => '暂无企业群',
+			'organization.manage.groupMembers' => ({required Object count}) => '成员 ${count}',
+			'organization.manage.dissolveGroup' => '解散群',
+			'organization.manage.dissolveGroupTitle' => ({required Object name}) => '解散「${name}」？',
+			'organization.manage.dissolveGroupBody' => '解散不可恢复；成员关系会终止，但历史消息与审计记录保留。',
+			'organization.manage.channelSection' => '企业频道',
+			'organization.manage.createChannel' => '新建频道',
+			'organization.manage.channelNameHint' => '频道名称',
+			'organization.manage.channelPolicyNote' => '企业频道固定为「免费 + 非公开」：不进入公开发现，成员经工作区订阅。',
+			'organization.manage.channelEmpty' => '暂无企业频道',
+			'organization.manage.channelSubscribers' => ({required Object count}) => '订阅 ${count}',
+			'organization.manage.createChannelFailed' => '频道创建失败',
+			'organization.manage.archiveChannel' => '归档频道',
+			'organization.manage.archiveChannelTitle' => ({required Object name}) => '归档「${name}」？',
+			'organization.manage.archiveChannelBody' => '归档后频道退出公开面，成员不再看到；归档可恢复。',
+			'organization.manage.restoreChannel' => '恢复',
+			'organization.manage.archivedChannelSection' => '已归档频道',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',

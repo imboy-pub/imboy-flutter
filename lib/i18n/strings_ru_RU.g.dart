@@ -2357,6 +2357,7 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$ru_RU departments = _Translations$organization$departments$ru_RU._(_root);
 	@override late final _Translations$organization$picker$ru_RU picker = _Translations$organization$picker$ru_RU._(_root);
 	@override late final _Translations$organization$directory$ru_RU directory = _Translations$organization$directory$ru_RU._(_root);
+	@override late final _Translations$organization$manage$ru_RU manage = _Translations$organization$manage$ru_RU._(_root);
 }
 
 // Path: passport
@@ -2885,6 +2886,63 @@ class _Translations$organization$directory$ru_RU extends Translations$organizati
 	@override String get deptSection => 'Отделы';
 	@override String get allMembersSection => 'Все участники';
 	@override String get membersRestricted => 'Полный список участников доступен только администраторам предприятия; раскройте отдел, чтобы увидеть его участников.';
+}
+
+// Path: organization.manage
+class _Translations$organization$manage$ru_RU extends Translations$organization$manage$zh_CN {
+	_Translations$organization$manage$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get entry => 'Управление предприятием';
+	@override String get entryRestricted => 'Управление предприятием (только администраторы)';
+	@override String get title => 'Управление предприятием';
+	@override String get orgNotFound => 'Предприятие не найдено или недоступно для просмотра';
+	@override String roleLine({required Object role}) => 'Моя роль: ${role}';
+	@override String get readOnlyHint => 'Данные только для чтения; управляющие действия доступны владельцу или администратору';
+	@override String get forbiddenTitle => 'Нет прав на управление';
+	@override String get forbiddenBody => 'Управление предприятием доступно только владельцу и администраторам. Попросите администратора изменить вашу роль.';
+	@override String get workspaceSection => 'Рабочие пространства';
+	@override String get createWorkspace => 'Создать рабочее пространство';
+	@override String get workspaceNameHint => 'Название рабочего пространства';
+	@override String get workspaceEmpty => 'Рабочих пространств пока нет';
+	@override String get workspaceEmptyHint => 'Вы ещё не вступили ни в одно рабочее пространство этого предприятия. Создайте его в правом верхнем углу.';
+	@override String get workspaceScopeNote => 'Показаны только рабочие пространства, в которые вы вступили; остальные пространства предприятия здесь не отображаются.';
+	@override String get defaultBadge => 'Пространство по умолчанию';
+	@override String get notDefaultBadge => 'Не по умолчанию';
+	@override String get archivedBadge => 'В архиве';
+	@override String get ownerBadge => 'Я владелец';
+	@override String get memberBadge => 'Я участник';
+	@override String get setDefault => 'Сделать пространством по умолчанию';
+	@override String get archiveWorkspace => 'Архивировать пространство';
+	@override String archiveWorkspaceTitle({required Object name}) => 'Архивировать «${name}»?';
+	@override String get archiveWorkspaceBody => 'После архивации пространство становится доступным только для чтения, а его группы и каналы перестают принимать записи. Если это пространство по умолчанию, сначала назначьте замену. Архивацию можно отменить.';
+	@override String get restoreWorkspace => 'Восстановить пространство';
+	@override String get resourceSection => 'Группы и каналы';
+	@override String get resourceNeedsWorkspace => 'Для управления группами и каналами сначала нужно рабочее пространство.';
+	@override String resourceLoadFailed({required Object err}) => 'Не удалось загрузить: ${err}';
+	@override String get retry => 'Повторить';
+	@override String get groupSection => 'Группы предприятия';
+	@override String get createGroup => 'Создать группу';
+	@override String get groupNameHint => 'Название группы';
+	@override String get groupEmpty => 'Групп предприятия пока нет';
+	@override String groupMembers({required Object count}) => 'Участников: ${count}';
+	@override String get dissolveGroup => 'Распустить группу';
+	@override String dissolveGroupTitle({required Object name}) => 'Распустить «${name}»?';
+	@override String get dissolveGroupBody => 'Роспуск необратим: участие прекращается, но история сообщений и записи аудита сохраняются.';
+	@override String get channelSection => 'Каналы предприятия';
+	@override String get createChannel => 'Создать канал';
+	@override String get channelNameHint => 'Название канала';
+	@override String get channelPolicyNote => 'Каналы предприятия всегда бесплатные и непубличные: они не попадают в общий поиск, участники подписываются через рабочее пространство.';
+	@override String get channelEmpty => 'Каналов предприятия пока нет';
+	@override String channelSubscribers({required Object count}) => 'Подписчиков: ${count}';
+	@override String get createChannelFailed => 'Не удалось создать канал';
+	@override String get archiveChannel => 'Архивировать канал';
+	@override String archiveChannelTitle({required Object name}) => 'Архивировать «${name}»?';
+	@override String get archiveChannelBody => 'После архивации канал исчезает из публичных разделов и больше не виден участникам. Архивацию можно отменить.';
+	@override String get restoreChannel => 'Восстановить';
+	@override String get archivedChannelSection => 'Архивные каналы';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -5069,6 +5127,54 @@ extension on TranslationsRuRu {
 			'organization.directory.deptSection' => 'Отделы',
 			'organization.directory.allMembersSection' => 'Все участники',
 			'organization.directory.membersRestricted' => 'Полный список участников доступен только администраторам предприятия; раскройте отдел, чтобы увидеть его участников.',
+			'organization.manage.entry' => 'Управление предприятием',
+			'organization.manage.entryRestricted' => 'Управление предприятием (только администраторы)',
+			'organization.manage.title' => 'Управление предприятием',
+			'organization.manage.orgNotFound' => 'Предприятие не найдено или недоступно для просмотра',
+			'organization.manage.roleLine' => ({required Object role}) => 'Моя роль: ${role}',
+			'organization.manage.readOnlyHint' => 'Данные только для чтения; управляющие действия доступны владельцу или администратору',
+			'organization.manage.forbiddenTitle' => 'Нет прав на управление',
+			'organization.manage.forbiddenBody' => 'Управление предприятием доступно только владельцу и администраторам. Попросите администратора изменить вашу роль.',
+			'organization.manage.workspaceSection' => 'Рабочие пространства',
+			'organization.manage.createWorkspace' => 'Создать рабочее пространство',
+			'organization.manage.workspaceNameHint' => 'Название рабочего пространства',
+			'organization.manage.workspaceEmpty' => 'Рабочих пространств пока нет',
+			'organization.manage.workspaceEmptyHint' => 'Вы ещё не вступили ни в одно рабочее пространство этого предприятия. Создайте его в правом верхнем углу.',
+			'organization.manage.workspaceScopeNote' => 'Показаны только рабочие пространства, в которые вы вступили; остальные пространства предприятия здесь не отображаются.',
+			'organization.manage.defaultBadge' => 'Пространство по умолчанию',
+			'organization.manage.notDefaultBadge' => 'Не по умолчанию',
+			'organization.manage.archivedBadge' => 'В архиве',
+			'organization.manage.ownerBadge' => 'Я владелец',
+			'organization.manage.memberBadge' => 'Я участник',
+			'organization.manage.setDefault' => 'Сделать пространством по умолчанию',
+			'organization.manage.archiveWorkspace' => 'Архивировать пространство',
+			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => 'Архивировать «${name}»?',
+			'organization.manage.archiveWorkspaceBody' => 'После архивации пространство становится доступным только для чтения, а его группы и каналы перестают принимать записи. Если это пространство по умолчанию, сначала назначьте замену. Архивацию можно отменить.',
+			'organization.manage.restoreWorkspace' => 'Восстановить пространство',
+			'organization.manage.resourceSection' => 'Группы и каналы',
+			'organization.manage.resourceNeedsWorkspace' => 'Для управления группами и каналами сначала нужно рабочее пространство.',
+			'organization.manage.resourceLoadFailed' => ({required Object err}) => 'Не удалось загрузить: ${err}',
+			'organization.manage.retry' => 'Повторить',
+			'organization.manage.groupSection' => 'Группы предприятия',
+			'organization.manage.createGroup' => 'Создать группу',
+			'organization.manage.groupNameHint' => 'Название группы',
+			'organization.manage.groupEmpty' => 'Групп предприятия пока нет',
+			'organization.manage.groupMembers' => ({required Object count}) => 'Участников: ${count}',
+			'organization.manage.dissolveGroup' => 'Распустить группу',
+			'organization.manage.dissolveGroupTitle' => ({required Object name}) => 'Распустить «${name}»?',
+			'organization.manage.dissolveGroupBody' => 'Роспуск необратим: участие прекращается, но история сообщений и записи аудита сохраняются.',
+			'organization.manage.channelSection' => 'Каналы предприятия',
+			'organization.manage.createChannel' => 'Создать канал',
+			'organization.manage.channelNameHint' => 'Название канала',
+			'organization.manage.channelPolicyNote' => 'Каналы предприятия всегда бесплатные и непубличные: они не попадают в общий поиск, участники подписываются через рабочее пространство.',
+			'organization.manage.channelEmpty' => 'Каналов предприятия пока нет',
+			'organization.manage.channelSubscribers' => ({required Object count}) => 'Подписчиков: ${count}',
+			'organization.manage.createChannelFailed' => 'Не удалось создать канал',
+			'organization.manage.archiveChannel' => 'Архивировать канал',
+			'organization.manage.archiveChannelTitle' => ({required Object name}) => 'Архивировать «${name}»?',
+			'organization.manage.archiveChannelBody' => 'После архивации канал исчезает из публичных разделов и больше не виден участникам. Архивацию можно отменить.',
+			'organization.manage.restoreChannel' => 'Восстановить',
+			'organization.manage.archivedChannelSection' => 'Архивные каналы',
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',

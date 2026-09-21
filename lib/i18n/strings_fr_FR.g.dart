@@ -2351,6 +2351,7 @@ class _Translations$organization$fr_FR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$fr_FR departments = _Translations$organization$departments$fr_FR._(_root);
 	@override late final _Translations$organization$picker$fr_FR picker = _Translations$organization$picker$fr_FR._(_root);
 	@override late final _Translations$organization$directory$fr_FR directory = _Translations$organization$directory$fr_FR._(_root);
+	@override late final _Translations$organization$manage$fr_FR manage = _Translations$organization$manage$fr_FR._(_root);
 }
 
 // Path: passport
@@ -2879,6 +2880,63 @@ class _Translations$organization$directory$fr_FR extends Translations$organizati
 	@override String get deptSection => 'Départements';
 	@override String get allMembersSection => 'Tous les membres';
 	@override String get membersRestricted => 'La liste complète des membres n\'est visible que par les administrateurs de l\'entreprise ; ouvrez un département pour voir ses membres.';
+}
+
+// Path: organization.manage
+class _Translations$organization$manage$fr_FR extends Translations$organization$manage$zh_CN {
+	_Translations$organization$manage$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get entry => 'Gestion de l\'entreprise';
+	@override String get entryRestricted => 'Gestion de l\'entreprise (admins uniquement)';
+	@override String get title => 'Gestion de l\'entreprise';
+	@override String get orgNotFound => 'Entreprise introuvable ou non visible';
+	@override String roleLine({required Object role}) => 'Mon rôle : ${role}';
+	@override String get readOnlyHint => 'Consultation seule ; les actions de gestion sont réservées au propriétaire ou aux admins';
+	@override String get forbiddenTitle => 'Aucune permission de gestion';
+	@override String get forbiddenBody => 'La gestion de l\'entreprise est réservée au propriétaire et aux admins. Demandez à un admin de modifier votre rôle.';
+	@override String get workspaceSection => 'Espaces de travail';
+	@override String get createWorkspace => 'Créer un espace de travail';
+	@override String get workspaceNameHint => 'Nom de l\'espace de travail';
+	@override String get workspaceEmpty => 'Aucun espace de travail';
+	@override String get workspaceEmptyHint => 'Vous n\'avez encore rejoint aucun espace de travail dans cette entreprise. Créez-en un via le bouton en haut à droite.';
+	@override String get workspaceScopeNote => 'Seuls les espaces de travail que vous avez rejoints sont listés ; les autres espaces de l\'entreprise n\'apparaissent pas.';
+	@override String get defaultBadge => 'Espace de travail par défaut';
+	@override String get notDefaultBadge => 'Non par défaut';
+	@override String get archivedBadge => 'Archivé';
+	@override String get ownerBadge => 'Je suis propriétaire';
+	@override String get memberBadge => 'Je suis membre';
+	@override String get setDefault => 'Définir comme espace par défaut';
+	@override String get archiveWorkspace => 'Archiver l\'espace de travail';
+	@override String archiveWorkspaceTitle({required Object name}) => 'Archiver « ${name} » ?';
+	@override String get archiveWorkspaceBody => 'Un espace archivé passe en lecture seule et ses groupes et canaux n\'acceptent plus d\'écriture. S\'il s\'agit de l\'espace par défaut, définissez d\'abord un remplaçant. L\'archivage est réversible.';
+	@override String get restoreWorkspace => 'Restaurer l\'espace de travail';
+	@override String get resourceSection => 'Groupes et canaux';
+	@override String get resourceNeedsWorkspace => 'Un espace de travail est nécessaire avant de gérer les groupes et canaux.';
+	@override String resourceLoadFailed({required Object err}) => 'Échec du chargement : ${err}';
+	@override String get retry => 'Réessayer';
+	@override String get groupSection => 'Groupes de l\'entreprise';
+	@override String get createGroup => 'Créer un groupe';
+	@override String get groupNameHint => 'Nom du groupe';
+	@override String get groupEmpty => 'Aucun groupe d\'entreprise';
+	@override String groupMembers({required Object count}) => '${count} membres';
+	@override String get dissolveGroup => 'Dissoudre le groupe';
+	@override String dissolveGroupTitle({required Object name}) => 'Dissoudre « ${name} » ?';
+	@override String get dissolveGroupBody => 'La dissolution est irréversible : l\'adhésion prend fin, mais l\'historique des messages et les journaux d\'audit sont conservés.';
+	@override String get channelSection => 'Canaux de l\'entreprise';
+	@override String get createChannel => 'Créer un canal';
+	@override String get channelNameHint => 'Nom du canal';
+	@override String get channelPolicyNote => 'Les canaux d\'entreprise sont toujours gratuits et non publics : ils n\'apparaissent pas dans la découverte publique, les membres s\'abonnent via l\'espace de travail.';
+	@override String get channelEmpty => 'Aucun canal d\'entreprise';
+	@override String channelSubscribers({required Object count}) => '${count} abonnés';
+	@override String get createChannelFailed => 'Échec de la création du canal';
+	@override String get archiveChannel => 'Archiver le canal';
+	@override String archiveChannelTitle({required Object name}) => 'Archiver « ${name} » ?';
+	@override String get archiveChannelBody => 'Un canal archivé quitte toutes les surfaces publiques et n\'est plus visible des membres. L\'archivage est réversible.';
+	@override String get restoreChannel => 'Restaurer';
+	@override String get archivedChannelSection => 'Canaux archivés';
 }
 
 /// The flat map containing all translations for locale <fr-FR>.
@@ -5063,6 +5121,54 @@ extension on TranslationsFrFr {
 			'organization.directory.deptSection' => 'Départements',
 			'organization.directory.allMembersSection' => 'Tous les membres',
 			'organization.directory.membersRestricted' => 'La liste complète des membres n\'est visible que par les administrateurs de l\'entreprise ; ouvrez un département pour voir ses membres.',
+			'organization.manage.entry' => 'Gestion de l\'entreprise',
+			'organization.manage.entryRestricted' => 'Gestion de l\'entreprise (admins uniquement)',
+			'organization.manage.title' => 'Gestion de l\'entreprise',
+			'organization.manage.orgNotFound' => 'Entreprise introuvable ou non visible',
+			'organization.manage.roleLine' => ({required Object role}) => 'Mon rôle : ${role}',
+			'organization.manage.readOnlyHint' => 'Consultation seule ; les actions de gestion sont réservées au propriétaire ou aux admins',
+			'organization.manage.forbiddenTitle' => 'Aucune permission de gestion',
+			'organization.manage.forbiddenBody' => 'La gestion de l\'entreprise est réservée au propriétaire et aux admins. Demandez à un admin de modifier votre rôle.',
+			'organization.manage.workspaceSection' => 'Espaces de travail',
+			'organization.manage.createWorkspace' => 'Créer un espace de travail',
+			'organization.manage.workspaceNameHint' => 'Nom de l\'espace de travail',
+			'organization.manage.workspaceEmpty' => 'Aucun espace de travail',
+			'organization.manage.workspaceEmptyHint' => 'Vous n\'avez encore rejoint aucun espace de travail dans cette entreprise. Créez-en un via le bouton en haut à droite.',
+			'organization.manage.workspaceScopeNote' => 'Seuls les espaces de travail que vous avez rejoints sont listés ; les autres espaces de l\'entreprise n\'apparaissent pas.',
+			'organization.manage.defaultBadge' => 'Espace de travail par défaut',
+			'organization.manage.notDefaultBadge' => 'Non par défaut',
+			'organization.manage.archivedBadge' => 'Archivé',
+			'organization.manage.ownerBadge' => 'Je suis propriétaire',
+			'organization.manage.memberBadge' => 'Je suis membre',
+			'organization.manage.setDefault' => 'Définir comme espace par défaut',
+			'organization.manage.archiveWorkspace' => 'Archiver l\'espace de travail',
+			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => 'Archiver « ${name} » ?',
+			'organization.manage.archiveWorkspaceBody' => 'Un espace archivé passe en lecture seule et ses groupes et canaux n\'acceptent plus d\'écriture. S\'il s\'agit de l\'espace par défaut, définissez d\'abord un remplaçant. L\'archivage est réversible.',
+			'organization.manage.restoreWorkspace' => 'Restaurer l\'espace de travail',
+			'organization.manage.resourceSection' => 'Groupes et canaux',
+			'organization.manage.resourceNeedsWorkspace' => 'Un espace de travail est nécessaire avant de gérer les groupes et canaux.',
+			'organization.manage.resourceLoadFailed' => ({required Object err}) => 'Échec du chargement : ${err}',
+			'organization.manage.retry' => 'Réessayer',
+			'organization.manage.groupSection' => 'Groupes de l\'entreprise',
+			'organization.manage.createGroup' => 'Créer un groupe',
+			'organization.manage.groupNameHint' => 'Nom du groupe',
+			'organization.manage.groupEmpty' => 'Aucun groupe d\'entreprise',
+			'organization.manage.groupMembers' => ({required Object count}) => '${count} membres',
+			'organization.manage.dissolveGroup' => 'Dissoudre le groupe',
+			'organization.manage.dissolveGroupTitle' => ({required Object name}) => 'Dissoudre « ${name} » ?',
+			'organization.manage.dissolveGroupBody' => 'La dissolution est irréversible : l\'adhésion prend fin, mais l\'historique des messages et les journaux d\'audit sont conservés.',
+			'organization.manage.channelSection' => 'Canaux de l\'entreprise',
+			'organization.manage.createChannel' => 'Créer un canal',
+			'organization.manage.channelNameHint' => 'Nom du canal',
+			'organization.manage.channelPolicyNote' => 'Les canaux d\'entreprise sont toujours gratuits et non publics : ils n\'apparaissent pas dans la découverte publique, les membres s\'abonnent via l\'espace de travail.',
+			'organization.manage.channelEmpty' => 'Aucun canal d\'entreprise',
+			'organization.manage.channelSubscribers' => ({required Object count}) => '${count} abonnés',
+			'organization.manage.createChannelFailed' => 'Échec de la création du canal',
+			'organization.manage.archiveChannel' => 'Archiver le canal',
+			'organization.manage.archiveChannelTitle' => ({required Object name}) => 'Archiver « ${name} » ?',
+			'organization.manage.archiveChannelBody' => 'Un canal archivé quitte toutes les surfaces publiques et n\'est plus visible des membres. L\'archivage est réversible.',
+			'organization.manage.restoreChannel' => 'Restaurer',
+			'organization.manage.archivedChannelSection' => 'Canaux archivés',
 			'passport.loginHistoryToggle' => 'Afficher l\'historique de connexion',
 			'passport.hintEmail' => 'Veuillez entrer votre adresse e-mail',
 			'passport.hintMobile' => 'Veuillez entrer votre numéro de téléphone',

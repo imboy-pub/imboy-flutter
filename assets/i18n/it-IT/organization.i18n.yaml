@@ -158,3 +158,53 @@ directory:
   deptSection: "Dipartimenti"
   allMembersSection: "Tutti i membri"
   membersRestricted: "L'elenco completo dei membri è visibile solo agli amministratori dell'azienda; apri un dipartimento per vedere i suoi membri."
+# ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
+manage:
+  entry: "Gestione dell'azienda"
+  entryRestricted: "Gestione dell'azienda (solo amministratori)"
+  title: "Gestione dell'azienda"
+  orgNotFound: Azienda non trovata o non visibile
+  roleLine: "Il mio ruolo: ${role}"
+  readOnlyHint: Dati aziendali in sola lettura; le azioni di gestione spettano a proprietario o amministratori
+  forbiddenTitle: Nessun permesso di gestione
+  forbiddenBody: "La gestione dell'azienda è riservata al proprietario e agli amministratori. Chiedi a un amministratore di modificare il tuo ruolo."
+  workspaceSection: Spazi di lavoro
+  createWorkspace: Crea spazio di lavoro
+  workspaceNameHint: Nome dello spazio di lavoro
+  workspaceEmpty: Nessuno spazio di lavoro
+  workspaceEmptyHint: Non hai ancora aderito ad alcuno spazio di lavoro di questa azienda. Creane uno dal pulsante in alto a destra.
+  workspaceScopeNote: Sono elencati solo gli spazi di lavoro a cui hai aderito; gli altri della stessa azienda non compaiono.
+  defaultBadge: Spazio di lavoro predefinito
+  notDefaultBadge: Non predefinito
+  archivedBadge: Archiviato
+  ownerBadge: Sono il proprietario
+  memberBadge: Sono un membro
+  setDefault: Imposta come spazio predefinito
+  archiveWorkspace: Archivia spazio di lavoro
+  archiveWorkspaceTitle: "Archiviare 「${name}」?"
+  archiveWorkspaceBody: "Uno spazio archiviato diventa di sola lettura e i suoi gruppi e canali non accettano più scritture. Se è lo spazio predefinito, indica prima un sostituto. L'archiviazione è reversibile."
+  restoreWorkspace: Ripristina spazio di lavoro
+  resourceSection: Gruppi e canali
+  resourceNeedsWorkspace: Per gestire gruppi e canali serve prima uno spazio di lavoro.
+  resourceLoadFailed: "Caricamento non riuscito: ${err}"
+  retry: Riprova
+  groupSection: "Gruppi dell'azienda"
+  createGroup: Crea gruppo
+  groupNameHint: Nome del gruppo
+  groupEmpty: "Nessun gruppo dell'azienda"
+  groupMembers: "${count} membri"
+  dissolveGroup: Sciogli il gruppo
+  dissolveGroupTitle: "Sciogliere 「${name}」?"
+  dissolveGroupBody: "Lo scioglimento è irreversibile: l'adesione termina, ma la cronologia dei messaggi e i registri di audit restano."
+  channelSection: "Canali dell'azienda"
+  createChannel: Crea canale
+  channelNameHint: Nome del canale
+  channelPolicyNote: "I canali aziendali sono sempre gratuiti e non pubblici: non compaiono nella ricerca pubblica e i membri si iscrivono tramite lo spazio di lavoro."
+  channelEmpty: "Nessun canale dell'azienda"
+  channelSubscribers: "${count} iscritti"
+  createChannelFailed: Creazione del canale non riuscita
+  archiveChannel: Archivia canale
+  archiveChannelTitle: "Archiviare 「${name}」?"
+  archiveChannelBody: "Un canale archiviato esce da tutte le superfici pubbliche e non è più visibile ai membri. L'archiviazione è reversibile."
+  restoreChannel: Ripristina
+  archivedChannelSection: Canali archiviati

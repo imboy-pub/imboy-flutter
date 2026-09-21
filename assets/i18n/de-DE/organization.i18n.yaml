@@ -158,3 +158,53 @@ directory:
   deptSection: "Abteilungen"
   allMembersSection: "Alle Mitglieder"
   membersRestricted: "Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen."
+# ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
+manage:
+  entry: Unternehmensverwaltung
+  entryRestricted: Unternehmensverwaltung (nur Admins)
+  title: Unternehmensverwaltung
+  orgNotFound: Unternehmen nicht gefunden oder nicht sichtbar
+  roleLine: "Meine Rolle: ${role}"
+  readOnlyHint: Unternehmensdaten nur lesbar; Verwaltungsaktionen nur für Inhaber/Admin
+  forbiddenTitle: Keine Verwaltungsberechtigung
+  forbiddenBody: Die Unternehmensverwaltung ist Inhaber und Admins vorbehalten. Bitte einen Admin, deine Rolle anzupassen.
+  workspaceSection: Arbeitsbereiche
+  createWorkspace: Arbeitsbereich anlegen
+  workspaceNameHint: Name des Arbeitsbereichs
+  workspaceEmpty: Noch keine Arbeitsbereiche
+  workspaceEmptyHint: Du bist in diesem Unternehmen noch keinem Arbeitsbereich beigetreten. Lege oben rechts einen an.
+  workspaceScopeNote: Hier erscheinen nur Arbeitsbereiche, denen du beigetreten bist; andere im Unternehmen nicht.
+  defaultBadge: Standard-Arbeitsbereich
+  notDefaultBadge: Nicht Standard
+  archivedBadge: Archiviert
+  ownerBadge: Ich bin Inhaber
+  memberBadge: Ich bin Mitglied
+  setDefault: Als Standard-Arbeitsbereich festlegen
+  archiveWorkspace: Arbeitsbereich archivieren
+  archiveWorkspaceTitle: "「${name}」 archivieren?"
+  archiveWorkspaceBody: Ein archivierter Arbeitsbereich wird schreibgeschützt, seine Gruppen und Kanäle nehmen keine Schreibvorgänge mehr an. Ist er der Standard-Arbeitsbereich, lege zuerst einen Ersatz fest. Die Archivierung ist umkehrbar.
+  restoreWorkspace: Arbeitsbereich wiederherstellen
+  resourceSection: Gruppen und Kanäle
+  resourceNeedsWorkspace: Für Gruppen und Kanäle wird zuerst ein Arbeitsbereich benötigt.
+  resourceLoadFailed: "Laden fehlgeschlagen: ${err}"
+  retry: Erneut versuchen
+  groupSection: Unternehmensgruppen
+  createGroup: Gruppe anlegen
+  groupNameHint: Gruppenname
+  groupEmpty: Noch keine Unternehmensgruppen
+  groupMembers: "${count} Mitglieder"
+  dissolveGroup: Gruppe auflösen
+  dissolveGroupTitle: "「${name}」 auflösen?"
+  dissolveGroupBody: Das Auflösen ist nicht umkehrbar. Die Mitgliedschaft endet, Nachrichtenverlauf und Auditaufzeichnungen bleiben erhalten.
+  channelSection: Unternehmenskanäle
+  createChannel: Kanal anlegen
+  channelNameHint: Kanalname
+  channelPolicyNote: "Unternehmenskanäle sind immer kostenlos und nicht öffentlich: kein öffentlicher Kanalverzeichniseintrag, Mitglieder abonnieren über den Arbeitsbereich."
+  channelEmpty: Noch keine Unternehmenskanäle
+  channelSubscribers: "${count} Abonnenten"
+  createChannelFailed: Kanal konnte nicht angelegt werden
+  archiveChannel: Kanal archivieren
+  archiveChannelTitle: "「${name}」 archivieren?"
+  archiveChannelBody: Ein archivierter Kanal verschwindet aus allen öffentlichen Ansichten und ist für Mitglieder nicht mehr sichtbar. Die Archivierung ist umkehrbar.
+  restoreChannel: Wiederherstellen
+  archivedChannelSection: Archivierte Kanäle

@@ -47,13 +47,23 @@ class WorkspaceApi extends HttpClient {
   // ==================== Workspace 生命周期 ====================
 
   /// 创建工作区（Template 原子初始化；request_id 幂等）。
+  ///
+  /// [organizationId] 非空 = 在指定企业下建工作区：服务端按归属裁决
+  /// （`workspace_logic:create/4` 的 organization_id 分支），企业成员角色
+  /// 不足/跨企业由服务端 403 拒绝，客户端只传事实不做本地放行。
   Future<WorkspaceCreateResult> create({
     required String name,
     required String requestId,
+    EntityId? organizationId,
   }) async {
     final resp = await post(
       '/api/v1/workspaces',
-      data: {'name': name, 'request_id': requestId},
+      data: {
+        'name': name,
+        'request_id': requestId,
+        if (organizationId != null && organizationId.isNotEmpty)
+          'organization_id': organizationId,
+      },
     );
     return _unwrap(
       resp,
@@ -186,8 +196,20 @@ class WorkspaceApi extends HttpClient {
   }
 
   /// 工作区频道列表（scope=workspace 严格分区；active 成员可读）。
-  Future<List<ChannelModel>> channels(EntityId workspaceId) async {
-    final resp = await get('/api/v1/workspaces/$workspaceId/channels');
+  ///
+  /// [status] = active（缺省，等价于未加过滤前的行为）| archived | all。
+  /// 治理页要枚举归档频道才能提供「恢复」入口——缺省口径下归档频道
+  /// 已退出全部公开面，列表里不会出现。
+  Future<List<ChannelModel>> channels(
+    EntityId workspaceId, {
+    String? status,
+  }) async {
+    final resp = await get(
+      '/api/v1/workspaces/$workspaceId/channels',
+      queryParameters: {
+        if (status != null && status.isNotEmpty) 'status': status,
+      },
+    );
     return _unwrapList(resp, ChannelModel.fromJson);
   }
 
@@ -341,8 +363,8 @@ class WorkspaceApi extends HttpClient {
     T Function(Map<String, dynamic>) fromJson,
   ) {
     _ensureOk(resp);
-    return IMBoyHttpResponse.payloadList(
-      resp.payload,
-    ).map(fromJson).toList(growable: false);
+    return IMBoyHttpResponse.payloadList(resp.payload)
+        .map(fromJson)
+        .toList(growable: false);
   }
 }

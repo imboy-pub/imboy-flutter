@@ -2348,6 +2348,7 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$departments$zh_Hant departments = Translations$organization$departments$zh_Hant.internal(_root);
 	@override late final Translations$organization$picker$zh_Hant picker = Translations$organization$picker$zh_Hant.internal(_root);
 	@override late final Translations$organization$directory$zh_Hant directory = Translations$organization$directory$zh_Hant.internal(_root);
+	@override late final Translations$organization$manage$zh_Hant manage = Translations$organization$manage$zh_Hant.internal(_root);
 }
 
 // Path: passport
@@ -2876,6 +2877,63 @@ class Translations$organization$directory$zh_Hant extends Translations$organizat
 	@override String get deptSection => '部門';
 	@override String get allMembersSection => '全部成員';
 	@override String get membersRestricted => '全員名單僅企業管理員可見；可展開部門查看部門成員。';
+}
+
+// Path: organization.manage
+class Translations$organization$manage$zh_Hant extends Translations$organization$manage$zh_CN {
+	Translations$organization$manage$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get entry => '企業管理';
+	@override String get entryRestricted => '企業管理（僅管理員）';
+	@override String get title => '企業管理';
+	@override String get orgNotFound => '企業不存在或你無權檢視';
+	@override String roleLine({required Object role}) => '我的角色：${role}';
+	@override String get readOnlyHint => '企業現狀唯讀；管理動作僅企業擁有者／管理員可用';
+	@override String get forbiddenTitle => '無管理權限';
+	@override String get forbiddenBody => '企業管理僅對企業擁有者與管理員開放；需要時請聯絡管理員調整你的角色。';
+	@override String get workspaceSection => '工作區';
+	@override String get createWorkspace => '新增工作區';
+	@override String get workspaceNameHint => '工作區名稱';
+	@override String get workspaceEmpty => '尚無工作區';
+	@override String get workspaceEmptyHint => '目前企業下還沒有你加入的工作區，可用右上方新增。';
+	@override String get workspaceScopeNote => '這裡只列出你已加入的工作區；同企業內你未加入的工作區不會出現。';
+	@override String get defaultBadge => '預設工作區';
+	@override String get notDefaultBadge => '非預設';
+	@override String get archivedBadge => '已封存';
+	@override String get ownerBadge => '我是擁有者';
+	@override String get memberBadge => '我是成員';
+	@override String get setDefault => '設為預設工作區';
+	@override String get archiveWorkspace => '封存工作區';
+	@override String archiveWorkspaceTitle({required Object name}) => '封存「${name}」？';
+	@override String get archiveWorkspaceBody => '封存後該工作區進入唯讀，其群與頻道一併停寫；若它是企業預設工作區，請先指定替代工作區。封存可還原。';
+	@override String get restoreWorkspace => '還原工作區';
+	@override String get resourceSection => '群與頻道';
+	@override String get resourceNeedsWorkspace => '需要先有工作區，才能治理群與頻道。';
+	@override String resourceLoadFailed({required Object err}) => '載入失敗：${err}';
+	@override String get retry => '重試';
+	@override String get groupSection => '企業群';
+	@override String get createGroup => '新增群';
+	@override String get groupNameHint => '群名稱';
+	@override String get groupEmpty => '尚無企業群';
+	@override String groupMembers({required Object count}) => '成員 ${count}';
+	@override String get dissolveGroup => '解散群';
+	@override String dissolveGroupTitle({required Object name}) => '解散「${name}」？';
+	@override String get dissolveGroupBody => '解散不可還原；成員關係會終止，但歷史訊息與稽核記錄保留。';
+	@override String get channelSection => '企業頻道';
+	@override String get createChannel => '新增頻道';
+	@override String get channelNameHint => '頻道名稱';
+	@override String get channelPolicyNote => '企業頻道固定為「免費 + 非公開」：不進入公開探索，成員經工作區訂閱。';
+	@override String get channelEmpty => '尚無企業頻道';
+	@override String channelSubscribers({required Object count}) => '訂閱 ${count}';
+	@override String get createChannelFailed => '頻道建立失敗';
+	@override String get archiveChannel => '封存頻道';
+	@override String archiveChannelTitle({required Object name}) => '封存「${name}」？';
+	@override String get archiveChannelBody => '封存後頻道退出公開面，成員不再看到；封存可還原。';
+	@override String get restoreChannel => '還原';
+	@override String get archivedChannelSection => '已封存頻道';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -5060,6 +5118,54 @@ extension on TranslationsZhHant {
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => '全部成員',
 			'organization.directory.membersRestricted' => '全員名單僅企業管理員可見；可展開部門查看部門成員。',
+			'organization.manage.entry' => '企業管理',
+			'organization.manage.entryRestricted' => '企業管理（僅管理員）',
+			'organization.manage.title' => '企業管理',
+			'organization.manage.orgNotFound' => '企業不存在或你無權檢視',
+			'organization.manage.roleLine' => ({required Object role}) => '我的角色：${role}',
+			'organization.manage.readOnlyHint' => '企業現狀唯讀；管理動作僅企業擁有者／管理員可用',
+			'organization.manage.forbiddenTitle' => '無管理權限',
+			'organization.manage.forbiddenBody' => '企業管理僅對企業擁有者與管理員開放；需要時請聯絡管理員調整你的角色。',
+			'organization.manage.workspaceSection' => '工作區',
+			'organization.manage.createWorkspace' => '新增工作區',
+			'organization.manage.workspaceNameHint' => '工作區名稱',
+			'organization.manage.workspaceEmpty' => '尚無工作區',
+			'organization.manage.workspaceEmptyHint' => '目前企業下還沒有你加入的工作區，可用右上方新增。',
+			'organization.manage.workspaceScopeNote' => '這裡只列出你已加入的工作區；同企業內你未加入的工作區不會出現。',
+			'organization.manage.defaultBadge' => '預設工作區',
+			'organization.manage.notDefaultBadge' => '非預設',
+			'organization.manage.archivedBadge' => '已封存',
+			'organization.manage.ownerBadge' => '我是擁有者',
+			'organization.manage.memberBadge' => '我是成員',
+			'organization.manage.setDefault' => '設為預設工作區',
+			'organization.manage.archiveWorkspace' => '封存工作區',
+			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => '封存「${name}」？',
+			'organization.manage.archiveWorkspaceBody' => '封存後該工作區進入唯讀，其群與頻道一併停寫；若它是企業預設工作區，請先指定替代工作區。封存可還原。',
+			'organization.manage.restoreWorkspace' => '還原工作區',
+			'organization.manage.resourceSection' => '群與頻道',
+			'organization.manage.resourceNeedsWorkspace' => '需要先有工作區，才能治理群與頻道。',
+			'organization.manage.resourceLoadFailed' => ({required Object err}) => '載入失敗：${err}',
+			'organization.manage.retry' => '重試',
+			'organization.manage.groupSection' => '企業群',
+			'organization.manage.createGroup' => '新增群',
+			'organization.manage.groupNameHint' => '群名稱',
+			'organization.manage.groupEmpty' => '尚無企業群',
+			'organization.manage.groupMembers' => ({required Object count}) => '成員 ${count}',
+			'organization.manage.dissolveGroup' => '解散群',
+			'organization.manage.dissolveGroupTitle' => ({required Object name}) => '解散「${name}」？',
+			'organization.manage.dissolveGroupBody' => '解散不可還原；成員關係會終止，但歷史訊息與稽核記錄保留。',
+			'organization.manage.channelSection' => '企業頻道',
+			'organization.manage.createChannel' => '新增頻道',
+			'organization.manage.channelNameHint' => '頻道名稱',
+			'organization.manage.channelPolicyNote' => '企業頻道固定為「免費 + 非公開」：不進入公開探索，成員經工作區訂閱。',
+			'organization.manage.channelEmpty' => '尚無企業頻道',
+			'organization.manage.channelSubscribers' => ({required Object count}) => '訂閱 ${count}',
+			'organization.manage.createChannelFailed' => '頻道建立失敗',
+			'organization.manage.archiveChannel' => '封存頻道',
+			'organization.manage.archiveChannelTitle' => ({required Object name}) => '封存「${name}」？',
+			'organization.manage.archiveChannelBody' => '封存後頻道退出公開面，成員不再看到；封存可還原。',
+			'organization.manage.restoreChannel' => '還原',
+			'organization.manage.archivedChannelSection' => '已封存頻道',
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',

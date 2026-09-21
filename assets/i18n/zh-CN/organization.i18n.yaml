@@ -157,3 +157,53 @@ directory:
   deptSection: 部门
   allMembersSection: 全部成员
   membersRestricted: 全员名单仅企业管理员可见；可展开部门查看部门成员。
+# ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
+manage:
+  entry: 企业管理
+  entryRestricted: 企业管理（仅管理员）
+  title: 企业管理
+  orgNotFound: 企业不存在或你无权查看
+  roleLine: "我的角色：${role}"
+  readOnlyHint: 企业现状只读；管理动作仅企业所有者/管理员可用
+  forbiddenTitle: 无管理权限
+  forbiddenBody: 企业管理仅对企业所有者与管理员开放；需要时请联系管理员调整你的角色。
+  workspaceSection: 工作区
+  createWorkspace: 新建工作区
+  workspaceNameHint: 工作区名称
+  workspaceEmpty: 暂无工作区
+  workspaceEmptyHint: 当前企业下还没有你加入的工作区，可用右上角新建。
+  workspaceScopeNote: 这里只列出你已加入的工作区；同企业内你未加入的工作区不会出现。
+  defaultBadge: 默认工作区
+  notDefaultBadge: 非默认
+  archivedBadge: 已归档
+  ownerBadge: 我是所有者
+  memberBadge: 我是成员
+  setDefault: 设为默认工作区
+  archiveWorkspace: 归档工作区
+  archiveWorkspaceTitle: "归档「${name}」？"
+  archiveWorkspaceBody: 归档后该工作区进入只读，其群与频道一并停写；若它是企业默认工作区，请先指定替代工作区。归档可恢复。
+  restoreWorkspace: 恢复工作区
+  resourceSection: 群与频道
+  resourceNeedsWorkspace: 需要先有工作区，才能治理群与频道。
+  resourceLoadFailed: "加载失败：${err}"
+  retry: 重试
+  groupSection: 企业群
+  createGroup: 新建群
+  groupNameHint: 群名称
+  groupEmpty: 暂无企业群
+  groupMembers: "成员 ${count}"
+  dissolveGroup: 解散群
+  dissolveGroupTitle: "解散「${name}」？"
+  dissolveGroupBody: 解散不可恢复；成员关系会终止，但历史消息与审计记录保留。
+  channelSection: 企业频道
+  createChannel: 新建频道
+  channelNameHint: 频道名称
+  channelPolicyNote: "企业频道固定为「免费 + 非公开」：不进入公开发现，成员经工作区订阅。"
+  channelEmpty: 暂无企业频道
+  channelSubscribers: "订阅 ${count}"
+  createChannelFailed: 频道创建失败
+  archiveChannel: 归档频道
+  archiveChannelTitle: "归档「${name}」？"
+  archiveChannelBody: 归档后频道退出公开面，成员不再看到；归档可恢复。
+  restoreChannel: 恢复
+  archivedChannelSection: 已归档频道

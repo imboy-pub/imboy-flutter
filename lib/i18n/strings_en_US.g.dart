@@ -2431,6 +2431,7 @@ class _Translations$organization$en_US extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$en_US departments = _Translations$organization$departments$en_US._(_root);
 	@override late final _Translations$organization$picker$en_US picker = _Translations$organization$picker$en_US._(_root);
 	@override late final _Translations$organization$directory$en_US directory = _Translations$organization$directory$en_US._(_root);
+	@override late final _Translations$organization$manage$en_US manage = _Translations$organization$manage$en_US._(_root);
 }
 
 // Path: passport
@@ -2959,6 +2960,63 @@ class _Translations$organization$directory$en_US extends Translations$organizati
 	@override String get deptSection => 'Departments';
 	@override String get allMembersSection => 'All members';
 	@override String get membersRestricted => 'The full member list is visible to enterprise admins only; expand a department to see its members.';
+}
+
+// Path: organization.manage
+class _Translations$organization$manage$en_US extends Translations$organization$manage$zh_CN {
+	_Translations$organization$manage$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get entry => 'Enterprise management';
+	@override String get entryRestricted => 'Enterprise management (admins only)';
+	@override String get title => 'Enterprise management';
+	@override String get orgNotFound => 'Enterprise not found, or you cannot view it';
+	@override String roleLine({required Object role}) => 'My role: ${role}';
+	@override String get readOnlyHint => 'Read-only facts; management actions require owner/admin';
+	@override String get forbiddenTitle => 'No management permission';
+	@override String get forbiddenBody => 'Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.';
+	@override String get workspaceSection => 'Workspaces';
+	@override String get createWorkspace => 'New workspace';
+	@override String get workspaceNameHint => 'Workspace name';
+	@override String get workspaceEmpty => 'No workspaces yet';
+	@override String get workspaceEmptyHint => 'You have not joined a workspace in this enterprise yet. Create one from the top-right action.';
+	@override String get workspaceScopeNote => 'Only workspaces you have joined are listed; other workspaces in this enterprise do not appear.';
+	@override String get defaultBadge => 'Default workspace';
+	@override String get notDefaultBadge => 'Not default';
+	@override String get archivedBadge => 'Archived';
+	@override String get ownerBadge => 'I am the owner';
+	@override String get memberBadge => 'I am a member';
+	@override String get setDefault => 'Set as default workspace';
+	@override String get archiveWorkspace => 'Archive workspace';
+	@override String archiveWorkspaceTitle({required Object name}) => 'Archive 「${name}」?';
+	@override String get archiveWorkspaceBody => 'An archived workspace becomes read-only and its groups and channels stop accepting writes. If it is the enterprise default workspace, set a replacement first. Archiving can be undone.';
+	@override String get restoreWorkspace => 'Restore workspace';
+	@override String get resourceSection => 'Groups and channels';
+	@override String get resourceNeedsWorkspace => 'A workspace is required before managing groups and channels.';
+	@override String resourceLoadFailed({required Object err}) => 'Load failed: ${err}';
+	@override String get retry => 'Retry';
+	@override String get groupSection => 'Enterprise groups';
+	@override String get createGroup => 'New group';
+	@override String get groupNameHint => 'Group name';
+	@override String get groupEmpty => 'No enterprise groups yet';
+	@override String groupMembers({required Object count}) => '${count} members';
+	@override String get dissolveGroup => 'Dissolve group';
+	@override String dissolveGroupTitle({required Object name}) => 'Dissolve 「${name}」?';
+	@override String get dissolveGroupBody => 'Dissolving cannot be undone. Membership ends, but message history and audit records are kept.';
+	@override String get channelSection => 'Enterprise channels';
+	@override String get createChannel => 'New channel';
+	@override String get channelNameHint => 'Channel name';
+	@override String get channelPolicyNote => 'Enterprise channels are always free and non-public: they never appear in public discovery, and members subscribe through the workspace.';
+	@override String get channelEmpty => 'No enterprise channels yet';
+	@override String channelSubscribers({required Object count}) => '${count} subscribers';
+	@override String get createChannelFailed => 'Failed to create the channel';
+	@override String get archiveChannel => 'Archive channel';
+	@override String archiveChannelTitle({required Object name}) => 'Archive 「${name}」?';
+	@override String get archiveChannelBody => 'An archived channel leaves all public surfaces and members no longer see it. Archiving can be undone.';
+	@override String get restoreChannel => 'Restore';
+	@override String get archivedChannelSection => 'Archived channels';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -5213,6 +5271,54 @@ extension on TranslationsEnUs {
 			'organization.directory.deptSection' => 'Departments',
 			'organization.directory.allMembersSection' => 'All members',
 			'organization.directory.membersRestricted' => 'The full member list is visible to enterprise admins only; expand a department to see its members.',
+			'organization.manage.entry' => 'Enterprise management',
+			'organization.manage.entryRestricted' => 'Enterprise management (admins only)',
+			'organization.manage.title' => 'Enterprise management',
+			'organization.manage.orgNotFound' => 'Enterprise not found, or you cannot view it',
+			'organization.manage.roleLine' => ({required Object role}) => 'My role: ${role}',
+			'organization.manage.readOnlyHint' => 'Read-only facts; management actions require owner/admin',
+			'organization.manage.forbiddenTitle' => 'No management permission',
+			'organization.manage.forbiddenBody' => 'Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.',
+			'organization.manage.workspaceSection' => 'Workspaces',
+			'organization.manage.createWorkspace' => 'New workspace',
+			'organization.manage.workspaceNameHint' => 'Workspace name',
+			'organization.manage.workspaceEmpty' => 'No workspaces yet',
+			'organization.manage.workspaceEmptyHint' => 'You have not joined a workspace in this enterprise yet. Create one from the top-right action.',
+			'organization.manage.workspaceScopeNote' => 'Only workspaces you have joined are listed; other workspaces in this enterprise do not appear.',
+			'organization.manage.defaultBadge' => 'Default workspace',
+			'organization.manage.notDefaultBadge' => 'Not default',
+			'organization.manage.archivedBadge' => 'Archived',
+			'organization.manage.ownerBadge' => 'I am the owner',
+			'organization.manage.memberBadge' => 'I am a member',
+			'organization.manage.setDefault' => 'Set as default workspace',
+			'organization.manage.archiveWorkspace' => 'Archive workspace',
+			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => 'Archive 「${name}」?',
+			'organization.manage.archiveWorkspaceBody' => 'An archived workspace becomes read-only and its groups and channels stop accepting writes. If it is the enterprise default workspace, set a replacement first. Archiving can be undone.',
+			'organization.manage.restoreWorkspace' => 'Restore workspace',
+			'organization.manage.resourceSection' => 'Groups and channels',
+			'organization.manage.resourceNeedsWorkspace' => 'A workspace is required before managing groups and channels.',
+			'organization.manage.resourceLoadFailed' => ({required Object err}) => 'Load failed: ${err}',
+			'organization.manage.retry' => 'Retry',
+			'organization.manage.groupSection' => 'Enterprise groups',
+			'organization.manage.createGroup' => 'New group',
+			'organization.manage.groupNameHint' => 'Group name',
+			'organization.manage.groupEmpty' => 'No enterprise groups yet',
+			'organization.manage.groupMembers' => ({required Object count}) => '${count} members',
+			'organization.manage.dissolveGroup' => 'Dissolve group',
+			'organization.manage.dissolveGroupTitle' => ({required Object name}) => 'Dissolve 「${name}」?',
+			'organization.manage.dissolveGroupBody' => 'Dissolving cannot be undone. Membership ends, but message history and audit records are kept.',
+			'organization.manage.channelSection' => 'Enterprise channels',
+			'organization.manage.createChannel' => 'New channel',
+			'organization.manage.channelNameHint' => 'Channel name',
+			'organization.manage.channelPolicyNote' => 'Enterprise channels are always free and non-public: they never appear in public discovery, and members subscribe through the workspace.',
+			'organization.manage.channelEmpty' => 'No enterprise channels yet',
+			'organization.manage.channelSubscribers' => ({required Object count}) => '${count} subscribers',
+			'organization.manage.createChannelFailed' => 'Failed to create the channel',
+			'organization.manage.archiveChannel' => 'Archive channel',
+			'organization.manage.archiveChannelTitle' => ({required Object name}) => 'Archive 「${name}」?',
+			'organization.manage.archiveChannelBody' => 'An archived channel leaves all public surfaces and members no longer see it. Archiving can be undone.',
+			'organization.manage.restoreChannel' => 'Restore',
+			'organization.manage.archivedChannelSection' => 'Archived channels',
 			'passport.loginHistoryToggle' => 'Show login history',
 			'passport.hintEmail' => 'Please enter email',
 			'passport.hintMobile' => 'Please enter mobile number',

@@ -2348,6 +2348,7 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$ko_KR departments = _Translations$organization$departments$ko_KR._(_root);
 	@override late final _Translations$organization$picker$ko_KR picker = _Translations$organization$picker$ko_KR._(_root);
 	@override late final _Translations$organization$directory$ko_KR directory = _Translations$organization$directory$ko_KR._(_root);
+	@override late final _Translations$organization$manage$ko_KR manage = _Translations$organization$manage$ko_KR._(_root);
 }
 
 // Path: passport
@@ -2876,6 +2877,63 @@ class _Translations$organization$directory$ko_KR extends Translations$organizati
 	@override String get deptSection => '부서';
 	@override String get allMembersSection => '전체 멤버';
 	@override String get membersRestricted => '전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요.';
+}
+
+// Path: organization.manage
+class _Translations$organization$manage$ko_KR extends Translations$organization$manage$zh_CN {
+	_Translations$organization$manage$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get entry => '기업 관리';
+	@override String get entryRestricted => '기업 관리(관리자 전용)';
+	@override String get title => '기업 관리';
+	@override String get orgNotFound => '기업이 없거나 볼 권한이 없습니다';
+	@override String roleLine({required Object role}) => '내 역할: ${role}';
+	@override String get readOnlyHint => '기업 정보는 읽기 전용이며, 관리 작업은 소유자/관리자만 가능합니다';
+	@override String get forbiddenTitle => '관리 권한 없음';
+	@override String get forbiddenBody => '기업 관리는 소유자와 관리자만 사용할 수 있습니다. 필요하면 관리자에게 역할 변경을 요청하세요.';
+	@override String get workspaceSection => '워크스페이스';
+	@override String get createWorkspace => '워크스페이스 만들기';
+	@override String get workspaceNameHint => '워크스페이스 이름';
+	@override String get workspaceEmpty => '워크스페이스가 없습니다';
+	@override String get workspaceEmptyHint => '이 기업에서 아직 참여한 워크스페이스가 없습니다. 오른쪽 위에서 만들 수 있습니다.';
+	@override String get workspaceScopeNote => '여기에는 이미 참여한 워크스페이스만 표시됩니다. 같은 기업이라도 참여하지 않은 워크스페이스는 나오지 않습니다.';
+	@override String get defaultBadge => '기본 워크스페이스';
+	@override String get notDefaultBadge => '기본 아님';
+	@override String get archivedBadge => '보관됨';
+	@override String get ownerBadge => '내가 소유자';
+	@override String get memberBadge => '내가 멤버';
+	@override String get setDefault => '기본 워크스페이스로 지정';
+	@override String get archiveWorkspace => '워크스페이스 보관';
+	@override String archiveWorkspaceTitle({required Object name}) => '「${name}」을(를) 보관할까요?';
+	@override String get archiveWorkspaceBody => '보관하면 워크스페이스는 읽기 전용이 되고 하위 그룹과 채널도 쓰기가 중지됩니다. 기업 기본 워크스페이스라면 먼저 대체를 지정하세요. 보관은 되돌릴 수 있습니다.';
+	@override String get restoreWorkspace => '워크스페이스 복원';
+	@override String get resourceSection => '그룹과 채널';
+	@override String get resourceNeedsWorkspace => '그룹과 채널을 관리하려면 먼저 워크스페이스가 필요합니다.';
+	@override String resourceLoadFailed({required Object err}) => '불러오기 실패: ${err}';
+	@override String get retry => '다시 시도';
+	@override String get groupSection => '기업 그룹';
+	@override String get createGroup => '그룹 만들기';
+	@override String get groupNameHint => '그룹 이름';
+	@override String get groupEmpty => '기업 그룹이 없습니다';
+	@override String groupMembers({required Object count}) => '멤버 ${count}';
+	@override String get dissolveGroup => '그룹 해산';
+	@override String dissolveGroupTitle({required Object name}) => '「${name}」을(를) 해산할까요?';
+	@override String get dissolveGroupBody => '해산은 되돌릴 수 없습니다. 멤버 관계는 종료되지만 과거 메시지와 감사 기록은 보존됩니다.';
+	@override String get channelSection => '기업 채널';
+	@override String get createChannel => '채널 만들기';
+	@override String get channelNameHint => '채널 이름';
+	@override String get channelPolicyNote => '기업 채널은 항상 무료·비공개입니다. 공개 탐색에 노출되지 않고 멤버는 워크스페이스를 통해 구독합니다.';
+	@override String get channelEmpty => '기업 채널이 없습니다';
+	@override String channelSubscribers({required Object count}) => '구독 ${count}';
+	@override String get createChannelFailed => '채널 생성에 실패했습니다';
+	@override String get archiveChannel => '채널 보관';
+	@override String archiveChannelTitle({required Object name}) => '「${name}」을(를) 보관할까요?';
+	@override String get archiveChannelBody => '보관하면 채널이 공개 영역에서 빠지고 멤버에게도 보이지 않습니다. 보관은 되돌릴 수 있습니다.';
+	@override String get restoreChannel => '복원';
+	@override String get archivedChannelSection => '보관된 채널';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -5060,6 +5118,54 @@ extension on TranslationsKoKr {
 			'organization.directory.deptSection' => '부서',
 			'organization.directory.allMembersSection' => '전체 멤버',
 			'organization.directory.membersRestricted' => '전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요.',
+			'organization.manage.entry' => '기업 관리',
+			'organization.manage.entryRestricted' => '기업 관리(관리자 전용)',
+			'organization.manage.title' => '기업 관리',
+			'organization.manage.orgNotFound' => '기업이 없거나 볼 권한이 없습니다',
+			'organization.manage.roleLine' => ({required Object role}) => '내 역할: ${role}',
+			'organization.manage.readOnlyHint' => '기업 정보는 읽기 전용이며, 관리 작업은 소유자/관리자만 가능합니다',
+			'organization.manage.forbiddenTitle' => '관리 권한 없음',
+			'organization.manage.forbiddenBody' => '기업 관리는 소유자와 관리자만 사용할 수 있습니다. 필요하면 관리자에게 역할 변경을 요청하세요.',
+			'organization.manage.workspaceSection' => '워크스페이스',
+			'organization.manage.createWorkspace' => '워크스페이스 만들기',
+			'organization.manage.workspaceNameHint' => '워크스페이스 이름',
+			'organization.manage.workspaceEmpty' => '워크스페이스가 없습니다',
+			'organization.manage.workspaceEmptyHint' => '이 기업에서 아직 참여한 워크스페이스가 없습니다. 오른쪽 위에서 만들 수 있습니다.',
+			'organization.manage.workspaceScopeNote' => '여기에는 이미 참여한 워크스페이스만 표시됩니다. 같은 기업이라도 참여하지 않은 워크스페이스는 나오지 않습니다.',
+			'organization.manage.defaultBadge' => '기본 워크스페이스',
+			'organization.manage.notDefaultBadge' => '기본 아님',
+			'organization.manage.archivedBadge' => '보관됨',
+			'organization.manage.ownerBadge' => '내가 소유자',
+			'organization.manage.memberBadge' => '내가 멤버',
+			'organization.manage.setDefault' => '기본 워크스페이스로 지정',
+			'organization.manage.archiveWorkspace' => '워크스페이스 보관',
+			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => '「${name}」을(를) 보관할까요?',
+			'organization.manage.archiveWorkspaceBody' => '보관하면 워크스페이스는 읽기 전용이 되고 하위 그룹과 채널도 쓰기가 중지됩니다. 기업 기본 워크스페이스라면 먼저 대체를 지정하세요. 보관은 되돌릴 수 있습니다.',
+			'organization.manage.restoreWorkspace' => '워크스페이스 복원',
+			'organization.manage.resourceSection' => '그룹과 채널',
+			'organization.manage.resourceNeedsWorkspace' => '그룹과 채널을 관리하려면 먼저 워크스페이스가 필요합니다.',
+			'organization.manage.resourceLoadFailed' => ({required Object err}) => '불러오기 실패: ${err}',
+			'organization.manage.retry' => '다시 시도',
+			'organization.manage.groupSection' => '기업 그룹',
+			'organization.manage.createGroup' => '그룹 만들기',
+			'organization.manage.groupNameHint' => '그룹 이름',
+			'organization.manage.groupEmpty' => '기업 그룹이 없습니다',
+			'organization.manage.groupMembers' => ({required Object count}) => '멤버 ${count}',
+			'organization.manage.dissolveGroup' => '그룹 해산',
+			'organization.manage.dissolveGroupTitle' => ({required Object name}) => '「${name}」을(를) 해산할까요?',
+			'organization.manage.dissolveGroupBody' => '해산은 되돌릴 수 없습니다. 멤버 관계는 종료되지만 과거 메시지와 감사 기록은 보존됩니다.',
+			'organization.manage.channelSection' => '기업 채널',
+			'organization.manage.createChannel' => '채널 만들기',
+			'organization.manage.channelNameHint' => '채널 이름',
+			'organization.manage.channelPolicyNote' => '기업 채널은 항상 무료·비공개입니다. 공개 탐색에 노출되지 않고 멤버는 워크스페이스를 통해 구독합니다.',
+			'organization.manage.channelEmpty' => '기업 채널이 없습니다',
+			'organization.manage.channelSubscribers' => ({required Object count}) => '구독 ${count}',
+			'organization.manage.createChannelFailed' => '채널 생성에 실패했습니다',
+			'organization.manage.archiveChannel' => '채널 보관',
+			'organization.manage.archiveChannelTitle' => ({required Object name}) => '「${name}」을(를) 보관할까요?',
+			'organization.manage.archiveChannelBody' => '보관하면 채널이 공개 영역에서 빠지고 멤버에게도 보이지 않습니다. 보관은 되돌릴 수 있습니다.',
+			'organization.manage.restoreChannel' => '복원',
+			'organization.manage.archivedChannelSection' => '보관된 채널',
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',

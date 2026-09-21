@@ -2351,6 +2351,7 @@ class _Translations$organization$de_DE extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$de_DE departments = _Translations$organization$departments$de_DE._(_root);
 	@override late final _Translations$organization$picker$de_DE picker = _Translations$organization$picker$de_DE._(_root);
 	@override late final _Translations$organization$directory$de_DE directory = _Translations$organization$directory$de_DE._(_root);
+	@override late final _Translations$organization$manage$de_DE manage = _Translations$organization$manage$de_DE._(_root);
 }
 
 // Path: passport
@@ -2879,6 +2880,63 @@ class _Translations$organization$directory$de_DE extends Translations$organizati
 	@override String get deptSection => 'Abteilungen';
 	@override String get allMembersSection => 'Alle Mitglieder';
 	@override String get membersRestricted => 'Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen.';
+}
+
+// Path: organization.manage
+class _Translations$organization$manage$de_DE extends Translations$organization$manage$zh_CN {
+	_Translations$organization$manage$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get entry => 'Unternehmensverwaltung';
+	@override String get entryRestricted => 'Unternehmensverwaltung (nur Admins)';
+	@override String get title => 'Unternehmensverwaltung';
+	@override String get orgNotFound => 'Unternehmen nicht gefunden oder nicht sichtbar';
+	@override String roleLine({required Object role}) => 'Meine Rolle: ${role}';
+	@override String get readOnlyHint => 'Unternehmensdaten nur lesbar; Verwaltungsaktionen nur für Inhaber/Admin';
+	@override String get forbiddenTitle => 'Keine Verwaltungsberechtigung';
+	@override String get forbiddenBody => 'Die Unternehmensverwaltung ist Inhaber und Admins vorbehalten. Bitte einen Admin, deine Rolle anzupassen.';
+	@override String get workspaceSection => 'Arbeitsbereiche';
+	@override String get createWorkspace => 'Arbeitsbereich anlegen';
+	@override String get workspaceNameHint => 'Name des Arbeitsbereichs';
+	@override String get workspaceEmpty => 'Noch keine Arbeitsbereiche';
+	@override String get workspaceEmptyHint => 'Du bist in diesem Unternehmen noch keinem Arbeitsbereich beigetreten. Lege oben rechts einen an.';
+	@override String get workspaceScopeNote => 'Hier erscheinen nur Arbeitsbereiche, denen du beigetreten bist; andere im Unternehmen nicht.';
+	@override String get defaultBadge => 'Standard-Arbeitsbereich';
+	@override String get notDefaultBadge => 'Nicht Standard';
+	@override String get archivedBadge => 'Archiviert';
+	@override String get ownerBadge => 'Ich bin Inhaber';
+	@override String get memberBadge => 'Ich bin Mitglied';
+	@override String get setDefault => 'Als Standard-Arbeitsbereich festlegen';
+	@override String get archiveWorkspace => 'Arbeitsbereich archivieren';
+	@override String archiveWorkspaceTitle({required Object name}) => '「${name}」 archivieren?';
+	@override String get archiveWorkspaceBody => 'Ein archivierter Arbeitsbereich wird schreibgeschützt, seine Gruppen und Kanäle nehmen keine Schreibvorgänge mehr an. Ist er der Standard-Arbeitsbereich, lege zuerst einen Ersatz fest. Die Archivierung ist umkehrbar.';
+	@override String get restoreWorkspace => 'Arbeitsbereich wiederherstellen';
+	@override String get resourceSection => 'Gruppen und Kanäle';
+	@override String get resourceNeedsWorkspace => 'Für Gruppen und Kanäle wird zuerst ein Arbeitsbereich benötigt.';
+	@override String resourceLoadFailed({required Object err}) => 'Laden fehlgeschlagen: ${err}';
+	@override String get retry => 'Erneut versuchen';
+	@override String get groupSection => 'Unternehmensgruppen';
+	@override String get createGroup => 'Gruppe anlegen';
+	@override String get groupNameHint => 'Gruppenname';
+	@override String get groupEmpty => 'Noch keine Unternehmensgruppen';
+	@override String groupMembers({required Object count}) => '${count} Mitglieder';
+	@override String get dissolveGroup => 'Gruppe auflösen';
+	@override String dissolveGroupTitle({required Object name}) => '「${name}」 auflösen?';
+	@override String get dissolveGroupBody => 'Das Auflösen ist nicht umkehrbar. Die Mitgliedschaft endet, Nachrichtenverlauf und Auditaufzeichnungen bleiben erhalten.';
+	@override String get channelSection => 'Unternehmenskanäle';
+	@override String get createChannel => 'Kanal anlegen';
+	@override String get channelNameHint => 'Kanalname';
+	@override String get channelPolicyNote => 'Unternehmenskanäle sind immer kostenlos und nicht öffentlich: kein öffentlicher Kanalverzeichniseintrag, Mitglieder abonnieren über den Arbeitsbereich.';
+	@override String get channelEmpty => 'Noch keine Unternehmenskanäle';
+	@override String channelSubscribers({required Object count}) => '${count} Abonnenten';
+	@override String get createChannelFailed => 'Kanal konnte nicht angelegt werden';
+	@override String get archiveChannel => 'Kanal archivieren';
+	@override String archiveChannelTitle({required Object name}) => '「${name}」 archivieren?';
+	@override String get archiveChannelBody => 'Ein archivierter Kanal verschwindet aus allen öffentlichen Ansichten und ist für Mitglieder nicht mehr sichtbar. Die Archivierung ist umkehrbar.';
+	@override String get restoreChannel => 'Wiederherstellen';
+	@override String get archivedChannelSection => 'Archivierte Kanäle';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -5063,6 +5121,54 @@ extension on TranslationsDeDe {
 			'organization.directory.deptSection' => 'Abteilungen',
 			'organization.directory.allMembersSection' => 'Alle Mitglieder',
 			'organization.directory.membersRestricted' => 'Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen.',
+			'organization.manage.entry' => 'Unternehmensverwaltung',
+			'organization.manage.entryRestricted' => 'Unternehmensverwaltung (nur Admins)',
+			'organization.manage.title' => 'Unternehmensverwaltung',
+			'organization.manage.orgNotFound' => 'Unternehmen nicht gefunden oder nicht sichtbar',
+			'organization.manage.roleLine' => ({required Object role}) => 'Meine Rolle: ${role}',
+			'organization.manage.readOnlyHint' => 'Unternehmensdaten nur lesbar; Verwaltungsaktionen nur für Inhaber/Admin',
+			'organization.manage.forbiddenTitle' => 'Keine Verwaltungsberechtigung',
+			'organization.manage.forbiddenBody' => 'Die Unternehmensverwaltung ist Inhaber und Admins vorbehalten. Bitte einen Admin, deine Rolle anzupassen.',
+			'organization.manage.workspaceSection' => 'Arbeitsbereiche',
+			'organization.manage.createWorkspace' => 'Arbeitsbereich anlegen',
+			'organization.manage.workspaceNameHint' => 'Name des Arbeitsbereichs',
+			'organization.manage.workspaceEmpty' => 'Noch keine Arbeitsbereiche',
+			'organization.manage.workspaceEmptyHint' => 'Du bist in diesem Unternehmen noch keinem Arbeitsbereich beigetreten. Lege oben rechts einen an.',
+			'organization.manage.workspaceScopeNote' => 'Hier erscheinen nur Arbeitsbereiche, denen du beigetreten bist; andere im Unternehmen nicht.',
+			'organization.manage.defaultBadge' => 'Standard-Arbeitsbereich',
+			'organization.manage.notDefaultBadge' => 'Nicht Standard',
+			'organization.manage.archivedBadge' => 'Archiviert',
+			'organization.manage.ownerBadge' => 'Ich bin Inhaber',
+			'organization.manage.memberBadge' => 'Ich bin Mitglied',
+			'organization.manage.setDefault' => 'Als Standard-Arbeitsbereich festlegen',
+			'organization.manage.archiveWorkspace' => 'Arbeitsbereich archivieren',
+			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => '「${name}」 archivieren?',
+			'organization.manage.archiveWorkspaceBody' => 'Ein archivierter Arbeitsbereich wird schreibgeschützt, seine Gruppen und Kanäle nehmen keine Schreibvorgänge mehr an. Ist er der Standard-Arbeitsbereich, lege zuerst einen Ersatz fest. Die Archivierung ist umkehrbar.',
+			'organization.manage.restoreWorkspace' => 'Arbeitsbereich wiederherstellen',
+			'organization.manage.resourceSection' => 'Gruppen und Kanäle',
+			'organization.manage.resourceNeedsWorkspace' => 'Für Gruppen und Kanäle wird zuerst ein Arbeitsbereich benötigt.',
+			'organization.manage.resourceLoadFailed' => ({required Object err}) => 'Laden fehlgeschlagen: ${err}',
+			'organization.manage.retry' => 'Erneut versuchen',
+			'organization.manage.groupSection' => 'Unternehmensgruppen',
+			'organization.manage.createGroup' => 'Gruppe anlegen',
+			'organization.manage.groupNameHint' => 'Gruppenname',
+			'organization.manage.groupEmpty' => 'Noch keine Unternehmensgruppen',
+			'organization.manage.groupMembers' => ({required Object count}) => '${count} Mitglieder',
+			'organization.manage.dissolveGroup' => 'Gruppe auflösen',
+			'organization.manage.dissolveGroupTitle' => ({required Object name}) => '「${name}」 auflösen?',
+			'organization.manage.dissolveGroupBody' => 'Das Auflösen ist nicht umkehrbar. Die Mitgliedschaft endet, Nachrichtenverlauf und Auditaufzeichnungen bleiben erhalten.',
+			'organization.manage.channelSection' => 'Unternehmenskanäle',
+			'organization.manage.createChannel' => 'Kanal anlegen',
+			'organization.manage.channelNameHint' => 'Kanalname',
+			'organization.manage.channelPolicyNote' => 'Unternehmenskanäle sind immer kostenlos und nicht öffentlich: kein öffentlicher Kanalverzeichniseintrag, Mitglieder abonnieren über den Arbeitsbereich.',
+			'organization.manage.channelEmpty' => 'Noch keine Unternehmenskanäle',
+			'organization.manage.channelSubscribers' => ({required Object count}) => '${count} Abonnenten',
+			'organization.manage.createChannelFailed' => 'Kanal konnte nicht angelegt werden',
+			'organization.manage.archiveChannel' => 'Kanal archivieren',
+			'organization.manage.archiveChannelTitle' => ({required Object name}) => '「${name}」 archivieren?',
+			'organization.manage.archiveChannelBody' => 'Ein archivierter Kanal verschwindet aus allen öffentlichen Ansichten und ist für Mitglieder nicht mehr sichtbar. Die Archivierung ist umkehrbar.',
+			'organization.manage.restoreChannel' => 'Wiederherstellen',
+			'organization.manage.archivedChannelSection' => 'Archivierte Kanäle',
 			'passport.loginHistoryToggle' => 'Anmeldeverlauf anzeigen',
 			'passport.hintEmail' => 'Bitte E-Mail eingeben',
 			'passport.hintMobile' => 'Bitte Mobilfunknummer eingeben',

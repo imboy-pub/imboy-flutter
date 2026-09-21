@@ -5,6 +5,7 @@ import 'package:imboy/config/error_code.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/store/model/workspace_model.dart' show EntityId;
 
 class GroupApi extends HttpClient {
   Future<Map<String, dynamic>?> page({
@@ -100,6 +101,58 @@ class GroupApi extends HttpClient {
               : null)
         : null;
   }
+
+  /// 工作区域建群（GZAPP-05；`scope=workspace` + `workspace_id`）。
+  ///
+  /// 与 [groupAdd] 的差别只有 scope 分区：服务端按 scope 校验成员资格
+  /// （非工作区成员 / 个人域 id 一律拒绝，客户端不预判）。
+  /// 返回 `(gid, error)`：error 非空即失败，gid 仅成功时有值。
+  Future<({String gid, String? error})> createWorkspaceGroup({
+    required EntityId workspaceId,
+    required List<String> memberUserIds,
+  }) async {
+    final resp = await post(
+      '/api/v1/group/add',
+      data: {
+        'member_uids': memberUserIds,
+        'scope': 'workspace',
+        'workspace_id': workspaceId,
+      },
+    );
+    if (!resp.ok) {
+      return (gid: '', error: _errText(resp));
+    }
+    final payload = resp.payload is Map<String, dynamic>
+        ? resp.payload as Map<String, dynamic>
+        : <String, dynamic>{};
+    final group = payload['group'];
+    final gid = group is Map<String, dynamic>
+        ? '${group['id'] ?? group['gid'] ?? ''}'
+        : '';
+    return (gid: gid, error: gid.isEmpty ? '建群应答缺少群 ID' : null);
+  }
+
+  /// 群名/title 编辑（建群后补名；`group/edit` 的 `title` 字段）。
+  Future<String?> editTitle({
+    required String gid,
+    required String title,
+  }) async {
+    final resp = await post(
+      '/api/v1/group/edit',
+      data: {'gid': gid, 'title': title},
+    );
+    return resp.ok ? null : _errText(resp);
+  }
+
+  /// 解散群（群主 **或** 所属企业 owner/admin，GZAPP-03 双授权源）。
+  /// 返回 null = 成功；非 null = 服务端文案（页面原样透出）。
+  Future<String?> dissolveWithReason({required String gid}) async {
+    final resp = await post('/api/v1/group/dissolve', data: {'gid': gid});
+    return resp.ok ? null : _errText(resp);
+  }
+
+  String _errText(IMBoyHttpResponse resp) =>
+      resp.msg.isEmpty ? '${resp.code}' : '${resp.msg} (${resp.code})';
 
   /// 面对面建群
   Future<Map<String, dynamic>> groupFace2face({

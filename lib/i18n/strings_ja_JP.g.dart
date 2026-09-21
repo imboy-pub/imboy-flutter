@@ -2348,6 +2348,7 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$ja_JP departments = _Translations$organization$departments$ja_JP._(_root);
 	@override late final _Translations$organization$picker$ja_JP picker = _Translations$organization$picker$ja_JP._(_root);
 	@override late final _Translations$organization$directory$ja_JP directory = _Translations$organization$directory$ja_JP._(_root);
+	@override late final _Translations$organization$manage$ja_JP manage = _Translations$organization$manage$ja_JP._(_root);
 }
 
 // Path: passport
@@ -2876,6 +2877,63 @@ class _Translations$organization$directory$ja_JP extends Translations$organizati
 	@override String get deptSection => '部門';
 	@override String get allMembersSection => 'すべてのメンバー';
 	@override String get membersRestricted => 'メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。';
+}
+
+// Path: organization.manage
+class _Translations$organization$manage$ja_JP extends Translations$organization$manage$zh_CN {
+	_Translations$organization$manage$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get entry => '企業管理';
+	@override String get entryRestricted => '企業管理（管理者のみ）';
+	@override String get title => '企業管理';
+	@override String get orgNotFound => '企業が存在しないか、表示権限がありません';
+	@override String roleLine({required Object role}) => '自分の役割：${role}';
+	@override String get readOnlyHint => '企業情報は閲覧のみ。管理操作はオーナー／管理者のみ可能です';
+	@override String get forbiddenTitle => '管理権限がありません';
+	@override String get forbiddenBody => '企業管理はオーナーと管理者のみが利用できます。必要なら管理者に役割の変更を依頼してください。';
+	@override String get workspaceSection => 'ワークスペース';
+	@override String get createWorkspace => 'ワークスペースを作成';
+	@override String get workspaceNameHint => 'ワークスペース名';
+	@override String get workspaceEmpty => 'ワークスペースがありません';
+	@override String get workspaceEmptyHint => 'この企業であなたが参加しているワークスペースはまだありません。右上から作成できます。';
+	@override String get workspaceScopeNote => 'ここにはあなたが参加済みのワークスペースのみ表示されます。同じ企業内でも未参加のものは表示されません。';
+	@override String get defaultBadge => '既定のワークスペース';
+	@override String get notDefaultBadge => '既定ではない';
+	@override String get archivedBadge => 'アーカイブ済み';
+	@override String get ownerBadge => '自分がオーナー';
+	@override String get memberBadge => '自分はメンバー';
+	@override String get setDefault => '既定のワークスペースに設定';
+	@override String get archiveWorkspace => 'ワークスペースをアーカイブ';
+	@override String archiveWorkspaceTitle({required Object name}) => '「${name}」をアーカイブしますか？';
+	@override String get archiveWorkspaceBody => 'アーカイブするとワークスペースは閲覧のみとなり、配下のグループとチャンネルも書き込みを停止します。企業の既定ワークスペースの場合は、先に代替を指定してください。アーカイブは元に戻せます。';
+	@override String get restoreWorkspace => 'ワークスペースを復元';
+	@override String get resourceSection => 'グループとチャンネル';
+	@override String get resourceNeedsWorkspace => 'グループとチャンネルを管理するには、先にワークスペースが必要です。';
+	@override String resourceLoadFailed({required Object err}) => '読み込みに失敗しました：${err}';
+	@override String get retry => '再試行';
+	@override String get groupSection => '企業グループ';
+	@override String get createGroup => 'グループを作成';
+	@override String get groupNameHint => 'グループ名';
+	@override String get groupEmpty => '企業グループがありません';
+	@override String groupMembers({required Object count}) => 'メンバー ${count}';
+	@override String get dissolveGroup => 'グループを解散';
+	@override String dissolveGroupTitle({required Object name}) => '「${name}」を解散しますか？';
+	@override String get dissolveGroupBody => '解散は元に戻せません。メンバー関係は終了しますが、履歴メッセージと監査記録は保持されます。';
+	@override String get channelSection => '企業チャンネル';
+	@override String get createChannel => 'チャンネルを作成';
+	@override String get channelNameHint => 'チャンネル名';
+	@override String get channelPolicyNote => '企業チャンネルは常に「無料＋非公開」です。公開検索には出ず、メンバーはワークスペース経由で購読します。';
+	@override String get channelEmpty => '企業チャンネルがありません';
+	@override String channelSubscribers({required Object count}) => '購読 ${count}';
+	@override String get createChannelFailed => 'チャンネルの作成に失敗しました';
+	@override String get archiveChannel => 'チャンネルをアーカイブ';
+	@override String archiveChannelTitle({required Object name}) => '「${name}」をアーカイブしますか？';
+	@override String get archiveChannelBody => 'アーカイブするとチャンネルは公開面から外れ、メンバーにも表示されません。アーカイブは元に戻せます。';
+	@override String get restoreChannel => '復元';
+	@override String get archivedChannelSection => 'アーカイブ済みチャンネル';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -5060,6 +5118,54 @@ extension on TranslationsJaJp {
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => 'すべてのメンバー',
 			'organization.directory.membersRestricted' => 'メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。',
+			'organization.manage.entry' => '企業管理',
+			'organization.manage.entryRestricted' => '企業管理（管理者のみ）',
+			'organization.manage.title' => '企業管理',
+			'organization.manage.orgNotFound' => '企業が存在しないか、表示権限がありません',
+			'organization.manage.roleLine' => ({required Object role}) => '自分の役割：${role}',
+			'organization.manage.readOnlyHint' => '企業情報は閲覧のみ。管理操作はオーナー／管理者のみ可能です',
+			'organization.manage.forbiddenTitle' => '管理権限がありません',
+			'organization.manage.forbiddenBody' => '企業管理はオーナーと管理者のみが利用できます。必要なら管理者に役割の変更を依頼してください。',
+			'organization.manage.workspaceSection' => 'ワークスペース',
+			'organization.manage.createWorkspace' => 'ワークスペースを作成',
+			'organization.manage.workspaceNameHint' => 'ワークスペース名',
+			'organization.manage.workspaceEmpty' => 'ワークスペースがありません',
+			'organization.manage.workspaceEmptyHint' => 'この企業であなたが参加しているワークスペースはまだありません。右上から作成できます。',
+			'organization.manage.workspaceScopeNote' => 'ここにはあなたが参加済みのワークスペースのみ表示されます。同じ企業内でも未参加のものは表示されません。',
+			'organization.manage.defaultBadge' => '既定のワークスペース',
+			'organization.manage.notDefaultBadge' => '既定ではない',
+			'organization.manage.archivedBadge' => 'アーカイブ済み',
+			'organization.manage.ownerBadge' => '自分がオーナー',
+			'organization.manage.memberBadge' => '自分はメンバー',
+			'organization.manage.setDefault' => '既定のワークスペースに設定',
+			'organization.manage.archiveWorkspace' => 'ワークスペースをアーカイブ',
+			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => '「${name}」をアーカイブしますか？',
+			'organization.manage.archiveWorkspaceBody' => 'アーカイブするとワークスペースは閲覧のみとなり、配下のグループとチャンネルも書き込みを停止します。企業の既定ワークスペースの場合は、先に代替を指定してください。アーカイブは元に戻せます。',
+			'organization.manage.restoreWorkspace' => 'ワークスペースを復元',
+			'organization.manage.resourceSection' => 'グループとチャンネル',
+			'organization.manage.resourceNeedsWorkspace' => 'グループとチャンネルを管理するには、先にワークスペースが必要です。',
+			'organization.manage.resourceLoadFailed' => ({required Object err}) => '読み込みに失敗しました：${err}',
+			'organization.manage.retry' => '再試行',
+			'organization.manage.groupSection' => '企業グループ',
+			'organization.manage.createGroup' => 'グループを作成',
+			'organization.manage.groupNameHint' => 'グループ名',
+			'organization.manage.groupEmpty' => '企業グループがありません',
+			'organization.manage.groupMembers' => ({required Object count}) => 'メンバー ${count}',
+			'organization.manage.dissolveGroup' => 'グループを解散',
+			'organization.manage.dissolveGroupTitle' => ({required Object name}) => '「${name}」を解散しますか？',
+			'organization.manage.dissolveGroupBody' => '解散は元に戻せません。メンバー関係は終了しますが、履歴メッセージと監査記録は保持されます。',
+			'organization.manage.channelSection' => '企業チャンネル',
+			'organization.manage.createChannel' => 'チャンネルを作成',
+			'organization.manage.channelNameHint' => 'チャンネル名',
+			'organization.manage.channelPolicyNote' => '企業チャンネルは常に「無料＋非公開」です。公開検索には出ず、メンバーはワークスペース経由で購読します。',
+			'organization.manage.channelEmpty' => '企業チャンネルがありません',
+			'organization.manage.channelSubscribers' => ({required Object count}) => '購読 ${count}',
+			'organization.manage.createChannelFailed' => 'チャンネルの作成に失敗しました',
+			'organization.manage.archiveChannel' => 'チャンネルをアーカイブ',
+			'organization.manage.archiveChannelTitle' => ({required Object name}) => '「${name}」をアーカイブしますか？',
+			'organization.manage.archiveChannelBody' => 'アーカイブするとチャンネルは公開面から外れ、メンバーにも表示されません。アーカイブは元に戻せます。',
+			'organization.manage.restoreChannel' => '復元',
+			'organization.manage.archivedChannelSection' => 'アーカイブ済みチャンネル',
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',

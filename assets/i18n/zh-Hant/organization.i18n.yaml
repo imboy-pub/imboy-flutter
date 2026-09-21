@@ -158,3 +158,53 @@ directory:
   deptSection: 部門
   allMembersSection: 全部成員
   membersRestricted: 全員名單僅企業管理員可見；可展開部門查看部門成員。
+# ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
+manage:
+  entry: 企業管理
+  entryRestricted: 企業管理（僅管理員）
+  title: 企業管理
+  orgNotFound: 企業不存在或你無權檢視
+  roleLine: "我的角色：${role}"
+  readOnlyHint: 企業現狀唯讀；管理動作僅企業擁有者／管理員可用
+  forbiddenTitle: 無管理權限
+  forbiddenBody: 企業管理僅對企業擁有者與管理員開放；需要時請聯絡管理員調整你的角色。
+  workspaceSection: 工作區
+  createWorkspace: 新增工作區
+  workspaceNameHint: 工作區名稱
+  workspaceEmpty: 尚無工作區
+  workspaceEmptyHint: 目前企業下還沒有你加入的工作區，可用右上方新增。
+  workspaceScopeNote: 這裡只列出你已加入的工作區；同企業內你未加入的工作區不會出現。
+  defaultBadge: 預設工作區
+  notDefaultBadge: 非預設
+  archivedBadge: 已封存
+  ownerBadge: 我是擁有者
+  memberBadge: 我是成員
+  setDefault: 設為預設工作區
+  archiveWorkspace: 封存工作區
+  archiveWorkspaceTitle: "封存「${name}」？"
+  archiveWorkspaceBody: 封存後該工作區進入唯讀，其群與頻道一併停寫；若它是企業預設工作區，請先指定替代工作區。封存可還原。
+  restoreWorkspace: 還原工作區
+  resourceSection: 群與頻道
+  resourceNeedsWorkspace: 需要先有工作區，才能治理群與頻道。
+  resourceLoadFailed: "載入失敗：${err}"
+  retry: 重試
+  groupSection: 企業群
+  createGroup: 新增群
+  groupNameHint: 群名稱
+  groupEmpty: 尚無企業群
+  groupMembers: "成員 ${count}"
+  dissolveGroup: 解散群
+  dissolveGroupTitle: "解散「${name}」？"
+  dissolveGroupBody: 解散不可還原；成員關係會終止，但歷史訊息與稽核記錄保留。
+  channelSection: 企業頻道
+  createChannel: 新增頻道
+  channelNameHint: 頻道名稱
+  channelPolicyNote: "企業頻道固定為「免費 + 非公開」：不進入公開探索，成員經工作區訂閱。"
+  channelEmpty: 尚無企業頻道
+  channelSubscribers: "訂閱 ${count}"
+  createChannelFailed: 頻道建立失敗
+  archiveChannel: 封存頻道
+  archiveChannelTitle: "封存「${name}」？"
+  archiveChannelBody: 封存後頻道退出公開面，成員不再看到；封存可還原。
+  restoreChannel: 還原
+  archivedChannelSection: 已封存頻道

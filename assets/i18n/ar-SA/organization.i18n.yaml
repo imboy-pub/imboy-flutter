@@ -158,3 +158,53 @@ directory:
   deptSection: "الأقسام"
   allMembersSection: "جميع الأعضاء"
   membersRestricted: "قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه."
+# ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
+manage:
+  entry: إدارة المؤسسة
+  entryRestricted: إدارة المؤسسة (للمسؤولين فقط)
+  title: إدارة المؤسسة
+  orgNotFound: المؤسسة غير موجودة أو لا تملك صلاحية عرضها
+  roleLine: "دوري: ${role}"
+  readOnlyHint: بيانات المؤسسة للقراءة فقط؛ إجراءات الإدارة متاحة للمالك أو المسؤول
+  forbiddenTitle: لا تملك صلاحية الإدارة
+  forbiddenBody: إدارة المؤسسة متاحة للمالك والمسؤولين فقط. اطلب من المسؤول تعديل دورك عند الحاجة.
+  workspaceSection: مساحات العمل
+  createWorkspace: مساحة عمل جديدة
+  workspaceNameHint: اسم مساحة العمل
+  workspaceEmpty: لا توجد مساحات عمل بعد
+  workspaceEmptyHint: لم تنضم بعد إلى أي مساحة عمل في هذه المؤسسة. أنشئ واحدة من الزر أعلى اليمين.
+  workspaceScopeNote: تُعرض فقط مساحات العمل التي انضممت إليها؛ أما غيرها في المؤسسة فلا يظهر هنا.
+  defaultBadge: مساحة العمل الافتراضية
+  notDefaultBadge: ليست الافتراضية
+  archivedBadge: مؤرشفة
+  ownerBadge: أنا المالك
+  memberBadge: أنا عضو
+  setDefault: تعيين كمساحة عمل افتراضية
+  archiveWorkspace: أرشفة مساحة العمل
+  archiveWorkspaceTitle: "أرشفة 「${name}」؟"
+  archiveWorkspaceBody: بعد الأرشفة تصبح مساحة العمل للقراءة فقط وتتوقف مجموعاتها وقنواتها عن الكتابة. إن كانت مساحة العمل الافتراضية للمؤسسة فحدِّد بديلاً أولاً. يمكن التراجع عن الأرشفة.
+  restoreWorkspace: استعادة مساحة العمل
+  resourceSection: المجموعات والقنوات
+  resourceNeedsWorkspace: تحتاج إلى مساحة عمل أولاً لإدارة المجموعات والقنوات.
+  resourceLoadFailed: "فشل التحميل: ${err}"
+  retry: إعادة المحاولة
+  groupSection: مجموعات المؤسسة
+  createGroup: مجموعة جديدة
+  groupNameHint: اسم المجموعة
+  groupEmpty: لا توجد مجموعات مؤسسة بعد
+  groupMembers: "الأعضاء ${count}"
+  dissolveGroup: حل المجموعة
+  dissolveGroupTitle: "حل 「${name}」؟"
+  dissolveGroupBody: الحل غير قابل للتراجع؛ تنتهي العضوية لكن تبقى الرسائل السابقة وسجلات التدقيق.
+  channelSection: قنوات المؤسسة
+  createChannel: قناة جديدة
+  channelNameHint: اسم القناة
+  channelPolicyNote: "قنوات المؤسسة مجانية وغير عامة دائماً: لا تظهر في الاستكشاف العام، ويشترك الأعضاء عبرها من مساحة العمل."
+  channelEmpty: لا توجد قنوات مؤسسة بعد
+  channelSubscribers: "المشتركون ${count}"
+  createChannelFailed: فشل إنشاء القناة
+  archiveChannel: أرشفة القناة
+  archiveChannelTitle: "أرشفة 「${name}」؟"
+  archiveChannelBody: بعد الأرشفة تخرج القناة من الواجهات العامة ولن يراها الأعضاء. يمكن التراجع عن الأرشفة.
+  restoreChannel: استعادة
+  archivedChannelSection: القنوات المؤرشفة

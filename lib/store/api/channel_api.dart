@@ -123,6 +123,30 @@ class ChannelApi extends HttpClient {
     return resp.ok;
   }
 
+  /// 归档频道（GZAPP-02/G4 契约：`POST /channel/:id/archive`）。
+  ///
+  /// 权限为「频道创建者 或 所属企业 owner/admin」（GZAPP-03）；服务端 403
+  /// 是唯一裁决。工作区已归档时同事务 980 拒绝。返回 null = 成功，
+  /// 非 null = 服务端错误文案（页面原样透出，不叠兜底）。
+  Future<String?> archiveChannel(String channelId) async {
+    final resp = await post(
+      '/api/v1/channel/$channelId/archive',
+      data: <String, dynamic>{},
+    );
+    if (resp.ok) return null;
+    return resp.msg.isEmpty ? '${resp.code}' : '${resp.msg} (${resp.code})';
+  }
+
+  /// 恢复频道（仅归档态可恢复；非归档态服务端 409）。
+  Future<String?> restoreChannel(String channelId) async {
+    final resp = await post(
+      '/api/v1/channel/$channelId/restore',
+      data: <String, dynamic>{},
+    );
+    if (resp.ok) return null;
+    return resp.msg.isEmpty ? '${resp.code}' : '${resp.msg} (${resp.code})';
+  }
+
   // ==================== 订阅管理 ====================
 
   /// 订阅频道

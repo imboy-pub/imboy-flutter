@@ -158,3 +158,53 @@ directory:
   deptSection: "부서"
   allMembersSection: "전체 멤버"
   membersRestricted: "전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요."
+# ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
+manage:
+  entry: 기업 관리
+  entryRestricted: 기업 관리(관리자 전용)
+  title: 기업 관리
+  orgNotFound: 기업이 없거나 볼 권한이 없습니다
+  roleLine: "내 역할: ${role}"
+  readOnlyHint: 기업 정보는 읽기 전용이며, 관리 작업은 소유자/관리자만 가능합니다
+  forbiddenTitle: 관리 권한 없음
+  forbiddenBody: 기업 관리는 소유자와 관리자만 사용할 수 있습니다. 필요하면 관리자에게 역할 변경을 요청하세요.
+  workspaceSection: 워크스페이스
+  createWorkspace: 워크스페이스 만들기
+  workspaceNameHint: 워크스페이스 이름
+  workspaceEmpty: 워크스페이스가 없습니다
+  workspaceEmptyHint: 이 기업에서 아직 참여한 워크스페이스가 없습니다. 오른쪽 위에서 만들 수 있습니다.
+  workspaceScopeNote: 여기에는 이미 참여한 워크스페이스만 표시됩니다. 같은 기업이라도 참여하지 않은 워크스페이스는 나오지 않습니다.
+  defaultBadge: 기본 워크스페이스
+  notDefaultBadge: 기본 아님
+  archivedBadge: 보관됨
+  ownerBadge: 내가 소유자
+  memberBadge: 내가 멤버
+  setDefault: 기본 워크스페이스로 지정
+  archiveWorkspace: 워크스페이스 보관
+  archiveWorkspaceTitle: "「${name}」을(를) 보관할까요?"
+  archiveWorkspaceBody: 보관하면 워크스페이스는 읽기 전용이 되고 하위 그룹과 채널도 쓰기가 중지됩니다. 기업 기본 워크스페이스라면 먼저 대체를 지정하세요. 보관은 되돌릴 수 있습니다.
+  restoreWorkspace: 워크스페이스 복원
+  resourceSection: 그룹과 채널
+  resourceNeedsWorkspace: 그룹과 채널을 관리하려면 먼저 워크스페이스가 필요합니다.
+  resourceLoadFailed: "불러오기 실패: ${err}"
+  retry: 다시 시도
+  groupSection: 기업 그룹
+  createGroup: 그룹 만들기
+  groupNameHint: 그룹 이름
+  groupEmpty: 기업 그룹이 없습니다
+  groupMembers: "멤버 ${count}"
+  dissolveGroup: 그룹 해산
+  dissolveGroupTitle: "「${name}」을(를) 해산할까요?"
+  dissolveGroupBody: 해산은 되돌릴 수 없습니다. 멤버 관계는 종료되지만 과거 메시지와 감사 기록은 보존됩니다.
+  channelSection: 기업 채널
+  createChannel: 채널 만들기
+  channelNameHint: 채널 이름
+  channelPolicyNote: 기업 채널은 항상 무료·비공개입니다. 공개 탐색에 노출되지 않고 멤버는 워크스페이스를 통해 구독합니다.
+  channelEmpty: 기업 채널이 없습니다
+  channelSubscribers: "구독 ${count}"
+  createChannelFailed: 채널 생성에 실패했습니다
+  archiveChannel: 채널 보관
+  archiveChannelTitle: "「${name}」을(를) 보관할까요?"
+  archiveChannelBody: 보관하면 채널이 공개 영역에서 빠지고 멤버에게도 보이지 않습니다. 보관은 되돌릴 수 있습니다.
+  restoreChannel: 복원
+  archivedChannelSection: 보관된 채널

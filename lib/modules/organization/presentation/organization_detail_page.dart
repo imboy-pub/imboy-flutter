@@ -349,6 +349,19 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
         onTap: () =>
             context.push('$kOrganizationHomePath/${org.id}/departments'),
       ),
+      // GZAPP-05：企业管理（工作区/群/频道治理）。入口按角色隐藏，
+      // 直达路由仍可达——页面自己给只读 + 无权限态（服务端 403 才是裁决）。
+      ListTile(
+        key: const ValueKey('organization-detail-manage-entry'),
+        leading: const Icon(CupertinoIcons.slider_horizontal_3),
+        title: Text(
+          canGovern
+              ? t.organization.manage.entry
+              : t.organization.manage.entryRestricted,
+        ),
+        trailing: const Icon(CupertinoIcons.chevron_right),
+        onTap: () => context.push('$kOrganizationHomePath/${org.id}/manage'),
+      ),
     ];
   }
 

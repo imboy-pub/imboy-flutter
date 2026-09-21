@@ -158,3 +158,53 @@ directory:
   deptSection: "部門"
   allMembersSection: "すべてのメンバー"
   membersRestricted: "メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。"
+# ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
+manage:
+  entry: 企業管理
+  entryRestricted: 企業管理（管理者のみ）
+  title: 企業管理
+  orgNotFound: 企業が存在しないか、表示権限がありません
+  roleLine: "自分の役割：${role}"
+  readOnlyHint: 企業情報は閲覧のみ。管理操作はオーナー／管理者のみ可能です
+  forbiddenTitle: 管理権限がありません
+  forbiddenBody: 企業管理はオーナーと管理者のみが利用できます。必要なら管理者に役割の変更を依頼してください。
+  workspaceSection: ワークスペース
+  createWorkspace: ワークスペースを作成
+  workspaceNameHint: ワークスペース名
+  workspaceEmpty: ワークスペースがありません
+  workspaceEmptyHint: この企業であなたが参加しているワークスペースはまだありません。右上から作成できます。
+  workspaceScopeNote: ここにはあなたが参加済みのワークスペースのみ表示されます。同じ企業内でも未参加のものは表示されません。
+  defaultBadge: 既定のワークスペース
+  notDefaultBadge: 既定ではない
+  archivedBadge: アーカイブ済み
+  ownerBadge: 自分がオーナー
+  memberBadge: 自分はメンバー
+  setDefault: 既定のワークスペースに設定
+  archiveWorkspace: ワークスペースをアーカイブ
+  archiveWorkspaceTitle: "「${name}」をアーカイブしますか？"
+  archiveWorkspaceBody: アーカイブするとワークスペースは閲覧のみとなり、配下のグループとチャンネルも書き込みを停止します。企業の既定ワークスペースの場合は、先に代替を指定してください。アーカイブは元に戻せます。
+  restoreWorkspace: ワークスペースを復元
+  resourceSection: グループとチャンネル
+  resourceNeedsWorkspace: グループとチャンネルを管理するには、先にワークスペースが必要です。
+  resourceLoadFailed: "読み込みに失敗しました：${err}"
+  retry: 再試行
+  groupSection: 企業グループ
+  createGroup: グループを作成
+  groupNameHint: グループ名
+  groupEmpty: 企業グループがありません
+  groupMembers: "メンバー ${count}"
+  dissolveGroup: グループを解散
+  dissolveGroupTitle: "「${name}」を解散しますか？"
+  dissolveGroupBody: 解散は元に戻せません。メンバー関係は終了しますが、履歴メッセージと監査記録は保持されます。
+  channelSection: 企業チャンネル
+  createChannel: チャンネルを作成
+  channelNameHint: チャンネル名
+  channelPolicyNote: "企業チャンネルは常に「無料＋非公開」です。公開検索には出ず、メンバーはワークスペース経由で購読します。"
+  channelEmpty: 企業チャンネルがありません
+  channelSubscribers: "購読 ${count}"
+  createChannelFailed: チャンネルの作成に失敗しました
+  archiveChannel: チャンネルをアーカイブ
+  archiveChannelTitle: "「${name}」をアーカイブしますか？"
+  archiveChannelBody: アーカイブするとチャンネルは公開面から外れ、メンバーにも表示されません。アーカイブは元に戻せます。
+  restoreChannel: 復元
+  archivedChannelSection: アーカイブ済みチャンネル

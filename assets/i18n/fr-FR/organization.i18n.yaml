@@ -158,3 +158,53 @@ directory:
   deptSection: "Départements"
   allMembersSection: "Tous les membres"
   membersRestricted: "La liste complète des membres n'est visible que par les administrateurs de l'entreprise ; ouvrez un département pour voir ses membres."
+# ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
+manage:
+  entry: "Gestion de l'entreprise"
+  entryRestricted: "Gestion de l'entreprise (admins uniquement)"
+  title: "Gestion de l'entreprise"
+  orgNotFound: Entreprise introuvable ou non visible
+  roleLine: "Mon rôle : ${role}"
+  readOnlyHint: Consultation seule ; les actions de gestion sont réservées au propriétaire ou aux admins
+  forbiddenTitle: Aucune permission de gestion
+  forbiddenBody: "La gestion de l'entreprise est réservée au propriétaire et aux admins. Demandez à un admin de modifier votre rôle."
+  workspaceSection: Espaces de travail
+  createWorkspace: Créer un espace de travail
+  workspaceNameHint: "Nom de l'espace de travail"
+  workspaceEmpty: Aucun espace de travail
+  workspaceEmptyHint: "Vous n'avez encore rejoint aucun espace de travail dans cette entreprise. Créez-en un via le bouton en haut à droite."
+  workspaceScopeNote: "Seuls les espaces de travail que vous avez rejoints sont listés ; les autres espaces de l'entreprise n'apparaissent pas."
+  defaultBadge: Espace de travail par défaut
+  notDefaultBadge: Non par défaut
+  archivedBadge: Archivé
+  ownerBadge: Je suis propriétaire
+  memberBadge: Je suis membre
+  setDefault: Définir comme espace par défaut
+  archiveWorkspace: "Archiver l'espace de travail"
+  archiveWorkspaceTitle: "Archiver « ${name} » ?"
+  archiveWorkspaceBody: "Un espace archivé passe en lecture seule et ses groupes et canaux n'acceptent plus d'écriture. S'il s'agit de l'espace par défaut, définissez d'abord un remplaçant. L'archivage est réversible."
+  restoreWorkspace: "Restaurer l'espace de travail"
+  resourceSection: Groupes et canaux
+  resourceNeedsWorkspace: Un espace de travail est nécessaire avant de gérer les groupes et canaux.
+  resourceLoadFailed: "Échec du chargement : ${err}"
+  retry: Réessayer
+  groupSection: "Groupes de l'entreprise"
+  createGroup: Créer un groupe
+  groupNameHint: Nom du groupe
+  groupEmpty: "Aucun groupe d'entreprise"
+  groupMembers: "${count} membres"
+  dissolveGroup: Dissoudre le groupe
+  dissolveGroupTitle: "Dissoudre « ${name} » ?"
+  dissolveGroupBody: "La dissolution est irréversible : l'adhésion prend fin, mais l'historique des messages et les journaux d'audit sont conservés."
+  channelSection: "Canaux de l'entreprise"
+  createChannel: Créer un canal
+  channelNameHint: Nom du canal
+  channelPolicyNote: "Les canaux d'entreprise sont toujours gratuits et non publics : ils n'apparaissent pas dans la découverte publique, les membres s'abonnent via l'espace de travail."
+  channelEmpty: "Aucun canal d'entreprise"
+  channelSubscribers: "${count} abonnés"
+  createChannelFailed: Échec de la création du canal
+  archiveChannel: Archiver le canal
+  archiveChannelTitle: "Archiver « ${name} » ?"
+  archiveChannelBody: "Un canal archivé quitte toutes les surfaces publiques et n'est plus visible des membres. L'archivage est réversible."
+  restoreChannel: Restaurer
+  archivedChannelSection: Canaux archivés

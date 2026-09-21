@@ -158,3 +158,53 @@ directory:
   deptSection: "Departments"
   allMembersSection: "All members"
   membersRestricted: "The full member list is visible to enterprise admins only; expand a department to see its members."
+# ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
+manage:
+  entry: Enterprise management
+  entryRestricted: Enterprise management (admins only)
+  title: Enterprise management
+  orgNotFound: Enterprise not found, or you cannot view it
+  roleLine: "My role: ${role}"
+  readOnlyHint: Read-only facts; management actions require owner/admin
+  forbiddenTitle: No management permission
+  forbiddenBody: Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.
+  workspaceSection: Workspaces
+  createWorkspace: New workspace
+  workspaceNameHint: Workspace name
+  workspaceEmpty: No workspaces yet
+  workspaceEmptyHint: You have not joined a workspace in this enterprise yet. Create one from the top-right action.
+  workspaceScopeNote: Only workspaces you have joined are listed; other workspaces in this enterprise do not appear.
+  defaultBadge: Default workspace
+  notDefaultBadge: Not default
+  archivedBadge: Archived
+  ownerBadge: I am the owner
+  memberBadge: I am a member
+  setDefault: Set as default workspace
+  archiveWorkspace: Archive workspace
+  archiveWorkspaceTitle: "Archive 「${name}」?"
+  archiveWorkspaceBody: An archived workspace becomes read-only and its groups and channels stop accepting writes. If it is the enterprise default workspace, set a replacement first. Archiving can be undone.
+  restoreWorkspace: Restore workspace
+  resourceSection: Groups and channels
+  resourceNeedsWorkspace: A workspace is required before managing groups and channels.
+  resourceLoadFailed: "Load failed: ${err}"
+  retry: Retry
+  groupSection: Enterprise groups
+  createGroup: New group
+  groupNameHint: Group name
+  groupEmpty: No enterprise groups yet
+  groupMembers: "${count} members"
+  dissolveGroup: Dissolve group
+  dissolveGroupTitle: "Dissolve 「${name}」?"
+  dissolveGroupBody: Dissolving cannot be undone. Membership ends, but message history and audit records are kept.
+  channelSection: Enterprise channels
+  createChannel: New channel
+  channelNameHint: Channel name
+  channelPolicyNote: "Enterprise channels are always free and non-public: they never appear in public discovery, and members subscribe through the workspace."
+  channelEmpty: No enterprise channels yet
+  channelSubscribers: "${count} subscribers"
+  createChannelFailed: Failed to create the channel
+  archiveChannel: Archive channel
+  archiveChannelTitle: "Archive 「${name}」?"
+  archiveChannelBody: An archived channel leaves all public surfaces and members no longer see it. Archiving can be undone.
+  restoreChannel: Restore
+  archivedChannelSection: Archived channels

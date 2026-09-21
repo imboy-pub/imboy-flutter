@@ -111,6 +111,11 @@ class WorkspaceModel {
   final WorkspaceStatus status;
   final WorkspaceBranding branding;
 
+  /// 归属企业（`organization_id`）；空 = 个人域工作区。
+  /// 服务端 mine/detail 投影都带该列，客户端此前未解析——企业治理面
+  /// 需要它来把工作区归到当前企业下（没有它就只能列「我全部工作区」）。
+  final EntityId organizationId;
+
   const WorkspaceModel({
     required this.id,
     required this.name,
@@ -118,6 +123,7 @@ class WorkspaceModel {
     required this.ownerId,
     this.status = WorkspaceStatus.active,
     this.branding = const WorkspaceBranding(),
+    this.organizationId = '',
   });
 
   factory WorkspaceModel.fromJson(Map<String, dynamic> json) {
@@ -131,6 +137,7 @@ class WorkspaceModel {
       branding: brandingRaw is Map<String, dynamic>
           ? WorkspaceBranding.fromJson(brandingRaw)
           : const WorkspaceBranding(),
+      organizationId: entityIdOf(json['organization_id']),
     );
   }
 
@@ -147,8 +154,13 @@ class WorkspaceModel {
       ownerId: ownerId,
       status: status,
       branding: branding,
+      organizationId: organizationId,
     );
   }
+
+  /// 是否归属给定企业（个人域工作区对任何企业都为 false）。
+  bool belongsToOrg(EntityId orgId) =>
+      orgId.isNotEmpty && organizationId == orgId;
 }
 
 /// Template 原子创建结果（I13：全成或全回滚，request_id 幂等）。
@@ -208,9 +220,8 @@ class WorkspaceInviteCode {
   String get expiresAtLabel {
     final ts = int.tryParse(expiresAt);
     if (ts == null || ts <= 0) return expiresAt;
-    return DateFormat(
-      'yyyy-MM-dd HH:mm',
-    ).format(DateTime.fromMillisecondsSinceEpoch(ts));
+    return DateFormat('yyyy-MM-dd HH:mm')
+        .format(DateTime.fromMillisecondsSinceEpoch(ts));
   }
 }
 
