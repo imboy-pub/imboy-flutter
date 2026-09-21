@@ -1,4 +1,3 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,17 +34,6 @@ class UserApi extends HttpClient {
 
   /// 获取单例实例
   static UserApi get to => _instance;
-  Future<Map<String, dynamic>> turnCredential() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.none)) {
-      return {};
-    }
-    IMBoyHttpResponse resp = await get(API.turnCredential);
-    if (!resp.ok) {
-      return {};
-    }
-    return IMBoyHttpResponse.payloadAsMap(resp.payload);
-  }
 
   Future<String> refreshAccessTokenApi(
     String refreshToken, {
@@ -58,9 +46,8 @@ class UserApi extends HttpClient {
     }
     Map<String, dynamic> headers = await defaultHeaders();
     headers[Keys.refreshTokenKey] = refreshToken;
-    var response = await Dio(
-      BaseOptions(baseUrl: Env().apiBaseUrl),
-    ).post<dynamic>(API.refreshToken, options: Options(headers: headers));
+    var response = await Dio(BaseOptions(baseUrl: Env().apiBaseUrl))
+        .post<dynamic>(API.refreshToken, options: Options(headers: headers));
     // iPrint("refreshAccessTokenApi ${response.toString()}");
     // iPrint("refreshAccessTokenApi refreshToken $refreshToken");
     IMBoyHttpResponse resp = handleResponse(response, uri: API.refreshToken);
