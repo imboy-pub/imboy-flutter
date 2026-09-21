@@ -2895,6 +2895,7 @@ class _Translations$organization$manage$fr_FR extends Translations$organization$
 	@override String get orgNotFound => 'Entreprise introuvable ou non visible';
 	@override String roleLine({required Object role}) => 'Mon rôle : ${role}';
 	@override String get readOnlyHint => 'Consultation seule ; les actions de gestion sont réservées au propriétaire ou aux admins';
+	@override String get workspaceOwnerHint => 'Seuls les espaces de travail que vous possédez sont affichés ; les actions au niveau de l\'entreprise (créer un espace, définir par défaut) nécessitent le propriétaire ou un admin.';
 	@override String get forbiddenTitle => 'Aucune permission de gestion';
 	@override String get forbiddenBody => 'La gestion de l\'entreprise est réservée au propriétaire et aux admins. Demandez à un admin de modifier votre rôle.';
 	@override String get workspaceSection => 'Espaces de travail';
@@ -5127,6 +5128,7 @@ extension on TranslationsFrFr {
 			'organization.manage.orgNotFound' => 'Entreprise introuvable ou non visible',
 			'organization.manage.roleLine' => ({required Object role}) => 'Mon rôle : ${role}',
 			'organization.manage.readOnlyHint' => 'Consultation seule ; les actions de gestion sont réservées au propriétaire ou aux admins',
+			'organization.manage.workspaceOwnerHint' => 'Seuls les espaces de travail que vous possédez sont affichés ; les actions au niveau de l\'entreprise (créer un espace, définir par défaut) nécessitent le propriétaire ou un admin.',
 			'organization.manage.forbiddenTitle' => 'Aucune permission de gestion',
 			'organization.manage.forbiddenBody' => 'La gestion de l\'entreprise est réservée au propriétaire et aux admins. Demandez à un admin de modifier votre rôle.',
 			'organization.manage.workspaceSection' => 'Espaces de travail',

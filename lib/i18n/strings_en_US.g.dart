@@ -2975,6 +2975,7 @@ class _Translations$organization$manage$en_US extends Translations$organization$
 	@override String get orgNotFound => 'Enterprise not found, or you cannot view it';
 	@override String roleLine({required Object role}) => 'My role: ${role}';
 	@override String get readOnlyHint => 'Read-only facts; management actions require owner/admin';
+	@override String get workspaceOwnerHint => 'Only workspaces you own are shown; organization-level actions (create workspace, set default) require the organization owner or an admin.';
 	@override String get forbiddenTitle => 'No management permission';
 	@override String get forbiddenBody => 'Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.';
 	@override String get workspaceSection => 'Workspaces';
@@ -5277,6 +5278,7 @@ extension on TranslationsEnUs {
 			'organization.manage.orgNotFound' => 'Enterprise not found, or you cannot view it',
 			'organization.manage.roleLine' => ({required Object role}) => 'My role: ${role}',
 			'organization.manage.readOnlyHint' => 'Read-only facts; management actions require owner/admin',
+			'organization.manage.workspaceOwnerHint' => 'Only workspaces you own are shown; organization-level actions (create workspace, set default) require the organization owner or an admin.',
 			'organization.manage.forbiddenTitle' => 'No management permission',
 			'organization.manage.forbiddenBody' => 'Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.',
 			'organization.manage.workspaceSection' => 'Workspaces',

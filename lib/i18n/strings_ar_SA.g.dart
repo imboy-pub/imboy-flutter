@@ -2904,6 +2904,7 @@ class _Translations$organization$manage$ar_SA extends Translations$organization$
 	@override String get orgNotFound => 'المؤسسة غير موجودة أو لا تملك صلاحية عرضها';
 	@override String roleLine({required Object role}) => 'دوري: ${role}';
 	@override String get readOnlyHint => 'بيانات المؤسسة للقراءة فقط؛ إجراءات الإدارة متاحة للمالك أو المسؤول';
+	@override String get workspaceOwnerHint => 'تُعرض فقط مساحات العمل التي تملكها؛ أما إجراءات مستوى المؤسسة (إنشاء مساحة عمل، تعيين الافتراضية) فتحتاج إلى مالك المؤسسة أو أحد المسؤولين.';
 	@override String get forbiddenTitle => 'لا تملك صلاحية الإدارة';
 	@override String get forbiddenBody => 'إدارة المؤسسة متاحة للمالك والمسؤولين فقط. اطلب من المسؤول تعديل دورك عند الحاجة.';
 	@override String get workspaceSection => 'مساحات العمل';
@@ -5136,6 +5137,7 @@ extension on TranslationsArSa {
 			'organization.manage.orgNotFound' => 'المؤسسة غير موجودة أو لا تملك صلاحية عرضها',
 			'organization.manage.roleLine' => ({required Object role}) => 'دوري: ${role}',
 			'organization.manage.readOnlyHint' => 'بيانات المؤسسة للقراءة فقط؛ إجراءات الإدارة متاحة للمالك أو المسؤول',
+			'organization.manage.workspaceOwnerHint' => 'تُعرض فقط مساحات العمل التي تملكها؛ أما إجراءات مستوى المؤسسة (إنشاء مساحة عمل، تعيين الافتراضية) فتحتاج إلى مالك المؤسسة أو أحد المسؤولين.',
 			'organization.manage.forbiddenTitle' => 'لا تملك صلاحية الإدارة',
 			'organization.manage.forbiddenBody' => 'إدارة المؤسسة متاحة للمالك والمسؤولين فقط. اطلب من المسؤول تعديل دورك عند الحاجة.',
 			'organization.manage.workspaceSection' => 'مساحات العمل',

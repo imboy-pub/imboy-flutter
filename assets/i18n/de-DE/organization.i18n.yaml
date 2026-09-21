@@ -166,6 +166,7 @@ manage:
   orgNotFound: Unternehmen nicht gefunden oder nicht sichtbar
   roleLine: "Meine Rolle: ${role}"
   readOnlyHint: Unternehmensdaten nur lesbar; Verwaltungsaktionen nur für Inhaber/Admin
+  workspaceOwnerHint: Hier erscheinen nur Arbeitsbereiche, die dir gehören; Aktionen auf Unternehmensebene (Arbeitsbereich anlegen, Standard setzen) erfordern Inhaber oder Admin.
   forbiddenTitle: Keine Verwaltungsberechtigung
   forbiddenBody: Die Unternehmensverwaltung ist Inhaber und Admins vorbehalten. Bitte einen Admin, deine Rolle anzupassen.
   workspaceSection: Arbeitsbereiche

@@ -2892,6 +2892,7 @@ class _Translations$organization$manage$ko_KR extends Translations$organization$
 	@override String get orgNotFound => '기업이 없거나 볼 권한이 없습니다';
 	@override String roleLine({required Object role}) => '내 역할: ${role}';
 	@override String get readOnlyHint => '기업 정보는 읽기 전용이며, 관리 작업은 소유자/관리자만 가능합니다';
+	@override String get workspaceOwnerHint => '여기에는 본인이 소유한 워크스페이스만 표시됩니다. 조직 수준 작업(워크스페이스 생성, 기본 설정)은 조직 소유자 또는 관리자만 가능합니다.';
 	@override String get forbiddenTitle => '관리 권한 없음';
 	@override String get forbiddenBody => '기업 관리는 소유자와 관리자만 사용할 수 있습니다. 필요하면 관리자에게 역할 변경을 요청하세요.';
 	@override String get workspaceSection => '워크스페이스';
@@ -5124,6 +5125,7 @@ extension on TranslationsKoKr {
 			'organization.manage.orgNotFound' => '기업이 없거나 볼 권한이 없습니다',
 			'organization.manage.roleLine' => ({required Object role}) => '내 역할: ${role}',
 			'organization.manage.readOnlyHint' => '기업 정보는 읽기 전용이며, 관리 작업은 소유자/관리자만 가능합니다',
+			'organization.manage.workspaceOwnerHint' => '여기에는 본인이 소유한 워크스페이스만 표시됩니다. 조직 수준 작업(워크스페이스 생성, 기본 설정)은 조직 소유자 또는 관리자만 가능합니다.',
 			'organization.manage.forbiddenTitle' => '관리 권한 없음',
 			'organization.manage.forbiddenBody' => '기업 관리는 소유자와 관리자만 사용할 수 있습니다. 필요하면 관리자에게 역할 변경을 요청하세요.',
 			'organization.manage.workspaceSection' => '워크스페이스',

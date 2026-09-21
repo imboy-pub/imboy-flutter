@@ -166,6 +166,7 @@ manage:
   orgNotFound: Enterprise not found, or you cannot view it
   roleLine: "My role: ${role}"
   readOnlyHint: Read-only facts; management actions require owner/admin
+  workspaceOwnerHint: Only workspaces you own are shown; organization-level actions (create workspace, set default) require the organization owner or an admin.
   forbiddenTitle: No management permission
   forbiddenBody: Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.
   workspaceSection: Workspaces

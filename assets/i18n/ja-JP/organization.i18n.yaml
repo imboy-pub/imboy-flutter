@@ -166,6 +166,7 @@ manage:
   orgNotFound: 企業が存在しないか、表示権限がありません
   roleLine: "自分の役割：${role}"
   readOnlyHint: 企業情報は閲覧のみ。管理操作はオーナー／管理者のみ可能です
+  workspaceOwnerHint: ここにはあなたが所有するワークスペースのみ表示されます。組織レベルの操作（ワークスペース作成・既定設定）は組織のオーナーまたは管理者が必要です。
   forbiddenTitle: 管理権限がありません
   forbiddenBody: 企業管理はオーナーと管理者のみが利用できます。必要なら管理者に役割の変更を依頼してください。
   workspaceSection: ワークスペース

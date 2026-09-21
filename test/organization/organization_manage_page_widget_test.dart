@@ -120,12 +120,12 @@ Map<String, dynamic> _orgPayload({
 
 /// 企业下两个工作区应为可见（其中一个是默认），另加两个不该出现的干扰项：
 /// 个人域工作区（organization_id 空）与其它企业的工作区。
-Map<String, dynamic> _wsPage() => {
+Map<String, dynamic> _wsPage({String ownWsOwner = '1001'}) => {
   'list': [
     {
       'id': kWsId,
       'name': '广州研发区',
-      'owner_id': '1001',
+      'owner_id': ownWsOwner,
       'status': 'active',
       'organization_id': kOrgId,
     },
@@ -161,6 +161,7 @@ _RoutingAdapter _happyAdapter({
   String role = 'owner',
   int archiveStatus = 200,
   String archiveBody = 'success',
+  String ownWsOwner = '1001',
 }) => _RoutingAdapter([
   _Route(
     '/api/v1/organizations/$kOrgId/default-workspace',
@@ -168,7 +169,7 @@ _RoutingAdapter _happyAdapter({
     _ok({'organization_id': kOrgId, 'default_workspace_id': kWsId}),
   ),
   _Route('/api/v1/organizations/$kOrgId', 200, _ok(_orgPayload(role: role))),
-  _Route('/api/v1/workspaces/mine', 200, _ok(_wsPage())),
+  _Route('/api/v1/workspaces/mine', 200, _ok(_wsPage(ownWsOwner: ownWsOwner))),
   _Route(
     '/api/v1/workspaces/$kWsId/groups',
     200,
@@ -248,8 +249,11 @@ void main() {
     home: OrganizationManagePage(orgId: kOrgId, accountKey: '1001'),
   );
 
-  testWidgets('角色裁剪：member 只读，看不到任何治理区块', (tester) async {
-    HttpClient.adapterForTest = _happyAdapter(role: 'member');
+  testWidgets('角色裁剪：既非管理者也不拥有工作区时全只读', (tester) async {
+    HttpClient.adapterForTest = _happyAdapter(
+      role: 'member',
+      ownWsOwner: '1002',
+    );
     await tester.pumpWidget(buildHost());
     await _pumpUntilFound(
       tester,
@@ -268,6 +272,31 @@ void main() {
       find.byKey(const ValueKey('org-manage-create-channel')),
       findsNothing,
     );
+  });
+
+  testWidgets('WS Owner（非组织管理者）：只看到自己拥有的工作区，且无组织级动作', (tester) async {
+    // 计划 §5.2：企业管理对 Organization Owner/Admin **和 Workspace Owner**
+    // 可见，并按权限裁剪管理项——组织级动作（新建工作区）不给 WS Owner。
+    HttpClient.adapterForTest = _happyAdapter(role: 'member');
+    await tester.pumpWidget(buildHost());
+    await _pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-manage-ws-$kWsId')),
+    );
+
+    expect(find.byKey(const ValueKey('org-manage-ws-$kWsId')), findsOneWidget);
+    // 只列自己拥有的：另一个工作区（owner=1002）不出现
+    expect(
+      find.byKey(const ValueKey('org-manage-ws-$kOtherWsId')),
+      findsNothing,
+    );
+    // 组织级动作不出现
+    expect(
+      find.byKey(const ValueKey('org-manage-create-workspace')),
+      findsNothing,
+    );
+    // 没有落到无权限态
+    expect(find.byKey(const ValueKey('org-manage-forbidden')), findsNothing);
   });
 
   testWidgets('owner：工作区只列本企业项，个人域/别家企业都不出现', (tester) async {

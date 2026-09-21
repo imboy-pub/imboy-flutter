@@ -2901,6 +2901,7 @@ class _Translations$organization$manage$ru_RU extends Translations$organization$
 	@override String get orgNotFound => 'Предприятие не найдено или недоступно для просмотра';
 	@override String roleLine({required Object role}) => 'Моя роль: ${role}';
 	@override String get readOnlyHint => 'Данные только для чтения; управляющие действия доступны владельцу или администратору';
+	@override String get workspaceOwnerHint => 'Здесь показаны только ваши рабочие пространства; действия уровня предприятия (создание пространства, назначение по умолчанию) доступны владельцу или администратору.';
 	@override String get forbiddenTitle => 'Нет прав на управление';
 	@override String get forbiddenBody => 'Управление предприятием доступно только владельцу и администраторам. Попросите администратора изменить вашу роль.';
 	@override String get workspaceSection => 'Рабочие пространства';
@@ -5133,6 +5134,7 @@ extension on TranslationsRuRu {
 			'organization.manage.orgNotFound' => 'Предприятие не найдено или недоступно для просмотра',
 			'organization.manage.roleLine' => ({required Object role}) => 'Моя роль: ${role}',
 			'organization.manage.readOnlyHint' => 'Данные только для чтения; управляющие действия доступны владельцу или администратору',
+			'organization.manage.workspaceOwnerHint' => 'Здесь показаны только ваши рабочие пространства; действия уровня предприятия (создание пространства, назначение по умолчанию) доступны владельцу или администратору.',
 			'organization.manage.forbiddenTitle' => 'Нет прав на управление',
 			'organization.manage.forbiddenBody' => 'Управление предприятием доступно только владельцу и администраторам. Попросите администратора изменить вашу роль.',
 			'organization.manage.workspaceSection' => 'Рабочие пространства',

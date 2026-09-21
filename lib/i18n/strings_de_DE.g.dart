@@ -2895,6 +2895,7 @@ class _Translations$organization$manage$de_DE extends Translations$organization$
 	@override String get orgNotFound => 'Unternehmen nicht gefunden oder nicht sichtbar';
 	@override String roleLine({required Object role}) => 'Meine Rolle: ${role}';
 	@override String get readOnlyHint => 'Unternehmensdaten nur lesbar; Verwaltungsaktionen nur für Inhaber/Admin';
+	@override String get workspaceOwnerHint => 'Hier erscheinen nur Arbeitsbereiche, die dir gehören; Aktionen auf Unternehmensebene (Arbeitsbereich anlegen, Standard setzen) erfordern Inhaber oder Admin.';
 	@override String get forbiddenTitle => 'Keine Verwaltungsberechtigung';
 	@override String get forbiddenBody => 'Die Unternehmensverwaltung ist Inhaber und Admins vorbehalten. Bitte einen Admin, deine Rolle anzupassen.';
 	@override String get workspaceSection => 'Arbeitsbereiche';
@@ -5127,6 +5128,7 @@ extension on TranslationsDeDe {
 			'organization.manage.orgNotFound' => 'Unternehmen nicht gefunden oder nicht sichtbar',
 			'organization.manage.roleLine' => ({required Object role}) => 'Meine Rolle: ${role}',
 			'organization.manage.readOnlyHint' => 'Unternehmensdaten nur lesbar; Verwaltungsaktionen nur für Inhaber/Admin',
+			'organization.manage.workspaceOwnerHint' => 'Hier erscheinen nur Arbeitsbereiche, die dir gehören; Aktionen auf Unternehmensebene (Arbeitsbereich anlegen, Standard setzen) erfordern Inhaber oder Admin.',
 			'organization.manage.forbiddenTitle' => 'Keine Verwaltungsberechtigung',
 			'organization.manage.forbiddenBody' => 'Die Unternehmensverwaltung ist Inhaber und Admins vorbehalten. Bitte einen Admin, deine Rolle anzupassen.',
 			'organization.manage.workspaceSection' => 'Arbeitsbereiche',

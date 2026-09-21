@@ -166,6 +166,7 @@ manage:
   orgNotFound: Entreprise introuvable ou non visible
   roleLine: "Mon rôle : ${role}"
   readOnlyHint: Consultation seule ; les actions de gestion sont réservées au propriétaire ou aux admins
+  workspaceOwnerHint: Seuls les espaces de travail que vous possédez sont affichés ; les actions au niveau de l'entreprise (créer un espace, définir par défaut) nécessitent le propriétaire ou un admin.
   forbiddenTitle: Aucune permission de gestion
   forbiddenBody: "La gestion de l'entreprise est réservée au propriétaire et aux admins. Demandez à un admin de modifier votre rôle."
   workspaceSection: Espaces de travail

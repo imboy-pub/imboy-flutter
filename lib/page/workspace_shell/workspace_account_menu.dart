@@ -85,29 +85,30 @@ class WorkspaceAccountButton extends ConsumerWidget {
 /// 可见性——只藏在账户 Sheet 里用户找不到）。Slack / Notion 惯例位：
 /// 左上 = 上下文（图标 + 名称 + 下箭头）。
 ///
+/// 本地企业指针（当前登录账号）。无存储环境（widget 测试）返回 null；
+/// 调用方各自回落：chip 回落工作区名，账户 Sheet 的企业区整块不渲染。
+Organization? _currentOrgOrNull() {
+  try {
+    final uid = UserRepoLocal.to.currentUid;
+    if (uid.isEmpty) return null;
+    return CurrentOrganizationStore.forAccount(uid).value;
+  } on Object {
+    return null;
+  }
+}
+
 /// GZAPP-04 G9（§5.1「切换企业」）：chip 语义升级为企业 chip——点击打开
 /// 企业选择器（/organization/picker，数据源 Organization membership）；
 /// 展示名当前企业优先（本地指针），无指针回落当前工作区名。
 class WorkspaceSwitcherChip extends ConsumerWidget {
   const WorkspaceSwitcherChip({super.key});
 
-  static Organization? _currentOrg() {
-    try {
-      final uid = UserRepoLocal.to.currentUid;
-      if (uid.isEmpty) return null;
-      return CurrentOrganizationStore.forAccount(uid).value;
-    } on Object {
-      // 无存储环境（widget 测试）：回落工作区名展示。
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
     final theme = Theme.of(context);
     final current = ref.watch(workspaceShellProvider.select((s) => s.current));
-    final org = _currentOrg();
+    final org = _currentOrgOrNull();
     final label = (org != null && org.name.isNotEmpty)
         ? org.name
         : (current?.name ?? t.workspace.pickerTitle);
@@ -200,6 +201,10 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
               },
             ),
             AppSpacing.verticalSmall,
+            _OrganizationEntries(
+              org: _currentOrgOrNull(),
+              workspaceRole: myRole,
+            ),
             _SheetActionTile(
               icon: CupertinoIcons.person_crop_circle,
               label: t.account.profile,
@@ -451,6 +456,60 @@ class _WorkspaceList extends StatelessWidget {
 }
 
 /// Sheet 动作行（列表项）。
+/// 企业区（账户 Sheet 内的企业上下文入口）。
+///
+/// 无当前企业（未加入任何企业 / 本地无指针）时整块不渲染——不造假入口。
+class _OrganizationEntries extends StatelessWidget {
+  const _OrganizationEntries({required this.org, required this.workspaceRole});
+
+  final Organization? org;
+  final WorkspaceMemberRole? workspaceRole;
+
+  @override
+  Widget build(BuildContext context) {
+    final o = org;
+    if (o == null || o.id.isEmpty) return const SizedBox.shrink();
+    final canManage = o.canGovern || workspaceRole == WorkspaceMemberRole.owner;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Divider(height: AppSpacing.xLarge),
+        _SheetActionTile(
+          key: const ValueKey('workspace-account-sheet-org-entry'),
+          icon: CupertinoIcons.building_2_fill,
+          label: t.organization.home.tabOrg,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(kOrganizationHomePath);
+          },
+        ),
+        _SheetActionTile(
+          key: const ValueKey('workspace-account-sheet-directory-entry'),
+          icon: CupertinoIcons.person_3,
+          label: t.organization.directory.title,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(
+              '$kOrganizationHomePath/${o.id}/directory'
+              '?name=${Uri.encodeComponent(o.name)}',
+            );
+          },
+        ),
+        if (canManage)
+          _SheetActionTile(
+            key: const ValueKey('workspace-account-sheet-manage-entry'),
+            icon: CupertinoIcons.slider_horizontal_3,
+            label: t.organization.manage.entry,
+            onTap: () {
+              Navigator.pop(context);
+              context.push('$kOrganizationHomePath/${o.id}/manage');
+            },
+          ),
+      ],
+    );
+  }
+}
+
 class _SheetActionTile extends StatelessWidget {
   final IconData icon;
   final String label;

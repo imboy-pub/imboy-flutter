@@ -2892,6 +2892,7 @@ class _Translations$organization$manage$ja_JP extends Translations$organization$
 	@override String get orgNotFound => '企業が存在しないか、表示権限がありません';
 	@override String roleLine({required Object role}) => '自分の役割：${role}';
 	@override String get readOnlyHint => '企業情報は閲覧のみ。管理操作はオーナー／管理者のみ可能です';
+	@override String get workspaceOwnerHint => 'ここにはあなたが所有するワークスペースのみ表示されます。組織レベルの操作（ワークスペース作成・既定設定）は組織のオーナーまたは管理者が必要です。';
 	@override String get forbiddenTitle => '管理権限がありません';
 	@override String get forbiddenBody => '企業管理はオーナーと管理者のみが利用できます。必要なら管理者に役割の変更を依頼してください。';
 	@override String get workspaceSection => 'ワークスペース';
@@ -5124,6 +5125,7 @@ extension on TranslationsJaJp {
 			'organization.manage.orgNotFound' => '企業が存在しないか、表示権限がありません',
 			'organization.manage.roleLine' => ({required Object role}) => '自分の役割：${role}',
 			'organization.manage.readOnlyHint' => '企業情報は閲覧のみ。管理操作はオーナー／管理者のみ可能です',
+			'organization.manage.workspaceOwnerHint' => 'ここにはあなたが所有するワークスペースのみ表示されます。組織レベルの操作（ワークスペース作成・既定設定）は組織のオーナーまたは管理者が必要です。',
 			'organization.manage.forbiddenTitle' => '管理権限がありません',
 			'organization.manage.forbiddenBody' => '企業管理はオーナーと管理者のみが利用できます。必要なら管理者に役割の変更を依頼してください。',
 			'organization.manage.workspaceSection' => 'ワークスペース',

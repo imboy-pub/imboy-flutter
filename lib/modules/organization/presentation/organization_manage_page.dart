@@ -5,6 +5,9 @@
 /// - 进页前用 `organization/detail` 的 `member_role` 投影判定：非
 ///   owner/admin 不给治理动作（直达路由也只看到只读事实 + 无权限提示）；
 ///   真正的裁决始终是服务端 403。
+/// - 组织 owner/admin 看全量；**工作区 Owner 也能进**（计划 §5.2「仅对
+///   Organization Owner/Admin 和 Workspace Owner 可见」）——此时只列自己
+///   拥有的工作区，且不出现组织级动作（新建工作区 / 设默认）。
 /// - 工作区动作权限仍是「该工作区的 Owner」；组织 owner/admin 不等于
 ///   工作区 owner，所以工作区行的 Owner 专属动作按 `ownerId` 再裁一次。
 ///   归档/恢复的具体拒绝（如默认工作区未指定替代时后端拒）原样透出，
@@ -78,6 +81,17 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   String? _error;
 
   String get _accountKey => widget.accountKey ?? UserRepoLocal.to.currentUid;
+
+  /// 当前账号在本企业里拥有的工作区（WS Owner 视角的可见集）。
+  List<WorkspaceModel> get _ownedWs =>
+      _workspaces.where(_isWsOwner).toList(growable: false);
+
+  /// 是否有任何治理权：组织 owner/admin，或至少拥有一个本企业工作区。
+  bool get _canGovernAnything =>
+      (_org?.canGovern ?? false) || _ownedWs.isNotEmpty;
+
+  /// 组织级动作（新建工作区 / 设默认）仅组织 owner/admin 可用。
+  bool get _canGovernOrg => _org?.canGovern ?? false;
 
   @override
   void initState() {
@@ -355,7 +369,8 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   @override
   Widget build(BuildContext context) {
     final org = _org;
-    final canGovern = org?.canGovern ?? false;
+    final canGovern = _canGovernAnything;
+    final canGovernOrg = _canGovernOrg;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -387,7 +402,7 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Text(
-                    canGovern
+                    canGovernOrg
                         ? t.organization.manage.roleLine(
                             role: orgRoleLabel(
                               org.memberRole.isEmpty
@@ -395,6 +410,8 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
                                   : org.memberRole,
                             ),
                           )
+                        : canGovern
+                        ? t.organization.manage.workspaceOwnerHint
                         : t.organization.manage.readOnlyHint,
                   ),
                 ),
@@ -414,23 +431,27 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
 
   List<Widget> _buildWorkspaceSection() {
     final defaultId = _defaultWs?.defaultWorkspaceId ?? '';
+    // WS Owner 视角只列自己拥有的工作区；组织管理者列全部。
+    final rows = _canGovernOrg ? _workspaces : _ownedWs;
     return [
       _SectionHeader(
         icon: CupertinoIcons.square_stack_3d_up,
         title: t.organization.manage.workspaceSection,
-        action: TextButton(
-          key: const ValueKey('org-manage-create-workspace'),
-          onPressed: _createWorkspace,
-          child: Text(t.organization.manage.createWorkspace),
-        ),
+        action: _canGovernOrg
+            ? TextButton(
+                key: const ValueKey('org-manage-create-workspace'),
+                onPressed: _createWorkspace,
+                child: Text(t.organization.manage.createWorkspace),
+              )
+            : null,
       ),
-      if (_workspaces.isEmpty)
+      if (rows.isEmpty)
         ListTile(
           title: Text(t.organization.manage.workspaceEmpty),
           subtitle: Text(t.organization.manage.workspaceEmptyHint),
         )
       else
-        for (final ws in _workspaces)
+        for (final ws in rows)
           ListTile(
             key: ValueKey('org-manage-ws-${ws.id}'),
             leading: Icon(
@@ -513,7 +534,7 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
       icon: CupertinoIcons.chat_bubble_2,
       title: t.organization.manage.resourceSection,
     ),
-    if (_workspaces.isEmpty)
+    if ((_canGovernOrg ? _workspaces : _ownedWs).isEmpty)
       ListTile(title: Text(t.organization.manage.resourceNeedsWorkspace))
     else ...[
       _wsSelector(),
@@ -545,7 +566,7 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     child: Wrap(
       spacing: AppSpacing.small,
       children: [
-        for (final ws in _workspaces)
+        for (final ws in (_canGovernOrg ? _workspaces : _ownedWs))
           ChoiceChip(
             key: ValueKey('org-manage-ws-chip-${ws.id}'),
             label: Text(ws.name),

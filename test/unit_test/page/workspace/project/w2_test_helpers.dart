@@ -340,8 +340,10 @@ class FakeWorkspaceApi extends WorkspaceApi {
   }
 
   @override
-  Future<List<ChannelModel>> channels(EntityId workspaceId) async =>
-      channelRows;
+  Future<List<ChannelModel>> channels(
+    EntityId workspaceId, {
+    String? status,
+  }) async => channelRows;
 }
 
 // ==================== pump 脚手架 ====================

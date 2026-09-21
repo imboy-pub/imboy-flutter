@@ -166,6 +166,7 @@ manage:
   orgNotFound: 기업이 없거나 볼 권한이 없습니다
   roleLine: "내 역할: ${role}"
   readOnlyHint: 기업 정보는 읽기 전용이며, 관리 작업은 소유자/관리자만 가능합니다
+  workspaceOwnerHint: 여기에는 본인이 소유한 워크스페이스만 표시됩니다. 조직 수준 작업(워크스페이스 생성, 기본 설정)은 조직 소유자 또는 관리자만 가능합니다.
   forbiddenTitle: 관리 권한 없음
   forbiddenBody: 기업 관리는 소유자와 관리자만 사용할 수 있습니다. 필요하면 관리자에게 역할 변경을 요청하세요.
   workspaceSection: 워크스페이스

@@ -8030,6 +8030,9 @@ class Translations$organization$manage$zh_CN {
 	/// zh-CN: '企业现状只读；管理动作仅企业所有者/管理员可用'
 	String get readOnlyHint => '企业现状只读；管理动作仅企业所有者/管理员可用';
 
+	/// zh-CN: '这里只显示你拥有的工作区；组织级动作（新建工作区、设默认）需组织所有者/管理员。'
+	String get workspaceOwnerHint => '这里只显示你拥有的工作区；组织级动作（新建工作区、设默认）需组织所有者/管理员。';
+
 	/// zh-CN: '无管理权限'
 	String get forbiddenTitle => '无管理权限';
 
@@ -10435,6 +10438,7 @@ extension on Translations {
 			'organization.manage.orgNotFound' => '企业不存在或你无权查看',
 			'organization.manage.roleLine' => ({required Object role}) => '我的角色：${role}',
 			'organization.manage.readOnlyHint' => '企业现状只读；管理动作仅企业所有者/管理员可用',
+			'organization.manage.workspaceOwnerHint' => '这里只显示你拥有的工作区；组织级动作（新建工作区、设默认）需组织所有者/管理员。',
 			'organization.manage.forbiddenTitle' => '无管理权限',
 			'organization.manage.forbiddenBody' => '企业管理仅对企业所有者与管理员开放；需要时请联系管理员调整你的角色。',
 			'organization.manage.workspaceSection' => '工作区',

@@ -166,6 +166,7 @@ manage:
   orgNotFound: 企業不存在或你無權檢視
   roleLine: "我的角色：${role}"
   readOnlyHint: 企業現狀唯讀；管理動作僅企業擁有者／管理員可用
+  workspaceOwnerHint: 這裡只顯示你擁有的工作區；組織層級動作（新增工作區、設為預設）需組織擁有者／管理員。
   forbiddenTitle: 無管理權限
   forbiddenBody: 企業管理僅對企業擁有者與管理員開放；需要時請聯絡管理員調整你的角色。
   workspaceSection: 工作區

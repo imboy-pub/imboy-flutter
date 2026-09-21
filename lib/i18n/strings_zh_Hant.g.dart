@@ -2892,6 +2892,7 @@ class Translations$organization$manage$zh_Hant extends Translations$organization
 	@override String get orgNotFound => '企業不存在或你無權檢視';
 	@override String roleLine({required Object role}) => '我的角色：${role}';
 	@override String get readOnlyHint => '企業現狀唯讀；管理動作僅企業擁有者／管理員可用';
+	@override String get workspaceOwnerHint => '這裡只顯示你擁有的工作區；組織層級動作（新增工作區、設為預設）需組織擁有者／管理員。';
 	@override String get forbiddenTitle => '無管理權限';
 	@override String get forbiddenBody => '企業管理僅對企業擁有者與管理員開放；需要時請聯絡管理員調整你的角色。';
 	@override String get workspaceSection => '工作區';
@@ -5124,6 +5125,7 @@ extension on TranslationsZhHant {
 			'organization.manage.orgNotFound' => '企業不存在或你無權檢視',
 			'organization.manage.roleLine' => ({required Object role}) => '我的角色：${role}',
 			'organization.manage.readOnlyHint' => '企業現狀唯讀；管理動作僅企業擁有者／管理員可用',
+			'organization.manage.workspaceOwnerHint' => '這裡只顯示你擁有的工作區；組織層級動作（新增工作區、設為預設）需組織擁有者／管理員。',
 			'organization.manage.forbiddenTitle' => '無管理權限',
 			'organization.manage.forbiddenBody' => '企業管理僅對企業擁有者與管理員開放；需要時請聯絡管理員調整你的角色。',
 			'organization.manage.workspaceSection' => '工作區',
