@@ -24,8 +24,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/modules/customer_service/domain/cs_seat_session_machine.dart';
 import 'package:imboy/modules/customer_service/domain/cs_session_flow.dart';
+import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
+import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_store.dart';
 import 'package:imboy/service/storage.dart';
+
+const kOrgId = '7266418340025468901';
+const kWsId = '7266418340025468921';
+const kConvId = '7266418340025468950';
+const kSessionId = '7266418340025468940';
+const kIdentityId = '7266418340025468902';
 
 /// 按路径路由响应的桩：fragment 按**注册顺序**取第一个命中（因此更长的
 /// / 更特殊的 fragment 应先注册）；每条路由的响应按序消费，耗尽后停留在
@@ -241,13 +249,14 @@ void main() {
 
       await flow.loadIncremental();
 
-      // ACK 已发（EB ack 路径）
+      // ACK 已发（EB ack 路径）；recipient_ref 恒为 identity: 前缀
+      //（APP-M02-A01：服务端唯一合法形状，`seat:` 前缀=后端 400 契约）
       final acks = adapter.requests
           .where((r) => r.$2.contains('/ack'))
           .toList();
       expect(acks, hasLength(1));
       final ackBody = Map<String, dynamic>.from(acks.single.$3 as Map);
-      expect(ackBody['recipient_ref'], 'seat:7266418340025468902');
+      expect(ackBody['recipient_ref'], 'identity:7266418340025468902');
 
       // 本地：标记置位但消息保留（delivery-only，不删真源）
       expect(flow.messages, hasLength(1));
@@ -444,6 +453,7 @@ void main() {
       expect(flow.machine.phase, CsSeatSessionPhase.readOnlySuspended);
       expect(flow.machine.canSend, isFalse);
       expect(flow.machine.shouldPoll, isFalse);
+      expect(flow.lastFailureKind, CsSeatFailureKind.suspended);
 
       final before = adapter.requests.length;
       await flow.loadIncremental(poll: true);
@@ -465,6 +475,347 @@ void main() {
       expect(flow.machine.phase, CsSeatSessionPhase.offboardingRequired);
       expect(flow.machine.canSend, isFalse);
       expect(flow.machine.restoreFromSuspension(), isFalse);
+      expect(flow.lastFailureKind, CsSeatFailureKind.offboarding);
+    });
+
+    test('A05：普通 409（CAS）分类为 conflict，可刷新重试，与 offboarding 分离', () async {
+      final adapter = _RouteAdapter([
+        (
+          '/close',
+          [
+            (409, {'code': 409, 'msg': '{cas_mismatch, ...}'}),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter);
+      flow.detail = const CsSessionDetail(sessionId: kSessionId, version: 3);
+
+      final kind = await flow.closeSession();
+      expect(kind, CsSeatFailureKind.conflict);
+      expect(flow.lastFailureKind, CsSeatFailureKind.conflict);
+      // 冲突不降级：仍可写（刷新真实状态后可重试）。
+      expect(flow.machine.canSend, isTrue);
+    });
+  });
+
+  group('APP-M02-A03 附件消息原子绑定（asset_ids）', () {
+    test('发送带 asset_ids；失败重试复用同一 client_msg_id 与同一组 asset_ids', () async {
+      final sentJson = msgJson(
+        id: '7266418340025468971',
+        senderType: 'business_identity',
+        content: '',
+      );
+      final adapter = _RouteAdapter([
+        (
+          'conversations/$kConvId/messages',
+          [
+            (500, {'code': 500, 'msg': 'boom'}),
+            (200, {'code': 0, 'msg': 'success', 'payload': sentJson}),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter);
+
+      final first = await flow.send('', assetIds: ['7266418340025468970']);
+      expect(first, isFalse);
+      expect(flow.pendingClientMsgId, isNotNull);
+      expect(flow.pendingAssetIds, ['7266418340025468970']);
+      final id1 = flow.pendingClientMsgId;
+
+      final second = await flow.send('', assetIds: ['7266418340025468970']);
+      expect(second, isTrue);
+      expect(flow.pendingClientMsgId, isNull);
+      expect(flow.pendingAssetIds, isNull, reason: '确认后幂等键清空');
+
+      final sends = adapter.requests
+          .where((r) => r.$1 == 'POST' && r.$2.contains('/messages'))
+          .toList();
+      expect(sends, hasLength(2));
+      final body1 = Map<String, dynamic>.from(sends[0].$3 as Map);
+      final body2 = Map<String, dynamic>.from(sends[1].$3 as Map);
+      expect(body1['client_msg_id'], id1);
+      expect(body2['client_msg_id'], id1, reason: 'A03 同键同附件 = 同一 message');
+      expect(body1['asset_ids'], ['7266418340025468970']);
+      expect(body2['asset_ids'], ['7266418340025468970']);
+      // 本地不伪成功：确认前消息不进列表；确认后带附件投影。
+      expect(flow.messages.single.id, '7266418340025468971');
+      expect(flow.messageAssets['7266418340025468971'], isNotNull);
+    });
+
+    test('上传失败不产生文件名文本附件：不发送任何消息请求', () async {
+      final adapter = _RouteAdapter([
+        (
+          'assets/presign',
+          [
+            (500, {'code': 500, 'msg': 'presign boom'}),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter);
+
+      Object? caught;
+      try {
+        await flow.uploadAsset(
+          fileName: 'a.txt',
+          mime: 'text/plain',
+          size: 4,
+          byteStream: Stream<List<int>>.value(utf8.encode('demo')),
+        );
+        fail('presign 失败必须抛出（不伪成功）');
+      } on Object catch (e) {
+        caught = e;
+      }
+      expect(caught, isNotNull);
+      expect(
+        adapter.requests.where((r) => r.$2.contains('/messages')),
+        isEmpty,
+        reason: '§3.7：失败不得产生文件名文本附件',
+      );
+      expect(flow.messages, isEmpty);
+    });
+
+    test('空正文且无附件不发送；关闭后附件查看仍经授权代理（读面）', () async {
+      final adapter = _RouteAdapter([
+        (
+          '/close',
+          [
+            (200, {'code': 0, 'msg': 'success', 'payload': null}),
+          ],
+        ),
+        (
+          'assets/7266418340025468970/content',
+          [
+            (200, {'code': 0, 'msg': 'success', 'payload': 'file-bytes'}),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter);
+      flow.detail = const CsSessionDetail(sessionId: kSessionId, version: 3);
+
+      expect(await flow.send('   '), isFalse, reason: '空正文+无附件不发送');
+      final before = adapter.requests.length;
+      expect(await flow.send('   '), isFalse);
+      expect(adapter.requests.length, before, reason: '无请求发出');
+
+      // close 成功 → 写入口全禁（send/attach/transfer/close），读面保留。
+      final kind = await flow.closeSession();
+      expect(kind, isNull);
+      expect(flow.machine.canSend, isFalse);
+      expect(flow.machine.canDownload, isTrue);
+      final viewed = await flow.viewAsset('7266418340025468970');
+      expect(viewed, isNotNull, reason: 'closed 只读态附件查看仍走授权代理');
+    });
+  });
+
+  group('APP-M02-A04 转接生命周期', () {
+    test('transfer 成功 → 旧坐席立即只读（transferredAway）', () async {
+      final adapter = _RouteAdapter([
+        (
+          '/transfer',
+          [
+            (200, {'code': 0, 'msg': 'success', 'payload': null}),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter);
+      flow.detail = const CsSessionDetail(sessionId: kSessionId, version: 3);
+
+      final kind = await flow.transferTo('7266418340025468943');
+      expect(kind, isNull);
+      expect(flow.machine.phase, CsSeatSessionPhase.transferredAway);
+      expect(flow.machine.canSend, isFalse);
+      expect(flow.machine.shouldPoll, isFalse);
+      expect(flow.machine.canDownload, isFalse, reason: '经办权已离开');
+
+      final before = adapter.requests.length;
+      final sent = await flow.send('还想回复');
+      expect(sent, isFalse);
+      expect(adapter.requests.length, before, reason: '转接后写入口清空');
+      expect(await flow.viewAsset('a1'), isNull);
+    });
+
+    test('服务端回显经办人非当前坐席 → transferredAway；本值不被回显覆盖', () async {
+      final adapter = _RouteAdapter([
+        (
+          '/sessions/$kSessionId',
+          [
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': {
+                  'session_id': 7266418340025468940,
+                  'status': 'active',
+                  'version': 7,
+                  'conversation_id': 7266418340025468950,
+                  'business_identity_id': 7266418340025468999,
+                },
+              },
+            ),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter);
+
+      await flow.refreshSessionState();
+      expect(flow.machine.phase, CsSeatSessionPhase.transferredAway);
+      expect(flow.identityId, kIdentityId, reason: '本人身份不被他人回显覆盖');
+      expect(flow.machine.canSend, isFalse);
+    });
+  });
+
+  group('APP-M02-A02 坐席事件流（SSE 权威刷新）', () {
+    Stream<List<int>> sse(List<Map<String, dynamic>> envelopes) => Stream.value(
+      utf8.encode(
+        envelopes
+            .map(
+              (e) =>
+                  'id: ${e['event_id']}\nevent: ${e['type']}\n'
+                  'data: ${jsonEncode(e)}\n\n',
+            )
+            .join(),
+      ),
+    );
+
+    Map<String, dynamic> env(
+      String id,
+      String type, {
+      String resourceId = '',
+    }) => {
+      'event_id': id,
+      'type': type,
+      'organization_id': kOrgId,
+      'workspace_id': kWsId,
+      'resource_type': 'message',
+      'resource_id': resourceId,
+      'resource_version': 1,
+      'occurred_at': '2026-09-20T05:14:47Z',
+      'reason': 'created',
+    };
+
+    test('message.appended → 增量权威拉取：访客新消息自动出现', () async {
+      final adapter = _RouteAdapter([
+        (
+          '/ack',
+          [
+            (200, {'code': 0, 'msg': 'success', 'payload': null}),
+          ],
+        ),
+        (
+          'conversations/$kConvId/messages',
+          [
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': [
+                  msgJson(
+                    id: '7266418340025468961',
+                    senderType: 'contact',
+                    delivered: false,
+                  ),
+                ],
+              },
+            ),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter);
+      expect(flow.messages, isEmpty);
+
+      final stream = CsSeatEventsStream(
+        orgId: kOrgId,
+        workspaceId: kWsId,
+        opener: (
+          String orgId,
+          String workspaceId, {
+          String lastEventId = '',
+          String afterId = '',
+        }) async => sse([env('7266418340025469001', 'message.appended')]),
+      );
+      flow.bindEvents(stream);
+      // 事件经真实微任务链路触发权威拉取（无轮询）。
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      expect(flow.messages, hasLength(1), reason: '访客新消息自动出现');
+      flow.dispose();
+    });
+
+    test('resync.required → 清游标全量权威刷新（下一拉取不带 after_id）', () async {
+      final adapter = _RouteAdapter([
+        (
+          'conversations/$kConvId/messages',
+          [
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': [
+                  msgJson(id: '7266418340025468961', senderType: 'contact'),
+                ],
+              },
+            ),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter);
+      await flow.loadIncremental();
+      expect(flow.cursor, '7266418340025468961');
+
+      final stream = CsSeatEventsStream(
+        orgId: kOrgId,
+        workspaceId: kWsId,
+        opener: (
+          String orgId,
+          String workspaceId, {
+          String lastEventId = '',
+          String afterId = '',
+        }) async => sse([env('7266418340025469002', 'resync.required')]),
+      );
+      flow.bindEvents(stream);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      // resync 先清空游标再全量重拉（拉取后游标按真源重新推进）——
+      // 「全量」由最后一拉不带 after_id 证明。
+      final lastGet = adapter.requests.lastWhere(
+        (r) => r.$1 == 'GET' && r.$2.contains('/conversations/'),
+      );
+      expect(lastGet.$4.containsKey('after_id'), isFalse, reason: '全量首拉');
+      flow.dispose();
+    });
+
+    test('降级后停止消费事件（不再发权威请求）', () async {
+      final adapter = _RouteAdapter([
+        (
+          'conversations/$kConvId/messages',
+          [
+            (403, {'code': 403, 'msg': 'forbidden'}),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter);
+      await flow.loadIncremental(poll: true);
+      expect(flow.machine.shouldPoll, isFalse);
+      final before = adapter.requests.length;
+
+      final stream = CsSeatEventsStream(
+        orgId: kOrgId,
+        workspaceId: kWsId,
+        opener: (
+          String orgId,
+          String workspaceId, {
+          String lastEventId = '',
+          String afterId = '',
+        }) async => sse([env('7266418340025469003', 'message.appended')]),
+      );
+      flow.bindEvents(stream);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      expect(adapter.requests.length, before, reason: '降级后事件不触发请求');
+      flow.dispose();
     });
   });
 }

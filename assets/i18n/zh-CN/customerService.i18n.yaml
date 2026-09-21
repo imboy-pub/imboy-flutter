@@ -80,3 +80,8 @@ readOnlySuspended: "坐席已被暂停（suspend），消息通道已切换为�
 offboardingRequired: "当前处于离职交接，会话经办权已移交，此会话已只读"
 closedReadonly: "会话已关闭，内容仅供查看"
 ratedReadonly: "会话已评分结束，内容仅供查看"
+# ==================== APP-M02（发送/附件失败分类 + 转接只读） ====================
+sendFailed: "发送失败，请稍后重试"
+sendConflict: "会话状态已变化，已为你刷新最新状态"
+attachUploadFailed: "附件上传失败，请重试"
+transferredAway: "会话已转交给其他坐席，此会话对你只读"

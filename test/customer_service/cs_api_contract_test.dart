@@ -440,9 +440,11 @@ void main() {
         '/api/v1/enterprise/conversations/7266418340025468950/messages',
       );
       expect(req.$4, {'after_id': '7266418340025468959', 'limit': 20});
-      expect(messages.single.id, '7266418340025468960');
-      expect(messages.single.senderType, EnterpriseSenderType.contact);
-      expect(messages.single.senderXorValid, isTrue);
+      // APP-M02-A03：读面逐行解析为真源消息 + asset_ids 绑定投影。
+      expect(messages.single.message.id, '7266418340025468960');
+      expect(messages.single.message.senderType, EnterpriseSenderType.contact);
+      expect(messages.single.message.senderXorValid, isTrue);
+      expect(messages.single.assetIds, isEmpty);
     });
 
     test('sendConversationMessage：EB 写真源提交面键白名单（幂等 client_msg_id）', () async {
@@ -500,7 +502,9 @@ void main() {
         '7266418340025468901',
         '7266418340025468950',
         '7266418340025468960',
-        recipientRef: 'seat:7266418340025468902',
+        // APP-M02-A01：recipient_ref 恒为 identity:<business_identity_id>
+        //（`seat:` 前缀=后端 400 契约，客户端绝不产生——本用例钉唯一合法形状）。
+        recipientRef: 'identity:7266418340025468902',
       );
 
       final req = adapter.requests.single;
@@ -512,7 +516,7 @@ void main() {
       );
       final body = Map<String, dynamic>.from(req.$3 as Map);
       expect(body.keys.toSet(), {'recipient_ref'});
-      expect(body['recipient_ref'], 'seat:7266418340025468902');
+      expect(body['recipient_ref'], 'identity:7266418340025468902');
     });
 
     test('错误映射：401/403/409 镜像 EnterpriseApiException 判定属性', () async {

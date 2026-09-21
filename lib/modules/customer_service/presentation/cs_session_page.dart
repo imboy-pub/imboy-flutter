@@ -25,6 +25,7 @@ import 'package:imboy/modules/customer_service/domain/cs_seat_session_machine.da
 import 'package:imboy/modules/customer_service/domain/cs_session_actions.dart';
 import 'package:imboy/modules/customer_service/domain/cs_session_flow.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
+import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -41,6 +42,10 @@ class CsSessionPage extends StatefulWidget {
   /// 「通道不可用」态，不 fallback 个人 IM）。
   final String conversationId;
   final String identityId;
+
+  /// Workspace 作用域（SSE 事件流 query；路由展示种子，非授权事实。
+  /// 缺省由事件流经 seat-contexts 权威解析）。
+  final String workspaceId;
   final String contactName;
 
   const CsSessionPage({
@@ -49,6 +54,7 @@ class CsSessionPage extends StatefulWidget {
     required this.sessionId,
     this.conversationId = '',
     this.identityId = '',
+    this.workspaceId = '',
     this.contactName = '',
   });
 
@@ -58,6 +64,7 @@ class CsSessionPage extends StatefulWidget {
 
 class _CsSessionPageState extends State<CsSessionPage> {
   late final CsSessionFlow _flow;
+  late final CsSeatEventsStream _events;
   final TextEditingController _input = TextEditingController();
   final CsApi _csApi = CsApi();
 
@@ -74,11 +81,19 @@ class _CsSessionPageState extends State<CsSessionPage> {
       identityId: widget.identityId,
       contactMaskedName: csMaskContactName(widget.contactName),
     );
+    // A02：坐席事件流（org 作用域 + workspace 作用域）。事件只触发权威
+    // 刷新；访客新消息由 message.appended 驱动增量拉取自动出现。
+    _events = CsSeatEventsStream(
+      orgId: widget.orgId,
+      workspaceId: widget.workspaceId,
+    );
+    _flow.bindEvents(_events);
     _bootstrap();
   }
 
   @override
   void dispose() {
+    _flow.dispose();
     _input.dispose();
     super.dispose();
   }
@@ -126,7 +141,22 @@ class _CsSessionPageState extends State<CsSessionPage> {
     if (ok) {
       _input.clear();
     } else {
-      _toast(context.t.customerService.claimFailed);
+      // A05：失败按类分流（不伪成功）。降级类失败页面横幅已给可解释
+      // 只读态，toast 只补充非降级类。
+      final t = context.t.customerService;
+      switch (_flow.lastFailureKind) {
+        case CsSeatFailureKind.conflict:
+          _toast(t.sendConflict);
+        case CsSeatFailureKind.suspended:
+        case CsSeatFailureKind.offboarding:
+        // 横幅（readOnlySuspended/offboardingRequired）为权威可解释态。
+        case CsSeatFailureKind.other:
+        case null:
+          _toast(t.sendFailed);
+      }
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -144,6 +174,9 @@ class _CsSessionPageState extends State<CsSessionPage> {
         : 'application/octet-stream';
     setState(() => _busy = true);
     try {
+      // A03：presign → PUT → confirm（confirmed_unbound）→ 消息带
+      // asset_ids 原子绑定。不发送「文件名文本」伪附件；上传失败不产生
+      // 任何消息（不伪成功），幂等键与附件组保留到确认为止。
       final assetId = await _flow.uploadAsset(
         fileName: name,
         mime: mime,
@@ -152,24 +185,42 @@ class _CsSessionPageState extends State<CsSessionPage> {
       );
       if (!mounted) return;
       if (assetId.isEmpty) {
-        _toast(context.t.customerService.claimFailed);
+        setState(() => _busy = false);
+        _toast(context.t.customerService.attachUploadFailed);
         return;
       }
-      final ok = await _flow.send('[$name]');
+      final ok = await _flow.send('', assetIds: [assetId]);
       if (!mounted) return;
+      setState(() => _busy = false);
       if (ok) {
         _toast(context.t.customerService.attachUploaded);
+      } else {
+        final t = context.t.customerService;
+        if (_flow.lastFailureKind == CsSeatFailureKind.conflict) {
+          _toast(t.sendConflict);
+        } else if (_flow.lastFailureKind == null) {
+          _toast(t.attachUploadFailed);
+        }
+        // suspended/offboarding：降级横幅为权威可解释态。
+        if (mounted) {
+          setState(() {});
+        }
       }
-    } finally {
-      if (mounted) {
-        setState(() => _busy = false);
-      }
+    } on Object {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      _toast(context.t.customerService.attachUploadFailed);
     }
   }
 
   Future<void> _viewAsset(EnterpriseMessage message) async {
+    final ids =
+        _flow.messageAssets[message.id] ??
+        (message.assetId.isNotEmpty ? [message.assetId] : const <String>[]);
+    if (ids.isEmpty) return;
     try {
-      final preview = await _flow.viewAsset(message.assetId);
+      // 只经授权内容代理查看（EB-D06）；closed/rated 只读态仍可查看。
+      final preview = await _flow.viewAsset(ids.first);
       if (!mounted) return;
       // null = 已降级（flow 已同步状态机）：刷新 UI 呈现只读态，不弹预览
       if (preview == null) {
@@ -348,6 +399,8 @@ class _CsSessionPageState extends State<CsSessionPage> {
         return t.readOnlySuspended;
       case CsSeatSessionPhase.offboardingRequired:
         return t.offboardingRequired;
+      case CsSeatSessionPhase.transferredAway:
+        return t.transferredAway;
       case CsSeatSessionPhase.closed:
         return t.closedReadonly;
       case CsSeatSessionPhase.rated:
@@ -564,7 +617,8 @@ class _CsSessionPageState extends State<CsSessionPage> {
                   actor.label,
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
-                if (m.assetId.isNotEmpty)
+                if ((_flow.messageAssets[m.id]?.isNotEmpty ?? false) ||
+                    m.assetId.isNotEmpty)
                   TextButton.icon(
                     onPressed: () => _viewAsset(m),
                     icon: const Icon(

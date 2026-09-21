@@ -4937,6 +4937,18 @@ class Translations$customerService$zh_CN {
 
 	/// zh-CN: '会话已评分结束，内容仅供查看'
 	String get ratedReadonly => '会话已评分结束，内容仅供查看';
+
+	/// zh-CN: '发送失败，请稍后重试'
+	String get sendFailed => '发送失败，请稍后重试';
+
+	/// zh-CN: '会话状态已变化，已为你刷新最新状态'
+	String get sendConflict => '会话状态已变化，已为你刷新最新状态';
+
+	/// zh-CN: '附件上传失败，请重试'
+	String get attachUploadFailed => '附件上传失败，请重试';
+
+	/// zh-CN: '会话已转交给其他坐席，此会话对你只读'
+	String get transferredAway => '会话已转交给其他坐席，此会话对你只读';
 }
 
 // Path: discovery
@@ -9182,6 +9194,10 @@ extension on Translations {
 			'customerService.offboardingRequired' => '当前处于离职交接，会话经办权已移交，此会话已只读',
 			'customerService.closedReadonly' => '会话已关闭，内容仅供查看',
 			'customerService.ratedReadonly' => '会话已评分结束，内容仅供查看',
+			'customerService.sendFailed' => '发送失败，请稍后重试',
+			'customerService.sendConflict' => '会话状态已变化，已为你刷新最新状态',
+			'customerService.attachUploadFailed' => '附件上传失败，请重试',
+			'customerService.transferredAway' => '会话已转交给其他坐席，此会话对你只读',
 			'discovery.findNearbyPeople' => '找附近的人',
 			'discovery.moment' => '朋友圈',
 			'discovery.nearbyPeopleExplain' => '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n你的电话号码将会被隐藏。',
@@ -9634,12 +9650,12 @@ extension on Translations {
 			'organization.detail.defaultWsUnset' => '默认 Workspace：未设置',
 			'organization.detail.defaultWsNote' => '指向事实，不代表任何 workspace 成员身份',
 			'organization.detail.memberList' => '成员列表',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.memberListRestricted' => '成员列表（仅 owner/admin 可查看）',
 			'organization.detail.invitationManage' => '邀请管理',
 			'organization.detail.invitationManageRestricted' => '邀请管理（仅 owner/admin 可管理）',
 			'organization.detail.deptEntry' => '部门目录',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.deptEntryRestricted' => '部门目录（管理操作仅限授权者）',
 			'organization.detail.more' => '更多',
 			'organization.detail.archiveEntrySubtitle' => '进入只读态；可随时恢复',

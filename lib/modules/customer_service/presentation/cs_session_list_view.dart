@@ -10,6 +10,8 @@
 ///（APP-M01-A04：路由 query 不作授权事实）。
 library;
 
+import 'dart:async' show StreamSubscription;
+
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -37,14 +39,22 @@ class CsSessionListView extends StatefulWidget {
   /// 视图状态（active | closed）。
   final CsSeatSessionViewStatus status;
 
+  /// Workspace 作用域（SSE 事件流 query 种子；可空，会话页权威解析）。
+  final String workspaceId;
+
   /// 服务端计数元数据上报（Tab 徽标唯一数据来源）。
   final ValueChanged<CsQueuePage>? onPageMeta;
+
+  /// 外部刷新信号（坐席事件流 session.changed 等触发权威刷新）。
+  final Stream<void>? refreshSignal;
 
   const CsSessionListView({
     super.key,
     required this.orgId,
     required this.status,
+    this.workspaceId = '',
     this.onPageMeta,
+    this.refreshSignal,
   });
 
   @override
@@ -53,6 +63,9 @@ class CsSessionListView extends StatefulWidget {
 
 class _CsSessionListViewState extends State<CsSessionListView> {
   final CsApi _api = CsApi();
+  final GlobalKey<CsPagedSessionListState> _listKey =
+      GlobalKey<CsPagedSessionListState>();
+  StreamSubscription<void>? _refreshSub;
 
   late CsPagedFetch _fetchPage;
 
@@ -66,6 +79,15 @@ class _CsSessionListViewState extends State<CsSessionListView> {
       afterId: afterId,
       limit: limit,
     );
+    _refreshSub = widget.refreshSignal?.listen((_) {
+      _listKey.currentState?.refresh();
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshSub?.cancel();
+    super.dispose();
   }
 
   void _open(CsQueueItem item) {
@@ -74,6 +96,7 @@ class _CsSessionListViewState extends State<CsSessionListView> {
       '?org_id=${Uri.encodeComponent(widget.orgId)}'
       '&conversation_id=${Uri.encodeComponent(item.conversationId)}'
       '&identity_id=${Uri.encodeComponent(item.assigneeIdentityId)}'
+      '&workspace_id=${Uri.encodeComponent(widget.workspaceId)}'
       '&contact_name=${Uri.encodeComponent(item.contactName)}',
     );
   }
@@ -83,6 +106,7 @@ class _CsSessionListViewState extends State<CsSessionListView> {
     final t = context.t.customerService;
     final isActive = widget.status == CsSeatSessionViewStatus.active;
     return CsPagedSessionList(
+      key: _listKey,
       fetchPage: _fetchPage,
       onPageMeta: widget.onPageMeta,
       emptyView: CsListEmptyView(

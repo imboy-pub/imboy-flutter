@@ -37,6 +37,7 @@ List<RouteBase> csWorkspaceRoutes() => [
               orgId: query['org_id'] ?? '',
               conversationId: query['conversation_id'] ?? '',
               identityId: query['identity_id'] ?? '',
+              workspaceId: query['workspace_id'] ?? '',
               contactName: query['contact_name'] ?? '',
             ),
           );

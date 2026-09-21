@@ -1,11 +1,14 @@
 /// RUN: three-plan-integration-20260918T124045Z-6af21b0d | Card: R-UXAPP-01
 /// RUN: customer-service-web-csww-20260920T051447Z | Card: APP-M01（org 作用域 + 组织选择器改造）
+/// RUN: customer-service-web-csww-20260920T051447Z | Card: APP-M02（矩阵扩展到坐席会话页）
 ///
-/// Customer Service 2 个代表页面的 UI/UX 力学矩阵测试：
+/// Customer Service 代表页面的 UI/UX 力学矩阵测试：
 ///
 /// 1. CsQueueView（待接队列，单独 pump 于 Scaffold 内；org 作用域）
 /// 2. CsWorkspacePage（坐席工作台：seat-contexts 驱动组织选择器 +
 ///    TabBar 待接/处理中/已关闭 + FittedBox Tab 修复）
+/// 3. CsSessionPage（坐席会话页：消息气泡 + 输入行 + 评分/只读横幅；
+///    APP-M02 扩展）
 ///
 /// 每页矩阵（单 testWidgets 内合并多泵）：
 /// - viewport sweep：320x568 / 390x844 / 430x932 @1.0 light
@@ -13,9 +16,8 @@
 /// - textScale sweep：390x844 @1.3 / @2.0 light → takeException isNull；
 /// - dark：390x844 @1.0 dark → takeException isNull + 关键文本仍可见；
 /// - semantics：主操作「接单」按钮 / Tab 文本 / 组织选择器存在（机械 find）。
-/// - danger confirm：两页无删除/退出/关闭类动作 → N/A（会话关闭确认
-///   入口在 CsSessionPage 深层，已由 test/customer_service/cs_session_page_test.dart
-///   覆盖 close 确认链路，不重复）。
+/// - danger confirm：会话关闭确认链路由
+///   test/customer_service/cs_session_page_test.dart 覆盖，此处不重复。
 ///
 /// i18n：CS 页面走 slang `context.t.customerService`，host 挂
 /// TranslationProvider（zh 默认语言族）。harness 见 test/ux_matrix/。
@@ -27,12 +29,73 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_queue_view.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_session_page.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_page.dart';
 
 import '../../ux_matrix/ux_harness.dart';
 
 const String kOrgId = '7266418340025468901';
 const String kOrgName = '示例组织';
+const String kSessionId = '7266418340025468940';
+const String kConversationId = '7266418340025468950';
+const String kIdentityId = '7266418340025468902';
+
+/// 会话页桩（APP-M02）：detail（权威 active）+ 历史（入站/出站各一）。
+/// SSE 端点未桩（未命中 → 200 空 payload）：事件流解析空帧后按 retry
+/// 退避，矩阵各拍 < 2s 重连间隔，不产生额外请求。
+RouteStubAdapter _sessionStub() => RouteStubAdapter([
+  (
+    '/sessions/$kSessionId',
+    [
+      (
+        200,
+        uxEnvelope(
+          payload: {
+            'session_id': kSessionId,
+            'organization_id': kOrgId,
+            'conversation_id': kConversationId,
+            'status': 'active',
+            'version': 5,
+            'business_identity_id': kIdentityId,
+          },
+        ),
+      ),
+    ],
+  ),
+  (
+    '/conversations/$kConversationId/messages',
+    [
+      (
+        200,
+        uxEnvelope(
+          payload: [
+            {
+              'id': '7266418340025468961',
+              'conversation_id': kConversationId,
+              'organization_id': kOrgId,
+              'sender_type': 'contact',
+              'sender_contact_id': '7266418340025468941',
+              'sender_business_identity_id': null,
+              'content': '订单还没收到',
+              'delivered': true,
+            },
+            {
+              'id': '7266418340025468962',
+              'conversation_id': kConversationId,
+              'organization_id': kOrgId,
+              'sender_type': 'business_identity',
+              'sender_contact_id': null,
+              'sender_business_identity_id': kIdentityId,
+              'sender_business_identity_name': '客服小易',
+              'content': '您好，正在为您加急核实',
+              'delivered': true,
+            },
+          ],
+        ),
+      ),
+    ],
+  ),
+]);
 
 Map<String, dynamic> _queueItem(String id, String maskedName) => {
   'id': id,
@@ -236,5 +299,28 @@ void main() {
       isTrue,
       reason: '队列取数走 org 作用域路径',
     );
+  });
+
+  testWidgets('CsSessionPage：消息气泡 + 输入行矩阵（APP-M02 扩展；无 danger 入口 → N/A）', (
+    tester,
+  ) async {
+    uxInstallStub(_sessionStub());
+
+    await _runMatrix(
+      tester,
+      const CsSessionPage(
+        orgId: kOrgId,
+        sessionId: kSessionId,
+        conversationId: kConversationId,
+        identityId: kIdentityId,
+        contactName: '张三',
+      ),
+      'cs_session',
+      darkVisibleText: find.text('订单还没收到'),
+    );
+
+    // semantics（机械 find）：入站气泡（客户在左）与掩码名可见。
+    expect(find.text('订单还没收到'), findsOneWidget);
+    expect(find.textContaining('张**'), findsWidgets);
   });
 }

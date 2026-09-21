@@ -10,6 +10,8 @@
 ///   路由 query 仅作展示种子，会话页以服务端 detail 为准。
 library;
 
+import 'dart:async' show StreamSubscription;
+
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -30,10 +32,22 @@ class CsQueueView extends StatefulWidget {
   /// 组织作用域（seat-contexts 列表选中项；服务端逐字校验）。
   final String orgId;
 
+  /// Workspace 作用域（SSE 事件流 query 种子；可空，会话页权威解析）。
+  final String workspaceId;
+
   /// 服务端计数元数据上报（Tab 徽标唯一数据来源）。
   final ValueChanged<CsQueuePage>? onPageMeta;
 
-  const CsQueueView({super.key, required this.orgId, this.onPageMeta});
+  /// 外部刷新信号（坐席事件流 queue.changed 等触发权威刷新）。
+  final Stream<void>? refreshSignal;
+
+  const CsQueueView({
+    super.key,
+    required this.orgId,
+    this.workspaceId = '',
+    this.onPageMeta,
+    this.refreshSignal,
+  });
 
   @override
   State<CsQueueView> createState() => _CsQueueViewState();
@@ -43,6 +57,7 @@ class _CsQueueViewState extends State<CsQueueView> {
   final CsApi _api = CsApi();
   final GlobalKey<CsPagedSessionListState> _listKey =
       GlobalKey<CsPagedSessionListState>();
+  StreamSubscription<void>? _refreshSub;
 
   /// claim 进行中的会话（防重复点击）。
   String? _claimingSessionId;
@@ -54,6 +69,15 @@ class _CsQueueViewState extends State<CsQueueView> {
     super.initState();
     _fetchPage = ({String? afterId, int? limit}) =>
         _api.queuePage(widget.orgId, afterId: afterId, limit: limit);
+    _refreshSub = widget.refreshSignal?.listen((_) {
+      _listKey.currentState?.refresh();
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshSub?.cancel();
+    super.dispose();
   }
 
   /// CAS 接单：成功 → 提示 + 刷新真实队列；409 → 刷新真实状态并提示。
@@ -88,6 +112,7 @@ class _CsQueueViewState extends State<CsQueueView> {
         '?org_id=${Uri.encodeComponent(widget.orgId)}'
         '&conversation_id=${Uri.encodeComponent(item.conversationId)}'
         '&identity_id=${Uri.encodeComponent(assigneeIdentityId)}'
+        '&workspace_id=${Uri.encodeComponent(widget.workspaceId)}'
         '&contact_name=${Uri.encodeComponent(item.contactName)}',
       );
     } on CsApiException catch (e) {
