@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -15,7 +17,12 @@ import 'package:imboy/service/secure_token_storage_service.dart'
 
 /// 用户本地数据仓库
 /// 负责管理用户登录状态、令牌、用户信息等本地数据
-class UserRepoLocal {
+///
+/// 继承 [ChangeNotifier]：本地用户缓存变更（[changeInfo] / [changeSetting] /
+/// [loginAfter] / [quitLogin]）后 notifyListeners，经 currentUserProvider
+/// （见 user_repo_provider.dart 的桥接）驱动 UI 重建——上传头像等资料
+/// 变更即时可见，无需重进页面。单例由裸 Provider 持有，无人调用 dispose。
+class UserRepoLocal extends ChangeNotifier {
   // 私有构造函数，实现单例模式
   UserRepoLocal._();
 
@@ -166,11 +173,13 @@ class UserRepoLocal {
     Map<String, dynamic> u = StorageService.getMap(Keys.currentUser);
     u['setting'] = setting.toMap();
     await StorageService.setMap(Keys.currentUser, u);
+    notifyListeners();
     return true;
   }
 
   Future<bool> changeInfo(Map<String, dynamic> payload) async {
     await StorageService.setMap(Keys.currentUser, payload);
+    notifyListeners();
     return true;
   }
 
@@ -214,6 +223,7 @@ class UserRepoLocal {
 
     // await StorageService.to.setString(Keys.currentUid, payload['uid']);
     await StorageService.setMap(Keys.currentUser, payload);
+    notifyListeners();
     SqliteService.to.db;
     // 初始化 WebSocket 链接
     // 检查WS链接状
@@ -296,6 +306,7 @@ class UserRepoLocal {
         await SqliteService.to.deleteDatabaseForUid(logoutUid);
       }
       iPrint("> quitLogin: Logout process completed successfully");
+      notifyListeners();
       return true;
     } on Object {
       return false;

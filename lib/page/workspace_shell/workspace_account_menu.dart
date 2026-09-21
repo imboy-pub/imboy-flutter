@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
@@ -42,7 +43,7 @@ class WorkspaceAccountButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userRepoProvider).currentUser;
+    final user = ref.watch(currentUserProvider);
     final avatar = user?.avatar ?? '';
     final initial = _initialOf(user?.nickname, user?.account);
     // CupertinoButton(padding: zero)：与右侧导航工具按钮同款解剖，44px 热区
@@ -53,7 +54,10 @@ class WorkspaceAccountButton extends ConsumerWidget {
       onPressed: () => _openAccountSheet(context, ref),
       child: CircleAvatar(
         radius: 14,
-        backgroundImage: avatar.isNotEmpty ? NetworkImage(avatar) : null,
+        // avatar 可能是 Garage object_key（非完整 URL），必须经
+        // avatarImageProvider 分流解析；裸 NetworkImage 对 object_key
+        // 必然加载失败（显示为空底色圆）。
+        backgroundImage: avatar.isNotEmpty ? avatarImageProvider(avatar) : null,
         child: avatar.isEmpty
             ? Text(
                 initial,
@@ -146,7 +150,7 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
     final shell = ref.watch(workspaceShellProvider);
-    final user = ref.watch(userRepoProvider).currentUser;
+    final user = ref.watch(currentUserProvider);
     final current = shell.current;
     final myRole = _myRole(ref, current?.id ?? '', user?.uid ?? '');
 
@@ -322,7 +326,9 @@ class _IdentityCard extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 24,
-          backgroundImage: avatar.isNotEmpty ? NetworkImage(avatar) : null,
+          backgroundImage: avatar.isNotEmpty
+              ? avatarImageProvider(avatar)
+              : null,
           child: avatar.isEmpty
               ? Text(
                   WorkspaceAccountButton._initialOf(nickname, account),

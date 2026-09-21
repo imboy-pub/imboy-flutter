@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
@@ -125,7 +126,7 @@ class _WorkspaceTile extends StatelessWidget {
               radius: 18,
               backgroundColor: theme.colorScheme.primaryContainer,
               backgroundImage: ws.logo.isNotEmpty
-                  ? NetworkImage(ws.logo)
+                  ? avatarImageProvider(ws.logo)
                   : null,
               child: ws.logo.isEmpty
                   ? Text(

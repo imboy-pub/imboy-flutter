@@ -17,6 +17,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -447,7 +448,7 @@ class _MemberTile extends StatelessWidget {
             radius: 18,
             backgroundColor: theme.colorScheme.primaryContainer,
             backgroundImage: member.avatar.isNotEmpty
-                ? NetworkImage(member.avatar)
+                ? avatarImageProvider(member.avatar)
                 : null,
             child: member.avatar.isEmpty
                 ? Icon(

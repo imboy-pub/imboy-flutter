@@ -58,8 +58,8 @@ class _MinePageState extends ConsumerState<MinePage> {
 
   @override
   Widget build(BuildContext context) {
-    final userRepo = ref.watch(userRepoProvider);
-    final user = userRepo.currentUser;
+    // 响应式当前用户：资料变更（上传头像等）后即时重建
+    final user = ref.watch(currentUserProvider);
     final brightness = Theme.of(context).brightness;
     final topPadding = MediaQuery.of(context).padding.top + 16.0;
 

@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -116,7 +117,7 @@ class _GroupTile extends StatelessWidget {
               radius: 18,
               backgroundColor: theme.colorScheme.primaryContainer,
               backgroundImage: group.avatar.isNotEmpty
-                  ? NetworkImage(group.avatar)
+                  ? avatarImageProvider(group.avatar)
                   : null,
               child: group.avatar.isEmpty
                   ? Icon(

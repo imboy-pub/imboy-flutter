@@ -13,6 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -254,9 +255,8 @@ class _MemberPreview extends StatelessWidget {
     if (members.isEmpty) {
       return Text(
         t.workspace.membersEmpty,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        style: Theme.of(context).textTheme.bodySmall
+            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
       );
     }
     return Wrap(
@@ -271,7 +271,7 @@ class _MemberPreview extends StatelessWidget {
                 radius: 12,
                 backgroundColor: AppColors.primaryLight,
                 backgroundImage: m.avatar.isNotEmpty
-                    ? NetworkImage(m.avatar)
+                    ? avatarImageProvider(m.avatar)
                     : null,
                 child: m.avatar.isEmpty
                     ? Text(
