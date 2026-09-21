@@ -3,12 +3,17 @@
 /// 管理远程推送 token 的获取、注册和生命周期。
 /// 支持方案:
 /// - 本地通知 (flutter_local_notifications) — 始终启用
-/// - FCM 远程推送 — 自动检测 Firebase 配置，有则启用
+/// - FCM 远程推送 — 自动检测 Firebase 配置，有则启用（Android 记 fcm、iOS 记 apns）
+/// - JPush 远程推送 — [setToken] 注入 RegistrationID（plugin 接线后启用，记 jpush）
 ///
 /// 使用方式:
 /// 1. 在 AppInitializer 中调用 PushNotificationService.initialize()
-/// 2. 用户登录后调用 registerToken()
-/// 3. 用户登出时调用 unregisterToken()
+/// 2. 用户登录后调用 registerToken()（UserRepoLocal.loginAfter 已接线）
+/// 3. 用户登出时调用 unregisterToken()（UserRepoLocal.quitLogin 已接线）
+///
+/// 后端字段合同（EPGZ-07）：device_type = 设备 OS（android/ios/web），
+/// platform = 推送通道 provider（fcm/apns/web_push/jpush）——两个语义
+/// 独立，不得混用（历史错位：曾把 device_type 值塞进 platform）。
 library;
 
 import 'dart:async';
@@ -18,6 +23,7 @@ import 'dart:io' show Platform;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/init.dart';
@@ -37,9 +43,13 @@ class PushNotificationService {
   final PushApi _api = PushApi();
   final NotificationService _notificationService = NotificationService();
 
-  /// 当前推送 token（FCM token 或 APNs device token）
+  /// 当前推送 token（FCM token、APNs device token 或 JPush RegistrationID）
   String? _pushToken;
   String? get pushToken => _pushToken;
+
+  /// 当前 token 对应的推送通道 provider（后端 platform 字段值）
+  String? _providerId;
+  String? get providerId => _providerId;
 
   /// 是否已注册到后端
   bool _isRegistered = false;
@@ -52,6 +62,25 @@ class PushNotificationService {
   /// FCM 是否初始化成功
   bool _fcmEnabled = false;
   bool get fcmEnabled => _fcmEnabled;
+
+  /// 测试专用：重置 token 注册状态（单例跨用例复用，防状态串扰；
+  /// 不触碰 FCM 订阅——单测环境本就不经过 initialize()）。
+  @visibleForTesting
+  void resetForTest() {
+    _pushToken = null;
+    _providerId = null;
+    _isRegistered = false;
+  }
+
+  /// device_type 字段值：设备 OS（后端值域 android/ios/web）
+  static String deviceTypeId({required bool isIOS}) =>
+      isIOS ? 'ios' : 'android';
+
+  /// FCM 通道的 platform 字段值：iOS 经 APNs 投递记 apns，Android 记 fcm
+  static String fcmProviderId({required bool isIOS}) => isIOS ? 'apns' : 'fcm';
+
+  /// JPush 通道的 platform 字段值（一期仅 Android）
+  static const String jpushProviderId = 'jpush';
 
   /// 初始化推送服务
   ///
@@ -111,13 +140,20 @@ class PushNotificationService {
         },
       );
       iPrint('[Push] FCM token 获取成功: ${_pushToken != null}');
+      _providerId = _pushToken != null
+          ? fcmProviderId(isIOS: Platform.isIOS)
+          : null;
 
       // 监听 token 刷新
       _tokenRefreshSub = messaging.onTokenRefresh.listen((newToken) {
         iPrint('[Push] Token 已刷新');
         _pushToken = newToken;
+        _providerId = fcmProviderId(isIOS: Platform.isIOS);
         if (UserRepoLocal.to.isLoggedIn) {
-          _registerTokenToServer(newToken);
+          _registerTokenToServer(
+            newToken,
+            providerId: _providerId ?? fcmProviderId(isIOS: Platform.isIOS),
+          );
         }
       });
 
@@ -148,8 +184,8 @@ class PushNotificationService {
 
   /// 向后端注册推送 token
   ///
-  /// 在用户登录成功或 token 刷新时调用。
-  /// 如果没有 push token (FCM 未配置), 静默返回。
+  /// 在用户登录成功（UserRepoLocal.loginAfter）或 token 刷新时调用。
+  /// 如果没有 push token (FCM 未配置且 JPush 未接线), 静默返回。
   Future<void> registerToken() async {
     if (_pushToken == null || _pushToken!.isEmpty) {
       iPrint('[Push] 无推送 token，跳过注册');
@@ -161,12 +197,16 @@ class PushNotificationService {
       return;
     }
 
-    await _registerTokenToServer(_pushToken!);
+    await _registerTokenToServer(
+      _pushToken!,
+      providerId: _providerId ?? defaultProviderId(),
+    );
   }
 
   /// 注销推送 token
   ///
-  /// 在用户登出时调用
+  /// 在用户登出时调用（UserRepoLocal.quitLogin 在清除本地登录态前调用，
+  /// 请求依赖登录态；后端按 (uid, device_id) 下线 token）。
   Future<void> unregisterToken() async {
     if (!_isRegistered) return;
 
@@ -183,26 +223,37 @@ class PushNotificationService {
 
   /// 手动设置推送 token（用于非 FCM 的推送方案）
   ///
-  /// 例如华为推送、小米推送等国内厂商推送服务
-  Future<void> setToken(String token) async {
+  /// 例如华为推送、小米推送、JPush 等国内厂商推送服务。
+  /// [providerId] 为该通道在后端的 platform 值（jpush 等），
+  /// 缺省按 [jpushProviderId] 处理（一期非 FCM 通道仅 JPush）。
+  Future<void> setToken(String token, {String? providerId}) async {
     _pushToken = token;
+    _providerId = providerId ?? jpushProviderId;
     if (UserRepoLocal.to.isLoggedIn) {
-      await _registerTokenToServer(token);
+      await _registerTokenToServer(token, providerId: _providerId!);
     }
   }
 
-  /// 向后端注册 token
-  Future<void> _registerTokenToServer(String token) async {
+  /// 无显式 provider 时的兜底通道（Android 一期客户场景：FCM 不可达）
+  String defaultProviderId() =>
+      Platform.isIOS ? fcmProviderId(isIOS: true) : jpushProviderId;
+
+  /// 向后端注册 token（device_type 与 platform 两个语义分开传）
+  Future<void> _registerTokenToServer(
+    String token, {
+    required String providerId,
+  }) async {
     try {
-      final platform = Platform.isIOS ? 'ios' : 'android';
+      final deviceType = deviceTypeId(isIOS: Platform.isIOS);
       final success = await _api.register(
         token: token,
-        platform: platform,
+        deviceType: deviceType,
+        platform: providerId,
         deviceId: deviceId,
       );
       if (success) {
         _isRegistered = true;
-        iPrint('[Push] Token 注册成功: platform=$platform');
+        iPrint('[Push] Token 注册成功: platform=$providerId');
       } else {
         iPrint('[Push] Token 注册失败');
       }
@@ -241,6 +292,12 @@ class PushNotificationService {
 
   /// 根据解析结果路由（含冷启动重试）
   void _navigateByResult(NotificationParseResult result, [int retry = 0]) {
+    // EPGZ-07：登出后不导航——通知点击只对已登录会话生效，
+    // 防止登出残留通知把用户带回会话页（§7.4「登出后不导航」）。
+    if (!UserRepoLocal.to.isLoggedIn) {
+      iPrint('[Push] 用户未登录，忽略通知点击导航');
+      return;
+    }
     final context = navigatorKey.currentContext;
     if (context == null || !context.mounted) {
       if (retry < 5) {

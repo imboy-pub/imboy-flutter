@@ -6,6 +6,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
+import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
@@ -229,17 +230,13 @@ class UserRepoLocal extends ChangeNotifier {
     // 检查WS链接状
     WebSocketService.to;
 
-    // https://github.com/jpush/jpush-flutter-plugin/blob/master/documents/APIs.md
-    // 获取 registrationId，这个 JPush 运行通过 registrationId 来进行推送.
-    // push.getRegistrationID().then((rid) {
-    //   debugPrint("push registrationId $rid");
-    // });
-    // 设置别名，极光后台可以通过别名来推送，一个 App 应用只有一个别名，一般用来存储用户 id。
-    /*
-    if (Platform.isAndroid) {
-      await push.setAlias(payload['uid']);
-    }
-    */
+    // EPGZ-07 F4：登录成功后注册推送 token（离线推送的前提）。
+    // 服务内部自守卫：未获取到 token / 网络失败时静默跳过，
+    // 不阻塞登录主流程。JPush RegistrationID 由 SDK 接线后经
+    // PushNotificationService.setToken(rid, providerId: 'jpush') 注入
+    //（历史 JPush 集成注释见 git 历史，SDK 依赖接线归 A6 集成波次）。
+    unawaited(PushNotificationService.instance.registerToken());
+
     return true;
   }
 
@@ -253,6 +250,12 @@ class UserRepoLocal extends ChangeNotifier {
       } else {
         iPrint("> quitLogin: User is not logged in");
       }
+
+      // EPGZ-07 F4：登出先注销推送 token，再清本地登录态——
+      // 注销 API 需要登录态（JWT），必须在 secure token 清除前调用；
+      // 未注册过时服务内静默跳过；失败不阻断登出（后端对失效 token
+      // 有 deactivate_by_token 下线兜底）。
+      await PushNotificationService.instance.unregisterToken();
 
       iPrint("> quitLogin: Removing storage data");
       await StorageService.to.remove(Keys.currentUid);
