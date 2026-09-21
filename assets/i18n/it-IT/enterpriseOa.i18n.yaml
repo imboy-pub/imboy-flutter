@@ -24,3 +24,6 @@ webviewSlotHint: "Contenitore pagina OA (integrazione in W3)"
 badgeDelegated: "Tramite OA"
 markerNoE2ee: "Gestito dall'azienda · non crittografato end-to-end"
 senderVia: "inviato tramite $origin"
+# ==================== SSO emissione / conto alla rovescia (W3) ====================
+ssoIssuing: "Richiesta del codice SSO…"
+ssoCountdown: "Codice valido per $seconds secondi. Accedi presto."

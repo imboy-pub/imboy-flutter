@@ -5151,6 +5151,12 @@ class Translations$enterpriseOa$zh_CN {
 
 	/// zh-CN: '经 $origin 代发'
 	String senderVia({required Object origin}) => '经 ${origin} 代发';
+
+	/// zh-CN: '正在获取单点登录凭证…'
+	String get ssoIssuing => '正在获取单点登录凭证…';
+
+	/// zh-CN: '凭证 $seconds 秒内有效，请尽快完成登录'
+	String ssoCountdown({required Object seconds}) => '凭证 ${seconds} 秒内有效，请尽快完成登录';
 }
 
 // Path: error
@@ -9326,6 +9332,8 @@ extension on Translations {
 			'enterpriseOa.badgeDelegated' => 'OA 代发',
 			'enterpriseOa.markerNoE2ee' => '企业托管 · 未端到端加密',
 			'enterpriseOa.senderVia' => ({required Object origin}) => '经 ${origin} 代发',
+			'enterpriseOa.ssoIssuing' => '正在获取单点登录凭证…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '凭证 ${seconds} 秒内有效，请尽快完成登录',
 			'error.restartRequired' => '需要重启应用',
 			'error.pleaseCheckNetwork' => '请检查你的网络设置。',
 			'error.networkTroubleshootingStep1' => '1.打开手机设置并把Wi-Fi开关保持开启状态。',
@@ -9715,10 +9723,10 @@ extension on Translations {
 			'organization.detail.restoreOrg' => '恢复组织',
 			'organization.detail.restoreConfirmBody' => '恢复后组织回到 active 态，写入口重新开放。',
 			'organization.detail.confirmRestore' => '确认恢复',
-			'organization.detail.restoreFailed' => '恢复失败',
-			'organization.detail.archiveFailed' => '归档失败',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.restoreFailed' => '恢复失败',
+			'organization.detail.archiveFailed' => '归档失败',
 			'organization.detail.renameOrgTitle' => '修改组织名称',
 			'organization.detail.renameOrgLabel' => '组织名称（1-200 字符）',
 			'organization.detail.renameAction' => '修改名称',

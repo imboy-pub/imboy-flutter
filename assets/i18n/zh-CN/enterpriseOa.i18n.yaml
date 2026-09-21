@@ -24,3 +24,6 @@ webviewSlotHint: "OA 页面容器（集成于 W3 波次）"
 badgeDelegated: "OA 代发"
 markerNoE2ee: "企业托管 · 未端到端加密"
 senderVia: "经 $origin 代发"
+# ==================== SSO 签发/倒计时（W3） ====================
+ssoIssuing: "正在获取单点登录凭证…"
+ssoCountdown: "凭证 $seconds 秒内有效，请尽快完成登录"

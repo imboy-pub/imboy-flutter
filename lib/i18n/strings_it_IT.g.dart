@@ -1762,6 +1762,8 @@ class _Translations$enterpriseOa$it_IT extends Translations$enterpriseOa$zh_CN {
 	@override String get badgeDelegated => 'Tramite OA';
 	@override String get markerNoE2ee => 'Gestito dall\'azienda · non crittografato end-to-end';
 	@override String senderVia({required Object origin}) => 'inviato tramite ${origin}';
+	@override String get ssoIssuing => 'Richiesta del codice SSO…';
+	@override String ssoCountdown({required Object seconds}) => 'Codice valido per ${seconds} secondi. Accedi presto.';
 }
 
 // Path: error
@@ -4340,6 +4342,8 @@ extension on TranslationsItIt {
 			'enterpriseOa.badgeDelegated' => 'Tramite OA',
 			'enterpriseOa.markerNoE2ee' => 'Gestito dall\'azienda · non crittografato end-to-end',
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'inviato tramite ${origin}',
+			'enterpriseOa.ssoIssuing' => 'Richiesta del codice SSO…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Codice valido per ${seconds} secondi. Accedi presto.',
 			'error.restartRequired' => 'Riavvio richiesto',
 			'error.pleaseCheckNetwork' => 'Controlla le impostazioni di rete.',
 			'error.networkTroubleshootingStep1' => '1. Apri impostazioni telefono e mantieni l\'interruttore Wi-Fi attivo.',
@@ -4812,10 +4816,10 @@ extension on TranslationsItIt {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Membro ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Non hai accesso a questo dipartimento (solo membri attivi di questa organizzazione)',
 			'organization.departments.viewForbidden' => 'Nessun accesso (solo membri attivi di questa organizzazione)',
-			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Caricamento del dipartimento non riuscito: ${msg} (${code})',
-			'organization.departments.loadFailed' => ({required Object err}) => 'Caricamento del dipartimento non riuscito: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Caricamento del dipartimento non riuscito: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => 'Caricamento del dipartimento non riuscito: ${err}',
 			'organization.departments.createSubHere' => 'Crea qui un sottodipartimento',
 			'organization.departments.movePickParent' => 'Sposta (scegli nuovo dipartimento padre)',
 			'organization.departments.addMemberByUid' => 'Aggiungi membro (per UID)',

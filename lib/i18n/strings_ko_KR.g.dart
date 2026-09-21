@@ -1759,6 +1759,8 @@ class _Translations$enterpriseOa$ko_KR extends Translations$enterpriseOa$zh_CN {
 	@override String get badgeDelegated => 'OA 대리 전송';
 	@override String get markerNoE2ee => '기업 호스팅 · 종단간 암호화 아님';
 	@override String senderVia({required Object origin}) => '${origin} 경유 전송';
+	@override String get ssoIssuing => '단일 로그인 코드 요청 중…';
+	@override String ssoCountdown({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.';
 }
 
 // Path: error
@@ -4337,6 +4339,8 @@ extension on TranslationsKoKr {
 			'enterpriseOa.badgeDelegated' => 'OA 대리 전송',
 			'enterpriseOa.markerNoE2ee' => '기업 호스팅 · 종단간 암호화 아님',
 			'enterpriseOa.senderVia' => ({required Object origin}) => '${origin} 경유 전송',
+			'enterpriseOa.ssoIssuing' => '단일 로그인 코드 요청 중…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
 			'error.networkTroubleshootingStep1' => '1. 휴대전화 설정을 열고 Wi-Fi 스위치를 켜 주세요.',
@@ -4809,10 +4813,10 @@ extension on TranslationsKoKr {
 			'organization.departments.memberUidLine' => ({required Object userId}) => '멤버 ${userId}',
 			'organization.departments.viewForbiddenDetail' => '이 부서를 볼 권한이 없습니다(이 조직의 재직 멤버만 가능)',
 			'organization.departments.viewForbidden' => '볼 권한이 없습니다(이 조직의 재직 멤버만 가능)',
-			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '부서 불러오기 실패: ${msg} (${code})',
-			'organization.departments.loadFailed' => ({required Object err}) => '부서 불러오기 실패: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '부서 불러오기 실패: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => '부서 불러오기 실패: ${err}',
 			'organization.departments.createSubHere' => '이 아래에 하위 부서 만들기',
 			'organization.departments.movePickParent' => '이동(새 상위 부서 선택)',
 			'organization.departments.addMemberByUid' => '멤버 추가(UID로)',

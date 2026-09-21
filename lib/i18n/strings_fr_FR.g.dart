@@ -1762,6 +1762,8 @@ class _Translations$enterpriseOa$fr_FR extends Translations$enterpriseOa$zh_CN {
 	@override String get badgeDelegated => 'Via OA';
 	@override String get markerNoE2ee => 'Hébergé par l\'entreprise · non chiffré de bout en bout';
 	@override String senderVia({required Object origin}) => 'envoyé via ${origin}';
+	@override String get ssoIssuing => 'Demande du code d\'authentification unique…';
+	@override String ssoCountdown({required Object seconds}) => 'Code valide ${seconds} secondes. Connectez-vous rapidement.';
 }
 
 // Path: error
@@ -4340,6 +4342,8 @@ extension on TranslationsFrFr {
 			'enterpriseOa.badgeDelegated' => 'Via OA',
 			'enterpriseOa.markerNoE2ee' => 'Hébergé par l\'entreprise · non chiffré de bout en bout',
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'envoyé via ${origin}',
+			'enterpriseOa.ssoIssuing' => 'Demande du code d\'authentification unique…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code valide ${seconds} secondes. Connectez-vous rapidement.',
 			'error.restartRequired' => 'Redémarrage requis',
 			'error.pleaseCheckNetwork' => 'Vérifiez vos paramètres réseau.',
 			'error.networkTroubleshootingStep1' => '1. Ouvrez les paramètres du téléphone et gardez le Wi-Fi activé.',
@@ -4812,10 +4816,10 @@ extension on TranslationsFrFr {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Membre ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Accès à ce département refusé (membres actifs de cette organisation uniquement)',
 			'organization.departments.viewForbidden' => 'Accès refusé (membres actifs de cette organisation uniquement)',
-			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Échec du chargement du département : ${msg} (${code})',
-			'organization.departments.loadFailed' => ({required Object err}) => 'Échec du chargement du département : ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Échec du chargement du département : ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => 'Échec du chargement du département : ${err}',
 			'organization.departments.createSubHere' => 'Créer un sous-département ici',
 			'organization.departments.movePickParent' => 'Déplacer (choisir un nouveau parent)',
 			'organization.departments.addMemberByUid' => 'Ajouter un membre (par UID)',

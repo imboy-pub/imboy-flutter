@@ -1768,6 +1768,8 @@ class _Translations$enterpriseOa$ru_RU extends Translations$enterpriseOa$zh_CN {
 	@override String get badgeDelegated => 'Через OA';
 	@override String get markerNoE2ee => 'Корпоративное хранение · без сквозного шифрования';
 	@override String senderVia({required Object origin}) => 'отправлено через ${origin}';
+	@override String get ssoIssuing => 'Запрос кода единого входа…';
+	@override String ssoCountdown({required Object seconds}) => 'Код действует ${seconds} сек. Войдите как можно скорее.';
 }
 
 // Path: error
@@ -4346,6 +4348,8 @@ extension on TranslationsRuRu {
 			'enterpriseOa.badgeDelegated' => 'Через OA',
 			'enterpriseOa.markerNoE2ee' => 'Корпоративное хранение · без сквозного шифрования',
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'отправлено через ${origin}',
+			'enterpriseOa.ssoIssuing' => 'Запрос кода единого входа…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Код действует ${seconds} сек. Войдите как можно скорее.',
 			'error.restartRequired' => 'Требуется перезапуск приложения',
 			'error.pleaseCheckNetwork' => 'Пожалуйста, проверьте настройки сети.',
 			'error.networkTroubleshootingStep1' => '1. Включите Wi-Fi в настройках телефона',
@@ -4818,10 +4822,10 @@ extension on TranslationsRuRu {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Участник ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Нет доступа к этому отделу (только действующие участники этой организации)',
 			'organization.departments.viewForbidden' => 'Нет доступа (только действующие участники этой организации)',
-			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Не удалось загрузить отдел: ${msg} (${code})',
-			'organization.departments.loadFailed' => ({required Object err}) => 'Не удалось загрузить отдел: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Не удалось загрузить отдел: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => 'Не удалось загрузить отдел: ${err}',
 			'organization.departments.createSubHere' => 'Создать подотдел здесь',
 			'organization.departments.movePickParent' => 'Переместить (выбрать новый родительский отдел)',
 			'organization.departments.addMemberByUid' => 'Добавить участника (по UID)',

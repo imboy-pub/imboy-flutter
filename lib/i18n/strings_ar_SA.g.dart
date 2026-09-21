@@ -1771,6 +1771,8 @@ class _Translations$enterpriseOa$ar_SA extends Translations$enterpriseOa$zh_CN {
 	@override String get badgeDelegated => 'عبر OA';
 	@override String get markerNoE2ee => 'مستضاف مؤسسيًا · بدون تشفير طرف إلى طرف';
 	@override String senderVia({required Object origin}) => 'أُرسل عبر ${origin}';
+	@override String get ssoIssuing => 'جارٍ طلب رمز تسجيل الدخول الموحد…';
+	@override String ssoCountdown({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.';
 }
 
 // Path: error
@@ -4349,6 +4351,8 @@ extension on TranslationsArSa {
 			'enterpriseOa.badgeDelegated' => 'عبر OA',
 			'enterpriseOa.markerNoE2ee' => 'مستضاف مؤسسيًا · بدون تشفير طرف إلى طرف',
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'أُرسل عبر ${origin}',
+			'enterpriseOa.ssoIssuing' => 'جارٍ طلب رمز تسجيل الدخول الموحد…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
 			'error.networkTroubleshootingStep1' => '1. افتح إعدادات الهاتف وقم بإبقاء مفتاح Wi-Fi قيد التشغيل.',
@@ -4821,10 +4825,10 @@ extension on TranslationsArSa {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'العضو ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)',
 			'organization.departments.viewForbidden' => 'لا تملك صلاحية العرض (للأعضاء العاملين في هذه المنظمة فقط)',
-			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'فشل تحميل القسم: ${msg} (${code})',
-			'organization.departments.loadFailed' => ({required Object err}) => 'فشل تحميل القسم: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'فشل تحميل القسم: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => 'فشل تحميل القسم: ${err}',
 			'organization.departments.createSubHere' => 'إنشاء قسم فرعي هنا',
 			'organization.departments.movePickParent' => 'نقل (اختيار قسم أب جديد)',
 			'organization.departments.addMemberByUid' => 'إضافة عضو (بمعرّف UID)',

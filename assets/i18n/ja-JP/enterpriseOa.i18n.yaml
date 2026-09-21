@@ -24,3 +24,6 @@ webviewSlotHint: "OA ページコンテナ（W3 で統合）"
 badgeDelegated: "OA 代送"
 markerNoE2ee: "企業管理 · エンドツーエンド暗号化なし"
 senderVia: "$origin 経由で送信"
+# ==================== SSO 発行／カウントダウン（W3） ====================
+ssoIssuing: "シングルサインオンコードを取得中…"
+ssoCountdown: "コードの有効期限は残り $seconds 秒です。早めにログインしてください。"

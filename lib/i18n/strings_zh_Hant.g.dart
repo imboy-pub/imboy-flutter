@@ -1759,6 +1759,8 @@ class Translations$enterpriseOa$zh_Hant extends Translations$enterpriseOa$zh_CN 
 	@override String get badgeDelegated => 'OA 代發';
 	@override String get markerNoE2ee => '企業託管 · 未端對端加密';
 	@override String senderVia({required Object origin}) => '經 ${origin} 代發';
+	@override String get ssoIssuing => '正在取得單一登入憑證…';
+	@override String ssoCountdown({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入';
 }
 
 // Path: error
@@ -4337,6 +4339,8 @@ extension on TranslationsZhHant {
 			'enterpriseOa.badgeDelegated' => 'OA 代發',
 			'enterpriseOa.markerNoE2ee' => '企業託管 · 未端對端加密',
 			'enterpriseOa.senderVia' => ({required Object origin}) => '經 ${origin} 代發',
+			'enterpriseOa.ssoIssuing' => '正在取得單一登入憑證…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.pleaseCheckNetwork' => '請檢查你的網路設定。',
 			'error.networkTroubleshootingStep1' => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。',
@@ -4809,10 +4813,10 @@ extension on TranslationsZhHant {
 			'organization.departments.memberUidLine' => ({required Object userId}) => '成員 ${userId}',
 			'organization.departments.viewForbiddenDetail' => '無權查看該部門（僅限本組織在職成員）',
 			'organization.departments.viewForbidden' => '無權查看（僅限本組織在職成員）',
-			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '載入部門失敗：${msg} (${code})',
-			'organization.departments.loadFailed' => ({required Object err}) => '載入部門失敗：${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '載入部門失敗：${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => '載入部門失敗：${err}',
 			'organization.departments.createSubHere' => '在其下新增子部門',
 			'organization.departments.movePickParent' => '移動（選擇新父部門）',
 			'organization.departments.addMemberByUid' => '新增成員（按 UID）',

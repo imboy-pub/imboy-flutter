@@ -202,6 +202,11 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   firebase_core: 4.15.0             # 与当前 macOS Podfile.lock 的 Firebase SDK 12.15 保持一致
   firebase_messaging: 16.7.0        # 与当前 macOS Podfile.lock 的原生插件版本保持一致
+  # 极光推送（EPGZ-07/EPGZ-06 W3，2026-09-21 核验 pub.dev 最新稳定 3.5.8）。
+  # AppKey 经 android/app/build.gradle.kts manifestPlaceholders 从
+  # local.properties jpush.appKey 注入（真实值严禁入库）；Dart 侧只做
+  # RegistrationID → PushNotificationService.setToken 注入，不触碰密钥。
+  jpush_flutter: ^3.5.8
 
   envied: ^1.3.9                    # Environment variables management (updated: 1.3.2 → 1.3.8)
   pin_code_fields: ^10.0.0                 # PIN code input fields

@@ -1842,6 +1842,8 @@ class _Translations$enterpriseOa$en_US extends Translations$enterpriseOa$zh_CN {
 	@override String get badgeDelegated => 'Via OA';
 	@override String get markerNoE2ee => 'Enterprise-hosted · not end-to-end encrypted';
 	@override String senderVia({required Object origin}) => 'sent via ${origin}';
+	@override String get ssoIssuing => 'Requesting single sign-on code…';
+	@override String ssoCountdown({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.';
 }
 
 // Path: error
@@ -4490,6 +4492,8 @@ extension on TranslationsEnUs {
 			'enterpriseOa.badgeDelegated' => 'Via OA',
 			'enterpriseOa.markerNoE2ee' => 'Enterprise-hosted · not end-to-end encrypted',
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'sent via ${origin}',
+			'enterpriseOa.ssoIssuing' => 'Requesting single sign-on code…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.',
 			'error.restartRequired' => 'Restart Required',
 			'error.pleaseCheckNetwork' => 'Please check your network settings.',
 			'error.networkTroubleshootingStep1' => '1. Open phone \'Settings\' and keep \'Wi-Fi\' switch on.',
@@ -4892,10 +4896,10 @@ extension on TranslationsEnUs {
 			'organization.detail.noBlockers' => 'No blockers',
 			'organization.detail.blockers' => 'Blockers:',
 			'organization.detail.factUnavailable' => 'Dependency domain facts unavailable; deletion preflight rejected (fail-closed)',
-			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => 'Preflight failed: ${msg} (${code})',
-			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => 'My role: ${role} · Status: ${status}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => 'Preflight failed: ${msg} (${code})',
+			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => 'My role: ${role} · Status: ${status}',
 			'organization.detail.archivedBadge' => 'Organization archived (read-only)',
 			'organization.detail.archivedHint' => 'All write operations are rejected while archived; only restore is available',
 			'organization.detail.defaultWsSet' => ({required Object id}) => 'Default Workspace: ${id}',

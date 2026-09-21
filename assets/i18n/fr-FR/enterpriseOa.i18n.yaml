@@ -24,3 +24,6 @@ webviewSlotHint: "Conteneur de page OA (intégration en W3)"
 badgeDelegated: "Via OA"
 markerNoE2ee: "Hébergé par l'entreprise · non chiffré de bout en bout"
 senderVia: "envoyé via $origin"
+# ==================== Émission SSO / compte à rebours (W3) ====================
+ssoIssuing: "Demande du code d'authentification unique…"
+ssoCountdown: "Code valide $seconds secondes. Connectez-vous rapidement."

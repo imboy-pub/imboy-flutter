@@ -1759,6 +1759,8 @@ class _Translations$enterpriseOa$ja_JP extends Translations$enterpriseOa$zh_CN {
 	@override String get badgeDelegated => 'OA 代送';
 	@override String get markerNoE2ee => '企業管理 · エンドツーエンド暗号化なし';
 	@override String senderVia({required Object origin}) => '${origin} 経由で送信';
+	@override String get ssoIssuing => 'シングルサインオンコードを取得中…';
+	@override String ssoCountdown({required Object seconds}) => 'コードの有効期限は残り ${seconds} 秒です。早めにログインしてください。';
 }
 
 // Path: error
@@ -4337,6 +4339,8 @@ extension on TranslationsJaJp {
 			'enterpriseOa.badgeDelegated' => 'OA 代送',
 			'enterpriseOa.markerNoE2ee' => '企業管理 · エンドツーエンド暗号化なし',
 			'enterpriseOa.senderVia' => ({required Object origin}) => '${origin} 経由で送信',
+			'enterpriseOa.ssoIssuing' => 'シングルサインオンコードを取得中…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'コードの有効期限は残り ${seconds} 秒です。早めにログインしてください。',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
 			'error.networkTroubleshootingStep1' => '1. スマートフォンの設定を開き、Wi-Fiスイッチをオンにします。',
@@ -4809,10 +4813,10 @@ extension on TranslationsJaJp {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'メンバー ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）',
 			'organization.departments.viewForbidden' => '閲覧権限がありません（本組織の在籍メンバーのみ）',
-			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '部門の読み込みに失敗：${msg} (${code})',
-			'organization.departments.loadFailed' => ({required Object err}) => '部門の読み込みに失敗：${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '部門の読み込みに失敗：${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => '部門の読み込みに失敗：${err}',
 			'organization.departments.createSubHere' => 'この下に子部門を作成',
 			'organization.departments.movePickParent' => '移動（新しい親部門を選択）',
 			'organization.departments.addMemberByUid' => 'メンバーを追加（UID 指定）',

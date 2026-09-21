@@ -24,3 +24,6 @@ webviewSlotHint: "OA-Seitencontainer (Integration in W3)"
 badgeDelegated: "Über OA"
 markerNoE2ee: "Unternehmensverwaltet · nicht Ende-zu-Ende-verschlüsselt"
 senderVia: "gesendet über $origin"
+# ==================== SSO-Ausstellung / Countdown (W3) ====================
+ssoIssuing: "SSO-Code wird angefordert…"
+ssoCountdown: "Code ist $seconds Sekunden gültig. Bitte bald anmelden."

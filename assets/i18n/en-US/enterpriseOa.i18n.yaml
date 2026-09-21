@@ -24,3 +24,6 @@ webviewSlotHint: "OA page container (integration in W3)"
 badgeDelegated: "Via OA"
 markerNoE2ee: "Enterprise-hosted · not end-to-end encrypted"
 senderVia: "sent via $origin"
+# ==================== SSO issuing / countdown (W3) ====================
+ssoIssuing: "Requesting single sign-on code…"
+ssoCountdown: "Code valid for $seconds seconds. Please sign in soon."

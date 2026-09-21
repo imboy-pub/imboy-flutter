@@ -1762,6 +1762,8 @@ class _Translations$enterpriseOa$de_DE extends Translations$enterpriseOa$zh_CN {
 	@override String get badgeDelegated => 'Über OA';
 	@override String get markerNoE2ee => 'Unternehmensverwaltet · nicht Ende-zu-Ende-verschlüsselt';
 	@override String senderVia({required Object origin}) => 'gesendet über ${origin}';
+	@override String get ssoIssuing => 'SSO-Code wird angefordert…';
+	@override String ssoCountdown({required Object seconds}) => 'Code ist ${seconds} Sekunden gültig. Bitte bald anmelden.';
 }
 
 // Path: error
@@ -4340,6 +4342,8 @@ extension on TranslationsDeDe {
 			'enterpriseOa.badgeDelegated' => 'Über OA',
 			'enterpriseOa.markerNoE2ee' => 'Unternehmensverwaltet · nicht Ende-zu-Ende-verschlüsselt',
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'gesendet über ${origin}',
+			'enterpriseOa.ssoIssuing' => 'SSO-Code wird angefordert…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code ist ${seconds} Sekunden gültig. Bitte bald anmelden.',
 			'error.restartRequired' => 'App-Neustart erforderlich',
 			'error.pleaseCheckNetwork' => 'Bitte überprüfen Sie Ihre Netzwerkeinstellungen.',
 			'error.networkTroubleshootingStep1' => '1. Telefoneinstellungen öffnen, WLAN eingeschaltet lassen.',
@@ -4812,10 +4816,10 @@ extension on TranslationsDeDe {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Mitglied ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Kein Zugriff auf diese Abteilung (nur aktive Mitglieder dieser Organisation)',
 			'organization.departments.viewForbidden' => 'Kein Zugriff (nur aktive Mitglieder dieser Organisation)',
-			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Abteilung konnte nicht geladen werden: ${msg} (${code})',
-			'organization.departments.loadFailed' => ({required Object err}) => 'Abteilung konnte nicht geladen werden: ${err}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Abteilung konnte nicht geladen werden: ${msg} (${code})',
+			'organization.departments.loadFailed' => ({required Object err}) => 'Abteilung konnte nicht geladen werden: ${err}',
 			'organization.departments.createSubHere' => 'Hier eine Unterabteilung erstellen',
 			'organization.departments.movePickParent' => 'Verschieben (neue übergeordnete Abteilung wählen)',
 			'organization.departments.addMemberByUid' => 'Mitglied hinzufügen (per UID)',
