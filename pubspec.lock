@@ -1413,6 +1413,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.5+2"
+  jpush_flutter:
+    dependency: "direct main"
+    description:
+      name: jpush_flutter
+      sha256: ff08d5cb06788756ef1704a4b7f70e740e5bb7097a73c2e67881f34c56c9660c
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.8"
   js:
     dependency: transitive
     description:

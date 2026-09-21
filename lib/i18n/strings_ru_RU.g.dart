@@ -51,6 +51,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$ru_RU complaintReason = _Translations$complaintReason$ru_RU._(_root);
 	@override late final _Translations$contact$ru_RU contact = _Translations$contact$ru_RU._(_root);
 	@override late final _Translations$discovery$ru_RU discovery = _Translations$discovery$ru_RU._(_root);
+	@override late final _Translations$enterpriseOa$ru_RU enterpriseOa = _Translations$enterpriseOa$ru_RU._(_root);
 	@override late final _Translations$error$ru_RU error = _Translations$error$ru_RU._(_root);
 	@override late final _Translations$group$ru_RU group = _Translations$group$ru_RU._(_root);
 	@override late final _Translations$groupCategory$ru_RU groupCategory = _Translations$groupCategory$ru_RU._(_root);
@@ -1739,6 +1740,36 @@ class _Translations$discovery$ru_RU extends Translations$discovery$zh_CN {
 	@override String get momentAtWho => 'Кого напомнить?';
 	@override String get momentLocation => 'Местоположение';
 	@override String get momentLocationNone => 'Не показывать местоположение';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$ru_RU extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => 'Подключение к корпоративному рабочему пространству…';
+	@override String get statusErrorTitle => 'Не удалось загрузить OA';
+	@override String get statusErrorHint => 'Сетевая ошибка или сервис временно недоступен. Повторите попытку позже.';
+	@override String get statusExpiredTitle => 'Вход истёк';
+	@override String get statusExpiredHint => 'Код единого входа OA истёк или уже был использован. Войдите снова.';
+	@override String get statusLoggedOutTitle => 'Вы вышли из OA';
+	@override String get statusLoggedOutHint => 'Сеанс OA завершён. Требуется повторный единый вход.';
+	@override String get statusMismatchTitle => 'Переход за пределы корпоративного OA заблокирован';
+	@override String get statusMismatchHint => 'Обнаружен переход на неавторизованный адрес. Загрузка остановлена для защиты вашей учётной записи.';
+	@override String statusMismatchBlockedHost({required Object host}) => 'Заблокировано: ${host}';
+	@override String get statusOa401Title => 'Сеанс OA не авторизован';
+	@override String get statusOa401Hint => 'Сервис OA вернул «не авторизовано». Войдите снова.';
+	@override String get actionRetry => 'Повторить';
+	@override String get actionRestartSso => 'Войти снова';
+	@override String get webviewSlotHint => 'Контейнер страницы OA (интеграция в W3)';
+	@override String get badgeDelegated => 'Через OA';
+	@override String get markerNoE2ee => 'Корпоративное хранение · без сквозного шифрования';
+	@override String senderVia({required Object origin}) => 'отправлено через ${origin}';
+	@override String get ssoIssuing => 'Запрос кода единого входа…';
+	@override String ssoCountdown({required Object seconds}) => 'Код действует ${seconds} сек. Войдите как можно скорее.';
 }
 
 // Path: error
@@ -4298,6 +4329,27 @@ extension on TranslationsRuRu {
 			'discovery.momentAtWho' => 'Кого напомнить?',
 			'discovery.momentLocation' => 'Местоположение',
 			'discovery.momentLocationNone' => 'Не показывать местоположение',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => 'Подключение к корпоративному рабочему пространству…',
+			'enterpriseOa.statusErrorTitle' => 'Не удалось загрузить OA',
+			'enterpriseOa.statusErrorHint' => 'Сетевая ошибка или сервис временно недоступен. Повторите попытку позже.',
+			'enterpriseOa.statusExpiredTitle' => 'Вход истёк',
+			'enterpriseOa.statusExpiredHint' => 'Код единого входа OA истёк или уже был использован. Войдите снова.',
+			'enterpriseOa.statusLoggedOutTitle' => 'Вы вышли из OA',
+			'enterpriseOa.statusLoggedOutHint' => 'Сеанс OA завершён. Требуется повторный единый вход.',
+			'enterpriseOa.statusMismatchTitle' => 'Переход за пределы корпоративного OA заблокирован',
+			'enterpriseOa.statusMismatchHint' => 'Обнаружен переход на неавторизованный адрес. Загрузка остановлена для защиты вашей учётной записи.',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => 'Заблокировано: ${host}',
+			'enterpriseOa.statusOa401Title' => 'Сеанс OA не авторизован',
+			'enterpriseOa.statusOa401Hint' => 'Сервис OA вернул «не авторизовано». Войдите снова.',
+			'enterpriseOa.actionRetry' => 'Повторить',
+			'enterpriseOa.actionRestartSso' => 'Войти снова',
+			'enterpriseOa.webviewSlotHint' => 'Контейнер страницы OA (интеграция в W3)',
+			'enterpriseOa.badgeDelegated' => 'Через OA',
+			'enterpriseOa.markerNoE2ee' => 'Корпоративное хранение · без сквозного шифрования',
+			'enterpriseOa.senderVia' => ({required Object origin}) => 'отправлено через ${origin}',
+			'enterpriseOa.ssoIssuing' => 'Запрос кода единого входа…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Код действует ${seconds} сек. Войдите как можно скорее.',
 			'error.restartRequired' => 'Требуется перезапуск приложения',
 			'error.pleaseCheckNetwork' => 'Пожалуйста, проверьте настройки сети.',
 			'error.networkTroubleshootingStep1' => '1. Включите Wi-Fi в настройках телефона',
@@ -4770,6 +4822,8 @@ extension on TranslationsRuRu {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Участник ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Нет доступа к этому отделу (только действующие участники этой организации)',
 			'organization.departments.viewForbidden' => 'Нет доступа (только действующие участники этой организации)',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Не удалось загрузить отдел: ${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => 'Не удалось загрузить отдел: ${err}',
 			'organization.departments.createSubHere' => 'Создать подотдел здесь',
@@ -4791,8 +4845,6 @@ extension on TranslationsRuRu {
 			'organization.departments.emptyWithHint' => 'Отделов пока нет — создайте первый кнопкой справа вверху',
 			'organization.departments.empty' => 'Пока нет отделов',
 			'organization.departments.emptySubtitle' => 'Модель совместительства: один участник может состоять в нескольких отделах; участник отдела сначала должен быть участником этой организации.',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',

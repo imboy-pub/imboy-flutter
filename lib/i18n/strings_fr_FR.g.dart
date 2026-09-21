@@ -51,6 +51,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$fr_FR complaintReason = _Translations$complaintReason$fr_FR._(_root);
 	@override late final _Translations$contact$fr_FR contact = _Translations$contact$fr_FR._(_root);
 	@override late final _Translations$discovery$fr_FR discovery = _Translations$discovery$fr_FR._(_root);
+	@override late final _Translations$enterpriseOa$fr_FR enterpriseOa = _Translations$enterpriseOa$fr_FR._(_root);
 	@override late final _Translations$error$fr_FR error = _Translations$error$fr_FR._(_root);
 	@override late final _Translations$group$fr_FR group = _Translations$group$fr_FR._(_root);
 	@override late final _Translations$groupCategory$fr_FR groupCategory = _Translations$groupCategory$fr_FR._(_root);
@@ -1733,6 +1734,36 @@ class _Translations$discovery$fr_FR extends Translations$discovery$zh_CN {
 	@override String momentLikesCountOnly({required Object count}) => '${count} personnes ont aimé';
 	@override String get momentLocation => 'Position';
 	@override String get momentLocationNone => 'Ne pas afficher la position';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$fr_FR extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => 'Connexion à l\'espace entreprise…';
+	@override String get statusErrorTitle => 'Impossible de charger l\'OA';
+	@override String get statusErrorHint => 'Erreur réseau ou service momentanément indisponible. Réessayez plus tard.';
+	@override String get statusExpiredTitle => 'Connexion expirée';
+	@override String get statusExpiredHint => 'Le code d\'authentification unique OA a expiré ou a déjà été utilisé. Veuillez vous reconnecter.';
+	@override String get statusLoggedOutTitle => 'Déconnecté de l\'OA';
+	@override String get statusLoggedOutHint => 'La session OA est terminée. Une nouvelle authentification unique est requise.';
+	@override String get statusMismatchTitle => 'Navigation hors de l\'OA entreprise bloquée';
+	@override String get statusMismatchHint => 'Une adresse non autorisée a été détectée. Le chargement a été arrêté pour protéger votre compte.';
+	@override String statusMismatchBlockedHost({required Object host}) => 'Bloqué : ${host}';
+	@override String get statusOa401Title => 'Session OA non autorisée';
+	@override String get statusOa401Hint => 'Le service OA a renvoyé « non autorisé ». Veuillez vous reconnecter.';
+	@override String get actionRetry => 'Réessayer';
+	@override String get actionRestartSso => 'Se reconnecter';
+	@override String get webviewSlotHint => 'Conteneur de page OA (intégration en W3)';
+	@override String get badgeDelegated => 'Via OA';
+	@override String get markerNoE2ee => 'Hébergé par l\'entreprise · non chiffré de bout en bout';
+	@override String senderVia({required Object origin}) => 'envoyé via ${origin}';
+	@override String get ssoIssuing => 'Demande du code d\'authentification unique…';
+	@override String ssoCountdown({required Object seconds}) => 'Code valide ${seconds} secondes. Connectez-vous rapidement.';
 }
 
 // Path: error
@@ -4292,6 +4323,27 @@ extension on TranslationsFrFr {
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} personnes ont aimé',
 			'discovery.momentLocation' => 'Position',
 			'discovery.momentLocationNone' => 'Ne pas afficher la position',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => 'Connexion à l\'espace entreprise…',
+			'enterpriseOa.statusErrorTitle' => 'Impossible de charger l\'OA',
+			'enterpriseOa.statusErrorHint' => 'Erreur réseau ou service momentanément indisponible. Réessayez plus tard.',
+			'enterpriseOa.statusExpiredTitle' => 'Connexion expirée',
+			'enterpriseOa.statusExpiredHint' => 'Le code d\'authentification unique OA a expiré ou a déjà été utilisé. Veuillez vous reconnecter.',
+			'enterpriseOa.statusLoggedOutTitle' => 'Déconnecté de l\'OA',
+			'enterpriseOa.statusLoggedOutHint' => 'La session OA est terminée. Une nouvelle authentification unique est requise.',
+			'enterpriseOa.statusMismatchTitle' => 'Navigation hors de l\'OA entreprise bloquée',
+			'enterpriseOa.statusMismatchHint' => 'Une adresse non autorisée a été détectée. Le chargement a été arrêté pour protéger votre compte.',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => 'Bloqué : ${host}',
+			'enterpriseOa.statusOa401Title' => 'Session OA non autorisée',
+			'enterpriseOa.statusOa401Hint' => 'Le service OA a renvoyé « non autorisé ». Veuillez vous reconnecter.',
+			'enterpriseOa.actionRetry' => 'Réessayer',
+			'enterpriseOa.actionRestartSso' => 'Se reconnecter',
+			'enterpriseOa.webviewSlotHint' => 'Conteneur de page OA (intégration en W3)',
+			'enterpriseOa.badgeDelegated' => 'Via OA',
+			'enterpriseOa.markerNoE2ee' => 'Hébergé par l\'entreprise · non chiffré de bout en bout',
+			'enterpriseOa.senderVia' => ({required Object origin}) => 'envoyé via ${origin}',
+			'enterpriseOa.ssoIssuing' => 'Demande du code d\'authentification unique…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code valide ${seconds} secondes. Connectez-vous rapidement.',
 			'error.restartRequired' => 'Redémarrage requis',
 			'error.pleaseCheckNetwork' => 'Vérifiez vos paramètres réseau.',
 			'error.networkTroubleshootingStep1' => '1. Ouvrez les paramètres du téléphone et gardez le Wi-Fi activé.',
@@ -4764,6 +4816,8 @@ extension on TranslationsFrFr {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Membre ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Accès à ce département refusé (membres actifs de cette organisation uniquement)',
 			'organization.departments.viewForbidden' => 'Accès refusé (membres actifs de cette organisation uniquement)',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'Échec du chargement du département : ${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => 'Échec du chargement du département : ${err}',
 			'organization.departments.createSubHere' => 'Créer un sous-département ici',
@@ -4785,8 +4839,6 @@ extension on TranslationsFrFr {
 			'organization.departments.emptyWithHint' => 'Aucun département — créez-en un en haut à droite',
 			'organization.departments.empty' => 'Aucun département',
 			'organization.departments.emptySubtitle' => 'Modèle multi-appartenance : un même membre peut appartenir à plusieurs départements ; les membres d\'un département doivent d\'abord être membres de cette organisation.',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'Afficher l\'historique de connexion',
 			'passport.hintEmail' => 'Veuillez entrer votre adresse e-mail',
 			'passport.hintMobile' => 'Veuillez entrer votre numéro de téléphone',

@@ -1,0 +1,29 @@
+# EPGZ-06 — OA d'entreprise (onglet OA / squelette WebView / badges de messages délégués)
+# Textes des sept états (loading/ready/error/expired/logged-out/mismatch/oa401),
+# badge de délégation OA et marqueur non-E2EE. Plan §7.2 / §4.3.
+title: "OA"
+# ==================== États ====================
+statusLoading: "Connexion à l'espace entreprise…"
+statusErrorTitle: "Impossible de charger l'OA"
+statusErrorHint: "Erreur réseau ou service momentanément indisponible. Réessayez plus tard."
+statusExpiredTitle: "Connexion expirée"
+statusExpiredHint: "Le code d'authentification unique OA a expiré ou a déjà été utilisé. Veuillez vous reconnecter."
+statusLoggedOutTitle: "Déconnecté de l'OA"
+statusLoggedOutHint: "La session OA est terminée. Une nouvelle authentification unique est requise."
+statusMismatchTitle: "Navigation hors de l'OA entreprise bloquée"
+statusMismatchHint: "Une adresse non autorisée a été détectée. Le chargement a été arrêté pour protéger votre compte."
+statusMismatchBlockedHost: "Bloqué : $host"
+statusOa401Title: "Session OA non autorisée"
+statusOa401Hint: "Le service OA a renvoyé « non autorisé ». Veuillez vous reconnecter."
+# ==================== Actions ====================
+actionRetry: "Réessayer"
+actionRestartSso: "Se reconnecter"
+# ==================== Emplacement WebView (placeholder avant W3) ====================
+webviewSlotHint: "Conteneur de page OA (intégration en W3)"
+# ==================== Badges de messages délégués OA (plan §4.3) ====================
+badgeDelegated: "Via OA"
+markerNoE2ee: "Hébergé par l'entreprise · non chiffré de bout en bout"
+senderVia: "envoyé via $origin"
+# ==================== Émission SSO / compte à rebours (W3) ====================
+ssoIssuing: "Demande du code d'authentification unique…"
+ssoCountdown: "Code valide $seconds secondes. Connectez-vous rapidement."

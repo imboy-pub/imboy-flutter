@@ -51,6 +51,7 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	@override late final Translations$complaintReason$zh_Hant complaintReason = Translations$complaintReason$zh_Hant.internal(_root);
 	@override late final Translations$contact$zh_Hant contact = Translations$contact$zh_Hant.internal(_root);
 	@override late final Translations$discovery$zh_Hant discovery = Translations$discovery$zh_Hant.internal(_root);
+	@override late final Translations$enterpriseOa$zh_Hant enterpriseOa = Translations$enterpriseOa$zh_Hant.internal(_root);
 	@override late final Translations$error$zh_Hant error = Translations$error$zh_Hant.internal(_root);
 	@override late final Translations$group$zh_Hant group = Translations$group$zh_Hant.internal(_root);
 	@override late final Translations$groupCategory$zh_Hant groupCategory = Translations$groupCategory$zh_Hant.internal(_root);
@@ -1730,6 +1731,36 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String momentAtReminded({required Object name}) => '提醒了 ${name} 查看';
 	@override String momentAtRemindedMore({required Object name, required Object count}) => '提醒了 ${name} 等${count}人查看';
 	@override String momentAtCount({required Object count}) => '${count} 人查看';
+}
+
+// Path: enterpriseOa
+class Translations$enterpriseOa$zh_Hant extends Translations$enterpriseOa$zh_CN {
+	Translations$enterpriseOa$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => '正在連線企業辦公…';
+	@override String get statusErrorTitle => '無法載入 OA';
+	@override String get statusErrorHint => '網路異常或服務暫不可用，請稍後重試';
+	@override String get statusExpiredTitle => '登入已過期';
+	@override String get statusExpiredHint => 'OA 單一登入憑證已過期或已被使用，請重新登入';
+	@override String get statusLoggedOutTitle => '已登出 OA';
+	@override String get statusLoggedOutHint => 'OA 工作階段已登出，需要重新單一登入';
+	@override String get statusMismatchTitle => '已阻止離開企業 OA';
+	@override String get statusMismatchHint => '偵測到跳轉至未授權位址，已停止載入以保護你的帳號';
+	@override String statusMismatchBlockedHost({required Object host}) => '已攔截：${host}';
+	@override String get statusOa401Title => 'OA 登入狀態失效';
+	@override String get statusOa401Hint => 'OA 服務回傳未授權，請重新單一登入';
+	@override String get actionRetry => '重試';
+	@override String get actionRestartSso => '重新單一登入';
+	@override String get webviewSlotHint => 'OA 頁面容器（整合於 W3 波次）';
+	@override String get badgeDelegated => 'OA 代發';
+	@override String get markerNoE2ee => '企業託管 · 未端對端加密';
+	@override String senderVia({required Object origin}) => '經 ${origin} 代發';
+	@override String get ssoIssuing => '正在取得單一登入憑證…';
+	@override String ssoCountdown({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入';
 }
 
 // Path: error
@@ -4289,6 +4320,27 @@ extension on TranslationsZhHant {
 			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name} 查看',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人查看',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} 人查看',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => '正在連線企業辦公…',
+			'enterpriseOa.statusErrorTitle' => '無法載入 OA',
+			'enterpriseOa.statusErrorHint' => '網路異常或服務暫不可用，請稍後重試',
+			'enterpriseOa.statusExpiredTitle' => '登入已過期',
+			'enterpriseOa.statusExpiredHint' => 'OA 單一登入憑證已過期或已被使用，請重新登入',
+			'enterpriseOa.statusLoggedOutTitle' => '已登出 OA',
+			'enterpriseOa.statusLoggedOutHint' => 'OA 工作階段已登出，需要重新單一登入',
+			'enterpriseOa.statusMismatchTitle' => '已阻止離開企業 OA',
+			'enterpriseOa.statusMismatchHint' => '偵測到跳轉至未授權位址，已停止載入以保護你的帳號',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => '已攔截：${host}',
+			'enterpriseOa.statusOa401Title' => 'OA 登入狀態失效',
+			'enterpriseOa.statusOa401Hint' => 'OA 服務回傳未授權，請重新單一登入',
+			'enterpriseOa.actionRetry' => '重試',
+			'enterpriseOa.actionRestartSso' => '重新單一登入',
+			'enterpriseOa.webviewSlotHint' => 'OA 頁面容器（整合於 W3 波次）',
+			'enterpriseOa.badgeDelegated' => 'OA 代發',
+			'enterpriseOa.markerNoE2ee' => '企業託管 · 未端對端加密',
+			'enterpriseOa.senderVia' => ({required Object origin}) => '經 ${origin} 代發',
+			'enterpriseOa.ssoIssuing' => '正在取得單一登入憑證…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.pleaseCheckNetwork' => '請檢查你的網路設定。',
 			'error.networkTroubleshootingStep1' => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。',
@@ -4761,6 +4813,8 @@ extension on TranslationsZhHant {
 			'organization.departments.memberUidLine' => ({required Object userId}) => '成員 ${userId}',
 			'organization.departments.viewForbiddenDetail' => '無權查看該部門（僅限本組織在職成員）',
 			'organization.departments.viewForbidden' => '無權查看（僅限本組織在職成員）',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '載入部門失敗：${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => '載入部門失敗：${err}',
 			'organization.departments.createSubHere' => '在其下新增子部門',
@@ -4782,8 +4836,6 @@ extension on TranslationsZhHant {
 			'organization.departments.emptyWithHint' => '尚無部門，點擊右上角新增',
 			'organization.departments.empty' => '尚無部門',
 			'organization.departments.emptySubtitle' => '兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',

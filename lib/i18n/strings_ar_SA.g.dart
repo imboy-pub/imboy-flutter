@@ -51,6 +51,7 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$ar_SA complaintReason = _Translations$complaintReason$ar_SA._(_root);
 	@override late final _Translations$contact$ar_SA contact = _Translations$contact$ar_SA._(_root);
 	@override late final _Translations$discovery$ar_SA discovery = _Translations$discovery$ar_SA._(_root);
+	@override late final _Translations$enterpriseOa$ar_SA enterpriseOa = _Translations$enterpriseOa$ar_SA._(_root);
 	@override late final _Translations$error$ar_SA error = _Translations$error$ar_SA._(_root);
 	@override late final _Translations$group$ar_SA group = _Translations$group$ar_SA._(_root);
 	@override late final _Translations$groupCategory$ar_SA groupCategory = _Translations$groupCategory$ar_SA._(_root);
@@ -1742,6 +1743,36 @@ class _Translations$discovery$ar_SA extends Translations$discovery$zh_CN {
 	@override String momentAtReminded({required Object name}) => 'نبّهت ${name}';
 	@override String momentAtRemindedMore({required Object name, required Object count}) => 'نبّهت ${name} و${count} آخرين';
 	@override String momentAtCount({required Object count}) => '${count} أشخاص';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$ar_SA extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => 'جارٍ الاتصال بمساحة العمل المؤسسية…';
+	@override String get statusErrorTitle => 'تعذّر تحميل OA';
+	@override String get statusErrorHint => 'خطأ في الشبكة أو الخدمة غير متاحة مؤقتًا. حاول مرة أخرى لاحقًا.';
+	@override String get statusExpiredTitle => 'انتهت صلاحية تسجيل الدخول';
+	@override String get statusExpiredHint => 'انتهت صلاحية رمز تسجيل الدخول الموحّد لـ OA أو تم استخدامه بالفعل. يرجى تسجيل الدخول مرة أخرى.';
+	@override String get statusLoggedOutTitle => 'تم تسجيل الخروج من OA';
+	@override String get statusLoggedOutHint => 'انتهت جلسة OA. يلزم تسجيل دخول موحّد جديد.';
+	@override String get statusMismatchTitle => 'تم حظر الانتقال خارج OA المؤسسي';
+	@override String get statusMismatchHint => 'تم اكتشاف انتقال إلى عنوان غير مصرّح به. تم إيقاف التحميل لحماية حسابك.';
+	@override String statusMismatchBlockedHost({required Object host}) => 'محظور: ${host}';
+	@override String get statusOa401Title => 'جلسة OA غير مصرّح بها';
+	@override String get statusOa401Hint => 'أرجعت خدمة OA خطأ عدم التصريح. يرجى تسجيل الدخول مرة أخرى.';
+	@override String get actionRetry => 'إعادة المحاولة';
+	@override String get actionRestartSso => 'تسجيل الدخول مرة أخرى';
+	@override String get webviewSlotHint => 'حاوية صفحة OA (التكامل في W3)';
+	@override String get badgeDelegated => 'عبر OA';
+	@override String get markerNoE2ee => 'مستضاف مؤسسيًا · بدون تشفير طرف إلى طرف';
+	@override String senderVia({required Object origin}) => 'أُرسل عبر ${origin}';
+	@override String get ssoIssuing => 'جارٍ طلب رمز تسجيل الدخول الموحد…';
+	@override String ssoCountdown({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.';
 }
 
 // Path: error
@@ -4301,6 +4332,27 @@ extension on TranslationsArSa {
 			'discovery.momentAtReminded' => ({required Object name}) => 'نبّهت ${name}',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'نبّهت ${name} و${count} آخرين',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} أشخاص',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => 'جارٍ الاتصال بمساحة العمل المؤسسية…',
+			'enterpriseOa.statusErrorTitle' => 'تعذّر تحميل OA',
+			'enterpriseOa.statusErrorHint' => 'خطأ في الشبكة أو الخدمة غير متاحة مؤقتًا. حاول مرة أخرى لاحقًا.',
+			'enterpriseOa.statusExpiredTitle' => 'انتهت صلاحية تسجيل الدخول',
+			'enterpriseOa.statusExpiredHint' => 'انتهت صلاحية رمز تسجيل الدخول الموحّد لـ OA أو تم استخدامه بالفعل. يرجى تسجيل الدخول مرة أخرى.',
+			'enterpriseOa.statusLoggedOutTitle' => 'تم تسجيل الخروج من OA',
+			'enterpriseOa.statusLoggedOutHint' => 'انتهت جلسة OA. يلزم تسجيل دخول موحّد جديد.',
+			'enterpriseOa.statusMismatchTitle' => 'تم حظر الانتقال خارج OA المؤسسي',
+			'enterpriseOa.statusMismatchHint' => 'تم اكتشاف انتقال إلى عنوان غير مصرّح به. تم إيقاف التحميل لحماية حسابك.',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => 'محظور: ${host}',
+			'enterpriseOa.statusOa401Title' => 'جلسة OA غير مصرّح بها',
+			'enterpriseOa.statusOa401Hint' => 'أرجعت خدمة OA خطأ عدم التصريح. يرجى تسجيل الدخول مرة أخرى.',
+			'enterpriseOa.actionRetry' => 'إعادة المحاولة',
+			'enterpriseOa.actionRestartSso' => 'تسجيل الدخول مرة أخرى',
+			'enterpriseOa.webviewSlotHint' => 'حاوية صفحة OA (التكامل في W3)',
+			'enterpriseOa.badgeDelegated' => 'عبر OA',
+			'enterpriseOa.markerNoE2ee' => 'مستضاف مؤسسيًا · بدون تشفير طرف إلى طرف',
+			'enterpriseOa.senderVia' => ({required Object origin}) => 'أُرسل عبر ${origin}',
+			'enterpriseOa.ssoIssuing' => 'جارٍ طلب رمز تسجيل الدخول الموحد…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
 			'error.networkTroubleshootingStep1' => '1. افتح إعدادات الهاتف وقم بإبقاء مفتاح Wi-Fi قيد التشغيل.',
@@ -4773,6 +4825,8 @@ extension on TranslationsArSa {
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'العضو ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)',
 			'organization.departments.viewForbidden' => 'لا تملك صلاحية العرض (للأعضاء العاملين في هذه المنظمة فقط)',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => 'فشل تحميل القسم: ${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => 'فشل تحميل القسم: ${err}',
 			'organization.departments.createSubHere' => 'إنشاء قسم فرعي هنا',
@@ -4794,8 +4848,6 @@ extension on TranslationsArSa {
 			'organization.departments.emptyWithHint' => 'لا توجد أقسام، أنشئ قسماً من الزر في أعلى اليمين',
 			'organization.departments.empty' => 'لا توجد أقسام',
 			'organization.departments.emptySubtitle' => 'نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة.',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',

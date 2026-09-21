@@ -51,6 +51,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$ko_KR complaintReason = _Translations$complaintReason$ko_KR._(_root);
 	@override late final _Translations$contact$ko_KR contact = _Translations$contact$ko_KR._(_root);
 	@override late final _Translations$discovery$ko_KR discovery = _Translations$discovery$ko_KR._(_root);
+	@override late final _Translations$enterpriseOa$ko_KR enterpriseOa = _Translations$enterpriseOa$ko_KR._(_root);
 	@override late final _Translations$error$ko_KR error = _Translations$error$ko_KR._(_root);
 	@override late final _Translations$group$ko_KR group = _Translations$group$ko_KR._(_root);
 	@override late final _Translations$groupCategory$ko_KR groupCategory = _Translations$groupCategory$ko_KR._(_root);
@@ -1730,6 +1731,36 @@ class _Translations$discovery$ko_KR extends Translations$discovery$zh_CN {
 	@override String momentLikesCountOnly({required Object count}) => '${count}명이 좋아합니다';
 	@override String get momentLocation => '위치';
 	@override String get momentLocationNone => '위치 표시 안 함';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$ko_KR extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => '기업 워크스페이스 연결 중…';
+	@override String get statusErrorTitle => 'OA를 불러올 수 없습니다';
+	@override String get statusErrorHint => '네트워크 오류 또는 서비스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+	@override String get statusExpiredTitle => '로그인 만료';
+	@override String get statusExpiredHint => 'OA single sign-on 코드가 만료되었거나 이미 사용되었습니다. 다시 로그인해 주세요.';
+	@override String get statusLoggedOutTitle => 'OA에서 로그아웃됨';
+	@override String get statusLoggedOutHint => 'OA 세션이 종료되었습니다. 다시 single sign-on이 필요합니다.';
+	@override String get statusMismatchTitle => '기업 OA 외부 이동이 차단됨';
+	@override String get statusMismatchHint => '승인되지 않은 주소로의 이동이 감지되어 계정 보호를 위해 로딩을 중지했습니다.';
+	@override String statusMismatchBlockedHost({required Object host}) => '차단됨: ${host}';
+	@override String get statusOa401Title => 'OA 로그인 상태 만료';
+	@override String get statusOa401Hint => 'OA 서비스가 승인되지 않음을 반환했습니다. 다시 로그인해 주세요.';
+	@override String get actionRetry => '다시 시도';
+	@override String get actionRestartSso => '다시 로그인';
+	@override String get webviewSlotHint => 'OA 페이지 컨테이너(W3 통합 예정)';
+	@override String get badgeDelegated => 'OA 대리 전송';
+	@override String get markerNoE2ee => '기업 호스팅 · 종단간 암호화 아님';
+	@override String senderVia({required Object origin}) => '${origin} 경유 전송';
+	@override String get ssoIssuing => '단일 로그인 코드 요청 중…';
+	@override String ssoCountdown({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.';
 }
 
 // Path: error
@@ -4289,6 +4320,27 @@ extension on TranslationsKoKr {
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}명이 좋아합니다',
 			'discovery.momentLocation' => '위치',
 			'discovery.momentLocationNone' => '위치 표시 안 함',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => '기업 워크스페이스 연결 중…',
+			'enterpriseOa.statusErrorTitle' => 'OA를 불러올 수 없습니다',
+			'enterpriseOa.statusErrorHint' => '네트워크 오류 또는 서비스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+			'enterpriseOa.statusExpiredTitle' => '로그인 만료',
+			'enterpriseOa.statusExpiredHint' => 'OA single sign-on 코드가 만료되었거나 이미 사용되었습니다. 다시 로그인해 주세요.',
+			'enterpriseOa.statusLoggedOutTitle' => 'OA에서 로그아웃됨',
+			'enterpriseOa.statusLoggedOutHint' => 'OA 세션이 종료되었습니다. 다시 single sign-on이 필요합니다.',
+			'enterpriseOa.statusMismatchTitle' => '기업 OA 외부 이동이 차단됨',
+			'enterpriseOa.statusMismatchHint' => '승인되지 않은 주소로의 이동이 감지되어 계정 보호를 위해 로딩을 중지했습니다.',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => '차단됨: ${host}',
+			'enterpriseOa.statusOa401Title' => 'OA 로그인 상태 만료',
+			'enterpriseOa.statusOa401Hint' => 'OA 서비스가 승인되지 않음을 반환했습니다. 다시 로그인해 주세요.',
+			'enterpriseOa.actionRetry' => '다시 시도',
+			'enterpriseOa.actionRestartSso' => '다시 로그인',
+			'enterpriseOa.webviewSlotHint' => 'OA 페이지 컨테이너(W3 통합 예정)',
+			'enterpriseOa.badgeDelegated' => 'OA 대리 전송',
+			'enterpriseOa.markerNoE2ee' => '기업 호스팅 · 종단간 암호화 아님',
+			'enterpriseOa.senderVia' => ({required Object origin}) => '${origin} 경유 전송',
+			'enterpriseOa.ssoIssuing' => '단일 로그인 코드 요청 중…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
 			'error.networkTroubleshootingStep1' => '1. 휴대전화 설정을 열고 Wi-Fi 스위치를 켜 주세요.',
@@ -4761,6 +4813,8 @@ extension on TranslationsKoKr {
 			'organization.departments.memberUidLine' => ({required Object userId}) => '멤버 ${userId}',
 			'organization.departments.viewForbiddenDetail' => '이 부서를 볼 권한이 없습니다(이 조직의 재직 멤버만 가능)',
 			'organization.departments.viewForbidden' => '볼 권한이 없습니다(이 조직의 재직 멤버만 가능)',
+			_ => null,
+		} ?? switch (path) {
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '부서 불러오기 실패: ${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => '부서 불러오기 실패: ${err}',
 			'organization.departments.createSubHere' => '이 아래에 하위 부서 만들기',
@@ -4782,8 +4836,6 @@ extension on TranslationsKoKr {
 			'organization.departments.emptyWithHint' => '부서가 없습니다. 오른쪽 위에서 만들어 보세요',
 			'organization.departments.empty' => '부서가 없습니다',
 			'organization.departments.emptySubtitle' => '겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다.',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',
