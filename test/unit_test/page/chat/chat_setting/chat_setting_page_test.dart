@@ -6,6 +6,7 @@ import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
 import 'package:imboy/service/storage.dart';
@@ -113,6 +114,34 @@ void main() {
         find.byType(CellPressable).evaluate().length,
         greaterThanOrEqualTo(1),
       );
+      await _unmount(tester);
+    });
+  });
+
+  group('ChatSettingPage E2EE 功能位隐藏', () {
+    tearDown(() {
+      // 恢复缺省 snapshot（缺 flag = 功能开），避免污染其他用例
+      AppFeatureRegistry.replaceSnapshotForTest(const {});
+    });
+
+    testWidgets('features.e2ee=false：加密模式项与安全码项均不渲染', (tester) async {
+      // 服务端硬闸档位（关闭/明文交付）会把 features.e2ee 置 false 下发
+      AppFeatureRegistry.replaceSnapshotForTest(const {'e2ee': false});
+      await _pump(tester, type: 'C2C');
+      expect(find.text('-'), findsNothing);
+      expect(find.text('标准模式'), findsNothing);
+      expect(find.text('消息未加密传输'), findsNothing);
+      expect(find.text('安全码验证'), findsNothing);
+      // 其余设置项不受影响
+      expect(find.text('消息免打扰'), findsOneWidget);
+      await _unmount(tester);
+    });
+
+    testWidgets('features.e2ee 缺省（开）：既有入口保持渲染', (tester) async {
+      await _pump(tester, type: 'C2C');
+      // B2 未知加密态占位 + 安全码入口照常
+      expect(find.text('-'), findsOneWidget);
+      expect(find.text('安全码验证'), findsOneWidget);
       await _unmount(tester);
     });
   });

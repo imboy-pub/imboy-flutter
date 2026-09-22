@@ -8,6 +8,8 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/safety_number_page.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/page/group/group_detail/remove_member_provider.dart';
 import 'package:imboy/page/group/group_member/group_member_mute_rules.dart';
 import 'package:imboy/page/group/group_member/mute_duration_rules.dart';
@@ -263,9 +265,8 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
           middle: Text(t.main.memberDetail),
           border: Border(
             bottom: BorderSide(
-              color: AppColors.getIosSeparator(
-                Theme.of(context).brightness,
-              ).withValues(alpha: 0.4),
+              color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                  .withValues(alpha: 0.4),
               width: 0.33,
             ),
           ),
@@ -325,19 +326,23 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
 
           // ── 安全码验证（群成员级 E2EE 身份校验，审计阶段 2） ──
           // 每个成员详情页独立入口，复用 C2C 安全码页（对端取主设备 identity）。
-          _buildActionButton(
-            label: t.main.safetyNumberTitle,
-            color: colorScheme.primary,
-            isDestructive: false,
-            onTap: () => Navigator.push(
-              context,
-              CupertinoPageRoute<void>(
-                builder: (_) =>
-                    SafetyNumberPage(peerUid: member.userId.toString()),
+          // 服务端关闭 E2EE（features.e2ee=false）时隐藏，与聊天/联系人设置
+          // 页的安全码入口同一判据。
+          if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) ...[
+            _buildActionButton(
+              label: t.main.safetyNumberTitle,
+              color: colorScheme.primary,
+              isDestructive: false,
+              onTap: () => Navigator.push(
+                context,
+                CupertinoPageRoute<void>(
+                  builder: (_) =>
+                      SafetyNumberPage(peerUid: member.userId.toString()),
+                ),
               ),
             ),
-          ),
-          AppSpacing.verticalRegular,
+            AppSpacing.verticalRegular,
+          ],
 
           // ── 管理员操作区（底部 ActionSheet 聚合） ──
           if (canMute) ...[

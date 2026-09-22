@@ -27,11 +27,14 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/page/group/group_role_rules.dart';
 import 'package:imboy/page/group/group_detail/widgets/group_app_grid.dart';
 import 'package:imboy/page/group/group_detail/widgets/group_info_card.dart';
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
 import 'package:imboy/page/personal_info/update/update_page.dart';
+
 import 'change_info_page.dart';
 import 'group_detail_provider.dart';
 import 'group_detail_service.dart';
@@ -375,19 +378,22 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                               }
                             },
                     ),
-                    // 群级 E2EE：仅群主可开，0→1 单向不可撤销；成员只读展示状态
-                    GroupNoticeDisabledTile(
-                      label: t.group.e2eeTitle,
-                      value: _groupE2ee,
-                      onChanged:
-                          _groupE2ee ||
-                              !isGroupOwner(state.role) ||
-                              _gidInt <= 0
-                          ? null
-                          : (v) {
-                              if (v) _confirmEnableE2ee();
-                            },
-                    ),
+                    // 群级 E2EE：仅群主可开，0→1 单向不可撤销；成员只读展示状态。
+                    // 服务端关闭 E2EE（features.e2ee=false，硬闸档位）时整项隐藏：
+                    // 此时 set_e2ee_mode 会被服务端拒绝，入口没有意义。
+                    if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee))
+                      GroupNoticeDisabledTile(
+                        label: t.group.e2eeTitle,
+                        value: _groupE2ee,
+                        onChanged:
+                            _groupE2ee ||
+                                !isGroupOwner(state.role) ||
+                                _gidInt <= 0
+                            ? null
+                            : (v) {
+                                if (v) _confirmEnableE2ee();
+                              },
+                      ),
                     ImBoySettingsTile(
                       title: Text(t.common.searchChatContent),
                       leading: const Icon(
@@ -438,9 +444,8 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                     child: CupertinoButton(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       borderRadius: BorderRadius.circular(14),
-                      color: AppColors.getIosRed(
-                        brightness,
-                      ).withValues(alpha: 0.1),
+                      color: AppColors.getIosRed(brightness)
+                          .withValues(alpha: 0.1),
                       onPressed: () => _confirmExitGroup(state),
                       child: Text(
                         isGroupOwner(state.role)

@@ -16,8 +16,11 @@ import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 
 import 'contact_setting_provider.dart';
 import '../contact_setting_tag/contact_setting_tag_page.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/safety_number_page.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 
 /// 联系人设置页面 - 像素级对齐 iOS 17 Premium 风格
 class ContactSettingPage extends ConsumerStatefulWidget {
@@ -125,18 +128,21 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                   onChanged: (val) => _showDenylistConfirmation(context, val),
                 ),
               ),
-              ImBoySettingsTile(
-                title: Text(t.main.safetyNumberTitle),
-                // B3: 安全码入口与 chat_setting_page 同名入口（蓝色系）及
-                // 本页主导色统一为 iosBlue，消除「同一功能两种颜色」。
-                leading: _buildIcon(CupertinoIcons.shield, AppColors.iosBlue),
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<void>(
-                    builder: (_) => SafetyNumberPage(peerUid: widget.peerId),
+              // 安全码验证属 E2EE 身份校验面：服务端关闭 E2EE（features.e2ee=false）
+              // 时一并隐藏，与 chat_setting_page 同名入口同一判据。
+              if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee))
+                ImBoySettingsTile(
+                  title: Text(t.main.safetyNumberTitle),
+                  // B3: 安全码入口与 chat_setting_page 同名入口（蓝色系）及
+                  // 本页主导色统一为 iosBlue，消除「同一功能两种颜色」。
+                  leading: _buildIcon(CupertinoIcons.shield, AppColors.iosBlue),
+                  onTap: () => Navigator.push(
+                    context,
+                    CupertinoPageRoute<void>(
+                      builder: (_) => SafetyNumberPage(peerUid: widget.peerId),
+                    ),
                   ),
                 ),
-              ),
               ImBoySettingsTile(
                 title: Text(t.complaint.complaint),
                 leading: _buildIcon(

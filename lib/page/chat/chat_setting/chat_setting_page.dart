@@ -9,6 +9,8 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/page/settings/safety_number_page.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/page/chat/widget/chat_background_manager.dart';
@@ -233,9 +235,8 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         // 移除 boxShadow（违反 InsetGrouped 范式：Cell 应靠 surfaceGrouped 背景对比制造层级）
         border: Border.all(
           color: isDestructive
-              ? AppColors.getIosRed(
-                  Theme.of(context).brightness,
-                ).withValues(alpha: 0.2)
+              ? AppColors.getIosRed(Theme.of(context).brightness)
+                    .withValues(alpha: 0.2)
               : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
         ),
       ),
@@ -282,9 +283,8 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                           subtitle,
                           style: context.textStyle(
                             FontSizeType.small,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                            color: Theme.of(context).colorScheme.onSurface
+                                .withValues(alpha: 0.6),
                           ),
                         ),
                       ],
@@ -297,9 +297,8 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
                   Icon(
                     CupertinoIcons.chevron_right,
                     size: 20,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.4),
+                    color: Theme.of(context).colorScheme.onSurface
+                        .withValues(alpha: 0.4),
                   ),
               ],
             ),
@@ -363,44 +362,51 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   }
 
   /// 构建设置列表
+  /// E2EE 功能被服务端关闭（features.e2ee=false，如「关闭（明文交付）」档位）
+  /// 时，加密模式展示与安全码验证入口一并隐藏——加密体系不存在，入口无意义。
   List<Widget> _buildSettingsList(BuildContext context) {
     final mode = _currentEncryptionMode;
+    final e2eeEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.e2ee);
     return [
-      _buildSettingTile(
-        // B2: policy 未知/加载中时显示中性占位「-」，不展示任何具体模式名，
-        // 避免把已加密会话谎报成「标准模式」。
-        title: mode?.displayName ?? '-',
-        icon: mode == null ? CupertinoIcons.lock : _encryptionIcon(mode),
-        iconColor: mode != null && mode.requiresEncryption
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-        subtitle: mode == null
-            ? null
-            : mode == EncryptionMode.complianceE2ee
-            ? t.main.msgProtectedByComplianceKey
-            : mode == EncryptionMode.strictE2ee
-            ? t.common.msgOnlyVisibleToParties
-            : t.common.msgNotEncrypted,
-        isFirst: true,
-      ),
-      // 安全码验证（审计 P1-2）：仅 C2C 单聊提供带外身份比对。
-      // 群聊 peerId 为群 id，成员级安全码属后续扩展（见台账 IMB-2026-006）。
-      if (widget.type == 'C2C')
+      // 加密模式展示 + 安全码验证：随 FeatureKeys.e2ee 功能位隐藏（与
+      // mine/setting_page 的三个 E2EE 入口同一判据）。
+      if (e2eeEnabled) ...[
         _buildSettingTile(
-          title: t.main.safetyNumberTitle,
-          icon: CupertinoIcons.shield,
-          iconColor: Theme.of(context).colorScheme.primary,
-          subtitle: t.main.safetyNumberHint,
-          onTap: () {
-            Navigator.push(
-              context,
-              CupertinoPageRoute<void>(
-                builder: (_) => SafetyNumberPage(peerUid: widget.peerId),
-              ),
-            );
-          },
+          // B2: policy 未知/加载中时显示中性占位「-」，不展示任何具体模式名，
+          // 避免把已加密会话谎报成「标准模式」。
+          title: mode?.displayName ?? '-',
+          icon: mode == null ? CupertinoIcons.lock : _encryptionIcon(mode),
+          iconColor: mode != null && mode.requiresEncryption
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+          subtitle: mode == null
+              ? null
+              : mode == EncryptionMode.complianceE2ee
+              ? t.main.msgProtectedByComplianceKey
+              : mode == EncryptionMode.strictE2ee
+              ? t.common.msgOnlyVisibleToParties
+              : t.common.msgNotEncrypted,
+          isFirst: true,
         ),
-      // C7-α-2: 本地消息免打扰开关
+        // 安全码验证（审计 P1-2）：仅 C2C 单聊提供带外身份比对。
+        // 群聊 peerId 为群 id，成员级安全码属后续扩展（见台账 IMB-2026-006）。
+        if (widget.type == 'C2C')
+          _buildSettingTile(
+            title: t.main.safetyNumberTitle,
+            icon: CupertinoIcons.shield,
+            iconColor: Theme.of(context).colorScheme.primary,
+            subtitle: t.main.safetyNumberHint,
+            onTap: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute<void>(
+                  builder: (_) => SafetyNumberPage(peerUid: widget.peerId),
+                ),
+              );
+            },
+          ),
+      ],
+      // C7-α-2: 本地消息免打扰开关（E2EE 两项隐藏时接管首行间距）
       _buildSwitchTile(
         t.common.muteNotifications,
         _muteEnabled,
@@ -409,6 +415,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           await _persistMuteSetting(v);
           AppLoading.showToast(v ? t.common.enabled : t.common.disabled);
         },
+        isFirst: !e2eeEnabled,
         icon: CupertinoIcons.bell_slash,
         iconColor: Theme.of(context).colorScheme.primary,
         subtitle: t.common.muteNotificationsHint,
@@ -439,9 +446,8 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
             _formatBurnAfterMs(_burnAfterMs),
             style: context.textStyle(
               FontSizeType.normal,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.8),
+              color: Theme.of(context).colorScheme.onSurface
+                  .withValues(alpha: 0.8),
             ),
           ),
         ),
