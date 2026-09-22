@@ -51,6 +51,8 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$ko_KR complaintReason = _Translations$complaintReason$ko_KR._(_root);
 	@override late final _Translations$contact$ko_KR contact = _Translations$contact$ko_KR._(_root);
 	@override late final _Translations$discovery$ko_KR discovery = _Translations$discovery$ko_KR._(_root);
+	@override late final _Translations$enterpriseApp$ko_KR enterpriseApp = _Translations$enterpriseApp$ko_KR._(_root);
+	@override late final _Translations$enterpriseOa$ko_KR enterpriseOa = _Translations$enterpriseOa$ko_KR._(_root);
 	@override late final _Translations$error$ko_KR error = _Translations$error$ko_KR._(_root);
 	@override late final _Translations$group$ko_KR group = _Translations$group$ko_KR._(_root);
 	@override late final _Translations$groupCategory$ko_KR groupCategory = _Translations$groupCategory$ko_KR._(_root);
@@ -1730,6 +1732,125 @@ class _Translations$discovery$ko_KR extends Translations$discovery$zh_CN {
 	@override String momentLikesCountOnly({required Object count}) => '${count}명이 좋아합니다';
 	@override String get momentLocation => '위치';
 	@override String get momentLocationNone => '위치 표시 안 함';
+}
+
+// Path: enterpriseApp
+class _Translations$enterpriseApp$ko_KR extends Translations$enterpriseApp$zh_CN {
+	_Translations$enterpriseApp$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '엔터프라이즈 앱';
+	@override String get badgeAppDelegated => '앱 대행 발송';
+	@override String get badgeHumanDelegated => '사람이 앱 경유';
+	@override String get originTitle => '메시지 출처';
+	@override String get originSenderApplication => '앱 대행 발송(Application)';
+	@override String get originSenderHuman => '사람 대행 발송(Human sender)';
+	@override String originApplicationId({required Object id}) => '출처 앱 ${id}';
+	@override String get originHosted => '기업 호스팅(개인 대화 아님)';
+	@override String get originLabelSender => '발신 출처';
+	@override String get originLabelEncryption => '암호화';
+	@override String get originNonE2ee => '종단간 암호화 아님';
+	@override String get originE2ee => '종단간 암호화(사람 직접 발송)';
+	@override String get originMismatchTitle => '출처 정보 불일치';
+	@override String get originMismatchHint => '이 메시지에는 기업 앱 출처와 종단간 암호화 페이로드가 함께 있습니다. 암호화되지 않은 기업 호스팅 메시지로 표시하며, 사람이 직접 보낸 암호화 메시지로 취급하지 않습니다.';
+	@override String get originUnrecognized => '출처 표식을 인식할 수 없어 암호화 없음으로 표시합니다';
+	@override String get actionDetails => '상세';
+	@override String get groupTitle => '기업 그룹';
+	@override String get groupArchivedBadge => '보관됨';
+	@override String get groupActionArchive => '보관';
+	@override String get groupArchiveTitle => '기업 그룹 보관';
+	@override String get groupArchiveHint => '보관은 단방향입니다. 보관 후에는 모든 기업 API에서 보이지 않으며 되돌릴 수 없습니다.';
+	@override String get groupActionRename => '그룹 이름 변경';
+	@override String get groupRenameHint => '새 그룹 이름';
+	@override String get groupMembersTitle => '멤버와 역할';
+	@override String get groupRoleMember => '멤버';
+	@override String get groupRoleGuest => '게스트';
+	@override String get groupRoleAdmin => '관리자';
+	@override String get groupRoleOwner => '소유자';
+	@override String get groupRoleViceOwner => '부소유자';
+	@override String get groupRoleOwnerLocked => '소유자 역할은 변경할 수 없으며 앱으로도 지정할 수 없습니다';
+	@override String get groupOverLimit => '멤버 수가 페이지 상한을 초과하여 로딩을 중단했습니다';
+	@override String get groupEmpty => '기업 그룹이 없습니다';
+	@override String get directoryTitle => '멤버 검색';
+	@override String get directoryHint => '이름 또는 사번으로 검색';
+	@override String get directoryEmpty => '일치하는 멤버가 없습니다';
+	@override String get directoryBounded => '제한 디렉터리: 페이지 단위만 제공, 전체 내보내기 없음';
+	@override String get directoryLoadMore => '더 불러오기';
+	@override String get directoryEnd => '목록 끝';
+	@override String get retentionTitle => '첨부 파일 보존';
+	@override String retentionUntil({required Object time}) => '${time} 까지 보존';
+	@override String get holdNone => '보류 없음';
+	@override String get holdHeld => '보류 중';
+	@override String holdReason({required Object reason}) => '보류 사유: ${reason}';
+	@override String get purgeLive => '삭제되지 않음';
+	@override String get purgePurged => '삭제됨';
+	@override String get retentionNoDelete => '거버넌스 기록은 삭제할 수 없습니다';
+	@override String get retentionExtendOnly => '보존 기간은 연장만 가능하며 단축할 수 없습니다';
+	@override String get purgeBlockedHold => '보류가 유효하여 삭제할 수 없습니다';
+	@override String get purgeBlockedRetention => '보존 기간이 지나지 않아 삭제할 수 없습니다';
+	@override String get purgeBlockedPurged => '이미 삭제되어 되돌릴 수 없습니다';
+	@override String get actionRetry => '다시 시도';
+	@override String get actionSignIn => '다시 로그인';
+	@override String get error400Title => '요청이 거부되었습니다';
+	@override String get error400Hint => '제출한 내용이 요구 사항에 맞지 않습니다. 확인 후 다시 시도하세요.';
+	@override String get error401Title => '로그인이 만료되었습니다';
+	@override String get error401Hint => '다시 로그인한 후 시도하세요.';
+	@override String get error403Title => '기업 앱이 비활성화되었습니다';
+	@override String get error403Hint => '이 앱 또는 소속 기업이 비활성화되었습니다. 기업 관리자에게 문의하세요.';
+	@override String get error403ScopeTitle => '권한 범위 부족';
+	@override String get error403ScopeHint => '현재 자격 증명에 이 작업에 필요한 범위가 부여되지 않았습니다.';
+	@override String get error403BoundaryTitle => '기업 경계를 벗어났습니다';
+	@override String get error403BoundaryHint => '이 리소스는 현재 앱의 기업 또는 워크스페이스에 속하지 않습니다.';
+	@override String get error404Title => '리소스를 찾을 수 없습니다';
+	@override String get error404Hint => '리소스가 없거나 접근 가능한 기업 범위를 벗어났습니다.';
+	@override String get error409Title => '작업 충돌';
+	@override String get error409Hint => '중복 제출이거나 상태가 변경되었습니다. 새로 고친 후 다시 시도하세요.';
+	@override String get error422IdentityTitle => 'ID가 매핑되지 않음';
+	@override String get error422IdentityHint => '이 멤버는 기업 외부 ID가 아직 연결되지 않았습니다. 먼저 연결하세요.';
+	@override String get error429Title => '요청이 너무 많습니다';
+	@override String get error429Hint => '기업 API 속도 제한에 도달했습니다. 잠시 후 다시 시도하세요.';
+	@override String get error500Title => '서비스 내부 오류';
+	@override String get error500Hint => '서비스가 일시적으로 이상합니다. 잠시 후 다시 시도하세요.';
+	@override String get error503Title => '서비스 이용 불가';
+	@override String get error503Hint => '기업 서비스 보안 게이트가 닫혀 있습니다. 잠시 후 다시 시도하세요.';
+	@override String get errorUnboundTitle => '이 빌드에는 기업 채널이 연결되지 않았습니다';
+	@override String get errorUnboundHint => '기업 거버넌스 API에는 앱 자격 증명이 필요하며 클라이언트에 내장되지 않습니다. 배포 담당자가 채널을 연결해야 합니다.';
+	@override String get errorNetworkTitle => '네트워크 사용 불가';
+	@override String get errorNetworkHint => '연결을 확인한 후 다시 시도하세요.';
+	@override String get errorUnknownTitle => '알 수 없는 결과';
+	@override String get errorUnknownHint => '서비스가 알 수 없는 결과를 반환했습니다. 잠시 후 다시 시도하세요.';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$ko_KR extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => '기업 워크스페이스 연결 중…';
+	@override String get statusErrorTitle => 'OA를 불러올 수 없습니다';
+	@override String get statusErrorHint => '네트워크 오류 또는 서비스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+	@override String get statusExpiredTitle => '로그인 만료';
+	@override String get statusExpiredHint => 'OA single sign-on 코드가 만료되었거나 이미 사용되었습니다. 다시 로그인해 주세요.';
+	@override String get statusLoggedOutTitle => 'OA에서 로그아웃됨';
+	@override String get statusLoggedOutHint => 'OA 세션이 종료되었습니다. 다시 single sign-on이 필요합니다.';
+	@override String get statusMismatchTitle => '기업 OA 외부 이동이 차단됨';
+	@override String get statusMismatchHint => '승인되지 않은 주소로의 이동이 감지되어 계정 보호를 위해 로딩을 중지했습니다.';
+	@override String statusMismatchBlockedHost({required Object host}) => '차단됨: ${host}';
+	@override String get statusOa401Title => 'OA 로그인 상태 만료';
+	@override String get statusOa401Hint => 'OA 서비스가 승인되지 않음을 반환했습니다. 다시 로그인해 주세요.';
+	@override String get actionRetry => '다시 시도';
+	@override String get actionRestartSso => '다시 로그인';
+	@override String get webviewSlotHint => 'OA 페이지 컨테이너(W3 통합 예정)';
+	@override String get badgeDelegated => 'OA 대리 전송';
+	@override String get markerNoE2ee => '기업 호스팅 · 종단간 암호화 아님';
+	@override String senderVia({required Object origin}) => '${origin} 경유 전송';
+	@override String get ssoIssuing => '단일 로그인 코드 요청 중…';
+	@override String ssoCountdown({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.';
 }
 
 // Path: error
@@ -4289,6 +4410,107 @@ extension on TranslationsKoKr {
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}명이 좋아합니다',
 			'discovery.momentLocation' => '위치',
 			'discovery.momentLocationNone' => '위치 표시 안 함',
+			'enterpriseApp.title' => '엔터프라이즈 앱',
+			'enterpriseApp.badgeAppDelegated' => '앱 대행 발송',
+			'enterpriseApp.badgeHumanDelegated' => '사람이 앱 경유',
+			'enterpriseApp.originTitle' => '메시지 출처',
+			'enterpriseApp.originSenderApplication' => '앱 대행 발송(Application)',
+			'enterpriseApp.originSenderHuman' => '사람 대행 발송(Human sender)',
+			'enterpriseApp.originApplicationId' => ({required Object id}) => '출처 앱 ${id}',
+			'enterpriseApp.originHosted' => '기업 호스팅(개인 대화 아님)',
+			'enterpriseApp.originLabelSender' => '발신 출처',
+			'enterpriseApp.originLabelEncryption' => '암호화',
+			'enterpriseApp.originNonE2ee' => '종단간 암호화 아님',
+			'enterpriseApp.originE2ee' => '종단간 암호화(사람 직접 발송)',
+			'enterpriseApp.originMismatchTitle' => '출처 정보 불일치',
+			'enterpriseApp.originMismatchHint' => '이 메시지에는 기업 앱 출처와 종단간 암호화 페이로드가 함께 있습니다. 암호화되지 않은 기업 호스팅 메시지로 표시하며, 사람이 직접 보낸 암호화 메시지로 취급하지 않습니다.',
+			'enterpriseApp.originUnrecognized' => '출처 표식을 인식할 수 없어 암호화 없음으로 표시합니다',
+			'enterpriseApp.actionDetails' => '상세',
+			'enterpriseApp.groupTitle' => '기업 그룹',
+			'enterpriseApp.groupArchivedBadge' => '보관됨',
+			'enterpriseApp.groupActionArchive' => '보관',
+			'enterpriseApp.groupArchiveTitle' => '기업 그룹 보관',
+			'enterpriseApp.groupArchiveHint' => '보관은 단방향입니다. 보관 후에는 모든 기업 API에서 보이지 않으며 되돌릴 수 없습니다.',
+			'enterpriseApp.groupActionRename' => '그룹 이름 변경',
+			'enterpriseApp.groupRenameHint' => '새 그룹 이름',
+			'enterpriseApp.groupMembersTitle' => '멤버와 역할',
+			'enterpriseApp.groupRoleMember' => '멤버',
+			'enterpriseApp.groupRoleGuest' => '게스트',
+			'enterpriseApp.groupRoleAdmin' => '관리자',
+			'enterpriseApp.groupRoleOwner' => '소유자',
+			'enterpriseApp.groupRoleViceOwner' => '부소유자',
+			'enterpriseApp.groupRoleOwnerLocked' => '소유자 역할은 변경할 수 없으며 앱으로도 지정할 수 없습니다',
+			'enterpriseApp.groupOverLimit' => '멤버 수가 페이지 상한을 초과하여 로딩을 중단했습니다',
+			'enterpriseApp.groupEmpty' => '기업 그룹이 없습니다',
+			'enterpriseApp.directoryTitle' => '멤버 검색',
+			'enterpriseApp.directoryHint' => '이름 또는 사번으로 검색',
+			'enterpriseApp.directoryEmpty' => '일치하는 멤버가 없습니다',
+			'enterpriseApp.directoryBounded' => '제한 디렉터리: 페이지 단위만 제공, 전체 내보내기 없음',
+			'enterpriseApp.directoryLoadMore' => '더 불러오기',
+			'enterpriseApp.directoryEnd' => '목록 끝',
+			'enterpriseApp.retentionTitle' => '첨부 파일 보존',
+			'enterpriseApp.retentionUntil' => ({required Object time}) => '${time} 까지 보존',
+			'enterpriseApp.holdNone' => '보류 없음',
+			'enterpriseApp.holdHeld' => '보류 중',
+			'enterpriseApp.holdReason' => ({required Object reason}) => '보류 사유: ${reason}',
+			'enterpriseApp.purgeLive' => '삭제되지 않음',
+			'enterpriseApp.purgePurged' => '삭제됨',
+			'enterpriseApp.retentionNoDelete' => '거버넌스 기록은 삭제할 수 없습니다',
+			'enterpriseApp.retentionExtendOnly' => '보존 기간은 연장만 가능하며 단축할 수 없습니다',
+			'enterpriseApp.purgeBlockedHold' => '보류가 유효하여 삭제할 수 없습니다',
+			'enterpriseApp.purgeBlockedRetention' => '보존 기간이 지나지 않아 삭제할 수 없습니다',
+			'enterpriseApp.purgeBlockedPurged' => '이미 삭제되어 되돌릴 수 없습니다',
+			'enterpriseApp.actionRetry' => '다시 시도',
+			'enterpriseApp.actionSignIn' => '다시 로그인',
+			'enterpriseApp.error400Title' => '요청이 거부되었습니다',
+			'enterpriseApp.error400Hint' => '제출한 내용이 요구 사항에 맞지 않습니다. 확인 후 다시 시도하세요.',
+			'enterpriseApp.error401Title' => '로그인이 만료되었습니다',
+			'enterpriseApp.error401Hint' => '다시 로그인한 후 시도하세요.',
+			'enterpriseApp.error403Title' => '기업 앱이 비활성화되었습니다',
+			'enterpriseApp.error403Hint' => '이 앱 또는 소속 기업이 비활성화되었습니다. 기업 관리자에게 문의하세요.',
+			'enterpriseApp.error403ScopeTitle' => '권한 범위 부족',
+			'enterpriseApp.error403ScopeHint' => '현재 자격 증명에 이 작업에 필요한 범위가 부여되지 않았습니다.',
+			'enterpriseApp.error403BoundaryTitle' => '기업 경계를 벗어났습니다',
+			'enterpriseApp.error403BoundaryHint' => '이 리소스는 현재 앱의 기업 또는 워크스페이스에 속하지 않습니다.',
+			'enterpriseApp.error404Title' => '리소스를 찾을 수 없습니다',
+			'enterpriseApp.error404Hint' => '리소스가 없거나 접근 가능한 기업 범위를 벗어났습니다.',
+			'enterpriseApp.error409Title' => '작업 충돌',
+			'enterpriseApp.error409Hint' => '중복 제출이거나 상태가 변경되었습니다. 새로 고친 후 다시 시도하세요.',
+			'enterpriseApp.error422IdentityTitle' => 'ID가 매핑되지 않음',
+			'enterpriseApp.error422IdentityHint' => '이 멤버는 기업 외부 ID가 아직 연결되지 않았습니다. 먼저 연결하세요.',
+			'enterpriseApp.error429Title' => '요청이 너무 많습니다',
+			'enterpriseApp.error429Hint' => '기업 API 속도 제한에 도달했습니다. 잠시 후 다시 시도하세요.',
+			'enterpriseApp.error500Title' => '서비스 내부 오류',
+			'enterpriseApp.error500Hint' => '서비스가 일시적으로 이상합니다. 잠시 후 다시 시도하세요.',
+			'enterpriseApp.error503Title' => '서비스 이용 불가',
+			'enterpriseApp.error503Hint' => '기업 서비스 보안 게이트가 닫혀 있습니다. 잠시 후 다시 시도하세요.',
+			'enterpriseApp.errorUnboundTitle' => '이 빌드에는 기업 채널이 연결되지 않았습니다',
+			'enterpriseApp.errorUnboundHint' => '기업 거버넌스 API에는 앱 자격 증명이 필요하며 클라이언트에 내장되지 않습니다. 배포 담당자가 채널을 연결해야 합니다.',
+			'enterpriseApp.errorNetworkTitle' => '네트워크 사용 불가',
+			'enterpriseApp.errorNetworkHint' => '연결을 확인한 후 다시 시도하세요.',
+			'enterpriseApp.errorUnknownTitle' => '알 수 없는 결과',
+			'enterpriseApp.errorUnknownHint' => '서비스가 알 수 없는 결과를 반환했습니다. 잠시 후 다시 시도하세요.',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => '기업 워크스페이스 연결 중…',
+			'enterpriseOa.statusErrorTitle' => 'OA를 불러올 수 없습니다',
+			'enterpriseOa.statusErrorHint' => '네트워크 오류 또는 서비스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+			'enterpriseOa.statusExpiredTitle' => '로그인 만료',
+			'enterpriseOa.statusExpiredHint' => 'OA single sign-on 코드가 만료되었거나 이미 사용되었습니다. 다시 로그인해 주세요.',
+			'enterpriseOa.statusLoggedOutTitle' => 'OA에서 로그아웃됨',
+			'enterpriseOa.statusLoggedOutHint' => 'OA 세션이 종료되었습니다. 다시 single sign-on이 필요합니다.',
+			'enterpriseOa.statusMismatchTitle' => '기업 OA 외부 이동이 차단됨',
+			'enterpriseOa.statusMismatchHint' => '승인되지 않은 주소로의 이동이 감지되어 계정 보호를 위해 로딩을 중지했습니다.',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => '차단됨: ${host}',
+			'enterpriseOa.statusOa401Title' => 'OA 로그인 상태 만료',
+			'enterpriseOa.statusOa401Hint' => 'OA 서비스가 승인되지 않음을 반환했습니다. 다시 로그인해 주세요.',
+			'enterpriseOa.actionRetry' => '다시 시도',
+			'enterpriseOa.actionRestartSso' => '다시 로그인',
+			'enterpriseOa.webviewSlotHint' => 'OA 페이지 컨테이너(W3 통합 예정)',
+			'enterpriseOa.badgeDelegated' => 'OA 대리 전송',
+			'enterpriseOa.markerNoE2ee' => '기업 호스팅 · 종단간 암호화 아님',
+			'enterpriseOa.senderVia' => ({required Object origin}) => '${origin} 경유 전송',
+			'enterpriseOa.ssoIssuing' => '단일 로그인 코드 요청 중…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
 			'error.networkTroubleshootingStep1' => '1. 휴대전화 설정을 열고 Wi-Fi 스위치를 켜 주세요.',
@@ -4681,6 +4903,8 @@ extension on TranslationsKoKr {
 			'organization.detail.restoreFailed' => '복원 실패',
 			'organization.detail.archiveFailed' => '보관 실패',
 			'organization.detail.renameOrgTitle' => '조직 이름 변경',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => '조직 이름(1-200자)',
 			'organization.detail.renameAction' => '이름 변경',
 			'organization.detail.renameFailed' => '이름 변경 실패',
@@ -4782,8 +5006,6 @@ extension on TranslationsKoKr {
 			'organization.departments.emptyWithHint' => '부서가 없습니다. 오른쪽 위에서 만들어 보세요',
 			'organization.departments.empty' => '부서가 없습니다',
 			'organization.departments.emptySubtitle' => '겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다.',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',

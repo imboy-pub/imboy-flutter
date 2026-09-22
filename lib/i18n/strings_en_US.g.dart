@@ -52,6 +52,8 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$contact$en_US contact = _Translations$contact$en_US._(_root);
 	@override late final _Translations$customerService$en_US customerService = _Translations$customerService$en_US._(_root);
 	@override late final _Translations$discovery$en_US discovery = _Translations$discovery$en_US._(_root);
+	@override late final _Translations$enterpriseApp$en_US enterpriseApp = _Translations$enterpriseApp$en_US._(_root);
+	@override late final _Translations$enterpriseOa$en_US enterpriseOa = _Translations$enterpriseOa$en_US._(_root);
 	@override late final _Translations$error$en_US error = _Translations$error$en_US._(_root);
 	@override late final _Translations$group$en_US group = _Translations$group$en_US._(_root);
 	@override late final _Translations$groupCategory$en_US groupCategory = _Translations$groupCategory$en_US._(_root);
@@ -1813,6 +1815,125 @@ class _Translations$discovery$en_US extends Translations$discovery$zh_CN {
 	@override String momentAtCount({required Object count}) => '${count} people';
 	@override String get momentActionMore => 'More';
 	@override String momentLikesCountOnly({required Object count}) => '${count} people liked this';
+}
+
+// Path: enterpriseApp
+class _Translations$enterpriseApp$en_US extends Translations$enterpriseApp$zh_CN {
+	_Translations$enterpriseApp$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Enterprise app';
+	@override String get badgeAppDelegated => 'Via application';
+	@override String get badgeHumanDelegated => 'Human via app';
+	@override String get originTitle => 'Message origin';
+	@override String get originSenderApplication => 'Sent by the application (Application)';
+	@override String get originSenderHuman => 'Sent on behalf of a human (Human sender)';
+	@override String originApplicationId({required Object id}) => 'Source application ${id}';
+	@override String get originHosted => 'Enterprise-hosted (not a personal chat)';
+	@override String get originLabelSender => 'Sender origin';
+	@override String get originLabelEncryption => 'Encryption';
+	@override String get originNonE2ee => 'Not end-to-end encrypted';
+	@override String get originE2ee => 'End-to-end encrypted (human direct)';
+	@override String get originMismatchTitle => 'Inconsistent origin';
+	@override String get originMismatchHint => 'This message carries both an enterprise application origin and an end-to-end encrypted payload. It is shown as a non-encrypted enterprise-hosted message, not as a human direct encrypted message.';
+	@override String get originUnrecognized => 'Origin marker not recognized; shown as unencrypted';
+	@override String get actionDetails => 'Details';
+	@override String get groupTitle => 'Enterprise group';
+	@override String get groupArchivedBadge => 'Archived';
+	@override String get groupActionArchive => 'Archive';
+	@override String get groupArchiveTitle => 'Archive enterprise group';
+	@override String get groupArchiveHint => 'Archiving is one-way: the group becomes invisible to all enterprise endpoints and cannot be restored.';
+	@override String get groupActionRename => 'Rename group';
+	@override String get groupRenameHint => 'New group name';
+	@override String get groupMembersTitle => 'Members and roles';
+	@override String get groupRoleMember => 'Member';
+	@override String get groupRoleGuest => 'Guest';
+	@override String get groupRoleAdmin => 'Administrator';
+	@override String get groupRoleOwner => 'Owner';
+	@override String get groupRoleViceOwner => 'Vice owner';
+	@override String get groupRoleOwnerLocked => 'The owner role cannot be changed or assigned by an application';
+	@override String get groupOverLimit => 'Member count exceeds the page limit; loading stopped';
+	@override String get groupEmpty => 'No enterprise groups';
+	@override String get directoryTitle => 'Member search';
+	@override String get directoryHint => 'Search by name or staff ID';
+	@override String get directoryEmpty => 'No matching members';
+	@override String get directoryBounded => 'Bounded directory: paged only, no bulk export';
+	@override String get directoryLoadMore => 'Load more';
+	@override String get directoryEnd => 'End of list';
+	@override String get retentionTitle => 'Attachment retention';
+	@override String retentionUntil({required Object time}) => 'Retained until ${time}';
+	@override String get holdNone => 'Not on hold';
+	@override String get holdHeld => 'On hold';
+	@override String holdReason({required Object reason}) => 'Hold reason: ${reason}';
+	@override String get purgeLive => 'Not purged';
+	@override String get purgePurged => 'Purged';
+	@override String get retentionNoDelete => 'Governance records cannot be deleted';
+	@override String get retentionExtendOnly => 'Retention can only be extended, never shortened';
+	@override String get purgeBlockedHold => 'A hold is active; purge is blocked';
+	@override String get purgeBlockedRetention => 'Retention has not elapsed; purge is blocked';
+	@override String get purgeBlockedPurged => 'Already purged; cannot be reverted';
+	@override String get actionRetry => 'Retry';
+	@override String get actionSignIn => 'Sign in again';
+	@override String get error400Title => 'Request rejected';
+	@override String get error400Hint => 'The submitted content is not acceptable. Please review and retry.';
+	@override String get error401Title => 'Sign-in expired';
+	@override String get error401Hint => 'Please sign in again and retry.';
+	@override String get error403Title => 'Application disabled';
+	@override String get error403Hint => 'This application or its organization is disabled. Contact your enterprise administrator.';
+	@override String get error403ScopeTitle => 'Insufficient scope';
+	@override String get error403ScopeHint => 'The current credential has not been granted the scope this operation requires.';
+	@override String get error403BoundaryTitle => 'Outside enterprise boundary';
+	@override String get error403BoundaryHint => 'This resource does not belong to the enterprise or workspace of the current application.';
+	@override String get error404Title => 'Resource not found';
+	@override String get error404Hint => 'The resource does not exist, or is outside your accessible enterprise scope.';
+	@override String get error409Title => 'Operation conflict';
+	@override String get error409Hint => 'Duplicate submission or the state has changed. Refresh and retry.';
+	@override String get error422IdentityTitle => 'Identity not mapped';
+	@override String get error422IdentityHint => 'This member has no bound enterprise external identity yet. Bind it first.';
+	@override String get error429Title => 'Too many requests';
+	@override String get error429Hint => 'Enterprise rate limit reached. Please try again later.';
+	@override String get error500Title => 'Internal error';
+	@override String get error500Hint => 'The service is temporarily unavailable. Please retry later.';
+	@override String get error503Title => 'Service unavailable';
+	@override String get error503Hint => 'The enterprise security gate is closed. Please try again later.';
+	@override String get errorUnboundTitle => 'This build has no enterprise channel bound';
+	@override String get errorUnboundHint => 'Enterprise governance endpoints require an application credential, which is never embedded in the client. Ask your deployment owner to bind a channel.';
+	@override String get errorNetworkTitle => 'Network unavailable';
+	@override String get errorNetworkHint => 'Check your connection and retry.';
+	@override String get errorUnknownTitle => 'Unrecognized result';
+	@override String get errorUnknownHint => 'The service returned an unrecognized result. Please retry later.';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$en_US extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => 'Connecting to enterprise workspace…';
+	@override String get statusErrorTitle => 'Unable to load OA';
+	@override String get statusErrorHint => 'Network issue or service temporarily unavailable. Please try again later.';
+	@override String get statusExpiredTitle => 'Sign-in expired';
+	@override String get statusExpiredHint => 'The OA single sign-on code has expired or was already used. Please sign in again.';
+	@override String get statusLoggedOutTitle => 'Signed out of OA';
+	@override String get statusLoggedOutHint => 'The OA session has ended. Single sign-on is required to continue.';
+	@override String get statusMismatchTitle => 'Blocked navigation away from OA';
+	@override String get statusMismatchHint => 'An unauthorized address was detected. Loading was stopped to protect your account.';
+	@override String statusMismatchBlockedHost({required Object host}) => 'Blocked: ${host}';
+	@override String get statusOa401Title => 'OA session unauthorized';
+	@override String get statusOa401Hint => 'The OA service returned unauthorized. Please sign in again.';
+	@override String get actionRetry => 'Retry';
+	@override String get actionRestartSso => 'Sign in again';
+	@override String get webviewSlotHint => 'OA page container (integration in W3)';
+	@override String get badgeDelegated => 'Via OA';
+	@override String get markerNoE2ee => 'Enterprise-hosted · not end-to-end encrypted';
+	@override String senderVia({required Object origin}) => 'sent via ${origin}';
+	@override String get ssoIssuing => 'Requesting single sign-on code…';
+	@override String ssoCountdown({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.';
 }
 
 // Path: error
@@ -4442,6 +4563,107 @@ extension on TranslationsEnUs {
 			'discovery.momentAtCount' => ({required Object count}) => '${count} people',
 			'discovery.momentActionMore' => 'More',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} people liked this',
+			'enterpriseApp.title' => 'Enterprise app',
+			'enterpriseApp.badgeAppDelegated' => 'Via application',
+			'enterpriseApp.badgeHumanDelegated' => 'Human via app',
+			'enterpriseApp.originTitle' => 'Message origin',
+			'enterpriseApp.originSenderApplication' => 'Sent by the application (Application)',
+			'enterpriseApp.originSenderHuman' => 'Sent on behalf of a human (Human sender)',
+			'enterpriseApp.originApplicationId' => ({required Object id}) => 'Source application ${id}',
+			'enterpriseApp.originHosted' => 'Enterprise-hosted (not a personal chat)',
+			'enterpriseApp.originLabelSender' => 'Sender origin',
+			'enterpriseApp.originLabelEncryption' => 'Encryption',
+			'enterpriseApp.originNonE2ee' => 'Not end-to-end encrypted',
+			'enterpriseApp.originE2ee' => 'End-to-end encrypted (human direct)',
+			'enterpriseApp.originMismatchTitle' => 'Inconsistent origin',
+			'enterpriseApp.originMismatchHint' => 'This message carries both an enterprise application origin and an end-to-end encrypted payload. It is shown as a non-encrypted enterprise-hosted message, not as a human direct encrypted message.',
+			'enterpriseApp.originUnrecognized' => 'Origin marker not recognized; shown as unencrypted',
+			'enterpriseApp.actionDetails' => 'Details',
+			'enterpriseApp.groupTitle' => 'Enterprise group',
+			'enterpriseApp.groupArchivedBadge' => 'Archived',
+			'enterpriseApp.groupActionArchive' => 'Archive',
+			'enterpriseApp.groupArchiveTitle' => 'Archive enterprise group',
+			'enterpriseApp.groupArchiveHint' => 'Archiving is one-way: the group becomes invisible to all enterprise endpoints and cannot be restored.',
+			'enterpriseApp.groupActionRename' => 'Rename group',
+			'enterpriseApp.groupRenameHint' => 'New group name',
+			'enterpriseApp.groupMembersTitle' => 'Members and roles',
+			'enterpriseApp.groupRoleMember' => 'Member',
+			'enterpriseApp.groupRoleGuest' => 'Guest',
+			'enterpriseApp.groupRoleAdmin' => 'Administrator',
+			'enterpriseApp.groupRoleOwner' => 'Owner',
+			'enterpriseApp.groupRoleViceOwner' => 'Vice owner',
+			'enterpriseApp.groupRoleOwnerLocked' => 'The owner role cannot be changed or assigned by an application',
+			'enterpriseApp.groupOverLimit' => 'Member count exceeds the page limit; loading stopped',
+			'enterpriseApp.groupEmpty' => 'No enterprise groups',
+			'enterpriseApp.directoryTitle' => 'Member search',
+			'enterpriseApp.directoryHint' => 'Search by name or staff ID',
+			'enterpriseApp.directoryEmpty' => 'No matching members',
+			'enterpriseApp.directoryBounded' => 'Bounded directory: paged only, no bulk export',
+			'enterpriseApp.directoryLoadMore' => 'Load more',
+			'enterpriseApp.directoryEnd' => 'End of list',
+			'enterpriseApp.retentionTitle' => 'Attachment retention',
+			'enterpriseApp.retentionUntil' => ({required Object time}) => 'Retained until ${time}',
+			'enterpriseApp.holdNone' => 'Not on hold',
+			'enterpriseApp.holdHeld' => 'On hold',
+			'enterpriseApp.holdReason' => ({required Object reason}) => 'Hold reason: ${reason}',
+			'enterpriseApp.purgeLive' => 'Not purged',
+			'enterpriseApp.purgePurged' => 'Purged',
+			'enterpriseApp.retentionNoDelete' => 'Governance records cannot be deleted',
+			'enterpriseApp.retentionExtendOnly' => 'Retention can only be extended, never shortened',
+			'enterpriseApp.purgeBlockedHold' => 'A hold is active; purge is blocked',
+			'enterpriseApp.purgeBlockedRetention' => 'Retention has not elapsed; purge is blocked',
+			'enterpriseApp.purgeBlockedPurged' => 'Already purged; cannot be reverted',
+			'enterpriseApp.actionRetry' => 'Retry',
+			'enterpriseApp.actionSignIn' => 'Sign in again',
+			'enterpriseApp.error400Title' => 'Request rejected',
+			'enterpriseApp.error400Hint' => 'The submitted content is not acceptable. Please review and retry.',
+			'enterpriseApp.error401Title' => 'Sign-in expired',
+			'enterpriseApp.error401Hint' => 'Please sign in again and retry.',
+			'enterpriseApp.error403Title' => 'Application disabled',
+			'enterpriseApp.error403Hint' => 'This application or its organization is disabled. Contact your enterprise administrator.',
+			'enterpriseApp.error403ScopeTitle' => 'Insufficient scope',
+			'enterpriseApp.error403ScopeHint' => 'The current credential has not been granted the scope this operation requires.',
+			'enterpriseApp.error403BoundaryTitle' => 'Outside enterprise boundary',
+			'enterpriseApp.error403BoundaryHint' => 'This resource does not belong to the enterprise or workspace of the current application.',
+			'enterpriseApp.error404Title' => 'Resource not found',
+			'enterpriseApp.error404Hint' => 'The resource does not exist, or is outside your accessible enterprise scope.',
+			'enterpriseApp.error409Title' => 'Operation conflict',
+			'enterpriseApp.error409Hint' => 'Duplicate submission or the state has changed. Refresh and retry.',
+			'enterpriseApp.error422IdentityTitle' => 'Identity not mapped',
+			'enterpriseApp.error422IdentityHint' => 'This member has no bound enterprise external identity yet. Bind it first.',
+			'enterpriseApp.error429Title' => 'Too many requests',
+			'enterpriseApp.error429Hint' => 'Enterprise rate limit reached. Please try again later.',
+			'enterpriseApp.error500Title' => 'Internal error',
+			'enterpriseApp.error500Hint' => 'The service is temporarily unavailable. Please retry later.',
+			'enterpriseApp.error503Title' => 'Service unavailable',
+			'enterpriseApp.error503Hint' => 'The enterprise security gate is closed. Please try again later.',
+			'enterpriseApp.errorUnboundTitle' => 'This build has no enterprise channel bound',
+			'enterpriseApp.errorUnboundHint' => 'Enterprise governance endpoints require an application credential, which is never embedded in the client. Ask your deployment owner to bind a channel.',
+			'enterpriseApp.errorNetworkTitle' => 'Network unavailable',
+			'enterpriseApp.errorNetworkHint' => 'Check your connection and retry.',
+			'enterpriseApp.errorUnknownTitle' => 'Unrecognized result',
+			'enterpriseApp.errorUnknownHint' => 'The service returned an unrecognized result. Please retry later.',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => 'Connecting to enterprise workspace…',
+			'enterpriseOa.statusErrorTitle' => 'Unable to load OA',
+			'enterpriseOa.statusErrorHint' => 'Network issue or service temporarily unavailable. Please try again later.',
+			'enterpriseOa.statusExpiredTitle' => 'Sign-in expired',
+			'enterpriseOa.statusExpiredHint' => 'The OA single sign-on code has expired or was already used. Please sign in again.',
+			'enterpriseOa.statusLoggedOutTitle' => 'Signed out of OA',
+			'enterpriseOa.statusLoggedOutHint' => 'The OA session has ended. Single sign-on is required to continue.',
+			'enterpriseOa.statusMismatchTitle' => 'Blocked navigation away from OA',
+			'enterpriseOa.statusMismatchHint' => 'An unauthorized address was detected. Loading was stopped to protect your account.',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => 'Blocked: ${host}',
+			'enterpriseOa.statusOa401Title' => 'OA session unauthorized',
+			'enterpriseOa.statusOa401Hint' => 'The OA service returned unauthorized. Please sign in again.',
+			'enterpriseOa.actionRetry' => 'Retry',
+			'enterpriseOa.actionRestartSso' => 'Sign in again',
+			'enterpriseOa.webviewSlotHint' => 'OA page container (integration in W3)',
+			'enterpriseOa.badgeDelegated' => 'Via OA',
+			'enterpriseOa.markerNoE2ee' => 'Enterprise-hosted · not end-to-end encrypted',
+			'enterpriseOa.senderVia' => ({required Object origin}) => 'sent via ${origin}',
+			'enterpriseOa.ssoIssuing' => 'Requesting single sign-on code…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.',
 			'error.restartRequired' => 'Restart Required',
 			'error.pleaseCheckNetwork' => 'Please check your network settings.',
 			'error.networkTroubleshootingStep1' => '1. Open phone \'Settings\' and keep \'Wi-Fi\' switch on.',
@@ -4764,6 +4986,8 @@ extension on TranslationsEnUs {
 			'main.safetyNumberMarkVerified' => 'Mark as verified',
 			'main.safetyNumberMarkedVerified' => 'Marked as verified',
 			'main.safetyNumberPeerDevice' => 'Contact device',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => 'This contact has not enabled end-to-end encryption yet',
 			'main.safetyNumberVerifyFailed' => 'Failed to get safety number, please retry later',
 			'main.safetyNumberReporting' => 'Reporting verification result...',
@@ -4865,8 +5089,6 @@ extension on TranslationsEnUs {
 			'organization.members.changeRole' => 'Change role',
 			'organization.members.changeRoleBody' => ({required Object name, required Object from, required Object to}) => 'The role of “${name}” will be changed from ${from} to ${to}.',
 			'organization.members.confirmChange' => 'Confirm change',
-			_ => null,
-		} ?? switch (path) {
 			'organization.members.changeRoleFailed' => 'Role change failed',
 			'organization.members.removeMember' => 'Remove member',
 			'organization.members.removeMemberBody' => ({required Object name}) => '“${name}” will be removed from this organization. Their account will not be deleted.',

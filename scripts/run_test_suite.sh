@@ -342,7 +342,8 @@ fi
 
 # L5：release 只加构建，不自动读取签名材料。
 if [[ "$MODE" == "release" ]]; then
-  run_step "app_android_debug_build" required "$APP_ROOT" flutter build apk --debug
+  # --flavor standard：白标 flavor 引入后必须显式指定；standard = 原 imboy 基线。
+  run_step "app_android_debug_build" required "$APP_ROOT" flutter build apk --debug --flavor standard
 fi
 
 cat > "$SUMMARY_MD" <<EOF

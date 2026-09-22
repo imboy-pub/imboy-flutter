@@ -51,6 +51,8 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$ar_SA complaintReason = _Translations$complaintReason$ar_SA._(_root);
 	@override late final _Translations$contact$ar_SA contact = _Translations$contact$ar_SA._(_root);
 	@override late final _Translations$discovery$ar_SA discovery = _Translations$discovery$ar_SA._(_root);
+	@override late final _Translations$enterpriseApp$ar_SA enterpriseApp = _Translations$enterpriseApp$ar_SA._(_root);
+	@override late final _Translations$enterpriseOa$ar_SA enterpriseOa = _Translations$enterpriseOa$ar_SA._(_root);
 	@override late final _Translations$error$ar_SA error = _Translations$error$ar_SA._(_root);
 	@override late final _Translations$group$ar_SA group = _Translations$group$ar_SA._(_root);
 	@override late final _Translations$groupCategory$ar_SA groupCategory = _Translations$groupCategory$ar_SA._(_root);
@@ -1742,6 +1744,125 @@ class _Translations$discovery$ar_SA extends Translations$discovery$zh_CN {
 	@override String momentAtReminded({required Object name}) => 'نبّهت ${name}';
 	@override String momentAtRemindedMore({required Object name, required Object count}) => 'نبّهت ${name} و${count} آخرين';
 	@override String momentAtCount({required Object count}) => '${count} أشخاص';
+}
+
+// Path: enterpriseApp
+class _Translations$enterpriseApp$ar_SA extends Translations$enterpriseApp$zh_CN {
+	_Translations$enterpriseApp$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'تطبيق المؤسسة';
+	@override String get badgeAppDelegated => 'أرسله التطبيق';
+	@override String get badgeHumanDelegated => 'شخص عبر التطبيق';
+	@override String get originTitle => 'مصدر الرسالة';
+	@override String get originSenderApplication => 'أرسله التطبيق (Application)';
+	@override String get originSenderHuman => 'أُرسلت نيابة عن شخص (Human sender)';
+	@override String originApplicationId({required Object id}) => 'التطبيق المصدر ${id}';
+	@override String get originHosted => 'مستضاف لدى المؤسسة (ليس محادثة شخصية)';
+	@override String get originLabelSender => 'مصدر المرسل';
+	@override String get originLabelEncryption => 'التشفير';
+	@override String get originNonE2ee => 'غير مشفّر من الطرف إلى الطرف';
+	@override String get originE2ee => 'مشفّر من الطرف إلى الطرف (شخص مباشرة)';
+	@override String get originMismatchTitle => 'مصدر غير متسق';
+	@override String get originMismatchHint => 'تحمل هذه الرسالة مصدر تطبيق مؤسسي وحمولة مشفّرة من الطرف إلى الطرف في الوقت نفسه. تُعرض كرسالة مؤسسية غير مشفّرة، ولا تُعتبر رسالة مشفّرة أرسلها شخص مباشرة.';
+	@override String get originUnrecognized => 'علامة المصدر غير معروفة؛ تُعرض كغير مشفّرة';
+	@override String get actionDetails => 'التفاصيل';
+	@override String get groupTitle => 'مجموعة المؤسسة';
+	@override String get groupArchivedBadge => 'مؤرشفة';
+	@override String get groupActionArchive => 'أرشفة';
+	@override String get groupArchiveTitle => 'أرشفة مجموعة المؤسسة';
+	@override String get groupArchiveHint => 'الأرشفة أحادية الاتجاه: تصبح المجموعة غير مرئية لجميع واجهات المؤسسة ولا يمكن استعادتها.';
+	@override String get groupActionRename => 'تغيير اسم المجموعة';
+	@override String get groupRenameHint => 'اسم المجموعة الجديد';
+	@override String get groupMembersTitle => 'الأعضاء والأدوار';
+	@override String get groupRoleMember => 'عضو';
+	@override String get groupRoleGuest => 'ضيف';
+	@override String get groupRoleAdmin => 'مسؤول';
+	@override String get groupRoleOwner => 'المالك';
+	@override String get groupRoleViceOwner => 'نائب المالك';
+	@override String get groupRoleOwnerLocked => 'لا يمكن تغيير دور المالك ولا منحه عبر التطبيق';
+	@override String get groupOverLimit => 'عدد الأعضاء يتجاوز حد الصفحة؛ تم إيقاف التحميل';
+	@override String get groupEmpty => 'لا توجد مجموعات مؤسسة';
+	@override String get directoryTitle => 'بحث الأعضاء';
+	@override String get directoryHint => 'البحث بالاسم أو الرقم الوظيفي';
+	@override String get directoryEmpty => 'لا يوجد أعضاء مطابقون';
+	@override String get directoryBounded => 'دليل محدود: صفحات فقط، بلا تصدير كامل';
+	@override String get directoryLoadMore => 'تحميل المزيد';
+	@override String get directoryEnd => 'نهاية القائمة';
+	@override String get retentionTitle => 'استبقاء المرفقات';
+	@override String retentionUntil({required Object time}) => 'يبقى حتى ${time}';
+	@override String get holdNone => 'غير موقوف';
+	@override String get holdHeld => 'موقوف';
+	@override String holdReason({required Object reason}) => 'سبب الإيقاف: ${reason}';
+	@override String get purgeLive => 'غير محذوف';
+	@override String get purgePurged => 'محذوف';
+	@override String get retentionNoDelete => 'لا يمكن حذف سجلات الحوكمة';
+	@override String get retentionExtendOnly => 'يمكن تمديد مدة الاستبقاء فقط، ولا يمكن تقصيرها';
+	@override String get purgeBlockedHold => 'الإيقاف سارٍ؛ الحذف ممنوع';
+	@override String get purgeBlockedRetention => 'لم تنتهِ مدة الاستبقاء؛ الحذف ممنوع';
+	@override String get purgeBlockedPurged => 'محذوف بالفعل؛ لا يمكن التراجع';
+	@override String get actionRetry => 'إعادة المحاولة';
+	@override String get actionSignIn => 'تسجيل الدخول من جديد';
+	@override String get error400Title => 'الطلب مرفوض';
+	@override String get error400Hint => 'المحتوى المُرسل غير مقبول. راجعه ثم أعد المحاولة.';
+	@override String get error401Title => 'انتهت صلاحية تسجيل الدخول';
+	@override String get error401Hint => 'سجّل الدخول من جديد ثم أعد المحاولة.';
+	@override String get error403Title => 'التطبيق معطّل';
+	@override String get error403Hint => 'هذا التطبيق أو مؤسسته معطّلة. تواصل مع مسؤول المؤسسة.';
+	@override String get error403ScopeTitle => 'نطاق الصلاحيات غير كافٍ';
+	@override String get error403ScopeHint => 'بيانات الاعتماد الحالية لا تملك النطاق المطلوب لهذه العملية.';
+	@override String get error403BoundaryTitle => 'خارج حدود المؤسسة';
+	@override String get error403BoundaryHint => 'هذا المورد لا ينتمي إلى مؤسسة التطبيق الحالي أو مساحة عمله.';
+	@override String get error404Title => 'المورد غير موجود';
+	@override String get error404Hint => 'المورد غير موجود أو خارج نطاق مؤسستك المتاح.';
+	@override String get error409Title => 'تعارض في العملية';
+	@override String get error409Hint => 'إرسال مكرر أو تغيّرت الحالة. حدِّث ثم أعد المحاولة.';
+	@override String get error422IdentityTitle => 'الهوية غير مرتبطة';
+	@override String get error422IdentityHint => 'هذا العضو لم تُربط به هوية مؤسسية خارجية بعد. اربطها أولًا.';
+	@override String get error429Title => 'طلبات كثيرة جدًا';
+	@override String get error429Hint => 'تم بلوغ حد معدّل واجهة المؤسسة. أعد المحاولة لاحقًا.';
+	@override String get error500Title => 'خطأ داخلي في الخدمة';
+	@override String get error500Hint => 'الخدمة غير مستقرة مؤقتًا. أعد المحاولة لاحقًا.';
+	@override String get error503Title => 'الخدمة غير متاحة';
+	@override String get error503Hint => 'بوابة أمان خدمة المؤسسة مغلقة. أعد المحاولة لاحقًا.';
+	@override String get errorUnboundTitle => 'لم تُربط قناة مؤسسية في هذا الإصدار';
+	@override String get errorUnboundHint => 'تتطلب واجهات حوكمة المؤسسة بيانات اعتماد تطبيق، وهي لا تُضمَّن في العميل أبدًا. اطلب من مسؤول النشر ربط قناة.';
+	@override String get errorNetworkTitle => 'الشبكة غير متاحة';
+	@override String get errorNetworkHint => 'تحقق من الاتصال ثم أعد المحاولة.';
+	@override String get errorUnknownTitle => 'نتيجة غير معروفة';
+	@override String get errorUnknownHint => 'أعادت الخدمة نتيجة غير معروفة. أعد المحاولة لاحقًا.';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$ar_SA extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => 'جارٍ الاتصال بمساحة العمل المؤسسية…';
+	@override String get statusErrorTitle => 'تعذّر تحميل OA';
+	@override String get statusErrorHint => 'خطأ في الشبكة أو الخدمة غير متاحة مؤقتًا. حاول مرة أخرى لاحقًا.';
+	@override String get statusExpiredTitle => 'انتهت صلاحية تسجيل الدخول';
+	@override String get statusExpiredHint => 'انتهت صلاحية رمز تسجيل الدخول الموحّد لـ OA أو تم استخدامه بالفعل. يرجى تسجيل الدخول مرة أخرى.';
+	@override String get statusLoggedOutTitle => 'تم تسجيل الخروج من OA';
+	@override String get statusLoggedOutHint => 'انتهت جلسة OA. يلزم تسجيل دخول موحّد جديد.';
+	@override String get statusMismatchTitle => 'تم حظر الانتقال خارج OA المؤسسي';
+	@override String get statusMismatchHint => 'تم اكتشاف انتقال إلى عنوان غير مصرّح به. تم إيقاف التحميل لحماية حسابك.';
+	@override String statusMismatchBlockedHost({required Object host}) => 'محظور: ${host}';
+	@override String get statusOa401Title => 'جلسة OA غير مصرّح بها';
+	@override String get statusOa401Hint => 'أرجعت خدمة OA خطأ عدم التصريح. يرجى تسجيل الدخول مرة أخرى.';
+	@override String get actionRetry => 'إعادة المحاولة';
+	@override String get actionRestartSso => 'تسجيل الدخول مرة أخرى';
+	@override String get webviewSlotHint => 'حاوية صفحة OA (التكامل في W3)';
+	@override String get badgeDelegated => 'عبر OA';
+	@override String get markerNoE2ee => 'مستضاف مؤسسيًا · بدون تشفير طرف إلى طرف';
+	@override String senderVia({required Object origin}) => 'أُرسل عبر ${origin}';
+	@override String get ssoIssuing => 'جارٍ طلب رمز تسجيل الدخول الموحد…';
+	@override String ssoCountdown({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.';
 }
 
 // Path: error
@@ -4301,6 +4422,107 @@ extension on TranslationsArSa {
 			'discovery.momentAtReminded' => ({required Object name}) => 'نبّهت ${name}',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => 'نبّهت ${name} و${count} آخرين',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} أشخاص',
+			'enterpriseApp.title' => 'تطبيق المؤسسة',
+			'enterpriseApp.badgeAppDelegated' => 'أرسله التطبيق',
+			'enterpriseApp.badgeHumanDelegated' => 'شخص عبر التطبيق',
+			'enterpriseApp.originTitle' => 'مصدر الرسالة',
+			'enterpriseApp.originSenderApplication' => 'أرسله التطبيق (Application)',
+			'enterpriseApp.originSenderHuman' => 'أُرسلت نيابة عن شخص (Human sender)',
+			'enterpriseApp.originApplicationId' => ({required Object id}) => 'التطبيق المصدر ${id}',
+			'enterpriseApp.originHosted' => 'مستضاف لدى المؤسسة (ليس محادثة شخصية)',
+			'enterpriseApp.originLabelSender' => 'مصدر المرسل',
+			'enterpriseApp.originLabelEncryption' => 'التشفير',
+			'enterpriseApp.originNonE2ee' => 'غير مشفّر من الطرف إلى الطرف',
+			'enterpriseApp.originE2ee' => 'مشفّر من الطرف إلى الطرف (شخص مباشرة)',
+			'enterpriseApp.originMismatchTitle' => 'مصدر غير متسق',
+			'enterpriseApp.originMismatchHint' => 'تحمل هذه الرسالة مصدر تطبيق مؤسسي وحمولة مشفّرة من الطرف إلى الطرف في الوقت نفسه. تُعرض كرسالة مؤسسية غير مشفّرة، ولا تُعتبر رسالة مشفّرة أرسلها شخص مباشرة.',
+			'enterpriseApp.originUnrecognized' => 'علامة المصدر غير معروفة؛ تُعرض كغير مشفّرة',
+			'enterpriseApp.actionDetails' => 'التفاصيل',
+			'enterpriseApp.groupTitle' => 'مجموعة المؤسسة',
+			'enterpriseApp.groupArchivedBadge' => 'مؤرشفة',
+			'enterpriseApp.groupActionArchive' => 'أرشفة',
+			'enterpriseApp.groupArchiveTitle' => 'أرشفة مجموعة المؤسسة',
+			'enterpriseApp.groupArchiveHint' => 'الأرشفة أحادية الاتجاه: تصبح المجموعة غير مرئية لجميع واجهات المؤسسة ولا يمكن استعادتها.',
+			'enterpriseApp.groupActionRename' => 'تغيير اسم المجموعة',
+			'enterpriseApp.groupRenameHint' => 'اسم المجموعة الجديد',
+			'enterpriseApp.groupMembersTitle' => 'الأعضاء والأدوار',
+			'enterpriseApp.groupRoleMember' => 'عضو',
+			'enterpriseApp.groupRoleGuest' => 'ضيف',
+			'enterpriseApp.groupRoleAdmin' => 'مسؤول',
+			'enterpriseApp.groupRoleOwner' => 'المالك',
+			'enterpriseApp.groupRoleViceOwner' => 'نائب المالك',
+			'enterpriseApp.groupRoleOwnerLocked' => 'لا يمكن تغيير دور المالك ولا منحه عبر التطبيق',
+			'enterpriseApp.groupOverLimit' => 'عدد الأعضاء يتجاوز حد الصفحة؛ تم إيقاف التحميل',
+			'enterpriseApp.groupEmpty' => 'لا توجد مجموعات مؤسسة',
+			'enterpriseApp.directoryTitle' => 'بحث الأعضاء',
+			'enterpriseApp.directoryHint' => 'البحث بالاسم أو الرقم الوظيفي',
+			'enterpriseApp.directoryEmpty' => 'لا يوجد أعضاء مطابقون',
+			'enterpriseApp.directoryBounded' => 'دليل محدود: صفحات فقط، بلا تصدير كامل',
+			'enterpriseApp.directoryLoadMore' => 'تحميل المزيد',
+			'enterpriseApp.directoryEnd' => 'نهاية القائمة',
+			'enterpriseApp.retentionTitle' => 'استبقاء المرفقات',
+			'enterpriseApp.retentionUntil' => ({required Object time}) => 'يبقى حتى ${time}',
+			'enterpriseApp.holdNone' => 'غير موقوف',
+			'enterpriseApp.holdHeld' => 'موقوف',
+			'enterpriseApp.holdReason' => ({required Object reason}) => 'سبب الإيقاف: ${reason}',
+			'enterpriseApp.purgeLive' => 'غير محذوف',
+			'enterpriseApp.purgePurged' => 'محذوف',
+			'enterpriseApp.retentionNoDelete' => 'لا يمكن حذف سجلات الحوكمة',
+			'enterpriseApp.retentionExtendOnly' => 'يمكن تمديد مدة الاستبقاء فقط، ولا يمكن تقصيرها',
+			'enterpriseApp.purgeBlockedHold' => 'الإيقاف سارٍ؛ الحذف ممنوع',
+			'enterpriseApp.purgeBlockedRetention' => 'لم تنتهِ مدة الاستبقاء؛ الحذف ممنوع',
+			'enterpriseApp.purgeBlockedPurged' => 'محذوف بالفعل؛ لا يمكن التراجع',
+			'enterpriseApp.actionRetry' => 'إعادة المحاولة',
+			'enterpriseApp.actionSignIn' => 'تسجيل الدخول من جديد',
+			'enterpriseApp.error400Title' => 'الطلب مرفوض',
+			'enterpriseApp.error400Hint' => 'المحتوى المُرسل غير مقبول. راجعه ثم أعد المحاولة.',
+			'enterpriseApp.error401Title' => 'انتهت صلاحية تسجيل الدخول',
+			'enterpriseApp.error401Hint' => 'سجّل الدخول من جديد ثم أعد المحاولة.',
+			'enterpriseApp.error403Title' => 'التطبيق معطّل',
+			'enterpriseApp.error403Hint' => 'هذا التطبيق أو مؤسسته معطّلة. تواصل مع مسؤول المؤسسة.',
+			'enterpriseApp.error403ScopeTitle' => 'نطاق الصلاحيات غير كافٍ',
+			'enterpriseApp.error403ScopeHint' => 'بيانات الاعتماد الحالية لا تملك النطاق المطلوب لهذه العملية.',
+			'enterpriseApp.error403BoundaryTitle' => 'خارج حدود المؤسسة',
+			'enterpriseApp.error403BoundaryHint' => 'هذا المورد لا ينتمي إلى مؤسسة التطبيق الحالي أو مساحة عمله.',
+			'enterpriseApp.error404Title' => 'المورد غير موجود',
+			'enterpriseApp.error404Hint' => 'المورد غير موجود أو خارج نطاق مؤسستك المتاح.',
+			'enterpriseApp.error409Title' => 'تعارض في العملية',
+			'enterpriseApp.error409Hint' => 'إرسال مكرر أو تغيّرت الحالة. حدِّث ثم أعد المحاولة.',
+			'enterpriseApp.error422IdentityTitle' => 'الهوية غير مرتبطة',
+			'enterpriseApp.error422IdentityHint' => 'هذا العضو لم تُربط به هوية مؤسسية خارجية بعد. اربطها أولًا.',
+			'enterpriseApp.error429Title' => 'طلبات كثيرة جدًا',
+			'enterpriseApp.error429Hint' => 'تم بلوغ حد معدّل واجهة المؤسسة. أعد المحاولة لاحقًا.',
+			'enterpriseApp.error500Title' => 'خطأ داخلي في الخدمة',
+			'enterpriseApp.error500Hint' => 'الخدمة غير مستقرة مؤقتًا. أعد المحاولة لاحقًا.',
+			'enterpriseApp.error503Title' => 'الخدمة غير متاحة',
+			'enterpriseApp.error503Hint' => 'بوابة أمان خدمة المؤسسة مغلقة. أعد المحاولة لاحقًا.',
+			'enterpriseApp.errorUnboundTitle' => 'لم تُربط قناة مؤسسية في هذا الإصدار',
+			'enterpriseApp.errorUnboundHint' => 'تتطلب واجهات حوكمة المؤسسة بيانات اعتماد تطبيق، وهي لا تُضمَّن في العميل أبدًا. اطلب من مسؤول النشر ربط قناة.',
+			'enterpriseApp.errorNetworkTitle' => 'الشبكة غير متاحة',
+			'enterpriseApp.errorNetworkHint' => 'تحقق من الاتصال ثم أعد المحاولة.',
+			'enterpriseApp.errorUnknownTitle' => 'نتيجة غير معروفة',
+			'enterpriseApp.errorUnknownHint' => 'أعادت الخدمة نتيجة غير معروفة. أعد المحاولة لاحقًا.',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => 'جارٍ الاتصال بمساحة العمل المؤسسية…',
+			'enterpriseOa.statusErrorTitle' => 'تعذّر تحميل OA',
+			'enterpriseOa.statusErrorHint' => 'خطأ في الشبكة أو الخدمة غير متاحة مؤقتًا. حاول مرة أخرى لاحقًا.',
+			'enterpriseOa.statusExpiredTitle' => 'انتهت صلاحية تسجيل الدخول',
+			'enterpriseOa.statusExpiredHint' => 'انتهت صلاحية رمز تسجيل الدخول الموحّد لـ OA أو تم استخدامه بالفعل. يرجى تسجيل الدخول مرة أخرى.',
+			'enterpriseOa.statusLoggedOutTitle' => 'تم تسجيل الخروج من OA',
+			'enterpriseOa.statusLoggedOutHint' => 'انتهت جلسة OA. يلزم تسجيل دخول موحّد جديد.',
+			'enterpriseOa.statusMismatchTitle' => 'تم حظر الانتقال خارج OA المؤسسي',
+			'enterpriseOa.statusMismatchHint' => 'تم اكتشاف انتقال إلى عنوان غير مصرّح به. تم إيقاف التحميل لحماية حسابك.',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => 'محظور: ${host}',
+			'enterpriseOa.statusOa401Title' => 'جلسة OA غير مصرّح بها',
+			'enterpriseOa.statusOa401Hint' => 'أرجعت خدمة OA خطأ عدم التصريح. يرجى تسجيل الدخول مرة أخرى.',
+			'enterpriseOa.actionRetry' => 'إعادة المحاولة',
+			'enterpriseOa.actionRestartSso' => 'تسجيل الدخول مرة أخرى',
+			'enterpriseOa.webviewSlotHint' => 'حاوية صفحة OA (التكامل في W3)',
+			'enterpriseOa.badgeDelegated' => 'عبر OA',
+			'enterpriseOa.markerNoE2ee' => 'مستضاف مؤسسيًا · بدون تشفير طرف إلى طرف',
+			'enterpriseOa.senderVia' => ({required Object origin}) => 'أُرسل عبر ${origin}',
+			'enterpriseOa.ssoIssuing' => 'جارٍ طلب رمز تسجيل الدخول الموحد…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
 			'error.networkTroubleshootingStep1' => '1. افتح إعدادات الهاتف وقم بإبقاء مفتاح Wi-Fi قيد التشغيل.',
@@ -4693,6 +4915,8 @@ extension on TranslationsArSa {
 			'organization.detail.restoreFailed' => 'فشلت الاستعادة',
 			'organization.detail.archiveFailed' => 'فشلت الأرشفة',
 			'organization.detail.renameOrgTitle' => 'إعادة تسمية المنظمة',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => 'اسم المنظمة (1-200 حرفاً)',
 			'organization.detail.renameAction' => 'تغيير الاسم',
 			'organization.detail.renameFailed' => 'فشلت إعادة التسمية',
@@ -4794,8 +5018,6 @@ extension on TranslationsArSa {
 			'organization.departments.emptyWithHint' => 'لا توجد أقسام، أنشئ قسماً من الزر في أعلى اليمين',
 			'organization.departments.empty' => 'لا توجد أقسام',
 			'organization.departments.emptySubtitle' => 'نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة.',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',

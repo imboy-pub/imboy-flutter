@@ -1,0 +1,29 @@
+# EPGZ-06 — 企業 OA（OA Tab / WebView 骨架 / 代發訊息標籤）命名空間
+# 狀態機七態文案（loading/ready/error/expired/logged-out/mismatch/oa401）
+# 與 OA 代發徽標、非 E2EE 標記。plan §7.2 / §4.3。
+title: "OA"
+# ==================== 狀態態文案 ====================
+statusLoading: "正在連線企業辦公…"
+statusErrorTitle: "無法載入 OA"
+statusErrorHint: "網路異常或服務暫不可用，請稍後重試"
+statusExpiredTitle: "登入已過期"
+statusExpiredHint: "OA 單一登入憑證已過期或已被使用，請重新登入"
+statusLoggedOutTitle: "已登出 OA"
+statusLoggedOutHint: "OA 工作階段已登出，需要重新單一登入"
+statusMismatchTitle: "已阻止離開企業 OA"
+statusMismatchHint: "偵測到跳轉至未授權位址，已停止載入以保護你的帳號"
+statusMismatchBlockedHost: "已攔截：$host"
+statusOa401Title: "OA 登入狀態失效"
+statusOa401Hint: "OA 服務回傳未授權，請重新單一登入"
+# ==================== 動作 ====================
+actionRetry: "重試"
+actionRestartSso: "重新單一登入"
+# ==================== WebView 槽位（W3 接線前佔位） ====================
+webviewSlotHint: "OA 頁面容器（整合於 W3 波次）"
+# ==================== OA 代發訊息標籤（plan §4.3） ====================
+badgeDelegated: "OA 代發"
+markerNoE2ee: "企業託管 · 未端對端加密"
+senderVia: "經 $origin 代發"
+# ==================== SSO 簽發/倒數（W3） ====================
+ssoIssuing: "正在取得單一登入憑證…"
+ssoCountdown: "憑證 $seconds 秒內有效，請盡快完成登入"

@@ -53,6 +53,11 @@ class Keys {
 
   static const String currentUid = "current_uid";
   static const String currentUser = "current_user";
+  // FULL-06：push token 注册成功的**持久化记录**（值为注册时的 device_id，
+  // 不是 token 本身——token/RegistrationID 属凭据，禁止落普通存储）。
+  // 用途：App 重启后进程内 `_isRegistered` 归零，但服务端仍持有活跃 token；
+  // 没有这条记录，登出就会跳过注销请求，旧 token 继续被投递（plan §7）。
+  static const String pushRegisteredDeviceId = "push_registered_device_id";
   // E2EE-015：logout 秘密清理失败标记；置位期间禁止建立新账号会话
   static const String e2eePurgePending = "e2ee_purge_pending";
   // 支付宝登录流程进行中标记：唤起 SDK 前置位，try/finally 正常结束时清除；

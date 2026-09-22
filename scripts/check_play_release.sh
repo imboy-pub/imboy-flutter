@@ -3,8 +3,23 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ANDROID_DIR="$ROOT_DIR/android"
-MERGED_MANIFEST="$ROOT_DIR/build/app/intermediates/merged_manifest/release/processReleaseMainManifest/AndroidManifest.xml"
-AAB_PATH="$ROOT_DIR/build/app/outputs/bundle/release/app-release.aab"
+# 白标 flavor 引入后变体名带 flavor 前缀（standardRelease；诊断变体为 gzCustomerRelease），
+# 且 AGP 同时存在 merged_manifest/（process<Variant>MainManifest，原脚本用的就是这个）与
+# merged_manifests/（process<Variant>Manifest）两套目录，故按 glob 解析而不是写死路径：
+# 写死路径在引入 flavor 后必然失配（Task 名也从 processReleaseMainManifest 变成
+# processStandardReleaseMainManifest）。优先取与原脚本同源的 *MainManifest。
+resolve_merged_manifest() {
+  local base="$ROOT_DIR/build/app/intermediates" found
+  found="$(find "$base" -path '*merged_manifest*' -path '*standardRelease*' \
+    -path '*MainManifest*' -name AndroidManifest.xml 2>/dev/null | head -n1)"
+  if [[ -z "$found" ]]; then
+    found="$(find "$base" -path '*merged_manifest*' -path '*standardRelease*' \
+      -name AndroidManifest.xml 2>/dev/null | head -n1)"
+  fi
+  printf '%s' "$found"
+}
+MERGED_MANIFEST="$(resolve_merged_manifest)"
+AAB_PATH="$ROOT_DIR/build/app/outputs/bundle/release/app-standard-release.aab"
 
 PLAY_BASE_URL="${PLAY_BASE_URL:-https://pro.imboy.pub}"
 PRIVACY_URL="$PLAY_BASE_URL/privacy-policy"
@@ -31,7 +46,8 @@ printf "PLAY_BASE_URL: %s\n" "$PLAY_BASE_URL"
 
 if [[ ! -f "$MERGED_MANIFEST" ]]; then
   printf "Merged manifest not found, generating...\n"
-  (cd "$ANDROID_DIR" && ./gradlew :app:processReleaseMainManifest >/dev/null)
+  (cd "$ANDROID_DIR" && ./gradlew :app:processStandardReleaseMainManifest >/dev/null)
+  MERGED_MANIFEST="$(resolve_merged_manifest)"
 fi
 
 if [[ -f "$MERGED_MANIFEST" ]]; then

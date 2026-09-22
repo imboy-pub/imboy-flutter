@@ -52,7 +52,10 @@ fi
 trap - EXIT
 
 echo "Building split APKs with build_name=$BUILD_NAME"
+# --flavor standard：白标 flavor 引入后 Android 构建必须显式指定 flavor；
+# standard = 原 imboy 基线（applicationId/显示名/图标与历史产物一致）。
 flutter build apk --release \
+  --flavor standard \
   --build-name="$BUILD_NAME" \
   --obfuscate \
   --split-debug-info=debugInfo \

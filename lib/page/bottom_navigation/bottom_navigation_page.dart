@@ -1,5 +1,6 @@
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+
 import 'dart:async';
 
 import 'package:imboy/component/ui/badge_widget.dart';
@@ -16,6 +17,8 @@ import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
+import 'package:imboy/modules/enterprise_oa/public.dart'
+    show EnterpriseOaRuntimeConfig, OaTabPage, resolveEnterpriseOaRuntimeConfig;
 import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
@@ -53,6 +56,11 @@ class BottomNavigationPage extends ConsumerStatefulWidget {
 class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   late final PageController pageController;
 
+  /// OA Tab 运行时配置（dart-define 编译期常量源，解析一次即缓存；
+  /// 未配置 OA 的 standard 构建 runtimeEntryEnabled=false，Tab 隐藏）。
+  final EnterpriseOaRuntimeConfig _oaConfig =
+      resolveEnterpriseOaRuntimeConfig();
+
   StreamSubscription<dynamic>? _localeSubscription;
 
   /// 是否已根据 GoRouter 的 query 参数初始化过 index
@@ -70,6 +78,17 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     return true;
   }
 
+  /// OA Tab 可见性：白标构建期配置驱动（EPGZ-06 W3 / plan §7.3）。
+  ///
+  /// runtimeEntryEnabled 已做 fail-closed：origin 非法 / SSO 字段残缺 /
+  /// redirect 与 origin 不同源的部署一律隐藏入口，不放必然失败的 Tab。
+  bool _isOaTabEnabled() => _oaConfig.runtimeEntryEnabled;
+
+  /// OA Tab 显示名：白标 label 优先，i18n enterpriseOa.title 兜底。
+  String _oaTabLabel() => _oaConfig.oaTabLabel.isNotEmpty
+      ? _oaConfig.oaTabLabel
+      : t.enterpriseOa.title;
+
   int _normalizeIndex(int value) {
     return normalizeIndex(value, _buildPageList().length);
   }
@@ -80,6 +99,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       const ConversationPage(),
       ContactPage(),
       if (_isTabEnabled('channel_tab') && channelPage != null) channelPage,
+      // OA Tab（Mine 之前）：EPGZ-06 W3 注册，BrandConfig 驱动显隐。
+      if (_isOaTabEnabled()) OaTabPage(config: _oaConfig),
       MinePage(),
     ];
   }
@@ -210,6 +231,15 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
           remindCount: channelEnabled ? compiledChannelUnreadCount(ref) : 0,
           tabKey: const Key('tab_channel'),
         ),
+      // OA Tab 导航项（EPGZ-06 W3）：图标用 CupertinoIcons（仓内 a11y
+      // 守门规则禁 Material Icons）；label 走白标 oaLabel/i18n 兜底。
+      if (_isOaTabEnabled())
+        _NavigationItemData(
+          icon: CupertinoIcons.briefcase,
+          activeIcon: CupertinoIcons.briefcase_fill,
+          label: _oaTabLabel(),
+          tabKey: const Key('tab_oa'),
+        ),
       _NavigationItemData(
         icon: CupertinoIcons.person_circle,
         activeIcon: CupertinoIcons.person_circle_fill,
@@ -238,9 +268,9 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                   }
                 },
                 labelType: NavigationRailLabelType.all,
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerLow,
+                backgroundColor: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerLow,
                 indicatorColor: AppColors.primary.withValues(alpha: 0.15),
                 selectedLabelTextStyle: context.textStyle(
                   FontSizeType.small,
@@ -249,9 +279,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
                 ),
                 unselectedLabelTextStyle: context.textStyle(
                   FontSizeType.small,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  color: Theme.of(context).colorScheme.onSurface
+                      .withValues(alpha: 0.5),
                 ),
                 destinations: navigationItems.map((item) {
                   return NavigationRailDestination(

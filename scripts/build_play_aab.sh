@@ -38,8 +38,10 @@ fi
 ALIPAY_APP_ID="${ALIPAY_APP_ID:-2021004142626807}"
 
 echo "Building AAB with build_name=$BUILD_NAME, build_number=$BUILD_NUMBER, alipay_app_id=$ALIPAY_APP_ID"
-flutter build appbundle --build-name="$BUILD_NAME" --build-number="$BUILD_NUMBER" \
+# --flavor standard：白标 flavor 引入后必须显式指定；standard = 原 imboy 基线。
+# （Play 上架包固定走 standard；gzCustomer 白标包不在本脚本范围内。）
+flutter build appbundle --flavor standard --build-name="$BUILD_NAME" --build-number="$BUILD_NUMBER" \
   --dart-define=ALIPAY_APP_ID="$ALIPAY_APP_ID"
 
 echo "AAB output:"
-echo "  $ROOT_DIR/build/app/outputs/bundle/release/app-release.aab"
+echo "  $ROOT_DIR/build/app/outputs/bundle/release/app-standard-release.aab"

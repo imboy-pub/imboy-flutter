@@ -235,13 +235,14 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
           flutter build apk --release \
+            --flavor standard \
             --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
 
       - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
           name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-standard-release.apk
 
   # ==================== iOS构建任务 ====================
   build-ios:

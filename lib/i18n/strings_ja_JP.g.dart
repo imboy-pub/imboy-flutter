@@ -51,6 +51,8 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$complaintReason$ja_JP complaintReason = _Translations$complaintReason$ja_JP._(_root);
 	@override late final _Translations$contact$ja_JP contact = _Translations$contact$ja_JP._(_root);
 	@override late final _Translations$discovery$ja_JP discovery = _Translations$discovery$ja_JP._(_root);
+	@override late final _Translations$enterpriseApp$ja_JP enterpriseApp = _Translations$enterpriseApp$ja_JP._(_root);
+	@override late final _Translations$enterpriseOa$ja_JP enterpriseOa = _Translations$enterpriseOa$ja_JP._(_root);
 	@override late final _Translations$error$ja_JP error = _Translations$error$ja_JP._(_root);
 	@override late final _Translations$group$ja_JP group = _Translations$group$ja_JP._(_root);
 	@override late final _Translations$groupCategory$ja_JP groupCategory = _Translations$groupCategory$ja_JP._(_root);
@@ -1730,6 +1732,125 @@ class _Translations$discovery$ja_JP extends Translations$discovery$zh_CN {
 	@override String get momentAtWho => '誰に通知しますか？';
 	@override String get momentLocation => '位置情報';
 	@override String get momentLocationNone => '位置情報を表示しない';
+}
+
+// Path: enterpriseApp
+class _Translations$enterpriseApp$ja_JP extends Translations$enterpriseApp$zh_CN {
+	_Translations$enterpriseApp$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '企業アプリ';
+	@override String get badgeAppDelegated => 'アプリ代送';
+	@override String get badgeHumanDelegated => '人がアプリ経由';
+	@override String get originTitle => 'メッセージの出所';
+	@override String get originSenderApplication => 'アプリによる代送（Application）';
+	@override String get originSenderHuman => '人による代送（Human sender）';
+	@override String originApplicationId({required Object id}) => '送信元アプリ ${id}';
+	@override String get originHosted => '企業ホスト（個人チャットではありません）';
+	@override String get originLabelSender => '送信元';
+	@override String get originLabelEncryption => '暗号化';
+	@override String get originNonE2ee => 'エンドツーエンド暗号化なし';
+	@override String get originE2ee => 'エンドツーエンド暗号化（人による直接送信）';
+	@override String get originMismatchTitle => '出所情報の不一致';
+	@override String get originMismatchHint => 'このメッセージには企業アプリの出所とエンドツーエンド暗号化ペイロードが同時に存在します。暗号化されていない企業ホストのメッセージとして表示し、人の直接送信による暗号化メッセージとしては扱いません。';
+	@override String get originUnrecognized => '出所マーカーを認識できません。暗号化なしとして表示します';
+	@override String get actionDetails => '詳細';
+	@override String get groupTitle => '企業グループ';
+	@override String get groupArchivedBadge => 'アーカイブ済み';
+	@override String get groupActionArchive => 'アーカイブ';
+	@override String get groupArchiveTitle => '企業グループをアーカイブ';
+	@override String get groupArchiveHint => 'アーカイブは一方通行です。アーカイブ後はすべての企業 API から見えなくなり、元に戻せません。';
+	@override String get groupActionRename => 'グループ名を変更';
+	@override String get groupRenameHint => '新しいグループ名';
+	@override String get groupMembersTitle => 'メンバーとロール';
+	@override String get groupRoleMember => 'メンバー';
+	@override String get groupRoleGuest => 'ゲスト';
+	@override String get groupRoleAdmin => '管理者';
+	@override String get groupRoleOwner => 'オーナー';
+	@override String get groupRoleViceOwner => '副オーナー';
+	@override String get groupRoleOwnerLocked => 'オーナーのロールは変更できず、アプリからも割り当てできません';
+	@override String get groupOverLimit => 'メンバー数が1ページの上限を超えたため、読み込みを停止しました';
+	@override String get groupEmpty => '企業グループはありません';
+	@override String get directoryTitle => 'メンバー検索';
+	@override String get directoryHint => '氏名または社員番号で検索';
+	@override String get directoryEmpty => '該当するメンバーはいません';
+	@override String get directoryBounded => '制限付きディレクトリ：ページ単位のみ、一括エクスポートはありません';
+	@override String get directoryLoadMore => 'さらに読み込む';
+	@override String get directoryEnd => '末尾です';
+	@override String get retentionTitle => '添付ファイルの保持';
+	@override String retentionUntil({required Object time}) => '${time} まで保持';
+	@override String get holdNone => '保留なし';
+	@override String get holdHeld => '保留中';
+	@override String holdReason({required Object reason}) => '保留理由：${reason}';
+	@override String get purgeLive => '未削除';
+	@override String get purgePurged => '削除済み';
+	@override String get retentionNoDelete => 'ガバナンス記録は削除できません';
+	@override String get retentionExtendOnly => '保持期間は延長のみ可能で、短縮はできません';
+	@override String get purgeBlockedHold => '保留が有効なため削除できません';
+	@override String get purgeBlockedRetention => '保持期間が経過していないため削除できません';
+	@override String get purgeBlockedPurged => '削除済みのため元に戻せません';
+	@override String get actionRetry => '再試行';
+	@override String get actionSignIn => '再ログイン';
+	@override String get error400Title => 'リクエストが受け入れられません';
+	@override String get error400Hint => '送信内容が要件を満たしていません。確認して再試行してください。';
+	@override String get error401Title => 'ログインの有効期限切れ';
+	@override String get error401Hint => '再度ログインしてからお試しください。';
+	@override String get error403Title => '企業アプリが無効です';
+	@override String get error403Hint => 'このアプリまたは所属企業が無効です。企業管理者にお問い合わせください。';
+	@override String get error403ScopeTitle => '権限スコープが不足';
+	@override String get error403ScopeHint => '現在の資格情報に、この操作に必要なスコープが付与されていません。';
+	@override String get error403BoundaryTitle => '企業境界の外です';
+	@override String get error403BoundaryHint => 'このリソースは現在のアプリの企業またはワークスペースに属していません。';
+	@override String get error404Title => 'リソースが存在しません';
+	@override String get error404Hint => 'リソースが存在しないか、アクセス可能な企業範囲の外にあります。';
+	@override String get error409Title => '操作の競合';
+	@override String get error409Hint => '重複送信か状態が変化しています。再読み込みして再試行してください。';
+	@override String get error422IdentityTitle => 'ID が未マッピング';
+	@override String get error422IdentityHint => 'このメンバーは企業の外部 ID をまだ紐付けていません。先に紐付けしてください。';
+	@override String get error429Title => 'リクエストが多すぎます';
+	@override String get error429Hint => '企業 API のレート制限に達しました。しばらくしてからお試しください。';
+	@override String get error500Title => 'サービス内部エラー';
+	@override String get error500Hint => 'サービスが一時的に異常です。後でもう一度お試しください。';
+	@override String get error503Title => 'サービス利用不可';
+	@override String get error503Hint => '企業サービスのセキュリティゲートが閉じています。後でもう一度お試しください。';
+	@override String get errorUnboundTitle => 'このビルドには企業チャネルが未接続です';
+	@override String get errorUnboundHint => '企業ガバナンス API にはアプリ資格情報が必要で、クライアントには組み込まれません。デプロイ担当者がチャネルを接続してください。';
+	@override String get errorNetworkTitle => 'ネットワーク利用不可';
+	@override String get errorNetworkHint => '接続を確認して再試行してください。';
+	@override String get errorUnknownTitle => '不明な結果';
+	@override String get errorUnknownHint => 'サービスが不明な結果を返しました。後でもう一度お試しください。';
+}
+
+// Path: enterpriseOa
+class _Translations$enterpriseOa$ja_JP extends Translations$enterpriseOa$zh_CN {
+	_Translations$enterpriseOa$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => '企業ワークスペースに接続中…';
+	@override String get statusErrorTitle => 'OA を読み込めません';
+	@override String get statusErrorHint => 'ネットワークエラーまたはサービスが一時的に利用できません。後でもう一度お試しください。';
+	@override String get statusExpiredTitle => 'ログインの有効期限切れ';
+	@override String get statusExpiredHint => 'OA シングルサインオンのコードが期限切れか、すでに使用されました。再度ログインしてください。';
+	@override String get statusLoggedOutTitle => 'OA からログアウトしました';
+	@override String get statusLoggedOutHint => 'OA セッションが終了しました。再度シングルサインオンが必要です。';
+	@override String get statusMismatchTitle => '企業 OA 外への遷移をブロックしました';
+	@override String get statusMismatchHint => '許可されていないアドレスへの遷移を検出したため、アカウント保護のため読み込みを停止しました。';
+	@override String statusMismatchBlockedHost({required Object host}) => 'ブロック：${host}';
+	@override String get statusOa401Title => 'OA セッションが無効です';
+	@override String get statusOa401Hint => 'OA サービスが未承認を返しました。再度ログインしてください。';
+	@override String get actionRetry => '再試行';
+	@override String get actionRestartSso => '再ログイン';
+	@override String get webviewSlotHint => 'OA ページコンテナ（W3 で統合）';
+	@override String get badgeDelegated => 'OA 代送';
+	@override String get markerNoE2ee => '企業管理 · エンドツーエンド暗号化なし';
+	@override String senderVia({required Object origin}) => '${origin} 経由で送信';
+	@override String get ssoIssuing => 'シングルサインオンコードを取得中…';
+	@override String ssoCountdown({required Object seconds}) => 'コードの有効期限は残り ${seconds} 秒です。早めにログインしてください。';
 }
 
 // Path: error
@@ -4289,6 +4410,107 @@ extension on TranslationsJaJp {
 			'discovery.momentAtWho' => '誰に通知しますか？',
 			'discovery.momentLocation' => '位置情報',
 			'discovery.momentLocationNone' => '位置情報を表示しない',
+			'enterpriseApp.title' => '企業アプリ',
+			'enterpriseApp.badgeAppDelegated' => 'アプリ代送',
+			'enterpriseApp.badgeHumanDelegated' => '人がアプリ経由',
+			'enterpriseApp.originTitle' => 'メッセージの出所',
+			'enterpriseApp.originSenderApplication' => 'アプリによる代送（Application）',
+			'enterpriseApp.originSenderHuman' => '人による代送（Human sender）',
+			'enterpriseApp.originApplicationId' => ({required Object id}) => '送信元アプリ ${id}',
+			'enterpriseApp.originHosted' => '企業ホスト（個人チャットではありません）',
+			'enterpriseApp.originLabelSender' => '送信元',
+			'enterpriseApp.originLabelEncryption' => '暗号化',
+			'enterpriseApp.originNonE2ee' => 'エンドツーエンド暗号化なし',
+			'enterpriseApp.originE2ee' => 'エンドツーエンド暗号化（人による直接送信）',
+			'enterpriseApp.originMismatchTitle' => '出所情報の不一致',
+			'enterpriseApp.originMismatchHint' => 'このメッセージには企業アプリの出所とエンドツーエンド暗号化ペイロードが同時に存在します。暗号化されていない企業ホストのメッセージとして表示し、人の直接送信による暗号化メッセージとしては扱いません。',
+			'enterpriseApp.originUnrecognized' => '出所マーカーを認識できません。暗号化なしとして表示します',
+			'enterpriseApp.actionDetails' => '詳細',
+			'enterpriseApp.groupTitle' => '企業グループ',
+			'enterpriseApp.groupArchivedBadge' => 'アーカイブ済み',
+			'enterpriseApp.groupActionArchive' => 'アーカイブ',
+			'enterpriseApp.groupArchiveTitle' => '企業グループをアーカイブ',
+			'enterpriseApp.groupArchiveHint' => 'アーカイブは一方通行です。アーカイブ後はすべての企業 API から見えなくなり、元に戻せません。',
+			'enterpriseApp.groupActionRename' => 'グループ名を変更',
+			'enterpriseApp.groupRenameHint' => '新しいグループ名',
+			'enterpriseApp.groupMembersTitle' => 'メンバーとロール',
+			'enterpriseApp.groupRoleMember' => 'メンバー',
+			'enterpriseApp.groupRoleGuest' => 'ゲスト',
+			'enterpriseApp.groupRoleAdmin' => '管理者',
+			'enterpriseApp.groupRoleOwner' => 'オーナー',
+			'enterpriseApp.groupRoleViceOwner' => '副オーナー',
+			'enterpriseApp.groupRoleOwnerLocked' => 'オーナーのロールは変更できず、アプリからも割り当てできません',
+			'enterpriseApp.groupOverLimit' => 'メンバー数が1ページの上限を超えたため、読み込みを停止しました',
+			'enterpriseApp.groupEmpty' => '企業グループはありません',
+			'enterpriseApp.directoryTitle' => 'メンバー検索',
+			'enterpriseApp.directoryHint' => '氏名または社員番号で検索',
+			'enterpriseApp.directoryEmpty' => '該当するメンバーはいません',
+			'enterpriseApp.directoryBounded' => '制限付きディレクトリ：ページ単位のみ、一括エクスポートはありません',
+			'enterpriseApp.directoryLoadMore' => 'さらに読み込む',
+			'enterpriseApp.directoryEnd' => '末尾です',
+			'enterpriseApp.retentionTitle' => '添付ファイルの保持',
+			'enterpriseApp.retentionUntil' => ({required Object time}) => '${time} まで保持',
+			'enterpriseApp.holdNone' => '保留なし',
+			'enterpriseApp.holdHeld' => '保留中',
+			'enterpriseApp.holdReason' => ({required Object reason}) => '保留理由：${reason}',
+			'enterpriseApp.purgeLive' => '未削除',
+			'enterpriseApp.purgePurged' => '削除済み',
+			'enterpriseApp.retentionNoDelete' => 'ガバナンス記録は削除できません',
+			'enterpriseApp.retentionExtendOnly' => '保持期間は延長のみ可能で、短縮はできません',
+			'enterpriseApp.purgeBlockedHold' => '保留が有効なため削除できません',
+			'enterpriseApp.purgeBlockedRetention' => '保持期間が経過していないため削除できません',
+			'enterpriseApp.purgeBlockedPurged' => '削除済みのため元に戻せません',
+			'enterpriseApp.actionRetry' => '再試行',
+			'enterpriseApp.actionSignIn' => '再ログイン',
+			'enterpriseApp.error400Title' => 'リクエストが受け入れられません',
+			'enterpriseApp.error400Hint' => '送信内容が要件を満たしていません。確認して再試行してください。',
+			'enterpriseApp.error401Title' => 'ログインの有効期限切れ',
+			'enterpriseApp.error401Hint' => '再度ログインしてからお試しください。',
+			'enterpriseApp.error403Title' => '企業アプリが無効です',
+			'enterpriseApp.error403Hint' => 'このアプリまたは所属企業が無効です。企業管理者にお問い合わせください。',
+			'enterpriseApp.error403ScopeTitle' => '権限スコープが不足',
+			'enterpriseApp.error403ScopeHint' => '現在の資格情報に、この操作に必要なスコープが付与されていません。',
+			'enterpriseApp.error403BoundaryTitle' => '企業境界の外です',
+			'enterpriseApp.error403BoundaryHint' => 'このリソースは現在のアプリの企業またはワークスペースに属していません。',
+			'enterpriseApp.error404Title' => 'リソースが存在しません',
+			'enterpriseApp.error404Hint' => 'リソースが存在しないか、アクセス可能な企業範囲の外にあります。',
+			'enterpriseApp.error409Title' => '操作の競合',
+			'enterpriseApp.error409Hint' => '重複送信か状態が変化しています。再読み込みして再試行してください。',
+			'enterpriseApp.error422IdentityTitle' => 'ID が未マッピング',
+			'enterpriseApp.error422IdentityHint' => 'このメンバーは企業の外部 ID をまだ紐付けていません。先に紐付けしてください。',
+			'enterpriseApp.error429Title' => 'リクエストが多すぎます',
+			'enterpriseApp.error429Hint' => '企業 API のレート制限に達しました。しばらくしてからお試しください。',
+			'enterpriseApp.error500Title' => 'サービス内部エラー',
+			'enterpriseApp.error500Hint' => 'サービスが一時的に異常です。後でもう一度お試しください。',
+			'enterpriseApp.error503Title' => 'サービス利用不可',
+			'enterpriseApp.error503Hint' => '企業サービスのセキュリティゲートが閉じています。後でもう一度お試しください。',
+			'enterpriseApp.errorUnboundTitle' => 'このビルドには企業チャネルが未接続です',
+			'enterpriseApp.errorUnboundHint' => '企業ガバナンス API にはアプリ資格情報が必要で、クライアントには組み込まれません。デプロイ担当者がチャネルを接続してください。',
+			'enterpriseApp.errorNetworkTitle' => 'ネットワーク利用不可',
+			'enterpriseApp.errorNetworkHint' => '接続を確認して再試行してください。',
+			'enterpriseApp.errorUnknownTitle' => '不明な結果',
+			'enterpriseApp.errorUnknownHint' => 'サービスが不明な結果を返しました。後でもう一度お試しください。',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => '企業ワークスペースに接続中…',
+			'enterpriseOa.statusErrorTitle' => 'OA を読み込めません',
+			'enterpriseOa.statusErrorHint' => 'ネットワークエラーまたはサービスが一時的に利用できません。後でもう一度お試しください。',
+			'enterpriseOa.statusExpiredTitle' => 'ログインの有効期限切れ',
+			'enterpriseOa.statusExpiredHint' => 'OA シングルサインオンのコードが期限切れか、すでに使用されました。再度ログインしてください。',
+			'enterpriseOa.statusLoggedOutTitle' => 'OA からログアウトしました',
+			'enterpriseOa.statusLoggedOutHint' => 'OA セッションが終了しました。再度シングルサインオンが必要です。',
+			'enterpriseOa.statusMismatchTitle' => '企業 OA 外への遷移をブロックしました',
+			'enterpriseOa.statusMismatchHint' => '許可されていないアドレスへの遷移を検出したため、アカウント保護のため読み込みを停止しました。',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => 'ブロック：${host}',
+			'enterpriseOa.statusOa401Title' => 'OA セッションが無効です',
+			'enterpriseOa.statusOa401Hint' => 'OA サービスが未承認を返しました。再度ログインしてください。',
+			'enterpriseOa.actionRetry' => '再試行',
+			'enterpriseOa.actionRestartSso' => '再ログイン',
+			'enterpriseOa.webviewSlotHint' => 'OA ページコンテナ（W3 で統合）',
+			'enterpriseOa.badgeDelegated' => 'OA 代送',
+			'enterpriseOa.markerNoE2ee' => '企業管理 · エンドツーエンド暗号化なし',
+			'enterpriseOa.senderVia' => ({required Object origin}) => '${origin} 経由で送信',
+			'enterpriseOa.ssoIssuing' => 'シングルサインオンコードを取得中…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'コードの有効期限は残り ${seconds} 秒です。早めにログインしてください。',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
 			'error.networkTroubleshootingStep1' => '1. スマートフォンの設定を開き、Wi-Fiスイッチをオンにします。',
@@ -4681,6 +4903,8 @@ extension on TranslationsJaJp {
 			'organization.detail.restoreFailed' => '復元に失敗しました',
 			'organization.detail.archiveFailed' => 'アーカイブに失敗しました',
 			'organization.detail.renameOrgTitle' => '組織名を変更',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => '組織名（1-200 文字）',
 			'organization.detail.renameAction' => '名前を変更',
 			'organization.detail.renameFailed' => '名前の変更に失敗しました',
@@ -4782,8 +5006,6 @@ extension on TranslationsJaJp {
 			'organization.departments.emptyWithHint' => '部門がありません。右上から作成してください',
 			'organization.departments.empty' => '部門がありません',
 			'organization.departments.emptySubtitle' => '兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',

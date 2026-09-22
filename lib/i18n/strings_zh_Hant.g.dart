@@ -51,6 +51,8 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	@override late final Translations$complaintReason$zh_Hant complaintReason = Translations$complaintReason$zh_Hant.internal(_root);
 	@override late final Translations$contact$zh_Hant contact = Translations$contact$zh_Hant.internal(_root);
 	@override late final Translations$discovery$zh_Hant discovery = Translations$discovery$zh_Hant.internal(_root);
+	@override late final Translations$enterpriseApp$zh_Hant enterpriseApp = Translations$enterpriseApp$zh_Hant.internal(_root);
+	@override late final Translations$enterpriseOa$zh_Hant enterpriseOa = Translations$enterpriseOa$zh_Hant.internal(_root);
 	@override late final Translations$error$zh_Hant error = Translations$error$zh_Hant.internal(_root);
 	@override late final Translations$group$zh_Hant group = Translations$group$zh_Hant.internal(_root);
 	@override late final Translations$groupCategory$zh_Hant groupCategory = Translations$groupCategory$zh_Hant.internal(_root);
@@ -1730,6 +1732,125 @@ class Translations$discovery$zh_Hant extends Translations$discovery$zh_CN {
 	@override String momentAtReminded({required Object name}) => '提醒了 ${name} 查看';
 	@override String momentAtRemindedMore({required Object name, required Object count}) => '提醒了 ${name} 等${count}人查看';
 	@override String momentAtCount({required Object count}) => '${count} 人查看';
+}
+
+// Path: enterpriseApp
+class Translations$enterpriseApp$zh_Hant extends Translations$enterpriseApp$zh_CN {
+	Translations$enterpriseApp$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '企業應用';
+	@override String get badgeAppDelegated => '應用代發';
+	@override String get badgeHumanDelegated => '人員經應用';
+	@override String get originTitle => '訊息來源';
+	@override String get originSenderApplication => '應用代發（Application）';
+	@override String get originSenderHuman => '人員代發（Human sender）';
+	@override String originApplicationId({required Object id}) => '來源應用 ${id}';
+	@override String get originHosted => '企業託管（非個人會話）';
+	@override String get originLabelSender => '傳送來源';
+	@override String get originLabelEncryption => '加密狀態';
+	@override String get originNonE2ee => '非端對端加密';
+	@override String get originE2ee => '端對端加密（Human 直發）';
+	@override String get originMismatchTitle => '來源資訊不一致';
+	@override String get originMismatchHint => '此訊息同時帶有企業應用來源與端對端加密載荷；已依非加密的企業來源顯示，不視為 Human 直發的加密訊息。';
+	@override String get originUnrecognized => '來源標記無法辨識，已依非加密顯示';
+	@override String get actionDetails => '詳情';
+	@override String get groupTitle => '企業群';
+	@override String get groupArchivedBadge => '已封存';
+	@override String get groupActionArchive => '封存';
+	@override String get groupArchiveTitle => '封存企業群';
+	@override String get groupArchiveHint => '封存為單向操作：封存後此群對所有企業介面不可見，且無法還原。';
+	@override String get groupActionRename => '修改群名';
+	@override String get groupRenameHint => '新群名';
+	@override String get groupMembersTitle => '成員與角色';
+	@override String get groupRoleMember => '成員';
+	@override String get groupRoleGuest => '嘉賓';
+	@override String get groupRoleAdmin => '管理員';
+	@override String get groupRoleOwner => '群主';
+	@override String get groupRoleViceOwner => '副群主';
+	@override String get groupRoleOwnerLocked => '群主角色不可變更，也不可經應用指派';
+	@override String get groupOverLimit => '成員數超過單頁上限，已停止載入';
+	@override String get groupEmpty => '暫無企業群';
+	@override String get directoryTitle => '成員檢索';
+	@override String get directoryHint => '依姓名或工號檢索';
+	@override String get directoryEmpty => '無符合的成員';
+	@override String get directoryBounded => '受限目錄：僅分頁回傳，不提供全量匯出';
+	@override String get directoryLoadMore => '載入更多';
+	@override String get directoryEnd => '已到末頁';
+	@override String get retentionTitle => '附件留存治理';
+	@override String retentionUntil({required Object time}) => '留存至 ${time}';
+	@override String get holdNone => '未凍結';
+	@override String get holdHeld => '已凍結';
+	@override String holdReason({required Object reason}) => '凍結原因：${reason}';
+	@override String get purgeLive => '未清除';
+	@override String get purgePurged => '已清除';
+	@override String get retentionNoDelete => '治理紀錄不可刪除';
+	@override String get retentionExtendOnly => '留存期只可延長，不可縮短';
+	@override String get purgeBlockedHold => '凍結生效中，不可清除';
+	@override String get purgeBlockedRetention => '留存未到期，不可清除';
+	@override String get purgeBlockedPurged => '已清除，不可回復';
+	@override String get actionRetry => '重試';
+	@override String get actionSignIn => '重新登入';
+	@override String get error400Title => '請求不被接受';
+	@override String get error400Hint => '提交的內容不符合要求，請檢查後重試。';
+	@override String get error401Title => '登入狀態已失效';
+	@override String get error401Hint => '請重新登入後再試。';
+	@override String get error403Title => '企業應用已停用';
+	@override String get error403Hint => '此應用或所屬企業已停用，請聯絡企業管理員。';
+	@override String get error403ScopeTitle => '權限範圍不足';
+	@override String get error403ScopeHint => '目前憑證未被授予此操作所需的權限範圍。';
+	@override String get error403BoundaryTitle => '超出企業邊界';
+	@override String get error403BoundaryHint => '此資源不屬於目前應用所在的企業或工作區。';
+	@override String get error404Title => '資源不存在';
+	@override String get error404Hint => '資源不存在，或不在可存取的企業範圍內。';
+	@override String get error409Title => '操作衝突';
+	@override String get error409Hint => '重複提交或狀態已變更，請重新載入後重試。';
+	@override String get error422IdentityTitle => '身分未對應';
+	@override String get error422IdentityHint => '此成員尚未綁定企業外部身分，請先完成綁定。';
+	@override String get error429Title => '請求過於頻繁';
+	@override String get error429Hint => '已觸發企業介面限流，請稍後再試。';
+	@override String get error500Title => '服務內部錯誤';
+	@override String get error500Hint => '服務暫時異常，請稍後重試。';
+	@override String get error503Title => '服務暫不可用';
+	@override String get error503Hint => '企業服務安全閘門已關閉，請稍後再試。';
+	@override String get errorUnboundTitle => '目前建置未綁定企業通道';
+	@override String get errorUnboundHint => '企業治理介面需要應用憑證，用戶端不內建該憑證；請由部署方綁定通道後再使用。';
+	@override String get errorNetworkTitle => '網路不可用';
+	@override String get errorNetworkHint => '請檢查網路連線後重試。';
+	@override String get errorUnknownTitle => '未知結果';
+	@override String get errorUnknownHint => '服務回傳了未辨識的結果，請稍後重試。';
+}
+
+// Path: enterpriseOa
+class Translations$enterpriseOa$zh_Hant extends Translations$enterpriseOa$zh_CN {
+	Translations$enterpriseOa$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'OA';
+	@override String get statusLoading => '正在連線企業辦公…';
+	@override String get statusErrorTitle => '無法載入 OA';
+	@override String get statusErrorHint => '網路異常或服務暫不可用，請稍後重試';
+	@override String get statusExpiredTitle => '登入已過期';
+	@override String get statusExpiredHint => 'OA 單一登入憑證已過期或已被使用，請重新登入';
+	@override String get statusLoggedOutTitle => '已登出 OA';
+	@override String get statusLoggedOutHint => 'OA 工作階段已登出，需要重新單一登入';
+	@override String get statusMismatchTitle => '已阻止離開企業 OA';
+	@override String get statusMismatchHint => '偵測到跳轉至未授權位址，已停止載入以保護你的帳號';
+	@override String statusMismatchBlockedHost({required Object host}) => '已攔截：${host}';
+	@override String get statusOa401Title => 'OA 登入狀態失效';
+	@override String get statusOa401Hint => 'OA 服務回傳未授權，請重新單一登入';
+	@override String get actionRetry => '重試';
+	@override String get actionRestartSso => '重新單一登入';
+	@override String get webviewSlotHint => 'OA 頁面容器（整合於 W3 波次）';
+	@override String get badgeDelegated => 'OA 代發';
+	@override String get markerNoE2ee => '企業託管 · 未端對端加密';
+	@override String senderVia({required Object origin}) => '經 ${origin} 代發';
+	@override String get ssoIssuing => '正在取得單一登入憑證…';
+	@override String ssoCountdown({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入';
 }
 
 // Path: error
@@ -4289,6 +4410,107 @@ extension on TranslationsZhHant {
 			'discovery.momentAtReminded' => ({required Object name}) => '提醒了 ${name} 查看',
 			'discovery.momentAtRemindedMore' => ({required Object name, required Object count}) => '提醒了 ${name} 等${count}人查看',
 			'discovery.momentAtCount' => ({required Object count}) => '${count} 人查看',
+			'enterpriseApp.title' => '企業應用',
+			'enterpriseApp.badgeAppDelegated' => '應用代發',
+			'enterpriseApp.badgeHumanDelegated' => '人員經應用',
+			'enterpriseApp.originTitle' => '訊息來源',
+			'enterpriseApp.originSenderApplication' => '應用代發（Application）',
+			'enterpriseApp.originSenderHuman' => '人員代發（Human sender）',
+			'enterpriseApp.originApplicationId' => ({required Object id}) => '來源應用 ${id}',
+			'enterpriseApp.originHosted' => '企業託管（非個人會話）',
+			'enterpriseApp.originLabelSender' => '傳送來源',
+			'enterpriseApp.originLabelEncryption' => '加密狀態',
+			'enterpriseApp.originNonE2ee' => '非端對端加密',
+			'enterpriseApp.originE2ee' => '端對端加密（Human 直發）',
+			'enterpriseApp.originMismatchTitle' => '來源資訊不一致',
+			'enterpriseApp.originMismatchHint' => '此訊息同時帶有企業應用來源與端對端加密載荷；已依非加密的企業來源顯示，不視為 Human 直發的加密訊息。',
+			'enterpriseApp.originUnrecognized' => '來源標記無法辨識，已依非加密顯示',
+			'enterpriseApp.actionDetails' => '詳情',
+			'enterpriseApp.groupTitle' => '企業群',
+			'enterpriseApp.groupArchivedBadge' => '已封存',
+			'enterpriseApp.groupActionArchive' => '封存',
+			'enterpriseApp.groupArchiveTitle' => '封存企業群',
+			'enterpriseApp.groupArchiveHint' => '封存為單向操作：封存後此群對所有企業介面不可見，且無法還原。',
+			'enterpriseApp.groupActionRename' => '修改群名',
+			'enterpriseApp.groupRenameHint' => '新群名',
+			'enterpriseApp.groupMembersTitle' => '成員與角色',
+			'enterpriseApp.groupRoleMember' => '成員',
+			'enterpriseApp.groupRoleGuest' => '嘉賓',
+			'enterpriseApp.groupRoleAdmin' => '管理員',
+			'enterpriseApp.groupRoleOwner' => '群主',
+			'enterpriseApp.groupRoleViceOwner' => '副群主',
+			'enterpriseApp.groupRoleOwnerLocked' => '群主角色不可變更，也不可經應用指派',
+			'enterpriseApp.groupOverLimit' => '成員數超過單頁上限，已停止載入',
+			'enterpriseApp.groupEmpty' => '暫無企業群',
+			'enterpriseApp.directoryTitle' => '成員檢索',
+			'enterpriseApp.directoryHint' => '依姓名或工號檢索',
+			'enterpriseApp.directoryEmpty' => '無符合的成員',
+			'enterpriseApp.directoryBounded' => '受限目錄：僅分頁回傳，不提供全量匯出',
+			'enterpriseApp.directoryLoadMore' => '載入更多',
+			'enterpriseApp.directoryEnd' => '已到末頁',
+			'enterpriseApp.retentionTitle' => '附件留存治理',
+			'enterpriseApp.retentionUntil' => ({required Object time}) => '留存至 ${time}',
+			'enterpriseApp.holdNone' => '未凍結',
+			'enterpriseApp.holdHeld' => '已凍結',
+			'enterpriseApp.holdReason' => ({required Object reason}) => '凍結原因：${reason}',
+			'enterpriseApp.purgeLive' => '未清除',
+			'enterpriseApp.purgePurged' => '已清除',
+			'enterpriseApp.retentionNoDelete' => '治理紀錄不可刪除',
+			'enterpriseApp.retentionExtendOnly' => '留存期只可延長，不可縮短',
+			'enterpriseApp.purgeBlockedHold' => '凍結生效中，不可清除',
+			'enterpriseApp.purgeBlockedRetention' => '留存未到期，不可清除',
+			'enterpriseApp.purgeBlockedPurged' => '已清除，不可回復',
+			'enterpriseApp.actionRetry' => '重試',
+			'enterpriseApp.actionSignIn' => '重新登入',
+			'enterpriseApp.error400Title' => '請求不被接受',
+			'enterpriseApp.error400Hint' => '提交的內容不符合要求，請檢查後重試。',
+			'enterpriseApp.error401Title' => '登入狀態已失效',
+			'enterpriseApp.error401Hint' => '請重新登入後再試。',
+			'enterpriseApp.error403Title' => '企業應用已停用',
+			'enterpriseApp.error403Hint' => '此應用或所屬企業已停用，請聯絡企業管理員。',
+			'enterpriseApp.error403ScopeTitle' => '權限範圍不足',
+			'enterpriseApp.error403ScopeHint' => '目前憑證未被授予此操作所需的權限範圍。',
+			'enterpriseApp.error403BoundaryTitle' => '超出企業邊界',
+			'enterpriseApp.error403BoundaryHint' => '此資源不屬於目前應用所在的企業或工作區。',
+			'enterpriseApp.error404Title' => '資源不存在',
+			'enterpriseApp.error404Hint' => '資源不存在，或不在可存取的企業範圍內。',
+			'enterpriseApp.error409Title' => '操作衝突',
+			'enterpriseApp.error409Hint' => '重複提交或狀態已變更，請重新載入後重試。',
+			'enterpriseApp.error422IdentityTitle' => '身分未對應',
+			'enterpriseApp.error422IdentityHint' => '此成員尚未綁定企業外部身分，請先完成綁定。',
+			'enterpriseApp.error429Title' => '請求過於頻繁',
+			'enterpriseApp.error429Hint' => '已觸發企業介面限流，請稍後再試。',
+			'enterpriseApp.error500Title' => '服務內部錯誤',
+			'enterpriseApp.error500Hint' => '服務暫時異常，請稍後重試。',
+			'enterpriseApp.error503Title' => '服務暫不可用',
+			'enterpriseApp.error503Hint' => '企業服務安全閘門已關閉，請稍後再試。',
+			'enterpriseApp.errorUnboundTitle' => '目前建置未綁定企業通道',
+			'enterpriseApp.errorUnboundHint' => '企業治理介面需要應用憑證，用戶端不內建該憑證；請由部署方綁定通道後再使用。',
+			'enterpriseApp.errorNetworkTitle' => '網路不可用',
+			'enterpriseApp.errorNetworkHint' => '請檢查網路連線後重試。',
+			'enterpriseApp.errorUnknownTitle' => '未知結果',
+			'enterpriseApp.errorUnknownHint' => '服務回傳了未辨識的結果，請稍後重試。',
+			'enterpriseOa.title' => 'OA',
+			'enterpriseOa.statusLoading' => '正在連線企業辦公…',
+			'enterpriseOa.statusErrorTitle' => '無法載入 OA',
+			'enterpriseOa.statusErrorHint' => '網路異常或服務暫不可用，請稍後重試',
+			'enterpriseOa.statusExpiredTitle' => '登入已過期',
+			'enterpriseOa.statusExpiredHint' => 'OA 單一登入憑證已過期或已被使用，請重新登入',
+			'enterpriseOa.statusLoggedOutTitle' => '已登出 OA',
+			'enterpriseOa.statusLoggedOutHint' => 'OA 工作階段已登出，需要重新單一登入',
+			'enterpriseOa.statusMismatchTitle' => '已阻止離開企業 OA',
+			'enterpriseOa.statusMismatchHint' => '偵測到跳轉至未授權位址，已停止載入以保護你的帳號',
+			'enterpriseOa.statusMismatchBlockedHost' => ({required Object host}) => '已攔截：${host}',
+			'enterpriseOa.statusOa401Title' => 'OA 登入狀態失效',
+			'enterpriseOa.statusOa401Hint' => 'OA 服務回傳未授權，請重新單一登入',
+			'enterpriseOa.actionRetry' => '重試',
+			'enterpriseOa.actionRestartSso' => '重新單一登入',
+			'enterpriseOa.webviewSlotHint' => 'OA 頁面容器（整合於 W3 波次）',
+			'enterpriseOa.badgeDelegated' => 'OA 代發',
+			'enterpriseOa.markerNoE2ee' => '企業託管 · 未端對端加密',
+			'enterpriseOa.senderVia' => ({required Object origin}) => '經 ${origin} 代發',
+			'enterpriseOa.ssoIssuing' => '正在取得單一登入憑證…',
+			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.pleaseCheckNetwork' => '請檢查你的網路設定。',
 			'error.networkTroubleshootingStep1' => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。',
@@ -4681,6 +4903,8 @@ extension on TranslationsZhHant {
 			'organization.detail.restoreFailed' => '還原失敗',
 			'organization.detail.archiveFailed' => '封存失敗',
 			'organization.detail.renameOrgTitle' => '修改組織名稱',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => '組織名稱（1-200 字元）',
 			'organization.detail.renameAction' => '修改名稱',
 			'organization.detail.renameFailed' => '重新命名失敗',
@@ -4782,8 +5006,6 @@ extension on TranslationsZhHant {
 			'organization.departments.emptyWithHint' => '尚無部門，點擊右上角新增',
 			'organization.departments.empty' => '尚無部門',
 			'organization.departments.emptySubtitle' => '兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。',
-			_ => null,
-		} ?? switch (path) {
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',

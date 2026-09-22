@@ -154,7 +154,7 @@ flutter test test/unit_test/<相关目录>
 该文件全部改完后，一次性构建安装，再逐项复验：
 
 ```bash
-flutter build apk --debug && adb install -r build/app/outputs/flutter-apk/app-debug.apk
+flutter build apk --debug --flavor standard && adb install -r build/app/outputs/flutter-apk/app-standard-debug.apk
 ```
 
 复验回写：

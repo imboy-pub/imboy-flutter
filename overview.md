@@ -283,7 +283,7 @@ flutter test integration_test/smoke/smoke_test.dart -d macos \
 ```bash
 # === 构建 ===
 flutter pub run build_runner build     # 生成代码（Provider/JSON/envied）
-flutter build apk                       # Android 发布
+flutter build apk --flavor standard     # Android 发布（白标 flavor 引入后必须指定；gzCustomer=广州客户白标）
 flutter build ios                       # iOS 发布
 
 # === Tier 1（无设备，CI）===
@@ -478,8 +478,8 @@ mockito **仍保留**在 `pubspec.yaml` 的 `dependency_overrides`（pin 5.6.4�
 adb devices -l
 
 # 装上待测构建
-flutter build apk --debug --dart-define=APP_ENV=pro
-adb install -r build/app/outputs/flutter-apk/app-debug.apk
+flutter build apk --debug --flavor standard --dart-define=APP_ENV=pro
+adb install -r build/app/outputs/flutter-apk/app-standard-debug.apk
 
 # 手动拉起（验证 app 本身是否正常）
 adb shell am start -n imboy.chat/.MainActivity
