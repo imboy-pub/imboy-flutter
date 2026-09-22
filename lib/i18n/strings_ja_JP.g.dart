@@ -2347,6 +2347,7 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$ja_JP invitations = _Translations$organization$invitations$ja_JP._(_root);
 	@override late final _Translations$organization$departments$ja_JP departments = _Translations$organization$departments$ja_JP._(_root);
 	@override late final _Translations$organization$picker$ja_JP picker = _Translations$organization$picker$ja_JP._(_root);
+	@override late final _Translations$organization$inviteQr$ja_JP inviteQr = _Translations$organization$inviteQr$ja_JP._(_root);
 	@override late final _Translations$organization$directory$ja_JP directory = _Translations$organization$directory$ja_JP._(_root);
 	@override late final _Translations$organization$memberDetail$ja_JP memberDetail = _Translations$organization$memberDetail$ja_JP._(_root);
 	@override late final _Translations$organization$manage$ja_JP manage = _Translations$organization$manage$ja_JP._(_root);
@@ -2866,6 +2867,38 @@ class _Translations$organization$picker$ja_JP extends Translations$organization$
 	@override String get joinInvalidCode => '企業招待コードが無効または失効しています';
 	@override String get joinExpiredCode => '企業招待コードの有効期限が切れています';
 	@override String joinFailedWith({required Object msg, required Object code}) => '参加に失敗しました：${msg} (${code})';
+	@override String get joinScanQr => 'QRコードで参加';
+	@override String get joinCodeOnlyHint => '8桁の企業招待コードを入力';
+	@override String get joinConfirmTitle => '参加の確認';
+	@override String joinConfirmWith({required Object name}) => '「${name}」に参加します';
+	@override String get joinConfirmSubmit => '参加を確認';
+	@override String get joinBack => '戻る';
+	@override String get joinQrHint => '企業招待 QR コードにかざしてください';
+	@override String get joinQrInvalid => '有効な企業招待 QR コードではありません';
+}
+
+// Path: organization.inviteQr
+class _Translations$organization$inviteQr$ja_JP extends Translations$organization$inviteQr$zh_CN {
+	_Translations$organization$inviteQr$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'メンバーを招待';
+	@override String get entryHint => 'QR コードまたは招待コードを見せるだけで、相手は読み取り / 入力で参加できます';
+	@override String get scanHint => '相手が imboy のスキャナーでこのコードを読み取ると企業に参加します';
+	@override String get codeLabel => '企業招待コード';
+	@override String expiresWith({required Object date}) => '有効期限：${date}';
+	@override String get generate => '招待コードを生成';
+	@override String get generateFirst => '有効な招待コードがありません。生成後 7 日間有効で、相手は読み取りまたは入力で参加できます。';
+	@override String get regenerate => '再生成';
+	@override String get regenerateTitle => '招待コードを再生成しますか？';
+	@override String get regenerateBody => '現在のコードは直ちに無効になり、共有済みの QR コードとコードは使えなくなります。';
+	@override String get generateFailed => '招待コードの生成に失敗しました。後でもう一度お試しください';
+	@override String get loadFailed => '招待コードの読み込みに失敗しました';
+	@override String get notAdmin => '招待コードを管理できるのは企業の Owner/Admin のみです';
+	@override String get copyCode => 'コードをコピー';
+	@override String get copied => '招待コードをコピーしました';
 }
 
 // Path: organization.directory
@@ -5134,6 +5167,29 @@ extension on TranslationsJaJp {
 			'organization.picker.joinInvalidCode' => '企業招待コードが無効または失効しています',
 			'organization.picker.joinExpiredCode' => '企業招待コードの有効期限が切れています',
 			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => '参加に失敗しました：${msg} (${code})',
+			'organization.picker.joinScanQr' => 'QRコードで参加',
+			'organization.picker.joinCodeOnlyHint' => '8桁の企業招待コードを入力',
+			'organization.picker.joinConfirmTitle' => '参加の確認',
+			'organization.picker.joinConfirmWith' => ({required Object name}) => '「${name}」に参加します',
+			'organization.picker.joinConfirmSubmit' => '参加を確認',
+			'organization.picker.joinBack' => '戻る',
+			'organization.picker.joinQrHint' => '企業招待 QR コードにかざしてください',
+			'organization.picker.joinQrInvalid' => '有効な企業招待 QR コードではありません',
+			'organization.inviteQr.title' => 'メンバーを招待',
+			'organization.inviteQr.entryHint' => 'QR コードまたは招待コードを見せるだけで、相手は読み取り / 入力で参加できます',
+			'organization.inviteQr.scanHint' => '相手が imboy のスキャナーでこのコードを読み取ると企業に参加します',
+			'organization.inviteQr.codeLabel' => '企業招待コード',
+			'organization.inviteQr.expiresWith' => ({required Object date}) => '有効期限：${date}',
+			'organization.inviteQr.generate' => '招待コードを生成',
+			'organization.inviteQr.generateFirst' => '有効な招待コードがありません。生成後 7 日間有効で、相手は読み取りまたは入力で参加できます。',
+			'organization.inviteQr.regenerate' => '再生成',
+			'organization.inviteQr.regenerateTitle' => '招待コードを再生成しますか？',
+			'organization.inviteQr.regenerateBody' => '現在のコードは直ちに無効になり、共有済みの QR コードとコードは使えなくなります。',
+			'organization.inviteQr.generateFailed' => '招待コードの生成に失敗しました。後でもう一度お試しください',
+			'organization.inviteQr.loadFailed' => '招待コードの読み込みに失敗しました',
+			'organization.inviteQr.notAdmin' => '招待コードを管理できるのは企業の Owner/Admin のみです',
+			'organization.inviteQr.copyCode' => 'コードをコピー',
+			'organization.inviteQr.copied' => '招待コードをコピーしました',
 			'organization.directory.title' => 'ディレクトリ',
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => 'すべてのメンバー',

@@ -431,14 +431,52 @@ class OrganizationApi extends HttpClient {
   /// 982 码过期、403 越权、404 组织不存在、archived 拒绝——经
   /// [OrganizationApiException.isInviteInvalid] / [isInviteExpired] 等区分。
   ///
-  /// 注意：码按 org 发放（同 org 一个 active），后端按 path orgId 消歧，
-  /// 因此**必须**携带目标组织 ID——UI 侧由用户从邀请人处获取。
+  /// 注意：本端点是「已知 orgId + 码」的旧形态；UI 主路径（扫码/单码）
+  /// 已切到 [joinByCodeOnly]（码全局唯一即凭据，免 orgId）。
   Future<OrganizationJoinOutcome> joinByCode(
     EntityId orgId, {
     required String code,
   }) async {
     final resp = await post(
       '/api/v1/organizations/$orgId/invite_code/join',
+      data: {'code': code},
+    );
+    return _unwrap(resp, OrganizationJoinOutcome.fromJson);
+  }
+
+  // ==================== 企业邀请码：免 orgId 面（GZAPP-J11） ====================
+
+  /// 治理面读当前 active 邀请码（owner/admin）；无 active 码 = 成功信封
+  /// `code: null` → [OrganizationInviteCode.isEmpty]。
+  Future<OrganizationInviteCode> getInviteCode(EntityId orgId) async {
+    final resp = await get('/api/v1/organizations/$orgId/invite_code');
+    return _unwrap(resp, OrganizationInviteCode.fromJson);
+  }
+
+  /// 生成/重新生成邀请码（owner/admin；重新生成 = 旧码立即失效；7 天有效）。
+  Future<OrganizationInviteCode> createInviteCode(EntityId orgId) async {
+    final resp = await post(
+      '/api/v1/organizations/$orgId/invite_code',
+      data: <String, dynamic>{},
+    );
+    return _unwrap(resp, OrganizationInviteCode.fromJson);
+  }
+
+  /// 凭码预览目标组织（码全局唯一即凭据，无需 orgId）：返回企业名与
+  /// organization_id，供「确认加入 XX 企业」步骤。981/982 语义同 join。
+  Future<OrgInvitePreview> previewByCode(String code) async {
+    final resp = await post(
+      '/api/v1/organizations/invite_code/preview',
+      data: {'code': code},
+    );
+    return _unwrap(resp, OrgInvitePreview.fromJson);
+  }
+
+  /// 凭码加入组织（免 orgId 版，GZAPP-J11；payload 与 [joinByCode] 同构）。
+  /// 扫码 / 单码手输加入路径统一走这里，用户不再需要输入企业 ID。
+  Future<OrganizationJoinOutcome> joinByCodeOnly(String code) async {
+    final resp = await post(
+      '/api/v1/organizations/invite_code/join',
       data: {'code': code},
     );
     return _unwrap(resp, OrganizationJoinOutcome.fromJson);

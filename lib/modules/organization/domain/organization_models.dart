@@ -317,6 +317,51 @@ class DefaultWorkspaceRef {
   bool get isSet => defaultWorkspaceId.isNotEmpty;
 }
 
+/// 企业邀请码（治理面 GET/POST `/organizations/:orgId/invite_code` 出站）。
+/// `code` 为空 = 当前无 active 码（服务端可空语义，success 信封 code=null）。
+class OrganizationInviteCode {
+  final EntityId organizationId;
+  final String code;
+  final String status;
+
+  /// 过期时刻（epoch 秒；0/缺省 = 未知）。
+  final int expiresAt;
+
+  const OrganizationInviteCode({
+    this.organizationId = '',
+    this.code = '',
+    this.status = '',
+    this.expiresAt = 0,
+  });
+
+  bool get isEmpty => code.isEmpty;
+
+  factory OrganizationInviteCode.fromJson(Map<String, dynamic> json) {
+    return OrganizationInviteCode(
+      organizationId: entityIdOf(json['organization_id']),
+      code: parseModelString(json['code']),
+      status: parseModelString(json['status']),
+      expiresAt: parseModelInt(json['expires_at']),
+    );
+  }
+}
+
+/// 凭码预览目标组织（GZAPP-J11：POST `/organizations/invite_code/preview`
+/// 出站）——扫码 / 单码手输加入的「确认加入 XX 企业」步骤。
+class OrgInvitePreview {
+  final EntityId organizationId;
+  final String name;
+
+  const OrgInvitePreview({this.organizationId = '', this.name = ''});
+
+  factory OrgInvitePreview.fromJson(Map<String, dynamic> json) {
+    return OrgInvitePreview(
+      organizationId: entityIdOf(json['organization_id']),
+      name: parseModelString(json['name']),
+    );
+  }
+}
+
 /// 企业邀请码加入结果（GZAPP-01 契约：POST
 /// `/organizations/:orgId/join_by_code` body `{code}`）。
 ///

@@ -2430,6 +2430,7 @@ class _Translations$organization$en_US extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$en_US invitations = _Translations$organization$invitations$en_US._(_root);
 	@override late final _Translations$organization$departments$en_US departments = _Translations$organization$departments$en_US._(_root);
 	@override late final _Translations$organization$picker$en_US picker = _Translations$organization$picker$en_US._(_root);
+	@override late final _Translations$organization$inviteQr$en_US inviteQr = _Translations$organization$inviteQr$en_US._(_root);
 	@override late final _Translations$organization$directory$en_US directory = _Translations$organization$directory$en_US._(_root);
 	@override late final _Translations$organization$memberDetail$en_US memberDetail = _Translations$organization$memberDetail$en_US._(_root);
 	@override late final _Translations$organization$manage$en_US manage = _Translations$organization$manage$en_US._(_root);
@@ -2949,6 +2950,38 @@ class _Translations$organization$picker$en_US extends Translations$organization$
 	@override String get joinInvalidCode => 'The enterprise invite code is invalid or revoked';
 	@override String get joinExpiredCode => 'The enterprise invite code has expired';
 	@override String joinFailedWith({required Object msg, required Object code}) => 'Join failed: ${msg} (${code})';
+	@override String get joinScanQr => 'Scan QR code';
+	@override String get joinCodeOnlyHint => 'Enter the 8-character invite code';
+	@override String get joinConfirmTitle => 'Confirm joining';
+	@override String joinConfirmWith({required Object name}) => 'You are about to join "${name}"';
+	@override String get joinConfirmSubmit => 'Confirm';
+	@override String get joinBack => 'Back';
+	@override String get joinQrHint => 'Aim at the enterprise invite QR code to join';
+	@override String get joinQrInvalid => 'Not a valid enterprise invite QR code';
+}
+
+// Path: organization.inviteQr
+class _Translations$organization$inviteQr$en_US extends Translations$organization$inviteQr$zh_CN {
+	_Translations$organization$inviteQr$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Invite members';
+	@override String get entryHint => 'Show the QR code or share the invite code; others join by scanning or typing';
+	@override String get scanHint => 'Others scan this code with the imboy scanner to join this enterprise';
+	@override String get codeLabel => 'Enterprise invite code';
+	@override String expiresWith({required Object date}) => 'Valid until ${date}';
+	@override String get generate => 'Generate invite code';
+	@override String get generateFirst => 'No active invite code yet. A generated code is valid for 7 days; others can join by scanning or entering it.';
+	@override String get regenerate => 'Regenerate';
+	@override String get regenerateTitle => 'Regenerate invite code?';
+	@override String get regenerateBody => 'The current code will be revoked immediately; QR codes and codes already shared will stop working.';
+	@override String get generateFailed => 'Failed to generate the invite code, try again later';
+	@override String get loadFailed => 'Failed to load the invite code';
+	@override String get notAdmin => 'Only the enterprise Owner/Admin can manage invite codes';
+	@override String get copyCode => 'Copy code';
+	@override String get copied => 'Invite code copied';
 }
 
 // Path: organization.directory
@@ -5287,6 +5320,29 @@ extension on TranslationsEnUs {
 			'organization.picker.joinInvalidCode' => 'The enterprise invite code is invalid or revoked',
 			'organization.picker.joinExpiredCode' => 'The enterprise invite code has expired',
 			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Join failed: ${msg} (${code})',
+			'organization.picker.joinScanQr' => 'Scan QR code',
+			'organization.picker.joinCodeOnlyHint' => 'Enter the 8-character invite code',
+			'organization.picker.joinConfirmTitle' => 'Confirm joining',
+			'organization.picker.joinConfirmWith' => ({required Object name}) => 'You are about to join "${name}"',
+			'organization.picker.joinConfirmSubmit' => 'Confirm',
+			'organization.picker.joinBack' => 'Back',
+			'organization.picker.joinQrHint' => 'Aim at the enterprise invite QR code to join',
+			'organization.picker.joinQrInvalid' => 'Not a valid enterprise invite QR code',
+			'organization.inviteQr.title' => 'Invite members',
+			'organization.inviteQr.entryHint' => 'Show the QR code or share the invite code; others join by scanning or typing',
+			'organization.inviteQr.scanHint' => 'Others scan this code with the imboy scanner to join this enterprise',
+			'organization.inviteQr.codeLabel' => 'Enterprise invite code',
+			'organization.inviteQr.expiresWith' => ({required Object date}) => 'Valid until ${date}',
+			'organization.inviteQr.generate' => 'Generate invite code',
+			'organization.inviteQr.generateFirst' => 'No active invite code yet. A generated code is valid for 7 days; others can join by scanning or entering it.',
+			'organization.inviteQr.regenerate' => 'Regenerate',
+			'organization.inviteQr.regenerateTitle' => 'Regenerate invite code?',
+			'organization.inviteQr.regenerateBody' => 'The current code will be revoked immediately; QR codes and codes already shared will stop working.',
+			'organization.inviteQr.generateFailed' => 'Failed to generate the invite code, try again later',
+			'organization.inviteQr.loadFailed' => 'Failed to load the invite code',
+			'organization.inviteQr.notAdmin' => 'Only the enterprise Owner/Admin can manage invite codes',
+			'organization.inviteQr.copyCode' => 'Copy code',
+			'organization.inviteQr.copied' => 'Invite code copied',
 			'organization.directory.title' => 'Directory',
 			'organization.directory.deptSection' => 'Departments',
 			'organization.directory.allMembersSection' => 'All members',
@@ -5592,6 +5648,8 @@ extension on TranslationsEnUs {
 			'workspace.projectChannelLinkedToast' => 'Channel linked',
 			'workspace.projectChannelLinkExistingToast' => 'Channel already linked',
 			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'Unlink ${name}',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectChannelUnlinkDesc' => 'The channel\'s content will no longer be aggregated into this project',
 			'workspace.projectChannelUnlinkSubmit' => 'Unlink',
 			'workspace.projectChannelUnlinkedToast' => 'Unlinked',

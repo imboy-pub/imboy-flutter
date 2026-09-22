@@ -6650,6 +6650,7 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$invitations$zh_CN invitations = Translations$organization$invitations$zh_CN.internal(_root);
 	late final Translations$organization$departments$zh_CN departments = Translations$organization$departments$zh_CN.internal(_root);
 	late final Translations$organization$picker$zh_CN picker = Translations$organization$picker$zh_CN.internal(_root);
+	late final Translations$organization$inviteQr$zh_CN inviteQr = Translations$organization$inviteQr$zh_CN.internal(_root);
 	late final Translations$organization$directory$zh_CN directory = Translations$organization$directory$zh_CN.internal(_root);
 	late final Translations$organization$memberDetail$zh_CN memberDetail = Translations$organization$memberDetail$zh_CN.internal(_root);
 	late final Translations$organization$manage$zh_CN manage = Translations$organization$manage$zh_CN.internal(_root);
@@ -7985,6 +7986,84 @@ class Translations$organization$picker$zh_CN {
 
 	/// zh-CN: '加入失败：${msg} (${code})'
 	String joinFailedWith({required Object msg, required Object code}) => '加入失败：${msg} (${code})';
+
+	/// zh-CN: '扫码加入'
+	String get joinScanQr => '扫码加入';
+
+	/// zh-CN: '输入 8 位企业邀请码'
+	String get joinCodeOnlyHint => '输入 8 位企业邀请码';
+
+	/// zh-CN: '确认加入企业'
+	String get joinConfirmTitle => '确认加入企业';
+
+	/// zh-CN: '将加入企业「${name}」'
+	String joinConfirmWith({required Object name}) => '将加入企业「${name}」';
+
+	/// zh-CN: '确认加入'
+	String get joinConfirmSubmit => '确认加入';
+
+	/// zh-CN: '返回修改'
+	String get joinBack => '返回修改';
+
+	/// zh-CN: '对准企业邀请二维码即可自动加入'
+	String get joinQrHint => '对准企业邀请二维码即可自动加入';
+
+	/// zh-CN: '不是有效的企业邀请二维码'
+	String get joinQrInvalid => '不是有效的企业邀请二维码';
+}
+
+// Path: organization.inviteQr
+class Translations$organization$inviteQr$zh_CN {
+	Translations$organization$inviteQr$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '邀请成员'
+	String get title => '邀请成员';
+
+	/// zh-CN: '出示二维码或邀请码，对方扫码 / 输码即可加入'
+	String get entryHint => '出示二维码或邀请码，对方扫码 / 输码即可加入';
+
+	/// zh-CN: '对方用 imboy「扫一扫」扫描本码即可加入本企业'
+	String get scanHint => '对方用 imboy「扫一扫」扫描本码即可加入本企业';
+
+	/// zh-CN: '企业邀请码'
+	String get codeLabel => '企业邀请码';
+
+	/// zh-CN: '有效期至 ${date}'
+	String expiresWith({required Object date}) => '有效期至 ${date}';
+
+	/// zh-CN: '生成邀请码'
+	String get generate => '生成邀请码';
+
+	/// zh-CN: '尚无有效邀请码。生成后 7 天有效，对方扫码或输入邀请码即可加入。'
+	String get generateFirst => '尚无有效邀请码。生成后 7 天有效，对方扫码或输入邀请码即可加入。';
+
+	/// zh-CN: '重新生成'
+	String get regenerate => '重新生成';
+
+	/// zh-CN: '重新生成邀请码？'
+	String get regenerateTitle => '重新生成邀请码？';
+
+	/// zh-CN: '旧邀请码将立即失效，已分享的二维码与口令随之作废。'
+	String get regenerateBody => '旧邀请码将立即失效，已分享的二维码与口令随之作废。';
+
+	/// zh-CN: '生成邀请码失败，请稍后重试'
+	String get generateFailed => '生成邀请码失败，请稍后重试';
+
+	/// zh-CN: '邀请码加载失败'
+	String get loadFailed => '邀请码加载失败';
+
+	/// zh-CN: '仅企业 Owner/Admin 可管理邀请码'
+	String get notAdmin => '仅企业 Owner/Admin 可管理邀请码';
+
+	/// zh-CN: '复制邀请码'
+	String get copyCode => '复制邀请码';
+
+	/// zh-CN: '已复制邀请码'
+	String get copied => '已复制邀请码';
 }
 
 // Path: organization.directory
@@ -10465,6 +10544,29 @@ extension on Translations {
 			'organization.picker.joinInvalidCode' => '企业邀请码无效或已失效',
 			'organization.picker.joinExpiredCode' => '企业邀请码已过期',
 			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => '加入失败：${msg} (${code})',
+			'organization.picker.joinScanQr' => '扫码加入',
+			'organization.picker.joinCodeOnlyHint' => '输入 8 位企业邀请码',
+			'organization.picker.joinConfirmTitle' => '确认加入企业',
+			'organization.picker.joinConfirmWith' => ({required Object name}) => '将加入企业「${name}」',
+			'organization.picker.joinConfirmSubmit' => '确认加入',
+			'organization.picker.joinBack' => '返回修改',
+			'organization.picker.joinQrHint' => '对准企业邀请二维码即可自动加入',
+			'organization.picker.joinQrInvalid' => '不是有效的企业邀请二维码',
+			'organization.inviteQr.title' => '邀请成员',
+			'organization.inviteQr.entryHint' => '出示二维码或邀请码，对方扫码 / 输码即可加入',
+			'organization.inviteQr.scanHint' => '对方用 imboy「扫一扫」扫描本码即可加入本企业',
+			'organization.inviteQr.codeLabel' => '企业邀请码',
+			'organization.inviteQr.expiresWith' => ({required Object date}) => '有效期至 ${date}',
+			'organization.inviteQr.generate' => '生成邀请码',
+			'organization.inviteQr.generateFirst' => '尚无有效邀请码。生成后 7 天有效，对方扫码或输入邀请码即可加入。',
+			'organization.inviteQr.regenerate' => '重新生成',
+			'organization.inviteQr.regenerateTitle' => '重新生成邀请码？',
+			'organization.inviteQr.regenerateBody' => '旧邀请码将立即失效，已分享的二维码与口令随之作废。',
+			'organization.inviteQr.generateFailed' => '生成邀请码失败，请稍后重试',
+			'organization.inviteQr.loadFailed' => '邀请码加载失败',
+			'organization.inviteQr.notAdmin' => '仅企业 Owner/Admin 可管理邀请码',
+			'organization.inviteQr.copyCode' => '复制邀请码',
+			'organization.inviteQr.copied' => '已复制邀请码',
 			'organization.directory.title' => '通讯录',
 			'organization.directory.deptSection' => '部门',
 			'organization.directory.allMembersSection' => '全部成员',
@@ -10750,6 +10852,8 @@ extension on Translations {
 			'workspace.projectMilestoneCreateTitle' => '新建里程碑',
 			'workspace.projectMilestoneNameLabel' => '名称',
 			'workspace.projectMilestoneNameRequired' => '里程碑名称不能为空',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestoneDueDateLabel' => '截止日期（YYYY-MM-DD，可选）',
 			'workspace.projectMilestoneDueDateInvalid' => '日期格式应为 YYYY-MM-DD',
 			'workspace.projectMilestoneCreateSubmit' => '创建',
@@ -10773,8 +10877,6 @@ extension on Translations {
 			'workspace.projectChannelUnlinkDesc' => '解除后该频道内容不再聚合进本项目',
 			'workspace.projectChannelUnlinkSubmit' => '解除关联',
 			'workspace.projectChannelUnlinkedToast' => '已解除关联',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectInsightsTabPinned' => '置顶消息',
 			'workspace.projectInsightsTabResources' => '资源链接',
 			'workspace.projectInsightsTabActivity' => '项目动态',

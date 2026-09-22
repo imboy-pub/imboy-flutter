@@ -152,7 +152,32 @@ picker:
   joinInvalidCode: 企業邀請碼無效或已失效
   joinExpiredCode: 企業邀請碼已過期
   joinFailedWith: "加入失敗：${msg} (${code})"
+  joinScanQr: 掃碼加入
+  joinCodeOnlyHint: 輸入 8 位企業邀請碼
+  joinConfirmTitle: 確認加入企業
+  joinConfirmWith: "將加入企業「${name}」"
+  joinConfirmSubmit: 確認加入
+  joinBack: 返回修改
+  joinQrHint: 對準企業邀請 QR 碼即可自動加入
+  joinQrInvalid: 不是有效的企業邀請 QR 碼
 # ==================== GZAPP-04 G10：通訊錄（全員視角） ====================
+# ==================== GZAPP-J11：企業邀請 QR 碼（出碼側） ====================
+inviteQr:
+  title: 邀請成員
+  entryHint: 出示 QR 碼或邀請碼，對方掃碼 / 輸碼即可加入
+  scanHint: 對方用 imboy「掃一掃」掃描本碼即可加入本企業
+  codeLabel: 企業邀請碼
+  expiresWith: "有效期至 ${date}"
+  generate: 產生邀請碼
+  generateFirst: 尚無有效邀請碼。產生後 7 天有效，對方掃碼或輸入邀請碼即可加入。
+  regenerate: 重新產生
+  regenerateTitle: 重新產生邀請碼？
+  regenerateBody: 舊邀請碼將立即失效，已分享的 QR 碼與口令隨之作廢。
+  generateFailed: 產生邀請碼失敗，請稍後重試
+  loadFailed: 邀請碼載入失敗
+  notAdmin: 僅企業 Owner/Admin 可管理邀請碼
+  copyCode: 複製邀請碼
+  copied: 已複製邀請碼
 directory:
   title: 通訊錄
   deptSection: 部門

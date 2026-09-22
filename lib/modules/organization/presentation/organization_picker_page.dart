@@ -4,10 +4,10 @@
 ///
 /// 结构：
 /// - 我的企业列表（mine() 真源；本地缓存只作转场即时渲染）
-/// - 底部常驻『加入企业』入口（企业邀请码，GZAPP-01 契约
-///   POST /organizations/:orgId/join_by_code——码按 org 发放，须携带
-///   目标企业 ID；单码全局解析端点缺失，UI 以「企业 ID + 邀请码」双输入
-///   兜底，缺口记录进 result.json，GZAPP-09 联调窗口再收敛）
+/// - 底部常驻『加入企业』入口（GZAPP-J11 收敛：单码输入 / 扫码 →
+///   preview「确认加入 XX 企业」→ code-only join
+///   POST /organizations/invite_code/join——码全局唯一即凭据，
+///   用户不再手输 19 位企业 ID；旧双输入端点保留但不再是主路径）
 /// - 切换动作携带 G11 缓存失效清单（不得残留上一企业缓存）：
 ///   ① OrganizationCache.invalidateOrg(上一企业) ② CurrentOrganizationStore
 ///   指针切换 ③ workspaceShellProvider.loadMine() 重建 WS 列表并按该企业
@@ -31,6 +31,7 @@ import 'package:imboy/modules/organization/infrastructure/current_organization_s
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
+import 'package:imboy/modules/organization/presentation/org_join_scanner_page.dart';
 
 class OrganizationPickerPage extends ConsumerStatefulWidget {
   const OrganizationPickerPage({
@@ -184,21 +185,19 @@ class _OrganizationPickerPageState
   }
 
   Future<void> _joinByCode() async {
-    final outcome = await showDialog<OrganizationJoinOutcome>(
+    final result = await showDialog<OrgJoinDialogResult>(
       context: context,
       builder: (ctx) => const _OrgJoinCodeDialog(),
     );
-    if (outcome == null || !mounted) return;
-    final org = outcome.organization;
-    if (org.id.isEmpty) {
-      // 契约外响应（缺 organization 投影）：仅刷新列表，不盲切。
-      await _refresh();
-      return;
-    }
-    _cache.saveOrgs([org]);
+    if (result == null || !mounted) return;
+    // preview 已持有目标企业事实（id+name）：先播种转场即时渲染，
+    // 再刷新取 mine() 真源并切入（无 organization 投影依赖）。
+    _cache.saveOrgs([
+      Organization(id: result.organizationId, name: result.name),
+    ]);
     await _refresh();
     if (!mounted) return;
-    final fresh = _orgsWhere(org.id);
+    final fresh = _orgsWhere(result.organizationId);
     if (fresh != null) {
       await _switchTo(fresh);
     }
@@ -273,8 +272,18 @@ class _OrganizationPickerPageState
   }
 }
 
-/// 企业邀请码对话框：企业 ID + 8 位邀请码（GZAPP-01 契约需要 path orgId；
-/// 单码全局解析端点缺失，双输入兜底）。错误态（981/982/透传）页内展示。
+/// 加入企业对话框出站结果：preview 阶段拿到的目标企业事实
+/// （join 成功后页面据此播种缓存并切换，不依赖 join 响应的投影）。
+class OrgJoinDialogResult {
+  final EntityId organizationId;
+  final String name;
+
+  const OrgJoinDialogResult({required this.organizationId, required this.name});
+}
+
+/// 企业邀请码对话框（GZAPP-J11 收敛版）：**单码输入 / 扫码** →
+/// preview「确认加入 XX 企业」→ code-only join。用户不再输入企业 ID。
+/// 错误态（981/982/透传）页内展示；扫码扫到非邀请码留在扫码页继续扫。
 class _OrgJoinCodeDialog extends StatefulWidget {
   const _OrgJoinCodeDialog();
 
@@ -282,53 +291,49 @@ class _OrgJoinCodeDialog extends StatefulWidget {
   State<_OrgJoinCodeDialog> createState() => _OrgJoinCodeDialogState();
 }
 
+enum _OrgJoinStage { input, confirm }
+
 class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
   final OrganizationApi _api = OrganizationApi();
-  final TextEditingController _orgIdCtrl = TextEditingController();
   final TextEditingController _codeCtrl = TextEditingController();
+  _OrgJoinStage _stage = _OrgJoinStage.input;
   bool _submitting = false;
   String? _error;
+  OrgInvitePreview? _preview;
 
   @override
   void dispose() {
-    _orgIdCtrl.dispose();
     _codeCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    final orgId = _orgIdCtrl.text.trim();
-    final t = context.t;
+  /// 扫码 → 拿到邀请码后自动 preview（用户无需再点一次提交）。
+  Future<void> _scanAndPreview() async {
+    final code = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const OrgJoinScannerPage()),
+    );
+    if (code == null || !mounted || code.isEmpty) return;
+    _codeCtrl.text = code;
+    await _previewByCode(code);
+  }
+
+  /// input 态提交：凭码预览目标企业（981/982 在此暴露，不进 confirm）。
+  Future<void> _previewByCode(String rawCode) async {
     if (_submitting) return;
-    if (orgId.isEmpty ||
-        int.tryParse(orgId) == null ||
-        int.tryParse(orgId)! <= 0) {
-      setState(() {
-        _error = t.organization.picker.joinOrgIdInvalid;
-      });
-      return;
-    }
     setState(() {
       _submitting = true;
       _error = null;
     });
     try {
-      final outcome = await _api.joinByCode(orgId, code: _codeCtrl.text.trim());
-      if (!mounted) return;
-      Navigator.of(context).pop(outcome);
-    } on OrganizationApiException catch (e) {
+      final preview = await _api.previewByCode(rawCode.trim().toUpperCase());
       if (!mounted) return;
       setState(() {
         _submitting = false;
-        _error = e.isInviteInvalid
-            ? t.organization.picker.joinInvalidCode
-            : e.isInviteExpired
-            ? t.organization.picker.joinExpiredCode
-            : t.organization.picker.joinFailedWith(
-                msg: e.message,
-                code: e.code,
-              );
+        _preview = preview;
+        _stage = _OrgJoinStage.confirm;
       });
+    } on OrganizationApiException catch (e) {
+      _showJoinError(e);
     } on Object catch (e) {
       if (!mounted) return;
       setState(() {
@@ -338,41 +343,112 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
     }
   }
 
+  /// confirm 态提交：code-only join（免 orgId），成功回传目标企业事实。
+  Future<void> _join() async {
+    final preview = _preview;
+    if (preview == null || _submitting) return;
+    setState(() {
+      _submitting = true;
+      _error = null;
+    });
+    try {
+      await _api.joinByCodeOnly(_codeCtrl.text.trim().toUpperCase());
+      if (!mounted) return;
+      Navigator.of(context).pop(
+        OrgJoinDialogResult(
+          organizationId: preview.organizationId,
+          name: preview.name,
+        ),
+      );
+    } on OrganizationApiException catch (e) {
+      _showJoinError(e);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _submitting = false;
+        _error = e.toString();
+      });
+    }
+  }
+
+  void _showJoinError(OrganizationApiException e) {
+    if (!mounted) return;
+    final t = context.t;
+    setState(() {
+      _submitting = false;
+      // join 阶段的 981/982（码在 preview 后被撤销/过期）：回输入态。
+      _stage = _OrgJoinStage.input;
+      _preview = null;
+      _error = e.isInviteInvalid
+          ? t.organization.picker.joinInvalidCode
+          : e.isInviteExpired
+          ? t.organization.picker.joinExpiredCode
+          : t.organization.picker.joinFailedWith(msg: e.message, code: e.code);
+    });
+  }
+
+  Future<void> _submit() async {
+    if (_stage == _OrgJoinStage.input) {
+      await _previewByCode(_codeCtrl.text);
+      return;
+    }
+    await _join();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t;
     final theme = Theme.of(context);
+    final isConfirm = _stage == _OrgJoinStage.confirm;
     return AlertDialog(
-      title: Text(t.organization.picker.joinEnterprise),
+      title: Text(
+        isConfirm
+            ? t.organization.picker.joinConfirmTitle
+            : t.organization.picker.joinEnterprise,
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
-            key: const ValueKey('org-join-orgid-field'),
-            controller: _orgIdCtrl,
-            enabled: !_submitting,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: t.organization.picker.joinOrgIdLabel,
-              hintText: t.organization.picker.joinOrgIdHint,
-              border: const OutlineInputBorder(),
+          if (!isConfirm) ...[
+            OutlinedButton.icon(
+              key: const ValueKey('org-join-scan-entry'),
+              onPressed: _submitting ? null : _scanAndPreview,
+              icon: const Icon(CupertinoIcons.qrcode_viewfinder),
+              label: Text(t.organization.picker.joinScanQr),
             ),
-          ),
-          AppSpacing.verticalSmall,
-          TextField(
-            key: const ValueKey('org-join-code-field'),
-            controller: _codeCtrl,
-            enabled: !_submitting,
-            textCapitalization: TextCapitalization.characters,
-            autocorrect: false,
-            maxLength: 8,
-            decoration: InputDecoration(
-              labelText: t.organization.picker.joinCodeLabel,
-              hintText: t.workspace.joinCodeHint,
-              counterText: '',
-              border: const OutlineInputBorder(),
+            AppSpacing.verticalMedium,
+            TextField(
+              key: const ValueKey('org-join-code-field'),
+              controller: _codeCtrl,
+              enabled: !_submitting,
+              textCapitalization: TextCapitalization.characters,
+              autocorrect: false,
+              maxLength: 8,
+              decoration: InputDecoration(
+                labelText: t.organization.picker.joinCodeLabel,
+                hintText: t.organization.picker.joinCodeOnlyHint,
+                counterText: '',
+                border: const OutlineInputBorder(),
+              ),
             ),
-          ),
+          ] else ...[
+            Text(
+              key: const ValueKey('org-join-org-name'),
+              t.organization.picker.joinConfirmWith(name: _preview?.name ?? ''),
+              style: theme.textTheme.titleMedium,
+            ),
+            AppSpacing.verticalMedium,
+            TextButton(
+              key: const ValueKey('org-join-back'),
+              onPressed: _submitting
+                  ? null
+                  : () => setState(() {
+                      _stage = _OrgJoinStage.input;
+                      _preview = null;
+                    }),
+              child: Text(t.organization.picker.joinBack),
+            ),
+          ],
           if (_error != null)
             Text(
               _error!,
@@ -397,7 +473,11 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
                   height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : Text(t.organization.picker.joinSubmit),
+              : Text(
+                  isConfirm
+                      ? t.organization.picker.joinConfirmSubmit
+                      : t.organization.picker.joinSubmit,
+                ),
         ),
       ],
     );

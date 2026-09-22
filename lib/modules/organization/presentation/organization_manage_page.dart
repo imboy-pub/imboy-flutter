@@ -32,6 +32,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
+import 'package:imboy/modules/organization/presentation/org_invite_qr_page.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/api/group_api.dart';
 import 'package:imboy/store/api/workspace_api.dart';
@@ -231,6 +232,15 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
 
   // ==================== 工作区动作 ====================
 
+  /// GZAPP-J11 出码侧：邀请二维码页（数据/权限由该页自治，403 自渲染）。
+  Future<void> _openInviteQr(Organization org) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => OrgInviteQrPage(orgId: org.id, orgName: org.name),
+      ),
+    );
+  }
+
   Future<void> _createWorkspace() async {
     final name = await orgPromptInput(
       context,
@@ -416,6 +426,17 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
                   ),
                 ),
               if (org != null && !canGovern) const _ManageForbiddenCard(),
+              if (org != null && canGovernOrg) ...[
+                const Divider(),
+                // GZAPP-J11 出码侧入口：邀请二维码 + 明码口令（owner/admin）。
+                ListTile(
+                  key: const ValueKey('org-manage-invite-entry'),
+                  leading: const Icon(CupertinoIcons.qrcode_viewfinder),
+                  title: Text(t.organization.inviteQr.title),
+                  subtitle: Text(t.organization.inviteQr.entryHint),
+                  onTap: () => _openInviteQr(org),
+                ),
+              ],
               if (org != null && canGovern) ...[
                 const Divider(),
                 ..._buildWorkspaceSection(),

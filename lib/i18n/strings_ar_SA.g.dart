@@ -2359,6 +2359,7 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$ar_SA invitations = _Translations$organization$invitations$ar_SA._(_root);
 	@override late final _Translations$organization$departments$ar_SA departments = _Translations$organization$departments$ar_SA._(_root);
 	@override late final _Translations$organization$picker$ar_SA picker = _Translations$organization$picker$ar_SA._(_root);
+	@override late final _Translations$organization$inviteQr$ar_SA inviteQr = _Translations$organization$inviteQr$ar_SA._(_root);
 	@override late final _Translations$organization$directory$ar_SA directory = _Translations$organization$directory$ar_SA._(_root);
 	@override late final _Translations$organization$memberDetail$ar_SA memberDetail = _Translations$organization$memberDetail$ar_SA._(_root);
 	@override late final _Translations$organization$manage$ar_SA manage = _Translations$organization$manage$ar_SA._(_root);
@@ -2878,6 +2879,38 @@ class _Translations$organization$picker$ar_SA extends Translations$organization$
 	@override String get joinInvalidCode => 'رمز دعوة المؤسسة غير صالح أو ملغى';
 	@override String get joinExpiredCode => 'انتهت صلاحية رمز دعوة المؤسسة';
 	@override String joinFailedWith({required Object msg, required Object code}) => 'فشل الانضمام: ${msg} (${code})';
+	@override String get joinScanQr => 'الانضمام بمسح رمز QR';
+	@override String get joinCodeOnlyHint => 'أدخل رمز الدعوة المكوّن من 8 أحرف';
+	@override String get joinConfirmTitle => 'تأكيد الانضمام';
+	@override String joinConfirmWith({required Object name}) => 'أنت على وشك الانضمام إلى "${name}"';
+	@override String get joinConfirmSubmit => 'تأكيد';
+	@override String get joinBack => 'رجوع';
+	@override String get joinQrHint => 'وجّه الكاميرا نحو رمز QR لدعوة المؤسسة';
+	@override String get joinQrInvalid => 'رمز QR ليس دعوة مؤسسة صالحة';
+}
+
+// Path: organization.inviteQr
+class _Translations$organization$inviteQr$ar_SA extends Translations$organization$inviteQr$zh_CN {
+	_Translations$organization$inviteQr$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'دعوة الأعضاء';
+	@override String get entryHint => 'اعرض رمز QR أو شارك رمز الدعوة؛ ينضم الآخرون بالمسح أو الإدخال';
+	@override String get scanHint => 'يمكن للآخرين مسح هذا الرمز بماسح imboy الضوئي للانضمام إلى المؤسسة';
+	@override String get codeLabel => 'رمز دعوة المؤسسة';
+	@override String expiresWith({required Object date}) => 'صالح حتى ${date}';
+	@override String get generate => 'إنشاء رمز دعوة';
+	@override String get generateFirst => 'لا يوجد رمز نشط. الرمز المُنشأ صالح لمدة 7 أيام؛ يمكن الانضمام بمسحه أو إدخاله.';
+	@override String get regenerate => 'إعادة الإنشاء';
+	@override String get regenerateTitle => 'إعادة إنشاء رمز الدعوة؟';
+	@override String get regenerateBody => 'سيُلغى الرمز الحالي فورًا؛ ولن تعمل رموز QR والرموز التي تمت مشاركتها.';
+	@override String get generateFailed => 'فشل إنشاء رمز الدعوة، حاول لاحقًا';
+	@override String get loadFailed => 'فشل تحميل رمز الدعوة';
+	@override String get notAdmin => 'يمكن لمالك/مسؤول المؤسسة فقط إدارة رموز الدعوة';
+	@override String get copyCode => 'نسخ الرمز';
+	@override String get copied => 'تم نسخ رمز الدعوة';
 }
 
 // Path: organization.directory
@@ -5146,6 +5179,29 @@ extension on TranslationsArSa {
 			'organization.picker.joinInvalidCode' => 'رمز دعوة المؤسسة غير صالح أو ملغى',
 			'organization.picker.joinExpiredCode' => 'انتهت صلاحية رمز دعوة المؤسسة',
 			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'فشل الانضمام: ${msg} (${code})',
+			'organization.picker.joinScanQr' => 'الانضمام بمسح رمز QR',
+			'organization.picker.joinCodeOnlyHint' => 'أدخل رمز الدعوة المكوّن من 8 أحرف',
+			'organization.picker.joinConfirmTitle' => 'تأكيد الانضمام',
+			'organization.picker.joinConfirmWith' => ({required Object name}) => 'أنت على وشك الانضمام إلى "${name}"',
+			'organization.picker.joinConfirmSubmit' => 'تأكيد',
+			'organization.picker.joinBack' => 'رجوع',
+			'organization.picker.joinQrHint' => 'وجّه الكاميرا نحو رمز QR لدعوة المؤسسة',
+			'organization.picker.joinQrInvalid' => 'رمز QR ليس دعوة مؤسسة صالحة',
+			'organization.inviteQr.title' => 'دعوة الأعضاء',
+			'organization.inviteQr.entryHint' => 'اعرض رمز QR أو شارك رمز الدعوة؛ ينضم الآخرون بالمسح أو الإدخال',
+			'organization.inviteQr.scanHint' => 'يمكن للآخرين مسح هذا الرمز بماسح imboy الضوئي للانضمام إلى المؤسسة',
+			'organization.inviteQr.codeLabel' => 'رمز دعوة المؤسسة',
+			'organization.inviteQr.expiresWith' => ({required Object date}) => 'صالح حتى ${date}',
+			'organization.inviteQr.generate' => 'إنشاء رمز دعوة',
+			'organization.inviteQr.generateFirst' => 'لا يوجد رمز نشط. الرمز المُنشأ صالح لمدة 7 أيام؛ يمكن الانضمام بمسحه أو إدخاله.',
+			'organization.inviteQr.regenerate' => 'إعادة الإنشاء',
+			'organization.inviteQr.regenerateTitle' => 'إعادة إنشاء رمز الدعوة؟',
+			'organization.inviteQr.regenerateBody' => 'سيُلغى الرمز الحالي فورًا؛ ولن تعمل رموز QR والرموز التي تمت مشاركتها.',
+			'organization.inviteQr.generateFailed' => 'فشل إنشاء رمز الدعوة، حاول لاحقًا',
+			'organization.inviteQr.loadFailed' => 'فشل تحميل رمز الدعوة',
+			'organization.inviteQr.notAdmin' => 'يمكن لمالك/مسؤول المؤسسة فقط إدارة رموز الدعوة',
+			'organization.inviteQr.copyCode' => 'نسخ الرمز',
+			'organization.inviteQr.copied' => 'تم نسخ رمز الدعوة',
 			'organization.directory.title' => 'الدليل',
 			'organization.directory.deptSection' => 'الأقسام',
 			'organization.directory.allMembersSection' => 'جميع الأعضاء',

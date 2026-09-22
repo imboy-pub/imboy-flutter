@@ -2347,6 +2347,7 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$invitations$zh_Hant invitations = Translations$organization$invitations$zh_Hant.internal(_root);
 	@override late final Translations$organization$departments$zh_Hant departments = Translations$organization$departments$zh_Hant.internal(_root);
 	@override late final Translations$organization$picker$zh_Hant picker = Translations$organization$picker$zh_Hant.internal(_root);
+	@override late final Translations$organization$inviteQr$zh_Hant inviteQr = Translations$organization$inviteQr$zh_Hant.internal(_root);
 	@override late final Translations$organization$directory$zh_Hant directory = Translations$organization$directory$zh_Hant.internal(_root);
 	@override late final Translations$organization$memberDetail$zh_Hant memberDetail = Translations$organization$memberDetail$zh_Hant.internal(_root);
 	@override late final Translations$organization$manage$zh_Hant manage = Translations$organization$manage$zh_Hant.internal(_root);
@@ -2866,6 +2867,38 @@ class Translations$organization$picker$zh_Hant extends Translations$organization
 	@override String get joinInvalidCode => '企業邀請碼無效或已失效';
 	@override String get joinExpiredCode => '企業邀請碼已過期';
 	@override String joinFailedWith({required Object msg, required Object code}) => '加入失敗：${msg} (${code})';
+	@override String get joinScanQr => '掃碼加入';
+	@override String get joinCodeOnlyHint => '輸入 8 位企業邀請碼';
+	@override String get joinConfirmTitle => '確認加入企業';
+	@override String joinConfirmWith({required Object name}) => '將加入企業「${name}」';
+	@override String get joinConfirmSubmit => '確認加入';
+	@override String get joinBack => '返回修改';
+	@override String get joinQrHint => '對準企業邀請 QR 碼即可自動加入';
+	@override String get joinQrInvalid => '不是有效的企業邀請 QR 碼';
+}
+
+// Path: organization.inviteQr
+class Translations$organization$inviteQr$zh_Hant extends Translations$organization$inviteQr$zh_CN {
+	Translations$organization$inviteQr$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '邀請成員';
+	@override String get entryHint => '出示 QR 碼或邀請碼，對方掃碼 / 輸碼即可加入';
+	@override String get scanHint => '對方用 imboy「掃一掃」掃描本碼即可加入本企業';
+	@override String get codeLabel => '企業邀請碼';
+	@override String expiresWith({required Object date}) => '有效期至 ${date}';
+	@override String get generate => '產生邀請碼';
+	@override String get generateFirst => '尚無有效邀請碼。產生後 7 天有效，對方掃碼或輸入邀請碼即可加入。';
+	@override String get regenerate => '重新產生';
+	@override String get regenerateTitle => '重新產生邀請碼？';
+	@override String get regenerateBody => '舊邀請碼將立即失效，已分享的 QR 碼與口令隨之作廢。';
+	@override String get generateFailed => '產生邀請碼失敗，請稍後重試';
+	@override String get loadFailed => '邀請碼載入失敗';
+	@override String get notAdmin => '僅企業 Owner/Admin 可管理邀請碼';
+	@override String get copyCode => '複製邀請碼';
+	@override String get copied => '已複製邀請碼';
 }
 
 // Path: organization.directory
@@ -5134,6 +5167,29 @@ extension on TranslationsZhHant {
 			'organization.picker.joinInvalidCode' => '企業邀請碼無效或已失效',
 			'organization.picker.joinExpiredCode' => '企業邀請碼已過期',
 			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => '加入失敗：${msg} (${code})',
+			'organization.picker.joinScanQr' => '掃碼加入',
+			'organization.picker.joinCodeOnlyHint' => '輸入 8 位企業邀請碼',
+			'organization.picker.joinConfirmTitle' => '確認加入企業',
+			'organization.picker.joinConfirmWith' => ({required Object name}) => '將加入企業「${name}」',
+			'organization.picker.joinConfirmSubmit' => '確認加入',
+			'organization.picker.joinBack' => '返回修改',
+			'organization.picker.joinQrHint' => '對準企業邀請 QR 碼即可自動加入',
+			'organization.picker.joinQrInvalid' => '不是有效的企業邀請 QR 碼',
+			'organization.inviteQr.title' => '邀請成員',
+			'organization.inviteQr.entryHint' => '出示 QR 碼或邀請碼，對方掃碼 / 輸碼即可加入',
+			'organization.inviteQr.scanHint' => '對方用 imboy「掃一掃」掃描本碼即可加入本企業',
+			'organization.inviteQr.codeLabel' => '企業邀請碼',
+			'organization.inviteQr.expiresWith' => ({required Object date}) => '有效期至 ${date}',
+			'organization.inviteQr.generate' => '產生邀請碼',
+			'organization.inviteQr.generateFirst' => '尚無有效邀請碼。產生後 7 天有效，對方掃碼或輸入邀請碼即可加入。',
+			'organization.inviteQr.regenerate' => '重新產生',
+			'organization.inviteQr.regenerateTitle' => '重新產生邀請碼？',
+			'organization.inviteQr.regenerateBody' => '舊邀請碼將立即失效，已分享的 QR 碼與口令隨之作廢。',
+			'organization.inviteQr.generateFailed' => '產生邀請碼失敗，請稍後重試',
+			'organization.inviteQr.loadFailed' => '邀請碼載入失敗',
+			'organization.inviteQr.notAdmin' => '僅企業 Owner/Admin 可管理邀請碼',
+			'organization.inviteQr.copyCode' => '複製邀請碼',
+			'organization.inviteQr.copied' => '已複製邀請碼',
 			'organization.directory.title' => '通訊錄',
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => '全部成員',

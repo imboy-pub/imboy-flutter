@@ -8,8 +8,11 @@
 ///   CurrentOrganizationStore 指针指向新企业、workspace 壳重载
 ///   （loadMine）并按 default-workspace 指针落位；
 /// - 企业邀请码错误态：981 → joinInvalidCode / 982 → joinExpiredCode
-///   页内文案（OrganizationApi 契约按 GZAPP-01，mock envelope 供料）；
-/// - 企业邀请码加入成功（joined）：刷新列表并切入新企业。
+///   页内文案（GZAPP-J11 preview 阶段暴露，mock envelope 供料）；
+/// - 单码 → preview「确认加入 XX 企业」confirm 态 → code-only join
+///   （免 orgId；GZAPP-J11 收敛：不再输入企业 ID）；
+/// - 企业邀请码加入成功（joined）：刷新列表并切入新企业（preview 提供
+///   目标企业事实，不依赖 join 响应投影）。
 library;
 
 import 'dart:async';
@@ -269,10 +272,10 @@ void main() {
     expect(container.read(workspaceShellProvider).currentWorkspaceId, '9002');
   });
 
-  testWidgets('加入企业 981：码无效错误文案页内展示，不关对话框', (tester) async {
+  testWidgets('加入企业 981：preview 阶段码无效文案页内展示，不关对话框', (tester) async {
     HttpClient.adapterForTest = _RoutingAdapter((path) {
       if (path.endsWith('/organizations/mine')) return _mineOf([_orgA]);
-      if (path.endsWith('/invite_code/join')) {
+      if (path.endsWith('/invite_code/preview')) {
         return {'code': 981, 'msg': 'invite_code invalid'};
       }
       return _ok(null);
@@ -285,13 +288,11 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('org-picker-join-entry')));
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('org-join-orgid-field')),
-      _orgC,
-    );
+    // GZAPP-J11：单码输入（无企业 ID 字段）。
+    expect(find.byKey(const ValueKey('org-join-orgid-field')), findsNothing);
     await tester.enterText(
       find.byKey(const ValueKey('org-join-code-field')),
-      'AB12CD34',
+      'ABCD2345',
     );
     await tester.tap(find.byKey(const ValueKey('org-join-submit')));
     await pumpUntilFound(tester, find.byKey(const ValueKey('org-join-error')));
@@ -301,10 +302,10 @@ void main() {
     expect(find.byKey(const ValueKey('org-join-code-field')), findsOneWidget);
   });
 
-  testWidgets('加入企业 982：码过期错误文案页内展示', (tester) async {
+  testWidgets('加入企业 982：preview 阶段码过期文案页内展示', (tester) async {
     HttpClient.adapterForTest = _RoutingAdapter((path) {
       if (path.endsWith('/organizations/mine')) return _mineOf([_orgA]);
-      if (path.endsWith('/invite_code/join')) {
+      if (path.endsWith('/invite_code/preview')) {
         return {'code': 982, 'msg': 'invite_code expired'};
       }
       return _ok(null);
@@ -318,12 +319,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('org-picker-join-entry')));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.byKey(const ValueKey('org-join-orgid-field')),
-      _orgC,
-    );
-    await tester.enterText(
       find.byKey(const ValueKey('org-join-code-field')),
-      'AB12CD34',
+      'ABCD2345',
     );
     await tester.tap(find.byKey(const ValueKey('org-join-submit')));
     await pumpUntilFound(tester, find.byKey(const ValueKey('org-join-error')));
@@ -331,19 +328,20 @@ void main() {
     expect(find.text('企业邀请码已过期'), findsOneWidget);
   });
 
-  testWidgets('加入企业成功（joined）：刷新 mine 并切入新企业', (tester) async {
+  testWidgets('加入企业成功（joined）：preview 确认 → code-only join → 切入新企业', (
+    tester,
+  ) async {
     HttpClient.adapterForTest = _RoutingAdapter((path) {
       if (path.endsWith('/organizations/mine')) {
         return _mineOf([_orgA, _orgC]);
       }
+      if (path.endsWith('/invite_code/preview')) {
+        return _ok({'organization_id': int.parse(_orgC), 'name': '组织$_orgC'});
+      }
       if (path.endsWith('/invite_code/join')) {
         return _ok({
           'status': 'joined',
-          'organization': {
-            'id': int.parse(_orgC),
-            'name': '组织$_orgC',
-            'member_role': 'member',
-          },
+          'join': {'organization_id': int.parse(_orgC)},
         });
       }
       if (path.endsWith('/organizations/$_orgC/default-workspace')) {
@@ -363,13 +361,18 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('org-picker-join-entry')));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.byKey(const ValueKey('org-join-orgid-field')),
-      _orgC,
-    );
-    await tester.enterText(
       find.byKey(const ValueKey('org-join-code-field')),
-      'AB12CD34',
+      'abcd2345',
     );
+    await tester.tap(find.byKey(const ValueKey('org-join-submit')));
+    // preview 成功 → confirm 态：显示目标企业名（小写输入自动大写归一）。
+    await pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-join-org-name')),
+    );
+    expect(find.text('将加入企业「组织$_orgC」'), findsOneWidget);
+
+    // confirm 态再点提交 = code-only join（免 orgId）。
     await tester.tap(find.byKey(const ValueKey('org-join-submit')));
     await tester.pump(const Duration(milliseconds: 300));
 

@@ -2356,6 +2356,7 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$ru_RU invitations = _Translations$organization$invitations$ru_RU._(_root);
 	@override late final _Translations$organization$departments$ru_RU departments = _Translations$organization$departments$ru_RU._(_root);
 	@override late final _Translations$organization$picker$ru_RU picker = _Translations$organization$picker$ru_RU._(_root);
+	@override late final _Translations$organization$inviteQr$ru_RU inviteQr = _Translations$organization$inviteQr$ru_RU._(_root);
 	@override late final _Translations$organization$directory$ru_RU directory = _Translations$organization$directory$ru_RU._(_root);
 	@override late final _Translations$organization$memberDetail$ru_RU memberDetail = _Translations$organization$memberDetail$ru_RU._(_root);
 	@override late final _Translations$organization$manage$ru_RU manage = _Translations$organization$manage$ru_RU._(_root);
@@ -2875,6 +2876,38 @@ class _Translations$organization$picker$ru_RU extends Translations$organization$
 	@override String get joinInvalidCode => 'Код приглашения предприятия недействителен или отозван';
 	@override String get joinExpiredCode => 'Срок действия кода приглашения предприятия истёк';
 	@override String joinFailedWith({required Object msg, required Object code}) => 'Не удалось вступить: ${msg} (${code})';
+	@override String get joinScanQr => 'Войти по QR-коду';
+	@override String get joinCodeOnlyHint => 'Введите 8-значный код приглашения';
+	@override String get joinConfirmTitle => 'Подтвердите вход';
+	@override String joinConfirmWith({required Object name}) => 'Вы собираетесь присоединиться к «${name}»';
+	@override String get joinConfirmSubmit => 'Присоединиться';
+	@override String get joinBack => 'Назад';
+	@override String get joinQrHint => 'Наведите на QR-код приглашения в организацию';
+	@override String get joinQrInvalid => 'Это не QR-код приглашения в организацию';
+}
+
+// Path: organization.inviteQr
+class _Translations$organization$inviteQr$ru_RU extends Translations$organization$inviteQr$zh_CN {
+	_Translations$organization$inviteQr$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Пригласить участников';
+	@override String get entryHint => 'Покажите QR-код или поделитесь кодом — другие присоединятся сканированием или вводом';
+	@override String get scanHint => 'Другие сканируют этот код сканером imboy, чтобы присоединиться к организации';
+	@override String get codeLabel => 'Код приглашения в организацию';
+	@override String expiresWith({required Object date}) => 'Действителен до ${date}';
+	@override String get generate => 'Создать код приглашения';
+	@override String get generateFirst => 'Активного кода нет. Созданный код действует 7 дней; присоединиться можно сканированием или вводом.';
+	@override String get regenerate => 'Пересоздать';
+	@override String get regenerateTitle => 'Пересоздать код приглашения?';
+	@override String get regenerateBody => 'Текущий код будет отозван немедленно; уже отправленные QR-коды и коды перестанут работать.';
+	@override String get generateFailed => 'Не удалось создать код, попробуйте позже';
+	@override String get loadFailed => 'Не удалось загрузить код приглашения';
+	@override String get notAdmin => 'Управлять кодами может только владелец/админ организации';
+	@override String get copyCode => 'Копировать код';
+	@override String get copied => 'Код приглашения скопирован';
 }
 
 // Path: organization.directory
@@ -5143,6 +5176,29 @@ extension on TranslationsRuRu {
 			'organization.picker.joinInvalidCode' => 'Код приглашения предприятия недействителен или отозван',
 			'organization.picker.joinExpiredCode' => 'Срок действия кода приглашения предприятия истёк',
 			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Не удалось вступить: ${msg} (${code})',
+			'organization.picker.joinScanQr' => 'Войти по QR-коду',
+			'organization.picker.joinCodeOnlyHint' => 'Введите 8-значный код приглашения',
+			'organization.picker.joinConfirmTitle' => 'Подтвердите вход',
+			'organization.picker.joinConfirmWith' => ({required Object name}) => 'Вы собираетесь присоединиться к «${name}»',
+			'organization.picker.joinConfirmSubmit' => 'Присоединиться',
+			'organization.picker.joinBack' => 'Назад',
+			'organization.picker.joinQrHint' => 'Наведите на QR-код приглашения в организацию',
+			'organization.picker.joinQrInvalid' => 'Это не QR-код приглашения в организацию',
+			'organization.inviteQr.title' => 'Пригласить участников',
+			'organization.inviteQr.entryHint' => 'Покажите QR-код или поделитесь кодом — другие присоединятся сканированием или вводом',
+			'organization.inviteQr.scanHint' => 'Другие сканируют этот код сканером imboy, чтобы присоединиться к организации',
+			'organization.inviteQr.codeLabel' => 'Код приглашения в организацию',
+			'organization.inviteQr.expiresWith' => ({required Object date}) => 'Действителен до ${date}',
+			'organization.inviteQr.generate' => 'Создать код приглашения',
+			'organization.inviteQr.generateFirst' => 'Активного кода нет. Созданный код действует 7 дней; присоединиться можно сканированием или вводом.',
+			'organization.inviteQr.regenerate' => 'Пересоздать',
+			'organization.inviteQr.regenerateTitle' => 'Пересоздать код приглашения?',
+			'organization.inviteQr.regenerateBody' => 'Текущий код будет отозван немедленно; уже отправленные QR-коды и коды перестанут работать.',
+			'organization.inviteQr.generateFailed' => 'Не удалось создать код, попробуйте позже',
+			'organization.inviteQr.loadFailed' => 'Не удалось загрузить код приглашения',
+			'organization.inviteQr.notAdmin' => 'Управлять кодами может только владелец/админ организации',
+			'organization.inviteQr.copyCode' => 'Копировать код',
+			'organization.inviteQr.copied' => 'Код приглашения скопирован',
 			'organization.directory.title' => 'Справочник',
 			'organization.directory.deptSection' => 'Отделы',
 			'organization.directory.allMembersSection' => 'Все участники',

@@ -2350,6 +2350,7 @@ class _Translations$organization$it_IT extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$it_IT invitations = _Translations$organization$invitations$it_IT._(_root);
 	@override late final _Translations$organization$departments$it_IT departments = _Translations$organization$departments$it_IT._(_root);
 	@override late final _Translations$organization$picker$it_IT picker = _Translations$organization$picker$it_IT._(_root);
+	@override late final _Translations$organization$inviteQr$it_IT inviteQr = _Translations$organization$inviteQr$it_IT._(_root);
 	@override late final _Translations$organization$directory$it_IT directory = _Translations$organization$directory$it_IT._(_root);
 	@override late final _Translations$organization$memberDetail$it_IT memberDetail = _Translations$organization$memberDetail$it_IT._(_root);
 	@override late final _Translations$organization$manage$it_IT manage = _Translations$organization$manage$it_IT._(_root);
@@ -2869,6 +2870,38 @@ class _Translations$organization$picker$it_IT extends Translations$organization$
 	@override String get joinInvalidCode => 'Il codice invito dell\'azienda non è valido o è stato revocato';
 	@override String get joinExpiredCode => 'Il codice invito dell\'azienda è scaduto';
 	@override String joinFailedWith({required Object msg, required Object code}) => 'Adesione non riuscita: ${msg} (${code})';
+	@override String get joinScanQr => 'Unisciti con QR code';
+	@override String get joinCodeOnlyHint => 'Inserisci il codice di invito a 8 caratteri';
+	@override String get joinConfirmTitle => 'Conferma adesione';
+	@override String joinConfirmWith({required Object name}) => 'Stai per entrare in "${name}"';
+	@override String get joinConfirmSubmit => 'Conferma';
+	@override String get joinBack => 'Indietro';
+	@override String get joinQrHint => 'Inquadra il QR code di invito dell\'azienda';
+	@override String get joinQrInvalid => 'QR code di invito azienda non valido';
+}
+
+// Path: organization.inviteQr
+class _Translations$organization$inviteQr$it_IT extends Translations$organization$inviteQr$zh_CN {
+	_Translations$organization$inviteQr$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Invita membri';
+	@override String get entryHint => 'Mostra il QR code o condividi il codice; gli altri entrano scansionando o digitando';
+	@override String get scanHint => 'Gli altri scansionano questo codice con lo scanner imboy per entrare nell\'azienda';
+	@override String get codeLabel => 'Codice di invito azienda';
+	@override String expiresWith({required Object date}) => 'Valido fino al ${date}';
+	@override String get generate => 'Genera codice di invito';
+	@override String get generateFirst => 'Nessun codice attivo. Un codice generato è valido 7 giorni; si entra scansionando o digitando.';
+	@override String get regenerate => 'Rigenera';
+	@override String get regenerateTitle => 'Rigenerare il codice di invito?';
+	@override String get regenerateBody => 'Il codice attuale verrà revocato immediatamente; QR code e codici già condivisi smetteranno di funzionare.';
+	@override String get generateFailed => 'Generazione non riuscita, riprova più tardi';
+	@override String get loadFailed => 'Caricamento del codice di invito non riuscito';
+	@override String get notAdmin => 'Solo il proprietario/admin dell\'azienda può gestire i codici di invito';
+	@override String get copyCode => 'Copia codice';
+	@override String get copied => 'Codice di invito copiato';
 }
 
 // Path: organization.directory
@@ -5137,6 +5170,29 @@ extension on TranslationsItIt {
 			'organization.picker.joinInvalidCode' => 'Il codice invito dell\'azienda non è valido o è stato revocato',
 			'organization.picker.joinExpiredCode' => 'Il codice invito dell\'azienda è scaduto',
 			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Adesione non riuscita: ${msg} (${code})',
+			'organization.picker.joinScanQr' => 'Unisciti con QR code',
+			'organization.picker.joinCodeOnlyHint' => 'Inserisci il codice di invito a 8 caratteri',
+			'organization.picker.joinConfirmTitle' => 'Conferma adesione',
+			'organization.picker.joinConfirmWith' => ({required Object name}) => 'Stai per entrare in "${name}"',
+			'organization.picker.joinConfirmSubmit' => 'Conferma',
+			'organization.picker.joinBack' => 'Indietro',
+			'organization.picker.joinQrHint' => 'Inquadra il QR code di invito dell\'azienda',
+			'organization.picker.joinQrInvalid' => 'QR code di invito azienda non valido',
+			'organization.inviteQr.title' => 'Invita membri',
+			'organization.inviteQr.entryHint' => 'Mostra il QR code o condividi il codice; gli altri entrano scansionando o digitando',
+			'organization.inviteQr.scanHint' => 'Gli altri scansionano questo codice con lo scanner imboy per entrare nell\'azienda',
+			'organization.inviteQr.codeLabel' => 'Codice di invito azienda',
+			'organization.inviteQr.expiresWith' => ({required Object date}) => 'Valido fino al ${date}',
+			'organization.inviteQr.generate' => 'Genera codice di invito',
+			'organization.inviteQr.generateFirst' => 'Nessun codice attivo. Un codice generato è valido 7 giorni; si entra scansionando o digitando.',
+			'organization.inviteQr.regenerate' => 'Rigenera',
+			'organization.inviteQr.regenerateTitle' => 'Rigenerare il codice di invito?',
+			'organization.inviteQr.regenerateBody' => 'Il codice attuale verrà revocato immediatamente; QR code e codici già condivisi smetteranno di funzionare.',
+			'organization.inviteQr.generateFailed' => 'Generazione non riuscita, riprova più tardi',
+			'organization.inviteQr.loadFailed' => 'Caricamento del codice di invito non riuscito',
+			'organization.inviteQr.notAdmin' => 'Solo il proprietario/admin dell\'azienda può gestire i codici di invito',
+			'organization.inviteQr.copyCode' => 'Copia codice',
+			'organization.inviteQr.copied' => 'Codice di invito copiato',
 			'organization.directory.title' => 'Rubrica',
 			'organization.directory.deptSection' => 'Dipartimenti',
 			'organization.directory.allMembersSection' => 'Tutti i membri',

@@ -2347,6 +2347,7 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$ko_KR invitations = _Translations$organization$invitations$ko_KR._(_root);
 	@override late final _Translations$organization$departments$ko_KR departments = _Translations$organization$departments$ko_KR._(_root);
 	@override late final _Translations$organization$picker$ko_KR picker = _Translations$organization$picker$ko_KR._(_root);
+	@override late final _Translations$organization$inviteQr$ko_KR inviteQr = _Translations$organization$inviteQr$ko_KR._(_root);
 	@override late final _Translations$organization$directory$ko_KR directory = _Translations$organization$directory$ko_KR._(_root);
 	@override late final _Translations$organization$memberDetail$ko_KR memberDetail = _Translations$organization$memberDetail$ko_KR._(_root);
 	@override late final _Translations$organization$manage$ko_KR manage = _Translations$organization$manage$ko_KR._(_root);
@@ -2866,6 +2867,38 @@ class _Translations$organization$picker$ko_KR extends Translations$organization$
 	@override String get joinInvalidCode => '기업 초대 코드가 유효하지 않거나 취소되었습니다';
 	@override String get joinExpiredCode => '기업 초대 코드가 만료되었습니다';
 	@override String joinFailedWith({required Object msg, required Object code}) => '가입 실패: ${msg} (${code})';
+	@override String get joinScanQr => 'QR코드로 참여';
+	@override String get joinCodeOnlyHint => '8자리 기업 초대 코드 입력';
+	@override String get joinConfirmTitle => '참여 확인';
+	@override String joinConfirmWith({required Object name}) => '"${name}"에 참여합니다';
+	@override String get joinConfirmSubmit => '참여 확인';
+	@override String get joinBack => '뒤로';
+	@override String get joinQrHint => '기업 초대 QR코드를 비춰주세요';
+	@override String get joinQrInvalid => '유효한 기업 초대 QR코드가 아닙니다';
+}
+
+// Path: organization.inviteQr
+class _Translations$organization$inviteQr$ko_KR extends Translations$organization$inviteQr$zh_CN {
+	_Translations$organization$inviteQr$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '멤버 초대';
+	@override String get entryHint => 'QR코드 또는 초대 코드를 보여주면 상대방이 스캔/입력으로 참여합니다';
+	@override String get scanHint => '상대방이 imboy 스캐너로 이 코드를 스캔하면 기업에 참여합니다';
+	@override String get codeLabel => '기업 초대 코드';
+	@override String expiresWith({required Object date}) => '${date}까지 유효';
+	@override String get generate => '초대 코드 생성';
+	@override String get generateFirst => '활성 초대 코드가 없습니다. 생성 후 7일간 유효하며, 상대방은 스캔 또는 입력으로 참여할 수 있습니다.';
+	@override String get regenerate => '재생성';
+	@override String get regenerateTitle => '초대 코드를 재생성할까요?';
+	@override String get regenerateBody => '기존 코드는 즉시 무효화되며, 공유된 QR코드와 코드를 더 이상 사용할 수 없습니다.';
+	@override String get generateFailed => '초대 코드 생성에 실패했습니다. 잠시 후 다시 시도해주세요';
+	@override String get loadFailed => '초대 코드를 불러오지 못했습니다';
+	@override String get notAdmin => '기업 Owner/Admin만 초대 코드를 관리할 수 있습니다';
+	@override String get copyCode => '코드 복사';
+	@override String get copied => '초대 코드가 복사되었습니다';
 }
 
 // Path: organization.directory
@@ -5134,6 +5167,29 @@ extension on TranslationsKoKr {
 			'organization.picker.joinInvalidCode' => '기업 초대 코드가 유효하지 않거나 취소되었습니다',
 			'organization.picker.joinExpiredCode' => '기업 초대 코드가 만료되었습니다',
 			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => '가입 실패: ${msg} (${code})',
+			'organization.picker.joinScanQr' => 'QR코드로 참여',
+			'organization.picker.joinCodeOnlyHint' => '8자리 기업 초대 코드 입력',
+			'organization.picker.joinConfirmTitle' => '참여 확인',
+			'organization.picker.joinConfirmWith' => ({required Object name}) => '"${name}"에 참여합니다',
+			'organization.picker.joinConfirmSubmit' => '참여 확인',
+			'organization.picker.joinBack' => '뒤로',
+			'organization.picker.joinQrHint' => '기업 초대 QR코드를 비춰주세요',
+			'organization.picker.joinQrInvalid' => '유효한 기업 초대 QR코드가 아닙니다',
+			'organization.inviteQr.title' => '멤버 초대',
+			'organization.inviteQr.entryHint' => 'QR코드 또는 초대 코드를 보여주면 상대방이 스캔/입력으로 참여합니다',
+			'organization.inviteQr.scanHint' => '상대방이 imboy 스캐너로 이 코드를 스캔하면 기업에 참여합니다',
+			'organization.inviteQr.codeLabel' => '기업 초대 코드',
+			'organization.inviteQr.expiresWith' => ({required Object date}) => '${date}까지 유효',
+			'organization.inviteQr.generate' => '초대 코드 생성',
+			'organization.inviteQr.generateFirst' => '활성 초대 코드가 없습니다. 생성 후 7일간 유효하며, 상대방은 스캔 또는 입력으로 참여할 수 있습니다.',
+			'organization.inviteQr.regenerate' => '재생성',
+			'organization.inviteQr.regenerateTitle' => '초대 코드를 재생성할까요?',
+			'organization.inviteQr.regenerateBody' => '기존 코드는 즉시 무효화되며, 공유된 QR코드와 코드를 더 이상 사용할 수 없습니다.',
+			'organization.inviteQr.generateFailed' => '초대 코드 생성에 실패했습니다. 잠시 후 다시 시도해주세요',
+			'organization.inviteQr.loadFailed' => '초대 코드를 불러오지 못했습니다',
+			'organization.inviteQr.notAdmin' => '기업 Owner/Admin만 초대 코드를 관리할 수 있습니다',
+			'organization.inviteQr.copyCode' => '코드 복사',
+			'organization.inviteQr.copied' => '초대 코드가 복사되었습니다',
 			'organization.directory.title' => '디렉터리',
 			'organization.directory.deptSection' => '부서',
 			'organization.directory.allMembersSection' => '전체 멤버',
