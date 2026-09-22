@@ -97,6 +97,17 @@ Organization? _currentOrgOrNull() {
   }
 }
 
+/// 计划 §5.1：工作区切换在企业上下文内部——有当前企业时只列该企业的
+/// 工作区（不放行个人域、也不混入其他企业）；无当前企业（个人域模式）
+/// 保持既有全量行为，通用默认行为不回归。
+List<WorkspaceModel> _scopedWorkspaces(
+  List<WorkspaceModel> all,
+  Organization? org,
+) {
+  if (org == null || org.id.isEmpty) return all;
+  return all.where((ws) => ws.belongsToOrg(org.id)).toList(growable: false);
+}
+
 /// GZAPP-04 G9（§5.1「切换企业」）：chip 语义升级为企业 chip——点击打开
 /// 企业选择器（/organization/picker，数据源 Organization membership）；
 /// 展示名当前企业优先（本地指针），无指针回落当前工作区名。
@@ -191,9 +202,12 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
               role: myRole,
             ),
             AppSpacing.verticalSmall,
-            // 工作区列表：当前项高亮，点击即切换
+            // 工作区列表：当前项高亮，点击即切换（按当前企业收敛，见 _scopedWorkspaces）
             _WorkspaceList(
-              workspaces: shell.workspaces,
+              workspaces: _scopedWorkspaces(
+                shell.workspaces,
+                _currentOrgOrNull(),
+              ),
               currentId: shell.currentWorkspaceId,
               onSelect: (wsId) {
                 Navigator.pop(context);

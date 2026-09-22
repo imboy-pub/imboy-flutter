@@ -16,6 +16,17 @@ import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
+/// Fake：mine() 恒失败（验证企业切换失败时的列表隔离语义）。
+class _FailingMineApi extends WorkspaceApi {
+  @override
+  Future<WorkspacePageResult<WorkspaceModel>> mine({
+    int page = 1,
+    int size = 20,
+  }) async {
+    throw WorkspaceApiException(500, '加载失败');
+  }
+}
+
 /// Fake：mine() 列表行不带 branding（复刻服务端 page_by_member 的 SELECT
 /// 列：id/name/logo/owner_id/status/created_at，无 branding）；readBranding
 /// 返回白名单视图并计数（验证补拉只发生在缺失 primaryColor 的行上）。
@@ -353,6 +364,52 @@ void main() {
       // 直接调用 ensure：当前行（9002）已有 primaryColor → 不重拉
       await notifier.ensureCurrentBranding();
       expect(api.readBrandingCalls, callsBefore);
+    });
+  });
+
+  group('企业切换的列表隔离（计划 §5.1 不得残留上一企业缓存）', () {
+    WorkspaceCreateResult seeded() => WorkspaceCreateResult(
+      workspace: const WorkspaceModel(id: '9001', name: '甲区', ownerId: '1001'),
+      channelId: '9002',
+      groupId: '9003',
+      status: 'created',
+    );
+
+    test('loadMine 失败默认保留列表（普通重试语义不变）', () async {
+      final container = ProviderContainer(
+        overrides: [workspaceApiProvider.overrideWithValue(_FailingMineApi())],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(workspaceShellProvider.notifier);
+      notifier.applyCreated(seeded());
+      expect(container.read(workspaceShellProvider).workspaces, hasLength(1));
+
+      await notifier.loadMine();
+
+      final state = container.read(workspaceShellProvider);
+      expect(state.workspaces, hasLength(1), reason: '重试失败应保留既有列表');
+      expect(state.currentWorkspaceId, '9001');
+      expect(state.error, isNotNull);
+    });
+
+    test('loadMine(keepListOnFailure:false) 失败即清空列表与当前项', () async {
+      final container = ProviderContainer(
+        overrides: [workspaceApiProvider.overrideWithValue(_FailingMineApi())],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(workspaceShellProvider.notifier);
+      notifier.applyCreated(seeded());
+
+      await notifier.loadMine(keepListOnFailure: false);
+
+      final state = container.read(workspaceShellProvider);
+      // 企业指针已切走 → 绝不能让上一企业的列表/当前项活下来
+      expect(state.workspaces, isEmpty);
+      expect(state.currentWorkspaceId, '');
+      expect(state.current, isNull);
+      expect(state.error, isNotNull);
     });
   });
 

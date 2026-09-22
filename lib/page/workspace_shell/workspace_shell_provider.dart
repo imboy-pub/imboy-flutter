@@ -74,8 +74,13 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
   /// 拉取「我的工作区」并校正当前选中项。
   ///
   /// - 首次加载 / 当前项不在列表 → 自动选第一个（最新创建）
-  /// - 失败：保留既有列表（可能是重试），置 error 供壳展示错误态
-  Future<void> loadMine() async {
+  /// - 失败：[keepListOnFailure]（默认 true）保留既有列表并置 error 供壳展示
+  ///   错误态——这是普通重试的语义。
+  /// - **企业切换必须传 false**（计划 §5.1「不得残留上一企业缓存」）：切换时
+  ///   企业指针已经切走，若这里保留旧列表就会留下「指针新企业 + 列表旧企业」
+  ///   的窗口，用户会在新企业上下文里看到上一企业的工作区并能切进去。
+  ///   此时宁可清空成空态。
+  Future<void> loadMine({bool keepListOnFailure = true}) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final page = await ref.read(workspaceApiProvider).mine();
@@ -96,11 +101,24 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
       await ensureCurrentBranding();
     } on WorkspaceApiException catch (e) {
       iPrint('[WorkspaceShell] loadMine failed: $e');
-      state = state.copyWith(isLoading: false, error: e.message);
+      state = _onLoadFailure(e.message, keepListOnFailure);
     } catch (e) {
       iPrint('[WorkspaceShell] loadMine error: $e');
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = _onLoadFailure(e.toString(), keepListOnFailure);
     }
+  }
+
+  /// 失败态收敛：保留（普通重试）或清空（企业切换，杜绝跨企业残留）。
+  WorkspaceShellState _onLoadFailure(String message, bool keepList) {
+    if (keepList) {
+      return state.copyWith(isLoading: false, error: message);
+    }
+    return state.copyWith(
+      workspaces: const <WorkspaceModel>[],
+      clearCurrent: true,
+      isLoading: false,
+      error: message,
+    );
   }
 
   /// 切换当前工作区（Overview 重新开始；Brand 主题随之切换，T12）。

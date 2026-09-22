@@ -21,6 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -115,11 +116,25 @@ class _OrganizationPickerPageState
     if (prev != null) {
       _cache.invalidateOrg(prev.id);
     }
+    // ①b 工作区维度视图族显式失效（计划 §5.1「不得残留上一企业缓存」）：
+    //     这五个是 autoDispose.family(key=wsId)，换企业后 key 虽会变，
+    //     但「靠 key 变化 + autoDispose 兜底」不是显式失效——若上一企业的
+    //     某页仍被监听（切换前刚打开过），其缓存会活到该页被销毁为止。
+    //     在切换动作里整体 invalidate family，等于清掉所有 wsId 的实例。
+    ref.invalidate(workspaceOverviewProvider);
+    ref.invalidate(workspaceChannelsProvider);
+    ref.invalidate(workspaceGroupsProvider);
+    ref.invalidate(workspaceMembersProvider);
+    ref.invalidate(workspaceProjectsProvider);
     // ② 当前企业指针切换（持久化，供 chip / WS picker 顶部企业行）。
     _currentStore.set(org);
     // ③ WS 壳按新企业重建：默认/上次 Workspace 落位（defaultWorkspace
     //    是指向事实；缺失或不在已加入列表时维持 loadMine 的自动选择）。
-    await ref.read(workspaceShellProvider.notifier).loadMine();
+    //    keepListOnFailure:false —— 企业指针已切走，若此处失败必须清空列表，
+    //    否则出现「指针新企业 + 列表旧企业」的残留窗口（§5.1）。
+    await ref
+        .read(workspaceShellProvider.notifier)
+        .loadMine(keepListOnFailure: false);
     await _landDefaultWorkspace(org);
     if (!mounted) return;
     _leave();
