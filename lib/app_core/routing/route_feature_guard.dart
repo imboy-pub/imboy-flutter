@@ -67,6 +67,12 @@ class RouteFeatureGuard {
     if (RegExp(r'^/group/[^/]+/task(?:/|$)').hasMatch(path)) {
       return FeatureKeys.groupTask;
     }
+    // 项目协作面（计划 §5.3）：企业壳里的项目页与项目详情/任务页**全部**
+    // 受 project 配置保护（直达 route 也必须不可达）。路径形态取自
+    // workspace_routes.dart：/workspace/:workspaceId/projects[/:projectId/...]。
+    if (RegExp(r'^/workspace/[^/]+/projects(?:/|$)').hasMatch(path)) {
+      return FeatureKeys.project;
+    }
     return null;
   }
 
@@ -114,6 +120,7 @@ class RouteFeatureGuard {
     FeatureKeys.groupVote || 'group_vote_page' => t.groupVote.title,
     FeatureKeys.groupSchedule || 'group_schedule_page' => t.groupSchedule.title,
     FeatureKeys.groupTask || 'group_task_page' => t.groupTask.title,
+    FeatureKeys.project => t.workspace.navProjects,
     _ => '',
   };
 

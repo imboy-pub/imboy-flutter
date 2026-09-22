@@ -13,6 +13,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -70,17 +72,20 @@ class _OverviewBody extends ConsumerWidget {
           title: t.workspace.overviewResources,
           child: Row(
             children: [
-              Expanded(
-                child: _CountTile(
-                  key: const ValueKey('workspace-overview-projects'),
-                  icon: CupertinoIcons.folder,
-                  count: data.projectCount,
-                  label: t.workspace.navProjects,
-                  onTap: () => ref
-                      .read(workspaceShellProvider.notifier)
-                      .selectDestination(WorkspaceShellDestination.projects),
+              // 计划 §5.3：project 关闭时资源摘要不显示「项目」卡片
+              // （与壳导航同一个 feature 键；直达 route 由 RouteFeatureGuard 拦截）
+              if (AppFeatureRegistry.isEnabled(FeatureKeys.project))
+                Expanded(
+                  child: _CountTile(
+                    key: const ValueKey('workspace-overview-projects'),
+                    icon: CupertinoIcons.folder,
+                    count: data.projectCount,
+                    label: t.workspace.navProjects,
+                    onTap: () => ref
+                        .read(workspaceShellProvider.notifier)
+                        .selectDestination(WorkspaceShellDestination.projects),
+                  ),
                 ),
-              ),
               Expanded(
                 child: _CountTile(
                   key: const ValueKey('workspace-overview-groups'),

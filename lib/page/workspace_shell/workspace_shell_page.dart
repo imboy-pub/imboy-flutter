@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
@@ -46,6 +48,23 @@ class WorkspaceShellPage extends ConsumerWidget {
       groupsLabel: t.workspace.navGroups,
       projectsLabel: t.workspace.navProjects,
     );
+    // 计划 §5.3：project 关闭时「项目」不进导航（正常入口关闭），
+    // 直达 route 由 RouteFeatureGuard 按同一个 feature 键拦截。
+    final projectEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.project);
+    final visibleItems = projectEnabled
+        ? items
+        : items
+              .where((i) => i.destination != WorkspaceShellDestination.projects)
+              .toList(growable: false);
+    // 上一刻已选中「项目」而功能刚被关闭：回落到 Overview。否则内容区会停在
+    // 项目页，且 selectedIndex 会越出可见导航项范围（导航栏越界即崩）。
+    final effectiveDestination =
+        visibleItems.any((i) => i.destination == shell.destination)
+        ? shell.destination
+        : WorkspaceShellDestination.overview;
+    final selectedIndex = visibleItems.indexWhere(
+      (i) => i.destination == effectiveDestination,
+    );
     final current = shell.current;
     final archived = current?.isArchived ?? false;
     final layout = resolveWorkspaceShellLayout(
@@ -60,7 +79,7 @@ class WorkspaceShellPage extends ConsumerWidget {
             shell.destination != WorkspaceShellDestination.conversations)
           const _ShellTopBar(),
         if (archived) const WorkspaceArchivedBanner(),
-        Expanded(child: _DestinationStack(index: shell.destination.index)),
+        Expanded(child: _DestinationStack(index: effectiveDestination.index)),
       ],
     );
 
@@ -68,7 +87,11 @@ class WorkspaceShellPage extends ConsumerWidget {
       return Scaffold(
         body: Row(
           children: [
-            _ShellRail(items: items, shell: shell),
+            _ShellRail(
+              items: visibleItems,
+              shell: shell,
+              selectedIndex: selectedIndex,
+            ),
             const VerticalDivider(width: 1),
             Expanded(child: body),
           ],
@@ -77,7 +100,11 @@ class WorkspaceShellPage extends ConsumerWidget {
     }
     return Scaffold(
       body: body,
-      bottomNavigationBar: _ShellBottomNav(items: items, shell: shell),
+      bottomNavigationBar: _ShellBottomNav(
+        items: visibleItems,
+        shell: shell,
+        selectedIndex: selectedIndex,
+      ),
     );
   }
 }
@@ -141,9 +168,8 @@ class _ShellTopBar extends ConsumerWidget {
                   workspaceShellDestinationTitle(t, destination),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -165,7 +191,15 @@ class _ShellRail extends ConsumerWidget {
   final List<WorkspaceShellNavItem> items;
   final WorkspaceShellState shell;
 
-  const _ShellRail({required this.items, required this.shell});
+  /// 可见导航项内的高亮下标（≠ shell.destination.index：项目关闭时
+  /// 可见项少了「项目」，直接用枚举序号会越界）
+  final int selectedIndex;
+
+  const _ShellRail({
+    required this.items,
+    required this.shell,
+    required this.selectedIndex,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -176,7 +210,7 @@ class _ShellRail extends ConsumerWidget {
         Expanded(
           child: NavigationRail(
             key: const ValueKey('workspace-shell-rail'),
-            selectedIndex: shell.destination.index,
+            selectedIndex: selectedIndex,
             onDestinationSelected: (i) => ref
                 .read(workspaceShellProvider.notifier)
                 .selectDestination(items[i].destination),
@@ -232,13 +266,20 @@ class _ShellBottomNav extends ConsumerWidget {
   final List<WorkspaceShellNavItem> items;
   final WorkspaceShellState shell;
 
-  const _ShellBottomNav({required this.items, required this.shell});
+  /// 可见导航项内的高亮下标（同 _ShellRail 的说明）
+  final int selectedIndex;
+
+  const _ShellBottomNav({
+    required this.items,
+    required this.shell,
+    required this.selectedIndex,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return NavigationBar(
       key: const ValueKey('workspace-shell-bottom-nav'),
-      selectedIndex: shell.destination.index,
+      selectedIndex: selectedIndex,
       onDestinationSelected: (i) => ref
           .read(workspaceShellProvider.notifier)
           .selectDestination(items[i].destination),

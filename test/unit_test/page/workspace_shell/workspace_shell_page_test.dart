@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
@@ -205,5 +206,64 @@ void main() {
       find.byKey(const ValueKey('workspace-account-sheet-join-entry')),
       findsOneWidget,
     );
+  });
+
+  group('project 功能隐藏（计划 §5.3）', () {
+    setUp(() {
+      // 默认快照未含 project → _readFlag 缺省为 true（功能开启）；
+      // 这里显式关闭，等价于广州演示构建从 Git 外传入的固定关闭值。
+      AppFeatureRegistry.replaceSnapshotForTest({'project': false});
+    });
+    tearDown(() {
+      AppFeatureRegistry.replaceSnapshotForTest(<String, dynamic>{});
+    });
+
+    testWidgets('移动端：底部导航少一项；已选中项目时回落概览且不越界', (tester) async {
+      final container = await _seededContainer();
+      addTearDown(container.dispose);
+      // 模拟「上一刻已选中项目」后开关关闭 → 不得停在项目页、不得下标越界
+      container
+          .read(workspaceShellProvider.notifier)
+          .selectDestination(WorkspaceShellDestination.projects);
+
+      await _pumpShell(tester, container);
+
+      final nav = tester.widget<NavigationBar>(
+        find.byKey(const ValueKey('workspace-shell-bottom-nav')),
+      );
+      expect(nav.destinations.length, kWorkspaceShellDestinationCount - 1);
+      // 可见项顺序 [conversations, overview, channels, groups] → 回落 overview=1
+      expect(nav.selectedIndex, 1);
+      expect(
+        find.byKey(const ValueKey('workspace-shell-destination-stack')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('桌面端：NavigationRail 同步少一项且不越界', (tester) async {
+      final container = await _seededContainer();
+      addTearDown(container.dispose);
+
+      await _pumpShell(tester, container, size: const Size(1200, 900));
+
+      final rail = tester.widget<NavigationRail>(
+        find.byKey(const ValueKey('workspace-shell-rail')),
+      );
+      expect(rail.destinations.length, kWorkspaceShellDestinationCount - 1);
+      expect(rail.selectedIndex, 1);
+    });
+
+    testWidgets('project 开启（默认）时仍是五项导航（通用行为不回归）', (tester) async {
+      AppFeatureRegistry.replaceSnapshotForTest({'project': true});
+      final container = await _seededContainer();
+      addTearDown(container.dispose);
+
+      await _pumpShell(tester, container);
+
+      final nav = tester.widget<NavigationBar>(
+        find.byKey(const ValueKey('workspace-shell-bottom-nav')),
+      );
+      expect(nav.destinations.length, kWorkspaceShellDestinationCount);
+    });
   });
 }

@@ -8,6 +8,9 @@ class FeatureKeys {
   static const groupVote = 'group_vote';
   static const groupSchedule = 'group_schedule';
   static const groupTask = 'group_task';
+  // 项目协作面（计划 §5.3）：导航入口与直达 route 受同一 feature 配置保护。
+  // 广州演示构建从 Git 外把该键置为未选中，客户端即整体不可发现。
+  static const project = 'project';
 
   // E2EE 总开关（服务端在 storage_mode=disabled 硬闸下强制下发 false）：
   // 关闭时隐藏 E2EE 相关入口（刷新设备密钥/密钥管理/合规审计密钥）。

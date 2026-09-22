@@ -214,6 +214,97 @@ void main() {
     });
   });
 
+  group('RouteFeatureGuard project（计划 §5.3 项目功能隐藏）', () {
+    /// 路径形态取自 workspace_routes.dart：
+    /// /workspace/:workspaceId/projects[/:projectId/...]
+    const projectPaths = <String>[
+      '/workspace/9001/projects/create',
+      '/workspace/9001/projects/7001',
+      '/workspace/9001/projects/7001/tasks/new',
+      '/workspace/9001/projects/7001/tasks/8001/edit',
+      '/workspace/9001/projects/7001/members',
+      '/workspace/9001/projects/7001/milestones',
+      '/workspace/9001/projects/7001/channels',
+      '/workspace/9001/projects/7001/insights',
+    ];
+
+    test('featureForPath 把企业项目全部子路径映射到 project', () {
+      for (final path in projectPaths) {
+        expect(
+          RouteFeatureGuard.featureForPath(path),
+          'project',
+          reason: '未被 project 覆盖：$path',
+        );
+      }
+    });
+
+    test('非项目的工作区路径不受 project 影响（通用行为不回归）', () {
+      expect(RouteFeatureGuard.featureForPath('/workspace'), isNull);
+      expect(
+        RouteFeatureGuard.featureForPath('/workspace/9001/members'),
+        isNull,
+      );
+      expect(
+        RouteFeatureGuard.featureForPath('/workspace/9001/members/invite'),
+        isNull,
+      );
+      expect(
+        RouteFeatureGuard.featureForPath('/workspace/9001/branding'),
+        isNull,
+      );
+      expect(
+        RouteFeatureGuard.featureForPath('/workspace/9001/channels/9'),
+        isNull,
+      );
+    });
+
+    test('project 关闭时直达 route 也受同一配置保护', () {
+      AppFeatureRegistry.replaceSnapshotForTest({'project': false});
+      addTearDown(
+        () => AppFeatureRegistry.replaceSnapshotForTest(<String, dynamic>{}),
+      );
+
+      for (final path in projectPaths) {
+        final result = RouteFeatureGuard.checkBlocked(
+          isLoggedIn: true,
+          currentPath: path,
+        );
+        expect(result, isNotNull, reason: '未被拦截：$path');
+        expect(result!.reason, RouteBlockReason.featureFlag);
+        expect(result.redirect, '/bottom_navigation');
+      }
+    });
+
+    test('project 打开时直达 route 放行（通用默认行为兼容）', () {
+      AppFeatureRegistry.replaceSnapshotForTest({'project': true});
+      addTearDown(
+        () => AppFeatureRegistry.replaceSnapshotForTest(<String, dynamic>{}),
+      );
+
+      for (final path in projectPaths) {
+        expect(
+          RouteFeatureGuard.redirectPath(isLoggedIn: true, currentPath: path),
+          isNull,
+          reason: '被误拦：$path',
+        );
+      }
+    });
+
+    test('未登录不参与功能拦截（登录门在上游）', () {
+      AppFeatureRegistry.replaceSnapshotForTest({'project': false});
+      addTearDown(
+        () => AppFeatureRegistry.replaceSnapshotForTest(<String, dynamic>{}),
+      );
+      expect(
+        RouteFeatureGuard.redirectPath(
+          isLoggedIn: false,
+          currentPath: '/workspace/9001/projects/7001',
+        ),
+        isNull,
+      );
+    });
+  });
+
   group('RouteFeatureGuard.redirectPath', () {
     test('delegates to checkBlocked and returns redirect', () {
       AppFeatureRegistry.replaceSnapshotForTest({'moment': true});
