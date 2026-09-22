@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/page/scanner/scanner_page.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -57,9 +56,12 @@ class _RightButtonState extends State<RightButton> {
           _AddMenuEntry(
             icon: CupertinoIcons.qrcode_viewfinder,
             title: t.account.scanQrCode,
-            action: () => Navigator.of(pageContext, rootNavigator: true).push(
-              CupertinoPageRoute<dynamic>(builder: (_) => const ScannerPage()),
-            ),
+            // 必须走 go_router 打开（与本菜单其他项、加好友/名片页入口一致）：
+            // 扫码页命中用户名片后用 context.pushReplacement 跳资料页——它替换的
+            // 是 go_router 栈顶。原生 rootNavigator push 时 go_router 栈里没有
+            // 扫码页，会把底部的 tab 壳换掉 → 资料页 canPop=false 没有返回键
+            // （用户实测卡死，2026-09-22）。
+            action: () => pageContext.push('/scanner'),
           ),
         ],
       ),

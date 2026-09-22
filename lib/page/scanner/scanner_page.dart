@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -230,6 +231,11 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         if (!mounted) return;
         // 统一走 go_router：原生 push 的 PeopleInfoPage 内
         // contact_setting/_goToChat 入口会失灵（混用排查批次3）
+        // ⚠️ 本页必须经 go_router 打开（context.push('/scanner')），禁止原生
+        // rootNavigator push：pushReplacement 替换的是 go_router 栈顶——go_router
+        // 打开时栈顶是扫码页（替换后栈底仍有 tab 壳，资料页可返回）；原生打开时
+        // go_router 栈里没有扫码页，会误把 tab 壳替换掉 → 资料页 canPop=false
+        // 无返回键，用户被卡死（2026-09-22 实测，修复=right_button 入口改 go_router）。
         context.pushReplacement(
           '/people_info/${parseModelString(payload['id'])}?scene=qrcode',
         );
