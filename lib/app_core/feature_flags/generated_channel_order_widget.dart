@@ -4,7 +4,7 @@ import 'package:imboy/page/channel/paid/channel_paywall_view.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
 const channelOrderWidgetManifestHash =
-    "sha256:9f5bc3e8da2783272733a14e8bf599afdcd83d82dca1d06b32c52f37d8f55bb7";
+    "sha256:ecf552c01018513a34e445b49cedbb985962758542c9b64a93951185dc8f0ca8";
 const channelOrderWidgetSchemaVersion = 1;
 const channelOrderWidgetFeatures = <String>[
   "bot_webhook",
@@ -21,6 +21,7 @@ const channelOrderWidgetFeatures = <String>[
   "group_vote",
   "location",
   "moment",
+  "project",
 ];
 
 Widget? compiledChannelPaywall({

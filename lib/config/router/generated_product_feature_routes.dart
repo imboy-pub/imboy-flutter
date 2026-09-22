@@ -20,7 +20,7 @@ import 'routes/group_schedule_routes.dart';
 import 'routes/group_task_routes.dart';
 
 const productFeatureRouteManifestHash =
-    "sha256:9f5bc3e8da2783272733a14e8bf599afdcd83d82dca1d06b32c52f37d8f55bb7";
+    "sha256:ecf552c01018513a34e445b49cedbb985962758542c9b64a93951185dc8f0ca8";
 const productFeatureRouteSchemaVersion = 1;
 const productFeatureRouteFeatures = <String>[
   "bot_webhook",
@@ -37,6 +37,7 @@ const productFeatureRouteFeatures = <String>[
   "group_vote",
   "location",
   "moment",
+  "project",
 ];
 
 List<RouteBase> compiledProductFeatureRoutes() => <RouteBase>[
