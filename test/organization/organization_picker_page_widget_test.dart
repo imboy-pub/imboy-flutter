@@ -107,12 +107,17 @@ class _WsFakeApi extends WorkspaceApi {
   }
 }
 
-GoRouter _router() => GoRouter(
+GoRouter _router({bool autoJoin = false}) => GoRouter(
   initialLocation: '/organization/picker',
   routes: [
     GoRoute(
       path: '/organization/picker',
-      builder: (c, s) => const OrganizationPickerPage(accountKey: _accountKey),
+      builder: (c, s) => autoJoin
+          ? const OrganizationPickerPage(
+              accountKey: _accountKey,
+              autoJoin: true,
+            )
+          : const OrganizationPickerPage(accountKey: _accountKey),
     ),
     // _leave() 在无栈可弹时 go 到壳挂载点（真实行为同 join 页）。
     GoRoute(
@@ -122,7 +127,11 @@ GoRouter _router() => GoRouter(
   ],
 );
 
-Future<void> _pump(WidgetTester tester, ProviderContainer container) async {
+Future<void> _pump(
+  WidgetTester tester,
+  ProviderContainer container, {
+  bool autoJoin = false,
+}) async {
   tester.view.physicalSize = const Size(430, 900);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -131,7 +140,7 @@ Future<void> _pump(WidgetTester tester, ProviderContainer container) async {
     TranslationProvider(
       child: UncontrolledProviderScope(
         container: container,
-        child: MaterialApp.router(routerConfig: _router()),
+        child: MaterialApp.router(routerConfig: _router(autoJoin: autoJoin)),
       ),
     ),
   );
@@ -366,5 +375,36 @@ void main() {
 
     // 加入成功 → _refresh 后列表含丙 → 自动切入（指针指向丙）。
     expect(CurrentOrganizationStore.forAccount(_accountKey).value?.id, _orgC);
+  });
+
+  testWidgets('§5.1 加入企业入口：autoJoin=1 进入即打开邀请码对话框（一步到达）', (tester) async {
+    HttpClient.adapterForTest = _RoutingAdapter(
+      (path) =>
+          path.endsWith('/organizations/mine') ? _mineOf([_orgA]) : _ok(null),
+    );
+    final container = makeContainer(_WsFakeApi(const []));
+
+    await _pump(tester, container, autoJoin: true);
+    // 首帧后 addPostFrameCallback 弹层 → 固定帧推进即可见
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byKey(const ValueKey('org-join-code-field')), findsOneWidget);
+    expect(find.byKey(const ValueKey('org-join-submit')), findsOneWidget);
+  });
+
+  testWidgets('缺省（autoJoin 关闭）不自动弹层：仍落在选择器列表', (tester) async {
+    HttpClient.adapterForTest = _RoutingAdapter(
+      (path) =>
+          path.endsWith('/organizations/mine') ? _mineOf([_orgA]) : _ok(null),
+    );
+    final container = makeContainer(_WsFakeApi(const []));
+
+    await _pump(tester, container);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byKey(const ValueKey('org-join-code-field')), findsNothing);
+    expect(find.byKey(const ValueKey('org-picker-join-entry')), findsOneWidget);
   });
 }

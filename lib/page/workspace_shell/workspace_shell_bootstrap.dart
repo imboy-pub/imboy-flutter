@@ -18,6 +18,7 @@ import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace_shell/workspace_branding_theme.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -63,7 +64,8 @@ class _WorkspaceShellBootstrapState
       return Scaffold(
         body: _NoWorkspaceEntry(
           onCreate: () => context.push('/workspace/create'),
-          onJoin: () => context.push('/workspace/join'),
+          // §5.1：企业壳无工作区时的「加入」是加入**企业**（不是工作区码）
+          onJoin: () => context.push('$kOrganizationPickerPath?autoJoin=1'),
           onPersonal: _switchToPersonal,
           onRetry: () => ref.read(workspaceShellProvider.notifier).loadMine(),
         ),
@@ -133,7 +135,9 @@ class _NoWorkspaceEntry extends StatelessWidget {
           key: const ValueKey('workspace-empty-join-entry'),
           onPressed: onJoin,
           icon: const Icon(CupertinoIcons.person_add, size: 18),
-          label: Text(t.workspace.joinEntry),
+          // §5.1：无工作区时的「加入」是加入**企业**（行为已指向企业邀请码
+          // 加入动作），文案随之对齐——不留「加入工作区」的旧承诺。
+          label: Text(t.organization.picker.joinEnterprise),
         ),
         AppSpacing.verticalSmall,
         _PersonalHomeAction(onPressed: onPersonal),

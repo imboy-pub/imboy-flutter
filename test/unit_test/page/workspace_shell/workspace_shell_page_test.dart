@@ -206,6 +206,10 @@ void main() {
       find.byKey(const ValueKey('workspace-account-sheet-join-entry')),
       findsOneWidget,
     );
+    // §5.1：「加入工作区」改为真正的「加入企业」——文案与行为同换
+    // （禁止只替换文案后仍走工作区码加入）。
+    expect(find.text('加入企业'), findsOneWidget);
+    expect(find.text('加入工作区'), findsNothing);
   });
 
   group('project 功能隐藏（计划 §5.3）', () {

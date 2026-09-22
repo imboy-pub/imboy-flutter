@@ -11,7 +11,7 @@
 ///   经 workspaceMembersProvider 匹配当前 uid；未命中不显示）
 /// - 工作区列表：当前项高亮，点击即切换（Slack You 页同构）
 /// - 动作：编辑个人资料(/personal_info) / 我的收藏 / 设置
-/// - 工作区动作：创建新工作区(/workspace/create) / 加入工作区(/workspace/join)
+/// - 企业动作：加入企业（/organization/picker?autoJoin=1，§5.1）
 ///   （双入口常驻，单工作区用户亦可发起）
 /// - 底部：工作模式（二级 ActionSheet） / 退出登录（destructive）
 library;
@@ -243,11 +243,14 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
               label: t.workspace.createEntry,
               onTap: () => _popAndPush(context, '/workspace/create'),
             ),
+            // 计划 §5.1：「加入工作区」改为真正的「加入企业」——文案与行为
+            // 同时换（禁止只替换文案后仍走工作区码）；落到企业邀请码加入动作。
             _SheetActionTile(
               key: const ValueKey('workspace-account-sheet-join-entry'),
               icon: CupertinoIcons.person_crop_circle_badge_plus,
-              label: t.workspace.joinEntry,
-              onTap: () => _popAndPush(context, '/workspace/join'),
+              label: t.organization.picker.joinEnterprise,
+              onTap: () =>
+                  _popAndPush(context, '$kOrganizationPickerPath?autoJoin=1'),
             ),
             // 工作模式直达切换（镜像 MinePage 同名入口：只有两种模式，
             // 点「切换到个人」直接切，免二次弹层）

@@ -56,7 +56,10 @@ List<RouteBase> organizationRoutes() => [
         name: 'organization_picker',
         pageBuilder: (context, state) => CupertinoPage(
           key: state.pageKey,
-          child: const OrganizationPickerPage(),
+          child: OrganizationPickerPage(
+            // §5.1「加入企业」入口可直接落到加入动作（?autoJoin=1）
+            autoJoin: state.uri.queryParameters['autoJoin'] == '1',
+          ),
         ),
       ),
       GoRoute(

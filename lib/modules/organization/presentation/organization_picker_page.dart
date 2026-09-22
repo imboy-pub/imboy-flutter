@@ -33,10 +33,18 @@ import 'package:imboy/modules/organization/infrastructure/organization_cache.dar
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 
 class OrganizationPickerPage extends ConsumerStatefulWidget {
-  const OrganizationPickerPage({super.key, this.accountKey});
+  const OrganizationPickerPage({
+    super.key,
+    this.accountKey,
+    this.autoJoin = false,
+  });
 
   /// 缓存/指针账号键；测试可注入。缺省取当前登录账号。
   final String? accountKey;
+
+  /// 进入即自动打开「加入企业」邀请码对话框（计划 §5.1：正常入口点「加入企业」
+  /// 应当一步到达加入动作，而不是先落到选择器再让用户找第二次）。
+  final bool autoJoin;
 
   @override
   ConsumerState<OrganizationPickerPage> createState() =>
@@ -72,6 +80,12 @@ class _OrganizationPickerPageState
   void initState() {
     super.initState();
     _refresh();
+    if (widget.autoJoin) {
+      // 等首帧后再弹：对话框依赖已挂载的 Navigator/Overlay。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _joinByCode();
+      });
+    }
   }
 
   Future<void> _refresh() async {
