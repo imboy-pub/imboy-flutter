@@ -417,9 +417,15 @@ class OrganizationApi extends HttpClient {
 
   // ==================== 企业邀请码加入（GZAPP-04/GZAPP-01 契约） ====================
 
-  /// 凭企业邀请码加入组织（POST `/organizations/:orgId/join_by_code`
+  /// 凭企业邀请码加入组织（POST `/organizations/:orgId/invite_code/join`
   /// body `{code}`）。joined | unchanged 均为成功；加入编排（默认 WS /
   /// 全员群 / 公告频道）由服务端事务完成。
+  ///
+  /// 路径真源 = 后端契约 `.contract/api_contract.json`
+  /// （operationId `invite_code_join`）。此前这里写的是 `/join_by_code`——
+  /// 那是**服务端不存在的路径**，真机实测 404「加入失败：错误 (404)」；
+  /// 而本模块的 widget 测试把这个错路径一起 mock 了，于是永远绿。
+  /// 改任何一侧前先看契约，别再让客户端测试自证。
   ///
   /// 错误语义（envelope code，GZAPP-01 负例口径）：981 码无效/已撤销、
   /// 982 码过期、403 越权、404 组织不存在、archived 拒绝——经
@@ -432,7 +438,7 @@ class OrganizationApi extends HttpClient {
     required String code,
   }) async {
     final resp = await post(
-      '/api/v1/organizations/$orgId/join_by_code',
+      '/api/v1/organizations/$orgId/invite_code/join',
       data: {'code': code},
     );
     return _unwrap(resp, OrganizationJoinOutcome.fromJson);

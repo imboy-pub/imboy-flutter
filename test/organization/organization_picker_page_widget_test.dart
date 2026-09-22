@@ -41,7 +41,7 @@ const String _orgB = '7002';
 const String _orgC = '7003';
 
 /// 按 URI path 分发的静态 adapter（org mine / default-workspace /
-/// join_by_code 共用一个 HttpClient.adapterForTest 注入点）。
+/// invite_code/join 共用一个 HttpClient.adapterForTest 注入点）。
 class _RoutingAdapter implements HttpClientAdapter {
   _RoutingAdapter(this.routes);
 
@@ -272,7 +272,7 @@ void main() {
   testWidgets('加入企业 981：码无效错误文案页内展示，不关对话框', (tester) async {
     HttpClient.adapterForTest = _RoutingAdapter((path) {
       if (path.endsWith('/organizations/mine')) return _mineOf([_orgA]);
-      if (path.endsWith('/join_by_code')) {
+      if (path.endsWith('/invite_code/join')) {
         return {'code': 981, 'msg': 'invite_code invalid'};
       }
       return _ok(null);
@@ -304,7 +304,7 @@ void main() {
   testWidgets('加入企业 982：码过期错误文案页内展示', (tester) async {
     HttpClient.adapterForTest = _RoutingAdapter((path) {
       if (path.endsWith('/organizations/mine')) return _mineOf([_orgA]);
-      if (path.endsWith('/join_by_code')) {
+      if (path.endsWith('/invite_code/join')) {
         return {'code': 982, 'msg': 'invite_code expired'};
       }
       return _ok(null);
@@ -336,7 +336,7 @@ void main() {
       if (path.endsWith('/organizations/mine')) {
         return _mineOf([_orgA, _orgC]);
       }
-      if (path.endsWith('/join_by_code')) {
+      if (path.endsWith('/invite_code/join')) {
         return _ok({
           'status': 'joined',
           'organization': {
