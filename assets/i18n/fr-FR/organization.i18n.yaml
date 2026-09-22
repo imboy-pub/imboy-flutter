@@ -158,6 +158,15 @@ directory:
   deptSection: "Départements"
   allMembersSection: "Tous les membres"
   membersRestricted: "La liste complète des membres n'est visible que par les administrateurs de l'entreprise ; ouvrez un département pour voir ses membres."
+  imProfileEntry: Voir le profil IM
+memberDetail:
+  roleLabel: Rôle dans l'entreprise
+  roleRestricted: Visible uniquement par les administrateurs
+  accountLabel: Compte de connexion
+  joinedLabel: Date d'adhésion
+  workspacesTitle: Espaces de travail autorisés
+  workspacesEmpty: Ce membre n'a encore aucun espace de travail dans cette entreprise
+  workspacesFailed: Échec du chargement des espaces de travail autorisés
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
   entry: "Gestion de l'entreprise"

@@ -2351,6 +2351,7 @@ class _Translations$organization$de_DE extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$de_DE departments = _Translations$organization$departments$de_DE._(_root);
 	@override late final _Translations$organization$picker$de_DE picker = _Translations$organization$picker$de_DE._(_root);
 	@override late final _Translations$organization$directory$de_DE directory = _Translations$organization$directory$de_DE._(_root);
+	@override late final _Translations$organization$memberDetail$de_DE memberDetail = _Translations$organization$memberDetail$de_DE._(_root);
 	@override late final _Translations$organization$manage$de_DE manage = _Translations$organization$manage$de_DE._(_root);
 }
 
@@ -2880,6 +2881,23 @@ class _Translations$organization$directory$de_DE extends Translations$organizati
 	@override String get deptSection => 'Abteilungen';
 	@override String get allMembersSection => 'Alle Mitglieder';
 	@override String get membersRestricted => 'Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen.';
+	@override String get imProfileEntry => 'IM-Profil anzeigen';
+}
+
+// Path: organization.memberDetail
+class _Translations$organization$memberDetail$de_DE extends Translations$organization$memberDetail$zh_CN {
+	_Translations$organization$memberDetail$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get roleLabel => 'Unternehmensrolle';
+	@override String get roleRestricted => 'Nur für Unternehmensadministratoren sichtbar';
+	@override String get accountLabel => 'Anmeldekonto';
+	@override String get joinedLabel => 'Beigetreten';
+	@override String get workspacesTitle => 'Berechtigte Arbeitsbereiche';
+	@override String get workspacesEmpty => 'Dieses Mitglied hat noch keinen Arbeitsbereich in diesem Unternehmen';
+	@override String get workspacesFailed => 'Berechtigte Arbeitsbereiche konnten nicht geladen werden';
 }
 
 // Path: organization.manage
@@ -5122,6 +5140,14 @@ extension on TranslationsDeDe {
 			'organization.directory.deptSection' => 'Abteilungen',
 			'organization.directory.allMembersSection' => 'Alle Mitglieder',
 			'organization.directory.membersRestricted' => 'Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen.',
+			'organization.directory.imProfileEntry' => 'IM-Profil anzeigen',
+			'organization.memberDetail.roleLabel' => 'Unternehmensrolle',
+			'organization.memberDetail.roleRestricted' => 'Nur für Unternehmensadministratoren sichtbar',
+			'organization.memberDetail.accountLabel' => 'Anmeldekonto',
+			'organization.memberDetail.joinedLabel' => 'Beigetreten',
+			'organization.memberDetail.workspacesTitle' => 'Berechtigte Arbeitsbereiche',
+			'organization.memberDetail.workspacesEmpty' => 'Dieses Mitglied hat noch keinen Arbeitsbereich in diesem Unternehmen',
+			'organization.memberDetail.workspacesFailed' => 'Berechtigte Arbeitsbereiche konnten nicht geladen werden',
 			'organization.manage.entry' => 'Unternehmensverwaltung',
 			'organization.manage.entryRestricted' => 'Unternehmensverwaltung (nur Admins)',
 			'organization.manage.title' => 'Unternehmensverwaltung',

@@ -158,6 +158,15 @@ directory:
   deptSection: "部門"
   allMembersSection: "すべてのメンバー"
   membersRestricted: "メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。"
+  imProfileEntry: IM プロフィールを表示
+memberDetail:
+  roleLabel: 企業での役割
+  roleRestricted: 企業管理者のみ閲覧できます
+  accountLabel: ログインアカウント
+  joinedLabel: 参加日時
+  workspacesTitle: 権限のあるワークスペース
+  workspacesEmpty: このメンバーはこの企業内にワークスペースがありません
+  workspacesFailed: 権限のあるワークスペースの読み込みに失敗しました
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
   entry: 企業管理

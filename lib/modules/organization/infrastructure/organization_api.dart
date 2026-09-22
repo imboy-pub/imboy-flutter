@@ -131,6 +131,29 @@ class OrganizationApi extends HttpClient {
     return _page(resp, OrganizationMember.fromJson);
   }
 
+  /// 成员在本企业内的**有权 Workspace**（计划 §5.2 成员详情）。
+  ///
+  /// 与 [members] 不同：服务端只要求调用者是本 Org 的 active 成员（任意角色），
+  /// 因此普通成员也能看到成员详情里的工作区信息（§5.2「所有企业成员可见」）。
+  /// 目标非本 Org 成员 → 404；调用者非本 Org 成员 → 403。
+  Future<List<OrganizationMemberWorkspace>> memberWorkspaces(
+    EntityId orgId,
+    EntityId userId,
+  ) async {
+    final resp = await get(
+      '/api/v1/organizations/$orgId/members/$userId/workspaces',
+    );
+    _ensureOk(resp);
+    final payload = resp.payload;
+    final raw = (payload is Map<String, dynamic>) ? payload['list'] : null;
+    if (raw is! List) return const <OrganizationMemberWorkspace>[];
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .map(OrganizationMemberWorkspace.fromJson)
+        .where((w) => w.id.isNotEmpty)
+        .toList(growable: false);
+  }
+
   /// 改角色（仅 admin/member 可设；owner 行不可改，C04）。
   Future<OrganizationMember> changeRole(
     EntityId orgId,

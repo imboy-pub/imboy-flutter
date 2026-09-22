@@ -2357,6 +2357,7 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$ru_RU departments = _Translations$organization$departments$ru_RU._(_root);
 	@override late final _Translations$organization$picker$ru_RU picker = _Translations$organization$picker$ru_RU._(_root);
 	@override late final _Translations$organization$directory$ru_RU directory = _Translations$organization$directory$ru_RU._(_root);
+	@override late final _Translations$organization$memberDetail$ru_RU memberDetail = _Translations$organization$memberDetail$ru_RU._(_root);
 	@override late final _Translations$organization$manage$ru_RU manage = _Translations$organization$manage$ru_RU._(_root);
 }
 
@@ -2886,6 +2887,23 @@ class _Translations$organization$directory$ru_RU extends Translations$organizati
 	@override String get deptSection => 'Отделы';
 	@override String get allMembersSection => 'Все участники';
 	@override String get membersRestricted => 'Полный список участников доступен только администраторам предприятия; раскройте отдел, чтобы увидеть его участников.';
+	@override String get imProfileEntry => 'Открыть профиль IM';
+}
+
+// Path: organization.memberDetail
+class _Translations$organization$memberDetail$ru_RU extends Translations$organization$memberDetail$zh_CN {
+	_Translations$organization$memberDetail$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get roleLabel => 'Роль в компании';
+	@override String get roleRestricted => 'Доступно только администраторам компании';
+	@override String get accountLabel => 'Учётная запись';
+	@override String get joinedLabel => 'Дата присоединения';
+	@override String get workspacesTitle => 'Доступные рабочие пространства';
+	@override String get workspacesEmpty => 'У этого участника пока нет рабочих пространств в компании';
+	@override String get workspacesFailed => 'Не удалось загрузить доступные рабочие пространства';
 }
 
 // Path: organization.manage
@@ -5128,6 +5146,14 @@ extension on TranslationsRuRu {
 			'organization.directory.deptSection' => 'Отделы',
 			'organization.directory.allMembersSection' => 'Все участники',
 			'organization.directory.membersRestricted' => 'Полный список участников доступен только администраторам предприятия; раскройте отдел, чтобы увидеть его участников.',
+			'organization.directory.imProfileEntry' => 'Открыть профиль IM',
+			'organization.memberDetail.roleLabel' => 'Роль в компании',
+			'organization.memberDetail.roleRestricted' => 'Доступно только администраторам компании',
+			'organization.memberDetail.accountLabel' => 'Учётная запись',
+			'organization.memberDetail.joinedLabel' => 'Дата присоединения',
+			'organization.memberDetail.workspacesTitle' => 'Доступные рабочие пространства',
+			'organization.memberDetail.workspacesEmpty' => 'У этого участника пока нет рабочих пространств в компании',
+			'organization.memberDetail.workspacesFailed' => 'Не удалось загрузить доступные рабочие пространства',
 			'organization.manage.entry' => 'Управление предприятием',
 			'organization.manage.entryRestricted' => 'Управление предприятием (только администраторы)',
 			'organization.manage.title' => 'Управление предприятием',

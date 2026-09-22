@@ -158,6 +158,15 @@ directory:
   deptSection: "الأقسام"
   allMembersSection: "جميع الأعضاء"
   membersRestricted: "قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه."
+  imProfileEntry: عرض ملف IM
+memberDetail:
+  roleLabel: دور المؤسسة
+  roleRestricted: مرئي لمسؤولي المؤسسة فقط
+  accountLabel: حساب الدخول
+  joinedLabel: تاريخ الانضمام
+  workspacesTitle: مساحات العمل المصرّح بها
+  workspacesEmpty: لا يملك هذا العضو أي مساحة عمل في هذه المؤسسة بعد
+  workspacesFailed: فشل تحميل مساحات العمل المصرّح بها
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
   entry: إدارة المؤسسة

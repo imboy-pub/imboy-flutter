@@ -4,7 +4,7 @@
 /// - 部门树 + 部门成员（departmentDetail 合并）渲染；
 /// - members() 治理面 403 → 全员名单节降级为受限提示（客户端不预判，
 ///   以服务端 403 为准）；members() 200 → 全员行渲染（昵称/角色）；
-/// - 成员行点击 → /people/:id 成员详情（复用 PeopleInfoPage 路由口径）。
+/// - 成员行点击 → /organization/:orgId/member/:uid 企业成员详情（GZAPP-C3，§5.2）。
 library;
 
 import 'dart:convert';
@@ -99,9 +99,9 @@ GoRouter _router() => GoRouter(
           const OrganizationDirectoryPage(orgId: _orgId, orgName: '甲企业'),
     ),
     GoRoute(
-      path: '/people/:id',
+      path: '/organization/:orgId/member/:uid',
       builder: (c, s) => Scaffold(
-        body: Center(child: Text('people-${s.pathParameters['id']}')),
+        body: Center(child: Text('org-member-${s.pathParameters['uid']}')),
       ),
     ),
   ],
@@ -162,9 +162,7 @@ void main() {
     expect(find.textContaining('全员名单仅企业管理员可见'), findsOneWidget);
   });
 
-  testWidgets('管理员（members 200）：全员行渲染（昵称/角色）+ 点击进成员详情 /people/:id', (
-    tester,
-  ) async {
+  testWidgets('管理员（members 200）：全员行渲染（昵称/角色）+ 点击进企业成员详情', (tester) async {
     // members 响应为完整 envelope（code=0 + payload 分页信封）。
     HttpClient.adapterForTest = _RoutingAdapter(
       _routes(
@@ -190,11 +188,11 @@ void main() {
     expect(find.text('张三'), findsWidgets); // 部门成员行 + 全员行
     expect(find.textContaining('全员名单仅企业管理员可见'), findsNothing);
 
-    // 成员详情跳转：复用 /people/:id 路由（uid 口径）
+    // 成员详情跳转：企业视角成员详情（§5.2，不再是通用 IM 资料页）
     await tester.tap(
       find.byKey(const ValueKey('org-directory-member-all-42')).first,
     );
     await tester.pumpAndSettle();
-    expect(find.text('people-42'), findsOneWidget);
+    expect(find.text('org-member-42'), findsOneWidget);
   });
 }

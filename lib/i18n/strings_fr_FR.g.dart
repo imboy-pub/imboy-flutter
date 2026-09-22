@@ -2351,6 +2351,7 @@ class _Translations$organization$fr_FR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$fr_FR departments = _Translations$organization$departments$fr_FR._(_root);
 	@override late final _Translations$organization$picker$fr_FR picker = _Translations$organization$picker$fr_FR._(_root);
 	@override late final _Translations$organization$directory$fr_FR directory = _Translations$organization$directory$fr_FR._(_root);
+	@override late final _Translations$organization$memberDetail$fr_FR memberDetail = _Translations$organization$memberDetail$fr_FR._(_root);
 	@override late final _Translations$organization$manage$fr_FR manage = _Translations$organization$manage$fr_FR._(_root);
 }
 
@@ -2880,6 +2881,23 @@ class _Translations$organization$directory$fr_FR extends Translations$organizati
 	@override String get deptSection => 'Départements';
 	@override String get allMembersSection => 'Tous les membres';
 	@override String get membersRestricted => 'La liste complète des membres n\'est visible que par les administrateurs de l\'entreprise ; ouvrez un département pour voir ses membres.';
+	@override String get imProfileEntry => 'Voir le profil IM';
+}
+
+// Path: organization.memberDetail
+class _Translations$organization$memberDetail$fr_FR extends Translations$organization$memberDetail$zh_CN {
+	_Translations$organization$memberDetail$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get roleLabel => 'Rôle dans l\'entreprise';
+	@override String get roleRestricted => 'Visible uniquement par les administrateurs';
+	@override String get accountLabel => 'Compte de connexion';
+	@override String get joinedLabel => 'Date d\'adhésion';
+	@override String get workspacesTitle => 'Espaces de travail autorisés';
+	@override String get workspacesEmpty => 'Ce membre n\'a encore aucun espace de travail dans cette entreprise';
+	@override String get workspacesFailed => 'Échec du chargement des espaces de travail autorisés';
 }
 
 // Path: organization.manage
@@ -5122,6 +5140,14 @@ extension on TranslationsFrFr {
 			'organization.directory.deptSection' => 'Départements',
 			'organization.directory.allMembersSection' => 'Tous les membres',
 			'organization.directory.membersRestricted' => 'La liste complète des membres n\'est visible que par les administrateurs de l\'entreprise ; ouvrez un département pour voir ses membres.',
+			'organization.directory.imProfileEntry' => 'Voir le profil IM',
+			'organization.memberDetail.roleLabel' => 'Rôle dans l\'entreprise',
+			'organization.memberDetail.roleRestricted' => 'Visible uniquement par les administrateurs',
+			'organization.memberDetail.accountLabel' => 'Compte de connexion',
+			'organization.memberDetail.joinedLabel' => 'Date d\'adhésion',
+			'organization.memberDetail.workspacesTitle' => 'Espaces de travail autorisés',
+			'organization.memberDetail.workspacesEmpty' => 'Ce membre n\'a encore aucun espace de travail dans cette entreprise',
+			'organization.memberDetail.workspacesFailed' => 'Échec du chargement des espaces de travail autorisés',
 			'organization.manage.entry' => 'Gestion de l\'entreprise',
 			'organization.manage.entryRestricted' => 'Gestion de l\'entreprise (admins uniquement)',
 			'organization.manage.title' => 'Gestion de l\'entreprise',

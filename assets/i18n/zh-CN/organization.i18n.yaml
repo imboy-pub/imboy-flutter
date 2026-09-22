@@ -157,6 +157,17 @@ directory:
   deptSection: 部门
   allMembersSection: 全部成员
   membersRestricted: 全员名单仅企业管理员可见；可展开部门查看部门成员。
+  # GZAPP-C3：成员详情页保留通往通用 IM 资料页的次级入口
+  imProfileEntry: 查看 IM 资料
+# GZAPP-C3（计划 §5.2）：成员详情——含该成员在本企业内的有权工作区
+memberDetail:
+  roleLabel: 企业角色
+  roleRestricted: 仅企业管理员可查看
+  accountLabel: 登录账号
+  joinedLabel: 加入时间
+  workspacesTitle: 有权工作区
+  workspacesEmpty: 该成员在本企业内暂无工作区
+  workspacesFailed: 有权工作区加载失败
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
   entry: 企业管理

@@ -6651,6 +6651,7 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$departments$zh_CN departments = Translations$organization$departments$zh_CN.internal(_root);
 	late final Translations$organization$picker$zh_CN picker = Translations$organization$picker$zh_CN.internal(_root);
 	late final Translations$organization$directory$zh_CN directory = Translations$organization$directory$zh_CN.internal(_root);
+	late final Translations$organization$memberDetail$zh_CN memberDetail = Translations$organization$memberDetail$zh_CN.internal(_root);
 	late final Translations$organization$manage$zh_CN manage = Translations$organization$manage$zh_CN.internal(_root);
 }
 
@@ -8002,6 +8003,39 @@ class Translations$organization$directory$zh_CN {
 
 	/// zh-CN: '全员名单仅企业管理员可见；可展开部门查看部门成员。'
 	String get membersRestricted => '全员名单仅企业管理员可见；可展开部门查看部门成员。';
+
+	/// zh-CN: '查看 IM 资料'
+	String get imProfileEntry => '查看 IM 资料';
+}
+
+// Path: organization.memberDetail
+class Translations$organization$memberDetail$zh_CN {
+	Translations$organization$memberDetail$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '企业角色'
+	String get roleLabel => '企业角色';
+
+	/// zh-CN: '仅企业管理员可查看'
+	String get roleRestricted => '仅企业管理员可查看';
+
+	/// zh-CN: '登录账号'
+	String get accountLabel => '登录账号';
+
+	/// zh-CN: '加入时间'
+	String get joinedLabel => '加入时间';
+
+	/// zh-CN: '有权工作区'
+	String get workspacesTitle => '有权工作区';
+
+	/// zh-CN: '该成员在本企业内暂无工作区'
+	String get workspacesEmpty => '该成员在本企业内暂无工作区';
+
+	/// zh-CN: '有权工作区加载失败'
+	String get workspacesFailed => '有权工作区加载失败';
 }
 
 // Path: organization.manage
@@ -10432,6 +10466,14 @@ extension on Translations {
 			'organization.directory.deptSection' => '部门',
 			'organization.directory.allMembersSection' => '全部成员',
 			'organization.directory.membersRestricted' => '全员名单仅企业管理员可见；可展开部门查看部门成员。',
+			'organization.directory.imProfileEntry' => '查看 IM 资料',
+			'organization.memberDetail.roleLabel' => '企业角色',
+			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
+			'organization.memberDetail.accountLabel' => '登录账号',
+			'organization.memberDetail.joinedLabel' => '加入时间',
+			'organization.memberDetail.workspacesTitle' => '有权工作区',
+			'organization.memberDetail.workspacesEmpty' => '该成员在本企业内暂无工作区',
+			'organization.memberDetail.workspacesFailed' => '有权工作区加载失败',
 			'organization.manage.entry' => '企业管理',
 			'organization.manage.entryRestricted' => '企业管理（仅管理员）',
 			'organization.manage.title' => '企业管理',
@@ -10728,6 +10770,8 @@ extension on Translations {
 			'workspace.projectChannelUnlinkSubmit' => '解除关联',
 			'workspace.projectChannelUnlinkedToast' => '已解除关联',
 			'workspace.projectInsightsTabPinned' => '置顶消息',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectInsightsTabResources' => '资源链接',
 			'workspace.projectInsightsTabActivity' => '项目动态',
 			'workspace.projectInsightsTabPosts' => '相关帖子',

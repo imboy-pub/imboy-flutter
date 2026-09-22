@@ -158,6 +158,15 @@ directory:
   deptSection: 部門
   allMembersSection: 全部成員
   membersRestricted: 全員名單僅企業管理員可見；可展開部門查看部門成員。
+  imProfileEntry: 查看 IM 資料
+memberDetail:
+  roleLabel: 企業角色
+  roleRestricted: 僅企業管理員可查看
+  accountLabel: 登入帳號
+  joinedLabel: 加入時間
+  workspacesTitle: 有權工作區
+  workspacesEmpty: 該成員在本企業內暫無工作區
+  workspacesFailed: 有權工作區載入失敗
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
   entry: 企業管理

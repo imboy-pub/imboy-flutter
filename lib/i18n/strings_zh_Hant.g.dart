@@ -2348,6 +2348,7 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$departments$zh_Hant departments = Translations$organization$departments$zh_Hant.internal(_root);
 	@override late final Translations$organization$picker$zh_Hant picker = Translations$organization$picker$zh_Hant.internal(_root);
 	@override late final Translations$organization$directory$zh_Hant directory = Translations$organization$directory$zh_Hant.internal(_root);
+	@override late final Translations$organization$memberDetail$zh_Hant memberDetail = Translations$organization$memberDetail$zh_Hant.internal(_root);
 	@override late final Translations$organization$manage$zh_Hant manage = Translations$organization$manage$zh_Hant.internal(_root);
 }
 
@@ -2877,6 +2878,23 @@ class Translations$organization$directory$zh_Hant extends Translations$organizat
 	@override String get deptSection => '部門';
 	@override String get allMembersSection => '全部成員';
 	@override String get membersRestricted => '全員名單僅企業管理員可見；可展開部門查看部門成員。';
+	@override String get imProfileEntry => '查看 IM 資料';
+}
+
+// Path: organization.memberDetail
+class Translations$organization$memberDetail$zh_Hant extends Translations$organization$memberDetail$zh_CN {
+	Translations$organization$memberDetail$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get roleLabel => '企業角色';
+	@override String get roleRestricted => '僅企業管理員可查看';
+	@override String get accountLabel => '登入帳號';
+	@override String get joinedLabel => '加入時間';
+	@override String get workspacesTitle => '有權工作區';
+	@override String get workspacesEmpty => '該成員在本企業內暫無工作區';
+	@override String get workspacesFailed => '有權工作區載入失敗';
 }
 
 // Path: organization.manage
@@ -5119,6 +5137,14 @@ extension on TranslationsZhHant {
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => '全部成員',
 			'organization.directory.membersRestricted' => '全員名單僅企業管理員可見；可展開部門查看部門成員。',
+			'organization.directory.imProfileEntry' => '查看 IM 資料',
+			'organization.memberDetail.roleLabel' => '企業角色',
+			'organization.memberDetail.roleRestricted' => '僅企業管理員可查看',
+			'organization.memberDetail.accountLabel' => '登入帳號',
+			'organization.memberDetail.joinedLabel' => '加入時間',
+			'organization.memberDetail.workspacesTitle' => '有權工作區',
+			'organization.memberDetail.workspacesEmpty' => '該成員在本企業內暫無工作區',
+			'organization.memberDetail.workspacesFailed' => '有權工作區載入失敗',
 			'organization.manage.entry' => '企業管理',
 			'organization.manage.entryRestricted' => '企業管理（僅管理員）',
 			'organization.manage.title' => '企業管理',

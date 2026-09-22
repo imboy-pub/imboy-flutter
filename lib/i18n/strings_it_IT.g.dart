@@ -2351,6 +2351,7 @@ class _Translations$organization$it_IT extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$it_IT departments = _Translations$organization$departments$it_IT._(_root);
 	@override late final _Translations$organization$picker$it_IT picker = _Translations$organization$picker$it_IT._(_root);
 	@override late final _Translations$organization$directory$it_IT directory = _Translations$organization$directory$it_IT._(_root);
+	@override late final _Translations$organization$memberDetail$it_IT memberDetail = _Translations$organization$memberDetail$it_IT._(_root);
 	@override late final _Translations$organization$manage$it_IT manage = _Translations$organization$manage$it_IT._(_root);
 }
 
@@ -2880,6 +2881,23 @@ class _Translations$organization$directory$it_IT extends Translations$organizati
 	@override String get deptSection => 'Dipartimenti';
 	@override String get allMembersSection => 'Tutti i membri';
 	@override String get membersRestricted => 'L\'elenco completo dei membri è visibile solo agli amministratori dell\'azienda; apri un dipartimento per vedere i suoi membri.';
+	@override String get imProfileEntry => 'Visualizza profilo IM';
+}
+
+// Path: organization.memberDetail
+class _Translations$organization$memberDetail$it_IT extends Translations$organization$memberDetail$zh_CN {
+	_Translations$organization$memberDetail$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get roleLabel => 'Ruolo aziendale';
+	@override String get roleRestricted => 'Visibile solo agli amministratori aziendali';
+	@override String get accountLabel => 'Account di accesso';
+	@override String get joinedLabel => 'Data di adesione';
+	@override String get workspacesTitle => 'Workspace autorizzati';
+	@override String get workspacesEmpty => 'Questo membro non ha ancora workspace in questa azienda';
+	@override String get workspacesFailed => 'Caricamento dei workspace autorizzati non riuscito';
 }
 
 // Path: organization.manage
@@ -5122,6 +5140,14 @@ extension on TranslationsItIt {
 			'organization.directory.deptSection' => 'Dipartimenti',
 			'organization.directory.allMembersSection' => 'Tutti i membri',
 			'organization.directory.membersRestricted' => 'L\'elenco completo dei membri è visibile solo agli amministratori dell\'azienda; apri un dipartimento per vedere i suoi membri.',
+			'organization.directory.imProfileEntry' => 'Visualizza profilo IM',
+			'organization.memberDetail.roleLabel' => 'Ruolo aziendale',
+			'organization.memberDetail.roleRestricted' => 'Visibile solo agli amministratori aziendali',
+			'organization.memberDetail.accountLabel' => 'Account di accesso',
+			'organization.memberDetail.joinedLabel' => 'Data di adesione',
+			'organization.memberDetail.workspacesTitle' => 'Workspace autorizzati',
+			'organization.memberDetail.workspacesEmpty' => 'Questo membro non ha ancora workspace in questa azienda',
+			'organization.memberDetail.workspacesFailed' => 'Caricamento dei workspace autorizzati non riuscito',
 			'organization.manage.entry' => 'Gestione dell\'azienda',
 			'organization.manage.entryRestricted' => 'Gestione dell\'azienda (solo amministratori)',
 			'organization.manage.title' => 'Gestione dell\'azienda',

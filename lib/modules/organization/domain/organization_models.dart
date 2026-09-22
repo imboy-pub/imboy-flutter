@@ -83,6 +83,24 @@ class Organization {
 }
 
 /// 组织成员（organization_member LEFT JOIN user 投影，治理面列表行）。
+/// 成员在某企业内的**有权 Workspace**（计划 §5.2：成员详情必须含该信息）。
+///
+/// 出站形状由后端 organization_member_repo:member_workspaces/2 供给：
+/// 只含本企业内 active 的 workspace（跨企业授权不算本企业内权限）。
+class OrganizationMemberWorkspace {
+  final EntityId id;
+  final String name;
+
+  const OrganizationMemberWorkspace({required this.id, this.name = ''});
+
+  factory OrganizationMemberWorkspace.fromJson(Map<String, dynamic> json) {
+    return OrganizationMemberWorkspace(
+      id: entityIdOf(json['id']),
+      name: parseModelString(json['name']),
+    );
+  }
+}
+
 class OrganizationMember {
   final EntityId organizationId;
   final EntityId userId;

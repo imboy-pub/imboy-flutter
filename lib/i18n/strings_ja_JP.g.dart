@@ -2348,6 +2348,7 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$ja_JP departments = _Translations$organization$departments$ja_JP._(_root);
 	@override late final _Translations$organization$picker$ja_JP picker = _Translations$organization$picker$ja_JP._(_root);
 	@override late final _Translations$organization$directory$ja_JP directory = _Translations$organization$directory$ja_JP._(_root);
+	@override late final _Translations$organization$memberDetail$ja_JP memberDetail = _Translations$organization$memberDetail$ja_JP._(_root);
 	@override late final _Translations$organization$manage$ja_JP manage = _Translations$organization$manage$ja_JP._(_root);
 }
 
@@ -2877,6 +2878,23 @@ class _Translations$organization$directory$ja_JP extends Translations$organizati
 	@override String get deptSection => '部門';
 	@override String get allMembersSection => 'すべてのメンバー';
 	@override String get membersRestricted => 'メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。';
+	@override String get imProfileEntry => 'IM プロフィールを表示';
+}
+
+// Path: organization.memberDetail
+class _Translations$organization$memberDetail$ja_JP extends Translations$organization$memberDetail$zh_CN {
+	_Translations$organization$memberDetail$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get roleLabel => '企業での役割';
+	@override String get roleRestricted => '企業管理者のみ閲覧できます';
+	@override String get accountLabel => 'ログインアカウント';
+	@override String get joinedLabel => '参加日時';
+	@override String get workspacesTitle => '権限のあるワークスペース';
+	@override String get workspacesEmpty => 'このメンバーはこの企業内にワークスペースがありません';
+	@override String get workspacesFailed => '権限のあるワークスペースの読み込みに失敗しました';
 }
 
 // Path: organization.manage
@@ -5119,6 +5137,14 @@ extension on TranslationsJaJp {
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => 'すべてのメンバー',
 			'organization.directory.membersRestricted' => 'メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。',
+			'organization.directory.imProfileEntry' => 'IM プロフィールを表示',
+			'organization.memberDetail.roleLabel' => '企業での役割',
+			'organization.memberDetail.roleRestricted' => '企業管理者のみ閲覧できます',
+			'organization.memberDetail.accountLabel' => 'ログインアカウント',
+			'organization.memberDetail.joinedLabel' => '参加日時',
+			'organization.memberDetail.workspacesTitle' => '権限のあるワークスペース',
+			'organization.memberDetail.workspacesEmpty' => 'このメンバーはこの企業内にワークスペースがありません',
+			'organization.memberDetail.workspacesFailed' => '権限のあるワークスペースの読み込みに失敗しました',
 			'organization.manage.entry' => '企業管理',
 			'organization.manage.entryRestricted' => '企業管理（管理者のみ）',
 			'organization.manage.title' => '企業管理',

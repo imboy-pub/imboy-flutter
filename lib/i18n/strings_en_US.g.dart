@@ -2431,6 +2431,7 @@ class _Translations$organization$en_US extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$en_US departments = _Translations$organization$departments$en_US._(_root);
 	@override late final _Translations$organization$picker$en_US picker = _Translations$organization$picker$en_US._(_root);
 	@override late final _Translations$organization$directory$en_US directory = _Translations$organization$directory$en_US._(_root);
+	@override late final _Translations$organization$memberDetail$en_US memberDetail = _Translations$organization$memberDetail$en_US._(_root);
 	@override late final _Translations$organization$manage$en_US manage = _Translations$organization$manage$en_US._(_root);
 }
 
@@ -2960,6 +2961,23 @@ class _Translations$organization$directory$en_US extends Translations$organizati
 	@override String get deptSection => 'Departments';
 	@override String get allMembersSection => 'All members';
 	@override String get membersRestricted => 'The full member list is visible to enterprise admins only; expand a department to see its members.';
+	@override String get imProfileEntry => 'View IM profile';
+}
+
+// Path: organization.memberDetail
+class _Translations$organization$memberDetail$en_US extends Translations$organization$memberDetail$zh_CN {
+	_Translations$organization$memberDetail$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get roleLabel => 'Enterprise role';
+	@override String get roleRestricted => 'Visible to enterprise admins only';
+	@override String get accountLabel => 'Login account';
+	@override String get joinedLabel => 'Joined';
+	@override String get workspacesTitle => 'Authorized workspaces';
+	@override String get workspacesEmpty => 'This member has no workspace in this enterprise yet';
+	@override String get workspacesFailed => 'Failed to load authorized workspaces';
 }
 
 // Path: organization.manage
@@ -5272,6 +5290,14 @@ extension on TranslationsEnUs {
 			'organization.directory.deptSection' => 'Departments',
 			'organization.directory.allMembersSection' => 'All members',
 			'organization.directory.membersRestricted' => 'The full member list is visible to enterprise admins only; expand a department to see its members.',
+			'organization.directory.imProfileEntry' => 'View IM profile',
+			'organization.memberDetail.roleLabel' => 'Enterprise role',
+			'organization.memberDetail.roleRestricted' => 'Visible to enterprise admins only',
+			'organization.memberDetail.accountLabel' => 'Login account',
+			'organization.memberDetail.joinedLabel' => 'Joined',
+			'organization.memberDetail.workspacesTitle' => 'Authorized workspaces',
+			'organization.memberDetail.workspacesEmpty' => 'This member has no workspace in this enterprise yet',
+			'organization.memberDetail.workspacesFailed' => 'Failed to load authorized workspaces',
 			'organization.manage.entry' => 'Enterprise management',
 			'organization.manage.entryRestricted' => 'Enterprise management (admins only)',
 			'organization.manage.title' => 'Enterprise management',

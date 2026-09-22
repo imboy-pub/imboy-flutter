@@ -158,6 +158,15 @@ directory:
   deptSection: "Departments"
   allMembersSection: "All members"
   membersRestricted: "The full member list is visible to enterprise admins only; expand a department to see its members."
+  imProfileEntry: View IM profile
+memberDetail:
+  roleLabel: Enterprise role
+  roleRestricted: Visible to enterprise admins only
+  accountLabel: Login account
+  joinedLabel: Joined
+  workspacesTitle: Authorized workspaces
+  workspacesEmpty: This member has no workspace in this enterprise yet
+  workspacesFailed: Failed to load authorized workspaces
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
   entry: Enterprise management

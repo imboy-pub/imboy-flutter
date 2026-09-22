@@ -10,6 +10,8 @@
 /// - /organization/:orgId/invitations    → 邀请治理 或 我的邀请（?mode=mine）
 /// - /organization/:orgId/departments    → 部门目录
 /// - /organization/:orgId/directory      → 通讯录（GZAPP-04 G10：全员视角）
+/// - /organization/:orgId/member/:uid    → 成员详情（GZAPP-C3：含该成员在本企业
+///   内的有权工作区，§5.2；全员可见）
 /// - /organization/:orgId/manage         → 企业管理（GZAPP-05：工作区/群/频道
 ///   治理；非 owner/admin 直达时页内给只读 + 无权限态）
 library;
@@ -17,12 +19,15 @@ library;
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/modules/organization/domain/organization_models.dart';
+
 import 'organization_departments_page.dart';
 import 'organization_detail_page.dart';
 import 'organization_directory_page.dart';
 import 'organization_home_page.dart';
 import 'organization_invitations_page.dart';
 import 'organization_manage_page.dart';
+import 'organization_member_detail_page.dart';
 import 'organization_members_page.dart';
 import 'organization_picker_page.dart';
 
@@ -35,6 +40,7 @@ const String kOrganizationInvitationsPath =
 const String kOrganizationDepartmentsPath =
     '$kOrganizationDetailPath/departments';
 const String kOrganizationDirectoryPath = '$kOrganizationDetailPath/directory';
+const String kOrganizationMemberDetailPath = '$kOrganizationDetailPath/member';
 const String kOrganizationManagePath = '$kOrganizationDetailPath/manage';
 
 List<RouteBase> organizationRoutes() => [
@@ -104,6 +110,28 @@ List<RouteBase> organizationRoutes() => [
                 orgName: state.uri.queryParameters['name'] ?? '',
               ),
             ),
+          ),
+          // GZAPP-C3 成员详情：静态段 'member' 与 'members' 不同路径段，
+          // 不冲突（go_router 按完整段匹配）。
+          GoRoute(
+            path: 'member/:uid',
+            name: 'organization_member_detail',
+            pageBuilder: (context, state) {
+              final extra = state.extra;
+              final map = extra is Map<String, dynamic>
+                  ? extra
+                  : const <String, dynamic>{};
+              final member = map['member'];
+              return CupertinoPage(
+                key: state.pageKey,
+                child: OrganizationMemberDetailPage(
+                  orgId: state.pathParameters['orgId'] ?? '',
+                  userId: state.pathParameters['uid'] ?? '',
+                  member: member is OrganizationMember ? member : null,
+                  orgName: (map['orgName'] as String?) ?? '',
+                ),
+              );
+            },
           ),
           GoRoute(
             path: 'manage',

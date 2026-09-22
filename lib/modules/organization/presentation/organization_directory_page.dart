@@ -8,7 +8,9 @@
 ///   服务端 200/403 为准）；
 /// - 部门成员：逐部门 departmentDetail（含成员 UID；昵称/头像经成员
 ///   名单投影补全，无名单时展示 UID，镜像部门目录页口径）。
-/// - 成员详情：复用 /people/:id（PeopleInfoPage，带 uid 路由）。
+/// - 成员详情：/organization/:orgId/member/:uid（GZAPP-C3 成员详情页，含该成员
+///   在本企业内的有权工作区——§5.2）；页内保留通往通用 IM 资料页 /people/:id
+///   的次级入口（发消息/加好友等 IM 能力仍在那）。
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -188,7 +190,12 @@ class _OrganizationDirectoryPageState extends State<OrganizationDirectoryPage> {
           ? null
           : Text(orgRoleLabel(m.role), style: theme.textTheme.bodySmall),
       trailing: const Icon(CupertinoIcons.chevron_right, size: 14),
-      onTap: () => context.push('/people/$uid'),
+      // §5.2：成员详情必须是企业视角（含该成员在本企业内的有权工作区），
+      // 通用 IM 资料页没有企业/工作区信息，故不再作为主入口。
+      onTap: () => context.push(
+        '/organization/${widget.orgId}/member/$uid',
+        extra: <String, dynamic>{'member': m, 'orgName': widget.orgName},
+      ),
     );
   }
 

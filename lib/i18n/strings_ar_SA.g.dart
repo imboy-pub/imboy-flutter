@@ -2360,6 +2360,7 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$ar_SA departments = _Translations$organization$departments$ar_SA._(_root);
 	@override late final _Translations$organization$picker$ar_SA picker = _Translations$organization$picker$ar_SA._(_root);
 	@override late final _Translations$organization$directory$ar_SA directory = _Translations$organization$directory$ar_SA._(_root);
+	@override late final _Translations$organization$memberDetail$ar_SA memberDetail = _Translations$organization$memberDetail$ar_SA._(_root);
 	@override late final _Translations$organization$manage$ar_SA manage = _Translations$organization$manage$ar_SA._(_root);
 }
 
@@ -2889,6 +2890,23 @@ class _Translations$organization$directory$ar_SA extends Translations$organizati
 	@override String get deptSection => 'الأقسام';
 	@override String get allMembersSection => 'جميع الأعضاء';
 	@override String get membersRestricted => 'قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه.';
+	@override String get imProfileEntry => 'عرض ملف IM';
+}
+
+// Path: organization.memberDetail
+class _Translations$organization$memberDetail$ar_SA extends Translations$organization$memberDetail$zh_CN {
+	_Translations$organization$memberDetail$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get roleLabel => 'دور المؤسسة';
+	@override String get roleRestricted => 'مرئي لمسؤولي المؤسسة فقط';
+	@override String get accountLabel => 'حساب الدخول';
+	@override String get joinedLabel => 'تاريخ الانضمام';
+	@override String get workspacesTitle => 'مساحات العمل المصرّح بها';
+	@override String get workspacesEmpty => 'لا يملك هذا العضو أي مساحة عمل في هذه المؤسسة بعد';
+	@override String get workspacesFailed => 'فشل تحميل مساحات العمل المصرّح بها';
 }
 
 // Path: organization.manage
@@ -5131,6 +5149,14 @@ extension on TranslationsArSa {
 			'organization.directory.deptSection' => 'الأقسام',
 			'organization.directory.allMembersSection' => 'جميع الأعضاء',
 			'organization.directory.membersRestricted' => 'قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه.',
+			'organization.directory.imProfileEntry' => 'عرض ملف IM',
+			'organization.memberDetail.roleLabel' => 'دور المؤسسة',
+			'organization.memberDetail.roleRestricted' => 'مرئي لمسؤولي المؤسسة فقط',
+			'organization.memberDetail.accountLabel' => 'حساب الدخول',
+			'organization.memberDetail.joinedLabel' => 'تاريخ الانضمام',
+			'organization.memberDetail.workspacesTitle' => 'مساحات العمل المصرّح بها',
+			'organization.memberDetail.workspacesEmpty' => 'لا يملك هذا العضو أي مساحة عمل في هذه المؤسسة بعد',
+			'organization.memberDetail.workspacesFailed' => 'فشل تحميل مساحات العمل المصرّح بها',
 			'organization.manage.entry' => 'إدارة المؤسسة',
 			'organization.manage.entryRestricted' => 'إدارة المؤسسة (للمسؤولين فقط)',
 			'organization.manage.title' => 'إدارة المؤسسة',

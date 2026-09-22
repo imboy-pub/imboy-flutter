@@ -2348,6 +2348,7 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$departments$ko_KR departments = _Translations$organization$departments$ko_KR._(_root);
 	@override late final _Translations$organization$picker$ko_KR picker = _Translations$organization$picker$ko_KR._(_root);
 	@override late final _Translations$organization$directory$ko_KR directory = _Translations$organization$directory$ko_KR._(_root);
+	@override late final _Translations$organization$memberDetail$ko_KR memberDetail = _Translations$organization$memberDetail$ko_KR._(_root);
 	@override late final _Translations$organization$manage$ko_KR manage = _Translations$organization$manage$ko_KR._(_root);
 }
 
@@ -2877,6 +2878,23 @@ class _Translations$organization$directory$ko_KR extends Translations$organizati
 	@override String get deptSection => '부서';
 	@override String get allMembersSection => '전체 멤버';
 	@override String get membersRestricted => '전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요.';
+	@override String get imProfileEntry => 'IM 프로필 보기';
+}
+
+// Path: organization.memberDetail
+class _Translations$organization$memberDetail$ko_KR extends Translations$organization$memberDetail$zh_CN {
+	_Translations$organization$memberDetail$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get roleLabel => '기업 역할';
+	@override String get roleRestricted => '기업 관리자만 볼 수 있습니다';
+	@override String get accountLabel => '로그인 계정';
+	@override String get joinedLabel => '가입 시간';
+	@override String get workspacesTitle => '권한 있는 워크스페이스';
+	@override String get workspacesEmpty => '이 멤버는 이 기업에 워크스페이스가 없습니다';
+	@override String get workspacesFailed => '권한 있는 워크스페이스를 불러오지 못했습니다';
 }
 
 // Path: organization.manage
@@ -5119,6 +5137,14 @@ extension on TranslationsKoKr {
 			'organization.directory.deptSection' => '부서',
 			'organization.directory.allMembersSection' => '전체 멤버',
 			'organization.directory.membersRestricted' => '전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요.',
+			'organization.directory.imProfileEntry' => 'IM 프로필 보기',
+			'organization.memberDetail.roleLabel' => '기업 역할',
+			'organization.memberDetail.roleRestricted' => '기업 관리자만 볼 수 있습니다',
+			'organization.memberDetail.accountLabel' => '로그인 계정',
+			'organization.memberDetail.joinedLabel' => '가입 시간',
+			'organization.memberDetail.workspacesTitle' => '권한 있는 워크스페이스',
+			'organization.memberDetail.workspacesEmpty' => '이 멤버는 이 기업에 워크스페이스가 없습니다',
+			'organization.memberDetail.workspacesFailed' => '권한 있는 워크스페이스를 불러오지 못했습니다',
 			'organization.manage.entry' => '기업 관리',
 			'organization.manage.entryRestricted' => '기업 관리(관리자 전용)',
 			'organization.manage.title' => '기업 관리',

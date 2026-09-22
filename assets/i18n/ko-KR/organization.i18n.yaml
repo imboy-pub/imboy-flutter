@@ -158,6 +158,15 @@ directory:
   deptSection: "부서"
   allMembersSection: "전체 멤버"
   membersRestricted: "전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요."
+  imProfileEntry: IM 프로필 보기
+memberDetail:
+  roleLabel: 기업 역할
+  roleRestricted: 기업 관리자만 볼 수 있습니다
+  accountLabel: 로그인 계정
+  joinedLabel: 가입 시간
+  workspacesTitle: 권한 있는 워크스페이스
+  workspacesEmpty: 이 멤버는 이 기업에 워크스페이스가 없습니다
+  workspacesFailed: 권한 있는 워크스페이스를 불러오지 못했습니다
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
   entry: 기업 관리
