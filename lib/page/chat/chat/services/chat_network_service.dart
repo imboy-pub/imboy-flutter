@@ -22,6 +22,7 @@ import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/olm_session_service.dart';
@@ -659,8 +660,18 @@ class ChatNetworkService {
   }) async {
     // P0-B B4：群级 E2EE 开启的群强制加密（独立于全局策略与本地开关，
     // 服务端 fail-closed 门会拒明文）
+    //
+    // E2EE 硬闸（服务端 storage_mode=disabled → 本端 EncryptionMode.plaintext）例外：
+    // 群标志存在设备本地且**只升不降**（GroupSessionService.setGroupE2EEMode 单向写入），
+    // 关档位后它仍会为历史 E2EE 群触发加密——而服务端此时已关闭成员设备密钥端点，
+    // 群会话建不起来，消息必然发不出去。故硬闸下必须先看全局策略：明文档位不再加密，
+    // 由服务端的群级门（group_e2ee_gate 在硬闸下整门放行）兜底一致。
+    final bool globalEncryptionRequired =
+        EncryptionModeService.current.requiresEncryption;
     final bool groupMegolm =
-        chatType == 'C2G' && await GroupSessionService.to.isGroupE2EE(toId);
+        chatType == 'C2G' &&
+        globalEncryptionRequired &&
+        await GroupSessionService.to.isGroupE2EE(toId);
     // LT02-SEC-01（AI-ID=B）：与 _shouldEncryptOutbound 同判据（共享门），
     // 但此处是二次复核，不再触发确认弹窗（interactiveConfirm=false）。
     final bool needEncrypt =

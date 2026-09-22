@@ -8,6 +8,8 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/init.dart';
@@ -187,37 +189,45 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                       : (v) => _handleAllowSearchChange(v, userRepo),
                 ),
               ),
-              ImBoySettingsTile(
-                title: Text(t.account.refreshDeviceKey),
-                subtitle: Text(t.account.refreshDeviceKeyHint),
-                leading: _buildIcon(CupertinoIcons.refresh, AppColors.iosBlue),
-                onTap: _isRefreshingKeys ? null : _handleRefreshDeviceKey,
-              ),
-              ImBoySettingsTile(
-                title: Text(t.group.e2eeKeyManagement),
-                subtitle: Text(t.group.e2eeKeyManagementSubtitle),
-                // B3: 与同 section 的「刷新设备密钥」「合规审计密钥」统一为
-                // iosBlue（密钥/安全类入口同为蓝色），iosGreen 留给非安全项。
-                leading: _buildIcon(CupertinoIcons.lock, AppColors.iosBlue),
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<void>(
-                    builder: (_) => const E2EEKeyRecoveryPage(),
+              // E2EE 入口按总开关显示：服务端在 storage_mode=disabled 硬闸下会把
+              // features.e2ee 强制置 false（imboy_policy:apply_hard_off_feature_overrides/2），
+              // 此时这三个入口点进去只会空转/报错，故整组隐藏。
+              if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) ...[
+                ImBoySettingsTile(
+                  title: Text(t.account.refreshDeviceKey),
+                  subtitle: Text(t.account.refreshDeviceKeyHint),
+                  leading: _buildIcon(
+                    CupertinoIcons.refresh,
+                    AppColors.iosBlue,
+                  ),
+                  onTap: _isRefreshingKeys ? null : _handleRefreshDeviceKey,
+                ),
+                ImBoySettingsTile(
+                  title: Text(t.group.e2eeKeyManagement),
+                  subtitle: Text(t.group.e2eeKeyManagementSubtitle),
+                  // B3: 与同 section 的「刷新设备密钥」「合规审计密钥」统一为
+                  // iosBlue（密钥/安全类入口同为蓝色），iosGreen 留给非安全项。
+                  leading: _buildIcon(CupertinoIcons.lock, AppColors.iosBlue),
+                  onTap: () => Navigator.push(
+                    context,
+                    CupertinoPageRoute<void>(
+                      builder: (_) => const E2EEKeyRecoveryPage(),
+                    ),
                   ),
                 ),
-              ),
-              // 合规审计密钥信息（compliance_e2ee 模式锚定核验，审计 P1-1）
-              ImBoySettingsTile(
-                title: Text(t.main.complianceKeyInfoTitle),
-                subtitle: Text(t.main.complianceKeyInfoHint),
-                leading: _buildIcon(CupertinoIcons.shield, AppColors.iosBlue),
-                onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute<void>(
-                    builder: (_) => const ComplianceKeyPage(),
+                // 合规审计密钥信息（compliance_e2ee 模式锚定核验，审计 P1-1）
+                ImBoySettingsTile(
+                  title: Text(t.main.complianceKeyInfoTitle),
+                  subtitle: Text(t.main.complianceKeyInfoHint),
+                  leading: _buildIcon(CupertinoIcons.shield, AppColors.iosBlue),
+                  onTap: () => Navigator.push(
+                    context,
+                    CupertinoPageRoute<void>(
+                      builder: (_) => const ComplianceKeyPage(),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

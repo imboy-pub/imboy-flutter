@@ -173,12 +173,19 @@ class EncryptionModeService {
       final storageMode = capabilities['storage_mode']?.toString() ?? '';
       final e2eeMode = capabilities['e2ee_mode']?.toString() ?? '';
 
-      // 决定加密模式：e2ee_mode 优先级高于 storage_mode
-      if (e2eeMode == 'required' || storageMode == 'secure_e2ee') {
+      // 决定加密模式。
+      // storage_mode=disabled 是服务端的 E2EE 全局硬闸（imboy_policy:e2ee_disabled/0）：
+      // 出现该值时整档视为关闭，且**优先于 e2ee_mode**——否则「storage_mode=disabled
+      // + e2ee_mode=required」这种半改的配置会让客户端继续加密，而服务端已关闭密钥
+      // 端点，直接回到「要求加密却拿不到密钥」的死锁。判定顺序即优先级。
+      if (storageMode == 'disabled') {
+        _current = EncryptionMode.plaintext;
+      } else if (e2eeMode == 'required' || storageMode == 'secure_e2ee') {
         _current = EncryptionMode.strictE2ee;
       } else if (e2eeMode == 'compliance' || storageMode == 'compliance_e2ee') {
         _current = EncryptionMode.complianceE2ee;
       } else {
+        // 含未知取值：一律按明文（老版本 App 拿到新枚举值也不会被卡死）
         _current = EncryptionMode.plaintext;
       }
 
