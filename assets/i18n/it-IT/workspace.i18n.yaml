@@ -70,6 +70,7 @@ joinCodeHint: 8 caratteri tra lettere maiuscole o numeri
 joinCodeLabel: Codice team
 joinDesc: Inserisci il codice team per entrare nell'area di lavoro
 joinEntry: Entra nell'area di lavoro
+joinByTeamCode: Unisciti a uno workspace con codice team
 joinExpiredCode: Codice team scaduto
 joinInvalidCode: Codice team non valido o non più utilizzabile
 joinSubmit: Entra

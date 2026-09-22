@@ -2488,6 +2488,7 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get resultSuccess => '성공';
 	@override String get resultFailed => '실패';
 	@override String get joinEntry => '워크스페이스 가입';
+	@override String get joinByTeamCode => '팀 코드로 워크스페이스 참여';
 	@override String get joinTitle => '워크스페이스 가입';
 	@override String get joinDesc => '팀 코드를 입력하면 워크스페이스에 가입할 수 있습니다';
 	@override String get joinCodeLabel => '팀 코드';
@@ -5296,6 +5297,7 @@ extension on TranslationsKoKr {
 			'workspace.resultSuccess' => '성공',
 			'workspace.resultFailed' => '실패',
 			'workspace.joinEntry' => '워크스페이스 가입',
+			'workspace.joinByTeamCode' => '팀 코드로 워크스페이스 참여',
 			'workspace.joinTitle' => '워크스페이스 가입',
 			'workspace.joinDesc' => '팀 코드를 입력하면 워크스페이스에 가입할 수 있습니다',
 			'workspace.joinCodeLabel' => '팀 코드',

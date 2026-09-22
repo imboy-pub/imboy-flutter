@@ -77,6 +77,7 @@ resultSuccess: "성공"
 resultFailed: "실패"
 # ==================== 워크스페이스 가입 (팀 코드) ====================
 joinEntry: "워크스페이스 가입"
+joinByTeamCode: 팀 코드로 워크스페이스 참여
 joinTitle: "워크스페이스 가입"
 joinDesc: "팀 코드를 입력하면 워크스페이스에 가입할 수 있습니다"
 joinCodeLabel: "팀 코드"

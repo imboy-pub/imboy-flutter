@@ -78,6 +78,7 @@ resultSuccess: "執行成功"
 resultFailed: "失敗"
 # ==================== 加入工作區（團隊碼，可複用碼一次產生多人使用） ====================
 joinEntry: "加入工作區"
+joinByTeamCode: 用團隊碼加入工作區
 joinTitle: "加入工作區"
 joinDesc: "輸入團隊碼即可加入工作區"
 joinCodeLabel: "團隊碼"

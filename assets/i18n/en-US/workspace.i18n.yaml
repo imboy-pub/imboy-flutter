@@ -79,6 +79,7 @@ resultSuccess: "Success"
 resultFailed: "Failed"
 # ==================== Join workspace (team code, reusable: one code, many joiners) ====================
 joinEntry: "Join Workspace"
+joinByTeamCode: Join a workspace by team code
 joinTitle: "Join Workspace"
 joinDesc: "Enter a team code to join the workspace"
 joinCodeLabel: "Team code"

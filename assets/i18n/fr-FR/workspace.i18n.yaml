@@ -68,6 +68,7 @@ resultRunning: "En cours"
 resultSuccess: "Succès"
 resultFailed: "Échec"
 joinEntry: "Rejoindre un espace de travail"
+joinByTeamCode: Rejoindre un espace par code d'équipe
 joinTitle: "Rejoindre un espace de travail"
 joinDesc: "Saisissez le code d'équipe pour rejoindre l'espace de travail"
 joinCodeLabel: "Code d'équipe"

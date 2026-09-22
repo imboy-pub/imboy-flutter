@@ -129,6 +129,17 @@ class _WorkspaceCreatePageState extends ConsumerState<WorkspaceCreatePage> {
                   )
                 : Text(t.workspace.createSubmit),
           ),
+          AppSpacing.verticalSmall,
+          // 工作区团队码加入（T2.6）落位：§5.1 把企业上下文里的「加入工作区」
+          // 统一改成「加入企业」后，工作区码加入不再挂在企业选择器页脚；
+          // 它是「建工作区」的姊妹动作，因此跟随创建入口放在这里（仍可发现，
+          // 不再冒充企业加入）。
+          TextButton.icon(
+            key: const ValueKey('workspace-create-join-by-code'),
+            onPressed: () => context.push('/workspace/join'),
+            icon: const Icon(CupertinoIcons.person_add, size: 18),
+            label: Text(t.workspace.joinByTeamCode),
+          ),
         ],
       ),
     );

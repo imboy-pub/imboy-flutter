@@ -47,6 +47,11 @@ GoRouter _router() => GoRouter(
       path: '/workspace/join',
       builder: (c, s) => const _ProbePage(label: 'probe-join'),
     ),
+    // §5.1：企业上下文的加入入口现在落到企业选择器（?autoJoin=1）
+    GoRoute(
+      path: '/organization/picker',
+      builder: (c, s) => const _ProbePage(label: 'probe-org-picker'),
+    ),
   ],
 );
 
@@ -107,7 +112,7 @@ void main() {
     );
   });
 
-  testWidgets('空列表点击加入入口：导航 /workspace/join', (tester) async {
+  testWidgets('空列表点击加入入口：导航企业选择器（§5.1 加入企业）', (tester) async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
     await _seeded(container, count: 0);
@@ -118,7 +123,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('probe-join'), findsOneWidget);
+    expect(find.text('probe-org-picker'), findsOneWidget);
   });
 
   testWidgets('2 个工作区：2 tile + 底部常驻双入口', (tester) async {
@@ -145,12 +150,12 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('创建工作区'), findsOneWidget);
-    expect(find.text('加入工作区'), findsOneWidget);
+    // §5.1：企业上下文里的加入口是「加入企业」，不再是「加入工作区」
+    expect(find.text('加入企业'), findsOneWidget);
+    expect(find.text('加入工作区'), findsNothing);
   });
 
-  testWidgets('点击底部双入口：分别导航 /workspace/create 与 /workspace/join', (
-    tester,
-  ) async {
+  testWidgets('点击底部双入口：分别导航 /workspace/create 与企业选择器', (tester) async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
     await _seeded(container, count: 2);
@@ -168,6 +173,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('workspace-picker-join-entry')));
     await tester.pumpAndSettle();
-    expect(find.text('probe-join'), findsOneWidget);
+    expect(find.text('probe-org-picker'), findsOneWidget);
   });
 }

@@ -6996,6 +6996,9 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '加入工作区'
 	String get joinEntry => '加入工作区';
 
+	/// zh-CN: '用团队码加入工作区'
+	String get joinByTeamCode => '用团队码加入工作区';
+
 	/// zh-CN: '加入工作区'
 	String get joinTitle => '加入工作区';
 
@@ -10625,6 +10628,7 @@ extension on Translations {
 			'workspace.resultSuccess' => '成功',
 			'workspace.resultFailed' => '失败',
 			'workspace.joinEntry' => '加入工作区',
+			'workspace.joinByTeamCode' => '用团队码加入工作区',
 			'workspace.joinTitle' => '加入工作区',
 			'workspace.joinDesc' => '输入团队码即可加入工作区',
 			'workspace.joinCodeLabel' => '团队码',
@@ -10769,9 +10773,9 @@ extension on Translations {
 			'workspace.projectChannelUnlinkDesc' => '解除后该频道内容不再聚合进本项目',
 			'workspace.projectChannelUnlinkSubmit' => '解除关联',
 			'workspace.projectChannelUnlinkedToast' => '已解除关联',
-			'workspace.projectInsightsTabPinned' => '置顶消息',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectInsightsTabPinned' => '置顶消息',
 			'workspace.projectInsightsTabResources' => '资源链接',
 			'workspace.projectInsightsTabActivity' => '项目动态',
 			'workspace.projectInsightsTabPosts' => '相关帖子',

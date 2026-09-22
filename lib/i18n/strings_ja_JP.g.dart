@@ -2488,6 +2488,7 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get resultSuccess => '成功しました';
 	@override String get resultFailed => '失敗しました';
 	@override String get joinEntry => 'ワークスペースに参加';
+	@override String get joinByTeamCode => 'チームコードでワークスペースに参加';
 	@override String get joinTitle => 'ワークスペースに参加';
 	@override String get joinDesc => 'チームコードを入力するとワークスペースに参加できます';
 	@override String get joinCodeLabel => 'チームコード';
@@ -5296,6 +5297,7 @@ extension on TranslationsJaJp {
 			'workspace.resultSuccess' => '成功しました',
 			'workspace.resultFailed' => '失敗しました',
 			'workspace.joinEntry' => 'ワークスペースに参加',
+			'workspace.joinByTeamCode' => 'チームコードでワークスペースに参加',
 			'workspace.joinTitle' => 'ワークスペースに参加',
 			'workspace.joinDesc' => 'チームコードを入力するとワークスペースに参加できます',
 			'workspace.joinCodeLabel' => 'チームコード',

@@ -79,6 +79,7 @@ resultSuccess: "Erfolgreich"
 resultFailed: "Fehlgeschlagen"
 # ==================== Arbeitsbereich beitreten (Team-Code, einmal generiert von mehreren nutzbar) ====================
 joinEntry: "Arbeitsbereich beitreten"
+joinByTeamCode: Arbeitsbereich per Teamcode beitreten
 joinTitle: "Arbeitsbereich beitreten"
 joinDesc: "Geben Sie den Team-Code ein, um dem Arbeitsbereich beizutreten"
 joinCodeLabel: "Team-Code"

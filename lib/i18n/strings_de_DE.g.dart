@@ -2491,6 +2491,7 @@ class _Translations$workspace$de_DE extends Translations$workspace$zh_CN {
 	@override String get resultSuccess => 'Erfolgreich';
 	@override String get resultFailed => 'Fehlgeschlagen';
 	@override String get joinEntry => 'Arbeitsbereich beitreten';
+	@override String get joinByTeamCode => 'Arbeitsbereich per Teamcode beitreten';
 	@override String get joinTitle => 'Arbeitsbereich beitreten';
 	@override String get joinDesc => 'Geben Sie den Team-Code ein, um dem Arbeitsbereich beizutreten';
 	@override String get joinCodeLabel => 'Team-Code';
@@ -5299,6 +5300,7 @@ extension on TranslationsDeDe {
 			'workspace.resultSuccess' => 'Erfolgreich',
 			'workspace.resultFailed' => 'Fehlgeschlagen',
 			'workspace.joinEntry' => 'Arbeitsbereich beitreten',
+			'workspace.joinByTeamCode' => 'Arbeitsbereich per Teamcode beitreten',
 			'workspace.joinTitle' => 'Arbeitsbereich beitreten',
 			'workspace.joinDesc' => 'Geben Sie den Team-Code ein, um dem Arbeitsbereich beizutreten',
 			'workspace.joinCodeLabel' => 'Team-Code',

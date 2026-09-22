@@ -62,13 +62,17 @@ class WorkspacePickerPage extends ConsumerWidget {
                         label: Text(t.workspace.createEntry),
                       ),
                       AppSpacing.verticalSmall,
+                      // §5.1：「加入工作区」改为真正的「加入企业」（文案与行为同换）；
+                      // 工作区团队码加入改由创建工作区页承接（不丢入口，也不再
+                      // 在企业上下文里冒充"加入企业"）。
                       OutlinedButton.icon(
                         key: const ValueKey(
                           'workspace-picker-empty-join-entry',
                         ),
-                        onPressed: () => context.push('/workspace/join'),
+                        onPressed: () =>
+                            context.push('$kOrganizationPickerPath?autoJoin=1'),
                         icon: const Icon(CupertinoIcons.person_add),
-                        label: Text(t.workspace.joinEntry),
+                        label: Text(t.organization.picker.joinEnterprise),
                       ),
                     ],
                   )
@@ -90,8 +94,10 @@ class WorkspacePickerPage extends ConsumerWidget {
                         return _PickerActionTile(
                           key: const ValueKey('workspace-picker-join-entry'),
                           icon: CupertinoIcons.person_add,
-                          label: t.workspace.joinEntry,
-                          onTap: () => context.push('/workspace/join'),
+                          label: t.organization.picker.joinEnterprise,
+                          onTap: () => context.push(
+                            '$kOrganizationPickerPath?autoJoin=1',
+                          ),
                         );
                       }
                       final ws = shell.workspaces[index];

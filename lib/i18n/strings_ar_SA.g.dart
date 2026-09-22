@@ -2500,6 +2500,7 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get resultSuccess => 'نجح';
 	@override String get resultFailed => 'فشل';
 	@override String get joinEntry => 'الانضمام إلى مساحة عمل';
+	@override String get joinByTeamCode => 'الانضمام إلى مساحة عمل برمز الفريق';
 	@override String get joinTitle => 'الانضمام إلى مساحة العمل';
 	@override String get joinDesc => 'أدخل رمز الفريق للانضمام إلى مساحة العمل';
 	@override String get joinCodeLabel => 'رمز الفريق';
@@ -5308,6 +5309,7 @@ extension on TranslationsArSa {
 			'workspace.resultSuccess' => 'نجح',
 			'workspace.resultFailed' => 'فشل',
 			'workspace.joinEntry' => 'الانضمام إلى مساحة عمل',
+			'workspace.joinByTeamCode' => 'الانضمام إلى مساحة عمل برمز الفريق',
 			'workspace.joinTitle' => 'الانضمام إلى مساحة العمل',
 			'workspace.joinDesc' => 'أدخل رمز الفريق للانضمام إلى مساحة العمل',
 			'workspace.joinCodeLabel' => 'رمز الفريق',

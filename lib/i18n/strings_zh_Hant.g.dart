@@ -2488,6 +2488,7 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get resultSuccess => '執行成功';
 	@override String get resultFailed => '失敗';
 	@override String get joinEntry => '加入工作區';
+	@override String get joinByTeamCode => '用團隊碼加入工作區';
 	@override String get joinTitle => '加入工作區';
 	@override String get joinDesc => '輸入團隊碼即可加入工作區';
 	@override String get joinCodeLabel => '團隊碼';
@@ -5296,6 +5297,7 @@ extension on TranslationsZhHant {
 			'workspace.resultSuccess' => '執行成功',
 			'workspace.resultFailed' => '失敗',
 			'workspace.joinEntry' => '加入工作區',
+			'workspace.joinByTeamCode' => '用團隊碼加入工作區',
 			'workspace.joinTitle' => '加入工作區',
 			'workspace.joinDesc' => '輸入團隊碼即可加入工作區',
 			'workspace.joinCodeLabel' => '團隊碼',

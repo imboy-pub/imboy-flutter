@@ -2497,6 +2497,7 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get resultSuccess => 'Успешно';
 	@override String get resultFailed => 'Не удалось';
 	@override String get joinEntry => 'Вступить в рабочее пространство';
+	@override String get joinByTeamCode => 'Присоединиться к рабочему пространству по коду команды';
 	@override String get joinTitle => 'Вступить в рабочее пространство';
 	@override String get joinDesc => 'Введите командный код, чтобы вступить в рабочее пространство';
 	@override String get joinCodeLabel => 'Командный код';
@@ -5305,6 +5306,7 @@ extension on TranslationsRuRu {
 			'workspace.resultSuccess' => 'Успешно',
 			'workspace.resultFailed' => 'Не удалось',
 			'workspace.joinEntry' => 'Вступить в рабочее пространство',
+			'workspace.joinByTeamCode' => 'Присоединиться к рабочему пространству по коду команды',
 			'workspace.joinTitle' => 'Вступить в рабочее пространство',
 			'workspace.joinDesc' => 'Введите командный код, чтобы вступить в рабочее пространство',
 			'workspace.joinCodeLabel' => 'Командный код',

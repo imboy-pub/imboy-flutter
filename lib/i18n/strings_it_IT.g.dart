@@ -2493,6 +2493,7 @@ class _Translations$workspace$it_IT extends Translations$workspace$zh_CN {
 	@override String get joinCodeLabel => 'Codice team';
 	@override String get joinDesc => 'Inserisci il codice team per entrare nell\'area di lavoro';
 	@override String get joinEntry => 'Entra nell\'area di lavoro';
+	@override String get joinByTeamCode => 'Unisciti a uno workspace con codice team';
 	@override String get joinExpiredCode => 'Codice team scaduto';
 	@override String get joinInvalidCode => 'Codice team non valido o non più utilizzabile';
 	@override String get joinSubmit => 'Entra';
@@ -5301,6 +5302,7 @@ extension on TranslationsItIt {
 			'workspace.joinCodeLabel' => 'Codice team',
 			'workspace.joinDesc' => 'Inserisci il codice team per entrare nell\'area di lavoro',
 			'workspace.joinEntry' => 'Entra nell\'area di lavoro',
+			'workspace.joinByTeamCode' => 'Unisciti a uno workspace con codice team',
 			'workspace.joinExpiredCode' => 'Codice team scaduto',
 			'workspace.joinInvalidCode' => 'Codice team non valido o non più utilizzabile',
 			'workspace.joinSubmit' => 'Entra',
