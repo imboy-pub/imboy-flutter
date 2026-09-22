@@ -1,9 +1,18 @@
 /// 三层加密模式定义
 ///
 /// 对应后端 imboy_policy 的 storage_mode 和 e2ee_mode:
-/// - plaintext: 明文传输��不加密
+/// - plaintext: 明文传输（不加密）
 /// - compliance_e2ee: AES key 双加密（接收方公钥 + 合规公钥）
 /// - strict_e2ee: 仅接收方公钥加密（现有 E2EE 逻辑）
+///
+/// 「加密档位」（运营者在管理后台的单一选择）与两个底层字段的标准组合：
+///   关闭（明文交付） = e2ee_mode:disabled    + storage_mode:disabled
+///   可选（明文归档） = e2ee_mode:optional    + storage_mode:archived
+///   合规（可审计）   = e2ee_mode:compliance  + storage_mode:compliance_e2ee
+///   强制（纯端到端） = e2ee_mode:required    + storage_mode:secure_e2ee
+/// 本服务解析优先级：storage_mode=disabled（硬闸）> e2ee_mode > storage_mode；
+/// 非标准/未知组合一律回落 plaintext（见 _doRefresh）。
+/// 真源：imboyadmin policy.ts ENCRYPTION_TIERS / imboy_policy_catalog.erl 注释。
 library;
 
 import 'dart:async';
