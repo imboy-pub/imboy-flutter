@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -39,6 +40,10 @@ class E2EEBackupInfo {
 ///
 /// 服务端只存客户端加密后的密文包与 KDF 参数；
 /// 加解密全部在客户端（E2EEServerBackupService）。
+///
+/// [cancelToken]：备份上传是用户在向导页盯着等的前台操作，页面侧一旦
+/// 判定超时/用户跳过，必须能真正掐断在途请求——否则默认 60 秒超时叠加
+/// 3 次自动重试（见 HttpRetryInterceptor）会让单次上传在后台空转数分钟。
 class E2EEBackupApi extends HttpClient {
   /// POST /api/v1/e2ee/backup/put — 上传新版本加密备份
   Future<E2EEBackupPutResult> putBackup({
@@ -48,9 +53,11 @@ class E2EEBackupApi extends HttpClient {
     required String encryptedPayload,
     required String payloadHash,
     String algo = 'pbkdf2-sha256/aes-256-gcm',
+    CancelToken? cancelToken,
   }) async {
     final IMBoyHttpResponse resp = await post(
       API.e2eeBackupPut,
+      cancelToken: cancelToken,
       data: {
         'backup_version': backupVersion,
         'algo': algo,
@@ -68,6 +75,11 @@ class E2EEBackupApi extends HttpClient {
       }
       return E2EEBackupPutResult(ok: true, backupVersion: version);
     }
+    // 主动取消（页面超时兜底 / 用户点「稍后再说」）：静默返回，调用方按
+    // 取消语义收尾——此处弹「云端备份失败」会把用户主动跳过误导成故障。
+    if (cancelToken?.isCancelled ?? false) {
+      return const E2EEBackupPutResult(ok: false);
+    }
     // 透出服务端中文错误消息；409 版本冲突除外——调用方（E2EEServerBackupService）
     // 会自动刷新版本号重试一次，此处弹错误 toast 会造成"失败闪一下又成功"的假象。
     // 重试耗尽的 409 由页面层按 versionConflict 兜底提示。
@@ -81,8 +93,11 @@ class E2EEBackupApi extends HttpClient {
   ///
   /// 返回 {backup_version, algo, kdf_salt, kdf_iterations,
   /// encrypted_payload, payload_hash, created_at} 或 null（无备份/失败）。
-  Future<Map<String, dynamic>?> getBackup() async {
-    final IMBoyHttpResponse resp = await get(API.e2eeBackupGet);
+  Future<Map<String, dynamic>?> getBackup({CancelToken? cancelToken}) async {
+    final IMBoyHttpResponse resp = await get(
+      API.e2eeBackupGet,
+      cancelToken: cancelToken,
+    );
     // 失败必须上抛：恢复链把 null 当「无云端备份」展示——网络故障会被
     // 误读成备份丢失。null 只许表达「确认无备份」（成功响应但无 payload）。
     resp.throwIfFailed();
@@ -91,8 +106,11 @@ class E2EEBackupApi extends HttpClient {
   }
 
   /// GET /api/v1/e2ee/backup/info — 备份存在性探测（恢复横幅用）
-  Future<E2EEBackupInfo> info() async {
-    final IMBoyHttpResponse resp = await get(API.e2eeBackupInfo);
+  Future<E2EEBackupInfo> info({CancelToken? cancelToken}) async {
+    final IMBoyHttpResponse resp = await get(
+      API.e2eeBackupInfo,
+      cancelToken: cancelToken,
+    );
     // 失败必须上抛：上传链用它算 nextVersion（假「无备份」会退化成
     // version=1 连撞 409），恢复横幅会把网络故障误报成「无备份可恢复」。
     resp.throwIfFailed();

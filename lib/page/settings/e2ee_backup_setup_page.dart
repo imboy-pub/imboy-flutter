@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
@@ -17,12 +18,18 @@ import 'package:imboy/theme/default/font_types.dart';
 
 /// E2EE 云端备份设置向导（发生率压降路径3·首次启用强制）。
 ///
-/// - **不可跳过**：导航栏无返回键 + PopScope 拦截系统返回；仅在上传失败
-///   一次后开放「稍后再说」（完成标记不落，下次启动会重新触发本向导）。
+/// - **提醒式强制**：导航栏无返回键 + PopScope 拦截系统返回，把注意力留在
+///   本页；但「稍后再说」始终可见（点一次代价确认即可离开）。旧版只在"上传
+///   失败过一次"后才放行，而拿到那次失败本身要等默认 60 秒连接超时叠加最多
+///   3 次自动重试与指数退避——弱网用户会被无出口地锁在本页数分钟。
+/// - **上传有确定上限**：见 [_uploadTimeout]，到点即取消在途请求并按失败
+///   收尾，等待时长不再由 HTTP 重试策略决定；取消经 [CancelToken] 真正掐断
+///   请求，避免页面已离开而请求仍在后台空转到重试耗尽。
 /// - **凭据二选一**：自选恢复口令（≥8 位，<12 位给弱口令提示），或一键
 ///   生成 160-bit 随机恢复密钥（与导出页同款交互与剪贴板 60s 清除）。
 /// - **成功回执**：口令缓存进安全存储 + 落完成标记 → 弹成功（版本号）→
 ///   关页。此后密钥变化由 [E2EEBackupSetupService] 用缓存口令自动重传。
+/// - **跳过不落完成标记**：本次只是放行离开，下次启动仍会重新触发本向导。
 class E2EEBackupSetupPage extends StatefulWidget {
   const E2EEBackupSetupPage({super.key, this.uploadOverride});
 
@@ -38,15 +45,22 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
   /// 恢复密钥复制后的剪贴板驻留时限（#102，与导出页同款）
   static const Duration _recoveryKeyClipboardTtl = Duration(seconds: 60);
 
+  /// 上传总超时，覆盖本机 PBKDF2 派生与 info/put 两次请求。
+  ///
+  /// 正常网络全流程数秒内结束，45 秒足够慢速网络传完几百 KB 密文包；再放宽
+  /// 就等于把默认 HTTP 超时（60 秒 × 最多 4 次尝试 + 指数退避）暴露给用户，
+  /// 退回"点完就没反应"的旧体验。
+  static const Duration _uploadTimeout = Duration(seconds: 45);
+
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _submitting = false;
 
-  /// 至少失败一次后才开放「稍后再说」（成功前不允许无备份离开）
-  bool _failedOnce = false;
-
   /// 上传成功后放行返回（PopScope）
   bool _allowLeave = false;
+
+  /// 在途上传的取消令牌：超时兜底与「稍后再说」都通过它掐断请求
+  CancelToken? _activeCancelToken;
 
   void _scheduleRecoveryKeyClipboardClear(String key) {
     Future<void>.delayed(_recoveryKeyClipboardTtl, () async {
@@ -75,7 +89,7 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
       },
       child: IosPageTemplate(
         title: t.common.e2eeBackupSetupTitle,
-        // 不可跳过：不提供返回键
+        // 无返回键：注意力留在本页；离开请走「稍后再说」（带代价确认）
         leading: const SizedBox.shrink(),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.regular),
@@ -92,10 +106,12 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
               _buildRecoveryKeyButton(),
               const SizedBox(height: AppSpacing.xLarge),
               _buildSubmitButton(),
-              if (_failedOnce) ...[
-                const SizedBox(height: AppSpacing.regular),
-                _buildLaterButton(),
+              if (_submitting) ...[
+                const SizedBox(height: AppSpacing.small),
+                _buildBusyHint(),
               ],
+              const SizedBox(height: AppSpacing.regular),
+              _buildLaterButton(),
             ],
           ),
         ),
@@ -167,6 +183,15 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
           color: AppColors.iosOrange,
         ),
       ),
+    );
+  }
+
+  /// 上传中说明：交代「在做什么 + 可以退出」，避免无反馈的干等
+  Widget _buildBusyHint() {
+    return Text(
+      t.common.e2eeBackupSetupBusyHint,
+      textAlign: TextAlign.center,
+      style: context.textStyle(FontSizeType.footnote, color: AppColors.iosGray),
     );
   }
 
@@ -248,7 +273,9 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
         onPressed: enabled ? _handleSubmit : null,
         // 实底按钮文字必须显式 onPrimary（红底蓝字教训，批次121）
         child: Text(
-          _submitting ? t.common.loading : t.common.e2eeBackupSetupSubmit,
+          _submitting
+              ? t.common.e2eeBackupSetupUploading
+              : t.common.e2eeBackupSetupSubmit,
           style: TextStyle(
             color: enabled
                 ? AppColors.onPrimary
@@ -259,10 +286,11 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
     );
   }
 
+  /// 「稍后再说」：始终可见——弱网用户不能因为上传迟迟不返回而被锁在本页
   Widget _buildLaterButton() {
     return CupertinoButton(
       padding: EdgeInsets.zero,
-      onPressed: _allowLeaveNow,
+      onPressed: _onLaterPressed,
       child: Text(
         t.common.e2eeBackupSetupLater,
         style: context.textStyle(
@@ -273,8 +301,38 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
     );
   }
 
+  /// 跳过前确认代价：静默跳过会让用户在换机当天才发现历史读不出来
+  Future<void> _onLaterPressed() async {
+    final confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Text(t.common.e2eeBackupSetupLaterConfirmTitle),
+        content: Text(t.common.e2eeBackupSetupLaterConfirmBody),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(t.common.e2eeBackupSetupLaterConfirmStay),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t.common.e2eeBackupSetupLaterConfirmLeave),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    _allowLeaveNow();
+  }
+
   /// 稍后再说：本次放行离开，但完成标记不落——下次启动向导重新触发
   void _allowLeaveNow() {
+    // 竞态守卫：确认框停留期间上传可能已成功（_allowLeave 已被置位），
+    // 此时再按"跳过"处理会与成功弹窗叠栈并重复 pop
+    if (_allowLeave) return;
+    // 上传中离开要先掐断在途请求，否则后台会继续空转到重试耗尽
+    _activeCancelToken?.cancel('user_postponed');
     setState(() => _allowLeave = true);
     AppLoading.showToast(t.common.e2eeBackupSetupPostponedToast);
     Navigator.of(context).pop();
@@ -291,15 +349,31 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
       return;
     }
 
-    setState(() => _submitting = true);
+    final cancelToken = CancelToken();
+    setState(() {
+      _submitting = true;
+      _activeCancelToken = cancelToken;
+    });
+    // 超时兜底：不设上限时用户面对的是一个没有终点的「正在上传…」
+    var timedOut = false;
     try {
-      final result = widget.uploadOverride != null
-          ? await widget.uploadOverride!(pwd)
-          : await _uploadReal(pwd);
+      final upload = widget.uploadOverride != null
+          ? widget.uploadOverride!(pwd)
+          : _uploadReal(pwd, cancelToken);
+      final result = await upload.timeout(
+        _uploadTimeout,
+        onTimeout: () {
+          timedOut = true;
+          cancelToken.cancel('upload_timeout');
+          return const E2EEBackupPutResult(ok: false);
+        },
+      );
       if (!mounted) return;
       if (!result.ok) {
-        setState(() => _failedOnce = true);
-        AppLoading.showToast(t.common.e2eeBackupErrCloudUploadFailed);
+        _reportUploadFailure(
+          timedOut: timedOut,
+          cancelled: cancelToken.isCancelled,
+        );
         return;
       }
       await E2EEBackupSetupService.to.completeSetup(passphrase: pwd);
@@ -307,17 +381,39 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
       setState(() => _allowLeave = true);
       _showSuccessDialog(result.backupVersion);
     } on Object catch (e) {
-      iPrint('[E2EEBackupSetup] 云端上传失败: ${e.runtimeType}');
-      if (mounted) {
-        setState(() => _failedOnce = true);
-        AppLoading.showToast(t.common.e2eeBackupErrCloudUploadFailed);
+      if (!mounted) return;
+      final cancelled = cancelToken.isCancelled;
+      if (!cancelled) {
+        // 完整错误（含超时/状态码）——只打 runtimeType 时弱网问题无从定位
+        iPrint('[E2EEBackupSetup] 云端上传失败: $e');
       }
+      _reportUploadFailure(timedOut: timedOut, cancelled: cancelled);
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      _activeCancelToken = null;
+      if (mounted) {
+        setState(() => _submitting = false);
+      }
     }
   }
 
-  Future<E2EEBackupPutResult> _uploadReal(String pwd) async {
+  /// 上传未成功的收尾提示。
+  ///
+  /// 取消分两种来源：超时兜底要明确告诉用户「超时了」；用户点「稍后再说」
+  /// 时提示已由 [_allowLeaveNow] 给出，此处不再叠加第二个 toast。
+  void _reportUploadFailure({required bool timedOut, required bool cancelled}) {
+    if (cancelled) {
+      if (timedOut) {
+        AppLoading.showToast(t.common.e2eeBackupSetupTimeoutToast);
+      }
+      return;
+    }
+    AppLoading.showToast(t.common.e2eeBackupErrCloudUploadFailed);
+  }
+
+  Future<E2EEBackupPutResult> _uploadReal(
+    String pwd,
+    CancelToken cancelToken,
+  ) async {
     final privateKey = await StorageSecureService.to.getPrivateKey();
     final publicKey = await StorageSecureService.to.getPublicKey();
     if (privateKey == null || publicKey == null) {
@@ -329,6 +425,7 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
       publicKey: publicKey,
       deviceId: await StorageSecureService.to.getDeviceId() ?? 'unknown',
       keyId: await StorageSecureService.to.getKeyId() ?? 'unknown',
+      cancelToken: cancelToken,
     );
   }
 

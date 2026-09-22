@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
@@ -175,7 +176,7 @@ class _FakeBackupApi implements E2EEBackupApi {
   final bool _throws;
 
   @override
-  Future<E2EEBackupInfo> info() async {
+  Future<E2EEBackupInfo> info({CancelToken? cancelToken}) async {
     if (_throws) {
       throw Exception('network down');
     }

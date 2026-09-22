@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +15,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// 路径3 强制备份向导 widget 测试：
 /// 校验闸（短口令禁提交/两次不一致不触网）、成功全链（上传→缓存口令→
-/// 完成标记→成功弹窗→放行离开）、随机恢复密钥格式、失败后「稍后再说」。
+/// 完成标记→成功弹窗→放行离开）、随机恢复密钥格式、跳过入口始终可见且
+/// 需代价确认、失败与超时的收尾（状态复位可重试/不无限停在「正在上传…」）。
 ///
 /// 上传经 uploadOverride 注入（widget 测试无网）；安全存储用可持久化
 /// mock（helper 版固定返 null，无法覆盖缓存口令→读回链）。
@@ -191,32 +194,81 @@ void main() {
       find.widgetWithText(TextField, t.common.e2eeBackupConfirmPwdLabel),
     );
     expect(
-      RegExp(
-        r'^[A-F0-9]{5}(-[A-F0-9]{5}){7}$',
-      ).hasMatch(pwdField.controller!.text),
+      RegExp(r'^[A-F0-9]{5}(-[A-F0-9]{5}){7}$')
+          .hasMatch(pwdField.controller!.text),
       isTrue,
     );
     expect(confirmField.controller!.text, pwdField.controller!.text);
   });
 
-  testWidgets('上传失败：开放「稍后再说」，点击可离开且完成标记不落', (tester) async {
+  testWidgets('上传失败：留在页内可重试，完成标记不落', (tester) async {
     await openPage(
       tester,
       override: (pwd) async =>
           const E2EEBackupPutResult(ok: false, versionConflict: true),
     );
     await enterPassword(tester, 'abcdefgh1234');
-    // 失败前「稍后再说」不可见（不可跳过）
-    expect(find.text(t.common.e2eeBackupSetupLater), findsNothing);
-
     await tester.tap(find.text(t.common.e2eeBackupSetupSubmit));
     await tester.pumpAndSettle();
-    expect(find.text(t.common.e2eeBackupSetupLater), findsOneWidget);
-    expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
 
+    expect(find.byType(E2EEBackupSetupPage), findsOneWidget);
+    expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
+    // 失败后状态复位：按钮回到可点（用户可改口令后重试）
+    expect(submitButton(tester).onPressed, isNotNull);
+  });
+
+  testWidgets('稍后再说始终可见：点击弹代价确认，确认后才离开且完成标记不落', (tester) async {
+    await openPage(tester);
+
+    // 未上传时也可离开——弱网用户不会因上传迟迟不返回而被锁在本页
+    expect(find.text(t.common.e2eeBackupSetupLater), findsOneWidget);
     await tester.tap(find.text(t.common.e2eeBackupSetupLater));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(t.common.e2eeBackupSetupLaterConfirmTitle),
+      findsOneWidget,
+    );
+
+    // 选「继续设置」→ 留在向导页
+    await tester.tap(find.text(t.common.e2eeBackupSetupLaterConfirmStay));
+    await tester.pumpAndSettle();
+    expect(find.byType(E2EEBackupSetupPage), findsOneWidget);
+
+    // 再点开并确认离开 → 页面关闭，完成标记不落（下次启动仍会提醒）
+    await tester.tap(find.text(t.common.e2eeBackupSetupLater));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(t.common.e2eeBackupSetupLaterConfirmLeave));
     await tester.pumpAndSettle();
     expect(find.byType(E2EEBackupSetupPage), findsNothing);
     expect(find.text('open'), findsOneWidget);
+    expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
+  });
+
+  testWidgets('上传超时：到点即收尾，不无限停在「正在上传…」', (tester) async {
+    // 永不返回的上传：模拟弱网下请求挂住（旧版会一直停在「加载中」）
+    final hanging = Completer<E2EEBackupPutResult>();
+    addTearDown(() {
+      if (!hanging.isCompleted) {
+        hanging.complete(const E2EEBackupPutResult(ok: false));
+      }
+    });
+    await openPage(tester, override: (pwd) => hanging.future);
+    await enterPassword(tester, 'abcdefgh1234');
+    await tester.tap(find.text(t.common.e2eeBackupSetupSubmit));
+    await tester.pump();
+
+    // 上传中：按钮文案切换 + 说明文案出现
+    expect(find.text(t.common.e2eeBackupSetupUploading), findsOneWidget);
+    expect(find.text(t.common.e2eeBackupSetupBusyHint), findsOneWidget);
+
+    // 越过 45 秒总超时
+    await tester.pump(const Duration(seconds: 46));
+    await tester.pump();
+
+    // 收尾：状态复位（按钮回可点），页面仍在且「稍后再说」可离开
+    expect(submitButton(tester).onPressed, isNotNull);
+    expect(find.text(t.common.e2eeBackupSetupUploading), findsNothing);
+    expect(find.byType(E2EEBackupSetupPage), findsOneWidget);
+    expect(find.text(t.common.e2eeBackupSetupLater), findsOneWidget);
   });
 }

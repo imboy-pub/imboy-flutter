@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart' show CancelToken;
+
 import 'package:imboy/store/api/e2ee_backup_api.dart';
 
 import 'e2ee_crypto_service.dart';
@@ -17,6 +19,9 @@ class E2EEServerBackupService {
   /// 上传新版本云端备份；版本号自动取服务端当前版本 + 1
   ///
   /// 并发撞版本（另一设备刚上传）时自动刷新版本重试一次。
+  ///
+  /// [cancelToken]：取消后不再发起 409 重试，并把在途请求一并掐断——页面
+  /// 侧超时兜底与「稍后再说」都靠它终止空转。
   static Future<E2EEBackupPutResult> upload({
     required String password,
     required String privateKey,
@@ -24,6 +29,7 @@ class E2EEServerBackupService {
     required String deviceId,
     required String keyId,
     E2EEBackupApi? api,
+    CancelToken? cancelToken,
   }) async {
     final backupApi = api ?? E2EEBackupApi();
     final bytes = await E2EELocalBackupService.packBackupBytes(
@@ -37,10 +43,12 @@ class E2EEServerBackupService {
     // salt 位于二进制格式固定偏移（[头 32] 之后），提取供服务端存储/探测
     final salt = bytes.sublist(32, 32 + E2EECryptoService.saltLength);
 
-    var result = await _putOnce(backupApi, payload, salt);
-    if (!result.ok && result.versionConflict) {
+    var result = await _putOnce(backupApi, payload, salt, cancelToken);
+    if (!result.ok &&
+        result.versionConflict &&
+        !(cancelToken?.isCancelled ?? false)) {
       // 并发撞版本：刷新最新版本后重试一次
-      result = await _putOnce(backupApi, payload, salt);
+      result = await _putOnce(backupApi, payload, salt, cancelToken);
     }
     return result;
   }
@@ -96,8 +104,9 @@ class E2EEServerBackupService {
     E2EEBackupApi api,
     String payload,
     Uint8List salt,
+    CancelToken? cancelToken,
   ) async {
-    final info = await api.info();
+    final info = await api.info(cancelToken: cancelToken);
     final nextVersion = info.hasBackup ? info.backupVersion + 1 : 1;
     return api.putBackup(
       backupVersion: nextVersion,
@@ -105,6 +114,7 @@ class E2EEServerBackupService {
       kdfIterations: E2EECryptoService.pbkdf2Iterations,
       encryptedPayload: payload,
       payloadHash: payloadHash(payload),
+      cancelToken: cancelToken,
     );
   }
 }

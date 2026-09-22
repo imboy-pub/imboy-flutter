@@ -779,6 +779,13 @@ e2eeBackupSetupLater: 稍后再说（下次启动仍会提醒）
 e2eeBackupSetupBlockedToast: 请先完成密钥备份设置
 e2eeBackupSetupPostponedToast: 已稍后，下次启动会再次提醒
 e2eeBackupSetupPwdTooShort: 口令至少 8 位
+e2eeBackupSetupUploading: 正在上传…
+e2eeBackupSetupBusyHint: "正在本机加密并上传到云端，请稍候；网络不佳时可以点下方「稍后再说」先跳过"
+e2eeBackupSetupTimeoutToast: 上传超时，请检查网络后重试，或稍后再设置
+e2eeBackupSetupLaterConfirmTitle: 暂不设置备份？
+e2eeBackupSetupLaterConfirmBody: 暂不设置的话，换设备或重装后这些加密聊天记录将无法解密，也无法找回。下次启动仍会提醒你。
+e2eeBackupSetupLaterConfirmStay: 继续设置
+e2eeBackupSetupLaterConfirmLeave: 暂不设置
 e2eeBackupSetupSavedNote: 恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。
 e2eeBackupCloudRestoreTitle: 从云端备份恢复
 e2eeBackupCloudRestoreHint(version): 检测到云端备份（版本 $version）

@@ -4206,6 +4206,27 @@ class Translations$common$zh_CN {
 	/// zh-CN: '口令至少 8 位'
 	String get e2eeBackupSetupPwdTooShort => '口令至少 8 位';
 
+	/// zh-CN: '正在上传…'
+	String get e2eeBackupSetupUploading => '正在上传…';
+
+	/// zh-CN: '正在本机加密并上传到云端，请稍候；网络不佳时可以点下方「稍后再说」先跳过'
+	String get e2eeBackupSetupBusyHint => '正在本机加密并上传到云端，请稍候；网络不佳时可以点下方「稍后再说」先跳过';
+
+	/// zh-CN: '上传超时，请检查网络后重试，或稍后再设置'
+	String get e2eeBackupSetupTimeoutToast => '上传超时，请检查网络后重试，或稍后再设置';
+
+	/// zh-CN: '暂不设置备份？'
+	String get e2eeBackupSetupLaterConfirmTitle => '暂不设置备份？';
+
+	/// zh-CN: '暂不设置的话，换设备或重装后这些加密聊天记录将无法解密，也无法找回。下次启动仍会提醒你。'
+	String get e2eeBackupSetupLaterConfirmBody => '暂不设置的话，换设备或重装后这些加密聊天记录将无法解密，也无法找回。下次启动仍会提醒你。';
+
+	/// zh-CN: '继续设置'
+	String get e2eeBackupSetupLaterConfirmStay => '继续设置';
+
+	/// zh-CN: '暂不设置'
+	String get e2eeBackupSetupLaterConfirmLeave => '暂不设置';
+
 	/// zh-CN: '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。'
 	String get e2eeBackupSetupSavedNote => '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。';
 
@@ -8960,6 +8981,13 @@ extension on Translations {
 			'common.e2eeBackupSetupBlockedToast' => '请先完成密钥备份设置',
 			'common.e2eeBackupSetupPostponedToast' => '已稍后，下次启动会再次提醒',
 			'common.e2eeBackupSetupPwdTooShort' => '口令至少 8 位',
+			'common.e2eeBackupSetupUploading' => '正在上传…',
+			'common.e2eeBackupSetupBusyHint' => '正在本机加密并上传到云端，请稍候；网络不佳时可以点下方「稍后再说」先跳过',
+			'common.e2eeBackupSetupTimeoutToast' => '上传超时，请检查网络后重试，或稍后再设置',
+			'common.e2eeBackupSetupLaterConfirmTitle' => '暂不设置备份？',
+			'common.e2eeBackupSetupLaterConfirmBody' => '暂不设置的话，换设备或重装后这些加密聊天记录将无法解密，也无法找回。下次启动仍会提醒你。',
+			'common.e2eeBackupSetupLaterConfirmStay' => '继续设置',
+			'common.e2eeBackupSetupLaterConfirmLeave' => '暂不设置',
 			'common.e2eeBackupSetupSavedNote' => '恢复口令已存入本机安全存储；今后密钥变化时会自动用它重新上传备份，无需再次输入。',
 			'common.e2eeBackupCloudRestoreTitle' => '从云端备份恢复',
 			'common.e2eeBackupCloudRestoreHint' => ({required Object version}) => '检测到云端备份（版本 ${version}）',
@@ -9129,6 +9157,8 @@ extension on Translations {
 			'customerService.entryTitle' => '客服工作台',
 			'customerService.entrySubtitle' => '接单并处理排队中的客户会话',
 			'customerService.title' => '客服工作台',
+			_ => null,
+		} ?? switch (path) {
 			'customerService.tabQueued' => '待接',
 			'customerService.tabActive' => '处理中',
 			'customerService.tabClosed' => '已关闭',
@@ -9136,8 +9166,6 @@ extension on Translations {
 			'customerService.orgSelectorLabel' => '组织',
 			'customerService.noSeatTitle' => '暂无可用坐席席位',
 			'customerService.noSeatHint' => '你还没有启用中的客服坐席席位，请联系组织管理员开通',
-			_ => null,
-		} ?? switch (path) {
 			'customerService.waitingJustNow' => '刚刚',
 			'customerService.waitingMinutes' => ({required Object n}) => '${n} 分钟',
 			'customerService.waitingHoursMinutes' => ({required Object h, required Object m}) => '${h} 小时 ${m} 分',
@@ -9643,6 +9671,8 @@ extension on Translations {
 			'organization.detail.blockers' => '阻塞项：',
 			'organization.detail.factUnavailable' => '依赖域事实不可用，删除预检被拒绝（fail-closed）',
 			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => '预检失败：${msg} (${code})',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => '我的角色：${role} · 状态：${status}',
 			'organization.detail.archivedBadge' => '组织已归档（只读）',
 			'organization.detail.archivedHint' => '归档期间全部写操作被拒绝，仅恢复操作可用',
@@ -9650,8 +9680,6 @@ extension on Translations {
 			'organization.detail.defaultWsUnset' => '默认 Workspace：未设置',
 			'organization.detail.defaultWsNote' => '指向事实，不代表任何 workspace 成员身份',
 			'organization.detail.memberList' => '成员列表',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.memberListRestricted' => '成员列表（仅 owner/admin 可查看）',
 			'organization.detail.invitationManage' => '邀请管理',
 			'organization.detail.invitationManageRestricted' => '邀请管理（仅 owner/admin 可管理）',
