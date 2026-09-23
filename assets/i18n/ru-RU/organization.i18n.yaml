@@ -186,6 +186,15 @@ directory:
   allMembersSection: "Все участники"
   membersRestricted: "Полный список участников доступен только администраторам предприятия; раскройте отдел, чтобы увидеть его участников."
   imProfileEntry: Открыть профиль IM
+  myDepartmentsSection: Мои отделы
+  membersSection: Участники
+  memberCountWith: "${count} чел."
+  searchHint: Поиск отделов или участников
+  emptyDepartments: Нет подотделов
+  emptyMembers: Нет участников
+  emptySearch: Ничего не найдено
+  switchVerifyFailed: Целевая организация недоступна, либо вы больше не её участник
+  switchShellFailed: Не удалось загрузить рабочие пространства новой организации
 memberDetail:
   roleLabel: Роль в компании
   roleRestricted: Доступно только администраторам компании
@@ -245,3 +254,7 @@ manage:
   archiveChannelBody: После архивации канал исчезает из публичных разделов и больше не виден участникам. Архивацию можно отменить.
   restoreChannel: Восстановить
   archivedChannelSection: Архивные каналы
+# ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
+contactEntry:
+  browserEntry: Открыть справочник
+  loadFailed: Не удалось загрузить данные организации

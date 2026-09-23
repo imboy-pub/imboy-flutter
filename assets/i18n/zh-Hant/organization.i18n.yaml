@@ -185,6 +185,15 @@ directory:
   allMembersSection: 全部成員
   membersRestricted: 全員名單僅企業管理員可見；可展開部門查看部門成員。
   imProfileEntry: 查看 IM 資料
+  myDepartmentsSection: 我的部門
+  membersSection: 成員
+  memberCountWith: "${count} 人"
+  searchHint: 搜尋部門或成員
+  emptyDepartments: 暫無子部門
+  emptyMembers: 暫無成員
+  emptySearch: 無符合結果
+  switchVerifyFailed: 目標企業不可用或你已不是其成員
+  switchShellFailed: 新企業工作區載入失敗
 memberDetail:
   roleLabel: 企業角色
   roleRestricted: 僅企業管理員可查看
@@ -244,3 +253,7 @@ manage:
   archiveChannelBody: 封存後頻道退出公開面，成員不再看到；封存可還原。
   restoreChannel: 還原
   archivedChannelSection: 已封存頻道
+# ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
+contactEntry:
+  browserEntry: 進入通訊錄
+  loadFailed: 企業資訊載入失敗

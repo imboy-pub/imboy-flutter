@@ -185,6 +185,15 @@ directory:
   allMembersSection: "전체 멤버"
   membersRestricted: "전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요."
   imProfileEntry: IM 프로필 보기
+  myDepartmentsSection: 내 부서
+  membersSection: 멤버
+  memberCountWith: "${count}명"
+  searchHint: 부서 또는 멤버 검색
+  emptyDepartments: 하위 부서 없음
+  emptyMembers: 멤버 없음
+  emptySearch: 일치하는 결과 없음
+  switchVerifyFailed: 대상 조직을 사용할 수 없거나 이미 멤버가 아닙니다
+  switchShellFailed: 새 조직의 워크스페이스를 불러오지 못했습니다
 memberDetail:
   roleLabel: 기업 역할
   roleRestricted: 기업 관리자만 볼 수 있습니다
@@ -244,3 +253,7 @@ manage:
   archiveChannelBody: 보관하면 채널이 공개 영역에서 빠지고 멤버에게도 보이지 않습니다. 보관은 되돌릴 수 있습니다.
   restoreChannel: 복원
   archivedChannelSection: 보관된 채널
+# ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
+contactEntry:
+  browserEntry: 주소록 열기
+  loadFailed: 조직 정보를 불러오지 못했습니다

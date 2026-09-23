@@ -2360,6 +2360,7 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$directory$ru_RU directory = _Translations$organization$directory$ru_RU._(_root);
 	@override late final _Translations$organization$memberDetail$ru_RU memberDetail = _Translations$organization$memberDetail$ru_RU._(_root);
 	@override late final _Translations$organization$manage$ru_RU manage = _Translations$organization$manage$ru_RU._(_root);
+	@override late final _Translations$organization$contactEntry$ru_RU contactEntry = _Translations$organization$contactEntry$ru_RU._(_root);
 }
 
 // Path: passport
@@ -2923,6 +2924,15 @@ class _Translations$organization$directory$ru_RU extends Translations$organizati
 	@override String get allMembersSection => 'Все участники';
 	@override String get membersRestricted => 'Полный список участников доступен только администраторам предприятия; раскройте отдел, чтобы увидеть его участников.';
 	@override String get imProfileEntry => 'Открыть профиль IM';
+	@override String get myDepartmentsSection => 'Мои отделы';
+	@override String get membersSection => 'Участники';
+	@override String memberCountWith({required Object count}) => '${count} чел.';
+	@override String get searchHint => 'Поиск отделов или участников';
+	@override String get emptyDepartments => 'Нет подотделов';
+	@override String get emptyMembers => 'Нет участников';
+	@override String get emptySearch => 'Ничего не найдено';
+	@override String get switchVerifyFailed => 'Целевая организация недоступна, либо вы больше не её участник';
+	@override String get switchShellFailed => 'Не удалось загрузить рабочие пространства новой организации';
 }
 
 // Path: organization.memberDetail
@@ -2997,6 +3007,17 @@ class _Translations$organization$manage$ru_RU extends Translations$organization$
 	@override String get archiveChannelBody => 'После архивации канал исчезает из публичных разделов и больше не виден участникам. Архивацию можно отменить.';
 	@override String get restoreChannel => 'Восстановить';
 	@override String get archivedChannelSection => 'Архивные каналы';
+}
+
+// Path: organization.contactEntry
+class _Translations$organization$contactEntry$ru_RU extends Translations$organization$contactEntry$zh_CN {
+	_Translations$organization$contactEntry$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get browserEntry => 'Открыть справочник';
+	@override String get loadFailed => 'Не удалось загрузить данные организации';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -5206,6 +5227,15 @@ extension on TranslationsRuRu {
 			'organization.directory.allMembersSection' => 'Все участники',
 			'organization.directory.membersRestricted' => 'Полный список участников доступен только администраторам предприятия; раскройте отдел, чтобы увидеть его участников.',
 			'organization.directory.imProfileEntry' => 'Открыть профиль IM',
+			'organization.directory.myDepartmentsSection' => 'Мои отделы',
+			'organization.directory.membersSection' => 'Участники',
+			'organization.directory.memberCountWith' => ({required Object count}) => '${count} чел.',
+			'organization.directory.searchHint' => 'Поиск отделов или участников',
+			'organization.directory.emptyDepartments' => 'Нет подотделов',
+			'organization.directory.emptyMembers' => 'Нет участников',
+			'organization.directory.emptySearch' => 'Ничего не найдено',
+			'organization.directory.switchVerifyFailed' => 'Целевая организация недоступна, либо вы больше не её участник',
+			'organization.directory.switchShellFailed' => 'Не удалось загрузить рабочие пространства новой организации',
 			'organization.memberDetail.roleLabel' => 'Роль в компании',
 			'organization.memberDetail.roleRestricted' => 'Доступно только администраторам компании',
 			'organization.memberDetail.accountLabel' => 'Учётная запись',
@@ -5262,6 +5292,8 @@ extension on TranslationsRuRu {
 			'organization.manage.archiveChannelBody' => 'После архивации канал исчезает из публичных разделов и больше не виден участникам. Архивацию можно отменить.',
 			'organization.manage.restoreChannel' => 'Восстановить',
 			'organization.manage.archivedChannelSection' => 'Архивные каналы',
+			'organization.contactEntry.browserEntry' => 'Открыть справочник',
+			'organization.contactEntry.loadFailed' => 'Не удалось загрузить данные организации',
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',

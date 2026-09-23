@@ -185,6 +185,15 @@ directory:
   allMembersSection: "All members"
   membersRestricted: "The full member list is visible to enterprise admins only; expand a department to see its members."
   imProfileEntry: View IM profile
+  myDepartmentsSection: My departments
+  membersSection: Members
+  memberCountWith: "${count} members"
+  searchHint: Search departments or members
+  emptyDepartments: No sub-departments
+  emptyMembers: No members
+  emptySearch: No matches
+  switchVerifyFailed: Target organization unavailable or you are no longer a member
+  switchShellFailed: Failed to load workspaces of the new organization
 memberDetail:
   roleLabel: Enterprise role
   roleRestricted: Visible to enterprise admins only
@@ -244,3 +253,7 @@ manage:
   archiveChannelBody: An archived channel leaves all public surfaces and members no longer see it. Archiving can be undone.
   restoreChannel: Restore
   archivedChannelSection: Archived channels
+# ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
+contactEntry:
+  browserEntry: Open directory
+  loadFailed: Failed to load organization info

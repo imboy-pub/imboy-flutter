@@ -2363,6 +2363,7 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$directory$ar_SA directory = _Translations$organization$directory$ar_SA._(_root);
 	@override late final _Translations$organization$memberDetail$ar_SA memberDetail = _Translations$organization$memberDetail$ar_SA._(_root);
 	@override late final _Translations$organization$manage$ar_SA manage = _Translations$organization$manage$ar_SA._(_root);
+	@override late final _Translations$organization$contactEntry$ar_SA contactEntry = _Translations$organization$contactEntry$ar_SA._(_root);
 }
 
 // Path: passport
@@ -2926,6 +2927,15 @@ class _Translations$organization$directory$ar_SA extends Translations$organizati
 	@override String get allMembersSection => 'جميع الأعضاء';
 	@override String get membersRestricted => 'قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه.';
 	@override String get imProfileEntry => 'عرض ملف IM';
+	@override String get myDepartmentsSection => 'إداراتي';
+	@override String get membersSection => 'الأعضاء';
+	@override String memberCountWith({required Object count}) => '${count} أعضاء';
+	@override String get searchHint => 'البحث في الإدارات أو الأعضاء';
+	@override String get emptyDepartments => 'لا توجد إدارات فرعية';
+	@override String get emptyMembers => 'لا يوجد أعضاء';
+	@override String get emptySearch => 'لا توجد نتائج';
+	@override String get switchVerifyFailed => 'المؤسسة المستهدفة غير متاحة أو لم تعد عضوًا فيها';
+	@override String get switchShellFailed => 'فشل تحميل مساحات العمل للمؤسسة الجديدة';
 }
 
 // Path: organization.memberDetail
@@ -3000,6 +3010,17 @@ class _Translations$organization$manage$ar_SA extends Translations$organization$
 	@override String get archiveChannelBody => 'بعد الأرشفة تخرج القناة من الواجهات العامة ولن يراها الأعضاء. يمكن التراجع عن الأرشفة.';
 	@override String get restoreChannel => 'استعادة';
 	@override String get archivedChannelSection => 'القنوات المؤرشفة';
+}
+
+// Path: organization.contactEntry
+class _Translations$organization$contactEntry$ar_SA extends Translations$organization$contactEntry$zh_CN {
+	_Translations$organization$contactEntry$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get browserEntry => 'فتح الدليل';
+	@override String get loadFailed => 'فشل تحميل بيانات المؤسسة';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -5209,6 +5230,15 @@ extension on TranslationsArSa {
 			'organization.directory.allMembersSection' => 'جميع الأعضاء',
 			'organization.directory.membersRestricted' => 'قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه.',
 			'organization.directory.imProfileEntry' => 'عرض ملف IM',
+			'organization.directory.myDepartmentsSection' => 'إداراتي',
+			'organization.directory.membersSection' => 'الأعضاء',
+			'organization.directory.memberCountWith' => ({required Object count}) => '${count} أعضاء',
+			'organization.directory.searchHint' => 'البحث في الإدارات أو الأعضاء',
+			'organization.directory.emptyDepartments' => 'لا توجد إدارات فرعية',
+			'organization.directory.emptyMembers' => 'لا يوجد أعضاء',
+			'organization.directory.emptySearch' => 'لا توجد نتائج',
+			'organization.directory.switchVerifyFailed' => 'المؤسسة المستهدفة غير متاحة أو لم تعد عضوًا فيها',
+			'organization.directory.switchShellFailed' => 'فشل تحميل مساحات العمل للمؤسسة الجديدة',
 			'organization.memberDetail.roleLabel' => 'دور المؤسسة',
 			'organization.memberDetail.roleRestricted' => 'مرئي لمسؤولي المؤسسة فقط',
 			'organization.memberDetail.accountLabel' => 'حساب الدخول',
@@ -5265,6 +5295,8 @@ extension on TranslationsArSa {
 			'organization.manage.archiveChannelBody' => 'بعد الأرشفة تخرج القناة من الواجهات العامة ولن يراها الأعضاء. يمكن التراجع عن الأرشفة.',
 			'organization.manage.restoreChannel' => 'استعادة',
 			'organization.manage.archivedChannelSection' => 'القنوات المؤرشفة',
+			'organization.contactEntry.browserEntry' => 'فتح الدليل',
+			'organization.contactEntry.loadFailed' => 'فشل تحميل بيانات المؤسسة',
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',

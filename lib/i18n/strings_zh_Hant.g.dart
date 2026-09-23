@@ -2351,6 +2351,7 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$directory$zh_Hant directory = Translations$organization$directory$zh_Hant.internal(_root);
 	@override late final Translations$organization$memberDetail$zh_Hant memberDetail = Translations$organization$memberDetail$zh_Hant.internal(_root);
 	@override late final Translations$organization$manage$zh_Hant manage = Translations$organization$manage$zh_Hant.internal(_root);
+	@override late final Translations$organization$contactEntry$zh_Hant contactEntry = Translations$organization$contactEntry$zh_Hant.internal(_root);
 }
 
 // Path: passport
@@ -2914,6 +2915,15 @@ class Translations$organization$directory$zh_Hant extends Translations$organizat
 	@override String get allMembersSection => '全部成員';
 	@override String get membersRestricted => '全員名單僅企業管理員可見；可展開部門查看部門成員。';
 	@override String get imProfileEntry => '查看 IM 資料';
+	@override String get myDepartmentsSection => '我的部門';
+	@override String get membersSection => '成員';
+	@override String memberCountWith({required Object count}) => '${count} 人';
+	@override String get searchHint => '搜尋部門或成員';
+	@override String get emptyDepartments => '暫無子部門';
+	@override String get emptyMembers => '暫無成員';
+	@override String get emptySearch => '無符合結果';
+	@override String get switchVerifyFailed => '目標企業不可用或你已不是其成員';
+	@override String get switchShellFailed => '新企業工作區載入失敗';
 }
 
 // Path: organization.memberDetail
@@ -2988,6 +2998,17 @@ class Translations$organization$manage$zh_Hant extends Translations$organization
 	@override String get archiveChannelBody => '封存後頻道退出公開面，成員不再看到；封存可還原。';
 	@override String get restoreChannel => '還原';
 	@override String get archivedChannelSection => '已封存頻道';
+}
+
+// Path: organization.contactEntry
+class Translations$organization$contactEntry$zh_Hant extends Translations$organization$contactEntry$zh_CN {
+	Translations$organization$contactEntry$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get browserEntry => '進入通訊錄';
+	@override String get loadFailed => '企業資訊載入失敗';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -5197,6 +5218,15 @@ extension on TranslationsZhHant {
 			'organization.directory.allMembersSection' => '全部成員',
 			'organization.directory.membersRestricted' => '全員名單僅企業管理員可見；可展開部門查看部門成員。',
 			'organization.directory.imProfileEntry' => '查看 IM 資料',
+			'organization.directory.myDepartmentsSection' => '我的部門',
+			'organization.directory.membersSection' => '成員',
+			'organization.directory.memberCountWith' => ({required Object count}) => '${count} 人',
+			'organization.directory.searchHint' => '搜尋部門或成員',
+			'organization.directory.emptyDepartments' => '暫無子部門',
+			'organization.directory.emptyMembers' => '暫無成員',
+			'organization.directory.emptySearch' => '無符合結果',
+			'organization.directory.switchVerifyFailed' => '目標企業不可用或你已不是其成員',
+			'organization.directory.switchShellFailed' => '新企業工作區載入失敗',
 			'organization.memberDetail.roleLabel' => '企業角色',
 			'organization.memberDetail.roleRestricted' => '僅企業管理員可查看',
 			'organization.memberDetail.accountLabel' => '登入帳號',
@@ -5253,6 +5283,8 @@ extension on TranslationsZhHant {
 			'organization.manage.archiveChannelBody' => '封存後頻道退出公開面，成員不再看到；封存可還原。',
 			'organization.manage.restoreChannel' => '還原',
 			'organization.manage.archivedChannelSection' => '已封存頻道',
+			'organization.contactEntry.browserEntry' => '進入通訊錄',
+			'organization.contactEntry.loadFailed' => '企業資訊載入失敗',
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',

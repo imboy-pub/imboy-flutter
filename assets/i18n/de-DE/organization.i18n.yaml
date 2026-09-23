@@ -185,6 +185,15 @@ directory:
   allMembersSection: "Alle Mitglieder"
   membersRestricted: "Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen."
   imProfileEntry: IM-Profil anzeigen
+  myDepartmentsSection: Meine Abteilungen
+  membersSection: Mitglieder
+  memberCountWith: "${count} Mitglieder"
+  searchHint: Abteilungen oder Mitglieder suchen
+  emptyDepartments: Keine Unterabteilungen
+  emptyMembers: Keine Mitglieder
+  emptySearch: Keine Treffer
+  switchVerifyFailed: Zielorganisation nicht verfügbar oder du bist kein Mitglied mehr
+  switchShellFailed: Workspaces der neuen Organisation konnten nicht geladen werden
 memberDetail:
   roleLabel: Unternehmensrolle
   roleRestricted: Nur für Unternehmensadministratoren sichtbar
@@ -244,3 +253,7 @@ manage:
   archiveChannelBody: Ein archivierter Kanal verschwindet aus allen öffentlichen Ansichten und ist für Mitglieder nicht mehr sichtbar. Die Archivierung ist umkehrbar.
   restoreChannel: Wiederherstellen
   archivedChannelSection: Archivierte Kanäle
+# ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
+contactEntry:
+  browserEntry: Verzeichnis öffnen
+  loadFailed: Organisationsdaten konnten nicht geladen werden

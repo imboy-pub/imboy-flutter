@@ -21,9 +21,9 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 
+import 'human_directory_page.dart';
 import 'organization_departments_page.dart';
 import 'organization_detail_page.dart';
-import 'organization_directory_page.dart';
 import 'organization_home_page.dart';
 import 'organization_invitations_page.dart';
 import 'organization_manage_page.dart';
@@ -108,9 +108,12 @@ List<RouteBase> organizationRoutes() => [
             name: 'organization_directory',
             pageBuilder: (context, state) => CupertinoPage(
               key: state.pageKey,
-              child: OrganizationDirectoryPage(
+              child: HumanDirectoryBrowserPage(
                 orgId: state.pathParameters['orgId'] ?? '',
                 orgName: state.uri.queryParameters['name'] ?? '',
+                departmentId: state.uri.queryParameters['department_id'],
+                departmentName:
+                    state.uri.queryParameters['department_name'] ?? '',
               ),
             ),
           ),

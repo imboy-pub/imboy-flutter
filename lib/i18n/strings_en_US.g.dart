@@ -2434,6 +2434,7 @@ class _Translations$organization$en_US extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$directory$en_US directory = _Translations$organization$directory$en_US._(_root);
 	@override late final _Translations$organization$memberDetail$en_US memberDetail = _Translations$organization$memberDetail$en_US._(_root);
 	@override late final _Translations$organization$manage$en_US manage = _Translations$organization$manage$en_US._(_root);
+	@override late final _Translations$organization$contactEntry$en_US contactEntry = _Translations$organization$contactEntry$en_US._(_root);
 }
 
 // Path: passport
@@ -2997,6 +2998,15 @@ class _Translations$organization$directory$en_US extends Translations$organizati
 	@override String get allMembersSection => 'All members';
 	@override String get membersRestricted => 'The full member list is visible to enterprise admins only; expand a department to see its members.';
 	@override String get imProfileEntry => 'View IM profile';
+	@override String get myDepartmentsSection => 'My departments';
+	@override String get membersSection => 'Members';
+	@override String memberCountWith({required Object count}) => '${count} members';
+	@override String get searchHint => 'Search departments or members';
+	@override String get emptyDepartments => 'No sub-departments';
+	@override String get emptyMembers => 'No members';
+	@override String get emptySearch => 'No matches';
+	@override String get switchVerifyFailed => 'Target organization unavailable or you are no longer a member';
+	@override String get switchShellFailed => 'Failed to load workspaces of the new organization';
 }
 
 // Path: organization.memberDetail
@@ -3071,6 +3081,17 @@ class _Translations$organization$manage$en_US extends Translations$organization$
 	@override String get archiveChannelBody => 'An archived channel leaves all public surfaces and members no longer see it. Archiving can be undone.';
 	@override String get restoreChannel => 'Restore';
 	@override String get archivedChannelSection => 'Archived channels';
+}
+
+// Path: organization.contactEntry
+class _Translations$organization$contactEntry$en_US extends Translations$organization$contactEntry$zh_CN {
+	_Translations$organization$contactEntry$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get browserEntry => 'Open directory';
+	@override String get loadFailed => 'Failed to load organization info';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -5350,6 +5371,15 @@ extension on TranslationsEnUs {
 			'organization.directory.allMembersSection' => 'All members',
 			'organization.directory.membersRestricted' => 'The full member list is visible to enterprise admins only; expand a department to see its members.',
 			'organization.directory.imProfileEntry' => 'View IM profile',
+			'organization.directory.myDepartmentsSection' => 'My departments',
+			'organization.directory.membersSection' => 'Members',
+			'organization.directory.memberCountWith' => ({required Object count}) => '${count} members',
+			'organization.directory.searchHint' => 'Search departments or members',
+			'organization.directory.emptyDepartments' => 'No sub-departments',
+			'organization.directory.emptyMembers' => 'No members',
+			'organization.directory.emptySearch' => 'No matches',
+			'organization.directory.switchVerifyFailed' => 'Target organization unavailable or you are no longer a member',
+			'organization.directory.switchShellFailed' => 'Failed to load workspaces of the new organization',
 			'organization.memberDetail.roleLabel' => 'Enterprise role',
 			'organization.memberDetail.roleRestricted' => 'Visible to enterprise admins only',
 			'organization.memberDetail.accountLabel' => 'Login account',
@@ -5406,6 +5436,8 @@ extension on TranslationsEnUs {
 			'organization.manage.archiveChannelBody' => 'An archived channel leaves all public surfaces and members no longer see it. Archiving can be undone.',
 			'organization.manage.restoreChannel' => 'Restore',
 			'organization.manage.archivedChannelSection' => 'Archived channels',
+			'organization.contactEntry.browserEntry' => 'Open directory',
+			'organization.contactEntry.loadFailed' => 'Failed to load organization info',
 			'passport.loginHistoryToggle' => 'Show login history',
 			'passport.hintEmail' => 'Please enter email',
 			'passport.hintMobile' => 'Please enter mobile number',
@@ -5638,6 +5670,8 @@ extension on TranslationsEnUs {
 			'workspace.projectMilestoneFilterPlanned' => 'Planned',
 			'workspace.projectMilestoneFilterReached' => 'Reached',
 			'workspace.projectMilestoneReach' => 'Mark reached',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestoneReachedToast' => 'Milestone reached',
 			'workspace.projectMilestoneAlreadyReachedToast' => 'Milestone already reached',
 			'workspace.projectMilestoneReachedHint' => 'Reached (cannot be rolled back)',
@@ -5649,8 +5683,6 @@ extension on TranslationsEnUs {
 			'workspace.projectChannelNoCandidate' => 'No candidate channels available',
 			'workspace.projectChannelLinkedToast' => 'Channel linked',
 			'workspace.projectChannelLinkExistingToast' => 'Channel already linked',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'Unlink ${name}',
 			'workspace.projectChannelUnlinkDesc' => 'The channel\'s content will no longer be aggregated into this project',
 			'workspace.projectChannelUnlinkSubmit' => 'Unlink',

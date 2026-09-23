@@ -6654,6 +6654,7 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$directory$zh_CN directory = Translations$organization$directory$zh_CN.internal(_root);
 	late final Translations$organization$memberDetail$zh_CN memberDetail = Translations$organization$memberDetail$zh_CN.internal(_root);
 	late final Translations$organization$manage$zh_CN manage = Translations$organization$manage$zh_CN.internal(_root);
+	late final Translations$organization$contactEntry$zh_CN contactEntry = Translations$organization$contactEntry$zh_CN.internal(_root);
 }
 
 // Path: passport
@@ -8091,6 +8092,33 @@ class Translations$organization$directory$zh_CN {
 
 	/// zh-CN: '查看 IM 资料'
 	String get imProfileEntry => '查看 IM 资料';
+
+	/// zh-CN: '我的部门'
+	String get myDepartmentsSection => '我的部门';
+
+	/// zh-CN: '成员'
+	String get membersSection => '成员';
+
+	/// zh-CN: '${count} 人'
+	String memberCountWith({required Object count}) => '${count} 人';
+
+	/// zh-CN: '搜索部门或成员'
+	String get searchHint => '搜索部门或成员';
+
+	/// zh-CN: '暂无子部门'
+	String get emptyDepartments => '暂无子部门';
+
+	/// zh-CN: '暂无成员'
+	String get emptyMembers => '暂无成员';
+
+	/// zh-CN: '无匹配结果'
+	String get emptySearch => '无匹配结果';
+
+	/// zh-CN: '目标企业不可用或你已不是其成员'
+	String get switchVerifyFailed => '目标企业不可用或你已不是其成员';
+
+	/// zh-CN: '新企业工作区加载失败'
+	String get switchShellFailed => '新企业工作区加载失败';
 }
 
 // Path: organization.memberDetail
@@ -8277,6 +8305,21 @@ class Translations$organization$manage$zh_CN {
 
 	/// zh-CN: '已归档频道'
 	String get archivedChannelSection => '已归档频道';
+}
+
+// Path: organization.contactEntry
+class Translations$organization$contactEntry$zh_CN {
+	Translations$organization$contactEntry$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '进入通讯录'
+	String get browserEntry => '进入通讯录';
+
+	/// zh-CN: '企业信息加载失败'
+	String get loadFailed => '企业信息加载失败';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -10576,6 +10619,15 @@ extension on Translations {
 			'organization.directory.allMembersSection' => '全部成员',
 			'organization.directory.membersRestricted' => '全员名单仅企业管理员可见；可展开部门查看部门成员。',
 			'organization.directory.imProfileEntry' => '查看 IM 资料',
+			'organization.directory.myDepartmentsSection' => '我的部门',
+			'organization.directory.membersSection' => '成员',
+			'organization.directory.memberCountWith' => ({required Object count}) => '${count} 人',
+			'organization.directory.searchHint' => '搜索部门或成员',
+			'organization.directory.emptyDepartments' => '暂无子部门',
+			'organization.directory.emptyMembers' => '暂无成员',
+			'organization.directory.emptySearch' => '无匹配结果',
+			'organization.directory.switchVerifyFailed' => '目标企业不可用或你已不是其成员',
+			'organization.directory.switchShellFailed' => '新企业工作区加载失败',
 			'organization.memberDetail.roleLabel' => '企业角色',
 			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
 			'organization.memberDetail.accountLabel' => '登录账号',
@@ -10632,6 +10684,8 @@ extension on Translations {
 			'organization.manage.archiveChannelBody' => '归档后频道退出公开面，成员不再看到；归档可恢复。',
 			'organization.manage.restoreChannel' => '恢复',
 			'organization.manage.archivedChannelSection' => '已归档频道',
+			'organization.contactEntry.browserEntry' => '进入通讯录',
+			'organization.contactEntry.loadFailed' => '企业信息加载失败',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',
@@ -10844,6 +10898,8 @@ extension on Translations {
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '移除项目成员 ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => '移除后该用户将失去此项目内容的访问（可重新邀请）',
 			'workspace.projectMemberRemoveSubmit' => '移除',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberRemovedToast' => '已移除',
 			'workspace.projectMemberAlreadyRemovedToast' => '该用户已不在项目成员中',
 			'workspace.projectMemberTransferTitle' => ({required Object name}) => '转移项目负责人给 ${name}',
@@ -10855,8 +10911,6 @@ extension on Translations {
 			'workspace.projectMilestoneEmptySubtitle' => '用里程碑标记项目的关键节点（计划中 → 已达成，单向）',
 			'workspace.projectMilestoneCreateTitle' => '新建里程碑',
 			'workspace.projectMilestoneNameLabel' => '名称',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestoneNameRequired' => '里程碑名称不能为空',
 			'workspace.projectMilestoneDueDateLabel' => '截止日期（YYYY-MM-DD，可选）',
 			'workspace.projectMilestoneDueDateInvalid' => '日期格式应为 YYYY-MM-DD',

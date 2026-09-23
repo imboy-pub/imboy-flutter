@@ -2354,6 +2354,7 @@ class _Translations$organization$de_DE extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$directory$de_DE directory = _Translations$organization$directory$de_DE._(_root);
 	@override late final _Translations$organization$memberDetail$de_DE memberDetail = _Translations$organization$memberDetail$de_DE._(_root);
 	@override late final _Translations$organization$manage$de_DE manage = _Translations$organization$manage$de_DE._(_root);
+	@override late final _Translations$organization$contactEntry$de_DE contactEntry = _Translations$organization$contactEntry$de_DE._(_root);
 }
 
 // Path: passport
@@ -2917,6 +2918,15 @@ class _Translations$organization$directory$de_DE extends Translations$organizati
 	@override String get allMembersSection => 'Alle Mitglieder';
 	@override String get membersRestricted => 'Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen.';
 	@override String get imProfileEntry => 'IM-Profil anzeigen';
+	@override String get myDepartmentsSection => 'Meine Abteilungen';
+	@override String get membersSection => 'Mitglieder';
+	@override String memberCountWith({required Object count}) => '${count} Mitglieder';
+	@override String get searchHint => 'Abteilungen oder Mitglieder suchen';
+	@override String get emptyDepartments => 'Keine Unterabteilungen';
+	@override String get emptyMembers => 'Keine Mitglieder';
+	@override String get emptySearch => 'Keine Treffer';
+	@override String get switchVerifyFailed => 'Zielorganisation nicht verfügbar oder du bist kein Mitglied mehr';
+	@override String get switchShellFailed => 'Workspaces der neuen Organisation konnten nicht geladen werden';
 }
 
 // Path: organization.memberDetail
@@ -2991,6 +3001,17 @@ class _Translations$organization$manage$de_DE extends Translations$organization$
 	@override String get archiveChannelBody => 'Ein archivierter Kanal verschwindet aus allen öffentlichen Ansichten und ist für Mitglieder nicht mehr sichtbar. Die Archivierung ist umkehrbar.';
 	@override String get restoreChannel => 'Wiederherstellen';
 	@override String get archivedChannelSection => 'Archivierte Kanäle';
+}
+
+// Path: organization.contactEntry
+class _Translations$organization$contactEntry$de_DE extends Translations$organization$contactEntry$zh_CN {
+	_Translations$organization$contactEntry$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get browserEntry => 'Verzeichnis öffnen';
+	@override String get loadFailed => 'Organisationsdaten konnten nicht geladen werden';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -5200,6 +5221,15 @@ extension on TranslationsDeDe {
 			'organization.directory.allMembersSection' => 'Alle Mitglieder',
 			'organization.directory.membersRestricted' => 'Die vollständige Mitgliederliste ist nur für Unternehmensadmins sichtbar; öffne eine Abteilung, um deren Mitglieder zu sehen.',
 			'organization.directory.imProfileEntry' => 'IM-Profil anzeigen',
+			'organization.directory.myDepartmentsSection' => 'Meine Abteilungen',
+			'organization.directory.membersSection' => 'Mitglieder',
+			'organization.directory.memberCountWith' => ({required Object count}) => '${count} Mitglieder',
+			'organization.directory.searchHint' => 'Abteilungen oder Mitglieder suchen',
+			'organization.directory.emptyDepartments' => 'Keine Unterabteilungen',
+			'organization.directory.emptyMembers' => 'Keine Mitglieder',
+			'organization.directory.emptySearch' => 'Keine Treffer',
+			'organization.directory.switchVerifyFailed' => 'Zielorganisation nicht verfügbar oder du bist kein Mitglied mehr',
+			'organization.directory.switchShellFailed' => 'Workspaces der neuen Organisation konnten nicht geladen werden',
 			'organization.memberDetail.roleLabel' => 'Unternehmensrolle',
 			'organization.memberDetail.roleRestricted' => 'Nur für Unternehmensadministratoren sichtbar',
 			'organization.memberDetail.accountLabel' => 'Anmeldekonto',
@@ -5256,6 +5286,8 @@ extension on TranslationsDeDe {
 			'organization.manage.archiveChannelBody' => 'Ein archivierter Kanal verschwindet aus allen öffentlichen Ansichten und ist für Mitglieder nicht mehr sichtbar. Die Archivierung ist umkehrbar.',
 			'organization.manage.restoreChannel' => 'Wiederherstellen',
 			'organization.manage.archivedChannelSection' => 'Archivierte Kanäle',
+			'organization.contactEntry.browserEntry' => 'Verzeichnis öffnen',
+			'organization.contactEntry.loadFailed' => 'Organisationsdaten konnten nicht geladen werden',
 			'passport.loginHistoryToggle' => 'Anmeldeverlauf anzeigen',
 			'passport.hintEmail' => 'Bitte E-Mail eingeben',
 			'passport.hintMobile' => 'Bitte Mobilfunknummer eingeben',

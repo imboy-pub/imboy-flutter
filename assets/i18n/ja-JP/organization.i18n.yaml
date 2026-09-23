@@ -185,6 +185,15 @@ directory:
   allMembersSection: "すべてのメンバー"
   membersRestricted: "メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。"
   imProfileEntry: IM プロフィールを表示
+  myDepartmentsSection: 自分の部門
+  membersSection: メンバー
+  memberCountWith: "${count} 人"
+  searchHint: 部門またはメンバーを検索
+  emptyDepartments: サブ部門はありません
+  emptyMembers: メンバーがいません
+  emptySearch: 該当なし
+  switchVerifyFailed: 対象の組織は利用できないか、すでにメンバーではありません
+  switchShellFailed: 新しい組織のワークスペース読み込みに失敗しました
 memberDetail:
   roleLabel: 企業での役割
   roleRestricted: 企業管理者のみ閲覧できます
@@ -244,3 +253,7 @@ manage:
   archiveChannelBody: アーカイブするとチャンネルは公開面から外れ、メンバーにも表示されません。アーカイブは元に戻せます。
   restoreChannel: 復元
   archivedChannelSection: アーカイブ済みチャンネル
+# ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
+contactEntry:
+  browserEntry: アドレス帳を開く
+  loadFailed: 組織情報の取得に失敗しました

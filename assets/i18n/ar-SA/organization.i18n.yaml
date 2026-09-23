@@ -185,6 +185,15 @@ directory:
   allMembersSection: "جميع الأعضاء"
   membersRestricted: "قائمة الأعضاء الكاملة مرئية لمسؤولي المؤسسة فقط؛ يمكنك فتح قسم لعرض أعضائه."
   imProfileEntry: عرض ملف IM
+  myDepartmentsSection: إداراتي
+  membersSection: الأعضاء
+  memberCountWith: "${count} أعضاء"
+  searchHint: البحث في الإدارات أو الأعضاء
+  emptyDepartments: لا توجد إدارات فرعية
+  emptyMembers: لا يوجد أعضاء
+  emptySearch: لا توجد نتائج
+  switchVerifyFailed: المؤسسة المستهدفة غير متاحة أو لم تعد عضوًا فيها
+  switchShellFailed: فشل تحميل مساحات العمل للمؤسسة الجديدة
 memberDetail:
   roleLabel: دور المؤسسة
   roleRestricted: مرئي لمسؤولي المؤسسة فقط
@@ -244,3 +253,7 @@ manage:
   archiveChannelBody: بعد الأرشفة تخرج القناة من الواجهات العامة ولن يراها الأعضاء. يمكن التراجع عن الأرشفة.
   restoreChannel: استعادة
   archivedChannelSection: القنوات المؤرشفة
+# ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
+contactEntry:
+  browserEntry: فتح الدليل
+  loadFailed: فشل تحميل بيانات المؤسسة

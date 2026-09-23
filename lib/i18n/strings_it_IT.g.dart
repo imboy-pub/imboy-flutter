@@ -2354,6 +2354,7 @@ class _Translations$organization$it_IT extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$directory$it_IT directory = _Translations$organization$directory$it_IT._(_root);
 	@override late final _Translations$organization$memberDetail$it_IT memberDetail = _Translations$organization$memberDetail$it_IT._(_root);
 	@override late final _Translations$organization$manage$it_IT manage = _Translations$organization$manage$it_IT._(_root);
+	@override late final _Translations$organization$contactEntry$it_IT contactEntry = _Translations$organization$contactEntry$it_IT._(_root);
 }
 
 // Path: passport
@@ -2917,6 +2918,15 @@ class _Translations$organization$directory$it_IT extends Translations$organizati
 	@override String get allMembersSection => 'Tutti i membri';
 	@override String get membersRestricted => 'L\'elenco completo dei membri è visibile solo agli amministratori dell\'azienda; apri un dipartimento per vedere i suoi membri.';
 	@override String get imProfileEntry => 'Visualizza profilo IM';
+	@override String get myDepartmentsSection => 'I miei reparti';
+	@override String get membersSection => 'Membri';
+	@override String memberCountWith({required Object count}) => '${count} membri';
+	@override String get searchHint => 'Cerca reparti o membri';
+	@override String get emptyDepartments => 'Nessun sotto-reparto';
+	@override String get emptyMembers => 'Nessun membro';
+	@override String get emptySearch => 'Nessun risultato';
+	@override String get switchVerifyFailed => 'Organizzazione di destinazione non disponibile o non più membro';
+	@override String get switchShellFailed => 'Caricamento degli spazi di lavoro della nuova organizzazione non riuscito';
 }
 
 // Path: organization.memberDetail
@@ -2991,6 +3001,17 @@ class _Translations$organization$manage$it_IT extends Translations$organization$
 	@override String get archiveChannelBody => 'Un canale archiviato esce da tutte le superfici pubbliche e non è più visibile ai membri. L\'archiviazione è reversibile.';
 	@override String get restoreChannel => 'Ripristina';
 	@override String get archivedChannelSection => 'Canali archiviati';
+}
+
+// Path: organization.contactEntry
+class _Translations$organization$contactEntry$it_IT extends Translations$organization$contactEntry$zh_CN {
+	_Translations$organization$contactEntry$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get browserEntry => 'Apri rubrica';
+	@override String get loadFailed => 'Caricamento informazioni organizzazione non riuscito';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -5200,6 +5221,15 @@ extension on TranslationsItIt {
 			'organization.directory.allMembersSection' => 'Tutti i membri',
 			'organization.directory.membersRestricted' => 'L\'elenco completo dei membri è visibile solo agli amministratori dell\'azienda; apri un dipartimento per vedere i suoi membri.',
 			'organization.directory.imProfileEntry' => 'Visualizza profilo IM',
+			'organization.directory.myDepartmentsSection' => 'I miei reparti',
+			'organization.directory.membersSection' => 'Membri',
+			'organization.directory.memberCountWith' => ({required Object count}) => '${count} membri',
+			'organization.directory.searchHint' => 'Cerca reparti o membri',
+			'organization.directory.emptyDepartments' => 'Nessun sotto-reparto',
+			'organization.directory.emptyMembers' => 'Nessun membro',
+			'organization.directory.emptySearch' => 'Nessun risultato',
+			'organization.directory.switchVerifyFailed' => 'Organizzazione di destinazione non disponibile o non più membro',
+			'organization.directory.switchShellFailed' => 'Caricamento degli spazi di lavoro della nuova organizzazione non riuscito',
 			'organization.memberDetail.roleLabel' => 'Ruolo aziendale',
 			'organization.memberDetail.roleRestricted' => 'Visibile solo agli amministratori aziendali',
 			'organization.memberDetail.accountLabel' => 'Account di accesso',
@@ -5256,6 +5286,8 @@ extension on TranslationsItIt {
 			'organization.manage.archiveChannelBody' => 'Un canale archiviato esce da tutte le superfici pubbliche e non è più visibile ai membri. L\'archiviazione è reversibile.',
 			'organization.manage.restoreChannel' => 'Ripristina',
 			'organization.manage.archivedChannelSection' => 'Canali archiviati',
+			'organization.contactEntry.browserEntry' => 'Apri rubrica',
+			'organization.contactEntry.loadFailed' => 'Caricamento informazioni organizzazione non riuscito',
 			'passport.loginHistoryToggle' => 'Mostra cronologia accessi',
 			'passport.hintEmail' => 'Inserisci email',
 			'passport.hintMobile' => 'Inserisci numero di telefono',

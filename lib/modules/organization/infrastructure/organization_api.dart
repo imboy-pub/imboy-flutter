@@ -15,7 +15,9 @@ library;
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/modules/organization/domain/human_directory_models.dart';
 import 'package:imboy/modules/organization/domain/organization_models.dart';
+import 'package:imboy/modules/organization/infrastructure/human_directory_api.dart';
 
 /// Organization API 失败（透传服务端 envelope code 与消息）。
 class OrganizationApiException implements Exception {
@@ -51,7 +53,7 @@ class OrganizationApiException implements Exception {
 }
 
 /// Organization API 客户端。
-class OrganizationApi extends HttpClient {
+class OrganizationApi extends HttpClient implements HumanDirectoryDataSource {
   // ==================== 组织本体 ====================
 
   /// 我所在的组织（分页；suspended/removed 成员不出现在结果里）。
@@ -487,6 +489,121 @@ class OrganizationApi extends HttpClient {
       data: {'code': code},
     );
     return _unwrap(resp, OrganizationJoinOutcome.fromJson);
+  }
+
+  // ==================== Human Directory（§14.2 类企业微信浏览，只读） ====================
+  //
+  // 契约冻结于 A4 run（2026-09-23）：成功 = imboy envelope
+  // `{code:0,msg,sv_ts,payload:{list,cursor,has_more}}`（/me 为
+  // `{organization_id,list}`）；错误 = 真实 HTTP 状态 + `{"error":{code,
+  // message}}`——经 [OrganizationApiException.code] 透传 HTTP 状态分型
+  // （400 invalid_request / 403 insufficient_scope·organization_disabled /
+  // 404 resource_not_found / 503 security_gate_closed）。cursor 为 opaque
+  // 签名票，只透传不解析。
+
+  @override
+  Future<HumanDirectoryPage<HumanDirectoryDepartment>> directoryDepartments({
+    required EntityId organizationId,
+    EntityId? parentId,
+    String? cursor,
+    int? limit,
+  }) async {
+    final resp = await get(
+      '/api/v1/organizations/$organizationId/directory/departments',
+      queryParameters: _directoryQuery(
+        parentId: parentId,
+        cursor: cursor,
+        limit: limit,
+      ),
+    );
+    return _directoryPage(resp, HumanDirectoryDepartment.fromJson, (d) => d.id);
+  }
+
+  @override
+  Future<HumanDirectoryPage<HumanDirectoryMember>> directoryMembers({
+    required EntityId organizationId,
+    EntityId? departmentId,
+    String? cursor,
+    int? limit,
+  }) async {
+    final resp = await get(
+      '/api/v1/organizations/$organizationId/directory/members',
+      queryParameters: _directoryQuery(
+        departmentId: departmentId,
+        cursor: cursor,
+        limit: limit,
+      ),
+    );
+    return _directoryPage(resp, HumanDirectoryMember.fromJson, (m) => m.userId);
+  }
+
+  @override
+  Future<HumanDirectoryMe> directoryMe({
+    required EntityId organizationId,
+  }) async {
+    final resp = await get(
+      '/api/v1/organizations/$organizationId/directory/me',
+    );
+    return HumanDirectoryMe.fromJson(_ensureOk(resp));
+  }
+
+  @override
+  Future<HumanDirectoryPage<HumanDirectorySearchItem>> directorySearch({
+    required EntityId organizationId,
+    required String q,
+    String? cursor,
+    int? limit,
+  }) async {
+    final resp = await get(
+      '/api/v1/organizations/$organizationId/directory/search',
+      queryParameters: {
+        'q': q,
+        if (cursor != null && cursor.isNotEmpty) 'cursor': cursor,
+        'limit': ?limit,
+      },
+    );
+    return _directoryPage(
+      resp,
+      HumanDirectorySearchItem.fromJson,
+      (s) => s.dedupeKey,
+    );
+  }
+
+  Map<String, dynamic> _directoryQuery({
+    EntityId? parentId,
+    EntityId? departmentId,
+    String? cursor,
+    int? limit,
+  }) => {
+    if (parentId != null && parentId.isNotEmpty) 'parent_id': parentId,
+    if (departmentId != null && departmentId.isNotEmpty)
+      'department_id': departmentId,
+    if (cursor != null && cursor.isNotEmpty) 'cursor': cursor,
+    'limit': ?limit,
+  };
+
+  /// `{list, cursor, has_more}` 解析（cursor null = 末页；服务端 limit+1 判
+  /// has_more）。列表行按 [idOf] 剔除无 ID 的坏行（防御，不改变服务端顺序）。
+  HumanDirectoryPage<T> _directoryPage<T>(
+    IMBoyHttpResponse resp,
+    T Function(Map<String, dynamic>) fromJson,
+    String Function(T) idOf,
+  ) {
+    final map = _ensureOk(resp);
+    final rows = IMBoyHttpResponse.payloadList(resp.payload);
+    final list = rows
+        .map(fromJson)
+        .where((row) => idOf(row).isNotEmpty)
+        .toList(growable: false);
+    final rawCursor = map['cursor'];
+    final cursor = rawCursor is String && rawCursor.isNotEmpty
+        ? rawCursor
+        : null;
+    return HumanDirectoryPage<T>(
+      list: list,
+      cursor: cursor,
+      hasMore: map['has_more'] == true,
+    );
   }
 
   // ==================== 内部 ====================

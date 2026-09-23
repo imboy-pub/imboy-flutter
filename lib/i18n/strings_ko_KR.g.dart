@@ -2351,6 +2351,7 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$directory$ko_KR directory = _Translations$organization$directory$ko_KR._(_root);
 	@override late final _Translations$organization$memberDetail$ko_KR memberDetail = _Translations$organization$memberDetail$ko_KR._(_root);
 	@override late final _Translations$organization$manage$ko_KR manage = _Translations$organization$manage$ko_KR._(_root);
+	@override late final _Translations$organization$contactEntry$ko_KR contactEntry = _Translations$organization$contactEntry$ko_KR._(_root);
 }
 
 // Path: passport
@@ -2914,6 +2915,15 @@ class _Translations$organization$directory$ko_KR extends Translations$organizati
 	@override String get allMembersSection => '전체 멤버';
 	@override String get membersRestricted => '전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요.';
 	@override String get imProfileEntry => 'IM 프로필 보기';
+	@override String get myDepartmentsSection => '내 부서';
+	@override String get membersSection => '멤버';
+	@override String memberCountWith({required Object count}) => '${count}명';
+	@override String get searchHint => '부서 또는 멤버 검색';
+	@override String get emptyDepartments => '하위 부서 없음';
+	@override String get emptyMembers => '멤버 없음';
+	@override String get emptySearch => '일치하는 결과 없음';
+	@override String get switchVerifyFailed => '대상 조직을 사용할 수 없거나 이미 멤버가 아닙니다';
+	@override String get switchShellFailed => '새 조직의 워크스페이스를 불러오지 못했습니다';
 }
 
 // Path: organization.memberDetail
@@ -2988,6 +2998,17 @@ class _Translations$organization$manage$ko_KR extends Translations$organization$
 	@override String get archiveChannelBody => '보관하면 채널이 공개 영역에서 빠지고 멤버에게도 보이지 않습니다. 보관은 되돌릴 수 있습니다.';
 	@override String get restoreChannel => '복원';
 	@override String get archivedChannelSection => '보관된 채널';
+}
+
+// Path: organization.contactEntry
+class _Translations$organization$contactEntry$ko_KR extends Translations$organization$contactEntry$zh_CN {
+	_Translations$organization$contactEntry$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get browserEntry => '주소록 열기';
+	@override String get loadFailed => '조직 정보를 불러오지 못했습니다';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -5197,6 +5218,15 @@ extension on TranslationsKoKr {
 			'organization.directory.allMembersSection' => '전체 멤버',
 			'organization.directory.membersRestricted' => '전체 멤버 목록은 기업 관리자만 볼 수 있습니다. 부서를 펼쳐 해당 멤버를 확인하세요.',
 			'organization.directory.imProfileEntry' => 'IM 프로필 보기',
+			'organization.directory.myDepartmentsSection' => '내 부서',
+			'organization.directory.membersSection' => '멤버',
+			'organization.directory.memberCountWith' => ({required Object count}) => '${count}명',
+			'organization.directory.searchHint' => '부서 또는 멤버 검색',
+			'organization.directory.emptyDepartments' => '하위 부서 없음',
+			'organization.directory.emptyMembers' => '멤버 없음',
+			'organization.directory.emptySearch' => '일치하는 결과 없음',
+			'organization.directory.switchVerifyFailed' => '대상 조직을 사용할 수 없거나 이미 멤버가 아닙니다',
+			'organization.directory.switchShellFailed' => '새 조직의 워크스페이스를 불러오지 못했습니다',
 			'organization.memberDetail.roleLabel' => '기업 역할',
 			'organization.memberDetail.roleRestricted' => '기업 관리자만 볼 수 있습니다',
 			'organization.memberDetail.accountLabel' => '로그인 계정',
@@ -5253,6 +5283,8 @@ extension on TranslationsKoKr {
 			'organization.manage.archiveChannelBody' => '보관하면 채널이 공개 영역에서 빠지고 멤버에게도 보이지 않습니다. 보관은 되돌릴 수 있습니다.',
 			'organization.manage.restoreChannel' => '복원',
 			'organization.manage.archivedChannelSection' => '보관된 채널',
+			'organization.contactEntry.browserEntry' => '주소록 열기',
+			'organization.contactEntry.loadFailed' => '조직 정보를 불러오지 못했습니다',
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',

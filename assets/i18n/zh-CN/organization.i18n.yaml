@@ -185,6 +185,15 @@ directory:
   membersRestricted: 全员名单仅企业管理员可见；可展开部门查看部门成员。
   # GZAPP-C3：成员详情页保留通往通用 IM 资料页的次级入口
   imProfileEntry: 查看 IM 资料
+  myDepartmentsSection: 我的部门
+  membersSection: 成员
+  memberCountWith: "${count} 人"
+  searchHint: 搜索部门或成员
+  emptyDepartments: 暂无子部门
+  emptyMembers: 暂无成员
+  emptySearch: 无匹配结果
+  switchVerifyFailed: 目标企业不可用或你已不是其成员
+  switchShellFailed: 新企业工作区加载失败
 # GZAPP-C3（计划 §5.2）：成员详情——含该成员在本企业内的有权工作区
 memberDetail:
   roleLabel: 企业角色
@@ -245,3 +254,7 @@ manage:
   archiveChannelBody: 归档后频道退出公开面，成员不再看到；归档可恢复。
   restoreChannel: 恢复
   archivedChannelSection: 已归档频道
+# ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
+contactEntry:
+  browserEntry: 进入通讯录
+  loadFailed: 企业信息加载失败

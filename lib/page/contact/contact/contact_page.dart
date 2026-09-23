@@ -23,6 +23,9 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
+import 'package:imboy/modules/organization/presentation/organization_entry_card.dart';
+import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
+
 import 'contact_menu_decoration.dart';
 import 'contact_provider.dart';
 
@@ -97,6 +100,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(contactProvider.notifier).loadData();
       ref.read(newFriendRemindProvider.notifier).countReminders();
+      // §14.1：进入页拉取企业入口数据（mine() 真源；失败 → 错误态可重试）。
+      ref.read(organizationEntryProvider.notifier).fetch();
     });
   }
 
@@ -120,6 +125,25 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   }
 
   bool _dataReloadInFlight = false;
+
+  /// §14.1：下拉刷新 = 联系人 + 企业入口（mine() 真源）并行拉取。
+  Future<void> _onPullRefresh() async {
+    unawaited(ref.read(organizationEntryProvider.notifier).fetch());
+    await ref.read(contactProvider.notifier).loadData();
+  }
+
+  /// 空态等不可滚内容包一层可滚容器，保住下拉刷新手势。
+  Widget _pullRefreshArea(Widget child, {bool ensureScrollable = true}) {
+    return RefreshIndicator(
+      onRefresh: _onPullRefresh,
+      child: ensureScrollable
+          ? ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [child],
+            )
+          : child,
+    );
+  }
 
   @override
   void dispose() {
@@ -435,66 +459,79 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               placeholder: t.common.search,
             ),
           ),
+          // §14.1 P0：企业入口（有企业=当前企业+切换；无企业=加入/创建；
+          // 网络/权限错误=错误态+重试；不整块卸载联系人页）。
+          const OrganizationEntryCard(),
           if (state.isLoading)
             const Expanded(child: ShimmerList())
           else if (all.isEmpty)
-            Expanded(child: NoDataView(text: t.common.noContacts))
+            Expanded(
+              child: _pullRefreshArea(NoDataView(text: t.common.noContacts)),
+            )
           else if (filtered.isEmpty)
-            Expanded(child: NoDataView(text: t.common.searchNoResults))
+            Expanded(
+              child: _pullRefreshArea(
+                NoDataView(text: t.common.searchNoResults),
+              ),
+            )
           else
             Expanded(
-              child: AzListView(
-                data: filtered,
-                itemCount: filtered.length,
-                itemBuilder: (context, index) {
-                  final model = filtered[index];
-                  return Column(
-                    children: [
-                      _buildChatItem(
-                        context,
-                        model,
-                        newFriendUnreadCount: newFriendUnreadCount,
-                      ),
-                      if (index < filtered.length - 1 &&
-                          filtered[index].getSuspensionTag() ==
-                              filtered[index + 1].getSuspensionTag())
-                        Padding(
-                          padding: const EdgeInsets.only(left: 72),
-                          child: Divider(
-                            height: 0.5,
-                            color: AppColors.getIosSeparator(
-                              brightness,
-                            ).withValues(alpha: 0.5),
-                          ),
+              // AzListView 自身即 scrollable（已传 AlwaysScrollable 物理），
+              // 不再包 ListView，避免同轴嵌套两层滚动体。
+              child: _pullRefreshArea(
+                AzListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  data: filtered,
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final model = filtered[index];
+                    return Column(
+                      children: [
+                        _buildChatItem(
+                          context,
+                          model,
+                          newFriendUnreadCount: newFriendUnreadCount,
                         ),
-                    ],
-                  );
-                },
-                susItemBuilder: (context, index) {
-                  final tag = filtered[index].getSuspensionTag();
-                  if (tag == '↑') return const SizedBox.shrink();
-                  return _buildSusItem(context, tag);
-                },
-                indexBarData: barData,
-                indexBarOptions: IndexBarOptions(
-                  needRebuild: true,
-                  indexHintDecoration: BoxDecoration(
-                    color: AppColors.getIosBlue(
-                      brightness,
-                    ).withValues(alpha: 0.9),
-                    shape: BoxShape.circle,
+                        if (index < filtered.length - 1 &&
+                            filtered[index].getSuspensionTag() ==
+                                filtered[index + 1].getSuspensionTag())
+                          Padding(
+                            padding: const EdgeInsets.only(left: 72),
+                            child: Divider(
+                              height: 0.5,
+                              color: AppColors.getIosSeparator(brightness)
+                                  .withValues(alpha: 0.5),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                  susItemBuilder: (context, index) {
+                    final tag = filtered[index].getSuspensionTag();
+                    if (tag == '↑') return const SizedBox.shrink();
+                    return _buildSusItem(context, tag);
+                  },
+                  indexBarData: barData,
+                  indexBarOptions: IndexBarOptions(
+                    needRebuild: true,
+                    indexHintDecoration: BoxDecoration(
+                      color: AppColors.getIosBlue(brightness)
+                          .withValues(alpha: 0.9),
+                      shape: BoxShape.circle,
+                    ),
+                    indexHintTextStyle: context.textStyle(
+                      FontSizeType.largeTitle,
+                      color: AppColors.onPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    downItemDecoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.primary,
+                    ),
+                    indexHintOffset: const Offset(-20, 0),
                   ),
-                  indexHintTextStyle: context.textStyle(
-                    FontSizeType.largeTitle,
-                    color: AppColors.onPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  downItemDecoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.primary,
-                  ),
-                  indexHintOffset: const Offset(-20, 0),
                 ),
+                ensureScrollable: false,
               ),
             ),
         ],

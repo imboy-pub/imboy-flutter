@@ -2351,6 +2351,7 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$directory$ja_JP directory = _Translations$organization$directory$ja_JP._(_root);
 	@override late final _Translations$organization$memberDetail$ja_JP memberDetail = _Translations$organization$memberDetail$ja_JP._(_root);
 	@override late final _Translations$organization$manage$ja_JP manage = _Translations$organization$manage$ja_JP._(_root);
+	@override late final _Translations$organization$contactEntry$ja_JP contactEntry = _Translations$organization$contactEntry$ja_JP._(_root);
 }
 
 // Path: passport
@@ -2914,6 +2915,15 @@ class _Translations$organization$directory$ja_JP extends Translations$organizati
 	@override String get allMembersSection => 'すべてのメンバー';
 	@override String get membersRestricted => 'メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。';
 	@override String get imProfileEntry => 'IM プロフィールを表示';
+	@override String get myDepartmentsSection => '自分の部門';
+	@override String get membersSection => 'メンバー';
+	@override String memberCountWith({required Object count}) => '${count} 人';
+	@override String get searchHint => '部門またはメンバーを検索';
+	@override String get emptyDepartments => 'サブ部門はありません';
+	@override String get emptyMembers => 'メンバーがいません';
+	@override String get emptySearch => '該当なし';
+	@override String get switchVerifyFailed => '対象の組織は利用できないか、すでにメンバーではありません';
+	@override String get switchShellFailed => '新しい組織のワークスペース読み込みに失敗しました';
 }
 
 // Path: organization.memberDetail
@@ -2988,6 +2998,17 @@ class _Translations$organization$manage$ja_JP extends Translations$organization$
 	@override String get archiveChannelBody => 'アーカイブするとチャンネルは公開面から外れ、メンバーにも表示されません。アーカイブは元に戻せます。';
 	@override String get restoreChannel => '復元';
 	@override String get archivedChannelSection => 'アーカイブ済みチャンネル';
+}
+
+// Path: organization.contactEntry
+class _Translations$organization$contactEntry$ja_JP extends Translations$organization$contactEntry$zh_CN {
+	_Translations$organization$contactEntry$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get browserEntry => 'アドレス帳を開く';
+	@override String get loadFailed => '組織情報の取得に失敗しました';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -5197,6 +5218,15 @@ extension on TranslationsJaJp {
 			'organization.directory.allMembersSection' => 'すべてのメンバー',
 			'organization.directory.membersRestricted' => 'メンバー一覧の全文は企業管理者のみ閲覧できます。部門を展開するとそのメンバーを確認できます。',
 			'organization.directory.imProfileEntry' => 'IM プロフィールを表示',
+			'organization.directory.myDepartmentsSection' => '自分の部門',
+			'organization.directory.membersSection' => 'メンバー',
+			'organization.directory.memberCountWith' => ({required Object count}) => '${count} 人',
+			'organization.directory.searchHint' => '部門またはメンバーを検索',
+			'organization.directory.emptyDepartments' => 'サブ部門はありません',
+			'organization.directory.emptyMembers' => 'メンバーがいません',
+			'organization.directory.emptySearch' => '該当なし',
+			'organization.directory.switchVerifyFailed' => '対象の組織は利用できないか、すでにメンバーではありません',
+			'organization.directory.switchShellFailed' => '新しい組織のワークスペース読み込みに失敗しました',
 			'organization.memberDetail.roleLabel' => '企業での役割',
 			'organization.memberDetail.roleRestricted' => '企業管理者のみ閲覧できます',
 			'organization.memberDetail.accountLabel' => 'ログインアカウント',
@@ -5253,6 +5283,8 @@ extension on TranslationsJaJp {
 			'organization.manage.archiveChannelBody' => 'アーカイブするとチャンネルは公開面から外れ、メンバーにも表示されません。アーカイブは元に戻せます。',
 			'organization.manage.restoreChannel' => '復元',
 			'organization.manage.archivedChannelSection' => 'アーカイブ済みチャンネル',
+			'organization.contactEntry.browserEntry' => 'アドレス帳を開く',
+			'organization.contactEntry.loadFailed' => '組織情報の取得に失敗しました',
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',
