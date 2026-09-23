@@ -17,6 +17,7 @@ on:
 permissions:
   contents: write       # 允许合并（auto-merge）
   pull-requests: write  # 允许 approve / label
+  issues: write         # gh label create 走 Labels API（属 issues 权限面）
 
 jobs:
   auto-merge:

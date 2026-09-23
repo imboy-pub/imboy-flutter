@@ -379,7 +379,9 @@ jobs:
           range="${{ github.event.pull_request.base.sha }}..HEAD"
           rc=0
           while read -r sha email; do
-            if ! git log -1 --format='%b' "$sha" | grep -qi "^Signed-off-by: .*<${email}>$"; then
+            # 两段式 + -F 固定串：单条正则会对 email 中的 [ ] + . 等元字符
+            # 误判（dependabot[bot] 必误报缺签名）
+            if ! git log -1 --format='%b' "$sha" | grep -i "^signed-off-by:" | grep -qiF "<${email}>"; then
               echo "::error::commit ${sha:0:12}: 作者 <${email}> 缺少匹配的 Signed-off-by（git commit --amend -s 补签）"
               rc=1
             fi
