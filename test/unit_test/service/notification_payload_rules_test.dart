@@ -30,6 +30,13 @@ void main() {
       );
     });
 
+    test('显式 notify_type=org_invite（P1 组织邀请触达）', () {
+      expect(
+        resolveNotificationType({'notify_type': 'org_invite'}),
+        NotificationType.orgInvite,
+      );
+    });
+
     test('本地通知 type=message 兼容', () {
       expect(
         resolveNotificationType({'type': 'message'}),
@@ -175,6 +182,26 @@ void main() {
       final result = parseNotificationPayload({'notify_type': 'group_invite'});
       expect(result, isA<NotificationParseSkip>());
       expect((result as NotificationParseSkip).reason, 'missing_group_id');
+    });
+  });
+
+  group('parseNotificationPayload — org_invite 分支（P1 组织邀请触达）', () {
+    test('org_invite → NotificationOrgInvitationRoute，路由到我的邀请页', () {
+      final result = parseNotificationPayload({
+        'notify_type': 'org_invite',
+        'organization_id': '7266418340025468930',
+      });
+      expect(result, isA<NotificationOrgInvitationRoute>());
+      // 目标页由服务端按 JWT 解析 target 视角列表，orgId 占位 0
+      expect(
+        (result as NotificationOrgInvitationRoute).toRoutePath(),
+        '/organization/0/invitations?mode=mine',
+      );
+    });
+
+    test('org_invite 无附加字段也返回路由（mine 页不依赖 payload 字段）', () {
+      final result = parseNotificationPayload({'notify_type': 'org_invite'});
+      expect(result, isA<NotificationOrgInvitationRoute>());
     });
   });
 

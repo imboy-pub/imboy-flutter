@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/init.dart';
@@ -112,6 +113,9 @@ class NotificationService {
         context.push(result.toRoutePath());
       case NotificationGroupInviteRoute(:final groupId):
         iPrint('🔔 [Notification] 路由到群详情: groupId=$groupId');
+        context.push(result.toRoutePath());
+      case NotificationOrgInvitationRoute():
+        iPrint('🔔 [Notification] 路由到我的组织邀请页');
         context.push(result.toRoutePath());
       case NotificationParseSkip(:final reason):
         iPrint('🔔 [Notification] 跳过路由: reason=$reason');

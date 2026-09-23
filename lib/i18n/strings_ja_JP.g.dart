@@ -2787,7 +2787,8 @@ class _Translations$organization$invitations$ja_JP extends Translations$organiza
 	@override String get copyToken => 'トークンをコピー';
 	@override String inviteFailed({required Object msg, required Object code}) => '招待に失敗しました：${msg} (${code})';
 	@override String get acceptTitle => '招待を受諾';
-	@override String get acceptTokenHint => '招待者から受け取った受領トークン（token）を貼り付け';
+	@override String acceptBody({required Object orgId}) => '受諾すると組織 ${orgId} に参加します。\n招待は一度きり有効で、メンバーシップはサーバーが正となります。';
+	@override String get confirmAccept => '受諾する';
 	@override String get acceptFailed => '受諾に失敗しました';
 	@override String get rejectTitle => '招待を拒否';
 	@override String get rejectBody => '拒否すると招待は終了状態になり、再度受諾できません。';
@@ -2805,9 +2806,9 @@ class _Translations$organization$invitations$ja_JP extends Translations$organiza
 	@override String orgLine({required Object orgId}) => '組織 ${orgId}';
 	@override String invitationLine({required Object invitationId}) => '招待 ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => '対象 ${targetUserId} · ${subtitle}';
-	@override String get acceptNotice => '受諾には招待者が発行した受領トークン（token）が必要です；\n受諾後のメンバーシップはサーバーが正となります。';
+	@override String get acceptNotice => '招待をタップするとそのまま受諾できます（トークン不要）；\n受諾後のメンバーシップはサーバーが正となります。';
 	@override String get revokeAction => '取り消し';
-	@override String get acceptWithToken => 'トークンで受諾';
+	@override String get acceptAction => '招待を受諾';
 	@override String get rejectAction => '拒否';
 }
 
@@ -5105,7 +5106,8 @@ extension on TranslationsJaJp {
 			'organization.invitations.copyToken' => 'トークンをコピー',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => '招待に失敗しました：${msg} (${code})',
 			'organization.invitations.acceptTitle' => '招待を受諾',
-			'organization.invitations.acceptTokenHint' => '招待者から受け取った受領トークン（token）を貼り付け',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => '受諾すると組織 ${orgId} に参加します。\n招待は一度きり有効で、メンバーシップはサーバーが正となります。',
+			'organization.invitations.confirmAccept' => '受諾する',
 			'organization.invitations.acceptFailed' => '受諾に失敗しました',
 			'organization.invitations.rejectTitle' => '招待を拒否',
 			'organization.invitations.rejectBody' => '拒否すると招待は終了状態になり、再度受諾できません。',
@@ -5123,9 +5125,9 @@ extension on TranslationsJaJp {
 			'organization.invitations.orgLine' => ({required Object orgId}) => '組織 ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => '招待 ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => '対象 ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => '受諾には招待者が発行した受領トークン（token）が必要です；\n受諾後のメンバーシップはサーバーが正となります。',
+			'organization.invitations.acceptNotice' => '招待をタップするとそのまま受諾できます（トークン不要）；\n受諾後のメンバーシップはサーバーが正となります。',
 			'organization.invitations.revokeAction' => '取り消し',
-			'organization.invitations.acceptWithToken' => 'トークンで受諾',
+			'organization.invitations.acceptAction' => '招待を受諾',
 			'organization.invitations.rejectAction' => '拒否',
 			'organization.departments.title' => '部門ディレクトリ',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => '部門 ${id}',

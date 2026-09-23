@@ -252,6 +252,32 @@ void main() {
       expect(inv.status, 'accepted');
     });
 
+    test('acceptInvitation：免口令（缺省 token）→ 空 body（P0 定向邀请直达）', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'invitation_id': 910000020,
+            'organization_id': orgId,
+            'target_user_id': 1002,
+            'status': 'accepted',
+            'already_accepted': false,
+          },
+        ),
+      );
+      final api = OrganizationApi();
+
+      final inv = await api.acceptInvitation(orgId);
+
+      expectRequests(
+        adapter,
+        method: 'POST',
+        path: '/api/v1/organizations/$orgId/invitations/accept',
+        body: <String, dynamic>{},
+      );
+      expect(inv.status, 'accepted');
+    });
+
     test('reject / revoke：invitation_id 子路径 POST', () async {
       final adapter = useAdapter(
         200,

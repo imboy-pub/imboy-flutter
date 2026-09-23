@@ -7783,8 +7783,11 @@ class Translations$organization$invitations$zh_CN {
 	/// zh-CN: '接受邀请'
 	String get acceptTitle => '接受邀请';
 
-	/// zh-CN: '粘贴邀请人给你的领取口令（token）'
-	String get acceptTokenHint => '粘贴邀请人给你的领取口令（token）';
+	/// zh-CN: '接受后你将加入组织 ${orgId}； 该邀请一次性生效，成员资格以服务端为准。'
+	String acceptBody({required Object orgId}) => '接受后你将加入组织 ${orgId}；\n该邀请一次性生效，成员资格以服务端为准。';
+
+	/// zh-CN: '确认接受'
+	String get confirmAccept => '确认接受';
 
 	/// zh-CN: '接受失败'
 	String get acceptFailed => '接受失败';
@@ -7837,14 +7840,14 @@ class Translations$organization$invitations$zh_CN {
 	/// zh-CN: '目标 ${targetUserId} · ${subtitle}'
 	String targetLine({required Object targetUserId, required Object subtitle}) => '目标 ${targetUserId} · ${subtitle}';
 
-	/// zh-CN: '接受邀请需要邀请人提供的领取口令（token）； 接受成功后成员资格以服务端为准。'
-	String get acceptNotice => '接受邀请需要邀请人提供的领取口令（token）；\n接受成功后成员资格以服务端为准。';
+	/// zh-CN: '点击邀请即可直接接受（无需口令）； 接受成功后成员资格以服务端为准。'
+	String get acceptNotice => '点击邀请即可直接接受（无需口令）；\n接受成功后成员资格以服务端为准。';
 
 	/// zh-CN: '撤销'
 	String get revokeAction => '撤销';
 
-	/// zh-CN: '凭口令接受'
-	String get acceptWithToken => '凭口令接受';
+	/// zh-CN: '接受邀请'
+	String get acceptAction => '接受邀请';
 
 	/// zh-CN: '拒绝'
 	String get rejectAction => '拒绝';
@@ -10482,7 +10485,8 @@ extension on Translations {
 			'organization.invitations.copyToken' => '复制口令',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => '邀请失败：${msg} (${code})',
 			'organization.invitations.acceptTitle' => '接受邀请',
-			'organization.invitations.acceptTokenHint' => '粘贴邀请人给你的领取口令（token）',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => '接受后你将加入组织 ${orgId}；\n该邀请一次性生效，成员资格以服务端为准。',
+			'organization.invitations.confirmAccept' => '确认接受',
 			'organization.invitations.acceptFailed' => '接受失败',
 			'organization.invitations.rejectTitle' => '拒绝邀请',
 			'organization.invitations.rejectBody' => '拒绝后该邀请进入终态，不可再接受。',
@@ -10500,9 +10504,9 @@ extension on Translations {
 			'organization.invitations.orgLine' => ({required Object orgId}) => '组织 ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => '邀请 ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => '目标 ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => '接受邀请需要邀请人提供的领取口令（token）；\n接受成功后成员资格以服务端为准。',
+			'organization.invitations.acceptNotice' => '点击邀请即可直接接受（无需口令）；\n接受成功后成员资格以服务端为准。',
 			'organization.invitations.revokeAction' => '撤销',
-			'organization.invitations.acceptWithToken' => '凭口令接受',
+			'organization.invitations.acceptAction' => '接受邀请',
 			'organization.invitations.rejectAction' => '拒绝',
 			'organization.departments.title' => '部门目录',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => '部门 ${id}',
@@ -10851,9 +10855,9 @@ extension on Translations {
 			'workspace.projectMilestoneEmptySubtitle' => '用里程碑标记项目的关键节点（计划中 → 已达成，单向）',
 			'workspace.projectMilestoneCreateTitle' => '新建里程碑',
 			'workspace.projectMilestoneNameLabel' => '名称',
-			'workspace.projectMilestoneNameRequired' => '里程碑名称不能为空',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMilestoneNameRequired' => '里程碑名称不能为空',
 			'workspace.projectMilestoneDueDateLabel' => '截止日期（YYYY-MM-DD，可选）',
 			'workspace.projectMilestoneDueDateInvalid' => '日期格式应为 YYYY-MM-DD',
 			'workspace.projectMilestoneCreateSubmit' => '创建',

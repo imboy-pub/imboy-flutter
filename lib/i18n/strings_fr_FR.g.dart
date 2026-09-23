@@ -2790,7 +2790,8 @@ class _Translations$organization$invitations$fr_FR extends Translations$organiza
 	@override String get copyToken => 'Copier le jeton';
 	@override String inviteFailed({required Object msg, required Object code}) => 'Échec de l\'invitation : ${msg} (${code})';
 	@override String get acceptTitle => 'Accepter l\'invitation';
-	@override String get acceptTokenHint => 'Collez le jeton de réception (token) fourni par l\'invitant';
+	@override String acceptBody({required Object orgId}) => 'En acceptant, vous rejoindrez l\'organisation ${orgId}.\nL\'invitation est à usage unique ; l\'appartenance fait foi côté serveur.';
+	@override String get confirmAccept => 'Accepter';
 	@override String get acceptFailed => 'Échec de l\'acceptation';
 	@override String get rejectTitle => 'Refuser l\'invitation';
 	@override String get rejectBody => 'Une fois refusée, l\'invitation entre dans un état final et ne peut plus être acceptée.';
@@ -2808,9 +2809,9 @@ class _Translations$organization$invitations$fr_FR extends Translations$organiza
 	@override String orgLine({required Object orgId}) => 'Organisation ${orgId}';
 	@override String invitationLine({required Object invitationId}) => 'Invitation ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'Cible ${targetUserId} · ${subtitle}';
-	@override String get acceptNotice => 'L\'acceptation requiert le jeton de réception (token) fourni par l\'invitant ;\naprès acceptation, l\'appartenance fait foi côté serveur.';
+	@override String get acceptNotice => 'Touchez une invitation pour l\'accepter directement — aucun jeton requis ;\naprès acceptation, l\'appartenance fait foi côté serveur.';
 	@override String get revokeAction => 'Révoquer';
-	@override String get acceptWithToken => 'Accepter avec le jeton';
+	@override String get acceptAction => 'Accepter l\'invitation';
 	@override String get rejectAction => 'Refuser';
 }
 
@@ -5108,7 +5109,8 @@ extension on TranslationsFrFr {
 			'organization.invitations.copyToken' => 'Copier le jeton',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'Échec de l\'invitation : ${msg} (${code})',
 			'organization.invitations.acceptTitle' => 'Accepter l\'invitation',
-			'organization.invitations.acceptTokenHint' => 'Collez le jeton de réception (token) fourni par l\'invitant',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => 'En acceptant, vous rejoindrez l\'organisation ${orgId}.\nL\'invitation est à usage unique ; l\'appartenance fait foi côté serveur.',
+			'organization.invitations.confirmAccept' => 'Accepter',
 			'organization.invitations.acceptFailed' => 'Échec de l\'acceptation',
 			'organization.invitations.rejectTitle' => 'Refuser l\'invitation',
 			'organization.invitations.rejectBody' => 'Une fois refusée, l\'invitation entre dans un état final et ne peut plus être acceptée.',
@@ -5126,9 +5128,9 @@ extension on TranslationsFrFr {
 			'organization.invitations.orgLine' => ({required Object orgId}) => 'Organisation ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'Invitation ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'Cible ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => 'L\'acceptation requiert le jeton de réception (token) fourni par l\'invitant ;\naprès acceptation, l\'appartenance fait foi côté serveur.',
+			'organization.invitations.acceptNotice' => 'Touchez une invitation pour l\'accepter directement — aucun jeton requis ;\naprès acceptation, l\'appartenance fait foi côté serveur.',
 			'organization.invitations.revokeAction' => 'Révoquer',
-			'organization.invitations.acceptWithToken' => 'Accepter avec le jeton',
+			'organization.invitations.acceptAction' => 'Accepter l\'invitation',
 			'organization.invitations.rejectAction' => 'Refuser',
 			'organization.departments.title' => 'Annuaire des départements',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Département ${id}',

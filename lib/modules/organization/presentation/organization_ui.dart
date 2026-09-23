@@ -108,6 +108,41 @@ Future<bool> orgConfirmDangerAction(
   return ok == true;
 }
 
+/// 一般操作二次确认弹窗（正向语义，与危险变体唯一差异是确认键配色）。
+/// 行点击为第一步，本弹窗为第二步；返回 true 才执行。
+Future<bool> orgConfirmAction(
+  BuildContext context, {
+  required String title,
+  required String consequence,
+  String confirmText = '确认执行',
+}) async {
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: Text(consequence),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: const Text('取消'),
+        ),
+        Semantics(
+          button: true,
+          label: '$title 确认',
+          child: TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(ctx).colorScheme.primary,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(confirmText),
+          ),
+        ),
+      ],
+    ),
+  );
+  return ok == true;
+}
+
 /// 单行输入弹窗（创建组织/部门、邀请 token 兑换等）。
 Future<String?> orgPromptInput(
   BuildContext context, {

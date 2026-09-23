@@ -2787,7 +2787,8 @@ class Translations$organization$invitations$zh_Hant extends Translations$organiz
 	@override String get copyToken => '複製令牌';
 	@override String inviteFailed({required Object msg, required Object code}) => '邀請失敗：${msg} (${code})';
 	@override String get acceptTitle => '接受邀請';
-	@override String get acceptTokenHint => '貼上邀請人給你的領取令牌（token）';
+	@override String acceptBody({required Object orgId}) => '接受後你將加入組織 ${orgId}；\n該邀請一次性生效，成員資格以伺服器為準。';
+	@override String get confirmAccept => '確認接受';
 	@override String get acceptFailed => '接受失敗';
 	@override String get rejectTitle => '拒絕邀請';
 	@override String get rejectBody => '拒絕後該邀請進入終態，不可再接受。';
@@ -2805,9 +2806,9 @@ class Translations$organization$invitations$zh_Hant extends Translations$organiz
 	@override String orgLine({required Object orgId}) => '組織 ${orgId}';
 	@override String invitationLine({required Object invitationId}) => '邀請 ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => '目標 ${targetUserId} · ${subtitle}';
-	@override String get acceptNotice => '接受邀請需要邀請人提供的領取令牌（token）；\n接受成功後成員資格以伺服器為準。';
+	@override String get acceptNotice => '點擊邀請即可直接接受（無需令牌）；\n接受成功後成員資格以伺服器為準。';
 	@override String get revokeAction => '撤銷';
-	@override String get acceptWithToken => '憑令牌接受';
+	@override String get acceptAction => '接受邀請';
 	@override String get rejectAction => '拒絕';
 }
 
@@ -5105,7 +5106,8 @@ extension on TranslationsZhHant {
 			'organization.invitations.copyToken' => '複製令牌',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => '邀請失敗：${msg} (${code})',
 			'organization.invitations.acceptTitle' => '接受邀請',
-			'organization.invitations.acceptTokenHint' => '貼上邀請人給你的領取令牌（token）',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => '接受後你將加入組織 ${orgId}；\n該邀請一次性生效，成員資格以伺服器為準。',
+			'organization.invitations.confirmAccept' => '確認接受',
 			'organization.invitations.acceptFailed' => '接受失敗',
 			'organization.invitations.rejectTitle' => '拒絕邀請',
 			'organization.invitations.rejectBody' => '拒絕後該邀請進入終態，不可再接受。',
@@ -5123,9 +5125,9 @@ extension on TranslationsZhHant {
 			'organization.invitations.orgLine' => ({required Object orgId}) => '組織 ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => '邀請 ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => '目標 ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => '接受邀請需要邀請人提供的領取令牌（token）；\n接受成功後成員資格以伺服器為準。',
+			'organization.invitations.acceptNotice' => '點擊邀請即可直接接受（無需令牌）；\n接受成功後成員資格以伺服器為準。',
 			'organization.invitations.revokeAction' => '撤銷',
-			'organization.invitations.acceptWithToken' => '憑令牌接受',
+			'organization.invitations.acceptAction' => '接受邀請',
 			'organization.invitations.rejectAction' => '拒絕',
 			'organization.departments.title' => '部門目錄',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => '部門 ${id}',

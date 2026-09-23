@@ -223,14 +223,21 @@ class OrganizationApi extends HttpClient {
     return _unwrap(resp, OrgInvitation.fromJson);
   }
 
-  /// 持 token 接受（一次性消费；重复 accept 幂等返回同一视图）。
+  /// 接受邀请（P0 定向邀请免口令）。
+  ///
+  /// 缺省 token：服务端以当前登录身份匹配 target_user_id 直达接受
+  /// （本 App 的「我的邀请」列表项都是定向给自己的，走这条路）；
+  /// 显式传 token：旧口令路径，向后兼容（一次性消费；重复 accept
+  /// 幂等返回同一视图）。
   Future<OrgInvitation> acceptInvitation(
     EntityId orgId, {
-    required String token,
+    String? token,
   }) async {
     final resp = await post(
       '/api/v1/organizations/$orgId/invitations/accept',
-      data: {'token': token},
+      data: (token == null || token.isEmpty)
+          ? <String, dynamic>{}
+          : {'token': token},
     );
     return _unwrap(resp, OrgInvitation.fromJson);
   }

@@ -2870,7 +2870,8 @@ class _Translations$organization$invitations$en_US extends Translations$organiza
 	@override String get copyToken => 'Copy token';
 	@override String inviteFailed({required Object msg, required Object code}) => 'Invitation failed: ${msg} (${code})';
 	@override String get acceptTitle => 'Accept invitation';
-	@override String get acceptTokenHint => 'Paste the claim token you received from the inviter';
+	@override String acceptBody({required Object orgId}) => 'You will join organization ${orgId}.\nThe invitation is one-time only; membership is subject to the server.';
+	@override String get confirmAccept => 'Accept';
 	@override String get acceptFailed => 'Failed to accept';
 	@override String get rejectTitle => 'Reject invitation';
 	@override String get rejectBody => 'Once rejected, the invitation enters a terminal state and can no longer be accepted.';
@@ -2888,9 +2889,9 @@ class _Translations$organization$invitations$en_US extends Translations$organiza
 	@override String orgLine({required Object orgId}) => 'Organization ${orgId}';
 	@override String invitationLine({required Object invitationId}) => 'Invitation ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'Target ${targetUserId} · ${subtitle}';
-	@override String get acceptNotice => 'Accepting requires the claim token provided by the inviter;\nafter acceptance, membership is subject to the server.';
+	@override String get acceptNotice => 'Tap an invitation to accept it directly — no token needed;\nafter acceptance, membership is subject to the server.';
 	@override String get revokeAction => 'Revoke';
-	@override String get acceptWithToken => 'Accept with token';
+	@override String get acceptAction => 'Accept invitation';
 	@override String get rejectAction => 'Reject';
 }
 
@@ -5258,7 +5259,8 @@ extension on TranslationsEnUs {
 			'organization.invitations.copyToken' => 'Copy token',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'Invitation failed: ${msg} (${code})',
 			'organization.invitations.acceptTitle' => 'Accept invitation',
-			'organization.invitations.acceptTokenHint' => 'Paste the claim token you received from the inviter',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => 'You will join organization ${orgId}.\nThe invitation is one-time only; membership is subject to the server.',
+			'organization.invitations.confirmAccept' => 'Accept',
 			'organization.invitations.acceptFailed' => 'Failed to accept',
 			'organization.invitations.rejectTitle' => 'Reject invitation',
 			'organization.invitations.rejectBody' => 'Once rejected, the invitation enters a terminal state and can no longer be accepted.',
@@ -5276,9 +5278,9 @@ extension on TranslationsEnUs {
 			'organization.invitations.orgLine' => ({required Object orgId}) => 'Organization ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'Invitation ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'Target ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => 'Accepting requires the claim token provided by the inviter;\nafter acceptance, membership is subject to the server.',
+			'organization.invitations.acceptNotice' => 'Tap an invitation to accept it directly — no token needed;\nafter acceptance, membership is subject to the server.',
 			'organization.invitations.revokeAction' => 'Revoke',
-			'organization.invitations.acceptWithToken' => 'Accept with token',
+			'organization.invitations.acceptAction' => 'Accept invitation',
 			'organization.invitations.rejectAction' => 'Reject',
 			'organization.departments.title' => 'Departments',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Department ${id}',
@@ -5647,9 +5649,9 @@ extension on TranslationsEnUs {
 			'workspace.projectChannelNoCandidate' => 'No candidate channels available',
 			'workspace.projectChannelLinkedToast' => 'Channel linked',
 			'workspace.projectChannelLinkExistingToast' => 'Channel already linked',
-			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'Unlink ${name}',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectChannelUnlinkTitle' => ({required Object name}) => 'Unlink ${name}',
 			'workspace.projectChannelUnlinkDesc' => 'The channel\'s content will no longer be aggregated into this project',
 			'workspace.projectChannelUnlinkSubmit' => 'Unlink',
 			'workspace.projectChannelUnlinkedToast' => 'Unlinked',

@@ -2790,7 +2790,8 @@ class _Translations$organization$invitations$it_IT extends Translations$organiza
 	@override String get copyToken => 'Copia token';
 	@override String inviteFailed({required Object msg, required Object code}) => 'Invito non riuscito: ${msg} (${code})';
 	@override String get acceptTitle => 'Accetta invito';
-	@override String get acceptTokenHint => 'Incolla il token di ritiro ricevuto da chi ti ha invitato';
+	@override String acceptBody({required Object orgId}) => 'Accettando entrerai nell\'organizzazione ${orgId}.\nL\'invito è monouso; l\'appartenenza fa fede lato server.';
+	@override String get confirmAccept => 'Accetta';
 	@override String get acceptFailed => 'Accettazione non riuscita';
 	@override String get rejectTitle => 'Rifiuta invito';
 	@override String get rejectBody => 'Una volta rifiutato, l\'invito entra in stato terminale e non può più essere accettato.';
@@ -2808,9 +2809,9 @@ class _Translations$organization$invitations$it_IT extends Translations$organiza
 	@override String orgLine({required Object orgId}) => 'Organizzazione ${orgId}';
 	@override String invitationLine({required Object invitationId}) => 'Invito ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'Destinatario ${targetUserId} · ${subtitle}';
-	@override String get acceptNotice => 'Per accettare serve il token di ritiro fornito da chi ha invitato;\ndopo l\'accettazione l\'appartenenza fa fede lato server.';
+	@override String get acceptNotice => 'Tocca un invito per accettarlo direttamente: nessun token richiesto;\ndopo l\'accettazione l\'appartenenza fa fede lato server.';
 	@override String get revokeAction => 'Revoca';
-	@override String get acceptWithToken => 'Accetta con token';
+	@override String get acceptAction => 'Accetta invito';
 	@override String get rejectAction => 'Rifiuta';
 }
 
@@ -5108,7 +5109,8 @@ extension on TranslationsItIt {
 			'organization.invitations.copyToken' => 'Copia token',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'Invito non riuscito: ${msg} (${code})',
 			'organization.invitations.acceptTitle' => 'Accetta invito',
-			'organization.invitations.acceptTokenHint' => 'Incolla il token di ritiro ricevuto da chi ti ha invitato',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => 'Accettando entrerai nell\'organizzazione ${orgId}.\nL\'invito è monouso; l\'appartenenza fa fede lato server.',
+			'organization.invitations.confirmAccept' => 'Accetta',
 			'organization.invitations.acceptFailed' => 'Accettazione non riuscita',
 			'organization.invitations.rejectTitle' => 'Rifiuta invito',
 			'organization.invitations.rejectBody' => 'Una volta rifiutato, l\'invito entra in stato terminale e non può più essere accettato.',
@@ -5126,9 +5128,9 @@ extension on TranslationsItIt {
 			'organization.invitations.orgLine' => ({required Object orgId}) => 'Organizzazione ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'Invito ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'Destinatario ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => 'Per accettare serve il token di ritiro fornito da chi ha invitato;\ndopo l\'accettazione l\'appartenenza fa fede lato server.',
+			'organization.invitations.acceptNotice' => 'Tocca un invito per accettarlo direttamente: nessun token richiesto;\ndopo l\'accettazione l\'appartenenza fa fede lato server.',
 			'organization.invitations.revokeAction' => 'Revoca',
-			'organization.invitations.acceptWithToken' => 'Accetta con token',
+			'organization.invitations.acceptAction' => 'Accetta invito',
 			'organization.invitations.rejectAction' => 'Rifiuta',
 			'organization.departments.title' => 'Elenco dipartimenti',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Dipartimento ${id}',

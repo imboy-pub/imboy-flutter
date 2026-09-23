@@ -85,8 +85,9 @@ invitations:
   tokenCopied: 已复制口令
   copyToken: 复制口令
   inviteFailed: "邀请失败：${msg} (${code})"
-  acceptTitle: 接受邀请
-  acceptTokenHint: 粘贴邀请人给你的领取口令（token）
+  acceptTitle: "接受邀请"
+  acceptBody: "接受后你将加入组织 ${orgId}；\n该邀请一次性生效，成员资格以服务端为准。"
+  confirmAccept: "确认接受"
   acceptFailed: 接受失败
   rejectTitle: 拒绝邀请
   rejectBody: 拒绝后该邀请进入终态，不可再接受。
@@ -104,9 +105,9 @@ invitations:
   orgLine: "组织 ${orgId}"
   invitationLine: "邀请 ${invitationId}"
   targetLine: "目标 ${targetUserId} · ${subtitle}"
-  acceptNotice: "接受邀请需要邀请人提供的领取口令（token）；\n接受成功后成员资格以服务端为准。"
+  acceptNotice: "点击邀请即可直接接受（无需口令）；\n接受成功后成员资格以服务端为准。"
   revokeAction: 撤销
-  acceptWithToken: 凭口令接受
+  acceptAction: "接受邀请"
   rejectAction: 拒绝
 departments:
   title: 部门目录

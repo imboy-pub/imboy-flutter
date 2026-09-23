@@ -28,6 +28,9 @@ enum NotificationType {
   /// 群组邀请
   groupInvite,
 
+  /// 组织邀请（P1 邀请触达：推送 extras 携带 notify_type=org_invite）
+  orgInvite,
+
   /// 未知 / 未携带 notify_type 字段
   unknown,
 }
@@ -85,6 +88,18 @@ final class NotificationGroupInviteRoute extends NotificationParseResult {
   String toRoutePath() => '/group/detail/$groupId';
 }
 
+/// 组织邀请通知：路由到「组织 · 我的邀请」页（mode=mine）。
+///
+/// 目标页由服务端按当前 JWT 解析邀请列表（target 视角），payload 无需
+/// 携带组织 ID；`/organization/0/...` 的 `0` 占位 orgId（我的模式忽略它）。
+/// 本模块零依赖（仅 dart:core），路由字面量与 organization_routes.dart
+/// 的 `kOrganizationHomePath` 保持一致，改动须两处同步。
+final class NotificationOrgInvitationRoute extends NotificationParseResult {
+  const NotificationOrgInvitationRoute();
+
+  String toRoutePath() => '/organization/0/invitations?mode=mine';
+}
+
 /// 缺少必要字段或 type 未知：调用侧仅记日志、不跳转
 final class NotificationParseSkip extends NotificationParseResult {
   const NotificationParseSkip(this.reason);
@@ -107,6 +122,8 @@ NotificationType resolveNotificationType(Map<String, dynamic> data) {
       return NotificationType.friendRequest;
     case 'group_invite':
       return NotificationType.groupInvite;
+    case 'org_invite':
+      return NotificationType.orgInvite;
   }
   // 兼容旧 FCM payload：含 conversation_id 兜底为 message
   if (_pickFirstNonEmpty(data, const [
@@ -189,6 +206,8 @@ NotificationParseResult parseNotificationPayload(Map<String, dynamic> data) {
         ]),
         groupName: _pickFirstNonEmpty(data, const ['group_name', 'groupName']),
       );
+    case NotificationType.orgInvite:
+      return const NotificationOrgInvitationRoute();
     case NotificationType.unknown:
       return const NotificationParseSkip('unknown_type');
   }

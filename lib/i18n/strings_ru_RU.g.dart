@@ -2796,7 +2796,8 @@ class _Translations$organization$invitations$ru_RU extends Translations$organiza
 	@override String get copyToken => 'Скопировать токен';
 	@override String inviteFailed({required Object msg, required Object code}) => 'Не удалось пригласить: ${msg} (${code})';
 	@override String get acceptTitle => 'Принять приглашение';
-	@override String get acceptTokenHint => 'Вставьте токен получения (token), полученный от пригласившего';
+	@override String acceptBody({required Object orgId}) => 'Приняв, вы вступите в организацию ${orgId}.\nПриглашение одноразовое; членство определяет сервер.';
+	@override String get confirmAccept => 'Принять';
 	@override String get acceptFailed => 'Не удалось принять';
 	@override String get rejectTitle => 'Отклонить приглашение';
 	@override String get rejectBody => 'После отклонения приглашение переходит в конечное состояние и больше не может быть принято.';
@@ -2814,9 +2815,9 @@ class _Translations$organization$invitations$ru_RU extends Translations$organiza
 	@override String orgLine({required Object orgId}) => 'Организация ${orgId}';
 	@override String invitationLine({required Object invitationId}) => 'Приглашение ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'Цель ${targetUserId} · ${subtitle}';
-	@override String get acceptNotice => 'Для принятия нужен токен получения (token) от пригласившего;\nпосле принятия членство определяет сервер.';
+	@override String get acceptNotice => 'Нажмите на приглашение, чтобы принять его напрямую — токен не нужен;\nпосле принятия членство определяет сервер.';
 	@override String get revokeAction => 'Отозвать';
-	@override String get acceptWithToken => 'Принять по токену';
+	@override String get acceptAction => 'Принять приглашение';
 	@override String get rejectAction => 'Отклонить';
 }
 
@@ -5114,7 +5115,8 @@ extension on TranslationsRuRu {
 			'organization.invitations.copyToken' => 'Скопировать токен',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'Не удалось пригласить: ${msg} (${code})',
 			'organization.invitations.acceptTitle' => 'Принять приглашение',
-			'organization.invitations.acceptTokenHint' => 'Вставьте токен получения (token), полученный от пригласившего',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => 'Приняв, вы вступите в организацию ${orgId}.\nПриглашение одноразовое; членство определяет сервер.',
+			'organization.invitations.confirmAccept' => 'Принять',
 			'organization.invitations.acceptFailed' => 'Не удалось принять',
 			'organization.invitations.rejectTitle' => 'Отклонить приглашение',
 			'organization.invitations.rejectBody' => 'После отклонения приглашение переходит в конечное состояние и больше не может быть принято.',
@@ -5132,9 +5134,9 @@ extension on TranslationsRuRu {
 			'organization.invitations.orgLine' => ({required Object orgId}) => 'Организация ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'Приглашение ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'Цель ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => 'Для принятия нужен токен получения (token) от пригласившего;\nпосле принятия членство определяет сервер.',
+			'organization.invitations.acceptNotice' => 'Нажмите на приглашение, чтобы принять его напрямую — токен не нужен;\nпосле принятия членство определяет сервер.',
 			'organization.invitations.revokeAction' => 'Отозвать',
-			'organization.invitations.acceptWithToken' => 'Принять по токену',
+			'organization.invitations.acceptAction' => 'Принять приглашение',
 			'organization.invitations.rejectAction' => 'Отклонить',
 			'organization.departments.title' => 'Справочник отделов',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Отдел ${id}',

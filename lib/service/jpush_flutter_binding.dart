@@ -305,6 +305,9 @@ void routeNotificationTapLikePushService(
     case NotificationGroupInviteRoute(:final groupId):
       iPrint('[JPush] 导航到群详情: groupId=$groupId');
       context.go(result.toRoutePath());
+    case NotificationOrgInvitationRoute():
+      iPrint('[JPush] 导航到我的组织邀请页');
+      context.go(result.toRoutePath());
     case NotificationParseSkip(:final reason):
       iPrint('[JPush] 跳过路由: reason=$reason');
   }

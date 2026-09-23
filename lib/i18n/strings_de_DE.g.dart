@@ -2790,7 +2790,8 @@ class _Translations$organization$invitations$de_DE extends Translations$organiza
 	@override String get copyToken => 'Token kopieren';
 	@override String inviteFailed({required Object msg, required Object code}) => 'Einladung fehlgeschlagen: ${msg} (${code})';
 	@override String get acceptTitle => 'Einladung annehmen';
-	@override String get acceptTokenHint => 'Füge den Empfangs-Token (token) ein, den dir die einladende Person gegeben hat';
+	@override String acceptBody({required Object orgId}) => 'Mit der Annahme trittest du der Organisation ${orgId} bei.\nDie Einladung ist einmalig; die Mitgliedschaft entscheidet der Server.';
+	@override String get confirmAccept => 'Annehmen';
 	@override String get acceptFailed => 'Annehmen fehlgeschlagen';
 	@override String get rejectTitle => 'Einladung ablehnen';
 	@override String get rejectBody => 'Nach der Ablehnung geht die Einladung in einen Endzustand und kann nicht mehr angenommen werden.';
@@ -2808,9 +2809,9 @@ class _Translations$organization$invitations$de_DE extends Translations$organiza
 	@override String orgLine({required Object orgId}) => 'Organisation ${orgId}';
 	@override String invitationLine({required Object invitationId}) => 'Einladung ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'Ziel ${targetUserId} · ${subtitle}';
-	@override String get acceptNotice => 'Zum Annehmen wird der Empfangs-Token (token) der einladenden Person benötigt;\nnach der Annahme ist die Mitgliedschaft serverseitig maßgeblich.';
+	@override String get acceptNotice => 'Zum direkten Annehmen tippen – kein Token nötig;\nnach der Annahme ist die Mitgliedschaft serverseitig maßgeblich.';
 	@override String get revokeAction => 'Widerrufen';
-	@override String get acceptWithToken => 'Mit Token annehmen';
+	@override String get acceptAction => 'Einladung annehmen';
 	@override String get rejectAction => 'Ablehnen';
 }
 
@@ -5108,7 +5109,8 @@ extension on TranslationsDeDe {
 			'organization.invitations.copyToken' => 'Token kopieren',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'Einladung fehlgeschlagen: ${msg} (${code})',
 			'organization.invitations.acceptTitle' => 'Einladung annehmen',
-			'organization.invitations.acceptTokenHint' => 'Füge den Empfangs-Token (token) ein, den dir die einladende Person gegeben hat',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => 'Mit der Annahme trittest du der Organisation ${orgId} bei.\nDie Einladung ist einmalig; die Mitgliedschaft entscheidet der Server.',
+			'organization.invitations.confirmAccept' => 'Annehmen',
 			'organization.invitations.acceptFailed' => 'Annehmen fehlgeschlagen',
 			'organization.invitations.rejectTitle' => 'Einladung ablehnen',
 			'organization.invitations.rejectBody' => 'Nach der Ablehnung geht die Einladung in einen Endzustand und kann nicht mehr angenommen werden.',
@@ -5126,9 +5128,9 @@ extension on TranslationsDeDe {
 			'organization.invitations.orgLine' => ({required Object orgId}) => 'Organisation ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'Einladung ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'Ziel ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => 'Zum Annehmen wird der Empfangs-Token (token) der einladenden Person benötigt;\nnach der Annahme ist die Mitgliedschaft serverseitig maßgeblich.',
+			'organization.invitations.acceptNotice' => 'Zum direkten Annehmen tippen – kein Token nötig;\nnach der Annahme ist die Mitgliedschaft serverseitig maßgeblich.',
 			'organization.invitations.revokeAction' => 'Widerrufen',
-			'organization.invitations.acceptWithToken' => 'Mit Token annehmen',
+			'organization.invitations.acceptAction' => 'Einladung annehmen',
 			'organization.invitations.rejectAction' => 'Ablehnen',
 			'organization.departments.title' => 'Abteilungsverzeichnis',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Abteilung ${id}',

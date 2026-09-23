@@ -2787,7 +2787,8 @@ class _Translations$organization$invitations$ko_KR extends Translations$organiza
 	@override String get copyToken => '토큰 복사';
 	@override String inviteFailed({required Object msg, required Object code}) => '초대 실패: ${msg} (${code})';
 	@override String get acceptTitle => '초대 수락';
-	@override String get acceptTokenHint => '초대한 사람에게 받은 수령 토큰(token)을 붙여넣으세요';
+	@override String acceptBody({required Object orgId}) => '수락하면 조직 ${orgId}에 가입합니다.\n초대는 일회성이며 멤버십은 서버 기준을 따릅니다.';
+	@override String get confirmAccept => '수락';
 	@override String get acceptFailed => '수락 실패';
 	@override String get rejectTitle => '초대 거절';
 	@override String get rejectBody => '거절하면 초대는 종결 상태가 되어 다시 수락할 수 없습니다.';
@@ -2805,9 +2806,9 @@ class _Translations$organization$invitations$ko_KR extends Translations$organiza
 	@override String orgLine({required Object orgId}) => '조직 ${orgId}';
 	@override String invitationLine({required Object invitationId}) => '초대 ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => '대상 ${targetUserId} · ${subtitle}';
-	@override String get acceptNotice => '수락하려면 초대한 사람이 제공한 수령 토큰(token)이 필요합니다.\n수락 후 멤버십은 서버 기준을 따릅니다.';
+	@override String get acceptNotice => '초대를 탭하면 바로 수락할 수 있습니다(토큰 불필요).\n수락 후 멤버십은 서버 기준을 따릅니다.';
 	@override String get revokeAction => '철회';
-	@override String get acceptWithToken => '토큰으로 수락';
+	@override String get acceptAction => '초대 수락';
 	@override String get rejectAction => '거절';
 }
 
@@ -5105,7 +5106,8 @@ extension on TranslationsKoKr {
 			'organization.invitations.copyToken' => '토큰 복사',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => '초대 실패: ${msg} (${code})',
 			'organization.invitations.acceptTitle' => '초대 수락',
-			'organization.invitations.acceptTokenHint' => '초대한 사람에게 받은 수령 토큰(token)을 붙여넣으세요',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => '수락하면 조직 ${orgId}에 가입합니다.\n초대는 일회성이며 멤버십은 서버 기준을 따릅니다.',
+			'organization.invitations.confirmAccept' => '수락',
 			'organization.invitations.acceptFailed' => '수락 실패',
 			'organization.invitations.rejectTitle' => '초대 거절',
 			'organization.invitations.rejectBody' => '거절하면 초대는 종결 상태가 되어 다시 수락할 수 없습니다.',
@@ -5123,9 +5125,9 @@ extension on TranslationsKoKr {
 			'organization.invitations.orgLine' => ({required Object orgId}) => '조직 ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => '초대 ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => '대상 ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => '수락하려면 초대한 사람이 제공한 수령 토큰(token)이 필요합니다.\n수락 후 멤버십은 서버 기준을 따릅니다.',
+			'organization.invitations.acceptNotice' => '초대를 탭하면 바로 수락할 수 있습니다(토큰 불필요).\n수락 후 멤버십은 서버 기준을 따릅니다.',
 			'organization.invitations.revokeAction' => '철회',
-			'organization.invitations.acceptWithToken' => '토큰으로 수락',
+			'organization.invitations.acceptAction' => '초대 수락',
 			'organization.invitations.rejectAction' => '거절',
 			'organization.departments.title' => '부서 목록',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => '부서 ${id}',

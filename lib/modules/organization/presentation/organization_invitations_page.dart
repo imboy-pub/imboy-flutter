@@ -1,10 +1,12 @@
 /// 邀请页（双模式）：
 /// - 治理模式（owner/admin）：列表 · 创建（一次性 token 只显示一次）· 撤销；
-/// - 我的模式（?mode=mine）：收到的邀请 · 持 token 接受 · 拒绝 · 过期展示。
+/// - 我的模式（?mode=mine）：收到的邀请 · 免口令两步确认接受 · 拒绝 · 过期展示。
 ///
-/// C11 语义冻结：token 明文只在 create 响应出现一次；accept 需要目标用户
-/// 持有 token（口令式）；pending 不进 membership，接受成功后成员资格
-/// 以服务端为准（本页只刷新邀请事实，不本地拼装成员行）。
+/// C11 语义 + P0 直达：token 明文只在 create 响应出现一次；定向邀请
+/// （target_user_id 必填）以当前登录身份即凭据，接受时无需口令——
+/// 行点击为第一步，确认弹窗为第二步；显式口令路径仍由 API 层保留
+/// （向后兼容）。pending 不进 membership，接受成功后成员资格以服务端
+/// 为准（本页只刷新邀请事实，不本地拼装成员行）。
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -173,14 +175,18 @@ class _OrganizationInvitationsPageState
   }
 
   Future<void> _accept(OrgInvitation inv) async {
-    final token = await orgPromptInput(
+    // 免口令（P0 定向邀请直达）：行点击已算第一步，这里是第二步确认。
+    final ok = await orgConfirmAction(
       context,
       title: t.organization.invitations.acceptTitle,
-      hint: t.organization.invitations.acceptTokenHint,
+      consequence: t.organization.invitations.acceptBody(
+        orgId: inv.organizationId,
+      ),
+      confirmText: t.organization.invitations.confirmAccept,
     );
-    if (token == null) return;
+    if (!ok) return;
     await _runCommand(
-      () => _api.acceptInvitation(inv.organizationId, token: token),
+      () => _api.acceptInvitation(inv.organizationId),
       t.organization.invitations.acceptFailed,
     );
   }
@@ -333,7 +339,7 @@ class _OrganizationInvitationsPageState
           children: [
             ListTile(
               leading: const Icon(CupertinoIcons.checkmark_circle),
-              title: Text(t.organization.invitations.acceptWithToken),
+              title: Text(t.organization.invitations.acceptAction),
               onTap: () => Navigator.of(ctx).pop('accept'),
             ),
             ListTile(

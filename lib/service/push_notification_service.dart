@@ -372,6 +372,9 @@ class PushNotificationService {
       case NotificationGroupInviteRoute(:final groupId):
         iPrint('[Push] 导航到群详情: groupId=$groupId');
         context.go(result.toRoutePath());
+      case NotificationOrgInvitationRoute():
+        iPrint('[Push] 导航到我的组织邀请页');
+        context.go(result.toRoutePath());
       case NotificationParseSkip(:final reason):
         iPrint('[Push] 跳过路由: reason=$reason');
     }

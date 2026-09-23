@@ -2799,7 +2799,8 @@ class _Translations$organization$invitations$ar_SA extends Translations$organiza
 	@override String get copyToken => 'نسخ الرمز';
 	@override String inviteFailed({required Object msg, required Object code}) => 'فشلت الدعوة: ${msg} (${code})';
 	@override String get acceptTitle => 'قبول الدعوة';
-	@override String get acceptTokenHint => 'الصق رمز الاستلام (token) الذي أعطاك إياه المُدعي';
+	@override String acceptBody({required Object orgId}) => 'بالموافقة ستنضم إلى المؤسسة ${orgId}.\nالدعوة للاستخدام مرة واحدة؛ والعضوية يقررها الخادم.';
+	@override String get confirmAccept => 'قبول';
 	@override String get acceptFailed => 'فشل القبول';
 	@override String get rejectTitle => 'رفض الدعوة';
 	@override String get rejectBody => 'بعد الرفض تدخل الدعوة في حالة نهائية ولا يمكن قبولها مجدداً.';
@@ -2817,9 +2818,9 @@ class _Translations$organization$invitations$ar_SA extends Translations$organiza
 	@override String orgLine({required Object orgId}) => 'المنظمة ${orgId}';
 	@override String invitationLine({required Object invitationId}) => 'الدعوة ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => 'الهدف ${targetUserId} · ${subtitle}';
-	@override String get acceptNotice => 'يتطلب القبول رمز الاستلام (token) الذي يقدمه المُدعي؛\nوبعد القبول يكون القرار في العضوية للخادم.';
+	@override String get acceptNotice => 'انقر على الدعوة لقبولها مباشرة — لا حاجة إلى رمز؛\nوبعد القبول يكون القرار في العضوية للخادم.';
 	@override String get revokeAction => 'إلغاء';
-	@override String get acceptWithToken => 'قبول بالرمز';
+	@override String get acceptAction => 'قبول الدعوة';
 	@override String get rejectAction => 'رفض';
 }
 
@@ -5117,7 +5118,8 @@ extension on TranslationsArSa {
 			'organization.invitations.copyToken' => 'نسخ الرمز',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => 'فشلت الدعوة: ${msg} (${code})',
 			'organization.invitations.acceptTitle' => 'قبول الدعوة',
-			'organization.invitations.acceptTokenHint' => 'الصق رمز الاستلام (token) الذي أعطاك إياه المُدعي',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => 'بالموافقة ستنضم إلى المؤسسة ${orgId}.\nالدعوة للاستخدام مرة واحدة؛ والعضوية يقررها الخادم.',
+			'organization.invitations.confirmAccept' => 'قبول',
 			'organization.invitations.acceptFailed' => 'فشل القبول',
 			'organization.invitations.rejectTitle' => 'رفض الدعوة',
 			'organization.invitations.rejectBody' => 'بعد الرفض تدخل الدعوة في حالة نهائية ولا يمكن قبولها مجدداً.',
@@ -5135,9 +5137,9 @@ extension on TranslationsArSa {
 			'organization.invitations.orgLine' => ({required Object orgId}) => 'المنظمة ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => 'الدعوة ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => 'الهدف ${targetUserId} · ${subtitle}',
-			'organization.invitations.acceptNotice' => 'يتطلب القبول رمز الاستلام (token) الذي يقدمه المُدعي؛\nوبعد القبول يكون القرار في العضوية للخادم.',
+			'organization.invitations.acceptNotice' => 'انقر على الدعوة لقبولها مباشرة — لا حاجة إلى رمز؛\nوبعد القبول يكون القرار في العضوية للخادم.',
 			'organization.invitations.revokeAction' => 'إلغاء',
-			'organization.invitations.acceptWithToken' => 'قبول بالرمز',
+			'organization.invitations.acceptAction' => 'قبول الدعوة',
 			'organization.invitations.rejectAction' => 'رفض',
 			'organization.departments.title' => 'دليل الأقسام',
 			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'القسم ${id}',

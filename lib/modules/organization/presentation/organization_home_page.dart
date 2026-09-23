@@ -40,6 +40,9 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   bool _loading = false;
   String? _error;
 
+  /// 待处理邀请数（P1 触达角标；服务端 target 视角 pending 列表长度）。
+  int _pendingInvites = 0;
+
   String get _accountKey => widget.accountKey ?? UserRepoLocal.to.currentUid;
 
   OrganizationCache get _cache => OrganizationCache.forAccount(_accountKey);
@@ -80,6 +83,8 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
         });
       }
     }
+    // 触达角标（P1）：失败静默归零——角标是增强信息，不与组织列表竞争报错。
+    await _refreshPendingInvites();
   }
 
   Future<void> _createOrg() async {
@@ -132,6 +137,22 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
     return null;
   }
 
+  /// 只重算触达角标（不闪组织列表 loading）。
+  Future<void> _refreshPendingInvites() async {
+    try {
+      final invites = await _api.myInvitations(status: 'pending');
+      if (!mounted) return;
+      setState(() {
+        _pendingInvites = invites.length;
+      });
+    } on Object {
+      if (!mounted) return;
+      setState(() {
+        _pendingInvites = 0;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,10 +173,20 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
             button: true,
             label: t.organization.home.myInvitations,
             child: IconButton(
-              icon: const Icon(CupertinoIcons.mail),
               tooltip: t.organization.home.myInvitations,
-              onPressed: () => context.push(
-                '$kOrganizationHomePath/0/invitations?mode=mine',
+              onPressed: () async {
+                await context.push(
+                  '$kOrganizationHomePath/0/invitations?mode=mine',
+                );
+                // 从邀请页返回后重算角标（可能有接受/拒绝终态变化）
+                if (mounted) {
+                  await _refreshPendingInvites();
+                }
+              },
+              icon: Badge(
+                isLabelVisible: _pendingInvites > 0,
+                label: Text(_pendingInvites > 99 ? '99+' : '$_pendingInvites'),
+                child: const Icon(CupertinoIcons.mail),
               ),
             ),
           ),
