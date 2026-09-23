@@ -11,7 +11,7 @@ Usage:
   ./scripts/build_android_apk.sh <version>
 
 Example:
-  ./scripts/build_android_apk.sh 1.0.0-alpha.17
+  ./scripts/build_android_apk.sh 1.0.0-alpha.18
 USAGE
   exit 1
 fi
