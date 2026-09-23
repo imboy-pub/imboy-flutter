@@ -264,3 +264,21 @@ dependencies {
 //    implementation("com.amap.api:navi-3dmap:10.0.600_3dmap10.0.600")
 //    implementation("com.amap.api:map2d:9.7.0")    // 2D地图（可选）
 }
+
+// ── Flutter CLI 无 --flavor 调用的产物名适配 ─────────────────────────
+// flutter 工具在无 --flavor 时按 app-<abi>-<mode>.apk（无 flavor 段）定位产物
+// （flutter_tools gradle.dart findApkFilesModule），而 AGP 变体产物名恒带
+// flavor 段（app-standard-<abi>-release.apk）→ assembleRelease（跨 flavor 聚合）
+// 构建成功后 CLI 仍报 "failed to produce an .apk" 而退出。
+// 本任务把 standard 变体产物补拷为无 flavor 名，仅供无 --flavor 的调用命中；
+// 显式 --flavor standard 等调用走 assembleStandardRelease，不触发本任务。
+tasks.register<Copy>("copyStandardApksWithoutFlavorName") {
+    dependsOn("assembleStandardRelease")
+    from(layout.buildDirectory.dir("outputs/apk/standard/release"))
+    include("app-standard-*.apk")
+    rename { it.replace("-standard", "") }
+    into(layout.buildDirectory.dir("outputs/flutter-apk"))
+}
+tasks.matching { it.name == "assembleRelease" }.configureEach {
+    finalizedBy("copyStandardApksWithoutFlavorName")
+}
