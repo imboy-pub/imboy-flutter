@@ -2,6 +2,8 @@
 ///
 /// 字符集口径与后端 organization_invite_code_pg 一致：
 /// 8 位 A-Z2-9（排除 0/O/1/I 手抄混淆字符），大小写不敏感。
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/modules/organization/presentation/org_join_scanner_page.dart';

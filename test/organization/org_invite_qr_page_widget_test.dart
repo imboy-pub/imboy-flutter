@@ -5,6 +5,8 @@
 ///   + 有效期行 + 重新生成入口；
 /// - 无 active 码（code=null 可空语义）：显示「生成邀请码」引导；
 /// - 非 owner/admin（403）：notAdmin 提示，不出码。
+library;
+
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
