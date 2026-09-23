@@ -1,17 +1,16 @@
-/// QR 扫码意图识别纯函数测试（RED）。
+/// QR 扫码意图识别纯函数测试。
 ///
-/// 上下文：现有 `lib/page/scanner/scanner_page.dart:80-148` 的 `onDetect` 仅
-/// 识别两类 QR：
+/// 上下文：`lib/page/scanner/scanner_page.dart` 的 `onDetect` 识别三类 QR：
 ///   1. 后缀为 `s=app_qrcode` 的 HTTP(S) URL（user / group / channel 名片，
 ///      由后端 GET 路由返回 `{type, result, ...}` 决定后续动作）
-///   2. 其他文本 → 走 `ScannerResultPage` 显示
+///   2. Web 端登录 QR（imboy://qr_login 形式 1/3、/qr_login_qr 形式 2）→ 确认页
+///   3. 其他文本 → 走 `ScannerResultPage` 显示
 ///
-/// 现要新增第 3 类：**Web 端登录 QR**，对齐后端 `imboy/src/api/qr_login_handler.erl:88-90`
-/// 生成的 `qr_token`。约定 QR 编码时使用 `imboy://qr_login/<qr_token>` 私有 scheme，
-/// 避免与已有 HTTP URL QR 冲突。
-///
-/// 兼容形式：
-///   - 形式 1（推荐）：`imboy://qr_login/<qr_token>` — 私有 scheme，scheme 大小写不敏感
+/// Web 登录 QR 兼容形式（真源 = `qr_login_intent.dart` 文档注释）：
+///   - 形式 1：`imboy://qr_login/<qr_token>` — 私有 scheme，scheme 大小写不敏感
+///   - 形式 3：`imboy://qr_login?qr_token=<urlencoded>` — 坐席工作台
+///     （imboyadmin seatQrLoginPanel.qrCodeContent）实际发布格式；
+///     token 经 Uri query 解码还原 base64 原文（含 2026-09-22 生产实测样例）
 ///   - 形式 2（备用）：`<host>/passport/qr_login_qr?token=<qr_token>` — HTTP URL 形式，
 ///     供未来后端可能新增的网关式短链接使用
 ///
@@ -119,6 +118,69 @@ void main() {
         'https://api.example.com/passport/qr_login_qr?token=',
       );
       expect(result, isA<QrLoginIntentOther>());
+    });
+  });
+
+  group('detectQrLoginIntent — 形式 3: imboy://qr_login?qr_token=<urlencoded>（seatQrLoginPanel 发布格式）', () {
+    test('query 形式：URL 编码的 base64 token 解码还原（+ / = 全覆盖）', () {
+      // 后端 generate_qr_token = base64(随机32字节)，含 + / =；发布端
+      // encodeURIComponent 后 + → %2B、/ → %2F、= → %3D。
+      final result = detectQrLoginIntent(
+        'imboy://qr_login?qr_token=a%2Bb%2Fc%3D',
+      );
+      expect(result, isA<QrLoginIntentWebLogin>());
+      expect((result as QrLoginIntentWebLogin).qrToken, 'a+b/c=');
+    });
+
+    test('真实形态样例（base64 原文含 + / = 全特殊字符）→ 还原为原文', () {
+      // 合成样例（原文 abc+XYZ/pem=），形态与生产 qr_token 一致：
+      // base64 原文经 encodeURIComponent 后 + / = 分别为 %2B %2F %3D。
+      final result = detectQrLoginIntent(
+        'imboy://qr_login?qr_token=abc%2BXYZ%2Fpem%3D',
+      );
+      expect(result, isA<QrLoginIntentWebLogin>());
+      expect((result as QrLoginIntentWebLogin).qrToken, 'abc+XYZ/pem=');
+    });
+
+    test('scheme 大小写不敏感（IMBOY://QR_LOGIN?qr_token=abc）', () {
+      final result = detectQrLoginIntent('IMBOY://QR_LOGIN?qr_token=abc');
+      expect(result, isA<QrLoginIntentWebLogin>());
+      expect((result as QrLoginIntentWebLogin).qrToken, 'abc');
+    });
+
+    test('不带特殊字符的 token 原样透传', () {
+      final result = detectQrLoginIntent('imboy://qr_login?qr_token=plain123');
+      expect(result, isA<QrLoginIntentWebLogin>());
+      expect((result as QrLoginIntentWebLogin).qrToken, 'plain123');
+    });
+
+    test('额外 query 参数共存 → qr_token 仍正确提取', () {
+      final result = detectQrLoginIntent(
+        'imboy://qr_login?qr_token=abc&from=seat',
+      );
+      expect(result, isA<QrLoginIntentWebLogin>());
+      expect((result as QrLoginIntentWebLogin).qrToken, 'abc');
+    });
+
+    test('qr_token= 空值 → Other', () {
+      final result = detectQrLoginIntent('imboy://qr_login?qr_token=');
+      expect(result, isA<QrLoginIntentOther>());
+    });
+
+    test('缺 qr_token 参数（imboy://qr_login?foo=bar）→ Other', () {
+      final result = detectQrLoginIntent('imboy://qr_login?foo=bar');
+      expect(result, isA<QrLoginIntentOther>());
+    });
+
+    test('imboy://qr_login? （恰为前缀，无 query 体）→ Other', () {
+      final result = detectQrLoginIntent('imboy://qr_login?');
+      expect(result, isA<QrLoginIntentOther>());
+    });
+
+    test('两端空白 → trim 后正确识别', () {
+      final result = detectQrLoginIntent('  imboy://qr_login?qr_token=abc  ');
+      expect(result, isA<QrLoginIntentWebLogin>());
+      expect((result as QrLoginIntentWebLogin).qrToken, 'abc');
     });
   });
 

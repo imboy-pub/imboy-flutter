@@ -7,7 +7,12 @@
 ///   2. 其他文本 → `ScannerResultPage` 显示
 ///
 /// 本模块新增第 3 类：**Web 端登录 QR**，对齐 `imboy/src/api/qr_login_handler.erl:88-90`
-/// 的 `qr_token` 协议。约定 QR 编码使用 `imboy://qr_login/<qr_token>` 私有 scheme，
+/// 的 `qr_token` 协议。约定的 QR 编码形式（见 detectQrLoginIntent）：
+///   - 形式 1：`imboy://qr_login/<qr_token>` 私有 scheme（本端首发契约）
+///   - 形式 3：`imboy://qr_login?qr_token=<urlencoded>` —— 坐席工作台
+///     （imboyadmin `seatQrLoginPanel.tsx:qrCodeContent`）2026-09 起实际
+///     发布的格式；query 承载 + URL 编码，扫码端经 Uri 解码还原 base64
+///     原文后透传后端（后端 parse_qr_token 按 base64 原文精确匹配）
 /// 优势：
 ///   - 与已有 HTTP URL QR 命名空间隔离，零冲突
 ///   - scheme 大小写不敏感（RFC 3986 § 6.2.2.1），用户/扫码器随意大小写
@@ -61,6 +66,8 @@ final class QrLoginIntentOther extends QrLoginIntent {
 ///
 /// 支持形式：
 ///   1. `imboy://qr_login/<qr_token>` — 私有 scheme，scheme 大小写不敏感
+///   3. `imboy://qr_login?qr_token=<urlencoded>` — 坐席工作台（seatQrLoginPanel）
+///      实际发布格式；qr_token 值经 Uri query 解码还原 base64 原文
 ///   2. `<scheme>://<host>[/...]/qr_login_qr?token=<qr_token>` — HTTP(S) URL 形式
 ///
 /// 不应误判：
@@ -79,6 +86,21 @@ QrLoginIntent detectQrLoginIntent(String rawQr) {
     final head = trimmed.substring(0, prefixLower.length).toLowerCase();
     if (head == prefixLower) {
       final token = trimmed.substring(prefixLower.length).trim();
+      if (token.isEmpty) return QrLoginIntentOther(rawQr);
+      return QrLoginIntentWebLogin(token);
+    }
+  }
+
+  // 形式 3：imboy://qr_login?qr_token=<urlencoded>（seatQrLoginPanel 发布格式）。
+  // 同形式 1 用字面量前缀判定（大小写不敏感）；token 值经 Uri query 解码——
+  // 后端 qr_token 是 base64 原文（含 + / =），发布端做了 encodeURIComponent，
+  // 透传 /passport/qr_login/{scan,confirm} 前必须还原为原文才能精确匹配缓存。
+  const queryPrefixLower = 'imboy://qr_login?';
+  if (trimmed.length > queryPrefixLower.length) {
+    final head = trimmed.substring(0, queryPrefixLower.length).toLowerCase();
+    if (head == queryPrefixLower) {
+      final token = (Uri.tryParse(trimmed)?.queryParameters['qr_token'] ?? '')
+          .trim();
       if (token.isEmpty) return QrLoginIntentOther(rawQr);
       return QrLoginIntentWebLogin(token);
     }
