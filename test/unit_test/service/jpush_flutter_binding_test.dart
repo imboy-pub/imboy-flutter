@@ -235,6 +235,22 @@ void main() {
       expect(routed.single, isA<NotificationFriendRequestRoute>());
     });
 
+    test('org_invite（组织邀请触达 extras）→ 我的邀请页路由', () async {
+      final routed = <NotificationParseResult>[];
+      final plugin = _FakeJPushPlugin();
+      final wiring = _wiringWith(plugin, routedResults: routed);
+      await wiring.initialize();
+
+      await plugin.onOpenNotification!(<String, dynamic>{
+        'title': '组织邀请',
+        'alert': '你收到一条新的组织邀请',
+        'extras': <dynamic, dynamic>{'notify_type': 'org_invite'},
+      });
+
+      expect(routed, hasLength(1));
+      expect(routed.single, isA<NotificationOrgInvitationRoute>());
+    });
+
     test('空 payload → skip 结果（不路由）', () async {
       final routed = <NotificationParseResult>[];
       final wiring = _wiringWith(_FakeJPushPlugin(), routedResults: routed);
