@@ -242,6 +242,15 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:monitor:1.6.1")
 
+    // flutter 3.47 tool 内部不一致 workaround：GeneratedPluginRegistrant 生成时
+    // 注册全部插件（含 dev_dependencies 的 patrol / integration_test），但
+    // gradle 注入侧（flutter_tools PluginHandler.kt）对 dev 插件「只在非 release
+    // 注入依赖」→ release 编译报「程序包不存在」。显式补齐 release 依赖使
+    // registrant 可解析；两插件在 release 运行时空转（无测试驱动接入），无副作用。
+    // 从 dev_dependencies 移除 patrol / integration_test 时同步删除此处。
+    releaseImplementation(project(":patrol"))
+    releaseImplementation(project(":integration_test"))
+
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("androidx.databinding:viewbinding:8.2.2")
