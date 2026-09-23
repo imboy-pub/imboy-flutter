@@ -11,7 +11,7 @@ on:
     - cron: '0 18 * * *'
 
 env:
-  FLUTTER_VERSION: '3.44.8'
+  FLUTTER_VERSION: '3.47.5'
 
 jobs:
   # ==================== 测试任务 ====================
@@ -374,10 +374,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: DCO check
-        uses: dco-org/dco-action@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: DCO check（shell 实现；dco-org/dco-action 仓库已下线）
+        run: |
+          range="${{ github.event.pull_request.base.sha }}..HEAD"
+          rc=0
+          while read -r sha email; do
+            if ! git log -1 --format='%b' "$sha" | grep -qi "^Signed-off-by: .*<${email}>$"; then
+              echo "::error::commit ${sha:0:12}: 作者 <${email}> 缺少匹配的 Signed-off-by（git commit --amend -s 补签）"
+              rc=1
+            fi
+          done < <(git log --format='%H %ae' "$range")
+          exit $rc
 
   # ----------------------------------------------------------------
   # 全页面路由烟雾测试（进程隔离）——仅 nightly schedule + 手动触发。

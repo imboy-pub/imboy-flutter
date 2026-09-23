@@ -66,7 +66,9 @@ jobs:
 
       - name: Label minor PR
         if: steps.meta.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr edit "$PR_URL" --add-label "auto-approved"
+        run: |
+          gh label create "auto-approved" --color "0e8a16" --description "minor 升级已自动 approve，待人工合并" --force
+          gh pr edit "$PR_URL" --add-label "auto-approved"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -74,7 +76,9 @@ jobs:
       # ── major：打 needs-review label，不自动操作 ──────────────────
       - name: Label major PR for review
         if: steps.meta.outputs.update-type == 'version-update:semver-major'
-        run: gh pr edit "$PR_URL" --add-label "needs-review"
+        run: |
+          gh label create "needs-review" --color "fbca04" --description "major 升级需人工评审" --force
+          gh pr edit "$PR_URL" --add-label "needs-review"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
