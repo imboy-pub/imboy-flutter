@@ -8,6 +8,21 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>IMBoy</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>IMBoy E2EE Backup</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>pub.imboy.e2ee-backup</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -56,7 +71,6 @@
 				<string>alipay</string>
 			</array>
 		</dict>
-		<!-- share_handler：ShareExtension 跳回主 App 的回跳 scheme -->
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -85,73 +99,33 @@
 		<string>alipayshare</string>
 		<string>alipays</string>
 	</array>
-	<!-- E2EE 备份导入：注册 .enc 文件类型，支持从邮件/文件管理器「Open In」 -->
-	<key>CFBundleDocumentTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeName</key>
-			<string>IMBoy E2EE Backup</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>LSHandlerRank</key>
-			<string>Owner</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>pub.imboy.e2ee-backup</string>
-			</array>
-		</dict>
-	</array>
-	<key>UTImportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>pub.imboy.e2ee-backup</string>
-			<key>UTTypeDescription</key>
-			<string>IMBoy E2EE Encrypted Backup</string>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.data</string>
-			</array>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>enc</string>
-				</array>
-				<key>public.mime-type</key>
-				<array>
-					<string>application/octet-stream</string>
-				</array>
-			</dict>
-		</dict>
-	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
-<key>NSAppTransportSecurity</key>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<false/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+		<key>NSExceptionDomains</key>
 		<dict>
-			<key>NSAllowsArbitraryLoads</key>
-			<false/>
-			<key>NSAllowsArbitraryLoadsInWebContent</key>
-			<false/>
-			<key>NSAllowsLocalNetworking</key>
-			<true/>
-			<key>NSExceptionDomains</key>
+			<key>imboy.pub</key>
 			<dict>
-				<key>imboy.pub</key>
-				<dict>
-					<key>NSExceptionAllowsInsecureHTTPLoads</key>
-					<false/>
-					<key>NSExceptionMinimumTLSVersion</key>
-					<string>TLSv1.2</string>
-					<key>NSExceptionRequiresForwardSecrecy</key>
-					<true/>
-					<key>NSIncludesSubdomains</key>
-					<true/>
-				</dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
 			</dict>
 		</dict>
+	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>IMBoy needs camera access to take photos, scan QR codes, and make video calls.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -197,5 +171,29 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>IMBoy E2EE Encrypted Backup</string>
+			<key>UTTypeIdentifier</key>
+			<string>pub.imboy.e2ee-backup</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>enc</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/octet-stream</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -114,6 +114,12 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - JCore (5.5.3)
+  - JPush (6.2.6):
+    - JCore (> 5.5.0)
+  - jpush_flutter (0.0.2):
+    - Flutter
+    - JCore (> 5.5.0)
+    - JPush (= 6.2.6)
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -229,6 +235,7 @@ DEPENDENCIES:
   - ic_storage_space (from `.symlinks/plugins/ic_storage_space/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - jpush_flutter (from `.symlinks/plugins/jpush_flutter/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
   - JVerification
   - jverify (from `.symlinks/plugins/jverify/ios`)
@@ -271,6 +278,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - JCore
+    - JPush
     - JVerification
     - nanopb
     - PhoneNumberKit
@@ -324,6 +332,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
+  jpush_flutter:
+    :path: ".symlinks/plugins/jpush_flutter/ios"
   just_audio:
     :path: ".symlinks/plugins/just_audio/darwin"
   jverify:
@@ -409,6 +419,8 @@ SPEC CHECKSUMS:
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   JCore: 3e14acb18c4dc2615008c5cb385a9ae627688a01
+  JPush: 4a7e5df2be0d19f5fbbfab9050f4da9f7a35f1dd
+  jpush_flutter: 3c3d98d791f73be50fecee2216b5c2a45e496164
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: b59df3fbdfc48b67706141b8539e1ba41b3eb840
   jverify: 16302a55a8c5ad64c1e77c4e3e823f56c6079580
