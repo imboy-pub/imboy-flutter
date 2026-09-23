@@ -23,6 +23,7 @@
 /// 分类为 product_defect 则保留 RED 用例。
 library;
 
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/organization/presentation/organization_departments_page.dart';
@@ -126,7 +127,7 @@ void main() {
 
       // semantics（机械 find）：组织列表行文本可见即主内容可达。
       expect(
-        find.textContaining('管理员'),
+        find.textContaining('所有者'),
         findsWidgets,
         reason: '角色徽标（我的角色：owner → 所有者）文案存在',
       );
@@ -177,9 +178,9 @@ void main() {
       darkVisibleText: find.text('成员乙'),
     );
 
-    // semantics（机械 find）：AppBar 主标题 + 每行治理入口（more_vert）。
+    // semantics（机械 find）：AppBar 主标题 + 每行治理入口。
     expect(find.text('成员'), findsOneWidget);
-    expect(find.byIcon(Icons.more_vert), findsWidgets);
+    expect(find.byIcon(CupertinoIcons.ellipsis), findsWidgets);
 
     // danger confirm：成员行 → bottom sheet → 移除成员 → 确认 Dialog。
     await tester.tap(find.text('成员乙'));
@@ -215,22 +216,24 @@ void main() {
             (
               200,
               uxEnvelope(
-                payload: [
-                  {
-                    'id': '7266418340025468911',
-                    'organization_id': kOrgId,
-                    'parent_id': '',
-                    'name': '研发部',
-                    'status': 'active',
-                  },
-                  {
-                    'id': '7266418340025468912',
-                    'organization_id': kOrgId,
-                    'parent_id': '7266418340025468911',
-                    'name': '前端组',
-                    'status': 'active',
-                  },
-                ],
+                payload: {
+                  'list': [
+                    {
+                      'id': '7266418340025468911',
+                      'organization_id': kOrgId,
+                      'parent_id': '',
+                      'name': '研发部',
+                      'status': 'active',
+                    },
+                    {
+                      'id': '7266418340025468912',
+                      'organization_id': kOrgId,
+                      'parent_id': '7266418340025468911',
+                      'name': '前端组',
+                      'status': 'active',
+                    },
+                  ],
+                },
               ),
             ),
           ],
@@ -245,7 +248,10 @@ void main() {
       darkVisibleText: find.text('研发部'),
     );
 
-    // semantics（机械 find）：子部门行可见。
+    // semantics（机械 find）：根部门可达，展开后子部门行可见。
+    expect(find.text('研发部'), findsOneWidget);
+    await tester.tap(find.text('研发部'));
+    await settleUx(tester);
     expect(find.text('前端组'), findsOneWidget);
   });
 
@@ -289,7 +295,14 @@ void main() {
     await tester.tap(archiveTile);
     await settleUx(tester);
     expect(find.text('确认归档'), findsOneWidget, reason: '归档属危险动作，必须弹确认 Dialog');
-    expect(find.textContaining('只读态'), findsOneWidget, reason: '确认弹层展示归档后果');
+    expect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.textContaining('只读态'),
+      ),
+      findsOneWidget,
+      reason: '确认弹层展示归档后果',
+    );
     await tester.tap(find.text('取消'));
     await settleUx(tester);
     expect(find.text('确认归档'), findsNothing);
