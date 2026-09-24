@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:math' as math;
+
 import 'package:imboy/theme/default/app_spacing.dart';
+
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:livekit_client/livekit_client.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -30,14 +32,13 @@ import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/call_tokens.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:xid/xid.dart';
 
-/// P2P 音视频通话页面
+/// P2P 音视频通话页面（LiveKit SFU 媒体面，信令/状态机/UX 与 P2P 时代一致）
 class P2pCallScreenPage extends ConsumerStatefulWidget {
   final ContactModel peer;
   final WebRTCSession session;
@@ -64,13 +65,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   String media = 'video';
   StreamSubscription<dynamic>? subscription;
 
-  RTCVideoRenderer localRenderer = RTCVideoRenderer();
-  RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
-
   // 接通 / 结束收尾的一次性闩，见 _applySignal。
   bool _connectedHandled = false;
   bool _closeScheduled = false;
-  bool _remoteVideoReady = false;
   // 默认对端主画面、本端小窗；点击小窗或上下滑动主画面可以交换。
   bool _localOnMain = false;
 
@@ -98,6 +95,9 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   late final AnimationController _entrance;
   late final Animation<double> _entranceOpacity;
   bool _entranceStarted = false;
+
+  /// Room 未接入时 ListenableBuilder 的占位监听（不通知）。
+  static final Listenable _idleListenable = ChangeNotifier();
 
   @override
   void initState() {
@@ -153,7 +153,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   @override
   void dispose() {
     // 在 dispose 之前发送 bye 消息通知对方（用缓存的 notifier，勿用 ref）；
-    // 挂断按钮路径已发过（_byeSent）则跳过，避免双发。
+    // 挂断按钮路径已发过（_byeSent）则跳过，避免双发。sendBye 同时释放
+    // LiveKit Room（离开房间 + 释放 track/连接）。
     if (msgId.isNotEmpty && !_byeSent) {
       _notifier.sendBye(msgId);
     }
@@ -171,41 +172,15 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
     // 异步清理：在 super.dispose() 之后执行
     // 注意：这些操作可能在 widget 已销毁后执行，需要内部检查 mounted 状态
-    _disposeRenderer();
     _notifier.cleanUpP2P();
-  }
-
-  Future<void> _disposeRenderer() async {
-    // 每个 renderer 独立 try/catch：flutter_webrtc 原生 dispose 存在
-    // Surface.release NPE 竞态；若 local 抛异常不能连累 remote 被跳过而泄漏
-    await _disposeOneRenderer(localRenderer, 'local');
-    await _disposeOneRenderer(remoteRenderer, 'remote');
-  }
-
-  Future<void> _disposeOneRenderer(
-    RTCVideoRenderer renderer,
-    String tag,
-  ) async {
-    if (renderer.textureId == null) return;
-    try {
-      renderer.srcObject = null;
-      await renderer.dispose();
-    } catch (e, s) {
-      iPrint("disposeRenderer[$tag] $e, $s");
-    }
   }
 
   Future<void> _initData() async {
     media = widget.option['media'] as String? ?? 'video';
 
-    await localRenderer.initialize();
-    await remoteRenderer.initialize();
-
     final notifier = _notifier;
 
-    // 会话角色接线：provider.caller/media/msgId 实例字段此前从未初始化
-    // （initSession 是死代码），caller 恒为 true —— 被叫侧
-    // onRenegotiationNeeded 也会主动发 offer，通话会被自己的 re-offer 杀死。
+    // 会话角色接线：provider.caller/media/msgId 实例字段供信令路径使用。
     notifier.initSession(
       newSession: widget.session,
       newMedia: media,
@@ -214,8 +189,6 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     );
 
     // 设置回调
-    notifier.onSignalingStateChange = (RTCSignalingState state) {};
-
     notifier.onCallStateChange = (WebRTCSession? s1, WebRTCCallState s) async {
       switch (s) {
         // invite / new 只是“已发起”，状态机初值即 dialing，无需迁移。
@@ -224,6 +197,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           break;
         case WebRTCCallState.callStateRinging:
           if (widget.caller) _applySignal(CallSignal.ringing);
+          break;
+        case WebRTCCallState.callStateAnswered:
+          // 被叫已接听：主叫此刻才 joinRoom 接入 LiveKit 媒体房
+          // （accept 前保持纯信令等待，不发布媒体、不建房）。
+          await _joinRoomAfterAnswer();
           break;
         case WebRTCCallState.callStateBye:
           _applySignal(CallSignal.peerBye);
@@ -240,73 +218,30 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       }
     };
 
-    // 应答超时在此处统一起臂，而不是等 callStateNew 分支：
-    // 后者只有主叫成功发出 offer 才会到达，媒体权限失败、invitePeer 早退、
-    // 被叫接听后 ICE 永远连不上这三种悬挂态都收不到，页面会永久停在“呼叫中”。
+    // 应答超时在此处统一起臂：被叫不接听、joinRoom 失败、信令不通等
+    // 悬挂态都由它兜底，页面不会永久停在“呼叫中”。
     notifier.startAnswerTimer(() => _applySignal(CallSignal.answerTimeout));
 
-    notifier.onLocalStream = ((stream) {
-      if (mounted) {
-        setState(() {
-          localRenderer.srcObject = stream;
-        });
-      }
-    });
-
-    notifier.onAddRemoteStream = ((_, stream) {
-      if (mounted) {
-        setState(() {
-          remoteRenderer.srcObject = stream;
-          // onTrack 可能先收到音频轨，再收到视频轨；只有真正有视频轨时
-          // 才切到视频布局，避免“已接通但黑屏”的假象。
-          _remoteVideoReady = stream.getVideoTracks().isNotEmpty;
-        });
-      }
-    });
-
-    notifier.onRemoveRemoteStream = ((_, stream) {
-      if (mounted) {
-        setState(() {
-          remoteRenderer.srcObject = null;
-          _remoteVideoReady = false;
-        });
-      }
-    });
-
-    // 初始化会话
-    final updatedSession = await notifier.createSession(
-      widget.session,
-      msgId: msgId,
-      media: media,
-      screenSharing: false,
-    );
-    if (!mounted || ref.read(p2pCallScreenProvider).errorMessage.isNotEmpty) {
-      return;
-    }
-
-    // 视频通话默认扬声器、音频通话默认听筒：必须在轨道就绪后立刻应用到
-    // 硬件，否则 iOS 上 UI 显示“扩音开”而声音仍从听筒出。
-    notifier.setInitialSpeaker(media == 'video');
-
-    // 订阅信令消息
+    // 订阅信令消息。LiveKit 模式下无需先获取媒体权限/TURN 凭证，
+    // 订阅可立即建立（原 getUserMedia 窗口期的 pending 排队机制保留兜底）。
     subscription = AppEventBus.on<WebRTCSignalingEvent>().listen((
       WebRTCSignalingEvent obj,
     ) async {
       await notifier.onMessageP2P(
-        updatedSession,
+        widget.session,
         WebRTCSignalingModel.fromJson(obj.data),
       );
     });
-    // 订阅就绪：此后 handleWebRTC 不再排队信令。就绪前的窗口期
-    // （getUserMedia + TURN 请求可达数秒）到达的 answer/candidate/bye
-    // 在此按序回放，此前它们会被 fire 到无监听者的事件总线而永久丢失。
+    // 订阅就绪：此后 handleWebRTC 不再排队信令。就绪前窗口期到达的
+    // answer/bye 在此按序回放，此前它们会被 fire 到无监听者的事件总线
+    // 而永久丢失。
     p2pCallSignalingReady = true;
     for (final data in takePendingWebRTCSignals(
       widget.peer.peerId.toString(),
     )) {
       if (!mounted) return;
       await notifier.onMessageP2P(
-        updatedSession,
+        widget.session,
         WebRTCSignalingModel.fromJson(data),
       );
     }
@@ -320,31 +255,44 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
         msgId: msgId,
         peer: widget.peer,
       );
+      // 只发邀请信令；媒体接入等对端 answer（_joinRoomAfterAnswer）。
       await notifier.invitePeer(
         msgId: msgId,
         peer: widget.peer.peerId.toString(),
         media: media,
       );
     } else {
-      await notifier.onMessageP2P(
-        updatedSession,
-        WebRTCSignalingModel(
-          msgId: msgId,
-          type: 'WEBRTC_OFFER',
-          from: widget.peer.peerId.toString(),
-          to: UserRepoLocal.to.currentUid,
-          payload: widget.option,
-        ),
-      );
-      // 接听前弹窗期排队的候选已在上面统一回放（takePendingWebRTCSignals
-      // 为 remove 语义，此处无需重复消费）。
+      // 被叫已点接听：回 answer 信令（主叫收到后同样 joinRoom）→
+      // joinRoom(kind=c2c) 连 LiveKit → 两端落同一 room。
+      await notifier.answerInvite();
+      final ok = await notifier.connect(peerId: widget.peer.peerId.toString());
+      if (!mounted) return;
+      if (!ok) {
+        _applySignal(CallSignal.failed);
+        return;
+      }
+      // 视频通话默认扬声器、音频通话默认听筒：必须在 Room 接入后立刻
+      // 应用到硬件，否则 iOS 上 UI 显示“扩音开”而声音仍从听筒出。
+      notifier.setInitialSpeaker(media == 'video');
+      _applySignal(CallSignal.connected);
     }
+  }
+
+  /// accept 之后接入媒体房的统一入口（主叫经 answer 信令、被叫经接听动作）。
+  Future<void> _joinRoomAfterAnswer() async {
+    final ok = await _notifier.connect(peerId: widget.peer.peerId.toString());
+    if (!mounted) return;
+    if (!ok) {
+      _applySignal(CallSignal.failed);
+      return;
+    }
+    _notifier.setInitialSpeaker(media == 'video');
+    _applySignal(CallSignal.connected);
   }
 
   /// 信令 / 本地事件统一入口：驱动状态机，并按迁移结果做一次性收尾。
   ///
-  /// 幂等由两个闩控制而非状态比较——ICE connected 与 SDP answer 会各报一次
-  /// 接通，ICE failed 与随后的 bye 也会各报一次结束，重复触发必须无害。
+  /// 幂等由两个闩控制而非状态比较——重复触发必须无害。
   void _applySignal(CallSignal signal) {
     if (!mounted) return;
     final status = _notifier.applySignal(signal);
@@ -554,8 +502,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     );
   }
 
-  /// 顶部“网络不佳，正在重连…”横幅（接通后 ICE Disconnected/Failed 时显示）。
-  /// 数据源是真实 ICE 连接态，非伪造信号格，断连时不会误显“良好”。
+  /// 顶部“网络不佳，正在重连…”横幅（接通后 Room Reconnecting/Resuming 时显示）。
+  /// 数据源是真实连接态，非伪造信号格，断连时不会误显“良好”。
   Widget _buildReconnectingBanner() {
     return Positioned(
       top: 0,
@@ -719,11 +667,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
         active: !state.micOff,
         showLabel: false,
         onTap: () {
-          notifier.turnMicrophone();
+          unawaited(notifier.turnMicrophone());
           if (mounted) setState(() {});
         },
       ),
-      // 摄像头开关：视频通话才显示，复用 notifier.turnCamera（已有，禁用视频轨）
+      // 摄像头开关：视频通话才显示（LiveKit setCameraEnabled 开/关发布）
       if (isVideo)
         _circleButton(
           icon: state.cameraOff
@@ -733,7 +681,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           active: !state.cameraOff,
           showLabel: false,
           onTap: () {
-            notifier.turnCamera();
+            unawaited(notifier.turnCamera());
             if (mounted) setState(() {});
           },
         ),
@@ -745,7 +693,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
         active: state.speakerOn,
         showLabel: false,
         onTap: () {
-          notifier.switchSpeaker(!state.speakerOn);
+          unawaited(notifier.switchSpeaker(!state.speakerOn));
           if (mounted) setState(() {});
         },
       ),
@@ -754,7 +702,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           icon: CupertinoIcons.camera_rotate_fill,
           label: t.common.switchCamera,
           showLabel: false,
-          onTap: notifier.switchCamera,
+          onTap: () => unawaited(notifier.switchCamera()),
         ),
       // 挂断键：实心红、整合进岛内末位，最醒目
       _circleButton(
@@ -949,12 +897,40 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     });
   }
 
+  /// 远端（唯一对端）的 camera 视频轨；未发布/被 mute 时为 null。
+  VideoTrack? _remoteVideoTrack(Room? room) {
+    if (room == null) return null;
+    for (final participant in room.remoteParticipants.values) {
+      for (final pub in participant.videoTrackPublications) {
+        if (pub.source == TrackSource.camera &&
+            pub.track != null &&
+            !pub.muted) {
+          return pub.track as VideoTrack?;
+        }
+      }
+    }
+    return null;
+  }
+
+  /// 本端 camera 视频轨（悬浮窗/小窗自视图）。
+  VideoTrack? _localVideoTrack(Room? room) {
+    final pubs = room?.localParticipant?.videoTrackPublications ?? const [];
+    for (final pub in pubs) {
+      if (pub.source == TrackSource.camera && pub.track != null) {
+        return pub.track as VideoTrack?;
+      }
+    }
+    return null;
+  }
+
   Widget _buildVideoContent({
     required P2pCallScreenState state,
     required bool isLocal,
+    Room? room,
   }) {
     final videoOff = isLocal ? state.cameraOff : state.remoteVideoOff;
-    if (videoOff) {
+    final track = isLocal ? _localVideoTrack(room) : _remoteVideoTrack(room);
+    if (videoOff || track == null) {
       return const ColoredBox(
         color: CallTokens.bg1A1A1A,
         child: Center(
@@ -967,16 +943,18 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       );
     }
 
-    return RTCVideoView(
-      isLocal ? localRenderer : remoteRenderer,
-      objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+    return VideoTrackRenderer(
+      track,
+      fit: VideoViewFit.cover,
       // 只有本地自视图镜像；远端视频永远不镜像。
-      mirror: isLocal && state.isFrontCamera,
+      mirrorMode: isLocal && state.isFrontCamera
+          ? VideoViewMirrorMode.mirror
+          : VideoViewMirrorMode.off,
     );
   }
 
   /// 接通后的视频小窗：本端/对端均可拖拽，点击交换主次位置。
-  Widget _buildVideoMini(P2pCallScreenState state) {
+  Widget _buildVideoMini(P2pCallScreenState state, Room? room) {
     final localWidth = LocalVideoConfig.width;
     final localHeight = LocalVideoConfig.height;
     final isLocal = !_localOnMain;
@@ -1017,7 +995,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  _buildVideoContent(state: state, isLocal: isLocal),
+                  _buildVideoContent(
+                    state: state,
+                    isLocal: isLocal,
+                    room: room,
+                  ),
                   Positioned(
                     top: 4,
                     right: 4,
@@ -1054,7 +1036,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   }
 
   /// 接通后的主画面。上下滑动主画面也可以交换本端/对端位置。
-  Widget _buildVideoMain(P2pCallScreenState state) {
+  Widget _buildVideoMain(P2pCallScreenState state, Room? room) {
     return Positioned.fill(
       child: Semantics(
         button: true,
@@ -1066,7 +1048,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
               _swapVideoLayout();
             }
           },
-          child: _buildVideoContent(state: state, isLocal: _localOnMain),
+          child: _buildVideoContent(
+            state: state,
+            isLocal: _localOnMain,
+            room: room,
+          ),
         ),
       ),
     );
@@ -1124,15 +1110,15 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   }
 
   /// 悬浮窗：最小化后的可拖拽小窗。视频显示当前主画面，音频显示头像 + 时长；
-  /// 点击复原全屏。渲染器实例保持存活，通话全程不中断。
-  Widget _buildFloatingWindow(P2pCallScreenState state) {
+  /// 点击复原全屏。LiveKit 渲染轨道随 Room 变化自动重建，通话全程不中断。
+  Widget _buildFloatingWindow(P2pCallScreenState state, Room? room) {
     const double w = 108;
     const double h = 156;
     final bool showVideo =
-        media == 'video' && state.connected && _remoteVideoReady;
+        media == 'video' && state.connected && _remoteVideoTrack(room) != null;
 
     final Widget inner = showVideo
-        ? _buildVideoContent(state: state, isLocal: _localOnMain)
+        ? _buildVideoContent(state: state, isLocal: _localOnMain, room: room)
         : DecoratedBox(
             decoration: const BoxDecoration(color: CallTokens.bg0E1A2B),
             child: Center(
@@ -1245,14 +1231,25 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   Widget build(BuildContext context) {
     final state = ref.watch(p2pCallScreenProvider);
 
+    // LiveKit Room 是 ChangeNotifier：参与者/轨道到达、mute 等变化都会
+    // 通知重建，页面据此重取渲染轨道（Room 未接入时用静默占位监听）。
+    final room = _notifier.room;
+    return ListenableBuilder(
+      listenable: room ?? _idleListenable,
+      builder: (context, _) => _buildScaffold(state, room),
+    );
+  }
+
+  Widget _buildScaffold(P2pCallScreenState state, Room? room) {
     // 最小化：仅渲染透明悬浮窗，让用户在底层 app 上继续操作（通话不挂断）。
     if (state.minimized) {
-      return Container(child: _buildFloatingWindow(state));
+      return Container(child: _buildFloatingWindow(state, room));
     }
 
     final isVideo = media == 'video';
     // 仅“接通的视频通话”才有远端画面铺满；其余（呼出 / 音频）走渐变 + 头像。
-    final hasRemoteVideo = isVideo && state.connected && _remoteVideoReady;
+    final remoteTrack = _remoteVideoTrack(room);
+    final hasRemoteVideo = isVideo && state.connected && remoteTrack != null;
     // 控件可见性：音频/呼出常驻；接通视频点屏切换。淡入淡出替代硬切。
     final bool toolsVisible = !hasRemoteVideo || state.showTool;
 
@@ -1261,12 +1258,12 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
         children: [
           // 1. 背景层
           if (hasRemoteVideo)
-            _buildVideoMain(state)
+            _buildVideoMain(state, room)
           else
             _buildGradientBackground(),
 
           // 2. 接通的视频：本地小窗
-          if (hasRemoteVideo) _buildVideoMini(state),
+          if (hasRemoteVideo) _buildVideoMini(state, room),
 
           // 3. 呼出 / 音频：中部头像 + 昵称 + 状态
           if (!hasRemoteVideo) _buildConnectingInfo(state),
@@ -1275,7 +1272,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           if (hasRemoteVideo)
             _buildVideoTopInfo(state, visible: state.showTool),
 
-          // 5. 网络不佳横幅（接通后 ICE 重连中）——真实连接态驱动
+          // 5. 网络不佳横幅（接通后 Room 重连中）——真实连接态驱动
           if (state.connected && state.reconnecting) _buildReconnectingBanner(),
 
           // 6. 摄像头/麦克风权限或设备错误：明确告知，不再伪装成“等待中”。

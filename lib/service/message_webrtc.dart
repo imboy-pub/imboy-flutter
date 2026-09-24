@@ -92,20 +92,9 @@ class MessageWebrtc {
 
     if (type == 'WEBRTC_OFFER') {
       final peerId = data['from'];
-      // 通话进行中收到同一会话对端的 re-offer（ICE restart / renegotiation）：
-      // 必须转交通话页按协商流程处理。若走 incomingCallScreen 的占线逻辑回
-      // busy，会对端收到 busy 后挂断——正在进行的通话被自己的 re-offer 杀死。
-      if (p2pCallScreenOn) {
-        final sid = sessionId(peerId.toString());
-        if (webRTCSessions[sid]?.pc != null) {
-          if (p2pCallSignalingReady) {
-            AppEventBus.fire(WebRTCSignalingEvent(data: data));
-          } else {
-            queuePendingWebRTCSignal(data);
-          }
-          return;
-        }
-      }
+      // LK-APP-01：1:1 媒体协商已迁移 LiveKit SFU，不再存在 re-offer/
+      // renegotiation。通话进行中收到新邀请（p2pCallScreenOn 置位）时由
+      // incomingCallScreen 的占线逻辑回 busy，不会误杀正在进行的通话。
       final contact = await _contactRepo.findByUid(peerId as String);
       if (contact != null && navigatorKey.currentContext != null) {
         await incomingCallScreen(
@@ -121,16 +110,10 @@ class MessageWebrtc {
         );
       }
     } else {
-      // 通话页 overlay 已插入但信令订阅尚未就绪（getUserMedia + TURN 请求
-      // 可达数秒）：窗口内到达的 answer/candidate/bye 全部入队，由订阅建立
-      // 后按序回放，否则会被 fire 到无监听者的事件总线而永久丢失。
+      // 通话页 overlay 已插入但信令订阅尚未就绪：窗口内到达的
+      // answer/bye 全部入队，由订阅建立后按序回放，否则会被 fire 到
+      // 无监听者的事件总线而永久丢失。
       if (p2pEntry != null && !p2pCallSignalingReady) {
-        queuePendingWebRTCSignal(data);
-        return;
-      }
-      // 被叫尚未接听时没有通话页订阅事件总线；候选不能丢失，否则公网
-      // 环境下 TURN/relay 候选无法在接听后补回 PeerConnection。
-      if (type == 'WEBRTC_CANDIDATE' && p2pCallScreenOn && p2pEntry == null) {
         queuePendingWebRTCSignal(data);
         return;
       }

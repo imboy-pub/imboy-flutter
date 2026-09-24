@@ -26,7 +26,6 @@ import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/observer/lifecycle.dart';
-import 'package:imboy/component/webrtc/session.dart';
 
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/message_retry.dart';
@@ -49,8 +48,10 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:xid/xid.dart';
 
 import 'env.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
 import 'routes.dart';
 
 IMBoyCacheManager cacheManager = IMBoyCacheManager();
@@ -58,9 +59,9 @@ IMBoyCacheManager cacheManager = IMBoyCacheManager();
 bool p2pCallScreenOn = false;
 
 /// 通话页的信令订阅是否已就绪。
-/// openCallScreen 插入 overlay 后到页面 _initData 建立事件订阅之间存在数秒窗口
-/// （getUserMedia + TURN 凭证请求），期间到达的 answer/candidate/bye 若直接
-/// fire 事件总线会因无监听者而永久丢失；此窗口内信令一律入 pending 队列。
+/// openCallScreen 插入 overlay 后到页面 _initData 建立事件订阅之间存在短暂
+/// 窗口，期间到达的 answer/bye 若直接 fire 事件总线会因无监听者而永久
+/// 丢失；此窗口内信令一律入 pending 队列。
 bool p2pCallSignalingReady = false;
 
 var logger = Logger();
@@ -122,8 +123,6 @@ void navigateToSignIn({String source = 'unknown'}) {
     }
   });
 }
-
-Map<String, WebRTCSession> webRTCSessions = {};
 
 /// Connectivity监听器订阅（需要在dispose时取消）
 StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
@@ -931,9 +930,6 @@ class AppInitializer {
     } on Exception catch (e) {
       logger.w('Failed to dispose MessageRetry: ${e.runtimeType}');
     }
-
-    // 清理WebRTC会话
-    webRTCSessions.clear();
 
     // 停止升级检查定时器
     AppUpgradeService.to.dispose();

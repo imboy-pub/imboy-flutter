@@ -163,7 +163,6 @@ class API {
   static const groupSetE2eeMode = '/api/v1/group/set_e2ee_mode';
 
   static const userShow = '/api/v1/user/show';
-  static const turnCredential = '/api/v1/user/credential';
   static const userUpdate = '/api/v1/user/update';
   static const userSetting = '/api/v1/user/setting';
   static const userChangePassword = '/api/v1/user/change_password';

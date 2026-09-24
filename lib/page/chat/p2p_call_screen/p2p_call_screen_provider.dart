@@ -1,20 +1,20 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
-import 'package:imboy/component/ui/app_loading.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:livekit_client/livekit_client.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/media_permission.dart';
 import 'package:imboy/component/webrtc/session.dart';
-import 'package:imboy/config/init.dart' show webRTCSessions, p2pCallScreenOn;
+import 'package:imboy/config/init.dart' show deviceId, p2pCallScreenOn;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_state_machine.dart';
+import 'package:imboy/store/api/rtc_room_api.dart';
 import 'package:imboy/store/model/webrtc_signaling_model.dart';
-import 'package:imboy/store/api/user_api.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'p2p_call_screen_provider.g.dart';
 
@@ -56,7 +56,6 @@ class P2pCallScreenState {
   final bool minimized;
 
   /// 通话阶段 + 结束原因（唯一真值源，见 [CallStatus]）。
-  /// 原来是一条自由文本 stateTips，接通后无人清空导致文案与实际状态脱节。
   final CallStatus callStatus;
   final String callDuration;
   final double localX;
@@ -66,10 +65,10 @@ class P2pCallScreenState {
   final double floatX;
   final double floatY;
 
-  /// 网络重连中（ICE Disconnected/Failed）。用于顶部“网络不佳”横幅。
+  /// 网络重连中（LiveKit Room Reconnecting/Resuming）。用于顶部“网络不佳”横幅。
   final bool reconnecting;
 
-  /// 对端已关闭摄像头（远端视频轨 mute）。用于主画面占位提示，
+  /// 对端已关闭摄像头（track_state 信令同步）。用于主画面占位提示，
   /// 否则对端关摄像头后本端只看到黑屏、无从分辨。
   final bool remoteVideoOff;
   final String errorMessage;
@@ -140,6 +139,11 @@ class P2pCallScreenState {
 }
 
 /// P2P Call Screen Provider
+///
+/// LK-APP-01：媒体面迁移 LiveKit SFU（与群通话 rtc_room_provider 同一模式）。
+/// 信令（邀请/响铃/接听/拒接/挂断）、状态机、悬浮窗 UX 全部保留原有实现；
+/// offer/answer 信令退化为“邀请/接听”通知（payload 仅 media，无 SDP），
+/// ICE candidate 彻底消失——媒体协商由 SFU 完成。
 @riverpod
 class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   WebRTCSession? session;
@@ -147,62 +151,41 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   bool caller = true;
   String msgId = '';
 
-  bool makingOffer = false;
-  bool makingAnswer = false;
-
-  /// 已成功 setRemoteDescription（首轮协商完成）。此后 ICE restart 触发的
-  /// onRenegotiationNeeded 允许任意一方发起新 offer；首轮 offer 只能由主叫发。
-  bool _remoteDescSet = false;
-
   // 页面 dispose 期间置位：阻止仍在飞行中的信令回调继续操作正在被
-  // cleanUpP2P() 关闭的 PeerConnection（两者并发访问同一个 pc 有崩溃风险）。
+  // cleanUpP2P() 释放的 LiveKit Room（并发访问有崩溃风险）。
   bool _closing = false;
 
-  MediaStream? _localStream;
-  final Map<String, MediaStream> _remoteStreams = <String, MediaStream>{};
-  final List<RTCRtpSender> _senders = <RTCRtpSender>[];
-  VideoSource _videoSource = VideoSource.camera;
+  // answer 信令幂等闩：只向页面广播一次 callStateAnswered（重复 answer /
+  // 主叫 connect 尚未起身的竞态窗口内到达的第二条 answer 不再触发）。
+  bool _answeredNotified = false;
 
   Timer? _answerTimer;
   Timer? _callTimer;
   int _callSeconds = 0;
 
-  // ICE 重启计数器（防止无限重连）
-  int _iceRestartCount = 0;
-  static const int _maxIceRestarts = 3;
-  Timer? _iceDisconnectTimer;
+  // ===== LiveKit 媒体面（参照 rtc_room_provider） =====
+  Room? _room;
+  EventsListener<RoomEvent>? _listener;
+  CameraPosition _cameraPosition = CameraPosition.front;
+  bool _connecting = false;
 
-  // 回调函数
-  void Function(RTCSignalingState state)? onSignalingStateChange;
+  /// 测试注入：RtcRoomApi 替身（断言 joinRoom 调用时机/参数）。
+  @visibleForTesting
+  RtcRoomApi? rtcApiOverride;
+
+  /// 测试注入：Room 连接替身（单测不触碰真实网络/平台通道）。
+  @visibleForTesting
+  Future<bool> Function(String wsUrl, String token)? roomConnectOverride;
+
+  RtcRoomApi get _rtcApi => rtcApiOverride ?? RtcRoomApi();
+
+  /// LiveKit Room（ChangeNotifier），页面用 ListenableBuilder 监听
+  /// 参与者/轨道变化来重取渲染轨道。
+  Room? get room => _room;
+
+  /// 回调函数
   void Function(WebRTCSession? session, WebRTCCallState state)?
   onCallStateChange;
-  void Function(MediaStream stream)? onLocalStream;
-  void Function(WebRTCSession session, MediaStream stream)? onAddRemoteStream;
-  void Function(WebRTCSession session, MediaStream stream)?
-  onRemoveRemoteStream;
-  void Function(
-    WebRTCSession session,
-    RTCDataChannel dc,
-    RTCDataChannelMessage data,
-  )?
-  onDataChannelMessage;
-  void Function(WebRTCSession session, RTCDataChannel dc)? onDataChannel;
-
-  final Map<String, dynamic> _offerSdpConstraints = {
-    'mandatory': <String, dynamic>{},
-    'optional': <Map<String, dynamic>>[
-      {'DtlsSrtpKeyAgreement': true},
-    ],
-  };
-
-  final Map<String, dynamic> _privDcConstraint = {
-    'mandatory': {
-      'OfferToReceiveAudio': true,
-      'OfferToReceiveVideo': true,
-      'IceRestart': true,
-    },
-    'optional': <Map<String, dynamic>>[],
-  };
 
   @override
   P2pCallScreenState build() {
@@ -222,21 +205,16 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     media = newMedia;
     caller = isCaller;
     msgId = newMsgId;
-    makingOffer = false;
-    makingAnswer = false;
     _closing = false;
-    _remoteDescSet = false;
+    _answeredNotified = false;
     _callSeconds = 0;
   }
 
-  Future<void> initState() async {
-    iPrint("> rtc logic signalingConnect ${DateTime.now()}");
-    makingOffer = false;
-    makingAnswer = false;
-    _closing = false;
-    _remoteDescSet = false;
-  }
-
+  /// 处理对端信令（ringing/busy/bye/answer/track_state）。
+  ///
+  /// LiveKit 模式下媒体协商类信令（offer/answer/candidate）不再携带
+  /// SDP/ICE：offer 由来电页处理；answer 只作为“被叫已接听”通知，
+  /// 由主叫侧据此触发 joinRoom 接入媒体房。
   Future<void> onMessageP2P(WebRTCSession s, WebRTCSignalingModel msg) async {
     if (_closing) {
       iPrint('> rtc onMessageP2P: 正在关闭中，忽略信令 ${msg.webRtcType}');
@@ -255,130 +233,32 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     }
 
     switch (msg.webRtcType) {
-      case 'peers':
-        break;
-      case 'offer':
-        final sid = (msg.payload['sid'] ?? s.sid) as String;
-        final sd = msg.payload['sd'];
-        // SDP 基本格式校验
-        if (sd is! Map || sd['sdp'] is! String || sd['type'] != 'offer') {
-          iPrint('> rtc WARNING: invalid SDP in offer message');
-          return;
-        }
-        final s2 = await createSession(
-          s,
-          msgId: msg.msgId,
-          media: media,
-          screenSharing: false,
-        );
-        webRTCSessions[sid] = s2;
-
-        // Glare 仲裁（perfect negotiation 简化版）：双方几乎同时发起 offer 时，
-        // 按 uid 字典序固定一方为 polite（谦让）。impolite 方直接忽略冲突的
-        // 入向 offer，让自己的 offer 继续；polite 方回退本地 offer 后接受对方。
-        final offerCollision =
-            makingOffer ||
-            s2.pc?.signalingState ==
-                RTCSignalingState.RTCSignalingStateHaveLocalOffer;
-        final polite = _isPolitePeer(s2.peerId);
-        if (offerCollision && !polite) {
-          iPrint('> rtc offer collision: impolite peer ignores incoming offer');
-          return;
-        }
-        if (offerCollision && polite) {
-          iPrint('> rtc offer collision: polite peer rolls back local offer');
-          await s2.pc!.setLocalDescription(
-            RTCSessionDescription('', 'rollback'),
-          );
-        }
-
-        final sd2 = RTCSessionDescription(
-          sd['sdp'] as String,
-          sd['type'] as String,
-        );
-        await s2.pc!.setRemoteDescription(sd2);
-        _remoteDescSet = true;
-
-        // ICE candidate 必须在 remoteDescription 设置成功后再消费，
-        // 提前 addCandidate 可能被底层拒绝导致候选丢失。
-        if (s2.remoteCandidates.isNotEmpty) {
-          for (var candidate in s2.remoteCandidates) {
-            await s2.pc?.addCandidate(candidate);
-          }
-          s2.remoteCandidates.clear();
-        }
-
-        await _createAnswer(s2, msg.msgId, media);
-        break;
-      case 'answer':
-        final sid = (msg.payload['sid'] ?? s.sid) as String;
-        final sd = msg.payload['sd'];
-        // SDP 基本格式校验
-        if (sd is! Map || sd['sdp'] is! String || sd['type'] != 'answer') {
-          iPrint('> rtc WARNING: invalid SDP in answer message');
-          return;
-        }
-        final s2 = webRTCSessions[sid];
-
-        makingOffer = false;
-        // stale answer（bye 已清理 / sid 不匹配 / 重复 answer）防御：
-        // 旧实现在这里 s2! 强制解包，会话已关闭时直接空指针崩溃。
-        if (s2 == null || s2.pc == null) {
-          iPrint('> rtc answer: no live session for sid $sid, dropping');
-          return;
-        }
-        // 重复 answer 幂等：只在 have-local-offer 状态消费，二次
-        // setRemoteDescription 会抛 wrong-state 异常打进事件总线监听器。
-        if (s2.pc!.signalingState !=
-            RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
-          iPrint('> rtc answer: not in have-local-offer state, dropping');
-          return;
-        }
-        await s2.pc?.setRemoteDescription(
-          RTCSessionDescription(sd['sdp'] as String, sd['type'] as String),
-        );
-        _remoteDescSet = true;
-        // 主叫方在等待 answer 期间到达的 ICE candidate 会被 _receiveCandidate
-        // 缓冲进 remoteCandidates；remoteDescription 设置成功后必须在此消费，
-        // 否则会静默丢失，导致 NAT 穿透失败。
-        if (s2.remoteCandidates.isNotEmpty) {
-          for (var candidate in s2.remoteCandidates) {
-            await s2.pc?.addCandidate(candidate);
-          }
-          s2.remoteCandidates.clear();
-        }
-        webRTCSessions[sid] = s2;
-        onCallStateChange?.call(s2, WebRTCCallState.callStateConnected);
-        break;
-      case 'candidate':
-        final peerId = msg.from;
-        final candidateMap = msg.payload['candidate'];
-        await _receiveCandidate(peerId, candidateMap as Map<String, dynamic>);
-        break;
-      case 'leave':
-        closeSessionByPeerId(s.peerId);
-        break;
       case 'ringing':
         onCallStateChange?.call(s, WebRTCCallState.callStateRinging);
         break;
       case 'busy':
         onCallStateChange?.call(s, WebRTCCallState.callStateBusy);
         break;
-      case 'bye':
-        final sid = msg.payload['sid'] as String? ?? s.sid;
-        final s2 = webRTCSessions[sid];
-        // 幽灵 bye 防御：sid 只由双方 uid 派生（func.dart sessionId），挂断后
-        // 立即回拨的新会话 sid 相同。双方共用同一 msgId（主叫生成、随 offer
-        // 传递），用它可以区分迟到 bye 属于哪一通通话。
-        if (s2 != null && msg.msgId == msgId) {
-          webRTCSessions.remove(sid);
-          onCallStateChange?.call(s2, WebRTCCallState.callStateBye);
-          _closeSession(s2);
+      case 'answer':
+        // 主叫侧：被叫已接听。msgId 匹配（被叫沿用主叫 invite 的 msgId）
+        // 防止串话；幂等闩防重复 answer 重复触发 joinRoom。
+        if (msg.msgId == msgId && !_answeredNotified) {
+          _answeredNotified = true;
+          onCallStateChange?.call(s, WebRTCCallState.callStateAnswered);
         } else {
-          iPrint('> rtc bye: stale bye for sid $sid (msgId mismatch), ignored');
+          iPrint('> rtc answer: stale/duplicate answer, dropping');
         }
         break;
-      case 'heartbeat':
+      case 'bye':
+        // 幽灵 bye 防御：双方共用同一 msgId（主叫生成、随邀请传递），
+        // 用它区分迟到 bye 属于哪一通通话。
+        if (msg.msgId == msgId) {
+          onCallStateChange?.call(s, WebRTCCallState.callStateBye);
+        } else {
+          iPrint(
+            '> rtc bye: stale bye for sid ${s.sid} (msgId mismatch), ignored',
+          );
+        }
         break;
       case 'track_state':
         // 对端摄像头开关的信令同步：驱动本端 remoteVideoOff 占位 UI。
@@ -388,343 +268,16 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         }
         break;
       default:
+        // offer/peers/heartbeat/leave/candidate：LiveKit 模式无 P2P 媒体
+        // 协商，统一忽略（candidate 已随 1:1 RTCPeerConnection 链路移除）。
         break;
     }
   }
 
-  /// Glare 仲裁角色判定：双方按 uid 字典序（与 [sessionId] 排序规则一致）
-  /// 各自独立算出同一结论，无需协商。uid 较大的一方为 polite（谦让）方。
-  bool _isPolitePeer(String peerId) {
-    final ids = [UserRepoLocal.to.currentUid, peerId]..sort();
-    return UserRepoLocal.to.currentUid == ids[1];
-  }
-
-  Future<void> _receiveCandidate(
-    String peerId,
-    Map<String, dynamic> data,
-  ) async {
-    // ICE 候选字段校验
-    final candidateStr = data['candidate'];
-    final sdpMid = data['sdpMid'];
-    final sdpMLineIndex = data['sdpMLineIndex'];
-    if (candidateStr is! String ||
-        candidateStr.isEmpty ||
-        sdpMid is! String ||
-        sdpMLineIndex is! int) {
-      iPrint('> rtc WARNING: invalid ICE candidate fields, skipping');
-      return;
-    }
-    RTCIceCandidate candidate = RTCIceCandidate(
-      candidateStr,
-      sdpMid,
-      sdpMLineIndex,
-    );
-    // 跨网络 relay 定位用：记录“对端实际收到的候选类型”。
-    // 只见 host=信令丢 srflx/relay；见 srflx/relay 但媒体不通=ICE/SDP 或网络层。
-    final recvType = _parseIceCandidateType(candidateStr);
-    String sid = sessionId(peerId);
-    var s = webRTCSessions[sid];
-    if (s != null && s.pc != null) {
-      final description = await s.pc?.getRemoteDescription();
-      if (description != null) {
-        iPrint('> rtc RECV ICE candidate type=$recvType applied');
-        await s.pc?.addCandidate(candidate);
-      } else {
-        iPrint('> rtc RECV ICE candidate type=$recvType queued(no remoteDesc)');
-        s.remoteCandidates.add(candidate);
-      }
-      webRTCSessions[sid] = s;
-    } else {
-      iPrint('> rtc RECV ICE candidate type=$recvType queued(no session/pc)');
-      webRTCSessions[sid] = WebRTCSession(peerId: peerId, sid: sid)
-        ..remoteCandidates.add(candidate);
-    }
-  }
-
-  Future<void> _createAnswer(
-    WebRTCSession session,
-    String msgId,
-    String media,
-  ) async {
-    if (makingAnswer) {
-      iPrint('> rtc _createAnswer: already making answer, skipping');
-      return;
-    }
-    makingAnswer = true;
-    try {
-      _privDcConstraint['mandatory']['OfferToReceiveVideo'] = media == 'video'
-          ? true
-          : false;
-      iPrint("> rtc onMessageP2P 3 _createAnswer ${DateTime.now()}");
-
-      Map<String, dynamic> conf = media == 'data' ? _privDcConstraint : {};
-      final s = await session.pc!.createAnswer(conf);
-      await session.pc!.setLocalDescription(s);
-
-      sendWebRTCMsg(
-        'answer',
-        {
-          'media': media,
-          'sd': {'sdp': s.sdp, 'type': s.type},
-        },
-        msgId: msgId,
-        to: session.peerId,
-        debug: 'from_createAnswer',
-      );
-    } catch (e, s) {
-      iPrint('> rtc _createAnswer error: $e\n$s');
-    } finally {
-      makingAnswer = false;
-    }
-  }
-
-  Future<MediaStream?> _createStream(String media, bool userScreen) async {
-    if (_localStream != null) {
-      return _localStream;
-    }
-    final Map<String, dynamic> mediaConstraints = {
-      'audio': true,
-      'video': media == 'video'
-          ? {
-              'mandatory': {
-                'minWidth': VideoQualityConfig.minVideoWidth,
-                'minHeight': VideoQualityConfig.minVideoHeight,
-                'minFrameRate': VideoQualityConfig.minFrameRate.toString(),
-              },
-              'facingMode': 'user',
-              'optional': <Map<String, dynamic>>[],
-            }
-          : false,
-    };
-    try {
-      late MediaStream stream;
-      if (userScreen) {
-        if (WebRTC.platformIsDesktop) {
-          // Desktop screen share implementation
-        } else {
-          stream = await navigator.mediaDevices.getDisplayMedia(
-            mediaConstraints,
-          );
-        }
-      } else {
-        stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-      }
-      _localStream = stream;
-
-      iPrint("> rtc onLocalStream _createStream ${_localStream.toString()}");
-      onLocalStream?.call(stream);
-      return stream;
-    } catch (e) {
-      iPrint("> rtc createStream error userScreen $userScreen ${e.toString()}");
-      updateStateError(
-        t.common.permissionAcquisitionFailed,
-        permissionTarget: media == 'audio'
-            ? MediaPermissionTarget.microphone
-            : MediaPermissionTarget.camera,
-      );
-    }
-    return null;
-  }
-
-  Future<WebRTCSession> createSession(
-    WebRTCSession newSession, {
-    required String msgId,
-    required String media,
-    required bool screenSharing,
-  }) async {
-    iPrint("> rtc createSession media $media, sid ${newSession.sid}");
-    // 接听瞬间挂断竞态：页面 dispose 已触发 cleanUpP2P 时不再创建新连接，
-    // 否则会在清理流程中插入新的 pc/媒体流（随后成为孤儿资源）。
-    if (_closing) {
-      iPrint('> rtc createSession: closing in progress, abort');
-      return newSession;
-    }
-    if (media != 'data') {
-      _localStream ??= await _createStream(media, screenSharing);
-      // 权限/设备失败时不要继续创建“无本地轨道”的连接；否则对端只会
-      // 看到黑屏或无声，用户也会误以为是公网 ICE 故障。
-      if (_localStream == null) return newSession;
-    }
-    if (newSession.pc != null) {
-      return newSession;
-    }
-
-    final iceConf = await _getIceConf();
-    final pc = await createPeerConnection(iceConf, _offerSdpConstraints);
-
-    pc.onAddStream = (stream) async {
-      iPrint('> rtc pc onAddStream: ${stream.id.toString()}');
-      if (_closing || stream.getTracks().isEmpty) return;
-      // Plan-B/部分桌面端实现仍通过 onAddStream 交付远端媒体；与
-      // Unified Plan 的 onTrack 走同一 UI 回调，避免只建立连接却没有画面。
-      onAddRemoteStream?.call(newSession, stream);
-      onCallStateChange?.call(newSession, WebRTCCallState.callStateConnected);
-    };
-
-    pc.onTrack = (RTCTrackEvent event) async {
-      iPrint("> rtc onTrack ${event.track.enabled}");
-      if (_closing ||
-          (event.track.kind != 'audio' && event.track.kind != 'video')) {
-        return;
-      }
-
-      // Unified Plan 在部分 Android/macOS 组合上会返回裸 track，streams
-      // 为空。若只读取 streams[0]，ICE/SDP 虽然已连接，渲染器却永远收不到
-      // 远端音视频，表现就是“接通后黑屏/无声”。把同一 session 的裸 track
-      // 合并到一个远端流，保证音频和视频都能绑定到现有 renderer。
-      MediaStream remoteStream;
-      if (event.streams.isNotEmpty) {
-        remoteStream = event.streams.first;
-      } else {
-        remoteStream = _remoteStreams[newSession.sid] ??=
-            await createLocalMediaStream('remote-${newSession.sid}');
-        final trackId = event.track.id;
-        if (trackId == null || remoteStream.getTrackById(trackId) == null) {
-          await remoteStream.addTrack(event.track);
-        }
-      }
-
-      if (!_closing) {
-        onAddRemoteStream?.call(newSession, remoteStream);
-        onCallStateChange?.call(newSession, WebRTCCallState.callStateConnected);
-      }
-    };
-
-    // 必须等待所有本地轨道加入 PeerConnection，再创建 offer/answer；
-    // async forEach 会让 SDP 先生成，导致公网两端“已连接但无音视频”。
-    final localStream = _localStream;
-    if (localStream != null) {
-      for (final track in localStream.getTracks()) {
-        _senders.add(await pc.addTrack(track, localStream));
-      }
-    }
-
-    pc.onIceCandidate = (RTCIceCandidate candidate) async {
-      iPrint('> rtc candidate pc onIceCandidate: ${DateTime.now()}');
-      if (candidate.candidate == null) {
-        iPrint('> rtc pc onIceCandidate: complete!');
-        return;
-      }
-
-      // 解析并记录 ICE 候选类型（便于调试 NAT 穿透问题）
-      final candidateType = _parseIceCandidateType(candidate.candidate ?? '');
-      // 仅记录候选类型，不输出完整候选字符串（含 IP 地址）
-      iPrint('> rtc ICE candidate type: $candidateType');
-
-      final currentSession = session;
-      if (currentSession == null) {
-        iPrint('> rtc onIceCandidate: session is null, skipping');
-        return;
-      }
-      try {
-        sendWebRTCMsg(
-          'candidate',
-          {
-            'candidate': {
-              'sdpMLineIndex': candidate.sdpMLineIndex,
-              'sdpMid': candidate.sdpMid,
-              'candidate': candidate.candidate,
-            },
-          },
-          msgId: msgId,
-          to: currentSession.peerId,
-        );
-      } catch (e, s) {
-        iPrint('> rtc onIceCandidate send error: $e\n$s');
-        // 网络错误不中断流程，ICE 候选会继续收集
-      }
-    };
-
-    pc.onSignalingState = (RTCSignalingState state) {
-      iPrint('> rtc pc onSignalingState: ${state.toString()}');
-      if (state == RTCSignalingState.RTCSignalingStateHaveRemoteOffer) {
-        _createAnswer(newSession, msgId, media);
-      }
-      onSignalingStateChange?.call(state);
-    };
-
-    pc.onIceConnectionState = (RTCIceConnectionState state) {
-      iPrint('> rtc pc onIceConnectionState: ${state.toString()}');
-
-      switch (state) {
-        case RTCIceConnectionState.RTCIceConnectionStateConnected:
-        case RTCIceConnectionState.RTCIceConnectionStateCompleted:
-          // 连接成功，重置计数器
-          _iceRestartCount = 0;
-          _iceDisconnectTimer?.cancel();
-          _iceDisconnectTimer = null;
-          // 注意：此回调参数名为 state（遮蔽 Notifier.state），故用 setReconnecting
-          setReconnecting(false);
-          // 走与 SDP answer 相同的“接通”入口：否则这条路径只翻 connected 标志，
-          // 既不停应答超时定时器、也不启动通话计时、也不写 start_at。
-          onCallStateChange?.call(
-            newSession,
-            WebRTCCallState.callStateConnected,
-          );
-          break;
-
-        case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-          // 断开后等待 5 秒尝试恢复（顶部横幅提示用户网络不佳）
-          setReconnecting(true);
-          _iceDisconnectTimer?.cancel();
-          _iceDisconnectTimer = Timer(const Duration(seconds: 5), () {
-            if (session?.pc?.iceConnectionState ==
-                RTCIceConnectionState.RTCIceConnectionStateDisconnected) {
-              iPrint('> rtc ICE disconnected timeout, attempting restart');
-              _attemptIceRestart();
-            }
-          });
-          break;
-
-        case RTCIceConnectionState.RTCIceConnectionStateFailed:
-          // ICE 失败时尝试重启
-          setReconnecting(true);
-          _attemptIceRestart();
-          break;
-
-        case RTCIceConnectionState.RTCIceConnectionStateClosed:
-          _iceDisconnectTimer?.cancel();
-          break;
-
-        default:
-          break;
-      }
-    };
-
-    pc.onRemoveStream = (stream) {
-      onRemoveRemoteStream?.call(newSession, stream);
-    };
-
-    pc.onDataChannel = (channel) {
-      _addDataChannel(newSession, channel);
-    };
-
-    pc.onRenegotiationNeeded = () async {
-      iPrint('> rtc pc onRenegotiationNeeded');
-      if (_closing) return;
-      // 首轮 offer 只能由主叫发起（caller 接线自 initSession）；被叫侧若也
-      // 主动发 offer，主叫通话中的占线逻辑会回 busy，把正在进行的通话杀死。
-      // 首轮协商完成后（_remoteDescSet），ICE restart 需要任一方都能补发 offer。
-      if (caller || _remoteDescSet) {
-        _createOffer(msgId, media);
-      }
-    };
-
-    newSession.pc = pc;
-    webRTCSessions[newSession.sid] = newSession;
-    session = newSession;
-    return newSession;
-  }
-
-  void _addDataChannel(WebRTCSession session, RTCDataChannel channel) {
-    channel.onDataChannelState = (e) {};
-    channel.onMessage = (RTCDataChannelMessage data) {
-      onDataChannelMessage?.call(session, channel, data);
-    };
-    session.dc = channel;
-    onDataChannel?.call(session, channel);
-  }
-
+  /// 主叫发起邀请：只发信令，不碰媒体。
+  ///
+  /// accept 前不调用 joinRoom、不连 Room、不获取媒体权限——
+  /// 发起方保持纯信令等待，拒绝/取消/超时不会在服务端留下房间。
   Future<void> invitePeer({
     required String msgId,
     required String peer,
@@ -736,160 +289,125 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       return;
     }
     iPrint("> rtc invitePeer $peer $media");
-    if (media == 'data') {
-      _createDataChannel(currentSession);
-    }
-    await _createOffer(msgId, media);
+    // 邀请沿用 webrtc_offer 消息类型（后端按 webrtc_ 前缀透传），
+    // payload 仅保留 media，SDP 字段随 P2P 媒体链路一并移除。
+    sendWebRTCMsg(
+      'offer',
+      {'media': media},
+      msgId: msgId,
+      to: currentSession.peerId,
+      debug: 'from_invitePeer',
+    );
     onCallStateChange?.call(currentSession, WebRTCCallState.callStateNew);
   }
 
-  Future<void> _createOffer(String msgId, String m) async {
+  /// 被叫接听：回 answer 信令通知主叫。
+  /// 媒体接入由页面随后调用 [connect]（joinRoom → LiveKit Room）。
+  Future<void> answerInvite() async {
     final currentSession = session;
     if (currentSession == null) {
-      iPrint('> rtc _createOffer: session is null, skipping');
+      iPrint('> rtc answerInvite: session is null, skipping');
       return;
     }
-    iPrint("> rtc _createOffer media $m sid ${currentSession.sid}");
-    if (makingOffer) {
-      iPrint('> rtc _createOffer: already making offer, skipping');
-      return;
-    }
-    makingOffer = true;
+    sendWebRTCMsg(
+      'answer',
+      {'media': media},
+      msgId: msgId,
+      to: currentSession.peerId,
+      debug: 'from_answerInvite',
+    );
+  }
+
+  /// accept 之后接入媒体：joinRoom(kind=c2c) 拿 LiveKit 入场券并连接。
+  ///
+  /// 两端因后端对称房间名（双 uid 排序）落到同一 room。
+  /// 失败返回 false（不抛出），由页面走 failed 收尾。
+  Future<bool> connect({required String peerId}) async {
+    if (_room != null || _connecting) return true;
+    _connecting = true;
     try {
-      // ⚠️ 用参数 m（调用方传入的媒体类型），不能用实例字段 media：
-      // 接听路径实例 media 在 initSession 接线前是默认值 'video'，音频通话
-      // 会错误地在 SDP 里保留 OfferToReceiveVideo=true。
-      _privDcConstraint['mandatory']['OfferToReceiveVideo'] = m == 'video'
-          ? true
-          : false;
-      RTCSessionDescription sd = await currentSession.pc!.createOffer(
-        media == 'data' ? _privDcConstraint : {},
+      final res = await _rtcApi.joinRoom(
+        kind: 'c2c',
+        targetId: peerId,
+        did: deviceId,
       );
-      await currentSession.pc!.setLocalDescription(sd);
-      final description = await currentSession.pc!.getLocalDescription();
-      sendWebRTCMsg(
-        'offer',
-        {
-          'sd': {'sdp': description!.sdp, 'type': description.type},
-          'media': m,
-        },
-        msgId: msgId,
-        to: currentSession.peerId,
-        debug: 'from_createOffer',
-      );
-    } catch (e, s) {
-      iPrint('> rtc _createOffer error: $e\n$s');
+      // joinRoom 失败原因已由 RtcRoomApi 透出（后端中文 msg）
+      if (res == null) return false;
+      if (_closing) return false;
+      final connectRoom = roomConnectOverride ?? _connectRoom;
+      return await connectRoom(res['wsUrl'] ?? '', res['token'] ?? '');
     } finally {
-      makingOffer = false;
+      _connecting = false;
     }
   }
 
-  Future<void> _createDataChannel(
-    WebRTCSession session, {
-    String label = DataChannelConfig.defaultLabel,
-  }) async {
-    final pc = session.pc;
-    if (pc == null) {
-      iPrint(
-        '> rtc _createDataChannel: pc is null, cannot create data channel',
-      );
-      return;
+  Future<bool> _connectRoom(String wsUrl, String token) async {
+    final room = Room();
+    // await 前先登记：connecting 中页面 pop 触发释放时才能拿到这个 room
+    // 去取消连接，否则竞态窗口内释放流程摸到 null、connect 完成后反而
+    // 把已释放的 Room 复活（同 rtc_room_provider 的教训）。
+    _room = room;
+    try {
+      await room.connect(wsUrl, token);
+      if (_closing) {
+        await _disposeRoom(room);
+        return false;
+      }
+      final listener = room.createListener()
+        ..on<RoomReconnectingEvent>((_) => setReconnecting(true))
+        ..on<RoomResumingEvent>((_) => setReconnecting(true))
+        ..on<RoomReconnectedEvent>((_) => setReconnecting(false))
+        ..on<RoomDisconnectedEvent>((e) {
+          if (_closing || !ref.mounted) return;
+          // 非本端挂断的彻底断开 = 链路故障（对应原 ICE 重启耗尽语义），
+          // 与对端挂断（bye 信令 → callStateBye）区分。
+          iPrint('> rtc Room disconnected: reason=${e.reason}');
+          setReconnecting(false);
+          onCallStateChange?.call(session, WebRTCCallState.callStateFailed);
+        });
+      _listener = listener;
+
+      // 发布媒体：麦克风总是尝试；视频仅视频通话。权限/设备失败降级为
+      // 错误横幅提示（复用 errorMessage/permissionTarget 机制），不判死
+      // 整场通话——与群通话的降级策略一致。
+      try {
+        await room.localParticipant?.setMicrophoneEnabled(true);
+      } on Exception catch (e) {
+        iPrint('> rtc mic enable failed: $e');
+        updateStateError(
+          t.common.permissionAcquisitionFailed,
+          permissionTarget: MediaPermissionTarget.microphone,
+        );
+      }
+      if (media == 'video') {
+        try {
+          await room.localParticipant?.setCameraEnabled(true);
+        } on Exception catch (e) {
+          iPrint('> rtc camera enable failed: $e');
+          updateStateError(
+            t.common.permissionAcquisitionFailed,
+            permissionTarget: MediaPermissionTarget.camera,
+          );
+        }
+      }
+      if (_closing) {
+        await _disposeRoom(room);
+        return false;
+      }
+      return true;
+    } on Exception catch (e) {
+      iPrint('> rtc connect failed: $e');
+      await _disposeRoom(room);
+      if (_room == room) _room = null;
+      return false;
     }
-    RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
-      ..maxRetransmits = DataChannelConfig.maxRetransmits;
-    RTCDataChannel channel = await pc.createDataChannel(label, dataChannelDict);
-    _addDataChannel(session, channel);
   }
 
   void sendBusy(String msgId, String to) {
     sendWebRTCMsg('busy', {}, msgId: msgId, to: to);
   }
 
-  Future<void> _stopLocalStream() async {
-    iPrint("> rtc _stopLocalStream start ${_localStream.toString()}");
-    final stream = _localStream;
-    if (stream == null) {
-      return;
-    }
-
-    await Future.wait(stream.getTracks().map((track) => track.stop()));
-    await stream.dispose();
-    _localStream = null;
-  }
-
-  Future<void> cleanSessions() async {
-    iPrint("> rtc cleanSessions start ${webRTCSessions.length}");
-    await Future.wait(
-      webRTCSessions.values.map((sess) async {
-        sess.pc?.onIceCandidate = null;
-        sess.pc?.onTrack = null;
-        await sess.pc?.close();
-        await sess.pc?.dispose();
-        await sess.dc?.close();
-      }),
-    );
-    final remoteStreams = _remoteStreams.values.toList();
-    _remoteStreams.clear();
-    await Future.wait(remoteStreams.map((stream) => stream.dispose()));
-    webRTCSessions.clear();
-  }
-
-  void closeSessionByPeerId(String peerId) {
-    WebRTCSession? matched;
-    webRTCSessions.removeWhere((String key, WebRTCSession sess) {
-      var ids = key.split('-');
-      // 谓词对每个元素都会执行：只在真正匹配时记录，否则循环结束后
-      // matched 恒为 map 最后一个条目，会误关无辜会话。
-      final hit = peerId == ids[0] || peerId == ids[1];
-      if (hit) matched = sess;
-      return hit;
-    });
-    if (matched != null) {
-      _closeSession(matched!);
-      onCallStateChange?.call(matched!, WebRTCCallState.callStateBye);
-    }
-  }
-
-  Future<void> _closeSession(WebRTCSession session) async {
-    iPrint("> rtc closeSession start ${session.sid}");
-    // 先摘除回调再关闭：close 后原生层仍可能派发飞行中的事件，
-    // 回调残留会操作已 dispose 的 pc（对比 cleanSessions 已做同样处理）。
-    session.pc?.onIceCandidate = null;
-    session.pc?.onTrack = null;
-    session.pc?.onIceConnectionState = null;
-    session.pc?.onAddStream = null;
-    final localStream = _localStream;
-    if (localStream != null) {
-      await Future.wait(localStream.getTracks().map((track) => track.stop()));
-      await localStream.dispose();
-      _localStream = null;
-    }
-
-    await session.pc?.close();
-    await session.pc?.dispose();
-    await session.dc?.close();
-    final remoteStream = _remoteStreams.remove(session.sid);
-    await remoteStream?.dispose();
-    _senders.clear();
-    _videoSource = VideoSource.camera;
-    webRTCSessions.remove(session.sid);
-  }
-
-  Future<void> cleanUpP2P() async {
-    // 先置位再做任何异步清理：阻止仍在飞行中的 onMessageP2P 继续读写
-    // 即将被关闭/dispose 的 PeerConnection。
-    _closing = true;
-    try {
-      await cleanSessions();
-    } catch (e) {
-      //
-    }
-    await _stopLocalStream();
-    // ⚠️ 不在此处复位 _closing：关闭流程是异步的，飞行中的原生回调可能
-    // 随后到达；复位由下一通通话的 initSession/initState 完成。
-    p2pCallScreenOn = false;
-  }
-
+  /// 本机挂断/关页：发 bye 信令并释放 LiveKit Room。
   void sendBye(String msgId) {
     final currentSession = session;
     if (currentSession == null) {
@@ -902,129 +420,113 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       msgId: msgId,
       to: currentSession.peerId,
     );
-    var s = webRTCSessions[currentSession.sid];
-    if (s != null) {
-      _closeSession(s);
+    unawaited(releaseMedia());
+  }
+
+  /// 释放 LiveKit 连接与轨道（挂断 = 离开 Room + 释放 track/连接）。
+  Future<void> releaseMedia() async {
+    final listener = _listener;
+    final room = _room;
+    _listener = null;
+    _room = null;
+    try {
+      await listener?.dispose();
+      await room?.disconnect();
+      await room?.dispose();
+    } on Exception catch (e) {
+      iPrint('> rtc releaseMedia error: $e');
     }
   }
 
-  /// 尝试 ICE 重启（带重试限制）
-  void _attemptIceRestart() {
-    final currentSession = session;
-    if (currentSession?.pc == null) {
-      iPrint('> rtc _attemptIceRestart: no peer connection');
-      return;
-    }
-
-    if (_iceRestartCount < _maxIceRestarts) {
-      _iceRestartCount++;
-      iPrint('> rtc ICE restart attempt $_iceRestartCount/$_maxIceRestarts');
-      currentSession!.pc!.restartIce();
-      // restartIce() 只重置本地 ICE 状态，重启后的候选必须随新 offer（带
-      // iceRestart）发给对端才生效；不能只依赖 onRenegotiationNeeded——
-      // 部分平台在 restartIce 后不触发该回调，导致重连永远不完成、3 次
-      // 后被误判 failed 挂断。
-      if (caller || _remoteDescSet) {
-        _createOffer(msgId, media);
-      }
-    } else {
-      iPrint('> rtc ICE restart max attempts reached, connection failed');
-      // 超过重试次数：这是链路故障，不是对端挂断。原来复用 callStateBye
-      // 会让界面显示“对方已挂断”，并把通话记录写成对端挂断。
-      onCallStateChange?.call(currentSession!, WebRTCCallState.callStateFailed);
-    }
+  Future<void> _disposeRoom(Room room) async {
+    await _listener?.dispose();
+    _listener = null;
+    if (_room == room) _room = null;
+    await room.disconnect();
+    await room.dispose();
   }
 
-  /// 解析 ICE 候选类型
-  /// 返回: host, srflx, prflx, relay, 或 unknown
-  String _parseIceCandidateType(String candidate) {
-    // ICE 候选字符串格式示例:
-    // a=candidate:4234997325 1 udp 2043278322 192.168.0.1 52324 typ host
-    // a=candidate:4234997325 1 udp 2043278322 10.0.0.1 52324 typ srflx
-    // a=candidate:4234997325 1 udp 2043278322 10.0.0.1 52324 typ relay
-    if (candidate.contains('typ host')) {
-      return 'host'; // 本地候选
-    } else if (candidate.contains('typ srflx')) {
-      return 'srflx'; // 服务器反射候选（STUN）
-    } else if (candidate.contains('typ prflx')) {
-      return 'prflx'; // 对等反射候选
-    } else if (candidate.contains('typ relay')) {
-      return 'relay'; // 中继候选（TURN）
-    }
-    return 'unknown';
+  Future<void> cleanUpP2P() async {
+    // 先置位再做任何异步清理：阻止仍在飞行中的 onMessageP2P 继续读写
+    // 即将被释放的 LiveKit Room。
+    _closing = true;
+    await releaseMedia();
+    // ⚠️ 不在此处复位 _closing：关闭流程是异步的，飞行中的原生回调可能
+    // 随后到达；复位由下一通通话的 initSession 完成。
+    p2pCallScreenOn = false;
   }
 
-  void switchCamera() {
-    if (_localStream != null) {
-      if (_videoSource != VideoSource.camera) {
-        for (var sender in _senders) {
-          if (sender.track!.kind == 'video') {
-            sender.replaceTrack(_localStream!.getVideoTracks()[0]);
-          }
-        }
-        _videoSource = VideoSource.camera;
-        state = state.copyWith(isFrontCamera: true);
-        onLocalStream?.call(_localStream!);
-      } else {
-        final tracks = _localStream!.getVideoTracks();
-        if (tracks.isEmpty) return;
-        Helper.switchCamera(tracks.first);
-        state = state.copyWith(isFrontCamera: !state.isFrontCamera);
+  /// 前后镜头切换（本地 camera track 的采集方位）。
+  Future<void> switchCamera() async {
+    final pubs = _room?.localParticipant?.videoTrackPublications ?? const [];
+    LocalVideoTrack? track;
+    for (final p in pubs) {
+      if (p.source == TrackSource.camera && p.track is LocalVideoTrack) {
+        track = p.track as LocalVideoTrack;
+        break;
       }
     }
-  }
-
-  void switchToScreenSharing(MediaStream stream) {
-    if (_localStream != null && _videoSource != VideoSource.screen) {
-      for (var sender in _senders) {
-        if (sender.track!.kind == 'video') {
-          sender.replaceTrack(stream.getVideoTracks()[0]);
-        }
-      }
-      onLocalStream?.call(stream);
-      _videoSource = VideoSource.screen;
+    if (track == null) return;
+    _cameraPosition = _cameraPosition.switched();
+    await track.setCameraPosition(_cameraPosition);
+    if (ref.mounted) {
+      state = state.copyWith(
+        isFrontCamera: _cameraPosition == CameraPosition.front,
+      );
     }
   }
 
   /// 通话建立时应用初始音频路由：视频通话默认扬声器、音频通话默认听筒。
-  /// 必须在本地轨道就绪后调用一次，否则 iOS 上 UI 显示"扩音开"而实际
+  /// 必须在 Room 接入后调用一次，否则 iOS 上 UI 显示"扩音开"而实际
   /// 音频仍从听筒出（首态与真实路由不符）。
   void setInitialSpeaker(bool speakerOn) {
     state = state.copyWith(speakerOn: speakerOn);
     applyInitialAudioRoute();
   }
 
-  void applyInitialAudioRoute() {
-    final tracks = _localStream?.getAudioTracks() ?? <MediaStreamTrack>[];
-    if (tracks.isEmpty) return;
-    Helper.setSpeakerphoneOn(state.speakerOn);
+  Future<void> applyInitialAudioRoute() async {
+    try {
+      await AudioManager.instance.setSpeakerOutputPreferred(state.speakerOn);
+    } on Exception catch (_) {
+      // 桌面平台无扬声器/听筒概念，忽略。
+    }
   }
 
-  void switchSpeaker(bool speakerOn) {
-    final tracks = _localStream?.getAudioTracks() ?? <MediaStreamTrack>[];
-    if (tracks.isEmpty) return;
-    // enableSpeakerphone 在 flutter_webrtc 1.6.0 已废弃；macOS/Windows 无
-    // 扬声器/听筒概念，setSpeakerphoneOn 内部会忽略。
-    Helper.setSpeakerphoneOn(speakerOn);
-    state = state.copyWith(speakerOn: speakerOn);
+  Future<void> switchSpeaker(bool speakerOn) async {
+    try {
+      await AudioManager.instance.setSpeakerOutputPreferred(speakerOn);
+    } on Exception catch (_) {
+      // 桌面平台无扬声器/听筒概念，忽略。
+    }
+    if (ref.mounted) {
+      state = state.copyWith(speakerOn: speakerOn);
+    }
   }
 
-  bool? turnMicrophone() {
+  Future<void> turnMicrophone() async {
     iPrint("> rtc turnMicrophone");
-    final tracks = _localStream?.getAudioTracks() ?? <MediaStreamTrack>[];
-    if (tracks.isEmpty) return null;
-    final nextEnabled = !tracks.first.enabled;
-    tracks.first.enabled = nextEnabled;
-    state = state.copyWith(micOff: !nextEnabled);
-    return nextEnabled;
+    final lp = _room?.localParticipant;
+    if (lp == null) return;
+    final nextEnabled = state.micOff;
+    try {
+      await lp.setMicrophoneEnabled(nextEnabled);
+      if (ref.mounted) state = state.copyWith(micOff: !nextEnabled);
+    } on Exception catch (e) {
+      iPrint('> rtc turnMicrophone failed: $e');
+    }
   }
 
-  void turnCamera() {
-    final tracks = _localStream?.getVideoTracks() ?? <MediaStreamTrack>[];
-    if (tracks.isEmpty) return;
+  Future<void> turnCamera() async {
+    final lp = _room?.localParticipant;
+    if (lp == null) return;
     final muted = !state.cameraOff;
-    state = state.copyWith(cameraOff: muted);
-    tracks.first.enabled = !muted;
+    try {
+      await lp.setCameraEnabled(!muted);
+    } on Exception catch (e) {
+      iPrint('> rtc turnCamera failed: $e');
+      return;
+    }
+    if (ref.mounted) state = state.copyWith(cameraOff: muted);
     // 摄像头开关通过信令同步给对端（后端对 webrtc_* 整包透传，无需改动），
     // 对端据此显示"对方已关闭摄像头"占位，而不是无差别黑屏。
     final currentSession = session;
@@ -1051,6 +553,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     String message, {
     MediaPermissionTarget? permissionTarget,
   }) {
+    if (!ref.mounted) return;
     state = state.copyWith(
       errorMessage: message,
       permissionTarget: permissionTarget,
@@ -1071,7 +574,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   }
 
   void setReconnecting(bool v) {
-    // ICE 状态回调来自原生层：provider 已释放（页面关闭）后写 state 会抛
+    // Room 事件来自原生层：provider 已释放（页面关闭）后写 state 会抛
     // "Cannot use Ref after disposed"。
     if (!ref.mounted) return;
     state = state.copyWith(reconnecting: v);
@@ -1132,111 +635,8 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     state = state.copyWith(floatX: x, floatY: y);
   }
 
-  Future<Map<String, dynamic>> _getIceConf({
-    String from = 'incomingCallScreen',
-  }) async {
-    // 使用 userApiProvider 调用 API
-    final userApi = ref.read(userApiProvider);
-    Map<String, dynamic> turnCredential;
-    try {
-      turnCredential = await userApi.turnCredential();
-    } catch (e) {
-      // TURN 接口暂时不可达时仍允许走 STUN/直连；不能让异常直接打断
-      // 通话页初始化，否则用户看到的只是“无法呼出”，没有重试路径。
-      iPrint('> rtc _getIceConf: TURN 凭证请求失败，回退纯 STUN 配置: $e');
-      return _stunOnlyIceConf();
-    }
-    // 不在日志中输出 TURN 凭证（含 username/credential）
-    if (turnCredential.isEmpty) {
-      // TURN 凭证获取失败时不再返回 null（会导致下游 `iceConf!` 强制解包崩溃），
-      // 回退到纯 STUN 配置：无法穿透对称 NAT 时通话仍可能失败，但至少不崩溃。
-      if (from == 'openCallScreen') {
-        AppLoading.showError(t.common.failedRequestPleaseCheckNetwork);
-      }
-      iPrint('> rtc _getIceConf: TURN 凭证获取失败，回退纯 STUN 配置');
-      return _stunOnlyIceConf();
-    }
-    final iceServers = buildIceServers(turnCredential);
-    if (iceServers == null) {
-      // 凭证 map 非空但无有效 TURN URL（如后端未配 eturnal 返回空列表）：
-      // 空 urls 传给原生 IceServer.Builder 会抛 IllegalArgumentException，
-      // PeerConnection 建不起来且 session=null，连挂断 bye 都发不出。
-      iPrint('> rtc _getIceConf: TURN 凭证无有效 URL，回退纯 STUN 配置');
-      return _stunOnlyIceConf();
-    }
-
-    return {
-      'iceServers': iceServers,
-      // 关键修复：从 0 改为 10，确保 ICE 候选充分收集
-      "iceCandidatePoolSize": 10,
-      "encodedInsertableStreams": false,
-      "bundlePolicy": "balanced",
-      // 使用所有可用传输方式，NAT 穿透困难时会自动使用 TURN relay
-      'iceTransportPolicy': 'all',
-      "rtcpMuxPolicy": "require",
-      'sdpSemantics': 'unified-plan',
-    };
-  }
-
-  /// 【纯函数】从 TURN 凭证组装 iceServers；过滤空 URL 条目。
-  /// 无有效 turn_urls 时返回 null（调用方降级 _stunOnlyIceConf）。
-  @visibleForTesting
-  static List<Map<String, dynamic>>? buildIceServers(
-    Map<String, dynamic> credential,
-  ) {
-    bool hasUrl(dynamic v) =>
-        (v is String && v.isNotEmpty) || (v is List && v.isNotEmpty);
-
-    final turnUrls = credential['turn_urls'];
-    if (!hasUrl(turnUrls)) return null;
-
-    // 解析 TURN URL 并生成 TCP 版本（用于防火墙/运营商封锁 UDP 时）
-    String turnTcpUrl = '';
-    if (turnUrls is String && turnUrls.contains('udp')) {
-      turnTcpUrl = turnUrls.replaceAll('udp', 'tcp');
-    }
-    final stunUrls = credential['stun_urls'];
-    return [
-      // STUN 服务器（后端未配置时跳过，避免空 urls 崩溃）
-      if (hasUrl(stunUrls)) {'urls': stunUrls},
-      // Google STUN 作为备用
-      {'urls': 'stun:stun.l.google.com:19302'},
-      // TURN UDP
-      {
-        'urls': turnUrls,
-        'username': credential['username'],
-        'credential': credential['credential'],
-      },
-      // TURN TCP（关键：用于 UDP 被封锁的场景）
-      if (turnTcpUrl.isNotEmpty)
-        {
-          'urls': turnTcpUrl,
-          'username': credential['username'],
-          'credential': credential['credential'],
-        },
-    ];
-  }
-
-  /// TURN 凭证不可用时的降级配置：仅公共 STUN，无 relay 中继能力。
-  Map<String, dynamic> _stunOnlyIceConf() {
-    return {
-      'iceServers': [
-        {'urls': 'stun:stun.l.google.com:19302'},
-      ],
-      'iceCandidatePoolSize': 10,
-      'encodedInsertableStreams': false,
-      'bundlePolicy': 'balanced',
-      'iceTransportPolicy': 'all',
-      'rtcpMuxPolicy': 'require',
-      'sdpSemantics': 'unified-plan',
-    };
-  }
-
   void cleanup() {
     _callTimer?.cancel();
     _answerTimer?.cancel();
-    _iceDisconnectTimer?.cancel();
-    _iceDisconnectTimer = null;
-    _iceRestartCount = 0;
   }
 }
