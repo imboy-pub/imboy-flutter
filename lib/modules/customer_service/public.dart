@@ -9,6 +9,7 @@ export 'domain/cs_session_actions.dart';
 export 'domain/cs_session_flow.dart';
 export 'domain/cs_session_machine.dart';
 export 'infrastructure/cs_api.dart';
+export 'presentation/cs_attachment_views.dart';
 export 'presentation/cs_paged_list.dart';
 export 'presentation/cs_queue_view.dart';
 export 'presentation/cs_session_list_view.dart';

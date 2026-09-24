@@ -28,13 +28,15 @@ import 'package:imboy/service/storage.dart';
 const sessionId = '7266418340025468940';
 
 /// 按注册顺序返回响应的桩（fragment 首个命中；响应按序消费，耗尽停留
-/// 最后一个；未命中 → 200 空 envelope）。
+/// 最后一个；未命中 → 200 空 envelope）。[rawRoutes] 命中时返回原始字节
+/// （附件 content 代理是对象字节本体，非 JSON envelope）。
 class _SeqAdapter implements HttpClientAdapter {
   final List<(String fragment, List<(int, Map<String, dynamic>)>)> routes;
+  final List<(String fragment, Uint8List bytes)> rawRoutes;
   final Map<String, int> _cursor = {};
   int requestCount = 0;
 
-  _SeqAdapter(this.routes);
+  _SeqAdapter(this.routes, {this.rawRoutes = const []});
 
   (int, Map<String, dynamic>) _match(String path) {
     for (final (fragment, responses) in routes) {
@@ -47,6 +49,13 @@ class _SeqAdapter implements HttpClientAdapter {
     return (200, {'code': 0, 'msg': 'success', 'payload': null});
   }
 
+  Uint8List? _matchRaw(String path) {
+    for (final (fragment, bytes) in rawRoutes) {
+      if (path.contains(fragment)) return bytes;
+    }
+    return null;
+  }
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -54,6 +63,16 @@ class _SeqAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     requestCount++;
+    final raw = _matchRaw(options.uri.path);
+    if (raw != null) {
+      return ResponseBody.fromBytes(
+        raw,
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['application/octet-stream'],
+        },
+      );
+    }
     final (status, body) = _match(options.uri.path);
     return ResponseBody.fromString(
       jsonEncode(body),
@@ -92,10 +111,82 @@ final _historyOk = {
       'sender_type': 'contact',
       'sender_contact_id': '7266418340025468941',
       'sender_business_identity_id': null,
-      'content': '订单还没收到',
+      'body': '订单还没收到',
+      'assets': <Map<String, dynamic>>[],
     },
   ],
 };
+
+/// 1x1 透明 PNG（图片缩略渲染的最小真实字节）。
+final _tinyPng = Uint8List.fromList([
+  0x89,
+  0x50,
+  0x4E,
+  0x47,
+  0x0D,
+  0x0A,
+  0x1A,
+  0x0A,
+  0x00,
+  0x00,
+  0x00,
+  0x0D,
+  0x49,
+  0x48,
+  0x44,
+  0x52,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x08,
+  0x06,
+  0x00,
+  0x00,
+  0x00,
+  0x1F,
+  0x15,
+  0xC4,
+  0x89,
+  0x00,
+  0x00,
+  0x00,
+  0x0D,
+  0x49,
+  0x44,
+  0x41,
+  0x54,
+  0x78,
+  0x9C,
+  0x62,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x05,
+  0x00,
+  0x01,
+  0x0D,
+  0x0A,
+  0x2D,
+  0xB4,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x49,
+  0x45,
+  0x4E,
+  0x44,
+  0xAE,
+  0x42,
+  0x60,
+  0x82,
+]);
 
 Future<void> _pumpPage(WidgetTester tester, _SeqAdapter adapter) async {
   HttpClient.adapterForTest = adapter;
@@ -279,5 +370,59 @@ void main() {
         )
         .first;
     expect(attachButton.onPressed, isNull, reason: '附件写入口禁用');
+  });
+
+  testWidgets('CSX-01：历史附件投影分型渲染（图片缩略 + 文件行）', (tester) async {
+    final historyWithAssets = {
+      'code': 0,
+      'msg': 'success',
+      'payload': [
+        {
+          'id': '7266418340025468962',
+          'conversation_id': '7266418340025468950',
+          'organization_id': '7266418340025468901',
+          'sender_type': 'contact',
+          'sender_contact_id': '7266418340025468941',
+          'sender_business_identity_id': null,
+          'body': '',
+          'assets': [
+            {
+              'id': '7266418340025468970',
+              'mime': 'image/png',
+              'size_bytes': 4096,
+              'file_name': '订单截图.png',
+              'status': 'active',
+            },
+            {
+              'id': '7266418340025468971',
+              'mime': 'application/pdf',
+              'size_bytes': 1048576,
+              'file_name': '合同.pdf',
+              'status': 'active',
+            },
+          ],
+        },
+      ],
+    };
+    final adapter = _SeqAdapter(
+      [
+        ('/sessions/$sessionId', [(200, _detailOk)]),
+        (
+          '/conversations/7266418340025468950/messages',
+          [(200, historyWithAssets)],
+        ),
+      ],
+      // 授权 content 代理：图片资产返回真实 PNG 字节（渲染面禁止裸 URL，
+      // 只有字节入口）。
+      rawRoutes: [('assets/7266418340025468970/content', _tinyPng)],
+    );
+
+    await _pumpPage(tester, adapter);
+
+    // 文件行：文件名 + 人类可读大小（AppSpacing/token 化最小 renderer）。
+    expect(find.text('合同.pdf'), findsOneWidget);
+    expect(find.text('1.0MB'), findsOneWidget);
+    // 图片缩略：经授权字节 + Image.memory 渲染（真实 PNG 解码成功）。
+    expect(find.byType(Image), findsOneWidget);
   });
 }

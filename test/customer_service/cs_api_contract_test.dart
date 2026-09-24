@@ -25,6 +25,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,6 +34,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/modules/customer_service/public.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart'
     show EnterpriseSenderType;
+import 'package:imboy/modules/enterprise/public.dart' show EnterpriseApi;
 import 'package:imboy/service/storage.dart';
 
 const String orgId = '7266418340025468901';
@@ -48,6 +50,9 @@ class _RecordingAdapter implements HttpClientAdapter {
   /// 每次请求的 (method, path, data, queryParameters)
   final List<(String, String, Object?, Map<String, dynamic>)> requests = [];
 
+  /// 每次请求的完整 URI（裸 PUT 目标是绝对地址，path 不足以证明 host）。
+  final List<String> uris = [];
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -60,6 +65,7 @@ class _RecordingAdapter implements HttpClientAdapter {
       options.data,
       Map<String, dynamic>.from(options.queryParameters),
     ));
+    uris.add(options.uri.toString());
     return ResponseBody.fromString(
       jsonEncode(body),
       statusCode,
@@ -406,46 +412,98 @@ void main() {
       },
     );
 
-    test('conversationMessages：A0 坐席读路径 + after_id/limit 游标，裸数组解析', () async {
-      final adapter = useAdapter(
-        200,
-        okEnvelope(
-          payload: [
-            {
-              'id': 7266418340025468960,
-              'conversation_id': 7266418340025468950,
-              'organization_id': 7266418340025468901,
-              'sender_type': 'contact',
-              'sender_contact_id': 7266418340025468941,
-              'sender_business_identity_id': null,
-              'content': '订单还没收到',
-              'delivered': false,
-            },
-          ],
-        ),
-      );
-      final api = CsApi();
+    test(
+      'conversationMessages：A0 坐席读路径 + 冻结 query（org/workspace）+ assets 五键投影',
+      () async {
+        final adapter = useAdapter(
+          200,
+          okEnvelope(
+            payload: [
+              {
+                'id': 7266418340025468960,
+                'conversation_id': 7266418340025468950,
+                'organization_id': 7266418340025468901,
+                'sender_type': 'contact',
+                'sender_contact_id': 7266418340025468941,
+                'sender_business_identity_id': null,
+                'body': '订单还没收到',
+                'assets': <Map<String, dynamic>>[],
+              },
+              {
+                'id': 7266418340025468961,
+                'conversation_id': 7266418340025468950,
+                'organization_id': 7266418340025468901,
+                'sender_type': 'business_identity',
+                'sender_contact_id': null,
+                'sender_business_identity_id': '7266418340025468902',
+                'body': '',
+                // CSX-01 冻结投影：五键白名单（id 是 TSID，出站十进制字符串）。
+                'assets': [
+                  {
+                    'id': '7266418340025468970',
+                    'mime': 'image/png',
+                    'size_bytes': 2048,
+                    'file_name': '截图.png',
+                    'status': 'active',
+                  },
+                  {
+                    // int 形 TSID 同样安全（entityIdOf 两形兼容）。
+                    'id': 7266418340025468971,
+                    'mime': 'application/pdf',
+                    'size_bytes': 1048576,
+                    'file_name': null,
+                    'status': 'active',
+                  },
+                ],
+              },
+            ],
+          ),
+        );
+        final api = CsApi();
 
-      final messages = await api.conversationMessages(
-        '7266418340025468950',
-        afterId: '7266418340025468959',
-        limit: 20,
-      );
+        final messages = await api.conversationMessages(
+          '7266418340025468950',
+          orgId: '7266418340025468901',
+          workspaceId: '7266418340025468921',
+          afterId: '7266418340025468959',
+          limit: 20,
+        );
 
-      final req = adapter.requests.single;
-      expect(req.$1, 'GET');
-      // A0 冻结坐席读路径（无 /organizations/ 段）
-      expect(
-        req.$2,
-        '/api/v1/enterprise/conversations/7266418340025468950/messages',
-      );
-      expect(req.$4, {'after_id': '7266418340025468959', 'limit': 20});
-      // APP-M02-A03：读面逐行解析为真源消息 + asset_ids 绑定投影。
-      expect(messages.single.message.id, '7266418340025468960');
-      expect(messages.single.message.senderType, EnterpriseSenderType.contact);
-      expect(messages.single.message.senderXorValid, isTrue);
-      expect(messages.single.assetIds, isEmpty);
-    });
+        final req = adapter.requests.single;
+        expect(req.$1, 'GET');
+        // A0 冻结坐席读路径（无 /organizations/ 段）
+        expect(
+          req.$2,
+          '/api/v1/enterprise/conversations/7266418340025468950/messages',
+        );
+        // 冻结 query 契约：organization_id / workspace_id 必带（缺一服务端 422）。
+        expect(req.$4['organization_id'], '7266418340025468901');
+        expect(req.$4['workspace_id'], '7266418340025468921');
+        expect(req.$4['after_id'], '7266418340025468959');
+        expect(req.$4['limit'], 20);
+        // 真源消息 + assets 投影：明文体键为 body（decrypted_view）。
+        expect(messages, hasLength(2));
+        expect(messages[0].message.id, '7266418340025468960');
+        expect(messages[0].message.content, '订单还没收到');
+        expect(messages[0].assets, isEmpty, reason: '纯文本 assets=[]');
+        expect(messages[1].assets, hasLength(2));
+        final image = messages[1].assets[0];
+        expect(image.id, '7266418340025468970');
+        expect(image.mime, 'image/png');
+        expect(image.sizeBytes, 2048);
+        expect(image.fileName, '截图.png');
+        expect(image.status, 'active');
+        expect(image.isImage, isTrue);
+        final pdf = messages[1].assets[1];
+        expect(pdf.id, '7266418340025468971', reason: 'int 形 TSID 解析');
+        expect(pdf.fileName, isEmpty, reason: 'file_name null → 空');
+        expect(pdf.isImage, isFalse);
+        expect(messages[1].assetIds, [
+          '7266418340025468970',
+          '7266418340025468971',
+        ]);
+      },
+    );
 
     test('sendConversationMessage：EB 写真源提交面键白名单（幂等 client_msg_id）', () async {
       final adapter = useAdapter(
@@ -490,8 +548,8 @@ void main() {
       expect(body['sender_type'], 'business_identity');
       // F-SEC-02 负例：提交面不得出现 content/asset_id 旧键形
       expect(body.containsKey('content'), isFalse);
-      expect(sent.id, '7266418340025468961');
-      expect(sent.senderType, EnterpriseSenderType.businessIdentity);
+      expect(sent.message.id, '7266418340025468961');
+      expect(sent.message.senderType, EnterpriseSenderType.businessIdentity);
     });
 
     test('ackDelivery：delivery-only，recipient_ref 必填（EB 合同）', () async {
@@ -543,6 +601,163 @@ void main() {
       );
       expect((e409! as CsApiException).isOffboardingRequired, isTrue);
       expect((e409 as CsApiException).isConflict, isTrue);
+    });
+  });
+
+  group('CSX-01 附件三步冻结契约（presign → 裸 PUT → confirm）', () {
+    final bytes = utf8.encode('demo-bytes');
+    final objectHash = sha256.convert(bytes).toString(); // 64 位小写 hex（后端复核口径）
+
+    Map<String, dynamic> presignPayload({String? uploadUrl}) => {
+      'asset_id': '7266418340025468970',
+      'upload_ref': 'opaque-upload-ref',
+      'object_hash': objectHash,
+      'mime': 'text/plain',
+      'size_bytes': bytes.length,
+      'file_name': 'a.txt',
+      'retain_until': null,
+      'expires_at': 1789000100,
+      'upload': {
+        'method': 'PUT',
+        'token': 'opaque-upload-ref',
+        'expires_at': 1789000100,
+        'adapter': 'local_private_object_store',
+        'rule': 'opaque_token_no_url_no_object_key',
+        'url': ?uploadUrl,
+      },
+    };
+
+    test('presign 请求体键白名单 == 冻结契约；object_hash 是字节 SHA-256', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(payload: presignPayload(uploadUrl: null)),
+      );
+
+      // 企业面 presign_view 恒无 upload.url —— 先只验 presign 请求体。
+      final enterpriseApi = EnterpriseApi();
+      await enterpriseApi.presignAsset(
+        orgId,
+        workspaceId: '7266418340025468921',
+        conversationId: '7266418340025468950',
+        mime: 'text/plain',
+        sizeBytes: bytes.length,
+        objectHash: objectHash,
+        fileName: 'a.txt',
+      );
+
+      final req = adapter.requests.single;
+      expect(req.$1, 'POST');
+      expect(req.$2, '/api/v1/enterprise/organizations/$orgId/assets/presign');
+      final body = Map<String, dynamic>.from(req.$3 as Map);
+      // 旧键形 {file_name, mime, size}（缺 conversation_id/size_bytes/
+      // object_hash）必 422——历史断链形状，禁止回归。
+      expect(body.keys.toSet(), {
+        'workspace_id',
+        'conversation_id',
+        'mime',
+        'size_bytes',
+        'object_hash',
+        'file_name',
+      });
+      expect(body['conversation_id'], '7266418340025468950');
+      expect(body['size_bytes'], bytes.length);
+      expect(body['object_hash'], objectHash);
+      expect(
+        RegExp(r'^[0-9a-f]{64}$').hasMatch(body['object_hash'] as String),
+        isTrue,
+        reason: 'object_hash = 64 位小写 hex SHA-256',
+      );
+    });
+
+    test(
+      '三步顺序：presign → 裸 PUT（嵌套 upload.url，octet-stream）→ confirm（upload_ref）',
+      () async {
+        final adapter = useAdapter(
+          200,
+          okEnvelope(
+            payload: presignPayload(
+              uploadUrl: 'https://upload.example.internal/put?ref=abc',
+            ),
+          ),
+        );
+        final api = CsApi();
+
+        final asset = await api.uploadEnterpriseAsset(
+          orgId,
+          workspaceId: '7266418340025468921',
+          conversationId: '7266418340025468950',
+          mime: 'text/plain',
+          bytes: Uint8List.fromList(bytes),
+          fileName: 'a.txt',
+        );
+
+        expect(asset.id, '7266418340025468970');
+        final reqs = adapter.requests;
+        expect(reqs, hasLength(3));
+        expect(reqs[0].$1, 'POST');
+        expect(reqs[0].$2, contains('/assets/presign'));
+        // 裸 PUT：目标是 presign 嵌套 upload.url（非 flat upload_url 键）。
+        expect(reqs[1].$1, 'PUT');
+        expect(adapter.uris[1], contains('upload.example.internal'));
+        // confirm：独立请求重新鉴权，入参 upload_ref（非 asset_id）。
+        expect(reqs[2].$1, 'POST');
+        expect(reqs[2].$2, contains('/assets/confirm'));
+        final confirmBody = Map<String, dynamic>.from(reqs[2].$3 as Map);
+        expect(confirmBody.keys.toSet(), {'workspace_id', 'upload_ref'});
+        expect(confirmBody['upload_ref'], 'opaque-upload-ref');
+      },
+    );
+
+    test(
+      'fail-closed：presign 无 upload.url（企业面合同形状）→ 不 PUT、不 confirm',
+      () async {
+        final adapter = useAdapter(
+          200,
+          okEnvelope(payload: presignPayload(uploadUrl: null)),
+        );
+        final api = CsApi();
+
+        Object? caught;
+        try {
+          await api.uploadEnterpriseAsset(
+            orgId,
+            workspaceId: '7266418340025468921',
+            conversationId: '7266418340025468950',
+            mime: 'text/plain',
+            bytes: Uint8List.fromList(bytes),
+            fileName: 'a.txt',
+          );
+          fail('无 PUT 目标必须 fail-closed 抛出（绝不自造端点）');
+        } on CsApiException catch (e) {
+          caught = e;
+        }
+        expect(caught, isNotNull);
+        // 只有 presign 一条请求：绝不对未知端点 PUT 字节、绝不 confirm 未
+        // 上传完成的资产。
+        expect(adapter.requests, hasLength(1));
+        expect(adapter.requests.single.$2, contains('/assets/presign'));
+      },
+    );
+
+    test('嵌套 upload.url 校验：非 http(s) 目标一律拒绝（fail-closed）', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(payload: presignPayload(uploadUrl: 'ftp://insecure/put')),
+      );
+      final api = CsApi();
+
+      await expectLater(
+        api.uploadEnterpriseAsset(
+          orgId,
+          workspaceId: '7266418345468921',
+          conversationId: '7266418345468950',
+          mime: 'text/plain',
+          bytes: Uint8List.fromList(bytes),
+          fileName: 'a.txt',
+        ),
+        throwsA(isA<CsApiException>()),
+      );
+      expect(adapter.requests, hasLength(1), reason: '不 PUT 到非 http(s)');
     });
   });
 

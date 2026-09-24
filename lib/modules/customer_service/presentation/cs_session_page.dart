@@ -12,11 +12,14 @@
 ///   请求即清写入口、停后台发送、显示可解释只读态（cs_seat_gate 语义扩展）。
 library;
 
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+import 'package:mime/mime.dart' as mime;
 
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -26,7 +29,7 @@ import 'package:imboy/modules/customer_service/domain/cs_session_actions.dart';
 import 'package:imboy/modules/customer_service/domain/cs_session_flow.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
-import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_attachment_views.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -71,6 +74,17 @@ class _CsSessionPageState extends State<CsSessionPage> {
   bool _busy = false;
   String? _error;
 
+  /// 附件字节 future 缓存（每 asset 只发一次授权代理请求；重建不重拉）。
+  final Map<String, Future<Uint8List?>> _assetBytesFutures =
+      <String, Future<Uint8List?>>{};
+
+  Future<Uint8List?> _cachedAssetBytes(String assetId) {
+    return _assetBytesFutures.putIfAbsent(
+      assetId,
+      () => _flow.fetchAssetBytes(assetId),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +93,7 @@ class _CsSessionPageState extends State<CsSessionPage> {
       sessionId: widget.sessionId,
       conversationId: widget.conversationId,
       identityId: widget.identityId,
+      workspaceId: widget.workspaceId,
       contactMaskedName: csMaskContactName(widget.contactName),
     );
     // A02：坐席事件流（org 作用域 + workspace 作用域）。事件只触发权威
@@ -164,24 +179,31 @@ class _CsSessionPageState extends State<CsSessionPage> {
     if (_busy || !_flow.machine.canSend) return;
     final files = await FilePicker.pickFiles(type: FileType.any);
     if (files.isEmpty) return;
+    if (!mounted) return;
     final picked = files.single;
     final path = picked.path;
     if (path == null) return;
     final file = File(path);
     final name = picked.name;
-    final mime = name.endsWith('.txt')
-        ? 'text/plain'
-        : 'application/octet-stream';
+    // mime 探测：扩展名 + 魔数头部（后端按白名单校验，octet-stream 必 422）。
+    final header = await _readFileHead(file);
+    if (!mounted) return;
+    final detected = mime.lookupMimeType(path, headerBytes: header);
+    if (detected == null || detected.isEmpty) {
+      _toast(context.t.customerService.attachUnsupportedType);
+      return;
+    }
     setState(() => _busy = true);
     try {
-      // A03：presign → PUT → confirm（confirmed_unbound）→ 消息带
-      // asset_ids 原子绑定。不发送「文件名文本」伪附件；上传失败不产生
-      // 任何消息（不伪成功），幂等键与附件组保留到确认为止。
+      // A03：presign（object_hash=SHA-256）→ 裸 PUT → confirm
+      // （confirmed_unbound）→ 消息带 asset_ids 原子绑定。不发送「文件名
+      // 文本」伪附件；上传失败不产生任何消息（不伪成功），幂等键与附件组
+      // 保留到确认为止。
+      final bytes = await file.readAsBytes();
       final assetId = await _flow.uploadAsset(
+        mime: detected,
+        bytes: bytes,
         fileName: name,
-        mime: mime,
-        size: file.lengthSync(),
-        byteStream: file.openRead(),
       );
       if (!mounted) return;
       if (assetId.isEmpty) {
@@ -213,26 +235,88 @@ class _CsSessionPageState extends State<CsSessionPage> {
     }
   }
 
-  Future<void> _viewAsset(EnterpriseMessage message) async {
-    final ids =
-        _flow.messageAssets[message.id] ??
-        (message.assetId.isNotEmpty ? [message.assetId] : const <String>[]);
-    if (ids.isEmpty) return;
+  /// 读文件头部若干字节供魔数探测（不足则整读）。
+  Future<Uint8List> _readFileHead(File file) async {
+    final len = await file.length();
+    final take = len > 64 ? 64 : len;
+    if (take <= 0) return Uint8List(0);
+    final raf = await file.open(mode: FileMode.read);
     try {
-      // 只经授权内容代理查看（EB-D06）；closed/rated 只读态仍可查看。
-      final preview = await _flow.viewAsset(ids.first);
+      final data = await raf.read(take);
+      return data;
+    } finally {
+      await raf.close();
+    }
+  }
+
+  /// 附件查看：只经授权 content 代理取字节（EB-D06）；closed/rated 只读
+  /// 态仍可查看。图片弹层（InteractiveViewer 缩放）与文本预览分型。
+  Future<void> _viewAsset(CsMessageAsset asset) async {
+    try {
+      final bytes = await _cachedAssetBytes(asset.id);
       if (!mounted) return;
       // null = 已降级（flow 已同步状态机）：刷新 UI 呈现只读态，不弹预览
-      if (preview == null) {
+      if (bytes == null) {
         setState(() {});
         return;
       }
       final t = context.t.customerService;
+      if (asset.isImage) {
+        showDialog<void>(
+          context: context,
+          builder: (_) => Dialog(
+            insetPadding: const EdgeInsets.all(AppSpacing.medium),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.small),
+                  child: Text(
+                    asset.fileName.isNotEmpty
+                        ? asset.fileName
+                        : t.attachPreviewTitle,
+                    style: context.textStyle(FontSizeType.footnote),
+                  ),
+                ),
+                Flexible(
+                  child: InteractiveViewer(
+                    maxScale: 4,
+                    child: Image.memory(
+                      bytes,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => Padding(
+                        padding: const EdgeInsets.all(AppSpacing.medium),
+                        child: Text(t.attachBinaryNoPreview),
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(context.t.common.buttonOk),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+        return;
+      }
+      final text = utf8.decode(bytes, allowMalformed: true);
+      final printable = text.replaceAll(RegExp(r'[\x00-\x08\x0E-\x1F]'), '');
       showDialog<void>(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text(t.attachPreviewTitle),
-          content: SingleChildScrollView(child: Text(preview)),
+          title: Text(
+            asset.fileName.isNotEmpty ? asset.fileName : t.attachPreviewTitle,
+          ),
+          content: SingleChildScrollView(
+            child: Text(
+              printable.isEmpty ? t.attachBinaryNoPreview : printable,
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -588,6 +672,9 @@ class _CsSessionPageState extends State<CsSessionPage> {
           m,
           contactMaskedName: csMaskContactName(widget.contactName),
         );
+        // CSX-01 冻结投影：assets 五键白名单（空 = 纯文本）；图片缩略与
+        // 文件行分型渲染，查看只经授权 content 代理。
+        final assets = _flow.messageAssets[m.id] ?? const <CsMessageAsset>[];
         return Align(
           alignment: actor.isSeat
               ? Alignment.centerRight
@@ -611,22 +698,25 @@ class _CsSessionPageState extends State<CsSessionPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(m.content),
+                if (m.content.isNotEmpty) Text(m.content),
+                for (final asset in assets)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: m.content.isEmpty
+                          ? AppSpacing.none
+                          : AppSpacing.tiny,
+                    ),
+                    child: CsAssetAttachmentView(
+                      asset: asset,
+                      bytesLoader: _cachedAssetBytes,
+                      onView: () => _viewAsset(asset),
+                    ),
+                  ),
                 // sender-actor 展示：业务身份名（非自然人好友，EB-D03/D05）
                 Text(
                   actor.label,
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
-                if ((_flow.messageAssets[m.id]?.isNotEmpty ?? false) ||
-                    m.assetId.isNotEmpty)
-                  TextButton.icon(
-                    onPressed: () => _viewAsset(m),
-                    icon: const Icon(
-                      CupertinoIcons.paperclip,
-                      size: AppSizes.iconSizeXSmall,
-                    ),
-                    label: Text(context.t.customerService.attachAction),
-                  ),
               ],
             ),
           ),

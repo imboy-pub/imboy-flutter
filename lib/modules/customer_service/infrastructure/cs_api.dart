@@ -20,6 +20,9 @@
 /// / 409 冲突或 offboarding_required；镜像 [EnterpriseApiException] 判定属性。
 library;
 
+import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
@@ -72,43 +75,87 @@ class CsApiException implements Exception {
   String toString() => 'CsApiException($code): $message';
 }
 
-/// 消息附件 id 提取（§3.7 `asset_ids` 形状；兼容单附件 `asset_id` 旧形）。
-List<String> csMessageAssetIds(Map<dynamic, dynamic> raw) {
-  final ids = <String>[];
-  final single = raw['asset_id'];
-  if (single != null && '$single'.isNotEmpty) {
-    ids.add(single.toString());
+/// 历史消息附件投影（CSX-01 冻结契约，后端 CS-BE-01 已交付）。
+///
+/// 读面（GET 坐席消息历史 / POST 回显）逐消息携带
+/// `assets:[{id,mime,size_bytes,file_name,status}]`（**五键白名单**，
+/// 无 object_key/upload_url/token）；纯文本 `assets: []`。旧 flat
+/// `asset_ids` 键真实响应不存在（历史断链形状，已废）。
+///
+/// `id` 是 TSID（后端 encode_entity 出站为十进制字符串；[entityIdOf]
+/// 对 int/string 两形均安全）。查看只经授权 content 代理，客户端不持有
+/// object key / storage URL。
+class CsMessageAsset {
+  final String id;
+  final String mime;
+
+  /// 字节数（服务端权威；UI 展示格式化）。
+  final int sizeBytes;
+
+  /// 展示文件名（可空——未在 presign 声明时后端为 null）。
+  final String fileName;
+
+  /// 资产状态（active=已确认可见）。
+  final String status;
+
+  const CsMessageAsset({
+    required this.id,
+    this.mime = '',
+    this.sizeBytes = 0,
+    this.fileName = '',
+    this.status = '',
+  });
+
+  bool get isImage => mime.startsWith('image/');
+
+  bool get isActive => status.isEmpty || status == 'active';
+
+  factory CsMessageAsset.fromJson(Map<String, dynamic> json) {
+    return CsMessageAsset(
+      id: entityIdOf(json['id']),
+      mime: parseModelString(json['mime']),
+      sizeBytes: parseModelInt(json['size_bytes']),
+      fileName: parseModelString(json['file_name']),
+      status: parseModelString(json['status']),
+    );
   }
-  final list = raw['asset_ids'];
-  if (list is List) {
-    for (final e in list) {
-      final v = e == null ? '' : e.toString();
-      if (v.isNotEmpty && !ids.contains(v)) {
-        ids.add(v);
-      }
-    }
-  }
-  return ids;
 }
 
-/// 会话消息（坐席侧读面）：EB 真源消息 + 该消息绑定的 asset_ids 投影
+/// 解析历史消息 `assets` 投影（五键白名单；缺键/类型漂移宽容降级为空，
+/// 单行 id 为空的残行丢弃——不因投影残缺炸整页历史）。
+List<CsMessageAsset> csMessageAssets(Map<dynamic, dynamic> raw) {
+  final list = raw['assets'];
+  if (list is! List) return const <CsMessageAsset>[];
+  final out = <CsMessageAsset>[];
+  for (final e in list) {
+    if (e is! Map) continue;
+    final asset = CsMessageAsset.fromJson(Map<String, dynamic>.from(e));
+    if (asset.id.isNotEmpty) out.add(asset);
+  }
+  return List.unmodifiable(out);
+}
+
+/// 会话消息（坐席侧读面）：EB 真源消息 + 该消息绑定的 assets 投影
 ///（§3.7 原子绑定回显；查看只经授权 content 代理，客户端不持有
 /// object key / storage URL）。
 class CsConversationMessage {
   final EnterpriseMessage message;
 
-  /// 服务端回显的附件绑定（空 = 纯文本消息）。
-  final List<String> assetIds;
+  /// 服务端回显的附件绑定投影（空 = 纯文本消息）。
+  final List<CsMessageAsset> assets;
 
   const CsConversationMessage({
     required this.message,
-    this.assetIds = const <String>[],
+    this.assets = const <CsMessageAsset>[],
   });
+
+  /// 附件 id 列表（发送/绑定面复用同组 id）。
+  List<String> get assetIds => assets.map((a) => a.id).toList(growable: false);
 
   factory CsConversationMessage.fromJson(Map<String, dynamic> json) =>
       CsConversationMessage(
         message: EnterpriseMessage.fromJson(json),
-        assetIds: csMessageAssetIds(json),
+        assets: csMessageAssets(json),
       );
 }
 
@@ -627,21 +674,28 @@ class CsApi extends HttpClient {
   }
 
   /// 坐席侧企业消息历史（A0 冻结读路径）：GET
-  /// `/api/v1/enterprise/conversations/:conversationId/messages`，
-  /// query 仅携带非空 `after_id`/`limit`（EB 真源键集分页；游标缺省语义
-  /// = 全量首拉）。
+  /// `/api/v1/enterprise/conversations/:conversationId/messages`。
+  ///
+  /// 冻结 query 契约（cs_tenant 面 org_source=param + workspace 门必填）：
+  /// `organization_id` 必填（申报值，服务端用凭证/事实证明）、`workspace_id`
+  /// 必填（缺一即 422）；`after_id`/`limit` 非空才携带（EB 真源键集分页；
+  /// 游标缺省语义 = 全量首拉）。
   ///
   /// payload 形状：EB `list_messages` 返回裸消息数组（宽容兼容
   /// `{messages: [...]}` / `{list: [...]}` 包裹）。逐行解析为
-  /// [CsConversationMessage]（真源消息 + asset_ids 绑定投影）。
+  /// [CsConversationMessage]（真源消息 + `assets` 五键投影）。
   Future<List<CsConversationMessage>> conversationMessages(
     String conversationId, {
+    required String orgId,
+    String workspaceId = '',
     String afterId = '',
     int limit = 0,
   }) async {
     final resp = await get(
       '/api/v1/enterprise/conversations/$conversationId/messages',
       queryParameters: {
+        'organization_id': orgId,
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
         if (afterId.isNotEmpty) 'after_id': afterId,
         if (limit > 0) 'limit': limit,
       },
@@ -676,9 +730,9 @@ class CsApi extends HttpClient {
   /// APP-M02-A03（§3.7）：`assetIds` 非空时提交 `asset_ids`——confirmed
   /// asset 与消息**原子绑定**（服务端单事务锁定 active+unbound asset；
   /// 同 client_msg_id + asset_ids 重试返回同一 message，其他重放 409）。
-  /// DEPENDENT_BACKEND_PATCH1：asset_ids 参数与字节上传代理端点由
-  /// BE-PATCH-01 并行交付，客户端按本合同形状实现，联调待真后端。
-  Future<EnterpriseMessage> sendConversationMessage(
+  /// 回显按 CS-BE-01 同形状携带 `assets` 投影（解析见
+  /// [CsConversationMessage]）。
+  Future<CsConversationMessage> sendConversationMessage(
     String orgId,
     String conversationId, {
     required String body,
@@ -698,7 +752,7 @@ class CsApi extends HttpClient {
     );
     _ensureOk(resp);
     final map = IMBoyHttpResponse.payloadAsMap(resp.payload);
-    return EnterpriseMessage.fromJson(map);
+    return CsConversationMessage.fromJson(map);
   }
 
   /// delivery ACK（幂等，delivery-only；EB 合同 `recipient_ref` 必填）。
@@ -721,37 +775,70 @@ class CsApi extends HttpClient {
     _ensureOk(resp);
   }
 
-  /// 企业附件三步上传（presign → 短期 presigned PUT → confirm）。
+  /// 企业附件三步上传（presign → 裸 PUT → confirm；CSX-01 冻结契约）。
   ///
-  /// EB-D06 纪律：`upload_url` 仅在内存中使用到 PUT 完成为止，本方法
-  /// 不返回、不记录、不持久化该 URL；confirm 走独立请求重新鉴权。
-  /// 只允许企业附件通道，禁止个人 attachment fallback。
+  /// - presign 请求体键白名单 `{workspace_id, conversation_id, mime,
+  ///   size_bytes, object_hash, file_name?}`（旧 `{file_name, mime, size}`
+  /// 缺必填必 422——历史断链形状，已废）；[objectHash] 是 [bytes] 的
+  /// SHA-256 小写 hex（对齐 imboyadmin widget uploader 的同款算法）；
+  /// - 裸 PUT：只带 `Content-Type: application/octet-stream`，不带
+  ///   IMBoy 鉴权头（upload_ref 是唯一凭证）。PUT 目标取嵌套
+  ///   `upload.url`——企业面 presign_view 恒不携带（合同形状
+  ///   `opaque_token_no_url_no_object_key`）→ 本方法 fail-closed 抛出
+  ///   （绝不自造端点、绝不 PUT 到非 http(s) 目标、绝不 confirm 未上传
+  ///   完成的资产）；
+  /// - confirm 独立请求重新鉴权，入参 `upload_ref`（非 asset_id）。
+  ///
+  /// EB-D06 纪律：`upload.url` / `upload_ref` 仅在内存中使用到 PUT/confirm
+  /// 完成为止，本方法不返回、不记录、不持久化；只允许企业附件通道，
+  /// 禁止个人 attachment fallback。
   Future<EnterpriseAsset> uploadEnterpriseAsset(
     String orgId, {
-    required String fileName,
+    required String workspaceId,
+    required String conversationId,
     required String mime,
-    required int size,
-    required Stream<List<int>> byteStream,
+    required Uint8List bytes,
+    String fileName = '',
   }) async {
     final enterpriseApi = EnterpriseApi();
     final presign = await enterpriseApi.presignAsset(
       orgId,
-      fileName: fileName,
+      workspaceId: workspaceId,
+      conversationId: conversationId,
       mime: mime,
-      size: size,
+      sizeBytes: bytes.length,
+      objectHash: sha256.convert(bytes).toString(),
+      fileName: fileName,
     );
-    // 短期 presigned PUT：直传对象存储，走裸 dio（不叠 IMBoy 鉴权头；
+    if (!presign.hasUploadTarget) {
+      // fail-closed：本面未开放字节 PUT 目标（部署阶段未挂上传代理）。
+      throw CsApiException(
+        0,
+        'upload target unavailable (opaque_token_no_url_no_object_key)',
+      );
+    }
+    // 短期裸 PUT：直传上传代理端点，走裸 dio（不叠 IMBoy 鉴权头；
     // 失败 fail-closed 抛出，upload_url 随请求结束即弃）。
     final putResp = await dio.put<Object>(
       presign.uploadUrl,
-      data: byteStream,
-      options: Options(headers: {'Content-Type': mime}),
+      data: Stream<List<int>>.value(bytes),
+      options: Options(headers: {'Content-Type': 'application/octet-stream'}),
     );
     final status = putResp.statusCode;
     if (status == null || status < 200 || status >= 300) {
       throw CsApiException(status ?? 0, 'asset PUT failed');
     }
-    return enterpriseApi.confirmAsset(orgId, presign.assetId);
+    return enterpriseApi.confirmAsset(
+      orgId,
+      workspaceId: workspaceId,
+      uploadRef: presign.uploadRef,
+    );
+  }
+
+  /// 坐席附件内容字节（授权 content 代理；图片渲染与文本预览共用入口，
+  /// 禁止裸 URL 渲染——EB-D06）。
+  Future<Uint8List> fetchAssetBytes(String orgId, String assetId) {
+    return EnterpriseApi().fetchAssetContentBytes(orgId, assetId);
   }
 
   /// 打开坐席事件 SSE 流（底层；由 [CsSeatEventsStream] 驱动重连/游标/

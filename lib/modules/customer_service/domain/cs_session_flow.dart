@@ -4,6 +4,8 @@
 /// 注入桩即可单测）。职责：
 ///
 /// - 历史 after_id 增量（游标 = 已加载最大消息 id；交付企业 store 缓存）；
+///   附件按 CSX-01 冻结投影 `assets:[{id,mime,size_bytes,file_name,status}]`
+///   解析（纯文本 `assets: []`）；
 /// - 发送（幂等 `client_msg_id`：未确认前重试复用同一 id；服务端幂等语义
 ///   = 同 id 重放不增行）； sender 恒 business_identity（EB 真源写真源，
 ///   禁止个人 C2C 通道）；附件消息同时复用同一组 `asset_ids`（A03：
@@ -11,10 +13,11 @@
 /// - delivery ACK：对入站未投递消息逐条 ACK；recipient_ref 恒为
 ///   `identity:<business_identity_id>`（A01）；本地只置投递标记
 ///   （delivery-only），绝不删除消息真源；
-/// - 附件：presign → 短期 presigned PUT → confirm（confirmed_unbound）→
-///   消息带 asset_ids 原子绑定（§3.7）；`upload_url` 仅在内存中存在到
-///   PUT 完成为止（不持久化、不进 store、不进 UI）；查看仅走企业 content
-///   鉴权代理（EB-D06），客户端不接收 object key / storage endpoint；
+/// - 附件：presign（object_hash = SHA-256）→ 裸 PUT（嵌套 upload.url，
+///   缺失 fail-closed）→ confirm（upload_ref）→ 消息带 asset_ids 原子
+///   绑定（§3.7）；`upload_url` 仅在内存中存在到 PUT 完成为止（不持久
+///   化、不进 store、不进 UI）；查看仅走企业 content 鉴权代理取字节
+///   （EB-D06），客户端不接收 object key / storage endpoint；
 /// - SSE（A02）：`seats/me/events` 事件只是**权威刷新的触发器**——
 ///   message.appended → 增量拉取；session/assignment/seat.changed →
 ///   detail 权威刷新；resync.required → 清游标全量刷新；降级后停止消费；
@@ -23,6 +26,8 @@
 /// - 降级（A05）：403 / offboarding 409 / 普通 409 分类明确
 ///   （[lastFailureKind]），失败/重试状态不伪成功。
 library;
+
+import 'dart:typed_data';
 
 import 'package:xid/xid.dart';
 
@@ -46,7 +51,6 @@ CsSeatFailureKind csClassifySeatFailure(CsApiException e) {
 /// 坐席会话数据流。
 class CsSessionFlow {
   final CsApi _csApi;
-  final EnterpriseApi _enterpriseApi;
   final EnterpriseStore _store;
 
   final String orgId;
@@ -54,6 +58,11 @@ class CsSessionFlow {
 
   /// 会话绑定的企业会话（消息通道；服务端 detail 可补齐）。
   String conversationId;
+
+  /// Workspace 作用域（消息历史/presign/confirm 的冻结 query/body 必填键；
+  /// 路由展示种子，空时经 seat-contexts 权威解析补齐——见
+  /// [resolveWorkspaceId]，解析失败保持空 = 服务端 422 fail-closed）。
+  String workspaceId;
 
   /// 当前坐席自己的经办业务身份（发送的 sender 身份、ACK recipient_ref）。
   ///
@@ -70,8 +79,10 @@ class CsSessionFlow {
 
   List<EnterpriseMessage> messages = const <EnterpriseMessage>[];
 
-  /// 消息 id → 附件绑定投影（§3.7 asset_ids 回显；查看只经授权代理）。
-  Map<String, List<String>> messageAssets = const <String, List<String>>{};
+  /// 消息 id → 附件绑定投影（§3.7 `assets` 五键白名单回显；查看只经
+  /// 授权代理）。
+  Map<String, List<CsMessageAsset>> messageAssets =
+      const <String, List<CsMessageAsset>>{};
 
   /// after_id 游标（已加载最大消息 id）。
   String cursor = '';
@@ -94,12 +105,11 @@ class CsSessionFlow {
     required this.sessionId,
     required this.identityId,
     this.conversationId = '',
+    this.workspaceId = '',
     this.contactMaskedName = '',
     CsApi? csApi,
-    EnterpriseApi? enterpriseApi,
     EnterpriseStore? store,
   }) : _csApi = csApi ?? CsApi(),
-       _enterpriseApi = enterpriseApi ?? EnterpriseApi(),
        _store = store ?? EnterpriseStoreHolder.instance;
 
   // ==================== 会话状态同步 ====================
@@ -167,16 +177,19 @@ class CsSessionFlow {
     if (poll && !machine.shouldPoll) return const [];
     if (conversationId.isEmpty) return const [];
     try {
+      await resolveWorkspaceId();
       final fresh = await _csApi.conversationMessages(
         conversationId,
+        orgId: orgId,
+        workspaceId: workspaceId,
         afterId: cursor,
       );
-      final assets = Map<String, List<String>>.from(messageAssets);
+      final assets = Map<String, List<CsMessageAsset>>.from(messageAssets);
       final inbound = <EnterpriseMessage>[];
       for (final m in fresh) {
         await _store.saveMessage(m.message);
-        if (m.assetIds.isNotEmpty) {
-          assets[m.message.id] = m.assetIds;
+        if (m.assets.isNotEmpty) {
+          assets[m.message.id] = m.assets;
         }
         inbound.add(m.message);
       }
@@ -271,16 +284,25 @@ class CsSessionFlow {
       pendingClientMsgId = null;
       pendingAssetIds = null;
       lastFailureKind = null;
-      await _store.saveMessage(sent);
+      final sentMessage = sent.message;
+      await _store.saveMessage(sentMessage);
       if (ids.isNotEmpty) {
-        messageAssets = {...messageAssets, sent.id: ids};
+        // 服务端 POST 回显同形状 assets 投影（CS-BE-01）；本地兜底：回显
+        // 未携带投影时用提交的 id 组成最小投影（文件名/mime 待历史刷新）。
+        messageAssets = {
+          ...messageAssets,
+          sentMessage.id: sent.assets.isNotEmpty
+              ? sent.assets
+              : ids.map((id) => CsMessageAsset(id: id)).toList(),
+        };
       }
       final known = messages.map((m) => m.id).toSet();
-      if (!known.contains(sent.id)) {
-        messages = [...messages, sent]..sort((a, b) => a.id.compareTo(b.id));
+      if (!known.contains(sentMessage.id)) {
+        messages = [...messages, sentMessage]
+          ..sort((a, b) => a.id.compareTo(b.id));
       }
-      if (sent.id.compareTo(cursor) > 0) {
-        cursor = sent.id;
+      if (sentMessage.id.compareTo(cursor) > 0) {
+        cursor = sentMessage.id;
       }
       return true;
     } on CsApiException catch (e) {
@@ -291,40 +313,66 @@ class CsSessionFlow {
 
   // ==================== 附件（企业通道，EB-D06 + §3.7） ====================
 
-  /// 附件上传三步：presign → presigned PUT → confirm；成功后返回
-  /// assetId（confirmed_unbound，等待与消息原子绑定）。`upload_url` 不出
-  /// 本方法作用域（不持久化、不进 store、不进 UI）。
-  ///
-  /// DEPENDENT_BACKEND_PATCH1：字节上传代理端点由 BE-PATCH-01 并行交付。
+  /// Workspace 权威解析：种子为空时经 seat-contexts 取本 Org 第一个
+  /// workspace（会话页路由种子只是展示值）。每个 flow 实例只尝试一次
+  /// （失败保持空 = 请求面 422 fail-closed，不做本地默认值）。
+  Future<String> resolveWorkspaceId() async {
+    if (workspaceId.isNotEmpty || _workspaceResolveTried) return workspaceId;
+    _workspaceResolveTried = true;
+    try {
+      final contexts = await _csApi.seatContexts();
+      for (final c in contexts.contexts) {
+        if (c.organizationId == orgId && c.workspaces.isNotEmpty) {
+          workspaceId = c.workspaces.first.id;
+          break;
+        }
+      }
+    } on CsApiException {
+      // 解析失败保持空（fail-closed），不阻塞消息面外层语义。
+    }
+    return workspaceId;
+  }
+
+  bool _workspaceResolveTried = false;
+
+  /// 附件上传三步：presign（object_hash = SHA-256(bytes)）→ 裸 PUT
+  /// （嵌套 upload.url，缺失 fail-closed）→ confirm（upload_ref）；
+  /// 成功后返回 assetId（confirmed_unbound，等待与消息原子绑定）。
+  /// `upload_url` / `upload_ref` 不出本方法作用域（不持久化、不进
+  /// store、不进 UI）。
   Future<String> uploadAsset({
-    required String fileName,
     required String mime,
-    required int size,
-    required Stream<List<int>> byteStream,
+    required Uint8List bytes,
+    String fileName = '',
   }) async {
     if (!machine.canSend) return '';
     if (conversationId.isEmpty) return '';
+    await resolveWorkspaceId();
     final asset = await _csApi.uploadEnterpriseAsset(
       orgId,
-      fileName: fileName,
+      workspaceId: workspaceId,
+      conversationId: conversationId,
       mime: mime,
-      size: size,
-      byteStream: byteStream,
+      bytes: bytes,
+      fileName: fileName,
     );
     return asset.id;
   }
 
-  /// 附件查看：仅经企业 content 鉴权代理（每次请求重新鉴权）。
+  /// 附件内容字节：仅经企业 content 鉴权代理（每次请求重新鉴权）。
   ///
   /// 门控（A04 读写分离）：closed/rated 只读态仍可查看（服务端代理仍
   /// 是唯一权威）；suspend / offboarding / transferredAway 不再发请求
   /// （旧凭证已被拒 / 经办权已离开）。请求侧 403 / offboarding 409 同样
-  /// 触发降级。返回 null = 已降级/通道缺失（UI 不弹预览）。
-  Future<String?> viewAsset(String assetId) async {
+  /// 触发降级。返回 null = 已降级/通道缺失（UI 不渲染内容）。
+  ///
+  /// 图片气泡（Image.memory）与文件文本预览（utf8 解码）共用本入口；
+  /// **禁止** Image.network/CachedNetworkImage 裸 URL（EB-D06）。
+  Future<Uint8List?> fetchAssetBytes(String assetId) async {
     if (!machine.canDownload) return null;
     if (conversationId.isEmpty) return null;
     try {
-      return await _enterpriseApi.fetchAssetContentText(orgId, assetId);
+      return await _csApi.fetchAssetBytes(orgId, assetId);
     } on EnterpriseApiException catch (e) {
       if (e.isForbidden) machine.markSuspended();
       if (e.isOffboardingRequired) machine.markOffboarding();

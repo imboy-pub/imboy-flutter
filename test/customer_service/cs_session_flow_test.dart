@@ -17,6 +17,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -93,6 +94,7 @@ Map<String, dynamic> msgJson({
   String identityId = '7266418340025468902',
   String content = 'hello',
   bool delivered = true,
+  List<Map<String, dynamic>>? assets,
 }) => {
   'id': id,
   'conversation_id': '7266418340025468950',
@@ -102,13 +104,15 @@ Map<String, dynamic> msgJson({
   'sender_business_identity_id': senderType == 'business_identity'
       ? identityId
       : null,
-  'content': content,
-  'delivered': delivered,
+  'body': content,
+  // CSX-01 冻结投影：纯文本 assets=[]（缺省）；附件消息逐资产行五键白名单。
+  'assets': assets ?? <Map<String, dynamic>>[],
 };
 
 CsSessionFlow newFlow({
   required HttpClientAdapter adapter,
   String conversationId = '7266418340025468950',
+  String workspaceId = '7266418340025468921',
   EnterpriseStore? store,
 }) {
   HttpClient.adapterForTest = adapter;
@@ -118,6 +122,7 @@ CsSessionFlow newFlow({
     sessionId: '7266418340025468940',
     identityId: '7266418340025468902',
     conversationId: conversationId,
+    workspaceId: workspaceId,
     contactMaskedName: '张**',
     store: store ?? EnterpriseMemoryStore(),
   );
@@ -215,6 +220,136 @@ void main() {
     });
   });
 
+  group('CSX-01 历史附件投影恢复（assets 五键白名单）', () {
+    test(
+      '历史行 assets 投影解析进 messageAssets；纯文本行为空；query 带 org/workspace',
+      () async {
+        final adapter = _RouteAdapter([
+          (
+            '/ack',
+            [
+              (200, {'code': 0, 'msg': 'success', 'payload': null}),
+            ],
+          ),
+          (
+            '/conversations/7266418340025468950/messages',
+            [
+              (
+                200,
+                {
+                  'code': 0,
+                  'msg': 'success',
+                  'payload': [
+                    msgJson(id: '7266418340025468961', senderType: 'contact'),
+                    msgJson(
+                      id: '7266418340025468962',
+                      senderType: 'contact',
+                      content: '',
+                      assets: [
+                        {
+                          'id': '7266418340025468970',
+                          'mime': 'image/png',
+                          'size_bytes': 4096,
+                          'file_name': '订单截图.png',
+                          'status': 'active',
+                        },
+                      ],
+                    ),
+                  ],
+                },
+              ),
+            ],
+          ),
+        ]);
+        final flow = newFlow(adapter: adapter);
+
+        await flow.loadIncremental();
+
+        expect(flow.messages, hasLength(2));
+        // 纯文本：无附件投影行。
+        expect(flow.messageAssets['7266418340025468961'], isNull);
+        // 附件消息：五键投影逐项恢复（渲染面据此分型图片/文件）。
+        final assets = flow.messageAssets['7266418340025468962']!;
+        expect(assets, hasLength(1));
+        expect(assets.single.id, '7266418340025468970');
+        expect(assets.single.mime, 'image/png');
+        expect(assets.single.sizeBytes, 4096);
+        expect(assets.single.fileName, '订单截图.png');
+        expect(assets.single.isImage, isTrue);
+        // 消息 GET 携带冻结 query（organization_id / workspace_id）。
+        final get = adapter.requests.firstWhere(
+          (r) => r.$1 == 'GET' && r.$2.contains('/conversations/'),
+        );
+        expect(get.$4['organization_id'], kOrgId);
+        expect(get.$4['workspace_id'], kWsId);
+      },
+    );
+
+    test('workspace 种子为空：经 seat-contexts 权威解析后带上 query（一次）', () async {
+      var seatContextCalls = 0;
+      final adapter = _RouteAdapter([
+        (
+          '/seat-contexts',
+          [
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': {
+                  'contexts': [
+                    {
+                      'organization_id': '7266418340025468901',
+                      'organization_name': '示例组织',
+                      'workspaces': [
+                        {'id': '7266418340025468921', 'name': '默认工作区'},
+                      ],
+                      'business_identity_id': '7266418340025468902',
+                      'seat_enabled': true,
+                    },
+                  ],
+                },
+              },
+            ),
+          ],
+        ),
+        (
+          '/conversations/7266418340025468950/messages',
+          [
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': [
+                  msgJson(id: '7266418340025468961', senderType: 'contact'),
+                ],
+              },
+            ),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter, workspaceId: '');
+
+      await flow.loadIncremental();
+      expect(flow.workspaceId, kWsId, reason: 'seat-contexts 权威补齐');
+      final gets = adapter.requests
+          .where((r) => r.$1 == 'GET' && r.$2.contains('/conversations/'))
+          .toList();
+      expect(gets.single.$4['workspace_id'], kWsId);
+
+      // 解析每 flow 实例只做一次：再拉不重复打 seat-contexts。
+      seatContextCalls = adapter.requests
+          .where((r) => r.$2.contains('/seat-contexts'))
+          .length;
+      await flow.loadIncremental();
+      final after = adapter.requests
+          .where((r) => r.$2.contains('/seat-contexts'))
+          .length;
+      expect(after, seatContextCalls, reason: 'workspace 解析结果已缓存');
+    });
+  });
+
   group('CSM-02 delivery ACK 不删真源', () {
     test('入站未投递消息：ACK 逐条发出；本地只置标记，消息仍在列表与 store', () async {
       final store = EnterpriseMemoryStore();
@@ -273,73 +408,172 @@ void main() {
   });
 
   group('CSM-02 附件三步（presign→PUT→confirm）不泄露存储 URL', () {
-    test('顺序正确；upload_url / object key 不落 store', () async {
-      final store = EnterpriseMemoryStore();
-      final adapter = _RouteAdapter([
-        (
-          'assets/presign',
-          [
-            (
-              200,
-              {
-                'code': 0,
-                'msg': 'success',
-                'payload': {
-                  'asset_id': '7266418340025468970',
-                  'upload_url': 'https://s3.example.internal/secret?sig=xyz',
-                  'expires_at': '1789000000000',
+    final demoBytes = Uint8List.fromList(utf8.encode('demo'));
+    final demoHash = sha256.convert(demoBytes).toString();
+
+    /// CSX-01 冻结 presign 响应（嵌套 upload.url；企业面 url 可缺省）。
+    Map<String, dynamic> presignView({String? uploadUrl}) => {
+      'asset_id': '7266418340025468970',
+      'upload_ref': 'opaque-upload-ref',
+      'object_hash': demoHash,
+      'mime': 'text/plain',
+      'size_bytes': demoBytes.length,
+      'file_name': 'a.txt',
+      'expires_at': 1789000100,
+      'upload': {
+        'method': 'PUT',
+        'token': 'opaque-upload-ref',
+        'expires_at': 1789000100,
+        'adapter': 'local_private_object_store',
+        'rule': 'opaque_token_no_url_no_object_key',
+        'url': ?uploadUrl,
+      },
+    };
+
+    test(
+      '顺序正确；presign 请求体冻结契约（object_hash=SHA-256）；upload_url 不落 store',
+      () async {
+        final store = EnterpriseMemoryStore();
+        final adapter = _RouteAdapter([
+          (
+            'assets/presign',
+            [
+              (
+                200,
+                {
+                  'code': 0,
+                  'msg': 'success',
+                  'payload': presignView(
+                    uploadUrl: 'https://upload.example.internal/put?ref=xyz',
+                  ),
                 },
-              },
-            ),
-          ],
-        ),
-        (
-          'assets/confirm',
-          [
-            (200, {'code': 0, 'msg': 'success', 'payload': null}),
-          ],
-        ),
-      ]);
-      final flow = newFlow(adapter: adapter, store: store);
+              ),
+            ],
+          ),
+          (
+            'assets/confirm',
+            [
+              (
+                200,
+                {
+                  'code': 0,
+                  'msg': 'success',
+                  'payload': {
+                    'asset_id': '7266418340025468970',
+                    'status': 'active',
+                    'mime': 'text/plain',
+                    'size_bytes': 4,
+                    'file_name': 'a.txt',
+                  },
+                },
+              ),
+            ],
+          ),
+        ]);
+        final flow = newFlow(adapter: adapter, store: store);
 
-      final assetId = await flow.uploadAsset(
-        fileName: 'a.txt',
-        mime: 'text/plain',
-        size: 4,
-        byteStream: Stream<List<int>>.value(utf8.encode('demo')),
-      );
+        final assetId = await flow.uploadAsset(
+          mime: 'text/plain',
+          bytes: demoBytes,
+          fileName: 'a.txt',
+        );
 
-      expect(assetId, '7266418340025468970');
-      final uris = adapter.requests.map((r) => r.$2).toList();
-      expect(uris.where((p) => p.contains('/assets/presign')), hasLength(1));
-      expect(
-        uris.where((p) => p.contains('s3.example.internal')),
-        hasLength(1),
-        reason: 'PUT 直传一次',
-      );
-      expect(uris.where((p) => p.contains('/assets/confirm')), hasLength(1));
-      final putIndex = uris.indexWhere((p) => p.contains('s3.example'));
-      expect(
-        putIndex,
-        greaterThan(uris.indexWhere((p) => p.contains('/presign'))),
-      );
-      expect(
-        putIndex,
-        lessThan(uris.indexWhere((p) => p.contains('/confirm'))),
-      );
+        expect(assetId, '7266418340025468970');
+        final uris = adapter.requests.map((r) => r.$2).toList();
+        expect(uris.where((p) => p.contains('/assets/presign')), hasLength(1));
+        expect(
+          uris.where((p) => p.contains('upload.example.internal')),
+          hasLength(1),
+          reason: '裸 PUT 直传一次（嵌套 upload.url 目标）',
+        );
+        expect(uris.where((p) => p.contains('/assets/confirm')), hasLength(1));
+        final putIndex = uris.indexWhere((p) => p.contains('upload.example'));
+        expect(
+          putIndex,
+          greaterThan(uris.indexWhere((p) => p.contains('/presign'))),
+        );
+        expect(
+          putIndex,
+          lessThan(uris.indexWhere((p) => p.contains('/confirm'))),
+        );
 
-      // EB-D06：presigned URL / object key 不得落 store（store 只存键以
-      // enterprise_ 前缀的元信息）
-      expect(
-        store.debugKeys().any(
-          (k) =>
-              k.contains('upload') ||
-              k.contains('s3.example') ||
-              k.contains('sig='),
-        ),
-        isFalse,
-      );
-    });
+        // presign 请求体冻结契约：{workspace_id, conversation_id, mime,
+        // size_bytes, object_hash, file_name}；object_hash 是字节 SHA-256。
+        final presignReq = adapter.requests.firstWhere(
+          (r) => r.$2.contains('/assets/presign'),
+        );
+        final presignBody = Map<String, dynamic>.from(presignReq.$3 as Map);
+        expect(presignBody.keys.toSet(), {
+          'workspace_id',
+          'conversation_id',
+          'mime',
+          'size_bytes',
+          'object_hash',
+          'file_name',
+        });
+        expect(presignBody['workspace_id'], kWsId);
+        expect(presignBody['conversation_id'], kConvId);
+        expect(presignBody['object_hash'], demoHash);
+        // confirm 请求体：upload_ref（非 asset_id）。
+        final confirmReq = adapter.requests.firstWhere(
+          (r) => r.$2.contains('/assets/confirm'),
+        );
+        final confirmBody = Map<String, dynamic>.from(confirmReq.$3 as Map);
+        expect(confirmBody.keys.toSet(), {'workspace_id', 'upload_ref'});
+        expect(confirmBody['upload_ref'], 'opaque-upload-ref');
+
+        // EB-D06：presigned URL / object key 不得落 store（store 只存键以
+        // enterprise_ 前缀的元信息）
+        expect(
+          store.debugKeys().any(
+            (k) =>
+                k.contains('upload') ||
+                k.contains('upload.example') ||
+                k.contains('ref='),
+          ),
+          isFalse,
+        );
+      },
+    );
+
+    test(
+      'fail-closed：presign 无 upload.url（企业面合同形状）→ 抛出且不 PUT/不 confirm/不发消息',
+      () async {
+        final adapter = _RouteAdapter([
+          (
+            'assets/presign',
+            [
+              (200, {'code': 0, 'msg': 'success', 'payload': presignView()}),
+            ],
+          ),
+        ]);
+        final flow = newFlow(adapter: adapter);
+
+        Object? caught;
+        try {
+          await flow.uploadAsset(
+            mime: 'text/plain',
+            bytes: demoBytes,
+            fileName: 'a.txt',
+          );
+          fail('无 PUT 目标必须 fail-closed 抛出（绝不自造端点）');
+        } on Object catch (e) {
+          caught = e;
+        }
+        expect(caught, isNotNull);
+        expect(
+          adapter.requests.where((r) => !r.$2.contains('/assets/presign')),
+          isEmpty,
+          reason: '只发 presign：不 PUT、不 confirm',
+        );
+        expect(
+          adapter.requests.where((r) => r.$2.contains('/messages')),
+          isEmpty,
+          reason: '§3.7：失败不得产生文件名文本附件',
+        );
+        expect(flow.messages, isEmpty);
+      },
+    );
   });
 
   group('CSM-02 transfer CAS 冲突恢复', () {
@@ -556,10 +790,9 @@ void main() {
       Object? caught;
       try {
         await flow.uploadAsset(
-          fileName: 'a.txt',
           mime: 'text/plain',
-          size: 4,
-          byteStream: Stream<List<int>>.value(utf8.encode('demo')),
+          bytes: Uint8List.fromList(utf8.encode('demo')),
+          fileName: 'a.txt',
         );
         fail('presign 失败必须抛出（不伪成功）');
       } on Object catch (e) {
@@ -602,7 +835,7 @@ void main() {
       expect(kind, isNull);
       expect(flow.machine.canSend, isFalse);
       expect(flow.machine.canDownload, isTrue);
-      final viewed = await flow.viewAsset('7266418340025468970');
+      final viewed = await flow.fetchAssetBytes('7266418340025468970');
       expect(viewed, isNotNull, reason: 'closed 只读态附件查看仍走授权代理');
     });
   });
@@ -631,7 +864,7 @@ void main() {
       final sent = await flow.send('还想回复');
       expect(sent, isFalse);
       expect(adapter.requests.length, before, reason: '转接后写入口清空');
-      expect(await flow.viewAsset('a1'), isNull);
+      expect(await flow.fetchAssetBytes('a1'), isNull);
     });
 
     test('服务端回显经办人非当前坐席 → transferredAway；本值不被回显覆盖', () async {

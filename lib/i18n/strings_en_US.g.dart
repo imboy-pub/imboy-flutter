@@ -1735,6 +1735,10 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get attachAction => 'Attach';
 	@override String get attachUploaded => 'Attachment uploaded';
 	@override String get attachPreviewTitle => 'Attachment preview (enterprise secure channel)';
+	@override String get attachUnnamedFile => 'Attachment';
+	@override String attachStatusUnavailable({required Object size}) => 'Unavailable · ${size}';
+	@override String get attachUnsupportedType => 'Unsupported file type. Please choose another';
+	@override String get attachBinaryNoPreview => 'Binary content, preview unavailable';
 	@override String get transferAction => 'Transfer';
 	@override String get transferTitle => 'Transfer to a seat in this organization';
 	@override String get transferEmpty => 'No eligible customer-service seats in this organization';
@@ -4662,6 +4666,10 @@ extension on TranslationsEnUs {
 			'customerService.attachAction' => 'Attach',
 			'customerService.attachUploaded' => 'Attachment uploaded',
 			'customerService.attachPreviewTitle' => 'Attachment preview (enterprise secure channel)',
+			'customerService.attachUnnamedFile' => 'Attachment',
+			'customerService.attachStatusUnavailable' => ({required Object size}) => 'Unavailable · ${size}',
+			'customerService.attachUnsupportedType' => 'Unsupported file type. Please choose another',
+			'customerService.attachBinaryNoPreview' => 'Binary content, preview unavailable',
 			'customerService.transferAction' => 'Transfer',
 			'customerService.transferTitle' => 'Transfer to a seat in this organization',
 			'customerService.transferEmpty' => 'No eligible customer-service seats in this organization',
@@ -5152,12 +5160,12 @@ extension on TranslationsEnUs {
 			'main.safetyNumberTitle' => 'Safety Number',
 			'main.safetyNumberHint' => 'Compare this safety number with your contact in person or over the phone. If they match, your conversation is not being intercepted by a man-in-the-middle. If they do not match, stop the conversation immediately and verify identity through another channel. Verification status is stored locally only.',
 			'main.safetyNumberCopy' => 'Copy',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberCopied' => 'Copied',
 			'main.safetyNumberMarkVerified' => 'Mark as verified',
 			'main.safetyNumberMarkedVerified' => 'Marked as verified',
 			'main.safetyNumberPeerDevice' => 'Contact device',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => 'This contact has not enabled end-to-end encryption yet',
 			'main.safetyNumberVerifyFailed' => 'Failed to get safety number, please retry later',
 			'main.safetyNumberReporting' => 'Reporting verification result...',
@@ -5666,12 +5674,12 @@ extension on TranslationsEnUs {
 			'workspace.projectMilestoneDueDateInvalid' => 'Date must be YYYY-MM-DD',
 			'workspace.projectMilestoneCreateSubmit' => 'Create',
 			'workspace.projectMilestoneCreatedToast' => 'Milestone created',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestoneFilterAll' => 'All',
 			'workspace.projectMilestoneFilterPlanned' => 'Planned',
 			'workspace.projectMilestoneFilterReached' => 'Reached',
 			'workspace.projectMilestoneReach' => 'Mark reached',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestoneReachedToast' => 'Milestone reached',
 			'workspace.projectMilestoneAlreadyReachedToast' => 'Milestone already reached',
 			'workspace.projectMilestoneReachedHint' => 'Reached (cannot be rolled back)',

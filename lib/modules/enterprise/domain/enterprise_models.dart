@@ -263,7 +263,9 @@ class EnterpriseMessage {
       senderBusinessIdentityName: parseModelString(
         json['sender_business_identity_name'],
       ),
-      content: parseModelString(json['content']),
+      // 读面明文键：真源解密投影为 `body`（eb_message_app:decrypted_view）；
+      // `content` 是本地 store 往返形（toJson）——两形宽容共存。
+      content: parseModelString(json['body'] ?? json['content']),
       assetId: entityIdOf(json['asset_id']),
       retainUntil: parseModelString(json['retain_until']),
       policySnapshot: parseModelString(json['policy_snapshot']),
@@ -344,12 +346,15 @@ class EnterpriseAsset {
 
   factory EnterpriseAsset.fromJson(Map<String, dynamic> json) {
     return EnterpriseAsset(
-      id: entityIdOf(json['id']),
+      // confirm/资产视图把主键投影为 `asset_id`（public_asset_view:rename_id）；
+      // `id` 仅历史本地形兜底。
+      id: entityIdOf(json['asset_id'] ?? json['id']),
       organizationId: entityIdOf(json['organization_id']),
       conversationId: entityIdOf(json['conversation_id']),
       messageId: entityIdOf(json['message_id']),
       mime: parseModelString(json['mime']),
-      size: parseModelInt(json['size']),
+      // 冻结契约键为 `size_bytes`（int）；`size` 仅历史本地形兜底。
+      size: parseModelInt(json['size_bytes'] ?? json['size']),
       status: parseModelString(json['status'], defaultValue: 'pending'),
     );
   }
@@ -367,24 +372,57 @@ class EnterpriseAsset {
   bool get isPending => status == 'pending';
 }
 
-/// presigned PUT 结果（短期上传凭证）。
+/// presign 结果（后端冻结契约 CSX-01 / eb_asset_app:presign_view）。
 ///
-/// [uploadUrl] 仅在内存中使用到 PUT 完成为止，禁止持久化（EB-D06）。
+/// 响应形状（键白名单）：
+/// `{asset_id, upload_ref, object_hash, mime, size_bytes, file_name,
+/// retain_until, expires_at, upload:{method, token, expires_at,
+/// adapter, rule, url?}}`——**没有** flat `upload_url`（历史断链形状）。
+///
+/// - [uploadRef] 是不透明上传凭证（HMAC、TTL、绑定租户/会话/哈希），
+///   confirm 的唯一入参；
+/// - [uploadUrl] 来自嵌套 `upload.url`（裸 PUT 目标）。企业面 presign_view
+///   **恒不携带** url（`opaque_token_no_url_no_object_key`）；widget 代理面
+///   在 https base 配置下补该键。为空 = 本面未开放字节 PUT 目标——调用方
+///   必须 fail-closed（绝不自造端点、绝不落对象 key，对齐 imboyadmin
+///   widget uploader 的同款姿态）；
+/// - [uploadUrl] 仅在内存中使用到 PUT 完成为止，禁止持久化（EB-D06）。
 class EnterprisePresignResult {
   final EntityId assetId;
+
+  /// 不透明上传凭证（confirm 用；不进 store、不进 UI）。
+  final String uploadRef;
+
+  /// 嵌套 `upload.url` 裸 PUT 目标；空 = 该面未下发 PUT 目标（fail-closed）。
   final String uploadUrl;
+
   final String expiresAt;
 
   const EnterprisePresignResult({
     required this.assetId,
-    required this.uploadUrl,
+    this.uploadRef = '',
+    this.uploadUrl = '',
     this.expiresAt = '',
   });
 
+  /// PUT 目标是否可用（绝对 http(s)，无 userinfo 内嵌凭证形状）。
+  bool get hasUploadTarget =>
+      uploadUrl.startsWith('http://') || uploadUrl.startsWith('https://');
+
   factory EnterprisePresignResult.fromJson(Map<String, dynamic> json) {
+    final upload = json['upload'];
+    var uploadUrl = '';
+    if (upload is Map) {
+      final url = upload['url'];
+      if (url is String &&
+          (url.startsWith('http://') || url.startsWith('https://'))) {
+        uploadUrl = url;
+      }
+    }
     return EnterprisePresignResult(
       assetId: entityIdOf(json['asset_id']),
-      uploadUrl: parseModelString(json['upload_url']),
+      uploadRef: parseModelString(json['upload_ref']),
+      uploadUrl: uploadUrl,
       expiresAt: parseModelString(json['expires_at']),
     );
   }

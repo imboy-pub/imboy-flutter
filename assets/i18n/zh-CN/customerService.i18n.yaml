@@ -51,6 +51,11 @@ inputHint: "输入回复内容…"
 attachAction: "附件"
 attachUploaded: "附件已上传"
 attachPreviewTitle: "附件预览（企业安全通道）"
+# ==================== CS-APP-01（附件投影渲染：文件行 / 图片缩略 / 预览占位） ====================
+attachUnnamedFile: "附件"
+attachStatusUnavailable: "暂不可用 · $size"
+attachUnsupportedType: "暂不支持该文件类型，请更换文件"
+attachBinaryNoPreview: "二进制内容，暂不支持预览"
 # ==================== 转接（CAS） ====================
 transferAction: "转接"
 transferTitle: "转接给同组织坐席"

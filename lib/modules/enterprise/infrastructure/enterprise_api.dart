@@ -14,9 +14,25 @@
 /// 镜像 [WorkspaceApi] 的 HttpClient 模式：失败抛异常而非静默空值。
 library;
 
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/http/http_transformer.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
+
+/// 企业附件 content 字节响应透传：对象字节本体不是 JSON envelope，原样
+/// 交付（鉴权/签名/重试仍走 HttpClient 统一链路）。
+class _BytesPassthroughTransformer extends HttpTransformer {
+  @override
+  IMBoyHttpResponse parse(Response<dynamic> response, String uri) {
+    return IMBoyHttpResponse.success(response.data);
+  }
+}
+
+final _bytesPassthroughTransformer = _BytesPassthroughTransformer();
 
 /// 企业 API 失败（透传服务端 envelope code 与消息）。
 class EnterpriseApiException implements Exception {
@@ -119,35 +135,62 @@ class EnterpriseApi extends HttpClient {
     _ensureOk(resp);
   }
 
-  /// 申请短期 presigned PUT（返回体含 upload_url；仅内存使用，禁止持久化）。
+  /// 申请上传凭证（POST assets/presign，后端冻结契约 CSX-01）。
+  ///
+  /// 请求体键白名单（eb_enterprise_actions:presign 动作表）：
+  /// `{workspace_id, conversation_id, mime, size_bytes, object_hash,
+  /// file_name?}`——[objectHash] 是文件字节的 SHA-256（64 位小写 hex，
+  /// PUT 后服务端复核）；旧键形 `{file_name, mime, size}` 缺
+  /// conversation_id/size_bytes/object_hash 必 422（历史断链形状，已废）。
+  ///
+  /// 返回体含不透明 `upload_ref` 与嵌套 `upload.url`（企业面恒无 url，
+  /// 见 [EnterprisePresignResult]）；两者仅内存使用，禁止持久化（EB-D06）。
   Future<EnterprisePresignResult> presignAsset(
     EntityId orgId, {
-    required String fileName,
+    required EntityId workspaceId,
+    required EntityId conversationId,
     required String mime,
-    required int size,
+    required int sizeBytes,
+    required String objectHash,
+    String fileName = '',
   }) async {
     final resp = await post(
       _org(orgId, 'assets/presign'),
-      data: {'file_name': fileName, 'mime': mime, 'size': size},
+      data: {
+        'workspace_id': workspaceId,
+        'conversation_id': conversationId,
+        'mime': mime,
+        'size_bytes': sizeBytes,
+        'object_hash': objectHash,
+        if (fileName.isNotEmpty) 'file_name': fileName,
+      },
     );
     return _unwrap(
       resp,
       EnterprisePresignResult.fromJson,
-      fallback: const EnterprisePresignResult(assetId: '', uploadUrl: ''),
+      fallback: const EnterprisePresignResult(assetId: ''),
     );
   }
 
   /// 上传后 confirm（独立请求重新鉴权；suspend 后 fail-closed，EB-D06）。
-  Future<EnterpriseAsset> confirmAsset(EntityId orgId, EntityId assetId) async {
+  ///
+  /// 冻结契约入参是 presign 下发的 `upload_ref`（不透明凭证）+ 本面必填的
+  /// `workspace_id`——**不是** asset_id（旧形状已废）；重复 confirm 服务端
+  /// 409（重放不算成功）。
+  Future<EnterpriseAsset> confirmAsset(
+    EntityId orgId, {
+    required EntityId workspaceId,
+    required String uploadRef,
+  }) async {
     final resp = await post(
       _org(orgId, 'assets/confirm'),
-      data: {'asset_id': assetId},
+      data: {'workspace_id': workspaceId, 'upload_ref': uploadRef},
     );
     return _unwrap(
       resp,
       EnterpriseAsset.fromJson,
       fallback: EnterpriseAsset(
-        id: assetId,
+        id: '',
         organizationId: orgId,
         status: 'pending',
       ),
@@ -160,6 +203,30 @@ class EnterpriseApi extends HttpClient {
   /// 在此拼接 presigned 参数 / object key / storage endpoint。
   String assetContentPath(EntityId orgId, EntityId assetId) =>
       _org(orgId, 'assets/$assetId/content');
+
+  /// 附件内容字节（GET 企业 content 代理；响应是对象字节本体，非 JSON
+  /// envelope——走透传 transformer，鉴权/签名仍经 HttpClient 统一链路）。
+  ///
+  /// 图片渲染（Image.memory）与文本预览（utf8 解码）共用本入口：**禁止**
+  /// `Image.network`/`CachedNetworkImage` 裸 URL（客户端不持有任何可裸访
+  /// 的对象 URL，EB-D06）。
+  Future<Uint8List> fetchAssetContentBytes(
+    EntityId orgId,
+    EntityId assetId,
+  ) async {
+    final resp = await get(
+      assetContentPath(orgId, assetId),
+      options: Options(responseType: ResponseType.bytes),
+      httpTransformer: _bytesPassthroughTransformer,
+    );
+    if (!resp.ok) {
+      throw EnterpriseApiException(resp.code, resp.msg);
+    }
+    final payload = resp.payload;
+    if (payload is Uint8List) return payload;
+    if (payload is List<int>) return Uint8List.fromList(payload);
+    throw const EnterpriseApiException(0, 'asset content: unexpected payload');
+  }
 
   /// 附件内容文本预览（GET 企业 content 代理；仅文本类型返回内容，
   /// 其余返回占位说明——V1 不做二进制渲染）。

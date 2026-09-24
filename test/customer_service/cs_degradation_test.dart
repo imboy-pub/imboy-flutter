@@ -159,7 +159,7 @@ void main() {
         // 旧 JWT 不能继续：send / download 零请求
         final before = adapter.requests.length;
         expect(await flow.send('还想发'), isFalse);
-        expect(await flow.viewAsset('7266418340025468970'), isNull);
+        expect(await flow.fetchAssetBytes('7266418340025468970'), isNull);
         expect(adapter.requests.length, before, reason: '降级后零请求');
       });
     }
@@ -184,7 +184,7 @@ void main() {
       expect(flow.machine.restoreFromSuspension(), isFalse);
       final before = adapter.requests.length;
       expect(await flow.send('还想发'), isFalse);
-      expect(await flow.viewAsset('7266418340025468970'), isNull);
+      expect(await flow.fetchAssetBytes('7266418340025468970'), isNull);
       expect(await flow.loadIncremental(poll: true), isEmpty);
       expect(adapter.requests.length, before, reason: '降级后零请求');
     });
@@ -201,12 +201,12 @@ void main() {
       ]);
       final flow = newFlow(store, adapter);
 
-      final preview = await flow.viewAsset('7266418340025468970');
+      final preview = await flow.fetchAssetBytes('7266418340025468970');
       expect(preview, isNull);
       expectDegraded(flow, CsSeatSessionPhase.readOnlySuspended);
 
       final before = adapter.requests.length;
-      expect(await flow.viewAsset('7266418340025468970'), isNull);
+      expect(await flow.fetchAssetBytes('7266418340025468970'), isNull);
       expect(await flow.send('x'), isFalse);
       expect(adapter.requests.length, before);
     });

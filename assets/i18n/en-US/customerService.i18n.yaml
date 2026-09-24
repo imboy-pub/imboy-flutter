@@ -51,6 +51,11 @@ inputHint: "Type a reply…"
 attachAction: "Attach"
 attachUploaded: "Attachment uploaded"
 attachPreviewTitle: "Attachment preview (enterprise secure channel)"
+# ==================== CS-APP-01 (asset projection rendering: file row / image thumb / preview fallback) ====================
+attachUnnamedFile: "Attachment"
+attachStatusUnavailable: "Unavailable · $size"
+attachUnsupportedType: "Unsupported file type. Please choose another"
+attachBinaryNoPreview: "Binary content, preview unavailable"
 # ==================== Transfer (CAS) ====================
 transferAction: "Transfer"
 transferTitle: "Transfer to a seat in this organization"

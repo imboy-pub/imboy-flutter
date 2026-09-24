@@ -271,14 +271,30 @@ void main() {
       expect(adapter.requests.every((r) => r.$1 != 'DELETE'), isTrue);
     });
 
-    test('presign/confirm：资产上传走短期 presigned PUT + 重新鉴权 confirm', () async {
+    test('presign/confirm：冻结契约请求体（CSX-01）+ 嵌套 upload 投影解析', () async {
+      // CSX-01 冻结响应（eb_asset_app:presign_view）：asset_id + upload_ref
+      // + 嵌套 upload{method, token, url?...}；企业面 url 恒缺省。
       final presignAdapter = useAdapter(
         200,
         okEnvelope(
           payload: {
             'asset_id': 7266418340025468935,
-            'upload_url': 'https://garage.example/enterprise/prefix/put?X-Amz-Signature=abc',
-            'expires_at': '1789000100000',
+            'upload_ref': 'opaque-upload-ref',
+            'object_hash': 'a'.padRight(64, 'a'),
+            'mime': 'text/plain',
+            'size_bytes': 42,
+            'file_name': 'note.txt',
+            'retain_until': null,
+            'expires_at': 1789000100,
+            'upload': {
+              'method': 'PUT',
+              'token': 'opaque-upload-ref',
+              'expires_at': 1789000100,
+              'adapter': 'local_private_object_store',
+              'rule': 'opaque_token_no_url_no_object_key',
+              // widget 代理面才补 url；这里给出以验证嵌套解析路径。
+              'url': 'https://upload.example.internal/put?ref=abc',
+            },
           },
         ),
       );
@@ -286,28 +302,46 @@ void main() {
 
       final presign = await api.presignAsset(
         orgId,
-        fileName: 'note.txt',
+        workspaceId: '7266418340025468931',
+        conversationId: '7266418340025468933',
         mime: 'text/plain',
-        size: 42,
+        sizeBytes: 42,
+        objectHash: 'a'.padRight(64, 'a'),
+        fileName: 'note.txt',
       );
 
+      // 冻结请求体键白名单：旧键形 {file_name, mime, size}（缺
+      // conversation_id/size_bytes/object_hash/workspace_id）必 422。
       expectSingleRequest(
         presignAdapter,
         method: 'POST',
         path: '/api/v1/enterprise/organizations/$orgId/assets/presign',
-        body: {'file_name': 'note.txt', 'mime': 'text/plain', 'size': 42},
+        body: {
+          'workspace_id': '7266418340025468931',
+          'conversation_id': '7266418340025468933',
+          'mime': 'text/plain',
+          'size_bytes': 42,
+          'object_hash': 'a'.padRight(64, 'a'),
+          'file_name': 'note.txt',
+        },
       );
       expect(presign.assetId, '7266418340025468935');
-      expect(presign.uploadUrl, contains('X-Amz-Signature'));
+      expect(presign.uploadRef, 'opaque-upload-ref');
+      expect(presign.uploadUrl, 'https://upload.example.internal/put?ref=abc');
+      expect(presign.hasUploadTarget, isTrue);
 
       final confirmAdapter = useAdapter(
         200,
         okEnvelope(
           payload: {
-            'id': 7266418340025468935,
-            'organization_id': 7266418340025468930,
-            'conversation_id': 7266418340025468933,
-            'status': 'confirmed',
+            // public_asset_view：主键投影为 asset_id。
+            'asset_id': 7266418340025468935,
+            'status': 'active',
+            'object_hash': 'a'.padRight(64, 'a'),
+            'mime': 'text/plain',
+            'size_bytes': 42,
+            'file_name': 'note.txt',
+            'hold_count': 0,
           },
         ),
       );
@@ -315,16 +349,57 @@ void main() {
       // confirm 必须用新实例，验证 confirm 是独立的重新鉴权请求
       final confirmApi = EnterpriseApi();
 
-      final asset = await confirmApi.confirmAsset(orgId, presign.assetId);
+      final asset = await confirmApi.confirmAsset(
+        orgId,
+        workspaceId: '7266418340025468931',
+        uploadRef: presign.uploadRef,
+      );
 
-      // confirm 是独立的重新鉴权 POST（EB-D06），不是 PUT 的一部分
+      // confirm 是独立的重新鉴权 POST（EB-D06）；入参 upload_ref（非 asset_id）。
       expectSingleRequest(
         confirmAdapter,
         method: 'POST',
         path: '/api/v1/enterprise/organizations/$orgId/assets/confirm',
-        body: {'asset_id': '7266418340025468935'},
+        body: {
+          'workspace_id': '7266418340025468931',
+          'upload_ref': 'opaque-upload-ref',
+        },
       );
-      expect(asset.isPending, isFalse);
+      expect(asset.id, '7266418340025468935');
+      expect(asset.isPending, isFalse, reason: 'confirm 回显 status=active');
+      expect(asset.size, 42);
+    });
+
+    test('presign 嵌套 upload 无 url（企业面合同形状）→ hasUploadTarget=false', () async {
+      useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'asset_id': 7266418340025468935,
+            'upload_ref': 'opaque-upload-ref',
+            'expires_at': 1789000100,
+            'upload': {
+              'method': 'PUT',
+              'token': 'opaque-upload-ref',
+              'adapter': 'local_private_object_store',
+              'rule': 'opaque_token_no_url_no_object_key',
+            },
+          },
+        ),
+      );
+      final api = EnterpriseApi();
+
+      final presign = await api.presignAsset(
+        orgId,
+        workspaceId: '7266418340025468931',
+        conversationId: '7266418340025468933',
+        mime: 'text/plain',
+        sizeBytes: 42,
+        objectHash: 'a'.padRight(64, 'a'),
+      );
+
+      expect(presign.uploadUrl, isEmpty);
+      expect(presign.hasUploadTarget, isFalse, reason: 'fail-closed：不自造端点');
     });
 
     test('附件 URL：仅经企业 content 鉴权代理，无 presigned 参数', () {

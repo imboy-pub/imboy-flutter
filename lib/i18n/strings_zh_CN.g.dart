@@ -4886,6 +4886,18 @@ class Translations$customerService$zh_CN {
 	/// zh-CN: '附件预览（企业安全通道）'
 	String get attachPreviewTitle => '附件预览（企业安全通道）';
 
+	/// zh-CN: '附件'
+	String get attachUnnamedFile => '附件';
+
+	/// zh-CN: '暂不可用 · $size'
+	String attachStatusUnavailable({required Object size}) => '暂不可用 · ${size}';
+
+	/// zh-CN: '暂不支持该文件类型，请更换文件'
+	String get attachUnsupportedType => '暂不支持该文件类型，请更换文件';
+
+	/// zh-CN: '二进制内容，暂不支持预览'
+	String get attachBinaryNoPreview => '二进制内容，暂不支持预览';
+
 	/// zh-CN: '转接'
 	String get transferAction => '转接';
 
@@ -9910,6 +9922,10 @@ extension on Translations {
 			'customerService.attachAction' => '附件',
 			'customerService.attachUploaded' => '附件已上传',
 			'customerService.attachPreviewTitle' => '附件预览（企业安全通道）',
+			'customerService.attachUnnamedFile' => '附件',
+			'customerService.attachStatusUnavailable' => ({required Object size}) => '暂不可用 · ${size}',
+			'customerService.attachUnsupportedType' => '暂不支持该文件类型，请更换文件',
+			'customerService.attachBinaryNoPreview' => '二进制内容，暂不支持预览',
 			'customerService.transferAction' => '转接',
 			'customerService.transferTitle' => '转接给同组织坐席',
 			'customerService.transferEmpty' => '暂无可转接的同组织客服坐席',
@@ -10380,12 +10396,12 @@ extension on Translations {
 			'main.e2eeErrPeerDeviceNotReady' => '有成员的设备尚未完成安全设置，消息未发送；请稍后重试',
 			'main.e2eeErrComplianceChanged' => '合规审计密钥已变更，消息未发送，请确认轮换后重试',
 			'main.e2eeErrComplianceUnavailable' => '合规密钥暂不可用，消息未发送，请稍后重试',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrComplianceExpired' => '合规密钥已过期，请联系管理员',
 			'main.complianceKeyRotationConfirmed' => '合规密钥轮换已确认，可重新发送消息',
 			'main.complianceKeyRotationNoPending' => '没有待确认的密钥变更',
 			'main.e2eeErrDeviceNotReady' => '当前设备未完成安全初始化，请退出重新登录后重试',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrSessionExportFailed' => '群会话密钥生成失败，请稍后重试',
 			'main.e2eeErrProtocolMismatch' => '加密协议配置异常，请更新应用后重试',
 			'main.complianceKeyInfoTitle' => '合规审计密钥',
@@ -10894,12 +10910,12 @@ extension on Translations {
 			'workspace.projectMemberInviteInvalidUid' => '请输入有效的用户 ID',
 			'workspace.projectMemberInviteSubmit' => '邀请',
 			'workspace.projectMemberInviteSuccess' => '已加入项目成员',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberInviteExisting' => '该用户已是项目成员',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '移除项目成员 ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => '移除后该用户将失去此项目内容的访问（可重新邀请）',
 			'workspace.projectMemberRemoveSubmit' => '移除',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberRemovedToast' => '已移除',
 			'workspace.projectMemberAlreadyRemovedToast' => '该用户已不在项目成员中',
 			'workspace.projectMemberTransferTitle' => ({required Object name}) => '转移项目负责人给 ${name}',
