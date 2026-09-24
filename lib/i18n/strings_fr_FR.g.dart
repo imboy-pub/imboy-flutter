@@ -2775,6 +2775,19 @@ class _Translations$organization$members$fr_FR extends Translations$organization
 	@override String get promoteToAdmin => 'Promouvoir en admin';
 	@override String transferOwnerTo({required Object name}) => 'Transférer la propriété à « ${name} »';
 	@override String get ownerCannotChangeHere => 'L\'owner ne se change pas ici ; utilisez « Transférer la propriété »';
+	@override String get viewDetail => 'Voir le profil';
+	@override String get suspendMember => 'Suspendre le membre';
+	@override String suspendBody({required Object name}) => 'Suspendre l\'accès de ${name} à cette organisation (immédiat ; compte personnel et autres organisations non concernés). Réversible à tout moment.';
+	@override String get confirmSuspend => 'Confirmer la suspension';
+	@override String get suspendFailed => 'Échec de la suspension';
+	@override String get restoreMember => 'Rétablir le membre';
+	@override String restoreBody({required Object name}) => 'Rétablir l\'accès de ${name} à cette organisation.';
+	@override String get confirmRestoreMember => 'Confirmer le rétablissement';
+	@override String get restoreFailed => 'Échec du rétablissement';
+	@override String get offboardMember => 'Sortie (définitif)';
+	@override String offboardBody({required Object name}) => '${name} quittera cette organisation : removed est un état final irréversible ; toute réintégration nécessite une nouvelle invitation.';
+	@override String get confirmOffboard => 'Confirmer la sortie';
+	@override String get offboardFailed => 'Échec de la sortie';
 	@override String get empty => 'Aucun membre';
 }
 
@@ -2862,6 +2875,7 @@ class _Translations$organization$picker$fr_FR extends Translations$organization$
 	// Translations
 	@override String get title => 'Changer d\'entreprise';
 	@override String get switchEnterprise => 'Changer d\'entreprise';
+	@override String get switchFailed => 'Échec du changement';
 	@override String get noneSelected => 'Aucune entreprise sélectionnée';
 	@override String get emptyHint => 'Vous n\'avez encore rejoint aucune entreprise.\nTouchez « Rejoindre une entreprise » ci-dessous et saisissez le code d\'invitation';
 	@override String get joinEnterprise => 'Rejoindre une entreprise';
@@ -5150,6 +5164,19 @@ extension on TranslationsFrFr {
 			'organization.members.promoteToAdmin' => 'Promouvoir en admin',
 			'organization.members.transferOwnerTo' => ({required Object name}) => 'Transférer la propriété à « ${name} »',
 			'organization.members.ownerCannotChangeHere' => 'L\'owner ne se change pas ici ; utilisez « Transférer la propriété »',
+			'organization.members.viewDetail' => 'Voir le profil',
+			'organization.members.suspendMember' => 'Suspendre le membre',
+			'organization.members.suspendBody' => ({required Object name}) => 'Suspendre l\'accès de ${name} à cette organisation (immédiat ; compte personnel et autres organisations non concernés). Réversible à tout moment.',
+			'organization.members.confirmSuspend' => 'Confirmer la suspension',
+			'organization.members.suspendFailed' => 'Échec de la suspension',
+			'organization.members.restoreMember' => 'Rétablir le membre',
+			'organization.members.restoreBody' => ({required Object name}) => 'Rétablir l\'accès de ${name} à cette organisation.',
+			'organization.members.confirmRestoreMember' => 'Confirmer le rétablissement',
+			'organization.members.restoreFailed' => 'Échec du rétablissement',
+			'organization.members.offboardMember' => 'Sortie (définitif)',
+			'organization.members.offboardBody' => ({required Object name}) => '${name} quittera cette organisation : removed est un état final irréversible ; toute réintégration nécessite une nouvelle invitation.',
+			'organization.members.confirmOffboard' => 'Confirmer la sortie',
+			'organization.members.offboardFailed' => 'Échec de la sortie',
 			'organization.members.empty' => 'Aucun membre',
 			'organization.invitations.inviteMember' => 'Inviter un membre',
 			'organization.invitations.invitationCreated' => 'Invitation créée',
@@ -5210,6 +5237,7 @@ extension on TranslationsFrFr {
 			'organization.departments.emptySubtitle' => 'Modèle multi-appartenance : un même membre peut appartenir à plusieurs départements ; les membres d\'un département doivent d\'abord être membres de cette organisation.',
 			'organization.picker.title' => 'Changer d\'entreprise',
 			'organization.picker.switchEnterprise' => 'Changer d\'entreprise',
+			'organization.picker.switchFailed' => 'Échec du changement',
 			'organization.picker.noneSelected' => 'Aucune entreprise sélectionnée',
 			'organization.picker.emptyHint' => 'Vous n\'avez encore rejoint aucune entreprise.\nTouchez « Rejoindre une entreprise » ci-dessous et saisissez le code d\'invitation',
 			'organization.picker.joinEnterprise' => 'Rejoindre une entreprise',

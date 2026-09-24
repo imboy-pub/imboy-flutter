@@ -89,5 +89,48 @@ void main() {
         reason: '空账号拒绝进入任何读写路径',
       );
     });
+
+    test('冷启动恢复：持久化的 current org 在新 scope 首次访问时恢复（ENT-APP-04）', () async {
+      // 模拟进程重启：持久化里已有指针（上一会话 set 落盘），内存 scope
+      // 为空。forAccount 首次访问走 _ensureLoaded 从持久化恢复。
+      CurrentOrganizationStore.disposeAccount(account);
+      SharedPreferences.setMockInitialValues({
+        keyFor(account): json.jsonEncode(<String, dynamic>{
+          'id': orgA.id,
+          'name': orgA.name,
+        }),
+      });
+      await StorageService.init();
+      final store = CurrentOrganizationStore.forAccount(account);
+      expect(store.value?.id, orgA.id, reason: '冷启动按持久化恢复当前企业');
+      expect(store.value?.name, orgA.name);
+    });
+
+    test('账号 A/B 指针隔离：各自 set 互不串见（ENT-APP-04 缓存隔离验收）', () async {
+      const accountB = 'store-test-uid-b';
+      CurrentOrganizationStore.disposeAccount(account);
+      CurrentOrganizationStore.disposeAccount(accountB);
+
+      final storeA = CurrentOrganizationStore.forAccount(account);
+      final storeB = CurrentOrganizationStore.forAccount(accountB);
+      await storeA.set(orgA);
+      await storeB.set(orgB);
+
+      // 换 Org：A 的指针不因 B 切换而变（Org A/B 隔离）。
+      expect(storeA.value?.id, orgA.id);
+      expect(storeB.value?.id, orgB.id);
+      // 持久化同样按账号分键，无交叉覆盖。
+      final prefs = await SharedPreferences.getInstance();
+      final rawA = json.jsonDecode(
+        prefs.getString(keyFor(account))!,
+      ) as Map<String, dynamic>;
+      final rawB = json.jsonDecode(
+        prefs.getString(keyFor(accountB))!,
+      ) as Map<String, dynamic>;
+      expect(rawA['id'], orgA.id);
+      expect(rawB['id'], orgB.id);
+
+      CurrentOrganizationStore.disposeAccount(accountB);
+    });
   });
 }

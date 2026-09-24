@@ -425,6 +425,99 @@ void main() {
       );
     });
 
+    test('ENT-APP-04 suspend：POST 子路径 + 响应解析为 suspended 成员行', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'organization_id': 7266418340025468930,
+            'user_id': 1002,
+            'role': 'member',
+            'status': 'suspended',
+          },
+        ),
+      );
+      final api = OrganizationApi();
+
+      final row = await api.suspendMember(orgId, '1002');
+      expectRequests(
+        adapter,
+        method: 'POST',
+        path: '/api/v1/organizations/$orgId/members/1002/suspend',
+        body: <String, dynamic>{},
+      );
+      // TSID 无损：int 传输 → string 持有（不回转 int/num）。
+      expect(row.organizationId, orgId);
+      expect(row.userId, '1002');
+      expect(row.isSuspended, isTrue);
+      expect(row.isActive, isFalse);
+    });
+
+    test('ENT-APP-04 restore：POST 子路径 + 响应解析为 active 成员行', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'organization_id': 7266418340025468930,
+            'user_id': 1002,
+            'role': 'member',
+            'status': 'active',
+          },
+        ),
+      );
+      final api = OrganizationApi();
+
+      final row = await api.restoreMember(orgId, '1002');
+      expectRequests(
+        adapter,
+        method: 'POST',
+        path: '/api/v1/organizations/$orgId/members/1002/restore',
+        body: <String, dynamic>{},
+      );
+      expect(row.isActive, isTrue);
+      expect(row.isSuspended, isFalse);
+    });
+
+    test('ENT-APP-04 offboard：POST 子路径 + 响应解析为 removed 终态行', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'organization_id': 7266418340025468930,
+            'user_id': 1002,
+            'status': 'removed',
+          },
+        ),
+      );
+      final api = OrganizationApi();
+
+      final row = await api.offboardMember(orgId, '1002');
+      expectRequests(
+        adapter,
+        method: 'POST',
+        path: '/api/v1/organizations/$orgId/members/1002/offboard',
+        body: <String, dynamic>{},
+      );
+      expect(row.isRemoved, isTrue);
+      // offboard 响应 role 缺省（member_result(undefined, removed)）——
+      // DTO 默认 member，不臆造。
+      expect(row.role, 'member');
+    });
+
+    test('ENT-APP-04 主 Owner suspend 被拒：409 → isConflict（EB-D07）', () async {
+      useAdapter(409, {'code': 409, 'msg': '主 Owner 不能被暂停，请先转移 Owner'});
+      final api = OrganizationApi();
+
+      await expectLater(
+        api.suspendMember(orgId, '1001'),
+        throwsA(
+          isA<OrganizationApiException>()
+              .having((e) => e.isConflict, 'isConflict', isTrue)
+              .having((e) => e.message, 'message', contains('Owner')),
+        ),
+      );
+    });
+
     test('普通成员拉列表 403 → isForbidden', () async {
       useAdapter(403, {'code': 403, 'msg': '无权访问'});
       final api = OrganizationApi();

@@ -77,6 +77,19 @@ members:
   promoteToAdmin: 升级为管理员
   transferOwnerTo: "转移所有者给「${name}」"
   ownerCannotChangeHere: "Owner 不可在此变更；请使用「转移所有者」"
+  viewDetail: 查看详情
+  suspendMember: 暂停成员
+  suspendBody: "暂停「${name}」在本企业的访问权限（即时生效；不影响其个人账号与其他企业）。可随时恢复。"
+  confirmSuspend: 确认暂停
+  suspendFailed: 暂停失败
+  restoreMember: 恢复成员
+  restoreBody: "恢复「${name}」在本企业的访问权限。"
+  confirmRestoreMember: 确认恢复
+  restoreFailed: 恢复失败
+  offboardMember: 离场（终态）
+  offboardBody: "「${name}」将离场本企业：removed 终态、不可恢复，如需再次加入须重新邀请。"
+  confirmOffboard: 确认离场
+  offboardFailed: 离场失败
   empty: 暂无成员
 invitations:
   inviteMember: 邀请成员
@@ -141,6 +154,7 @@ departments:
 picker:
   title: 切换企业
   switchEnterprise: 切换企业
+  switchFailed: 切换失败
   noneSelected: 未选择企业
   emptyHint: "尚未加入任何企业\n点击下方「加入企业」输入企业邀请码"
   joinEnterprise: 加入企业

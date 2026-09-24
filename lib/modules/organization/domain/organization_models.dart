@@ -109,7 +109,10 @@ class OrganizationMember {
   final String role;
   final EntityId invitedBy;
 
-  /// 服务端成员状态（当前仅 active；suspend 域语义属 CS/EB，Org 不复用）。
+  /// 服务端成员状态：active | suspended（EB-D07 可恢复撤权）| removed
+  /// （offboard 终态）。治理面列表只回 active 行——suspended/removed 行
+  /// 仅出现在生命周期命令（suspend/restore/offboard）的响应里；未知值
+  /// 原样保留展示（ORG-A13）。
   final String status;
   final String joinedAt;
   final String nickname;
@@ -151,8 +154,14 @@ class OrganizationMember {
   bool get isOwner => role == 'owner';
   bool get isAdmin => role == 'admin';
 
-  /// Owner 本身不可改角色/移除（C04 单 owner 不变量）；转移走显式
-  /// owner-transfer command，不走本行的角色编辑。
+  /// 生命周期态（EB-D07/EB-08）：suspended 可恢复；removed 为 offboard
+  /// 终态（唯一恢复路径 = 重新邀请）。active 为缺省在册态。
+  bool get isActive => status == 'active';
+  bool get isSuspended => status == 'suspended';
+  bool get isRemoved => status == 'removed';
+
+  /// Owner 本身不可改角色/移除/暂停/离场（C04 单 owner 不变量 + 主 Owner
+  /// 成员行 DB 守卫）；转移走显式 owner-transfer command，不走本行编辑。
   bool get isGovernable => !isOwner;
 }
 

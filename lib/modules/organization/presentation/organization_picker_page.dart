@@ -8,11 +8,16 @@
 ///   preview「确认加入 XX 企业」→ code-only join
 ///   POST /organizations/invite_code/join——码全局唯一即凭据，
 ///   用户不再手输 19 位企业 ID；旧双输入端点保留但不再是主路径）
-/// - 切换动作携带 G11 缓存失效清单（不得残留上一企业缓存）：
-///   ① OrganizationCache.invalidateOrg(上一企业) ② CurrentOrganizationStore
-///   指针切换 ③ workspaceShellProvider.loadMine() 重建 WS 列表并按该企业
-///   default-workspace 指针落位（页面数据族 provider 以 wsId family 参数
-///   自动随 selectWorkspace 重建，无跨企业残留）。
+/// - 切换为**两阶段原子切换**（ENT-APP-04，镜像 HumanDirectoryBrowserPage
+///   的 prepare/commit 语义）：
+///   Phase 1 预载——detail() 校验当前账号仍可访问目标企业（被移出/归档
+///   清理 → 403/404 在此暴露）+ loadMine 预载新壳；任一步失败时未触碰
+///   任何本地状态（指针/缓存/壳原样），只置错误态可重试；
+///   Phase 2 提交——G11 缓存失效清单（① OrganizationCache.invalidateOrg
+///   上一企业 ② 五个 wsId family provider 显式失效 ③ CurrentOrganizationStore
+///   指针切换，store 先持久化后内存）；任一步失败把指针补偿回旧值
+///   （[CurrentOrganizationStore.restore] 支持 null=清空）并丢弃目标企业
+///   缓存播种，绝不半切换。成功后按该企业 default-workspace 指针落位。
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -59,6 +64,11 @@ class _OrganizationPickerPageState
   List<Organization> _orgs = const [];
   bool _loading = false;
   String? _error;
+
+  /// 两阶段切换状态（ENT-APP-04）：进行中门（重复点击不重入）+ 页内
+  /// 错误态（不弹走、列表保留，可再点目标行重试）。
+  bool _switching = false;
+  String? _switchError;
 
   String get _accountKey => widget.accountKey ?? UserRepoLocal.to.currentUid;
 
@@ -120,39 +130,99 @@ class _OrganizationPickerPageState
     }
   }
 
-  /// 切换企业（G11：缓存失效清单集中在切换动作内，见文件头注释）。
+  /// 两阶段原子切换（ENT-APP-04；语义见文件头）。任一阶段失败 → 页内
+  /// 错误态 + 指针/缓存/壳维持（或补偿回）旧状态，绝不半切换假成功。
   Future<void> _switchTo(Organization org) async {
     final prev = _currentOrg;
     if (prev?.id == org.id) {
       _leave();
       return;
     }
-    // ① 上一企业展示缓存失效（orgs/members/departments 一并丢弃）。
-    if (prev != null) {
-      _cache.invalidateOrg(prev.id);
+    if (_switching) return; // 重复提交门：切换进行中忽略后续点击。
+    setState(() {
+      _switching = true;
+      _switchError = null;
+    });
+
+    // ── Phase 1：预载目标 Org 数据（未触碰任何本地状态）──
+    // detail 校验 membership 可达性并取得最新 member_role/status 投影
+    // （列表行可能是缓存旧值）；loadMine 预载新壳。任一步失败 = 完整
+    // rollback：指针/缓存/壳原样，置错误态可重试。
+    late final Organization fresh;
+    try {
+      fresh = await _api.detail(org.id);
+      await ref
+          .read(workspaceShellProvider.notifier)
+          .loadMine(keepListOnFailure: true);
+      final shellError = ref.read(workspaceShellProvider).error;
+      if (shellError != null && shellError.isNotEmpty) {
+        throw StateError(shellError);
+      }
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _switching = false;
+        _switchError = _switchErrorText(e);
+      });
+      return;
     }
-    // ①b 工作区维度视图族显式失效（计划 §5.1「不得残留上一企业缓存」）：
-    //     这五个是 autoDispose.family(key=wsId)，换企业后 key 虽会变，
-    //     但「靠 key 变化 + autoDispose 兜底」不是显式失效——若上一企业的
-    //     某页仍被监听（切换前刚打开过），其缓存会活到该页被销毁为止。
-    //     在切换动作里整体 invalidate family，等于清掉所有 wsId 的实例。
-    ref.invalidate(workspaceOverviewProvider);
-    ref.invalidate(workspaceChannelsProvider);
-    ref.invalidate(workspaceGroupsProvider);
-    ref.invalidate(workspaceMembersProvider);
-    ref.invalidate(workspaceProjectsProvider);
-    // ② 当前企业指针切换（持久化，供 chip / WS picker 顶部企业行）。
-    _currentStore.set(org);
-    // ③ WS 壳按新企业重建：默认/上次 Workspace 落位（defaultWorkspace
-    //    是指向事实；缺失或不在已加入列表时维持 loadMine 的自动选择）。
-    //    keepListOnFailure:false —— 企业指针已切走，若此处失败必须清空列表，
-    //    否则出现「指针新企业 + 列表旧企业」的残留窗口（§5.1）。
-    await ref
-        .read(workspaceShellProvider.notifier)
-        .loadMine(keepListOnFailure: false);
-    await _landDefaultWorkspace(org);
+
+    // ── Phase 2：提交切换（G11 失效清单；失败补偿回滚）──
+    try {
+      if (prev != null) {
+        _cache.invalidateOrg(prev.id);
+      }
+      // 工作区维度视图族显式失效（§5.1「不得残留上一企业缓存」）：
+      // 这五个是 autoDispose.family(key=wsId)，换企业后 key 虽会变，
+      // 但「靠 key 变化 + autoDispose 兜底」不是显式失效——若上一企业的
+      // 某页仍被监听（切换前刚打开过），其缓存会活到该页被销毁为止。
+      // 在切换动作里整体 invalidate family，等于清掉所有 wsId 的实例。
+      ref.invalidate(workspaceOverviewProvider);
+      ref.invalidate(workspaceChannelsProvider);
+      ref.invalidate(workspaceGroupsProvider);
+      ref.invalidate(workspaceMembersProvider);
+      ref.invalidate(workspaceProjectsProvider);
+      // 当前企业指针切换（持久化，供 chip / WS picker 顶部企业行）。
+      // store 先持久化后内存——此处抛出时内存仍是旧值。
+      await _currentStore.set(fresh);
+    } on Object catch (e) {
+      // Phase 2 失败：指针补偿回 prev（null=清空）+ 丢弃目标企业缓存
+      // 播种；壳列表已在 Phase 1 预载（跨企业 mine 全集，无泄漏）。
+      await _rollbackSwitch(prev, org);
+      if (!mounted) return;
+      setState(() {
+        _switching = false;
+        _switchError = _switchErrorText(e);
+      });
+      return;
+    }
+
+    await _landDefaultWorkspace(fresh);
     if (!mounted) return;
+    setState(() {
+      _switching = false;
+    });
     _leave();
+  }
+
+  /// Phase 2 失败补偿：指针恢复 prev（[CurrentOrganizationStore.restore]
+  /// 支持 null=清空指针；与 set 同序「先持久化后内存」）；目标企业的
+  /// 缓存播种一并丢弃，下次进入强制服务端刷新。补偿链上的二次失败不再
+  /// 上抛（membership 真源在服务端，下次 mine()/detail() 会纠正）。
+  Future<void> _rollbackSwitch(Organization? prev, Organization failed) async {
+    try {
+      await _currentStore.restore(prev);
+    } on Object {
+      // 补偿失败容忍：指针非真源，冷启动/下次切换以服务端事实收敛。
+    }
+    _cache.invalidateOrg(failed.id);
+  }
+
+  String _switchErrorText(Object e) {
+    if (e is OrganizationApiException) {
+      return '${e.message} (code=${e.code})';
+    }
+    return e.toString();
   }
 
   /// 离开本页：正常从切换 chip/企业行 push 进入 → pop 返回；被 go 挂为
@@ -227,6 +297,28 @@ class _OrganizationPickerPageState
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
             children: [
+              // 两阶段切换失败：页内错误态（列表保留，可再点目标行重试），
+              // 不弹走不假成功。
+              if (_switchError != null)
+                ListTile(
+                  key: const ValueKey('org-picker-switch-error'),
+                  leading: Icon(
+                    CupertinoIcons.exclamationmark_triangle,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  title: Text(
+                    '${t.organization.picker.switchFailed}：$_switchError',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: _switching
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : null,
+                ),
               for (final o in _orgs)
                 ListTile(
                   key: ValueKey('org-picker-tile-${o.id}'),
@@ -253,7 +345,8 @@ class _OrganizationPickerPageState
                           color: Theme.of(context).colorScheme.primary,
                         )
                       : null,
-                  onTap: () => _switchTo(o),
+                  // 切换进行中禁点（防重复提交产生竞态切换）。
+                  onTap: _switching ? null : () => _switchTo(o),
                 ),
               // 底部常驻『加入企业』入口（Slack「Add workspaces」同构）。
               ListTile(

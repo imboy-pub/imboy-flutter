@@ -78,6 +78,19 @@ members:
   promoteToAdmin: "관리자로 승격"
   transferOwnerTo: "‘${name}’에게 소유자 이전"
   ownerCannotChangeHere: "Owner는 여기서 변경할 수 없습니다. ‘소유자 이전’을 사용하세요"
+  viewDetail: 프로필 보기
+  suspendMember: 멤버 일시 중지
+  suspendBody: "${name}의 이 기업 접근 권한을 일시 중지합니다(즉시 적용, 개인 계정 및 다른 기업에는 영향 없음). 언제든 복원할 수 있습니다."
+  confirmSuspend: 일시 중지 확인
+  suspendFailed: 일시 중지 실패
+  restoreMember: 멤버 복원
+  restoreBody: "${name}의 이 기업 접근 권한을 복원합니다."
+  confirmRestoreMember: 복원 확인
+  restoreFailed: 복원 실패
+  offboardMember: 퇴장(최종)
+  offboardBody: "${name}이(가) 이 기업에서 퇴장합니다: removed는 최종 상태이며 되돌릴 수 없습니다. 재가입에는 새로운 초대가 필요합니다."
+  confirmOffboard: 퇴장 확인
+  offboardFailed: 퇴장 실패
   empty: "멤버가 없습니다"
 invitations:
   inviteMember: "멤버 초대"
@@ -142,6 +155,7 @@ departments:
 picker:
   title: "기업 전환"
   switchEnterprise: "기업 전환"
+  switchFailed: 전환 실패
   noneSelected: "선택된 기업 없음"
   emptyHint: "아직 가입한 기업이 없습니다.\n아래 \"기업 가입\"을 눌러 초대 코드를 입력하세요"
   joinEnterprise: "기업 가입"

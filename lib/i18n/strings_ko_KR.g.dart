@@ -2772,6 +2772,19 @@ class _Translations$organization$members$ko_KR extends Translations$organization
 	@override String get promoteToAdmin => '관리자로 승격';
 	@override String transferOwnerTo({required Object name}) => '‘${name}’에게 소유자 이전';
 	@override String get ownerCannotChangeHere => 'Owner는 여기서 변경할 수 없습니다. ‘소유자 이전’을 사용하세요';
+	@override String get viewDetail => '프로필 보기';
+	@override String get suspendMember => '멤버 일시 중지';
+	@override String suspendBody({required Object name}) => '${name}의 이 기업 접근 권한을 일시 중지합니다(즉시 적용, 개인 계정 및 다른 기업에는 영향 없음). 언제든 복원할 수 있습니다.';
+	@override String get confirmSuspend => '일시 중지 확인';
+	@override String get suspendFailed => '일시 중지 실패';
+	@override String get restoreMember => '멤버 복원';
+	@override String restoreBody({required Object name}) => '${name}의 이 기업 접근 권한을 복원합니다.';
+	@override String get confirmRestoreMember => '복원 확인';
+	@override String get restoreFailed => '복원 실패';
+	@override String get offboardMember => '퇴장(최종)';
+	@override String offboardBody({required Object name}) => '${name}이(가) 이 기업에서 퇴장합니다: removed는 최종 상태이며 되돌릴 수 없습니다. 재가입에는 새로운 초대가 필요합니다.';
+	@override String get confirmOffboard => '퇴장 확인';
+	@override String get offboardFailed => '퇴장 실패';
 	@override String get empty => '멤버가 없습니다';
 }
 
@@ -2859,6 +2872,7 @@ class _Translations$organization$picker$ko_KR extends Translations$organization$
 	// Translations
 	@override String get title => '기업 전환';
 	@override String get switchEnterprise => '기업 전환';
+	@override String get switchFailed => '전환 실패';
 	@override String get noneSelected => '선택된 기업 없음';
 	@override String get emptyHint => '아직 가입한 기업이 없습니다.\n아래 "기업 가입"을 눌러 초대 코드를 입력하세요';
 	@override String get joinEnterprise => '기업 가입';
@@ -5147,6 +5161,19 @@ extension on TranslationsKoKr {
 			'organization.members.promoteToAdmin' => '관리자로 승격',
 			'organization.members.transferOwnerTo' => ({required Object name}) => '‘${name}’에게 소유자 이전',
 			'organization.members.ownerCannotChangeHere' => 'Owner는 여기서 변경할 수 없습니다. ‘소유자 이전’을 사용하세요',
+			'organization.members.viewDetail' => '프로필 보기',
+			'organization.members.suspendMember' => '멤버 일시 중지',
+			'organization.members.suspendBody' => ({required Object name}) => '${name}의 이 기업 접근 권한을 일시 중지합니다(즉시 적용, 개인 계정 및 다른 기업에는 영향 없음). 언제든 복원할 수 있습니다.',
+			'organization.members.confirmSuspend' => '일시 중지 확인',
+			'organization.members.suspendFailed' => '일시 중지 실패',
+			'organization.members.restoreMember' => '멤버 복원',
+			'organization.members.restoreBody' => ({required Object name}) => '${name}의 이 기업 접근 권한을 복원합니다.',
+			'organization.members.confirmRestoreMember' => '복원 확인',
+			'organization.members.restoreFailed' => '복원 실패',
+			'organization.members.offboardMember' => '퇴장(최종)',
+			'organization.members.offboardBody' => ({required Object name}) => '${name}이(가) 이 기업에서 퇴장합니다: removed는 최종 상태이며 되돌릴 수 없습니다. 재가입에는 새로운 초대가 필요합니다.',
+			'organization.members.confirmOffboard' => '퇴장 확인',
+			'organization.members.offboardFailed' => '퇴장 실패',
 			'organization.members.empty' => '멤버가 없습니다',
 			'organization.invitations.inviteMember' => '멤버 초대',
 			'organization.invitations.invitationCreated' => '초대가 생성되었습니다',
@@ -5207,6 +5234,7 @@ extension on TranslationsKoKr {
 			'organization.departments.emptySubtitle' => '겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다.',
 			'organization.picker.title' => '기업 전환',
 			'organization.picker.switchEnterprise' => '기업 전환',
+			'organization.picker.switchFailed' => '전환 실패',
 			'organization.picker.noneSelected' => '선택된 기업 없음',
 			'organization.picker.emptyHint' => '아직 가입한 기업이 없습니다.\n아래 "기업 가입"을 눌러 초대 코드를 입력하세요',
 			'organization.picker.joinEnterprise' => '기업 가입',

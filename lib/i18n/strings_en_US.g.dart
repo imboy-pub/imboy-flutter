@@ -2859,6 +2859,19 @@ class _Translations$organization$members$en_US extends Translations$organization
 	@override String get promoteToAdmin => 'Promote to admin';
 	@override String transferOwnerTo({required Object name}) => 'Transfer ownership to “${name}”';
 	@override String get ownerCannotChangeHere => 'The owner cannot be changed here; use “Transfer ownership”';
+	@override String get viewDetail => 'View profile';
+	@override String get suspendMember => 'Suspend member';
+	@override String suspendBody({required Object name}) => 'Suspend ${name}\'s access to this organization (effective immediately; personal account and other organizations unaffected). Can be restored at any time.';
+	@override String get confirmSuspend => 'Confirm suspension';
+	@override String get suspendFailed => 'Suspension failed';
+	@override String get restoreMember => 'Restore member';
+	@override String restoreBody({required Object name}) => 'Restore ${name}\'s access to this organization.';
+	@override String get confirmRestoreMember => 'Confirm restore';
+	@override String get restoreFailed => 'Restore failed';
+	@override String get offboardMember => 'Offboard (final)';
+	@override String offboardBody({required Object name}) => '${name} will be offboarded from this organization: removed is final and irreversible; rejoining requires a new invitation.';
+	@override String get confirmOffboard => 'Confirm offboarding';
+	@override String get offboardFailed => 'Offboarding failed';
 	@override String get empty => 'No members yet';
 }
 
@@ -2946,6 +2959,7 @@ class _Translations$organization$picker$en_US extends Translations$organization$
 	// Translations
 	@override String get title => 'Switch enterprise';
 	@override String get switchEnterprise => 'Switch enterprise';
+	@override String get switchFailed => 'Switch failed';
 	@override String get noneSelected => 'No enterprise selected';
 	@override String get emptyHint => 'You have not joined any enterprise yet.\nTap "Join enterprise" below and enter the invite code';
 	@override String get joinEnterprise => 'Join enterprise';
@@ -5308,6 +5322,19 @@ extension on TranslationsEnUs {
 			'organization.members.promoteToAdmin' => 'Promote to admin',
 			'organization.members.transferOwnerTo' => ({required Object name}) => 'Transfer ownership to “${name}”',
 			'organization.members.ownerCannotChangeHere' => 'The owner cannot be changed here; use “Transfer ownership”',
+			'organization.members.viewDetail' => 'View profile',
+			'organization.members.suspendMember' => 'Suspend member',
+			'organization.members.suspendBody' => ({required Object name}) => 'Suspend ${name}\'s access to this organization (effective immediately; personal account and other organizations unaffected). Can be restored at any time.',
+			'organization.members.confirmSuspend' => 'Confirm suspension',
+			'organization.members.suspendFailed' => 'Suspension failed',
+			'organization.members.restoreMember' => 'Restore member',
+			'organization.members.restoreBody' => ({required Object name}) => 'Restore ${name}\'s access to this organization.',
+			'organization.members.confirmRestoreMember' => 'Confirm restore',
+			'organization.members.restoreFailed' => 'Restore failed',
+			'organization.members.offboardMember' => 'Offboard (final)',
+			'organization.members.offboardBody' => ({required Object name}) => '${name} will be offboarded from this organization: removed is final and irreversible; rejoining requires a new invitation.',
+			'organization.members.confirmOffboard' => 'Confirm offboarding',
+			'organization.members.offboardFailed' => 'Offboarding failed',
 			'organization.members.empty' => 'No members yet',
 			'organization.invitations.inviteMember' => 'Invite member',
 			'organization.invitations.invitationCreated' => 'Invitation created',
@@ -5368,6 +5395,7 @@ extension on TranslationsEnUs {
 			'organization.departments.emptySubtitle' => 'Multi-membership model: one member may belong to multiple departments; department members must first be members of this organization.',
 			'organization.picker.title' => 'Switch enterprise',
 			'organization.picker.switchEnterprise' => 'Switch enterprise',
+			'organization.picker.switchFailed' => 'Switch failed',
 			'organization.picker.noneSelected' => 'No enterprise selected',
 			'organization.picker.emptyHint' => 'You have not joined any enterprise yet.\nTap "Join enterprise" below and enter the invite code',
 			'organization.picker.joinEnterprise' => 'Join enterprise',
@@ -5688,6 +5716,8 @@ extension on TranslationsEnUs {
 			'workspace.projectMembersEntry' => 'People',
 			'workspace.projectMilestonesEntry' => 'Milestones',
 			'workspace.projectChannelsEntry' => 'Channels',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectInsightsEntry' => 'Aggregations',
 			'workspace.projectNoPermission' => 'No permission: only project members, the project owner, or workspace owners can view this',
 			'workspace.projectGuestReadonly' => 'Guests have read-only access to projects',
@@ -5702,8 +5732,6 @@ extension on TranslationsEnUs {
 			'workspace.projectMemberInviteSuccess' => 'Added to project members',
 			'workspace.projectMemberInviteExisting' => 'Already a project member',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Remove project member ${name}',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberRemoveConfirmDesc' => 'After removal the user loses access to this project (they can be invited again)',
 			'workspace.projectMemberRemoveSubmit' => 'Remove',
 			'workspace.projectMemberRemovedToast' => 'Removed',

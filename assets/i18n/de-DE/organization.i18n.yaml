@@ -78,6 +78,19 @@ members:
   promoteToAdmin: "Zum Admin befördern"
   transferOwnerTo: "Eigentümerschaft an „${name}“ übertragen"
   ownerCannotChangeHere: "Der Owner kann hier nicht geändert werden; verwende „Eigentümerschaft übertragen“"
+  viewDetail: Profil anzeigen
+  suspendMember: Mitglied sperren
+  suspendBody: "${name}s Zugriff auf diese Organisation sperren (sofort wirksam; persönliches Konto und andere Organisationen bleiben unberührt). Jederzeit wiederherstellbar."
+  confirmSuspend: Sperren bestätigen
+  suspendFailed: Sperren fehlgeschlagen
+  restoreMember: Mitglied entsperren
+  restoreBody: "${name}s Zugriff auf diese Organisation wiederherstellen."
+  confirmRestoreMember: Entsperren bestätigen
+  restoreFailed: Entsperren fehlgeschlagen
+  offboardMember: Austritt (endgültig)
+  offboardBody: "${name} verlässt diese Organisation dauerhaft: removed ist ein endgültiger Zustand; ein Wiedereintritt erfordert eine neue Einladung."
+  confirmOffboard: Austritt bestätigen
+  offboardFailed: Austritt fehlgeschlagen
   empty: "Keine Mitglieder"
 invitations:
   inviteMember: "Mitglied einladen"
@@ -142,6 +155,7 @@ departments:
 picker:
   title: "Unternehmen wechseln"
   switchEnterprise: "Unternehmen wechseln"
+  switchFailed: Wechsel fehlgeschlagen
   noneSelected: "Kein Unternehmen ausgewählt"
   emptyHint: "Du bist noch keinem Unternehmen beigetreten.\nTippe unten auf „Unternehmen beitreten“ und gib den Einladungscode ein"
   joinEnterprise: "Unternehmen beitreten"

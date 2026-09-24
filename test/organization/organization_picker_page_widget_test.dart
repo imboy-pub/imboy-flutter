@@ -239,6 +239,14 @@ void main() {
 
     HttpClient.adapterForTest = _RoutingAdapter((path) {
       if (path.endsWith('/organizations/mine')) return _mineOf([_orgA, _orgB]);
+      // ENT-APP-04 两阶段切换 Phase 1：detail 预载目标企业最新投影。
+      if (path.endsWith('/organizations/$_orgB')) {
+        return _ok({
+          'id': int.parse(_orgB),
+          'name': '组织$_orgB',
+          'member_role': 'member',
+        });
+      }
       if (path.endsWith('/organizations/$_orgB/default-workspace')) {
         return _ok({
           'organization_id': int.parse(_orgB),
@@ -270,6 +278,106 @@ void main() {
     // WS 壳重载（loadMine 至少一次）+ 按 default-workspace 落位 9002。
     expect(api.mineCalls, greaterThanOrEqualTo(1));
     expect(container.read(workspaceShellProvider).currentWorkspaceId, '9002');
+  });
+
+  testWidgets('两阶段切换 Phase 1 预载失败（detail 403）：指针/缓存不动 + 页内错误态可重试', (
+    tester,
+  ) async {
+    // 预置：当前企业=甲（指针+缓存有料）。
+    final cache = OrganizationCache.forAccount(_accountKey);
+    cache
+      ..saveOrgs([const Organization(id: _orgA, name: '组织$_orgA')])
+      ..saveMembers(_orgA, [
+        const OrganizationMember(organizationId: _orgA, userId: '42'),
+      ]);
+    CurrentOrganizationStore.forAccount(_accountKey)
+        .set(const Organization(id: _orgA, name: '组织$_orgA'));
+
+    HttpClient.adapterForTest = _RoutingAdapter((path) {
+      if (path.endsWith('/organizations/mine')) return _mineOf([_orgA, _orgB]);
+      // Phase 1 预载目标企业：membership 已失效（被移出）→ 403。
+      if (path.endsWith('/organizations/$_orgB')) {
+        return {'code': 403, 'msg': 'insufficient scope'};
+      }
+      return _ok(null);
+    });
+    await _pump(tester, makeContainer(_WsFakeApi(const [])));
+    await pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-picker-tile-$_orgB')),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('org-picker-tile-$_orgB')));
+    await pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-picker-switch-error')),
+    );
+
+    // Phase 1 失败 = 完整 rollback：指针仍指甲、甲缓存原样（members 未被
+    // 失效）、错误态页内可见（不弹走不假成功）、列表保留可再点重试。
+    expect(
+      CurrentOrganizationStore.forAccount(_accountKey).value?.id,
+      _orgA,
+      reason: '预载失败不得移动当前企业指针',
+    );
+    expect(cache.members(_orgA), isNotEmpty, reason: '甲缓存不被失效');
+    expect(
+      find.byKey(const ValueKey('org-picker-switch-error')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('org-picker-tile-$_orgA')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('org-picker-tile-$_orgB')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('两阶段切换 Phase 1 失败后可重试：同一页面再次点击完成切换', (tester) async {
+    final cache = OrganizationCache.forAccount(_accountKey);
+    cache.saveOrgs([const Organization(id: _orgA, name: '组织$_orgA')]);
+    CurrentOrganizationStore.forAccount(_accountKey)
+        .set(const Organization(id: _orgA, name: '组织$_orgA'));
+
+    // 第一次 detail 网络错误（500），重试时恢复 200。
+    var detailOk = false;
+    HttpClient.adapterForTest = _RoutingAdapter((path) {
+      if (path.endsWith('/organizations/mine')) return _mineOf([_orgA, _orgB]);
+      if (path.endsWith('/organizations/$_orgB')) {
+        return detailOk
+            ? _ok({
+                'id': int.parse(_orgB),
+                'name': '组织$_orgB',
+                'member_role': 'member',
+              })
+            : {'code': 500, 'msg': 'boom'};
+      }
+      return _ok(null);
+    });
+    await _pump(tester, makeContainer(_WsFakeApi(const [])));
+    await pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-picker-tile-$_orgB')),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('org-picker-tile-$_orgB')));
+    await pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-picker-switch-error')),
+    );
+    expect(CurrentOrganizationStore.forAccount(_accountKey).value?.id, _orgA);
+
+    // 错误态可重试：服务端恢复后再点目标行 → 切换成功。
+    detailOk = true;
+    await tester.tap(find.byKey(const ValueKey('org-picker-tile-$_orgB')));
+    await tester.pumpAndSettle();
+    expect(
+      CurrentOrganizationStore.forAccount(_accountKey).value?.id,
+      _orgB,
+      reason: '重试后完成两阶段切换',
+    );
   });
 
   testWidgets('加入企业 981：preview 阶段码无效文案页内展示，不关对话框', (tester) async {
@@ -342,6 +450,14 @@ void main() {
         return _ok({
           'status': 'joined',
           'join': {'organization_id': int.parse(_orgC)},
+        });
+      }
+      // 两阶段切换 Phase 1：detail 预载丙企业投影。
+      if (path.endsWith('/organizations/$_orgC')) {
+        return _ok({
+          'id': int.parse(_orgC),
+          'name': '组织$_orgC',
+          'member_role': 'member',
         });
       }
       if (path.endsWith('/organizations/$_orgC/default-workspace')) {

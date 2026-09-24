@@ -78,6 +78,19 @@ members:
   promoteToAdmin: "Promote to admin"
   transferOwnerTo: "Transfer ownership to “${name}”"
   ownerCannotChangeHere: "The owner cannot be changed here; use “Transfer ownership”"
+  viewDetail: View profile
+  suspendMember: Suspend member
+  suspendBody: "Suspend ${name}'s access to this organization (effective immediately; personal account and other organizations unaffected). Can be restored at any time."
+  confirmSuspend: Confirm suspension
+  suspendFailed: Suspension failed
+  restoreMember: Restore member
+  restoreBody: "Restore ${name}'s access to this organization."
+  confirmRestoreMember: Confirm restore
+  restoreFailed: Restore failed
+  offboardMember: Offboard (final)
+  offboardBody: "${name} will be offboarded from this organization: removed is final and irreversible; rejoining requires a new invitation."
+  confirmOffboard: Confirm offboarding
+  offboardFailed: Offboarding failed
   empty: "No members yet"
 invitations:
   inviteMember: "Invite member"
@@ -142,6 +155,7 @@ departments:
 picker:
   title: "Switch enterprise"
   switchEnterprise: "Switch enterprise"
+  switchFailed: Switch failed
   noneSelected: "No enterprise selected"
   emptyHint: "You have not joined any enterprise yet.\nTap \"Join enterprise\" below and enter the invite code"
   joinEnterprise: "Join enterprise"

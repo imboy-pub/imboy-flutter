@@ -1,18 +1,31 @@
 /// 成员治理页（服务端 owner/admin 门）：
-/// 列表 · 角色变更 · 移除 · Owner 转移（危险，二次确认）。
+/// 列表 · 详情 · 角色变更 · 移除 · Owner 转移（危险，二次确认）
+/// · 生命周期命令 suspend/restore/offboard（EB-D07/EB-08）。
 ///
 /// 普通成员访问列表 = 服务端 403 → 权限态展示（客户端不预判）；
-/// Owner 行不可改角色/移除（C04 单 owner 不变量），转移走显式 command。
+/// Owner 行不可被任何治理动作触达（C04 单 owner 不变量 + 主 Owner 成员行
+/// DB 守卫）：改角色/移除/暂停/离场入口全部隐藏（isGovernable 统一减法，
+/// 服务端 409/403 仍是唯一裁决），转移走显式 owner-transfer command。
+///
+/// 生命周期语义（organization_member_logic）：
+/// - suspend：active → suspended（可恢复撤权第一步，不动工作区成员关系
+///   与个人账号）；suspended 成员立即失去本 Org 的 mine/directory/workspace
+///   授权（服务端逐请求读事实），治理列表也不再返回该行；
+/// - restore：suspended → active（仅 suspended 来源；其余 409 不静默成功）；
+/// - offboard：active|suspended → removed 终态（被依赖资源引用时 409），
+///   唯一恢复路径 = 重新邀请。
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -42,6 +55,10 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
   bool _loadingMore = false;
   bool _permissionDenied = false;
   String? _error;
+
+  /// 命令防重复门：一次治理命令在途时忽略后续触发（网络慢/双击不产生
+  /// 第二个请求，也不因连点出现「失败后又成功」的假成功序列）。
+  bool _commandInFlight = false;
 
   String get _accountKey => widget.accountKey ?? UserRepoLocal.to.currentUid;
 
@@ -125,10 +142,14 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
     }
   }
 
+  /// 治理命令统一收口：在途门 → 执行 → 失败 SnackBar 透出服务端文案
+  /// （不吞错不假成功）→ 回到服务端事实（成功失败都刷新列表）。
   Future<void> _runCommand(
     Future<void> Function() action,
     String failureTitle,
   ) async {
+    if (_commandInFlight) return;
+    _commandInFlight = true;
     try {
       await action();
     } on OrganizationApiException catch (e) {
@@ -136,6 +157,13 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(content: Text('$failureTitle：${e.message} (${e.code})')),
       );
+    } on Object catch (e) {
+      // 网络/序列化等非 envelope 异常同样不假成功。
+      if (!mounted) return;
+      ScaffoldMessenger.maybeOf(context)
+          ?.showSnackBar(SnackBar(content: Text('$failureTitle：$e')));
+    } finally {
+      _commandInFlight = false;
     }
     await _refresh();
   }
@@ -192,6 +220,61 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
     }
   }
 
+  /// 暂停（EB-D07 可恢复撤权第一步）：确认文案写明即时撤权 + 可恢复。
+  Future<void> _suspend(OrganizationMember m) async {
+    final ok = await orgConfirmDangerAction(
+      context,
+      title: t.organization.members.suspendMember,
+      consequence: t.organization.members.suspendBody(name: m.displayName),
+      confirmText: t.organization.members.confirmSuspend,
+    );
+    if (ok) {
+      await _runCommand(
+        () => _api.suspendMember(widget.orgId, m.userId),
+        t.organization.members.suspendFailed,
+      );
+    }
+  }
+
+  /// 恢复（suspended → active；仅 suspended 来源，其余服务端 409）。
+  Future<void> _restore(OrganizationMember m) async {
+    final ok = await orgConfirmAction(
+      context,
+      title: t.organization.members.restoreMember,
+      consequence: t.organization.members.restoreBody(name: m.displayName),
+      confirmText: t.organization.members.confirmRestoreMember,
+    );
+    if (ok) {
+      await _runCommand(
+        () => _api.restoreMember(widget.orgId, m.userId),
+        t.organization.members.restoreFailed,
+      );
+    }
+  }
+
+  /// 离场（两步离场 S3：active|suspended → removed 终态，不可恢复）。
+  Future<void> _offboard(OrganizationMember m) async {
+    final ok = await orgConfirmDangerAction(
+      context,
+      title: t.organization.members.offboardMember,
+      consequence: t.organization.members.offboardBody(name: m.displayName),
+      confirmText: t.organization.members.confirmOffboard,
+    );
+    if (ok) {
+      await _runCommand(
+        () => _api.offboardMember(widget.orgId, m.userId),
+        t.organization.members.offboardFailed,
+      );
+    }
+  }
+
+  Future<void> _openMemberDetail(OrganizationMember m) {
+    return context.push(
+      '$kOrganizationHomePath/${widget.orgId}/member/${m.userId}',
+      extra: <String, dynamic>{'member': m},
+    );
+  }
+
   Future<void> _openMemberActions(OrganizationMember m) async {
     final me = _me;
     final iAmOwner = me?.isOwner == true;
@@ -201,7 +284,13 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (m.isGovernable)
+            ListTile(
+              key: ValueKey('org-member-action-detail-${m.userId}'),
+              leading: const Icon(CupertinoIcons.person_crop_circle),
+              title: Text(t.organization.members.viewDetail),
+              onTap: () => Navigator.of(ctx).pop('detail'),
+            ),
+            if (m.isGovernable && m.isActive)
               ListTile(
                 leading: const Icon(CupertinoIcons.arrow_swap),
                 title: Text(
@@ -219,6 +308,22 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
                 ),
                 onTap: () => Navigator.of(ctx).pop('transfer'),
               ),
+            // 生命周期命令只对非 owner 成员开放：主 Owner 成员行受 DB
+            // 守卫（suspend 409），客户端入口统一 isGovernable 减法。
+            if (m.isGovernable && m.isActive)
+              ListTile(
+                key: ValueKey('org-member-action-suspend-${m.userId}'),
+                leading: const Icon(CupertinoIcons.pause_circle),
+                title: Text(t.organization.members.suspendMember),
+                onTap: () => Navigator.of(ctx).pop('suspend'),
+              ),
+            if (m.isGovernable && m.isSuspended)
+              ListTile(
+                key: ValueKey('org-member-action-restore-${m.userId}'),
+                leading: const Icon(CupertinoIcons.play_circle),
+                title: Text(t.organization.members.restoreMember),
+                onTap: () => Navigator.of(ctx).pop('restore'),
+              ),
             if (m.isGovernable)
               ListTile(
                 leading: Icon(
@@ -231,6 +336,19 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
                 ),
                 onTap: () => Navigator.of(ctx).pop('remove'),
               ),
+            if (m.isGovernable)
+              ListTile(
+                key: ValueKey('org-member-action-offboard-${m.userId}'),
+                leading: Icon(
+                  CupertinoIcons.person_crop_circle_badge_xmark,
+                  color: Theme.of(ctx).colorScheme.error,
+                ),
+                title: Text(
+                  t.organization.members.offboardMember,
+                  style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+                ),
+                onTap: () => Navigator.of(ctx).pop('offboard'),
+              ),
             if (!m.isGovernable)
               ListTile(
                 leading: Icon(CupertinoIcons.info),
@@ -241,12 +359,20 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
       ),
     );
     switch (await action) {
+      case 'detail':
+        await _openMemberDetail(m);
       case 'role':
         await _changeRole(m);
       case 'transfer':
         await _transferOwner(m);
       case 'remove':
         await _remove(m);
+      case 'suspend':
+        await _suspend(m);
+      case 'restore':
+        await _restore(m);
+      case 'offboard':
+        await _offboard(m);
     }
   }
 

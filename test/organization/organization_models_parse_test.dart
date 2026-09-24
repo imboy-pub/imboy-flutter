@@ -163,6 +163,41 @@ void main() {
       expect(member.isGovernable, isTrue);
     });
 
+    test('ENT-APP-04 生命周期态：suspended/removed 行解析 + TSID 无损', () {
+      // suspend 命令响应行（EB-D07）：status=suspended，TSID int → string。
+      final suspended = OrganizationMember.fromJson({
+        'organization_id': 7266418340025468930,
+        'user_id': 7266418340025468931,
+        'role': 'member',
+        'status': 'suspended',
+      });
+      expect(suspended.isSuspended, isTrue);
+      expect(suspended.isActive, isFalse);
+      expect(suspended.isRemoved, isFalse);
+      // TSID 无损（全程 string 持有，无 int 解析回转）。
+      expect(suspended.organizationId, '7266418340025468930');
+      expect(suspended.userId, '7266418340025468931');
+
+      // offboard 命令响应行（EB-08）：removed 终态 + role 缺省不臆造。
+      final removed = OrganizationMember.fromJson({
+        'organization_id': 7266418340025468930,
+        'user_id': 42,
+        'status': 'removed',
+      });
+      expect(removed.isRemoved, isTrue);
+      expect(removed.role, 'member');
+
+      // owner 行恒不可治理（isGovernable 只看角色，与状态无关——主 Owner
+      // 成员行受 DB 守卫，任何生命周期命令都被服务端拒绝）。
+      final ownerRow = OrganizationMember.fromJson({
+        'organization_id': 1,
+        'user_id': 2,
+        'role': 'owner',
+        'status': 'active',
+      });
+      expect(ownerRow.isGovernable, isFalse);
+    });
+
     test('OrganizationDepartment：根部门 parentId 为空串', () {
       final root = OrganizationDepartment.fromJson({
         'id': 5,

@@ -78,6 +78,19 @@ members:
   promoteToAdmin: "Promuovi ad admin"
   transferOwnerTo: "Trasferisci la proprietà a «${name}»"
   ownerCannotChangeHere: "L'owner non si cambia qui; usa «Trasferisci proprietà»"
+  viewDetail: Vedi profilo
+  suspendMember: Sospendi membro
+  suspendBody: "Sospendi l'accesso di ${name} a questa organizzazione (immediato; account personale e altre organizzazioni non interessati). Ripristinabile in qualsiasi momento."
+  confirmSuspend: Conferma sospensione
+  suspendFailed: Sospensione non riuscita
+  restoreMember: Ripristina membro
+  restoreBody: "Ripristina l'accesso di ${name} a questa organizzazione."
+  confirmRestoreMember: Conferma ripristino
+  restoreFailed: Ripristino non riuscito
+  offboardMember: Uscita (definitiva)
+  offboardBody: "${name} uscirà da questa organizzazione: removed è uno stato finale irreversibile; rientrare richiede un nuovo invito."
+  confirmOffboard: Conferma uscita
+  offboardFailed: Uscita non riuscita
   empty: "Nessun membro"
 invitations:
   inviteMember: "Invita membro"
@@ -142,6 +155,7 @@ departments:
 picker:
   title: "Cambia azienda"
   switchEnterprise: "Cambia azienda"
+  switchFailed: Cambio non riuscito
   noneSelected: "Nessuna azienda selezionata"
   emptyHint: "Non hai ancora aderito ad alcuna azienda.\nTocca «Partecipa a un'azienda» qui sotto e inserisci il codice invito"
   joinEnterprise: "Partecipa a un'azienda"

@@ -2772,6 +2772,19 @@ class _Translations$organization$members$ja_JP extends Translations$organization
 	@override String get promoteToAdmin => '管理者に昇格';
 	@override String transferOwnerTo({required Object name}) => '「${name}」にオーナーを譲渡';
 	@override String get ownerCannotChangeHere => 'Owner はここでは変更できません。「オーナーを譲渡」をご利用ください';
+	@override String get viewDetail => '詳細を表示';
+	@override String get suspendMember => 'メンバーの一時停止';
+	@override String suspendBody({required Object name}) => '${name} のこの組織へのアクセスを一時停止します（即時反映。個人アカウントや他の組織には影響しません）。いつでも復元できます。';
+	@override String get confirmSuspend => '一時停止する';
+	@override String get suspendFailed => '一時停止に失敗しました';
+	@override String get restoreMember => 'メンバーの復元';
+	@override String restoreBody({required Object name}) => '${name} のこの組織へのアクセスを復元します。';
+	@override String get confirmRestoreMember => '復元する';
+	@override String get restoreFailed => '復元に失敗しました';
+	@override String get offboardMember => '離脱（最終）';
+	@override String offboardBody({required Object name}) => '${name} をこの組織から離脱させます：removed は最終状態で元に戻せません。再参加には再度の招待が必要です。';
+	@override String get confirmOffboard => '離脱する';
+	@override String get offboardFailed => '離脱に失敗しました';
 	@override String get empty => 'メンバーがいません';
 }
 
@@ -2859,6 +2872,7 @@ class _Translations$organization$picker$ja_JP extends Translations$organization$
 	// Translations
 	@override String get title => '企業を切り替え';
 	@override String get switchEnterprise => '企業を切り替え';
+	@override String get switchFailed => '切り替えに失敗しました';
 	@override String get noneSelected => '企業が選択されていません';
 	@override String get emptyHint => 'まだどの企業にも参加していません。\n下の「企業に参加」をタップして招待コードを入力してください';
 	@override String get joinEnterprise => '企業に参加';
@@ -5147,6 +5161,19 @@ extension on TranslationsJaJp {
 			'organization.members.promoteToAdmin' => '管理者に昇格',
 			'organization.members.transferOwnerTo' => ({required Object name}) => '「${name}」にオーナーを譲渡',
 			'organization.members.ownerCannotChangeHere' => 'Owner はここでは変更できません。「オーナーを譲渡」をご利用ください',
+			'organization.members.viewDetail' => '詳細を表示',
+			'organization.members.suspendMember' => 'メンバーの一時停止',
+			'organization.members.suspendBody' => ({required Object name}) => '${name} のこの組織へのアクセスを一時停止します（即時反映。個人アカウントや他の組織には影響しません）。いつでも復元できます。',
+			'organization.members.confirmSuspend' => '一時停止する',
+			'organization.members.suspendFailed' => '一時停止に失敗しました',
+			'organization.members.restoreMember' => 'メンバーの復元',
+			'organization.members.restoreBody' => ({required Object name}) => '${name} のこの組織へのアクセスを復元します。',
+			'organization.members.confirmRestoreMember' => '復元する',
+			'organization.members.restoreFailed' => '復元に失敗しました',
+			'organization.members.offboardMember' => '離脱（最終）',
+			'organization.members.offboardBody' => ({required Object name}) => '${name} をこの組織から離脱させます：removed は最終状態で元に戻せません。再参加には再度の招待が必要です。',
+			'organization.members.confirmOffboard' => '離脱する',
+			'organization.members.offboardFailed' => '離脱に失敗しました',
 			'organization.members.empty' => 'メンバーがいません',
 			'organization.invitations.inviteMember' => 'メンバーを招待',
 			'organization.invitations.invitationCreated' => '招待を作成しました',
@@ -5207,6 +5234,7 @@ extension on TranslationsJaJp {
 			'organization.departments.emptySubtitle' => '兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。',
 			'organization.picker.title' => '企業を切り替え',
 			'organization.picker.switchEnterprise' => '企業を切り替え',
+			'organization.picker.switchFailed' => '切り替えに失敗しました',
 			'organization.picker.noneSelected' => '企業が選択されていません',
 			'organization.picker.emptyHint' => 'まだどの企業にも参加していません。\n下の「企業に参加」をタップして招待コードを入力してください',
 			'organization.picker.joinEnterprise' => '企業に参加',

@@ -2772,6 +2772,19 @@ class Translations$organization$members$zh_Hant extends Translations$organizatio
 	@override String get promoteToAdmin => '升級為管理員';
 	@override String transferOwnerTo({required Object name}) => '移轉擁有者給「${name}」';
 	@override String get ownerCannotChangeHere => 'Owner 不可在此變更；請使用「移轉擁有者」';
+	@override String get viewDetail => '查看詳情';
+	@override String get suspendMember => '暫停成員';
+	@override String suspendBody({required Object name}) => '暫停「${name}」在本企業的存取權限（即時生效；不影響其個人帳號與其他企業）。可隨時恢復。';
+	@override String get confirmSuspend => '確認暫停';
+	@override String get suspendFailed => '暫停失敗';
+	@override String get restoreMember => '恢復成員';
+	@override String restoreBody({required Object name}) => '恢復「${name}」在本企業的存取權限。';
+	@override String get confirmRestoreMember => '確認恢復';
+	@override String get restoreFailed => '恢復失敗';
+	@override String get offboardMember => '離場（終態）';
+	@override String offboardBody({required Object name}) => '「${name}」將離場本企業：removed 終態、不可復原，如需再次加入須重新邀請。';
+	@override String get confirmOffboard => '確認離場';
+	@override String get offboardFailed => '離場失敗';
 	@override String get empty => '尚無成員';
 }
 
@@ -2859,6 +2872,7 @@ class Translations$organization$picker$zh_Hant extends Translations$organization
 	// Translations
 	@override String get title => '切換企業';
 	@override String get switchEnterprise => '切換企業';
+	@override String get switchFailed => '切換失敗';
 	@override String get noneSelected => '未選擇企業';
 	@override String get emptyHint => '尚未加入任何企業\n點擊下方「加入企業」輸入企業邀請碼';
 	@override String get joinEnterprise => '加入企業';
@@ -5147,6 +5161,19 @@ extension on TranslationsZhHant {
 			'organization.members.promoteToAdmin' => '升級為管理員',
 			'organization.members.transferOwnerTo' => ({required Object name}) => '移轉擁有者給「${name}」',
 			'organization.members.ownerCannotChangeHere' => 'Owner 不可在此變更；請使用「移轉擁有者」',
+			'organization.members.viewDetail' => '查看詳情',
+			'organization.members.suspendMember' => '暫停成員',
+			'organization.members.suspendBody' => ({required Object name}) => '暫停「${name}」在本企業的存取權限（即時生效；不影響其個人帳號與其他企業）。可隨時恢復。',
+			'organization.members.confirmSuspend' => '確認暫停',
+			'organization.members.suspendFailed' => '暫停失敗',
+			'organization.members.restoreMember' => '恢復成員',
+			'organization.members.restoreBody' => ({required Object name}) => '恢復「${name}」在本企業的存取權限。',
+			'organization.members.confirmRestoreMember' => '確認恢復',
+			'organization.members.restoreFailed' => '恢復失敗',
+			'organization.members.offboardMember' => '離場（終態）',
+			'organization.members.offboardBody' => ({required Object name}) => '「${name}」將離場本企業：removed 終態、不可復原，如需再次加入須重新邀請。',
+			'organization.members.confirmOffboard' => '確認離場',
+			'organization.members.offboardFailed' => '離場失敗',
 			'organization.members.empty' => '尚無成員',
 			'organization.invitations.inviteMember' => '邀請成員',
 			'organization.invitations.invitationCreated' => '邀請已建立',
@@ -5207,6 +5234,7 @@ extension on TranslationsZhHant {
 			'organization.departments.emptySubtitle' => '兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。',
 			'organization.picker.title' => '切換企業',
 			'organization.picker.switchEnterprise' => '切換企業',
+			'organization.picker.switchFailed' => '切換失敗',
 			'organization.picker.noneSelected' => '未選擇企業',
 			'organization.picker.emptyHint' => '尚未加入任何企業\n點擊下方「加入企業」輸入企業邀請碼',
 			'organization.picker.joinEnterprise' => '加入企業',

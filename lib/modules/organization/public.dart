@@ -9,3 +9,7 @@ export 'presentation/org_async_state.dart';
 // 导出以便测试/宿主经公共入口引用（module boundaries 零新增）。
 export 'presentation/organization_detail_page.dart';
 export 'presentation/organization_routes.dart';
+// ENT-APP-04：成员治理面（治理列表 + §5.2 成员详情）同样经公共入口
+// 供测试引用（module boundaries 零新增）。
+export 'presentation/organization_member_detail_page.dart';
+export 'presentation/organization_members_page.dart';

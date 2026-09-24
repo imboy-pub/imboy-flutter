@@ -2781,6 +2781,19 @@ class _Translations$organization$members$ru_RU extends Translations$organization
 	@override String get promoteToAdmin => 'Повысить до администратора';
 	@override String transferOwnerTo({required Object name}) => 'Передать права владельца «${name}»';
 	@override String get ownerCannotChangeHere => 'Owner здесь не меняется; используйте «Передать права владельца»';
+	@override String get viewDetail => 'Открыть профиль';
+	@override String get suspendMember => 'Приостановить участника';
+	@override String suspendBody({required Object name}) => 'Приостановить доступ ${name} к этой организации (немедленно; личный аккаунт и другие организации не затрагиваются). Можно восстановить в любой момент.';
+	@override String get confirmSuspend => 'Приостановить';
+	@override String get suspendFailed => 'Не удалось приостановить';
+	@override String get restoreMember => 'Восстановить участника';
+	@override String restoreBody({required Object name}) => 'Восстановить доступ ${name} к этой организации.';
+	@override String get confirmRestoreMember => 'Восстановить';
+	@override String get restoreFailed => 'Не удалось восстановить';
+	@override String get offboardMember => 'Вывод (окончательно)';
+	@override String offboardBody({required Object name}) => '${name} покидает эту организацию: removed — окончательное состояние, отменить нельзя; для повторного вступления потребуется новое приглашение.';
+	@override String get confirmOffboard => 'Вывести';
+	@override String get offboardFailed => 'Не удалось вывести';
 	@override String get empty => 'Пока нет участников';
 }
 
@@ -2868,6 +2881,7 @@ class _Translations$organization$picker$ru_RU extends Translations$organization$
 	// Translations
 	@override String get title => 'Переключить предприятие';
 	@override String get switchEnterprise => 'Переключить предприятие';
+	@override String get switchFailed => 'Не удалось переключиться';
 	@override String get noneSelected => 'Предприятие не выбрано';
 	@override String get emptyHint => 'Вы ещё не вступили ни в одно предприятие.\nНажмите «Вступить в предприятие» ниже и введите код приглашения';
 	@override String get joinEnterprise => 'Вступить в предприятие';
@@ -5156,6 +5170,19 @@ extension on TranslationsRuRu {
 			'organization.members.promoteToAdmin' => 'Повысить до администратора',
 			'organization.members.transferOwnerTo' => ({required Object name}) => 'Передать права владельца «${name}»',
 			'organization.members.ownerCannotChangeHere' => 'Owner здесь не меняется; используйте «Передать права владельца»',
+			'organization.members.viewDetail' => 'Открыть профиль',
+			'organization.members.suspendMember' => 'Приостановить участника',
+			'organization.members.suspendBody' => ({required Object name}) => 'Приостановить доступ ${name} к этой организации (немедленно; личный аккаунт и другие организации не затрагиваются). Можно восстановить в любой момент.',
+			'organization.members.confirmSuspend' => 'Приостановить',
+			'organization.members.suspendFailed' => 'Не удалось приостановить',
+			'organization.members.restoreMember' => 'Восстановить участника',
+			'organization.members.restoreBody' => ({required Object name}) => 'Восстановить доступ ${name} к этой организации.',
+			'organization.members.confirmRestoreMember' => 'Восстановить',
+			'organization.members.restoreFailed' => 'Не удалось восстановить',
+			'organization.members.offboardMember' => 'Вывод (окончательно)',
+			'organization.members.offboardBody' => ({required Object name}) => '${name} покидает эту организацию: removed — окончательное состояние, отменить нельзя; для повторного вступления потребуется новое приглашение.',
+			'organization.members.confirmOffboard' => 'Вывести',
+			'organization.members.offboardFailed' => 'Не удалось вывести',
 			'organization.members.empty' => 'Пока нет участников',
 			'organization.invitations.inviteMember' => 'Пригласить участника',
 			'organization.invitations.invitationCreated' => 'Приглашение создано',
@@ -5216,6 +5243,7 @@ extension on TranslationsRuRu {
 			'organization.departments.emptySubtitle' => 'Модель совместительства: один участник может состоять в нескольких отделах; участник отдела сначала должен быть участником этой организации.',
 			'organization.picker.title' => 'Переключить предприятие',
 			'organization.picker.switchEnterprise' => 'Переключить предприятие',
+			'organization.picker.switchFailed' => 'Не удалось переключиться',
 			'organization.picker.noneSelected' => 'Предприятие не выбрано',
 			'organization.picker.emptyHint' => 'Вы ещё не вступили ни в одно предприятие.\nНажмите «Вступить в предприятие» ниже и введите код приглашения',
 			'organization.picker.joinEnterprise' => 'Вступить в предприятие',

@@ -2784,6 +2784,19 @@ class _Translations$organization$members$ar_SA extends Translations$organization
 	@override String get promoteToAdmin => 'ترقية إلى مسؤول';
 	@override String transferOwnerTo({required Object name}) => 'نقل الملكية إلى «${name}»';
 	@override String get ownerCannotChangeHere => 'لا يمكن تغيير Owner هنا؛ استخدم «نقل الملكية»';
+	@override String get viewDetail => 'عرض الملف';
+	@override String get suspendMember => 'تعليق العضو';
+	@override String suspendBody({required Object name}) => 'تعليق وصول ${name} إلى هذه المؤسسة (فوري؛ لا يؤثر على حسابه الشخصي أو مؤسساته الأخرى). يمكن استعادته في أي وقت.';
+	@override String get confirmSuspend => 'تأكيد التعليق';
+	@override String get suspendFailed => 'فشل التعليق';
+	@override String get restoreMember => 'استعادة العضو';
+	@override String restoreBody({required Object name}) => 'استعادة وصول ${name} إلى هذه المؤسسة.';
+	@override String get confirmRestoreMember => 'تأكيد الاستعادة';
+	@override String get restoreFailed => 'فشلت الاستعادة';
+	@override String get offboardMember => 'إنهاء العضوية (نهائي)';
+	@override String offboardBody({required Object name}) => 'سيغادر ${name} هذه المؤسسة: removed حالة نهائية لا رجعة فيها، وإعادة الانضمام تتطلب دعوة جديدة.';
+	@override String get confirmOffboard => 'تأكيد الإنهاء';
+	@override String get offboardFailed => 'فشل الإنهاء';
 	@override String get empty => 'لا يوجد أعضاء';
 }
 
@@ -2871,6 +2884,7 @@ class _Translations$organization$picker$ar_SA extends Translations$organization$
 	// Translations
 	@override String get title => 'تبديل المؤسسة';
 	@override String get switchEnterprise => 'تبديل المؤسسة';
+	@override String get switchFailed => 'فشل التبديل';
 	@override String get noneSelected => 'لم يتم اختيار مؤسسة';
 	@override String get emptyHint => 'لم تنضم إلى أي مؤسسة بعد.\nاضغط «الانضمام إلى مؤسسة» أدناه وأدخل رمز الدعوة';
 	@override String get joinEnterprise => 'الانضمام إلى مؤسسة';
@@ -5159,6 +5173,19 @@ extension on TranslationsArSa {
 			'organization.members.promoteToAdmin' => 'ترقية إلى مسؤول',
 			'organization.members.transferOwnerTo' => ({required Object name}) => 'نقل الملكية إلى «${name}»',
 			'organization.members.ownerCannotChangeHere' => 'لا يمكن تغيير Owner هنا؛ استخدم «نقل الملكية»',
+			'organization.members.viewDetail' => 'عرض الملف',
+			'organization.members.suspendMember' => 'تعليق العضو',
+			'organization.members.suspendBody' => ({required Object name}) => 'تعليق وصول ${name} إلى هذه المؤسسة (فوري؛ لا يؤثر على حسابه الشخصي أو مؤسساته الأخرى). يمكن استعادته في أي وقت.',
+			'organization.members.confirmSuspend' => 'تأكيد التعليق',
+			'organization.members.suspendFailed' => 'فشل التعليق',
+			'organization.members.restoreMember' => 'استعادة العضو',
+			'organization.members.restoreBody' => ({required Object name}) => 'استعادة وصول ${name} إلى هذه المؤسسة.',
+			'organization.members.confirmRestoreMember' => 'تأكيد الاستعادة',
+			'organization.members.restoreFailed' => 'فشلت الاستعادة',
+			'organization.members.offboardMember' => 'إنهاء العضوية (نهائي)',
+			'organization.members.offboardBody' => ({required Object name}) => 'سيغادر ${name} هذه المؤسسة: removed حالة نهائية لا رجعة فيها، وإعادة الانضمام تتطلب دعوة جديدة.',
+			'organization.members.confirmOffboard' => 'تأكيد الإنهاء',
+			'organization.members.offboardFailed' => 'فشل الإنهاء',
 			'organization.members.empty' => 'لا يوجد أعضاء',
 			'organization.invitations.inviteMember' => 'دعوة عضو',
 			'organization.invitations.invitationCreated' => 'تم إنشاء الدعوة',
@@ -5219,6 +5246,7 @@ extension on TranslationsArSa {
 			'organization.departments.emptySubtitle' => 'نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة.',
 			'organization.picker.title' => 'تبديل المؤسسة',
 			'organization.picker.switchEnterprise' => 'تبديل المؤسسة',
+			'organization.picker.switchFailed' => 'فشل التبديل',
 			'organization.picker.noneSelected' => 'لم يتم اختيار مؤسسة',
 			'organization.picker.emptyHint' => 'لم تنضم إلى أي مؤسسة بعد.\nاضغط «الانضمام إلى مؤسسة» أدناه وأدخل رمز الدعوة',
 			'organization.picker.joinEnterprise' => 'الانضمام إلى مؤسسة',

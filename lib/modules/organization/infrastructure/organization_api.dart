@@ -184,6 +184,54 @@ class OrganizationApi extends HttpClient implements HumanDirectoryDataSource {
     _ensureOk(resp);
   }
 
+  // ---- 成员生命周期命令（EB-D07/EB-08：suspend → restore/offboard） ----
+  //
+  // 契约（imboy_router.erl v1 面 × organization_member_logic）：
+  // - suspend：active → suspended（可恢复的撤权第一步，不动 workspace_member
+  //   与个人账号）；目标非 active 成员 409；主 Owner 不可被暂停（409）。
+  // - restore：suspended → active（仅 suspended 来源；active/removed 均 409
+  //   不静默成功）。
+  // - offboard：两步离场 S3 终态（active|suspended → removed），复用服务端
+  //   remove 语义（被依赖资源引用时 409）；恢复唯一路径 = 重新邀请。
+  // 三者响应均为成员结果行（organization_id/user_id/role/status）。
+
+  /// 暂停成员（owner/admin；响应 = status=suspended 的成员行）。
+  Future<OrganizationMember> suspendMember(
+    EntityId orgId,
+    EntityId userId,
+  ) async {
+    final resp = await post(
+      '/api/v1/organizations/$orgId/members/$userId/suspend',
+      data: <String, dynamic>{},
+    );
+    return _unwrapMember(resp);
+  }
+
+  /// 恢复被暂停的成员（owner/admin；响应 = status=active 的成员行）。
+  Future<OrganizationMember> restoreMember(
+    EntityId orgId,
+    EntityId userId,
+  ) async {
+    final resp = await post(
+      '/api/v1/organizations/$orgId/members/$userId/restore',
+      data: <String, dynamic>{},
+    );
+    return _unwrapMember(resp);
+  }
+
+  /// 离场（owner/admin；removed 终态，不可恢复——重新加入需新邀请）。
+  /// 与 [removeMember]（DELETE 面）同服务端语义，本端点是显式命令面。
+  Future<OrganizationMember> offboardMember(
+    EntityId orgId,
+    EntityId userId,
+  ) async {
+    final resp = await post(
+      '/api/v1/organizations/$orgId/members/$userId/offboard',
+      data: <String, dynamic>{},
+    );
+    return _unwrapMember(resp);
+  }
+
   // ==================== 邀请（C11 v2 面） ====================
 
   /// 我收到的待决邀请（target 视角）。

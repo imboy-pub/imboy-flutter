@@ -7764,6 +7764,45 @@ class Translations$organization$members$zh_CN {
 	/// zh-CN: 'Owner 不可在此变更；请使用「转移所有者」'
 	String get ownerCannotChangeHere => 'Owner 不可在此变更；请使用「转移所有者」';
 
+	/// zh-CN: '查看详情'
+	String get viewDetail => '查看详情';
+
+	/// zh-CN: '暂停成员'
+	String get suspendMember => '暂停成员';
+
+	/// zh-CN: '暂停「${name}」在本企业的访问权限（即时生效；不影响其个人账号与其他企业）。可随时恢复。'
+	String suspendBody({required Object name}) => '暂停「${name}」在本企业的访问权限（即时生效；不影响其个人账号与其他企业）。可随时恢复。';
+
+	/// zh-CN: '确认暂停'
+	String get confirmSuspend => '确认暂停';
+
+	/// zh-CN: '暂停失败'
+	String get suspendFailed => '暂停失败';
+
+	/// zh-CN: '恢复成员'
+	String get restoreMember => '恢复成员';
+
+	/// zh-CN: '恢复「${name}」在本企业的访问权限。'
+	String restoreBody({required Object name}) => '恢复「${name}」在本企业的访问权限。';
+
+	/// zh-CN: '确认恢复'
+	String get confirmRestoreMember => '确认恢复';
+
+	/// zh-CN: '恢复失败'
+	String get restoreFailed => '恢复失败';
+
+	/// zh-CN: '离场（终态）'
+	String get offboardMember => '离场（终态）';
+
+	/// zh-CN: '「${name}」将离场本企业：removed 终态、不可恢复，如需再次加入须重新邀请。'
+	String offboardBody({required Object name}) => '「${name}」将离场本企业：removed 终态、不可恢复，如需再次加入须重新邀请。';
+
+	/// zh-CN: '确认离场'
+	String get confirmOffboard => '确认离场';
+
+	/// zh-CN: '离场失败'
+	String get offboardFailed => '离场失败';
+
 	/// zh-CN: '暂无成员'
 	String get empty => '暂无成员';
 }
@@ -7970,6 +8009,9 @@ class Translations$organization$picker$zh_CN {
 
 	/// zh-CN: '切换企业'
 	String get switchEnterprise => '切换企业';
+
+	/// zh-CN: '切换失败'
+	String get switchFailed => '切换失败';
 
 	/// zh-CN: '未选择企业'
 	String get noneSelected => '未选择企业';
@@ -10600,6 +10642,19 @@ extension on Translations {
 			'organization.members.promoteToAdmin' => '升级为管理员',
 			'organization.members.transferOwnerTo' => ({required Object name}) => '转移所有者给「${name}」',
 			'organization.members.ownerCannotChangeHere' => 'Owner 不可在此变更；请使用「转移所有者」',
+			'organization.members.viewDetail' => '查看详情',
+			'organization.members.suspendMember' => '暂停成员',
+			'organization.members.suspendBody' => ({required Object name}) => '暂停「${name}」在本企业的访问权限（即时生效；不影响其个人账号与其他企业）。可随时恢复。',
+			'organization.members.confirmSuspend' => '确认暂停',
+			'organization.members.suspendFailed' => '暂停失败',
+			'organization.members.restoreMember' => '恢复成员',
+			'organization.members.restoreBody' => ({required Object name}) => '恢复「${name}」在本企业的访问权限。',
+			'organization.members.confirmRestoreMember' => '确认恢复',
+			'organization.members.restoreFailed' => '恢复失败',
+			'organization.members.offboardMember' => '离场（终态）',
+			'organization.members.offboardBody' => ({required Object name}) => '「${name}」将离场本企业：removed 终态、不可恢复，如需再次加入须重新邀请。',
+			'organization.members.confirmOffboard' => '确认离场',
+			'organization.members.offboardFailed' => '离场失败',
 			'organization.members.empty' => '暂无成员',
 			'organization.invitations.inviteMember' => '邀请成员',
 			'organization.invitations.invitationCreated' => '邀请已创建',
@@ -10660,6 +10715,7 @@ extension on Translations {
 			'organization.departments.emptySubtitle' => '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。',
 			'organization.picker.title' => '切换企业',
 			'organization.picker.switchEnterprise' => '切换企业',
+			'organization.picker.switchFailed' => '切换失败',
 			'organization.picker.noneSelected' => '未选择企业',
 			'organization.picker.emptyHint' => '尚未加入任何企业\n点击下方「加入企业」输入企业邀请码',
 			'organization.picker.joinEnterprise' => '加入企业',
@@ -10960,6 +11016,8 @@ extension on Translations {
 			'workspace.taskAssigneeLabel' => '负责人（工作区成员）',
 			'workspace.taskAssigneeNone' => '暂不指派',
 			'workspace.taskAssigneeRefresh' => '刷新负责人候选',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => '创建任务',
 			'workspace.taskSubmitSave' => '保存',
 			'workspace.taskCreatedToast' => '任务已创建',
@@ -10974,8 +11032,6 @@ extension on Translations {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 到...',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流转到「${status}」',
 			'workspace.taskEmptyTitle' => '还没有任务',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskEmptySubtitle' => '用四态跟踪执行：待办 → 进行中 → 评审中 → 已完成',
 			'workspace.projectsLoadMore' => '加载更多',
 			'workspace.projectW2SectionTitle' => '项目协作',

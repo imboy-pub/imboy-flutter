@@ -78,6 +78,19 @@ members:
   promoteToAdmin: "升級為管理員"
   transferOwnerTo: "移轉擁有者給「${name}」"
   ownerCannotChangeHere: "Owner 不可在此變更；請使用「移轉擁有者」"
+  viewDetail: 查看詳情
+  suspendMember: 暫停成員
+  suspendBody: "暫停「${name}」在本企業的存取權限（即時生效；不影響其個人帳號與其他企業）。可隨時恢復。"
+  confirmSuspend: 確認暫停
+  suspendFailed: 暫停失敗
+  restoreMember: 恢復成員
+  restoreBody: "恢復「${name}」在本企業的存取權限。"
+  confirmRestoreMember: 確認恢復
+  restoreFailed: 恢復失敗
+  offboardMember: 離場（終態）
+  offboardBody: "「${name}」將離場本企業：removed 終態、不可復原，如需再次加入須重新邀請。"
+  confirmOffboard: 確認離場
+  offboardFailed: 離場失敗
   empty: "尚無成員"
 invitations:
   inviteMember: "邀請成員"
@@ -142,6 +155,7 @@ departments:
 picker:
   title: 切換企業
   switchEnterprise: 切換企業
+  switchFailed: 切換失敗
   noneSelected: 未選擇企業
   emptyHint: "尚未加入任何企業\n點擊下方「加入企業」輸入企業邀請碼"
   joinEnterprise: 加入企業

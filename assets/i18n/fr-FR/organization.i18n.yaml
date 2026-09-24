@@ -78,6 +78,19 @@ members:
   promoteToAdmin: "Promouvoir en admin"
   transferOwnerTo: "Transférer la propriété à « ${name} »"
   ownerCannotChangeHere: "L'owner ne se change pas ici ; utilisez « Transférer la propriété »"
+  viewDetail: Voir le profil
+  suspendMember: Suspendre le membre
+  suspendBody: "Suspendre l'accès de ${name} à cette organisation (immédiat ; compte personnel et autres organisations non concernés). Réversible à tout moment."
+  confirmSuspend: Confirmer la suspension
+  suspendFailed: Échec de la suspension
+  restoreMember: Rétablir le membre
+  restoreBody: "Rétablir l'accès de ${name} à cette organisation."
+  confirmRestoreMember: Confirmer le rétablissement
+  restoreFailed: Échec du rétablissement
+  offboardMember: Sortie (définitif)
+  offboardBody: "${name} quittera cette organisation : removed est un état final irréversible ; toute réintégration nécessite une nouvelle invitation."
+  confirmOffboard: Confirmer la sortie
+  offboardFailed: Échec de la sortie
   empty: "Aucun membre"
 invitations:
   inviteMember: "Inviter un membre"
@@ -142,6 +155,7 @@ departments:
 picker:
   title: "Changer d'entreprise"
   switchEnterprise: "Changer d'entreprise"
+  switchFailed: Échec du changement
   noneSelected: "Aucune entreprise sélectionnée"
   emptyHint: "Vous n'avez encore rejoint aucune entreprise.\nTouchez « Rejoindre une entreprise » ci-dessous et saisissez le code d'invitation"
   joinEnterprise: "Rejoindre une entreprise"

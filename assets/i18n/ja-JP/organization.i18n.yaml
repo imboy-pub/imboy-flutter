@@ -78,6 +78,19 @@ members:
   promoteToAdmin: "管理者に昇格"
   transferOwnerTo: "「${name}」にオーナーを譲渡"
   ownerCannotChangeHere: "Owner はここでは変更できません。「オーナーを譲渡」をご利用ください"
+  viewDetail: 詳細を表示
+  suspendMember: メンバーの一時停止
+  suspendBody: "${name} のこの組織へのアクセスを一時停止します（即時反映。個人アカウントや他の組織には影響しません）。いつでも復元できます。"
+  confirmSuspend: 一時停止する
+  suspendFailed: 一時停止に失敗しました
+  restoreMember: メンバーの復元
+  restoreBody: "${name} のこの組織へのアクセスを復元します。"
+  confirmRestoreMember: 復元する
+  restoreFailed: 復元に失敗しました
+  offboardMember: 離脱（最終）
+  offboardBody: "${name} をこの組織から離脱させます：removed は最終状態で元に戻せません。再参加には再度の招待が必要です。"
+  confirmOffboard: 離脱する
+  offboardFailed: 離脱に失敗しました
   empty: "メンバーがいません"
 invitations:
   inviteMember: "メンバーを招待"
@@ -142,6 +155,7 @@ departments:
 picker:
   title: "企業を切り替え"
   switchEnterprise: "企業を切り替え"
+  switchFailed: 切り替えに失敗しました
   noneSelected: "企業が選択されていません"
   emptyHint: "まだどの企業にも参加していません。\n下の「企業に参加」をタップして招待コードを入力してください"
   joinEnterprise: "企業に参加"

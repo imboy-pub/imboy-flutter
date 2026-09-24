@@ -2775,6 +2775,19 @@ class _Translations$organization$members$de_DE extends Translations$organization
 	@override String get promoteToAdmin => 'Zum Admin befördern';
 	@override String transferOwnerTo({required Object name}) => 'Eigentümerschaft an „${name}“ übertragen';
 	@override String get ownerCannotChangeHere => 'Der Owner kann hier nicht geändert werden; verwende „Eigentümerschaft übertragen“';
+	@override String get viewDetail => 'Profil anzeigen';
+	@override String get suspendMember => 'Mitglied sperren';
+	@override String suspendBody({required Object name}) => '${name}s Zugriff auf diese Organisation sperren (sofort wirksam; persönliches Konto und andere Organisationen bleiben unberührt). Jederzeit wiederherstellbar.';
+	@override String get confirmSuspend => 'Sperren bestätigen';
+	@override String get suspendFailed => 'Sperren fehlgeschlagen';
+	@override String get restoreMember => 'Mitglied entsperren';
+	@override String restoreBody({required Object name}) => '${name}s Zugriff auf diese Organisation wiederherstellen.';
+	@override String get confirmRestoreMember => 'Entsperren bestätigen';
+	@override String get restoreFailed => 'Entsperren fehlgeschlagen';
+	@override String get offboardMember => 'Austritt (endgültig)';
+	@override String offboardBody({required Object name}) => '${name} verlässt diese Organisation dauerhaft: removed ist ein endgültiger Zustand; ein Wiedereintritt erfordert eine neue Einladung.';
+	@override String get confirmOffboard => 'Austritt bestätigen';
+	@override String get offboardFailed => 'Austritt fehlgeschlagen';
 	@override String get empty => 'Keine Mitglieder';
 }
 
@@ -2862,6 +2875,7 @@ class _Translations$organization$picker$de_DE extends Translations$organization$
 	// Translations
 	@override String get title => 'Unternehmen wechseln';
 	@override String get switchEnterprise => 'Unternehmen wechseln';
+	@override String get switchFailed => 'Wechsel fehlgeschlagen';
 	@override String get noneSelected => 'Kein Unternehmen ausgewählt';
 	@override String get emptyHint => 'Du bist noch keinem Unternehmen beigetreten.\nTippe unten auf „Unternehmen beitreten“ und gib den Einladungscode ein';
 	@override String get joinEnterprise => 'Unternehmen beitreten';
@@ -5150,6 +5164,19 @@ extension on TranslationsDeDe {
 			'organization.members.promoteToAdmin' => 'Zum Admin befördern',
 			'organization.members.transferOwnerTo' => ({required Object name}) => 'Eigentümerschaft an „${name}“ übertragen',
 			'organization.members.ownerCannotChangeHere' => 'Der Owner kann hier nicht geändert werden; verwende „Eigentümerschaft übertragen“',
+			'organization.members.viewDetail' => 'Profil anzeigen',
+			'organization.members.suspendMember' => 'Mitglied sperren',
+			'organization.members.suspendBody' => ({required Object name}) => '${name}s Zugriff auf diese Organisation sperren (sofort wirksam; persönliches Konto und andere Organisationen bleiben unberührt). Jederzeit wiederherstellbar.',
+			'organization.members.confirmSuspend' => 'Sperren bestätigen',
+			'organization.members.suspendFailed' => 'Sperren fehlgeschlagen',
+			'organization.members.restoreMember' => 'Mitglied entsperren',
+			'organization.members.restoreBody' => ({required Object name}) => '${name}s Zugriff auf diese Organisation wiederherstellen.',
+			'organization.members.confirmRestoreMember' => 'Entsperren bestätigen',
+			'organization.members.restoreFailed' => 'Entsperren fehlgeschlagen',
+			'organization.members.offboardMember' => 'Austritt (endgültig)',
+			'organization.members.offboardBody' => ({required Object name}) => '${name} verlässt diese Organisation dauerhaft: removed ist ein endgültiger Zustand; ein Wiedereintritt erfordert eine neue Einladung.',
+			'organization.members.confirmOffboard' => 'Austritt bestätigen',
+			'organization.members.offboardFailed' => 'Austritt fehlgeschlagen',
 			'organization.members.empty' => 'Keine Mitglieder',
 			'organization.invitations.inviteMember' => 'Mitglied einladen',
 			'organization.invitations.invitationCreated' => 'Einladung erstellt',
@@ -5210,6 +5237,7 @@ extension on TranslationsDeDe {
 			'organization.departments.emptySubtitle' => 'Mehrfachmitgliedschaft: Ein Mitglied kann mehreren Abteilungen angehören; Abteilungsmitglieder müssen zuerst Mitglieder dieser Organisation sein.',
 			'organization.picker.title' => 'Unternehmen wechseln',
 			'organization.picker.switchEnterprise' => 'Unternehmen wechseln',
+			'organization.picker.switchFailed' => 'Wechsel fehlgeschlagen',
 			'organization.picker.noneSelected' => 'Kein Unternehmen ausgewählt',
 			'organization.picker.emptyHint' => 'Du bist noch keinem Unternehmen beigetreten.\nTippe unten auf „Unternehmen beitreten“ und gib den Einladungscode ein',
 			'organization.picker.joinEnterprise' => 'Unternehmen beitreten',

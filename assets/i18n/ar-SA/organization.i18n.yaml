@@ -78,6 +78,19 @@ members:
   promoteToAdmin: "ترقية إلى مسؤول"
   transferOwnerTo: "نقل الملكية إلى «${name}»"
   ownerCannotChangeHere: "لا يمكن تغيير Owner هنا؛ استخدم «نقل الملكية»"
+  viewDetail: عرض الملف
+  suspendMember: تعليق العضو
+  suspendBody: "تعليق وصول ${name} إلى هذه المؤسسة (فوري؛ لا يؤثر على حسابه الشخصي أو مؤسساته الأخرى). يمكن استعادته في أي وقت."
+  confirmSuspend: تأكيد التعليق
+  suspendFailed: فشل التعليق
+  restoreMember: استعادة العضو
+  restoreBody: "استعادة وصول ${name} إلى هذه المؤسسة."
+  confirmRestoreMember: تأكيد الاستعادة
+  restoreFailed: فشلت الاستعادة
+  offboardMember: إنهاء العضوية (نهائي)
+  offboardBody: "سيغادر ${name} هذه المؤسسة: removed حالة نهائية لا رجعة فيها، وإعادة الانضمام تتطلب دعوة جديدة."
+  confirmOffboard: تأكيد الإنهاء
+  offboardFailed: فشل الإنهاء
   empty: "لا يوجد أعضاء"
 invitations:
   inviteMember: "دعوة عضو"
@@ -142,6 +155,7 @@ departments:
 picker:
   title: "تبديل المؤسسة"
   switchEnterprise: "تبديل المؤسسة"
+  switchFailed: فشل التبديل
   noneSelected: "لم يتم اختيار مؤسسة"
   emptyHint: "لم تنضم إلى أي مؤسسة بعد.\nاضغط «الانضمام إلى مؤسسة» أدناه وأدخل رمز الدعوة"
   joinEnterprise: "الانضمام إلى مؤسسة"
