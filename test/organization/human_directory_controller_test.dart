@@ -526,6 +526,55 @@ void main() {
       expect(c.switchError, isNotNull);
     });
 
+    test('commit 失败：rollback 到旧 Org（不 reconfigure、不卡死、可重试）', () async {
+      final src = FakeSource()..membersPage = _page([_member('m1')]);
+      final c = _boot(src);
+      src.pendingDepartments.first.complete(_page([_dept('d1')]));
+      await _tick();
+      final gen = c.generation;
+      final keyBefore = c.identity!.requestKey;
+
+      var commitCalls = 0;
+      await c.switchOrganization(
+        const Organization(id: orgB, name: 'B 企业'),
+        prepare: (target) async {},
+        commit: (target) {
+          commitCalls++;
+          // 模拟页面补偿后 rethrow（如 CurrentOrganizationStore 写失败）。
+          throw Exception('store.set failed');
+        },
+      );
+
+      expect(commitCalls, 1);
+      expect(
+        c.identity!.organizationId,
+        orgA,
+        reason: 'Phase 2 失败绝不 reconfigure 到目标 Org',
+      );
+      expect(c.identity!.requestKey, keyBefore);
+      expect(c.generation, gen, reason: '不触发目录重建');
+      expect(c.departments.items.map((d) => d.id), [
+        'd1',
+      ], reason: '旧 Org 已有数据保留');
+      expect(c.members.items.map((m) => m.userId), ['m1']);
+      expect(c.switchError, isNotNull);
+      expect(c.switching, isFalse, reason: '失败后不卡 switching');
+      expect(c.switchTarget, isNull);
+
+      // 可重试：第二次 commit 放行 → 整体切到 B 根级。
+      await c.switchOrganization(
+        const Organization(id: orgB, name: 'B 企业'),
+        prepare: (target) async {},
+        commit: (target) => commitCalls++,
+      );
+      expect(commitCalls, 2);
+      expect(c.switchError, isNull);
+      expect(c.identity!.organizationId, orgB);
+      expect(c.identity!.departmentId, isNull);
+      expect(c.generation, gen + 1);
+      expect(src.deptCalls.last, '$orgB|p=-|c=-');
+    });
+
     test('同一 Org 目标：no-op（不进切换流程）', () async {
       final src = FakeSource();
       final c = _boot(src);

@@ -252,25 +252,41 @@ class _HumanDirectoryBrowserPageState
 
   /// Phase 2：提交指针 + 缓存失效（镜像 OrganizationPickerPage G11 清单；
   /// 复用既有 store/provider，不建第二套）。
+  ///
+  /// 原子性（§14.3）：任一步失败——指针写失败、旧 Org 缓存失效失败或
+  /// workspace providers 失效失败——先把 [CurrentOrganizationStore] 恢复为
+  /// 旧值再 rethrow，由控制器按 Phase 2 失败 rollback（不 reconfigure，
+  /// 目录继续服务旧 Org；已失效的 providers 以恢复后的旧指针为真源重建）。
+  /// 绝不吞错后继续落新 Org（那会造出「指针=旧企业、目录=新企业」的混合态）。
   void _commitSwitch(Organization target) {
     final accountKey = _accountKey;
-    if (accountKey.isNotEmpty) {
-      try {
-        final store = CurrentOrganizationStore.forAccount(accountKey);
-        final prev = store.value;
+    CurrentOrganizationStore? store;
+    Organization? prev;
+    try {
+      if (accountKey.isNotEmpty) {
+        store = CurrentOrganizationStore.forAccount(accountKey);
+        prev = store.value;
+        store.set(target);
         if (prev != null && prev.id != target.id) {
           OrganizationCache.forAccount(accountKey).invalidateOrg(prev.id);
         }
-        store.set(target);
-      } on Object {
-        // 指针是 UI 偏好：membership 已验、壳已载，此处失败不回滚数据切换。
       }
+      ref.invalidate(workspaceOverviewProvider);
+      ref.invalidate(workspaceChannelsProvider);
+      ref.invalidate(workspaceGroupsProvider);
+      ref.invalidate(workspaceMembersProvider);
+      ref.invalidate(workspaceProjectsProvider);
+    } on Object {
+      if (store != null && prev != null && prev.id != target.id) {
+        try {
+          store.set(prev);
+        } on Object {
+          // 补偿写也失败：指针可能停在目标值，但 membership 真源在服务端，
+          // 下次 mine() 会纠正；控制器侧仍按失败 rollback。
+        }
+      }
+      rethrow;
     }
-    ref.invalidate(workspaceOverviewProvider);
-    ref.invalidate(workspaceChannelsProvider);
-    ref.invalidate(workspaceGroupsProvider);
-    ref.invalidate(workspaceMembersProvider);
-    ref.invalidate(workspaceProjectsProvider);
     unawaited(_landDefaultWorkspace(target));
   }
 

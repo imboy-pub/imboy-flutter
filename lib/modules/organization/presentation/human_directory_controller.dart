@@ -365,7 +365,18 @@ class HumanDirectoryController extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    commit(target);
+    try {
+      commit(target);
+    } on Object catch (e) {
+      // Phase 2 失败（§14.3：任一步失败保留旧 Org/Workspace/已有数据）：
+      // 回调方负责把指针/缓存补偿回旧值后 rethrow；控制器保持旧 Org
+      // 身份与已有数据（不 reconfigure），回到可重试态——绝不半切换。
+      _switching = false;
+      _switchTarget = null;
+      _switchError = _errorText(e);
+      notifyListeners();
+      return;
+    }
     _switching = false;
     _switchTarget = null;
     notifyListeners();
