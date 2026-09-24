@@ -22,13 +22,12 @@
 // 前置：两台真机；A/B 本地合成账号互为好友；后端+LiveKit 为
 // rtc_e2e_test.sh KEEP=1 产物。任一设备不在线 → BLOCKED_DEVICE。
 
-import 'dart:async';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/page/chat/p2p_call_screen/incoming_call_view.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_page.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -37,6 +36,9 @@ import 'package:livekit_client/livekit_client.dart' as lk;
 import 'rtc_e2e_helpers.dart';
 
 const _bCase = String.fromEnvironment('LK_RTC_B_CASE', defaultValue: 'accept');
+const _incomingHoldSeconds = int.fromEnvironment(
+  'TEST_C2C_INCOMING_HOLD_SECONDS',
+);
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -59,23 +61,31 @@ void main() {
     final incoming = find.byType(IncomingCallView);
     var okIncoming = await pollUntil(
       () => tester.any(incoming),
-      timeout: const Duration(seconds: 240),
+      tester: tester,
+      timeout: const Duration(seconds: 420),
       onTick: (p) => flowLog('[B] 等待来电…$p'),
     );
-    expect(okIncoming, isTrue, reason: '240s 内未收到 A 的来电（offer 信令未达）');
-    await takeScreenshot(tester, 'lk_b_incoming');
+    expect(okIncoming, isTrue, reason: '420s 内未收到 A 的来电（offer 信令未达）');
+    if (_incomingHoldSeconds > 0) {
+      flowLog('[B][READY] 来电页保持 ${_incomingHoldSeconds}s 供人工观察');
+      await Future<void>.delayed(Duration(seconds: _incomingHoldSeconds));
+      await tester.pump();
+    }
 
     if (_bCase == 'decline') {
       // ── 拒绝路径：tap 拒绝 → 弹窗关闭 → A 侧应收到 busy ────────────────
-      final declineBtn = find.text('拒绝');
+      final declineBtn = find.descendant(
+        of: incoming,
+        matching: find.byIcon(CupertinoIcons.phone_down_circle_fill),
+      );
       if (!tester.any(declineBtn)) {
-        markTestSkipped('来电视图按钮文案与预期不符（locale 差异）');
-        return;
+        fail('来电视图拒绝按钮不存在');
       }
       await tester.tap(declineBtn);
       await settle(tester, maxSeconds: 3);
       var closed = await pollUntil(
         () => !tester.any(incoming),
+        tester: tester,
         timeout: const Duration(seconds: 10),
       );
       expect(closed, isTrue, reason: '拒绝后来电视图应关闭');
@@ -84,17 +94,29 @@ void main() {
     }
 
     // ── 2. 接听：tap 接听 → answer 信令 → joinRoom c2c → Room 接通 ──────
-    final answerBtn = find.text('接听');
+    final answerBtn = find.descendant(
+      of: incoming,
+      matching: find.byIcon(
+        lkMedia == 'audio' ? CupertinoIcons.phone : CupertinoIcons.videocam,
+      ),
+    );
     if (!tester.any(answerBtn)) {
-      markTestSkipped('来电视图按钮文案与预期不符（locale 差异）');
-      return;
+      fail('来电视图接听按钮不存在');
     }
-    await tester.tap(answerBtn);
-    await settle(tester, maxSeconds: 5);
+    await tester.tap(answerBtn.last);
+    await tester.pump(const Duration(milliseconds: 500));
+
+    final callPage = find.byType(P2pCallScreenPage);
+    final accepted = await pollUntil(
+      () => !tester.any(incoming) && tester.any(callPage),
+      tester: tester,
+      timeout: const Duration(seconds: 15),
+    );
+    expect(accepted, isTrue, reason: '点击接听后未进入真实通话页');
+    flowLog('[B] 来电已接听，真实通话页已打开');
 
     // accept 后 app 通过 overlay 挂 P2pCallScreenPage；provider 进入连接。
     // 给 overlay 帧时间后取 container。
-    await tester.pumpAndSettle(const Duration(seconds: 2));
     final container = ProviderScope.containerOf(
       tester.element(find.byType(MaterialApp)),
     );
@@ -107,6 +129,7 @@ void main() {
     // provider.connected 可能早于 ICE 建立，不再作为通过判据（仅辅助日志）。
     var okConnected = await pollUntil(
       () => notifier.room?.connectionState == lk.ConnectionState.connected,
+      tester: tester,
       timeout: const Duration(seconds: 45),
       onTick: (p) => flowLog('[B] 等待媒体接通…$p'),
     );
@@ -124,47 +147,32 @@ void main() {
     );
 
     // ── 3. 媒体到达：远端 track（A 的发布）───────────────────────────────
-    var remoteTrackSeen = false;
     final room = notifier.room;
-    if (room != null) {
-      remoteTrackSeen = room.remoteParticipants.values.any(
-        (p) => p.trackPublications.isNotEmpty,
-      );
-      if (!remoteTrackSeen) {
-        final listener = room.createListener();
-        final got = Completer<void>();
-        listener.on<lk.TrackSubscribedEvent>((_) {
-          if (!got.isCompleted) got.complete();
-        });
-        remoteTrackSeen = await got.future
-            .timeout(const Duration(seconds: 30))
-            .then((_) => true)
-            .catchError((_) => false);
-        await listener.dispose();
-      }
-    }
+    final remoteTrackSeen =
+        room != null &&
+        await waitForExpectedRtcMedia(
+          room,
+          media: lkMedia == 'audio' ? 'audio' : 'video',
+          tester: tester,
+        );
     if (remoteTrackSeen) {
-      flowLog('[B][PASS] 已订阅 A 的 track');
+      flowLog('[B][PASS] $lkMedia 媒体已真实发送并到达');
     } else {
       fail(
-        '未订阅到 A 的 track（Required：双端真实发布/订阅是 LK-TEST-01 验收项，'
-        '不得以 DEGRADED 计绿；媒体权限缺失属环境问题，修复授权后重跑）',
+        '$lkMedia 媒体未真实到达（视频必须有 camera track、发送帧、接收帧与非零尺寸；'
+        '不得以任意 publication 计绿）',
       );
     }
     await takeScreenshot(tester, 'lk_b_call_connected');
 
-    // ── 4. 等 A 挂断（bye 信令 → callStateBye → 页面收尾）───────────────
-    final states = <WebRTCCallState>[];
-    notifier.onCallStateChange = (s, state) {
-      flowLog('[B] callState=$state');
-      states.add(state);
-    };
+    // ── 4. 等 A 挂断：不覆盖页面回调，只认真实页面收尾/房间释放 ────
     var okBye = await pollUntil(
-      () => states.contains(WebRTCCallState.callStateBye),
+      () => !tester.any(callPage) && notifier.room == null,
+      tester: tester,
       timeout: const Duration(seconds: 120),
       onTick: (p) => flowLog('[B] 通话中…等 A 挂断 $p'),
     );
-    expect(okBye, isTrue, reason: '120s 内未收到 A 的 bye');
-    flowLog('[B] 收到 bye，通话结束');
-  }, timeout: const Timeout(Duration(minutes: 8)));
+    expect(okBye, isTrue, reason: '120s 内未收到 A 的 bye 或资源未释放');
+    flowLog('[B] 收到 bye，通话页与 room 已释放');
+  }, timeout: const Timeout(Duration(minutes: 12)));
 }

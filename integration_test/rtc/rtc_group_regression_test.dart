@@ -5,14 +5,15 @@
 //
 // 链路：登录 → RtcRoomApi.joinRoom(kind=group, TEST_GROUP_ID)（真实后端
 // 签发）→ rtcRoomProvider.connect(wsUrl, token)（真实 LiveKit）→
-// RoomConnected + 本端 mic publish → teardown 释放。
+// RoomConnected + 本端 mic publish + 可选双端远端轨道 → teardown 释放。
 //
-// 运行（单真机即可；群内只有本机一个参与者，媒体自环由 SFU 保底）：
+// 运行（双端验收时两端并发，并传 TEST_GROUP_EXPECT_REMOTE=true）：
 //   flutter test integration_test/rtc/rtc_group_regression_test.dart \
 //     -d XWE6R19916004085 --dart-define=APP_ENV=local \
 //     --dart-define=API_BASE_URL_OVERRIDE=... --dart-define=WS_URL_OVERRIDE=... \
 //     --dart-define=TEST_PHONE=... --dart-define=TEST_PASSWORD=... \
 //     --dart-define=TEST_EXPECTED_UID=... --dart-define=TEST_GROUP_ID=<gid> \
+//     --dart-define=TEST_GROUP_EXPECT_REMOTE=true \
 //     --dart-define=LK_RTC_RUN=true
 //
 // 前置：本地合成账号已在测试群（rtc_e2e_test.sh 种子的 group）。
@@ -21,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/rtc_room/rtc_room_provider.dart';
+import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/api/rtc_room_api.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:livekit_client/livekit_client.dart' as lk;
@@ -28,6 +30,24 @@ import 'package:livekit_client/livekit_client.dart' as lk;
 import 'rtc_e2e_helpers.dart';
 
 const _groupId = String.fromEnvironment('TEST_GROUP_ID');
+const _expectRemote = bool.fromEnvironment('TEST_GROUP_EXPECT_REMOTE');
+const _runDeviceTransitions = bool.fromEnvironment(
+  'TEST_GROUP_DEVICE_TRANSITIONS',
+);
+const _holdSeconds = int.fromEnvironment('TEST_GROUP_HOLD_SECONDS');
+
+class _LifecycleProbe with WidgetsBindingObserver {
+  bool pausedSeen = false;
+  bool resumedAfterPause = false;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) pausedSeen = true;
+    if (pausedSeen && state == AppLifecycleState.resumed) {
+      resumedAfterPause = true;
+    }
+  }
+}
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -129,6 +149,73 @@ void main() {
         '须在授权形态（flutter drive/真机授权）下重跑）',
       );
     }
+
+    if (_expectRemote) {
+      final remoteTrackSeen = await pollUntil(
+        () => room!.remoteParticipants.values.any(
+          (participant) => participant.trackPublications.isNotEmpty,
+        ),
+        tester: tester,
+        timeout: const Duration(seconds: 180),
+      );
+      expect(
+        remoteTrackSeen,
+        isTrue,
+        reason: '双端群通话未订阅到远端 track，不能以单端入房或本端发布计绿',
+      );
+      flowLog('[group][PASS] remote track 已订阅');
+    }
+
+    if (_runDeviceTransitions) {
+      final lifecycleProbe = _LifecycleProbe();
+      WidgetsBinding.instance.addObserver(lifecycleProbe);
+      try {
+        flowLog('[group][READY] lifecycle-background');
+        final lifecycleRecovered = await pollUntil(
+          () =>
+              lifecycleProbe.resumedAfterPause &&
+              room!.connectionState == lk.ConnectionState.connected &&
+              WebSocketService.to.status == SocketStatus.connected,
+          tester: tester,
+          timeout: const Duration(seconds: 90),
+        );
+        expect(
+          lifecycleRecovered,
+          isTrue,
+          reason: '真实前台→后台→前台后 Room/WS 未保持或恢复 connected',
+        );
+        flowLog('[group][PASS] lifecycle paused→resumed，Room/WS connected');
+      } finally {
+        WidgetsBinding.instance.removeObserver(lifecycleProbe);
+      }
+
+      flowLog('[group][READY] network-disconnect');
+      final reconnectingSeen = await pollUntil(
+        () => container.read(rtcRoomProvider).reconnecting,
+        tester: tester,
+        timeout: const Duration(seconds: 90),
+      );
+      expect(reconnectingSeen, isTrue, reason: '断网后未观察到 LiveKit reconnecting');
+      final networkRecovered = await pollUntil(
+        () =>
+            !container.read(rtcRoomProvider).reconnecting &&
+            room!.connectionState == lk.ConnectionState.connected &&
+            WebSocketService.to.status == SocketStatus.connected &&
+            room.remoteParticipants.values.any(
+              (participant) => participant.trackPublications.isNotEmpty,
+            ),
+        tester: tester,
+        timeout: const Duration(seconds: 120),
+      );
+      expect(networkRecovered, isTrue, reason: '网络恢复后 Room/WS/远端 track 未全部恢复');
+      flowLog('[group][PASS] network reconnect，Room/WS/remote track recovered');
+    }
+
+    if (_holdSeconds > 0) {
+      flowLog('[group] holding room ${_holdSeconds}s for peer transition test');
+      await Future<void>.delayed(Duration(seconds: _holdSeconds));
+      await tester.pump();
+    }
     await takeScreenshot(tester, 'lk_group_connected');
 
     // ── 4. teardown 释放（群通话页挂断路径的等价物：hangup → _teardown）──
@@ -140,5 +227,5 @@ void main() {
       reason: '挂断后状态机应到 disconnected 终态',
     );
     flowLog('[group] teardown OK');
-  }, timeout: const Timeout(Duration(minutes: 4)));
+  }, timeout: const Timeout(Duration(minutes: 15)));
 }

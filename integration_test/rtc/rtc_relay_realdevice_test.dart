@@ -112,42 +112,49 @@ Future<String?> _assertSelectedCandidateRelay(Room room) async {
     final pc = (t as dynamic).pc as dynamic;
     if (pc == null) continue;
     final reports = await pc.getStats() as List<dynamic>;
-    String? selectedPairId;
     final candidatesById = <String, String>{};
+    final candidatePairs = <String, Map<dynamic, dynamic>>{};
+    final selectedPairIds = <String>{};
     for (final r in reports) {
       final m = r as dynamic;
       final type = m.type as String?;
       final id = m.id as String?;
-      if (type == 'selected-candidate-pair' &&
-          (m.nominated == true || m.selected == true)) {
-        selectedPairId = id;
+      final values = m.values as Map<dynamic, dynamic>;
+      if (type == 'transport') {
+        final selectedId =
+            values['selectedCandidatePairId'] ??
+            values['selected_candidate_pair_id'];
+        if (selectedId is String && selectedId.isNotEmpty) {
+          selectedPairIds.add(selectedId);
+        }
       }
-      if (type == 'candidate-pair' &&
-          selectedPairId == null &&
-          m.nominated == true) {
-        selectedPairId = id;
+      if ((type == 'candidate-pair' || type == 'selected-candidate-pair') &&
+          id != null) {
+        candidatePairs[id] = values;
+        if (values['selected'] == true || values['nominated'] == true) {
+          selectedPairIds.add(id);
+        }
       }
       if (type == 'local-candidate' || type == 'remote-candidate') {
-        final members = m.members as Map<String, dynamic>?;
-        candidatesById[id ?? ''] =
-            (members?['candidateType'] ?? members?['candidate_type'] ?? '')
-                as String;
-      }
-    }
-    for (final r in reports) {
-      final m = r as dynamic;
-      if (selectedPairId != null && m.id == selectedPairId) {
-        final localType = candidatesById[m.localCandidateId ?? ''] ?? '?';
-        final remoteType = candidatesById[m.remoteCandidateId ?? ''] ?? '?';
-        if (localType == 'relay' || remoteType == 'relay') {
-          return 'pair=$selectedPairId local=$localType remote=$remoteType';
+        final candidateType =
+            values['candidateType'] ?? values['candidate_type'];
+        if (id != null && candidateType is String) {
+          candidatesById[id] = candidateType;
         }
       }
     }
-    // 部分 webrtc 实现不暴露 selected 标记：退而断言存在 relay 候选
-    if (selectedPairId == null && candidatesById.values.contains('relay')) {
-      return 'no-selected-pair; relay candidate present, types='
-          '${candidatesById.values.toSet().toList()}';
+    for (final pairId in selectedPairIds) {
+      final pair = candidatePairs[pairId];
+      if (pair == null) continue;
+      final localId =
+          pair['localCandidateId'] ?? pair['local_candidate_id'] ?? '';
+      final remoteId =
+          pair['remoteCandidateId'] ?? pair['remote_candidate_id'] ?? '';
+      final localType = candidatesById[localId] ?? '?';
+      final remoteType = candidatesById[remoteId] ?? '?';
+      if (localType == 'relay' || remoteType == 'relay') {
+        return 'pair=$pairId local=$localType remote=$remoteType';
+      }
     }
   }
   return null;

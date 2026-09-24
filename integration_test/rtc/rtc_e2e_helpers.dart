@@ -14,8 +14,10 @@
 // 账号纪律：只允许本地后端合成账号（scripts/setup_test_data 或 PG 造数），
 // 严禁真实用户数据（run 20260921T101700Z 租约约束）。
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:livekit_client/livekit_client.dart' as lk;
 
 import '../flows/app_launcher.dart';
 import '../flows/test_utils.dart';
@@ -76,9 +78,11 @@ Future<bool> ensureLoggedInAndIdle(WidgetTester tester) async {
     markTestSkipped('后端不可达，跳过');
     return false;
   }
+  await dismissRecoveryGuide(tester);
   var entryReady = false;
   for (var i = 0; i < 90 && !entryReady; i++) {
     await dismissUpgradeDialog(tester);
+    await _returnToPersonalWorkspaceIfNeeded(tester);
     entryReady =
         isOnLoginPage(tester) ||
         isOnWelcomePage(tester) ||
@@ -120,6 +124,7 @@ Future<bool> ensureLoggedInAndIdle(WidgetTester tester) async {
     fail('登录失败：检查 TEST_PHONE/TEST_PASSWORD 与后端可用性');
   }
   await settle(tester, maxSeconds: 3);
+  await _returnToPersonalWorkspaceIfNeeded(tester);
   // 登录后可能弹出 E2EE 恢复指南/升级框，统一清障。
   await dismissRecoveryGuide(tester);
   await dismissUpgradeDialog(tester);
@@ -127,9 +132,18 @@ Future<bool> ensureLoggedInAndIdle(WidgetTester tester) async {
   return true;
 }
 
+Future<void> _returnToPersonalWorkspaceIfNeeded(WidgetTester tester) async {
+  final entry = find.byKey(const Key('workspace-return-personal-entry'));
+  if (!tester.any(entry)) return;
+  flowLog('[RTC] 企业工作区为空，切换到个人');
+  await tester.tap(entry);
+  await settle(tester, maxSeconds: 3);
+}
+
 /// 轮询直到条件成立或超时。返回是否成立。
 Future<bool> pollUntil(
   bool Function() cond, {
+  WidgetTester? tester,
   Duration timeout = const Duration(seconds: 30),
   Duration interval = const Duration(milliseconds: 500),
   void Function(String progress)? onTick,
@@ -137,9 +151,129 @@ Future<bool> pollUntil(
   final deadline = DateTime.now().add(timeout);
   while (DateTime.now().isBefore(deadline)) {
     if (cond()) return true;
-    await Future<void>.delayed(interval);
+    if (tester == null) {
+      await Future<void>.delayed(interval);
+    } else {
+      await tester.pump(interval);
+    }
     final remain = deadline.difference(DateTime.now()).inSeconds;
     onTick?.call('remain=${remain}s');
   }
   return cond();
 }
+
+/// 等待与通话类型匹配的真实媒体。视频不仅要求 camera publication/track，
+/// 还要求本端已编码发送且远端已收到并解码出非零尺寸的视频帧。
+Future<bool> waitForExpectedRtcMedia(
+  lk.Room room, {
+  required String media,
+  required WidgetTester tester,
+  Duration timeout = const Duration(seconds: 45),
+}) async {
+  final deadline = DateTime.now().add(timeout);
+  var nextLogAt = DateTime.fromMillisecondsSinceEpoch(0);
+  while (DateTime.now().isBefore(deadline)) {
+    if (media == 'audio') {
+      final ready = room.remoteParticipants.values.any(
+        (participant) => participant.audioTrackPublications.any(
+          (publication) =>
+              publication.subscribed &&
+              !publication.muted &&
+              publication.track is lk.RemoteAudioTrack,
+        ),
+      );
+      if (ready) return true;
+    } else {
+      final localTrack = room.localParticipant?.videoTrackPublications
+          .where(
+            (publication) =>
+                publication.source == lk.TrackSource.camera &&
+                !publication.muted &&
+                publication.track is lk.LocalVideoTrack,
+          )
+          .map((publication) => publication.track as lk.LocalVideoTrack)
+          .firstOrNull;
+      final remotePublication = room.remoteParticipants.values
+          .expand((participant) => participant.videoTrackPublications)
+          .where(
+            (publication) =>
+                publication.source == lk.TrackSource.camera &&
+                publication.subscribed &&
+                !publication.muted &&
+                publication.track is lk.RemoteVideoTrack,
+          )
+          .firstOrNull;
+      final remoteTrack = remotePublication?.track;
+
+      final senderStats = await localTrack?.getSenderStats() ?? const [];
+      final receiverStats = await remoteTrack?.getReceiverStats();
+      final localReady = senderStats.any(
+        (stats) =>
+            (stats.bytesSent ?? 0) > 0 &&
+            (stats.framesSent ?? 0) > 0 &&
+            (stats.frameWidth ?? 0) > 0 &&
+            (stats.frameHeight ?? 0) > 0,
+      );
+      final remoteReady =
+          (receiverStats?.bytesReceived ?? 0) > 0 &&
+          (receiverStats?.framesReceived ?? 0) > 0 &&
+          (receiverStats?.framesDecoded ?? 0) > 0 &&
+          (receiverStats?.frameWidth ?? 0) > 0 &&
+          (receiverStats?.frameHeight ?? 0) > 0;
+      if (localReady && remoteReady) {
+        flowLog(
+          '[RTC][VIDEO] local sender=${_senderStats(senderStats)}; '
+          'remote receiver=${_receiverStats(receiverStats)}',
+        );
+        return true;
+      }
+
+      if (DateTime.now().isAfter(nextLogAt)) {
+        flowLog(
+          '[RTC][VIDEO] publications=${_publicationSnapshot(room)}; '
+          'local sender=${_senderStats(senderStats)}; '
+          'remote receiver=${_receiverStats(receiverStats)}',
+        );
+        nextLogAt = DateTime.now().add(const Duration(seconds: 5));
+      }
+    }
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+  flowLog('[RTC][MEDIA][FAIL] ${_publicationSnapshot(room)}');
+  return false;
+}
+
+String _publicationSnapshot(lk.Room room) {
+  final local =
+      room.localParticipant?.trackPublications.values
+          .map(
+            (publication) =>
+                'local(kind=${publication.kind},source=${publication.source},'
+                'muted=${publication.muted},track=${publication.track.runtimeType})',
+          )
+          .join(', ') ??
+      'local(none)';
+  final remote = room.remoteParticipants.values
+      .expand((participant) => participant.trackPublications.values)
+      .map(
+        (publication) =>
+            'remote(kind=${publication.kind},source=${publication.source},'
+            'muted=${publication.muted},subscribed=${publication.subscribed},'
+            'track=${publication.track.runtimeType})',
+      )
+      .join(', ');
+  return '$local; ${remote.isEmpty ? 'remote(none)' : remote}';
+}
+
+String _senderStats(Iterable<dynamic> stats) => stats
+    .map(
+      (item) =>
+          'bytes=${item.bytesSent},frames=${item.framesSent},'
+          'size=${item.frameWidth}x${item.frameHeight},fps=${item.framesPerSecond}',
+    )
+    .join('|');
+
+String _receiverStats(dynamic stats) =>
+    'bytes=${stats?.bytesReceived},received=${stats?.framesReceived},'
+    'decoded=${stats?.framesDecoded},'
+    'size=${stats?.frameWidth}x${stats?.frameHeight},fps=${stats?.framesPerSecond}';
