@@ -2355,6 +2355,7 @@ class _Translations$organization$de_DE extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$memberDetail$de_DE memberDetail = _Translations$organization$memberDetail$de_DE._(_root);
 	@override late final _Translations$organization$manage$de_DE manage = _Translations$organization$manage$de_DE._(_root);
 	@override late final _Translations$organization$contactEntry$de_DE contactEntry = _Translations$organization$contactEntry$de_DE._(_root);
+	@override late final _Translations$organization$hub$de_DE hub = _Translations$organization$hub$de_DE._(_root);
 }
 
 // Path: passport
@@ -3012,6 +3013,33 @@ class _Translations$organization$contactEntry$de_DE extends Translations$organiz
 	// Translations
 	@override String get browserEntry => 'Verzeichnis öffnen';
 	@override String get loadFailed => 'Organisationsdaten konnten nicht geladen werden';
+}
+
+// Path: organization.hub
+class _Translations$organization$hub$de_DE extends Translations$organization$hub$zh_CN {
+	_Translations$organization$hub$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionResources => 'Organisationsressourcen';
+	@override String get sectionAdmin => 'Adminbereich';
+	@override String get zoneMembers => 'Mitglieder';
+	@override String get zoneMembersDesc => 'Verzeichnis · nach Abteilungen stöbern';
+	@override String get zoneDepartments => 'Abteilungen';
+	@override String get zoneDepartmentsDesc => 'Abteilungsverzeichnis und Hierarchie';
+	@override String get zoneGroups => 'Gruppen';
+	@override String get zoneGroupsDesc => 'Organisationsgruppen · über die Verwaltung';
+	@override String get zoneChannels => 'Kanäle';
+	@override String get zoneChannelsDesc => 'Organisationskanäle · über die Verwaltung';
+	@override String get zoneTools => 'Werkzeuge';
+	@override String get zoneToolsDesc => 'Workspaces · Projekte und Zusammenarbeit';
+	@override String get adminMembers => 'Mitgliederverwaltung';
+	@override String get adminMembersDesc => 'Rollen · Mitglieder entfernen';
+	@override String get adminInvitations => 'Einladungsverwaltung';
+	@override String get adminInvitationsDesc => 'Einladungen erstellen und widerrufen';
+	@override String get adminManage => 'Organisationsverwaltung';
+	@override String get adminManageDesc => 'Workspaces · Gruppen · Kanäle';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -5288,6 +5316,24 @@ extension on TranslationsDeDe {
 			'organization.manage.archivedChannelSection' => 'Archivierte Kanäle',
 			'organization.contactEntry.browserEntry' => 'Verzeichnis öffnen',
 			'organization.contactEntry.loadFailed' => 'Organisationsdaten konnten nicht geladen werden',
+			'organization.hub.sectionResources' => 'Organisationsressourcen',
+			'organization.hub.sectionAdmin' => 'Adminbereich',
+			'organization.hub.zoneMembers' => 'Mitglieder',
+			'organization.hub.zoneMembersDesc' => 'Verzeichnis · nach Abteilungen stöbern',
+			'organization.hub.zoneDepartments' => 'Abteilungen',
+			'organization.hub.zoneDepartmentsDesc' => 'Abteilungsverzeichnis und Hierarchie',
+			'organization.hub.zoneGroups' => 'Gruppen',
+			'organization.hub.zoneGroupsDesc' => 'Organisationsgruppen · über die Verwaltung',
+			'organization.hub.zoneChannels' => 'Kanäle',
+			'organization.hub.zoneChannelsDesc' => 'Organisationskanäle · über die Verwaltung',
+			'organization.hub.zoneTools' => 'Werkzeuge',
+			'organization.hub.zoneToolsDesc' => 'Workspaces · Projekte und Zusammenarbeit',
+			'organization.hub.adminMembers' => 'Mitgliederverwaltung',
+			'organization.hub.adminMembersDesc' => 'Rollen · Mitglieder entfernen',
+			'organization.hub.adminInvitations' => 'Einladungsverwaltung',
+			'organization.hub.adminInvitationsDesc' => 'Einladungen erstellen und widerrufen',
+			'organization.hub.adminManage' => 'Organisationsverwaltung',
+			'organization.hub.adminManageDesc' => 'Workspaces · Gruppen · Kanäle',
 			'passport.loginHistoryToggle' => 'Anmeldeverlauf anzeigen',
 			'passport.hintEmail' => 'Bitte E-Mail eingeben',
 			'passport.hintMobile' => 'Bitte Mobilfunknummer eingeben',

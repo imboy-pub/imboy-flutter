@@ -2352,6 +2352,7 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$memberDetail$ja_JP memberDetail = _Translations$organization$memberDetail$ja_JP._(_root);
 	@override late final _Translations$organization$manage$ja_JP manage = _Translations$organization$manage$ja_JP._(_root);
 	@override late final _Translations$organization$contactEntry$ja_JP contactEntry = _Translations$organization$contactEntry$ja_JP._(_root);
+	@override late final _Translations$organization$hub$ja_JP hub = _Translations$organization$hub$ja_JP._(_root);
 }
 
 // Path: passport
@@ -3009,6 +3010,33 @@ class _Translations$organization$contactEntry$ja_JP extends Translations$organiz
 	// Translations
 	@override String get browserEntry => 'アドレス帳を開く';
 	@override String get loadFailed => '組織情報の取得に失敗しました';
+}
+
+// Path: organization.hub
+class _Translations$organization$hub$ja_JP extends Translations$organization$hub$zh_CN {
+	_Translations$organization$hub$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionResources => '企業リソース';
+	@override String get sectionAdmin => '管理者エリア';
+	@override String get zoneMembers => 'メンバー';
+	@override String get zoneMembersDesc => '企業アドレス帳 · 部門別に閲覧';
+	@override String get zoneDepartments => '部門';
+	@override String get zoneDepartmentsDesc => '部門ディレクトリと階層';
+	@override String get zoneGroups => 'グループ';
+	@override String get zoneGroupsDesc => '企業グループ · 企業管理から閲覧';
+	@override String get zoneChannels => 'チャンネル';
+	@override String get zoneChannelsDesc => '企業チャンネル · 企業管理から閲覧';
+	@override String get zoneTools => 'ツール';
+	@override String get zoneToolsDesc => 'ワークスペース · プロジェクトとコラボレーション';
+	@override String get adminMembers => 'メンバー管理';
+	@override String get adminMembersDesc => 'ロール調整 · メンバー削除';
+	@override String get adminInvitations => '招待管理';
+	@override String get adminInvitationsDesc => '招待作成と取り消し';
+	@override String get adminManage => '企業管理';
+	@override String get adminManageDesc => 'ワークスペース · グループ · チャンネル管理';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -5285,6 +5313,24 @@ extension on TranslationsJaJp {
 			'organization.manage.archivedChannelSection' => 'アーカイブ済みチャンネル',
 			'organization.contactEntry.browserEntry' => 'アドレス帳を開く',
 			'organization.contactEntry.loadFailed' => '組織情報の取得に失敗しました',
+			'organization.hub.sectionResources' => '企業リソース',
+			'organization.hub.sectionAdmin' => '管理者エリア',
+			'organization.hub.zoneMembers' => 'メンバー',
+			'organization.hub.zoneMembersDesc' => '企業アドレス帳 · 部門別に閲覧',
+			'organization.hub.zoneDepartments' => '部門',
+			'organization.hub.zoneDepartmentsDesc' => '部門ディレクトリと階層',
+			'organization.hub.zoneGroups' => 'グループ',
+			'organization.hub.zoneGroupsDesc' => '企業グループ · 企業管理から閲覧',
+			'organization.hub.zoneChannels' => 'チャンネル',
+			'organization.hub.zoneChannelsDesc' => '企業チャンネル · 企業管理から閲覧',
+			'organization.hub.zoneTools' => 'ツール',
+			'organization.hub.zoneToolsDesc' => 'ワークスペース · プロジェクトとコラボレーション',
+			'organization.hub.adminMembers' => 'メンバー管理',
+			'organization.hub.adminMembersDesc' => 'ロール調整 · メンバー削除',
+			'organization.hub.adminInvitations' => '招待管理',
+			'organization.hub.adminInvitationsDesc' => '招待作成と取り消し',
+			'organization.hub.adminManage' => '企業管理',
+			'organization.hub.adminManageDesc' => 'ワークスペース · グループ · チャンネル管理',
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',

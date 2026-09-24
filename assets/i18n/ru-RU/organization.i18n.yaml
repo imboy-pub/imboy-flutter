@@ -258,3 +258,23 @@ manage:
 contactEntry:
   browserEntry: Открыть справочник
   loadFailed: Не удалось загрузить данные организации
+# ==================== ENT-APP-01 Хаб организации (/organization/:orgId) ====================
+hub:
+  sectionResources: Ресурсы организации
+  sectionAdmin: Зона администратора
+  zoneMembers: Участники
+  zoneMembersDesc: Справочник · просмотр по отделам
+  zoneDepartments: Отделы
+  zoneDepartmentsDesc: Структура и каталог отделов
+  zoneGroups: Группы
+  zoneGroupsDesc: Группы организации · через консоль управления
+  zoneChannels: Каналы
+  zoneChannelsDesc: Каналы организации · через консоль управления
+  zoneTools: Инструменты
+  zoneToolsDesc: Рабочие пространства · проекты и совместная работа
+  adminMembers: Управление участниками
+  adminMembersDesc: Роли · удаление участников
+  adminInvitations: Управление приглашениями
+  adminInvitationsDesc: Создание и отзыв приглашений
+  adminManage: Управление организацией
+  adminManageDesc: Рабочие пространства · группы · каналы

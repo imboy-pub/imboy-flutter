@@ -272,7 +272,11 @@ void main() {
       tester,
       const OrganizationDetailPage(orgId: kOrgId, accountKey: kAccountKey),
       'org_detail',
-      darkVisibleText: find.text('账号删除预检'),
+      // ENT-APP-01 聚合增量：五域入口 + 管理员区使 danger zone 下移出
+      // 首屏 build 区（ListView 懒构建），dark 关键文本改用首屏稳定
+      // 锚点（企业头组织名）；danger 语义断言仍由下方 scrollUntilVisible
+      // 的归档确认链覆盖。
+      darkVisibleText: find.text('矩阵组织甲'),
     );
 
     // semantics（机械 find）：治理角色下 AppBar 出现带 Semantics label

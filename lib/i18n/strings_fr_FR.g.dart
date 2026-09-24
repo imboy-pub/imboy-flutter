@@ -2355,6 +2355,7 @@ class _Translations$organization$fr_FR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$memberDetail$fr_FR memberDetail = _Translations$organization$memberDetail$fr_FR._(_root);
 	@override late final _Translations$organization$manage$fr_FR manage = _Translations$organization$manage$fr_FR._(_root);
 	@override late final _Translations$organization$contactEntry$fr_FR contactEntry = _Translations$organization$contactEntry$fr_FR._(_root);
+	@override late final _Translations$organization$hub$fr_FR hub = _Translations$organization$hub$fr_FR._(_root);
 }
 
 // Path: passport
@@ -3012,6 +3013,33 @@ class _Translations$organization$contactEntry$fr_FR extends Translations$organiz
 	// Translations
 	@override String get browserEntry => 'Ouvrir l\'annuaire';
 	@override String get loadFailed => 'Échec du chargement des informations de l\'organisation';
+}
+
+// Path: organization.hub
+class _Translations$organization$hub$fr_FR extends Translations$organization$hub$zh_CN {
+	_Translations$organization$hub$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionResources => 'Ressources de l\'organisation';
+	@override String get sectionAdmin => 'Espace admin';
+	@override String get zoneMembers => 'Membres';
+	@override String get zoneMembersDesc => 'Annuaire · parcourir par département';
+	@override String get zoneDepartments => 'Départements';
+	@override String get zoneDepartmentsDesc => 'Répertoire et hiérarchie des départements';
+	@override String get zoneGroups => 'Groupes';
+	@override String get zoneGroupsDesc => 'Groupes d\'organisation · via la console d\'administration';
+	@override String get zoneChannels => 'Canaux';
+	@override String get zoneChannelsDesc => 'Canaux d\'organisation · via la console d\'administration';
+	@override String get zoneTools => 'Outils';
+	@override String get zoneToolsDesc => 'Espaces de travail · projets et collaboration';
+	@override String get adminMembers => 'Gouvernance des membres';
+	@override String get adminMembersDesc => 'Rôles · retirer des membres';
+	@override String get adminInvitations => 'Gestion des invitations';
+	@override String get adminInvitationsDesc => 'Créer et révoquer des invitations';
+	@override String get adminManage => 'Administration';
+	@override String get adminManageDesc => 'Espaces de travail · groupes · canaux';
 }
 
 /// The flat map containing all translations for locale <fr-FR>.
@@ -5288,6 +5316,24 @@ extension on TranslationsFrFr {
 			'organization.manage.archivedChannelSection' => 'Canaux archivés',
 			'organization.contactEntry.browserEntry' => 'Ouvrir l\'annuaire',
 			'organization.contactEntry.loadFailed' => 'Échec du chargement des informations de l\'organisation',
+			'organization.hub.sectionResources' => 'Ressources de l\'organisation',
+			'organization.hub.sectionAdmin' => 'Espace admin',
+			'organization.hub.zoneMembers' => 'Membres',
+			'organization.hub.zoneMembersDesc' => 'Annuaire · parcourir par département',
+			'organization.hub.zoneDepartments' => 'Départements',
+			'organization.hub.zoneDepartmentsDesc' => 'Répertoire et hiérarchie des départements',
+			'organization.hub.zoneGroups' => 'Groupes',
+			'organization.hub.zoneGroupsDesc' => 'Groupes d\'organisation · via la console d\'administration',
+			'organization.hub.zoneChannels' => 'Canaux',
+			'organization.hub.zoneChannelsDesc' => 'Canaux d\'organisation · via la console d\'administration',
+			'organization.hub.zoneTools' => 'Outils',
+			'organization.hub.zoneToolsDesc' => 'Espaces de travail · projets et collaboration',
+			'organization.hub.adminMembers' => 'Gouvernance des membres',
+			'organization.hub.adminMembersDesc' => 'Rôles · retirer des membres',
+			'organization.hub.adminInvitations' => 'Gestion des invitations',
+			'organization.hub.adminInvitationsDesc' => 'Créer et révoquer des invitations',
+			'organization.hub.adminManage' => 'Administration',
+			'organization.hub.adminManageDesc' => 'Espaces de travail · groupes · canaux',
 			'passport.loginHistoryToggle' => 'Afficher l\'historique de connexion',
 			'passport.hintEmail' => 'Veuillez entrer votre adresse e-mail',
 			'passport.hintMobile' => 'Veuillez entrer votre numéro de téléphone',

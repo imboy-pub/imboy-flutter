@@ -257,3 +257,23 @@ manage:
 contactEntry:
   browserEntry: فتح الدليل
   loadFailed: فشل تحميل بيانات المؤسسة
+# ==================== ENT-APP-01 مركز المؤسسة (/organization/:orgId) ====================
+hub:
+  sectionResources: موارد المؤسسة
+  sectionAdmin: منطقة المسؤول
+  zoneMembers: الأعضاء
+  zoneMembersDesc: الدليل · استعراض حسب القسم
+  zoneDepartments: الأقسام
+  zoneDepartmentsDesc: دليل الأقسام والتسلسل
+  zoneGroups: المجموعات
+  zoneGroupsDesc: مجموعات المؤسسة · عبر إدارة المؤسسة
+  zoneChannels: القنوات
+  zoneChannelsDesc: قنوات المؤسسة · عبر إدارة المؤسسة
+  zoneTools: الأدوات
+  zoneToolsDesc: مساحات العمل · المشاريع والتعاون
+  adminMembers: إدارة الأعضاء
+  adminMembersDesc: الأدوار · إزالة الأعضاء
+  adminInvitations: إدارة الدعوات
+  adminInvitationsDesc: إنشاء الدعوات وإلغاؤها
+  adminManage: إدارة المؤسسة
+  adminManageDesc: مساحات العمل · المجموعات · القنوات

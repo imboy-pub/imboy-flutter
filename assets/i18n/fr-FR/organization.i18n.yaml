@@ -257,3 +257,23 @@ manage:
 contactEntry:
   browserEntry: Ouvrir l'annuaire
   loadFailed: Échec du chargement des informations de l'organisation
+# ==================== ENT-APP-01 Hub organisation (/organization/:orgId) ====================
+hub:
+  sectionResources: Ressources de l'organisation
+  sectionAdmin: Espace admin
+  zoneMembers: Membres
+  zoneMembersDesc: Annuaire · parcourir par département
+  zoneDepartments: Départements
+  zoneDepartmentsDesc: Répertoire et hiérarchie des départements
+  zoneGroups: Groupes
+  zoneGroupsDesc: Groupes d'organisation · via la console d'administration
+  zoneChannels: Canaux
+  zoneChannelsDesc: Canaux d'organisation · via la console d'administration
+  zoneTools: Outils
+  zoneToolsDesc: Espaces de travail · projets et collaboration
+  adminMembers: Gouvernance des membres
+  adminMembersDesc: Rôles · retirer des membres
+  adminInvitations: Gestion des invitations
+  adminInvitationsDesc: Créer et révoquer des invitations
+  adminManage: Administration
+  adminManageDesc: Espaces de travail · groupes · canaux

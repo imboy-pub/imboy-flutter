@@ -257,3 +257,23 @@ manage:
 contactEntry:
   browserEntry: Apri rubrica
   loadFailed: Caricamento informazioni organizzazione non riuscito
+# ==================== ENT-APP-01 Hub organizzazione (/organization/:orgId) ====================
+hub:
+  sectionResources: Risorse dell'organizzazione
+  sectionAdmin: Area admin
+  zoneMembers: Membri
+  zoneMembersDesc: Rubrica · sfoglia per reparto
+  zoneDepartments: Reparti
+  zoneDepartmentsDesc: Elenco e gerarchia dei reparti
+  zoneGroups: Gruppi
+  zoneGroupsDesc: Gruppi aziendali · via console di amministrazione
+  zoneChannels: Canali
+  zoneChannelsDesc: Canali aziendali · via console di amministrazione
+  zoneTools: Strumenti
+  zoneToolsDesc: Workspace · progetti e collaborazione
+  adminMembers: Gestione membri
+  adminMembersDesc: Ruoli · rimozione membri
+  adminInvitations: Gestione inviti
+  adminInvitationsDesc: Crea e revoca inviti
+  adminManage: Amministrazione
+  adminManageDesc: Workspace · gruppi · canali

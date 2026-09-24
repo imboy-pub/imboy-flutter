@@ -258,3 +258,23 @@ manage:
 contactEntry:
   browserEntry: 进入通讯录
   loadFailed: 企业信息加载失败
+# ==================== ENT-APP-01 组织聚合页（/organization/:orgId） ====================
+hub:
+  sectionResources: 企业资源
+  sectionAdmin: 管理员区
+  zoneMembers: 成员
+  zoneMembersDesc: 企业通讯录 · 按部门浏览
+  zoneDepartments: 部门
+  zoneDepartmentsDesc: 部门目录与层级
+  zoneGroups: 群
+  zoneGroupsDesc: 企业群 · 经企业管理查看
+  zoneChannels: 频道
+  zoneChannelsDesc: 企业频道 · 经企业管理查看
+  zoneTools: 工具
+  zoneToolsDesc: 工作区 · 项目与协作
+  adminMembers: 成员治理
+  adminMembersDesc: 角色调整 · 移除成员
+  adminInvitations: 邀请管理
+  adminInvitationsDesc: 邀请创建与撤销
+  adminManage: 企业管理
+  adminManageDesc: 工作区 · 群 · 频道治理

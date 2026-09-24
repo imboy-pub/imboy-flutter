@@ -2352,6 +2352,7 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$memberDetail$ko_KR memberDetail = _Translations$organization$memberDetail$ko_KR._(_root);
 	@override late final _Translations$organization$manage$ko_KR manage = _Translations$organization$manage$ko_KR._(_root);
 	@override late final _Translations$organization$contactEntry$ko_KR contactEntry = _Translations$organization$contactEntry$ko_KR._(_root);
+	@override late final _Translations$organization$hub$ko_KR hub = _Translations$organization$hub$ko_KR._(_root);
 }
 
 // Path: passport
@@ -3009,6 +3010,33 @@ class _Translations$organization$contactEntry$ko_KR extends Translations$organiz
 	// Translations
 	@override String get browserEntry => '주소록 열기';
 	@override String get loadFailed => '조직 정보를 불러오지 못했습니다';
+}
+
+// Path: organization.hub
+class _Translations$organization$hub$ko_KR extends Translations$organization$hub$zh_CN {
+	_Translations$organization$hub$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionResources => '기업 리소스';
+	@override String get sectionAdmin => '관리자 영역';
+	@override String get zoneMembers => '멤버';
+	@override String get zoneMembersDesc => '기업 주소록 · 부서별 탐색';
+	@override String get zoneDepartments => '부서';
+	@override String get zoneDepartmentsDesc => '부서 디렉터리와 계층';
+	@override String get zoneGroups => '그룹';
+	@override String get zoneGroupsDesc => '기업 그룹 · 기업 관리에서 보기';
+	@override String get zoneChannels => '채널';
+	@override String get zoneChannelsDesc => '기업 채널 · 기업 관리에서 보기';
+	@override String get zoneTools => '도구';
+	@override String get zoneToolsDesc => '워크스페이스 · 프로젝트 협업';
+	@override String get adminMembers => '멤버 관리';
+	@override String get adminMembersDesc => '역할 조정 · 멤버 제거';
+	@override String get adminInvitations => '초대 관리';
+	@override String get adminInvitationsDesc => '초대 생성 및 철회';
+	@override String get adminManage => '기업 관리';
+	@override String get adminManageDesc => '워크스페이스 · 그룹 · 채널 관리';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -5285,6 +5313,24 @@ extension on TranslationsKoKr {
 			'organization.manage.archivedChannelSection' => '보관된 채널',
 			'organization.contactEntry.browserEntry' => '주소록 열기',
 			'organization.contactEntry.loadFailed' => '조직 정보를 불러오지 못했습니다',
+			'organization.hub.sectionResources' => '기업 리소스',
+			'organization.hub.sectionAdmin' => '관리자 영역',
+			'organization.hub.zoneMembers' => '멤버',
+			'organization.hub.zoneMembersDesc' => '기업 주소록 · 부서별 탐색',
+			'organization.hub.zoneDepartments' => '부서',
+			'organization.hub.zoneDepartmentsDesc' => '부서 디렉터리와 계층',
+			'organization.hub.zoneGroups' => '그룹',
+			'organization.hub.zoneGroupsDesc' => '기업 그룹 · 기업 관리에서 보기',
+			'organization.hub.zoneChannels' => '채널',
+			'organization.hub.zoneChannelsDesc' => '기업 채널 · 기업 관리에서 보기',
+			'organization.hub.zoneTools' => '도구',
+			'organization.hub.zoneToolsDesc' => '워크스페이스 · 프로젝트 협업',
+			'organization.hub.adminMembers' => '멤버 관리',
+			'organization.hub.adminMembersDesc' => '역할 조정 · 멤버 제거',
+			'organization.hub.adminInvitations' => '초대 관리',
+			'organization.hub.adminInvitationsDesc' => '초대 생성 및 철회',
+			'organization.hub.adminManage' => '기업 관리',
+			'organization.hub.adminManageDesc' => '워크스페이스 · 그룹 · 채널 관리',
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',

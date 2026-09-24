@@ -2439,6 +2439,7 @@ class _Translations$organization$en_US extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$memberDetail$en_US memberDetail = _Translations$organization$memberDetail$en_US._(_root);
 	@override late final _Translations$organization$manage$en_US manage = _Translations$organization$manage$en_US._(_root);
 	@override late final _Translations$organization$contactEntry$en_US contactEntry = _Translations$organization$contactEntry$en_US._(_root);
+	@override late final _Translations$organization$hub$en_US hub = _Translations$organization$hub$en_US._(_root);
 }
 
 // Path: passport
@@ -3096,6 +3097,33 @@ class _Translations$organization$contactEntry$en_US extends Translations$organiz
 	// Translations
 	@override String get browserEntry => 'Open directory';
 	@override String get loadFailed => 'Failed to load organization info';
+}
+
+// Path: organization.hub
+class _Translations$organization$hub$en_US extends Translations$organization$hub$zh_CN {
+	_Translations$organization$hub$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionResources => 'Organization resources';
+	@override String get sectionAdmin => 'Admin area';
+	@override String get zoneMembers => 'Members';
+	@override String get zoneMembersDesc => 'Directory · browse by department';
+	@override String get zoneDepartments => 'Departments';
+	@override String get zoneDepartmentsDesc => 'Department directory and hierarchy';
+	@override String get zoneGroups => 'Groups';
+	@override String get zoneGroupsDesc => 'Org groups · via admin console';
+	@override String get zoneChannels => 'Channels';
+	@override String get zoneChannelsDesc => 'Org channels · via admin console';
+	@override String get zoneTools => 'Tools';
+	@override String get zoneToolsDesc => 'Workspaces · projects and collaboration';
+	@override String get adminMembers => 'Member governance';
+	@override String get adminMembersDesc => 'Roles · remove members';
+	@override String get adminInvitations => 'Invitation management';
+	@override String get adminInvitationsDesc => 'Create and revoke invitations';
+	@override String get adminManage => 'Organization admin';
+	@override String get adminManageDesc => 'Workspaces · groups · channels';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -5446,6 +5474,24 @@ extension on TranslationsEnUs {
 			'organization.manage.archivedChannelSection' => 'Archived channels',
 			'organization.contactEntry.browserEntry' => 'Open directory',
 			'organization.contactEntry.loadFailed' => 'Failed to load organization info',
+			'organization.hub.sectionResources' => 'Organization resources',
+			'organization.hub.sectionAdmin' => 'Admin area',
+			'organization.hub.zoneMembers' => 'Members',
+			'organization.hub.zoneMembersDesc' => 'Directory · browse by department',
+			'organization.hub.zoneDepartments' => 'Departments',
+			'organization.hub.zoneDepartmentsDesc' => 'Department directory and hierarchy',
+			'organization.hub.zoneGroups' => 'Groups',
+			'organization.hub.zoneGroupsDesc' => 'Org groups · via admin console',
+			'organization.hub.zoneChannels' => 'Channels',
+			'organization.hub.zoneChannelsDesc' => 'Org channels · via admin console',
+			'organization.hub.zoneTools' => 'Tools',
+			'organization.hub.zoneToolsDesc' => 'Workspaces · projects and collaboration',
+			'organization.hub.adminMembers' => 'Member governance',
+			'organization.hub.adminMembersDesc' => 'Roles · remove members',
+			'organization.hub.adminInvitations' => 'Invitation management',
+			'organization.hub.adminInvitationsDesc' => 'Create and revoke invitations',
+			'organization.hub.adminManage' => 'Organization admin',
+			'organization.hub.adminManageDesc' => 'Workspaces · groups · channels',
 			'passport.loginHistoryToggle' => 'Show login history',
 			'passport.hintEmail' => 'Please enter email',
 			'passport.hintMobile' => 'Please enter mobile number',
@@ -5656,6 +5702,8 @@ extension on TranslationsEnUs {
 			'workspace.projectMemberInviteSuccess' => 'Added to project members',
 			'workspace.projectMemberInviteExisting' => 'Already a project member',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Remove project member ${name}',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberRemoveConfirmDesc' => 'After removal the user loses access to this project (they can be invited again)',
 			'workspace.projectMemberRemoveSubmit' => 'Remove',
 			'workspace.projectMemberRemovedToast' => 'Removed',
@@ -5674,8 +5722,6 @@ extension on TranslationsEnUs {
 			'workspace.projectMilestoneDueDateInvalid' => 'Date must be YYYY-MM-DD',
 			'workspace.projectMilestoneCreateSubmit' => 'Create',
 			'workspace.projectMilestoneCreatedToast' => 'Milestone created',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestoneFilterAll' => 'All',
 			'workspace.projectMilestoneFilterPlanned' => 'Planned',
 			'workspace.projectMilestoneFilterReached' => 'Reached',

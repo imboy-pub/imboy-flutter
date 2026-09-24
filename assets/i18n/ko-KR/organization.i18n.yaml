@@ -257,3 +257,23 @@ manage:
 contactEntry:
   browserEntry: 주소록 열기
   loadFailed: 조직 정보를 불러오지 못했습니다
+# ==================== ENT-APP-01 조직 허브 (/organization/:orgId) ====================
+hub:
+  sectionResources: 기업 리소스
+  sectionAdmin: 관리자 영역
+  zoneMembers: 멤버
+  zoneMembersDesc: 기업 주소록 · 부서별 탐색
+  zoneDepartments: 부서
+  zoneDepartmentsDesc: 부서 디렉터리와 계층
+  zoneGroups: 그룹
+  zoneGroupsDesc: 기업 그룹 · 기업 관리에서 보기
+  zoneChannels: 채널
+  zoneChannelsDesc: 기업 채널 · 기업 관리에서 보기
+  zoneTools: 도구
+  zoneToolsDesc: 워크스페이스 · 프로젝트 협업
+  adminMembers: 멤버 관리
+  adminMembersDesc: 역할 조정 · 멤버 제거
+  adminInvitations: 초대 관리
+  adminInvitationsDesc: 초대 생성 및 철회
+  adminManage: 기업 관리
+  adminManageDesc: 워크스페이스 · 그룹 · 채널 관리

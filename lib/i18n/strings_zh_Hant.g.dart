@@ -2352,6 +2352,7 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$memberDetail$zh_Hant memberDetail = Translations$organization$memberDetail$zh_Hant.internal(_root);
 	@override late final Translations$organization$manage$zh_Hant manage = Translations$organization$manage$zh_Hant.internal(_root);
 	@override late final Translations$organization$contactEntry$zh_Hant contactEntry = Translations$organization$contactEntry$zh_Hant.internal(_root);
+	@override late final Translations$organization$hub$zh_Hant hub = Translations$organization$hub$zh_Hant.internal(_root);
 }
 
 // Path: passport
@@ -3009,6 +3010,33 @@ class Translations$organization$contactEntry$zh_Hant extends Translations$organi
 	// Translations
 	@override String get browserEntry => '進入通訊錄';
 	@override String get loadFailed => '企業資訊載入失敗';
+}
+
+// Path: organization.hub
+class Translations$organization$hub$zh_Hant extends Translations$organization$hub$zh_CN {
+	Translations$organization$hub$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionResources => '企業資源';
+	@override String get sectionAdmin => '管理員區';
+	@override String get zoneMembers => '成員';
+	@override String get zoneMembersDesc => '企業通訊錄 · 按部門瀏覽';
+	@override String get zoneDepartments => '部門';
+	@override String get zoneDepartmentsDesc => '部門目錄與層級';
+	@override String get zoneGroups => '群';
+	@override String get zoneGroupsDesc => '企業群 · 經企業管理查看';
+	@override String get zoneChannels => '頻道';
+	@override String get zoneChannelsDesc => '企業頻道 · 經企業管理查看';
+	@override String get zoneTools => '工具';
+	@override String get zoneToolsDesc => '工作區 · 項目與協作';
+	@override String get adminMembers => '成員治理';
+	@override String get adminMembersDesc => '角色調整 · 移除成員';
+	@override String get adminInvitations => '邀請管理';
+	@override String get adminInvitationsDesc => '邀請建立與撤銷';
+	@override String get adminManage => '企業管理';
+	@override String get adminManageDesc => '工作區 · 群 · 頻道治理';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -5285,6 +5313,24 @@ extension on TranslationsZhHant {
 			'organization.manage.archivedChannelSection' => '已封存頻道',
 			'organization.contactEntry.browserEntry' => '進入通訊錄',
 			'organization.contactEntry.loadFailed' => '企業資訊載入失敗',
+			'organization.hub.sectionResources' => '企業資源',
+			'organization.hub.sectionAdmin' => '管理員區',
+			'organization.hub.zoneMembers' => '成員',
+			'organization.hub.zoneMembersDesc' => '企業通訊錄 · 按部門瀏覽',
+			'organization.hub.zoneDepartments' => '部門',
+			'organization.hub.zoneDepartmentsDesc' => '部門目錄與層級',
+			'organization.hub.zoneGroups' => '群',
+			'organization.hub.zoneGroupsDesc' => '企業群 · 經企業管理查看',
+			'organization.hub.zoneChannels' => '頻道',
+			'organization.hub.zoneChannelsDesc' => '企業頻道 · 經企業管理查看',
+			'organization.hub.zoneTools' => '工具',
+			'organization.hub.zoneToolsDesc' => '工作區 · 項目與協作',
+			'organization.hub.adminMembers' => '成員治理',
+			'organization.hub.adminMembersDesc' => '角色調整 · 移除成員',
+			'organization.hub.adminInvitations' => '邀請管理',
+			'organization.hub.adminInvitationsDesc' => '邀請建立與撤銷',
+			'organization.hub.adminManage' => '企業管理',
+			'organization.hub.adminManageDesc' => '工作區 · 群 · 頻道治理',
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',

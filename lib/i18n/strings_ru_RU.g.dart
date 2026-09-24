@@ -2361,6 +2361,7 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$memberDetail$ru_RU memberDetail = _Translations$organization$memberDetail$ru_RU._(_root);
 	@override late final _Translations$organization$manage$ru_RU manage = _Translations$organization$manage$ru_RU._(_root);
 	@override late final _Translations$organization$contactEntry$ru_RU contactEntry = _Translations$organization$contactEntry$ru_RU._(_root);
+	@override late final _Translations$organization$hub$ru_RU hub = _Translations$organization$hub$ru_RU._(_root);
 }
 
 // Path: passport
@@ -3018,6 +3019,33 @@ class _Translations$organization$contactEntry$ru_RU extends Translations$organiz
 	// Translations
 	@override String get browserEntry => 'Открыть справочник';
 	@override String get loadFailed => 'Не удалось загрузить данные организации';
+}
+
+// Path: organization.hub
+class _Translations$organization$hub$ru_RU extends Translations$organization$hub$zh_CN {
+	_Translations$organization$hub$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionResources => 'Ресурсы организации';
+	@override String get sectionAdmin => 'Зона администратора';
+	@override String get zoneMembers => 'Участники';
+	@override String get zoneMembersDesc => 'Справочник · просмотр по отделам';
+	@override String get zoneDepartments => 'Отделы';
+	@override String get zoneDepartmentsDesc => 'Структура и каталог отделов';
+	@override String get zoneGroups => 'Группы';
+	@override String get zoneGroupsDesc => 'Группы организации · через консоль управления';
+	@override String get zoneChannels => 'Каналы';
+	@override String get zoneChannelsDesc => 'Каналы организации · через консоль управления';
+	@override String get zoneTools => 'Инструменты';
+	@override String get zoneToolsDesc => 'Рабочие пространства · проекты и совместная работа';
+	@override String get adminMembers => 'Управление участниками';
+	@override String get adminMembersDesc => 'Роли · удаление участников';
+	@override String get adminInvitations => 'Управление приглашениями';
+	@override String get adminInvitationsDesc => 'Создание и отзыв приглашений';
+	@override String get adminManage => 'Управление организацией';
+	@override String get adminManageDesc => 'Рабочие пространства · группы · каналы';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -5294,6 +5322,24 @@ extension on TranslationsRuRu {
 			'organization.manage.archivedChannelSection' => 'Архивные каналы',
 			'organization.contactEntry.browserEntry' => 'Открыть справочник',
 			'organization.contactEntry.loadFailed' => 'Не удалось загрузить данные организации',
+			'organization.hub.sectionResources' => 'Ресурсы организации',
+			'organization.hub.sectionAdmin' => 'Зона администратора',
+			'organization.hub.zoneMembers' => 'Участники',
+			'organization.hub.zoneMembersDesc' => 'Справочник · просмотр по отделам',
+			'organization.hub.zoneDepartments' => 'Отделы',
+			'organization.hub.zoneDepartmentsDesc' => 'Структура и каталог отделов',
+			'organization.hub.zoneGroups' => 'Группы',
+			'organization.hub.zoneGroupsDesc' => 'Группы организации · через консоль управления',
+			'organization.hub.zoneChannels' => 'Каналы',
+			'organization.hub.zoneChannelsDesc' => 'Каналы организации · через консоль управления',
+			'organization.hub.zoneTools' => 'Инструменты',
+			'organization.hub.zoneToolsDesc' => 'Рабочие пространства · проекты и совместная работа',
+			'organization.hub.adminMembers' => 'Управление участниками',
+			'organization.hub.adminMembersDesc' => 'Роли · удаление участников',
+			'organization.hub.adminInvitations' => 'Управление приглашениями',
+			'organization.hub.adminInvitationsDesc' => 'Создание и отзыв приглашений',
+			'organization.hub.adminManage' => 'Управление организацией',
+			'organization.hub.adminManageDesc' => 'Рабочие пространства · группы · каналы',
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',

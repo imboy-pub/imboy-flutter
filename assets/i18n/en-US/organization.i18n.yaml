@@ -257,3 +257,23 @@ manage:
 contactEntry:
   browserEntry: Open directory
   loadFailed: Failed to load organization info
+# ==================== ENT-APP-01 Organization hub (/organization/:orgId) ====================
+hub:
+  sectionResources: Organization resources
+  sectionAdmin: Admin area
+  zoneMembers: Members
+  zoneMembersDesc: Directory · browse by department
+  zoneDepartments: Departments
+  zoneDepartmentsDesc: Department directory and hierarchy
+  zoneGroups: Groups
+  zoneGroupsDesc: Org groups · via admin console
+  zoneChannels: Channels
+  zoneChannelsDesc: Org channels · via admin console
+  zoneTools: Tools
+  zoneToolsDesc: Workspaces · projects and collaboration
+  adminMembers: Member governance
+  adminMembersDesc: Roles · remove members
+  adminInvitations: Invitation management
+  adminInvitationsDesc: Create and revoke invitations
+  adminManage: Organization admin
+  adminManageDesc: Workspaces · groups · channels

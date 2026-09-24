@@ -257,3 +257,23 @@ manage:
 contactEntry:
   browserEntry: 進入通訊錄
   loadFailed: 企業資訊載入失敗
+# ==================== ENT-APP-01 組織聚合頁（/organization/:orgId） ====================
+hub:
+  sectionResources: 企業資源
+  sectionAdmin: 管理員區
+  zoneMembers: 成員
+  zoneMembersDesc: 企業通訊錄 · 按部門瀏覽
+  zoneDepartments: 部門
+  zoneDepartmentsDesc: 部門目錄與層級
+  zoneGroups: 群
+  zoneGroupsDesc: 企業群 · 經企業管理查看
+  zoneChannels: 頻道
+  zoneChannelsDesc: 企業頻道 · 經企業管理查看
+  zoneTools: 工具
+  zoneToolsDesc: 工作區 · 項目與協作
+  adminMembers: 成員治理
+  adminMembersDesc: 角色調整 · 移除成員
+  adminInvitations: 邀請管理
+  adminInvitationsDesc: 邀請建立與撤銷
+  adminManage: 企業管理
+  adminManageDesc: 工作區 · 群 · 頻道治理

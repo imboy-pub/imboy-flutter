@@ -2355,6 +2355,7 @@ class _Translations$organization$it_IT extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$memberDetail$it_IT memberDetail = _Translations$organization$memberDetail$it_IT._(_root);
 	@override late final _Translations$organization$manage$it_IT manage = _Translations$organization$manage$it_IT._(_root);
 	@override late final _Translations$organization$contactEntry$it_IT contactEntry = _Translations$organization$contactEntry$it_IT._(_root);
+	@override late final _Translations$organization$hub$it_IT hub = _Translations$organization$hub$it_IT._(_root);
 }
 
 // Path: passport
@@ -3012,6 +3013,33 @@ class _Translations$organization$contactEntry$it_IT extends Translations$organiz
 	// Translations
 	@override String get browserEntry => 'Apri rubrica';
 	@override String get loadFailed => 'Caricamento informazioni organizzazione non riuscito';
+}
+
+// Path: organization.hub
+class _Translations$organization$hub$it_IT extends Translations$organization$hub$zh_CN {
+	_Translations$organization$hub$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionResources => 'Risorse dell\'organizzazione';
+	@override String get sectionAdmin => 'Area admin';
+	@override String get zoneMembers => 'Membri';
+	@override String get zoneMembersDesc => 'Rubrica · sfoglia per reparto';
+	@override String get zoneDepartments => 'Reparti';
+	@override String get zoneDepartmentsDesc => 'Elenco e gerarchia dei reparti';
+	@override String get zoneGroups => 'Gruppi';
+	@override String get zoneGroupsDesc => 'Gruppi aziendali · via console di amministrazione';
+	@override String get zoneChannels => 'Canali';
+	@override String get zoneChannelsDesc => 'Canali aziendali · via console di amministrazione';
+	@override String get zoneTools => 'Strumenti';
+	@override String get zoneToolsDesc => 'Workspace · progetti e collaborazione';
+	@override String get adminMembers => 'Gestione membri';
+	@override String get adminMembersDesc => 'Ruoli · rimozione membri';
+	@override String get adminInvitations => 'Gestione inviti';
+	@override String get adminInvitationsDesc => 'Crea e revoca inviti';
+	@override String get adminManage => 'Amministrazione';
+	@override String get adminManageDesc => 'Workspace · gruppi · canali';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -5288,6 +5316,24 @@ extension on TranslationsItIt {
 			'organization.manage.archivedChannelSection' => 'Canali archiviati',
 			'organization.contactEntry.browserEntry' => 'Apri rubrica',
 			'organization.contactEntry.loadFailed' => 'Caricamento informazioni organizzazione non riuscito',
+			'organization.hub.sectionResources' => 'Risorse dell\'organizzazione',
+			'organization.hub.sectionAdmin' => 'Area admin',
+			'organization.hub.zoneMembers' => 'Membri',
+			'organization.hub.zoneMembersDesc' => 'Rubrica · sfoglia per reparto',
+			'organization.hub.zoneDepartments' => 'Reparti',
+			'organization.hub.zoneDepartmentsDesc' => 'Elenco e gerarchia dei reparti',
+			'organization.hub.zoneGroups' => 'Gruppi',
+			'organization.hub.zoneGroupsDesc' => 'Gruppi aziendali · via console di amministrazione',
+			'organization.hub.zoneChannels' => 'Canali',
+			'organization.hub.zoneChannelsDesc' => 'Canali aziendali · via console di amministrazione',
+			'organization.hub.zoneTools' => 'Strumenti',
+			'organization.hub.zoneToolsDesc' => 'Workspace · progetti e collaborazione',
+			'organization.hub.adminMembers' => 'Gestione membri',
+			'organization.hub.adminMembersDesc' => 'Ruoli · rimozione membri',
+			'organization.hub.adminInvitations' => 'Gestione inviti',
+			'organization.hub.adminInvitationsDesc' => 'Crea e revoca inviti',
+			'organization.hub.adminManage' => 'Amministrazione',
+			'organization.hub.adminManageDesc' => 'Workspace · gruppi · canali',
 			'passport.loginHistoryToggle' => 'Mostra cronologia accessi',
 			'passport.hintEmail' => 'Inserisci email',
 			'passport.hintMobile' => 'Inserisci numero di telefono',

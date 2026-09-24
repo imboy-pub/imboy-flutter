@@ -6667,6 +6667,7 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$memberDetail$zh_CN memberDetail = Translations$organization$memberDetail$zh_CN.internal(_root);
 	late final Translations$organization$manage$zh_CN manage = Translations$organization$manage$zh_CN.internal(_root);
 	late final Translations$organization$contactEntry$zh_CN contactEntry = Translations$organization$contactEntry$zh_CN.internal(_root);
+	late final Translations$organization$hub$zh_CN hub = Translations$organization$hub$zh_CN.internal(_root);
 }
 
 // Path: passport
@@ -8332,6 +8333,69 @@ class Translations$organization$contactEntry$zh_CN {
 
 	/// zh-CN: '企业信息加载失败'
 	String get loadFailed => '企业信息加载失败';
+}
+
+// Path: organization.hub
+class Translations$organization$hub$zh_CN {
+	Translations$organization$hub$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '企业资源'
+	String get sectionResources => '企业资源';
+
+	/// zh-CN: '管理员区'
+	String get sectionAdmin => '管理员区';
+
+	/// zh-CN: '成员'
+	String get zoneMembers => '成员';
+
+	/// zh-CN: '企业通讯录 · 按部门浏览'
+	String get zoneMembersDesc => '企业通讯录 · 按部门浏览';
+
+	/// zh-CN: '部门'
+	String get zoneDepartments => '部门';
+
+	/// zh-CN: '部门目录与层级'
+	String get zoneDepartmentsDesc => '部门目录与层级';
+
+	/// zh-CN: '群'
+	String get zoneGroups => '群';
+
+	/// zh-CN: '企业群 · 经企业管理查看'
+	String get zoneGroupsDesc => '企业群 · 经企业管理查看';
+
+	/// zh-CN: '频道'
+	String get zoneChannels => '频道';
+
+	/// zh-CN: '企业频道 · 经企业管理查看'
+	String get zoneChannelsDesc => '企业频道 · 经企业管理查看';
+
+	/// zh-CN: '工具'
+	String get zoneTools => '工具';
+
+	/// zh-CN: '工作区 · 项目与协作'
+	String get zoneToolsDesc => '工作区 · 项目与协作';
+
+	/// zh-CN: '成员治理'
+	String get adminMembers => '成员治理';
+
+	/// zh-CN: '角色调整 · 移除成员'
+	String get adminMembersDesc => '角色调整 · 移除成员';
+
+	/// zh-CN: '邀请管理'
+	String get adminInvitations => '邀请管理';
+
+	/// zh-CN: '邀请创建与撤销'
+	String get adminInvitationsDesc => '邀请创建与撤销';
+
+	/// zh-CN: '企业管理'
+	String get adminManage => '企业管理';
+
+	/// zh-CN: '工作区 · 群 · 频道治理'
+	String get adminManageDesc => '工作区 · 群 · 频道治理';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -10702,6 +10766,24 @@ extension on Translations {
 			'organization.manage.archivedChannelSection' => '已归档频道',
 			'organization.contactEntry.browserEntry' => '进入通讯录',
 			'organization.contactEntry.loadFailed' => '企业信息加载失败',
+			'organization.hub.sectionResources' => '企业资源',
+			'organization.hub.sectionAdmin' => '管理员区',
+			'organization.hub.zoneMembers' => '成员',
+			'organization.hub.zoneMembersDesc' => '企业通讯录 · 按部门浏览',
+			'organization.hub.zoneDepartments' => '部门',
+			'organization.hub.zoneDepartmentsDesc' => '部门目录与层级',
+			'organization.hub.zoneGroups' => '群',
+			'organization.hub.zoneGroupsDesc' => '企业群 · 经企业管理查看',
+			'organization.hub.zoneChannels' => '频道',
+			'organization.hub.zoneChannelsDesc' => '企业频道 · 经企业管理查看',
+			'organization.hub.zoneTools' => '工具',
+			'organization.hub.zoneToolsDesc' => '工作区 · 项目与协作',
+			'organization.hub.adminMembers' => '成员治理',
+			'organization.hub.adminMembersDesc' => '角色调整 · 移除成员',
+			'organization.hub.adminInvitations' => '邀请管理',
+			'organization.hub.adminInvitationsDesc' => '邀请创建与撤销',
+			'organization.hub.adminManage' => '企业管理',
+			'organization.hub.adminManageDesc' => '工作区 · 群 · 频道治理',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',
@@ -10892,6 +10974,8 @@ extension on Translations {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 到...',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流转到「${status}」',
 			'workspace.taskEmptyTitle' => '还没有任务',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskEmptySubtitle' => '用四态跟踪执行：待办 → 进行中 → 评审中 → 已完成',
 			'workspace.projectsLoadMore' => '加载更多',
 			'workspace.projectW2SectionTitle' => '项目协作',
@@ -10910,8 +10994,6 @@ extension on Translations {
 			'workspace.projectMemberInviteInvalidUid' => '请输入有效的用户 ID',
 			'workspace.projectMemberInviteSubmit' => '邀请',
 			'workspace.projectMemberInviteSuccess' => '已加入项目成员',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteExisting' => '该用户已是项目成员',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '移除项目成员 ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => '移除后该用户将失去此项目内容的访问（可重新邀请）',

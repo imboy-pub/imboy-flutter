@@ -257,3 +257,23 @@ manage:
 contactEntry:
   browserEntry: Verzeichnis öffnen
   loadFailed: Organisationsdaten konnten nicht geladen werden
+# ==================== ENT-APP-01 Organisations-Hub (/organization/:orgId) ====================
+hub:
+  sectionResources: Organisationsressourcen
+  sectionAdmin: Adminbereich
+  zoneMembers: Mitglieder
+  zoneMembersDesc: Verzeichnis · nach Abteilungen stöbern
+  zoneDepartments: Abteilungen
+  zoneDepartmentsDesc: Abteilungsverzeichnis und Hierarchie
+  zoneGroups: Gruppen
+  zoneGroupsDesc: Organisationsgruppen · über die Verwaltung
+  zoneChannels: Kanäle
+  zoneChannelsDesc: Organisationskanäle · über die Verwaltung
+  zoneTools: Werkzeuge
+  zoneToolsDesc: Workspaces · Projekte und Zusammenarbeit
+  adminMembers: Mitgliederverwaltung
+  adminMembersDesc: Rollen · Mitglieder entfernen
+  adminInvitations: Einladungsverwaltung
+  adminInvitationsDesc: Einladungen erstellen und widerrufen
+  adminManage: Organisationsverwaltung
+  adminManageDesc: Workspaces · Gruppen · Kanäle

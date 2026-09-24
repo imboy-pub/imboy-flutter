@@ -257,3 +257,23 @@ manage:
 contactEntry:
   browserEntry: アドレス帳を開く
   loadFailed: 組織情報の取得に失敗しました
+# ==================== ENT-APP-01 組織ハブ（/organization/:orgId） ====================
+hub:
+  sectionResources: 企業リソース
+  sectionAdmin: 管理者エリア
+  zoneMembers: メンバー
+  zoneMembersDesc: 企業アドレス帳 · 部門別に閲覧
+  zoneDepartments: 部門
+  zoneDepartmentsDesc: 部門ディレクトリと階層
+  zoneGroups: グループ
+  zoneGroupsDesc: 企業グループ · 企業管理から閲覧
+  zoneChannels: チャンネル
+  zoneChannelsDesc: 企業チャンネル · 企業管理から閲覧
+  zoneTools: ツール
+  zoneToolsDesc: ワークスペース · プロジェクトとコラボレーション
+  adminMembers: メンバー管理
+  adminMembersDesc: ロール調整 · メンバー削除
+  adminInvitations: 招待管理
+  adminInvitationsDesc: 招待作成と取り消し
+  adminManage: 企業管理
+  adminManageDesc: ワークスペース · グループ · チャンネル管理

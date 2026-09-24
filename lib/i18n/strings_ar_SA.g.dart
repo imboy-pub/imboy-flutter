@@ -2364,6 +2364,7 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$memberDetail$ar_SA memberDetail = _Translations$organization$memberDetail$ar_SA._(_root);
 	@override late final _Translations$organization$manage$ar_SA manage = _Translations$organization$manage$ar_SA._(_root);
 	@override late final _Translations$organization$contactEntry$ar_SA contactEntry = _Translations$organization$contactEntry$ar_SA._(_root);
+	@override late final _Translations$organization$hub$ar_SA hub = _Translations$organization$hub$ar_SA._(_root);
 }
 
 // Path: passport
@@ -3021,6 +3022,33 @@ class _Translations$organization$contactEntry$ar_SA extends Translations$organiz
 	// Translations
 	@override String get browserEntry => 'فتح الدليل';
 	@override String get loadFailed => 'فشل تحميل بيانات المؤسسة';
+}
+
+// Path: organization.hub
+class _Translations$organization$hub$ar_SA extends Translations$organization$hub$zh_CN {
+	_Translations$organization$hub$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionResources => 'موارد المؤسسة';
+	@override String get sectionAdmin => 'منطقة المسؤول';
+	@override String get zoneMembers => 'الأعضاء';
+	@override String get zoneMembersDesc => 'الدليل · استعراض حسب القسم';
+	@override String get zoneDepartments => 'الأقسام';
+	@override String get zoneDepartmentsDesc => 'دليل الأقسام والتسلسل';
+	@override String get zoneGroups => 'المجموعات';
+	@override String get zoneGroupsDesc => 'مجموعات المؤسسة · عبر إدارة المؤسسة';
+	@override String get zoneChannels => 'القنوات';
+	@override String get zoneChannelsDesc => 'قنوات المؤسسة · عبر إدارة المؤسسة';
+	@override String get zoneTools => 'الأدوات';
+	@override String get zoneToolsDesc => 'مساحات العمل · المشاريع والتعاون';
+	@override String get adminMembers => 'إدارة الأعضاء';
+	@override String get adminMembersDesc => 'الأدوار · إزالة الأعضاء';
+	@override String get adminInvitations => 'إدارة الدعوات';
+	@override String get adminInvitationsDesc => 'إنشاء الدعوات وإلغاؤها';
+	@override String get adminManage => 'إدارة المؤسسة';
+	@override String get adminManageDesc => 'مساحات العمل · المجموعات · القنوات';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -5297,6 +5325,24 @@ extension on TranslationsArSa {
 			'organization.manage.archivedChannelSection' => 'القنوات المؤرشفة',
 			'organization.contactEntry.browserEntry' => 'فتح الدليل',
 			'organization.contactEntry.loadFailed' => 'فشل تحميل بيانات المؤسسة',
+			'organization.hub.sectionResources' => 'موارد المؤسسة',
+			'organization.hub.sectionAdmin' => 'منطقة المسؤول',
+			'organization.hub.zoneMembers' => 'الأعضاء',
+			'organization.hub.zoneMembersDesc' => 'الدليل · استعراض حسب القسم',
+			'organization.hub.zoneDepartments' => 'الأقسام',
+			'organization.hub.zoneDepartmentsDesc' => 'دليل الأقسام والتسلسل',
+			'organization.hub.zoneGroups' => 'المجموعات',
+			'organization.hub.zoneGroupsDesc' => 'مجموعات المؤسسة · عبر إدارة المؤسسة',
+			'organization.hub.zoneChannels' => 'القنوات',
+			'organization.hub.zoneChannelsDesc' => 'قنوات المؤسسة · عبر إدارة المؤسسة',
+			'organization.hub.zoneTools' => 'الأدوات',
+			'organization.hub.zoneToolsDesc' => 'مساحات العمل · المشاريع والتعاون',
+			'organization.hub.adminMembers' => 'إدارة الأعضاء',
+			'organization.hub.adminMembersDesc' => 'الأدوار · إزالة الأعضاء',
+			'organization.hub.adminInvitations' => 'إدارة الدعوات',
+			'organization.hub.adminInvitationsDesc' => 'إنشاء الدعوات وإلغاؤها',
+			'organization.hub.adminManage' => 'إدارة المؤسسة',
+			'organization.hub.adminManageDesc' => 'مساحات العمل · المجموعات · القنوات',
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',
