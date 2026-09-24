@@ -341,13 +341,14 @@ class HumanDirectoryController extends ChangeNotifier {
   /// 两阶段 Organization 切换（§14.3）：
   /// 1. `prepare`：验 mine() membership 真源 + 目标 Org 的 Workspace 壳
   ///    加载（页面注入；失败抛异常）；
-  /// 2. `commit`：CurrentOrganizationStore 指针提交 + 缓存失效（页面注入）。
-  /// 任一步失败：旧 Org/数据原样保留，[switchError] 可重试；成功后整体
-  /// reconfigure 到目标 Org 根级。
+  /// 2. `commit`：CurrentOrganizationStore 指针提交 + 缓存失效（页面注入；
+  ///    支持 Future——store 持久化为先，失败抛出）。任一步失败：旧 Org/
+  ///    数据原样保留（页面负责补偿回滚指针后 rethrow），[switchError] 可
+  ///    重试；成功后整体 reconfigure 到目标 Org 根级。
   Future<void> switchOrganization(
     Organization target, {
     required Future<void> Function(Organization target) prepare,
-    required void Function(Organization target) commit,
+    required Future<void> Function(Organization target) commit,
   }) async {
     final id = _identity;
     if (id == null || _switching) return;
@@ -366,7 +367,7 @@ class HumanDirectoryController extends ChangeNotifier {
       return;
     }
     try {
-      commit(target);
+      await commit(target);
     } on Object catch (e) {
       // Phase 2 失败（§14.3：任一步失败保留旧 Org/Workspace/已有数据）：
       // 回调方负责把指针/缓存补偿回旧值后 rethrow；控制器保持旧 Org

@@ -480,7 +480,7 @@ void main() {
       await c.switchOrganization(
         const Organization(id: orgB, name: 'B 企业'),
         prepare: (target) async => throw Exception('mine 校验失败'),
-        commit: (target) => committed = true,
+        commit: (target) async => committed = true,
       );
 
       expect(committed, isFalse, reason: 'Phase 1 失败绝不提交指针');
@@ -496,7 +496,7 @@ void main() {
       await c.switchOrganization(
         const Organization(id: orgB, name: 'B 企业'),
         prepare: (target) async {},
-        commit: (target) => committed = true,
+        commit: (target) async => committed = true,
       );
       expect(committed, isTrue);
       expect(c.switchError, isNull);
@@ -518,7 +518,7 @@ void main() {
         const Organization(id: orgB, name: 'B 企业'),
         prepare: (target) async =>
             throw Exception('workspace shell load failed'),
-        commit: (target) => committed = true,
+        commit: (target) async => committed = true,
       );
       expect(committed, isFalse);
       expect(c.identity!.organizationId, orgA);
@@ -538,7 +538,7 @@ void main() {
       await c.switchOrganization(
         const Organization(id: orgB, name: 'B 企业'),
         prepare: (target) async {},
-        commit: (target) {
+        commit: (target) async {
           commitCalls++;
           // 模拟页面补偿后 rethrow（如 CurrentOrganizationStore 写失败）。
           throw Exception('store.set failed');
@@ -565,7 +565,7 @@ void main() {
       await c.switchOrganization(
         const Organization(id: orgB, name: 'B 企业'),
         prepare: (target) async {},
-        commit: (target) => commitCalls++,
+        commit: (target) async => commitCalls++,
       );
       expect(commitCalls, 2);
       expect(c.switchError, isNull);
@@ -582,7 +582,7 @@ void main() {
       await c.switchOrganization(
         const Organization(id: orgA, name: 'A 企业'),
         prepare: (target) async => prepareCalled = true,
-        commit: (target) {},
+        commit: (target) async {},
       );
       expect(prepareCalled, isFalse);
       expect(c.switchError, isNull);

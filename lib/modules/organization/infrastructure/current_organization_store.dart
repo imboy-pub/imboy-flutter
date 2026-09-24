@@ -57,11 +57,28 @@ class CurrentOrganizationStore {
   /// 指针变更监听（chip / WS picker 顶部企业行）。
   ValueListenable<Organization?> get listenable => _notifier;
 
-  /// 切换当前企业（内存 + 持久化）。
-  void set(Organization org) {
+  /// 切换当前企业（**先持久化后内存**——持久化失败时抛出且内存保持旧值，
+  /// 保证补偿路径看到一致的旧状态；调用方须 await）。
+  Future<void> set(Organization org) async {
+    await _write(org);
     _notifier.value = org;
-    StorageService.to.setString(
-      '$kCurrentOrgStoragePrefix$accountKey',
+  }
+
+  /// 补偿专用：恢复到先前任一指针值（[previous] 可为 null=清空指针）。
+  /// 与 [set] 同序（先持久化后内存），失败抛出、内存不变。
+  Future<void> restore(Organization? previous) async {
+    await _write(previous);
+    _notifier.value = previous;
+  }
+
+  Future<void> _write(Organization? org) async {
+    final key = '$kCurrentOrgStoragePrefix$accountKey';
+    if (org == null) {
+      await StorageService.to.remove(key);
+      return;
+    }
+    await StorageService.to.setString(
+      key,
       json.jsonEncode(<String, dynamic>{'id': org.id, 'name': org.name}),
     );
   }
