@@ -4,4 +4,5 @@ library;
 export 'domain/organization_models.dart';
 export 'infrastructure/organization_api.dart';
 export 'infrastructure/organization_cache.dart';
+export 'presentation/org_async_state.dart';
 export 'presentation/organization_routes.dart';
