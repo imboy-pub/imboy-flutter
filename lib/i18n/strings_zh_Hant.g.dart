@@ -2861,6 +2861,17 @@ class Translations$organization$departments$zh_Hant extends Translations$organiz
 	@override String get emptyWithHint => '尚無部門，點擊右上角新增';
 	@override String get empty => '尚無部門';
 	@override String get emptySubtitle => '兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。';
+	@override String get casConflictHint => '部門已被並發修改，已刷新為最新部門樹，請重試操作';
+	@override String expandNode({required Object name}) => '展開「${name}」';
+	@override String collapseNode({required Object name}) => '收起「${name}」';
+	@override String removeMemberUid({required Object userId}) => '移除成員 ${userId}';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => '將把成員 ${userId} 移出「${name}」。其組織成員資格與在其他部門的身份不受影響（兼任模型）。';
+	@override String get removeMemberFailed => '移除部門成員失敗';
+	@override String get confirmRemoveMember => '確認移除';
+	@override String setDeptAdmin({required Object userId}) => '設 ${userId} 為部門管理員';
+	@override String unsetDeptAdmin({required Object userId}) => '取消 ${userId} 的部門管理員';
+	@override String get setAdminFailed => '設置部門管理員失敗';
+	@override String get memberGovernActions => '成員治理操作';
 }
 
 // Path: organization.picker
@@ -5232,6 +5243,17 @@ extension on TranslationsZhHant {
 			'organization.departments.emptyWithHint' => '尚無部門，點擊右上角新增',
 			'organization.departments.empty' => '尚無部門',
 			'organization.departments.emptySubtitle' => '兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。',
+			'organization.departments.casConflictHint' => '部門已被並發修改，已刷新為最新部門樹，請重試操作',
+			'organization.departments.expandNode' => ({required Object name}) => '展開「${name}」',
+			'organization.departments.collapseNode' => ({required Object name}) => '收起「${name}」',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => '移除成員 ${userId}',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => '將把成員 ${userId} 移出「${name}」。其組織成員資格與在其他部門的身份不受影響（兼任模型）。',
+			'organization.departments.removeMemberFailed' => '移除部門成員失敗',
+			'organization.departments.confirmRemoveMember' => '確認移除',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => '設 ${userId} 為部門管理員',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => '取消 ${userId} 的部門管理員',
+			'organization.departments.setAdminFailed' => '設置部門管理員失敗',
+			'organization.departments.memberGovernActions' => '成員治理操作',
 			'organization.picker.title' => '切換企業',
 			'organization.picker.switchEnterprise' => '切換企業',
 			'organization.picker.switchFailed' => '切換失敗',

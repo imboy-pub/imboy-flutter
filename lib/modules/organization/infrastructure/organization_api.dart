@@ -368,29 +368,36 @@ class OrganizationApi extends HttpClient implements HumanDirectoryDataSource {
     return _unwrap(resp, OrganizationDepartment.fromJson);
   }
 
-  /// 改部门名（PATCH item）。
+  /// 改部门名（PATCH item）。[expectedVersion] = 出站行的 version（CAS
+  /// 乐观锁；后端强制要求正整数，不符 400，并发碰撞 409 conflict——
+  /// 调用方应刷新最新树后重试，见页面 `_runCommand` 的冲突分支）。
   Future<OrganizationDepartment> renameDepartment(
     EntityId orgId,
     EntityId departmentId, {
     required String name,
+    required String expectedVersion,
   }) async {
     final resp = await patch(
       '/api/v1/organizations/$orgId/departments/$departmentId',
-      data: {'name': name},
+      data: {'name': name, 'expected_version': expectedVersion},
     );
     return _unwrap(resp, OrganizationDepartment.fromJson);
   }
 
   /// 移动部门（换父 / 提为根；键名 `parent_id`，null = 根；服务端防成环
-  /// 409）。
+  /// 409 `{cycle}`；[expectedVersion] 同 [renameDepartment] 的 CAS 语义）。
   Future<OrganizationDepartment> moveDepartment(
     EntityId orgId,
     EntityId departmentId, {
     required EntityId newParentId,
+    required String expectedVersion,
   }) async {
     final resp = await post(
       '/api/v1/organizations/$orgId/departments/$departmentId/move',
-      data: {'parent_id': newParentId.isEmpty ? null : newParentId},
+      data: {
+        'parent_id': newParentId.isEmpty ? null : newParentId,
+        'expected_version': expectedVersion,
+      },
     );
     return _unwrap(resp, OrganizationDepartment.fromJson);
   }

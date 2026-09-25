@@ -594,12 +594,17 @@ void main() {
         200,
         okEnvelope(payload: {'id': 5, 'organization_id': orgId, 'name': '研发'}),
       );
-      await api.moveDepartment(orgId, '5', newParentId: '');
+      await api.moveDepartment(
+        orgId,
+        '5',
+        newParentId: '',
+        expectedVersion: '1',
+      );
       expectRequests(
         adapter,
         method: 'POST',
         path: '/api/v1/organizations/$orgId/departments/5/move',
-        body: {'parent_id': null},
+        body: {'parent_id': null, 'expected_version': '1'},
       );
     });
 
@@ -630,6 +635,156 @@ void main() {
       final (dept, members) = await api.departmentDetail(orgId, '5');
       expect(dept.name, '总部');
       expect(members.single.isAdmin, isTrue);
+    });
+
+    // ---- ENT-APP-05 部门治理闭包：removeMember / set·unsetAdmin / CAS ----
+    // 路由真源 = imboy_router department_member_item（DELETE）与
+    // department_member_admin（PUT，body {admin:bool}，set/unset 同端点）。
+
+    test('ENT-APP-05 removeDepartmentMember：DELETE item 路由', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'department_id': 5,
+            'user_id': 1002,
+            'result': 'removed',
+            'idempotent': false,
+          },
+        ),
+      );
+      final api = OrganizationApi();
+
+      await api.removeDepartmentMember(orgId, '5', '1002');
+
+      expectRequests(
+        adapter,
+        method: 'DELETE',
+        path: '/api/v1/organizations/$orgId/departments/5/members/1002',
+      );
+    });
+
+    test(
+      'ENT-APP-05 setDepartmentAdmin：PUT admin 路由（true/false 同端点）',
+      () async {
+        final adapter = useAdapter(200, okEnvelope());
+        final api = OrganizationApi();
+
+        await api.setDepartmentAdmin(orgId, '5', '1002', admin: true);
+        expectRequests(
+          adapter,
+          method: 'PUT',
+          path: '/api/v1/organizations/$orgId/departments/5/members/1002/admin',
+          body: {'admin': true},
+        );
+
+        // unset 同端点，仅 body 翻转——不存在独立 unset 路由。
+        adapter.requests.clear();
+        await api.setDepartmentAdmin(orgId, '5', '1002', admin: false);
+        expectRequests(
+          adapter,
+          method: 'PUT',
+          path: '/api/v1/organizations/$orgId/departments/5/members/1002/admin',
+          body: {'admin': false},
+        );
+      },
+    );
+
+    test('ENT-APP-05 rename/move 携带 expected_version（CAS 接通）', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(payload: {'id': 5, 'organization_id': orgId, 'name': '研发'}),
+      );
+      final api = OrganizationApi();
+
+      await api.renameDepartment(
+        orgId,
+        '5',
+        name: '研发中心',
+        expectedVersion: '3',
+      );
+      expectRequests(
+        adapter,
+        method: 'PATCH',
+        path: '/api/v1/organizations/$orgId/departments/5',
+        body: {'name': '研发中心', 'expected_version': '3'},
+      );
+
+      adapter.requests.clear();
+      adapter.respond(
+        200,
+        okEnvelope(payload: {'id': 5, 'organization_id': orgId, 'name': '研发'}),
+      );
+      await api.moveDepartment(
+        orgId,
+        '5',
+        newParentId: '7',
+        expectedVersion: '3',
+      );
+      expectRequests(
+        adapter,
+        method: 'POST',
+        path: '/api/v1/organizations/$orgId/departments/5/move',
+        body: {'parent_id': '7', 'expected_version': '3'},
+      );
+    });
+
+    test('ENT-APP-05 移到自身/子孙：409 cycle → isConflict（错误态透传）', () async {
+      useAdapter(409, {'code': 409, 'msg': '部门层级禁止成环'});
+      final api = OrganizationApi();
+
+      await expectLater(
+        api.moveDepartment(orgId, '5', newParentId: '8', expectedVersion: '3'),
+        throwsA(
+          isA<OrganizationApiException>()
+              .having((e) => e.isConflict, 'isConflict', isTrue)
+              .having((e) => e.message, 'message', contains('成环')),
+        ),
+      );
+    });
+
+    test(
+      'ENT-APP-05 旧 version CAS 不符：409 conflict → isConflict（刷新重试）',
+      () async {
+        useAdapter(409, {'code': 409, 'msg': '部门已被并发修改，请刷新版本后重试'});
+        final api = OrganizationApi();
+
+        await expectLater(
+          api.renameDepartment(orgId, '5', name: '新名', expectedVersion: '1'),
+          throwsA(
+            isA<OrganizationApiException>()
+                .having((e) => e.isConflict, 'isConflict', isTrue)
+                .having((e) => e.message, 'message', contains('并发修改')),
+          ),
+        );
+      },
+    );
+
+    test('ENT-APP-05 非授权者治理成员：403 actor_not_permitted → isForbidden', () async {
+      useAdapter(403, {'code': 403, 'msg': '无权执行该部门操作'});
+      final api = OrganizationApi();
+
+      await expectLater(
+        api.removeDepartmentMember(orgId, '5', '1002'),
+        throwsA(
+          isA<OrganizationApiException>().having(
+            (e) => e.isForbidden,
+            'isForbidden',
+            isTrue,
+          ),
+        ),
+      );
+
+      await expectLater(
+        api.setDepartmentAdmin(orgId, '5', '1002', admin: true),
+        throwsA(
+          isA<OrganizationApiException>().having(
+            (e) => e.isForbidden,
+            'isForbidden',
+            isTrue,
+          ),
+        ),
+      );
     });
   });
 

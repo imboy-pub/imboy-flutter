@@ -7994,6 +7994,39 @@ class Translations$organization$departments$zh_CN {
 
 	/// zh-CN: '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。'
 	String get emptySubtitle => '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。';
+
+	/// zh-CN: '部门已被并发修改，已刷新为最新部门树，请重试操作'
+	String get casConflictHint => '部门已被并发修改，已刷新为最新部门树，请重试操作';
+
+	/// zh-CN: '展开「${name}」'
+	String expandNode({required Object name}) => '展开「${name}」';
+
+	/// zh-CN: '收起「${name}」'
+	String collapseNode({required Object name}) => '收起「${name}」';
+
+	/// zh-CN: '移除成员 ${userId}'
+	String removeMemberUid({required Object userId}) => '移除成员 ${userId}';
+
+	/// zh-CN: '将把成员 ${userId} 移出「${name}」。其组织成员资格与在其他部门的身份不受影响（兼职模型）。'
+	String removeMemberConfirm({required Object userId, required Object name}) => '将把成员 ${userId} 移出「${name}」。其组织成员资格与在其他部门的身份不受影响（兼职模型）。';
+
+	/// zh-CN: '移除部门成员失败'
+	String get removeMemberFailed => '移除部门成员失败';
+
+	/// zh-CN: '确认移除'
+	String get confirmRemoveMember => '确认移除';
+
+	/// zh-CN: '设 ${userId} 为部门管理员'
+	String setDeptAdmin({required Object userId}) => '设 ${userId} 为部门管理员';
+
+	/// zh-CN: '取消 ${userId} 的部门管理员'
+	String unsetDeptAdmin({required Object userId}) => '取消 ${userId} 的部门管理员';
+
+	/// zh-CN: '设置部门管理员失败'
+	String get setAdminFailed => '设置部门管理员失败';
+
+	/// zh-CN: '成员治理操作'
+	String get memberGovernActions => '成员治理操作';
 }
 
 // Path: organization.picker
@@ -10713,6 +10746,17 @@ extension on Translations {
 			'organization.departments.emptyWithHint' => '暂无部门，点击右上角新建',
 			'organization.departments.empty' => '暂无部门',
 			'organization.departments.emptySubtitle' => '兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。',
+			'organization.departments.casConflictHint' => '部门已被并发修改，已刷新为最新部门树，请重试操作',
+			'organization.departments.expandNode' => ({required Object name}) => '展开「${name}」',
+			'organization.departments.collapseNode' => ({required Object name}) => '收起「${name}」',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => '移除成员 ${userId}',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => '将把成员 ${userId} 移出「${name}」。其组织成员资格与在其他部门的身份不受影响（兼职模型）。',
+			'organization.departments.removeMemberFailed' => '移除部门成员失败',
+			'organization.departments.confirmRemoveMember' => '确认移除',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => '设 ${userId} 为部门管理员',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => '取消 ${userId} 的部门管理员',
+			'organization.departments.setAdminFailed' => '设置部门管理员失败',
+			'organization.departments.memberGovernActions' => '成员治理操作',
 			'organization.picker.title' => '切换企业',
 			'organization.picker.switchEnterprise' => '切换企业',
 			'organization.picker.switchFailed' => '切换失败',
@@ -11005,6 +11049,8 @@ extension on Translations {
 			'workspace.projectStatusActive' => '进行中',
 			'workspace.projectStatusDone' => '已完成',
 			'workspace.projectMarkDone' => '标记为已完成',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectReopen' => '重新开启项目',
 			'workspace.projectStatusChanged' => '项目状态已更新',
 			'workspace.projectTasksSection' => '任务',
@@ -11016,8 +11062,6 @@ extension on Translations {
 			'workspace.taskAssigneeLabel' => '负责人（工作区成员）',
 			'workspace.taskAssigneeNone' => '暂不指派',
 			'workspace.taskAssigneeRefresh' => '刷新负责人候选',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskSubmitCreate' => '创建任务',
 			'workspace.taskSubmitSave' => '保存',
 			'workspace.taskCreatedToast' => '任务已创建',

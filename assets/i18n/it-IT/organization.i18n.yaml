@@ -151,6 +151,17 @@ departments:
   emptyWithHint: "Nessun dipartimento: tocca in alto a destra per crearne uno"
   empty: "Nessun dipartimento"
   emptySubtitle: "Modello di appartenenza multipla: uno stesso membro può appartenere a più dipartimenti; i membri di un dipartimento devono prima essere membri di questa organizzazione."
+  casConflictHint: Il dipartimento è stato modificato contemporaneamente; l'albero più recente è stato ricaricato, riprova.
+  expandNode: "Espandi \"${name}\""
+  collapseNode: "Comprimi \"${name}\""
+  removeMemberUid: "Rimuovi il membro ${userId}"
+  removeMemberConfirm: "Il membro ${userId} sarà rimosso da \"${name}\". La sua adesione all'organizzazione e i ruoli negli altri dipartimenti non sono interessati (modello di appartenenza multipla)."
+  removeMemberFailed: Rimozione del membro dal dipartimento non riuscita
+  confirmRemoveMember: "Conferma rimozione"
+  setDeptAdmin: "Imposta ${userId} come amministratore del dipartimento"
+  unsetDeptAdmin: "Revoca l'amministratore del dipartimento a ${userId}"
+  setAdminFailed: Impostazione dell'amministratore del dipartimento non riuscita
+  memberGovernActions: Azioni di governance dei membri
 # ==================== GZAPP-04 G9: selettore azienda (cambia/partecipa) ====================
 picker:
   title: "Cambia azienda"

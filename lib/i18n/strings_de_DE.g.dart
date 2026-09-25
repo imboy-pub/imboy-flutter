@@ -2864,6 +2864,17 @@ class _Translations$organization$departments$de_DE extends Translations$organiza
 	@override String get emptyWithHint => 'Noch keine Abteilungen – erstelle oben rechts eine';
 	@override String get empty => 'Keine Abteilungen';
 	@override String get emptySubtitle => 'Mehrfachmitgliedschaft: Ein Mitglied kann mehreren Abteilungen angehören; Abteilungsmitglieder müssen zuerst Mitglieder dieser Organisation sein.';
+	@override String get casConflictHint => 'Die Abteilung wurde gleichzeitig geändert; der neueste Baum wurde aktualisiert, bitte erneut versuchen.';
+	@override String expandNode({required Object name}) => '"${name}" ausklappen';
+	@override String collapseNode({required Object name}) => '"${name}" einklappen';
+	@override String removeMemberUid({required Object userId}) => 'Mitglied ${userId} entfernen';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => 'Mitglied ${userId} wird aus "${name}" entfernt. Die Organisationsmitgliedschaft und Rollen in anderen Abteilungen bleiben unberührt (Mehrfachmitgliedschaft).';
+	@override String get removeMemberFailed => 'Entfernen des Abteilungsmitglieds fehlgeschlagen';
+	@override String get confirmRemoveMember => 'Entfernen bestätigen';
+	@override String setDeptAdmin({required Object userId}) => '${userId} zum Abteilungsadmin ernennen';
+	@override String unsetDeptAdmin({required Object userId}) => 'Abteilungsadmin-Rechte von ${userId} entziehen';
+	@override String get setAdminFailed => 'Festlegen des Abteilungsadmins fehlgeschlagen';
+	@override String get memberGovernActions => 'Mitgliedsverwaltungsaktionen';
 }
 
 // Path: organization.picker
@@ -5235,6 +5246,17 @@ extension on TranslationsDeDe {
 			'organization.departments.emptyWithHint' => 'Noch keine Abteilungen – erstelle oben rechts eine',
 			'organization.departments.empty' => 'Keine Abteilungen',
 			'organization.departments.emptySubtitle' => 'Mehrfachmitgliedschaft: Ein Mitglied kann mehreren Abteilungen angehören; Abteilungsmitglieder müssen zuerst Mitglieder dieser Organisation sein.',
+			'organization.departments.casConflictHint' => 'Die Abteilung wurde gleichzeitig geändert; der neueste Baum wurde aktualisiert, bitte erneut versuchen.',
+			'organization.departments.expandNode' => ({required Object name}) => '"${name}" ausklappen',
+			'organization.departments.collapseNode' => ({required Object name}) => '"${name}" einklappen',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => 'Mitglied ${userId} entfernen',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => 'Mitglied ${userId} wird aus "${name}" entfernt. Die Organisationsmitgliedschaft und Rollen in anderen Abteilungen bleiben unberührt (Mehrfachmitgliedschaft).',
+			'organization.departments.removeMemberFailed' => 'Entfernen des Abteilungsmitglieds fehlgeschlagen',
+			'organization.departments.confirmRemoveMember' => 'Entfernen bestätigen',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => '${userId} zum Abteilungsadmin ernennen',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => 'Abteilungsadmin-Rechte von ${userId} entziehen',
+			'organization.departments.setAdminFailed' => 'Festlegen des Abteilungsadmins fehlgeschlagen',
+			'organization.departments.memberGovernActions' => 'Mitgliedsverwaltungsaktionen',
 			'organization.picker.title' => 'Unternehmen wechseln',
 			'organization.picker.switchEnterprise' => 'Unternehmen wechseln',
 			'organization.picker.switchFailed' => 'Wechsel fehlgeschlagen',

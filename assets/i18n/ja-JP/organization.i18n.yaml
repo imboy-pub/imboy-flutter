@@ -151,6 +151,17 @@ departments:
   emptyWithHint: "部門がありません。右上から作成してください"
   empty: "部門がありません"
   emptySubtitle: "兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。"
+  casConflictHint: 部門が他の操作により変更されたため、最新の部門ツリーを再読み込みしました。もう一度お試しください。
+  expandNode: "「${name}」を展開"
+  collapseNode: "「${name}」を折りたたむ"
+  removeMemberUid: "メンバー ${userId} を削除"
+  removeMemberConfirm: "メンバー ${userId} を「${name}」から外します。組織メンバーシップおよび他部門での身份には影響しません（兼任モデル）。"
+  removeMemberFailed: 部門メンバーの削除に失敗しました
+  confirmRemoveMember: "削除を確認"
+  setDeptAdmin: "${userId} を部門管理者に設定"
+  unsetDeptAdmin: "${userId} の部門管理者を解除"
+  setAdminFailed: 部門管理者の設定に失敗しました
+  memberGovernActions: メンバー治理操作
 # ==================== GZAPP-04 G9：企業セレクター（切り替え/参加） ====================
 picker:
   title: "企業を切り替え"

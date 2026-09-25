@@ -2864,6 +2864,17 @@ class _Translations$organization$departments$fr_FR extends Translations$organiza
 	@override String get emptyWithHint => 'Aucun département — créez-en un en haut à droite';
 	@override String get empty => 'Aucun département';
 	@override String get emptySubtitle => 'Modèle multi-appartenance : un même membre peut appartenir à plusieurs départements ; les membres d\'un département doivent d\'abord être membres de cette organisation.';
+	@override String get casConflictHint => 'Le département a été modifié simultanément ; l\'arborescence la plus récente a été rechargée, veuillez réessayer.';
+	@override String expandNode({required Object name}) => 'Déplier "${name}"';
+	@override String collapseNode({required Object name}) => 'Replier "${name}"';
+	@override String removeMemberUid({required Object userId}) => 'Retirer le membre ${userId}';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => 'Le membre ${userId} sera retiré de "${name}". Son adhésion à l\'organisation et ses rôles dans les autres départements ne sont pas affectés (modèle multi-appartenance).';
+	@override String get removeMemberFailed => 'Échec du retrait du membre du département';
+	@override String get confirmRemoveMember => 'Confirmer le retrait';
+	@override String setDeptAdmin({required Object userId}) => 'Définir ${userId} comme admin du département';
+	@override String unsetDeptAdmin({required Object userId}) => 'Retirer le rôle d\'admin de département à ${userId}';
+	@override String get setAdminFailed => 'Échec de la définition de l\'admin du département';
+	@override String get memberGovernActions => 'Actions de gouvernance des membres';
 }
 
 // Path: organization.picker
@@ -5235,6 +5246,17 @@ extension on TranslationsFrFr {
 			'organization.departments.emptyWithHint' => 'Aucun département — créez-en un en haut à droite',
 			'organization.departments.empty' => 'Aucun département',
 			'organization.departments.emptySubtitle' => 'Modèle multi-appartenance : un même membre peut appartenir à plusieurs départements ; les membres d\'un département doivent d\'abord être membres de cette organisation.',
+			'organization.departments.casConflictHint' => 'Le département a été modifié simultanément ; l\'arborescence la plus récente a été rechargée, veuillez réessayer.',
+			'organization.departments.expandNode' => ({required Object name}) => 'Déplier "${name}"',
+			'organization.departments.collapseNode' => ({required Object name}) => 'Replier "${name}"',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => 'Retirer le membre ${userId}',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => 'Le membre ${userId} sera retiré de "${name}". Son adhésion à l\'organisation et ses rôles dans les autres départements ne sont pas affectés (modèle multi-appartenance).',
+			'organization.departments.removeMemberFailed' => 'Échec du retrait du membre du département',
+			'organization.departments.confirmRemoveMember' => 'Confirmer le retrait',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => 'Définir ${userId} comme admin du département',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => 'Retirer le rôle d\'admin de département à ${userId}',
+			'organization.departments.setAdminFailed' => 'Échec de la définition de l\'admin du département',
+			'organization.departments.memberGovernActions' => 'Actions de gouvernance des membres',
 			'organization.picker.title' => 'Changer d\'entreprise',
 			'organization.picker.switchEnterprise' => 'Changer d\'entreprise',
 			'organization.picker.switchFailed' => 'Échec du changement',

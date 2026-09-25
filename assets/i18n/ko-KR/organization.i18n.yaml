@@ -151,6 +151,17 @@ departments:
   emptyWithHint: "부서가 없습니다. 오른쪽 위에서 만들어 보세요"
   empty: "부서가 없습니다"
   emptySubtitle: "겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다."
+  casConflictHint: 부서가 동시에 수정되어 최신 부서 트리로 새로고침되었습니다. 다시 시도해 주세요.
+  expandNode: "\"${name}\" 펼치기"
+  collapseNode: "\"${name}\" 접기"
+  removeMemberUid: "멤버 ${userId} 제거"
+  removeMemberConfirm: "멤버 ${userId}를 \"${name}\"에서 제외합니다. 조직 멤버 자격과 다른 부서에서의 신분은 영향을 받지 않습니다(겸직 모델)."
+  removeMemberFailed: 부서 멤버 제거 실패
+  confirmRemoveMember: "제거 확인"
+  setDeptAdmin: "${userId}을(를) 부서 관리자로 설정"
+  unsetDeptAdmin: "${userId}의 부서 관리자 해제"
+  setAdminFailed: 부서 관리자 설정 실패
+  memberGovernActions: 멤버 거버넌스 작업
 # ==================== GZAPP-04 G9: 기업 선택기(전환/가입) ====================
 picker:
   title: "기업 전환"

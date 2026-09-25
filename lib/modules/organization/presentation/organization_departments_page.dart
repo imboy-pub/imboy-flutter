@@ -1,15 +1,27 @@
-/// 部门目录页（ORG-04）：树形浏览 · 详情（含成员）· 管理操作。
+/// 部门目录页（ORG-04 / ENT-APP-05 生产闭包）：树形浏览 · 详情（含成员
+/// 治理）· 管理操作。
 ///
 /// 兼职模型：一人可属多部门；部门 membership 与 Workspace membership
 /// 完全独立。管理操作（建/改名/移动/归档/加减成员/局部 admin）入口按
 /// 我的组织角色做**入口隐藏**（owner/admin 全量可见；member 仍可浏览
 /// 列表——服务端读面与写面同基线：仅限本组织在职成员，非成员/已离场
 /// 一律 403，门先于存在性判定）。
+///
+/// ENT-APP-05 增量：
+/// - 部门详情成员列表接通治理面（removeMember / set·unsetAdmin，
+///   后端既有路由 `DELETE members/:uid` 与 `PUT members/:uid/admin`）；
+///   成员行治理入口经 [PermissionGate] hide——org owner/admin 或**本
+///   部门现任 admin** 可见（镜像服务端 is_dept_privileged 授权口径，
+///   客户端预隐藏只是体验优化，服务端 403 仍是唯一裁决）；
+/// - rename/move 携带 `expected_version`（CAS 乐观锁，后端强制）；
+///   409 conflict → 提示并发冲突并刷新最新树（不静默重试）；
+/// - 移到自身/子孙 = 服务端 409 cycle，错误态透传展示（不本地预判）。
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
+import 'package:imboy/component/ui/permission_gate.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
@@ -107,11 +119,17 @@ class _OrganizationDepartmentsPageState
       if (!mounted) return;
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
-          content: Text(
-            e.isForbidden
-                ? t.organization.common.forbidden403
-                : '$failureTitle：${e.message} (${e.code})',
-          ),
+          content: Text(switch (e.code) {
+            // CAS 并发碰撞（expected_version 不符）：不静默重试——提示
+            // 冲突，随后本方法末尾的 _refresh 已把本地树刷成服务端最
+            // 新事实，用户基于新 version 重试即可。文案锚点 = 后端
+            // map_dept_error(conflict) 冻结的「部门已被并发修改」；
+            // 其余 409（cycle 成环等）是操作错误，透传 wire message。
+            409 when e.message.contains('并发修改') =>
+              t.organization.departments.casConflictHint,
+            403 => t.organization.common.forbidden403,
+            _ => '$failureTitle：${e.message} (${e.code})',
+          }),
         ),
       );
     }
@@ -130,13 +148,24 @@ class _OrganizationDepartmentsPageState
           left: AppSpacing.regular + depth * AppSpacing.xLarge,
           right: AppSpacing.regular,
         ),
-        leading: Icon(
-          hasChildren
-              ? (expanded
-                    ? CupertinoIcons.folder_open
-                    : CupertinoIcons.folder_fill)
-              : CupertinoIcons.folder,
-        ),
+        leading: hasChildren
+            ? Semantics(
+                button: true,
+                label: expanded
+                    ? t.organization.departments.collapseNode(name: d.name)
+                    : t.organization.departments.expandNode(name: d.name),
+                child: IconButton(
+                  icon: Icon(
+                    expanded
+                        ? CupertinoIcons.folder_open
+                        : CupertinoIcons.folder_fill,
+                  ),
+                  onPressed: () => setState(() {
+                    expanded ? _expanded.remove(d.id) : _expanded.add(d.id);
+                  }),
+                ),
+              )
+            : const Icon(CupertinoIcons.folder),
         title: Text(d.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(
           d.isArchived
@@ -154,7 +183,9 @@ class _OrganizationDepartmentsPageState
                 onPressed: () => _deptActions(d),
               )
             : null,
-        onTap: () => _openDeptDetail(d),
+        // 行点击一律进详情（含成员治理面）；有子部门的部门同样可达——
+        // 展开切换收窄到 leading 图标，不再吞掉行点击。
+        onTap: () => _openDeptDetail(d.id),
       );
       if (hasChildren && expanded) {
         yield* _buildNodes(d.id, depth + 1);
@@ -162,72 +193,18 @@ class _OrganizationDepartmentsPageState
     }
   }
 
-  Future<void> _openDeptDetail(OrganizationDepartment d) async {
-    if (_childrenOf(d.id).isNotEmpty) {
-      setState(() {
-        _expanded.contains(d.id) ? _expanded.remove(d.id) : _expanded.add(d.id);
-      });
-      return;
-    }
-    try {
-      final (dept, members) = await _api.departmentDetail(widget.orgId, d.id);
-      if (!mounted) return;
-      await showModalBottomSheet<void>(
-        context: context,
-        builder: (ctx) => SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              ListTile(
-                title: Text(dept.name),
-                subtitle: Text(
-                  t.organization.departments.statusLine(
-                    status: orgStatusLabel(dept.status),
-                  ),
-                ),
-              ),
-              const Divider(),
-              if (members.isEmpty)
-                ListTile(title: Text(t.organization.common.noMembers))
-              else
-                for (final m in members)
-                  ListTile(
-                    dense: true,
-                    leading: Icon(
-                      m.isAdmin ? CupertinoIcons.shield : CupertinoIcons.person,
-                    ),
-                    title: Text(
-                      t.organization.departments.memberUidLine(
-                        userId: m.userId,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-            ],
-          ),
-        ),
-      );
-    } on OrganizationApiException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(
-          content: Text(
-            e.isForbidden
-                ? t.organization.departments.viewForbiddenDetail
-                : t.organization.departments.loadFailedWith(
-                    msg: e.message,
-                    code: e.code,
-                  ),
-          ),
-        ),
-      );
-    } on Object catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(content: Text(t.organization.departments.loadFailed(err: e))),
-      );
-    }
+  Future<void> _openDeptDetail(EntityId departmentId) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => _DeptDetailSheet(
+        orgId: widget.orgId,
+        departmentId: departmentId,
+        orgCanGovern: _canGovern,
+        myUid: _accountKey,
+        onGoverned: _refresh,
+      ),
+    );
   }
 
   Future<void> _deptActions(OrganizationDepartment d) async {
@@ -316,7 +293,12 @@ class _OrganizationDepartmentsPageState
     );
     if (name == null) return;
     await _runCommand(
-      () => _api.renameDepartment(widget.orgId, d.id, name: name),
+      () => _api.renameDepartment(
+        widget.orgId,
+        d.id,
+        name: name,
+        expectedVersion: d.version,
+      ),
       t.organization.departments.renameFailed,
     );
   }
@@ -329,7 +311,12 @@ class _OrganizationDepartmentsPageState
     );
     if (target == null) return;
     await _runCommand(
-      () => _api.moveDepartment(widget.orgId, d.id, newParentId: target),
+      () => _api.moveDepartment(
+        widget.orgId,
+        d.id,
+        newParentId: target,
+        expectedVersion: d.version,
+      ),
       t.organization.departments.moveFailed,
     );
   }
@@ -433,6 +420,289 @@ class _OrganizationDepartmentsPageState
                 ),
               ),
             ),
+    );
+  }
+}
+
+/// 部门详情底部弹层（ENT-APP-05）：部门行 + 成员列表 + 成员治理面。
+///
+/// 治理授权口径镜像服务端 `is_dept_privileged`：org owner/admin **或**
+/// 本部门现任 admin 可执行成员治理（移除/设·取消局部管理员）；
+/// 普通成员只见只读列表（[PermissionGate] hide）。服务端 403 仍是
+/// 唯一裁决——预隐藏入口只做体验优化。
+class _DeptDetailSheet extends StatefulWidget {
+  const _DeptDetailSheet({
+    required this.orgId,
+    required this.departmentId,
+    required this.orgCanGovern,
+    required this.myUid,
+    required this.onGoverned,
+  });
+
+  final EntityId orgId;
+  final EntityId departmentId;
+  final bool orgCanGovern;
+
+  /// 当前账号 UID（部门局部 admin 判定用）。
+  final EntityId myUid;
+
+  /// 任一治理命令成功后的外部树刷新回调。
+  final VoidCallback onGoverned;
+
+  @override
+  State<_DeptDetailSheet> createState() => _DeptDetailSheetState();
+}
+
+class _DeptDetailSheetState extends State<_DeptDetailSheet> {
+  final OrganizationApi _api = OrganizationApi();
+
+  OrganizationDepartment? _dept;
+  List<DepartmentMember> _members = const [];
+  bool _loading = false;
+  String? _error;
+
+  /// 读面 403（非本组织在职成员）→ 权限终态。
+  bool _forbidden = false;
+
+  /// 我是否本部门现任 admin（服务端事实，随 detail 响应刷新）。
+  bool get _iAmDeptAdmin =>
+      _members.any((m) => m.userId == widget.myUid && m.isAdmin);
+
+  /// 成员治理可见性：org owner/admin 或本部门现任 admin。
+  bool get _canGovernMembers => widget.orgCanGovern || _iAmDeptAdmin;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+      _forbidden = false;
+    });
+    try {
+      final (dept, members) = await _api.departmentDetail(
+        widget.orgId,
+        widget.departmentId,
+      );
+      if (!mounted) return;
+      setState(() {
+        _dept = dept;
+        _members = members;
+      });
+    } on OrganizationApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _forbidden = e.isForbidden;
+        _error = e.isForbidden ? null : e.message;
+      });
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _runMemberCommand(
+    String loadingTitle,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } on OrganizationApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text(
+            e.isForbidden
+                ? t.organization.common.forbidden403
+                : '$loadingTitle：${e.message} (${e.code})',
+          ),
+        ),
+      );
+    }
+    // 成功与失败都重读事实：治理后的成员表/局部 admin 标记以服务端
+    // 为准；外部树（缓存）同步刷新。
+    await _load();
+    widget.onGoverned();
+  }
+
+  Future<void> _memberActions(DepartmentMember m) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // archived 部门：移除成员仍放行（离开失效目录属清理事），
+            // 设/取消 admin 拒绝（archived 禁新写）——镜像服务端闸门。
+            ListTile(
+              leading: const Icon(
+                CupertinoIcons.person_crop_circle_badge_minus,
+              ),
+              title: Text(
+                t.organization.departments.removeMemberUid(userId: m.userId),
+              ),
+              onTap: () => Navigator.of(ctx).pop('remove'),
+            ),
+            if (_dept?.isArchived != true)
+              ListTile(
+                leading: Icon(
+                  m.isAdmin
+                      ? CupertinoIcons.shield_lefthalf_fill
+                      : CupertinoIcons.shield,
+                ),
+                title: Text(
+                  m.isAdmin
+                      ? t.organization.departments.unsetDeptAdmin(
+                          userId: m.userId,
+                        )
+                      : t.organization.departments.setDeptAdmin(
+                          userId: m.userId,
+                        ),
+                ),
+                onTap: () => Navigator.of(ctx).pop('toggle-admin'),
+              ),
+          ],
+        ),
+      ),
+    );
+    switch (action) {
+      case 'remove':
+        if (!mounted) return;
+        final ok = await orgConfirmDangerAction(
+          context,
+          title: t.organization.departments.removeMemberUid(userId: m.userId),
+          consequence: t.organization.departments.removeMemberConfirm(
+            userId: m.userId,
+            name: _dept?.name ?? '',
+          ),
+          confirmText: t.organization.departments.confirmRemoveMember,
+        );
+        if (ok) {
+          await _runMemberCommand(
+            t.organization.departments.removeMemberFailed,
+            () => _api.removeDepartmentMember(
+              widget.orgId,
+              widget.departmentId,
+              m.userId,
+            ),
+          );
+        }
+      case 'toggle-admin':
+        await _runMemberCommand(
+          t.organization.departments.setAdminFailed,
+          () => _api.setDepartmentAdmin(
+            widget.orgId,
+            widget.departmentId,
+            m.userId,
+            admin: !m.isAdmin,
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dept = _dept;
+    return SafeArea(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.7,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (dept != null)
+              ListTile(
+                leading: const Icon(CupertinoIcons.folder),
+                title: Text(dept.name),
+                subtitle: Text(
+                  t.organization.departments.statusLine(
+                    status: orgStatusLabel(dept.status),
+                  ),
+                ),
+              ),
+            const Divider(height: 1),
+            if (_forbidden)
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.regular),
+                child: Text(t.organization.departments.viewForbiddenDetail),
+              )
+            else if (_loading && dept == null)
+              const Padding(
+                padding: EdgeInsets.all(AppSpacing.regular),
+                child: CircularProgressIndicator(),
+              )
+            else if (_error != null)
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.regular),
+                child: Text(
+                  t.organization.departments.loadFailedWith(
+                    msg: _error ?? '',
+                    code: 0,
+                  ),
+                ),
+              )
+            else
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    if (_members.isEmpty)
+                      ListTile(
+                        dense: true,
+                        title: Text(t.organization.common.noMembers),
+                      )
+                    else
+                      for (final m in _members)
+                        ListTile(
+                          dense: true,
+                          leading: Icon(
+                            m.isAdmin
+                                ? CupertinoIcons.shield_fill
+                                : CupertinoIcons.person,
+                          ),
+                          title: Text(
+                            t.organization.departments.memberUidLine(
+                              userId: m.userId,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          // 治理入口分层：org owner/admin 或本部门现任
+                          // admin 可见；member 不可见（服务端 403 兜底）。
+                          trailing: PermissionGate(
+                            check: () => _canGovernMembers,
+                            behavior: PermissionGateBehavior.hide,
+                            child: IconButton(
+                              icon: Icon(
+                                CupertinoIcons.ellipsis,
+                                semanticLabel: t
+                                    .organization
+                                    .departments
+                                    .memberGovernActions,
+                              ),
+                              onPressed: () => _memberActions(m),
+                            ),
+                          ),
+                        ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

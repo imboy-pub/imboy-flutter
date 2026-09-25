@@ -2861,6 +2861,17 @@ class _Translations$organization$departments$ja_JP extends Translations$organiza
 	@override String get emptyWithHint => '部門がありません。右上から作成してください';
 	@override String get empty => '部門がありません';
 	@override String get emptySubtitle => '兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。';
+	@override String get casConflictHint => '部門が他の操作により変更されたため、最新の部門ツリーを再読み込みしました。もう一度お試しください。';
+	@override String expandNode({required Object name}) => '「${name}」を展開';
+	@override String collapseNode({required Object name}) => '「${name}」を折りたたむ';
+	@override String removeMemberUid({required Object userId}) => 'メンバー ${userId} を削除';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => 'メンバー ${userId} を「${name}」から外します。組織メンバーシップおよび他部門での身份には影響しません（兼任モデル）。';
+	@override String get removeMemberFailed => '部門メンバーの削除に失敗しました';
+	@override String get confirmRemoveMember => '削除を確認';
+	@override String setDeptAdmin({required Object userId}) => '${userId} を部門管理者に設定';
+	@override String unsetDeptAdmin({required Object userId}) => '${userId} の部門管理者を解除';
+	@override String get setAdminFailed => '部門管理者の設定に失敗しました';
+	@override String get memberGovernActions => 'メンバー治理操作';
 }
 
 // Path: organization.picker
@@ -5232,6 +5243,17 @@ extension on TranslationsJaJp {
 			'organization.departments.emptyWithHint' => '部門がありません。右上から作成してください',
 			'organization.departments.empty' => '部門がありません',
 			'organization.departments.emptySubtitle' => '兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。',
+			'organization.departments.casConflictHint' => '部門が他の操作により変更されたため、最新の部門ツリーを再読み込みしました。もう一度お試しください。',
+			'organization.departments.expandNode' => ({required Object name}) => '「${name}」を展開',
+			'organization.departments.collapseNode' => ({required Object name}) => '「${name}」を折りたたむ',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => 'メンバー ${userId} を削除',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => 'メンバー ${userId} を「${name}」から外します。組織メンバーシップおよび他部門での身份には影響しません（兼任モデル）。',
+			'organization.departments.removeMemberFailed' => '部門メンバーの削除に失敗しました',
+			'organization.departments.confirmRemoveMember' => '削除を確認',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => '${userId} を部門管理者に設定',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => '${userId} の部門管理者を解除',
+			'organization.departments.setAdminFailed' => '部門管理者の設定に失敗しました',
+			'organization.departments.memberGovernActions' => 'メンバー治理操作',
 			'organization.picker.title' => '企業を切り替え',
 			'organization.picker.switchEnterprise' => '企業を切り替え',
 			'organization.picker.switchFailed' => '切り替えに失敗しました',

@@ -13,3 +13,5 @@ export 'presentation/organization_routes.dart';
 // 供测试引用（module boundaries 零新增）。
 export 'presentation/organization_member_detail_page.dart';
 export 'presentation/organization_members_page.dart';
+// ENT-APP-05：部门治理闭包（树 + 详情成员治理面）经公共入口供测试引用。
+export 'presentation/organization_departments_page.dart';

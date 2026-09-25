@@ -151,6 +151,17 @@ departments:
   emptyWithHint: "Noch keine Abteilungen – erstelle oben rechts eine"
   empty: "Keine Abteilungen"
   emptySubtitle: "Mehrfachmitgliedschaft: Ein Mitglied kann mehreren Abteilungen angehören; Abteilungsmitglieder müssen zuerst Mitglieder dieser Organisation sein."
+  casConflictHint: Die Abteilung wurde gleichzeitig geändert; der neueste Baum wurde aktualisiert, bitte erneut versuchen.
+  expandNode: "\"${name}\" ausklappen"
+  collapseNode: "\"${name}\" einklappen"
+  removeMemberUid: "Mitglied ${userId} entfernen"
+  removeMemberConfirm: "Mitglied ${userId} wird aus \"${name}\" entfernt. Die Organisationsmitgliedschaft und Rollen in anderen Abteilungen bleiben unberührt (Mehrfachmitgliedschaft)."
+  removeMemberFailed: Entfernen des Abteilungsmitglieds fehlgeschlagen
+  confirmRemoveMember: "Entfernen bestätigen"
+  setDeptAdmin: "${userId} zum Abteilungsadmin ernennen"
+  unsetDeptAdmin: "Abteilungsadmin-Rechte von ${userId} entziehen"
+  setAdminFailed: Festlegen des Abteilungsadmins fehlgeschlagen
+  memberGovernActions: Mitgliedsverwaltungsaktionen
 # ==================== GZAPP-04 G9: Unternehmensauswahl (wechseln/beitreten) ====================
 picker:
   title: "Unternehmen wechseln"

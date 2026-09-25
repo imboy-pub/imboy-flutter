@@ -2870,6 +2870,17 @@ class _Translations$organization$departments$ru_RU extends Translations$organiza
 	@override String get emptyWithHint => 'Отделов пока нет — создайте первый кнопкой справа вверху';
 	@override String get empty => 'Пока нет отделов';
 	@override String get emptySubtitle => 'Модель совместительства: один участник может состоять в нескольких отделах; участник отдела сначала должен быть участником этой организации.';
+	@override String get casConflictHint => 'Отдел был изменён параллельно; актуальное дерево отделов обновлено, повторите попытку.';
+	@override String expandNode({required Object name}) => 'Развернуть «${name}»';
+	@override String collapseNode({required Object name}) => 'Свернуть «${name}»';
+	@override String removeMemberUid({required Object userId}) => 'Убрать участника ${userId}';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => 'Участник ${userId} будет убран из «${name}». Его членство в организации и роли в других отделах не затрагиваются (модель совместительства).';
+	@override String get removeMemberFailed => 'Не удалось убрать участника из отдела';
+	@override String get confirmRemoveMember => 'Подтвердить удаление';
+	@override String setDeptAdmin({required Object userId}) => 'Назначить ${userId} админом отдела';
+	@override String unsetDeptAdmin({required Object userId}) => 'Снять права админа отдела с ${userId}';
+	@override String get setAdminFailed => 'Не удалось настроить админа отдела';
+	@override String get memberGovernActions => 'Действия управления участниками';
 }
 
 // Path: organization.picker
@@ -5241,6 +5252,17 @@ extension on TranslationsRuRu {
 			'organization.departments.emptyWithHint' => 'Отделов пока нет — создайте первый кнопкой справа вверху',
 			'organization.departments.empty' => 'Пока нет отделов',
 			'organization.departments.emptySubtitle' => 'Модель совместительства: один участник может состоять в нескольких отделах; участник отдела сначала должен быть участником этой организации.',
+			'organization.departments.casConflictHint' => 'Отдел был изменён параллельно; актуальное дерево отделов обновлено, повторите попытку.',
+			'organization.departments.expandNode' => ({required Object name}) => 'Развернуть «${name}»',
+			'organization.departments.collapseNode' => ({required Object name}) => 'Свернуть «${name}»',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => 'Убрать участника ${userId}',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => 'Участник ${userId} будет убран из «${name}». Его членство в организации и роли в других отделах не затрагиваются (модель совместительства).',
+			'organization.departments.removeMemberFailed' => 'Не удалось убрать участника из отдела',
+			'organization.departments.confirmRemoveMember' => 'Подтвердить удаление',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => 'Назначить ${userId} админом отдела',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => 'Снять права админа отдела с ${userId}',
+			'organization.departments.setAdminFailed' => 'Не удалось настроить админа отдела',
+			'organization.departments.memberGovernActions' => 'Действия управления участниками',
 			'organization.picker.title' => 'Переключить предприятие',
 			'organization.picker.switchEnterprise' => 'Переключить предприятие',
 			'organization.picker.switchFailed' => 'Не удалось переключиться',

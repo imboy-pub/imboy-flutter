@@ -151,6 +151,17 @@ departments:
   emptyWithHint: "No departments yet — tap the top-right button to create one"
   empty: "No departments"
   emptySubtitle: "Multi-membership model: one member may belong to multiple departments; department members must first be members of this organization."
+  casConflictHint: The department was modified concurrently; the latest tree has been refreshed, please retry.
+  expandNode: "Expand \"${name}\""
+  collapseNode: "Collapse \"${name}\""
+  removeMemberUid: "Remove member ${userId}"
+  removeMemberConfirm: "Member ${userId} will be removed from \"${name}\". Their organization membership and roles in other departments are unaffected (multi-membership model)."
+  removeMemberFailed: Failed to remove department member
+  confirmRemoveMember: "Confirm removal"
+  setDeptAdmin: "Set ${userId} as department admin"
+  unsetDeptAdmin: "Revoke department admin from ${userId}"
+  setAdminFailed: Failed to set department admin
+  memberGovernActions: Member governance actions
 # ==================== GZAPP-04 G9: enterprise picker (switch/join) ====================
 picker:
   title: "Switch enterprise"

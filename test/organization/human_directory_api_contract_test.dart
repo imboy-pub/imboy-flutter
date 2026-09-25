@@ -11,6 +11,7 @@
 /// - 4 端点的 GET path 与 query 参数（parent_id/department_id/q/cursor/limit）。
 library;
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -87,6 +88,106 @@ class _FixtureAdapter implements HttpClientAdapter {
   @override
   void close({bool force = false}) {}
 }
+
+// ---- ENT-APP-05 治理投影一致性：member_count / department_ids 与治理
+// 事实同步。模拟服务端以 department_member 表为唯一真源：add/remove
+// 部门成员（治理面命令）与 directory 投影（只读浏览面）读同一份状态，
+// 客户端经 [OrganizationApi] 全链路（治理写 → directory 读）断言一致。
+
+/// 按方法+路径分发的有状态 adapter：`_GovernanceState.deptMemberIds`
+/// 是部门 5 的成员集合（服务端事实）。
+class _StatefulRoutingAdapter implements HttpClientAdapter {
+  _StatefulRoutingAdapter(this.state);
+
+  final _GovernanceState state;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final method = options.method;
+    final path = options.uri.path;
+    Object body;
+
+    // 治理写面（department_member 真源变更）。
+    if (method == 'POST' && path.endsWith('/departments/5/members')) {
+      state.deptMemberIds.add(int.parse('${options.data['user_id']}'));
+      body = _okEnvelope({
+        'department_id': 5,
+        'user_id': options.data['user_id'],
+      });
+    } else if (method == 'DELETE' &&
+        RegExp(r'/departments/5/members/\d+$').hasMatch(path)) {
+      final uid = int.parse(path.split('/').last);
+      final wasPresent = state.deptMemberIds.remove(uid);
+      body = _okEnvelope({
+        'department_id': 5,
+        'user_id': uid,
+        'result': wasPresent ? 'removed' : 'not_present',
+        'idempotent': !wasPresent,
+      });
+    }
+    // directory 投影面（从真源即时计算，与治理面同状态）。
+    else if (path.endsWith('/directory/departments')) {
+      body = _okEnvelope({
+        'list': [
+          {
+            'id': 5,
+            'name': '后端组',
+            'parent_id': null,
+            // member_count = 服务端事实（active 成员数）。
+            'member_count': state.deptMemberIds.length,
+          },
+        ],
+        'cursor': null,
+        'has_more': false,
+      });
+    } else if (path.endsWith('/directory/members')) {
+      body = _okEnvelope({
+        'list': [
+          for (final uid in state.allOrgMembers)
+            {
+              'user_id': uid,
+              'display_name': 'member-$uid',
+              'avatar': '',
+              // department_ids = 本人 active 部门（治理事实即时投影）。
+              'department_ids': [if (state.deptMemberIds.contains(uid)) 5],
+            },
+        ],
+        'cursor': null,
+        'has_more': false,
+      });
+    } else {
+      body = _okEnvelope(null);
+    }
+    return ResponseBody.fromString(
+      jsonEncode(body),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+class _GovernanceState {
+  /// 部门 5 的成员集合（服务端 department_member 真源）。
+  final Set<int> deptMemberIds = <int>{1001, 1002};
+
+  /// 组织全员（directory members 全量行；department_ids 随真源变化）。
+  List<int> get allOrgMembers => const <int>[1001, 1002, 1003];
+}
+
+Map<String, dynamic> _okEnvelope(dynamic payload) => {
+  'code': 0,
+  'msg': 'success',
+  'payload': payload,
+};
 
 void main() {
   setUp(() async {
@@ -352,6 +453,60 @@ void main() {
               .having((e) => e.code, 'code', 404)
               .having((e) => e.isNotFound, 'isNotFound', isTrue),
         ),
+      );
+    });
+  });
+
+  group('治理投影一致性（ENT-APP-05）', () {
+    test('add/remove 部门成员 → directory member_count 与事实同步', () async {
+      final state = _GovernanceState();
+      HttpClient.adapterForTest = _StatefulRoutingAdapter(state);
+      addTearDown(() => HttpClient.adapterForTest = null);
+      final api = OrganizationApi();
+
+      // 初始事实：部门 5 有 1001/1002 两名成员。
+      var page = await api.directoryDepartments(organizationId: orgId);
+      expect(page.list.single.memberCount, 2);
+
+      // 治理：加入 1003（兼职）→ member_count 同步为 3。
+      await api.addDepartmentMember(orgId, '5', '1003');
+      page = await api.directoryDepartments(organizationId: orgId);
+      expect(page.list.single.memberCount, 3);
+
+      // 治理：移除 1001 → member_count 同步为 2（幂等语义下不重复计数）。
+      await api.removeDepartmentMember(orgId, '5', '1001');
+      page = await api.directoryDepartments(organizationId: orgId);
+      expect(page.list.single.memberCount, 2);
+    });
+
+    test('add/remove 部门成员 → directory members 的 department_ids 同步', () async {
+      final state = _GovernanceState();
+      HttpClient.adapterForTest = _StatefulRoutingAdapter(state);
+      addTearDown(() => HttpClient.adapterForTest = null);
+      final api = OrganizationApi();
+
+      // 初始：1003 无部门；1001/1002 在部门 5。
+      var members = await api.directoryMembers(organizationId: orgId);
+      var byId = {for (final m in members.list) m.userId: m};
+      expect(byId['1003']!.departmentIds, isEmpty);
+      expect(byId['1001']!.departmentIds, contains('5'));
+
+      // 治理：1003 加入部门 5 → 其 department_ids 出现 5。
+      await api.addDepartmentMember(orgId, '5', '1003');
+      members = await api.directoryMembers(organizationId: orgId);
+      byId = {for (final m in members.list) m.userId: m};
+      expect(byId['1003']!.departmentIds, contains('5'));
+
+      // 治理：1001 移出部门 5 → 其 department_ids 不再含 5（组织成员
+      // 资格保留——directory 行仍在，只是无该部门归属）。
+      await api.removeDepartmentMember(orgId, '5', '1001');
+      members = await api.directoryMembers(organizationId: orgId);
+      byId = {for (final m in members.list) m.userId: m};
+      expect(byId['1001']!.departmentIds, isEmpty);
+      expect(
+        byId['1001']!.userId,
+        isNotEmpty,
+        reason: '移出部门 ≠ 移出组织：成员行仍在 directory',
       );
     });
   });

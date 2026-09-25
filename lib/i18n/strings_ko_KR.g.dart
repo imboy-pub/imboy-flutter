@@ -2861,6 +2861,17 @@ class _Translations$organization$departments$ko_KR extends Translations$organiza
 	@override String get emptyWithHint => '부서가 없습니다. 오른쪽 위에서 만들어 보세요';
 	@override String get empty => '부서가 없습니다';
 	@override String get emptySubtitle => '겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다.';
+	@override String get casConflictHint => '부서가 동시에 수정되어 최신 부서 트리로 새로고침되었습니다. 다시 시도해 주세요.';
+	@override String expandNode({required Object name}) => '"${name}" 펼치기';
+	@override String collapseNode({required Object name}) => '"${name}" 접기';
+	@override String removeMemberUid({required Object userId}) => '멤버 ${userId} 제거';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => '멤버 ${userId}를 "${name}"에서 제외합니다. 조직 멤버 자격과 다른 부서에서의 신분은 영향을 받지 않습니다(겸직 모델).';
+	@override String get removeMemberFailed => '부서 멤버 제거 실패';
+	@override String get confirmRemoveMember => '제거 확인';
+	@override String setDeptAdmin({required Object userId}) => '${userId}을(를) 부서 관리자로 설정';
+	@override String unsetDeptAdmin({required Object userId}) => '${userId}의 부서 관리자 해제';
+	@override String get setAdminFailed => '부서 관리자 설정 실패';
+	@override String get memberGovernActions => '멤버 거버넌스 작업';
 }
 
 // Path: organization.picker
@@ -5232,6 +5243,17 @@ extension on TranslationsKoKr {
 			'organization.departments.emptyWithHint' => '부서가 없습니다. 오른쪽 위에서 만들어 보세요',
 			'organization.departments.empty' => '부서가 없습니다',
 			'organization.departments.emptySubtitle' => '겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다.',
+			'organization.departments.casConflictHint' => '부서가 동시에 수정되어 최신 부서 트리로 새로고침되었습니다. 다시 시도해 주세요.',
+			'organization.departments.expandNode' => ({required Object name}) => '"${name}" 펼치기',
+			'organization.departments.collapseNode' => ({required Object name}) => '"${name}" 접기',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => '멤버 ${userId} 제거',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => '멤버 ${userId}를 "${name}"에서 제외합니다. 조직 멤버 자격과 다른 부서에서의 신분은 영향을 받지 않습니다(겸직 모델).',
+			'organization.departments.removeMemberFailed' => '부서 멤버 제거 실패',
+			'organization.departments.confirmRemoveMember' => '제거 확인',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => '${userId}을(를) 부서 관리자로 설정',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => '${userId}의 부서 관리자 해제',
+			'organization.departments.setAdminFailed' => '부서 관리자 설정 실패',
+			'organization.departments.memberGovernActions' => '멤버 거버넌스 작업',
 			'organization.picker.title' => '기업 전환',
 			'organization.picker.switchEnterprise' => '기업 전환',
 			'organization.picker.switchFailed' => '전환 실패',

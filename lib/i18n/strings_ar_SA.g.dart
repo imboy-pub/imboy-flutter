@@ -2873,6 +2873,17 @@ class _Translations$organization$departments$ar_SA extends Translations$organiza
 	@override String get emptyWithHint => 'لا توجد أقسام، أنشئ قسماً من الزر في أعلى اليمين';
 	@override String get empty => 'لا توجد أقسام';
 	@override String get emptySubtitle => 'نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة.';
+	@override String get casConflictHint => 'تم تعديل القسم بشكل متزامن؛ تم تحديث أحدث شجرة الأقسام، يرجى إعادة المحاولة.';
+	@override String expandNode({required Object name}) => 'توسيع "${name}"';
+	@override String collapseNode({required Object name}) => 'طي "${name}"';
+	@override String removeMemberUid({required Object userId}) => 'إزالة العضو ${userId}';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => 'سيتم إزالة العضو ${userId} من "${name}". لن يتأثر عضويته في المنظمة ووضعه في الأقسام الأخرى (نموذج الانتساب المتعدد).';
+	@override String get removeMemberFailed => 'فشل إزالة عضو القسم';
+	@override String get confirmRemoveMember => 'تأكيد الإزالة';
+	@override String setDeptAdmin({required Object userId}) => 'تعيين ${userId} مشرفاً للقسم';
+	@override String unsetDeptAdmin({required Object userId}) => 'إلغاء إشراف القسم عن ${userId}';
+	@override String get setAdminFailed => 'فشل تعيين مشرف القسم';
+	@override String get memberGovernActions => 'إجراءات حوكمة الأعضاء';
 }
 
 // Path: organization.picker
@@ -5244,6 +5255,17 @@ extension on TranslationsArSa {
 			'organization.departments.emptyWithHint' => 'لا توجد أقسام، أنشئ قسماً من الزر في أعلى اليمين',
 			'organization.departments.empty' => 'لا توجد أقسام',
 			'organization.departments.emptySubtitle' => 'نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة.',
+			'organization.departments.casConflictHint' => 'تم تعديل القسم بشكل متزامن؛ تم تحديث أحدث شجرة الأقسام، يرجى إعادة المحاولة.',
+			'organization.departments.expandNode' => ({required Object name}) => 'توسيع "${name}"',
+			'organization.departments.collapseNode' => ({required Object name}) => 'طي "${name}"',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => 'إزالة العضو ${userId}',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => 'سيتم إزالة العضو ${userId} من "${name}". لن يتأثر عضويته في المنظمة ووضعه في الأقسام الأخرى (نموذج الانتساب المتعدد).',
+			'organization.departments.removeMemberFailed' => 'فشل إزالة عضو القسم',
+			'organization.departments.confirmRemoveMember' => 'تأكيد الإزالة',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => 'تعيين ${userId} مشرفاً للقسم',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => 'إلغاء إشراف القسم عن ${userId}',
+			'organization.departments.setAdminFailed' => 'فشل تعيين مشرف القسم',
+			'organization.departments.memberGovernActions' => 'إجراءات حوكمة الأعضاء',
 			'organization.picker.title' => 'تبديل المؤسسة',
 			'organization.picker.switchEnterprise' => 'تبديل المؤسسة',
 			'organization.picker.switchFailed' => 'فشل التبديل',

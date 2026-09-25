@@ -150,6 +150,17 @@ departments:
   emptyWithHint: 暂无部门，点击右上角新建
   empty: 暂无部门
   emptySubtitle: 兼职模型：同一成员可属多个部门；部门成员须先是本组织成员。
+  casConflictHint: 部门已被并发修改，已刷新为最新部门树，请重试操作
+  expandNode: "展开「${name}」"
+  collapseNode: "收起「${name}」"
+  removeMemberUid: "移除成员 ${userId}"
+  removeMemberConfirm: "将把成员 ${userId} 移出「${name}」。其组织成员资格与在其他部门的身份不受影响（兼职模型）。"
+  removeMemberFailed: 移除部门成员失败
+  confirmRemoveMember: "确认移除"
+  setDeptAdmin: "设 ${userId} 为部门管理员"
+  unsetDeptAdmin: "取消 ${userId} 的部门管理员"
+  setAdminFailed: 设置部门管理员失败
+  memberGovernActions: 成员治理操作
 # ==================== GZAPP-04 G9：企业选择器（切换/加入企业） ====================
 picker:
   title: 切换企业

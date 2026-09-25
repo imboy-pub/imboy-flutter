@@ -151,6 +151,17 @@ departments:
   emptyWithHint: "Aucun département — créez-en un en haut à droite"
   empty: "Aucun département"
   emptySubtitle: "Modèle multi-appartenance : un même membre peut appartenir à plusieurs départements ; les membres d'un département doivent d'abord être membres de cette organisation."
+  casConflictHint: Le département a été modifié simultanément ; l'arborescence la plus récente a été rechargée, veuillez réessayer.
+  expandNode: "Déplier \"${name}\""
+  collapseNode: "Replier \"${name}\""
+  removeMemberUid: "Retirer le membre ${userId}"
+  removeMemberConfirm: "Le membre ${userId} sera retiré de \"${name}\". Son adhésion à l'organisation et ses rôles dans les autres départements ne sont pas affectés (modèle multi-appartenance)."
+  removeMemberFailed: Échec du retrait du membre du département
+  confirmRemoveMember: "Confirmer le retrait"
+  setDeptAdmin: "Définir ${userId} comme admin du département"
+  unsetDeptAdmin: "Retirer le rôle d'admin de département à ${userId}"
+  setAdminFailed: Échec de la définition de l'admin du département
+  memberGovernActions: Actions de gouvernance des membres
 # ==================== GZAPP-04 G9 : sélecteur d'entreprise (changer/rejoindre) ====================
 picker:
   title: "Changer d'entreprise"

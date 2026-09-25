@@ -2948,6 +2948,17 @@ class _Translations$organization$departments$en_US extends Translations$organiza
 	@override String get emptyWithHint => 'No departments yet — tap the top-right button to create one';
 	@override String get empty => 'No departments';
 	@override String get emptySubtitle => 'Multi-membership model: one member may belong to multiple departments; department members must first be members of this organization.';
+	@override String get casConflictHint => 'The department was modified concurrently; the latest tree has been refreshed, please retry.';
+	@override String expandNode({required Object name}) => 'Expand "${name}"';
+	@override String collapseNode({required Object name}) => 'Collapse "${name}"';
+	@override String removeMemberUid({required Object userId}) => 'Remove member ${userId}';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => 'Member ${userId} will be removed from "${name}". Their organization membership and roles in other departments are unaffected (multi-membership model).';
+	@override String get removeMemberFailed => 'Failed to remove department member';
+	@override String get confirmRemoveMember => 'Confirm removal';
+	@override String setDeptAdmin({required Object userId}) => 'Set ${userId} as department admin';
+	@override String unsetDeptAdmin({required Object userId}) => 'Revoke department admin from ${userId}';
+	@override String get setAdminFailed => 'Failed to set department admin';
+	@override String get memberGovernActions => 'Member governance actions';
 }
 
 // Path: organization.picker
@@ -5393,6 +5404,17 @@ extension on TranslationsEnUs {
 			'organization.departments.emptyWithHint' => 'No departments yet — tap the top-right button to create one',
 			'organization.departments.empty' => 'No departments',
 			'organization.departments.emptySubtitle' => 'Multi-membership model: one member may belong to multiple departments; department members must first be members of this organization.',
+			'organization.departments.casConflictHint' => 'The department was modified concurrently; the latest tree has been refreshed, please retry.',
+			'organization.departments.expandNode' => ({required Object name}) => 'Expand "${name}"',
+			'organization.departments.collapseNode' => ({required Object name}) => 'Collapse "${name}"',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => 'Remove member ${userId}',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => 'Member ${userId} will be removed from "${name}". Their organization membership and roles in other departments are unaffected (multi-membership model).',
+			'organization.departments.removeMemberFailed' => 'Failed to remove department member',
+			'organization.departments.confirmRemoveMember' => 'Confirm removal',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => 'Set ${userId} as department admin',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => 'Revoke department admin from ${userId}',
+			'organization.departments.setAdminFailed' => 'Failed to set department admin',
+			'organization.departments.memberGovernActions' => 'Member governance actions',
 			'organization.picker.title' => 'Switch enterprise',
 			'organization.picker.switchEnterprise' => 'Switch enterprise',
 			'organization.picker.switchFailed' => 'Switch failed',
@@ -5705,6 +5727,8 @@ extension on TranslationsEnUs {
 			'workspace.taskStatusTodo' => 'To do',
 			'workspace.taskStatusDoing' => 'Doing',
 			'workspace.taskStatusReview' => 'Review',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskStatusDone' => 'Done',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Advance to "${status}"',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Move ${title} back to…',
@@ -5716,8 +5740,6 @@ extension on TranslationsEnUs {
 			'workspace.projectMembersEntry' => 'People',
 			'workspace.projectMilestonesEntry' => 'Milestones',
 			'workspace.projectChannelsEntry' => 'Channels',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectInsightsEntry' => 'Aggregations',
 			'workspace.projectNoPermission' => 'No permission: only project members, the project owner, or workspace owners can view this',
 			'workspace.projectGuestReadonly' => 'Guests have read-only access to projects',

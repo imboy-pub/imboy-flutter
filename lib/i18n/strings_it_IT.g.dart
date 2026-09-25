@@ -2864,6 +2864,17 @@ class _Translations$organization$departments$it_IT extends Translations$organiza
 	@override String get emptyWithHint => 'Nessun dipartimento: tocca in alto a destra per crearne uno';
 	@override String get empty => 'Nessun dipartimento';
 	@override String get emptySubtitle => 'Modello di appartenenza multipla: uno stesso membro può appartenere a più dipartimenti; i membri di un dipartimento devono prima essere membri di questa organizzazione.';
+	@override String get casConflictHint => 'Il dipartimento è stato modificato contemporaneamente; l\'albero più recente è stato ricaricato, riprova.';
+	@override String expandNode({required Object name}) => 'Espandi "${name}"';
+	@override String collapseNode({required Object name}) => 'Comprimi "${name}"';
+	@override String removeMemberUid({required Object userId}) => 'Rimuovi il membro ${userId}';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => 'Il membro ${userId} sarà rimosso da "${name}". La sua adesione all\'organizzazione e i ruoli negli altri dipartimenti non sono interessati (modello di appartenenza multipla).';
+	@override String get removeMemberFailed => 'Rimozione del membro dal dipartimento non riuscita';
+	@override String get confirmRemoveMember => 'Conferma rimozione';
+	@override String setDeptAdmin({required Object userId}) => 'Imposta ${userId} come amministratore del dipartimento';
+	@override String unsetDeptAdmin({required Object userId}) => 'Revoca l\'amministratore del dipartimento a ${userId}';
+	@override String get setAdminFailed => 'Impostazione dell\'amministratore del dipartimento non riuscita';
+	@override String get memberGovernActions => 'Azioni di governance dei membri';
 }
 
 // Path: organization.picker
@@ -5235,6 +5246,17 @@ extension on TranslationsItIt {
 			'organization.departments.emptyWithHint' => 'Nessun dipartimento: tocca in alto a destra per crearne uno',
 			'organization.departments.empty' => 'Nessun dipartimento',
 			'organization.departments.emptySubtitle' => 'Modello di appartenenza multipla: uno stesso membro può appartenere a più dipartimenti; i membri di un dipartimento devono prima essere membri di questa organizzazione.',
+			'organization.departments.casConflictHint' => 'Il dipartimento è stato modificato contemporaneamente; l\'albero più recente è stato ricaricato, riprova.',
+			'organization.departments.expandNode' => ({required Object name}) => 'Espandi "${name}"',
+			'organization.departments.collapseNode' => ({required Object name}) => 'Comprimi "${name}"',
+			'organization.departments.removeMemberUid' => ({required Object userId}) => 'Rimuovi il membro ${userId}',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => 'Il membro ${userId} sarà rimosso da "${name}". La sua adesione all\'organizzazione e i ruoli negli altri dipartimenti non sono interessati (modello di appartenenza multipla).',
+			'organization.departments.removeMemberFailed' => 'Rimozione del membro dal dipartimento non riuscita',
+			'organization.departments.confirmRemoveMember' => 'Conferma rimozione',
+			'organization.departments.setDeptAdmin' => ({required Object userId}) => 'Imposta ${userId} come amministratore del dipartimento',
+			'organization.departments.unsetDeptAdmin' => ({required Object userId}) => 'Revoca l\'amministratore del dipartimento a ${userId}',
+			'organization.departments.setAdminFailed' => 'Impostazione dell\'amministratore del dipartimento non riuscita',
+			'organization.departments.memberGovernActions' => 'Azioni di governance dei membri',
 			'organization.picker.title' => 'Cambia azienda',
 			'organization.picker.switchEnterprise' => 'Cambia azienda',
 			'organization.picker.switchFailed' => 'Cambio non riuscito',

@@ -151,6 +151,17 @@ departments:
   emptyWithHint: "尚無部門，點擊右上角新增"
   empty: "尚無部門"
   emptySubtitle: "兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。"
+  casConflictHint: 部門已被並發修改，已刷新為最新部門樹，請重試操作
+  expandNode: "展開「${name}」"
+  collapseNode: "收起「${name}」"
+  removeMemberUid: "移除成員 ${userId}"
+  removeMemberConfirm: "將把成員 ${userId} 移出「${name}」。其組織成員資格與在其他部門的身份不受影響（兼任模型）。"
+  removeMemberFailed: 移除部門成員失敗
+  confirmRemoveMember: "確認移除"
+  setDeptAdmin: "設 ${userId} 為部門管理員"
+  unsetDeptAdmin: "取消 ${userId} 的部門管理員"
+  setAdminFailed: 設置部門管理員失敗
+  memberGovernActions: 成員治理操作
 # ==================== GZAPP-04 G9：企業選擇器（切換/加入企業） ====================
 picker:
   title: 切換企業

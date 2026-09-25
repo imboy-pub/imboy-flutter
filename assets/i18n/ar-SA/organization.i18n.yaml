@@ -151,6 +151,17 @@ departments:
   emptyWithHint: "لا توجد أقسام، أنشئ قسماً من الزر في أعلى اليمين"
   empty: "لا توجد أقسام"
   emptySubtitle: "نموذج الانتساب المتعدد: يمكن للعضو الواحد الانتماء إلى عدة أقسام؛ ويجب أن يكون عضو القسم أولاً عضواً في هذه المنظمة."
+  casConflictHint: تم تعديل القسم بشكل متزامن؛ تم تحديث أحدث شجرة الأقسام، يرجى إعادة المحاولة.
+  expandNode: "توسيع \"${name}\""
+  collapseNode: "طي \"${name}\""
+  removeMemberUid: "إزالة العضو ${userId}"
+  removeMemberConfirm: "سيتم إزالة العضو ${userId} من \"${name}\". لن يتأثر عضويته في المنظمة ووضعه في الأقسام الأخرى (نموذج الانتساب المتعدد)."
+  removeMemberFailed: فشل إزالة عضو القسم
+  confirmRemoveMember: "تأكيد الإزالة"
+  setDeptAdmin: "تعيين ${userId} مشرفاً للقسم"
+  unsetDeptAdmin: "إلغاء إشراف القسم عن ${userId}"
+  setAdminFailed: فشل تعيين مشرف القسم
+  memberGovernActions: إجراءات حوكمة الأعضاء
 # ==================== GZAPP-04 G9: منتقي المؤسسة (تبديل/انضمام) ====================
 picker:
   title: "تبديل المؤسسة"
