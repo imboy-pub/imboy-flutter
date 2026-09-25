@@ -5017,6 +5017,8 @@ class Translations$customerService$zh_CN {
 
 	/// zh-CN: '未读 $n 条'
 	String unreadBadgeLabel({required Object n}) => '未读 ${n} 条';
+
+	late final Translations$customerService$governance$zh_CN governance = Translations$customerService$governance$zh_CN.internal(_root);
 }
 
 // Path: discovery
@@ -7545,6 +7547,105 @@ class Translations$account$alipaySim$zh_CN {
 	String get balanceSource => '账户余额';
 }
 
+// Path: customerService.governance
+class Translations$customerService$governance$zh_CN {
+	Translations$customerService$governance$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '客服治理'
+	String get title => '客服治理';
+
+	/// zh-CN: '本页为组织治理面（owner/admin）；服务端 403 是最终权限裁决。'
+	String get scopeNote => '本页为组织治理面（owner/admin）；服务端 403 是最终权限裁决。';
+
+	/// zh-CN: '席位额度'
+	String get limitCardTitle => '席位额度';
+
+	/// zh-CN: '不限'
+	String get limitUnlimited => '不限';
+
+	/// zh-CN: '${used}/${limit} 席位'
+	String limitValueLabel({required Object used, required Object limit}) => '${used}/${limit} 席位';
+
+	/// zh-CN: '已达上限'
+	String get limitAtCapacity => '已达上限';
+
+	/// zh-CN: '调整额度'
+	String get limitAdjustAction => '调整额度';
+
+	/// zh-CN: '调整席位额度'
+	String get limitAdjustTitle => '调整席位额度';
+
+	/// zh-CN: '席位上限（正整数，留空 = 不限）'
+	String get limitInputLabel => '席位上限（正整数，留空 = 不限）';
+
+	/// zh-CN: '清除限制（不限）'
+	String get limitClearAction => '清除限制（不限）';
+
+	/// zh-CN: '请输入正整数'
+	String get limitInvalidInput => '请输入正整数';
+
+	/// zh-CN: '额度已更新'
+	String get limitSaved => '额度已更新';
+
+	/// zh-CN: '坐席席位'
+	String get seatsSectionTitle => '坐席席位';
+
+	/// zh-CN: '暂无坐席席位'
+	String get seatsEmpty => '暂无坐席席位';
+
+	/// zh-CN: '启用'
+	String get seatEnabledBadge => '启用';
+
+	/// zh-CN: '已停用'
+	String get seatSuspendedBadge => '已停用';
+
+	/// zh-CN: '坐席 ${identity}'
+	String seatIdentityLabel({required Object identity}) => '坐席 ${identity}';
+
+	/// zh-CN: '${active}/${max} 会话'
+	String seatCapacityLabel({required Object active, required Object max}) => '${active}/${max} 会话';
+
+	/// zh-CN: '加载更多'
+	String get seatLoadMore => '加载更多';
+
+	/// zh-CN: '停用坐席'
+	String get suspendAction => '停用坐席';
+
+	/// zh-CN: '启用坐席'
+	String get resumeAction => '启用坐席';
+
+	/// zh-CN: '停用该坐席？'
+	String get suspendConfirmTitle => '停用该坐席？';
+
+	/// zh-CN: '停用后不能再接新会话；进行中的会话不受影响，可随时再启用。'
+	String get suspendConfirmBody => '停用后不能再接新会话；进行中的会话不受影响，可随时再启用。';
+
+	/// zh-CN: '操作已生效'
+	String get actionDone => '操作已生效';
+
+	/// zh-CN: '操作失败，请稍后重试'
+	String get actionFailed => '操作失败，请稍后重试';
+
+	/// zh-CN: '无治理权限：客服治理仅对组织 owner/admin 开放'
+	String get errorForbidden => '无治理权限：客服治理仅对组织 owner/admin 开放';
+
+	/// zh-CN: '加载失败'
+	String get errorLoadFailed => '加载失败';
+
+	/// zh-CN: '${msg}（${code}）'
+	String errorWithCode({required Object msg, required Object code}) => '${msg}（${code}）';
+
+	/// zh-CN: '席位额度已满：已用 ${used}/${limit}，无法新增坐席（seat_limit_exceeded）'
+	String seatLimitExceededHint({required Object used, required Object limit}) => '席位额度已满：已用 ${used}/${limit}，无法新增坐席（seat_limit_exceeded）';
+
+	/// zh-CN: '重试'
+	String get retry => '重试';
+}
+
 // Path: organization.common
 class Translations$organization$common$zh_CN {
 	Translations$organization$common$zh_CN.internal(this._root);
@@ -8539,6 +8640,12 @@ class Translations$organization$hub$zh_CN {
 
 	/// zh-CN: '工作区 · 群 · 频道治理'
 	String get adminManageDesc => '工作区 · 群 · 频道治理';
+
+	/// zh-CN: '客服治理'
+	String get adminCsGovernance => '客服治理';
+
+	/// zh-CN: '席位额度 · 坐席启停'
+	String get adminCsGovernanceDesc => '席位额度 · 坐席启停';
 }
 
 // Path: organization.wsMembers
@@ -10281,6 +10388,36 @@ extension on Translations {
 			'customerService.presenceResumeAction' => '恢复自动',
 			'customerService.presenceCapacityLabel' => ({required Object active, required Object max}) => '${active}/${max} 会话',
 			'customerService.unreadBadgeLabel' => ({required Object n}) => '未读 ${n} 条',
+			'customerService.governance.title' => '客服治理',
+			'customerService.governance.scopeNote' => '本页为组织治理面（owner/admin）；服务端 403 是最终权限裁决。',
+			'customerService.governance.limitCardTitle' => '席位额度',
+			'customerService.governance.limitUnlimited' => '不限',
+			'customerService.governance.limitValueLabel' => ({required Object used, required Object limit}) => '${used}/${limit} 席位',
+			'customerService.governance.limitAtCapacity' => '已达上限',
+			'customerService.governance.limitAdjustAction' => '调整额度',
+			'customerService.governance.limitAdjustTitle' => '调整席位额度',
+			'customerService.governance.limitInputLabel' => '席位上限（正整数，留空 = 不限）',
+			'customerService.governance.limitClearAction' => '清除限制（不限）',
+			'customerService.governance.limitInvalidInput' => '请输入正整数',
+			'customerService.governance.limitSaved' => '额度已更新',
+			'customerService.governance.seatsSectionTitle' => '坐席席位',
+			'customerService.governance.seatsEmpty' => '暂无坐席席位',
+			'customerService.governance.seatEnabledBadge' => '启用',
+			'customerService.governance.seatSuspendedBadge' => '已停用',
+			'customerService.governance.seatIdentityLabel' => ({required Object identity}) => '坐席 ${identity}',
+			'customerService.governance.seatCapacityLabel' => ({required Object active, required Object max}) => '${active}/${max} 会话',
+			'customerService.governance.seatLoadMore' => '加载更多',
+			'customerService.governance.suspendAction' => '停用坐席',
+			'customerService.governance.resumeAction' => '启用坐席',
+			'customerService.governance.suspendConfirmTitle' => '停用该坐席？',
+			'customerService.governance.suspendConfirmBody' => '停用后不能再接新会话；进行中的会话不受影响，可随时再启用。',
+			'customerService.governance.actionDone' => '操作已生效',
+			'customerService.governance.actionFailed' => '操作失败，请稍后重试',
+			'customerService.governance.errorForbidden' => '无治理权限：客服治理仅对组织 owner/admin 开放',
+			'customerService.governance.errorLoadFailed' => '加载失败',
+			'customerService.governance.errorWithCode' => ({required Object msg, required Object code}) => '${msg}（${code}）',
+			'customerService.governance.seatLimitExceededHint' => ({required Object used, required Object limit}) => '席位额度已满：已用 ${used}/${limit}，无法新增坐席（seat_limit_exceeded）',
+			'customerService.governance.retry' => '重试',
 			'discovery.findNearbyPeople' => '找附近的人',
 			'discovery.moment' => '朋友圈',
 			'discovery.nearbyPeopleExplain' => '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n你的电话号码将会被隐藏。',
@@ -10681,6 +10818,8 @@ extension on Translations {
 			'main.mostUsed' => '最常用',
 			'main.school' => '学校',
 			'main.hobbiesAndInterests' => '兴趣爱好',
+			_ => null,
+		} ?? switch (path) {
 			'main.interests' => '兴趣爱好',
 			'main.selectFromAlbum' => '从相册选择',
 			'main.volumeUp' => '音量增加',
@@ -10711,8 +10850,6 @@ extension on Translations {
 			'main.e2eeRecoveryMethods' => '密钥恢复方法',
 			'main.e2eeDangerousOps' => '危险操作',
 			'main.e2eeKeyIdLabel' => '密钥 ID',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeWarnIrreversible' => '• 此操作不可撤销',
 			'main.e2eeWarnNeedRestoreOrNew' => '• 需要从备份恢复或生成新密钥',
 			'main.gotIt' => '我知道了',
@@ -11082,6 +11219,8 @@ extension on Translations {
 			'organization.hub.adminInvitationsDesc' => '邀请创建与撤销',
 			'organization.hub.adminManage' => '企业管理',
 			'organization.hub.adminManageDesc' => '工作区 · 群 · 频道治理',
+			'organization.hub.adminCsGovernance' => '客服治理',
+			'organization.hub.adminCsGovernanceDesc' => '席位额度 · 坐席启停',
 			'organization.wsMembers.title' => ({required Object ws}) => '工作区成员 · ${ws}',
 			'organization.wsMembers.invite' => '邀请成员',
 			'organization.wsMembers.inviteHint' => '经既有向导选择联系人发出邀请（仅工作区所有者）',
@@ -11193,6 +11332,8 @@ extension on Translations {
 			'workspace.channelsEmptySubtitle' => '频道用于持续发布内容（公告/资料），讨论请去群组',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位订阅者',
 			'workspace.channelDetailTitle' => '频道',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.discussInGroupGuide' => '频道用于发布内容；想讨论？去 General 群聊聊 →',
 			'workspace.groupsEmptyTitle' => '还没有工作区群组',
 			'workspace.groupsEmptySubtitle' => '群组是工作区里的实时讨论空间（聊天唯一入口）',
@@ -11225,8 +11366,6 @@ extension on Translations {
 			'workspace.joinInvalidCode' => '团队码无效或已失效',
 			'workspace.joinExpiredCode' => '团队码已过期',
 			'workspace.inviteCodeSectionTitle' => '团队码邀请',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteCodeGenerate' => '生成团队码',
 			'workspace.inviteCodeCopy' => '复制',
 			'workspace.inviteCodeRevoke' => '撤销',

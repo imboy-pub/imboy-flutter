@@ -314,6 +314,9 @@ hub:
   adminInvitationsDesc: 邀请创建与撤销
   adminManage: 企业管理
   adminManageDesc: 工作区 · 群 · 频道治理
+  # CS-APP-03：企业自助客服治理入口（owner/admin；member 经 PermissionGate 整区隐藏）。
+  adminCsGovernance: 客服治理
+  adminCsGovernanceDesc: 席位额度 · 坐席启停
 
 wsMembers:
   title: "工作区成员 · ${ws}"

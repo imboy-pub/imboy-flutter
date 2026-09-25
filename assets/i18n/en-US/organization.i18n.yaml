@@ -313,6 +313,10 @@ hub:
   adminInvitationsDesc: Create and revoke invitations
   adminManage: Organization admin
   adminManageDesc: Workspaces · groups · channels
+  # CS-APP-03: self-service customer-service governance entry (owner/admin;
+  # hidden entirely for members via PermissionGate).
+  adminCsGovernance: Support governance
+  adminCsGovernanceDesc: Seat quota · seat suspend/resume
 
 wsMembers:
   title: "Workspace members · ${ws}"

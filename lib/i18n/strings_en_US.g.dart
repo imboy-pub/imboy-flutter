@@ -1779,6 +1779,7 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get presenceResumeAction => 'Resume auto';
 	@override String presenceCapacityLabel({required Object active, required Object max}) => '${active}/${max} sessions';
 	@override String unreadBadgeLabel({required Object n}) => '${n} unread';
+	@override late final _Translations$customerService$governance$en_US governance = _Translations$customerService$governance$en_US._(_root);
 }
 
 // Path: discovery
@@ -2765,6 +2766,45 @@ class _Translations$account$alipaySim$en_US extends Translations$account$alipayS
 	@override String get balanceSource => 'Account Balance';
 }
 
+// Path: customerService.governance
+class _Translations$customerService$governance$en_US extends Translations$customerService$governance$zh_CN {
+	_Translations$customerService$governance$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Support governance';
+	@override String get scopeNote => 'Governance surface (owner/admin); the server\'s 403 is the final authorization verdict.';
+	@override String get limitCardTitle => 'Seat quota';
+	@override String get limitUnlimited => 'Unlimited';
+	@override String limitValueLabel({required Object used, required Object limit}) => '${used}/${limit} seats';
+	@override String get limitAtCapacity => 'At capacity';
+	@override String get limitAdjustAction => 'Adjust quota';
+	@override String get limitAdjustTitle => 'Adjust seat quota';
+	@override String get limitInputLabel => 'Seat limit (positive integer, empty = unlimited)';
+	@override String get limitClearAction => 'Clear limit (unlimited)';
+	@override String get limitInvalidInput => 'Enter a positive integer';
+	@override String get limitSaved => 'Quota updated';
+	@override String get seatsSectionTitle => 'Seats';
+	@override String get seatsEmpty => 'No seats yet';
+	@override String get seatEnabledBadge => 'Enabled';
+	@override String get seatSuspendedBadge => 'Suspended';
+	@override String seatIdentityLabel({required Object identity}) => 'Seat ${identity}';
+	@override String seatCapacityLabel({required Object active, required Object max}) => '${active}/${max} sessions';
+	@override String get seatLoadMore => 'Load more';
+	@override String get suspendAction => 'Suspend seat';
+	@override String get resumeAction => 'Resume seat';
+	@override String get suspendConfirmTitle => 'Suspend this seat?';
+	@override String get suspendConfirmBody => 'Suspended seats cannot claim new sessions; in-progress sessions stay untouched and you can resume anytime.';
+	@override String get actionDone => 'Action applied';
+	@override String get actionFailed => 'Action failed. Please try again later';
+	@override String get errorForbidden => 'Governance denied: support governance is limited to organization owner/admin';
+	@override String get errorLoadFailed => 'Failed to load';
+	@override String errorWithCode({required Object msg, required Object code}) => '${msg} (${code})';
+	@override String seatLimitExceededHint({required Object used, required Object limit}) => 'Seat quota exceeded: ${used}/${limit} in use, cannot add seats (seat_limit_exceeded)';
+	@override String get retry => 'Retry';
+}
+
 // Path: organization.common
 class _Translations$organization$common$en_US extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -3173,6 +3213,8 @@ class _Translations$organization$hub$en_US extends Translations$organization$hub
 	@override String get adminInvitationsDesc => 'Create and revoke invitations';
 	@override String get adminManage => 'Organization admin';
 	@override String get adminManageDesc => 'Workspaces · groups · channels';
+	@override String get adminCsGovernance => 'Support governance';
+	@override String get adminCsGovernanceDesc => 'Seat quota · seat suspend/resume';
 }
 
 // Path: organization.wsMembers
@@ -4835,6 +4877,36 @@ extension on TranslationsEnUs {
 			'customerService.presenceResumeAction' => 'Resume auto',
 			'customerService.presenceCapacityLabel' => ({required Object active, required Object max}) => '${active}/${max} sessions',
 			'customerService.unreadBadgeLabel' => ({required Object n}) => '${n} unread',
+			'customerService.governance.title' => 'Support governance',
+			'customerService.governance.scopeNote' => 'Governance surface (owner/admin); the server\'s 403 is the final authorization verdict.',
+			'customerService.governance.limitCardTitle' => 'Seat quota',
+			'customerService.governance.limitUnlimited' => 'Unlimited',
+			'customerService.governance.limitValueLabel' => ({required Object used, required Object limit}) => '${used}/${limit} seats',
+			'customerService.governance.limitAtCapacity' => 'At capacity',
+			'customerService.governance.limitAdjustAction' => 'Adjust quota',
+			'customerService.governance.limitAdjustTitle' => 'Adjust seat quota',
+			'customerService.governance.limitInputLabel' => 'Seat limit (positive integer, empty = unlimited)',
+			'customerService.governance.limitClearAction' => 'Clear limit (unlimited)',
+			'customerService.governance.limitInvalidInput' => 'Enter a positive integer',
+			'customerService.governance.limitSaved' => 'Quota updated',
+			'customerService.governance.seatsSectionTitle' => 'Seats',
+			'customerService.governance.seatsEmpty' => 'No seats yet',
+			'customerService.governance.seatEnabledBadge' => 'Enabled',
+			'customerService.governance.seatSuspendedBadge' => 'Suspended',
+			'customerService.governance.seatIdentityLabel' => ({required Object identity}) => 'Seat ${identity}',
+			'customerService.governance.seatCapacityLabel' => ({required Object active, required Object max}) => '${active}/${max} sessions',
+			'customerService.governance.seatLoadMore' => 'Load more',
+			'customerService.governance.suspendAction' => 'Suspend seat',
+			'customerService.governance.resumeAction' => 'Resume seat',
+			'customerService.governance.suspendConfirmTitle' => 'Suspend this seat?',
+			'customerService.governance.suspendConfirmBody' => 'Suspended seats cannot claim new sessions; in-progress sessions stay untouched and you can resume anytime.',
+			'customerService.governance.actionDone' => 'Action applied',
+			'customerService.governance.actionFailed' => 'Action failed. Please try again later',
+			'customerService.governance.errorForbidden' => 'Governance denied: support governance is limited to organization owner/admin',
+			'customerService.governance.errorLoadFailed' => 'Failed to load',
+			'customerService.governance.errorWithCode' => ({required Object msg, required Object code}) => '${msg} (${code})',
+			'customerService.governance.seatLimitExceededHint' => ({required Object used, required Object limit}) => 'Seat quota exceeded: ${used}/${limit} in use, cannot add seats (seat_limit_exceeded)',
+			'customerService.governance.retry' => 'Retry',
 			'discovery.findNearbyPeople' => 'Find nearby people',
 			'discovery.moment' => 'Moments',
 			'discovery.nearbyPeopleExplain' => 'Nearby users can view your profile and send you messages. This may help you find new friends, but may also attract unwanted attention. You can stop sharing at any time.\nYour phone number stays hidden.',
@@ -5255,6 +5327,8 @@ extension on TranslationsEnUs {
 			'main.mySentTab' => 'Sent',
 			'main.reject' => 'Reject',
 			'main.myOrders' => 'My Orders',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseUnlockHint' => 'Purchase to unlock channel history and future updates.',
 			'main.payingDots' => 'Paying...',
 			'main.purchaseAndUnlock' => 'Purchase & Unlock Now',
@@ -5285,8 +5359,6 @@ extension on TranslationsEnUs {
 			'main.complianceKeyInfoServerKey' => 'Public key from server',
 			'main.complianceKeyInfoLocalPin' => 'Local pin (TOFU)',
 			'main.complianceKeyInfoKeyId' => 'Key ID',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoAlgorithm' => 'Algorithm',
 			'main.complianceKeyInfoFingerprint' => 'Public key fingerprint',
 			'main.complianceKeyInfoFetchedAt' => 'Fetched at',
@@ -5636,6 +5708,8 @@ extension on TranslationsEnUs {
 			'organization.hub.adminInvitationsDesc' => 'Create and revoke invitations',
 			'organization.hub.adminManage' => 'Organization admin',
 			'organization.hub.adminManageDesc' => 'Workspaces · groups · channels',
+			'organization.hub.adminCsGovernance' => 'Support governance',
+			'organization.hub.adminCsGovernanceDesc' => 'Seat quota · seat suspend/resume',
 			'organization.wsMembers.title' => ({required Object ws}) => 'Workspace members · ${ws}',
 			'organization.wsMembers.invite' => 'Invite members',
 			'organization.wsMembers.inviteHint' => 'Pick contacts via the existing wizard (workspace owner only)',
@@ -5767,6 +5841,8 @@ extension on TranslationsEnUs {
 			'workspace.resultRunning' => 'Running',
 			'workspace.resultSuccess' => 'Success',
 			'workspace.resultFailed' => 'Failed',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.joinEntry' => 'Join Workspace',
 			'workspace.joinByTeamCode' => 'Join a workspace by team code',
 			'workspace.joinTitle' => 'Join Workspace',
@@ -5799,8 +5875,6 @@ extension on TranslationsEnUs {
 			'workspace.restoreEntry' => 'Restore workspace',
 			'workspace.archiveTitle' => 'Archive workspace',
 			'workspace.archiveDesc' => 'Archiving makes it read-only for everyone (writes rejected by the server); restore anytime',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveConfirm' => 'Archive',
 			'workspace.restoreTitle' => 'Restore workspace',
 			'workspace.restoreDesc' => 'Restoring re-enables read and write',

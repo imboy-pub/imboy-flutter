@@ -23,6 +23,8 @@ import 'package:imboy/component/ui/permission_gate.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart'
+    show csGovernancePath;
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
@@ -375,6 +377,16 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             title: t.organization.hub.adminManage,
             subtitle: t.organization.hub.adminManageDesc,
             onTap: () => context.push('$detailBase/manage'),
+          ),
+          // CS-APP-03（CS-GOV-02B）：企业自助客服治理入口（席位额度/
+          // 坐席启停，租户 Human JWT API）。member 经 PermissionGate 整区
+          // 隐藏；直达路由由治理页内 403 终态兜底（服务端唯一裁决）。
+          _HubTile(
+            tileKey: const ValueKey('organization-detail-zone-cs-governance'),
+            icon: CupertinoIcons.chat_bubble_2,
+            title: t.organization.hub.adminCsGovernance,
+            subtitle: t.organization.hub.adminCsGovernanceDesc,
+            onTap: () => context.push(csGovernancePath(org.id)),
           ),
           const Divider(),
         ],
