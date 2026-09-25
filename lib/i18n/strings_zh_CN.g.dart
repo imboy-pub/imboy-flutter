@@ -4984,6 +4984,39 @@ class Translations$customerService$zh_CN {
 
 	/// zh-CN: '会话已转交给其他坐席，此会话对你只读'
 	String get transferredAway => '会话已转交给其他坐席，此会话对你只读';
+
+	/// zh-CN: '坐席状态'
+	String get presenceMenuLabel => '坐席状态';
+
+	/// zh-CN: '状态不可用'
+	String get presenceUnavailable => '状态不可用';
+
+	/// zh-CN: '席位已停用'
+	String get seatDisabledNotice => '席位已停用';
+
+	/// zh-CN: '在线'
+	String get presenceStatusOnline => '在线';
+
+	/// zh-CN: '离开'
+	String get presenceStatusAway => '离开';
+
+	/// zh-CN: '繁忙'
+	String get presenceStatusBusy => '繁忙';
+
+	/// zh-CN: '离线'
+	String get presenceStatusOffline => '离线';
+
+	/// zh-CN: '设为离开'
+	String get presenceAwayAction => '设为离开';
+
+	/// zh-CN: '恢复自动'
+	String get presenceResumeAction => '恢复自动';
+
+	/// zh-CN: '$active/$max 会话'
+	String presenceCapacityLabel({required Object active, required Object max}) => '${active}/${max} 会话';
+
+	/// zh-CN: '未读 $n 条'
+	String unreadBadgeLabel({required Object n}) => '未读 ${n} 条';
 }
 
 // Path: discovery
@@ -10094,6 +10127,17 @@ extension on Translations {
 			'customerService.sendConflict' => '会话状态已变化，已为你刷新最新状态',
 			'customerService.attachUploadFailed' => '附件上传失败，请重试',
 			'customerService.transferredAway' => '会话已转交给其他坐席，此会话对你只读',
+			'customerService.presenceMenuLabel' => '坐席状态',
+			'customerService.presenceUnavailable' => '状态不可用',
+			'customerService.seatDisabledNotice' => '席位已停用',
+			'customerService.presenceStatusOnline' => '在线',
+			'customerService.presenceStatusAway' => '离开',
+			'customerService.presenceStatusBusy' => '繁忙',
+			'customerService.presenceStatusOffline' => '离线',
+			'customerService.presenceAwayAction' => '设为离开',
+			'customerService.presenceResumeAction' => '恢复自动',
+			'customerService.presenceCapacityLabel' => ({required Object active, required Object max}) => '${active}/${max} 会话',
+			'customerService.unreadBadgeLabel' => ({required Object n}) => '未读 ${n} 条',
 			'discovery.findNearbyPeople' => '找附近的人',
 			'discovery.moment' => '朋友圈',
 			'discovery.nearbyPeopleExplain' => '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n你的电话号码将会被隐藏。',
@@ -10524,6 +10568,8 @@ extension on Translations {
 			'main.e2eeRecoveryMethods' => '密钥恢复方法',
 			'main.e2eeDangerousOps' => '危险操作',
 			'main.e2eeKeyIdLabel' => '密钥 ID',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeWarnIrreversible' => '• 此操作不可撤销',
 			'main.e2eeWarnNeedRestoreOrNew' => '• 需要从备份恢复或生成新密钥',
 			'main.gotIt' => '我知道了',
@@ -10535,8 +10581,6 @@ extension on Translations {
 			'main.e2eeErrPeerDeviceNotReady' => '有成员的设备尚未完成安全设置，消息未发送；请稍后重试',
 			'main.e2eeErrComplianceChanged' => '合规审计密钥已变更，消息未发送，请确认轮换后重试',
 			'main.e2eeErrComplianceUnavailable' => '合规密钥暂不可用，消息未发送，请稍后重试',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrComplianceExpired' => '合规密钥已过期，请联系管理员',
 			'main.complianceKeyRotationConfirmed' => '合规密钥轮换已确认，可重新发送消息',
 			'main.complianceKeyRotationNoPending' => '没有待确认的密钥变更',
@@ -11038,6 +11082,8 @@ extension on Translations {
 			'workspace.projectCreateTitle' => '新建项目',
 			'workspace.projectNameLabel' => '项目名称',
 			'workspace.projectNameHint' => '例如：官网改版',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameRequired' => '项目名称不能为空',
 			'workspace.projectDescLabel' => '项目描述（可选）',
 			'workspace.projectDescHint' => '这个项目要交付什么？',
@@ -11049,8 +11095,6 @@ extension on Translations {
 			'workspace.projectStatusActive' => '进行中',
 			'workspace.projectStatusDone' => '已完成',
 			'workspace.projectMarkDone' => '标记为已完成',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectReopen' => '重新开启项目',
 			'workspace.projectStatusChanged' => '项目状态已更新',
 			'workspace.projectTasksSection' => '任务',

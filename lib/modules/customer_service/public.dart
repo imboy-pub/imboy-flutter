@@ -2,6 +2,7 @@
 library;
 
 export 'domain/cs_offboarding_machine.dart';
+export 'domain/cs_presence_controller.dart';
 export 'domain/cs_queue_format.dart';
 export 'domain/cs_seat_gate.dart';
 export 'domain/cs_seat_session_machine.dart';
@@ -9,6 +10,7 @@ export 'domain/cs_session_actions.dart';
 export 'domain/cs_session_flow.dart';
 export 'domain/cs_session_machine.dart';
 export 'infrastructure/cs_api.dart';
+export 'infrastructure/cs_seat_events_stream.dart';
 export 'presentation/cs_attachment_views.dart';
 export 'presentation/cs_paged_list.dart';
 export 'presentation/cs_queue_view.dart';

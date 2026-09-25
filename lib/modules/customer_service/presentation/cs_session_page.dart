@@ -65,7 +65,8 @@ class CsSessionPage extends StatefulWidget {
   State<CsSessionPage> createState() => _CsSessionPageState();
 }
 
-class _CsSessionPageState extends State<CsSessionPage> {
+class _CsSessionPageState extends State<CsSessionPage>
+    with WidgetsBindingObserver {
   late final CsSessionFlow _flow;
   late final CsSeatEventsStream _events;
   final TextEditingController _input = TextEditingController();
@@ -88,6 +89,7 @@ class _CsSessionPageState extends State<CsSessionPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _flow = CsSessionFlow(
       orgId: widget.orgId,
       sessionId: widget.sessionId,
@@ -108,22 +110,39 @@ class _CsSessionPageState extends State<CsSessionPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _flow.dispose();
     _input.dispose();
     super.dispose();
   }
 
+  /// CS-RUNTIME-04：resume 重同步——回前台后重拉权威状态（detail + 读
+  /// 状态 + 消息），展示完成再 ACK；后台期间（paused）不做任何事
+  /// （presence 心跳由工作台层控制器门控）。
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refresh();
+    }
+  }
+
   Future<void> _bootstrap() async {
     setState(() => _busy = true);
     await _flow.refreshSessionState();
+    // 进入会话：先重同步读状态（游标/未读权威值），再拉消息——展示完成
+    // 后 ACK 推进游标（CS-APP-02「权威展示完成时 ACK」）。
+    await _flow.resyncReadState();
     await _flow.loadIncremental();
+    await _flow.ackReadSeen();
     if (!mounted) return;
     setState(() => _busy = false);
   }
 
   Future<void> _refresh() async {
     await _flow.refreshSessionState();
+    await _flow.resyncReadState();
     await _flow.loadIncremental();
+    await _flow.ackReadSeen();
     if (mounted) {
       setState(() {});
     }
@@ -494,6 +513,35 @@ class _CsSessionPageState extends State<CsSessionPage> {
     }
   }
 
+  /// 未读 badge（CS-APP-02）：只渲染服务端 read-state 的非空快照——
+  /// null（重连同步中/读面失败/只读终态）不渲染（fail-closed：无陈旧
+  /// 未读）。进入会话展示完成后 ACK 会把它清零；仅 ACK 失败（离线）时
+  /// 保留。
+  Widget _unreadBadge() {
+    final unread = _flow.unreadCount;
+    if (!_flow.machine.shouldPoll || unread == null || unread <= 0) {
+      return const SizedBox.shrink();
+    }
+    return Semantics(
+      label: context.t.customerService.unreadBadgeLabel(n: unread),
+      child: Container(
+        margin: const EdgeInsets.only(left: AppSpacing.small),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+        decoration: BoxDecoration(
+          color: AppColors.iosRed,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          unread > 99 ? '99+' : '$unread',
+          style: context.textStyle(
+            FontSizeType.caption2,
+            color: AppColors.onPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t.customerService;
@@ -502,10 +550,20 @@ class _CsSessionPageState extends State<CsSessionPage> {
     final canWrite = machine.canSend;
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.contactName.isEmpty
-              ? t.sessionTitle
-              : csMaskContactName(widget.contactName),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                widget.contactName.isEmpty
+                    ? t.sessionTitle
+                    : csMaskContactName(widget.contactName),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            _unreadBadge(),
+          ],
         ),
         actions: [
           if (canWrite) ...[

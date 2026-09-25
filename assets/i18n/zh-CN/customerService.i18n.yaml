@@ -90,3 +90,17 @@ sendFailed: "发送失败，请稍后重试"
 sendConflict: "会话状态已变化，已为你刷新最新状态"
 attachUploadFailed: "附件上传失败，请重试"
 transferredAway: "会话已转交给其他坐席，此会话对你只读"
+# ==================== CS-APP-02（presence 运行态 + 已读游标/未读） ====================
+# 治理开关（enabled）与运行态（online/away/busy/offline）分离展示；
+# 状态是服务端派生事实，客户端只读（心跳失败显示「状态不可用」）。
+presenceMenuLabel: "坐席状态"
+presenceUnavailable: "状态不可用"
+seatDisabledNotice: "席位已停用"
+presenceStatusOnline: "在线"
+presenceStatusAway: "离开"
+presenceStatusBusy: "繁忙"
+presenceStatusOffline: "离线"
+presenceAwayAction: "设为离开"
+presenceResumeAction: "恢复自动"
+presenceCapacityLabel: "$active/$max 会话"
+unreadBadgeLabel: "未读 $n 条"

@@ -473,6 +473,96 @@ class CsSeatContexts {
 ///
 /// 服务端已排除调用者本人（认证派生 business_identity_id）；
 /// `available` = active 会话数未达 max_concurrent（store 同语句计数）。
+/// CS-APP-02（CS-DEC-02）：坐席运行态（服务端派生值，客户端只读展示）。
+enum CsPresenceStatus { online, away, busy, offline }
+
+CsPresenceStatus csPresenceStatusFromWire(String raw) {
+  switch (raw) {
+    case 'online':
+      return CsPresenceStatus.online;
+    case 'away':
+      return CsPresenceStatus.away;
+    case 'busy':
+      return CsPresenceStatus.busy;
+    case 'offline':
+      return CsPresenceStatus.offline;
+    default:
+      throw CsApiException(0, 'presence-status-invalid');
+  }
+}
+
+/// presence 视图（heartbeat/presence 返回；fail-closed 解析）。
+class CsPresence {
+  CsPresence({
+    required this.status,
+    this.lastHeartbeatAt,
+    this.manualStatus,
+    required this.enabled,
+    required this.maxConcurrent,
+    required this.activeCount,
+  });
+
+  factory CsPresence.fromJson(Map<dynamic, dynamic> json) {
+    final rawStatus = json['status'];
+    if (rawStatus is! String) {
+      throw CsApiException(0, 'presence-status-invalid');
+    }
+    return CsPresence(
+      status: csPresenceStatusFromWire(rawStatus),
+      lastHeartbeatAt: json['last_heartbeat_at'] is int
+          ? json['last_heartbeat_at'] as int
+          : null,
+      manualStatus: json['manual_status'] == 'away' ? 'away' : null,
+      enabled: json['enabled'] == true,
+      maxConcurrent: json['max_concurrent'] is int
+          ? json['max_concurrent'] as int
+          : 0,
+      activeCount: json['active_count'] is int
+          ? json['active_count'] as int
+          : 0,
+    );
+  }
+
+  final CsPresenceStatus status;
+  final int? lastHeartbeatAt;
+  final String? manualStatus;
+  final bool enabled;
+  final int maxConcurrent;
+  final int activeCount;
+}
+
+/// 会话读状态（游标 + 未读数；未读 badge 数据源）。
+///
+/// fail-closed 投影（对齐 Web `toSeatReadState`）：session_id /
+/// last_read_message_id / unread_count 任一缺失或类型漂移即 throw
+/// （后端 read_state 出站恒携带三键，TSID 已编码为十进制字符串——
+/// [entityIdOf] 对 int/string 两形均安全），不猜不垫。
+class CsReadState {
+  CsReadState({
+    required this.sessionId,
+    required this.lastReadMessageId,
+    required this.unreadCount,
+  });
+
+  factory CsReadState.fromJson(Map<dynamic, dynamic> json) {
+    final sid = entityIdOf(json['session_id']);
+    final cursor = entityIdOf(json['last_read_message_id']);
+    final unread = json['unread_count'];
+    if (sid.isEmpty || cursor.isEmpty || unread is! int) {
+      throw const CsApiException(0, 'read-state-invalid');
+    }
+    return CsReadState(
+      sessionId: sid,
+      lastReadMessageId: cursor,
+      unreadCount: unread,
+    );
+  }
+
+  final String sessionId;
+  final String lastReadMessageId;
+  final int unreadCount;
+}
+
 class CsTransferTarget {
   final String identityId;
   final String displayName;
@@ -886,6 +976,80 @@ class CsApi extends HttpClient {
       throw CsSseOpenException(resp.code, 'unexpected-payload');
     }
     return body.stream;
+  }
+
+  // ---- CS-APP-02（CS-DEC-02/CS-RUNTIME-04）：presence 与已读游标 ----
+  // 与 Web 端（CS-WEB-05）共用 wire 语义：heartbeat POST（at 服务端派生
+  // 时钟，客户端不可报时）、presence PUT/GET（manual_status away|缺省）、
+  // read-cursor GET/POST（服务端单调 upsert，重复/乱序旧值零副作用）。
+
+  /// POST /api/v1/cs/organizations/:org_id/seats/me/heartbeat。
+  /// 返回派生运行态（online/away/busy/offline）。调用时机由
+  /// [CsPresenceController] 按前台/后台门控——后台不发，不谎报 online。
+  Future<CsPresence> seatHeartbeat(String orgId) async {
+    final resp = await post(
+      '/api/v1/cs/organizations/$orgId/seats/me/heartbeat',
+      data: <String, dynamic>{},
+    );
+    _ensureOk(resp);
+    return CsPresence.fromJson(_presencePayload(resp));
+  }
+
+  /// GET /api/v1/cs/organizations/:org_id/seats/me/presence（只读视图，
+  /// 降级展示用；不发心跳）。
+  Future<CsPresence> seatPresence(String orgId) async {
+    final resp = await get('/api/v1/cs/organizations/$orgId/seats/me/presence');
+    _ensureOk(resp);
+    return CsPresence.fromJson(_presencePayload(resp));
+  }
+
+  /// PUT seats/me/presence：manualStatus='away' 设手动离开；null=清除
+  /// （回到心跳/负载自动派生）。
+  Future<CsPresence> setSeatPresence(String orgId, String? manualStatus) async {
+    final resp = await put(
+      '/api/v1/cs/organizations/$orgId/seats/me/presence',
+      data: <String, dynamic>{?manualStatus: manualStatus},
+    );
+    _ensureOk(resp);
+    return CsPresence.fromJson(_presencePayload(resp));
+  }
+
+  /// GET sessions/:id/read-cursor：游标 + 未读数（未读 badge 数据源）。
+  Future<CsReadState> seatReadState(String orgId, String sessionId) async {
+    final resp = await get(
+      '/api/v1/cs/organizations/$orgId/sessions/$sessionId/read-cursor',
+    );
+    _ensureOk(resp);
+    final payload = resp.payload;
+    if (payload is! Map) {
+      throw const CsApiException(0, 'read-state-invalid');
+    }
+    return CsReadState.fromJson(payload);
+  }
+
+  /// presence 视图 payload 门：非 Map（含 null）即 fail-closed 抛
+  /// [CsApiException]——绝不 `as Map`（TypeError 会击穿调用方的
+  /// `on Exception` 诚实降级路径）。
+  Map<dynamic, dynamic> _presencePayload(IMBoyHttpResponse resp) {
+    final payload = resp.payload;
+    if (payload is! Map) {
+      throw const CsApiException(0, 'presence-invalid');
+    }
+    return payload;
+  }
+
+  /// POST sessions/:id/read-cursor：ACK（服务端单调 upsert——多端/多标签
+  /// 页交错后到的旧值是零副作用 no-op，游标不倒退）。
+  Future<void> seatAckRead(
+    String orgId,
+    String sessionId,
+    String lastReadMessageId,
+  ) async {
+    final resp = await post(
+      '/api/v1/cs/organizations/$orgId/sessions/$sessionId/read-cursor',
+      data: <String, dynamic>{'last_read_message_id': lastReadMessageId},
+    );
+    _ensureOk(resp);
   }
 
   // rating 面是访客侧动作（/api/v1/cs/sessions/:id/rating = cs_visit 主体）：

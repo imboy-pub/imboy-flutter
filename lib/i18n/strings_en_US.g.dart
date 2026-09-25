@@ -1768,6 +1768,17 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get sendConflict => 'The session state has changed; the latest state has been refreshed for you';
 	@override String get attachUploadFailed => 'Attachment upload failed. Please retry';
 	@override String get transferredAway => 'This conversation has been transferred to another agent and is read-only for you';
+	@override String get presenceMenuLabel => 'Seat status';
+	@override String get presenceUnavailable => 'Status unavailable';
+	@override String get seatDisabledNotice => 'Seat disabled';
+	@override String get presenceStatusOnline => 'Online';
+	@override String get presenceStatusAway => 'Away';
+	@override String get presenceStatusBusy => 'Busy';
+	@override String get presenceStatusOffline => 'Offline';
+	@override String get presenceAwayAction => 'Set away';
+	@override String get presenceResumeAction => 'Resume auto';
+	@override String presenceCapacityLabel({required Object active, required Object max}) => '${active}/${max} sessions';
+	@override String unreadBadgeLabel({required Object n}) => '${n} unread';
 }
 
 // Path: discovery
@@ -4752,6 +4763,17 @@ extension on TranslationsEnUs {
 			'customerService.sendConflict' => 'The session state has changed; the latest state has been refreshed for you',
 			'customerService.attachUploadFailed' => 'Attachment upload failed. Please retry',
 			'customerService.transferredAway' => 'This conversation has been transferred to another agent and is read-only for you',
+			'customerService.presenceMenuLabel' => 'Seat status',
+			'customerService.presenceUnavailable' => 'Status unavailable',
+			'customerService.seatDisabledNotice' => 'Seat disabled',
+			'customerService.presenceStatusOnline' => 'Online',
+			'customerService.presenceStatusAway' => 'Away',
+			'customerService.presenceStatusBusy' => 'Busy',
+			'customerService.presenceStatusOffline' => 'Offline',
+			'customerService.presenceAwayAction' => 'Set away',
+			'customerService.presenceResumeAction' => 'Resume auto',
+			'customerService.presenceCapacityLabel' => ({required Object active, required Object max}) => '${active}/${max} sessions',
+			'customerService.unreadBadgeLabel' => ({required Object n}) => '${n} unread',
 			'discovery.findNearbyPeople' => 'Find nearby people',
 			'discovery.moment' => 'Moments',
 			'discovery.nearbyPeopleExplain' => 'Nearby users can view your profile and send you messages. This may help you find new friends, but may also attract unwanted attention. You can stop sharing at any time.\nYour phone number stays hidden.',
@@ -5202,6 +5224,8 @@ extension on TranslationsEnUs {
 			'main.complianceKeyInfoServerKey' => 'Public key from server',
 			'main.complianceKeyInfoLocalPin' => 'Local pin (TOFU)',
 			'main.complianceKeyInfoKeyId' => 'Key ID',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoAlgorithm' => 'Algorithm',
 			'main.complianceKeyInfoFingerprint' => 'Public key fingerprint',
 			'main.complianceKeyInfoFetchedAt' => 'Fetched at',
@@ -5213,8 +5237,6 @@ extension on TranslationsEnUs {
 			'main.safetyNumberTitle' => 'Safety Number',
 			'main.safetyNumberHint' => 'Compare this safety number with your contact in person or over the phone. If they match, your conversation is not being intercepted by a man-in-the-middle. If they do not match, stop the conversation immediately and verify identity through another channel. Verification status is stored locally only.',
 			'main.safetyNumberCopy' => 'Copy',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberCopied' => 'Copied',
 			'main.safetyNumberMarkVerified' => 'Mark as verified',
 			'main.safetyNumberMarkedVerified' => 'Marked as verified',
@@ -5716,6 +5738,8 @@ extension on TranslationsEnUs {
 			'workspace.taskTitleLabel' => 'Task title',
 			'workspace.taskTitleRequired' => 'Task title is required',
 			'workspace.taskAssigneeLabel' => 'Assignee (Workspace Member)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskAssigneeNone' => 'Unassigned',
 			'workspace.taskAssigneeRefresh' => 'Refresh assignee candidates',
 			'workspace.taskSubmitCreate' => 'Create task',
@@ -5727,8 +5751,6 @@ extension on TranslationsEnUs {
 			'workspace.taskStatusTodo' => 'To do',
 			'workspace.taskStatusDoing' => 'Doing',
 			'workspace.taskStatusReview' => 'Review',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskStatusDone' => 'Done',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Advance to "${status}"',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Move ${title} back to…',

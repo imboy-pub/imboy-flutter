@@ -31,6 +31,8 @@ import 'dart:typed_data';
 
 import 'package:xid/xid.dart';
 
+import 'package:imboy/modules/customer_service/domain/cs_presence_controller.dart'
+    show nextAckTarget;
 import 'package:imboy/modules/customer_service/domain/cs_seat_session_machine.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
@@ -100,6 +102,19 @@ class CsSessionFlow {
   /// 最近一次失败的分类（A05：页面按类分流文案/可重试性；成功清空）。
   CsSeatFailureKind? lastFailureKind;
 
+  // ==================== 已读游标与未读（CS-APP-02 / CS-RUNTIME-04） ====================
+
+  /// 本地已 ACK 单调水位（服务端 read cursor 镜像）。进入会话 /
+  /// resync.required 后由 [resyncReadState] 权威重置；只被更大的
+  /// 消息 id 推进（[nextAckTarget]），多端交错不回退。
+  String ackedCursor = '';
+
+  /// 服务端未读数快照（未读 badge 唯一数据源）。
+  ///
+  /// null = 陈旧/未知（重连/resync 进行中或读面失败）——**不渲染未读**
+  /// （fail-closed：转接/撤权/离线重连后不得出现陈旧未读）。
+  int? unreadCount;
+
   CsSessionFlow({
     required this.orgId,
     required this.sessionId,
@@ -144,6 +159,7 @@ class CsSessionFlow {
         // 服务端读成功且未关闭：suspend 只读允许恢复（服务端权威）。
         machine.restoreFromSuspension();
       }
+      _invalidateStaleUnread();
       return d;
     } on CsApiException catch (e) {
       applyFailure(e);
@@ -164,7 +180,47 @@ class CsSessionFlow {
       case CsSeatFailureKind.other:
         break;
     }
+    _invalidateStaleUnread();
     return kind;
+  }
+
+  /// 只读终态（转接/撤权/关闭/评分）后未读已无意义：陈旧化（null =
+  /// 不渲染）——转接/撤权后不得残留旧坐席视角的未读（CS-RUNTIME-04）。
+  void _invalidateStaleUnread() {
+    if (!machine.shouldPoll) unreadCount = null;
+  }
+
+  // ==================== 已读游标与未读（CS-APP-02 / CS-RUNTIME-04） ====================
+
+  /// 重同步读状态（进入会话 / resume / resync.required 后、渲染未读
+  /// **之前**）：权威拉取游标 + 未读数。
+  ///
+  /// 失败 fail-closed：未读置 null（不渲染陈旧值），本地水位不倒退。
+  Future<void> resyncReadState() async {
+    try {
+      final s = await _csApi.seatReadState(orgId, sessionId);
+      ackedCursor = s.lastReadMessageId;
+      unreadCount = s.unreadCount;
+    } on CsApiException {
+      unreadCount = null;
+    }
+  }
+
+  /// 「权威展示完成」时 ACK（CS-RUNTIME-04）：把已加载最大消息 id 推进
+  /// 读游标。单调裁决（[nextAckTarget]）：无新消息/旧值不发（服务端本就
+  /// no-op，本地也不发）；成功后未读清零（本端刚读完）。失败保留水位与
+  /// 未读——不本地伪读，下次展示完成重试。
+  Future<void> ackReadSeen() async {
+    if (messages.isEmpty) return;
+    final target = nextAckTarget(current: ackedCursor, seen: messages.last.id);
+    if (target == null) return;
+    try {
+      await _csApi.seatAckRead(orgId, sessionId, target);
+      ackedCursor = target;
+      unreadCount = 0;
+    } on CsApiException {
+      // 保留水位：不推进、不清未读（诚实——ACK 未被服务端确认）。
+    }
   }
 
   // ==================== 消息通道 ====================
@@ -400,6 +456,7 @@ class CsSessionFlow {
         expectedVersion: version,
       );
       machine.markTransferredAway();
+      unreadCount = null;
       lastFailureKind = null;
       return null;
     } on CsApiException catch (e) {
@@ -428,6 +485,7 @@ class CsSessionFlow {
         reason: reason,
       );
       machine.markClosed();
+      unreadCount = null;
       lastFailureKind = null;
       return null;
     } on CsApiException catch (e) {
@@ -458,8 +516,9 @@ class CsSessionFlow {
     if (!machine.shouldPoll) return;
     switch (e.type) {
       case CsSseEnvelope.typeMessageAppended:
-        // 访客新消息：增量权威拉取（游标防重，事件重复无害）。
-        loadIncremental();
+        // 访客新消息：增量权威拉取（游标防重，事件重复无害）→ 页面在场
+        // 消费即「展示完成」→ ACK 推进读游标（CS-APP-02）。
+        loadIncremental().then((_) => ackReadSeen());
       case CsSseEnvelope.typeSessionChanged:
         if (e.resourceId.isEmpty || e.resourceId == sessionId) {
           refreshSessionState();
@@ -469,10 +528,15 @@ class CsSessionFlow {
         // 撤权/挂起/过期最小事件：立即权威刷新，让 403/409/回显定格降级。
         refreshSessionState();
       case CsSseEnvelope.typeResyncRequired:
-        // 游标缺失/过期/不连续：清游标 + 全量权威刷新（含 detail）。
+        // 游标缺失/过期/不连续：清消息游标 + **未读陈旧化**（null——重连后
+        // 不得渲染陈旧未读），先重同步读状态（游标/未读权威值）再增量
+        // 拉取渲染，展示完成后 ACK 推进（CS-RUNTIME-04 重连顺序）。
         cursor = '';
+        unreadCount = null;
         refreshSessionState();
-        loadIncremental();
+        resyncReadState()
+            .then((_) => loadIncremental())
+            .then((_) => ackReadSeen());
       case CsSseEnvelope.typeQueueChanged:
         // 队列事件由工作台页面级流消费；会话页不响应。
         break;

@@ -90,3 +90,18 @@ sendFailed: "Send failed. Please try again later"
 sendConflict: "The session state has changed; the latest state has been refreshed for you"
 attachUploadFailed: "Attachment upload failed. Please retry"
 transferredAway: "This conversation has been transferred to another agent and is read-only for you"
+# ==================== CS-APP-02 (presence runtime + read cursor/unread) ====================
+# Governance switch (enabled) and runtime status (online/away/busy/offline) are
+# shown separately; status is a server-derived fact, rendered read-only (show
+# "Status unavailable" when heartbeats fail).
+presenceMenuLabel: "Seat status"
+presenceUnavailable: "Status unavailable"
+seatDisabledNotice: "Seat disabled"
+presenceStatusOnline: "Online"
+presenceStatusAway: "Away"
+presenceStatusBusy: "Busy"
+presenceStatusOffline: "Offline"
+presenceAwayAction: "Set away"
+presenceResumeAction: "Resume auto"
+presenceCapacityLabel: "$active/$max sessions"
+unreadBadgeLabel: "$n unread"

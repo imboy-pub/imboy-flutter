@@ -19,6 +19,7 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/customer_service/domain/cs_presence_controller.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_paged_list.dart';
@@ -36,7 +37,7 @@ class CsWorkspacePage extends StatefulWidget {
 }
 
 class _CsWorkspacePageState extends State<CsWorkspacePage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   final CsApi _api = CsApi();
 
   late final TabController _tabController;
@@ -61,6 +62,10 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
       StreamController<void>.broadcast();
   Timer? _refreshDebounce;
 
+  /// CS-APP-02：presence 控制器（前台心跳 / 后台停发 / resume 重同步）。
+  CsPresenceController? _presence;
+  bool _presenceBusy = false;
+
   /// 服务端计数（逐 Tab；null = 服务端未提供，UI 显示占位符）。
   int? _queuedTotal;
   int? _activeTotal;
@@ -69,17 +74,31 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 3, vsync: this);
     _loadContexts();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _presence?.stop();
+    _presence = null;
     _refreshDebounce?.cancel();
     _events?.dispose();
     _refreshSignal.close();
     _tabController.dispose();
     super.dispose();
+  }
+
+  /// CS-RUNTIME-04：App lifecycle → presence 门控。前台周期心跳、进后台
+  /// 停发（90 秒无心跳服务端自然 offline——不保持假 online）、resume
+  /// 立即补跳 + 三视图权威重同步（onResync）。
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    unawaited(
+      _presence?.onAppLifecycleStateChanged(state.name) ?? Future<void>.value(),
+    );
   }
 
   /// 拉取坐席上下文清单（seat-contexts 列表驱动，APP-M01-A01）。
@@ -120,10 +139,13 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
     }
   }
 
-  /// APP-M02-A02：按当前 Org（及其首个 workspace）启动坐席事件流。
+  /// APP-M02-A02：按当前 Org（及其首个 workspace）启动坐席事件流；
+  /// CS-APP-02 同时启动 presence 心跳（同 org 作用域；切 Org 重建）。
   void _startEvents() {
     _events?.dispose();
     _events = null;
+    _presence?.stop();
+    _presence = null;
     final orgId = _selectedOrgId;
     if (orgId == null) return;
     final stream = CsSeatEventsStream(
@@ -132,6 +154,25 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
     );
     _events = stream;
     stream.start(onEvent: _onSeatEvent);
+    _startPresence(orgId);
+  }
+
+  /// 启动 presence 心跳（resume 重同步 = 三视图权威刷新，与 SSE 事件
+  /// 同一信号通道；presence 变化即重建状态条）。
+  void _startPresence(String orgId) {
+    final controller = CsPresenceController(
+      csApi: _api,
+      orgId: orgId,
+      onResync: () async {
+        if (!mounted || _refreshSignal.isClosed) return;
+        _refreshSignal.add(null);
+      },
+      onPresenceChanged: () {
+        if (mounted) setState(() {});
+      },
+    );
+    _presence = controller;
+    controller.start();
   }
 
   void _onSeatEvent(CsSseEnvelope e) {
@@ -221,6 +262,153 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
     );
   }
 
+  // ==================== presence 状态条（CS-APP-02 / CS-RUNTIME-04） ====================
+
+  /// presence 运行态展示语义（服务端派生值，客户端只读）：
+  /// - 治理开关（enabled）与运行态（online/away/busy/offline）**分离**——
+  ///   enabled=false 显示「席位已停用」（治理事实），不显示任何运行态；
+  /// - lastPresence == null（从未成功/心跳失败）→「状态不可用」（诚实
+  ///   降级：本地不造状态，断网不显示 online）；
+  /// - 手动 away / 恢复自动经 PUT（manual_status），回填服务端派生结果。
+  Widget? _presenceAction() {
+    if (_contextsLoading || _selectedOrgId == null) return null;
+    return PopupMenuButton<String>(
+      tooltip: context.t.customerService.presenceMenuLabel,
+      onSelected: _onPresenceMenuSelected,
+      itemBuilder: _presenceMenuItems,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+        child: _presenceChip(),
+      ),
+    );
+  }
+
+  Widget _presenceChip() {
+    final t = context.t.customerService;
+    final presence = _presence?.lastPresence;
+    if (presence == null) {
+      // 从未成功 / 心跳失败：诚实降级（不显示任何运行态）。
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            CupertinoIcons.minus_circle,
+            size: 14,
+            color: AppColors.iosGray,
+          ),
+          const SizedBox(width: AppSpacing.tiny),
+          Text(
+            t.presenceUnavailable,
+            style: context.textStyle(
+              FontSizeType.footnote,
+              color: AppColors.iosGray,
+            ),
+          ),
+        ],
+      );
+    }
+    if (!presence.enabled) {
+      // 治理开关关闭：治理事实展示（非运行态）。
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            CupertinoIcons.lock_circle,
+            size: 14,
+            color: AppColors.warning,
+          ),
+          const SizedBox(width: AppSpacing.tiny),
+          Text(
+            t.seatDisabledNotice,
+            style: context.textStyle(
+              FontSizeType.footnote,
+              color: AppColors.warning,
+            ),
+          ),
+        ],
+      );
+    }
+    final (label, color) = switch (presence.status) {
+      CsPresenceStatus.online => (t.presenceStatusOnline, AppColors.iosGreen),
+      CsPresenceStatus.away => (t.presenceStatusAway, AppColors.iosYellow),
+      CsPresenceStatus.busy => (t.presenceStatusBusy, AppColors.iosOrange),
+      CsPresenceStatus.offline => (t.presenceStatusOffline, AppColors.iosGray),
+    };
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(CupertinoIcons.circle_fill, size: 8, color: color),
+        const SizedBox(width: AppSpacing.tiny),
+        Text(
+          label,
+          style: context.textStyle(FontSizeType.footnote, color: color),
+        ),
+      ],
+    );
+  }
+
+  List<PopupMenuEntry<String>> _presenceMenuItems(BuildContext context) {
+    final t = context.t.customerService;
+    final presence = _presence?.lastPresence;
+    final header = presence == null
+        ? t.presenceUnavailable
+        : !presence.enabled
+        ? t.seatDisabledNotice
+        : switch (presence.status) {
+            CsPresenceStatus.online => t.presenceStatusOnline,
+            CsPresenceStatus.away => t.presenceStatusAway,
+            CsPresenceStatus.busy => t.presenceStatusBusy,
+            CsPresenceStatus.offline => t.presenceStatusOffline,
+          };
+    return [
+      PopupMenuItem<String>(
+        enabled: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(header, style: context.textStyle(FontSizeType.footnote)),
+            if (presence != null && presence.enabled)
+              Text(
+                t.presenceCapacityLabel(
+                  active: presence.activeCount,
+                  max: presence.maxConcurrent,
+                ),
+                style: context.textStyle(
+                  FontSizeType.caption2,
+                  color: AppColors.iosGray,
+                ),
+              ),
+          ],
+        ),
+      ),
+      const PopupMenuDivider(),
+      if (presence != null && presence.enabled && _presence != null)
+        PopupMenuItem<String>(
+          value: presence.manualStatus == 'away' ? 'clear' : 'away',
+          child: Text(
+            presence.manualStatus == 'away'
+                ? t.presenceResumeAction
+                : t.presenceAwayAction,
+          ),
+        ),
+    ];
+  }
+
+  Future<void> _onPresenceMenuSelected(String value) async {
+    final controller = _presence;
+    if (controller == null || _presenceBusy) return;
+    setState(() => _presenceBusy = true);
+    try {
+      // away=手动离开（优先于自动派生）；clear=恢复自动（心跳/负载派生）。
+      await controller.setManualStatus(value == 'away' ? 'away' : null);
+    } on Object {
+      // 失败保底：回填当前视图（诚实——不伪成功）。
+    } finally {
+      if (mounted) setState(() => _presenceBusy = false);
+    }
+  }
+
   /// 组织选择器（AppBar 动作；seat-contexts 列表驱动，A01/A03）。
   Widget _orgSelector() {
     final t = context.t.customerService;
@@ -301,7 +489,10 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
     return Scaffold(
       appBar: AppBar(
         title: Text(t.title),
-        actions: [if (!_contextsLoading && orgId != null) _orgSelector()],
+        actions: [
+          ?_presenceAction(),
+          if (!_contextsLoading && orgId != null) _orgSelector(),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: [
