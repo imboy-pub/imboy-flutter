@@ -248,9 +248,19 @@ void main() {
       darkVisibleText: find.text('研发部'),
     );
 
-    // semantics（机械 find）：根部门可达，展开后子部门行可见。
+    // semantics（机械 find）：根部门可达；ENT-APP-05 起行点击一律进
+    // 部门详情弹层，子部门展开收窄到 leading folder 图标——先点「研发部」
+    // 行的展开图标，子部门行「前端组」才渲染（对齐实现契约，同
+    // organization_departments_page_widget_test 的展开定位方式）。
     expect(find.text('研发部'), findsOneWidget);
-    await tester.tap(find.text('研发部'));
+    await tester.tap(
+      find
+          .descendant(
+            of: find.widgetWithText(ListTile, '研发部'),
+            matching: find.byIcon(CupertinoIcons.folder_fill),
+          )
+          .first,
+    );
     await settleUx(tester);
     expect(find.text('前端组'), findsOneWidget);
   });
