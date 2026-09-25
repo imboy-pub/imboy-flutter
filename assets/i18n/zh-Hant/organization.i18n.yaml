@@ -229,6 +229,15 @@ memberDetail:
   workspacesFailed: 有權工作區載入失敗
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
+  renameWorkspace: 重新命名工作區
+  renameWorkspaceTitle: "重新命名「${name}」"
+  wsMembersEntry: 成員治理
+  renameGroup: 重新命名
+  renameGroupTitle: "重新命名「${name}」"
+  groupGovernance: 成員與角色
+  renameChannel: 重新命名
+  channelAdmins: 管理員
+  channelSubscribersEntry: 訂閱者
   entry: 企業管理
   entryRestricted: 企業管理（僅管理員）
   title: 企業管理
@@ -296,9 +305,45 @@ hub:
   zoneChannelsDesc: 企業頻道 · 經企業管理查看
   zoneTools: 工具
   zoneToolsDesc: 工作區 · 項目與協作
+  zoneOrgTools: 企業協作工具
+  zoneOrgToolsDesc: 本企業已授權的工作區專案與任務
   adminMembers: 成員治理
   adminMembersDesc: 角色調整 · 移除成員
   adminInvitations: 邀請管理
   adminInvitationsDesc: 邀請建立與撤銷
   adminManage: 企業管理
   adminManageDesc: 工作區 · 群 · 頻道治理
+
+wsMembers:
+  title: "工作區成員 · ${ws}"
+  invite: 邀請成員
+  inviteHint: 經既有嚮導選擇聯絡人發出邀請（僅工作區所有者）
+  readOnlyHint: 目前唯讀；寫操作僅工作區所有者可用
+  memberCount: "成員 ${count}"
+  notFound: 工作區不存在或你無權查看
+  roleOwner: 所有者
+  roleMember: 成員
+  roleGuest: 訪客
+  changeRole: 更改角色
+  setRoleMember: 設為成員
+  setRoleGuest: 設為訪客
+  transferOwner: 轉讓所有者
+  transferOwnerTitle: "轉讓「${name}」的所有者？"
+  transferOwnerBody: 轉讓後你不再是該工作區所有者，寫治理權限隨之移交給對方；新所有者可再轉回。
+  removeMember: 移除成員
+  removeTitle: "移除「${name}」？"
+  removeBody: 移除後對方退出該工作區；若對方仍是專案所有者或有未完成任務，伺服器會拒絕並列出衝突。
+  archivedReadOnly: 工作區已歸檔：成員治理寫操作已被伺服器停用。
+
+tools:
+  title: 企業工具
+  titleWithOrg: "${name} · 企業工具"
+  scopeNote: 這裡只列出你已加入的本企業工作區與其專案；任務、里程碑等在專案詳情內。
+  archivedNote: 企業已歸檔：工具區唯讀。
+  workspaceEmpty: 暫無已加入的工作區
+  workspaceEmptyHint: 同企業內你未加入的工作區不會出現在這裡。
+  projectCount: "專案 ${count}"
+  projectsEmpty: 暫無專案
+  projectsError: "專案載入失敗：${err}"
+  moreInWorkspaceShell: 瀏覽全部工作區
+  moreInWorkspaceShellHint: 開啟全域工作區切換器（跨企業）。

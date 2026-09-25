@@ -229,6 +229,15 @@ memberDetail:
   workspacesFailed: Berechtigte Arbeitsbereiche konnten nicht geladen werden
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
+  renameWorkspace: Workspace umbenennen
+  renameWorkspaceTitle: "\"${name}\" umbenennen"
+  wsMembersEntry: Mitglieder verwalten
+  renameGroup: Umbenennen
+  renameGroupTitle: "\"${name}\" umbenennen"
+  groupGovernance: Mitglieder & Rollen
+  renameChannel: Umbenennen
+  channelAdmins: Administratoren
+  channelSubscribersEntry: Abonnenten
   entry: Unternehmensverwaltung
   entryRestricted: Unternehmensverwaltung (nur Admins)
   title: Unternehmensverwaltung
@@ -296,9 +305,45 @@ hub:
   zoneChannelsDesc: Organisationskanäle · über die Verwaltung
   zoneTools: Werkzeuge
   zoneToolsDesc: Workspaces · Projekte und Zusammenarbeit
+  zoneOrgTools: Enterprise-Tools
+  zoneOrgToolsDesc: Autorisierte Workspace-Projekte und Aufgaben dieses Unternehmens
   adminMembers: Mitgliederverwaltung
   adminMembersDesc: Rollen · Mitglieder entfernen
   adminInvitations: Einladungsverwaltung
   adminInvitationsDesc: Einladungen erstellen und widerrufen
   adminManage: Organisationsverwaltung
   adminManageDesc: Workspaces · Gruppen · Kanäle
+
+wsMembers:
+  title: "Workspace-Mitglieder · ${ws}"
+  invite: Mitglieder einladen
+  inviteHint: Kontakte über den bestehenden Assistenten einladen (nur Workspace-Owner)
+  readOnlyHint: Schreibgeschützte Ansicht; Schreibaktionen nur für den Workspace-Owner.
+  memberCount: "Mitglieder ${count}"
+  notFound: Workspace nicht gefunden oder nicht sichtbar
+  roleOwner: Owner
+  roleMember: Mitglied
+  roleGuest: Gast
+  changeRole: Rolle ändern
+  setRoleMember: Als Mitglied festlegen
+  setRoleGuest: Als Gast festlegen
+  transferOwner: Owner übertragen
+  transferOwnerTitle: "Owner von \"${name}\" übertragen?"
+  transferOwnerBody: Danach bist du nicht mehr Workspace-Owner; die Governance-Rechte gehen an die neue Person über und können zurückübertragen werden.
+  removeMember: Mitglied entfernen
+  removeTitle: "\"${name}\" entfernen?"
+  removeBody: Die Person verlässt den Workspace; bleibt sie Projekteigentümerin oder hat offene Aufgaben, lehnt der Server ab und listet die Konflikte.
+  archivedReadOnly: "Workspace archiviert: Governance-Schreibaktionen sind serverseitig deaktiviert."
+
+tools:
+  title: Enterprise-Tools
+  titleWithOrg: "${name} · Enterprise-Tools"
+  scopeNote: Es werden nur Workspaces dieses Unternehmens mit deiner Mitgliedschaft samt Projekte gelistet; Aufgaben und Meilensteine liegen in der Projektdetailseite.
+  archivedNote: "Unternehmen archiviert: Der Tool-Bereich ist schreibgeschützt."
+  workspaceEmpty: Keine beigetretenen Workspaces
+  workspaceEmptyHint: Workspaces dieses Unternehmens ohne deine Mitgliedschaft erscheinen hier nicht.
+  projectCount: "Projekte ${count}"
+  projectsEmpty: Noch keine Projekte
+  projectsError: "Projekte laden fehlgeschlagen: ${err}"
+  moreInWorkspaceShell: Alle Workspaces durchsuchen
+  moreInWorkspaceShellHint: Globalen Workspace-Umschalter öffnen (unternehmensübergreifend).

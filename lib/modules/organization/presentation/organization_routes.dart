@@ -14,6 +14,10 @@
 ///   内的有权工作区，§5.2；全员可见）
 /// - /organization/:orgId/manage         → 企业管理（GZAPP-05：工作区/群/频道
 ///   治理；非 owner/admin 直达时页内给只读 + 无权限态）
+/// - /organization/:orgId/tools           → 企业工具聚合（ENT-APP-06：本企业
+///   已授权的工作区项目/任务入口，只读聚合）
+/// - /organization/:orgId/ws/:wsId/members → 工作区成员治理（ENT-APP-06：
+///   org 视角显式带 wsId 的成员面；写动作仅该工作区 Owner）
 library;
 
 import 'package:flutter/cupertino.dart';
@@ -30,6 +34,8 @@ import 'organization_manage_page.dart';
 import 'organization_member_detail_page.dart';
 import 'organization_members_page.dart';
 import 'organization_picker_page.dart';
+import 'organization_tools_page.dart';
+import 'org_workspace_members_page.dart';
 
 const String kOrganizationHomePath = '/organization';
 const String kOrganizationPickerPath = '$kOrganizationHomePath/picker';
@@ -146,6 +152,29 @@ List<RouteBase> organizationRoutes() => [
               key: state.pageKey,
               child: OrganizationManagePage(
                 orgId: state.pathParameters['orgId'] ?? '',
+              ),
+            ),
+          ),
+          // ENT-APP-06：企业工具聚合（只读；深链既有 project 页）。
+          GoRoute(
+            path: 'tools',
+            name: 'organization_tools',
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: OrganizationToolsPage(
+                orgId: state.pathParameters['orgId'] ?? '',
+              ),
+            ),
+          ),
+          // ENT-APP-06：工作区成员治理（org 视角显式 wsId 面）。
+          GoRoute(
+            path: 'ws/:wsId/members',
+            name: 'organization_ws_members',
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: OrgWorkspaceMembersPage(
+                workspaceId: state.pathParameters['wsId'] ?? '',
+                workspaceName: state.uri.queryParameters['name'] ?? '',
               ),
             ),
           ),

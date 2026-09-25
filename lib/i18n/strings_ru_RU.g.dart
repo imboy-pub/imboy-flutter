@@ -2362,6 +2362,8 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$manage$ru_RU manage = _Translations$organization$manage$ru_RU._(_root);
 	@override late final _Translations$organization$contactEntry$ru_RU contactEntry = _Translations$organization$contactEntry$ru_RU._(_root);
 	@override late final _Translations$organization$hub$ru_RU hub = _Translations$organization$hub$ru_RU._(_root);
+	@override late final _Translations$organization$wsMembers$ru_RU wsMembers = _Translations$organization$wsMembers$ru_RU._(_root);
+	@override late final _Translations$organization$tools$ru_RU tools = _Translations$organization$tools$ru_RU._(_root);
 }
 
 // Path: passport
@@ -2984,6 +2986,15 @@ class _Translations$organization$manage$ru_RU extends Translations$organization$
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get renameWorkspace => 'Переименовать рабочее пространство';
+	@override String renameWorkspaceTitle({required Object name}) => 'Переименовать «${name}»';
+	@override String get wsMembersEntry => 'Управление участниками';
+	@override String get renameGroup => 'Переименовать';
+	@override String renameGroupTitle({required Object name}) => 'Переименовать «${name}»';
+	@override String get groupGovernance => 'Участники и роли';
+	@override String get renameChannel => 'Переименовать';
+	@override String get channelAdmins => 'Администраторы';
+	@override String get channelSubscribersEntry => 'Подписчики';
 	@override String get entry => 'Управление предприятием';
 	@override String get entryRestricted => 'Управление предприятием (только администраторы)';
 	@override String get title => 'Управление предприятием';
@@ -3065,12 +3076,62 @@ class _Translations$organization$hub$ru_RU extends Translations$organization$hub
 	@override String get zoneChannelsDesc => 'Каналы организации · через консоль управления';
 	@override String get zoneTools => 'Инструменты';
 	@override String get zoneToolsDesc => 'Рабочие пространства · проекты и совместная работа';
+	@override String get zoneOrgTools => 'Корпоративные инструменты';
+	@override String get zoneOrgToolsDesc => 'Проекты и задачи рабочих пространств, доступных в этой организации';
 	@override String get adminMembers => 'Управление участниками';
 	@override String get adminMembersDesc => 'Роли · удаление участников';
 	@override String get adminInvitations => 'Управление приглашениями';
 	@override String get adminInvitationsDesc => 'Создание и отзыв приглашений';
 	@override String get adminManage => 'Управление организацией';
 	@override String get adminManageDesc => 'Рабочие пространства · группы · каналы';
+}
+
+// Path: organization.wsMembers
+class _Translations$organization$wsMembers$ru_RU extends Translations$organization$wsMembers$zh_CN {
+	_Translations$organization$wsMembers$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String title({required Object ws}) => 'Участники пространства · ${ws}';
+	@override String get invite => 'Пригласить участников';
+	@override String get inviteHint => 'Приглашение через существующий мастер (только владелец пространства)';
+	@override String get readOnlyHint => 'Просмотр без записи; записи доступны только владельцу пространства.';
+	@override String memberCount({required Object count}) => 'Участников: ${count}';
+	@override String get notFound => 'Рабочее пространство не найдено или недоступно';
+	@override String get roleOwner => 'Владелец';
+	@override String get roleMember => 'Участник';
+	@override String get roleGuest => 'Гость';
+	@override String get changeRole => 'Изменить роль';
+	@override String get setRoleMember => 'Назначить участником';
+	@override String get setRoleGuest => 'Назначить гостем';
+	@override String get transferOwner => 'Передать владельца';
+	@override String transferOwnerTitle({required Object name}) => 'Передать владельца «${name}»?';
+	@override String get transferOwnerBody => 'После передачи вы перестанете быть владельцем; права управления перейдут другому человеку и могут быть возвращены.';
+	@override String get removeMember => 'Удалить участника';
+	@override String removeTitle({required Object name}) => 'Удалить «${name}»?';
+	@override String get removeBody => 'Участник покинет пространство; если он владеет проектами или имеет незавершённые задачи, сервер отклонит операцию и перечислит конфликты.';
+	@override String get archivedReadOnly => 'Пространство в архиве: записи управления отключены сервером.';
+}
+
+// Path: organization.tools
+class _Translations$organization$tools$ru_RU extends Translations$organization$tools$zh_CN {
+	_Translations$organization$tools$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Корпоративные инструменты';
+	@override String titleWithOrg({required Object name}) => '${name} · Корпоративные инструменты';
+	@override String get scopeNote => 'Показаны только пространства этой организации, в которые вы вступили, и их проекты; задачи и вехи — внутри страницы проекта.';
+	@override String get archivedNote => 'Организация в архиве: раздел инструментов только для чтения.';
+	@override String get workspaceEmpty => 'Нет вступленных пространств';
+	@override String get workspaceEmptyHint => 'Пространства этой организации, в которые вы не вступили, здесь не отображаются.';
+	@override String projectCount({required Object count}) => 'Проектов: ${count}';
+	@override String get projectsEmpty => 'Проектов пока нет';
+	@override String projectsError({required Object err}) => 'Не удалось загрузить проекты: ${err}';
+	@override String get moreInWorkspaceShell => 'Все рабочие пространства';
+	@override String get moreInWorkspaceShellHint => 'Открыть глобальный переключатель пространств (между организациями).';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -5321,6 +5382,15 @@ extension on TranslationsRuRu {
 			'organization.memberDetail.workspacesTitle' => 'Доступные рабочие пространства',
 			'organization.memberDetail.workspacesEmpty' => 'У этого участника пока нет рабочих пространств в компании',
 			'organization.memberDetail.workspacesFailed' => 'Не удалось загрузить доступные рабочие пространства',
+			'organization.manage.renameWorkspace' => 'Переименовать рабочее пространство',
+			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => 'Переименовать «${name}»',
+			'organization.manage.wsMembersEntry' => 'Управление участниками',
+			'organization.manage.renameGroup' => 'Переименовать',
+			'organization.manage.renameGroupTitle' => ({required Object name}) => 'Переименовать «${name}»',
+			'organization.manage.groupGovernance' => 'Участники и роли',
+			'organization.manage.renameChannel' => 'Переименовать',
+			'organization.manage.channelAdmins' => 'Администраторы',
+			'organization.manage.channelSubscribersEntry' => 'Подписчики',
 			'organization.manage.entry' => 'Управление предприятием',
 			'organization.manage.entryRestricted' => 'Управление предприятием (только администраторы)',
 			'organization.manage.title' => 'Управление предприятием',
@@ -5384,12 +5454,44 @@ extension on TranslationsRuRu {
 			'organization.hub.zoneChannelsDesc' => 'Каналы организации · через консоль управления',
 			'organization.hub.zoneTools' => 'Инструменты',
 			'organization.hub.zoneToolsDesc' => 'Рабочие пространства · проекты и совместная работа',
+			'organization.hub.zoneOrgTools' => 'Корпоративные инструменты',
+			'organization.hub.zoneOrgToolsDesc' => 'Проекты и задачи рабочих пространств, доступных в этой организации',
 			'organization.hub.adminMembers' => 'Управление участниками',
 			'organization.hub.adminMembersDesc' => 'Роли · удаление участников',
 			'organization.hub.adminInvitations' => 'Управление приглашениями',
 			'organization.hub.adminInvitationsDesc' => 'Создание и отзыв приглашений',
 			'organization.hub.adminManage' => 'Управление организацией',
 			'organization.hub.adminManageDesc' => 'Рабочие пространства · группы · каналы',
+			'organization.wsMembers.title' => ({required Object ws}) => 'Участники пространства · ${ws}',
+			'organization.wsMembers.invite' => 'Пригласить участников',
+			'organization.wsMembers.inviteHint' => 'Приглашение через существующий мастер (только владелец пространства)',
+			'organization.wsMembers.readOnlyHint' => 'Просмотр без записи; записи доступны только владельцу пространства.',
+			'organization.wsMembers.memberCount' => ({required Object count}) => 'Участников: ${count}',
+			'organization.wsMembers.notFound' => 'Рабочее пространство не найдено или недоступно',
+			'organization.wsMembers.roleOwner' => 'Владелец',
+			'organization.wsMembers.roleMember' => 'Участник',
+			'organization.wsMembers.roleGuest' => 'Гость',
+			'organization.wsMembers.changeRole' => 'Изменить роль',
+			'organization.wsMembers.setRoleMember' => 'Назначить участником',
+			'organization.wsMembers.setRoleGuest' => 'Назначить гостем',
+			'organization.wsMembers.transferOwner' => 'Передать владельца',
+			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => 'Передать владельца «${name}»?',
+			'organization.wsMembers.transferOwnerBody' => 'После передачи вы перестанете быть владельцем; права управления перейдут другому человеку и могут быть возвращены.',
+			'organization.wsMembers.removeMember' => 'Удалить участника',
+			'organization.wsMembers.removeTitle' => ({required Object name}) => 'Удалить «${name}»?',
+			'organization.wsMembers.removeBody' => 'Участник покинет пространство; если он владеет проектами или имеет незавершённые задачи, сервер отклонит операцию и перечислит конфликты.',
+			'organization.wsMembers.archivedReadOnly' => 'Пространство в архиве: записи управления отключены сервером.',
+			'organization.tools.title' => 'Корпоративные инструменты',
+			'organization.tools.titleWithOrg' => ({required Object name}) => '${name} · Корпоративные инструменты',
+			'organization.tools.scopeNote' => 'Показаны только пространства этой организации, в которые вы вступили, и их проекты; задачи и вехи — внутри страницы проекта.',
+			'organization.tools.archivedNote' => 'Организация в архиве: раздел инструментов только для чтения.',
+			'organization.tools.workspaceEmpty' => 'Нет вступленных пространств',
+			'organization.tools.workspaceEmptyHint' => 'Пространства этой организации, в которые вы не вступили, здесь не отображаются.',
+			'organization.tools.projectCount' => ({required Object count}) => 'Проектов: ${count}',
+			'organization.tools.projectsEmpty' => 'Проектов пока нет',
+			'organization.tools.projectsError' => ({required Object err}) => 'Не удалось загрузить проекты: ${err}',
+			'organization.tools.moreInWorkspaceShell' => 'Все рабочие пространства',
+			'organization.tools.moreInWorkspaceShellHint' => 'Открыть глобальный переключатель пространств (между организациями).',
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',
@@ -5608,6 +5710,8 @@ extension on TranslationsRuRu {
 			'workspace.projectMemberTransferDesc' => 'После передачи получатель получит полные права управления проектом',
 			'workspace.projectMemberTransferConfirm' => 'Подтвердить передачу',
 			'workspace.projectMemberTransferDoneToast' => 'Ответственный за проект передан',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => 'Этапы',
 			'workspace.projectMilestoneEmptyTitle' => 'Пока нет этапов',
 			'workspace.projectMilestoneEmptySubtitle' => 'Отмечайте ключевые точки проекта этапами (в плане → достигнут, только вперёд)',

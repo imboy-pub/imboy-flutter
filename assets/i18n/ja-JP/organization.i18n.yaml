@@ -229,6 +229,15 @@ memberDetail:
   workspacesFailed: 権限のあるワークスペースの読み込みに失敗しました
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
+  renameWorkspace: ワークスペースの名前変更
+  renameWorkspaceTitle: "「${name}」の名前を変更"
+  wsMembersEntry: メンバー管理
+  renameGroup: 名前を変更
+  renameGroupTitle: "「${name}」の名前を変更"
+  groupGovernance: メンバーと役割
+  renameChannel: 名前を変更
+  channelAdmins: 管理者
+  channelSubscribersEntry: 購読者
   entry: 企業管理
   entryRestricted: 企業管理（管理者のみ）
   title: 企業管理
@@ -296,9 +305,45 @@ hub:
   zoneChannelsDesc: 企業チャンネル · 企業管理から閲覧
   zoneTools: ツール
   zoneToolsDesc: ワークスペース · プロジェクトとコラボレーション
+  zoneOrgTools: 企業コラボツール
+  zoneOrgToolsDesc: この企業で承認されたワークスペースのプロジェクトとタスク
   adminMembers: メンバー管理
   adminMembersDesc: ロール調整 · メンバー削除
   adminInvitations: 招待管理
   adminInvitationsDesc: 招待作成と取り消し
   adminManage: 企業管理
   adminManageDesc: ワークスペース · グループ · チャンネル管理
+
+wsMembers:
+  title: "ワークスペースメンバー · ${ws}"
+  invite: メンバーを招待
+  inviteHint: 既存ウィザードで連絡先を選んで招待（ワークスペース所有者のみ）
+  readOnlyHint: 読み取り専用。書き込み操作はワークスペース所有者のみ可能です。
+  memberCount: "メンバー ${count} 名"
+  notFound: ワークスペースが存在しないか閲覧権限がありません
+  roleOwner: 所有者
+  roleMember: メンバー
+  roleGuest: ゲスト
+  changeRole: 役割を変更
+  setRoleMember: メンバーに設定
+  setRoleGuest: ゲストに設定
+  transferOwner: 所有者を譲渡
+  transferOwnerTitle: "「${name}」の所有者を譲渡しますか？"
+  transferOwnerBody: 譲渡後あなたは所有者でなくなり、管理権限は相手に移ります。新しい所有者は再び譲り戻せます。
+  removeMember: メンバーを削除
+  removeTitle: "「${name}」を削除しますか？"
+  removeBody: メンバーはこのワークスペースから外れます。プロジェクト所有者や未完了タスクが残る場合、サーバーが拒否し競合を一覧表示します。
+  archivedReadOnly: ワークスペースはアーカイブ済み。管理操作はサーバーにより無効化されています。
+
+tools:
+  title: 企業ツール
+  titleWithOrg: "${name} · 企業ツール"
+  scopeNote: この企業で参加済みのワークスペースとそのプロジェクトのみ表示。タスクやマイルストーンはプロジェクト詳細にあります。
+  archivedNote: 企業はアーカイブ済み。ツール領域は読み取り専用です。
+  workspaceEmpty: 参加済みワークスペースなし
+  workspaceEmptyHint: 同一企業内で未参加のワークスペースはここに表示されません。
+  projectCount: "プロジェクト ${count} 件"
+  projectsEmpty: プロジェクトはまだありません
+  projectsError: "プロジェクトの読み込みに失敗：${err}"
+  moreInWorkspaceShell: すべてのワークスペースを表示
+  moreInWorkspaceShellHint: グローバルなワークスペース切替を開く（企業横断）。

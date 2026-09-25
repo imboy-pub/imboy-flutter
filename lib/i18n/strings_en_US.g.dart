@@ -2451,6 +2451,8 @@ class _Translations$organization$en_US extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$manage$en_US manage = _Translations$organization$manage$en_US._(_root);
 	@override late final _Translations$organization$contactEntry$en_US contactEntry = _Translations$organization$contactEntry$en_US._(_root);
 	@override late final _Translations$organization$hub$en_US hub = _Translations$organization$hub$en_US._(_root);
+	@override late final _Translations$organization$wsMembers$en_US wsMembers = _Translations$organization$wsMembers$en_US._(_root);
+	@override late final _Translations$organization$tools$en_US tools = _Translations$organization$tools$en_US._(_root);
 }
 
 // Path: passport
@@ -3073,6 +3075,15 @@ class _Translations$organization$manage$en_US extends Translations$organization$
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get renameWorkspace => 'Rename workspace';
+	@override String renameWorkspaceTitle({required Object name}) => 'Rename "${name}"';
+	@override String get wsMembersEntry => 'Manage members';
+	@override String get renameGroup => 'Rename';
+	@override String renameGroupTitle({required Object name}) => 'Rename "${name}"';
+	@override String get groupGovernance => 'Members & roles';
+	@override String get renameChannel => 'Rename';
+	@override String get channelAdmins => 'Admins';
+	@override String get channelSubscribersEntry => 'Subscribers';
 	@override String get entry => 'Enterprise management';
 	@override String get entryRestricted => 'Enterprise management (admins only)';
 	@override String get title => 'Enterprise management';
@@ -3154,12 +3165,62 @@ class _Translations$organization$hub$en_US extends Translations$organization$hub
 	@override String get zoneChannelsDesc => 'Org channels · via admin console';
 	@override String get zoneTools => 'Tools';
 	@override String get zoneToolsDesc => 'Workspaces · projects and collaboration';
+	@override String get zoneOrgTools => 'Enterprise tools';
+	@override String get zoneOrgToolsDesc => 'Workspaces, projects and tasks authorized in this enterprise';
 	@override String get adminMembers => 'Member governance';
 	@override String get adminMembersDesc => 'Roles · remove members';
 	@override String get adminInvitations => 'Invitation management';
 	@override String get adminInvitationsDesc => 'Create and revoke invitations';
 	@override String get adminManage => 'Organization admin';
 	@override String get adminManageDesc => 'Workspaces · groups · channels';
+}
+
+// Path: organization.wsMembers
+class _Translations$organization$wsMembers$en_US extends Translations$organization$wsMembers$zh_CN {
+	_Translations$organization$wsMembers$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String title({required Object ws}) => 'Workspace members · ${ws}';
+	@override String get invite => 'Invite members';
+	@override String get inviteHint => 'Pick contacts via the existing wizard (workspace owner only)';
+	@override String get readOnlyHint => 'Read-only view; write actions are limited to the workspace owner.';
+	@override String memberCount({required Object count}) => 'Members ${count}';
+	@override String get notFound => 'Workspace not found or not visible to you';
+	@override String get roleOwner => 'Owner';
+	@override String get roleMember => 'Member';
+	@override String get roleGuest => 'Guest';
+	@override String get changeRole => 'Change role';
+	@override String get setRoleMember => 'Set as member';
+	@override String get setRoleGuest => 'Set as guest';
+	@override String get transferOwner => 'Transfer owner';
+	@override String transferOwnerTitle({required Object name}) => 'Transfer owner of "${name}"?';
+	@override String get transferOwnerBody => 'After the transfer you are no longer the workspace owner; governance rights move to the new owner, who can transfer back.';
+	@override String get removeMember => 'Remove member';
+	@override String removeTitle({required Object name}) => 'Remove "${name}"?';
+	@override String get removeBody => 'The member leaves this workspace; if they still own projects or have open tasks, the server rejects and lists the conflicts.';
+	@override String get archivedReadOnly => 'Workspace archived: governance writes are disabled by the server.';
+}
+
+// Path: organization.tools
+class _Translations$organization$tools$en_US extends Translations$organization$tools$zh_CN {
+	_Translations$organization$tools$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Enterprise tools';
+	@override String titleWithOrg({required Object name}) => '${name} · Enterprise tools';
+	@override String get scopeNote => 'Only workspaces you joined in this enterprise and their projects are listed; tasks and milestones live in the project detail page.';
+	@override String get archivedNote => 'Enterprise archived: the tools area is read-only.';
+	@override String get workspaceEmpty => 'No joined workspaces';
+	@override String get workspaceEmptyHint => 'Workspaces in this enterprise that you have not joined do not appear here.';
+	@override String projectCount({required Object count}) => 'Projects ${count}';
+	@override String get projectsEmpty => 'No projects yet';
+	@override String projectsError({required Object err}) => 'Failed to load projects: ${err}';
+	@override String get moreInWorkspaceShell => 'Browse all workspaces';
+	@override String get moreInWorkspaceShellHint => 'Open the global workspace switcher (cross-enterprise).';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -5495,6 +5556,15 @@ extension on TranslationsEnUs {
 			'organization.memberDetail.workspacesTitle' => 'Authorized workspaces',
 			'organization.memberDetail.workspacesEmpty' => 'This member has no workspace in this enterprise yet',
 			'organization.memberDetail.workspacesFailed' => 'Failed to load authorized workspaces',
+			'organization.manage.renameWorkspace' => 'Rename workspace',
+			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => 'Rename "${name}"',
+			'organization.manage.wsMembersEntry' => 'Manage members',
+			'organization.manage.renameGroup' => 'Rename',
+			'organization.manage.renameGroupTitle' => ({required Object name}) => 'Rename "${name}"',
+			'organization.manage.groupGovernance' => 'Members & roles',
+			'organization.manage.renameChannel' => 'Rename',
+			'organization.manage.channelAdmins' => 'Admins',
+			'organization.manage.channelSubscribersEntry' => 'Subscribers',
 			'organization.manage.entry' => 'Enterprise management',
 			'organization.manage.entryRestricted' => 'Enterprise management (admins only)',
 			'organization.manage.title' => 'Enterprise management',
@@ -5558,12 +5628,44 @@ extension on TranslationsEnUs {
 			'organization.hub.zoneChannelsDesc' => 'Org channels · via admin console',
 			'organization.hub.zoneTools' => 'Tools',
 			'organization.hub.zoneToolsDesc' => 'Workspaces · projects and collaboration',
+			'organization.hub.zoneOrgTools' => 'Enterprise tools',
+			'organization.hub.zoneOrgToolsDesc' => 'Workspaces, projects and tasks authorized in this enterprise',
 			'organization.hub.adminMembers' => 'Member governance',
 			'organization.hub.adminMembersDesc' => 'Roles · remove members',
 			'organization.hub.adminInvitations' => 'Invitation management',
 			'organization.hub.adminInvitationsDesc' => 'Create and revoke invitations',
 			'organization.hub.adminManage' => 'Organization admin',
 			'organization.hub.adminManageDesc' => 'Workspaces · groups · channels',
+			'organization.wsMembers.title' => ({required Object ws}) => 'Workspace members · ${ws}',
+			'organization.wsMembers.invite' => 'Invite members',
+			'organization.wsMembers.inviteHint' => 'Pick contacts via the existing wizard (workspace owner only)',
+			'organization.wsMembers.readOnlyHint' => 'Read-only view; write actions are limited to the workspace owner.',
+			'organization.wsMembers.memberCount' => ({required Object count}) => 'Members ${count}',
+			'organization.wsMembers.notFound' => 'Workspace not found or not visible to you',
+			'organization.wsMembers.roleOwner' => 'Owner',
+			'organization.wsMembers.roleMember' => 'Member',
+			'organization.wsMembers.roleGuest' => 'Guest',
+			'organization.wsMembers.changeRole' => 'Change role',
+			'organization.wsMembers.setRoleMember' => 'Set as member',
+			'organization.wsMembers.setRoleGuest' => 'Set as guest',
+			'organization.wsMembers.transferOwner' => 'Transfer owner',
+			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => 'Transfer owner of "${name}"?',
+			'organization.wsMembers.transferOwnerBody' => 'After the transfer you are no longer the workspace owner; governance rights move to the new owner, who can transfer back.',
+			'organization.wsMembers.removeMember' => 'Remove member',
+			'organization.wsMembers.removeTitle' => ({required Object name}) => 'Remove "${name}"?',
+			'organization.wsMembers.removeBody' => 'The member leaves this workspace; if they still own projects or have open tasks, the server rejects and lists the conflicts.',
+			'organization.wsMembers.archivedReadOnly' => 'Workspace archived: governance writes are disabled by the server.',
+			'organization.tools.title' => 'Enterprise tools',
+			'organization.tools.titleWithOrg' => ({required Object name}) => '${name} · Enterprise tools',
+			'organization.tools.scopeNote' => 'Only workspaces you joined in this enterprise and their projects are listed; tasks and milestones live in the project detail page.',
+			'organization.tools.archivedNote' => 'Enterprise archived: the tools area is read-only.',
+			'organization.tools.workspaceEmpty' => 'No joined workspaces',
+			'organization.tools.workspaceEmptyHint' => 'Workspaces in this enterprise that you have not joined do not appear here.',
+			'organization.tools.projectCount' => ({required Object count}) => 'Projects ${count}',
+			'organization.tools.projectsEmpty' => 'No projects yet',
+			'organization.tools.projectsError' => ({required Object err}) => 'Failed to load projects: ${err}',
+			'organization.tools.moreInWorkspaceShell' => 'Browse all workspaces',
+			'organization.tools.moreInWorkspaceShellHint' => 'Open the global workspace switcher (cross-enterprise).',
 			'passport.loginHistoryToggle' => 'Show login history',
 			'passport.hintEmail' => 'Please enter email',
 			'passport.hintMobile' => 'Please enter mobile number',
@@ -5697,6 +5799,8 @@ extension on TranslationsEnUs {
 			'workspace.restoreEntry' => 'Restore workspace',
 			'workspace.archiveTitle' => 'Archive workspace',
 			'workspace.archiveDesc' => 'Archiving makes it read-only for everyone (writes rejected by the server); restore anytime',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveConfirm' => 'Archive',
 			'workspace.restoreTitle' => 'Restore workspace',
 			'workspace.restoreDesc' => 'Restoring re-enables read and write',
@@ -5738,8 +5842,6 @@ extension on TranslationsEnUs {
 			'workspace.taskTitleLabel' => 'Task title',
 			'workspace.taskTitleRequired' => 'Task title is required',
 			'workspace.taskAssigneeLabel' => 'Assignee (Workspace Member)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskAssigneeNone' => 'Unassigned',
 			'workspace.taskAssigneeRefresh' => 'Refresh assignee candidates',
 			'workspace.taskSubmitCreate' => 'Create task',

@@ -2353,6 +2353,8 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$manage$ja_JP manage = _Translations$organization$manage$ja_JP._(_root);
 	@override late final _Translations$organization$contactEntry$ja_JP contactEntry = _Translations$organization$contactEntry$ja_JP._(_root);
 	@override late final _Translations$organization$hub$ja_JP hub = _Translations$organization$hub$ja_JP._(_root);
+	@override late final _Translations$organization$wsMembers$ja_JP wsMembers = _Translations$organization$wsMembers$ja_JP._(_root);
+	@override late final _Translations$organization$tools$ja_JP tools = _Translations$organization$tools$ja_JP._(_root);
 }
 
 // Path: passport
@@ -2975,6 +2977,15 @@ class _Translations$organization$manage$ja_JP extends Translations$organization$
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
+	@override String get renameWorkspace => 'ワークスペースの名前変更';
+	@override String renameWorkspaceTitle({required Object name}) => '「${name}」の名前を変更';
+	@override String get wsMembersEntry => 'メンバー管理';
+	@override String get renameGroup => '名前を変更';
+	@override String renameGroupTitle({required Object name}) => '「${name}」の名前を変更';
+	@override String get groupGovernance => 'メンバーと役割';
+	@override String get renameChannel => '名前を変更';
+	@override String get channelAdmins => '管理者';
+	@override String get channelSubscribersEntry => '購読者';
 	@override String get entry => '企業管理';
 	@override String get entryRestricted => '企業管理（管理者のみ）';
 	@override String get title => '企業管理';
@@ -3056,12 +3067,62 @@ class _Translations$organization$hub$ja_JP extends Translations$organization$hub
 	@override String get zoneChannelsDesc => '企業チャンネル · 企業管理から閲覧';
 	@override String get zoneTools => 'ツール';
 	@override String get zoneToolsDesc => 'ワークスペース · プロジェクトとコラボレーション';
+	@override String get zoneOrgTools => '企業コラボツール';
+	@override String get zoneOrgToolsDesc => 'この企業で承認されたワークスペースのプロジェクトとタスク';
 	@override String get adminMembers => 'メンバー管理';
 	@override String get adminMembersDesc => 'ロール調整 · メンバー削除';
 	@override String get adminInvitations => '招待管理';
 	@override String get adminInvitationsDesc => '招待作成と取り消し';
 	@override String get adminManage => '企業管理';
 	@override String get adminManageDesc => 'ワークスペース · グループ · チャンネル管理';
+}
+
+// Path: organization.wsMembers
+class _Translations$organization$wsMembers$ja_JP extends Translations$organization$wsMembers$zh_CN {
+	_Translations$organization$wsMembers$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String title({required Object ws}) => 'ワークスペースメンバー · ${ws}';
+	@override String get invite => 'メンバーを招待';
+	@override String get inviteHint => '既存ウィザードで連絡先を選んで招待（ワークスペース所有者のみ）';
+	@override String get readOnlyHint => '読み取り専用。書き込み操作はワークスペース所有者のみ可能です。';
+	@override String memberCount({required Object count}) => 'メンバー ${count} 名';
+	@override String get notFound => 'ワークスペースが存在しないか閲覧権限がありません';
+	@override String get roleOwner => '所有者';
+	@override String get roleMember => 'メンバー';
+	@override String get roleGuest => 'ゲスト';
+	@override String get changeRole => '役割を変更';
+	@override String get setRoleMember => 'メンバーに設定';
+	@override String get setRoleGuest => 'ゲストに設定';
+	@override String get transferOwner => '所有者を譲渡';
+	@override String transferOwnerTitle({required Object name}) => '「${name}」の所有者を譲渡しますか？';
+	@override String get transferOwnerBody => '譲渡後あなたは所有者でなくなり、管理権限は相手に移ります。新しい所有者は再び譲り戻せます。';
+	@override String get removeMember => 'メンバーを削除';
+	@override String removeTitle({required Object name}) => '「${name}」を削除しますか？';
+	@override String get removeBody => 'メンバーはこのワークスペースから外れます。プロジェクト所有者や未完了タスクが残る場合、サーバーが拒否し競合を一覧表示します。';
+	@override String get archivedReadOnly => 'ワークスペースはアーカイブ済み。管理操作はサーバーにより無効化されています。';
+}
+
+// Path: organization.tools
+class _Translations$organization$tools$ja_JP extends Translations$organization$tools$zh_CN {
+	_Translations$organization$tools$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '企業ツール';
+	@override String titleWithOrg({required Object name}) => '${name} · 企業ツール';
+	@override String get scopeNote => 'この企業で参加済みのワークスペースとそのプロジェクトのみ表示。タスクやマイルストーンはプロジェクト詳細にあります。';
+	@override String get archivedNote => '企業はアーカイブ済み。ツール領域は読み取り専用です。';
+	@override String get workspaceEmpty => '参加済みワークスペースなし';
+	@override String get workspaceEmptyHint => '同一企業内で未参加のワークスペースはここに表示されません。';
+	@override String projectCount({required Object count}) => 'プロジェクト ${count} 件';
+	@override String get projectsEmpty => 'プロジェクトはまだありません';
+	@override String projectsError({required Object err}) => 'プロジェクトの読み込みに失敗：${err}';
+	@override String get moreInWorkspaceShell => 'すべてのワークスペースを表示';
+	@override String get moreInWorkspaceShellHint => 'グローバルなワークスペース切替を開く（企業横断）。';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -5312,6 +5373,15 @@ extension on TranslationsJaJp {
 			'organization.memberDetail.workspacesTitle' => '権限のあるワークスペース',
 			'organization.memberDetail.workspacesEmpty' => 'このメンバーはこの企業内にワークスペースがありません',
 			'organization.memberDetail.workspacesFailed' => '権限のあるワークスペースの読み込みに失敗しました',
+			'organization.manage.renameWorkspace' => 'ワークスペースの名前変更',
+			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => '「${name}」の名前を変更',
+			'organization.manage.wsMembersEntry' => 'メンバー管理',
+			'organization.manage.renameGroup' => '名前を変更',
+			'organization.manage.renameGroupTitle' => ({required Object name}) => '「${name}」の名前を変更',
+			'organization.manage.groupGovernance' => 'メンバーと役割',
+			'organization.manage.renameChannel' => '名前を変更',
+			'organization.manage.channelAdmins' => '管理者',
+			'organization.manage.channelSubscribersEntry' => '購読者',
 			'organization.manage.entry' => '企業管理',
 			'organization.manage.entryRestricted' => '企業管理（管理者のみ）',
 			'organization.manage.title' => '企業管理',
@@ -5375,12 +5445,44 @@ extension on TranslationsJaJp {
 			'organization.hub.zoneChannelsDesc' => '企業チャンネル · 企業管理から閲覧',
 			'organization.hub.zoneTools' => 'ツール',
 			'organization.hub.zoneToolsDesc' => 'ワークスペース · プロジェクトとコラボレーション',
+			'organization.hub.zoneOrgTools' => '企業コラボツール',
+			'organization.hub.zoneOrgToolsDesc' => 'この企業で承認されたワークスペースのプロジェクトとタスク',
 			'organization.hub.adminMembers' => 'メンバー管理',
 			'organization.hub.adminMembersDesc' => 'ロール調整 · メンバー削除',
 			'organization.hub.adminInvitations' => '招待管理',
 			'organization.hub.adminInvitationsDesc' => '招待作成と取り消し',
 			'organization.hub.adminManage' => '企業管理',
 			'organization.hub.adminManageDesc' => 'ワークスペース · グループ · チャンネル管理',
+			'organization.wsMembers.title' => ({required Object ws}) => 'ワークスペースメンバー · ${ws}',
+			'organization.wsMembers.invite' => 'メンバーを招待',
+			'organization.wsMembers.inviteHint' => '既存ウィザードで連絡先を選んで招待（ワークスペース所有者のみ）',
+			'organization.wsMembers.readOnlyHint' => '読み取り専用。書き込み操作はワークスペース所有者のみ可能です。',
+			'organization.wsMembers.memberCount' => ({required Object count}) => 'メンバー ${count} 名',
+			'organization.wsMembers.notFound' => 'ワークスペースが存在しないか閲覧権限がありません',
+			'organization.wsMembers.roleOwner' => '所有者',
+			'organization.wsMembers.roleMember' => 'メンバー',
+			'organization.wsMembers.roleGuest' => 'ゲスト',
+			'organization.wsMembers.changeRole' => '役割を変更',
+			'organization.wsMembers.setRoleMember' => 'メンバーに設定',
+			'organization.wsMembers.setRoleGuest' => 'ゲストに設定',
+			'organization.wsMembers.transferOwner' => '所有者を譲渡',
+			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => '「${name}」の所有者を譲渡しますか？',
+			'organization.wsMembers.transferOwnerBody' => '譲渡後あなたは所有者でなくなり、管理権限は相手に移ります。新しい所有者は再び譲り戻せます。',
+			'organization.wsMembers.removeMember' => 'メンバーを削除',
+			'organization.wsMembers.removeTitle' => ({required Object name}) => '「${name}」を削除しますか？',
+			'organization.wsMembers.removeBody' => 'メンバーはこのワークスペースから外れます。プロジェクト所有者や未完了タスクが残る場合、サーバーが拒否し競合を一覧表示します。',
+			'organization.wsMembers.archivedReadOnly' => 'ワークスペースはアーカイブ済み。管理操作はサーバーにより無効化されています。',
+			'organization.tools.title' => '企業ツール',
+			'organization.tools.titleWithOrg' => ({required Object name}) => '${name} · 企業ツール',
+			'organization.tools.scopeNote' => 'この企業で参加済みのワークスペースとそのプロジェクトのみ表示。タスクやマイルストーンはプロジェクト詳細にあります。',
+			'organization.tools.archivedNote' => '企業はアーカイブ済み。ツール領域は読み取り専用です。',
+			'organization.tools.workspaceEmpty' => '参加済みワークスペースなし',
+			'organization.tools.workspaceEmptyHint' => '同一企業内で未参加のワークスペースはここに表示されません。',
+			'organization.tools.projectCount' => ({required Object count}) => 'プロジェクト ${count} 件',
+			'organization.tools.projectsEmpty' => 'プロジェクトはまだありません',
+			'organization.tools.projectsError' => ({required Object err}) => 'プロジェクトの読み込みに失敗：${err}',
+			'organization.tools.moreInWorkspaceShell' => 'すべてのワークスペースを表示',
+			'organization.tools.moreInWorkspaceShellHint' => 'グローバルなワークスペース切替を開く（企業横断）。',
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',
@@ -5599,6 +5701,8 @@ extension on TranslationsJaJp {
 			'workspace.projectMemberTransferDesc' => '移譲後、相手がこのプロジェクトの完全な管理権を取得します',
 			'workspace.projectMemberTransferConfirm' => '移譲を確認',
 			'workspace.projectMemberTransferDoneToast' => 'プロジェクト担当者を移譲しました',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => 'マイルストーン',
 			'workspace.projectMilestoneEmptyTitle' => 'マイルストーンはまだありません',
 			'workspace.projectMilestoneEmptySubtitle' => 'マイルストーンでプロジェクトの重要な節目を記録します（計画中 → 達成、一方通行）',

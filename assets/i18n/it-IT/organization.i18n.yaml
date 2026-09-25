@@ -229,6 +229,15 @@ memberDetail:
   workspacesFailed: Caricamento dei workspace autorizzati non riuscito
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
+  renameWorkspace: Rinomina workspace
+  renameWorkspaceTitle: "Rinomina \"${name}\""
+  wsMembersEntry: Gestisci membri
+  renameGroup: Rinomina
+  renameGroupTitle: "Rinomina \"${name}\""
+  groupGovernance: Membri e ruoli
+  renameChannel: Rinomina
+  channelAdmins: Amministratori
+  channelSubscribersEntry: Abbonati
   entry: "Gestione dell'azienda"
   entryRestricted: "Gestione dell'azienda (solo amministratori)"
   title: "Gestione dell'azienda"
@@ -296,9 +305,45 @@ hub:
   zoneChannelsDesc: Canali aziendali · via console di amministrazione
   zoneTools: Strumenti
   zoneToolsDesc: Workspace · progetti e collaborazione
+  zoneOrgTools: Strumenti aziendali
+  zoneOrgToolsDesc: Progetti e attività degli workspace autorizzati in questa azienda
   adminMembers: Gestione membri
   adminMembersDesc: Ruoli · rimozione membri
   adminInvitations: Gestione inviti
   adminInvitationsDesc: Crea e revoca inviti
   adminManage: Amministrazione
   adminManageDesc: Workspace · gruppi · canali
+
+wsMembers:
+  title: "Membri dello workspace · ${ws}"
+  invite: Invita membri
+  inviteHint: Invita tramite la procedura esistente (solo proprietario dello workspace)
+  readOnlyHint: Vista di sola lettura; le azioni di scrittura spettano al proprietario dello workspace.
+  memberCount: "Membri ${count}"
+  notFound: Workspace inesistente o non visibile
+  roleOwner: Proprietario
+  roleMember: Membro
+  roleGuest: Ospite
+  changeRole: Cambia ruolo
+  setRoleMember: Imposta come membro
+  setRoleGuest: Imposta come ospite
+  transferOwner: Trasferisci proprietario
+  transferOwnerTitle: "Trasferire il proprietario di \"${name}\"?"
+  transferOwnerBody: Dopo il trasferimento non sei più proprietario; i diritti di gestione passano all'altra persona, che può ritrasferirli.
+  removeMember: Rimuovi membro
+  removeTitle: "Rimuovere \"${name}\"?"
+  removeBody: Il membro lascia lo workspace; se possiede ancora progetti o ha attività aperte, il server rifiuta ed elenca i conflitti.
+  archivedReadOnly: "Workspace archiviato: le scritture di gestione sono disattivate dal server."
+
+tools:
+  title: Strumenti aziendali
+  titleWithOrg: "${name} · Strumenti aziendali"
+  scopeNote: Vengono elencati solo gli workspace di questa azienda a cui sei iscritto e i relativi progetti; attività e traguardi sono nel dettaglio del progetto.
+  archivedNote: "Azienda archiviata: l'area strumenti è di sola lettura."
+  workspaceEmpty: Nessuno workspace iscritto
+  workspaceEmptyHint: Gli workspace di questa azienda a cui non sei iscritto non compaiono qui.
+  projectCount: "Progetti ${count}"
+  projectsEmpty: Nessun progetto
+  projectsError: "Caricamento progetti non riuscito: ${err}"
+  moreInWorkspaceShell: Sfoglia tutti gli workspace
+  moreInWorkspaceShellHint: Apri il selettore globale degli workspace (tra aziende).

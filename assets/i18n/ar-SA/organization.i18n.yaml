@@ -229,6 +229,15 @@ memberDetail:
   workspacesFailed: فشل تحميل مساحات العمل المصرّح بها
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
+  renameWorkspace: إعادة تسمية مساحة العمل
+  renameWorkspaceTitle: 'إعادة تسمية "${name}"'
+  wsMembersEntry: إدارة الأعضاء
+  renameGroup: إعادة تسمية
+  renameGroupTitle: 'إعادة تسمية "${name}"'
+  groupGovernance: الأعضاء والأدوار
+  renameChannel: إعادة تسمية
+  channelAdmins: المشرفون
+  channelSubscribersEntry: المشتركون
   entry: إدارة المؤسسة
   entryRestricted: إدارة المؤسسة (للمسؤولين فقط)
   title: إدارة المؤسسة
@@ -296,9 +305,45 @@ hub:
   zoneChannelsDesc: قنوات المؤسسة · عبر إدارة المؤسسة
   zoneTools: الأدوات
   zoneToolsDesc: مساحات العمل · المشاريع والتعاون
+  zoneOrgTools: أدوات المؤسسة
+  zoneOrgToolsDesc: مشاريع ومهام مساحات العمل المصرح بها في هذه المؤسسة
   adminMembers: إدارة الأعضاء
   adminMembersDesc: الأدوار · إزالة الأعضاء
   adminInvitations: إدارة الدعوات
   adminInvitationsDesc: إنشاء الدعوات وإلغاؤها
   adminManage: إدارة المؤسسة
   adminManageDesc: مساحات العمل · المجموعات · القنوات
+
+wsMembers:
+  title: "أعضاء مساحة العمل · ${ws}"
+  invite: دعوة أعضاء
+  inviteHint: الدعوة عبر المعالج الحالي (لمالك مساحة العمل فقط)
+  readOnlyHint: عرض للقراءة فقط؛ عمليات الكتابة لمالك مساحة العمل وحده.
+  memberCount: "الأعضاء ${count}"
+  notFound: مساحة العمل غير موجودة أو غير متاحة لك
+  roleOwner: المالك
+  roleMember: عضو
+  roleGuest: ضيف
+  changeRole: تغيير الدور
+  setRoleMember: تعيين كعضو
+  setRoleGuest: تعيين كضيف
+  transferOwner: نقل الملكية
+  transferOwnerTitle: 'نقل ملكية "${name}"؟'
+  transferOwnerBody: بعد النقل لن تكون المالك؛ تنتقل صلاحيات الإدارة للطرف الآخر ويمكن نقلها مجددًا.
+  removeMember: إزالة العضو
+  removeTitle: 'إزالة "${name}"؟'
+  removeBody: سيغادر العضو مساحة العمل؛ إذا كان لا يزال يملك مشاريع أو لديه مهام مفتوحة سيرفض الخادم العملية ويسرد التعارضات.
+  archivedReadOnly: "مساحة العمل مؤرشفة: عمليات كتابة الإدارة معطلة من الخادم."
+
+tools:
+  title: أدوات المؤسسة
+  titleWithOrg: "${name} · أدوات المؤسسة"
+  scopeNote: تُعرض فقط مساحات العمل التي انضممت إليها في هذه المؤسسة ومشاريعها؛ المهام والمعالم داخل صفحة المشروع.
+  archivedNote: "المؤسسة مؤرشفة: منطقة الأدوات للقراءة فقط."
+  workspaceEmpty: لا توجد مساحات عمل منضم إليها
+  workspaceEmptyHint: مساحات العمل في هذه المؤسسة التي لم تنضم إليها لا تظهر هنا.
+  projectCount: "المشاريع ${count}"
+  projectsEmpty: لا توجد مشاريع
+  projectsError: "فشل تحميل المشاريع: ${err}"
+  moreInWorkspaceShell: استعراض كل مساحات العمل
+  moreInWorkspaceShellHint: فتح مبدّل مساحات العمل العام (بين المؤسسات).

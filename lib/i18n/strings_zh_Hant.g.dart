@@ -2353,6 +2353,8 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$manage$zh_Hant manage = Translations$organization$manage$zh_Hant.internal(_root);
 	@override late final Translations$organization$contactEntry$zh_Hant contactEntry = Translations$organization$contactEntry$zh_Hant.internal(_root);
 	@override late final Translations$organization$hub$zh_Hant hub = Translations$organization$hub$zh_Hant.internal(_root);
+	@override late final Translations$organization$wsMembers$zh_Hant wsMembers = Translations$organization$wsMembers$zh_Hant.internal(_root);
+	@override late final Translations$organization$tools$zh_Hant tools = Translations$organization$tools$zh_Hant.internal(_root);
 }
 
 // Path: passport
@@ -2975,6 +2977,15 @@ class Translations$organization$manage$zh_Hant extends Translations$organization
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
+	@override String get renameWorkspace => '重新命名工作區';
+	@override String renameWorkspaceTitle({required Object name}) => '重新命名「${name}」';
+	@override String get wsMembersEntry => '成員治理';
+	@override String get renameGroup => '重新命名';
+	@override String renameGroupTitle({required Object name}) => '重新命名「${name}」';
+	@override String get groupGovernance => '成員與角色';
+	@override String get renameChannel => '重新命名';
+	@override String get channelAdmins => '管理員';
+	@override String get channelSubscribersEntry => '訂閱者';
 	@override String get entry => '企業管理';
 	@override String get entryRestricted => '企業管理（僅管理員）';
 	@override String get title => '企業管理';
@@ -3056,12 +3067,62 @@ class Translations$organization$hub$zh_Hant extends Translations$organization$hu
 	@override String get zoneChannelsDesc => '企業頻道 · 經企業管理查看';
 	@override String get zoneTools => '工具';
 	@override String get zoneToolsDesc => '工作區 · 項目與協作';
+	@override String get zoneOrgTools => '企業協作工具';
+	@override String get zoneOrgToolsDesc => '本企業已授權的工作區專案與任務';
 	@override String get adminMembers => '成員治理';
 	@override String get adminMembersDesc => '角色調整 · 移除成員';
 	@override String get adminInvitations => '邀請管理';
 	@override String get adminInvitationsDesc => '邀請建立與撤銷';
 	@override String get adminManage => '企業管理';
 	@override String get adminManageDesc => '工作區 · 群 · 頻道治理';
+}
+
+// Path: organization.wsMembers
+class Translations$organization$wsMembers$zh_Hant extends Translations$organization$wsMembers$zh_CN {
+	Translations$organization$wsMembers$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String title({required Object ws}) => '工作區成員 · ${ws}';
+	@override String get invite => '邀請成員';
+	@override String get inviteHint => '經既有嚮導選擇聯絡人發出邀請（僅工作區所有者）';
+	@override String get readOnlyHint => '目前唯讀；寫操作僅工作區所有者可用';
+	@override String memberCount({required Object count}) => '成員 ${count}';
+	@override String get notFound => '工作區不存在或你無權查看';
+	@override String get roleOwner => '所有者';
+	@override String get roleMember => '成員';
+	@override String get roleGuest => '訪客';
+	@override String get changeRole => '更改角色';
+	@override String get setRoleMember => '設為成員';
+	@override String get setRoleGuest => '設為訪客';
+	@override String get transferOwner => '轉讓所有者';
+	@override String transferOwnerTitle({required Object name}) => '轉讓「${name}」的所有者？';
+	@override String get transferOwnerBody => '轉讓後你不再是該工作區所有者，寫治理權限隨之移交給對方；新所有者可再轉回。';
+	@override String get removeMember => '移除成員';
+	@override String removeTitle({required Object name}) => '移除「${name}」？';
+	@override String get removeBody => '移除後對方退出該工作區；若對方仍是專案所有者或有未完成任務，伺服器會拒絕並列出衝突。';
+	@override String get archivedReadOnly => '工作區已歸檔：成員治理寫操作已被伺服器停用。';
+}
+
+// Path: organization.tools
+class Translations$organization$tools$zh_Hant extends Translations$organization$tools$zh_CN {
+	Translations$organization$tools$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '企業工具';
+	@override String titleWithOrg({required Object name}) => '${name} · 企業工具';
+	@override String get scopeNote => '這裡只列出你已加入的本企業工作區與其專案；任務、里程碑等在專案詳情內。';
+	@override String get archivedNote => '企業已歸檔：工具區唯讀。';
+	@override String get workspaceEmpty => '暫無已加入的工作區';
+	@override String get workspaceEmptyHint => '同企業內你未加入的工作區不會出現在這裡。';
+	@override String projectCount({required Object count}) => '專案 ${count}';
+	@override String get projectsEmpty => '暫無專案';
+	@override String projectsError({required Object err}) => '專案載入失敗：${err}';
+	@override String get moreInWorkspaceShell => '瀏覽全部工作區';
+	@override String get moreInWorkspaceShellHint => '開啟全域工作區切換器（跨企業）。';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -5312,6 +5373,15 @@ extension on TranslationsZhHant {
 			'organization.memberDetail.workspacesTitle' => '有權工作區',
 			'organization.memberDetail.workspacesEmpty' => '該成員在本企業內暫無工作區',
 			'organization.memberDetail.workspacesFailed' => '有權工作區載入失敗',
+			'organization.manage.renameWorkspace' => '重新命名工作區',
+			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => '重新命名「${name}」',
+			'organization.manage.wsMembersEntry' => '成員治理',
+			'organization.manage.renameGroup' => '重新命名',
+			'organization.manage.renameGroupTitle' => ({required Object name}) => '重新命名「${name}」',
+			'organization.manage.groupGovernance' => '成員與角色',
+			'organization.manage.renameChannel' => '重新命名',
+			'organization.manage.channelAdmins' => '管理員',
+			'organization.manage.channelSubscribersEntry' => '訂閱者',
 			'organization.manage.entry' => '企業管理',
 			'organization.manage.entryRestricted' => '企業管理（僅管理員）',
 			'organization.manage.title' => '企業管理',
@@ -5375,12 +5445,44 @@ extension on TranslationsZhHant {
 			'organization.hub.zoneChannelsDesc' => '企業頻道 · 經企業管理查看',
 			'organization.hub.zoneTools' => '工具',
 			'organization.hub.zoneToolsDesc' => '工作區 · 項目與協作',
+			'organization.hub.zoneOrgTools' => '企業協作工具',
+			'organization.hub.zoneOrgToolsDesc' => '本企業已授權的工作區專案與任務',
 			'organization.hub.adminMembers' => '成員治理',
 			'organization.hub.adminMembersDesc' => '角色調整 · 移除成員',
 			'organization.hub.adminInvitations' => '邀請管理',
 			'organization.hub.adminInvitationsDesc' => '邀請建立與撤銷',
 			'organization.hub.adminManage' => '企業管理',
 			'organization.hub.adminManageDesc' => '工作區 · 群 · 頻道治理',
+			'organization.wsMembers.title' => ({required Object ws}) => '工作區成員 · ${ws}',
+			'organization.wsMembers.invite' => '邀請成員',
+			'organization.wsMembers.inviteHint' => '經既有嚮導選擇聯絡人發出邀請（僅工作區所有者）',
+			'organization.wsMembers.readOnlyHint' => '目前唯讀；寫操作僅工作區所有者可用',
+			'organization.wsMembers.memberCount' => ({required Object count}) => '成員 ${count}',
+			'organization.wsMembers.notFound' => '工作區不存在或你無權查看',
+			'organization.wsMembers.roleOwner' => '所有者',
+			'organization.wsMembers.roleMember' => '成員',
+			'organization.wsMembers.roleGuest' => '訪客',
+			'organization.wsMembers.changeRole' => '更改角色',
+			'organization.wsMembers.setRoleMember' => '設為成員',
+			'organization.wsMembers.setRoleGuest' => '設為訪客',
+			'organization.wsMembers.transferOwner' => '轉讓所有者',
+			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => '轉讓「${name}」的所有者？',
+			'organization.wsMembers.transferOwnerBody' => '轉讓後你不再是該工作區所有者，寫治理權限隨之移交給對方；新所有者可再轉回。',
+			'organization.wsMembers.removeMember' => '移除成員',
+			'organization.wsMembers.removeTitle' => ({required Object name}) => '移除「${name}」？',
+			'organization.wsMembers.removeBody' => '移除後對方退出該工作區；若對方仍是專案所有者或有未完成任務，伺服器會拒絕並列出衝突。',
+			'organization.wsMembers.archivedReadOnly' => '工作區已歸檔：成員治理寫操作已被伺服器停用。',
+			'organization.tools.title' => '企業工具',
+			'organization.tools.titleWithOrg' => ({required Object name}) => '${name} · 企業工具',
+			'organization.tools.scopeNote' => '這裡只列出你已加入的本企業工作區與其專案；任務、里程碑等在專案詳情內。',
+			'organization.tools.archivedNote' => '企業已歸檔：工具區唯讀。',
+			'organization.tools.workspaceEmpty' => '暫無已加入的工作區',
+			'organization.tools.workspaceEmptyHint' => '同企業內你未加入的工作區不會出現在這裡。',
+			'organization.tools.projectCount' => ({required Object count}) => '專案 ${count}',
+			'organization.tools.projectsEmpty' => '暫無專案',
+			'organization.tools.projectsError' => ({required Object err}) => '專案載入失敗：${err}',
+			'organization.tools.moreInWorkspaceShell' => '瀏覽全部工作區',
+			'organization.tools.moreInWorkspaceShellHint' => '開啟全域工作區切換器（跨企業）。',
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',
@@ -5599,6 +5701,8 @@ extension on TranslationsZhHant {
 			'workspace.projectMemberTransferDesc' => '轉移後對方獲得此專案的完整管理權',
 			'workspace.projectMemberTransferConfirm' => '確認轉移',
 			'workspace.projectMemberTransferDoneToast' => '專案負責人已轉移',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => '專案里程碑',
 			'workspace.projectMilestoneEmptyTitle' => '還沒有里程碑',
 			'workspace.projectMilestoneEmptySubtitle' => '以里程碑標記專案的關鍵節點（計畫中 → 已達成，單向）',

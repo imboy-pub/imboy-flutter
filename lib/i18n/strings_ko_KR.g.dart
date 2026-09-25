@@ -2353,6 +2353,8 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$manage$ko_KR manage = _Translations$organization$manage$ko_KR._(_root);
 	@override late final _Translations$organization$contactEntry$ko_KR contactEntry = _Translations$organization$contactEntry$ko_KR._(_root);
 	@override late final _Translations$organization$hub$ko_KR hub = _Translations$organization$hub$ko_KR._(_root);
+	@override late final _Translations$organization$wsMembers$ko_KR wsMembers = _Translations$organization$wsMembers$ko_KR._(_root);
+	@override late final _Translations$organization$tools$ko_KR tools = _Translations$organization$tools$ko_KR._(_root);
 }
 
 // Path: passport
@@ -2975,6 +2977,15 @@ class _Translations$organization$manage$ko_KR extends Translations$organization$
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
+	@override String get renameWorkspace => '워크스페이스 이름 변경';
+	@override String renameWorkspaceTitle({required Object name}) => '"${name}" 이름 변경';
+	@override String get wsMembersEntry => '멤버 관리';
+	@override String get renameGroup => '이름 변경';
+	@override String renameGroupTitle({required Object name}) => '"${name}" 이름 변경';
+	@override String get groupGovernance => '멤버 및 역할';
+	@override String get renameChannel => '이름 변경';
+	@override String get channelAdmins => '관리자';
+	@override String get channelSubscribersEntry => '구독자';
 	@override String get entry => '기업 관리';
 	@override String get entryRestricted => '기업 관리(관리자 전용)';
 	@override String get title => '기업 관리';
@@ -3056,12 +3067,62 @@ class _Translations$organization$hub$ko_KR extends Translations$organization$hub
 	@override String get zoneChannelsDesc => '기업 채널 · 기업 관리에서 보기';
 	@override String get zoneTools => '도구';
 	@override String get zoneToolsDesc => '워크스페이스 · 프로젝트 협업';
+	@override String get zoneOrgTools => '엔터프라이즈 협업 도구';
+	@override String get zoneOrgToolsDesc => '이 기업에서 승인된 워크스페이스 프로젝트와 작업';
 	@override String get adminMembers => '멤버 관리';
 	@override String get adminMembersDesc => '역할 조정 · 멤버 제거';
 	@override String get adminInvitations => '초대 관리';
 	@override String get adminInvitationsDesc => '초대 생성 및 철회';
 	@override String get adminManage => '기업 관리';
 	@override String get adminManageDesc => '워크스페이스 · 그룹 · 채널 관리';
+}
+
+// Path: organization.wsMembers
+class _Translations$organization$wsMembers$ko_KR extends Translations$organization$wsMembers$zh_CN {
+	_Translations$organization$wsMembers$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String title({required Object ws}) => '워크스페이스 멤버 · ${ws}';
+	@override String get invite => '멤버 초대';
+	@override String get inviteHint => '기존 마법사에서 연락처를 선택해 초대(워크스페이스 소유자만)';
+	@override String get readOnlyHint => '읽기 전용 보기입니다. 쓰기 작업은 워크스페이스 소유자만 가능합니다.';
+	@override String memberCount({required Object count}) => '멤버 ${count}명';
+	@override String get notFound => '워크스페이스가 없거나 조회 권한이 없습니다';
+	@override String get roleOwner => '소유자';
+	@override String get roleMember => '멤버';
+	@override String get roleGuest => '게스트';
+	@override String get changeRole => '역할 변경';
+	@override String get setRoleMember => '멤버로 설정';
+	@override String get setRoleGuest => '게스트로 설정';
+	@override String get transferOwner => '소유자 이전';
+	@override String transferOwnerTitle({required Object name}) => '"${name}"의 소유자를 이전할까요?';
+	@override String get transferOwnerBody => '이전 후 더 이상 소유자가 아니며 관리 권한이 상대에게 이동합니다. 새 소유자는 다시 이전할 수 있습니다.';
+	@override String get removeMember => '멤버 제거';
+	@override String removeTitle({required Object name}) => '"${name}"을(를) 제거할까요?';
+	@override String get removeBody => '멤버가 이 워크스페이스에서 나갑니다. 프로젝트 소유자이거나 미완료 작업이 있으면 서버가 거부하고 충돌 목록을 표시합니다.';
+	@override String get archivedReadOnly => '워크스페이스가 보관 처리되었습니다. 관리 쓰기 작업이 서버에 의해 비활성화되었습니다.';
+}
+
+// Path: organization.tools
+class _Translations$organization$tools$ko_KR extends Translations$organization$tools$zh_CN {
+	_Translations$organization$tools$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '엔터프라이즈 도구';
+	@override String titleWithOrg({required Object name}) => '${name} · 엔터프라이즈 도구';
+	@override String get scopeNote => '이 기업에서 가입한 워크스페이스와 해당 프로젝트만 표시됩니다. 작업과 마일스톤은 프로젝트 상세에 있습니다.';
+	@override String get archivedNote => '기업이 보관 처리되었습니다. 도구 영역은 읽기 전용입니다.';
+	@override String get workspaceEmpty => '가입한 워크스페이스 없음';
+	@override String get workspaceEmptyHint => '같은 기업 내 가입하지 않은 워크스페이스는 여기에 나타나지 않습니다.';
+	@override String projectCount({required Object count}) => '프로젝트 ${count}개';
+	@override String get projectsEmpty => '프로젝트가 없습니다';
+	@override String projectsError({required Object err}) => '프로젝트 로드 실패: ${err}';
+	@override String get moreInWorkspaceShell => '모든 워크스페이스 탐색';
+	@override String get moreInWorkspaceShellHint => '전역 워크스페이스 전환기 열기(기업 간).';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -5312,6 +5373,15 @@ extension on TranslationsKoKr {
 			'organization.memberDetail.workspacesTitle' => '권한 있는 워크스페이스',
 			'organization.memberDetail.workspacesEmpty' => '이 멤버는 이 기업에 워크스페이스가 없습니다',
 			'organization.memberDetail.workspacesFailed' => '권한 있는 워크스페이스를 불러오지 못했습니다',
+			'organization.manage.renameWorkspace' => '워크스페이스 이름 변경',
+			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => '"${name}" 이름 변경',
+			'organization.manage.wsMembersEntry' => '멤버 관리',
+			'organization.manage.renameGroup' => '이름 변경',
+			'organization.manage.renameGroupTitle' => ({required Object name}) => '"${name}" 이름 변경',
+			'organization.manage.groupGovernance' => '멤버 및 역할',
+			'organization.manage.renameChannel' => '이름 변경',
+			'organization.manage.channelAdmins' => '관리자',
+			'organization.manage.channelSubscribersEntry' => '구독자',
 			'organization.manage.entry' => '기업 관리',
 			'organization.manage.entryRestricted' => '기업 관리(관리자 전용)',
 			'organization.manage.title' => '기업 관리',
@@ -5375,12 +5445,44 @@ extension on TranslationsKoKr {
 			'organization.hub.zoneChannelsDesc' => '기업 채널 · 기업 관리에서 보기',
 			'organization.hub.zoneTools' => '도구',
 			'organization.hub.zoneToolsDesc' => '워크스페이스 · 프로젝트 협업',
+			'organization.hub.zoneOrgTools' => '엔터프라이즈 협업 도구',
+			'organization.hub.zoneOrgToolsDesc' => '이 기업에서 승인된 워크스페이스 프로젝트와 작업',
 			'organization.hub.adminMembers' => '멤버 관리',
 			'organization.hub.adminMembersDesc' => '역할 조정 · 멤버 제거',
 			'organization.hub.adminInvitations' => '초대 관리',
 			'organization.hub.adminInvitationsDesc' => '초대 생성 및 철회',
 			'organization.hub.adminManage' => '기업 관리',
 			'organization.hub.adminManageDesc' => '워크스페이스 · 그룹 · 채널 관리',
+			'organization.wsMembers.title' => ({required Object ws}) => '워크스페이스 멤버 · ${ws}',
+			'organization.wsMembers.invite' => '멤버 초대',
+			'organization.wsMembers.inviteHint' => '기존 마법사에서 연락처를 선택해 초대(워크스페이스 소유자만)',
+			'organization.wsMembers.readOnlyHint' => '읽기 전용 보기입니다. 쓰기 작업은 워크스페이스 소유자만 가능합니다.',
+			'organization.wsMembers.memberCount' => ({required Object count}) => '멤버 ${count}명',
+			'organization.wsMembers.notFound' => '워크스페이스가 없거나 조회 권한이 없습니다',
+			'organization.wsMembers.roleOwner' => '소유자',
+			'organization.wsMembers.roleMember' => '멤버',
+			'organization.wsMembers.roleGuest' => '게스트',
+			'organization.wsMembers.changeRole' => '역할 변경',
+			'organization.wsMembers.setRoleMember' => '멤버로 설정',
+			'organization.wsMembers.setRoleGuest' => '게스트로 설정',
+			'organization.wsMembers.transferOwner' => '소유자 이전',
+			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => '"${name}"의 소유자를 이전할까요?',
+			'organization.wsMembers.transferOwnerBody' => '이전 후 더 이상 소유자가 아니며 관리 권한이 상대에게 이동합니다. 새 소유자는 다시 이전할 수 있습니다.',
+			'organization.wsMembers.removeMember' => '멤버 제거',
+			'organization.wsMembers.removeTitle' => ({required Object name}) => '"${name}"을(를) 제거할까요?',
+			'organization.wsMembers.removeBody' => '멤버가 이 워크스페이스에서 나갑니다. 프로젝트 소유자이거나 미완료 작업이 있으면 서버가 거부하고 충돌 목록을 표시합니다.',
+			'organization.wsMembers.archivedReadOnly' => '워크스페이스가 보관 처리되었습니다. 관리 쓰기 작업이 서버에 의해 비활성화되었습니다.',
+			'organization.tools.title' => '엔터프라이즈 도구',
+			'organization.tools.titleWithOrg' => ({required Object name}) => '${name} · 엔터프라이즈 도구',
+			'organization.tools.scopeNote' => '이 기업에서 가입한 워크스페이스와 해당 프로젝트만 표시됩니다. 작업과 마일스톤은 프로젝트 상세에 있습니다.',
+			'organization.tools.archivedNote' => '기업이 보관 처리되었습니다. 도구 영역은 읽기 전용입니다.',
+			'organization.tools.workspaceEmpty' => '가입한 워크스페이스 없음',
+			'organization.tools.workspaceEmptyHint' => '같은 기업 내 가입하지 않은 워크스페이스는 여기에 나타나지 않습니다.',
+			'organization.tools.projectCount' => ({required Object count}) => '프로젝트 ${count}개',
+			'organization.tools.projectsEmpty' => '프로젝트가 없습니다',
+			'organization.tools.projectsError' => ({required Object err}) => '프로젝트 로드 실패: ${err}',
+			'organization.tools.moreInWorkspaceShell' => '모든 워크스페이스 탐색',
+			'organization.tools.moreInWorkspaceShellHint' => '전역 워크스페이스 전환기 열기(기업 간).',
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',
@@ -5599,6 +5701,8 @@ extension on TranslationsKoKr {
 			'workspace.projectMemberTransferDesc' => '이전 후 상대방이 이 프로젝트의 전체 관리 권한을 갖습니다',
 			'workspace.projectMemberTransferConfirm' => '이전 확인',
 			'workspace.projectMemberTransferDoneToast' => '프로젝트 담당자가 이전되었습니다',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => '마일스톤',
 			'workspace.projectMilestoneEmptyTitle' => '아직 마일스톤이 없습니다',
 			'workspace.projectMilestoneEmptySubtitle' => '마일스톤으로 프로젝트의 핵심 지점을 표시합니다(계획됨 → 달성됨, 단방향)',

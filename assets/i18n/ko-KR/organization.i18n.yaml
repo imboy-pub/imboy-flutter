@@ -229,6 +229,15 @@ memberDetail:
   workspacesFailed: 권한 있는 워크스페이스를 불러오지 못했습니다
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
+  renameWorkspace: 워크스페이스 이름 변경
+  renameWorkspaceTitle: '"${name}" 이름 변경'
+  wsMembersEntry: 멤버 관리
+  renameGroup: 이름 변경
+  renameGroupTitle: '"${name}" 이름 변경'
+  groupGovernance: 멤버 및 역할
+  renameChannel: 이름 변경
+  channelAdmins: 관리자
+  channelSubscribersEntry: 구독자
   entry: 기업 관리
   entryRestricted: 기업 관리(관리자 전용)
   title: 기업 관리
@@ -296,9 +305,45 @@ hub:
   zoneChannelsDesc: 기업 채널 · 기업 관리에서 보기
   zoneTools: 도구
   zoneToolsDesc: 워크스페이스 · 프로젝트 협업
+  zoneOrgTools: 엔터프라이즈 협업 도구
+  zoneOrgToolsDesc: 이 기업에서 승인된 워크스페이스 프로젝트와 작업
   adminMembers: 멤버 관리
   adminMembersDesc: 역할 조정 · 멤버 제거
   adminInvitations: 초대 관리
   adminInvitationsDesc: 초대 생성 및 철회
   adminManage: 기업 관리
   adminManageDesc: 워크스페이스 · 그룹 · 채널 관리
+
+wsMembers:
+  title: "워크스페이스 멤버 · ${ws}"
+  invite: 멤버 초대
+  inviteHint: 기존 마법사에서 연락처를 선택해 초대(워크스페이스 소유자만)
+  readOnlyHint: 읽기 전용 보기입니다. 쓰기 작업은 워크스페이스 소유자만 가능합니다.
+  memberCount: "멤버 ${count}명"
+  notFound: 워크스페이스가 없거나 조회 권한이 없습니다
+  roleOwner: 소유자
+  roleMember: 멤버
+  roleGuest: 게스트
+  changeRole: 역할 변경
+  setRoleMember: 멤버로 설정
+  setRoleGuest: 게스트로 설정
+  transferOwner: 소유자 이전
+  transferOwnerTitle: '"${name}"의 소유자를 이전할까요?'
+  transferOwnerBody: 이전 후 더 이상 소유자가 아니며 관리 권한이 상대에게 이동합니다. 새 소유자는 다시 이전할 수 있습니다.
+  removeMember: 멤버 제거
+  removeTitle: '"${name}"을(를) 제거할까요?'
+  removeBody: 멤버가 이 워크스페이스에서 나갑니다. 프로젝트 소유자이거나 미완료 작업이 있으면 서버가 거부하고 충돌 목록을 표시합니다.
+  archivedReadOnly: 워크스페이스가 보관 처리되었습니다. 관리 쓰기 작업이 서버에 의해 비활성화되었습니다.
+
+tools:
+  title: 엔터프라이즈 도구
+  titleWithOrg: "${name} · 엔터프라이즈 도구"
+  scopeNote: 이 기업에서 가입한 워크스페이스와 해당 프로젝트만 표시됩니다. 작업과 마일스톤은 프로젝트 상세에 있습니다.
+  archivedNote: 기업이 보관 처리되었습니다. 도구 영역은 읽기 전용입니다.
+  workspaceEmpty: 가입한 워크스페이스 없음
+  workspaceEmptyHint: 같은 기업 내 가입하지 않은 워크스페이스는 여기에 나타나지 않습니다.
+  projectCount: "프로젝트 ${count}개"
+  projectsEmpty: 프로젝트가 없습니다
+  projectsError: "프로젝트 로드 실패: ${err}"
+  moreInWorkspaceShell: 모든 워크스페이스 탐색
+  moreInWorkspaceShellHint: 전역 워크스페이스 전환기 열기(기업 간).

@@ -26,11 +26,16 @@ library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
+import 'package:imboy/modules/organization/presentation/org_tool_deep_links.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart'
+    show kOrganizationHomePath;
+import 'package:imboy/modules/organization/presentation/organization_manage_sections.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 import 'package:imboy/modules/organization/presentation/org_invite_qr_page.dart';
 import 'package:imboy/store/api/channel_api.dart';
@@ -289,6 +294,29 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     }, t.organization.manage.setDefault);
   }
 
+  /// ENT-APP-06：工作区改名（仅 WS Owner；archived 980 由服务端拒）。
+  Future<void> _renameWorkspace(WorkspaceModel ws) async {
+    final name = await orgPromptInput(
+      context,
+      title: t.organization.manage.renameWorkspaceTitle(name: ws.name),
+      hint: t.organization.manage.workspaceNameHint,
+      initial: ws.name,
+    );
+    if (name == null || name == ws.name) return;
+    await _runGovernance(() async {
+      await _wsApi.updateProfile(ws.id, name: name);
+      return null;
+    }, t.organization.manage.renameWorkspace);
+  }
+
+  /// ENT-APP-06：工作区成员治理（org 视角显式带 wsId 的成员面）。
+  Future<void> _openWsMembers(WorkspaceModel ws) async {
+    context.push(
+      '$kOrganizationHomePath/${widget.orgId}/ws/${ws.id}/members'
+      '?name=${Uri.encodeQueryComponent(ws.name)}',
+    );
+  }
+
   bool _isWsOwner(WorkspaceModel ws) => ws.ownerId == _accountKey;
 
   // ==================== 群 / 频道动作 ====================
@@ -333,6 +361,28 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     );
   }
 
+  /// ENT-APP-06：群设置（改名）——group/edit title；权限（群主或企业
+  /// owner/admin，GZAPP-03 双授权源）由服务端裁决，失败原样透出。
+  Future<void> _renameGroup(GroupModel g) async {
+    final title = await orgPromptInput(
+      context,
+      title: t.organization.manage.renameGroupTitle(name: g.displayTitle),
+      hint: t.organization.manage.groupNameHint,
+      initial: g.displayTitle,
+    );
+    if (title == null || title == g.displayTitle) return;
+    await _runGovernance(
+      () => _groupApi.editTitle(gid: '${g.groupId}', title: title),
+      t.organization.manage.renameGroup,
+    );
+  }
+
+  /// ENT-APP-06：群成员与角色治理深链——既有群详情页是这些动作的
+  /// 收口面，这里只负责把人送过去（不复制成员治理业务）。
+  void _openGroupDetail(GroupModel g) {
+    context.push(orgGroupDetailPath('${g.groupId}'));
+  }
+
   Future<void> _createChannel() async {
     if (_activeWsId.isEmpty) return;
     final name = await orgPromptInput(
@@ -372,6 +422,22 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
       () => _channelApi.restoreChannel('${c.id}'),
       t.organization.manage.restoreChannel,
     );
+  }
+
+  // ---- ENT-APP-06：频道设置/管理员/订阅者 = 深链既有 channel 子路由 ----
+  // 三个落点页（ChannelEditPage / ChannelAdminPage / ChannelSubscriberPage）
+  // 自治数据与权限（服务端 403 唯一裁决），本页不复制其业务。
+
+  void _openChannelEdit(ChannelModel c) {
+    context.push(orgChannelEditPath('${c.id}'));
+  }
+
+  void _openChannelAdmins(ChannelModel c) {
+    context.push(orgChannelAdminsPath('${c.id}'));
+  }
+
+  void _openChannelSubscribers(ChannelModel c) {
+    context.push(orgChannelSubscribersPath('${c.id}'));
   }
 
   // ==================== 渲染 ====================
@@ -507,37 +573,17 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   }
 
   Widget _wsTrailing(WorkspaceModel ws, EntityId defaultId) {
-    final items = <PopupMenuEntry<String>>[];
-    if (_isWsOwner(ws) && !ws.isArchived && ws.id != defaultId) {
-      items.add(
-        PopupMenuItem<String>(
-          value: 'default',
-          child: Text(t.organization.manage.setDefault),
-        ),
-      );
-    }
-    if (_isWsOwner(ws) && !ws.isArchived) {
-      items.add(
-        PopupMenuItem<String>(
-          value: 'archive',
-          child: Text(t.organization.manage.archiveWorkspace),
-        ),
-      );
-    }
-    if (_isWsOwner(ws) && ws.isArchived) {
-      items.add(
-        PopupMenuItem<String>(
-          value: 'restore',
-          child: Text(t.organization.manage.restoreWorkspace),
-        ),
-      );
-    }
+    final items = _wsMenuItems(ws, defaultId);
     if (items.isEmpty) return const SizedBox.shrink();
     return PopupMenuButton<String>(
       key: ValueKey('org-manage-ws-menu-${ws.id}'),
       tooltip: t.organization.common.moreActions,
       onSelected: (value) {
         switch (value) {
+          case 'members':
+            _openWsMembers(ws);
+          case 'rename':
+            _renameWorkspace(ws);
           case 'default':
             _setDefaultWorkspace(ws);
           case 'archive':
@@ -548,6 +594,42 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
       },
       itemBuilder: (_) => items,
     );
+  }
+
+  /// 工作区行菜单项：WS Owner 全量；归档态只留成员治理 + 恢复。
+  List<PopupMenuEntry<String>> _wsMenuItems(
+    WorkspaceModel ws,
+    EntityId defaultId,
+  ) {
+    final owner = _isWsOwner(ws);
+    final active = !ws.isArchived;
+    return [
+      if (owner)
+        PopupMenuItem<String>(
+          value: 'members',
+          child: Text(t.organization.manage.wsMembersEntry),
+        ),
+      if (owner && active)
+        PopupMenuItem<String>(
+          value: 'rename',
+          child: Text(t.organization.manage.renameWorkspace),
+        ),
+      if (owner && active && ws.id != defaultId)
+        PopupMenuItem<String>(
+          value: 'default',
+          child: Text(t.organization.manage.setDefault),
+        ),
+      if (owner && active)
+        PopupMenuItem<String>(
+          value: 'archive',
+          child: Text(t.organization.manage.archiveWorkspace),
+        ),
+      if (owner && !active)
+        PopupMenuItem<String>(
+          value: 'restore',
+          child: Text(t.organization.manage.restoreWorkspace),
+        ),
+    ];
   }
 
   List<Widget> _buildResourceSection() => [
@@ -576,8 +658,23 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
           child: Center(child: CircularProgressIndicator()),
         )
       else ...[
-        _groupBlock(),
-        _channelBlock(),
+        OrgManageGroupBlock(
+          groups: _groups,
+          onCreate: _createGroup,
+          onRename: _renameGroup,
+          onOpenDetail: _openGroupDetail,
+          onDissolve: _dissolveGroup,
+        ),
+        OrgManageChannelBlock(
+          activeChannels: _activeChannels,
+          archivedChannels: _archivedChannels,
+          onCreate: _createChannel,
+          onRename: _openChannelEdit,
+          onOpenAdmins: _openChannelAdmins,
+          onOpenSubscribers: _openChannelSubscribers,
+          onArchive: _archiveChannel,
+          onRestore: _restoreChannel,
+        ),
       ],
     ],
   ];
@@ -601,97 +698,6 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
           ),
       ],
     ),
-  );
-
-  Widget _groupBlock() => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      _SubHeader(
-        title: t.organization.manage.groupSection,
-        actionLabel: t.organization.manage.createGroup,
-        actionKey: const ValueKey('org-manage-create-group'),
-        onAction: _createGroup,
-      ),
-      if (_groups.isEmpty)
-        ListTile(title: Text(t.organization.manage.groupEmpty))
-      else
-        for (final g in _groups)
-          ListTile(
-            key: ValueKey('org-manage-group-${g.groupId}'),
-            leading: const Icon(CupertinoIcons.person_2),
-            title: Text(
-              g.displayTitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text(
-              t.organization.manage.groupMembers(count: g.memberCount),
-            ),
-            trailing: IconButton(
-              key: ValueKey('org-manage-dissolve-${g.groupId}'),
-              icon: const Icon(CupertinoIcons.trash),
-              color: Theme.of(context).colorScheme.error,
-              tooltip: t.organization.manage.dissolveGroup,
-              onPressed: () => _dissolveGroup(g),
-            ),
-          ),
-    ],
-  );
-
-  Widget _channelBlock() => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      _SubHeader(
-        title: t.organization.manage.channelSection,
-        actionLabel: t.organization.manage.createChannel,
-        actionKey: const ValueKey('org-manage-create-channel'),
-        onAction: _createChannel,
-      ),
-      ListTile(
-        dense: true,
-        leading: const Icon(CupertinoIcons.info),
-        title: Text(t.organization.manage.channelPolicyNote),
-      ),
-      if (_activeChannels.isEmpty)
-        ListTile(title: Text(t.organization.manage.channelEmpty))
-      else
-        for (final c in _activeChannels)
-          ListTile(
-            key: ValueKey('org-manage-channel-${c.id}'),
-            leading: const Icon(CupertinoIcons.speaker_3),
-            title: Text(c.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-            subtitle: Text(
-              t.organization.manage.channelSubscribers(
-                count: c.subscriberCount,
-              ),
-            ),
-            trailing: IconButton(
-              key: ValueKey('org-manage-archive-${c.id}'),
-              icon: const Icon(CupertinoIcons.archivebox),
-              tooltip: t.organization.manage.archiveChannel,
-              onPressed: () => _archiveChannel(c),
-            ),
-          ),
-      if (_archivedChannels.isNotEmpty) ...[
-        const Divider(),
-        _SubHeader(title: t.organization.manage.archivedChannelSection),
-        for (final c in _archivedChannels)
-          ListTile(
-            key: ValueKey('org-manage-archived-channel-${c.id}'),
-            leading: Icon(
-              CupertinoIcons.archivebox,
-              color: Theme.of(context).disabledColor,
-            ),
-            title: Text(c.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-            subtitle: Text(t.organization.manage.archivedBadge),
-            trailing: TextButton(
-              key: ValueKey('org-manage-restore-${c.id}'),
-              onPressed: () => _restoreChannel(c),
-              child: Text(t.organization.manage.restoreChannel),
-            ),
-          ),
-      ],
-    ],
   );
 }
 
@@ -735,43 +741,6 @@ class _SectionHeader extends StatelessWidget {
             ),
           ),
           ?action,
-        ],
-      ),
-    );
-  }
-}
-
-class _SubHeader extends StatelessWidget {
-  const _SubHeader({
-    required this.title,
-    this.actionLabel,
-    this.actionKey,
-    this.onAction,
-  });
-
-  final String title;
-  final String? actionLabel;
-  final Key? actionKey;
-  final VoidCallback? onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-        vertical: AppSpacing.small,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(title, style: Theme.of(context).textTheme.titleSmall),
-          ),
-          if (actionLabel != null)
-            TextButton(
-              key: actionKey,
-              onPressed: onAction,
-              child: Text(actionLabel!),
-            ),
         ],
       ),
     );

@@ -329,6 +329,15 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
         subtitle: t.organization.hub.zoneToolsDesc,
         onTap: () => context.push(kWorkspacePickerPath),
       ),
+      // ENT-APP-06：本企业工具聚合（Org 限定视角；上面那个 tile 仍是全局
+      // 工作区切换器）。只列当前企业已授权的工作区项目，深链既有页面。
+      _HubTile(
+        tileKey: const ValueKey('organization-detail-zone-org-tools'),
+        icon: CupertinoIcons.square_grid_2x2_fill,
+        title: t.organization.hub.zoneOrgTools,
+        subtitle: t.organization.hub.zoneOrgToolsDesc,
+        onTap: () => context.push('$detailBase/tools'),
+      ),
       const Divider(),
     ];
   }

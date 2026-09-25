@@ -2356,6 +2356,8 @@ class _Translations$organization$it_IT extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$manage$it_IT manage = _Translations$organization$manage$it_IT._(_root);
 	@override late final _Translations$organization$contactEntry$it_IT contactEntry = _Translations$organization$contactEntry$it_IT._(_root);
 	@override late final _Translations$organization$hub$it_IT hub = _Translations$organization$hub$it_IT._(_root);
+	@override late final _Translations$organization$wsMembers$it_IT wsMembers = _Translations$organization$wsMembers$it_IT._(_root);
+	@override late final _Translations$organization$tools$it_IT tools = _Translations$organization$tools$it_IT._(_root);
 }
 
 // Path: passport
@@ -2978,6 +2980,15 @@ class _Translations$organization$manage$it_IT extends Translations$organization$
 	final TranslationsItIt _root; // ignore: unused_field
 
 	// Translations
+	@override String get renameWorkspace => 'Rinomina workspace';
+	@override String renameWorkspaceTitle({required Object name}) => 'Rinomina "${name}"';
+	@override String get wsMembersEntry => 'Gestisci membri';
+	@override String get renameGroup => 'Rinomina';
+	@override String renameGroupTitle({required Object name}) => 'Rinomina "${name}"';
+	@override String get groupGovernance => 'Membri e ruoli';
+	@override String get renameChannel => 'Rinomina';
+	@override String get channelAdmins => 'Amministratori';
+	@override String get channelSubscribersEntry => 'Abbonati';
 	@override String get entry => 'Gestione dell\'azienda';
 	@override String get entryRestricted => 'Gestione dell\'azienda (solo amministratori)';
 	@override String get title => 'Gestione dell\'azienda';
@@ -3059,12 +3070,62 @@ class _Translations$organization$hub$it_IT extends Translations$organization$hub
 	@override String get zoneChannelsDesc => 'Canali aziendali · via console di amministrazione';
 	@override String get zoneTools => 'Strumenti';
 	@override String get zoneToolsDesc => 'Workspace · progetti e collaborazione';
+	@override String get zoneOrgTools => 'Strumenti aziendali';
+	@override String get zoneOrgToolsDesc => 'Progetti e attività degli workspace autorizzati in questa azienda';
 	@override String get adminMembers => 'Gestione membri';
 	@override String get adminMembersDesc => 'Ruoli · rimozione membri';
 	@override String get adminInvitations => 'Gestione inviti';
 	@override String get adminInvitationsDesc => 'Crea e revoca inviti';
 	@override String get adminManage => 'Amministrazione';
 	@override String get adminManageDesc => 'Workspace · gruppi · canali';
+}
+
+// Path: organization.wsMembers
+class _Translations$organization$wsMembers$it_IT extends Translations$organization$wsMembers$zh_CN {
+	_Translations$organization$wsMembers$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String title({required Object ws}) => 'Membri dello workspace · ${ws}';
+	@override String get invite => 'Invita membri';
+	@override String get inviteHint => 'Invita tramite la procedura esistente (solo proprietario dello workspace)';
+	@override String get readOnlyHint => 'Vista di sola lettura; le azioni di scrittura spettano al proprietario dello workspace.';
+	@override String memberCount({required Object count}) => 'Membri ${count}';
+	@override String get notFound => 'Workspace inesistente o non visibile';
+	@override String get roleOwner => 'Proprietario';
+	@override String get roleMember => 'Membro';
+	@override String get roleGuest => 'Ospite';
+	@override String get changeRole => 'Cambia ruolo';
+	@override String get setRoleMember => 'Imposta come membro';
+	@override String get setRoleGuest => 'Imposta come ospite';
+	@override String get transferOwner => 'Trasferisci proprietario';
+	@override String transferOwnerTitle({required Object name}) => 'Trasferire il proprietario di "${name}"?';
+	@override String get transferOwnerBody => 'Dopo il trasferimento non sei più proprietario; i diritti di gestione passano all\'altra persona, che può ritrasferirli.';
+	@override String get removeMember => 'Rimuovi membro';
+	@override String removeTitle({required Object name}) => 'Rimuovere "${name}"?';
+	@override String get removeBody => 'Il membro lascia lo workspace; se possiede ancora progetti o ha attività aperte, il server rifiuta ed elenca i conflitti.';
+	@override String get archivedReadOnly => 'Workspace archiviato: le scritture di gestione sono disattivate dal server.';
+}
+
+// Path: organization.tools
+class _Translations$organization$tools$it_IT extends Translations$organization$tools$zh_CN {
+	_Translations$organization$tools$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Strumenti aziendali';
+	@override String titleWithOrg({required Object name}) => '${name} · Strumenti aziendali';
+	@override String get scopeNote => 'Vengono elencati solo gli workspace di questa azienda a cui sei iscritto e i relativi progetti; attività e traguardi sono nel dettaglio del progetto.';
+	@override String get archivedNote => 'Azienda archiviata: l\'area strumenti è di sola lettura.';
+	@override String get workspaceEmpty => 'Nessuno workspace iscritto';
+	@override String get workspaceEmptyHint => 'Gli workspace di questa azienda a cui non sei iscritto non compaiono qui.';
+	@override String projectCount({required Object count}) => 'Progetti ${count}';
+	@override String get projectsEmpty => 'Nessun progetto';
+	@override String projectsError({required Object err}) => 'Caricamento progetti non riuscito: ${err}';
+	@override String get moreInWorkspaceShell => 'Sfoglia tutti gli workspace';
+	@override String get moreInWorkspaceShellHint => 'Apri il selettore globale degli workspace (tra aziende).';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -5315,6 +5376,15 @@ extension on TranslationsItIt {
 			'organization.memberDetail.workspacesTitle' => 'Workspace autorizzati',
 			'organization.memberDetail.workspacesEmpty' => 'Questo membro non ha ancora workspace in questa azienda',
 			'organization.memberDetail.workspacesFailed' => 'Caricamento dei workspace autorizzati non riuscito',
+			'organization.manage.renameWorkspace' => 'Rinomina workspace',
+			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => 'Rinomina "${name}"',
+			'organization.manage.wsMembersEntry' => 'Gestisci membri',
+			'organization.manage.renameGroup' => 'Rinomina',
+			'organization.manage.renameGroupTitle' => ({required Object name}) => 'Rinomina "${name}"',
+			'organization.manage.groupGovernance' => 'Membri e ruoli',
+			'organization.manage.renameChannel' => 'Rinomina',
+			'organization.manage.channelAdmins' => 'Amministratori',
+			'organization.manage.channelSubscribersEntry' => 'Abbonati',
 			'organization.manage.entry' => 'Gestione dell\'azienda',
 			'organization.manage.entryRestricted' => 'Gestione dell\'azienda (solo amministratori)',
 			'organization.manage.title' => 'Gestione dell\'azienda',
@@ -5378,12 +5448,44 @@ extension on TranslationsItIt {
 			'organization.hub.zoneChannelsDesc' => 'Canali aziendali · via console di amministrazione',
 			'organization.hub.zoneTools' => 'Strumenti',
 			'organization.hub.zoneToolsDesc' => 'Workspace · progetti e collaborazione',
+			'organization.hub.zoneOrgTools' => 'Strumenti aziendali',
+			'organization.hub.zoneOrgToolsDesc' => 'Progetti e attività degli workspace autorizzati in questa azienda',
 			'organization.hub.adminMembers' => 'Gestione membri',
 			'organization.hub.adminMembersDesc' => 'Ruoli · rimozione membri',
 			'organization.hub.adminInvitations' => 'Gestione inviti',
 			'organization.hub.adminInvitationsDesc' => 'Crea e revoca inviti',
 			'organization.hub.adminManage' => 'Amministrazione',
 			'organization.hub.adminManageDesc' => 'Workspace · gruppi · canali',
+			'organization.wsMembers.title' => ({required Object ws}) => 'Membri dello workspace · ${ws}',
+			'organization.wsMembers.invite' => 'Invita membri',
+			'organization.wsMembers.inviteHint' => 'Invita tramite la procedura esistente (solo proprietario dello workspace)',
+			'organization.wsMembers.readOnlyHint' => 'Vista di sola lettura; le azioni di scrittura spettano al proprietario dello workspace.',
+			'organization.wsMembers.memberCount' => ({required Object count}) => 'Membri ${count}',
+			'organization.wsMembers.notFound' => 'Workspace inesistente o non visibile',
+			'organization.wsMembers.roleOwner' => 'Proprietario',
+			'organization.wsMembers.roleMember' => 'Membro',
+			'organization.wsMembers.roleGuest' => 'Ospite',
+			'organization.wsMembers.changeRole' => 'Cambia ruolo',
+			'organization.wsMembers.setRoleMember' => 'Imposta come membro',
+			'organization.wsMembers.setRoleGuest' => 'Imposta come ospite',
+			'organization.wsMembers.transferOwner' => 'Trasferisci proprietario',
+			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => 'Trasferire il proprietario di "${name}"?',
+			'organization.wsMembers.transferOwnerBody' => 'Dopo il trasferimento non sei più proprietario; i diritti di gestione passano all\'altra persona, che può ritrasferirli.',
+			'organization.wsMembers.removeMember' => 'Rimuovi membro',
+			'organization.wsMembers.removeTitle' => ({required Object name}) => 'Rimuovere "${name}"?',
+			'organization.wsMembers.removeBody' => 'Il membro lascia lo workspace; se possiede ancora progetti o ha attività aperte, il server rifiuta ed elenca i conflitti.',
+			'organization.wsMembers.archivedReadOnly' => 'Workspace archiviato: le scritture di gestione sono disattivate dal server.',
+			'organization.tools.title' => 'Strumenti aziendali',
+			'organization.tools.titleWithOrg' => ({required Object name}) => '${name} · Strumenti aziendali',
+			'organization.tools.scopeNote' => 'Vengono elencati solo gli workspace di questa azienda a cui sei iscritto e i relativi progetti; attività e traguardi sono nel dettaglio del progetto.',
+			'organization.tools.archivedNote' => 'Azienda archiviata: l\'area strumenti è di sola lettura.',
+			'organization.tools.workspaceEmpty' => 'Nessuno workspace iscritto',
+			'organization.tools.workspaceEmptyHint' => 'Gli workspace di questa azienda a cui non sei iscritto non compaiono qui.',
+			'organization.tools.projectCount' => ({required Object count}) => 'Progetti ${count}',
+			'organization.tools.projectsEmpty' => 'Nessun progetto',
+			'organization.tools.projectsError' => ({required Object err}) => 'Caricamento progetti non riuscito: ${err}',
+			'organization.tools.moreInWorkspaceShell' => 'Sfoglia tutti gli workspace',
+			'organization.tools.moreInWorkspaceShellHint' => 'Apri il selettore globale degli workspace (tra aziende).',
 			'passport.loginHistoryToggle' => 'Mostra cronologia accessi',
 			'passport.hintEmail' => 'Inserisci email',
 			'passport.hintMobile' => 'Inserisci numero di telefono',
@@ -5602,6 +5704,8 @@ extension on TranslationsItIt {
 			'workspace.removeMemberTitle' => ({required Object name}) => 'Rimuovi il membro dell\'area di lavoro ${name}',
 			'workspace.restoreConfirm' => 'Conferma ripristino',
 			'workspace.restoreDesc' => 'Dopo il ripristino l\'area di lavoro tornerà in lettura e scrittura',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreEntry' => 'Ripristina area di lavoro',
 			'workspace.restoreTitle' => 'Ripristina area di lavoro',
 			'workspace.resultFailed' => 'Non riuscito',

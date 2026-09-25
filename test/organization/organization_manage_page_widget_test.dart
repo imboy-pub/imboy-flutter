@@ -356,12 +356,20 @@ void main() {
       find.byKey(const ValueKey('org-manage-restore-6002')),
       findsOneWidget,
     );
-    // 活动频道只有归档动作，没有恢复动作
+    // 活动频道的归档动作收进行内菜单（ENT-APP-06）：打开菜单后可见
+    // 归档项，且没有恢复项（恢复只属于归档集合）。
+    await tester.tap(
+      find.byKey(const ValueKey('org-manage-channel-menu-6001')),
+    );
+    await tester.pumpAndSettle();
     expect(
       find.byKey(const ValueKey('org-manage-archive-6001')),
       findsOneWidget,
     );
     expect(find.byKey(const ValueKey('org-manage-restore-6001')), findsNothing);
+    // 关闭菜单，恢复归档频道行的断言语境。
+    await tester.tapAt(const Offset(10, 100));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('危险操作：二次确认弹窗取消则不产生任何请求', (tester) async {

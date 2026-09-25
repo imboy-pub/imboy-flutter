@@ -229,6 +229,15 @@ memberDetail:
   workspacesFailed: Failed to load authorized workspaces
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
+  renameWorkspace: Rename workspace
+  renameWorkspaceTitle: "Rename \"${name}\""
+  wsMembersEntry: Manage members
+  renameGroup: Rename
+  renameGroupTitle: "Rename \"${name}\""
+  groupGovernance: Members & roles
+  renameChannel: Rename
+  channelAdmins: Admins
+  channelSubscribersEntry: Subscribers
   entry: Enterprise management
   entryRestricted: Enterprise management (admins only)
   title: Enterprise management
@@ -296,9 +305,45 @@ hub:
   zoneChannelsDesc: Org channels · via admin console
   zoneTools: Tools
   zoneToolsDesc: Workspaces · projects and collaboration
+  zoneOrgTools: Enterprise tools
+  zoneOrgToolsDesc: Workspaces, projects and tasks authorized in this enterprise
   adminMembers: Member governance
   adminMembersDesc: Roles · remove members
   adminInvitations: Invitation management
   adminInvitationsDesc: Create and revoke invitations
   adminManage: Organization admin
   adminManageDesc: Workspaces · groups · channels
+
+wsMembers:
+  title: "Workspace members · ${ws}"
+  invite: Invite members
+  inviteHint: Pick contacts via the existing wizard (workspace owner only)
+  readOnlyHint: Read-only view; write actions are limited to the workspace owner.
+  memberCount: "Members ${count}"
+  notFound: Workspace not found or not visible to you
+  roleOwner: Owner
+  roleMember: Member
+  roleGuest: Guest
+  changeRole: Change role
+  setRoleMember: Set as member
+  setRoleGuest: Set as guest
+  transferOwner: Transfer owner
+  transferOwnerTitle: "Transfer owner of \"${name}\"?"
+  transferOwnerBody: After the transfer you are no longer the workspace owner; governance rights move to the new owner, who can transfer back.
+  removeMember: Remove member
+  removeTitle: "Remove \"${name}\"?"
+  removeBody: The member leaves this workspace; if they still own projects or have open tasks, the server rejects and lists the conflicts.
+  archivedReadOnly: "Workspace archived: governance writes are disabled by the server."
+
+tools:
+  title: Enterprise tools
+  titleWithOrg: "${name} · Enterprise tools"
+  scopeNote: Only workspaces you joined in this enterprise and their projects are listed; tasks and milestones live in the project detail page.
+  archivedNote: "Enterprise archived: the tools area is read-only."
+  workspaceEmpty: No joined workspaces
+  workspaceEmptyHint: Workspaces in this enterprise that you have not joined do not appear here.
+  projectCount: "Projects ${count}"
+  projectsEmpty: No projects yet
+  projectsError: "Failed to load projects: ${err}"
+  moreInWorkspaceShell: Browse all workspaces
+  moreInWorkspaceShellHint: Open the global workspace switcher (cross-enterprise).

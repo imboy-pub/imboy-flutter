@@ -229,6 +229,15 @@ memberDetail:
   workspacesFailed: Échec du chargement des espaces de travail autorisés
 # ==================== GZAPP-05：企业管理（工作区/群/频道治理） ====================
 manage:
+  renameWorkspace: Renommer l'espace de travail
+  renameWorkspaceTitle: "Renommer « ${name} »"
+  wsMembersEntry: Gérer les membres
+  renameGroup: Renommer
+  renameGroupTitle: "Renommer « ${name} »"
+  groupGovernance: Membres et rôles
+  renameChannel: Renommer
+  channelAdmins: Administrateurs
+  channelSubscribersEntry: Abonnés
   entry: "Gestion de l'entreprise"
   entryRestricted: "Gestion de l'entreprise (admins uniquement)"
   title: "Gestion de l'entreprise"
@@ -296,9 +305,45 @@ hub:
   zoneChannelsDesc: Canaux d'organisation · via la console d'administration
   zoneTools: Outils
   zoneToolsDesc: Espaces de travail · projets et collaboration
+  zoneOrgTools: Outils d'entreprise
+  zoneOrgToolsDesc: Projets et tâches d'espaces de travail autorisés dans cette entreprise
   adminMembers: Gouvernance des membres
   adminMembersDesc: Rôles · retirer des membres
   adminInvitations: Gestion des invitations
   adminInvitationsDesc: Créer et révoquer des invitations
   adminManage: Administration
   adminManageDesc: Espaces de travail · groupes · canaux
+
+wsMembers:
+  title: "Membres de l'espace · ${ws}"
+  invite: Inviter des membres
+  inviteHint: Inviter via l'assistant existant (propriétaire de l'espace uniquement)
+  readOnlyHint: Vue en lecture seule ; les écritures sont réservées au propriétaire de l'espace.
+  memberCount: "Membres ${count}"
+  notFound: Espace de travail introuvable ou non visible
+  roleOwner: Propriétaire
+  roleMember: Membre
+  roleGuest: Invité
+  changeRole: Changer le rôle
+  setRoleMember: Définir comme membre
+  setRoleGuest: Définir comme invité
+  transferOwner: Transférer le propriétaire
+  transferOwnerTitle: "Transférer le propriétaire de « ${name} » ?"
+  transferOwnerBody: Après le transfert, vous n'êtes plus propriétaire ; les droits de gouvernance passent à l'autre personne, qui peut retransférer.
+  removeMember: Retirer le membre
+  removeTitle: "Retirer « ${name} » ?"
+  removeBody: Le membre quitte cet espace ; s'il possède encore des projets ou a des tâches ouvertes, le serveur refuse et liste les conflits.
+  archivedReadOnly: "Espace archivé : les écritures de gouvernance sont désactivées par le serveur."
+
+tools:
+  title: Outils d'entreprise
+  titleWithOrg: "${name} · Outils d'entreprise"
+  scopeNote: Seuls les espaces de travail rejoints dans cette entreprise et leurs projets sont listés ; tâches et jalons sont dans le détail du projet.
+  archivedNote: "Entreprise archivée : la zone outils est en lecture seule."
+  workspaceEmpty: Aucun espace rejoint
+  workspaceEmptyHint: Les espaces de cette entreprise que vous n'avez pas rejoints n'apparaissent pas ici.
+  projectCount: "Projets ${count}"
+  projectsEmpty: Aucun projet
+  projectsError: "Échec du chargement des projets : ${err}"
+  moreInWorkspaceShell: Parcourir tous les espaces
+  moreInWorkspaceShellHint: Ouvrir le sélecteur global d'espaces (inter-entreprises).

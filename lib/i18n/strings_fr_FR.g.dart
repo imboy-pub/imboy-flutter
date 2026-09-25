@@ -2356,6 +2356,8 @@ class _Translations$organization$fr_FR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$manage$fr_FR manage = _Translations$organization$manage$fr_FR._(_root);
 	@override late final _Translations$organization$contactEntry$fr_FR contactEntry = _Translations$organization$contactEntry$fr_FR._(_root);
 	@override late final _Translations$organization$hub$fr_FR hub = _Translations$organization$hub$fr_FR._(_root);
+	@override late final _Translations$organization$wsMembers$fr_FR wsMembers = _Translations$organization$wsMembers$fr_FR._(_root);
+	@override late final _Translations$organization$tools$fr_FR tools = _Translations$organization$tools$fr_FR._(_root);
 }
 
 // Path: passport
@@ -2978,6 +2980,15 @@ class _Translations$organization$manage$fr_FR extends Translations$organization$
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
+	@override String get renameWorkspace => 'Renommer l\'espace de travail';
+	@override String renameWorkspaceTitle({required Object name}) => 'Renommer « ${name} »';
+	@override String get wsMembersEntry => 'Gérer les membres';
+	@override String get renameGroup => 'Renommer';
+	@override String renameGroupTitle({required Object name}) => 'Renommer « ${name} »';
+	@override String get groupGovernance => 'Membres et rôles';
+	@override String get renameChannel => 'Renommer';
+	@override String get channelAdmins => 'Administrateurs';
+	@override String get channelSubscribersEntry => 'Abonnés';
 	@override String get entry => 'Gestion de l\'entreprise';
 	@override String get entryRestricted => 'Gestion de l\'entreprise (admins uniquement)';
 	@override String get title => 'Gestion de l\'entreprise';
@@ -3059,12 +3070,62 @@ class _Translations$organization$hub$fr_FR extends Translations$organization$hub
 	@override String get zoneChannelsDesc => 'Canaux d\'organisation · via la console d\'administration';
 	@override String get zoneTools => 'Outils';
 	@override String get zoneToolsDesc => 'Espaces de travail · projets et collaboration';
+	@override String get zoneOrgTools => 'Outils d\'entreprise';
+	@override String get zoneOrgToolsDesc => 'Projets et tâches d\'espaces de travail autorisés dans cette entreprise';
 	@override String get adminMembers => 'Gouvernance des membres';
 	@override String get adminMembersDesc => 'Rôles · retirer des membres';
 	@override String get adminInvitations => 'Gestion des invitations';
 	@override String get adminInvitationsDesc => 'Créer et révoquer des invitations';
 	@override String get adminManage => 'Administration';
 	@override String get adminManageDesc => 'Espaces de travail · groupes · canaux';
+}
+
+// Path: organization.wsMembers
+class _Translations$organization$wsMembers$fr_FR extends Translations$organization$wsMembers$zh_CN {
+	_Translations$organization$wsMembers$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String title({required Object ws}) => 'Membres de l\'espace · ${ws}';
+	@override String get invite => 'Inviter des membres';
+	@override String get inviteHint => 'Inviter via l\'assistant existant (propriétaire de l\'espace uniquement)';
+	@override String get readOnlyHint => 'Vue en lecture seule ; les écritures sont réservées au propriétaire de l\'espace.';
+	@override String memberCount({required Object count}) => 'Membres ${count}';
+	@override String get notFound => 'Espace de travail introuvable ou non visible';
+	@override String get roleOwner => 'Propriétaire';
+	@override String get roleMember => 'Membre';
+	@override String get roleGuest => 'Invité';
+	@override String get changeRole => 'Changer le rôle';
+	@override String get setRoleMember => 'Définir comme membre';
+	@override String get setRoleGuest => 'Définir comme invité';
+	@override String get transferOwner => 'Transférer le propriétaire';
+	@override String transferOwnerTitle({required Object name}) => 'Transférer le propriétaire de « ${name} » ?';
+	@override String get transferOwnerBody => 'Après le transfert, vous n\'êtes plus propriétaire ; les droits de gouvernance passent à l\'autre personne, qui peut retransférer.';
+	@override String get removeMember => 'Retirer le membre';
+	@override String removeTitle({required Object name}) => 'Retirer « ${name} » ?';
+	@override String get removeBody => 'Le membre quitte cet espace ; s\'il possède encore des projets ou a des tâches ouvertes, le serveur refuse et liste les conflits.';
+	@override String get archivedReadOnly => 'Espace archivé : les écritures de gouvernance sont désactivées par le serveur.';
+}
+
+// Path: organization.tools
+class _Translations$organization$tools$fr_FR extends Translations$organization$tools$zh_CN {
+	_Translations$organization$tools$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Outils d\'entreprise';
+	@override String titleWithOrg({required Object name}) => '${name} · Outils d\'entreprise';
+	@override String get scopeNote => 'Seuls les espaces de travail rejoints dans cette entreprise et leurs projets sont listés ; tâches et jalons sont dans le détail du projet.';
+	@override String get archivedNote => 'Entreprise archivée : la zone outils est en lecture seule.';
+	@override String get workspaceEmpty => 'Aucun espace rejoint';
+	@override String get workspaceEmptyHint => 'Les espaces de cette entreprise que vous n\'avez pas rejoints n\'apparaissent pas ici.';
+	@override String projectCount({required Object count}) => 'Projets ${count}';
+	@override String get projectsEmpty => 'Aucun projet';
+	@override String projectsError({required Object err}) => 'Échec du chargement des projets : ${err}';
+	@override String get moreInWorkspaceShell => 'Parcourir tous les espaces';
+	@override String get moreInWorkspaceShellHint => 'Ouvrir le sélecteur global d\'espaces (inter-entreprises).';
 }
 
 /// The flat map containing all translations for locale <fr-FR>.
@@ -5315,6 +5376,15 @@ extension on TranslationsFrFr {
 			'organization.memberDetail.workspacesTitle' => 'Espaces de travail autorisés',
 			'organization.memberDetail.workspacesEmpty' => 'Ce membre n\'a encore aucun espace de travail dans cette entreprise',
 			'organization.memberDetail.workspacesFailed' => 'Échec du chargement des espaces de travail autorisés',
+			'organization.manage.renameWorkspace' => 'Renommer l\'espace de travail',
+			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => 'Renommer « ${name} »',
+			'organization.manage.wsMembersEntry' => 'Gérer les membres',
+			'organization.manage.renameGroup' => 'Renommer',
+			'organization.manage.renameGroupTitle' => ({required Object name}) => 'Renommer « ${name} »',
+			'organization.manage.groupGovernance' => 'Membres et rôles',
+			'organization.manage.renameChannel' => 'Renommer',
+			'organization.manage.channelAdmins' => 'Administrateurs',
+			'organization.manage.channelSubscribersEntry' => 'Abonnés',
 			'organization.manage.entry' => 'Gestion de l\'entreprise',
 			'organization.manage.entryRestricted' => 'Gestion de l\'entreprise (admins uniquement)',
 			'organization.manage.title' => 'Gestion de l\'entreprise',
@@ -5378,12 +5448,44 @@ extension on TranslationsFrFr {
 			'organization.hub.zoneChannelsDesc' => 'Canaux d\'organisation · via la console d\'administration',
 			'organization.hub.zoneTools' => 'Outils',
 			'organization.hub.zoneToolsDesc' => 'Espaces de travail · projets et collaboration',
+			'organization.hub.zoneOrgTools' => 'Outils d\'entreprise',
+			'organization.hub.zoneOrgToolsDesc' => 'Projets et tâches d\'espaces de travail autorisés dans cette entreprise',
 			'organization.hub.adminMembers' => 'Gouvernance des membres',
 			'organization.hub.adminMembersDesc' => 'Rôles · retirer des membres',
 			'organization.hub.adminInvitations' => 'Gestion des invitations',
 			'organization.hub.adminInvitationsDesc' => 'Créer et révoquer des invitations',
 			'organization.hub.adminManage' => 'Administration',
 			'organization.hub.adminManageDesc' => 'Espaces de travail · groupes · canaux',
+			'organization.wsMembers.title' => ({required Object ws}) => 'Membres de l\'espace · ${ws}',
+			'organization.wsMembers.invite' => 'Inviter des membres',
+			'organization.wsMembers.inviteHint' => 'Inviter via l\'assistant existant (propriétaire de l\'espace uniquement)',
+			'organization.wsMembers.readOnlyHint' => 'Vue en lecture seule ; les écritures sont réservées au propriétaire de l\'espace.',
+			'organization.wsMembers.memberCount' => ({required Object count}) => 'Membres ${count}',
+			'organization.wsMembers.notFound' => 'Espace de travail introuvable ou non visible',
+			'organization.wsMembers.roleOwner' => 'Propriétaire',
+			'organization.wsMembers.roleMember' => 'Membre',
+			'organization.wsMembers.roleGuest' => 'Invité',
+			'organization.wsMembers.changeRole' => 'Changer le rôle',
+			'organization.wsMembers.setRoleMember' => 'Définir comme membre',
+			'organization.wsMembers.setRoleGuest' => 'Définir comme invité',
+			'organization.wsMembers.transferOwner' => 'Transférer le propriétaire',
+			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => 'Transférer le propriétaire de « ${name} » ?',
+			'organization.wsMembers.transferOwnerBody' => 'Après le transfert, vous n\'êtes plus propriétaire ; les droits de gouvernance passent à l\'autre personne, qui peut retransférer.',
+			'organization.wsMembers.removeMember' => 'Retirer le membre',
+			'organization.wsMembers.removeTitle' => ({required Object name}) => 'Retirer « ${name} » ?',
+			'organization.wsMembers.removeBody' => 'Le membre quitte cet espace ; s\'il possède encore des projets ou a des tâches ouvertes, le serveur refuse et liste les conflits.',
+			'organization.wsMembers.archivedReadOnly' => 'Espace archivé : les écritures de gouvernance sont désactivées par le serveur.',
+			'organization.tools.title' => 'Outils d\'entreprise',
+			'organization.tools.titleWithOrg' => ({required Object name}) => '${name} · Outils d\'entreprise',
+			'organization.tools.scopeNote' => 'Seuls les espaces de travail rejoints dans cette entreprise et leurs projets sont listés ; tâches et jalons sont dans le détail du projet.',
+			'organization.tools.archivedNote' => 'Entreprise archivée : la zone outils est en lecture seule.',
+			'organization.tools.workspaceEmpty' => 'Aucun espace rejoint',
+			'organization.tools.workspaceEmptyHint' => 'Les espaces de cette entreprise que vous n\'avez pas rejoints n\'apparaissent pas ici.',
+			'organization.tools.projectCount' => ({required Object count}) => 'Projets ${count}',
+			'organization.tools.projectsEmpty' => 'Aucun projet',
+			'organization.tools.projectsError' => ({required Object err}) => 'Échec du chargement des projets : ${err}',
+			'organization.tools.moreInWorkspaceShell' => 'Parcourir tous les espaces',
+			'organization.tools.moreInWorkspaceShellHint' => 'Ouvrir le sélecteur global d\'espaces (inter-entreprises).',
 			'passport.loginHistoryToggle' => 'Afficher l\'historique de connexion',
 			'passport.hintEmail' => 'Veuillez entrer votre adresse e-mail',
 			'passport.hintMobile' => 'Veuillez entrer votre numéro de téléphone',
@@ -5602,6 +5704,8 @@ extension on TranslationsFrFr {
 			'workspace.projectMemberTransferDesc' => 'Après le transfert, il obtiendra le contrôle total de ce projet',
 			'workspace.projectMemberTransferConfirm' => 'Confirmer le transfert',
 			'workspace.projectMemberTransferDoneToast' => 'Responsable du projet transféré',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => 'Jalons',
 			'workspace.projectMilestoneEmptyTitle' => 'Aucun jalon pour le moment',
 			'workspace.projectMilestoneEmptySubtitle' => 'Marquez les étapes clés du projet avec des jalons (planifié → atteint, sans retour arrière)',

@@ -2365,6 +2365,8 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$manage$ar_SA manage = _Translations$organization$manage$ar_SA._(_root);
 	@override late final _Translations$organization$contactEntry$ar_SA contactEntry = _Translations$organization$contactEntry$ar_SA._(_root);
 	@override late final _Translations$organization$hub$ar_SA hub = _Translations$organization$hub$ar_SA._(_root);
+	@override late final _Translations$organization$wsMembers$ar_SA wsMembers = _Translations$organization$wsMembers$ar_SA._(_root);
+	@override late final _Translations$organization$tools$ar_SA tools = _Translations$organization$tools$ar_SA._(_root);
 }
 
 // Path: passport
@@ -2987,6 +2989,15 @@ class _Translations$organization$manage$ar_SA extends Translations$organization$
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
+	@override String get renameWorkspace => 'إعادة تسمية مساحة العمل';
+	@override String renameWorkspaceTitle({required Object name}) => 'إعادة تسمية "${name}"';
+	@override String get wsMembersEntry => 'إدارة الأعضاء';
+	@override String get renameGroup => 'إعادة تسمية';
+	@override String renameGroupTitle({required Object name}) => 'إعادة تسمية "${name}"';
+	@override String get groupGovernance => 'الأعضاء والأدوار';
+	@override String get renameChannel => 'إعادة تسمية';
+	@override String get channelAdmins => 'المشرفون';
+	@override String get channelSubscribersEntry => 'المشتركون';
 	@override String get entry => 'إدارة المؤسسة';
 	@override String get entryRestricted => 'إدارة المؤسسة (للمسؤولين فقط)';
 	@override String get title => 'إدارة المؤسسة';
@@ -3068,12 +3079,62 @@ class _Translations$organization$hub$ar_SA extends Translations$organization$hub
 	@override String get zoneChannelsDesc => 'قنوات المؤسسة · عبر إدارة المؤسسة';
 	@override String get zoneTools => 'الأدوات';
 	@override String get zoneToolsDesc => 'مساحات العمل · المشاريع والتعاون';
+	@override String get zoneOrgTools => 'أدوات المؤسسة';
+	@override String get zoneOrgToolsDesc => 'مشاريع ومهام مساحات العمل المصرح بها في هذه المؤسسة';
 	@override String get adminMembers => 'إدارة الأعضاء';
 	@override String get adminMembersDesc => 'الأدوار · إزالة الأعضاء';
 	@override String get adminInvitations => 'إدارة الدعوات';
 	@override String get adminInvitationsDesc => 'إنشاء الدعوات وإلغاؤها';
 	@override String get adminManage => 'إدارة المؤسسة';
 	@override String get adminManageDesc => 'مساحات العمل · المجموعات · القنوات';
+}
+
+// Path: organization.wsMembers
+class _Translations$organization$wsMembers$ar_SA extends Translations$organization$wsMembers$zh_CN {
+	_Translations$organization$wsMembers$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String title({required Object ws}) => 'أعضاء مساحة العمل · ${ws}';
+	@override String get invite => 'دعوة أعضاء';
+	@override String get inviteHint => 'الدعوة عبر المعالج الحالي (لمالك مساحة العمل فقط)';
+	@override String get readOnlyHint => 'عرض للقراءة فقط؛ عمليات الكتابة لمالك مساحة العمل وحده.';
+	@override String memberCount({required Object count}) => 'الأعضاء ${count}';
+	@override String get notFound => 'مساحة العمل غير موجودة أو غير متاحة لك';
+	@override String get roleOwner => 'المالك';
+	@override String get roleMember => 'عضو';
+	@override String get roleGuest => 'ضيف';
+	@override String get changeRole => 'تغيير الدور';
+	@override String get setRoleMember => 'تعيين كعضو';
+	@override String get setRoleGuest => 'تعيين كضيف';
+	@override String get transferOwner => 'نقل الملكية';
+	@override String transferOwnerTitle({required Object name}) => 'نقل ملكية "${name}"؟';
+	@override String get transferOwnerBody => 'بعد النقل لن تكون المالك؛ تنتقل صلاحيات الإدارة للطرف الآخر ويمكن نقلها مجددًا.';
+	@override String get removeMember => 'إزالة العضو';
+	@override String removeTitle({required Object name}) => 'إزالة "${name}"؟';
+	@override String get removeBody => 'سيغادر العضو مساحة العمل؛ إذا كان لا يزال يملك مشاريع أو لديه مهام مفتوحة سيرفض الخادم العملية ويسرد التعارضات.';
+	@override String get archivedReadOnly => 'مساحة العمل مؤرشفة: عمليات كتابة الإدارة معطلة من الخادم.';
+}
+
+// Path: organization.tools
+class _Translations$organization$tools$ar_SA extends Translations$organization$tools$zh_CN {
+	_Translations$organization$tools$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'أدوات المؤسسة';
+	@override String titleWithOrg({required Object name}) => '${name} · أدوات المؤسسة';
+	@override String get scopeNote => 'تُعرض فقط مساحات العمل التي انضممت إليها في هذه المؤسسة ومشاريعها؛ المهام والمعالم داخل صفحة المشروع.';
+	@override String get archivedNote => 'المؤسسة مؤرشفة: منطقة الأدوات للقراءة فقط.';
+	@override String get workspaceEmpty => 'لا توجد مساحات عمل منضم إليها';
+	@override String get workspaceEmptyHint => 'مساحات العمل في هذه المؤسسة التي لم تنضم إليها لا تظهر هنا.';
+	@override String projectCount({required Object count}) => 'المشاريع ${count}';
+	@override String get projectsEmpty => 'لا توجد مشاريع';
+	@override String projectsError({required Object err}) => 'فشل تحميل المشاريع: ${err}';
+	@override String get moreInWorkspaceShell => 'استعراض كل مساحات العمل';
+	@override String get moreInWorkspaceShellHint => 'فتح مبدّل مساحات العمل العام (بين المؤسسات).';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -5324,6 +5385,15 @@ extension on TranslationsArSa {
 			'organization.memberDetail.workspacesTitle' => 'مساحات العمل المصرّح بها',
 			'organization.memberDetail.workspacesEmpty' => 'لا يملك هذا العضو أي مساحة عمل في هذه المؤسسة بعد',
 			'organization.memberDetail.workspacesFailed' => 'فشل تحميل مساحات العمل المصرّح بها',
+			'organization.manage.renameWorkspace' => 'إعادة تسمية مساحة العمل',
+			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => 'إعادة تسمية "${name}"',
+			'organization.manage.wsMembersEntry' => 'إدارة الأعضاء',
+			'organization.manage.renameGroup' => 'إعادة تسمية',
+			'organization.manage.renameGroupTitle' => ({required Object name}) => 'إعادة تسمية "${name}"',
+			'organization.manage.groupGovernance' => 'الأعضاء والأدوار',
+			'organization.manage.renameChannel' => 'إعادة تسمية',
+			'organization.manage.channelAdmins' => 'المشرفون',
+			'organization.manage.channelSubscribersEntry' => 'المشتركون',
 			'organization.manage.entry' => 'إدارة المؤسسة',
 			'organization.manage.entryRestricted' => 'إدارة المؤسسة (للمسؤولين فقط)',
 			'organization.manage.title' => 'إدارة المؤسسة',
@@ -5387,12 +5457,44 @@ extension on TranslationsArSa {
 			'organization.hub.zoneChannelsDesc' => 'قنوات المؤسسة · عبر إدارة المؤسسة',
 			'organization.hub.zoneTools' => 'الأدوات',
 			'organization.hub.zoneToolsDesc' => 'مساحات العمل · المشاريع والتعاون',
+			'organization.hub.zoneOrgTools' => 'أدوات المؤسسة',
+			'organization.hub.zoneOrgToolsDesc' => 'مشاريع ومهام مساحات العمل المصرح بها في هذه المؤسسة',
 			'organization.hub.adminMembers' => 'إدارة الأعضاء',
 			'organization.hub.adminMembersDesc' => 'الأدوار · إزالة الأعضاء',
 			'organization.hub.adminInvitations' => 'إدارة الدعوات',
 			'organization.hub.adminInvitationsDesc' => 'إنشاء الدعوات وإلغاؤها',
 			'organization.hub.adminManage' => 'إدارة المؤسسة',
 			'organization.hub.adminManageDesc' => 'مساحات العمل · المجموعات · القنوات',
+			'organization.wsMembers.title' => ({required Object ws}) => 'أعضاء مساحة العمل · ${ws}',
+			'organization.wsMembers.invite' => 'دعوة أعضاء',
+			'organization.wsMembers.inviteHint' => 'الدعوة عبر المعالج الحالي (لمالك مساحة العمل فقط)',
+			'organization.wsMembers.readOnlyHint' => 'عرض للقراءة فقط؛ عمليات الكتابة لمالك مساحة العمل وحده.',
+			'organization.wsMembers.memberCount' => ({required Object count}) => 'الأعضاء ${count}',
+			'organization.wsMembers.notFound' => 'مساحة العمل غير موجودة أو غير متاحة لك',
+			'organization.wsMembers.roleOwner' => 'المالك',
+			'organization.wsMembers.roleMember' => 'عضو',
+			'organization.wsMembers.roleGuest' => 'ضيف',
+			'organization.wsMembers.changeRole' => 'تغيير الدور',
+			'organization.wsMembers.setRoleMember' => 'تعيين كعضو',
+			'organization.wsMembers.setRoleGuest' => 'تعيين كضيف',
+			'organization.wsMembers.transferOwner' => 'نقل الملكية',
+			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => 'نقل ملكية "${name}"؟',
+			'organization.wsMembers.transferOwnerBody' => 'بعد النقل لن تكون المالك؛ تنتقل صلاحيات الإدارة للطرف الآخر ويمكن نقلها مجددًا.',
+			'organization.wsMembers.removeMember' => 'إزالة العضو',
+			'organization.wsMembers.removeTitle' => ({required Object name}) => 'إزالة "${name}"؟',
+			'organization.wsMembers.removeBody' => 'سيغادر العضو مساحة العمل؛ إذا كان لا يزال يملك مشاريع أو لديه مهام مفتوحة سيرفض الخادم العملية ويسرد التعارضات.',
+			'organization.wsMembers.archivedReadOnly' => 'مساحة العمل مؤرشفة: عمليات كتابة الإدارة معطلة من الخادم.',
+			'organization.tools.title' => 'أدوات المؤسسة',
+			'organization.tools.titleWithOrg' => ({required Object name}) => '${name} · أدوات المؤسسة',
+			'organization.tools.scopeNote' => 'تُعرض فقط مساحات العمل التي انضممت إليها في هذه المؤسسة ومشاريعها؛ المهام والمعالم داخل صفحة المشروع.',
+			'organization.tools.archivedNote' => 'المؤسسة مؤرشفة: منطقة الأدوات للقراءة فقط.',
+			'organization.tools.workspaceEmpty' => 'لا توجد مساحات عمل منضم إليها',
+			'organization.tools.workspaceEmptyHint' => 'مساحات العمل في هذه المؤسسة التي لم تنضم إليها لا تظهر هنا.',
+			'organization.tools.projectCount' => ({required Object count}) => 'المشاريع ${count}',
+			'organization.tools.projectsEmpty' => 'لا توجد مشاريع',
+			'organization.tools.projectsError' => ({required Object err}) => 'فشل تحميل المشاريع: ${err}',
+			'organization.tools.moreInWorkspaceShell' => 'استعراض كل مساحات العمل',
+			'organization.tools.moreInWorkspaceShellHint' => 'فتح مبدّل مساحات العمل العام (بين المؤسسات).',
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',
@@ -5611,6 +5713,8 @@ extension on TranslationsArSa {
 			'workspace.projectMemberTransferDesc' => 'بعد النقل يحصل الطرف الآخر على كامل صلاحيات إدارة المشروع',
 			'workspace.projectMemberTransferConfirm' => 'تأكيد النقل',
 			'workspace.projectMemberTransferDoneToast' => 'تم نقل مسؤولية المشروع',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => 'المعالم',
 			'workspace.projectMilestoneEmptyTitle' => 'لا توجد معالم بعد',
 			'workspace.projectMilestoneEmptySubtitle' => 'استخدم المعالم لوسم نقاط المشروع الرئيسية (مخطط ← مُحقَّق، باتجاه واحد)',

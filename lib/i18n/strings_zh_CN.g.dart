@@ -6701,6 +6701,8 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$manage$zh_CN manage = Translations$organization$manage$zh_CN.internal(_root);
 	late final Translations$organization$contactEntry$zh_CN contactEntry = Translations$organization$contactEntry$zh_CN.internal(_root);
 	late final Translations$organization$hub$zh_CN hub = Translations$organization$hub$zh_CN.internal(_root);
+	late final Translations$organization$wsMembers$zh_CN wsMembers = Translations$organization$wsMembers$zh_CN.internal(_root);
+	late final Translations$organization$tools$zh_CN tools = Translations$organization$tools$zh_CN.internal(_root);
 }
 
 // Path: passport
@@ -8280,6 +8282,33 @@ class Translations$organization$manage$zh_CN {
 
 	// Translations
 
+	/// zh-CN: '重命名工作区'
+	String get renameWorkspace => '重命名工作区';
+
+	/// zh-CN: '重命名「${name}」'
+	String renameWorkspaceTitle({required Object name}) => '重命名「${name}」';
+
+	/// zh-CN: '成员治理'
+	String get wsMembersEntry => '成员治理';
+
+	/// zh-CN: '重命名'
+	String get renameGroup => '重命名';
+
+	/// zh-CN: '重命名「${name}」'
+	String renameGroupTitle({required Object name}) => '重命名「${name}」';
+
+	/// zh-CN: '成员与角色'
+	String get groupGovernance => '成员与角色';
+
+	/// zh-CN: '重命名'
+	String get renameChannel => '重命名';
+
+	/// zh-CN: '管理员'
+	String get channelAdmins => '管理员';
+
+	/// zh-CN: '订阅者'
+	String get channelSubscribersEntry => '订阅者';
+
 	/// zh-CN: '企业管理'
 	String get entry => '企业管理';
 
@@ -8487,6 +8516,12 @@ class Translations$organization$hub$zh_CN {
 	/// zh-CN: '工作区 · 项目与协作'
 	String get zoneToolsDesc => '工作区 · 项目与协作';
 
+	/// zh-CN: '企业协作工具'
+	String get zoneOrgTools => '企业协作工具';
+
+	/// zh-CN: '本企业已授权的工作区项目与任务'
+	String get zoneOrgToolsDesc => '本企业已授权的工作区项目与任务';
+
 	/// zh-CN: '成员治理'
 	String get adminMembers => '成员治理';
 
@@ -8504,6 +8539,114 @@ class Translations$organization$hub$zh_CN {
 
 	/// zh-CN: '工作区 · 群 · 频道治理'
 	String get adminManageDesc => '工作区 · 群 · 频道治理';
+}
+
+// Path: organization.wsMembers
+class Translations$organization$wsMembers$zh_CN {
+	Translations$organization$wsMembers$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '工作区成员 · ${ws}'
+	String title({required Object ws}) => '工作区成员 · ${ws}';
+
+	/// zh-CN: '邀请成员'
+	String get invite => '邀请成员';
+
+	/// zh-CN: '经既有向导选择联系人发出邀请（仅工作区所有者）'
+	String get inviteHint => '经既有向导选择联系人发出邀请（仅工作区所有者）';
+
+	/// zh-CN: '当前只读；写操作仅工作区所有者可用'
+	String get readOnlyHint => '当前只读；写操作仅工作区所有者可用';
+
+	/// zh-CN: '成员 ${count}'
+	String memberCount({required Object count}) => '成员 ${count}';
+
+	/// zh-CN: '工作区不存在或你无权查看'
+	String get notFound => '工作区不存在或你无权查看';
+
+	/// zh-CN: '所有者'
+	String get roleOwner => '所有者';
+
+	/// zh-CN: '成员'
+	String get roleMember => '成员';
+
+	/// zh-CN: '访客'
+	String get roleGuest => '访客';
+
+	/// zh-CN: '更改角色'
+	String get changeRole => '更改角色';
+
+	/// zh-CN: '设为成员'
+	String get setRoleMember => '设为成员';
+
+	/// zh-CN: '设为访客'
+	String get setRoleGuest => '设为访客';
+
+	/// zh-CN: '转让所有者'
+	String get transferOwner => '转让所有者';
+
+	/// zh-CN: '转让「${name}」的所有者？'
+	String transferOwnerTitle({required Object name}) => '转让「${name}」的所有者？';
+
+	/// zh-CN: '转让后你不再是该工作区所有者，写治理权限随之移交给对方；新所有者可再转回。'
+	String get transferOwnerBody => '转让后你不再是该工作区所有者，写治理权限随之移交给对方；新所有者可再转回。';
+
+	/// zh-CN: '移除成员'
+	String get removeMember => '移除成员';
+
+	/// zh-CN: '移除「${name}」？'
+	String removeTitle({required Object name}) => '移除「${name}」？';
+
+	/// zh-CN: '移除后对方退出该工作区；若对方仍是项目所有者或有未完成任务，服务端会拒绝并列出冲突。'
+	String get removeBody => '移除后对方退出该工作区；若对方仍是项目所有者或有未完成任务，服务端会拒绝并列出冲突。';
+
+	/// zh-CN: '工作区已归档：成员治理写操作已被服务端停用。'
+	String get archivedReadOnly => '工作区已归档：成员治理写操作已被服务端停用。';
+}
+
+// Path: organization.tools
+class Translations$organization$tools$zh_CN {
+	Translations$organization$tools$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '企业工具'
+	String get title => '企业工具';
+
+	/// zh-CN: '${name} · 企业工具'
+	String titleWithOrg({required Object name}) => '${name} · 企业工具';
+
+	/// zh-CN: '这里只列出你已加入的本企业工作区与其项目；任务、里程碑等在项目详情内。'
+	String get scopeNote => '这里只列出你已加入的本企业工作区与其项目；任务、里程碑等在项目详情内。';
+
+	/// zh-CN: '企业已归档：工具区只读。'
+	String get archivedNote => '企业已归档：工具区只读。';
+
+	/// zh-CN: '暂无已加入的工作区'
+	String get workspaceEmpty => '暂无已加入的工作区';
+
+	/// zh-CN: '同企业内你未加入的工作区不会出现在这里。'
+	String get workspaceEmptyHint => '同企业内你未加入的工作区不会出现在这里。';
+
+	/// zh-CN: '项目 ${count}'
+	String projectCount({required Object count}) => '项目 ${count}';
+
+	/// zh-CN: '暂无项目'
+	String get projectsEmpty => '暂无项目';
+
+	/// zh-CN: '项目加载失败：${err}'
+	String projectsError({required Object err}) => '项目加载失败：${err}';
+
+	/// zh-CN: '浏览全部工作区'
+	String get moreInWorkspaceShell => '浏览全部工作区';
+
+	/// zh-CN: '打开全局工作区切换器（跨企业）。'
+	String get moreInWorkspaceShellHint => '打开全局工作区切换器（跨企业）。';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -10859,6 +11002,15 @@ extension on Translations {
 			'organization.memberDetail.workspacesTitle' => '有权工作区',
 			'organization.memberDetail.workspacesEmpty' => '该成员在本企业内暂无工作区',
 			'organization.memberDetail.workspacesFailed' => '有权工作区加载失败',
+			'organization.manage.renameWorkspace' => '重命名工作区',
+			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => '重命名「${name}」',
+			'organization.manage.wsMembersEntry' => '成员治理',
+			'organization.manage.renameGroup' => '重命名',
+			'organization.manage.renameGroupTitle' => ({required Object name}) => '重命名「${name}」',
+			'organization.manage.groupGovernance' => '成员与角色',
+			'organization.manage.renameChannel' => '重命名',
+			'organization.manage.channelAdmins' => '管理员',
+			'organization.manage.channelSubscribersEntry' => '订阅者',
 			'organization.manage.entry' => '企业管理',
 			'organization.manage.entryRestricted' => '企业管理（仅管理员）',
 			'organization.manage.title' => '企业管理',
@@ -10922,12 +11074,44 @@ extension on Translations {
 			'organization.hub.zoneChannelsDesc' => '企业频道 · 经企业管理查看',
 			'organization.hub.zoneTools' => '工具',
 			'organization.hub.zoneToolsDesc' => '工作区 · 项目与协作',
+			'organization.hub.zoneOrgTools' => '企业协作工具',
+			'organization.hub.zoneOrgToolsDesc' => '本企业已授权的工作区项目与任务',
 			'organization.hub.adminMembers' => '成员治理',
 			'organization.hub.adminMembersDesc' => '角色调整 · 移除成员',
 			'organization.hub.adminInvitations' => '邀请管理',
 			'organization.hub.adminInvitationsDesc' => '邀请创建与撤销',
 			'organization.hub.adminManage' => '企业管理',
 			'organization.hub.adminManageDesc' => '工作区 · 群 · 频道治理',
+			'organization.wsMembers.title' => ({required Object ws}) => '工作区成员 · ${ws}',
+			'organization.wsMembers.invite' => '邀请成员',
+			'organization.wsMembers.inviteHint' => '经既有向导选择联系人发出邀请（仅工作区所有者）',
+			'organization.wsMembers.readOnlyHint' => '当前只读；写操作仅工作区所有者可用',
+			'organization.wsMembers.memberCount' => ({required Object count}) => '成员 ${count}',
+			'organization.wsMembers.notFound' => '工作区不存在或你无权查看',
+			'organization.wsMembers.roleOwner' => '所有者',
+			'organization.wsMembers.roleMember' => '成员',
+			'organization.wsMembers.roleGuest' => '访客',
+			'organization.wsMembers.changeRole' => '更改角色',
+			'organization.wsMembers.setRoleMember' => '设为成员',
+			'organization.wsMembers.setRoleGuest' => '设为访客',
+			'organization.wsMembers.transferOwner' => '转让所有者',
+			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => '转让「${name}」的所有者？',
+			'organization.wsMembers.transferOwnerBody' => '转让后你不再是该工作区所有者，写治理权限随之移交给对方；新所有者可再转回。',
+			'organization.wsMembers.removeMember' => '移除成员',
+			'organization.wsMembers.removeTitle' => ({required Object name}) => '移除「${name}」？',
+			'organization.wsMembers.removeBody' => '移除后对方退出该工作区；若对方仍是项目所有者或有未完成任务，服务端会拒绝并列出冲突。',
+			'organization.wsMembers.archivedReadOnly' => '工作区已归档：成员治理写操作已被服务端停用。',
+			'organization.tools.title' => '企业工具',
+			'organization.tools.titleWithOrg' => ({required Object name}) => '${name} · 企业工具',
+			'organization.tools.scopeNote' => '这里只列出你已加入的本企业工作区与其项目；任务、里程碑等在项目详情内。',
+			'organization.tools.archivedNote' => '企业已归档：工具区只读。',
+			'organization.tools.workspaceEmpty' => '暂无已加入的工作区',
+			'organization.tools.workspaceEmptyHint' => '同企业内你未加入的工作区不会出现在这里。',
+			'organization.tools.projectCount' => ({required Object count}) => '项目 ${count}',
+			'organization.tools.projectsEmpty' => '暂无项目',
+			'organization.tools.projectsError' => ({required Object err}) => '项目加载失败：${err}',
+			'organization.tools.moreInWorkspaceShell' => '浏览全部工作区',
+			'organization.tools.moreInWorkspaceShellHint' => '打开全局工作区切换器（跨企业）。',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',
@@ -11041,6 +11225,8 @@ extension on Translations {
 			'workspace.joinInvalidCode' => '团队码无效或已失效',
 			'workspace.joinExpiredCode' => '团队码已过期',
 			'workspace.inviteCodeSectionTitle' => '团队码邀请',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteCodeGenerate' => '生成团队码',
 			'workspace.inviteCodeCopy' => '复制',
 			'workspace.inviteCodeRevoke' => '撤销',
@@ -11082,8 +11268,6 @@ extension on Translations {
 			'workspace.projectCreateTitle' => '新建项目',
 			'workspace.projectNameLabel' => '项目名称',
 			'workspace.projectNameHint' => '例如：官网改版',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameRequired' => '项目名称不能为空',
 			'workspace.projectDescLabel' => '项目描述（可选）',
 			'workspace.projectDescHint' => '这个项目要交付什么？',

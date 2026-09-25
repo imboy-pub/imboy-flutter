@@ -103,6 +103,7 @@ Widget _host() {
                 _sentinel('members', 'SENTINEL-members'),
                 _sentinel('invitations', 'SENTINEL-invitations'),
                 _sentinel('manage', 'SENTINEL-manage'),
+                _sentinel('tools', 'SENTINEL-tools'),
               ],
             ),
           ],
@@ -287,6 +288,8 @@ void main() {
       ('organization-detail-zone-groups', 'SENTINEL-manage'),
       ('organization-detail-zone-channels', 'SENTINEL-manage'),
       ('organization-detail-zone-tools', 'SENTINEL-workspace'),
+      // ENT-APP-06：本企业工具聚合（Org 限定视角）。
+      ('organization-detail-zone-org-tools', 'SENTINEL-tools'),
     ];
     for (final (key, sentinel) in cases) {
       await tester.tap(find.byKey(ValueKey(key)));
