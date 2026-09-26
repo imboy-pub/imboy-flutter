@@ -348,8 +348,6 @@ void main() {
   }, skip: !backendConfigured);
 
   testWidgets('step04_08_09_asset_presign_put_confirm_content', (tester) async {
-    final raw = _rawFor('dev1-device-a');
-    raw.accessToken = await SecureTokenStorageService.getToken();
     final enterpriseApi = EnterpriseApi();
     final org1 = _org1();
     final ws1 = _ws1();
@@ -386,21 +384,14 @@ void main() {
     );
     expect(asset.isPending, isFalse, reason: 'confirm 后资产应 active');
 
-    // 步骤 9（content 鉴权代理回读，无 presigned GET）
-    String text;
-    try {
-      text = await enterpriseApi.fetchAssetContentText(org1, asset.id);
-      findings['D3e_app_content'] = 'accepted';
-    } on EnterpriseApiException catch (e) {
-      findings['D3e_app_content'] = 'http ${e.code}';
-      final resp = await raw.get(
-        '/api/v1/enterprise/organizations/$org1/assets/${asset.id}/content',
-        queryParameters: {'workspace_id': ws1},
-      );
-      FlowApiAssert.success(resp, context: 'asset content (frozen contract)');
-      final payload = resp['payload'];
-      text = payload is Map ? '${payload['text']}' : '$payload';
-    }
+    // 步骤 9（content 鉴权代理回读，无 presigned GET）：
+    // 走 App 客户端字节直通路径（fetchAssetContentBytes，EB-D06 唯一合法入口）
+    final contentBytes = await enterpriseApi.fetchAssetContentBytes(
+      org1,
+      asset.id,
+    );
+    text = utf8.decode(contentBytes);
+    findings['D3e_app_content_bytes'] = 'accepted';
     expect(text, bytes, reason: 'content 代理应回读原始字节');
     // ignore: avoid_print
     print('DEV1_FINDINGS $findings');
@@ -516,16 +507,13 @@ void main() {
         validateStatus: (int? status) => status != null,
       ),
     );
-    // DF-6（clock_unit=second）：访客面 at 以 epoch 秒随查询串声明，
-    // 缺省毫秒量纲会被令牌过期判定误判为 token_expired。
-    final atSeconds = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
     final resp = await client.post<dynamic>(
       '/api/v1/cs/sessions/$sessionId/rating',
-      queryParameters: {'at': '$atSeconds'},
       data: {
         'rating': 5,
         'expected_version': detail['version'],
         'organization_id': org1,
+        'workspace_id': _ws1(),
       },
       options: dio_pkg.Options(headers: {'x-cs-visit-token': _visitToken}),
     );
