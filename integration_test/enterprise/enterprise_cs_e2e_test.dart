@@ -71,6 +71,7 @@ const String _seedConv = String.fromEnvironment('DEV1_CONV');
 const String _phoneA = '13900001201'; // org1 owner（sales + CS 身份）
 const String _phoneB = '13900001202'; // member + 客服坐席 B
 const String _phoneC = '13900001203'; // member（suspend/restore/offboard 目标）
+const String _phoneD = '13900001205'; // 客服坐席 D（transfer 目标）
 const String _password = 'admin888';
 
 /// 访客评分令牌（种子 issue_visit_token 签发，64 字符）。
