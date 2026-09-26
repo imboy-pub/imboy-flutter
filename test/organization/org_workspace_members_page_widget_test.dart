@@ -88,7 +88,7 @@ GoRoute _inviteSentinel() => GoRoute(
   path: '/workspace/:wsId/members/invite',
   pageBuilder: (_, s) => CustomTransitionPage(
     key: s.pageKey,
-    transitionsBuilder: (_, __, ___, child) => child,
+    transitionsBuilder: (_, _, _, child) => child,
     child: const Scaffold(body: Center(child: Text('SENTINEL-invite'))),
   ),
 );
@@ -101,7 +101,7 @@ Widget _host() => MaterialApp.router(
         path: '/ws-members',
         pageBuilder: (_, s) => CustomTransitionPage(
           key: s.pageKey,
-          transitionsBuilder: (_, __, ___, child) => child,
+          transitionsBuilder: (_, _, _, child) => child,
           child: const OrgWorkspaceMembersPage(
             workspaceId: kWsId,
             workspaceName: '成员治理工作区',

@@ -117,7 +117,7 @@ GoRoute _sentinel(String path, String label) => GoRoute(
   path: path,
   pageBuilder: (_, s) => CustomTransitionPage(
     key: s.pageKey,
-    transitionsBuilder: (_, __, ___, child) => child,
+    transitionsBuilder: (_, _, _, child) => child,
     child: Scaffold(body: Center(child: Text(label))),
   ),
 );
@@ -131,7 +131,7 @@ Widget _host({String orgId = kOrgId}) => ProviderScope(
           path: '/tools',
           pageBuilder: (_, s) => CustomTransitionPage(
             key: s.pageKey,
-            transitionsBuilder: (_, __, ___, child) => child,
+            transitionsBuilder: (_, _, _, child) => child,
             child: OrganizationToolsPage(orgId: orgId, accountKey: kAccountKey),
           ),
         ),

@@ -156,7 +156,7 @@ GoRoute _sentinel(String path, String label) => GoRoute(
   path: path,
   pageBuilder: (_, s) => CustomTransitionPage(
     key: s.pageKey,
-    transitionsBuilder: (_, __, ___, child) => child,
+    transitionsBuilder: (_, _, _, child) => child,
     child: Scaffold(body: Center(child: Text(label))),
   ),
 );
@@ -169,7 +169,7 @@ Widget _host() => MaterialApp.router(
         path: '/organization',
         pageBuilder: (_, s) => CustomTransitionPage(
           key: s.pageKey,
-          transitionsBuilder: (_, __, ___, child) => child,
+          transitionsBuilder: (_, _, _, child) => child,
           child: const SizedBox.shrink(),
         ),
         routes: [
@@ -177,7 +177,7 @@ Widget _host() => MaterialApp.router(
             path: ':orgId/manage',
             pageBuilder: (_, s) => CustomTransitionPage(
               key: s.pageKey,
-              transitionsBuilder: (_, __, ___, child) => child,
+              transitionsBuilder: (_, _, _, child) => child,
               child: const OrganizationManagePage(
                 orgId: kOrgId,
                 accountKey: '1001',
