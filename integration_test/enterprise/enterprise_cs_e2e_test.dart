@@ -459,7 +459,7 @@ void main() {
             as List<dynamic>;
     expect(targetRows, isNotEmpty, reason: 'D 坐席身份应可作转接目标');
     final targetD =
-        '${(targetRows.first as Map)['identity_id'] ?? (targetRows.first as Map)['id']}';
+        '${(targetRows.first as Map)['business_identity_id'] ?? (targetRows.first as Map)['identity_id']}';
     expect(targetD, isNot(identityB), reason: '转接目标不得含本人');
 
     // 步骤 12（transfer，CAS）：B → D
@@ -512,9 +512,17 @@ void main() {
         validateStatus: (int? status) => status != null,
       ),
     );
+    // DF-6（clock_unit=second）：访客面 at 以 epoch 秒随查询串声明，
+    // 缺省毫秒量纲会被令牌过期判定误判为 token_expired。
+    final atSeconds = (DateTime.now().millisecondsSinceEpoch / 1000).floor();
     final resp = await client.post<dynamic>(
       '/api/v1/cs/sessions/$sessionId/rating',
-      data: {'rating': 5, 'expected_version': detail['version']},
+      queryParameters: {'at': '$atSeconds'},
+      data: {
+        'rating': 5,
+        'expected_version': detail['version'],
+        'organization_id': org1,
+      },
       options: dio_pkg.Options(headers: {'x-cs-visit-token': _visitToken}),
     );
     final body = resp.data is Map ? resp.data as Map : const {};
@@ -752,9 +760,28 @@ void main() {
   }, skip: !backendConfigured);
 }
 
-/// 原始字节 PUT（S3 短期 presigned URL；dart:io，无查询串改写）
+/// CN 提取（与 http_client.dart 的 _extractCN 同口径）
+String _extractCN(String subject) {
+  final match = RegExp(r'CN=([^,]+)').firstMatch(subject);
+  return match?.group(1)?.trim().toLowerCase() ?? '';
+}
+
+/// 原始字节 PUT（S3 短期 presigned URL；dart:io，无查询串改写）。。
+/// 本地测试基础设施是自签证书（CN=localhost，与 App dev/local 白名单同口径），
+/// 非 release 构建：信任之——与 lib/component/http/http_client.dart 的
+/// _certificateValidationCallback 同语义，仅 dev/local 生效。
 Future<int> _rawPutBytes(String url, List<int> payload) async {
   final client = io.HttpClient();
+  client.badCertificateCallback = (cert, host, port) {
+    final cn = _extractCN(cert.subject);
+    const trusted = <String>{
+      'dev.imboy.pub',
+      'localhost',
+      '127.0.0.1',
+      'imboy.pub',
+    };
+    return trusted.contains(cn) || cn.endsWith('.imboy.pub');
+  };
   try {
     final uri = Uri.parse(url);
     final req = await client.openUrl('PUT', uri);
