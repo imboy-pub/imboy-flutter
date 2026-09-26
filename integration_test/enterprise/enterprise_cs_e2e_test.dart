@@ -311,7 +311,7 @@ void main() {
     final ack = await _entPost(
       rawB,
       '/api/v1/enterprise/organizations/$org1/conversations/$conv1/messages/$msg1/ack',
-      {'recipient_ref': 'dev1-device-b'},
+      {'recipient_ref': 'identity:${ctx['identityB']}'},
     );
     FlowApiAssert.success(ack, context: 'ack(msg1)');
     final idsAfterAck = await listIds();
