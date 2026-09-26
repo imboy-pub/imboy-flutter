@@ -390,7 +390,7 @@ void main() {
       org1,
       asset.id,
     );
-    text = utf8.decode(contentBytes);
+    final text = utf8.decode(contentBytes);
     findings['D3e_app_content_bytes'] = 'accepted';
     expect(text, bytes, reason: 'content 代理应回读原始字节');
     // ignore: avoid_print
