@@ -32,7 +32,6 @@
 //     --dart-define=TEST_ALLOW_WORKSPACE_ACCEPTANCE=true
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Tab, TabBar, TabBarView, TextField;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -116,9 +115,8 @@ void main() {
     flowLog('[批次157] bob 登录完成');
 
     // ══════════ AT-BM1：绑定手机发送验证码倒计时 ══════════
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/account_security');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/account_security');
     expect(
       await _waitFor(tester, () => tester.any(find.text('绑定手机号')), seconds: 10),
       isTrue,

@@ -183,7 +183,8 @@ void main() {
     FlowApiAssert.success(mine, context: 'organizations/mine after login');
     final payload = (mine['payload'] ?? <String, dynamic>{}) as Map;
     final rows =
-        (payload['list'] ?? payload['data'] ?? const []) as List<dynamic>;
+        (payload['list'] ?? payload['data'] ?? const <dynamic>[])
+            as List<dynamic>;
     final org1 = rows.firstWhere(
       (r) => r is Map && r['name'] == _org1Name,
       orElse: () => null,
@@ -221,7 +222,7 @@ void main() {
     );
     FlowApiAssert.success(resp, context: 'contacts(frozen contract)');
     final payload = resp['payload'];
-    final rows = payload is List ? payload : const [];
+    final rows = payload is List ? payload : const <dynamic>[];
     expect(rows, isNotEmpty, reason: '种子企业联系人应非空');
 
     // 契约缺陷软探针 D4：conversations 列表 GET 后端无用例 → 405。
@@ -246,13 +247,15 @@ void main() {
       type: 'mobile',
     );
     FlowApiAssert.success(loginB, context: 'login(B)');
-    ctx['uidB'] = '${((loginB['payload'] ?? {}) as Map)['uid']}';
+    ctx['uidB'] =
+        '${((loginB['payload'] ?? <String, dynamic>{}) as Map)['uid']}';
     final seatResp = await rawB.get('/api/v1/cs/me/seat-contexts');
     FlowApiAssert.success(seatResp, context: 'seat-contexts(B)');
     final seatContexts =
-        (((seatResp['payload'] ?? {}) as Map)['contexts'] ?? const [])
+        (((seatResp['payload'] ?? <String, dynamic>{}) as Map)['contexts'] ??
+                const <dynamic>[])
             as List<dynamic>;
-    Map? orgCtx;
+    Map<dynamic, dynamic>? orgCtx;
     for (final c in seatContexts) {
       if ('${(c! as Map)['organization_id']}' == org1) {
         orgCtx = c as Map;
@@ -276,8 +279,8 @@ void main() {
         },
       );
       FlowApiAssert.success(send, context: 'send($clientMsgId by B)');
-      final sp = (send['payload'] ?? {}) as Map;
-      return '${sp['message_id'] ?? ((sp['message'] ?? {}) as Map)['id']}';
+      final sp = (send['payload'] ?? <String, dynamic>{}) as Map;
+      return '${sp['message_id'] ?? ((sp['message'] ?? <String, dynamic>{}) as Map)['id']}';
     }
 
     final msg1 = await sendByB('dev1-b-1-$ts', 'e2e-ping-b-1');
@@ -290,7 +293,7 @@ void main() {
       final resp = await _entGet(rawB, listPath);
       FlowApiAssert.success(resp, context: 'messages list');
       final payload = resp['payload'];
-      final rows = payload is List ? payload : const [];
+      final rows = payload is List ? payload : const <dynamic>[];
       return rows.map((m) => '${(m! as Map)['id']}').toList();
     }
 
@@ -301,7 +304,7 @@ void main() {
     final msg2 = await sendByB('dev1-b-2-$ts', 'e2e-ping-b-2');
     final incremental = await _entGet(rawB, listPath, afterId: msg1);
     final incPayload = incremental['payload'];
-    final incRows = incPayload is List ? incPayload : const [];
+    final incRows = incPayload is List ? incPayload : const <dynamic>[];
     final incIds = incRows.map((m) => '${(m! as Map)['id']}').toList();
     expect(incIds, isNotEmpty, reason: 'after_id 增量应含 msg2');
     expect(incIds, isNot(contains(msg1)), reason: '增量不得回放游标之前的消息');
@@ -457,7 +460,7 @@ void main() {
       {'expected_version': item.version},
     );
     FlowApiAssert.success(claimResp, context: 'claim(queued session)');
-    final claimPayload = (claimResp['payload'] ?? {}) as Map;
+    final claimPayload = (claimResp['payload'] ?? <String, dynamic>{}) as Map;
     expect('${claimPayload['status'] ?? ''}', 'active');
 
     // transferTargets（冻结契约 query）
@@ -466,9 +469,9 @@ void main() {
       queryParameters: {'workspace_id': ws1},
     );
     FlowApiAssert.success(targets, context: 'transfer-targets');
-    final targetPayload = (targets['payload'] ?? {}) as Map;
+    final targetPayload = (targets['payload'] ?? <String, dynamic>{}) as Map;
     final targetRows =
-        (targetPayload['targets'] ?? targetPayload['list'] ?? const [])
+        (targetPayload['targets'] ?? targetPayload['list'] ?? const <dynamic>[])
             as List<dynamic>;
     expect(targetRows, isNotEmpty, reason: 'D 坐席身份应可作转接目标');
     final targetD =
@@ -535,7 +538,9 @@ void main() {
       },
       options: dio_pkg.Options(headers: {'x-cs-visit-token': _visitToken}),
     );
-    final body = resp.data is Map ? resp.data as Map : const {};
+    final body = resp.data is Map
+        ? resp.data as Map
+        : const <dynamic, dynamic>{};
     expect(body['code'], 0, reason: '访客评分应成功（实际 ${resp.data}）');
 
     final after = await _csDetailRaw(raw, org1, sessionId);
@@ -563,7 +568,8 @@ void main() {
       type: 'mobile',
     );
     FlowApiAssert.success(loginC, context: 'login(C)');
-    final uidC = '${((loginC['payload'] ?? {}) as Map)['uid']}';
+    final uidC =
+        '${((loginC['payload'] ?? <String, dynamic>{}) as Map)['uid']}';
     ctx['uidC'] = uidC;
 
     // suspend（owner 治理动作）
@@ -621,7 +627,8 @@ void main() {
       type: 'mobile',
     );
     FlowApiAssert.success(loginC, context: 'login(C)');
-    final uidC = '${((loginC['payload'] ?? {}) as Map)['uid']}';
+    final uidC =
+        '${((loginC['payload'] ?? <String, dynamic>{}) as Map)['uid']}';
     ctx['uidC'] = uidC;
 
     final accept = await rawC.post(
@@ -755,7 +762,8 @@ void main() {
     FlowApiAssert.success(mine, context: 'mine in cold-start check');
     final payload = (mine['payload'] ?? <String, dynamic>{}) as Map;
     final rows =
-        (payload['list'] ?? payload['data'] ?? const []) as List<dynamic>;
+        (payload['list'] ?? payload['data'] ?? const <dynamic>[])
+            as List<dynamic>;
     expect(rows.any((r) => r is Map && r['name'] == _org1Name), isTrue);
 
     final contacts = await _entGet(
