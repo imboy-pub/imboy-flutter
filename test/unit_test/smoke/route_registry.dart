@@ -548,4 +548,19 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
     name: 'organization_departments',
     location: '/organization/9001/departments',
   ),
+
+  // ==================== 客服治理 / 企业工具（CS-APP-03 / ENT-APP-06） ====================
+  // location 按 router.namedLocation 形态补登（orgId/wsId 假参沿用 9001 惯例）。
+  const SmokeRoute(
+    name: 'cs_governance',
+    location: '/customer_service/governance/9001',
+  ),
+  const SmokeRoute(
+    name: 'organization_tools',
+    location: '/organization/9001/tools',
+  ),
+  const SmokeRoute(
+    name: 'organization_ws_members',
+    location: '/organization/9001/ws/9002/members',
+  ),
 ];
