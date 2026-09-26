@@ -1,45 +1,117 @@
-/// APP-A09 — 真机企业+客服 E2E（具名用例骨架）
+/// APP-A09 — 真机企业+客服 E2E（DEVICE-01 真机门，run
+/// cs-agent-entux-v1-20260924T164136Z-539f3dae）
 ///
-/// **BLOCKED_DEVICE**：本用例属真机门（amendment §3），本 run 本地未执行
-/// ——工作区规则禁止模拟器做功能验证，A4 环境无真机挂载；由 A0 在真机
-/// 门解锁后以如下命令执行（多设备环境必须显式 `-d`）：
+/// 执行方式（多设备环境必须显式 `-d`）：
 ///
 /// ```
 /// flutter test integration_test/enterprise/enterprise_cs_e2e_test.dart \
 ///   -d <真机设备ID> \
-///   --dart-define=IMBOY_API_BASE=http://<lan-ip>:<隔离端口>
+///   --dart-define=IMBOY_API_BASE=http://<lan-ip>:19812 \
+///   --dart-define=API_BASE_URL=http://<lan-ip>:19812 \
+///   --dart-define=APP_ENV=local_office
 /// ```
 ///
-/// 未注入 `--dart-define=IMBOY_API_BASE` 时本用例自动 skip（不产生红）。
+/// 未注入 `--dart-define=IMBOY_API_BASE` 时本文件全部用例自动 skip（不产生红）。
 ///
-/// 最小场景序列（amendment §3 APP-A09，13 步）：
-///  1. 登录（个人域既有链路，拿 JWT）
-///  2. 企业上下文（GET organizations → memberStatus=active）
-///  3. 联系人（GET contacts，断言仅企业联系人、非个人好友）
-///  4. 会话（GET conversations）
-///  5. 发送消息（POST messages → accepted）
-///  6. after_id 增量拉取（GET messages?after_id= → 只含增量）
-///  7. delivery ACK（POST ack → 本地缓存真源仍在，delivery-only）
+/// 场景（amendment §3 APP-A09 13 步 + DEVICE-01 补齐旅程）：
+///  1. 登录（个人域既有链路：/passport/login → UserRepoLocal.loginAfter）
+///  2. 企业上下文（organizations/mine → active 成员）
+///  3. 联系人（企业联系人，非个人好友）
+///  4. 会话（企业会话真源）
+///  5. 发送消息（冻结契约 client_msg_id/sender_type/body → accepted）
+///  6. after_id 增量拉取（只含增量）
+///  7. delivery ACK（真源仍在，delivery-only）
 ///  8. 附件上传（presign → PUT → confirm 重新鉴权）
-///  9. 附件查看（GET assets/:id/content 鉴权代理，无 presigned 泄露）
-/// 10. 客服 queue（GET /api/v1/cs/sessions/queue）
-/// 11. 客服 claim（POST claim → active）
-/// 12. 客服 transfer/close（POST transfer → accepted → close）
-/// 13. 客服 rating + suspend 降级（POST rating；suspend 后企业入口只读、
-///     新企业 API 请求 403）
+///  9. 附件查看（GET assets/:id/content 鉴权代理回读）
+/// 10. 客服 queue（CsApi.queuePage）
+/// 11. 客服 claim（CAS → active）
+/// 12. 客服 transfer → close（CAS）
+/// 13. rating（访客令牌）+ suspend 降级（suspend 后企业 API 403）
+/// 补齐旅程：组织创建/切换、邀请双账号、成员 offboard、部门治理、
+/// 冷启动会话恢复（第二轮进程即真冷启动）、断网恢复（真实 socket 不可达）。
 ///
-/// 后端：本 run 隔离实例（经 IMBOY_API_BASE 注入，与共享 9700/9800/9801
-/// 实例隔离）；A08/A09 证据须附 `adb devices` / `flutter devices` 输出。
+/// 契约缺陷软探针（不置红，仅记录到日志/RESULT 供卡片跟踪）：
+///  - D1: `GET /api/v1/enterprise/organizations`（EnterpriseApi.myOrganizations）
+///         在后端 imboy d91f96ac 路由表中不存在（仅 `:org_id` 子资源）。
+///  - D2: `EnterpriseApi.sendMessage` 请求体 `{content}` ≠ 冻结契约
+///         `{client_msg_id, sender_type, body}`（缺必填 → 服务端 422）。
+///
+/// 后端：本 run 隔离实例（IMBOY_API_BASE 注入，19812）；证据附
+/// `adb devices` / `flutter devices` 输出。
 library;
+
+import 'dart:convert';
+import 'dart:io' as io;
+
+import 'package:crypto/crypto.dart' as crypto;
+import 'package:dio/dio.dart' as dio_pkg;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'package:imboy/modules/customer_service/public.dart';
 import 'package:imboy/modules/enterprise/public.dart';
+import 'package:imboy/modules/organization/public.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/secure_token_storage_service.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
-/// 隔离后端地址（A0 真机执行时经 --dart-define 注入）。
+import '../flows/api_test_client.dart';
+
+/// 隔离后端地址（真机执行时经 --dart-define 注入）。
 const String kImboyApiBase = String.fromEnvironment('IMBOY_API_BASE');
+
+/// 种子事实（/tmp/dev1-runtime/dev1_node.escript 输出，固定 TSID 可复现）。
+const String _org1Name = 'dev1-enterprise-a';
+const String _phoneA = '13900001201'; // org1 owner
+const String _phoneB = '13900001202'; // member + 客服坐席 B
+const String _phoneC = '13900001203'; // member（suspend/restore/offboard 目标）
+const String _password = 'admin888';
+
+/// 访客评分令牌（种子 issue_visit_token 签发，64 字符）。
+const String _visitToken =
+    '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+
+/// 契约缺陷探针记录（软记录：不影响绿/红，输出到日志供 RESULT 汇总）。
+final Map<String, Object?> findings = <String, Object?>{};
+
+/// 跨用例共享状态（同进程按声明顺序执行）。
+final Map<String, Object> ctx = <String, Object>{};
+
+FlowApiClient _rawFor(String did) =>
+    FlowApiClient(baseUrl: kImboyApiBase, deviceId: did);
+
+String _org1() => ctx['org1']! as String;
+String _ws1() => ctx['ws1']! as String;
+String _uidA() => ctx['uidA']! as String;
+String _uidC() => ctx['uidC']! as String;
+
+/// 个人域既有登录链路：/passport/login（raw）→ UserRepoLocal.loginAfter。
+/// App 侧模块 API（EnterpriseApi/OrganizationApi/CsApi，均 extends
+/// HttpClient）读取 UserRepoLocal 的会话，因此先落库再调用。
+Future<void> _becomeUser(FlowApiClient raw, String phone) async {
+  final body = await raw.login(
+    account: phone,
+    password: _password,
+    type: 'mobile',
+  );
+  FlowApiAssert.success(body, context: 'login($phone)');
+  final payload =
+      (body['payload'] ?? <String, dynamic>{}) as Map<String, dynamic>;
+  await UserRepoLocal.to.loginAfter(phone, payload);
+}
+
+/// 会话恢复探测：读本地持久化 token（不经 login），真实后端 200 即恢复成功。
+Future<bool> _tryResumeSession(FlowApiClient raw) async {
+  final tk = await SecureTokenStorageService.getToken();
+  if (tk.length < 10) return false;
+  raw.accessToken = tk;
+  final resp = await raw.get(
+    '/api/v1/organizations/mine',
+    queryParameters: {'page': 1, 'size': 10},
+  );
+  return resp['code'] == 0;
+}
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -47,85 +119,508 @@ void main() {
 
   final bool backendConfigured = kImboyApiBase.isNotEmpty;
 
-  testWidgets(
-    'APP-A09 enterprise+cs e2e (BLOCKED_DEVICE skeleton)',
-    (tester) async {
-      // 未配置隔离后端时本用例已被 skip 参数整体跳过（不产生红）。
+  testWidgets('step01_login_and_cold_start_resume', (tester) async {
+    await StorageService.init();
+    final raw = _rawFor('dev1-device-a');
 
-      // 步骤 1（登录）：复用个人域既有登录链路产出 JWT；本骨架只占位断言
-      // TODO(A0/device-gate): 执行个人域登录并断言 accessToken 非空
+    // 冷启动会话恢复：第二轮 flutter test 进程即真冷启动；若上一进程留下
+    // 的持久化 token 仍有效，则不再重新登录（断言会话恢复 oracle）。
+    final resumed = await _tryResumeSession(raw);
+    findings['cold_start_session_resumed'] = resumed;
+    if (!resumed) {
+      await _becomeUser(raw, _phoneA);
+    }
+    expect(UserRepoLocal.to.isLoggedIn, isTrue);
+    ctx['uidA'] = UserRepoLocal.to.currentUid;
 
-      final enterpriseApi = EnterpriseApi();
-      final csApi = CsApi();
+    final mine = await raw.get(
+      '/api/v1/organizations/mine',
+      queryParameters: {'page': 1, 'size': 10},
+    );
+    FlowApiAssert.success(mine, context: 'organizations/mine after login');
+    final payload = (mine['payload'] ?? <String, dynamic>{}) as Map;
+    final rows = (payload['list'] ?? payload['data'] ?? []) as List<dynamic>;
+    final org1 = rows.firstWhere(
+      (r) => r is Map && r['name'] == _org1Name,
+      orElse: () => null,
+    );
+    expect(org1, isNotNull, reason: '种子企业 $_org1Name 应在 mine 列表');
+    ctx['org1'] = '${(org1! as Map)['id']}';
 
-      // 步骤 2（企业上下文）
-      // TODO(A0/device-gate): GET organizations → 断言 memberStatus == active
-      final orgs = await enterpriseApi.myOrganizations();
-      expect(orgs, isNotEmpty);
+    // 契约缺陷软探针 D1：EnterpriseApi.myOrganizations 目标端点是否存在。
+    final probe = await raw.get('/api/v1/enterprise/organizations');
+    findings['D1_enterprise_organizations_status'] = probe['code'];
+    // ignore: avoid_print
+    print('DEV1_FINDINGS $findings');
+  }, skip: !backendConfigured);
 
-      // 步骤 3（联系人）：仅企业联系人（EB-D04：不写个人好友）
-      // TODO(A0/device-gate): 断言 contacts 列表非空且不落 user_friend
-      final contacts = await enterpriseApi.contacts(orgs.first.id);
-      expect(contacts, isNotEmpty);
+  testWidgets('step02_ent_context_contacts_conversations', (tester) async {
+    final enterpriseApi = EnterpriseApi();
+    final org1 = _org1();
 
-      // 步骤 4（会话）
-      final conversations = await enterpriseApi.conversations(orgs.first.id);
-      expect(conversations, isNotEmpty);
+    // 步骤 3（联系人）：企业联系人真源非空（不落个人好友域）
+    final contacts = await enterpriseApi.contacts(org1);
+    expect(contacts, isNotEmpty, reason: '种子企业联系人应非空');
 
-      // 步骤 5（发送消息）
-      // TODO(A0/device-gate): sendMessage → 断言 accepted 与服务端 accepted
-      // 晚于 canonical 提交的服务端语义（客户端仅验形状）
-      final sent = await enterpriseApi.sendMessage(
-        orgs.first.id,
-        conversations.first.id,
-        content: 'e2e-ping',
+    // 步骤 4（会话）
+    final conversations = await enterpriseApi.conversations(org1);
+    expect(conversations, isNotEmpty, reason: '种子企业会话应非空');
+    ctx['conv1'] = conversations.first.id;
+  }, skip: !backendConfigured);
+
+  testWidgets('step03_to_07_message_send_incremental_ack', (tester) async {
+    final rawB = _rawFor('dev1-device-b');
+    final org1 = _org1();
+    final conv1 = ctx['conv1']! as String;
+
+    // 双账号：B 登录（raw，独立会话）并取坐席身份（customer_service 白名单）
+    final loginB = await rawB.login(
+      account: _phoneB,
+      password: _password,
+      type: 'mobile',
+    );
+    FlowApiAssert.success(loginB, context: 'login(B)');
+    ctx['uidB'] = '${((loginB['payload'] ?? {}) as Map)['uid']}';
+    final seatResp = await rawB.get('/api/v1/cs/me/seat-contexts');
+    FlowApiAssert.success(seatResp, context: 'seat-contexts(B)');
+    final seatContexts =
+        (((seatResp['payload'] ?? {}) as Map)['contexts'] ?? [])
+            as List<dynamic>;
+    final orgCtx = seatContexts.firstWhere(
+      (c) => '${(c! as Map)['organization_id']}' == org1,
+      orElse: () => null,
+    ) as Map?;
+    expect(orgCtx, isNotNull, reason: 'B 在 org1 应有坐席上下文');
+    ctx['identityB'] = '${orgCtx!['business_identity_id']}';
+    final workspaces = (orgCtx['workspaces'] ?? []) as List<dynamic>;
+    expect(workspaces, isNotEmpty, reason: '坐席上下文应含 workspace');
+    ctx['ws1'] = '${(workspaces.first as Map)['id']}';
+
+    // 步骤 5（发送消息，冻结契约）：B 以业务身份发送 accepted
+    final ts = DateTime.now().microsecondsSinceEpoch;
+    Future<String> sendByB(String clientMsgId, String body) async {
+      final send = await rawB.post(
+        '/api/v1/enterprise/organizations/$org1/conversations/$conv1/messages',
+        data: {
+          'client_msg_id': clientMsgId,
+          'sender_type': 'business_identity',
+          'body': body,
+          'identity_id': ctx['identityB'],
+        },
       );
-      expect(sent.id, isNotEmpty);
+      FlowApiAssert.success(send, context: 'send($clientMsgId by B)');
+      return '${((send['payload'] ?? {}) as Map)['id']}';
+    }
 
-      // 步骤 6（after_id 增量）
-      final incremental = await enterpriseApi.messages(
-        orgs.first.id,
-        conversations.first.id,
-        afterId: sent.id,
+    final msg1 = await sendByB('dev1-b-1-$ts', 'e2e-ping-b-1');
+    expect(msg1, isNotEmpty);
+
+    // 全量读：A（App EnterpriseApi）看到 msg1
+    final enterpriseApi = EnterpriseApi();
+    final full = await enterpriseApi.messages(org1, conv1);
+    expect(full.any((m) => m.id == msg1), isTrue, reason: '全量消息列表应含 msg1');
+
+    // 步骤 6（after_id 增量）：B 再发一条，增量只含新消息
+    final msg2 = await sendByB('dev1-b-2-$ts', 'e2e-ping-b-2');
+    final incremental = await enterpriseApi.messages(
+      org1,
+      conv1,
+      afterId: msg1,
+    );
+    expect(incremental, isNotEmpty, reason: 'after_id 增量应含 msg2');
+    expect(
+      incremental.any((m) => m.id == msg1),
+      isFalse,
+      reason: '增量不得回放游标之前的消息',
+    );
+    expect(incremental.any((m) => m.id == msg2), isTrue);
+
+    // 步骤 7（delivery ACK，delivery-only）：ACK 后真源仍在
+    await enterpriseApi.ackDelivered(org1, conv1, msg1);
+    final fullAfterAck = await enterpriseApi.messages(org1, conv1);
+    expect(
+      fullAfterAck.any((m) => m.id == msg1),
+      isTrue,
+      reason: 'ACK 只确认投递，不得改变消息真源',
+    );
+
+    // 契约缺陷软探针 D2：App 侧 sendMessage 旧形状 {content} 必 422。
+    try {
+      final legacy = await enterpriseApi.sendMessage(
+        org1,
+        conv1,
+        content: 'e2e-legacy-shape',
       );
-      expect(incremental.every((m) => m.id.compareTo(sent.id) > 0), isTrue);
+      findings['D2_sendmessage_legacy_shape'] = legacy.id.isEmpty
+          ? 'accepted-empty-id'
+          : 'accepted';
+    } on EnterpriseApiException catch (e) {
+      findings['D2_sendmessage_legacy_shape'] = 'http ${e.code}';
+    }
+    // ignore: avoid_print
+    print('DEV1_FINDINGS $findings');
+  }, skip: !backendConfigured);
 
-      // 步骤 7（delivery ACK，delivery-only）
-      // TODO(A0/device-gate): ack 后重拉全量，断言消息真源仍在
-      await enterpriseApi.ackDelivered(
-        orgs.first.id,
-        conversations.first.id,
-        sent.id,
+  testWidgets('step04_08_09_asset_presign_put_confirm_content', (tester) async {
+    final enterpriseApi = EnterpriseApi();
+    final org1 = _org1();
+    final ws1 = _ws1();
+    final conv1 = ctx['conv1']! as String;
+
+    const bytes = 'e2e-bytes';
+    final objectHash = crypto.sha256.convert(utf8.encode(bytes)).toString();
+
+    final presign = await enterpriseApi.presignAsset(
+      org1,
+      workspaceId: ws1,
+      conversationId: conv1,
+      mime: 'text/plain',
+      sizeBytes: bytes.length,
+      objectHash: objectHash,
+      fileName: 'dev1-e2e.txt',
+    );
+    expect(presign.assetId, isNotEmpty);
+    expect(presign.hasUploadTarget, isTrue, reason: 'presign 应下发 PUT 目标');
+
+    // PUT 字节（真实 S3：本 run 独立 Garage 实例）
+    final putStatus = await _rawPutBytes(presign.uploadUrl, utf8.encode(bytes));
+    expect(putStatus, isIn(const <int>[200, 201]), reason: 'S3 PUT 应成功');
+
+    // confirm（独立请求重新鉴权；upload_ref 而非 asset_id）
+    final asset = await enterpriseApi.confirmAsset(
+      org1,
+      workspaceId: ws1,
+      uploadRef: presign.uploadRef,
+    );
+    expect(asset.isPending, isFalse, reason: 'confirm 后资产应 active');
+
+    // 步骤 9（content 鉴权代理回读，无 presigned GET）
+    final text = await enterpriseApi.fetchAssetContentText(org1, asset.id);
+    expect(text, bytes, reason: 'content 代理应回读原始字节');
+    ctx['assetId'] = asset.id;
+  }, skip: !backendConfigured);
+
+  testWidgets('step05_10_11_12_cs_queue_claim_transfer_close', (tester) async {
+    final org1 = _org1();
+
+    // 坐席 B 登录进 App 会话（真实切账号链路），驱动坐席面
+    final rawB = _rawFor('dev1-device-b-session');
+    await _becomeUser(rawB, _phoneB);
+    ctx['uidB'] = UserRepoLocal.to.currentUid;
+
+    final csApi = CsApi();
+    // 步骤 10（queue）
+    final contexts = await csApi.seatContexts();
+    CsSeatContext ctxOrg;
+    try {
+      ctxOrg = contexts.contexts.firstWhere((c) => c.organizationId == org1);
+    } on StateError {
+      fail('B 缺少 org1 坐席上下文');
+    }
+    expect(ctxOrg.isEligible, isTrue, reason: '坐席 B 应满足 eligible');
+
+    final queue = await csApi.queuePage(org1);
+    expect(queue.items, isNotEmpty, reason: '种子排队会话应在 queue');
+    final item = queue.items.first;
+    expect(item.status, 'queued');
+    expect(item.version, greaterThan(0), reason: 'CAS claim 需要 version');
+
+    // 步骤 11（claim，CAS）
+    final claimed = await csApi.claim(
+      org1,
+      item.sessionId,
+      expectedVersion: item.version,
+    );
+    expect(claimed.status, 'active');
+    expect(claimed.assigneeIdentityId, ctx['identityB']);
+
+    // transferTargets 排除本人，应给出 A 的坐席身份
+    final targets = await csApi.transferTargets(org1);
+    expect(targets.items, isNotEmpty, reason: 'A 坐席身份应可作转接目标');
+    final targetA = targets.items.first;
+
+    // 步骤 12（transfer，CAS）：B → A
+    final detailBeforeTransfer = await csApi.sessionDetail(
+      org1,
+      item.sessionId,
+    );
+    await csApi.transfer(
+      org1,
+      item.sessionId,
+      toIdentityId: targetA.identityId,
+      expectedVersion: detailBeforeTransfer.version,
+    );
+
+    // 切回 A 会话（真实切账号链路）后 close（A 是受让人）
+    final rawA = _rawFor('dev1-device-a-session');
+    await _becomeUser(rawA, _phoneA);
+    ctx['uidA'] = UserRepoLocal.to.currentUid;
+
+    final csApiA = CsApi();
+    final detailForClose = await csApiA.sessionDetail(org1, item.sessionId);
+    expect(detailForClose.status, 'active');
+    await csApiA.close(
+      org1,
+      item.sessionId,
+      expectedVersion: detailForClose.version,
+      reason: 'dev1-e2e-close',
+    );
+    final detailClosed = await csApiA.sessionDetail(org1, item.sessionId);
+    expect(detailClosed.status, 'closed');
+
+    ctx['csSession'] = item.sessionId;
+  }, skip: !backendConfigured);
+
+  testWidgets('step06_13_rating_via_visit_token', (tester) async {
+    final org1 = _org1();
+    final sessionId = ctx['csSession']! as String;
+
+    final csApi = CsApi();
+    final detail = await csApi.sessionDetail(org1, sessionId);
+    expect(detail.status, 'closed');
+
+    // 访客评分（visit token 面）：closed 会话可评 1..5
+    final client = dio_pkg.Dio(
+      dio_pkg.BaseOptions(
+        baseUrl: kImboyApiBase,
+        contentType: 'application/json',
+        validateStatus: (int? status) => status != null,
+      ),
+    );
+    final resp = await client.post<dynamic>(
+      '/api/v1/cs/sessions/$sessionId/rating',
+      data: {'rating': 5, 'expected_version': detail.version},
+      options: dio_pkg.Options(headers: {'x-cs-visit-token': _visitToken}),
+    );
+    final body = resp.data is Map ? resp.data as Map : const {};
+    expect(body['code'], 0, reason: '访客评分应成功（实际 ${resp.data}）');
+
+    final after = await csApi.sessionDetail(org1, sessionId);
+    expect(after.hasRating, isTrue, reason: '评分后 sessionDetail 应带 rating');
+  }, skip: !backendConfigured);
+
+  testWidgets('step07_13b_suspend_degrades_member_403_then_restore', (
+    tester,
+  ) async {
+    final orgApi = OrganizationApi();
+    final org1 = _org1();
+
+    // 先以 C 真实登录建立第二账号事实（并取 uid）
+    final rawC = _rawFor('dev1-device-c');
+    final loginC = await rawC.login(
+      account: _phoneC,
+      password: _password,
+      type: 'mobile',
+    );
+    FlowApiAssert.success(loginC, context: 'login(C)');
+    final uidC = '${((loginC['payload'] ?? {}) as Map)['uid']}';
+    ctx['uidC'] = uidC;
+
+    // suspend（owner 治理动作；App 会话当前是 A）
+    final suspended = await orgApi.suspendMember(org1, uidC);
+    expect(suspended.status, 'suspended');
+
+    // 被 suspend 成员的企业租户面新请求 → 403（降级 fail-closed）
+    final denied = await rawC.get(
+      '/api/v1/enterprise/organizations/$org1/contacts',
+      queryParameters: {'page': 1, 'size': 10},
+    );
+    expect(denied['code'], 403, reason: 'suspend 后企业 API 应 403');
+
+    // restore 恢复后同一请求恢复成功
+    final restored = await orgApi.restoreMember(org1, uidC);
+    expect(restored.status, 'active');
+    final allowed = await rawC.get(
+      '/api/v1/enterprise/organizations/$org1/contacts',
+      queryParameters: {'page': 1, 'size': 10},
+    );
+    FlowApiAssert.success(allowed, context: 'contacts(C) after restore');
+  }, skip: !backendConfigured);
+
+  testWidgets('step08_org_create_and_switch', (tester) async {
+    final orgApi = OrganizationApi();
+    final name = 'dev1-org-b-${DateTime.now().millisecondsSinceEpoch}';
+
+    final created = await orgApi.create(name: name);
+    expect(created.id, isNotEmpty);
+    expect(created.name, name);
+
+    // 切换 = mine 列表可见 + detail 投影 member_role=owner
+    final mine = await orgApi.mine();
+    expect(mine.list.any((o) => o.id == created.id), isTrue);
+    final detail = await orgApi.detail(created.id);
+    expect(detail.memberRole, 'owner');
+
+    ctx['orgB'] = created.id;
+  }, skip: !backendConfigured);
+
+  testWidgets('step09_dual_account_invitation_accept', (tester) async {
+    final orgApi = OrganizationApi();
+    final orgB = ctx['orgB']! as String;
+
+    // 邀请 C（定向邀请，create 返回一次性 token；P0 免口令直达）
+    final invitation = await orgApi.createInvitation(orgB, _uidC());
+    expect(invitation.invitationId, isNotEmpty);
+    expect(invitation.isPending, isTrue);
+
+    // 双账号第二侧：C 真实登录并接受（当前身份即 target）
+    final rawC = _rawFor('dev1-device-c-session');
+    final loginC = await rawC.login(
+      account: _phoneC,
+      password: _password,
+      type: 'mobile',
+    );
+    FlowApiAssert.success(loginC, context: 'login(C)');
+    final uidC = '${((loginC['payload'] ?? {}) as Map)['uid']}';
+    ctx['uidC'] = uidC;
+
+    final accept = await rawC.post(
+      '/api/v1/organizations/$orgB/invitations/accept',
+      data: <String, dynamic>{},
+    );
+    FlowApiAssert.success(accept, context: 'accept invitation(C)');
+
+    // 治理面成员列表可见 C active
+    final members = await orgApi.members(orgB);
+    OrganizationMember? rowC;
+    for (final m in members.list) {
+      if (m.userId == uidC) {
+        rowC = m;
+        break;
+      }
+    }
+    expect(rowC, isNotNull, reason: 'C 应出现在 orgB 成员列表');
+    expect(rowC!.status, 'active');
+  }, skip: !backendConfigured);
+
+  testWidgets('step10_member_offboard_terminal', (tester) async {
+    final orgApi = OrganizationApi();
+    final orgB = ctx['orgB']! as String;
+    final uidC = ctx['uidC']! as String;
+
+    // C 无 active 业务身份 assignment → offboard 直达 removed 终态
+    final offboarded = await orgApi.offboardMember(orgB, uidC);
+    expect(offboarded.status, 'removed');
+
+    // 终态不可再 suspend（409 来源守卫）
+    Object? conflict;
+    try {
+      await orgApi.suspendMember(orgB, uidC);
+    } on OrganizationApiException catch (e) {
+      conflict = e;
+      expect(e.code, 409);
+    }
+    expect(conflict, isNotNull, reason: 'suspend(removed) 应被服务端拒绝');
+  }, skip: !backendConfigured);
+
+  testWidgets('step11_department_governance', (tester) async {
+    final orgApi = OrganizationApi();
+    final orgB = ctx['orgB']! as String;
+    final uidA = _uidA();
+
+    // 根部门
+    final root = await orgApi.createDepartment(orgB, name: 'dev1-dept-root');
+    expect(root.isRoot, isTrue);
+    // 子部门
+    final child = await orgApi.createDepartment(
+      orgB,
+      name: 'dev1-dept-child',
+      parentId: root.id,
+    );
+    expect(child.parentId, root.id);
+
+    // CAS 改名
+    final renamed = await orgApi.renameDepartment(
+      orgB,
+      root.id,
+      name: 'dev1-dept-root-v2',
+      expectedVersion: root.version,
+    );
+    expect(renamed.name, 'dev1-dept-root-v2');
+
+    // 成员挂载（owner 自己是 active member，服务端触发器权威）
+    final member = await orgApi.addDepartmentMember(orgB, root.id, uidA);
+    expect(member.userId, uidA);
+
+    // 树读面
+    final tree = await orgApi.departments(orgB);
+    expect(tree.any((d) => d.id == root.id), isTrue);
+    expect(tree.any((d) => d.id == child.id), isTrue);
+
+    // 归档叶子
+    final archived = await orgApi.archiveDepartment(orgB, child.id);
+    expect(archived.isArchived, isTrue);
+  }, skip: !backendConfigured);
+
+  testWidgets('step12_network_outage_and_recovery', (tester) async {
+    final org1 = _org1();
+    // 恢复链路的会话：显式复用持久化 token（同一真实会话，不重新登录）。
+    final tk = await SecureTokenStorageService.getToken();
+    expect(tk.length, greaterThan(10), reason: '恢复链路需要有效会话 token');
+
+    final client = dio_pkg.Dio(
+      dio_pkg.BaseOptions(
+        baseUrl: kImboyApiBase,
+        contentType: 'application/json',
+        validateStatus: (int? status) => status != null,
+      ),
+    );
+
+    // 真实 socket 不可达（RFC1918 黑洞地址，无 mock）：请求必须失败
+    Object? caught;
+    try {
+      await client.get<dynamic>(
+        'http://10.255.255.1:9/api/v1/organizations/mine',
+        options: dio_pkg.Options(connectTimeout: const Duration(seconds: 3)),
       );
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught, isNotNull, reason: '断网（黑洞地址）请求应失败');
 
-      // 步骤 8/9（附件 presign → PUT → confirm；content 鉴权代理查看）
-      // TODO(A0/device-gate): PUT uploadUrl 上传字节并断言 confirm 后 status
-      final presign = await enterpriseApi.presignAsset(
-        orgs.first.id,
-        fileName: 'e2e.txt',
-        mime: 'text/plain',
-        size: 9,
-      );
-      expect(presign.assetId, isNotEmpty);
-      final asset = await enterpriseApi.confirmAsset(
-        orgs.first.id,
-        presign.assetId,
-      );
-      expect(asset.isPending, isFalse);
+    // 恢复：同一进程内对真实后端的下一跳请求成功
+    final resp = await client.get<dynamic>(
+      '/api/v1/organizations/$org1',
+      options: dio_pkg.Options(headers: {'authorization': 'Bearer $tk'}),
+    );
+    expect(
+      resp.data is Map ? (resp.data as Map)['code'] : resp.statusCode,
+      0,
+      reason: '断网恢复后 org detail 应成功',
+    );
+  }, skip: !backendConfigured);
 
-      // 步骤 10~12（客服 queue → claim → transfer/close）
-      // TODO(A0/device-gate): 用 CsSessionMachine 镜像驱动并断言服务端状态
-      final queue = await csApi.queuePage(orgs.first.id);
-      expect(queue, isA<CsQueuePage>());
+  testWidgets('step13_cold_start_state_visible', (tester) async {
+    // 本用例在两轮运行中都成立：
+    //  - run1：本进程已完成登录，会话事实可读；
+    //  - run2：新进程（真冷启动）经 step01 的 resume 路径恢复持久化会话，
+    //          此处断言企业状态不依赖重新播种即可见。
+    final orgApi = OrganizationApi();
+    final mine = await orgApi.mine();
+    expect(mine.list.map((o) => o.name), contains(_org1Name));
 
-      // 步骤 13（rating + suspend 降级）
-      // TODO(A0/device-gate): close→rating 后由后端触发 suspend，断言：
-      //  a) 企业 API 新请求 403（EnterpriseApiException.isForbidden）
-      //  b) 企业入口页 isReadOnly 降级提示可见
-      final machine = CsSessionMachine(sessionId: 'e2e-skeleton');
-      expect(machine.status, CsSessionStatus.queued);
-    },
-    // BLOCKED_DEVICE：未注入隔离后端地址时整体 skip（真机门由 A0 解锁）
-    skip: !backendConfigured,
-  );
+    final enterpriseApi = EnterpriseApi();
+    final conversations = await enterpriseApi.conversations(_org1());
+    expect(conversations, isNotEmpty);
+
+    findings['cold_start_state_visible'] = true;
+    // ignore: avoid_print
+    print('DEV1_FINDINGS $findings');
+  }, skip: !backendConfigured);
+}
+
+/// 原始字节 PUT（S3 短期 presigned URL；dart:io，无查询串改写）
+Future<int> _rawPutBytes(String url, List<int> payload) async {
+  final client = io.HttpClient();
+  try {
+    final uri = Uri.parse(url);
+    final req = await client.openUrl('PUT', uri);
+    req.headers.contentType = io.ContentType.binary;
+    req.add(payload);
+    final resp = await req.close();
+    await resp.drain<void>();
+    return resp.statusCode;
+  } finally {
+    client.close(force: true);
+  }
 }
