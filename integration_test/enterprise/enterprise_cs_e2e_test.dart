@@ -370,8 +370,12 @@ void main() {
     expect(presign.assetId, isNotEmpty);
     expect(presign.hasUploadTarget, isTrue, reason: 'presign 应下发 PUT 目标');
 
-    // PUT 字节（真实 S3：本 run 独立 Garage 实例）
-    final putStatus = await _rawPutBytes(presign.uploadUrl, utf8.encode(bytes));
+    // PUT 字节（真实 S3 上传经后端代理端点；自签 TLS 由回调放行）
+    final putStatus = await _rawPutBytes(
+      presign.uploadUrl,
+      utf8.encode(bytes),
+      bearer: await SecureTokenStorageService.getToken(),
+    );
     expect(putStatus, isIn(const <int>[200, 201]), reason: 'S3 PUT 应成功');
 
     // confirm（独立请求重新鉴权；upload_ref 而非 asset_id）
@@ -770,7 +774,11 @@ String _extractCN(String subject) {
 /// 本地测试基础设施是自签证书（CN=localhost，与 App dev/local 白名单同口径），
 /// 非 release 构建：信任之——与 lib/component/http/http_client.dart 的
 /// _certificateValidationCallback 同语义，仅 dev/local 生效。
-Future<int> _rawPutBytes(String url, List<int> payload) async {
+Future<int> _rawPutBytes(
+  String url,
+  List<int> payload, {
+  String? bearer,
+}) async {
   final client = io.HttpClient();
   client.badCertificateCallback = (cert, host, port) {
     final cn = _extractCN(cert.subject);
@@ -785,6 +793,9 @@ Future<int> _rawPutBytes(String url, List<int> payload) async {
   try {
     final uri = Uri.parse(url);
     final req = await client.openUrl('PUT', uri);
+    if (bearer != null && bearer.isNotEmpty) {
+      req.headers.set('authorization', 'Bearer $bearer');
+    }
     req.headers.contentType = io.ContentType.binary;
     req.add(payload);
     final resp = await req.close();
