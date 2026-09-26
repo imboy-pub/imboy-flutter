@@ -276,7 +276,8 @@ void main() {
         },
       );
       FlowApiAssert.success(send, context: 'send($clientMsgId by B)');
-      return '${((send['payload'] ?? {}) as Map)['id']}';
+      final sp = (send['payload'] ?? {}) as Map;
+      return '${sp['message_id'] ?? ((sp['message'] ?? {}) as Map)['id']}';
     }
 
     final msg1 = await sendByB('dev1-b-1-$ts', 'e2e-ping-b-1');
@@ -456,32 +457,31 @@ void main() {
     final targetRows =
         (targetPayload['targets'] ?? targetPayload['list'] ?? const [])
             as List<dynamic>;
-    expect(targetRows, isNotEmpty, reason: 'A 坐席身份应可作转接目标');
-    final targetA =
+    expect(targetRows, isNotEmpty, reason: 'D 坐席身份应可作转接目标');
+    final targetD =
         '${(targetRows.first as Map)['identity_id'] ?? (targetRows.first as Map)['id']}';
-    expect(targetA, isNot(identityB), reason: '转接目标不得含本人');
+    expect(targetD, isNot(identityB), reason: '转接目标不得含本人');
 
-    // 步骤 12（transfer，CAS）：B → A
+    // 步骤 12（transfer，CAS）：B → D
     final detailBeforeTransfer = await _csDetailRaw(rawB, org1, item.sessionId);
     final transfer = await _entPost(
       rawB,
       '/api/v1/cs/organizations/$org1/sessions/${item.sessionId}/transfer',
       {
-        'to_identity_id': targetA,
+        'to_identity_id': targetD,
         'expected_version': detailBeforeTransfer['version'],
       },
     );
-    FlowApiAssert.success(transfer, context: 'transfer(B→A)');
+    FlowApiAssert.success(transfer, context: 'transfer(B→D)');
 
-    // 切回 A 会话（真实切账号链路）后 close（A 是受让人）
-    final rawA = _rawFor('dev1-device-a-session');
-    await _becomeUser(rawA, _phoneA);
-    ctx['uidA'] = UserRepoLocal.to.currentUid;
+    // 受让人 D 登录（真实切账号链路）后 close
+    final rawD = _rawFor('dev1-device-d-session');
+    await _becomeUser(rawD, _phoneD);
 
-    final detailForClose = await _csDetailRaw(rawA, org1, item.sessionId);
+    final detailForClose = await _csDetailRaw(rawD, org1, item.sessionId);
     expect('${detailForClose['status']}', 'active');
     final close = await _entPost(
-      rawA,
+      rawD,
       '/api/v1/cs/organizations/$org1/sessions/${item.sessionId}/close',
       {
         'expected_version': detailForClose['version'],
@@ -489,7 +489,7 @@ void main() {
       },
     );
     FlowApiAssert.success(close, context: 'close(active session)');
-    final detailClosed = await _csDetailRaw(rawA, org1, item.sessionId);
+    final detailClosed = await _csDetailRaw(rawD, org1, item.sessionId);
     expect('${detailClosed['status']}', 'closed');
 
     ctx['csSession'] = item.sessionId;
