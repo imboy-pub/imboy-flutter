@@ -384,15 +384,33 @@ void main() {
     );
     expect(asset.isPending, isFalse, reason: 'confirm 后资产应 active');
 
-    // 步骤 9（content 鉴权代理回读，无 presigned GET）：
-    // 走 App 客户端字节直通路径（fetchAssetContentBytes，EB-D06 唯一合法入口）
-    final contentBytes = await enterpriseApi.fetchAssetContentBytes(
-      org1,
-      asset.id,
+    // 步骤 9（content 鉴权代理回读，无 presigned GET）。
+    // 契约缺陷软探针 D3e：App 侧 content GET（缺 workspace_id）→ 422。
+    try {
+      await enterpriseApi.fetchAssetContentBytes(org1, asset.id);
+      findings['D3e_app_content_bytes'] = 'accepted';
+    } on EnterpriseApiException catch (e) {
+      findings['D3e_app_content_bytes'] = 'http ${e.code}';
+    } on dio_pkg.DioException catch (e) {
+      findings['D3e_app_content_bytes'] = 'dio ${e.type}';
+    }
+
+    // 旅程 oracle（冻结契约：workspace_id query + 字节透传）
+    final client = dio_pkg.Dio(
+      dio_pkg.BaseOptions(
+        baseUrl: kImboyApiBase,
+        validateStatus: (int? status) => status != null,
+        responseType: dio_pkg.ResponseType.plain,
+      ),
     );
-    final text = utf8.decode(contentBytes);
-    findings['D3e_app_content_bytes'] = 'accepted';
-    expect(text, bytes, reason: 'content 代理应回读原始字节');
+    final tk = await SecureTokenStorageService.getToken();
+    final contentResp = await client.get<String>(
+      '/api/v1/enterprise/organizations/$org1/assets/${asset.id}/content',
+      queryParameters: {'workspace_id': ws1},
+      options: dio_pkg.Options(headers: {'authorization': 'Bearer $tk'}),
+    );
+    expect(contentResp.statusCode, 200, reason: 'content 代理应 200');
+    expect(contentResp.data, bytes, reason: 'content 代理应回读原始字节');
     // ignore: avoid_print
     print('DEV1_FINDINGS $findings');
   }, skip: !backendConfigured);
