@@ -4,13 +4,18 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:imboy/service/storage.dart';
+
+import '../env_test_pin.dart';
 import 'smoke/smoke_test_harness.dart';
 
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  // A04：钉住 Env() 到 loopback 合成环境，输出零生产域名。
+  pinLoopbackTestEnv();
 
   // 全局禁网：unit_test 下任何套件都不应打真实网络（含页面 initState 的
   // 隐式探测请求——e2ee_backup_import_page 的 _probeCloudBackup 曾因这里

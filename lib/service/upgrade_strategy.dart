@@ -89,17 +89,17 @@ class AppUpgradeDismissState {
 
   // Duck-typed storage: requires getString(String) → String
   //                                    setString(String, String) → void/Future
-  final dynamic _storage;
+  final dynamic storage;
 
-  const AppUpgradeDismissState({required dynamic storage}) : _storage = storage;
+  const AppUpgradeDismissState({required this.storage});
 
   /// 某版本是否在有效期内被用户忽略。
   /// Whether the user dismissed [vsn] within the dismiss window.
   bool isDismissed(String vsn) {
-    final dismissed = '${_storage.getString(dismissedVsnKey)}';
+    final dismissed = '${storage.getString(dismissedVsnKey)}';
     if (dismissed != vsn) return false;
 
-    final lastCheckStr = '${_storage.getString(lastCheckTimeKey)}';
+    final lastCheckStr = '${storage.getString(lastCheckTimeKey)}';
     final lastCheck = int.tryParse(lastCheckStr) ?? 0;
     if (lastCheck == 0) return false;
 
@@ -111,8 +111,8 @@ class AppUpgradeDismissState {
   /// 记录用户点了"稍后提醒"。
   /// Record that the user tapped "remind me later" for [vsn].
   void setDismissed(String vsn) {
-    _storage.setString(dismissedVsnKey, vsn);
-    _storage.setString(
+    storage.setString(dismissedVsnKey, vsn);
+    storage.setString(
       lastCheckTimeKey,
       DateTime.now().millisecondsSinceEpoch.toString(),
     );

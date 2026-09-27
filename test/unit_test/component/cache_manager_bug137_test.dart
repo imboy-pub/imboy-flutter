@@ -1,13 +1,27 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
+import 'package:imboy/service/storage.dart';
 
 /// BUG#137 回归：Garage 私桶完整 URL（群文件等）下载必须提取 object_key
 /// （剥掉 bucket 段）走后端 view_url 签发 presign GET，而不是拼 go-fastdfs
 /// HMAC（?s&a&v，Garage 不认 → 404）。
+///
+/// A04：fixture 用合成域 s3.example.test（经 StorageService 注入
+/// publicBaseUrl），测试输出零生产域名；被测逻辑只按 host 全等比较，
+/// 换 host 不影响覆盖语义。
 void main() {
+  setUp(() {
+    StorageService.to.setString(Keys.publicBaseUrl, 'https://s3.example.test');
+  });
+
+  tearDown(() {
+    StorageService.to.setString(Keys.publicBaseUrl, '');
+  });
+
   group('IMBoyCacheManager - BUG#137 Garage 完整 URL', () {
-    test('s3.imboy.pub 完整 URL 提取 object_key 并走 presign', () async {
+    test('Garage 合成域完整 URL 提取 object_key 并走 presign', () async {
       String? capturedKey;
       AssetUrlResolver.instance.fetcherOverride = (objectKey) {
         capturedKey = objectKey;
@@ -21,7 +35,7 @@ void main() {
       await expectLater(
         IMBoyCacheManager().getSingleFile(
           // bucket 段 = imboy，object_key = file_123_abc/a.mp4
-          'https://s3.imboy.pub/imboy/file_123_abc/a.mp4',
+          'https://s3.example.test/imboy/file_123_abc/a.mp4',
           validateImageData: false,
         ),
         throwsA(anything), // 下载必然失败（presigned-bug137.invalid 不可达）

@@ -159,18 +159,15 @@ class _FakeFilePicker extends FilePickerPlatform {
 
 /// PlatformFile 是 abstract base class，测试只能 extends 模拟。
 final class _FakePickedFile extends PlatformFile {
-  _FakePickedFile({required String name, List<int>? bytes})
-    : _name = name,
-      _bytes = bytes == null ? null : Uint8List.fromList(bytes);
+  _FakePickedFile({required this.name, List<int>? bytes})
+    : _bytes = bytes == null ? null : Uint8List.fromList(bytes);
 
-  final String _name;
+  @override
+  final String name;
   final Uint8List? _bytes;
 
   @override
-  String get name => _name;
-
-  @override
-  Uri get uri => Uri.file('/fake/$_name');
+  Uri get uri => Uri.file('/fake/$name');
 
   @override
   XFile get xFile => XFile.fromData(_bytes ?? Uint8List(0));

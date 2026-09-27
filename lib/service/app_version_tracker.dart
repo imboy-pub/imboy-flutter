@@ -54,16 +54,16 @@ class AppVersionTracker {
   /// 上次运行版本的存储 key
   static const String lastRunVsnKey = 'app_version_last_run_vsn';
 
-  final dynamic _storage; // duck-typed: getString(key) + setString(key, value)
+  final dynamic storage; // duck-typed: getString(key) + setString(key, value)
 
-  const AppVersionTracker({required dynamic storage}) : _storage = storage;
+  const AppVersionTracker({required this.storage});
 
   /// 检测当前版本与上次运行版本的转换关系。
   ///
   /// 不修改存储状态 — 调用 [commit] 或 [detectAndCommit] 来持久化。
   /// Does not modify storage — call [commit] or [detectAndCommit] to persist.
   VersionTransitionResult detect({required String currentVsn}) {
-    final previousVsn = '${_storage.getString(lastRunVsnKey)}';
+    final previousVsn = '${storage.getString(lastRunVsnKey)}';
 
     if (previousVsn.isEmpty) {
       return VersionTransitionResult(
@@ -90,7 +90,7 @@ class AppVersionTracker {
   /// 将 [vsn] 写入存储，标记为本次运行的版本。
   /// Persist [vsn] as the current run version.
   void commit({required String vsn}) {
-    _storage.setString(lastRunVsnKey, vsn);
+    storage.setString(lastRunVsnKey, vsn);
   }
 
   /// [detect] + [commit] 原子操作：检测后立即持久化当前版本。

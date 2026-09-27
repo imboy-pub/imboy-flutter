@@ -21,7 +21,7 @@ import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart
 ///
 /// 封装所有语音播放相关逻辑，与 ChatNotifier 解耦
 class ChatAudioHandler {
-  final VoicePlaybackService Function() _getVoicePlaybackNotifier;
+  final VoicePlaybackService Function() getVoicePlaybackNotifier;
 
   /// 全局播放控制器（用于波形显示）
   PlayerController? globalPlayerController;
@@ -36,8 +36,8 @@ class ChatAudioHandler {
   List<Message> Function()? _getMessages;
 
   ChatAudioHandler({
-    required VoicePlaybackService Function() getVoicePlaybackNotifier,
-  }) : _getVoicePlaybackNotifier = getVoicePlaybackNotifier;
+    required this.getVoicePlaybackNotifier,
+  });
 
   /// 设置消息获取回调
   void setMessagesGetter(List<Message> Function() getter) {
@@ -55,7 +55,7 @@ class ChatAudioHandler {
     required String messageId,
     required int duration,
   }) async {
-    await _getVoicePlaybackNotifier().play(
+    await getVoicePlaybackNotifier().play(
       path: voiceUrlOrPath,
       messageId: messageId,
       durationMs: duration,
@@ -64,17 +64,17 @@ class ChatAudioHandler {
 
   /// 暂停播放
   Future<void> pauseVoice() async {
-    await _getVoicePlaybackNotifier().pause();
+    await getVoicePlaybackNotifier().pause();
   }
 
   /// 继续播放
   Future<void> resumeVoice() async {
-    await _getVoicePlaybackNotifier().resume();
+    await getVoicePlaybackNotifier().resume();
   }
 
   /// 停止播放
   Future<void> stopCurrentVoice() async {
-    await _getVoicePlaybackNotifier().stop();
+    await getVoicePlaybackNotifier().stop();
   }
 
   /// 查找下一条语音消息

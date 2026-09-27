@@ -224,7 +224,7 @@ void main() {
       return {
         'code': code,
         'msg': code == 0 ? 'success' : 'business error',
-        if (payload != null) 'payload': payload,
+        'payload': ?payload,
       };
     }
 
