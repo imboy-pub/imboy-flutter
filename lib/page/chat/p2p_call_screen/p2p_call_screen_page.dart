@@ -188,6 +188,12 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       newMsgId: msgId,
     );
 
+    // 主叫响铃等待期开本地预览（房外采集、不 joinRoom 不发布）：让用户
+    // 确认自己的摄像头已工作。被叫点接听后立即 connect，无需预览。
+    if (widget.caller && media == 'video') {
+      notifier.startLocalPreview();
+    }
+
     // 设置回调
     notifier.onCallStateChange = (WebRTCSession? s1, WebRTCCallState s) async {
       switch (s) {
@@ -497,6 +503,85 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// 接通前（主叫响铃等待）的本地摄像头预览：铺满主画面 + 上下轻压暗，
+  /// 让用户在等待接听时确认自己的摄像头已工作（FaceTime 呼出同款）。
+  Widget _buildSelfPreview(P2pCallScreenState state, VideoTrack track) {
+    return Positioned.fill(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          VideoTrackRenderer(
+            track,
+            fit: VideoViewFit.cover,
+            // 本地自视图镜像；切到后摄后不镜像。
+            mirrorMode: state.isFrontCamera
+                ? VideoViewMirrorMode.mirror
+                : VideoViewMirrorMode.off,
+          ),
+          // 上下渐变压暗，保证昵称/状态与底部控制条可读。
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  CallTokens.blackA45,
+                  Colors.transparent,
+                  Colors.transparent,
+                  CallTokens.blackA45,
+                ],
+                stops: [0.0, 0.18, 0.72, 1.0],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 接通前自视图上的顶部信息：昵称 + 状态（等待对方接受/响铃中…）。
+  /// 不再叠中部大头像——那是用户自己的脸，放对方头像会造成混淆。
+  Widget _buildSelfPreviewInfo(P2pCallScreenState state) {
+    final String statusText = _tipText(state.callStatus.tipKey, state);
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 18),
+          child: Column(
+            children: [
+              Text(
+                widget.peer.nickname,
+                style: context
+                    .textStyle(
+                      FontSizeType.largeTitle,
+                      fontWeight: FontWeight.w600,
+                      color: CallTokens.white,
+                    )
+                    .copyWith(letterSpacing: 0.5),
+              ),
+              const SizedBox(height: 8),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: Text(
+                  statusText,
+                  key: ValueKey<String>(statusText),
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
+                    color: CallTokens.white70,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -927,9 +1012,12 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     required P2pCallScreenState state,
     required bool isLocal,
     Room? room,
+    VideoTrack? trackOverride,
   }) {
     final videoOff = isLocal ? state.cameraOff : state.remoteVideoOff;
-    final track = isLocal ? _localVideoTrack(room) : _remoteVideoTrack(room);
+    final track =
+        trackOverride ??
+        (isLocal ? _localVideoTrack(room) : _remoteVideoTrack(room));
     if (videoOff || track == null) {
       return const ColoredBox(
         color: CallTokens.bg1A1A1A,
@@ -1114,11 +1202,25 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   Widget _buildFloatingWindow(P2pCallScreenState state, Room? room) {
     const double w = 108;
     const double h = 156;
-    final bool showVideo =
+    // 接通显示远端主画面；未接通但有本地预览则显示自视图（响铃等待期）。
+    VideoTrack? previewVideoTrack;
+    if (!state.connected && state.localPreviewReady) {
+      previewVideoTrack = _notifier.previewTrack?.videoTrack;
+    }
+    final bool showRemoteVideo =
         media == 'video' && state.connected && _remoteVideoTrack(room) != null;
+    final bool showSelfVideo =
+        media == 'video' && !state.connected && previewVideoTrack != null;
 
-    final Widget inner = showVideo
+    final Widget inner = showRemoteVideo
         ? _buildVideoContent(state: state, isLocal: _localOnMain, room: room)
+        : showSelfVideo
+        ? _buildVideoContent(
+            state: state,
+            isLocal: true,
+            room: room,
+            trackOverride: previewVideoTrack,
+          )
         : DecoratedBox(
             decoration: const BoxDecoration(color: CallTokens.bg0E1A2B),
             child: Center(
@@ -1250,6 +1352,13 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     // 仅“接通的视频通话”才有远端画面铺满；其余（呼出 / 音频）走渐变 + 头像。
     final remoteTrack = _remoteVideoTrack(room);
     final hasRemoteVideo = isVideo && state.connected && remoteTrack != null;
+    // 接通前的本地自视图（响铃等待期）：预览轨已就绪则铺满主画面；
+    // 不可用（权限拒绝/失败）回退渐变 + 头像。
+    VideoTrack? previewVideoTrack;
+    if (!state.connected && state.localPreviewReady) {
+      previewVideoTrack = _notifier.previewTrack?.videoTrack;
+    }
+    final showSelfPreview = isVideo && previewVideoTrack != null;
     // 控件可见性：音频/呼出常驻；接通视频点屏切换。淡入淡出替代硬切。
     final bool toolsVisible = !hasRemoteVideo || state.showTool;
 
@@ -1259,14 +1368,19 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
           // 1. 背景层
           if (hasRemoteVideo)
             _buildVideoMain(state, room)
+          else if (showSelfPreview)
+            _buildSelfPreview(state, previewVideoTrack)
           else
             _buildGradientBackground(),
 
           // 2. 接通的视频：本地小窗
           if (hasRemoteVideo) _buildVideoMini(state, room),
 
-          // 3. 呼出 / 音频：中部头像 + 昵称 + 状态
-          if (!hasRemoteVideo) _buildConnectingInfo(state),
+          // 3. 呼出 / 音频：中部头像 + 昵称 + 状态；本地预览时改为顶部轻量信息
+          if (!hasRemoteVideo)
+            previewVideoTrack != null
+                ? _buildSelfPreviewInfo(state)
+                : _buildConnectingInfo(state),
 
           // 4. 接通的视频：顶部昵称 + 时长（点屏淡入淡出）
           if (hasRemoteVideo)

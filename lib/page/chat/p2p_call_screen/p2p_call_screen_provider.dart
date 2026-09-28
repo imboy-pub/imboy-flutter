@@ -45,6 +45,33 @@ String formatCallDuration(int totalSeconds) {
   return h > 0 ? '${two(h)}:${two(m)}:${two(s)}' : '${two(m)}:${two(s)}';
 }
 
+/// 接通前本地预览轨的薄抽象：屏蔽 livekit 轨道类型。LocalVideoTrack 的
+/// 构造函数是 @internal，测试包内无法构造，替身经由本接口注入。
+abstract interface class LocalPreviewTrack {
+  /// 可渲染的自视图轨（VideoTrackRenderer 输入）。
+  VideoTrack? get videoTrack;
+
+  Future<void> stop();
+
+  Future<void> setCameraPosition(CameraPosition position);
+}
+
+class _LiveKitPreviewTrack implements LocalPreviewTrack {
+  _LiveKitPreviewTrack(this.track);
+
+  final LocalVideoTrack track;
+
+  @override
+  VideoTrack get videoTrack => track;
+
+  @override
+  Future<void> stop() => track.stop();
+
+  @override
+  Future<void> setCameraPosition(CameraPosition position) =>
+      track.setCameraPosition(position);
+}
+
 /// P2P Call Screen 状态
 class P2pCallScreenState {
   final bool cameraOff;
@@ -74,6 +101,10 @@ class P2pCallScreenState {
   final String errorMessage;
   final MediaPermissionTarget? permissionTarget;
 
+  /// 接通前本地预览是否已就绪（房外自视图轨已创建）。仅用于触发 UI
+  /// 重建；真实轨道经 notifier.previewTrack 获取。
+  final bool localPreviewReady;
+
   const P2pCallScreenState({
     this.cameraOff = false,
     this.isFrontCamera = true,
@@ -92,6 +123,7 @@ class P2pCallScreenState {
     this.remoteVideoOff = false,
     this.errorMessage = '',
     this.permissionTarget,
+    this.localPreviewReady = false,
   });
 
   P2pCallScreenState copyWith({
@@ -112,6 +144,7 @@ class P2pCallScreenState {
     bool? remoteVideoOff,
     String? errorMessage,
     MediaPermissionTarget? permissionTarget,
+    bool? localPreviewReady,
     bool clearPermissionTarget = false,
   }) {
     return P2pCallScreenState(
@@ -134,6 +167,7 @@ class P2pCallScreenState {
       permissionTarget: clearPermissionTarget
           ? null
           : permissionTarget ?? this.permissionTarget,
+      localPreviewReady: localPreviewReady ?? this.localPreviewReady,
     );
   }
 }
@@ -168,6 +202,25 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   EventsListener<RoomEvent>? _listener;
   CameraPosition _cameraPosition = CameraPosition.front;
   bool _connecting = false;
+
+  // ===== 接通前本地预览（响铃等待期的房外自视图） =====
+  // 主叫 accept 前不 joinRoom（见 invitePeer 注释），但视频通话仍需让
+  // 用户确认自己的摄像头已工作：用独立 LocalVideoTrack 房外采集、仅
+  // 渲染不发布。connect()/挂断前必须先停掉——两路相机采集并发抢占
+  // 设备，iOS 上会静默黑屏。
+  LocalPreviewTrack? _previewTrack;
+
+  /// 预览创建任务的串行链：startLocalPreview 幂等入队，stopLocalPreview
+  /// 先 await 整条链再停轨，保证 Room 采集不会被在途的 getUserMedia 抢占。
+  Future<void> _previewJob = Future.value();
+
+  /// 测试注入：预览轨创建替身（单测不触碰平台相机通道）。
+  @visibleForTesting
+  Future<LocalPreviewTrack> Function(CameraCaptureOptions options)?
+  previewTrackFactory;
+
+  /// 接通前的本地预览轨；未创建 / 已停时为 null（页面据此回退头像背景）。
+  LocalPreviewTrack? get previewTrack => _previewTrack;
 
   /// 测试注入：RtcRoomApi 替身（断言 joinRoom 调用时机/参数）。
   @visibleForTesting
@@ -318,6 +371,68 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     );
   }
 
+  /// 开启接通前本地预览（仅视频通话、未接房时；重复调用幂等入队）。
+  void startLocalPreview() {
+    if (media != 'video' ||
+        _room != null ||
+        _connecting ||
+        _previewTrack != null ||
+        _closing) {
+      return;
+    }
+    _previewJob = _previewJob.then((_) => _doStartLocalPreview());
+  }
+
+  Future<void> _doStartLocalPreview() async {
+    if (_closing || _previewTrack != null) return;
+    try {
+      final Future<LocalPreviewTrack> Function(CameraCaptureOptions) create =
+          previewTrackFactory ?? _createDefaultPreviewTrack;
+      final track = await create(
+        CameraCaptureOptions(cameraPosition: _cameraPosition),
+      );
+      // 创建等待期间用户可能已挂断/接房：立即停掉，绝不带病上岗。
+      if (_closing || _previewTrack != null) {
+        await track.stop();
+        return;
+      }
+      _previewTrack = track;
+      if (ref.mounted) state = state.copyWith(localPreviewReady: true);
+    } on Object catch (e) {
+      // on Object 而非 on Exception：这里跑在 _previewJob 任务链上，
+      // 未捕获的 Error 会毒化后续入队的任务。
+      iPrint('> rtc local preview failed: $e');
+      updateStateError(
+        t.common.permissionAcquisitionFailed,
+        permissionTarget: MediaPermissionTarget.camera,
+      );
+    }
+  }
+
+  /// 默认预览轨：房外直接开相机（不 joinRoom、不发布）。
+  Future<LocalPreviewTrack> _createDefaultPreviewTrack(
+    CameraCaptureOptions options,
+  ) async {
+    final track = await LocalVideoTrack.createCameraTrack(options);
+    return _LiveKitPreviewTrack(track);
+  }
+
+  /// 停掉接通前预览轨（connect / 挂断释放前调用）。先等在途创建完成
+  /// 再停轨清状态；未开启过时为安全 no-op。
+  Future<void> stopLocalPreview() async {
+    await _previewJob;
+    final track = _previewTrack;
+    _previewTrack = null;
+    if (ref.mounted && state.localPreviewReady) {
+      state = state.copyWith(localPreviewReady: false);
+    }
+    try {
+      await track?.stop();
+    } on Object catch (e) {
+      iPrint('> rtc stop local preview error: $e');
+    }
+  }
+
   /// accept 之后接入媒体：joinRoom(kind=c2c) 拿 LiveKit 入场券并连接。
   ///
   /// 两端因后端对称房间名（双 uid 排序）落到同一 room。
@@ -326,6 +441,10 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     if (_room != null || _connecting) return true;
     _connecting = true;
     try {
+      // 先停掉房外预览轨：Room 建立后由 setCameraEnabled 重新采集，
+      // 两路并发抢相机设备会黑屏/失败。
+      await stopLocalPreview();
+      if (_closing) return false;
       final res = await _rtcApi.joinRoom(
         kind: 'c2c',
         targetId: peerId,
@@ -379,7 +498,8 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
           permissionTarget: MediaPermissionTarget.microphone,
         );
       }
-      if (media == 'video') {
+      if (media == 'video' && !state.cameraOff) {
+        // 接通前已关摄像头的（响铃期预览可关）尊重该选择，不强制开启。
         try {
           await room.localParticipant?.setCameraEnabled(true);
         } on Exception catch (e) {
@@ -425,6 +545,7 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   /// 释放 LiveKit 连接与轨道（挂断 = 离开 Room + 释放 track/连接）。
   Future<void> releaseMedia() async {
+    await stopLocalPreview();
     final listener = _listener;
     final room = _room;
     _listener = null;
@@ -466,9 +587,17 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         break;
       }
     }
-    if (track == null) return;
-    _cameraPosition = _cameraPosition.switched();
-    await track.setCameraPosition(_cameraPosition);
+    // 接通前（响铃等待）只有房外预览轨：同样支持切换前后镜头。
+    // 无任何可用轨时保持原语义：不翻转方位。
+    if (track != null) {
+      _cameraPosition = _cameraPosition.switched();
+      await track.setCameraPosition(_cameraPosition);
+    } else if (_previewTrack != null) {
+      _cameraPosition = _cameraPosition.switched();
+      await _previewTrack!.setCameraPosition(_cameraPosition);
+    } else {
+      return;
+    }
     if (ref.mounted) {
       state = state.copyWith(
         isFrontCamera: _cameraPosition == CameraPosition.front,
@@ -518,7 +647,19 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
   Future<void> turnCamera() async {
     final lp = _room?.localParticipant;
-    if (lp == null) return;
+    if (lp == null) {
+      // 接通前只有房外预览轨：直接开/关预览。不发 track_state——对端
+      // 尚未接入房间，接房后以本端真实发布状态为准（_connectRoom 会
+      // 尊重 cameraOff）。
+      final nextOff = !state.cameraOff;
+      if (ref.mounted) state = state.copyWith(cameraOff: nextOff);
+      if (nextOff) {
+        await stopLocalPreview();
+      } else {
+        startLocalPreview();
+      }
+      return;
+    }
     final muted = !state.cameraOff;
     try {
       await lp.setCameraEnabled(!muted);
