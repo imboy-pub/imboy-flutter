@@ -168,21 +168,19 @@ void main() {
 }
 
 class _FakeBackupApi implements E2EEBackupApi {
-  _FakeBackupApi({bool hasBackup = false, bool throws = false})
-    : _hasBackup = hasBackup,
-      _throws = throws;
+  _FakeBackupApi({this.hasBackup = false, this.throws = false});
 
-  final bool _hasBackup;
-  final bool _throws;
+  final bool hasBackup;
+  final bool throws;
 
   @override
   Future<E2EEBackupInfo> info({CancelToken? cancelToken}) async {
-    if (_throws) {
+    if (throws) {
       throw Exception('network down');
     }
     return E2EEBackupInfo(
-      hasBackup: _hasBackup,
-      backupVersion: _hasBackup ? 3 : 0,
+      hasBackup: hasBackup,
+      backupVersion: hasBackup ? 3 : 0,
     );
   }
 

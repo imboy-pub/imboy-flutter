@@ -563,4 +563,24 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
     name: 'organization_ws_members',
     location: '/organization/9001/ws/9002/members',
   ),
+
+  // ==================== 企业组织补充（GZAPP-04 G9/G10、GZAPP-C3、GZAPP-05） ====================
+  // location 按 router.namedLocation 形态补登（orgId/uid 假参沿用 9001 惯例）；
+  // 四页 initState 异步加载与 organization_home 同类，渲染烟雾实测可过。
+  const SmokeRoute(
+    name: 'organization_picker',
+    location: '/organization/picker',
+  ),
+  const SmokeRoute(
+    name: 'organization_directory',
+    location: '/organization/9001/directory',
+  ),
+  const SmokeRoute(
+    name: 'organization_member_detail',
+    location: '/organization/9001/member/9003',
+  ),
+  const SmokeRoute(
+    name: 'organization_manage',
+    location: '/organization/9001/manage',
+  ),
 ];

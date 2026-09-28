@@ -203,10 +203,10 @@ class CanonicalCbor {
 
 class _CborReader {
   final Uint8List _data;
-  final bool _strict;
+  final bool strict;
   int _offset = 0;
 
-  _CborReader(this._data, {bool strict = false}) : _strict = strict;
+  _CborReader(this._data, {this.strict = false});
 
   int get offset => _offset;
 
@@ -279,7 +279,7 @@ class _CborReader {
       }
 
       // strict: 验证 key 按编码字节排序
-      if (_strict && prevKeyBytes != null) {
+      if (strict && prevKeyBytes != null) {
         if (CanonicalCbor._compareBytes(prevKeyBytes, keyBytes) >= 0) {
           throw CborParseException('map keys not in canonical order at "$key"');
         }

@@ -69,17 +69,15 @@ class _NoopDowngradeCleaner implements AppDowngradeCleaner {
 
 class AppUpgradeOrchestrator {
   AppUpgradeOrchestrator({
-    required AppVersionTracker tracker,
-    required AppUpgradeReporter reporter,
+    required this.tracker,
+    required this.reporter,
     AppDowngradeCleaner? cleaner,
     UpgradeLogger? logger,
-  }) : _tracker = tracker,
-       _reporter = reporter,
-       _cleaner = cleaner ?? const _NoopDowngradeCleaner(),
+  }) : _cleaner = cleaner ?? const _NoopDowngradeCleaner(),
        _log = logger ?? _noopLogger;
 
-  final AppVersionTracker _tracker;
-  final AppUpgradeReporter _reporter;
+  final AppVersionTracker tracker;
+  final AppUpgradeReporter reporter;
   final AppDowngradeCleaner _cleaner;
   final UpgradeLogger _log;
 
@@ -98,7 +96,7 @@ class AppUpgradeOrchestrator {
   ///   swallowed (isolation)
   /// - Upgrade / first launch / unchanged do not report (log only)
   Future<VersionTransitionResult> onAppStart(String currentVsn) async {
-    final transition = _tracker.detectAndCommit(currentVsn: currentVsn);
+    final transition = tracker.detectAndCommit(currentVsn: currentVsn);
 
     if (transition.isDowngrade) {
       _log(
@@ -121,7 +119,7 @@ class AppUpgradeOrchestrator {
         _log('AppUpgradeOrchestrator: cleaner error $e\n$st');
       }
       try {
-        await _reporter.report(
+        await reporter.report(
           event: 'downgrade',
           targetVsn: transition.currentVsn,
           extra: <String, dynamic>{'from_vsn': transition.previousVsn},

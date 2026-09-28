@@ -43,11 +43,10 @@ void main() {
     }
 
     final width =
-        tester.binding.window.physicalSize.width /
-        tester.binding.window.devicePixelRatio;
+        tester.view.physicalSize.width / tester.view.devicePixelRatio;
     flowLog(
-      '探针 · 窗口 logicalWidth=$width physical=${tester.binding.window.physicalSize.width} '
-      'dpr=${tester.binding.window.devicePixelRatio}',
+      '探针 · 窗口 logicalWidth=$width physical=${tester.view.physicalSize.width} '
+      'dpr=${tester.view.devicePixelRatio}',
     );
     await dump('tap前');
 

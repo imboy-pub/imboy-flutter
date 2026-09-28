@@ -202,7 +202,7 @@ void main() {
   /// 等）的载荷是 protobuf，投递管道帧是 JSON 原文。此前测试只做
   /// utf8.decode，protobuf 字节抛 FormatException 被 catch(_){} 静默
   /// 吞掉——表现为「下行 0 帧」假象（DF-08-1/DF-08-2 ACK 均受累）。
-  String? _payloadToText(Uint8List payload) {
+  String? payloadToText(Uint8List payload) {
     if (payload.isNotEmpty && payload.first == 0x7B /* '{' */ ) {
       return utf8.decode(payload, allowMalformed: true);
     }
@@ -233,7 +233,7 @@ void main() {
               ? data
               : decoded == null
               ? null
-              : _payloadToText(decoded.frame.payload);
+              : payloadToText(decoded.frame.payload);
           if (text == null) return;
           inbound?.add(text);
           final msg = jsonDecode(text);

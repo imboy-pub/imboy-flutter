@@ -22,16 +22,14 @@ import 'package:imboy/page/passport/sse_client.dart';
 /// QR SSE 会话编排器。
 class QrSseSession {
   QrSseSession({
-    required SseClient client,
-    required void Function(QrStatusEvent event) onEvent,
-    required void Function() onFallback,
-  }) : _client = client,
-       _onEvent = onEvent,
-       _onFallback = onFallback;
+    required this.client,
+    required this.onEvent,
+    required this.onFallback,
+  });
 
-  final SseClient _client;
-  final void Function(QrStatusEvent) _onEvent;
-  final void Function() _onFallback;
+  final SseClient client;
+  final void Function(QrStatusEvent) onEvent;
+  final void Function() onFallback;
 
   StreamSubscription<String>? _framesSub;
   StreamSubscription<Object>? _errorsSub;
@@ -46,12 +44,12 @@ class QrSseSession {
   /// gracePeriodSeconds 透传给 [shouldFallbackToPolling]，默认 3 秒。
   Future<void> start(String url, {int gracePeriodSeconds = 3}) async {
     // 1. 先订阅，避免 connect 后立即收到的 frame 丢失
-    _framesSub = _client.frames.listen((raw) {
+    _framesSub = client.frames.listen((raw) {
       if (_stopped) return;
       _silentSeconds = 0; // frame 重置静默计数
-      _onEvent(parseSseFrame(raw));
+      onEvent(parseSseFrame(raw));
     });
-    _errorsSub = _client.errors.listen((_) {
+    _errorsSub = client.errors.listen((_) {
       if (_stopped) return;
       _attemptFailed = true;
     });
@@ -61,20 +59,20 @@ class QrSseSession {
       if (_stopped || _fallbackFired) return;
       _silentSeconds += 1;
       if (shouldFallbackToPolling(
-        sseConnected: _client.isOpen,
+        sseConnected: client.isOpen,
         sseAttemptFailed: _attemptFailed,
         silentSeconds: _silentSeconds,
         gracePeriodSeconds: gracePeriodSeconds,
       )) {
         _fallbackFired = true;
         _watcher?.cancel();
-        _onFallback();
+        onFallback();
       }
     });
 
     // 3. connect 失败也不抛，由 watcher 转 fallback
     try {
-      await _client.connect(url);
+      await client.connect(url);
     } catch (_) {
       _attemptFailed = true;
     }
@@ -102,6 +100,6 @@ class QrSseSession {
     _framesSub = null;
     await _errorsSub?.cancel();
     _errorsSub = null;
-    await _client.close();
+    await client.close();
   }
 }

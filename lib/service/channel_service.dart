@@ -30,29 +30,27 @@ class ChannelService {
   static final ChannelService to = ChannelService._privateConstructor();
   static int _publishRequestSequence = 0;
 
-  final ChannelApi _api;
-  final ChannelRepo _repo;
+  final ChannelApi api;
+  final ChannelRepo repo;
   final ChannelMessageRepo _messageRepo;
   final ChannelMessageOutboxRepo _outboxRepo;
   final ChannelPublishOutboxRepo _publishOutboxRepo;
 
   ChannelService._privateConstructor()
-    : _api = ChannelApi(),
-      _repo = ChannelRepo(),
+    : api = ChannelApi(),
+      repo = ChannelRepo(),
       _messageRepo = ChannelMessageRepo(),
       _outboxRepo = ChannelMessageOutboxRepo(),
       _publishOutboxRepo = ChannelPublishOutboxRepo();
 
   @visibleForTesting
   ChannelService.forTest({
-    required ChannelApi api,
-    required ChannelRepo repo,
+    required this.api,
+    required this.repo,
     ChannelMessageRepo? messageRepo,
     ChannelMessageOutboxRepo? outboxRepo,
     ChannelPublishOutboxRepo? publishOutboxRepo,
-  }) : _api = api,
-       _repo = repo,
-       _messageRepo = messageRepo ?? ChannelMessageRepo(),
+  }) : _messageRepo = messageRepo ?? ChannelMessageRepo(),
        _outboxRepo = outboxRepo ?? ChannelMessageOutboxRepo.noop(),
        _publishOutboxRepo =
            publishOutboxRepo ?? ChannelPublishOutboxRepo.noop();
@@ -69,16 +67,16 @@ class ChannelService {
     List<ChannelModel>? fromList,
   }) async {
     try {
-      final channels = fromList ?? await _api.getSubscribedChannels();
+      final channels = fromList ?? await api.getSubscribedChannels();
 
       // 保存到本地数据库
       for (final channel in channels) {
-        await _repo.saveChannel(channel);
+        await repo.saveChannel(channel);
 
         // 创建订阅关系（如果不存在）
-        final existing = await _repo.getSubscription(channel.id.toString());
+        final existing = await repo.getSubscription(channel.id.toString());
         if (existing == null) {
-          await _repo.saveSubscription(
+          await repo.saveSubscription(
             ChannelSubscriptionModel(
               channelId: channel.id,
               subscribedAt: DateTime.now(),
@@ -98,7 +96,7 @@ class ChannelService {
   /// 获取订阅频道列表（服务端权威）。
   Future<List<ChannelModel>> getSubscribedChannels({int limit = 50}) async {
     try {
-      return await _api.getSubscribedChannels(limit: limit);
+      return await api.getSubscribedChannels(limit: limit);
     } catch (e) {
       // 不 fail-open：唯一调用点 channel_discover_page._loadSubscribedChannelIds
       // 自带 catch，吞在这里只会让它的 catch 变成死代码。
@@ -118,7 +116,7 @@ class ChannelService {
   }) async {
     try {
       await _drainPublishOutbox(channelId);
-      final messages = await _api.getMessages(
+      final messages = await api.getMessages(
         channelId: channelId,
         cursor: cursor,
         limit: limit,
@@ -146,16 +144,16 @@ class ChannelService {
   /// 同时更新服务器和本地数据
   Future<bool> subscribeChannel(String channelId) async {
     try {
-      final success = await _api.subscribe(channelId);
+      final success = await api.subscribe(channelId);
       if (!success) return false;
 
       // 获取频道信息
-      final channel = await _api.getChannel(channelId);
+      final channel = await api.getChannel(channelId);
       if (channel == null) return false;
 
       // 保存频道和订阅关系
-      await _repo.saveChannel(channel);
-      await _repo.saveSubscription(
+      await repo.saveChannel(channel);
+      await repo.saveSubscription(
         ChannelSubscriptionModel(
           channelId: parseModelInt(channelId),
           subscribedAt: DateTime.now(),
@@ -175,11 +173,11 @@ class ChannelService {
   /// 同时更新服务器和本地数据
   Future<bool> unsubscribeChannel(String channelId) async {
     try {
-      final success = await _api.unsubscribe(channelId);
+      final success = await api.unsubscribe(channelId);
       if (!success) return false;
 
       // 删除本地订阅关系（保留频道信息和消息）
-      await _repo.deleteSubscription(channelId);
+      await repo.deleteSubscription(channelId);
 
       iPrint('ChannelService: 取消订阅成功 - $channelId');
       return true;
@@ -192,7 +190,7 @@ class ChannelService {
   /// 获取本地频道订阅配置信息
   Future<ChannelSubscriptionModel?> getSubscription(String channelId) async {
     try {
-      return await _repo.getSubscription(channelId);
+      return await repo.getSubscription(channelId);
     } catch (e) {
       iPrint('ChannelService: 获取本地订阅配置失败 - $e');
       return null;
@@ -202,7 +200,7 @@ class ChannelService {
   /// 设置频道免打扰（静音）状态
   Future<bool> setMuted(String channelId, bool muted) async {
     try {
-      final rows = await _repo.setMuted(channelId, muted);
+      final rows = await repo.setMuted(channelId, muted);
       if (rows > 0) {
         AppEventBus.fire(
           ChannelStateChangedEvent(
@@ -223,7 +221,7 @@ class ChannelService {
   /// 设置频道消息通知启用状态
   Future<bool> setNotificationsEnabled(String channelId, bool enabled) async {
     try {
-      final rows = await _repo.setNotificationsEnabled(channelId, enabled);
+      final rows = await repo.setNotificationsEnabled(channelId, enabled);
       if (rows > 0) {
         AppEventBus.fire(
           ChannelStateChangedEvent(
@@ -257,7 +255,7 @@ class ChannelService {
   }) async {
     final effectiveRequestId = requestId ?? _issuePublishRequestId();
     try {
-      final message = await _api.publishMessage(
+      final message = await api.publishMessage(
         channelId: channelId,
         content: content,
         msgType: msgType,
@@ -332,7 +330,7 @@ class ChannelService {
       final pending = await _publishOutboxRepo.pending(channelId: channelId);
       for (final item in pending) {
         try {
-          final message = await _api.publishMessage(
+          final message = await api.publishMessage(
             channelId: item.channelId,
             content: item.content,
             msgType: item.msgType,
@@ -405,9 +403,9 @@ class ChannelService {
   /// 删除频道。
   Future<bool> deleteChannel(String channelId) async {
     try {
-      final success = await _api.deleteChannel(channelId);
+      final success = await api.deleteChannel(channelId);
       if (!success) return false;
-      await _repo.deleteChannel(channelId);
+      await repo.deleteChannel(channelId);
       iPrint('ChannelService: 删除频道成功 - $channelId');
       return true;
     } catch (e) {
@@ -420,12 +418,12 @@ class ChannelService {
 
   /// 获取频道未读总数
   Future<int> getTotalUnreadCount() async {
-    return await _repo.getTotalUnreadCount();
+    return await repo.getTotalUnreadCount();
   }
 
   /// 获取指定频道的未读数
   Future<int> getUnreadCount(String channelId) async {
-    final subscription = await _repo.getSubscription(channelId);
+    final subscription = await repo.getSubscription(channelId);
     return subscription?.unreadCount ?? 0;
   }
 
@@ -434,7 +432,7 @@ class ChannelService {
   Future<Map<int, int>> getUnreadMap(List<int> channelIds) async {
     final result = <int, int>{};
     for (final id in channelIds) {
-      final sub = await _repo.getSubscription(id.toString());
+      final sub = await repo.getSubscription(id.toString());
       if (sub != null && sub.unreadCount > 0) {
         result[id] = sub.unreadCount;
       }
@@ -447,7 +445,7 @@ class ChannelService {
   /// 由 S2C 消息处理器调用，更新本地未读计数
   Future<void> updateUnreadCount(String channelId, int count) async {
     try {
-      await _repo.updateUnreadCount(channelId, count);
+      await repo.updateUnreadCount(channelId, count);
       iPrint('ChannelService: 更新未读计数 - $channelId: $count');
     } catch (e) {
       iPrint('ChannelService: 更新未读计数失败 - $e');
@@ -464,7 +462,7 @@ class ChannelService {
     int changed = 0;
     int totalUnread = 0;
     try {
-      final summary = await _api.getUnreadSummary();
+      final summary = await api.getUnreadSummary();
       final rawChannels = summary['channels'];
 
       // 载荷守卫：必须显式为 List（含空 List），才可视为「权威未读集合」。
@@ -496,12 +494,12 @@ class ChannelService {
         authoritativeByChannel[channelId] = parseModelInt(row['unread_count']);
       }
 
-      final subscriptions = await _repo.getAllSubscriptions();
+      final subscriptions = await repo.getAllSubscriptions();
       for (final sub in subscriptions) {
         final nextUnread =
             authoritativeByChannel[sub.channelId.toString()] ?? 0;
         if (sub.unreadCount == nextUnread) continue;
-        await _repo.updateUnreadCount(sub.channelId.toString(), nextUnread);
+        await repo.updateUnreadCount(sub.channelId.toString(), nextUnread);
         changed++;
         AppEventBus.fire(
           ChannelUnreadCountUpdatedEvent(
@@ -553,10 +551,10 @@ class ChannelService {
   Future<bool> markAsRead(String channelId, String messageId) async {
     try {
       // 更新服务器
-      await _api.markAsRead(channelId, messageId);
+      await api.markAsRead(channelId, messageId);
 
       // 更新本地
-      await _repo.markAsRead(channelId, messageId);
+      await repo.markAsRead(channelId, messageId);
 
       // 广播 0 未读，驱动 UI 徽标与 _ChannelUnreadCountCache 刷新。
       AppEventBus.fire(
@@ -578,7 +576,7 @@ class ChannelService {
   /// 需后端 `POST /api/v1/channel/:cid/message/:mid/view` 端点已部署。
   Future<bool> recordMessageView(String channelId, String messageId) async {
     try {
-      return await _api.recordMessageView(
+      return await api.recordMessageView(
         channelId: channelId,
         messageId: messageId,
       );
@@ -595,7 +593,7 @@ class ChannelService {
     bool pinned,
   ) async {
     try {
-      final success = await _api.setMessagePinned(channelId, messageId, pinned);
+      final success = await api.setMessagePinned(channelId, messageId, pinned);
       if (success) {
         await _messageRepo.setMessagePinned(messageId, pinned);
       }
@@ -613,7 +611,7 @@ class ChannelService {
   /// 删除频道消息。
   Future<bool> deleteMessage(String channelId, String messageId) async {
     try {
-      final success = await _api.deleteMessage(channelId, messageId);
+      final success = await api.deleteMessage(channelId, messageId);
       if (success) {
         await _messageRepo.deleteMessage(messageId);
         AppEventBus.fire(
@@ -640,7 +638,7 @@ class ChannelService {
   /// 创建订单
   Future<ChannelOrderModel?> createOrder(String channelId) async {
     try {
-      final order = await _api.createOrder(channelId: channelId);
+      final order = await api.createOrder(channelId: channelId);
       if (order == null) return null;
       iPrint('ChannelService: 创建订单成功 - ${order.orderNo}');
       return order;
@@ -653,7 +651,7 @@ class ChannelService {
   /// 支付订单
   Future<bool> payOrder(String orderNo) async {
     try {
-      final success = await _api.payOrder(orderNo: orderNo);
+      final success = await api.payOrder(orderNo: orderNo);
       iPrint('ChannelService: 支付订单${success ? "成功" : "失败"} - $orderNo');
       return success;
     } catch (e) {
@@ -665,7 +663,7 @@ class ChannelService {
   /// 取消待支付订单，避免支付失败后遗留孤儿订单。
   Future<bool> cancelOrder(String orderNo) async {
     try {
-      final success = await _api.cancelOrder(orderNo: orderNo);
+      final success = await api.cancelOrder(orderNo: orderNo);
       iPrint('ChannelService: 取消订单${success ? "成功" : "失败"} - $orderNo');
       return success;
     } catch (e) {
@@ -682,7 +680,7 @@ class ChannelService {
     final paid = await payOrder(order.orderNo);
     if (!paid) {
       try {
-        await _api.cancelOrder(orderNo: order.orderNo);
+        await api.cancelOrder(orderNo: order.orderNo);
       } catch (e) {
         iPrint('ChannelService: 支付失败后回收订单失败 - $e');
       }
@@ -695,7 +693,7 @@ class ChannelService {
   /// 获取我的订单列表
   Future<List<ChannelOrderModel>> getMyOrders() async {
     try {
-      return await _api.getMyOrders();
+      return await api.getMyOrders();
     } catch (e) {
       // 不 fail-open：付费场景把失败伪装成"暂无订单"，用户会以为钱白付了。
       // 调用点 channel_paywall_view._showMyOrdersSheet 已补 catch + 提示。
@@ -707,7 +705,7 @@ class ChannelService {
   /// 获取订单详情
   Future<ChannelOrderModel?> getOrder(String orderNo) async {
     try {
-      return await _api.getOrder(orderNo: orderNo);
+      return await api.getOrder(orderNo: orderNo);
     } catch (e) {
       iPrint('ChannelService: 获取订单详情失败 - $e');
       return null;
@@ -719,7 +717,7 @@ class ChannelService {
   /// 获取我收到的邀请
   Future<List<Map<String, dynamic>>> getMyInvitations() async {
     try {
-      return await _api.getMyInvitations();
+      return await api.getMyInvitations();
     } catch (e) {
       // 不 fail-open：channel_invitation_page 已写好 _error + 重试 UI，
       // 吞掉异常会让"网络挂了"渲染成"你没有任何邀请"。
@@ -731,7 +729,7 @@ class ChannelService {
   /// 获取我发出的邀请
   Future<List<Map<String, dynamic>>> getSentInvitations() async {
     try {
-      return await _api.getSentInvitations();
+      return await api.getSentInvitations();
     } catch (e) {
       // 不 fail-open：两个调用点各自 catch —— channel_invitation_page 渲染
       // 失败态，channel_subscriber_page 降级为不过滤联系人。
@@ -743,7 +741,7 @@ class ChannelService {
   /// 接受邀请
   Future<bool> acceptInvitation(String invitationId) async {
     try {
-      final success = await _api.acceptInvitation(invitationId: invitationId);
+      final success = await api.acceptInvitation(invitationId: invitationId);
       iPrint('ChannelService: 接受邀请${success ? "成功" : "失败"} - $invitationId');
       return success;
     } catch (e) {
@@ -755,7 +753,7 @@ class ChannelService {
   /// 拒绝邀请
   Future<bool> rejectInvitation(String invitationId) async {
     try {
-      final success = await _api.rejectInvitation(invitationId: invitationId);
+      final success = await api.rejectInvitation(invitationId: invitationId);
       iPrint('ChannelService: 拒绝邀请${success ? "成功" : "失败"} - $invitationId');
       return success;
     } catch (e) {
@@ -773,7 +771,7 @@ class ChannelService {
   }) async {
     if (channelId.isEmpty || inviteeUid.isEmpty) return false;
     try {
-      final result = await _api.createInvitation(
+      final result = await api.createInvitation(
         channelId: channelId,
         inviteeUid: inviteeUid,
       );
@@ -793,7 +791,7 @@ class ChannelService {
   /// 获取频道统计。
   Future<ChannelStatsModel?> getChannelStats(String channelId) async {
     try {
-      return await _api.getChannelStats(channelId);
+      return await api.getChannelStats(channelId);
     } catch (e) {
       iPrint('ChannelService: 获取频道统计失败 - $e');
       return null;
@@ -807,7 +805,7 @@ class ChannelService {
     required String reactionType,
   }) async {
     try {
-      final success = await _api.addReaction(
+      final success = await api.addReaction(
         channelId: channelId,
         messageId: messageId,
         reactionType: reactionType,
@@ -827,7 +825,7 @@ class ChannelService {
     required String reactionType,
   }) async {
     try {
-      final success = await _api.removeReaction(
+      final success = await api.removeReaction(
         channelId: channelId,
         messageId: messageId,
         reactionType: reactionType,
@@ -860,7 +858,7 @@ class ChannelService {
       await _messageRepo.saveMessage(message);
 
       // 更新未读计数
-      await _repo.incrementUnreadCount(message.channelId.toString());
+      await repo.incrementUnreadCount(message.channelId.toString());
 
       iPrint('ChannelService: 收到频道消息 - ${message.id}');
 
@@ -887,11 +885,11 @@ class ChannelService {
       if (channelId.isEmpty) return;
 
       // 检查本地是否已有订阅；幂等：重复 S2C 不触发二次事件。
-      final existing = await _repo.getSubscription(channelId);
+      final existing = await repo.getSubscription(channelId);
       if (existing != null) return;
 
       // 获取并保存频道信息
-      final channel = await _api.getChannel(channelId);
+      final channel = await api.getChannel(channelId);
       if (channel == null) return;
       // handleChannelUpdated 已有等价守卫：id=0 表示后端载荷异常/sentinel，
       // 写库会污染 channel/channel_subscription 两张表并可能触发 UI 跳转到
@@ -901,8 +899,8 @@ class ChannelService {
         return;
       }
 
-      await _repo.saveChannel(channel);
-      await _repo.saveSubscription(
+      await repo.saveChannel(channel);
+      await repo.saveSubscription(
         ChannelSubscriptionModel(
           channelId: parseModelInt(channelId),
           subscribedAt: DateTime.now(),
@@ -928,7 +926,7 @@ class ChannelService {
     try {
       final channelId = parseModelString(data['channel_id']);
       if (channelId.isEmpty) return;
-      await _repo.deleteSubscription(channelId);
+      await repo.deleteSubscription(channelId);
       // 级联清理本地消息：取消订阅后该频道不再可访问，保留消息仅徒增占用。
       await _messageRepo.deleteMessagesByChannel(channelId);
 
@@ -959,7 +957,7 @@ class ChannelService {
         iPrint('ChannelService: 忽略缺少 channel.id 的更新通知');
         return;
       }
-      await _repo.saveChannel(channel);
+      await repo.saveChannel(channel);
       AppEventBus.fire(
         ChannelStateChangedEvent(
           channelId: channel.id.toString(),
@@ -979,7 +977,7 @@ class ChannelService {
     try {
       final channelId = parseModelString(data['channel_id']);
       if (channelId.isEmpty) return;
-      await _repo.deleteChannel(channelId);
+      await repo.deleteChannel(channelId);
       // 级联清理本地消息：频道被删除后消息已无归属，避免孤儿行长期占用空间
       // 并污染全局消息计数。
       await _messageRepo.deleteMessagesByChannel(channelId);
@@ -1092,11 +1090,11 @@ class ChannelService {
     try {
       final channelId = parseModelString(data['channel_id']);
       if (channelId.isEmpty) return;
-      final channel = await _api.getChannel(channelId);
+      final channel = await api.getChannel(channelId);
       // 与 handleChannelSubscribed 对齐：id=0 视为无效载荷，不写库但仍广播
       // 事件让 UI 感知（邀请已接受，但频道详情拉取失败由用户手动重试）。
       if (channel != null && channel.id != 0) {
-        await _repo.saveChannel(channel);
+        await repo.saveChannel(channel);
       }
       AppEventBus.fire(
         ChannelStateChangedEvent(
@@ -1134,13 +1132,13 @@ class ChannelService {
   /// 搜索频道
   Future<List<ChannelModel>> searchChannels(String keyword) async {
     // 先搜索本地
-    final localResults = await _repo.searchChannels(keyword);
+    final localResults = await repo.searchChannels(keyword);
     if (localResults.isNotEmpty) {
       return localResults;
     }
 
     // 本地无结果，从服务器搜索
-    return await _api.searchChannels(keyword);
+    return await api.searchChannels(keyword);
   }
 
   /// 发现频道（分类/排序/分页，channel_discovery_handler 契约）
@@ -1150,7 +1148,7 @@ class ChannelService {
     int page = 1,
     int size = 20,
   }) async {
-    return await _api.discoverChannels(
+    return await api.discoverChannels(
       categoryId: categoryId,
       sort: sort,
       page: page,
@@ -1160,7 +1158,7 @@ class ChannelService {
 
   /// 频道分类列表
   Future<List<Map<String, dynamic>>> channelCategories() {
-    return _api.channelCategories();
+    return api.channelCategories();
   }
 
   // ==================== 辅助方法 ====================
@@ -1168,13 +1166,13 @@ class ChannelService {
   /// 获取频道信息（优先本地）
   Future<ChannelModel?> getChannel(String channelId) async {
     // 先从本地获取
-    final local = await _repo.getChannel(channelId);
+    final local = await repo.getChannel(channelId);
     if (local != null) return local;
 
     // 本地无数据，从服务器获取
-    final remote = await _api.getChannel(channelId);
+    final remote = await api.getChannel(channelId);
     if (remote != null) {
-      await _repo.saveChannel(remote);
+      await repo.saveChannel(remote);
     }
     return remote;
   }
@@ -1185,25 +1183,25 @@ class ChannelService {
   /// `hasPurchased` 可能遮蔽服务端最新状态。远端没有成功返回时保持 null，
   /// 调用方不得用旧缓存绕过付费权限判断。
   Future<ChannelModel?> refreshChannel(String channelId) async {
-    final remote = await _api.getChannel(channelId);
+    final remote = await api.getChannel(channelId);
     if (remote == null) return null;
-    await _repo.saveChannel(remote);
+    await repo.saveChannel(remote);
     return remote;
   }
 
   /// 保存已由服务端确认的频道快照（例如 custom_id 详情路径）。
   Future<void> cacheChannelSnapshot(ChannelModel channel) async {
-    await _repo.saveChannel(channel);
+    await repo.saveChannel(channel);
   }
 
   /// 检查是否已订阅
   Future<bool> isSubscribed(String channelId) async {
-    return await _repo.isSubscribed(channelId);
+    return await repo.isSubscribed(channelId);
   }
 
   /// 获取订阅的频道列表（含订阅信息）
   Future<List<Map<String, dynamic>>> getSubscribedChannelsWithInfo() async {
-    return await _repo.getSubscribedChannelsWithSubscription();
+    return await repo.getSubscribedChannelsWithSubscription();
   }
 
   /// 清理过期数据
@@ -1211,7 +1209,7 @@ class ChannelService {
   /// [keepCount] 每个频道保留的消息数量
   Future<void> cleanupOldData({int keepCount = 1000}) async {
     try {
-      final subscriptions = await _repo.getAllSubscriptions();
+      final subscriptions = await repo.getAllSubscriptions();
       for (final sub in subscriptions) {
         await _messageRepo.deleteOldMessages(
           sub.channelId.toString(),
@@ -1234,7 +1232,7 @@ class ChannelService {
     int limit = 20,
   }) async {
     try {
-      return await _api.getComments(
+      return await api.getComments(
         channelId: channelId,
         messageId: messageId,
         cursor: cursor,
@@ -1254,7 +1252,7 @@ class ChannelService {
     int parentId = 0,
   }) async {
     try {
-      final comment = await _api.createComment(
+      final comment = await api.createComment(
         channelId: channelId,
         messageId: messageId,
         content: content,
@@ -1274,7 +1272,7 @@ class ChannelService {
     required String commentId,
   }) async {
     try {
-      return await _api.deleteComment(
+      return await api.deleteComment(
         channelId: channelId,
         commentId: commentId,
       );
@@ -1290,7 +1288,7 @@ class ChannelService {
     required String commentId,
   }) async {
     try {
-      return await _api.likeComment(channelId: channelId, commentId: commentId);
+      return await api.likeComment(channelId: channelId, commentId: commentId);
     } catch (e) {
       iPrint('ChannelService: 点赞评论失败 - $e');
       return false;
@@ -1303,7 +1301,7 @@ class ChannelService {
     required String commentId,
   }) async {
     try {
-      return await _api.unlikeComment(
+      return await api.unlikeComment(
         channelId: channelId,
         commentId: commentId,
       );
