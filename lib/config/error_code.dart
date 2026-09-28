@@ -102,9 +102,9 @@ class ErrorCode {
 
   /// 服务器内部错误
   static const int INTERNAL_SERVER_ERROR = 500;
+  static const int SERVER_ERROR = 500;
   static const int OPERATION_FAILED = 500;
   static const int BUSINESS_FAILED = 500;
-  static const int SERVER_ERROR = 500;
 
   /// 错误码 501
   static const int NOT_IMPLEMENTED = 501;
@@ -543,6 +543,12 @@ class ErrorCode {
   /// 错误码 5487
   static const int REVIEW_CHAR_REVIEWS_INVALID = 5487;
 
+  /// 错误码 5488
+  static const int SUBSCRIBE_TEMPLATES_INVALID = 5488;
+
+  /// 错误码 5489
+  static const int INVITE_CODE_INVALID = 5489;
+
   // =====================================================================
   // 错误消息映射
   // =====================================================================
@@ -701,6 +707,8 @@ class ErrorCode {
     5485: '回评内容为空',
     5486: '回评已发布，不能再保存草稿',
     5487: '逐字点评字卡数据不合规',
+    5488: '订阅消息模板列表非法',
+    5489: '邀请码无效或已失效',
   };
 
   /// 获取错误码对应的默认消息
