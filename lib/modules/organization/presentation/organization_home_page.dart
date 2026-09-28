@@ -98,6 +98,13 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
       final org = await _api.create(name: name);
       _cache.invalidateOrg(org.id);
       await _refresh();
+      // 创建可能落 pending（待运营审核）：成功 ≠ 立即可用，如实告知。
+      if (!mounted) return;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text(t.organization.home.createSubmittedPendingReview),
+        ),
+      );
     } on OrganizationApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
@@ -226,10 +233,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  subtitle: Text(
-                    '${orgRoleLabel(o.memberRole.isEmpty ? 'member' : o.memberRole)}'
-                    '${o.isArchived ? ' · ${orgStatusLabel(o.status)}' : ''}',
-                  ),
+                  subtitle: orgListSubtitle(context, o),
                   trailing: const Icon(CupertinoIcons.chevron_right),
                   onTap: () => context.push('$kOrganizationHomePath/${o.id}'),
                 ),

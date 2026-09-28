@@ -2687,6 +2687,8 @@ class _Translations$organization$common$ja_JP extends Translations$organization$
 	@override String get uidMustBePositive => 'ユーザー UID は正の整数である必要があります';
 	@override String get loading => '読み込み中…';
 	@override String get loadMore => 'さらに読み込む';
+	@override String get orgStatusPending => '審査中';
+	@override String get orgStatusRejected => '審査不合格';
 }
 
 // Path: organization.home
@@ -2699,6 +2701,7 @@ class _Translations$organization$home$ja_JP extends Translations$organization$ho
 	@override String get createOrg => '組織を作成';
 	@override String get orgNameLabel => '組織名（1-200 文字）';
 	@override String createFailedWith({required Object msg, required Object code}) => '作成に失敗しました：${msg} (${code})';
+	@override String get createSubmittedPendingReview => '送信しました。運営の審査を待っています。審査に合格すると企業を利用できます';
 	@override String get tabOrg => '組織';
 	@override String get myInvitations => '自分の招待';
 	@override String get emptyHint => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください';
@@ -2901,6 +2904,9 @@ class _Translations$organization$picker$ja_JP extends Translations$organization$
 	@override String get joinCodeOnlyHint => '8桁の企業招待コードを入力';
 	@override String get joinConfirmTitle => '参加の確認';
 	@override String joinConfirmWith({required Object name}) => '「${name}」に参加します';
+	@override String joinConfirmWithRole({required Object role, required Object name}) => '${role} として「${name}」に参加しますか？';
+	@override String get joinRoleMember => '一般メンバー';
+	@override String get joinRoleAdmin => '管理者';
 	@override String get joinConfirmSubmit => '参加を確認';
 	@override String get joinBack => '戻る';
 	@override String get joinQrHint => '企業招待 QR コードにかざしてください';
@@ -2929,6 +2935,7 @@ class _Translations$organization$inviteQr$ja_JP extends Translations$organizatio
 	@override String get notAdmin => '招待コードを管理できるのは企業の Owner/Admin のみです';
 	@override String get copyCode => 'コードをコピー';
 	@override String get copied => '招待コードをコピーしました';
+	@override String get inviteDisabledPending => '企業は審査待ちです。審査に合格するとメンバーを招待できます';
 }
 
 // Path: organization.directory
@@ -5171,9 +5178,12 @@ extension on TranslationsJaJp {
 			'organization.common.uidMustBePositive' => 'ユーザー UID は正の整数である必要があります',
 			'organization.common.loading' => '読み込み中…',
 			'organization.common.loadMore' => 'さらに読み込む',
+			'organization.common.orgStatusPending' => '審査中',
+			'organization.common.orgStatusRejected' => '審査不合格',
 			'organization.home.createOrg' => '組織を作成',
 			'organization.home.orgNameLabel' => '組織名（1-200 文字）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '作成に失敗しました：${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => '送信しました。運営の審査を待っています。審査に合格すると企業を利用できます',
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '自分の招待',
 			'organization.home.emptyHint' => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください',
@@ -5184,11 +5194,11 @@ extension on TranslationsJaJp {
 			'organization.detail.restoreOrg' => '組織を復元',
 			'organization.detail.restoreConfirmBody' => '復元後、組織は active 状態に戻り、書き込みが再度可能になります。',
 			'organization.detail.confirmRestore' => '復元を確認',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.restoreFailed' => '復元に失敗しました',
 			'organization.detail.archiveFailed' => 'アーカイブに失敗しました',
 			'organization.detail.renameOrgTitle' => '組織名を変更',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => '組織名（1-200 文字）',
 			'organization.detail.renameAction' => '名前を変更',
 			'organization.detail.renameFailed' => '名前の変更に失敗しました',
@@ -5333,6 +5343,9 @@ extension on TranslationsJaJp {
 			'organization.picker.joinCodeOnlyHint' => '8桁の企業招待コードを入力',
 			'organization.picker.joinConfirmTitle' => '参加の確認',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '「${name}」に参加します',
+			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '${role} として「${name}」に参加しますか？',
+			'organization.picker.joinRoleMember' => '一般メンバー',
+			'organization.picker.joinRoleAdmin' => '管理者',
 			'organization.picker.joinConfirmSubmit' => '参加を確認',
 			'organization.picker.joinBack' => '戻る',
 			'organization.picker.joinQrHint' => '企業招待 QR コードにかざしてください',
@@ -5352,6 +5365,7 @@ extension on TranslationsJaJp {
 			'organization.inviteQr.notAdmin' => '招待コードを管理できるのは企業の Owner/Admin のみです',
 			'organization.inviteQr.copyCode' => 'コードをコピー',
 			'organization.inviteQr.copied' => '招待コードをコピーしました',
+			'organization.inviteQr.inviteDisabledPending' => '企業は審査待ちです。審査に合格するとメンバーを招待できます',
 			'organization.directory.title' => 'ディレクトリ',
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => 'すべてのメンバー',
@@ -5694,6 +5708,8 @@ extension on TranslationsJaJp {
 			'workspace.projectMemberInviteExisting' => 'このユーザーは既にプロジェクトメンバーです',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'プロジェクトメンバー ${name} を削除',
 			'workspace.projectMemberRemoveConfirmDesc' => '削除すると、このユーザーはこのプロジェクトのコンテンツにアクセスできなくなります（再招待可能）',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => '削除',
 			'workspace.projectMemberRemovedToast' => '削除しました',
 			'workspace.projectMemberAlreadyRemovedToast' => 'このユーザーは既にプロジェクトメンバーではありません',
@@ -5701,8 +5717,6 @@ extension on TranslationsJaJp {
 			'workspace.projectMemberTransferDesc' => '移譲後、相手がこのプロジェクトの完全な管理権を取得します',
 			'workspace.projectMemberTransferConfirm' => '移譲を確認',
 			'workspace.projectMemberTransferDoneToast' => 'プロジェクト担当者を移譲しました',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => 'マイルストーン',
 			'workspace.projectMilestoneEmptyTitle' => 'マイルストーンはまだありません',
 			'workspace.projectMilestoneEmptySubtitle' => 'マイルストーンでプロジェクトの重要な節目を記録します（計画中 → 達成、一方通行）',

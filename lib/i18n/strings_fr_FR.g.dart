@@ -2690,6 +2690,8 @@ class _Translations$organization$common$fr_FR extends Translations$organization$
 	@override String get uidMustBePositive => 'L\'UID utilisateur doit être un entier positif';
 	@override String get loading => 'Chargement…';
 	@override String get loadMore => 'Charger plus';
+	@override String get orgStatusPending => 'En cours d\'examen';
+	@override String get orgStatusRejected => 'Examen non validé';
 }
 
 // Path: organization.home
@@ -2702,6 +2704,7 @@ class _Translations$organization$home$fr_FR extends Translations$organization$ho
 	@override String get createOrg => 'Créer une organisation';
 	@override String get orgNameLabel => 'Nom de l\'organisation (1-200 caractères)';
 	@override String createFailedWith({required Object msg, required Object code}) => 'Échec de la création : ${msg} (${code})';
+	@override String get createSubmittedPendingReview => 'Envoyé. En attente de validation par l\'équipe des opérations ; l\'entreprise pourra être utilisée normalement une fois validée';
 	@override String get tabOrg => 'Organisations';
 	@override String get myInvitations => 'Mes invitations';
 	@override String get emptyHint => 'Vous n\'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite';
@@ -2904,6 +2907,9 @@ class _Translations$organization$picker$fr_FR extends Translations$organization$
 	@override String get joinCodeOnlyHint => 'Saisir le code d\'invitation à 8 caractères';
 	@override String get joinConfirmTitle => 'Confirmer l\'adhésion';
 	@override String joinConfirmWith({required Object name}) => 'Vous allez rejoindre « ${name} »';
+	@override String joinConfirmWithRole({required Object name, required Object role}) => 'Rejoindre « ${name} » en tant que ${role} ?';
+	@override String get joinRoleMember => 'Membre standard';
+	@override String get joinRoleAdmin => 'Admin';
 	@override String get joinConfirmSubmit => 'Confirmer';
 	@override String get joinBack => 'Retour';
 	@override String get joinQrHint => 'Visez le QR code d\'invitation d\'entreprise';
@@ -2932,6 +2938,7 @@ class _Translations$organization$inviteQr$fr_FR extends Translations$organizatio
 	@override String get notAdmin => 'Seuls le propriétaire/admin de l\'entreprise peuvent gérer les codes d\'invitation';
 	@override String get copyCode => 'Copier le code';
 	@override String get copied => 'Code d\'invitation copié';
+	@override String get inviteDisabledPending => 'L\'entreprise est en attente d\'examen ; les membres pourront être invités une fois celle-ci validée';
 }
 
 // Path: organization.directory
@@ -5174,9 +5181,12 @@ extension on TranslationsFrFr {
 			'organization.common.uidMustBePositive' => 'L\'UID utilisateur doit être un entier positif',
 			'organization.common.loading' => 'Chargement…',
 			'organization.common.loadMore' => 'Charger plus',
+			'organization.common.orgStatusPending' => 'En cours d\'examen',
+			'organization.common.orgStatusRejected' => 'Examen non validé',
 			'organization.home.createOrg' => 'Créer une organisation',
 			'organization.home.orgNameLabel' => 'Nom de l\'organisation (1-200 caractères)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Échec de la création : ${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => 'Envoyé. En attente de validation par l\'équipe des opérations ; l\'entreprise pourra être utilisée normalement une fois validée',
 			'organization.home.tabOrg' => 'Organisations',
 			'organization.home.myInvitations' => 'Mes invitations',
 			'organization.home.emptyHint' => 'Vous n\'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite',
@@ -5187,11 +5197,11 @@ extension on TranslationsFrFr {
 			'organization.detail.restoreOrg' => 'Restaurer l\'organisation',
 			'organization.detail.restoreConfirmBody' => 'Après restauration, l\'organisation revient à l\'état active et les écritures sont de nouveau ouvertes.',
 			'organization.detail.confirmRestore' => 'Confirmer la restauration',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.restoreFailed' => 'Échec de la restauration',
 			'organization.detail.archiveFailed' => 'Échec de l\'archivage',
 			'organization.detail.renameOrgTitle' => 'Renommer l\'organisation',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => 'Nom de l\'organisation (1-200 caractères)',
 			'organization.detail.renameAction' => 'Renommer',
 			'organization.detail.renameFailed' => 'Échec du renommage',
@@ -5336,6 +5346,9 @@ extension on TranslationsFrFr {
 			'organization.picker.joinCodeOnlyHint' => 'Saisir le code d\'invitation à 8 caractères',
 			'organization.picker.joinConfirmTitle' => 'Confirmer l\'adhésion',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'Vous allez rejoindre « ${name} »',
+			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'Rejoindre « ${name} » en tant que ${role} ?',
+			'organization.picker.joinRoleMember' => 'Membre standard',
+			'organization.picker.joinRoleAdmin' => 'Admin',
 			'organization.picker.joinConfirmSubmit' => 'Confirmer',
 			'organization.picker.joinBack' => 'Retour',
 			'organization.picker.joinQrHint' => 'Visez le QR code d\'invitation d\'entreprise',
@@ -5355,6 +5368,7 @@ extension on TranslationsFrFr {
 			'organization.inviteQr.notAdmin' => 'Seuls le propriétaire/admin de l\'entreprise peuvent gérer les codes d\'invitation',
 			'organization.inviteQr.copyCode' => 'Copier le code',
 			'organization.inviteQr.copied' => 'Code d\'invitation copié',
+			'organization.inviteQr.inviteDisabledPending' => 'L\'entreprise est en attente d\'examen ; les membres pourront être invités une fois celle-ci validée',
 			'organization.directory.title' => 'Annuaire',
 			'organization.directory.deptSection' => 'Départements',
 			'organization.directory.allMembersSection' => 'Tous les membres',
@@ -5697,6 +5711,8 @@ extension on TranslationsFrFr {
 			'workspace.projectMemberInviteExisting' => 'Cet utilisateur est déjà membre du projet',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Retirer le membre du projet ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => 'Après le retrait, l\'utilisateur perdra l\'accès au contenu de ce projet (réinvitation possible)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => 'Retirer',
 			'workspace.projectMemberRemovedToast' => 'Membre retiré',
 			'workspace.projectMemberAlreadyRemovedToast' => 'Cet utilisateur n\'est plus membre du projet',
@@ -5704,8 +5720,6 @@ extension on TranslationsFrFr {
 			'workspace.projectMemberTransferDesc' => 'Après le transfert, il obtiendra le contrôle total de ce projet',
 			'workspace.projectMemberTransferConfirm' => 'Confirmer le transfert',
 			'workspace.projectMemberTransferDoneToast' => 'Responsable du projet transféré',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => 'Jalons',
 			'workspace.projectMilestoneEmptyTitle' => 'Aucun jalon pour le moment',
 			'workspace.projectMilestoneEmptySubtitle' => 'Marquez les étapes clés du projet avec des jalons (planifié → atteint, sans retour arrière)',

@@ -2696,6 +2696,8 @@ class _Translations$organization$common$ru_RU extends Translations$organization$
 	@override String get uidMustBePositive => 'UID пользователя должен быть положительным целым числом';
 	@override String get loading => 'Загрузка…';
 	@override String get loadMore => 'Загрузить ещё';
+	@override String get orgStatusPending => 'На проверке';
+	@override String get orgStatusRejected => 'Проверка не пройдена';
 }
 
 // Path: organization.home
@@ -2708,6 +2710,7 @@ class _Translations$organization$home$ru_RU extends Translations$organization$ho
 	@override String get createOrg => 'Создать организацию';
 	@override String get orgNameLabel => 'Название организации (1-200 символов)';
 	@override String createFailedWith({required Object msg, required Object code}) => 'Не удалось создать: ${msg} (${code})';
+	@override String get createSubmittedPendingReview => 'Отправлено. Ожидается проверка со стороны операторов; после одобрения предприятие можно будет использовать';
 	@override String get tabOrg => 'Организации';
 	@override String get myInvitations => 'Мои приглашения';
 	@override String get emptyHint => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху';
@@ -2910,6 +2913,9 @@ class _Translations$organization$picker$ru_RU extends Translations$organization$
 	@override String get joinCodeOnlyHint => 'Введите 8-значный код приглашения';
 	@override String get joinConfirmTitle => 'Подтвердите вход';
 	@override String joinConfirmWith({required Object name}) => 'Вы собираетесь присоединиться к «${name}»';
+	@override String joinConfirmWithRole({required Object name, required Object role}) => 'Вступить в «${name}» в роли ${role}?';
+	@override String get joinRoleMember => 'Обычный участник';
+	@override String get joinRoleAdmin => 'Администратор';
 	@override String get joinConfirmSubmit => 'Присоединиться';
 	@override String get joinBack => 'Назад';
 	@override String get joinQrHint => 'Наведите на QR-код приглашения в организацию';
@@ -2938,6 +2944,7 @@ class _Translations$organization$inviteQr$ru_RU extends Translations$organizatio
 	@override String get notAdmin => 'Управлять кодами может только владелец/админ организации';
 	@override String get copyCode => 'Копировать код';
 	@override String get copied => 'Код приглашения скопирован';
+	@override String get inviteDisabledPending => 'Предприятие ожидает проверки; приглашать участников можно будет только после одобрения';
 }
 
 // Path: organization.directory
@@ -5180,9 +5187,12 @@ extension on TranslationsRuRu {
 			'organization.common.uidMustBePositive' => 'UID пользователя должен быть положительным целым числом',
 			'organization.common.loading' => 'Загрузка…',
 			'organization.common.loadMore' => 'Загрузить ещё',
+			'organization.common.orgStatusPending' => 'На проверке',
+			'organization.common.orgStatusRejected' => 'Проверка не пройдена',
 			'organization.home.createOrg' => 'Создать организацию',
 			'organization.home.orgNameLabel' => 'Название организации (1-200 символов)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Не удалось создать: ${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => 'Отправлено. Ожидается проверка со стороны операторов; после одобрения предприятие можно будет использовать',
 			'organization.home.tabOrg' => 'Организации',
 			'organization.home.myInvitations' => 'Мои приглашения',
 			'organization.home.emptyHint' => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху',
@@ -5193,11 +5203,11 @@ extension on TranslationsRuRu {
 			'organization.detail.restoreOrg' => 'Восстановить организацию',
 			'organization.detail.restoreConfirmBody' => 'После восстановления организация возвращается в состояние active, запись снова открывается.',
 			'organization.detail.confirmRestore' => 'Подтвердить восстановление',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.restoreFailed' => 'Не удалось восстановить',
 			'organization.detail.archiveFailed' => 'Не удалось архивировать',
 			'organization.detail.renameOrgTitle' => 'Переименовать организацию',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => 'Название организации (1-200 символов)',
 			'organization.detail.renameAction' => 'Переименовать',
 			'organization.detail.renameFailed' => 'Не удалось переименовать',
@@ -5342,6 +5352,9 @@ extension on TranslationsRuRu {
 			'organization.picker.joinCodeOnlyHint' => 'Введите 8-значный код приглашения',
 			'organization.picker.joinConfirmTitle' => 'Подтвердите вход',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'Вы собираетесь присоединиться к «${name}»',
+			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'Вступить в «${name}» в роли ${role}?',
+			'organization.picker.joinRoleMember' => 'Обычный участник',
+			'organization.picker.joinRoleAdmin' => 'Администратор',
 			'organization.picker.joinConfirmSubmit' => 'Присоединиться',
 			'organization.picker.joinBack' => 'Назад',
 			'organization.picker.joinQrHint' => 'Наведите на QR-код приглашения в организацию',
@@ -5361,6 +5374,7 @@ extension on TranslationsRuRu {
 			'organization.inviteQr.notAdmin' => 'Управлять кодами может только владелец/админ организации',
 			'organization.inviteQr.copyCode' => 'Копировать код',
 			'organization.inviteQr.copied' => 'Код приглашения скопирован',
+			'organization.inviteQr.inviteDisabledPending' => 'Предприятие ожидает проверки; приглашать участников можно будет только после одобрения',
 			'organization.directory.title' => 'Справочник',
 			'organization.directory.deptSection' => 'Отделы',
 			'organization.directory.allMembersSection' => 'Все участники',
@@ -5703,6 +5717,8 @@ extension on TranslationsRuRu {
 			'workspace.projectMemberInviteExisting' => 'Этот пользователь уже участник проекта',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Удалить участника проекта ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => 'После удаления пользователь потеряет доступ к содержимому проекта (можно пригласить снова)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => 'Удалить',
 			'workspace.projectMemberRemovedToast' => 'Удалено',
 			'workspace.projectMemberAlreadyRemovedToast' => 'Этого пользователя уже нет среди участников проекта',
@@ -5710,8 +5726,6 @@ extension on TranslationsRuRu {
 			'workspace.projectMemberTransferDesc' => 'После передачи получатель получит полные права управления проектом',
 			'workspace.projectMemberTransferConfirm' => 'Подтвердить передачу',
 			'workspace.projectMemberTransferDoneToast' => 'Ответственный за проект передан',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => 'Этапы',
 			'workspace.projectMilestoneEmptyTitle' => 'Пока нет этапов',
 			'workspace.projectMilestoneEmptySubtitle' => 'Отмечайте ключевые точки проекта этапами (в плане → достигнут, только вперёд)',

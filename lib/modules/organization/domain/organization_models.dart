@@ -361,12 +361,21 @@ class OrgInvitePreview {
   final EntityId organizationId;
   final String name;
 
-  const OrgInvitePreview({this.organizationId = '', this.name = ''});
+  /// 凭码加入后的初始角色（发码方指定）：member | admin。旧出站投影缺该
+  /// 字段时兜底 'member'（宽容解析，不臆造 admin 权限语义）。
+  final String role;
+
+  const OrgInvitePreview({
+    this.organizationId = '',
+    this.name = '',
+    this.role = 'member',
+  });
 
   factory OrgInvitePreview.fromJson(Map<String, dynamic> json) {
     return OrgInvitePreview(
       organizationId: entityIdOf(json['organization_id']),
       name: parseModelString(json['name']),
+      role: parseModelString(json['role'], defaultValue: 'member'),
     );
   }
 }

@@ -15,10 +15,15 @@ common:
   uidMustBePositive: "يجب أن يكون UID المستخدم عدداً صحيحاً موجباً"
   loading: "جارٍ التحميل…"
   loadMore: "تحميل المزيد"
+  # شارة حالة دورة مراجعة المنظمة (مشتركة في صفوف القوائم home / picker)
+  orgStatusPending: "قيد المراجعة"
+  orgStatusRejected: "لم تجتز المراجعة"
 home:
   createOrg: "إنشاء منظمة"
   orgNameLabel: "اسم المنظمة (1-200 حرفاً)"
   createFailedWith: "فشل الإنشاء: ${msg} (${code})"
+  # قد ينتهي الإنشاء بحالة pending (بانتظار مراجعة العمليات): النجاح ≠ قابل للاستخدام فورًا
+  createSubmittedPendingReview: "تم الإرسال. بانتظار مراجعة فريق العمليات؛ يمكن استخدام المؤسسة بشكل طبيعي بعد الموافقة"
   tabOrg: "المنظمات"
   myInvitations: "دعواتي"
   emptyHint: "لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين"
@@ -182,6 +187,9 @@ picker:
   joinCodeOnlyHint: "أدخل رمز الدعوة المكوّن من 8 أحرف"
   joinConfirmTitle: "تأكيد الانضمام"
   joinConfirmWith: "أنت على وشك الانضمام إلى \"${name}\""
+  joinConfirmWithRole: "الانضمام إلى \"${name}\" بصفتك ${role}؟"
+  joinRoleMember: "عضو عادي"
+  joinRoleAdmin: "مسؤول"
   joinConfirmSubmit: "تأكيد"
   joinBack: "رجوع"
   joinQrHint: "وجّه الكاميرا نحو رمز QR لدعوة المؤسسة"
@@ -204,6 +212,8 @@ inviteQr:
   notAdmin: "يمكن لمالك/مسؤول المؤسسة فقط إدارة رموز الدعوة"
   copyCode: "نسخ الرمز"
   copied: "تم نسخ رمز الدعوة"
+  # تلميح تعطيل مدخل إصدار الرمز للمؤسسات pending/rejected (preview/join على الخادم دائمًا 409)
+  inviteDisabledPending: "المؤسسة بانتظار المراجعة؛ لا يمكن دعوة الأعضاء إلا بعد اجتيازها"
 directory:
   title: "الدليل"
   deptSection: "الأقسام"

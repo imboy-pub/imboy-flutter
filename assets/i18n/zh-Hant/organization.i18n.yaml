@@ -15,10 +15,15 @@ common:
   uidMustBePositive: "使用者 UID 必須是正整數"
   loading: "載入中…"
   loadMore: "載入更多"
+  # 組織審核流狀態徽章（home / picker 列表行共用）
+  orgStatusPending: "審核中"
+  orgStatusRejected: "未通過審核"
 home:
   createOrg: "建立組織"
   orgNameLabel: "組織名稱（1-200 字元）"
   createFailedWith: "建立失敗：${msg} (${code})"
+  # 建立可能落 pending（待營運審核）：成功 ≠ 立即可用
+  createSubmittedPendingReview: "已提交，等待營運審核，審核通過後企業可正常使用"
   tabOrg: "組織"
   myInvitations: "我的邀請"
   emptyHint: "尚未加入任何組織\n下拉重新整理或點擊右上角建立"
@@ -182,6 +187,9 @@ picker:
   joinCodeOnlyHint: 輸入 8 位企業邀請碼
   joinConfirmTitle: 確認加入企業
   joinConfirmWith: "將加入企業「${name}」"
+  joinConfirmWithRole: "確認以 ${role} 身份加入「${name}」？"
+  joinRoleMember: "一般成員"
+  joinRoleAdmin: "管理員"
   joinConfirmSubmit: 確認加入
   joinBack: 返回修改
   joinQrHint: 對準企業邀請 QR 碼即可自動加入
@@ -204,6 +212,8 @@ inviteQr:
   notAdmin: 僅企業 Owner/Admin 可管理邀請碼
   copyCode: 複製邀請碼
   copied: 已複製邀請碼
+  # pending/rejected 企業出碼入口停用提示（伺服器 preview/join 一律 409）
+  inviteDisabledPending: "企業待審核，審核通過後才能邀請成員"
 directory:
   title: 通訊錄
   deptSection: 部門

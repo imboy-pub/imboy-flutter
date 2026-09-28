@@ -2687,6 +2687,8 @@ class _Translations$organization$common$ko_KR extends Translations$organization$
 	@override String get uidMustBePositive => '사용자 UID는 양의 정수여야 합니다';
 	@override String get loading => '불러오는 중…';
 	@override String get loadMore => '더 불러오기';
+	@override String get orgStatusPending => '심사 중';
+	@override String get orgStatusRejected => '심사 미통과';
 }
 
 // Path: organization.home
@@ -2699,6 +2701,7 @@ class _Translations$organization$home$ko_KR extends Translations$organization$ho
 	@override String get createOrg => '조직 만들기';
 	@override String get orgNameLabel => '조직 이름(1-200자)';
 	@override String createFailedWith({required Object msg, required Object code}) => '생성 실패: ${msg} (${code})';
+	@override String get createSubmittedPendingReview => '제출되었습니다. 운영 심사 대기 중이며, 심사가 통과되면 기업을 정상적으로 사용할 수 있습니다';
 	@override String get tabOrg => '조직';
 	@override String get myInvitations => '내 초대';
 	@override String get emptyHint => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요';
@@ -2901,6 +2904,9 @@ class _Translations$organization$picker$ko_KR extends Translations$organization$
 	@override String get joinCodeOnlyHint => '8자리 기업 초대 코드 입력';
 	@override String get joinConfirmTitle => '참여 확인';
 	@override String joinConfirmWith({required Object name}) => '"${name}"에 참여합니다';
+	@override String joinConfirmWithRole({required Object role, required Object name}) => '${role} 자격으로 "${name}"에 참여하시겠습니까?';
+	@override String get joinRoleMember => '일반 멤버';
+	@override String get joinRoleAdmin => '관리자';
 	@override String get joinConfirmSubmit => '참여 확인';
 	@override String get joinBack => '뒤로';
 	@override String get joinQrHint => '기업 초대 QR코드를 비춰주세요';
@@ -2929,6 +2935,7 @@ class _Translations$organization$inviteQr$ko_KR extends Translations$organizatio
 	@override String get notAdmin => '기업 Owner/Admin만 초대 코드를 관리할 수 있습니다';
 	@override String get copyCode => '코드 복사';
 	@override String get copied => '초대 코드가 복사되었습니다';
+	@override String get inviteDisabledPending => '기업이 심사 대기 중입니다. 심사가 통과된 후에만 멤버를 초대할 수 있습니다';
 }
 
 // Path: organization.directory
@@ -5171,9 +5178,12 @@ extension on TranslationsKoKr {
 			'organization.common.uidMustBePositive' => '사용자 UID는 양의 정수여야 합니다',
 			'organization.common.loading' => '불러오는 중…',
 			'organization.common.loadMore' => '더 불러오기',
+			'organization.common.orgStatusPending' => '심사 중',
+			'organization.common.orgStatusRejected' => '심사 미통과',
 			'organization.home.createOrg' => '조직 만들기',
 			'organization.home.orgNameLabel' => '조직 이름(1-200자)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '생성 실패: ${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => '제출되었습니다. 운영 심사 대기 중이며, 심사가 통과되면 기업을 정상적으로 사용할 수 있습니다',
 			'organization.home.tabOrg' => '조직',
 			'organization.home.myInvitations' => '내 초대',
 			'organization.home.emptyHint' => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요',
@@ -5184,11 +5194,11 @@ extension on TranslationsKoKr {
 			'organization.detail.restoreOrg' => '조직 복원',
 			'organization.detail.restoreConfirmBody' => '복원하면 조직은 active 상태로 돌아가고 쓰기가 다시 열립니다.',
 			'organization.detail.confirmRestore' => '복원 확인',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.restoreFailed' => '복원 실패',
 			'organization.detail.archiveFailed' => '보관 실패',
 			'organization.detail.renameOrgTitle' => '조직 이름 변경',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => '조직 이름(1-200자)',
 			'organization.detail.renameAction' => '이름 변경',
 			'organization.detail.renameFailed' => '이름 변경 실패',
@@ -5333,6 +5343,9 @@ extension on TranslationsKoKr {
 			'organization.picker.joinCodeOnlyHint' => '8자리 기업 초대 코드 입력',
 			'organization.picker.joinConfirmTitle' => '참여 확인',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '"${name}"에 참여합니다',
+			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '${role} 자격으로 "${name}"에 참여하시겠습니까?',
+			'organization.picker.joinRoleMember' => '일반 멤버',
+			'organization.picker.joinRoleAdmin' => '관리자',
 			'organization.picker.joinConfirmSubmit' => '참여 확인',
 			'organization.picker.joinBack' => '뒤로',
 			'organization.picker.joinQrHint' => '기업 초대 QR코드를 비춰주세요',
@@ -5352,6 +5365,7 @@ extension on TranslationsKoKr {
 			'organization.inviteQr.notAdmin' => '기업 Owner/Admin만 초대 코드를 관리할 수 있습니다',
 			'organization.inviteQr.copyCode' => '코드 복사',
 			'organization.inviteQr.copied' => '초대 코드가 복사되었습니다',
+			'organization.inviteQr.inviteDisabledPending' => '기업이 심사 대기 중입니다. 심사가 통과된 후에만 멤버를 초대할 수 있습니다',
 			'organization.directory.title' => '디렉터리',
 			'organization.directory.deptSection' => '부서',
 			'organization.directory.allMembersSection' => '전체 멤버',
@@ -5694,6 +5708,8 @@ extension on TranslationsKoKr {
 			'workspace.projectMemberInviteExisting' => '이 사용자는 이미 프로젝트 구성원입니다',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '프로젝트 구성원 ${name} 제거',
 			'workspace.projectMemberRemoveConfirmDesc' => '제거 후 해당 사용자는 이 프로젝트 콘텐츠에 접근할 수 없습니다(다시 초대 가능)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => '제거',
 			'workspace.projectMemberRemovedToast' => '제거되었습니다',
 			'workspace.projectMemberAlreadyRemovedToast' => '해당 사용자는 이미 프로젝트 구성원이 아닙니다',
@@ -5701,8 +5717,6 @@ extension on TranslationsKoKr {
 			'workspace.projectMemberTransferDesc' => '이전 후 상대방이 이 프로젝트의 전체 관리 권한을 갖습니다',
 			'workspace.projectMemberTransferConfirm' => '이전 확인',
 			'workspace.projectMemberTransferDoneToast' => '프로젝트 담당자가 이전되었습니다',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => '마일스톤',
 			'workspace.projectMilestoneEmptyTitle' => '아직 마일스톤이 없습니다',
 			'workspace.projectMilestoneEmptySubtitle' => '마일스톤으로 프로젝트의 핵심 지점을 표시합니다(계획됨 → 달성됨, 단방향)',

@@ -15,10 +15,15 @@ common:
   uidMustBePositive: "사용자 UID는 양의 정수여야 합니다"
   loading: "불러오는 중…"
   loadMore: "더 불러오기"
+  # 조직 심사 상태 배지(home / picker 목록 행 공용)
+  orgStatusPending: "심사 중"
+  orgStatusRejected: "심사 미통과"
 home:
   createOrg: "조직 만들기"
   orgNameLabel: "조직 이름(1-200자)"
   createFailedWith: "생성 실패: ${msg} (${code})"
+  # 생성이 pending(운영 심사 대기)이 될 수 있음: 성공 ≠ 즉시 사용 가능
+  createSubmittedPendingReview: "제출되었습니다. 운영 심사 대기 중이며, 심사가 통과되면 기업을 정상적으로 사용할 수 있습니다"
   tabOrg: "조직"
   myInvitations: "내 초대"
   emptyHint: "아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요"
@@ -182,6 +187,9 @@ picker:
   joinCodeOnlyHint: "8자리 기업 초대 코드 입력"
   joinConfirmTitle: "참여 확인"
   joinConfirmWith: "\"${name}\"에 참여합니다"
+  joinConfirmWithRole: "${role} 자격으로 \"${name}\"에 참여하시겠습니까?"
+  joinRoleMember: "일반 멤버"
+  joinRoleAdmin: "관리자"
   joinConfirmSubmit: "참여 확인"
   joinBack: "뒤로"
   joinQrHint: "기업 초대 QR코드를 비춰주세요"
@@ -204,6 +212,8 @@ inviteQr:
   notAdmin: "기업 Owner/Admin만 초대 코드를 관리할 수 있습니다"
   copyCode: "코드 복사"
   copied: "초대 코드가 복사되었습니다"
+  # pending/rejected 기업의 코드 발급 진입 비활성 안내(서버 preview/join은 항상 409)
+  inviteDisabledPending: "기업이 심사 대기 중입니다. 심사가 통과된 후에만 멤버를 초대할 수 있습니다"
 directory:
   title: "디렉터리"
   deptSection: "부서"

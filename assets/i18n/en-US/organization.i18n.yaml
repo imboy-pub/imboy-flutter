@@ -15,10 +15,15 @@ common:
   uidMustBePositive: "User UID must be a positive integer"
   loading: "Loading…"
   loadMore: "Load more"
+  # Organization review-flow status badge (shared by home / picker list rows)
+  orgStatusPending: "Under review"
+  orgStatusRejected: "Not approved"
 home:
   createOrg: "Create organization"
   orgNameLabel: "Organization name (1-200 characters)"
   createFailedWith: "Creation failed: ${msg} (${code})"
+  # Creation may land in pending (awaiting ops review): success does not mean immediately usable
+  createSubmittedPendingReview: "Submitted. Pending operations review; the enterprise becomes usable once approved"
   tabOrg: "Organizations"
   myInvitations: "My invitations"
   emptyHint: "You haven't joined any organization yet\nPull down to refresh, or tap the top-right button to create one"
@@ -182,6 +187,9 @@ picker:
   joinCodeOnlyHint: "Enter the 8-character invite code"
   joinConfirmTitle: "Confirm joining"
   joinConfirmWith: "You are about to join \"${name}\""
+  joinConfirmWithRole: "Join \"${name}\" as ${role}?"
+  joinRoleMember: "Regular member"
+  joinRoleAdmin: "Admin"
   joinConfirmSubmit: "Confirm"
   joinBack: "Back"
   joinQrHint: "Aim at the enterprise invite QR code to join"
@@ -204,6 +212,8 @@ inviteQr:
   notAdmin: "Only the enterprise Owner/Admin can manage invite codes"
   copyCode: "Copy code"
   copied: "Invite code copied"
+  # Disabled invite-entry hint for pending/rejected enterprises (server preview/join always 409)
+  inviteDisabledPending: "The enterprise is pending review; members can be invited once approved"
 directory:
   title: "Directory"
   deptSection: "Departments"

@@ -15,10 +15,15 @@ common:
   uidMustBePositive: "Die Nutzer-UID muss eine positive Ganzzahl sein"
   loading: "Wird geladen…"
   loadMore: "Mehr laden"
+  # Status-Badges für den Organisationsprüfungs-Flow (home-/picker-Listenzeilen)
+  orgStatusPending: "In Prüfung"
+  orgStatusRejected: "Prüfung nicht bestanden"
 home:
   createOrg: "Organisation erstellen"
   orgNameLabel: "Organisationsname (1-200 Zeichen)"
   createFailedWith: "Erstellen fehlgeschlagen: ${msg} (${code})"
+  # Erstellen kann im Zustand pending (wartet auf Prüfung durch das Betreiberteam) enden: Erfolg ≠ sofort nutzbar
+  createSubmittedPendingReview: "Übermittelt. Wartet auf die Prüfung durch das Betreiberteam; das Unternehmen kann nach Genehmigung normal genutzt werden"
   tabOrg: "Organisationen"
   myInvitations: "Meine Einladungen"
   emptyHint: "Du bist noch keiner Organisation beigetreten\nZum Aktualisieren nach unten ziehen oder oben rechts erstellen"
@@ -182,6 +187,9 @@ picker:
   joinCodeOnlyHint: "8-stelligen Einladungscode eingeben"
   joinConfirmTitle: "Beitritt bestätigen"
   joinConfirmWith: "Sie treten \"${name}\" bei"
+  joinConfirmWithRole: "Als ${role} \"${name}\" beitreten?"
+  joinRoleMember: "Einfaches Mitglied"
+  joinRoleAdmin: "Admin"
   joinConfirmSubmit: "Beitreten"
   joinBack: "Zurück"
   joinQrHint: "Auf den Unternehmens-Einladungs-QR-Code richten"
@@ -204,6 +212,8 @@ inviteQr:
   notAdmin: "Nur der Owner/Admin des Unternehmens kann Einladungscodes verwalten"
   copyCode: "Code kopieren"
   copied: "Einladungscode kopiert"
+  # Hinweis bei deaktiviertem Code-Einstieg für pending/rejected-Unternehmen (Server preview/join stets 409)
+  inviteDisabledPending: "Das Unternehmen befindet sich in Prüfung; Mitglieder können erst nach Genehmigung eingeladen werden"
 directory:
   title: "Verzeichnis"
   deptSection: "Abteilungen"

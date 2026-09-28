@@ -333,12 +333,7 @@ class _OrganizationPickerPageState
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  subtitle: Text(
-                    '${orgRoleLabel(o.memberRole.isEmpty ? 'member' : o.memberRole)}'
-                    '${o.isArchived ? ' · ${orgStatusLabel(o.status)}' : ''}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  subtitle: orgListSubtitle(context, o),
                   trailing: o.id == current?.id
                       ? Icon(
                           CupertinoIcons.check_mark,
@@ -480,6 +475,16 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
     });
   }
 
+  /// preview.role → 加入身份展示名（member/admin 之外一律回落普通成员，
+  /// 兜底语义与模型解析一致）。
+  String _joinRoleLabel(String role) {
+    final t = context.t;
+    return switch (role) {
+      'admin' => t.organization.picker.joinRoleAdmin,
+      _ => t.organization.picker.joinRoleMember,
+    };
+  }
+
   Future<void> _submit() async {
     if (_stage == _OrgJoinStage.input) {
       await _previewByCode(_codeCtrl.text);
@@ -527,7 +532,10 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
           ] else ...[
             Text(
               key: const ValueKey('org-join-org-name'),
-              t.organization.picker.joinConfirmWith(name: _preview?.name ?? ''),
+              t.organization.picker.joinConfirmWithRole(
+                name: _preview?.name ?? '',
+                role: _joinRoleLabel(_preview?.role ?? 'member'),
+              ),
               style: theme.textTheme.titleMedium,
             ),
             AppSpacing.verticalMedium,

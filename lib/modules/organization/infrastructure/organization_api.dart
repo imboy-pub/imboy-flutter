@@ -526,8 +526,10 @@ class OrganizationApi extends HttpClient implements HumanDirectoryDataSource {
     return _unwrap(resp, OrganizationInviteCode.fromJson);
   }
 
-  /// 凭码预览目标组织（码全局唯一即凭据，无需 orgId）：返回企业名与
-  /// organization_id，供「确认加入 XX 企业」步骤。981/982 语义同 join。
+  /// 凭码预览目标组织（码全局唯一即凭据，无需 orgId）：返回企业名、
+  /// organization_id 与 role（凭码加入后的初始角色，发码方指定，
+  /// 缺字段兜底 member），供「确认加入 XX 企业」步骤。981/982 语义同 join；
+  /// 目标组织待审核时服务端 409（msg 透传，不加客户端兜底）。
   Future<OrgInvitePreview> previewByCode(String code) async {
     final resp = await post(
       '/api/v1/organizations/invite_code/preview',

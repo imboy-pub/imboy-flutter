@@ -2825,6 +2825,8 @@ class _Translations$organization$common$en_US extends Translations$organization$
 	@override String get uidMustBePositive => 'User UID must be a positive integer';
 	@override String get loading => 'Loading…';
 	@override String get loadMore => 'Load more';
+	@override String get orgStatusPending => 'Under review';
+	@override String get orgStatusRejected => 'Not approved';
 }
 
 // Path: organization.home
@@ -2837,6 +2839,7 @@ class _Translations$organization$home$en_US extends Translations$organization$ho
 	@override String get createOrg => 'Create organization';
 	@override String get orgNameLabel => 'Organization name (1-200 characters)';
 	@override String createFailedWith({required Object msg, required Object code}) => 'Creation failed: ${msg} (${code})';
+	@override String get createSubmittedPendingReview => 'Submitted. Pending operations review; the enterprise becomes usable once approved';
 	@override String get tabOrg => 'Organizations';
 	@override String get myInvitations => 'My invitations';
 	@override String get emptyHint => 'You haven\'t joined any organization yet\nPull down to refresh, or tap the top-right button to create one';
@@ -3039,6 +3042,9 @@ class _Translations$organization$picker$en_US extends Translations$organization$
 	@override String get joinCodeOnlyHint => 'Enter the 8-character invite code';
 	@override String get joinConfirmTitle => 'Confirm joining';
 	@override String joinConfirmWith({required Object name}) => 'You are about to join "${name}"';
+	@override String joinConfirmWithRole({required Object name, required Object role}) => 'Join "${name}" as ${role}?';
+	@override String get joinRoleMember => 'Regular member';
+	@override String get joinRoleAdmin => 'Admin';
 	@override String get joinConfirmSubmit => 'Confirm';
 	@override String get joinBack => 'Back';
 	@override String get joinQrHint => 'Aim at the enterprise invite QR code to join';
@@ -3067,6 +3073,7 @@ class _Translations$organization$inviteQr$en_US extends Translations$organizatio
 	@override String get notAdmin => 'Only the enterprise Owner/Admin can manage invite codes';
 	@override String get copyCode => 'Copy code';
 	@override String get copied => 'Invite code copied';
+	@override String get inviteDisabledPending => 'The enterprise is pending review; members can be invited once approved';
 }
 
 // Path: organization.directory
@@ -5428,9 +5435,12 @@ extension on TranslationsEnUs {
 			'organization.common.uidMustBePositive' => 'User UID must be a positive integer',
 			'organization.common.loading' => 'Loading…',
 			'organization.common.loadMore' => 'Load more',
+			'organization.common.orgStatusPending' => 'Under review',
+			'organization.common.orgStatusRejected' => 'Not approved',
 			'organization.home.createOrg' => 'Create organization',
 			'organization.home.orgNameLabel' => 'Organization name (1-200 characters)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Creation failed: ${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => 'Submitted. Pending operations review; the enterprise becomes usable once approved',
 			'organization.home.tabOrg' => 'Organizations',
 			'organization.home.myInvitations' => 'My invitations',
 			'organization.home.emptyHint' => 'You haven\'t joined any organization yet\nPull down to refresh, or tap the top-right button to create one',
@@ -5588,6 +5598,9 @@ extension on TranslationsEnUs {
 			'organization.picker.joinCodeOnlyHint' => 'Enter the 8-character invite code',
 			'organization.picker.joinConfirmTitle' => 'Confirm joining',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'You are about to join "${name}"',
+			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'Join "${name}" as ${role}?',
+			'organization.picker.joinRoleMember' => 'Regular member',
+			'organization.picker.joinRoleAdmin' => 'Admin',
 			'organization.picker.joinConfirmSubmit' => 'Confirm',
 			'organization.picker.joinBack' => 'Back',
 			'organization.picker.joinQrHint' => 'Aim at the enterprise invite QR code to join',
@@ -5607,6 +5620,7 @@ extension on TranslationsEnUs {
 			'organization.inviteQr.notAdmin' => 'Only the enterprise Owner/Admin can manage invite codes',
 			'organization.inviteQr.copyCode' => 'Copy code',
 			'organization.inviteQr.copied' => 'Invite code copied',
+			'organization.inviteQr.inviteDisabledPending' => 'The enterprise is pending review; members can be invited once approved',
 			'organization.directory.title' => 'Directory',
 			'organization.directory.deptSection' => 'Departments',
 			'organization.directory.allMembersSection' => 'All members',
@@ -5834,6 +5848,8 @@ extension on TranslationsEnUs {
 			'workspace.inviteOptionUnavailable' => 'Target resource not found; this option is unavailable',
 			'workspace.inviteSubmit' => 'Send invite',
 			'workspace.inviteResultsTitle' => 'Results (three independent)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteResultWorkspace' => 'Join workspace (becomes Workspace Member)',
 			'workspace.inviteResultGroup' => 'Join General group (becomes Group Member)',
 			'workspace.inviteResultChannel' => 'Send Announcements channel invitation (subscription starts after acceptance)',
@@ -5841,8 +5857,6 @@ extension on TranslationsEnUs {
 			'workspace.resultRunning' => 'Running',
 			'workspace.resultSuccess' => 'Success',
 			'workspace.resultFailed' => 'Failed',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.joinEntry' => 'Join Workspace',
 			'workspace.joinByTeamCode' => 'Join a workspace by team code',
 			'workspace.joinTitle' => 'Join Workspace',

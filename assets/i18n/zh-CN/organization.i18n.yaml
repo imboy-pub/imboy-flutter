@@ -14,10 +14,15 @@ common:
   uidMustBePositive: 用户 UID 必须是正整数
   loading: 加载中…
   loadMore: 加载更多
+  # 组织审核流状态徽章（home / picker 列表行共用）
+  orgStatusPending: 审核中
+  orgStatusRejected: 未通过审核
 home:
   createOrg: 创建组织
   orgNameLabel: 组织名称（1-200 字符）
   createFailedWith: 创建失败：${msg} (${code})
+  # 创建可能落 pending（待运营审核）：成功 ≠ 立即可用
+  createSubmittedPendingReview: 已提交，等待运营审核，审核通过后企业可正常使用
   tabOrg: 组织
   myInvitations: 我的邀请
   emptyHint: "尚未加入任何组织\n下拉刷新或点击右上角创建"
@@ -181,6 +186,9 @@ picker:
   joinCodeOnlyHint: 输入 8 位企业邀请码
   joinConfirmTitle: 确认加入企业
   joinConfirmWith: "将加入企业「${name}」"
+  joinConfirmWithRole: "确认以 ${role} 身份加入「${name}」？"
+  joinRoleMember: 普通成员
+  joinRoleAdmin: 管理员
   joinConfirmSubmit: 确认加入
   joinBack: 返回修改
   joinQrHint: 对准企业邀请二维码即可自动加入
@@ -203,6 +211,8 @@ inviteQr:
   notAdmin: 仅企业 Owner/Admin 可管理邀请码
   copyCode: 复制邀请码
   copied: 已复制邀请码
+  # pending/rejected 企业出码入口禁用提示（服务端 preview/join 一律 409）
+  inviteDisabledPending: 企业待审核，审核通过后才能邀请成员
 directory:
   title: 通讯录
   deptSection: 部门

@@ -15,10 +15,15 @@ common:
   uidMustBePositive: "L'UID utente deve essere un intero positivo"
   loading: "Caricamento…"
   loadMore: "Carica altri"
+  # Badge di stato del flusso di revisione organizzazione (condiviso da home / picker)
+  orgStatusPending: "In revisione"
+  orgStatusRejected: "Revisione non superata"
 home:
   createOrg: "Crea organizzazione"
   orgNameLabel: "Nome organizzazione (1-200 caratteri)"
   createFailedWith: "Creazione non riuscita: ${msg} (${code})"
+  # La creazione può finire in pending (in attesa della revisione delle operazioni): successo ≠ utilizzabile subito
+  createSubmittedPendingReview: "Inviato. In attesa di revisione da parte del team operativo; l'azienda potrà essere utilizzata normalmente una volta approvata"
   tabOrg: "Organizzazioni"
   myInvitations: "I miei inviti"
   emptyHint: "Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una"
@@ -182,6 +187,9 @@ picker:
   joinCodeOnlyHint: "Inserisci il codice di invito a 8 caratteri"
   joinConfirmTitle: "Conferma adesione"
   joinConfirmWith: "Stai per entrare in \"${name}\""
+  joinConfirmWithRole: "Entrare in \"${name}\" come ${role}?"
+  joinRoleMember: "Membro standard"
+  joinRoleAdmin: "Admin"
   joinConfirmSubmit: "Conferma"
   joinBack: "Indietro"
   joinQrHint: "Inquadra il QR code di invito dell'azienda"
@@ -204,6 +212,8 @@ inviteQr:
   notAdmin: "Solo il proprietario/admin dell'azienda può gestire i codici di invito"
   copyCode: "Copia codice"
   copied: "Codice di invito copiato"
+  # Suggerimento di ingresso generazione disabilitato per aziende pending/rejected (preview/join del server sempre 409)
+  inviteDisabledPending: "L'azienda è in attesa di revisione; i membri potranno essere invitati solo dopo l'approvazione"
 directory:
   title: "Rubrica"
   deptSection: "Dipartimenti"

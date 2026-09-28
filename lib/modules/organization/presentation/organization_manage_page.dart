@@ -238,7 +238,14 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   // ==================== 工作区动作 ====================
 
   /// GZAPP-J11 出码侧：邀请二维码页（数据/权限由该页自治，403 自渲染）。
+  /// pending/rejected 企业先不出码：目标组织待审核时 preview/join 一律
+  /// 409，出码只会造出无效码——入口禁用 + toast 提示（服务端仍是唯一
+  /// 裁决，这里只做减法）。
   Future<void> _openInviteQr(Organization org) async {
+    if (org.status == 'pending' || org.status == 'rejected') {
+      _toast(t.organization.inviteQr.inviteDisabledPending);
+      return;
+    }
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => OrgInviteQrPage(orgId: org.id, orgName: org.name),

@@ -2699,6 +2699,8 @@ class _Translations$organization$common$ar_SA extends Translations$organization$
 	@override String get uidMustBePositive => 'يجب أن يكون UID المستخدم عدداً صحيحاً موجباً';
 	@override String get loading => 'جارٍ التحميل…';
 	@override String get loadMore => 'تحميل المزيد';
+	@override String get orgStatusPending => 'قيد المراجعة';
+	@override String get orgStatusRejected => 'لم تجتز المراجعة';
 }
 
 // Path: organization.home
@@ -2711,6 +2713,7 @@ class _Translations$organization$home$ar_SA extends Translations$organization$ho
 	@override String get createOrg => 'إنشاء منظمة';
 	@override String get orgNameLabel => 'اسم المنظمة (1-200 حرفاً)';
 	@override String createFailedWith({required Object msg, required Object code}) => 'فشل الإنشاء: ${msg} (${code})';
+	@override String get createSubmittedPendingReview => 'تم الإرسال. بانتظار مراجعة فريق العمليات؛ يمكن استخدام المؤسسة بشكل طبيعي بعد الموافقة';
 	@override String get tabOrg => 'المنظمات';
 	@override String get myInvitations => 'دعواتي';
 	@override String get emptyHint => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين';
@@ -2913,6 +2916,9 @@ class _Translations$organization$picker$ar_SA extends Translations$organization$
 	@override String get joinCodeOnlyHint => 'أدخل رمز الدعوة المكوّن من 8 أحرف';
 	@override String get joinConfirmTitle => 'تأكيد الانضمام';
 	@override String joinConfirmWith({required Object name}) => 'أنت على وشك الانضمام إلى "${name}"';
+	@override String joinConfirmWithRole({required Object name, required Object role}) => 'الانضمام إلى "${name}" بصفتك ${role}؟';
+	@override String get joinRoleMember => 'عضو عادي';
+	@override String get joinRoleAdmin => 'مسؤول';
 	@override String get joinConfirmSubmit => 'تأكيد';
 	@override String get joinBack => 'رجوع';
 	@override String get joinQrHint => 'وجّه الكاميرا نحو رمز QR لدعوة المؤسسة';
@@ -2941,6 +2947,7 @@ class _Translations$organization$inviteQr$ar_SA extends Translations$organizatio
 	@override String get notAdmin => 'يمكن لمالك/مسؤول المؤسسة فقط إدارة رموز الدعوة';
 	@override String get copyCode => 'نسخ الرمز';
 	@override String get copied => 'تم نسخ رمز الدعوة';
+	@override String get inviteDisabledPending => 'المؤسسة بانتظار المراجعة؛ لا يمكن دعوة الأعضاء إلا بعد اجتيازها';
 }
 
 // Path: organization.directory
@@ -5183,9 +5190,12 @@ extension on TranslationsArSa {
 			'organization.common.uidMustBePositive' => 'يجب أن يكون UID المستخدم عدداً صحيحاً موجباً',
 			'organization.common.loading' => 'جارٍ التحميل…',
 			'organization.common.loadMore' => 'تحميل المزيد',
+			'organization.common.orgStatusPending' => 'قيد المراجعة',
+			'organization.common.orgStatusRejected' => 'لم تجتز المراجعة',
 			'organization.home.createOrg' => 'إنشاء منظمة',
 			'organization.home.orgNameLabel' => 'اسم المنظمة (1-200 حرفاً)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'فشل الإنشاء: ${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => 'تم الإرسال. بانتظار مراجعة فريق العمليات؛ يمكن استخدام المؤسسة بشكل طبيعي بعد الموافقة',
 			'organization.home.tabOrg' => 'المنظمات',
 			'organization.home.myInvitations' => 'دعواتي',
 			'organization.home.emptyHint' => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين',
@@ -5196,11 +5206,11 @@ extension on TranslationsArSa {
 			'organization.detail.restoreOrg' => 'استعادة المنظمة',
 			'organization.detail.restoreConfirmBody' => 'بعد الاستعادة تعود المنظمة إلى الحالة active وتُتاح عمليات الكتابة من جديد.',
 			'organization.detail.confirmRestore' => 'تأكيد الاستعادة',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.restoreFailed' => 'فشلت الاستعادة',
 			'organization.detail.archiveFailed' => 'فشلت الأرشفة',
 			'organization.detail.renameOrgTitle' => 'إعادة تسمية المنظمة',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => 'اسم المنظمة (1-200 حرفاً)',
 			'organization.detail.renameAction' => 'تغيير الاسم',
 			'organization.detail.renameFailed' => 'فشلت إعادة التسمية',
@@ -5345,6 +5355,9 @@ extension on TranslationsArSa {
 			'organization.picker.joinCodeOnlyHint' => 'أدخل رمز الدعوة المكوّن من 8 أحرف',
 			'organization.picker.joinConfirmTitle' => 'تأكيد الانضمام',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'أنت على وشك الانضمام إلى "${name}"',
+			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'الانضمام إلى "${name}" بصفتك ${role}؟',
+			'organization.picker.joinRoleMember' => 'عضو عادي',
+			'organization.picker.joinRoleAdmin' => 'مسؤول',
 			'organization.picker.joinConfirmSubmit' => 'تأكيد',
 			'organization.picker.joinBack' => 'رجوع',
 			'organization.picker.joinQrHint' => 'وجّه الكاميرا نحو رمز QR لدعوة المؤسسة',
@@ -5364,6 +5377,7 @@ extension on TranslationsArSa {
 			'organization.inviteQr.notAdmin' => 'يمكن لمالك/مسؤول المؤسسة فقط إدارة رموز الدعوة',
 			'organization.inviteQr.copyCode' => 'نسخ الرمز',
 			'organization.inviteQr.copied' => 'تم نسخ رمز الدعوة',
+			'organization.inviteQr.inviteDisabledPending' => 'المؤسسة بانتظار المراجعة؛ لا يمكن دعوة الأعضاء إلا بعد اجتيازها',
 			'organization.directory.title' => 'الدليل',
 			'organization.directory.deptSection' => 'الأقسام',
 			'organization.directory.allMembersSection' => 'جميع الأعضاء',
@@ -5706,6 +5720,8 @@ extension on TranslationsArSa {
 			'workspace.projectMemberInviteExisting' => 'هذا المستخدم عضو في المشروع بالفعل',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'إزالة عضو المشروع ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => 'بعد الإزالة سيفقد هذا المستخدم الوصول إلى محتوى المشروع (يمكن دعوته من جديد)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => 'إزالة',
 			'workspace.projectMemberRemovedToast' => 'تمت الإزالة',
 			'workspace.projectMemberAlreadyRemovedToast' => 'هذا المستخدم لم يعد عضواً في المشروع',
@@ -5713,8 +5729,6 @@ extension on TranslationsArSa {
 			'workspace.projectMemberTransferDesc' => 'بعد النقل يحصل الطرف الآخر على كامل صلاحيات إدارة المشروع',
 			'workspace.projectMemberTransferConfirm' => 'تأكيد النقل',
 			'workspace.projectMemberTransferDoneToast' => 'تم نقل مسؤولية المشروع',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => 'المعالم',
 			'workspace.projectMilestoneEmptyTitle' => 'لا توجد معالم بعد',
 			'workspace.projectMilestoneEmptySubtitle' => 'استخدم المعالم لوسم نقاط المشروع الرئيسية (مخطط ← مُحقَّق، باتجاه واحد)',

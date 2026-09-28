@@ -43,6 +43,9 @@ class _OrgInviteQrPageState extends State<OrgInviteQrPage> {
   bool _loading = true;
   bool _permissionDenied = false;
   String? _error;
+
+  /// 409（组织 pending/rejected，服务端拒出码）：确定性禁用态，重试无意义。
+  bool _inviteDisabled = false;
   bool _regenerating = false;
   OrganizationInviteCode _invite = const OrganizationInviteCode();
 
@@ -57,6 +60,7 @@ class _OrgInviteQrPageState extends State<OrgInviteQrPage> {
       _loading = true;
       _error = null;
       _permissionDenied = false;
+      _inviteDisabled = false;
     });
     try {
       final invite = await _api.getInviteCode(widget.orgId);
@@ -67,10 +71,18 @@ class _OrgInviteQrPageState extends State<OrgInviteQrPage> {
       });
     } on OrganizationApiException catch (e) {
       if (!mounted) return;
+      // await 之后才取 t：_load 由 initState 直调，initState 完成前
+      // dependOnInherited 会被框架拒绝（widget 测试实证）。
+      final t = context.t;
       setState(() {
         _loading = false;
         _permissionDenied = e.isForbidden;
-        _error = e.message;
+        // 深链直达本页时的 409：入口按钮已按组织状态禁用，这里兜底——
+        // 用本地化禁用文案替代后端透传 msg，且不引导无意义重试。
+        _inviteDisabled = e.isConflict;
+        _error = e.isConflict
+            ? t.organization.inviteQr.inviteDisabledPending
+            : e.message;
       });
     } on Object catch (e) {
       if (!mounted) return;
@@ -162,9 +174,14 @@ class _OrgInviteQrPageState extends State<OrgInviteQrPage> {
           children: [
             const Icon(CupertinoIcons.exclamationmark_triangle),
             AppSpacing.verticalSmall,
-            Text(t.organization.inviteQr.loadFailed),
+            Text(
+              _inviteDisabled ? _error! : t.organization.inviteQr.loadFailed,
+              textAlign: TextAlign.center,
+            ),
             AppSpacing.verticalSmall,
-            TextButton(onPressed: _load, child: Text(t.common.buttonRetry)),
+            // 禁用态（409）不提供重试：审核通过前重试必然仍是 409。
+            if (!_inviteDisabled)
+              TextButton(onPressed: _load, child: Text(t.common.buttonRetry)),
           ],
         ),
       );

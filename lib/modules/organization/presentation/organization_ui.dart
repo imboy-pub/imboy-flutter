@@ -6,7 +6,9 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/domain/organization_models.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 全量状态视图：loading / empty / error（含 403 权限态变体）。
@@ -193,13 +195,48 @@ String orgRoleLabel(String role) => switch (role) {
 };
 
 /// 组织/部门/成员状态标签映射。
+/// pending/rejected 为入驻审核两态，走 i18n 键（与列表徽章同源），
+/// 详情页等复用处不再回落显示英文原值。
 String orgStatusLabel(String status) => switch (status) {
   'active' => '正常',
   'archived' => '已归档',
+  'pending' => t.organization.common.orgStatusPending,
+  'rejected' => t.organization.common.orgStatusRejected,
   'suspended' => '已暂停',
   'removed' => '已移除',
   _ => status,
 };
+
+/// 组织列表行 subtitle：角色 · 状态徽章（home / picker 两页同构）。
+/// pending「审核中」橙色、rejected「未通过审核」红色（新审核流状态），
+/// archived 维持原「已归档」后缀；颜色一律走 token（禁硬编码）。
+Text orgListSubtitle(BuildContext context, Organization o) {
+  final statusText = switch (o.status) {
+    'pending' => ' · ${t.organization.common.orgStatusPending}',
+    'rejected' => ' · ${t.organization.common.orgStatusRejected}',
+    _ => o.isArchived ? ' · ${orgStatusLabel(o.status)}' : '',
+  };
+  final statusColor = switch (o.status) {
+    'pending' => AppColors.getIosOrange(Theme.of(context).brightness),
+    'rejected' => AppColors.getIosRed(Theme.of(context).brightness),
+    _ => null,
+  };
+  return Text.rich(
+    TextSpan(
+      children: [
+        TextSpan(
+          text: orgRoleLabel(o.memberRole.isEmpty ? 'member' : o.memberRole),
+        ),
+        TextSpan(
+          text: statusText,
+          style: TextStyle(color: statusColor),
+        ),
+      ],
+    ),
+    maxLines: 1,
+    overflow: TextOverflow.ellipsis,
+  );
+}
 
 /// 邀请状态标签映射（C11 五态；未知原样）。
 String invitationStatusLabel(String status) => switch (status) {

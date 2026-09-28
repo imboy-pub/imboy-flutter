@@ -7692,6 +7692,12 @@ class Translations$organization$common$zh_CN {
 
 	/// zh-CN: '加载更多'
 	String get loadMore => '加载更多';
+
+	/// zh-CN: '审核中'
+	String get orgStatusPending => '审核中';
+
+	/// zh-CN: '未通过审核'
+	String get orgStatusRejected => '未通过审核';
 }
 
 // Path: organization.home
@@ -7710,6 +7716,9 @@ class Translations$organization$home$zh_CN {
 
 	/// zh-CN: '创建失败：${msg} (${code})'
 	String createFailedWith({required Object msg, required Object code}) => '创建失败：${msg} (${code})';
+
+	/// zh-CN: '已提交，等待运营审核，审核通过后企业可正常使用'
+	String get createSubmittedPendingReview => '已提交，等待运营审核，审核通过后企业可正常使用';
 
 	/// zh-CN: '组织'
 	String get tabOrg => '组织';
@@ -8227,6 +8236,15 @@ class Translations$organization$picker$zh_CN {
 	/// zh-CN: '将加入企业「${name}」'
 	String joinConfirmWith({required Object name}) => '将加入企业「${name}」';
 
+	/// zh-CN: '确认以 ${role} 身份加入「${name}」？'
+	String joinConfirmWithRole({required Object role, required Object name}) => '确认以 ${role} 身份加入「${name}」？';
+
+	/// zh-CN: '普通成员'
+	String get joinRoleMember => '普通成员';
+
+	/// zh-CN: '管理员'
+	String get joinRoleAdmin => '管理员';
+
 	/// zh-CN: '确认加入'
 	String get joinConfirmSubmit => '确认加入';
 
@@ -8292,6 +8310,9 @@ class Translations$organization$inviteQr$zh_CN {
 
 	/// zh-CN: '已复制邀请码'
 	String get copied => '已复制邀请码';
+
+	/// zh-CN: '企业待审核，审核通过后才能邀请成员'
+	String get inviteDisabledPending => '企业待审核，审核通过后才能邀请成员';
 }
 
 // Path: organization.directory
@@ -10939,9 +10960,12 @@ extension on Translations {
 			'organization.common.uidMustBePositive' => '用户 UID 必须是正整数',
 			'organization.common.loading' => '加载中…',
 			'organization.common.loadMore' => '加载更多',
+			'organization.common.orgStatusPending' => '审核中',
+			'organization.common.orgStatusRejected' => '未通过审核',
 			'organization.home.createOrg' => '创建组织',
 			'organization.home.orgNameLabel' => '组织名称（1-200 字符）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '创建失败：${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => '已提交，等待运营审核，审核通过后企业可正常使用',
 			'organization.home.tabOrg' => '组织',
 			'organization.home.myInvitations' => '我的邀请',
 			'organization.home.emptyHint' => '尚未加入任何组织\n下拉刷新或点击右上角创建',
@@ -11099,6 +11123,9 @@ extension on Translations {
 			'organization.picker.joinCodeOnlyHint' => '输入 8 位企业邀请码',
 			'organization.picker.joinConfirmTitle' => '确认加入企业',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '将加入企业「${name}」',
+			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '确认以 ${role} 身份加入「${name}」？',
+			'organization.picker.joinRoleMember' => '普通成员',
+			'organization.picker.joinRoleAdmin' => '管理员',
 			'organization.picker.joinConfirmSubmit' => '确认加入',
 			'organization.picker.joinBack' => '返回修改',
 			'organization.picker.joinQrHint' => '对准企业邀请二维码即可自动加入',
@@ -11118,6 +11145,7 @@ extension on Translations {
 			'organization.inviteQr.notAdmin' => '仅企业 Owner/Admin 可管理邀请码',
 			'organization.inviteQr.copyCode' => '复制邀请码',
 			'organization.inviteQr.copied' => '已复制邀请码',
+			'organization.inviteQr.inviteDisabledPending' => '企业待审核，审核通过后才能邀请成员',
 			'organization.directory.title' => '通讯录',
 			'organization.directory.deptSection' => '部门',
 			'organization.directory.allMembersSection' => '全部成员',
@@ -11325,6 +11353,8 @@ extension on Translations {
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} 位成员',
 			'workspace.membersEmpty' => '暂无工作区成员',
 			'workspace.membersEmptySubtitle' => '邀请已注册用户成为工作区成员（Owner / Member / Guest）',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.membersViewAll' => '查看全部',
 			'workspace.projectsEmptyTitle' => '还没有项目',
 			'workspace.projectsEmptySubtitle' => '项目用于跟踪明确的交付目标；只有频道和群的社区型工作区同样成立',
@@ -11332,8 +11362,6 @@ extension on Translations {
 			'workspace.channelsEmptySubtitle' => '频道用于持续发布内容（公告/资料），讨论请去群组',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位订阅者',
 			'workspace.channelDetailTitle' => '频道',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.discussInGroupGuide' => '频道用于发布内容；想讨论？去 General 群聊聊 →',
 			'workspace.groupsEmptyTitle' => '还没有工作区群组',
 			'workspace.groupsEmptySubtitle' => '群组是工作区里的实时讨论空间（聊天唯一入口）',

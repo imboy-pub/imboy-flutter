@@ -2687,6 +2687,8 @@ class Translations$organization$common$zh_Hant extends Translations$organization
 	@override String get uidMustBePositive => '使用者 UID 必須是正整數';
 	@override String get loading => '載入中…';
 	@override String get loadMore => '載入更多';
+	@override String get orgStatusPending => '審核中';
+	@override String get orgStatusRejected => '未通過審核';
 }
 
 // Path: organization.home
@@ -2699,6 +2701,7 @@ class Translations$organization$home$zh_Hant extends Translations$organization$h
 	@override String get createOrg => '建立組織';
 	@override String get orgNameLabel => '組織名稱（1-200 字元）';
 	@override String createFailedWith({required Object msg, required Object code}) => '建立失敗：${msg} (${code})';
+	@override String get createSubmittedPendingReview => '已提交，等待營運審核，審核通過後企業可正常使用';
 	@override String get tabOrg => '組織';
 	@override String get myInvitations => '我的邀請';
 	@override String get emptyHint => '尚未加入任何組織\n下拉重新整理或點擊右上角建立';
@@ -2901,6 +2904,9 @@ class Translations$organization$picker$zh_Hant extends Translations$organization
 	@override String get joinCodeOnlyHint => '輸入 8 位企業邀請碼';
 	@override String get joinConfirmTitle => '確認加入企業';
 	@override String joinConfirmWith({required Object name}) => '將加入企業「${name}」';
+	@override String joinConfirmWithRole({required Object role, required Object name}) => '確認以 ${role} 身份加入「${name}」？';
+	@override String get joinRoleMember => '一般成員';
+	@override String get joinRoleAdmin => '管理員';
 	@override String get joinConfirmSubmit => '確認加入';
 	@override String get joinBack => '返回修改';
 	@override String get joinQrHint => '對準企業邀請 QR 碼即可自動加入';
@@ -2929,6 +2935,7 @@ class Translations$organization$inviteQr$zh_Hant extends Translations$organizati
 	@override String get notAdmin => '僅企業 Owner/Admin 可管理邀請碼';
 	@override String get copyCode => '複製邀請碼';
 	@override String get copied => '已複製邀請碼';
+	@override String get inviteDisabledPending => '企業待審核，審核通過後才能邀請成員';
 }
 
 // Path: organization.directory
@@ -5171,9 +5178,12 @@ extension on TranslationsZhHant {
 			'organization.common.uidMustBePositive' => '使用者 UID 必須是正整數',
 			'organization.common.loading' => '載入中…',
 			'organization.common.loadMore' => '載入更多',
+			'organization.common.orgStatusPending' => '審核中',
+			'organization.common.orgStatusRejected' => '未通過審核',
 			'organization.home.createOrg' => '建立組織',
 			'organization.home.orgNameLabel' => '組織名稱（1-200 字元）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '建立失敗：${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => '已提交，等待營運審核，審核通過後企業可正常使用',
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '我的邀請',
 			'organization.home.emptyHint' => '尚未加入任何組織\n下拉重新整理或點擊右上角建立',
@@ -5184,11 +5194,11 @@ extension on TranslationsZhHant {
 			'organization.detail.restoreOrg' => '還原組織',
 			'organization.detail.restoreConfirmBody' => '還原後組織回到 active 態，寫入入口重新開放。',
 			'organization.detail.confirmRestore' => '確認還原',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.restoreFailed' => '還原失敗',
 			'organization.detail.archiveFailed' => '封存失敗',
 			'organization.detail.renameOrgTitle' => '修改組織名稱',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => '組織名稱（1-200 字元）',
 			'organization.detail.renameAction' => '修改名稱',
 			'organization.detail.renameFailed' => '重新命名失敗',
@@ -5333,6 +5343,9 @@ extension on TranslationsZhHant {
 			'organization.picker.joinCodeOnlyHint' => '輸入 8 位企業邀請碼',
 			'organization.picker.joinConfirmTitle' => '確認加入企業',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => '將加入企業「${name}」',
+			'organization.picker.joinConfirmWithRole' => ({required Object role, required Object name}) => '確認以 ${role} 身份加入「${name}」？',
+			'organization.picker.joinRoleMember' => '一般成員',
+			'organization.picker.joinRoleAdmin' => '管理員',
 			'organization.picker.joinConfirmSubmit' => '確認加入',
 			'organization.picker.joinBack' => '返回修改',
 			'organization.picker.joinQrHint' => '對準企業邀請 QR 碼即可自動加入',
@@ -5352,6 +5365,7 @@ extension on TranslationsZhHant {
 			'organization.inviteQr.notAdmin' => '僅企業 Owner/Admin 可管理邀請碼',
 			'organization.inviteQr.copyCode' => '複製邀請碼',
 			'organization.inviteQr.copied' => '已複製邀請碼',
+			'organization.inviteQr.inviteDisabledPending' => '企業待審核，審核通過後才能邀請成員',
 			'organization.directory.title' => '通訊錄',
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => '全部成員',
@@ -5694,6 +5708,8 @@ extension on TranslationsZhHant {
 			'workspace.projectMemberInviteExisting' => '該使用者已是專案成員',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '移除專案成員 ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => '移除後該使用者將失去此專案內容的存取權（可重新邀請）',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => '移出專案',
 			'workspace.projectMemberRemovedToast' => '已移出專案',
 			'workspace.projectMemberAlreadyRemovedToast' => '該使用者已不在專案成員中',
@@ -5701,8 +5717,6 @@ extension on TranslationsZhHant {
 			'workspace.projectMemberTransferDesc' => '轉移後對方獲得此專案的完整管理權',
 			'workspace.projectMemberTransferConfirm' => '確認轉移',
 			'workspace.projectMemberTransferDoneToast' => '專案負責人已轉移',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestonesTitle' => '專案里程碑',
 			'workspace.projectMilestoneEmptyTitle' => '還沒有里程碑',
 			'workspace.projectMilestoneEmptySubtitle' => '以里程碑標記專案的關鍵節點（計畫中 → 已達成，單向）',

@@ -15,10 +15,15 @@ common:
   uidMustBePositive: "ユーザー UID は正の整数である必要があります"
   loading: "読み込み中…"
   loadMore: "さらに読み込む"
+  # 組織審査フロー状態バッジ（home / picker のリスト行で共用）
+  orgStatusPending: "審査中"
+  orgStatusRejected: "審査不合格"
 home:
   createOrg: "組織を作成"
   orgNameLabel: "組織名（1-200 文字）"
   createFailedWith: "作成に失敗しました：${msg} (${code})"
+  # 作成が pending（運営審査待ち）になる場合あり：成功 ≠ すぐに利用可能
+  createSubmittedPendingReview: "送信しました。運営の審査を待っています。審査に合格すると企業を利用できます"
   tabOrg: "組織"
   myInvitations: "自分の招待"
   emptyHint: "まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください"
@@ -182,6 +187,9 @@ picker:
   joinCodeOnlyHint: "8桁の企業招待コードを入力"
   joinConfirmTitle: "参加の確認"
   joinConfirmWith: "「${name}」に参加します"
+  joinConfirmWithRole: "${role} として「${name}」に参加しますか？"
+  joinRoleMember: "一般メンバー"
+  joinRoleAdmin: "管理者"
   joinConfirmSubmit: "参加を確認"
   joinBack: "戻る"
   joinQrHint: "企業招待 QR コードにかざしてください"
@@ -204,6 +212,8 @@ inviteQr:
   notAdmin: "招待コードを管理できるのは企業の Owner/Admin のみです"
   copyCode: "コードをコピー"
   copied: "招待コードをコピーしました"
+  # pending/rejected 企業の発行入口無効化ヒント（サーバーの preview/join は一律 409）
+  inviteDisabledPending: "企業は審査待ちです。審査に合格するとメンバーを招待できます"
 directory:
   title: "ディレクトリ"
   deptSection: "部門"

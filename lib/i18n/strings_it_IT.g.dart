@@ -2690,6 +2690,8 @@ class _Translations$organization$common$it_IT extends Translations$organization$
 	@override String get uidMustBePositive => 'L\'UID utente deve essere un intero positivo';
 	@override String get loading => 'Caricamento…';
 	@override String get loadMore => 'Carica altri';
+	@override String get orgStatusPending => 'In revisione';
+	@override String get orgStatusRejected => 'Revisione non superata';
 }
 
 // Path: organization.home
@@ -2702,6 +2704,7 @@ class _Translations$organization$home$it_IT extends Translations$organization$ho
 	@override String get createOrg => 'Crea organizzazione';
 	@override String get orgNameLabel => 'Nome organizzazione (1-200 caratteri)';
 	@override String createFailedWith({required Object msg, required Object code}) => 'Creazione non riuscita: ${msg} (${code})';
+	@override String get createSubmittedPendingReview => 'Inviato. In attesa di revisione da parte del team operativo; l\'azienda potrà essere utilizzata normalmente una volta approvata';
 	@override String get tabOrg => 'Organizzazioni';
 	@override String get myInvitations => 'I miei inviti';
 	@override String get emptyHint => 'Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una';
@@ -2904,6 +2907,9 @@ class _Translations$organization$picker$it_IT extends Translations$organization$
 	@override String get joinCodeOnlyHint => 'Inserisci il codice di invito a 8 caratteri';
 	@override String get joinConfirmTitle => 'Conferma adesione';
 	@override String joinConfirmWith({required Object name}) => 'Stai per entrare in "${name}"';
+	@override String joinConfirmWithRole({required Object name, required Object role}) => 'Entrare in "${name}" come ${role}?';
+	@override String get joinRoleMember => 'Membro standard';
+	@override String get joinRoleAdmin => 'Admin';
 	@override String get joinConfirmSubmit => 'Conferma';
 	@override String get joinBack => 'Indietro';
 	@override String get joinQrHint => 'Inquadra il QR code di invito dell\'azienda';
@@ -2932,6 +2938,7 @@ class _Translations$organization$inviteQr$it_IT extends Translations$organizatio
 	@override String get notAdmin => 'Solo il proprietario/admin dell\'azienda può gestire i codici di invito';
 	@override String get copyCode => 'Copia codice';
 	@override String get copied => 'Codice di invito copiato';
+	@override String get inviteDisabledPending => 'L\'azienda è in attesa di revisione; i membri potranno essere invitati solo dopo l\'approvazione';
 }
 
 // Path: organization.directory
@@ -5174,9 +5181,12 @@ extension on TranslationsItIt {
 			'organization.common.uidMustBePositive' => 'L\'UID utente deve essere un intero positivo',
 			'organization.common.loading' => 'Caricamento…',
 			'organization.common.loadMore' => 'Carica altri',
+			'organization.common.orgStatusPending' => 'In revisione',
+			'organization.common.orgStatusRejected' => 'Revisione non superata',
 			'organization.home.createOrg' => 'Crea organizzazione',
 			'organization.home.orgNameLabel' => 'Nome organizzazione (1-200 caratteri)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Creazione non riuscita: ${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => 'Inviato. In attesa di revisione da parte del team operativo; l\'azienda potrà essere utilizzata normalmente una volta approvata',
 			'organization.home.tabOrg' => 'Organizzazioni',
 			'organization.home.myInvitations' => 'I miei inviti',
 			'organization.home.emptyHint' => 'Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una',
@@ -5187,11 +5197,11 @@ extension on TranslationsItIt {
 			'organization.detail.restoreOrg' => 'Ripristina organizzazione',
 			'organization.detail.restoreConfirmBody' => 'Dopo il ripristino l\'organizzazione torna allo stato active e le scritture vengono riaperte.',
 			'organization.detail.confirmRestore' => 'Conferma ripristino',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.restoreFailed' => 'Ripristino non riuscito',
 			'organization.detail.archiveFailed' => 'Archiviazione non riuscita',
 			'organization.detail.renameOrgTitle' => 'Rinomina organizzazione',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.renameOrgLabel' => 'Nome organizzazione (1-200 caratteri)',
 			'organization.detail.renameAction' => 'Rinomina',
 			'organization.detail.renameFailed' => 'Rinomina non riuscita',
@@ -5336,6 +5346,9 @@ extension on TranslationsItIt {
 			'organization.picker.joinCodeOnlyHint' => 'Inserisci il codice di invito a 8 caratteri',
 			'organization.picker.joinConfirmTitle' => 'Conferma adesione',
 			'organization.picker.joinConfirmWith' => ({required Object name}) => 'Stai per entrare in "${name}"',
+			'organization.picker.joinConfirmWithRole' => ({required Object name, required Object role}) => 'Entrare in "${name}" come ${role}?',
+			'organization.picker.joinRoleMember' => 'Membro standard',
+			'organization.picker.joinRoleAdmin' => 'Admin',
 			'organization.picker.joinConfirmSubmit' => 'Conferma',
 			'organization.picker.joinBack' => 'Indietro',
 			'organization.picker.joinQrHint' => 'Inquadra il QR code di invito dell\'azienda',
@@ -5355,6 +5368,7 @@ extension on TranslationsItIt {
 			'organization.inviteQr.notAdmin' => 'Solo il proprietario/admin dell\'azienda può gestire i codici di invito',
 			'organization.inviteQr.copyCode' => 'Copia codice',
 			'organization.inviteQr.copied' => 'Codice di invito copiato',
+			'organization.inviteQr.inviteDisabledPending' => 'L\'azienda è in attesa di revisione; i membri potranno essere invitati solo dopo l\'approvazione',
 			'organization.directory.title' => 'Rubrica',
 			'organization.directory.deptSection' => 'Dipartimenti',
 			'organization.directory.allMembersSection' => 'Tutti i membri',
@@ -5697,6 +5711,8 @@ extension on TranslationsItIt {
 			'workspace.projectTasksSection' => 'Attività',
 			'workspace.projectW2SectionTitle' => 'Collaborazione progetto',
 			'workspace.projectsEmptySubtitle' => 'I progetti servono a monitorare obiettivi di consegna chiari; valgono anche per le aree di lavoro comunitarie con soli canali e gruppi',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectsEmptyTitle' => 'Nessun progetto per ora',
 			'workspace.projectsLoadMore' => 'Carica altro',
 			'workspace.removeMemberConfirm' => 'Conferma rimozione',
@@ -5704,8 +5720,6 @@ extension on TranslationsItIt {
 			'workspace.removeMemberTitle' => ({required Object name}) => 'Rimuovi il membro dell\'area di lavoro ${name}',
 			'workspace.restoreConfirm' => 'Conferma ripristino',
 			'workspace.restoreDesc' => 'Dopo il ripristino l\'area di lavoro tornerà in lettura e scrittura',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.restoreEntry' => 'Ripristina area di lavoro',
 			'workspace.restoreTitle' => 'Ripristina area di lavoro',
 			'workspace.resultFailed' => 'Non riuscito',

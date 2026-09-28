@@ -15,10 +15,15 @@ common:
   uidMustBePositive: "L'UID utilisateur doit être un entier positif"
   loading: "Chargement…"
   loadMore: "Charger plus"
+  # Badge d'état du flux d'examen d'organisation (lignes de liste home / picker)
+  orgStatusPending: "En cours d'examen"
+  orgStatusRejected: "Examen non validé"
 home:
   createOrg: "Créer une organisation"
   orgNameLabel: "Nom de l'organisation (1-200 caractères)"
   createFailedWith: "Échec de la création : ${msg} (${code})"
+  # La création peut aboutir en pending (en attente de l'examen des opérations) : succès ≠ utilisable immédiatement
+  createSubmittedPendingReview: "Envoyé. En attente de validation par l'équipe des opérations ; l'entreprise pourra être utilisée normalement une fois validée"
   tabOrg: "Organisations"
   myInvitations: "Mes invitations"
   emptyHint: "Vous n'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite"
@@ -182,6 +187,9 @@ picker:
   joinCodeOnlyHint: "Saisir le code d'invitation à 8 caractères"
   joinConfirmTitle: "Confirmer l'adhésion"
   joinConfirmWith: "Vous allez rejoindre « ${name} »"
+  joinConfirmWithRole: "Rejoindre « ${name} » en tant que ${role} ?"
+  joinRoleMember: "Membre standard"
+  joinRoleAdmin: "Admin"
   joinConfirmSubmit: "Confirmer"
   joinBack: "Retour"
   joinQrHint: "Visez le QR code d'invitation d'entreprise"
@@ -204,6 +212,8 @@ inviteQr:
   notAdmin: "Seuls le propriétaire/admin de l'entreprise peuvent gérer les codes d'invitation"
   copyCode: "Copier le code"
   copied: "Code d'invitation copié"
+  # Aide d'entrée de génération désactivée pour les entreprises pending/rejected (preview/join serveur toujours 409)
+  inviteDisabledPending: "L'entreprise est en attente d'examen ; les membres pourront être invités une fois celle-ci validée"
 directory:
   title: "Annuaire"
   deptSection: "Départements"

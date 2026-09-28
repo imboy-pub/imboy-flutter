@@ -481,12 +481,13 @@ void main() {
       'abcd2345',
     );
     await tester.tap(find.byKey(const ValueKey('org-join-submit')));
-    // preview 成功 → confirm 态：显示目标企业名（小写输入自动大写归一）。
+    // preview 成功 → confirm 态：显示目标企业名 + 加入身份（preview mock
+    // 未带 role，模型兜底 member → 「普通成员」；小写输入自动大写归一）。
     await pumpUntilFound(
       tester,
       find.byKey(const ValueKey('org-join-org-name')),
     );
-    expect(find.text('将加入企业「组织$_orgC」'), findsOneWidget);
+    expect(find.text('确认以 普通成员 身份加入「组织$_orgC」？'), findsOneWidget);
 
     // confirm 态再点提交 = code-only join（免 orgId）。
     await tester.tap(find.byKey(const ValueKey('org-join-submit')));
