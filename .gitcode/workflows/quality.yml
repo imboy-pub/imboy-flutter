@@ -1,0 +1,56 @@
+# GitCode 流水线兜底 — imboyapp 质量门（dart analyze 全仓 ratchet）
+#
+# 背景：本仓远端主推 gitcode，.github/workflows/（GitHub Actions）在 gitcode 上
+# 不会触发，本文件是 gitcode 侧唯一的远端质量门。本地 lefthook pre-push 为第一道
+# （见 lefthook.yml），此处为推送后的远端兜底。
+#
+# 范围说明：
+#   - error-code-sync 门需要并排 imboy 仓（../imboy/include/error_code.hrl），
+#     gitcode 单仓 checkout 拿不到兄弟仓，该门在远端优雅跳过（脚本设计如此），
+#     由本地 pre-commit/pre-push 承担。
+#   - 全量 flutter test 很重（vodozemac cargo 构建 6-8min），gitcode 版只跑
+#     analyzer ratchet；全量测试由本地与 GitHub CI（若使用）承担。
+#
+# 语法依据（2026-09-29 docs.gitcode.com 流水线章节）：
+#   - 文件位置 .gitcode/workflows/*.yml（仅识别 .yml/.yaml）
+#   - checkout 非自动，须显式 uses: checkout（内置 action）
+#   - runs-on 为标签数组 [os, arch, 规格]；medium=4C/16G
+#   - 第三方 action（subosito/flutter-action 等）兼容性未验证，手动安装 Flutter
+name: quality
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  analyzer-ratchet:
+    name: dart analyze 全仓 ratchet（零基线）
+    runs-on: [ubuntu-latest, x64, medium]
+    timeout-minutes: 30
+    steps:
+      - name: 检出代码
+        uses: checkout
+
+      # 版本与 .github/workflows/ci.yml 的 FLUTTER_VERSION 保持一致
+      - name: 安装 Flutter 3.47.5
+        run: |
+          set -euo pipefail
+          git clone --depth 1 -b 3.47.5 https://github.com/flutter/flutter.git "$HOME/flutter"
+          "$HOME/flutter/bin/flutter" --version
+
+      - name: 依赖与生成物（cleanroom 前置）
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/flutter/bin:$PATH"
+          bash .github/scripts/ci_patch_path_deps.sh
+          flutter pub get
+          bash .github/scripts/ci_gen_env.sh
+
+      - name: analyzer ratchet
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/flutter/bin:$PATH"
+          bash scripts/quality/check_analyzer_ratchet.sh
