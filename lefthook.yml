@@ -71,6 +71,9 @@ commit-msg:
 #     未同步"的漂移（该场景不触碰 error_code.dart，pre-commit glob 不命中）
 #   - api-contract-tests: 后端可达时跑 Tier 1 契约测试；不可达/未配置凭证时优雅跳过
 # 紧急跳过：IMBOY_SKIP_PRE_PUSH=1 git push ...
+# ⚠️ 门禁生效前提：lefthook 需算出 push 文件集（首选 HEAD @{push}）。新 clone 后执行
+#   git config remote.pushDefault gitcode && git branch --set-upstream-to=gitcode/main main
+# 否则会以 "no matching push files" 静默跳过全部命令（2026-09-29 三仓实证）。
 pre-push:
   parallel: false
   commands:
