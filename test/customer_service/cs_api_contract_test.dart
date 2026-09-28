@@ -39,6 +39,7 @@ import 'package:imboy/service/storage.dart';
 
 const String orgId = '7266418340025468901';
 const String sessionId = '7266418340025468940';
+const String wsId = '7266418340025468921';
 
 /// 记录请求并恒返指定 statusCode + JSON envelope 的出口。
 class _RecordingAdapter implements HttpClientAdapter {
@@ -291,65 +292,110 @@ void main() {
   });
 
   group('APP-M01 org 作用域动作与详情（CAS）', () {
-    test(
-      'claim/close：org 在路径，CAS POST 带 {expected_version}（close 可选 reason）',
-      () async {
-        final adapter = useAdapter(
-          200,
-          okEnvelope(
-            payload: {
-              'session_id': 7266418340025468940,
-              'status': 'active',
-              'version': 8,
-              'business_identity_id': 7266418340025468902,
-            },
-          ),
-        );
-        final api = CsApi();
+    test('claim/close：org 在路径，CAS POST 带 {workspace_id, expected_version}（close 可选 reason）', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'session_id': 7266418340025468940,
+            'status': 'active',
+            'version': 8,
+            'business_identity_id': 7266418340025468902,
+          },
+        ),
+      );
+      final api = CsApi();
 
-        // A0 冻结参数表：claim/close 的 expected_version 均必填（CSM-01 补
-        // claim、CSM-02 补 close）；reason 可选且经 csSanitizeCloseReason 清洗。
-        final claimResult = await api.claim(
-          orgId,
-          sessionId,
-          expectedVersion: 7,
-        );
-        await api.close(orgId, sessionId, expectedVersion: 8);
-        await api.close(orgId, sessionId, expectedVersion: 8, reason: '已解决');
+      // A0 冻结参数表：claim/close 的 expected_version 均必填（CSM-01 补
+      // claim、CSM-02 补 close）；reason 可选且经 csSanitizeCloseReason 清洗。
+      // PR-W2-C01（V1.2 D5a）：cs_tenant_handler 的 workspace 门对 CAS
+      // 动作族（无 workspace=>optional 声明）要求正文必带 workspace_id。
+      final claimResult = await api.claim(
+        orgId,
+        sessionId,
+        expectedVersion: 7,
+        workspaceId: wsId,
+      );
+      await api.close(orgId, sessionId, expectedVersion: 8, workspaceId: wsId);
+      await api.close(
+        orgId,
+        sessionId,
+        expectedVersion: 8,
+        reason: '已解决',
+        workspaceId: wsId,
+      );
 
-        expect(adapter.requests, hasLength(3));
-        final (claimMethod, claimPath, claimData, _) = adapter.requests[0];
-        expect(claimMethod, 'POST');
-        expect(
-          claimPath,
-          '/api/v1/cs/organizations/$orgId/sessions/$sessionId/claim',
-        );
-        final claimBody = Map<String, dynamic>.from(claimData as Map);
-        expect(claimBody.keys.toSet(), {'expected_version'});
-        expect(claimBody['expected_version'], 7);
-        // claim 回显 = 权威经办身份（APP-M01-A04）
-        expect(claimResult.assigneeIdentityId, '7266418340025468902');
-        expect(claimResult.status, 'active');
-        expect(claimResult.version, 8);
+      expect(adapter.requests, hasLength(3));
+      final (claimMethod, claimPath, claimData, _) = adapter.requests[0];
+      expect(claimMethod, 'POST');
+      expect(
+        claimPath,
+        '/api/v1/cs/organizations/$orgId/sessions/$sessionId/claim',
+      );
+      final claimBody = Map<String, dynamic>.from(claimData as Map);
+      expect(claimBody.keys.toSet(), {'workspace_id', 'expected_version'});
+      expect(claimBody['workspace_id'], wsId);
+      expect(claimBody['expected_version'], 7);
+      // claim 回显 = 权威经办身份（APP-M01-A04）
+      expect(claimResult.assigneeIdentityId, '7266418340025468902');
+      expect(claimResult.status, 'active');
+      expect(claimResult.version, 8);
 
-        final (closeMethod, closePath, closeData, _) = adapter.requests[1];
-        expect(closeMethod, 'POST');
-        expect(
-          closePath,
-          '/api/v1/cs/organizations/$orgId/sessions/$sessionId/close',
-        );
-        expect(Map<String, dynamic>.from(closeData as Map).keys.toSet(), {
-          'expected_version',
-        });
+      final (closeMethod, closePath, closeData, _) = adapter.requests[1];
+      expect(closeMethod, 'POST');
+      expect(
+        closePath,
+        '/api/v1/cs/organizations/$orgId/sessions/$sessionId/close',
+      );
+      expect(Map<String, dynamic>.from(closeData as Map).keys.toSet(), {
+        'workspace_id',
+        'expected_version',
+      });
 
-        // reason 空缺时不出现键；给出时键白名单 {expected_version, reason}
-        final (m3, _, d3, _) = adapter.requests[2];
-        expect(m3, 'POST');
-        final body3 = Map<String, dynamic>.from(d3 as Map);
-        expect(body3.keys.toSet(), {'expected_version', 'reason'});
-        expect(body3['reason'], '已解决');
-      },
-    );
+      // reason 空缺时不出现键；给出时键白名单 {workspace_id, expected_version, reason}
+      final (m3, _, d3, _) = adapter.requests[2];
+      expect(m3, 'POST');
+      final body3 = Map<String, dynamic>.from(d3 as Map);
+      expect(body3.keys.toSet(), {
+        'workspace_id',
+        'expected_version',
+        'reason',
+      });
+      expect(body3['reason'], '已解决');
+    });
+
+    test('claim/transfer/close：workspace_id 条件携带（PR-W2-C01 D5a）', () async {
+      final adapter = useAdapter(200, okEnvelope());
+      final api = CsApi();
+
+      // 缺省（调用方未接线 workspace 上下文）：透传旧形状发出，键集中
+      // 无 workspace_id——后端 422 fail-closed 裁决（对齐 conversationMessages
+      // 先例）；接线（presentation 传入 workspaceId）归后续卡。
+      await api.claim(orgId, sessionId, expectedVersion: 1);
+      var body = Map<String, dynamic>.from(adapter.requests.last.$3 as Map);
+      expect(body.keys.toSet(), {'expected_version'});
+
+      await api.transfer(
+        orgId,
+        sessionId,
+        toIdentityId: '7266418340025468942',
+        expectedVersion: 1,
+      );
+      body = Map<String, dynamic>.from(adapter.requests.last.$3 as Map);
+      expect(body.keys.toSet(), {'to_identity_id', 'expected_version'});
+
+      await api.close(orgId, sessionId, expectedVersion: 1);
+      body = Map<String, dynamic>.from(adapter.requests.last.$3 as Map);
+      expect(body.keys.toSet(), {'expected_version'});
+
+      // 带参（契约正形状）：冻结键集携带 workspace_id。
+      await api.claim(orgId, sessionId, expectedVersion: 2, workspaceId: wsId);
+      body = Map<String, dynamic>.from(adapter.requests.last.$3 as Map);
+      expect(body.keys.toSet(), {'workspace_id', 'expected_version'});
+      expect(body['workspace_id'], wsId);
+
+      expect(adapter.requests, hasLength(4), reason: '每次调用恰好一个请求');
+    });
 
     test('sessionDetail：org 在路径，回显投影宽容解析', () async {
       final adapter = useAdapter(
@@ -383,34 +429,38 @@ void main() {
       expect(detail.assigneeIdentityId, '7266418340025468902');
     });
 
-    test(
-      'transfer：org 在路径，CAS body 键白名单 == {to_identity_id, expected_version}',
-      () async {
-        final adapter = useAdapter(200, okEnvelope());
-        final api = CsApi();
+    test('transfer：org 在路径，CAS body 键白名单 == {workspace_id, to_identity_id, expected_version}', () async {
+      final adapter = useAdapter(200, okEnvelope());
+      final api = CsApi();
 
-        // CSM-02 §12.5.1：A0 冻结参数表（cs_actions:session_transfer）要求
-        // to_identity_id 与 expected_version 均必填。
-        await api.transfer(
-          orgId,
-          sessionId,
-          toIdentityId: '7266418340025468942',
-          expectedVersion: 6,
-        );
+      // CSM-02 §12.5.1：A0 冻结参数表（cs_actions:session_transfer）要求
+      // to_identity_id 与 expected_version 均必填；PR-W2-C01：正文另受
+      // 面级 workspace 门（与 claim 同门对齐）。
+      await api.transfer(
+        orgId,
+        sessionId,
+        toIdentityId: '7266418340025468942',
+        expectedVersion: 6,
+        workspaceId: wsId,
+      );
 
-        expect(adapter.requests, hasLength(1));
-        final req = adapter.requests.single;
-        expect(req.$1, 'POST');
-        expect(
-          req.$2,
-          '/api/v1/cs/organizations/$orgId/sessions/$sessionId/transfer',
-        );
-        final body = Map<String, dynamic>.from(req.$3 as Map);
-        expect(body.keys.toSet(), {'to_identity_id', 'expected_version'});
-        expect(body['to_identity_id'], '7266418340025468942');
-        expect(body['expected_version'], 6);
-      },
-    );
+      expect(adapter.requests, hasLength(1));
+      final req = adapter.requests.single;
+      expect(req.$1, 'POST');
+      expect(
+        req.$2,
+        '/api/v1/cs/organizations/$orgId/sessions/$sessionId/transfer',
+      );
+      final body = Map<String, dynamic>.from(req.$3 as Map);
+      expect(body.keys.toSet(), {
+        'workspace_id',
+        'to_identity_id',
+        'expected_version',
+      });
+      expect(body['workspace_id'], wsId);
+      expect(body['to_identity_id'], '7266418340025468942');
+      expect(body['expected_version'], 6);
+    });
 
     test(
       'conversationMessages：A0 坐席读路径 + 冻结 query（org/workspace）+ assets 五键投影',
@@ -552,36 +602,42 @@ void main() {
       expect(sent.message.senderType, EnterpriseSenderType.businessIdentity);
     });
 
-    test('ackDelivery：delivery-only，recipient_ref 必填（EB 合同）', () async {
-      final adapter = useAdapter(200, okEnvelope());
-      final api = CsApi();
+    test(
+      'ackDelivery：delivery-only，workspace_id 门 + recipient_ref 必填（EB 合同）',
+      () async {
+        final adapter = useAdapter(200, okEnvelope());
+        final api = CsApi();
 
-      await api.ackDelivery(
-        '7266418340025468901',
-        '7266418340025468950',
-        '7266418340025468960',
-        // APP-M02-A01：recipient_ref 恒为 identity:<business_identity_id>
-        //（`seat:` 前缀=后端 400 契约，客户端绝不产生——本用例钉唯一合法形状）。
-        recipientRef: 'identity:7266418340025468902',
-      );
+        await api.ackDelivery(
+          '7266418340025468901',
+          '7266418340025468950',
+          '7266418340025468960',
+          // APP-M02-A01：recipient_ref 恒为 identity:<business_identity_id>
+          //（`seat:` 前缀=后端 400 契约，客户端绝不产生——本用例钉唯一合法形状）。
+          recipientRef: 'identity:7266418340025468902',
+          workspaceId: wsId,
+        );
 
-      final req = adapter.requests.single;
-      expect(req.$1, 'POST');
-      expect(
-        req.$2,
-        '/api/v1/enterprise/organizations/7266418340025468901'
-        '/conversations/7266418340025468950/messages/7266418340025468960/ack',
-      );
-      final body = Map<String, dynamic>.from(req.$3 as Map);
-      expect(body.keys.toSet(), {'recipient_ref'});
-      expect(body['recipient_ref'], 'identity:7266418340025468902');
-    });
+        final req = adapter.requests.single;
+        expect(req.$1, 'POST');
+        expect(
+          req.$2,
+          '/api/v1/enterprise/organizations/7266418340025468901'
+          '/conversations/7266418340025468950/messages/7266418340025468960/ack',
+        );
+        final body = Map<String, dynamic>.from(req.$3 as Map);
+        expect(body.keys.toSet(), {'workspace_id', 'recipient_ref'});
+        expect(body['recipient_ref'], 'identity:7266418340025468902');
+        expect(body['workspace_id'], wsId);
+      },
+    );
 
     test('错误映射：401/403/409 镜像 EnterpriseApiException 判定属性', () async {
       useAdapter(401, {'code': 401, 'msg': 'unauthorized'});
       var api = CsApi();
       var e401 = await _capture(
-        () => api.claim(orgId, sessionId, expectedVersion: 1),
+        () =>
+            api.claim(orgId, sessionId, expectedVersion: 1, workspaceId: wsId),
       );
       expect(e401, isA<CsApiException>());
       expect((e401! as CsApiException).isUnauthorized, isTrue);
@@ -590,14 +646,16 @@ void main() {
       useAdapter(403, {'code': 403, 'msg': 'forbidden'});
       api = CsApi();
       var e403 = await _capture(
-        () => api.claim(orgId, sessionId, expectedVersion: 1),
+        () =>
+            api.claim(orgId, sessionId, expectedVersion: 1, workspaceId: wsId),
       );
       expect((e403! as CsApiException).isForbidden, isTrue);
 
       useAdapter(409, {'code': 409, 'msg': 'offboarding_required'});
       api = CsApi();
       var e409 = await _capture(
-        () => api.claim(orgId, sessionId, expectedVersion: 1),
+        () =>
+            api.claim(orgId, sessionId, expectedVersion: 1, workspaceId: wsId),
       );
       expect((e409! as CsApiException).isOffboardingRequired, isTrue);
       expect((e409 as CsApiException).isConflict, isTrue);
@@ -780,14 +838,15 @@ void main() {
       await api.seatSessionsPage(orgId, status: 'active', limit: 5);
       await api.transferTargets(orgId, limit: 5);
       await api.sessionDetail(orgId, sessionId);
-      await api.claim(orgId, sessionId, expectedVersion: 1);
+      await api.claim(orgId, sessionId, expectedVersion: 1, workspaceId: wsId);
       await api.transfer(
         orgId,
         sessionId,
         toIdentityId: 'x',
         expectedVersion: 1,
+        workspaceId: wsId,
       );
-      await api.close(orgId, sessionId, expectedVersion: 1);
+      await api.close(orgId, sessionId, expectedVersion: 1, workspaceId: wsId);
 
       for (final req in adapter.requests) {
         expect(
@@ -802,13 +861,20 @@ void main() {
       final adapter = useAdapter(200, okEnvelope());
       final api = CsApi();
 
-      await api.claim(orgId, sessionId, expectedVersion: 2);
-      await api.close(orgId, sessionId, expectedVersion: 3, reason: '已解决');
+      await api.claim(orgId, sessionId, expectedVersion: 2, workspaceId: wsId);
+      await api.close(
+        orgId,
+        sessionId,
+        expectedVersion: 3,
+        reason: '已解决',
+        workspaceId: wsId,
+      );
       await api.transfer(
         orgId,
         sessionId,
         toIdentityId: 'x',
         expectedVersion: 3,
+        workspaceId: wsId,
       );
 
       for (final req in adapter.requests) {
@@ -824,13 +890,20 @@ void main() {
       final adapter = useAdapter(200, okEnvelope());
       final api = CsApi();
 
-      await api.claim(orgId, sessionId, expectedVersion: 2);
-      await api.close(orgId, sessionId, expectedVersion: 3, reason: '已解决');
+      await api.claim(orgId, sessionId, expectedVersion: 2, workspaceId: wsId);
+      await api.close(
+        orgId,
+        sessionId,
+        expectedVersion: 3,
+        reason: '已解决',
+        workspaceId: wsId,
+      );
       await api.transfer(
         orgId,
         sessionId,
         toIdentityId: 'x',
         expectedVersion: 3,
+        workspaceId: wsId,
       );
 
       // 全量收集提交面 body
