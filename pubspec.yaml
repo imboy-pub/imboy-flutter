@@ -28,7 +28,7 @@ dependencies:
   # └─────────────────────────────────────────────────────────────────┘
   cupertino_icons: ^1.0.8        # iOS style icons
   flutter_screenutil: ^5.9.3    # Screen adaptation utility
-  octo_image: ^2.1.0              # Multi-purpose Flutter image widget
+  octo_image: ^2.1.1              # Multi-purpose Flutter image widget
   flutter_svg: ^2.2.4             # SVG rendering support
   flutter_easyloading: ^4.0.0     # Toast/loading widgets (updated: 3.0.5 → 4.0.0)
   flutter_native_splash: ^2.4.7    # Splash screen generation utility
@@ -142,7 +142,7 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # 📍 Maps & Location                                               │
   # └─────────────────────────────────────────────────────────────────┘
-  geolocator: ^14.0.3                   # 跨平台定位服务（支持 macOS/Web）(updated: 14.0.2 → 14.0.3)
+  geolocator: ^14.1.1                    # 跨平台定位服务（支持 macOS/Web）(updated: 14.0.2 → 14.0.3)
   amap_flutter_base_plus: ^3.1.0       # Amap (高德地图) base SDK（LatLng 等基础类型，选点页仍用）
   # amap_flutter_map_plus 已移除：交互式地图 widget 换成官方静态地图 Web
   # 服务 API（AMapApi.staticMapUrl，纯 HTTP，全平台可用），不再需要原生
@@ -175,7 +175,7 @@ dependencies:
   convert: ^3.1.2                   # Data conversion utilities
   permission_handler: ^13.0.2       # Permission requests (updated: 12.0.3 → 13.0.2)
   path_provider: ^2.1.6              # File system path utilities (updated: 2.1.5 → 2.1.6)
-  file_saver: ^0.5.0                  # File saving utilities (updated: 0.3.1 → 0.4.0)
+  file_saver: ^0.6.0                  # File saving utilities (updated: 0.3.1 → 0.4.0)
   xid: ^1.2.1                        # Unique ID generation
   ntp: ^2.0.0                        # Network Time Protocol (time sync)
   equatable: ^2.0.7                  # Object equality comparisons
@@ -209,7 +209,7 @@ dependencies:
   jpush_flutter: ^3.5.8
 
   envied: ^1.3.9                    # Environment variables management (updated: 1.3.2 → 1.3.8)
-  pin_code_fields: ^10.0.0                 # PIN code input fields
+  pin_code_fields: ^10.1.0                 # PIN code input fields
   intl_phone_number_input: ^0.7.5    # Phone number input with validation
   jverify:                            # JVerification (gitee fork dev-3.x: SwiftPM + carrier SDK 适配)
     git:

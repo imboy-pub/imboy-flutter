@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "f582fea098d2498f1d85b7deeddf0d914295a4ef",
-    "backend_head": "37da766cebf254853f26fc3726dd6b97932ee114",
-    "integration_test_count": 136,
+    "app_head": "6f179511e689744bc9ab3a2faacef988bdd0481a",
+    "backend_head": "68c276f9baa5c6ea3b0be6ada16197a474961198",
+    "integration_test_count": 142,
     "lib_page_count": 164,
-    "module_page_count": 9,
-    "route_page_component_count": 140,
+    "module_page_count": 21,
+    "route_page_component_count": 147,
     "spec_count": 25
   },
   "entries": [
@@ -223,7 +223,7 @@
     {
       "id": "test:integration_test/channel/paid_channel_acceptance_test.dart",
       "target": "integration_test/channel/paid_channel_acceptance_test.dart",
-      "target_sha256": "f5ec96570f168a93e7aec890fe569b19948414ab4e117784d70763b1103a4276",
+      "target_sha256": "3d228ead847ff1de978b0c210a86c748b0bcb25197b8a261e3e793ce15b38222",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -542,6 +542,20 @@
       "id": "test:integration_test/customer_service/cs_degradation_acceptance_test.dart",
       "target": "integration_test/customer_service/cs_degradation_acceptance_test.dart",
       "target_sha256": "961c17ba856a2918a4fd17517e80f932115c5ea35f6d20b766048e4ee6bb4b79",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "customer_service"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/customer_service/cs_workbench_e2e_test.dart",
+      "target": "integration_test/customer_service/cs_workbench_e2e_test.dart",
+      "target_sha256": "7673f667278f85d7e54e75597c9cf7dbf04004f51397bc2167ec8c18b74eb40a",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1059,7 +1073,7 @@
     {
       "id": "test:integration_test/enterprise/enterprise_cs_e2e_test.dart",
       "target": "integration_test/enterprise/enterprise_cs_e2e_test.dart",
-      "target_sha256": "3135d4502af6f0093b840b1b31d69f2105c05c4eb643a9e9dd8de16e31d1f3cb",
+      "target_sha256": "ce0233ddd89a3dcbb79552442ec6f5eb77154ab6456578661302320ce14edc65",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1334,7 +1348,7 @@
     {
       "id": "test:integration_test/misc/acceptance_batch157_test.dart",
       "target": "integration_test/misc/acceptance_batch157_test.dart",
-      "target_sha256": "d655be23b24cf625dfbb4390634dd05893a87bf13b0802d6cb5649794cae3723",
+      "target_sha256": "bcdfbcd826eb4c832da46b2171e82f374cb827d29afe42bfb8a8a7466ecfe7d5",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1481,6 +1495,76 @@
       "requirements": [],
       "tags": [
         "r01_message_report_realdevice_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/rtc/c2c_call_matrix_a_side_test.dart",
+      "target": "integration_test/rtc/c2c_call_matrix_a_side_test.dart",
+      "target_sha256": "6a240b5005b6625aec85727a204385d27de1f5661feaf73aace168fae6ad0ee4",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "rtc"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/rtc/c2c_call_matrix_b_side_test.dart",
+      "target": "integration_test/rtc/c2c_call_matrix_b_side_test.dart",
+      "target_sha256": "0c1aee74b1980fde4b936e92a3d867bb923214bad6a2a617e98470f2456930a9",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "rtc"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/rtc/rtc_group_regression_test.dart",
+      "target": "integration_test/rtc/rtc_group_regression_test.dart",
+      "target_sha256": "1daee914f0b98414883e946e04ffc96e28c2d6a76c7351e631ac07b17686e96b",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "rtc"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/rtc/rtc_negative_matrix_test.dart",
+      "target": "integration_test/rtc/rtc_negative_matrix_test.dart",
+      "target_sha256": "3d3b209ac2457078e5b85dc9b1114953c2d010f250e0647f966f36881cb7b1a3",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "rtc"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/rtc/rtc_relay_realdevice_test.dart",
+      "target": "integration_test/rtc/rtc_relay_realdevice_test.dart",
+      "target_sha256": "259f428dbf746d4b00e3bb14d759456d864f089be5b48dce243fe78a25c844a1",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "rtc"
       ],
       "enabled": false,
       "oracle_hint": true
@@ -2096,6 +2180,16 @@
   ],
   "pages": [
     {
+      "page": "lib/modules/customer_service/presentation/cs_governance_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
       "page": "lib/modules/customer_service/presentation/cs_session_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
@@ -2127,6 +2221,76 @@
     },
     {
       "page": "lib/modules/enterprise/presentation/enterprise_home_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/enterprise_app/presentation/enterprise_directory_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/enterprise_app/presentation/enterprise_group_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/enterprise_oa/presentation/oa_tab_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/org_invite_qr_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/org_join_scanner_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/org_workspace_members_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
       "route_registered": false,
@@ -2176,7 +2340,47 @@
       "details": ""
     },
     {
+      "page": "lib/modules/organization/presentation/organization_manage_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_member_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
       "page": "lib/modules/organization/presentation/organization_members_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_picker_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_tools_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
       "route_registered": false,

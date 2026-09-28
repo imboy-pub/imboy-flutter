@@ -299,7 +299,7 @@ SPEC CHECKSUMS:
   dynamic_color: 4f4c0d2861eb7ff36a2a5e8e2d441e1b6c681ddf
   emoji_picker_flutter: 51ca408e289d84d1e460016b2a28721ec754fcf7
   file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
-  file_saver: 0b49fcd0f67d6e24737b757ee1eb1d3d8ca392fb
+  file_saver: 41061028a994eb4fc9a53c5d7ce13d61d03b6ac3
   file_selector_macos: 9e9e068e90ebee155097d00e89ae91edb2374db7
   Firebase: 7ca191e43724142f79fae653547b3382c45413cc
   firebase_core: 43e1937898a25c5d76bc3ac4e58539465c9f219d
