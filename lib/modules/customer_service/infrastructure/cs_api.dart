@@ -849,6 +849,12 @@ class CsApi extends HttpClient {
   /// 同 client_msg_id + asset_ids 重试返回同一 message，其他重放 409）。
   /// 回显按 CS-BE-01 同形状携带 `assets` 投影（解析见
   /// [CsConversationMessage]）。
+  ///
+  /// 契约（PR-W2-C01 同门对齐 / 真机 A02 实证 2026-09-30）：EB-03-A01
+  /// 显式 workspace 归属必填——旧形状缺 `workspace_id` 必 422
+  /// missing_workspace_id（真机发送恒失败的根因）。[workspaceId] 非空时
+  /// 携带；空时透传发出（服务端 422 fail-closed 裁决），接线归调用方
+  /// （[cs_session_flow] send 已 fail-closed + resolveWorkspaceId）。
   Future<CsConversationMessage> sendConversationMessage(
     String orgId,
     String conversationId, {
@@ -856,10 +862,12 @@ class CsApi extends HttpClient {
     required String clientMsgId,
     required String identityId,
     List<String> assetIds = const <String>[],
+    String workspaceId = '',
   }) async {
     final resp = await post(
       '/api/v1/enterprise/organizations/$orgId/conversations/$conversationId/messages',
       data: {
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
         'client_msg_id': clientMsgId,
         'sender_type': EnterpriseSenderType.businessIdentity.wireName,
         'body': body,
@@ -1046,29 +1054,55 @@ class CsApi extends HttpClient {
   /// POST /api/v1/cs/organizations/:org_id/seats/me/heartbeat。
   /// 返回派生运行态（online/away/busy/offline）。调用时机由
   /// [CsPresenceController] 按前台/后台门控——后台不发，不谎报 online。
-  Future<CsPresence> seatHeartbeat(String orgId) async {
+  ///
+  /// 契约（PR-W2-C01 同门对齐 / 真机 A02 实证 2026-09-30）：动作表
+  /// `seat_presence_heartbeat` 未声明 `workspace => optional`，workspace 门
+  /// required——旧空体形状必 422 missing_workspace_id（坐席恒「状态不可用」
+  /// 的根因）。[workspaceId] 非空时携带；空时透传发出，接线归调用方
+  /// （控制器对空 workspaceId 诚实不发）。
+  Future<CsPresence> seatHeartbeat(
+    String orgId, {
+    String workspaceId = '',
+  }) async {
     final resp = await post(
       '/api/v1/cs/organizations/$orgId/seats/me/heartbeat',
-      data: <String, dynamic>{},
+      data: <String, dynamic>{
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+      },
     );
     _ensureOk(resp);
     return CsPresence.fromJson(_presencePayload(resp));
   }
 
   /// GET /api/v1/cs/organizations/:org_id/seats/me/presence（只读视图，
-  /// 降级展示用；不发心跳）。
-  Future<CsPresence> seatPresence(String orgId) async {
-    final resp = await get('/api/v1/cs/organizations/$orgId/seats/me/presence');
+  /// 降级展示用；不发心跳）。`workspaceId` 同 heartbeat（workspace 门必填）。
+  Future<CsPresence> seatPresence(
+    String orgId, {
+    String workspaceId = '',
+  }) async {
+    final resp = await get(
+      '/api/v1/cs/organizations/$orgId/seats/me/presence',
+      queryParameters: <String, dynamic>{
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+      },
+    );
     _ensureOk(resp);
     return CsPresence.fromJson(_presencePayload(resp));
   }
 
   /// PUT seats/me/presence：manualStatus='away' 设手动离开；null=清除
-  /// （回到心跳/负载自动派生）。
-  Future<CsPresence> setSeatPresence(String orgId, String? manualStatus) async {
+  /// （回到心跳/负载自动派生）。`workspaceId` 同 heartbeat（workspace 门必填）。
+  Future<CsPresence> setSeatPresence(
+    String orgId,
+    String? manualStatus, {
+    String workspaceId = '',
+  }) async {
     final resp = await put(
       '/api/v1/cs/organizations/$orgId/seats/me/presence',
-      data: <String, dynamic>{?manualStatus: manualStatus},
+      data: <String, dynamic>{
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+        ?manualStatus: manualStatus,
+      },
     );
     _ensureOk(resp);
     return CsPresence.fromJson(_presencePayload(resp));

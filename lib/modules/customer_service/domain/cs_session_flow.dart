@@ -290,11 +290,14 @@ class CsSessionFlow {
         .map((m) => m.id)
         .toList();
     if (undelivered.isEmpty) return;
+    await resolveWorkspaceId();
+    if (workspaceId.isEmpty) return;
     for (final mid in undelivered) {
       await _csApi.ackDelivery(
         orgId,
         conversationId,
         mid,
+        workspaceId: workspaceId,
         recipientRef: 'identity:$identityId',
       );
     }
@@ -321,6 +324,10 @@ class CsSessionFlow {
       // 禁止构造非法请求，更禁止 fallback 个人 IM。
       return false;
     }
+    // EB-03-A01 显式 workspace 归属（缺省必 422 missing_workspace_id）；
+    // 解析失败保持空 = fail-closed（不构造注定失败的请求）。
+    await resolveWorkspaceId();
+    if (workspaceId.isEmpty) return false;
     final clientMsgId = pendingClientMsgId ?? Xid().toString();
     pendingClientMsgId = clientMsgId;
     // 重试稳定性：已有 pending 附件组必须原样复用（A03 同键同附件）。
@@ -332,6 +339,7 @@ class CsSessionFlow {
       final sent = await _csApi.sendConversationMessage(
         orgId,
         conversationId,
+        workspaceId: workspaceId,
         body: body,
         clientMsgId: clientMsgId,
         identityId: identityId,

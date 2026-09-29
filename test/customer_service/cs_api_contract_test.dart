@@ -578,6 +578,7 @@ void main() {
         body: '您好，正在为您核实',
         clientMsgId: 'cmid-1',
         identityId: '7266418340025468902',
+        workspaceId: wsId,
       );
 
       final req = adapter.requests.single;
@@ -589,11 +590,13 @@ void main() {
       );
       final body = Map<String, dynamic>.from(req.$3 as Map);
       expect(body.keys.toSet(), {
+        'workspace_id',
         'client_msg_id',
         'sender_type',
         'body',
         'identity_id',
       });
+      expect(body['workspace_id'], wsId);
       expect(body['client_msg_id'], 'cmid-1');
       expect(body['sender_type'], 'business_identity');
       // F-SEC-02 负例：提交面不得出现 content/asset_id 旧键形
