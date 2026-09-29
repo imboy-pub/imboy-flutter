@@ -70,9 +70,8 @@ void _output(String dir) {
   try {
     Directory(dir).createSync(recursive: true);
     File('$dir/upgrade.sql').writeAsStringSync(buildUpgradeSqlFromManifest());
-    File(
-      '$dir/downgrade.sql',
-    ).writeAsStringSync(buildDowngradeSqlFromManifest());
+    File('$dir/downgrade.sql')
+        .writeAsStringSync(buildDowngradeSqlFromManifest());
     stdout.writeln('Wrote upgrade.sql & downgrade.sql to $dir');
     exit(0);
   } catch (e) {

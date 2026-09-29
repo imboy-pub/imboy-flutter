@@ -52,9 +52,8 @@ class ChangePasswordPage extends ConsumerWidget {
                     vertical: AppSpacing.tiny,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.getIosBlue(
-                      Theme.of(context).brightness,
-                    ).withValues(alpha: 0.1),
+                    color: AppColors.getIosBlue(Theme.of(context).brightness)
+                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(

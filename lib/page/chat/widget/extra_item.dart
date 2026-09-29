@@ -103,9 +103,8 @@ class ExtraItem extends StatelessWidget {
                       .textStyle(
                         FontSizeType.small,
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.8),
+                        color: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.8),
                       )
                       .copyWith(height: 1.1),
                   textAlign: TextAlign.center,

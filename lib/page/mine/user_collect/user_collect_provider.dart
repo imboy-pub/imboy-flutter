@@ -1,4 +1,5 @@
 import 'dart:convert' show jsonDecode;
+
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/foundation.dart';
@@ -29,6 +30,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/chat/message_audio_builder.dart' as audio;
 
 import 'user_collect_state.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
@@ -292,9 +294,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 Text(
                   formatBytes(_payload(obj)['size'] as int? ?? 0),
                   style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(context).colorScheme.onSurface
+                        .withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -302,9 +303,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 Text(
                   " ${_payload(obj)['width']}X${_payload(obj)['height']}",
                   style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(context).colorScheme.onSurface
+                        .withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -443,9 +443,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                         0,
                   ),
                   style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(context).colorScheme.onSurface
+                        .withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -453,9 +452,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                 Text(
                   " ${(_payload(obj)['video'] as Map? ?? const {})['width']}X${(_payload(obj)['video'] as Map? ?? const {})['height']}",
                   style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(context).colorScheme.onSurface
+                        .withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -493,9 +491,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     Text(
                       "$mimeType  ${formatBytes(_payload(obj)['size'] as int? ?? 0)}",
                       style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.7),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -531,9 +528,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                       Text(
                         "${t.chat.fileSize}: ${formatBytes(_payload(obj)['size'] as int? ?? 0)}",
                         style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withValues(alpha: 0.7),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -547,9 +543,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                     Text(
                       mimeType,
                       style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.7),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -585,9 +580,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -629,9 +623,9 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                                 title,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -643,9 +637,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
                         Text(
                           address,
                           style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.8),
+                            color: Theme.of(context).colorScheme.onSurface
+                                .withValues(alpha: 0.8),
                           ),
                           maxLines: 6,
                           overflow: TextOverflow.ellipsis,

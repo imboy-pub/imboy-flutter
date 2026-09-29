@@ -160,35 +160,32 @@ void main() {
       },
     );
 
-    test(
-      'handleChannelMessageRevoked removes local message and emits revoked event',
-      () async {
-        final messageRepo = _FakeChannelMessageRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(),
-          repo: _FakeChannelRepo(),
-          messageRepo: messageRepo,
-        );
-        final events = <ChannelMessageDeletedEvent>[];
-        final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
-          events.add,
-        );
+    test('handleChannelMessageRevoked removes local message and emits revoked event', () async {
+      final messageRepo = _FakeChannelMessageRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(),
+        repo: _FakeChannelRepo(),
+        messageRepo: messageRepo,
+      );
+      final events = <ChannelMessageDeletedEvent>[];
+      final sub = AppEventBus.on<ChannelMessageDeletedEvent>().listen(
+        events.add,
+      );
 
-        await service.handleChannelMessageRevoked({
-          'channel_id': 'ch-2',
-          'message_id': 'msg-2',
-        });
+      await service.handleChannelMessageRevoked({
+        'channel_id': 'ch-2',
+        'message_id': 'msg-2',
+      });
 
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        await sub.cancel();
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await sub.cancel();
 
-        expect(messageRepo.deletedMessageIds, equals(const ['msg-2']));
-        expect(events, hasLength(1));
-        expect(events.single.channelId, 'ch-2');
-        expect(events.single.messageId, 'msg-2');
-        expect(events.single.reason, 'revoked');
-      },
-    );
+      expect(messageRepo.deletedMessageIds, equals(const ['msg-2']));
+      expect(events, hasLength(1));
+      expect(events.single.channelId, 'ch-2');
+      expect(events.single.messageId, 'msg-2');
+      expect(events.single.reason, 'revoked');
+    });
 
     test('handleChannelMessageRevoked ignores empty channel_id', () async {
       final messageRepo = _FakeChannelMessageRepo();
@@ -278,39 +275,34 @@ void main() {
       },
     );
 
-    test(
-      'handleChannelSubscribed emits channel_subscribed event for cross-device sync',
-      () async {
-        final api = _FakeChannelApi(
-          channelById: {'2001': _channel(id: 2001, name: 'Remote-Subscribed')},
-        );
-        final repo = _FakeChannelRepo();
-        final service = ChannelService.forTest(
-          api: api,
-          repo: repo,
-          messageRepo: _FakeChannelMessageRepo(),
-        );
-        final events = <ChannelStateChangedEvent>[];
-        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
-          events.add,
-        );
+    test('handleChannelSubscribed emits channel_subscribed event for cross-device sync', () async {
+      final api = _FakeChannelApi(
+        channelById: {'2001': _channel(id: 2001, name: 'Remote-Subscribed')},
+      );
+      final repo = _FakeChannelRepo();
+      final service = ChannelService.forTest(
+        api: api,
+        repo: repo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
+      final events = <ChannelStateChangedEvent>[];
+      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
 
-        await service.handleChannelSubscribed({'channel_id': '2001'});
+      await service.handleChannelSubscribed({'channel_id': '2001'});
 
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        await sub.cancel();
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await sub.cancel();
 
-        expect(repo.savedChannels, hasLength(1));
-        expect(repo.savedSubscriptions, hasLength(1));
-        expect(
-          events.any(
-            (e) => e.channelId == '2001' && e.action == 'channel_subscribed',
-          ),
-          isTrue,
-          reason: '多端同步：必须广播 channel_subscribed 让订阅列表刷新',
-        );
-      },
-    );
+      expect(repo.savedChannels, hasLength(1));
+      expect(repo.savedSubscriptions, hasLength(1));
+      expect(
+        events.any(
+          (e) => e.channelId == '2001' && e.action == 'channel_subscribed',
+        ),
+        isTrue,
+        reason: '多端同步：必须广播 channel_subscribed 让订阅列表刷新',
+      );
+    });
 
     test(
       'handleChannelSubscribed ignores channel with id=0 (sentinel)',
@@ -487,40 +479,34 @@ void main() {
       },
     );
 
-    test(
-      'handleChannelOrderPaid refreshes subscription state and emits channel change',
-      () async {
-        final repo = _FakeChannelRepo();
-        final service = ChannelService.forTest(
-          api: _FakeChannelApi(
-            channelById: {'1003': _channel(id: 1003, name: 'Paid Channel')},
-          ),
-          repo: repo,
-          messageRepo: _FakeChannelMessageRepo(),
-        );
-        final events = <ChannelStateChangedEvent>[];
-        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
-          events.add,
-        );
+    test('handleChannelOrderPaid refreshes subscription state and emits channel change', () async {
+      final repo = _FakeChannelRepo();
+      final service = ChannelService.forTest(
+        api: _FakeChannelApi(
+          channelById: {'1003': _channel(id: 1003, name: 'Paid Channel')},
+        ),
+        repo: repo,
+        messageRepo: _FakeChannelMessageRepo(),
+      );
+      final events = <ChannelStateChangedEvent>[];
+      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
 
-        await service.handleChannelOrderPaid({'channel_id': '1003'});
+      await service.handleChannelOrderPaid({'channel_id': '1003'});
 
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        await sub.cancel();
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await sub.cancel();
 
-        expect(repo.savedChannels, hasLength(1));
-        expect(repo.savedChannels.single.id, 1003);
-        expect(repo.savedSubscriptions, hasLength(1));
-        expect(repo.savedSubscriptions.single.channelId, 1003);
-        expect(
-          events.any(
-            (event) =>
-                event.channelId == '1003' &&
-                event.action == 'channel_order_paid',
-          ),
-          isTrue,
-        );
-      },
-    );
+      expect(repo.savedChannels, hasLength(1));
+      expect(repo.savedChannels.single.id, 1003);
+      expect(repo.savedSubscriptions, hasLength(1));
+      expect(repo.savedSubscriptions.single.channelId, 1003);
+      expect(
+        events.any(
+          (event) =>
+              event.channelId == '1003' && event.action == 'channel_order_paid',
+        ),
+        isTrue,
+      );
+    });
   });
 }

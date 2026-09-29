@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -29,9 +30,8 @@ class GlassBottomNavigationBar extends StatelessWidget {
     final backgroundColor =
         (isDark ? AppColors.darkSurfaceGrouped : AppColors.lightSurface)
             .withValues(alpha: 0.8);
-    final separatorColor = AppColors.getIosSeparator(
-      theme.brightness,
-    ).withValues(alpha: 0.5);
+    final separatorColor = AppColors.getIosSeparator(theme.brightness)
+        .withValues(alpha: 0.5);
 
     return ClipRect(
       child: BackdropFilter(

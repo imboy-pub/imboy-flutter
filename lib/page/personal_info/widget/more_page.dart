@@ -7,6 +7,7 @@ import '../update/update_page.dart';
 import '../set_gender/set_gender_page.dart';
 import '../set_region/set_region_page.dart';
 import '../personal_info/personal_info_provider.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';

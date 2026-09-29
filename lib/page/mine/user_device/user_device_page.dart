@@ -111,9 +111,8 @@ class _UserDevicePageState extends ConsumerState<UserDevicePage> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.medium),
       decoration: BoxDecoration(
-        color: AppColors.getIosBlue(
-          Theme.of(context).brightness,
-        ).withValues(alpha: 0.1),
+        color: AppColors.getIosBlue(Theme.of(context).brightness)
+            .withValues(alpha: 0.1),
         borderRadius: AppRadius.borderRadiusCell,
       ),
       child: Row(

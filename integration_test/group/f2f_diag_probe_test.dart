@@ -118,9 +118,8 @@ void main() {
       'uid': int.parse(_expectedUid),
     });
 
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/group/face_to_face');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/group/face_to_face');
     await _waitFor(
       tester,
       () => tester.any(find.text('和身边的朋友输入同样的四个数字，进入同一个群聊')),

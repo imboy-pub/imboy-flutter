@@ -111,9 +111,8 @@ void main() {
       }
       // 大小写混合十六进制合法
       expect(
-        BrandConfig.fromJson(<String, dynamic>{
-          'primary_color': '#aAbBcC',
-        }).primaryColor,
+        BrandConfig.fromJson(<String, dynamic>{'primary_color': '#aAbBcC'})
+            .primaryColor,
         const Color(0xFFAABBCC),
       );
     });

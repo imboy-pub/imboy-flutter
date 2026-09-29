@@ -34,11 +34,10 @@ typedef _ImageUpload = ({String uri, int w, int h});
 
 /// 选图函数签名：与 [AssetPicker.pickAssets] 前两个参数对齐（后者多余的可选
 /// 命名参数可赋值给本类型，见 Dart 函数子类型规则）。
-typedef PickAssetsFn =
-    Future<List<AssetEntity>?> Function(
-      BuildContext context, {
-      AssetPickerConfig pickerConfig,
-    });
+typedef PickAssetsFn = Future<List<AssetEntity>?> Function(
+  BuildContext context, {
+  AssetPickerConfig pickerConfig,
+});
 
 /// 已选图片的统一抽象：photo_manager 的 [AssetEntity]（非 Android 路径）或
 /// 本地文件（Android 绕行路径，file_picker 无 AssetEntity）。预览与上传两用。

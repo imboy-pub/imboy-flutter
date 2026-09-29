@@ -294,9 +294,8 @@ void main() {
       // 同时验证解出来的 msgId 与预期一致（和内部代码路径一致）
       final r = ImboyFrame.tryDecode(ackFrame);
       expect(r, isNotNull);
-      final extracted = ByteData.sublistView(
-        r!.frame.payload,
-      ).getUint64(0, Endian.big);
+      final extracted = ByteData.sublistView(r!.frame.payload)
+          .getUint64(0, Endian.big);
       expect(extracted, msgId);
       expect(extracted.toString(), '9876543210');
     });

@@ -25,6 +25,7 @@ import 'package:imboy/service/events/common_events.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 
 import 'package:imboy/page/group/group_role_rules.dart';
+
 import 'group_member_mute_util.dart';
 import 'mute_remaining_badge.dart';
 
@@ -408,9 +409,8 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
           ),
           // 角色筛选分段控件
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.regular,
-            ).copyWith(bottom: AppSpacing.small),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular)
+                .copyWith(bottom: AppSpacing.small),
             child: SizedBox(
               width: double.infinity,
               child: CupertinoSlidingSegmentedControl<int>(

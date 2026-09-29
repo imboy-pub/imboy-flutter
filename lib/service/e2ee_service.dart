@@ -449,9 +449,8 @@ class E2EEService {
     final metadata = (aad != null && aad.isNotEmpty)
         ? <String, dynamic>{...e2ee, 'aad': aad}
         : e2ee;
-    return E2eeProtocolRegistry.resolve(
-      metadata,
-    ).decrypt(ciphertext: ciphertext, metadata: metadata);
+    return E2eeProtocolRegistry.resolve(metadata)
+        .decrypt(ciphertext: ciphertext, metadata: metadata);
   }
 
   /// 解密接收到的消息 payload
@@ -814,9 +813,8 @@ class E2EEService {
           'ciphertext_digest': ciphertextDigest,
         };
         final ciphertextStr = utf8.decode(base64Url.decode(ciphertextB64));
-        innerFrameB64 = await E2eeProtocolRegistry.resolve(
-          metadata,
-        ).decrypt(ciphertext: ciphertextStr, metadata: metadata);
+        innerFrameB64 = await E2eeProtocolRegistry.resolve(metadata)
+            .decrypt(ciphertext: ciphertextStr, metadata: metadata);
       }
     } on DuplicateMessageException {
       // ADR 15 §7.1：重复密文幂等返回，ratchet 未重复推进。

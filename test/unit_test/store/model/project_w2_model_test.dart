@@ -29,14 +29,12 @@ void main() {
     });
 
     test('ProjectMemberModel.fromJson：大 TSID user_id/project_id 以字符串持有', () {
-      final json =
-          jsonDecode(
-                '{"workspace_id": $_bigTsid, "project_id": $_bigTsid, '
-                '"user_id": $_bigTsid, "invited_by": 1001, '
-                '"joined_at": "2026-01-01T00:00:00Z", "status": "active", '
-                '"nickname": "李雷", "avatar": "", "account": "leilei"}',
-              )
-              as Map<String, dynamic>;
+      final json = jsonDecode(
+        '{"workspace_id": $_bigTsid, "project_id": $_bigTsid, '
+        '"user_id": $_bigTsid, "invited_by": 1001, '
+        '"joined_at": "2026-01-01T00:00:00Z", "status": "active", '
+        '"nickname": "李雷", "avatar": "", "account": "leilei"}',
+      ) as Map<String, dynamic>;
       final m = ProjectMemberModel.fromJson(json);
       expect(m.workspaceId, '9007199254740993');
       expect(m.projectId, '9007199254740993');
@@ -48,12 +46,10 @@ void main() {
     });
 
     test('ProjectChannelModel.fromJson：channel_id 大 TSID 不回转 int', () {
-      final json =
-          jsonDecode(
-                '{"channel_id": $_bigTsid, "workspace_id": 7, "name": "Announcements", '
-                '"avatar": "", "channel_status": "active", "linked_at": "2026-01-02"}',
-              )
-              as Map<String, dynamic>;
+      final json = jsonDecode(
+        '{"channel_id": $_bigTsid, "workspace_id": 7, "name": "Announcements", '
+        '"avatar": "", "channel_status": "active", "linked_at": "2026-01-02"}',
+      ) as Map<String, dynamic>;
       final m = ProjectChannelModel.fromJson(json);
       expect(m.channelId, '9007199254740993');
       expect(m.workspaceId, '7');
@@ -67,10 +63,9 @@ void main() {
       () {
         final pinned = AggPostModel.fromJson(
           jsonDecode(
-                '{"id": $_bigTsid, "channel_id": 8001, "author_id": 1001, '
-                '"author_name": "李雷", "msg_type": "text", "created_at": "2026-01-03"}',
-              )
-              as Map<String, dynamic>,
+            '{"id": $_bigTsid, "channel_id": 8001, "author_id": 1001, '
+            '"author_name": "李雷", "msg_type": "text", "created_at": "2026-01-03"}',
+          ) as Map<String, dynamic>,
         );
         expect(pinned.id, '9007199254740993');
         expect(pinned.channelId, '8001');
@@ -79,10 +74,9 @@ void main() {
 
         final post = AggPostModel.fromJson(
           jsonDecode(
-                '{"id": 8002, "channel_id": 8001, "author_id": 1002, '
-                '"msg_type": "image", "created_at": "2026-01-04"}',
-              )
-              as Map<String, dynamic>,
+            '{"id": 8002, "channel_id": 8001, "author_id": 1002, '
+            '"msg_type": "image", "created_at": "2026-01-04"}',
+          ) as Map<String, dynamic>,
         );
         expect(post.authorName, '');
         expect(post.id, '8002');
@@ -106,11 +100,10 @@ void main() {
     test('MilestoneModel.fromJson：due_date 保留 YYYY-MM-DD、null → 空串', () {
       final planned = MilestoneModel.fromJson(
         jsonDecode(
-              '{"id": 9001, "workspace_id": 7, "project_id": 5001, "name": "公测", '
-              '"due_date": "2026-12-31", "status": "planned", "reached_at": null, '
-              '"created_at": "2026-01-01", "updated_at": "2026-01-01"}',
-            )
-            as Map<String, dynamic>,
+          '{"id": 9001, "workspace_id": 7, "project_id": 5001, "name": "公测", '
+          '"due_date": "2026-12-31", "status": "planned", "reached_at": null, '
+          '"created_at": "2026-01-01", "updated_at": "2026-01-01"}',
+        ) as Map<String, dynamic>,
       );
       expect(planned.id, '9001');
       expect(planned.name, '公测');
@@ -120,10 +113,9 @@ void main() {
 
       final reached = MilestoneModel.fromJson(
         jsonDecode(
-              '{"id": 9002, "project_id": 5001, "name": "上线", "due_date": null, '
-              '"status": "reached", "reached_at": "2026-02-01"}',
-            )
-            as Map<String, dynamic>,
+          '{"id": 9002, "project_id": 5001, "name": "上线", "due_date": null, '
+          '"status": "reached", "reached_at": "2026-02-01"}',
+        ) as Map<String, dynamic>,
       );
       expect(reached.dueDateText, '');
       expect(reached.status, MilestoneStatus.reached);
@@ -145,10 +137,9 @@ void main() {
     test('ActivityEventModel：payload 保留清洗后元数据键', () {
       final e = ActivityEventModel.fromJson(
         jsonDecode(
-              '{"id": $_bigTsid, "event_type": "member_invited", "actor_id": 1001, '
-              '"target_id": 1002, "payload": {"actor": 1001}, "created_at": "2026-01-05"}',
-            )
-            as Map<String, dynamic>,
+          '{"id": $_bigTsid, "event_type": "member_invited", "actor_id": 1001, '
+          '"target_id": 1002, "payload": {"actor": 1001}, "created_at": "2026-01-05"}',
+        ) as Map<String, dynamic>,
       );
       expect(e.id, '9007199254740993');
       expect(e.eventType, 'member_invited');
@@ -161,10 +152,9 @@ void main() {
     test('里程碑列表 envelope：后端仅 {list,page,size}（无 total/total_page）兜 0', () {
       final page = WorkspacePageResult<MilestoneModel>.fromJson(
         jsonDecode(
-              '{"list": [{"id": 1, "name": "M1", "project_id": 5001}], '
-              '"page": 2, "size": 10}',
-            )
-            as Map<String, dynamic>,
+          '{"list": [{"id": 1, "name": "M1", "project_id": 5001}], '
+          '"page": 2, "size": 10}',
+        ) as Map<String, dynamic>,
         MilestoneModel.fromJson,
       );
       expect(page.list, hasLength(1));

@@ -314,9 +314,10 @@ void main() {
             '${Directory.systemTemp.path}/corrupted_backup_test.enc';
         await File(corruptedPath).writeAsBytes(corruptedBytes);
         addTearDown(
-          () => File(
-            corruptedPath,
-          ).delete().catchError((_) => File(corruptedPath)),
+          () =>
+              File(corruptedPath)
+                  .delete()
+                  .catchError((_) => File(corruptedPath)),
         );
 
         // Assert：GCM 认证或校验和应触发异常
@@ -393,24 +394,21 @@ void main() {
     );
 
     // 额外：verifyBackupFile 对合法文件应返回 is_valid=true
-    test(
-      'verifyBackupFile 对合法备份应返回 is_valid=true / valid file passes verification',
-      () async {
-        // Arrange
-        final filePath = await _createValidBackup();
-        addTearDown(
-          () => File(filePath).delete().catchError((_) => File(filePath)),
-        );
+    test('verifyBackupFile 对合法备份应返回 is_valid=true / valid file passes verification', () async {
+      // Arrange
+      final filePath = await _createValidBackup();
+      addTearDown(
+        () => File(filePath).delete().catchError((_) => File(filePath)),
+      );
 
-        // Act
-        final info = await E2EELocalBackupService.verifyBackupFile(filePath);
+      // Act
+      final info = await E2EELocalBackupService.verifyBackupFile(filePath);
 
-        // Assert
-        expect(info['is_valid'], isTrue);
-        expect(info['version'], equals(E2EECryptoService.formatVersion));
-        expect(info['algorithm'], equals(E2EECryptoService.algorithmId));
-        expect(info['file_size'], isPositive);
-      },
-    );
+      // Assert
+      expect(info['is_valid'], isTrue);
+      expect(info['version'], equals(E2EECryptoService.formatVersion));
+      expect(info['algorithm'], equals(E2EECryptoService.algorithmId));
+      expect(info['file_size'], isPositive);
+    });
   });
 }

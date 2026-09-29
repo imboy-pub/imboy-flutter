@@ -165,9 +165,10 @@ void main() {
       );
       final db = await _open(dbPath, password: _password);
 
-      final quick = (await db.rawQuery(
-        'PRAGMA quick_check',
-      )).first.values.first;
+      final quick = (await db.rawQuery('PRAGMA quick_check'))
+          .first
+          .values
+          .first;
       expect(quick, equals('ok'), reason: '被杀后库必须完好');
       expect(await db.rawQuery('PRAGMA foreign_key_check'), isEmpty);
 

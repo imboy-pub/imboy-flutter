@@ -205,9 +205,8 @@ Future<bool> _boot(WidgetTester tester) async {
 }
 
 void _openRecovery(WidgetTester tester) {
-  GoRouter.of(
-    tester.element(find.byType(Navigator).first),
-  ).go('/e2ee_key_recovery');
+  GoRouter.of(tester.element(find.byType(Navigator).first))
+      .go('/e2ee_key_recovery');
 }
 
 Future<bool> _waitForRecovery(WidgetTester tester) {
@@ -474,9 +473,8 @@ void main() {
   testWidgets('AT-BE01 无密钥数据时导出失败提示', (tester) async {
     if (!await _boot(tester)) return;
     await _wipeKeys();
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/e2ee_backup_export');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/e2ee_backup_export');
     expect(
       await _waitFor(
         tester,
@@ -534,9 +532,8 @@ void main() {
     // 模拟「换设备/密钥丢失」：清空后再导入
     await _wipeKeys();
 
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).push('/e2ee_backup_import', extra: {'initialFilePath': filePath});
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .push('/e2ee_backup_import', extra: {'initialFilePath': filePath});
     final pageReady = await _waitFor(
       tester,
       () =>
@@ -613,9 +610,8 @@ void main() {
     _createdCloudBackup = true;
     await _wipeKeys();
 
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/e2ee_backup_import');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/e2ee_backup_import');
     final cloudCardSeen = await _waitFor(
       tester,
       () => tester.any(find.text(t.common.e2eeBackupCloudRestoreTitle)),
@@ -696,9 +692,8 @@ void main() {
       }
     }
 
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/e2ee_backup_import');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/e2ee_backup_import');
     expect(
       await _waitFor(
         tester,

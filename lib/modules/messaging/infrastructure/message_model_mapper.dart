@@ -362,9 +362,8 @@ extension MessageModelMapper on MessageModel {
         // peerId: toId,
         text: (payloadData['name'] ?? '') as String,
         size: (payloadData['size'] ?? 0) as int?,
-        source: AssetsService.viewUrl(
-          (payloadData['uri'] ?? '') as String,
-        ).toString(),
+        source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String)
+            .toString(),
         width: ((payloadData['width'] ?? 0) as num) / 1.0,
         height: ((payloadData['height'] ?? 0) as num) / 1.0,
         status: typesStatus,
@@ -378,9 +377,8 @@ extension MessageModelMapper on MessageModel {
         // peerId: toId,
         name: (payloadData['name'] ?? '') as String,
         size: (payloadData['size'] ?? 0) as int?,
-        source: AssetsService.viewUrl(
-          (payloadData['uri'] ?? '') as String,
-        ).toString(),
+        source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String)
+            .toString(),
         status: typesStatus,
         metadata: {...metadata, ...payloadData},
       );
@@ -394,9 +392,8 @@ extension MessageModelMapper on MessageModel {
           createdAt: createdDt,
           id: safeId,
           // peerId: toId,
-          source: AssetsService.viewUrl(
-            (payloadData['uri'] ?? '') as String,
-          ).toString(),
+          source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String)
+              .toString(),
           text: (payloadData['name'] ?? '') as String?,
           name: (payloadData['name'] ?? '') as String?,
           size: (payloadData['size'] ?? 0) as int?,
@@ -412,9 +409,8 @@ extension MessageModelMapper on MessageModel {
           createdAt: createdDt,
           id: safeId,
           // peerId: toId,
-          source: AssetsService.viewUrl(
-            (payloadData['uri'] ?? '') as String,
-          ).toString(),
+          source: AssetsService.viewUrl((payloadData['uri'] ?? '') as String)
+              .toString(),
           text: (payloadData['name'] ?? '') as String?,
           size: (payloadData['size'] ?? 0) as int?,
           duration: Duration(

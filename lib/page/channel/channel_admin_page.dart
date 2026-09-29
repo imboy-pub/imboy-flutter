@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/material.dart';

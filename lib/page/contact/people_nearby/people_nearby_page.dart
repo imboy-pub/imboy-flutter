@@ -8,6 +8,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'people_nearby_provider.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -180,9 +181,8 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                         padding: const EdgeInsets.only(left: 84),
                         child: Divider(
                           height: 0.33,
-                          color: AppColors.getIosSeparator(
-                            brightness,
-                          ).withValues(alpha: 0.3),
+                          color: AppColors.getIosSeparator(brightness)
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                   ],
@@ -215,9 +215,8 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(
-                context,
-              ).colorScheme.shadow.withValues(alpha: isDark ? 0.2 : 0.04),
+              color: Theme.of(context).colorScheme.shadow
+                  .withValues(alpha: isDark ? 0.2 : 0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

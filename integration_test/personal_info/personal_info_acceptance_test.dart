@@ -52,6 +52,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -233,15 +234,13 @@ Future<bool> _boot(WidgetTester tester) async {
 }
 
 void _openPersonalInfo(WidgetTester tester) {
-  GoRouter.of(
-    tester.element(find.byType(Navigator).first),
-  ).go('/personal_info');
+  GoRouter.of(tester.element(find.byType(Navigator).first))
+      .go('/personal_info');
 }
 
 void _openMore(WidgetTester tester) {
-  GoRouter.of(
-    tester.element(find.byType(Navigator).first),
-  ).go('/personal_info/more');
+  GoRouter.of(tester.element(find.byType(Navigator).first))
+      .go('/personal_info/more');
 }
 
 Future<bool> _waitForPersonalInfo(WidgetTester tester) {

@@ -5,6 +5,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
 import '../personal_info/personal_info_provider.dart';
 
 part 'set_gender_provider.g.dart';

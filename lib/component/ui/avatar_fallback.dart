@@ -27,9 +27,8 @@ class AvatarFallbackContent extends StatelessWidget {
       return Icon(emptyIcon, size: iconSize, color: color);
     }
 
-    final firstRune = String.fromCharCode(
-      trimmedName.runes.first,
-    ).toUpperCase();
+    final firstRune = String.fromCharCode(trimmedName.runes.first)
+        .toUpperCase();
     return Text(
       firstRune,
       style: textStyle?.copyWith(color: color) ?? TextStyle(color: color),

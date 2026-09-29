@@ -87,9 +87,8 @@ Future<bool> _boot(WidgetTester tester) async {
     } else if (isOnWelcomePage(tester)) {
       await leaveWelcomePage(tester);
     } else if (UserRepoLocal.to.currentUid == _uid) {
-      GoRouter.of(
-        tester.element(find.byType(Navigator).first),
-      ).go('/bottom_navigation');
+      GoRouter.of(tester.element(find.byType(Navigator).first))
+          .go('/bottom_navigation');
     }
     await _pump(tester, seconds: 6);
   }
@@ -158,11 +157,7 @@ void main() {
     // 注入行。注入行 created_at 最新=列表底部=树序 .last（run1 教训）。
     final bubbleFinder = find.text('[加密消息]');
     expect(
-      await _waitFor(
-        tester,
-        () => tester.any(bubbleFinder),
-        seconds: 12,
-      ),
+      await _waitFor(tester, () => tester.any(bubbleFinder), seconds: 12),
       isTrue,
       reason: 'AT-DG1：不可解密消息应渲染占位气泡',
     );
@@ -172,7 +167,8 @@ void main() {
     expect(
       await _waitFor(
         tester,
-        () => tester.any(find.text('无法解密此消息')) &&
+        () =>
+            tester.any(find.text('无法解密此消息')) &&
             tester.any(find.text('稍后')) &&
             tester.any(find.text('去恢复')),
         seconds: 8,
@@ -212,11 +208,7 @@ void main() {
     // ── AT-DG4：生成新密钥→警告→成功弹窗→去备份（批次161 同链）──
     // bob 密钥在（Keychain 持久），恢复页应直接提供生成入口
     expect(
-      await _waitFor(
-        tester,
-        () => tester.any(find.text('生成新密钥')),
-        seconds: 10,
-      ),
+      await _waitFor(tester, () => tester.any(find.text('生成新密钥')), seconds: 10),
       isTrue,
       reason: '前置：恢复中心应提供生成新密钥入口',
     );

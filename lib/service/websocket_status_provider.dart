@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/events/events.dart';

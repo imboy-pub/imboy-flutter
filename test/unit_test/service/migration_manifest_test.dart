@@ -53,9 +53,8 @@ void main() {
     test('latestVersion == 32 == SqliteService._dbVersion（源码扫描）', () async {
       expect(kMigrationManifest.latestVersion, equals(32));
       final src = File('lib/service/sqlite.dart').readAsStringSync();
-      final m = RegExp(
-        r'static\s+const\s+_dbVersion\s*=\s*(\d+)',
-      ).firstMatch(src);
+      final m = RegExp(r'static\s+const\s+_dbVersion\s*=\s*(\d+)')
+          .firstMatch(src);
       expect(m, isNotNull);
       expect(int.parse(m!.group(1)!), equals(kMigrationManifest.latestVersion));
     });

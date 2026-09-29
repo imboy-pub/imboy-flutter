@@ -29,8 +29,7 @@ class ShimmerList extends StatelessWidget {
     return ListView.builder(
       itemCount: itemCount,
       padding: padding ?? const EdgeInsets.all(0),
-      physics:
-          const NeverScrollableScrollPhysics(), // Disable scrolling while loading
+      physics: const NeverScrollableScrollPhysics(), // Disable scrolling while loading
       itemBuilder: (context, index) {
         return Container(
           height: itemHeight,

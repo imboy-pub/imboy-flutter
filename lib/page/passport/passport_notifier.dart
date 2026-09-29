@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
 import 'dart:io';
 
 /// Temporary compatibility implementation for the identity module shell.

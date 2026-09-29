@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -91,9 +92,8 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.getIosBlue(
-                        brightness,
-                      ).withValues(alpha: 0.12),
+                      color: AppColors.getIosBlue(brightness)
+                          .withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -181,9 +181,8 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
               color: isActive
                   ? AppColors.getIosBlue(brightness)
                   : (hasValue
-                        ? AppColors.getIosBlue(
-                            brightness,
-                          ).withValues(alpha: 0.3)
+                        ? AppColors.getIosBlue(brightness)
+                              .withValues(alpha: 0.3)
                         : AppColors.transparent),
               width: 2,
             ),
@@ -204,9 +203,8 @@ class _FaceToFacePageState extends ConsumerState<FaceToFacePage> {
                   height: 8,
                   decoration: BoxDecoration(
                     color: isActive
-                        ? AppColors.getIosBlue(
-                            brightness,
-                          ).withValues(alpha: 0.5)
+                        ? AppColors.getIosBlue(brightness)
+                              .withValues(alpha: 0.5)
                         : AppColors.iosGray.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),

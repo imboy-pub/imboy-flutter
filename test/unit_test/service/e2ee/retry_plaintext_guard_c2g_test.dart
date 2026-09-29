@@ -270,9 +270,8 @@ void main() {
       await pumpEventQueue();
 
       expect(sentOf(id), isEmpty, reason: '手动重试不能绕过群级 E2EE 明文闸门');
-      final stored = await MessageRepo(
-        tableName: MessageRepo.c2gTable,
-      ).find(id);
+      final stored = await MessageRepo(tableName: MessageRepo.c2gTable)
+          .find(id);
       expect(stored?.status, IMBoyMessageStatus.error);
     });
 

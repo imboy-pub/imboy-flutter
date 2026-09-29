@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:imboy/config/const.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -24,30 +25,31 @@ import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// presign 请求注入 seam（默认走 [HttpClient]，测试可注入 fake）。
-typedef PresignFn =
-    Future<IMBoyHttpResponse> Function(String filename, String mime);
+typedef PresignFn = Future<IMBoyHttpResponse> Function(
+  String filename,
+  String mime,
+);
 
 /// PUT 直传注入 seam（默认走 [AttachmentApi._putToGarage]，测试可注入 fake）。
-typedef PutFn =
-    Future<void> Function(
-      String putUrl,
-      Uint8List bytes,
-      String mime,
-      bool process,
-    );
+typedef PutFn = Future<void> Function(
+  String putUrl,
+  Uint8List bytes,
+  String mime,
+  bool process,
+);
 
 /// confirm 落库注入 seam（默认走 [HttpClient]，测试可注入 fake）。
-typedef ConfirmFn =
-    Future<IMBoyHttpResponse> Function(Map<String, dynamic> body);
+typedef ConfirmFn = Future<IMBoyHttpResponse> Function(
+  Map<String, dynamic> body,
+);
 
 /// 单次 PUT 注入 seam（默认 [AttachmentApi._rawDioPut]，测试可注入 fake 验证重试编排）。
-typedef SinglePutFn =
-    Future<void> Function(
-      String putUrl,
-      Uint8List bytes,
-      String mime,
-      bool process,
-    );
+typedef SinglePutFn = Future<void> Function(
+  String putUrl,
+  Uint8List bytes,
+  String mime,
+  bool process,
+);
 
 /// 退避延时注入 seam（默认真实 [Future.delayed]，测试可注入零延时避免真实等待）。
 typedef DelayFn = Future<void> Function(Duration d);

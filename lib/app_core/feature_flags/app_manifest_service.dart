@@ -4,6 +4,7 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/service/storage.dart';
+
 import 'generated_product_features.dart';
 
 class AppManifestMismatchException implements Exception {

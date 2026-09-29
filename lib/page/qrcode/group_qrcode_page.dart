@@ -97,9 +97,8 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                 qrcodeData: qrcodeData,
                 footerText: t.common.groupQrcodeTips(
                   days: dayNum.toString(),
-                  date: DateFormat(
-                    'y-MM-dd',
-                  ).format(DateTime.fromMillisecondsSinceEpoch(expiredAt)),
+                  date: DateFormat('y-MM-dd')
+                      .format(DateTime.fromMillisecondsSinceEpoch(expiredAt)),
                 ),
               ),
             ),

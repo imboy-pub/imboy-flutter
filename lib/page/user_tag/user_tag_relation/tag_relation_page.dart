@@ -219,9 +219,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
           label,
           style: context.textStyle(
             FontSizeType.small,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.6),
+            color: Theme.of(context).colorScheme.onSurface
+                .withValues(alpha: 0.6),
           ),
         ),
       ],
@@ -311,9 +310,9 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                           padding: AppSpacing.allRegular,
                           decoration: BoxDecoration(
                             color: isDark
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest
+                                ? Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest
                                 : AppColors.lightSurface,
                             borderRadius: AppRadius.borderRadiusMedium,
                             boxShadow: [
@@ -362,9 +361,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
                           : AppColors.lightSurface,
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.shadow.withValues(alpha: 0.1),
+                          color: Theme.of(context).colorScheme.shadow
+                              .withValues(alpha: 0.1),
                           blurRadius: 8,
                           offset: const Offset(0, -2),
                         ),
@@ -429,9 +427,8 @@ class _TagRelationPageState extends ConsumerState<TagRelationPage> {
         borderRadius: AppRadius.borderRadiusMedium,
         border: isDark
             ? Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.15),
+                color: Theme.of(context).colorScheme.outline
+                    .withValues(alpha: 0.15),
                 width: 0.5,
               )
             : null,

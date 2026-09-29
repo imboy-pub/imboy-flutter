@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+
 import 'dart:convert';
 
 import 'package:sqflite_sqlcipher/sqflite.dart';
@@ -14,7 +15,9 @@ import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'dart:async';
+
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -249,9 +252,8 @@ class E2EEHealthCheckService {
           if (rawUpdatedAt is int) {
             updatedAtVal = rawUpdatedAt;
           } else if (rawUpdatedAt is String) {
-            updatedAtVal = DateTime.tryParse(
-              rawUpdatedAt,
-            )?.millisecondsSinceEpoch;
+            updatedAtVal = DateTime.tryParse(rawUpdatedAt)
+                ?.millisecondsSinceEpoch;
           }
           if (updatedAtVal != null && updatedAtVal > maxUpdatedAt) {
             maxUpdatedAt = updatedAtVal;

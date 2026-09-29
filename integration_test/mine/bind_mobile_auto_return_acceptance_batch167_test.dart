@@ -112,11 +112,7 @@ void main() {
         'sys_version': 'macos-integration-test',
       },
     );
-    expect(
-      signup['code'],
-      0,
-      reason: '前置：一次性账号注册应成功: ${signup['msg']}',
-    );
+    expect(signup['code'], 0, reason: '前置：一次性账号注册应成功: ${signup['msg']}');
     final throwawayUid = '${(signup['payload'] as Map?)?['uid'] ?? ''}';
     expect(throwawayUid.isNotEmpty, isTrue, reason: '前置：signup 应返回 uid');
     flowLog('[AT-BM1] 一次性账号已创建 uid=$throwawayUid');
@@ -150,11 +146,7 @@ void main() {
       }
       await _pump(tester, seconds: 6);
     }
-    expect(
-      UserRepoLocal.to.currentUid,
-      throwawayUid,
-      reason: '登录账号必须是一次性账号',
-    );
+    expect(UserRepoLocal.to.currentUid, throwawayUid, reason: '登录账号必须是一次性账号');
     await _pump(tester, seconds: 5);
 
     // ── 进入账号安全页 → 绑定手机号 tile → action sheet 更换手机号 ──
@@ -206,9 +198,7 @@ void main() {
     await tester.tap(find.text('确认更换'), warnIfMissed: false);
     final returned = await _waitFor(
       tester,
-      () =>
-          tester.any(find.text('绑定手机号')) &&
-          !tester.any(find.text('当前手机号')),
+      () => tester.any(find.text('绑定手机号')) && !tester.any(find.text('当前手机号')),
       seconds: 15,
     );
     expect(

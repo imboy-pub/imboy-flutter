@@ -6,6 +6,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
 import 'apply_friend_provider.dart';
 
 /// 申请添加好友页面 - 像素级对齐 iOS 17 Premium 风格

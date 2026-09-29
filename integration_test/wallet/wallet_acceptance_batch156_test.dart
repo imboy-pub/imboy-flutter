@@ -67,9 +67,9 @@ Future<bool> _waitFor(
   return cond();
 }
 
-WalletState _walletState(WidgetTester tester) => ProviderScope.containerOf(
-  tester.element(find.byType(WalletPage)),
-).read(walletProvider);
+WalletState _walletState(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(WalletPage)))
+        .read(walletProvider);
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

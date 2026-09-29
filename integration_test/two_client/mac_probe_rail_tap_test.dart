@@ -42,8 +42,7 @@ void main() {
       );
     }
 
-    final width =
-        tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    final width = tester.view.physicalSize.width / tester.view.devicePixelRatio;
     flowLog(
       '探针 · 窗口 logicalWidth=$width physical=${tester.view.physicalSize.width} '
       'dpr=${tester.view.devicePixelRatio}',

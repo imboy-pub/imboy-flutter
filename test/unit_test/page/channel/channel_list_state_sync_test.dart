@@ -139,9 +139,8 @@ void main() {
     final first = notifier.loadSubscribedChannels();
     final second = notifier.loadSubscribedChannels();
     expect(identical(first, second), isTrue);
-    verify(
-      () => api.getSubscribedChannelsPage(cursor: null, limit: 50),
-    ).called(1);
+    verify(() => api.getSubscribedChannelsPage(cursor: null, limit: 50))
+        .called(1);
 
     gate.complete(
       const ChannelPageResult<ChannelModel>(

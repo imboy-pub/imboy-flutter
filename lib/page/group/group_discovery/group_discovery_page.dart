@@ -167,9 +167,8 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
                           : AppColors.lightSurface),
                 borderRadius: AppRadius.button,
                 border: Border.all(
-                  color: AppColors.getIosSeparator(
-                    brightness,
-                  ).withValues(alpha: 0.3),
+                  color: AppColors.getIosSeparator(brightness)
+                      .withValues(alpha: 0.3),
                   width: 0.33,
                 ),
               ),

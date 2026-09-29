@@ -337,9 +337,8 @@ class FontSizePage extends ConsumerWidget {
             vertical: 2,
           ),
           decoration: BoxDecoration(
-            color: AppColors.getIosBlue(
-              Theme.of(context).brightness,
-            ).withValues(alpha: 0.1),
+            color: AppColors.getIosBlue(Theme.of(context).brightness)
+                .withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(

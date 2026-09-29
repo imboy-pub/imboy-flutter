@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:imboy/component/helper/func.dart';
+
 // 条件导入：在非 Web 平台使用存根，避免 dart:js_interop 错误
 import 'device_ext_web_stub.dart' if (dart.library.html) 'device_ext_web.dart';
 

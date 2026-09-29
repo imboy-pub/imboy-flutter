@@ -24,6 +24,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'custom_overlay.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 
 // 添加生命周期监听
@@ -314,8 +315,7 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
       } else if (seconds <= 10) {
         transcribedMock = "您好，我刚刚通过语音输入转文字功能给你发送了这段文字，它的识别准确率非常高，操作也极为流畅。";
       } else {
-        transcribedMock =
-            "你好，这是一段较长的语音信息。我们现在已经成功接入并设计了微信风格的语音交互面板。您可以点击下方发送按钮直接发送这段转文字后的文本，或者点击编辑框随时进行修改。";
+        transcribedMock = "你好，这是一段较长的语音信息。我们现在已经成功接入并设计了微信风格的语音交互面板。您可以点击下方发送按钮直接发送这段转文字后的文本，或者点击编辑框随时进行修改。";
       }
 
       // 3. 展开精致、磨砂质感的转文字预览与二次编辑底栏
@@ -886,9 +886,8 @@ class _VoiceWidgetState extends State<VoiceWidget> with WidgetsBindingObserver {
                 width: _isPressed ? 1.0 : 0.5,
                 color: _isPressed
                     ? primaryColor.withValues(alpha: 0.5)
-                    : AppColors.getIosSeparator(
-                        Theme.of(context).brightness,
-                      ).withValues(alpha: 0.2),
+                    : AppColors.getIosSeparator(Theme.of(context).brightness)
+                          .withValues(alpha: 0.2),
               ),
               boxShadow: _isPressed
                   ? [

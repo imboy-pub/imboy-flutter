@@ -280,9 +280,8 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
                           : AppColors.lightSurface),
                 borderRadius: AppRadius.button,
                 border: Border.all(
-                  color: AppColors.getIosSeparator(
-                    brightness,
-                  ).withValues(alpha: 0.3),
+                  color: AppColors.getIosSeparator(brightness)
+                      .withValues(alpha: 0.3),
                   width: 0.33,
                 ),
               ),
@@ -529,9 +528,8 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
       shape: RoundedRectangleBorder(
         borderRadius: AppRadius.borderRadiusMedium,
         side: BorderSide(
-          color: AppColors.getIosSeparator(
-            Theme.of(context).brightness,
-          ).withValues(alpha: 0.45),
+          color: AppColors.getIosSeparator(Theme.of(context).brightness)
+              .withValues(alpha: 0.45),
         ),
       ),
       child: ListTile(

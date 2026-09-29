@@ -35,9 +35,7 @@ class ChatAudioHandler {
   /// 当前聊天服务（用于获取消息列表）
   List<Message> Function()? _getMessages;
 
-  ChatAudioHandler({
-    required this.getVoicePlaybackNotifier,
-  });
+  ChatAudioHandler({required this.getVoicePlaybackNotifier});
 
   /// 设置消息获取回调
   void setMessagesGetter(List<Message> Function() getter) {

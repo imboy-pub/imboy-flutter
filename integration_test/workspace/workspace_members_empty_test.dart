@@ -189,9 +189,8 @@ void main() {
     // 路由为静态 /workspace/members（页面读 currentWorkspaceProvider）
     adapter.emptyMembers = true;
     iPrint('[AT-WVM] DIAG shellCurrentId=$wsId');
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/workspace/members');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/workspace/members');
     await _pump(tester, seconds: 2);
     final diagTexts = tester.allWidgets
         .whereType<Text>()

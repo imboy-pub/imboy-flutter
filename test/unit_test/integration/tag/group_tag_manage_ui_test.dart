@@ -68,9 +68,8 @@ class _FakeGroupTagApi extends GroupTagApi {
     required String name,
     String? color,
   }) async {
-    _tagsFor(
-      groupId,
-    ).add({'tag_name': name, 'name': name, 'color': color ?? '0xFF2196F3'});
+    _tagsFor(groupId)
+        .add({'tag_name': name, 'name': name, 'color': color ?? '0xFF2196F3'});
     return true;
   }
 

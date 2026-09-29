@@ -291,18 +291,17 @@ class LocationService {
         distanceFilter: 10, // 每10米触发一次更新
       );
 
-      return Geolocator.getPositionStream(
-        locationSettings: locationSettings,
-      ).map((position) {
-        return AMapPosition(
-          latLng: LatLng(position.latitude, position.longitude),
-          id: '',
-          name: '',
-          address: '',
-          adCode: '',
-          distance: position.accuracy.toString(),
-        );
-      });
+      return Geolocator.getPositionStream(locationSettings: locationSettings)
+          .map((position) {
+            return AMapPosition(
+              latLng: LatLng(position.latitude, position.longitude),
+              id: '',
+              name: '',
+              address: '',
+              adCode: '',
+              distance: position.accuracy.toString(),
+            );
+          });
     } catch (e) {
       return null;
     }

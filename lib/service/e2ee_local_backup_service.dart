@@ -478,9 +478,8 @@ class E2EELocalBackupService {
       'public_key': backupData['public_key'],
       'created_at': backupData['created_at'],
       'file_size': fileBytes.length,
-      kMegolmSectionKey: parseMegolmSection(
-        backupData[kMegolmSectionKey],
-      ).toJson(),
+      kMegolmSectionKey: parseMegolmSection(backupData[kMegolmSectionKey])
+          .toJson(),
     };
   }
 

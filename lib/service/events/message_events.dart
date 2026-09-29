@@ -1,4 +1,5 @@
 import 'base_event.dart';
+
 import 'package:imboy/store/model/message_model.dart';
 
 /// 消息相关事件

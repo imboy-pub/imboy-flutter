@@ -70,9 +70,8 @@ class MentionListWidget extends StatelessWidget {
         // 浮窗与背景糊成一片分不清层级。
         boxShadow: [
           BoxShadow(
-            color: AppColors.getIosSeparator(
-              Theme.of(context).brightness,
-            ).withValues(alpha: 0.5),
+            color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                .withValues(alpha: 0.5),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

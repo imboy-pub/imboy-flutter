@@ -88,9 +88,8 @@ class IosPageTemplate extends StatelessWidget {
       backgroundColor: navBarColor,
       border: Border(
         bottom: BorderSide(
-          color: AppColors.getIosSeparator(
-            theme.brightness,
-          ).withValues(alpha: 0.4),
+          color: AppColors.getIosSeparator(theme.brightness)
+              .withValues(alpha: 0.4),
           width: 0.33,
         ),
       ),

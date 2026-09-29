@@ -52,12 +52,10 @@ void main() {
   testWidgets('推荐频道为空时渲染空态 / renders empty view for no recommendations', (
     tester,
   ) async {
-    when(
-      () => service.getSubscribedChannels(limit: any(named: 'limit')),
-    ).thenAnswer((_) async => const []);
-    when(
-      () => service.discoverChannels(size: any(named: 'size')),
-    ).thenAnswer((_) async => const []);
+    when(() => service.getSubscribedChannels(limit: any(named: 'limit')))
+        .thenAnswer((_) async => const []);
+    when(() => service.discoverChannels(size: any(named: 'size')))
+        .thenAnswer((_) async => const []);
 
     await tester.pumpWidget(_buildTestApp(service));
     await tester.pumpAndSettle();
@@ -70,12 +68,10 @@ void main() {
   testWidgets('有推荐频道时渲染频道名称 / renders recommended channel names', (
     tester,
   ) async {
-    when(
-      () => service.getSubscribedChannels(limit: any(named: 'limit')),
-    ).thenAnswer((_) async => const []);
-    when(
-      () => service.discoverChannels(size: any(named: 'size')),
-    ).thenAnswer((_) async => [_makeChannel(id: 201, name: '推荐频道A')]);
+    when(() => service.getSubscribedChannels(limit: any(named: 'limit')))
+        .thenAnswer((_) async => const []);
+    when(() => service.discoverChannels(size: any(named: 'size')))
+        .thenAnswer((_) async => [_makeChannel(id: 201, name: '推荐频道A')]);
 
     await tester.pumpWidget(_buildTestApp(service));
     await tester.pumpAndSettle();

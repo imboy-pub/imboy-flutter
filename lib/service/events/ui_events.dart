@@ -1,4 +1,5 @@
 import 'base_event.dart';
+
 import 'package:imboy/store/model/conversation_model.dart';
 
 /// UI 更新相关事件

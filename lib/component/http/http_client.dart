@@ -26,6 +26,7 @@ import 'http_parse.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
 import 'http_retry_interceptor.dart';
+
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -33,9 +34,11 @@ import 'package:imboy/component/ui/app_loading.dart';
 /// 构造底层 HttpClient：统一挂证书校验，可选走代理。
 io.HttpClient _buildHttpClient({String? proxy}) {
   final client = io.HttpClient();
-  client.badCertificateCallback =
-      (X509Certificate cert, String host, int port) =>
-          _certificateValidationCallback(cert);
+  client.badCertificateCallback = (
+    X509Certificate cert,
+    String host,
+    int port,
+  ) => _certificateValidationCallback(cert);
   if (proxy != null && proxy.isNotEmpty) {
     final authority = Uri.parse(proxy).authority;
     client.findProxy = (uri) => 'PROXY $authority';

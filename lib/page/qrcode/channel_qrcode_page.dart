@@ -103,9 +103,8 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
                 qrcodeData: qrcodeData,
                 footerText: t.channel.qrcodeTips(
                   days: dayNum.toString(),
-                  date: DateFormat(
-                    'y-MM-dd',
-                  ).format(DateTime.fromMillisecondsSinceEpoch(expiredAt)),
+                  date: DateFormat('y-MM-dd')
+                      .format(DateTime.fromMillisecondsSinceEpoch(expiredAt)),
                 ),
               ),
             ),

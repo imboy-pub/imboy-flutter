@@ -147,9 +147,8 @@ class QuoteMessageBuilder extends StatelessWidget {
         ? timestamp
         : (int.tryParse(timestamp.toString()) ?? 0);
     if (t == 0) return '';
-    return DateFormat(
-      'MM-dd HH:mm',
-    ).format(DateTime.fromMillisecondsSinceEpoch(t));
+    return DateFormat('MM-dd HH:mm')
+        .format(DateTime.fromMillisecondsSinceEpoch(t));
   }
 
   Widget _buildQuoteErrorWidget(

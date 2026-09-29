@@ -22,6 +22,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'contact_tag_detail_provider.dart';
 import 'select_tag_friend_page.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 联系人标签详情页面

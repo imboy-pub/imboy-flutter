@@ -95,9 +95,8 @@ Future<bool> _boot(WidgetTester tester) async {
     } else if (isOnWelcomePage(tester)) {
       await leaveWelcomePage(tester);
     } else if (UserRepoLocal.to.currentUid == _uid) {
-      GoRouter.of(
-        tester.element(find.byType(Navigator).first),
-      ).go('/bottom_navigation');
+      GoRouter.of(tester.element(find.byType(Navigator).first))
+          .go('/bottom_navigation');
     }
     if (i == 6) {
       final texts = tester
@@ -123,11 +122,7 @@ Future<bool> _boot(WidgetTester tester) async {
   return true;
 }
 
-Future<void> _upsertAndroidRow(
-  String vsn,
-  String url,
-  String fileHash,
-) async {
+Future<void> _upsertAndroidRow(String vsn, String url, String fileHash) async {
   await TestPg.execute(
     'DELETE FROM app_version WHERE type = \'android\' AND vsn LIKE \'9.9.9-%\'',
     {},
@@ -156,9 +151,7 @@ Future<void> _cleanupAndroidRows() async {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('批次168：AT-UP 下载失败可重发 + 校验失败删文件重试两次（真机）', (
-    tester,
-  ) async {
+  testWidgets('批次168：AT-UP 下载失败可重发 + 校验失败删文件重试两次（真机）', (tester) async {
     if (!await _boot(tester)) return;
 
     await _cleanupAndroidRows();
@@ -189,11 +182,7 @@ void main() {
       () => tester.any(find.text('继续下载')),
       seconds: 30,
     );
-    expect(
-      retryBtn1,
-      isTrue,
-      reason: 'AT-UP1：下载失败后卡片应出现「继续下载」（重新发起下载入口）',
-    );
+    expect(retryBtn1, isTrue, reason: 'AT-UP1：下载失败后卡片应出现「继续下载」（重新发起下载入口）');
     // 再点一次：验证重试可反复发起（第二次仍失败 → 按钮仍在）
     await tester.tap(find.text('继续下载'), warnIfMissed: false);
     await _pump(tester, seconds: 4);
@@ -217,7 +206,10 @@ void main() {
     // 供包服务器绑定**设备侧**回环：测试进程与被测 app 同设备
     final servedBytes = List<int>.generate(4096, (i) => i % 251);
     var serverHits = 0;
-    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, _servePort);
+    final server = await HttpServer.bind(
+      InternetAddress.loopbackIPv4,
+      _servePort,
+    );
     server.listen((req) {
       serverHits++;
       flowLog('[AT-UP2] 供包服务器收到第 $serverHits 次请求');
@@ -285,19 +277,13 @@ void main() {
         seconds: 30,
       );
     }
-    expect(
-      sawFinalFailure,
-      isTrue,
-      reason: 'AT-UP2：重试达上限后应提示「文件多次校验失败」',
-    );
+    expect(sawFinalFailure, isTrue, reason: 'AT-UP2：重试达上限后应提示「文件多次校验失败」');
     expect(
       serverHits,
       greaterThanOrEqualTo(2),
       reason: 'AT-UP2：校验失败应触发自动重下（供包服务器请求数 ≥2），实际 $serverHits',
     );
-    flowLog(
-      '[AT-UP2] PASS：校验失败删文件自动重下（服务器 $serverHits 次）→ 达上限提示失败',
-    );
+    flowLog('[AT-UP2] PASS：校验失败删文件自动重下（服务器 $serverHits 次）→ 达上限提示失败');
 
     // ── 收尾：清理临时升级行 + 关闭供包服务器 ──
     await _cleanupAndroidRows();

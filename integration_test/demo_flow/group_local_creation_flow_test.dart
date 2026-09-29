@@ -314,9 +314,9 @@ void main() {
         queryParameters: {'page': 1, 'size': 50, 'attr': 'join'},
       );
       ApiAssert.success(pageA, context: 'group/page A');
-      final gidsA = memberRows(
-        pageA['payload'],
-      ).map((g) => '${g['group_id'] ?? g['gid'] ?? g['id'] ?? ''}').toSet();
+      final gidsA = memberRows(pageA['payload'])
+          .map((g) => '${g['group_id'] ?? g['gid'] ?? g['id'] ?? ''}')
+          .toSet();
       expect(
         gidsA,
         contains(f2fGid),

@@ -149,9 +149,8 @@ void main() {
       expect(s.gender, 0);
     });
     test('copyWith tag/source', () {
-      final s = const PeopleInfoState(
-        account: 'acc',
-      ).copyWith(tag: 'vip', source: 'qr');
+      final s = const PeopleInfoState(account: 'acc')
+          .copyWith(tag: 'vip', source: 'qr');
       expect(s.tag, 'vip');
       expect(s.source, 'qr');
       expect(s.account, 'acc');
@@ -169,9 +168,8 @@ void main() {
       expect(const PeopleInfoMoreState().copyWith(groupCount: 3).groupCount, 3);
     });
     test('copyWith sourcePrefix 不影响 sign', () {
-      final s = const PeopleInfoMoreState(
-        sign: 's',
-      ).copyWith(sourcePrefix: 'p');
+      final s = const PeopleInfoMoreState(sign: 's')
+          .copyWith(sourcePrefix: 'p');
       expect(s.sourcePrefix, 'p');
       expect(s.sign, 's');
     });

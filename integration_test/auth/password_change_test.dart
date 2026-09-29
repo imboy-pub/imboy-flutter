@@ -22,7 +22,9 @@ import 'package:imboy/page/mine/change_password/change_password_page.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/mine/setting/setting_page.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
 import '../flows/app_launcher.dart';
+
 import 'package:integration_test/integration_test.dart';
 
 import '../flows/test_utils.dart';

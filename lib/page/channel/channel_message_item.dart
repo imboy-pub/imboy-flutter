@@ -27,6 +27,7 @@ import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 
 import 'channel_detail_rules.dart';
+
 import 'package:imboy/page/channel/widgets/channel_markdown.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -314,9 +315,8 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               border: Border.all(
                 color: message.isPinned
                     ? AppColors.primary.withValues(alpha: 0.25)
-                    : AppColors.getIosSeparator(
-                        Theme.of(context).brightness,
-                      ).withValues(alpha: 0.3),
+                    : AppColors.getIosSeparator(Theme.of(context).brightness)
+                          .withValues(alpha: 0.3),
                 width: message.isPinned ? 1.2 : 0.5,
               ),
             ),
@@ -726,9 +726,8 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                 Container(
                   width: double.infinity,
                   height: 200,
-                  color: AppColors.getIosSeparator(
-                    Theme.of(context).brightness,
-                  ).withValues(alpha: 0.12),
+                  color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                      .withValues(alpha: 0.12),
                 ),
               // 时长角标
               if (payload?['duration'] != null)

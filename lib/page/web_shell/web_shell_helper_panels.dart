@@ -108,16 +108,14 @@ class PlaceholderPanel extends StatelessWidget {
           AppSpacing.verticalRegular,
           Text(
             label,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
           AppSpacing.verticalSmall,
           Text(
             t.common.featureInDevelopment,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),

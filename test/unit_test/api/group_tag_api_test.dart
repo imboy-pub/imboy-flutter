@@ -16,6 +16,7 @@
 library;
 
 import 'package:test/test.dart';
+
 import 'api_test_client.dart';
 
 /// 从 group/page 的 payload 中尽力取出一个 gid（兼容 List / {list:[]} / {data:[]}）。

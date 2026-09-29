@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -30,6 +31,7 @@ import 'moment_interactions.dart';
 import 'moment_meta_view.dart';
 import 'moment_notify/moment_notify_provider.dart';
 import 'moment_utils.dart';
+
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -395,9 +397,8 @@ class _MomentFeedPageState extends State<MomentFeedPage> {
                       height: 0.5,
                       indent: 16,
                       endIndent: 16,
-                      color: AppColors.getIosSeparator(
-                        theme.brightness,
-                      ).withValues(alpha: 0.3),
+                      color: AppColors.getIosSeparator(theme.brightness)
+                          .withValues(alpha: 0.3),
                     ),
                   ],
                 );

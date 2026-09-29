@@ -259,9 +259,8 @@ void main() {
     flowLog('[AT-WCL1] bob active 工作区数=$cnt');
     expect(cnt, 100, reason: '前置：必须已建满上限 100（API fixture，批次154 准备步）');
 
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/workspace/create');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/workspace/create');
     expect(
       await _waitFor(
         tester,
@@ -326,9 +325,8 @@ void main() {
     flowLog('[AT-WCL1] ── PASS ──');
 
     // ══════════ AT-WIV2：空区工作区勾选项禁用 + 不可用提示 ══════════
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/workspace/$_wsEmpty/members/invite');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/workspace/$_wsEmpty/members/invite');
     expect(
       await _waitFor(
         tester,
@@ -372,9 +370,8 @@ void main() {
     // 构造时生效——必须 invalidate 让 ref.read 重建 WorkspaceApi，
     // 否则主邀请绕过注入真实打到服务端（run7 实证并已清污：
     // smoke_alice 真实入区/入群各一行）。
-    ProviderScope.containerOf(
-      tester.element(find.byType(Navigator).first),
-    ).invalidate(workspaceApiProvider);
+    ProviderScope.containerOf(tester.element(find.byType(Navigator).first))
+        .invalidate(workspaceApiProvider);
 
     // dio 通道探针：adapter 装上后主 client 是否仍可用（排除注入污染）
     final probe = await HttpClient.client
@@ -389,13 +386,11 @@ void main() {
     // go() 不重建 onstage 页面（实例 workspaceId 保持旧值、initState 不重跑
     // →_locateTemplateResources 零请求→勾选保持禁用）。解法：先回主壳
     // 再导航（WIV1 配方：从主壳 go 向导一次成功）。
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/bottom_navigation');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/bottom_navigation');
     await _pump(tester, seconds: 2);
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/workspace/$_wsLim/members/invite');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/workspace/$_wsLim/members/invite');
     expect(
       await _waitFor(
         tester,

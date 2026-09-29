@@ -10,6 +10,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
 import 'confirm_new_friend_provider.dart';
 
 /// 确认新好友页面 - 像素级对齐 iOS 17 Premium 风格

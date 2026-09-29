@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/component/ui/bot_badge.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -62,6 +63,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/events/message_events.dart';
 import 'package:imboy/service/compliance_key_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
+
 import 'e2ee_peer_key_warning_rule.dart';
 
 import 'package:imboy/component/ui/avatar.dart' as imboy;

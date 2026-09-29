@@ -113,8 +113,9 @@ class AiPlaintextPromptRequest {
 }
 
 /// UI 确认处理器：返回 true 表示用户显式确认。
-typedef AiPlaintextPromptHandler =
-    Future<bool> Function(AiPlaintextPromptRequest request);
+typedef AiPlaintextPromptHandler = Future<bool> Function(
+  AiPlaintextPromptRequest request,
+);
 
 /// 对端身份材料源 seam。
 abstract class AiPeerIdentitySource {

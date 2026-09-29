@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -640,9 +641,8 @@ class _PendingAck {
       'type': type,
       'content': content,
       'sendTime': sendTime, // 毫秒时间戳
-      'sendTimeIso': DateTime.fromMillisecondsSinceEpoch(
-        sendTime,
-      ).toIso8601String(),
+      'sendTimeIso': DateTime.fromMillisecondsSinceEpoch(sendTime)
+          .toIso8601String(),
       'retryCount': retryCount,
     };
   }

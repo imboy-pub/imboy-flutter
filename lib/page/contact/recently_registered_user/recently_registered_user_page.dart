@@ -9,6 +9,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/store/model/people_model.dart';
 
 import 'recently_registered_user_provider.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -76,9 +77,8 @@ class _RecentlyRegisteredUserPageState
                         padding: const EdgeInsets.only(left: 84),
                         child: Divider(
                           height: 0.33,
-                          color: AppColors.getIosSeparator(
-                            brightness,
-                          ).withValues(alpha: 0.3),
+                          color: AppColors.getIosSeparator(brightness)
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                   ],
@@ -94,9 +94,8 @@ class _RecentlyRegisteredUserPageState
     return Container(
       padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
-        color: AppColors.getIosBlue(
-          Theme.of(context).brightness,
-        ).withValues(alpha: 0.1),
+        color: AppColors.getIosBlue(Theme.of(context).brightness)
+            .withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(

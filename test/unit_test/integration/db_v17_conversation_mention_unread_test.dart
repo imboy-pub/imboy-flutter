@@ -107,9 +107,8 @@ void main() {
     });
 
     test('downgrade.sql declares VERSION: 17 block', () {
-      final content = File(
-        'assets/migrations/downgrade.sql',
-      ).readAsStringSync();
+      final content = File('assets/migrations/downgrade.sql')
+          .readAsStringSync();
       expect(
         content.contains('-- VERSION: 17'),
         isTrue,

@@ -367,9 +367,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       horizontal: 24,
                       vertical: 8,
                     ),
-                    color: AppColors.getIosBlue(
-                      brightness,
-                    ).withValues(alpha: 0.1),
+                    color: AppColors.getIosBlue(brightness)
+                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     onPressed: () => _editAvatar(context, notifier),
                     child: Text(

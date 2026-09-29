@@ -15,10 +15,13 @@ import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/store/api/olm_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
-typedef SafetyDeviceListLoader =
-    Future<List<Map<String, dynamic>>> Function(String uid);
-typedef SafetyIdentityLoader =
-    Future<String> Function(String uid, String deviceId);
+typedef SafetyDeviceListLoader = Future<List<Map<String, dynamic>>> Function(
+  String uid,
+);
+typedef SafetyIdentityLoader = Future<String> Function(
+  String uid,
+  String deviceId,
+);
 
 /// 安全码计算结果。
 class SafetyNumberResult {

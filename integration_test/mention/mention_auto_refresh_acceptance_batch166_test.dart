@@ -100,9 +100,8 @@ Future<bool> _boot(WidgetTester tester) async {
     } else if (isOnWelcomePage(tester)) {
       await leaveWelcomePage(tester);
     } else if (UserRepoLocal.to.currentUid == _uid) {
-      GoRouter.of(
-        tester.element(find.byType(Navigator).first),
-      ).go('/bottom_navigation');
+      GoRouter.of(tester.element(find.byType(Navigator).first))
+          .go('/bottom_navigation');
     }
     await _pump(tester, seconds: 6);
   }
@@ -122,9 +121,7 @@ Future<bool> _boot(WidgetTester tester) async {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('批次166：AT-ME2 收到新提及事件后自动刷新（BUG#148 接线验证）', (
-    tester,
-  ) async {
+  testWidgets('批次166：AT-ME2 收到新提及事件后自动刷新（BUG#148 接线验证）', (tester) async {
     if (!await _boot(tester)) return;
     final router = GoRouter.of(tester.element(find.byType(Navigator).first));
 
@@ -197,7 +194,11 @@ void main() {
       'msg_type': 'text',
       'action': '',
       'e2ee': null,
-      'payload': {'msg_type': 'text', 'text': _marker, 'mentions': [_uid]},
+      'payload': {
+        'msg_type': 'text',
+        'text': _marker,
+        'mentions': [_uid],
+      },
       'created_at': DateTime.now().millisecondsSinceEpoch,
     });
     flowLog('[AT-ME2] 已注入 C2G @ 消息帧 msgId=$msgId');
@@ -207,9 +208,7 @@ void main() {
     // 'Alice' 条目出现 = _loadMentions(refresh:true) 被事件触发。
     final refreshed = await _waitFor(
       tester,
-      () =>
-          tester.any(find.text('全部已读')) &&
-          tester.any(find.text('Alice')),
+      () => tester.any(find.text('全部已读')) && tester.any(find.text('Alice')),
       seconds: 20,
     );
     expect(
@@ -224,9 +223,8 @@ void main() {
     // ── 接收链路落库断言 ──
     // ① 客户端：接收路径把消息持久化进本地 msg_c2g（isNewRow=true 证明
     //    走的是完整接收链而非仅刷新）
-    final localMsg = await MessageRepo(tableName: MessageRepo.c2gTable).find(
-      msgId,
-    );
+    final localMsg = await MessageRepo(tableName: MessageRepo.c2gTable)
+        .find(msgId);
     expect(localMsg, isNotNull, reason: '接收路径应把消息落进本地 msg_c2g');
     // ② 服务端：msg_mention 精确一行且未读
     final mentionRow = await TestPg.scalar(
@@ -240,8 +238,6 @@ void main() {
       'false',
       reason: '新 mention 应为未读（is_read=false），实际: $mentionRow',
     );
-    flowLog(
-      '[AT-ME2] DB 断言 OK：本地 msg_c2g 新行 + 服务端 msg_mention($mentionRow)',
-    );
+    flowLog('[AT-ME2] DB 断言 OK：本地 msg_c2g 新行 + 服务端 msg_mention($mentionRow)');
   });
 }

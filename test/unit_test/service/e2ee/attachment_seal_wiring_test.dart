@@ -65,9 +65,8 @@ AttachmentSealRequest? _build({
 
 void main() {
   test('群聊上传的 8 个生产入口复用同一 messageId 作为 anchor 与最终消息 ID', () {
-    final source = File(
-      'lib/page/chat/chat/attachment_handler.dart',
-    ).readAsStringSync();
+    final source = File('lib/page/chat/chat/attachment_handler.dart')
+        .readAsStringSync();
 
     expect(
       RegExp(r'anchorMsgId:\s*messageId,').allMatches(source),

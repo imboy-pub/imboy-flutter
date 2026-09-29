@@ -44,9 +44,10 @@ void main() {
     await db.execute('PRAGMA journal_mode = WAL');
     // WAL 中写入但不 checkpoint
     await db.insert('t', {'id': 2, 'v': 'in-wal'});
-    final walMode = (await db.rawQuery(
-      'PRAGMA journal_mode',
-    )).first.values.first;
+    final walMode = (await db.rawQuery('PRAGMA journal_mode'))
+        .first
+        .values
+        .first;
     expect(walMode, equals('wal'));
 
     final snap = await svc().createSnapshot(

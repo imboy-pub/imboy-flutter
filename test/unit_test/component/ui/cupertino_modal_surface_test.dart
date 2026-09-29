@@ -8,9 +8,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-          ).copyWith(surface: surface),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)
+              .copyWith(surface: surface),
         ),
         home: const Scaffold(body: CupertinoModalSurface(child: Text('sheet'))),
       ),

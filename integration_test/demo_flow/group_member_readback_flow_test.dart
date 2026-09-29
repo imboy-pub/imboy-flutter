@@ -154,9 +154,9 @@ Future<List<String>> _loadAnnouncements(String gid) async {
   if (response.code != 0) {
     fail('群公告回读失败: code=${response.code}, msg=${response.msg}');
   }
-  return _asList(
-    response.payload,
-  ).map((item) => item is Map ? item.values.join('|') : '$item').toList();
+  return _asList(response.payload)
+      .map((item) => item is Map ? item.values.join('|') : '$item')
+      .toList();
 }
 
 List<dynamic> _asList(dynamic value) {

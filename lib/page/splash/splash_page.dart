@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;

@@ -346,8 +346,7 @@ void main() {
             'did': 'other_device',
             'kid': 'key_v1',
             'wrap_alg': 'RSA-OAEP-256',
-            'ek':
-                'invalid_key', // This will cause a decode error after finding no matching device
+            'ek': 'invalid_key', // This will cause a decode error after finding no matching device
           },
         ],
       };

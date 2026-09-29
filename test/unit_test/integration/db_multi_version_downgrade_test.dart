@@ -155,24 +155,27 @@ void main() {
       },
     );
 
-    test('按升序执行（模拟 bug）会失败 / ascending plan fails (regression guard)', () async {
-      // 手动构造升序 plan 模拟原 _getMigrationScripts 的行为
-      // Simulate the legacy ascending order to prove it breaks
-      final ascending = [
-        syntheticDowngradeV10(), // 先 10→9 ← V11 schema 下表名叫 msg_c2c_v11，不是 msg_c2c，失败
-        syntheticDowngradeV11(),
-      ];
+    test(
+      '按升序执行（模拟 bug）会失败 / ascending plan fails (regression guard)',
+      () async {
+        // 手动构造升序 plan 模拟原 _getMigrationScripts 的行为
+        // Simulate the legacy ascending order to prove it breaks
+        final ascending = [
+          syntheticDowngradeV10(), // 先 10→9 ← V11 schema 下表名叫 msg_c2c_v11，不是 msg_c2c，失败
+          syntheticDowngradeV11(),
+        ];
 
-      // V10 脚本的第一句 `ALTER TABLE msg_c2c RENAME TO message` 会失败，
-      // 因为当前 DB 是 V11 schema，表名是 msg_c2c_v11
-      // The very first statement of the V10 block fails because the V11
-      // schema's table is msg_c2c_v11, not msg_c2c
-      await expectLater(
-        () => runPlan(db, ascending),
-        throwsA(isA<DatabaseException>()),
-        reason: '证明：升序执行在 V11 schema 下必然失败，降序执行才正确',
-      );
-    });
+        // V10 脚本的第一句 `ALTER TABLE msg_c2c RENAME TO message` 会失败，
+        // 因为当前 DB 是 V11 schema，表名是 msg_c2c_v11
+        // The very first statement of the V10 block fails because the V11
+        // schema's table is msg_c2c_v11, not msg_c2c
+        await expectLater(
+          () => runPlan(db, ascending),
+          throwsA(isA<DatabaseException>()),
+          reason: '证明：升序执行在 V11 schema 下必然失败，降序执行才正确',
+        );
+      },
+    );
 
     test('单级降级 V10→V9 不受影响 / single-hop downgrade unaffected', () async {
       // 另起一个 V10 的 DB

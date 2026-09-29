@@ -99,12 +99,10 @@ class AttachmentSealPolicy {
     required String messageId,
     required String conversationId,
     required String senderUid,
-  }) =>
-      decide(
-            payloadWillBeEncrypted: payloadWillBeEncrypted,
-            messageId: messageId,
-            conversationId: conversationId,
-            senderUid: senderUid,
-          )
-          is SealApproved;
+  }) => decide(
+    payloadWillBeEncrypted: payloadWillBeEncrypted,
+    messageId: messageId,
+    conversationId: conversationId,
+    senderUid: senderUid,
+  ) is SealApproved;
 }

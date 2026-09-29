@@ -118,9 +118,8 @@ class MessageFileBuilder extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSentByMe
                     ? AppColors.mediaScrimWhite.withValues(alpha: 0.2)
-                    : AppColors.getIosBlue(
-                        Theme.of(context).brightness,
-                      ).withValues(alpha: 0.1),
+                    : AppColors.getIosBlue(Theme.of(context).brightness)
+                          .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(

@@ -180,9 +180,8 @@ Future<_FailInjectionAdapter> _setupAndSelectCandidate(
   await _bootAndRelogin(tester);
 
   // 深链邀请向导（BobWS-T27：General 群 + Announcements 频道齐全）
-  GoRouter.of(
-    tester.element(find.byType(Navigator).first),
-  ).go('/workspace/$_wsId/members/invite');
+  GoRouter.of(tester.element(find.byType(Navigator).first))
+      .go('/workspace/$_wsId/members/invite');
   expect(
     await _waitFor(
       tester,

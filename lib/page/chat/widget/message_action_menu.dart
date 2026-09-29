@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
@@ -189,14 +190,12 @@ class _MessageActionMenuState extends State<MessageActionMenu> {
                     duration: const Duration(milliseconds: 150),
                     padding: AppSpacing.allSmall,
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.1),
+                      color: Theme.of(context).colorScheme.primary
+                          .withValues(alpha: 0.1),
                       borderRadius: AppRadius.borderRadiusLarge,
                       border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
+                        color: Theme.of(context).colorScheme.primary
+                            .withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),

@@ -535,9 +535,10 @@ class SqliteService {
         );
         if (exists.isEmpty) continue;
         final count =
-            (await db.rawQuery(
-                  'SELECT count(*) AS c FROM $table',
-                )).first.values.first
+            (await db.rawQuery('SELECT count(*) AS c FROM $table'))
+                    .first
+                    .values
+                    .first
                 as int;
         if (count > 0) blockers.add('$table: $count unsynced rows');
       } catch (_) {

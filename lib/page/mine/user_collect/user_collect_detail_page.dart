@@ -22,6 +22,7 @@ import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:xid/xid.dart';
 
 import 'user_collect_provider.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
@@ -71,9 +72,8 @@ class UserCollectDetailPage extends ConsumerWidget {
                 bottom: AppSpacing.xLarge,
               ),
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                color: Theme.of(context).colorScheme.onSurfaceVariant
+                    .withValues(alpha: 0.3),
                 borderRadius: AppRadius.borderRadiusTiny,
               ),
             ),
@@ -484,9 +484,8 @@ class UserCollectDetailPage extends ConsumerWidget {
                       "${t.main.from} ${current.source} ${DateTimeHelper.lastTimeFmt(current.createdAt)}",
                       style: context.textStyle(
                         FontSizeType.normal,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.8),
+                        color: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.8),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -505,16 +504,14 @@ class UserCollectDetailPage extends ConsumerWidget {
                 padding: AppSpacing.allRegular,
                 decoration: BoxDecoration(
                   color: isDark
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer.withValues(alpha: 0.1)
+                      ? Theme.of(context).colorScheme.primaryContainer
+                            .withValues(alpha: 0.1)
                       : AppColors.infoBlueContainer,
                   borderRadius: AppRadius.borderRadiusMedium,
                   border: isDark
                       ? Border.all(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.primary
+                              .withValues(alpha: 0.2),
                           width: 0.5,
                         )
                       : null,

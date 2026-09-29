@@ -117,9 +117,8 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
                       : AppColors.lightSurface, // 悬浮框浅色：洁白卡片
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppColors.getIosSeparator(
-                      brightness,
-                    ).withValues(alpha: 0.15),
+                    color: AppColors.getIosSeparator(brightness)
+                        .withValues(alpha: 0.15),
                     width: 0.5,
                   ),
                   boxShadow: [
@@ -302,9 +301,8 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               padding: const EdgeInsets.only(left: 80),
               child: Divider(
                 height: 0.5,
-                color: AppColors.getIosSeparator(
-                  Theme.of(context).brightness,
-                ).withValues(alpha: 0.3),
+                color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                    .withValues(alpha: 0.3),
               ),
             );
           },

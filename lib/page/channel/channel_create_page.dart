@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -18,6 +20,7 @@ import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 
 import 'channel_provider.dart';
+
 import 'package:imboy/component/ui/app_loading.dart';
 
 /// 创建频道页面

@@ -186,9 +186,8 @@ class _MomentNotifyPageState extends ConsumerState<MomentNotifyPage> {
           height: 0.5,
           indent: 72,
           endIndent: 16,
-          color: AppColors.getIosSeparator(
-            Theme.of(context).brightness,
-          ).withValues(alpha: 0.3),
+          color: AppColors.getIosSeparator(Theme.of(context).brightness)
+              .withValues(alpha: 0.3),
         ),
         itemBuilder: (context, index) {
           if (index >= state.items.length) {

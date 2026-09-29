@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 
 import 'people_info_more_provider.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -88,9 +89,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        color: Theme.of(context).colorScheme.primaryContainer
+                            .withValues(alpha: 0.3),
                         borderRadius: AppRadius.borderRadiusMedium,
                       ),
                       child: Icon(
@@ -189,9 +189,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                   height: 48,
                   decoration: BoxDecoration(
                     color: hasGroup
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                        ? Theme.of(context).colorScheme.primaryContainer
+                              .withValues(alpha: 0.3)
                         : Theme.of(context).colorScheme.surfaceContainerHighest
                               .withValues(alpha: 0.5),
                     borderRadius: AppRadius.borderRadiusRegular,
@@ -260,9 +259,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.1),
+                      color: Theme.of(context).colorScheme.primary
+                          .withValues(alpha: 0.1),
                       borderRadius: AppRadius.borderRadiusLarge,
                     ),
                     child: Text(
@@ -283,9 +281,8 @@ class _PeopleInfoMorePageState extends ConsumerState<PeopleInfoMorePage> {
                 ] else ...[
                   Icon(
                     CupertinoIcons.minus_circle,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant
+                        .withValues(alpha: 0.5),
                     size: 20,
                   ),
                 ],

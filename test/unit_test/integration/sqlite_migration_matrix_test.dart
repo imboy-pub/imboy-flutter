@@ -95,9 +95,10 @@ Future<bool> _hasTable(Database db, String t) async {
 
 Future<int> _countMsg(Database db) async {
   if (!await _hasTable(db, 'msg_c2c')) return 0;
-  return (await db.rawQuery(
-        'SELECT count(*) AS c FROM msg_c2c',
-      )).first.values.first
+  return (await db.rawQuery('SELECT count(*) AS c FROM msg_c2c'))
+          .first
+          .values
+          .first
       as int;
 }
 
@@ -305,9 +306,9 @@ void main() {
       // 频道数据影响：visibility 丢失（重建为 v30 形态），type 保留
       final ch = await db.query('channel', where: 'id = ?', whereArgs: [42]);
       expect(ch, isNotEmpty);
-      final cols = (await db.rawQuery(
-        'PRAGMA table_info("channel")',
-      )).map((r) => r['name']).toSet();
+      final cols = (await db.rawQuery('PRAGMA table_info("channel")'))
+          .map((r) => r['name'])
+          .toSet();
       expect(
         cols.contains('visibility'),
         isFalse,

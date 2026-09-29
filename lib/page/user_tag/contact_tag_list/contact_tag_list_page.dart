@@ -12,6 +12,7 @@ import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'contact_tag_list_provider.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 联系人标签列表页面 - 像素级对齐 iOS 17 Premium 风格
@@ -186,9 +187,8 @@ class _ContactTagListPageState extends ConsumerState<ContactTagListPage> {
               padding: const EdgeInsets.only(left: 16),
               child: Divider(
                 height: 0.33,
-                color: AppColors.getIosSeparator(
-                  brightness,
-                ).withValues(alpha: 0.3),
+                color: AppColors.getIosSeparator(brightness)
+                    .withValues(alpha: 0.3),
               ),
             ),
         ],
