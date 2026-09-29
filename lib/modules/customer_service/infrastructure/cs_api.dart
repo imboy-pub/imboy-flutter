@@ -760,9 +760,21 @@ class CsApi extends HttpClient {
   /// 用途：打开会话页的**权威** identity/conversation 事实源（路由 query
   /// 只是展示种子，不作授权事实）、claim/transfer/close 冲突后刷新真实
   /// 状态、close 后回显 rating 状态（坐席端只展示评分状态，不代访客评分）。
-  Future<CsSessionDetail> sessionDetail(String orgId, String sessionId) async {
+  ///
+  /// 契约（真机 A02 实证 2026-09-30）：session_detail 动作表无
+  /// `workspace => optional` 声明，CSB-02R workspace 门 required——缺
+  /// `workspace_id` 必 422（转接 CAS 拿不到 version 的根因）。空时透传，
+  /// 接线归调用方（与 claim/close 同口径）。
+  Future<CsSessionDetail> sessionDetail(
+    String orgId,
+    String sessionId, {
+    String workspaceId = '',
+  }) async {
     final resp = await get(
       '/api/v1/cs/organizations/$orgId/sessions/$sessionId',
+      queryParameters: <String, dynamic>{
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+      },
     );
     _ensureOk(resp);
     return CsSessionDetail.fromJson(resp.payload);

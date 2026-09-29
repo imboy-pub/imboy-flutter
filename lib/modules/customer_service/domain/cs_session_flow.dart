@@ -138,7 +138,13 @@ class CsSessionFlow {
   /// 403/offboarding → 状态机降级。
   Future<CsSessionDetail?> refreshSessionState() async {
     try {
-      final d = await _csApi.sessionDetail(orgId, sessionId);
+      final d = await _csApi.sessionDetail(
+        orgId,
+        sessionId,
+        // CSB-02R workspace 门必填（session_detail 无 optional 声明，缺省
+        // 必 422——真机转接 CAS 拿不到 version 的根因，2026-09-30 实证）。
+        workspaceId: workspaceId,
+      );
       detail = d;
       if (d.conversationId.isNotEmpty) {
         conversationId = d.conversationId;
