@@ -8,6 +8,8 @@ import 'package:imboy/config/error_code.dart';
 import 'package:imboy/service/active_conversation_notifier.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/message_conversation_utils.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
@@ -131,6 +133,9 @@ import 'notification_provider.dart';
 /// MessageService.instance.processMessage(type, data);
 /// ```
 class MessageService with EventSubscriptionManager {
+  /// DB 就绪等待窗口：须大于 SqliteService 的初始化失败冷却（5s）+ 重试余量
+  static const _dbReadyWaitTimeout = Duration(seconds: 8);
+
   /// 单例实例
   static MessageService? _instance;
 
@@ -715,7 +720,10 @@ class MessageService with EventSubscriptionManager {
         data: data,
         currentUid: UserRepoLocal.to.currentUid,
       );
-      final isFromCurrentUser = data['from'] == UserRepoLocal.to.currentUid;
+      // C2G 推送 from 为 JSON number、C2C 为 JSON string（服务端编码不一致），
+      // 裸 == 恒 false 会把自己发的群消息误判为他人消息，需先归一化。
+      final isFromCurrentUser =
+          parseModelString(data['from']) == UserRepoLocal.to.currentUid;
 
       // v2.0: 从顶层读取 msg_type（不再兼容 v1.0）
       final messageType = data['msg_type']?.toString() ?? '';
@@ -806,7 +814,7 @@ class MessageService with EventSubscriptionManager {
       await store.completeInbound(messageId);
       return true;
     } on Object catch (e) {
-      iPrint('[E2EE_INBOX] completion failed: ${e.runtimeType}');
+      iPrint('[E2EE_INBOX] completion failed: $e');
       return false;
     }
   }
@@ -978,6 +986,14 @@ class MessageService with EventSubscriptionManager {
     );
 
     try {
+      // 启动竞态治根：WS 消息可能先于 DB 初始化就绪到达（或初始化失败进入
+      // 5s 冷却）。此处有限等待，让瞬时不可用在窗口内自愈；持久故障超时后
+      // 继续走原逻辑，事务会抛出带原因的异常并走失败路径（不 ACK，服务端
+      // 重推兜底）。详见 SqliteService.waitUntilReady。
+      if (!await SqliteService.to.waitUntilReady(_dbReadyWaitTimeout)) {
+        iPrint('⏳ DB 等待超时仍未就绪，消息处理将失败: $msgId');
+      }
+
       // 并行获取 peer 信息和检查用户状态
       // Parallel fetch peer info and check user status
       final results = await Future.wait([
@@ -990,7 +1006,9 @@ class MessageService with EventSubscriptionManager {
 
       // 更新会话信息
       // Update conversation with complete peer info
-      final isFromCurrentUser = data['from'] == UserRepoLocal.to.currentUid;
+      // 与 _receiveMessage 中同款修复：C2G from 为 number、C2C 为 string，须归一化比较
+      final isFromCurrentUser =
+          parseModelString(data['from']) == UserRepoLocal.to.currentUid;
       final unreadIncrement = computeConversationUnreadIncrement(
         isFromCurrentUser: isFromCurrentUser,
         isUserInChat: isUserInChat,
@@ -1138,8 +1156,9 @@ class MessageService with EventSubscriptionManager {
 
       iPrint('✅ 消息后台处理完成: $msgId');
       return true;
-    } on Object catch (e) {
-      iPrint('❌ 消息后台处理失败: $msgId, error=${e.runtimeType}');
+    } on Object catch (e, s) {
+      iPrint('❌ 消息后台处理失败: $msgId, error=$e');
+      AppLogger.error('消息后台处理失败 msgId=$msgId', e, s);
 
       // 处理失败，从 UI 中移除该消息
       // Failed to process, remove message from UI
@@ -1199,6 +1218,7 @@ class MessageService with EventSubscriptionManager {
         'msg_id': msgId,
         'conversation_uk3': tempConv.uk3,
         'error_type': error.runtimeType.toString(),
+        'error_message': error.toString(),
       };
 
       // 触发 UI 删除该消息

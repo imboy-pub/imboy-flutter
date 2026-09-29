@@ -90,6 +90,11 @@ class SqliteService {
   DateTime? _initRetryAfter;
   static const _initFailureCooldown = Duration(seconds: 5);
 
+  // db getter 最近一次返回 null 的原因（冷却中 / uid 未就绪 / 错钥 / 打开失败等）。
+  // transaction() 在 db==null 时把它写进异常消息，否则上层只看到
+  // "Database is null"，无法区分是启动竞态还是持久性故障。
+  String? _lastDbNullReason;
+
   /// 获取数据库连接实例
   /// Get the database connection instance
   Future<Database?> get db async {
@@ -111,6 +116,7 @@ class SqliteService {
     // 上次初始化刚失败且仍在冷却期内，直接返回 null，不再重试
     final retryAfter = _initRetryAfter;
     if (retryAfter != null && DateTime.now().isBefore(retryAfter)) {
+      _lastDbNullReason = 'init 失败冷却中（至 $retryAfter）';
       return null;
     }
 
@@ -135,6 +141,25 @@ class SqliteService {
       await _db!.close();
       _db = null;
       _openUid = '';
+    }
+  }
+
+  /// 等待数据库就绪（最多 [timeout]），返回是否就绪。
+  ///
+  /// 治理启动竞态：WS 消息可能先于 DB 初始化完成到达（或初始化失败进入
+  /// 5s 冷却期）。此前消息处理直接撞上 db==null 的异常，被当作消息失败
+  /// 走清理路径，只能等服务端重推（延迟更高）。后台处理在此有限等待：
+  /// 瞬时不可用在窗口内自愈；持久故障超时后仍走原失败路径（不 ACK，
+  /// 服务端重推兜底）。
+  ///
+  /// 轮询很轻量：冷却期内 db getter 直接短路返回 null，不会反复重试 init。
+  Future<bool> waitUntilReady(Duration timeout) async {
+    final deadline = DateTime.now().add(timeout);
+    while (true) {
+      final db = await this.db;
+      if (db != null) return true;
+      if (DateTime.now().isAfter(deadline)) return false;
+      await Future<void>.delayed(const Duration(milliseconds: 300));
     }
   }
 
@@ -197,6 +222,7 @@ class SqliteService {
   /// Initialize the database
   Future<Database?> _initDatabase() async {
     if (UserRepoLocal.to.currentUid.isEmpty) {
+      _lastDbNullReason = 'currentUid 为空（未登录或登录态尚未就绪）';
       return null;
     }
 
@@ -247,6 +273,7 @@ class SqliteService {
       if (exists && !await _verifyEncryptedDatabase(path, password)) {
         // 错钥、明文库或损坏库都必须保留原文件并停止初始化。客户端不能
         // 通过无密码探测来区分它们，更不能自动复制、删除或重建用户数据。
+        _lastDbNullReason = 'SQLCipher 密钥校验失败（错钥/明文库/损坏库）：$path';
         return null;
       }
     }
@@ -270,6 +297,8 @@ class SqliteService {
           '[sqlite] migration preflight aborted: ${decision.abortReason} '
           '(blockers: ${decision.blockers})',
         );
+        _lastDbNullReason =
+            '迁移预检中止：${decision.abortReason}（blockers: ${decision.blockers}）';
         return null;
       }
       if (decision.snapshotPath != null) {
@@ -290,6 +319,7 @@ class SqliteService {
       );
     } catch (e) {
       AppLogger.error('Failed to open database (${e.runtimeType})');
+      _lastDbNullReason = 'openEncryptedDatabase 失败：$e';
       return null;
     }
   }
@@ -535,9 +565,10 @@ class SqliteService {
         );
         if (exists.isEmpty) continue;
         final count =
-            (await db.rawQuery(
-                  'SELECT count(*) AS c FROM $table',
-                )).first.values.first
+            (await db.rawQuery('SELECT count(*) AS c FROM $table'))
+                    .first
+                    .values
+                    .first
                 as int;
         if (count > 0) blockers.add('$table: $count unsynced rows');
       } catch (_) {
@@ -961,17 +992,28 @@ class SqliteService {
     Future<T> Function(Transaction txn) action, {
     bool exclusive = false,
   }) async {
+    // db==null 属于基础设施未就绪/初始化失败，异常必须带上具体原因：
+    // 上层（如消息处理）会把该异常打进失败日志，只写 "Database is null"
+    // 无法区分启动竞态与错钥等持久性故障。
     if (exclusive) {
       // 排他事务需要全局锁
       return await _dbLock.synchronized(() async {
         final db = await this.db;
-        if (db == null) throw Exception('Database is null');
+        if (db == null) {
+          throw Exception(
+            'Database unavailable: ${_lastDbNullReason ?? 'init 返回 null（原因未记录）'}',
+          );
+        }
         return await db.transaction(action);
       });
     } else {
       // 普通事务，依赖WAL模式的并发支持
       final db = await this.db;
-      if (db == null) throw Exception('Database is null');
+      if (db == null) {
+        throw Exception(
+          'Database unavailable: ${_lastDbNullReason ?? 'init 返回 null（原因未记录）'}',
+        );
+      }
       return await db.transaction(action);
     }
   }

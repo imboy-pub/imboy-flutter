@@ -62,6 +62,35 @@ void main() {
     expect(got, isNot(same(oldHandle)), reason: '绝不把旧句柄交给新账号');
   });
 
+  test('waitUntilReady：db 就绪时立即返回 true', () async {
+    await StorageService.to.setString(Keys.currentUid, 'uidA');
+    final injected = await openMem();
+    SqliteService.setDbForTest(injected);
+
+    final sw = Stopwatch()..start();
+    final ready = await SqliteService.to.waitUntilReady(
+      const Duration(seconds: 2),
+    );
+    sw.stop();
+
+    expect(ready, isTrue);
+    expect(sw.elapsedMilliseconds, lessThan(500), reason: '就绪时不应轮询等待');
+    await injected.close();
+  });
+
+  test('waitUntilReady：db 持续不可用时按 timeout 返回 false', () async {
+    // uid 为空 + 无注入句柄 → _initDatabase 返回 null 进入冷却，db 恒 null
+    final start = DateTime.now();
+    final ready = await SqliteService.to.waitUntilReady(
+      const Duration(milliseconds: 200),
+    );
+    final elapsedMs = DateTime.now().difference(start).inMilliseconds;
+
+    expect(ready, isFalse);
+    // 允许少量调度余量，但绝不能等到冷却期（5s）结束
+    expect(elapsedMs, lessThan(2000), reason: '必须按 timeout 及时放弃');
+  });
+
   test('登出时只删除指定 uid 的数据库及 sidecar 文件', () async {
     const uid = 'logout-delete-test-uid';
     const sqlcipherChannel = MethodChannel(
