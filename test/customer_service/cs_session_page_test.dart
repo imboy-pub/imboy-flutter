@@ -203,6 +203,7 @@ Future<void> _pumpPage(WidgetTester tester, _SeqAdapter adapter) async {
         conversationId: '7266418340025468950',
         identityId: '7266418340025468902',
         contactName: '张三',
+        workspaceId: '7266418340025468921',
       ),
     ),
   );

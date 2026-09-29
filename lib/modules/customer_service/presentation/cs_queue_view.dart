@@ -97,6 +97,9 @@ class _CsQueueViewState extends State<CsQueueView> {
         widget.orgId,
         item.sessionId,
         expectedVersion: item.version,
+        // CSB-02R workspace 门（claim 无 optional 声明，缺省必 422）——
+        // 真机 A02 实证 2026-09-30：按钮可用但 claim 422 的根因即此漏接线。
+        workspaceId: widget.workspaceId,
       );
       assigneeIdentityId = result.assigneeIdentityId;
       if (!mounted) return;

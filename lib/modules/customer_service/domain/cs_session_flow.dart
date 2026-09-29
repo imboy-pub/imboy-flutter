@@ -462,6 +462,8 @@ class CsSessionFlow {
         sessionId,
         toIdentityId: toIdentityId,
         expectedVersion: version,
+        // CSB-02R workspace 门必填（缺省必 422）；空时透传由服务端裁决。
+        workspaceId: workspaceId,
       );
       machine.markTransferredAway();
       unreadCount = null;
@@ -491,6 +493,8 @@ class CsSessionFlow {
         sessionId,
         expectedVersion: version,
         reason: reason,
+        // CSB-02R workspace 门必填（缺省必 422）；空时透传由服务端裁决。
+        workspaceId: workspaceId,
       );
       machine.markClosed();
       unreadCount = null;
