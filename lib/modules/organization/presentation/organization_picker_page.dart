@@ -237,21 +237,13 @@ class _OrganizationPickerPageState
   }
 
   Future<void> _landDefaultWorkspace(Organization org) async {
-    try {
-      final dw = await _api.defaultWorkspace(org.id);
-      if (!dw.isSet) return;
-      final shell = ref.read(workspaceShellProvider);
-      final joined = shell.workspaces.any(
-        (ws) => ws.id == dw.defaultWorkspaceId,
-      );
-      if (joined) {
-        ref
-            .read(workspaceShellProvider.notifier)
-            .selectWorkspace(dw.defaultWorkspaceId);
-      }
-    } on Object {
-      // 默认 WS 指针读取失败不阻塞切换（loadMine 已完成壳重建）。
-    }
+    await ref.read(workspaceShellProvider.notifier).selectOrganization(
+      org.id,
+      () async {
+        final dw = await _api.defaultWorkspace(org.id);
+        return dw.defaultWorkspaceId;
+      },
+    );
   }
 
   Future<void> _joinByCode() async {

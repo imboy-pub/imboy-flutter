@@ -293,18 +293,13 @@ class _HumanDirectoryBrowserPageState
 
   /// 默认 WS 指针落位 best-effort（指向事实；失败不阻塞切换，镜像 picker）。
   Future<void> _landDefaultWorkspace(Organization org) async {
-    try {
-      final dw = await _orgApi.defaultWorkspace(org.id);
-      if (!dw.isSet) return;
-      final shell = ref.read(workspaceShellProvider);
-      if (shell.workspaces.any((ws) => ws.id == dw.defaultWorkspaceId)) {
-        ref
-            .read(workspaceShellProvider.notifier)
-            .selectWorkspace(dw.defaultWorkspaceId);
-      }
-    } on Object {
-      // 默认 WS 读取失败不阻塞切换。
-    }
+    await ref.read(workspaceShellProvider.notifier).selectOrganization(
+      org.id,
+      () async {
+        final dw = await _orgApi.defaultWorkspace(org.id);
+        return dw.defaultWorkspaceId;
+      },
+    );
   }
 
   // ---- 成员资料 / 发消息（复用既有企业成员详情页） ----

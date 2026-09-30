@@ -256,8 +256,18 @@ void main() {
       return _ok(null);
     });
     final api = _WsFakeApi([
-      const WorkspaceModel(id: '9001', name: 'WS甲', ownerId: '1'),
-      const WorkspaceModel(id: '9002', name: 'WS乙', ownerId: '1'),
+      const WorkspaceModel(
+        id: '9001',
+        name: 'WS甲',
+        ownerId: '1',
+        organizationId: _orgA,
+      ),
+      const WorkspaceModel(
+        id: '9002',
+        name: 'WS乙',
+        ownerId: '1',
+        organizationId: _orgB,
+      ),
     ]);
     final container = makeContainer(api);
     // 初始 currentWorkspaceId 由首次 loadMine 自动选 9001（列表第一项）。

@@ -21,19 +21,23 @@ import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 
 /// Workspace 壳状态。
 class WorkspaceShellState {
-  final List<WorkspaceModel> workspaces;
+  final List<WorkspaceModel> _workspaces;
+  final EntityId organizationId;
   final EntityId currentWorkspaceId;
   final WorkspaceShellDestination destination;
   final bool isLoading;
   final String? error;
 
   const WorkspaceShellState({
-    this.workspaces = const [],
+    List<WorkspaceModel> workspaces = const [],
+    this.organizationId = '',
     this.currentWorkspaceId = '',
     this.destination = WorkspaceShellDestination.overview,
     this.isLoading = false,
     this.error,
-  });
+    // 保留公开命名参数 workspaces；全集仅在状态内部维护。
+    // ignore: prefer_initializing_formals
+  }) : _workspaces = workspaces;
 
   /// 当前工作区（无效 id / 未加载 → null）。
   WorkspaceModel? get current {
@@ -43,10 +47,16 @@ class WorkspaceShellState {
     return null;
   }
 
+  /// mine 保留已加入的全集；企业壳只能选择当前企业内的工作区。
+  List<WorkspaceModel> get workspaces => organizationId.isEmpty
+      ? _workspaces
+      : _workspaces.where((ws) => ws.belongsToOrg(organizationId)).toList();
+
   bool get hasWorkspace => workspaces.isNotEmpty;
 
   WorkspaceShellState copyWith({
     List<WorkspaceModel>? workspaces,
+    EntityId? organizationId,
     String? currentWorkspaceId,
     bool clearCurrent = false,
     WorkspaceShellDestination? destination,
@@ -55,7 +65,8 @@ class WorkspaceShellState {
     bool clearError = false,
   }) {
     return WorkspaceShellState(
-      workspaces: workspaces ?? this.workspaces,
+      workspaces: workspaces ?? _workspaces,
+      organizationId: organizationId ?? this.organizationId,
       currentWorkspaceId: clearCurrent
           ? ''
           : (currentWorkspaceId ?? this.currentWorkspaceId),
@@ -68,26 +79,27 @@ class WorkspaceShellState {
 
 /// 壳级导航/当前工作区 Notifier（常驻，随 App 生命周期）。
 class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
+  int _selectionGeneration = 0;
+
   @override
   WorkspaceShellState build() => const WorkspaceShellState();
 
   /// 拉取「我的工作区」并校正当前选中项。
   ///
-  /// - 首次加载 / 当前项不在列表 → 自动选第一个（最新创建）
+  /// - 首次加载 / 当前项不在列表 → 自动选当前企业内第一个（最新创建）
   /// - 失败：[keepListOnFailure]（默认 true）保留既有列表并置 error 供壳展示
   ///   错误态——这是普通重试的语义。
-  /// - **企业切换必须传 false**（计划 §5.1「不得残留上一企业缓存」）：切换时
-  ///   企业指针已经切走，若这里保留旧列表就会留下「指针新企业 + 列表旧企业」
-  ///   的窗口，用户会在新企业上下文里看到上一企业的工作区并能切进去。
-  ///   此时宁可清空成空态。
+  /// - 企业指针提交前的预载可保留旧状态；指针提交后的强制清缓存可传
+  ///   false。提交企业时另由 selectOrganization 同步收敛可见列表和当前项。
   Future<void> loadMine({bool keepListOnFailure = true}) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final page = await ref.read(workspaceApiProvider).mine();
       var currentId = state.currentWorkspaceId;
-      final exists = page.list.any((ws) => ws.id == currentId);
+      final available = state.copyWith(workspaces: page.list).workspaces;
+      final exists = available.any((ws) => ws.id == currentId);
       if (!exists) {
-        currentId = page.list.isEmpty ? '' : page.list.first.id;
+        currentId = available.isEmpty ? '' : available.first.id;
       }
       state = state.copyWith(
         workspaces: page.list,
@@ -123,13 +135,42 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
 
   /// 切换当前工作区（Overview 重新开始；Brand 主题随之切换，T12）。
   void selectWorkspace(EntityId workspaceId) {
-    if (workspaceId.isEmpty || workspaceId == state.currentWorkspaceId) return;
+    if (workspaceId.isEmpty ||
+        !state.workspaces.any((ws) => ws.id == workspaceId)) {
+      return;
+    }
+    _selectionGeneration++;
+    if (workspaceId == state.currentWorkspaceId) return;
     state = state.copyWith(
       currentWorkspaceId: workspaceId,
       destination: WorkspaceShellDestination.overview,
     );
     // mine 列表行不带 branding：切换后为新当前工作区补拉（T12 主题切换）
     unawaited(ensureCurrentBranding());
+  }
+
+  /// 提交企业指针后调用：立即在目标企业落位，默认指针只用于进一步选择。
+  /// 默认读取失败/未配置/未加入时保留同企业回退项，绝不残留上一企业。
+  Future<void> selectOrganization(
+    EntityId organizationId,
+    Future<EntityId> Function() readDefaultWorkspace,
+  ) async {
+    final generation = ++_selectionGeneration;
+    final scoped = state.copyWith(organizationId: organizationId);
+    final available = scoped.workspaces;
+    state = scoped.copyWith(
+      currentWorkspaceId: available.isEmpty ? '' : available.first.id,
+      destination: WorkspaceShellDestination.overview,
+    );
+    unawaited(ensureCurrentBranding());
+    try {
+      final defaultId = await readDefaultWorkspace();
+      if (!ref.mounted || generation != _selectionGeneration) return;
+      selectWorkspace(defaultId);
+    } on Exception catch (e) {
+      // 回退项已同步选好；保留诊断，默认读取错误不阻断企业切换。
+      iPrint('[WorkspaceShell] default workspace unavailable: $e');
+    }
   }
 
   /// 补拉当前工作区 branding 并轻量同步该行（壳主题 T12 作用域随参数重建）。
@@ -155,14 +196,14 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     state = state.copyWith(destination: destination);
   }
 
-  /// 创建成功后回填（Template 原子结果：workspace + channel + group）。
+  /// 创建成功后回填（Template 原子结果）；仅同企业工作区自动选中。
   void applyCreated(WorkspaceCreateResult result) {
     _prependAndSelect(result.workspace);
   }
 
   /// 团队码加入成功后回填（joined / unchanged 均走此路径）。
   ///
-  /// 与 [applyCreated] 同构（去重语义一致）：新加入置顶 + 切当前 +
+  /// 与 [applyCreated] 同构：新加入置顶，同企业才切当前 +
   /// 回 Overview；已在列表中的工作区 id 不重复插入（置顶去重）。
   void applyJoined(WorkspaceModel ws) {
     _prependAndSelect(ws);
@@ -172,10 +213,13 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
   void _prependAndSelect(WorkspaceModel ws) {
     if (ws.id.isEmpty) return;
     // 最新加入置顶（服务端列表按 created_at DESC，回填顺序与之一致）
-    final list = [ws, ...state.workspaces.where((item) => item.id != ws.id)];
+    final list = [ws, ...state._workspaces.where((item) => item.id != ws.id)];
+    final canSelect =
+        state.organizationId.isEmpty || ws.belongsToOrg(state.organizationId);
+    if (canSelect) _selectionGeneration++;
     state = state.copyWith(
       workspaces: list,
-      currentWorkspaceId: ws.id,
+      currentWorkspaceId: canSelect ? ws.id : state.currentWorkspaceId,
       destination: WorkspaceShellDestination.overview,
     );
   }
@@ -185,7 +229,7 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     if (ws.id.isEmpty) return;
     state = state.copyWith(
       workspaces: [
-        for (final item in state.workspaces) item.id == ws.id ? ws : item,
+        for (final item in state._workspaces) item.id == ws.id ? ws : item,
       ],
     );
   }
