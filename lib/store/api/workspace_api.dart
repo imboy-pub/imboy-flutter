@@ -11,6 +11,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
 /// Workspace API 失败（透传服务端 envelope code 与消息）。
@@ -221,14 +222,36 @@ class WorkspaceApi extends HttpClient {
   }
 
   /// 本人已加入的群，完整消费游标；任一页失败不返回部分列表。
-  Future<List<GroupModel>> memberGroups(EntityId workspaceId) async {
+  Future<List<GroupModel>> memberGroups(EntityId workspaceId) async =>
+      (await _memberGroupRows(workspaceId)).map(GroupModel.fromJson).toList();
+
+  Future<List<WorkspaceConversationModel>> conversations(
+    EntityId workspaceId,
+  ) async {
+    final rows = await _memberGroupRows(workspaceId, preview: true);
+    try {
+      return rows.map(WorkspaceConversationModel.fromJson).toList();
+    } on FormatException {
+      throw WorkspaceApiException(503, t.common.errorNetwork);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _memberGroupRows(
+    EntityId workspaceId, {
+    bool preview = false,
+  }) async {
     var cursor = 0;
-    final result = <GroupModel>[];
+    final result = <Map<String, dynamic>>[];
     while (true) {
       final payload = _ensureOk(
         await get(
           '/api/v1/workspaces/$workspaceId/groups',
-          queryParameters: {'member_only': 1, 'limit': 200, 'cursor': cursor},
+          queryParameters: {
+            'member_only': 1,
+            'limit': 200,
+            'cursor': cursor,
+            if (preview) 'preview': 1,
+          },
         ),
       );
       final raw = payload['list'];
@@ -242,19 +265,10 @@ class WorkspaceApi extends HttpClient {
         throw WorkspaceApiException(503, t.common.errorNetwork);
       }
       var lastId = cursor;
-      for (final row in raw) {
-        if (row is! Map<String, dynamic> ||
-            row['scope'] != 'workspace' ||
-            entityIdOf(row['workspace_id']) != workspaceId ||
-            row['status'] != 1) {
-          throw WorkspaceApiException(503, t.common.errorNetwork);
-        }
-        final group = GroupModel.fromJson(row);
-        if (group.groupId <= lastId) {
-          throw WorkspaceApiException(503, t.common.errorNetwork);
-        }
-        lastId = group.groupId;
-        result.add(group);
+      for (final value in raw) {
+        final (row, id) = _memberGroupRow(value, workspaceId, lastId);
+        lastId = id;
+        result.add(row);
       }
       if (!more) {
         if (next != 0) throw WorkspaceApiException(503, t.common.errorNetwork);
@@ -265,6 +279,24 @@ class WorkspaceApi extends HttpClient {
       }
       cursor = next;
     }
+  }
+
+  (Map<String, dynamic>, int) _memberGroupRow(
+    Object? raw,
+    EntityId workspaceId,
+    int after,
+  ) {
+    if (raw is! Map<String, dynamic> ||
+        raw['scope'] != 'workspace' ||
+        entityIdOf(raw['workspace_id']) != workspaceId ||
+        raw['status'] != 1) {
+      throw WorkspaceApiException(503, t.common.errorNetwork);
+    }
+    final id = GroupModel.fromJson(raw).groupId;
+    if (id <= after) {
+      throw WorkspaceApiException(503, t.common.errorNetwork);
+    }
+    return (raw, id);
   }
 
   // ==================== 工作区成员（Workspace Member） ====================

@@ -4,10 +4,10 @@
 /// - 顶栏（仅移动端且非会话目的地）：左 = 工作区切换 chip（恢复切换入口
 ///   可见性），中 = 当前页面标题（居中），右 = 头像菜单；
 ///   Slack / Notion 惯例：左上工作区上下文、右上账户
-/// - 会话目的地：ConversationPage 自带标题栏（左上 = 切换 chip、
-///   右上 = [搜索 + 发起聊天 + 头像]），壳顶栏不叠加
+/// - 会话目的地：WorkspaceConversationsPage 自带标题栏（左上 = 切换 chip、
+///   右上 = 头像，搜索在本工作区列表内），壳顶栏不叠加
 /// - 内容区：五项导航 IndexedStack（Conversations / Overview / Channels /
-///   Groups / Projects；DM 进一级导航排第一）
+///   Groups / Projects；工作区群会话排第一）
 /// - 导航形态：移动端底部 NavigationBar / 桌面端 NavigationRail
 ///   （断点 900px，与 ChatShell / WebShell 一致；桌面 rail 顶部保留
 ///   工作区切换图标——桌面侧栏顶部是切换器的行业惯例位）
@@ -22,7 +22,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/conversation/conversation_page.dart';
+import 'package:imboy/page/workspace/workspace_conversations_page.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_groups_page.dart';
 import 'package:imboy/page/workspace/workspace_overview_page.dart';
@@ -42,7 +42,7 @@ class WorkspaceShellPage extends ConsumerWidget {
     final t = context.t;
     final shell = ref.watch(workspaceShellProvider);
     final items = buildWorkspaceShellNavItems(
-      conversationsLabel: t.workspace.dmEntry,
+      conversationsLabel: t.chat.groupChat,
       overviewLabel: t.workspace.navOverview,
       channelsLabel: t.workspace.navChannels,
       groupsLabel: t.workspace.navGroups,
@@ -111,7 +111,7 @@ class WorkspaceShellPage extends ConsumerWidget {
 
 /// 五项内容区（IndexedStack 保活各视图滚动位置；顺序 = 枚举声明顺序）。
 /// 会话页导航栏：左上 = 工作区切换 chip（切换入口全页常驻可见），
-/// 右上 = [搜索 + 发起聊天 + 头像]。
+/// 右上 = 头像，搜索在本工作区列表内。
 class _DestinationStack extends StatelessWidget {
   final int index;
 
@@ -119,16 +119,11 @@ class _DestinationStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return IndexedStack(
       key: const ValueKey('workspace-shell-destination-stack'),
       index: index,
       children: [
-        ConversationPage(
-          title: t.workspace.dmEntry,
-          leading: const WorkspaceSwitcherChip(),
-          trailingActions: const [WorkspaceAccountButton()],
-        ),
+        const WorkspaceConversationsPage(),
         const WorkspaceOverviewPage(),
         const WorkspaceChannelsPage(),
         const WorkspaceGroupsPage(),

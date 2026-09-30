@@ -2,7 +2,7 @@
 ///
 /// 覆盖：五项导航渲染（移动端底部导航 / 桌面端侧栏）、T1 页面标题制顶栏
 /// （头像菜单、切换器退出移动端顶栏）、会话目的地不叠加壳顶栏（头像经
-/// ConversationPage extraActions 呈现）、archived 横幅（T9 归档规则）。
+/// WorkspaceConversationsPage extraActions 呈现）、archived 横幅（T9 归档规则）。
 /// 数据 Provider 在无头测试环境下由 flutter_test_config 全局禁网 →
 /// 各视图渲染错误/空态（Day-1 Bar 的可见状态设计本身就是断言对象）。
 library;
@@ -72,20 +72,20 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-bottom-nav')),
       findsOneWidget,
     );
-    expect(find.text('全部消息'), findsWidgets);
+    expect(find.text('群聊'), findsWidgets);
     expect(find.text('概览'), findsWidgets);
     expect(find.text('频道'), findsWidgets);
     expect(find.text('群组'), findsWidgets);
     expect(find.text('项目'), findsWidgets);
     // Members 退出五项导航（入口收敛进 Overview 成员卡片）
     expect(find.text('成员'), findsNothing);
-    // 切换 chip 恢复移动端常驻（壳顶栏 + ConversationPage leading 各一，
+    // 切换 chip 恢复移动端常驻（壳顶栏 + WorkspaceConversationsPage leading 各一，
     // IndexedStack 保活两实例均在树中）
     expect(
       find.byKey(const ValueKey('workspace-shell-switcher')),
       findsWidgets,
     );
-    // 头像：壳顶栏右侧 + ConversationPage trailingActions 各一
+    // 头像：壳顶栏右侧 + WorkspaceConversationsPage trailingActions 各一
     expect(
       find.byKey(const ValueKey('workspace-shell-account-entry')),
       findsWidgets,
@@ -101,7 +101,7 @@ void main() {
     );
   });
 
-  testWidgets('会话目的地：自带导航栏 [chip | 全部消息 | 搜索+＋+头像]，壳顶栏隐藏', (tester) async {
+  testWidgets('会话目的地：自带导航栏 [chip | 群聊 | 头像]，壳顶栏隐藏', (tester) async {
     final container = await _seededContainer();
     addTearDown(container.dispose);
 
@@ -125,7 +125,7 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-account-entry')),
       findsWidgets,
     );
-    expect(find.text('全部消息'), findsWidgets);
+    expect(find.text('群聊'), findsWidgets);
   });
 
   testWidgets('桌面端：NavigationRail 五项 + 顶部切换器 + 头像沉底', (tester) async {
@@ -139,7 +139,7 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-bottom-nav')),
       findsNothing,
     );
-    // 桌面惯例：rail 顶部保留工作区切换器（含 ConversationPage leading 实例）
+    // 桌面惯例：rail 顶部保留工作区切换器（含 WorkspaceConversationsPage leading 实例）
     expect(
       find.byKey(const ValueKey('workspace-shell-switcher')),
       findsWidgets,
@@ -148,7 +148,7 @@ void main() {
       find.byKey(const ValueKey('workspace-shell-account-entry')),
       findsWidgets,
     );
-    expect(find.text('全部消息'), findsWidgets);
+    expect(find.text('群聊'), findsWidgets);
     expect(find.text('项目'), findsWidgets);
     expect(find.text('成员'), findsNothing);
   });

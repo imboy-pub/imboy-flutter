@@ -7,7 +7,7 @@
 /// ```
 ///
 /// 频率分层（UX 收敛，2026-08-31）：
-/// - Conversations（全局 DM）是最高频的用户级能力，进一级导航且排第一
+/// - Conversations（当前工作区群会话）是最高频的用户级能力，进一级导航且排第一
 ///   （此前挂在壳顶栏小图标上，频率错位）
 /// - Members 退出导航：治理低频，入口收敛进 Overview「工作区成员」卡片
 ///   「查看全部」，页面标题与说明仍用「工作区成员」全称（跨域术语约束）
@@ -23,7 +23,7 @@ import 'package:imboy/i18n/strings.g.dart';
 
 /// Workspace 体验导航目的地（顺序 = 底部导航/侧栏展示顺序）。
 enum WorkspaceShellDestination {
-  /// 会话列表（全局 DM，用户级高频能力；复用 ChatShell 的 ConversationPage）
+  /// 会话列表（当前工作区群会话，用户级高频能力；独立授权摘要列表）
   conversations,
 
   /// 导航枢纽：资源摘要 + Channel 置顶内容 + 最近文件 + 成员预览
@@ -75,7 +75,7 @@ String workspaceShellDestinationTitle(
   WorkspaceShellDestination destination,
 ) {
   return switch (destination) {
-    WorkspaceShellDestination.conversations => t.workspace.dmEntry,
+    WorkspaceShellDestination.conversations => t.chat.groupChat,
     WorkspaceShellDestination.overview => t.workspace.navOverview,
     WorkspaceShellDestination.channels => t.workspace.navChannels,
     WorkspaceShellDestination.groups => t.workspace.navGroups,

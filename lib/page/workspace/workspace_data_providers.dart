@@ -13,6 +13,7 @@ import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
 /// WorkspaceApi 依赖注入（测试经 ProviderScope.overrides 注入 mock）。
@@ -39,6 +40,16 @@ final workspaceGroupsProvider = FutureProvider.autoDispose
       if (uid.isEmpty) return const <GroupModel>[];
       return ref.watch(workspaceApiProvider).memberGroups(wsId);
     });
+
+/// Scoped message snapshots follow the current account, never the global cache.
+final workspaceConversationsProvider = FutureProvider.autoDispose
+    .family<List<WorkspaceConversationModel>, EntityId>((ref, wsId) {
+      final uid = ref.watch(
+        currentUserProvider.select((user) => user?.uid ?? ''),
+      );
+      if (uid.isEmpty) return const <WorkspaceConversationModel>[];
+      return ref.watch(workspaceApiProvider).conversations(wsId);
+    }, retry: (_, _) => null);
 
 /// 工作区成员分页列表（第一页，size 50；成员管理页当前规模足够）。
 final workspaceMembersProvider = FutureProvider.autoDispose
