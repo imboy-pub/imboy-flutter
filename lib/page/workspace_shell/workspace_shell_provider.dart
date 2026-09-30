@@ -14,8 +14,12 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
+import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart'
+    show organizationApiProvider;
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 
@@ -80,9 +84,42 @@ class WorkspaceShellState {
 /// 壳级导航/当前工作区 Notifier（常驻，随 App 生命周期）。
 class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
   int _selectionGeneration = 0;
+  int _loadGeneration = 0;
 
   @override
-  WorkspaceShellState build() => const WorkspaceShellState();
+  WorkspaceShellState build() {
+    final uid = ref.watch(
+      currentUserProvider.select((user) => user?.uid ?? ''),
+    );
+    _selectionGeneration++;
+    _loadGeneration++;
+    final org = uid.isEmpty
+        ? null
+        : CurrentOrganizationStore.forAccount(uid).value;
+    return WorkspaceShellState(organizationId: org?.id ?? '');
+  }
+
+  /// 冷启动恢复企业默认工作区；重进壳时保留仍有效的手动选择。
+  Future<void> initialize() async {
+    final accountId = ref.read(currentUserProvider)?.uid ?? '';
+    final selection = _selectionGeneration;
+    final needsDefault = state.current == null;
+    await loadMine();
+    if (!_isCurrentAccount(accountId) ||
+        selection != _selectionGeneration ||
+        !needsDefault ||
+        state.error != null ||
+        state.organizationId.isEmpty) {
+      return;
+    }
+    final orgId = state.organizationId;
+    await selectOrganization(orgId, () async {
+      final pointer = await ref
+          .read(organizationApiProvider)
+          .defaultWorkspace(orgId);
+      return pointer.defaultWorkspaceId;
+    });
+  }
 
   /// 拉取「我的工作区」并校正当前选中项。
   ///
@@ -92,17 +129,20 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
   /// - 企业指针提交前的预载可保留旧状态；指针提交后的强制清缓存可传
   ///   false。提交企业时另由 selectOrganization 同步收敛可见列表和当前项。
   Future<void> loadMine({bool keepListOnFailure = true}) async {
+    final accountId = ref.read(currentUserProvider)?.uid ?? '';
+    final generation = ++_loadGeneration;
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final page = await ref.read(workspaceApiProvider).mine();
+      final workspaces = await _readMine(generation, accountId);
+      if (workspaces == null) return;
       var currentId = state.currentWorkspaceId;
-      final available = state.copyWith(workspaces: page.list).workspaces;
+      final available = state.copyWith(workspaces: workspaces).workspaces;
       final exists = available.any((ws) => ws.id == currentId);
       if (!exists) {
         currentId = available.isEmpty ? '' : available.first.id;
       }
       state = state.copyWith(
-        workspaces: page.list,
+        workspaces: workspaces,
         currentWorkspaceId: currentId,
         isLoading: false,
       );
@@ -112,12 +152,42 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
       // 补拉的结果（冷启动壳主题曾因此回落默认蓝）。
       await ensureCurrentBranding();
     } on WorkspaceApiException catch (e) {
+      if (!_isCurrentAccount(accountId) || generation != _loadGeneration) {
+        return;
+      }
       iPrint('[WorkspaceShell] loadMine failed: $e');
       state = _onLoadFailure(e.message, keepListOnFailure);
     } catch (e) {
+      if (!_isCurrentAccount(accountId) || generation != _loadGeneration) {
+        return;
+      }
       iPrint('[WorkspaceShell] loadMine error: $e');
       state = _onLoadFailure(e.toString(), keepListOnFailure);
     }
+  }
+
+  bool _isCurrentAccount(EntityId uid) =>
+      ref.mounted && (ref.read(currentUserProvider)?.uid ?? '') == uid;
+
+  Future<List<WorkspaceModel>?> _readMine(
+    int generation,
+    EntityId accountId,
+  ) async {
+    final workspaces = <EntityId, WorkspaceModel>{};
+    var totalPages = 1;
+    for (var page = 1; page <= totalPages; page++) {
+      final result = await ref
+          .read(workspaceApiProvider)
+          .mine(page: page, size: 100);
+      if (!_isCurrentAccount(accountId) || generation != _loadGeneration) {
+        return null;
+      }
+      if (page == 1) totalPages = result.totalPage;
+      for (final workspace in result.list) {
+        workspaces[workspace.id] = workspace;
+      }
+    }
+    return workspaces.values.toList(growable: false);
   }
 
   /// 失败态收敛：保留（普通重试）或清空（企业切换，杜绝跨企业残留）。
@@ -155,6 +225,7 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     EntityId organizationId,
     Future<EntityId> Function() readDefaultWorkspace,
   ) async {
+    final accountId = ref.read(currentUserProvider)?.uid ?? '';
     final generation = ++_selectionGeneration;
     final scoped = state.copyWith(organizationId: organizationId);
     final available = scoped.workspaces;
@@ -165,7 +236,9 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     unawaited(ensureCurrentBranding());
     try {
       final defaultId = await readDefaultWorkspace();
-      if (!ref.mounted || generation != _selectionGeneration) return;
+      if (!_isCurrentAccount(accountId) || generation != _selectionGeneration) {
+        return;
+      }
       selectWorkspace(defaultId);
     } on Exception catch (e) {
       // 回退项已同步选好；保留诊断，默认读取错误不阻断企业切换。
@@ -178,10 +251,12 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
   /// - 已配置 primaryColor 的行不重拉（编辑页保存路径已本地回填）
   /// - 异步期间切走工作区：只同步仍是当前的那一行，不覆盖新当前
   Future<void> ensureCurrentBranding() async {
+    final accountId = ref.read(currentUserProvider)?.uid ?? '';
     final ws = state.current;
     if (ws == null || ws.branding.primaryColor.isNotEmpty) return;
     try {
       final branding = await ref.read(workspaceApiProvider).readBranding(ws.id);
+      if (!_isCurrentAccount(accountId)) return;
       final cur = state.current;
       if (cur == null || cur.id != ws.id) return;
       replaceWorkspace(cur.mergeBranding(branding));

@@ -20,6 +20,7 @@ import 'package:imboy/page/workspace_shell/workspace_branding_theme.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 class WorkspaceShellBootstrap extends ConsumerStatefulWidget {
@@ -38,13 +39,19 @@ class _WorkspaceShellBootstrapState
     // 首帧后触发加载（避免 build 期 mutate provider）
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        ref.read(workspaceShellProvider.notifier).loadMine();
+        ref.read(workspaceShellProvider.notifier).initialize();
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(currentUserProvider.select((user) => user?.uid ?? ''), (_, uid) {
+      if (uid.isEmpty) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.read(workspaceShellProvider.notifier).initialize();
+      });
+    });
     final t = context.t;
     final shell = ref.watch(workspaceShellProvider);
 
