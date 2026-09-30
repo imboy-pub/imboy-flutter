@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 
@@ -1105,9 +1106,11 @@ class _MomentDetailPageState extends State<MomentDetailPage> {
                             )
                           : Text(
                               t.chat.momentsSend,
+                              // 实底按钮文字必须显式 onPrimary（同 apply_friend_page）
                               style: context.textStyle(
                                 FontSizeType.normal,
                                 fontWeight: FontWeight.w600,
+                                color: AppColors.onPrimary,
                               ),
                             ),
                     );

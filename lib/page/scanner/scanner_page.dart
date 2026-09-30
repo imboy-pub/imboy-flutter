@@ -166,8 +166,14 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
               onPressed: _permissionDenied
                   ? () => openAppSettings()
                   : _startScanner,
+              // 实底按钮文字必须显式 onPrimary（同 apply_friend_page）
               child: Text(
                 _permissionDenied ? t.main.setting : t.common.buttonRetry,
+                style: context.textStyle(
+                  FontSizeType.body,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onPrimary,
+                ),
               ),
             ),
           ],

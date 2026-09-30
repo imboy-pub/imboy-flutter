@@ -175,9 +175,12 @@ class WalletPrimaryButton extends StatelessWidget {
         onPressed: onPressed,
         child: Text(
           label,
+          // 实底按钮文字必须显式 onPrimary（同 apply_friend_page）：
+          // 调用方传的是 primary/iosRed 等实底色
           style: context.textStyle(
             FontSizeType.body,
             fontWeight: FontWeight.w600,
+            color: AppColors.onPrimary,
           ),
         ),
       ),

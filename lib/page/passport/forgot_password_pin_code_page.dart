@@ -362,9 +362,11 @@ class _PinCodeVerificationPageState
                                   },
                                   child: Text(
                                     t.main.setParam(param: t.account.password),
+                                    // 实底按钮文字必须显式 onPrimary（同 apply_friend_page）
                                     style: context.textStyle(
                                       FontSizeType.medium,
                                       fontWeight: FontWeight.bold,
+                                      color: AppColors.onPrimary,
                                     ),
                                   ),
                                 ),

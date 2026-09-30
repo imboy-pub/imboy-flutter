@@ -6,6 +6,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
 import 'apply_friend_provider.dart';
 
 /// 申请添加好友页面 - 像素级对齐 iOS 17 Premium 风格
@@ -211,9 +212,12 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
               ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
               : Text(
                   t.common.buttonSend,
+                  // 实底按钮文字必须显式 onPrimary：默认构造 CupertinoButton
+                  // 启用时前景色是主题 primaryColor（蓝），叠蓝底即不可见。
                   style: context.textStyle(
                     FontSizeType.body,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.onPrimary,
                   ),
                 ),
         ),

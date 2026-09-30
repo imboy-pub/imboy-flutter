@@ -226,8 +226,13 @@ class _OrgJoinScannerPageState extends State<OrgJoinScannerPage> {
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(8),
               onPressed: _permissionDenied ? () => openAppSettings() : _start,
+              // 实底按钮文字必须显式 onPrimary（同 apply_friend_page）
               child: Text(
                 _permissionDenied ? t.main.setting : t.common.buttonRetry,
+                style: TextStyle(
+                  color: AppColors.onPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
