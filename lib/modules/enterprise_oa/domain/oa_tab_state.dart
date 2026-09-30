@@ -127,6 +127,12 @@ class OaTabStateMachine {
     return true;
   }
 
+  /// 宿主身份撤销与页面内退出不同：任何状态都立即失效，旧回调不可复活。
+  void invalidateSession() {
+    _status = OaTabStatus.loggedOut;
+    _mismatchFact = null;
+  }
+
   /// 域名跳转被 exact-origin 拦截 → originMismatch。
   ///
   /// 任意非终态都可进入（loading 中重定向同样视为跳转事实）。

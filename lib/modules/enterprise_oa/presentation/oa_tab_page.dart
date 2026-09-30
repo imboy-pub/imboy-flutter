@@ -108,6 +108,8 @@ class OaTabPage extends StatefulWidget {
     this.webViewBuilder,
     this.nonceGenerator,
     this.autoStart = true,
+    this.accountKey,
+    this.organizationId,
   });
 
   /// 外部注入的状态机；缺省自建（loading 起步）。
@@ -135,6 +137,10 @@ class OaTabPage extends StatefulWidget {
   /// 是否在 initState 自动发起 SSO（缺省 true；测试可关闭手工驱动）。
   final bool autoStart;
 
+  /// 宿主登录/企业上下文；null 保留无宿主的既有测试与独立页面形态。
+  final String? accountKey;
+  final String? organizationId;
+
   @override
   State<OaTabPage> createState() => _OaTabPageState();
 }
@@ -157,12 +163,17 @@ class _OaTabPageState extends State<OaTabPage> {
 
   Timer? _countdownTimer;
   bool _ssoInFlight = false;
+  int _issueGeneration = 0;
+  bool _contextInvalidated = false;
 
   @override
   void initState() {
     super.initState();
     _machine = widget.machine ?? OaTabStateMachine();
     _config = widget.config ?? resolveEnterpriseOaRuntimeConfig();
+    if (widget.accountKey == '' || widget.organizationId == '') {
+      _invalidateContext();
+    }
     if (widget.autoStart && _machine.status == OaTabStatus.loading) {
       // initState 内不 await：SSE/HTTP 均为异步，结果经 setState 回流。
       Future.microtask(_startSso);
@@ -171,8 +182,35 @@ class _OaTabPageState extends State<OaTabPage> {
 
   @override
   void dispose() {
+    _issueGeneration++;
     _countdownTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(OaTabPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final config = widget.config ?? resolveEnterpriseOaRuntimeConfig();
+    if (oldWidget.accountKey != widget.accountKey ||
+        oldWidget.organizationId != widget.organizationId ||
+        _config.applicationKey != config.applicationKey ||
+        _config.redirectUri != config.redirectUri ||
+        _config.brand.oaOrigin != config.brand.oaOrigin) {
+      _config = config;
+      _invalidateContext();
+    }
+  }
+
+  void _invalidateContext() {
+    // ponytail: 身份变化后锁住本页；企业 OA 配置经服务端绑定后再接恢复流程。
+    _contextInvalidated = true;
+    _issueGeneration++;
+    _ssoInFlight = false;
+    _activeUrl = null;
+    _countdownRemaining = null;
+    _countdownExpired = true;
+    _stopCountdown();
+    _machine.invalidateSession();
   }
 
   bool get _ssoCapable => _config.ssoConfigComplete;
@@ -182,7 +220,7 @@ class _OaTabPageState extends State<OaTabPage> {
   // -------------------------------------------------------------------
 
   Future<void> _startSso() async {
-    if (_ssoInFlight || !mounted) return;
+    if (_ssoInFlight || !mounted || _contextInvalidated) return;
     if (!_ssoCapable) {
       // 配置残缺（部署错误/测试直构）：保持骨架形态不动状态机——
       // 正常入口已由 runtimeEntryEnabled 隐藏本页，这里仅记日志。
@@ -190,6 +228,7 @@ class _OaTabPageState extends State<OaTabPage> {
       return;
     }
     _ssoInFlight = true;
+    final generation = ++_issueGeneration;
     _stopCountdown();
     setState(() {
       _countdownRemaining = null;
@@ -199,13 +238,18 @@ class _OaTabPageState extends State<OaTabPage> {
 
     final String nonce = widget.nonceGenerator?.call() ?? generateOaSsoNonce();
     final OaSsoIssueResult result =
-        await (widget.ssoLauncher ?? ApiOaSsoIssueLauncher()).launch(
-          applicationKey: _config.applicationKey,
-          redirectUri: _config.redirectUri,
-          nonce: nonce,
-        );
+        await (widget.ssoLauncher ?? ApiOaSsoIssueLauncher())
+            .launch(
+              applicationKey: _config.applicationKey,
+              redirectUri: _config.redirectUri,
+              nonce: nonce,
+            )
+            .onError(
+              (Object error, StackTrace stack) =>
+                  const OaSsoIssueFailed(OaSsoIssueFailureKind.network),
+            );
+    if (!mounted || generation != _issueGeneration) return;
     _ssoInFlight = false;
-    if (!mounted) return;
 
     switch (result) {
       case OaSsoCodeIssued(
@@ -288,6 +332,7 @@ class _OaTabPageState extends State<OaTabPage> {
   // -------------------------------------------------------------------
 
   void _handleRetry() {
+    if (_contextInvalidated) return;
     if (_machine.retry()) {
       widget.onRetry?.call();
       // code 仍有效期内：重挂同 URL；否则（含从未取得 code）重新签发。
@@ -301,6 +346,7 @@ class _OaTabPageState extends State<OaTabPage> {
   }
 
   void _handleRestartSso() {
+    if (_contextInvalidated) return;
     if (_machine.restartSso()) {
       widget.onRestartSso?.call();
       Future.microtask(_startSso);
@@ -310,7 +356,7 @@ class _OaTabPageState extends State<OaTabPage> {
 
   /// WebView 事件回流（状态机被 OaWebViewEventHandlers 迁移后）。
   void _handleWebViewStateChanged() {
-    if (!mounted) return;
+    if (!mounted || _contextInvalidated) return;
     // 进入终态（非 loading/ready）时停倒计时——code 有效期对恢复动作
     // 的意义由 _countdownExpired（归零标志）保留。
     switch (_machine.status) {
@@ -328,6 +374,7 @@ class _OaTabPageState extends State<OaTabPage> {
   }
 
   void _handleFirstPageLoaded() {
+    if (_contextInvalidated) return;
     _stopCountdown();
     if (!mounted) return;
     setState(() => _countdownRemaining = null);
@@ -396,9 +443,11 @@ class _OaTabPageState extends State<OaTabPage> {
         return _OaStatusMessageView(
           iconData: CupertinoIcons.square_arrow_right,
           title: t.enterpriseOa.statusLoggedOutTitle,
-          hint: t.enterpriseOa.statusLoggedOutHint,
+          hint: _contextInvalidated
+              ? t.common.noPermission
+              : t.enterpriseOa.statusLoggedOutHint,
           actionLabel: t.enterpriseOa.actionRestartSso,
-          onAction: _handleRestartSso,
+          onAction: _contextInvalidated ? null : _handleRestartSso,
         );
       case OaTabStatus.originMismatch:
         return _OaStatusMessageView(
@@ -428,12 +477,17 @@ class _OaTabPageState extends State<OaTabPage> {
     if (url == null) {
       return _OaWebViewSlot(machine: _machine);
     }
+    final generation = _issueGeneration;
     final OaWebViewSlotProps props = OaWebViewSlotProps(
       initialUrl: url,
       machine: _machine,
       allowedOrigin: _config.brand.oaOrigin,
-      onFirstPageLoaded: _handleFirstPageLoaded,
-      onStateChanged: _handleWebViewStateChanged,
+      onFirstPageLoaded: () {
+        if (generation == _issueGeneration) _handleFirstPageLoaded();
+      },
+      onStateChanged: () {
+        if (generation == _issueGeneration) _handleWebViewStateChanged();
+      },
     );
     final Widget slot = widget.webViewBuilder != null
         ? widget.webViewBuilder!(props)
@@ -557,7 +611,7 @@ class _OaStatusMessageView extends StatelessWidget {
   final String? detail;
 
   final String actionLabel;
-  final VoidCallback onAction;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {

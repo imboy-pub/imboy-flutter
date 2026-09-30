@@ -17,8 +17,11 @@
 /// 直测）；本 widget 只做 NavigationDelegate 接线。
 library;
 
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:imboy/component/helper/func.dart' show iPrint;
 
 import 'package:imboy/modules/enterprise_oa/domain/oa_tab_state.dart';
 import 'package:imboy/modules/enterprise_oa/domain/oa_webview_policy.dart';
@@ -142,6 +145,7 @@ class _OaWebViewContainerState extends State<OaWebViewContainer> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onNavigationRequest: (NavigationRequest request) {
+            if (!mounted) return NavigationDecision.prevent;
             final NavigationDecision decision = _handlers.decideNavigation(
               request.url,
             );
@@ -149,10 +153,12 @@ class _OaWebViewContainerState extends State<OaWebViewContainer> {
             return decision;
           },
           onPageFinished: (String url) {
+            if (!mounted) return;
             _handlers.onPageFinished(url);
             _notifyStateChanged();
           },
           onWebResourceError: (WebResourceError error) {
+            if (!mounted) return;
             // 仅主帧失败视为页面加载失败；子资源（图片/脚本）失败
             // 不推翻页面状态。
             if (error.isForMainFrame ?? false) {
@@ -161,6 +167,7 @@ class _OaWebViewContainerState extends State<OaWebViewContainer> {
             }
           },
           onHttpError: (HttpResponseError error) {
+            if (!mounted) return;
             // webview_flutter 的 onHttpError 在 Android 仅主帧触发；
             // iOS 经 WKWebView 导航响应同样以主帧为主。非 401 状态码
             // 不动状态机（OA 页面自行处理）。
@@ -174,7 +181,18 @@ class _OaWebViewContainerState extends State<OaWebViewContainer> {
 
   /// 状态迁移后通知协调器。
   void _notifyStateChanged() {
+    if (!mounted) return;
     widget.onStateChanged?.call();
+  }
+
+  @override
+  void dispose() {
+    unawaited(
+      _controller.runJavaScript('window.stop();').catchError((Object error) {
+        iPrint('[OaWebView] stop failed: ${error.runtimeType}');
+      }),
+    );
+    super.dispose();
   }
 
   @override

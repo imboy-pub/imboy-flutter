@@ -28,7 +28,10 @@ void main() {
   test('页面列表注册 OaTabPage 且由 _isOaTabEnabled 门控', () {
     final String src = navSource.readAsStringSync();
     expect(
-      src.contains("if (_isOaTabEnabled()) OaTabPage(config: _oaConfig),"),
+      src.contains("if (_isOaTabEnabled()) _buildOaPage(),") &&
+          src.contains('CurrentOrganizationStore.forAccount(uid).listenable') &&
+          src.contains("organizationId: org?.id ?? ''") &&
+          src.contains('accountKey: uid'),
       isTrue,
       reason: 'OA Tab 页面须在 Mine 之前注册并受 BrandConfig 门控',
     );

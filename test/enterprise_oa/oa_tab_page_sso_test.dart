@@ -13,6 +13,8 @@
 /// NavigationDelegate 接线由 oa_webview_event_handlers_test 直测。
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -57,6 +59,20 @@ class _FakeLauncher implements OaSsoIssueLauncher {
     return calls.length <= results.length
         ? results[calls.length - 1]
         : results.last;
+  }
+}
+
+class _DelayedLauncher implements OaSsoIssueLauncher {
+  final pending = Completer<OaSsoIssueResult>();
+  int calls = 0;
+  @override
+  Future<OaSsoIssueResult> launch({
+    required String applicationKey,
+    required String redirectUri,
+    required String nonce,
+  }) {
+    calls++;
+    return pending.future;
   }
 }
 
@@ -109,6 +125,105 @@ class _FakeWebViewState extends State<_FakeWebView> {
 Widget host(Widget child) => MaterialApp(home: child);
 
 void main() {
+  for (final changeAccount in [false, true]) {
+    testWidgets('切换${changeAccount ? '账号' : '企业'}丢弃旧签发结果', (tester) async {
+      final launcher = _DelayedLauncher();
+      final machine = OaTabStateMachine();
+      Widget page(String account, String organization) => host(
+        OaTabPage(
+          key: const ValueKey('scoped-oa'),
+          config: testConfig(),
+          machine: machine,
+          accountKey: account,
+          organizationId: organization,
+          ssoLauncher: launcher,
+          webViewBuilder: _FakeWebView.new,
+        ),
+      );
+      await tester.pumpWidget(page('account-a', 'org-a'));
+      await tester.pump();
+      expect(launcher.calls, 1);
+      await tester.pumpWidget(
+        page(
+          changeAccount ? 'account-b' : 'account-a',
+          changeAccount ? 'org-a' : 'org-b',
+        ),
+      );
+      launcher.pending.complete(_issued().build());
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 70));
+      expect(machine.status, OaTabStatus.loggedOut);
+      expect(find.byKey(const ValueKey('fake_webview')), findsNothing);
+      expect(launcher.calls, 1);
+    });
+  }
+
+  testWidgets('关闭旧企业页面后旧回调不能恢复内容', (tester) async {
+    final machine = OaTabStateMachine();
+    final launcher = _FakeLauncher([_issued().build()]);
+    OaWebViewSlotProps? oldProps;
+    Widget page(String organization) => host(
+      OaTabPage(
+        key: const ValueKey('scoped-oa'),
+        config: testConfig(),
+        machine: machine,
+        accountKey: 'account-a',
+        organizationId: organization,
+        ssoLauncher: launcher,
+        webViewBuilder: (props) {
+          oldProps = props;
+          return _FakeWebView(props);
+        },
+      ),
+    );
+    await tester.pumpWidget(page('org-a'));
+    await tester.pumpAndSettle();
+    expect(machine.status, OaTabStatus.ready);
+    expect(oldProps, isNotNull);
+    await tester.pumpWidget(page(''));
+    oldProps!.onFirstPageLoaded();
+    oldProps!.onStateChanged();
+    expect(machine.markReady(), isFalse);
+    await tester.pumpAndSettle();
+    expect(machine.status, OaTabStatus.loggedOut);
+    expect(find.byKey(const ValueKey('fake_webview')), findsNothing);
+  });
+
+  testWidgets('明确缺失企业时不签发 OA code', (tester) async {
+    final launcher = _FakeLauncher([_issued().build()]);
+    await tester.pumpWidget(
+      host(
+        OaTabPage(
+          config: testConfig(),
+          accountKey: 'account-a',
+          organizationId: '',
+          ssoLauncher: launcher,
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(launcher.calls, isEmpty);
+  });
+
+  testWidgets('签发异常进入可恢复错误状态', (tester) async {
+    final launcher = _DelayedLauncher();
+    final machine = OaTabStateMachine();
+    await tester.pumpWidget(
+      host(
+        OaTabPage(
+          config: testConfig(),
+          machine: machine,
+          ssoLauncher: launcher,
+        ),
+      ),
+    );
+    await tester.pump();
+    launcher.pending.completeError(StateError('synthetic transport failure'));
+    await tester.pumpAndSettle();
+    expect(machine.status, OaTabStatus.error);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('未配置 OA 的直构形态：不发起 SSO（W1 兼容）', (tester) async {
     final launcher = _FakeLauncher([_issued().build()]);
     await tester.pumpWidget(

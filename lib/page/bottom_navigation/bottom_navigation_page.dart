@@ -19,6 +19,9 @@ import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart'
     show EnterpriseOaRuntimeConfig, OaTabPage, resolveEnterpriseOaRuntimeConfig;
+import 'package:imboy/modules/organization/public.dart'
+    show CurrentOrganizationStore, Organization;
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
@@ -100,9 +103,22 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       ContactPage(),
       if (_isTabEnabled('channel_tab') && channelPage != null) channelPage,
       // OA Tab（Mine 之前）：EPGZ-06 W3 注册，BrandConfig 驱动显隐。
-      if (_isOaTabEnabled()) OaTabPage(config: _oaConfig),
+      if (_isOaTabEnabled()) _buildOaPage(),
       MinePage(),
     ];
+  }
+
+  Widget _buildOaPage() {
+    final uid = ref.read(currentUserProvider)?.uid ?? '';
+    if (uid.isEmpty) return OaTabPage(config: _oaConfig, accountKey: '');
+    return ValueListenableBuilder<Organization?>(
+      valueListenable: CurrentOrganizationStore.forAccount(uid).listenable,
+      builder: (_, org, _) => OaTabPage(
+        config: _oaConfig,
+        accountKey: uid,
+        organizationId: org?.id ?? '',
+      ),
+    );
   }
 
   @override
@@ -175,6 +191,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(currentUserProvider);
     final t = context.t;
     // channelEnabled 控制会话列表顶部频道置顶区显示（Slice-5 接线）
     final channelEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.channel);
