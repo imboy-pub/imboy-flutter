@@ -22,14 +22,22 @@ final workspaceApiProvider = Provider<WorkspaceApi>((ref) => WorkspaceApi());
 /// Overview（资源摘要 + 成员预览）。
 final workspaceOverviewProvider = FutureProvider.autoDispose
     .family<WorkspaceOverview, EntityId>((ref, wsId) {
+      final uid = ref.watch(
+        currentUserProvider.select((user) => user?.uid ?? ''),
+      );
+      if (uid.isEmpty) return const WorkspaceOverview();
       return ref.watch(workspaceApiProvider).overview(wsId);
     });
 
 /// 工作区频道列表（scope=workspace）。
 final workspaceChannelsProvider = FutureProvider.autoDispose
     .family<List<ChannelModel>, EntityId>((ref, wsId) {
+      final uid = ref.watch(
+        currentUserProvider.select((user) => user?.uid ?? ''),
+      );
+      if (uid.isEmpty) return const <ChannelModel>[];
       return ref.watch(workspaceApiProvider).channels(wsId);
-    });
+    }, retry: (_, _) => null);
 
 /// 本账号已加入的工作区群；账号变化使未完成分页失效。
 final workspaceGroupsProvider = FutureProvider.autoDispose
@@ -54,6 +62,10 @@ final workspaceConversationsProvider = FutureProvider.autoDispose
 /// 工作区成员分页列表（第一页，size 50；成员管理页当前规模足够）。
 final workspaceMembersProvider = FutureProvider.autoDispose
     .family<WorkspacePageResult<WorkspaceMemberModel>, EntityId>((ref, wsId) {
+      final uid = ref.watch(
+        currentUserProvider.select((user) => user?.uid ?? ''),
+      );
+      if (uid.isEmpty) return const WorkspacePageResult<WorkspaceMemberModel>();
       return ref.watch(workspaceApiProvider).members(wsId, size: 50);
     });
 
@@ -91,6 +103,10 @@ String parseProjectString(dynamic raw, {String defaultValue = ''}) {
 /// Project 列表（GET /api/v1/workspaces/:id/projects；W0 无成员/聚合端点）。
 final workspaceProjectsProvider = FutureProvider.autoDispose
     .family<List<WorkspaceProjectItem>, EntityId>((ref, wsId) async {
+      final uid = ref.watch(
+        currentUserProvider.select((user) => user?.uid ?? ''),
+      );
+      if (uid.isEmpty) return const <WorkspaceProjectItem>[];
       final api = ref.watch(workspaceApiProvider);
       final resp = await api.get(
         '/api/v1/workspaces/$wsId/projects',

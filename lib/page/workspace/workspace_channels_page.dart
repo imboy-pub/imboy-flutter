@@ -49,6 +49,8 @@ class WorkspaceChannelsPage extends ConsumerWidget {
     }
     final channels = ref.watch(workspaceChannelsProvider(wsId));
     return channels.when(
+      skipLoadingOnRefresh: false,
+      skipLoadingOnReload: false,
       loading: () => const WorkspaceLoadingView(),
       error: (e, _) => WorkspaceErrorView(
         message: workspaceErrorMessage(e),

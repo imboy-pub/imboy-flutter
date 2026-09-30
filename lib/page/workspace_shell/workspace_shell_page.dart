@@ -33,6 +33,9 @@ import 'package:imboy/page/workspace_shell/workspace_shell_breakpoint.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
+
+import 'enterprise_shell_page.dart';
 
 class WorkspaceShellPage extends ConsumerWidget {
   const WorkspaceShellPage({super.key});
@@ -41,6 +44,17 @@ class WorkspaceShellPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
     final shell = ref.watch(workspaceShellProvider);
+    final uid = ref.watch(currentUserProvider)?.uid ?? '';
+    if (uid.isNotEmpty &&
+        shell.organizationId.isNotEmpty &&
+        (shell.current == null ||
+            shell.current!.belongsToOrg(shell.organizationId))) {
+      return EnterpriseShellPage(
+        key: ValueKey((uid, shell.organizationId, shell.currentWorkspaceId)),
+        accountKey: uid,
+        organizationId: shell.organizationId,
+      );
+    }
     final items = buildWorkspaceShellNavItems(
       conversationsLabel: t.chat.groupChat,
       overviewLabel: t.workspace.navOverview,

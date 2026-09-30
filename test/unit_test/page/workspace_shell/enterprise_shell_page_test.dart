@@ -1,0 +1,290 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/enterprise_oa/public.dart';
+import 'package:imboy/modules/enterprise_oa/data/oa_workbench_api.dart';
+import 'package:imboy/modules/organization/public.dart';
+import 'package:imboy/page/workspace/workspace_channels_page.dart';
+import 'package:imboy/page/workspace/workspace_conversations_page.dart';
+import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/model/workspace_conversation_model.dart';
+import 'package:imboy/store/model/workspace_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
+
+class _Shell extends WorkspaceShellNotifier {
+  @override
+  WorkspaceShellState build() => const WorkspaceShellState(
+    organizationId: '10',
+    currentWorkspaceId: '100',
+    workspaces: [
+      WorkspaceModel(
+        id: '100',
+        name: '合成企业',
+        ownerId: '1',
+        organizationId: '10',
+      ),
+    ],
+  );
+  void organization(String id) => state = WorkspaceShellState(
+    organizationId: id,
+    currentWorkspaceId: '${id}0',
+    workspaces: [
+      WorkspaceModel(
+        id: '${id}0',
+        name: '合成企业 $id',
+        ownerId: '1',
+        organizationId: id,
+      ),
+    ],
+  );
+}
+
+class _Api extends WorkspaceApi {
+  @override
+  Future<List<WorkspaceConversationModel>> conversations(
+    EntityId workspaceId,
+  ) async => [];
+  @override
+  Future<List<ChannelModel>> channels(
+    EntityId workspaceId, {
+    String? status,
+  }) async => [];
+}
+
+class _OaApi extends OaWorkbenchApi {
+  final calls = <String>[];
+  final pending = <String, Completer<List<EnterpriseOaRuntimeConfig>>>{};
+  @override
+  Future<List<EnterpriseOaRuntimeConfig>> entries(String organizationId) {
+    calls.add(organizationId);
+    return pending.putIfAbsent(organizationId, Completer.new).future;
+  }
+}
+
+List<EnterpriseOaRuntimeConfig> _entries(String org) =>
+    parseOaWorkbenchEntries({
+      'entries': [
+        {
+          'kind': 'oa',
+          'organization_id': int.parse(org),
+          'application_key': 'synthetic-oa-key',
+          'label': '合成办公 $org',
+          'redirect_uri': 'https://oa.example.com/$org',
+        },
+      ],
+    }, org);
+
+Future<ProviderContainer> _pump(
+  WidgetTester tester,
+  _OaApi api, {
+  Size size = const Size(430, 900),
+}) async {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  final container = ProviderContainer(
+    overrides: [
+      currentUserProvider.overrideWithValue(
+        UserModel(uid: '1', account: 'synthetic-account'),
+      ),
+      workspaceShellProvider.overrideWith(_Shell.new),
+      workspaceApiProvider.overrideWithValue(_Api()),
+      oaWorkbenchApiProvider.overrideWithValue(api),
+    ],
+  );
+  addTearDown(container.dispose);
+  await tester.pumpWidget(
+    TranslationProvider(
+      child: UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: WorkspaceShellPage()),
+      ),
+    ),
+  );
+  await tester.pump(const Duration(milliseconds: 100));
+  return container;
+}
+
+List<String> _labels(WidgetTester tester) => tester
+    .widget<NavigationBar>(
+      find.byKey(const ValueKey('enterprise-shell-bottom-nav')),
+    )
+    .destinations
+    .cast<NavigationDestination>()
+    .map((item) => item.label)
+    .toList();
+
+class _Account extends Notifier<UserModel?> {
+  @override
+  UserModel? build() => UserModel(uid: '1', account: 'synthetic-account');
+  void select(String uid) => state = uid.isEmpty
+      ? null
+      : UserModel(uid: uid, account: 'synthetic-account');
+}
+
+final _account = NotifierProvider<_Account, UserModel?>(_Account.new);
+
+class _DelayedChannelsApi extends WorkspaceApi {
+  final pending = <Completer<List<ChannelModel>>>[];
+  @override
+  Future<List<ChannelModel>> channels(EntityId workspaceId, {String? status}) {
+    final reply = Completer<List<ChannelModel>>();
+    pending.add(reply);
+    return reply.future;
+  }
+}
+
+void main() {
+  test('退出账号后工作区资源立即清空，不发鉴权外请求', () async {
+    final container = ProviderContainer.test(
+      overrides: [currentUserProvider.overrideWithValue(null)],
+    );
+    expect(
+      (await container.read(workspaceOverviewProvider('100').future))
+          .memberPreview,
+      isEmpty,
+    );
+    expect(
+      (await container.read(workspaceMembersProvider('100').future)).list,
+      isEmpty,
+    );
+    expect(
+      await container.read(workspaceProjectsProvider('100').future),
+      isEmpty,
+    );
+    expect(
+      await container.read(workspaceChannelsProvider('100').future),
+      isEmpty,
+    );
+  });
+
+  test('同一工作区换账号：重拉频道，旧请求不得覆盖新账号', () async {
+    final api = _DelayedChannelsApi();
+    final container = ProviderContainer.test(
+      overrides: [
+        currentUserProvider.overrideWith((ref) => ref.watch(_account)),
+        workspaceApiProvider.overrideWithValue(api),
+      ],
+    );
+    final provider = workspaceChannelsProvider('100');
+    final subscription = container.listen(provider, (_, _) {});
+    addTearDown(subscription.close);
+    container.read(provider.future);
+    container.read(_account.notifier).select('2');
+    final fresh = container.read(provider.future);
+    expect(api.pending, hasLength(2));
+    api.pending.last.complete([
+      ChannelModel.fromJson({'id': '2', 'name': 'new account'}),
+    ]);
+    expect((await fresh).single.name, 'new account');
+    api.pending.first.complete([
+      ChannelModel.fromJson({'id': '1', 'name': 'old account'}),
+    ]);
+    await Future<void>.delayed(Duration.zero);
+    expect(container.read(provider).requireValue.single.name, 'new account');
+    container.read(_account.notifier).select('');
+    expect(await container.read(provider.future), isEmpty);
+    expect(api.pending, hasLength(2));
+  });
+
+  testWidgets('无 OA：三项导航默认消息，通讯录按需加载', (tester) async {
+    final api = _OaApi();
+    await _pump(tester, api);
+    api.pending['10']!.complete([]);
+    await tester.pump();
+    expect(_labels(tester), ['消息', '通讯录', '我']);
+    expect(find.byType(WorkspaceConversationsPage), findsOneWidget);
+    expect(find.byType(HumanDirectoryBrowserPage), findsNothing);
+    await tester.tap(find.text('通讯录'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('授权 OA 出现工作台，但未选应用前不创建 SSO 页面', (tester) async {
+    final api = _OaApi();
+    await _pump(tester, api);
+    api.pending['10']!.complete(_entries('10'));
+    await tester.pump();
+    expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
+    expect(find.byType(OaTabPage), findsNothing);
+    await tester.tap(find.text('工作台'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('合成办公 10'), findsOneWidget);
+    expect(find.byType(OaTabPage), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('企业切换销毁旧工作台，旧响应不能补回旧应用', (tester) async {
+    final api = _OaApi();
+    final container = await _pump(tester, api);
+    (container.read(workspaceShellProvider.notifier) as _Shell).organization(
+      '20',
+    );
+    await tester.pump();
+    api.pending['20']!.complete(_entries('20'));
+    await tester.pump();
+    api.pending['10']!.complete(_entries('10'));
+    await tester.pump();
+    expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
+    await tester.tap(find.text('工作台'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('合成办公 20'), findsOneWidget);
+    expect(find.text('合成办公 10'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('频道从消息内进入，不占企业底栏', (tester) async {
+    final api = _OaApi();
+    await _pump(tester, api);
+    api.pending['10']!.complete([]);
+    await tester.pump();
+    await tester.tap(find.text('频道'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(WorkspaceChannelsPage), findsOneWidget);
+    expect(_labels(tester), ['消息', '通讯录', '我']);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('企业配置读取失败有重试入口，旧工作台立即撤下', (tester) async {
+    final api = _OaApi();
+    final container = await _pump(tester, api);
+    api.pending['10']!.complete(_entries('10'));
+    await tester.pump();
+    await tester.tap(find.text('工作台'));
+    await tester.pump();
+    api.pending.remove('10');
+    container.invalidate(
+      oaWorkbenchEntriesProvider((accountKey: '1', organizationId: '10')),
+    );
+    await tester.pump();
+    expect(_labels(tester), ['消息', '通讯录', '我']);
+    api.pending['10']!.completeError(StateError('synthetic denied'));
+    await tester.pump();
+    expect(find.text(t.enterpriseOa.actionRetry), findsOneWidget);
+    expect(find.text('合成办公 10'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('桌面复用三项侧栏，不读取不支持的 OA', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+    final api = _OaApi();
+    await _pump(tester, api, size: const Size(1440, 900));
+    final rail = tester.widget<NavigationRail>(
+      find.byKey(const ValueKey('enterprise-shell-rail')),
+    );
+    expect(rail.destinations.map((item) => (item.label as Text).data), [
+      '消息',
+      '通讯录',
+      '我',
+    ]);
+    expect(api.calls, isEmpty);
+    expect(tester.takeException(), isNull);
+    debugDefaultTargetPlatformOverride = null;
+  });
+}

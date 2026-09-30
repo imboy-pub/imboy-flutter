@@ -6,7 +6,6 @@ import 'dart:async';
 import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/modules/social_graph/public.dart';
@@ -18,15 +17,6 @@ import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
-import 'package:imboy/modules/enterprise_oa/public.dart'
-    show
-        EnterpriseOaRuntimeConfig,
-        OaTabPage,
-        resolveEnterpriseOaRuntimeConfig,
-        oaWorkbenchEntriesProvider;
-import 'package:imboy/modules/organization/public.dart'
-    show CurrentOrganizationStore, Organization;
-import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/service/websocket_status_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
@@ -64,31 +54,6 @@ class BottomNavigationPage extends ConsumerStatefulWidget {
 class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   late final PageController pageController;
 
-  /// OA Tab 运行时配置（dart-define 编译期常量源，解析一次即缓存；
-  /// 未配置 OA 的 standard 构建 runtimeEntryEnabled=false，Tab 隐藏）。
-  final EnterpriseOaRuntimeConfig _oaBuildConfig =
-      resolveEnterpriseOaRuntimeConfig();
-  List<EnterpriseOaRuntimeConfig> _oaEntries = const [];
-  String _oaAccountKey = '';
-  String _oaOrganizationId = '';
-  String _selectedOaKey = '';
-  ({String accountKey, String organizationId})? _oaErrorScope;
-
-  EnterpriseOaRuntimeConfig get _oaConfig {
-    for (final entry in _oaEntries) {
-      if (entry.applicationKey == _selectedOaKey ||
-          (_selectedOaKey.isEmpty &&
-              _oaBuildConfig.runtimeEntryEnabled &&
-              entry.applicationKey == _oaBuildConfig.applicationKey &&
-              entry.redirectUri == _oaBuildConfig.redirectUri)) {
-        return entry;
-      }
-    }
-    return _oaEntries.length == 1
-        ? _oaEntries.single
-        : EnterpriseOaRuntimeConfig.fallback;
-  }
-
   StreamSubscription<dynamic>? _localeSubscription;
 
   /// 是否已根据 GoRouter 的 query 参数初始化过 index
@@ -106,21 +71,6 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     return true;
   }
 
-  /// OA Tab 可见性：白标构建期配置驱动（EPGZ-06 W3 / plan §7.3）。
-  ///
-  /// runtimeEntryEnabled 已做 fail-closed：origin 非法 / SSO 字段残缺 /
-  /// redirect 与 origin 不同源的部署一律隐藏入口，不放必然失败的 Tab。
-  bool _isOaTabEnabled() =>
-      !kIsWeb &&
-      (defaultTargetPlatform == TargetPlatform.android ||
-          defaultTargetPlatform == TargetPlatform.iOS) &&
-      _oaEntries.isNotEmpty;
-
-  /// OA Tab 显示名：白标 label 优先，i18n enterpriseOa.title 兜底。
-  String _oaTabLabel() => _oaConfig.oaTabLabel.isNotEmpty
-      ? _oaConfig.oaTabLabel
-      : t.enterpriseOa.title;
-
   int _normalizeIndex(int value) {
     return normalizeIndex(value, _buildPageList().length);
   }
@@ -131,47 +81,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       const ConversationPage(),
       ContactPage(),
       if (_isTabEnabled('channel_tab') && channelPage != null) channelPage,
-      // OA Tab（Mine 之前）：EPGZ-06 W3 注册，BrandConfig 驱动显隐。
-      if (_isOaTabEnabled()) _buildOaPage(),
       MinePage(),
     ];
-  }
-
-  Widget _buildOaPage() {
-    if (!_oaConfig.runtimeEntryEnabled) {
-      return Scaffold(
-        body: SafeArea(
-          child: CupertinoListSection.insetGrouped(
-            header: Text(t.enterpriseOa.title),
-            children: _oaEntries
-                .map(
-                  (entry) => CupertinoListTile(
-                    title: Text(
-                      entry.oaTabLabel.isEmpty
-                          ? t.enterpriseOa.title
-                          : entry.oaTabLabel,
-                    ),
-                    trailing: const CupertinoListTileChevron(),
-                    onTap: () =>
-                        setState(() => _selectedOaKey = entry.applicationKey),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-      );
-    }
-    return OaTabPage(
-      key: ValueKey((
-        _oaAccountKey,
-        _oaOrganizationId,
-        _oaConfig.applicationKey,
-        _oaConfig.redirectUri,
-      )),
-      config: _oaConfig,
-      accountKey: _oaAccountKey,
-      organizationId: _oaOrganizationId,
-    );
   }
 
   @override
@@ -244,81 +155,6 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final uid = ref.watch(currentUserProvider)?.uid ?? '';
-    if (uid.isEmpty ||
-        kIsWeb ||
-        (defaultTargetPlatform != TargetPlatform.android &&
-            defaultTargetPlatform != TargetPlatform.iOS)) {
-      return _buildNavigation(context, const [], uid, '');
-    }
-    return ValueListenableBuilder<Organization?>(
-      valueListenable: CurrentOrganizationStore.forAccount(uid).listenable,
-      builder: (_, org, _) => Consumer(
-        builder: (context, scopedRef, _) {
-          final scope = (accountKey: uid, organizationId: org?.id ?? '');
-          final entries = scopedRef.watch(oaWorkbenchEntriesProvider(scope));
-          if (entries.hasError) _showOaConfigurationError(scope);
-          return _buildNavigation(
-            context,
-            entries is AsyncData<List<EnterpriseOaRuntimeConfig>>
-                ? entries.value
-                : const [],
-            uid,
-            org?.id ?? '',
-          );
-        },
-      ),
-    );
-  }
-
-  void _showOaConfigurationError(
-    ({String accountKey, String organizationId}) scope,
-  ) {
-    if (_oaErrorScope == scope) return;
-    _oaErrorScope = scope;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted ||
-          _oaAccountKey != scope.accountKey ||
-          _oaOrganizationId != scope.organizationId) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(t.enterpriseOa.statusErrorTitle),
-          action: SnackBarAction(
-            label: t.enterpriseOa.actionRetry,
-            textColor: Theme.of(context).brightness == Brightness.dark
-                ? AppColors.iosBlueDark
-                : AppColors.iosBlue,
-            onPressed: () {
-              if (_oaAccountKey != scope.accountKey ||
-                  _oaOrganizationId != scope.organizationId) {
-                return;
-              }
-              _oaErrorScope = null;
-              ref.invalidate(oaWorkbenchEntriesProvider(scope));
-            },
-          ),
-        ),
-      );
-    });
-  }
-
-  Widget _buildNavigation(
-    BuildContext context,
-    List<EnterpriseOaRuntimeConfig> entries,
-    String uid,
-    String orgId,
-  ) {
-    final hadOa = _isOaTabEnabled();
-    final oldMineIndex = _buildPageList().length - 1;
-    if (uid != _oaAccountKey || orgId != _oaOrganizationId) {
-      _selectedOaKey = '';
-    }
-    _oaAccountKey = uid;
-    _oaOrganizationId = orgId;
-    _oaEntries = entries;
-    final hasOa = _isOaTabEnabled();
     final t = context.t;
     // channelEnabled 控制会话列表顶部频道置顶区显示（Slice-5 接线）
     final channelEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.channel);
@@ -329,12 +165,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     );
 
     final rawBottomBarIndex = ref.watch(bottomNavigationProvider);
-    final desiredIndex = hadOa != hasOa && rawBottomBarIndex == oldMineIndex
-        ? pageList.length - 1
-        : hadOa && !hasOa && rawBottomBarIndex == oldMineIndex - 1
-        ? 0
-        : rawBottomBarIndex;
-    final bottomBarIndex = _normalizeIndex(desiredIndex);
+    final bottomBarIndex = _normalizeIndex(rawBottomBarIndex);
     final socketStatusAsync = ref.watch(webSocketStatusProvider);
     final socketStatus =
         socketStatusAsync.value ?? WebSocketConnectionState.disconnected;
@@ -348,8 +179,6 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     if (rawBottomBarIndex != bottomBarIndex) {
       Future.microtask(() {
         if (!mounted ||
-            _oaAccountKey != uid ||
-            _oaOrganizationId != orgId ||
             ref.read(bottomNavigationProvider) != rawBottomBarIndex) {
           return;
         }
@@ -371,11 +200,11 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
       _NavigationItemData(
         icon: CupertinoIcons.person_2,
         activeIcon: CupertinoIcons.person_2_fill,
-        label: t.common.titleContact,
+        label: t.organization.directory.title,
         remindCount: ref.watch(newFriendRemindProvider).length,
         tabKey: const Key('tab_contacts'),
       ),
-      if (_isTabEnabled('channel_tab'))
+      if (_isTabEnabled('channel_tab') && compiledChannelListPage() != null)
         _NavigationItemData(
           icon: CupertinoIcons.antenna_radiowaves_left_right,
           activeIcon: CupertinoIcons.antenna_radiowaves_left_right,
@@ -383,19 +212,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
           remindCount: channelEnabled ? compiledChannelUnreadCount(ref) : 0,
           tabKey: const Key('tab_channel'),
         ),
-      // OA Tab 导航项（EPGZ-06 W3）：图标用 CupertinoIcons（仓内 a11y
-      // 守门规则禁 Material Icons）；label 走白标 oaLabel/i18n 兜底。
-      if (_isOaTabEnabled())
-        _NavigationItemData(
-          icon: CupertinoIcons.briefcase,
-          activeIcon: CupertinoIcons.briefcase_fill,
-          label: _oaTabLabel(),
-          tabKey: const Key('tab_oa'),
-        ),
       _NavigationItemData(
         icon: CupertinoIcons.person_circle,
         activeIcon: CupertinoIcons.person_circle_fill,
-        label: t.main.titleMine,
+        label: t.common.me,
         isStatusItem: true,
         tabKey: const Key('tab_mine'),
       ),

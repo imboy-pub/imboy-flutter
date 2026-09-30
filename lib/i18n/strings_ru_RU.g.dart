@@ -1860,6 +1860,7 @@ class _Translations$enterpriseOa$ru_RU extends Translations$enterpriseOa$zh_CN {
 	@override String senderVia({required Object origin}) => 'отправлено через ${origin}';
 	@override String get ssoIssuing => 'Запрос кода единого входа…';
 	@override String ssoCountdown({required Object seconds}) => 'Код действует ${seconds} сек. Войдите как можно скорее.';
+	@override String get workbenchTitle => 'Рабочая панель';
 }
 
 // Path: error
@@ -4816,6 +4817,7 @@ extension on TranslationsRuRu {
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'отправлено через ${origin}',
 			'enterpriseOa.ssoIssuing' => 'Запрос кода единого входа…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Код действует ${seconds} сек. Войдите как можно скорее.',
+			'enterpriseOa.workbenchTitle' => 'Рабочая панель',
 			'error.restartRequired' => 'Требуется перезапуск приложения',
 			'error.pleaseCheckNetwork' => 'Пожалуйста, проверьте настройки сети.',
 			'error.networkTroubleshootingStep1' => '1. Включите Wi-Fi в настройках телефона',
@@ -5207,9 +5209,9 @@ extension on TranslationsRuRu {
 			'organization.detail.leaveOwnerHint' => 'Перед выходом передайте права владельца организации',
 			'organization.detail.leaveCleanupFailed' => 'Вы вышли, но локальные настройки не очищены. Перезапустите приложение и проверьте выбранное пространство',
 			'organization.detail.title' => 'Об организации',
-			'organization.detail.notFound' => 'Организация не найдена',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.notFound' => 'Организация не найдена',
 			'organization.detail.archiveOrg' => 'Архивировать организацию',
 			'organization.detail.archiveConfirmBody' => 'После архивации организация переходит в режим только для чтения; все операции записи отклоняются (fail-closed), разблокировать может только восстановление (restore). Участники и данные не удаляются.',
 			'organization.detail.restoreOrg' => 'Восстановить организацию',
@@ -5721,9 +5723,9 @@ extension on TranslationsRuRu {
 			'workspace.projectMemberEmptySubtitle' => 'Ответственный за проект может приглашать зарегистрированных пользователей',
 			'workspace.projectMemberInviteTitle' => 'Пригласить участника проекта',
 			'workspace.projectMemberInviteFieldHint' => 'ID зарегистрированного пользователя для приглашения',
-			'workspace.projectMemberInviteInvalidUid' => 'Введите действительный ID пользователя',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => 'Введите действительный ID пользователя',
 			'workspace.projectMemberInviteSubmit' => 'Пригласить',
 			'workspace.projectMemberInviteSuccess' => 'Пользователь добавлен в участники проекта',
 			'workspace.projectMemberInviteExisting' => 'Этот пользователь уже участник проекта',

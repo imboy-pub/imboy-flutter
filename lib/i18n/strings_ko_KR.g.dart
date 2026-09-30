@@ -1851,6 +1851,7 @@ class _Translations$enterpriseOa$ko_KR extends Translations$enterpriseOa$zh_CN {
 	@override String senderVia({required Object origin}) => '${origin} 경유 전송';
 	@override String get ssoIssuing => '단일 로그인 코드 요청 중…';
 	@override String ssoCountdown({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.';
+	@override String get workbenchTitle => '워크벤치';
 }
 
 // Path: error
@@ -4807,6 +4808,7 @@ extension on TranslationsKoKr {
 			'enterpriseOa.senderVia' => ({required Object origin}) => '${origin} 경유 전송',
 			'enterpriseOa.ssoIssuing' => '단일 로그인 코드 요청 중…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.',
+			'enterpriseOa.workbenchTitle' => '워크벤치',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
 			'error.networkTroubleshootingStep1' => '1. 휴대전화 설정을 열고 Wi-Fi 스위치를 켜 주세요.',
@@ -5198,9 +5200,9 @@ extension on TranslationsKoKr {
 			'organization.detail.leaveOwnerHint' => '나가기 전에 조직 소유권을 이전하세요',
 			'organization.detail.leaveCleanupFailed' => '조직에서 나갔지만 기기 설정을 삭제하지 못했습니다. 다시 시작하고 선택한 공간을 확인하세요',
 			'organization.detail.title' => '조직 상세',
-			'organization.detail.notFound' => '조직을 찾을 수 없습니다',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.notFound' => '조직을 찾을 수 없습니다',
 			'organization.detail.archiveOrg' => '조직 보관',
 			'organization.detail.archiveConfirmBody' => '보관하면 조직은 읽기 전용이 되며 모든 쓰기 작업은 fail-closed로 차단됩니다. 복원(restore)으로만 잠금 해제됩니다. 멤버와 데이터는 삭제되지 않습니다.',
 			'organization.detail.restoreOrg' => '조직 복원',
@@ -5712,9 +5714,9 @@ extension on TranslationsKoKr {
 			'workspace.projectMemberEmptySubtitle' => '프로젝트 담당자가 가입한 사용자를 이 프로젝트에 초대할 수 있습니다',
 			'workspace.projectMemberInviteTitle' => '프로젝트 구성원 초대',
 			'workspace.projectMemberInviteFieldHint' => '초대할 가입 사용자 ID',
-			'workspace.projectMemberInviteInvalidUid' => '올바른 사용자 ID를 입력해 주세요',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => '올바른 사용자 ID를 입력해 주세요',
 			'workspace.projectMemberInviteSubmit' => '초대',
 			'workspace.projectMemberInviteSuccess' => '프로젝트 구성원으로 추가되었습니다',
 			'workspace.projectMemberInviteExisting' => '이 사용자는 이미 프로젝트 구성원입니다',

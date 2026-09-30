@@ -1854,6 +1854,7 @@ class _Translations$enterpriseOa$it_IT extends Translations$enterpriseOa$zh_CN {
 	@override String senderVia({required Object origin}) => 'inviato tramite ${origin}';
 	@override String get ssoIssuing => 'Richiesta del codice SSO…';
 	@override String ssoCountdown({required Object seconds}) => 'Codice valido per ${seconds} secondi. Accedi presto.';
+	@override String get workbenchTitle => 'Area di lavoro';
 }
 
 // Path: error
@@ -4810,6 +4811,7 @@ extension on TranslationsItIt {
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'inviato tramite ${origin}',
 			'enterpriseOa.ssoIssuing' => 'Richiesta del codice SSO…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Codice valido per ${seconds} secondi. Accedi presto.',
+			'enterpriseOa.workbenchTitle' => 'Area di lavoro',
 			'error.restartRequired' => 'Riavvio richiesto',
 			'error.pleaseCheckNetwork' => 'Controlla le impostazioni di rete.',
 			'error.networkTroubleshootingStep1' => '1. Apri impostazioni telefono e mantieni l\'interruttore Wi-Fi attivo.',
@@ -5201,9 +5203,9 @@ extension on TranslationsItIt {
 			'organization.detail.leaveOwnerHint' => 'Trasferisci la proprietà dell’organizzazione prima di uscire',
 			'organization.detail.leaveCleanupFailed' => 'Uscita completata, ma le preferenze locali non sono state cancellate. Riavvia e verifica lo spazio',
 			'organization.detail.title' => 'Dettagli organizzazione',
-			'organization.detail.notFound' => 'Organizzazione non trovata',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.notFound' => 'Organizzazione non trovata',
 			'organization.detail.archiveOrg' => 'Archivia organizzazione',
 			'organization.detail.archiveConfirmBody' => 'Dopo l\'archiviazione l\'organizzazione passa in sola lettura; ogni operazione di scrittura viene rifiutata (fail-closed), solo il ripristino (restore) la sblocca. Membri e dati non vengono eliminati.',
 			'organization.detail.restoreOrg' => 'Ripristina organizzazione',
@@ -5715,9 +5717,9 @@ extension on TranslationsItIt {
 			'workspace.projectReopen' => 'Riapri progetto',
 			'workspace.projectStatusActive' => 'In corso',
 			'workspace.projectStatusChanged' => 'Stato del progetto aggiornato',
-			'workspace.projectStatusDone' => 'Completato',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectStatusDone' => 'Completato',
 			'workspace.projectStatusLabel' => 'Stato',
 			'workspace.projectSubmit' => 'Crea',
 			'workspace.projectTasksSection' => 'Attività',

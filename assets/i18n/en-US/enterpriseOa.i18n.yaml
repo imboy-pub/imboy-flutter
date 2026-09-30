@@ -27,3 +27,5 @@ senderVia: "sent via $origin"
 # ==================== SSO issuing / countdown (W3) ====================
 ssoIssuing: "Requesting single sign-on code…"
 ssoCountdown: "Code valid for $seconds seconds. Please sign in soon."
+
+workbenchTitle: "Workbench"

@@ -27,3 +27,5 @@ senderVia: "$origin 経由で送信"
 # ==================== SSO 発行／カウントダウン（W3） ====================
 ssoIssuing: "シングルサインオンコードを取得中…"
 ssoCountdown: "コードの有効期限は残り $seconds 秒です。早めにログインしてください。"
+
+workbenchTitle: "ワークベンチ"

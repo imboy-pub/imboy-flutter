@@ -27,3 +27,5 @@ senderVia: "$origin 경유 전송"
 # ==================== SSO 발급 / 카운트다운(W3) ====================
 ssoIssuing: "단일 로그인 코드 요청 중…"
 ssoCountdown: "코드가 $seconds초 후 만료됩니다. 빠르게 로그인해 주세요."
+
+workbenchTitle: "워크벤치"

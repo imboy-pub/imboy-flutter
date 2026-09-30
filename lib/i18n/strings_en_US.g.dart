@@ -1950,6 +1950,7 @@ class _Translations$enterpriseOa$en_US extends Translations$enterpriseOa$zh_CN {
 	@override String senderVia({required Object origin}) => 'sent via ${origin}';
 	@override String get ssoIssuing => 'Requesting single sign-on code…';
 	@override String ssoCountdown({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.';
+	@override String get workbenchTitle => 'Workbench';
 }
 
 // Path: error
@@ -5062,6 +5063,7 @@ extension on TranslationsEnUs {
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'sent via ${origin}',
 			'enterpriseOa.ssoIssuing' => 'Requesting single sign-on code…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.',
+			'enterpriseOa.workbenchTitle' => 'Workbench',
 			'error.restartRequired' => 'Restart Required',
 			'error.pleaseCheckNetwork' => 'Please check your network settings.',
 			'error.networkTroubleshootingStep1' => '1. Open phone \'Settings\' and keep \'Wi-Fi\' switch on.',
@@ -5338,9 +5340,9 @@ extension on TranslationsEnUs {
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitee: ${uid}',
 			'main.mySentTab' => 'Sent',
 			'main.reject' => 'Reject',
-			'main.myOrders' => 'My Orders',
 			_ => null,
 		} ?? switch (path) {
+			'main.myOrders' => 'My Orders',
 			'main.purchaseUnlockHint' => 'Purchase to unlock channel history and future updates.',
 			'main.payingDots' => 'Paying...',
 			'main.purchaseAndUnlock' => 'Purchase & Unlock Now',
@@ -5852,9 +5854,9 @@ extension on TranslationsEnUs {
 			'workspace.inviteTitle' => 'Invite Workspace Member',
 			'workspace.inviteDesc' => 'Only registered users can be invited; joining a workspace does not auto-join groups or subscribe channels. You can also add them to General and send an Announcements channel invitation.',
 			'workspace.inviteSearchHint' => 'Search by username / user ID',
-			'workspace.inviteEntry' => 'Invite Workspace Member',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.inviteEntry' => 'Invite Workspace Member',
 			'workspace.inviteJoinGroupOption' => 'Also join the General group (become a Group Member)',
 			'workspace.inviteSubscribeChannelOption' => 'Also send an Announcements channel invitation',
 			'workspace.inviteOptionUnavailable' => 'Target resource not found; this option is unavailable',

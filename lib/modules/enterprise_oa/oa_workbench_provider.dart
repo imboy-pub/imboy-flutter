@@ -31,4 +31,4 @@ final oaWorkbenchEntriesProvider = FutureProvider.autoDispose
         return result;
       }
       return const [];
-    });
+    }, retry: (_, _) => null);

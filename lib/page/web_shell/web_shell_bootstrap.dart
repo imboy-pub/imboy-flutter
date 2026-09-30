@@ -69,9 +69,9 @@ class WebShellBootstrap extends ConsumerWidget {
     return WebShellPage(
       // i18n labels — 复用 BottomNavigationPage 已用 key（零新增）
       tabMessageLabel: t.chat.titleMessage,
-      tabContactLabel: t.common.titleContact,
+      tabContactLabel: t.organization.directory.title,
       tabChannelLabel: t.channel.title,
-      tabMineLabel: t.main.titleMine,
+      tabMineLabel: t.common.me,
       welcomeTitle: appName.isEmpty ? 'ImBoy' : appName,
       // welcomeSubtitle 暂不传：避免新增 i18n key（Phase 4 桌面增强时再补）
 

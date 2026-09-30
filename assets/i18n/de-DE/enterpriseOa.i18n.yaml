@@ -27,3 +27,5 @@ senderVia: "gesendet über $origin"
 # ==================== SSO-Ausstellung / Countdown (W3) ====================
 ssoIssuing: "SSO-Code wird angefordert…"
 ssoCountdown: "Code ist $seconds Sekunden gültig. Bitte bald anmelden."
+
+workbenchTitle: "Arbeitsbereich"

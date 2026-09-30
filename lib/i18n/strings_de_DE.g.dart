@@ -1854,6 +1854,7 @@ class _Translations$enterpriseOa$de_DE extends Translations$enterpriseOa$zh_CN {
 	@override String senderVia({required Object origin}) => 'gesendet über ${origin}';
 	@override String get ssoIssuing => 'SSO-Code wird angefordert…';
 	@override String ssoCountdown({required Object seconds}) => 'Code ist ${seconds} Sekunden gültig. Bitte bald anmelden.';
+	@override String get workbenchTitle => 'Arbeitsbereich';
 }
 
 // Path: error
@@ -4810,6 +4811,7 @@ extension on TranslationsDeDe {
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'gesendet über ${origin}',
 			'enterpriseOa.ssoIssuing' => 'SSO-Code wird angefordert…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code ist ${seconds} Sekunden gültig. Bitte bald anmelden.',
+			'enterpriseOa.workbenchTitle' => 'Arbeitsbereich',
 			'error.restartRequired' => 'App-Neustart erforderlich',
 			'error.pleaseCheckNetwork' => 'Bitte überprüfen Sie Ihre Netzwerkeinstellungen.',
 			'error.networkTroubleshootingStep1' => '1. Telefoneinstellungen öffnen, WLAN eingeschaltet lassen.',
@@ -5201,9 +5203,9 @@ extension on TranslationsDeDe {
 			'organization.detail.leaveOwnerHint' => 'Vor dem Austritt die Organisationsinhaberschaft übertragen',
 			'organization.detail.leaveCleanupFailed' => 'Ausgetreten, aber lokale Einstellungen konnten nicht gelöscht werden. Neu starten und den gewählten Bereich prüfen',
 			'organization.detail.title' => 'Organisationsdetails',
-			'organization.detail.notFound' => 'Organisation nicht gefunden',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.notFound' => 'Organisation nicht gefunden',
 			'organization.detail.archiveOrg' => 'Organisation archivieren',
 			'organization.detail.archiveConfirmBody' => 'Nach der Archivierung ist die Organisation schreibgeschützt; alle Schreiboperationen scheitern kontrolliert (fail-closed), nur Wiederherstellen (restore) entsperrt sie. Mitglieder und Daten werden nicht gelöscht.',
 			'organization.detail.restoreOrg' => 'Organisation wiederherstellen',
@@ -5715,9 +5717,9 @@ extension on TranslationsDeDe {
 			'workspace.projectMemberEmptySubtitle' => 'Die Projektleitung kann registrierte Nutzer in dieses Projekt einladen',
 			'workspace.projectMemberInviteTitle' => 'Projektmitglieder einladen',
 			'workspace.projectMemberInviteFieldHint' => 'ID des einzuladenden registrierten Nutzers',
-			'workspace.projectMemberInviteInvalidUid' => 'Bitte eine gültige Nutzer-ID eingeben',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => 'Bitte eine gültige Nutzer-ID eingeben',
 			'workspace.projectMemberInviteSubmit' => 'Einladen',
 			'workspace.projectMemberInviteSuccess' => 'Zu den Projektmitgliedern hinzugefügt',
 			'workspace.projectMemberInviteExisting' => 'Dieser Nutzer ist bereits Projektmitglied',

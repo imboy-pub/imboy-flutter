@@ -1854,6 +1854,7 @@ class _Translations$enterpriseOa$fr_FR extends Translations$enterpriseOa$zh_CN {
 	@override String senderVia({required Object origin}) => 'envoyé via ${origin}';
 	@override String get ssoIssuing => 'Demande du code d\'authentification unique…';
 	@override String ssoCountdown({required Object seconds}) => 'Code valide ${seconds} secondes. Connectez-vous rapidement.';
+	@override String get workbenchTitle => 'Espace de travail';
 }
 
 // Path: error
@@ -4810,6 +4811,7 @@ extension on TranslationsFrFr {
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'envoyé via ${origin}',
 			'enterpriseOa.ssoIssuing' => 'Demande du code d\'authentification unique…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code valide ${seconds} secondes. Connectez-vous rapidement.',
+			'enterpriseOa.workbenchTitle' => 'Espace de travail',
 			'error.restartRequired' => 'Redémarrage requis',
 			'error.pleaseCheckNetwork' => 'Vérifiez vos paramètres réseau.',
 			'error.networkTroubleshootingStep1' => '1. Ouvrez les paramètres du téléphone et gardez le Wi-Fi activé.',
@@ -5201,9 +5203,9 @@ extension on TranslationsFrFr {
 			'organization.detail.leaveOwnerHint' => 'Transférez la propriété de l’organisation avant de quitter',
 			'organization.detail.leaveCleanupFailed' => 'Vous avez quitté, mais les préférences locales n’ont pas pu être effacées. Redémarrez et vérifiez votre espace',
 			'organization.detail.title' => 'Détails de l\'organisation',
-			'organization.detail.notFound' => 'Organisation introuvable',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.notFound' => 'Organisation introuvable',
 			'organization.detail.archiveOrg' => 'Archiver l\'organisation',
 			'organization.detail.archiveConfirmBody' => 'Une fois archivée, l\'organisation passe en lecture seule ; toutes les écritures sont rejetées (fail-closed), seule la restauration (restore) peut la déverrouiller. Les membres et les données ne sont pas supprimés.',
 			'organization.detail.restoreOrg' => 'Restaurer l\'organisation',
@@ -5715,9 +5717,9 @@ extension on TranslationsFrFr {
 			'workspace.projectMemberEmptySubtitle' => 'Le responsable du projet peut inviter des utilisateurs inscrits à rejoindre ce projet',
 			'workspace.projectMemberInviteTitle' => 'Inviter des membres au projet',
 			'workspace.projectMemberInviteFieldHint' => 'ID de l\'utilisateur inscrit à inviter',
-			'workspace.projectMemberInviteInvalidUid' => 'Veuillez saisir un ID utilisateur valide',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => 'Veuillez saisir un ID utilisateur valide',
 			'workspace.projectMemberInviteSubmit' => 'Inviter',
 			'workspace.projectMemberInviteSuccess' => 'Ajouté aux membres du projet',
 			'workspace.projectMemberInviteExisting' => 'Cet utilisateur est déjà membre du projet',

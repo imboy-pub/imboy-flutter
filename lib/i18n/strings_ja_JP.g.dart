@@ -1851,6 +1851,7 @@ class _Translations$enterpriseOa$ja_JP extends Translations$enterpriseOa$zh_CN {
 	@override String senderVia({required Object origin}) => '${origin} 経由で送信';
 	@override String get ssoIssuing => 'シングルサインオンコードを取得中…';
 	@override String ssoCountdown({required Object seconds}) => 'コードの有効期限は残り ${seconds} 秒です。早めにログインしてください。';
+	@override String get workbenchTitle => 'ワークベンチ';
 }
 
 // Path: error
@@ -4807,6 +4808,7 @@ extension on TranslationsJaJp {
 			'enterpriseOa.senderVia' => ({required Object origin}) => '${origin} 経由で送信',
 			'enterpriseOa.ssoIssuing' => 'シングルサインオンコードを取得中…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'コードの有効期限は残り ${seconds} 秒です。早めにログインしてください。',
+			'enterpriseOa.workbenchTitle' => 'ワークベンチ',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
 			'error.networkTroubleshootingStep1' => '1. スマートフォンの設定を開き、Wi-Fiスイッチをオンにします。',
@@ -5198,9 +5200,9 @@ extension on TranslationsJaJp {
 			'organization.detail.leaveOwnerHint' => '退出する前に組織の所有権を移譲してください',
 			'organization.detail.leaveCleanupFailed' => '退出済みですが端末の設定を削除できませんでした。再起動して選択中のスペースを確認してください',
 			'organization.detail.title' => '組織の詳細',
-			'organization.detail.notFound' => '組織が見つかりません',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.notFound' => '組織が見つかりません',
 			'organization.detail.archiveOrg' => '組織をアーカイブ',
 			'organization.detail.archiveConfirmBody' => 'アーカイブ後、組織は読み取り専用になり、すべての書き込み操作は fail-closed となります。復元（restore）のみが解除できます。メンバーとデータは削除されません。',
 			'organization.detail.restoreOrg' => '組織を復元',
@@ -5712,9 +5714,9 @@ extension on TranslationsJaJp {
 			'workspace.projectMemberEmptySubtitle' => 'プロジェクト担当者は登録済みユーザーをこのプロジェクトに招待できます',
 			'workspace.projectMemberInviteTitle' => 'プロジェクトメンバーを招待',
 			'workspace.projectMemberInviteFieldHint' => '招待する登録済みユーザーのID',
-			'workspace.projectMemberInviteInvalidUid' => '有効なユーザーIDを入力してください',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => '有効なユーザーIDを入力してください',
 			'workspace.projectMemberInviteSubmit' => '招待',
 			'workspace.projectMemberInviteSuccess' => 'プロジェクトメンバーに追加しました',
 			'workspace.projectMemberInviteExisting' => 'このユーザーは既にプロジェクトメンバーです',

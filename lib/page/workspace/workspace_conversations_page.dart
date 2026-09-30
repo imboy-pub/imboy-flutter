@@ -23,7 +23,13 @@ import 'package:imboy/theme/default/app_spacing.dart';
 
 /// Only server-authorized workspace snapshots; no personal or warm-cache rows.
 class WorkspaceConversationsPage extends ConsumerStatefulWidget {
-  const WorkspaceConversationsPage({super.key});
+  const WorkspaceConversationsPage({
+    super.key,
+    this.embedded = false,
+    this.active = true,
+  });
+  final bool embedded;
+  final bool active;
   @override
   ConsumerState<WorkspaceConversationsPage> createState() =>
       _WorkspaceConversationsPageState();
@@ -75,7 +81,7 @@ class _WorkspaceConversationsPageState
   }
 
   void _reload() {
-    if (!mounted) return;
+    if (!mounted || !widget.active) return;
     final id = ref.read(currentWorkspaceProvider)?.id ?? '';
     if (id.isNotEmpty) {
       ref.invalidate(workspaceConversationsProvider(id));
@@ -127,18 +133,28 @@ class _WorkspaceConversationsPageState
       }
     });
     final id = ws?.id ?? '';
+    final body = id.isEmpty
+        ? WorkspaceEmptyView(
+            icon: CupertinoIcons.chat_bubble,
+            title: t.chat.groupChat,
+            subtitle: t.workspace.emptyNoWorkspace,
+          )
+        : _body(id);
+    if (widget.embedded) return body;
     return IosPageTemplate(
       title: t.chat.groupChat,
       leading: const WorkspaceSwitcherChip(),
       actions: const [WorkspaceAccountButton()],
-      body: id.isEmpty
-          ? WorkspaceEmptyView(
-              icon: CupertinoIcons.chat_bubble,
-              title: t.chat.groupChat,
-              subtitle: t.workspace.emptyNoWorkspace,
-            )
-          : _body(id),
+      body: body,
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant WorkspaceConversationsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.active && widget.active) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _reload());
+    }
   }
 
   Widget _body(String id) {

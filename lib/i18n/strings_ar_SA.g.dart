@@ -1863,6 +1863,7 @@ class _Translations$enterpriseOa$ar_SA extends Translations$enterpriseOa$zh_CN {
 	@override String senderVia({required Object origin}) => 'أُرسل عبر ${origin}';
 	@override String get ssoIssuing => 'جارٍ طلب رمز تسجيل الدخول الموحد…';
 	@override String ssoCountdown({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.';
+	@override String get workbenchTitle => 'مساحة العمل';
 }
 
 // Path: error
@@ -4819,6 +4820,7 @@ extension on TranslationsArSa {
 			'enterpriseOa.senderVia' => ({required Object origin}) => 'أُرسل عبر ${origin}',
 			'enterpriseOa.ssoIssuing' => 'جارٍ طلب رمز تسجيل الدخول الموحد…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.',
+			'enterpriseOa.workbenchTitle' => 'مساحة العمل',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
 			'error.networkTroubleshootingStep1' => '1. افتح إعدادات الهاتف وقم بإبقاء مفتاح Wi-Fi قيد التشغيل.',
@@ -5210,9 +5212,9 @@ extension on TranslationsArSa {
 			'organization.detail.leaveOwnerHint' => 'انقل ملكية المؤسسة قبل المغادرة',
 			'organization.detail.leaveCleanupFailed' => 'تمت المغادرة ولكن تعذر مسح التفضيلات المحلية. أعد التشغيل وتحقق من المساحة المختارة',
 			'organization.detail.title' => 'تفاصيل المنظمة',
-			'organization.detail.notFound' => 'المنظمة غير موجودة',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.notFound' => 'المنظمة غير موجودة',
 			'organization.detail.archiveOrg' => 'أرشفة المنظمة',
 			'organization.detail.archiveConfirmBody' => 'بعد الأرشفة تدخل المنظمة في وضع القراءة فقط، وتُرفض جميع عمليات الكتابة (fail-closed)، ولا يمكن فك القفل إلا بالاستعادة (restore). لن يتم حذف الأعضاء ولا البيانات.',
 			'organization.detail.restoreOrg' => 'استعادة المنظمة',
@@ -5724,9 +5726,9 @@ extension on TranslationsArSa {
 			'workspace.projectMemberEmptySubtitle' => 'يمكن لمسؤول المشروع دعوة مستخدمين مسجلين للانضمام إلى هذا المشروع',
 			'workspace.projectMemberInviteTitle' => 'دعوة أعضاء المشروع',
 			'workspace.projectMemberInviteFieldHint' => 'معرّف المستخدم المسجل المراد دعوته',
-			'workspace.projectMemberInviteInvalidUid' => 'يرجى إدخال معرّف مستخدم صالح',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => 'يرجى إدخال معرّف مستخدم صالح',
 			'workspace.projectMemberInviteSubmit' => 'دعوة',
 			'workspace.projectMemberInviteSuccess' => 'تمت إضافته عضواً في المشروع',
 			'workspace.projectMemberInviteExisting' => 'هذا المستخدم عضو في المشروع بالفعل',

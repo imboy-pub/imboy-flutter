@@ -1851,6 +1851,7 @@ class Translations$enterpriseOa$zh_Hant extends Translations$enterpriseOa$zh_CN 
 	@override String senderVia({required Object origin}) => '經 ${origin} 代發';
 	@override String get ssoIssuing => '正在取得單一登入憑證…';
 	@override String ssoCountdown({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入';
+	@override String get workbenchTitle => '工作台';
 }
 
 // Path: error
@@ -4807,6 +4808,7 @@ extension on TranslationsZhHant {
 			'enterpriseOa.senderVia' => ({required Object origin}) => '經 ${origin} 代發',
 			'enterpriseOa.ssoIssuing' => '正在取得單一登入憑證…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入',
+			'enterpriseOa.workbenchTitle' => '工作台',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.pleaseCheckNetwork' => '請檢查你的網路設定。',
 			'error.networkTroubleshootingStep1' => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。',
@@ -5198,9 +5200,9 @@ extension on TranslationsZhHant {
 			'organization.detail.leaveOwnerHint' => '請先移交企業負責人，再退出企業',
 			'organization.detail.leaveCleanupFailed' => '已退出企業，但本機偏好清理失敗，請重新啟動後確認空間',
 			'organization.detail.title' => '組織詳情',
-			'organization.detail.notFound' => '組織不存在',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.notFound' => '組織不存在',
 			'organization.detail.archiveOrg' => '封存組織',
 			'organization.detail.archiveConfirmBody' => '封存後組織進入唯讀態，全部寫入操作 fail-closed，僅還原（restore）可解鎖。成員與資料不會被刪除。',
 			'organization.detail.restoreOrg' => '還原組織',
@@ -5712,9 +5714,9 @@ extension on TranslationsZhHant {
 			'workspace.projectMemberEmptySubtitle' => '專案負責人可邀請已註冊使用者加入此專案',
 			'workspace.projectMemberInviteTitle' => '邀請專案成員',
 			'workspace.projectMemberInviteFieldHint' => '要邀請的已註冊使用者 ID',
-			'workspace.projectMemberInviteInvalidUid' => '請輸入有效的使用者 ID',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => '請輸入有效的使用者 ID',
 			'workspace.projectMemberInviteSubmit' => '邀請',
 			'workspace.projectMemberInviteSuccess' => '已加入專案成員',
 			'workspace.projectMemberInviteExisting' => '該使用者已是專案成員',

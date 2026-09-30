@@ -27,3 +27,5 @@ senderVia: "envoyé via $origin"
 # ==================== Émission SSO / compte à rebours (W3) ====================
 ssoIssuing: "Demande du code d'authentification unique…"
 ssoCountdown: "Code valide $seconds secondes. Connectez-vous rapidement."
+
+workbenchTitle: "Espace de travail"
