@@ -18,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/modules/enterprise_oa/data/oa_sso_api.dart';
+import 'package:imboy/modules/enterprise_oa/data/oa_workbench_api.dart';
 import 'package:imboy/modules/enterprise_oa/domain/oa_sso_issue.dart';
 import 'package:imboy/modules/enterprise_oa/domain/oa_tab_state.dart';
 import 'package:imboy/modules/enterprise_oa/presentation/oa_tab_page.dart';
@@ -33,6 +34,7 @@ class _RecordingAdapter implements HttpClientAdapter {
   /// 每次请求的 (method, path, data)。
   final List<(String, String, Object?)> requests = [];
   final List<String> wireBodies = [];
+  final List<String> queries = [];
 
   @override
   Future<ResponseBody> fetch(
@@ -41,6 +43,7 @@ class _RecordingAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     requests.add((options.method, options.uri.path, options.data));
+    queries.add(options.uri.query);
     if (requestStream != null) {
       final bytes = await requestStream.expand((chunk) => chunk).toList();
       wireBodies.add(utf8.decode(bytes));
@@ -179,6 +182,37 @@ void main() {
         'secure_refresh_token': fakeJwt(),
       });
     }
+
+    test('配置发现实际请求携带当前企业且过滤响应中的其他企业', () async {
+      final adapter = _RecordingAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'entries': [
+              {
+                'kind': 'oa',
+                'organization_id': 10,
+                'application_key': 'shared-oa-key',
+                'redirect_uri': 'https://oa.example.com/a',
+              },
+              {
+                'kind': 'oa',
+                'organization_id': 20,
+                'application_key': 'shared-oa-key',
+                'redirect_uri': 'https://oa.example.com/b',
+              },
+            ],
+          },
+        ),
+      );
+      await prepareEnv(adapter);
+      final configs = await OaWorkbenchApi().entries('10');
+      expect(adapter.requests.single.$1, 'GET');
+      expect(adapter.requests.single.$2, '/api/v1/workbench/entries');
+      expect(adapter.queries.single, 'organization_id=10');
+      expect(configs, hasLength(1));
+      expect(configs.single.redirectUri, 'https://oa.example.com/a');
+    });
 
     test('生产 launcher 将企业 ID 无损编码为 JSON integer', () async {
       final adapter = _RecordingAdapter(

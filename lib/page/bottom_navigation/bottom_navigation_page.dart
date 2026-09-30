@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/modules/social_graph/public.dart';
@@ -18,7 +19,11 @@ import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart'
-    show EnterpriseOaRuntimeConfig, OaTabPage, resolveEnterpriseOaRuntimeConfig;
+    show
+        EnterpriseOaRuntimeConfig,
+        OaTabPage,
+        resolveEnterpriseOaRuntimeConfig,
+        oaWorkbenchEntriesProvider;
 import 'package:imboy/modules/organization/public.dart'
     show CurrentOrganizationStore, Organization;
 import 'package:imboy/store/repository/user_repo_provider.dart';
@@ -61,8 +66,28 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
   /// OA Tab 运行时配置（dart-define 编译期常量源，解析一次即缓存；
   /// 未配置 OA 的 standard 构建 runtimeEntryEnabled=false，Tab 隐藏）。
-  final EnterpriseOaRuntimeConfig _oaConfig =
+  final EnterpriseOaRuntimeConfig _oaBuildConfig =
       resolveEnterpriseOaRuntimeConfig();
+  List<EnterpriseOaRuntimeConfig> _oaEntries = const [];
+  String _oaAccountKey = '';
+  String _oaOrganizationId = '';
+  String _selectedOaKey = '';
+  ({String accountKey, String organizationId})? _oaErrorScope;
+
+  EnterpriseOaRuntimeConfig get _oaConfig {
+    for (final entry in _oaEntries) {
+      if (entry.applicationKey == _selectedOaKey ||
+          (_selectedOaKey.isEmpty &&
+              _oaBuildConfig.runtimeEntryEnabled &&
+              entry.applicationKey == _oaBuildConfig.applicationKey &&
+              entry.redirectUri == _oaBuildConfig.redirectUri)) {
+        return entry;
+      }
+    }
+    return _oaEntries.length == 1
+        ? _oaEntries.single
+        : EnterpriseOaRuntimeConfig.fallback;
+  }
 
   StreamSubscription<dynamic>? _localeSubscription;
 
@@ -85,7 +110,11 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   ///
   /// runtimeEntryEnabled 已做 fail-closed：origin 非法 / SSO 字段残缺 /
   /// redirect 与 origin 不同源的部署一律隐藏入口，不放必然失败的 Tab。
-  bool _isOaTabEnabled() => _oaConfig.runtimeEntryEnabled;
+  bool _isOaTabEnabled() =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS) &&
+      _oaEntries.isNotEmpty;
 
   /// OA Tab 显示名：白标 label 优先，i18n enterpriseOa.title 兜底。
   String _oaTabLabel() => _oaConfig.oaTabLabel.isNotEmpty
@@ -109,15 +138,39 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   }
 
   Widget _buildOaPage() {
-    final uid = ref.read(currentUserProvider)?.uid ?? '';
-    if (uid.isEmpty) return OaTabPage(config: _oaConfig, accountKey: '');
-    return ValueListenableBuilder<Organization?>(
-      valueListenable: CurrentOrganizationStore.forAccount(uid).listenable,
-      builder: (_, org, _) => OaTabPage(
-        config: _oaConfig,
-        accountKey: uid,
-        organizationId: org?.id ?? '',
-      ),
+    if (!_oaConfig.runtimeEntryEnabled) {
+      return Scaffold(
+        body: SafeArea(
+          child: CupertinoListSection.insetGrouped(
+            header: Text(t.enterpriseOa.title),
+            children: _oaEntries
+                .map(
+                  (entry) => CupertinoListTile(
+                    title: Text(
+                      entry.oaTabLabel.isEmpty
+                          ? t.enterpriseOa.title
+                          : entry.oaTabLabel,
+                    ),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () =>
+                        setState(() => _selectedOaKey = entry.applicationKey),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+    }
+    return OaTabPage(
+      key: ValueKey((
+        _oaAccountKey,
+        _oaOrganizationId,
+        _oaConfig.applicationKey,
+        _oaConfig.redirectUri,
+      )),
+      config: _oaConfig,
+      accountKey: _oaAccountKey,
+      organizationId: _oaOrganizationId,
     );
   }
 
@@ -191,7 +244,81 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(currentUserProvider);
+    final uid = ref.watch(currentUserProvider)?.uid ?? '';
+    if (uid.isEmpty ||
+        kIsWeb ||
+        (defaultTargetPlatform != TargetPlatform.android &&
+            defaultTargetPlatform != TargetPlatform.iOS)) {
+      return _buildNavigation(context, const [], uid, '');
+    }
+    return ValueListenableBuilder<Organization?>(
+      valueListenable: CurrentOrganizationStore.forAccount(uid).listenable,
+      builder: (_, org, _) => Consumer(
+        builder: (context, scopedRef, _) {
+          final scope = (accountKey: uid, organizationId: org?.id ?? '');
+          final entries = scopedRef.watch(oaWorkbenchEntriesProvider(scope));
+          if (entries.hasError) _showOaConfigurationError(scope);
+          return _buildNavigation(
+            context,
+            entries is AsyncData<List<EnterpriseOaRuntimeConfig>>
+                ? entries.value
+                : const [],
+            uid,
+            org?.id ?? '',
+          );
+        },
+      ),
+    );
+  }
+
+  void _showOaConfigurationError(
+    ({String accountKey, String organizationId}) scope,
+  ) {
+    if (_oaErrorScope == scope) return;
+    _oaErrorScope = scope;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          _oaAccountKey != scope.accountKey ||
+          _oaOrganizationId != scope.organizationId) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t.enterpriseOa.statusErrorTitle),
+          action: SnackBarAction(
+            label: t.enterpriseOa.actionRetry,
+            textColor: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.iosBlueDark
+                : AppColors.iosBlue,
+            onPressed: () {
+              if (_oaAccountKey != scope.accountKey ||
+                  _oaOrganizationId != scope.organizationId) {
+                return;
+              }
+              _oaErrorScope = null;
+              ref.invalidate(oaWorkbenchEntriesProvider(scope));
+            },
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildNavigation(
+    BuildContext context,
+    List<EnterpriseOaRuntimeConfig> entries,
+    String uid,
+    String orgId,
+  ) {
+    final hadOa = _isOaTabEnabled();
+    final oldMineIndex = _buildPageList().length - 1;
+    if (uid != _oaAccountKey || orgId != _oaOrganizationId) {
+      _selectedOaKey = '';
+    }
+    _oaAccountKey = uid;
+    _oaOrganizationId = orgId;
+    _oaEntries = entries;
+    final hasOa = _isOaTabEnabled();
     final t = context.t;
     // channelEnabled 控制会话列表顶部频道置顶区显示（Slice-5 接线）
     final channelEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.channel);
@@ -202,7 +329,12 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     );
 
     final rawBottomBarIndex = ref.watch(bottomNavigationProvider);
-    final bottomBarIndex = _normalizeIndex(rawBottomBarIndex);
+    final desiredIndex = hadOa != hasOa && rawBottomBarIndex == oldMineIndex
+        ? pageList.length - 1
+        : hadOa && !hasOa && rawBottomBarIndex == oldMineIndex - 1
+        ? 0
+        : rawBottomBarIndex;
+    final bottomBarIndex = _normalizeIndex(desiredIndex);
     final socketStatusAsync = ref.watch(webSocketStatusProvider);
     final socketStatus =
         socketStatusAsync.value ?? WebSocketConnectionState.disconnected;
@@ -215,7 +347,10 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
     if (rawBottomBarIndex != bottomBarIndex) {
       Future.microtask(() {
-        if (!mounted) {
+        if (!mounted ||
+            _oaAccountKey != uid ||
+            _oaOrganizationId != orgId ||
+            ref.read(bottomNavigationProvider) != rawBottomBarIndex) {
           return;
         }
         ref.read(bottomNavigationProvider.notifier).changeIndex(bottomBarIndex);

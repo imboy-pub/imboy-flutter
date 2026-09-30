@@ -149,7 +149,10 @@ class OaTabPage extends StatefulWidget {
   State<OaTabPage> createState() => _OaTabPageState();
 }
 
-class _OaTabPageState extends State<OaTabPage> {
+class _OaTabPageState extends State<OaTabPage>
+    with AutomaticKeepAliveClientMixin<OaTabPage> {
+  @override
+  bool get wantKeepAlive => true;
   late final OaTabStateMachine _machine;
   late EnterpriseOaRuntimeConfig _config;
 
@@ -387,6 +390,7 @@ class _OaTabPageState extends State<OaTabPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: Text(t.enterpriseOa.title), centerTitle: true),

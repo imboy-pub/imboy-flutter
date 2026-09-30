@@ -30,8 +30,9 @@ void main() {
     expect(
       src.contains("if (_isOaTabEnabled()) _buildOaPage(),") &&
           src.contains('CurrentOrganizationStore.forAccount(uid).listenable') &&
-          src.contains("organizationId: org?.id ?? ''") &&
-          src.contains('accountKey: uid'),
+          src.contains('organizationId: _oaOrganizationId') &&
+          src.contains('accountKey: _oaAccountKey') &&
+          src.contains('oaWorkbenchEntriesProvider'),
       isTrue,
       reason: 'OA Tab 页面须在 Mine 之前注册并受 BrandConfig 门控',
     );
@@ -53,9 +54,12 @@ void main() {
   test('门控实现链到 runtimeEntryEnabled（fail-closed 入口可见性）', () {
     final String src = navSource.readAsStringSync();
     expect(
-      src.contains('bool _isOaTabEnabled() => _oaConfig.runtimeEntryEnabled;'),
+      src.contains('_oaEntries.isNotEmpty') &&
+          src.contains('!kIsWeb') &&
+          src.contains('TargetPlatform.android') &&
+          src.contains('TargetPlatform.iOS'),
       isTrue,
-      reason: 'OA Tab 显隐唯一真源是 EnterpriseOaRuntimeConfig',
+      reason: 'OA Tab 由当前企业服务端配置与支持的平台门控',
     );
     expect(
       src.contains('resolveEnterpriseOaRuntimeConfig()'),

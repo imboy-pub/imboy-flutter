@@ -125,6 +125,34 @@ class _FakeWebViewState extends State<_FakeWebView> {
 Widget host(Widget child) => MaterialApp(home: child);
 
 void main() {
+  testWidgets('切换远端 Tab 后 OA 保活，不重新签发', (tester) async {
+    final launcher = _FakeLauncher([_issued().build()]);
+    final controller = PageController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      host(
+        PageView(
+          controller: controller,
+          children: [
+            OaTabPage(
+              config: testConfig(),
+              ssoLauncher: launcher,
+              webViewBuilder: _FakeWebView.new,
+            ),
+            const Text('second'),
+            const Text('third'),
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    controller.jumpToPage(2);
+    await tester.pumpAndSettle();
+    controller.jumpToPage(0);
+    await tester.pumpAndSettle();
+    expect(launcher.calls, hasLength(1));
+    expect(find.byKey(const ValueKey('fake_webview')), findsOneWidget);
+  });
   for (final changeAccount in [false, true]) {
     testWidgets('切换${changeAccount ? '账号' : '企业'}丢弃旧签发结果', (tester) async {
       final launcher = _DelayedLauncher();

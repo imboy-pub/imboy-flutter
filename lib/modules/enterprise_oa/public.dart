@@ -13,6 +13,7 @@ export 'domain/oa_sso_issue.dart';
 export 'domain/oa_tab_state.dart';
 export 'domain/oa_webview_policy.dart';
 export 'enterprise_oa_runtime_config.dart';
+export 'oa_workbench_provider.dart';
 export 'presentation/oa_message_badge.dart';
 export 'presentation/oa_tab_page.dart';
 export 'presentation/oa_webview_container.dart';
