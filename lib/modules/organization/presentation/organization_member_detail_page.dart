@@ -2,7 +2,7 @@
 ///
 /// §5.2 要求：「通讯录」提供部门树、成员列表、**成员详情**和**有权 Workspace
 /// 信息**，且**所有企业成员可见**。此前成员行直接跳通用 IM 联系人页
-/// `/people/:id`，那里没有企业/工作区信息——本条即为补齐该缺口。
+/// `/contact/people/:id`，那里没有企业/工作区信息——本条即为补齐该缺口。
 ///
 /// 数据源分工（为什么不是复用治理面的成员列表）：
 /// - 资料/角色：来自通讯录已加载的 [OrganizationMember]（治理面 403 时为 null，
@@ -115,13 +115,15 @@ class _OrganizationMemberDetailPageState
             onRetry: _load,
           ),
           AppSpacing.verticalRegular,
-          // 次级入口：IM 侧能力（发消息/加好友/资料）仍在通用联系人页
+          // 次级入口：IM 侧能力（发消息/加好友/资料）仍在通用联系人页。
+          // 通用资料页路由注册在 /contact 子树：/contact/people/:id，
+          // 裸写 /people/:id 会命中 GoRouter errorPage（Page not found）。
           ListTile(
             key: const ValueKey('org-member-detail-im-profile'),
             leading: const Icon(CupertinoIcons.person_crop_circle),
             title: Text(t.organization.directory.imProfileEntry),
             trailing: const Icon(CupertinoIcons.chevron_right, size: 14),
-            onTap: () => context.push('/people/${widget.userId}'),
+            onTap: () => context.push('/contact/people/${widget.userId}'),
           ),
         ],
       ),

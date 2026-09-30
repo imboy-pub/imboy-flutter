@@ -82,7 +82,8 @@ GoRouter _router() => GoRouter(
       ),
     ),
     GoRoute(
-      path: '/people/:id',
+      // 与主工程路由一致：通用 IM 资料页注册在 /contact 子树
+      path: '/contact/people/:id',
       builder: (c, s) => Scaffold(
         body: Center(child: Text('people-${s.pathParameters['id']}')),
       ),
