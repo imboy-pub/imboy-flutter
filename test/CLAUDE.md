@@ -60,6 +60,9 @@ flutter test test/unit_test/api/                 # Tier 1 API 契约（pre-push 
 ```
 
 `flutter_test_config.dart` 在 `test/unit_test/` 根，作用域覆盖其下全部子目录。
+**例外**：`api/` 子目录有自己的就近 `flutter_test_config.dart`（package:test 取最近
+config），其中 `HttpOverrides.global = null` 关掉根 config 的 smoke HTTP 拦截——
+API 契约测试需要真实网络。
 
 #### e2ee 测试的 vodozemac 动态库依赖（macOS 本机）
 

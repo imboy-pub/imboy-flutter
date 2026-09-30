@@ -55,7 +55,7 @@
 
 ## 二、现有自动化覆盖
 
-三层：Tier1 API 契约（`test/api/`，无设备可 CI）· Tier2 冒烟门控（`integration_test/smoke/`，真机）· Tier3 UI 流程（`integration_test/`，真机）· 路由冒烟（`test/smoke/`，124 路由）。~~Maestro~~ 已于 2026-07-29 删除。
+三层：Tier1 API 契约（`test/unit_test/api/`，无设备可 CI）· Tier2 冒烟门控（`integration_test/smoke/`，真机）· Tier3 UI 流程（`integration_test/`，真机）· 路由冒烟（`test/smoke/`，124 路由）。~~Maestro~~ 已于 2026-07-29 删除。
 
 深度用例仅覆盖 ~5 核心域：登录注册改密、C2C+群聊+会话、频道 CRUD+发布、好友管理、E2EE 收发。
 无深度用例：mine 设置、E2EE 备份/社交恢复/传输、wallet、group 协作、moment 详情/评论/通知、personal_info 编辑、user_tag、qrcode、scanner、search、mention、live_room、single。
@@ -88,16 +88,16 @@ TOTAL 112 / PASS 48 / SKIP 58 / FAIL 6。首轮曾报 24 FAIL 为假阳性（并
 ### 已完成（2026-07-11，全绿，无设备可 CI）
 | 文件 | 用例 | 结果 |
 |------|------|------|
-| `test/api/contact_api_test.dart` | 好友列表(+TSID)、本人资料(uid/nickname)、用户搜索、黑名单分页 | 5 pass |
-| `test/api/user_api_test.dart` | 用户设置、本人资料、**uid 一致性**、最近注册、**无token鉴权保护** | 5 pass |
-| `test/api/group_api_test.dart` | 群分页(+group_id TSID)、群详情、无效gid容错、群成员分页 | 2 pass / 4 skip |
+| `test/unit_test/api/contact_api_test.dart` | 好友列表(+TSID)、本人资料(uid/nickname)、用户搜索、黑名单分页 | 5 pass |
+| `test/unit_test/api/user_api_test.dart` | 用户设置、本人资料、**uid 一致性**、最近注册、**无token鉴权保护** | 5 pass |
+| `test/unit_test/api/group_api_test.dart` | 群分页(+group_id TSID)、群详情、无效gid容错、群成员分页 | 2 pass / 4 skip |
 
 合计 12 pass / 4 skip。关键验证：TSID uid 逐字节一致无精度丢失；无 token 访问被正确拒绝。
 4 个 skip 为诚实 skip——测试账号 `admin888` 本地库 0 群（待种子数据）。
 
-跑法：`API_BASE_URL=http://127.0.0.1:9800 TEST_PHONE=13900001002 TEST_PASSWORD=admin888 dart test test/api/ --concurrency=1`
+跑法：`API_BASE_URL=http://127.0.0.1:9800 TEST_PHONE=<账号> TEST_PASSWORD=<密码> IMBOY_SOLIDIFIED_KEY=<目标环境签名密钥> flutter test test/unit_test/api/ --concurrency=1`（运行器两难已修复，见 docs/reference/commands.md Tier 1 注；本表历史 PASS 数字为 dart test 时代所得。2026-09-30 实测 flutter test 9/9 全绿，账号密码须为目标库真实凭证）
 
-### API 契约测试矩阵（每模块 = 一个 `test/api/<name>_api_test.dart`）
+### API 契约测试矩阵（每模块 = 一个 `test/unit_test/api/<name>_api_test.dart`）
 > 每条验证：① 请求参数对齐 openapi.yaml；② 响应信封(code/msg/payload)字段类型匹配 fromJson；③ 边界(空/错误码/401/TSID 精度)。
 
 | 优先级 | 模块 | 端点 | 现状 |

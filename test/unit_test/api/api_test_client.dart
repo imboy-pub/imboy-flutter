@@ -1,9 +1,12 @@
-// test/api/api_test_client.dart
+// test/unit_test/api/api_test_client.dart
 //
-// 纯 Dart HTTP 测试客户端，供 test/api/ 下的 dart test 使用。
-// 不依赖 Flutter 绑定，不需要设备，可在 CI 中直接运行：
+// 纯 Dart HTTP 测试客户端，供本目录（Tier 1 API 契约测试）使用。
+// 不依赖 Flutter 绑定，不需要设备：
 //   API_BASE_URL=http://127.0.0.1:9800 TEST_PHONE=xxx TEST_PASSWORD=xxx \
-//   dart test test/api/ --concurrency=1
+//   flutter test test/unit_test/api/ --concurrency=1
+// （dart test 不可用：pubspec 的 patrol 等 Flutter-only 依赖让 dart pub 解析
+//   必崩，见 pre_push_gate.sh 注；真实网络由本目录就近的
+//   flutter_test_config.dart 恢复。）
 // 业务写入测试还必须显式设置 TEST_ALLOW_API_WRITES=true；生产或未知地址始终拒绝。
 //
 // 与 integration_test/e2e/api_test_client.dart 的区别：
@@ -76,22 +79,18 @@ class ApiTestConfig {
     }
   }
 
-  /// 当前是否跑在 `flutter test` harness 里。
+  /// 当前网络是否被 HttpOverrides mock 掉（拿不到真实后端响应）。
   ///
-  /// flutter_test 会把 `HttpOverrides.global` 换成 `_MockHttpOverrides`，
-  /// **任何真实 HTTP 请求都恒定返回 400 空体**。本目录是打真实后端的契约
-  /// 测试（见各文件头部：`dart test test/api/xxx_test.dart`），在
-  /// `flutter test` 下不可能通过——拿到的 400 不代表后端有问题。
-  ///
-  /// 实证：后端 `/api/v1/init` curl 返回 200 + code:0，同一请求在
-  /// `flutter test` 里拿到 `{code: 400, msg: non_json_response}`。
-  static bool get isFlutterTestHarness =>
-      Platform.environment['FLUTTER_TEST'] == 'true';
+  /// flutter_test 框架与 test/unit_test 根 config 都会装 HttpOverrides mock
+  /// （任何真实请求恒假响应）。本目录打真实后端，靠就近的
+  /// flutter_test_config.dart 把 HttpOverrides.global 恢复为 null——
+  /// 因此这里探测运行时真相而非猜运行器：仍有 override 残留 = 网络被 mock。
+  static bool get isNetworkMocked => HttpOverrides.current != null;
 
   /// 网络不可用（被 mock 掉）时应跳过而非失败的原因说明。
-  static String? get skipReasonIfNoRealNetwork => isFlutterTestHarness
-      ? 'API 契约测试需真实网络与后端；flutter test 的 _MockHttpOverrides '
-            '会让所有请求恒返 400。请用 dart test 运行本目录。'
+  static String? get skipReasonIfNoRealNetwork => isNetworkMocked
+      ? 'API 契约测试需真实网络与后端；HttpOverrides 仍被 mock'
+            '（api/flutter_test_config.dart 未生效？）。'
       : null;
 
   static bool get isConfigured =>

@@ -1,12 +1,14 @@
-// test/api/auth_api_test.dart
+// test/unit_test/api/auth_api_test.dart
 //
-// 认证 API 契约测试（纯 dart test，无设备，可 CI 直接运行）
+// 认证 API 契约测试（无设备；真实网络由本目录就近的
+// flutter_test_config.dart 恢复，运行器须用 flutter test——dart test 会被
+// pubspec 的 patrol 等 Flutter-only 依赖阻断）
 //
 // 运行方式：
 //   API_BASE_URL=http://127.0.0.1:9800 \
 //   TEST_PHONE=+8613800138000 \
 //   TEST_PASSWORD=<pwd> \
-//   dart test test/api/auth_api_test.dart --concurrency=1
+//   flutter test test/unit_test/api/auth_api_test.dart --concurrency=1
 
 @TestOn('vm')
 library;
@@ -16,8 +18,8 @@ import 'package:test/test.dart';
 import 'api_test_client.dart';
 
 void main() {
-  // flutter test 会 mock 掉全部 HTTP（恒返 400 空体），本目录是打真实后端的
-  // 契约测试，只能用 dart test 跑。详见 ApiTestConfig.isFlutterTestHarness。
+  // 网络 HttpOverrides 仍被 mock 时（api/flutter_test_config.dart 未生效的
+  // 异常场景）整文件跳过而非假失败。详见 ApiTestConfig.isNetworkMocked。
   final networkSkip = ApiTestConfig.skipReasonIfNoRealNetwork;
 
   late ApiTestClient client;

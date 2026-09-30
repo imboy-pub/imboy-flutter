@@ -280,7 +280,7 @@ if [[ "$MODE" != "quick" ]]; then
   elif [[ -z "$TEST_PHONE" || -z "$TEST_PASSWORD" ]]; then
     blocked "app_api_contract" "缺少 IMBOY_TEST_PHONE 或 IMBOY_TEST_PASSWORD"
   else
-    run_step "app_api_contract" required "$APP_ROOT" env API_BASE_URL="$API_BASE_URL" TEST_PHONE="$TEST_PHONE" TEST_PASSWORD="$TEST_PASSWORD" dart test test/unit_test/api/ --concurrency=1 --timeout=60s
+    run_step "app_api_contract" required "$APP_ROOT" env API_BASE_URL="$API_BASE_URL" TEST_PHONE="$TEST_PHONE" TEST_PASSWORD="$TEST_PASSWORD" flutter test test/unit_test/api/ --concurrency=1 --timeout=60s
   fi
 fi
 
