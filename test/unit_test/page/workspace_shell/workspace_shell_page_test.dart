@@ -222,7 +222,7 @@ void main() {
       AppFeatureRegistry.replaceSnapshotForTest(<String, dynamic>{});
     });
 
-    testWidgets('移动端：底部导航少一项；已选中项目时回落概览且不越界', (tester) async {
+    testWidgets('移动端：底部导航少一项；已选中项目时回落消息且不越界', (tester) async {
       final container = await _seededContainer();
       addTearDown(container.dispose);
       // 模拟「上一刻已选中项目」后开关关闭 → 不得停在项目页、不得下标越界
@@ -236,8 +236,8 @@ void main() {
         find.byKey(const ValueKey('workspace-shell-bottom-nav')),
       );
       expect(nav.destinations.length, kWorkspaceShellDestinationCount - 1);
-      // 可见项顺序 [conversations, overview, channels, groups] → 回落 overview=1
-      expect(nav.selectedIndex, 1);
+      // 可见项顺序 [conversations, overview, channels, groups] → 回落 conversations=0
+      expect(nav.selectedIndex, 0);
       expect(
         find.byKey(const ValueKey('workspace-shell-destination-stack')),
         findsOneWidget,
@@ -254,7 +254,7 @@ void main() {
         find.byKey(const ValueKey('workspace-shell-rail')),
       );
       expect(rail.destinations.length, kWorkspaceShellDestinationCount - 1);
-      expect(rail.selectedIndex, 1);
+      expect(rail.selectedIndex, 0);
     });
 
     testWidgets('project 开启（默认）时仍是五项导航（通用行为不回归）', (tester) async {

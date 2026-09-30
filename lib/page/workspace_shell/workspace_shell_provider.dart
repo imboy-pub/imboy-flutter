@@ -36,7 +36,7 @@ class WorkspaceShellState {
     List<WorkspaceModel> workspaces = const [],
     this.organizationId = '',
     this.currentWorkspaceId = '',
-    this.destination = WorkspaceShellDestination.overview,
+    this.destination = WorkspaceShellDestination.conversations,
     this.isLoading = false,
     this.error,
     // 保留公开命名参数 workspaces；全集仅在状态内部维护。
@@ -203,7 +203,7 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     );
   }
 
-  /// 切换当前工作区（Overview 重新开始；Brand 主题随之切换，T12）。
+  /// 切换当前工作区（消息页重新开始；Brand 主题随之切换，T12）。
   void selectWorkspace(EntityId workspaceId) {
     if (workspaceId.isEmpty ||
         !state.workspaces.any((ws) => ws.id == workspaceId)) {
@@ -213,7 +213,7 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     if (workspaceId == state.currentWorkspaceId) return;
     state = state.copyWith(
       currentWorkspaceId: workspaceId,
-      destination: WorkspaceShellDestination.overview,
+      destination: WorkspaceShellDestination.conversations,
     );
     // mine 列表行不带 branding：切换后为新当前工作区补拉（T12 主题切换）
     unawaited(ensureCurrentBranding());
@@ -231,7 +231,7 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     final available = scoped.workspaces;
     state = scoped.copyWith(
       currentWorkspaceId: available.isEmpty ? '' : available.first.id,
-      destination: WorkspaceShellDestination.overview,
+      destination: WorkspaceShellDestination.conversations,
     );
     unawaited(ensureCurrentBranding());
     try {
@@ -279,12 +279,12 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
   /// 团队码加入成功后回填（joined / unchanged 均走此路径）。
   ///
   /// 与 [applyCreated] 同构：新加入置顶，同企业才切当前 +
-  /// 回 Overview；已在列表中的工作区 id 不重复插入（置顶去重）。
+  /// 回消息页；已在列表中的工作区 id 不重复插入（置顶去重）。
   void applyJoined(WorkspaceModel ws) {
     _prependAndSelect(ws);
   }
 
-  /// 置顶 + 设当前 + destination=overview（创建/加入共用回填）。
+  /// 置顶 + 设当前 + destination=conversations（创建/加入共用回填）。
   void _prependAndSelect(WorkspaceModel ws) {
     if (ws.id.isEmpty) return;
     // 最新加入置顶（服务端列表按 created_at DESC，回填顺序与之一致）
@@ -295,7 +295,9 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     state = state.copyWith(
       workspaces: list,
       currentWorkspaceId: canSelect ? ws.id : state.currentWorkspaceId,
-      destination: WorkspaceShellDestination.overview,
+      destination: canSelect
+          ? WorkspaceShellDestination.conversations
+          : state.destination,
     );
   }
 

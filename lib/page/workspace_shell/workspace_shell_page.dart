@@ -56,12 +56,12 @@ class WorkspaceShellPage extends ConsumerWidget {
         : items
               .where((i) => i.destination != WorkspaceShellDestination.projects)
               .toList(growable: false);
-    // 上一刻已选中「项目」而功能刚被关闭：回落到 Overview。否则内容区会停在
+    // 上一刻已选中「项目」而功能刚被关闭：回落到消息页。否则内容区会停在
     // 项目页，且 selectedIndex 会越出可见导航项范围（导航栏越界即崩）。
     final effectiveDestination =
         visibleItems.any((i) => i.destination == shell.destination)
         ? shell.destination
-        : WorkspaceShellDestination.overview;
+        : WorkspaceShellDestination.conversations;
     final selectedIndex = visibleItems.indexWhere(
       (i) => i.destination == effectiveDestination,
     );
@@ -76,7 +76,7 @@ class WorkspaceShellPage extends ConsumerWidget {
         // 移动端全局区：左上工作区切换 chip + 右上头像菜单（会话目的地
         // 自带导航栏且已含 chip/头像，不叠加壳顶栏）
         if (layout == WorkspaceShellLayout.mobile &&
-            shell.destination != WorkspaceShellDestination.conversations)
+            effectiveDestination != WorkspaceShellDestination.conversations)
           const _ShellTopBar(),
         if (archived) const WorkspaceArchivedBanner(),
         Expanded(child: _DestinationStack(index: effectiveDestination.index)),
