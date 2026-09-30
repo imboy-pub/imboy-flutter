@@ -132,6 +132,91 @@ HumanDirectoryController _boot(FakeSource src, {String org = orgA}) {
 Future<void> _tick() => Future<void>.delayed(Duration.zero);
 
 void main() {
+  test('未登录不请求；登出丢弃目录、搜索及迟到数据', () async {
+    final src = FakeSource();
+    final c = HumanDirectoryController(dataSource: src);
+    addTearDown(c.dispose);
+    c.configure(accountKey: '', organizationId: orgA);
+    await c.refresh();
+    expect(src.deptCalls, isEmpty);
+    c.configure(accountKey: 'u1', organizationId: orgA);
+    c.configure(accountKey: '', organizationId: orgA);
+    src.pendingDepartments.single.complete(_page([_dept('old')]));
+    await _tick();
+    expect(c.departments.items, isEmpty);
+    expect(c.members.items, isEmpty);
+    expect(c.phase, HumanDirectoryPhase.idle);
+    expect(c.meLoading, isFalse);
+  });
+
+  test('准备企业切换时换账号：不得调用旧 commit 或覆盖新身份', () async {
+    final src = FakeSource();
+    final c = _boot(src);
+    addTearDown(c.dispose);
+    final prepared = Completer<void>();
+    var commits = 0;
+    final switching = c.switchOrganization(
+      const Organization(id: orgB, name: 'B'),
+      prepare: (_) => prepared.future,
+      commit: (_) async {
+        commits++;
+      },
+    );
+    c.configure(accountKey: 'u2', organizationId: orgA);
+    prepared.complete();
+    await switching;
+    expect(commits, 0);
+    expect(c.identity!.accountKey, 'u2');
+    expect(c.identity!.organizationId, orgA);
+    expect(c.switching, isFalse);
+  });
+
+  test('旧提交等待期间换账号：完成后不得重配新账号目录', () async {
+    final src = FakeSource();
+    final c = _boot(src);
+    addTearDown(c.dispose);
+    final committed = Completer<void>();
+    var calls = 0;
+    final switching = c.switchOrganization(
+      const Organization(id: orgB, name: 'B'),
+      prepare: (_) async {},
+      commit: (_) {
+        calls++;
+        return committed.future;
+      },
+    );
+    await _tick();
+    expect(calls, 1);
+    c.configure(accountKey: 'u2', organizationId: orgA);
+    committed.complete();
+    await switching;
+    expect(c.identity!.accountKey, 'u2');
+    expect(c.identity!.organizationId, orgA);
+    expect(c.switching, isFalse);
+    expect(c.switchError, isNull);
+  });
+
+  test('销毁后请求及切换准备返回：不写状态、不提交指针', () async {
+    final src = FakeSource();
+    final c = _boot(src);
+    final prepared = Completer<void>();
+    var commits = 0;
+    final switching = c.switchOrganization(
+      const Organization(id: orgB, name: 'B'),
+      prepare: (_) => prepared.future,
+      commit: (_) async {
+        commits++;
+      },
+    );
+    c.dispose();
+    src.pendingDepartments.first.complete(_page([_dept('old')]));
+    prepared.complete();
+    await switching;
+    await _tick();
+    expect(commits, 0);
+    expect(c.identity, isNull);
+  });
+
   group('§14.3 request_generation / request_key', () {
     test('A 慢 B 快：B 胜出；A 后到被丢弃（成功与失败两条路径）', () async {
       final src = FakeSource();

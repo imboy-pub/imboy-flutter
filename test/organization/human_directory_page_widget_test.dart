@@ -9,6 +9,8 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +22,8 @@ import 'package:imboy/modules/organization/domain/human_directory_models.dart';
 import 'package:imboy/modules/organization/infrastructure/human_directory_api.dart';
 import 'package:imboy/modules/organization/presentation/human_directory_page.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 
 const orgA = '7001';
 const orgB = '7002';
@@ -128,21 +132,135 @@ const _defaultDepts = [
 
 Widget _routerApp(GoRouter router) => TranslationProvider(
   child: UncontrolledProviderScope(
-    container: ProviderContainer(),
+    container: ProviderContainer(
+      overrides: [
+        currentUserProvider.overrideWithValue(
+          UserModel(uid: 'directory-account-a', account: 'synthetic-account'),
+        ),
+      ],
+    ),
     child: MaterialApp.router(routerConfig: router),
   ),
 );
 
 /// 无路由宿主（不需要 push 的用例）：重复 pumpWidget 同型树触发
 /// didUpdateWidget。
-Widget _plainApp(Widget home) =>
-    TranslationProvider(child: MaterialApp(home: home));
+Widget _plainApp(Widget home) => TranslationProvider(
+  child: ProviderScope(
+    overrides: [
+      currentUserProvider.overrideWithValue(
+        UserModel(uid: 'directory-account-a', account: 'synthetic-account'),
+      ),
+    ],
+    child: MaterialApp(home: home),
+  ),
+);
+
+class _Account extends Notifier<UserModel?> {
+  @override
+  UserModel? build() =>
+      UserModel(uid: 'directory-account-a', account: 'synthetic-account');
+  void select(String uid) => state = uid.isEmpty
+      ? null
+      : UserModel(uid: uid, account: 'synthetic-account');
+}
+
+final _account = NotifierProvider<_Account, UserModel?>(_Account.new);
 
 void main() {
   setUp(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
+  });
+
+  testWidgets('同企业同型页面换账号：清搜索、重拉目录并丢弃迟到响应', (tester) async {
+    final src = _FakeSource();
+    final container = ProviderContainer(
+      overrides: [
+        currentUserProvider.overrideWith((ref) => ref.watch(_account)),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: HumanDirectoryBrowserPage(orgId: orgA, dataSource: src),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.enterText(find.byType(CupertinoSearchTextField), '旧账号搜索');
+    container.read(_account.notifier).select('directory-account-b');
+    await tester.pump();
+    expect(src.deptCalls, hasLength(2));
+    expect(
+      tester
+          .widget<CupertinoSearchTextField>(
+            find.byType(CupertinoSearchTextField),
+          )
+          .controller!
+          .text,
+      isEmpty,
+    );
+    src._pendingDepartments.last.complete(
+      const HumanDirectoryPage<HumanDirectoryDepartment>(
+        list: [HumanDirectoryDepartment(id: '9902', name: '新账号部门')],
+        cursor: null,
+        hasMore: false,
+      ),
+    );
+    await tester.pump();
+    src.resolveDepartments(
+      items: const [HumanDirectoryDepartment(id: '9901', name: '旧账号部门')],
+    );
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(find.text('新账号部门'), findsOneWidget);
+    expect(find.text('旧账号部门'), findsNothing);
+    expect(src.searchCalls, isEmpty);
+    container.read(_account.notifier).select('');
+    await tester.pump();
+    expect(find.text('新账号部门'), findsNothing);
+    expect(src.deptCalls, hasLength(2));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('企业切换弹层在账号变化时关闭，不保留旧企业列表', (tester) async {
+    final src = _FakeSource();
+    final container = ProviderContainer(
+      overrides: [
+        currentUserProvider.overrideWith((ref) => ref.watch(_account)),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: HumanDirectoryBrowserPage(
+              orgId: orgA,
+              orgName: '甲企业',
+              dataSource: src,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    src.resolveDepartments();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(CupertinoIcons.chevron_down));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(BottomSheet), findsOneWidget);
+    container.read(_account.notifier).select('');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('企业根：上半直接子部门、下半本级成员；/me 捷径仅根级', (tester) async {
@@ -294,6 +412,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('研发部'), findsOneWidget);
 
+    await tester.enterText(find.byType(CupertinoSearchTextField), '旧企业搜索');
     // 同型同位 rebuild（无 key）→ didUpdateWidget 触发 configure。
     currentOrg = orgB;
     await tester.pumpWidget(_plainApp(Scaffold(body: host())));
@@ -306,6 +425,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('乙企业研发'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(src.searchCalls, isEmpty, reason: '切换企业取消旧搜索 debounce');
   });
 
   testWidgets('成员行点击 → 复用既有企业成员详情路由（含 IM 资料次级入口）', (tester) async {

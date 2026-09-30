@@ -185,7 +185,17 @@ class HumanDirectoryController extends ChangeNotifier {
 
   /// generation + request_key 双匹配才允许写状态（§14.3）。
   bool _accept(int gen, String key) =>
-      _identity != null && gen == _generation && key == _identity!.requestKey;
+      _identity != null &&
+      _identity!.accountKey.isNotEmpty &&
+      gen == _generation &&
+      key == _identity!.requestKey;
+
+  @override
+  void dispose() {
+    _generation++;
+    _identity = null;
+    super.dispose();
+  }
 
   // ---- 生命周期入口 ----
 
@@ -235,7 +245,7 @@ class HumanDirectoryController extends ChangeNotifier {
   /// 不清空旧数据；仅无数据时走全屏 loading/error。
   Future<void> refresh() async {
     final id = _identity;
-    if (id == null) return;
+    if (id == null || id.accountKey.isEmpty) return;
     final gen = ++_generation;
     final key = id.requestKey;
     final hasData =
@@ -351,7 +361,9 @@ class HumanDirectoryController extends ChangeNotifier {
     required Future<void> Function(Organization target) commit,
   }) async {
     final id = _identity;
-    if (id == null || _switching) return;
+    if (id == null || id.accountKey.isEmpty || _switching) return;
+    final generation = _generation;
+    final key = id.requestKey;
     if (id.organizationId == target.id) return;
     _switching = true;
     _switchTarget = target;
@@ -359,7 +371,9 @@ class HumanDirectoryController extends ChangeNotifier {
     notifyListeners();
     try {
       await prepare(target);
+      if (!_accept(generation, key)) return;
     } on Object catch (e) {
+      if (!_accept(generation, key)) return;
       // Phase 1 失败：指针未提交、数据未动——完整 rollback。
       _switching = false;
       _switchError = _errorText(e);
@@ -368,7 +382,9 @@ class HumanDirectoryController extends ChangeNotifier {
     }
     try {
       await commit(target);
+      if (!_accept(generation, key)) return;
     } on Object catch (e) {
+      if (!_accept(generation, key)) return;
       // Phase 2 失败（§14.3：任一步失败保留旧 Org/Workspace/已有数据）：
       // 回调方负责把指针/缓存补偿回旧值后 rethrow；控制器保持旧 Org
       // 身份与已有数据（不 reconfigure），回到可重试态——绝不半切换。
@@ -408,9 +424,15 @@ class HumanDirectoryController extends ChangeNotifier {
     _search = HumanDirectorySection.empty();
     _myDepartments = const [];
     _meError = null;
+    _meLoading = false;
+    _switching = false;
+    _switchTarget = null;
+    _switchError = null;
     _refreshing = false;
     _pageError = null;
-    _phase = HumanDirectoryPhase.loading;
+    _phase = _identity!.accountKey.isEmpty
+        ? HumanDirectoryPhase.idle
+        : HumanDirectoryPhase.loading;
     notifyListeners();
     final gen = _generation;
     final key = _identity!.requestKey;
