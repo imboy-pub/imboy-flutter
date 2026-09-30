@@ -4,6 +4,7 @@
 library;
 
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +19,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 
 import '../chat_provider.dart';
 import '../../widget/chat_input.dart';
+
 import 'package:imboy/page/chat/chat/agent_task_ephemeral_state_notifier.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 

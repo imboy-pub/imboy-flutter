@@ -69,9 +69,8 @@ void main() {
 
     test('非 sent 状态 → false', () {
       expect(
-        _msg(
-          status: MessageStatus.sending,
-        ).canRevoke(currentUid: _u1, now: _base),
+        _msg(status: MessageStatus.sending)
+            .canRevoke(currentUid: _u1, now: _base),
         isFalse,
       );
     });

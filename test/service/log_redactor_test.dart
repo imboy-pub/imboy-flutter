@@ -60,17 +60,16 @@ void main() {
     test('嵌套 map 里的 headers/token 逐层剥离', () {
       final out = LogRedactor.scrubDynamic(
         {
-              'uid': 7,
-              'req': {
-                'headers': {
-                  'Authorization': 'Bearer abc.def',
-                  'cookie': 'sid=1',
-                  'content-type': 'application/json',
-                },
-                'body': {'access_token': 'tok', 'nickname': 'n'},
-              },
-            }
-            as Map,
+          'uid': 7,
+          'req': {
+            'headers': {
+              'Authorization': 'Bearer abc.def',
+              'cookie': 'sid=1',
+              'content-type': 'application/json',
+            },
+            'body': {'access_token': 'tok', 'nickname': 'n'},
+          },
+        } as Map,
       );
       final headers = out['req']['headers'] as Map;
       expect(headers['Authorization'], '[REDACTED]');
@@ -92,12 +91,11 @@ void main() {
     test('支付回调载荷：sign/openid 剥离，订单号保留', () {
       final out = LogRedactor.scrubDynamic(
         {
-              'out_trade_no': 'T123',
-              'sign': 'ABCD1234',
-              'openid': 'oX-123456',
-              'total_fee': 100,
-            }
-            as Map,
+          'out_trade_no': 'T123',
+          'sign': 'ABCD1234',
+          'openid': 'oX-123456',
+          'total_fee': 100,
+        } as Map,
       );
       expect(out['out_trade_no'], 'T123');
       expect(out['sign'], '[REDACTED]');

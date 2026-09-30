@@ -226,9 +226,8 @@ class _BrandSearchViewState extends SearchViewState<_BrandSearchView> {
                 horizontal: AppSpacing.medium,
               ),
               decoration: BoxDecoration(
-                color: AppColors.getIosSeparator(
-                  brightness,
-                ).withValues(alpha: 0.22),
+                color: AppColors.getIosSeparator(brightness)
+                    .withValues(alpha: 0.22),
                 borderRadius: BorderRadius.circular(AppRadius.large),
               ),
               child: Row(

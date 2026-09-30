@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +26,7 @@ import 'channel_provider.dart';
 import 'widgets/channel_header_bar.dart';
 import 'widgets/channel_message_feed.dart';
 import 'widgets/channel_publish_bar.dart';
+
 import 'package:imboy/component/ui/app_loading.dart';
 
 /// 频道详情页（壳页面）

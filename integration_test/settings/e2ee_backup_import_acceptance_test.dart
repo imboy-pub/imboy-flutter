@@ -90,9 +90,8 @@ Future<bool> _boot(WidgetTester tester) async {
     } else if (isOnWelcomePage(tester)) {
       await leaveWelcomePage(tester);
     } else if (UserRepoLocal.to.currentUid == _uid) {
-      GoRouter.of(
-        tester.element(find.byType(Navigator).first),
-      ).go('/bottom_navigation');
+      GoRouter.of(tester.element(find.byType(Navigator).first))
+          .go('/bottom_navigation');
     }
     await _pump(tester, seconds: 6);
   }
@@ -226,11 +225,7 @@ void main() {
       nav.pop();
       await _pump(tester, seconds: 2);
     }
-    expect(
-      tester.any(find.text('生成备份文件')),
-      isTrue,
-      reason: '前置：应回到导出页',
-    );
+    expect(tester.any(find.text('生成备份文件')), isTrue, reason: '前置：应回到导出页');
     await _fillAndAct(tester, cloud: true);
     final cloudOk = await _waitFor(
       tester,
@@ -270,11 +265,7 @@ void main() {
     // ── ⑤ 错误口令（AT-EI-WRONG）──
     await tester.tap(find.text('从云端恢复').first, warnIfMissed: false);
     await _waitFor(tester, () => tester.any(cloudPwdBox), seconds: 8);
-    expect(
-      tester.any(cloudPwdBox),
-      isTrue,
-      reason: '前置：口令输入框应存在',
-    );
+    expect(tester.any(cloudPwdBox), isTrue, reason: '前置：口令输入框应存在');
     await tester.enterText(cloudPwdBox.first, _wrongPwd);
     // 弹窗确认按钮与页面卡按钮同名，限定 AlertDialog 范围防误触卡片
     await tester.tap(

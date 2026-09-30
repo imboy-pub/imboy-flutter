@@ -135,9 +135,8 @@ class UserOnlineStatusDetailWidget extends StatelessWidget {
             t.main.lastSeenExactTime(
               param: UserOnlineTimeHelper.formatExactTime(status.lastSeenAt!),
             ),
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.iosGray),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: AppColors.iosGray),
           ),
         ],
       ],

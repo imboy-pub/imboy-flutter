@@ -8,8 +8,10 @@
 library;
 
 import 'dart:convert';
+
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
+
 import 'dart:typed_data';
 
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';

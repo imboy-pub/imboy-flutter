@@ -53,11 +53,16 @@ class _FakeCsApi extends CsApi {
   final Object? heartbeatError;
   int heartbeats = 0;
   final List<String?> manualCalls = [];
+  final List<String> heartbeatWorkspaceIds = [];
 
   _FakeCsApi({this.heartbeatError});
 
   @override
-  Future<CsPresence> seatHeartbeat(String orgId) async {
+  Future<CsPresence> seatHeartbeat(
+    String orgId, {
+    String workspaceId = '',
+  }) async {
+    heartbeatWorkspaceIds.add(workspaceId);
     heartbeats++;
     final error = heartbeatError;
     if (error != null) throw error;
@@ -65,7 +70,11 @@ class _FakeCsApi extends CsApi {
   }
 
   @override
-  Future<CsPresence> setSeatPresence(String orgId, String? manualStatus) async {
+  Future<CsPresence> setSeatPresence(
+    String orgId,
+    String? manualStatus, {
+    String workspaceId = '',
+  }) async {
     manualCalls.add(manualStatus);
     return _presence(
       manualStatus == 'away' ? CsPresenceStatus.away : CsPresenceStatus.online,
@@ -89,12 +98,18 @@ void main() {
         final controller = CsPresenceController(
           csApi: api,
           orgId: kOrgId,
+          workspaceId: kWsId,
           interval: const Duration(seconds: 30),
           onResync: () async => resyncs++,
         );
         controller.start();
         async.flushMicrotasks();
         expect(api.heartbeats, 1, reason: '启动即一次心跳');
+        expect(
+          api.heartbeatWorkspaceIds.single,
+          kWsId,
+          reason: 'CSB-02R workspace 门必填键随心跳提交',
+        );
 
         // 前台：30s 周期心跳正常推进。
         async.elapse(const Duration(seconds: 90));
@@ -133,6 +148,7 @@ void main() {
       final controller = CsPresenceController(
         csApi: api,
         orgId: kOrgId,
+        workspaceId: kWsId,
         onPresenceChanged: () => notified++,
       );
       controller.start();
@@ -146,7 +162,11 @@ void main() {
 
     test('手动 away / 恢复自动：PUT 结果回填服务端派生事实', () async {
       final api = _FakeCsApi();
-      final controller = CsPresenceController(csApi: api, orgId: kOrgId);
+      final controller = CsPresenceController(
+        csApi: api,
+        orgId: kOrgId,
+        workspaceId: kWsId,
+      );
 
       await controller.setManualStatus('away');
       expect(api.manualCalls, ['away']);
@@ -157,6 +177,24 @@ void main() {
       expect(api.manualCalls, ['away', null]);
       expect(controller.lastPresence?.status, CsPresenceStatus.online);
       expect(controller.lastPresence?.manualStatus, isNull);
+    });
+
+    test('workspaceId 为空：心跳诚实不发（CSB-02R 必填，发了必 422）', () {
+      fakeAsync((async) async {
+        final api = _FakeCsApi();
+        final controller = CsPresenceController(
+          csApi: api,
+          orgId: kOrgId,
+          workspaceId: '',
+          interval: const Duration(seconds: 30),
+        );
+        controller.start();
+        async.flushMicrotasks();
+        async.elapse(const Duration(seconds: 60));
+        expect(api.heartbeats, 0, reason: '缺 workspace 不发注定失败的请求');
+        expect(controller.lastPresence, isNull, reason: '本地不造状态');
+        controller.stop();
+      });
     });
   });
 

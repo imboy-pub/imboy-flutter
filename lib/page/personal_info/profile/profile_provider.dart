@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';

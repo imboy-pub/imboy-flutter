@@ -124,9 +124,8 @@ Future<bool> _boot(
     } else if (UserRepoLocal.to.currentUid == uid) {
       // 上场景把 app 留在验证码页等深链页：已登录但不在主 Shell，
       // 强制回壳（批次154 shell 绕行同款路径）
-      GoRouter.of(
-        tester.element(find.byType(Navigator).first),
-      ).go('/bottom_navigation');
+      GoRouter.of(tester.element(find.byType(Navigator).first))
+          .go('/bottom_navigation');
     }
     await _pump(tester, seconds: 6);
   }
@@ -206,9 +205,8 @@ void main() {
     if (!await _boot(tester)) return;
 
     // 入口页深链可达（批次124：登录态下 passport 公开路由不被重定向拦截）
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/forgot_password');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/forgot_password');
     expect(
       await _waitFor(
         tester,
@@ -303,9 +301,8 @@ void main() {
     HttpClient.client.dio.httpClientAdapter = adapter;
     addTearDown(() => HttpClient.client.dio.httpClientAdapter = original);
 
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/account_security');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/account_security');
     expect(
       await _waitFor(tester, () => tester.any(find.text('绑定手机号')), seconds: 10),
       isTrue,

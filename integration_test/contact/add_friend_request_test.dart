@@ -14,7 +14,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/contact/people_info/people_info_page.dart';
+
 import '../flows/app_launcher.dart';
+
 import 'package:integration_test/integration_test.dart';
 
 import '../flows/test_utils.dart';

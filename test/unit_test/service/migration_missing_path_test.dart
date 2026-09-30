@@ -37,12 +37,12 @@ MigrationScript down(int v) => MigrationScript(
 
 /// 真实 embedded 脚本构造的块 map（升级/降级），与 MigrationService.init
 /// 的解析产物同构。
-Map<int, MigrationScript> realUpgradeScripts() => parseMigrationVersionBlocks(
-  kUpgradeScriptSql,
-).map((v, sql) => MapEntry(v, up(v)));
-Map<int, MigrationScript> realDowngradeScripts() => parseMigrationVersionBlocks(
-  kDowngradeScriptSql,
-).map((v, sql) => MapEntry(v, down(v)));
+Map<int, MigrationScript> realUpgradeScripts() =>
+    parseMigrationVersionBlocks(kUpgradeScriptSql)
+        .map((v, sql) => MapEntry(v, up(v)));
+Map<int, MigrationScript> realDowngradeScripts() =>
+    parseMigrationVersionBlocks(kDowngradeScriptSql)
+        .map((v, sql) => MapEntry(v, down(v)));
 
 void main() {
   group('WP1 降级缺边必须 fail-fast / missing downgrade edges throw', () {

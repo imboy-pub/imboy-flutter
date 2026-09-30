@@ -84,8 +84,10 @@ class RestoreResult {
 }
 
 /// 打开数据库的抽象（默认走 sqflite_sqlcipher；测试/非加密平台注入 ffi）。
-typedef DatabaseOpener =
-    Future<sq.Database> Function(String path, String? password);
+typedef DatabaseOpener = Future<sq.Database> Function(
+  String path,
+  String? password,
+);
 
 /// 数据库快照服务。
 class DatabaseSnapshotService {
@@ -330,9 +332,10 @@ class DatabaseSnapshotService {
         final finalProbe = await open(targetPath, password);
         final fQuick = await finalProbe.rawQuery('PRAGMA quick_check');
         final fUv =
-            (await finalProbe.rawQuery(
-                  'PRAGMA user_version',
-                )).first.values.first
+            (await finalProbe.rawQuery('PRAGMA user_version'))
+                    .first
+                    .values
+                    .first
                 as int;
         await finalProbe.close();
         if (fQuick.first.values.first != 'ok') {

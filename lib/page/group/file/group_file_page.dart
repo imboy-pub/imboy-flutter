@@ -25,6 +25,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
 
 import 'group_file_audio_preview_page.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 enum _MediaPreviewType { video, audio }
@@ -588,9 +589,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
                       : AppColors.lightSurface),
             borderRadius: AppRadius.button,
             border: Border.all(
-              color: AppColors.getIosSeparator(
-                brightness,
-              ).withValues(alpha: 0.3),
+              color: AppColors.getIosSeparator(brightness)
+                  .withValues(alpha: 0.3),
               width: 0.33,
             ),
           ),

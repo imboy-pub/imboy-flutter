@@ -292,9 +292,9 @@ Future<List<String>> _loadAnnouncements(String gid) async {
   );
   final body = response.data;
   if (body is! Map) return const [];
-  return _asList(
-    body['payload'],
-  ).map((item) => item is Map ? item.values.join('|') : '$item').toList();
+  return _asList(body['payload'])
+      .map((item) => item is Map ? item.values.join('|') : '$item')
+      .toList();
 }
 
 List<dynamic> _asList(dynamic value) {

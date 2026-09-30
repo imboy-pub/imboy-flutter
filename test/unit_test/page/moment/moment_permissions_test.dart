@@ -20,13 +20,10 @@ void main() {
       expect(canDeleteMoment(moment, 'u_2'), isFalse);
     });
 
-    test(
-      'empty currentUid (not logged in) → false even with matching empty author',
-      () {
-        final moment = {'author_uid': ''};
-        expect(canDeleteMoment(moment, ''), isFalse);
-      },
-    );
+    test('empty currentUid (not logged in) → false even with matching empty author', () {
+      final moment = {'author_uid': ''};
+      expect(canDeleteMoment(moment, ''), isFalse);
+    });
 
     test('missing author_uid → false', () {
       expect(canDeleteMoment(const {}, 'u_1'), isFalse);

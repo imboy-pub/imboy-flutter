@@ -156,9 +156,8 @@ class _GroupTagPageState extends ConsumerState<GroupTagPage> {
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         border: Border(
           bottom: BorderSide(
-            color: AppColors.getIosSeparator(
-              Theme.of(context).brightness,
-            ).withValues(alpha: 0.3),
+            color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                .withValues(alpha: 0.3),
             width: 0.33,
           ),
         ),

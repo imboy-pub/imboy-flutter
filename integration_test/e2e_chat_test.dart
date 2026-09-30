@@ -6,8 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'flows/app_launcher.dart';
+
 import 'package:integration_test/integration_test.dart';
+
 import 'flows/test_utils.dart';
 
 const _expectedUid = String.fromEnvironment(

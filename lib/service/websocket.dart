@@ -588,9 +588,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         case FrameType.heartbeatPing:
           // 服务端主动 ping，回 pong
           if (frame.payload.length >= 2) {
-            final seq = ByteData.sublistView(
-              frame.payload,
-            ).getUint16(0, Endian.big);
+            final seq = ByteData.sublistView(frame.payload)
+                .getUint16(0, Endian.big);
             try {
               _channel?.sink.add(ImboyFrame.heartbeatPong(seq));
             } catch (e) {
@@ -604,26 +603,23 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           // CLIENT_ACK_CONFIRM（MSG_S2C 帧）。此处仅日志，禁止拿数字串去
           // ackConfirmed——数字串与 Xid 永不相等，且会误清机制C。
           if (frame.payload.length >= 8) {
-            final msgId = ByteData.sublistView(
-              frame.payload,
-            ).getUint64(0, Endian.big);
+            final msgId = ByteData.sublistView(frame.payload)
+                .getUint64(0, Endian.big);
             iPrint('⚠️ [WS] v2 frame ACK(0x03) 收到意外帧, msgId=$msgId, 忽略');
           }
           break;
         case FrameType.nack:
           if (frame.payload.length >= 8) {
-            final msgId = ByteData.sublistView(
-              frame.payload,
-            ).getUint64(0, Endian.big);
+            final msgId = ByteData.sublistView(frame.payload)
+                .getUint64(0, Endian.big);
             iPrint('⚠️ [WS] v2 frame NACK: msgId=$msgId');
           }
           break;
         case FrameType.msgRead:
           // 已读状态帧
           if (frame.payload.length >= 8) {
-            final msgId = ByteData.sublistView(
-              frame.payload,
-            ).getUint64(0, Endian.big);
+            final msgId = ByteData.sublistView(frame.payload)
+                .getUint64(0, Endian.big);
             iPrint('📖 [WS] v2 frame msgRead: msgId=$msgId');
             // 通过事件总线发布已读状态更新
             AppEventBus.fire(
@@ -655,9 +651,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           break;
         case FrameType.msgRecall:
           if (frame.payload.length >= 8) {
-            final msgId = ByteData.sublistView(
-              frame.payload,
-            ).getUint64(0, Endian.big);
+            final msgId = ByteData.sublistView(frame.payload)
+                .getUint64(0, Endian.big);
             iPrint('↩️ [WS] v2 frame msgRecall: msgId=$msgId');
             AppEventBus.fire(
               WebSocketMessageReceivedEvent(

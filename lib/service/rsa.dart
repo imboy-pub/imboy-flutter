@@ -287,9 +287,10 @@ class RSAService {
     bool checkHeader = true,
   }) {
     try {
-      var lines = LineSplitter.split(
-        pem,
-      ).map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+      var lines = LineSplitter.split(pem)
+          .map((line) => line.trim())
+          .where((line) => line.isNotEmpty)
+          .toList();
 
       String base64Data;
       if (checkHeader) {

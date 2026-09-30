@@ -273,24 +273,18 @@ void main() {
       },
     );
 
-    test(
-      'First-time hold ≥ 950ms — must cover slogan fade-in end (delay 550ms + dur 400ms)',
-      () {
-        // slogan animation ends at 550 + 400 = 950ms. Cutting earlier = animation
-        // janks mid-flight. Reduce Motion still reaches end state instantly,
-        // so the floor is for the default-animation path.
-        expect(kSplashMinHoldNew.inMilliseconds, greaterThanOrEqualTo(950));
-      },
-    );
+    test('First-time hold ≥ 950ms — must cover slogan fade-in end (delay 550ms + dur 400ms)', () {
+      // slogan animation ends at 550 + 400 = 950ms. Cutting earlier = animation
+      // janks mid-flight. Reduce Motion still reaches end state instantly,
+      // so the floor is for the default-animation path.
+      expect(kSplashMinHoldNew.inMilliseconds, greaterThanOrEqualTo(950));
+    });
 
-    test(
-      'First-time hold ≤ 2000ms — guard against accidental long-hold regressions',
-      () {
-        // Anything beyond 2s feels like a frozen launch — protect against
-        // a future "let's bump it for breathing room" misstep.
-        expect(kSplashMinHoldNew.inMilliseconds, lessThanOrEqualTo(2000));
-      },
-    );
+    test('First-time hold ≤ 2000ms — guard against accidental long-hold regressions', () {
+      // Anything beyond 2s feels like a frozen launch — protect against
+      // a future "let's bump it for breathing room" misstep.
+      expect(kSplashMinHoldNew.inMilliseconds, lessThanOrEqualTo(2000));
+    });
   });
 
   // ── P0-2 accessibility: Semantics scoping + Reduce Motion ────────────

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/material.dart';
@@ -143,9 +144,8 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                     Text(
                       widget.model.showType,
                       style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -174,9 +174,8 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                 style: TextStyle(
                   color: widget.model.online
                       ? AppColors.onlineIndicator
-                      : Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      : Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.6),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -250,9 +249,8 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
               Icon(
                 icon,
                 size: 20,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(context).colorScheme.onSurface
+                    .withValues(alpha: 0.7),
               ),
               AppSpacing.horizontalMedium,
               Expanded(
@@ -262,9 +260,8 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                     Text(
                       title,
                       style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                     AppSpacing.verticalTiny,
@@ -288,9 +285,8 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
                 AppSpacing.horizontalSmall,
                 Icon(
                   CupertinoIcons.chevron_right,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.4),
+                  color: Theme.of(context).colorScheme.onSurface
+                      .withValues(alpha: 0.4),
                   size: 20,
                 ),
               ],
@@ -335,9 +331,8 @@ class _UserDeviceDetailPageState extends ConsumerState<UserDeviceDetailPage> {
               t.common.lastActiveTips,
               style: TextStyle(
                 color: isDark
-                    ? Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.8)
+                    ? Theme.of(context).colorScheme.onSurface
+                          .withValues(alpha: 0.8)
                     : AppColors.infoBlue,
                 height: 1.4,
               ),

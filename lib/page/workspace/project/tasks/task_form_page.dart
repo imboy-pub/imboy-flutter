@@ -255,9 +255,8 @@ class _TaskFormPageState extends ConsumerState<TaskFormPage> {
           Text(
             workspaceErrorMessage(candidatesAsync.error!),
             key: const ValueKey('task-assignee-candidates-error'),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.error,
-            ),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: Theme.of(context).colorScheme.error),
           ),
           AppSpacing.verticalTiny,
           OutlinedButton(

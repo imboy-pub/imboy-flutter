@@ -318,9 +318,8 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
             _formatTime(mention['created_at']),
             style: context.textStyle(
               FontSizeType.small,
-              color: AppColors.getTextColor(
-                Theme.of(context).brightness,
-              ).withValues(alpha: 0.5),
+              color: AppColors.getTextColor(Theme.of(context).brightness)
+                  .withValues(alpha: 0.5),
             ),
           ),
         ),
@@ -329,9 +328,8 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
             padding: const EdgeInsets.only(left: 76),
             child: Divider(
               height: 0.33,
-              color: AppColors.getIosSeparator(
-                Theme.of(context).brightness,
-              ).withValues(alpha: 0.4),
+              color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                  .withValues(alpha: 0.4),
             ),
           ),
       ],

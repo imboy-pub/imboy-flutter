@@ -84,9 +84,8 @@ class E2EERecoveryBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final textStyle = Theme.of(
-      context,
-    ).textTheme.bodySmall?.copyWith(color: scheme.onSecondaryContainer);
+    final textStyle = Theme.of(context).textTheme.bodySmall
+        ?.copyWith(color: scheme.onSecondaryContainer);
     return Material(
       color: scheme.secondaryContainer,
       child: GestureDetector(

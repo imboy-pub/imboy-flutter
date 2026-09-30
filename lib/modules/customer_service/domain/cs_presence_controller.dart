@@ -17,6 +17,7 @@ class CsPresenceController {
   CsPresenceController({
     required CsApi csApi,
     required this.orgId,
+    this.workspaceId = '',
     this.interval = const Duration(seconds: 30),
     this.onResync,
     this.onPresenceChanged,
@@ -24,6 +25,11 @@ class CsPresenceController {
 
   final CsApi _api;
   final String orgId;
+
+  /// CSB-02R workspace 门必填键（heartbeat/presence PUT/GET 均缺省 422）。
+  /// 工作台构造时传当前 Org 的权威 workspace（与 SSE 同源）。
+  final String workspaceId;
+
   final Duration interval;
 
   /// resume 重同步钩子（CS-RUNTIME-04）：页面层回前台后重拉权威数据
@@ -85,11 +91,14 @@ class CsPresenceController {
 
   /// 单次心跳：仅前台发送；失败置 lastPresence=null（诚实降级——本地不
   /// 造状态，断网时不得显示 online）。并发保护：in-flight 心跳不重入。
+  /// workspaceId 为空时不发（CSB-02R 必填，发了必 422——省一次注定失败
+  /// 的请求，状态保持 null 诚实降级）。
   Future<void> beat() async {
     if (!foreground || _beating) return;
+    if (workspaceId.isEmpty) return;
     _beating = true;
     try {
-      lastPresence = await _api.seatHeartbeat(orgId);
+      lastPresence = await _api.seatHeartbeat(orgId, workspaceId: workspaceId);
     } on Object {
       // on Object（非仅 Exception）：API 面已把形状异常折成 CsApiException，
       // 这里再兜住任何剩余错误——心跳链路永不向 UI 抛。
@@ -104,7 +113,11 @@ class CsPresenceController {
   /// 于自动 online 的派生优先级在服务端（cs_presence:derive），客户端只
   /// 回填服务端事实。
   Future<void> setManualStatus(String? manualStatus) async {
-    lastPresence = await _api.setSeatPresence(orgId, manualStatus);
+    lastPresence = await _api.setSeatPresence(
+      orgId,
+      manualStatus,
+      workspaceId: workspaceId,
+    );
     onPresenceChanged?.call();
   }
 }

@@ -187,9 +187,8 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
         // 分类分段控件（iOS 原生 SlidingSegmentedControl，替代 ChoiceChip）
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.regular,
-            ).copyWith(bottom: AppSpacing.medium),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular)
+                .copyWith(bottom: AppSpacing.medium),
             child: SizedBox(
               width: double.infinity,
               child: CupertinoSlidingSegmentedControl<String>(
@@ -288,9 +287,8 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                         padding: const EdgeInsets.only(left: 76),
                         child: Divider(
                           height: 0.33,
-                          color: AppColors.getIosSeparator(
-                            brightness,
-                          ).withValues(alpha: 0.3),
+                          color: AppColors.getIosSeparator(brightness)
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                   ],

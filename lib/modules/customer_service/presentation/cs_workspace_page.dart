@@ -158,11 +158,13 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
   }
 
   /// 启动 presence 心跳（resume 重同步 = 三视图权威刷新，与 SSE 事件
-  /// 同一信号通道；presence 变化即重建状态条）。
+  /// 同一信号通道；presence 变化即重建状态条）。workspaceId 与 SSE 同源
+  /// （CSB-02R workspace 门必填——缺失时控制器诚实不发）。
   void _startPresence(String orgId) {
     final controller = CsPresenceController(
       csApi: _api,
       orgId: orgId,
+      workspaceId: _selectedWorkspaceId,
       onResync: () async {
         if (!mounted || _refreshSignal.isClosed) return;
         _refreshSignal.add(null);

@@ -334,8 +334,7 @@ PRAGMA user_version = 23;
 -- ============================================================
 
 """,
-    sql:
-        r"""ALTER TABLE contact ADD COLUMN account_type INTEGER NOT NULL DEFAULT 0;
+    sql: r"""ALTER TABLE contact ADD COLUMN account_type INTEGER NOT NULL DEFAULT 0;
 
 -- ============================================================
 -- 更新版本号

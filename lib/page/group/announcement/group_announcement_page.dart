@@ -132,9 +132,8 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
         borderRadius: AppRadius.borderRadiusRegular,
         border: isDark
             ? Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.15),
+                color: Theme.of(context).colorScheme.outline
+                    .withValues(alpha: 0.15),
                 width: 0.5,
               )
             : null,
@@ -183,9 +182,8 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                       notifier.formatTime(announcement.createdAt),
                       style: context.textStyle(
                         FontSizeType.small,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        color: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.5),
                       ),
                     ),
                   ],
@@ -198,9 +196,8 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     icon: Icon(
                       CupertinoIcons.delete,
                       size: 20,
-                      color: AppColors.getIosRed(
-                        Theme.of(context).brightness,
-                      ).withValues(alpha: 0.7),
+                      color: AppColors.getIosRed(Theme.of(context).brightness)
+                          .withValues(alpha: 0.7),
                     ),
                     onPressed: () {
                       _showDeleteDialog(context, announcement, notifier);
@@ -215,9 +212,8 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
               style: context
                   .textStyle(
                     FontSizeType.subheadline,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.9),
+                    color: Theme.of(context).colorScheme.onSurface
+                        .withValues(alpha: 0.9),
                   )
                   .copyWith(height: 1.5),
             ),
@@ -229,9 +225,8 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.5),
                   borderRadius: AppRadius.borderRadiusSmall,
                 ),
                 child: Row(
@@ -240,9 +235,8 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                     Icon(
                       CupertinoIcons.bell_slash,
                       size: 14,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: Theme.of(context).colorScheme.onSurface
+                          .withValues(alpha: 0.6),
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -251,9 +245,8 @@ class _GroupAnnouncementPageState extends ConsumerState<GroupAnnouncementPage> {
                       ),
                       style: context.textStyle(
                         FontSizeType.small,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: Theme.of(context).colorScheme.onSurface
+                            .withValues(alpha: 0.6),
                       ),
                     ),
                   ],

@@ -115,18 +115,15 @@ void main() {
       expect(info.hasUpdate, isFalse);
     });
 
-    test(
-      'updatable=false 时 hasUpdate=false / hasUpdate false when updatable=false',
-      () {
-        final info = AppVersionInfo.fromJson({
-          'vsn': '2.0.0',
-          'upgrade_type': 'recommend',
-          'updatable': false,
-        });
+    test('updatable=false 时 hasUpdate=false / hasUpdate false when updatable=false', () {
+      final info = AppVersionInfo.fromJson({
+        'vsn': '2.0.0',
+        'upgrade_type': 'recommend',
+        'updatable': false,
+      });
 
-        expect(info.hasUpdate, isFalse);
-      },
-    );
+      expect(info.hasUpdate, isFalse);
+    });
 
     test('解析结构化 changelog / parses structured changelog', () {
       final info = AppVersionInfo.fromJson({

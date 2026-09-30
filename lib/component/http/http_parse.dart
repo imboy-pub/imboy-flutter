@@ -9,6 +9,7 @@ import 'package:imboy/config/error_code.dart';
 import 'http_exceptions.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 
 IMBoyHttpResponse handleResponse(

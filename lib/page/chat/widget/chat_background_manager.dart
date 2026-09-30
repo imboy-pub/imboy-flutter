@@ -174,12 +174,10 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(
-                0xFF64B5F6,
-              ).withValues(alpha: currentState.backgroundOpacity),
-              const Color(
-                0xFF42A5F5,
-              ).withValues(alpha: currentState.backgroundOpacity),
+              const Color(0xFF64B5F6)
+                  .withValues(alpha: currentState.backgroundOpacity),
+              const Color(0xFF42A5F5)
+                  .withValues(alpha: currentState.backgroundOpacity),
             ],
           ),
         );
@@ -190,12 +188,10 @@ class ChatBackgroundManager extends Notifier<ChatBackgroundState> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(
-                0xFFBA68C8,
-              ).withValues(alpha: currentState.backgroundOpacity),
-              const Color(
-                0xFFAB47BC,
-              ).withValues(alpha: currentState.backgroundOpacity),
+              const Color(0xFFBA68C8)
+                  .withValues(alpha: currentState.backgroundOpacity),
+              const Color(0xFFAB47BC)
+                  .withValues(alpha: currentState.backgroundOpacity),
             ],
           ),
         );

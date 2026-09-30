@@ -532,15 +532,14 @@ class MessageOfflineService {
 
       final ordinaryAckIds = ordinaryMessages.isEmpty
           ? <String>[]
-          : await MessageRepo(
-                  tableName: MessageRepo.getTableName(type),
-                ).batchInsertOfflineMessages(
-                  ordinaryMessages,
-                  onS2CMessage: (msgData) async {
-                    // 处理 S2C 消息
-                    await MessageS2CService.switchS2C(msgData);
-                  },
-                ) ??
+          : await MessageRepo(tableName: MessageRepo.getTableName(type))
+                    .batchInsertOfflineMessages(
+                      ordinaryMessages,
+                      onS2CMessage: (msgData) async {
+                        // 处理 S2C 消息
+                        await MessageS2CService.switchS2C(msgData);
+                      },
+                    ) ??
                 <String>[];
       final msgIds = {...encryptedAckIds, ...ordinaryAckIds}.toList();
 

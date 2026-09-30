@@ -21,8 +21,7 @@ class GroupMemberRepo {
   static String role = 'role'; // 角色: 1 成员  2 嘉宾  3  管理员 4 群主
   static String isJoin =
       'is_join'; // 是否加入的群： 1 是 0 否 （0 是群创建者或者拥有者 1 是 成员 嘉宾 管理员等）
-  static String joinMode =
-      'join_mode'; // 进群方式 :  invite_[uid]_[nickname] <a>leeyi</a>邀请进群  scan_qr_code 扫描二维码加入 face2face_join 面对面建群
+  static String joinMode = 'join_mode'; // 进群方式 :  invite_[uid]_[nickname] <a>leeyi</a>邀请进群  scan_qr_code 扫描二维码加入 face2face_join 面对面建群
   static String status = 'status'; //
   static String updatedAt = 'updated_at'; //
   static String createdAt = 'created_at'; //

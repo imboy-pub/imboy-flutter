@@ -29,29 +29,23 @@ void main() {
       expect(r, 'olm');
     });
 
-    test(
-      'cap_negotiate_fallback_chain: 我{olm,megolm} 对端{megolm,rsa-oaep} → megolm',
-      () {
-        final r = CapabilityNegotiator.negotiateOneDevice(
-          {'olm', 'megolm'},
-          _peer('d1', ['megolm', 'rsa-oaep']),
-          verifySignature: _sigOk,
-        );
-        expect(r, 'megolm'); // 不跨级跳 rsa-oaep
-      },
-    );
+    test('cap_negotiate_fallback_chain: 我{olm,megolm} 对端{megolm,rsa-oaep} → megolm', () {
+      final r = CapabilityNegotiator.negotiateOneDevice(
+        {'olm', 'megolm'},
+        _peer('d1', ['megolm', 'rsa-oaep']),
+        verifySignature: _sigOk,
+      );
+      expect(r, 'megolm'); // 不跨级跳 rsa-oaep
+    });
 
-    test(
-      'cap_negotiate_sender_limited（有交集）: 我{rsa-oaep} 对端{megolm,rsa-oaep} → rsa-oaep',
-      () {
-        final r = CapabilityNegotiator.negotiateOneDevice(
-          {'rsa-oaep'},
-          _peer('d1', ['megolm', 'rsa-oaep']),
-          verifySignature: _sigOk,
-        );
-        expect(r, 'rsa-oaep');
-      },
-    );
+    test('cap_negotiate_sender_limited（有交集）: 我{rsa-oaep} 对端{megolm,rsa-oaep} → rsa-oaep', () {
+      final r = CapabilityNegotiator.negotiateOneDevice(
+        {'rsa-oaep'},
+        _peer('d1', ['megolm', 'rsa-oaep']),
+        verifySignature: _sigOk,
+      );
+      expect(r, 'rsa-oaep');
+    });
 
     test('cap_negotiate_no_common: 我{olm,megolm} 对端{rsa-oaep} → null（不降级）', () {
       final r = CapabilityNegotiator.negotiateOneDevice(
@@ -182,68 +176,59 @@ void main() {
       },
     );
 
-    test(
-      'negotiateWithManifest returns null (noCommonSuite) when no intersection exists',
-      () {
-        final m = buildSignedManifest('d1', {'rsa-oaep'});
-        final suite = CapabilityNegotiator.negotiateWithManifest({
+    test('negotiateWithManifest returns null (noCommonSuite) when no intersection exists', () {
+      final m = buildSignedManifest('d1', {'rsa-oaep'});
+      final suite = CapabilityNegotiator.negotiateWithManifest({
+        'olm',
+        'megolm',
+      }, m);
+      expect(suite, isNull);
+    });
+
+    test('negotiateWithManifest throws CapVerificationFailed on tampered manifest capabilities', () {
+      final m = buildSignedManifest('d1', {'olm', 'megolm'});
+      // Tamper capabilities in the signed manifest
+      final tampered = m.copyWith(capabilities: {'olm'});
+
+      expect(
+        () => CapabilityNegotiator.negotiateWithManifest({
           'olm',
           'megolm',
-        }, m);
-        expect(suite, isNull);
-      },
-    );
+        }, tampered),
+        throwsA(isA<CapVerificationFailed>()),
+      );
+    });
 
-    test(
-      'negotiateWithManifest throws CapVerificationFailed on tampered manifest capabilities',
-      () {
-        final m = buildSignedManifest('d1', {'olm', 'megolm'});
-        // Tamper capabilities in the signed manifest
-        final tampered = m.copyWith(capabilities: {'olm'});
+    test('negotiatePeerWithManifests negotiates mixed results and filters out tampered device', () {
+      final mGood = buildSignedManifest('GOOD', {'olm'});
+      final mBad = buildSignedManifest('BAD', {'olm'});
+      final mNoCommon = buildSignedManifest('NO_COMMON', {'rsa-oaep'});
 
-        expect(
-          () => CapabilityNegotiator.negotiateWithManifest({
-            'olm',
-            'megolm',
-          }, tampered),
-          throwsA(isA<CapVerificationFailed>()),
-        );
-      },
-    );
+      // Tamper the bad manifest
+      final mBadTampered = mBad.copyWith(deviceId: 'BAD-FORGED');
 
-    test(
-      'negotiatePeerWithManifests negotiates mixed results and filters out tampered device',
-      () {
-        final mGood = buildSignedManifest('GOOD', {'olm'});
-        final mBad = buildSignedManifest('BAD', {'olm'});
-        final mNoCommon = buildSignedManifest('NO_COMMON', {'rsa-oaep'});
+      final plan = CapabilityNegotiator.negotiatePeerWithManifests(
+        {'olm', 'megolm'},
+        [mGood, mBadTampered, mNoCommon],
+      );
 
-        // Tamper the bad manifest
-        final mBadTampered = mBad.copyWith(deviceId: 'BAD-FORGED');
+      // Good device: ok + olm
+      expect(plan['GOOD']!.outcome, equals(NegotiationOutcome.ok));
+      expect(plan['GOOD']!.suite, equals('olm'));
 
-        final plan = CapabilityNegotiator.negotiatePeerWithManifests(
-          {'olm', 'megolm'},
-          [mGood, mBadTampered, mNoCommon],
-        );
+      // Tampered device: unsupported
+      expect(
+        plan['BAD-FORGED']!.outcome,
+        equals(NegotiationOutcome.unsupported),
+      );
+      expect(plan['BAD-FORGED']!.suite, isNull);
 
-        // Good device: ok + olm
-        expect(plan['GOOD']!.outcome, equals(NegotiationOutcome.ok));
-        expect(plan['GOOD']!.suite, equals('olm'));
-
-        // Tampered device: unsupported
-        expect(
-          plan['BAD-FORGED']!.outcome,
-          equals(NegotiationOutcome.unsupported),
-        );
-        expect(plan['BAD-FORGED']!.suite, isNull);
-
-        // No common device: noCommonSuite
-        expect(
-          plan['NO_COMMON']!.outcome,
-          equals(NegotiationOutcome.noCommonSuite),
-        );
-        expect(plan['NO_COMMON']!.suite, isNull);
-      },
-    );
+      // No common device: noCommonSuite
+      expect(
+        plan['NO_COMMON']!.outcome,
+        equals(NegotiationOutcome.noCommonSuite),
+      );
+      expect(plan['NO_COMMON']!.suite, isNull);
+    });
   });
 }

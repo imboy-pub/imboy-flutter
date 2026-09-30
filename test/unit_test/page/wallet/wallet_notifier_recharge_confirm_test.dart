@@ -36,12 +36,10 @@ void main() {
   );
 
   test('RC-1 confirm 返回已支付 → recharge 成功并刷新余额', () async {
-    when(
-      () => api.createRechargeOrder(100, paymentMethod: 'mock'),
-    ).thenAnswer((_) async => order());
-    when(
-      () => api.payRecharge('RCH_T1'),
-    ).thenAnswer((_) async => <String, dynamic>{});
+    when(() => api.createRechargeOrder(100, paymentMethod: 'mock'))
+        .thenAnswer((_) async => order());
+    when(() => api.payRecharge('RCH_T1'))
+        .thenAnswer((_) async => <String, dynamic>{});
     when(() => api.confirmRechargeOrder('RCH_T1')).thenAnswer(
       (_) async => {
         'order_no': 'RCH_T1',
@@ -53,9 +51,8 @@ void main() {
       (_) async =>
           const WalletBalance(balance: 100, balanceYuan: 1.0, frozen: 0),
     );
-    when(
-      () => api.getTransactions(page: 1, size: 20),
-    ).thenAnswer((_) async => null);
+    when(() => api.getTransactions(page: 1, size: 20))
+        .thenAnswer((_) async => null);
 
     final notifier = notifierWith(api);
     final ok = await notifier.recharge(100, paymentMethod: 'mock');
@@ -65,12 +62,10 @@ void main() {
   });
 
   test('RC-2 confirm 返回终态（已退款）→ recharge 失败且停止轮询', () async {
-    when(
-      () => api.createRechargeOrder(100, paymentMethod: 'mock'),
-    ).thenAnswer((_) async => order());
-    when(
-      () => api.payRecharge('RCH_T1'),
-    ).thenAnswer((_) async => <String, dynamic>{});
+    when(() => api.createRechargeOrder(100, paymentMethod: 'mock'))
+        .thenAnswer((_) async => order());
+    when(() => api.payRecharge('RCH_T1'))
+        .thenAnswer((_) async => <String, dynamic>{});
     when(() => api.confirmRechargeOrder('RCH_T1')).thenAnswer(
       (_) async => {
         'order_no': 'RCH_T1',
@@ -86,12 +81,10 @@ void main() {
   });
 
   test('RC-3 confirm 持续待支付 → 轮询到上限后失败', () async {
-    when(
-      () => api.createRechargeOrder(100, paymentMethod: 'mock'),
-    ).thenAnswer((_) async => order());
-    when(
-      () => api.payRecharge('RCH_T1'),
-    ).thenAnswer((_) async => <String, dynamic>{});
+    when(() => api.createRechargeOrder(100, paymentMethod: 'mock'))
+        .thenAnswer((_) async => order());
+    when(() => api.payRecharge('RCH_T1'))
+        .thenAnswer((_) async => <String, dynamic>{});
     when(() => api.confirmRechargeOrder('RCH_T1')).thenAnswer(
       (_) async => {
         'order_no': 'RCH_T1',

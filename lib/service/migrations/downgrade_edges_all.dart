@@ -30,8 +30,7 @@ const List<MigrationEdge> kDowngradeEdgesAll = [
 -- ============================================================
 
 """,
-    sql:
-        r"""ALTER TABLE "group" ADD COLUMN user_id_sum INTEGER NOT NULL DEFAULT 0;
+    sql: r"""ALTER TABLE "group" ADD COLUMN user_id_sum INTEGER NOT NULL DEFAULT 0;
 
 -- ============================================================
 -- 更新版本号

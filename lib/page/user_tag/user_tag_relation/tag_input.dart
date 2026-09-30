@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/cupertino.dart';
@@ -294,9 +295,8 @@ class _TagInputState extends State<TagInput> {
         decoration: InputDecoration(
           hintText: widget.hintText ?? t.contact.tagInputHint,
           hintStyle: TextStyle(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.onSurface
+                .withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: AppSpacing.allRegular,

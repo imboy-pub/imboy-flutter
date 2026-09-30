@@ -281,9 +281,9 @@ void main() {
         (_peerDid, peerInbound),
         (peerDid2, peerInbound2),
       ]) {
-        final entry =
-            (keys.singleWhere((item) => (item as Map)['did'] == did) as Map)
-                .cast<String, dynamic>();
+        final entry = (keys.singleWhere(
+          (item) => (item as Map)['did'] == did,
+        ) as Map).cast<String, dynamic>();
         final olm = (entry['olm'] as Map).cast<String, dynamic>();
         expect(olm['v'], 'OLM.V1');
         expect(olm['sid'], _senderDid);

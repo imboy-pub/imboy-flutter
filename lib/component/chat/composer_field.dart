@@ -202,9 +202,8 @@ class ComposerFieldState extends State<ComposerField> {
     // 聚焦态：品牌蓝高亮描边(1.5)；失焦态：近乎无边框（凹陷底色已界定边界）。
     final borderColor = isFocused
         ? AppColors.primary
-        : AppColors.getIosSeparator(
-            Theme.of(context).brightness,
-          ).withValues(alpha: 0.15);
+        : AppColors.getIosSeparator(Theme.of(context).brightness)
+              .withValues(alpha: 0.15);
     final borderWidth = isFocused ? 1.5 : 0.5;
 
     return Column(

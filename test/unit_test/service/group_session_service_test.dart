@@ -974,47 +974,44 @@ void main() {
   });
 
   group('Strict Olm-Wrap Fail-Closed (HOTFIX-03)', () {
-    test(
-      'strictE2ee 模式：senderDeviceId 为空 → 抛 E2eeSecurityException(sender_device_id_missing)',
-      () async {
+    test('strictE2ee 模式：senderDeviceId 为空 → 抛 E2eeSecurityException(sender_device_id_missing)', () async {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.strictE2ee,
+        initialized: true,
+      );
+      addTearDown(() {
         EncryptionModeService.debugSet(
-          mode: EncryptionMode.strictE2ee,
-          initialized: true,
+          mode: EncryptionMode.plaintext,
+          initialized: false,
         );
-        addTearDown(() {
-          EncryptionModeService.debugSet(
-            mode: EncryptionMode.plaintext,
-            initialized: false,
+      });
+
+      final payload = GroupSessionService.buildRoomKeyPayload(
+        gid: 'g_strict_fail',
+        sessionId: 'sess_strict',
+        exportedKey: 'AAAA',
+        didToPem: {'did1': 'pem1'},
+        didToKid: {'did1': 'kid1'},
+      );
+
+      expect(
+        () async {
+          await GroupSessionService.attachOlmWraps(
+            keys: payload['keys'] as List,
+            exportedKey: 'AAAA',
+            senderDeviceId: '',
+            olmWrap: (did, key) async => null,
           );
-        });
-
-        final payload = GroupSessionService.buildRoomKeyPayload(
-          gid: 'g_strict_fail',
-          sessionId: 'sess_strict',
-          exportedKey: 'AAAA',
-          didToPem: {'did1': 'pem1'},
-          didToKid: {'did1': 'kid1'},
-        );
-
-        expect(
-          () async {
-            await GroupSessionService.attachOlmWraps(
-              keys: payload['keys'] as List,
-              exportedKey: 'AAAA',
-              senderDeviceId: '',
-              olmWrap: (did, key) async => null,
-            );
-          },
-          throwsA(
-            isA<E2eeSecurityException>().having(
-              (e) => e.reason,
-              'reason',
-              'sender_device_id_missing',
-            ),
+        },
+        throwsA(
+          isA<E2eeSecurityException>().having(
+            (e) => e.reason,
+            'reason',
+            'sender_device_id_missing',
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
 
     test(
       'strictE2ee 模式：olmWrap 异常 → 抛 E2eeSecurityException(olm_wrap_failed)',
@@ -1060,46 +1057,43 @@ void main() {
       },
     );
 
-    test(
-      'strictE2ee 模式：olmWrap 返回 null → 抛 E2eeSecurityException(olm_wrap_failed)',
-      () async {
+    test('strictE2ee 模式：olmWrap 返回 null → 抛 E2eeSecurityException(olm_wrap_failed)', () async {
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.strictE2ee,
+        initialized: true,
+      );
+      addTearDown(() {
         EncryptionModeService.debugSet(
-          mode: EncryptionMode.strictE2ee,
-          initialized: true,
+          mode: EncryptionMode.plaintext,
+          initialized: false,
         );
-        addTearDown(() {
-          EncryptionModeService.debugSet(
-            mode: EncryptionMode.plaintext,
-            initialized: false,
+      });
+
+      final payload = GroupSessionService.buildRoomKeyPayload(
+        gid: 'g_strict_fail3',
+        sessionId: 'sess_strict3',
+        exportedKey: 'AAAA',
+        didToPem: {'did1': 'pem1'},
+        didToKid: {'did1': 'kid1'},
+      );
+
+      expect(
+        () async {
+          await GroupSessionService.attachOlmWraps(
+            keys: payload['keys'] as List,
+            exportedKey: 'AAAA',
+            senderDeviceId: 'my_device_id',
+            olmWrap: (did, key) async => null,
           );
-        });
-
-        final payload = GroupSessionService.buildRoomKeyPayload(
-          gid: 'g_strict_fail3',
-          sessionId: 'sess_strict3',
-          exportedKey: 'AAAA',
-          didToPem: {'did1': 'pem1'},
-          didToKid: {'did1': 'kid1'},
-        );
-
-        expect(
-          () async {
-            await GroupSessionService.attachOlmWraps(
-              keys: payload['keys'] as List,
-              exportedKey: 'AAAA',
-              senderDeviceId: 'my_device_id',
-              olmWrap: (did, key) async => null,
-            );
-          },
-          throwsA(
-            isA<E2eeSecurityException>().having(
-              (e) => e.reason,
-              'reason',
-              startsWith('olm_wrap_failed'),
-            ),
+        },
+        throwsA(
+          isA<E2eeSecurityException>().having(
+            (e) => e.reason,
+            'reason',
+            startsWith('olm_wrap_failed'),
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   });
 }

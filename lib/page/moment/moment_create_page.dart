@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -857,9 +859,8 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         borderRadius: AppRadius.borderRadiusRegular,
         border: Border.all(
-          color: AppColors.getIosSeparator(
-            Theme.of(context).brightness,
-          ).withValues(alpha: 0.3),
+          color: AppColors.getIosSeparator(Theme.of(context).brightness)
+              .withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),

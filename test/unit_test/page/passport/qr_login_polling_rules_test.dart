@@ -57,17 +57,14 @@ void main() {
       expect(decision, isA<TransitionToScanned>());
     });
 
-    test(
-      'event=QrStatusConfirmed(token="jwt") → RequestCompleteLogin(token="jwt")',
-      () {
-        final decision = derivePollingDecision(
-          sessionToken: 'sess_abc',
-          event: const QrStatusConfirmed('jwt_xyz'),
-        );
-        expect(decision, isA<RequestCompleteLogin>());
-        expect((decision as RequestCompleteLogin).token, 'jwt_xyz');
-      },
-    );
+    test('event=QrStatusConfirmed(token="jwt") → RequestCompleteLogin(token="jwt")', () {
+      final decision = derivePollingDecision(
+        sessionToken: 'sess_abc',
+        event: const QrStatusConfirmed('jwt_xyz'),
+      );
+      expect(decision, isA<RequestCompleteLogin>());
+      expect((decision as RequestCompleteLogin).token, 'jwt_xyz');
+    });
 
     test('event=QrStatusExpired → TransitionToExpired', () {
       final decision = derivePollingDecision(
@@ -191,16 +188,13 @@ void main() {
       expect((decision as ProceedWithToken).token, 'jwt_abc');
     });
 
-    test(
-      'token="   " → ProceedWithToken (不 trim 空白，对齐 web_login_page:214 isEmpty 语义)',
-      () {
-        // 关键：保留原 Notifier 行为，**不**在纯函数引入 trim() 副作用 —— 否则
-        // 后续若后端契约里出现合法的 base64 全空白头部 token 会被误拒。
-        final decision = deriveCompleteLoginDecision(token: '   ');
-        expect(decision, isA<ProceedWithToken>());
-        expect((decision as ProceedWithToken).token, '   ');
-      },
-    );
+    test('token="   " → ProceedWithToken (不 trim 空白，对齐 web_login_page:214 isEmpty 语义)', () {
+      // 关键：保留原 Notifier 行为，**不**在纯函数引入 trim() 副作用 —— 否则
+      // 后续若后端契约里出现合法的 base64 全空白头部 token 会被误拒。
+      final decision = deriveCompleteLoginDecision(token: '   ');
+      expect(decision, isA<ProceedWithToken>());
+      expect((decision as ProceedWithToken).token, '   ');
+    });
 
     test('token=单字符 "x" → ProceedWithToken("x")', () {
       final decision = deriveCompleteLoginDecision(token: 'x');

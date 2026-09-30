@@ -19,7 +19,9 @@
 library;
 
 import 'package:flutter/foundation.dart';
+
 import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
@@ -182,24 +184,21 @@ void main() {
     );
 
     // 选项 C：较小的 epoch_or_counter 是合法的乱序投递，必须可读。
-    test(
-      'option C: lower sequence number is legitimate out-of-order, must be readable',
-      () async {
-        final mHigh = await buildEnvelope(10, 'sess-3');
-        final mLow = await buildEnvelope(5, 'sess-3');
+    test('option C: lower sequence number is legitimate out-of-order, must be readable', () async {
+      final mHigh = await buildEnvelope(10, 'sess-3');
+      final mLow = await buildEnvelope(5, 'sess-3');
 
-        final r1 = await E2EEService.decryptIncomingPayload(payload: mHigh);
-        expect(r1['_e2ee_failed'], isNot(true));
+      final r1 = await E2EEService.decryptIncomingPayload(payload: mHigh);
+      expect(r1['_e2ee_failed'], isNot(true));
 
-        final r2 = await E2EEService.decryptIncomingPayload(payload: mLow);
-        expect(r2['_e2ee_reason'], isNot(equals('replay_detected')));
-        expect(
-          r2['_e2ee_failed'],
-          isNot(true),
-          reason: '离线批量与 WS 重连乱序是常态，严格单调会误杀真实消息（提案 §1.2 P3）',
-        );
-      },
-    );
+      final r2 = await E2EEService.decryptIncomingPayload(payload: mLow);
+      expect(r2['_e2ee_reason'], isNot(equals('replay_detected')));
+      expect(
+        r2['_e2ee_failed'],
+        isNot(true),
+        reason: '离线批量与 WS 重连乱序是常态，严格单调会误杀真实消息（提案 §1.2 P3）',
+      );
+    });
 
     test(
       'isolation: different session_ids maintain independent sequence counters',

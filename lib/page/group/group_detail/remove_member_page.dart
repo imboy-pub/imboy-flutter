@@ -110,9 +110,9 @@ class RemoveMemberPageState extends ConsumerState<RemoveMemberPage> {
                         border: Border(
                           top: BorderSide(
                             width: 0.5,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
                           ),
                         ),
                       ),

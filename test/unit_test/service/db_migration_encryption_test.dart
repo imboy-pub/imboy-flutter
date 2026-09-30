@@ -110,9 +110,8 @@ void main() {
 
   group('openEncryptedDatabase contract', () {
     test('keeps null password limited to unsupported platform adapter', () {
-      final adapter = File(
-        'lib/service/sqflite_init_stub.dart',
-      ).readAsStringSync();
+      final adapter = File('lib/service/sqflite_init_stub.dart')
+          .readAsStringSync();
       expect(adapter, contains('isEncryptionSupported ? password : null'));
     });
 

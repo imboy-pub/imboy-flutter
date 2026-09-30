@@ -1,8 +1,10 @@
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+
 import 'package:flutter/services.dart';
 
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
@@ -522,9 +524,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                               horizontal: AppSpacing.medium,
                               vertical: AppSpacing.tiny,
                             ),
-                            color: _themeColor(
-                              'primary',
-                            ).withValues(alpha: 0.1),
+                            color: _themeColor('primary')
+                                .withValues(alpha: 0.1),
                             child: Text(
                               replies[index],
                               style: TextStyle(color: _themeColor('primary')),
@@ -1336,9 +1337,8 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                         decoration: BoxDecoration(
                           color: isDark
                               // 暗色下输入框用半透明白高光叠加，提升与底图对比
-                              ? const Color(
-                                  0xFFFFFFFF,
-                                ).withValues(alpha: isFocused ? 0.08 : 0.05)
+                              ? const Color(0xFFFFFFFF)
+                                    .withValues(alpha: isFocused ? 0.08 : 0.05)
                               : AppColors.lightSurface,
                           borderRadius: AppRadius.borderRadiusLarge,
                           border: Border.all(

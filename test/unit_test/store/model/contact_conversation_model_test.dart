@@ -46,46 +46,43 @@ void main() {
 
     // 真实 /api/v1/friend/list 响应切片（2026-04-19 curl 实捕）
     // 关键特征：id 是 int BIGINT；updated_at 缺失；is_from/source/last_seen_at = null
-    test(
-      'accepts real /api/v1/friend/list payload without throw (TSID int, missing updated_at, null fields)',
-      () {
-        final realJson = <String, dynamic>{
-          'account': '60002',
-          'avatar': '',
-          'category_id': 0,
-          'created_at': 1776598885315,
-          'gender': 0,
-          'id': 1000000056,
-          'is_friend': 1,
-          'is_from': null,
-          'last_seen_at': null,
-          'nickname': 'Bob测试',
-          'region': '',
-          'remark': '',
-          'sign': '',
-          'source': null,
-          'status': 'offline',
-          'tag': '',
-          // 注意：无 updated_at 字段
-        };
+    test('accepts real /api/v1/friend/list payload without throw (TSID int, missing updated_at, null fields)', () {
+      final realJson = <String, dynamic>{
+        'account': '60002',
+        'avatar': '',
+        'category_id': 0,
+        'created_at': 1776598885315,
+        'gender': 0,
+        'id': 1000000056,
+        'is_friend': 1,
+        'is_from': null,
+        'last_seen_at': null,
+        'nickname': 'Bob测试',
+        'region': '',
+        'remark': '',
+        'sign': '',
+        'source': null,
+        'status': 'offline',
+        'tag': '',
+        // 注意：无 updated_at 字段
+      };
 
-        final model = ContactModel.fromMap(realJson);
+      final model = ContactModel.fromMap(realJson);
 
-        // 解析产物身份 + 关键字段不为空
-        expect(model.peerId, 1000000056);
-        expect(model.nickname, 'Bob测试');
-        expect(model.account, '60002');
-        expect(model.isFriend, 1);
+      // 解析产物身份 + 关键字段不为空
+      expect(model.peerId, 1000000056);
+      expect(model.nickname, 'Bob测试');
+      expect(model.account, '60002');
+      expect(model.isFriend, 1);
 
-        // null 字段被清洗为默认值，不抛
-        expect(model.isFrom, 0);
-        expect(model.source, '');
-        expect(model.lastSeenAt, isNull);
+      // null 字段被清洗为默认值，不抛
+      expect(model.isFrom, 0);
+      expect(model.source, '');
+      expect(model.lastSeenAt, isNull);
 
-        // updated_at 缺失 → 回退到 created_at（#19 Gap #1 修复）
-        expect(model.updatedAt, 1776598885315);
-      },
-    );
+      // updated_at 缺失 → 回退到 created_at（#19 Gap #1 修复）
+      expect(model.updatedAt, 1776598885315);
+    });
   });
 
   group('ConversationModel.fromJson', () {

@@ -1,4 +1,5 @@
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -526,9 +527,8 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                         padding: const EdgeInsets.only(left: 84),
                         child: Divider(
                           height: 0.5,
-                          color: AppColors.getIosSeparator(
-                            brightness,
-                          ).withValues(alpha: 0.3),
+                          color: AppColors.getIosSeparator(brightness)
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                   ],

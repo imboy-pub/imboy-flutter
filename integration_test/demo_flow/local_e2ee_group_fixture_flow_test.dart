@@ -97,9 +97,10 @@ void main() {
       );
 
       final members = await GroupMemberApi().page(gid: gid, page: 1, size: 20);
-      final memberIds = _asList(
-        members,
-      ).map(_readMemberId).whereType<String>().toSet();
+      final memberIds = _asList(members)
+          .map(_readMemberId)
+          .whereType<String>()
+          .toSet();
       expect(
         memberIds,
         containsAll(<String>[_ownerUid, _memberUid]),

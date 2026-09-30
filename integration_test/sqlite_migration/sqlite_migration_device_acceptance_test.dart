@@ -38,8 +38,11 @@ const _env = 'selftest';
 /// 合成密钥（仅本测试沙箱），不含任何真实凭据。
 const _password = 'wp7-synthetic-key-material'; // gitleaks:allow
 
-typedef VersionChangeStep =
-    Future<void> Function(Database db, int oldVsn, int newVsn);
+typedef VersionChangeStep = Future<void> Function(
+  Database db,
+  int oldVsn,
+  int newVsn,
+);
 
 Directory? _sandbox;
 
@@ -325,9 +328,9 @@ void main() {
     // 数据断言：消息保留；权限列按 dataLoss 声明丢弃；type 兼容列保留
     final msg = await db.query('msg_c2c', where: 'id = ?', whereArgs: [7]);
     expect(msg, isNotEmpty);
-    final cols = (await db.rawQuery(
-      'PRAGMA table_info("channel")',
-    )).map((r) => r['name']).toSet();
+    final cols = (await db.rawQuery('PRAGMA table_info("channel")'))
+        .map((r) => r['name'])
+        .toSet();
     expect(
       cols.contains('visibility'),
       isFalse,

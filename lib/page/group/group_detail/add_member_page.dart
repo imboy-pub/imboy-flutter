@@ -102,9 +102,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
         boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.primary
+                      .withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -143,14 +142,12 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isMember
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.outline.withValues(alpha: 0.2)
+                        ? Theme.of(context).colorScheme.outline
+                              .withValues(alpha: 0.2)
                         : isSelected
                         ? Theme.of(context).colorScheme.primary
-                        : Theme.of(
-                            context,
-                          ).colorScheme.outline.withValues(alpha: 0.3),
+                        : Theme.of(context).colorScheme.outline
+                              .withValues(alpha: 0.3),
                   ),
                   child: Icon(
                     isMember
@@ -160,9 +157,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                         : CupertinoIcons.check_mark_circled,
                     size: 16,
                     color: isMember
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.outline.withValues(alpha: 0.6)
+                        ? Theme.of(context).colorScheme.outline
+                              .withValues(alpha: 0.6)
                         : AppColors.onPrimary,
                   ),
                 ),
@@ -173,13 +169,11 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isMember
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.outline.withValues(alpha: 0.3)
+                          ? Theme.of(context).colorScheme.outline
+                                .withValues(alpha: 0.3)
                           : isSelected
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.5)
+                          ? Theme.of(context).colorScheme.primary
+                                .withValues(alpha: 0.5)
                           : AppColors.transparent,
                       width: 2,
                     ),
@@ -198,9 +192,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                         style: context.textStyle(
                           FontSizeType.large,
                           color: isMember
-                              ? Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.5)
+                              ? Theme.of(context).colorScheme.onSurface
+                                    .withValues(alpha: 0.5)
                               : Theme.of(context).colorScheme.onSurface,
                           fontWeight: isSelected
                               ? FontWeight.w600
@@ -312,14 +305,12 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                   ),
                   padding: const EdgeInsets.all(AppSpacing.medium),
                   decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primaryContainer.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.primaryContainer
+                        .withValues(alpha: 0.1),
                     borderRadius: AppRadius.borderRadiusMedium,
                     border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.2),
+                      color: Theme.of(context).colorScheme.primary
+                          .withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
@@ -352,9 +343,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: AppRadius.borderRadiusRegular,
                 border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outline.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.outline
+                      .withValues(alpha: 0.1),
                 ),
               ),
               child: SlidableAutoCloseBehavior(
@@ -396,9 +386,8 @@ class AddMemberPageState extends ConsumerState<AddMemberPage> {
                               indexHintWidth: 64,
                               indexHintHeight: 64,
                               indexHintDecoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withValues(alpha: 0.8),
+                                color: Theme.of(context).colorScheme.primary
+                                    .withValues(alpha: 0.8),
                                 borderRadius: AppRadius.borderRadiusSmall,
                               ),
                               indexHintAlignment: Alignment.centerRight,

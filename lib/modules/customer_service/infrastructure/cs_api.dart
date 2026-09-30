@@ -44,7 +44,17 @@ class _StreamPassthroughTransformer extends HttpTransformer {
   }
 }
 
+/// 附件字节透传 transformer（与 EnterpriseApi 的 bytes passthrough 同款：
+/// 对象字节本体不是 JSON envelope，原样交付）。
+class _CsBytesPassthroughTransformer extends HttpTransformer {
+  @override
+  IMBoyHttpResponse parse(Response<dynamic> response, String uri) {
+    return IMBoyHttpResponse.success(response.data);
+  }
+}
+
 final _streamPassthroughTransformer = _StreamPassthroughTransformer();
+final _csBytesPassthroughTransformer = _CsBytesPassthroughTransformer();
 
 /// queue 键集分页默认每页条数（与服务端 page_view limit 语义一致）。
 const int kCsQueuePageSize = 20;
@@ -674,14 +684,24 @@ class CsApi extends HttpClient {
   /// 服务端 A0 冻结参数表要求必填。并发竞争（他坐席先接 / 状态已推进）返回
   /// 409（[CsApiException.isConflict]），调用方必须刷新真实状态后提示，
   /// 不得做乐观伪成功。
+  ///
+  /// 契约对齐（PR-W2-C01 / V1.2 D5a）：`cs_tenant_handler` 的 workspace 门
+  /// 对 claim（无 optional 声明）要求正文必带 `workspace_id`——旧仅
+  /// `{expected_version}` 形状必 422。[workspaceId] 非空时按冻结契约携带；
+  /// 空时透传发出（对齐 [conversationMessages] 先例：缺失由服务端 422
+  /// fail-closed 裁决，调用方降级路径已就绪），接线归调用方。
   Future<CsClaimResult> claim(
     String orgId,
     String sessionId, {
     required int expectedVersion,
+    String workspaceId = '',
   }) async {
     final resp = await post(
       '/api/v1/cs/organizations/$orgId/sessions/$sessionId/claim',
-      data: {'expected_version': expectedVersion},
+      data: {
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+        'expected_version': expectedVersion,
+      },
     );
     _ensureOk(resp);
     return CsClaimResult.fromJson(sessionId, resp.payload);
@@ -690,17 +710,21 @@ class CsApi extends HttpClient {
   /// transfer：转接给目标业务身份（CAS，§12.5.1 CSM-02）。
   ///
   /// A0 冻结参数表（cs_actions:session_transfer）：`to_identity_id`（tsid）
-  /// 与 `expected_version`（int）均必填。并发/状态竞争 409（[CsApiException.isConflict]），
+  /// 与 `expected_version`（int）均必填；正文另受面级 workspace 门
+  /// （PR-W2-C01：与 claim 同门对齐，缺 `workspace_id` 即 422）。
+  /// 并发/状态竞争 409（[CsApiException.isConflict]），
   /// 调用方刷新真实状态后提示，不做乐观伪成功。
   Future<void> transfer(
     String orgId,
     String sessionId, {
     required String toIdentityId,
     required int expectedVersion,
+    String workspaceId = '',
   }) async {
     final resp = await post(
       '/api/v1/cs/organizations/$orgId/sessions/$sessionId/transfer',
       data: {
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
         'to_identity_id': toIdentityId,
         'expected_version': expectedVersion,
       },
@@ -711,16 +735,19 @@ class CsApi extends HttpClient {
   /// close：结束会话（CAS + 可选 reason，§12.5.1 CSM-02）。
   ///
   /// A0 冻结参数表（cs_actions:session_close）：`expected_version` 必填、
-  /// `reason` 可选（审计文本，调用方先经 [csSanitizeCloseReason] 白名单清洗）。
+  /// `reason` 可选（审计文本，调用方先经 [csSanitizeCloseReason] 白名单清洗）；
+  /// 正文另受面级 workspace 门（PR-W2-C01：与 claim 同门对齐）。
   Future<void> close(
     String orgId,
     String sessionId, {
     required int expectedVersion,
     String? reason,
+    String workspaceId = '',
   }) async {
     final resp = await post(
       '/api/v1/cs/organizations/$orgId/sessions/$sessionId/close',
       data: {
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
         'expected_version': expectedVersion,
         if (reason != null && reason.isNotEmpty) 'reason': reason,
       },
@@ -733,9 +760,21 @@ class CsApi extends HttpClient {
   /// 用途：打开会话页的**权威** identity/conversation 事实源（路由 query
   /// 只是展示种子，不作授权事实）、claim/transfer/close 冲突后刷新真实
   /// 状态、close 后回显 rating 状态（坐席端只展示评分状态，不代访客评分）。
-  Future<CsSessionDetail> sessionDetail(String orgId, String sessionId) async {
+  ///
+  /// 契约（真机 A02 实证 2026-09-30）：session_detail 动作表无
+  /// `workspace => optional` 声明，CSB-02R workspace 门 required——缺
+  /// `workspace_id` 必 422（转接 CAS 拿不到 version 的根因）。空时透传，
+  /// 接线归调用方（与 claim/close 同口径）。
+  Future<CsSessionDetail> sessionDetail(
+    String orgId,
+    String sessionId, {
+    String workspaceId = '',
+  }) async {
     final resp = await get(
       '/api/v1/cs/organizations/$orgId/sessions/$sessionId',
+      queryParameters: <String, dynamic>{
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+      },
     );
     _ensureOk(resp);
     return CsSessionDetail.fromJson(resp.payload);
@@ -822,6 +861,12 @@ class CsApi extends HttpClient {
   /// 同 client_msg_id + asset_ids 重试返回同一 message，其他重放 409）。
   /// 回显按 CS-BE-01 同形状携带 `assets` 投影（解析见
   /// [CsConversationMessage]）。
+  ///
+  /// 契约（PR-W2-C01 同门对齐 / 真机 A02 实证 2026-09-30）：EB-03-A01
+  /// 显式 workspace 归属必填——旧形状缺 `workspace_id` 必 422
+  /// missing_workspace_id（真机发送恒失败的根因）。[workspaceId] 非空时
+  /// 携带；空时透传发出（服务端 422 fail-closed 裁决），接线归调用方
+  /// （[cs_session_flow] send 已 fail-closed + resolveWorkspaceId）。
   Future<CsConversationMessage> sendConversationMessage(
     String orgId,
     String conversationId, {
@@ -829,10 +874,12 @@ class CsApi extends HttpClient {
     required String clientMsgId,
     required String identityId,
     List<String> assetIds = const <String>[],
+    String workspaceId = '',
   }) async {
     final resp = await post(
       '/api/v1/enterprise/organizations/$orgId/conversations/$conversationId/messages',
       data: {
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
         'client_msg_id': clientMsgId,
         'sender_type': EnterpriseSenderType.businessIdentity.wireName,
         'body': body,
@@ -848,16 +895,23 @@ class CsApi extends HttpClient {
   /// delivery ACK（幂等，delivery-only；EB 合同 `recipient_ref` 必填）。
   ///
   /// 成功与否都不触发本地删除/隐藏语义——本地只置投递标记。
+  ///
+  /// 契约（PR-W2-C01 / V1.2 D3d 同门）：本方法打 enterprise 面 ack 动作，
+  /// 正文另受面级 workspace 门（`workspace_id` 必带，缺即 422）。
+  /// [workspaceId] 非空时携带；空时透传发出（[conversationMessages] 先例：
+  /// 缺失由服务端 422 fail-closed 裁决），接线归调用方。
   Future<void> ackDelivery(
     String orgId,
     String conversationId,
     String messageId, {
     required String recipientRef,
     String deviceId = '',
+    String workspaceId = '',
   }) async {
     final resp = await post(
       '/api/v1/enterprise/organizations/$orgId/conversations/$conversationId/messages/$messageId/ack',
       data: {
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
         'recipient_ref': recipientRef,
         if (deviceId.isNotEmpty) 'device_id': deviceId,
       },
@@ -927,8 +981,34 @@ class CsApi extends HttpClient {
 
   /// 坐席附件内容字节（授权 content 代理；图片渲染与文本预览共用入口，
   /// 禁止裸 URL 渲染——EB-D06）。
-  Future<Uint8List> fetchAssetBytes(String orgId, String assetId) {
-    return EnterpriseApi().fetchAssetContentBytes(orgId, assetId);
+  ///
+  /// 契约（PR-W2-C01 / V1.2 D3e）：enterprise content 门要求查询串必带
+  /// `workspace_id`（缺即 422）。[workspaceId] 非空时按冻结契约携带；
+  /// 空时**透传旧形状发出**（不本地拦截）——调用方 [CsSessionFlow] 的
+  /// 既有语义就是把缺失裁决留给服务端（其 workspaceId 注释：解析失败
+  /// 保持空 = 服务端 422 fail-closed，降级路径已就绪）；调用方接线
+  /// workspace 上下文归后续卡。错误保持抛 [EnterpriseApiException]
+  /// （flow 的降级 catch 面向该类型）。
+  Future<Uint8List> fetchAssetBytes(
+    String orgId,
+    String assetId, {
+    String workspaceId = '',
+  }) async {
+    final resp = await get(
+      EnterpriseApi().assetContentPath(orgId, assetId),
+      queryParameters: workspaceId.isEmpty
+          ? null
+          : {'workspace_id': workspaceId},
+      options: Options(responseType: ResponseType.bytes),
+      httpTransformer: _csBytesPassthroughTransformer,
+    );
+    if (!resp.ok) {
+      throw EnterpriseApiException(resp.code, resp.msg);
+    }
+    final payload = resp.payload;
+    if (payload is Uint8List) return payload;
+    if (payload is List<int>) return Uint8List.fromList(payload);
+    throw const EnterpriseApiException(0, 'asset content: unexpected payload');
   }
 
   /// 打开坐席事件 SSE 流（底层；由 [CsSeatEventsStream] 驱动重连/游标/
@@ -986,29 +1066,55 @@ class CsApi extends HttpClient {
   /// POST /api/v1/cs/organizations/:org_id/seats/me/heartbeat。
   /// 返回派生运行态（online/away/busy/offline）。调用时机由
   /// [CsPresenceController] 按前台/后台门控——后台不发，不谎报 online。
-  Future<CsPresence> seatHeartbeat(String orgId) async {
+  ///
+  /// 契约（PR-W2-C01 同门对齐 / 真机 A02 实证 2026-09-30）：动作表
+  /// `seat_presence_heartbeat` 未声明 `workspace => optional`，workspace 门
+  /// required——旧空体形状必 422 missing_workspace_id（坐席恒「状态不可用」
+  /// 的根因）。[workspaceId] 非空时携带；空时透传发出，接线归调用方
+  /// （控制器对空 workspaceId 诚实不发）。
+  Future<CsPresence> seatHeartbeat(
+    String orgId, {
+    String workspaceId = '',
+  }) async {
     final resp = await post(
       '/api/v1/cs/organizations/$orgId/seats/me/heartbeat',
-      data: <String, dynamic>{},
+      data: <String, dynamic>{
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+      },
     );
     _ensureOk(resp);
     return CsPresence.fromJson(_presencePayload(resp));
   }
 
   /// GET /api/v1/cs/organizations/:org_id/seats/me/presence（只读视图，
-  /// 降级展示用；不发心跳）。
-  Future<CsPresence> seatPresence(String orgId) async {
-    final resp = await get('/api/v1/cs/organizations/$orgId/seats/me/presence');
+  /// 降级展示用；不发心跳）。`workspaceId` 同 heartbeat（workspace 门必填）。
+  Future<CsPresence> seatPresence(
+    String orgId, {
+    String workspaceId = '',
+  }) async {
+    final resp = await get(
+      '/api/v1/cs/organizations/$orgId/seats/me/presence',
+      queryParameters: <String, dynamic>{
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+      },
+    );
     _ensureOk(resp);
     return CsPresence.fromJson(_presencePayload(resp));
   }
 
   /// PUT seats/me/presence：manualStatus='away' 设手动离开；null=清除
-  /// （回到心跳/负载自动派生）。
-  Future<CsPresence> setSeatPresence(String orgId, String? manualStatus) async {
+  /// （回到心跳/负载自动派生）。`workspaceId` 同 heartbeat（workspace 门必填）。
+  Future<CsPresence> setSeatPresence(
+    String orgId,
+    String? manualStatus, {
+    String workspaceId = '',
+  }) async {
     final resp = await put(
       '/api/v1/cs/organizations/$orgId/seats/me/presence',
-      data: <String, dynamic>{?manualStatus: manualStatus},
+      data: <String, dynamic>{
+        if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
+        ?manualStatus: manualStatus,
+      },
     );
     _ensureOk(resp);
     return CsPresence.fromJson(_presencePayload(resp));

@@ -34,11 +34,8 @@ void main() {
       expect(canManageAnnouncement(-1), isFalse);
     });
 
-    test(
-      'role=6 (unknown future) cannot manage — whitelist prevents accidental grant',
-      () {
-        expect(canManageAnnouncement(6), isFalse);
-      },
-    );
+    test('role=6 (unknown future) cannot manage — whitelist prevents accidental grant', () {
+      expect(canManageAnnouncement(6), isFalse);
+    });
   });
 }

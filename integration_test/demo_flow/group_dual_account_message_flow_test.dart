@@ -281,9 +281,10 @@ Future<bool> _enterGroupChat(WidgetTester tester, Finder? conversation) async {
     page: 1,
     size: 50,
   );
-  final memberIds = _asList(
-    memberPayload,
-  ).map(_readMemberId).whereType<String>().toSet();
+  final memberIds = _asList(memberPayload)
+      .map(_readMemberId)
+      .whereType<String>()
+      .toSet();
   final requiredMemberIds = _requiredMemberUids
       .split(',')
       .map((uid) => uid.trim())

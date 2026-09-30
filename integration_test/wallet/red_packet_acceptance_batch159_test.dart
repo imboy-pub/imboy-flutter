@@ -97,9 +97,8 @@ Future<bool> _boot(WidgetTester tester) async {
     } else if (isOnWelcomePage(tester)) {
       await leaveWelcomePage(tester);
     } else if (UserRepoLocal.to.currentUid == _uid) {
-      GoRouter.of(
-        tester.element(find.byType(Navigator).first),
-      ).go('/bottom_navigation');
+      GoRouter.of(tester.element(find.byType(Navigator).first))
+          .go('/bottom_navigation');
     }
     if (i == 6) {
       // 卡点诊断：打印此刻可见文本，定位 boot 停在哪一屏（run6/run7 停滞）

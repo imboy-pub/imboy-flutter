@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'user_collect_detail_page.dart';
 import 'user_collect_provider.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -201,14 +203,12 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.getIosBlue(
-                  Theme.of(context).brightness,
-                ).withValues(alpha: 0.1),
+                color: AppColors.getIosBlue(Theme.of(context).brightness)
+                    .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: AppColors.getIosBlue(
-                    Theme.of(context).brightness,
-                  ).withValues(alpha: 0.2),
+                  color: AppColors.getIosBlue(Theme.of(context).brightness)
+                      .withValues(alpha: 0.2),
                   width: 0.5,
                 ),
               ),
@@ -430,9 +430,8 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     return Container(
       width: double.infinity,
       padding: AppSpacing.allMedium,
-      color: AppColors.getIosRed(
-        Theme.of(context).brightness,
-      ).withValues(alpha: 0.1),
+      color: AppColors.getIosRed(Theme.of(context).brightness)
+          .withValues(alpha: 0.1),
       child: Row(
         children: [
           const Icon(

@@ -278,9 +278,8 @@ class ChatArchiveService {
       (byType[shaped['type'] as String] ??= []).add(shaped);
     }
     for (final entry in byType.entries) {
-      await MessageRepo(
-        tableName: MessageRepo.getTableName(entry.key),
-      ).batchInsertOfflineMessages(entry.value, trustedArchive: true);
+      await MessageRepo(tableName: MessageRepo.getTableName(entry.key))
+          .batchInsertOfflineMessages(entry.value, trustedArchive: true);
     }
 
     return (fetched: rows.length, nextSeq: nextSeq, hasMore: hasMore);

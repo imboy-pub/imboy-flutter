@@ -49,7 +49,10 @@ const _aliceUid = '1000000051';
 const _topupFen = 500;
 const _transferFen = 500;
 
-final _client = FlowApiClient(baseUrl: 'http://127.0.0.1:9801', deviceId: 'tr-batch164');
+final _client = FlowApiClient(
+  baseUrl: 'http://127.0.0.1:9801',
+  deviceId: 'tr-batch164',
+);
 
 Future<void> _pump(WidgetTester tester, {int seconds = 3}) async {
   for (var i = 0; i < seconds * 2; i++) {
@@ -78,7 +81,10 @@ Future<void> _topup(int fen) async {
     type: 'account',
   );
   expect(login['code'], 0, reason: '前置登录失败: ${login['msg']}');
-  final topup = await _client.post('/api/v1/wallet/topup', data: {'amount': fen});
+  final topup = await _client.post(
+    '/api/v1/wallet/topup',
+    data: {'amount': fen},
+  );
   expect(topup['code'], 0, reason: '本地 mock topup 失败: ${topup['msg']}');
 }
 
@@ -107,9 +113,8 @@ Future<bool> _boot(WidgetTester tester) async {
     } else if (isOnWelcomePage(tester)) {
       await leaveWelcomePage(tester);
     } else if (UserRepoLocal.to.currentUid == _uid) {
-      GoRouter.of(
-        tester.element(find.byType(Navigator).first),
-      ).go('/bottom_navigation');
+      GoRouter.of(tester.element(find.byType(Navigator).first))
+          .go('/bottom_navigation');
     }
     await _pump(tester, seconds: 6);
   }
@@ -241,7 +246,8 @@ void main() {
     // 发送完成：转账页关闭（AppLoading→sendTransfer→pop 回聊天页）
     final back = await _waitFor(
       tester,
-      () => tester.any(find.byType(TransferSendPage)) == false &&
+      () =>
+          tester.any(find.byType(TransferSendPage)) == false &&
           tester.any(find.byKey(const Key('chat_message_input'))),
       seconds: 15,
     );

@@ -130,9 +130,8 @@ void main() {
     );
     expect(cnt < 100, isTrue, reason: '前置：幂等行须 active<100（当前=$cnt）');
 
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/workspace/create');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/workspace/create');
     expect(
       await _waitFor(
         tester,
@@ -219,9 +218,8 @@ void main() {
     flowLog('[批次155] alice 登录完成 uid=${UserRepoLocal.to.currentUid}');
 
     // 深链 branding 编辑页（非 Owner 深链可达性本身即本行验证点）
-    GoRouter.of(
-      tester.element(find.byType(Navigator).first),
-    ).go('/workspace/$_wsT27/branding');
+    GoRouter.of(tester.element(find.byType(Navigator).first))
+        .go('/workspace/$_wsT27/branding');
     expect(
       await _waitFor(
         tester,

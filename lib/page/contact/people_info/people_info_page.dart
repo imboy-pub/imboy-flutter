@@ -18,6 +18,7 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'people_info_provider.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -173,9 +174,8 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
               child: Container(
                 padding: AppSpacing.allRegular,
                 decoration: BoxDecoration(
-                  color: AppColors.getIosBlue(
-                    brightness,
-                  ).withValues(alpha: 0.1),
+                  color: AppColors.getIosBlue(brightness)
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(

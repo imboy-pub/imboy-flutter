@@ -18,17 +18,15 @@ void main() {
     const ms = 1600000000000; // 2020-09-13T12:26:40Z
 
     test('绝对时间按本地时区渲染，与 DateTime.fromMillisecondsSinceEpoch 一致', () {
-      final expected = DateFormat(
-        'y-MM-dd HH:mm',
-      ).format(DateTime.fromMillisecondsSinceEpoch(ms));
+      final expected = DateFormat('y-MM-dd HH:mm')
+          .format(DateTime.fromMillisecondsSinceEpoch(ms));
 
       expect(DateTimeHelper.lastTimeFmt(ms), expected);
     });
 
     test('非 UTC 时区下不得等于 UTC 字段值（这正是 BUG#84 的表现）', () {
-      final utcRendered = DateFormat(
-        'y-MM-dd HH:mm',
-      ).format(DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true));
+      final utcRendered = DateFormat('y-MM-dd HH:mm')
+          .format(DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true));
       final localRendered = DateTimeHelper.lastTimeFmt(ms);
 
       // CI 若跑在 UTC 机器上两者本就相同，此时该断言无意义，跳过。

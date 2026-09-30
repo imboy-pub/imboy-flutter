@@ -59,9 +59,8 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
                   t.chat.unsupportedMessageType,
                   style: context.textStyle(
                     FontSizeType.small,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurface
+                        .withValues(alpha: 0.6),
                   ),
                 ),
                 if (displayType.isNotEmpty && displayType != 'unknown')
@@ -70,9 +69,8 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
                     style: context
                         .textStyle(
                           FontSizeType.tiny,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withValues(alpha: 0.4),
                         )
                         .copyWith(fontStyle: FontStyle.italic),
                   ),

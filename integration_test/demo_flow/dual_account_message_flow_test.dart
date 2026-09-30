@@ -382,9 +382,8 @@ Future<void> _waitForMarker(WidgetTester tester, String marker) async {
       if (ctx != null) {
         try {
           // ignore: use_build_context_synchronously -- 仅读路由位置做诊断转储
-          route = GoRouter.of(
-            ctx,
-          ).routeInformationProvider.value.uri.toString();
+          route = GoRouter.of(ctx).routeInformationProvider.value.uri
+              .toString();
         } on Object {
           route = 'n/a';
         }

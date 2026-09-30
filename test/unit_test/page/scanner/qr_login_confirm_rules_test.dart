@@ -35,21 +35,18 @@ void main() {
       },
     );
 
-    test(
-      'ok + status="scanned" + device_name → AwaitingConfirm(deviceInfo with name)',
-      () {
-        final result = parseScanResponse(
-          ok: true,
-          code: 0,
-          errorMessage: null,
-          payload: {'status': 'scanned', 'device_name': 'Chrome 120'},
-        );
-        expect(result, isA<QrLoginConfirmAwaitingConfirm>());
-        final s = result as QrLoginConfirmAwaitingConfirm;
-        expect(s.deviceInfo?.deviceName, 'Chrome 120');
-        expect(s.deviceInfo?.platform, isNull);
-      },
-    );
+    test('ok + status="scanned" + device_name → AwaitingConfirm(deviceInfo with name)', () {
+      final result = parseScanResponse(
+        ok: true,
+        code: 0,
+        errorMessage: null,
+        payload: {'status': 'scanned', 'device_name': 'Chrome 120'},
+      );
+      expect(result, isA<QrLoginConfirmAwaitingConfirm>());
+      final s = result as QrLoginConfirmAwaitingConfirm;
+      expect(s.deviceInfo?.deviceName, 'Chrome 120');
+      expect(s.deviceInfo?.platform, isNull);
+    });
 
     test('ok + status="scanned" + 完整 device 字段 → 完整 DeviceInfo', () {
       final result = parseScanResponse(

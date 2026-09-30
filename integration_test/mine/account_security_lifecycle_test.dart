@@ -47,6 +47,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'package:imboy/page/mine/change_password/change_password_provider.dart';
+
 import '../flows/pg_helper.dart';
 import '../flows/test_utils.dart';
 

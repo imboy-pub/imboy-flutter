@@ -15,6 +15,7 @@ import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/websocket_events.dart'
     show WebSocketStatusChangedEvent;
+
 import 'channel_di_provider.dart';
 
 part 'channel_provider.g.dart';

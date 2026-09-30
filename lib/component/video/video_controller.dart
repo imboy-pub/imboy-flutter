@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -309,9 +310,8 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
                     child: Row(
                       children: [
                         IconButton(
-                          tooltip: MaterialLocalizations.of(
-                            context,
-                          ).backButtonTooltip,
+                          tooltip: MaterialLocalizations.of(context)
+                              .backButtonTooltip,
                           icon: const Icon(
                             CupertinoIcons.back,
                             color: AppColors.mediaScrimWhite,
@@ -408,16 +408,16 @@ class _VideoControllerOverlayState extends State<VideoControllerOverlay> {
 
                             ValueListenableBuilder(
                               valueListenable: widget.controller,
-                              builder: (context, VideoPlayerValue value, child) {
-                                return Text(
-                                  _formatDuration(value.duration),
-                                  style: context.textStyle(
-                                    FontSizeType.small,
-                                    color: AppColors
-                                        .overlayWhite70, // on dark video overlay
-                                  ),
-                                );
-                              },
+                              builder:
+                                  (context, VideoPlayerValue value, child) {
+                                    return Text(
+                                      _formatDuration(value.duration),
+                                      style: context.textStyle(
+                                        FontSizeType.small,
+                                        color: AppColors.overlayWhite70, // on dark video overlay
+                                      ),
+                                    );
+                                  },
                             ),
                           ],
                         ),

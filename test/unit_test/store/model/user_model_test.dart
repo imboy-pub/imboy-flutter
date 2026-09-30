@@ -37,16 +37,14 @@ void main() {
 
     test('preserves explicit online visibility values across encodings', () {
       expect(
-        UserSettingModel.fromJson({
-          'show_online_status': true,
-        }).showOnlineStatus,
+        UserSettingModel.fromJson({'show_online_status': true})
+            .showOnlineStatus,
         isTrue,
       );
       for (final value in [false, 'false', 0]) {
         expect(
-          UserSettingModel.fromJson({
-            'show_online_status': value,
-          }).showOnlineStatus,
+          UserSettingModel.fromJson({'show_online_status': value})
+              .showOnlineStatus,
           isFalse,
         );
       }

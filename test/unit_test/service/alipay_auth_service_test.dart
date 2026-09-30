@@ -7,8 +7,7 @@ void main() {
     test('9000 + Android query-string result → 提取 auth_code', () {
       final res = parseAlipayAuthResponse({
         'resultStatus': '9000',
-        'result':
-            'success=true&result_code=200&auth_code=authcode123&user_id=2088xxxx',
+        'result': 'success=true&result_code=200&auth_code=authcode123&user_id=2088xxxx',
         'memo': '处理成功',
       });
       expect(res, isA<AlipayAuthSuccess>());

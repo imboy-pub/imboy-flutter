@@ -88,12 +88,10 @@ void main() {
     test(
       'updateMessageReaction syncs like count and my reaction only on target',
       () {
-        final messageA = _buildMessage(
-          id: 1,
-        ).copyWith(reactionSummary: {ChannelReactionType.like: 2});
-        final messageB = _buildMessage(
-          id: 2,
-        ).copyWith(reactionSummary: {ChannelReactionType.like: 7});
+        final messageA = _buildMessage(id: 1)
+            .copyWith(reactionSummary: {ChannelReactionType.like: 2});
+        final messageB = _buildMessage(id: 2)
+            .copyWith(reactionSummary: {ChannelReactionType.like: 7});
         notifier.state = notifier.state.copyWith(
           messages: [messageA, messageB],
         );

@@ -34,9 +34,8 @@ void main() {
         }
 
         // Only check package: imports (skip dart:, relative, and imboy internal)
-        final pkgMatch = RegExp(
-          r'''import ['"]([^'"]+)['"]''',
-        ).firstMatch(line);
+        final pkgMatch = RegExp(r'''import ['"]([^'"]+)['"]''')
+            .firstMatch(line);
         if (pkgMatch == null) continue;
         final importPath = pkgMatch.group(1)!;
 

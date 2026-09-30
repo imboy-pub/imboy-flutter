@@ -2,6 +2,7 @@ library;
 
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+
 import '../barrel/pages_barrel.dart';
 
 List<RouteBase> groupFeatureRoutes() => [

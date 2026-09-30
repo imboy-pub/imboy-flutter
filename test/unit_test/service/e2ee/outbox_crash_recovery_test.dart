@@ -4,6 +4,7 @@
 library;
 
 import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
@@ -367,9 +368,9 @@ void main() {
         expect(outboxEntry['id'], equals(messageId));
 
         // 3. 直接从 outbox 读取 ciphertext 重发（不重新 encrypt）
-        final envelope =
-            jsonDecode(outboxEntry['payload'] as String)
-                as Map<String, dynamic>;
+        final envelope = jsonDecode(
+          outboxEntry['payload'] as String,
+        ) as Map<String, dynamic>;
         final retryCiphertext = envelope['ciphertext'];
 
         // 断言：未调用第二次 encrypt
@@ -387,55 +388,52 @@ void main() {
       },
     );
 
-    test(
-      'concurrent send of same message — only one outbox entry, no double encrypt',
-      () async {
-        const messageId = 'msg-concurrent-001';
+    test('concurrent send of same message — only one outbox entry, no double encrypt', () async {
+      const messageId = 'msg-concurrent-001';
 
-        // 模拟并发发送同一条消息（启动两次 encryptV3）
-        await E2eeOutboundRouter.encryptV3(
-          suite: ProtocolSuite.olm,
-          plaintext: jsonEncode({'body': 'concurrent'}),
-          recipients: const [
-            RecipientDevice(deviceId: 'dev-1', keyId: 'k1', publicKey: 'pk-1'),
-          ],
-          context: const E2eeContext(peerUid: '200', scope: 'c2c'),
-          messageId: messageId,
-          senderUid: '100',
-          senderDid: 'dev-sender',
-          destination: '200',
-          messageType: 'text',
-          action: 'message',
-          sessionRef: 'sess-outbox',
-          epochOrCounter: 1,
-          createdAtMs: 1753500000000,
-        );
+      // 模拟并发发送同一条消息（启动两次 encryptV3）
+      await E2eeOutboundRouter.encryptV3(
+        suite: ProtocolSuite.olm,
+        plaintext: jsonEncode({'body': 'concurrent'}),
+        recipients: const [
+          RecipientDevice(deviceId: 'dev-1', keyId: 'k1', publicKey: 'pk-1'),
+        ],
+        context: const E2eeContext(peerUid: '200', scope: 'c2c'),
+        messageId: messageId,
+        senderUid: '100',
+        senderDid: 'dev-sender',
+        destination: '200',
+        messageType: 'text',
+        action: 'message',
+        sessionRef: 'sess-outbox',
+        epochOrCounter: 1,
+        createdAtMs: 1753500000000,
+      );
 
-        // 第二次「并发」encryptV3 应该幂等（写同一 outbox id）
-        await E2eeOutboundRouter.encryptV3(
-          suite: ProtocolSuite.olm,
-          plaintext: jsonEncode({'body': 'concurrent'}),
-          recipients: const [
-            RecipientDevice(deviceId: 'dev-1', keyId: 'k1', publicKey: 'pk-1'),
-          ],
-          context: const E2eeContext(peerUid: '200', scope: 'c2c'),
-          messageId: messageId,
-          senderUid: '100',
-          senderDid: 'dev-sender',
-          destination: '200',
-          messageType: 'text',
-          action: 'message',
-          sessionRef: 'sess-outbox',
-          epochOrCounter: 1,
-          createdAtMs: 1753500000000,
-        );
+      // 第二次「并发」encryptV3 应该幂等（写同一 outbox id）
+      await E2eeOutboundRouter.encryptV3(
+        suite: ProtocolSuite.olm,
+        plaintext: jsonEncode({'body': 'concurrent'}),
+        recipients: const [
+          RecipientDevice(deviceId: 'dev-1', keyId: 'k1', publicKey: 'pk-1'),
+        ],
+        context: const E2eeContext(peerUid: '200', scope: 'c2c'),
+        messageId: messageId,
+        senderUid: '100',
+        senderDid: 'dev-sender',
+        destination: '200',
+        messageType: 'text',
+        action: 'message',
+        sessionRef: 'sess-outbox',
+        epochOrCounter: 1,
+        createdAtMs: 1753500000000,
+      );
 
-        // 确认只有一个 pending entry（幂等：第二个写覆盖了第一个）
-        final pending = await store.pendingOutbox();
-        expect(pending.length, equals(1));
-        expect(pending.first['id'], equals(messageId));
-      },
-    );
+      // 确认只有一个 pending entry（幂等：第二个写覆盖了第一个）
+      final pending = await store.pendingOutbox();
+      expect(pending.length, equals(1));
+      expect(pending.first['id'], equals(messageId));
+    });
   });
 
   group('E2EE-027 Inbox dedupe atomicity:', () {
@@ -471,33 +469,30 @@ void main() {
       },
     );
 
-    test(
-      'dedupeAndPersistSession atomic — crash between dedupe insert and session persist rolls back both',
-      () async {
-        // 通过重复 message_id 来验证事务回滚
-        await store.dedupeAndPersistSession(
-          messageId: 'inbound-027-002',
-          peerUid: '100',
-          peerDeviceId: 'dev-S',
-          pickle: 'ratchet-atomic-test',
-        );
+    test('dedupeAndPersistSession atomic — crash between dedupe insert and session persist rolls back both', () async {
+      // 通过重复 message_id 来验证事务回滚
+      await store.dedupeAndPersistSession(
+        messageId: 'inbound-027-002',
+        peerUid: '100',
+        peerDeviceId: 'dev-S',
+        pickle: 'ratchet-atomic-test',
+      );
 
-        // 第二次用不同 session pickle 但相同 messageId → 应回滚
-        final accepted = await store.dedupeAndPersistSession(
-          messageId: 'inbound-027-002',
-          peerUid: '100',
-          peerDeviceId: 'dev-S',
-          pickle: 'should-not-overwrite',
-        );
-        expect(accepted, isFalse);
+      // 第二次用不同 session pickle 但相同 messageId → 应回滚
+      final accepted = await store.dedupeAndPersistSession(
+        messageId: 'inbound-027-002',
+        peerUid: '100',
+        peerDeviceId: 'dev-S',
+        pickle: 'should-not-overwrite',
+      );
+      expect(accepted, isFalse);
 
-        // session 仍保持 v1
-        expect(
-          await store.loadSession(peerUid: '100', peerDeviceId: 'dev-S'),
-          equals('ratchet-atomic-test'),
-        );
-      },
-    );
+      // session 仍保持 v1
+      expect(
+        await store.loadSession(peerUid: '100', peerDeviceId: 'dev-S'),
+        equals('ratchet-atomic-test'),
+      );
+    });
 
     test('isDuplicate confirms dedupe state is durable after commit', () async {
       expect(await store.isDuplicate('inbound-027-003'), isFalse);

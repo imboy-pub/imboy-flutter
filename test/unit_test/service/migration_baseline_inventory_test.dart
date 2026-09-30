@@ -30,9 +30,8 @@ void main() {
 
   group('清单 ↔ 脚本 双向对照 / inventory ↔ embedded scripts', () {
     test('upgrade VERSION 块集合与清单一致 / upgrade block set matches', () {
-      final blocks = parseMigrationVersionBlocks(
-        kUpgradeScriptSql,
-      ).keys.toSet();
+      final blocks = parseMigrationVersionBlocks(kUpgradeScriptSql).keys
+          .toSet();
       expect(
         blocks,
         equals(kInventoryExpectedUpgradeBlocks),
@@ -43,9 +42,8 @@ void main() {
     });
 
     test('downgrade VERSION 块集合与清单一致 / downgrade block set matches', () {
-      final blocks = parseMigrationVersionBlocks(
-        kDowngradeScriptSql,
-      ).keys.toSet();
+      final blocks = parseMigrationVersionBlocks(kDowngradeScriptSql).keys
+          .toSet();
       expect(
         blocks,
         equals(kInventoryExpectedDowngradeBlocks),
@@ -78,9 +76,9 @@ void main() {
     });
 
     test('upgrade 最大 PRAGMA user_version == 权威版本 / max target version', () {
-      final targets = RegExp(
-        r'PRAGMA user_version\s*=\s*(\d+)',
-      ).allMatches(kUpgradeScriptSql).map((m) => int.parse(m.group(1)!));
+      final targets = RegExp(r'PRAGMA user_version\s*=\s*(\d+)')
+          .allMatches(kUpgradeScriptSql)
+          .map((m) => int.parse(m.group(1)!));
       expect(targets, isNotEmpty);
       expect(
         targets.reduce((a, b) => a > b ? a : b),
@@ -97,9 +95,8 @@ void main() {
       final file = File('lib/service/sqlite.dart');
       expect(file.existsSync(), isTrue, reason: 'test CWD 必须是项目根');
       final source = file.readAsStringSync();
-      final match = RegExp(
-        r'static\s+const\s+_dbVersion\s*=\s*(\d+)',
-      ).firstMatch(source);
+      final match = RegExp(r'static\s+const\s+_dbVersion\s*=\s*(\d+)')
+          .firstMatch(source);
       expect(match, isNotNull, reason: 'sqlite.dart 必须声明 _dbVersion 常量');
       expect(
         int.parse(match!.group(1)!),

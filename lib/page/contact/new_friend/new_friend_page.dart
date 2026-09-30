@@ -22,6 +22,7 @@ import 'package:imboy/theme/default/font_types.dart';
 
 import '../confirm_new_friend/confirm_new_friend_page.dart';
 import 'new_friend_provider.dart';
+
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 新的朋友页面 - iOS 17 Premium 风格重构

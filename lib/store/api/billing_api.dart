@@ -143,9 +143,9 @@ class BillingApi extends HttpClient {
     if (!resp.ok || resp.payload == null) {
       return null;
     }
-    return IMBoyHttpResponse.payloadList(
-      resp.payload,
-    ).map((e) => BillingPlan.fromJson(e)).toList();
+    return IMBoyHttpResponse.payloadList(resp.payload)
+        .map((e) => BillingPlan.fromJson(e))
+        .toList();
   }
 
   /// 订阅套餐。成功返回 subscription_id，失败返回 null。
@@ -185,9 +185,9 @@ class BillingApi extends HttpClient {
     if (!resp.ok || resp.payload == null) {
       return null;
     }
-    return IMBoyHttpResponse.payloadList(
-      resp.payload,
-    ).map((e) => BillingInvoice.fromJson(e)).toList();
+    return IMBoyHttpResponse.payloadList(resp.payload)
+        .map((e) => BillingInvoice.fromJson(e))
+        .toList();
   }
 
   /// 支付账单。

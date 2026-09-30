@@ -13,7 +13,9 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+
 import 'amap_helper.dart';
+
 import 'package:imboy/i18n/strings.g.dart'; // 确保这个文件中没有使用 niku
 
 class SearchBarStyle {
@@ -267,9 +269,8 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                             children: [
                               Semantics(
                                 button: true,
-                                label: MaterialLocalizations.of(
-                                  context,
-                                ).backButtonTooltip,
+                                label: MaterialLocalizations.of(context)
+                                    .backButtonTooltip,
                                 child: _frostedIconButton(
                                   onTap: () => Navigator.of(context).pop(),
                                   icon: Icon(
@@ -364,9 +365,9 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                             ? widthMax * .8
                                             : widthMax,
                                         decoration: BoxDecoration(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.surface,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surface,
                                           borderRadius: widget
                                               .searchBarStyle
                                               .borderRadius,
@@ -418,15 +419,15 @@ class _MapLocationPickerState extends State<MapLocationPicker> with _BLoCMixin {
                                             milliseconds: 200,
                                           ),
                                           width: _animate
-                                              ? MediaQuery.of(
-                                                      context,
-                                                    ).size.width *
+                                              ? MediaQuery.of(context)
+                                                        .size
+                                                        .width *
                                                     .2
                                               : 0,
                                           child: ColoredBox(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.surface,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surface,
                                             child: Center(
                                               child: Text(
                                                 t.common.buttonCancel,

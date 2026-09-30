@@ -299,9 +299,8 @@ class LogoutAccountPage extends ConsumerWidget {
         ?.toString();
     final expectedMs = int.tryParse(expectedRaw ?? '');
     final expected = expectedMs != null
-        ? DateFormat(
-            'yyyy-MM-dd',
-          ).format(DateTime.fromMillisecondsSinceEpoch(expectedMs))
+        ? DateFormat('yyyy-MM-dd')
+              .format(DateTime.fromMillisecondsSinceEpoch(expectedMs))
         : expectedRaw;
     final retained = state.deletionStatus?['retained_categories'];
     final retainedNote = retained is List && retained.isNotEmpty

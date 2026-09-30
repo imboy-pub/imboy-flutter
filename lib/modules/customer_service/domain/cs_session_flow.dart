@@ -138,7 +138,13 @@ class CsSessionFlow {
   /// 403/offboarding → 状态机降级。
   Future<CsSessionDetail?> refreshSessionState() async {
     try {
-      final d = await _csApi.sessionDetail(orgId, sessionId);
+      final d = await _csApi.sessionDetail(
+        orgId,
+        sessionId,
+        // CSB-02R workspace 门必填（session_detail 无 optional 声明，缺省
+        // 必 422——真机转接 CAS 拿不到 version 的根因，2026-09-30 实证）。
+        workspaceId: workspaceId,
+      );
       detail = d;
       if (d.conversationId.isNotEmpty) {
         conversationId = d.conversationId;
@@ -290,11 +296,14 @@ class CsSessionFlow {
         .map((m) => m.id)
         .toList();
     if (undelivered.isEmpty) return;
+    await resolveWorkspaceId();
+    if (workspaceId.isEmpty) return;
     for (final mid in undelivered) {
       await _csApi.ackDelivery(
         orgId,
         conversationId,
         mid,
+        workspaceId: workspaceId,
         recipientRef: 'identity:$identityId',
       );
     }
@@ -321,6 +330,10 @@ class CsSessionFlow {
       // 禁止构造非法请求，更禁止 fallback 个人 IM。
       return false;
     }
+    // EB-03-A01 显式 workspace 归属（缺省必 422 missing_workspace_id）；
+    // 解析失败保持空 = fail-closed（不构造注定失败的请求）。
+    await resolveWorkspaceId();
+    if (workspaceId.isEmpty) return false;
     final clientMsgId = pendingClientMsgId ?? Xid().toString();
     pendingClientMsgId = clientMsgId;
     // 重试稳定性：已有 pending 附件组必须原样复用（A03 同键同附件）。
@@ -332,6 +345,7 @@ class CsSessionFlow {
       final sent = await _csApi.sendConversationMessage(
         orgId,
         conversationId,
+        workspaceId: workspaceId,
         body: body,
         clientMsgId: clientMsgId,
         identityId: identityId,
@@ -454,6 +468,8 @@ class CsSessionFlow {
         sessionId,
         toIdentityId: toIdentityId,
         expectedVersion: version,
+        // CSB-02R workspace 门必填（缺省必 422）；空时透传由服务端裁决。
+        workspaceId: workspaceId,
       );
       machine.markTransferredAway();
       unreadCount = null;
@@ -483,6 +499,8 @@ class CsSessionFlow {
         sessionId,
         expectedVersion: version,
         reason: reason,
+        // CSB-02R workspace 门必填（缺省必 422）；空时透传由服务端裁决。
+        workspaceId: workspaceId,
       );
       machine.markClosed();
       unreadCount = null;

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart' show visibleForTesting;
+
 import 'env.dart';
 
 /// 第三方支付（微信 / 支付宝）配置。

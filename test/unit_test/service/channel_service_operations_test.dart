@@ -2047,31 +2047,26 @@ void main() {
       expect(repo.deletedSubscriptions, isEmpty);
     });
 
-    test(
-      'unsubscribed — 合法 id → deleteSubscription + deleteMessagesByChannel + 广播',
-      () async {
-        final repo = _FakeChannelRepo();
-        final msgRepo = _FakeChannelMessageRepo();
-        final svc = ChannelService.forTest(
-          api: _FakeChannelApi(),
-          repo: repo,
-          messageRepo: msgRepo,
-        );
+    test('unsubscribed — 合法 id → deleteSubscription + deleteMessagesByChannel + 广播', () async {
+      final repo = _FakeChannelRepo();
+      final msgRepo = _FakeChannelMessageRepo();
+      final svc = ChannelService.forTest(
+        api: _FakeChannelApi(),
+        repo: repo,
+        messageRepo: msgRepo,
+      );
 
-        final events = <ChannelStateChangedEvent>[];
-        final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(
-          events.add,
-        );
-        addTearDown(sub.cancel);
+      final events = <ChannelStateChangedEvent>[];
+      final sub = AppEventBus.on<ChannelStateChangedEvent>().listen(events.add);
+      addTearDown(sub.cancel);
 
-        await svc.handleChannelUnsubscribed({'channel_id': 'ch-5'});
-        await Future<dynamic>.delayed(const Duration(milliseconds: 10));
+      await svc.handleChannelUnsubscribed({'channel_id': 'ch-5'});
+      await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
-        expect(repo.deletedSubscriptions, contains('ch-5'));
-        expect(msgRepo.deletedByChannelCalls, contains('ch-5'));
-        expect(events.any((e) => e.action == 'channel_unsubscribed'), isTrue);
-      },
-    );
+      expect(repo.deletedSubscriptions, contains('ch-5'));
+      expect(msgRepo.deletedByChannelCalls, contains('ch-5'));
+      expect(events.any((e) => e.action == 'channel_unsubscribed'), isTrue);
+    });
 
     // ── handleChannelUpdated ─────────────────────────────────────────────────
     test('updated — 缺少 channel 字段 → 忽略', () async {

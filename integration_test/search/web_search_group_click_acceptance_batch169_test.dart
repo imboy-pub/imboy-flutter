@@ -85,9 +85,8 @@ Future<bool> _boot(WidgetTester tester) async {
     } else if (isOnWelcomePage(tester)) {
       await leaveWelcomePage(tester);
     } else if (UserRepoLocal.to.currentUid == _uid) {
-      GoRouter.of(
-        tester.element(find.byType(Navigator).first),
-      ).go('/bottom_navigation');
+      GoRouter.of(tester.element(find.byType(Navigator).first))
+          .go('/bottom_navigation');
     }
     await _pump(tester, seconds: 6);
   }
@@ -133,8 +132,10 @@ void main() {
     });
     flowLog('[AT-WS1] 本地群行已播种：$_groupTitle');
     final probe = await GroupRepo().search(kwd: _keyword, limit: 20);
-    flowLog('[DIAG] 直接 GroupRepo.search 命中=${probe.length} '
-        '首条=${probe.isEmpty ? '无' : probe.first.title}');
+    flowLog(
+      '[DIAG] 直接 GroupRepo.search 命中=${probe.length} '
+      '首条=${probe.isEmpty ? '无' : probe.first.title}',
+    );
 
     // ── 打开搜索页，输入关键词（UI 输入触发 onChanged 防抖搜索，
     //    规避 push location 中文 query 编码问题）──
@@ -163,11 +164,7 @@ void main() {
           .toList();
       flowLog('[DIAG] 搜索无果可见文本: $texts');
     }
-    expect(
-      resultShown,
-      isTrue,
-      reason: 'AT-WS1：搜索「$_keyword」应命中本地群并渲染群结果项',
-    );
+    expect(resultShown, isTrue, reason: 'AT-WS1：搜索「$_keyword」应命中本地群并渲染群结果项');
     flowLog('[AT-WS1] 群结果已渲染');
 
     // ── 核心断言：点群结果进入群聊会话 ──

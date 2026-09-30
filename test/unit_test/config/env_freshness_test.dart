@@ -87,9 +87,8 @@ Map<String, String> parseEnvFile(String content) {
 /// 提取 .g.dart 中 obfuscate:false 字段的明文值（非混淆字段以
 /// `static const String <name> = '<值>';` 形态存在）。
 String extractPlainField(String gDart, String fieldName) {
-  final m = RegExp(
-    "static const String $fieldName = '([^']*)'",
-  ).firstMatch(gDart);
+  final m = RegExp("static const String $fieldName = '([^']*)'")
+      .firstMatch(gDart);
   if (m == null) {
     fail('env_local.g.dart 中找不到字段 $fieldName（生成产物结构变化？）');
   }

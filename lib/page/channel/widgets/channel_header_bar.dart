@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/service/channel_service.dart';
 
 import '../channel_detail_rules.dart';
+
 import 'package:imboy/component/ui/app_loading.dart';
 
 /// 频道头部信息条（对标 WhatsApp 频道详情设计）
