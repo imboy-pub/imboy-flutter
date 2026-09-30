@@ -2852,6 +2852,11 @@ class _Translations$organization$detail$en_US extends Translations$organization$
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get leaveOrg => 'Leave organization';
+	@override String get leaveOrgBody => 'Leaving revokes access to this organization’s directory, groups, channels and files. Organization files are retained. An invitation is required to rejoin.';
+	@override String get leaveFailed => 'Unable to leave';
+	@override String get leaveOwnerHint => 'Transfer organization ownership before leaving';
+	@override String get leaveCleanupFailed => 'You have left, but local preferences could not be cleared. Restart and verify your selected space';
 	@override String get title => 'Organization details';
 	@override String get notFound => 'Organization not found';
 	@override String get archiveOrg => 'Archive organization';
@@ -5444,6 +5449,11 @@ extension on TranslationsEnUs {
 			'organization.home.tabOrg' => 'Organizations',
 			'organization.home.myInvitations' => 'My invitations',
 			'organization.home.emptyHint' => 'You haven\'t joined any organization yet\nPull down to refresh, or tap the top-right button to create one',
+			'organization.detail.leaveOrg' => 'Leave organization',
+			'organization.detail.leaveOrgBody' => 'Leaving revokes access to this organization’s directory, groups, channels and files. Organization files are retained. An invitation is required to rejoin.',
+			'organization.detail.leaveFailed' => 'Unable to leave',
+			'organization.detail.leaveOwnerHint' => 'Transfer organization ownership before leaving',
+			'organization.detail.leaveCleanupFailed' => 'You have left, but local preferences could not be cleared. Restart and verify your selected space',
 			'organization.detail.title' => 'Organization details',
 			'organization.detail.notFound' => 'Organization not found',
 			'organization.detail.archiveOrg' => 'Archive organization',
@@ -5843,13 +5853,13 @@ extension on TranslationsEnUs {
 			'workspace.inviteDesc' => 'Only registered users can be invited; joining a workspace does not auto-join groups or subscribe channels. You can also add them to General and send an Announcements channel invitation.',
 			'workspace.inviteSearchHint' => 'Search by username / user ID',
 			'workspace.inviteEntry' => 'Invite Workspace Member',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteJoinGroupOption' => 'Also join the General group (become a Group Member)',
 			'workspace.inviteSubscribeChannelOption' => 'Also send an Announcements channel invitation',
 			'workspace.inviteOptionUnavailable' => 'Target resource not found; this option is unavailable',
 			'workspace.inviteSubmit' => 'Send invite',
 			'workspace.inviteResultsTitle' => 'Results (three independent)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteResultWorkspace' => 'Join workspace (becomes Workspace Member)',
 			'workspace.inviteResultGroup' => 'Join General group (becomes Group Member)',
 			'workspace.inviteResultChannel' => 'Send Announcements channel invitation (subscription starts after acceptance)',

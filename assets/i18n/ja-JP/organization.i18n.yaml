@@ -28,6 +28,11 @@ home:
   myInvitations: "自分の招待"
   emptyHint: "まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください"
 detail:
+  leaveOrg: "組織から退出"
+  leaveOrgBody: "退出すると組織の連絡先、グループ、チャンネル、ファイルへのアクセス権を失います。組織のファイルは保持されます。再参加には招待が必要です。"
+  leaveFailed: "退出できませんでした"
+  leaveOwnerHint: "退出する前に組織の所有権を移譲してください"
+  leaveCleanupFailed: "退出済みですが端末の設定を削除できませんでした。再起動して選択中のスペースを確認してください"
   title: "組織の詳細"
   notFound: "組織が見つかりません"
   archiveOrg: "組織をアーカイブ"

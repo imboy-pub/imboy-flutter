@@ -26,6 +26,15 @@ class _WorkspaceApi extends WorkspaceApi {
       const WorkspaceBranding(primaryColor: '#2474E5');
 }
 
+class _DelayedWorkspaceApi extends _WorkspaceApi {
+  final pending = Completer<WorkspacePageResult<WorkspaceModel>>();
+  @override
+  Future<WorkspacePageResult<WorkspaceModel>> mine({
+    int page = 1,
+    int size = 20,
+  }) => pending.future;
+}
+
 void main() {
   late ProviderContainer container;
   late WorkspaceShellNotifier notifier;
@@ -38,6 +47,50 @@ void main() {
     await notifier.loadMine();
   });
   tearDown(() => container.dispose());
+
+  test('退出前发出的 mine 响应不能重新写回已退出工作区', () async {
+    final api = _DelayedWorkspaceApi();
+    final delayed = ProviderContainer(
+      overrides: [workspaceApiProvider.overrideWithValue(api)],
+    );
+    addTearDown(delayed.dispose);
+    final n = delayed.read(workspaceShellProvider.notifier);
+    n.applyJoined(_workspaces[0]);
+    n.applyJoined(_workspaces[1]);
+    final loading = n.loadMine();
+    n.forgetOrganization('org-b');
+    api.pending.complete(const WorkspacePageResult(list: _workspaces));
+    await loading;
+    expect(delayed.read(workspaceShellProvider).workspaces.map((ws) => ws.id), [
+      'a',
+    ]);
+  });
+
+  test('退出目标企业后清除其工作区，并拒绝迟到的默认工作区响应', () async {
+    final pending = Completer<EntityId>();
+    final switching = notifier.selectOrganization(
+      'org-b',
+      () => pending.future,
+    );
+    notifier.forgetOrganization('org-b');
+    pending.complete('b2');
+    await switching;
+    final state = container.read(workspaceShellProvider);
+    expect(state.organizationId, isEmpty);
+    expect(state.currentWorkspaceId, isEmpty);
+    expect(state.workspaces.map((ws) => ws.id), ['a', 'personal']);
+  });
+
+  test('退出另一企业不改变当前企业和工作区', () async {
+    await notifier.selectOrganization('org-a', () async => 'a');
+    notifier.forgetOrganization('org-b');
+    expect(container.read(workspaceShellProvider).organizationId, 'org-a');
+    expect(container.read(workspaceShellProvider).current?.id, 'a');
+    expect(
+      container.read(workspaceShellProvider).workspaces.map((ws) => ws.id),
+      ['a'],
+    );
+  });
 
   test('默认工作区读取失败也立即离开上一企业，回退到目标企业工作区', () async {
     final pending = Completer<EntityId>();

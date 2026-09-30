@@ -28,6 +28,11 @@ home:
   myInvitations: "我的邀請"
   emptyHint: "尚未加入任何組織\n下拉重新整理或點擊右上角建立"
 detail:
+  leaveOrg: "退出企業"
+  leaveOrgBody: "退出後將失去本企業的通訊錄、群、頻道及資料存取資格；企業資料會保留。重新加入需要邀請。"
+  leaveFailed: "退出失敗"
+  leaveOwnerHint: "請先移交企業負責人，再退出企業"
+  leaveCleanupFailed: "已退出企業，但本機偏好清理失敗，請重新啟動後確認空間"
   title: "組織詳情"
   notFound: "組織不存在"
   archiveOrg: "封存組織"

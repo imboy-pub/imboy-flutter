@@ -2717,6 +2717,11 @@ class _Translations$organization$detail$de_DE extends Translations$organization$
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
+	@override String get leaveOrg => 'Organisation verlassen';
+	@override String get leaveOrgBody => 'Der Austritt entzieht den Zugriff auf Verzeichnis, Gruppen, Kanäle und Dateien. Organisationsdateien bleiben erhalten. Für den Wiedereintritt ist eine Einladung erforderlich.';
+	@override String get leaveFailed => 'Austritt fehlgeschlagen';
+	@override String get leaveOwnerHint => 'Vor dem Austritt die Organisationsinhaberschaft übertragen';
+	@override String get leaveCleanupFailed => 'Ausgetreten, aber lokale Einstellungen konnten nicht gelöscht werden. Neu starten und den gewählten Bereich prüfen';
 	@override String get title => 'Organisationsdetails';
 	@override String get notFound => 'Organisation nicht gefunden';
 	@override String get archiveOrg => 'Organisation archivieren';
@@ -5190,15 +5195,20 @@ extension on TranslationsDeDe {
 			'organization.home.tabOrg' => 'Organisationen',
 			'organization.home.myInvitations' => 'Meine Einladungen',
 			'organization.home.emptyHint' => 'Du bist noch keiner Organisation beigetreten\nZum Aktualisieren nach unten ziehen oder oben rechts erstellen',
+			'organization.detail.leaveOrg' => 'Organisation verlassen',
+			'organization.detail.leaveOrgBody' => 'Der Austritt entzieht den Zugriff auf Verzeichnis, Gruppen, Kanäle und Dateien. Organisationsdateien bleiben erhalten. Für den Wiedereintritt ist eine Einladung erforderlich.',
+			'organization.detail.leaveFailed' => 'Austritt fehlgeschlagen',
+			'organization.detail.leaveOwnerHint' => 'Vor dem Austritt die Organisationsinhaberschaft übertragen',
+			'organization.detail.leaveCleanupFailed' => 'Ausgetreten, aber lokale Einstellungen konnten nicht gelöscht werden. Neu starten und den gewählten Bereich prüfen',
 			'organization.detail.title' => 'Organisationsdetails',
 			'organization.detail.notFound' => 'Organisation nicht gefunden',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.archiveOrg' => 'Organisation archivieren',
 			'organization.detail.archiveConfirmBody' => 'Nach der Archivierung ist die Organisation schreibgeschützt; alle Schreiboperationen scheitern kontrolliert (fail-closed), nur Wiederherstellen (restore) entsperrt sie. Mitglieder und Daten werden nicht gelöscht.',
 			'organization.detail.restoreOrg' => 'Organisation wiederherstellen',
 			'organization.detail.restoreConfirmBody' => 'Nach der Wiederherstellung kehrt die Organisation in den active-Zustand zurück und Schreibzugriffe werden wieder geöffnet.',
 			'organization.detail.confirmRestore' => 'Wiederherstellen bestätigen',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.restoreFailed' => 'Wiederherstellen fehlgeschlagen',
 			'organization.detail.archiveFailed' => 'Archivieren fehlgeschlagen',
 			'organization.detail.renameOrgTitle' => 'Organisation umbenennen',
@@ -5706,13 +5716,13 @@ extension on TranslationsDeDe {
 			'workspace.projectMemberInviteTitle' => 'Projektmitglieder einladen',
 			'workspace.projectMemberInviteFieldHint' => 'ID des einzuladenden registrierten Nutzers',
 			'workspace.projectMemberInviteInvalidUid' => 'Bitte eine gültige Nutzer-ID eingeben',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberInviteSubmit' => 'Einladen',
 			'workspace.projectMemberInviteSuccess' => 'Zu den Projektmitgliedern hinzugefügt',
 			'workspace.projectMemberInviteExisting' => 'Dieser Nutzer ist bereits Projektmitglied',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Projektmitglied ${name} entfernen',
 			'workspace.projectMemberRemoveConfirmDesc' => 'Nach dem Entfernen verliert der Nutzer den Zugriff auf Projektinhalte (erneute Einladung möglich)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => 'Entfernen',
 			'workspace.projectMemberRemovedToast' => 'Entfernt',
 			'workspace.projectMemberAlreadyRemovedToast' => 'Dieser Nutzer ist kein Projektmitglied mehr',

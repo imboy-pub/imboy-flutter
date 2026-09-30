@@ -2726,6 +2726,11 @@ class _Translations$organization$detail$ar_SA extends Translations$organization$
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
+	@override String get leaveOrg => 'مغادرة المؤسسة';
+	@override String get leaveOrgBody => 'تُلغي المغادرة الوصول إلى دليل المؤسسة ومجموعاتها وقنواتها وملفاتها. تبقى ملفات المؤسسة محفوظة. يلزم الحصول على دعوة للانضمام مجددًا.';
+	@override String get leaveFailed => 'تعذرت المغادرة';
+	@override String get leaveOwnerHint => 'انقل ملكية المؤسسة قبل المغادرة';
+	@override String get leaveCleanupFailed => 'تمت المغادرة ولكن تعذر مسح التفضيلات المحلية. أعد التشغيل وتحقق من المساحة المختارة';
 	@override String get title => 'تفاصيل المنظمة';
 	@override String get notFound => 'المنظمة غير موجودة';
 	@override String get archiveOrg => 'أرشفة المنظمة';
@@ -5199,15 +5204,20 @@ extension on TranslationsArSa {
 			'organization.home.tabOrg' => 'المنظمات',
 			'organization.home.myInvitations' => 'دعواتي',
 			'organization.home.emptyHint' => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين',
+			'organization.detail.leaveOrg' => 'مغادرة المؤسسة',
+			'organization.detail.leaveOrgBody' => 'تُلغي المغادرة الوصول إلى دليل المؤسسة ومجموعاتها وقنواتها وملفاتها. تبقى ملفات المؤسسة محفوظة. يلزم الحصول على دعوة للانضمام مجددًا.',
+			'organization.detail.leaveFailed' => 'تعذرت المغادرة',
+			'organization.detail.leaveOwnerHint' => 'انقل ملكية المؤسسة قبل المغادرة',
+			'organization.detail.leaveCleanupFailed' => 'تمت المغادرة ولكن تعذر مسح التفضيلات المحلية. أعد التشغيل وتحقق من المساحة المختارة',
 			'organization.detail.title' => 'تفاصيل المنظمة',
 			'organization.detail.notFound' => 'المنظمة غير موجودة',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.archiveOrg' => 'أرشفة المنظمة',
 			'organization.detail.archiveConfirmBody' => 'بعد الأرشفة تدخل المنظمة في وضع القراءة فقط، وتُرفض جميع عمليات الكتابة (fail-closed)، ولا يمكن فك القفل إلا بالاستعادة (restore). لن يتم حذف الأعضاء ولا البيانات.',
 			'organization.detail.restoreOrg' => 'استعادة المنظمة',
 			'organization.detail.restoreConfirmBody' => 'بعد الاستعادة تعود المنظمة إلى الحالة active وتُتاح عمليات الكتابة من جديد.',
 			'organization.detail.confirmRestore' => 'تأكيد الاستعادة',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.restoreFailed' => 'فشلت الاستعادة',
 			'organization.detail.archiveFailed' => 'فشلت الأرشفة',
 			'organization.detail.renameOrgTitle' => 'إعادة تسمية المنظمة',
@@ -5715,13 +5725,13 @@ extension on TranslationsArSa {
 			'workspace.projectMemberInviteTitle' => 'دعوة أعضاء المشروع',
 			'workspace.projectMemberInviteFieldHint' => 'معرّف المستخدم المسجل المراد دعوته',
 			'workspace.projectMemberInviteInvalidUid' => 'يرجى إدخال معرّف مستخدم صالح',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberInviteSubmit' => 'دعوة',
 			'workspace.projectMemberInviteSuccess' => 'تمت إضافته عضواً في المشروع',
 			'workspace.projectMemberInviteExisting' => 'هذا المستخدم عضو في المشروع بالفعل',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'إزالة عضو المشروع ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => 'بعد الإزالة سيفقد هذا المستخدم الوصول إلى محتوى المشروع (يمكن دعوته من جديد)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => 'إزالة',
 			'workspace.projectMemberRemovedToast' => 'تمت الإزالة',
 			'workspace.projectMemberAlreadyRemovedToast' => 'هذا المستخدم لم يعد عضواً في المشروع',

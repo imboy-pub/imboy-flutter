@@ -2717,6 +2717,11 @@ class _Translations$organization$detail$fr_FR extends Translations$organization$
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
+	@override String get leaveOrg => 'Quitter l’organisation';
+	@override String get leaveOrgBody => 'Vous perdrez l’accès à l’annuaire, aux groupes, aux canaux et aux fichiers. Les fichiers restent conservés. Une invitation est nécessaire pour revenir.';
+	@override String get leaveFailed => 'Impossible de quitter';
+	@override String get leaveOwnerHint => 'Transférez la propriété de l’organisation avant de quitter';
+	@override String get leaveCleanupFailed => 'Vous avez quitté, mais les préférences locales n’ont pas pu être effacées. Redémarrez et vérifiez votre espace';
 	@override String get title => 'Détails de l\'organisation';
 	@override String get notFound => 'Organisation introuvable';
 	@override String get archiveOrg => 'Archiver l\'organisation';
@@ -5190,15 +5195,20 @@ extension on TranslationsFrFr {
 			'organization.home.tabOrg' => 'Organisations',
 			'organization.home.myInvitations' => 'Mes invitations',
 			'organization.home.emptyHint' => 'Vous n\'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite',
+			'organization.detail.leaveOrg' => 'Quitter l’organisation',
+			'organization.detail.leaveOrgBody' => 'Vous perdrez l’accès à l’annuaire, aux groupes, aux canaux et aux fichiers. Les fichiers restent conservés. Une invitation est nécessaire pour revenir.',
+			'organization.detail.leaveFailed' => 'Impossible de quitter',
+			'organization.detail.leaveOwnerHint' => 'Transférez la propriété de l’organisation avant de quitter',
+			'organization.detail.leaveCleanupFailed' => 'Vous avez quitté, mais les préférences locales n’ont pas pu être effacées. Redémarrez et vérifiez votre espace',
 			'organization.detail.title' => 'Détails de l\'organisation',
 			'organization.detail.notFound' => 'Organisation introuvable',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.archiveOrg' => 'Archiver l\'organisation',
 			'organization.detail.archiveConfirmBody' => 'Une fois archivée, l\'organisation passe en lecture seule ; toutes les écritures sont rejetées (fail-closed), seule la restauration (restore) peut la déverrouiller. Les membres et les données ne sont pas supprimés.',
 			'organization.detail.restoreOrg' => 'Restaurer l\'organisation',
 			'organization.detail.restoreConfirmBody' => 'Après restauration, l\'organisation revient à l\'état active et les écritures sont de nouveau ouvertes.',
 			'organization.detail.confirmRestore' => 'Confirmer la restauration',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.restoreFailed' => 'Échec de la restauration',
 			'organization.detail.archiveFailed' => 'Échec de l\'archivage',
 			'organization.detail.renameOrgTitle' => 'Renommer l\'organisation',
@@ -5706,13 +5716,13 @@ extension on TranslationsFrFr {
 			'workspace.projectMemberInviteTitle' => 'Inviter des membres au projet',
 			'workspace.projectMemberInviteFieldHint' => 'ID de l\'utilisateur inscrit à inviter',
 			'workspace.projectMemberInviteInvalidUid' => 'Veuillez saisir un ID utilisateur valide',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberInviteSubmit' => 'Inviter',
 			'workspace.projectMemberInviteSuccess' => 'Ajouté aux membres du projet',
 			'workspace.projectMemberInviteExisting' => 'Cet utilisateur est déjà membre du projet',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Retirer le membre du projet ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => 'Après le retrait, l\'utilisateur perdra l\'accès au contenu de ce projet (réinvitation possible)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => 'Retirer',
 			'workspace.projectMemberRemovedToast' => 'Membre retiré',
 			'workspace.projectMemberAlreadyRemovedToast' => 'Cet utilisateur n\'est plus membre du projet',

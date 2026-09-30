@@ -2717,6 +2717,11 @@ class _Translations$organization$detail$it_IT extends Translations$organization$
 	final TranslationsItIt _root; // ignore: unused_field
 
 	// Translations
+	@override String get leaveOrg => 'Lascia organizzazione';
+	@override String get leaveOrgBody => 'L’uscita revoca l’accesso a directory, gruppi, canali e file. I file vengono conservati. Per rientrare serve un invito.';
+	@override String get leaveFailed => 'Uscita non riuscita';
+	@override String get leaveOwnerHint => 'Trasferisci la proprietà dell’organizzazione prima di uscire';
+	@override String get leaveCleanupFailed => 'Uscita completata, ma le preferenze locali non sono state cancellate. Riavvia e verifica lo spazio';
 	@override String get title => 'Dettagli organizzazione';
 	@override String get notFound => 'Organizzazione non trovata';
 	@override String get archiveOrg => 'Archivia organizzazione';
@@ -5190,15 +5195,20 @@ extension on TranslationsItIt {
 			'organization.home.tabOrg' => 'Organizzazioni',
 			'organization.home.myInvitations' => 'I miei inviti',
 			'organization.home.emptyHint' => 'Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una',
+			'organization.detail.leaveOrg' => 'Lascia organizzazione',
+			'organization.detail.leaveOrgBody' => 'L’uscita revoca l’accesso a directory, gruppi, canali e file. I file vengono conservati. Per rientrare serve un invito.',
+			'organization.detail.leaveFailed' => 'Uscita non riuscita',
+			'organization.detail.leaveOwnerHint' => 'Trasferisci la proprietà dell’organizzazione prima di uscire',
+			'organization.detail.leaveCleanupFailed' => 'Uscita completata, ma le preferenze locali non sono state cancellate. Riavvia e verifica lo spazio',
 			'organization.detail.title' => 'Dettagli organizzazione',
 			'organization.detail.notFound' => 'Organizzazione non trovata',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.archiveOrg' => 'Archivia organizzazione',
 			'organization.detail.archiveConfirmBody' => 'Dopo l\'archiviazione l\'organizzazione passa in sola lettura; ogni operazione di scrittura viene rifiutata (fail-closed), solo il ripristino (restore) la sblocca. Membri e dati non vengono eliminati.',
 			'organization.detail.restoreOrg' => 'Ripristina organizzazione',
 			'organization.detail.restoreConfirmBody' => 'Dopo il ripristino l\'organizzazione torna allo stato active e le scritture vengono riaperte.',
 			'organization.detail.confirmRestore' => 'Conferma ripristino',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.restoreFailed' => 'Ripristino non riuscito',
 			'organization.detail.archiveFailed' => 'Archiviazione non riuscita',
 			'organization.detail.renameOrgTitle' => 'Rinomina organizzazione',
@@ -5706,13 +5716,13 @@ extension on TranslationsItIt {
 			'workspace.projectStatusActive' => 'In corso',
 			'workspace.projectStatusChanged' => 'Stato del progetto aggiornato',
 			'workspace.projectStatusDone' => 'Completato',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectStatusLabel' => 'Stato',
 			'workspace.projectSubmit' => 'Crea',
 			'workspace.projectTasksSection' => 'Attività',
 			'workspace.projectW2SectionTitle' => 'Collaborazione progetto',
 			'workspace.projectsEmptySubtitle' => 'I progetti servono a monitorare obiettivi di consegna chiari; valgono anche per le aree di lavoro comunitarie con soli canali e gruppi',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectsEmptyTitle' => 'Nessun progetto per ora',
 			'workspace.projectsLoadMore' => 'Carica altro',
 			'workspace.removeMemberConfirm' => 'Conferma rimozione',

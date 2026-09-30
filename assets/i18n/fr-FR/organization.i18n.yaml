@@ -28,6 +28,11 @@ home:
   myInvitations: "Mes invitations"
   emptyHint: "Vous n'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite"
 detail:
+  leaveOrg: "Quitter l’organisation"
+  leaveOrgBody: "Vous perdrez l’accès à l’annuaire, aux groupes, aux canaux et aux fichiers. Les fichiers restent conservés. Une invitation est nécessaire pour revenir."
+  leaveFailed: "Impossible de quitter"
+  leaveOwnerHint: "Transférez la propriété de l’organisation avant de quitter"
+  leaveCleanupFailed: "Vous avez quitté, mais les préférences locales n’ont pas pu être effacées. Redémarrez et vérifiez votre espace"
   title: "Détails de l'organisation"
   notFound: "Organisation introuvable"
   archiveOrg: "Archiver l'organisation"

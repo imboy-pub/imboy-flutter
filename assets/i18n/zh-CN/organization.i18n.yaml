@@ -27,6 +27,11 @@ home:
   myInvitations: 我的邀请
   emptyHint: "尚未加入任何组织\n下拉刷新或点击右上角创建"
 detail:
+  leaveOrg: "退出企业"
+  leaveOrgBody: "退出后将失去本企业的通讯录、群、频道和资料访问资格；企业资料会保留。重新加入需要邀请。"
+  leaveFailed: "退出失败"
+  leaveOwnerHint: "请先移交企业负责人，再退出企业"
+  leaveCleanupFailed: "已退出企业，但本地偏好清理失败，请重启后重新确认空间"
   title: 组织详情
   notFound: 组织不存在
   archiveOrg: 归档组织

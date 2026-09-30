@@ -7738,6 +7738,21 @@ class Translations$organization$detail$zh_CN {
 
 	// Translations
 
+	/// zh-CN: '退出企业'
+	String get leaveOrg => '退出企业';
+
+	/// zh-CN: '退出后将失去本企业的通讯录、群、频道和资料访问资格；企业资料会保留。重新加入需要邀请。'
+	String get leaveOrgBody => '退出后将失去本企业的通讯录、群、频道和资料访问资格；企业资料会保留。重新加入需要邀请。';
+
+	/// zh-CN: '退出失败'
+	String get leaveFailed => '退出失败';
+
+	/// zh-CN: '请先移交企业负责人，再退出企业'
+	String get leaveOwnerHint => '请先移交企业负责人，再退出企业';
+
+	/// zh-CN: '已退出企业，但本地偏好清理失败，请重启后重新确认空间'
+	String get leaveCleanupFailed => '已退出企业，但本地偏好清理失败，请重启后重新确认空间';
+
 	/// zh-CN: '组织详情'
 	String get title => '组织详情';
 
@@ -10969,6 +10984,11 @@ extension on Translations {
 			'organization.home.tabOrg' => '组织',
 			'organization.home.myInvitations' => '我的邀请',
 			'organization.home.emptyHint' => '尚未加入任何组织\n下拉刷新或点击右上角创建',
+			'organization.detail.leaveOrg' => '退出企业',
+			'organization.detail.leaveOrgBody' => '退出后将失去本企业的通讯录、群、频道和资料访问资格；企业资料会保留。重新加入需要邀请。',
+			'organization.detail.leaveFailed' => '退出失败',
+			'organization.detail.leaveOwnerHint' => '请先移交企业负责人，再退出企业',
+			'organization.detail.leaveCleanupFailed' => '已退出企业，但本地偏好清理失败，请重启后重新确认空间',
 			'organization.detail.title' => '组织详情',
 			'organization.detail.notFound' => '组织不存在',
 			'organization.detail.archiveOrg' => '归档组织',
@@ -11348,13 +11368,13 @@ extension on Translations {
 			'workspace.overviewPinnedContent' => '频道置顶内容',
 			'workspace.overviewPinnedEmpty' => '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）',
 			'workspace.overviewRecentFiles' => '最近文件',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => '最近上传的文件将在此展示；也可在各频道内查看附件',
 			'workspace.membersTitle' => '工作区成员',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} 位成员',
 			'workspace.membersEmpty' => '暂无工作区成员',
 			'workspace.membersEmptySubtitle' => '邀请已注册用户成为工作区成员（Owner / Member / Guest）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.membersViewAll' => '查看全部',
 			'workspace.projectsEmptyTitle' => '还没有项目',
 			'workspace.projectsEmptySubtitle' => '项目用于跟踪明确的交付目标；只有频道和群的社区型工作区同样成立',

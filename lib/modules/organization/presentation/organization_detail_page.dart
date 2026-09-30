@@ -16,8 +16,9 @@
 ///   事实不可用即拒，App 原样提示不做降级。
 library;
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:flutter/cupertino.dart' show CupertinoIcons, CupertinoListTile;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/component/ui/permission_gate.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -28,12 +29,17 @@ import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
+import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
+import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
+import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/modules/organization/presentation/org_async_state.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 /// 工作区切换器（工具域入口目标）：承载工作区/项目/任务等协同工具。
 const String kWorkspacePickerPath = '/workspace';
@@ -60,6 +66,8 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
   Organization? _org;
   DefaultWorkspaceRef? _defaultWs;
   bool _loading = false;
+  bool _leaving = false;
+  bool _departed = false;
 
   /// 原始异常（catch 直传）：403/500 分型交给 [OrgAsyncAdapter]，页面不
   /// 自行解析错误字符串（ENT-FND-02 契约）。
@@ -76,6 +84,8 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
   }
 
   Future<void> _refresh() async {
+    if (_departed) return;
+    final account = _accountKey;
     setState(() {
       _loading = true;
       _error = null;
@@ -89,19 +99,19 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       } on OrganizationApiException {
         ws = null;
       }
+      if (!mounted || _departed || _accountKey != account) return;
       _cache.saveOrgs([org]);
-      if (!mounted) return;
       setState(() {
         _org = org;
         _defaultWs = ws;
       });
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!mounted || _departed || _accountKey != account) return;
       setState(() {
         _error = e;
       });
     } finally {
-      if (mounted) {
+      if (mounted && !_departed && _accountKey == account) {
         setState(() {
           _loading = false;
         });
@@ -136,6 +146,60 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       await _runCommand(
         () => _api.archive(widget.orgId),
         t.organization.detail.archiveFailed,
+      );
+    }
+  }
+
+  Future<void> _leave() async {
+    if (_leaving) return;
+    final account = _accountKey;
+    if (account.isEmpty) return;
+    setState(() => _leaving = true);
+    try {
+      final confirmed = await orgConfirmDangerAction(
+        context,
+        title: t.organization.detail.leaveOrg,
+        consequence: t.organization.detail.leaveOrgBody,
+        confirmText: t.organization.detail.leaveOrg,
+      );
+      if (!confirmed || !mounted || _accountKey != account) return;
+      await _api.offboardMember(widget.orgId, account);
+      _departed = true;
+      OrganizationCache.forAccount(account).invalidateOrg(widget.orgId);
+      await _forgetLeftOrganization(account);
+      if (mounted && _accountKey == account) context.go(kOrganizationHomePath);
+    } on Object catch (e) {
+      if (!mounted || _accountKey != account) return;
+      final message = e is OrganizationApiException ? e.message : '$e';
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text('${t.organization.detail.leaveFailed}：$message'),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _leaving = false);
+    }
+  }
+
+  Future<void> _forgetLeftOrganization(String account) async {
+    if (mounted && _accountKey == account) {
+      final container = ProviderScope.containerOf(context, listen: false);
+      container
+          .read(workspaceShellProvider.notifier)
+          .forgetOrganization(widget.orgId);
+      container.invalidate(organizationEntryProvider);
+      container.invalidate(workspaceOverviewProvider);
+      container.invalidate(workspaceChannelsProvider);
+      container.invalidate(workspaceGroupsProvider);
+      container.invalidate(workspaceMembersProvider);
+      container.invalidate(workspaceProjectsProvider);
+    }
+    try {
+      await CurrentOrganizationStore.forAccount(account).forget(widget.orgId);
+    } on Object {
+      if (!mounted || _accountKey != account) return;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(t.organization.detail.leaveCleanupFailed)),
       );
     }
   }
@@ -409,6 +473,25 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
   );
 
   List<Widget> _buildDangerZone(Organization org) => [
+    CupertinoListTile(
+      key: const ValueKey('organization-detail-leave'),
+      leading: Icon(
+        CupertinoIcons.square_arrow_right,
+        color: AppColors.getIosRed(Theme.of(context).brightness),
+      ),
+      title: Text(
+        t.organization.detail.leaveOrg,
+        style: TextStyle(
+          color: AppColors.getIosRed(Theme.of(context).brightness),
+        ),
+      ),
+      subtitle: Text(
+        org.memberRole == 'owner'
+            ? t.organization.detail.leaveOwnerHint
+            : t.organization.detail.leaveOrgBody,
+      ),
+      onTap: _leaving || org.memberRole == 'owner' ? null : _leave,
+    ),
     ListTile(
       title: Text(
         t.organization.detail.more,

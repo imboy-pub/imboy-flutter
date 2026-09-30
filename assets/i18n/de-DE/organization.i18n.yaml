@@ -28,6 +28,11 @@ home:
   myInvitations: "Meine Einladungen"
   emptyHint: "Du bist noch keiner Organisation beigetreten\nZum Aktualisieren nach unten ziehen oder oben rechts erstellen"
 detail:
+  leaveOrg: "Organisation verlassen"
+  leaveOrgBody: "Der Austritt entzieht den Zugriff auf Verzeichnis, Gruppen, Kanäle und Dateien. Organisationsdateien bleiben erhalten. Für den Wiedereintritt ist eine Einladung erforderlich."
+  leaveFailed: "Austritt fehlgeschlagen"
+  leaveOwnerHint: "Vor dem Austritt die Organisationsinhaberschaft übertragen"
+  leaveCleanupFailed: "Ausgetreten, aber lokale Einstellungen konnten nicht gelöscht werden. Neu starten und den gewählten Bereich prüfen"
   title: "Organisationsdetails"
   notFound: "Organisation nicht gefunden"
   archiveOrg: "Organisation archivieren"

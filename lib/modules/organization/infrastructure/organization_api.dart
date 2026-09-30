@@ -219,8 +219,8 @@ class OrganizationApi extends HttpClient implements HumanDirectoryDataSource {
     return _unwrapMember(resp);
   }
 
-  /// 离场（owner/admin；removed 终态，不可恢复——重新加入需新邀请）。
-  /// 与 [removeMember]（DELETE 面）同服务端语义，本端点是显式命令面。
+  /// 离场：本人退出或 owner/admin 治理他人；removed 终态，重新加入需新邀请。
+  /// 本人身份由服务端 JWT 裁决；Owner 和资源交接依赖由服务端拒绝。
   Future<OrganizationMember> offboardMember(
     EntityId orgId,
     EntityId userId,

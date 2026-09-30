@@ -1,7 +1,7 @@
 # imboyapp 自动化测试计划 —— 索引
 
 > **权威文档**。imboyapp 现有全部功能点（已完成 / 未完成 / 阻塞 全部纳入）。
-> 覆盖 **155 个页面 / 1748 个功能点**
+> 覆盖 **164 个页面 / 1846 个功能点**
 > 数据源：`lib/page/**` 真实源码抽取 ＋ 真机实测记录
 
 > ⚠️ 本文件由 `regen_readme.py` 生成，**不要手改**。
@@ -66,9 +66,10 @@
 
 | 计划变化 | 条数 | 占比 |
 |---|---|---|
-| 无待办 | 1700 | 97.3% |
-| 阻塞 | 48 | 2.7% |
-| **合计** | **1748** | 100% |
+| 无待办 | 1797 | 97.3% |
+| 待复验 | 1 | 0.1% |
+| 阻塞 | 48 | 2.6% |
+| **合计** | **1846** | 100% |
 
 bug 累计：**发现 235 / 解决 235 / 待处理 0**
 
@@ -76,31 +77,34 @@ bug 累计：**发现 235 / 解决 235 / 待处理 0**
 
 ## 模块索引
 
-| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 阻塞 |
-|---|---|---|---|---|---|
-| [group](group/) | 26 | 293 | 0 | 290 | 3 |
-| [mine](mine/) | 21 | 250 | 0 | 245 | 5 |
-| [workspace](workspace/) | 18 | 199 | 0 | 199 | 0 |
-| [channel](channel/) | 13 | 146 | 0 | 146 | 0 |
-| [contact](contact/) | 13 | 126 | 0 | 125 | 1 |
-| [personal_info](personal_info/) | 8 | 88 | 0 | 88 | 0 |
-| [passport](passport/) | 7 | 82 | 0 | 81 | 1 |
-| [chat](chat/) | 6 | 76 | 0 | 64 | 12 |
-| [moment](moment/) | 6 | 74 | 0 | 74 | 0 |
-| [wallet](wallet/) | 5 | 61 | 0 | 61 | 0 |
-| [user_tag](user_tag/) | 5 | 58 | 0 | 58 | 0 |
-| [single](single/) | 5 | 48 | 0 | 48 | 0 |
-| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 |
-| [settings](settings/) | 3 | 36 | 0 | 35 | 1 |
-| [search](search/) | 3 | 35 | 0 | 35 | 0 |
-| [live_room](live_room/) | 3 | 33 | 0 | 8 | 25 |
-| [scanner](scanner/) | 3 | 30 | 0 | 30 | 0 |
-| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 12 | 0 |
-| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 |
-| [mention](mention/) | 1 | 12 | 0 | 12 | 0 |
-| [splash](splash/) | 1 | 12 | 0 | 12 | 0 |
-| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 |
-| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 |
+| 模块 | 页面 | 功能点 | 待处理bug | 无待办 | 待复验 | 阻塞 |
+|---|---|---|---|---|---|---|
+| [group](group/) | 26 | 293 | 0 | 290 | 0 | 3 |
+| [mine](mine/) | 21 | 250 | 0 | 245 | 0 | 5 |
+| [workspace](workspace/) | 18 | 199 | 0 | 199 | 0 | 0 |
+| [channel](channel/) | 13 | 146 | 0 | 146 | 0 | 0 |
+| [contact](contact/) | 13 | 126 | 0 | 125 | 0 | 1 |
+| [personal_info](personal_info/) | 8 | 88 | 0 | 88 | 0 | 0 |
+| [passport](passport/) | 7 | 82 | 0 | 81 | 0 | 1 |
+| [chat](chat/) | 6 | 76 | 0 | 64 | 0 | 12 |
+| [moment](moment/) | 6 | 74 | 0 | 74 | 0 | 0 |
+| [organization](organization/) | 5 | 64 | 0 | 63 | 1 | 0 |
+| [wallet](wallet/) | 5 | 61 | 0 | 61 | 0 | 0 |
+| [user_tag](user_tag/) | 5 | 58 | 0 | 58 | 0 | 0 |
+| [single](single/) | 5 | 48 | 0 | 48 | 0 | 0 |
+| [qrcode](qrcode/) | 4 | 42 | 0 | 42 | 0 | 0 |
+| [settings](settings/) | 3 | 36 | 0 | 35 | 0 | 1 |
+| [search](search/) | 3 | 35 | 0 | 35 | 0 | 0 |
+| [live_room](live_room/) | 3 | 33 | 0 | 8 | 0 | 25 |
+| [scanner](scanner/) | 3 | 30 | 0 | 30 | 0 | 0 |
+| [customer_service](customer_service/) | 2 | 18 | 0 | 18 | 0 | 0 |
+| [enterprise](enterprise/) | 2 | 16 | 0 | 16 | 0 | 0 |
+| [bottom_navigation](bottom_navigation/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [conversation](conversation/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [mention](mention/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [splash](splash/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [welcome](welcome/) | 1 | 12 | 0 | 12 | 0 | 0 |
+| [web_shell](web_shell/) | 1 | 11 | 0 | 11 | 0 | 0 |
 
 ## 页面清单
 
@@ -153,6 +157,16 @@ bug 累计：**发现 235 / 解决 235 / 待处理 0**
 ### conversation
 
 - [conversation_page](conversation/conversation_page.md) — 12 功能点
+
+### customer_service
+
+- [cs_session_page](customer_service/cs_session_page.md) — 17 功能点
+- [cs_workspace_page](customer_service/cs_workspace_page.md) — 1 功能点
+
+### enterprise
+
+- [enterprise_conversation_page](enterprise/enterprise_conversation_page.md) — 5 功能点
+- [enterprise_home_page](enterprise/enterprise_home_page.md) — 11 功能点
 
 ### group
 
@@ -225,6 +239,14 @@ bug 累计：**发现 235 / 解决 235 / 待处理 0**
 - [moment_feed_page](moment/moment_feed_page.md) — 13 功能点
 - [moment_friend_picker_page](moment/moment_friend_picker_page.md) — 12 功能点
 - [moment_notify_page](moment/moment_notify_page.md) — 12 功能点
+
+### organization
+
+- [organization_departments_page](organization/organization_departments_page.md) — 19 功能点
+- [organization_detail_page](organization/organization_detail_page.md) — 20 功能点
+- [organization_home_page](organization/organization_home_page.md) — 4 功能点
+- [organization_invitations_page](organization/organization_invitations_page.md) — 11 功能点
+- [organization_members_page](organization/organization_members_page.md) — 10 功能点
 
 ### passport
 

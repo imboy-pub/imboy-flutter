@@ -2723,6 +2723,11 @@ class _Translations$organization$detail$ru_RU extends Translations$organization$
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get leaveOrg => 'Покинуть организацию';
+	@override String get leaveOrgBody => 'Вы потеряете доступ к каталогу, группам, каналам и файлам. Файлы организации сохранятся. Для повторного вступления нужно приглашение.';
+	@override String get leaveFailed => 'Не удалось выйти';
+	@override String get leaveOwnerHint => 'Перед выходом передайте права владельца организации';
+	@override String get leaveCleanupFailed => 'Вы вышли, но локальные настройки не очищены. Перезапустите приложение и проверьте выбранное пространство';
 	@override String get title => 'Об организации';
 	@override String get notFound => 'Организация не найдена';
 	@override String get archiveOrg => 'Архивировать организацию';
@@ -5196,15 +5201,20 @@ extension on TranslationsRuRu {
 			'organization.home.tabOrg' => 'Организации',
 			'organization.home.myInvitations' => 'Мои приглашения',
 			'organization.home.emptyHint' => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху',
+			'organization.detail.leaveOrg' => 'Покинуть организацию',
+			'organization.detail.leaveOrgBody' => 'Вы потеряете доступ к каталогу, группам, каналам и файлам. Файлы организации сохранятся. Для повторного вступления нужно приглашение.',
+			'organization.detail.leaveFailed' => 'Не удалось выйти',
+			'organization.detail.leaveOwnerHint' => 'Перед выходом передайте права владельца организации',
+			'organization.detail.leaveCleanupFailed' => 'Вы вышли, но локальные настройки не очищены. Перезапустите приложение и проверьте выбранное пространство',
 			'organization.detail.title' => 'Об организации',
 			'organization.detail.notFound' => 'Организация не найдена',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.archiveOrg' => 'Архивировать организацию',
 			'organization.detail.archiveConfirmBody' => 'После архивации организация переходит в режим только для чтения; все операции записи отклоняются (fail-closed), разблокировать может только восстановление (restore). Участники и данные не удаляются.',
 			'organization.detail.restoreOrg' => 'Восстановить организацию',
 			'organization.detail.restoreConfirmBody' => 'После восстановления организация возвращается в состояние active, запись снова открывается.',
 			'organization.detail.confirmRestore' => 'Подтвердить восстановление',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.restoreFailed' => 'Не удалось восстановить',
 			'organization.detail.archiveFailed' => 'Не удалось архивировать',
 			'organization.detail.renameOrgTitle' => 'Переименовать организацию',
@@ -5712,13 +5722,13 @@ extension on TranslationsRuRu {
 			'workspace.projectMemberInviteTitle' => 'Пригласить участника проекта',
 			'workspace.projectMemberInviteFieldHint' => 'ID зарегистрированного пользователя для приглашения',
 			'workspace.projectMemberInviteInvalidUid' => 'Введите действительный ID пользователя',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberInviteSubmit' => 'Пригласить',
 			'workspace.projectMemberInviteSuccess' => 'Пользователь добавлен в участники проекта',
 			'workspace.projectMemberInviteExisting' => 'Этот пользователь уже участник проекта',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Удалить участника проекта ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => 'После удаления пользователь потеряет доступ к содержимому проекта (можно пригласить снова)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => 'Удалить',
 			'workspace.projectMemberRemovedToast' => 'Удалено',
 			'workspace.projectMemberAlreadyRemovedToast' => 'Этого пользователя уже нет среди участников проекта',

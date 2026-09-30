@@ -299,6 +299,23 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     );
   }
 
+  /// 服务端退出成功后立即撤去本企业缓存，并阻止旧异步请求重新写入。
+  void forgetOrganization(EntityId organizationId) {
+    _selectionGeneration++;
+    _loadGeneration++;
+    final currentRemoved = state.current?.belongsToOrg(organizationId) ?? false;
+    final selected = state.organizationId == organizationId;
+    state = state.copyWith(
+      workspaces: state._workspaces
+          .where((ws) => !ws.belongsToOrg(organizationId))
+          .toList(growable: false),
+      organizationId: selected ? '' : state.organizationId,
+      clearCurrent: selected || currentRemoved,
+      isLoading: false,
+      clearError: true,
+    );
+  }
+
   /// 本地替换工作区行（branding/归档状态等变更后的轻量同步）。
   void replaceWorkspace(WorkspaceModel ws) {
     if (ws.id.isEmpty) return;

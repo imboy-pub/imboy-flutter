@@ -28,6 +28,11 @@ home:
   myInvitations: "I miei inviti"
   emptyHint: "Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una"
 detail:
+  leaveOrg: "Lascia organizzazione"
+  leaveOrgBody: "L’uscita revoca l’accesso a directory, gruppi, canali e file. I file vengono conservati. Per rientrare serve un invito."
+  leaveFailed: "Uscita non riuscita"
+  leaveOwnerHint: "Trasferisci la proprietà dell’organizzazione prima di uscire"
+  leaveCleanupFailed: "Uscita completata, ma le preferenze locali non sono state cancellate. Riavvia e verifica lo spazio"
   title: "Dettagli organizzazione"
   notFound: "Organizzazione non trovata"
   archiveOrg: "Archivia organizzazione"

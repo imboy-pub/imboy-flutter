@@ -28,6 +28,11 @@ home:
   myInvitations: "내 초대"
   emptyHint: "아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요"
 detail:
+  leaveOrg: "조직 나가기"
+  leaveOrgBody: "나가면 조직의 연락처, 그룹, 채널 및 파일에 접근할 수 없습니다. 조직 파일은 유지됩니다. 다시 가입하려면 초대가 필요합니다."
+  leaveFailed: "나가기 실패"
+  leaveOwnerHint: "나가기 전에 조직 소유권을 이전하세요"
+  leaveCleanupFailed: "조직에서 나갔지만 기기 설정을 삭제하지 못했습니다. 다시 시작하고 선택한 공간을 확인하세요"
   title: "조직 상세"
   notFound: "조직을 찾을 수 없습니다"
   archiveOrg: "조직 보관"

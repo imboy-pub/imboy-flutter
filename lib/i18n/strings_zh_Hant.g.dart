@@ -2714,6 +2714,11 @@ class Translations$organization$detail$zh_Hant extends Translations$organization
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
+	@override String get leaveOrg => '退出企業';
+	@override String get leaveOrgBody => '退出後將失去本企業的通訊錄、群、頻道及資料存取資格；企業資料會保留。重新加入需要邀請。';
+	@override String get leaveFailed => '退出失敗';
+	@override String get leaveOwnerHint => '請先移交企業負責人，再退出企業';
+	@override String get leaveCleanupFailed => '已退出企業，但本機偏好清理失敗，請重新啟動後確認空間';
 	@override String get title => '組織詳情';
 	@override String get notFound => '組織不存在';
 	@override String get archiveOrg => '封存組織';
@@ -5187,15 +5192,20 @@ extension on TranslationsZhHant {
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '我的邀請',
 			'organization.home.emptyHint' => '尚未加入任何組織\n下拉重新整理或點擊右上角建立',
+			'organization.detail.leaveOrg' => '退出企業',
+			'organization.detail.leaveOrgBody' => '退出後將失去本企業的通訊錄、群、頻道及資料存取資格；企業資料會保留。重新加入需要邀請。',
+			'organization.detail.leaveFailed' => '退出失敗',
+			'organization.detail.leaveOwnerHint' => '請先移交企業負責人，再退出企業',
+			'organization.detail.leaveCleanupFailed' => '已退出企業，但本機偏好清理失敗，請重新啟動後確認空間',
 			'organization.detail.title' => '組織詳情',
 			'organization.detail.notFound' => '組織不存在',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.archiveOrg' => '封存組織',
 			'organization.detail.archiveConfirmBody' => '封存後組織進入唯讀態，全部寫入操作 fail-closed，僅還原（restore）可解鎖。成員與資料不會被刪除。',
 			'organization.detail.restoreOrg' => '還原組織',
 			'organization.detail.restoreConfirmBody' => '還原後組織回到 active 態，寫入入口重新開放。',
 			'organization.detail.confirmRestore' => '確認還原',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.restoreFailed' => '還原失敗',
 			'organization.detail.archiveFailed' => '封存失敗',
 			'organization.detail.renameOrgTitle' => '修改組織名稱',
@@ -5703,13 +5713,13 @@ extension on TranslationsZhHant {
 			'workspace.projectMemberInviteTitle' => '邀請專案成員',
 			'workspace.projectMemberInviteFieldHint' => '要邀請的已註冊使用者 ID',
 			'workspace.projectMemberInviteInvalidUid' => '請輸入有效的使用者 ID',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberInviteSubmit' => '邀請',
 			'workspace.projectMemberInviteSuccess' => '已加入專案成員',
 			'workspace.projectMemberInviteExisting' => '該使用者已是專案成員',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '移除專案成員 ${name}',
 			'workspace.projectMemberRemoveConfirmDesc' => '移除後該使用者將失去此專案內容的存取權（可重新邀請）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => '移出專案',
 			'workspace.projectMemberRemovedToast' => '已移出專案',
 			'workspace.projectMemberAlreadyRemovedToast' => '該使用者已不在專案成員中',

@@ -2714,6 +2714,11 @@ class _Translations$organization$detail$ja_JP extends Translations$organization$
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
+	@override String get leaveOrg => '組織から退出';
+	@override String get leaveOrgBody => '退出すると組織の連絡先、グループ、チャンネル、ファイルへのアクセス権を失います。組織のファイルは保持されます。再参加には招待が必要です。';
+	@override String get leaveFailed => '退出できませんでした';
+	@override String get leaveOwnerHint => '退出する前に組織の所有権を移譲してください';
+	@override String get leaveCleanupFailed => '退出済みですが端末の設定を削除できませんでした。再起動して選択中のスペースを確認してください';
 	@override String get title => '組織の詳細';
 	@override String get notFound => '組織が見つかりません';
 	@override String get archiveOrg => '組織をアーカイブ';
@@ -5187,15 +5192,20 @@ extension on TranslationsJaJp {
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '自分の招待',
 			'organization.home.emptyHint' => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください',
+			'organization.detail.leaveOrg' => '組織から退出',
+			'organization.detail.leaveOrgBody' => '退出すると組織の連絡先、グループ、チャンネル、ファイルへのアクセス権を失います。組織のファイルは保持されます。再参加には招待が必要です。',
+			'organization.detail.leaveFailed' => '退出できませんでした',
+			'organization.detail.leaveOwnerHint' => '退出する前に組織の所有権を移譲してください',
+			'organization.detail.leaveCleanupFailed' => '退出済みですが端末の設定を削除できませんでした。再起動して選択中のスペースを確認してください',
 			'organization.detail.title' => '組織の詳細',
 			'organization.detail.notFound' => '組織が見つかりません',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.archiveOrg' => '組織をアーカイブ',
 			'organization.detail.archiveConfirmBody' => 'アーカイブ後、組織は読み取り専用になり、すべての書き込み操作は fail-closed となります。復元（restore）のみが解除できます。メンバーとデータは削除されません。',
 			'organization.detail.restoreOrg' => '組織を復元',
 			'organization.detail.restoreConfirmBody' => '復元後、組織は active 状態に戻り、書き込みが再度可能になります。',
 			'organization.detail.confirmRestore' => '復元を確認',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.restoreFailed' => '復元に失敗しました',
 			'organization.detail.archiveFailed' => 'アーカイブに失敗しました',
 			'organization.detail.renameOrgTitle' => '組織名を変更',
@@ -5703,13 +5713,13 @@ extension on TranslationsJaJp {
 			'workspace.projectMemberInviteTitle' => 'プロジェクトメンバーを招待',
 			'workspace.projectMemberInviteFieldHint' => '招待する登録済みユーザーのID',
 			'workspace.projectMemberInviteInvalidUid' => '有効なユーザーIDを入力してください',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberInviteSubmit' => '招待',
 			'workspace.projectMemberInviteSuccess' => 'プロジェクトメンバーに追加しました',
 			'workspace.projectMemberInviteExisting' => 'このユーザーは既にプロジェクトメンバーです',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'プロジェクトメンバー ${name} を削除',
 			'workspace.projectMemberRemoveConfirmDesc' => '削除すると、このユーザーはこのプロジェクトのコンテンツにアクセスできなくなります（再招待可能）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => '削除',
 			'workspace.projectMemberRemovedToast' => '削除しました',
 			'workspace.projectMemberAlreadyRemovedToast' => 'このユーザーは既にプロジェクトメンバーではありません',

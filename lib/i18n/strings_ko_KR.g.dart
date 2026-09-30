@@ -2714,6 +2714,11 @@ class _Translations$organization$detail$ko_KR extends Translations$organization$
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
+	@override String get leaveOrg => '조직 나가기';
+	@override String get leaveOrgBody => '나가면 조직의 연락처, 그룹, 채널 및 파일에 접근할 수 없습니다. 조직 파일은 유지됩니다. 다시 가입하려면 초대가 필요합니다.';
+	@override String get leaveFailed => '나가기 실패';
+	@override String get leaveOwnerHint => '나가기 전에 조직 소유권을 이전하세요';
+	@override String get leaveCleanupFailed => '조직에서 나갔지만 기기 설정을 삭제하지 못했습니다. 다시 시작하고 선택한 공간을 확인하세요';
 	@override String get title => '조직 상세';
 	@override String get notFound => '조직을 찾을 수 없습니다';
 	@override String get archiveOrg => '조직 보관';
@@ -5187,15 +5192,20 @@ extension on TranslationsKoKr {
 			'organization.home.tabOrg' => '조직',
 			'organization.home.myInvitations' => '내 초대',
 			'organization.home.emptyHint' => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요',
+			'organization.detail.leaveOrg' => '조직 나가기',
+			'organization.detail.leaveOrgBody' => '나가면 조직의 연락처, 그룹, 채널 및 파일에 접근할 수 없습니다. 조직 파일은 유지됩니다. 다시 가입하려면 초대가 필요합니다.',
+			'organization.detail.leaveFailed' => '나가기 실패',
+			'organization.detail.leaveOwnerHint' => '나가기 전에 조직 소유권을 이전하세요',
+			'organization.detail.leaveCleanupFailed' => '조직에서 나갔지만 기기 설정을 삭제하지 못했습니다. 다시 시작하고 선택한 공간을 확인하세요',
 			'organization.detail.title' => '조직 상세',
 			'organization.detail.notFound' => '조직을 찾을 수 없습니다',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.archiveOrg' => '조직 보관',
 			'organization.detail.archiveConfirmBody' => '보관하면 조직은 읽기 전용이 되며 모든 쓰기 작업은 fail-closed로 차단됩니다. 복원(restore)으로만 잠금 해제됩니다. 멤버와 데이터는 삭제되지 않습니다.',
 			'organization.detail.restoreOrg' => '조직 복원',
 			'organization.detail.restoreConfirmBody' => '복원하면 조직은 active 상태로 돌아가고 쓰기가 다시 열립니다.',
 			'organization.detail.confirmRestore' => '복원 확인',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.restoreFailed' => '복원 실패',
 			'organization.detail.archiveFailed' => '보관 실패',
 			'organization.detail.renameOrgTitle' => '조직 이름 변경',
@@ -5703,13 +5713,13 @@ extension on TranslationsKoKr {
 			'workspace.projectMemberInviteTitle' => '프로젝트 구성원 초대',
 			'workspace.projectMemberInviteFieldHint' => '초대할 가입 사용자 ID',
 			'workspace.projectMemberInviteInvalidUid' => '올바른 사용자 ID를 입력해 주세요',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberInviteSubmit' => '초대',
 			'workspace.projectMemberInviteSuccess' => '프로젝트 구성원으로 추가되었습니다',
 			'workspace.projectMemberInviteExisting' => '이 사용자는 이미 프로젝트 구성원입니다',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => '프로젝트 구성원 ${name} 제거',
 			'workspace.projectMemberRemoveConfirmDesc' => '제거 후 해당 사용자는 이 프로젝트 콘텐츠에 접근할 수 없습니다(다시 초대 가능)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberRemoveSubmit' => '제거',
 			'workspace.projectMemberRemovedToast' => '제거되었습니다',
 			'workspace.projectMemberAlreadyRemovedToast' => '해당 사용자는 이미 프로젝트 구성원이 아닙니다',

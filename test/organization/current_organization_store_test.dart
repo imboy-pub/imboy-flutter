@@ -39,6 +39,17 @@ void main() {
       expect(decoded['name'], orgA.name);
     });
 
+    test('退出非当前企业保留指针，退出当前企业清除内存和持久化', () async {
+      final store = CurrentOrganizationStore.forAccount(account);
+      await store.set(orgA);
+      await store.forget(orgB.id);
+      expect(store.value?.id, orgA.id);
+      await store.forget(orgA.id);
+      expect(store.value, isNull);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey(keyFor(account)), isFalse);
+    });
+
     test('restore(null)：清空内存并移除持久化键（prev==null 补偿语义）', () async {
       final store = CurrentOrganizationStore.forAccount(account);
       await store.set(orgA);

@@ -71,6 +71,18 @@ class CurrentOrganizationStore {
     _notifier.value = previous;
   }
 
+  /// 服务端已撤权：即使偏好删除失败，也不能在当前界面继续展示已退出企业。
+  Future<void> forget(EntityId orgId) async {
+    if (value?.id != orgId) return;
+    _notifier.value = null;
+    final removed = await StorageService.to.remove(
+      '$kCurrentOrgStoragePrefix$accountKey',
+    );
+    if (!removed) {
+      throw StateError('Could not clear revoked organization preference');
+    }
+  }
+
   Future<void> _write(Organization? org) async {
     final key = '$kCurrentOrgStoragePrefix$accountKey';
     if (org == null) {

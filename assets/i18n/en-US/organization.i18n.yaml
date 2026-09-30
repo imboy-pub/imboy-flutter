@@ -28,6 +28,11 @@ home:
   myInvitations: "My invitations"
   emptyHint: "You haven't joined any organization yet\nPull down to refresh, or tap the top-right button to create one"
 detail:
+  leaveOrg: "Leave organization"
+  leaveOrgBody: "Leaving revokes access to this organization’s directory, groups, channels and files. Organization files are retained. An invitation is required to rejoin."
+  leaveFailed: "Unable to leave"
+  leaveOwnerHint: "Transfer organization ownership before leaving"
+  leaveCleanupFailed: "You have left, but local preferences could not be cleared. Restart and verify your selected space"
   title: "Organization details"
   notFound: "Organization not found"
   archiveOrg: "Archive organization"
