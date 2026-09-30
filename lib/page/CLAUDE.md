@@ -10,21 +10,33 @@
 
 | 模块 | 职责 | 关键文件 |
 |-----|------|---------|
-| `chat/` | 聊天页面 | `chat/chat_page.dart`, `chat/chat_provider.dart` |
-| `contact/` | 联系人管理 | `contact/contact_page.dart`, `contact/people_info_page.dart` |
-| `group/` | 群组管理 | `group/group_list_page.dart`, `group/group_detail_page.dart` |
-| `mine/` | 个人中心 | `mine/mine_page.dart`, `mine/setting_page.dart` |
+| `chat/` | 聊天页面 | `chat/chat/chat_page.dart`, `chat/chat/chat_provider.dart` |
+| `contact/` | 联系人管理 | `contact/contact/contact_page.dart`, `contact/people_info/people_info_page.dart` |
+| `group/` | 群组管理 | `group/group_list/group_list_page.dart`, `group/group_detail/group_detail_page.dart` |
+| `mine/` | 个人中心 | `mine/mine/mine_page.dart`, `mine/setting/setting_page.dart` |
 | `conversation/` | 会话列表 | `conversation/conversation_page.dart` |
-| `passport/` | 登录注册 | `passport/login_page.dart`, `passport/welcome_page.dart`, `passport/signup_continue_page.dart` |
-| `personal_info/` | 个人信息编辑 | `personal_info/profile_page.dart` |
-| `user_tag/` | 用户标签管理 | `user_tag/contact_tag_list_page.dart` |
+| `passport/` | 登录注册 | `passport/login_page.dart`, `passport/signup_continue_page.dart` |
+| `personal_info/` | 个人信息编辑 | `personal_info/profile/profile_page.dart` |
+| `user_tag/` | 用户标签管理 | `user_tag/contact_tag_list/contact_tag_list_page.dart` |
 | `bottom_navigation/` | 底部导航 | `bottom_navigation_page.dart` |
 | `search/` | 搜索 | `search/search_chat_page.dart`, `search/web_search_page.dart` |
 | `scanner/` | 二维码扫描 | `scanner/scanner_page.dart` |
 | `moment/` | 朋友圈 | `moment/moment_feed_page.dart`, `moment/moment_notify/` |
 | `channel/` | 频道 | `channel/channel_list_page.dart`, `channel/channel_detail_page.dart` |
-| `live_room/` | 直播间 | `live_room/publisher_page.dart`, `live_room/subscriber_page.dart` |
-| `single/` | 单页面组件 | `single/markdown.dart`, `single/video_viewer.dart` |
+| `live_room/` | 直播间 | `live_room/publisher/publisher_page.dart`, `live_room/subscriber/subscriber_page.dart` |
+| `single/` | 单页面组件 | `single/markdown_page.dart`, `single/video_viewer_page.dart` |
+| `welcome/` | 欢迎页（未登录首页） | `welcome/welcome_page.dart` |
+| `splash/` | 启动页 | `splash/splash_page.dart` |
+| `error/` | 初始化错误页 | `error/init_error_page.dart` |
+| `mention/` | @提及列表 | `mention/mention_list_page.dart` |
+| `qrcode/` | 二维码（我的/好友/群/频道码） | `qrcode/qrcode_page.dart`, `qrcode/user_qrcode_page.dart` |
+| `settings/` | 设置与安全（E2EE 备份/恢复、安全码） | `settings/safety_number_page.dart`, `settings/e2ee_backup_setup_page.dart` |
+| `wallet/` | 钱包（转账/红包） | `wallet/wallet_page.dart`, `wallet/transfer_send_page.dart` |
+| `billing/` | 计费/套餐 | `billing/plan_list_page.dart` |
+| `workspace/` | 工作区（组织） | `workspace/workspace_channels_page.dart`, `workspace/workspace_create_page.dart` |
+| `workspace_shell/` | 工作区桌面三栏壳 | `workspace_shell/workspace_shell_page.dart` |
+| `web_shell/` | Web 桌面三栏壳 | `web_shell/web_shell_page.dart`（详见 [web_shell/README.md](./web_shell/README.md)） |
+| `chat_shell/` | 聊天桌面壳 | `chat_shell/chat_shell_page.dart` |
 
 ---
 
@@ -135,7 +147,7 @@ ref.read(myProvider.notifier).refresh();
 | `lib/page/chat/chat/chat_page.dart` | 聊天主页面 |
 | `lib/page/contact/contact/contact_page.dart` | 联系人列表 |
 | `lib/page/mine/mine/mine_page.dart` | 个人中心 |
-| `lib/page/passport/welcome_page.dart` | 欢迎页（未登录首页） |
+| `lib/page/welcome/welcome_page.dart` | 欢迎页（未登录首页） |
 
 ---
 

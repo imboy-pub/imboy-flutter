@@ -8,7 +8,7 @@
 #
 # 验证项 / Checks:
 #   1. flutter analyze lib/page/web_shell/ test/unit_test/page/web_shell/    (静态分析零警告)
-#   2. flutter test test/unit_test/page/web_shell/                           (12 个 _test.dart 文件)
+#   2. flutter test test/unit_test/page/web_shell/                           (16 个 _test.dart 文件)
 #   3. flutter build web --release --no-tree-shake-icons           (完整构建)
 #   4. python3 -m http.server 9820 (build/web)                     (烟雾测试 server)
 #
@@ -68,7 +68,7 @@ fi
 echo ""
 
 # ─── flutter test (web_shell only) ────────────────────────
-echo "==> [3/4] flutter test (web_shell 模块, 应有 226 测全绿)"
+echo "==> [3/4] flutter test (web_shell 模块, 应有 255 测全绿)"
 if flutter test test/unit_test/page/web_shell/ --reporter compact; then
   echo "✅ web_shell 测试全绿 / tests pass"
 else

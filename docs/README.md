@@ -11,6 +11,7 @@
 | 找代码入口 | [代码地图](./codemaps/index.md) |
 | 写 UI | 先读 [DESIGN.md](../DESIGN.md) |
 | 做单元 / Widget / 真机测试 | [测试宪章](./qa/testing-charter.md) · [全量清单](./qa/full-app-test-checklist.md) |
+| 构建正式包 / 发布 Play | [构建与发布](./build-and-release.md) |
 | 查功能状态 | [功能状态](./reference/feature-status.md) |
 | 查用户可见帮助 | [FAQ](./FAQ.md) |
 | 查隐私与商店申报 | [隐私政策](./privacy-policy.md) · [Data Safety](./data-safety-declaration.md) |
@@ -60,13 +61,15 @@
 
 ## 其他
 
+> 构建与发布的完整流程以 [build-and-release.md](./build-and-release.md) 为准；白标 flavor 引入后 Android 构建必传 `--flavor standard`。
+
 ```agsl
-flutter build apk --release \
+flutter build apk --release --flavor standard \
         --obfuscate \
         --split-debug-info=debugInfo \
         --target-platform=android-arm,android-arm64 \
         --split-per-abi \
         -t lib/main.dart \
-        --dart-define=APP_ENV=pro --dart-define=ALIPAY_APP_ID=2021004142626807
+        --dart-define=APP_ENV=pro --dart-define=ALIPAY_APP_ID="$ALIPAY_APP_ID"
 
 ```

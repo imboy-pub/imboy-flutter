@@ -10,17 +10,22 @@
 
 | 子模块 | 职责 | 关键文件 |
 |-------|------|---------|
-| `ui/` | 通用 UI 组件 | `avatar.dart`, `button.dart`, `common_bar.dart`, `gesture_page_route.dart` |
+| `ui/` | 通用 UI 组件 | `avatar.dart`, `button.dart`, `common_bar.dart`, `app_loading.dart` |
 | `chat/` | 聊天消息组件 | `message.dart`, `message_*_builder.dart` |
 | `helper/` | 辅助工具函数 | `func.dart`, `datetime.dart`, `string.dart`, `permission.dart`, `picker_method.dart` |
 | `http/` | 网络请求封装 | `http_client.dart`, `http_interceptor.dart`, `http_response.dart` |
-| `video/` | 视频处理 | `video_compress_manager.dart`, `video_thumbnail.dart` |
+| `video/` | 视频处理 | `video_controller.dart` |
 | `webrtc/` | WebRTC 通话 | `session.dart`, `func.dart` |
 | `extension/` | 扩展方法 | `device_ext.dart`, `imboy_cache_manager.dart` |
 | `voice_record/` | 语音录制 | `voice_widget.dart` |
 | `image_gallery/` | 图片浏览 | `image_gallery.dart` |
 | `location/` | 位置服务 | `amap_helper.dart` |
 | `observer/` | 生命周期监听 | `lifecycle.dart` |
+| `dialog/` | 确认/引导对话框 | `ai_plaintext_confirm_dialog.dart`, `e2ee_recovery_guide_dialog.dart` |
+| `upload/` | 批量上传控制 | `batch_upload_controller.dart` |
+| `widget/` | 业务小组件 | `user_online_status_widget.dart` |
+| `search.dart` | 搜索栏组件 | `searchBar()` |
+| `web_view.dart` | 内置 WebView 页 | `WebViewPage` |
 
 ---
 
@@ -34,9 +39,8 @@
 | `SearchField` | `ui/search_field.dart` | 搜索框 |
 | `Password` | `ui/password.dart` | 密码输入 |
 | `ContactCard` | `ui/contact_card.dart` | 联系人卡片 |
-| `GesturePageRoute` | `ui/gesture_page_route.dart` | iOS 风格滑动返回路由 |
 
-路由跳转推荐：`CupertinoPageRoute` 或 `RouteHelper.pushWithGesture(context, builder)`。
+路由跳转推荐：`CupertinoPageRoute`。
 
 ---
 
@@ -52,6 +56,8 @@
 | `MessageVisitCardBuilder` | `message_visit_card_builder.dart` | msgType == 'visit_card' |
 | `MessageWebRTCBuilder` | `message_webrtc_builder.dart` | msgType == 'webrtc' |
 | `MessageUnsupportedBuilder` | `message_unsupported_builder.dart` | 兜底 |
+
+另有 `message_file_builder.dart`、`message_video_builder.dart`、`message_red_packet_builder.dart`、`message_transfer_builder.dart`、`message_expression_builder.dart`、`message_agent_task_builder.dart`、`message_channel_card_builder.dart`、`message_group_schedule_builder.dart` 等，触发条件见各自文件。
 
 ---
 

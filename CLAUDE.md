@@ -99,8 +99,8 @@ assets/migrations/*.sql 与 embedded 常量都是生成物。改迁移必须改 
 
 ```bash
 flutter pub run build_runner build  # 生成代码（Provider、JSON 序列化等）
-flutter build apk                   # Android 发布构建
-flutter build ios                   # iOS 发布构建
+flutter build apk --flavor standard # Android 发布构建；白标 flavor（standard/gzCustomer）引入后必传 --flavor（详见 docs/build-and-release.md）
+flutter build ios                   # iOS 发布构建（iOS 无 flavor scheme，不带 --flavor）
 ```
 
 环境配置：dev / pro / local 分别对应 `lib/config/env_dev.dart` / `env_pro.dart` / `env_local.dart`。

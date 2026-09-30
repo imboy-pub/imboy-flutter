@@ -4,11 +4,11 @@
 
 ## 目录结构
 
-| 子模块 | 职责 | 数量 |
+| 子模块 | 职责 | 数量（2026-09-30 实测） |
 |-------|------|------|
-| `model/` | 数据模型（toJson/fromJson） | 18+ |
-| `repository/` | 本地数据仓库（SQLite） | 11+ |
-| `api/` | 远程 HTTP API 客户端 | 15+ |
+| `model/` | 数据模型（toJson/fromJson） | 34 |
+| `repository/` | 本地数据仓库（SQLite） | 20 |
+| `api/` | 远程 HTTP API 客户端 | 45 |
 
 ## 模型清单（model/）
 
@@ -26,6 +26,23 @@
 | `user_device_model.dart` | - |
 | `user_collect_model.dart` | - |
 | `feedback_model.dart` | - |
+| `channel_model.dart` | - |
+| `channel_message_model.dart` | - |
+| `channel_comment_model.dart` | - |
+| `channel_order_model.dart` | - |
+| `channel_stats_model.dart` | - |
+| `channel_subscription_model.dart` | - |
+| `live_room_model.dart` | - |
+| `moment_notify_model.dart` | - |
+| `people_model.dart` | - |
+| `project_model.dart` / `project_w2_model.dart` | - |
+| `red_packet_model.dart` | - |
+| `workspace_model.dart` | - |
+| `webrtc_signaling_model.dart` | - |
+| `app_version_model.dart` | - |
+| `feedback_reply_model.dart` | - |
+
+辅助/列定义文件：`message_columns.dart`、`group_member_columns.dart`、`moment_notify_columns.dart`、`model_parse_utils.dart`、`entity_image.dart`、`entity_video.dart`。
 
 ## Repository 清单（repository/）
 
@@ -42,6 +59,15 @@
 | `user_device_repo_sqlite.dart` | - |
 | `user_denylist_repo_sqlite.dart` | - |
 | `user_collect_repo_sqlite.dart` | - |
+| `channel_repo_sqlite.dart` | - |
+| `channel_message_repo_sqlite.dart` | - |
+| `channel_message_outbox_repo.dart` | - |
+| `channel_publish_outbox_repo.dart` | - |
+| `mention_frequency_repo.dart` | - |
+| `message_fts_repo.dart` | - |
+| `moment_notify_repo_sqlite.dart` | - |
+
+辅助文件：`message_repo_types.dart`（类型定义）、`user_repo_provider.dart`。
 
 ## API 清单（api/）
 
@@ -51,7 +77,7 @@
 | `contact_api.dart` | listFriend, syncByUid, changeRemark, deleteContact |
 | `group_api.dart` | page, detail, groupAdd, groupEdit |
 | `msg_api.dart` | history(chatType, peerId, afterSeq, limit) — conv_seq游标分页 |
-| `auth_api.dart` | - |
+| `conversation_api.dart` | - |
 | `group_member_api.dart` | - |
 | `denylist_api.dart` | - |
 | `user_tag_api.dart` | - |
@@ -62,6 +88,36 @@
 | `app_version_api.dart` | - |
 | `attachment_api.dart` | - |
 | `e2ee_api.dart` | - |
+| `e2ee_backup_api.dart` | - |
+| `olm_api.dart` | - |
+| `channel_api.dart` | - |
+| `channel_order_api.dart` | - |
+| `moment_api.dart` | - |
+| `mention_api.dart` | - |
+| `fts_api.dart` | - |
+| `wallet_api.dart` | - |
+| `billing_api.dart` | - |
+| `workspace_api.dart` | - |
+| `project_api.dart` | - |
+| `project_channel_api.dart` | - |
+| `project_member_api.dart` | - |
+| `project_milestone_api.dart` | - |
+| `live_room_api.dart` | - |
+| `rtc_room_api.dart` | - |
+| `push_api.dart` | - |
+| `report_api.dart` | - |
+| `appeal_api.dart` | - |
+| `agent_api.dart` | - |
+| `agent_task_api.dart` | - |
+| `group_album_api.dart` | - |
+| `group_category_api.dart` | - |
+| `group_discovery_api.dart` | - |
+| `group_file_api.dart` | - |
+| `group_schedule_api.dart` | - |
+| `group_tag_api.dart` | - |
+| `group_task_api.dart` | - |
+| `group_vote_api.dart` | - |
+| `app_upgrade_log_api.dart` | - |
 
 ## 核心 API 签名
 
@@ -135,7 +191,7 @@ class ExampleRepo {
 ```
 
 ## 外部依赖
-`sqflite ^2.4.2` · `dio ^5.9.0` · `get ^5.0.0`
+`sqflite_sqlcipher ^3.4.0`（替代 sqflite，配 `sqflite_common_ffi`） · `dio ^5.11.1`
 
 **内部依赖**：`lib/service/sqlite.dart` · `lib/component/http/http_client.dart` · `lib/config/init.dart`
 

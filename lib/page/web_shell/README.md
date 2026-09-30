@@ -1,6 +1,6 @@
 # Web Shell 模块 / Web Shell Module
 
-> **状态 / Status**：Phase 1.1 foundation 批次完成（12 commits, 226 测全绿）/ Phase 1.1 foundation batch complete (12 commits, 226 tests green)
+> **状态 / Status**：Phase 1.1 foundation 批次完成（12 commits）；2026-09-30 复测：16 测试文件 255 测全绿 / Phase 1.1 foundation batch complete (12 commits); re-verified 2026-09-30: 16 test files, 255 tests green
 > **下游 / Downstream**：1.1.h.3 i18n wrapper + 1.1.i 路由整合 / 1.1.h.3 i18n wrapper + 1.1.i route integration
 
 ---
@@ -28,12 +28,13 @@
 - `< 900px` → 回退到移动端 BottomNavigationPage（mobile fallback）
 - `>= 900px` → 三栏布局（threeColumn）
 
-### 文件清单（12 文件）
+### 文件清单（16 文件）
 
 | 文件 | 职责 |
 |------|------|
 | `web_shell.dart` | ⭐ **barrel export** — 单一对外入口 |
 | `web_shell_page.dart` | ⭐ **三栏整合主 widget**（参数注入 i18n） |
+| `web_shell_bootstrap.dart` | Bootstrap 组装（i18n + 注入实际页面 widget 与面板 builder） |
 | `web_shell_breakpoint.dart` | 响应式断点决策（纯函数） |
 | `web_shell_state.dart` | 不可变 state + WebSelection sealed (4 变体) |
 | `web_shell_provider.dart` | Riverpod 3 NotifierProvider |
@@ -41,11 +42,14 @@
 | `web_nav_rail.dart` | 左侧 NavigationRail widget + WebNavItem |
 | `web_middle_panel.dart` | 中间 IndexedStack 面板（保持各 tab state） |
 | `web_main_panel.dart` | 右侧 sealed switch 分发面板 |
+| `web_shell_helper_panels.dart` | 右栏辅助面板（mine 最小面板 / 联系人详情 / 占位等） |
 | `web_nav_items_factory.dart` | NavItems 工厂（i18n + badge 与 widget 解耦） |
 | `web_shell_route_params.dart` | URL ↔ state 双向编解码（深链支持） |
 | `web_shell_keyboard_intent.dart` | 桌面快捷键映射（Cmd/Ctrl + K/N/, + Esc） |
+| `web_chat_title_resolver.dart` | ChatPanel 标题决策（纯函数，Phase 2.1.d） |
+| `web_message_actions.dart` | 长按消息动作决策（纯函数，Phase 2.1.b-5a） |
 
-### 使用示例（1.1.h.3 wrapper 应该这样写）
+### 使用示例（已实现于 `web_shell_bootstrap.dart`）
 
 ```dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -97,7 +101,7 @@ class WebShellBootstrap extends ConsumerWidget {
 }
 ```
 
-### 路由集成（1.1.i 应该这样写）
+### 路由集成（1.1.i 已完成：`/web_shell` 已注册于 `app_router.dart`）
 
 ```dart
 // lib/config/router/app_router.dart 新增
@@ -145,11 +149,15 @@ GoRoute(
 | 1.1.f middle | 13 | widget |
 | 1.1.g main | 16 | widget |
 | 1.1.h.0 factory | 18 | 单元 |
-| 1.1.h.2 page integration | 15 | widget |
+| 1.1.h.2 page integration | 16 | widget |
 | 1.1.j barrel | 12 | 单元 |
 | 1.1.l keyboard intent | 22 | 单元 |
-| 1.1.m route params | 34 | 单元（含 9 case round-trip） |
-| **合计** | **226** | **全绿** |
+| 1.1.m route params | 26 | 单元（含 round-trip） |
+| 2.1.d chat title resolver | 13 | 单元 |
+| 2.1.b-5a message actions | 7 | 单元 |
+| recall decision | 8 | 单元 |
+| chrome e2e smoke | 5 | 冒烟 |
+| **合计** | **255 全绿** | **2026-09-30 实测**（表内为 `test(` 静态计数，合计 252，与运行数差 3 来自参数化用例） |
 
 ### 测试技术要点（教训沉淀）
 
@@ -193,16 +201,15 @@ Responsive:
 5. **State short-circuiting**: Riverpod Notifier short-circuits same-tab+null-sel / same-sel / null-clear transitions
 6. **Round-trip invariance for deep-linking**: `parseShellRouteParams(toParams(state)) == state`
 
-### Files (12 total)
+### Files (16 total)
 
 See Chinese section above for full file list. The barrel export `web_shell.dart` is the single import entry; `web_shell_page.dart` is the integration widget that callers consume.
 
 ### Test Stats
 
-**226 tests across all slices, all green.** Full regression: 3070/3070.
+**255 tests green across 16 test files (re-verified 2026-09-30).** Full regression 3070/3070 figure refers to the original Phase 1.1 batch (not re-verified since).
 
 ### Next Steps (post Phase 1.1)
 
-- **1.1.h.3** wrapper: build `WebShellBootstrap` ConsumerWidget that resolves slang i18n + wires actual page widgets, then instantiates `WebShellPage`
-- **1.1.i** route integration: register `/web_shell` route in `app_router.dart`, redirect `WebLoginPage` success to `/web_shell` on `kIsWeb`
+- ~~**1.1.h.3** wrapper~~ / ~~**1.1.i** route integration~~：已完成（`web_shell_bootstrap.dart` + `/web_shell` 路由已注册于 `app_router.dart`）
 - **Phase 2-5**: chat panel Web adaptation / WebRTC / desktop notifications / multi-tab sync / deployment optimization (see `~/.claude/plans/gentle-beaming-treehouse.md`)

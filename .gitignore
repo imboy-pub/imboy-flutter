@@ -45,6 +45,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .env*
+!.env.e2e.example
 plugin/build
 ios/build
 macos/build

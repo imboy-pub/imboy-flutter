@@ -48,8 +48,8 @@ flutter analyze                         # 静态检查
 flutter test                            # 单元和 Widget 测试
 dart scripts/check_boundaries.dart      # 模块边界检查
 dart run slang                          # 重新生成多语言代码
-flutter build apk --release             # 构建 Android APK
-flutter build appbundle --release       # 构建 Google Play AAB
+flutter build apk --release --flavor standard   # 构建 Android APK
+./scripts/build_play_aab.sh <build_number>      # 构建 Google Play AAB（正式包）
 ```
 
 需要运行真机集成测试时，先阅读 [集成测试说明](./integration_test/README.md)。
@@ -80,9 +80,12 @@ integration_test/  真机集成测试
 ## 继续阅读
 
 - [项目约定与架构](./CLAUDE.md)
+- [贡献指南](./CONTRIBUTING.md)
+- [命令参考](./docs/reference/commands.md) · [环境变量参考](./docs/reference/environment-variables.md)
 - [代码地图](./docs/codemaps/index.md)
 - [模块地图](./docs/module-map.md)
 - [自动化测试](./integration_test/README.md)
+- [构建与发布](./docs/build-and-release.md)
 
 ## 许可证
 
