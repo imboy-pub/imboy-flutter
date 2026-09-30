@@ -7,6 +7,7 @@
 library;
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -217,6 +218,53 @@ class WorkspaceApi extends HttpClient {
   Future<List<GroupModel>> groups(EntityId workspaceId) async {
     final resp = await get('/api/v1/workspaces/$workspaceId/groups');
     return _unwrapList(resp, GroupModel.fromJson);
+  }
+
+  /// 本人已加入的群，完整消费游标；任一页失败不返回部分列表。
+  Future<List<GroupModel>> memberGroups(EntityId workspaceId) async {
+    var cursor = 0;
+    final result = <GroupModel>[];
+    while (true) {
+      final payload = _ensureOk(
+        await get(
+          '/api/v1/workspaces/$workspaceId/groups',
+          queryParameters: {'member_only': 1, 'limit': 200, 'cursor': cursor},
+        ),
+      );
+      final raw = payload['list'];
+      final more = payload['has_more'];
+      final next = int.tryParse('${payload['next_cursor']}');
+      if (entityIdOf(payload['workspace_id']) != workspaceId ||
+          raw is! List ||
+          raw.length > 200 ||
+          more is! bool ||
+          next == null) {
+        throw WorkspaceApiException(503, t.common.errorNetwork);
+      }
+      var lastId = cursor;
+      for (final row in raw) {
+        if (row is! Map<String, dynamic> ||
+            row['scope'] != 'workspace' ||
+            entityIdOf(row['workspace_id']) != workspaceId ||
+            row['status'] != 1) {
+          throw WorkspaceApiException(503, t.common.errorNetwork);
+        }
+        final group = GroupModel.fromJson(row);
+        if (group.groupId <= lastId) {
+          throw WorkspaceApiException(503, t.common.errorNetwork);
+        }
+        lastId = group.groupId;
+        result.add(group);
+      }
+      if (!more) {
+        if (next != 0) throw WorkspaceApiException(503, t.common.errorNetwork);
+        return result;
+      }
+      if (raw.isEmpty || next != lastId) {
+        throw WorkspaceApiException(503, t.common.errorNetwork);
+      }
+      cursor = next;
+    }
   }
 
   // ==================== 工作区成员（Workspace Member） ====================

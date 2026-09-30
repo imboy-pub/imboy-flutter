@@ -1,6 +1,6 @@
 /// T9 (WP5) — Workspace Groups 视图（聊天唯一入口，§4.2 IA / I6）
 ///
-/// workspace group 列表（GET /workspaces/:id/groups，scope 严格分区）；
+/// 本账号已加入的 workspace 群列表（完整游标分页，scope 严格分区）；
 /// 点进**复用现有群聊页面**（/chat/:groupId?type=C2G），不新建聊天 UI。
 library;
 

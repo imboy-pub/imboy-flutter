@@ -10,6 +10,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -29,10 +30,14 @@ final workspaceChannelsProvider = FutureProvider.autoDispose
       return ref.watch(workspaceApiProvider).channels(wsId);
     });
 
-/// 工作区群列表（scope=workspace）。
+/// 本账号已加入的工作区群；账号变化使未完成分页失效。
 final workspaceGroupsProvider = FutureProvider.autoDispose
     .family<List<GroupModel>, EntityId>((ref, wsId) {
-      return ref.watch(workspaceApiProvider).groups(wsId);
+      final uid = ref.watch(
+        currentUserProvider.select((user) => user?.uid ?? ''),
+      );
+      if (uid.isEmpty) return const <GroupModel>[];
+      return ref.watch(workspaceApiProvider).memberGroups(wsId);
     });
 
 /// 工作区成员分页列表（第一页，size 50；成员管理页当前规模足够）。
