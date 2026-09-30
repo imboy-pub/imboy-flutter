@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -34,6 +36,9 @@ Future<void> showE2EERecoveryGuide(
   BuildContext context, {
   required E2EERecoveryScene scene,
 }) {
+  if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
+    return Future<void>.value();
+  }
   return showDialog<void>(
     context: context,
     builder: (ctx) {
@@ -61,7 +66,9 @@ Future<void> showE2EERecoveryGuide(
           CupertinoButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              ctx.push('/e2ee_key_recovery');
+              if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
+                context.push('/e2ee_key_recovery');
+              }
             },
             child: Text(t.chat.e2eeRecoveryGoRecover),
           ),
@@ -83,13 +90,20 @@ class E2EERecoveryBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
+      return const SizedBox.shrink();
+    }
     final scheme = Theme.of(context).colorScheme;
     final textStyle = Theme.of(context).textTheme.bodySmall
         ?.copyWith(color: scheme.onSecondaryContainer);
     return Material(
       color: scheme.secondaryContainer,
       child: GestureDetector(
-        onTap: () => context.push('/e2ee_key_recovery'),
+        onTap: () {
+          if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
+            context.push('/e2ee_key_recovery');
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.regular,

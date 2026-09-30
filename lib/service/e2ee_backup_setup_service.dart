@@ -1,3 +1,6 @@
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+
 import 'dart:convert';
 
 import 'package:imboy/component/helper/func.dart';
@@ -56,10 +59,13 @@ class E2EEBackupSetupService {
   /// - 服务端已有备份（老用户在导出页手动传过）→ 静默补完成标记，不 nag；
   /// - info() 网络失败上抛 → 本次不 nag，下次启动重查。
   Future<bool> shouldPromptNow({E2EEBackupApi? api}) async {
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return false;
     if (_promptedThisSession) return false;
     if (!await needsSetup()) return false;
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return false;
     try {
       final info = await (api ?? E2EEBackupApi()).info();
+      if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return false;
       if (info.hasBackup) {
         await StorageService.to.setBool(kE2eeBackupSetupDoneKey, true);
         return false;

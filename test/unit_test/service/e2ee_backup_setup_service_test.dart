@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +23,7 @@ void main() {
   final secureStore = <String, String?>{};
 
   setUp(() async {
+    AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: true});
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.init();
     secureStore.clear();
@@ -51,6 +56,7 @@ void main() {
   });
 
   tearDown(() async {
+    AppFeatureRegistry.replaceSnapshotForTest({});
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -82,6 +88,31 @@ void main() {
   });
 
   group('shouldPromptNow', () {
+    test('关闭时不请求备份也不标记完成，恢复开启后仍可提示', () async {
+      await seedKeys();
+      final api = _FakeBackupApi();
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: false});
+      expect(
+        await E2EEBackupSetupService.to.shouldPromptNow(api: api),
+        isFalse,
+      );
+      expect(api.infoCalls, 0);
+      expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: true});
+      expect(await E2EEBackupSetupService.to.shouldPromptNow(api: api), isTrue);
+    });
+
+    test('备份查询期间关闭时不弹出，也不改写完成标记', () async {
+      await seedKeys();
+      final pending = Completer<E2EEBackupInfo>();
+      final api = _FakeBackupApi(pendingInfo: pending.future);
+      final result = E2EEBackupSetupService.to.shouldPromptNow(api: api);
+      await api.infoStarted.future;
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: false});
+      pending.complete(const E2EEBackupInfo(hasBackup: true, backupVersion: 1));
+      expect(await result, isFalse);
+      expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
+    });
     test('服务端已有备份 → 静默补完成标记并返回 false', () async {
       await seedKeys();
       final prompt = await E2EEBackupSetupService.to.shouldPromptNow(
@@ -168,13 +199,24 @@ void main() {
 }
 
 class _FakeBackupApi implements E2EEBackupApi {
-  _FakeBackupApi({this.hasBackup = false, this.throws = false});
+  _FakeBackupApi({
+    this.hasBackup = false,
+    this.throws = false,
+    this.pendingInfo,
+  });
+
+  final Future<E2EEBackupInfo>? pendingInfo;
+  int infoCalls = 0;
+  final infoStarted = Completer<void>();
 
   final bool hasBackup;
   final bool throws;
 
   @override
   Future<E2EEBackupInfo> info({CancelToken? cancelToken}) async {
+    infoCalls++;
+    if (!infoStarted.isCompleted) infoStarted.complete();
+    if (pendingInfo != null) return pendingInfo!;
     if (throws) {
       throw Exception('network down');
     }
