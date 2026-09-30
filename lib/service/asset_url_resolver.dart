@@ -82,6 +82,10 @@ class AssetUrlResolver {
     return future;
   }
 
+  /// 用户主动打开受限文件时重验权限，不复用缓存或进行中的旧签发。
+  Future<String> resolveFresh(String objectKey) =>
+      (fetcherOverride ?? _fetchFromBackend)(objectKey);
+
   Future<String> _fetch(String objectKey) async {
     try {
       final ViewUrlFetcher fetch = fetcherOverride ?? _fetchFromBackend;

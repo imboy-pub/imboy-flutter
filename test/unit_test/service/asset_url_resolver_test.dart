@@ -8,6 +8,8 @@
 /// 5. TTL 过期后重新 fetch
 library;
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
 
@@ -28,6 +30,32 @@ void main() {
   });
 
   group('resolve - TTL 缓存', () {
+    test('主动打开不复用进行中的旧签发', () async {
+      const key = 'u1/file_1_a/x.png';
+      final oldResult = Completer<String>();
+      resolver.fetcherOverride = (_) => oldResult.future;
+      final oldRequest = resolver.resolve(key);
+      resolver.fetcherOverride = (_) async => 'https://example.com/fresh';
+      expect(await resolver.resolveFresh(key), 'https://example.com/fresh');
+      oldResult.complete('https://example.com/old');
+      await oldRequest;
+    });
+
+    test('主动打开每次重新签发，不使用缓存', () async {
+      const key = 'u1/file_1_a/x.png';
+      await resolver.resolve(key);
+      await resolver.resolveFresh(key);
+      await resolver.resolveFresh(key);
+      expect(fetchCount, 3);
+    });
+
+    test('已有缓存时，新授权失败仍然失败', () async {
+      const key = 'u1/file_1_a/x.png';
+      await resolver.resolve(key);
+      resolver.fetcherOverride = (_) async => throw Exception('forbidden');
+      await expectLater(resolver.resolveFresh(key), throwsException);
+    });
+
     test('首次 fetch，二次命中缓存（不重复网络）', () async {
       const key = 'u1/file_1_a/x.png';
       final url1 = await resolver.resolve(key);

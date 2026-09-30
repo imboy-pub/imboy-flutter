@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:cross_file/cross_file.dart';
@@ -11,7 +12,10 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/service/group_file_service.dart';
+import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/store/api/group_file_api.dart';
+
+part 'group_file_controlled_open_checks.dart';
 
 class _UploadCall {
   const _UploadCall({
@@ -180,11 +184,11 @@ final class _FakePickedFile extends PlatformFile {
   Stream<Uint8List> readAsByteStream() => Stream.value(_bytes ?? Uint8List(0));
 }
 
-Widget _buildTestApp() {
+Widget _buildTestApp({String groupId = 'g1'}) {
   // 群文件页用 AppLoading.showToast 反馈；未挂 builder 时 EasyLoading 会断言。
   return ProviderScope(
     child: MaterialApp(
-      home: const GroupFilePage(groupId: 'g1'),
+      home: GroupFilePage(groupId: groupId),
       builder: AppLoading.init(),
     ),
   );
@@ -221,11 +225,15 @@ void main() {
   });
 
   tearDown(() {
+    AssetUrlResolver.instance.clear();
+    AssetUrlResolver.instance.fetcherOverride = null;
     GroupFileService.instanceForTest = null;
     GroupFilePage.openWebPreviewForTest = null;
     GroupFilePage.openMediaPreviewForTest = null;
     GroupFilePage.openExternalForTest = null;
   });
+
+  groupFileControlledOpenTests();
 
   testWidgets('category filter narrows list and forwards category', (
     tester,
@@ -409,7 +417,10 @@ void main() {
     await tester.tap(find.text('需求文档.pdf'));
     await tester.pumpAndSettle();
 
-    expect(capturedUrl, 'https://example.com/doc.pdf');
+    final authorized = Uri.parse(capturedUrl!);
+    expect(authorized.origin, 'https://example.com');
+    expect(authorized.path, '/doc.pdf');
+    expect(authorized.queryParameters.keys, containsAll(['s', 'a', 'v']));
     expect(capturedTitle, '需求文档.pdf');
     expect(find.text('无法打开文件链接'), findsNothing);
   });
@@ -448,7 +459,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(fallbackCalls, 1);
-    expect(fallbackUrl, 'https://example.com/fallback-doc.pdf');
+    final authorized = Uri.parse(fallbackUrl!);
+    expect(authorized.origin, 'https://example.com');
+    expect(authorized.path, '/fallback-doc.pdf');
+    expect(authorized.queryParameters.keys, containsAll(['s', 'a', 'v']));
     expect(find.text('无法打开文件链接'), findsNothing);
   });
 
@@ -510,7 +524,10 @@ void main() {
     await tester.tap(find.text('演示视频.mp4'));
     await tester.pumpAndSettle();
 
-    expect(capturedUrl, 'https://example.com/demo.mp4');
+    final authorized = Uri.parse(capturedUrl!);
+    expect(authorized.origin, 'https://example.com');
+    expect(authorized.path, '/demo.mp4');
+    expect(authorized.queryParameters.keys, containsAll(['s', 'a', 'v']));
     expect(capturedTitle, '演示视频.mp4');
     expect(capturedKind, 'video');
     expect(find.text('无法打开文件链接'), findsNothing);
@@ -546,7 +563,10 @@ void main() {
     await tester.tap(find.text('语音播客.mp3'));
     await tester.pumpAndSettle();
 
-    expect(capturedUrl, 'https://example.com/podcast.mp3');
+    final authorized = Uri.parse(capturedUrl!);
+    expect(authorized.origin, 'https://example.com');
+    expect(authorized.path, '/podcast.mp3');
+    expect(authorized.queryParameters.keys, containsAll(['s', 'a', 'v']));
     expect(capturedTitle, '语音播客.mp3');
     expect(capturedKind, 'audio');
     expect(find.text('无法打开文件链接'), findsNothing);
@@ -587,7 +607,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(fallbackCalls, 1);
-    expect(fallbackUrl, 'https://example.com/fallback-video.mp4');
+    final authorized = Uri.parse(fallbackUrl!);
+    expect(authorized.origin, 'https://example.com');
+    expect(authorized.path, '/fallback-video.mp4');
+    expect(authorized.queryParameters.keys, containsAll(['s', 'a', 'v']));
     expect(find.text('无法打开文件链接'), findsNothing);
   });
 

@@ -20,6 +20,7 @@ import 'package:imboy/page/group/group_role_rules.dart' show isGroupAdmin;
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
 import 'package:imboy/page/single/video_viewer_page.dart';
 import 'package:imboy/service/group_file_service.dart';
+import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
@@ -64,6 +65,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   List<Map<String, dynamic>> _categoryStats = [];
   bool _isLoading = true;
   bool _isUploading = false;
+  bool _isOpening = false;
 
   /// 首屏/刷新失败的友好文案；非 null 时渲染失败态而非"暂无文件"空态。
   String? _error;
@@ -272,6 +274,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   }
 
   String _resolveFileUrl(Map<String, dynamic> file) {
+    final objectKey = file['object_key']?.toString().trim() ?? '';
+    if (file.containsKey('object_key')) return objectKey;
     final primary = file['file_url']?.toString().trim() ?? '';
     if (primary.isNotEmpty) return primary;
     final backup = file['url']?.toString().trim() ?? '';
@@ -437,59 +441,81 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     return true;
   }
 
-  Future<void> _openFile(Map<String, dynamic> file) async {
-    final url = _resolveFileUrl(file);
-    if (url.isEmpty) {
-      if (!mounted) return;
-      AppLoading.showToast(t.chat.groupFileUrlMissing);
-      return;
+  Future<String?> _authorizeFileUrl(Map<String, dynamic> file) async {
+    final source = _resolveFileUrl(file);
+    if (source.isEmpty) {
+      AppLoading.showToast(
+        file.containsKey('object_key')
+            ? t.common.groupFileOpenFailed
+            : t.chat.groupFileUrlMissing,
+      );
+      return null;
     }
-
-    final uri = Uri.tryParse(url);
-    if (uri == null) {
-      if (!mounted) return;
+    if (Uri.tryParse(source) == null) {
       AppLoading.showToast(t.chat.groupFileUrlInvalid);
-      return;
+      return null;
     }
+    final accountKey = UserRepoLocal.to.currentUid;
+    final groupId = widget.groupId;
+    setState(() => _isOpening = true);
+    try {
+      final resolver = AssetUrlResolver.instance;
+      final url = file['object_key']?.toString().trim().isNotEmpty == true
+          ? await resolver.resolveFresh(source)
+          : await resolver.resolveForDisplay(source);
+      if (!mounted ||
+          UserRepoLocal.to.currentUid != accountKey ||
+          widget.groupId != groupId) {
+        return null;
+      }
+      final uri = Uri.tryParse(url);
+      if (uri == null || !['http', 'https'].contains(uri.scheme)) {
+        AppLoading.showToast(t.chat.groupFileUrlInvalid);
+        return null;
+      }
+      return url;
+    } catch (_) {
+      if (mounted &&
+          UserRepoLocal.to.currentUid == accountKey &&
+          widget.groupId == groupId) {
+        AppLoading.showToast(t.common.groupFileOpenFailed);
+      }
+      return null;
+    } finally {
+      if (mounted) setState(() => _isOpening = false);
+    }
+  }
 
+  Future<bool> _previewFile(Map<String, dynamic> file, String url) async {
+    final name = _resolveFileName(file);
     if (_isImageFile(file, url)) {
-      await _showImagePreview(url, _resolveFileName(file));
-      return;
+      await _showImagePreview(url, name);
+      return true;
     }
-
     final mediaType = _resolveMediaPreviewType(file, url);
-    if (mediaType != null) {
-      final opened = await _openMediaPreview(
-        url,
-        _resolveFileName(file),
-        mediaType,
-      );
-      if (!opened) {
-        final openedExternal = await _openExternal(uri);
-        if (!openedExternal && mounted) {
-          AppLoading.showToast(t.common.groupFileOpenFailed);
-        }
-      }
-      return;
-    }
-
+    if (mediaType != null) return _openMediaPreview(url, name, mediaType);
     if (_shouldPreviewInWebView(file, url)) {
-      final title = _resolveFileName(file);
-      final opened = await _openWebPreview(
+      return _openWebPreview(
         url,
-        title.isEmpty ? t.chat.groupFilePreview : title,
+        name.isEmpty ? t.chat.groupFilePreview : name,
       );
-      if (!opened) {
-        final openedExternal = await _openExternal(uri);
-        if (!openedExternal && mounted) {
-          AppLoading.showToast(t.common.groupFileOpenFailed);
-        }
-      }
+    }
+    return false;
+  }
+
+  Future<void> _openFile(Map<String, dynamic> file) async {
+    if (_isOpening) return;
+    final accountKey = UserRepoLocal.to.currentUid;
+    final groupId = widget.groupId;
+    final url = await _authorizeFileUrl(file);
+    if (url == null || !mounted) return;
+    if (await _previewFile(file, url)) return;
+    if (!mounted ||
+        UserRepoLocal.to.currentUid != accountKey ||
+        widget.groupId != groupId) {
       return;
     }
-
-    if (!await _openExternal(uri)) {
-      if (!mounted) return;
+    if (!await _openExternal(Uri.parse(url)) && mounted) {
       AppLoading.showToast(t.common.groupFileOpenFailed);
     }
   }
@@ -501,6 +527,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
         title: t.chat.groupFile,
         automaticallyImplyLeading: true,
         rightDMActions: [
+          if (_isOpening) const CupertinoActivityIndicator(),
           IconButton(
             icon: const Icon(CupertinoIcons.arrow_up_doc, size: 22),
             tooltip: t.common.groupFileUploadTooltip,
