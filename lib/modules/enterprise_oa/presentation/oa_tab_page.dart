@@ -37,6 +37,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/store/model/workspace_model.dart' show EntityId;
 
 /// SSO 签发出口（生产 [ApiOaSsoIssueLauncher]；测试注入 fake）。
 abstract interface class OaSsoIssueLauncher {
@@ -49,7 +50,9 @@ abstract interface class OaSsoIssueLauncher {
 
 /// 生产签发出口：OaSsoApi 直连。
 class ApiOaSsoIssueLauncher implements OaSsoIssueLauncher {
-  ApiOaSsoIssueLauncher();
+  ApiOaSsoIssueLauncher({this.organizationId});
+
+  final EntityId? organizationId;
 
   final OaSsoApi _api = OaSsoApi();
 
@@ -63,6 +66,7 @@ class ApiOaSsoIssueLauncher implements OaSsoIssueLauncher {
       applicationKey: applicationKey,
       redirectUri: redirectUri,
       nonce: nonce,
+      organizationId: organizationId,
     );
   }
 }
@@ -139,7 +143,7 @@ class OaTabPage extends StatefulWidget {
 
   /// 宿主登录/企业上下文；null 保留无宿主的既有测试与独立页面形态。
   final String? accountKey;
-  final String? organizationId;
+  final EntityId? organizationId;
 
   @override
   State<OaTabPage> createState() => _OaTabPageState();
@@ -238,7 +242,8 @@ class _OaTabPageState extends State<OaTabPage> {
 
     final String nonce = widget.nonceGenerator?.call() ?? generateOaSsoNonce();
     final OaSsoIssueResult result =
-        await (widget.ssoLauncher ?? ApiOaSsoIssueLauncher())
+        await (widget.ssoLauncher ??
+                ApiOaSsoIssueLauncher(organizationId: widget.organizationId))
             .launch(
               applicationKey: _config.applicationKey,
               redirectUri: _config.redirectUri,

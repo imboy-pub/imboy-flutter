@@ -20,6 +20,7 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/modules/enterprise_oa/data/oa_sso_api.dart';
 import 'package:imboy/modules/enterprise_oa/domain/oa_sso_issue.dart';
 import 'package:imboy/modules/enterprise_oa/domain/oa_tab_state.dart';
+import 'package:imboy/modules/enterprise_oa/presentation/oa_tab_page.dart';
 import 'package:imboy/service/storage.dart';
 
 /// 记录请求 + 恒返指定响应的出口（不触网；镜像 A7 push_token_lifecycle 基建）。
@@ -31,6 +32,7 @@ class _RecordingAdapter implements HttpClientAdapter {
 
   /// 每次请求的 (method, path, data)。
   final List<(String, String, Object?)> requests = [];
+  final List<String> wireBodies = [];
 
   @override
   Future<ResponseBody> fetch(
@@ -39,6 +41,10 @@ class _RecordingAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     requests.add((options.method, options.uri.path, options.data));
+    if (requestStream != null) {
+      final bytes = await requestStream.expand((chunk) => chunk).toList();
+      wireBodies.add(utf8.decode(bytes));
+    }
     return ResponseBody.fromString(
       jsonEncode(body),
       statusCode,
@@ -173,6 +179,64 @@ void main() {
         'secure_refresh_token': fakeJwt(),
       });
     }
+
+    test('生产 launcher 将企业 ID 无损编码为 JSON integer', () async {
+      final adapter = _RecordingAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'code': 'oa_sso_issued',
+            'expires_in': 60,
+            'redirect_uri': 'https://oa.example.com/landing',
+          },
+        ),
+      );
+      await prepareEnv(adapter);
+      final result =
+          await ApiOaSsoIssueLauncher(organizationId: '9223372036854775807')
+              .launch(
+                applicationKey: 'ak_gz_customer_01',
+                redirectUri: 'https://oa.example.com/landing',
+                nonce: 'nonce-0123456789abcdef',
+              );
+      expect(result, isA<OaSsoCodeIssued>());
+      expect(adapter.requests, hasLength(1));
+      expect(
+        adapter.wireBodies.single,
+        contains('"organization_id":9223372036854775807,'),
+      );
+      expect(
+        adapter.wireBodies.single,
+        contains('"nonce":"nonce-0123456789abcdef"'),
+      );
+    });
+
+    test('非法企业 ID 在网络请求前拒绝', () async {
+      final adapter = _RecordingAdapter(200, okEnvelope());
+      await prepareEnv(adapter);
+      final api = OaSsoApi();
+      for (final id in [
+        '',
+        '0',
+        '-1',
+        '01',
+        '1.0',
+        '9223372036854775808',
+        '1,"x":2',
+      ]) {
+        final result = await api.issueCode(
+          applicationKey: 'ak_gz_customer_01',
+          redirectUri: 'https://oa.example.com/landing',
+          nonce: 'nonce-0123456789abcdef',
+          organizationId: id,
+        );
+        expect(
+          (result as OaSsoIssueFailed).kind,
+          OaSsoIssueFailureKind.badRequest,
+        );
+      }
+      expect(adapter.requests, isEmpty);
+    });
 
     test('POST /api/v1/oa/sso/code，body 仅三字段且无 secret', () async {
       final adapter = _RecordingAdapter(
