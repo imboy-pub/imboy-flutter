@@ -93,7 +93,9 @@ class _OaSsoCodeIssuedRef {
 /// 帧驱动 fake webview：真实容器同形接线（onPageFinished 模拟——
 /// loading → ready + 首载信号）。
 class _FakeWebView extends StatefulWidget {
-  const _FakeWebView(this.props);
+  const _FakeWebView(this.props, {this.autoFinish = true});
+
+  final bool autoFinish;
 
   final OaWebViewSlotProps props;
 
@@ -102,17 +104,26 @@ class _FakeWebView extends StatefulWidget {
 }
 
 class _FakeWebViewState extends State<_FakeWebView> {
+  static int mounts = 0;
+  static int disposals = 0;
   @override
   void initState() {
     super.initState();
+    mounts++;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+      if (!mounted || !widget.autoFinish) return;
       // 模拟 onPageFinished：loading → ready + 首载信号 + 状态回流。
       if (widget.props.machine.markReady()) {
         widget.props.onFirstPageLoaded();
       }
       widget.props.onStateChanged();
     });
+  }
+
+  @override
+  void dispose() {
+    disposals++;
+    super.dispose();
   }
 
   @override
@@ -125,6 +136,33 @@ class _FakeWebViewState extends State<_FakeWebView> {
 Widget host(Widget child) => MaterialApp(home: child);
 
 void main() {
+  testWidgets('loading to ready keeps the single-use SSO WebView mounted', (
+    tester,
+  ) async {
+    _FakeWebViewState.mounts = 0;
+    _FakeWebViewState.disposals = 0;
+    final machine = OaTabStateMachine();
+    final launcher = _FakeLauncher([_issued().build()]);
+    await tester.pumpWidget(
+      host(
+        OaTabPage(
+          config: testConfig(),
+          machine: machine,
+          ssoLauncher: launcher,
+          webViewBuilder: _FakeWebView.new,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(machine.status, OaTabStatus.ready);
+    expect(launcher.calls, hasLength(1));
+    expect(_FakeWebViewState.mounts, 1);
+    expect(_FakeWebViewState.disposals, 0);
+    await tester.pumpWidget(host(const SizedBox.shrink()));
+    await tester.pumpAndSettle();
+    expect(_FakeWebViewState.disposals, 1);
+  });
+
   testWidgets('切换远端 Tab 后 OA 保活，不重新签发', (tester) async {
     final launcher = _FakeLauncher([_issued().build()]);
     final controller = PageController();
@@ -263,13 +301,17 @@ void main() {
 
   testWidgets('签发成功链：loading→code 到达→首帧→ready，倒计时停止', (tester) async {
     final launcher = _FakeLauncher([_issued().build()]);
+    OaWebViewSlotProps? loadingProps;
     await tester.pumpWidget(
       host(
         OaTabPage(
           config: testConfig(),
           ssoLauncher: launcher,
           nonceGenerator: () => 'nonce-fixed-0123456789',
-          webViewBuilder: _FakeWebView.new,
+          webViewBuilder: (props) {
+            loadingProps = props;
+            return _FakeWebView(props, autoFinish: false);
+          },
         ),
       ),
     );
@@ -287,7 +329,10 @@ void main() {
       findsOneWidget,
     );
 
-    // 首帧加载完成 → ready（AnimatedSwitcher 200ms 过渡后旧子树卸载）。
+    // 真正的 page-finished 回调后移除遮罩，保持原 WebView。
+    expect(loadingProps!.machine.markReady(), isTrue);
+    loadingProps!.onFirstPageLoaded();
+    loadingProps!.onStateChanged();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byKey(const ValueKey('fake_webview')), findsOneWidget);
 

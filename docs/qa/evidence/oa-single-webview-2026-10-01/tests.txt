@@ -1,0 +1,223 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart
+00:00 +0: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: OaTabStateMachine 主干迁移 loading → ready → loggedOut → restartSso → loading
+00:00 +1: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: OaTabStateMachine 主干迁移 loading → error → retry → loading → ready
+00:00 +2: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: OaTabStateMachine 主干迁移 ready → oa401 → restartSso → loading
+00:00 +3: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: OaTabStateMachine 主干迁移 sessionExpired 可从 loading 或 ready 进入（code 兑换晚于加载）
+00:00 +4: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: originMismatch 分支 ready 态拦截记录事实，最新事实覆盖展示
+00:00 +5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: originMismatch 分支 loading 中重定向同样进入 mismatch（页面尚未 ready 也可能被劫持）
+00:00 +6: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: originMismatch 分支 mismatch 态也允许 restartSso（用户可直接重走 SSO）
+00:00 +7: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: 非法迁移 fail-closed（状态不变 + 返回 false） ready 之后不可重复 markReady / markError
+00:00 +8: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: 非法迁移 fail-closed（状态不变 + 返回 false） terminal 态只经 restartSso 复活，不可直接 markReady
+00:00 +9: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: 非法迁移 fail-closed（状态不变 + 返回 false） loggedOut 只能从 ready 进入；oa401 只能从 ready 进入
+00:00 +10: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: 非法迁移 fail-closed（状态不变 + 返回 false） ready / loading 态不可 restartSso（无失效可言）
+00:00 +11: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: 非法迁移 fail-closed（状态不变 + 返回 false） error 态允许 restartSso（网络错也可选择直接重登）
+00:00 +12: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_state_machine_test.dart: wireName 稳定（对齐后端/日志合同） 七态线名与 plan §7.2 命名一致
+00:00 +13: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +14: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +15: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +16: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +17: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +18: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +19: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +20: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +21: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +22: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +22: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_api_test.dart: OaSsoApi.issueCode — 真实请求形状（adapter 捕获） 配置发现实际请求携带当前企业且过滤响应中的其他企业
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/workbench/entries?organization_id=10
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/workbench/entries?organization_id=10
+
+00:00 +23: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +23: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_api_test.dart: OaSsoApi.issueCode — 真实请求形状（adapter 捕获） 生产 launcher 将企业 ID 无损编码为 JSON integer
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/oa/sso/code
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/oa/sso/code
+
+00:00 +24: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +25: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +25: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_api_test.dart: OaSsoApi.issueCode — 真实请求形状（adapter 捕获） POST /api/v1/oa/sso/code，body 仅三字段且无 secret
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/oa/sso/code
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/oa/sso/code
+
+00:00 +26: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +26: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_api_test.dart: OaSsoApi.issueCode — 真实请求形状（adapter 捕获） 404 信封 → notFound → 状态机目标 error（映射链贯通）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/oa/sso/code
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/oa/sso/code
+
+handleResponse_response /api/v1/oa/sso/code : false {"code":404,"msg":"resource not found"}; 
+00:00 +27: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: loading to ready keeps the single-use SSO WebView mounted
+00:00 +28: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 切换远端 Tab 后 OA 保活，不重新签发
+00:00 +29: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 切换企业丢弃旧签发结果
+00:00 +30: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 切换账号丢弃旧签发结果
+00:00 +31: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/enterprise_oa_runtime_config_test.dart: fromMap — brand 字段透传 完整配置：brand 各字段 + SSO 字段
+00:00 +32: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +33: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +34: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +35: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +36: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +37: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +38: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +39: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +40: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +41: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +42: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +43: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +44: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +45: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 关闭旧企业页面后旧回调不能恢复内容
+00:00 +46: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 明确缺失企业时不签发 OA code
+00:00 +47: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 签发异常进入可恢复错误状态
+[OaTab] sso issue failed: network
+00:00 +48: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 未配置 OA 的直构形态：不发起 SSO（W1 兼容）
+[OaTab] SSO config incomplete, entry should be hidden
+00:00 +49: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 签发成功链：loading→code 到达→首帧→ready，倒计时停止
+00:00 +50: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 60s 倒计时归零 → sessionExpired；重新签发用新 nonce
+00:01 +51: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 401 → sessionExpired（重新单点登录动作）
+[OaTab] sso issue failed: unauthorized
+00:01 +52: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 404 → error（重试动作）
+[OaTab] sso issue failed: notFound
+00:01 +53: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_policy_test.dart: normalizeOrigin 默认端口归一：:443 省略，非默认端口保留
+00:01 +54: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +55: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +56: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +57: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+[OaTab] sso issue failed: network
+00:01 +58: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +59: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +60: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +61: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +62: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +63: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +64: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +65: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +66: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +67: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +68: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +69: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +70: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: issue 网络失败 → error；重试在无可用 code 时重新签发
+00:01 +71: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_policy_test.dart: ExactOriginNavigationHandler 导航回调合同 域名跳转 → cancelAsMismatch（宿主须置 originMismatch 状态）
+00:01 +72: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 回显 redirect 离开允许 origin → originMismatch（纵深防御）
+00:01 +73: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 回显 redirect 离开允许 origin → originMismatch（纵深防御）
+00:01 +74: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: 回显 redirect 离开允许 origin → originMismatch（纵深防御）
+[OaTab] echoed redirect left allowed origin
+00:01 +75: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_sso_test.dart: launch URL 携带 code 与 state（nonce 原样回传）
+00:01 +76: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_workbench_api_test.dart: 配置只来自当前企业；HTTPS 同源配置复用现有模型
+00:01 +77: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_workbench_api_test.dart: 坏条目和无企业配置不能打开 OA
+00:01 +78: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_workbench_api_test.dart: 配置响应上限保持 20 条
+00:01 +79: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: decideNavigation — exact-origin 接线 允许 origin 内导航 → navigate
+00:01 +80: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: decideNavigation — exact-origin 接线 域名跳转 → prevent + originMismatch + 拦截事实
+00:01 +81: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: decideNavigation — exact-origin 接线 子域仿冒 → prevent + originMismatch
+00:01 +82: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: decideNavigation — exact-origin 接线 非 http(s) scheme（javascript:）→ prevent（非 mismatch）
+00:01 +83: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: decideNavigation — exact-origin 接线 端口不匹配 → prevent + originMismatch
+00:01 +84: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: decideNavigation — exact-origin 接线 ready 态的 mismatch 拦截同样成立（页内跳转防护）
+00:01 +85: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: onPageFinished — ready + 一次性首载信号 loading → ready，onFirstPageLoaded 恰好一次
+00:01 +86: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: onPageFinished — ready + 一次性首载信号 非 loading 态 finish 不推翻状态机（fail-closed）
+00:01 +87: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: onMainFrameLoadFailed — 主帧加载失败 → error loading 态 → error
+00:01 +88: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: onMainFrameLoadFailed — 主帧加载失败 → error ready 态保持（页内导航失败由 WebView 错误页自呈现）
+00:01 +89: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: onMainFrameHttpStatus — OA 401 ready 态 401 → oaUnauthorized
+00:01 +90: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: onMainFrameHttpStatus — OA 401 loading 态 401 → 回退 error（W1 冻结：oa401 仅 ready 可入）
+00:01 +91: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_webview_event_handlers_test.dart: onMainFrameHttpStatus — OA 401 非 401 状态码不动状态机（OA 页面自处理）
+00:02 +92: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: generateOaSsoNonce — A5 合同形态 缺省 CSPRNG 生成的 nonce 合法且不可预测长度
+00:02 +93: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: generateOaSsoNonce — A5 合同形态 两次生成不重复（CSPRNG）
+00:02 +94: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: generateOaSsoNonce — A5 合同形态 注入固定随机源的确定性（测试专用）
+00:02 +95: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: isValidOaSsoNonce — 合同区间与字符集 16 字符下界合法 / 15 字符非法
+00:02 +96: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: isValidOaSsoNonce — 合同区间与字符集 128 字符上界合法 / 129 字符非法
+00:02 +97: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: isValidOaSsoNonce — 合同区间与字符集 仅 [A-Za-z0-9_-]；空白与特殊字符非法
+00:02 +98: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: isValidOaSsoNonce — 合同区间与字符集 空串非法
+00:02 +99: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: buildOaSsoLaunchUrl — redirect_uri?code&state 基础形态：无既有 query 的 redirect
+00:02 +100: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: buildOaSsoLaunchUrl — redirect_uri?code&state 保留 redirect_uri 既有 query（code/state 附加不覆盖）
+00:02 +101: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: buildOaSsoLaunchUrl — redirect_uri?code&state code/state 中的保留字符被编码（注入防御）
+00:02 +102: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: targetStatusForIssueFailure — issue 侧错误映射矩阵 unauthorized → sessionExpired（重新单点登录动作）
+00:02 +103: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: targetStatusForIssueFailure — issue 侧错误映射矩阵 network/badRequest/forbidden/notFound/server/unknown → error
+00:02 +104: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: targetStatusForIssueFailure — issue 侧错误映射矩阵 wireName 稳定（对齐日志/后端排查面）
+00:02 +105: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_sso_issue_test.dart: OaSsoCodeIssued — 数据形态 字段直存
+00:02 +106: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: loading 态：进度指示 + 连接文案
+[OaTab] SSO config incomplete, entry should be hidden
+00:02 +107: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: ready 态：WebView 槽位占位（W3 接线点存在）
+00:02 +108: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +109: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +110: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +111: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +112: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +113: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +114: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +115: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +116: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +117: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +118: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +119: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +120: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+00:02 +121: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: error 态：标题/提示/重试按钮，点击后回 loading
+[OaTab] SSO config incomplete, entry should be hidden
+00:02 +122: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: sessionExpired 态：提示重新单点登录
+00:02 +123: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: loggedOut 态：提示重新单点登录，点击后回 loading
+[OaTab] SSO config incomplete, entry should be hidden
+00:02 +124: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: originMismatch 态：拦截提示附被拦 host（不含 query 等敏感参数）
+00:02 +125: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: oa401 态：提示重新单点登录
+00:02 +126: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_tab_page_test.dart: 页面标题为 OA
+[OaTab] SSO config incomplete, entry should be hidden
+00:03 +127: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_workbench_provider_test.dart: 企业切换后旧配置结果不能替换当前企业
+00:03 +128: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_message_badge_test.dart: OaDelegatedBadge：渲染「OA 代发」文案
+00:03 +129: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_message_badge_test.dart: OaDelegatedBadge：渲染「OA 代发」文案
+00:03 +130: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_message_badge_test.dart: OaNoE2eeMarker：渲染非 E2EE 状态标记
+00:03 +131: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_message_badge_test.dart: OaDelegatedSenderLine：Human 显示名 + origin 附注
+00:03 +132: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_message_badge_test.dart: OaDelegatedSenderLine：可关闭 origin 附注（紧凑列表）
+00:03 +133: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/enterprise_oa/oa_message_badge_test.dart: OaDelegatedSenderPresentation：展示数据形态拆分
+00:05 +134: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 退出账号后工作区资源立即清空，不发鉴权外请求
+00:05 +135: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 同一工作区换账号：重拉频道，旧请求不得覆盖新账号
+00:05 +136: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 无 OA：三项导航默认消息，通讯录按需加载
+00:05 +137: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 授权 OA 出现工作台，但未选应用前不创建 SSO 页面
+00:06 +138: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 企业切换销毁旧工作台，旧响应不能补回旧应用
+00:06 +139: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 频道从消息内进入，不占企业底栏
+00:06 +140: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 企业配置读取失败有重试入口，旧工作台立即撤下
+00:06 +141: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 桌面复用三项侧栏，不读取不支持的 OA
+00:06 +142: All tests passed!

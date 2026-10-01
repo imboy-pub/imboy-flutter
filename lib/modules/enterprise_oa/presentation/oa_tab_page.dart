@@ -397,7 +397,12 @@ class _OaTabPageState extends State<OaTabPage>
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: KeyedSubtree(
-          key: ValueKey<OaTabStatus>(_machine.status),
+          // Loading and ready share one controller: the launch code is single-use.
+          key: ValueKey<OaTabStatus>(
+            _machine.status == OaTabStatus.ready
+                ? OaTabStatus.loading
+                : _machine.status,
+          ),
           child: _buildStatusView(context),
         ),
       ),
@@ -411,27 +416,14 @@ class _OaTabPageState extends State<OaTabPage>
         // onPageFinished 驱动——先挂载才可能就绪），叠加载入遮罩 +
         // 倒计时；未取得 code 时仅展示签发中视图。
         if (_activeUrl != null) {
-          return Stack(
-            children: <Widget>[
-              Positioned.fill(child: _buildWebViewSlot()),
-              Positioned.fill(
-                child: ColoredBox(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  child: _OaLoadingView(
-                    issuingSso: false,
-                    countdownRemaining: _countdownRemaining,
-                  ),
-                ),
-              ),
-            ],
-          );
+          return _buildActiveWebView();
         }
         return _OaLoadingView(
           issuingSso: _ssoInFlight || (_activeUrl == null && _ssoCapable),
           countdownRemaining: null,
         );
       case OaTabStatus.ready:
-        return _buildWebViewSlot();
+        return _activeUrl == null ? _buildWebViewSlot() : _buildActiveWebView();
       case OaTabStatus.error:
         return _OaStatusMessageView(
           iconData: CupertinoIcons.wifi_exclamationmark,
@@ -477,6 +469,22 @@ class _OaTabPageState extends State<OaTabPage>
         );
     }
   }
+
+  Widget _buildActiveWebView() => Stack(
+    children: [
+      Positioned.fill(child: _buildWebViewSlot()),
+      if (_machine.status == OaTabStatus.loading)
+        Positioned.fill(
+          child: ColoredBox(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: _OaLoadingView(
+              issuingSso: false,
+              countdownRemaining: _countdownRemaining,
+            ),
+          ),
+        ),
+    ],
+  );
 
   /// WebView 槽：有 activeUrl → 真 WebView（loading/ready 两态共用，
   /// ready 由 onPageFinished 驱动）；否则保留 W1 占位（未配置 OA 的
