@@ -24,6 +24,7 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
@@ -101,31 +102,48 @@ ProductExperience resolveCurrentProductExperience() {
 /// 当前生效的产品体验。
 ///
 /// 消费方：ChatShellBootstrap（experience=chat → ChatShell）。本 Provider
-/// 是唯一可写入口，确保「设置」页选择后立即切壳并持久化到当前设备。
+/// 是唯一可写入口，保存当前设备偏好成功后切壳。
 class ProductExperienceNotifier extends Notifier<ProductExperience> {
+  Future<void> _pending = Future.value();
   @override
   ProductExperience build() => resolveCurrentProductExperience();
 
-  /// 选择当前设备的首页体验；写入失败时恢复先前状态，避免界面与持久化不一致。
-  Future<void> select(ProductExperience experience) async {
-    if (experience == state) return;
-    final previous = state;
-    state = experience;
-    try {
-      await StorageService.to.setString(
+  /// 保存成功后才切换界面；连续操作共用同一写入顺序。
+  Future<void> select(ProductExperience experience) => _enqueue(() async {
+    if (experience == state && readLocalProductExperience() == experience) {
+      return;
+    }
+    await _persist(
+      () => StorageService.to.setString(
         Keys.localProductExperience,
         experience.wireName,
-      );
-    } catch (_) {
-      state = previous;
-      rethrow;
-    }
-  }
+      ),
+    );
+    if (ref.mounted) state = experience;
+  });
 
   /// 删除当前设备的覆盖值，恢复服务端部署默认的首页布局。
-  Future<void> resetToDefault() async {
-    await StorageService.to.remove(Keys.localProductExperience);
-    state = readCachedProductExperience();
+  Future<void> resetToDefault() => _enqueue(() async {
+    await _persist(() => StorageService.to.remove(Keys.localProductExperience));
+    if (ref.mounted) state = readCachedProductExperience();
+  });
+
+  Future<void> _enqueue(Future<void> Function() change) {
+    final next = _pending.then((_) => change());
+    // Return the original failure to the caller, while allowing the next retry.
+    _pending = next.then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    return next;
+  }
+
+  Future<void> _persist(Future<bool> Function() write) async {
+    try {
+      if (!await write()) throw StateError('Could not save layout preference');
+    } on Object {
+      // SharedPreferences changes its memory cache before the native write.
+      // Reload the persisted value rather than retaining a failed optimistic write.
+      await (await SharedPreferences.getInstance()).reload();
+      rethrow;
+    }
   }
 }
 

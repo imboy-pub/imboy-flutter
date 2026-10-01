@@ -12,17 +12,169 @@
 /// SharedPreferences mock 初始化，可直接读写。
 library;
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+// Native plugin test seam, already installed by shared_preferences.
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
+
+class _PreferenceStore extends SharedPreferencesStorePlatform {
+  final values = <String, Object>{};
+  final writes = <String>[];
+  String failure = '';
+  Completer<void>? pending;
+
+  Future<bool> _write(String key, Object? value) async {
+    writes.add(value?.toString() ?? 'remove');
+    final gate = pending;
+    pending = null;
+    if (gate != null) await gate.future;
+    if (failure == 'throw') throw StateError('synthetic preference failure');
+    if (failure == 'false') return false;
+    if (value == null) {
+      values.remove(key);
+    } else {
+      values[key] = value;
+    }
+    return true;
+  }
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) =>
+      _write(key, value);
+  @override
+  Future<bool> remove(String key) => _write(key, null);
+  @override
+  Future<bool> clear() async {
+    values.clear();
+    return true;
+  }
+
+  @override
+  Future<Map<String, Object>> getAll() async => Map.of(values);
+}
+
+Future<_PreferenceStore> _installStore() async {
+  SharedPreferences.setMockInitialValues({});
+  final store = _PreferenceStore();
+  SharedPreferencesStorePlatform.instance = store;
+  await StorageService.init();
+  addTearDown(() async {
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+  });
+  return store;
+}
 
 void main() {
   setUp(() async {
     // 每个用例从「无缓存」状态出发（离线首启等价态）
     await StorageService.to.remove(Keys.effectiveProductExperience);
     await StorageService.to.remove(Keys.localProductExperience);
+  });
+
+  for (final failure in ['false', 'throw']) {
+    for (final reset in [false, true]) {
+      test('原生偏好 ${reset ? '删除' : '保存'} $failure：失败不切布局也不污染读取缓存', () async {
+        final store = await _installStore();
+        await StorageService.to.setString(Keys.localProductExperience, 'chat');
+        await StorageService.to.setString(
+          Keys.effectiveProductExperience,
+          'workspace',
+        );
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        final notifier = container.read(productExperienceProvider.notifier);
+        final published = <ProductExperience>[];
+        container.listen(
+          productExperienceProvider,
+          (_, next) => published.add(next),
+        );
+        store.failure = failure;
+        final change = reset
+            ? notifier.resetToDefault()
+            : notifier.select(ProductExperience.workspace);
+        await expectLater(change, throwsA(isA<StateError>()));
+        expect(
+          container.read(productExperienceProvider),
+          ProductExperience.chat,
+        );
+        expect(
+          StorageService.to.getString(Keys.localProductExperience),
+          'chat',
+        );
+        expect(store.values['flutter.${Keys.localProductExperience}'], 'chat');
+        expect(published, isEmpty);
+        store.failure = '';
+        await notifier.select(ProductExperience.workspace);
+        expect(
+          container.read(productExperienceProvider),
+          ProductExperience.workspace,
+        );
+      });
+    }
+  }
+
+  test('保存完成前不发布布局，连续切换按顺序写入', () async {
+    final store = await _installStore();
+    final gate = Completer<void>();
+    store.pending = gate;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final notifier = container.read(productExperienceProvider.notifier);
+    final first = notifier.select(ProductExperience.workspace);
+    await Future<void>.delayed(Duration.zero);
+    final second = notifier.select(ProductExperience.chat);
+    expect(container.read(productExperienceProvider), ProductExperience.chat);
+    expect(store.writes, ['workspace']);
+    gate.complete();
+    await Future.wait([first, second]);
+    expect(store.writes, ['workspace', 'chat']);
+    expect(container.read(productExperienceProvider), ProductExperience.chat);
+    expect(store.values['flutter.${Keys.localProductExperience}'], 'chat');
+  });
+
+  test('恢复默认值与保存共用顺序，不被迟到的保存覆盖', () async {
+    final store = await _installStore();
+    final gate = Completer<void>();
+    store.pending = gate;
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final notifier = container.read(productExperienceProvider.notifier);
+    final first = notifier.select(ProductExperience.workspace);
+    await Future<void>.delayed(Duration.zero);
+    final reset = notifier.resetToDefault();
+    gate.complete();
+    await Future.wait([first, reset]);
+    expect(store.writes, ['workspace', 'remove']);
+    expect(container.read(productExperienceProvider), ProductExperience.chat);
+    expect(
+      store.values.containsKey('flutter.${Keys.localProductExperience}'),
+      isFalse,
+    );
+  });
+
+  test('选择当前默认布局也保存明确偏好，后续部署默认值不能覆盖', () async {
+    final store = await _installStore();
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await container
+        .read(productExperienceProvider.notifier)
+        .select(ProductExperience.chat);
+    expect(store.writes, ['chat']);
+    await StorageService.to.setString(
+      Keys.effectiveProductExperience,
+      'workspace',
+    );
+    final restarted = ProviderContainer();
+    addTearDown(restarted.dispose);
+    expect(restarted.read(productExperienceProvider), ProductExperience.chat);
   });
 
   group('parseProductExperience — fail-safe 解析', () {
