@@ -22,6 +22,8 @@ import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 
 const String _wsId = '9001';
 const String _ownerUid = '1001';
@@ -105,6 +107,9 @@ Future<void> _pumpMembersPage(
     TranslationProvider(
       child: ProviderScope(
         overrides: [
+          currentUserProvider.overrideWithValue(
+            UserModel(uid: currentUid, account: 'synthetic-account'),
+          ),
           workspaceApiProvider.overrideWith((ref) => api),
           currentWorkspaceProvider.overrideWithValue(_ws()),
         ],
@@ -230,6 +235,9 @@ void main() {
       TranslationProvider(
         child: ProviderScope(
           overrides: [
+            currentUserProvider.overrideWithValue(
+              UserModel(uid: _ownerUid, account: 'synthetic-account'),
+            ),
             workspaceApiProvider.overrideWith((ref) => _MembersFakeApi()),
             currentWorkspaceProvider.overrideWithValue(
               _ws(status: WorkspaceStatus.archived),

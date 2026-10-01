@@ -174,8 +174,18 @@ _RoutingAdapter _happyAdapter({
     '/api/v1/workspaces/$kWsId/groups',
     200,
     _ok({
+      'workspace_id': kWsId,
+      'has_more': false,
+      'next_cursor': 0,
       'list': [
-        {'id': '7001', 'title': '企业全员群', 'member_count': 12, 'status': 1},
+        {
+          'id': '7001',
+          'title': '企业全员群',
+          'member_count': 12,
+          'status': 1,
+          'scope': 'workspace',
+          'workspace_id': kWsId,
+        },
       ],
     }),
   ),
@@ -183,8 +193,18 @@ _RoutingAdapter _happyAdapter({
     '/api/v1/workspaces/$kWsId/channels',
     200,
     _ok({
+      'workspace_id': kWsId,
+      'has_more': false,
+      'next_cursor': 0,
       'list': [
-        {'id': '6001', 'name': '公告', 'subscriber_count': 3, 'status': 1},
+        {
+          'id': '6001',
+          'name': '公告',
+          'subscriber_count': 3,
+          'status': 1,
+          'scope': 'workspace',
+          'workspace_id': kWsId,
+        },
       ],
     }),
     prefix: true,
@@ -194,8 +214,18 @@ _RoutingAdapter _happyAdapter({
     '/api/v1/workspaces/$kWsId/channels',
     200,
     _ok({
+      'workspace_id': kWsId,
+      'has_more': false,
+      'next_cursor': 0,
       'list': [
-        {'id': '6002', 'name': '旧公告', 'subscriber_count': 0, 'status': 0},
+        {
+          'id': '6002',
+          'name': '旧公告',
+          'subscriber_count': 0,
+          'status': 0,
+          'scope': 'workspace',
+          'workspace_id': kWsId,
+        },
       ],
     }),
     prefix: true,

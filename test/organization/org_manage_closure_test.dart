@@ -28,12 +28,19 @@ const String kOrgId = '900';
 const String kWsId = '801';
 
 class _Route {
-  const _Route(this.fragment, this.status, this.body, {this.prefix = false});
+  const _Route(
+    this.fragment,
+    this.status,
+    this.body, {
+    this.prefix = false,
+    this.archivedOnly = false,
+  });
 
   final String fragment;
   final int status;
   final dynamic body;
   final bool prefix;
+  final bool archivedOnly;
 }
 
 class _RoutingAdapter implements HttpClientAdapter {
@@ -51,6 +58,9 @@ class _RoutingAdapter implements HttpClientAdapter {
     hits.add('${options.method} ${options.path}');
     for (final r in routes) {
       if (!options.path.contains(r.fragment)) continue;
+      if (r.archivedOnly != (options.queryParameters['status'] == 'archived')) {
+        continue;
+      }
       return ResponseBody.fromString(
         jsonEncode(r.body),
         r.status,
@@ -110,8 +120,18 @@ Map<String, dynamic> _wsPage({String ownWsOwner = '1001'}) => {
 };
 
 Map<String, dynamic> _resources() => {
+  'workspace_id': kWsId,
+  'has_more': false,
+  'next_cursor': 0,
   'list': [
-    {'id': '7001', 'title': '闭包群', 'member_count': 3, 'status': 1},
+    {
+      'id': '7001',
+      'title': '闭包群',
+      'member_count': 3,
+      'status': 1,
+      'scope': 'workspace',
+      'workspace_id': kWsId,
+    },
   ],
 };
 
@@ -132,11 +152,32 @@ _RoutingAdapter _closureAdapter({String role = 'owner'}) => _RoutingAdapter([
     '/api/v1/workspaces/$kWsId/channels',
     200,
     _ok({
+      'workspace_id': kWsId,
+      'has_more': false,
+      'next_cursor': 0,
       'list': [
-        {'id': '6001', 'name': '闭包频道', 'subscriber_count': 2, 'status': 1},
+        {
+          'id': '6001',
+          'name': '闭包频道',
+          'subscriber_count': 2,
+          'status': 1,
+          'scope': 'workspace',
+          'workspace_id': kWsId,
+        },
       ],
     }),
     prefix: true,
+  ),
+  _Route(
+    '/api/v1/workspaces/$kWsId/channels',
+    200,
+    _ok({
+      'workspace_id': kWsId,
+      'has_more': false,
+      'next_cursor': 0,
+      'list': <Map<String, dynamic>>[],
+    }),
+    archivedOnly: true,
   ),
 ]);
 

@@ -19,6 +19,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/modules/organization/presentation/organization_tools_page.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 
 import '../ux_matrix/ux_harness.dart';
 
@@ -123,6 +125,11 @@ GoRoute _sentinel(String path, String label) => GoRoute(
 );
 
 Widget _host({String orgId = kOrgId}) => ProviderScope(
+  overrides: [
+    currentUserProvider.overrideWithValue(
+      UserModel(uid: kAccountKey, account: 'synthetic-account'),
+    ),
+  ],
   child: MaterialApp.router(
     routerConfig: GoRouter(
       initialLocation: '/tools',
