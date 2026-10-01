@@ -5,7 +5,7 @@
 // 不执行删除动态（红线）。
 //
 // 默认跳过。仅允许同时满足以下条件时运行：
-//   1. dart test（非 flutter test harness）；
+//   1. 真实网络（无 HttpOverrides mock）；
 //   2. API_BASE_URL 为本地/开发地址（api_test_client 白名单校验）；
 //   3. TEST_ALLOW_API_WRITES=true（业务写入门禁）；
 //   4. TEST_PHONE/TEST_PASSWORD（作者 A）与 TEST_PHONE2/TEST_PASSWORD2（访客 B）齐备。
@@ -31,9 +31,8 @@ import '../../test/unit_test/api/api_test_client.dart';
 const _marker = 'DEMO-FLOW-20260827';
 
 String? _gateReason() {
-  if (ApiTestConfig.isFlutterTestHarness) {
-    return '需用 dart test 运行（flutter test 的 mock HTTP 会恒返 400）';
-  }
+  final networkReason = ApiTestConfig.skipReasonIfNoRealNetwork;
+  if (networkReason != null) return networkReason;
   if (!ApiTestConfig.allowBusinessWrites) {
     return '业务写入门禁未开启：需 TEST_ALLOW_API_WRITES=true 且本地/开发地址';
   }
