@@ -146,6 +146,7 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
     _events = null;
     _presence?.stop();
     _presence = null;
+    _presenceBusy = false;
     final orgId = _selectedOrgId;
     if (orgId == null) return;
     final stream = CsSeatEventsStream(
@@ -407,7 +408,9 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
     } on Object {
       // 失败保底：回填当前视图（诚实——不伪成功）。
     } finally {
-      if (mounted) setState(() => _presenceBusy = false);
+      if (mounted && identical(controller, _presence)) {
+        setState(() => _presenceBusy = false);
+      }
     }
   }
 

@@ -31,3 +31,28 @@ English summary: Stopped seat presence controllers reject late heartbeat/manual 
   }
 ]
 ```
+
+## 后续闭环：切企业时提交状态隔离
+
+English summary: Presence action busy state now belongs to the current workspace controller; an older request cannot block or unlock actions in another organization.
+
+- 根因：页面的 `_presenceBusy` 在组织切换时未清空；旧操作 finally 无条件清空当前 busy。
+- 修复：重建控制器时清空提交状态；finally 仅在请求控制器仍为当前控制器时结束提交。
+- 新增组件检查走真实页面、Dio 请求与两个企业的有效工作空间：甲企业 PUT 挂起 → 切乙 → 乙 PUT 能发送；甲返回 → 乙重复点击不得发送第二次 PUT；乙返回 → 显示服务端“离开”。传输出口可控，不能视为真实后端或真机证明。
+- 修改前该检查退出 1，预期两企业各有一次请求，实际只有甲企业一次请求。修复后退出 0。
+- 连同既有心跳/已读、队列、组织切换与 UX 矩阵：`flutter test test/customer_service/cs_presence_lifecycle_test.dart test/customer_service/cs_presence_read_state_test.dart test/customer_service/cs_workspace_state_test.dart test/customer_service/cs_workspace_org_test.dart test/customer_service/ux_matrix/cs_pages_ux_matrix_test.dart --reporter expanded`，退出 0，33 项通过。
+- `flutter analyze lib/modules/customer_service/presentation/cs_workspace_page.dart test/customer_service/cs_workspace_org_test.dart`，退出 0，无问题。手工复核请求控制器捕获、组织切换与页面销毁，不新增状态层或依赖。
+- 本机日志 `/tmp/gz-seat-presence-busy-{baseline,fixed,tests,analyze}.log`；仍需完整联调与真机验收，未部署。
+
+```json
+[
+  {
+    "path": "lib/modules/customer_service/presentation/cs_workspace_page.dart",
+    "sha256": "5eebff843d607849311e09e1131123d29591b09e437c3c5c6f90e51b29ca7841"
+  },
+  {
+    "path": "test/customer_service/cs_workspace_org_test.dart",
+    "sha256": "81d26c2a4a5f39b746670be64b78c60d3ae3346dee5d40adad35a0412767acbb"
+  }
+]
+```

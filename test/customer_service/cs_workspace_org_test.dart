@@ -36,29 +36,34 @@ Map<String, dynamic> okEnvelope({dynamic payload}) => {
   'payload': ?payload,
 };
 
-Map<String, dynamic> _contextsPayload() => okEnvelope(
-  payload: {
-    'contexts': [
-      {
-        'organization_id': orgA,
-        'organization_name': '组织甲',
-        'workspaces': <Map<String, dynamic>>[],
-        'business_identity_id': '7266418340025468902',
-        'seat_enabled': true,
-        'capabilities': ['conversation.read'],
+Map<String, dynamic> _contextsPayload({bool withWorkspace = false}) =>
+    okEnvelope(
+      payload: {
+        'contexts': [
+          {
+            'organization_id': orgA,
+            'organization_name': '组织甲',
+            'workspaces': [
+              if (withWorkspace) {'id': '7266418340025468921', 'name': '甲客服'},
+            ],
+            'business_identity_id': '7266418340025468902',
+            'seat_enabled': true,
+            'capabilities': ['conversation.read'],
+          },
+          {
+            'organization_id': orgB,
+            'organization_name': '组织乙',
+            'workspaces': [
+              if (withWorkspace) {'id': '7266418340025468922', 'name': '乙客服'},
+            ],
+            'business_identity_id': '7266418340025468912',
+            'seat_enabled': true,
+            'capabilities': ['conversation.read'],
+          },
+        ],
+        'user_id': '7266418340025468800',
       },
-      {
-        'organization_id': orgB,
-        'organization_name': '组织乙',
-        'workspaces': <Map<String, dynamic>>[],
-        'business_identity_id': '7266418340025468912',
-        'seat_enabled': true,
-        'capabilities': ['conversation.read'],
-      },
-    ],
-    'user_id': '7266418340025468800',
-  },
-);
+    );
 
 Map<String, dynamic> _queuePayload({
   required String id,
@@ -157,6 +162,69 @@ _OrgRouterAdapter _buildAdapter() => _OrgRouterAdapter({
   ),
 });
 
+class _PendingPresenceAdapter extends _OrgRouterAdapter {
+  _PendingPresenceAdapter() : super(_buildAdapter().routes) {
+    routes['/api/v1/cs/me/seat-contexts'] = (
+      200,
+      _contextsPayload(withWorkspace: true),
+    );
+    for (final org in [orgA, orgB]) {
+      routes['/api/v1/cs/organizations/$org/seats/me/heartbeat'] = (
+        200,
+        okEnvelope(
+          payload: {
+            'status': 'online',
+            'enabled': true,
+            'max_concurrent': 3,
+            'active_count': 0,
+          },
+        ),
+      );
+    }
+  }
+
+  final pending = <String, Completer<ResponseBody>>{};
+  final manualOrgs = <String>[];
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    if (options.method == 'PUT' && options.uri.path.endsWith('/presence')) {
+      final org = options.uri.path.split('/')[5];
+      manualOrgs.add(org);
+      return (pending[org] ??= Completer<ResponseBody>()).future;
+    }
+    return super.fetch(options, requestStream, cancelFuture);
+  }
+
+  void complete(String org) {
+    final request = pending[org];
+    if (request == null || request.isCompleted) return;
+    request.complete(
+      ResponseBody.fromString(
+        jsonEncode(
+          okEnvelope(
+            payload: {
+              'status': 'away',
+              'manual_status': 'away',
+              'enabled': true,
+              'max_concurrent': 3,
+              'active_count': 0,
+            },
+          ),
+        ),
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      ),
+    );
+  }
+}
+
 Future<void> _pumpWorkspace(WidgetTester tester) async {
   await tester.pumpWidget(
     // 对齐既有 CS widget 测试：TranslationProvider 挂在 MaterialApp.builder
@@ -200,6 +268,44 @@ void main() {
           return null;
         });
     await StorageService.init();
+  });
+
+  testWidgets('切组织后独立操作状态，旧请求不能阻塞或解锁新请求', (tester) async {
+    final adapter = _PendingPresenceAdapter();
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() {
+      adapter.complete(orgA);
+      adapter.complete(orgB);
+      HttpClient.adapterForTest = null;
+    });
+    await _pumpWorkspace(tester);
+    await tester.tap(find.byTooltip('坐席状态'));
+    await _settle(tester);
+    await tester.tap(find.text('设为离开'));
+    await _settle(tester);
+    expect(adapter.manualOrgs, [orgA]);
+
+    await tester.tap(find.byTooltip('组织'));
+    await _settle(tester);
+    await tester.tap(find.text('组织乙').last);
+    await _settle(tester);
+    await tester.tap(find.byTooltip('坐席状态'));
+    await _settle(tester);
+    await tester.tap(find.text('设为离开'));
+    await _settle(tester);
+    expect(adapter.manualOrgs, [orgA, orgB], reason: '新企业不被旧请求阻塞');
+
+    adapter.complete(orgA);
+    await _settle(tester);
+    await tester.tap(find.byTooltip('坐席状态'));
+    await _settle(tester);
+    await tester.tap(find.text('设为离开'));
+    await _settle(tester);
+    expect(adapter.manualOrgs, [orgA, orgB], reason: '旧请求不能解锁新企业正在提交的操作');
+    adapter.complete(orgB);
+    await _settle(tester);
+    expect(find.text('离开'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
   testWidgets('A01+A02：seat-contexts 驱动组织选择器；徽标计数只取服务端键', (tester) async {
