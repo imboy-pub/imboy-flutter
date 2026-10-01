@@ -66,6 +66,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   bool _isLoading = true;
   bool _isUploading = false;
   bool _isOpening = false;
+  int _fileGeneration = 0;
+  int _categoryGeneration = 0;
 
   /// 首屏/刷新失败的友好文案；非 null 时渲染失败态而非"暂无文件"空态。
   String? _error;
@@ -120,11 +122,15 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   }
 
   Future<void> _loadCategoryStats() async {
+    final generation = ++_categoryGeneration;
+    final account = UserRepoLocal.to.currentUid;
     try {
       final stats = await GroupFileService.to.getCategoryStats(
         groupId: widget.groupId,
       );
-      if (mounted) {
+      if (mounted &&
+          generation == _categoryGeneration &&
+          account == UserRepoLocal.to.currentUid) {
         setState(() {
           _categoryStats = stats;
         });
@@ -140,6 +146,8 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   }
 
   Future<void> _loadFiles({bool showLoading = true}) async {
+    final generation = ++_fileGeneration;
+    final account = UserRepoLocal.to.currentUid;
     if (showLoading && mounted) {
       setState(() {
         _isLoading = true;
@@ -156,42 +164,50 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
               groupId: widget.groupId,
               category: _selectedCategory.isEmpty ? null : _selectedCategory,
             );
-      final list = payload['list'];
-      final normalizedList = list is List
-          ? list
-                .whereType<Map<String, dynamic>>()
-                .map((item) => Map<String, dynamic>.from(item))
-                .toList()
-          : <Map<String, dynamic>>[];
-      final files = _selectedCategory.isEmpty
-          ? normalizedList
-          : normalizedList.where((item) {
-              final category = (item['file_category'] ?? '')
-                  .toString()
-                  .toLowerCase();
-              return category == _selectedCategory.toLowerCase();
-            }).toList();
-      if (mounted) {
-        setState(() {
-          _files = files;
-          _error = null;
-          if (showLoading) {
-            _isLoading = false;
-          }
-        });
-      }
+      if (!_isCurrentFileRequest(generation, account)) return;
+      setState(() {
+        _files = _filteredFiles(payload['list']);
+        _error = null;
+        if (showLoading) {
+          _isLoading = false;
+        }
+      });
     } on Exception catch (e) {
       iPrint('GroupFilePage: 加载群文件失败 - $e');
-      if (mounted) {
-        setState(() {
-          // 全局 t：initState 首帧同步抛错时 context.t 会触发框架断言
-          _error = t.common.loadError;
-          if (showLoading) {
-            _isLoading = false;
-          }
-        });
-      }
+      if (!_isCurrentFileRequest(generation, account)) return;
+      setState(() {
+        // 全局 t：initState 首帧同步抛错时 context.t 会触发框架断言
+        _files = [];
+        _categoryStats = [];
+        _categoryGeneration++;
+        _error = t.common.loadError;
+        if (showLoading) {
+          _isLoading = false;
+        }
+      });
     }
+  }
+
+  bool _isCurrentFileRequest(int generation, String account) =>
+      mounted &&
+      generation == _fileGeneration &&
+      account == UserRepoLocal.to.currentUid;
+
+  List<Map<String, dynamic>> _filteredFiles(dynamic list) {
+    final normalizedList = list is List
+        ? list
+              .whereType<Map<String, dynamic>>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList()
+        : <Map<String, dynamic>>[];
+    return _selectedCategory.isEmpty
+        ? normalizedList
+        : normalizedList.where((item) {
+            final category = (item['file_category'] ?? '')
+                .toString()
+                .toLowerCase();
+            return category == _selectedCategory.toLowerCase();
+          }).toList();
   }
 
   Future<void> _applySearch() async {

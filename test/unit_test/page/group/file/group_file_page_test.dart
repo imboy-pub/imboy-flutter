@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/service/group_file_service.dart';
@@ -16,6 +17,7 @@ import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/store/api/group_file_api.dart';
 
 part 'group_file_controlled_open_checks.dart';
+part 'group_file_load_race_checks.dart';
 
 class _UploadCall {
   const _UploadCall({
@@ -234,6 +236,7 @@ void main() {
   });
 
   groupFileControlledOpenTests();
+  groupFileLoadRaceTests();
 
   testWidgets('category filter narrows list and forwards category', (
     tester,

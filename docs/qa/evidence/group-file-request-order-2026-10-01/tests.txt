@@ -1,0 +1,50 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart
+00:00 +0: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/api/group_file_api_test.dart: (setUpAll)
+00:00 +0: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/api/group_file_api_test.dart: 群文件列表 1.1 分页获取群文件 — code=0
+  未登录
+00:00 +0 ~1: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/api/group_file_api_test.dart: 群文件列表 1.2 分页信封 — payload 含 list/items 与 total
+  未登录
+00:00 +0 ~2: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/api/group_file_api_test.dart: 群文件列表 1.3 无效 gid — 返回业务响应而非崩溃
+  未登录
+00:00 +0 ~3: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/api/group_file_api_test.dart: 群文件分类统计 2.1 获取分类统计 — code=0
+  未登录
+00:00 +0 ~4: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/api/group_file_api_test.dart: 群文件分类统计 2.2 数据结构 — payload.items/list 为 List 或 null
+  未登录
+00:00 +0 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/api/group_file_api_test.dart: (tearDownAll)
+00:00 +0 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: (setUpAll)
+00:00 +0 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: bound file opens with fresh signed URL instead of raw URL
+00:00 +1 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: authorization denial never opens cached URL or external fallback
+00:00 +2 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: scope change discards pending file authorization
+00:00 +3 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: missing canonical binding never falls back to raw URL
+00:00 +4 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: denied search clears old files; late success cannot restore them
+GroupFilePage: 加载群文件失败 - membership ended
+00:01 +5 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: category filter narrows list and forwards category
+00:01 +6 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: load failure renders retryable error view, not empty state
+GroupFilePage: 加载群文件失败 - Exception: mock network down
+00:01 +7 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: search uses keyword and renders search result
+00:01 +8 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: tap file with empty url shows snackbar
+00:01 +9 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: tap file with invalid url shows snackbar
+00:01 +10 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: tap image file opens in-app full-screen preview
+AssetsService.authData: uploadKey is null or empty
+加载图片 (尝试 1/3)
+📦 getSingleFile: url=https://example.com/a.jpg?s&a&v=1790835735&width=400.0, validateImageData=true
+🌐 实际下载 URL: host=example.com publicDirect=false isObjKey=false downloadUrl=https://example.com/a.jpg?s&a&v=1790835735&width=400.0
+00:01 +11 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: tap document file opens in-app web preview
+AssetsService.authData: uploadKey is null or empty
+00:01 +12 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: web preview failure falls back to external open
+AssetsService.authData: uploadKey is null or empty
+00:01 +13 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: web preview fallback failure shows snackbar
+AssetsService.authData: uploadKey is null or empty
+00:01 +14 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: tap video file opens in-app media preview
+AssetsService.authData: uploadKey is null or empty
+00:01 +15 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: tap audio file opens in-app media preview
+AssetsService.authData: uploadKey is null or empty
+00:01 +16 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: media preview failure falls back to external open
+AssetsService.authData: uploadKey is null or empty
+00:01 +17 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: media preview fallback failure shows snackbar
+AssetsService.authData: uploadKey is null or empty
+00:01 +18 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: upload success triggers snackbar and refresh
+00:01 +19 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: upload failure shows failed snackbar without refresh
+00:01 +20 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: upload with empty bytes shows read failed snackbar
+00:01 +21 ~5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/group/file/group_file_page_test.dart: (tearDownAll)
+00:01 +21 ~5: All tests passed!
