@@ -12,6 +12,7 @@ import 'package:flutter/material.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:imboy/main.dart' as app;
 import 'package:imboy/i18n/strings.g.dart';
@@ -162,12 +163,52 @@ void main() {
     await backDirectory(tester);
     await waitFor(tester, rootRow);
 
+    if (const bool.fromEnvironment('TEST_NATIVE_OA_SSO')) {
+      await checkNativeOa(tester);
+    }
     await selectPersonal(tester);
     expect(find.byKey(const Key('enterprise-shell-bottom-nav')), findsNothing);
     expect(tester.takeException(), isNull);
     await joinEnterprise(tester);
     await leaveEnterprise(tester);
   }, timeout: const Timeout(Duration(minutes: 6)));
+}
+
+Future<void> checkNativeOa(WidgetTester tester) async {
+  final workbench = find.descendant(
+    of: find.byKey(const Key('enterprise-shell-bottom-nav')),
+    matching: find.byWidgetPredicate(
+      (widget) =>
+          widget is NavigationDestination &&
+          widget.label == t.enterpriseOa.workbenchTitle,
+    ),
+  );
+  await waitFor(tester, workbench.hitTestable());
+  await tester.tap(workbench);
+  final entry = find.byKey(const Key('workbench-application-intbe02-oa-sso'));
+  await waitFor(tester, entry.hitTestable());
+  await tester.tap(entry);
+  await waitFor(tester, find.byType(WebViewWidget));
+  final controller = tester
+      .widget<WebViewWidget>(find.byType(WebViewWidget))
+      .platform
+      .params
+      .controller;
+  final deadline = DateTime.now().add(const Duration(seconds: 40));
+  Object? result;
+  while (result != '"995011"' && DateTime.now().isBefore(deadline)) {
+    result = await tester.runAsync(
+      () => controller.runJavaScriptReturningResult(
+        'document.body.dataset.nativeSso || "loading"',
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+  }
+  expect(result, '"995011"');
+  expect(tester.takeException(), isNull);
 }
 
 Future<void> selectPersonal(WidgetTester tester) async {
