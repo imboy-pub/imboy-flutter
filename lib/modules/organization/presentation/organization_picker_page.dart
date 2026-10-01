@@ -134,89 +134,98 @@ class _OrganizationPickerPageState
   /// 两阶段原子切换（ENT-APP-04；语义见文件头）。任一阶段失败 → 页内
   /// 错误态 + 指针/缓存/壳维持（或补偿回）旧状态，绝不半切换假成功。
   Future<void> _switchTo(Organization org) async {
+    if (_switching) return;
+    final account = _accountKey;
     final prev = _currentOrg;
-    if (prev?.id == org.id) {
-      _leave();
-      return;
-    }
-    if (_switching) return; // 重复提交门：切换进行中忽略后续点击。
+    final previousShell = ref.read(workspaceShellProvider);
+    var committing = false;
     setState(() {
       _switching = true;
       _switchError = null;
     });
-
-    // ── Phase 1：预载目标 Org 数据（未触碰任何本地状态）──
-    // detail 校验 membership 可达性并取得最新 member_role/status 投影
-    // （列表行可能是缓存旧值）；loadMine 预载新壳。任一步失败 = 完整
-    // rollback：指针/缓存/壳原样，置错误态可重试。
-    late final Organization fresh;
     try {
-      fresh = await _api.detail(org.id);
-      await ref
-          .read(workspaceShellProvider.notifier)
-          .loadMine(keepListOnFailure: true);
-      final shellError = ref.read(workspaceShellProvider).error;
-      if (shellError != null && shellError.isNotEmpty) {
-        throw StateError(shellError);
-      }
+      final fresh = await _prepareTarget(org, account);
+      if (!mounted || _accountKey != account) return;
+      committing = true;
+      await _commitTarget(fresh, prev, account);
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!mounted || _accountKey != account) return;
+      if (committing) await _rollbackSwitch(prev, org, previousShell, account);
+      if (!mounted || _accountKey != account) return;
       setState(() {
         _switching = false;
         _switchError = _switchErrorText(e);
       });
       return;
     }
-
-    // ── Phase 2：提交切换（G11 失效清单；失败补偿回滚）──
-    try {
-      if (prev != null) {
-        _cache.invalidateOrg(prev.id);
-      }
-      // 工作区维度视图族显式失效（§5.1「不得残留上一企业缓存」）：
-      // 这五个是 autoDispose.family(key=wsId)，换企业后 key 虽会变，
-      // 但「靠 key 变化 + autoDispose 兜底」不是显式失效——若上一企业的
-      // 某页仍被监听（切换前刚打开过），其缓存会活到该页被销毁为止。
-      // 在切换动作里整体 invalidate family，等于清掉所有 wsId 的实例。
-      ref.invalidate(workspaceOverviewProvider);
-      ref.invalidate(workspaceChannelsProvider);
-      ref.invalidate(workspaceGroupsProvider);
-      ref.invalidate(workspaceMembersProvider);
-      ref.invalidate(workspaceProjectsProvider);
-      // 当前企业指针切换（持久化，供 chip / WS picker 顶部企业行）。
-      // store 先持久化后内存——此处抛出时内存仍是旧值。
-      await _currentStore.set(fresh);
-    } on Object catch (e) {
-      // Phase 2 失败：指针补偿回 prev（null=清空）+ 丢弃目标企业缓存
-      // 播种；壳列表已在 Phase 1 预载（跨企业 mine 全集，无泄漏）。
-      await _rollbackSwitch(prev, org);
-      if (!mounted) return;
-      setState(() {
-        _switching = false;
-        _switchError = _switchErrorText(e);
-      });
-      return;
-    }
-
-    await _landDefaultWorkspace(fresh);
-    if (!mounted) return;
-    setState(() {
-      _switching = false;
-    });
+    if (!mounted || _accountKey != account) return;
+    setState(() => _switching = false);
     _leave();
+  }
+
+  Future<Organization> _prepareTarget(Organization org, String account) async {
+    final fresh = await _api.detail(org.id);
+    if (!mounted || _accountKey != account) {
+      throw StateError('Organization account changed');
+    }
+    await ref
+        .read(workspaceShellProvider.notifier)
+        .loadMine(keepListOnFailure: true);
+    if (!mounted || _accountKey != account) {
+      throw StateError('Organization account changed');
+    }
+    final error = ref.read(workspaceShellProvider).error;
+    if (error != null && error.isNotEmpty) throw StateError(error);
+    return fresh;
+  }
+
+  Future<void> _commitTarget(
+    Organization fresh,
+    Organization? prev,
+    String account,
+  ) async {
+    if (prev != null) _cache.invalidateOrg(prev.id);
+    ref.invalidate(workspaceOverviewProvider);
+    ref.invalidate(workspaceChannelsProvider);
+    ref.invalidate(workspaceGroupsProvider);
+    ref.invalidate(workspaceMembersProvider);
+    ref.invalidate(workspaceProjectsProvider);
+    await _currentStore.set(fresh);
+    if (!mounted || _accountKey != account) {
+      throw StateError('Organization account changed');
+    }
+    await _landDefaultWorkspace(fresh);
+    if (!mounted || _accountKey != account) {
+      throw StateError('Organization account changed');
+    }
+    await ref
+        .read(productExperienceProvider.notifier)
+        .select(ProductExperience.workspace);
   }
 
   /// Phase 2 失败补偿：指针恢复 prev（[CurrentOrganizationStore.restore]
   /// 支持 null=清空指针；与 set 同序「先持久化后内存」）；目标企业的
   /// 缓存播种一并丢弃，下次进入强制服务端刷新。补偿链上的二次失败不再
   /// 上抛（membership 真源在服务端，下次 mine()/detail() 会纠正）。
-  Future<void> _rollbackSwitch(Organization? prev, Organization failed) async {
+  Future<void> _rollbackSwitch(
+    Organization? prev,
+    Organization failed,
+    WorkspaceShellState previousShell,
+    String account,
+  ) async {
     try {
       await _currentStore.restore(prev);
     } on Object {
       // 补偿失败容忍：指针非真源，冷启动/下次切换以服务端事实收敛。
     }
+    if (!mounted || _accountKey != account) return;
     _cache.invalidateOrg(failed.id);
+    final shell = ref.read(workspaceShellProvider.notifier);
+    await shell.selectOrganization(
+      prev?.id ?? previousShell.organizationId,
+      () async => previousShell.currentWorkspaceId,
+    );
+    shell.selectDestination(previousShell.destination);
   }
 
   String _switchErrorText(Object e) {

@@ -19,6 +19,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/modules/organization/domain/organization_models.dart';
+import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // Native plugin test seam, already installed by shared_preferences.
 // ignore: depend_on_referenced_packages
@@ -80,6 +82,24 @@ void main() {
   });
 
   for (final failure in ['false', 'throw']) {
+    test('企业指针保存 $failure：不发布未持久化企业', () async {
+      final native = await _installStore();
+      const account = 'synthetic-pointer-account';
+      final pointer = CurrentOrganizationStore.forAccount(account);
+      addTearDown(() => CurrentOrganizationStore.disposeAccount(account));
+      await pointer.set(const Organization(id: '10', name: 'synthetic old'));
+      native.failure = failure;
+      await expectLater(
+        pointer.set(const Organization(id: '20', name: 'synthetic new')),
+        throwsA(isA<StateError>()),
+      );
+      expect(pointer.value?.id, '10');
+      expect(
+        StorageService.to.getString('$kCurrentOrgStoragePrefix$account'),
+        contains('synthetic old'),
+      );
+      native.failure = '';
+    });
     for (final reset in [false, true]) {
       test('原生偏好 ${reset ? '删除' : '保存'} $failure：失败不切布局也不污染读取缓存', () async {
         final store = await _installStore();

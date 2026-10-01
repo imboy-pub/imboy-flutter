@@ -1,0 +1,26 @@
+[
+  {
+    "path": "lib/modules/organization/infrastructure/current_organization_store.dart",
+    "sha256": "f5c32666b37b678cb14ab6b2b838a70ccf32e5b937c7ac67bc9aa897d637cb9b"
+  },
+  {
+    "path": "lib/modules/organization/presentation/organization_picker_page.dart",
+    "sha256": "dbf8d8c2b395b9cf2913673065e7041520b4ad83143b29650ffe6eb61390733f"
+  },
+  {
+    "path": "lib/page/chat_shell/experience_provider.dart",
+    "sha256": "84a3019338d0731f99ec9192f09188efe185fc9a8e339ce0d795994868a125f5"
+  },
+  {
+    "path": "lib/service/storage.dart",
+    "sha256": "80ca0e05190b1ec8128b36706ee9f7b0b4cc3c88909405cd97d151d88fc819d3"
+  },
+  {
+    "path": "test/organization/organization_picker_page_widget_test.dart",
+    "sha256": "76675e606e74e88e6c40b852617425709d812477a9e06c70def8da47fc6df623"
+  },
+  {
+    "path": "test/unit_test/page/chat_shell/experience_provider_test.dart",
+    "sha256": "7154518a5e9e26db3f842d0e5861ed4f5434a16e9b0b2c926ae4698b48587de3"
+  }
+]

@@ -53,6 +53,11 @@ class _FailedExperience extends ProductExperienceNotifier {
   }
 }
 
+class _FailedPersonalExperience extends _FailedExperience {
+  @override
+  ProductExperience build() => ProductExperience.chat;
+}
+
 /// 按 URI path 分发的静态 adapter（org mine / default-workspace /
 /// invite_code/join 共用一个 HttpClient.adapterForTest 注入点）。
 class _RoutingAdapter implements HttpClientAdapter {
@@ -105,6 +110,10 @@ class _WsFakeApi extends WorkspaceApi {
 
   final List<WorkspaceModel> workspaces;
   int mineCalls = 0;
+
+  @override
+  Future<WorkspaceBranding> readBranding(EntityId workspaceId) async =>
+      const WorkspaceBranding();
 
   @override
   Future<WorkspacePageResult<WorkspaceModel>> mine({
@@ -348,7 +357,98 @@ void main() {
     // WS 壳重载（loadMine 至少一次）+ 按 default-workspace 落位 9002。
     expect(api.mineCalls, greaterThanOrEqualTo(1));
     expect(container.read(workspaceShellProvider).currentWorkspaceId, '9002');
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.workspace,
+    );
   });
+
+  for (final mode in ['same', 'preference-failure', 'default-failure']) {
+    testWidgets('个人选择企业 $mode：首页和企业工作区一致', (tester) async {
+      final store = CurrentOrganizationStore.forAccount(_accountKey);
+      await store.set(const Organization(id: _orgA, name: 'synthetic old'));
+      final target = mode == 'same' ? _orgA : _orgB;
+      final calls = <String>[];
+      HttpClient.adapterForTest = _RoutingAdapter((path) {
+        calls.add(path);
+        if (path.endsWith('/organizations/mine')) {
+          return _mineOf([_orgA, _orgB]);
+        }
+        if (path.endsWith('/default-workspace')) {
+          if (mode == 'default-failure') {
+            return {
+              'code': 503,
+              'msg': 'synthetic unavailable',
+              'payload': null,
+            };
+          }
+          return _ok({
+            'organization_id': int.parse(target),
+            'default_workspace_id': target == _orgA ? 9001 : 9002,
+          });
+        }
+        if (path.endsWith('/organizations/$target')) {
+          return _ok({'id': int.parse(target), 'name': 'synthetic target'});
+        }
+        return _ok(null);
+      });
+      final api = _WsFakeApi([
+        const WorkspaceModel(
+          id: '9001',
+          name: 'old',
+          ownerId: '1',
+          organizationId: _orgA,
+        ),
+        const WorkspaceModel(
+          id: '9002',
+          name: 'new',
+          ownerId: '1',
+          organizationId: _orgB,
+        ),
+      ]);
+      final container = ProviderContainer(
+        overrides: [
+          workspaceApiProvider.overrideWithValue(api),
+          if (mode == 'preference-failure')
+            productExperienceProvider.overrideWith(
+              _FailedPersonalExperience.new,
+            ),
+        ],
+      );
+      addTearDown(container.dispose);
+      final shell = container.read(workspaceShellProvider.notifier);
+      await shell.loadMine();
+      await shell.selectOrganization(_orgA, () async => '9001');
+      await _pump(tester, container);
+      final tile = find.byKey(ValueKey('org-picker-tile-$target'));
+      await pumpUntilFound(tester, tile);
+      await tester.tap(tile);
+      await tester.pumpAndSettle();
+      expect(
+        calls.any((path) => path.endsWith('/organizations/$target')),
+        isTrue,
+      );
+      final failed = mode == 'preference-failure';
+      expect(store.value?.id, failed ? _orgA : target);
+      expect(
+        container.read(workspaceShellProvider).organizationId,
+        failed ? _orgA : target,
+      );
+      expect(
+        container.read(workspaceShellProvider).currentWorkspaceId,
+        failed || target == _orgA ? '9001' : '9002',
+      );
+      expect(
+        container.read(productExperienceProvider),
+        failed ? ProductExperience.chat : ProductExperience.workspace,
+      );
+      expect(
+        find.byKey(const ValueKey('org-picker-switch-error')),
+        failed ? findsOneWidget : findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('两阶段切换 Phase 1 预载失败（detail 403）：指针/缓存不动 + 页内错误态可重试', (
     tester,

@@ -1,0 +1,26 @@
+[
+  {
+    "path": "analyze.log",
+    "sha256": "ad09d75066465f9b13c5a7b6326fd991667089ef6ef29918045d60450c3f65e2"
+  },
+  {
+    "path": "entry-red.log",
+    "sha256": "800f7f011a57408e11a3aad0b7fca7682dd5b0926c81df3b16a5855bc2f07218"
+  },
+  {
+    "path": "pointer-red.log",
+    "sha256": "5afed1dc80b884410d75d688a853cc32f9d33d7876f781db96852e902a1b388a"
+  },
+  {
+    "path": "result.json",
+    "sha256": "f6601670dc88918a90a864de16ec15f07369a65e583b43e07f18f1c54d176840"
+  },
+  {
+    "path": "source-sha.json",
+    "sha256": "5d313aa67e22ea54668d48325c036b8d65e510d252106d7054867403f980e7a8"
+  },
+  {
+    "path": "tests.log",
+    "sha256": "80dd7a1f9a614e83ba43c1e3776bc1bdfc4accc285b55944a69d992f8caac31b"
+  }
+]

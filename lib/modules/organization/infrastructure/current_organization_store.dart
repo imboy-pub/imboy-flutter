@@ -86,12 +86,16 @@ class CurrentOrganizationStore {
   Future<void> _write(Organization? org) async {
     final key = '$kCurrentOrgStoragePrefix$accountKey';
     if (org == null) {
-      await StorageService.to.remove(key);
+      await StorageService.to.persistPreference(
+        () => StorageService.to.remove(key),
+      );
       return;
     }
-    await StorageService.to.setString(
-      key,
-      json.jsonEncode(<String, dynamic>{'id': org.id, 'name': org.name}),
+    await StorageService.to.persistPreference(
+      () => StorageService.to.setString(
+        key,
+        json.jsonEncode(<String, dynamic>{'id': org.id, 'name': org.name}),
+      ),
     );
   }
 

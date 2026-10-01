@@ -1,0 +1,18 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/chat_shell/experience_provider_test.dart
+00:00 +0: 企业指针保存 false：不发布未持久化企业
+00:00 +0 -1: 企业指针保存 false：不发布未持久化企业 [E]
+  Expected: throws <Instance of 'StateError'>
+    Actual: <Instance of 'Future<void>'>
+     Which: emitted <null>
+  
+  package:matcher                                                     expectLater
+  package:flutter_test/src/widget_tester.dart 507:8                   expectLater
+  test/unit_test/page/chat_shell/experience_provider_test.dart 92:13  main.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                          _CustomZone.registerUnaryCallback
+  test/unit_test/page/chat_shell/experience_provider_test.dart 86:22  main.<fn>
+  
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/chat_shell/experience_provider_test.dart: 企业指针保存 false：不发布未持久化企业

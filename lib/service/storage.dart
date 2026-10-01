@@ -63,6 +63,17 @@ class StorageService {
     return await _prefs!.setString(key, value);
   }
 
+  /// Critical preferences publish only after native persistence succeeds.
+  Future<void> persistPreference(Future<bool> Function() write) async {
+    try {
+      if (!await write()) throw StateError('Could not save preference');
+    } on Object {
+      // The plugin updates its cache before writing; discard failed optimistic values.
+      await _prefs?.reload();
+      rethrow;
+    }
+  }
+
   /// 存储 Map 对象（自动序列化为 JSON）
   /// Store Map object (automatically serialized to JSON)
   static Future<bool> setMap(String key, Map<String, dynamic> value) async {

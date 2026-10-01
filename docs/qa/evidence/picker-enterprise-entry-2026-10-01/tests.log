@@ -1,0 +1,627 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart
+00:00 +0: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +1: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +2: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +3: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +4: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +6: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +7: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +8: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +9: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +10: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+00:00 +11: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+00:00 +12: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 企业列表为空时仍可从空间选择器返回个人
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+00:00 +13: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 企业列表读取和个人偏好写入失败时保留当前空间并显示错误
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+00:00 +14: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 切换企业（G11）：上一企业缓存失效 + 指针切换 + 壳重载 + 默认 WS 落位
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002/default-workspace
+
+00:00 +15: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 个人选择企业 same：首页和企业工作区一致
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7001
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7001
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7001/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7001/default-workspace
+
+00:00 +16: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 个人选择企业 preference-failure：首页和企业工作区一致
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002/default-workspace
+
+00:01 +17: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 个人选择企业 default-failure：首页和企业工作区一致
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002/default-workspace
+
+[WorkspaceShell] default workspace unavailable: OrganizationApiException(503): synthetic unavailable
+00:01 +18: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 两阶段切换 Phase 1 预载失败（detail 403）：指针/缓存不动 + 页内错误态可重试
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+
+00:01 +19: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 两阶段切换 Phase 1 失败后可重试：同一页面再次点击完成切换
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7002/default-workspace
+
+00:01 +20: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 两阶段切换 Phase 1 失败后可重试：同一页面再次点击完成切换
+00:01 +21: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/chat_shell/experience_provider_test.dart: 原生偏好 保存 false：失败不切布局也不污染读取缓存
+00:01 +21: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+00:01 +22: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +23: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +24: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +25: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +26: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +27: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +28: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +29: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +30: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +31: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +32: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +33: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +34: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +35: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +36: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +37: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +38: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +39: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +40: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +41: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +42: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +43: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +44: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +45: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +46: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +47: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +48: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +49: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +50: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +51: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+00:01 +52: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 981：preview 阶段码无效文案页内展示，不关对话框
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invite_code/preview
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invite_code/preview
+
+00:01 +53: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_organization_selection_test.dart: 切企业即显示消息，默认工作区读取失败不回概览
+00:01 +53: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+00:01 +53: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_organization_selection_test.dart: 切企业即显示消息，默认工作区读取失败不回概览
+[WorkspaceShell] default workspace unavailable: WorkspaceApiException(503): 暂不可用
+00:01 +54: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +55: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +56: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +57: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +58: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +59: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +59: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_organization_selection_test.dart: 默认工作区读取失败也立即离开上一企业，回退到目标企业工作区
+[WorkspaceShell] default workspace unavailable: WorkspaceApiException(503): 暂不可用
+00:01 +60: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invite_code/preview
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invite_code/preview
+
+00:01 +61: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +62: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +63: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +64: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业 982：preview 阶段码过期文案页内展示
+00:01 +65: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 加入企业成功（joined）：preview 确认 → code-only join → 切入新企业
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invite_code/preview
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invite_code/preview
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invite_code/join
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invite_code/join
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7003
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7003
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7003/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7003/default-workspace
+
+00:01 +66: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: §5.1 加入企业入口：autoJoin=1 进入即打开邀请码对话框（一步到达）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+00:01 +67: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_picker_page_widget_test.dart: 缺省（autoJoin 关闭）不自动弹层：仍落在选择器列表
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=1&size=100
+
+00:01 +68: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 退出账号后工作区资源立即清空，不发鉴权外请求
+00:02 +69: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 同一工作区换账号：重拉频道，旧请求不得覆盖新账号
+00:02 +70: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 无 OA：三项导航默认消息，通讯录按需加载
+00:02 +71: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 宽屏部门与人员分栏，路径可以返回企业根且保留分页作用域
+00:02 +72: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 授权 OA 出现工作台，但未选应用前不创建 SSO 页面
+00:02 +73: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 嵌入企业壳只保留部门内返回，根级不再显示第二个切换栏
+00:02 +74: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 企业切换销毁旧工作台，旧响应不能补回旧应用
+00:02 +75: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 目录 400.0 Brightness.light 双倍字号与长组织名无溢出
+00:02 +76: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 频道从消息内进入，不占企业底栏
+00:02 +77: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 目录 400.0 Brightness.dark 双倍字号与长组织名无溢出
+00:02 +78: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 企业配置读取失败有重试入口，旧工作台立即撤下
+00:02 +79: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 企业配置读取失败有重试入口，旧工作台立即撤下
+00:02 +80: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 目录 1200.0 Brightness.dark 双倍字号与长组织名无溢出
+00:02 +81: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 桌面复用三项侧栏，不读取不支持的 OA
+00:03 +82: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 权限被收回后撤下部门和人员，错误不显示内部状态码
+00:03 +83: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 同企业同型页面换账号：清搜索、重拉目录并丢弃迟到响应
+00:03 +84: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 企业切换弹层在账号变化时关闭，不保留旧企业列表
+00:03 +85: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 企业根：上半直接子部门、下半本级成员；/me 捷径仅根级
+00:03 +86: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 部门行点击 → 下一层（parentId 透传 + 标题切换）
+00:03 +87: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 搜索 300ms debounce：<2 字符不请求；>=2 字符走混排结果
+00:03 +88: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: didUpdateWidget：orgId 变化 → 新 Org 重建，旧数据不展示
+00:03 +89: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/human_directory_page_widget_test.dart: 成员行点击 → 复用既有企业成员详情路由（含 IM 资料次级入口）
+00:03 +90: All tests passed!

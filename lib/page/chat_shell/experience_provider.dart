@@ -24,7 +24,6 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
@@ -113,7 +112,7 @@ class ProductExperienceNotifier extends Notifier<ProductExperience> {
     if (experience == state && readLocalProductExperience() == experience) {
       return;
     }
-    await _persist(
+    await StorageService.to.persistPreference(
       () => StorageService.to.setString(
         Keys.localProductExperience,
         experience.wireName,
@@ -124,7 +123,9 @@ class ProductExperienceNotifier extends Notifier<ProductExperience> {
 
   /// 删除当前设备的覆盖值，恢复服务端部署默认的首页布局。
   Future<void> resetToDefault() => _enqueue(() async {
-    await _persist(() => StorageService.to.remove(Keys.localProductExperience));
+    await StorageService.to.persistPreference(
+      () => StorageService.to.remove(Keys.localProductExperience),
+    );
     if (ref.mounted) state = readCachedProductExperience();
   });
 
@@ -133,17 +134,6 @@ class ProductExperienceNotifier extends Notifier<ProductExperience> {
     // Return the original failure to the caller, while allowing the next retry.
     _pending = next.then<void>((_) {}, onError: (Object _, StackTrace _) {});
     return next;
-  }
-
-  Future<void> _persist(Future<bool> Function() write) async {
-    try {
-      if (!await write()) throw StateError('Could not save layout preference');
-    } on Object {
-      // SharedPreferences changes its memory cache before the native write.
-      // Reload the persisted value rather than retaining a failed optimistic write.
-      await (await SharedPreferences.getInstance()).reload();
-      rethrow;
-    }
   }
 }
 
