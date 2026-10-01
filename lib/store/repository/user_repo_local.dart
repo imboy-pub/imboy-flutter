@@ -11,6 +11,7 @@ import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/service/app_logger.dart';
@@ -196,6 +197,7 @@ class UserRepoLocal extends ChangeNotifier {
 
     // 验证必需字段
     validateLoginPayload(payload);
+    AssetUrlResolver.instance.clear();
 
     StorageService.to.setString(Keys.lastLoginAccount, account);
     List<String>? li = StorageService.to.getStringList(Keys.loginHistory);
@@ -266,6 +268,7 @@ class UserRepoLocal extends ChangeNotifier {
         OrganizationCache.disposeAccount(logoutUid);
         CurrentOrganizationStore.disposeAccount(logoutUid);
       }
+      AssetUrlResolver.instance.clear();
       await StorageService.to.remove(Keys.currentUid);
       await StorageService.to.remove(Keys.wsUrl);
       await StorageService.to.remove(Keys.uploadUrl);

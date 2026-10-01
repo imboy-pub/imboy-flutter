@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:imboy/service/asset_url_resolver.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -9,6 +11,25 @@ import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 
 void main() {
+  test('departure clears signed attachment URLs', () async {
+    final resolver = AssetUrlResolver.instance;
+    resolver.clear();
+    var calls = 0;
+    resolver.fetcherOverride = (_) async => 'https://example.com/${++calls}';
+    addTearDown(() {
+      resolver.clear();
+      resolver.fetcherOverride = null;
+    });
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await resolver.resolve('u1/file_1_a/x.png');
+    container.read(workspaceShellProvider.notifier).forgetOrganization('10');
+    expect(
+      await resolver.resolve('u1/file_1_a/x.png'),
+      'https://example.com/2',
+    );
+  });
+
   test(
     'departure refreshes its message/channel caches and preserves other org',
     () async {

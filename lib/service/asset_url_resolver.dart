@@ -45,6 +45,8 @@ class AssetUrlResolver {
   /// 后端 view_url 签发 600s，提前 60s 失效 → 有效缓存 540s。
   static const int _ttlSeconds = 540;
 
+  int _generation = 0;
+
   final Map<String, _CachedUrl> _cache = <String, _CachedUrl>{};
   final Map<String, Future<String>> _inflight = <String, Future<String>>{};
 
@@ -83,15 +85,26 @@ class AssetUrlResolver {
   }
 
   /// 用户主动打开受限文件时重验权限，不复用缓存或进行中的旧签发。
-  Future<String> resolveFresh(String objectKey) =>
-      (fetcherOverride ?? _fetchFromBackend)(objectKey);
+  Future<String> resolveFresh(String objectKey) => _authorizedUrl(objectKey);
+
+  Future<String> _authorizedUrl(String objectKey) async {
+    final generation = _generation;
+    final url = await (fetcherOverride ?? _fetchFromBackend)(objectKey);
+    if (generation != _generation) {
+      throw StateError('Attachment authorization context changed');
+    }
+    if (url.isEmpty) {
+      throw Exception('attachment view_url 响应缺少 url 字段');
+    }
+    return url;
+  }
 
   Future<String> _fetch(String objectKey) async {
+    final generation = _generation;
     try {
-      final ViewUrlFetcher fetch = fetcherOverride ?? _fetchFromBackend;
-      final String url = await fetch(objectKey);
-      if (url.isEmpty) {
-        throw Exception('attachment view_url 响应缺少 url 字段');
+      final url = await _authorizedUrl(objectKey);
+      if (generation != _generation) {
+        throw StateError('Attachment authorization context changed');
       }
       _cache[objectKey] = _CachedUrl(url, nowSeconds() + _ttlSeconds);
       return url;
@@ -99,7 +112,7 @@ class AssetUrlResolver {
       iPrint('AssetUrlResolver._fetch error for $objectKey: $e');
       rethrow;
     } finally {
-      _inflight.remove(objectKey);
+      if (generation == _generation) _inflight.remove(objectKey);
     }
   }
 
@@ -127,6 +140,7 @@ class AssetUrlResolver {
 
   /// 清空全部缓存（登出/切换账号时调用）。
   void clear() {
+    _generation++;
     _cache.clear();
     _inflight.clear();
   }

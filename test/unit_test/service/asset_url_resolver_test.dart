@@ -155,6 +155,37 @@ void main() {
       expect(fetchCount, 2);
     });
 
+    test(
+      'clear rejects late signatures without deleting the new request',
+      () async {
+        const key = 'u1/file_1_a/x.png';
+        final old = Completer<String>();
+        resolver.fetcherOverride = (_) => old.future;
+        final previous = resolver.resolve(key);
+        resolver.clear();
+        final next = Completer<String>();
+        resolver.fetcherOverride = (_) => next.future;
+        final current = resolver.resolve(key);
+        final denied = expectLater(previous, throwsStateError);
+        old.complete('https://example.com/old');
+        await denied;
+        expect(identical(current, resolver.resolve(key)), isTrue);
+        next.complete('https://example.com/new');
+        expect(await current, 'https://example.com/new');
+        expect(await resolver.resolve(key), 'https://example.com/new');
+      },
+    );
+
+    test('clear also rejects a pending fresh signature', () async {
+      final pending = Completer<String>();
+      resolver.fetcherOverride = (_) => pending.future;
+      final request = resolver.resolveFresh('u1/file_1_a/x.png');
+      resolver.clear();
+      final denied = expectLater(request, throwsStateError);
+      pending.complete('https://example.com/old');
+      await denied;
+    });
+
     test('clear 清空全部缓存', () async {
       await resolver.resolve('u1/file_1_a/x.png');
       await resolver.resolve('u1/file_2_b/y.png');

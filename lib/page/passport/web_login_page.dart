@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/routes.dart';
@@ -277,6 +278,7 @@ class QRLogin extends _$QRLogin {
           // currentUid 为依据，只写 token 会在跳 /web_shell 时被守卫弹回
           // 登录页（批次126 实证）。uid 由后端 confirmed 响应透传。
           if (uid != null && uid.isNotEmpty) {
+            AssetUrlResolver.instance.clear();
             await StorageService.to.setString(Keys.currentUid, uid);
             final existing = StorageService.getMap(Keys.currentUser);
             if (existing.isEmpty || (existing['uid'] ?? '').toString() != uid) {
@@ -404,6 +406,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
             ref.read(qRLoginProvider.notifier).generateQRCode();
           case BypassEnabled(:final token, :final uid):
             // 注入登录态：写 currentUid + secure token，不走 QR/SSE 链路
+            AssetUrlResolver.instance.clear();
             await StorageService.to.setString(Keys.currentUid, uid);
             await SecureTokenStorageService.saveToken(token);
             if (mounted) context.go('/web_shell');

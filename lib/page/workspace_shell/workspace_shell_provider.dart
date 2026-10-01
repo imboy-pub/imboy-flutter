@@ -18,6 +18,7 @@ import 'package:imboy/modules/organization/infrastructure/current_organization_s
 import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart'
     show organizationApiProvider;
 import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -335,6 +336,7 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
 
   /// 服务端退出成功后立即撤去本企业缓存，并阻止旧异步请求重新写入。
   void forgetOrganization(EntityId organizationId) {
+    AssetUrlResolver.instance.clear();
     _selectionGeneration++;
     _loadGeneration++;
     for (final ws in state._workspaces.where(
