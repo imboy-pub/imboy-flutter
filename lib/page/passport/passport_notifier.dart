@@ -50,6 +50,26 @@ String formatJverifyLoginError(int? code, String? message) {
       : '一键登录失败（错误码 $codeText）：$detail';
 }
 
+/// 兼容重试只切换密码预哈希，保留服务端要求的 RSA 传输。
+Future<Map<String, dynamic>> encodePassportPassword(
+  String password,
+  Map<String, dynamic> config, {
+  bool prehash = true,
+}) async {
+  final value = prehash ? EncrypterService.md5(password) : password;
+  final rsaEncrypt = config['login_pwd_rsa_encrypt'].toString();
+  return {
+    'password': rsaEncrypt == '1'
+        ? await RSAService.rsaEncryptWithPointyCastleAsync(
+            value,
+            config['login_rsa_pub_key'].toString(),
+          )
+        : value,
+    'rsa_encrypt': rsaEncrypt,
+    'pwd_was_md5': prehash && rsaEncrypt != '1',
+  };
+}
+
 /// Passport 模块 Riverpod Notifier
 /// 管理 Passport 模块的状态和业务逻辑
 @riverpod
@@ -419,47 +439,16 @@ class PassportNotifier extends _$PassportNotifier {
   }
 
   /// 加密密码
-  Future<Map<String, dynamic>> _encryptPassword(String password) async {
+  Future<Map<String, dynamic>> _encryptPassword(
+    String password, {
+    bool prehash = true,
+  }) async {
     try {
-      password = EncrypterService.md5(password);
-
       Map<String, dynamic> payload = await AppInitializer.initConfig();
       if (payload.containsKey('error')) {
         return payload;
       }
-      String rsaEncrypt = payload['login_pwd_rsa_encrypt'].toString();
-
-      String? encryptedPassword;
-      if (rsaEncrypt == "1") {
-        String pubKeyPem = payload['login_rsa_pub_key'].toString();
-        if (kIsWeb) {
-          // Web 平台：使用真正的 RSA 加密（Web Crypto API）
-          encryptedPassword = await RSAService.rsaEncryptWithPointyCastleAsync(
-            password,
-            pubKeyPem,
-          );
-        } else {
-          // 移动端/桌面端：使用 pointycastle
-          encryptedPassword = RSAService.rsaEncryptWithPointyCastle(
-            password,
-            pubKeyPem,
-          );
-        }
-      } else {
-        encryptedPassword = password;
-      }
-
-      return <String, dynamic>{
-        "password": encryptedPassword,
-        "rsa_encrypt": rsaEncrypt,
-        // 密码契约标记：服务端 7/1 迁移后新账号存储 hmac_sha512(明文)，
-        // 仅接受明文；存量账号为 md5 格式，依赖 default_md5 兼容分支接受
-        // md5 传输。未做 RSA 加密（rsa_encrypt 非 "1"）且密码被
-        // md5 化时置位，供登录失败后明文回退。
-        // 注：服务端 init 已把配置 on/off 归一为线协议 1/0 下发（#100，
-        // imboy 24784eaa），"1" 即加密、其余明文。
-        "pwd_was_md5": rsaEncrypt != "1",
-      };
+      return await encodePassportPassword(password, payload, prehash: prehash);
     } catch (e) {
       if (kDebugMode) {}
       return <String, dynamic>{
@@ -537,15 +526,30 @@ class PassportNotifier extends _$PassportNotifier {
           // RSA 部署（login_pwd_rsa_encrypt=1）下 UI 恒发 RSA(md5(密码))，
           // 新账号同样必败且 pwd_was_md5=false——此前这里不回退，
           // 表现为新注册账号永远无法登录（批次123 GF9 实证）。
-          // 回退明文重试一次；RSA 场景必须同时降 rsa_encrypt=0，
-          // 否则服务端 safe_rsa_decrypt 会把明文当密文解出空串。
+          // 重试原始密码一次；RSA 场景继续加密，禁止降级传输。
           // 存量账号 md5 一次成功，不会走到这里。
           if (kDebugMode) {
-            debugPrint('[passport] md5 登录失败，回退明文重试（新账号 hmac 契约）');
+            debugPrint('[passport] md5 登录失败，保留传输加密重试');
           }
-          postData['pwd'] = password;
-          postData['rsa_encrypt'] = '0';
-          final retry = await HttpClient.client.post(API.login, data: postData);
+          final retryPassword = await _encryptPassword(
+            password,
+            prehash: false,
+          );
+          if (strNoEmpty(retryPassword['error'] as String?)) {
+            safeUpdateState(
+              (state) =>
+                  state.copyWith(error: retryPassword['error'] as String?),
+            );
+            return 0;
+          }
+          final retry = await HttpClient.client.post(
+            API.login,
+            data: {
+              ...postData,
+              'pwd': retryPassword['password'],
+              'rsa_encrypt': retryPassword['rsa_encrypt'],
+            },
+          );
           if (!retry.ok) {
             safeUpdateState(
               (state) => state.copyWith(
