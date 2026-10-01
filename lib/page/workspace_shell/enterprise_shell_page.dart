@@ -254,6 +254,10 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
                 const WorkspaceGroupsPage(),
               ),
               _resourceEntry(t.channel.title, const WorkspaceChannelsPage()),
+              _resourceEntry(
+                t.chat.groupFile,
+                const WorkspaceGroupsPage(openFiles: true),
+              ),
             ],
           ],
         );

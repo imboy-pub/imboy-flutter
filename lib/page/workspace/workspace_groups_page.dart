@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart'
@@ -20,7 +21,9 @@ import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 class WorkspaceGroupsPage extends ConsumerWidget {
-  const WorkspaceGroupsPage({super.key});
+  const WorkspaceGroupsPage({super.key, this.openFiles = false});
+
+  final bool openFiles;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,7 +56,7 @@ class WorkspaceGroupsPage extends ConsumerWidget {
         message: workspaceErrorMessage(e),
         onRetry: () => ref.invalidate(workspaceGroupsProvider(wsId)),
       ),
-      data: (list) => _GroupList(groups: list),
+      data: (list) => _GroupList(groups: list, openFiles: openFiles),
     );
   }
 }
@@ -61,7 +64,9 @@ class WorkspaceGroupsPage extends ConsumerWidget {
 class _GroupList extends StatelessWidget {
   final List<GroupModel> groups;
 
-  const _GroupList({required this.groups});
+  final bool openFiles;
+
+  const _GroupList({required this.groups, required this.openFiles});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +84,7 @@ class _GroupList extends StatelessWidget {
       separatorBuilder: (_, _) => AppSpacing.verticalSmall,
       itemBuilder: (context, index) {
         final g = groups[index];
-        return _GroupTile(group: g, theme: theme);
+        return _GroupTile(group: g, theme: theme, openFiles: openFiles);
       },
     );
   }
@@ -89,7 +94,13 @@ class _GroupTile extends StatelessWidget {
   final GroupModel group;
   final ThemeData theme;
 
-  const _GroupTile({required this.group, required this.theme});
+  final bool openFiles;
+
+  const _GroupTile({
+    required this.group,
+    required this.theme,
+    required this.openFiles,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,14 +108,21 @@ class _GroupTile extends StatelessWidget {
       key: ValueKey('workspace-group-tile-${group.groupId}'),
       borderRadius: BorderRadius.circular(AppSpacing.regular),
       // 复用现有群聊页面：与 group_detail / mention_list 同款 /chat 路由
-      onTap: () => context.push(
-        '/chat/${group.groupId}',
-        extra: {
-          'type': 'C2G',
-          'title': group.displayTitle,
-          'avatar': group.avatar,
-        },
-      ),
+      onTap: () => openFiles
+          ? Navigator.of(context).push(
+              CupertinoPageRoute<void>(
+                builder: (_) =>
+                    GroupFilePage(groupId: group.groupId.toString()),
+              ),
+            )
+          : context.push(
+              '/chat/${group.groupId}',
+              extra: {
+                'type': 'C2G',
+                'title': group.displayTitle,
+                'avatar': group.avatar,
+              },
+            ),
       child: Container(
         padding: AppSpacing.allRegular,
         decoration: BoxDecoration(

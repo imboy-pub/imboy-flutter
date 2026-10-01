@@ -21,6 +21,8 @@ import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -133,6 +135,7 @@ Future<ProviderContainer> _pump(
   _OaApi api, {
   Size size = const Size(430, 900),
   String? emptyMode,
+  List<GroupModel> groups = const [],
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -144,6 +147,7 @@ Future<ProviderContainer> _pump(
       ),
       workspaceShellProvider.overrideWith(_Shell.new),
       workspaceApiProvider.overrideWithValue(_Api()),
+      workspaceGroupsProvider('100').overrideWith((ref) async => groups),
       oaWorkbenchApiProvider.overrideWithValue(api),
     ],
   );
@@ -404,6 +408,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(t.workspace.navGroups), findsOneWidget);
     expect(find.text(t.channel.title), findsOneWidget);
+    expect(find.text(t.chat.groupFile), findsOneWidget);
     await tester.tap(find.text('通讯录'));
     await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
@@ -413,6 +418,30 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+  testWidgets('无 OA 工作台群文件按当前工作区进入指定群', (tester) async {
+    final api = _OaApi();
+    await _pump(
+      tester,
+      api,
+      groups: [
+        GroupModel.fromJson({'id': 301, 'title': '合成资料群'}),
+      ],
+    );
+    api.pending['10']!.complete([]);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('工作台'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(t.chat.groupFile));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('workspace-group-tile-301')));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<GroupFilePage>(find.byType(GroupFilePage)).groupId,
+      '301',
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('授权 OA 出现工作台，但未选应用前不创建 SSO 页面', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);
