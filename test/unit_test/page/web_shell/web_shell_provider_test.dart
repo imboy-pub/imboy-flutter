@@ -13,8 +13,47 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/web_shell/web_shell_provider.dart';
 import 'package:imboy/page/web_shell/web_shell_state.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
+
+class _Account extends Notifier<UserModel?> {
+  @override
+  UserModel? build() => UserModel(uid: '1', account: 'synthetic');
+  void select(String uid, {String nickname = ''}) => state = uid.isEmpty
+      ? null
+      : UserModel(uid: uid, account: 'synthetic', nickname: nickname);
+}
+
+final _account = NotifierProvider<_Account, UserModel?>(_Account.new);
 
 void main() {
+  test('桌面标签和选择在返回时保留，换账号或退出时清空', () async {
+    final container = ProviderContainer(
+      overrides: [
+        currentUserProvider.overrideWith((ref) => ref.watch(_account)),
+      ],
+    );
+    addTearDown(container.dispose);
+    final subscription = container.listen(webShellProvider, (_, _) {});
+    final notifier = container.read(webShellProvider.notifier);
+    notifier.switchTab(1);
+    notifier.selectItem(const ContactSelection(uid: 'synthetic-peer'));
+    subscription.close();
+    await container.pump();
+    expect(container.read(webShellProvider).currentTab, 1);
+    expect(container.read(webShellProvider).selectedItem, isNotNull);
+    container.read(_account.notifier).select('1', nickname: 'updated');
+    await container.pump();
+    expect(container.read(webShellProvider).selectedItem, isNotNull);
+    container.read(_account.notifier).select('2');
+    await container.pump();
+    expect(container.read(webShellProvider).currentTab, 0);
+    expect(container.read(webShellProvider).selectedItem, isNull);
+    notifier.switchTab(2);
+    container.read(_account.notifier).select('');
+    await container.pump();
+    expect(container.read(webShellProvider).currentTab, 0);
+  });
   group('WebShellNotifier — 默认 build', () {
     test('初始 state: currentTab=0, selectedItem=null', () {
       final container = ProviderContainer();

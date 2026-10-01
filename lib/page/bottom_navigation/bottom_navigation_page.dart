@@ -37,9 +37,13 @@ int normalizeIndex(int value, int tabCount) {
 /// 独立为纯函数以便单测覆盖「路由参数指定初始标签」与「越界归一化」，
 /// Android 真机深链经 Splash 重定向后 query 丢失，该链路不可达。
 @visibleForTesting
-int resolveInitialIndex(Map<String, String> queryParameters, int tabCount) {
+int resolveInitialIndex(
+  Map<String, String> queryParameters,
+  int tabCount, {
+  int fallback = 0,
+}) {
   final raw = queryParameters['index'];
-  final index = int.tryParse(raw ?? '') ?? 0;
+  final index = raw == null ? fallback : (int.tryParse(raw) ?? 0);
   return normalizeIndex(index, tabCount);
 }
 
@@ -110,13 +114,14 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     if (_initialIndexApplied) return;
     _initialIndexApplied = true;
 
-    int initialIndex = 0;
+    int initialIndex = _normalizeIndex(ref.read(bottomNavigationProvider));
 
     try {
       final routerState = GoRouterState.of(context);
       initialIndex = resolveInitialIndex(
         routerState.uri.queryParameters,
         _buildPageList().length,
+        fallback: initialIndex,
       );
     } catch (e) {
       // 非 GoRouter 上下文时使用默认值
@@ -166,6 +171,12 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
     final rawBottomBarIndex = ref.watch(bottomNavigationProvider);
     final bottomBarIndex = _normalizeIndex(rawBottomBarIndex);
+    ref.listen(bottomNavigationProvider, (_, index) {
+      final target = _normalizeIndex(index);
+      if (pageController.hasClients && pageController.page?.round() != target) {
+        pageController.jumpToPage(target);
+      }
+    });
     final socketStatusAsync = ref.watch(webSocketStatusProvider);
     final socketStatus =
         socketStatusAsync.value ?? WebSocketConnectionState.disconnected;

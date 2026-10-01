@@ -14,6 +14,7 @@ library;
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 
 import 'web_shell_state.dart';
 
@@ -28,7 +29,10 @@ class WebShellNotifier extends Notifier<WebShellState> {
   static const int maxTabIndex = 3;
 
   @override
-  WebShellState build() => const WebShellState();
+  WebShellState build() {
+    ref.watch(currentUserProvider.select((user) => user?.uid ?? ''));
+    return const WebShellState();
+  }
 
   /// 切换 Tab。
   ///

@@ -1,17 +1,23 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show ProviderListenableSelect;
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 
 part 'bottom_navigation_provider.g.dart';
 
 /// 底部导航状态提供者
-@riverpod
+@Riverpod(keepAlive: true)
 class BottomNavigationNotifier extends _$BottomNavigationNotifier {
   @override
-  int build() => 0;
+  int build() {
+    ref.watch(currentUserProvider.select((user) => user?.uid ?? ''));
+    return 0;
+  }
 
   /// 改变底部导航栏索引
   void changeIndex(int index) {

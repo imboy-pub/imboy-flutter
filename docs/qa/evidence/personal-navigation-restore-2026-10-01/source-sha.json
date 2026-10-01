@@ -1,0 +1,8 @@
+{
+  "lib/page/bottom_navigation/bottom_navigation_page.dart": "c6651dd16d361b47973d17b79a3980b4ef788d9037c36b76ff86ce4c1c854737",
+  "lib/page/bottom_navigation/bottom_navigation_provider.dart": "81f1e1e5f3334bde5efa0dc6c80483e6e7d0cc0374d387264302b2978c4aba5b",
+  "lib/page/bottom_navigation/bottom_navigation_provider.g.dart": "6e1eff21006733c5659d009ae7f337c7eac4025e9e08e49fac50be004bd0a861",
+  "lib/page/web_shell/web_shell_provider.dart": "ddf05919b7931949d0df5cc6f623eef917e14b419e99acadce7652d3615b5597",
+  "test/unit_test/page/bottom_navigation/bottom_navigation_page_test.dart": "6b98d7aadb8834e979dd35bda49231aab671dcb29d64599a3b67362fab5550b6",
+  "test/unit_test/page/web_shell/web_shell_provider_test.dart": "861453e77f9f5e48918a708cfa0c024818631e74796091995444bd275e638917"
+}

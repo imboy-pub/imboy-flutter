@@ -4,6 +4,22 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
+
+class _Account extends Notifier<UserModel?> {
+  @override
+  UserModel? build() => UserModel(uid: '1', account: 'synthetic');
+  void select(String uid, {String nickname = ''}) => state = uid.isEmpty
+      ? null
+      : UserModel(uid: uid, account: 'synthetic', nickname: nickname);
+}
+
+final _account = NotifierProvider<_Account, UserModel?>(_Account.new);
+
+class _Navigation extends BottomNavigationNotifier {
+  void selectForTest(int value) => state = value;
+}
 
 /// BottomNavigationPage + Provider 契约测试
 ///
@@ -18,6 +34,38 @@ import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart';
 ///
 /// 不测 changeIndex（依赖 WebSocketService 单例链）/ 完整 widget tree（4 子页副作用）。
 void main() {
+  test('个人标签离开首页后保留，账号变化或退出时重置', () async {
+    final container = ProviderContainer(
+      overrides: [
+        currentUserProvider.overrideWith((ref) => ref.watch(_account)),
+        bottomNavigationProvider.overrideWith(_Navigation.new),
+      ],
+    );
+    addTearDown(container.dispose);
+    final subscription = container.listen(bottomNavigationProvider, (_, _) {});
+    (container.read(bottomNavigationProvider.notifier) as _Navigation)
+        .selectForTest(2);
+    subscription.close();
+    await container.pump();
+    expect(container.read(bottomNavigationProvider), 2);
+    container.read(_account.notifier).select('1', nickname: 'updated');
+    await container.pump();
+    expect(container.read(bottomNavigationProvider), 2);
+    container.read(_account.notifier).select('2');
+    await container.pump();
+    expect(container.read(bottomNavigationProvider), 0);
+    (container.read(bottomNavigationProvider.notifier) as _Navigation)
+        .selectForTest(3);
+    container.read(_account.notifier).select('');
+    await container.pump();
+    expect(container.read(bottomNavigationProvider), 0);
+  });
+  test('返回个人页复用当前标签，显式路由仍可覆盖且越界归一', () {
+    expect(resolveInitialIndex({}, 4, fallback: 2), 2);
+    expect(resolveInitialIndex({'index': '1'}, 4, fallback: 2), 1);
+    expect(resolveInitialIndex({'index': 'invalid'}, 4, fallback: 2), 0);
+    expect(resolveInitialIndex({}, 3, fallback: 3), 2);
+  });
   const tabCount = 4; // 消息/联系人/频道/我的
 
   group('BottomNavigationPage construction contract', () {

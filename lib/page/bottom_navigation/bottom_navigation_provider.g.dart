@@ -23,7 +23,7 @@ final class BottomNavigationNotifierProvider
         argument: null,
         retry: null,
         name: r'bottomNavigationProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -45,7 +45,7 @@ final class BottomNavigationNotifierProvider
 }
 
 String _$bottomNavigationNotifierHash() =>
-    r'b427d2cc8689cbbad5516ef4ec10364118311718';
+    r'5a11c6bdb68e92dbae0150754fb95a4be65ac29c';
 
 /// 底部导航状态提供者
 
