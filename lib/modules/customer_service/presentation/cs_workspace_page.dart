@@ -104,9 +104,9 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
   }
 
   /// 拉取坐席上下文清单（seat-contexts 列表驱动，APP-M01-A01）。
-  Future<void> _loadContexts() async {
+  Future<void> _loadContexts({bool preserveStream = false}) async {
     final generation = ++_contextsGeneration;
-    _stopEvents();
+    if (!preserveStream) _stopEvents();
     setState(() {
       _contextsLoading = true;
       _contextsError = null;
@@ -119,20 +119,10 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
       final eligible = result.contexts
           .where((c) => c.isEligible)
           .toList(growable: false);
-      final selected =
-          eligible
-              .where((c) => c.organizationId == _selectedOrgId)
-              .firstOrNull ??
-          eligible.firstOrNull;
-      setState(() {
-        _contexts = eligible;
-        _contextsLoading = false;
-        _selectedOrgId = selected?.organizationId;
-        _selectedWorkspaceId = selected?.workspaces.firstOrNull?.id ?? '';
-      });
-      _startEvents();
+      _applyContexts(eligible, preserveStream);
     } on Object catch (e) {
       if (!mounted || generation != _contextsGeneration) return;
+      _stopEvents();
       setState(() {
         _contextsError = e.toString();
         _contextsLoading = false;
@@ -140,6 +130,29 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
         _selectedOrgId = null;
         _selectedWorkspaceId = '';
       });
+    }
+  }
+
+  void _applyContexts(List<CsSeatContext> eligible, bool preserveStream) {
+    final previous = _contexts
+        .where((c) => c.organizationId == _selectedOrgId)
+        .firstOrNull;
+    final previousWorkspace = _selectedWorkspaceId;
+    final selected =
+        eligible.where((c) => c.organizationId == _selectedOrgId).firstOrNull ??
+        eligible.firstOrNull;
+    setState(() {
+      _contexts = eligible;
+      _contextsLoading = false;
+      _selectedOrgId = selected?.organizationId;
+      _selectedWorkspaceId = selected?.workspaces.firstOrNull?.id ?? '';
+    });
+    if (!preserveStream ||
+        _events == null ||
+        previous?.organizationId != selected?.organizationId ||
+        previous?.businessIdentityId != selected?.businessIdentityId ||
+        previousWorkspace != _selectedWorkspaceId) {
+      _startEvents();
     }
   }
 
@@ -195,7 +208,7 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
       orgId: orgId,
       workspaceId: _selectedWorkspaceId,
       onResync: () async {
-        if (mounted) await _loadContexts();
+        if (mounted) await _loadContexts(preserveStream: true);
       },
       onPresenceChanged: () {
         if (mounted) setState(() {});
@@ -210,7 +223,7 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
       case CsSseEnvelope.typeAssignmentChanged:
       case CsSseEnvelope.typeSeatChanged:
       case CsSseEnvelope.typeResyncRequired:
-        unawaited(_loadContexts());
+        unawaited(_loadContexts(preserveStream: true));
         break;
       case CsSseEnvelope.typeQueueChanged:
       case CsSseEnvelope.typeSessionChanged:

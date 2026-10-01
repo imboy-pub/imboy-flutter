@@ -229,6 +229,8 @@ class _SeatEventsAdapter extends _PendingPresenceAdapter {
   final streams = <String, StreamController<Uint8List>>{};
   final cancelledOrgs = <String>[];
   bool forbidden = false;
+  bool initialResync = false;
+  int eventOpens = 0;
 
   @override
   Future<ResponseBody> fetch(
@@ -237,6 +239,7 @@ class _SeatEventsAdapter extends _PendingPresenceAdapter {
     Future<void>? cancelFuture,
   ) async {
     if (options.uri.path.endsWith('/events')) {
+      eventOpens++;
       final org = options.uri.path.split('/')[5];
       unawaited(cancelFuture?.then((_) => cancelledOrgs.add(org)));
       if (forbidden) {
@@ -250,6 +253,15 @@ class _SeatEventsAdapter extends _PendingPresenceAdapter {
       }
       final stream = StreamController<Uint8List>();
       streams[options.uri.path.split('/')[5]] = stream;
+      if (initialResync) {
+        stream.add(
+          Uint8List.fromList(
+            utf8.encode(
+              'id: 7266418340025469000\nevent: resync.required\ndata: ${jsonEncode({'event_id': '7266418340025469000', 'type': 'resync.required', 'organization_id': org, 'workspace_id': '7266418340025468921', 'reason': 'unknown'})}\n\n',
+            ),
+          ),
+        );
+      }
       return ResponseBody(
         stream.stream,
         200,
@@ -328,6 +340,24 @@ void main() {
           return null;
         });
     await StorageService.init();
+  });
+
+  testWidgets('首次连接 resync 重查资格但不循环重开事件流', (tester) async {
+    final adapter = _SeatEventsAdapter()..initialResync = true;
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    await _pumpWorkspace(tester);
+    await _settle(tester);
+    await _settle(tester);
+    expect(adapter.eventOpens, 1);
+    expect(
+      adapter.requests
+          .where((r) => r.$1 == '/api/v1/cs/me/seat-contexts')
+          .length,
+      2,
+    );
+    expect(find.text('甲**'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
   testWidgets('事件流拒绝访问后隐藏操作，停止自动重连，允许重试', (tester) async {

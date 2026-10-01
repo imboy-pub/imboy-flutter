@@ -90,3 +90,28 @@ English summary: Real Dio streams emit Uint8List chunks. Casting at the shared d
   }
 ]
 ```
+
+## 协议对照修正：首连重同步保留连接
+
+English summary: The backend sends resync.required on every connection without a cursor. Context revalidation must retain the live connection when organization, identity and workspace remain valid; otherwise reconnecting causes an endless initial-resync loop.
+
+- 当前后端 `cs_seat_event_app:cursor_scope/3` 无游标固定 resync；`cs_tenant_handler:stream/4` 首写合成帧。对照后发现上一批客户端逻辑在重同步时重建流，导致“首连 → 重同步 → 重开”循环。
+- 复现新增有真实 Dio 字节类型的首连 resync 组件检查，旧逻辑持续产生日志，无法结束检查；仅终止本轮确认归属的两个进程。日志记录 45016 条 SSE URI（含请求和响应记录，不等同连接数），大小 31129131 字节；终止后的退出码不算测试 PASS。
+- 修正重查资格时默认保留当前流；组织、业务身份或工作空间改变才重建。失败则停止流并展示错误；首次进入与显式错误重试仍重建。保留完整资格与列表刷新，不删除重同步功能。
+- 将结果应用集中到 `_applyContexts`，两函数都小于 50 行。新增断言首连仅打开一次流、资格读取两次并正常显示列表；撤权、重新授权、拒绝访问与取消请求回归继续通过。
+- 客户端：`flutter test test/customer_service/cs_presence_lifecycle_test.dart test/customer_service/cs_presence_read_state_test.dart test/customer_service/cs_workspace_state_test.dart test/customer_service/cs_workspace_org_test.dart test/customer_service/cs_seat_events_stream_test.dart test/customer_service/ux_matrix/cs_pages_ux_matrix_test.dart --reporter expanded`，退出 0，45 项通过；两处修改静态分析退出 0，无问题。
+- 后端候选 835cb67bf40bbf94bc0cfe09b132e6d5ab219bf3：从当前源码重编全部产品模块与客服测试支持，运行 `eunit:test([cs_seat_event_app_tests,cs_seat_workbench_tests],[verbose])`，退出 0，35 项通过，覆盖无游标首连、有效游标续传、跨组织/空间及真实 Cowboy HTTP 首帧格式。业务 facade 是测试替身、没有数据库；不称为跨端真实账号全旅程。
+- 客户端日志 `/tmp/gz-seat-initial-resync-{baseline,fixed,tests,analyze}.log`；后端日志目录 `/var/folders/8m/wbjj0qmn4ml0mgn56wm56j2m0000gn/T/gz-seat-protocol-ueka2z87`。后端业务源码未修改。手工复核请求代次、保留/重建条件与失效清理，无独立代理审查。未部署，完整六项目标未完成。
+
+```json
+[
+  {
+    "path": "lib/modules/customer_service/presentation/cs_workspace_page.dart",
+    "sha256": "602c80d147ebaffba4828e6c49b142b9cff8413e289a3da6d251b0ed6736e494"
+  },
+  {
+    "path": "test/customer_service/cs_workspace_org_test.dart",
+    "sha256": "128f8cad401f6de0e89da566e67b9f5d7a2ab8f19e5abe5ca608bb442146dd4a"
+  }
+]
+```
