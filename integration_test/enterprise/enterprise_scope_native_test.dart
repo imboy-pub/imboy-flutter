@@ -209,6 +209,12 @@ Future<void> checkNativeOa(WidgetTester tester) async {
   }
   expect(result, '"995011"');
   expect(tester.takeException(), isNull);
+  final back = find.byType(BackButton).hitTestable();
+  await waitFor(tester, back);
+  await tester.tap(back);
+  await waitFor(tester, entry.hitTestable());
+  expect(find.byType(WebViewWidget), findsNothing);
+  expect(tester.takeException(), isNull);
 }
 
 Future<void> selectPersonal(WidgetTester tester) async {
