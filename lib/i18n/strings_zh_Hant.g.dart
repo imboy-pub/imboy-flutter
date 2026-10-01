@@ -2846,7 +2846,6 @@ class Translations$organization$departments$zh_Hant extends Translations$organiz
 
 	// Translations
 	@override String get title => '部門目錄';
-	@override String deptIdSubtitle({required Object id}) => '部門 ${id}';
 	@override String statusLine({required Object status}) => '狀態：${status}';
 	@override String memberUidLine({required Object userId}) => '成員 ${userId}';
 	@override String get viewForbiddenDetail => '無權查看該部門（僅限本組織在職成員）';
@@ -2864,7 +2863,7 @@ class Translations$organization$departments$zh_Hant extends Translations$organiz
 	@override String get newNameLabel => '新名稱';
 	@override String get renameFailed => '重新命名失敗';
 	@override String get moveDept => '移動部門';
-	@override String get newParentIdHint => '新父部門 ID（留空 = 提為根）';
+	@override String get rootLevel => '企業根目錄';
 	@override String get moveFailed => '移動失敗';
 	@override String get addDeptMember => '新增部門成員';
 	@override String archiveConfirmBody({required Object name}) => '封存「${name}」後該部門進入唯讀態（成員關係保留）。';
@@ -5300,7 +5299,6 @@ extension on TranslationsZhHant {
 			'organization.invitations.acceptAction' => '接受邀請',
 			'organization.invitations.rejectAction' => '拒絕',
 			'organization.departments.title' => '部門目錄',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => '部門 ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => '狀態：${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => '成員 ${userId}',
 			'organization.departments.viewForbiddenDetail' => '無權查看該部門（僅限本組織在職成員）',
@@ -5318,7 +5316,7 @@ extension on TranslationsZhHant {
 			'organization.departments.newNameLabel' => '新名稱',
 			'organization.departments.renameFailed' => '重新命名失敗',
 			'organization.departments.moveDept' => '移動部門',
-			'organization.departments.newParentIdHint' => '新父部門 ID（留空 = 提為根）',
+			'organization.departments.rootLevel' => '企業根目錄',
 			'organization.departments.moveFailed' => '移動失敗',
 			'organization.departments.addDeptMember' => '新增部門成員',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => '封存「${name}」後該部門進入唯讀態（成員關係保留）。',
@@ -5714,9 +5712,9 @@ extension on TranslationsZhHant {
 			'workspace.projectMemberEmptySubtitle' => '專案負責人可邀請已註冊使用者加入此專案',
 			'workspace.projectMemberInviteTitle' => '邀請專案成員',
 			'workspace.projectMemberInviteFieldHint' => '要邀請的已註冊使用者 ID',
+			'workspace.projectMemberInviteInvalidUid' => '請輸入有效的使用者 ID',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.projectMemberInviteInvalidUid' => '請輸入有效的使用者 ID',
 			'workspace.projectMemberInviteSubmit' => '邀請',
 			'workspace.projectMemberInviteSuccess' => '已加入專案成員',
 			'workspace.projectMemberInviteExisting' => '該使用者已是專案成員',

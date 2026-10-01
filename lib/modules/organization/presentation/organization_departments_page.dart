@@ -15,7 +15,7 @@
 ///   客户端预隐藏只是体验优化，服务端 403 仍是唯一裁决）；
 /// - rename/move 携带 `expected_version`（CAS 乐观锁，后端强制）；
 ///   409 conflict → 提示并发冲突并刷新最新树（不静默重试）；
-/// - 移到自身/子孙 = 服务端 409 cycle，错误态透传展示（不本地预判）。
+/// - 隐藏已知自身/子孙目标；服务端仍裁决 CAS 与成环，错误态透传。
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -28,6 +28,9 @@ import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
+
+import 'department_parent_picker.dart';
+
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -149,31 +152,16 @@ class _OrganizationDepartmentsPageState
           right: AppSpacing.regular,
         ),
         leading: hasChildren
-            ? Semantics(
-                button: true,
-                label: expanded
-                    ? t.organization.departments.collapseNode(name: d.name)
-                    : t.organization.departments.expandNode(name: d.name),
-                child: IconButton(
-                  icon: Icon(
-                    expanded
-                        ? CupertinoIcons.folder_open
-                        : CupertinoIcons.folder_fill,
-                  ),
-                  onPressed: () => setState(() {
-                    expanded ? _expanded.remove(d.id) : _expanded.add(d.id);
-                  }),
-                ),
-              )
+            ? _departmentExpander(d, expanded)
             : const Icon(CupertinoIcons.folder),
         title: Text(d.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Text(
-          d.isArchived
-              ? orgStatusLabel(d.status)
-              : t.organization.departments.deptIdSubtitle(id: d.id),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        subtitle: d.isArchived
+            ? Text(
+                orgStatusLabel(d.status),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              )
+            : null,
         trailing: _canGovern && !d.isArchived
             ? IconButton(
                 icon: Icon(
@@ -192,6 +180,22 @@ class _OrganizationDepartmentsPageState
       }
     }
   }
+
+  Widget _departmentExpander(OrganizationDepartment d, bool expanded) =>
+      Semantics(
+        button: true,
+        label: expanded
+            ? t.organization.departments.collapseNode(name: d.name)
+            : t.organization.departments.expandNode(name: d.name),
+        child: IconButton(
+          icon: Icon(
+            expanded ? CupertinoIcons.folder_open : CupertinoIcons.folder_fill,
+          ),
+          onPressed: () => setState(() {
+            expanded ? _expanded.remove(d.id) : _expanded.add(d.id);
+          }),
+        ),
+      );
 
   Future<void> _openDeptDetail(EntityId departmentId) async {
     await showModalBottomSheet<void>(
@@ -304,10 +308,10 @@ class _OrganizationDepartmentsPageState
   }
 
   Future<void> _move(OrganizationDepartment d) async {
-    final target = await orgPromptInput(
+    final target = await showDepartmentParentPicker(
       context,
-      title: t.organization.departments.moveDept,
-      hint: t.organization.departments.newParentIdHint,
+      moving: d,
+      departments: _depts,
     );
     if (target == null) return;
     await _runCommand(

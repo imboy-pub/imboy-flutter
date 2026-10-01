@@ -2858,7 +2858,6 @@ class _Translations$organization$departments$ar_SA extends Translations$organiza
 
 	// Translations
 	@override String get title => 'دليل الأقسام';
-	@override String deptIdSubtitle({required Object id}) => 'القسم ${id}';
 	@override String statusLine({required Object status}) => 'الحالة: ${status}';
 	@override String memberUidLine({required Object userId}) => 'العضو ${userId}';
 	@override String get viewForbiddenDetail => 'لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)';
@@ -2876,7 +2875,7 @@ class _Translations$organization$departments$ar_SA extends Translations$organiza
 	@override String get newNameLabel => 'الاسم الجديد';
 	@override String get renameFailed => 'فشلت إعادة التسمية';
 	@override String get moveDept => 'نقل القسم';
-	@override String get newParentIdHint => 'معرّف القسم الأب الجديد (اتركه فارغاً = المستوى الجذري)';
+	@override String get rootLevel => 'جذر المؤسسة';
 	@override String get moveFailed => 'فشل النقل';
 	@override String get addDeptMember => 'إضافة عضو إلى القسم';
 	@override String archiveConfirmBody({required Object name}) => 'بعد أرشفة «${name}» يدخل القسم في وضع القراءة فقط (تُحفظ العضويات).';
@@ -5312,7 +5311,6 @@ extension on TranslationsArSa {
 			'organization.invitations.acceptAction' => 'قبول الدعوة',
 			'organization.invitations.rejectAction' => 'رفض',
 			'organization.departments.title' => 'دليل الأقسام',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'القسم ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => 'الحالة: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'العضو ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)',
@@ -5330,7 +5328,7 @@ extension on TranslationsArSa {
 			'organization.departments.newNameLabel' => 'الاسم الجديد',
 			'organization.departments.renameFailed' => 'فشلت إعادة التسمية',
 			'organization.departments.moveDept' => 'نقل القسم',
-			'organization.departments.newParentIdHint' => 'معرّف القسم الأب الجديد (اتركه فارغاً = المستوى الجذري)',
+			'organization.departments.rootLevel' => 'جذر المؤسسة',
 			'organization.departments.moveFailed' => 'فشل النقل',
 			'organization.departments.addDeptMember' => 'إضافة عضو إلى القسم',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'بعد أرشفة «${name}» يدخل القسم في وضع القراءة فقط (تُحفظ العضويات).',
@@ -5726,9 +5724,9 @@ extension on TranslationsArSa {
 			'workspace.projectMemberEmptySubtitle' => 'يمكن لمسؤول المشروع دعوة مستخدمين مسجلين للانضمام إلى هذا المشروع',
 			'workspace.projectMemberInviteTitle' => 'دعوة أعضاء المشروع',
 			'workspace.projectMemberInviteFieldHint' => 'معرّف المستخدم المسجل المراد دعوته',
+			'workspace.projectMemberInviteInvalidUid' => 'يرجى إدخال معرّف مستخدم صالح',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.projectMemberInviteInvalidUid' => 'يرجى إدخال معرّف مستخدم صالح',
 			'workspace.projectMemberInviteSubmit' => 'دعوة',
 			'workspace.projectMemberInviteSuccess' => 'تمت إضافته عضواً في المشروع',
 			'workspace.projectMemberInviteExisting' => 'هذا المستخدم عضو في المشروع بالفعل',

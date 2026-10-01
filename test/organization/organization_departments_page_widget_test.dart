@@ -1,8 +1,9 @@
 /// ENT-APP-05 — 部门治理生产闭包 focused widget 测试。
 ///
 /// 覆盖（任务卡验收锚点）：
-/// - 完整 journey（admin）：create root/child → rename → move（移到自身
-///   409 cycle 错误态）→ add/remove member → set/unset admin → archive；
+/// - 完整 journey（admin）：create root/child → rename → 按名称移动 / 提为根
+///   → add/remove member → set/unset admin → archive；
+/// - 打开选择器后层级变化：服务端仍裁决 cycle 并刷新；
 /// - CAS：旧 version rename → 409 conflict → casConflictHint 提示 + 刷新
 ///   后列表 = 服务端最新树（不静默重试）；
 /// - PermissionGate 分层：member 角色无任何治理入口（新建/行操作/成员
@@ -310,7 +311,50 @@ void main() {
     matching: find.byIcon(CupertinoIcons.ellipsis),
   );
 
-  testWidgets('完整 journey：create root/child → rename → move 成环 409 → '
+  testWidgets('移动按名称选择父部门，隐藏自身子孙与归档目标', (tester) async {
+    final state = _ServerState();
+    final root = state.createDept('合成总部', null);
+    final child = state.createDept('合成子部门', root);
+    final grandchild = state.createDept('合成孙部门', child);
+    final peer = state.createDept('合成事业部', null);
+    final archived = state.createDept('合成归档部门', null);
+    state.depts[archived]!['status'] = 'archived';
+    await pumpPage(tester, state);
+    await pumpUntilFound(tester, find.text('合成总部'));
+    await tester.tap(rowMenuOf('合成总部').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('移动（选择新父部门）'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsNothing);
+    expect(find.byKey(Key('department-parent-$root')), findsNothing);
+    expect(find.byKey(Key('department-parent-$child')), findsNothing);
+    expect(find.byKey(Key('department-parent-$grandchild')), findsNothing);
+    expect(find.byKey(Key('department-parent-$archived')), findsNothing);
+    await tester.tap(find.byKey(Key('department-parent-$peer')));
+    await tester.pumpAndSettle();
+    expect(state.depts[root]!['parent_id'], peer);
+    expect(state.calls, contains('move'));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('选择器打开后层级改变，服务端仍拒绝成环并刷新', (tester) async {
+    final state = _ServerState();
+    final root = state.createDept('合成总部', null);
+    final peer = state.createDept('合成事业部', null);
+    await pumpPage(tester, state);
+    await pumpUntilFound(tester, find.text('合成总部'));
+    await tester.tap(rowMenuOf('合成总部').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('移动（选择新父部门）'));
+    await tester.pumpAndSettle();
+    state.depts[peer]!['parent_id'] = root;
+    await tester.tap(find.byKey(Key('department-parent-$peer')));
+    await pumpUntilFound(tester, find.textContaining('部门层级禁止成环'));
+    expect(state.depts[root]!['parent_id'], isNull);
+    expect(state.calls, contains('move'));
+  });
+
+  testWidgets('完整 journey：create root/child → rename → move 至根目录 → '
       '成员 add/set·unset·remove admin → archive', (tester) async {
     final state = _ServerState();
     await pumpPage(tester, state);
@@ -363,15 +407,14 @@ void main() {
     expect(state.calls, contains('rename'));
     expect(state.depts[devId]!['name'], '研发中心');
 
-    // ---- 4) move 移到自身：409 cycle 错误态（树不变，SnackBar 透传） ----
+    // ---- 4) move：直接选择企业根，不输入资源 ID ----
     await tester.tap(rowMenuOf('研发中心').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('移动（选择新父部门）'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), '$devId');
-    await tester.tap(find.text('确定'));
-    await pumpUntilFound(tester, find.textContaining('部门层级禁止成环'));
-    expect(state.depts[devId]!['parent_id'], hqId, reason: 'cycle 拒绝后树不变');
+    await tester.tap(find.byKey(const Key('department-parent-root')));
+    await tester.pumpAndSettle();
+    expect(state.depts[devId]!['parent_id'], isNull, reason: '移到企业根目录');
 
     // ---- 5) add member 2001 到研发中心 ----
     await tester.tap(rowMenuOf('研发中心').first);

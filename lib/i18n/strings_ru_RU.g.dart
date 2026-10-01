@@ -2855,7 +2855,6 @@ class _Translations$organization$departments$ru_RU extends Translations$organiza
 
 	// Translations
 	@override String get title => 'Справочник отделов';
-	@override String deptIdSubtitle({required Object id}) => 'Отдел ${id}';
 	@override String statusLine({required Object status}) => 'Статус: ${status}';
 	@override String memberUidLine({required Object userId}) => 'Участник ${userId}';
 	@override String get viewForbiddenDetail => 'Нет доступа к этому отделу (только действующие участники этой организации)';
@@ -2873,7 +2872,7 @@ class _Translations$organization$departments$ru_RU extends Translations$organiza
 	@override String get newNameLabel => 'Новое название';
 	@override String get renameFailed => 'Не удалось переименовать';
 	@override String get moveDept => 'Переместить отдел';
-	@override String get newParentIdHint => 'ID нового родительского отдела (пусто = корень)';
+	@override String get rootLevel => 'Корень организации';
 	@override String get moveFailed => 'Не удалось переместить';
 	@override String get addDeptMember => 'Добавить участника отдела';
 	@override String archiveConfirmBody({required Object name}) => 'После архивации «${name}» отдел переходит в режим только для чтения (членство сохраняется).';
@@ -5309,7 +5308,6 @@ extension on TranslationsRuRu {
 			'organization.invitations.acceptAction' => 'Принять приглашение',
 			'organization.invitations.rejectAction' => 'Отклонить',
 			'organization.departments.title' => 'Справочник отделов',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Отдел ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => 'Статус: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Участник ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Нет доступа к этому отделу (только действующие участники этой организации)',
@@ -5327,7 +5325,7 @@ extension on TranslationsRuRu {
 			'organization.departments.newNameLabel' => 'Новое название',
 			'organization.departments.renameFailed' => 'Не удалось переименовать',
 			'organization.departments.moveDept' => 'Переместить отдел',
-			'organization.departments.newParentIdHint' => 'ID нового родительского отдела (пусто = корень)',
+			'organization.departments.rootLevel' => 'Корень организации',
 			'organization.departments.moveFailed' => 'Не удалось переместить',
 			'organization.departments.addDeptMember' => 'Добавить участника отдела',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'После архивации «${name}» отдел переходит в режим только для чтения (членство сохраняется).',
@@ -5723,9 +5721,9 @@ extension on TranslationsRuRu {
 			'workspace.projectMemberEmptySubtitle' => 'Ответственный за проект может приглашать зарегистрированных пользователей',
 			'workspace.projectMemberInviteTitle' => 'Пригласить участника проекта',
 			'workspace.projectMemberInviteFieldHint' => 'ID зарегистрированного пользователя для приглашения',
+			'workspace.projectMemberInviteInvalidUid' => 'Введите действительный ID пользователя',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.projectMemberInviteInvalidUid' => 'Введите действительный ID пользователя',
 			'workspace.projectMemberInviteSubmit' => 'Пригласить',
 			'workspace.projectMemberInviteSuccess' => 'Пользователь добавлен в участники проекта',
 			'workspace.projectMemberInviteExisting' => 'Этот пользователь уже участник проекта',

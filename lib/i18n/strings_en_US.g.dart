@@ -2984,7 +2984,6 @@ class _Translations$organization$departments$en_US extends Translations$organiza
 
 	// Translations
 	@override String get title => 'Departments';
-	@override String deptIdSubtitle({required Object id}) => 'Department ${id}';
 	@override String statusLine({required Object status}) => 'Status: ${status}';
 	@override String memberUidLine({required Object userId}) => 'Member ${userId}';
 	@override String get viewForbiddenDetail => 'Not allowed to view this department (active members of this organization only)';
@@ -3002,7 +3001,7 @@ class _Translations$organization$departments$en_US extends Translations$organiza
 	@override String get newNameLabel => 'New name';
 	@override String get renameFailed => 'Rename failed';
 	@override String get moveDept => 'Move department';
-	@override String get newParentIdHint => 'New parent department ID (leave empty = promote to root)';
+	@override String get rootLevel => 'Organization root';
 	@override String get moveFailed => 'Move failed';
 	@override String get addDeptMember => 'Add department member';
 	@override String archiveConfirmBody({required Object name}) => 'Once “${name}” is archived, the department becomes read-only (memberships are kept).';
@@ -5555,7 +5554,6 @@ extension on TranslationsEnUs {
 			'organization.invitations.acceptAction' => 'Accept invitation',
 			'organization.invitations.rejectAction' => 'Reject',
 			'organization.departments.title' => 'Departments',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Department ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => 'Status: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Member ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Not allowed to view this department (active members of this organization only)',
@@ -5573,7 +5571,7 @@ extension on TranslationsEnUs {
 			'organization.departments.newNameLabel' => 'New name',
 			'organization.departments.renameFailed' => 'Rename failed',
 			'organization.departments.moveDept' => 'Move department',
-			'organization.departments.newParentIdHint' => 'New parent department ID (leave empty = promote to root)',
+			'organization.departments.rootLevel' => 'Organization root',
 			'organization.departments.moveFailed' => 'Move failed',
 			'organization.departments.addDeptMember' => 'Add department member',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'Once “${name}” is archived, the department becomes read-only (memberships are kept).',
@@ -5854,9 +5852,9 @@ extension on TranslationsEnUs {
 			'workspace.inviteTitle' => 'Invite Workspace Member',
 			'workspace.inviteDesc' => 'Only registered users can be invited; joining a workspace does not auto-join groups or subscribe channels. You can also add them to General and send an Announcements channel invitation.',
 			'workspace.inviteSearchHint' => 'Search by username / user ID',
+			'workspace.inviteEntry' => 'Invite Workspace Member',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.inviteEntry' => 'Invite Workspace Member',
 			'workspace.inviteJoinGroupOption' => 'Also join the General group (become a Group Member)',
 			'workspace.inviteSubscribeChannelOption' => 'Also send an Announcements channel invitation',
 			'workspace.inviteOptionUnavailable' => 'Target resource not found; this option is unavailable',

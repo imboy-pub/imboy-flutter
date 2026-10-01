@@ -1,0 +1,540 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart
+00:00 +0: 移动按名称选择父部门，隐藏自身子孙与归档目标
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: no matching candidates
+  Actual: _TypeWidgetFinder:<Found 1 widget with type "TextField": [
+            TextField(controller: TextEditingController#15c82(TextEditingValue(text: ┤├, selection:
+TextSelection.collapsed(offset: 0, affinity: TextAffinity.downstream, isDirectional: false),
+composing: TextRange(start: -1, end: -1))), decoration: InputDecoration(hintText: "新父部门 ID（留空 =
+提为根）", border: OutlineInputBorder()), autofocus: true, dependencies: [DefaultSelectionStyle,
+InheritedCupertinoTheme, MediaQuery, UnmanagedRestorationScope, _InheritedTheme,
+_LocalizationsScope-[GlobalKey#f368b]], state: _TextFieldState#945dd),
+          ]>
+   Which: means one was found but none were expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart:327:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart line 327
+The test description was:
+  移动按名称选择父部门，隐藏自身子孙与归档目标
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: 移动按名称选择父部门，隐藏自身子孙与归档目标 [E]
+  Test failed. See exception logs above.
+  The test description was: 移动按名称选择父部门，隐藏自身子孙与归档目标
+  
+00:00 +0 -1: 完整 journey：create root/child → rename → move 成环 409 → 成员 add/set·unset·remove admin → archive
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: PATCH
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/move
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/move
+
+handleResponse_response /api/v1/organizations/7301/departments/101/move : false {"code":409,"msg":"部门层级禁止成环"}; 
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001/admin
+method: PUT
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001/admin
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001/admin
+method: PUT
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001/admin
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001
+method: DELETE
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/archive
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/archive
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+00:01 +1 -1: 旧 version CAS：rename 409 conflict → 提示 + 刷新最新树
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+method: PATCH
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+
+handleResponse_response /api/v1/organizations/7301/departments/100 : false {"code":409,"msg":"部门已被并发修改，请刷新版本后重试"}; 
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+00:01 +2 -1: PermissionGate 分层：member 无任何治理入口（列表只读可见）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+
+00:01 +3 -1: 部门局部 admin：org member 但本部门 is_admin → 治理入口可见
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+
+00:01 +4 -1: Some tests failed.
+
+Failing tests:
+  /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标

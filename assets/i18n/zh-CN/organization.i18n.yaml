@@ -134,7 +134,6 @@ invitations:
   rejectAction: 拒绝
 departments:
   title: 部门目录
-  deptIdSubtitle: "部门 ${id}"
   statusLine: "状态：${status}"
   memberUidLine: "成员 ${userId}"
   viewForbiddenDetail: 无权查看该部门（仅限本组织在职成员）
@@ -152,7 +151,7 @@ departments:
   newNameLabel: 新名称
   renameFailed: 重命名失败
   moveDept: 移动部门
-  newParentIdHint: 新父部门 ID（留空 = 提为根）
+  rootLevel: 企业根目录
   moveFailed: 移动失败
   addDeptMember: 添加部门成员
   archiveConfirmBody: "归档「${name}」后该部门进入只读态（成员关系保留）。"

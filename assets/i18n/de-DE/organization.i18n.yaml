@@ -135,7 +135,6 @@ invitations:
   rejectAction: "Ablehnen"
 departments:
   title: "Abteilungsverzeichnis"
-  deptIdSubtitle: "Abteilung ${id}"
   statusLine: "Status: ${status}"
   memberUidLine: "Mitglied ${userId}"
   viewForbiddenDetail: "Kein Zugriff auf diese Abteilung (nur aktive Mitglieder dieser Organisation)"
@@ -153,7 +152,7 @@ departments:
   newNameLabel: "Neuer Name"
   renameFailed: "Umbenennen fehlgeschlagen"
   moveDept: "Abteilung verschieben"
-  newParentIdHint: "ID der neuen übergeordneten Abteilung (leer = auf Root-Ebene)"
+  rootLevel: Organisationswurzel
   moveFailed: "Verschieben fehlgeschlagen"
   addDeptMember: "Abteilungsmitglied hinzufügen"
   archiveConfirmBody: "Nach der Archivierung von „${name}“ ist die Abteilung schreibgeschützt (Mitgliedschaften bleiben erhalten)."

@@ -1,0 +1,3 @@
+Generating translations...
+
+[32mTranslations generated successfully. (0.375 seconds)[0m

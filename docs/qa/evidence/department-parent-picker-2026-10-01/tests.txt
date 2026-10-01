@@ -1,0 +1,1551 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/department_parent_picker_test.dart
+00:00 +0: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/department_parent_picker_test.dart: 移动选择器 Brightness.light 双倍字号、长名称和 ID 无损
+00:00 +1: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +1: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 组织本体 mine：GET 分页 + 信封解析（TSID 无损转 string）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=2&size=10
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+00:00 +2: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +2: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 组织本体 mine：GET 分页 + 信封解析（TSID 无损转 string）
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/mine?page=2&size=10
+
+00:00 +3: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +3: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 组织本体 create：POST 名称
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations
+
+00:00 +4: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +4: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 组织本体 archive / restore：POST 子路径
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/archive
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/archive
+
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+> quitLogin: Closing WebSocket
+🧹 [QUEUE] 启动定期清理 Timer
+> ws: 手动关闭连接
+> quitLogin: Closing database
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/restore
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/restore
+
+00:00 +5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C11：邀请只走 v2 面，legacy direct-add 不存在 createInvitation：POST /invitations 且带 user_id；一次性 token 透传
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations
+
+00:00 +6: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +6: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C11：邀请只走 v2 面，legacy direct-add 不存在 acceptInvitation：POST /accept 且带 token
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations/accept
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations/accept
+
+00:00 +7: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +7: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C11：邀请只走 v2 面，legacy direct-add 不存在 acceptInvitation：免口令（缺省 token）→ 空 body（P0 定向邀请直达）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations/accept
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations/accept
+
+00:00 +8: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +8: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C11：邀请只走 v2 面，legacy direct-add 不存在 reject / revoke：invitation_id 子路径 POST
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations/910000020/reject
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations/910000020/reject
+
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+00:00 +8: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+*** Request ***
+00:00 +8: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C11：邀请只走 v2 面，legacy direct-add 不存在 reject / revoke：invitation_id 子路径 POST
+> quitLogin: Closing WebSocket
+> ws: 手动关闭连接
+> quitLogin: Closing database
+00:00 +9: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +9: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C11：邀请只走 v2 面，legacy direct-add 不存在 reject / revoke：invitation_id 子路径 POST
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ #0   navigateToSignIn (package:imboy/config/init.dart:102:12)[0m
+[38;5;12m│ #1   HttpClient._notifyAuthExpired (package:imboy/component/http/http_client.dart:213:5)[0m
+[38;5;12m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;12m│ 💡 navigateToSignIn skipped (in-flight), source=http_client_auth_expired[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations/910000020/revoke
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations/910000020/revoke
+
+00:00 +10: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+00:00 +10: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C11：邀请只走 v2 面，legacy direct-add 不存在 myInvitations / orgInvitations：GET 列表（status/limit 透传）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invitations/mine?limit=5&status=pending
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/invitations/mine?limit=5&status=pending
+
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+> quitLogin: Closing WebSocket
+> ws: 手动关闭连接
+> quitLogin: Closing database
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ #0   navigateToSignIn (package:imboy/config/init.dart:102:12)[0m
+[38;5;12m│ #1   HttpClient._notifyAuthExpired (package:imboy/component/http/http_client.dart:213:5)[0m
+[38;5;12m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;12m│ 💡 navigateToSignIn skipped (in-flight), source=http_client_auth_expired[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+00:00 +10: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+00:00 +10: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C11：邀请只走 v2 面，legacy direct-add 不存在 myInvitations / orgInvitations：GET 列表（status/limit 透传）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations?limit=20
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/invitations?limit=20
+
+00:00 +11: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +11: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 成员治理（403 权限态是普通成员的预期结果） members：GET 分页
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members?page=1&size=10
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members?page=1&size=10
+
+00:00 +12: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +12: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 成员治理（403 权限态是普通成员的预期结果） changeRole：PUT role；removeMember：DELETE
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002/role
+method: PUT
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002/role
+
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+> quitLogin: Closing WebSocket
+> ws: 手动关闭连接
+> quitLogin: Closing database
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ #0   navigateToSignIn (package:imboy/config/init.dart:102:12)[0m
+[38;5;12m│ #1   HttpClient._notifyAuthExpired (package:imboy/component/http/http_client.dart:213:5)[0m
+[38;5;12m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;12m│ 💡 navigateToSignIn skipped (in-flight), source=http_client_auth_expired[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002
+method: DELETE
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002
+
+00:00 +13: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +13: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 成员治理（403 权限态是普通成员的预期结果） transferOwner：POST transfer_owner 且带 user_id
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/transfer_owner
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/transfer_owner
+
+00:00 +14: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +14: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 成员治理（403 权限态是普通成员的预期结果） ENT-APP-04 suspend：POST 子路径 + 响应解析为 suspended 成员行
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002/suspend
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002/suspend
+
+00:00 +15: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +15: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 成员治理（403 权限态是普通成员的预期结果） ENT-APP-04 restore：POST 子路径 + 响应解析为 active 成员行
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002/restore
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002/restore
+
+00:00 +16: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +16: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 成员治理（403 权限态是普通成员的预期结果） ENT-APP-04 offboard：POST 子路径 + 响应解析为 removed 终态行
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002/offboard
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1002/offboard
+
+00:00 +17: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +17: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 成员治理（403 权限态是普通成员的预期结果） ENT-APP-04 主 Owner suspend 被拒：409 → isConflict（EB-D07）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1001/suspend
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members/1001/suspend
+
+handleResponse_response /api/v1/organizations/7266418340025468930/members/1001/suspend : false {"code":409,"msg":"主 Owner 不能被暂停，请先转移 Owner"}; 
+00:00 +18: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +18: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 成员治理（403 权限态是普通成员的预期结果） 普通成员拉列表 403 → isForbidden
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members?page=1&size=10
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/members?page=1&size=10
+
+handleResponse_response /api/v1/organizations/7266418340025468930/members : false {"code":403,"msg":"无权访问"}; 
+00:00 +19: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +19: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 部门（ORG-04） departments：GET 列表（status 可选）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments?status=active
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments?status=active
+
+00:00 +20: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +20: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 部门（ORG-04） createDepartment：POST；moveDepartment：键名 parent_id（null=根）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments
+
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+> quitLogin: Closing WebSocket
+> ws: 手动关闭连接
+> quitLogin: Closing database
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ #0   navigateToSignIn (package:imboy/config/init.dart:102:12)[0m
+[38;5;12m│ #1   HttpClient._notifyAuthExpired (package:imboy/component/http/http_client.dart:213:5)[0m
+[38;5;12m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;12m│ 💡 navigateToSignIn skipped (in-flight), source=http_client_auth_expired[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/move
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/move
+
+00:00 +21: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +21: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 部门（ORG-04） departmentDetail：扁平 dept 行 + members
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5
+
+00:00 +22: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +22: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 部门（ORG-04） ENT-APP-05 removeDepartmentMember：DELETE item 路由
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002
+method: DELETE
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002
+
+00:00 +23: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +23: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 部门（ORG-04） ENT-APP-05 setDepartmentAdmin：PUT admin 路由（true/false 同端点）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002/admin
+method: PUT
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002/admin
+
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+> quitLogin: Closing WebSocket
+> ws: 手动关闭连接
+> quitLogin: Closing database
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ #0   navigateToSignIn (package:imboy/config/init.dart:102:12)[0m
+[38;5;12m│ #1   HttpClient._notifyAuthExpired (package:imboy/component/http/http_client.dart:213:5)[0m
+[38;5;12m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;12m│ 💡 navigateToSignIn skipped (in-flight), source=http_client_auth_expired[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002/admin
+method: PUT
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002/admin
+
+00:00 +24: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +24: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 部门（ORG-04） ENT-APP-05 rename/move 携带 expected_version（CAS 接通）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5
+method: PATCH
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5
+
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+> quitLogin: Closing WebSocket
+> ws: 手动关闭连接
+> quitLogin: Closing database
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ #0   navigateToSignIn (package:imboy/config/init.dart:102:12)[0m
+[38;5;12m│ #1   HttpClient._notifyAuthExpired (package:imboy/component/http/http_client.dart:213:5)[0m
+[38;5;12m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;12m│ 💡 navigateToSignIn skipped (in-flight), source=http_client_auth_expired[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/move
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/move
+
+00:00 +25: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +25: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 部门（ORG-04） ENT-APP-05 移到自身/子孙：409 cycle → isConflict（错误态透传）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/move
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/move
+
+handleResponse_response /api/v1/organizations/7266418340025468930/departments/5/move : false {"code":409,"msg":"部门层级禁止成环"}; 
+00:00 +26: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +26: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 部门（ORG-04） ENT-APP-05 旧 version CAS 不符：409 conflict → isConflict（刷新重试）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5
+method: PATCH
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5
+
+handleResponse_response /api/v1/organizations/7266418340025468930/departments/5 : false {"code":409,"msg":"部门已被并发修改，请刷新版本后重试"}; 
+00:00 +27: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +27: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: 部门（ORG-04） ENT-APP-05 非授权者治理成员：403 actor_not_permitted → isForbidden
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002
+method: DELETE
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002
+
+handleResponse_response /api/v1/organizations/7266418340025468930/departments/5/members/1002 : false {"code":403,"msg":"无权执行该部门操作"}; 
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+> quitLogin: Closing WebSocket
+> ws: 手动关闭连接
+> quitLogin: Closing database
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ #0   navigateToSignIn (package:imboy/config/init.dart:102:12)[0m
+[38;5;12m│ #1   HttpClient._notifyAuthExpired (package:imboy/component/http/http_client.dart:213:5)[0m
+[38;5;12m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;12m│ 💡 navigateToSignIn skipped (in-flight), source=http_client_auth_expired[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002/admin
+method: PUT
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/departments/5/members/1002/admin
+
+handleResponse_response /api/v1/organizations/7266418340025468930/departments/5/members/1002/admin : false {"code":403,"msg":"无权执行该部门操作"}; 
+00:00 +28: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +28: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C05 默认 Workspace 指针 + C17 预检 defaultWorkspace：null 出站 → isSet false
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/default-workspace
+
+00:00 +29: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +29: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C05 默认 Workspace 指针 + C17 预检 setDefaultWorkspace / clearDefaultWorkspace
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/default-workspace
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/default-workspace
+
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+> quitLogin: Closing WebSocket
+> ws: 手动关闭连接
+> quitLogin: Closing database
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ #0   navigateToSignIn (package:imboy/config/init.dart:102:12)[0m
+[38;5;12m│ #1   HttpClient._notifyAuthExpired (package:imboy/component/http/http_client.dart:213:5)[0m
+[38;5;12m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;12m│ 💡 navigateToSignIn skipped (in-flight), source=http_client_auth_expired[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/default-workspace
+method: DELETE
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468930/default-workspace
+
+00:00 +30: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+00:00 +30: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_api_contract_test.dart: C05 默认 Workspace 指针 + C17 预检 deletionPreflight：payload 解析；503 = 事实不可用即拒
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/deletion-preflight
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/deletion-preflight
+
+> quitLogin: Starting logout process
+> quitLogin: User is not logged in
+> quitLogin: Removing storage data
+> quitLogin: Purging E2EE secret inventory
+E2EE: 缓存已清理
+[38;5;196m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;196m│ E2eeSecretPurgeException: artifact: MissingPluginException(No implementation found for method delete on channel plugins.it_nomads.com/flutter_secure_storage); artifact: MissingPluginException(No implementation found for method getTemporaryDirectory on channel plugins.flutter.io/path_provider); storage: MissingPluginException(No implementation found for method readAll on channel plugins.it_nomads.com/flutter_secure_storage)[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ #0   E2eeSecretInventory.purgeAll (package:imboy/service/e2ee/e2ee_secret_inventory.dart:124:7)[0m
+[38;5;196m│ #1   <asynchronous suspension>[0m
+[38;5;196m│ #2   UserRepoLocal.quitLogin (package:imboy/store/repository/user_repo_local.dart:292:9)[0m
+[38;5;196m│ #3   <asynchronous suspension>[0m
+[38;5;196m│ #4   HttpClient._handleTokenDecryptionFailure (package:imboy/component/http/http_client.dart:337:5)[0m
+[38;5;196m│ #5   <asynchronous suspension>[0m
+[38;5;196m│ #6   HttpClient._setDefaultConfig (package:imboy/component/http/http_client.dart:239:7)[0m
+[38;5;196m│ #7   <asynchronous suspension>[0m
+[38;5;196m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;196m│ ⛔ [user_repo_local] e2ee secret purge failed[0m
+[38;5;196m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+> quitLogin: Clearing secure tokens
+> quitLogin: Closing WebSocket
+> ws: 手动关闭连接
+> quitLogin: Closing database
+[38;5;12m┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+[38;5;12m│ #0   navigateToSignIn (package:imboy/config/init.dart:102:12)[0m
+[38;5;12m│ #1   HttpClient._notifyAuthExpired (package:imboy/component/http/http_client.dart:213:5)[0m
+[38;5;12m├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄[0m
+[38;5;12m│ 💡 navigateToSignIn skipped (in-flight), source=http_client_auth_expired[0m
+[38;5;12m└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/deletion-preflight
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/deletion-preflight
+
+handleResponse_response /api/v1/organizations/deletion-preflight : false {"code":503,"msg":"DEPENDENCY_FACTS_UNAVAILABLE"}; 
+00:00 +31: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 移动按名称选择父部门，隐藏自身子孙与归档目标
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100/move
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100/move
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+00:00 +32: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 选择器打开后层级改变，服务端仍拒绝成环并刷新
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100/move
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100/move
+
+handleResponse_response /api/v1/organizations/7301/departments/100/move : false {"code":409,"msg":"部门层级禁止成环"}; 
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+00:00 +33: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 完整 journey：create root/child → rename → move 至根目录 → 成员 add/set·unset·remove admin → archive
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: PATCH
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/move
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/move
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001/admin
+method: PUT
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001/admin
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001/admin
+method: PUT
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001/admin
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001
+method: DELETE
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/members/2001
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/archive
+method: POST
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/101/archive
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+00:01 +34: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 旧 version CAS：rename 409 conflict → 提示 + 刷新最新树
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+method: PATCH
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+
+handleResponse_response /api/v1/organizations/7301/departments/100 : false {"code":409,"msg":"部门已被并发修改，请刷新版本后重试"}; 
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+00:01 +35: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: PermissionGate 分层：member 无任何治理入口（列表只读可见）
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+
+00:01 +36: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_departments_page_widget_test.dart: 部门局部 admin：org member 但本部门 is_admin → 治理入口可见
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7301/departments/100
+
+00:01 +37: All tests passed!

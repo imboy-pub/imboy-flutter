@@ -2846,7 +2846,6 @@ class _Translations$organization$departments$ko_KR extends Translations$organiza
 
 	// Translations
 	@override String get title => '부서 목록';
-	@override String deptIdSubtitle({required Object id}) => '부서 ${id}';
 	@override String statusLine({required Object status}) => '상태: ${status}';
 	@override String memberUidLine({required Object userId}) => '멤버 ${userId}';
 	@override String get viewForbiddenDetail => '이 부서를 볼 권한이 없습니다(이 조직의 재직 멤버만 가능)';
@@ -2864,7 +2863,7 @@ class _Translations$organization$departments$ko_KR extends Translations$organiza
 	@override String get newNameLabel => '새 이름';
 	@override String get renameFailed => '이름 바꾸기 실패';
 	@override String get moveDept => '부서 이동';
-	@override String get newParentIdHint => '새 상위 부서 ID(비우면 루트로)';
+	@override String get rootLevel => '조직 최상위';
 	@override String get moveFailed => '이동 실패';
 	@override String get addDeptMember => '부서 멤버 추가';
 	@override String archiveConfirmBody({required Object name}) => '‘${name}’을(를) 보관하면 이 부서는 읽기 전용이 됩니다(멤버십은 유지).';
@@ -5300,7 +5299,6 @@ extension on TranslationsKoKr {
 			'organization.invitations.acceptAction' => '초대 수락',
 			'organization.invitations.rejectAction' => '거절',
 			'organization.departments.title' => '부서 목록',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => '부서 ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => '상태: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => '멤버 ${userId}',
 			'organization.departments.viewForbiddenDetail' => '이 부서를 볼 권한이 없습니다(이 조직의 재직 멤버만 가능)',
@@ -5318,7 +5316,7 @@ extension on TranslationsKoKr {
 			'organization.departments.newNameLabel' => '새 이름',
 			'organization.departments.renameFailed' => '이름 바꾸기 실패',
 			'organization.departments.moveDept' => '부서 이동',
-			'organization.departments.newParentIdHint' => '새 상위 부서 ID(비우면 루트로)',
+			'organization.departments.rootLevel' => '조직 최상위',
 			'organization.departments.moveFailed' => '이동 실패',
 			'organization.departments.addDeptMember' => '부서 멤버 추가',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => '‘${name}’을(를) 보관하면 이 부서는 읽기 전용이 됩니다(멤버십은 유지).',
@@ -5714,9 +5712,9 @@ extension on TranslationsKoKr {
 			'workspace.projectMemberEmptySubtitle' => '프로젝트 담당자가 가입한 사용자를 이 프로젝트에 초대할 수 있습니다',
 			'workspace.projectMemberInviteTitle' => '프로젝트 구성원 초대',
 			'workspace.projectMemberInviteFieldHint' => '초대할 가입 사용자 ID',
+			'workspace.projectMemberInviteInvalidUid' => '올바른 사용자 ID를 입력해 주세요',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.projectMemberInviteInvalidUid' => '올바른 사용자 ID를 입력해 주세요',
 			'workspace.projectMemberInviteSubmit' => '초대',
 			'workspace.projectMemberInviteSuccess' => '프로젝트 구성원으로 추가되었습니다',
 			'workspace.projectMemberInviteExisting' => '이 사용자는 이미 프로젝트 구성원입니다',

@@ -135,7 +135,6 @@ invitations:
   rejectAction: "Reject"
 departments:
   title: "Departments"
-  deptIdSubtitle: "Department ${id}"
   statusLine: "Status: ${status}"
   memberUidLine: "Member ${userId}"
   viewForbiddenDetail: "Not allowed to view this department (active members of this organization only)"
@@ -153,7 +152,7 @@ departments:
   newNameLabel: "New name"
   renameFailed: "Rename failed"
   moveDept: "Move department"
-  newParentIdHint: "New parent department ID (leave empty = promote to root)"
+  rootLevel: Organization root
   moveFailed: "Move failed"
   addDeptMember: "Add department member"
   archiveConfirmBody: "Once “${name}” is archived, the department becomes read-only (memberships are kept)."

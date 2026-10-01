@@ -2849,7 +2849,6 @@ class _Translations$organization$departments$fr_FR extends Translations$organiza
 
 	// Translations
 	@override String get title => 'Annuaire des départements';
-	@override String deptIdSubtitle({required Object id}) => 'Département ${id}';
 	@override String statusLine({required Object status}) => 'Statut : ${status}';
 	@override String memberUidLine({required Object userId}) => 'Membre ${userId}';
 	@override String get viewForbiddenDetail => 'Accès à ce département refusé (membres actifs de cette organisation uniquement)';
@@ -2867,7 +2866,7 @@ class _Translations$organization$departments$fr_FR extends Translations$organiza
 	@override String get newNameLabel => 'Nouveau nom';
 	@override String get renameFailed => 'Échec du renommage';
 	@override String get moveDept => 'Déplacer le département';
-	@override String get newParentIdHint => 'ID du nouveau département parent (vide = racine)';
+	@override String get rootLevel => 'Racine de l’organisation';
 	@override String get moveFailed => 'Échec du déplacement';
 	@override String get addDeptMember => 'Ajouter un membre au département';
 	@override String archiveConfirmBody({required Object name}) => 'Après archivage de « ${name} », le département passe en lecture seule (les appartenances sont conservées).';
@@ -5303,7 +5302,6 @@ extension on TranslationsFrFr {
 			'organization.invitations.acceptAction' => 'Accepter l\'invitation',
 			'organization.invitations.rejectAction' => 'Refuser',
 			'organization.departments.title' => 'Annuaire des départements',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Département ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => 'Statut : ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Membre ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Accès à ce département refusé (membres actifs de cette organisation uniquement)',
@@ -5321,7 +5319,7 @@ extension on TranslationsFrFr {
 			'organization.departments.newNameLabel' => 'Nouveau nom',
 			'organization.departments.renameFailed' => 'Échec du renommage',
 			'organization.departments.moveDept' => 'Déplacer le département',
-			'organization.departments.newParentIdHint' => 'ID du nouveau département parent (vide = racine)',
+			'organization.departments.rootLevel' => 'Racine de l’organisation',
 			'organization.departments.moveFailed' => 'Échec du déplacement',
 			'organization.departments.addDeptMember' => 'Ajouter un membre au département',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'Après archivage de « ${name} », le département passe en lecture seule (les appartenances sont conservées).',
@@ -5717,9 +5715,9 @@ extension on TranslationsFrFr {
 			'workspace.projectMemberEmptySubtitle' => 'Le responsable du projet peut inviter des utilisateurs inscrits à rejoindre ce projet',
 			'workspace.projectMemberInviteTitle' => 'Inviter des membres au projet',
 			'workspace.projectMemberInviteFieldHint' => 'ID de l\'utilisateur inscrit à inviter',
+			'workspace.projectMemberInviteInvalidUid' => 'Veuillez saisir un ID utilisateur valide',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.projectMemberInviteInvalidUid' => 'Veuillez saisir un ID utilisateur valide',
 			'workspace.projectMemberInviteSubmit' => 'Inviter',
 			'workspace.projectMemberInviteSuccess' => 'Ajouté aux membres du projet',
 			'workspace.projectMemberInviteExisting' => 'Cet utilisateur est déjà membre du projet',

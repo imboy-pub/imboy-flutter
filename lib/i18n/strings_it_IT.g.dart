@@ -2849,7 +2849,6 @@ class _Translations$organization$departments$it_IT extends Translations$organiza
 
 	// Translations
 	@override String get title => 'Elenco dipartimenti';
-	@override String deptIdSubtitle({required Object id}) => 'Dipartimento ${id}';
 	@override String statusLine({required Object status}) => 'Stato: ${status}';
 	@override String memberUidLine({required Object userId}) => 'Membro ${userId}';
 	@override String get viewForbiddenDetail => 'Non hai accesso a questo dipartimento (solo membri attivi di questa organizzazione)';
@@ -2867,7 +2866,7 @@ class _Translations$organization$departments$it_IT extends Translations$organiza
 	@override String get newNameLabel => 'Nuovo nome';
 	@override String get renameFailed => 'Rinomina non riuscita';
 	@override String get moveDept => 'Sposta dipartimento';
-	@override String get newParentIdHint => 'ID del nuovo dipartimento padre (vuoto = livello radice)';
+	@override String get rootLevel => 'Radice dell’organizzazione';
 	@override String get moveFailed => 'Spostamento non riuscito';
 	@override String get addDeptMember => 'Aggiungi membro del dipartimento';
 	@override String archiveConfirmBody({required Object name}) => 'Dopo l\'archiviazione di «${name}», il dipartimento passa in sola lettura (le appartenenze vengono conservate).';
@@ -5303,7 +5302,6 @@ extension on TranslationsItIt {
 			'organization.invitations.acceptAction' => 'Accetta invito',
 			'organization.invitations.rejectAction' => 'Rifiuta',
 			'organization.departments.title' => 'Elenco dipartimenti',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Dipartimento ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => 'Stato: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Membro ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Non hai accesso a questo dipartimento (solo membri attivi di questa organizzazione)',
@@ -5321,7 +5319,7 @@ extension on TranslationsItIt {
 			'organization.departments.newNameLabel' => 'Nuovo nome',
 			'organization.departments.renameFailed' => 'Rinomina non riuscita',
 			'organization.departments.moveDept' => 'Sposta dipartimento',
-			'organization.departments.newParentIdHint' => 'ID del nuovo dipartimento padre (vuoto = livello radice)',
+			'organization.departments.rootLevel' => 'Radice dell’organizzazione',
 			'organization.departments.moveFailed' => 'Spostamento non riuscito',
 			'organization.departments.addDeptMember' => 'Aggiungi membro del dipartimento',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'Dopo l\'archiviazione di «${name}», il dipartimento passa in sola lettura (le appartenenze vengono conservate).',
@@ -5717,9 +5715,9 @@ extension on TranslationsItIt {
 			'workspace.projectReopen' => 'Riapri progetto',
 			'workspace.projectStatusActive' => 'In corso',
 			'workspace.projectStatusChanged' => 'Stato del progetto aggiornato',
+			'workspace.projectStatusDone' => 'Completato',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.projectStatusDone' => 'Completato',
 			'workspace.projectStatusLabel' => 'Stato',
 			'workspace.projectSubmit' => 'Crea',
 			'workspace.projectTasksSection' => 'Attività',

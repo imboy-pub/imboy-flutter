@@ -2849,7 +2849,6 @@ class _Translations$organization$departments$de_DE extends Translations$organiza
 
 	// Translations
 	@override String get title => 'Abteilungsverzeichnis';
-	@override String deptIdSubtitle({required Object id}) => 'Abteilung ${id}';
 	@override String statusLine({required Object status}) => 'Status: ${status}';
 	@override String memberUidLine({required Object userId}) => 'Mitglied ${userId}';
 	@override String get viewForbiddenDetail => 'Kein Zugriff auf diese Abteilung (nur aktive Mitglieder dieser Organisation)';
@@ -2867,7 +2866,7 @@ class _Translations$organization$departments$de_DE extends Translations$organiza
 	@override String get newNameLabel => 'Neuer Name';
 	@override String get renameFailed => 'Umbenennen fehlgeschlagen';
 	@override String get moveDept => 'Abteilung verschieben';
-	@override String get newParentIdHint => 'ID der neuen übergeordneten Abteilung (leer = auf Root-Ebene)';
+	@override String get rootLevel => 'Organisationswurzel';
 	@override String get moveFailed => 'Verschieben fehlgeschlagen';
 	@override String get addDeptMember => 'Abteilungsmitglied hinzufügen';
 	@override String archiveConfirmBody({required Object name}) => 'Nach der Archivierung von „${name}“ ist die Abteilung schreibgeschützt (Mitgliedschaften bleiben erhalten).';
@@ -5303,7 +5302,6 @@ extension on TranslationsDeDe {
 			'organization.invitations.acceptAction' => 'Einladung annehmen',
 			'organization.invitations.rejectAction' => 'Ablehnen',
 			'organization.departments.title' => 'Abteilungsverzeichnis',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => 'Abteilung ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => 'Status: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Mitglied ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Kein Zugriff auf diese Abteilung (nur aktive Mitglieder dieser Organisation)',
@@ -5321,7 +5319,7 @@ extension on TranslationsDeDe {
 			'organization.departments.newNameLabel' => 'Neuer Name',
 			'organization.departments.renameFailed' => 'Umbenennen fehlgeschlagen',
 			'organization.departments.moveDept' => 'Abteilung verschieben',
-			'organization.departments.newParentIdHint' => 'ID der neuen übergeordneten Abteilung (leer = auf Root-Ebene)',
+			'organization.departments.rootLevel' => 'Organisationswurzel',
 			'organization.departments.moveFailed' => 'Verschieben fehlgeschlagen',
 			'organization.departments.addDeptMember' => 'Abteilungsmitglied hinzufügen',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => 'Nach der Archivierung von „${name}“ ist die Abteilung schreibgeschützt (Mitgliedschaften bleiben erhalten).',
@@ -5717,9 +5715,9 @@ extension on TranslationsDeDe {
 			'workspace.projectMemberEmptySubtitle' => 'Die Projektleitung kann registrierte Nutzer in dieses Projekt einladen',
 			'workspace.projectMemberInviteTitle' => 'Projektmitglieder einladen',
 			'workspace.projectMemberInviteFieldHint' => 'ID des einzuladenden registrierten Nutzers',
+			'workspace.projectMemberInviteInvalidUid' => 'Bitte eine gültige Nutzer-ID eingeben',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.projectMemberInviteInvalidUid' => 'Bitte eine gültige Nutzer-ID eingeben',
 			'workspace.projectMemberInviteSubmit' => 'Einladen',
 			'workspace.projectMemberInviteSuccess' => 'Zu den Projektmitgliedern hinzugefügt',
 			'workspace.projectMemberInviteExisting' => 'Dieser Nutzer ist bereits Projektmitglied',

@@ -136,7 +136,6 @@ invitations:
   rejectAction: "Отклонить"
 departments:
   title: "Справочник отделов"
-  deptIdSubtitle: "Отдел ${id}"
   statusLine: "Статус: ${status}"
   memberUidLine: "Участник ${userId}"
   viewForbiddenDetail: "Нет доступа к этому отделу (только действующие участники этой организации)"
@@ -154,7 +153,7 @@ departments:
   newNameLabel: "Новое название"
   renameFailed: "Не удалось переименовать"
   moveDept: "Переместить отдел"
-  newParentIdHint: "ID нового родительского отдела (пусто = корень)"
+  rootLevel: Корень организации
   moveFailed: "Не удалось переместить"
   addDeptMember: "Добавить участника отдела"
   archiveConfirmBody: "После архивации «${name}» отдел переходит в режим только для чтения (членство сохраняется)."

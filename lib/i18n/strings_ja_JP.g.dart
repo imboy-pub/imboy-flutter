@@ -2846,7 +2846,6 @@ class _Translations$organization$departments$ja_JP extends Translations$organiza
 
 	// Translations
 	@override String get title => '部門ディレクトリ';
-	@override String deptIdSubtitle({required Object id}) => '部門 ${id}';
 	@override String statusLine({required Object status}) => '状態：${status}';
 	@override String memberUidLine({required Object userId}) => 'メンバー ${userId}';
 	@override String get viewForbiddenDetail => 'この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）';
@@ -2864,7 +2863,7 @@ class _Translations$organization$departments$ja_JP extends Translations$organiza
 	@override String get newNameLabel => '新しい名前';
 	@override String get renameFailed => '名前の変更に失敗しました';
 	@override String get moveDept => '部門を移動';
-	@override String get newParentIdHint => '新しい親部門 ID（空欄 = ルートへ）';
+	@override String get rootLevel => '組織のルート';
 	@override String get moveFailed => '移動に失敗しました';
 	@override String get addDeptMember => '部門メンバーを追加';
 	@override String archiveConfirmBody({required Object name}) => '「${name}」をアーカイブすると、この部門は読み取り専用になります（メンバーシップは保持）。';
@@ -5300,7 +5299,6 @@ extension on TranslationsJaJp {
 			'organization.invitations.acceptAction' => '招待を受諾',
 			'organization.invitations.rejectAction' => '拒否',
 			'organization.departments.title' => '部門ディレクトリ',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => '部門 ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => '状態：${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'メンバー ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）',
@@ -5318,7 +5316,7 @@ extension on TranslationsJaJp {
 			'organization.departments.newNameLabel' => '新しい名前',
 			'organization.departments.renameFailed' => '名前の変更に失敗しました',
 			'organization.departments.moveDept' => '部門を移動',
-			'organization.departments.newParentIdHint' => '新しい親部門 ID（空欄 = ルートへ）',
+			'organization.departments.rootLevel' => '組織のルート',
 			'organization.departments.moveFailed' => '移動に失敗しました',
 			'organization.departments.addDeptMember' => '部門メンバーを追加',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => '「${name}」をアーカイブすると、この部門は読み取り専用になります（メンバーシップは保持）。',
@@ -5714,9 +5712,9 @@ extension on TranslationsJaJp {
 			'workspace.projectMemberEmptySubtitle' => 'プロジェクト担当者は登録済みユーザーをこのプロジェクトに招待できます',
 			'workspace.projectMemberInviteTitle' => 'プロジェクトメンバーを招待',
 			'workspace.projectMemberInviteFieldHint' => '招待する登録済みユーザーのID',
+			'workspace.projectMemberInviteInvalidUid' => '有効なユーザーIDを入力してください',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.projectMemberInviteInvalidUid' => '有効なユーザーIDを入力してください',
 			'workspace.projectMemberInviteSubmit' => '招待',
 			'workspace.projectMemberInviteSuccess' => 'プロジェクトメンバーに追加しました',
 			'workspace.projectMemberInviteExisting' => 'このユーザーは既にプロジェクトメンバーです',

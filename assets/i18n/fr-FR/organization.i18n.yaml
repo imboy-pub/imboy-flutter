@@ -135,7 +135,6 @@ invitations:
   rejectAction: "Refuser"
 departments:
   title: "Annuaire des départements"
-  deptIdSubtitle: "Département ${id}"
   statusLine: "Statut : ${status}"
   memberUidLine: "Membre ${userId}"
   viewForbiddenDetail: "Accès à ce département refusé (membres actifs de cette organisation uniquement)"
@@ -153,7 +152,7 @@ departments:
   newNameLabel: "Nouveau nom"
   renameFailed: "Échec du renommage"
   moveDept: "Déplacer le département"
-  newParentIdHint: "ID du nouveau département parent (vide = racine)"
+  rootLevel: Racine de l’organisation
   moveFailed: "Échec du déplacement"
   addDeptMember: "Ajouter un membre au département"
   archiveConfirmBody: "Après archivage de « ${name} », le département passe en lecture seule (les appartenances sont conservées)."

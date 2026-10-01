@@ -135,7 +135,6 @@ invitations:
   rejectAction: "رفض"
 departments:
   title: "دليل الأقسام"
-  deptIdSubtitle: "القسم ${id}"
   statusLine: "الحالة: ${status}"
   memberUidLine: "العضو ${userId}"
   viewForbiddenDetail: "لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)"
@@ -153,7 +152,7 @@ departments:
   newNameLabel: "الاسم الجديد"
   renameFailed: "فشلت إعادة التسمية"
   moveDept: "نقل القسم"
-  newParentIdHint: "معرّف القسم الأب الجديد (اتركه فارغاً = المستوى الجذري)"
+  rootLevel: جذر المؤسسة
   moveFailed: "فشل النقل"
   addDeptMember: "إضافة عضو إلى القسم"
   archiveConfirmBody: "بعد أرشفة «${name}» يدخل القسم في وضع القراءة فقط (تُحفظ العضويات)."

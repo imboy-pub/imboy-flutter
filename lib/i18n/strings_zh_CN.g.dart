@@ -8080,9 +8080,6 @@ class Translations$organization$departments$zh_CN {
 	/// zh-CN: '部门目录'
 	String get title => '部门目录';
 
-	/// zh-CN: '部门 ${id}'
-	String deptIdSubtitle({required Object id}) => '部门 ${id}';
-
 	/// zh-CN: '状态：${status}'
 	String statusLine({required Object status}) => '状态：${status}';
 
@@ -8134,8 +8131,8 @@ class Translations$organization$departments$zh_CN {
 	/// zh-CN: '移动部门'
 	String get moveDept => '移动部门';
 
-	/// zh-CN: '新父部门 ID（留空 = 提为根）'
-	String get newParentIdHint => '新父部门 ID（留空 = 提为根）';
+	/// zh-CN: '企业根目录'
+	String get rootLevel => '企业根目录';
 
 	/// zh-CN: '移动失败'
 	String get moveFailed => '移动失败';
@@ -11092,7 +11089,6 @@ extension on Translations {
 			'organization.invitations.acceptAction' => '接受邀请',
 			'organization.invitations.rejectAction' => '拒绝',
 			'organization.departments.title' => '部门目录',
-			'organization.departments.deptIdSubtitle' => ({required Object id}) => '部门 ${id}',
 			'organization.departments.statusLine' => ({required Object status}) => '状态：${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => '成员 ${userId}',
 			'organization.departments.viewForbiddenDetail' => '无权查看该部门（仅限本组织在职成员）',
@@ -11110,7 +11106,7 @@ extension on Translations {
 			'organization.departments.newNameLabel' => '新名称',
 			'organization.departments.renameFailed' => '重命名失败',
 			'organization.departments.moveDept' => '移动部门',
-			'organization.departments.newParentIdHint' => '新父部门 ID（留空 = 提为根）',
+			'organization.departments.rootLevel' => '企业根目录',
 			'organization.departments.moveFailed' => '移动失败',
 			'organization.departments.addDeptMember' => '添加部门成员',
 			'organization.departments.archiveConfirmBody' => ({required Object name}) => '归档「${name}」后该部门进入只读态（成员关系保留）。',
@@ -11371,9 +11367,9 @@ extension on Translations {
 			'workspace.overviewResources' => '资源摘要',
 			'workspace.overviewPinnedContent' => '频道置顶内容',
 			'workspace.overviewPinnedEmpty' => '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）',
+			'workspace.overviewRecentFiles' => '最近文件',
 			_ => null,
 		} ?? switch (path) {
-			'workspace.overviewRecentFiles' => '最近文件',
 			'workspace.overviewRecentFilesEmpty' => '最近上传的文件将在此展示；也可在各频道内查看附件',
 			'workspace.membersTitle' => '工作区成员',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} 位成员',

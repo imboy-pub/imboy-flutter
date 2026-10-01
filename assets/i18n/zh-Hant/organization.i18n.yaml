@@ -135,7 +135,6 @@ invitations:
   rejectAction: "拒絕"
 departments:
   title: "部門目錄"
-  deptIdSubtitle: "部門 ${id}"
   statusLine: "狀態：${status}"
   memberUidLine: "成員 ${userId}"
   viewForbiddenDetail: "無權查看該部門（僅限本組織在職成員）"
@@ -153,7 +152,7 @@ departments:
   newNameLabel: "新名稱"
   renameFailed: "重新命名失敗"
   moveDept: "移動部門"
-  newParentIdHint: "新父部門 ID（留空 = 提為根）"
+  rootLevel: 企業根目錄
   moveFailed: "移動失敗"
   addDeptMember: "新增部門成員"
   archiveConfirmBody: "封存「${name}」後該部門進入唯讀態（成員關係保留）。"

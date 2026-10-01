@@ -135,7 +135,6 @@ invitations:
   rejectAction: "거절"
 departments:
   title: "부서 목록"
-  deptIdSubtitle: "부서 ${id}"
   statusLine: "상태: ${status}"
   memberUidLine: "멤버 ${userId}"
   viewForbiddenDetail: "이 부서를 볼 권한이 없습니다(이 조직의 재직 멤버만 가능)"
@@ -153,7 +152,7 @@ departments:
   newNameLabel: "새 이름"
   renameFailed: "이름 바꾸기 실패"
   moveDept: "부서 이동"
-  newParentIdHint: "새 상위 부서 ID(비우면 루트로)"
+  rootLevel: 조직 최상위
   moveFailed: "이동 실패"
   addDeptMember: "부서 멤버 추가"
   archiveConfirmBody: "‘${name}’을(를) 보관하면 이 부서는 읽기 전용이 됩니다(멤버십은 유지)."

@@ -135,7 +135,6 @@ invitations:
   rejectAction: "拒否"
 departments:
   title: "部門ディレクトリ"
-  deptIdSubtitle: "部門 ${id}"
   statusLine: "状態：${status}"
   memberUidLine: "メンバー ${userId}"
   viewForbiddenDetail: "この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）"
@@ -153,7 +152,7 @@ departments:
   newNameLabel: "新しい名前"
   renameFailed: "名前の変更に失敗しました"
   moveDept: "部門を移動"
-  newParentIdHint: "新しい親部門 ID（空欄 = ルートへ）"
+  rootLevel: 組織のルート
   moveFailed: "移動に失敗しました"
   addDeptMember: "部門メンバーを追加"
   archiveConfirmBody: "「${name}」をアーカイブすると、この部門は読み取り専用になります（メンバーシップは保持）。"
