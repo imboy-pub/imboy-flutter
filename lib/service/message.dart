@@ -1156,9 +1156,8 @@ class MessageService with EventSubscriptionManager {
 
       iPrint('✅ 消息后台处理完成: $msgId');
       return true;
-    } on Object catch (e, s) {
-      iPrint('❌ 消息后台处理失败: $msgId, error=$e');
-      AppLogger.error('消息后台处理失败 msgId=$msgId', e, s);
+    } on Object catch (e) {
+      AppLogger.error('消息后台处理失败 msgId=$msgId errType=${e.runtimeType}');
 
       // 处理失败，从 UI 中移除该消息
       // Failed to process, remove message from UI
@@ -1218,7 +1217,6 @@ class MessageService with EventSubscriptionManager {
         'msg_id': msgId,
         'conversation_uk3': tempConv.uk3,
         'error_type': error.runtimeType.toString(),
-        'error_message': error.toString(),
       };
 
       // 触发 UI 删除该消息

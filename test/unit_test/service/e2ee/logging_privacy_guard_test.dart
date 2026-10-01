@@ -30,6 +30,8 @@ void main() {
       'lib/service/message.dart': [
         r"peer: ${peerInfo['title']}",
         r'error=$e',
+        r"AppLogger.error('消息后台处理失败 msgId=$msgId', e, s)",
+        "'error_message': error.toString()",
         r'堆栈: $stack',
         r'接收标记: $receivingMsgKey',
       ],
