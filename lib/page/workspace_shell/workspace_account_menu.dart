@@ -190,7 +190,9 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
 
     return SafeArea(
       top: false,
-      child: Padding(
+      // 内容（工作区列表 + 动作行）可能超一屏：包一层滚动，不足一屏时
+      // 收缩贴合、超屏时滚动，而不是 Column 底部溢出。
+      child: SingleChildScrollView(
         padding: AppSpacing.allRegular,
         child: Column(
           mainAxisSize: MainAxisSize.min,
