@@ -70,10 +70,8 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
+        leading: BackButton(
           onPressed: () => setState(() => _applicationKey = null),
-          child: const Icon(CupertinoIcons.back),
         ),
         title: Text(
           selected.oaTabLabel.isEmpty
