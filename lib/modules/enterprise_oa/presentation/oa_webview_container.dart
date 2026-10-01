@@ -127,6 +127,11 @@ class OaWebViewContainer extends StatefulWidget {
 class _OaWebViewContainerState extends State<OaWebViewContainer> {
   late final OaWebViewEventHandlers _handlers;
   late final WebViewController _controller;
+  static Future<void> _sessionBarrier = Future.value();
+  static _OaWebViewContainerState? _active;
+  bool _retired = true;
+
+  bool get _acceptEvents => mounted && !_retired && identical(_active, this);
 
   @override
   void initState() {
@@ -138,45 +143,92 @@ class _OaWebViewContainerState extends State<OaWebViewContainer> {
       ),
       onFirstPageLoaded: widget.onFirstPageLoaded,
     );
-    _controller = WebViewController()
-      // 见库文档：unrestricted 仅为 OA H5 页自身可用；无 JS 通道注册，
-      // 页面与 Flutter 之间不存在任何 bridge 面。
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onNavigationRequest: (NavigationRequest request) {
-            if (!mounted) return NavigationDecision.prevent;
-            final NavigationDecision decision = _handlers.decideNavigation(
-              request.url,
-            );
-            _notifyStateChanged();
-            return decision;
-          },
-          onPageFinished: (String url) {
-            if (!mounted) return;
-            _handlers.onPageFinished(url);
-            _notifyStateChanged();
-          },
-          onWebResourceError: (WebResourceError error) {
-            if (!mounted) return;
-            // 仅主帧失败视为页面加载失败；子资源（图片/脚本）失败
-            // 不推翻页面状态。
-            if (error.isForMainFrame ?? false) {
-              _handlers.onMainFrameLoadFailed();
-              _notifyStateChanged();
-            }
-          },
-          onHttpError: (HttpResponseError error) {
-            if (!mounted) return;
-            // webview_flutter 的 onHttpError 在 Android 仅主帧触发；
-            // iOS 经 WKWebView 导航响应同样以主帧为主。非 401 状态码
-            // 不动状态机（OA 页面自行处理）。
-            _handlers.onMainFrameHttpStatus(error.response?.statusCode ?? 0);
-            _notifyStateChanged();
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(widget.initialUrl));
+    _controller = WebViewController();
+    unawaited(_prepare());
+  }
+
+  NavigationDelegate _navigationDelegate() => NavigationDelegate(
+    onNavigationRequest: (NavigationRequest request) {
+      if (_retired && request.url == 'about:blank') {
+        return NavigationDecision.navigate;
+      }
+      if (!_acceptEvents) return NavigationDecision.prevent;
+      final NavigationDecision decision = _handlers.decideNavigation(
+        request.url,
+      );
+      _notifyStateChanged();
+      return decision;
+    },
+    onPageFinished: (String url) {
+      if (!_acceptEvents) return;
+      _handlers.onPageFinished(url);
+      _notifyStateChanged();
+    },
+    onWebResourceError: (WebResourceError error) {
+      if (!_acceptEvents) return;
+      // 仅主帧失败视为页面加载失败；子资源（图片/脚本）失败
+      // 不推翻页面状态。
+      if (error.isForMainFrame ?? false) {
+        _handlers.onMainFrameLoadFailed();
+        _notifyStateChanged();
+      }
+    },
+    onHttpError: (HttpResponseError error) {
+      if (!_acceptEvents) return;
+      // webview_flutter 的 onHttpError 在 Android 仅主帧触发；
+      // iOS 经 WKWebView 导航响应同样以主帧为主。非 401 状态码
+      // 不动状态机（OA 页面自行处理）。
+      _handlers.onMainFrameHttpStatus(error.response?.statusCode ?? 0);
+      _notifyStateChanged();
+    },
+  );
+
+  static Future<void> _enqueueSession(Future<void> Function() action) {
+    final next = _sessionBarrier.then((_) => action());
+    _sessionBarrier = next.catchError((Object error) {
+      iPrint('[OaWebView] session cleanup failed: ${error.runtimeType}');
+    });
+    return next;
+  }
+
+  Future<void> _clearSession() async {
+    // ponytail: plugin clears the shared WebView store; use native profiles when available.
+    await WebViewCookieManager().clearCookies();
+    await _controller.clearLocalStorage();
+    await _controller.clearCache();
+  }
+
+  Future<void> _quiesce() async {
+    _retired = true;
+    await _controller.runJavaScript('window.stop();');
+    await _controller.loadRequest(Uri.parse('about:blank'));
+  }
+
+  Future<void> _prepare() async {
+    try {
+      if (!evaluateOrigin(widget.allowedOrigin, widget.initialUrl).isAllow) {
+        throw StateError('Invalid OA origin');
+      }
+      await _controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+      await _controller.setNavigationDelegate(_navigationDelegate());
+      await _enqueueSession(() async {
+        if (!mounted) return;
+        final previous = _active;
+        if (previous != null && !identical(previous, this)) {
+          await previous._quiesce();
+        }
+        await _clearSession();
+        if (!mounted) return;
+        _active = this;
+        _retired = false;
+        await _controller.loadRequest(Uri.parse(widget.initialUrl));
+      });
+    } on Object catch (error) {
+      if (!mounted) return;
+      _handlers.onMainFrameLoadFailed();
+      _notifyStateChanged();
+      iPrint('[OaWebView] prepare failed: ${error.runtimeType}');
+    }
   }
 
   /// 状态迁移后通知协调器。
@@ -187,9 +239,15 @@ class _OaWebViewContainerState extends State<OaWebViewContainer> {
 
   @override
   void dispose() {
+    _retired = true;
     unawaited(
-      _controller.runJavaScript('window.stop();').catchError((Object error) {
-        iPrint('[OaWebView] stop failed: ${error.runtimeType}');
+      _enqueueSession(() async {
+        if (!identical(_active, this)) return;
+        await _quiesce();
+        await _clearSession();
+        _active = null;
+      }).catchError((Object error) {
+        iPrint('[OaWebView] dispose cleanup failed: ${error.runtimeType}');
       }),
     );
     super.dispose();
