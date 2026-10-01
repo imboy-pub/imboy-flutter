@@ -46,6 +46,7 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
   List<CsSeatContext> _contexts = const <CsSeatContext>[];
   bool _contextsLoading = true;
   String? _contextsError;
+  int _contextsGeneration = 0;
 
   /// 当前选中 Org（seat-contexts 列表驱动；切换即清空重载）。
   String? _selectedOrgId;
@@ -82,10 +83,7 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _presence?.stop();
-    _presence = null;
-    _refreshDebounce?.cancel();
-    _events?.dispose();
+    _stopEvents();
     _refreshSignal.close();
     _tabController.dispose();
     super.dispose();
@@ -96,6 +94,10 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
   /// 立即补跳 + 三视图权威重同步（onResync）。
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _presence == null) {
+      unawaited(_loadContexts());
+      return;
+    }
     unawaited(
       _presence?.onAppLifecycleStateChanged(state.name) ?? Future<void>.value(),
     );
@@ -103,32 +105,34 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
 
   /// 拉取坐席上下文清单（seat-contexts 列表驱动，APP-M01-A01）。
   Future<void> _loadContexts() async {
+    final generation = ++_contextsGeneration;
+    _stopEvents();
     setState(() {
       _contextsLoading = true;
       _contextsError = null;
+      _queuedTotal = _activeTotal = _closedTotal = null;
     });
     try {
       final result = await _api.seatContexts();
-      if (!mounted) return;
+      if (!mounted || generation != _contextsGeneration) return;
       // 只列可用坐席上下文（active assignment + enabled seat 同时成立）。
       final eligible = result.contexts
           .where((c) => c.isEligible)
           .toList(growable: false);
+      final selected =
+          eligible
+              .where((c) => c.organizationId == _selectedOrgId)
+              .firstOrNull ??
+          eligible.firstOrNull;
       setState(() {
         _contexts = eligible;
         _contextsLoading = false;
-        _selectedOrgId = eligible.isEmpty
-            ? null
-            : eligible.first.organizationId;
-        _selectedWorkspaceId = eligible.isEmpty
-            ? ''
-            : (eligible.first.workspaces.isNotEmpty
-                  ? eligible.first.workspaces.first.id
-                  : '');
+        _selectedOrgId = selected?.organizationId;
+        _selectedWorkspaceId = selected?.workspaces.firstOrNull?.id ?? '';
       });
       _startEvents();
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!mounted || generation != _contextsGeneration) return;
       setState(() {
         _contextsError = e.toString();
         _contextsLoading = false;
@@ -142,11 +146,7 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
   /// APP-M02-A02：按当前 Org（及其首个 workspace）启动坐席事件流；
   /// CS-APP-02 同时启动 presence 心跳（同 org 作用域；切 Org 重建）。
   void _startEvents() {
-    _events?.dispose();
-    _events = null;
-    _presence?.stop();
-    _presence = null;
-    _presenceBusy = false;
+    _stopEvents();
     final orgId = _selectedOrgId;
     if (orgId == null) return;
     final stream = CsSeatEventsStream(
@@ -154,8 +154,36 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
       workspaceId: _selectedWorkspaceId,
     );
     _events = stream;
-    stream.start(onEvent: _onSeatEvent);
+    stream.start(
+      onEvent: (event) {
+        if (mounted && identical(stream, _events)) _onSeatEvent(event);
+      },
+      onError: (error) {
+        if (!mounted || !identical(stream, _events)) return;
+        if (error is CsSseOpenException &&
+            (error.statusCode == 401 || error.statusCode == 403)) {
+          _stopEvents();
+          setState(() {
+            _contextsError = error.toString();
+            _contexts = const [];
+            _selectedOrgId = null;
+            _selectedWorkspaceId = '';
+            _queuedTotal = _activeTotal = _closedTotal = null;
+          });
+        }
+      },
+    );
     _startPresence(orgId);
+  }
+
+  void _stopEvents() {
+    _refreshDebounce?.cancel();
+    _refreshDebounce = null;
+    _events?.dispose();
+    _events = null;
+    _presence?.stop();
+    _presence = null;
+    _presenceBusy = false;
   }
 
   /// 启动 presence 心跳（resume 重同步 = 三视图权威刷新，与 SSE 事件
@@ -167,8 +195,7 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
       orgId: orgId,
       workspaceId: _selectedWorkspaceId,
       onResync: () async {
-        if (!mounted || _refreshSignal.isClosed) return;
-        _refreshSignal.add(null);
+        if (mounted) await _loadContexts();
       },
       onPresenceChanged: () {
         if (mounted) setState(() {});
@@ -180,11 +207,13 @@ class _CsWorkspacePageState extends State<CsWorkspacePage>
 
   void _onSeatEvent(CsSseEnvelope e) {
     switch (e.type) {
-      case CsSseEnvelope.typeQueueChanged:
-      case CsSseEnvelope.typeSessionChanged:
       case CsSseEnvelope.typeAssignmentChanged:
       case CsSseEnvelope.typeSeatChanged:
       case CsSseEnvelope.typeResyncRequired:
+        unawaited(_loadContexts());
+        break;
+      case CsSseEnvelope.typeQueueChanged:
+      case CsSseEnvelope.typeSessionChanged:
         // 事件只触发权威刷新；250ms debounce 合并事件突发（无风暴）。
         _refreshDebounce?.cancel();
         _refreshDebounce = Timer(const Duration(milliseconds: 250), () {

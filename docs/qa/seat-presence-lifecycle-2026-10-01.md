@@ -56,3 +56,37 @@ English summary: Presence action busy state now belongs to the current workspace
   }
 ]
 ```
+
+## 后续闭环：真实字节类型、撤权与连接释放
+
+English summary: Real Dio streams emit Uint8List chunks. Casting at the shared decoding boundary fixes a runtime transformer mismatch. Seat-context revalidation now removes revoked contexts; request cancellation releases the underlying SSE connection.
+
+- 新增传输组件检查使用真实页面与 Dio，出口为可控的 `Stream<Uint8List>`。修改前三项失败：seat.changed、assignment.changed 与前台资格重查。进一步探测发现 `Utf8Decoder` 与 `StreamTransformer<Uint8List,String>` 的运行期类型不兼容；原先只有 List<int> 的纯流检查漏掉了实际网络类型。
+- 共享解码边界使用 cast<List<int>>()；默认 opener 将已有 Dio CancelToken 传给现有 API。dispose/流关闭取消请求，过期打开失败不回调已销毁消费者；组织撤权检查同时断言旧请求实际收到取消。
+- seat.changed、assignment.changed、resync.required 触发完整资格重查，立即停止旧流与心跳。仍有效的当前组织保留；当前组织失效时选择剩余可用组织；全部失效时清空操作和计数。请求代次隔离晚到上下文结果。普通队列与会话事件仍复用列表刷新，不能覆盖撤权刷新。
+- 回前台重新确认资格，无控制器时也能发现新授权。SSE 401/403 清空旧操作并停止自动重连，提供显式重试；不让持久拒绝形成重连循环。网络等其他故障保留既有退避。
+- 流资源检查初期发现 Dio 接收超时仍待处理；最终测试没有关闭或绕过接收超时，而由请求取消释放计时资源。临时探测输出已删除。
+- 最终命令：`flutter test test/customer_service/cs_presence_lifecycle_test.dart test/customer_service/cs_presence_read_state_test.dart test/customer_service/cs_workspace_state_test.dart test/customer_service/cs_workspace_org_test.dart test/customer_service/cs_seat_events_stream_test.dart test/customer_service/ux_matrix/cs_pages_ux_matrix_test.dart --reporter expanded`，退出 0，44 项通过。
+- `flutter analyze lib/modules/customer_service/infrastructure/cs_api.dart lib/modules/customer_service/infrastructure/cs_seat_events_stream.dart lib/modules/customer_service/presentation/cs_workspace_page.dart test/customer_service/cs_workspace_org_test.dart`，退出 0，无问题。手工复核 API 所有调用点、事件流及页面生命周期；无独立代理审查。
+- 日志 `/tmp/gz-seat-revocation-{baseline,root-fixed,final-tests,analyze}.log`。本次传输出口可控，虽然覆盖 Dio 实际字节类型、取消与页面行为，仍不是网络后端、真实账号撤权或真机完整接待旅程的证明；六项投产目标继续，未部署。
+
+```json
+[
+  {
+    "path": "lib/modules/customer_service/infrastructure/cs_api.dart",
+    "sha256": "99690b0f2498cdea3334723c24652deed67908bfb47247c98cf6eac576f34682"
+  },
+  {
+    "path": "lib/modules/customer_service/infrastructure/cs_seat_events_stream.dart",
+    "sha256": "f4bf67efb64f83b28420cb9245da907cd2eb4396d95c041b55efc6fc410b938f"
+  },
+  {
+    "path": "lib/modules/customer_service/presentation/cs_workspace_page.dart",
+    "sha256": "cc038bec67c0c72c5ca65b9a700c31bb5c690592b1108b4acca80f4290bbfe58"
+  },
+  {
+    "path": "test/customer_service/cs_workspace_org_test.dart",
+    "sha256": "04b05b688c9f4a8bb558ec00cdd3d17fcb8ba87ae8e6071b0ec4dcd53eaed96d"
+  }
+]
+```

@@ -1029,6 +1029,7 @@ class CsApi extends HttpClient {
     String workspaceId, {
     String lastEventId = '',
     String afterId = '',
+    CancelToken? cancelToken,
   }) async {
     final resp = await get(
       '/api/v1/cs/organizations/$orgId/seats/me/events',
@@ -1047,6 +1048,7 @@ class CsApi extends HttpClient {
         },
       ),
       httpTransformer: _streamPassthroughTransformer,
+      cancelToken: cancelToken,
     );
     if (!resp.ok) {
       throw CsSseOpenException(resp.code, '');

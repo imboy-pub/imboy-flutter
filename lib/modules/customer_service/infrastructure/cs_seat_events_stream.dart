@@ -24,6 +24,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:collection' show LinkedHashSet;
 
+import 'package:dio/dio.dart' show CancelToken;
+
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 
 /// SSE 打开失败（非 200 / 非事件流 content-type）。
@@ -138,7 +140,8 @@ class CsSeatEventsStream {
   /// 首连游标（after_id；Last-Event-ID 头存在时服务端忽略它）。
   final String initialAfterId;
 
-  final CsSseOpener _opener;
+  final CsSseOpener? opener;
+  CancelToken? _requestCancelToken;
 
   /// Workspace 解析器（默认实现走 seat-contexts；测试可注入）。
   final Future<String> Function()? resolveWorkspaceId;
@@ -167,24 +170,28 @@ class CsSeatEventsStream {
     required this.orgId,
     this.workspaceId = '',
     this.initialAfterId = '',
-    CsSseOpener? opener,
+    this.opener,
     this.resolveWorkspaceId,
     int dedupCapacity = 512,
-  }) : _opener = opener ?? _defaultOpener,
-       _dedup = CsSseDedupWindow(capacity: dedupCapacity);
+  }) : _dedup = CsSseDedupWindow(capacity: dedupCapacity);
 
   /// 默认 opener：走 [CsApi.openSeatEventsStream]（adapterForTest 可拦截）。
-  static Future<Stream<List<int>>> _defaultOpener(
+  Future<Stream<List<int>>> _defaultOpener(
     String orgId,
     String workspaceId, {
     String lastEventId = '',
     String afterId = '',
-  }) => CsApi().openSeatEventsStream(
-    orgId,
-    workspaceId,
-    lastEventId: lastEventId,
-    afterId: afterId,
-  );
+  }) {
+    final token = CancelToken();
+    _requestCancelToken = token;
+    return CsApi().openSeatEventsStream(
+      orgId,
+      workspaceId,
+      lastEventId: lastEventId,
+      afterId: afterId,
+      cancelToken: token,
+    );
+  }
 
   /// 最后收到的 event_id（重连 Last-Event-ID 游标；测试/持久化可读）。
   String get lastEventId => _lastEventId;
@@ -211,6 +218,7 @@ class CsSeatEventsStream {
   void dispose() {
     _disposed = true;
     _running = false;
+    _requestCancelToken?.cancel();
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
     _sub?.cancel();
@@ -228,7 +236,7 @@ class CsSeatEventsStream {
         if (!_running || _disposed) return;
       }
       _resolvedWorkspaceId = ws;
-      final stream = await _opener(
+      final stream = await (opener ?? _defaultOpener)(
         orgId,
         _resolvedWorkspaceId,
         lastEventId: _lastEventId,
@@ -239,6 +247,7 @@ class CsSeatEventsStream {
       // 打开成功：退避清零（只在真正建流后）。
       _connectAttempt = 0;
       _sub = stream
+          .cast<List<int>>()
           .transform(utf8.decoder)
           .transform(const LineSplitter())
           .listen(
@@ -251,12 +260,14 @@ class CsSeatEventsStream {
             cancelOnError: true,
           );
     } on Object catch (e) {
+      if (!_running || _disposed) return;
       _onError?.call(e);
       _scheduleReconnect(openFailure: true);
     }
   }
 
   void _onStreamClosed() {
+    _requestCancelToken?.cancel();
     _sub = null;
     _scheduleReconnect();
   }

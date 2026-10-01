@@ -225,6 +225,66 @@ class _PendingPresenceAdapter extends _OrgRouterAdapter {
   }
 }
 
+class _SeatEventsAdapter extends _PendingPresenceAdapter {
+  final streams = <String, StreamController<Uint8List>>{};
+  final cancelledOrgs = <String>[];
+  bool forbidden = false;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    if (options.uri.path.endsWith('/events')) {
+      final org = options.uri.path.split('/')[5];
+      unawaited(cancelFuture?.then((_) => cancelledOrgs.add(org)));
+      if (forbidden) {
+        return ResponseBody.fromString(
+          jsonEncode({'code': 403, 'msg': 'forbidden'}),
+          403,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        );
+      }
+      final stream = StreamController<Uint8List>();
+      streams[options.uri.path.split('/')[5]] = stream;
+      return ResponseBody(
+        stream.stream,
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['text/event-stream'],
+        },
+      );
+    }
+    return super.fetch(options, requestStream, cancelFuture);
+  }
+
+  void revoke(String type) {
+    routes['/api/v1/cs/me/seat-contexts'] = (
+      200,
+      okEnvelope(
+        payload: {
+          'contexts': [
+            ...(_contextsPayload(withWorkspace: true)['payload']['contexts']
+                    as List)
+                .where((dynamic c) => c['organization_id'] == orgB),
+          ],
+          'user_id': '7266418340025468800',
+        },
+      ),
+    );
+    streams[orgA]!.add(
+      Uint8List.fromList(
+        utf8.encode(
+          'id: 7266418340025469001\nevent: $type\ndata: ${jsonEncode({'event_id': '7266418340025469001', 'type': type, 'organization_id': orgA, 'workspace_id': '7266418340025468921', 'reason': 'revoked'})}\n\n',
+        ),
+      ),
+    );
+  }
+}
+
 Future<void> _pumpWorkspace(WidgetTester tester) async {
   await tester.pumpWidget(
     // 对齐既有 CS widget 测试：TranslationProvider 挂在 MaterialApp.builder
@@ -268,6 +328,93 @@ void main() {
           return null;
         });
     await StorageService.init();
+  });
+
+  testWidgets('事件流拒绝访问后隐藏操作，停止自动重连，允许重试', (tester) async {
+    final adapter = _SeatEventsAdapter()..forbidden = true;
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    await _pumpWorkspace(tester);
+    expect(find.byTooltip('坐席状态'), findsNothing);
+    expect(find.byTooltip('组织'), findsNothing);
+    expect(find.text('甲**'), findsNothing);
+    expect(find.text('重试'), findsOneWidget);
+    adapter.forbidden = false;
+    await tester.tap(find.text('重试'));
+    await _settle(tester);
+    expect(find.text('甲**'), findsOneWidget);
+    expect(find.byTooltip('坐席状态'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  for (final type in [
+    'seat.changed',
+    'assignment.changed',
+    'resync.required',
+  ]) {
+    testWidgets('$type 撤权重拉上下文并移除旧组织', (tester) async {
+      final adapter = _SeatEventsAdapter();
+      HttpClient.adapterForTest = adapter;
+      addTearDown(() => HttpClient.adapterForTest = null);
+      await _pumpWorkspace(tester);
+      expect(find.text('甲**'), findsOneWidget);
+      await tester.runAsync(() async {
+        adapter.revoke(type);
+        await Future<void>.delayed(const Duration(milliseconds: 400));
+      });
+      await _settle(tester);
+      await _settle(tester);
+      expect(find.text('甲**'), findsNothing);
+      expect(find.text('乙**'), findsOneWidget);
+      expect(adapter.cancelledOrgs, contains(orgA));
+      await tester.tap(find.byTooltip('组织'));
+      await _settle(tester);
+      expect(find.text('组织甲'), findsNothing);
+      expect(find.text('组织乙'), findsWidgets);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
+
+  testWidgets('回前台重查坐席资格并保留仍有效的当前组织', (tester) async {
+    final adapter = _SeatEventsAdapter();
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    await _pumpWorkspace(tester);
+    await tester.tap(find.byTooltip('组织'));
+    await _settle(tester);
+    await tester.tap(find.text('组织乙').last);
+    await _settle(tester);
+    final contextPath = '/api/v1/cs/me/seat-contexts';
+    final before = adapter.requests.where((r) => r.$1 == contextPath).length;
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await _settle(tester);
+    expect(
+      adapter.requests.where((r) => r.$1 == contextPath).length,
+      before + 1,
+    );
+    expect(find.text('乙**'), findsOneWidget);
+    adapter.routes[contextPath] = (
+      200,
+      okEnvelope(
+        payload: {
+          'contexts': <Map<String, dynamic>>[],
+          'user_id': '7266418340025468800',
+        },
+      ),
+    );
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await _settle(tester);
+    expect(find.text('乙**'), findsNothing);
+    expect(find.byTooltip('坐席状态'), findsNothing);
+    expect(find.byTooltip('组织'), findsNothing);
+    adapter.routes[contextPath] = (200, _contextsPayload(withWorkspace: true));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await _settle(tester);
+    expect(find.text('甲**'), findsOneWidget, reason: '无席位时恢复前台也可发现新授权');
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
   testWidgets('切组织后独立操作状态，旧请求不能阻塞或解锁新请求', (tester) async {
