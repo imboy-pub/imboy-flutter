@@ -47,6 +47,8 @@ class CsPresenceController {
   bool foreground = true;
 
   bool _started = false;
+  bool _stopped = false;
+  int _generation = 0;
   Timer? _timer;
   bool _beating = false;
 
@@ -54,6 +56,7 @@ class CsPresenceController {
   void start() {
     if (_started) return;
     _started = true;
+    _stopped = false;
     _timer = Timer.periodic(interval, (_) => beat());
     // 启动即一次（前台假设；调用方在后台态启动时应先置 foreground=false）。
     unawaited(beat());
@@ -65,18 +68,25 @@ class CsPresenceController {
     _timer?.cancel();
     _timer = null;
     _started = false;
+    _stopped = true;
+    _generation++;
+    lastPresence = null;
   }
 
   /// App lifecycle 变化（WidgetsBindingObserver 桥接）。
   ///
   /// resumed：回前台 → 立即心跳 + 触发重同步；
-  /// paused/inactive/detached/hidden：离场 → 停发（不谎报 online）。
+  /// paused/detached/hidden：离场 → 停发；inactive 保留短暂过渡态。
   Future<void> onAppLifecycleStateChanged(String state) async {
+    if (_stopped) return;
+    final generation = _generation;
     switch (state) {
       case 'resumed':
         foreground = true;
         await beat();
-        await onResync?.call();
+        if (!_stopped && generation == _generation && foreground) {
+          await onResync?.call();
+        }
       case 'paused':
       case 'detached':
       case 'hidden':
@@ -94,18 +104,23 @@ class CsPresenceController {
   /// workspaceId 为空时不发（CSB-02R 必填，发了必 422——省一次注定失败
   /// 的请求，状态保持 null 诚实降级）。
   Future<void> beat() async {
-    if (!foreground || _beating) return;
+    if (_stopped || !foreground || _beating) return;
     if (workspaceId.isEmpty) return;
     _beating = true;
+    final generation = _generation;
     try {
-      lastPresence = await _api.seatHeartbeat(orgId, workspaceId: workspaceId);
+      final presence = await _api.seatHeartbeat(
+        orgId,
+        workspaceId: workspaceId,
+      );
+      if (!_stopped && generation == _generation) lastPresence = presence;
     } on Object {
       // on Object（非仅 Exception）：API 面已把形状异常折成 CsApiException，
       // 这里再兜住任何剩余错误——心跳链路永不向 UI 抛。
-      lastPresence = null;
+      if (!_stopped && generation == _generation) lastPresence = null;
     } finally {
       _beating = false;
-      onPresenceChanged?.call();
+      if (!_stopped && generation == _generation) onPresenceChanged?.call();
     }
   }
 
@@ -113,11 +128,15 @@ class CsPresenceController {
   /// 于自动 online 的派生优先级在服务端（cs_presence:derive），客户端只
   /// 回填服务端事实。
   Future<void> setManualStatus(String? manualStatus) async {
-    lastPresence = await _api.setSeatPresence(
+    if (_stopped) return;
+    final generation = _generation;
+    final presence = await _api.setSeatPresence(
       orgId,
       manualStatus,
       workspaceId: workspaceId,
     );
+    if (_stopped || generation != _generation) return;
+    lastPresence = presence;
     onPresenceChanged?.call();
   }
 }
