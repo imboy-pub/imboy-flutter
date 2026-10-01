@@ -175,6 +175,88 @@ void main() {
     await StorageService.init();
   });
 
+  testWidgets('宽屏部门与人员分栏，路径可以返回企业根且保留分页作用域', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1200, 900);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final src = _FakeSource();
+    await tester.pumpWidget(
+      _plainApp(
+        HumanDirectoryBrowserPage(
+          orgId: orgA,
+          orgName: '合成企业',
+          dataSource: src,
+        ),
+      ),
+    );
+    src.resolveDepartments(items: _defaultDepts);
+    await tester.pumpAndSettle();
+    final departments = find.byKey(const Key('org-directory-departments-pane'));
+    final members = find.byKey(const Key('org-directory-members-pane'));
+    expect(departments, findsOneWidget);
+    expect(members, findsOneWidget);
+    expect(
+      tester.getTopLeft(members).dx,
+      greaterThan(tester.getTopLeft(departments).dx),
+    );
+    await tester.tap(find.byKey(const Key('org-dir-dept-list-8001')));
+    await tester.pump();
+    src.resolveDepartments();
+    await tester.pumpAndSettle();
+    final root = find.byKey(const Key('org-directory-path-0'));
+    expect(tester.getSize(root).height, greaterThanOrEqualTo(44));
+    await tester.tap(root);
+    await tester.pump();
+    expect(src.deptCalls.last, '$orgA|p=-|c=-');
+    src.resolveDepartments(items: _defaultDepts);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('org-dir-dept-list-8001')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final width in [400.0, 1200.0]) {
+    for (final brightness in [Brightness.light, Brightness.dark]) {
+      testWidgets('目录 $width $brightness 双倍字号与长组织名无溢出', (tester) async {
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = Size(width, 900);
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final src = _FakeSource();
+        await tester.pumpWidget(
+          _plainApp(
+            Builder(
+              builder: (context) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(2)),
+                child: Theme(
+                  data: ThemeData(brightness: brightness),
+                  child: HumanDirectoryBrowserPage(
+                    orgId: orgA,
+                    orgName: '合成企业名称很长用于验证路径布局不会溢出',
+                    dataSource: src,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        src.resolveDepartments(items: _defaultDepts);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('org-dir-dept-list-8001')));
+        await tester.pump();
+        src.resolveDepartments();
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('org-directory-path-0')), findsOneWidget);
+        expect(
+          find.byKey(const Key('org-directory-mobile-list')),
+          width < 900 ? findsOneWidget : findsNothing,
+        );
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+
   testWidgets('权限被收回后撤下部门和人员，错误不显示内部状态码', (tester) async {
     final src = _FakeSource();
     await tester.pumpWidget(
@@ -359,7 +441,7 @@ void main() {
     expect(src.memberCalls.last, '$orgA|d=$dept1|c=-');
     expect(find.text('后端组'), findsOneWidget);
     // AppBar 标题切到「研发部」层级；父层级的兄弟行不再展示。
-    expect(find.text('研发部'), findsOneWidget, reason: '标题 = 当前层级部门名');
+    expect(find.text('研发部'), findsNWidgets(2), reason: '标题与路径展示当前部门');
     expect(find.text('设计部'), findsNothing, reason: '父层级兄弟行不残留');
   });
 

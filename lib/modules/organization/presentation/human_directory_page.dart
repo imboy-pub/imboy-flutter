@@ -46,6 +46,7 @@ import 'package:imboy/modules/organization/presentation/organization_routes.dart
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 
 import 'human_directory_org_switch_sheet.dart';
+import 'human_directory_layout.dart';
 
 /// 通讯录层级（页面内部 path 栈；系统返回先上翻一层，根级才真正 pop）。
 class _DirectoryLevel {
@@ -204,8 +205,12 @@ class _HumanDirectoryBrowserPageState
   }
 
   void _upOneLevel() {
-    if (_levels.length <= 1) return;
-    setState(() => _levels = _levels.sublist(0, _levels.length - 1));
+    _openLevel(_levels.length - 2);
+  }
+
+  void _openLevel(int index) {
+    if (index < 0 || index >= _levels.length - 1) return;
+    setState(() => _levels = _levels.sublist(0, index + 1));
     final target = _levels.last;
     _clearSearch();
     if (target.departmentId == null) {
@@ -454,56 +459,70 @@ class _HumanDirectoryBrowserPageState
 
   // ---- 目录模式：上半直接子部门、下半本级成员 ----
 
-  Widget _buildDirectoryList(BuildContext context, bool isRoot) {
+  Widget _buildDirectoryList(BuildContext context, bool isRoot) =>
+      HumanDirectoryLayout(
+        ancestors: _levels
+            .map(
+              (level) => level.name.isEmpty
+                  ? context.t.organization.directory.title
+                  : level.name,
+            )
+            .toList(growable: false),
+        onAncestor: _openLevel,
+        departments: _departmentWidgets(context, isRoot),
+        members: _memberWidgets(context),
+      );
+
+  List<Widget> _departmentWidgets(BuildContext context, bool isRoot) {
     final t = context.t;
     final c = _controller;
     final depts = c.departments;
-    final members = c.members;
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-      children: [
-        // 「我的部门」捷径（/me；仅企业根展示，失败/为空即收起）。
-        if (isRoot && c.myDepartments.isNotEmpty) ...[
-          _sectionHeader(
-            context,
-            t.organization.directory.myDepartmentsSection,
-          ),
-          for (final d in c.myDepartments)
-            _departmentRow(context, d, keySuffix: 'mine'),
-          AppSpacing.verticalSmall,
-        ],
-        _sectionHeader(context, t.organization.directory.deptSection),
-        for (var i = 0; i < depts.items.length; i++)
-          _departmentRow(
-            context,
-            depts.items[i],
-            triggerLoadMore: i == depts.items.length - 1,
-          ),
-        _sectionFooter(
-          context,
-          loading: depts.loading,
-          error: depts.error,
-          emptyText: t.organization.directory.emptyDepartments,
-          onRetry: () => c.retrySection(HumanDirectorySectionKind.departments),
-        ),
-        _sectionHeader(context, t.organization.directory.membersSection),
-        for (var i = 0; i < members.items.length; i++)
-          _memberRow(
-            context,
-            members.items[i],
-            triggerLoadMore: i == members.items.length - 1,
-          ),
-        _sectionFooter(
-          context,
-          loading: members.loading,
-          error: members.error,
-          emptyText: t.organization.directory.emptyMembers,
-          onRetry: () => c.retrySection(HumanDirectorySectionKind.members),
-        ),
+    return [
+      // 「我的部门」捷径（/me；仅企业根展示，失败/为空即收起）。
+      if (isRoot && c.myDepartments.isNotEmpty) ...[
+        _sectionHeader(context, t.organization.directory.myDepartmentsSection),
+        for (final d in c.myDepartments)
+          _departmentRow(context, d, keySuffix: 'mine'),
         AppSpacing.verticalSmall,
       ],
-    );
+      _sectionHeader(context, t.organization.directory.deptSection),
+      for (var i = 0; i < depts.items.length; i++)
+        _departmentRow(
+          context,
+          depts.items[i],
+          triggerLoadMore: i == depts.items.length - 1,
+        ),
+      _sectionFooter(
+        context,
+        loading: depts.loading,
+        error: depts.error,
+        emptyText: t.organization.directory.emptyDepartments,
+        onRetry: () => c.retrySection(HumanDirectorySectionKind.departments),
+      ),
+    ];
+  }
+
+  List<Widget> _memberWidgets(BuildContext context) {
+    final t = context.t;
+    final c = _controller;
+    final members = c.members;
+    return [
+      _sectionHeader(context, t.organization.directory.membersSection),
+      for (var i = 0; i < members.items.length; i++)
+        _memberRow(
+          context,
+          members.items[i],
+          triggerLoadMore: i == members.items.length - 1,
+        ),
+      _sectionFooter(
+        context,
+        loading: members.loading,
+        error: members.error,
+        emptyText: t.organization.directory.emptyMembers,
+        onRetry: () => c.retrySection(HumanDirectorySectionKind.members),
+      ),
+      AppSpacing.verticalSmall,
+    ];
   }
 
   Widget _sectionHeader(BuildContext context, String label) {
