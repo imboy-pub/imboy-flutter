@@ -33,6 +33,7 @@ import 'package:imboy/modules/organization/infrastructure/current_organization_s
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
 import 'package:imboy/modules/organization/presentation/organization_picker_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/workspace_api.dart';
@@ -42,6 +43,15 @@ const String _accountKey = '91001';
 const String _orgA = '7001';
 const String _orgB = '7002';
 const String _orgC = '7003';
+
+class _FailedExperience extends ProductExperienceNotifier {
+  @override
+  ProductExperience build() => ProductExperience.workspace;
+  @override
+  Future<void> select(ProductExperience experience) async {
+    throw StateError('synthetic preference failure');
+  }
+}
 
 /// 按 URI path 分发的静态 adapter（org mine / default-workspace /
 /// invite_code/join 共用一个 HttpClient.adapterForTest 注入点）。
@@ -217,6 +227,56 @@ void main() {
     expect(find.text('组织$_orgB'), findsOneWidget);
     expect(find.byKey(const ValueKey('org-picker-join-entry')), findsOneWidget);
     expect(find.text('加入企业'), findsOneWidget);
+  });
+
+  testWidgets('企业列表为空时仍可从空间选择器返回个人', (tester) async {
+    HttpClient.adapterForTest = _RoutingAdapter((path) => _mineOf([]));
+    final container = makeContainer(_WsFakeApi(const []));
+    final store = CurrentOrganizationStore.forAccount(_accountKey);
+    await store.set(const Organization(id: _orgA, name: '合成企业'));
+    await container
+        .read(productExperienceProvider.notifier)
+        .select(ProductExperience.workspace);
+    await _pump(tester, container);
+    await tester.pump(const Duration(milliseconds: 200));
+    final personal = find.byKey(const ValueKey('org-picker-personal-entry'));
+    expect(personal, findsOneWidget);
+    expect(find.byKey(const ValueKey('org-picker-join-entry')), findsOneWidget);
+    await tester.tap(personal);
+    await pumpUntilFound(tester, find.text('probe'));
+    expect(container.read(productExperienceProvider), ProductExperience.chat);
+    expect(find.text('probe'), findsOneWidget);
+    expect(store.value?.id, _orgA);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('企业列表读取和个人偏好写入失败时保留当前空间并显示错误', (tester) async {
+    HttpClient.adapterForTest = _RoutingAdapter(
+      (path) => {'code': 403, 'msg': 'synthetic denial', 'payload': null},
+    );
+    final container = ProviderContainer(
+      overrides: [
+        workspaceApiProvider.overrideWithValue(_WsFakeApi(const [])),
+        productExperienceProvider.overrideWith(_FailedExperience.new),
+      ],
+    );
+    addTearDown(container.dispose);
+    await _pump(tester, container);
+    await tester.pump(const Duration(milliseconds: 200));
+    final personal = find.byKey(const ValueKey('org-picker-personal-entry'));
+    expect(personal, findsOneWidget);
+    await tester.tap(personal);
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.workspace,
+    );
+    expect(
+      find.textContaining(t.common.settingFailedPleaseTryAgain),
+      findsOneWidget,
+    );
+    expect(find.text('probe'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('切换企业（G11）：上一企业缓存失效 + 指针切换 + 壳重载 + 默认 WS 落位', (tester) async {

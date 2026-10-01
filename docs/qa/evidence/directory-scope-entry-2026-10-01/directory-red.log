@@ -1,0 +1,31 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart
+00:00 +0: 无 OA：三项导航默认消息，通讯录按需加载
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _KeyWidgetFinder:<Found 0 widgets with key [<'workspace-shell-switcher'>]: []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart:210:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart line 210
+The test description was:
+  无 OA：三项导航默认消息，通讯录按需加载
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: 无 OA：三项导航默认消息，通讯录按需加载 [E]
+  Test failed. See exception logs above.
+  The test description was: 无 OA：三项导航默认消息，通讯录按需加载
+  
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart: 无 OA：三项导航默认消息，通讯录按需加载

@@ -119,17 +119,16 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
   ) {
     return Column(
       children: [
-        if (_selected != _Destination.contacts)
-          SafeArea(
-            bottom: false,
-            child: Row(
-              children: [
-                const WorkspaceSwitcherChip(),
-                Expanded(child: Center(child: Text(title))),
-                const WorkspaceAccountButton(),
-              ],
-            ),
+        SafeArea(
+          bottom: false,
+          child: Row(
+            children: [
+              const WorkspaceSwitcherChip(),
+              Expanded(child: Center(child: Text(title))),
+              const WorkspaceAccountButton(),
+            ],
           ),
+        ),
         if (ref.watch(currentWorkspaceProvider)?.isArchived ?? false)
           const WorkspaceArchivedBanner(),
         if (entries.hasError)
@@ -210,7 +209,10 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       case _Destination.messages:
         return _messages();
       case _Destination.contacts:
-        return HumanDirectoryBrowserPage(orgId: widget.organizationId);
+        return HumanDirectoryBrowserPage(
+          orgId: widget.organizationId,
+          embedded: true,
+        );
       case _Destination.workbench:
         return EnterpriseWorkbenchPage(
           entries: configs,

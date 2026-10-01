@@ -207,6 +207,10 @@ void main() {
     await tester.tap(find.text('通讯录'));
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('workspace-shell-switcher')),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
   testWidgets('授权 OA 出现工作台，但未选应用前不创建 SSO 页面', (tester) async {

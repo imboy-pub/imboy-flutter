@@ -215,6 +215,30 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('嵌入企业壳只保留部门内返回，根级不再显示第二个切换栏', (tester) async {
+    final src = _FakeSource();
+    await tester.pumpWidget(
+      _plainApp(
+        HumanDirectoryBrowserPage(orgId: orgA, embedded: true, dataSource: src),
+      ),
+    );
+    src.resolveDepartments(items: _defaultDepts);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppBar), findsNothing);
+    await tester.tap(find.byKey(const Key('org-dir-dept-list-8001')));
+    await tester.pump();
+    src.resolveDepartments();
+    await tester.pumpAndSettle();
+    expect(find.byType(BackButton), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pump();
+    expect(src.deptCalls.last, '$orgA|p=-|c=-');
+    src.resolveDepartments(items: _defaultDepts);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppBar), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final width in [400.0, 1200.0]) {
     for (final brightness in [Brightness.light, Brightness.dark]) {
       testWidgets('目录 $width $brightness 双倍字号与长组织名无溢出', (tester) async {

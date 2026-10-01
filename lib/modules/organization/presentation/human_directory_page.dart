@@ -66,6 +66,7 @@ class HumanDirectoryBrowserPage extends ConsumerStatefulWidget {
     this.departmentId,
     this.departmentName = '',
     this.dataSource,
+    this.embedded = false,
   });
 
   final EntityId orgId;
@@ -77,6 +78,9 @@ class HumanDirectoryBrowserPage extends ConsumerStatefulWidget {
 
   /// 测试注入口（缺省 [OrganizationApi]，复用既有 Token/HttpClient）。
   final HumanDirectoryDataSource? dataSource;
+
+  /// 企业壳提供唯一空间切换栏；部门内仍保留逐级返回。
+  final bool embedded;
 
   @override
   ConsumerState<HumanDirectoryBrowserPage> createState() =>
@@ -374,40 +378,48 @@ class _HumanDirectoryBrowserPageState
         if (!didPop) _upOneLevel();
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Semantics(
-            button: isRoot,
-            label: isRoot ? t.organization.picker.switchEnterprise : title,
-            child: GestureDetector(
-              onTap: isRoot ? _openOrgSwitcher : null,
-              behavior: HitTestBehavior.opaque,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textStyle(
-                        FontSizeType.title,
-                        fontWeight: FontWeight.w600,
-                      ),
+        appBar: widget.embedded && isRoot
+            ? null
+            : AppBar(
+                automaticallyImplyLeading: !widget.embedded,
+                leading: widget.embedded
+                    ? BackButton(onPressed: _upOneLevel)
+                    : null,
+                title: Semantics(
+                  button: isRoot,
+                  label: isRoot
+                      ? t.organization.picker.switchEnterprise
+                      : title,
+                  child: GestureDetector(
+                    onTap: isRoot ? _openOrgSwitcher : null,
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textStyle(
+                              FontSizeType.title,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (isRoot) ...[
+                          AppSpacing.horizontalTiny,
+                          const Icon(
+                            CupertinoIcons.chevron_down,
+                            size: 14,
+                            color: AppColors.iosGray,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  if (isRoot) ...[
-                    AppSpacing.horizontalTiny,
-                    const Icon(
-                      CupertinoIcons.chevron_down,
-                      size: 14,
-                      color: AppColors.iosGray,
-                    ),
-                  ],
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
         body: Column(
           children: [
             Padding(

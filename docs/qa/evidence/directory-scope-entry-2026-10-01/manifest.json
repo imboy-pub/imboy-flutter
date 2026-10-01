@@ -1,0 +1,26 @@
+[
+  {
+    "path": "analyze.log",
+    "sha256": "a812cb31eae0dca69e1ec7a0cd714d95b63c145f3329da32988be620fa054672"
+  },
+  {
+    "path": "directory-red.log",
+    "sha256": "0335e703b31315f59909b3f4bd8a4669cc77fcbb533a22d1067727b0b0944c30"
+  },
+  {
+    "path": "personal-red.log",
+    "sha256": "119fcd7f671f124113a9b9e9c1048e4219b77dc331ec0f1bb4e5e28f61bf4765"
+  },
+  {
+    "path": "result.json",
+    "sha256": "96d927516ffbcf3a3eedcebe9e29773c7bc77c205d44cc29799e869e83bb4508"
+  },
+  {
+    "path": "source-sha.json",
+    "sha256": "9e945115b3955122278bca9ad6262ea02ef74cac02e4314ba132270be67dd392"
+  },
+  {
+    "path": "tests.log",
+    "sha256": "347d73d207f068faff7dd48a313c174f2271e5c1681b5dee6f8ccba4022129ec"
+  }
+]

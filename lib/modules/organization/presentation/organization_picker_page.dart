@@ -27,6 +27,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -236,6 +237,24 @@ class _OrganizationPickerPageState
     }
   }
 
+  Future<void> _selectPersonal() async {
+    if (_switching) return;
+    setState(() => _switching = true);
+    try {
+      await ref
+          .read(productExperienceProvider.notifier)
+          .select(ProductExperience.chat);
+      if (mounted) _leave();
+    } on Object {
+      if (mounted) {
+        setState(() {
+          _switching = false;
+          _switchError = t.common.settingFailedPleaseTryAgain;
+        });
+      }
+    }
+  }
+
   Future<void> _landDefaultWorkspace(Organization org) async {
     await ref.read(workspaceShellProvider.notifier).selectOrganization(
       org.id,
@@ -277,76 +296,86 @@ class _OrganizationPickerPageState
     final current = _currentOrg;
     return Scaffold(
       appBar: AppBar(title: Text(t.organization.picker.title)),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: OrgStateView(
-          loading: _loading && _orgs.isEmpty,
-          error: _error,
-          empty: !_loading && _error == null && _orgs.isEmpty,
-          emptyText: t.organization.picker.emptyHint,
-          onRetry: _refresh,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-            children: [
-              // 两阶段切换失败：页内错误态（列表保留，可再点目标行重试），
-              // 不弹走不假成功。
-              if (_switchError != null)
-                ListTile(
-                  key: const ValueKey('org-picker-switch-error'),
-                  leading: Icon(
-                    CupertinoIcons.exclamationmark_triangle,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  title: Text(
-                    '${t.organization.picker.switchFailed}：$_switchError',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: _switching
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : null,
-                ),
-              for (final o in _orgs)
-                ListTile(
-                  key: ValueKey('org-picker-tile-${o.id}'),
-                  leading: Icon(
-                    CupertinoIcons.building_2_fill,
-                    color: o.isArchived
-                        ? Theme.of(context).disabledColor
-                        : null,
-                  ),
-                  title: Text(
-                    o.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: orgListSubtitle(context, o),
-                  trailing: o.id == current?.id
-                      ? Icon(
-                          CupertinoIcons.check_mark,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                      : null,
-                  // 切换进行中禁点（防重复提交产生竞态切换）。
-                  onTap: _switching ? null : () => _switchTo(o),
-                ),
-              // 底部常驻『加入企业』入口（Slack「Add workspaces」同构）。
-              ListTile(
-                key: const ValueKey('org-picker-join-entry'),
-                leading: const Icon(
-                  CupertinoIcons.person_crop_circle_badge_plus,
-                ),
-                title: Text(t.organization.picker.joinEnterprise),
-                onTap: _joinByCode,
-              ),
-            ],
+      body: Column(
+        children: [
+          ListTile(
+            key: const ValueKey('org-picker-personal-entry'),
+            leading: const Icon(CupertinoIcons.person_circle),
+            title: Text(t.workspace.experienceModePersonal),
+            onTap: _switching ? null : _selectPersonal,
           ),
-        ),
+          if (_switchError != null)
+            ListTile(
+              key: const ValueKey('org-picker-switch-error'),
+              leading: Icon(
+                CupertinoIcons.exclamationmark_triangle,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              title: Text(
+                '${t.organization.picker.switchFailed}：$_switchError',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: _switching
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : null,
+            ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refresh,
+              child: OrgStateView(
+                loading: _loading && _orgs.isEmpty,
+                error: _error,
+                empty: !_loading && _error == null && _orgs.isEmpty,
+                emptyText: t.organization.picker.emptyHint,
+                onRetry: _refresh,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.small,
+                  ),
+                  children: [
+                    for (final o in _orgs)
+                      ListTile(
+                        key: ValueKey('org-picker-tile-${o.id}'),
+                        leading: Icon(
+                          CupertinoIcons.building_2_fill,
+                          color: o.isArchived
+                              ? Theme.of(context).disabledColor
+                              : null,
+                        ),
+                        title: Text(
+                          o.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: orgListSubtitle(context, o),
+                        trailing: o.id == current?.id
+                            ? Icon(
+                                CupertinoIcons.check_mark,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : null,
+                        // 切换进行中禁点（防重复提交产生竞态切换）。
+                        onTap: _switching ? null : () => _switchTo(o),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // 底部常驻『加入企业』入口（Slack「Add workspaces」同构）。
+          ListTile(
+            key: const ValueKey('org-picker-join-entry'),
+            leading: const Icon(CupertinoIcons.person_crop_circle_badge_plus),
+            title: Text(t.organization.picker.joinEnterprise),
+            onTap: _joinByCode,
+          ),
+        ],
       ),
     );
   }
