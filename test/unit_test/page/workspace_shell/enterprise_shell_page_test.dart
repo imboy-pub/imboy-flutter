@@ -278,7 +278,7 @@ void main() {
       channels: false,
     ));
   });
-  testWidgets('恢复工作台先重新校验配置，撤权后消息区域仍激活', (tester) async {
+  testWidgets('恢复工作台先重新校验配置，撤权后保留空工作台', (tester) async {
     final api = _OaApi();
     final container = await _pump(tester, api);
     api.pending['10']!.complete(_entries('10'));
@@ -302,15 +302,8 @@ void main() {
     expect(find.byType(OaTabPage), findsNothing);
     api.pending['10']!.complete([]);
     await tester.pumpAndSettle();
-    expect(_labels(tester), ['消息', '通讯录', '我']);
-    expect(
-      tester
-          .widget<WorkspaceConversationsPage>(
-            find.byType(WorkspaceConversationsPage),
-          )
-          .active,
-      isTrue,
-    );
+    expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
+    expect(find.byType(EnterpriseWorkbenchPage), findsOneWidget);
     expect(find.byType(OaTabPage), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -320,7 +313,7 @@ void main() {
       await _pump(tester, api, emptyMode: mode);
       api.pending['10']?.complete([]);
       await tester.pump();
-      expect(_labels(tester), ['消息', '通讯录', '我']);
+      expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
       expect(
         find.byKey(const ValueKey('workspace-empty-create-entry')),
         findsNothing,
@@ -399,14 +392,18 @@ void main() {
     expect(api.pending, hasLength(2));
   });
 
-  testWidgets('无 OA：三项导航默认消息，通讯录按需加载', (tester) async {
+  testWidgets('无 OA：四项导航默认消息，通讯录按需加载', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);
     api.pending['10']!.complete([]);
     await tester.pump();
-    expect(_labels(tester), ['消息', '通讯录', '我']);
+    expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     expect(find.byType(WorkspaceConversationsPage), findsOneWidget);
     expect(find.byType(HumanDirectoryBrowserPage), findsNothing);
+    await tester.tap(find.text('工作台'));
+    await tester.pumpAndSettle();
+    expect(find.text(t.workspace.navGroups), findsOneWidget);
+    expect(find.text(t.channel.title), findsOneWidget);
     await tester.tap(find.text('通讯录'));
     await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
@@ -456,7 +453,7 @@ void main() {
     await tester.tap(find.text('频道'));
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.byType(WorkspaceChannelsPage), findsOneWidget);
-    expect(_labels(tester), ['消息', '通讯录', '我']);
+    expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     expect(tester.takeException(), isNull);
   });
   testWidgets('企业配置读取失败有重试入口，旧工作台立即撤下', (tester) async {
@@ -471,14 +468,14 @@ void main() {
       oaWorkbenchEntriesProvider((accountKey: '1', organizationId: '10')),
     );
     await tester.pump();
-    expect(_labels(tester), ['消息', '通讯录', '我']);
+    expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     api.pending['10']!.completeError(StateError('synthetic denied'));
     await tester.pump();
     expect(find.text(t.enterpriseOa.actionRetry), findsOneWidget);
     expect(find.text('合成办公 10'), findsNothing);
     expect(tester.takeException(), isNull);
   });
-  testWidgets('桌面复用三项侧栏，不读取不支持的 OA', (tester) async {
+  testWidgets('桌面复用四项侧栏，不读取不支持的 OA', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
     final api = _OaApi();
@@ -489,6 +486,7 @@ void main() {
     expect(rail.destinations.map((item) => (item.label as Text).data), [
       '消息',
       '通讯录',
+      '工作台',
       '我',
     ]);
     expect(api.calls, isEmpty);

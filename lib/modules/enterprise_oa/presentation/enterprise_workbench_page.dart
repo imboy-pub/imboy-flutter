@@ -12,10 +12,12 @@ class EnterpriseWorkbenchPage extends StatefulWidget {
     required this.entries,
     required this.accountKey,
     required this.organizationId,
+    this.resourceEntries = const [],
   });
   final List<EnterpriseOaRuntimeConfig> entries;
   final String accountKey;
   final String organizationId;
+  final List<Widget> resourceEntries;
 
   @override
   State<EnterpriseWorkbenchPage> createState() =>
@@ -46,24 +48,27 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
       _applicationKey = null;
       return ListView(
         children: [
-          CupertinoListSection.insetGrouped(
-            children: [
-              for (final entry in available)
-                CupertinoListTile(
-                  key: ValueKey(
-                    'workbench-application-${entry.applicationKey}',
+          if (widget.resourceEntries.isNotEmpty)
+            CupertinoListSection.insetGrouped(children: widget.resourceEntries),
+          if (available.isNotEmpty)
+            CupertinoListSection.insetGrouped(
+              children: [
+                for (final entry in available)
+                  CupertinoListTile(
+                    key: ValueKey(
+                      'workbench-application-${entry.applicationKey}',
+                    ),
+                    title: Text(
+                      entry.oaTabLabel.isEmpty
+                          ? t.enterpriseOa.title
+                          : entry.oaTabLabel,
+                    ),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () =>
+                        setState(() => _applicationKey = entry.applicationKey),
                   ),
-                  title: Text(
-                    entry.oaTabLabel.isEmpty
-                        ? t.enterpriseOa.title
-                        : entry.oaTabLabel,
-                  ),
-                  trailing: const CupertinoListTileChevron(),
-                  onTap: () =>
-                      setState(() => _applicationKey = entry.applicationKey),
-                ),
-            ],
-          ),
+              ],
+            ),
         ],
       );
     }

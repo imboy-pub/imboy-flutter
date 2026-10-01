@@ -90,12 +90,12 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     final destinations = [
       EnterpriseShellDestination.messages,
       EnterpriseShellDestination.contacts,
-      if (configs.isNotEmpty) EnterpriseShellDestination.workbench,
+      EnterpriseShellDestination.workbench,
       EnterpriseShellDestination.mine,
     ];
     final labels = destinations.map(_label).toList();
     final icons = destinations.map(_icon).toList();
-    // Restore OA only after fresh configuration makes its entry available.
+    // 工作台始终可见，应用入口仍按实时授权配置显示。
     final index = destinations.contains(_selected)
         ? destinations.indexOf(_selected)
         : 0;
@@ -247,6 +247,15 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
           entries: configs,
           accountKey: widget.accountKey,
           organizationId: widget.organizationId,
+          resourceEntries: [
+            if (ref.watch(currentWorkspaceProvider) != null) ...[
+              _resourceEntry(
+                t.workspace.navGroups,
+                const WorkspaceGroupsPage(),
+              ),
+              _resourceEntry(t.channel.title, const WorkspaceChannelsPage()),
+            ],
+          ],
         );
       case EnterpriseShellDestination.mine:
         return _mine();
@@ -325,10 +334,6 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
                 title: Text(t.workspace.membersTitle),
                 trailing: const CupertinoListTileChevron(),
                 onTap: () => context.push('/workspace/members'),
-              ),
-              _resourceEntry(
-                t.workspace.navGroups,
-                const WorkspaceGroupsPage(),
               ),
               if (AppFeatureRegistry.isEnabled(FeatureKeys.project))
                 _resourceEntry(

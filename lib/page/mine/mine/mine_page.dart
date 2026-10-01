@@ -7,12 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
-import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/quick_action_grid.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
-import 'package:imboy/page/chat_shell/experience_provider.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -43,19 +42,6 @@ class MinePage extends ConsumerStatefulWidget {
 }
 
 class _MinePageState extends ConsumerState<MinePage> {
-  /// 工作模式一键切换（个人 ↔ 工作区，本机首页偏好；失败回滚并提示）。
-  Future<void> _switchExperience(ProductExperience target) async {
-    try {
-      await ref.read(productExperienceProvider.notifier).select(target);
-      if (!mounted) return;
-      context.go('/bottom_navigation');
-    } catch (_) {
-      if (mounted) {
-        AppLoading.showError(t.common.settingFailedPleaseTryAgain);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // 响应式当前用户：资料变更（上传头像等）后即时重建
@@ -102,12 +88,12 @@ class _MinePageState extends ConsumerState<MinePage> {
                 ),
                 children: [
                   ImBoySettingsTile(
-                    title: Text(t.workspace.switchToWorkspace),
+                    title: Text(t.organization.picker.switchEnterprise),
                     leading: _buildIcon(
                       CupertinoIcons.square_grid_2x2,
                       AppColors.iosTeal,
                     ),
-                    onTap: () => _switchExperience(ProductExperience.workspace),
+                    onTap: () => context.push(kOrganizationPickerPath),
                   ),
                   // CSM-01 §12.5.1：客服工作台入口（合格坐席可见，权限判定在
                   // owned 模块内；普通用户渲染为空占位）

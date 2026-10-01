@@ -113,9 +113,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       expect(tester.takeException(), isNull);
     }
-    await tester.tap(find.byKey(const Key('tab_conversations')));
-    await waitFor(tester, find.byKey(const Key('workspace-shell-switcher')));
-    await tester.tap(find.byKey(const Key('workspace-shell-switcher')));
+    expect(find.byKey(const Key('workspace-shell-switcher')), findsNothing);
+    await openPersonalEnterprisePicker(tester);
     final enterprise = find.byKey(const Key('org-picker-tile-995101'));
     await waitFor(tester, enterprise);
     await tester.tap(enterprise);
@@ -341,10 +340,19 @@ Future<void> backDirectory(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 500));
 }
 
+Future<void> openPersonalEnterprisePicker(WidgetTester tester) async {
+  final mine = find.byKey(const Key('tab_mine'));
+  await waitFor(tester, mine.hitTestable());
+  await tester.tap(mine);
+  final switcher = find.text(t.organization.picker.switchEnterprise);
+  await waitFor(tester, switcher.hitTestable());
+  await tester.tap(switcher);
+}
+
 Future<void> joinEnterprise(WidgetTester tester) async {
   const code = String.fromEnvironment('TEST_JOIN_CODE');
   expect(code, matches(RegExp(r'^[A-Z0-9]{8}$')));
-  await tester.tap(find.byKey(const Key('workspace-shell-switcher')));
+  await openPersonalEnterprisePicker(tester);
   final join = find.byKey(const Key('org-picker-join-entry'));
   await waitFor(tester, join.hitTestable());
   expect(find.byKey(const Key('org-picker-tile-995102')), findsNothing);
