@@ -20,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/domain/human_directory_models.dart';
 import 'package:imboy/modules/organization/infrastructure/human_directory_api.dart';
+import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/presentation/human_directory_page.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -172,6 +173,30 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
+  });
+
+  testWidgets('权限被收回后撤下部门和人员，错误不显示内部状态码', (tester) async {
+    final src = _FakeSource();
+    await tester.pumpWidget(
+      _plainApp(HumanDirectoryBrowserPage(orgId: orgA, dataSource: src)),
+    );
+    src.resolveDepartments(items: _defaultDepts);
+    await tester.pumpAndSettle();
+    expect(find.text('研发部'), findsOneWidget);
+    expect(find.text('根成员甲'), findsOneWidget);
+    final refresh = tester
+        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+        .onRefresh();
+    await tester.pump();
+    src._pendingDepartments.last.completeError(
+      const OrganizationApiException(403, '权限已收回'),
+    );
+    await refresh;
+    await tester.pumpAndSettle();
+    expect(find.text('研发部'), findsNothing);
+    expect(find.text('根成员甲'), findsNothing);
+    expect(find.textContaining('权限已收回'), findsOneWidget);
+    expect(find.textContaining('code=403'), findsNothing);
   });
 
   testWidgets('同企业同型页面换账号：清搜索、重拉目录并丢弃迟到响应', (tester) async {

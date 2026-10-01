@@ -28,8 +28,8 @@
 ///   分页并从首页重试一次；再次失败只展示错误，绝不循环。
 ///
 /// ## refresh / retry / 搜索
-/// - refresh/retry 保留已有成功数据；refresh 成功原子替换（不清空再填），
-///   失败不清空旧数据、不变成 empty；仅 initial 无数据时才全屏
+/// - 网络错误的 refresh/retry 保留已有成功数据；成功原子替换（不清空再填），
+///   403/404 清空目录并作废在途同代请求；其余失败不变成 empty，initial 无数据时全屏
 ///   loading/error（[phase]）。
 /// - 搜索：widget 层固定 300ms debounce 后调 [setQuery]；trim 后 <2 字符
 ///   不发请求；query 变化清空部门/成员/搜索三类分页状态并生成新
@@ -242,7 +242,7 @@ class HumanDirectoryController extends ChangeNotifier {
   }
 
   /// 下拉刷新 / 全屏重试：保留已有成功数据；成功后各节原子替换；失败
-  /// 不清空旧数据；仅无数据时走全屏 loading/error。
+  /// 普通错误不清空旧数据；403/404 撤下当前目录并显示错误。
   Future<void> refresh() async {
     final id = _identity;
     if (id == null || id.accountKey.isEmpty) return;
@@ -466,6 +466,7 @@ class HumanDirectoryController extends ChangeNotifier {
       );
     } on Object catch (e) {
       if (!_accept(gen, key)) return; // stale：连 loading 都不写
+      if (_rejectAccess(e)) return;
       if (_isCursorInvalid(e) &&
           cursor != null &&
           !_departments.consumedCursorResetRetry) {
@@ -509,6 +510,7 @@ class HumanDirectoryController extends ChangeNotifier {
       );
     } on Object catch (e) {
       if (!_accept(gen, key)) return;
+      if (_rejectAccess(e)) return;
       if (_isCursorInvalid(e) &&
           cursor != null &&
           !_members.consumedCursorResetRetry) {
@@ -545,6 +547,7 @@ class HumanDirectoryController extends ChangeNotifier {
       );
     } on Object catch (e) {
       if (!_accept(gen, key)) return;
+      if (_rejectAccess(e)) return;
       if (_isCursorInvalid(e) &&
           cursor != null &&
           !_search.consumedCursorResetRetry) {
@@ -574,7 +577,8 @@ class HumanDirectoryController extends ChangeNotifier {
       _myDepartments = me.list;
     } on Object catch (e) {
       if (!_accept(gen, key)) return;
-      // 「我的部门」捷径是 best-effort：失败不阻塞浏览，收起捷径。
+      if (_rejectAccess(e)) return;
+      // Network failures in the shortcut are best-effort; access refusal is terminal.
       _meError = _errorText(e);
     }
     _meLoading = false;
@@ -626,7 +630,7 @@ class HumanDirectoryController extends ChangeNotifier {
       items = [
         ...section.items,
         for (final row in page.list)
-          if (!seen.contains(idOf(row))) row,
+          if (seen.add(idOf(row))) row,
       ];
     } else {
       final seen = <String>{};
@@ -677,11 +681,34 @@ class HumanDirectoryController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Access refusal invalidates the entire generation, including sibling requests.
+  bool _rejectAccess(Object error) {
+    if (error is! OrganizationApiException ||
+        (error.code != 403 && error.code != 404)) {
+      return false;
+    }
+    _generation++;
+    _departments = HumanDirectorySection.empty();
+    _members = HumanDirectorySection.empty();
+    _search = HumanDirectorySection.empty();
+    _myDepartments = const [];
+    _meLoading = false;
+    _meError = null;
+    _refreshing = false;
+    _switching = false;
+    _switchTarget = null;
+    _switchError = null;
+    _pageError = _errorText(error);
+    _phase = HumanDirectoryPhase.error;
+    notifyListeners();
+    return true;
+  }
+
   bool _isCursorInvalid(Object e) =>
       e is OrganizationApiException && e.code == 400;
 
   String _errorText(Object e) =>
-      e is OrganizationApiException ? '${e.message} (code=${e.code})' : '$e';
+      e is OrganizationApiException ? e.message : '$e';
 }
 
 /// 节标识（内联重试 / cursor 400 复位共用）。

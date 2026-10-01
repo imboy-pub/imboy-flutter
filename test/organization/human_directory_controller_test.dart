@@ -367,7 +367,7 @@ void main() {
       final f = c.loadMoreDepartments();
       // 第二页含重复 d2 + 新 d3。
       src.pendingDepartments.last.complete(
-        _page([_dept('d2'), _dept('d3')], cursor: null),
+        _page([_dept('d2'), _dept('d3'), _dept('d3')], cursor: null),
       );
       await f;
       expect(c.departments.items.map((d) => d.id), ['d1', 'd2', 'd3']);
@@ -532,6 +532,7 @@ void main() {
       src.pendingSearch.last.complete(
         _page([
           HumanDirectorySearchItem(type: 'member', member: _member('s2')),
+          HumanDirectorySearchItem(type: 'member', member: _member('s3')),
           HumanDirectorySearchItem(type: 'member', member: _member('s3')),
         ]),
       );
