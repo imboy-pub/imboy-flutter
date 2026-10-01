@@ -111,7 +111,8 @@ def build_defines(args, fixture, run):
         TEST_SYNTHETIC_ACCOUNT=fixture['account'], TEST_SYNTHETIC_PASSWORD=fixture['password'],
         TEST_ROOT_DEPARTMENT=fixture['directory']['root_department'],
         TEST_CHILD_DEPARTMENT=fixture['directory']['child_department'],
-        TEST_JOIN_CODE=fixture['join_code'], TEST_NATIVE_OA_SSO='true')
+        TEST_JOIN_CODE=fixture['join_code'], TEST_NATIVE_OA_SSO='true',
+        TEST_NATIVE_ORG_GOVERNANCE=str(fixture.get('native_org_governance', False)).lower())
     config = run / 'defines.json'
     config.write_text(json.dumps(defines))
     os.chmod(config, 0o600)

@@ -5,10 +5,13 @@ import 'package:flutter/material.dart'
     show
         AlertDialog,
         BackButton,
+        IconButton,
+        ListTile,
         NavigationBar,
         NavigationDestination,
         Scrollable,
-        TextButton;
+        TextButton,
+        TextField;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -23,6 +26,7 @@ import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_member_detail_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_home_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_detail_page.dart';
+import 'package:imboy/modules/organization/presentation/organization_departments_page.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 
 void main() {
@@ -163,6 +167,9 @@ void main() {
     await backDirectory(tester);
     await waitFor(tester, rootRow);
 
+    if (const bool.fromEnvironment('TEST_NATIVE_ORG_GOVERNANCE')) {
+      await checkNativeOrgGovernance(tester);
+    }
     if (const bool.fromEnvironment('TEST_NATIVE_OA_SSO')) {
       await checkNativeOa(tester);
     }
@@ -172,6 +179,88 @@ void main() {
     await joinEnterprise(tester);
     await leaveEnterprise(tester);
   }, timeout: const Timeout(Duration(minutes: 6)));
+}
+
+Future<void> checkNativeOrgGovernance(WidgetTester tester) async {
+  await openNativeDepartments(tester);
+  final create = find.byTooltip(t.organization.departments.createRootDept);
+  await waitFor(tester, create.hitTestable());
+  await tester.tap(create);
+  await submitDepartmentName(tester, 'native-owner-created');
+  await waitFor(tester, find.text('native-owner-created').hitTestable());
+  await departmentAction(
+    tester,
+    'native-owner-created',
+    t.organization.common.rename,
+  );
+  await submitDepartmentName(tester, 'native-owner-renamed');
+  await waitFor(tester, find.text('native-owner-renamed').hitTestable());
+  expect(find.text('native-owner-created'), findsNothing);
+  await departmentAction(
+    tester,
+    'native-owner-renamed',
+    t.organization.departments.archiveDept,
+  );
+  final dialog = find.byType(AlertDialog);
+  await waitFor(tester, dialog);
+  await tester.tap(
+    find.descendant(of: dialog, matching: find.byType(TextButton)).last,
+  );
+  await waitFor(tester, find.text('已归档').hitTestable());
+  expect(tester.takeException(), isNull);
+  await backDirectory(tester);
+  await backDirectory(tester);
+}
+
+Future<void> openNativeDepartments(WidgetTester tester) async {
+  final nav = find.byKey(const Key('enterprise-shell-bottom-nav'));
+  await tester.tap(
+    find.descendant(
+      of: nav,
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is NavigationDestination && widget.label == t.common.me,
+      ),
+    ),
+  );
+  final manage = find.text(t.organization.manage.entry);
+  await waitFor(tester, manage.hitTestable());
+  await tester.tap(manage);
+  final zone = find.byKey(const Key('organization-detail-zone-departments'));
+  final scroll = find.descendant(
+    of: find.byType(OrganizationDetailPage),
+    matching: find.byType(Scrollable),
+  );
+  await waitFor(tester, scroll.hitTestable());
+  await tester.scrollUntilVisible(zone, 250, scrollable: scroll);
+  await tester.tap(zone.hitTestable());
+  await waitFor(tester, find.byType(OrganizationDepartmentsPage));
+}
+
+Future<void> submitDepartmentName(WidgetTester tester, String name) async {
+  final dialog = find.byType(AlertDialog);
+  await waitFor(tester, dialog);
+  await tester.enterText(
+    find.descendant(of: dialog, matching: find.byType(TextField)),
+    name,
+  );
+  await tester.tap(
+    find.descendant(of: dialog, matching: find.byType(TextButton)).last,
+  );
+}
+
+Future<void> departmentAction(
+  WidgetTester tester,
+  String name,
+  String action,
+) async {
+  final row = find.ancestor(
+    of: find.text(name),
+    matching: find.byType(ListTile),
+  );
+  await tester.tap(find.descendant(of: row, matching: find.byType(IconButton)));
+  await waitFor(tester, find.text(action).hitTestable());
+  await tester.tap(find.text(action).hitTestable());
 }
 
 Future<void> checkNativeOa(WidgetTester tester) async {
