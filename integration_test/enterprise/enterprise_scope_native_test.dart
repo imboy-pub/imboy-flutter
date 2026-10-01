@@ -2,7 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
-    show BackButton, NavigationBar, NavigationDestination;
+    show
+        AlertDialog,
+        BackButton,
+        NavigationBar,
+        NavigationDestination,
+        Scrollable,
+        TextButton;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -14,6 +20,9 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/page/error/init_error_page.dart';
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_member_detail_page.dart';
+import 'package:imboy/modules/organization/presentation/organization_home_page.dart';
+import 'package:imboy/modules/organization/presentation/organization_detail_page.dart';
+import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -156,7 +165,9 @@ void main() {
     await selectPersonal(tester);
     expect(find.byKey(const Key('enterprise-shell-bottom-nav')), findsNothing);
     expect(tester.takeException(), isNull);
-  }, timeout: const Timeout(Duration(minutes: 4)));
+    await joinEnterprise(tester);
+    await leaveEnterprise(tester);
+  }, timeout: const Timeout(Duration(minutes: 6)));
 }
 
 Future<void> selectPersonal(WidgetTester tester) async {
@@ -192,4 +203,80 @@ Future<void> backDirectory(WidgetTester tester) async {
   await waitFor(tester, back);
   await tester.tap(back.last);
   await tester.pump(const Duration(milliseconds: 500));
+}
+
+Future<void> joinEnterprise(WidgetTester tester) async {
+  const code = String.fromEnvironment('TEST_JOIN_CODE');
+  expect(code, matches(RegExp(r'^[A-Z0-9]{8}$')));
+  await tester.tap(find.byKey(const Key('workspace-shell-switcher')));
+  final join = find.byKey(const Key('org-picker-join-entry'));
+  await waitFor(tester, join.hitTestable());
+  expect(find.byKey(const Key('org-picker-tile-995102')), findsNothing);
+  await tester.tap(join);
+  final input = find.byKey(const Key('org-join-code-field'));
+  await waitFor(tester, input.hitTestable());
+  await tester.enterText(input, code);
+  final submit = find.byKey(const Key('org-join-submit'));
+  await tester.tap(submit);
+  await waitFor(tester, find.byKey(const Key('org-join-org-name')));
+  expect(find.textContaining('intbe02-org-b'), findsWidgets);
+  await waitFor(tester, submit.hitTestable());
+  await tester.tap(submit);
+  final nav = find.byKey(const Key('enterprise-shell-bottom-nav'));
+  await waitFor(tester, nav);
+}
+
+Future<void> leaveEnterprise(WidgetTester tester) async {
+  final nav = find.byKey(const Key('enterprise-shell-bottom-nav'));
+  await waitFor(tester, nav.hitTestable());
+  await tester.tap(
+    find.descendant(
+      of: nav,
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is NavigationDestination && widget.label == t.common.me,
+      ),
+    ),
+  );
+  final manage = find.text(t.organization.manage.entry);
+  await waitFor(tester, manage.hitTestable());
+  await tester.tap(manage);
+  final leave = find.byKey(const Key('organization-detail-leave'));
+  await waitFor(tester, find.text('intbe02-org-b'));
+  final directoryScroll = find.descendant(
+    of: find.byType(OrganizationDetailPage),
+    matching: find.byType(Scrollable),
+  );
+  await waitFor(tester, directoryScroll.hitTestable());
+  await tester.scrollUntilVisible(leave, 250, scrollable: directoryScroll);
+  await waitFor(tester, leave.hitTestable());
+  await tester.tap(leave);
+  final dialog = find.byType(AlertDialog);
+  await waitFor(tester, dialog);
+  await tester.tap(
+    find.descendant(of: dialog, matching: find.byType(TextButton)).last,
+  );
+  await waitFor(tester, find.byType(OrganizationHomePage));
+  await assertDeparture(tester);
+  expect(tester.takeException(), isNull);
+}
+
+Future<void> assertDeparture(WidgetTester tester) async {
+  await tester.runAsync(() async {
+    final api = OrganizationApi();
+    final mine = await api.allMine();
+    expect(mine.map((org) => org.id), contains('995101'));
+    expect(mine.map((org) => org.id), isNot(contains('995102')));
+    await expectLater(
+      api.detail('995102'),
+      throwsA(
+        isA<OrganizationApiException>().having(
+          (e) => e.code,
+          'permission',
+          403,
+        ),
+      ),
+    );
+  });
+  expect(tester.takeException(), isNull);
 }
