@@ -31,7 +31,6 @@ import 'package:imboy/modules/organization/infrastructure/organization_api.dart'
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
 import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
 import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
-import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/modules/organization/presentation/org_async_state.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
@@ -188,11 +187,6 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
           .read(workspaceShellProvider.notifier)
           .forgetOrganization(widget.orgId);
       container.invalidate(organizationEntryProvider);
-      container.invalidate(workspaceOverviewProvider);
-      container.invalidate(workspaceChannelsProvider);
-      container.invalidate(workspaceGroupsProvider);
-      container.invalidate(workspaceMembersProvider);
-      container.invalidate(workspaceProjectsProvider);
     }
     try {
       await CurrentOrganizationStore.forAccount(account).forget(widget.orgId);

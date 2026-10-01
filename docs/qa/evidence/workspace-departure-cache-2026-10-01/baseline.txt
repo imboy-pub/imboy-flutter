@@ -1,0 +1,15 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_departure_cache_test.dart
+00:00 +0: departure refreshes its message/channel caches and preserves other org
+00:00 +0 -1: departure refreshes its message/channel caches and preserves other org [E]
+  Expected: {'100': 2, '101': 2, '200': 1}
+    Actual: {'100': 1, '101': 1, '200': 1}
+     Which: at location ['100'] is <1> instead of <2>
+  
+  package:matcher                                                               expect
+  package:flutter_test/src/widget_tester.dart 473:18                            expect
+  test/unit_test/page/workspace_shell/workspace_departure_cache_test.dart 33:5  main.<fn>
+  
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_departure_cache_test.dart: departure refreshes its message/channel caches and preserves other org

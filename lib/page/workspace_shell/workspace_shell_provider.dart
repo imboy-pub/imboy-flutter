@@ -305,6 +305,16 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
   void forgetOrganization(EntityId organizationId) {
     _selectionGeneration++;
     _loadGeneration++;
+    for (final ws in state._workspaces.where(
+      (ws) => ws.belongsToOrg(organizationId),
+    )) {
+      ref.invalidate(workspaceOverviewProvider(ws.id));
+      ref.invalidate(workspaceChannelsProvider(ws.id));
+      ref.invalidate(workspaceGroupsProvider(ws.id));
+      ref.invalidate(workspaceConversationsProvider(ws.id));
+      ref.invalidate(workspaceMembersProvider(ws.id));
+      ref.invalidate(workspaceProjectsProvider(ws.id));
+    }
     final currentRemoved = state.current?.belongsToOrg(organizationId) ?? false;
     final selected = state.organizationId == organizationId;
     state = state.copyWith(

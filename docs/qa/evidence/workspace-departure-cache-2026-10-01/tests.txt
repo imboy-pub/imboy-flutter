@@ -1,0 +1,280 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_departure_cache_test.dart
+00:00 +0: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_departure_cache_test.dart: departure refreshes its message/channel caches and preserves other org
+00:00 +1: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_departure_cache_test.dart: late message request cannot replace the post-departure denial
+00:00 +2: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNavItems（§4.2 IA + 频率分层收敛） 五项导航：Conversations/Overview/Channels/Groups/Projects（固定顺序）
+00:00 +3: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNavItems（§4.2 IA + 频率分层收敛） 频率分层：会话（全局 DM）排第一；Members 退出一级导航
+00:00 +4: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNavItems（§4.2 IA + 频率分层收敛） 每一项均有图标与文案
+00:00 +5: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellBreakpoint < 900 → mobile；>= 900 → desktop（与 ChatShell 一致）
+00:00 +6: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNotifier 壳状态机（空态 → 创建 → 切换） 初始为空态（无工作区）→ 壳可空态运行
+00:00 +7: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNotifier 壳状态机（空态 → 创建 → 切换） applyCreated 回填 Template 结果并选中消息页
+00:00 +8: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNotifier 壳状态机（空态 → 创建 → 切换） selectWorkspace 切换工作区并回到消息页
+00:00 +9: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNotifier 壳状态机（空态 → 创建 → 切换） replaceWorkspace 轻量同步归档状态
+00:00 +10: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNotifier 壳状态机（空态 → 创建 → 切换） applyJoined 新工作区：置顶 + 切当前 + destination=conversations
+00:00 +11: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNotifier 壳状态机（空态 → 创建 → 切换） applyJoined 已存在的工作区 id 不重复插入（去重同 applyCreated）
+00:00 +12: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNotifier 壳状态机（空态 → 创建 → 切换） applyJoined 空 id（异常兜底）不产生任何状态变更
+00:00 +12: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNotifier 壳状态机（空态 → 创建 → 切换） selectWorkspace 切换工作区并回到消息页
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/workspaces/9001/branding
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+00:00 +13: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: ensureCurrentBranding（mine 列表不带 branding 的补拉） loadMine 后为当前工作区补拉 branding（冷启动路径）
+00:00 +13: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: WorkspaceShellNotifier 壳状态机（空态 → 创建 → 切换） selectWorkspace 切换工作区并回到消息页
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/workspaces/9001/branding
+
+[WorkspaceShell] ensureCurrentBranding failed: WorkspaceApiException(1): unknown error
+00:00 +14: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: ensureCurrentBranding（mine 列表不带 branding 的补拉） 切换工作区后为新当前工作区补拉（切换路径）
+00:00 +15: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: ensureCurrentBranding（mine 列表不带 branding 的补拉） 已配置 primaryColor 的行不重拉（编辑页本地回填已覆盖）
+00:00 +16: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: 企业切换的列表隔离（计划 §5.1 不得残留上一企业缓存） loadMine 失败默认保留列表（普通重试语义不变）
+[WorkspaceShell] loadMine failed: WorkspaceApiException(500): 加载失败
+00:00 +17: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: 企业切换的列表隔离（计划 §5.1 不得残留上一企业缓存） loadMine(keepListOnFailure:false) 失败即清空列表与当前项
+[WorkspaceShell] loadMine failed: WorkspaceApiException(500): 加载失败
+00:00 +18: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: Branding 主色解析（T12） #RRGGBB 解析成功
+00:00 +19: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: Branding 主色解析（T12） #AARRGGBB 与无 # 前缀均可解析
+00:00 +20: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: Branding 主色解析（T12） 非法值返回 null（回落默认主题色，不吞成白/黑屏）
+00:00 +21: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/unit_test/page/workspace_shell/workspace_shell_provider_test.dart: Branding 主色解析（T12） buildWorkspaceColorScheme：非法值原样返回 base（不覆盖）
+00:00 +22: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_detail_hub_widget_test.dart: owner 聚合渲染：企业头 + 五域入口 + 管理员区 + danger
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+
+00:01 +23: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_detail_hub_widget_test.dart: member 权限分层：管理员动作整区隐藏，五域与只读动作保留
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+
+00:01 +24: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_detail_hub_widget_test.dart: 四态-loading：首帧渲染加载指示器
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+
+00:02 +25: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_detail_hub_widget_test.dart: 四态-error：500 透传 wire message 并给重试入口
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+
+handleResponse_response /api/v1/organizations/7266418340025468901 : false {"code":500,"msg":"boom"}; 
+00:02 +26: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_detail_hub_widget_test.dart: 四态-permission：403 为权限终态，不渲染重试
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+
+handleResponse_response /api/v1/organizations/7266418340025468901 : false {"code":403,"msg":"forbidden"}; 
+00:02 +27: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_detail_hub_widget_test.dart: 四态-empty：OrgAsyncAdapter empty 参数链路透传 emptyText
+00:02 +28: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_detail_hub_widget_test.dart: 导航：五域入口全部落到既有路由
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+
+00:08 +29: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_detail_hub_widget_test.dart: 导航：管理员区入口落到既有治理路由
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+
+00:11 +30: /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/test/organization/organization_detail_hub_widget_test.dart: archived：入口区/管理员区不渲染，restore 入口保留
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901
+
+*** Request ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+method: GET
+responseType: ResponseType.json
+followRedirects: true
+persistentConnection: true
+connectTimeout: 0:01:00.000000
+sendTimeout: 0:01:00.000000
+receiveTimeout: 0:01:00.000000
+transformTimeout: null
+receiveDataWhenStatusError: true
+extra: {}
+
+*** Response ***
+uri: http://127.0.0.1:9800/api/v1/organizations/7266418340025468901/default-workspace
+
+00:11 +31: All tests passed!
