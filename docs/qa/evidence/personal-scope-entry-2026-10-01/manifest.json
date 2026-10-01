@@ -1,0 +1,18 @@
+[
+  {
+    "path": "analyze.log",
+    "sha256": "68977f52316d1db3bac7606d3f72fb1f5bc30b26a304849565be78a0b25761d1"
+  },
+  {
+    "path": "result.json",
+    "sha256": "5f47c2d685fd3d081a6a26bacdefceca297defbb9b76cb01e02d02b5bf2acec1"
+  },
+  {
+    "path": "source-sha.json",
+    "sha256": "4037a20eb322703d91ac724384788012650020d07817af309e1d1fa9066701e8"
+  },
+  {
+    "path": "tests.log",
+    "sha256": "e55e9a20267def1ab1010c5b316c18d2d44e5097c668dd927a12a6317050f96c"
+  }
+]

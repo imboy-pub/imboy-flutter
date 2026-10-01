@@ -24,6 +24,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/page/web_shell/web_shell_bootstrap.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_bootstrap.dart';
+import 'package:imboy/page/workspace_shell/workspace_account_menu.dart';
 
 import 'chat_shell_page.dart';
 import 'experience_provider.dart';
@@ -38,6 +39,7 @@ class ChatShellBootstrap extends ConsumerWidget {
     return switch (experience) {
       // 现状包壳：移动端底部导航 / 桌面三栏，宽度自适应见 chat_shell_breakpoint
       ProductExperience.chat => const ChatShellPage(
+        scopeSwitcher: WorkspaceSwitcherChip(personal: true),
         mobileEntry: BottomNavigationPage(),
         desktopEntry: WebShellBootstrap(),
       ),

@@ -1,0 +1,6 @@
+{
+  "lib/page/chat_shell/chat_shell_page.dart": "2086296f2d7799caf9cff6ce053c3f4ab71a9916b0b2179a6666d6a74e2aafa2",
+  "lib/page/chat_shell/chat_shell_bootstrap.dart": "f7ef7ab850df091ea2da175fc6aa38c450ee937431b64bb46652de4398d8786a",
+  "lib/page/workspace_shell/workspace_account_menu.dart": "f5daade9030b6faf0596dbe068269192582a5482d5ee804ac86169220043f022",
+  "test/unit_test/page/chat_shell/chat_shell_page_test.dart": "55b34540c3a5bc96bb9611a2b164988f7abdf004fcdf7ec9d52feb66ea1ee563"
+}

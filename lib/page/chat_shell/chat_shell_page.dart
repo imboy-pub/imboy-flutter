@@ -8,11 +8,12 @@
 /// - **无 i18n 依赖**：本壳不渲染用户可见文案
 /// - **无业务依赖**：两个入口 widget 由调用方注入，本 widget 不反向感知
 ///   BottomNavigationPage / WebShellBootstrap 的存在（mobile fallback 解耦）
-/// - **纯包装铁律**：不包装 Scaffold、不加导航控件、不改子树生命周期，
-///   现有首页的 badges / E2EE 引导 / WebSocket 状态等内部行为原样保留
+/// - 默认直接分发子页；业务接线层可注入顶部空间切换入口。
+///   子页仍负责消息角标、连接状态及自己的页面操作。
 library;
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'chat_shell_breakpoint.dart';
 
@@ -27,15 +28,41 @@ class ChatShellPage extends StatelessWidget {
   /// 桌面端（>= 900px）渲染的现有入口 widget。
   final Widget desktopEntry;
 
+  /// 首页空间切换入口，由业务接线层注入。
+  final Widget? scopeSwitcher;
+
   const ChatShellPage({
     super.key,
     required this.mobileEntry,
     required this.desktopEntry,
+    this.scopeSwitcher,
   });
 
   @override
   Widget build(BuildContext context) {
     final layout = resolveChatShellLayout(MediaQuery.sizeOf(context).width);
-    return layout == ChatShellLayout.mobile ? mobileEntry : desktopEntry;
+    final entry = layout == ChatShellLayout.mobile ? mobileEntry : desktopEntry;
+    if (scopeSwitcher == null) return entry;
+    return Column(
+      children: [
+        Material(
+          color: Theme.of(context).colorScheme.surface,
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: AppSpacing.pageHorizontal,
+              child: Row(children: [scopeSwitcher!]),
+            ),
+          ),
+        ),
+        Expanded(
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: entry,
+          ),
+        ),
+      ],
+    );
   }
 }

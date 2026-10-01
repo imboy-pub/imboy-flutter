@@ -8,8 +8,14 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/chat_shell/chat_shell_page.dart';
+import 'package:imboy/page/workspace_shell/workspace_account_menu.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 
 const _kMobileEntry = Material(
   key: ValueKey('chat-shell-mobile-entry'),
@@ -40,6 +46,60 @@ Future<void> _pumpShell(WidgetTester tester, {required Size size}) async {
 }
 
 void main() {
+  for (final width in [430.0, 1440.0]) {
+    testWidgets('个人首页 $width 顶部切换入口打开企业选择器', (tester) async {
+      tester.view.physicalSize = Size(width, 900);
+      tester.view.devicePixelRatio = 1;
+      tester.view.padding = const FakeViewPadding(top: 24);
+      addTearDown(tester.view.reset);
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => const ChatShellPage(
+              scopeSwitcher: WorkspaceSwitcherChip(personal: true),
+              mobileEntry: _kMobileEntry,
+              desktopEntry: _kDesktopEntry,
+            ),
+          ),
+          GoRoute(
+            path: kOrganizationPickerPath,
+            builder: (_, _) => const Scaffold(body: Text('SPACE_PICKER')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: ProviderScope(
+            overrides: [
+              workspaceShellProvider.overrideWith(
+                () => throw StateError('personal must not load workspace'),
+              ),
+            ],
+            child: MaterialApp.router(routerConfig: router),
+          ),
+        ),
+      );
+      expect(find.text('个人'), findsOneWidget);
+      expect(
+        find.text(width < 900 ? 'MOBILE_ENTRY' : 'DESKTOP_ENTRY'),
+        findsOneWidget,
+      );
+      expect(
+        MediaQuery.paddingOf(
+          tester.element(
+            find.text(width < 900 ? 'MOBILE_ENTRY' : 'DESKTOP_ENTRY'),
+          ),
+        ).top,
+        0,
+      );
+      await tester.tap(find.byKey(const ValueKey('workspace-shell-switcher')));
+      await tester.pumpAndSettle();
+      expect(find.text('SPACE_PICKER'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
   group('ChatShellPage — mobile 分支 (< 900px)', () {
     testWidgets('width 320 → 渲染 mobileEntry', (tester) async {
       await _pumpShell(tester, size: const Size(320, 700));

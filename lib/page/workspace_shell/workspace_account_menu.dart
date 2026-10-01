@@ -112,15 +112,21 @@ List<WorkspaceModel> _scopedWorkspaces(
 /// 企业选择器（/organization/picker，数据源 Organization membership）；
 /// 展示名当前企业优先（本地指针），无指针回落当前工作区名。
 class WorkspaceSwitcherChip extends ConsumerWidget {
-  const WorkspaceSwitcherChip({super.key});
+  const WorkspaceSwitcherChip({super.key, this.personal = false});
+
+  final bool personal;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
     final theme = Theme.of(context);
-    final current = ref.watch(workspaceShellProvider.select((s) => s.current));
-    final org = _currentOrgOrNull();
-    final label = (org != null && org.name.isNotEmpty)
+    final current = personal
+        ? null
+        : ref.watch(workspaceShellProvider.select((s) => s.current));
+    final org = personal ? null : _currentOrgOrNull();
+    final label = personal
+        ? t.workspace.experienceModePersonal
+        : (org != null && org.name.isNotEmpty)
         ? org.name
         : (current?.name ?? t.workspace.pickerTitle);
     return CupertinoButton(
@@ -134,7 +140,9 @@ class WorkspaceSwitcherChip extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              CupertinoIcons.building_2_fill,
+              personal
+                  ? CupertinoIcons.person_crop_circle
+                  : CupertinoIcons.building_2_fill,
               size: 17,
               color: theme.colorScheme.onSurface,
             ),
