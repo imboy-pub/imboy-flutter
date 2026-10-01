@@ -105,11 +105,11 @@ class _OrganizationPickerPageState
       _error = null;
     });
     try {
-      final page = await _api.mine();
-      _cache.saveOrgs(page.list);
+      final organizations = await _api.allMine();
+      _cache.saveOrgs(organizations);
       if (!mounted) return;
       setState(() {
-        _orgs = page.list;
+        _orgs = organizations;
       });
     } on OrganizationApiException catch (e) {
       if (!mounted) return;

@@ -63,10 +63,10 @@ class OrganizationEntryNotifier extends Notifier<OrganizationEntryState> {
     if (state.loading) return;
     state = state.copyWith(loading: true, clearError: true);
     try {
-      final page = await ref.read(organizationApiProvider).mine(size: 100);
+      final organizations = await ref.read(organizationApiProvider).allMine();
       if (!ref.mounted) return;
       state = OrganizationEntryState(
-        orgs: page.list,
+        orgs: organizations,
         loaded: true,
         loading: false,
       );

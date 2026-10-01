@@ -15,6 +15,7 @@ library;
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/organization/domain/human_directory_models.dart';
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/human_directory_api.dart';
@@ -66,6 +67,24 @@ class OrganizationApi extends HttpClient implements HumanDirectoryDataSource {
       queryParameters: {'page': page, 'size': size},
     );
     return _page(resp, Organization.fromJson);
+  }
+
+  /// 切换器需要完整成员企业列表；全部分页成功后才向界面交付。
+  Future<List<Organization>> allMine() async {
+    final account = UserRepoLocal.to.currentUid;
+    final organizations = <EntityId, Organization>{};
+    var totalPages = 1;
+    for (var page = 1; page <= totalPages; page++) {
+      final result = await mine(page: page, size: 100);
+      if (UserRepoLocal.to.currentUid != account) {
+        throw StateError('Organization account changed');
+      }
+      if (page == 1) totalPages = result.totalPage;
+      for (final organization in result.list) {
+        organizations[organization.id] = organization;
+      }
+    }
+    return organizations.values.toList(growable: false);
   }
 
   /// 创建组织（名称 1..200 字符）。

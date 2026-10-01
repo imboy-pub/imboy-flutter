@@ -61,12 +61,12 @@ class HumanDirectoryOrgSwitchSheetState
       _error = null;
     });
     try {
-      final page = await widget.orgApi.mine(size: 100);
+      final organizations = await widget.orgApi.allMine();
       if (!mounted || ref.read(currentUserProvider)?.uid != widget.accountKey) {
         return;
       }
       setState(() {
-        _orgs = page.list;
+        _orgs = organizations;
         _loading = false;
       });
     } on Object catch (e) {

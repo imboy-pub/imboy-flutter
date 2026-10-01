@@ -256,12 +256,12 @@ class _HumanDirectoryBrowserPageState
   /// 任一步失败抛异常 → 控制器 rollback（旧 Org/数据保留 + 可重试错误）。
   Future<void> _prepareSwitch(Organization target) async {
     final account = _accountKey;
-    final page = await _orgApi.mine(size: 100);
+    final organizations = await _orgApi.allMine();
     if (!_isCurrentAccount(account)) {
       throw StateError('Directory account changed');
     }
     Organization? fresh;
-    for (final o in page.list) {
+    for (final o in organizations) {
       if (o.id == target.id) fresh = o;
     }
     if (fresh == null || fresh.isArchived) {

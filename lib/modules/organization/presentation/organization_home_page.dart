@@ -59,12 +59,12 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
       _error = null;
     });
     try {
-      final page = await _api.mine();
+      final organizations = await _api.allMine();
       // 服务端事实到达后覆盖缓存（缓存永不先于真源）。
-      _cache.saveOrgs(page.list);
+      _cache.saveOrgs(organizations);
       if (!mounted) return;
       setState(() {
-        _orgs = page.list;
+        _orgs = organizations;
       });
     } on OrganizationApiException catch (e) {
       if (!mounted) return;
