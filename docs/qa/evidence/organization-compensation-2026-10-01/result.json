@@ -1,0 +1,9 @@
+{
+  "baseline_sha": "9d5d83c5b0ee1592b472150adc4519a9658286f2",
+  "compensation_red_exit_code": 1,
+  "tests_exit_code": 0,
+  "tests_passed": 52,
+  "analyze_exit_code": 0,
+  "device_verified": false,
+  "global_goal_status": "PARTIAL"
+}

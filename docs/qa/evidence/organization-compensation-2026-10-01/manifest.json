@@ -1,0 +1,22 @@
+[
+  {
+    "path": "analyze.log",
+    "sha256": "af635e0fdf2983050ab848320050aa31b148cd985f3ab3963e13ccce5ea2c8ef"
+  },
+  {
+    "path": "compensation-red.log",
+    "sha256": "0a717e925adf111992d03db06ed055bec01cfd4a37b667cde03656c48b2bec2a"
+  },
+  {
+    "path": "result.json",
+    "sha256": "17c6c4eb2b5e511dbda8ac0b6921aa5d0a5a4c9e61f287a8d9d1f4be528d3a21"
+  },
+  {
+    "path": "source-sha.json",
+    "sha256": "cf0194a5382ea136e582f432f59cfb33c4e3c7292c773c6ca28ffc1eff203f0a"
+  },
+  {
+    "path": "tests.log",
+    "sha256": "0482fc7f8df1f3c96f487d77caaf26d6346e02c6e48f9f133a89aa34c3fa40b7"
+  }
+]

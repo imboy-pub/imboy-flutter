@@ -15,9 +15,8 @@
 ///   任何本地状态（指针/缓存/壳原样），只置错误态可重试；
 ///   Phase 2 提交——G11 缓存失效清单（① OrganizationCache.invalidateOrg
 ///   上一企业 ② 五个 wsId family provider 显式失效 ③ CurrentOrganizationStore
-///   指针切换，store 先持久化后内存）；任一步失败把指针补偿回旧值
-///   （[CurrentOrganizationStore.restore] 支持 null=清空）并丢弃目标企业
-///   缓存播种，绝不半切换。成功后按该企业 default-workspace 指针落位。
+///   指针切换，store 先持久化后内存）；失败尝试恢复旧指针。补偿保存失败
+///   则按实际保存指针对齐壳，显示重试错误。成功后落位目标企业工作区。
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -132,7 +131,7 @@ class _OrganizationPickerPageState
   }
 
   /// 两阶段原子切换（ENT-APP-04；语义见文件头）。任一阶段失败 → 页内
-  /// 错误态 + 指针/缓存/壳维持（或补偿回）旧状态，绝不半切换假成功。
+  /// 错误态 + 恢复旧状态；补偿失败按实际指针对齐，不把失败报告为成功。
   Future<void> _switchTo(Organization org) async {
     if (_switching) return;
     final account = _accountKey;
@@ -150,11 +149,13 @@ class _OrganizationPickerPageState
       await _commitTarget(fresh, prev, account);
     } on Object catch (e) {
       if (!mounted || _accountKey != account) return;
-      if (committing) await _rollbackSwitch(prev, org, previousShell, account);
+      final recoveryError = committing
+          ? await _rollbackSwitch(prev, org, previousShell, account)
+          : null;
       if (!mounted || _accountKey != account) return;
       setState(() {
         _switching = false;
-        _switchError = _switchErrorText(e);
+        _switchError = _switchErrorText(recoveryError ?? e);
       });
       return;
     }
@@ -205,34 +206,41 @@ class _OrganizationPickerPageState
 
   /// Phase 2 失败补偿：指针恢复 prev（[CurrentOrganizationStore.restore]
   /// 支持 null=清空指针；与 set 同序「先持久化后内存」）；目标企业的
-  /// 缓存播种一并丢弃，下次进入强制服务端刷新。补偿链上的二次失败不再
-  /// 上抛（membership 真源在服务端，下次 mine()/detail() 会纠正）。
-  Future<void> _rollbackSwitch(
+  /// 缓存播种一并丢弃。补偿保存失败时按实际指针对齐壳，并返回失败供重试。
+  Future<Object?> _rollbackSwitch(
     Organization? prev,
     Organization failed,
     WorkspaceShellState previousShell,
     String account,
   ) async {
+    Object? recoveryError;
     try {
       await _currentStore.restore(prev);
-    } on Object {
-      // 补偿失败容忍：指针非真源，冷启动/下次切换以服务端事实收敛。
+    } on Object catch (e) {
+      recoveryError = e;
     }
-    if (!mounted || _accountKey != account) return;
+    if (!mounted || _accountKey != account) return recoveryError;
     _cache.invalidateOrg(failed.id);
+    final pointed = _currentStore.value;
+    final snapshot = recoveryError == null
+        ? previousShell
+        : ref.read(workspaceShellProvider);
     final shell = ref.read(workspaceShellProvider.notifier);
     await shell.selectOrganization(
-      prev?.id ?? previousShell.organizationId,
-      () async => previousShell.currentWorkspaceId,
+      pointed?.id ?? '',
+      () async => snapshot.organizationId == pointed?.id
+          ? snapshot.currentWorkspaceId
+          : '',
     );
-    shell.selectDestination(previousShell.destination);
+    shell.selectDestination(snapshot.destination);
+    return recoveryError;
   }
 
   String _switchErrorText(Object e) {
     if (e is OrganizationApiException) {
       return '${e.message} (code=${e.code})';
     }
-    return e.toString();
+    return t.common.settingFailedPleaseTryAgain;
   }
 
   /// 离开本页：正常从切换 chip/企业行 push 进入 → pop 返回；被 go 挂为

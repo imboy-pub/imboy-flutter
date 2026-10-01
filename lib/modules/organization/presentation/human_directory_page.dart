@@ -291,46 +291,25 @@ class _HumanDirectoryBrowserPageState
   /// Phase 2：提交指针 + 缓存失效（镜像 OrganizationPickerPage G11 清单；
   /// 复用既有 store/provider，不建第二套）。
   ///
-  /// 原子性（§14.3）：store 先持久化后内存（失败抛出且内存不变）——任一步
-  /// 失败（指针写失败 / 旧 Org 缓存失效失败 / workspace providers 失效失败）
-  /// 先把 [CurrentOrganizationStore] 补偿恢复为旧值（[restore] 支持 nullable，
-  /// prev==null 时清空指针）再 rethrow，由控制器按 Phase 2 失败 rollback
-  /// （不 reconfigure，目录继续服务旧 Org）。绝不吞错后继续落新 Org。
+  /// 先失效展示缓存，最后保存指针。保存失败不发布新指针，不需要二次补偿写。
   Future<void> _commitSwitch(Organization target) async {
     final accountKey = _accountKey;
     if (!_isCurrentAccount(accountKey)) {
       throw StateError('Directory account changed');
     }
-    CurrentOrganizationStore? store;
-    Organization? prev;
-    try {
-      if (accountKey.isNotEmpty) {
-        store = CurrentOrganizationStore.forAccount(accountKey);
-        prev = store.value;
-        await store.set(target);
-        if (!_isCurrentAccount(accountKey)) {
-          throw StateError('Directory account changed');
-        }
-        if (prev != null && prev.id != target.id) {
-          OrganizationCache.forAccount(accountKey).invalidateOrg(prev.id);
-        }
-      }
-      ref.invalidate(workspaceOverviewProvider);
-      ref.invalidate(workspaceChannelsProvider);
-      ref.invalidate(workspaceGroupsProvider);
-      ref.invalidate(workspaceMembersProvider);
-      ref.invalidate(workspaceProjectsProvider);
-    } on Object {
-      if (store != null) {
-        try {
-          // prev 可为 null（该账号此前无指针）——restore 支持 nullable 补偿。
-          await store.restore(prev);
-        } on Object {
-          // 补偿写也失败：指针可能停在目标值，但 membership 真源在服务端，
-          // 下次 mine() 会纠正；控制器侧仍按失败 rollback。
-        }
-      }
-      rethrow;
+    final store = CurrentOrganizationStore.forAccount(accountKey);
+    final prev = store.value;
+    if (prev != null && prev.id != target.id) {
+      OrganizationCache.forAccount(accountKey).invalidateOrg(prev.id);
+    }
+    ref.invalidate(workspaceOverviewProvider);
+    ref.invalidate(workspaceChannelsProvider);
+    ref.invalidate(workspaceGroupsProvider);
+    ref.invalidate(workspaceMembersProvider);
+    ref.invalidate(workspaceProjectsProvider);
+    await store.set(target);
+    if (!_isCurrentAccount(accountKey)) {
+      throw StateError('Directory account changed');
     }
     unawaited(_landDefaultWorkspace(target));
   }

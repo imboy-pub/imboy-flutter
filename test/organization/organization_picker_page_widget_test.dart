@@ -25,6 +25,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -56,6 +58,58 @@ class _FailedExperience extends ProductExperienceNotifier {
 class _FailedPersonalExperience extends _FailedExperience {
   @override
   ProductExperience build() => ProductExperience.chat;
+}
+
+class _RecoverableExperience extends ProductExperienceNotifier {
+  bool failed = false;
+  @override
+  ProductExperience build() => ProductExperience.chat;
+  @override
+  Future<void> select(ProductExperience experience) async {
+    if (!failed) {
+      failed = true;
+      throw StateError('synthetic first preference failure');
+    }
+    await super.select(experience);
+  }
+}
+
+class _RestoreFailureStore extends SharedPreferencesStorePlatform {
+  _RestoreFailureStore(this.failure);
+  final String failure;
+  final values = <String, Object>{};
+  int restores = 0;
+
+  @override
+  Future<bool> setValue(String type, String key, Object value) async {
+    if (key.endsWith('$kCurrentOrgStoragePrefix$_accountKey') &&
+        value is String &&
+        values[key] is String) {
+      final old = jsonDecode(values[key] as String) as Map<String, dynamic>;
+      final next = jsonDecode(value) as Map<String, dynamic>;
+      if (old['id'] == _orgB && next['id'] == _orgA) {
+        restores++;
+        if (failure == 'throw') throw StateError('synthetic restore failure');
+        return false;
+      }
+    }
+    values[key] = value;
+    return true;
+  }
+
+  @override
+  Future<Map<String, Object>> getAll() async => Map.of(values);
+  @override
+  Future<bool> remove(String key) async {
+    values.remove(key);
+    return true;
+  }
+
+  @override
+  Future<bool> clear() async {
+    values.clear();
+    return true;
+  }
 }
 
 /// 按 URI path 分发的静态 adapter（org mine / default-workspace /
@@ -363,8 +417,22 @@ void main() {
     );
   });
 
-  for (final mode in ['same', 'preference-failure', 'default-failure']) {
+  for (final mode in [
+    'same',
+    'preference-failure',
+    'default-failure',
+    'restore-false',
+    'restore-throw',
+  ]) {
     testWidgets('个人选择企业 $mode：首页和企业工作区一致', (tester) async {
+      final restoreFailure = mode.startsWith('restore-');
+      final native = restoreFailure
+          ? _RestoreFailureStore(mode.substring('restore-'.length))
+          : null;
+      if (native != null) {
+        SharedPreferencesStorePlatform.instance = native;
+        await StorageService.init();
+      }
       final store = CurrentOrganizationStore.forAccount(_accountKey);
       await store.set(const Organization(id: _orgA, name: 'synthetic old'));
       final target = mode == 'same' ? _orgA : _orgB;
@@ -409,9 +477,11 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           workspaceApiProvider.overrideWithValue(api),
-          if (mode == 'preference-failure')
+          if (mode == 'preference-failure' || restoreFailure)
             productExperienceProvider.overrideWith(
-              _FailedPersonalExperience.new,
+              restoreFailure
+                  ? _RecoverableExperience.new
+                  : _FailedPersonalExperience.new,
             ),
         ],
       );
@@ -428,15 +498,16 @@ void main() {
         calls.any((path) => path.endsWith('/organizations/$target')),
         isTrue,
       );
-      final failed = mode == 'preference-failure';
-      expect(store.value?.id, failed ? _orgA : target);
+      final failed = mode == 'preference-failure' || restoreFailure;
+      final restoredOld = failed && !restoreFailure;
+      expect(store.value?.id, restoredOld ? _orgA : target);
       expect(
         container.read(workspaceShellProvider).organizationId,
-        failed ? _orgA : target,
+        restoredOld ? _orgA : target,
       );
       expect(
         container.read(workspaceShellProvider).currentWorkspaceId,
-        failed || target == _orgA ? '9001' : '9002',
+        restoredOld || target == _orgA ? '9001' : '9002',
       );
       expect(
         container.read(productExperienceProvider),
@@ -447,6 +518,35 @@ void main() {
         failed ? findsOneWidget : findsNothing,
       );
       expect(tester.takeException(), isNull);
+      if (native != null) {
+        expect(native.restores, 1);
+        expect(
+          jsonDecode(
+            StorageService.to.getString(
+              '$kCurrentOrgStoragePrefix$_accountKey',
+            ),
+          )['id'],
+          _orgB,
+        );
+        await tester.tap(tile);
+        await tester.pumpAndSettle();
+        expect(store.value?.id, _orgB);
+        expect(container.read(workspaceShellProvider).organizationId, _orgB);
+        expect(
+          container.read(workspaceShellProvider).currentWorkspaceId,
+          '9002',
+        );
+        expect(
+          container.read(productExperienceProvider),
+          ProductExperience.workspace,
+        );
+        expect(
+          find.byKey(const ValueKey('org-picker-switch-error')),
+          findsNothing,
+        );
+        expect(find.text('probe'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
     });
   }
 
