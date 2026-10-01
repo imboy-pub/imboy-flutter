@@ -1,8 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_bootstrap.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart';
@@ -21,6 +27,13 @@ import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 
 class _Shell extends WorkspaceShellNotifier {
+  @override
+  Future<void> initialize() async {}
+  void empty(String mode) => state = WorkspaceShellState(
+    organizationId: '10',
+    isLoading: mode == 'loading',
+    error: mode == 'error' ? 'synthetic workspace failure' : null,
+  );
   @override
   WorkspaceShellState build() => const WorkspaceShellState(
     organizationId: '10',
@@ -60,6 +73,38 @@ class _Api extends WorkspaceApi {
   }) async => [];
 }
 
+class _DirectoryTransport implements HttpClientAdapter {
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? stream,
+    Future<void>? cancel,
+  ) async {
+    final path = options.uri.path;
+    final departments = path.endsWith('/directory/departments');
+    final payload = <String, dynamic>{
+      'organization_id': 10,
+      'list': departments
+          ? [
+              {'id': 21, 'name': '合成研发部', 'member_count': 0},
+            ]
+          : <Map<String, dynamic>>[],
+      'cursor': null,
+      'has_more': false,
+    };
+    return ResponseBody.fromString(
+      jsonEncode({'code': 0, 'msg': 'success', 'payload': payload}),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 class _OaApi extends OaWorkbenchApi {
   final calls = <String>[];
   final pending = <String, Completer<List<EnterpriseOaRuntimeConfig>>>{};
@@ -87,6 +132,7 @@ Future<ProviderContainer> _pump(
   WidgetTester tester,
   _OaApi api, {
   Size size = const Size(430, 900),
+  String? emptyMode,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -102,11 +148,20 @@ Future<ProviderContainer> _pump(
     ],
   );
   addTearDown(container.dispose);
+  if (emptyMode != null) {
+    (container.read(workspaceShellProvider.notifier) as _Shell).empty(
+      emptyMode,
+    );
+  }
   await tester.pumpWidget(
     TranslationProvider(
       child: UncontrolledProviderScope(
         container: container,
-        child: const MaterialApp(home: WorkspaceShellPage()),
+        child: MaterialApp(
+          home: emptyMode == null
+              ? const WorkspaceShellPage()
+              : const WorkspaceShellBootstrap(),
+        ),
       ),
     ),
   );
@@ -144,6 +199,44 @@ class _DelayedChannelsApi extends WorkspaceApi {
 }
 
 void main() {
+  setUp(() {
+    FlutterSecureStorage.setMockInitialValues({});
+    HttpClient.adapterForTest = _DirectoryTransport();
+  });
+  tearDown(() => HttpClient.adapterForTest = null);
+  for (final mode in ['normal', 'loading', 'error']) {
+    testWidgets('无工作区企业 $mode 仍可从首页进入组织架构', (tester) async {
+      final api = _OaApi();
+      await _pump(tester, api, emptyMode: mode);
+      api.pending['10']?.complete([]);
+      await tester.pump();
+      expect(_labels(tester), ['消息', '通讯录', '我']);
+      expect(
+        find.byKey(const ValueKey('workspace-empty-create-entry')),
+        findsNothing,
+      );
+      if (mode == 'error') {
+        expect(find.text('synthetic workspace failure'), findsOneWidget);
+      }
+      if (mode == 'loading') {
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      }
+      await tester.tap(find.text('通讯录').last);
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump(const Duration(milliseconds: 100));
+        if (find.text('合成研发部').evaluate().isNotEmpty) break;
+      }
+      expect(find.text('合成研发部'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('workspace-shell-switcher')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
   test('退出账号后工作区资源立即清空，不发鉴权外请求', () async {
     final container = ProviderContainer.test(
       overrides: [currentUserProvider.overrideWithValue(null)],
@@ -205,7 +298,7 @@ void main() {
     expect(find.byType(WorkspaceConversationsPage), findsOneWidget);
     expect(find.byType(HumanDirectoryBrowserPage), findsNothing);
     await tester.tap(find.text('通讯录'));
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
     expect(
       find.byKey(const ValueKey('workspace-shell-switcher')),

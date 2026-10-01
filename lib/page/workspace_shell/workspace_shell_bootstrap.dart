@@ -54,6 +54,14 @@ class _WorkspaceShellBootstrapState
     });
     final t = context.t;
     final shell = ref.watch(workspaceShellProvider);
+    final uid = ref.watch(currentUserProvider)?.uid ?? '';
+
+    // Organization contacts and OA do not require a workspace membership.
+    if (uid.isNotEmpty &&
+        shell.organizationId.isNotEmpty &&
+        !shell.hasWorkspace) {
+      return const WorkspaceShellPage();
+    }
 
     if (shell.isLoading && !shell.hasWorkspace) {
       return const Scaffold(body: WorkspaceLoadingView());

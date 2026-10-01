@@ -225,6 +225,16 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
   }
 
   Widget _messages() {
+    final shell = ref.watch(workspaceShellProvider);
+    if (!shell.hasWorkspace && shell.isLoading) {
+      return const WorkspaceLoadingView();
+    }
+    if (!shell.hasWorkspace && shell.error != null) {
+      return WorkspaceErrorView(
+        message: shell.error!,
+        onRetry: () => ref.read(workspaceShellProvider.notifier).loadMine(),
+      );
+    }
     return Column(
       children: [
         _messageFilter(),
@@ -280,17 +290,22 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
               onTap: () =>
                   context.push('/organization/${widget.organizationId}'),
             ),
-            CupertinoListTile(
-              title: Text(t.workspace.membersTitle),
-              trailing: const CupertinoListTileChevron(),
-              onTap: () => context.push('/workspace/members'),
-            ),
-            _resourceEntry(t.workspace.navGroups, const WorkspaceGroupsPage()),
-            if (AppFeatureRegistry.isEnabled(FeatureKeys.project))
-              _resourceEntry(
-                t.workspace.navProjects,
-                const WorkspaceProjectsPage(),
+            if (ref.watch(currentWorkspaceProvider) != null) ...[
+              CupertinoListTile(
+                title: Text(t.workspace.membersTitle),
+                trailing: const CupertinoListTileChevron(),
+                onTap: () => context.push('/workspace/members'),
               ),
+              _resourceEntry(
+                t.workspace.navGroups,
+                const WorkspaceGroupsPage(),
+              ),
+              if (AppFeatureRegistry.isEnabled(FeatureKeys.project))
+                _resourceEntry(
+                  t.workspace.navProjects,
+                  const WorkspaceProjectsPage(),
+                ),
+            ],
           ],
         ),
         const Expanded(child: MinePage()),
