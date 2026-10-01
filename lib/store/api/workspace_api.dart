@@ -202,17 +202,75 @@ class WorkspaceApi extends HttpClient {
   /// [status] = active（缺省，等价于未加过滤前的行为）| archived | all。
   /// 治理页要枚举归档频道才能提供「恢复」入口——缺省口径下归档频道
   /// 已退出全部公开面，列表里不会出现。
+  /// Complete scoped keyset pages; fail instead of returning a partial directory.
   Future<List<ChannelModel>> channels(
     EntityId workspaceId, {
     String? status,
   }) async {
-    final resp = await get(
-      '/api/v1/workspaces/$workspaceId/channels',
-      queryParameters: {
-        if (status != null && status.isNotEmpty) 'status': status,
-      },
-    );
-    return _unwrapList(resp, ChannelModel.fromJson);
+    var cursor = 0;
+    // ponytail: keep this workspace in memory for local search; use server search for very large directories.
+    final result = <ChannelModel>[];
+    while (true) {
+      final payload = _ensureOk(
+        await get(
+          '/api/v1/workspaces/$workspaceId/channels',
+          queryParameters: {
+            'paged': 1,
+            'limit': 200,
+            'cursor': cursor,
+            if (status != null && status.isNotEmpty) 'status': status,
+          },
+        ),
+      );
+      final rows = payload['list'];
+      final more = payload['has_more'];
+      final next = int.tryParse('${payload['next_cursor']}');
+      if (entityIdOf(payload['workspace_id']) != workspaceId ||
+          rows is! List ||
+          rows.length > 200 ||
+          more is! bool ||
+          next == null) {
+        throw WorkspaceApiException(503, t.common.errorNetwork);
+      }
+      var lastId = cursor;
+      for (final row in rows) {
+        final channel = _workspaceChannelRow(row, workspaceId, lastId, status);
+        lastId = channel.id;
+        result.add(channel);
+      }
+      if (!more) {
+        if (next != 0) throw WorkspaceApiException(503, t.common.errorNetwork);
+        return result;
+      }
+      if (rows.isEmpty || next != lastId) {
+        throw WorkspaceApiException(503, t.common.errorNetwork);
+      }
+      cursor = next;
+    }
+  }
+
+  ChannelModel _workspaceChannelRow(
+    Object? value,
+    EntityId wsId,
+    int before,
+    String? status,
+  ) {
+    final id = value is Map<String, dynamic>
+        ? int.tryParse('${value['id']}')
+        : null;
+    if (value is! Map<String, dynamic> ||
+        id == null ||
+        id <= 0 ||
+        id > 9223372036854775807 ||
+        (before > 0 && id >= before) ||
+        value['scope'] != 'workspace' ||
+        entityIdOf(value['workspace_id']) != wsId ||
+        (status == 'all'
+            ? ![0, 1].contains(value['status'])
+            : value['status'] != (status == 'archived' ? 0 : 1))) {
+      throw WorkspaceApiException(503, t.common.errorNetwork);
+    }
+    return ChannelModel.fromJson(value);
   }
 
   /// 工作区群列表（scope=workspace 严格分区；active 成员可读）。
