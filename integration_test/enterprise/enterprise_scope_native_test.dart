@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
-    show NavigationBar, NavigationDestination;
+    show BackButton, NavigationBar, NavigationDestination;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -13,19 +13,25 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/page/error/init_error_page.dart';
 import 'package:imboy/page/welcome/welcome_page.dart';
+import 'package:imboy/modules/organization/presentation/organization_member_detail_page.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  WidgetController.hitTestWarningShouldBeFatal = true;
 
   testWidgets('真实登录与个人、企业空间切换', (tester) async {
     const api = String.fromEnvironment('API_BASE_URL_OVERRIDE');
     const account = String.fromEnvironment('TEST_SYNTHETIC_ACCOUNT');
     const password = String.fromEnvironment('TEST_SYNTHETIC_PASSWORD');
+    const rootDepartment = String.fromEnvironment('TEST_ROOT_DEPARTMENT');
+    const childDepartment = String.fromEnvironment('TEST_CHILD_DEPARTMENT');
     expect(Platform.isAndroid, isTrue);
     expect(app.appEnv, 'local');
     expect(Uri.parse(api).host, '127.0.0.1');
     expect(account, 'synthetic_enterprise_mobile');
     expect(password, isNotEmpty);
+    expect(rootDepartment, matches(RegExp(r'^[1-9][0-9]+$')));
+    expect(childDepartment, matches(RegExp(r'^[1-9][0-9]+$')));
     final package = await PackageInfo.fromPlatform();
     expect(package.packageName, 'pub.imboy.app.gzcustomer');
 
@@ -62,7 +68,10 @@ void main() {
           .onPressed,
       isNotNull,
     );
-    await tester.tap(find.byKey(const Key('login_submit_button')));
+    final loginButton = find.byKey(const Key('login_submit_button'));
+    await tester.ensureVisible(loginButton);
+    await waitFor(tester, loginButton.hitTestable());
+    await tester.tap(loginButton);
     await waitFor(
       tester,
       find.byWidgetPredicate(
@@ -120,6 +129,30 @@ void main() {
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
     expect(tester.takeException(), isNull);
 
+    final rootRow = find.byKey(Key('org-dir-dept-list-$rootDepartment'));
+    final childRow = find.byKey(Key('org-dir-dept-list-$childDepartment'));
+    final member = find.byKey(const Key('org-dir-member-995012'));
+    await waitFor(tester, rootRow);
+    expect(childRow, findsNothing);
+    expect(member, findsNothing);
+    await tester.tap(rootRow);
+    await waitFor(tester, childRow);
+    await tester.tap(childRow);
+    await waitFor(tester, member);
+    expect(find.text('合成员工甲'), findsWidgets);
+    await tester.tap(member);
+    await waitFor(tester, find.byType(OrganizationMemberDetailPage));
+    expect(
+      find.byKey(const Key('org-member-detail-im-profile')),
+      findsOneWidget,
+    );
+    await backDirectory(tester);
+    await waitFor(tester, member);
+    await backDirectory(tester);
+    await waitFor(tester, childRow);
+    await backDirectory(tester);
+    await waitFor(tester, rootRow);
+
     await selectPersonal(tester);
     expect(find.byKey(const Key('enterprise-shell-bottom-nav')), findsNothing);
     expect(tester.takeException(), isNull);
@@ -142,5 +175,21 @@ Future<void> waitFor(WidgetTester tester, Finder finder) async {
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
   }
+  if (finder.evaluate().isEmpty) {
+    final pages = find.byWidgetPredicate(
+      (widget) => widget.runtimeType.toString().endsWith('Page'),
+    );
+    debugPrint(
+      'NATIVE_UI_WAIT pages=${pages.evaluate().map((e) => e.widget.runtimeType).join(',')}',
+    );
+  }
   expect(finder, findsWidgets);
+}
+
+Future<void> backDirectory(WidgetTester tester) async {
+  await tester.pump(const Duration(milliseconds: 500));
+  final back = find.byType(BackButton);
+  await waitFor(tester, back);
+  await tester.tap(back.last);
+  await tester.pump(const Duration(milliseconds: 500));
 }
