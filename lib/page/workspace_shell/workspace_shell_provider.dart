@@ -23,6 +23,13 @@ import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 
+enum EnterpriseShellDestination { messages, contacts, workbench, mine }
+
+typedef EnterpriseNavigation = ({
+  EnterpriseShellDestination destination,
+  bool channels,
+});
+
 /// Workspace 壳状态。
 class WorkspaceShellState {
   final List<WorkspaceModel> _workspaces;
@@ -31,6 +38,7 @@ class WorkspaceShellState {
   final WorkspaceShellDestination destination;
   final bool isLoading;
   final String? error;
+  final Map<(EntityId, EntityId), EnterpriseNavigation> _enterpriseNavigation;
 
   const WorkspaceShellState({
     List<WorkspaceModel> workspaces = const [],
@@ -39,9 +47,18 @@ class WorkspaceShellState {
     this.destination = WorkspaceShellDestination.conversations,
     this.isLoading = false,
     this.error,
+    Map<(EntityId, EntityId), EnterpriseNavigation> enterpriseNavigation =
+        const {},
     // 保留公开命名参数 workspaces；全集仅在状态内部维护。
     // ignore: prefer_initializing_formals
-  }) : _workspaces = workspaces;
+  }) : _workspaces = workspaces,
+       // Keep the public parameter while hiding the scoped navigation map.
+       // ignore: prefer_initializing_formals
+       _enterpriseNavigation = enterpriseNavigation;
+
+  EnterpriseNavigation get enterpriseNavigation =>
+      _enterpriseNavigation[(organizationId, currentWorkspaceId)] ??
+      (destination: EnterpriseShellDestination.messages, channels: false);
 
   /// 当前工作区（无效 id / 未加载 → null）。
   WorkspaceModel? get current {
@@ -67,6 +84,7 @@ class WorkspaceShellState {
     bool? isLoading,
     String? error,
     bool clearError = false,
+    Map<(EntityId, EntityId), EnterpriseNavigation>? enterpriseNavigation,
   }) {
     return WorkspaceShellState(
       workspaces: workspaces ?? _workspaces,
@@ -77,6 +95,7 @@ class WorkspaceShellState {
       destination: destination ?? this.destination,
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : error,
+      enterpriseNavigation: enterpriseNavigation ?? _enterpriseNavigation,
     );
   }
 }
@@ -85,6 +104,19 @@ class WorkspaceShellState {
 class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
   int _selectionGeneration = 0;
   int _loadGeneration = 0;
+
+  void rememberEnterpriseNavigation(EnterpriseNavigation navigation) {
+    if (state.organizationId.isEmpty ||
+        navigation == state.enterpriseNavigation) {
+      return;
+    }
+    state = state.copyWith(
+      enterpriseNavigation: Map.unmodifiable({
+        ...state._enterpriseNavigation,
+        (state.organizationId, state.currentWorkspaceId): navigation,
+      }),
+    );
+  }
 
   @override
   WorkspaceShellState build() {
@@ -321,6 +353,10 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
       workspaces: state._workspaces
           .where((ws) => !ws.belongsToOrg(organizationId))
           .toList(growable: false),
+      enterpriseNavigation: Map.unmodifiable({
+        for (final entry in state._enterpriseNavigation.entries)
+          if (entry.key.$1 != organizationId) entry.key: entry.value,
+      }),
       organizationId: selected ? '' : state.organizationId,
       clearCurrent: selected || currentRemoved,
       isLoading: false,

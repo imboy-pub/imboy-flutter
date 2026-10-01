@@ -1,0 +1,22 @@
+[
+  {
+    "path": "analyze.log",
+    "sha256": "b79305ee28d29034d65241b85e7e52f8b415f4a688c4cc92e5630e9a1736d7aa"
+  },
+  {
+    "path": "oa-cache-red.log",
+    "sha256": "728cb91c1e1892f692ce1361338e9f1da6ef8f239a5457213fafa1d711397ef3"
+  },
+  {
+    "path": "result.json",
+    "sha256": "11ba764210c53092c5a86927cfba89f20d45c8e27d133e9cc91eec17f2437d23"
+  },
+  {
+    "path": "source-sha.json",
+    "sha256": "9724016bd0fa017e7fec66bb25f82678dc9f185fac1f35dba6749847d418dd7d"
+  },
+  {
+    "path": "tests.log",
+    "sha256": "6a86d9df73042509e466b1c5dc9ce81bdcf94d12e8a063475187497bc5c72d35"
+  }
+]

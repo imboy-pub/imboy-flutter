@@ -21,8 +21,6 @@ import 'workspace_account_menu.dart';
 import 'workspace_shell_breakpoint.dart';
 import 'workspace_shell_provider.dart';
 
-enum _Destination { messages, contacts, workbench, mine }
-
 /// 企业主导航。Key 由宿主绑定账号、企业及工作区，切换时销毁旧页面。
 class EnterpriseShellPage extends ConsumerStatefulWidget {
   const EnterpriseShellPage({
@@ -39,9 +37,32 @@ class EnterpriseShellPage extends ConsumerStatefulWidget {
 }
 
 class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
-  _Destination _selected = _Destination.messages;
-  final _visited = <_Destination>{_Destination.messages};
+  EnterpriseShellDestination _selected = EnterpriseShellDestination.messages;
+  final _visited = <EnterpriseShellDestination>{
+    EnterpriseShellDestination.messages,
+  };
   bool _channels = false;
+  bool _configurationReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final navigation = ref.read(workspaceShellProvider).enterpriseNavigation;
+    _selected = navigation.destination;
+    _channels = navigation.channels;
+    _visited.add(_selected);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.invalidate(oaWorkbenchEntriesProvider(_scope));
+      setState(() => _configurationReady = true);
+    });
+  }
+
+  void _rememberNavigation() =>
+      ref.read(workspaceShellProvider.notifier).rememberEnterpriseNavigation((
+        destination: _selected,
+        channels: _channels,
+      ));
 
   ({String accountKey, String organizationId}) get _scope =>
       (accountKey: widget.accountKey, organizationId: widget.organizationId);
@@ -51,9 +72,10 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
         !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    return supported
+    if (!supported) return const AsyncData<List<EnterpriseOaRuntimeConfig>>([]);
+    return _configurationReady
         ? ref.watch(oaWorkbenchEntriesProvider(_scope))
-        : const AsyncData<List<EnterpriseOaRuntimeConfig>>([]);
+        : const AsyncLoading<List<EnterpriseOaRuntimeConfig>>();
   }
 
   @override
@@ -66,21 +88,21 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
         ? entries.value.where((entry) => entry.runtimeEntryEnabled).toList()
         : const <EnterpriseOaRuntimeConfig>[];
     final destinations = [
-      _Destination.messages,
-      _Destination.contacts,
-      if (configs.isNotEmpty) _Destination.workbench,
-      _Destination.mine,
+      EnterpriseShellDestination.messages,
+      EnterpriseShellDestination.contacts,
+      if (configs.isNotEmpty) EnterpriseShellDestination.workbench,
+      EnterpriseShellDestination.mine,
     ];
-    if (!destinations.contains(_selected)) {
-      _selected = _Destination.messages;
-      _visited.remove(_Destination.workbench);
-    }
     final labels = destinations.map(_label).toList();
     final icons = destinations.map(_icon).toList();
-    final index = destinations.indexOf(_selected);
+    // Restore OA only after fresh configuration makes its entry available.
+    final index = destinations.contains(_selected)
+        ? destinations.indexOf(_selected)
+        : 0;
     void select(int value) => setState(() {
       _selected = destinations[value];
       _visited.add(_selected);
+      _rememberNavigation();
     });
     final desktop =
         resolveWorkspaceShellLayout(MediaQuery.sizeOf(context).width) ==
@@ -96,22 +118,24 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     );
   }
 
-  String _label(_Destination destination) => switch (destination) {
-    _Destination.messages => t.chat.titleMessage,
-    _Destination.contacts => t.organization.directory.title,
-    _Destination.workbench => t.enterpriseOa.workbenchTitle,
-    _Destination.mine => t.common.me,
-  };
+  String _label(EnterpriseShellDestination destination) =>
+      switch (destination) {
+        EnterpriseShellDestination.messages => t.chat.titleMessage,
+        EnterpriseShellDestination.contacts => t.organization.directory.title,
+        EnterpriseShellDestination.workbench => t.enterpriseOa.workbenchTitle,
+        EnterpriseShellDestination.mine => t.common.me,
+      };
 
-  IconData _icon(_Destination destination) => switch (destination) {
-    _Destination.messages => CupertinoIcons.chat_bubble,
-    _Destination.contacts => CupertinoIcons.person_2,
-    _Destination.workbench => CupertinoIcons.briefcase,
-    _Destination.mine => CupertinoIcons.person_circle,
-  };
+  IconData _icon(EnterpriseShellDestination destination) =>
+      switch (destination) {
+        EnterpriseShellDestination.messages => CupertinoIcons.chat_bubble,
+        EnterpriseShellDestination.contacts => CupertinoIcons.person_2,
+        EnterpriseShellDestination.workbench => CupertinoIcons.briefcase,
+        EnterpriseShellDestination.mine => CupertinoIcons.person_circle,
+      };
 
   Widget _content(
-    List<_Destination> destinations,
+    List<EnterpriseShellDestination> destinations,
     List<EnterpriseOaRuntimeConfig> configs,
     AsyncValue<List<EnterpriseOaRuntimeConfig>> entries,
     int index,
@@ -148,7 +172,11 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
                 KeyedSubtree(
                   key: ValueKey(destination),
                   child: _visited.contains(destination)
-                      ? _page(destination, configs)
+                      ? _page(
+                          destination,
+                          configs,
+                          destination == destinations[index],
+                        )
                       : const SizedBox.shrink(),
                 ),
             ],
@@ -159,7 +187,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
   }
 
   Widget _frame(
-    List<_Destination> destinations,
+    List<EnterpriseShellDestination> destinations,
     List<String> labels,
     List<IconData> icons,
     int index,
@@ -202,29 +230,30 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
   }
 
   Widget _page(
-    _Destination destination,
+    EnterpriseShellDestination destination,
     List<EnterpriseOaRuntimeConfig> configs,
+    bool active,
   ) {
     switch (destination) {
-      case _Destination.messages:
-        return _messages();
-      case _Destination.contacts:
+      case EnterpriseShellDestination.messages:
+        return _messages(active);
+      case EnterpriseShellDestination.contacts:
         return HumanDirectoryBrowserPage(
           orgId: widget.organizationId,
           embedded: true,
         );
-      case _Destination.workbench:
+      case EnterpriseShellDestination.workbench:
         return EnterpriseWorkbenchPage(
           entries: configs,
           accountKey: widget.accountKey,
           organizationId: widget.organizationId,
         );
-      case _Destination.mine:
+      case EnterpriseShellDestination.mine:
         return _mine();
     }
   }
 
-  Widget _messages() {
+  Widget _messages(bool active) {
     final shell = ref.watch(workspaceShellProvider);
     if (!shell.hasWorkspace && shell.isLoading) {
       return const WorkspaceLoadingView();
@@ -244,7 +273,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
             children: [
               WorkspaceConversationsPage(
                 embedded: true,
-                active: _selected == _Destination.messages && !_channels,
+                active: active && !_channels,
               ),
               if (_channels)
                 const WorkspaceChannelsPage()
@@ -271,6 +300,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       onValueChanged: (value) {
         if (value == null || value == _channels) return;
         setState(() => _channels = value);
+        _rememberNavigation();
         final id = ref.read(currentWorkspaceProvider)?.id ?? '';
         if (value && id.isNotEmpty) {
           ref.invalidate(workspaceChannelsProvider(id));

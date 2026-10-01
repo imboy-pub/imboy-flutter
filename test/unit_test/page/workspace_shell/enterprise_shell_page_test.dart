@@ -47,12 +47,12 @@ class _Shell extends WorkspaceShellNotifier {
       ),
     ],
   );
-  void organization(String id) => state = WorkspaceShellState(
+  void organization(String id, {String? workspaceId}) => state = state.copyWith(
     organizationId: id,
-    currentWorkspaceId: '${id}0',
+    currentWorkspaceId: workspaceId ?? '${id}0',
     workspaces: [
       WorkspaceModel(
-        id: '${id}0',
+        id: workspaceId ?? '${id}0',
         name: '合成企业 $id',
         ownerId: '1',
         organizationId: id,
@@ -204,6 +204,116 @@ void main() {
     HttpClient.adapterForTest = _DirectoryTransport();
   });
   tearDown(() => HttpClient.adapterForTest = null);
+  testWidgets('企业标签在重挂载后恢复，各企业的频道选择独立', (tester) async {
+    final api = _OaApi();
+    final container = await _pump(tester, api);
+    api.pending['10']!.complete([]);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('通讯录').last);
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: WorkspaceShellPage()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      1,
+    );
+    final shell = container.read(workspaceShellProvider.notifier) as _Shell;
+    shell.organization('10', workspaceId: '101');
+    await tester.pumpAndSettle();
+    expect(find.byType(HumanDirectoryBrowserPage), findsNothing);
+    shell.organization('10');
+    await tester.pumpAndSettle();
+    expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
+    shell.organization('20');
+    await tester.pump();
+    api.pending['20']?.complete([]);
+    await tester.pumpAndSettle();
+    expect(find.byType(HumanDirectoryBrowserPage), findsNothing);
+    await tester.tap(find.text('频道').last);
+    await tester.pumpAndSettle();
+    shell.organization('10');
+    await tester.pumpAndSettle();
+    expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
+    shell.organization('20');
+    await tester.pumpAndSettle();
+    expect(find.byType(WorkspaceChannelsPage), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  test('退出企业或换账号清除对应导航记录', () async {
+    final container = ProviderContainer.test(
+      overrides: [
+        currentUserProvider.overrideWith((ref) => ref.watch(_account)),
+        workspaceApiProvider.overrideWithValue(_Api()),
+      ],
+    );
+    final shell = container.read(workspaceShellProvider.notifier);
+    await shell.selectOrganization('10', () async => '');
+    shell.rememberEnterpriseNavigation((
+      destination: EnterpriseShellDestination.contacts,
+      channels: false,
+    ));
+    shell.forgetOrganization('10');
+    await shell.selectOrganization('10', () async => '');
+    expect(
+      container.read(workspaceShellProvider).enterpriseNavigation.destination,
+      EnterpriseShellDestination.messages,
+    );
+    shell.rememberEnterpriseNavigation((
+      destination: EnterpriseShellDestination.mine,
+      channels: true,
+    ));
+    container.read(_account.notifier).select('2');
+    await container.pump();
+    expect(container.read(workspaceShellProvider).enterpriseNavigation, (
+      destination: EnterpriseShellDestination.messages,
+      channels: false,
+    ));
+  });
+  testWidgets('恢复工作台先重新校验配置，撤权后消息区域仍激活', (tester) async {
+    final api = _OaApi();
+    final container = await _pump(tester, api);
+    api.pending['10']!.complete(_entries('10'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('工作台').last);
+    await tester.pumpAndSettle();
+    expect(find.text('合成办公 10'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    api.pending.remove('10');
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: WorkspaceShellPage()),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(find.text('合成办公 10'), findsNothing);
+    expect(find.byType(OaTabPage), findsNothing);
+    api.pending['10']!.complete([]);
+    await tester.pumpAndSettle();
+    expect(_labels(tester), ['消息', '通讯录', '我']);
+    expect(
+      tester
+          .widget<WorkspaceConversationsPage>(
+            find.byType(WorkspaceConversationsPage),
+          )
+          .active,
+      isTrue,
+    );
+    expect(find.byType(OaTabPage), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
   for (final mode in ['normal', 'loading', 'error']) {
     testWidgets('无工作区企业 $mode 仍可从首页进入组织架构', (tester) async {
       final api = _OaApi();
@@ -325,6 +435,7 @@ void main() {
     (container.read(workspaceShellProvider.notifier) as _Shell).organization(
       '20',
     );
+    await tester.pump();
     await tester.pump();
     api.pending['20']!.complete(_entries('20'));
     await tester.pump();
