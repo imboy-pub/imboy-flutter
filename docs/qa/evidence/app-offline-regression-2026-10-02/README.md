@@ -11,3 +11,5 @@ result.json 保存实际完整命令、结果、排除文件和跳过项；input
 Reproduction: restore the recorded candidate and locked dependencies, provide the existing native dylib with the recorded SHA256, and run the exact command in result.json with FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR pointing to that library directory. runner.py.txt records the actual machine-specific controller and its timeout/result checks; adjust its workspace path only for a new independently recorded run.
 
 This proves offline regression only. Skipped tests, excluded real API files, customer OA, iOS, and production remain outside this PASS.
+
+补充：在仅增加本目录归档的 `b59fd355cbe6cc902373041c5e2e59e485b4dcd3` 上执行 `flutter analyze --no-pub`，exit 0，No issues found，1975 项源码/依赖输入前后不变。记录见 analyze-result.json；不扩大离线测试的验收范围。
