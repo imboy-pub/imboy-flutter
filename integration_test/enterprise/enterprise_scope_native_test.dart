@@ -28,6 +28,10 @@ import 'package:imboy/modules/organization/presentation/organization_home_page.d
 import 'package:imboy/modules/organization/presentation/organization_detail_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_departments_page.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
+import 'package:imboy/page/group/file/group_file_page.dart';
+import 'package:imboy/service/group_file_service.dart';
+import 'package:imboy/component/web_view.dart';
+import 'package:imboy/component/ui/common_bar.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -172,12 +176,129 @@ void main() {
     if (const bool.fromEnvironment('TEST_NATIVE_OA_SSO')) {
       await checkNativeOa(tester);
     }
+    if (const bool.fromEnvironment('TEST_NATIVE_GROUP_FILE')) {
+      await checkNativeGroupFile(tester);
+    }
     await selectPersonal(tester);
     expect(find.byKey(const Key('enterprise-shell-bottom-nav')), findsNothing);
     expect(tester.takeException(), isNull);
     await joinEnterprise(tester);
     await leaveEnterprise(tester);
   }, timeout: const Timeout(Duration(minutes: 6)));
+}
+
+Future<void> checkNativeGroupFile(WidgetTester tester) async {
+  const groupId = '995301';
+  const name = 'native-enterprise-file.txt';
+  const body = 'synthetic native enterprise file';
+  final created = await tester.runAsync(
+    () => GroupFileService.to.uploadFile(
+      groupId: groupId,
+      fileName: name,
+      fileBytes: body.codeUnits,
+      fileType: 'text/plain',
+    ),
+  );
+  expect(created, isNotNull);
+  final nav = find.byKey(const Key('enterprise-shell-bottom-nav'));
+  expect(tester.widget<NavigationBar>(nav).destinations, hasLength(4));
+  await tester.tap(
+    find.descendant(
+      of: nav,
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is NavigationDestination &&
+            widget.label == t.enterpriseOa.workbenchTitle,
+      ),
+    ),
+  );
+  await waitFor(tester, find.text(t.chat.groupFile).hitTestable());
+  await tester.tap(find.text(t.chat.groupFile));
+  final group = find.byKey(const ValueKey('workspace-group-tile-995301'));
+  await waitFor(tester, group.hitTestable());
+  await tester.tap(group);
+  await waitFor(tester, find.byType(GroupFilePage));
+  await waitFor(tester, find.text(name).hitTestable());
+  await tester.tap(find.text(name));
+  await waitFor(tester, find.byType(WebViewWidget));
+  await expectNativeFileBody(tester, body);
+  final back = find.byType(GlassBackButton).hitTestable();
+  await waitFor(tester, back);
+  await tester.tap(back);
+  await waitFor(tester, find.byType(GroupFilePage));
+  await checkDeletedNativeFile(tester, groupId, name);
+  await waitFor(tester, back);
+  await tester.tap(back);
+  await waitFor(tester, group.hitTestable());
+  await backDirectory(tester);
+}
+
+Future<void> checkDeletedNativeFile(
+  WidgetTester tester,
+  String groupId,
+  String name,
+) async {
+  final row = find
+      .descendant(of: find.byType(GroupFilePage), matching: find.text(name))
+      .hitTestable();
+  await waitFor(tester, row);
+  final payload = await tester.runAsync(
+    () => GroupFileService.to.getFiles(groupId: groupId),
+  );
+  final files = (payload!['list'] as List).cast<Map<String, dynamic>>();
+  final file = files.singleWhere((row) => row['file_name'] == name);
+  expect(
+    await tester.runAsync(() => GroupFileService.to.deleteFile(file['id'])),
+    isTrue,
+  );
+  // Keep the stale row mounted: tapping it must reauthorize and refuse preview.
+  await tester.tap(row);
+  await waitFor(tester, find.text(t.common.groupFileOpenFailed));
+  expect(find.byType(WebViewWidget), findsNothing);
+  expect(tester.takeException(), isNull);
+  debugPrint('NATIVE_GROUP_FILE_PREVIEW_AND_DELETION_DENIAL_PASS');
+}
+
+Future<void> expectNativeFileBody(WidgetTester tester, String body) async {
+  final url = tester.widget<WebViewPage>(find.byType(WebViewPage)).url;
+  final httpMatches = await tester.runAsync(() async {
+    final client = HttpClient();
+    try {
+      final response = await (await client.getUrl(Uri.parse(url))).close();
+      final bytes = await response.fold<List<int>>(
+        [],
+        (all, part) => [...all, ...part],
+      );
+      debugPrint(
+        'NATIVE_FILE_HTTP status=${response.statusCode} '
+        'mime=${response.headers.contentType?.mimeType} bytes=${bytes.length}',
+      );
+      return response.statusCode == 200 &&
+          response.headers.contentType?.mimeType == 'text/plain' &&
+          String.fromCharCodes(bytes) == body;
+    } finally {
+      client.close(force: true);
+    }
+  });
+  expect(httpMatches, isTrue);
+  final controller = tester
+      .widget<WebViewWidget>(find.byType(WebViewWidget))
+      .platform
+      .params
+      .controller;
+  await tester.pump(const Duration(milliseconds: 600));
+  final currentUrl = await tester.runAsync(controller.currentUrl);
+  expect(Uri.parse(currentUrl!).path, '/api/v1/attachment/content');
+  // The download CSP sandbox forbids JavaScript; the host runner verifies
+  // rendered text through Android accessibility instead of weakening the CSP.
+  debugPrint('NATIVE_FILE_VISIBILITY_READY');
+  final deadline = DateTime.now().add(const Duration(seconds: 90));
+  while (DateTime.now().isBefore(deadline)) {
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+  }
 }
 
 Future<void> checkNativeOrgGovernance(WidgetTester tester) async {

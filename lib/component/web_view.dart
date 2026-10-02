@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
@@ -149,6 +150,17 @@ class WebViewPageState extends State<WebViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    PlatformWebViewWidgetCreationParams params =
+        PlatformWebViewWidgetCreationParams(
+          controller: widget._controller!.platform,
+        );
+    if (widget._controller!.platform is AndroidWebViewController) {
+      params =
+          AndroidWebViewWidgetCreationParams.fromPlatformWebViewWidgetCreationParams(
+            params,
+            displayWithHybridComposition: true,
+          );
+    }
     return Scaffold(
       appBar: GlassAppBar(
         titleWidget: Text(
@@ -157,7 +169,7 @@ class WebViewPageState extends State<WebViewPage> {
         ),
         automaticallyImplyLeading: true,
       ),
-      body: WebViewWidget(controller: widget._controller!),
+      body: WebViewWidget.fromPlatformCreationParams(params: params),
     );
   }
 }

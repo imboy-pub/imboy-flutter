@@ -43,6 +43,7 @@ dependencies:
   fixnum: ^1.1.0                  # 64-bit integer support (protobuf generated code)
   connectivity_plus: ^7.2.0        # Network status monitoring (WiFi/Cellular)
   webview_flutter: ^4.14.0         # WebView integration for in-app browsing
+  webview_flutter_android: ^4.14.1
   url_launcher: ^6.3.2              # URL handling for opening links in browser/apps
   mime: ^2.1.0                      # MIME type detection for file handling
 
