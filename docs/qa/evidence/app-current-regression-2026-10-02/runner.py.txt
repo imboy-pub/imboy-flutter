@@ -1,0 +1,47 @@
+from pathlib import Path
+import subprocess,json,hashlib,os,signal,sys
+repo=Path('/Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app')
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
+assert head=='1950abb3fb7f046706ada30651ae38fd883f848c'
+assert not subprocess.check_output(['git','status','--porcelain'],cwd=repo,text=True).strip()
+def input_paths():return [p for b in ('lib','test','integration_test') for p in (repo/b).rglob('*.dart')]+[repo/'pubspec.yaml',repo/'pubspec.lock',repo/'.dart_tool/package_config.json',Path(__file__),Path('/tmp/gz-app-native-frozen-b6aefd26d3a2/libvodozemac_bindings_dart.dylib')]
+def snapshot():return {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in input_paths()}
+assert hashlib.sha256(Path('/tmp/gz-app-native-frozen-b6aefd26d3a2/libvodozemac_bindings_dart.dylib').read_bytes()).hexdigest()=='b6aefd26d3a241a4e96fb91a417dc5258f01d6e1e77fc2882cf5f6978b6d124d'
+frozen=snapshot()
+all_tests=sorted(str(p.relative_to(repo)) for p in (repo/'test').rglob('*_test.dart'))
+excluded=[p for p in all_tests if p.startswith('test/unit_test/api/') and not p.endswith('/api_test_client_safety_test.dart')]
+files=[p for p in all_tests if p not in excluded]
+command=['flutter','test','--no-pub','--reporter','json',*files]
+log=Path('/tmp/gz-current-app-offline-1950.jsonl');terminal=Path('/tmp/gz-current-app-offline-1950-terminal.json')
+state={'status':'RUNNING_NOT_PASS','candidate':head,'command':command,'excluded_real_api_files':excluded,'test_files_count':len(files),'sources':frozen,'whole_goal_complete':False,'native_library':'/tmp/gz-app-native-frozen-b6aefd26d3a2/libvodozemac_bindings_dart.dylib','native_library_sha256':'b6aefd26d3a241a4e96fb91a417dc5258f01d6e1e77fc2882cf5f6978b6d124d'}
+def save():terminal.write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n')
+save()
+try:
+ with log.open('w') as stream:
+  os.chmod(log,0o600)
+  environment=os.environ.copy();environment['FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR']='/tmp/gz-app-native-frozen-b6aefd26d3a2'
+  process=subprocess.Popen(command,cwd=repo,env=environment,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
+  try:rc=process.wait(timeout=1200)
+  except subprocess.TimeoutExpired:
+   os.killpg(process.pid,signal.SIGTERM)
+   try:process.wait(timeout=10)
+   except subprocess.TimeoutExpired:os.killpg(process.pid,signal.SIGKILL);process.wait()
+   raise RuntimeError('offline suites timed out')
+ counts={'successful':0,'failed':0,'skipped':0};tests={};skipped=[];failures=[];done=[]
+ for line in log.read_text(errors='replace').splitlines():
+  try:event=json.loads(line)
+  except (ValueError,TypeError):continue
+  kind=event.get('type')
+  if kind=='testStart':tests[event['test']['id']]=event['test']
+  elif kind=='testDone' and not event.get('hidden',False):
+   info=tests.get(event['testID'],{});label={'id':event['testID'],'name':info.get('name')}
+   if event.get('skipped'):counts['skipped']+=1;skipped.append(label)
+   elif event.get('result')=='success':counts['successful']+=1
+   else:counts['failed']+=1;failures.append(label)
+  elif kind=='done':done.append(event)
+ unchanged=frozen==snapshot() and subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()==head and not subprocess.check_output(['git','status','--porcelain'],cwd=repo,text=True).strip()
+ passed=rc==0 and unchanged and counts['successful']>7000 and counts['failed']==0 and len(done)==1 and done[0].get('success') is True
+ state.update(status='PASS_OFFLINE_SCOPED' if passed else 'FAILED_NOT_PASS',exit_code=rc,counts=counts,skipped=skipped,failures=failures,source_unchanged=unchanged,log_sha256=hashlib.sha256(log.read_bytes()).hexdigest(),full_app_acceptance=False)
+except Exception as exc:state.update(status='FAILED_NOT_PASS',reason=str(exc))
+save();print(state['status'],state.get('counts'),flush=True)
+raise SystemExit(0 if state['status']=='PASS_OFFLINE_SCOPED' else 1)

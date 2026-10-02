@@ -1,0 +1,14 @@
+{
+  "status": "PASS_APP_ANALYZE",
+  "candidate": "1950abb3fb7f046706ada30651ae38fd883f848c",
+  "command": [
+    "flutter",
+    "analyze",
+    "--no-pub"
+  ],
+  "exit_code": 0,
+  "source_unchanged": true,
+  "log_sha256": "e593a5f838388a2e9c8927ca43b911a6e0b981ad6468417d5735e78bcf8d6751",
+  "whole_goal_complete": false,
+  "source_binding": "source-binding.tsv"
+}
