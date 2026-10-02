@@ -1,0 +1,18 @@
+00:00 +0: loading /Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app/integration_test/enterprise/workspace_channel_navigation_macos_test.dart
+The following plugins do not support Swift Package Manager for macos:
+  - audio_waveforms
+  - ic_storage_space
+  - sqflite_sqlcipher
+  - video_compress
+This will become an error in a future version of Flutter. Please contact the plugin maintainers to request Swift Package Manager adoption.
+Building macOS application...                                   
+warning: no rule to process file '/Users/leeyi/.pub-cache/hosted/pub.dev/photo_manager-3.12.0/darwin/photo_manager/Sources/photo_manager/Resources/PrivacyInfo.xcprivacy' of type 'text.xml' for architecture 'arm64' (in target 'photo_manager' from project 'Pods')
+✓ Built build/macos/Build/Products/Debug/IMBoy.app
+Failed to foreground app; open returned 1
+00:00 +0: 频道详情视图无聊天式输入框（I6：不出现 ChatInput）
+00:00 +1: 讨论引导文案存在并指向 Group（I6）
+00:00 +2: 讨论入口实际打开当前企业工作区的群列表，返回保留频道
+00:02 +3: 内容区默认复用现有频道内容页（发帖/评论模型，非聊天页）
+00:02 +4: 注入内容区正常渲染在引导横幅下方
+00:02 +5: (tearDownAll)
+00:02 +5: All tests passed!

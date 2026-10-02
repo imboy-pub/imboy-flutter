@@ -6,7 +6,7 @@
 /// I6 落点：
 /// - 本页**不提供任何聊天式输入框**（不引用 ChatInput 等聊天组件）
 /// - 需要讨论的文案引导至 Group：「想在 General 里讨论？」→ 跳转本工作区
-///   Groups 导航（General 群）
+///   本工作区群列表（General 群）
 ///
 /// [detailEntry] 默认为现有 ChannelDetailPage；测试可注入标记 widget
 /// 断言结构契约（引导横幅存在 + 无 ChatInput）。
@@ -14,16 +14,14 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/router/generated_product_feature_routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
+import 'package:imboy/page/workspace/workspace_groups_page.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
-class WorkspaceChannelDetailPage extends ConsumerWidget {
+class WorkspaceChannelDetailPage extends StatelessWidget {
   final String channelId;
 
   /// 频道内容区（null = 现有 ChannelDetailPage；测试注入标记 widget
@@ -37,7 +35,7 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.workspace.channelDetailTitle),
@@ -63,23 +61,24 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
 }
 
 /// 讨论引导横幅（I6 文案：文案值走 slang，新值全部加引号）。
-class _DiscussInGroupBanner extends ConsumerWidget {
+class _DiscussInGroupBanner extends StatelessWidget {
   const _DiscussInGroupBanner();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Material(
       color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
       child: InkWell(
         key: const ValueKey('workspace-channel-discuss-guide'),
-        onTap: () {
-          // 讨论去 Group（聊天唯一入口）：切到本工作区 Groups 导航
-          ref
-              .read(workspaceShellProvider.notifier)
-              .selectDestination(WorkspaceShellDestination.groups);
-          Navigator.of(context).maybePop();
-        },
+        onTap: () => Navigator.of(context).push(
+          CupertinoPageRoute<void>(
+            builder: (_) => Scaffold(
+              appBar: AppBar(title: Text(t.workspace.navGroups)),
+              body: const WorkspaceGroupsPage(),
+            ),
+          ),
+        ),
         child: Padding(
           padding: AppSpacing.allMedium,
           child: Row(

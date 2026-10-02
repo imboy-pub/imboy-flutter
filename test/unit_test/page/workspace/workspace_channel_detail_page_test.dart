@@ -13,6 +13,11 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 import 'package:imboy/page/workspace/workspace_channel_detail_page.dart';
+import 'package:imboy/page/workspace/workspace_groups_page.dart';
+import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/model/workspace_model.dart';
 
 void main() {
   Future<void> pumpPage(WidgetTester tester, {Widget? detailEntry}) async {
@@ -40,6 +45,58 @@ void main() {
     final guide = find.byKey(const ValueKey('workspace-channel-discuss-guide'));
     expect(guide, findsOneWidget);
     expect(find.textContaining('General'), findsWidgets);
+  });
+
+  testWidgets('讨论入口实际打开当前企业工作区的群列表，返回保留频道', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          currentWorkspaceProvider.overrideWithValue(
+            const WorkspaceModel(
+              id: '100',
+              name: 'synthetic-workspace',
+              ownerId: '1',
+              organizationId: '10',
+            ),
+          ),
+          workspaceGroupsProvider('100').overrideWith(
+            (ref) async => [
+              GroupModel.fromJson({'id': 301, 'title': 'synthetic-group'}),
+            ],
+          ),
+        ],
+        child: TranslationProvider(
+          child: const MaterialApp(
+            home: WorkspaceChannelDetailPage(
+              channelId: '9002',
+              detailEntry: SizedBox.shrink(),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-channel-discuss-guide')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(WorkspaceGroupsPage), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('workspace-group-tile-301')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(WorkspaceGroupsPage), findsNothing);
+    expect(
+      tester
+          .widget<WorkspaceChannelDetailPage>(
+            find.byType(WorkspaceChannelDetailPage),
+          )
+          .channelId,
+      '9002',
+    );
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('内容区默认复用现有频道内容页（发帖/评论模型，非聊天页）', (tester) async {
