@@ -1,0 +1,42 @@
+{
+  "status": "PASS_NATIVE_ENTERPRISE_UI_AND_DB",
+  "base_candidate": "469bca4cd111f6beef793049b0dc4c88d14d5d1c",
+  "backend_candidate": "3e6e5b46221e56215a05a02703f38817bb78f606",
+  "real_fixture_run": "/tmp/imboy-seat-http.HXctzD",
+  "device": "physical macOS host, native Flutter engine",
+  "actual_exit": 0,
+  "sources_unchanged": true,
+  "sources": {
+    "lib/page/contact/contact/contact_page.dart": "81eeb6a7e6dc350d12a2b0ff6d97dd484f67e02b89c2e585c6494d1fe57670ff",
+    "integration_test/enterprise/enterprise_scope_native_test.dart": "d15eaeaf5a388f14f5363b4c5156cd471aa7ff29571a054b3b153bb8729f9b97"
+  },
+  "full_source_binding_sha256": "2e57295eda322fd27af9aa55fa5067205d51cdd64e6602c92423f8d542cdcded",
+  "actual_runtime_log_sha256": "617ee8504a7d2e74195d587b11eaabcbfe270e6232f66d85a9398d7468229800",
+  "raw_runtime_log": "/tmp/gz-macos-enterprise-device.log",
+  "auth_api_pg_workers_mocked": false,
+  "coverage": [
+    "real login",
+    "personal four destinations with no personal scope selector",
+    "enterprise four responsive destinations",
+    "official website entry present",
+    "nested departments and member details",
+    "owner create rename archive department",
+    "join and leave another organization",
+    "actual plaintext group message persisted exactly once",
+    "channel details and guide opens group list"
+  ],
+  "ios_verified": false,
+  "customer_oa_verified": false,
+  "file_preview_verified": false,
+  "visible_pixels_verified": false,
+  "whole_goal_complete": false,
+  "command": "flutter test integration_test/enterprise/enterprise_scope_native_test.dart --no-pub -d macos --dart-define-from-file=<isolated synthetic fixture defines>",
+  "artifacts": {
+    "native-content-oracle.json": "85b047103a2891da22ab4c644641344a4b011086db193de39bf1ad2e0a483e69",
+    "analyze.txt": "a40673e19aa7ae3df58426e21e73224c49bc05bf03d5ae4de2a4464a4ec61159",
+    "native-leave-oracle.json": "c5718fb2de4699da4f1febadcab47d09a3701d4f479f451ac61777445077dccb",
+    "native-governance-oracle.json": "937b274826a9d02da1ea595135fdc68d72e7d4b54bd6c53d0a8cb687e52babb8",
+    "fixture-source.erl.txt": "9e22b4d25581fa6f9d37bc57638516ece1bbdc13d0bf2408e198c65a4bfcced1",
+    "native-markers.txt": "23ef839e61eb4383ba219e67f7bdf73e5099884c43b91015723d0d95f027135e"
+  }
+}

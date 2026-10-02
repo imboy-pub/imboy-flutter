@@ -30,6 +30,11 @@ import 'package:imboy/modules/organization/presentation/organization_detail_page
 import 'package:imboy/modules/organization/presentation/organization_departments_page.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
+import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/chat/widget/chat_input.dart';
+import 'package:imboy/page/channel/channel_detail_page.dart';
+import 'package:imboy/page/workspace/workspace_channel_detail_page.dart';
 import 'package:imboy/service/group_file_service.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -119,16 +124,17 @@ void main() {
       tester,
       find.byWidgetPredicate(
         (widget) =>
-            widget.key == const Key('tab_conversations') ||
-            widget.key == enterpriseNavKey,
+            widget is BottomNavigationPage ||
+            widget.key == const Key('enterprise-shell-rail') ||
+            widget.key == const Key('enterprise-shell-bottom-nav'),
       ),
     );
-    if (find.byKey(enterpriseNavKey).evaluate().isNotEmpty) {
+    if (enterpriseNavigation().evaluate().isNotEmpty) {
       await selectPersonal(tester);
     }
-    await waitFor(tester, find.byKey(const Key('tab_conversations')));
+    await waitFor(tester, personalTab('tab_conversations'));
     for (final key in ['tab_contacts', 'tab_channel', 'tab_mine']) {
-      final tab = find.byKey(Key(key));
+      final tab = personalTab(key);
       debugPrint(
         'NATIVE_UI_CHECK $key count=${tab.evaluate().length} '
         'channel=${AppFeatureRegistry.isEnabled(FeatureKeys.channel)} '
@@ -144,7 +150,7 @@ void main() {
     final enterprise = find.byKey(const Key('org-picker-tile-995101'));
     await waitFor(tester, enterprise);
     await tester.tap(enterprise);
-    await waitFor(tester, find.byKey(enterpriseNavKey));
+    await waitFor(tester, enterpriseNavigation());
     await tester.pump(const Duration(milliseconds: 500));
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await tester.pump(const Duration(milliseconds: 500));
@@ -182,15 +188,93 @@ void main() {
     if (const bool.fromEnvironment('TEST_NATIVE_OA_SSO')) {
       await checkNativeOa(tester);
     }
+    if (const bool.fromEnvironment('TEST_NATIVE_WORKSPACE_CONTENT')) {
+      await checkNativeGroupMessage(tester);
+      await checkNativeChannelDiscussion(tester);
+    }
     if (const bool.fromEnvironment('TEST_NATIVE_GROUP_FILE')) {
       await checkNativeGroupFile(tester);
     }
     await selectPersonal(tester);
-    expect(find.byKey(enterpriseNavKey), findsNothing);
+    expect(enterpriseNavigation(), findsNothing);
     expect(tester.takeException(), isNull);
     await joinEnterprise(tester);
     await leaveEnterprise(tester);
   }, timeout: const Timeout(Duration(minutes: 6)));
+}
+
+Future<void> checkNativeGroupMessage(WidgetTester tester) async {
+  const body = 'synthetic native workspace message';
+  await selectEnterpriseTab(tester, t.enterpriseOa.workbenchTitle);
+  await waitFor(
+    tester,
+    find.byKey(const ValueKey('workbench-official-website')),
+  );
+  expect(find.text('https://imboy.pub/'), findsOneWidget);
+  await waitFor(tester, find.text(t.workspace.navGroups).hitTestable());
+  await tester.tap(find.text(t.workspace.navGroups));
+  final group = find.byKey(const ValueKey('workspace-group-tile-995301'));
+  await waitFor(tester, group.hitTestable());
+  await tester.tap(group);
+  await waitFor(tester, find.byType(ChatPage));
+  final chat = tester.widget<ChatPage>(find.byType(ChatPage));
+  expect(chat.peerId, '995301');
+  expect(chat.type, 'C2G');
+  expect(AppFeatureRegistry.isEnabled(FeatureKeys.e2ee), isFalse);
+  final input = find.byKey(const Key('chat_message_input'));
+  await waitFor(tester, input.hitTestable());
+  await tester.enterText(input, body);
+  await tester.pump(const Duration(milliseconds: 450));
+  final send = find.byKey(const ValueKey('send_button_inner')).hitTestable();
+  await waitFor(tester, send);
+  await tester.tap(send);
+  await waitFor(
+    tester,
+    find.byWidgetPredicate(
+      (widget) =>
+          widget is CupertinoTextField &&
+          widget.key == const Key('chat_message_input') &&
+          widget.controller?.text.isEmpty == true,
+    ),
+  );
+  await waitFor(tester, find.text(body));
+  expect(tester.takeException(), isNull);
+  final back = find.byType(GlassBackButton).hitTestable();
+  await waitFor(tester, back);
+  await tester.tap(back);
+  await waitFor(tester, group.hitTestable());
+  await backDirectory(tester);
+  debugPrint('NATIVE_WORKSPACE_GROUP_MESSAGE_UI_PASS');
+}
+
+Future<void> checkNativeChannelDiscussion(WidgetTester tester) async {
+  await waitFor(tester, find.text(t.channel.title).hitTestable());
+  await tester.tap(find.text(t.channel.title));
+  final channel = find.byKey(const ValueKey('workspace-channel-tile-995501'));
+  await waitFor(tester, channel.hitTestable());
+  await tester.tap(channel);
+  await waitFor(tester, find.byType(WorkspaceChannelDetailPage));
+  expect(
+    tester.widget<ChannelDetailPage>(find.byType(ChannelDetailPage)).channelId,
+    '995501',
+  );
+  await waitFor(tester, find.text('intbe02-ch'));
+  expect(find.byType(ChatInput), findsNothing);
+  final guide = find.byKey(const ValueKey('workspace-channel-discuss-guide'));
+  await waitFor(tester, guide.hitTestable());
+  await tester.tap(guide);
+  await waitFor(
+    tester,
+    find.byKey(const ValueKey('workspace-group-tile-995301')),
+  );
+  await backDirectory(tester);
+  await waitFor(tester, find.byType(WorkspaceChannelDetailPage));
+  final back = find.byType(GlassBackButton).hitTestable();
+  await waitFor(tester, back);
+  await tester.tap(back);
+  await waitFor(tester, channel.hitTestable());
+  await backDirectory(tester);
+  debugPrint('NATIVE_WORKSPACE_CHANNEL_DISCUSSION_UI_PASS');
 }
 
 Future<void> checkNativeGroupFile(WidgetTester tester) async {
@@ -403,19 +487,21 @@ Future<void> checkNativeOa(WidgetTester tester) async {
   expect(tester.takeException(), isNull);
 }
 
-Key get enterpriseNavKey => Key(
-  Platform.isMacOS ? 'enterprise-shell-rail' : 'enterprise-shell-bottom-nav',
+Finder enterpriseNavigation() => find.byWidgetPredicate(
+  (widget) =>
+      widget.key == const Key('enterprise-shell-rail') ||
+      widget.key == const Key('enterprise-shell-bottom-nav'),
 );
 
 int enterpriseSelectedIndex(WidgetTester tester) {
-  final nav = tester.widget(find.byKey(enterpriseNavKey));
+  final nav = tester.widget(enterpriseNavigation());
   return nav is NavigationRail
       ? nav.selectedIndex!
       : (nav as NavigationBar).selectedIndex;
 }
 
 Future<void> selectEnterpriseTab(WidgetTester tester, String label) async {
-  final nav = find.byKey(enterpriseNavKey);
+  final nav = enterpriseNavigation();
   await waitFor(tester, nav);
   final widget = tester.widget(nav);
   final Finder tab;
@@ -440,7 +526,8 @@ Future<void> selectPersonal(WidgetTester tester) async {
   final personal = find.byKey(const Key('org-picker-personal-entry'));
   await waitFor(tester, personal);
   await tester.tap(personal);
-  await waitFor(tester, find.byKey(const Key('tab_conversations')));
+  await waitFor(tester, find.byType(BottomNavigationPage));
+  await waitFor(tester, personalTab('tab_conversations'));
 }
 
 Future<void> waitFor(WidgetTester tester, Finder finder) async {
@@ -470,8 +557,31 @@ Future<void> backDirectory(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 500));
 }
 
+Finder personalTab(String key) {
+  final mobile = find.byKey(Key(key));
+  if (mobile.evaluate().isNotEmpty) return mobile;
+  final label = switch (key) {
+    'tab_conversations' => t.chat.titleMessage,
+    'tab_contacts' => t.organization.directory.title,
+    'tab_channel' => t.channel.title,
+    'tab_mine' => t.common.me,
+    _ => throw ArgumentError.value(key),
+  };
+  final rail = find.descendant(
+    of: find.byType(BottomNavigationPage),
+    matching: find.byType(NavigationRail),
+  );
+  if (rail.evaluate().isNotEmpty) {
+    expect(
+      (rail.evaluate().single.widget as NavigationRail).destinations,
+      hasLength(4),
+    );
+  }
+  return find.descendant(of: rail, matching: find.text(label));
+}
+
 Future<void> openPersonalEnterprisePicker(WidgetTester tester) async {
-  final mine = find.byKey(const Key('tab_mine'));
+  final mine = personalTab('tab_mine');
   await waitFor(tester, mine.hitTestable());
   await tester.tap(mine);
   final switcher = find.text(t.organization.picker.switchEnterprise);
@@ -496,7 +606,7 @@ Future<void> joinEnterprise(WidgetTester tester) async {
   expect(find.textContaining('intbe02-org-b'), findsWidgets);
   await waitFor(tester, submit.hitTestable());
   await tester.tap(submit);
-  final nav = find.byKey(enterpriseNavKey);
+  final nav = enterpriseNavigation();
   await waitFor(tester, nav);
 }
 

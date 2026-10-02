@@ -98,6 +98,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       if (mounted) setState(() {});
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       ref.read(contactProvider.notifier).loadData();
       ref.read(newFriendRemindProvider.notifier).countReminders();
       // §14.1：进入页拉取企业入口数据（mine() 真源；失败 → 错误态可重试）。
@@ -118,8 +119,11 @@ class _ContactPageState extends ConsumerState<ContactPage> {
         !s.contactList.any(isRealContact) &&
         !_dataReloadInFlight) {
       _dataReloadInFlight = true;
-      ref.read(contactProvider.notifier).loadData().whenComplete(() {
-        _dataReloadInFlight = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(contactProvider.notifier).loadData().whenComplete(() {
+          _dataReloadInFlight = false;
+        });
       });
     }
   }

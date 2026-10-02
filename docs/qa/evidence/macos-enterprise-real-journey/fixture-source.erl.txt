@@ -1,0 +1,523 @@
+%%% Real init encryption, password transport and device-bound login on marker PG.
+-module(enterprise_mobile_file_fixture).
+-include_lib("eunit/include/eunit.hrl").
+-export([run/0, run_fixture/0]).
+-define(HTTP, intbe02_http_support).
+-define(UID, 995011).
+-define(KEY, <<"synthetic-mobile-device-key">>).
+-define(PASSWORD, <<"Synthetic-password-42">>).
+-define(ACCOUNT, <<"synthetic_enterprise_mobile">>).
+
+bootstrap_test_() -> {timeout, 180, fun run/0}.
+
+%% Test-only native UI fixture; synthetic credentials, disposable marker database.
+run_fixture() ->
+    H = ?HTTP:setup_all(),
+    try
+        %% setup_all swaps to a new marker DB after application startup.
+        %% Reuse the production initializer for its dynamic staging table.
+        ok = msg_store_repo:ensure_table_exists(),
+        NativeGovernance = prepare_native_governance(H),
+        configure_native(H),
+        Port = maps:get(port, H),
+        Features = request(Port, <<"GET">>, <<"/api/v1/app/features">>, #{}, headers()),
+        ?assertEqual(0, maps:get(<<"code">>, Features)),
+        Flags = maps:get(<<"payload">>, Features),
+        ?assertEqual(true, maps:get(<<"channel">>, Flags)),
+        ?assertEqual(false, maps:get(<<"e2ee">>, Flags)),
+        ok = prepare_file_storage(H),
+        Directory = seed_directory(H),
+        NativeOa = prepare_native_oa(H),
+        {ok, Invite} = organization_invite_code_app:create(995002, 995102, #{}),
+        Dir = os:getenv("IMBOY_GATE_RUN_DIR"),
+        ok = file:write_file(
+            filename:join(Dir, "mobile-fixture.json"),
+            jsone:encode(#{
+                port => Port,
+                account => ?ACCOUNT,
+                password => ?PASSWORD,
+                sign_key => ?KEY,
+                organization_id => <<"995101">>,
+                directory => Directory,
+                native_oa => NativeOa,
+                native_org_governance => NativeGovernance,
+                join_code => maps:get(code, Invite),
+                package => <<"pub.imboy.app">>,
+                synthetic_only => true
+            })
+        ),
+        ok = file:change_mode(filename:join(Dir, "mobile-fixture.json"), 8#600),
+        await_device_done(Dir, erlang:monotonic_time(millisecond) + 1800000),
+        assert_native_leave(H, Dir),
+        assert_native_oa(H, Dir),
+        assert_native_file(H, Dir),
+        assert_native_message(H, Dir),
+        assert_native_governance(H, Dir, NativeGovernance)
+    after
+        ?HTTP:teardown_all(H),
+        inttest_marker_db:release(H)
+    end.
+
+configure_native(H) ->
+    configure(H),
+    Port = maps:get(port, H),
+    Origin = iolist_to_binary(["http://127.0.0.1:", integer_to_list(Port)]),
+    application:set_env(
+        imboy,
+        ws_url,
+        iolist_to_binary(["ws://127.0.0.1:", integer_to_list(Port), "/api/v1/ws"])
+    ),
+    application:set_env(imboy, upload_url, Origin),
+    application:set_env(imboy, base_url, Origin),
+    application:set_env(imboy, product_experience, chat),
+    application:set_env(imboy, product_profile, enterprise),
+    application:set_env(imboy, features, #{e2ee => false}),
+    ok = app_version_ds:set_sign_key(
+        <<"android">>, <<"1">>, <<"pub.imboy.app.gzcustomer">>, ?KEY
+    ),
+    ok = app_version_ds:set_sign_key(
+        <<"macos">>, <<"1">>, <<"pub.imboy.app">>, ?KEY
+    ),
+    assert_init(Port, headers()),
+    assert_login(Port, headers()).
+
+prepare_native_governance(_) ->
+    case os:getenv("IMBOY_NATIVE_ORG_GOVERNANCE") of
+        false ->
+            false;
+        "1" ->
+            {ok, #{owner_id := ?UID}} = organization_owner_transfer:transfer(
+                995001, 995101, ?UID
+            ),
+            true;
+        _ ->
+            erlang:error(invalid_native_governance_mode)
+    end.
+
+assert_native_governance(_, _, false) ->
+    ok;
+assert_native_governance(#{conn := C}, Dir, true) ->
+    case filelib:is_file(filename:join(Dir, "mobile.success")) of
+        false ->
+            ok;
+        true ->
+            #{<<"governed">> := 1} = ?HTTP:one(
+                C,
+                <<"SELECT count(*) AS governed FROM organization_department WHERE organization_id=$1 AND name=$2 AND status='archived' AND created_by_user_id=$3 AND version>=2">>,
+                [995101, <<"native-owner-renamed">>, ?UID]
+            ),
+            ok = file:write_file(
+                filename:join(Dir, "native-governance-oracle.json"),
+                jsone:encode(#{status => <<"PASS">>, created_renamed_archived => 1})
+            )
+    end.
+
+prepare_native_oa(#{conn := C, app_sso := App, cred_sso := Credential}) ->
+    case os:getenv("IMBOY_NATIVE_OA_REDIRECT") of
+        false ->
+            #{};
+        Raw ->
+            Redirect = list_to_binary(Raw),
+            ?assertMatch(
+                {match, _},
+                re:run(
+                    Redirect,
+                    <<"^https://127\\.0\\.0\\.1:[1-9][0-9]{0,4}/sso/cb$">>
+                )
+            ),
+            ?assert(maps:get(port, uri_string:parse(Redirect)) =< 65535),
+            ok = ?HTTP:sql_exec(
+                C,
+                <<"UPDATE enterprise_application SET allowed_redirect_uris=$2::text[] WHERE id=$1">>,
+                [App, [Redirect]]
+            ),
+            {ok, _} = enterprise_external_identity_repo:bind_tx(
+                C, 995101, App, <<"synthetic-mobile-oa-user">>, ?UID
+            ),
+            #{
+                redirect_uri => Redirect,
+                application_key => <<"intbe02-oa-sso">>,
+                credential => Credential
+            }
+    end.
+
+assert_native_oa(#{conn := C, app_sso := App}, Dir) ->
+    case filelib:is_file(filename:join(Dir, "native-oa.success")) of
+        false ->
+            ok;
+        true ->
+            #{<<"consumed">> := 1} = ?HTTP:one(
+                C,
+                <<"SELECT count(*) AS consumed FROM enterprise_oa_sso_code WHERE application_id=$1 AND user_id=$2 AND consumed_at IS NOT NULL">>,
+                [App, ?UID]
+            ),
+            #{<<"audited">> := Audited} = ?HTTP:one(
+                C,
+                <<"SELECT count(*) AS audited FROM enterprise_audit_event WHERE organization_id=995101 AND action='oa.sso.exchanged'">>
+            ),
+            ?assertEqual(1, Audited),
+            ok = file:write_file(
+                filename:join(Dir, "native-oa-oracle.json"),
+                jsone:encode(#{status => <<"PASS">>, consumed => 1, audited => 1})
+            )
+    end.
+
+seed_directory(#{conn := C}) ->
+    Root = organization_directory_fixture:id(),
+    Child = organization_directory_fixture:id(),
+    ok = ?HTTP:sql_exec(
+        C,
+        <<"INSERT INTO organization_department(id,organization_id,parent_id,name,created_by_user_id) VALUES ($1,995101,NULL,$3,995001),($2,995101,$1,$4,995001)">>,
+        [Root, Child, <<"合成销售部"/utf8>>, <<"合成广州组"/utf8>>]
+    ),
+    ok = ?HTTP:sql_exec(
+        C,
+        <<"INSERT INTO organization_department_member(organization_id,department_id,user_id,added_by_user_id) VALUES (995101,$1,995012,995001)">>,
+        [Child]
+    ),
+    ok = ?HTTP:sql_exec(
+        C,
+        <<"UPDATE \"user\" SET nickname=$1 WHERE id=995012">>,
+        [<<"合成员工甲"/utf8>>]
+    ),
+    #{
+        root_department => integer_to_binary(Root),
+        child_department => integer_to_binary(Child),
+        member => <<"995012">>
+    }.
+
+assert_native_leave(#{conn := C}, Dir) ->
+    case filelib:is_file(filename:join(Dir, "mobile.success")) of
+        false ->
+            ok;
+        true ->
+            Row = ?HTTP:one(
+                C,
+                <<"SELECT (SELECT status FROM organization_member WHERE organization_id=995102 AND user_id=995011) AS departed_status, (SELECT count(*) FROM workspace_member m JOIN workspace w ON w.id=m.workspace_id WHERE w.organization_id=995102 AND m.user_id=995011 AND m.status='active') AS active_workspaces, (SELECT status FROM organization_member WHERE organization_id=995101 AND user_id=995011) AS retained_status">>
+            ),
+            ?assertEqual(<<"removed">>, maps:get(<<"departed_status">>, Row)),
+            ?assertEqual(0, maps:get(<<"active_workspaces">>, Row)),
+            ?assertEqual(<<"active">>, maps:get(<<"retained_status">>, Row)),
+            ok = file:write_file(
+                filename:join(Dir, "native-leave-oracle.json"),
+                jsone:encode(#{
+                    status => <<"PASS">>,
+                    organization_removed => true,
+                    active_workspaces => 0,
+                    original_organization_retained => true
+                })
+            )
+    end.
+
+assert_native_message(#{conn := C}, Dir) ->
+    case filelib:is_file(filename:join(Dir, "native-content.success")) of
+        false -> ok;
+        true ->
+            Row = ?HTTP:one(C,
+                <<"SELECT count(*) AS rows, count(*) FILTER (WHERE e2ee IS NULL) AS plaintext_rows FROM msg_c2g WHERE from_id=$1 AND to_id=$2 AND payload->'payload'->>'text'=$3">>,
+                [?UID, 995301, <<"synthetic native workspace message">>]),
+            ?assertEqual(1, maps:get(<<"rows">>, Row)),
+            ?assertEqual(1, maps:get(<<"plaintext_rows">>, Row)),
+            ok = file:write_file(filename:join(Dir, "native-content-oracle.json"),
+                jsone:encode(#{status => <<"PASS">>, actual_message_rows => 1,
+                    plaintext_rows => 1, group_id => 995301, user_id => ?UID}))
+    end.
+
+assert_native_file(#{conn := C}, Dir) ->
+    case filelib:is_file(filename:join(Dir, "native-file.success")) of
+        false -> ok;
+        true ->
+            Row = ?HTTP:one(C,
+                <<"SELECT count(*) AS rows, count(*) FILTER (WHERE status=0 AND file_size=32) AS deleted_rows FROM group_file WHERE group_id=$1 AND uploader_id=$2 AND file_name=$3">>,
+                [995301, ?UID, <<"native-enterprise-file.txt">>]),
+            ?assertEqual(1, maps:get(<<"rows">>, Row)),
+            ?assertEqual(1, maps:get(<<"deleted_rows">>, Row)),
+            ok = file:write_file(filename:join(Dir, "native-file-oracle.json"),
+                jsone:encode(#{status => <<"PASS">>, synthetic_file_rows => 1,
+                    deleted_rows => 1, file_size => 32}))
+    end.
+
+await_device_done(Dir, Deadline) ->
+    case filelib:is_file(filename:join(Dir, "mobile.done")) of
+        true ->
+            ok;
+        false ->
+            ?assert(erlang:monotonic_time(millisecond) < Deadline),
+            receive
+            after 100 -> await_device_done(Dir, Deadline)
+            end
+    end.
+
+run() ->
+    H = ?HTTP:setup_all(),
+    Old = [
+        {K, application:get_env(imboy, K)}
+     || K <- [
+            api_auth_switch, login_pwd_rsa_encrypt, init_config_legacy_cbc
+        ]
+    ],
+    try
+        configure(H),
+        Headers = headers(),
+        Port = maps:get(port, H),
+        assert_init(Port, Headers),
+        assert_login(Port, Headers),
+        assert_oa_login_journey(H),
+        save_proof()
+    after
+        ?HTTP:teardown_all(H),
+        inttest_marker_db:release(H),
+        [restore(K, V) || {K, V} <- Old]
+    end.
+
+configure(#{conn := C}) ->
+    application:set_env(imboy, api_auth_switch, <<"on">>),
+    application:set_env(imboy, login_pwd_rsa_encrypt, <<"on">>),
+    application:set_env(imboy, init_config_legacy_cbc, <<"off">>),
+    ok = app_version_ds:set_sign_key(
+        <<"android">>, <<"1">>, <<"synthetic.enterprise.mobile">>, ?KEY
+    ),
+    Hash = elib_password:generate(?PASSWORD),
+    ok = ?HTTP:sql_exec(
+        C,
+        <<"UPDATE \"user\" SET account=$1,password=$2 WHERE id=$3">>,
+        [?ACCOUNT, Hash, ?UID]
+    ).
+
+%% Use the real device-bound login token, not a manufactured human JWT.
+assert_oa_login_journey(#{conn := C, port := Port, app_sso := App} = H) ->
+    {ok, _} = enterprise_external_identity_repo:bind_tx(
+        C, 995101, App, <<"synthetic-mobile-oa-user">>, ?UID
+    ),
+    Login = login(Port, headers(), ?PASSWORD),
+    Token = maps:get(<<"token">>, maps:get(<<"payload">>, Login)),
+    Auth = maps:merge(headers(), ?HTTP:auth(Token)),
+    Entries = request(
+        Port,
+        <<"GET">>,
+        <<"/api/v1/workbench/entries?organization_id=995101">>,
+        #{},
+        Auth
+    ),
+    [Entry] = maps:get(<<"entries">>, maps:get(<<"payload">>, Entries)),
+    ?assertEqual(<<"intbe02-oa-sso">>, maps:get(<<"application_key">>, Entry)),
+    Params = #{
+        <<"application_key">> => maps:get(<<"application_key">>, Entry),
+        <<"redirect_uri">> => maps:get(<<"redirect_uri">>, Entry),
+        <<"nonce">> => ?HTTP:fixture(nonce, H),
+        <<"organization_id">> => 995101
+    },
+    Code = oa_issue(Port, Params, Auth),
+    Exchange = maps:with([<<"redirect_uri">>, <<"nonce">>], Params),
+    Good = oa_exchange(H, Exchange#{<<"code">> => Code}),
+    ?assertEqual(200, maps:get(status, Good)),
+    Payload = jsone:decode(maps:get(body, Good)),
+    ?assertEqual(?UID, maps:get(<<"user_id">>, Payload)),
+    ?assertEqual(<<"synthetic-mobile-oa-user">>, maps:get(<<"external_user_id">>, Payload)),
+    ?assertEqual(404, maps:get(status, oa_exchange(H, Exchange#{<<"code">> => Code}))),
+    WrongOrg = request(
+        Port,
+        <<"POST">>,
+        <<"/api/v1/oa/sso/code">>,
+        Params#{<<"organization_id">> => 995102},
+        Auth
+    ),
+    ?assertNotEqual(0, maps:get(<<"code">>, WrongOrg)),
+    Unused = oa_issue(Port, Params, Auth),
+    Blocked = request(
+        Port,
+        <<"POST">>,
+        <<"/api/v1/organizations/995101/members/995011/offboard">>,
+        #{},
+        Auth
+    ),
+    ?assertEqual(409, maps:get(<<"code">>, Blocked)),
+    prepare_oa_departure(C),
+    Left = request(
+        Port,
+        <<"POST">>,
+        <<"/api/v1/organizations/995101/members/995011/offboard">>,
+        #{},
+        Auth
+    ),
+    ?assertEqual(0, maps:get(<<"code">>, Left)),
+    assert_oa_after_leave(H, Params, Auth, Exchange#{<<"code">> => Unused}).
+
+%% Fixture ownership is outside the SSO boundary; keep the real departure guard.
+prepare_oa_departure(C) ->
+    ok = ?HTTP:sql_exec(C, <<"UPDATE project SET owner_id=995012 WHERE id=995401">>),
+    ok = ?HTTP:sql_exec(C, <<"UPDATE \"group\" SET owner_uid=995012 WHERE id=995301">>),
+    ok = ?HTTP:sql_exec(C, <<"UPDATE channel SET creator_uid=995012 WHERE id=995501">>).
+
+oa_issue(Port, Params, Auth) ->
+    Issued = request(Port, <<"POST">>, <<"/api/v1/oa/sso/code">>, Params, Auth),
+    ?assertEqual(0, maps:get(<<"code">>, Issued)),
+    maps:get(<<"code">>, maps:get(<<"payload">>, Issued)).
+
+oa_exchange(H, Body) ->
+    ?HTTP:http(
+        maps:get(port, H),
+        <<"POST">>,
+        <<"/api/internal/v1/oa/sso/exchange">>,
+        Body,
+        ?HTTP:auth(maps:get(cred_sso, H))
+    ).
+
+assert_oa_after_leave(#{port := Port} = H, Params, Auth, Unused) ->
+    Entries = request(
+        Port,
+        <<"GET">>,
+        <<"/api/v1/workbench/entries?organization_id=995101">>,
+        #{},
+        Auth
+    ),
+    ?assertEqual([], maps:get(<<"entries">>, maps:get(<<"payload">>, Entries))),
+    Denied = request(Port, <<"POST">>, <<"/api/v1/oa/sso/code">>, Params, Auth),
+    ?assertNotEqual(0, maps:get(<<"code">>, Denied)),
+    ?assertEqual(422, maps:get(status, oa_exchange(H, Unused))).
+
+headers() ->
+    #{
+        <<"cos">> => <<"android">>,
+        <<"vsn">> => <<"1">>,
+        <<"pkg">> => <<"synthetic.enterprise.mobile">>,
+        <<"did">> => <<"synthetic-mobile-device">>,
+        <<"method">> => <<"sha256">>,
+        <<"sign">> => elib_hasher:hmac_sha256(
+            <<"synthetic-mobile-device|1|android|synthetic.enterprise.mobile">>, ?KEY
+        )
+    }.
+
+assert_init(Port, Headers) ->
+    Good = request(Port, <<"GET">>, <<"/api/v1/init">>, #{}, Headers),
+    ?assertEqual(0, maps:get(<<"code">>, Good)),
+    Payload = maps:get(<<"payload">>, Good),
+    ?assertNot(maps:is_key(<<"res">>, Payload)),
+    {ok, Plain} = elib_cipher:aes_gcm_decrypt(
+        maps:get(<<"res_v2">>, Payload), elib_hasher:md5(?KEY)
+    ),
+    Config = jsone:decode(Plain),
+    ?assertEqual(<<"1">>, maps:get(<<"login_pwd_rsa_encrypt">>, Config)),
+    ?assertEqual(config_ds:env(login_rsa_pub_key), maps:get(<<"login_rsa_pub_key">>, Config)),
+    Bad = request(
+        Port,
+        <<"GET">>,
+        <<"/api/v1/init">>,
+        #{},
+        Headers#{<<"sign">> => <<"invalid-synthetic-signature">>}
+    ),
+    ?assertEqual(902, maps:get(<<"code">>, Bad)).
+
+assert_login(Port, Headers) ->
+    Wrong = login(Port, Headers, <<"Wrong-synthetic-password">>),
+    ?assertNotEqual(0, maps:get(<<"code">>, Wrong)),
+    First = login(Port, Headers, elib_hasher:md5(?PASSWORD)),
+    ?assertNotEqual(0, maps:get(<<"code">>, First)),
+    ?assertEqual(<<"errorPassword">>, maps:get(<<"msg">>, First)),
+    %% A queued notification worker must not delay the device authentication row.
+    ok = sys:suspend(user_server),
+    try
+        assert_ready_login(Port, Headers)
+    after
+        ok = sys:resume(user_server)
+    end.
+
+assert_ready_login(Port, Headers) ->
+    Good = login(Port, Headers, ?PASSWORD),
+    ?assertEqual(0, maps:get(<<"code">>, Good)),
+    Payload = maps:get(<<"payload">>, Good),
+    ?assertEqual(?UID, maps:get(<<"uid">>, Payload)),
+    Token = maps:get(<<"token">>, Payload),
+    ?assertMatch(
+        {ok, ?UID, _, <<"tk">>, <<"synthetic-mobile-device">>, _},
+        token_ds:decrypt_token(Token)
+    ),
+    Auth = maps:merge(Headers, ?HTTP:auth(Token)),
+    Mine = request(Port, <<"GET">>, <<"/api/v1/organizations/mine">>, #{}, Auth),
+    ?assertEqual(0, maps:get(<<"code">>, Mine)),
+    Invalid = request(
+        Port,
+        <<"GET">>,
+        <<"/api/v1/organizations/mine">>,
+        #{},
+        Auth#{<<"sign">> => <<"invalid-synthetic-signature">>}
+    ),
+    ?assertEqual(902, maps:get(<<"code">>, Invalid)).
+
+login(Port, Headers, Password) ->
+    Cipher = elib_cipher:rsa_encrypt(Password),
+    ?assert(is_binary(Cipher)),
+    request(
+        Port,
+        <<"POST">>,
+        <<"/api/v1/passport/login">>,
+        #{
+            <<"type">> => <<"account">>,
+            <<"account">> => ?ACCOUNT,
+            <<"pwd">> => Cipher,
+            <<"rsa_encrypt">> => <<"1">>
+        },
+        Headers
+    ).
+
+request(Port, Method, Path, Body, Headers) ->
+    R = ?HTTP:http(Port, Method, Path, Body, Headers),
+    record_auth_failure(R),
+    ?assertEqual(200, maps:get(status, R)),
+    jsone:decode(maps:get(body, R)).
+
+record_auth_failure(#{status := 401, body := Body}) ->
+    Envelope = jsone:decode(Body),
+    Before = user_device_ds:is_active(?UID, <<"synthetic-mobile-device">>),
+    timer:sleep(100),
+    After = user_device_ds:is_active(?UID, <<"synthetic-mobile-device">>),
+    timer:sleep(900),
+    Later = user_device_ds:is_active(?UID, <<"synthetic-mobile-device">>),
+    Dir = os:getenv("IMBOY_GATE_RUN_DIR", "/tmp"),
+    ok = file:write_file(
+        filename:join(Dir, "mobile-bootstrap-auth-failure.json"),
+        jsone:encode(#{
+            status => 401,
+            code => maps:get(<<"code">>, Envelope),
+            message => maps:get(<<"msg">>, Envelope),
+            device_active_immediate => Before,
+            device_active_after_100ms => After,
+            device_active_after_1s => Later,
+            user_server_running => is_pid(whereis(user_server)),
+            device_tsid_registered => lists:member(user_device, elib_tsid:registered())
+        })
+    );
+record_auth_failure(_) ->
+    ok.
+
+restore(K, {ok, V}) -> application:set_env(imboy, K, V);
+restore(K, undefined) -> application:unset_env(imboy, K).
+
+save_proof() ->
+    Dir = os:getenv("IMBOY_GATE_RUN_DIR", "/tmp"),
+    file:write_file(
+        filename:join(Dir, "mobile-bootstrap-contract.json"),
+        jsone:encode(#{
+            init_gcm => true,
+            rsa_retry => true,
+            wrong_password_denied => true,
+            device_signature_denied => true,
+            token_device_bound => true,
+            organization_access => true,
+            oa_device_login_to_exchange => true,
+            oa_replay_denied => true,
+            oa_cross_organization_denied => true,
+            oa_departure_revoked => true,
+            native_device => false
+        })
+    ).
+
+prepare_file_storage(#{conn := C}) ->
+    application:unset_env(imboy, eb_asset_object_store),
+    application:set_env(imboy, garage, #{
+        endpoint => list_to_binary(os:getenv("IMBOY_TEST_ENDPOINT")),
+        bucket => <<"synthetic-enterprise-assets">>, region => <<"garage">>,
+        access_key => list_to_binary(os:getenv("IMBOY_TEST_ACCESS")),
+        secret_key => list_to_binary(os:getenv("IMBOY_TEST_SECRET"))
+    }),
+    ?HTTP:sql_exec(C, <<"INSERT INTO group_member_generation(group_id,user_id,generation_no,start_seq) VALUES (995301,995011,1,1) ON CONFLICT DO NOTHING">>).
