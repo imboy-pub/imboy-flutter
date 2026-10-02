@@ -6,7 +6,8 @@
 //
 // 运行参数与 N2 相同（APP_ENV/API_BASE_URL_OVERRIDE/SOLIDIFIED_KEY*/NONOA_*），
 // 另需 NONOA_MEMBER_ACC / NONOA_MEMBER_PWD（合成普通成员）。
-// A04 撤权经 dart:io Process 调 docker psql 修改本 run 合成成员行（仅隔离库）。
+// A04 撤权/恢复走 admin 独立 HTTP 会话调 /members/:uid/{suspend,restore}
+// 真实治理端点（App 进程无 docker socket，也不直改数据库）。
 
 import 'dart:convert';
 import 'dart:io';
@@ -217,35 +218,53 @@ void main() {
     final revoked = await tester.runAsync(() => _setMemberSuspended(true));
     expect(revoked, isTrue, reason: 'suspend 端点应成功撤权合成成员');
 
-    // 图上主动刷新（重新读取）：403 → 旧图卸载、错误态明确、无 A 数据再次出现。
-    final refreshBtn = find.byTooltip(t.organization.common.reload);
-    await waitFor(tester, refreshBtn.hitTestable());
-    await tester.tap(refreshBtn);
-    await tester.pump(const Duration(milliseconds: 1500));
-    expect(
-      find.byKey(const ValueKey('org-chart-canvas')),
-      findsNothing,
-      reason: '403 后不得保留旧画布',
-    );
-    // 旧部门数据不再次出现（拒绝态文案由 App 异常层本地化，非 oracle）。
-    expect(find.text(_orgAOnlyDept), findsNothing);
-    // 切回成员视图再回图：旧数据不因视图切换而复活。
-    await tester.tap(find.text(t.organization.directory.membersSection));
-    await tester.pump(const Duration(milliseconds: 500));
-    await tester.tap(find.text(t.organization.directory.structureSection));
-    await tester.pump(const Duration(milliseconds: 1200));
-    expect(
-      find.byKey(const ValueKey('org-chart-canvas')),
-      findsNothing,
-      reason: '403 后视图互切不得恢复旧图',
-    );
-    await markShot(tester, 'n3_a04_revoked');
-
-    // 恢复权限：restore 端点（真实服务端链路）；重读验证在独立段
-    // （N3-A04b，新进程新会话）完成——suspend 吊销会话后同进程重登链路
-    // 不稳定，真实用户路径也是重新登录。
-    final restored = await tester.runAsync(() => _setMemberSuspended(false));
-    expect(restored, isTrue, reason: 'restore 端点应恢复合成成员');
+    // finally 恢复保障：无论中间断言成败都尝试 restore，避免合成成员
+    // 滞留 suspended 污染隔离库的后续 run；restore 自身失败不吞掉原始
+    // 断言错误，只在旅程本身成功时升级为失败。
+    Object? restoreFailure;
+    try {
+      // 图上主动刷新（重新读取）：403 → 旧图卸载、错误态明确、无 A 数据再次出现。
+      final refreshBtn = find.byTooltip(t.organization.common.reload);
+      await waitFor(tester, refreshBtn.hitTestable());
+      await tester.tap(refreshBtn);
+      await tester.pump(const Duration(milliseconds: 1500));
+      expect(
+        find.byKey(const ValueKey('org-chart-canvas')),
+        findsNothing,
+        reason: '403 后不得保留旧画布',
+      );
+      // 旧部门数据不再次出现（拒绝态文案由 App 异常层本地化，非 oracle）。
+      expect(find.text(_orgAOnlyDept), findsNothing);
+      // 切回成员视图再回图：旧数据不因视图切换而复活。
+      await tester.tap(find.text(t.organization.directory.membersSection));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text(t.organization.directory.structureSection));
+      await tester.pump(const Duration(milliseconds: 1200));
+      expect(
+        find.byKey(const ValueKey('org-chart-canvas')),
+        findsNothing,
+        reason: '403 后视图互切不得恢复旧图',
+      );
+      await markShot(tester, 'n3_a04_revoked');
+    } finally {
+      // 恢复权限：restore 端点（真实服务端链路）；重读验证在独立段
+      // （N3-A04b，新进程新会话）完成——suspend 吊销会话后同进程重登链路
+      // 不稳定，真实用户路径也是重新登录。
+      try {
+        final restored = await tester.runAsync(
+          () => _setMemberSuspended(false),
+        );
+        if (restored != true) restoreFailure = 'restore 端点未返回成功';
+      } catch (e) {
+        restoreFailure = e;
+      }
+      if (restoreFailure != null) {
+        debugPrint('N3A04_RESTORE_WARN: $restoreFailure');
+      }
+    }
+    if (restoreFailure != null) {
+      fail('合成成员恢复失败（可能滞留 suspended）：$restoreFailure');
+    }
     debugPrint('NATIVE_N3_A04_PASS');
   }, timeout: const Timeout(Duration(minutes: 9)));
 
@@ -300,12 +319,15 @@ Future<void> _loginAs(WidgetTester tester, String acc, String pwd) async {
   // Keychain 中持续，重建后已登录则直接落在主壳）。
   final appAlive =
       find.byKey(const Key('login_phone_input')).evaluate().isNotEmpty ||
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is BottomNavigationPage ||
-            widget.key == const Key('enterprise-shell-rail') ||
-            widget.key == const Key('enterprise-shell-bottom-nav'),
-      ).evaluate().isNotEmpty ||
+      find
+          .byWidgetPredicate(
+            (widget) =>
+                widget is BottomNavigationPage ||
+                widget.key == const Key('enterprise-shell-rail') ||
+                widget.key == const Key('enterprise-shell-bottom-nav'),
+          )
+          .evaluate()
+          .isNotEmpty ||
       find.byType(WelcomePage).evaluate().isNotEmpty;
   if (!appAlive) {
     final testErrorHandler = FlutterError.onError;
@@ -324,13 +346,15 @@ Future<void> _loginAs(WidgetTester tester, String acc, String pwd) async {
     );
   }
   // 已登录（前段账号）则先登出。
-  final loggedIn =
-      find.byWidgetPredicate(
+  final loggedIn = find
+      .byWidgetPredicate(
         (widget) =>
             widget is BottomNavigationPage ||
             widget.key == const Key('enterprise-shell-rail') ||
             widget.key == const Key('enterprise-shell-bottom-nav'),
-      ).evaluate().isNotEmpty;
+      )
+      .evaluate()
+      .isNotEmpty;
   if (loggedIn) {
     await _logoutViaAccountSheet(tester);
   }
@@ -439,20 +463,31 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
   final dialogConfirm = find.byType(CupertinoAlertDialog);
   await waitFor(tester, dialogConfirm);
   await tester.tap(
-    find.descendant(of: dialogConfirm, matching: find.byType(CupertinoDialogAction)).last,
+    find
+        .descendant(
+          of: dialogConfirm,
+          matching: find.byType(CupertinoDialogAction),
+        )
+        .last,
   );
-  await waitFor(tester, find.byWidgetPredicate(
-    (widget) =>
-        widget is WelcomePage || widget.key == const Key('login_phone_input'),
-  ));
+  await waitFor(
+    tester,
+    find.byWidgetPredicate(
+      (widget) =>
+          widget is WelcomePage || widget.key == const Key('login_phone_input'),
+    ),
+  );
   await tester.pump(const Duration(milliseconds: 800));
 }
-
 
 /// admin 独立 HTTP 会话执行成员 suspend/restore（撤权/恢复的 host 侧通道；
 /// App 进程无法访问 docker socket，改走真实治理端点与服务端权限链）。
 Future<bool> _setMemberSuspended(bool suspend) async {
-  expect(_memberUid, matches(RegExp(r'^[1-9][0-9]+$')), reason: 'NONOA_MEMBER_UID');
+  expect(
+    _memberUid,
+    matches(RegExp(r'^[1-9][0-9]+$')),
+    reason: 'NONOA_MEMBER_UID',
+  );
   final client = HttpClient();
   try {
     final loginReq = await client.postUrl(
@@ -468,14 +503,18 @@ Future<bool> _setMemberSuspended(bool suspend) async {
     final token = jsonDecode(loginBody)['payload']['token'] as String;
     final action = suspend ? 'suspend' : 'restore';
     final req = await client.postUrl(
-      Uri.parse('$_api/api/v1/organizations/$_orgAId/members/$_memberUid/$action'),
+      Uri.parse(
+        '$_api/api/v1/organizations/$_orgAId/members/$_memberUid/$action',
+      ),
     );
     req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $token');
     req.headers.contentType = ContentType.json;
     req.write('{}');
     final resp = await req.close();
     final body = await resp.transform(utf8.decoder).join();
-    debugPrint('N3_A04_GOVERN $action status=${resp.statusCode} body=${body.length > 160 ? body.substring(0, 160) : body}');
+    debugPrint(
+      'N3_A04_GOVERN $action status=${resp.statusCode} body=${body.length > 160 ? body.substring(0, 160) : body}',
+    );
     return resp.statusCode == 200;
   } finally {
     client.close(force: true);
@@ -613,8 +652,7 @@ Finder personalTab(String key) {
   return find.descendant(
     of: host,
     matching: find.byWidgetPredicate(
-      (widget) =>
-          widget is NavigationDestination && widget.label == label,
+      (widget) => widget is NavigationDestination && widget.label == label,
     ),
   );
 }
