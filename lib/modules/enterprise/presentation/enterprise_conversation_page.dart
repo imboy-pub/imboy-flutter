@@ -51,6 +51,14 @@ class _EnterpriseConversationPageState
   bool _readOnly = false;
   String? _error;
 
+  /// 面级 workspace 门（PR-W2-C01：GET 走查询串、写走正文，缺即 422）。
+  /// 权威解析源 = organizations/mine 行（本成员在该 org 下的 workspace 行，
+  /// 行内 id 即 workspace id）；成功解析（含"未匹配到"）与服务端明确拒绝
+  /// 后不再重试 = 请求面 422 fail-closed（不本地造默认值）；瞬态网络错误
+  /// 可在下轮轮询重试。
+  String _workspaceId = '';
+  bool _workspaceResolveTried = false;
+
   @override
   void initState() {
     super.initState();
@@ -63,12 +71,43 @@ class _EnterpriseConversationPageState
     super.dispose();
   }
 
+  Future<String> _resolveWorkspaceId() async {
+    if (_workspaceId.isNotEmpty || _workspaceResolveTried) return _workspaceId;
+    try {
+      final orgs = await _api.myOrganizations();
+      for (final o in orgs) {
+        if (o.organizationId == widget.orgId) {
+          _workspaceId = o.defaultWorkspaceId.isNotEmpty
+              ? o.defaultWorkspaceId
+              : o.id;
+          break;
+        }
+      }
+      // 成功响应即裁决已定（匹配到 → 拿到 id；未匹配 → 本成员不在该 org
+      // 或服务端不下发行内 organization_id，重试同样无效）：fail-closed。
+      _workspaceResolveTried = true;
+    } on EnterpriseApiException catch (e) {
+      if (e.code >= 0) {
+        // 服务端明确拒绝（401/403/422…）：裁决已定，fail-closed，
+        // 由请求面 422 兜底，重试只会得到同一裁决。
+        _workspaceResolveTried = true;
+      }
+      // code < 0 = 瞬态网络错误（HttpClient 断网分支定码 -1，见
+      // http_exceptions.dart NetworkException 默认码）：不置守卫，下轮
+      // _loadIncremental 轮询自动重试解析——一次网络抖动不应把本页
+      // 锁死在 422。
+    }
+    return _workspaceId;
+  }
+
   Future<void> _loadIncremental() async {
     try {
+      await _resolveWorkspaceId();
       final fresh = await _api.messages(
         widget.orgId,
         widget.conversationId,
         afterId: _cursor,
+        workspaceId: _workspaceId,
       );
       for (final m in fresh) {
         await _store.saveMessage(m);
@@ -117,10 +156,12 @@ class _EnterpriseConversationPageState
     final text = _input.text.trim();
     if (text.isEmpty || _readOnly) return;
     try {
+      final workspaceId = await _resolveWorkspaceId();
       final sent = await _api.sendMessage(
         widget.orgId,
         widget.conversationId,
         content: text,
+        workspaceId: workspaceId,
       );
       await _store.saveMessage(sent);
       _input.clear();

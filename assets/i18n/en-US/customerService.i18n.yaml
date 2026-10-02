@@ -33,6 +33,7 @@ claimConflict: "This conversation was claimed by another seat or its state chang
 claimOffboardingRequired: "Offboarding handover in progress; claiming is unavailable"
 claimForbidden: "Seat is suspended; claiming is unavailable"
 claimFailed: "Claim failed, please try again later"
+seatAtCapacity: "Seat concurrency is full (active sessions reached the limit). Close an active session or ask an admin to raise the limit"
 # ==================== Active / Closed (server-backed seats/sessions lists) ====================
 activeEmptyTitle: "No active conversations"
 activeEmptyHint: "Claim a conversation from the queue and it will appear here"

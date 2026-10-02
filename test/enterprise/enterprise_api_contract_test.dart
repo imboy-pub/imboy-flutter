@@ -357,6 +357,7 @@ void main() {
         orgId,
         convId,
         content: 'reply',
+        workspaceId: workspaceId,
         clientMsgId: 'cmid-1',
       );
 
@@ -366,6 +367,7 @@ void main() {
         path:
             '/api/v1/enterprise/organizations/$orgId/conversations/$convId/messages',
         body: {
+          'workspace_id': workspaceId,
           'client_msg_id': 'cmid-1',
           'sender_type': 'business_identity',
           'body': 'reply',
@@ -373,6 +375,27 @@ void main() {
       );
       expect(sent.id, '7266418340025468934');
       expect(sent.senderType, EnterpriseSenderType.businessIdentity);
+    });
+
+    test('sendMessage：缺 workspace_id 前置 422 不发网络请求（PR-W2-C01 门镜像）', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(payload: {'id': 7266418340025468934}),
+      );
+      final api = EnterpriseApi();
+
+      Object? caught;
+      try {
+        await api.sendMessage(orgId, convId, content: 'reply');
+      } on Object catch (e) {
+        caught = e;
+      }
+      expect(caught, isA<EnterpriseApiException>());
+      expect(
+        (caught! as EnterpriseApiException).message,
+        'missing_workspace_id',
+      );
+      expect(adapter.requests, isEmpty, reason: '门前置拦截，零网络请求');
     });
 
     test('sendMessage 提交面键白名单（W2 新合同 + PR-W2-C01 D2 形状）', () async {
@@ -402,6 +425,7 @@ void main() {
           orgId,
           convId,
           content: content,
+          workspaceId: workspaceId,
           assetId: assetId,
           clientMsgId: clientMsgId,
         );

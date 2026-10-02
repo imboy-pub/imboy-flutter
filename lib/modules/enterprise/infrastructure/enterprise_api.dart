@@ -212,14 +212,17 @@ class EnterpriseApi extends HttpClient {
     EntityId orgId,
     EntityId conversationId, {
     required String content,
+    EntityId workspaceId = '',
     EntityId assetId = '',
     String clientMsgId = '',
     EnterpriseSenderType senderType = EnterpriseSenderType.businessIdentity,
   }) async {
+    if (workspaceId.isEmpty) _missingWorkspaceId();
     final msgId = clientMsgId.isEmpty ? Xid().toString() : clientMsgId;
     final resp = await post(
       _org(orgId, 'conversations/$conversationId/messages'),
       data: {
+        'workspace_id': workspaceId,
         'client_msg_id': msgId,
         'sender_type': senderType.wireName,
         'body': content,

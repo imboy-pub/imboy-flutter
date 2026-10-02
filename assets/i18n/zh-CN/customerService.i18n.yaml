@@ -33,6 +33,7 @@ claimConflict: "该会话已被其他坐席接单或状态已变化，已为你�
 claimOffboardingRequired: "当前处于离职交接，暂时不能接单"
 claimForbidden: "坐席已被暂停，暂不能接单"
 claimFailed: "接单失败，请稍后重试"
+seatAtCapacity: "席位并发已满（处理中会话达上限），请先关闭处理中的会话或联系管理员调整容量"
 # ==================== 处理中 / 已关闭（服务端 seats/sessions 真实列表） ====================
 activeEmptyTitle: "暂无处理中会话"
 activeEmptyHint: "从待接列表接单后，会话会显示在这里"

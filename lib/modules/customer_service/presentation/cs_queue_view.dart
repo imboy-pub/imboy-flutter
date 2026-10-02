@@ -125,6 +125,10 @@ class _CsQueueViewState extends State<CsQueueView> {
       if (!mounted) return;
       if (e.isForbidden) {
         AppLoading.showToast(t.claimForbidden);
+      } else if (e.isSeatAtCapacity) {
+        // 容量满 ≠ 并发冲突：刷新重试无效，必须先关闭处理中会话（联调
+        // 实证 2026-10-02：坐席 3/3 满时每单必 409，曾误报"已被其他坐席接单"）。
+        AppLoading.showToast(t.seatAtCapacity);
       } else if (e.isConflict) {
         AppLoading.showToast(t.claimConflict);
       } else {
@@ -177,6 +181,29 @@ class _CsQueueViewState extends State<CsQueueView> {
       },
     );
   }
+}
+
+/// 队列预览文案（产品裁决 2026-10-02：不再展示「[加密消息]」占位）。
+/// 服务端 preview 非空 → 真实摘要；摘要不可用（附件-only/解密降级）→
+/// 不渲染文本；无末条消息 → 沿用 dataNotFound 兜底。
+Widget _queuePreviewText(BuildContext context, CsQueueItem item) {
+  if (item.lastMessagePreview.isNotEmpty) {
+    return Text(
+      item.lastMessagePreview,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: context.textStyle(FontSizeType.footnote, color: AppColors.iosGray),
+    );
+  }
+  if (item.hasLastMessage) {
+    return const SizedBox.shrink();
+  }
+  return Text(
+    context.t.common.dataNotFound,
+    maxLines: 1,
+    overflow: TextOverflow.ellipsis,
+    style: context.textStyle(FontSizeType.footnote, color: AppColors.iosGray),
+  );
 }
 
 class _QueueTile extends StatelessWidget {
@@ -254,19 +281,7 @@ class _QueueTile extends StatelessWidget {
                       ),
                       const SizedBox(width: AppSpacing.tiny),
                     ],
-                    Expanded(
-                      child: Text(
-                        item.hasLastMessage
-                            ? context.t.chat.encryptedMessagePlaceholder
-                            : context.t.common.dataNotFound,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textStyle(
-                          FontSizeType.footnote,
-                          color: AppColors.iosGray,
-                        ),
-                      ),
-                    ),
+                    Expanded(child: _queuePreviewText(context, item)),
                   ],
                 ),
               ],

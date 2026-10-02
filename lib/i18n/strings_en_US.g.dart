@@ -1720,6 +1720,7 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get claimOffboardingRequired => 'Offboarding handover in progress; claiming is unavailable';
 	@override String get claimForbidden => 'Seat is suspended; claiming is unavailable';
 	@override String get claimFailed => 'Claim failed, please try again later';
+	@override String get seatAtCapacity => 'Seat concurrency is full (active sessions reached the limit). Close an active session or ask an admin to raise the limit';
 	@override String get activeEmptyTitle => 'No active conversations';
 	@override String get activeEmptyHint => 'Claim a conversation from the queue and it will appear here';
 	@override String get closedEmptyTitle => 'No closed conversations';
@@ -4850,6 +4851,7 @@ extension on TranslationsEnUs {
 			'customerService.claimOffboardingRequired' => 'Offboarding handover in progress; claiming is unavailable',
 			'customerService.claimForbidden' => 'Seat is suspended; claiming is unavailable',
 			'customerService.claimFailed' => 'Claim failed, please try again later',
+			'customerService.seatAtCapacity' => 'Seat concurrency is full (active sessions reached the limit). Close an active session or ask an admin to raise the limit',
 			'customerService.activeEmptyTitle' => 'No active conversations',
 			'customerService.activeEmptyHint' => 'Claim a conversation from the queue and it will appear here',
 			'customerService.closedEmptyTitle' => 'No closed conversations',
@@ -5358,9 +5360,9 @@ extension on TranslationsEnUs {
 			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key',
 			'main.inviterLabel' => ({required Object uid}) => 'Inviter: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitee: ${uid}',
-			'main.mySentTab' => 'Sent',
 			_ => null,
 		} ?? switch (path) {
+			'main.mySentTab' => 'Sent',
 			'main.reject' => 'Reject',
 			'main.myOrders' => 'My Orders',
 			'main.purchaseUnlockHint' => 'Purchase to unlock channel history and future updates.',
@@ -5872,9 +5874,9 @@ extension on TranslationsEnUs {
 			'workspace.projectsEmptyTitle' => 'No projects yet',
 			'workspace.projectsEmptySubtitle' => 'Projects track clear deliverables; a community workspace with only channels and groups is perfectly fine',
 			'workspace.channelsEmptyTitle' => 'No workspace channels yet',
-			'workspace.channelsEmptySubtitle' => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.channelsEmptySubtitle' => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} subscribers',
 			'workspace.channelDetailTitle' => 'Channel',
 			'workspace.discussInGroupGuide' => 'Channels are for publishing; want to discuss? Jump to the General group →',

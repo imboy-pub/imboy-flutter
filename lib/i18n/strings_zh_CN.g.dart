@@ -4841,6 +4841,9 @@ class Translations$customerService$zh_CN {
 	/// zh-CN: '接单失败，请稍后重试'
 	String get claimFailed => '接单失败，请稍后重试';
 
+	/// zh-CN: '席位并发已满（处理中会话达上限），请先关闭处理中的会话或联系管理员调整容量'
+	String get seatAtCapacity => '席位并发已满（处理中会话达上限），请先关闭处理中的会话或联系管理员调整容量';
+
 	/// zh-CN: '暂无处理中会话'
 	String get activeEmptyTitle => '暂无处理中会话';
 
@@ -10405,6 +10408,7 @@ extension on Translations {
 			'customerService.claimOffboardingRequired' => '当前处于离职交接，暂时不能接单',
 			'customerService.claimForbidden' => '坐席已被暂停，暂不能接单',
 			'customerService.claimFailed' => '接单失败，请稍后重试',
+			'customerService.seatAtCapacity' => '席位并发已满（处理中会话达上限），请先关闭处理中的会话或联系管理员调整容量',
 			'customerService.activeEmptyTitle' => '暂无处理中会话',
 			'customerService.activeEmptyHint' => '从待接列表接单后，会话会显示在这里',
 			'customerService.closedEmptyTitle' => '暂无已关闭会话',
@@ -10893,9 +10897,9 @@ extension on Translations {
 			'main.thisIsAuxiliaryText' => '这是辅助说明文字',
 			'main.toBeCompleted' => '待完善',
 			'main.availableCount' => '可选择',
-			'main.mostUsed' => '最常用',
 			_ => null,
 		} ?? switch (path) {
+			'main.mostUsed' => '最常用',
 			'main.school' => '学校',
 			'main.hobbiesAndInterests' => '兴趣爱好',
 			'main.interests' => '兴趣爱好',
@@ -11407,9 +11411,9 @@ extension on Translations {
 			'workspace.createNameRequired' => '工作区名称不能为空',
 			'workspace.createSubmit' => '创建',
 			'workspace.createEntry' => '创建工作区',
-			'workspace.createSuccess' => '工作区创建成功',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.createSuccess' => '工作区创建成功',
 			'workspace.createIdempotentHit' => '已存在同名工作区，直接进入',
 			'workspace.createTemplateTitle' => '将自动初始化',
 			'workspace.createTemplateChannel' => 'Announcements 频道（你成为频道发布者与订阅者）',

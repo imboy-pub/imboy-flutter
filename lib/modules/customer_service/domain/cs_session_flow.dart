@@ -441,8 +441,14 @@ class CsSessionFlow {
   Future<Uint8List?> fetchAssetBytes(String assetId) async {
     if (!machine.canDownload) return null;
     if (conversationId.isEmpty) return null;
+    // 与 uploadAsset 同门：content 门查询串必带 workspace_id（缺即 422）。
+    await resolveWorkspaceId();
     try {
-      return await _csApi.fetchAssetBytes(orgId, assetId);
+      return await _csApi.fetchAssetBytes(
+        orgId,
+        assetId,
+        workspaceId: workspaceId,
+      );
     } on EnterpriseApiException catch (e) {
       if (e.isForbidden) machine.markSuspended();
       if (e.isOffboardingRequired) machine.markOffboarding();

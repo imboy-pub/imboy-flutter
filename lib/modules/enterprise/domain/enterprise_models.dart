@@ -63,11 +63,16 @@ class EnterpriseOrg {
   final EnterpriseMemberStatus memberStatus;
   final EntityId defaultWorkspaceId;
 
+  /// 行内 organization_id（organizations/mine 行为成员 workspace 行，
+  /// 带 organization_id 列；企业会话页 workspace 权威解析的匹配键）。
+  final EntityId organizationId;
+
   const EnterpriseOrg({
     required this.id,
     required this.name,
     this.memberStatus = EnterpriseMemberStatus.active,
     this.defaultWorkspaceId = '',
+    this.organizationId = '',
   });
 
   factory EnterpriseOrg.fromJson(Map<String, dynamic> json) {
@@ -76,6 +81,7 @@ class EnterpriseOrg {
       name: parseModelString(json['name']),
       memberStatus: EnterpriseMemberStatus.parse(json['member_status']),
       defaultWorkspaceId: entityIdOf(json['default_workspace_id']),
+      organizationId: entityIdOf(json['organization_id']),
     );
   }
 
@@ -85,6 +91,7 @@ class EnterpriseOrg {
     'member_status': memberStatus.wireName,
     if (defaultWorkspaceId.isNotEmpty)
       'default_workspace_id': defaultWorkspaceId,
+    if (organizationId.isNotEmpty) 'organization_id': organizationId,
   };
 
   /// suspend/offboarding 降级：非 active 一律只读（amendment §2.4）。

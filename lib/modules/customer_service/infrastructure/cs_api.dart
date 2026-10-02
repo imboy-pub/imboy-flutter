@@ -81,6 +81,12 @@ class CsApiException implements Exception {
   bool get isOffboardingRequired =>
       code == 409 && message.toLowerCase().contains('offboarding');
 
+  /// 409 的席位容量满子语义（联调实证 2026-10-02：坐席 active 会话数达
+  /// `max_concurrent` 时 claim/append 返回 409 + msg `seat_at_capacity`，
+  /// 与 CAS 竞争同码不同因——刷新重试无效，必须先关闭会话或调容量）。
+  bool get isSeatAtCapacity =>
+      code == 409 && message.toLowerCase().contains('seat_at_capacity');
+
   @override
   String toString() => 'CsApiException($code): $message';
 }
@@ -189,8 +195,14 @@ class CsQueueItem {
   /// 来源渠道（widget 直访 / 其它接入面；服务端缺省为空则 UI 隐藏渠道标识）。
   final String source;
 
-  /// 服务端只下发末条消息元数据，不下发正文；用于显示安全占位。
+  /// 服务端只下发末条消息元数据；[lastMessagePreview] 是服务端解密后的
+  /// 正文摘要（CS-BE-02，Unicode 码点截断 64 字符）；附件-only（空正文）
+  /// 与解密失败行 preview 为 null → 空串（UI 不渲染加密占位——产品裁决
+  /// 2026-10-02：队列预览不再展示「[加密消息]」）。
   final bool hasLastMessage;
+
+  /// 末条消息正文摘要（服务端已解密；空串 = 无消息或摘要不可用）。
+  final String lastMessagePreview;
 
   /// 租户与会话绑定（A0 投影含 organization_id；conversation_id 服务端
   /// 给出即用——缺省时由会话详情补齐，禁止任何个人 IM fallback）。
@@ -210,6 +222,7 @@ class CsQueueItem {
     this.status = '',
     this.source = '',
     this.hasLastMessage = false,
+    this.lastMessagePreview = '',
     this.organizationId = '',
     this.conversationId = '',
     this.assigneeIdentityId = '',
@@ -233,6 +246,9 @@ class CsQueueItem {
       source: parseModelString(json['source']),
       hasLastMessage:
           lastMessage is Map && entityIdOf(lastMessage['id']).isNotEmpty,
+      lastMessagePreview: lastMessage is Map
+          ? parseModelString(lastMessage['preview'])
+          : '',
       organizationId: entityIdOf(json['organization_id']),
       conversationId: entityIdOf(json['conversation_id']),
       assigneeIdentityId: entityIdOf(json['business_identity_id']),
@@ -986,9 +1002,8 @@ class CsApi extends HttpClient {
   /// `workspace_id`（缺即 422）。[workspaceId] 非空时按冻结契约携带；
   /// 空时**透传旧形状发出**（不本地拦截）——调用方 [CsSessionFlow] 的
   /// 既有语义就是把缺失裁决留给服务端（其 workspaceId 注释：解析失败
-  /// 保持空 = 服务端 422 fail-closed，降级路径已就绪）；调用方接线
-  /// workspace 上下文归后续卡。错误保持抛 [EnterpriseApiException]
-  /// （flow 的降级 catch 面向该类型）。
+  /// 保持空 = 服务端 422 fail-closed，降级路径已就绪）。错误保持抛
+  /// [EnterpriseApiException]（flow 的降级 catch 面向该类型）。
   Future<Uint8List> fetchAssetBytes(
     String orgId,
     String assetId, {

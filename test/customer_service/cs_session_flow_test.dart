@@ -837,6 +837,68 @@ void main() {
       expect(flow.machine.canDownload, isTrue);
       final viewed = await flow.fetchAssetBytes('7266418340025468970');
       expect(viewed, isNotNull, reason: 'closed 只读态附件查看仍走授权代理');
+      final contentReq = adapter.requests.firstWhere(
+        (r) => r.$2.contains('assets/7266418340025468970/content'),
+      );
+      expect(
+        Uri.parse(contentReq.$2).queryParameters['workspace_id'],
+        kWsId,
+        reason: 'PR-W2-C01：content 门查询串必带 workspace_id（缺即 422）',
+      );
+    });
+
+    test('附件内容代理：workspace 种子为空时先经 seat-contexts 权威解析', () async {
+      final adapter = _RouteAdapter([
+        (
+          '/seat-contexts',
+          [
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': {
+                  'contexts': [
+                    {
+                      'organization_id': '7266418340025468901',
+                      'organization_name': '示例组织',
+                      'workspaces': [
+                        {'id': '7266418340025468921', 'name': '默认工作区'},
+                      ],
+                      'business_identity_id': '7266418340025468902',
+                      'seat_enabled': true,
+                    },
+                  ],
+                },
+              },
+            ),
+          ],
+        ),
+        (
+          'assets/7266418340025468970/content',
+          [
+            (200, {'code': 0, 'msg': 'success', 'payload': 'file-bytes'}),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter, workspaceId: '');
+      flow.detail = const CsSessionDetail(sessionId: kSessionId, version: 3);
+
+      final viewed = await flow.fetchAssetBytes('7266418340025468970');
+      expect(viewed, isNotNull);
+      expect(
+        adapter.requests.where((r) => r.$2.contains('/seat-contexts')).length,
+        1,
+        reason: '空种子先权威解析（每 flow 实例只解析一次）',
+      );
+      final contentReq = adapter.requests.firstWhere(
+        (r) => r.$2.contains('assets/7266418340025468970/content'),
+      );
+      expect(
+        Uri.parse(contentReq.$2).queryParameters['workspace_id'],
+        kWsId,
+        reason: '解析结果必须进 content 查询串，不得裸发旧形状',
+      );
     });
   });
 
