@@ -1,0 +1,19 @@
+{
+  "status": "PASS_SCOPED",
+  "exit": 0,
+  "passed": 16,
+  "source_binding_verified": true,
+  "checks": [
+    "storage_mode=disabled overrides required encryption mode",
+    "disabled capabilities use plaintext",
+    "group owner E2EE tile hidden when feature is off",
+    "chat encryption and safety-number entries hidden when feature is off",
+    "enabled comparison cases retain existing behavior"
+  ],
+  "limitations": [
+    "unit/widget tests use injected capabilities and feature state",
+    "no production configuration or remote service was changed",
+    "no native visual verification or historical ciphertext decryption claim",
+    "not proof of all six delivery goals"
+  ]
+}
