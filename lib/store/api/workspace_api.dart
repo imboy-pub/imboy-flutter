@@ -13,6 +13,7 @@ import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// Workspace API 失败（透传服务端 envelope code 与消息）。
 class WorkspaceApiException implements Exception {
@@ -291,6 +292,30 @@ class WorkspaceApi extends HttpClient {
       return rows.map(WorkspaceConversationModel.fromJson).toList();
     } on FormatException {
       throw WorkspaceApiException(503, t.common.errorNetwork);
+    }
+  }
+
+  /// Group ownership is resolved by the server, independent of the current tab.
+  Future<void> markGroupRead(
+    EntityId groupId,
+    List<String> messageIds, {
+    required String owner,
+  }) async {
+    if (groupId.isEmpty || messageIds.isEmpty) return;
+    final ids = messageIds.toSet().toList();
+    for (var start = 0; start < ids.length; start += 200) {
+      if (owner.isEmpty || UserRepoLocal.to.currentUid != owner) {
+        throw WorkspaceApiException(409, t.common.errorNetwork);
+      }
+      final end = start + 200 < ids.length ? start + 200 : ids.length;
+      final reply = await post(
+        '/api/v1/groups/$groupId/read',
+        data: {'msg_ids': ids.sublist(start, end)},
+      );
+      if (UserRepoLocal.to.currentUid != owner) {
+        throw WorkspaceApiException(409, t.common.errorNetwork);
+      }
+      _ensureOk(reply);
     }
   }
 

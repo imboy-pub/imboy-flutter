@@ -387,14 +387,27 @@ class HttpClient {
         NetworkException(message: t.common.tipConnectDesc),
       );
     }
+    final requestUid = UserRepoLocal.to.currentUid;
     try {
       await _setDefaultConfig(uri);
+      if (requestUid != UserRepoLocal.to.currentUid) {
+        return IMBoyHttpResponse.failure(
+          errCode: 409,
+          errMsg: t.common.errorNetwork,
+        );
+      }
       final response = await requestFn();
       final resp = handleResponse(
         response,
         uri: uri,
         httpTransformer: httpTransformer,
       );
+      if (requestUid != UserRepoLocal.to.currentUid) {
+        return IMBoyHttpResponse.failure(
+          errCode: 409,
+          errMsg: t.common.errorNetwork,
+        );
+      }
       onResponse?.call(resp);
       return resp;
     } on Exception catch (e) {

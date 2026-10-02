@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
@@ -20,6 +21,8 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
 /// Only server-authorized workspace snapshots; no personal or warm-cache rows.
 class WorkspaceConversationsPage extends ConsumerStatefulWidget {
@@ -266,13 +269,30 @@ class _MessageRow extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      leading: CircleAvatar(
-        backgroundImage: group.avatar.isEmpty
-            ? null
-            : avatarImageProvider(group.avatar),
-        child: group.avatar.isEmpty
-            ? const Icon(CupertinoIcons.person_2)
-            : null,
+      leading: BadgeWidget(
+        key: ValueKey('workspace-unread-${group.groupId}'),
+        showBadge: row.unreadCount > 0,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppColors.iosRedDark
+            : AppColors.iosRed,
+        semanticLabel: context.t.common.unreadCount(
+          count: '${row.unreadCount}',
+        ),
+        content: Text(
+          row.unreadCount > 99 ? '99+' : '${row.unreadCount}',
+          style: context.textStyle(
+            FontSizeType.tiny,
+            color: AppColors.onPrimary,
+          ),
+        ),
+        child: CircleAvatar(
+          backgroundImage: group.avatar.isEmpty
+              ? null
+              : avatarImageProvider(group.avatar),
+          child: group.avatar.isEmpty
+              ? const Icon(CupertinoIcons.person_2)
+              : null,
+        ),
       ),
       additionalInfo: row.serverTs > 0
           ? Text(DateTimeHelper.lastTimeFmt(row.serverTs))

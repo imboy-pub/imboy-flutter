@@ -10,6 +10,9 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:xid/xid.dart';
+import 'package:synchronized/synchronized.dart';
+import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/store/api/workspace_api.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
 import 'package:file_saver/file_saver.dart';
@@ -98,6 +101,9 @@ class ChatNotifier extends _$ChatNotifier {
 
   // Timers
   Timer? _readReceiptFlushTimer;
+  final _pendingLock = Lock();
+  final _flushingPending = <String>{};
+  final _pendingFlushAgain = <String>{};
   Timer? _cleanupDeletedMessageIdsTimer;
 
   // Burn message timers（mixin 访问，去掉 _ 前缀以允许 service 持有引用）
@@ -540,11 +546,13 @@ class ChatNotifier extends _$ChatNotifier {
     List<String> msgIds, {
     bool syncToServer = true,
   }) async {
+    final owner = UserRepoLocal.to.currentUid;
+    if (owner.isEmpty) return false;
     Database? db = await SqliteService.to.db;
-    if (db == null) return false;
+    if (db == null || UserRepoLocal.to.currentUid != owner) return false;
 
     ConversationModel? c = await ConversationRepo().findByPeerId(type, peerId);
-    if (c == null) return false;
+    if (c == null || UserRepoLocal.to.currentUid != owner) return false;
 
     final String tb = MessageRepo.getTableName(c.type);
     final int newUnreadNum = c.unreadNum - msgIds.length;
@@ -576,7 +584,12 @@ class ChatNotifier extends _$ChatNotifier {
       await ref.read(conversationProvider.notifier).replace(c);
       await _emitUpdatedMessagesAfterStatusChange(type, msgIds);
       if (syncToServer) {
-        await _enqueueReadReceipt(type: type, peerId: peerId, msgIds: msgIds);
+        await _enqueueReadReceipt(
+          type: type,
+          peerId: peerId,
+          msgIds: msgIds,
+          owner: owner,
+        );
       }
       return true;
     }
@@ -605,6 +618,7 @@ class ChatNotifier extends _$ChatNotifier {
   }
 
   Future<void> _enqueueReadReceipt({
+    required String owner,
     required String type,
     required String peerId,
     required List<String> msgIds,
@@ -617,7 +631,7 @@ class ChatNotifier extends _$ChatNotifier {
       msgIds,
       now,
     );
-    await _enqueuePending(_spPendingReadReceiptsKey, item);
+    await _enqueuePending(_spPendingReadReceiptsKey, {...item, 'from': owner});
     _readReceiptFlushTimer?.cancel();
     _readReceiptFlushTimer = Timer(const Duration(milliseconds: 300), () {
       _flushPendingReadReceipts();
@@ -628,51 +642,103 @@ class ChatNotifier extends _$ChatNotifier {
     await _flushPending(_spPendingReadReceiptsKey);
   }
 
-  Future<void> _enqueuePending(String key, Map<String, dynamic> item) async {
+  Future<void> _enqueuePending(String key, Map<String, dynamic> item) =>
+      _updatePending(key, (items) => items.add(item));
+
+  Future<List<dynamic>> _updatePending(
+    String key,
+    void Function(List<dynamic>) change,
+  ) => _pendingLock.synchronized(() async {
+    final sp = await SharedPreferences.getInstance();
+    final raw = sp.getString(key);
+    final decoded = raw == null ? <dynamic>[] : jsonDecode(raw);
+    final items = decoded is List ? List<dynamic>.from(decoded) : <dynamic>[];
+    change(items);
+    await sp.setString(key, jsonEncode(items));
+    return List<dynamic>.from(items);
+  });
+
+  Future<void> _flushPending(String key) async {
+    if (_isDisposed || !MessagingFacade.instance.isOnline) return;
+    if (!_flushingPending.add(key)) {
+      _pendingFlushAgain.add(key);
+      return;
+    }
+    final owner = UserRepoLocal.to.currentUid;
+    final completed = <String>{};
+    var retry = false;
     try {
-      final sp = await SharedPreferences.getInstance();
-      final String? raw = sp.getString(key);
-      final list = raw == null
-          ? <dynamic>[]
-          : (jsonDecode(raw) is List ? (jsonDecode(raw) as List) : <dynamic>[]);
-      list.add(item);
-      await sp.setString(key, jsonEncode(list));
+      final items = await _updatePending(key, (_) {});
+      for (final item in items.whereType<Map<String, dynamic>>()) {
+        if (_isDisposed || UserRepoLocal.to.currentUid != owner) break;
+        if (item['from'] != owner) continue;
+        if (await _dispatchPending(key, item)) {
+          completed.add('${item['id']}');
+        } else {
+          retry = true;
+        }
+      }
+      await _updatePending(
+        key,
+        (items) => items.removeWhere(
+          (item) => item is Map && completed.contains('${item['id']}'),
+        ),
+      );
     } catch (e) {
-      iPrint('[chat_provider] setString error: $e');
+      retry = true;
+      iPrint('[chat_provider] pending receipt failure=${e.runtimeType}');
+    } finally {
+      _flushingPending.remove(key);
+      final again = _pendingFlushAgain.remove(key);
+      if ((retry || again) && !_isDisposed) {
+        if (key == _spPendingReadReceiptsKey) {
+          _readReceiptFlushTimer?.cancel();
+          _readReceiptFlushTimer = Timer(
+            retry ? const Duration(seconds: 5) : Duration.zero,
+            _flushPendingReadReceipts,
+          );
+        } else if (again) {
+          unawaited(_flushPending(key));
+        }
+      }
     }
   }
 
-  Future<void> _flushPending(String key) async {
-    if (!MessagingFacade.instance.isOnline) return;
-    try {
-      final sp = await SharedPreferences.getInstance();
-      final String? raw = sp.getString(key);
-      if (raw == null || raw.isEmpty) return;
-      final decoded = jsonDecode(raw);
-      if (decoded is! List) return;
-      final items = decoded.cast<dynamic>().toList();
-      if (items.isEmpty) return;
-
-      for (final it in items) {
-        if (it is! Map<String, dynamic>) continue;
-        final map = it.cast<String, dynamic>();
-        final String messageId = map['id']?.toString() ?? Xid().toString();
-
-        AppEventBus.fire(
-          WebSocketMessageSendRequestEvent(
-            message: json.encode(map),
-            messageId: messageId,
-          ),
-        );
-
-        final String type = map['type']?.toString() ?? 'C2C';
-        MessageRetry.instance.addToRetryQueue(messageId, type);
+  Future<bool> _dispatchPending(String key, Map<String, dynamic> item) async {
+    final type = item['type']?.toString() ?? 'C2C';
+    if (key == _spPendingReadReceiptsKey && type == 'C2G') {
+      final payload = item['payload'];
+      final ids = payload is Map ? payload['msg_ids'] : null;
+      if (ids is! List || ids.any((id) => id is! String)) return true;
+      try {
+        await ref
+            .read(workspaceApiProvider)
+            .markGroupRead(
+              '${item['to']}',
+              ids.cast<String>(),
+              owner: '${item['from']}',
+            );
+        if (!_isDisposed && item['from'] == UserRepoLocal.to.currentUid) {
+          ref.invalidate(workspaceConversationsProvider);
+        }
+        return true;
+      } on WorkspaceApiException catch (e) {
+        if (![400, 403, 404].contains(e.code)) return false;
+        // Personal groups have no workspace cursor; keep their existing receipt.
       }
-
-      await sp.setString(key, '[]');
-    } catch (e) {
-      iPrint('[chat_provider] setString error: $e');
     }
+    if (_isDisposed || item['from'] != UserRepoLocal.to.currentUid) {
+      return false;
+    }
+    final id = item['id']?.toString() ?? Xid().toString();
+    AppEventBus.fire(
+      WebSocketMessageSendRequestEvent(
+        message: json.encode(item),
+        messageId: id,
+      ),
+    );
+    MessageRetry.instance.addToRetryQueue(id, type);
+    return true;
   }
 
   /// 阅后即焚清理：进会话时兜底扫最近 [scanLimit] 条，销毁已过期的消息。

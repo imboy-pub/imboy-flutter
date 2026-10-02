@@ -64,8 +64,11 @@ ProviderContainer _container(_Api api) => ProviderContainer(
   ],
 );
 
-WorkspaceConversationModel _row(int id, String text) =>
-    WorkspaceConversationModel.fromJson(messageRow(id: id, text: text));
+WorkspaceConversationModel _row(int id, String text, {int unread = 0}) =>
+    WorkspaceConversationModel.fromJson({
+      ...messageRow(id: id, text: text),
+      'unread_count': unread,
+    });
 
 Future<GoRouter> _pump(WidgetTester tester, ProviderContainer container) async {
   final router = GoRouter(
@@ -98,6 +101,53 @@ Future<void> _disposePage(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets(
+    'authorized unread badges clear per target and disappear on workspace or account changes',
+    (tester) async {
+      final api = _Api();
+      final container = _container(api);
+      addTearDown(container.dispose);
+      _select(container, '100');
+      await _pump(tester, container);
+      api.pending.single.complete([
+        _row(1, 'A', unread: 5),
+        _row(2, 'B', unread: 7),
+      ]);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('5'), findsOneWidget);
+      expect(find.text('7'), findsOneWidget);
+      container.invalidate(workspaceConversationsProvider('100'));
+      await tester.pump();
+      expect(find.text('5'), findsNothing);
+      api.pending.last.complete([_row(1, 'A'), _row(2, 'B', unread: 7)]);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('5'), findsNothing);
+      expect(find.text('7'), findsOneWidget);
+      _select(container, '200');
+      await tester.pump();
+      expect(find.text('7'), findsNothing);
+      api.pending.last.complete([_row(3, 'C', unread: 9)]);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('9'), findsOneWidget);
+      container.read(_account.notifier).select('2');
+      await tester.pump();
+      expect(find.text('9'), findsNothing);
+      api.pending.last.completeError(
+        const WorkspaceApiException(403, 'removed'),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('5'), findsNothing);
+      expect(find.text('7'), findsNothing);
+      expect(find.text('9'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await _disposePage(tester);
+    },
+  );
+
   testWidgets(
     'trusted rows render, search is scoped, chat route is reused without global cache',
     (tester) async {

@@ -1,0 +1,28 @@
+{
+  "status": "PASS_FOCUSED_PENDING_NATIVE",
+  "base_candidate": "ca45e1a64b3d430e924aa67252836326a5866687",
+  "backend_candidate": "7052558a",
+  "tests_passed": 29,
+  "test_exit": 0,
+  "analyze_exit": 0,
+  "review": "APPROVE",
+  "commands": [
+    "flutter test --no-pub test/unit_test/page/workspace/workspace_conversations_page_test.dart test/unit_test/store/api/workspace_conversations_api_test.dart test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart",
+    "flutter analyze --no-pub"
+  ],
+  "sources": {
+    "lib/component/http/http_client.dart": "b08b483199d0a191834bc8619a40789933eee2c9df63e29cc7b7291f55a0a291",
+    "lib/page/chat/chat/chat_provider.dart": "3c5a7804ee2835d1bc5a826f10a1cf46208cf8ed9948c9e892a76de4ef3888a3",
+    "lib/page/workspace/workspace_conversations_page.dart": "0c0bae384a22a183a9f1d1cecf0c7e4c5603952d959cba540b0d1d95ffb371cf",
+    "lib/page/workspace_shell/enterprise_shell_page.dart": "d4842b3040d9802c8b4c10d98eb1950c9143efd9bad272b504605e0043b72063",
+    "lib/store/api/workspace_api.dart": "8f43ed503c72cc75c6b3f39a4f12fced51229ad5413dd47a9db7fd297583a025",
+    "lib/store/model/workspace_conversation_model.dart": "0964f65a5a75400285c46766f2d196946a6ccfd0fa5c1bdf452e751de7f77116",
+    "test/unit_test/page/workspace/workspace_conversations_page_test.dart": "072afaea6fb9819e52d465a8b5a5af718159dfac7507ce5f6047e5ca3bbd12bd",
+    "test/unit_test/store/api/workspace_conversations_api_test.dart": "301c1e8a497798265f3a1fd15385ee112242ebf11898a9500b9dc5812cf919ca"
+  },
+  "queue_concurrency_behavior_verified": false,
+  "native_read_cursor_journey_verified": false,
+  "customer_oa_verified": false,
+  "ios_verified": false,
+  "whole_goal_complete": false
+}

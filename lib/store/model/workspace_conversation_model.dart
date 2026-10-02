@@ -6,6 +6,7 @@ import 'package:imboy/store/model/group_model.dart';
 class WorkspaceConversationModel {
   final GroupModel group;
   final int memberStartSeq;
+  final int unreadCount;
   final Map<String, dynamic>? latest;
   final int serverTs;
   final int expiresAt;
@@ -13,6 +14,7 @@ class WorkspaceConversationModel {
   const WorkspaceConversationModel({
     required this.group,
     required this.memberStartSeq,
+    this.unreadCount = 0,
     this.latest,
     this.serverTs = 0,
     this.expiresAt = 0,
@@ -20,14 +22,21 @@ class WorkspaceConversationModel {
 
   factory WorkspaceConversationModel.fromJson(Map<String, dynamic> row) {
     final start = int.tryParse('${row['member_start_seq']}');
+    final unread = int.tryParse('${row['unread_count'] ?? 0}');
     final raw = row['latest_message'];
-    if (start == null || start < 1 || !row.containsKey('latest_message')) {
+    if (start == null ||
+        start < 1 ||
+        unread == null ||
+        unread < 0 ||
+        unread > 2147483647 ||
+        !row.containsKey('latest_message')) {
       throw const FormatException('Invalid workspace message snapshot');
     }
     if (raw == null) {
       return WorkspaceConversationModel(
         group: GroupModel.fromJson(row),
         memberStartSeq: start,
+        unreadCount: unread,
       );
     }
     if (raw is! Map<String, dynamic>) {
@@ -52,6 +61,7 @@ class WorkspaceConversationModel {
     return WorkspaceConversationModel(
       group: GroupModel.fromJson(row),
       memberStartSeq: start,
+      unreadCount: unread,
       latest: Map.unmodifiable(raw),
       serverTs: time.millisecondsSinceEpoch,
       expiresAt: expires?.millisecondsSinceEpoch ?? 0,

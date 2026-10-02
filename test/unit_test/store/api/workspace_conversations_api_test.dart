@@ -1,3 +1,6 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -56,7 +59,93 @@ class _Api extends WorkspaceApi {
   }
 }
 
+class _ReadApi extends WorkspaceApi {
+  final batches = <List<String>>[];
+  Future<void> Function()? afterPost;
+  IMBoyHttpResponse reply = IMBoyHttpResponse.success({'read_seq': 2});
+  @override
+  Future<IMBoyHttpResponse> post(
+    String uri, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+    httpTransformer,
+  }) async {
+    expect(uri, '/api/v1/groups/123/read');
+    batches.add(List<String>.from((data as Map)['msg_ids'] as List));
+    await afterPost?.call();
+    return reply;
+  }
+}
+
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: 'A'});
+    await StorageService.init();
+  });
+  test(
+    'read cursor batches actual opaque IDs and propagates rejected reads',
+    () async {
+      final api = _ReadApi();
+      final ids = List.generate(201, (i) => 'message-$i');
+      await api.markGroupRead('123', [...ids, ids.first], owner: 'A');
+      expect(api.batches.map((b) => b.length), [200, 1]);
+      expect(api.batches.expand((b) => b), ids);
+      api.reply = IMBoyHttpResponse.failure(
+        errCode: 404,
+        errMsg: 'not authorized',
+      );
+      await expectLater(
+        api.markGroupRead('123', ['opaque-message'], owner: 'A'),
+        throwsA(
+          isA<WorkspaceApiException>().having((e) => e.code, 'code', 404),
+        ),
+      );
+    },
+  );
+
+  test(
+    'read batches stop on account change and reject a stale owner',
+    () async {
+      final api = _ReadApi();
+      api.afterPost = () async {
+        await StorageService.to.setString(Keys.currentUid, 'B');
+      };
+      await expectLater(
+        api.markGroupRead('123', List.generate(201, (i) => 'm$i'), owner: 'A'),
+        throwsA(
+          isA<WorkspaceApiException>().having((e) => e.code, 'code', 409),
+        ),
+      );
+      expect(api.batches, hasLength(1));
+      await expectLater(
+        api.markGroupRead('123', ['old-message'], owner: 'A'),
+        throwsA(isA<WorkspaceApiException>()),
+      );
+      expect(api.batches, hasLength(1));
+    },
+  );
+
+  test('authorized unread DTO rejects malformed and negative counts', () async {
+    expect(
+      (await _Api([
+        {...messageRow(), 'unread_count': 13},
+      ]).conversations('100')).single.unreadCount,
+      13,
+    );
+    for (final count in [-1, 'oops', 1.5, 2147483648]) {
+      await expectLater(
+        _Api([
+          {...messageRow(), 'unread_count': count},
+        ]).conversations('100'),
+        throwsA(isA<WorkspaceApiException>()),
+      );
+    }
+  });
+
   test(
     'scoped preview uses current generation contract and returns text',
     () async {

@@ -16,6 +16,9 @@ import 'package:imboy/page/workspace/workspace_groups_page.dart';
 import 'package:imboy/page/workspace/workspace_projects_page.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/component/ui/badge_widget.dart';
 
 import 'workspace_account_menu.dart';
 import 'workspace_shell_breakpoint.dart';
@@ -207,7 +210,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
               destinations: [
                 for (var i = 0; i < labels.length; i++)
                   NavigationRailDestination(
-                    icon: Icon(icons[i]),
+                    icon: _navigationIcon(destinations[i], icons[i]),
                     label: Text(labels[i]),
                   ),
               ],
@@ -223,9 +226,41 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
               onDestinationSelected: select,
               destinations: [
                 for (var i = 0; i < labels.length; i++)
-                  NavigationDestination(icon: Icon(icons[i]), label: labels[i]),
+                  NavigationDestination(
+                    icon: _navigationIcon(destinations[i], icons[i]),
+                    label: labels[i],
+                  ),
               ],
             ),
+    );
+  }
+
+  Widget _navigationIcon(
+    EnterpriseShellDestination destination,
+    IconData icon,
+  ) {
+    if (destination != EnterpriseShellDestination.messages) return Icon(icon);
+    final workspace = ref.watch(currentWorkspaceProvider)?.id ?? '';
+    final rows = workspace.isEmpty
+        ? null
+        : ref.watch(workspaceConversationsProvider(workspace));
+    final count = rows == null || rows.isLoading || rows.hasError
+        ? 0
+        : (rows.asData?.value ?? []).fold<int>(
+            0,
+            (total, row) => total + row.unreadCount,
+          );
+    return BadgeWidget(
+      showBadge: count > 0,
+      semanticLabel: context.t.common.unreadCount(count: '$count'),
+      color: Theme.of(context).brightness == Brightness.dark
+          ? AppColors.iosRedDark
+          : AppColors.iosRed,
+      content: Text(
+        count > 99 ? '99+' : '$count',
+        style: context.textStyle(FontSizeType.tiny, color: AppColors.onPrimary),
+      ),
+      child: Icon(icon),
     );
   }
 
