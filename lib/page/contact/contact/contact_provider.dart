@@ -135,11 +135,12 @@ class ContactNotifier extends _$ContactNotifier {
 
     topItems.addAll([
       // AI 助手广场（透明 AI 冷启动入口）
-      ContactModel(
-        peerId: kPeerIdAssistantPlaza,
-        nickname: t.agent.plazaTitle,
-        nameIndex: '↑',
-      ),
+      // TODO AI 助手广场 功能还不稳定，安排到以后版本来实现该功能，暂时隐藏入口
+      // ContactModel(
+      //   peerId: kPeerIdAssistantPlaza,
+      //   nickname: t.agent.plazaTitle,
+      //   nameIndex: '↑',
+      // ),
       ContactModel(
         peerId: kPeerIdNewFriend,
         nickname: t.contact.newFriend,
