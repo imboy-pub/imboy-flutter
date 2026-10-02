@@ -5,9 +5,9 @@
 ///
 /// GZAPP-04 G9：本页降级为**企业上下文内部**的 WS 切换——顶部企业行
 /// 展示当前企业（点击 → /organization/picker 企业选择器，数据源
-/// Organization membership）。WS 列表仍为「我已加入的 Workspace」；
-/// 按 org 过滤依赖后端 mine 支持 organization_id 参数（GZAPP-02/09 域，
-/// 缺口已登记），落地前维持全量已加入列表。
+/// Organization membership）。WS 列表按当前企业过滤：服务端 mine 行
+/// 已带 organization_id，有企业指针时只显示该企业的工作区；指针缺失
+/// （未加入任何企业）时维持全量已加入列表（个人域模式）。
 library;
 
 import 'package:flutter/material.dart';
@@ -25,6 +25,18 @@ import 'package:imboy/modules/organization/presentation/organization_routes.dart
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
+/// 当前账号的企业指针（无存储环境 / 未登录 → null；部分 widget 测试
+/// 环境无存储，回落占位展示）。页面过滤与顶部企业行共用。
+CurrentOrganizationStore? _currentOrgStore() {
+  try {
+    final uid = UserRepoLocal.to.currentUid;
+    if (uid.isEmpty) return null;
+    return CurrentOrganizationStore.forAccount(uid);
+  } on Object {
+    return null;
+  }
+}
+
 class WorkspacePickerPage extends ConsumerWidget {
   const WorkspacePickerPage({super.key});
 
@@ -32,6 +44,10 @@ class WorkspacePickerPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
     final shell = ref.watch(workspaceShellProvider);
+    final org = _currentOrgStore()?.value;
+    final visible = org == null
+        ? shell.workspaces
+        : shell.workspaces.where((ws) => ws.belongsToOrg(org.id)).toList();
     return Scaffold(
       appBar: AppBar(title: Text(t.workspace.pickerTitle)),
       // GZAPP-04：顶部企业行常驻（企业切换入口，§5.1「切换企业」语义）。
@@ -47,7 +63,7 @@ class WorkspacePickerPage extends ConsumerWidget {
                     onRetry: () =>
                         ref.read(workspaceShellProvider.notifier).loadMine(),
                   )
-                : shell.workspaces.isEmpty
+                : visible.isEmpty
                 ? WorkspaceEmptyView(
                     icon: CupertinoIcons.rectangle_stack,
                     title: t.workspace.pickerEmptyTitle,
@@ -61,28 +77,17 @@ class WorkspacePickerPage extends ConsumerWidget {
                         icon: const Icon(CupertinoIcons.add),
                         label: Text(t.workspace.createEntry),
                       ),
-                      AppSpacing.verticalSmall,
-                      // §5.1：「加入工作区」改为真正的「加入企业」（文案与行为同换）；
-                      // 工作区团队码加入改由创建工作区页承接（不丢入口，也不再
-                      // 在企业上下文里冒充"加入企业"）。
-                      OutlinedButton.icon(
-                        key: const ValueKey(
-                          'workspace-picker-empty-join-entry',
-                        ),
-                        onPressed: () =>
-                            context.push('$kOrganizationPickerPath?autoJoin=1'),
-                        icon: const Icon(CupertinoIcons.person_add),
-                        label: Text(t.organization.picker.joinEnterprise),
-                      ),
+                      // 「加入企业」入口不在本页：顶部企业行「切换企业」
+                      // → 企业选择器常驻承接（§5.1 单一入口）。
                     ],
                   )
                 : ListView.separated(
                     padding: AppSpacing.allRegular,
-                    // 列表项 + 底部常驻「创建/加入」双入口 footer（Slack 模式）。
-                    itemCount: shell.workspaces.length + 2,
+                    // 列表项 + 底部常驻「创建工作区」入口 footer。
+                    itemCount: visible.length + 1,
                     separatorBuilder: (_, _) => AppSpacing.verticalSmall,
                     itemBuilder: (context, index) {
-                      if (index == shell.workspaces.length) {
+                      if (index == visible.length) {
                         return _PickerActionTile(
                           key: const ValueKey('workspace-picker-create-entry'),
                           icon: CupertinoIcons.add,
@@ -90,17 +95,7 @@ class WorkspacePickerPage extends ConsumerWidget {
                           onTap: () => context.push('/workspace/create'),
                         );
                       }
-                      if (index == shell.workspaces.length + 1) {
-                        return _PickerActionTile(
-                          key: const ValueKey('workspace-picker-join-entry'),
-                          icon: CupertinoIcons.person_add,
-                          label: t.organization.picker.joinEnterprise,
-                          onTap: () => context.push(
-                            '$kOrganizationPickerPath?autoJoin=1',
-                          ),
-                        );
-                      }
-                      final ws = shell.workspaces[index];
+                      final ws = visible[index];
                       return _WorkspaceTile(
                         ws: ws,
                         selected: ws.id == shell.currentWorkspaceId,
@@ -125,23 +120,11 @@ class WorkspacePickerPage extends ConsumerWidget {
 class _OrgContextTile extends StatelessWidget {
   const _OrgContextTile();
 
-  CurrentOrganizationStore? get _store {
-    try {
-      final uid = UserRepoLocal.to.currentUid;
-      if (uid.isEmpty) return null;
-      return CurrentOrganizationStore.forAccount(uid);
-    } on Object {
-      // 无存储环境（部分 widget 测试）：指针不可用，回落占位展示。
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = context.t;
     final theme = Theme.of(context);
-    final store = _store;
-    final org = store?.value;
+    final org = _currentOrgStore()?.value;
     return ListTile(
       key: const ValueKey('workspace-picker-org-context'),
       dense: true,
