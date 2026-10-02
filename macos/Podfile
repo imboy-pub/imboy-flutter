@@ -69,10 +69,14 @@ end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    flutter_additional_macos_build_settings(target)
-    # 修复macOS部署目标版本问题
+    # 必须在 flutter_additional_macos_build_settings 之前统一部署目标：
+    # helper 读取 target.deployment_target 时要求所有 configuration 取值一致，
+    # flavor 配置（*-Standard）与旧配置在生成时初值不同会触发 consistency 错误。
     target.build_configurations.each do |config|
       config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '12.4'
+    end
+    flutter_additional_macos_build_settings(target)
+    target.build_configurations.each do |config|
       # Shims 里的 vendored 源（flutter_sound 等）umbrella header 会引入
       # CocoaPods 拷贝的非模块头；pods 不得以 warnings-as-errors 构建。
       config.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
