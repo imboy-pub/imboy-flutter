@@ -500,8 +500,15 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
       }
       if (media == 'video' && !state.cameraOff) {
         // 接通前已关摄像头的（响铃期预览可关）尊重该选择，不强制开启。
+        // 响铃期 switchCamera 翻转过的方位延续到 Room 采集：接通瞬间
+        // 不得跳回默认前置。
         try {
-          await room.localParticipant?.setCameraEnabled(true);
+          await room.localParticipant?.setCameraEnabled(
+            true,
+            cameraCaptureOptions: CameraCaptureOptions(
+              cameraPosition: _cameraPosition,
+            ),
+          );
         } on Exception catch (e) {
           iPrint('> rtc camera enable failed: $e');
           updateStateError(

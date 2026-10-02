@@ -6,6 +6,7 @@
 ///   - 预览创建失败（权限/设备）→ errorMessage + camera permissionTarget，
 ///     且不影响信令流程（joinRoom 照常）
 ///   - 接通前 turnCamera：无 Room 时直接开/关预览轨
+///   - 接通前 switchCamera：走预览轨切换前后镜头（主叫/被叫一致）
 ///   - releaseMedia（挂断释放）会停预览轨
 ///   - 音频通话不创建预览
 ///
@@ -33,6 +34,9 @@ class _FakeVideoTrackImpl implements VideoTrack {
 class _FakePreviewTrack implements LocalPreviewTrack {
   int stopCalls = 0;
 
+  /// setCameraPosition 收到的方位序列（断言切换路径与方向）。
+  final List<CameraPosition> positions = [];
+
   @override
   VideoTrack? get videoTrack => _FakeVideoTrackImpl();
 
@@ -42,7 +46,9 @@ class _FakePreviewTrack implements LocalPreviewTrack {
   }
 
   @override
-  Future<void> setCameraPosition(CameraPosition position) async {}
+  Future<void> setCameraPosition(CameraPosition position) async {
+    positions.add(position);
+  }
 }
 
 class _FakeRtcRoomApi extends RtcRoomApi {
@@ -74,6 +80,7 @@ void main() {
   ProviderContainer setupContainer(
     _FakeRtcRoomApi api, {
     String media = 'video',
+    bool isCaller = true,
   }) {
     final container = ProviderContainer();
     // 持有监听：p2pCallScreenProvider 是 autoDispose，无监听时会在
@@ -85,7 +92,7 @@ void main() {
     notifier.initSession(
       newSession: WebRTCSession(peerId: peerId, sid: '117-$peerId'),
       newMedia: media,
-      isCaller: true,
+      isCaller: isCaller,
       newMsgId: 'mid-lk-pv-1',
     );
     return container;
@@ -200,6 +207,56 @@ void main() {
     expect(container.read(p2pCallScreenProvider).cameraOff, isFalse);
     await pumpEventQueue();
     expect(notifier.previewTrack, isNotNull);
+  });
+
+  test('接通前 switchCamera：走预览轨切换前后镜头', () async {
+    final api = _FakeRtcRoomApi();
+    final container = setupContainer(api);
+    addTearDown(container.dispose);
+
+    final notifier = container.read(p2pCallScreenProvider.notifier);
+    final preview = _FakePreviewTrack();
+    notifier.previewTrackFactory = (options) async => preview;
+    notifier.startLocalPreview();
+    await pumpEventQueue();
+    expect(container.read(p2pCallScreenProvider).isFrontCamera, isTrue);
+
+    await notifier.switchCamera();
+
+    expect(preview.positions, [CameraPosition.back]);
+    expect(container.read(p2pCallScreenProvider).isFrontCamera, isFalse);
+
+    await notifier.switchCamera();
+
+    expect(preview.positions, [CameraPosition.back, CameraPosition.front]);
+    expect(container.read(p2pCallScreenProvider).isFrontCamera, isTrue);
+  });
+
+  test('被叫响铃期（isCaller: false）同样可预览并切换镜头', () async {
+    final api = _FakeRtcRoomApi();
+    final container = setupContainer(api, isCaller: false);
+    addTearDown(container.dispose);
+
+    final notifier = container.read(p2pCallScreenProvider.notifier);
+    final preview = _FakePreviewTrack();
+    notifier.previewTrackFactory = (options) async => preview;
+
+    // 页面对主叫/被叫统一调 startLocalPreview（未接通即可见自视图）。
+    notifier.startLocalPreview();
+    await pumpEventQueue();
+
+    expect(container.read(p2pCallScreenProvider).localPreviewReady, isTrue);
+    expect(notifier.previewTrack, same(preview));
+
+    await notifier.switchCamera();
+    expect(preview.positions, [CameraPosition.back]);
+    expect(container.read(p2pCallScreenProvider).isFrontCamera, isFalse);
+
+    // 接听后 connect 照常先停预览轨（不与 Room 采集抢设备）。
+    final ok = await notifier.connect(peerId: peerId);
+    expect(ok, isTrue);
+    expect(preview.stopCalls, 1);
+    expect(notifier.previewTrack, isNull);
   });
 
   test('releaseMedia（挂断释放）会停预览轨', () async {

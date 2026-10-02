@@ -188,9 +188,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       newMsgId: msgId,
     );
 
-    // 主叫响铃等待期开本地预览（房外采集、不 joinRoom 不发布）：让用户
-    // 确认自己的摄像头已工作。被叫点接听后立即 connect，无需预览。
-    if (widget.caller && media == 'video') {
+    // 响铃等待期开本地预览（房外采集、不 joinRoom 不发布）：主叫确认
+    // 自己的摄像头已工作；被叫响铃页同样显示自视图，未接通即可切换
+    // 前后镜头（switchCamera 走预览轨分支）。接听 connect() / 挂断路径
+    // 统一经 stopLocalPreview 释放，不与 Room 相机采集并发抢设备。
+    if (media == 'video') {
       notifier.startLocalPreview();
     }
 
