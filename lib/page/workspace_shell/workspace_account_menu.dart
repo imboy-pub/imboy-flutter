@@ -510,18 +510,6 @@ class _OrganizationEntries extends StatelessWidget {
             context.push(kOrganizationHomePath);
           },
         ),
-        _SheetActionTile(
-          key: const ValueKey('workspace-account-sheet-directory-entry'),
-          icon: CupertinoIcons.person_3,
-          label: t.organization.directory.title,
-          onTap: () {
-            Navigator.pop(context);
-            context.push(
-              '$kOrganizationHomePath/${o.id}/directory'
-              '?name=${Uri.encodeComponent(o.name)}',
-            );
-          },
-        ),
         if (canManage)
           _SheetActionTile(
             key: const ValueKey('workspace-account-sheet-manage-entry'),

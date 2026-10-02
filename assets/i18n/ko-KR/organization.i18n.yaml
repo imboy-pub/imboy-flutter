@@ -134,7 +134,7 @@ invitations:
   acceptAction: "초대 수락"
   rejectAction: "거절"
 departments:
-  title: "부서 목록"
+  title: 부서 관리
   statusLine: "상태: ${status}"
   memberUidLine: "멤버 ${userId}"
   viewForbiddenDetail: "이 부서를 볼 권한이 없습니다(이 조직의 재직 멤버만 가능)"
@@ -219,6 +219,7 @@ inviteQr:
   # pending/rejected 기업의 코드 발급 진입 비활성 안내(서버 preview/join은 항상 409)
   inviteDisabledPending: "기업이 심사 대기 중입니다. 심사가 통과된 후에만 멤버를 초대할 수 있습니다"
 directory:
+  structureSection: 조직 구조
   title: "디렉터리"
   deptSection: "부서"
   allMembersSection: "전체 멤버"

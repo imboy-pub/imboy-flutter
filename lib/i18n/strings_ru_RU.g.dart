@@ -2854,7 +2854,7 @@ class _Translations$organization$departments$ru_RU extends Translations$organiza
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Справочник отделов';
+	@override String get title => 'Управление отделами';
 	@override String statusLine({required Object status}) => 'Статус: ${status}';
 	@override String memberUidLine({required Object userId}) => 'Участник ${userId}';
 	@override String get viewForbiddenDetail => 'Нет доступа к этому отделу (только действующие участники этой организации)';
@@ -2959,6 +2959,7 @@ class _Translations$organization$directory$ru_RU extends Translations$organizati
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get structureSection => 'Структура организации';
 	@override String get title => 'Справочник';
 	@override String get deptSection => 'Отделы';
 	@override String get allMembersSection => 'Все участники';
@@ -5307,7 +5308,7 @@ extension on TranslationsRuRu {
 			'organization.invitations.revokeAction' => 'Отозвать',
 			'organization.invitations.acceptAction' => 'Принять приглашение',
 			'organization.invitations.rejectAction' => 'Отклонить',
-			'organization.departments.title' => 'Справочник отделов',
+			'organization.departments.title' => 'Управление отделами',
 			'organization.departments.statusLine' => ({required Object status}) => 'Статус: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Участник ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Нет доступа к этому отделу (только действующие участники этой организации)',
@@ -5385,6 +5386,7 @@ extension on TranslationsRuRu {
 			'organization.inviteQr.copyCode' => 'Копировать код',
 			'organization.inviteQr.copied' => 'Код приглашения скопирован',
 			'organization.inviteQr.inviteDisabledPending' => 'Предприятие ожидает проверки; приглашать участников можно будет только после одобрения',
+			'organization.directory.structureSection' => 'Структура организации',
 			'organization.directory.title' => 'Справочник',
 			'organization.directory.deptSection' => 'Отделы',
 			'organization.directory.allMembersSection' => 'Все участники',
@@ -5721,9 +5723,9 @@ extension on TranslationsRuRu {
 			'workspace.projectMemberEmptySubtitle' => 'Ответственный за проект может приглашать зарегистрированных пользователей',
 			'workspace.projectMemberInviteTitle' => 'Пригласить участника проекта',
 			'workspace.projectMemberInviteFieldHint' => 'ID зарегистрированного пользователя для приглашения',
-			'workspace.projectMemberInviteInvalidUid' => 'Введите действительный ID пользователя',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => 'Введите действительный ID пользователя',
 			'workspace.projectMemberInviteSubmit' => 'Пригласить',
 			'workspace.projectMemberInviteSuccess' => 'Пользователь добавлен в участники проекта',
 			'workspace.projectMemberInviteExisting' => 'Этот пользователь уже участник проекта',

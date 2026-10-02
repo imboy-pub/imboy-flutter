@@ -2846,7 +2846,7 @@ class Translations$organization$departments$zh_Hant extends Translations$organiz
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '部門目錄';
+	@override String get title => '部門管理';
 	@override String statusLine({required Object status}) => '狀態：${status}';
 	@override String memberUidLine({required Object userId}) => '成員 ${userId}';
 	@override String get viewForbiddenDetail => '無權查看該部門（僅限本組織在職成員）';
@@ -2951,6 +2951,7 @@ class Translations$organization$directory$zh_Hant extends Translations$organizat
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
+	@override String get structureSection => '組織架構';
 	@override String get title => '通訊錄';
 	@override String get deptSection => '部門';
 	@override String get allMembersSection => '全部成員';
@@ -5300,7 +5301,7 @@ extension on TranslationsZhHant {
 			'organization.invitations.revokeAction' => '撤銷',
 			'organization.invitations.acceptAction' => '接受邀請',
 			'organization.invitations.rejectAction' => '拒絕',
-			'organization.departments.title' => '部門目錄',
+			'organization.departments.title' => '部門管理',
 			'organization.departments.statusLine' => ({required Object status}) => '狀態：${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => '成員 ${userId}',
 			'organization.departments.viewForbiddenDetail' => '無權查看該部門（僅限本組織在職成員）',
@@ -5378,6 +5379,7 @@ extension on TranslationsZhHant {
 			'organization.inviteQr.copyCode' => '複製邀請碼',
 			'organization.inviteQr.copied' => '已複製邀請碼',
 			'organization.inviteQr.inviteDisabledPending' => '企業待審核，審核通過後才能邀請成員',
+			'organization.directory.structureSection' => '組織架構',
 			'organization.directory.title' => '通訊錄',
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => '全部成員',
@@ -5713,9 +5715,9 @@ extension on TranslationsZhHant {
 			'workspace.projectMemberEmptyTitle' => '還沒有專案成員',
 			'workspace.projectMemberEmptySubtitle' => '專案負責人可邀請已註冊使用者加入此專案',
 			'workspace.projectMemberInviteTitle' => '邀請專案成員',
-			'workspace.projectMemberInviteFieldHint' => '要邀請的已註冊使用者 ID',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteFieldHint' => '要邀請的已註冊使用者 ID',
 			'workspace.projectMemberInviteInvalidUid' => '請輸入有效的使用者 ID',
 			'workspace.projectMemberInviteSubmit' => '邀請',
 			'workspace.projectMemberInviteSuccess' => '已加入專案成員',

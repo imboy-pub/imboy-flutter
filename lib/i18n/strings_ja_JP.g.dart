@@ -2845,7 +2845,7 @@ class _Translations$organization$departments$ja_JP extends Translations$organiza
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '部門ディレクトリ';
+	@override String get title => '部署管理';
 	@override String statusLine({required Object status}) => '状態：${status}';
 	@override String memberUidLine({required Object userId}) => 'メンバー ${userId}';
 	@override String get viewForbiddenDetail => 'この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）';
@@ -2950,6 +2950,7 @@ class _Translations$organization$directory$ja_JP extends Translations$organizati
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
+	@override String get structureSection => '組織構成';
 	@override String get title => 'ディレクトリ';
 	@override String get deptSection => '部門';
 	@override String get allMembersSection => 'すべてのメンバー';
@@ -5298,7 +5299,7 @@ extension on TranslationsJaJp {
 			'organization.invitations.revokeAction' => '取り消し',
 			'organization.invitations.acceptAction' => '招待を受諾',
 			'organization.invitations.rejectAction' => '拒否',
-			'organization.departments.title' => '部門ディレクトリ',
+			'organization.departments.title' => '部署管理',
 			'organization.departments.statusLine' => ({required Object status}) => '状態：${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'メンバー ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）',
@@ -5376,6 +5377,7 @@ extension on TranslationsJaJp {
 			'organization.inviteQr.copyCode' => 'コードをコピー',
 			'organization.inviteQr.copied' => '招待コードをコピーしました',
 			'organization.inviteQr.inviteDisabledPending' => '企業は審査待ちです。審査に合格するとメンバーを招待できます',
+			'organization.directory.structureSection' => '組織構成',
 			'organization.directory.title' => 'ディレクトリ',
 			'organization.directory.deptSection' => '部門',
 			'organization.directory.allMembersSection' => 'すべてのメンバー',
@@ -5712,9 +5714,9 @@ extension on TranslationsJaJp {
 			'workspace.projectMemberEmptySubtitle' => 'プロジェクト担当者は登録済みユーザーをこのプロジェクトに招待できます',
 			'workspace.projectMemberInviteTitle' => 'プロジェクトメンバーを招待',
 			'workspace.projectMemberInviteFieldHint' => '招待する登録済みユーザーのID',
-			'workspace.projectMemberInviteInvalidUid' => '有効なユーザーIDを入力してください',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => '有効なユーザーIDを入力してください',
 			'workspace.projectMemberInviteSubmit' => '招待',
 			'workspace.projectMemberInviteSuccess' => 'プロジェクトメンバーに追加しました',
 			'workspace.projectMemberInviteExisting' => 'このユーザーは既にプロジェクトメンバーです',

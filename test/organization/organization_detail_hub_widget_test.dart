@@ -176,13 +176,18 @@ void main() {
     // 五域入口对全员开放。
     for (final key in const [
       'organization-detail-zone-members',
-      'organization-detail-zone-departments',
       'organization-detail-zone-groups',
       'organization-detail-zone-channels',
       'organization-detail-zone-tools',
     ]) {
       expect(find.byKey(ValueKey(key)), findsOneWidget, reason: '五域入口 $key');
     }
+
+    expect(
+      find.byKey(const ValueKey('organization-detail-zone-departments')),
+      findsNothing,
+    );
+    expect(find.text('通讯录'), findsOneWidget);
 
     // 管理员区经 PermissionGate hide：member 看不到管理员动作。
     expect(find.text('管理员区'), findsNothing);

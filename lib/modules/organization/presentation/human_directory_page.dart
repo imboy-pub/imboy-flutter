@@ -357,13 +357,9 @@ class _HumanDirectoryBrowserPageState
         if (!didPop) _upOneLevel();
       },
       child: Scaffold(
-        appBar: widget.embedded && isRoot
+        appBar: widget.embedded
             ? null
             : AppBar(
-                automaticallyImplyLeading: !widget.embedded,
-                leading: widget.embedded
-                    ? BackButton(onPressed: _upOneLevel)
-                    : null,
                 title: Semantics(
                   button: isRoot,
                   label: isRoot
@@ -460,6 +456,7 @@ class _HumanDirectoryBrowserPageState
             )
             .toList(growable: false),
         onAncestor: _openLevel,
+        showBackButton: widget.embedded,
         departments: _departmentWidgets(context, isRoot),
         members: _memberWidgets(context),
       );
@@ -476,7 +473,12 @@ class _HumanDirectoryBrowserPageState
           _departmentRow(context, d, keySuffix: 'mine'),
         AppSpacing.verticalSmall,
       ],
-      _sectionHeader(context, t.organization.directory.deptSection),
+      _sectionHeader(
+        context,
+        isRoot
+            ? t.organization.directory.structureSection
+            : t.organization.directory.deptSection,
+      ),
       for (var i = 0; i < depts.items.length; i++)
         _departmentRow(
           context,

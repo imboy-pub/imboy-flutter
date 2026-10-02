@@ -134,7 +134,7 @@ invitations:
   acceptAction: "接受邀請"
   rejectAction: "拒絕"
 departments:
-  title: "部門目錄"
+  title: 部門管理
   statusLine: "狀態：${status}"
   memberUidLine: "成員 ${userId}"
   viewForbiddenDetail: "無權查看該部門（僅限本組織在職成員）"
@@ -219,6 +219,7 @@ inviteQr:
   # pending/rejected 企業出碼入口停用提示（伺服器 preview/join 一律 409）
   inviteDisabledPending: "企業待審核，審核通過後才能邀請成員"
 directory:
+  structureSection: 組織架構
   title: 通訊錄
   deptSection: 部門
   allMembersSection: 全部成員

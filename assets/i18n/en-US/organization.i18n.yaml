@@ -134,7 +134,7 @@ invitations:
   acceptAction: "Accept invitation"
   rejectAction: "Reject"
 departments:
-  title: "Departments"
+  title: Department management
   statusLine: "Status: ${status}"
   memberUidLine: "Member ${userId}"
   viewForbiddenDetail: "Not allowed to view this department (active members of this organization only)"
@@ -219,6 +219,7 @@ inviteQr:
   # Disabled invite-entry hint for pending/rejected enterprises (server preview/join always 409)
   inviteDisabledPending: "The enterprise is pending review; members can be invited once approved"
 directory:
+  structureSection: Organization structure
   title: "Directory"
   deptSection: "Departments"
   allMembersSection: "All members"

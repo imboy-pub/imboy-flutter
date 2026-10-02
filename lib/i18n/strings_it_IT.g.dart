@@ -2848,7 +2848,7 @@ class _Translations$organization$departments$it_IT extends Translations$organiza
 	final TranslationsItIt _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Elenco dipartimenti';
+	@override String get title => 'Gestione dei reparti';
 	@override String statusLine({required Object status}) => 'Stato: ${status}';
 	@override String memberUidLine({required Object userId}) => 'Membro ${userId}';
 	@override String get viewForbiddenDetail => 'Non hai accesso a questo dipartimento (solo membri attivi di questa organizzazione)';
@@ -2953,6 +2953,7 @@ class _Translations$organization$directory$it_IT extends Translations$organizati
 	final TranslationsItIt _root; // ignore: unused_field
 
 	// Translations
+	@override String get structureSection => 'Struttura organizzativa';
 	@override String get title => 'Rubrica';
 	@override String get deptSection => 'Dipartimenti';
 	@override String get allMembersSection => 'Tutti i membri';
@@ -5301,7 +5302,7 @@ extension on TranslationsItIt {
 			'organization.invitations.revokeAction' => 'Revoca',
 			'organization.invitations.acceptAction' => 'Accetta invito',
 			'organization.invitations.rejectAction' => 'Rifiuta',
-			'organization.departments.title' => 'Elenco dipartimenti',
+			'organization.departments.title' => 'Gestione dei reparti',
 			'organization.departments.statusLine' => ({required Object status}) => 'Stato: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Membro ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Non hai accesso a questo dipartimento (solo membri attivi di questa organizzazione)',
@@ -5379,6 +5380,7 @@ extension on TranslationsItIt {
 			'organization.inviteQr.copyCode' => 'Copia codice',
 			'organization.inviteQr.copied' => 'Codice di invito copiato',
 			'organization.inviteQr.inviteDisabledPending' => 'L\'azienda è in attesa di revisione; i membri potranno essere invitati solo dopo l\'approvazione',
+			'organization.directory.structureSection' => 'Struttura organizzativa',
 			'organization.directory.title' => 'Rubrica',
 			'organization.directory.deptSection' => 'Dipartimenti',
 			'organization.directory.allMembersSection' => 'Tutti i membri',
@@ -5715,9 +5717,9 @@ extension on TranslationsItIt {
 			'workspace.projectReopen' => 'Riapri progetto',
 			'workspace.projectStatusActive' => 'In corso',
 			'workspace.projectStatusChanged' => 'Stato del progetto aggiornato',
-			'workspace.projectStatusDone' => 'Completato',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectStatusDone' => 'Completato',
 			'workspace.projectStatusLabel' => 'Stato',
 			'workspace.projectSubmit' => 'Crea',
 			'workspace.projectTasksSection' => 'Attività',

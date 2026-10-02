@@ -134,7 +134,7 @@ invitations:
   acceptAction: "قبول الدعوة"
   rejectAction: "رفض"
 departments:
-  title: "دليل الأقسام"
+  title: إدارة الأقسام
   statusLine: "الحالة: ${status}"
   memberUidLine: "العضو ${userId}"
   viewForbiddenDetail: "لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)"
@@ -219,6 +219,7 @@ inviteQr:
   # تلميح تعطيل مدخل إصدار الرمز للمؤسسات pending/rejected (preview/join على الخادم دائمًا 409)
   inviteDisabledPending: "المؤسسة بانتظار المراجعة؛ لا يمكن دعوة الأعضاء إلا بعد اجتيازها"
 directory:
+  structureSection: الهيكل التنظيمي
   title: "الدليل"
   deptSection: "الأقسام"
   allMembersSection: "جميع الأعضاء"

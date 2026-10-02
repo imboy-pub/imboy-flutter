@@ -134,7 +134,7 @@ invitations:
   acceptAction: "Accepter l'invitation"
   rejectAction: "Refuser"
 departments:
-  title: "Annuaire des départements"
+  title: Gestion des services
   statusLine: "Statut : ${status}"
   memberUidLine: "Membre ${userId}"
   viewForbiddenDetail: "Accès à ce département refusé (membres actifs de cette organisation uniquement)"
@@ -219,6 +219,7 @@ inviteQr:
   # Aide d'entrée de génération désactivée pour les entreprises pending/rejected (preview/join serveur toujours 409)
   inviteDisabledPending: "L'entreprise est en attente d'examen ; les membres pourront être invités une fois celle-ci validée"
 directory:
+  structureSection: Structure organisationnelle
   title: "Annuaire"
   deptSection: "Départements"
   allMembersSection: "Tous les membres"

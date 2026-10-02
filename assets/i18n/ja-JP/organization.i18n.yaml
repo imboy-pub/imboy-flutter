@@ -134,7 +134,7 @@ invitations:
   acceptAction: "招待を受諾"
   rejectAction: "拒否"
 departments:
-  title: "部門ディレクトリ"
+  title: 部署管理
   statusLine: "状態：${status}"
   memberUidLine: "メンバー ${userId}"
   viewForbiddenDetail: "この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）"
@@ -219,6 +219,7 @@ inviteQr:
   # pending/rejected 企業の発行入口無効化ヒント（サーバーの preview/join は一律 409）
   inviteDisabledPending: "企業は審査待ちです。審査に合格するとメンバーを招待できます"
 directory:
+  structureSection: 組織構成
   title: "ディレクトリ"
   deptSection: "部門"
   allMembersSection: "すべてのメンバー"

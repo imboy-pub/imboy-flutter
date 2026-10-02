@@ -133,7 +133,7 @@ invitations:
   acceptAction: "接受邀请"
   rejectAction: 拒绝
 departments:
-  title: 部门目录
+  title: 部门管理
   statusLine: "状态：${status}"
   memberUidLine: "成员 ${userId}"
   viewForbiddenDetail: 无权查看该部门（仅限本组织在职成员）
@@ -218,6 +218,7 @@ inviteQr:
   # pending/rejected 企业出码入口禁用提示（服务端 preview/join 一律 409）
   inviteDisabledPending: 企业待审核，审核通过后才能邀请成员
 directory:
+  structureSection: 组织架构
   title: 通讯录
   deptSection: 部门
   allMembersSection: 全部成员

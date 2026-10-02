@@ -134,7 +134,7 @@ invitations:
   acceptAction: "Accetta invito"
   rejectAction: "Rifiuta"
 departments:
-  title: "Elenco dipartimenti"
+  title: Gestione dei reparti
   statusLine: "Stato: ${status}"
   memberUidLine: "Membro ${userId}"
   viewForbiddenDetail: "Non hai accesso a questo dipartimento (solo membri attivi di questa organizzazione)"
@@ -219,6 +219,7 @@ inviteQr:
   # Suggerimento di ingresso generazione disabilitato per aziende pending/rejected (preview/join del server sempre 409)
   inviteDisabledPending: "L'azienda è in attesa di revisione; i membri potranno essere invitati solo dopo l'approvazione"
 directory:
+  structureSection: Struttura organizzativa
   title: "Rubrica"
   deptSection: "Dipartimenti"
   allMembersSection: "Tutti i membri"

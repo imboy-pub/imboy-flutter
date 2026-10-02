@@ -12,11 +12,13 @@ class HumanDirectoryLayout extends StatelessWidget {
     required this.onAncestor,
     required this.departments,
     required this.members,
+    this.showBackButton = false,
   });
   final List<String> ancestors;
   final ValueChanged<int> onAncestor;
   final List<Widget> departments;
   final List<Widget> members;
+  final bool showBackButton;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -60,13 +62,27 @@ class HumanDirectoryLayout extends StatelessWidget {
   Widget _path(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
     child: LayoutBuilder(
-      builder: (context, constraints) => Wrap(
+      builder: (context, constraints) => Row(
         children: [
-          for (var i = 0; i < ancestors.length; i++)
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: constraints.maxWidth),
-              child: _pathNode(context, i),
+          if (showBackButton && ancestors.length > 1)
+            BackButton(onPressed: () => onAncestor(ancestors.length - 2)),
+          Expanded(
+            child: Wrap(
+              children: [
+                for (var i = 0; i < ancestors.length; i++)
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth:
+                          constraints.maxWidth -
+                          (showBackButton && ancestors.length > 1
+                              ? AppSpacing.xxxLarge
+                              : AppSpacing.none),
+                    ),
+                    child: _pathNode(context, i),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
     ),

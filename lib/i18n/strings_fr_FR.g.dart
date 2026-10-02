@@ -2848,7 +2848,7 @@ class _Translations$organization$departments$fr_FR extends Translations$organiza
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Annuaire des départements';
+	@override String get title => 'Gestion des services';
 	@override String statusLine({required Object status}) => 'Statut : ${status}';
 	@override String memberUidLine({required Object userId}) => 'Membre ${userId}';
 	@override String get viewForbiddenDetail => 'Accès à ce département refusé (membres actifs de cette organisation uniquement)';
@@ -2953,6 +2953,7 @@ class _Translations$organization$directory$fr_FR extends Translations$organizati
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
+	@override String get structureSection => 'Structure organisationnelle';
 	@override String get title => 'Annuaire';
 	@override String get deptSection => 'Départements';
 	@override String get allMembersSection => 'Tous les membres';
@@ -5301,7 +5302,7 @@ extension on TranslationsFrFr {
 			'organization.invitations.revokeAction' => 'Révoquer',
 			'organization.invitations.acceptAction' => 'Accepter l\'invitation',
 			'organization.invitations.rejectAction' => 'Refuser',
-			'organization.departments.title' => 'Annuaire des départements',
+			'organization.departments.title' => 'Gestion des services',
 			'organization.departments.statusLine' => ({required Object status}) => 'Statut : ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Membre ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Accès à ce département refusé (membres actifs de cette organisation uniquement)',
@@ -5379,6 +5380,7 @@ extension on TranslationsFrFr {
 			'organization.inviteQr.copyCode' => 'Copier le code',
 			'organization.inviteQr.copied' => 'Code d\'invitation copié',
 			'organization.inviteQr.inviteDisabledPending' => 'L\'entreprise est en attente d\'examen ; les membres pourront être invités une fois celle-ci validée',
+			'organization.directory.structureSection' => 'Structure organisationnelle',
 			'organization.directory.title' => 'Annuaire',
 			'organization.directory.deptSection' => 'Départements',
 			'organization.directory.allMembersSection' => 'Tous les membres',
@@ -5715,9 +5717,9 @@ extension on TranslationsFrFr {
 			'workspace.projectMemberEmptySubtitle' => 'Le responsable du projet peut inviter des utilisateurs inscrits à rejoindre ce projet',
 			'workspace.projectMemberInviteTitle' => 'Inviter des membres au projet',
 			'workspace.projectMemberInviteFieldHint' => 'ID de l\'utilisateur inscrit à inviter',
-			'workspace.projectMemberInviteInvalidUid' => 'Veuillez saisir un ID utilisateur valide',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => 'Veuillez saisir un ID utilisateur valide',
 			'workspace.projectMemberInviteSubmit' => 'Inviter',
 			'workspace.projectMemberInviteSuccess' => 'Ajouté aux membres du projet',
 			'workspace.projectMemberInviteExisting' => 'Cet utilisateur est déjà membre du projet',

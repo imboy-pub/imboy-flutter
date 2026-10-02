@@ -2984,7 +2984,7 @@ class _Translations$organization$departments$en_US extends Translations$organiza
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Departments';
+	@override String get title => 'Department management';
 	@override String statusLine({required Object status}) => 'Status: ${status}';
 	@override String memberUidLine({required Object userId}) => 'Member ${userId}';
 	@override String get viewForbiddenDetail => 'Not allowed to view this department (active members of this organization only)';
@@ -3089,6 +3089,7 @@ class _Translations$organization$directory$en_US extends Translations$organizati
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get structureSection => 'Organization structure';
 	@override String get title => 'Directory';
 	@override String get deptSection => 'Departments';
 	@override String get allMembersSection => 'All members';
@@ -5555,7 +5556,7 @@ extension on TranslationsEnUs {
 			'organization.invitations.revokeAction' => 'Revoke',
 			'organization.invitations.acceptAction' => 'Accept invitation',
 			'organization.invitations.rejectAction' => 'Reject',
-			'organization.departments.title' => 'Departments',
+			'organization.departments.title' => 'Department management',
 			'organization.departments.statusLine' => ({required Object status}) => 'Status: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Member ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Not allowed to view this department (active members of this organization only)',
@@ -5633,6 +5634,7 @@ extension on TranslationsEnUs {
 			'organization.inviteQr.copyCode' => 'Copy code',
 			'organization.inviteQr.copied' => 'Invite code copied',
 			'organization.inviteQr.inviteDisabledPending' => 'The enterprise is pending review; members can be invited once approved',
+			'organization.directory.structureSection' => 'Organization structure',
 			'organization.directory.title' => 'Directory',
 			'organization.directory.deptSection' => 'Departments',
 			'organization.directory.allMembersSection' => 'All members',
@@ -5853,9 +5855,9 @@ extension on TranslationsEnUs {
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} group members',
 			'workspace.inviteTitle' => 'Invite Workspace Member',
 			'workspace.inviteDesc' => 'Only registered users can be invited; joining a workspace does not auto-join groups or subscribe channels. You can also add them to General and send an Announcements channel invitation.',
-			'workspace.inviteSearchHint' => 'Search by username / user ID',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.inviteSearchHint' => 'Search by username / user ID',
 			'workspace.inviteEntry' => 'Invite Workspace Member',
 			'workspace.inviteJoinGroupOption' => 'Also join the General group (become a Group Member)',
 			'workspace.inviteSubscribeChannelOption' => 'Also send an Announcements channel invitation',

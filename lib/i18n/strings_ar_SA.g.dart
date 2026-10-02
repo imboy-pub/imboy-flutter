@@ -2857,7 +2857,7 @@ class _Translations$organization$departments$ar_SA extends Translations$organiza
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'دليل الأقسام';
+	@override String get title => 'إدارة الأقسام';
 	@override String statusLine({required Object status}) => 'الحالة: ${status}';
 	@override String memberUidLine({required Object userId}) => 'العضو ${userId}';
 	@override String get viewForbiddenDetail => 'لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)';
@@ -2962,6 +2962,7 @@ class _Translations$organization$directory$ar_SA extends Translations$organizati
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
+	@override String get structureSection => 'الهيكل التنظيمي';
 	@override String get title => 'الدليل';
 	@override String get deptSection => 'الأقسام';
 	@override String get allMembersSection => 'جميع الأعضاء';
@@ -5310,7 +5311,7 @@ extension on TranslationsArSa {
 			'organization.invitations.revokeAction' => 'إلغاء',
 			'organization.invitations.acceptAction' => 'قبول الدعوة',
 			'organization.invitations.rejectAction' => 'رفض',
-			'organization.departments.title' => 'دليل الأقسام',
+			'organization.departments.title' => 'إدارة الأقسام',
 			'organization.departments.statusLine' => ({required Object status}) => 'الحالة: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'العضو ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'لا تملك صلاحية عرض هذا القسم (للأعضاء العاملين في هذه المنظمة فقط)',
@@ -5388,6 +5389,7 @@ extension on TranslationsArSa {
 			'organization.inviteQr.copyCode' => 'نسخ الرمز',
 			'organization.inviteQr.copied' => 'تم نسخ رمز الدعوة',
 			'organization.inviteQr.inviteDisabledPending' => 'المؤسسة بانتظار المراجعة؛ لا يمكن دعوة الأعضاء إلا بعد اجتيازها',
+			'organization.directory.structureSection' => 'الهيكل التنظيمي',
 			'organization.directory.title' => 'الدليل',
 			'organization.directory.deptSection' => 'الأقسام',
 			'organization.directory.allMembersSection' => 'جميع الأعضاء',
@@ -5724,9 +5726,9 @@ extension on TranslationsArSa {
 			'workspace.projectMemberEmptySubtitle' => 'يمكن لمسؤول المشروع دعوة مستخدمين مسجلين للانضمام إلى هذا المشروع',
 			'workspace.projectMemberInviteTitle' => 'دعوة أعضاء المشروع',
 			'workspace.projectMemberInviteFieldHint' => 'معرّف المستخدم المسجل المراد دعوته',
-			'workspace.projectMemberInviteInvalidUid' => 'يرجى إدخال معرّف مستخدم صالح',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => 'يرجى إدخال معرّف مستخدم صالح',
 			'workspace.projectMemberInviteSubmit' => 'دعوة',
 			'workspace.projectMemberInviteSuccess' => 'تمت إضافته عضواً في المشروع',
 			'workspace.projectMemberInviteExisting' => 'هذا المستخدم عضو في المشروع بالفعل',

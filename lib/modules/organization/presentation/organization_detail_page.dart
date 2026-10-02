@@ -355,18 +355,11 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       _HubTile(
         tileKey: const ValueKey('organization-detail-zone-members'),
         icon: CupertinoIcons.person_2,
-        title: t.organization.hub.zoneMembers,
+        title: t.organization.directory.title,
         subtitle: t.organization.hub.zoneMembersDesc,
         onTap: () => context.push(
           '$detailBase/directory?name=${Uri.encodeQueryComponent(org.name)}',
         ),
-      ),
-      _HubTile(
-        tileKey: const ValueKey('organization-detail-zone-departments'),
-        icon: CupertinoIcons.tree,
-        title: t.organization.hub.zoneDepartments,
-        subtitle: t.organization.hub.zoneDepartmentsDesc,
-        onTap: () => context.push('$detailBase/departments'),
       ),
       _HubTile(
         tileKey: const ValueKey('organization-detail-zone-groups'),
@@ -414,6 +407,13 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _sectionHeader(t.organization.hub.sectionAdmin),
+          _HubTile(
+            tileKey: const ValueKey('organization-detail-zone-departments'),
+            icon: CupertinoIcons.tree,
+            title: t.organization.departments.title,
+            subtitle: t.organization.hub.zoneDepartmentsDesc,
+            onTap: () => context.push('$detailBase/departments'),
+          ),
           _HubTile(
             tileKey: const ValueKey('organization-detail-admin-members'),
             icon: CupertinoIcons.person_crop_circle_badge_checkmark,

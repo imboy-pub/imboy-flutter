@@ -135,7 +135,7 @@ invitations:
   acceptAction: "Принять приглашение"
   rejectAction: "Отклонить"
 departments:
-  title: "Справочник отделов"
+  title: Управление отделами
   statusLine: "Статус: ${status}"
   memberUidLine: "Участник ${userId}"
   viewForbiddenDetail: "Нет доступа к этому отделу (только действующие участники этой организации)"
@@ -220,6 +220,7 @@ inviteQr:
   # Подсказка о запрете выдачи кода для pending/rejected предприятий (сервер preview/join всегда 409)
   inviteDisabledPending: "Предприятие ожидает проверки; приглашать участников можно будет только после одобрения"
 directory:
+  structureSection: Структура организации
   title: "Справочник"
   deptSection: "Отделы"
   allMembersSection: "Все участники"

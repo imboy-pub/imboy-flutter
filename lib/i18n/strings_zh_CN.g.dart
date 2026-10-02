@@ -8080,8 +8080,8 @@ class Translations$organization$departments$zh_CN {
 
 	// Translations
 
-	/// zh-CN: '部门目录'
-	String get title => '部门目录';
+	/// zh-CN: '部门管理'
+	String get title => '部门管理';
 
 	/// zh-CN: '状态：${status}'
 	String statusLine({required Object status}) => '状态：${status}';
@@ -8340,6 +8340,9 @@ class Translations$organization$directory$zh_CN {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// zh-CN: '组织架构'
+	String get structureSection => '组织架构';
 
 	/// zh-CN: '通讯录'
 	String get title => '通讯录';
@@ -11092,7 +11095,7 @@ extension on Translations {
 			'organization.invitations.revokeAction' => '撤销',
 			'organization.invitations.acceptAction' => '接受邀请',
 			'organization.invitations.rejectAction' => '拒绝',
-			'organization.departments.title' => '部门目录',
+			'organization.departments.title' => '部门管理',
 			'organization.departments.statusLine' => ({required Object status}) => '状态：${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => '成员 ${userId}',
 			'organization.departments.viewForbiddenDetail' => '无权查看该部门（仅限本组织在职成员）',
@@ -11170,6 +11173,7 @@ extension on Translations {
 			'organization.inviteQr.copyCode' => '复制邀请码',
 			'organization.inviteQr.copied' => '已复制邀请码',
 			'organization.inviteQr.inviteDisabledPending' => '企业待审核，审核通过后才能邀请成员',
+			'organization.directory.structureSection' => '组织架构',
 			'organization.directory.title' => '通讯录',
 			'organization.directory.deptSection' => '部门',
 			'organization.directory.allMembersSection' => '全部成员',
@@ -11370,9 +11374,9 @@ extension on Translations {
 			'workspace.overviewTitle' => '概览',
 			'workspace.overviewResources' => '资源摘要',
 			'workspace.overviewPinnedContent' => '频道置顶内容',
-			'workspace.overviewPinnedEmpty' => '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.overviewPinnedEmpty' => '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）',
 			'workspace.overviewRecentFiles' => '最近文件',
 			'workspace.overviewRecentFilesEmpty' => '最近上传的文件将在此展示；也可在各频道内查看附件',
 			'workspace.membersTitle' => '工作区成员',

@@ -134,7 +134,7 @@ invitations:
   acceptAction: "Einladung annehmen"
   rejectAction: "Ablehnen"
 departments:
-  title: "Abteilungsverzeichnis"
+  title: Abteilungsverwaltung
   statusLine: "Status: ${status}"
   memberUidLine: "Mitglied ${userId}"
   viewForbiddenDetail: "Kein Zugriff auf diese Abteilung (nur aktive Mitglieder dieser Organisation)"
@@ -219,6 +219,7 @@ inviteQr:
   # Hinweis bei deaktiviertem Code-Einstieg für pending/rejected-Unternehmen (Server preview/join stets 409)
   inviteDisabledPending: "Das Unternehmen befindet sich in Prüfung; Mitglieder können erst nach Genehmigung eingeladen werden"
 directory:
+  structureSection: Organisationsstruktur
   title: "Verzeichnis"
   deptSection: "Abteilungen"
   allMembersSection: "Alle Mitglieder"

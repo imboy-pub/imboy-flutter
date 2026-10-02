@@ -2848,7 +2848,7 @@ class _Translations$organization$departments$de_DE extends Translations$organiza
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Abteilungsverzeichnis';
+	@override String get title => 'Abteilungsverwaltung';
 	@override String statusLine({required Object status}) => 'Status: ${status}';
 	@override String memberUidLine({required Object userId}) => 'Mitglied ${userId}';
 	@override String get viewForbiddenDetail => 'Kein Zugriff auf diese Abteilung (nur aktive Mitglieder dieser Organisation)';
@@ -2953,6 +2953,7 @@ class _Translations$organization$directory$de_DE extends Translations$organizati
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
+	@override String get structureSection => 'Organisationsstruktur';
 	@override String get title => 'Verzeichnis';
 	@override String get deptSection => 'Abteilungen';
 	@override String get allMembersSection => 'Alle Mitglieder';
@@ -5301,7 +5302,7 @@ extension on TranslationsDeDe {
 			'organization.invitations.revokeAction' => 'Widerrufen',
 			'organization.invitations.acceptAction' => 'Einladung annehmen',
 			'organization.invitations.rejectAction' => 'Ablehnen',
-			'organization.departments.title' => 'Abteilungsverzeichnis',
+			'organization.departments.title' => 'Abteilungsverwaltung',
 			'organization.departments.statusLine' => ({required Object status}) => 'Status: ${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => 'Mitglied ${userId}',
 			'organization.departments.viewForbiddenDetail' => 'Kein Zugriff auf diese Abteilung (nur aktive Mitglieder dieser Organisation)',
@@ -5379,6 +5380,7 @@ extension on TranslationsDeDe {
 			'organization.inviteQr.copyCode' => 'Code kopieren',
 			'organization.inviteQr.copied' => 'Einladungscode kopiert',
 			'organization.inviteQr.inviteDisabledPending' => 'Das Unternehmen befindet sich in Prüfung; Mitglieder können erst nach Genehmigung eingeladen werden',
+			'organization.directory.structureSection' => 'Organisationsstruktur',
 			'organization.directory.title' => 'Verzeichnis',
 			'organization.directory.deptSection' => 'Abteilungen',
 			'organization.directory.allMembersSection' => 'Alle Mitglieder',
@@ -5715,9 +5717,9 @@ extension on TranslationsDeDe {
 			'workspace.projectMemberEmptySubtitle' => 'Die Projektleitung kann registrierte Nutzer in dieses Projekt einladen',
 			'workspace.projectMemberInviteTitle' => 'Projektmitglieder einladen',
 			'workspace.projectMemberInviteFieldHint' => 'ID des einzuladenden registrierten Nutzers',
-			'workspace.projectMemberInviteInvalidUid' => 'Bitte eine gültige Nutzer-ID eingeben',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteInvalidUid' => 'Bitte eine gültige Nutzer-ID eingeben',
 			'workspace.projectMemberInviteSubmit' => 'Einladen',
 			'workspace.projectMemberInviteSuccess' => 'Zu den Projektmitgliedern hinzugefügt',
 			'workspace.projectMemberInviteExisting' => 'Dieser Nutzer ist bereits Projektmitglied',

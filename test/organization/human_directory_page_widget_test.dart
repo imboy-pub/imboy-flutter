@@ -232,6 +232,7 @@ void main({bool realTime = false}) {
     await tester.pump();
     src.resolveDepartments();
     await tester.pumpAndSettle();
+    expect(find.byType(AppBar), findsNothing);
     expect(find.byType(BackButton), findsOneWidget);
     await tester.tap(find.byType(BackButton));
     await tester.pump();
@@ -439,7 +440,10 @@ void main({bool realTime = false}) {
     await tester.pumpAndSettle();
 
     // 上半：部门节 + 直接子部门（member_count 文案）。
-    expect(find.text(t.organization.directory.deptSection), findsOneWidget);
+    expect(
+      find.text(t.organization.directory.structureSection),
+      findsOneWidget,
+    );
     expect(find.text('研发部'), findsOneWidget);
     expect(find.text('设计部'), findsOneWidget);
     // 下半：本级成员节 + 根成员行。
