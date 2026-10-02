@@ -58,7 +58,7 @@ Widget _app(
             padding: EdgeInsets.only(bottom: bottomPadding),
             viewInsets: EdgeInsets.only(bottom: viewInsetsBottom),
           ),
-          child: ChannelPublishBar(focusNode: focusNode),
+          child: ChannelPublishBar(channelId: '1001', focusNode: focusNode),
         ),
       ),
     ),

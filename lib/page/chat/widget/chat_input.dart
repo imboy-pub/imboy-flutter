@@ -26,6 +26,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/utils/chat_draft_keys.dart';
 
 /// 聊天输入框组件
 class ChatInput extends StatefulWidget {
@@ -116,8 +117,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   FocusNode get inputFocusNode => _inputFocusNode;
   TextEditingController get textController => _textController;
   late AnimationController _bottomHeightController; // 兼容旧动画逻辑
-  late String draftKey; // 草稿key
-  late String draftCursorKey; // C3: 草稿光标位置 key
+  late final String draftKey;
+  late final String draftCursorKey;
+  late final bool _draftStorageEnabled;
   Timer? _debounceTimer;
 
   final _emojiShowing = ValueNotifier<bool>(false); // 是否显示表情面板
@@ -182,8 +184,16 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    draftKey = "draft${widget.type}_${widget.peerId}";
-    draftCursorKey = "draftCursor${widget.type}_${widget.peerId}";
+    // Bind delayed saves and send cleanup to this composer's original account.
+    // Ownerless legacy drafts must never be attributed to the current user.
+    final keys = chatDraftKeys(
+      UserRepoLocal.to.currentUid,
+      widget.type,
+      widget.peerId,
+    );
+    _draftStorageEnabled = keys != null;
+    draftKey = keys?.text ?? '';
+    draftCursorKey = keys?.cursor ?? '';
 
     _initTextController();
     _initAnimationController();
@@ -310,7 +320,9 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   /// 初始化事件监听器（输入框获取焦点自动切回文本模式）
   void _initEventListeners() {
     /// 加载本地草稿（避免信息丢失提升用户体验）
-    final draft = StorageService.to.getString(draftKey);
+    final draft = _draftStorageEnabled
+        ? StorageService.to.getString(draftKey)
+        : '';
     if (draft.isNotEmpty) {
       _setText(draft);
       // C3: 恢复上次离开时的光标位置（clamp 到合法区间，防止数据损坏）
@@ -635,7 +647,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       _syncQuickRepliesVisibility();
 
       // 超长自动裁剪并存储草稿
-      if (text.length <= (widget.maxLength ?? 1000)) {
+      if (_draftStorageEnabled && text.length <= (widget.maxLength ?? 1000)) {
         StorageService.to.setString(draftKey, _textController.text);
         // C3: 同步保存光标位置（baseOffset 可能为 -1 表示无 selection，忽略）
         final baseOffset = _textController.selection.baseOffset;
@@ -740,8 +752,10 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       if (!mounted) return; // 异步gap后安全检查
       if (res) {
         _textController.clear();
-        StorageService.to.remove(draftKey);
-        StorageService.to.remove(draftCursorKey); // C3: 同步清除光标位置
+        if (_draftStorageEnabled) {
+          StorageService.to.remove(draftKey);
+          StorageService.to.remove(draftCursorKey);
+        }
         // 清空 @提及数据
         _mentionData = const MentionData();
         _notifyMentionsChanged();

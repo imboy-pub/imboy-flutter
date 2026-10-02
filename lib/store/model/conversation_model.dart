@@ -7,6 +7,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
+import 'package:imboy/utils/chat_draft_keys.dart';
 
 /// 会话数据模型
 /// 纯数据模型，不包含响应式状态
@@ -121,8 +122,12 @@ class ConversationModel {
     if (strNoEmpty(sysPrompt)) {
       return sysPrompt;
     }
-    String draftKey = "draft${type}_$peerId";
-    String? draft = StorageService.to.getString(draftKey);
+    final keys = chatDraftKeys(
+      UserRepoLocal.to.currentUid,
+      type,
+      peerId.toString(),
+    );
+    final draft = keys == null ? '' : StorageService.to.getString(keys.text);
     if (strNoEmpty(draft)) {
       // 草稿显示：使用占位符格式，避免字符串拼接
       // 翻译键需要支持参数，例如：[{draft}]_color_red_{content}
