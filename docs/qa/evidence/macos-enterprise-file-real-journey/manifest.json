@@ -1,0 +1,63 @@
+{
+  "status": "PASS_NATIVE_FILE_AND_ENTERPRISE_UI_DB_SCOPED",
+  "base_app_head": "c7340084561c3ccc5d388e551238b6eb34c03fa0",
+  "backend_head": "0ee7c944260fb0f1816ee32d57ced2bcce35230d",
+  "ui_and_db_same_session": true,
+  "db_oracle_count": 4,
+  "visual_observation_separate_same_source_run": true,
+  "archived_pixel_file": false,
+  "ios_verified": false,
+  "customer_oa_verified": false,
+  "production_code_changed": false,
+  "whole_goal_complete": false,
+  "files": [
+    {
+      "path": "main-integration.json",
+      "sha256": "b482a88ed7a81c56ae7c71017279894f8bd233c8dd6006f8cf0b83cf81cbe923"
+    },
+    {
+      "path": "native-content-oracle.json",
+      "sha256": "85b047103a2891da22ab4c644641344a4b011086db193de39bf1ad2e0a483e69"
+    },
+    {
+      "path": "runtime-result.json",
+      "sha256": "669d271c161ee60256bd6b852a9415910349610b1f3fbc25db630d84a117d8ad"
+    },
+    {
+      "path": "main-checks.json",
+      "sha256": "3ad2d67e257996ada4a3bc7b200e7698019ebbc29e67d3d056738f09c707b317"
+    },
+    {
+      "path": "native-leave-oracle.json",
+      "sha256": "c5718fb2de4699da4f1febadcab47d09a3701d4f479f451ac61777445077dccb"
+    },
+    {
+      "path": "README.md",
+      "sha256": "24ee92a68e150f2491d45e061c2da2e55f444bbcf9311b39b712f67c9e925065"
+    },
+    {
+      "path": "main-check-1.txt",
+      "sha256": "2dd33855585e77aaed0aafc4a1fedb696738cf296c3eb7b9c7374b679ffe660f"
+    },
+    {
+      "path": "main-check-0.txt",
+      "sha256": "a9af3e800db077ee2ef1961d3dee1cf8dd59424fb3ef8eb3c15824d185e382fa"
+    },
+    {
+      "path": "visible-observation.json",
+      "sha256": "3d76ad2f468763d3cf74779870ad60ac08f4d7a24b4a2463e8ccc9585e29731c"
+    },
+    {
+      "path": "native-file-oracle.json",
+      "sha256": "1ae05aa1a0b2f53c5381dcb9740ff7a05703ed8c4fd6ebd7f9461775e2fa6acb"
+    },
+    {
+      "path": "native-governance-oracle.json",
+      "sha256": "937b274826a9d02da1ea595135fdc68d72e7d4b54bd6c53d0a8cb687e52babb8"
+    },
+    {
+      "path": "native-markers.txt",
+      "sha256": "a43a067cd31b8c4bc512c69503f69ffb32460468c578ebe3d6e615385cca2e0c"
+    }
+  ]
+}

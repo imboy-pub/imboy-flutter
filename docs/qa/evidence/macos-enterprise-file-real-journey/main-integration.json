@@ -1,0 +1,25 @@
+{
+  "status": "PASS_LOCAL_INTEGRATION_FOREIGN_WIP_PRESERVED",
+  "base": "6aeee826a005c4b1dc31b8dce9bb928c1e296ca7",
+  "target": "c7340084561c3ccc5d388e551238b6eb34c03fa0",
+  "main_head": "c7340084561c3ccc5d388e551238b6eb34c03fa0",
+  "foreign_paths": [
+    "android/app/build.gradle.kts",
+    "lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart",
+    "lib/page/chat/p2p_call_screen/p2p_call_screen_provider.dart",
+    "lib/page/workspace/workspace_picker_page.dart",
+    "pubspec.lock",
+    "pubspec.yaml",
+    "test/unit_test/page/chat/p2p_call_preview_test.dart",
+    "test/unit_test/page/workspace/workspace_picker_page_test.dart",
+    ".env.e2e.example"
+  ],
+  "foreign_status_before": " M android/app/build.gradle.kts\nM  lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart\nM  lib/page/chat/p2p_call_screen/p2p_call_screen_provider.dart\nM  lib/page/workspace/workspace_picker_page.dart\nM  pubspec.lock\nM  pubspec.yaml\nM  test/unit_test/page/chat/p2p_call_preview_test.dart\nM  test/unit_test/page/workspace/workspace_picker_page_test.dart\n?? .env.e2e.example\n",
+  "foreign_status_after": " M android/app/build.gradle.kts\nM  lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart\nM  lib/page/chat/p2p_call_screen/p2p_call_screen_provider.dart\nM  lib/page/workspace/workspace_picker_page.dart\nM  pubspec.lock\nM  pubspec.yaml\nM  test/unit_test/page/chat/p2p_call_preview_test.dart\nM  test/unit_test/page/workspace/workspace_picker_page_test.dart\n?? .env.e2e.example\n",
+  "foreign_staged_patch_semantically_equal": true,
+  "foreign_unstaged_patch_byte_equal": true,
+  "nonoverlapping_foreign_file_hashes_equal": true,
+  "only_overlapping_own_changes": "dev dependency declaration + lock classification; no package version changes",
+  "new_foreign_commits": 0,
+  "push_or_deploy": false
+}

@@ -1,0 +1,9 @@
+NATIVE_UI_CHECK tab_contacts count=1 channel=true e2ee=false
+NATIVE_UI_CHECK tab_channel count=1 channel=true e2ee=false
+NATIVE_UI_CHECK tab_mine count=1 channel=true e2ee=false
+NATIVE_WORKSPACE_GROUP_MESSAGE_UI_PASS
+NATIVE_WORKSPACE_CHANNEL_DISCUSSION_UI_PASS
+NATIVE_FILE_HTTP status=200 mime=text/plain bytes=32
+NATIVE_FILE_VISIBILITY_READY
+NATIVE_GROUP_FILE_PREVIEW_AND_DELETION_DENIAL_PASS
+01:04 +1: All tests passed!

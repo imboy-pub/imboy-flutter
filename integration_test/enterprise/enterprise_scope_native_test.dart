@@ -305,6 +305,8 @@ Future<void> checkNativeGroupFile(WidgetTester tester) async {
   await waitFor(tester, back);
   await tester.tap(back);
   await waitFor(tester, find.byType(GroupFilePage));
+  await tester.pumpAndSettle();
+  expect(find.byType(WebViewWidget), findsNothing);
   await checkDeletedNativeFile(tester, groupId, name);
   await waitFor(tester, back);
   await tester.tap(back);
@@ -371,7 +373,11 @@ Future<void> expectNativeFileBody(WidgetTester tester, String body) async {
   // The download CSP sandbox forbids JavaScript; the host runner verifies
   // rendered text through Android accessibility instead of weakening the CSP.
   debugPrint('NATIVE_FILE_VISIBILITY_READY');
-  final deadline = DateTime.now().add(const Duration(seconds: 90));
+  const observationSeconds = int.fromEnvironment(
+    'TEST_NATIVE_PREVIEW_OBSERVATION_SECONDS',
+    defaultValue: 90,
+  );
+  final deadline = DateTime.now().add(Duration(seconds: observationSeconds));
   while (DateTime.now().isBefore(deadline)) {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.runAsync(
