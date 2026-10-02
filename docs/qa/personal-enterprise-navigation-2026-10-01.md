@@ -1,5 +1,7 @@
 # 个人与企业主导航 / Personal and enterprise navigation
 
+> 历史基线记录：以下三/四栏设计与命令不代表当前终稿。企业现已固定四栏；未接线导航声明及其测试已删除。当前清理验证见 [2026-10-02 清理记录](evidence/unused-personal-nav-cleanup-2026-10-02/README.md)，原始结果保留。
+
 ## 实现范围 / Scope
 
 基线：`c67bdbcccbfbc92e9aa04d0dd9274fa3803b89d8`。

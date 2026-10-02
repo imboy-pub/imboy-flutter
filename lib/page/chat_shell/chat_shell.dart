@@ -8,7 +8,6 @@
 /// // 直接使用：
 /// final experience = ref.watch(productExperienceProvider);
 /// final layout = resolveChatShellLayout(width);
-/// final items = buildChatShellNavItems(...);
 /// // ChatShellPage / ChatShellBootstrap ...
 /// ```
 ///
@@ -21,9 +20,6 @@ library;
 
 // 响应式断点决策（< 900 mobile / >= 900 desktop）
 export 'chat_shell_breakpoint.dart';
-
-// 导航项声明层（chat 体验导航目的地 + 工厂，T8 对称镜像点）
-export 'chat_shell_nav_items.dart';
 
 // Product Experience 消费层（枚举 + 解析 + 缓存读取 + provider）
 export 'experience_provider.dart';

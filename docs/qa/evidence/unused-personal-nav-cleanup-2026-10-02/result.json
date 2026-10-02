@@ -1,0 +1,66 @@
+{
+  "status": "PASS_NAVIGATION_CLEANUP_SCOPED",
+  "base_candidate": "29fb4b0138a023ab18b6015fe0aa91bbc5fc990a",
+  "tested_file": "test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart",
+  "tested_file_sha256": "81b1386907802521765fe2a25b51a57d9e4e49a47f04d9ecbeee1a7ad80daff4",
+  "source_unchanged": true,
+  "commands": [
+    {
+      "command": [
+        "flutter",
+        "test",
+        "--no-pub",
+        "test/unit_test/page/chat_shell",
+        "test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart",
+        "test/unit_test/page/bottom_navigation/bottom_navigation_page_test.dart",
+        "test/unit_test/page/workspace_shell/workspace_shell_page_test.dart",
+        "test/unit_test/app_core/routing/route_feature_guard_test.dart"
+      ],
+      "exit_code": 0,
+      "oracle_passed": true,
+      "log": "/tmp/gz-app-unused-nav-cleanup-0.txt",
+      "log_sha256": "2073ce6f38ffb0b6c0a4aa99f602a9296b69e36810f853c37823b139840de16f"
+    },
+    {
+      "command": [
+        "flutter",
+        "analyze",
+        "--no-pub"
+      ],
+      "exit_code": 0,
+      "oracle_passed": true,
+      "log": "/tmp/gz-app-unused-nav-cleanup-1.txt",
+      "log_sha256": "5b957c7856bf131a25a0adc5169c5a00823895c3bf2c002bf2cec6044c259ab5"
+    }
+  ],
+  "changed_sources": [
+    {
+      "path": "lib/page/chat_shell/chat_shell.dart",
+      "sha256": "5fb052dd5f4bfa87b1afd874f7927170323f7bea5faa77d9f7cbf4c6f2d34714"
+    },
+    {
+      "path": "lib/page/chat_shell/chat_shell_nav_items.dart",
+      "sha256": null
+    },
+    {
+      "path": "lib/page/workspace_shell/workspace_shell_nav_items.dart",
+      "sha256": "1cf298ef50610971225a3f7b8a54c30c14bf6c33bbea4d5c54657221c16ec230"
+    },
+    {
+      "path": "test/unit_test/page/chat_shell/chat_shell_barrel_test.dart",
+      "sha256": "3153c40833c5210f90eb9db7f5b89d7ee0f7a7d1cd1f7466a4df9241263dd247"
+    },
+    {
+      "path": "test/unit_test/page/chat_shell/chat_shell_nav_items_test.dart",
+      "sha256": null
+    }
+  ],
+  "full_personal_widget_verified": false,
+  "whole_goal_complete": false,
+  "runner_terminal_status": "PASS_SCOPED_COMBINATION",
+  "passed": 127,
+  "failed": 0,
+  "review_status": "APPROVE",
+  "production_page_behavior_changed": false,
+  "whole_app_test_rerun": false
+}

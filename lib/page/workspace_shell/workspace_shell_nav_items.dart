@@ -1,6 +1,6 @@
 /// T8 (WP5) — Workspace 壳导航项声明层（i18n 与 widget 解耦的纯函数层）
 ///
-/// 镜像 `chat_shell_nav_items.dart`：导航目的地固定为五项：
+/// 普通工作区壳的导航目的地固定为五项：
 ///
 /// ```text
 /// Conversations / Overview / Channels / Groups / Projects
@@ -42,7 +42,7 @@ enum WorkspaceShellDestination {
 /// Workspace Shell 导航项总数（5 项）。
 const int kWorkspaceShellDestinationCount = 5;
 
-/// 单个导航项数据载体（不可变，镜像 `ChatShellNavItem`）。
+/// 普通工作区导航项的不可变数据载体。
 class WorkspaceShellNavItem {
   final WorkspaceShellDestination destination;
   final IconData icon;

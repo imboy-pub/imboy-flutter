@@ -1,0 +1,17 @@
+from pathlib import Path
+import subprocess,hashlib,json,os
+repo=Path('/Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app')
+test='test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart'
+paths=sorted([*repo.glob('lib/**/*.dart'),*repo.glob('test/**/*.dart'),*repo.glob('integration_test/**/*.dart'),Path('/tmp/gz-app-native-frozen-b6aefd26d3a2/libvodozemac_bindings_dart.dylib'),repo/'pubspec.yaml',repo/'pubspec.lock',repo/'.dart_tool/package_config.json',Path(__file__)])
+def snapshot():return {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+before=snapshot();head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip();results=[]
+for i,cmd in enumerate([['flutter','test','--no-pub','test/unit_test/page/chat_shell',test,'test/unit_test/page/bottom_navigation/bottom_navigation_page_test.dart','test/unit_test/page/workspace_shell/workspace_shell_page_test.dart','test/unit_test/app_core/routing/route_feature_guard_test.dart'],['flutter','analyze','--no-pub']]):
+ log=Path(f'/tmp/gz-app-unused-nav-cleanup-{i}.txt')
+ with log.open('w') as f:
+  os.chmod(log,0o600);environment=os.environ.copy();environment['FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR']='/tmp/gz-app-native-frozen-b6aefd26d3a2';r=subprocess.run(cmd,cwd=repo,env=environment,stdout=f,stderr=subprocess.STDOUT,timeout=180)
+ text=log.read_text(errors='replace');passed=r.returncode==0 and ('All tests passed!' in text if i==0 else 'No issues found!' in text)
+ results.append({'command':cmd,'exit_code':r.returncode,'oracle_passed':passed,'log':str(log),'log_sha256':hashlib.sha256(log.read_bytes()).hexdigest()})
+ if not passed:break
+unchanged=before==snapshot() and head==subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
+state={'status':'PASS_SCOPED_COMBINATION' if len(results)==2 and all(r['oracle_passed'] for r in results) and unchanged else 'FAILED_NOT_PASS','base_candidate':head,'tested_file':test,'tested_file_sha256':hashlib.sha256((repo/test).read_bytes()).hexdigest(),'source_unchanged':unchanged,'commands':results,'changed_sources':[{'path':p,'sha256':hashlib.sha256((repo/p).read_bytes()).hexdigest() if (repo/p).is_file() else None} for p in subprocess.check_output(['git','diff','--name-only'],cwd=repo,text=True).splitlines()],'full_personal_widget_verified':False,'whole_goal_complete':False}
+Path('/tmp/gz-app-unused-nav-cleanup-terminal.json').write_text(json.dumps(state,indent=2)+'\n');print(json.dumps(state));raise SystemExit(0 if state['status']=='PASS_SCOPED_COMBINATION' else 1)

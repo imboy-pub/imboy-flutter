@@ -25,22 +25,6 @@ void main() {
     });
   });
 
-  group('chat_shell.dart barrel — 导航项声明层 API', () {
-    test('exports ChatShellDestination enum + 工厂 + 常量', () {
-      expect(ChatShellDestination.values, hasLength(4));
-      expect(kChatShellDestinationCount, 4);
-
-      final items = buildChatShellNavItems(
-        conversationsLabel: 'm',
-        contactsLabel: 'c',
-        channelsLabel: 'h',
-        mineLabel: 'i',
-      );
-      expect(items, hasLength(4));
-      expect(items.first, isA<ChatShellNavItem>());
-    });
-  });
-
   group('chat_shell.dart barrel — experience 消费层 API', () {
     test('exports ProductExperience enum + 解析函数 + provider', () {
       expect(ProductExperience.values, hasLength(2));
