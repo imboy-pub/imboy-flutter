@@ -2,6 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_bootstrap.dart';
 
@@ -521,5 +525,67 @@ void main() {
     expect(api.calls, isEmpty);
     expect(tester.takeException(), isNull);
     debugDefaultTargetPlatformOverride = null;
+  });
+  testWidgets('广州裁剪保留企业四栏、无OA官网及个人频道入口', (tester) async {
+    final previousFlags = Map<String, dynamic>.from(
+      AppFeatureRegistry.snapshot,
+    );
+    final previousManifest = AppManifestService.manifest?.toMap();
+    AppFeatureRegistry.replaceSnapshotForTest({
+      FeatureKeys.project: false,
+      FeatureKeys.channelDiscover: false,
+      FeatureKeys.location: false,
+      FeatureKeys.channel: true,
+      FeatureKeys.moment: true,
+    });
+    AppManifestService.replaceForTest({
+      'app_entries': [
+        'channel_tab',
+        'moment_tab',
+        'channel_discover_page',
+        'people_nearby_page',
+      ],
+    });
+    addTearDown(() async {
+      AppFeatureRegistry.replaceSnapshotForTest(previousFlags);
+      if (previousManifest == null) {
+        await AppManifestService.clear();
+      } else {
+        AppManifestService.replaceForTest(previousManifest);
+      }
+    });
+    final api = _OaApi();
+    await _pump(tester, api);
+    api.pending['10']!.complete([]);
+    await tester.pumpAndSettle();
+    expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
+    await tester.tap(find.text('工作台'));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('workbench-official-website')),
+      findsOneWidget,
+    );
+    expect(find.text('https://imboy.pub/'), findsOneWidget);
+    for (final (path, reason) in [
+      ('/workspace/100/projects/200', RouteBlockReason.featureFlag),
+      ('/channel/discover', RouteBlockReason.featureFlag),
+      ('/contact/people_nearby', RouteBlockReason.featureFlag),
+    ]) {
+      final blocked = RouteFeatureGuard.checkBlocked(
+        isLoggedIn: true,
+        currentPath: path,
+      );
+      expect(blocked?.reason, reason, reason: path);
+      expect(blocked?.redirect, '/bottom_navigation', reason: path);
+    }
+    // Actual personal route guards; full personal widget mounting is separate.
+    for (final path in ['/channel', '/moment/feed']) {
+      expect(
+        RouteFeatureGuard.checkBlocked(isLoggedIn: true, currentPath: path),
+        isNull,
+        reason: path,
+      );
+    }
+    expect(tester.takeException(), isNull);
   });
 }
