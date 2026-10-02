@@ -228,6 +228,8 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           ),
           if (channel?.canPublish == true)
             ChannelPublishBar(
+              key: ValueKey(widget.channelId),
+              channelId: widget.channelId,
               focusNode: _publishFocusNode,
               onMessageSent: () => _loadStats(channelId),
             ),

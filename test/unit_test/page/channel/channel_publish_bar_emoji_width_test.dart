@@ -49,7 +49,7 @@ void main() {
               body: Column(
                 children: [
                   const Expanded(child: SizedBox()),
-                  ChannelPublishBar(focusNode: fn),
+                  ChannelPublishBar(channelId: '1001', focusNode: fn),
                 ],
               ),
             ),

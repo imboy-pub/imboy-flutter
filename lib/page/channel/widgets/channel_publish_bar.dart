@@ -15,9 +15,11 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/utils/chat_draft_keys.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
 
@@ -37,11 +39,13 @@ typedef _ChannelMediaUpload = ({
 class ChannelPublishBar extends ConsumerStatefulWidget {
   /// 输入框焦点（父层持有，用于键盘/语音切换管理）
   final FocusNode focusNode;
+  final String channelId;
   final VoidCallback? onMessageSent;
 
   const ChannelPublishBar({
     super.key,
     required this.focusNode,
+    required this.channelId,
     this.onMessageSent,
   });
 
@@ -67,13 +71,16 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   /// 不参与行宽分配，与发送按钮显示条件无关）。
   bool _isInputFocused = false;
 
-  /// build 时缓存的草稿 key：dispose 阶段 ref 已失效不能 read，
-  /// 故在 build（channel 加载后会重建）时把 key 存下来，退出落盘时用它。
-  String _cachedDraftKey = '';
+  late final String? _draftKey;
 
   @override
   void initState() {
     super.initState();
+    _draftKey = chatDraftKeys(
+      UserRepoLocal.to.currentUid,
+      'channel-text',
+      widget.channelId,
+    )?.text;
     widget.focusNode.addListener(_onFocusChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _restoreDraft());
   }
@@ -95,16 +102,10 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     super.dispose();
   }
 
-  /// 频道草稿存储 key，按 channelId 隔离；频道未加载时返回空串，调用方据此跳过读写。
-  String get _draftKey {
-    final channelId = ref.read(channelDetailProvider).channel?.id;
-    return channelId == null ? '' : 'channel_draft_$channelId';
-  }
-
   /// 恢复上次未发送的草稿文本（复用朋友圈 StorageService 草稿模式）。
   void _restoreDraft() {
     final key = _draftKey;
-    if (key.isEmpty || !mounted) return;
+    if (key == null || !mounted) return;
     final draft = StorageService.to.getString(key);
     if (draft.isEmpty) return;
     // 静默恢复草稿，不弹 toast 打扰（文本回填本身即反馈）
@@ -112,10 +113,10 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   }
 
   /// 退出前把未发送文本落盘；已清空则顺带清掉旧草稿，避免残留。
-  /// dispose 阶段 ref 已失效，用 build 时缓存的 [_cachedDraftKey]，勿 read provider。
+  /// 使用创建时捕获的账号和路由，延迟退出也不会写入切换后的账号。
   void _persistDraftOnExit() {
-    final key = _cachedDraftKey;
-    if (key.isEmpty) return;
+    final key = _draftKey;
+    if (key == null) return;
     final content = _messageController.text.trim();
     if (content.isEmpty) {
       unawaited(StorageService.to.remove(key));
@@ -150,7 +151,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       _messageController.clear();
       setState(() {});
       final key = _draftKey;
-      if (key.isNotEmpty) unawaited(StorageService.to.remove(key));
+      if (key != null) unawaited(StorageService.to.remove(key));
       // 仅震动反馈：消息进流即确认，连发场景不再弹成功 toast
       unawaited(HapticFeedback.lightImpact());
       widget.onMessageSent?.call();
@@ -507,10 +508,6 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final state = ref.watch(channelDetailProvider);
     final isBusy = state.isPublishing || _isUploadingMedia;
     final hasText = _messageController.text.isNotEmpty;
-
-    // 缓存草稿 key 供 dispose 使用（此处 ref 有效，channel 加载后会重建刷新）
-    final channelId = state.channel?.id;
-    _cachedDraftKey = channelId == null ? '' : 'channel_draft_$channelId';
 
     return Container(
       decoration: BoxDecoration(

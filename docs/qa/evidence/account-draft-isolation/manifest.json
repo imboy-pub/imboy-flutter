@@ -1,0 +1,40 @@
+{
+  "status": "PASS_SCOPED",
+  "base_candidate": "469bca4cd111f6beef793049b0dc4c88d14d5d1c",
+  "sources": {
+    "lib/page/channel/channel_compose_page.dart": "4153fad945402bfa758c5e42085441137fb014c8c0d2d326fb8b17ba1a71c8ff",
+    "lib/page/channel/channel_detail_page.dart": "0cc6e93b2ea3fe7f575b6aa3e83c923a4bcf4d3c0c96258b6dd15de2f2069454",
+    "lib/page/channel/widgets/channel_publish_bar.dart": "87eb99dabf96ccf061dc71e4186fb52468ef6b84f53f461025a19fd31543c8dc",
+    "lib/page/chat/widget/chat_input.dart": "3e716fc6ce7a021b497aa7794a3dcfb086a1a576689d69f96fe4ef6c35348188",
+    "lib/store/model/conversation_model.dart": "9cc1c3f8bfee7e38ae6880550666a695633e99df77387c681b1bf559dbb1b3e6",
+    "test/unit_test/page/channel/channel_publish_bar_emoji_width_test.dart": "537f26776d2b294f6771bc966c1fb371f4389d8885d8c67e6b2fa186f4094177",
+    "test/unit_test/page/channel/channel_publish_bar_test.dart": "5e724710ca6f1e59706461ef15768b5f7dd96643bf8318ed5c6e46c328e6248c",
+    "lib/utils/chat_draft_keys.dart": "45dcacb2c2e06e03e383d97e5515558bbab4206dc1600a43d36e462545d6c0ef",
+    "test/unit_test/page/channel/channel_compose_draft_isolation_test.dart": "c478b7613ecd28a37045673b8ecde1056f61cdad01095fb87d3048a93fa2172e",
+    "test/unit_test/page/channel/channel_publish_bar_draft_isolation_test.dart": "03b82919b56f2733e67078ea2feb82bf35ab9da9fdd2055f49186829ef4d2e6b",
+    "test/unit_test/page/chat/widget/chat_input_draft_isolation_test.dart": "a5888e934c01747e4e9d1f81934cd2165579855a28f10dc9eacfdc7a3aee2de0"
+  },
+  "focused_widget_tests": 21,
+  "analyze_exit": 0,
+  "review": "APPROVE",
+  "coverage": [
+    "chat text and cursor",
+    "conversation summary",
+    "channel article",
+    "channel text publish bar",
+    "account switch",
+    "late save and publish",
+    "missing UID",
+    "ownerless legacy exclusion"
+  ],
+  "native_device_verified": false,
+  "whole_goal_complete": false,
+  "commands": [
+    "flutter test --no-pub test/unit_test/page/channel/channel_compose_page_test.dart test/unit_test/page/channel/channel_compose_draft_isolation_test.dart test/unit_test/page/channel/channel_publish_bar_draft_isolation_test.dart test/unit_test/page/channel/channel_publish_bar_test.dart test/unit_test/page/channel/channel_publish_bar_emoji_width_test.dart test/unit_test/page/chat/widget/chat_input_draft_isolation_test.dart"
+  ],
+  "artifacts": {
+    "focused-green.txt": "6371b8695dacf5a67d299225462d422a75e67de133a00731a67e816a124b466a",
+    "publishbar-before-fix.txt": "fc8193bc7363d0f7ff34bf0e12b71e09b91f731782e21584a0ce171adc5ee613",
+    "analyze.txt": "b4036e061832cb8de0ce1d2df1633e09d79b59a132f1a8432b96500ca26ffdab"
+  }
+}
