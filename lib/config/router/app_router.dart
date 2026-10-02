@@ -106,6 +106,8 @@ GoRouter createAppRouter({
   String initialLocation = AppRoutes.initial,
   GlobalKey<NavigatorState>? navigatorKeyOverride,
 }) {
+  String? pendingLocation;
+  const loginLandings = {'/bottom_navigation', '/web_shell', '/chat_shell'};
   return GoRouter(
     navigatorKey: navigatorKeyOverride ?? navigatorKey,
     initialLocation: initialLocation,
@@ -120,6 +122,16 @@ GoRouter createAppRouter({
       }
 
       if (!isLogin) {
+        final uri = state.uri;
+        if (!uri.hasScheme &&
+            !uri.hasAuthority &&
+            uri.path.startsWith('/') &&
+            !uri.path.startsWith('//') &&
+            (!loginLandings.contains(currentPath) ||
+                uri.hasQuery ||
+                uri.hasFragment)) {
+          pendingLocation = uri.toString();
+        }
         Future<dynamic>.delayed(const Duration(seconds: 1), () {
           if (context.mounted) {
             final t = context.t;
@@ -128,6 +140,13 @@ GoRouter createAppRouter({
         });
 
         return AppRoutes.signIn;
+      }
+
+      if (pendingLocation != null && loginLandings.contains(currentPath)) {
+        final target = pendingLocation;
+        pendingLocation =
+            null; // Consume before the target re-enters normal guards.
+        return target;
       }
 
       final blocked = RouteFeatureGuard.checkBlocked(
