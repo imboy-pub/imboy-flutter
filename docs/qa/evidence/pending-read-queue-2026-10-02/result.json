@@ -1,0 +1,39 @@
+{
+  "status": "PASS_PRODUCTION_QUEUE_LOGIC",
+  "sources": [
+    {
+      "path": "test/unit_test/page/chat/pending_read_queue_test.dart",
+      "sha256": "d05c2585b1c0b3b5bd71d004f1b6fa99c1d0770d650dd18129e50390830c2731"
+    },
+    {
+      "path": "lib/page/chat/chat/chat_provider.dart",
+      "sha256": "3c5a7804ee2835d1bc5a826f10a1cf46208cf8ed9948c9e892a76de4ef3888a3"
+    },
+    {
+      "path": "lib/store/api/workspace_api.dart",
+      "sha256": "8f43ed503c72cc75c6b3f39a4f12fced51229ad5413dd47a9db7fd297583a025"
+    },
+    {
+      "path": "test/fixtures/sqlite_migration/sqlite_migration_fixtures.dart",
+      "sha256": "d71f7b0340d9ca225e51bce48e329607c8e973da9c111c9f85b86713f2b59037"
+    }
+  ],
+  "test_exit_code": 0,
+  "test_cases": 1,
+  "analyze_exit_code": 0,
+  "review": "APPROVE native_file_review",
+  "checks": [
+    "in-flight new item survives and auto dispatches",
+    "no second HTTP while first pending",
+    "foreign owner item remains",
+    "503 retained and automatically retried without another input"
+  ],
+  "shared_preferences_backend": "mock",
+  "database": "real in-memory SQLite built from production v32 schema",
+  "http_backend": "Completer-controlled WorkspaceApi override",
+  "native_preferences_proven": false,
+  "real_http_authentication_proven": false,
+  "whole_goal_complete": false,
+  "gz-pending-read-queue-final_sha256": "de5f78bf949d35258108f32380e3c3df1049417e44ea84e1d35f0d7b2e8b8b16",
+  "gz-pending-read-queue-analyze-final_sha256": "c33fdde2f444c2f0a4e0bf3cf0e40282000c744fbba53542c79323dccdacb626"
+}
