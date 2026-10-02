@@ -1,0 +1,40 @@
+{
+  "status": "PASS_MACOS_NATIVE_OFFICIAL_WEBSITE_LAUNCH",
+  "candidate": "b57aa5f7d6d2ebf405aa4c3f8e392094a9848e44",
+  "command": [
+    "flutter",
+    "test",
+    "integration_test/enterprise/workbench_website_macos_test.dart",
+    "--no-pub",
+    "-d",
+    "macos"
+  ],
+  "customer_oa_verified": false,
+  "ios_verified": false,
+  "whole_goal_complete": false,
+  "exit_code": 0,
+  "source_unchanged": true,
+  "input_count": 1193,
+  "log_sha256": "b9d00e625f8189f589d7c628056aa6df2a8ed14b449790fe8e2814601c748665",
+  "browser_page_render_verified": false,
+  "oracle": "production workbench click sends exact https://imboy.pub/ to real macOS URL launcher; native response succeeds and no error snackbar",
+  "source_files": [
+    {
+      "path": "integration_test/enterprise/workbench_website_macos_test.dart",
+      "sha256": "77a5e81fecbdb70d1ef61ac67305c22657a94a582e2a5f6e1e534b4818681107"
+    },
+    {
+      "path": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+      "sha256": "40dd7ceedda8402ea22212469ba67156caee6c758221129eb3684e56828f7d46"
+    },
+    {
+      "path": "lib/component/helper/safe_launcher.dart",
+      "sha256": "1221f627f0b47924d3bcc992d8fb76c6d2c6212d49d5ceaebb34fa680737352a"
+    },
+    {
+      "path": "pubspec.lock",
+      "sha256": "2753780732a24d19ae4606f82f36a7e2b41c98117a0b0734b64e3eb49548654c"
+    }
+  ],
+  "passed_test_count": 1
+}

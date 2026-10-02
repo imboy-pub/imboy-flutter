@@ -1,0 +1,27 @@
+from pathlib import Path
+import subprocess,json,hashlib,os,signal
+repo=Path('/Users/leeyi/project/imboy.pub/.Codex/worktrees/gz-enterprise-app')
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
+assert head=='b57aa5f7d6d2ebf405aa4c3f8e392094a9848e44'
+assert not subprocess.check_output(['git','status','--porcelain'],cwd=repo,text=True).strip()
+paths=[p for b in ('lib','integration_test') for p in (repo/b).rglob('*.dart')]+[repo/'pubspec.yaml',repo/'pubspec.lock',repo/'.dart_tool/package_config.json',Path(__file__)]
+def snap():return {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+before=snap();log=Path('/tmp/gz-current-workbench-website-native.txt');terminal=Path('/tmp/gz-current-workbench-website-native-terminal.json')
+command=['flutter','test','integration_test/enterprise/workbench_website_macos_test.dart','--no-pub','-d','macos']
+state={'status':'RUNNING_NOT_PASS','candidate':head,'command':command,'customer_oa_verified':False,'ios_verified':False,'whole_goal_complete':False}
+def save():terminal.write_text(json.dumps(state,indent=2)+'\n')
+save()
+try:
+ with log.open('w') as stream:
+  os.chmod(log,0o600);child=subprocess.Popen(command,cwd=repo,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
+  try:rc=child.wait(timeout=600)
+  except subprocess.TimeoutExpired:
+   os.killpg(child.pid,signal.SIGTERM)
+   try:child.wait(timeout=15)
+   except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGKILL);child.wait()
+   raise RuntimeError('native website test timeout')
+ report=log.read_text(errors='replace');unchanged=before==snap() and subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()==head
+ passed=rc==0 and 'All tests passed!' in report and unchanged
+ state.update(status='PASS_MACOS_NATIVE_OFFICIAL_WEBSITE_LAUNCH' if passed else 'FAILED_NOT_PASS',exit_code=rc,source_unchanged=unchanged,input_count=len(before),log_sha256=hashlib.sha256(log.read_bytes()).hexdigest(),browser_page_render_verified=False,oracle='production workbench click sends exact https://imboy.pub/ to real macOS URL launcher; native response succeeds and no error snackbar')
+except Exception as exc:state.update(status='FAILED_NOT_PASS',reason=str(exc))
+save();print(json.dumps(state));raise SystemExit(0 if state['status'].startswith('PASS_') else 1)
