@@ -204,73 +204,111 @@ class _OrganizationChartState extends State<OrganizationChart> {
       _expanded,
       nodeSize: Size(
         AppSpacing.xxxLarge * 4 * factor,
-        AppSpacing.xxxLarge * 2 * factor,
+        (AppSpacing.xxxLarge + AppSpacing.xxLarge) * factor,
       ),
     );
     _canvas = layout.size;
     final colors = Theme.of(context).colorScheme;
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            IconButton(
-              key: const ValueKey('org-chart-zoom-out'),
-              tooltip: t.organization.chart.zoomOut,
-              onPressed: () => _zoom(1 / 1.25),
-              icon: const Icon(CupertinoIcons.minus),
-            ),
-            IconButton(
-              key: const ValueKey('org-chart-zoom-in'),
-              tooltip: t.organization.chart.zoomIn,
-              onPressed: () => _zoom(1.25),
-              icon: const Icon(CupertinoIcons.plus),
-            ),
-            IconButton(
-              key: const ValueKey('org-chart-fit'),
-              tooltip: t.organization.chart.fit,
-              onPressed: _fit,
-              icon: const Icon(CupertinoIcons.arrow_up_left_arrow_down_right),
-            ),
-            IconButton(
-              tooltip: t.organization.common.reload,
-              onPressed: _refresh,
-              icon: const Icon(CupertinoIcons.refresh),
-            ),
-          ],
-        ),
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              _viewport = constraints.biggest;
-              return InteractiveViewer(
-                key: const ValueKey('org-chart-canvas'),
-                transformationController: _transform,
-                constrained: false,
-                minScale: _minimumScale,
-                maxScale: 4,
-                trackpadScrollCausesScale: true,
-                boundaryMargin: EdgeInsets.all(AppSpacing.xxxLarge * 4),
-                child: SizedBox(
-                  width: layout.size.width,
-                  height: layout.size.height,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: CustomPaint(
-                          painter: _ChartLines(layout, colors.outlineVariant),
-                        ),
-                      ),
-                      for (final entry in layout.nodes.entries)
-                        Positioned.fromRect(
-                          rect: entry.value.rect,
-                          child: _node(context, entry.key, entry.value.path),
-                        ),
-                    ],
+        Padding(
+          padding: AppSpacing.allRegular,
+          child: Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerLowest,
+                border: Border.all(color: colors.outlineVariant),
+                borderRadius: BorderRadius.circular(AppRadius.regular),
+              ),
+              child: IconButtonTheme(
+                data: IconButtonThemeData(
+                  style: IconButton.styleFrom(
+                    foregroundColor: colors.onSurfaceVariant,
                   ),
                 ),
-              );
-            },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      key: const ValueKey('org-chart-zoom-out'),
+                      tooltip: t.organization.chart.zoomOut,
+                      onPressed: () => _zoom(1 / 1.25),
+                      icon: const Icon(CupertinoIcons.minus),
+                    ),
+                    IconButton(
+                      key: const ValueKey('org-chart-zoom-in'),
+                      tooltip: t.organization.chart.zoomIn,
+                      onPressed: () => _zoom(1.25),
+                      icon: const Icon(CupertinoIcons.plus),
+                    ),
+                    ListenableBuilder(
+                      listenable: _transform,
+                      builder: (context, _) => SizedBox(
+                        width: AppSpacing.xxxLarge,
+                        child: Center(
+                          child: Text(
+                            '${(_transform.value.getMaxScaleOnAxis() * 100).toStringAsFixed(_transform.value.getMaxScaleOnAxis() < .1 ? 1 : 0)}%',
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      key: const ValueKey('org-chart-fit'),
+                      tooltip: t.organization.chart.fit,
+                      onPressed: _fit,
+                      icon: const Icon(
+                        CupertinoIcons.arrow_up_left_arrow_down_right,
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: t.organization.common.reload,
+                      onPressed: _refresh,
+                      icon: const Icon(CupertinoIcons.refresh),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: ColoredBox(
+            color: colors.surfaceContainerLow,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                _viewport = constraints.biggest;
+                return InteractiveViewer(
+                  key: const ValueKey('org-chart-canvas'),
+                  transformationController: _transform,
+                  constrained: false,
+                  minScale: _minimumScale,
+                  maxScale: 4,
+                  trackpadScrollCausesScale: true,
+                  boundaryMargin: EdgeInsets.all(AppSpacing.xxxLarge * 4),
+                  child: SizedBox(
+                    width: layout.size.width,
+                    height: layout.size.height,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: CustomPaint(
+                            painter: _ChartLines(layout, colors.outline),
+                          ),
+                        ),
+                        for (final entry in layout.nodes.entries)
+                          Positioned.fromRect(
+                            rect: entry.value.rect,
+                            child: _node(context, entry.key, entry.value.path),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
         Padding(
@@ -290,6 +328,11 @@ class _OrganizationChartState extends State<OrganizationChart> {
     List<HumanDirectoryDepartment> path,
   ) {
     final department = path.isEmpty ? null : path.last;
+    final label =
+        department?.name ??
+        (widget.organizationName.isEmpty
+            ? t.organization.home.tabOrg
+            : widget.organizationName);
     final colors = Theme.of(context).colorScheme;
     final loading = _loading.contains(id);
     final failed = _errors.containsKey(id);
@@ -297,15 +340,25 @@ class _OrganizationChartState extends State<OrganizationChart> {
     return Container(
       key: ValueKey('org-chart-node-$id'),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: path.isEmpty
+            ? colors.primaryContainer
+            : colors.surfaceContainerLowest,
         border: Border.all(
           color: path.isEmpty ? colors.primary : colors.outlineVariant,
         ),
-        borderRadius: BorderRadius.circular(AppRadius.cell),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       padding: AppSpacing.allSmall,
       child: Row(
         children: [
+          if (path.isEmpty) ...[
+            Icon(
+              CupertinoIcons.building_2_fill,
+              color: colors.onPrimaryContainer,
+              size: AppSpacing.xLarge,
+            ),
+            AppSpacing.horizontalSmall,
+          ],
           Expanded(
             child: CupertinoButton(
               padding: EdgeInsets.zero,
@@ -314,22 +367,29 @@ class _OrganizationChartState extends State<OrganizationChart> {
                   : () => widget.onOpenDepartment(path),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    department?.name ??
-                        (widget.organizationName.isEmpty
-                            ? t.organization.home.tabOrg
-                            : widget.organizationName),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  Tooltip(
+                    message: label,
+                    child: Text(
+                      label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: path.isEmpty
+                            ? colors.onPrimaryContainer
+                            : colors.onSurface,
+                      ),
+                    ),
                   ),
                   if (department != null)
                     Text(
                       t.organization.chart.directMembers(
                         count: department.memberCount,
                       ),
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme.of(context).textTheme.bodySmall
+                          ?.copyWith(color: colors.onSurfaceVariant),
                     ),
                 ],
               ),
@@ -347,8 +407,11 @@ class _OrganizationChartState extends State<OrganizationChart> {
               tooltip: failed
                   ? t.organization.common.reload
                   : _expanded.contains(id)
-                  ? t.organization.chart.collapse
-                  : t.organization.chart.expand,
+                  ? t.organization.departments.collapseNode(name: label)
+                  : t.organization.departments.expandNode(name: label),
+              color: path.isEmpty
+                  ? colors.onPrimaryContainer
+                  : colors.onSurfaceVariant,
               onPressed: () => _toggle(id),
               icon: Icon(
                 failed
@@ -374,7 +437,10 @@ typedef OrganizationChartPlacement = ({
 organizationChartLayout(
   Map<EntityId, List<HumanDirectoryDepartment>> children,
   Set<EntityId> expanded, {
-  Size nodeSize = const Size(AppSpacing.xxxLarge * 4, AppSpacing.xxxLarge * 2),
+  Size nodeSize = const Size(
+    AppSpacing.xxxLarge * 4,
+    AppSpacing.xxxLarge + AppSpacing.xxLarge,
+  ),
 }) {
   final width = nodeSize.width;
   final height = nodeSize.height;
