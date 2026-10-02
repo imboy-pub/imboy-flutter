@@ -26,7 +26,7 @@ dependencies:
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 🎨 Core Flutter & UI Framework                                   │
   # └─────────────────────────────────────────────────────────────────┘
-  cupertino_icons: ^1.0.8        # iOS style icons
+  cupertino_icons: ^2.0.0        # iOS style icons
   flutter_screenutil: ^5.9.3    # Screen adaptation utility
   octo_image: ^2.1.1              # Multi-purpose Flutter image widget
   flutter_svg: ^2.2.4             # SVG rendering support
@@ -70,7 +70,7 @@ dependencies:
   dynamic_color: ^2.1.0           # 2.x returns material_ui ColorScheme, incompatible with Flutter ColorScheme
   # dynamic_color 2.x 的 toColorScheme 返回 material_ui 包的 ColorScheme 类型，
   # lib/theme/dynamic_color_manager.dart 直接 import 该类型，故需显式声明此依赖。
-  material_ui: ^1.4.0                 # transitive dep of dynamic_color 2.x, imported directly by dynamic_color_manager.dart
+  material_ui: ^1.5.0                 # transitive dep of dynamic_color 2.x, imported directly by dynamic_color_manager.dart
   cross_cache: ^1.1.1                 # Cross-platform caching strategy
   # device_info_plus 12+ 同样迁移到 win32 6.x API（LOCAL_MACHINE / Win32Result.value）。
   # HttpClient 链路（User-Agent / 设备标识）间接依赖，API 测试必经路径。
@@ -209,7 +209,7 @@ dependencies:
   # RegistrationID → PushNotificationService.setToken 注入，不触碰密钥。
   jpush_flutter: ^3.5.8
 
-  envied: ^1.3.9                    # Environment variables management (updated: 1.3.2 → 1.3.8)
+  envied: ^1.3.10                    # Environment variables management (updated: 1.3.2 → 1.3.8)
   pin_code_fields: ^10.1.0                 # PIN code input fields
   intl_phone_number_input: ^0.7.5    # Phone number input with validation
   jverify:                            # JVerification (gitee fork dev-3.x: SwiftPM + carrier SDK 适配)
@@ -231,10 +231,10 @@ dependencies:
   visibility_detector: ^0.4.0+2    # Widget visibility detection
   slang: ^4.19.2                    # Internationalization code generation (updated: 4.14.0 → 4.18.0)
   slang_flutter: ^4.18.0             # Flutter slang integration (updated: 4.14.0 → 4.18.0)
-  go_router: ^18.0.1                 # Declarative routing (go_router)
+  go_router: ^18.0.2                 # Declarative routing (go_router)
   flutter_riverpod: ^3.4.3            # pin: riverpod 4.0.4 栈与传递依赖 mockito 5.7.0 的 analyzer 需求冲突，回退 4.0.3 栈
   riverpod_annotation: ^4.0.7         # pin: riverpod_generator 4.0.3 要求 annotation 4.0.2
-  crop_your_image: ^2.0.0
+  crop_your_image: ^2.0.1
 
   # ┌─────────────────────────────────────────────────────────────────┐
   # │ 💳 Payment SDKs (S4)                                             │
