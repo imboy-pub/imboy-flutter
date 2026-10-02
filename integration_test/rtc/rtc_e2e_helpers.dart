@@ -28,6 +28,11 @@ export '../flows/test_utils.dart'
 /// 真跑开关：所有 RTC 真机用例默认关闭，防 CI/误触拨出真实信令。
 const lkRtcRunEnabled = bool.fromEnvironment('LK_RTC_RUN', defaultValue: false);
 
+/// 正式验收模式（Task 10 runner 注入 LK_RTC_STRICT=true；判定方式与
+/// rtc_relay_realdevice_test.dart 的 `_strict` 同源）。strict 下设备/入口
+/// 条件缺失不得 markTestSkipped，必须 fail（进程非零退出，skip 不得当 PASS）。
+const lkRtcStrict = bool.fromEnvironment('LK_RTC_STRICT', defaultValue: false);
+
 const lkExpectedUid = String.fromEnvironment('TEST_EXPECTED_UID');
 const lkPeerUid = String.fromEnvironment('PEER_UID');
 const lkMedia = String.fromEnvironment('LK_RTC_MEDIA', defaultValue: 'video');
@@ -71,7 +76,8 @@ bool requireOneDeviceSetup(WidgetTester tester, String caseName) {
 }
 
 /// 登录到主 shell 并回到稳定态（复用 h2 流程；已在登录态则直通）。
-/// 返回 false 表示环境不可用（已 skip）。
+/// 返回 false 表示环境不可用（非 strict 下已 skip；strict 下 App 入口
+/// 状态超时视为设备/入口条件缺失，直接 fail 非零退出，不返回 false）。
 Future<bool> ensureLoggedInAndIdle(WidgetTester tester) async {
   await ensureAppLaunched(tester, maxSeconds: 20);
   if (!await ensureBackendAvailable()) {
@@ -93,6 +99,12 @@ Future<bool> ensureLoggedInAndIdle(WidgetTester tester) async {
     }
   }
   if (!entryReady) {
+    if (lkRtcStrict) {
+      fail(
+        'STRICT 模式（正式验收 runner）：App 入口状态超时，'
+        '设备/入口条件缺失不得跳过，必须非零退出',
+      );
+    }
     markTestSkipped('App 入口状态超时，跳过');
     return false;
   }
