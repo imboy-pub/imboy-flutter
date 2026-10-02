@@ -1,0 +1,6 @@
+{
+  "exit_code": 1,
+  "test_executed": false,
+  "reason": "Separate bundle lacked development provisioning profile; reused existing pub.imboy.app signing while keeping independent storage namespaces",
+  "original_log_sha256": "e02f54892a2d436e0f058496d552cb9a9efbc94bfade1cb1af387e0e9b11077e"
+}

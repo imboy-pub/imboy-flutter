@@ -1,0 +1,48 @@
+{
+  "status": "PASS_STORAGE_AND_NAVIGATION_PREPARATION",
+  "artifacts": [
+    {
+      "path": "result.json",
+      "sha256": "0738457fb9854b63c84566b66ba8ecacbe856136b216ffdbdcef5b66d5c9d112"
+    },
+    {
+      "path": "native-storage.txt",
+      "sha256": "5953e957d45f47c2755c406e59c3fa37d406d84debf933b8f7bd4f327a1530fa"
+    },
+    {
+      "path": "shell-contract.txt",
+      "sha256": "8f8c8d03801f76b7c99557c4a0677a2d3502915f86c2cfe0decce04722d4cc49"
+    },
+    {
+      "path": "initial-build-failure.json",
+      "sha256": "c3d7b8a516ec71ea040be4c1647fb84f5f5e5dc76ae988cd0e14f4533e9dc90d"
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "integration_test/enterprise/enterprise_scope_native_test.dart",
+      "sha256": "8e137ce0eadfdde74a59505592b87f5b34a1753ff085ceee54ebd07131bf6628"
+    },
+    {
+      "path": "integration_test/enterprise/macos_storage_isolation.dart",
+      "sha256": "e661e04d9588ade2ff9f50fa8dcae9dd6692df77e5f1abc0a1675c1901d51fda"
+    },
+    {
+      "path": "integration_test/enterprise/macos_storage_isolation_test.dart",
+      "sha256": "0507bab7a53a7f53a18519ad4f0e03df84ed1fc1be5d0ec59746127f9c0f06ed"
+    },
+    {
+      "path": "test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart",
+      "sha256": "305f055cc0dd3fe07b94c669dd04053c3f522ac37143a916d5b881b05fffec3d"
+    },
+    {
+      "path": "pubspec.yaml",
+      "sha256": "552b014ddc9b3ae0a6dee264e043e98d1ac5d87ae10f8bb659c0097bc2a95082"
+    },
+    {
+      "path": "pubspec.lock",
+      "sha256": "2753780732a24d19ae4606f82f36a7e2b41c98117a0b0734b64e3eb49548654c"
+    }
+  ],
+  "whole_goal_complete": false
+}

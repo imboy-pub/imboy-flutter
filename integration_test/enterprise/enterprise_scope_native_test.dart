@@ -9,6 +9,7 @@ import 'package:flutter/material.dart'
         ListTile,
         NavigationBar,
         NavigationDestination,
+        NavigationRail,
         Scrollable,
         TextButton,
         TextField;
@@ -32,6 +33,10 @@ import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/service/group_file_service.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/config/init.dart' show AppInitializer;
+import 'package:imboy/service/sqlite.dart' show SqliteService;
+
+import 'macos_storage_isolation.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +48,7 @@ void main() {
     const password = String.fromEnvironment('TEST_SYNTHETIC_PASSWORD');
     const rootDepartment = String.fromEnvironment('TEST_ROOT_DEPARTMENT');
     const childDepartment = String.fromEnvironment('TEST_CHILD_DEPARTMENT');
-    expect(Platform.isAndroid, isTrue);
+    expect(Platform.isAndroid || Platform.isMacOS, isTrue);
     expect(app.appEnv, 'local');
     expect(Uri.parse(api).host, '127.0.0.1');
     expect(account, 'synthetic_enterprise_mobile');
@@ -51,7 +56,27 @@ void main() {
     expect(rootDepartment, matches(RegExp(r'^[1-9][0-9]+$')));
     expect(childDepartment, matches(RegExp(r'^[1-9][0-9]+$')));
     final package = await PackageInfo.fromPlatform();
-    expect(package.packageName, 'pub.imboy.app.gzcustomer');
+    expect(
+      package.packageName,
+      Platform.isMacOS ? 'pub.imboy.app' : 'pub.imboy.app.gzcustomer',
+    );
+
+    if (Platform.isMacOS) {
+      final root = await tester.runAsync(isolateMacosStorage);
+      expect(
+        root,
+        isNotNull,
+        reason: 'Storage isolation must precede bootstrap',
+      );
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.runAsync(() async {
+          await AppInitializer.dispose();
+          await SqliteService.to.close();
+          await clearMacosStorage(root!);
+        });
+      });
+    }
 
     final testErrorHandler = FlutterError.onError;
     await tester.runAsync(app.bootstrap);
@@ -95,13 +120,10 @@ void main() {
       find.byWidgetPredicate(
         (widget) =>
             widget.key == const Key('tab_conversations') ||
-            widget.key == const Key('enterprise-shell-bottom-nav'),
+            widget.key == enterpriseNavKey,
       ),
     );
-    if (find
-        .byKey(const Key('enterprise-shell-bottom-nav'))
-        .evaluate()
-        .isNotEmpty) {
+    if (find.byKey(enterpriseNavKey).evaluate().isNotEmpty) {
       await selectPersonal(tester);
     }
     await waitFor(tester, find.byKey(const Key('tab_conversations')));
@@ -122,27 +144,11 @@ void main() {
     final enterprise = find.byKey(const Key('org-picker-tile-995101'));
     await waitFor(tester, enterprise);
     await tester.tap(enterprise);
-    await waitFor(tester, find.byKey(const Key('enterprise-shell-bottom-nav')));
+    await waitFor(tester, find.byKey(enterpriseNavKey));
     await tester.pump(const Duration(milliseconds: 500));
-    await tester.tap(
-      find.descendant(
-        of: find.byKey(const Key('enterprise-shell-bottom-nav')),
-        matching: find.byWidgetPredicate(
-          (widget) =>
-              widget is NavigationDestination &&
-              widget.label == t.organization.directory.title,
-        ),
-      ),
-    );
+    await selectEnterpriseTab(tester, t.organization.directory.title);
     await tester.pump(const Duration(milliseconds: 500));
-    expect(
-      tester
-          .widget<NavigationBar>(
-            find.byKey(const Key('enterprise-shell-bottom-nav')),
-          )
-          .selectedIndex,
-      1,
-    );
+    expect(enterpriseSelectedIndex(tester), 1);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
     expect(tester.takeException(), isNull);
 
@@ -180,7 +186,7 @@ void main() {
       await checkNativeGroupFile(tester);
     }
     await selectPersonal(tester);
-    expect(find.byKey(const Key('enterprise-shell-bottom-nav')), findsNothing);
+    expect(find.byKey(enterpriseNavKey), findsNothing);
     expect(tester.takeException(), isNull);
     await joinEnterprise(tester);
     await leaveEnterprise(tester);
@@ -200,18 +206,7 @@ Future<void> checkNativeGroupFile(WidgetTester tester) async {
     ),
   );
   expect(created, isNotNull);
-  final nav = find.byKey(const Key('enterprise-shell-bottom-nav'));
-  expect(tester.widget<NavigationBar>(nav).destinations, hasLength(4));
-  await tester.tap(
-    find.descendant(
-      of: nav,
-      matching: find.byWidgetPredicate(
-        (widget) =>
-            widget is NavigationDestination &&
-            widget.label == t.enterpriseOa.workbenchTitle,
-      ),
-    ),
-  );
+  await selectEnterpriseTab(tester, t.enterpriseOa.workbenchTitle);
   await waitFor(tester, find.text(t.chat.groupFile).hitTestable());
   await tester.tap(find.text(t.chat.groupFile));
   final group = find.byKey(const ValueKey('workspace-group-tile-995301'));
@@ -333,16 +328,7 @@ Future<void> checkNativeOrgGovernance(WidgetTester tester) async {
 }
 
 Future<void> openNativeDepartments(WidgetTester tester) async {
-  final nav = find.byKey(const Key('enterprise-shell-bottom-nav'));
-  await tester.tap(
-    find.descendant(
-      of: nav,
-      matching: find.byWidgetPredicate(
-        (widget) =>
-            widget is NavigationDestination && widget.label == t.common.me,
-      ),
-    ),
-  );
+  await selectEnterpriseTab(tester, t.common.me);
   final manage = find.text(t.organization.manage.entry);
   await waitFor(tester, manage.hitTestable());
   await tester.tap(manage);
@@ -384,16 +370,7 @@ Future<void> departmentAction(
 }
 
 Future<void> checkNativeOa(WidgetTester tester) async {
-  final workbench = find.descendant(
-    of: find.byKey(const Key('enterprise-shell-bottom-nav')),
-    matching: find.byWidgetPredicate(
-      (widget) =>
-          widget is NavigationDestination &&
-          widget.label == t.enterpriseOa.workbenchTitle,
-    ),
-  );
-  await waitFor(tester, workbench.hitTestable());
-  await tester.tap(workbench);
+  await selectEnterpriseTab(tester, t.enterpriseOa.workbenchTitle);
   final entry = find.byKey(const Key('workbench-application-intbe02-oa-sso'));
   await waitFor(tester, entry.hitTestable());
   await tester.tap(entry);
@@ -424,6 +401,38 @@ Future<void> checkNativeOa(WidgetTester tester) async {
   await waitFor(tester, entry.hitTestable());
   expect(find.byType(WebViewWidget), findsNothing);
   expect(tester.takeException(), isNull);
+}
+
+Key get enterpriseNavKey => Key(
+  Platform.isMacOS ? 'enterprise-shell-rail' : 'enterprise-shell-bottom-nav',
+);
+
+int enterpriseSelectedIndex(WidgetTester tester) {
+  final nav = tester.widget(find.byKey(enterpriseNavKey));
+  return nav is NavigationRail
+      ? nav.selectedIndex!
+      : (nav as NavigationBar).selectedIndex;
+}
+
+Future<void> selectEnterpriseTab(WidgetTester tester, String label) async {
+  final nav = find.byKey(enterpriseNavKey);
+  await waitFor(tester, nav);
+  final widget = tester.widget(nav);
+  final Finder tab;
+  if (widget is NavigationRail) {
+    expect(widget.destinations, hasLength(4));
+    tab = find.descendant(of: nav, matching: find.text(label));
+  } else {
+    expect((widget as NavigationBar).destinations, hasLength(4));
+    tab = find.descendant(
+      of: nav,
+      matching: find.byWidgetPredicate(
+        (widget) => widget is NavigationDestination && widget.label == label,
+      ),
+    );
+  }
+  await waitFor(tester, tab.hitTestable());
+  await tester.tap(tab);
 }
 
 Future<void> selectPersonal(WidgetTester tester) async {
@@ -487,22 +496,12 @@ Future<void> joinEnterprise(WidgetTester tester) async {
   expect(find.textContaining('intbe02-org-b'), findsWidgets);
   await waitFor(tester, submit.hitTestable());
   await tester.tap(submit);
-  final nav = find.byKey(const Key('enterprise-shell-bottom-nav'));
+  final nav = find.byKey(enterpriseNavKey);
   await waitFor(tester, nav);
 }
 
 Future<void> leaveEnterprise(WidgetTester tester) async {
-  final nav = find.byKey(const Key('enterprise-shell-bottom-nav'));
-  await waitFor(tester, nav.hitTestable());
-  await tester.tap(
-    find.descendant(
-      of: nav,
-      matching: find.byWidgetPredicate(
-        (widget) =>
-            widget is NavigationDestination && widget.label == t.common.me,
-      ),
-    ),
-  );
+  await selectEnterpriseTab(tester, t.common.me);
   final manage = find.text(t.organization.manage.entry);
   await waitFor(tester, manage.hitTestable());
   await tester.tap(manage);
