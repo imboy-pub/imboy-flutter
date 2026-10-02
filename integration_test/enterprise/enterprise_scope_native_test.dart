@@ -16,6 +16,7 @@ import 'package:flutter/material.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:imboy/main.dart' as app;
@@ -38,7 +39,7 @@ import 'package:imboy/page/workspace/workspace_channel_detail_page.dart';
 import 'package:imboy/service/group_file_service.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/config/init.dart' show AppInitializer;
+import 'package:imboy/config/init.dart' show AppInitializer, navigatorKey;
 import 'package:imboy/service/sqlite.dart' show SqliteService;
 
 import 'macos_storage_isolation.dart';
@@ -100,6 +101,30 @@ void main() {
     }
     await waitFor(tester, find.byKey(const Key('login_phone_input')));
     expect(find.byType(InitErrorPage), findsNothing);
+    if (const bool.fromEnvironment('TEST_NATIVE_GUANGZHOU_PROFILE')) {
+      for (final feature in [
+        FeatureKeys.project,
+        FeatureKeys.channelDiscover,
+        FeatureKeys.location,
+        FeatureKeys.e2ee,
+      ]) {
+        expect(AppFeatureRegistry.isEnabled(feature), isFalse);
+      }
+      for (final feature in [FeatureKeys.channel, FeatureKeys.moment]) {
+        expect(AppFeatureRegistry.isEnabled(feature), isTrue);
+      }
+      debugPrint('NATIVE_GUANGZHOU_PROFILE_PASS');
+    }
+    const loginContinuation = bool.fromEnvironment(
+      'TEST_NATIVE_LOGIN_CONTINUATION',
+    );
+    const directTarget = '/organization/995101/directory?from=login#org';
+    final router = GoRouter.of(navigatorKey.currentContext!);
+    if (loginContinuation) {
+      router.go(directTarget);
+      await tester.pump();
+      await waitFor(tester, find.byKey(const Key('login_phone_input')));
+    }
     final accountField = find.descendant(
       of: find.byKey(const Key('login_phone_input')),
       matching: find.byType(EditableText),
@@ -120,6 +145,24 @@ void main() {
     await tester.ensureVisible(loginButton);
     await waitFor(tester, loginButton.hitTestable());
     await tester.tap(loginButton);
+    if (loginContinuation) {
+      await waitFor(
+        tester,
+        find.byKey(const Key('org_directory_search_input')),
+      );
+      expect(
+        router.routeInformationProvider.value.uri.toString(),
+        directTarget,
+      );
+      await waitFor(
+        tester,
+        find.byKey(Key('org-dir-dept-list-$rootDepartment')),
+      );
+      expect(tester.takeException(), isNull);
+      debugPrint('NATIVE_LOGIN_ROUTE_CONTINUATION_PASS');
+      router.go('/bottom_navigation');
+      await tester.pump();
+    }
     await waitFor(
       tester,
       find.byWidgetPredicate(

@@ -1,0 +1,7 @@
+# Guangzhou profile and login continuation on real macOS
+
+Actual macOS Flutter engine with production bootstrap, isolated storage, real device-bound password login, disposable PostgreSQL and Garage. Tested App base 769c1838 plus the recorded test-only delta; product files are unchanged. Backend 67f38d2d stayed frozen, cached sources matched exactly, approved test changes were freshly compiled, and the independent Guangzhou fixture was freshly compiled.
+
+Actual HTTP and client flags: project/channel_discover/location/e2ee false; channel/moment true. The unauthenticated production router opens /organization/995101/directory?from=login#org; after actual login the full URI returns, the real directory and database-seeded department are displayed, then the journey returns to personal and actually clicks all four personal tabs. Existing enterprise four-tab, no-OA workbench entry, organization governance, group message, channel discussion, actual file upload/HTTP 32-byte preview/deletion denial, join/leave all pass. The native runner exits 0; four backend DB oracles pass.
+
+This tests the internal direct-route login flow required by the contract, not an OS URL scheme cold launch. It does not qualify customer OA, iOS, production deployment or visible page pixels; those remain explicitly separate. Private token-bearing logs/defines are not archived. Result includes frozen source/helper hashes and oracle data; summaries include only whitelisted markers. Independent Flutter review: APPROVE.
