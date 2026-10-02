@@ -32,9 +32,10 @@ const String _orgId = '7301';
 
 /// 按 URI path 分发的静态 adapter（members 分页 + 生命周期命令共用）。
 class _RoutingAdapter implements HttpClientAdapter {
-  _RoutingAdapter(this.routes);
+  _RoutingAdapter(this.routes, {this.onRequest});
 
   final Map<String, dynamic> Function(String path) routes;
+  final void Function(RequestOptions)? onRequest;
 
   @override
   Future<ResponseBody> fetch(
@@ -42,6 +43,7 @@ class _RoutingAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    onRequest?.call(options);
     final body = routes(options.uri.path);
     return ResponseBody.fromString(
       jsonEncode(body),
@@ -204,6 +206,65 @@ void main() {
     // 只有说明行 + 详情入口（详情是只读面，全员可用）。
     expect(find.text('Owner 不可在此变更；请使用「转移所有者」'), findsOneWidget);
     expect(find.text('查看详情'), findsOneWidget);
+  });
+
+  testWidgets('Owner 移交需确认，成功刷新角色并收回再次移交入口', (tester) async {
+    var rows = [
+      _memberRow(int.parse(_accountKey), role: 'owner', nickname: '原负责人'),
+      _memberRow(1002, nickname: '小明'),
+      _memberRow(1003, nickname: '小红'),
+    ];
+    final writes = <RequestOptions>[];
+    HttpClient.adapterForTest = _RoutingAdapter(
+      (path) {
+        if (path.endsWith('/members')) return _memberPage(rows);
+        if (path.endsWith('/transfer_owner')) {
+          rows = [
+            _memberRow(1002, role: 'owner', nickname: '小明'),
+            _memberRow(int.parse(_accountKey), role: 'admin', nickname: '原负责人'),
+            _memberRow(1003, nickname: '小红'),
+          ];
+          return _ok({'owner_id': 1002});
+        }
+        return _ok(null);
+      },
+      onRequest: (request) {
+        if (request.method == 'POST') writes.add(request);
+      },
+    );
+    await _pump(tester);
+    await pumpUntilFound(tester, find.text('小明'));
+    await tester.tap(find.text('小明'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.text(t.organization.members.transferOwnerTo(name: '小明')),
+    );
+    await tester.pumpAndSettle();
+    expect(writes, isEmpty, reason: '确认前不得发起移交');
+    await tester.tap(find.text(t.organization.members.confirmTransfer));
+    await tester.pumpAndSettle();
+    expect(writes, hasLength(1));
+    expect(
+      writes.single.uri.path,
+      '/api/v1/organizations/$_orgId/members/transfer_owner',
+    );
+    expect(writes.single.data, {'user_id': '1002'});
+    for (final entry in {'原负责人': '管理员', '小明': '所有者'}.entries) {
+      final row = tester.widget<ListTile>(
+        find.ancestor(
+          of: find.text(entry.key),
+          matching: find.byType(ListTile),
+        ),
+      );
+      expect((row.subtitle as Text).data, '${entry.value} · 正常');
+    }
+    await tester.tap(find.text('小红'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(t.organization.members.transferOwnerTo(name: '小红')),
+      findsNothing,
+    );
+    expect(find.text(t.organization.members.suspendMember), findsOneWidget);
   });
 
   testWidgets('suspend：确认 → POST → 成员从列表消失（立即失去可见性）', (tester) async {
