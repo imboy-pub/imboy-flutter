@@ -23,9 +23,6 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
-import 'package:imboy/modules/organization/presentation/organization_entry_card.dart';
-import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
-
 import 'contact_menu_decoration.dart';
 import 'contact_provider.dart';
 
@@ -101,8 +98,6 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       if (!mounted) return;
       ref.read(contactProvider.notifier).loadData();
       ref.read(newFriendRemindProvider.notifier).countReminders();
-      // §14.1：进入页拉取企业入口数据（mine() 真源；失败 → 错误态可重试）。
-      ref.read(organizationEntryProvider.notifier).fetch();
     });
   }
 
@@ -130,9 +125,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   bool _dataReloadInFlight = false;
 
-  /// §14.1：下拉刷新 = 联系人 + 企业入口（mine() 真源）并行拉取。
+  /// 下拉刷新只更新个人联系人。
   Future<void> _onPullRefresh() async {
-    unawaited(ref.read(organizationEntryProvider.notifier).fetch());
     await ref.read(contactProvider.notifier).loadData();
   }
 
@@ -463,9 +457,6 @@ class _ContactPageState extends ConsumerState<ContactPage> {
               placeholder: t.common.search,
             ),
           ),
-          // §14.1 P0：企业入口（有企业=当前企业+切换；无企业=加入/创建；
-          // 网络/权限错误=错误态+重试；不整块卸载联系人页）。
-          const OrganizationEntryCard(),
           if (state.isLoading)
             const Expanded(child: ShimmerList())
           else if (all.isEmpty)

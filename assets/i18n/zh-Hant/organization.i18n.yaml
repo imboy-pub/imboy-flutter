@@ -19,7 +19,7 @@ common:
   orgStatusPending: "審核中"
   orgStatusRejected: "未通過審核"
 home:
-  createOrg: "建立組織"
+  createOrg: "建立企業"
   orgNameLabel: "組織名稱（1-200 字元）"
   createFailedWith: "建立失敗：${msg} (${code})"
   # 建立可能落 pending（待營運審核）：成功 ≠ 立即可用

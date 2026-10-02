@@ -18,7 +18,7 @@ common:
   orgStatusPending: 审核中
   orgStatusRejected: 未通过审核
 home:
-  createOrg: 创建组织
+  createOrg: 创建企业
   orgNameLabel: 组织名称（1-200 字符）
   createFailedWith: 创建失败：${msg} (${code})
   # 创建可能落 pending（待运营审核）：成功 ≠ 立即可用

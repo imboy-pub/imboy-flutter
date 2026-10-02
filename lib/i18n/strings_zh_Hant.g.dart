@@ -2700,7 +2700,7 @@ class Translations$organization$home$zh_Hant extends Translations$organization$h
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get createOrg => '建立組織';
+	@override String get createOrg => '建立企業';
 	@override String get orgNameLabel => '組織名稱（1-200 字元）';
 	@override String createFailedWith({required Object msg, required Object code}) => '建立失敗：${msg} (${code})';
 	@override String get createSubmittedPendingReview => '已提交，等待營運審核，審核通過後企業可正常使用';
@@ -5188,7 +5188,7 @@ extension on TranslationsZhHant {
 			'organization.common.loadMore' => '載入更多',
 			'organization.common.orgStatusPending' => '審核中',
 			'organization.common.orgStatusRejected' => '未通過審核',
-			'organization.home.createOrg' => '建立組織',
+			'organization.home.createOrg' => '建立企業',
 			'organization.home.orgNameLabel' => '組織名稱（1-200 字元）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '建立失敗：${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => '已提交，等待營運審核，審核通過後企業可正常使用',

@@ -7714,8 +7714,8 @@ class Translations$organization$home$zh_CN {
 
 	// Translations
 
-	/// zh-CN: '创建组织'
-	String get createOrg => '创建组织';
+	/// zh-CN: '创建企业'
+	String get createOrg => '创建企业';
 
 	/// zh-CN: '组织名称（1-200 字符）'
 	String get orgNameLabel => '组织名称（1-200 字符）';
@@ -10982,7 +10982,7 @@ extension on Translations {
 			'organization.common.loadMore' => '加载更多',
 			'organization.common.orgStatusPending' => '审核中',
 			'organization.common.orgStatusRejected' => '未通过审核',
-			'organization.home.createOrg' => '创建组织',
+			'organization.home.createOrg' => '创建企业',
 			'organization.home.orgNameLabel' => '组织名称（1-200 字符）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '创建失败：${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => '已提交，等待运营审核，审核通过后企业可正常使用',

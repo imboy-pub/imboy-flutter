@@ -36,6 +36,7 @@ import 'package:imboy/modules/organization/infrastructure/current_organization_s
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/modules/organization/presentation/org_join_scanner_page.dart';
 
 class OrganizationPickerPage extends ConsumerStatefulWidget {
@@ -391,6 +392,12 @@ class _OrganizationPickerPageState
             leading: const Icon(CupertinoIcons.person_crop_circle_badge_plus),
             title: Text(t.organization.picker.joinEnterprise),
             onTap: _joinByCode,
+          ),
+          ListTile(
+            key: const ValueKey('org-picker-create-entry'),
+            leading: const Icon(CupertinoIcons.add_circled),
+            title: Text(t.organization.home.createOrg),
+            onTap: () => context.push(kOrganizationHomePath),
           ),
         ],
       ),

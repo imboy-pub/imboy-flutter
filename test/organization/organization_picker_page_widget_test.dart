@@ -195,6 +195,10 @@ GoRouter _router({bool autoJoin = false}) => GoRouter(
             )
           : const OrganizationPickerPage(accountKey: _accountKey),
     ),
+    GoRoute(
+      path: '/organization',
+      builder: (c, s) => const Scaffold(body: Text('create-enterprise-page')),
+    ),
     // _leave() 在无栈可弹时 go 到壳挂载点（真实行为同 join 页）。
     GoRoute(
       path: '/bottom_navigation',
@@ -290,6 +294,10 @@ void main() {
     expect(find.text('组织$_orgB'), findsOneWidget);
     expect(find.byKey(const ValueKey('org-picker-join-entry')), findsOneWidget);
     expect(find.text('加入企业'), findsOneWidget);
+    expect(find.text('创建企业'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('org-picker-create-entry')));
+    await tester.pumpAndSettle();
+    expect(find.text('create-enterprise-page'), findsOneWidget);
   });
 
   testWidgets('企业列表为空时仍可从空间选择器返回个人', (tester) async {
