@@ -20,7 +20,10 @@ library;
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart'
-    show CupertinoIcons, CupertinoSearchTextField;
+    show
+        CupertinoIcons,
+        CupertinoSearchTextField,
+        CupertinoSlidingSegmentedControl;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -47,6 +50,7 @@ import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 
 import 'human_directory_org_switch_sheet.dart';
 import 'human_directory_layout.dart';
+import 'organization_chart.dart';
 
 /// 通讯录层级（页面内部 path 栈；系统返回先上翻一层，根级才真正 pop）。
 class _DirectoryLevel {
@@ -94,6 +98,8 @@ class _HumanDirectoryBrowserPageState
 
   final TextEditingController _searchCtrl = TextEditingController();
   Timer? _searchDebounce;
+  bool _chart = false;
+  bool _chartVisited = false;
 
   /// 当前展示的企业名（切换成功后更新；orgName 仅初始种子）。
   late String _orgName;
@@ -141,6 +147,10 @@ class _HumanDirectoryBrowserPageState
   @override
   void didUpdateWidget(covariant HumanDirectoryBrowserPage oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.orgName != oldWidget.orgName) {
+      _orgName = widget.orgName;
+      _levels = [_DirectoryLevel(name: _orgName), ..._levels.skip(1)];
+    }
     // §14.3：orgId / path 变化 → configure（request_key 变化 ⇒ generation
     // 递增 + 从首页重建；上一 Org 的列表/cursor/error 不复用）。
     if (oldWidget.orgId == widget.orgId &&
@@ -398,23 +408,110 @@ class _HumanDirectoryBrowserPageState
         body: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.regular,
-                AppSpacing.medium,
-                AppSpacing.regular,
-                AppSpacing.small,
-              ),
-              child: CupertinoSearchTextField(
-                key: const Key('org_directory_search_input'),
-                controller: _searchCtrl,
-                onChanged: _onSearchChanged,
-                placeholder: t.organization.directory.searchHint,
+              padding: AppSpacing.allRegular,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: AppSpacing.xxxLarge * 8,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: CupertinoSlidingSegmentedControl<bool>(
+                      key: const ValueKey('org-directory-view-switcher'),
+                      groupValue: _chart,
+                      children: {
+                        false: SizedBox(
+                          height: 44,
+                          child: Center(
+                            child: Text(
+                              t.organization.directory.membersSection,
+                            ),
+                          ),
+                        ),
+                        true: SizedBox(
+                          height: 44,
+                          child: Center(
+                            child: Text(
+                              t.organization.directory.structureSection,
+                            ),
+                          ),
+                        ),
+                      },
+                      onValueChanged: (value) {
+                        if (value == null || value == _chart) return;
+                        _clearSearch();
+                        _controller.setQuery('');
+                        setState(() {
+                          _chart = value;
+                          _chartVisited |= value;
+                        });
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
+            if (!_chart)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.regular,
+                  AppSpacing.medium,
+                  AppSpacing.regular,
+                  AppSpacing.small,
+                ),
+                child: CupertinoSearchTextField(
+                  key: const Key('org_directory_search_input'),
+                  controller: _searchCtrl,
+                  onChanged: _onSearchChanged,
+                  placeholder: t.organization.directory.searchHint,
+                ),
+              ),
             Expanded(
               child: AnimatedBuilder(
                 animation: _controller,
-                builder: (context, _) => _buildBody(context, isRoot),
+                builder: (context, _) {
+                  if (_controller.phase == HumanDirectoryPhase.error) {
+                    return _buildBody(context, isRoot);
+                  }
+                  return IndexedStack(
+                    index: _chart ? 1 : 0,
+                    children: [
+                      _buildBody(context, isRoot),
+                      if (_chartVisited)
+                        OrganizationChart(
+                          key: ValueKey(
+                            'organization-chart-$_accountKey-${_controller.identity?.organizationId ?? widget.orgId}',
+                          ),
+                          accountKey: _accountKey,
+                          organizationId:
+                              _controller.identity?.organizationId ??
+                              widget.orgId,
+                          organizationName: _orgName,
+                          source: widget.dataSource ?? _orgApi,
+                          onAccessDenied: _controller.rejectAccess,
+                          onOpenDepartment: (path) {
+                            if (path.isEmpty) return;
+                            _clearSearch();
+                            setState(() {
+                              _chart = false;
+                              _levels = [
+                                _DirectoryLevel(name: _orgName),
+                                for (final department in path)
+                                  _DirectoryLevel(
+                                    departmentId: department.id,
+                                    name: department.name,
+                                  ),
+                              ];
+                            });
+                            _controller.setQuery('');
+                            _controller.openDepartment(path.last.id);
+                          },
+                        )
+                      else
+                        const SizedBox.shrink(),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -473,12 +570,7 @@ class _HumanDirectoryBrowserPageState
           _departmentRow(context, d, keySuffix: 'mine'),
         AppSpacing.verticalSmall,
       ],
-      _sectionHeader(
-        context,
-        isRoot
-            ? t.organization.directory.structureSection
-            : t.organization.directory.deptSection,
-      ),
+      _sectionHeader(context, t.organization.directory.deptSection),
       for (var i = 0; i < depts.items.length; i++)
         _departmentRow(
           context,
@@ -500,7 +592,7 @@ class _HumanDirectoryBrowserPageState
     final c = _controller;
     final members = c.members;
     return [
-      _sectionHeader(context, t.organization.directory.membersSection),
+      _sectionHeader(context, t.organization.directory.currentMembersSection),
       for (var i = 0; i < members.items.length; i++)
         _memberRow(
           context,

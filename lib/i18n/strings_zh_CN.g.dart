@@ -6711,6 +6711,7 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$hub$zh_CN hub = Translations$organization$hub$zh_CN.internal(_root);
 	late final Translations$organization$wsMembers$zh_CN wsMembers = Translations$organization$wsMembers$zh_CN.internal(_root);
 	late final Translations$organization$tools$zh_CN tools = Translations$organization$tools$zh_CN.internal(_root);
+	late final Translations$organization$chart$zh_CN chart = Translations$organization$chart$zh_CN.internal(_root);
 }
 
 // Path: passport
@@ -8341,6 +8342,9 @@ class Translations$organization$directory$zh_CN {
 
 	// Translations
 
+	/// zh-CN: '本级成员'
+	String get currentMembersSection => '本级成员';
+
 	/// zh-CN: '组织架构'
 	String get structureSection => '组织架构';
 
@@ -8796,6 +8800,36 @@ class Translations$organization$tools$zh_CN {
 
 	/// zh-CN: '打开全局工作区切换器（跨企业）。'
 	String get moreInWorkspaceShellHint => '打开全局工作区切换器（跨企业）。';
+}
+
+// Path: organization.chart
+class Translations$organization$chart$zh_CN {
+	Translations$organization$chart$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '放大'
+	String get zoomIn => '放大';
+
+	/// zh-CN: '缩小'
+	String get zoomOut => '缩小';
+
+	/// zh-CN: '适应窗口'
+	String get fit => '适应窗口';
+
+	/// zh-CN: '展开下级部门'
+	String get expand => '展开下级部门';
+
+	/// zh-CN: '收起下级部门'
+	String get collapse => '收起下级部门';
+
+	/// zh-CN: '拖动查看 · 双指缩放'
+	String get gestureHint => '拖动查看 · 双指缩放';
+
+	/// zh-CN: '本级 ${count} 人'
+	String directMembers({required Object count}) => '本级 ${count} 人';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -11173,6 +11207,7 @@ extension on Translations {
 			'organization.inviteQr.copyCode' => '复制邀请码',
 			'organization.inviteQr.copied' => '已复制邀请码',
 			'organization.inviteQr.inviteDisabledPending' => '企业待审核，审核通过后才能邀请成员',
+			'organization.directory.currentMembersSection' => '本级成员',
 			'organization.directory.structureSection' => '组织架构',
 			'organization.directory.title' => '通讯录',
 			'organization.directory.deptSection' => '部门',
@@ -11307,6 +11342,13 @@ extension on Translations {
 			'organization.tools.projectsError' => ({required Object err}) => '项目加载失败：${err}',
 			'organization.tools.moreInWorkspaceShell' => '浏览全部工作区',
 			'organization.tools.moreInWorkspaceShellHint' => '打开全局工作区切换器（跨企业）。',
+			'organization.chart.zoomIn' => '放大',
+			'organization.chart.zoomOut' => '缩小',
+			'organization.chart.fit' => '适应窗口',
+			'organization.chart.expand' => '展开下级部门',
+			'organization.chart.collapse' => '收起下级部门',
+			'organization.chart.gestureHint' => '拖动查看 · 双指缩放',
+			'organization.chart.directMembers' => ({required Object count}) => '本级 ${count} 人',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',
@@ -11366,6 +11408,8 @@ extension on Translations {
 			'workspace.createSubmit' => '创建',
 			'workspace.createEntry' => '创建工作区',
 			'workspace.createSuccess' => '工作区创建成功',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createIdempotentHit' => '已存在同名工作区，直接进入',
 			'workspace.createTemplateTitle' => '将自动初始化',
 			'workspace.createTemplateChannel' => 'Announcements 频道（你成为频道发布者与订阅者）',
@@ -11374,8 +11418,6 @@ extension on Translations {
 			'workspace.overviewTitle' => '概览',
 			'workspace.overviewResources' => '资源摘要',
 			'workspace.overviewPinnedContent' => '频道置顶内容',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewPinnedEmpty' => '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）',
 			'workspace.overviewRecentFiles' => '最近文件',
 			'workspace.overviewRecentFilesEmpty' => '最近上传的文件将在此展示；也可在各频道内查看附件',

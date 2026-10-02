@@ -219,6 +219,7 @@ inviteQr:
   # Disabled invite-entry hint for pending/rejected enterprises (server preview/join always 409)
   inviteDisabledPending: "The enterprise is pending review; members can be invited once approved"
 directory:
+  currentMembersSection: Direct members
   structureSection: Organization structure
   title: "Directory"
   deptSection: "Departments"
@@ -366,3 +367,12 @@ tools:
   projectsError: "Failed to load projects: ${err}"
   moreInWorkspaceShell: Browse all workspaces
   moreInWorkspaceShellHint: Open the global workspace switcher (cross-enterprise).
+
+chart:
+  zoomIn: Zoom in
+  zoomOut: Zoom out
+  fit: Fit to window
+  expand: Expand departments
+  collapse: Collapse departments
+  gestureHint: Drag to pan · Pinch to zoom
+  directMembers: ${count} direct members

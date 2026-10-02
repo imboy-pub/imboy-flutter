@@ -219,6 +219,7 @@ inviteQr:
   # تلميح تعطيل مدخل إصدار الرمز للمؤسسات pending/rejected (preview/join على الخادم دائمًا 409)
   inviteDisabledPending: "المؤسسة بانتظار المراجعة؛ لا يمكن دعوة الأعضاء إلا بعد اجتيازها"
 directory:
+  currentMembersSection: Direct members
   structureSection: الهيكل التنظيمي
   title: "الدليل"
   deptSection: "الأقسام"
@@ -362,3 +363,12 @@ tools:
   projectsError: "فشل تحميل المشاريع: ${err}"
   moreInWorkspaceShell: استعراض كل مساحات العمل
   moreInWorkspaceShellHint: فتح مبدّل مساحات العمل العام (بين المؤسسات).
+
+chart:
+  zoomIn: Zoom in
+  zoomOut: Zoom out
+  fit: Fit to window
+  expand: Expand departments
+  collapse: Collapse departments
+  gestureHint: Drag to pan · Pinch to zoom
+  directMembers: ${count} direct members

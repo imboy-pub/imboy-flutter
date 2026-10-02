@@ -309,6 +309,36 @@ void main({bool realTime = false}) {
     expect(find.textContaining('code=403'), findsNothing);
   });
 
+  testWidgets('列表撤权同步卸载已加载图形，切回图不能恢复旧节点', (tester) async {
+    final src = _FakeSource();
+    await tester.pumpWidget(
+      _plainApp(HumanDirectoryBrowserPage(orgId: orgA, dataSource: src)),
+    );
+    src.resolveDepartments(items: _defaultDepts);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.pump();
+    src.resolveDepartments(items: _defaultDepts);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('org-chart-node-$dept1')), findsOneWidget);
+    await tester.tap(find.text(t.organization.directory.membersSection).first);
+    await tester.pumpAndSettle();
+    final refresh = tester
+        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+        .onRefresh();
+    await tester.pump();
+    src._pendingDepartments.last.completeError(
+      const OrganizationApiException(403, '权限已收回'),
+    );
+    await refresh;
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('org-chart-node-$dept1')), findsNothing);
+    expect(find.textContaining('权限已收回'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('同企业同型页面换账号：清搜索、重拉目录并丢弃迟到响应', (tester) async {
     final src = _FakeSource();
     final container = ProviderContainer(
@@ -447,7 +477,10 @@ void main({bool realTime = false}) {
     expect(find.text('研发部'), findsOneWidget);
     expect(find.text('设计部'), findsOneWidget);
     // 下半：本级成员节 + 根成员行。
-    expect(find.text(t.organization.directory.membersSection), findsOneWidget);
+    expect(
+      find.text(t.organization.directory.currentMembersSection),
+      findsOneWidget,
+    );
     expect(find.text('根成员甲'), findsOneWidget);
     expect(find.byKey(const Key('org-dir-member-9001')), findsOneWidget);
     // /me 无部门 → 捷径收起。

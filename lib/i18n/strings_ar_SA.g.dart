@@ -2368,6 +2368,7 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$hub$ar_SA hub = _Translations$organization$hub$ar_SA._(_root);
 	@override late final _Translations$organization$wsMembers$ar_SA wsMembers = _Translations$organization$wsMembers$ar_SA._(_root);
 	@override late final _Translations$organization$tools$ar_SA tools = _Translations$organization$tools$ar_SA._(_root);
+	@override late final _Translations$organization$chart$ar_SA chart = _Translations$organization$chart$ar_SA._(_root);
 }
 
 // Path: passport
@@ -2962,6 +2963,7 @@ class _Translations$organization$directory$ar_SA extends Translations$organizati
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentMembersSection => 'Direct members';
 	@override String get structureSection => 'الهيكل التنظيمي';
 	@override String get title => 'الدليل';
 	@override String get deptSection => 'الأقسام';
@@ -3148,6 +3150,22 @@ class _Translations$organization$tools$ar_SA extends Translations$organization$t
 	@override String projectsError({required Object err}) => 'فشل تحميل المشاريع: ${err}';
 	@override String get moreInWorkspaceShell => 'استعراض كل مساحات العمل';
 	@override String get moreInWorkspaceShellHint => 'فتح مبدّل مساحات العمل العام (بين المؤسسات).';
+}
+
+// Path: organization.chart
+class _Translations$organization$chart$ar_SA extends Translations$organization$chart$zh_CN {
+	_Translations$organization$chart$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get zoomIn => 'Zoom in';
+	@override String get zoomOut => 'Zoom out';
+	@override String get fit => 'Fit to window';
+	@override String get expand => 'Expand departments';
+	@override String get collapse => 'Collapse departments';
+	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
+	@override String directMembers({required Object count}) => '${count} direct members';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -5389,6 +5407,7 @@ extension on TranslationsArSa {
 			'organization.inviteQr.copyCode' => 'نسخ الرمز',
 			'organization.inviteQr.copied' => 'تم نسخ رمز الدعوة',
 			'organization.inviteQr.inviteDisabledPending' => 'المؤسسة بانتظار المراجعة؛ لا يمكن دعوة الأعضاء إلا بعد اجتيازها',
+			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => 'الهيكل التنظيمي',
 			'organization.directory.title' => 'الدليل',
 			'organization.directory.deptSection' => 'الأقسام',
@@ -5521,6 +5540,13 @@ extension on TranslationsArSa {
 			'organization.tools.projectsError' => ({required Object err}) => 'فشل تحميل المشاريع: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'استعراض كل مساحات العمل',
 			'organization.tools.moreInWorkspaceShellHint' => 'فتح مبدّل مساحات العمل العام (بين المؤسسات).',
+			'organization.chart.zoomIn' => 'Zoom in',
+			'organization.chart.zoomOut' => 'Zoom out',
+			'organization.chart.fit' => 'Fit to window',
+			'organization.chart.expand' => 'Expand departments',
+			'organization.chart.collapse' => 'Collapse departments',
+			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
+			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',
@@ -5718,6 +5744,8 @@ extension on TranslationsArSa {
 			'workspace.projectMilestonesEntry' => 'المعالم',
 			'workspace.projectChannelsEntry' => 'قنوات المشروع',
 			'workspace.projectInsightsEntry' => 'تجميع المحتوى',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNoPermission' => 'لا توجد صلاحية: يمكن العرض لأعضاء المشروع أو مسؤول المشروع أو Owner مساحة العمل فقط',
 			'workspace.projectGuestReadonly' => 'صلاحية الضيف (Guest) للقراءة فقط على المشروع',
 			'workspace.projectLoadMore' => 'تحميل المزيد',
@@ -5726,8 +5754,6 @@ extension on TranslationsArSa {
 			'workspace.projectMemberEmptySubtitle' => 'يمكن لمسؤول المشروع دعوة مستخدمين مسجلين للانضمام إلى هذا المشروع',
 			'workspace.projectMemberInviteTitle' => 'دعوة أعضاء المشروع',
 			'workspace.projectMemberInviteFieldHint' => 'معرّف المستخدم المسجل المراد دعوته',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteInvalidUid' => 'يرجى إدخال معرّف مستخدم صالح',
 			'workspace.projectMemberInviteSubmit' => 'دعوة',
 			'workspace.projectMemberInviteSuccess' => 'تمت إضافته عضواً في المشروع',

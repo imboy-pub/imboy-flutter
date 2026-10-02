@@ -2359,6 +2359,7 @@ class _Translations$organization$de_DE extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$hub$de_DE hub = _Translations$organization$hub$de_DE._(_root);
 	@override late final _Translations$organization$wsMembers$de_DE wsMembers = _Translations$organization$wsMembers$de_DE._(_root);
 	@override late final _Translations$organization$tools$de_DE tools = _Translations$organization$tools$de_DE._(_root);
+	@override late final _Translations$organization$chart$de_DE chart = _Translations$organization$chart$de_DE._(_root);
 }
 
 // Path: passport
@@ -2953,6 +2954,7 @@ class _Translations$organization$directory$de_DE extends Translations$organizati
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentMembersSection => 'Direct members';
 	@override String get structureSection => 'Organisationsstruktur';
 	@override String get title => 'Verzeichnis';
 	@override String get deptSection => 'Abteilungen';
@@ -3139,6 +3141,22 @@ class _Translations$organization$tools$de_DE extends Translations$organization$t
 	@override String projectsError({required Object err}) => 'Projekte laden fehlgeschlagen: ${err}';
 	@override String get moreInWorkspaceShell => 'Alle Workspaces durchsuchen';
 	@override String get moreInWorkspaceShellHint => 'Globalen Workspace-Umschalter öffnen (unternehmensübergreifend).';
+}
+
+// Path: organization.chart
+class _Translations$organization$chart$de_DE extends Translations$organization$chart$zh_CN {
+	_Translations$organization$chart$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get zoomIn => 'Zoom in';
+	@override String get zoomOut => 'Zoom out';
+	@override String get fit => 'Fit to window';
+	@override String get expand => 'Expand departments';
+	@override String get collapse => 'Collapse departments';
+	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
+	@override String directMembers({required Object count}) => '${count} direct members';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -5380,6 +5398,7 @@ extension on TranslationsDeDe {
 			'organization.inviteQr.copyCode' => 'Code kopieren',
 			'organization.inviteQr.copied' => 'Einladungscode kopiert',
 			'organization.inviteQr.inviteDisabledPending' => 'Das Unternehmen befindet sich in Prüfung; Mitglieder können erst nach Genehmigung eingeladen werden',
+			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => 'Organisationsstruktur',
 			'organization.directory.title' => 'Verzeichnis',
 			'organization.directory.deptSection' => 'Abteilungen',
@@ -5512,6 +5531,13 @@ extension on TranslationsDeDe {
 			'organization.tools.projectsError' => ({required Object err}) => 'Projekte laden fehlgeschlagen: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Alle Workspaces durchsuchen',
 			'organization.tools.moreInWorkspaceShellHint' => 'Globalen Workspace-Umschalter öffnen (unternehmensübergreifend).',
+			'organization.chart.zoomIn' => 'Zoom in',
+			'organization.chart.zoomOut' => 'Zoom out',
+			'organization.chart.fit' => 'Fit to window',
+			'organization.chart.expand' => 'Expand departments',
+			'organization.chart.collapse' => 'Collapse departments',
+			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
+			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
 			'passport.loginHistoryToggle' => 'Anmeldeverlauf anzeigen',
 			'passport.hintEmail' => 'Bitte E-Mail eingeben',
 			'passport.hintMobile' => 'Bitte Mobilfunknummer eingeben',
@@ -5709,6 +5735,8 @@ extension on TranslationsDeDe {
 			'workspace.projectMilestonesEntry' => 'Meilensteine',
 			'workspace.projectChannelsEntry' => 'Projektkanäle',
 			'workspace.projectInsightsEntry' => 'Inhaltsübersicht',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNoPermission' => 'Keine Berechtigung: Nur Projektmitglieder, die Projektleitung oder der Arbeitsbereich-Owner können dies ansehen',
 			'workspace.projectGuestReadonly' => 'Als Gast (Guest) ist das Projekt nur lesbar',
 			'workspace.projectLoadMore' => 'Mehr laden',
@@ -5717,8 +5745,6 @@ extension on TranslationsDeDe {
 			'workspace.projectMemberEmptySubtitle' => 'Die Projektleitung kann registrierte Nutzer in dieses Projekt einladen',
 			'workspace.projectMemberInviteTitle' => 'Projektmitglieder einladen',
 			'workspace.projectMemberInviteFieldHint' => 'ID des einzuladenden registrierten Nutzers',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteInvalidUid' => 'Bitte eine gültige Nutzer-ID eingeben',
 			'workspace.projectMemberInviteSubmit' => 'Einladen',
 			'workspace.projectMemberInviteSuccess' => 'Zu den Projektmitgliedern hinzugefügt',

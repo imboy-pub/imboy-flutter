@@ -2365,6 +2365,7 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$hub$ru_RU hub = _Translations$organization$hub$ru_RU._(_root);
 	@override late final _Translations$organization$wsMembers$ru_RU wsMembers = _Translations$organization$wsMembers$ru_RU._(_root);
 	@override late final _Translations$organization$tools$ru_RU tools = _Translations$organization$tools$ru_RU._(_root);
+	@override late final _Translations$organization$chart$ru_RU chart = _Translations$organization$chart$ru_RU._(_root);
 }
 
 // Path: passport
@@ -2959,6 +2960,7 @@ class _Translations$organization$directory$ru_RU extends Translations$organizati
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentMembersSection => 'Direct members';
 	@override String get structureSection => 'Структура организации';
 	@override String get title => 'Справочник';
 	@override String get deptSection => 'Отделы';
@@ -3145,6 +3147,22 @@ class _Translations$organization$tools$ru_RU extends Translations$organization$t
 	@override String projectsError({required Object err}) => 'Не удалось загрузить проекты: ${err}';
 	@override String get moreInWorkspaceShell => 'Все рабочие пространства';
 	@override String get moreInWorkspaceShellHint => 'Открыть глобальный переключатель пространств (между организациями).';
+}
+
+// Path: organization.chart
+class _Translations$organization$chart$ru_RU extends Translations$organization$chart$zh_CN {
+	_Translations$organization$chart$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get zoomIn => 'Zoom in';
+	@override String get zoomOut => 'Zoom out';
+	@override String get fit => 'Fit to window';
+	@override String get expand => 'Expand departments';
+	@override String get collapse => 'Collapse departments';
+	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
+	@override String directMembers({required Object count}) => '${count} direct members';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -5386,6 +5404,7 @@ extension on TranslationsRuRu {
 			'organization.inviteQr.copyCode' => 'Копировать код',
 			'organization.inviteQr.copied' => 'Код приглашения скопирован',
 			'organization.inviteQr.inviteDisabledPending' => 'Предприятие ожидает проверки; приглашать участников можно будет только после одобрения',
+			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => 'Структура организации',
 			'organization.directory.title' => 'Справочник',
 			'organization.directory.deptSection' => 'Отделы',
@@ -5518,6 +5537,13 @@ extension on TranslationsRuRu {
 			'organization.tools.projectsError' => ({required Object err}) => 'Не удалось загрузить проекты: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Все рабочие пространства',
 			'organization.tools.moreInWorkspaceShellHint' => 'Открыть глобальный переключатель пространств (между организациями).',
+			'organization.chart.zoomIn' => 'Zoom in',
+			'organization.chart.zoomOut' => 'Zoom out',
+			'organization.chart.fit' => 'Fit to window',
+			'organization.chart.expand' => 'Expand departments',
+			'organization.chart.collapse' => 'Collapse departments',
+			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
+			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',
@@ -5715,6 +5741,8 @@ extension on TranslationsRuRu {
 			'workspace.projectMilestonesEntry' => 'Этапы',
 			'workspace.projectChannelsEntry' => 'Каналы проекта',
 			'workspace.projectInsightsEntry' => 'Сводка контента',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNoPermission' => 'Нет доступа: просмотр доступен только участникам проекта, ответственному за проект или Owner рабочего пространства',
 			'workspace.projectGuestReadonly' => 'Гость (Guest) имеет доступ к проекту только для чтения',
 			'workspace.projectLoadMore' => 'Загрузить ещё',
@@ -5723,8 +5751,6 @@ extension on TranslationsRuRu {
 			'workspace.projectMemberEmptySubtitle' => 'Ответственный за проект может приглашать зарегистрированных пользователей',
 			'workspace.projectMemberInviteTitle' => 'Пригласить участника проекта',
 			'workspace.projectMemberInviteFieldHint' => 'ID зарегистрированного пользователя для приглашения',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteInvalidUid' => 'Введите действительный ID пользователя',
 			'workspace.projectMemberInviteSubmit' => 'Пригласить',
 			'workspace.projectMemberInviteSuccess' => 'Пользователь добавлен в участники проекта',

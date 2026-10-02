@@ -2359,6 +2359,7 @@ class _Translations$organization$it_IT extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$hub$it_IT hub = _Translations$organization$hub$it_IT._(_root);
 	@override late final _Translations$organization$wsMembers$it_IT wsMembers = _Translations$organization$wsMembers$it_IT._(_root);
 	@override late final _Translations$organization$tools$it_IT tools = _Translations$organization$tools$it_IT._(_root);
+	@override late final _Translations$organization$chart$it_IT chart = _Translations$organization$chart$it_IT._(_root);
 }
 
 // Path: passport
@@ -2953,6 +2954,7 @@ class _Translations$organization$directory$it_IT extends Translations$organizati
 	final TranslationsItIt _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentMembersSection => 'Direct members';
 	@override String get structureSection => 'Struttura organizzativa';
 	@override String get title => 'Rubrica';
 	@override String get deptSection => 'Dipartimenti';
@@ -3139,6 +3141,22 @@ class _Translations$organization$tools$it_IT extends Translations$organization$t
 	@override String projectsError({required Object err}) => 'Caricamento progetti non riuscito: ${err}';
 	@override String get moreInWorkspaceShell => 'Sfoglia tutti gli workspace';
 	@override String get moreInWorkspaceShellHint => 'Apri il selettore globale degli workspace (tra aziende).';
+}
+
+// Path: organization.chart
+class _Translations$organization$chart$it_IT extends Translations$organization$chart$zh_CN {
+	_Translations$organization$chart$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get zoomIn => 'Zoom in';
+	@override String get zoomOut => 'Zoom out';
+	@override String get fit => 'Fit to window';
+	@override String get expand => 'Expand departments';
+	@override String get collapse => 'Collapse departments';
+	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
+	@override String directMembers({required Object count}) => '${count} direct members';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -5380,6 +5398,7 @@ extension on TranslationsItIt {
 			'organization.inviteQr.copyCode' => 'Copia codice',
 			'organization.inviteQr.copied' => 'Codice di invito copiato',
 			'organization.inviteQr.inviteDisabledPending' => 'L\'azienda è in attesa di revisione; i membri potranno essere invitati solo dopo l\'approvazione',
+			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => 'Struttura organizzativa',
 			'organization.directory.title' => 'Rubrica',
 			'organization.directory.deptSection' => 'Dipartimenti',
@@ -5512,6 +5531,13 @@ extension on TranslationsItIt {
 			'organization.tools.projectsError' => ({required Object err}) => 'Caricamento progetti non riuscito: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Sfoglia tutti gli workspace',
 			'organization.tools.moreInWorkspaceShellHint' => 'Apri il selettore globale degli workspace (tra aziende).',
+			'organization.chart.zoomIn' => 'Zoom in',
+			'organization.chart.zoomOut' => 'Zoom out',
+			'organization.chart.fit' => 'Fit to window',
+			'organization.chart.expand' => 'Expand departments',
+			'organization.chart.collapse' => 'Collapse departments',
+			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
+			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
 			'passport.loginHistoryToggle' => 'Mostra cronologia accessi',
 			'passport.hintEmail' => 'Inserisci email',
 			'passport.hintMobile' => 'Inserisci numero di telefono',
@@ -5709,6 +5735,8 @@ extension on TranslationsItIt {
 			'workspace.projectMilestoneReachedToast' => 'Milestone raggiunta',
 			'workspace.projectMilestonesEntry' => 'Milestone',
 			'workspace.projectMilestonesTitle' => 'Milestone',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNameHint' => 'Ad es.: Rifacimento sito web',
 			'workspace.projectNameLabel' => 'Nome progetto',
 			'workspace.projectNameRequired' => 'Il nome del progetto non può essere vuoto',
@@ -5717,8 +5745,6 @@ extension on TranslationsItIt {
 			'workspace.projectReopen' => 'Riapri progetto',
 			'workspace.projectStatusActive' => 'In corso',
 			'workspace.projectStatusChanged' => 'Stato del progetto aggiornato',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectStatusDone' => 'Completato',
 			'workspace.projectStatusLabel' => 'Stato',
 			'workspace.projectSubmit' => 'Crea',

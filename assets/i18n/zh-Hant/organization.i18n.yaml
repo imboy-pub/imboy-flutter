@@ -219,6 +219,7 @@ inviteQr:
   # pending/rejected 企業出碼入口停用提示（伺服器 preview/join 一律 409）
   inviteDisabledPending: "企業待審核，審核通過後才能邀請成員"
 directory:
+  currentMembersSection: 本級成員
   structureSection: 組織架構
   title: 通訊錄
   deptSection: 部門
@@ -362,3 +363,12 @@ tools:
   projectsError: "專案載入失敗：${err}"
   moreInWorkspaceShell: 瀏覽全部工作區
   moreInWorkspaceShellHint: 開啟全域工作區切換器（跨企業）。
+
+chart:
+  zoomIn: 放大
+  zoomOut: 縮小
+  fit: 適應視窗
+  expand: 展開下級部門
+  collapse: 收起下級部門
+  gestureHint: 拖曳查看 · 雙指縮放
+  directMembers: 本級 ${count} 人

@@ -2356,6 +2356,7 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$hub$ko_KR hub = _Translations$organization$hub$ko_KR._(_root);
 	@override late final _Translations$organization$wsMembers$ko_KR wsMembers = _Translations$organization$wsMembers$ko_KR._(_root);
 	@override late final _Translations$organization$tools$ko_KR tools = _Translations$organization$tools$ko_KR._(_root);
+	@override late final _Translations$organization$chart$ko_KR chart = _Translations$organization$chart$ko_KR._(_root);
 }
 
 // Path: passport
@@ -2950,6 +2951,7 @@ class _Translations$organization$directory$ko_KR extends Translations$organizati
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentMembersSection => 'Direct members';
 	@override String get structureSection => '조직 구조';
 	@override String get title => '디렉터리';
 	@override String get deptSection => '부서';
@@ -3136,6 +3138,22 @@ class _Translations$organization$tools$ko_KR extends Translations$organization$t
 	@override String projectsError({required Object err}) => '프로젝트 로드 실패: ${err}';
 	@override String get moreInWorkspaceShell => '모든 워크스페이스 탐색';
 	@override String get moreInWorkspaceShellHint => '전역 워크스페이스 전환기 열기(기업 간).';
+}
+
+// Path: organization.chart
+class _Translations$organization$chart$ko_KR extends Translations$organization$chart$zh_CN {
+	_Translations$organization$chart$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get zoomIn => 'Zoom in';
+	@override String get zoomOut => 'Zoom out';
+	@override String get fit => 'Fit to window';
+	@override String get expand => 'Expand departments';
+	@override String get collapse => 'Collapse departments';
+	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
+	@override String directMembers({required Object count}) => '${count} direct members';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -5377,6 +5395,7 @@ extension on TranslationsKoKr {
 			'organization.inviteQr.copyCode' => '코드 복사',
 			'organization.inviteQr.copied' => '초대 코드가 복사되었습니다',
 			'organization.inviteQr.inviteDisabledPending' => '기업이 심사 대기 중입니다. 심사가 통과된 후에만 멤버를 초대할 수 있습니다',
+			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => '조직 구조',
 			'organization.directory.title' => '디렉터리',
 			'organization.directory.deptSection' => '부서',
@@ -5509,6 +5528,13 @@ extension on TranslationsKoKr {
 			'organization.tools.projectsError' => ({required Object err}) => '프로젝트 로드 실패: ${err}',
 			'organization.tools.moreInWorkspaceShell' => '모든 워크스페이스 탐색',
 			'organization.tools.moreInWorkspaceShellHint' => '전역 워크스페이스 전환기 열기(기업 간).',
+			'organization.chart.zoomIn' => 'Zoom in',
+			'organization.chart.zoomOut' => 'Zoom out',
+			'organization.chart.fit' => 'Fit to window',
+			'organization.chart.expand' => 'Expand departments',
+			'organization.chart.collapse' => 'Collapse departments',
+			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
+			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',
@@ -5706,6 +5732,8 @@ extension on TranslationsKoKr {
 			'workspace.projectMilestonesEntry' => '마일스톤',
 			'workspace.projectChannelsEntry' => '프로젝트 채널',
 			'workspace.projectInsightsEntry' => '콘텐츠 집계',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNoPermission' => '권한 없음: 프로젝트 구성원, 프로젝트 담당자 또는 워크스페이스 Owner만 볼 수 있습니다',
 			'workspace.projectGuestReadonly' => '게스트(Guest) 신분은 프로젝트가 읽기 전용입니다',
 			'workspace.projectLoadMore' => '더 로드',
@@ -5714,8 +5742,6 @@ extension on TranslationsKoKr {
 			'workspace.projectMemberEmptySubtitle' => '프로젝트 담당자가 가입한 사용자를 이 프로젝트에 초대할 수 있습니다',
 			'workspace.projectMemberInviteTitle' => '프로젝트 구성원 초대',
 			'workspace.projectMemberInviteFieldHint' => '초대할 가입 사용자 ID',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteInvalidUid' => '올바른 사용자 ID를 입력해 주세요',
 			'workspace.projectMemberInviteSubmit' => '초대',
 			'workspace.projectMemberInviteSuccess' => '프로젝트 구성원으로 추가되었습니다',

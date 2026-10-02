@@ -299,6 +299,9 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       case EnterpriseShellDestination.contacts:
         return HumanDirectoryBrowserPage(
           orgId: widget.organizationId,
+          orgName:
+              ref.watch(_mineOrganizationProvider(_scope)).asData?.value.name ??
+              '',
           embedded: true,
         );
       case EnterpriseShellDestination.workbench:

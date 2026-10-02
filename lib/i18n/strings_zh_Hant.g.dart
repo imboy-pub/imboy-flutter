@@ -2357,6 +2357,7 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$hub$zh_Hant hub = Translations$organization$hub$zh_Hant.internal(_root);
 	@override late final Translations$organization$wsMembers$zh_Hant wsMembers = Translations$organization$wsMembers$zh_Hant.internal(_root);
 	@override late final Translations$organization$tools$zh_Hant tools = Translations$organization$tools$zh_Hant.internal(_root);
+	@override late final Translations$organization$chart$zh_Hant chart = Translations$organization$chart$zh_Hant.internal(_root);
 }
 
 // Path: passport
@@ -2951,6 +2952,7 @@ class Translations$organization$directory$zh_Hant extends Translations$organizat
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentMembersSection => '本級成員';
 	@override String get structureSection => '組織架構';
 	@override String get title => '通訊錄';
 	@override String get deptSection => '部門';
@@ -3137,6 +3139,22 @@ class Translations$organization$tools$zh_Hant extends Translations$organization$
 	@override String projectsError({required Object err}) => '專案載入失敗：${err}';
 	@override String get moreInWorkspaceShell => '瀏覽全部工作區';
 	@override String get moreInWorkspaceShellHint => '開啟全域工作區切換器（跨企業）。';
+}
+
+// Path: organization.chart
+class Translations$organization$chart$zh_Hant extends Translations$organization$chart$zh_CN {
+	Translations$organization$chart$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get zoomIn => '放大';
+	@override String get zoomOut => '縮小';
+	@override String get fit => '適應視窗';
+	@override String get expand => '展開下級部門';
+	@override String get collapse => '收起下級部門';
+	@override String get gestureHint => '拖曳查看 · 雙指縮放';
+	@override String directMembers({required Object count}) => '本級 ${count} 人';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -5379,6 +5397,7 @@ extension on TranslationsZhHant {
 			'organization.inviteQr.copyCode' => '複製邀請碼',
 			'organization.inviteQr.copied' => '已複製邀請碼',
 			'organization.inviteQr.inviteDisabledPending' => '企業待審核，審核通過後才能邀請成員',
+			'organization.directory.currentMembersSection' => '本級成員',
 			'organization.directory.structureSection' => '組織架構',
 			'organization.directory.title' => '通訊錄',
 			'organization.directory.deptSection' => '部門',
@@ -5511,6 +5530,13 @@ extension on TranslationsZhHant {
 			'organization.tools.projectsError' => ({required Object err}) => '專案載入失敗：${err}',
 			'organization.tools.moreInWorkspaceShell' => '瀏覽全部工作區',
 			'organization.tools.moreInWorkspaceShellHint' => '開啟全域工作區切換器（跨企業）。',
+			'organization.chart.zoomIn' => '放大',
+			'organization.chart.zoomOut' => '縮小',
+			'organization.chart.fit' => '適應視窗',
+			'organization.chart.expand' => '展開下級部門',
+			'organization.chart.collapse' => '收起下級部門',
+			'organization.chart.gestureHint' => '拖曳查看 · 雙指縮放',
+			'organization.chart.directMembers' => ({required Object count}) => '本級 ${count} 人',
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',
@@ -5707,6 +5733,8 @@ extension on TranslationsZhHant {
 			'workspace.projectMembersEntry' => '成員',
 			'workspace.projectMilestonesEntry' => '專案里程碑',
 			'workspace.projectChannelsEntry' => '專案頻道',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectInsightsEntry' => '內容聚合',
 			'workspace.projectNoPermission' => '無權限：僅專案成員、專案負責人或工作區 Owner 可查看',
 			'workspace.projectGuestReadonly' => '訪客（Guest）身分對專案唯讀',
@@ -5715,8 +5743,6 @@ extension on TranslationsZhHant {
 			'workspace.projectMemberEmptyTitle' => '還沒有專案成員',
 			'workspace.projectMemberEmptySubtitle' => '專案負責人可邀請已註冊使用者加入此專案',
 			'workspace.projectMemberInviteTitle' => '邀請專案成員',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteFieldHint' => '要邀請的已註冊使用者 ID',
 			'workspace.projectMemberInviteInvalidUid' => '請輸入有效的使用者 ID',
 			'workspace.projectMemberInviteSubmit' => '邀請',

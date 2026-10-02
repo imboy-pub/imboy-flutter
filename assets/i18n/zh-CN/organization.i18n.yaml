@@ -218,6 +218,7 @@ inviteQr:
   # pending/rejected 企业出码入口禁用提示（服务端 preview/join 一律 409）
   inviteDisabledPending: 企业待审核，审核通过后才能邀请成员
 directory:
+  currentMembersSection: 本级成员
   structureSection: 组织架构
   title: 通讯录
   deptSection: 部门
@@ -366,3 +367,12 @@ tools:
   projectsError: "项目加载失败：${err}"
   moreInWorkspaceShell: 浏览全部工作区
   moreInWorkspaceShellHint: 打开全局工作区切换器（跨企业）。
+
+chart:
+  zoomIn: 放大
+  zoomOut: 缩小
+  fit: 适应窗口
+  expand: 展开下级部门
+  collapse: 收起下级部门
+  gestureHint: 拖动查看 · 双指缩放
+  directMembers: 本级 ${count} 人

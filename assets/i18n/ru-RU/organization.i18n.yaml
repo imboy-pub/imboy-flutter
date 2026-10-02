@@ -220,6 +220,7 @@ inviteQr:
   # Подсказка о запрете выдачи кода для pending/rejected предприятий (сервер preview/join всегда 409)
   inviteDisabledPending: "Предприятие ожидает проверки; приглашать участников можно будет только после одобрения"
 directory:
+  currentMembersSection: Direct members
   structureSection: Структура организации
   title: "Справочник"
   deptSection: "Отделы"
@@ -363,3 +364,12 @@ tools:
   projectsError: "Не удалось загрузить проекты: ${err}"
   moreInWorkspaceShell: Все рабочие пространства
   moreInWorkspaceShellHint: Открыть глобальный переключатель пространств (между организациями).
+
+chart:
+  zoomIn: Zoom in
+  zoomOut: Zoom out
+  fit: Fit to window
+  expand: Expand departments
+  collapse: Collapse departments
+  gestureHint: Drag to pan · Pinch to zoom
+  directMembers: ${count} direct members

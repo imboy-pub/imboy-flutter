@@ -219,6 +219,7 @@ inviteQr:
   # Suggerimento di ingresso generazione disabilitato per aziende pending/rejected (preview/join del server sempre 409)
   inviteDisabledPending: "L'azienda è in attesa di revisione; i membri potranno essere invitati solo dopo l'approvazione"
 directory:
+  currentMembersSection: Direct members
   structureSection: Struttura organizzativa
   title: "Rubrica"
   deptSection: "Dipartimenti"
@@ -362,3 +363,12 @@ tools:
   projectsError: "Caricamento progetti non riuscito: ${err}"
   moreInWorkspaceShell: Sfoglia tutti gli workspace
   moreInWorkspaceShellHint: Apri il selettore globale degli workspace (tra aziende).
+
+chart:
+  zoomIn: Zoom in
+  zoomOut: Zoom out
+  fit: Fit to window
+  expand: Expand departments
+  collapse: Collapse departments
+  gestureHint: Drag to pan · Pinch to zoom
+  directMembers: ${count} direct members

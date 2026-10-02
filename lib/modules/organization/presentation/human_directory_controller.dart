@@ -681,6 +681,9 @@ class HumanDirectoryController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 图形架构与成员列表共用撤权终态，防止切回列表展示旧数据。
+  void rejectAccess(OrganizationApiException error) => _rejectAccess(error);
+
   /// Access refusal invalidates the entire generation, including sibling requests.
   bool _rejectAccess(Object error) {
     if (error is! OrganizationApiException ||

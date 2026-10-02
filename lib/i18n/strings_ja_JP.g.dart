@@ -2356,6 +2356,7 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$hub$ja_JP hub = _Translations$organization$hub$ja_JP._(_root);
 	@override late final _Translations$organization$wsMembers$ja_JP wsMembers = _Translations$organization$wsMembers$ja_JP._(_root);
 	@override late final _Translations$organization$tools$ja_JP tools = _Translations$organization$tools$ja_JP._(_root);
+	@override late final _Translations$organization$chart$ja_JP chart = _Translations$organization$chart$ja_JP._(_root);
 }
 
 // Path: passport
@@ -2950,6 +2951,7 @@ class _Translations$organization$directory$ja_JP extends Translations$organizati
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentMembersSection => 'Direct members';
 	@override String get structureSection => '組織構成';
 	@override String get title => 'ディレクトリ';
 	@override String get deptSection => '部門';
@@ -3136,6 +3138,22 @@ class _Translations$organization$tools$ja_JP extends Translations$organization$t
 	@override String projectsError({required Object err}) => 'プロジェクトの読み込みに失敗：${err}';
 	@override String get moreInWorkspaceShell => 'すべてのワークスペースを表示';
 	@override String get moreInWorkspaceShellHint => 'グローバルなワークスペース切替を開く（企業横断）。';
+}
+
+// Path: organization.chart
+class _Translations$organization$chart$ja_JP extends Translations$organization$chart$zh_CN {
+	_Translations$organization$chart$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get zoomIn => 'Zoom in';
+	@override String get zoomOut => 'Zoom out';
+	@override String get fit => 'Fit to window';
+	@override String get expand => 'Expand departments';
+	@override String get collapse => 'Collapse departments';
+	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
+	@override String directMembers({required Object count}) => '${count} direct members';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -5377,6 +5395,7 @@ extension on TranslationsJaJp {
 			'organization.inviteQr.copyCode' => 'コードをコピー',
 			'organization.inviteQr.copied' => '招待コードをコピーしました',
 			'organization.inviteQr.inviteDisabledPending' => '企業は審査待ちです。審査に合格するとメンバーを招待できます',
+			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => '組織構成',
 			'organization.directory.title' => 'ディレクトリ',
 			'organization.directory.deptSection' => '部門',
@@ -5509,6 +5528,13 @@ extension on TranslationsJaJp {
 			'organization.tools.projectsError' => ({required Object err}) => 'プロジェクトの読み込みに失敗：${err}',
 			'organization.tools.moreInWorkspaceShell' => 'すべてのワークスペースを表示',
 			'organization.tools.moreInWorkspaceShellHint' => 'グローバルなワークスペース切替を開く（企業横断）。',
+			'organization.chart.zoomIn' => 'Zoom in',
+			'organization.chart.zoomOut' => 'Zoom out',
+			'organization.chart.fit' => 'Fit to window',
+			'organization.chart.expand' => 'Expand departments',
+			'organization.chart.collapse' => 'Collapse departments',
+			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
+			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',
@@ -5706,6 +5732,8 @@ extension on TranslationsJaJp {
 			'workspace.projectMilestonesEntry' => 'マイルストーン',
 			'workspace.projectChannelsEntry' => 'プロジェクトチャンネル',
 			'workspace.projectInsightsEntry' => 'コンテンツ集約',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectNoPermission' => '権限がありません：プロジェクトメンバー、プロジェクト担当者、またはワークスペースのOwnerのみ閲覧できます',
 			'workspace.projectGuestReadonly' => 'ゲスト（Guest）はプロジェクトを閲覧のみ可能です',
 			'workspace.projectLoadMore' => 'さらに読み込む',
@@ -5714,8 +5742,6 @@ extension on TranslationsJaJp {
 			'workspace.projectMemberEmptySubtitle' => 'プロジェクト担当者は登録済みユーザーをこのプロジェクトに招待できます',
 			'workspace.projectMemberInviteTitle' => 'プロジェクトメンバーを招待',
 			'workspace.projectMemberInviteFieldHint' => '招待する登録済みユーザーのID',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteInvalidUid' => '有効なユーザーIDを入力してください',
 			'workspace.projectMemberInviteSubmit' => '招待',
 			'workspace.projectMemberInviteSuccess' => 'プロジェクトメンバーに追加しました',

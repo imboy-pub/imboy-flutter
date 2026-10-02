@@ -2456,6 +2456,7 @@ class _Translations$organization$en_US extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$hub$en_US hub = _Translations$organization$hub$en_US._(_root);
 	@override late final _Translations$organization$wsMembers$en_US wsMembers = _Translations$organization$wsMembers$en_US._(_root);
 	@override late final _Translations$organization$tools$en_US tools = _Translations$organization$tools$en_US._(_root);
+	@override late final _Translations$organization$chart$en_US chart = _Translations$organization$chart$en_US._(_root);
 }
 
 // Path: passport
@@ -3089,6 +3090,7 @@ class _Translations$organization$directory$en_US extends Translations$organizati
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get currentMembersSection => 'Direct members';
 	@override String get structureSection => 'Organization structure';
 	@override String get title => 'Directory';
 	@override String get deptSection => 'Departments';
@@ -3277,6 +3279,22 @@ class _Translations$organization$tools$en_US extends Translations$organization$t
 	@override String projectsError({required Object err}) => 'Failed to load projects: ${err}';
 	@override String get moreInWorkspaceShell => 'Browse all workspaces';
 	@override String get moreInWorkspaceShellHint => 'Open the global workspace switcher (cross-enterprise).';
+}
+
+// Path: organization.chart
+class _Translations$organization$chart$en_US extends Translations$organization$chart$zh_CN {
+	_Translations$organization$chart$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get zoomIn => 'Zoom in';
+	@override String get zoomOut => 'Zoom out';
+	@override String get fit => 'Fit to window';
+	@override String get expand => 'Expand departments';
+	@override String get collapse => 'Collapse departments';
+	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
+	@override String directMembers({required Object count}) => '${count} direct members';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -5634,6 +5652,7 @@ extension on TranslationsEnUs {
 			'organization.inviteQr.copyCode' => 'Copy code',
 			'organization.inviteQr.copied' => 'Invite code copied',
 			'organization.inviteQr.inviteDisabledPending' => 'The enterprise is pending review; members can be invited once approved',
+			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => 'Organization structure',
 			'organization.directory.title' => 'Directory',
 			'organization.directory.deptSection' => 'Departments',
@@ -5768,6 +5787,13 @@ extension on TranslationsEnUs {
 			'organization.tools.projectsError' => ({required Object err}) => 'Failed to load projects: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Browse all workspaces',
 			'organization.tools.moreInWorkspaceShellHint' => 'Open the global workspace switcher (cross-enterprise).',
+			'organization.chart.zoomIn' => 'Zoom in',
+			'organization.chart.zoomOut' => 'Zoom out',
+			'organization.chart.fit' => 'Fit to window',
+			'organization.chart.expand' => 'Expand departments',
+			'organization.chart.collapse' => 'Collapse departments',
+			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
+			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
 			'passport.loginHistoryToggle' => 'Show login history',
 			'passport.hintEmail' => 'Please enter email',
 			'passport.hintMobile' => 'Please enter mobile number',
@@ -5847,6 +5873,8 @@ extension on TranslationsEnUs {
 			'workspace.projectsEmptySubtitle' => 'Projects track clear deliverables; a community workspace with only channels and groups is perfectly fine',
 			'workspace.channelsEmptyTitle' => 'No workspace channels yet',
 			'workspace.channelsEmptySubtitle' => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} subscribers',
 			'workspace.channelDetailTitle' => 'Channel',
 			'workspace.discussInGroupGuide' => 'Channels are for publishing; want to discuss? Jump to the General group →',
@@ -5855,8 +5883,6 @@ extension on TranslationsEnUs {
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} group members',
 			'workspace.inviteTitle' => 'Invite Workspace Member',
 			'workspace.inviteDesc' => 'Only registered users can be invited; joining a workspace does not auto-join groups or subscribe channels. You can also add them to General and send an Announcements channel invitation.',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteSearchHint' => 'Search by username / user ID',
 			'workspace.inviteEntry' => 'Invite Workspace Member',
 			'workspace.inviteJoinGroupOption' => 'Also join the General group (become a Group Member)',

@@ -219,6 +219,7 @@ inviteQr:
   # Hinweis bei deaktiviertem Code-Einstieg für pending/rejected-Unternehmen (Server preview/join stets 409)
   inviteDisabledPending: "Das Unternehmen befindet sich in Prüfung; Mitglieder können erst nach Genehmigung eingeladen werden"
 directory:
+  currentMembersSection: Direct members
   structureSection: Organisationsstruktur
   title: "Verzeichnis"
   deptSection: "Abteilungen"
@@ -362,3 +363,12 @@ tools:
   projectsError: "Projekte laden fehlgeschlagen: ${err}"
   moreInWorkspaceShell: Alle Workspaces durchsuchen
   moreInWorkspaceShellHint: Globalen Workspace-Umschalter öffnen (unternehmensübergreifend).
+
+chart:
+  zoomIn: Zoom in
+  zoomOut: Zoom out
+  fit: Fit to window
+  expand: Expand departments
+  collapse: Collapse departments
+  gestureHint: Drag to pan · Pinch to zoom
+  directMembers: ${count} direct members

@@ -219,6 +219,7 @@ inviteQr:
   # Aide d'entrée de génération désactivée pour les entreprises pending/rejected (preview/join serveur toujours 409)
   inviteDisabledPending: "L'entreprise est en attente d'examen ; les membres pourront être invités une fois celle-ci validée"
 directory:
+  currentMembersSection: Direct members
   structureSection: Structure organisationnelle
   title: "Annuaire"
   deptSection: "Départements"
@@ -362,3 +363,12 @@ tools:
   projectsError: "Échec du chargement des projets : ${err}"
   moreInWorkspaceShell: Parcourir tous les espaces
   moreInWorkspaceShellHint: Ouvrir le sélecteur global d'espaces (inter-entreprises).
+
+chart:
+  zoomIn: Zoom in
+  zoomOut: Zoom out
+  fit: Fit to window
+  expand: Expand departments
+  collapse: Collapse departments
+  gestureHint: Drag to pan · Pinch to zoom
+  directMembers: ${count} direct members
