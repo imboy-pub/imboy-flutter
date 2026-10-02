@@ -1,0 +1,62 @@
+{
+  "status": "PASS_SCOPED_NATIVE_UI",
+  "runtime_base_candidate": "b49eaa53b6f80eeed871c60b88db9a182382ef3a",
+  "native_exit_code": 0,
+  "native_passed": 20,
+  "native_log_sha256": "3407eb846f1ede4ae20cb28b3eb217827316c7646b686bba0d8ef237c7dfd27b",
+  "headless_exit_code": 0,
+  "headless_log_sha256": "6105fe253dff65846bd950e46bf2b4b612628fcdd9d9b5820c80acc4d25d6dc1",
+  "analyze_exit_code": 0,
+  "analyze_log_sha256": "b1529e6b07148025d73bd9021ba66bcd92141ecabbc512e2a4fd69de90faf23c",
+  "source_hashes": [
+    {
+      "path": "integration_test/enterprise/organization_ux_macos_test.dart",
+      "sha256": "f8b6fcedcfac6f55cecfede58933da6b5f7c1f6a3dd0a0eb56b192c1b1ddbfee"
+    },
+    {
+      "path": "test/organization/human_directory_page_widget_test.dart",
+      "sha256": "840b721304af7cb43c34c24954c0e3c2d684e2427110356d46ef581f44b392ef"
+    },
+    {
+      "path": "test/organization/organization_departments_page_widget_test.dart",
+      "sha256": "60252c26713615f25384cb0f1653d04780775d0581472a8f5b1bc09858773373"
+    },
+    {
+      "path": "test/ux_matrix/ux_harness.dart",
+      "sha256": "7468f6bcae7a2aa3971bad18bd3dbf218dc262d7fdf1462a23f8630a5bed556c"
+    },
+    {
+      "path": "lib/modules/organization/presentation/human_directory_page.dart",
+      "sha256": "e2882e9db32f016b3432e480df61fc9b5f523924c4f2f10b2f7c09a55257beb1"
+    },
+    {
+      "path": "lib/modules/organization/presentation/human_directory_layout.dart",
+      "sha256": "36453455c3a522eb2da0780c40a43a6c755b1fb429c4314286d4f5d39a892810"
+    },
+    {
+      "path": "lib/modules/organization/presentation/organization_departments_page.dart",
+      "sha256": "ccf815694707078d0dc598eaf8b230551ee64bcd6425a89eaca50abc0b5176f7"
+    }
+  ],
+  "coverage": [
+    "desktop split directory and ancestor navigation",
+    "small and wide layouts with 2x text and dark mode",
+    "embedded directory without duplicate selector",
+    "account change drops directory data and closes selector sheet",
+    "organization change removes previous directory results",
+    "search shorter than 2 chars makes no request; accepted query produces exactly one scoped result",
+    "department create/rename/move/member/admin/archive UI flows",
+    "version conflict refresh without silent retry",
+    "role-specific management actions and forbidden cycle choices"
+  ],
+  "fixtures": "Synthetic directory data source and HTTP responses; secure storage mocked; production widgets run in actual macOS Flutter engine. This is not real backend authentication or data integration.",
+  "foreground_warning": "Failed to foreground app; open returned 1",
+  "screen_pixels_verified": false,
+  "review": "APPROVE after native timing and test-hook isolation changes",
+  "whole_goal_complete": false,
+  "commands": {
+    "native": "flutter test integration_test/enterprise/organization_ux_macos_test.dart -d macos --no-pub --dart-define=APP_ENV=local",
+    "headless": "flutter test --no-pub test/organization/human_directory_page_widget_test.dart test/organization/organization_departments_page_widget_test.dart",
+    "analyze": "dart analyze integration_test/enterprise/organization_ux_macos_test.dart test/organization/human_directory_page_widget_test.dart"
+  }
+}

@@ -26,6 +26,9 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 
+import '../ux_matrix/ux_harness.dart'
+    show RouteStubAdapter, uxInstallStub, uxPage;
+
 const orgA = '7001';
 const orgB = '7002';
 const dept1 = '8001';
@@ -168,7 +171,7 @@ class _Account extends Notifier<UserModel?> {
 
 final _account = NotifierProvider<_Account, UserModel?>(_Account.new);
 
-void main() {
+void main({bool realTime = false}) {
   setUp(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
@@ -361,6 +364,26 @@ void main() {
 
   testWidgets('企业切换弹层在账号变化时关闭，不保留旧企业列表', (tester) async {
     final src = _FakeSource();
+    uxInstallStub(
+      RouteStubAdapter([
+        (
+          '/organizations/mine',
+          [
+            (
+              200,
+              uxPage([
+                {
+                  'id': orgA,
+                  'name': '甲企业',
+                  'status': 'active',
+                  'member_role': 'member',
+                },
+              ]),
+            ),
+          ],
+        ),
+      ]),
+    );
     final container = ProviderContainer(
       overrides: [
         currentUserProvider.overrideWith((ref) => ref.watch(_account)),
@@ -390,6 +413,7 @@ void main() {
     container.read(_account.notifier).select('');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
+    if (realTime) await tester.pumpAndSettle();
     expect(find.byType(BottomSheet), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -500,13 +524,22 @@ void main() {
       find.byKey(const Key('org_directory_search_input')),
       '研发',
     );
-    await tester.pump(const Duration(milliseconds: 299));
-    expect(
-      src.searchCalls,
-      hasLength(searchCallsBefore),
-      reason: 'debounce 未到',
-    );
-    await tester.pump(const Duration(milliseconds: 1));
+    if (realTime) {
+      // Native pumps wait for actual frames; exact 299/300ms remains below.
+      final deadline = DateTime.now().add(const Duration(seconds: 2));
+      while (src.searchCalls.length == searchCallsBefore &&
+          DateTime.now().isBefore(deadline)) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+    } else {
+      await tester.pump(const Duration(milliseconds: 299));
+      expect(
+        src.searchCalls,
+        hasLength(searchCallsBefore),
+        reason: 'debounce 未到',
+      );
+      await tester.pump(const Duration(milliseconds: 1));
+    }
 
     expect(src.searchCalls, hasLength(searchCallsBefore + 1));
     expect(src.searchCalls.last, '$orgA|q=研发|c=-');

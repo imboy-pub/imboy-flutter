@@ -1,0 +1,44 @@
+{
+  "status": "PASS_SCOPED_NATIVE_UI",
+  "artifacts": [
+    {
+      "path": "result.json",
+      "sha256": "d46cff9917427d50ef4b5dd80ea1fc303453cda35eded988fc1041b993b66c67"
+    },
+    {
+      "path": "initial-native-failure.json",
+      "sha256": "b43997a1e0b7209927b3416cf1c437276a1f10eccf07a7a45a8b1000196efbc5"
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "integration_test/enterprise/organization_ux_macos_test.dart",
+      "sha256": "f8b6fcedcfac6f55cecfede58933da6b5f7c1f6a3dd0a0eb56b192c1b1ddbfee"
+    },
+    {
+      "path": "test/organization/human_directory_page_widget_test.dart",
+      "sha256": "840b721304af7cb43c34c24954c0e3c2d684e2427110356d46ef581f44b392ef"
+    },
+    {
+      "path": "test/organization/organization_departments_page_widget_test.dart",
+      "sha256": "60252c26713615f25384cb0f1653d04780775d0581472a8f5b1bc09858773373"
+    },
+    {
+      "path": "test/ux_matrix/ux_harness.dart",
+      "sha256": "7468f6bcae7a2aa3971bad18bd3dbf218dc262d7fdf1462a23f8630a5bed556c"
+    },
+    {
+      "path": "lib/modules/organization/presentation/human_directory_page.dart",
+      "sha256": "e2882e9db32f016b3432e480df61fc9b5f523924c4f2f10b2f7c09a55257beb1"
+    },
+    {
+      "path": "lib/modules/organization/presentation/human_directory_layout.dart",
+      "sha256": "36453455c3a522eb2da0780c40a43a6c755b1fb429c4314286d4f5d39a892810"
+    },
+    {
+      "path": "lib/modules/organization/presentation/organization_departments_page.dart",
+      "sha256": "ccf815694707078d0dc598eaf8b230551ee64bcd6425a89eaca50abc0b5176f7"
+    }
+  ],
+  "whole_goal_complete": false
+}

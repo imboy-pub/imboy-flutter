@@ -1,0 +1,14 @@
+{
+  "status": "FAIL_NATIVE_REALTIME_HARNESS",
+  "exit": 1,
+  "session_id": 99541,
+  "issues": [
+    "exact FakeAsync debounce boundary unsuitable for native real time",
+    "account switch sheet close assertion before native animation settles"
+  ],
+  "log": "/tmp/gz-organization-macos-native.log",
+  "whole_goal_complete": false,
+  "successful": 18,
+  "failed": 2,
+  "resolution": "Native-only real-time deadline and animation settlement; exact virtual-clock widget assertions remain; test-hook groups and HTTP fixture isolated."
+}
