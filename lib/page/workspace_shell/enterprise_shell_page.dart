@@ -148,6 +148,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       children: [
         SafeArea(
           bottom: false,
+          minimum: const EdgeInsets.symmetric(horizontal: AppSpacing.xxLarge),
           child: Row(
             children: [
               const WorkspaceSwitcherChip(),
