@@ -1,0 +1,21 @@
+{
+  "status": "PASS_NATIVE_MACOS_WEBVIEW_SESSION",
+  "bundle": "pub.imboy.app.gzoatest.4e50e05b9a254b24875b726b6d935abb",
+  "source_sha256": {
+    "scripts/oa_webview_macos_session_gate.py": "985bb52c3ce9dd73ad4a2913af4964e418dd6c8b4f7cd2ebe79b143fa056eead",
+    "scripts/oa_webview_native_session_gate.py": "f65a243211e82ff5771831741cda50231d84a80afdf729de14e5ffc010b1fdee",
+    "integration_test/enterprise/oa_webview_native_session_test.dart": "eee876440bf9cf29589dcf429cac833b01f3839c6d668d67ebe2adad322e6cbb",
+    "lib/modules/enterprise_oa/presentation/oa_webview_container.dart": "481b0d6ff3dec0227d778e48c5fcb66a3a7c181cde26884a9aaffda3404f0b79",
+    "lib/modules/enterprise_oa/domain/oa_webview_policy.dart": "fe9362a6880846da72f4aeceec25a9ff1509f5ee37e11cf5793d46a510d43e29",
+    "lib/modules/enterprise_oa/domain/oa_tab_state.dart": "9aaaff21fba24ba39c4269aeadb1b62a9f94df9afc633d5b47432fb57e8e1624",
+    "pubspec.lock": "2753780732a24d19ae4606f82f36a7e2b41c98117a0b0734b64e3eb49548654c"
+  },
+  "certificate_der_sha256": "e5fdcd70a3c16e278048f03fd124e19ff1b28eb5afb574db6eca6c5e78b1e5f8",
+  "system_trust_modified": false,
+  "production_trust_modified": false,
+  "customer_oa_verified": false,
+  "exit": 0,
+  "server_oracle": true,
+  "source_unchanged": true,
+  "log_sha256": "895316806087c1efad882e5869e12b16efe83e94607ab39ba5048735e0b7ab99"
+}
