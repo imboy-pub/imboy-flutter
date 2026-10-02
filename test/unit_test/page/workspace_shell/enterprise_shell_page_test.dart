@@ -18,6 +18,9 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart';
 import 'package:imboy/modules/enterprise_oa/data/oa_workbench_api.dart';
 import 'package:imboy/modules/organization/public.dart';
+import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
+import 'package:imboy/page/mine/mine/mine_page.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -77,6 +80,16 @@ class _Api extends WorkspaceApi {
     EntityId workspaceId, {
     String? status,
   }) async => [];
+}
+
+class _OrgApi extends OrganizationApi {
+  _OrgApi(this.role);
+  final String role;
+  @override
+  Future<Organization> detail(EntityId orgId) async {
+    if (role == 'error') throw StateError('synthetic role failure');
+    return Organization(id: orgId, name: '合成企业资料', memberRole: role);
+  }
 }
 
 class _DirectoryTransport implements HttpClientAdapter {
@@ -140,6 +153,7 @@ Future<ProviderContainer> _pump(
   Size size = const Size(430, 900),
   String? emptyMode,
   List<GroupModel> groups = const [],
+  String orgRole = 'member',
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -147,10 +161,11 @@ Future<ProviderContainer> _pump(
   final container = ProviderContainer(
     overrides: [
       currentUserProvider.overrideWithValue(
-        UserModel(uid: '1', account: 'synthetic-account'),
+        UserModel(uid: '1', account: 'synthetic-account', nickname: '合成员工'),
       ),
       workspaceShellProvider.overrideWith(_Shell.new),
       workspaceApiProvider.overrideWithValue(_Api()),
+      organizationApiProvider.overrideWithValue(_OrgApi(orgRole)),
       workspaceGroupsProvider('100').overrideWith((ref) async => groups),
       oaWorkbenchApiProvider.overrideWithValue(api),
     ],
@@ -212,6 +227,61 @@ void main() {
     HttpClient.adapterForTest = _DirectoryTransport();
   });
   tearDown(() => HttpClient.adapterForTest = null);
+  for (final role in ['member', 'admin', 'error']) {
+    testWidgets('企业我页身份在前、角色 $role 入口正确且窄屏可滚动', (tester) async {
+      final api = _OaApi();
+      await _pump(
+        tester,
+        api,
+        emptyMode: 'normal',
+        orgRole: role,
+        size: const Size(320, 640),
+      );
+      await tester.tap(find.text('我').last);
+      await tester.pumpAndSettle();
+      expect(find.byType(MinePage), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('workspace-shell-account-entry')),
+        findsNothing,
+      );
+      expect(find.text('我的频道'), findsNothing);
+      expect(find.text('ID: synthetic-account'), findsNothing);
+      expect(find.text('工作区成员'), findsNothing);
+      expect(
+        find.text('企业管理'),
+        role == 'admin' ? findsOneWidget : findsNothing,
+      );
+      final entry = find.byKey(
+        const ValueKey('enterprise-mine-organization-entry'),
+      );
+      expect(
+        tester.getTopLeft(find.text('合成员工')).dy,
+        lessThan(tester.getTopLeft(entry).dy),
+      );
+      expect(
+        tester
+            .getTopLeft(find.byKey(const ValueKey('workspace-shell-switcher')))
+            .dx,
+        AppSpacing.xxLarge,
+      );
+      await tester.scrollUntilVisible(
+        find.text('反馈建议'),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
+      expect(find.text('反馈建议').hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+  testWidgets('工作区负责人保留企业管理入口', (tester) async {
+    final api = _OaApi();
+    await _pump(tester, api);
+    api.pending['10']!.complete([]);
+    await tester.tap(find.text('我').last);
+    await tester.pumpAndSettle();
+    expect(find.text('企业管理'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('企业标签在重挂载后恢复，各企业的频道选择独立', (tester) async {
     final api = _OaApi();
     final container = await _pump(tester, api);
@@ -457,6 +527,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('合成办公 10'), findsOneWidget);
     expect(find.byType(OaTabPage), findsNothing);
+    await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
   testWidgets('企业切换销毁旧工作台，旧响应不能补回旧应用', (tester) async {
@@ -476,6 +547,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('合成办公 20'), findsOneWidget);
     expect(find.text('合成办公 10'), findsNothing);
+    await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
   testWidgets('频道从消息内进入，不占企业底栏', (tester) async {
@@ -506,6 +578,7 @@ void main() {
     await tester.pump();
     expect(find.text(t.enterpriseOa.actionRetry), findsOneWidget);
     expect(find.text('合成办公 10'), findsNothing);
+    await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
   testWidgets('桌面复用四项侧栏，不读取不支持的 OA', (tester) async {

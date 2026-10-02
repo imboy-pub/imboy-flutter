@@ -8,6 +8,8 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart';
 import 'package:imboy/modules/organization/public.dart';
+import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
@@ -23,6 +25,12 @@ import 'package:imboy/component/ui/badge_widget.dart';
 import 'workspace_account_menu.dart';
 import 'workspace_shell_breakpoint.dart';
 import 'workspace_shell_provider.dart';
+
+final _mineOrganizationProvider = FutureProvider.autoDispose
+    .family<Organization, ({String accountKey, String organizationId})>(
+      (ref, scope) =>
+          ref.watch(organizationApiProvider).detail(scope.organizationId),
+    );
 
 /// 企业主导航。Key 由宿主绑定账号、企业及工作区，切换时销毁旧页面。
 class EnterpriseShellPage extends ConsumerStatefulWidget {
@@ -104,6 +112,9 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
         : 0;
     void select(int value) => setState(() {
       _selected = destinations[value];
+      if (_selected == EnterpriseShellDestination.mine) {
+        ref.invalidate(_mineOrganizationProvider(_scope));
+      }
       _visited.add(_selected);
       _rememberNavigation();
     });
@@ -151,9 +162,21 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
           minimum: const EdgeInsets.symmetric(horizontal: AppSpacing.xxLarge),
           child: Row(
             children: [
-              const WorkspaceSwitcherChip(),
-              Expanded(child: Center(child: Text(title))),
-              const WorkspaceAccountButton(),
+              const Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: WorkspaceSwitcherChip(),
+                ),
+              ),
+              Text(title),
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: _selected == EnterpriseShellDestination.mine
+                      ? const SizedBox(height: 44)
+                      : const WorkspaceAccountButton(),
+                ),
+              ),
             ],
           ),
         ),
@@ -284,7 +307,13 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
           accountKey: widget.accountKey,
           organizationId: widget.organizationId,
           resourceEntries: [
+            const CsWorkspaceEntryTile(),
             if (ref.watch(currentWorkspaceProvider) != null) ...[
+              if (AppFeatureRegistry.isEnabled(FeatureKeys.project))
+                _resourceEntry(
+                  t.workspace.navProjects,
+                  const WorkspaceProjectsPage(),
+                ),
               _resourceEntry(
                 t.workspace.navGroups,
                 const WorkspaceGroupsPage(),
@@ -359,32 +388,27 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
   );
 
   Widget _mine() {
-    return Column(
-      children: [
-        CupertinoListSection.insetGrouped(
-          children: [
-            CupertinoListTile(
-              title: Text(t.organization.manage.entry),
-              trailing: const CupertinoListTileChevron(),
-              onTap: () =>
-                  context.push('/organization/${widget.organizationId}'),
-            ),
-            if (ref.watch(currentWorkspaceProvider) != null) ...[
-              CupertinoListTile(
-                title: Text(t.workspace.membersTitle),
-                trailing: const CupertinoListTileChevron(),
-                onTap: () => context.push('/workspace/members'),
-              ),
-              if (AppFeatureRegistry.isEnabled(FeatureKeys.project))
-                _resourceEntry(
-                  t.workspace.navProjects,
-                  const WorkspaceProjectsPage(),
-                ),
-            ],
-          ],
+    final organization = ref.watch(_mineOrganizationProvider(_scope));
+    final org = organization.hasError || organization.isLoading
+        ? null
+        : organization.asData?.value;
+    final workspace = ref.watch(currentWorkspaceProvider);
+    final canManage =
+        org != null &&
+        org.id == widget.organizationId &&
+        (org.canGovern || workspace?.ownerId == widget.accountKey);
+    return MinePage(
+      enterprise: true,
+      enterpriseName: org?.name,
+      enterpriseEntry: CupertinoListTile(
+        key: const ValueKey('enterprise-mine-organization-entry'),
+        leading: const Icon(CupertinoIcons.building_2_fill),
+        title: Text(
+          canManage ? t.organization.manage.entry : t.organization.home.tabOrg,
         ),
-        const Expanded(child: MinePage()),
-      ],
+        trailing: const CupertinoListTileChevron(),
+        onTap: () => context.push('/organization/${widget.organizationId}'),
+      ),
     );
   }
 

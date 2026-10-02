@@ -35,7 +35,16 @@ class MineNotifier extends _$MineNotifier {
 
 /// 我的页面 - 像素级对齐 iOS 17 高保真重构
 class MinePage extends ConsumerStatefulWidget {
-  const MinePage({super.key});
+  const MinePage({
+    super.key,
+    this.enterprise = false,
+    this.enterpriseName,
+    this.enterpriseEntry,
+  });
+
+  final bool enterprise;
+  final String? enterpriseName;
+  final Widget? enterpriseEntry;
 
   @override
   ConsumerState<MinePage> createState() => _MinePageState();
@@ -47,11 +56,14 @@ class _MinePageState extends ConsumerState<MinePage> {
     // 响应式当前用户：资料变更（上传头像等）后即时重建
     final user = ref.watch(currentUserProvider);
     final brightness = Theme.of(context).brightness;
-    final topPadding = MediaQuery.of(context).padding.top + 16.0;
+    final topPadding = widget.enterprise
+        ? AppSpacing.none
+        : MediaQuery.of(context).padding.top + AppSpacing.regular;
 
     return CupertinoPageScaffold(
       child: SafeArea(
         top: false, // 顶衬直接渗透到状态栏，实现高奢沉浸式一体化底色
+        bottom: !widget.enterprise,
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics(),
@@ -72,7 +84,23 @@ class _MinePageState extends ConsumerState<MinePage> {
                   top: AppSpacing.small,
                   bottom: AppSpacing.tiny,
                 ),
-                child: _buildQuickActions(context),
+                child: widget.enterprise
+                    ? ImBoySettingsSection(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.regular,
+                        ),
+                        children: [
+                          ImBoySettingsTile(
+                            title: Text(t.main.myFavorites),
+                            leading: _buildIcon(
+                              CupertinoIcons.bookmark_fill,
+                              AppColors.iosRed,
+                            ),
+                            onTap: () => context.push('/favorites'),
+                          ),
+                        ],
+                      )
+                    : _buildQuickActions(context),
               ),
             ),
 
@@ -87,6 +115,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                   AppSpacing.none,
                 ),
                 children: [
+                  if (widget.enterpriseEntry != null) widget.enterpriseEntry!,
                   ImBoySettingsTile(
                     title: Text(t.organization.picker.switchEnterprise),
                     leading: _buildIcon(
@@ -97,50 +126,51 @@ class _MinePageState extends ConsumerState<MinePage> {
                   ),
                   // CSM-01 §12.5.1：客服工作台入口（合格坐席可见，权限判定在
                   // owned 模块内；普通用户渲染为空占位）
-                  const CsWorkspaceEntryTile(),
+                  if (!widget.enterprise) const CsWorkspaceEntryTile(),
                 ],
               ),
             ),
 
             // 功能组
-            SliverToBoxAdapter(
-              child: ImBoySettingsSection(
-                margin: const EdgeInsets.fromLTRB(
-                  AppSpacing.regular,
-                  AppSpacing.small,
-                  AppSpacing.regular,
-                  AppSpacing.none,
+            if (!widget.enterprise)
+              SliverToBoxAdapter(
+                child: ImBoySettingsSection(
+                  margin: const EdgeInsets.fromLTRB(
+                    AppSpacing.regular,
+                    AppSpacing.small,
+                    AppSpacing.regular,
+                    AppSpacing.none,
+                  ),
+                  children: [
+                    // 「收藏」已由顶部圆形快捷入口提供，此处移除重复项
+                    ImBoySettingsTile(
+                      title: Text(t.main.storageSpace),
+                      leading: _buildIcon(
+                        CupertinoIcons.circle_grid_hex_fill,
+                        AppColors.iosSkyBlue,
+                      ),
+                      onTap: () => context.push('/storage_space'),
+                    ),
+                    ImBoySettingsTile(
+                      title: Text(t.account.loginDeviceManagement),
+                      leading: _buildIcon(
+                        CupertinoIcons.device_phone_portrait,
+                        AppColors.iosPurple,
+                      ),
+                      onTap: () => context.push('/devices'),
+                    ),
+                    // R-04.1：处置与申诉入口
+                    ImBoySettingsTile(
+                      title: Text(t.appeal.title),
+                      leading: _buildIcon(
+                        CupertinoIcons.exclamationmark_shield_fill,
+                        AppColors.iosRed,
+                      ),
+                      onTap: () => context.push('/mine/appeal'),
+                    ),
+                  ],
                 ),
-                children: [
-                  // 「收藏」已由顶部圆形快捷入口提供，此处移除重复项
-                  ImBoySettingsTile(
-                    title: Text(t.main.storageSpace),
-                    leading: _buildIcon(
-                      CupertinoIcons.circle_grid_hex_fill,
-                      AppColors.iosSkyBlue,
-                    ),
-                    onTap: () => context.push('/storage_space'),
-                  ),
-                  ImBoySettingsTile(
-                    title: Text(t.account.loginDeviceManagement),
-                    leading: _buildIcon(
-                      CupertinoIcons.device_phone_portrait,
-                      AppColors.iosPurple,
-                    ),
-                    onTap: () => context.push('/devices'),
-                  ),
-                  // R-04.1：处置与申诉入口
-                  ImBoySettingsTile(
-                    title: Text(t.appeal.title),
-                    leading: _buildIcon(
-                      CupertinoIcons.exclamationmark_shield_fill,
-                      AppColors.iosRed,
-                    ),
-                    onTap: () => context.push('/mine/appeal'),
-                  ),
-                ],
               ),
-            ),
 
             // 设置组
             SliverToBoxAdapter(
@@ -268,7 +298,10 @@ class _MinePageState extends ConsumerState<MinePage> {
                     ),
                     const SizedBox(height: AppSpacing.tiny),
                     Text(
-                      'ID: ${user?.account ?? '-'}',
+                      widget.enterprise
+                          ? (widget.enterpriseName ??
+                                t.organization.home.tabOrg)
+                          : 'ID: ${user?.account ?? '-'}',
                       style: context.textStyle(
                         FontSizeType.normal,
                         color: AppColors.iosGray,
