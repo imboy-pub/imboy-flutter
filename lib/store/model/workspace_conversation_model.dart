@@ -1,6 +1,7 @@
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// Ephemeral authorized snapshot. Never read global conversation/draft caches.
 class WorkspaceConversationModel {
@@ -43,10 +44,10 @@ class WorkspaceConversationModel {
       throw const FormatException('Invalid workspace message');
     }
     final seq = int.tryParse('${raw['conv_seq']}');
-    final time = DateTime.tryParse('${raw['server_ts']}');
+    final time = _timestamp(raw['server_ts']);
     final expires = raw['expire_at'] == null
         ? null
-        : DateTime.tryParse('${raw['expire_at']}');
+        : _timestamp(raw['expire_at']);
     if (seq == null ||
         seq < start ||
         raw['msg_id'] is! String ||
@@ -66,6 +67,15 @@ class WorkspaceConversationModel {
       serverTs: time.millisecondsSinceEpoch,
       expiresAt: expires?.millisecondsSinceEpoch ?? 0,
     );
+  }
+
+  static DateTime? _timestamp(dynamic value) {
+    if (value is num && value is! int) return null;
+    try {
+      return parseModelNullableDateTime(value);
+    } on ArgumentError {
+      return null;
+    }
   }
 
   String get previewText {

@@ -1,0 +1,73 @@
+{
+  "status": "PASS_MACOS_NATIVE_UNREAD_HISTORY",
+  "backend_candidate": "d93d3a34",
+  "app_base_candidate": "a67e565561e5bd3cc3fe72e16382d4a056969525",
+  "native_exit_code": 0,
+  "fixture_exit_code": 0,
+  "source_binding_file": "source-binding.tsv",
+  "source_binding_sha256": "cbe580b6672366edba47968a5682238d74f1a37f7c9351b3de630bc6b52945aa",
+  "native_log_sha256": "9b3973cacf55c6597a6b6ebd6ee828687be22c784896358c08151ab3642c876f",
+  "database_oracles": {
+    "native-leave-oracle.json": {
+      "result": {
+        "status": "PASS",
+        "active_workspaces": 0,
+        "organization_removed": true,
+        "original_organization_retained": true
+      },
+      "sha256": "c5718fb2de4699da4f1febadcab47d09a3701d4f479f451ac61777445077dccb"
+    },
+    "native-content-oracle.json": {
+      "result": {
+        "status": "PASS",
+        "user_id": 995011,
+        "group_id": 995301,
+        "actual_message_rows": 1,
+        "plaintext_rows": 1
+      },
+      "sha256": "85b047103a2891da22ab4c644641344a4b011086db193de39bf1ad2e0a483e69"
+    },
+    "native-governance-oracle.json": {
+      "result": {
+        "status": "PASS",
+        "created_renamed_archived": 1
+      },
+      "sha256": "937b274826a9d02da1ea595135fdc68d72e7d4b54bd6c53d0a8cb687e52babb8"
+    },
+    "native-file-oracle.json": {
+      "result": {
+        "status": "PASS",
+        "file_size": 32,
+        "deleted_audit": 1,
+        "deleted_rows": 1,
+        "synthetic_file_rows": 1,
+        "uploaded_audit": 1
+      },
+      "sha256": "644d31df11e53f76ae3cdc3774b7b66cc52ba9c294fc1e32a6196ca75dbe17a8"
+    },
+    "native-unread-oracle.json": {
+      "result": {
+        "status": "PASS",
+        "user_id": 995011,
+        "group_id": 995301,
+        "actual_generation_read_cursor": true,
+        "read_seq": 2
+      },
+      "sha256": "5bbdbc8689dc08b32c6bc5af68c153b5bd8673034e830b6c5a031030142185e8"
+    }
+  },
+  "focused_tests_passed": 24,
+  "analyze_exit_code": 0,
+  "review": "APPROVE native_file_review and seat_predicate_review",
+  "real_native_macos": true,
+  "real_postgres": true,
+  "real_garage": true,
+  "unread_before": 2,
+  "unread_after": 0,
+  "visible_text_verified": true,
+  "read_seq": 2,
+  "queue_concurrency_verified": false,
+  "whole_goal_complete": false,
+  "gz-native-unread-history-focused-r2_sha256": "623dc45e18fa9e945aea46613b2a7ca557087ee6e74b90baa1938ee15b257bbc",
+  "gz-native-unread-history-analyze_sha256": "dbf9061d2bad9f554a2130a8ddd834f5443fb649d93f0fefdf7615c678edc8a8"
+}

@@ -155,6 +155,16 @@ void main() {
       );
     },
   );
+  test('real millisecond server timestamp keeps the preview usable', () async {
+    const epoch = 1790931169467;
+    for (final value in [epoch, '$epoch']) {
+      final row = messageRow();
+      (row['latest_message'] as Map)['server_ts'] = value;
+      final preview = (await _Api([row]).conversations('100')).single;
+      expect(preview.serverTs, epoch);
+      expect(preview.previewText, 'current message');
+    }
+  });
   test('old backend without preview is rejected', () async {
     await expectLater(
       _Api([messageRow()..remove('latest_message')]).conversations('100'),
@@ -166,6 +176,8 @@ void main() {
       {'conv_seq': 2},
       {'payload': 'raw cache'},
       {'server_ts': 'invalid'},
+      {'server_ts': 1.5},
+      {'server_ts': 9999999999999999},
       {'expire_at': 'invalid'},
       {'msg_id': ''},
     ]) {

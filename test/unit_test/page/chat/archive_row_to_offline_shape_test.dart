@@ -55,6 +55,55 @@ void main() {
       expect(out['to'], 200);
     });
 
+    test('real archive envelope yields body without overriding identities', () {
+      for (final chatType in ['c2c', 'c2g']) {
+        final envelope = {
+          'id': 'native',
+          'type': chatType.toUpperCase(),
+          'from': 'untrusted',
+          'to': 'untrusted',
+          'action': 'message',
+          'payload': {'text': 'native unread one'},
+        };
+        final row = <String, dynamic>{
+          'msg_id': 'native',
+          'chat_type': chatType,
+          'from': '995012',
+          'to': '995301',
+          'payload': envelope,
+        };
+        final out = archiveRowToOfflineShape(row);
+        expect(out['payload'], {'text': 'native unread one'});
+        expect(out['action'], 'message');
+        expect(out['from'], '995012');
+        expect(out['to'], '995301');
+        expect(row['payload'], same(envelope));
+      }
+    });
+    test('mismatched nested body stays intact and encrypted envelope stays ciphertext', () {
+      final nested = {
+        'id': 'other',
+        'type': 'C2C',
+        'payload': {'text': 'nested'},
+      };
+      expect(
+        archiveRowToOfflineShape({
+          'msg_id': 'native',
+          'chat_type': 'c2c',
+          'payload': nested,
+        })['payload'],
+        same(nested),
+      );
+      final encrypted = archiveRowToOfflineShape({
+        'msg_id': 'native',
+        'chat_type': 'c2c',
+        'e2ee': {'cipher': 'historical'},
+        'payload': {'id': 'native', 'type': 'C2C', 'payload': 'ciphertext'},
+      });
+      expect(encrypted['payload'], 'ciphertext');
+      expect(encrypted['e2ee'], {'cipher': 'historical'});
+    });
+
     test('E2EE 密文 payload（字符串）原样透传，不被破坏', () {
       final row = <String, dynamic>{
         'msg_id': 'e1',

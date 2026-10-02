@@ -39,6 +39,8 @@ import 'package:imboy/page/workspace/workspace_channel_detail_page.dart';
 import 'package:imboy/service/group_file_service.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/badge_widget.dart';
+import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/config/init.dart' show AppInitializer, navigatorKey;
 import 'package:imboy/service/sqlite.dart' show SqliteService;
 
@@ -231,6 +233,9 @@ void main() {
     if (const bool.fromEnvironment('TEST_NATIVE_OA_SSO')) {
       await checkNativeOa(tester);
     }
+    if (const bool.fromEnvironment('TEST_NATIVE_WORKSPACE_UNREAD')) {
+      await checkNativeWorkspaceUnread(tester);
+    }
     if (const bool.fromEnvironment('TEST_NATIVE_WORKSPACE_CONTENT')) {
       await checkNativeGroupMessage(tester);
       await checkNativeChannelDiscussion(tester);
@@ -244,6 +249,67 @@ void main() {
     await joinEnterprise(tester);
     await leaveEnterprise(tester);
   }, timeout: const Timeout(Duration(minutes: 6)));
+}
+
+Future<void> checkNativeWorkspaceUnread(WidgetTester tester) async {
+  final initial = await tester.runAsync(
+    () => WorkspaceApi().conversations('995201'),
+  );
+  expect(
+    initial!.singleWhere((row) => row.group.groupId == 995301).unreadCount,
+    2,
+  );
+  await selectEnterpriseTab(tester, t.chat.titleMessage);
+  const badgeKey = ValueKey('workspace-unread-995301');
+  final badge = find.byKey(badgeKey);
+  await waitFor(tester, badge);
+  final before = tester.widget<BadgeWidget>(badge);
+  expect(before.showBadge, isTrue);
+  expect((before.content! as Text).data, '2');
+  final row = find.byKey(const ValueKey('workspace-message-995301'));
+  await waitFor(tester, row.hitTestable());
+  await tester.tap(row);
+  await waitFor(tester, find.byType(ChatPage));
+  for (final body in ['native unread one', 'native unread two']) {
+    await waitFor(tester, find.text(body));
+    await tester.ensureVisible(find.text(body));
+    await tester.pump(const Duration(milliseconds: 300));
+  }
+  await waitForNativeGroupRead(tester);
+  final back = find.byType(GlassBackButton).hitTestable();
+  await waitFor(tester, back);
+  await tester.tap(back);
+  await waitFor(
+    tester,
+    find.byWidgetPredicate(
+      (widget) =>
+          widget is BadgeWidget && widget.key == badgeKey && !widget.showBadge,
+    ),
+  );
+  expect(tester.takeException(), isNull);
+  debugPrint('NATIVE_WORKSPACE_UNREAD_READ_CURSOR_UI_PASS');
+}
+
+Future<void> waitForNativeGroupRead(WidgetTester tester) async {
+  final deadline = DateTime.now().add(const Duration(seconds: 40));
+  while (true) {
+    final rows = await tester.runAsync(
+      () => WorkspaceApi().conversations('995201'),
+    );
+    if (rows!.singleWhere((row) => row.group.groupId == 995301).unreadCount ==
+        0) {
+      break;
+    }
+    expect(
+      DateTime.now().isBefore(deadline),
+      isTrue,
+      reason: 'Visible messages must persist their read receipt',
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 300)),
+    );
+  }
 }
 
 Future<void> checkNativeGroupMessage(WidgetTester tester) async {
