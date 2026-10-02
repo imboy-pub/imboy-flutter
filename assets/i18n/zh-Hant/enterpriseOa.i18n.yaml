@@ -29,3 +29,5 @@ ssoIssuing: "正在取得單一登入憑證…"
 ssoCountdown: "憑證 $seconds 秒內有效，請盡快完成登入"
 
 workbenchTitle: "工作台"
+
+officialWebsite: "IMBoy 官網"

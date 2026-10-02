@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/helper/safe_launcher.dart';
 
 import '../enterprise_oa_runtime_config.dart';
 import 'oa_tab_page.dart';
@@ -36,6 +37,21 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
     }
   }
 
+  Future<void> _openOfficialWebsite() async {
+    var opened = false;
+    try {
+      opened = await SafeLauncher.safeLaunchUrl(
+        Uri.parse('https://imboy.pub/'),
+      );
+    } catch (_) {
+      // 系统浏览器不可用时给出与无法打开链接相同的提示。
+    }
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.common.cannotOpenWebpage)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final available = widget.entries
@@ -50,6 +66,18 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
         children: [
           if (widget.resourceEntries.isNotEmpty)
             CupertinoListSection.insetGrouped(children: widget.resourceEntries),
+          if (available.isEmpty)
+            CupertinoListSection.insetGrouped(
+              children: [
+                CupertinoListTile(
+                  key: const ValueKey('workbench-official-website'),
+                  title: Text(t.enterpriseOa.officialWebsite),
+                  subtitle: const Text('https://imboy.pub/'),
+                  trailing: const CupertinoListTileChevron(),
+                  onTap: _openOfficialWebsite,
+                ),
+              ],
+            ),
           if (available.isNotEmpty)
             CupertinoListSection.insetGrouped(
               children: [

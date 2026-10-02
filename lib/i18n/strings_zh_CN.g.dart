@@ -5478,6 +5478,9 @@ class Translations$enterpriseOa$zh_CN {
 
 	/// zh-CN: '工作台'
 	String get workbenchTitle => '工作台';
+
+	/// zh-CN: 'IMBoy 官网'
+	String get officialWebsite => 'IMBoy 官网';
 }
 
 // Path: error
@@ -10598,6 +10601,7 @@ extension on Translations {
 			'enterpriseOa.ssoIssuing' => '正在获取单点登录凭证…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '凭证 ${seconds} 秒内有效，请尽快完成登录',
 			'enterpriseOa.workbenchTitle' => '工作台',
+			'enterpriseOa.officialWebsite' => 'IMBoy 官网',
 			'error.restartRequired' => '需要重启应用',
 			'error.pleaseCheckNetwork' => '请检查你的网络设置。',
 			'error.networkTroubleshootingStep1' => '1.打开手机设置并把Wi-Fi开关保持开启状态。',
@@ -10853,9 +10857,9 @@ extension on Translations {
 			'main.toBeCompleted' => '待完善',
 			'main.availableCount' => '可选择',
 			'main.mostUsed' => '最常用',
-			'main.school' => '学校',
 			_ => null,
 		} ?? switch (path) {
+			'main.school' => '学校',
 			'main.hobbiesAndInterests' => '兴趣爱好',
 			'main.interests' => '兴趣爱好',
 			'main.selectFromAlbum' => '从相册选择',
@@ -11367,9 +11371,9 @@ extension on Translations {
 			'workspace.overviewResources' => '资源摘要',
 			'workspace.overviewPinnedContent' => '频道置顶内容',
 			'workspace.overviewPinnedEmpty' => '频道暂无置顶内容；群公告不在此聚合（群公告属于各个群）',
-			'workspace.overviewRecentFiles' => '最近文件',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.overviewRecentFiles' => '最近文件',
 			'workspace.overviewRecentFilesEmpty' => '最近上传的文件将在此展示；也可在各频道内查看附件',
 			'workspace.membersTitle' => '工作区成员',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} 位成员',
