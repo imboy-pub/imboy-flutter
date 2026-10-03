@@ -60,3 +60,36 @@ def audit_version_acceptance_set(root: Path, frozen: Any) -> List[str]:
     if set(approved) != set(runtime):
         return ['VERSION_ACCEPTANCE_SET_MISMATCH']
     return []
+
+
+def audit_dispatch_acceptance_set(root: Path, frozen: Any) -> List[str]:
+    """Reject implicit card-to-parent mappings; coverage is not execution."""
+    if not isinstance(frozen, dict) or not isinstance(frozen.get('version_inputs'), dict):
+        return ['DISPATCH_INPUT_INVALID']
+    document, errors = acceptance.load_frozen_json(
+        root, frozen['version_inputs'].get('dispatch_cards'))
+    if errors:
+        return errors
+    cards = document.get('cards') if isinstance(document, dict) else None
+    identifiers = frozen.get('acceptance_ids')
+    if (not isinstance(cards, list) or not cards or not isinstance(identifiers, list)
+            or not identifiers or any(not isinstance(i, str) or not i.strip() for i in identifiers)
+            or len(set(identifiers)) != len(identifiers)):
+        return ['DISPATCH_INPUT_INVALID']
+    owners, covered, errors = set(), set(), []
+    for card in cards:
+        if not isinstance(card, dict):
+            return ['DISPATCH_CARD_INVALID']
+        key, parents = card.get('id'), card.get('acceptance_ids')
+        if not isinstance(key, str) or not key.strip() or key in owners:
+            return ['DISPATCH_CARD_ID_INVALID']
+        owners.add(key)
+        if (not isinstance(parents, list) or not parents
+                or any(not isinstance(i, str) or not i.strip() for i in parents)
+                or len(set(parents)) != len(parents)):
+            errors.append('DISPATCH_CARD_ACCEPTANCE_SET_INVALID')
+            continue
+        covered.update(parents)
+    if covered != set(identifiers):
+        errors.append('DISPATCH_ACCEPTANCE_COVERAGE_MISMATCH')
+    return errors

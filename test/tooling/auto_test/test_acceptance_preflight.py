@@ -142,6 +142,8 @@ class PreflightTests(unittest.TestCase):
         self.frozen['version_inputs'] = {
             role: self.descriptor(role + '.snapshot',
                 {'acceptance_ids': self.frozen['acceptance_ids']} if role == 'acceptance_set'
+                else {'cards': [{'id': 'synthetic-card', 'acceptance_ids': self.frozen['acceptance_ids']}]}
+                if role == 'dispatch_cards'
                 else {'synthetic_role': role})
             for role in ('product_plan', 'e2ee_plan', 'execution_contract', 'dispatch_cards',
                          'acceptance_set', 'coverage_seed', 'input_manifest')}

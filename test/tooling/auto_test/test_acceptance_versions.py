@@ -7,7 +7,9 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
-from auto_test_lib.acceptance_versions import audit_version_inputs, audit_version_acceptance_set
+from auto_test_lib.acceptance_versions import (
+    audit_version_inputs, audit_version_acceptance_set, audit_dispatch_acceptance_set,
+)
 
 
 class VersionInputsTests(unittest.TestCase):
@@ -85,6 +87,26 @@ class VersionInputsTests(unittest.TestCase):
         self.assertIn('VERSION_ACCEPTANCE_SET_INVALID', audit_version_acceptance_set(self.root, frozen))
         frozen['version_inputs'] = {}
         self.assertTrue(audit_version_acceptance_set(self.root, frozen))
+
+    def dispatch_input(self, cards):
+        raw = json.dumps({'cards': cards}).encode()
+        (self.root / 'dispatch_cards').write_bytes(raw)
+        descriptor = dict(path='dispatch_cards', sha256=hashlib.sha256(raw).hexdigest())
+        return dict(version_inputs={'dispatch_cards': descriptor}, acceptance_ids=['F01-A01'])
+
+    def test_dispatch_exact_coverage_and_missing_mapping(self):
+        card = {'id': 'card', 'acceptance_ids': ['F01-A01']}
+        self.assertEqual([], audit_dispatch_acceptance_set(self.root, self.dispatch_input([card])))
+        for parents in (None, [], ['F01-A01', 'F01-A01'], ['unknown']):
+            card['acceptance_ids'] = parents
+            self.assertTrue(audit_dispatch_acceptance_set(self.root, self.dispatch_input([card])))
+
+    def test_duplicate_cards_and_empty_dispatch_rejected(self):
+        card = {'id': 'card', 'acceptance_ids': ['F01-A01']}
+        self.assertIn('DISPATCH_CARD_ID_INVALID', audit_dispatch_acceptance_set(
+            self.root, self.dispatch_input([card, card])))
+        self.assertIn('DISPATCH_INPUT_INVALID', audit_dispatch_acceptance_set(
+            self.root, self.dispatch_input([])))
 
 
 if __name__ == '__main__':
