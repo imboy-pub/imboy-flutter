@@ -117,6 +117,63 @@ void main() {
     expect(() => transport.acknowledgeGroupReceived(local), throwsStateError);
     expect(socket.sent, isEmpty);
   });
+  Map<String, dynamic> confirmation() => {
+    'id': 'gid',
+    'type': 'CLIENT_ACK_CONFIRM',
+    'action': 'CLIENT_ACK_CONFIRM',
+    'in_reply_to': 'gid',
+  };
+  test(
+    'same object coalesces ACK but distinct same-ID frames do not',
+    () async {
+      final first = await receiveGroup();
+      socket.input.add(frames.incoming(downlink()));
+      await Future<void>.delayed(Duration.zero);
+      final duplicate = transport.drainGroupInbox('b1').single;
+      final pending = transport.acknowledgeGroupReceived(first);
+      expect(
+        identical(transport.acknowledgeGroupReceived(first), pending),
+        isTrue,
+      );
+      expect(
+        () => transport.acknowledgeGroupReceived(duplicate),
+        throwsStateError,
+      );
+      expect(socket.sent.length, 2);
+      socket.input.add(frames.incoming(confirmation()));
+      await pending;
+    },
+  );
+  test('timed-out group receipt retries only after a new connection', () async {
+    final frame = await receiveGroup();
+    await expectLater(
+      transport.acknowledgeGroupReceived(frame),
+      throwsA(isA<UnconfirmedDelivery>()),
+    );
+    expect(() => transport.acknowledgeGroupReceived(frame), throwsStateError);
+    await transport.disconnectDevice(
+      const SynthDevice(deviceId: 'b1', platform: 'android'),
+    );
+    socket = sockets.FakeSocket();
+    await transport.connectDevice(
+      const SynthDevice(deviceId: 'b1', platform: 'android'),
+    );
+    final retry = transport.acknowledgeGroupReceived(frame);
+    socket.input.add(frames.incoming(confirmation()));
+    await retry;
+    expect(socket.sent.length, 2);
+  });
+  for (final field in ['id', 'in_reply_to', 'action']) {
+    test('wrong group confirmation $field remains unconfirmed', () async {
+      final frame = await receiveGroup();
+      final result = expectLater(
+        transport.acknowledgeGroupReceived(frame),
+        throwsA(isA<UnconfirmedDelivery>()),
+      );
+      socket.input.add(frames.incoming(confirmation()..[field] = 'wrong'));
+      await result;
+    });
+  }
   for (final event in ['timeout', 'error', 'disconnect']) {
     test('group consumer $event remains unconfirmed', () async {
       final frame = await receiveGroup();
