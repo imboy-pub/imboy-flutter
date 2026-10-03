@@ -270,6 +270,9 @@ class RealBackendTransport implements ReleaseTransport {
   List<RegisteredGroupFrame> drainGroupInbox(String alias) =>
       _registered.drainGroupInbox(alias);
 
+  Future<void> acknowledgeGroupReceived(RegisteredGroupFrame frame) =>
+      _registered.acknowledgeGroupReceived(frame);
+
   Future<void> acknowledgeReceived(WireFrame frame) =>
       _registered.acknowledgeReceived(frame);
 

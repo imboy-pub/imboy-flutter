@@ -42,7 +42,7 @@ class RegisteredBackendTransport implements ReleaseTransport {
   final _pending = <(String, String), _PendingDelivery>{};
   final _receipts = <(String, String), _PendingReceipt>{};
   final _receiptAttempts = <(String, String, int)>{};
-  final _received = Set<WireFrame>.identity();
+  final _received = Set<Object>.identity();
   final _acks = ServerAckTracker();
   final _clock = Stopwatch();
   bool _started = false;
@@ -172,6 +172,7 @@ class RegisteredBackendTransport implements ReleaseTransport {
     }
     if (message['type'] == 'C2G') {
       final received = RegisteredGroupBinding(fixture).receive(alias, message);
+      _received.add(received);
       (_groupInbox[alias] ??= []).add(received);
       return;
     }
@@ -211,15 +212,41 @@ class RegisteredBackendTransport implements ReleaseTransport {
       );
     }
     RegisteredWireBinding(fixture).validateReceivedC2c(frame);
-    final alias = frame.recipientDid;
+    return _acknowledgeBound(frame, frame.recipientDid, frame.messageId, 'C2C');
+  }
+
+  Future<void> acknowledgeGroupReceived(RegisteredGroupFrame frame) {
+    if (!_received.contains(frame)) {
+      throw StateError('cannot acknowledge an unreceived group frame');
+    }
+    RegisteredGroupBinding(fixture).receive(frame.receiverAlias, frame.body);
+    return _acknowledgeBound(
+      frame,
+      frame.receiverAlias,
+      frame.messageId,
+      'C2G',
+    );
+  }
+
+  Future<void> _acknowledgeBound(
+    Object frame,
+    String alias,
+    String messageId,
+    String direction,
+  ) {
     final session = _sessions[alias];
     if (!_started || session == null || !session.connected) {
       throw const UnconfirmedDelivery();
     }
-    final key = (alias, frame.messageId);
+    final key = (alias, messageId);
     final existing = _receipts[key];
-    if (existing != null) return existing.result.future;
-    if (!_receiptAttempts.add((alias, frame.messageId, session.generation))) {
+    if (existing != null) {
+      if (!identical(existing.frame, frame)) {
+        throw StateError('receipt already belongs to another received frame');
+      }
+      return existing.result.future;
+    }
+    if (!_receiptAttempts.add((alias, messageId, session.generation))) {
       throw StateError('receipt retry requires a new connection generation');
     }
     final receipt = _PendingReceipt(
@@ -230,7 +257,11 @@ class RegisteredBackendTransport implements ReleaseTransport {
     _receipts[key] = receipt;
     receipt.timer = Timer(timeout, () => _finishReceipt(key, false));
     try {
-      session.sendClientAck(frame.messageId, fixture.devices[alias]!.did);
+      session.sendClientAck(
+        messageId,
+        fixture.devices[alias]!.did,
+        direction: direction,
+      );
     } on Object {
       _finishReceipt(key, false);
     }
@@ -332,7 +363,7 @@ class _PendingReceipt {
   _PendingReceipt(this.frame, this.generation, this.deadline) {
     result.future.ignore();
   }
-  final WireFrame frame;
+  final Object frame;
   final int generation;
   final int deadline;
   final result = Completer<void>();
