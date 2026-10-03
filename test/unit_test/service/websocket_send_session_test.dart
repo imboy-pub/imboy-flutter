@@ -165,6 +165,7 @@ void main() {
           'ownerUid': stage == 'restore-normal' ? '100' : '101',
       };
       final prefs = await SharedPreferences.getInstance();
+      await PersistentMessageQueue.to.flushPersistence();
       await prefs.setStringList('ws_message_queue', [jsonEncode(raw)]);
       await PersistentMessageQueue.to.init();
       final svc = WebSocketService.to;
@@ -288,6 +289,7 @@ void main() {
             }),
           )
           .toList();
+      await PersistentMessageQueue.to.flushPersistence();
       await prefs.setStringList('ws_message_queue', rows);
       await PersistentMessageQueue.to.init();
       final svc = WebSocketService.to;
@@ -318,6 +320,7 @@ void main() {
             }),
           )
           .toList();
+      await PersistentMessageQueue.to.flushPersistence();
       await prefs.setStringList('ws_message_queue', rows);
       final queue = PersistentMessageQueue.to;
       await queue.init();
@@ -326,6 +329,7 @@ void main() {
       final survivor = prefs.getStringList('ws_message_queue')!;
       expect(survivor, hasLength(1));
       queue.clear();
+      await PersistentMessageQueue.to.flushPersistence();
       await prefs.setStringList('ws_message_queue', survivor);
       await queue.init();
       final svc = WebSocketService.to;
@@ -360,6 +364,7 @@ void main() {
             }),
           )
           .toList();
+      await PersistentMessageQueue.to.flushPersistence();
       await prefs.setStringList('ws_message_queue', rows);
       await queue.init();
       await queue.init();

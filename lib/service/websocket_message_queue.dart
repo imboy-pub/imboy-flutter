@@ -112,9 +112,45 @@ class PersistentMessageQueue {
   final Set<String> _deduplicationSet = {};
 
   SharedPreferences? _prefs;
+  static Future<bool> Function(SharedPreferences prefs, List<String> snapshot)?
+  persistenceWriterForTest;
+  Future<void> _pendingPersistence = Future<void>.value();
+  Object? _persistenceError;
+
+  Future<bool> _writeSnapshot(SharedPreferences prefs, List<String> snapshot) {
+    final writer = persistenceWriterForTest;
+    final result = Completer<bool>();
+    _pendingPersistence = _pendingPersistence.then((_) async {
+      try {
+        final saved =
+            await (writer?.call(prefs, snapshot) ??
+                prefs.setStringList(_storageKey, snapshot));
+        _persistenceError = saved
+            ? null
+            : StateError('Queue persistence rejected');
+        if (!saved) iPrint('⚠️ [QUEUE] 持久化被拒绝');
+        result.complete(saved);
+      } on Object catch (error) {
+        _persistenceError = error;
+        iPrint('⚠️ [QUEUE] 持久化失败: ${error.runtimeType}');
+        result.complete(false);
+      }
+    });
+    return result.future;
+  }
+
+  Future<void> flushPersistence() async {
+    await _pendingPersistence;
+    if (_persistenceError != null) {
+      throw StateError(
+        'Queue persistence failed: ${_persistenceError.runtimeType}',
+      );
+    }
+  }
 
   /// 初始化：从 SharedPreferences 加载历史队列
   Future<PersistentMessageQueue> init() async {
+    await _pendingPersistence;
     _prefs = await SharedPreferences.getInstance();
     final jsonList = _prefs?.getStringList(_storageKey) ?? [];
     final groups = <String, List<QueuedMessage>>{};
@@ -131,8 +167,8 @@ class PersistentMessageQueue {
     for (final group in groups.values) {
       _restoreGroup(group);
     }
-    final saved = await _prefs?.setStringList(
-      _storageKey,
+    final saved = await _writeSnapshot(
+      _prefs!,
       messages.map((entry) => jsonEncode(entry.toJson())).toList(),
     );
     if (saved == false) throw StateError('Queue recovery persistence failed');
@@ -427,6 +463,7 @@ class PersistentMessageQueue {
         allMessages.add(jsonEncode(msg.toJson()));
       }
     }
-    _prefs?.setStringList(_storageKey, allMessages);
+    final prefs = _prefs;
+    if (prefs != null) _writeSnapshot(prefs, allMessages);
   }
 }
