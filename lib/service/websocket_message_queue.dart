@@ -140,9 +140,31 @@ class PersistentMessageQueue {
   }
 
   void _restoreGroup(List<QueuedMessage> group) {
-    final conflict = group.map((entry) => entry.data).toSet().length > 1;
-    final quarantined = conflict || group.any((entry) => entry.quarantined);
-    for (final entry in conflict ? group : group.take(1)) {
+    final first = group.first;
+    final existing = messages
+        .where(
+          (entry) => entry.ownerUid == first.ownerUid && entry.id == first.id,
+        )
+        .toList();
+    final combined = [...existing, ...group];
+    final conflict = combined.map((entry) => entry.data).toSet().length > 1;
+    final quarantined = conflict || combined.any((entry) => entry.quarantined);
+    if (!quarantined && existing.isNotEmpty) return;
+    if (quarantined) {
+      for (final queue in _priorityQueues.values) {
+        queue.removeWhere(
+          (entry) => entry.ownerUid == first.ownerUid && entry.id == first.id,
+        );
+      }
+      _deduplicationSet
+        ..clear()
+        ..addAll(messages.map((entry) => entry.deduplicationKey));
+    }
+    final distinct = <String, QueuedMessage>{};
+    for (final entry in combined) {
+      distinct.putIfAbsent(entry.data, () => entry);
+    }
+    for (final entry in distinct.values) {
       final restored = quarantined
           ? QueuedMessage(
               id: entry.id,

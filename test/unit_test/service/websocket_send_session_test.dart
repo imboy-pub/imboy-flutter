@@ -337,4 +337,42 @@ void main() {
       expect(queue.messages, hasLength(1));
     },
   );
+  for (final stage in ['repeat-normal', 'repeat-conflict', 'merge-conflict']) {
+    test('queue initialization $stage', () async {
+      final queue = PersistentMessageQueue.to;
+      if (stage == 'merge-conflict') {
+        queue.enqueue(
+          'init-id',
+          'old',
+          ownerUid: '100',
+          sessionGeneration: UserRepoLocal.to.sessionGeneration,
+        );
+      }
+      final prefs = await SharedPreferences.getInstance();
+      final rows = (stage == 'repeat-normal' ? ['old'] : ['old', 'new'])
+          .map(
+            (data) => jsonEncode({
+              'id': 'init-id',
+              'ownerUid': '100',
+              'data': data,
+              'priority': 0,
+              'createdAt': DateTime.now().toIso8601String(),
+            }),
+          )
+          .toList();
+      await prefs.setStringList('ws_message_queue', rows);
+      await queue.init();
+      await queue.init();
+      expect(queue.messages, hasLength(stage == 'repeat-normal' ? 1 : 2));
+      final svc = WebSocketService.to;
+      final fake = _FakeChannel();
+      svc.channelForTest = fake;
+      svc.statusForTest = SocketStatus.connected;
+      await svc.flushMessageQueueForTest();
+      expect(
+        fake._sink.sent,
+        stage == 'repeat-normal' ? hasLength(1) : isEmpty,
+      );
+    });
+  }
 }
