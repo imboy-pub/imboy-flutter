@@ -169,6 +169,10 @@ void main() {
       findsNothing,
     );
     expect(adapter.hits.length, 2);
+    expect(
+      find.byKey(const ValueKey('cs-governance-scope-note')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('unlimited：显示「不限」且无上限徽标', (tester) async {
@@ -230,11 +234,13 @@ void main() {
     );
   });
 
-  testWidgets('一般错误：500 wire tag 透传 + 重试入口', (tester) async {
+  testWidgets('一般错误：500 wire tag 透传 + 点击重试恢复', (tester) async {
     final adapter = _GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [
         (500, errEnvelope(500, 'facts_unavailable')),
+        (200, _limitPayload(orgA)),
       ],
+      'GET /cs/organizations/$orgA/seats': [(200, _seatsPayload())],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
@@ -248,7 +254,95 @@ void main() {
 
     expect(find.textContaining('facts_unavailable'), findsOneWidget);
     expect(find.byKey(const ValueKey('cs-governance-retry')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('cs-governance-retry')));
+    await pumpUntilUxFound(tester, find.text('3/5 席位'));
+    expect(find.byKey(const ValueKey('cs-governance-error')), findsNothing);
+    expect(adapter.hits.where((h) => h.endsWith('/seat-limit')), hasLength(2));
   });
+
+  testWidgets('清除额度输入并保存：PUT 缺省上限并回显不限', (tester) async {
+    final adapter = _GovRouterAdapter({
+      'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+      'GET /cs/organizations/$orgA/seats': [(200, _seatsPayload())],
+      'PUT /cs/organizations/$orgA/seat-limit': [
+        (200, _limitPayload(orgA, seatLimit: 'unlimited')),
+      ],
+    });
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    await tester.pumpWidget(_host(orgA));
+    await pumpUntilUxFound(tester, find.text('3/5 席位'));
+    await tester.tap(find.byKey(const ValueKey('cs-governance-limit-adjust')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('cs-governance-limit-clear')));
+    await tester.pump();
+    expect(
+      tester
+          .widget<TextField>(
+            find.byKey(const ValueKey('cs-governance-limit-input')),
+          )
+          .controller!
+          .text,
+      isEmpty,
+    );
+    await tester.tap(find.byKey(const ValueKey('cs-governance-limit-save')));
+    await pumpUntilUxFound(tester, find.text('不限'));
+    expect(
+      adapter.bodies['PUT /cs/organizations/$orgA/seat-limit']!.single,
+      <String, dynamic>{},
+    );
+  });
+
+  for (final suspend in [false, true]) {
+    testWidgets('取消${suspend ? '停用坐席' : '额度调整'}：关闭对话框且不发写请求', (tester) async {
+      final adapter = _GovRouterAdapter({
+        'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+        'GET /cs/organizations/$orgA/seats': [
+          (200, _seatsPayload(seats: [_seatRow(orgA, identityA)])),
+        ],
+        'PUT /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+        'POST /cs/organizations/$orgA/seats/$identityA/suspend': [
+          (200, okEnvelope(payload: <String, dynamic>{})),
+        ],
+      });
+      HttpClient.adapterForTest = adapter;
+      addTearDown(() => HttpClient.adapterForTest = null);
+      await tester.pumpWidget(_host(orgA));
+      await pumpUntilUxFound(tester, find.text('3/5 席位'));
+      await tester.tap(
+        find.byKey(
+          ValueKey(
+            suspend
+                ? 'cs-governance-seat-action-$identityA'
+                : 'cs-governance-limit-adjust',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      await tester.tap(
+        find
+            .descendant(
+              of: find.byType(AlertDialog),
+              matching: find.byType(TextButton),
+            )
+            .first,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(
+        adapter.hits.where(
+          (h) => h.startsWith('PUT ') || h.startsWith('POST '),
+        ),
+        isEmpty,
+      );
+      expect(find.text('3/5 席位'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('cs-governance-seat-$identityA')),
+        findsOneWidget,
+      );
+    });
+  }
 
   testWidgets('空坐席：空态文案（不报错）', (tester) async {
     final adapter = _GovRouterAdapter({
