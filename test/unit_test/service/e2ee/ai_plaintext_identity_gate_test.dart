@@ -14,6 +14,7 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/ai_plaintext_gate.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
+import 'package:imboy/service/e2ee/retry_plaintext_guard.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -312,6 +313,277 @@ void main() {
         isFalse,
       );
       expect(promptCalls, 0);
+    });
+  });
+
+  // ====================================================================
+  // C06（run-20261003-094804）：用户批准内容/目标/域绑定负例扩展。
+  //
+  // 不变量：任何 badge/type 伪造、身份变化、确认「过期」可表达的形态，
+  // 都不能把真人 E2EE 会话送入明文域（fail-closed）。
+  // ====================================================================
+  group('C06 — badge/type 伪造与不一致负例', () {
+    test('确认时是 agent、之后 badge 撤销（真人化）→ 旧确认不得继续放行明文', () async {
+      // 场景：本地 contact.account_type 被改回 0（对端被撤销 agent 身份，
+      // 或 badge 列被重新同步为真人）。历史五元组确认仍然匹配——
+      // 但门必须重新看徽章：真人会话绝不能因历史 agent 确认走明文。
+      final store = _FakeStore();
+      store.byUid['456'] = _rec();
+      _wire(store: store, badge: false);
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isFalse,
+      );
+      // 生产谓词同步回 E2EE 语义（真人会话不受 AI 门豁免）
+      expect(
+        await E2EEService.shouldEncryptOutgoingPayload('C2C', toId: '456'),
+        isTrue,
+      );
+    });
+
+    test('badge 探针抛异常（本地 DB 污染/损坏行）→ fail-closed', () async {
+      final store = _FakeStore();
+      store.byUid['456'] = _rec();
+      _wire(store: store);
+      AiPlaintextGate.agentBadgeProbe = (uid) async =>
+          throw StateError('db corrupted');
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isFalse,
+      );
+    });
+
+    test('badge 探针返回 null 语义（未接线）→ fail-closed', () async {
+      final store = _FakeStore();
+      store.byUid['456'] = _rec();
+      _wire(store: store);
+      AiPlaintextGate.agentBadgeProbe = null;
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isFalse,
+      );
+    });
+
+    test('伪造徽章（badge=true 污染）+ 无确认 + retry 语境 → 仍不放行', () async {
+      // LT02-SEC-01 原始威胁回归：污染 account_type=1 只影响 UI 徽章，
+      // 明文授权必须有五元组确认；重试路径无交互兜底。
+      _wire(store: _FakeStore(), badge: true);
+      expect(
+        await E2EEService.shouldEncryptOutgoingPayload(
+          'C2C',
+          toId: '456',
+          interactiveConfirm: false,
+        ),
+        isTrue,
+      );
+    });
+  });
+
+  group('C06 — 身份变化后旧确认失效（序列复核）', () {
+    test('有效确认 → 身份指纹变化 → 立即失效；重新确认后旧身份回不来也失效', () async {
+      final source = _FakeIdentitySource(
+        const AiPeerIdentity(fingerprint: 'fp-A', version: 3),
+      );
+      final store = _FakeStore();
+      store.byUid['456'] = _rec();
+      _wire(source: source, store: store);
+
+      // 起点：有效确认放行
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isTrue,
+      );
+
+      // 身份指纹变化（对端换了身份材料）→ 旧确认立即失效
+      source.current = const AiPeerIdentity(fingerprint: 'fp-B', version: 3);
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isFalse,
+      );
+
+      // 交互重新确认绑定新身份 fp-B
+      AiPlaintextGate.promptHandler = (req) async => true;
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+          interactive: true,
+        ),
+        isTrue,
+      );
+      expect(store.byUid['456']!.peerIdentityFingerprint, 'fp-B');
+
+      // 身份翻回 fp-A（回滚攻击面）：fp-B 的确认对 fp-A 失效
+      source.current = const AiPeerIdentity(fingerprint: 'fp-A', version: 3);
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isFalse,
+      );
+    });
+
+    test('version 变化序列：3 → 4 失效；重新确认 4 后回退 3 再失效', () async {
+      final source = _FakeIdentitySource(
+        const AiPeerIdentity(fingerprint: 'fp-A', version: 3),
+      );
+      final store = _FakeStore();
+      store.byUid['456'] = _rec();
+      _wire(source: source, store: store);
+      AiPlaintextGate.promptHandler = (req) async => true;
+
+      source.current = const AiPeerIdentity(fingerprint: 'fp-A', version: 4);
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isFalse,
+      );
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+          interactive: true,
+        ),
+        isTrue,
+      );
+      expect(store.byUid['456']!.identityVersion, 4);
+
+      source.current = const AiPeerIdentity(fingerprint: 'fp-A', version: 3);
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isFalse,
+      );
+    });
+  });
+
+  group('C06 — 确认时效语义（characterization）', () {
+    test('AI-ID=B 无 TTL：confirmedAt 久远 + 五元组仍匹配 + 徽章在 → 仍放行（钉住现状）', () async {
+      // ⚠️ 这是 characterization（钉现状），不是缺陷修复：
+      // AI-ID=B 的确认是「身份变化触发失效」而非「时间触发失效」——
+      // confirmedAt 仅审计字段。引入 TTL 属于新决策（AI-ID 重评 / D-02 接线
+      // 时一并考虑），不得由 worker 单方面变更线上默认策略。
+      final store = _FakeStore();
+      // 确认时间 = 2023-11（距今约 3 年前）
+      store.byUid['456'] = _rec(confirmedAt: 1700000000000);
+      _wire(store: store);
+      expect(
+        await AiPlaintextGate.plaintextChannelAuthorized(
+          chatType: 'C2C',
+          toId: '456',
+        ),
+        isTrue,
+      );
+    });
+
+    test('「过期」可表达的形态全部 fail-closed：身份/版本/部署/账号任一漂移即失效', () async {
+      // AI-ID=B 中「确认过期」由绑定材料漂移定义（无时钟维度）。此测试
+      // 汇总复核各形态，任何一条不失效都意味着真人 E2EE 可能被送入明文域。
+      final cases = <String, AiPlaintextConfirmation>{
+        '指纹漂移': _rec(fingerprint: 'fp-old'),
+        'version 回退': _rec(version: 2),
+        'version 前跳': _rec(version: 4),
+        '部署漂移': _rec(deploymentId: 'deploy-0'),
+        '账号漂移': _rec(ownerUid: 'user-0'),
+      };
+      for (final entry in cases.entries) {
+        final store = _FakeStore();
+        store.byUid['456'] = entry.value;
+        _wire(store: store);
+        expect(
+          await AiPlaintextGate.plaintextChannelAuthorized(
+            chatType: 'C2C',
+            toId: '456',
+          ),
+          isFalse,
+          reason: '${entry.key} 必须使旧确认失效',
+        );
+      }
+    });
+  });
+
+  group('C06 — 重试路径复核（retry 语境 fail-closed）', () {
+    test('有效确认 + 徽章在 → retry 语境明文重试不拦（agent 语义正通道）', () async {
+      final store = _FakeStore();
+      store.byUid['456'] = _rec();
+      _wire(store: store);
+      // retry = 非交互（不弹窗）；确认有效时明文行可重发
+      final encryptionRequired = await E2EEService.shouldEncryptOutgoingPayload(
+        'C2C',
+        toId: '456',
+        interactiveConfirm: false,
+      );
+      expect(encryptionRequired, isFalse); // 明文通道放行
+      expect(
+        shouldBlockPlaintextRetry(
+          encryptionRequired: encryptionRequired,
+          e2ee: null,
+        ),
+        isFalse,
+      );
+    });
+
+    test('badge 撤销（真人化）后：明文行重试必须被拦（真人 E2EE 不入明文域）', () async {
+      final store = _FakeStore();
+      store.byUid['456'] = _rec(); // 历史 agent 确认仍在
+      _wire(store: store, badge: false);
+      final encryptionRequired = await E2EEService.shouldEncryptOutgoingPayload(
+        'C2C',
+        toId: '456',
+        interactiveConfirm: false,
+      );
+      expect(encryptionRequired, isTrue); // 回到必须加密
+      expect(
+        shouldBlockPlaintextRetry(
+          encryptionRequired: encryptionRequired,
+          e2ee: null, // 库中明文行
+        ),
+        isTrue,
+      );
+    });
+
+    test('确认期间身份变化 → retry 语境明文行被拦（防旧确认温水重发）', () async {
+      final source = _FakeIdentitySource(
+        const AiPeerIdentity(fingerprint: 'fp-A', version: 3),
+      );
+      final store = _FakeStore();
+      store.byUid['456'] = _rec();
+      _wire(source: source, store: store);
+      // 重试扫描时身份已变化（对端身份材料在确认后漂移）
+      source.current = const AiPeerIdentity(fingerprint: 'fp-B', version: 3);
+      final encryptionRequired = await E2EEService.shouldEncryptOutgoingPayload(
+        'C2C',
+        toId: '456',
+        interactiveConfirm: false,
+      );
+      expect(encryptionRequired, isTrue);
+      expect(
+        shouldBlockPlaintextRetry(
+          encryptionRequired: encryptionRequired,
+          e2ee: null,
+        ),
+        isTrue,
+      );
     });
   });
 
