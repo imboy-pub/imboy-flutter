@@ -38,6 +38,7 @@ class RegisteredBackendTransport implements ReleaseTransport {
   final _connecting = <String, Future<void>>{};
   final _connectionEpoch = <String, int>{};
   final _inbox = <String, List<WireFrame>>{};
+  final _groupInbox = <String, List<RegisteredGroupFrame>>{};
   final _pending = <(String, String), _PendingDelivery>{};
   final _receipts = <(String, String), _PendingReceipt>{};
   final _receiptAttempts = <(String, String, int)>{};
@@ -167,6 +168,11 @@ class RegisteredBackendTransport implements ReleaseTransport {
         alias,
         result.request.messageId,
       ), result.outcome == ServerAckOutcome.accepted);
+      return;
+    }
+    if (message['type'] == 'C2G') {
+      final received = RegisteredGroupBinding(fixture).receive(alias, message);
+      (_groupInbox[alias] ??= []).add(received);
       return;
     }
     if (message['type'] != 'C2C') return;
@@ -303,6 +309,10 @@ class RegisteredBackendTransport implements ReleaseTransport {
   List<WireFrame> drainInbox(String deviceId) =>
       List.unmodifiable(_inbox.remove(deviceId) ?? const <WireFrame>[]);
 
+  List<RegisteredGroupFrame> drainGroupInbox(String alias) => List.unmodifiable(
+    _groupInbox.remove(alias) ?? const <RegisteredGroupFrame>[],
+  );
+
   @override
   Future<void> dispose() async {
     _started = false;
@@ -312,6 +322,7 @@ class RegisteredBackendTransport implements ReleaseTransport {
     }
     await Future.wait(_sessions.values.map((session) => session.disconnect()));
     _inbox.clear();
+    _groupInbox.clear();
     _received.clear();
     _receiptAttempts.clear();
   }

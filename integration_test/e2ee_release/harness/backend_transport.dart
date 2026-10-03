@@ -8,6 +8,8 @@
 ///   群组、真实密钥目录及真机旅程尚未验收。
 library;
 
+import 'registered_group_binding.dart';
+
 import 'dart:convert';
 
 import '../fixture_contract.dart';
@@ -264,6 +266,9 @@ class RealBackendTransport implements ReleaseTransport {
     groupAlias: groupAlias,
     body: body,
   );
+
+  List<RegisteredGroupFrame> drainGroupInbox(String alias) =>
+      _registered.drainGroupInbox(alias);
 
   Future<void> acknowledgeReceived(WireFrame frame) =>
       _registered.acknowledgeReceived(frame);

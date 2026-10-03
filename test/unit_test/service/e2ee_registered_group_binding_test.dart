@@ -55,6 +55,40 @@ void main() {
     groupAlias: group,
     body: value,
   );
+  Map<String, dynamic> downlink(String time) => body()
+    ..['from'] = '9007199254740993'
+    ..['to'] = '9223372036854775807'
+    ..['sender_did'] = 'a1'
+    ..['created_at'] = time;
+  test('received RFC3339 offsets bind the same exact protected instant', () {
+    for (final time in [
+      '1970-01-01T00:00:00.123Z',
+      '1970-01-01T08:00:00.123+08:00',
+      '1969-12-31T19:00:00.123-05:00',
+    ]) {
+      final result = binding.receive('b1', downlink(time));
+      expect(result.body['created_at'], time);
+    }
+  });
+  test('received timestamps reject calendar overflow missing zone and precision loss', () {
+    for (final time in [
+      '1969-12-32T00:00:00.123Z',
+      '1970-01-01T00:00:00.123',
+      '1970-01-01T00:00:00.1231Z',
+      '1970-01-01T00:00:00.123+24:00',
+    ]) {
+      expect(
+        () => binding.receive('b1', downlink(time)),
+        throwsFormatException,
+      );
+    }
+  });
+  test('received group frames reject unregistered receiver aliases', () {
+    expect(
+      () => binding.receive('unknown', downlink('1970-01-01T00:00:00.123Z')),
+      throwsFormatException,
+    );
+  });
   test('outgoing group numeric context rejects floating point values', () {
     for (final entry in {
       'from': 9007199254740993,
