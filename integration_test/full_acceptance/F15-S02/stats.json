@@ -1,0 +1,46 @@
+{
+ "schema": "authz-matrix-draft/1",
+ "source": "F15-S01 route-inventory v2 + imboy源码鉴权链",
+ "chain_facts": {
+  "middleware_order": "cowboy_router -> cors -> security_headers -> auth_middleware -> feature_gate -> throttle -> cowboy_handler (imboy_app.erl:96-107)",
+  "api_auth_switch_default": "on (config_ds:env(api_auth_switch))",
+  "tenant_fail_closed": "企业租户面即使误登记open()也不直通(auth_middleware_api_v1源码注释)",
+  "admin_auth": "cookie adm_user_id + HMAC签名(adm_session_ds:issue/verify),RBAC=role_acl 6角色,权限可被config adm_role_permissions/adm_role_names覆盖"
+ },
+ "authz_class_dist": {
+  "SITE_PUBLIC": 7,
+  "STATIC_ASSET": 4,
+  "MCP_CLIENT_CREDENTIAL": 1,
+  "ANON_OPEN_SIGNATURE": 11,
+  "ANON_OPEN": 17,
+  "USER_JWT_SIGNATURE": 372,
+  "OPTION_LOGGEDOUT_WRITABLE": 3,
+  "WEBHOOK_TOKEN": 1,
+  "PAYMENT_CALLBACK_SIGN": 1,
+  "ADMIN_COOKIE_RBAC": 255,
+  "DYNAMIC_REVIEW": 66,
+  "ENTERPRISE_TENANT_PRINCIPAL": 16,
+  "CS_SURFACE_REVIEW": 37
+ },
+ "idempotency_review_count": 85,
+ "negative_design_mapping": {
+  "MCP_CLIENT_CREDENTIAL": "MCP client credential(mck);负例=无效mck fail-closed拒绝",
+  "ANON_OPEN": "open直通;负例=仅验证该路径免鉴权,邻近路径不得连带放行",
+  "USER_JWT_SIGNATURE": "JWT+设备签名;负例=无token=401/无效token=401/跨用户资源=403或404",
+  "OPTION_LOGGEDOUT_WRITABLE": "免登录可写(option);负例=该类路径之外的可写操作无token应401",
+  "ANON_OPEN_SIGNATURE": "open但强制设备签名;负例=篡改/缺失签名应401(防重放)",
+  "SITE_PUBLIC": "网站白名单;负例=非白名单站点路径应404",
+  "STATIC_ASSET": "静态资产;负例=路径穿越(../)应拒绝",
+  "ADMIN_COOKIE_RBAC": "adm cookie+HMAC签名+RBAC;负例=无cookie或伪造签名=401;低角色访问高权限action=403无权限操作",
+  "DYNAMIC_REVIEW": "动态拼装段;授权语义须运行时判定",
+  "WEBHOOK_TOKEN": "token即凭证;负例=无效token拒绝",
+  "PAYMENT_CALLBACK_SIGN": "第三方支付回调签名验证;负例=错误签名拒绝;幂等=重复回调不重复入账"
+ },
+ "open_items": [
+  "CS_SURFACE_REVIEW 路径的 credential/seat 二分须运行时按冻结函数复核",
+  "DYNAMIC_REVIEW 段运行时判定",
+  "幂等负例的具体业务键(消息/支付/接单)须F15-S02用真实夹具验证",
+  "二次分类仅按前缀,CS credential/seat 的路径形状二分仍须运行时或读冻结函数复核"
+ ],
+ "refinement_note": "DYNAMIC_REVIEW 按路径前缀二次分类:/api/v1/cs/* -> CS_SURFACE_REVIEW,/api/v1/enterprise/* -> ENTERPRISE_TENANT_PRINCIPAL(依据 auth_middleware_api_v1 EB-04 注释:两前缀即租户面);其余动态段保留 DYNAMIC_REVIEW"
+}

@@ -1,0 +1,137 @@
+{
+ "schema": "product-profiles-evidence/1 (事实底账,非最终 product-profiles.json)",
+ "card": "F00 (execution-contract 1.3) — 产出于 F00-S02 目录",
+ "generated_at_utc": "2026-10-03T04:4xZ",
+ "writer": "ZCode session; only enumerates facts from source/config; inventions forbidden",
+ "layer_1_feature_profiles": {
+  "source": "imboy/config/product-feature-manifest.json + config/product-feature-manifests/ + include/generated/imboy_product_features.hrl",
+  "manifest_hash": "sha256:ecf552c01018513a34e445b49cedbb985962758542c9b64a93951185dc8f0ca8",
+  "profiles": [
+   {
+    "name": "full-selected",
+    "kind": "DEFAULT_CANDIDATE",
+    "features": [
+     "e2ee",
+     "channel",
+     "location",
+     "moment",
+     "channel_discover",
+     "channel_invitation",
+     "channel_order",
+     "group_vote",
+     "group_schedule",
+     "group_task",
+     "bot_webhook",
+     "enterprise_business",
+     "customer_service",
+     "project"
+    ],
+    "compiled_includes_core": true
+   },
+   {
+    "name": "agent_hub",
+    "kind": "ALTERNATIVE",
+    "features": [
+     "e2ee",
+     "channel",
+     "channel_discover",
+     "channel_invitation",
+     "channel_order",
+     "bot_webhook"
+    ],
+    "excludes_vs_full": [
+     "location",
+     "moment",
+     "group_vote",
+     "group_schedule",
+     "group_task",
+     "enterprise_business",
+     "customer_service",
+     "project"
+    ]
+   },
+   {
+    "name": "overseas_baseline",
+    "kind": "ALTERNATIVE",
+    "features": [
+     "bot_webhook",
+     "channel",
+     "channel_discover",
+     "channel_invitation",
+     "channel_order",
+     "e2ee",
+     "group_schedule",
+     "group_task",
+     "group_vote",
+     "location",
+     "moment"
+    ],
+    "excludes_vs_full": [
+     "enterprise_business",
+     "customer_service",
+     "project"
+    ]
+   }
+  ],
+  "gate": "编译期物理裁剪(imboy_product_features.hrl) AND 运行时 imboy_feature:enabled/1 (compiled AND imboy_policy:effective_features)"
+ },
+ "layer_2_policy_profiles": {
+  "source": "imboy/src/lib/imboy_policy.erl current_profile/0",
+  "values": [
+   "community",
+   "enterprise",
+   "overseas_baseline"
+  ],
+  "resolution": "load_profile_config() 归一化,失败回退 imboy_profile_preset:current()"
+ },
+ "layer_3_e2ee_capability_keys": {
+  "source": "imboy/src/lib/imboy_policy.erl message_encryption_required/0 + e2ee_disabled/0 + e2ee_enabled/0",
+  "storage_mode": {
+   "values": [
+    "archived(DEFAULT)",
+    "disabled(HARD_OFF)",
+    "secure_e2ee",
+    "compliance_e2ee"
+   ],
+   "hard_off": "disabled 时整个E2EE体系关闭,密钥端点必须关闭"
+  },
+  "e2ee_mode": {
+   "values": [
+    "disabled(DEFAULT)",
+    "required",
+    "compliance"
+   ]
+  },
+  "message_encryption_required_rule": "not hard_off AND (storage_mode in {secure_e2ee,compliance_e2ee} OR e2ee_mode in {required,compliance})",
+  "priority": "env override IMBOY_E2EE_MODE > DB 持久化 capabilities > profile preset",
+  "local_config_observed": "sys.local.config / sys.config.example 均未显式设置 storage_mode/e2ee_mode -> 本地实际生效值须运行时读取(F01-S02/F15-S02 复核点)"
+ },
+ "layer_4_per_domain_write_gate": {
+  "source": "imboy/src/lib/imboy_policy.erl validate_message_write/5 + policy_managed_content_write/2",
+  "C2C": "内容承载动作(发送+message_edit)受强制加密门;e2ee字段非空map且payload非空才算已加密(v2.0契约)",
+  "C2G": "同C2C",
+  "other_types(channel/moment/group_app/cs/...)": "policy_managed_content_write 返回 false,不经过强制加密门(源码事实,即F06/F07行\"不能误走E2EE解密入口\"的机制基础)",
+  "note": "企业托管/AI路径在 enterprise_business feature 的 eb_managed_crypto 等模块,策略细节未逐行读,标 REVIEW"
+ },
+ "open_decisions_PRODUCT_REQUIRED": [
+  "候选默认 feature profile 定稿(full-selected/agent_hub/overseas_baseline 三选一或多环境组合)",
+  "每消息域×档位组合的批准矩阵(哪些 case 用哪 profile)——required-cases.tsv 的 profile 主键依赖此项",
+  "企业 required/托管/AI 的逐域策略确认(eb_managed_crypto 细节 REVIEW)",
+  "IMBOY_E2EE_MODE/DB capabilities 在验收实例上的目标值"
+ ],
+ "verification_hooks": {
+  "runtime_read_required": [
+   "imboy_policy:effective_capabilities()",
+   "imboy_policy:effective_features()",
+   "imboy_feature:compiled_features()"
+  ],
+  "owner_card": "F01-S02(夹具注入目标值)/F15-S02(运行时复核生效值)"
+ },
+ "source_hashes": {
+  "imboy/config/product-feature-manifest.json": "2973c3cb0509a43f16168e95d84fd5505bf2faf56d764b5a2abb97f43d5be79e",
+  "imboy/config/product-feature-manifests/agent_hub.json": "66784662acd38386e5a50be7514b1d8fc39ce7b468cbeeff78e3eac5cc83b5b4",
+  "imboy/config/product-feature-manifests/overseas_baseline.json": "8f8fc17d368d7c5e811bc7542936912201753bd9ee6dce5c391b019d0fd9ac52",
+  "imboy/src/lib/imboy_policy.erl": "1eaa4cf4ec192d7a564f23c474e2ad040ebad7edbfc92e0cee5d5d14ed9e579c",
+  "imboy/src/lib/imboy_feature.erl": "0804c9b901925aeafb189f27f9e64d985719c8605f33f2a6b100f2ac54d2d950"
+ }
+}

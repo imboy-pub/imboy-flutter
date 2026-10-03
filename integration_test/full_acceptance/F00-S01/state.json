@@ -1,0 +1,26 @@
+{
+ "schema": "card-state/1",
+ "card_id": "F00-S01",
+ "plan_id": "2026-10-03-full-product-android-macos-integration-acceptance-v1",
+ "scheduler_state": "DONE",
+ "scheduler_note": "DONE=执行结束，不等于测试通过（execution-contract 第 5 节）",
+ "test_status": "UNKNOWN",
+ "test_status_note": "本卡为 infrastructure_or_gate 输入绑定卡，无测试分母；验收项见 input-snapshot.json acceptance_check",
+ "capability_flags": [
+  "OFFLINE_READY"
+ ],
+ "evidence_phase": "PREPARATION",
+ "writer": "ZCode session (see WRITER-CLAIM.md)",
+ "parallel_execution_alert": {
+  "received_at": "2026-10-03T04:07:00Z (mid-turn user notice)",
+  "finding": "本机无并行写痕迹（full_acceptance/runs/locks/三仓近15-30分钟无活动）",
+  "response": "公共位置冻结；RUN_ROOT 仅提案副本；lease_root 待双方互见"
+ },
+ "additional_coordinator_outputs": [
+  "maintenance-check-01.md",
+  "progress-ledger.md(四分母,暂挂本卡)",
+  "proposed-run-root/commands-skeleton.json(命令注册骨架提案)",
+  "upstream-observation-01.md"
+ ],
+ "refreshed_at": "2026-10-03T05:0xZ"
+}

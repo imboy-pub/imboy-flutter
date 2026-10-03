@@ -1,0 +1,18 @@
+{
+ "schema": "verifier-bad-samples/1",
+ "count": 9,
+ "contract_ref": "execution-contract §6 items 1-8 + report.py secret-gate bonus",
+ "status": "SAMPLES_CONSTRUCTED_VERIFIER_NOT_IMPLEMENTED",
+ "note": "样本贴合 scripts/auto_test_lib/result.py 已验证语义(ATTEMPT_FINGERPRINT_KEYS/classify_attempts/overall_exit_code)与 report.py 秘密门;'应非零'的实际执行待 F01-S06 verifier 实现(producer: F01-S01+F01-S06)",
+ "samples": [
+  "BAD-01-collection-integrity",
+  "BAD-02-coverage-closure",
+  "BAD-03-candidate-binding",
+  "BAD-04-fake-green-execution",
+  "BAD-05-evidence-contamination",
+  "BAD-06-applicability-fraud",
+  "BAD-07-attempt-audit",
+  "BAD-08-report-secret-leak",
+  "GOOD-01-minimal-valid-synthetic"
+ ]
+}

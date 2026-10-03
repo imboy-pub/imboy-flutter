@@ -1,0 +1,15 @@
+{
+ "schema": "card-state/1",
+ "card_id": "F01-S06",
+ "plan_id": "2026-10-03-full-product-android-macos-integration-acceptance-v1",
+ "scheduler_state": "DONE",
+ "scheduler_note": "坏样本数据集构造完成(9样本);verifier 实现与应非零执行未做——producer 依赖 F01-S01 命令注册,且属 F01 唯一 owner 职责",
+ "test_status": "BLOCKED",
+ "block_reason": "BLOCKED_ENV",
+ "deliverable_kind": "FIXTURE_DATASET_NOT_VERIFIER",
+ "capability_flags": [
+  "OFFLINE_READY"
+ ],
+ "evidence_phase": "PREPARATION",
+ "writer": "ZCode session (see WRITER-CLAIM.md)"
+}

@@ -1,0 +1,19 @@
+{
+ "schema": "card-state/1",
+ "card_id": "F15-S01",
+ "plan_id": "2026-10-03-full-product-android-macos-integration-acceptance-v1",
+ "scheduler_state": "DONE",
+ "scheduler_note": "静态枚举产出完毕；operation 矩阵授权语义细化（RBAC/租户/幂等负例）属 F15-S02 运行时验证",
+ "test_status": "UNKNOWN",
+ "deliverable_kind": "STATIC_INVENTORY",
+ "capability_flags": [
+  "OFFLINE_READY"
+ ],
+ "evidence_phase": "PREPARATION",
+ "writer": "ZCode session (see WRITER-CLAIM.md)",
+ "empty_action_routes": "14条为设计如此(健康/指标/静态/MCP/SSE/WS/签名下载),非解析缺陷",
+ "downstream": [
+  "F15-S02 真后端授权(运行时复核 open/option/feature门/动态段)",
+  "F00 覆盖闭合的新增路由分母"
+ ]
+}

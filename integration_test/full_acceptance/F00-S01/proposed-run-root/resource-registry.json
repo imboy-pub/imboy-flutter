@@ -1,0 +1,8 @@
+{
+ "schema": "resource-registry/0-proposed",
+ "plan_id": "2026-10-03-full-product-android-macos-integration-acceptance-v1",
+ "status": "PROPOSED_NOT_ELEVATED",
+ "upstream_resource_registry": "NOT_FOUND (execution-contract 2.2 降级条款生效)",
+ "leased_resources": [],
+ "note": "登记为空 = 无占用。设备/Flutter SDK/macOS 容器与钥匙串/端口/DB/Garage 前缀/relay 端口/Admin 浏览器 profile 均未占用，取得上游登记并双方互见前不得申请。"
+}

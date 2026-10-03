@@ -1,0 +1,25 @@
+{
+ "schema": "card-state/1",
+ "card_id": "F00-S02",
+ "plan_id": "2026-10-03-full-product-android-macos-integration-acceptance-v1",
+ "scheduler_state": "DONE",
+ "scheduler_note": "DONE=Coordinator 草案产出完毕；不等于 F00-S02 域映射闭合（需各域 owner patch 确认）",
+ "deliverable_kind": "COORDINATOR_DRAFT_NOT_CLOSURE",
+ "test_status": "UNKNOWN",
+ "capability_flags": [
+  "OFFLINE_READY"
+ ],
+ "evidence_phase": "PREPARATION",
+ "writer": "ZCode session (see WRITER-CLAIM.md)",
+ "draft_stats_ref": "draft-stats.json",
+ "owner_review_required": {
+  "LOW_DOMAIN_FALLBACK_rows": "见 draft-stats.json low_fallback_by_domain（F14 202 / F02 82 / F09 61 为复核重点）",
+  "tag_group_rows": "group/tag 10 行建议 F05-S04（MEDIUM），需 F04/F05 owner 共同裁决",
+  "ambiguity_rows": "22 行 AMBIGUOUS_PIPE_REVIEW_REQUIRED 清单在 ambiguity-review-draft.md",
+  "page_gaps": "24 个无种子页面在 coverage-gap-draft.md，NEW 编号待 owner 定夺"
+ },
+ "product_profiles_evidence": "product-profiles-evidence.json 已产出(事实底账);最终 product-profiles.json 待产品决策 4 项 open_decisions",
+ "upstream_alignment": [
+  "upstream-ac22-23-alignment.md (只读分析上游C11攻击矩阵;测试设计对齐,非PASS证据)"
+ ]
+}

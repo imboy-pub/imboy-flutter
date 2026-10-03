@@ -1,0 +1,2 @@
+line	section	path	handler	note
+114	ApiV1Routes	/api/v1/ws	websocket_handler	唯一WebSocket端点;open/0注释:ws有自己的auth;协议行为需F15-S02运行时验证

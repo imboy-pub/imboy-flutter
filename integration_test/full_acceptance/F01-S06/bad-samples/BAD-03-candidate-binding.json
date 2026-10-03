@@ -1,0 +1,48 @@
+{
+ "sample_id": "BAD-03-candidate-binding",
+ "contract_ref": "execution-contract §6 item 3",
+ "injected_defects": [
+  "run 的 app_head 与冻结候选不一致(SHA漂移)",
+  "上游 plan_sha256 过期",
+  "候选 commit 非冻结基线祖先"
+ ],
+ "input": {
+  "frozen_candidate": {
+   "app_head": "826e123803f8e962ae53c9dda25d96fe91329e0e",
+   "backend_head": "33277f7f64fa0cc1524e2ec7e80c898b8d2d0933",
+   "ancestry_required": true
+  },
+  "upstream": {
+   "plan_sha256": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+   "frozen_plan_sha256": "e9c8b33ddbe2b019818f82f1564f88baf99f1ca5f75d27934cba547ea5d86ce6"
+  },
+  "attempts": [
+   {
+    "parsed": {
+     "test_status": "PASS",
+     "reason_code": "NONE",
+     "executed_count": 1,
+     "skipped_required": 0
+    },
+    "fingerprint": {
+     "app_head": "ffffffffffffffffffffffffffffffffffffffff",
+     "backend_head": "33277f7f64fa0cc1524e2ec7e80c898b8d2d0933",
+     "target_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "config_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+     "fixture_fingerprint": "fix-001",
+     "device_fingerprint": "dev-android-001"
+    }
+   }
+  ]
+ },
+ "expected_verifier_behavior": {
+  "exit_nonzero": true,
+  "must_locate": [
+   "SHA_DRIFT: attempt app_head != frozen candidate",
+   "stale upstream plan sha256",
+   "candidate commit not ancestor of frozen baseline"
+  ]
+ },
+ "is_verifier_fixture": true,
+ "NEVER_COUNTS_AS_PRODUCT_PASS": true
+}
