@@ -171,16 +171,18 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
       final invites = await _api.myInvitations(status: 'pending');
       if (!mounted ||
           account != _accountKey ||
-          generation != _invitationGeneration)
+          generation != _invitationGeneration) {
         return;
+      }
       setState(() {
         _pendingInvites = invites.length;
       });
     } on Object {
       if (!mounted ||
           account != _accountKey ||
-          generation != _invitationGeneration)
+          generation != _invitationGeneration) {
         return;
+      }
       setState(() {
         _pendingInvites = 0;
       });

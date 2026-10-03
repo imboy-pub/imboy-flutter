@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "05528a662c117db459881770c44dbaf7c6171991",
+    "app_head": "487413842b66cf42a8dffc235f01c963e032cc7c",
     "backend_head": "7117a14392c4083cf682643f785fafd5ae768180",
     "integration_test_count": 153,
     "lib_page_count": 166,
