@@ -9,6 +9,7 @@ import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/message.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/websocket.dart';
@@ -155,6 +156,68 @@ void main() {
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
   );
+  group('read receipt session boundary', () {
+    late MessageService service;
+    setUpAll(() async {
+      service = MessageService.instance;
+      await pumpEventQueue();
+      // Observe the production receipt event without starting its UI consumer.
+      service.cancelAllSubscriptions();
+    });
+    tearDownAll(() => service.dispose());
+    for (final stale in [false, true]) {
+      test('database completion changed=$stale', () async {
+        SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+        await StorageService.init();
+        final database = _StatusDatabase();
+        SqliteService.setDbForTest(database);
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureChannel, (call) async {
+              if (call.method == 'write' &&
+                  (call.arguments as Map)['key'] == 'secure_token') {
+                throw PlatformException(code: 'synthetic-login-stop');
+              }
+              return null;
+            });
+        final events = <MessageStatusUpdateRequestedEvent>[];
+        final subscription = AppEventBus.on<MessageStatusUpdateRequestedEvent>()
+            .listen(events.add);
+        try {
+          final pending = service.processMessage('MSG_READ', {
+            'id': 'synthetic-read-receipt',
+            'from': '200',
+            'to': '100',
+          });
+          await database.entered.future;
+          if (stale) {
+            await expectLater(
+              UserRepoLocal.to.loginAfter('synthetic-session', {
+                'uid': '101',
+                'token': 'synthetic-token',
+                'refreshtoken': 'synthetic-refresh',
+              }),
+              throwsA(isA<PlatformException>()),
+            );
+          }
+          database.release.complete(1);
+          await pending;
+          await pumpEventQueue();
+          expect(database.updates, 1);
+          expect(events.length, stale ? 0 : 1);
+          if (!stale) {
+            expect(events.single.messageId, 'synthetic-read-receipt');
+            expect(events.single.newStatus, IMBoyMessageStatus.seen);
+            expect(events.single.notifyUI, isTrue);
+          }
+        } finally {
+          await subscription.cancel();
+          SqliteService.setDbForTest(null);
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(secureChannel, null);
+        }
+      });
+    }
+  });
   for (final stale in [false, true]) {
     test('direct encoding completion session changed=$stale', () async {
       SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});

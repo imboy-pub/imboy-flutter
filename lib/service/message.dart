@@ -1168,6 +1168,15 @@ class MessageService with EventSubscriptionManager {
 
   /// 处理已读回执
   Future<void> _receiveReadReceipt(Map<String, dynamic> data) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool isCurrent() =>
+        uid.isNotEmpty &&
+        session.currentUid == uid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (!isCurrent()) return;
     final msgId = data['id']?.toString() ?? '';
     if (msgId.isEmpty) return;
 
@@ -1180,6 +1189,7 @@ class MessageService with EventSubscriptionManager {
       IMBoyMessageStatus.seen,
     );
 
+    if (!isCurrent()) return;
     if (!found) {
       iPrint('⚠️ [READ_RECEIPT] 未找到消息: msgId=$msgId');
     }
