@@ -24,6 +24,12 @@ class TestCatalogGeneration(unittest.TestCase):
     def setUpClass(cls):
         cls.catalog = discovery.generate_catalog(ROOT)
 
+    def test_billing_route_component_matches_source_filename(self):
+        page = next(p for p in self.catalog["pages"]
+                    if p["page"] == "lib/page/billing/plan_list_page.dart")
+        self.assertTrue(page["route_registered"])
+        self.assertFalse(page["mapped_targets"])
+
     def test_atf403_deterministic_two_runs(self):
         again = discovery.generate_catalog(ROOT)
         self.assertEqual(

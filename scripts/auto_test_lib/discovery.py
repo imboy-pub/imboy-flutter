@@ -68,7 +68,8 @@ def scan_route_pages(root: Path) -> list[str]:
 
 
 def _page_component(path: str) -> str:
-    return Path(path).stem
+    return "".join(part[:1].upper() + part[1:]
+                   for part in Path(path).stem.split("_") if part)
 
 
 def sha256_file(path: Path) -> str:
