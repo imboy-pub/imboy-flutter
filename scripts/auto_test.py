@@ -762,10 +762,13 @@ def main() -> int:
     for option in ('evidence-root', 'frozen-input', 'frozen-sha256',
                    'acceptance-report', 'report-sha256'):
         preparation_parser.add_argument('--' + option, required=True)
-    from auto_test_lib import acceptance_case_events, acceptance_execution
+    from auto_test_lib import acceptance_case_events, acceptance_execution, acceptance_upstream
     acceptance_case_events.register_cli(sub)
     acceptance_execution.register_cli(sub)
+    acceptance_upstream.register_cli(sub)
     args = parser.parse_args()
+    if args.command == 'acceptance-upstream-preflight':
+        return acceptance_upstream.run_cli(args, ROOT.parent)
     if args.command == 'acceptance-execution-preflight':
         return acceptance_execution.run_cli(args, ROOT.parent)
     if args.command == 'acceptance-case-events':
