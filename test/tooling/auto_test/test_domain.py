@@ -42,7 +42,8 @@ class DomainGenerationTest(unittest.TestCase):
 
     def test_capability_and_feature_counts(self):
         self.assertEqual(len(self.first['capabilities']), 44)
-        self.assertEqual(len(self.first['feature_mapping']), 13)
+        self.assertEqual(set(self.first['feature_mapping']),
+                         set(domain.load_selected_features(ROOT)))
         for feature, item in self.first['feature_mapping'].items():
             self.assertEqual(item['disposition'], 'mapped', feature)
             self.assertTrue(item['capabilities'], feature)
@@ -147,10 +148,23 @@ class DomainValidationTest(unittest.TestCase):
 class FeatureManifestMappingTest(unittest.TestCase):
     def test_selected_features_all_mapped(self):
         selected = domain.load_selected_features(ROOT)
-        self.assertEqual(len(selected), 13)
+        self.assertIn('project', selected)
         for feature in selected:
             self.assertIn(feature, domain.FEATURE_CAPABILITY_MAP, feature)
             self.assertTrue(domain.FEATURE_CAPABILITY_MAP[feature], feature)
+
+    def test_project_feature_maps_all_six_project_capabilities(self):
+        expected = {
+            'project.create_update_status',
+            'project.member_invite_remove_owner_transfer',
+            'project.task_assign_status', 'project.milestone',
+            'project.channel_link', 'project.aggregations_workspace_boundary',
+        }
+        self.assertEqual(set(domain.FEATURE_CAPABILITY_MAP.get('project', [])), expected)
+        specs = [s for s in domain.CAPABILITY_SPECS
+                 if s['capability_id'] in expected]
+        self.assertEqual(len(specs), 6)
+        self.assertTrue(all(s['feature_key'] == 'project' for s in specs))
 
     def test_feature_key_values_are_manifest_or_core(self):
         selected = set(domain.load_selected_features(ROOT))

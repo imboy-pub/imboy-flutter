@@ -16,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'scripts'))
 
-from auto_test_lib import inventory  # noqa: E402
+from auto_test_lib import discovery, inventory  # noqa: E402
 
 
 def _make_synthetic_root(base: Path) -> Path:
@@ -74,7 +74,10 @@ class InventoryGenerationTest(unittest.TestCase):
         self.assertEqual(inventory.check_inventory(self.root), [])
 
     def test_counts_and_registration(self):
-        self.assertEqual(len(self.first['pages']), 173)
+        expected_pages = set(discovery.scan_lib_pages(self.root)) | set(
+            discovery.scan_module_pages(self.root))
+        self.assertEqual({p['page'] for p in self.first['pages']}, expected_pages)
+        self.assertEqual(len(self.first['pages']), len(expected_pages))
         self.assertGreater(len(self.first['functions']), 1500)
         registered = {f['page'] for f in self.first['functions']}
         for page_summary in self.first['pages']:

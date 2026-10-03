@@ -17,7 +17,8 @@
       "group_task",
       "bot_webhook",
       "enterprise_business",
-      "customer_service"
+      "customer_service",
+      "project"
     ],
     "capability_count": 44,
     "backend_target_base": "../imboy（路径相对 imboy 仓；make:* 指 Makefile target）",
@@ -1198,7 +1199,7 @@
     },
     {
       "capability_id": "project.create_update_status",
-      "feature_key": "core",
+      "feature_key": "project",
       "domain": "project",
       "positive": "项目创建/更新/状态流转真机闭环",
       "negative": "非成员创建到他人 workspace 被拒",
@@ -1229,7 +1230,7 @@
     },
     {
       "capability_id": "project.member_invite_remove_owner_transfer",
-      "feature_key": "core",
+      "feature_key": "project",
       "domain": "project",
       "positive": "成员邀请/移除/owner 转让闭环",
       "negative": "非 owner 管理 member 被拒；并发转让保持 owner 不变量",
@@ -1261,7 +1262,7 @@
     },
     {
       "capability_id": "project.task_assign_status",
-      "feature_key": "core",
+      "feature_key": "project",
       "domain": "project",
       "positive": "任务创建/指派/状态流转闭环",
       "negative": "指派给非项目成员被拒",
@@ -1290,7 +1291,7 @@
     },
     {
       "capability_id": "project.milestone",
-      "feature_key": "core",
+      "feature_key": "project",
       "domain": "project",
       "positive": "里程碑创建/达成/并发更新闭环",
       "negative": "非法状态跃迁被拒",
@@ -1322,7 +1323,7 @@
     },
     {
       "capability_id": "project.channel_link",
-      "feature_key": "core",
+      "feature_key": "project",
       "domain": "project",
       "positive": "项目-频道关联/解绑闭环",
       "negative": "跨 workspace 频道不可被关联",
@@ -1351,7 +1352,7 @@
     },
     {
       "capability_id": "project.aggregations_workspace_boundary",
-      "feature_key": "core",
+      "feature_key": "project",
       "domain": "project",
       "positive": "pinned/resources/activity/related-posts 聚合正确呈现",
       "negative": "workspace 边界外数据不进聚合；count fail-closed",
@@ -1556,6 +1557,19 @@
     "customer_service": {
       "capabilities": [
         "cs.queue_claim_transfer_close_rating"
+      ],
+      "disposition": "mapped",
+      "exclusion_code": null,
+      "details": ""
+    },
+    "project": {
+      "capabilities": [
+        "project.create_update_status",
+        "project.member_invite_remove_owner_transfer",
+        "project.task_assign_status",
+        "project.milestone",
+        "project.channel_link",
+        "project.aggregations_workspace_boundary"
       ],
       "disposition": "mapped",
       "exclusion_code": null,
