@@ -35,3 +35,28 @@ def audit_version_inputs(root: Path, frozen: Any, observed: Any) -> List[str]:
         hashes.add(digest)
         errors.extend(acceptance.validate_artifact_files(root, [descriptor]))
     return errors
+
+
+def audit_version_acceptance_set(root: Path, frozen: Any) -> List[str]:
+    """Require runtime IDs to equal the independently pinned version document.
+
+    This binds the explicit product Acceptance-ID set, not the upstream E2EE
+    qualification ledger or the semantics of its business requirements.
+    """
+    if not isinstance(frozen, dict) or not isinstance(frozen.get('version_inputs'), dict):
+        return ['VERSION_ACCEPTANCE_SET_INVALID']
+    document, errors = acceptance.load_frozen_json(
+        root, frozen['version_inputs'].get('acceptance_set'))
+    if errors:
+        return errors
+    if not isinstance(document, dict):
+        return ['VERSION_ACCEPTANCE_SET_INVALID']
+    approved, runtime = document.get('acceptance_ids'), frozen.get('acceptance_ids')
+    for identifiers in (approved, runtime):
+        if (not isinstance(identifiers, list) or not identifiers
+                or any(not isinstance(i, str) or not i.strip() for i in identifiers)
+                or len(set(identifiers)) != len(identifiers)):
+            return ['VERSION_ACCEPTANCE_SET_INVALID']
+    if set(approved) != set(runtime):
+        return ['VERSION_ACCEPTANCE_SET_MISMATCH']
+    return []

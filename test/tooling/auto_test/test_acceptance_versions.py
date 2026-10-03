@@ -1,12 +1,13 @@
 import copy
 import hashlib
+import json
 from pathlib import Path
 import sys
 import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
-from auto_test_lib.acceptance_versions import audit_version_inputs
+from auto_test_lib.acceptance_versions import audit_version_inputs, audit_version_acceptance_set
 
 
 class VersionInputsTests(unittest.TestCase):
@@ -59,6 +60,31 @@ class VersionInputsTests(unittest.TestCase):
         self.frozen['product_plan'] = dict(path='alias', sha256=self.frozen['e2ee_plan']['sha256'])
         self.report = copy.deepcopy(self.frozen)
         self.assertTrue(any('ARTIFACT_UNREADABLE' in e for e in self.audit()))
+
+    def semantic_input(self, identifiers):
+        raw = json.dumps({'acceptance_ids': identifiers}).encode()
+        (self.root / 'acceptance_set').write_bytes(raw)
+        artifact = dict(path='acceptance_set', sha256=hashlib.sha256(raw).hexdigest())
+        return dict(version_inputs={'acceptance_set': artifact}, acceptance_ids=['F01-A01', 'F02-A01'])
+
+    def test_version_ids_exact_equal_runtime_ids(self):
+        frozen = self.semantic_input(['F02-A01', 'F01-A01'])
+        self.assertEqual([], audit_version_acceptance_set(self.root, frozen))
+        for identifiers in (['F01-A01'], ['F01-A01', 'F02-A01', 'unknown']):
+            self.assertIn('VERSION_ACCEPTANCE_SET_MISMATCH',
+                          audit_version_acceptance_set(self.root, self.semantic_input(identifiers)))
+
+    def test_invalid_or_duplicate_document_ids_rejected(self):
+        for identifiers in (None, [], ['F01-A01', 'F01-A01'], [''], [123]):
+            self.assertIn('VERSION_ACCEPTANCE_SET_INVALID',
+                          audit_version_acceptance_set(self.root, self.semantic_input(identifiers)))
+
+    def test_runtime_duplicates_and_missing_descriptor_rejected(self):
+        frozen = self.semantic_input(['F01-A01', 'F02-A01'])
+        frozen['acceptance_ids'].append('F01-A01')
+        self.assertIn('VERSION_ACCEPTANCE_SET_INVALID', audit_version_acceptance_set(self.root, frozen))
+        frozen['version_inputs'] = {}
+        self.assertTrue(audit_version_acceptance_set(self.root, frozen))
 
 
 if __name__ == '__main__':

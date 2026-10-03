@@ -140,7 +140,9 @@ class PreflightTests(unittest.TestCase):
 
     def prepare_event_run(self):
         self.frozen['version_inputs'] = {
-            role: self.descriptor(role + '.snapshot', {'synthetic_role': role})
+            role: self.descriptor(role + '.snapshot',
+                {'acceptance_ids': self.frozen['acceptance_ids']} if role == 'acceptance_set'
+                else {'synthetic_role': role})
             for role in ('product_plan', 'e2ee_plan', 'execution_contract', 'dispatch_cards',
                          'acceptance_set', 'coverage_seed', 'input_manifest')}
         self.report['version_inputs'] = copy.deepcopy(self.frozen['version_inputs'])

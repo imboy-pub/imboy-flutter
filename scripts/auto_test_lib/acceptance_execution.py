@@ -91,6 +91,7 @@ def audit_execution_inputs(root: Path, frozen_descriptor: Any,
         if not report_errors and isinstance(report, dict):
             result['errors'].extend(acceptance_versions.audit_version_inputs(
                 root, frozen.get('version_inputs'), report.get('version_inputs')))
+            result['errors'].extend(acceptance_versions.audit_version_acceptance_set(root, frozen))
             result['errors'].extend(acceptance_coverage.audit_input_case_coverage(
                 frozen.get('coverage_inputs'), frozen.get('required_cases'),
                 report.get('coverage_mappings'), frozen.get('approved_dispositions')))
