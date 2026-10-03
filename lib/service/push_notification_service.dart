@@ -29,6 +29,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/config/init.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/notification.dart';
 import 'package:imboy/service/notification_payload_rules.dart';
 import 'package:imboy/service/storage.dart';
@@ -97,12 +98,12 @@ class PushNotificationService {
       await _tryInitFcm().timeout(
         const Duration(seconds: 15),
         onTimeout: () {
-          logger.w('[Push] FCM 初始化超时 (15s)，降级为本地通知模式');
+          AppLogger.warning('[Push] FCM 初始化超时 (15s)，降级为本地通知模式');
           _fcmEnabled = false;
         },
       );
     } catch (e) {
-      logger.w('[Push] FCM 初始化异常降级: $e');
+      AppLogger.warning('[Push] FCM 初始化异常降级: $e');
       _fcmEnabled = false;
     }
 
