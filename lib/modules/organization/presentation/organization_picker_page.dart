@@ -327,18 +327,20 @@ class _OrganizationPickerPageState
   }
 
   Future<void> _joinByCode() async {
+    final account = _accountKey;
+    final epoch = _accountEpoch;
     final result = await showDialog<OrgJoinDialogResult>(
       context: context,
       builder: (ctx) => const _OrgJoinCodeDialog(),
     );
-    if (result == null || !mounted) return;
+    if (result == null || !_acceptSwitch(account, epoch)) return;
     // preview 已持有目标企业事实（id+name）：先播种转场即时渲染，
     // 再刷新取 mine() 真源并切入（无 organization 投影依赖）。
     _cache.saveOrgs([
       Organization(id: result.organizationId, name: result.name),
     ]);
     await _refresh();
-    if (!mounted) return;
+    if (!_acceptSwitch(account, epoch)) return;
     final fresh = _orgsWhere(result.organizationId);
     if (fresh != null) {
       await _switchTo(fresh);
