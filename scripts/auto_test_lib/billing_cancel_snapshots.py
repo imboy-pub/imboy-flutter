@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from auto_test_lib import acceptance
+from auto_test_lib import acceptance, acceptance_contract
 
 _CONTEXT = {'run_id', 'attempt_id', 'fixture_generation', 'device_id', 'platform',
             'backend_sha', 'owner_uid', 'tenant_id'}
@@ -158,6 +158,28 @@ def audit_billing_cancel_artifacts(root: Path, expected: Any, artifacts: Any) ->
     return result
 
 
+def _case_link_errors(frozen: dict, context: dict, key: Any) -> list:
+    """Bind a specific frozen case to this attempt without changing its oracle."""
+    if (not isinstance(key, list) or len(key) != 4 or any(
+            not isinstance(part, str) or not part.strip() for part in key)
+            or key[1] != context['platform']):
+        return ['BILLING_SNAPSHOT_CASE_KEY_INVALID']
+    baseline = acceptance_contract._case_index(frozen.get('required_cases'))
+    if baseline is None or tuple(key) not in baseline:
+        return ['BILLING_SNAPSHOT_CASE_UNKNOWN']
+    runs = frozen.get('case_event_runs')
+    if not isinstance(runs, list):
+        return ['BILLING_SNAPSHOT_CASE_ATTEMPT_MISMATCH']
+    matches = [run for run in runs if isinstance(run, dict)
+               and run.get('attempt_id') == context['attempt_id']]
+    if len(matches) != 1:
+        return ['BILLING_SNAPSHOT_CASE_ATTEMPT_MISMATCH']
+    cases = acceptance_contract._case_index(matches[0].get('required_cases'))
+    if cases is None or cases.get(tuple(key)) != baseline[tuple(key)]:
+        return ['BILLING_SNAPSHOT_CASE_ATTEMPT_MISMATCH']
+    return []
+
+
 def _attempt_device_errors(root: Path, frozen: dict, context: dict) -> list:
     """Link to pinned run/device records; does not authenticate their producer."""
     runs, bindings = frozen.get('case_event_runs'), frozen.get('runtime_bindings')
@@ -202,7 +224,7 @@ def audit_billing_cancel_set(root: Path, frozen: Any, records: Any) -> list:
         return ['BILLING_FROZEN_OBLIGATIONS_INVALID']
     indexed = {}
     for obligation in obligations:
-        if not isinstance(obligation, dict) or set(obligation) != {'id', 'context'}:
+        if not isinstance(obligation, dict) or set(obligation) != {'id', 'context', 'case_key'}:
             return ['BILLING_FROZEN_OBLIGATIONS_INVALID']
         identifier, context = obligation['id'], obligation['context']
         if (not isinstance(identifier, str) or not identifier.strip()
@@ -215,12 +237,14 @@ def audit_billing_cancel_set(root: Path, frozen: Any, records: Any) -> list:
                 return ['BILLING_FROZEN_RUNTIME_MISMATCH']
         except (KeyError, TypeError):
             return ['BILLING_FROZEN_RUNTIME_MISMATCH']
-        indexed[identifier] = context
+        indexed[identifier] = obligation
     if set(records) != set(indexed):
         return ['BILLING_SNAPSHOT_RECORDED_SET_MISMATCH']
     errors, paths = [], set()
-    for identifier, context in indexed.items():
-        link_errors = _attempt_device_errors(root, frozen, context)
+    for identifier, obligation in indexed.items():
+        context = obligation['context']
+        link_errors = _case_link_errors(frozen, context, obligation['case_key'])
+        link_errors.extend(_attempt_device_errors(root, frozen, context))
         errors.extend(link_errors)
         if link_errors:
             continue

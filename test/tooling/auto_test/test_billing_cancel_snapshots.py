@@ -32,6 +32,23 @@ def fixture():
 
 
 class BillingCancelSnapshots(unittest.TestCase):
+    def test_unrelated_attempt_cannot_supply_case_oracle(self):
+        context, _ = fixture()
+        case = dict(case_id='cancel', platform='android', profile='local',
+                    role_variant='owner', parent_acceptance_ids=['F14-A01'],
+                    seed_ids=['fn:billing:plan_list_page:004'],
+                    oracle='cancel sheet and independent audit', applicability='REQUIRED')
+        key = [case[k] for k in ('case_id', 'platform', 'profile', 'role_variant')]
+        frozen = dict(required_cases=[case], case_event_runs=[dict(
+            attempt_id=context['attempt_id'], required_cases=[dict(case, case_id='unrelated')])])
+        self.assertIn('BILLING_SNAPSHOT_CASE_ATTEMPT_MISMATCH',
+                      billing_cancel_snapshots._case_link_errors(frozen, context, key))
+        frozen['case_event_runs'][0]['required_cases'] = [copy.deepcopy(case)]
+        self.assertEqual(billing_cancel_snapshots._case_link_errors(frozen, context, key), [])
+        frozen['case_event_runs'][0]['required_cases'][0]['oracle'] = 'changed'
+        self.assertIn('BILLING_SNAPSHOT_CASE_ATTEMPT_MISMATCH',
+                      billing_cancel_snapshots._case_link_errors(frozen, context, key))
+
     def test_missing_attempt_cannot_supply_snapshots(self):
         context, _ = fixture()
         self.assertIn('BILLING_SNAPSHOT_ATTEMPT_LINK_INVALID',
@@ -65,7 +82,8 @@ class BillingCancelSnapshots(unittest.TestCase):
 
     def test_obligations_reject_runtime_drift(self):
         context, _ = fixture()
-        frozen = dict(billing_cancel_snapshots=[dict(id='cancel', context=context)],
+        frozen = dict(billing_cancel_snapshots=[dict(id='cancel', context=context,
+                      case_key=['cancel', 'android', 'local', 'owner'])],
                       run_id='different', fixture_generation=context['fixture_generation'],
                       candidates={'imboy': {'head': context['backend_sha']}})
         self.assertIn('BILLING_FROZEN_RUNTIME_MISMATCH',
