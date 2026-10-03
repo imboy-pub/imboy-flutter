@@ -252,6 +252,19 @@ class RealBackendTransport implements ReleaseTransport {
   RegisteredBackendTransport get _registered =>
       _transport ?? (throw UnsupportedError(_stubMessage));
 
+  /// Registered C2G send only; not a recipient delivery or authorization oracle.
+  Future<DeliveryReceipt> sendGroup({
+    required String messageId,
+    required String senderAlias,
+    required String groupAlias,
+    required Map<String, dynamic> body,
+  }) => _registered.sendGroup(
+    messageId: messageId,
+    senderAlias: senderAlias,
+    groupAlias: groupAlias,
+    body: body,
+  );
+
   Future<void> acknowledgeReceived(WireFrame frame) =>
       _registered.acknowledgeReceived(frame);
 

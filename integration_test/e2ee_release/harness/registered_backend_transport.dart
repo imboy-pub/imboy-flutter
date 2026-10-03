@@ -3,6 +3,7 @@ import 'dart:async';
 import '../fixture_contract.dart';
 import 'backend_transport.dart';
 import 'registered_fixture.dart';
+import 'registered_group_binding.dart';
 import 'registered_wire_binding.dart';
 import 'release_socket_session.dart';
 import 'release_wire_codec.dart';
@@ -97,19 +98,44 @@ class RegisteredBackendTransport implements ReleaseTransport {
   @override
   Future<DeliveryReceipt> send(WireFrame frame) async {
     final body = RegisteredWireBinding(fixture).prepareC2c(frame);
-    final session = _sessions[frame.senderDid];
+    return _sendBound(frame.senderDid, frame.messageId, 'C2C', body);
+  }
+
+  /// Outgoing group envelope only. Server ACK does not prove member delivery.
+  Future<DeliveryReceipt> sendGroup({
+    required String messageId,
+    required String senderAlias,
+    required String groupAlias,
+    required Map<String, dynamic> body,
+  }) async {
+    final prepared = RegisteredGroupBinding(fixture).prepare(
+      messageId: messageId,
+      senderAlias: senderAlias,
+      groupAlias: groupAlias,
+      body: body,
+    );
+    return _sendBound(senderAlias, messageId, 'C2G', prepared);
+  }
+
+  Future<DeliveryReceipt> _sendBound(
+    String alias,
+    String messageId,
+    String direction,
+    Map<String, dynamic> body,
+  ) async {
+    final session = _sessions[alias];
     if (!_started || session == null || !session.connected) {
       throw const UnconfirmedDelivery();
     }
     final request = PendingServerAck(
-      frame.senderDid,
-      frame.messageId,
-      'C2C',
+      alias,
+      messageId,
+      direction,
       _clock.elapsedMilliseconds + timeout.inMilliseconds,
       session.generation,
     );
     _acks.register(request);
-    final key = (frame.senderDid, frame.messageId);
+    final key = (alias, messageId);
     final pending = _PendingDelivery(request);
     _pending[key] = pending;
     pending.timer = Timer(timeout, () {
@@ -119,8 +145,8 @@ class RegisteredBackendTransport implements ReleaseTransport {
     try {
       session.send(body);
     } on Object {
-      _acks.disconnect(frame.senderDid, session.generation);
-      _unconfirmDevice(frame.senderDid);
+      _acks.disconnect(alias, session.generation);
+      _unconfirmDevice(alias);
     }
     return pending.result.future;
   }
