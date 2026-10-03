@@ -25,6 +25,20 @@ def load_lines(name):
 
 
 class ParseMachineEventsTest(unittest.TestCase):
+    def test_visible_success_without_done_is_still_runner_crash(self):
+        lines = ['{"type":"testDone","testID":1,"result":"success"}']
+        parsed = parse_machine_events(lines, 0)
+        self.assertEqual(parsed.test_status, 'BLOCKED')
+        self.assertEqual(parsed.reason_code, 'RUNNER_CRASH')
+
+    def test_skipped_flag_cannot_hide_a_failed_result(self):
+        lines = [
+            '{"type":"testDone","testID":1,"result":"failure",'
+            '"skipped":true}',
+            '{"type":"done","success":true}',
+        ]
+        self.assertEqual(parse_machine_events(lines, 0).test_status, 'FAIL')
+
     def test_current_reporter_skipped_success_is_not_pass(self):
         lines = [
             '{"type":"testDone","testID":1,"result":"success",'

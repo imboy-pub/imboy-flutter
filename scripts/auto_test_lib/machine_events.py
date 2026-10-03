@@ -124,6 +124,7 @@ def parse_machine_events(
     oracle_count = 0
     malformed_lines = 0
     done_event_seen = False
+    interrupted = False
     business_fail = False
     infra_fail = False
     first_failure = FirstFailure()
@@ -171,13 +172,15 @@ def parse_machine_events(
                 continue  # hidden loading pseudo-tests never count
             executed += 1
             result = event.get("result")
-            if result == "skipped":
-                skipped += 1
-            elif result in FAILED_RESULTS:
+            # test_core reports skipped tests as result=success for protocol
+            # compatibility; the separate skipped flag is authoritative.
+            if result in FAILED_RESULTS:
                 failed += 1
                 if result == "failure":
                     business_fail = True
                 record_first_failure(_as_int(event.get("testID")), None, None)
+            elif event.get("skipped") is True or result == "skipped":
+                skipped += 1
         elif etype == "print":
             message = event.get("message")
             if isinstance(message, str) and ORACLE_PRINT_RE.search(message):
@@ -201,10 +204,14 @@ def parse_machine_events(
             )
         elif etype == "done":
             done_event_seen = True
+            if event.get("success") is False:
+                failed = max(failed, 1)
+            elif "success" in event and event["success"] is None:
+                interrupted = True
         # start / suite and unknown types (e.g. type=comment) are ignored.
 
     # reason_code decision order (see Step 3 contract); statuses map from §4.1.
-    if executed == 0 and not done_event_seen:
+    if interrupted or not done_event_seen:
         reason_code = "RUNNER_CRASH"
         failure_class = "infra"
         test_status = "BLOCKED"
