@@ -757,7 +757,15 @@ def main() -> int:
     catalog_parser = sub.add_parser('catalog')
     catalog_parser.add_argument('--check', action='store_true', help='只比较，不写文件')
     catalog_parser.add_argument('--smoke', action='append', default=[], help='impact 固定 smoke target')
+    preparation_parser = sub.add_parser(
+        'acceptance-preflight', help='只读准备输入核对；不能签发产品 PASS')
+    for option in ('evidence-root', 'frozen-input', 'frozen-sha256',
+                   'acceptance-report', 'report-sha256'):
+        preparation_parser.add_argument('--' + option, required=True)
     args = parser.parse_args()
+    if args.command == 'acceptance-preflight':
+        from auto_test_lib.acceptance_preflight import run_cli
+        return run_cli(args, ROOT.parent)
     try:
         specs = load_specs()
     except ValueError as exc:
