@@ -52,6 +52,9 @@ class _StaticAdapter implements HttpClientAdapter {
 }
 
 class _DeferredMineAdapter implements HttpClientAdapter {
+  _DeferredMineAdapter({this.deferBadges = false});
+  final bool deferBadges;
+  final badges = <Completer<ResponseBody>>[];
   final requests = <Completer<ResponseBody>>[];
   @override
   Future<ResponseBody> fetch(
@@ -62,6 +65,11 @@ class _DeferredMineAdapter implements HttpClientAdapter {
     if (options.path.endsWith('/organizations/mine')) {
       final result = Completer<ResponseBody>();
       requests.add(result);
+      return result.future;
+    }
+    if (deferBadges && options.path.endsWith('/invitations/mine')) {
+      final result = Completer<ResponseBody>();
+      badges.add(result);
       return result.future;
     }
     return Future.value(response(<dynamic>[]));
@@ -160,6 +168,46 @@ void main() {
     expect(find.text('新组织事实'), findsOneWidget);
     expect(find.text('过时组织事实'), findsNothing);
     expect(OrganizationCache.forAccount('1001').org('7001')?.name, '新组织事实');
+  });
+
+  testWidgets('旧邀请角标响应不得覆盖更新的计数', (tester) async {
+    final adapter = _DeferredMineAdapter(deferBadges: true);
+    HttpClient.adapterForTest = adapter;
+    await tester.pumpWidget(buildHost());
+    for (var i = 0; i < 30 && adapter.requests.isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 1);
+    adapter.complete(0, '组织');
+    for (var i = 0; i < 30 && adapter.badges.isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.badges.length, 1);
+    final refreshing = tester
+        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+        .onRefresh();
+    for (var i = 0; i < 30 && adapter.requests.length < 2; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 2);
+    adapter.complete(1, '组织');
+    for (var i = 0; i < 30 && adapter.badges.length < 2; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.badges.length, 2);
+    adapter.badges[1].complete(
+      adapter.response({
+        'list': [
+          {'invitation_id': 8001},
+        ],
+      }),
+    );
+    await pumpUntilFound(tester, find.text('1'));
+    adapter.badges[0].complete(adapter.response({'list': <dynamic>[]}));
+    await tester.pumpAndSettle();
+    await refreshing;
+    expect(tester.widget<Badge>(find.byType(Badge)).isLabelVisible, isTrue);
+    expect(find.text('1'), findsOneWidget);
   });
 
   testWidgets('空态：未加入任何组织时展示引导文案', (tester) async {

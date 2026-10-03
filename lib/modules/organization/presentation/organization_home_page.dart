@@ -39,6 +39,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   List<Organization> _orgs = const [];
   bool _loading = false;
   int _refreshGeneration = 0;
+  int _invitationGeneration = 0;
   String? _error;
 
   /// 待处理邀请数（P1 触达角标；服务端 target 视角 pending 列表长度）。
@@ -150,14 +151,15 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
 
   /// 只重算触达角标（不闪组织列表 loading）。
   Future<void> _refreshPendingInvites() async {
+    final generation = ++_invitationGeneration;
     try {
       final invites = await _api.myInvitations(status: 'pending');
-      if (!mounted) return;
+      if (!mounted || generation != _invitationGeneration) return;
       setState(() {
         _pendingInvites = invites.length;
       });
     } on Object {
-      if (!mounted) return;
+      if (!mounted || generation != _invitationGeneration) return;
       setState(() {
         _pendingInvites = 0;
       });
