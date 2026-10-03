@@ -441,7 +441,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         _passwordController.text.isNotEmpty &&
         _backupInfo != null &&
         !_isImporting &&
-        !_isCloudRestoring;
+        !_isCloudRestoring &&
+        !_isCloudRestorePromptOpen;
 
     return SizedBox(
       width: double.infinity,
@@ -711,6 +712,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     if (!mounted ||
         _isImporting ||
         _isCloudRestoring ||
+        _isCloudRestorePromptOpen ||
         _selectedFile == null ||
         _backupInfo == null) {
       return;

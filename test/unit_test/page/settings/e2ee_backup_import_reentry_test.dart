@@ -83,6 +83,29 @@ Future<void> _finish(WidgetTester tester, _ImportProbe probe) async {
 }
 
 void main() {
+  testWidgets('云端确认期间阻止缓存的本地导入回调，取消后可导入', (tester) async {
+    final local = _ImportProbe(), cloud = _ImportProbe();
+    final localAction = await _prepare(tester, local, cloud: cloud);
+    _cloudAction(tester)();
+    localAction();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    final callsDuringPrompt = local.pending.length;
+    await _finish(tester, local);
+    await _cancelCloudPrompts(tester);
+    final reopenedAction = tester
+        .widget<CupertinoButton>(
+          find.widgetWithText(CupertinoButton, t.common.e2eeBackupImportBtn),
+        )
+        .onPressed;
+    expect(reopenedAction, isNotNull);
+    reopenedAction!();
+    await _finish(tester, local);
+    expect(callsDuringPrompt, 0);
+    expect(local.pending.length, 1);
+    expect(cloud.pending, isEmpty);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('同一帧重复云端恢复只打开一个确认框', (tester) async {
     final local = _ImportProbe(), cloud = _ImportProbe();
     await _prepare(tester, local, cloud: cloud);
