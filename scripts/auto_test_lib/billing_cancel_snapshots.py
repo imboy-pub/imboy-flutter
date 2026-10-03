@@ -5,7 +5,10 @@ independent complete request/database audit evidence remains mandatory.
 """
 import re
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any
+
+from auto_test_lib import acceptance
 
 _CONTEXT = {'run_id', 'attempt_id', 'fixture_generation', 'device_id', 'platform',
             'backend_sha', 'owner_uid', 'tenant_id'}
@@ -121,4 +124,35 @@ def audit_billing_cancel_snapshots(expected: Any, before: Any, after: Any) -> di
             result['errors'].append('BILLING_STATE_CHANGED')
         else:
             result['state_unchanged'] = True
+    return result
+
+
+def audit_billing_cancel_artifacts(root: Path, expected: Any, artifacts: Any) -> dict:
+    """Load caller-pinned before/after bytes using existing bounded safe reader.
+
+    Pin descriptors independently of the report. Hash integrity does not prove
+    collection completeness, timing, authenticity or absence of transient writes.
+    Distinct paths are required; identical content is expected for unchanged state.
+    """
+    result = {'scope': 'BILLING_SNAPSHOT_ARTIFACT_STATE_ONLY', 'errors': [],
+              'state_unchanged': False, 'zero_write_proven': False, 'product_pass': False}
+    if not _context_valid(expected):
+        result['errors'] = ['BILLING_EXPECTED_CONTEXT_INVALID']
+        return result
+    if not isinstance(artifacts, dict) or set(artifacts) != {'before', 'after'}:
+        result['errors'] = ['BILLING_SNAPSHOT_ARTIFACT_SET_INVALID']
+        return result
+    descriptors = list(artifacts.values())
+    if all(isinstance(item, dict) for item in descriptors) and (
+            descriptors[0].get('path') == descriptors[1].get('path')):
+        result['errors'] = ['BILLING_SNAPSHOT_CAPTURE_PATH_REUSED']
+        return result
+    snapshots = {}
+    for stage in ('before', 'after'):
+        snapshots[stage], errors = acceptance.load_frozen_json(root, artifacts[stage])
+        result['errors'].extend(stage + ':' + error for error in errors)
+    if not result['errors']:
+        result.update(audit_billing_cancel_snapshots(
+            expected, snapshots['before'], snapshots['after']))
+        result['scope'] = 'BILLING_SNAPSHOT_ARTIFACT_STATE_ONLY'
     return result

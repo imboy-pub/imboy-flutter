@@ -1,12 +1,16 @@
 """Synthetic snapshot calibration; never a real zero-write proof."""
 import copy
+import hashlib
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from auto_test_lib.billing_cancel_snapshots import audit_billing_cancel_snapshots
+from auto_test_lib import billing_cancel_snapshots
 
 
 def fixture():
@@ -28,6 +32,36 @@ def fixture():
 
 
 class BillingCancelSnapshots(unittest.TestCase):
+    def test_pinned_artifacts_compare_complete_rows(self):
+        context, snapshot = fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            data = json.dumps(snapshot).encode()
+            descriptors = {}
+            for stage in ('before', 'after'):
+                name = stage + '.json'
+                (root / name).write_bytes(data)
+                descriptors[stage] = dict(path=name, sha256=hashlib.sha256(data).hexdigest())
+            result = billing_cancel_snapshots.audit_billing_cancel_artifacts(
+                root, context, descriptors)
+            self.assertTrue(result['state_unchanged'])
+            self.assertFalse(result['zero_write_proven'])
+            self.assertFalse(result['product_pass'])
+            (root / 'after.json').write_text('{}')
+            result = billing_cancel_snapshots.audit_billing_cancel_artifacts(
+                root, context, descriptors)
+            self.assertFalse(result['state_unchanged'])
+            self.assertTrue(result['errors'])
+
+    def test_artifact_gate_rejects_missing_or_reused_capture(self):
+        context, _ = fixture()
+        descriptor = dict(path='same.json', sha256='a' * 64)
+        for records in ({}, {'before': descriptor, 'after': descriptor}):
+            result = billing_cancel_snapshots.audit_billing_cancel_artifacts(
+                Path('.'), context, records)
+            self.assertFalse(result['state_unchanged'])
+            self.assertTrue(result['errors'])
+
     def test_unchanged_does_not_prove_zero_write(self):
         context, snapshot = fixture()
         result = audit_billing_cancel_snapshots(context, snapshot, copy.deepcopy(snapshot))
