@@ -134,6 +134,11 @@ class MegolmProtocol implements E2eeSessionProtocol {
       rethrow;
     } on CryptoStoreUnavailableException {
       rethrow;
+    } on StateError {
+      // AC-18：群解密前的恢复授权区间校验（historical_room_key_scope_denied）
+      // 只经 StateError 抛出——保留可观测 reason，不折成笼统 decrypt_error，
+      // 否则"越权历史解密被拒"与"密文损坏"在失败分类上不可区分。
+      throw const E2eeDecryptException('historical_room_key_scope_denied');
     } catch (_) {
       throw const E2eeDecryptException('decrypt_error');
     }
