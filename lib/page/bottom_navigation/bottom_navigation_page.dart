@@ -35,7 +35,7 @@ int normalizeIndex(int value, int tabCount) {
 /// 从路由 query 参数解析初始 tab 下标（越界/非法值归一到合法范围）。
 ///
 /// 独立为纯函数以便单测覆盖「路由参数指定初始标签」与「越界归一化」，
-/// Android 真机深链经 Splash 重定向后 query 丢失，该链路不可达。
+/// 登录守卫保留个人标签 query；系统深链与冷启动链路仍需真机验收。
 @visibleForTesting
 int resolveInitialIndex(
   Map<String, String> queryParameters,

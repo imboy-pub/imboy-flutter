@@ -5,6 +5,7 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/router/app_router.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _target = '/organization/995101/member/995012?tab=workspaces#membership';
@@ -112,4 +113,25 @@ void main() {
     expect(await _redirect(tester, router, '/bottom_navigation'), target);
     expect(await _redirect(tester, router, target), isNull);
   });
+  for (final landing in ['/bottom_navigation', '/web_shell', '/chat_shell']) {
+    for (final entry in {'2': 2, '99': 99, '-1': -1, 'invalid': 0}.entries) {
+      testWidgets('个人深链 index=${entry.key} 经 $landing 一次恢复并归一', (tester) async {
+        final router = await _setup(tester);
+        final target = '/bottom_navigation?index=${entry.key}#synthetic-tab';
+        expect(await _redirect(tester, router, target), '/sign_in');
+        await _login();
+        final restored = await _redirect(tester, router, landing);
+        expect(restored, target);
+        for (final tabs in [3, 4]) {
+          final expected = entry.value.clamp(0, tabs - 1);
+          expect(
+            resolveInitialIndex(Uri.parse(restored!).queryParameters, tabs),
+            expected,
+          );
+        }
+        expect(await _redirect(tester, router, target), isNull);
+        expect(await _redirect(tester, router, landing), isNull);
+      });
+    }
+  }
 }

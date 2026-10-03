@@ -30,7 +30,7 @@ class _Navigation extends BottomNavigationNotifier {
 ///     newFriendRemindProvider 默认 Set）
 ///   2. **类型契约**（const widget / ConsumerStatefulWidget / 无构造参数）
 ///   3. **resolveInitialIndex / normalizeIndex 纯函数**（路由 query 解析 + 越界归一化；
-///      deep link ?index=N 经 Splash 重定向后 query 丢失，真机不可达，单测固化契约）
+///      登录守卫保留 ?index=N；系统深链与冷启动仍需真机验证）
 ///
 /// 不测 changeIndex（依赖 WebSocketService 单例链）/ 完整 widget tree（4 子页副作用）。
 void main() {
