@@ -5,7 +5,7 @@ import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 import 'backend_transport.dart';
 import 'registered_fixture.dart';
 
-/// Validates one C2C device envelope against registered IDs before WS send.
+/// Validates the complete registered C2C device envelope set against registered IDs before WS send.
 /// Hash/context checks do not authenticate ciphertext or prove key ownership.
 class RegisteredWireBinding {
   const RegisteredWireBinding(this.fixture);
@@ -27,20 +27,7 @@ class RegisteredWireBinding {
         e2ee['fan_out'] != 'per_device') {
       throw const FormatException('unsupported registered envelope');
     }
-    final devices = e2ee['devices'];
-    if (devices is! Map<String, dynamic> || devices.length != 1) {
-      throw const FormatException('expected one recipient envelope');
-    }
-    final envelope = devices[recipient.did];
-    if (envelope is! Map<String, dynamic>) {
-      throw const FormatException('recipient DID not registered');
-    }
-    final header = _verifyContext(
-      {'meta_version': 3, ...envelope},
-      frame,
-      sender,
-      recipient,
-    );
+    final header = _verifyDevices(e2ee, frame, sender, recipient);
     final action = header['action'] == 'message' ? '' : header['action'];
     _checkExisting(body, 'from', int.parse(sender.accountId));
     _checkExisting(body, 'to', int.parse(recipient.accountId));
@@ -53,6 +40,61 @@ class RegisteredWireBinding {
     body['action'] = action;
     body['created_at'] = header['created_at_ms'];
     return body;
+  }
+
+  Map<String, dynamic> _verifyDevices(
+    Map<String, dynamic> e2ee,
+    WireFrame frame,
+    RegisteredDevice sender,
+    RegisteredDevice recipient,
+  ) {
+    final expected = _expectedDids(sender, recipient);
+    final devices = e2ee['devices'];
+    final skipped = e2ee['skipped_devices'];
+    if (devices is! Map<String, dynamic> ||
+        devices.length != expected.length ||
+        devices.keys.any((did) => !expected.contains(did)) ||
+        (skipped != null && (skipped is! Map || skipped.isNotEmpty))) {
+      throw const FormatException('incomplete registered fanout');
+    }
+    Map<String, dynamic>? common;
+    for (final envelope in devices.values) {
+      if (envelope is! Map<String, dynamic>) {
+        throw const FormatException('invalid device envelope');
+      }
+      final header = _verifyContext(
+        {'meta_version': 3, ...envelope},
+        frame,
+        sender,
+        recipient,
+      );
+      if (common != null &&
+          [
+            'message_type',
+            'action',
+            'created_at_ms',
+          ].any((key) => header[key] != common![key])) {
+        throw const FormatException('inconsistent fanout context');
+      }
+      common = header;
+    }
+    if (common == null) throw const FormatException('empty fanout');
+    return common;
+  }
+
+  Set<String> _expectedDids(
+    RegisteredDevice sender,
+    RegisteredDevice recipient,
+  ) {
+    return fixture.devices.values
+        .where(
+          (device) =>
+              device.accountAlias == recipient.accountAlias ||
+              (device.accountAlias == sender.accountAlias &&
+                  device.did != sender.did),
+        )
+        .map((device) => device.did)
+        .toSet();
   }
 
   RegisteredDevice _device(String alias, String owner) {
