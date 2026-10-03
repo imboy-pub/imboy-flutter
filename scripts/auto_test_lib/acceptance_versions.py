@@ -1,6 +1,7 @@
 """Pinned plan input bytes only; semantic agreement and live drift are separate."""
 from pathlib import Path
 from typing import Any, List
+import re
 
 from auto_test_lib import acceptance
 
@@ -34,6 +35,33 @@ def audit_version_inputs(root: Path, frozen: Any, observed: Any) -> List[str]:
         paths.add(path)
         hashes.add(digest)
         errors.extend(acceptance.validate_artifact_files(root, [descriptor]))
+    return errors
+
+
+def audit_version_document_links(root: Path, frozen: Any) -> List[str]:
+    """Bind the document's component references to independently pinned bytes."""
+    if not isinstance(frozen, dict) or not isinstance(frozen.get('version_inputs'), dict):
+        return ['VERSION_DOCUMENT_LINKS_INVALID']
+    inputs = frozen['version_inputs']
+    document, errors = acceptance.load_frozen_json(root, inputs.get('acceptance_set'))
+    if errors:
+        return errors
+    if not isinstance(document, dict):
+        return ['VERSION_DOCUMENT_LINKS_INVALID']
+    links = {'product_plan': 'plan_sha256', 'execution_contract': 'execution_contract_sha256',
+             'dispatch_cards': 'dispatch_cards_sha256', 'coverage_seed': 'seed_sha256',
+             'input_manifest': 'input_manifest_sha256'}
+    for role, field in links.items():
+        descriptor = inputs.get(role)
+        digest = descriptor.get('sha256') if isinstance(descriptor, dict) else None
+        if (not isinstance(digest, str) or not re.fullmatch(r'[0-9a-f]{64}', digest)
+                or document.get(field) != digest):
+            errors.append('VERSION_DOCUMENT_COMPONENT_MISMATCH:' + role)
+    upstream, descriptor = document.get('upstream'), inputs.get('e2ee_plan')
+    digest = descriptor.get('sha256') if isinstance(descriptor, dict) else None
+    if (not isinstance(upstream, dict) or not isinstance(digest, str)
+            or not re.fullmatch(r'[0-9a-f]{64}', digest) or upstream.get('sha256') != digest):
+        errors.append('VERSION_DOCUMENT_UPSTREAM_MISMATCH')
     return errors
 
 

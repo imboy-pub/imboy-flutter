@@ -9,6 +9,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
 from auto_test_lib.acceptance_versions import (
     audit_version_inputs, audit_version_acceptance_set, audit_dispatch_acceptance_set,
+    audit_version_document_links,
 )
 
 
@@ -107,6 +108,29 @@ class VersionInputsTests(unittest.TestCase):
             self.root, self.dispatch_input([card, card])))
         self.assertIn('DISPATCH_INPUT_INVALID', audit_dispatch_acceptance_set(
             self.root, self.dispatch_input([])))
+
+    def linked_document(self, document):
+        raw = json.dumps(document).encode()
+        (self.root / 'acceptance_set').write_bytes(raw)
+        self.frozen['acceptance_set'] = dict(path='acceptance_set', sha256=hashlib.sha256(raw).hexdigest())
+        return {'version_inputs': self.frozen}
+
+    def test_document_component_references_match_pinned_artifacts(self):
+        links = {'product_plan': 'plan_sha256', 'execution_contract': 'execution_contract_sha256',
+                 'dispatch_cards': 'dispatch_cards_sha256', 'coverage_seed': 'seed_sha256',
+                 'input_manifest': 'input_manifest_sha256'}
+        document = {field: self.frozen[role]['sha256'] for role, field in links.items()}
+        document['upstream'] = {'sha256': self.frozen['e2ee_plan']['sha256']}
+        self.assertEqual([], audit_version_document_links(self.root, self.linked_document(document)))
+        for role, field in links.items():
+            old = document[field]
+            document[field] = '0' * 64
+            self.assertIn('VERSION_DOCUMENT_COMPONENT_MISMATCH:' + role,
+                          audit_version_document_links(self.root, self.linked_document(document)))
+            document[field] = old
+        document['upstream'] = None
+        self.assertIn('VERSION_DOCUMENT_UPSTREAM_MISMATCH',
+                      audit_version_document_links(self.root, self.linked_document(document)))
 
 
 if __name__ == '__main__':

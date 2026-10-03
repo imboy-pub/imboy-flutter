@@ -138,7 +138,7 @@ class PreflightTests(unittest.TestCase):
                 self.root, self.descriptor('frozen.json', self.frozen),
                 self.descriptor('report.json', self.report), {})
 
-    def prepare_event_run(self):
+    def prepare_version_inputs(self):
         self.frozen['version_inputs'] = {
             role: self.descriptor(role + '.snapshot',
                 {'acceptance_ids': self.frozen['acceptance_ids']} if role == 'acceptance_set'
@@ -148,6 +148,19 @@ class PreflightTests(unittest.TestCase):
             for role in ('product_plan', 'e2ee_plan', 'execution_contract', 'dispatch_cards',
                          'acceptance_set', 'coverage_seed', 'input_manifest')}
         self.report['version_inputs'] = copy.deepcopy(self.frozen['version_inputs'])
+        links = {'product_plan': 'plan_sha256', 'execution_contract': 'execution_contract_sha256',
+                 'dispatch_cards': 'dispatch_cards_sha256', 'coverage_seed': 'seed_sha256',
+                 'input_manifest': 'input_manifest_sha256'}
+        snapshot = {'acceptance_ids': self.frozen['acceptance_ids']}
+        snapshot.update({field: self.frozen['version_inputs'][role]['sha256']
+                         for role, field in links.items()})
+        snapshot['upstream'] = {'sha256': self.frozen['version_inputs']['e2ee_plan']['sha256']}
+        descriptor = self.descriptor('acceptance_set.snapshot', snapshot)
+        self.frozen['version_inputs']['acceptance_set'] = descriptor
+        self.report['version_inputs']['acceptance_set'] = copy.deepcopy(descriptor)
+
+    def prepare_event_run(self):
+        self.prepare_version_inputs()
         self.frozen['defects'] = []
         self.report['defects'] = []
         self.frozen['cross_device_journeys'] = []
