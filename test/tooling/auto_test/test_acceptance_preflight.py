@@ -1,4 +1,5 @@
 """Preflight composes existing gates; it must never report product PASS."""
+import copy
 import hashlib
 import json
 import subprocess
@@ -21,9 +22,16 @@ class PreflightTests(unittest.TestCase):
                 'role_variant': 'sender', 'parent_acceptance_ids': ['F03-A01'],
                 'seed_ids': ['synthetic-seed'], 'oracle': 'synthetic only',
                 'applicability': 'REQUIRED'}
-        self.frozen = {'schema_version': 1, 'acceptance_ids': ['F03-A01'],
+        bindings = []
+        for kind in ['source', 'config', 'build', 'fixture', 'device']:
+            bindings.append({'binding_id': kind, 'kind': kind,
+                             'artifact': self.descriptor(kind, {'synthetic': kind})})
+        self.frozen = {'schema_version': 2, 'acceptance_ids': ['F03-A01'],
+                       'runtime_bindings': bindings,
+                       'required_runtime_binding_ids': [r['binding_id'] for r in bindings],
                        'required_cases': [case], 'candidates': {}}
-        self.report = {'required_cases': [case], 'candidates': {}}
+        self.report = {'required_cases': [case], 'candidates': {},
+                       'runtime_bindings': copy.deepcopy(bindings)}
 
     def descriptor(self, path, value):
         data = json.dumps(value).encode()
@@ -56,6 +64,22 @@ class PreflightTests(unittest.TestCase):
         self.report['required_cases'] = []
         result, _ = self.audit()
         self.assertTrue(result['errors'])
+
+    def test_legacy_schema_cannot_bypass_runtime_bindings(self):
+        self.frozen['schema_version'] = 1
+        self.assertIn('PREPARATION_INPUT_SCHEMA_INVALID', self.audit()[0]['errors'])
+
+    def test_missing_or_changed_runtime_binding_fails_composition(self):
+        self.report['runtime_bindings'].pop()
+        self.assertIn('RUNTIME_BINDING_MISSING', self.audit()[0]['errors'])
+        self.report['runtime_bindings'] = copy.deepcopy(self.frozen['runtime_bindings'])
+        self.report['runtime_bindings'][2]['artifact']['sha256'] = '0' * 64
+        self.assertIn('FROZEN_RUNTIME_BINDING_CHANGED', self.audit()[0]['errors'])
+
+    def test_actual_runtime_file_drift_fails_composition(self):
+        (self.root / 'config').write_text('modified synthetic config')
+        self.assertTrue(any('HASH_MISMATCH' in error
+                            for error in self.audit()[0]['errors']))
 
     def test_non_object_schema_rejected(self):
         self.frozen = []

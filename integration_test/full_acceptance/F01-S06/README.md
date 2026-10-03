@@ -40,3 +40,21 @@
 result.py `INFRA_RETRY_LIMIT=3`（3 连 infra 耗尽），而执行合同第 5 节写
 "原尝试+最多 2 次"重试预算——两者粒度不同（一个是分类器判定阈值，一个是
 重试预算），实现验证器时须确认口径，避免把合同预算误当分类器阈值。
+
+## 已实现的准备入口
+
+`scripts/auto_test.py acceptance-preflight` 是只读准备检查，不是最终验证器。
+冻结描述文件必须使用整数 `schema_version: 2`，包含 `acceptance_ids`、
+`required_cases`、三仓 `candidates`、`required_runtime_binding_ids` 和
+`runtime_bindings`。报告必须给出对应的 case、candidate 和 runtime bindings。
+第1版描述文件现在返回错误，不能沿用其历史成功记录。
+
+每条 binding 包含唯一 `binding_id`、`kind` 和 `artifact`；后者为证据根内
+相对 `path` 与64位小写 `sha256`。source、config、build、fixture、device
+五类缺一即失败。冻结集合及其哈希必须由协调者独立提供；入口比对完整记录，
+重算实际文件哈希，拒绝删项、改指纹、重复文件、越界路径和符号链接。
+
+该门仅证明已列文件及绑定结构一致，不证明设备真实存在、运行配置真实生效、
+源码枚举完整或业务通过。成功退出仍输出 `PREPARATION_INPUTS_ONLY` 和
+`product_pass: false`；失败退出码为2。完整 §6 坏样本、真实旅程、attempt
+审计、上游资格与用户UX评审仍是未闭合的最终门。

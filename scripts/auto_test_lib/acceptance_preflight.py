@@ -2,10 +2,10 @@
 from pathlib import Path
 from typing import Any, Dict
 
-from auto_test_lib import acceptance, acceptance_contract
+from auto_test_lib import acceptance, acceptance_bindings, acceptance_contract
 
 _REMAINING = [
-    'source/config/build/fixture/device binding',
+    'complete source set and authentic runtime/config/build/fixture/device observations',
     'plan/dispatch/seed/page/API coverage closure',
     'raw case events, real business oracles and complete attempts journal',
     'upstream qualification, independent final review and user UX approval',
@@ -32,7 +32,7 @@ def audit_preparation_inputs(
         return result
     if (not isinstance(frozen, dict) or not isinstance(report, dict)
             or type(frozen.get('schema_version')) is not int
-            or frozen['schema_version'] != 1):
+            or frozen['schema_version'] != 2):
         result['errors'].append('PREPARATION_INPUT_SCHEMA_INVALID')
         return result
     result['errors'].extend(acceptance_contract.validate_required_case_set(
@@ -40,6 +40,9 @@ def audit_preparation_inputs(
         frozen.get('acceptance_ids')))
     result['errors'].extend(acceptance_contract.audit_candidate_repositories(
         repository_paths, frozen.get('candidates'), report.get('candidates')))
+    result['errors'].extend(acceptance_bindings.audit_runtime_binding_files(
+        root, frozen.get('runtime_bindings'), report.get('runtime_bindings'),
+        frozen.get('required_runtime_binding_ids')))
     return result
 
 
