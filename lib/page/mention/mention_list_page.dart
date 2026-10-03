@@ -339,10 +339,15 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
   }
 
   String _formatTime(dynamic timestamp) {
-    if (timestamp == null) return '';
-    final dt = DateTime.fromMillisecondsSinceEpoch(
-      timestamp is int ? timestamp : int.parse(timestamp.toString()) * 1000,
-    );
+    final value = timestamp is int
+        ? timestamp
+        : timestamp is String
+        ? int.tryParse(timestamp)
+        : null;
+    if (value == null || value <= 0) return '';
+    final millis = value > 1000000000000 ? value : value * 1000;
+    if (millis > 8640000000000000) return '';
+    final dt = DateTime.fromMillisecondsSinceEpoch(millis);
     final now = DateTime.now();
     final diff = now.difference(dt);
 
