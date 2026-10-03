@@ -37,6 +37,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
   /// 用户以为没人 @ 过自己。
   bool _loadFailed = false;
   int _page = 1;
+  int _listGeneration = 0;
   bool _hasMore = true;
   StreamSubscription<dynamic>? _mentionSub;
   final ScrollController _scrollController = ScrollController();
@@ -70,7 +71,8 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
   }
 
   Future<void> _loadMoreMentions() async {
-    if (!_hasMore || _isLoadingMore) return;
+    if (!_hasMore || _isLoading || _isLoadingMore) return;
+    final generation = _listGeneration;
     setState(() => _isLoadingMore = true);
 
     final nextPage = _page + 1;
@@ -80,7 +82,7 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
       groupId: widget.groupId,
     );
 
-    if (!mounted) return;
+    if (!mounted || generation != _listGeneration) return;
     setState(() {
       if (result != null) {
         _page = nextPage;
@@ -93,29 +95,29 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
   }
 
   Future<void> _loadMentions({bool refresh = false}) async {
-    if (refresh) {
-      _page = 1;
-      _hasMore = true;
-    }
-
-    setState(() => _isLoading = true);
+    final generation = ++_listGeneration;
+    final requestedPage = refresh ? 1 : _page;
+    setState(() {
+      _isLoading = true;
+      _isLoadingMore = false;
+    });
 
     final result = await MentionService.to.getMentions(
-      page: _page,
+      page: requestedPage,
       size: 20,
       groupId: widget.groupId,
     );
 
-    if (mounted) {
+    if (mounted && generation == _listGeneration) {
       setState(() {
         if (result != null) {
           _loadFailed = false;
           final items = result['items'] as List? ?? [];
-          if (refresh) {
-            _mentions = items.cast<Map<String, dynamic>>();
-          } else {
-            _mentions.addAll(items.cast<Map<String, dynamic>>());
-          }
+          _page = requestedPage;
+          _mentions = [
+            if (!refresh) ..._mentions,
+            ...items.cast<Map<String, dynamic>>(),
+          ];
           _hasMore = items.length >= 20;
         } else {
           // 失败信号不再丢弃：仅在无已有数据时呈现失败态，
