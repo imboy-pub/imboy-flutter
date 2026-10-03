@@ -56,6 +56,15 @@ def _make_synthetic_root(base: Path) -> Path:
 
 
 class FunctionTargetDeclarationTest(unittest.TestCase):
+    def test_declared_oracle_with_unmatched_target_is_rejected(self):
+        function = dict(function_id='fn:page:001', page='lib/page/foo.dart',
+                        test_target='integration_test/other_test.dart')
+        spec = dict(runner={'target': 'integration_test/foo_test.dart'},
+                    sources=[function['page']], function_ids=[function['function_id']],
+                    function_oracles={function['function_id']: 'cancel removes payment sheet'})
+        with self.assertRaisesRegex(ValueError, 'FUNCTION_ORACLE_TARGET_UNBOUND'):
+            inventory.constrain_function_targets([function], [spec])
+
     def test_placeholder_oracle_declaration_cannot_clear_readiness_gap(self):
         function = dict(function_id='fn:page:001', page='lib/page/foo.dart',
                         test_target='integration_test/foo_test.dart')

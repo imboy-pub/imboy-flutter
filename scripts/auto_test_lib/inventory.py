@@ -526,6 +526,7 @@ def constrain_function_targets(functions: list[dict], specs: list[dict]) -> list
     """
     restricted = _function_target_restrictions(functions, specs)
     oracles = _function_oracle_declarations(specs)
+    applied = set()
     result = []
     for function in functions:
         target = function.get('test_target')
@@ -533,10 +534,13 @@ def constrain_function_targets(functions: list[dict], specs: list[dict]) -> list
         row = {**function, 'test_target': None} if excluded else dict(function)
         oracle = oracles.get((row['test_target'], row['function_id']))
         if oracle:
+            applied.add((row['test_target'], row['function_id']))
             row['expected_oracle'] = oracle
             row['details'] = row.get('details', '').replace(
                 GENERATED_ORACLE_FLAG, 'DECLARED_ORACLE_NOT_EXECUTED')
         result.append(row)
+    if applied != set(oracles):
+        raise ValueError('FUNCTION_ORACLE_TARGET_UNBOUND')
     return result
 
 
