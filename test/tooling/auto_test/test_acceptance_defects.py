@@ -82,6 +82,20 @@ class DefectRecordsTests(unittest.TestCase):
         errors = audit_defect_records(self.root, self.frozen, report)
         self.assertTrue(any('ARTIFACT_HASH_MISMATCH' in e for e in errors))
 
+    def test_matching_invalid_candidate_values_cannot_close_defect(self):
+        for value in (None, '', '0' * 40, 'not-a-commit', 123, True):
+            with self.subTest(value=value):
+                self.frozen['candidates']['imboyapp']['head'] = value
+                self.closure['candidate_sha'] = value
+                self.assertIn('DEFECT_CLOSURE_CANDIDATE_INVALID', audit_defect_records(
+                    self.root, self.frozen, self.report()))
+
+    def test_unknown_repository_cannot_close_defect(self):
+        self.frozen['candidates']['unknown'] = {'head': 'a' * 40}
+        self.closure['repository'] = 'unknown'
+        self.assertIn('DEFECT_CLOSURE_CANDIDATE_INVALID', audit_defect_records(
+            self.root, self.frozen, self.report()))
+
 
 if __name__ == '__main__':
     unittest.main()

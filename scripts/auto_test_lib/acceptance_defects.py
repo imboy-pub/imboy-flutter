@@ -1,6 +1,7 @@
 """Frozen defect closure records only; never certify discovery completeness."""
 from pathlib import Path
 from typing import Any, List
+import re
 
 from auto_test_lib import acceptance, acceptance_contract
 
@@ -27,7 +28,12 @@ def _closure_errors(root: Path, defect: dict, observed: dict, frozen: dict) -> L
     if not isinstance(closure, dict) or closure.get('defect_id') != defect['defect_id']:
         return ['DEFECT_CLOSURE_ID_MISMATCH']
     try:
+        if closure.get('repository') not in ('imboy', 'imboyapp', 'imboyadmin'):
+            return ['DEFECT_CLOSURE_CANDIDATE_INVALID']
         candidate = frozen['candidates'][closure['repository']]['head']
+        if (not isinstance(candidate, str) or not re.fullmatch(r'[0-9a-f]{40}', candidate)
+                or candidate == '0' * 40):
+            return ['DEFECT_CLOSURE_CANDIDATE_INVALID']
         if closure.get('candidate_sha') != candidate:
             return ['DEFECT_CLOSURE_CANDIDATE_MISMATCH']
         key = closure['case_key']
