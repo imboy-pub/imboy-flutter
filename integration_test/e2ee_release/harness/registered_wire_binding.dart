@@ -13,7 +13,7 @@ class RegisteredWireBinding {
 
   Map<String, dynamic> prepareC2c(WireFrame frame) {
     final sender = _device(frame.senderDid, frame.senderUid);
-    final recipient = _device(frame.recipientDid, frame.recipientUid);
+    final recipient = _logicalRecipient(frame, sender);
     // Snapshot before validation; caller mutation cannot alter checked bytes.
     final body = jsonDecode(jsonEncode(frame.body)) as Map<String, dynamic>;
     if (body['id'] != frame.messageId ||
@@ -95,6 +95,21 @@ class RegisteredWireBinding {
         )
         .map((device) => device.did)
         .toSet();
+  }
+
+  RegisteredDevice _logicalRecipient(WireFrame frame, RegisteredDevice sender) {
+    final peers = fixture.devices.values.where(
+      (device) => device.accountAlias == frame.recipientUid,
+    );
+    final receiver = fixture.devices[frame.recipientDid];
+    if (peers.isEmpty ||
+        receiver == null ||
+        receiver.did == sender.did ||
+        (receiver.accountAlias != frame.recipientUid &&
+            receiver.accountAlias != sender.accountAlias)) {
+      throw const FormatException('wire recipient ownership mismatch');
+    }
+    return peers.first;
   }
 
   RegisteredDevice _device(String alias, String owner) {

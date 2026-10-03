@@ -144,7 +144,9 @@ class RegisteredBackendTransport implements ReleaseTransport {
       return;
     }
     if (message['type'] != 'C2C') return;
-    final recipient = fixture.devices[alias]!;
+    final recipients = fixture.devices.values.where(
+      (device) => device.accountId == message['to']?.toString(),
+    );
     final sender = fixture.devices.values
         .where(
           (device) =>
@@ -152,15 +154,14 @@ class RegisteredBackendTransport implements ReleaseTransport {
               device.accountId == message['from']?.toString(),
         )
         .single;
-    if (message['to']?.toString() != recipient.accountId ||
-        message['id'] is! String) {
+    if (recipients.isEmpty || message['id'] is! String) {
       throw const FormatException('inbound recipient mismatch');
     }
     final wire = WireFrame(
       messageId: message['id'] as String,
       senderUid: sender.accountAlias,
       senderDid: sender.alias,
-      recipientUid: recipient.accountAlias,
+      recipientUid: recipients.first.accountAlias,
       recipientDid: alias,
       body: message,
     );
