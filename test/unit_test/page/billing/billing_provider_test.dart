@@ -163,6 +163,21 @@ class _FakeLauncher extends PaymentLauncher {
   }
 }
 
+class _DeferredLauncher extends _FakeLauncher {
+  _DeferredLauncher() : super(PaymentLaunchResult.success);
+  final reached = Completer<void>();
+  final response = Completer<PaymentLaunchResult>();
+  @override
+  Future<PaymentLaunchResult> launch(
+    String method,
+    Map<dynamic, dynamic>? params,
+  ) {
+    launchCalls.add(method);
+    reached.complete();
+    return response.future;
+  }
+}
+
 class _DeferredSubscribeApi extends _FakeBillingApi {
   final request = Completer<int?>();
   @override
@@ -393,6 +408,30 @@ void main() {
           fake.payCalls.length,
           fake.subscriptionCalls,
         ], before);
+      });
+    }
+
+    for (final result in PaymentLaunchResult.values) {
+      test('收银台回调 $result 返回前销毁不得轮询或更新状态', () async {
+        final fake = _FakeBillingApi(
+          subscribeResult: 9001,
+          invoicesResult: [_inv('INV-1', BillingInvoiceStatus.unpaid)],
+          payResult: const <String, dynamic>{},
+        );
+        final launcher = _DeferredLauncher();
+        final container = _containerWith(fake, launcher: launcher);
+        final pending = container
+            .read(billingProvider.notifier)
+            .subscribePlan(_plan(), paymentMethod: 'alipay');
+        await launcher.reached.future.timeout(const Duration(seconds: 2));
+        expect(launcher.launchCalls, ['alipay']);
+        expect(fake.listCalls, [9001]);
+        container.dispose();
+        launcher.response.complete(result);
+        expect(await pending, isFalse);
+        expect(fake.listCalls, [9001]);
+        expect(fake.payCalls.length, 1);
+        expect(fake.subscriptionCalls, 0);
       });
     }
 
