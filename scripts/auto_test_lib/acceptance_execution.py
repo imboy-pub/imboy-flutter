@@ -6,6 +6,7 @@ from typing import Any, Dict, List
 from auto_test_lib import acceptance, acceptance_case_events, acceptance_contract
 from auto_test_lib import acceptance_preflight, acceptance_coverage, acceptance_journeys
 from auto_test_lib import acceptance_defects, acceptance_versions, acceptance_ux
+from auto_test_lib import acceptance_upstream
 
 
 def audit_case_event_runs(root: Path, frozen_cases: Any, runs: Any) -> List[str]:
@@ -108,6 +109,8 @@ def audit_execution_inputs(root: Path, frozen_descriptor: Any,
                 root, frozen, report.get('defects')))
             result['errors'].extend(acceptance_ux.audit_user_ux_records(
                 root, frozen, report.get('ux_reviews')))
+            result['errors'].extend(acceptance_upstream.audit_upstream_ledger(
+                root, frozen, report.get('upstream_acceptance_artifact')))
     return result
 
 

@@ -1,5 +1,7 @@
 """Preflight composes existing gates; it must never report product PASS."""
 import copy
+import csv
+import io
 import hashlib
 import json
 import subprocess
@@ -205,6 +207,37 @@ class PreflightTests(unittest.TestCase):
                  disposition='CASE_MAPPED', case_keys=[key])
             for row in self.frozen['coverage_inputs']]
         self.prepare_ux_review(key)
+        self.prepare_upstream_ledger()
+
+    def prepare_upstream_ledger(self):
+        from auto_test_lib.acceptance_upstream import _FIELDS
+        oracle = self.descriptor('upstream-oracle', {'synthetic': True})
+        row = dict.fromkeys(_FIELDS, 'synthetic')
+        row.update(status='PASS', exit_code='0', test_count='1',
+                   plan_sha=self.frozen['version_inputs']['e2ee_plan']['sha256'],
+                   backend_sha='a' * 40, app_sha='a' * 40, config_hash='c' * 64,
+                   evidence_path=oracle['path'], evidence_sha256=oracle['sha256'])
+        stream = io.StringIO()
+        writer = csv.DictWriter(stream, fieldnames=_FIELDS, delimiter='\t')
+        writer.writeheader()
+        writer.writerows(dict(row, id='AC-%02d' % n) for n in range(36))
+        raw = stream.getvalue().encode()
+        (self.root / 'upstream.tsv').write_bytes(raw)
+        descriptor = {'path': 'upstream.tsv', 'sha256': hashlib.sha256(raw).hexdigest()}
+        self.frozen['upstream_acceptance_artifact'] = descriptor
+        self.report['upstream_acceptance_artifact'] = copy.deepcopy(descriptor)
+
+    def test_execution_rejects_missing_or_changed_upstream_ledger(self):
+        self.prepare_event_run()
+        del self.report['upstream_acceptance_artifact']
+        self.assertIn('UPSTREAM_LEDGER_BINDING_CHANGED', self.execution_audit()['errors'])
+        self.report['upstream_acceptance_artifact'] = {'path': 'other.tsv'}
+        self.assertIn('UPSTREAM_LEDGER_BINDING_CHANGED', self.execution_audit()['errors'])
+
+    def test_execution_rejects_tampered_upstream_ledger(self):
+        self.prepare_event_run()
+        (self.root / 'upstream.tsv').write_bytes(b'changed')
+        self.assertTrue(self.execution_audit()['errors'])
 
     def prepare_ux_review(self, key):
         visual = self.descriptor('ux-visual', {'synthetic_visual': True})
