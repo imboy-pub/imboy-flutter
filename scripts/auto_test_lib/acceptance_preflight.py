@@ -2,12 +2,14 @@
 from pathlib import Path
 from typing import Any, Dict
 
-from auto_test_lib import acceptance, acceptance_bindings, acceptance_contract
+from auto_test_lib import (
+    acceptance, acceptance_attempts, acceptance_bindings, acceptance_contract,
+)
 
 _REMAINING = [
     'complete source set and authentic runtime/config/build/fixture/device observations',
     'plan/dispatch/seed/page/API coverage closure',
-    'raw case events, real business oracles and complete attempts journal',
+    'raw case events, real business oracles and independent execution journal completeness',
     'upstream qualification, independent final review and user UX approval',
 ]
 
@@ -43,6 +45,8 @@ def audit_preparation_inputs(
     result['errors'].extend(acceptance_bindings.audit_runtime_binding_files(
         root, frozen.get('runtime_bindings'), report.get('runtime_bindings'),
         frozen.get('required_runtime_binding_ids')))
+    result['errors'].extend(acceptance_attempts.validate_attempt_journal(
+        frozen.get('attempt_index'), report.get('attempts')))
     return result
 
 

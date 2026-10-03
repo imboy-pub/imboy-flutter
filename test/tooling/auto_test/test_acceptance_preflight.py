@@ -32,6 +32,14 @@ class PreflightTests(unittest.TestCase):
                        'required_cases': [case], 'candidates': {}}
         self.report = {'required_cases': [case], 'candidates': {},
                        'runtime_bindings': copy.deepcopy(bindings)}
+        attempts = [{'attempt_id': 'synthetic-red', 'exit': 1},
+                    {'attempt_id': 'synthetic-green', 'exit': 0}]
+        self.frozen['attempt_index'] = [
+            {'attempt_id': row['attempt_id'], 'record_sha256': hashlib.sha256(
+                json.dumps(row, sort_keys=True, ensure_ascii=False, allow_nan=False,
+                           separators=(',', ':')).encode()).hexdigest()}
+            for row in attempts]
+        self.report['attempts'] = attempts
 
     def descriptor(self, path, value):
         data = json.dumps(value).encode()
@@ -80,6 +88,22 @@ class PreflightTests(unittest.TestCase):
         (self.root / 'config').write_text('modified synthetic config')
         self.assertTrue(any('HASH_MISMATCH' in error
                             for error in self.audit()[0]['errors']))
+
+    def test_missing_attempt_index_or_report_cannot_bypass_gate(self):
+        index = self.frozen.pop('attempt_index')
+        self.assertIn('FROZEN_ATTEMPT_INDEX_INVALID', self.audit()[0]['errors'])
+        self.frozen['attempt_index'] = index
+        del self.report['attempts']
+        self.assertIn('ATTEMPT_JOURNAL_SCHEMA_INVALID', self.audit()[0]['errors'])
+
+    def test_discarding_failed_attempt_is_rejected(self):
+        self.report['attempts'] = self.report['attempts'][1:]
+        self.assertIn('ATTEMPT_HISTORY_MISSING_UNKNOWN_OR_REORDERED',
+                      self.audit()[0]['errors'])
+
+    def test_rewriting_failed_attempt_is_rejected(self):
+        self.report['attempts'][0]['exit'] = 0
+        self.assertIn('FROZEN_ATTEMPT_RECORD_CHANGED', self.audit()[0]['errors'])
 
     def test_non_object_schema_rejected(self):
         self.frozen = []
