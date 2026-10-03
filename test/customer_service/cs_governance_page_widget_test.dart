@@ -68,6 +68,39 @@ void main() {
       find.byKey(const ValueKey('cs-governance-scope-note')),
       findsOneWidget,
     );
+    expect(find.text('本页为组织治理面（owner/admin）；服务端 403 是最终权限裁决。'), findsOneWidget);
+    expect(find.text('启用 · 1/3 会话'), findsOneWidget);
+  });
+
+  testWidgets('恢复坐席成功：POST 后回读启用状态和容量', (tester) async {
+    final adapter = GovRouterAdapter({
+      'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
+      'GET /cs/organizations/$orgA/seats': [
+        (200, seatsPayload(seats: [seatRow(orgA, identityA, enabled: false)])),
+        (200, seatsPayload(seats: [seatRow(orgA, identityA)])),
+      ],
+      'POST /cs/organizations/$orgA/seats/$identityA/resume': [
+        (200, okEnvelope(payload: <String, dynamic>{})),
+      ],
+    });
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    await tester.pumpWidget(governanceHost(orgA));
+    await pumpUntilUxFound(tester, find.text('已停用 · 1/3 会话'));
+    await tester.tap(
+      find.byKey(const ValueKey('cs-governance-seat-action-$identityA')),
+    );
+    await pumpUntilUxFound(tester, find.text('启用 · 1/3 会话'));
+    expect(find.text('已停用 · 1/3 会话'), findsNothing);
+    expect(find.text('操作已生效'), findsOneWidget);
+    expect(
+      adapter
+          .bodies['POST /cs/organizations/$orgA/seats/$identityA/resume']!
+          .single,
+      <String, dynamic>{},
+    );
+    expect(adapter.hits.where((h) => h.endsWith('/seats')), hasLength(2));
+    expect(adapter.hits.where((h) => h.endsWith('/seat-limit')), hasLength(2));
   });
 
   testWidgets('unlimited：显示「不限」且无上限徽标', (tester) async {
