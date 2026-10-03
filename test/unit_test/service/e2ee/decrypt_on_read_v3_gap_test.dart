@@ -19,6 +19,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:imboy/config/const.dart';
@@ -242,6 +244,48 @@ void main() {
   // 该事实已由本轮接线废止（依据：`22-claude-code-execution-state.md` §1.1
   // 队列第 2 项明确要求「接线完成后同步反转结构守护断言并补正向可用性用例」）。
   // 因此断言被**反转重写**，用例本身保留。
+
+  test('读时拒绝畸形信封且日志不暴露消息标识与原始原因', () async {
+    const canary = 'synthetic-private-message-id';
+    final row = await buildV3Row();
+    final e2ee = row['e2ee'] as Map<String, dynamic>;
+    final envelope = (e2ee['devices'] as Map)[deviceId] as Map;
+    envelope['meta_version'] = canary;
+    final model = MessageModel(
+      canary,
+      autoId: 3,
+      type: 'C2C',
+      status: IMBoyMessageStatus.delivered,
+      fromId: int.parse(_senderUid),
+      toId: int.parse(_myUid),
+      payload: row['payload'],
+      isAuthor: 0,
+      conversationUk3: 'C2C_${_senderUid}_$_myUid',
+      createdAt: 1753500000000,
+      msgType: 'text',
+      action: 'message',
+      e2ee: e2ee,
+      senderDid: _senderDid,
+    );
+    final logs = <String>[];
+    final previousDebugPrint = debugPrint;
+    debugPrint = (String? message, {int? wrapWidth}) {
+      if (message != null) logs.add(message);
+    };
+    late Message message;
+    try {
+      message = await model.toTypeMessage();
+    } finally {
+      debugPrint = previousDebugPrint;
+    }
+    expect(message, isA<TextMessage>());
+    expect(message.status, MessageStatus.error);
+    expect(message.metadata?['_e2ee_failed'], isTrue);
+    expect(message.metadata?['_e2ee_reason'], contains(canary));
+    expect((message as TextMessage).text, isNot(contains(canary)));
+    expect(logs, contains('⚠️ toTypeMessage: v3 解密失败，reason=envelope_invalid'));
+    expect(logs.join('\n'), isNot(contains(canary)));
+  });
 
   group('decrypt-on-read v3 正向可用性（生产入口 toTypeMessage）', () {
     // 生产链路：MessageOfflineService._processOfflineMessages
