@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/websocket_events.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
@@ -98,6 +100,90 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_channel, null);
   });
+  for (final framing in [FramingMode.none, FramingMode.v2]) {
+    for (final stale in [false, true]) {
+      test('pending ACK retry framing=$framing stale=$stale', () async {
+        final svc = WebSocketService.to;
+        final fake = _FakeChannel();
+        svc.channelForTest = fake;
+        svc.statusForTest = SocketStatus.connected;
+        svc.framingForTest = framing;
+        final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+            .listen(svc.handleSendRequestForTest);
+        final manager = AckManager.to;
+        try {
+          manager.sendAck('C2C', '1001', overrideDeviceId: 'synthetic-device');
+          await pumpEventQueue();
+          expect(fake._sink.sent, hasLength(1));
+          final generation = UserRepoLocal.to.sessionGeneration;
+          if (stale) {
+            await expectLater(
+              UserRepoLocal.to.loginAfter('synthetic-session', {
+                'uid': '101',
+                'token': 'synthetic-token',
+                'refreshtoken': 'synthetic-refresh',
+              }),
+              throwsA(isA<PlatformException>()),
+            );
+            expect(UserRepoLocal.to.sessionGeneration, generation + 1);
+          }
+          await Future<void>.delayed(const Duration(milliseconds: 3100));
+          await pumpEventQueue();
+          expect(fake._sink.sent, hasLength(stale ? 1 : 2));
+          expect(manager.pendingCount, stale ? 0 : 1);
+        } finally {
+          await subscription.cancel();
+          manager.dispose();
+        }
+      });
+    }
+  }
+  test(
+    'same ID ACK keeps timer in session and replaces it across sessions',
+    () async {
+      final svc = WebSocketService.to;
+      final fake = _FakeChannel();
+      svc.channelForTest = fake;
+      svc.statusForTest = SocketStatus.connected;
+      final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+          .listen(svc.handleSendRequestForTest);
+      final manager = AckManager.to;
+      try {
+        void send() => manager.sendAck(
+          'C2C',
+          '1001',
+          overrideDeviceId: 'synthetic-device',
+        );
+        send();
+        await Future<void>.delayed(const Duration(milliseconds: 1600));
+        send();
+        await Future<void>.delayed(const Duration(milliseconds: 1600));
+        await pumpEventQueue();
+        expect(fake._sink.sent, hasLength(3));
+        await expectLater(
+          UserRepoLocal.to.loginAfter('synthetic-session', {
+            'uid': '101',
+            'token': 'synthetic-token',
+            'refreshtoken': 'synthetic-refresh',
+          }),
+          throwsA(isA<PlatformException>()),
+        );
+        send();
+        await pumpEventQueue();
+        expect(fake._sink.sent, hasLength(4));
+        await Future<void>.delayed(const Duration(milliseconds: 3100));
+        await pumpEventQueue();
+        expect(fake._sink.sent, hasLength(5));
+        await Future<void>.delayed(const Duration(milliseconds: 2100));
+        await pumpEventQueue();
+        expect(fake._sink.sent, hasLength(5));
+        expect(manager.pendingCount, 1);
+      } finally {
+        await subscription.cancel();
+        manager.dispose();
+      }
+    },
+  );
   for (final stale in [false, true]) {
     test('send event consumption session changed=$stale', () async {
       final svc = WebSocketService.to;

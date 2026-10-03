@@ -8,6 +8,7 @@ import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/websocket.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// ACK管理器 - 负责ACK的发送和重试
 ///
@@ -267,6 +268,7 @@ class AckManager {
   /// [msgId] 消息ID
   /// [overrideDeviceId] 可选：覆盖 deviceId（用于测试）
   void sendAck(String type, String msgId, {String? overrideDeviceId}) {
+    if (UserRepoLocal.to.isClearingSession) return;
     // 【修复 C1】检查deviceId，支持测试环境 Mock
     final effectiveDeviceId = overrideDeviceId ?? deviceId;
     if (effectiveDeviceId.isEmpty) {
@@ -288,7 +290,9 @@ class AckManager {
     // 旧实现无条件把 retryCount 重置为 0 并重建 Timer，导致重试计数永不清零、
     // _maxRetries 形同虚设，形成 ACK 重试活锁。现保留已累计的 retryCount，
     // 且仅在该 msgId 首次入队时调度重试 Timer（已存在则复用，不重建）。
-    final existing = _pendingAcks[msgId];
+    final prior = _pendingAcks[msgId];
+    final existing = prior != null && _isCurrentAck(prior) ? prior : null;
+    if (prior != null && existing == null) _cancelTimer(msgId);
     final preservedRetry = existing?.retryCount ?? 0;
     _pendingAcks[msgId] = _PendingAck(
       msgId: msgId,
@@ -402,6 +406,10 @@ class AckManager {
       iPrint('⚠️ [ACK_MANAGER] ACK不存在（可能已确认）: msgId=$msgId');
       return;
     }
+    if (!_isCurrentAck(ack)) {
+      _discardStaleAck(msgId, ack);
+      return;
+    }
 
     try {
       // 【解耦】通过事件总线发送 ACK 消息
@@ -424,6 +432,7 @@ class AckManager {
         WebSocketMessageSendRequestEvent(
           message: ack.content,
           messageId: msgId,
+          sessionGeneration: ack.sessionGeneration,
         ),
       );
       iPrint(
@@ -435,6 +444,16 @@ class AckManager {
     }
   }
 
+  bool _isCurrentAck(_PendingAck ack) =>
+      UserRepoLocal.to.isCurrentSession(ack.sessionGeneration) &&
+      !UserRepoLocal.to.isClearingSession;
+
+  void _discardStaleAck(String msgId, _PendingAck ack) {
+    if (!identical(_pendingAcks[msgId], ack)) return;
+    _cancelTimer(msgId);
+    _pendingAcks.remove(msgId);
+  }
+
   /// 安排重试
   void _scheduleRetry(String msgId) {
     // 【修复】取消之前的 Timer（如果存在）
@@ -442,13 +461,19 @@ class AckManager {
 
     final ack = _pendingAcks[msgId];
     if (ack == null) return;
+    if (!_isCurrentAck(ack)) {
+      _discardStaleAck(msgId, ack);
+      return;
+    }
 
     // 计算重试间隔
     final interval = _getRetryInterval(ack.retryCount);
 
     // 【修复 H2】创建新的 Timer 并跟踪，添加异常保护
-    final timer = Timer(Duration(milliseconds: interval), () {
+    late final Timer timer;
+    timer = Timer(Duration(milliseconds: interval), () {
       try {
+        if (!identical(_activeTimers[msgId], timer)) return;
         // 从跟踪表中移除
         _activeTimers.remove(msgId);
 
@@ -457,6 +482,11 @@ class AckManager {
         // ACK已被确认，不需要重试
         if (ack == null) {
           iPrint('✅ [ACK_MANAGER] ACK已确认，取消重试: msgId=$msgId');
+          return;
+        }
+
+        if (!_isCurrentAck(ack)) {
+          _discardStaleAck(msgId, ack);
           return;
         }
 
@@ -624,6 +654,7 @@ class _PendingAck {
   final String type;
   final String content;
   final int sendTime; // 毫秒时间戳
+  final int sessionGeneration;
   int retryCount;
 
   _PendingAck({
@@ -632,7 +663,9 @@ class _PendingAck {
     required this.content,
     required this.sendTime,
     required this.retryCount,
-  });
+    int? sessionGeneration,
+  }) : sessionGeneration =
+           sessionGeneration ?? UserRepoLocal.to.sessionGeneration;
 
   /// 转换为JSON（用于调试）
   Map<String, dynamic> toJson() {
