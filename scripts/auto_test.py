@@ -190,13 +190,64 @@ def _flutter_env_defines() -> list[str]:
 
 
 def platform_for_device(device: str) -> str:
-    """在线 run 的目标平台推断：-d macos/darwin 为 macOS 桌面端，其余按 android 真机处理。
+    """离线 dry-run 的平台推断（非资格）：macos/darwin 记为 macos，其余显示为 android。
 
-    平台值进入 target fingerprint；错误平台会让 macOS run 带着错误指纹入账。
+    仅用于 dry-run 输出与指纹草稿；--execute 的真实资格一律走
+    qualify_device(flutter devices --machine)，未发现/不支持/模拟器会被拒绝。
     """
     if device in ('macos', 'darwin') or device.startswith('darwin-'):
         return 'macos'
     return 'android'
+
+
+def discover_devices() -> tuple[list[dict], str | None]:
+    """flutter devices --machine 的结构化设备发现；失败返回 (devices, error_code)。"""
+    try:
+        completed = subprocess.run(
+            ['flutter', 'devices', '--machine'],
+            cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            text=True, check=False, timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return [], 'DEVICE_DISCOVERY_FAILED'
+    if completed.returncode != 0:
+        return [], 'DEVICE_DISCOVERY_FAILED'
+    try:
+        devices = json.loads(completed.stdout or '[]')
+    except json.JSONDecodeError:
+        return [], 'DEVICE_DISCOVERY_MALFORMED'
+    if not isinstance(devices, list):
+        return [], 'DEVICE_DISCOVERY_MALFORMED'
+    return [d for d in devices if isinstance(d, dict)], None
+
+
+def qualify_device(device: str, devices: list[dict]) -> tuple[str, list[str]]:
+    """执行前真实设备资格：按 flutter devices 的 targetPlatform 判定平台。
+
+    返回 (platform, errors)。未知设备、iOS、web/Chrome、Android 模拟器与
+    其他不支持 target 一律拒绝，不默认为 android；仅 android-* 真机
+    (emulator=false) 与 darwin (macOS 桌面) 通过。
+    """
+    if not device:
+        return '', ['DEVICE_ID_MISSING']
+    for dev in devices:
+        if dev.get('id') != device:
+            continue
+        target = str(dev.get('targetPlatform') or '')
+        emulator = bool(dev.get('emulator'))
+        if target == 'darwin':
+            return 'macos', []
+        if target.startswith('android-'):
+            if 'emulator' not in dev or dev.get('emulator') is None:
+                # fail-closed：模拟器标志缺失时按资格不明拒绝，不默认真机。
+                return '', ['ANDROID_EMULATOR_FLAG_UNKNOWN']
+            if emulator:
+                return '', ['ANDROID_EMULATOR_FORBIDDEN']
+            return 'android', []
+        if target.startswith('ios'):
+            return '', ['IOS_DEVICE_NOT_IN_PLATFORM_SET']
+        return '', [f'UNSUPPORTED_TARGET_PLATFORM:{target or "unknown"}']
+    return '', ['DEVICE_NOT_FOUND']
 
 
 def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir: Path) -> int:
@@ -210,7 +261,21 @@ def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir
         return 64
     api_url, ws_url = _target_urls()
     env = dict(os.environ)
-    cfg = effective_target_config(env=env, device_id=device, platform=platform_for_device(device))
+    if execute:
+        # 执行前真实设备资格（与离线 dry-run 的推断严格区分）：
+        # 未知/不支持/模拟器在这里拒绝，保证没有任何测试子进程被启动。
+        devices, discovery_error = discover_devices()
+        if discovery_error:
+            print(f'❌ 设备发现失败（{discovery_error}）；资格不明时不启动测试子进程。', file=sys.stderr)
+            return 2
+        platform, qual_errors = qualify_device(device, devices)
+        if qual_errors:
+            print(f'❌ 设备资格被拒（{device or "<empty>"}）：{", ".join(qual_errors)}', file=sys.stderr)
+            print('   执行前资格检查未通过，未启动任何测试子进程。', file=sys.stderr)
+            return 2
+    else:
+        platform = platform_for_device(device)
+    cfg = effective_target_config(env=env, device_id=device, platform=platform)
     env_defines = cfg.dart_defines
     results = []
     for spec in plan:
