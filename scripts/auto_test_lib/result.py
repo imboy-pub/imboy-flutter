@@ -164,6 +164,18 @@ def classify_attempts(attempts: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
             "attempt_count": 0,
         }
 
+    for attempt in attempt_list:
+        fingerprint = attempt.get("fingerprint") if isinstance(attempt, dict) else None
+        if (not isinstance(fingerprint, dict)
+                or any(not isinstance(fingerprint.get(key), str)
+                       or not fingerprint[key].strip()
+                       for key in ATTEMPT_FINGERPRINT_KEYS)):
+            return {
+                "test_status": "BLOCKED",
+                "reason_code": "ATTEMPT_FINGERPRINT_INVALID",
+                "attempt_count": attempt_count,
+            }
+
     fingerprints = [_attempt_fingerprint(attempt) for attempt in attempt_list]
     if len(set(fingerprints)) != 1:
         return {

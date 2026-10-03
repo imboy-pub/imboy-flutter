@@ -16,6 +16,7 @@ if str(SCRIPTS_DIR) not in sys.path:
 
 from auto_test_lib.machine_events import parse_machine_events  # noqa: E402
 from auto_test_lib.result import (  # noqa: E402
+    ATTEMPT_FINGERPRINT_KEYS,
     classify_attempts,
     overall_exit_code,
     plan_unique_targets,
@@ -116,6 +117,19 @@ class ClassifyAttemptsTest(unittest.TestCase):
         verdict = classify_attempts([])
         self.assertEqual(verdict["test_status"], "BLOCKED")
         self.assertEqual(verdict["reason_code"], "ZERO_EXECUTED")
+
+    def test_unbound_or_malformed_attempts_cannot_be_pass(self):
+        invalid = [{"parsed": PASS_PARSED}, False,
+                   {"parsed": PASS_PARSED, "fingerprint": {}}]
+        for key in ATTEMPT_FINGERPRINT_KEYS:
+            for value in (None, '', '  ', [], 123):
+                invalid.append({"parsed": PASS_PARSED,
+                                "fingerprint": fingerprint(**{key: value})})
+        for item in invalid:
+            with self.subTest(item=item):
+                verdict = classify_attempts([item])
+                self.assertEqual(verdict['test_status'], 'BLOCKED')
+                self.assertEqual(verdict['reason_code'], 'ATTEMPT_FINGERPRINT_INVALID')
 
     def test_retry_fixtures_are_identical_for_infra_1_2_3(self):
         # The three retry_infra_fail fixtures reuse the same fingerprint
