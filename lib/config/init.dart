@@ -92,6 +92,15 @@ bool _isNavigatingToSignIn = false;
 /// 全局标记：App 正在关闭/重新初始化，禁止导航
 bool _isAppDisposing = false;
 
+Future<void> quitLoginAndNavigateToSignIn({required String source}) async {
+  final repo = UserRepoLocal.to;
+  final generation = repo.sessionGeneration;
+  await repo.quitLogin(expectedGeneration: generation);
+  if (repo.isCurrentSession(generation + 1) && !repo.isLoggedIn) {
+    navigateToSignIn(source: source);
+  }
+}
+
 void navigateToSignIn({String source = 'unknown'}) {
   final generation = UserRepoLocal.to.sessionGeneration;
   if (_isAppDisposing) {

@@ -26,7 +26,7 @@ import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/service/exponential_backoff.dart';
-import 'package:imboy/config/init.dart' show navigateToSignIn;
+import 'package:imboy/config/init.dart' show quitLoginAndNavigateToSignIn;
 
 enum SocketStatus { connecting, connected, disconnected }
 
@@ -478,8 +478,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     if (errorStr.contains('401')) {
       AppLogger.error('> ws: WebSocket 认证失败 (HTTP 401)，正在执行登出并重定向至登录页...');
       _cancelStream();
-      await UserRepoLocal.to.quitLogin();
-      navigateToSignIn(source: 'websocket_unauthorized_401');
+      await quitLoginAndNavigateToSignIn(source: 'websocket_unauthorized_401');
       return;
     }
 
@@ -992,8 +991,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       return await _refreshAccessToken();
     } catch (e) {
       iPrint('> ws: token refresh failed: ${e.runtimeType}');
-      UserRepoLocal.to.quitLogin();
-      navigateToSignIn(source: 'websocket_relogin');
+      await quitLoginAndNavigateToSignIn(source: 'websocket_relogin');
       return '';
     }
   }
@@ -1029,8 +1027,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       case 4000:
       case 4006:
         _cancelStream(); // 先清理资源，再执行登出跳转
-        UserRepoLocal.to.quitLogin();
-        navigateToSignIn(source: 'websocket_relogin');
+        unawaited(quitLoginAndNavigateToSignIn(source: 'websocket_relogin'));
         break;
       default:
         _cancelStream();

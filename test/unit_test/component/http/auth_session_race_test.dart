@@ -283,6 +283,28 @@ void main() {
       },
     );
   }
+  testWidgets('socket expiry waits for logout before navigating', (
+    tester,
+  ) async {
+    final router = GoRouter(
+      navigatorKey: navigatorKey,
+      initialLocation: '/safe',
+      routes: [
+        GoRoute(path: '/safe', builder: (_, state) => const Text('safe')),
+        GoRoute(path: '/sign_in', builder: (_, state) => const Text('signin')),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await StorageService.to.setString(Keys.currentUid, '1001');
+    await tester.runAsync(() async {
+      await quitLoginAndNavigateToSignIn(source: 'synthetic-socket');
+    });
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('signin'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
   testWidgets(
     'queued expired navigation cannot override a newer login generation',
     (tester) async {
