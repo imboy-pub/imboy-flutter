@@ -86,11 +86,35 @@ class ArtifactIntegrityTests(unittest.TestCase):
 
 
 class RawEventAuditTests(unittest.TestCase):
+    def test_truncated_unknown_duplicate_or_boolean_events_are_not_pass(self):
+        corruptions = [
+            [{'type': 'testStart', 'test': {'id': 1}},
+             {'type': 'testDone', 'testID': 1, 'result': 'success'}],
+            [{'type': 'testStart', 'test': {'id': 1}},
+             {'type': 'testDone', 'testID': 1, 'result': 'potato'},
+             {'type': 'done', 'success': True}],
+            [{'type': 'testStart', 'test': {'id': 1}},
+             {'type': 'testDone', 'testID': 1, 'result': 'success'},
+             {'type': 'testDone', 'testID': 1, 'result': 'success'},
+             {'type': 'done', 'success': True}],
+            [{'type': 'testStart', 'test': {'id': True}},
+             {'type': 'testDone', 'testID': True, 'result': 'success'},
+             {'type': 'done', 'success': True}],
+        ]
+        for events in corruptions:
+            with self.subTest(events=events):
+                self.write_events(events)
+                self.manifest['artifacts'] = [self.artifact]
+                self.manifest['result']['executed'] = sum(
+                    e['type'] == 'testDone' for e in events)
+                self.assertTrue(self.audit())
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         events = [
+            {'type': 'start'},
             {'type': 'testStart', 'test': {'id': 1, 'name': 'one case'}},
             {'type': 'testDone', 'testID': 1, 'result': 'success',
              'skipped': False, 'hidden': False},
@@ -134,6 +158,20 @@ class RawEventAuditTests(unittest.TestCase):
         self.manifest['result']['executed'] = 100
         self.assertTrue(any('RAW_EVENT_RESULT_MISMATCH' in e for e in self.audit()))
 
+    def test_error_events_cannot_be_hidden_by_success(self):
+        for flag in (False, True, 'true'):
+            with self.subTest(flag=flag):
+                self.write_events([
+                    {'type': 'start'},
+                    {'type': 'testStart', 'test': {'id': 1}},
+                    {'type': 'error', 'testID': 1, 'isFailure': flag,
+                     'message': 'Unhandled exception: Bad state'},
+                    {'type': 'testDone', 'testID': 1, 'result': 'success'},
+                    {'type': 'done', 'success': True},
+                ])
+                self.manifest['artifacts'] = [self.artifact]
+                self.assertTrue(self.audit())
+
     def test_zero_events_cannot_pass_with_exit_zero(self):
         self.write_events([{'type': 'done', 'success': True}])
         self.manifest['artifacts'] = [self.artifact]
@@ -169,6 +207,48 @@ class RawEventAuditTests(unittest.TestCase):
         errors = self.audit()
         self.assertTrue(errors)
         self.assertNotIn('synthetic-sensitive-value', '\n'.join(errors))
+
+    def test_malformed_schema_fields_return_fixed_errors(self):
+        for field in ('result_status', 'required_evidence_level'):
+            manifest = copy.deepcopy(self.manifest)
+            if field == 'result_status':
+                manifest['result']['status'] = []
+            else:
+                manifest[field] = []
+            self.assertEqual(self.audit(manifest), ['EVIDENCE_SCHEMA_REJECTED'])
+
+    def test_joined_runs_and_unclosed_tests_cannot_pass(self):
+        events = [
+            {'type': 'start'},
+            {'type': 'testStart', 'test': {'id': 1}},
+            {'type': 'testDone', 'testID': 1, 'result': 'success'},
+            {'type': 'done', 'success': True},
+        ]
+        for corruption in (events + events,
+                           events[:-1] + [{'type': 'testStart', 'test': {'id': 2}},
+                                         events[-1]]):
+            with self.subTest(corruption=corruption):
+                self.write_events(corruption)
+                self.manifest['artifacts'] = [self.artifact]
+                self.assertTrue(self.audit())
+
+    def test_hidden_failure_and_contradictory_flags_cannot_pass(self):
+        for terminal in (
+            {'type': 'testDone', 'testID': 2, 'result': 'error', 'hidden': True},
+            {'type': 'testDone', 'testID': 2, 'result': 'failure', 'skipped': True},
+            {'type': 'testDone', 'testID': 2, 'result': 'success', 'hidden': 'false'},
+        ):
+            with self.subTest(terminal=terminal):
+                self.write_events([
+                    {'type': 'start'},
+                    {'type': 'testStart', 'test': {'id': 1}},
+                    {'type': 'testDone', 'testID': 1, 'result': 'success'},
+                    {'type': 'testStart', 'test': {'id': 2}},
+                    terminal,
+                    {'type': 'done', 'success': True},
+                ])
+                self.manifest['artifacts'] = [self.artifact]
+                self.assertTrue(self.audit())
 
 
 if __name__ == '__main__':
