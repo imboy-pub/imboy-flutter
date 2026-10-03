@@ -1,7 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'
     show ProviderListenableSelect;
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
@@ -31,36 +30,45 @@ class BottomNavigationNotifier extends _$BottomNavigationNotifier {
 @riverpod
 class NewFriendRemindNotifier extends _$NewFriendRemindNotifier {
   @override
-  Set<String> build() => <String>{};
+  Set<String> build() {
+    ref.watch(currentUserProvider.select((user) => user?.uid ?? ''));
+    _requestGeneration++;
+    return <String>{};
+  }
+
+  int _requestGeneration = 0;
 
   /// 计算新好友提醒计数
   Future<void> countReminders() async {
-    if (!UserRepoLocal.to.isLoggedIn) return;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    final request = ++_requestGeneration;
+    if (uid.isEmpty || user.isClearingSession) return;
 
     final items = await SqliteService.to.query(
       NewFriendRepo.tableName,
       columns: [NewFriendRepo.from],
       where:
           '${NewFriendRepo.status}=? AND ${NewFriendRepo.uid}=? AND ${NewFriendRepo.to}=?',
-      whereArgs: [0, UserRepoLocal.to.currentUid, UserRepoLocal.to.currentUid],
+      whereArgs: [0, uid, uid],
       orderBy: "${NewFriendRepo.createdAt} desc",
       limit: 1000,
     );
 
     // 检查 provider 是否仍然 mounted
-    if (!ref.mounted) return;
+    if (!ref.mounted ||
+        request != _requestGeneration ||
+        uid != user.currentUid ||
+        !user.isCurrentSession(session) ||
+        user.isClearingSession) {
+      return;
+    }
 
     final Set<String> newFroms = {
       for (var e in items)
         if (e[NewFriendRepo.from] != null) '${e[NewFriendRepo.from]}',
     };
-    iPrint(
-      "📊 [REMIND] countReminders items=${items.length} newFroms=$newFroms",
-    );
-
-    // 再次检查（防止在异步间隙中被 disposed）
-    if (!ref.mounted) return;
-
     state = newFroms;
   }
 }
