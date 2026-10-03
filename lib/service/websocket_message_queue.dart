@@ -2,6 +2,8 @@ import 'dart:collection';
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 
@@ -11,13 +13,19 @@ class QueuedMessage {
   final String data; // JSON 字符串
   final int priority; // 0=普通, 1=高优先级(ACK), 2=重试
   final DateTime createdAt;
+  final String ownerUid;
+  final int? sessionGeneration;
 
   QueuedMessage({
     required this.id,
     required this.data,
     this.priority = 0,
     DateTime? createdAt,
+    this.ownerUid = '',
+    this.sessionGeneration,
   }) : createdAt = createdAt ?? DateTime.now();
+
+  String get deduplicationKey => jsonEncode([ownerUid, sessionGeneration, id]);
 
   /// 转换为 JSON（用于持久化）
   Map<String, dynamic> toJson() => {
@@ -25,6 +33,7 @@ class QueuedMessage {
     'data': data,
     'priority': priority,
     'createdAt': createdAt.toIso8601String(),
+    'ownerUid': ownerUid,
   };
 
   /// 从 JSON 创建实例
@@ -32,6 +41,8 @@ class QueuedMessage {
     id: json['id'] as String,
     data: json['data'] as String,
     priority: json['priority'] as int? ?? 0,
+    ownerUid: json['ownerUid'] as String? ?? '',
+    sessionGeneration: UserRepoLocal.to.sessionGeneration,
     createdAt: json['createdAt'] != null
         ? DateTime.parse(json['createdAt'] as String)
         : null,
@@ -105,7 +116,7 @@ class PersistentMessageQueue {
         final json = jsonDecode(jsonStr) as Map<String, dynamic>;
         final msg = QueuedMessage.fromJson(json);
         _priorityQueues[msg.priority]!.addLast(msg);
-        _deduplicationSet.add(msg.id);
+        _deduplicationSet.add(msg.deduplicationKey);
       } catch (e) {
         iPrint('⚠️ [QUEUE] 恢复消息失败: $e');
       }
@@ -135,22 +146,30 @@ class PersistentMessageQueue {
   /// - [id]: 消息唯一标识（用于去重）
   /// - [data]: 消息内容（JSON 字符串）
   /// - [priority]: 优先级（0=普通, 1=高优先级/ACK, 2=重试）
-  void enqueue(String id, String data, {int priority = 0}) {
-    // 去重检查
-    if (_deduplicationSet.contains(id)) {
+  void enqueue(
+    String id,
+    String data, {
+    int priority = 0,
+    String ownerUid = '',
+    int? sessionGeneration,
+  }) {
+    final msg = QueuedMessage(
+      id: id,
+      data: data,
+      priority: priority,
+      ownerUid: ownerUid,
+      sessionGeneration: sessionGeneration,
+    );
+    if (_deduplicationSet.contains(msg.deduplicationKey)) {
       iPrint('⚠️ [QUEUE] 消息已存在: $id');
       return;
     }
-
-    // 队列满时，先尝试移除低优先级消息
     if (_totalSize >= _maxQueueSize) {
       _removeLowestPriorityMessage(priority);
     }
 
-    final msg = QueuedMessage(id: id, data: data, priority: priority);
-
     _priorityQueues[priority.clamp(0, 2)]!.addLast(msg);
-    _deduplicationSet.add(id);
+    _deduplicationSet.add(msg.deduplicationKey);
     _save();
 
     iPrint('📥 [QUEUE] 入队: $id, priority=$priority, 总数=$_totalSize');
@@ -159,13 +178,21 @@ class PersistentMessageQueue {
   /// 按优先级出队（优先返回高优先级消息）
   ///
   /// 出队顺序：2(重试) > 1(高优先级) > 0(普通)
-  QueuedMessage? dequeueByPriority() {
+  QueuedMessage? dequeueByPriority({bool Function(QueuedMessage)? eligible}) {
     // 按优先级顺序检查：2(重试) > 1(高) > 0(普通)
     for (int p = 2; p >= 0; p--) {
       final queue = _priorityQueues[p]!;
-      if (queue.isNotEmpty) {
-        final msg = queue.removeFirst();
-        _deduplicationSet.remove(msg.id);
+      QueuedMessage? candidate;
+      for (final entry in queue) {
+        if (eligible == null || eligible(entry)) {
+          candidate = entry;
+          break;
+        }
+      }
+      if (candidate != null) {
+        final msg = candidate;
+        queue.remove(msg);
+        _deduplicationSet.remove(msg.deduplicationKey);
         _save();
         iPrint('📤 [QUEUE] 出队: ${msg.id}, priority=$p');
         return msg;
@@ -177,10 +204,26 @@ class PersistentMessageQueue {
   /// 更新消息优先级
   ///
   /// 用于将失败的消息提升到重试队列
-  void updatePriority(String id, int newPriority) {
+  void updatePriority(
+    String id,
+    int newPriority, {
+    String? ownerUid,
+    int? sessionGeneration,
+  }) {
+    final matches = messages
+        .where(
+          (entry) =>
+              entry.id == id &&
+              (ownerUid == null || entry.ownerUid == ownerUid) &&
+              (sessionGeneration == null ||
+                  entry.sessionGeneration == sessionGeneration),
+        )
+        .toList();
+    if (matches.length != 1) return;
+    final target = matches.single;
     for (int p = 0; p < 3; p++) {
       final queue = _priorityQueues[p]!;
-      final index = queue.toList().indexWhere((msg) => msg.id == id);
+      final index = queue.toList().indexWhere((msg) => identical(msg, target));
       if (index != -1) {
         // 由于 ListQueue 不支持按索引删除，需要重建
         final tempList = queue.toList();
@@ -193,6 +236,8 @@ class PersistentMessageQueue {
           data: msg.data,
           priority: newPriority,
           createdAt: msg.createdAt,
+          ownerUid: msg.ownerUid,
+          sessionGeneration: msg.sessionGeneration,
         );
         _priorityQueues[newPriority.clamp(0, 2)]!.addLast(updatedMsg);
         _save();
@@ -258,7 +303,7 @@ class PersistentMessageQueue {
         final msg = queue.removeFirst();
         // 检查消息是否过期
         if (now.difference(msg.createdAt) > expiry) {
-          _deduplicationSet.remove(msg.id);
+          _deduplicationSet.remove(msg.deduplicationKey);
           cleaned++;
         } else {
           tempList.add(msg);

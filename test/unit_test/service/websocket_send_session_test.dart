@@ -17,8 +17,13 @@ const _channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
 class _CapturingSink implements WebSocketSink {
   final List<dynamic> sent = [];
 
+  void Function()? onAdd;
+
   @override
-  void add(dynamic data) => sent.add(data);
+  void add(dynamic data) {
+    sent.add(data);
+    onAdd?.call();
+  }
 
   @override
   Future<dynamic> close([int? closeCode, String? closeReason]) async => null;
@@ -122,4 +127,151 @@ void main() {
       expect(fake._sink.sent, stale ? isEmpty : hasLength(1));
     });
   }
+  for (final stage in ['normal', 'other-owner', 'old-generation', 'unowned']) {
+    test('offline queue $stage', () async {
+      final svc = WebSocketService.to;
+      final fake = _FakeChannel();
+      svc.channelForTest = fake;
+      svc.statusForTest = SocketStatus.connected;
+      final generation = UserRepoLocal.to.sessionGeneration;
+      PersistentMessageQueue.to.enqueue(
+        'offline-$stage',
+        'synthetic-offline',
+        ownerUid: stage == 'unowned'
+            ? ''
+            : stage == 'other-owner'
+            ? '101'
+            : '100',
+        sessionGeneration: stage == 'old-generation'
+            ? generation - 1
+            : generation,
+      );
+      await svc.flushMessageQueueForTest();
+      expect(fake._sink.sent, stage == 'normal' ? hasLength(1) : isEmpty);
+      expect(
+        PersistentMessageQueue.to.messages,
+        stage == 'normal' ? isEmpty : hasLength(1),
+      );
+    });
+  }
+  for (final stage in ['restore-normal', 'restore-other', 'restore-legacy']) {
+    test('offline persistence $stage', () async {
+      final raw = {
+        'id': stage,
+        'data': 'synthetic-restored',
+        'priority': 0,
+        'createdAt': DateTime.now().toIso8601String(),
+        if (stage != 'restore-legacy')
+          'ownerUid': stage == 'restore-normal' ? '100' : '101',
+      };
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('ws_message_queue', [jsonEncode(raw)]);
+      await PersistentMessageQueue.to.init();
+      final svc = WebSocketService.to;
+      final fake = _FakeChannel();
+      svc.channelForTest = fake;
+      svc.statusForTest = SocketStatus.connected;
+      await svc.flushMessageQueueForTest();
+      expect(
+        fake._sink.sent,
+        stage == 'restore-normal' ? hasLength(1) : isEmpty,
+      );
+      expect(
+        PersistentMessageQueue.to.messages,
+        stage == 'restore-normal' ? isEmpty : hasLength(1),
+      );
+    });
+  }
+  test('flush stops after first frame changes session generation', () async {
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    for (final id in ['first', 'second']) {
+      PersistentMessageQueue.to.enqueue(
+        id,
+        'synthetic-$id',
+        ownerUid: '100',
+        sessionGeneration: UserRepoLocal.to.sessionGeneration,
+      );
+    }
+    Future<void>? change;
+    fake._sink.onAdd = () {
+      fake._sink.onAdd = null;
+      change = expectLater(
+        UserRepoLocal.to.loginAfter('synthetic-session', {
+          'uid': '101',
+          'token': 'synthetic-token',
+          'refreshtoken': 'synthetic-refresh',
+        }),
+        throwsA(isA<PlatformException>()),
+      );
+    };
+    await svc.flushMessageQueueForTest();
+    await change;
+    expect(fake._sink.sent, hasLength(1));
+    expect(PersistentMessageQueue.to.messages.single.id, 'second');
+  });
+  test('retained stale ID does not block fresh session enqueue', () async {
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    final generation = UserRepoLocal.to.sessionGeneration;
+    final queue = PersistentMessageQueue.to;
+    queue.enqueue(
+      'same-id',
+      'synthetic-same',
+      ownerUid: '100',
+      sessionGeneration: generation - 1,
+    );
+    queue.enqueue(
+      'same-id',
+      'synthetic-same',
+      ownerUid: '100',
+      sessionGeneration: generation,
+    );
+    queue.enqueue(
+      'same-id',
+      'synthetic-same',
+      ownerUid: '100',
+      sessionGeneration: generation,
+    );
+    expect(queue.messages, hasLength(2));
+    await svc.flushMessageQueueForTest();
+    expect(fake._sink.sent, hasLength(1));
+    expect(queue.messages.single.sessionGeneration, generation - 1);
+  });
+  test('priority updates require unambiguous account/session scope', () {
+    final generation = UserRepoLocal.to.sessionGeneration;
+    final queue = PersistentMessageQueue.to;
+    for (final gen in [generation - 1, generation]) {
+      queue.enqueue(
+        'priority-id',
+        'synthetic',
+        ownerUid: '100',
+        sessionGeneration: gen,
+      );
+    }
+    queue.updatePriority('priority-id', 2);
+    expect(queue.messages.every((entry) => entry.priority == 0), isTrue);
+    queue.updatePriority(
+      'priority-id',
+      2,
+      ownerUid: '100',
+      sessionGeneration: generation,
+    );
+    expect(
+      queue.messages
+          .singleWhere((entry) => entry.sessionGeneration == generation)
+          .priority,
+      2,
+    );
+    expect(
+      queue.messages
+          .singleWhere((entry) => entry.sessionGeneration != generation)
+          .priority,
+      0,
+    );
+  });
 }

@@ -101,6 +101,9 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   set statusForTest(SocketStatus status) => _status = status;
 
   @visibleForTesting
+  Future<void> flushMessageQueueForTest() => _flushMessageQueue();
+
+  @visibleForTesting
   void handleSendRequestForTest(WebSocketMessageSendRequestEvent event) =>
       _handleMessageSendRequest(event);
 
@@ -953,11 +956,23 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       const Duration minDelay = Duration(milliseconds: 30);
 
       int sentCount = 0;
+      final session = UserRepoLocal.to;
+      final ownerUid = session.currentUid;
+      final generation = session.sessionGeneration;
+      bool current() =>
+          ownerUid.isNotEmpty &&
+          session.currentUid == ownerUid &&
+          session.isCurrentSession(generation) &&
+          !session.isClearingSession;
 
       while (!_messageQueue.isEmpty && _status == SocketStatus.connected) {
-        if (_channel == null) break;
-        final queued = _messageQueue.dequeueByPriority();
-        if (queued == null) continue;
+        if (_channel == null || !current()) break;
+        final queued = _messageQueue.dequeueByPriority(
+          eligible: (entry) =>
+              entry.ownerUid == ownerUid &&
+              entry.sessionGeneration == generation,
+        );
+        if (queued == null) break;
 
         try {
           final payload = _framing == FramingMode.v2
@@ -977,7 +992,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
             queued.id,
             queued.data,
             priority: queued.priority,
+            ownerUid: queued.ownerUid,
+            sessionGeneration: queued.sessionGeneration,
           );
+          if (!current()) break;
           // sink.add 失败通常意味着 channel 已死（而非单条消息本身的问题），
           // 继续发送其余消息大概率会重复失败。主动清理并调度重连，而不是
           // 被动等待 onError/onDone（可能迟迟不触发，导致 _status 停留在
@@ -1126,6 +1144,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 发送消息核心方法（优化版：简化确认机制）
   Future<bool> sendMessage(String message, String? messageId) async {
     if (!_preMessageCheck(message)) return false;
+    final ownerUid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
 
     if (_status == SocketStatus.connected) {
       try {
@@ -1139,7 +1159,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         return true;
       } catch (e) {
         iPrint('> ws: 消息发送失败: ${e.runtimeType}');
-        await _handleSendFailure(message, messageId);
+        await _handleSendFailure(message, messageId, ownerUid, generation);
         return false;
       }
     }
@@ -1148,7 +1168,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     // 否则重连时离线队列重放 + MessageRetry 重投 = 同一消息双发）
     if (shouldEnqueueOffline(messageId)) {
       iPrint('> ws: 连接断开，消息入队');
-      _enqueueMessage(message);
+      _enqueueMessage(message, ownerUid, generation);
     } else {
       iPrint('> ws: 连接断开，消息由重试状态机跟踪，跳过离线队列: $messageId');
     }
@@ -1196,12 +1216,23 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   }
 
   /// 处理消息发送失败
-  Future<void> _handleSendFailure(String message, String? messageId) async {
+  Future<void> _handleSendFailure(
+    String message,
+    String? messageId,
+    String ownerUid,
+    int generation,
+  ) async {
+    final session = UserRepoLocal.to;
+    if (session.currentUid != ownerUid ||
+        !session.isCurrentSession(generation) ||
+        session.isClearingSession) {
+      return;
+    }
     iPrint('> ws: 处理消息发送失败 (${messageId ?? 'unknown'})');
 
     // 仅未被重试状态机跟踪的消息入离线队列（B×D 去重，见 shouldEnqueueOffline）
     if (shouldEnqueueOffline(messageId)) {
-      _enqueueMessage(message);
+      _enqueueMessage(message, ownerUid, generation);
     }
 
     // 如果是网络问题，尝试重新连接
@@ -1242,7 +1273,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 消息发送前检查
   bool _preMessageCheck(String message) {
-    if (!UserRepoLocal.to.isLoggedIn) {
+    if (!UserRepoLocal.to.isLoggedIn || UserRepoLocal.to.isClearingSession) {
       iPrint('> ws: 消息丢弃（用户未登录）');
       return false;
     }
@@ -1255,8 +1286,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 消息入队处理
   /// 使用消息内容的 SHA-1 摘要作为队列 ID，避免 hashCode 碰撞
-  void _enqueueMessage(String message) {
-    if (_messageQueue.messages.any((m) => m.data == message)) return;
+  void _enqueueMessage(String message, String ownerUid, int generation) {
+    if (_messageQueue.messages.any(
+      (m) =>
+          m.data == message &&
+          m.ownerUid == ownerUid &&
+          m.sessionGeneration == generation,
+    )) {
+      return;
+    }
     String msgId = '${message.length}_${message.hashCode}';
     try {
       final decoded = jsonDecode(message);
@@ -1264,7 +1302,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         msgId = decoded['id'].toString();
       }
     } catch (_) {}
-    _messageQueue.enqueue(msgId, message, priority: 0);
+    _messageQueue.enqueue(
+      msgId,
+      message,
+      priority: 0,
+      ownerUid: ownerUid,
+      sessionGeneration: generation,
+    );
     iPrint('> ws: 消息入队（当前队列长度：${_messageQueue.messages.length}）');
   }
 
