@@ -304,12 +304,24 @@ class MessageService with EventSubscriptionManager {
     String msgId,
     int status,
   ) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool isCurrent() =>
+        uid.isNotEmpty &&
+        session.currentUid == uid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (!isCurrent()) return null;
     await repo.update({'id': msgId, 'status': status});
+    if (!isCurrent()) return null;
     iPrint('> message_core: 更新消息状态 $msgId 为 $status');
     await _conversationNotifier.updateConversationByMsgId(msgId, {
       ConversationRepo.lastMsgStatus: status,
     });
-    return repo.find(msgId);
+    if (!isCurrent()) return null;
+    final message = await repo.find(msgId);
+    return isCurrent() ? message : null;
   }
 
   /// 获取消息发送进度

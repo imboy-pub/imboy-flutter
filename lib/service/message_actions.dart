@@ -144,19 +144,7 @@ class MessageActions {
       if (ids.isEmpty) return;
 
       final repo = MessageService.to.getMessageRepo(msgType);
-      final updated = <Message>[];
-      for (final id in ids) {
-        final m = await MessageService.to.updateStatus(
-          repo,
-          id,
-          IMBoyMessageStatus.seen,
-        );
-        if (m == null) throw StateError('read target update failed');
-        updated.add(await m.toTypeMessage());
-      }
-      if (updated.isNotEmpty) {
-        AppEventBus.fireData(updated);
-      }
+      await _updateReadMessages(repo, ids);
     } on Object catch (e) {
       iPrint('❌ [_handleReadAction] 处理已读消息失败: ${e.runtimeType}');
       rethrow;
@@ -191,25 +179,43 @@ class MessageActions {
       if (msgIds.isEmpty) return;
 
       final repo = MessageService.to.getMessageRepo(msgType);
-      final updated = <Message>[];
-
-      for (final id in msgIds) {
-        final m = await MessageService.to.updateStatus(
-          repo,
-          id,
-          IMBoyMessageStatus.seen,
-        );
-        if (m == null) throw StateError('read ACK target update failed');
-        updated.add(await m.toTypeMessage());
-      }
-
-      if (updated.isNotEmpty) {
-        AppEventBus.fireData(updated);
-      }
+      await _updateReadMessages(repo, msgIds);
     } on Object catch (e) {
       iPrint('❌ [_handleReadAckAction] 处理已读确认失败: ${e.runtimeType}');
       rethrow;
     }
+  }
+
+  Future<void> _updateReadMessages(MessageRepo repo, List<String> ids) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    void requireCurrent() {
+      if (uid.isEmpty ||
+          session.currentUid != uid ||
+          !session.isCurrentSession(generation) ||
+          session.isClearingSession) {
+        throw StateError('read action session changed');
+      }
+    }
+
+    requireCurrent();
+    final updated = <Message>[];
+    for (final id in ids) {
+      requireCurrent();
+      final message = await MessageService.to.updateStatus(
+        repo,
+        id,
+        IMBoyMessageStatus.seen,
+      );
+      requireCurrent();
+      if (message == null) throw StateError('read target update failed');
+      final converted = await message.toTypeMessage();
+      requireCurrent();
+      updated.add(converted);
+    }
+    requireCurrent();
+    if (updated.isNotEmpty) AppEventBus.fireData(updated);
   }
 
   Future<void> _handleReactionAction(Map<String, dynamic> data) async {

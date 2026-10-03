@@ -2,6 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:imboy/service/message_actions.dart';
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
@@ -79,6 +83,7 @@ class _EmptyDatabase implements Database {
 }
 
 class _StatusDatabase extends _EmptyDatabase {
+  int rowStatus = IMBoyMessageStatus.error;
   final entered = Completer<void>();
   final release = Completer<int>();
   int queries = 0;
@@ -111,6 +116,7 @@ class _StatusDatabase extends _EmptyDatabase {
     int? limit,
     int? offset,
   }) async {
+    if (where?.contains('status') == true) return [];
     queries++;
     if (table == 'contact') {
       return [ContactModel(peerId: 200, nickname: 'Synthetic').toJson()];
@@ -121,7 +127,7 @@ class _StatusDatabase extends _EmptyDatabase {
         'synthetic-status',
         autoId: 1,
         type: 'C2C',
-        status: IMBoyMessageStatus.error,
+        status: rowStatus,
         fromId: 200,
         toId: 200,
         payload: {'text': 'synthetic'},
@@ -130,6 +136,40 @@ class _StatusDatabase extends _EmptyDatabase {
         msgType: 'text',
       ).toJson(),
     ];
+  }
+}
+
+class _ReadActionDatabase extends _StatusDatabase {
+  _ReadActionDatabase() {
+    rowStatus = IMBoyMessageStatus.seen;
+  }
+  @override
+  Future<int> update(
+    String table,
+    Map<String, Object?> values, {
+    String? where,
+    List<Object?>? whereArgs,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) async {
+    updates++;
+    if (updates == 1) {
+      entered.complete();
+      return release.future;
+    }
+    return 1;
+  }
+}
+
+class _ReceiptConversationNotifier extends ConversationNotifier {
+  final updatedIds = <String>[];
+  @override
+  ConversationState build() => ConversationState(isLoading: false);
+  @override
+  Future<void> updateConversationByMsgId(
+    String id,
+    Map<String, dynamic> data,
+  ) async {
+    updatedIds.add(id);
   }
 }
 
@@ -156,6 +196,88 @@ void main() {
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
   );
+  final receiptNotifier = _ReceiptConversationNotifier();
+  final receiptContainer = ProviderContainer(
+    overrides: [conversationProvider.overrideWith(() => receiptNotifier)],
+  );
+  // The injected global references remain live until this whole file completes.
+  final receiptProviderSubscription = receiptContainer.listen(
+    conversationProvider,
+    (_, _) {},
+  );
+  tearDownAll(() {
+    receiptProviderSubscription.close();
+    receiptContainer.dispose();
+  });
+  for (final action in [C2SAction.messageRead, C2SAction.messageReadAck]) {
+    for (final stale in [false, true]) {
+      test('read action=$action database session changed=$stale', () async {
+        SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+        await StorageService.init();
+        final database = _ReadActionDatabase();
+        SqliteService.setDbForTest(database);
+        final notifier = receiptNotifier;
+        notifier.updatedIds.clear();
+        MessageService.setProviderContainer(receiptContainer);
+        final service = MessageService.instance;
+        await pumpEventQueue();
+        service.cancelAllSubscriptions();
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureChannel, (call) async {
+              if (call.method == 'write' &&
+                  (call.arguments as Map)['key'] == 'secure_token') {
+                throw PlatformException(code: 'synthetic-login-stop');
+              }
+              return null;
+            });
+        final events = <DataWrapperEvent<dynamic>>[];
+        final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+          events.add,
+        );
+        try {
+          final pending = MessageActions.instance.handleActionMessage(action, {
+            'id': 'synthetic-read-action',
+            'type': 'C2C',
+            'from': action == C2SAction.messageRead ? '200' : '100',
+            'to': '100',
+            'payload': {
+              'msg_ids': ['synthetic-status'],
+            },
+          });
+          await database.entered.future;
+          if (stale) {
+            await expectLater(
+              UserRepoLocal.to.loginAfter('synthetic-session', {
+                'uid': '101',
+                'token': 'synthetic-token',
+                'refreshtoken': 'synthetic-refresh',
+              }),
+              throwsA(isA<PlatformException>()),
+            );
+          }
+          database.release.complete(1);
+          expect(await pending, !stale);
+          await pumpEventQueue();
+          expect(database.updates, 1);
+          expect(notifier.updatedIds.length, stale ? 0 : 1);
+          expect(database.queries, stale ? 0 : 2);
+          expect(events.length, stale ? 0 : 1);
+          if (!stale) {
+            expect((events.single.data as List).single.id, 'synthetic-status');
+            expect(
+              (events.single.data as List).single.metadata['status'],
+              IMBoyMessageStatus.seen,
+            );
+          }
+        } finally {
+          await subscription.cancel();
+          SqliteService.setDbForTest(null);
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(secureChannel, null);
+        }
+      });
+    }
+  }
   group('read receipt session boundary', () {
     late MessageService service;
     setUpAll(() async {
