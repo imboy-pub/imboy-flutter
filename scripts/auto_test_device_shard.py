@@ -66,8 +66,10 @@ def run_attempt(target: str, device: str, platform: str, out_dir: Path,
                 target_dir: Path, run_id: str, number: int) -> dict:
     started = time.time()
     attempt_id = f'{run_id}:{target}:{number}'
+    initial_fingerprint = attempt_fingerprint(target, device, platform, run_id)
     append_journal(target_dir / 'starts.jsonl', {'attempt_id': attempt_id,
-                   'target': target, 'started_at': started})
+                   'target': target, 'started_at': started,
+                   'fingerprint': initial_fingerprint})
     output, exit_code = capture_process(target, device)
     duration = round(time.time() - started, 1)
     events_path = target_dir / f'attempt{number}.events.jsonl'
@@ -83,6 +85,12 @@ def run_attempt(target: str, device: str, platform: str, out_dir: Path,
         parsed.test_status = 'FAIL' if business_failure else 'BLOCKED'
         parsed.reason_code = 'BUSINESS_ASSERTION_FAIL' if business_failure else 'RUNNER_CRASH'
         parsed.failure_class = 'business' if business_failure else 'infra'
+    final_fingerprint = attempt_fingerprint(target, device, platform, run_id)
+    fingerprint_drift = initial_fingerprint != final_fingerprint
+    if fingerprint_drift and parsed.test_status != 'FAIL':
+        parsed.test_status = 'BLOCKED'
+        parsed.reason_code = 'CANDIDATE_FINGERPRINT_CHANGED'
+        parsed.failure_class = 'unknown'
     record = {
         'attempt_id': attempt_id,
         'parsed': {
@@ -91,7 +99,10 @@ def run_attempt(target: str, device: str, platform: str, out_dir: Path,
             'oracle_count': parsed.oracle_count, 'reason_code': parsed.reason_code,
             'failure_class': parsed.failure_class,
         },
-        'fingerprint': attempt_fingerprint(target, device, platform, run_id),
+        'fingerprint': initial_fingerprint,
+        'final_fingerprint': final_fingerprint,
+        'fingerprint_drift': fingerprint_drift,
+        'events_sha256': sha256_file(events_path),
         'exit_code': exit_code, 'duration_s': duration,
         'events': events_path.relative_to(out_dir).as_posix(),
     }

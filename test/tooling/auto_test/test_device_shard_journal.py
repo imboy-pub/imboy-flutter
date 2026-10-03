@@ -1,5 +1,6 @@
 """Durability tests mock Flutter subprocesses; no devices are accessed."""
 import importlib.util
+import hashlib
 import json
 import subprocess
 import tempfile
@@ -39,7 +40,8 @@ class ShardJournalTests(unittest.TestCase):
                                    failure_class='none')
 
         with patch.object(shard.subprocess, 'run', side_effect=run), \
-                patch.object(shard, 'sha256_file', return_value='b' * 64), \
+                patch.object(shard, 'sha256_file', side_effect=lambda p:
+                    hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else 'b' * 64), \
                 patch.object(shard, 'parse_machine_events', side_effect=parsed):
             return shard.run_target(target, 'synthetic-device', 'android', self.root, 'synthetic')
 
@@ -50,6 +52,9 @@ class ShardJournalTests(unittest.TestCase):
         self.assertEqual([r['exit_code'] for r in records], [124, 0])
         self.assertEqual((self.root / records[0]['events']).read_text(), 'partial synthetic output')
         self.assertEqual(len(next(self.root.glob('*/starts.jsonl')).read_text().splitlines()), 2)
+        for record in records:
+            self.assertEqual(record['events_sha256'], hashlib.sha256(
+                (self.root / record['events']).read_bytes()).hexdigest())
 
     def test_same_basename_targets_have_distinct_logs(self):
         first = self.run_target('test/a/same.dart')
@@ -63,6 +68,20 @@ class ShardJournalTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             self.run_target('test/a.dart')
         self.assertEqual(before, {p: p.read_bytes() for p in self.root.rglob('*') if p.is_file()})
+
+    def test_candidate_drift_during_execution_cannot_be_pass(self):
+        original = {'app_head': 'a' * 40, 'backend_head': 'b' * 40,
+                    'target_sha256': 'c' * 64, 'config_sha256': 'd' * 64,
+                    'fixture_fingerprint': 'synthetic', 'device_fingerprint': 'synthetic'}
+        changed = dict(original, app_head='e' * 40)
+        with patch.object(shard, 'attempt_fingerprint', side_effect=[original, changed]):
+            record = self.run_target('test/drift.dart')
+        self.assertEqual(record['final']['test_status'], 'BLOCKED')
+        self.assertEqual(record['final']['reason_code'], 'CANDIDATE_FINGERPRINT_CHANGED')
+        self.assertEqual(len(record['attempts']), 1)
+        starts = json.loads(next(self.root.glob('*/starts.jsonl')).read_text())
+        self.assertEqual(starts['fingerprint'], original)
+        self.assertTrue(record['attempts'][0]['fingerprint_drift'])
 
     def test_timeout_cannot_retry_observed_business_failure_with_real_parser(self):
         events = [{'type': 'testStart', 'test': {'id': 1, 'name': 'synthetic'}},
