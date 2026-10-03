@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 
 import 'package:imboy/service/payment_launcher.dart';
 import 'package:imboy/store/api/billing_api.dart';
@@ -87,7 +88,12 @@ class BillingNotifier extends Notifier<BillingState> {
   /// 加载套餐列表（页面下拉刷新/初始进入）。
   Future<void> loadPlans() async {
     state = state.copyWith(isLoading: true, clearError: true);
-    final plans = await _api.fetchPlans();
+    List<BillingPlan>? plans;
+    try {
+      plans = await _api.fetchPlans();
+    } catch (error) {
+      debugPrint('[BillingNotifier] plan load failed: ${error.runtimeType}');
+    }
     if (plans != null) {
       state = state.copyWith(isLoading: false, plans: plans);
     } else {

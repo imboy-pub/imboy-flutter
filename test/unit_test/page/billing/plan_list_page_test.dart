@@ -133,20 +133,45 @@ void main() {
     expect(find.text(t.billing.noPlans), findsOneWidget);
     expect(find.text(t.billing.loadFailed), findsNothing);
   });
+
+  testWidgets('PL-5 请求异常后结束加载，重试可恢复空态', (tester) async {
+    final api = _FailOnceBillingApi(
+      () {},
+      emptyAfterRetry: true,
+      throwFirstLoad: true,
+    );
+    await tester.pumpWidget(_buildTestApp(api));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text(t.billing.loadFailed), findsOneWidget);
+    await tester.tap(find.text(t.billing.retry));
+    await tester.pumpAndSettle();
+    expect(api.calls, 2);
+    expect(find.text(t.billing.noPlans), findsOneWidget);
+    expect(find.text(t.billing.loadFailed), findsNothing);
+  });
 }
 
 /// 首次 fetchPlans 失败、重试成功的 fake（驱动错误态 → 重试路径）。
 class _FailOnceBillingApi extends BillingApi {
-  _FailOnceBillingApi(this.onCall, {this.emptyAfterRetry = false});
+  _FailOnceBillingApi(
+    this.onCall, {
+    this.emptyAfterRetry = false,
+    this.throwFirstLoad = false,
+  });
 
   final VoidCallback onCall;
   final bool emptyAfterRetry;
+  final bool throwFirstLoad;
   int calls = 0;
 
   @override
   Future<List<BillingPlan>?> fetchPlans() async {
     onCall();
     calls++;
+    if (calls == 1 && throwFirstLoad) {
+      throw Exception('synthetic transport failure');
+    }
     if (calls == 1) return null;
     if (emptyAfterRetry) return [];
     return [_plan(id: 101, name: '标准版', price: 100, billingPeriod: 'month')];
