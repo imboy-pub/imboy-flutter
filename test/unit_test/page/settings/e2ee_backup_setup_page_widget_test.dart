@@ -204,8 +204,12 @@ void main() {
   testWidgets('上传失败：留在页内可重试，完成标记不落', (tester) async {
     await openPage(
       tester,
-      override: (pwd) async =>
-          const E2EEBackupPutResult(ok: false, versionConflict: true),
+      override: (pwd) async {
+        uploaded.add(pwd);
+        return uploaded.length == 1
+            ? const E2EEBackupPutResult(ok: false, versionConflict: true)
+            : const E2EEBackupPutResult(ok: true, backupVersion: 8);
+      },
     );
     await enterPassword(tester, 'abcdefgh1234');
     await tester.tap(find.text(t.common.e2eeBackupSetupSubmit));
@@ -215,6 +219,21 @@ void main() {
     expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
     // 失败后状态复位：按钮回到可点（用户可改口令后重试）
     expect(submitButton(tester).onPressed, isNotNull);
+    expect(await E2EEBackupSetupService.to.cachedPassphrase(), isNull);
+
+    await enterPassword(tester, 'second-passphrase-1234');
+    await tester.tap(find.text(t.common.e2eeBackupSetupSubmit));
+    await tester.pumpAndSettle();
+    expect(uploaded, ['abcdefgh1234', 'second-passphrase-1234']);
+    expect(
+      await E2EEBackupSetupService.to.cachedPassphrase(),
+      'second-passphrase-1234',
+    );
+    expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isTrue);
+    expect(find.textContaining('版本 8'), findsOneWidget);
+    await tester.tap(find.text(t.common.ok));
+    await tester.pumpAndSettle();
+    expect(find.byType(E2EEBackupSetupPage), findsNothing);
   });
 
   testWidgets('稍后再说始终可见：点击弹代价确认，确认后才离开且完成标记不落', (tester) async {
@@ -270,5 +289,14 @@ void main() {
     expect(find.text(t.common.e2eeBackupSetupUploading), findsNothing);
     expect(find.byType(E2EEBackupSetupPage), findsOneWidget);
     expect(find.text(t.common.e2eeBackupSetupLater), findsOneWidget);
+    expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
+    expect(await E2EEBackupSetupService.to.cachedPassphrase(), isNull);
+
+    hanging.complete(const E2EEBackupPutResult(ok: true, backupVersion: 99));
+    await tester.pumpAndSettle();
+    expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
+    expect(await E2EEBackupSetupService.to.cachedPassphrase(), isNull);
+    expect(find.textContaining('版本 99'), findsNothing);
+    expect(find.byType(E2EEBackupSetupPage), findsOneWidget);
   });
 }
