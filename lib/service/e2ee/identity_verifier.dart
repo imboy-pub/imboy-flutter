@@ -58,12 +58,15 @@ void verifyIdentitySignature(
 /// - 首先强制校验 Manifest 的设备自签名 (`device_signature`)。
 /// - 如果提供了对端的 Master Signing Key [peerMasterKey]，则会一并验证
 ///   其 Account 主委派授权签名 (`account_signature`)，构建端到端的 Cross-signing 安全凭证验证。
+/// - C02: 强制过期校验（防旧 manifest 重放——签名有效但已过期的 manifest
+///   必须显式拒绝）。[nowMs] 可注入固定时间（测试）；缺省读墙钟（fail-closed）。
 ///
-/// 抛出 [IdentityVerificationException]：签名验证失败。
+/// 抛出 [IdentityVerificationException]：签名验证失败或 manifest 已过期。
 void verifyDeviceManifest(
   DeviceManifest manifest, {
   String? peerMasterKey,
   String context = '',
+  int? nowMs,
 }) {
   // 1. 验证设备自签名
   if (!manifest.verifyDeviceSignature()) {
@@ -80,6 +83,17 @@ void verifyDeviceManifest(
       );
     }
   }
+
+  // 3. C02: 过期校验（显式拒绝重放的旧 manifest，不静默放行）
+  try {
+    manifest.ensureNotExpired(
+      nowMs: nowMs ?? DateTime.now().millisecondsSinceEpoch,
+    );
+  } on ManifestValidityException catch (e) {
+    throw IdentityVerificationException(
+      '$e${context.isEmpty ? '' : '（$context）'}',
+    );
+  }
 }
 
 /// E2EE-022: 强交叉约束绑定验证。
@@ -94,15 +108,17 @@ void verifyIdentityWithManifest(
   DeviceManifest manifest, {
   String? peerMasterKey,
   String context = '',
+  int? nowMs,
 }) {
   // 1. 验证对端 identity 的自签名
   verifyIdentitySignature(identity, context: context);
 
-  // 2. 验证对端 DeviceManifest 的签名
+  // 2. 验证对端 DeviceManifest 的签名（含 C02 过期校验，nowMs 透传）
   verifyDeviceManifest(
     manifest,
     peerMasterKey: peerMasterKey,
     context: context,
+    nowMs: nowMs,
   );
 
   // 3. 强交叉绑定 (Cross-Binding Guard) — 比对公钥是否一致

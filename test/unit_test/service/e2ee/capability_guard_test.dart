@@ -14,7 +14,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:imboy/service/e2ee/capability_guard.dart';
+import 'package:imboy/service/e2ee/capability_negotiator.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -209,6 +211,167 @@ void main() {
         peerDeviceId: 'dev-1',
       );
       expect(hwm, equals('megolm'));
+    });
+  });
+
+  group('FixedSuitePolicy 固定套件策略（C02 决策固化）', () {
+    // 生产发送链（chat_network_service）不做运行时套件协商：
+    // C2C 固定 Olm fan-out、C2G 固定 Megolm；RSA-OAEP decrypt-only 不可发送。
+    // 该策略把这一结构性事实固化为显式 API + fail-closed 负例。
+
+    test('c2c → olm；c2g → megolm（与发送链固定选择一致）', () {
+      expect(FixedSuitePolicy.requiredSuiteFor('c2c'), equals('olm'));
+      expect(FixedSuitePolicy.requiredSuiteFor('c2g'), equals('megolm'));
+    });
+
+    test('required 套件与注册的 ProtocolSuite 同源（不硬编码漂移）', () {
+      expect(
+        FixedSuitePolicy.requiredSuiteFor('c2c'),
+        equals(ProtocolSuite.olm.protocol),
+      );
+      expect(
+        FixedSuitePolicy.requiredSuiteFor('c2g'),
+        equals(ProtocolSuite.megolm.protocol),
+      );
+    });
+
+    test('rsa-oaep 永不作为任何 scope 的 required（decrypt-only）', () {
+      for (final scope in const ['c2c', 'c2g']) {
+        expect(
+          FixedSuitePolicy.requiredSuiteFor(scope),
+          isNot(equals(ProtocolSuite.rsa.protocol)),
+        );
+      }
+    });
+
+    test('未知 scope → ArgumentError（fail-closed，不猜测套件）', () {
+      for (final scope in const ['control', '', 'C2C', 'group']) {
+        expect(
+          () => FixedSuitePolicy.requiredSuiteFor(scope),
+          throwsArgumentError,
+        );
+      }
+    });
+
+    test('旧端只支持 rsa-oaep + c2c → FixedSuiteIncompatibleException（显式拒绝）', () {
+      expect(
+        () => FixedSuitePolicy.enforcePeerSupportsRequired(
+          scope: 'c2c',
+          peerDeviceId: 'legacy-dev',
+          peerProtocols: const {'rsa-oaep'},
+        ),
+        throwsA(isA<FixedSuiteIncompatibleException>()),
+      );
+    });
+
+    test('旧端只支持 rsa-oaep + c2g → FixedSuiteIncompatibleException', () {
+      expect(
+        () => FixedSuitePolicy.enforcePeerSupportsRequired(
+          scope: 'c2g',
+          peerDeviceId: 'legacy-dev',
+          peerProtocols: const {'rsa-oaep'},
+        ),
+        throwsA(isA<FixedSuiteIncompatibleException>()),
+      );
+    });
+
+    test('对端能力缺失（空集）→ 同样显式拒绝（不静默继续）', () {
+      expect(
+        () => FixedSuitePolicy.enforcePeerSupportsRequired(
+          scope: 'c2c',
+          peerDeviceId: 'dev-empty',
+          peerProtocols: const {},
+        ),
+        throwsA(isA<FixedSuiteIncompatibleException>()),
+      );
+    });
+
+    test('对端支持 required 套件 → 通过（无异常）', () {
+      expect(
+        () => FixedSuitePolicy.enforcePeerSupportsRequired(
+          scope: 'c2c',
+          peerDeviceId: 'dev-1',
+          peerProtocols: const {'olm', 'megolm'},
+        ),
+        returnsNormally,
+      );
+      expect(
+        () => FixedSuitePolicy.enforcePeerSupportsRequired(
+          scope: 'c2g',
+          peerDeviceId: 'dev-1',
+          peerProtocols: const {'megolm', 'rsa-oaep'},
+        ),
+        returnsNormally,
+      );
+    });
+
+    test('异常携带完整上下文（scope/requiredSuite/peerProtocols）', () {
+      try {
+        FixedSuitePolicy.enforcePeerSupportsRequired(
+          scope: 'c2c',
+          peerDeviceId: 'legacy-dev',
+          peerProtocols: const {'rsa-oaep'},
+        );
+        fail('should have thrown');
+      } on FixedSuiteIncompatibleException catch (e) {
+        expect(e.scope, equals('c2c'));
+        expect(e.requiredSuite, equals('olm'));
+        expect(e.peerProtocols, equals({'rsa-oaep'}));
+        expect(e.peerDeviceId, equals('legacy-dev'));
+        // 显式语义：不退明文、不静默降级
+        expect(e.toString(), contains('no plaintext fallback'));
+      }
+    });
+
+    test('与 HWM 联动：固定套件协商结果不触发 enforceNoDowngrade 降级', () async {
+      // 场景：对端 HWM=olm（历史用 Olm），本次固定套件策略产出 olm → 守护通过。
+      await guard.recordHighWaterMark(
+        peerUid: '500',
+        peerDeviceId: 'dev-1',
+        protocol: 'olm',
+      );
+      final suite = FixedSuitePolicy.requiredSuiteFor('c2c');
+      await guard.enforceNoDowngrade(
+        peerUid: '500',
+        peerDeviceId: 'dev-1',
+        negotiatedProtocol: suite,
+      );
+
+      // 反例：若对端宣称只支持 megolm 并被协商选中（rank 低于 HWM olm），
+      // HWM 守护必须拒绝 —— 两条防线语义一致。
+      expect(
+        () => guard.enforceNoDowngrade(
+          peerUid: '500',
+          peerDeviceId: 'dev-1',
+          negotiatedProtocol: 'megolm',
+        ),
+        throwsA(isA<CapabilityDowngradeException>()),
+      );
+    });
+
+    test('megolm → rsa-oaep 回退被 HWM 守护拒绝（回退套件负例）', () async {
+      await guard.recordHighWaterMark(
+        peerUid: '600',
+        peerDeviceId: 'dev-1',
+        protocol: 'megolm',
+      );
+      expect(
+        () => guard.enforceNoDowngrade(
+          peerUid: '600',
+          peerDeviceId: 'dev-1',
+          negotiatedProtocol: 'rsa-oaep',
+        ),
+        throwsA(isA<CapabilityDowngradeException>()),
+      );
+    });
+
+    test('固定套件产物全部位于 securityRank 内（与协商排序同源）', () {
+      for (final scope in const ['c2c', 'c2g']) {
+        expect(
+          CapabilityNegotiator.securityRank,
+          contains(FixedSuitePolicy.requiredSuiteFor(scope)),
+        );
+      }
     });
   });
 
