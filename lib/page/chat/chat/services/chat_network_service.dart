@@ -655,18 +655,30 @@ class ChatNetworkService {
 
   /// 更新消息状态
   Future<void> updateMessageStatus(String messageId, int status) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool isCurrent() =>
+        uid.isNotEmpty &&
+        session.currentUid == uid &&
+        session.sessionGeneration == generation &&
+        !session.isClearingSession;
+    if (!isCurrent()) return;
     try {
       final bool found = await MessageRepo.updateStatusInAnyTable(
         messageId,
         status,
       );
+      if (!isCurrent()) return;
       if (found) {
         for (final String tableType in ['C2C', 'C2G', 'C2S']) {
           final String tb = MessageRepo.getTableName(tableType);
           final repo = MessageRepo(tableName: tb);
           final msg = await repo.find(messageId);
+          if (!isCurrent()) return;
           if (msg != null) {
             final updatedMessage = await msg.toTypeMessage();
+            if (!isCurrent()) return;
             AppEventBus.fireData([updatedMessage], 'List<Message>');
             break;
           }

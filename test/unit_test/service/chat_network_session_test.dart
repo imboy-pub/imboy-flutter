@@ -7,6 +7,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
@@ -15,6 +16,7 @@ import 'package:imboy/service/websocket_events.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -75,6 +77,58 @@ class _EmptyDatabase implements Database {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _StatusDatabase extends _EmptyDatabase {
+  final entered = Completer<void>();
+  final release = Completer<int>();
+  int queries = 0;
+  @override
+  Future<int> update(
+    String table,
+    Map<String, Object?> values, {
+    String? where,
+    List<Object?>? whereArgs,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) async {
+    updates++;
+    entered.complete();
+    return release.future;
+  }
+
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) async {
+    queries++;
+    if (table == 'contact') {
+      return [ContactModel(peerId: 200, nickname: 'Synthetic').toJson()];
+    }
+    if (!table.startsWith('msg_')) return [];
+    return [
+      MessageModel(
+        'synthetic-status',
+        autoId: 1,
+        type: 'C2C',
+        status: IMBoyMessageStatus.error,
+        fromId: 200,
+        toId: 200,
+        payload: {'text': 'synthetic'},
+        isAuthor: 1,
+        conversationUk3: 'synthetic-status',
+        msgType: 'text',
+      ).toJson(),
+    ];
+  }
+}
+
 class _ChangeOnEncode {
   _ChangeOnEncode(this.change);
   final void Function() change;
@@ -89,6 +143,78 @@ void main() {
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
   );
+  test('anonymous status update starts no database write', () async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: ''});
+    await StorageService.init();
+    final database = _EmptyDatabase();
+    SqliteService.setDbForTest(database);
+    try {
+      await const ChatNetworkService().updateMessageStatus(
+        'anonymous-status',
+        IMBoyMessageStatus.error,
+      );
+      expect(database.updates, 0);
+    } finally {
+      SqliteService.setDbForTest(null);
+    }
+  });
+  for (final stale in [false, true]) {
+    test('status update completion session changed=$stale', () async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      final database = _StatusDatabase();
+      SqliteService.setDbForTest(database);
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(secureChannel, (call) async {
+            if (call.method == 'write' &&
+                (call.arguments as Map)['key'] == 'secure_token') {
+              throw PlatformException(code: 'synthetic-login-stop');
+            }
+            return null;
+          });
+      final events = <DataWrapperEvent<dynamic>>[];
+      final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
+        events.add,
+      );
+      try {
+        final pending = const ChatNetworkService().updateMessageStatus(
+          'synthetic-status',
+          IMBoyMessageStatus.error,
+        );
+        await database.entered.future;
+        if (stale) {
+          await expectLater(
+            UserRepoLocal.to.loginAfter('synthetic-session', {
+              'uid': '101',
+              'token': 'synthetic-token',
+              'refreshtoken': 'synthetic-refresh',
+            }),
+            throwsA(isA<PlatformException>()),
+          );
+        }
+        database.release.complete(1);
+        await pending;
+        await pumpEventQueue();
+        expect(database.updates, 1);
+        expect(database.queries, stale ? 0 : 2);
+        final notifications = events.where(
+          (e) => e.dataType == 'List<Message>',
+        );
+        expect(notifications.length, stale ? 0 : 1);
+        if (!stale) {
+          expect(
+            (notifications.single.data as List).single.id,
+            'synthetic-status',
+          );
+        }
+      } finally {
+        await subscription.cancel();
+        SqliteService.setDbForTest(null);
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureChannel, null);
+      }
+    });
+  }
   test('retry rejects expired generation and stale encode failure', () async {
     SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
     await StorageService.init();
@@ -206,7 +332,7 @@ void main() {
                     'synthetic-policy-wait',
                     autoId: 0,
                     type: 'C2G',
-                    fromId: 100,
+                    fromId: 200,
                     toId: 200,
                     payload: {'text': 'synthetic-content'},
                     msgType: 'text',
