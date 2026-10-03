@@ -83,3 +83,22 @@
 - `threat_model_guard_test.dart`：`aes_gcm_tamper_fails`（T4）从 skip 占位转为 4 个真实断言（正常往返 + 篡改密文 + 错密钥 + 错 AAD）。
 - 本覆盖矩阵文档。
 - 未新增功能、未改协议实现、未依赖真机/TEST_PHONE。
+
+---
+
+## 7. C17b（run-20261003-094804）净增：seeded 随机腐蚀 fuzz harness
+
+> 方案出处：`imboy/docs/design/2026-10-03-e2ee-production-excellence/privacy-profile.md` §4.3（AC-35 前置）。
+
+| parser 域 | fuzz oracle 入口 | 迭代规模 | 白名单（不变量） | 状态 |
+|---|---|---|---|---|
+| PFv3 信封（protected_header 字节 + base64 字符层） | `ProtectedFrameV3.verifyOuterEnvelope` + `validateEnvelopeBounds` | 2×200 | `CborParseException` / `FrameBoundsException` / `FormatException` | ✅ |
+| attachment descriptor（canonical CBOR） | `AttachmentDescriptor.fromCanonicalBytes` | 200 | `AttachmentDescriptorException` | ✅ |
+| backup 下载体（.enc 容器，KDF 成本闸见测试头注释） | `E2EELocalBackupService.unpackBackupBytes` | 200 + 越界迭代数固定向量 | `ArgumentError` / `FormatException` / `StateError` | ✅ |
+| handshake/claim 响应（JSON 字节） | `OlmApi.parseClaimPayload`（C17b 新增 fail-closed 入口） | 200 + 畸形 JSON 13 向量 + 类型混淆 22 向量 + 超长/深嵌套（10 万层） | `FormatException` / `olm claim_key: invalid payload` 前缀 | ✅ |
+| megolm backup section（云恢复 JSON 层） | `parseMegolmSection` | 200 | `FormatException` | ✅ |
+
+- 文件：`parser_fuzz_harness_test.dart`（seed 集合固定：20261003/1017/4242/31337/271828，×40 轮/域；失败信息携带 seed/round/ops 可重放）。
+- **fuzz 发现并修复**（本净增的实证价值）：
+  1. `CanonicalCbor` 文本串解码遇非法 UTF-8 直接抛 `FormatException` 泄出（违反"解析失败一律 `CborParseException`"契约）→ `protected_frame_v3.dart` 包装修复；
+  2. claim 响应硬 cast（`claim['identity'] as Map`）在恶意响应下抛 `TypeError` → `olm_api.dart` 新增 `parseClaimPayload` 严格收口（`claimKey` 已接线）。

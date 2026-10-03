@@ -239,7 +239,17 @@ class _CborReader {
       case 3: // text string
         final len = _readArgument(additionalInfo, shortest: true);
         final bytes = _readBytes(len);
-        return utf8.decode(bytes);
+        // C17b fuzz（parser_fuzz_harness_test，seed=20261003 round=2）：
+        // 腐蚀出的非法 UTF-8 曾让 utf8.decode 直接抛 FormatException 泄出
+        // 解码器——违反「解析失败一律 CborParseException」契约，调用方
+        // （如 verifyOuterEnvelope）只捕本类型会漏接。包一层。
+        try {
+          return utf8.decode(bytes);
+        } on FormatException catch (e) {
+          throw CborParseException(
+            'invalid UTF-8 in text string: ${e.message}',
+          );
+        }
       case 4: // array
         final count = _readArgument(additionalInfo, shortest: true);
         if (count > CanonicalCbor.maxArrayEntries) {
