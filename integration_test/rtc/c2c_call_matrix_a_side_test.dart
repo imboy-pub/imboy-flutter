@@ -46,7 +46,7 @@ void main() {
   testWidgets('c2c 呼叫矩阵 A 侧: 呼出→响铃→接通→媒体→静音/翻转→挂断释放', (tester) async {
     if (!requireTwoDeviceSetup(tester, 'c2c-a-side')) return;
     if (lkPeerUid.isEmpty) {
-      markTestSkipped('c2c-a-side: 需 PEER_UID');
+      rtcSetupUnavailable('c2c-a-side: 需 PEER_UID');
       return;
     }
     installPluginErrorFilter();

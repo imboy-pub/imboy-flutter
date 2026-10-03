@@ -57,7 +57,7 @@ void main() {
   ) async {
     if (!requireOneDeviceSetup(tester, 'rtc-group-regression')) return;
     if (_groupId.isEmpty) {
-      markTestSkipped('rtc-group-regression: 需 TEST_GROUP_ID（测试群 id）');
+      rtcSetupUnavailable('rtc-group-regression: 需 TEST_GROUP_ID（测试群 id）');
       return;
     }
     installPluginErrorFilter();

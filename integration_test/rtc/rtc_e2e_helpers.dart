@@ -2,7 +2,7 @@
 //
 // LK-TEST-01 RTC 真机集成测试公共设施。
 //
-// 前置（dart-define 注入，缺一对应测试 markTestSkipped 而非 fail）：
+// 前置由 dart-define 注入；正式 strict 模式缺项必须 fail。
 //   --dart-define=APP_ENV=local
 //   --dart-define=API_BASE_URL_OVERRIDE=http://<后端>:<port>
 //   --dart-define=WS_URL_OVERRIDE=ws://<后端>:<port>/api/v1/ws
@@ -42,36 +42,51 @@ const lkMedia = String.fromEnvironment('LK_RTC_MEDIA', defaultValue: 'video');
 String lkRunTag([String prefix = 'lktest']) =>
     '$prefix-${DateTime.now().millisecondsSinceEpoch}';
 
-/// 双机用例前置门：环境不全则 skip（保留 BLOCKED 语义，不当失败）。
+/// 所有 RTC 前置失败共用此门；开发态可 skip，验收态必须非零退出。
+bool rtcSetupUnavailable(String reason, {bool strict = lkRtcStrict}) {
+  if (strict) fail('STRICT RTC: $reason');
+  markTestSkipped(reason);
+  return false;
+}
+
+bool _requireRtcBusinessAuthorization() {
+  if (!FlowConfig.allowBusinessWrites) {
+    return rtcSetupUnavailable('需 TEST_ALLOW_BUSINESS_WRITES=true');
+  }
+  if (!FlowConfig.hasExplicitTestEnvironment) {
+    return rtcSetupUnavailable('需显式 API_BASE_URL 或 APP_ENV');
+  }
+  if (FlowConfig.targetsProduction) {
+    return rtcSetupUnavailable('生产测试需独立的精确目标与资源授权入口');
+  }
+  return true;
+}
+
+/// 双机前置门：strict 缺项失败；开发态 skip 不算验收通过。
 /// 返回 true 表示可继续。
 bool requireTwoDeviceSetup(WidgetTester tester, String caseName) {
   if (!lkRtcRunEnabled) {
-    markTestSkipped('$caseName: 需 LK_RTC_RUN=true');
-    return false;
+    return rtcSetupUnavailable('$caseName: 需 LK_RTC_RUN=true');
   }
   if (!FlowConfig.hasCredentials) {
-    markTestSkipped('$caseName: 需 TEST_PHONE/TEST_PASSWORD（本地合成账号）');
-    return false;
+    return rtcSetupUnavailable('$caseName: 需 TEST_PHONE/TEST_PASSWORD（合成账号）');
   }
   if (lkExpectedUid.isEmpty) {
-    markTestSkipped('$caseName: 需 TEST_EXPECTED_UID');
-    return false;
+    return rtcSetupUnavailable('$caseName: 需 TEST_EXPECTED_UID');
   }
-  if (!requireBusinessWriteAuthorization()) return false;
+  if (!_requireRtcBusinessAuthorization()) return false;
   return true;
 }
 
 /// 单机用例前置门。
 bool requireOneDeviceSetup(WidgetTester tester, String caseName) {
   if (!lkRtcRunEnabled) {
-    markTestSkipped('$caseName: 需 LK_RTC_RUN=true');
-    return false;
+    return rtcSetupUnavailable('$caseName: 需 LK_RTC_RUN=true');
   }
   if (!FlowConfig.hasCredentials) {
-    markTestSkipped('$caseName: 需 TEST_PHONE/TEST_PASSWORD');
-    return false;
+    return rtcSetupUnavailable('$caseName: 需 TEST_PHONE/TEST_PASSWORD');
   }
-  if (!requireBusinessWriteAuthorization()) return false;
+  if (!_requireRtcBusinessAuthorization()) return false;
   return true;
 }
 
@@ -81,8 +96,7 @@ bool requireOneDeviceSetup(WidgetTester tester, String caseName) {
 Future<bool> ensureLoggedInAndIdle(WidgetTester tester) async {
   await ensureAppLaunched(tester, maxSeconds: 20);
   if (!await ensureBackendAvailable()) {
-    markTestSkipped('后端不可达，跳过');
-    return false;
+    return rtcSetupUnavailable('后端不可达');
   }
   await dismissRecoveryGuide(tester);
   var entryReady = false;
