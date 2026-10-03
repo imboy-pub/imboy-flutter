@@ -134,4 +134,80 @@ void main() {
       expect(fresh.existsSync(), isFalse);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────────
+  // 3. C04 合成场景：解密中途崩溃 / 用户取消 / 会话退出（ATT-05 的三种触发面）
+  //
+  // `IMBoyCacheManager` 写 `<name>.tmp`（解密后的明文）再 rename。三种路径
+  // 会让 .tmp 留下：进程被 kill（写一半）、用户取消下载、退出会话时下载
+  // 仍在进行。合成方式：直接落盘「半份明文」+ 注入时间，验证清扫收敛。
+  // ────────────────────────────────────────────────────────────────────────
+  group('3. C04 合成场景：崩溃 / 取消 / 退出', () {
+    test('⚠️ 崩溃（kill 于解密写入中途）：半份明文 .tmp 留下 → 重启后清扫收敛', () async {
+      // 模拟：写入了 3KB 中的 1KB 就被 kill
+      final partial = File('${dir.path}/imboy_cache_video.mp4.tmp')
+        ..writeAsBytesSync(List<int>.filled(1024, 0x41));
+      partial.setLastModifiedSync(
+        DateTime.now().subtract(const Duration(minutes: 11)),
+      );
+
+      // 进程重启后的首轮清扫（注入 now 走真实年龄语义）
+      final removed = await AttachmentTempHygiene.sweep(dir);
+      expect(removed, 1, reason: '崩溃残留的明文碎片必须被清掉');
+      expect(partial.existsSync(), isFalse);
+    });
+
+    test('⚠️ 崩溃后立刻重启（age 未到阈值）：残留暂留，不误删进行中的写入', () async {
+      final justCrashed = write('imboy_cache_img.jpg.tmp'); // 年龄≈0
+      expect(await AttachmentTempHygiene.sweep(dir), 0);
+      expect(
+        justCrashed.existsSync(),
+        isTrue,
+        reason: '刚留下的可能是另一并发写入的开头，见到就删会变成永远下载不出来',
+      );
+    });
+
+    test('⚠️ 用户取消下载：新鲜的 .tmp 不动，同目录已完成缓存不受影响', () async {
+      final cancelled = write('imboy_cache_doc.pdf.tmp');
+      final finished = write(
+        'imboy_cache_doc.pdf',
+        ageBack: const Duration(days: 1),
+      );
+
+      expect(await AttachmentTempHygiene.sweep(dir), 0);
+      expect(cancelled.existsSync(), isTrue);
+      expect(finished.existsSync(), isTrue);
+    });
+
+    test('⚠️ 会话退出：混合状态下的一轮收敛（老 tmp 清、新 tmp 与缓存留）', () async {
+      final stale1 = write('a.jpg.tmp', ageBack: const Duration(hours: 3));
+      final stale2 = write('b.mp4.tmp', ageBack: const Duration(days: 2));
+      final stale3 = write('c.pdf.tmp', ageBack: const Duration(minutes: 30));
+      final inFlight = write('d.jpg.tmp');
+      final cache1 = write('e.jpg', ageBack: const Duration(days: 30));
+      final cache2 = write('f.mp4');
+
+      expect(await AttachmentTempHygiene.sweep(dir), 3);
+      for (final gone in [stale1, stale2, stale3]) {
+        expect(gone.existsSync(), isFalse);
+      }
+      for (final kept in [inFlight, cache1, cache2]) {
+        expect(kept.existsSync(), isTrue);
+      }
+    });
+
+    test('⚠️ 单个删除失败（目录无写权限）→ 跳过不抛，返回 0', () async {
+      final stale = write('a.jpg.tmp', ageBack: const Duration(hours: 2));
+      // 父目录去写权限：删除必然 EACCES → sweep 必须吞掉继续（而非中断/抛出）
+      final result = Process.runSync('chmod', ['0555', dir.path]);
+      expect(result.exitCode, equals(0));
+      try {
+        final removed = await AttachmentTempHygiene.sweep(dir);
+        expect(removed, equals(0));
+        expect(stale.existsSync(), isTrue, reason: '删不掉是权限问题，不是误删');
+      } finally {
+        Process.runSync('chmod', ['0755', dir.path]);
+      }
+    });
+  });
 }
