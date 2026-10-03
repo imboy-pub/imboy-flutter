@@ -147,6 +147,28 @@ def audit_cross_device_journey_set(root: Path, frozen: Any, records: Any) -> Lis
     return errors
 
 
+def _stage_device_errors(root: Path, frozen: dict, run: dict,
+                         obligation: dict, key: list, sender_key: list) -> List[str]:
+    """Bind the driving run to a pinned device snapshot, not device authenticity."""
+    identifier = run.get('device_binding_id')
+    rows = frozen.get('runtime_bindings')
+    if not isinstance(identifier, str) or not identifier.strip() or not isinstance(rows, list):
+        return ['JOURNEY_DEVICE_BINDING_INVALID']
+    matches = [row for row in rows if isinstance(row, dict)
+               and row.get('binding_id') == identifier]
+    if len(matches) != 1 or matches[0].get('kind') != 'device':
+        return ['JOURNEY_DEVICE_BINDING_INVALID']
+    snapshot, errors = acceptance.load_frozen_json(root, matches[0].get('artifact'))
+    if errors:
+        return errors
+    device = obligation['sender_device' if key[1] == sender_key[1] else 'receiver_device']
+    required = dict(device_id=device, platform=key[1], run_id=obligation['run_id'],
+                    fixture_generation=obligation['fixture_generation'])
+    if not isinstance(snapshot, dict) or any(snapshot.get(k) != v for k, v in required.items()):
+        return ['JOURNEY_DEVICE_SNAPSHOT_MISMATCH']
+    return []
+
+
 def audit_journey_attempt_links(root: Path, frozen: dict, records: Any) -> List[str]:
     """Link capture stages to frozen case runs; does not authenticate producers.
 
@@ -184,6 +206,8 @@ def audit_journey_attempt_links(root: Path, frozen: dict, records: Any) -> List[
                 if (stage == 'receiver_ui' and key[1] == links['sender_ui'][1]
                         or stage == 'reopened_ui' and key != links['receiver_ui']):
                     return ['JOURNEY_STAGE_PLATFORM_MISMATCH']
+                errors.extend(_stage_device_errors(
+                    root, frozen, run, obligation, key, links['sender_ui']))
                 record, read_errors = acceptance.load_frozen_json(root, records[identifier][stage])
                 errors.extend(read_errors)
                 if not read_errors and (not isinstance(record, dict)

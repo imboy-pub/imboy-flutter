@@ -168,10 +168,18 @@ class JourneyRecordsTest(unittest.TestCase):
 
     def linked_fixture(self):
         frozen = self.frozen()
-        links, runs = {}, []
+        links, runs, bindings = {}, [], []
         for case in frozen['required_cases']:
             key = [case[k] for k in ('case_id', 'platform', 'profile', 'role_variant')]
+            snapshot = dict(device_id=case['platform'], platform=case['platform'],
+                            run_id='run', fixture_generation='generation')
+            content = json.dumps(snapshot).encode()
+            name = case['platform'] + '.device.json'
+            (self.root / name).write_bytes(content)
+            bindings.append(dict(binding_id=case['platform'], kind='device',
+                                 artifact=dict(path=name, sha256=hashlib.sha256(content).hexdigest())))
             run = dict(required_cases=[case], attempt_id=case['platform'],
+                       device_binding_id=case['platform'],
                        event_artifact=dict(path=case['platform'] + '.events', sha256='e' * 64))
             runs.append(run)
             stages = ('sender_ui', 'persistence') if case['platform'] == 'android' else (
@@ -181,6 +189,7 @@ class JourneyRecordsTest(unittest.TestCase):
                 self.records[stage].update(case_key=key, attempt_id=run['attempt_id'],
                                            event_artifact=run['event_artifact'])
         frozen['case_event_runs'] = runs
+        frozen['runtime_bindings'] = bindings
         frozen['cross_device_journeys'][0]['stage_case_keys'] = links
         return frozen
 
@@ -211,6 +220,42 @@ class JourneyRecordsTest(unittest.TestCase):
         for value in (None, [], 'invalid'):
             self.assertEqual(['FROZEN_JOURNEY_SET_INVALID'],
                              audit_journey_attempt_links(self.root, value, {}))
+
+    def test_driving_run_requires_unique_device_binding(self):
+        for value in (None, '', 'unknown', 'macos'):
+            frozen = self.linked_fixture()
+            frozen['case_event_runs'][0]['device_binding_id'] = value
+            errors = audit_journey_attempt_links(self.root, frozen, {'journey': self.artifacts()})
+            self.assertTrue(errors)
+        frozen = self.linked_fixture()
+        frozen['runtime_bindings'].append(frozen['runtime_bindings'][0])
+        self.assertIn('JOURNEY_DEVICE_BINDING_INVALID', audit_journey_attempt_links(
+            self.root, frozen, {'journey': self.artifacts()}))
+
+    def test_pinned_snapshot_device_platform_and_runtime_must_match(self):
+        for field in ('device_id', 'platform', 'run_id', 'fixture_generation'):
+            with self.subTest(field=field):
+                frozen = self.linked_fixture()
+                artifact = frozen['runtime_bindings'][0]['artifact']
+                path = self.root / artifact['path']
+                snapshot = json.loads(path.read_text())
+                snapshot[field] = 'wrong'
+                content = json.dumps(snapshot).encode()
+                path.write_bytes(content)
+                artifact['sha256'] = hashlib.sha256(content).hexdigest()
+                self.assertIn('JOURNEY_DEVICE_SNAPSHOT_MISMATCH', audit_journey_attempt_links(
+                    self.root, frozen, {'journey': self.artifacts()}))
+
+    def test_device_snapshot_tamper_and_wrong_kind_rejected(self):
+        frozen = self.linked_fixture()
+        artifact = frozen['runtime_bindings'][0]['artifact']
+        (self.root / artifact['path']).write_text('{}')
+        errors = audit_journey_attempt_links(self.root, frozen, {'journey': self.artifacts()})
+        self.assertTrue(any('ARTIFACT_HASH_MISMATCH' in error for error in errors))
+        frozen = self.linked_fixture()
+        frozen['runtime_bindings'][0]['kind'] = 'build'
+        self.assertIn('JOURNEY_DEVICE_BINDING_INVALID', audit_journey_attempt_links(
+            self.root, frozen, {'journey': self.artifacts()}))
 
 
 if __name__ == '__main__':
