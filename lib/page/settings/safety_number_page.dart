@@ -9,15 +9,19 @@
 /// - 服务端 trust 记录成功后，本地状态按 peer 绑定当前 60 位聚合码。
 library;
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/e2ee_service.dart'
+    show E2eeDeviceSetAnomalyEvent, SafetyNumberTrustInvalidatedEvent;
+import 'package:imboy/service/events/events.dart' show AppEventBus;
 import 'package:imboy/service/safety_number_service.dart';
 import 'package:imboy/service/trust_record_service.dart';
-import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -35,19 +39,40 @@ class SafetyNumberPage extends StatefulWidget {
 }
 
 class _SafetyNumberPageState extends State<SafetyNumberPage> {
-  static const String _verifiedPrefix = 'safety_number_verified_';
-
   bool _isLoading = true;
   SafetyNumberResult? _result;
   bool _verified = false;
   String? _error;
 
+  StreamSubscription<SafetyNumberTrustInvalidatedEvent>? _ssTrustInvalidated;
+  StreamSubscription<E2eeDeviceSetAnomalyEvent>? _ssDeviceSetAnomaly;
+
   @override
   void initState() {
     super.initState();
+    // AC-15 用户可见策略：页面打开期间对端换钥/撤销信任/设备集合漂移，
+    // 「已验证」徽章不得停留在陈旧状态——收到事件立即刷新（重算聚合码，
+    // 严格相等自动判定需重验）。聊天页的「对方安全码已变更」toast 由
+    // E2EEPeerKeyChangedEvent 既有链路负责（60s 频控），此处只做页面状态。
+    _ssTrustInvalidated = AppEventBus.on<SafetyNumberTrustInvalidatedEvent>()
+        .listen((event) {
+          if (event.peerUid == widget.peerUid && mounted) _load();
+        });
+    _ssDeviceSetAnomaly = AppEventBus.on<E2eeDeviceSetAnomalyEvent>().listen((
+      event,
+    ) {
+      if (event.peerUid == widget.peerUid && mounted) _load();
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _load();
     });
+  }
+
+  @override
+  void dispose() {
+    _ssTrustInvalidated?.cancel();
+    _ssDeviceSetAnomaly?.cancel();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -59,8 +84,10 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
       final result = await SafetyNumberService.generateForPeer(
         peerUid: widget.peerUid,
       );
-      final verifiedAt = await StorageSecureService.to.read(
-        key: _verifiedPrefix + widget.peerUid,
+      // AC-15：本地验证状态收口到 SafetyNumberService（严格绑定当前聚合码；
+      // 换钥/撤销由 bootstrap 常驻接线主动清除，页面只读）。
+      final verifiedAt = await SafetyNumberService.localVerifiedNumber(
+        widget.peerUid,
       );
       if (!mounted) return;
       setState(() {
@@ -102,9 +129,12 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
     if (!mounted) return;
     switch (outcome) {
       case TrustRecordOutcome.recorded:
-        await StorageSecureService.to.write(
-          key: _verifiedPrefix + widget.peerUid,
-          value: result.number,
+        // AC-15：markVerified 同时绑定当前聚合码与批准设备集合——此后
+        // 对端设备增删/换钥改变聚合码，旧验证自动失效（需重新带外核验）。
+        await SafetyNumberService.markVerified(
+          peerUid: widget.peerUid,
+          number: result.number,
+          approvedRemoteDeviceIds: result.remoteDeviceIds.toSet(),
         );
         setState(() => _verified = true);
         AppLoading.showToast(t.main.safetyNumberMarkedVerified);
