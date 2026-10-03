@@ -436,11 +436,13 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   }
 
   Future<void> _selectFile() async {
+    if (!mounted) return;
     try {
       final result = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['enc'],
       );
+      if (!mounted) return;
 
       if (result != null && result.path != null) {
         // 切换到文件选择器来源前，清理之前 URL 下载产生的临时文件
@@ -448,6 +450,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           await E2EEBackupUrlDownloadService.cleanupTempFile(
             _selectedFile!.path,
           );
+          if (!mounted) return;
         }
         setState(() {
           _selectedFile = File(result.path!);
@@ -457,6 +460,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         await _verifyFile();
       }
     } on Exception catch (e) {
+      if (!mounted) return;
       iPrint('[E2EEBackupImport] 选择备份文件失败: $e');
       _showError(t.common.e2eeBackupErrSelectFile);
     }

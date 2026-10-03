@@ -20,6 +20,9 @@ final class _PickedFile extends PlatformFile {
 }
 
 class _SelectionPicker extends FilePickerPlatform {
+  _SelectionPicker({this.pending});
+  final Future<PlatformFile?>? pending;
+  int calls = 0;
   @override
   Future<PlatformFile?> pickFile({
     String? dialogTitle,
@@ -33,10 +36,19 @@ class _SelectionPicker extends FilePickerPlatform {
     WindowsOptions windowsOptions = const WindowsOptions(),
     LinuxOptions linuxOptions = const LinuxOptions(),
     WebOptions webOptions = const WebOptions(),
-  }) async => _PickedFile();
+  }) async {
+    calls++;
+    return pending == null ? _PickedFile() : await pending;
+  }
 }
 
 void main() {
+  for (final fails in [false, true]) {
+    testWidgets(
+      '关闭恢复页后忽略选择器${fails ? '错误' : '结果'}',
+      (tester) => _assertPickerStopsAfterDisposal(tester, fails),
+    );
+  }
   for (final oldFails in [false, true]) {
     testWidgets(
       '旧文件校验${oldFails ? '失败' : '成功'}不能覆盖新选择',
@@ -44,6 +56,64 @@ void main() {
     );
   }
 }
+
+Future<void> _assertPickerStopsAfterDisposal(
+  WidgetTester tester,
+  bool fails,
+) async {
+  final completion = Completer<PlatformFile?>();
+  final picker = _SelectionPicker(pending: completion.future);
+  final original = FilePickerPlatform.instance;
+  FilePickerPlatform.instance = picker;
+  addTearDown(() => FilePickerPlatform.instance = original);
+  var verificationCalls = 0;
+  await tester.pumpWidget(
+    _pickerPage((_) async {
+      verificationCalls++;
+      return {};
+    }),
+  );
+  await tester.tap(find.text(t.common.e2eeBackupSelectFileHint));
+  await tester.pump();
+  expect(picker.calls, 1);
+  await tester.pumpWidget(
+    MaterialApp(
+      builder: AppLoading.init(),
+      home: const Text('replacement page'),
+    ),
+  );
+  if (fails) {
+    completion.completeError(Exception('synthetic picker failure'));
+  } else {
+    completion.complete(_PickedFile());
+  }
+  for (var frame = 0; frame < 10; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  final staleToast = find
+      .text(t.common.e2eeBackupErrSelectFile)
+      .evaluate()
+      .isNotEmpty;
+  for (var frame = 0; frame < 100; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(staleToast, isFalse);
+  expect(verificationCalls, 0);
+  expect(tester.takeException(), isNull);
+}
+
+Widget _pickerPage(Future<Map<String, dynamic>> Function(String) verifier) =>
+    TranslationProvider(
+      child: ProviderScope(
+        child: MaterialApp(
+          builder: AppLoading.init(),
+          home: E2EEBackupImportPage(
+            cloudBackupProbe: () async => E2EEBackupInfo(hasBackup: false),
+            backupFileVerifier: verifier,
+          ),
+        ),
+      ),
+    );
 
 Widget _page(Map<String, Completer<Map<String, dynamic>>> pending) =>
     TranslationProvider(
