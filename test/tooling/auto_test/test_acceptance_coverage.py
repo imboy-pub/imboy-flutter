@@ -28,6 +28,18 @@ class CoverageTests(unittest.TestCase):
     def test_all_inputs_mapped_is_structurally_valid(self):
         self.assertEqual(self.audit(), [])
 
+    def test_required_case_identity_placeholders_are_rejected(self):
+        for field in ('case_id', 'platform', 'profile', 'role_variant', 'seed_ids'):
+            with self.subTest(field=field):
+                self.setUp()
+                self.case[field] = ['TODO'] if field == 'seed_ids' else 'TODO'
+                self.key = [self.case[k] for k in
+                            ('case_id', 'platform', 'profile', 'role_variant')]
+                for row in self.mappings:
+                    row['case_keys'] = [self.key]
+                self.assertIn('COVERAGE_REQUIRED_CASES_INVALID_OR_PLACEHOLDER',
+                              self.audit())
+
     def test_dropped_input_or_case_mapping_is_rejected(self):
         self.mappings.pop()
         self.assertIn('COVERAGE_INPUT_MISSING', self.audit())

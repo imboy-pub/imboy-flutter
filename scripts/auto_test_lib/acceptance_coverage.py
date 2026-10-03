@@ -52,7 +52,11 @@ def audit_input_case_coverage(frozen_inputs: Any, frozen_cases: Any,
     try:
         expected = _input_keys(frozen_inputs)
         cases = acceptance_contract._case_index(frozen_cases)
-        if cases is None or any(not _meaningful(row['oracle']) for row in frozen_cases):
+        if cases is None or any(
+                not all(_meaningful(row[field]) for field in
+                        (*acceptance_contract._KEY_FIELDS, 'oracle'))
+                or not all(_meaningful(seed) for seed in row['seed_ids'])
+                for row in frozen_cases):
             return ['COVERAGE_REQUIRED_CASES_INVALID_OR_PLACEHOLDER']
         if not isinstance(mappings, list) or not isinstance(approved_dispositions, list):
             return ['COVERAGE_MAPPING_SCHEMA_INVALID']
