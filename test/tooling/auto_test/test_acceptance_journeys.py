@@ -7,7 +7,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
 from auto_test_lib.acceptance_journeys import (
-    audit_cross_device_records, audit_cross_device_journey_set,
+    audit_cross_device_records, audit_cross_device_journey_set, audit_journey_attempt_links,
 )
 
 
@@ -165,6 +165,52 @@ class JourneyRecordsTest(unittest.TestCase):
         frozen['candidates'] = None
         self.assertIn('JOURNEY_FROZEN_CANDIDATE_MISMATCH',
                       audit_cross_device_journey_set(self.root, frozen, {}))
+
+    def linked_fixture(self):
+        frozen = self.frozen()
+        links, runs = {}, []
+        for case in frozen['required_cases']:
+            key = [case[k] for k in ('case_id', 'platform', 'profile', 'role_variant')]
+            run = dict(required_cases=[case], attempt_id=case['platform'],
+                       event_artifact=dict(path=case['platform'] + '.events', sha256='e' * 64))
+            runs.append(run)
+            stages = ('sender_ui', 'persistence') if case['platform'] == 'android' else (
+                'receiver_ui', 'reopened_ui')
+            for stage in stages:
+                links[stage] = key
+                self.records[stage].update(case_key=key, attempt_id=run['attempt_id'],
+                                           event_artifact=run['event_artifact'])
+        frozen['case_event_runs'] = runs
+        frozen['cross_device_journeys'][0]['stage_case_keys'] = links
+        return frozen
+
+    def test_stage_records_link_to_driving_attempt(self):
+        frozen = self.linked_fixture()
+        self.assertEqual([], audit_journey_attempt_links(
+            self.root, frozen, {'journey': self.artifacts()}))
+        for field in ('case_key', 'attempt_id', 'event_artifact'):
+            with self.subTest(field=field):
+                old = self.records['persistence'][field]
+                self.records['persistence'][field] = 'wrong'
+                self.assertIn('JOURNEY_STAGE_ATTEMPT_MISMATCH:persistence',
+                              audit_journey_attempt_links(
+                                  self.root, frozen, {'journey': self.artifacts()}))
+                self.records['persistence'][field] = old
+
+    def test_missing_stage_links_and_unknown_runs_rejected(self):
+        frozen = self.linked_fixture()
+        links = frozen['cross_device_journeys'][0].pop('stage_case_keys')
+        self.assertIn('JOURNEY_STAGE_CASE_LINKS_INVALID', audit_journey_attempt_links(
+            self.root, frozen, {'journey': self.artifacts()}))
+        frozen['cross_device_journeys'][0]['stage_case_keys'] = links
+        frozen['case_event_runs'] = []
+        self.assertIn('JOURNEY_STAGE_CASE_RUN_INVALID', audit_journey_attempt_links(
+            self.root, frozen, {'journey': self.artifacts()}))
+
+    def test_attempt_link_nonobject_frozen_rejected(self):
+        for value in (None, [], 'invalid'):
+            self.assertEqual(['FROZEN_JOURNEY_SET_INVALID'],
+                             audit_journey_attempt_links(self.root, value, {}))
 
 
 if __name__ == '__main__':

@@ -145,3 +145,52 @@ def audit_cross_device_journey_set(root: Path, frozen: Any, records: Any) -> Lis
             paths.add(path)
             digests.add(digest)
     return errors
+
+
+def audit_journey_attempt_links(root: Path, frozen: dict, records: Any) -> List[str]:
+    """Link capture stages to frozen case runs; does not authenticate producers.
+
+    Persistence is associated with the driving device case, not represented as
+    a Flutter database assertion. Storage observation qualification is separate.
+    """
+    if not isinstance(frozen, dict):
+        return ['FROZEN_JOURNEY_SET_INVALID']
+    expected, errors = _journey_expectations(frozen)
+    if errors:
+        return errors
+    if not isinstance(records, dict) or set(records) != set(expected):
+        return ['JOURNEY_RECORDED_SET_MISMATCH']
+    try:
+        runs = frozen['case_event_runs']
+        owners = {}
+        for run in runs:
+            for case in run['required_cases']:
+                key = tuple(case[field] for field in acceptance_contract._KEY_FIELDS)
+                if key in owners:
+                    return ['JOURNEY_CASE_RUN_AMBIGUOUS']
+                owners[key] = (case, run)
+        for identifier, obligation in expected.items():
+            links = obligation.get('stage_case_keys')
+            if not isinstance(links, dict) or set(links) != set(_STAGES):
+                return ['JOURNEY_STAGE_CASE_LINKS_INVALID']
+            for stage in _STAGES:
+                key = links[stage]
+                if not isinstance(key, list) or len(key) != 4 or any(
+                        not isinstance(part, str) or not part.strip() for part in key):
+                    return ['JOURNEY_STAGE_CASE_LINKS_INVALID']
+                case, run = owners[tuple(key)]
+                if identifier not in case.get('cross_device_journey_ids', []):
+                    return ['JOURNEY_STAGE_CASE_MEMBERSHIP_MISMATCH']
+                if (stage == 'receiver_ui' and key[1] == links['sender_ui'][1]
+                        or stage == 'reopened_ui' and key != links['receiver_ui']):
+                    return ['JOURNEY_STAGE_PLATFORM_MISMATCH']
+                record, read_errors = acceptance.load_frozen_json(root, records[identifier][stage])
+                errors.extend(read_errors)
+                if not read_errors and (not isinstance(record, dict)
+                        or record.get('case_key') != key
+                        or record.get('attempt_id') != run['attempt_id']
+                        or record.get('event_artifact') != run['event_artifact']):
+                    errors.append('JOURNEY_STAGE_ATTEMPT_MISMATCH:' + stage)
+        return errors
+    except (KeyError, TypeError, AttributeError):
+        return ['JOURNEY_STAGE_CASE_RUN_INVALID']

@@ -95,6 +95,8 @@ def audit_execution_inputs(root: Path, frozen_descriptor: Any,
                 frozen.get('case_event_runs'), report.get('attempts')))
             result['errors'].extend(acceptance_journeys.audit_cross_device_journey_set(
                 root, frozen, report.get('cross_device_records')))
+            result['errors'].extend(acceptance_journeys.audit_journey_attempt_links(
+                root, frozen, report.get('cross_device_records')))
     return result
 
 
