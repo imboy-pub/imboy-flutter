@@ -242,8 +242,9 @@ def impact_targets(catalog: dict, changed_paths: list[str], smoke: list[str] | N
                 matched = True
         for page in catalog['pages']:
             if page['page'] == path:
-                hits.update(page['mapped_targets'])
-                matched = True
+                targets = set(page['mapped_targets']) | set(page['dependency_targets'])
+                hits.update(targets)
+                matched = matched or bool(targets)
         if not matched and path.startswith(('lib/', 'integration_test/', 'test/')):
             unmapped.append(path)
     if unmapped:

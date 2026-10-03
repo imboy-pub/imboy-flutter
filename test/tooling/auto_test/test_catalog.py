@@ -105,6 +105,14 @@ class TestImpact(unittest.TestCase):
         self.assertIn('integration_test/a/a_test.dart', targets)
         self.assertEqual(len(targets), len(set(targets)))
 
+    def test_catalogued_page_without_targets_fails(self):
+        catalog = discovery.generate_catalog(ROOT)
+        with self.assertRaises(ValueError) as ctx:
+            discovery.impact_targets(
+                catalog, ["lib/page/billing/plan_list_page.dart"],
+                smoke=["integration_test/a/a_test.dart"])
+        self.assertIn("IMPACT_UNMAPPED_SOURCES", str(ctx.exception))
+
     def test_unmapped_lib_source_fails(self):
         catalog = discovery.generate_catalog(ROOT)
         with self.assertRaises(ValueError) as ctx:
