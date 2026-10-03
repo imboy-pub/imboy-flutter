@@ -65,7 +65,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
       final organizations = await _api.allMine();
       if (!mounted || generation != _refreshGeneration) return;
       // 服务端事实到达后覆盖缓存（缓存永不先于真源）。
-      _cache.saveOrgs(organizations);
+      _cache.replaceMineOrgs(organizations);
       if (!mounted) return;
       setState(() {
         _orgs = organizations;

@@ -24,6 +24,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/modules/organization/presentation/organization_home_page.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
 
 class _StaticAdapter implements HttpClientAdapter {
@@ -211,6 +212,10 @@ void main() {
   });
 
   testWidgets('空态：未加入任何组织时展示引导文案', (tester) async {
+    final cache = OrganizationCache.forAccount('1001');
+    cache.saveOrgs([const Organization(id: '7001', name: '已移除组织')]);
+    addTearDown(() => OrganizationCache.disposeAccount('1001'));
+
     HttpClient.adapterForTest = _StaticAdapter(
       200,
       okEnvelope(
@@ -229,6 +234,7 @@ void main() {
     await pumpUntilFound(tester, find.textContaining('尚未加入任何组织'));
 
     expect(find.textContaining('尚未加入任何组织'), findsOneWidget);
+    expect(cache.orgs, isEmpty);
   });
 
   testWidgets('列表：archived 组织打标 + 成员角色展示', (tester) async {

@@ -44,10 +44,10 @@ class OrganizationCache {
 
   static void disposeAll() => _byAccount.clear();
 
-  final Map<EntityId, Organization> _orgs = <EntityId, Organization>{};
-  final Map<EntityId, List<OrganizationMember>> _members =
+  Map<EntityId, Organization> _orgs = <EntityId, Organization>{};
+  Map<EntityId, List<OrganizationMember>> _members =
       <EntityId, List<OrganizationMember>>{};
-  final Map<EntityId, List<OrganizationDepartment>> _departments =
+  Map<EntityId, List<OrganizationDepartment>> _departments =
       <EntityId, List<OrganizationDepartment>>{};
 
   // ---- 组织 ----
@@ -56,6 +56,24 @@ class OrganizationCache {
     for (final o in orgs) {
       if (o.id.isNotEmpty) _orgs[o.id] = o;
     }
+  }
+
+  /// Replace only after a complete successful account-scoped mine response.
+  /// Partial detail responses must continue to use saveOrgs.
+  void replaceMineOrgs(List<Organization> orgs) {
+    final current = <EntityId, Organization>{
+      for (final org in orgs)
+        if (org.id.isNotEmpty) org.id: org,
+    };
+    _orgs = current;
+    _members = {
+      for (final entry in _members.entries)
+        if (current.containsKey(entry.key)) entry.key: entry.value,
+    };
+    _departments = {
+      for (final entry in _departments.entries)
+        if (current.containsKey(entry.key)) entry.key: entry.value,
+    };
   }
 
   List<Organization> get orgs => _orgs.values.toList(growable: false);
