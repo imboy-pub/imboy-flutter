@@ -144,72 +144,93 @@ void main() {
   Widget buildHost() =>
       const MaterialApp(home: OrganizationHomePage(accountKey: '1001'));
 
-  testWidgets('迟到的旧刷新不得覆盖新组织列表及缓存', (tester) async {
-    OrganizationCache.disposeAccount('1001');
-    addTearDown(() => OrganizationCache.disposeAccount('1001'));
-    final adapter = _DeferredMineAdapter();
-    HttpClient.adapterForTest = adapter;
-    await tester.pumpWidget(buildHost());
-    for (var i = 0; i < 30 && adapter.requests.isEmpty; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(adapter.requests.length, 1);
-    final refreshing = tester
-        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
-        .onRefresh();
-    for (var i = 0; i < 30 && adapter.requests.length < 2; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(adapter.requests.length, 2);
-    adapter.complete(1, '新组织事实');
-    await pumpUntilFound(tester, find.text('新组织事实'));
-    adapter.complete(0, '过时组织事实');
-    await tester.pumpAndSettle();
-    await refreshing;
-    expect(find.text('新组织事实'), findsOneWidget);
-    expect(find.text('过时组织事实'), findsNothing);
-    expect(OrganizationCache.forAccount('1001').org('7001')?.name, '新组织事实');
-  });
+  for (final staleFailure in [false, true]) {
+    testWidgets('迟到的旧刷新${staleFailure ? '失败' : '成功'}不得覆盖新组织列表及缓存', (
+      tester,
+    ) async {
+      OrganizationCache.disposeAccount('1001');
+      addTearDown(() => OrganizationCache.disposeAccount('1001'));
+      final adapter = _DeferredMineAdapter();
+      HttpClient.adapterForTest = adapter;
+      await tester.pumpWidget(buildHost());
+      for (var i = 0; i < 30 && adapter.requests.isEmpty; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(adapter.requests.length, 1);
+      final refreshing = tester
+          .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+          .onRefresh();
+      for (var i = 0; i < 30 && adapter.requests.length < 2; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(adapter.requests.length, 2);
+      adapter.complete(1, '新组织事实');
+      await pumpUntilFound(tester, find.text('新组织事实'));
+      if (staleFailure) {
+        adapter.requests[0].completeError(
+          StateError('synthetic stale failure'),
+        );
+      } else {
+        adapter.complete(0, '过时组织事实');
+      }
+      await tester.pumpAndSettle();
+      await refreshing;
+      expect(find.text('新组织事实'), findsOneWidget);
+      expect(find.text('过时组织事实'), findsNothing);
+      expect(find.textContaining('synthetic stale failure'), findsNothing);
+      expect(OrganizationCache.forAccount('1001').org('7001')?.name, '新组织事实');
+    });
+  }
 
-  testWidgets('旧邀请角标响应不得覆盖更新的计数', (tester) async {
-    final adapter = _DeferredMineAdapter(deferBadges: true);
-    HttpClient.adapterForTest = adapter;
-    await tester.pumpWidget(buildHost());
-    for (var i = 0; i < 30 && adapter.requests.isEmpty; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(adapter.requests.length, 1);
-    adapter.complete(0, '组织');
-    for (var i = 0; i < 30 && adapter.badges.isEmpty; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(adapter.badges.length, 1);
-    final refreshing = tester
-        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
-        .onRefresh();
-    for (var i = 0; i < 30 && adapter.requests.length < 2; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(adapter.requests.length, 2);
-    adapter.complete(1, '组织');
-    for (var i = 0; i < 30 && adapter.badges.length < 2; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(adapter.badges.length, 2);
-    adapter.badges[1].complete(
-      adapter.response({
-        'list': [
-          {'invitation_id': 8001},
-        ],
-      }),
-    );
-    await pumpUntilFound(tester, find.text('1'));
-    adapter.badges[0].complete(adapter.response({'list': <dynamic>[]}));
-    await tester.pumpAndSettle();
-    await refreshing;
-    expect(tester.widget<Badge>(find.byType(Badge)).isLabelVisible, isTrue);
-    expect(find.text('1'), findsOneWidget);
-  });
+  for (final staleFailure in [false, true]) {
+    testWidgets('旧邀请角标${staleFailure ? '失败' : '成功'}响应不得覆盖更新的计数', (
+      tester,
+    ) async {
+      final adapter = _DeferredMineAdapter(deferBadges: true);
+      HttpClient.adapterForTest = adapter;
+      await tester.pumpWidget(buildHost());
+      for (var i = 0; i < 30 && adapter.requests.isEmpty; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(adapter.requests.length, 1);
+      adapter.complete(0, '组织');
+      for (var i = 0; i < 30 && adapter.badges.isEmpty; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(adapter.badges.length, 1);
+      final refreshing = tester
+          .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+          .onRefresh();
+      for (var i = 0; i < 30 && adapter.requests.length < 2; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(adapter.requests.length, 2);
+      adapter.complete(1, '组织');
+      for (var i = 0; i < 30 && adapter.badges.length < 2; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(adapter.badges.length, 2);
+      adapter.badges[1].complete(
+        adapter.response({
+          'list': [
+            {'invitation_id': 8001},
+          ],
+        }),
+      );
+      await pumpUntilFound(tester, find.text('1'));
+      if (staleFailure) {
+        adapter.badges[0].completeError(
+          StateError('synthetic stale badge failure'),
+        );
+      } else {
+        adapter.badges[0].complete(adapter.response({'list': <dynamic>[]}));
+      }
+      await tester.pumpAndSettle();
+      await refreshing;
+      expect(tester.widget<Badge>(find.byType(Badge)).isLabelVisible, isTrue);
+      expect(find.text('1'), findsOneWidget);
+    });
+  }
 
   testWidgets('空态：未加入任何组织时展示引导文案', (tester) async {
     final cache = OrganizationCache.forAccount('1001');
