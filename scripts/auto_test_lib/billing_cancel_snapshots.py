@@ -158,6 +158,37 @@ def audit_billing_cancel_artifacts(root: Path, expected: Any, artifacts: Any) ->
     return result
 
 
+def _attempt_device_errors(root: Path, frozen: dict, context: dict) -> list:
+    """Link to pinned run/device records; does not authenticate their producer."""
+    runs, bindings = frozen.get('case_event_runs'), frozen.get('runtime_bindings')
+    if not isinstance(runs, list) or not isinstance(bindings, list):
+        return ['BILLING_SNAPSHOT_ATTEMPT_LINK_INVALID']
+    matches = [run for run in runs if isinstance(run, dict)
+               and run.get('attempt_id') == context['attempt_id']]
+    if len(matches) != 1:
+        return ['BILLING_SNAPSHOT_ATTEMPT_LINK_INVALID']
+    run = matches[0]
+    cases = run.get('required_cases')
+    if (not isinstance(cases, list) or not cases or any(
+            not isinstance(case, dict) or case.get('platform') != context['platform']
+            for case in cases)):
+        return ['BILLING_SNAPSHOT_ATTEMPT_PLATFORM_MISMATCH']
+    identifier = run.get('device_binding_id')
+    if not isinstance(identifier, str) or not identifier.strip():
+        return ['BILLING_SNAPSHOT_DEVICE_BINDING_INVALID']
+    devices = [row for row in bindings if isinstance(row, dict)
+               and row.get('binding_id') == identifier]
+    if len(devices) != 1 or devices[0].get('kind') != 'device':
+        return ['BILLING_SNAPSHOT_DEVICE_BINDING_INVALID']
+    device, errors = acceptance.load_frozen_json(root, devices[0].get('artifact'))
+    if errors:
+        return errors
+    if not isinstance(device, dict) or any(device.get(k) != context[k] for k in
+            ('run_id', 'fixture_generation', 'device_id', 'platform')):
+        return ['BILLING_SNAPSHOT_DEVICE_MISMATCH']
+    return []
+
+
 def audit_billing_cancel_set(root: Path, frozen: Any, records: Any) -> list:
     """Require explicit frozen obligations, exact records and runtime bindings.
 
@@ -189,6 +220,10 @@ def audit_billing_cancel_set(root: Path, frozen: Any, records: Any) -> list:
         return ['BILLING_SNAPSHOT_RECORDED_SET_MISMATCH']
     errors, paths = [], set()
     for identifier, context in indexed.items():
+        link_errors = _attempt_device_errors(root, frozen, context)
+        errors.extend(link_errors)
+        if link_errors:
+            continue
         result = audit_billing_cancel_artifacts(root, context, records[identifier])
         errors.extend(result['errors'])
         if result['errors']:

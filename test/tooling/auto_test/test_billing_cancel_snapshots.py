@@ -32,6 +32,31 @@ def fixture():
 
 
 class BillingCancelSnapshots(unittest.TestCase):
+    def test_missing_attempt_cannot_supply_snapshots(self):
+        context, _ = fixture()
+        self.assertIn('BILLING_SNAPSHOT_ATTEMPT_LINK_INVALID',
+                      billing_cancel_snapshots._attempt_device_errors(
+                          Path('.'), {'case_event_runs': []}, context))
+
+    def test_attempt_device_snapshot_must_match_context(self):
+        context, _ = fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            device = {k: context[k] for k in
+                      ('run_id', 'fixture_generation', 'device_id', 'platform')}
+            data = json.dumps(device).encode()
+            (root / 'device.json').write_bytes(data)
+            frozen = dict(case_event_runs=[dict(attempt_id=context['attempt_id'],
+                device_binding_id='device', required_cases=[dict(platform='android')])],
+                runtime_bindings=[dict(binding_id='device', kind='device',
+                    artifact=dict(path='device.json', sha256=hashlib.sha256(data).hexdigest()))])
+            audit = billing_cancel_snapshots._attempt_device_errors
+            self.assertEqual(audit(root, frozen, context), [])
+            other = dict(context, device_id='other-device')
+            self.assertIn('BILLING_SNAPSHOT_DEVICE_MISMATCH', audit(root, frozen, other))
+            frozen['case_event_runs'].append(copy.deepcopy(frozen['case_event_runs'][0]))
+            self.assertIn('BILLING_SNAPSHOT_ATTEMPT_LINK_INVALID', audit(root, frozen, context))
+
     def test_frozen_obligations_are_explicit_and_exact(self):
         audit = billing_cancel_snapshots.audit_billing_cancel_set
         self.assertTrue(audit(Path('.'), {}, {}))
