@@ -118,7 +118,19 @@ class ConversationNotifier extends _$ConversationNotifier {
 
   // Use a timer and map to batch state updates to prevent UI stuttering
   Timer? _batchUpdateTimer;
-  final Map<String, ConversationModel> _pendingUpdates = {};
+  final Map<
+    String,
+    ({ConversationModel conversation, String uid, int generation})
+  >
+  _pendingUpdates = {};
+
+  bool _isCurrentSession(String uid, int generation) {
+    final session = UserRepoLocal.to;
+    return ref.mounted &&
+        !session.isClearingSession &&
+        session.currentUid == uid &&
+        session.isCurrentSession(generation);
+  }
 
   // Replace single conversation
   void replaceConversation(ConversationModel obj) {
@@ -129,7 +141,13 @@ class ConversationNotifier extends _$ConversationNotifier {
       return;
     }
 
-    _pendingUpdates[obj.uk3] = obj;
+    final session = UserRepoLocal.to;
+    if (session.isClearingSession) return;
+    _pendingUpdates[obj.uk3] = (
+      conversation: obj,
+      uid: session.currentUid,
+      generation: session.sessionGeneration,
+    );
 
     // If a timer is already running, wait for it to execute
     if (_batchUpdateTimer?.isActive ?? false) return;
@@ -139,7 +157,12 @@ class ConversationNotifier extends _$ConversationNotifier {
       if (!ref.mounted || _pendingUpdates.isEmpty) return;
 
       final newMap = Map<String, ConversationModel>.from(state.conversationMap);
-      newMap.addAll(_pendingUpdates);
+      for (final entry in _pendingUpdates.entries) {
+        final pending = entry.value;
+        if (_isCurrentSession(pending.uid, pending.generation)) {
+          newMap[entry.key] = pending.conversation;
+        }
+      }
       _pendingUpdates.clear();
 
       state = state.copyWith(conversationMap: newMap);
@@ -870,29 +893,37 @@ class ConversationNotifier extends _$ConversationNotifier {
     String msgId,
     Map<String, dynamic> data,
   ) async {
-    if (msgId.isEmpty) return [];
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    if (msgId.isEmpty || uid.isEmpty || !_isCurrentSession(uid, generation)) {
+      return [];
+    }
+    final updateData = Map<String, dynamic>.from(data);
     try {
-      if (data.containsKey(ConversationRepo.payload) &&
-          data[ConversationRepo.payload] is Map) {
-        data[ConversationRepo.payload] = jsonEncode(
-          data[ConversationRepo.payload],
+      if (updateData.containsKey(ConversationRepo.payload) &&
+          updateData[ConversationRepo.payload] is Map) {
+        updateData[ConversationRepo.payload] = jsonEncode(
+          updateData[ConversationRepo.payload],
         );
       }
 
       Database? db = await SqliteService.to.db;
-      if (db == null) return [];
+      if (db == null || !_isCurrentSession(uid, generation)) return [];
 
       String where =
           "${ConversationRepo.userId}=? and ${ConversationRepo.lastMsgId}=?";
-      List<String> whereArgs = [UserRepoLocal.to.currentUid, msgId];
+      List<String> whereArgs = [uid, msgId];
 
       await db.update(
         ConversationRepo.tableName,
-        data,
+        updateData,
         where: where,
         whereArgs: whereArgs,
       );
-      return await (ConversationRepo()).search(where, whereArgs);
+      if (!_isCurrentSession(uid, generation)) return [];
+      final items = await ConversationRepo().search(where, whereArgs);
+      return _isCurrentSession(uid, generation) ? items : [];
     } catch (e) {
       iPrint('updateLastMsg error=${e.runtimeType}');
       return [];
@@ -903,11 +934,19 @@ class ConversationNotifier extends _$ConversationNotifier {
     String msgId,
     Map<String, dynamic> data,
   ) async {
-    if (msgId.isEmpty) return;
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    if (msgId.isEmpty || uid.isEmpty || !_isCurrentSession(uid, generation)) {
+      return;
+    }
     try {
       List<ConversationModel> items = await updateLastMsg(msgId, data);
+      if (!_isCurrentSession(uid, generation)) return;
       for (var item in items) {
+        if (!_isCurrentSession(uid, generation)) return;
         await replace(item);
+        if (!_isCurrentSession(uid, generation)) return;
         AppEventBus.fireData(item);
         iPrint(
           'updateConversationByMsgId: 更新会话 ${item.uk3} 的 lastMsgStatus 为 ${item.lastMsgStatus}',
