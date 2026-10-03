@@ -87,6 +87,7 @@ class _GovRouterAdapter implements HttpClientAdapter {
   final Future<void> Function(String key)? beforeResponse;
   final List<String> hits = [];
   final Map<String, List<Object?>> bodies = {};
+  final Map<String, List<Map<String, dynamic>>> queries = {};
   final Map<String, int> _cursor = {};
 
   @override
@@ -100,6 +101,7 @@ class _GovRouterAdapter implements HttpClientAdapter {
       final fragment = key.substring(key.indexOf(' ') + 1);
       if (options.method == method && options.uri.path.contains(fragment)) {
         hits.add(key);
+        queries.putIfAbsent(key, () => []).add(Map.of(options.queryParameters));
         await beforeResponse?.call(key);
         bodies.putIfAbsent(key, () => []).add(options.data);
         final queue = routes[key]!;
@@ -624,6 +626,50 @@ void main() {
       adapter.hits.where((h) => h.startsWith('PUT ') && h.contains(orgB)),
       isEmpty,
     );
+  });
+
+  testWidgets('加载更多成功：追加新行保留原行且末页移除入口', (tester) async {
+    final adapter = _GovRouterAdapter({
+      'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+      'GET /cs/organizations/$orgA/seats': [
+        (
+          200,
+          _seatsPayload(
+            seats: [_seatRow(orgA, identityA)],
+            nextAfterId: identityA,
+          ),
+        ),
+        (200, _seatsPayload(seats: [_seatRow(orgA, identityB)])),
+      ],
+    });
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    await tester.pumpWidget(_host(orgA));
+    final more = find.byKey(const ValueKey('cs-governance-seats-more'));
+    await pumpUntilUxFound(tester, more);
+    expect(
+      find.byKey(const ValueKey('cs-governance-seat-$identityB')),
+      findsNothing,
+    );
+    await tester.tap(more);
+    await pumpUntilUxFound(
+      tester,
+      find.byKey(const ValueKey('cs-governance-seat-$identityB')),
+    );
+    expect(
+      find.byKey(const ValueKey('cs-governance-seat-$identityA')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('cs-governance-seat-$identityB')),
+      findsOneWidget,
+    );
+    expect(more, findsNothing);
+    expect(adapter.hits.where((h) => h.endsWith('/seats')), hasLength(2));
+    expect(adapter.hits.where((h) => h.endsWith('/seat-limit')), hasLength(1));
+    final seatQueries = adapter.queries['GET /cs/organizations/$orgA/seats']!;
+    expect(seatQueries.first.containsKey('after_id'), isFalse);
+    expect(seatQueries.last['after_id'], identityA);
   });
 
   testWidgets('刷新期间禁止使用旧游标加载更多', (tester) async {
