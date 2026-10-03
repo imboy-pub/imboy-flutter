@@ -289,20 +289,24 @@ class _OrganizationPickerPageState
 
   Future<void> _selectPersonal() async {
     if (_switching) return;
+    final account = _accountKey;
+    final epoch = _accountEpoch;
     setState(() => _switching = true);
     try {
       await ref
           .read(productExperienceProvider.notifier)
           .select(ProductExperience.chat);
-      if (mounted) _leave();
     } on Object {
-      if (mounted) {
+      if (_acceptSwitch(account, epoch)) {
         setState(() {
-          _switching = false;
           _switchError = t.common.settingFailedPleaseTryAgain;
         });
       }
+      return;
+    } finally {
+      if (mounted) setState(() => _switching = false);
     }
+    if (_acceptSwitch(account, epoch)) _leave();
   }
 
   Future<void> _landDefaultWorkspace(
