@@ -83,6 +83,36 @@ Future<void> _finish(WidgetTester tester, _ImportProbe probe) async {
 }
 
 void main() {
+  testWidgets('同一帧重复云端恢复只打开一个确认框', (tester) async {
+    final local = _ImportProbe(), cloud = _ImportProbe();
+    await _prepare(tester, local, cloud: cloud);
+    final action = _cloudAction(tester);
+    action();
+    action();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    final count = find
+        .byType(CupertinoAlertDialog, skipOffstage: false)
+        .evaluate()
+        .length;
+    await _cancelCloudPrompts(tester);
+    expect(count, 1);
+    expect(cloud.pending, isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('取消云端恢复确认后可以重新打开', (tester) async {
+    final local = _ImportProbe(), cloud = _ImportProbe();
+    await _prepare(tester, local, cloud: cloud);
+    for (var attempt = 0; attempt < 2; attempt++) {
+      _cloudAction(tester)();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
+      await _cancelCloudPrompts(tester);
+    }
+    expect(cloud.pending, isEmpty);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     '云端解密等待期间关闭页面不开始写入恢复密钥',
     (tester) => _assertNoLateKeyWrites(tester, cloudRestore: true),
@@ -218,4 +248,16 @@ Future<void> _assertNoLateKeyWrites(
   }
   expect(writes, 0);
   expect(tester.takeException(), isNull);
+}
+
+Future<void> _cancelCloudPrompts(WidgetTester tester) async {
+  for (var dialog = 0; dialog < 3; dialog++) {
+    final cancel = find.widgetWithText(
+      CupertinoDialogAction,
+      t.common.buttonCancel,
+    );
+    if (cancel.evaluate().isEmpty) return;
+    await tester.tap(cancel.last);
+    await tester.pumpAndSettle();
+  }
 }

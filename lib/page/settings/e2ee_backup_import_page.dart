@@ -90,6 +90,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   final _urlController = TextEditingController();
   bool _isImporting = false;
   bool _isCloudRestoring = false;
+  bool _isCloudRestorePromptOpen = false;
   bool _isDownloading = false;
   File? _selectedFile;
   Map<String, dynamic>? _backupInfo;
@@ -248,7 +249,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             ),
             AppSpacing.verticalMedium,
             OutlinedButton.icon(
-              onPressed: (_isCloudRestoring || _isImporting)
+              onPressed:
+                  (_isCloudRestoring ||
+                      _isImporting ||
+                      _isCloudRestorePromptOpen)
                   ? null
                   : _promptCloudRestore,
               icon: _isCloudRestoring
@@ -797,47 +801,59 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   /// 弹出口令输入确认框（恢复会覆盖本地密钥，需显式确认）
   Future<void> _promptCloudRestore() async {
-    if (!mounted || _isImporting || _isCloudRestoring) return;
+    if (!mounted ||
+        _isImporting ||
+        _isCloudRestoring ||
+        _isCloudRestorePromptOpen) {
+      return;
+    }
+    setState(() => _isCloudRestorePromptOpen = true);
     _cloudPasswordController.clear();
-    final password = await showCupertinoDialog<String>(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: Text(t.common.e2eeBackupCloudRestoreTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppSpacing.verticalSmall,
-            Text(t.common.e2eeBackupCloudRestoreConfirmNote),
-            AppSpacing.verticalSmall,
-            CupertinoTextField(
-              enableSuggestions: false,
-              autocorrect: false,
-              controller: _cloudPasswordController,
-              obscureText: true,
-              autofocus: true,
-              placeholder: t.common.e2eeBackupCloudPwdHint,
-            ),
-          ],
-        ),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.common.buttonCancel),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () =>
-                Navigator.of(context).pop(_cloudPasswordController.text),
-            child: Text(t.common.e2eeBackupCloudRestoreBtn),
-          ),
-        ],
-      ),
-    );
-
+    String? password;
+    try {
+      password = await showCupertinoDialog<String>(
+        context: context,
+        builder: _buildCloudRestoreDialog,
+      );
+    } finally {
+      if (mounted) setState(() => _isCloudRestorePromptOpen = false);
+    }
     if (password == null || password.isEmpty || !mounted) return;
     await _handleCloudRestore(password);
   }
+
+  Widget _buildCloudRestoreDialog(BuildContext context) => CupertinoAlertDialog(
+    title: Text(t.common.e2eeBackupCloudRestoreTitle),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppSpacing.verticalSmall,
+        Text(t.common.e2eeBackupCloudRestoreConfirmNote),
+        AppSpacing.verticalSmall,
+        CupertinoTextField(
+          enableSuggestions: false,
+          autocorrect: false,
+          controller: _cloudPasswordController,
+          obscureText: true,
+          autofocus: true,
+          placeholder: t.common.e2eeBackupCloudPwdHint,
+        ),
+      ],
+    ),
+    actions: [
+      CupertinoDialogAction(
+        onPressed: () => Navigator.of(context).pop(),
+        child: Text(t.common.buttonCancel),
+      ),
+      CupertinoDialogAction(
+        isDestructiveAction: true,
+        onPressed: () =>
+            Navigator.of(context).pop(_cloudPasswordController.text),
+        child: Text(t.common.e2eeBackupCloudRestoreBtn),
+      ),
+    ],
+  );
 
   Future<void> _handleCloudRestore(String password) async {
     if (!mounted || _isImporting || _isCloudRestoring) return;
