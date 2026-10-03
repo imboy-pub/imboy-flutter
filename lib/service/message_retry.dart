@@ -620,10 +620,16 @@ class MessageRetry with EventSubscriptionManager {
   /// 手动重试消息
   /// Manually retry message.
   Future<bool> retryMessage(String messageId, String type) async {
+    final session = UserRepoLocal.to;
+    final generation = session.sessionGeneration;
+    bool sessionValid() =>
+        session.isCurrentSession(generation) && !session.isClearingSession;
+    if (!sessionValid()) return false;
     try {
       final normalizedType = _normalizeMessageType(type);
       final repo = getMessageRepo(normalizedType);
       final msg = await repo.find(messageId);
+      if (!sessionValid()) return false;
       if (msg == null) {
         iPrint('⚠️ [MANUAL_RETRY] 消息不存在: $messageId');
         return false;
@@ -645,7 +651,9 @@ class MessageRetry with EventSubscriptionManager {
       // 聊天页的重试按钮直接读取本地 payload，不会经过 ChatNetworkService
       // 的 encryptPayload；群级 E2EE 开启且本地行没有 e2ee 元数据时，
       // 必须拒发，否则用户点击“重试”即可把明文重新送出。
-      if (await _isPlaintextRetryBlocked(msg)) {
+      final blocked = await _isPlaintextRetryBlocked(msg);
+      if (!sessionValid()) return false;
+      if (blocked) {
         iPrint('🚫 [MANUAL_RETRY] 未加密消息不得重发，已拦下: $messageId');
         return false;
       }
@@ -666,6 +674,7 @@ class MessageRetry with EventSubscriptionManager {
         'id': messageId,
         'status': IMBoyMessageStatus.sending,
       });
+      if (!sessionValid()) return false;
 
       // 构造消息数据
       // WebSocket API v2.0: msg_type、action、e2ee 字段提升到顶层
