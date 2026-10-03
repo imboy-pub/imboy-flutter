@@ -31,7 +31,50 @@ def fixture():
                          subscriptions=[subscription], invoices=[invoice])
 
 
+def write_artifact(root, name, value):
+    data = json.dumps(value).encode()
+    (root / name).write_bytes(data)
+    return dict(path=name, sha256=hashlib.sha256(data).hexdigest())
+
+
+def composed_fixture(root):
+    context, snapshot = fixture()
+    case = dict(case_id='cancel', platform='android', profile='local', role_variant='owner',
+                parent_acceptance_ids=['F14-A01'], seed_ids=['fn:billing:plan_list_page:004'],
+                oracle='cancel sheet with independent audit', applicability='REQUIRED')
+    key = [case[k] for k in ('case_id', 'platform', 'profile', 'role_variant')]
+    device = {k: context[k] for k in ('run_id', 'fixture_generation', 'device_id', 'platform')}
+    frozen = dict(run_id=context['run_id'], fixture_generation=context['fixture_generation'],
+                  candidates={'imboy': {'head': context['backend_sha']}}, required_cases=[case],
+                  billing_cancel_snapshots=[dict(id='cancel', context=context, case_key=key)],
+                  case_event_runs=[dict(attempt_id=context['attempt_id'], device_binding_id='device',
+                                       required_cases=[copy.deepcopy(case)])],
+                  runtime_bindings=[dict(binding_id='device', kind='device',
+                                        artifact=write_artifact(root, 'device.json', device))])
+    records = {'cancel': {stage: write_artifact(root, stage + '.json', snapshot)
+                          for stage in ('before', 'after')}}
+    return frozen, records, snapshot
+
+
 class BillingCancelSnapshots(unittest.TestCase):
+    def test_complete_nonempty_composition_and_negative_samples(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            frozen, records, snapshot = composed_fixture(root)
+            audit = billing_cancel_snapshots.audit_billing_cancel_set
+            self.assertEqual(audit(root, frozen, records), [])
+            for field, value in [('attempt_id', 'wrong'), ('device_id', 'wrong')]:
+                changed = copy.deepcopy(frozen)
+                changed['billing_cancel_snapshots'][0]['context'][field] = value
+                self.assertTrue(audit(root, changed, records), field)
+            changed = copy.deepcopy(frozen)
+            changed['billing_cancel_snapshots'][0]['case_key'][0] = 'unrelated'
+            self.assertTrue(audit(root, changed, records))
+            after = copy.deepcopy(snapshot)
+            after['invoices'][0]['amount'] += 1
+            records['cancel']['after'] = write_artifact(root, 'after.json', after)
+            self.assertIn('BILLING_STATE_CHANGED', audit(root, frozen, records))
+
     def test_unrelated_attempt_cannot_supply_case_oracle(self):
         context, _ = fixture()
         case = dict(case_id='cancel', platform='android', profile='local',
