@@ -11,7 +11,13 @@ fixture_contract.dart        合成 fixture 合同（账号/设备/群/消息 ID
 harness_smoke_test.dart      harness 冒烟自检（flutter test 可离线运行）
 harness/
   vodozemac_loader.dart      vodozemac 原生库加载（env var 优先）
-  backend_transport.dart     传输抽象：内存替身（冒烟）+ RealBackendTransport stub
+  backend_transport.dart     传输抽象：内存替身；默认真实入口拒绝运行，registered 入口显式组合
+  registered_fixture.dart   注册账号/设备/DID/群绑定（仅校验结构）
+  registered_wire_binding.dart  生产格式 C2C 完整设备信封与身份上下文校验
+  registered_backend_transport.dart  C2C 连接、发送、收件与显式收件确认
+  release_socket_session.dart  认证请求头、协议 ready、连接代际与 IO socket
+  release_wire_codec.dart    实际协商格式下的消息编解码
+  server_ack_tracker.dart    按消息与连接代际关联服务端 ACK
   simulated_device.dart      模拟设备：真实 vodozemac Olm + 生产 PFv3 信封
   malicious_proxy.dart       可控恶意代理注入器（W1–W4 注入点）
 journeys/
@@ -38,8 +44,14 @@ FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR=/path/to/imboyapp/spikes/e2ee-grou
   oracle 断言器有效、注入器能触发 fail-closed。
 - **冒烟层不构成 AC-22/AC-23 证据**（与历史 `e2ee_cross_platform_interop_test.dart`
   合成 interop 同一判定口径）。
-- 真实层入口 `RealBackendTransport` 是 stub，一律标注
-  `REQUIRES_AUTHORIZED_BACKEND`，未授权时抛 `UnsupportedError`。
+- 默认 `RealBackendTransport()` 仍抛 `UnsupportedError`，不自动连接后端。
+- `RealBackendTransport.registered(...)` 已组合注册夹具、C2C 传输、服务端
+  ACK 和显式收件确认；`IoReleaseSocket` 提供实际 IO 连接实现。调用方仍须
+  显式提供经授权的地址、连接器和令牌解析器，不能从 App 当前账号取值。
+- host 组件测试使用 fake socket，不证明实际 IO 连接、账号注册、设备解密
+  或 UI 显示。服务端 ACK 也不等于收件人收到、解密或显示。
+- 目前不能据此宣告 AC-22/AC-23 完成；C2G 操作、完整真实旅程和取证仍须
+  按原计划实现并执行。
 
 ## 真实层前置依赖（REQUIRES_AUTHORIZED_BACKEND）
 
@@ -51,3 +63,11 @@ FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR=/path/to/imboyapp/spikes/e2ee-grou
 6. 服务端 DB/日志/备份/对象/Push 五面只读查询授权（与 C13 同一授权窗口）。
 
 详见 attack-matrix.md §9。
+
+## C2C 传输组件宿主回归
+
+```sh
+flutter test test/unit_test/service/e2ee_registered_backend_transport_test.dart test/unit_test/service/e2ee_release_socket_session_test.dart test/unit_test/service/e2ee_server_ack_tracker_test.dart --reporter expanded
+```
+
+此入口不建立真实后端连接，也不运行设备。结果仅用于组件回归，不能升级产品验收台账。
