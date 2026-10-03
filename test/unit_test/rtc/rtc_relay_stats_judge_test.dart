@@ -746,6 +746,110 @@ void main() {
       expect(aggregateVerdict([]), kVerdictBlocked);
     });
   });
+  group('多 transport selectedCandidatePairId 消歧（NOTE-A0-2，拒绝首个命中猜测）', () {
+    final relayLocal = CandidateInfo(
+      id: 'L1',
+      isLocal: true,
+      candidateType: 'relay',
+      address: '203.0.113.7',
+      port: 61000,
+      url: 'turns:turn.example.com:443?transport=tcp',
+      relayProtocol: 'tcp',
+    );
+    final healthyPair = CandidatePairInfo(
+      id: 'CP1',
+      localCandidateId: 'L1',
+      remoteCandidateId: 'R1',
+      state: 'succeeded',
+      nominated: true,
+      selected: true,
+    );
+
+    test('双 transport 仅一个报 selected → 绑定它，正常判定', () {
+      final sample = _sample(
+        transports: const [
+          TransportInfo(id: 'T1', selectedCandidatePairId: 'CP1'),
+          TransportInfo(id: 'T2'),
+        ],
+        pairs: [healthyPair],
+        candidates: [relayLocal],
+      );
+      expect(judgeTls443(sample).verdict, kVerdictPass);
+    });
+
+    test('双 transport 均报 succeeded 选择 → BLOCKED（ambiguous，拒绝猜测）', () {
+      final sample = _sample(
+        transports: const [
+          TransportInfo(id: 'T1', selectedCandidatePairId: 'CP1'),
+          TransportInfo(id: 'T2', selectedCandidatePairId: 'CP2'),
+        ],
+        pairs: [
+          healthyPair,
+          CandidatePairInfo(
+            id: 'CP2',
+            localCandidateId: 'L1',
+            remoteCandidateId: 'R1',
+            state: 'succeeded',
+            nominated: true,
+            selected: true,
+          ),
+        ],
+        candidates: [relayLocal],
+      );
+      final verdict = judgeTls443(sample);
+      expect(verdict.verdict, kVerdictBlocked);
+      expect(verdict.reasons.single, contains('ambiguous'));
+      expect(verdict.reasons.single, contains('T1=CP1'));
+      expect(verdict.reasons.single, contains('T2=CP2'));
+    });
+
+    test('双 transport 报选择但仅一个 pair 成功 → 绑定成功侧，正常判定', () {
+      final sample = _sample(
+        transports: const [
+          TransportInfo(id: 'T1', selectedCandidatePairId: 'CP1'),
+          TransportInfo(id: 'T2', selectedCandidatePairId: 'CP2'),
+        ],
+        pairs: [
+          healthyPair,
+          const CandidatePairInfo(
+            id: 'CP2',
+            localCandidateId: 'L1',
+            remoteCandidateId: 'R1',
+            state: 'failed',
+          ),
+        ],
+        candidates: [relayLocal],
+      );
+      expect(judgeTls443(sample).verdict, kVerdictPass);
+    });
+
+    test('双 transport 报选择但全部 pair 非成功 → BLOCKED（none resolves）', () {
+      final sample = _sample(
+        transports: const [
+          TransportInfo(id: 'T1', selectedCandidatePairId: 'CP1'),
+          TransportInfo(id: 'T2', selectedCandidatePairId: 'CP2'),
+        ],
+        pairs: const [
+          CandidatePairInfo(
+            id: 'CP1',
+            localCandidateId: 'L1',
+            remoteCandidateId: 'R1',
+            state: 'in-progress',
+          ),
+          CandidatePairInfo(
+            id: 'CP2',
+            localCandidateId: 'L1',
+            remoteCandidateId: 'R1',
+            state: 'failed',
+          ),
+        ],
+        candidates: [relayLocal],
+      );
+      final verdict = judgeTls443(sample);
+      expect(verdict.verdict, kVerdictBlocked);
+      expect(verdict.reasons.single, contains('none resolves'));
+    });
+  });
 }
 
 /// StatsReport-like 测试替身（.id / .type / .values）。

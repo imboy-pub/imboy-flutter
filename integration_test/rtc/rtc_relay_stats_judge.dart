@@ -66,9 +66,12 @@ const String _bindBlocked = 'blocked';
 
 /// 绑定当前所选 pair 并验证成功状态：
 /// 1. 必须由 transport.selectedCandidatePairId 指定（nominated 单独不算）；
-/// 2. pair 必须存在于 candidate-pair 报告；
-/// 3. pair.state 必须是 succeeded/connected；
-/// 4. local candidate 必须可解析（remote 缺失只记 note，不阻断——
+/// 2. 多个 transport 同时报 selectedCandidatePairId 时不取"首个"：恰好一个
+///    能解析到 succeeded/connected pair 时绑定它，否则 BLOCKED（拒绝猜测哪条
+///    pc 路径承载当前选择——选错会把 TLS443 证据记到未承载媒体的路径上）；
+/// 3. pair 必须存在于 candidate-pair 报告；
+/// 4. pair.state 必须是 succeeded/connected；
+/// 5. local candidate 必须可解析（remote 缺失只记 note，不阻断——
 ///    remote relay 不能替代 local relay，判定只看 local 侧）。
 SelectedPairBinding bindSelectedPair(PcStatsSample sample) {
   if (sample.transports.isEmpty) {
@@ -77,15 +80,13 @@ SelectedPairBinding bindSelectedPair(PcStatsSample sample) {
       problems: ['no transport stats report sampled for this pc'],
     );
   }
-  TransportInfo? transport;
-  for (final t in sample.transports) {
-    final sel = t.selectedCandidatePairId;
-    if (sel != null && sel.isNotEmpty) {
-      transport = t;
-      break;
-    }
-  }
-  if (transport == null) {
+  final candidates = <TransportInfo>[
+    for (final t in sample.transports)
+      if (t.selectedCandidatePairId != null &&
+          t.selectedCandidatePairId!.isNotEmpty)
+        t,
+  ];
+  if (candidates.isEmpty) {
     final nominated = sample.candidatePairs.where((p) => p.nominated == true);
     if (nominated.isNotEmpty) {
       return const SelectedPairBinding(
@@ -103,7 +104,34 @@ SelectedPairBinding bindSelectedPair(PcStatsSample sample) {
       ],
     );
   }
-  return _bindPairById(sample, transport);
+  if (candidates.length == 1) {
+    return _bindPairById(sample, candidates.first);
+  }
+  final valid = <TransportInfo>[];
+  for (final t in candidates) {
+    final pair = sample.pairById(t.selectedCandidatePairId!);
+    final state = pair?.state?.toLowerCase();
+    if (pair != null && state != null && kPairSuccessStates.contains(state)) {
+      valid.add(t);
+    }
+  }
+  final summary =
+      'multiple transports report a selected candidate pair '
+      '(${candidates.map((t) => '${t.id}=${t.selectedCandidatePairId}').join(', ')})';
+  if (valid.length == 1) {
+    return _bindPairById(sample, valid.first);
+  }
+  return SelectedPairBinding(
+    status: _bindBlocked,
+    problems: [
+      if (valid.isEmpty)
+        '$summary but none resolves to a succeeded/connected pair '
+            '(ambiguous selection)'
+      else
+        '$summary with ${valid.length} in succeeded/connected state '
+            '(ambiguous selection); refusing to guess which one carries it',
+    ],
+  );
 }
 
 SelectedPairBinding _bindPairById(
