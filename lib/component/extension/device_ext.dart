@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:imboy/component/helper/func.dart';
 
 // 条件导入：在非 Web 平台使用存根，避免 dart:js_interop 错误
 import 'device_ext_web_stub.dart' if (dart.library.html) 'device_ext_web.dart';
@@ -44,8 +43,6 @@ class DeviceExt extends DeviceInfoPlugin {
         deviceId = newDeviceId;
       }
 
-      iPrint("DeviceExt/detail Web: $deviceId");
-
       return {
         "cos": "web",
         "did": deviceId,
@@ -67,7 +64,6 @@ class DeviceExt extends DeviceInfoPlugin {
     // 👇 移动端/桌面端设备信息
     if (Platform.isAndroid) {
       var data = await androidInfo;
-      iPrint("DeviceExt/detail ${data.id}, ${data.toString()}");
       return {
         "cos": "android",
         "did": data.id,

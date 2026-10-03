@@ -5,6 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('消息链路日志不得记录原始帧、明文 payload 或完整会话对象', () {
     const forbiddenByFile = <String, List<String>>{
+      'lib/component/extension/device_ext.dart': [
+        r'DeviceExt/detail Web: $deviceId',
+        r'DeviceExt/detail ${data.id}, ${data.toString()}',
+      ],
       'lib/service/websocket.dart': [
         'debug_log_websocket_full',
         r'原始帧: $message',
