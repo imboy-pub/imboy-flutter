@@ -83,6 +83,36 @@ Future<void> _finish(WidgetTester tester, _ImportProbe probe) async {
 }
 
 void main() {
+  testWidgets('云端口令错误提示且不写密钥，失败后可重试', (tester) async {
+    const channel = MethodChannel(
+      'plugins.it_nomads.com/flutter_secure_storage',
+    );
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    var writes = 0;
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      if (call.method == 'write') writes++;
+      return null;
+    });
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    final local = _ImportProbe(), cloud = _ImportProbe();
+    await _prepare(tester, local, cloud: cloud);
+    await _startCloudRestore(tester);
+    expect(cloud.pending.length, 1);
+    cloud.pending.single.completeError(ArgumentError('wrong password'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text(t.common.e2eeBackupErrCloudPwd), findsOneWidget);
+    expect(writes, 0);
+    expect(local.pending, isEmpty);
+    expect(find.text(t.common.e2eeBackupImportSuccessTitle), findsNothing);
+    await _finish(tester, cloud);
+    await _startCloudRestore(tester);
+    expect(cloud.pending.length, 2);
+    await _finish(tester, cloud);
+    expect(writes, 0);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('云端确认期间阻止缓存的本地导入回调，取消后可导入', (tester) async {
     final local = _ImportProbe(), cloud = _ImportProbe();
     final localAction = await _prepare(tester, local, cloud: cloud);
