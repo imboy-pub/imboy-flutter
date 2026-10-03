@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -74,6 +75,7 @@ Future<void> _finish(WidgetTester tester, _ImportProbe probe) async {
 }
 
 void main() {
+  testWidgets('解密等待期间关闭页面不开始写入恢复密钥', _assertNoLateKeyWrites);
   testWidgets('同一帧重复导入只启动一次解密', (tester) async {
     final probe = _ImportProbe();
     final action = await _prepare(tester, probe);
@@ -101,4 +103,34 @@ void main() {
     expect(probe.pending.length, 2);
     expect(tester.takeException(), isNull);
   });
+}
+
+Future<void> _assertNoLateKeyWrites(WidgetTester tester) async {
+  const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  var writes = 0;
+  messenger.setMockMethodCallHandler(channel, (call) async {
+    if (call.method == 'write') {
+      writes++;
+      // 记录首次写入意图即中止，禁止继续后续恢复/设备回写流程。
+      throw PlatformException(code: 'synthetic-write-stop');
+    }
+    return null;
+  });
+  addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+  final probe = _ImportProbe();
+  (await _prepare(tester, probe))();
+  expect(probe.pending.length, 1);
+  await tester.pumpWidget(const SizedBox.shrink());
+  probe.pending.single.complete({
+    'private_key': 'SYNTHETIC_PRIVATE',
+    'public_key': 'SYNTHETIC_PUBLIC',
+    'key_id': 'synthetic-key',
+  });
+  for (var frame = 0; frame < 100; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(writes, 0);
+  expect(tester.takeException(), isNull);
 }

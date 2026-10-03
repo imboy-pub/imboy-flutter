@@ -716,6 +716,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 expectedAccountId: _currentAccountId,
               ));
 
+      if (!mounted) return;
       await _applyRestoredKeys(result);
     } on StateError catch (e) {
       iPrint('[E2EEBackupImport] 导入被拒绝: ${e.message}');
