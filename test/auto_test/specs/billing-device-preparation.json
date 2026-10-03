@@ -52,5 +52,9 @@
   "function_ids": [
     "fn:billing:plan_list_page:004",
     "fn:billing:plan_list_page:006"
-  ]
+  ],
+  "function_oracles": {
+    "fn:billing:plan_list_page:004": "点击取消后支付方式面板不存在且 paying=false；独立完整请求及数据库审计须另证无计费写入，前后完整快照一致不能单独证明零写入。",
+    "fn:billing:plan_list_page:006": "指定名称与精确价格的套餐可见，点击该套餐订阅按钮后支付方式面板可见；不得选择或触发支付方式。"
+  }
 }

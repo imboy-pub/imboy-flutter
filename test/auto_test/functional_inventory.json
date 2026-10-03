@@ -89,8 +89,8 @@
       "source": "generated:lib_page",
       "control": "button",
       "action": "触发第 4 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "expected_oracle": "点击取消后支付方式面板不存在且 paying=false；独立完整请求及数据库审计须另证无计费写入，前后完整快照一致不能单独证明零写入。",
+      "details": "DECLARED_ORACLE_NOT_EXECUTED; lib page static extraction",
       "platforms": [
         "android",
         "macos"
@@ -135,8 +135,8 @@
       "source": "generated:lib_page",
       "control": "button",
       "action": "触发第 6 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "expected_oracle": "指定名称与精确价格的套餐可见，点击该套餐订阅按钮后支付方式面板可见；不得选择或触发支付方式。",
+      "details": "DECLARED_ORACLE_NOT_EXECUTED; lib page static extraction",
       "platforms": [
         "android",
         "macos"

@@ -24,6 +24,7 @@ if __package__ in (None, ''):  # 允许 python3 scripts/auto_test_lib/inventory.
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from auto_test_lib import discovery  # noqa: E402
+from auto_test_lib import acceptance_coverage  # noqa: E402
 
 INVENTORY_SCHEMA_VERSION = 1
 INVENTORY_PATH = ('test', 'auto_test', 'functional_inventory.json')
@@ -497,6 +498,26 @@ def _function_target_restrictions(functions: list[dict], specs: list[dict]) -> d
     return restricted
 
 
+def _function_oracle_declarations(specs: list[dict]) -> dict:
+    declarations = {}
+    for spec in specs:
+        if 'function_oracles' not in spec:
+            continue
+        oracles, ids = spec['function_oracles'], spec.get('function_ids')
+        if (not isinstance(oracles, dict) or not oracles or not isinstance(ids, list)
+                or set(oracles) - set(ids) or any(
+                    not acceptance_coverage._meaningful(value)
+                    or value.strip() in {'-', LEDGER_ORACLE, GENERATED_ORACLE_FLAG}
+                    or '<控件可观察状态>' in value for value in oracles.values())):
+            raise ValueError('FUNCTION_ORACLE_DECLARATION_INVALID')
+        for identifier, oracle in oracles.items():
+            key = (spec['runner']['target'], identifier)
+            if key in declarations:
+                raise ValueError('FUNCTION_ORACLE_DECLARATION_INVALID')
+            declarations[key] = oracle
+    return declarations
+
+
 def constrain_function_targets(functions: list[dict], specs: list[dict]) -> list[dict]:
     """Explicit per-function declarations restrict page-level target hints.
 
@@ -504,11 +525,18 @@ def constrain_function_targets(functions: list[dict], specs: list[dict]) -> list
     Legacy specs without declarations retain their historical hints.
     """
     restricted = _function_target_restrictions(functions, specs)
+    oracles = _function_oracle_declarations(specs)
     result = []
     for function in functions:
         target = function.get('test_target')
         excluded = target in restricted and function['function_id'] not in restricted[target]
-        result.append({**function, 'test_target': None} if excluded else dict(function))
+        row = {**function, 'test_target': None} if excluded else dict(function)
+        oracle = oracles.get((row['test_target'], row['function_id']))
+        if oracle:
+            row['expected_oracle'] = oracle
+            row['details'] = row.get('details', '').replace(
+                GENERATED_ORACLE_FLAG, 'DECLARED_ORACLE_NOT_EXECUTED')
+        result.append(row)
     return result
 
 

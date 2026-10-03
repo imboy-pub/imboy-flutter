@@ -56,6 +56,32 @@ def _make_synthetic_root(base: Path) -> Path:
 
 
 class FunctionTargetDeclarationTest(unittest.TestCase):
+    def test_placeholder_oracle_declaration_cannot_clear_readiness_gap(self):
+        function = dict(function_id='fn:page:001', page='lib/page/foo.dart',
+                        test_target='integration_test/foo_test.dart')
+        for oracle in ['TODO', ' TBD ', 'pending', 'UNKNOWN', '-', '见台账断言']:
+            spec = dict(runner={'target': function['test_target']},
+                        sources=[function['page']], function_ids=[function['function_id']],
+                        function_oracles={function['function_id']: oracle})
+            with self.assertRaisesRegex(ValueError, 'FUNCTION_ORACLE_DECLARATION_INVALID'):
+                inventory.constrain_function_targets([function], [spec])
+
+    def test_oracle_declaration_is_scoped_without_execution_claim(self):
+        functions = [{'function_id': 'fn:page:001', 'page': 'lib/page/foo.dart',
+                      'test_target': 'integration_test/foo_test.dart',
+                      'expected_oracle': inventory.GENERATED_ORACLE,
+                      'details': inventory.GENERATED_ORACLE_FLAG}]
+        spec = {'runner': {'target': 'integration_test/foo_test.dart'},
+                'sources': ['lib/page/foo.dart'], 'function_ids': ['fn:page:001'],
+                'function_oracles': {'fn:page:001': 'cancel removes visible payment sheet'}}
+        result = inventory.constrain_function_targets(functions, [spec])
+        self.assertEqual(result[0]['expected_oracle'], spec['function_oracles']['fn:page:001'])
+        self.assertIn('DECLARED_ORACLE_NOT_EXECUTED', result[0]['details'])
+        self.assertEqual(functions[0]['expected_oracle'], inventory.GENERATED_ORACLE)
+        spec['function_oracles']['fn:unknown:001'] = 'unrelated'
+        with self.assertRaisesRegex(ValueError, 'FUNCTION_ORACLE_DECLARATION_INVALID'):
+            inventory.constrain_function_targets(functions, [spec])
+
     def test_unknown_function_declaration_is_rejected(self):
         functions = [{'function_id': 'fn:page:001', 'page': 'lib/page/foo.dart',
                       'test_target': 'integration_test/foo_test.dart'}]
