@@ -161,6 +161,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   /// 通讯录入口（GZAPP-04 G10）：目标企业 = 当前企业指针，回落列表首个
   /// active 组织；无可进企业时禁用。
   void _openDirectory() {
+    if (!_acceptAction(_accountKey, _accountEpoch)) return;
     Organization? target;
     try {
       target = CurrentOrganizationStore.forAccount(_accountKey).value;
@@ -175,6 +176,20 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
     context.push(
       '$kOrganizationHomePath/${target.id}/directory?name=${Uri.encodeComponent(target.name)}',
     );
+  }
+
+  void _openDetail(EntityId orgId) {
+    if (!_acceptAction(_accountKey, _accountEpoch)) return;
+    context.push('$kOrganizationHomePath/$orgId');
+  }
+
+  Future<void> _openInvitations() async {
+    final account = _accountKey;
+    final epoch = _accountEpoch;
+    if (!_acceptAction(account, epoch)) return;
+    await context.push('$kOrganizationHomePath/0/invitations?mode=mine');
+    if (!_acceptAction(account, epoch)) return;
+    await _refreshPendingInvites();
   }
 
   Organization? _orgsWhere(EntityId orgId) {
@@ -235,15 +250,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
             label: t.organization.home.myInvitations,
             child: IconButton(
               tooltip: t.organization.home.myInvitations,
-              onPressed: () async {
-                await context.push(
-                  '$kOrganizationHomePath/0/invitations?mode=mine',
-                );
-                // 从邀请页返回后重算角标（可能有接受/拒绝终态变化）
-                if (mounted) {
-                  await _refreshPendingInvites();
-                }
-              },
+              onPressed: _openInvitations,
               icon: Badge(
                 isLabelVisible: _pendingInvites > 0,
                 label: Text(_pendingInvites > 99 ? '99+' : '$_pendingInvites'),
@@ -289,7 +296,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
                   ),
                   subtitle: orgListSubtitle(context, o),
                   trailing: const Icon(CupertinoIcons.chevron_right),
-                  onTap: () => context.push('$kOrganizationHomePath/${o.id}'),
+                  onTap: () => _openDetail(o.id),
                 ),
             ],
           ),
