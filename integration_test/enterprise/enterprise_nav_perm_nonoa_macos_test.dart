@@ -1,11 +1,12 @@
 // RUN: 2026-10-02-enterprise-non-oa-closure N3 | Card: N3-A01..A04
 //
 // 企业权限和导航原生闭环（真实 macOS App + 隔离后端 + 合成账号）。
-// N3-A01 个人/企业四栏与切换；N3-A02 跨企业图数据隔离（含刷新并发演练）；
+// N3-A01 个人/企业四栏与切换；N3-A02 跨企业图数据隔离与刷新（竞态未验）；
 // N3-A03 普通成员 UI/服务端权限一致；N3-A04 撤权 403 → 旧图卸载 → 恢复重读。
 //
 // 运行参数与 N2 相同（APP_ENV/API_BASE_URL_OVERRIDE/SOLIDIFIED_KEY*/NONOA_*），
-// 另需 NONOA_MEMBER_ACC / NONOA_MEMBER_PWD（合成普通成员）。
+// 另需 NONOA_UID（管理员UID）、NONOA_MEMBER_ACC / NONOA_MEMBER_PWD /
+// NONOA_MEMBER_UID（合成普通成员），身份断言不采用页面文案替代。
 // A04 撤权/恢复走 admin 独立 HTTP 会话调 /members/:uid/{suspend,restore}
 // 真实治理端点（App 进程无 docker socket，也不直改数据库）。
 
@@ -17,22 +18,24 @@ import 'package:flutter/material.dart'
     show NavigationBar, NavigationDestination, NavigationRail;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:imboy/main.dart' as app;
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/config/init.dart' show AppInitializer, navigatorKey;
+import 'package:imboy/config/init.dart' show AppInitializer;
 import 'package:imboy/service/sqlite.dart' show SqliteService;
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/page/settings/e2ee_backup_setup_page.dart';
 
+import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'macos_storage_isolation.dart';
 
 const _api = String.fromEnvironment('API_BASE_URL_OVERRIDE');
 const _adminAcc = String.fromEnvironment('NONOA_ACC');
 const _adminPwd = String.fromEnvironment('NONOA_PWD');
+const _adminUid = String.fromEnvironment('NONOA_UID');
 const _memberAcc = String.fromEnvironment('NONOA_MEMBER_ACC');
 const _memberPwd = String.fromEnvironment('NONOA_MEMBER_PWD');
 const _orgAId = String.fromEnvironment('NONOA_ORG_A');
@@ -128,7 +131,16 @@ void main() {
     expect(find.text(_orgCRootOnly), findsNothing, reason: 'B 部门不可见');
     await markShot(tester, 'n3_a02_org_c_chart');
 
-    // 刷新演练：成员视图与图互切后仍为 C（无 A 回填）。
+    // 实际重新读取图，再互切检查仍为 C（无 A 回填）。
+    await tester.tap(
+      find.byTooltip(t.organization.common.reload).hitTestable(),
+    );
+    await tester.pump();
+    await waitForChartIdle(tester);
+    await waitFor(tester, find.text(_orgCName));
+    expect(find.byKey(const ValueKey('org-chart-canvas')), findsOneWidget);
+    expect(find.text(_orgAName), findsNothing);
+    // 互切检查不能代替上述重新读取。
     await tester.tap(find.text(t.organization.directory.membersSection));
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
     await tester.tap(find.text(t.organization.directory.structureSection));
@@ -136,7 +148,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
     expect(find.text(_orgAOnlyDept), findsNothing);
     expect(find.text(_orgCName), findsWidgets);
-    debugPrint('NATIVE_N3_A02_PASS');
+    debugPrint(
+      'NATIVE_N3_A02_PARTIAL: no controlled delayed response or '
+      'cross-account graph refresh',
+    );
     debugPrint(
       'N3_A02_BOUNDARY: 晚到响应的确定性注入由widget层N1-A02覆盖'
       '（换账号/企业丢弃迟到响应）；原生层验证切换隔离与刷新一致性',
@@ -170,6 +185,13 @@ void main() {
 
     // 普通成员「我」页无企业管理入口。
     await selectEnterpriseTab(tester, t.common.me);
+    await waitFor(
+      tester,
+      find.byKey(const ValueKey('enterprise-mine-organization-entry')),
+    );
+    final role = await tester.runAsync(() => OrganizationApi().detail(_orgAId));
+    expect(role?.memberRole, 'member');
+    expect(role?.id, _orgAId);
     await tester.pump(const Duration(milliseconds: 800));
     expect(
       find.text(t.organization.manage.entry),
@@ -192,7 +214,10 @@ void main() {
     });
     expect(denied, 403, reason: '普通成员创建部门（管理直达路径）须 403');
     expect(tester.takeException(), isNull);
-    debugPrint('NATIVE_N3_A03_PASS');
+    debugPrint(
+      'NATIVE_N3_A03_PARTIAL: member UI/API checked; '
+      'administrator governance and UI deep-link remain',
+    );
   }, timeout: const Timeout(Duration(minutes: 8)));
 
   testWidgets('N3-A04 撤权 403 卸载旧图，恢复需重新读取', (tester) async {
@@ -247,9 +272,8 @@ void main() {
       );
       await markShot(tester, 'n3_a04_revoked');
     } finally {
-      // 恢复权限：restore 端点（真实服务端链路）；重读验证在独立段
-      // （N3-A04b，新进程新会话）完成——suspend 吊销会话后同进程重登链路
-      // 不稳定，真实用户路径也是重新登录。
+      // 恢复权限：restore 端点（真实服务端链路）；下一段通过生产
+      // 登录UI建立成员会话，再重新读取原生组织图。登录竞态仍须真实暴露。
       try {
         final restored = await tester.runAsync(
           () => _setMemberSuspended(false),
@@ -265,48 +289,32 @@ void main() {
     if (restoreFailure != null) {
       fail('合成成员恢复失败（可能滞留 suspended）：$restoreFailure');
     }
-    debugPrint('NATIVE_N3_A04_PASS');
+    debugPrint(
+      'NATIVE_N3_A04_PARTIAL: revocation checked; '
+      'controlled in-flight response remains',
+    );
   }, timeout: const Timeout(Duration(minutes: 9)));
 
-  testWidgets('N3-A04b 恢复权限后重新读取（API 会话级）', (tester) async {
-    // 恢复权限的重新读取以服务端新会话验证（UI 图渲染路径已由 N3-A04
-    // 主段撤权前读取与 N2 组织图旅程覆盖；登录页导航竞态与本卡 oracle 无关）。
-    expect(_orgAId, matches(RegExp(r'^[1-9][0-9]+$')), reason: 'NONOA_ORG_A');
-    final ok = await tester.runAsync(() async {
-      final client = HttpClient();
-      try {
-        final loginReq = await client.postUrl(
-          Uri.parse('$_api/api/v1/passport/login'),
-        );
-        loginReq.headers.contentType = ContentType.json;
-        loginReq.write(
-          '{"type":"account","account":"$_memberAcc","pwd":"$_memberPwd",'
-          '"rsa_encrypt":"0","did":"n3-a04b","cos":"macos"}',
-        );
-        final loginResp = await loginReq.close();
-        final loginBody = await loginResp.transform(utf8.decoder).join();
-        final payload = jsonDecode(loginBody)['payload'];
-        if (payload == null) return false;
-        final token = payload['token'] as String;
-        final req = await client.getUrl(
-          Uri.parse(
-            '$_api/api/v1/organizations/$_orgAId/directory/departments?limit=3',
-          ),
-        );
-        req.headers.set(HttpHeaders.authorizationHeader, 'Bearer $token');
-        final resp = await req.close();
-        final body = await resp.transform(utf8.decoder).join();
-        final decoded = jsonDecode(body);
-        return resp.statusCode == 200 &&
-            decoded['code'] == 0 &&
-            (decoded['payload']['list'] as List).isNotEmpty;
-      } finally {
-        client.close(force: true);
-      }
-    });
-    expect(ok, isTrue, reason: '恢复后 member 新会话应能重新读取企业A目录');
-    debugPrint('NATIVE_N3_A04B_PASS');
-  }, timeout: const Timeout(Duration(minutes: 4)));
+  testWidgets('N3-A04b 恢复权限后原生重新登录读取组织图', (tester) async {
+    await _loginAs(tester, _memberAcc, _memberPwd);
+    if (enterpriseNavigation().evaluate().isEmpty) {
+      await openPersonalEnterprisePicker(tester);
+      final tile = find.byKey(Key('org-picker-tile-$_orgAId'));
+      await waitFor(tester, tile.hitTestable());
+      await tester.tap(tile);
+      await waitFor(tester, enterpriseNavigation());
+    }
+    await selectEnterpriseTab(tester, t.organization.directory.title);
+    await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
+    await tester.tap(find.text(t.organization.directory.structureSection));
+    await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
+    await waitFor(tester, find.text('销售中心'));
+    expect(find.text(_orgAName), findsWidgets);
+    expect(UserRepoLocal.to.currentUid, _memberUid);
+    expect(tester.takeException(), isNull);
+    await markShot(tester, 'n3_a04b_restored_native_graph');
+    debugPrint('NATIVE_N3_A04B_RESTORE_READ_PASS');
+  }, timeout: const Timeout(Duration(minutes: 8)));
 }
 
 // ============================ 共用辅助 ============================
@@ -407,22 +415,6 @@ Future<void> _loginAs(WidgetTester tester, String acc, String pwd) async {
     await tester.tap(find.text(t.common.e2eeBackupSetupLaterConfirmLeave));
     await tester.pump(const Duration(milliseconds: 800));
   }
-  // 登录成功但首屏导航偶发停滞（全新 isolate 存储的恢复链竞态）：
-  // 仍停在登录页时显式进入主壳（等价登录成功回调的目的地）。
-  final shellGone = find
-      .byWidgetPredicate(
-        (widget) =>
-            widget is BottomNavigationPage ||
-            widget.key == const Key('enterprise-shell-rail') ||
-            widget.key == const Key('enterprise-shell-bottom-nav'),
-      )
-      .evaluate()
-      .isEmpty;
-  if (shellGone &&
-      find.byKey(const Key('login_phone_input')).evaluate().isNotEmpty) {
-    GoRouter.of(navigatorKey.currentContext!).go('/bottom_navigation');
-    await tester.pump(const Duration(milliseconds: 800));
-  }
   await waitFor(
     tester,
     find.byWidgetPredicate(
@@ -431,6 +423,13 @@ Future<void> _loginAs(WidgetTester tester, String acc, String pwd) async {
           widget.key == const Key('enterprise-shell-rail') ||
           widget.key == const Key('enterprise-shell-bottom-nav'),
     ),
+  );
+  final expectedUid = acc == _adminAcc ? _adminUid : _memberUid;
+  expect(expectedUid, matches(RegExp(r'^[1-9][0-9]+$')));
+  expect(
+    UserRepoLocal.to.currentUid,
+    expectedUid,
+    reason: 'Production login must select the exact synthetic account',
   );
 }
 
@@ -452,6 +451,7 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
     await waitFor(tester, enterpriseNavigation());
     await tester.pump(const Duration(milliseconds: 600));
   }
+  await selectEnterpriseTab(tester, t.organization.directory.title);
   final entry = find.byKey(const ValueKey('workspace-shell-account-entry'));
   await waitFor(tester, entry.hitTestable());
   await tester.tap(entry);
@@ -655,4 +655,19 @@ Finder personalTab(String key) {
       (widget) => widget is NavigationDestination && widget.label == label,
     ),
   );
+}
+
+Future<void> waitForChartIdle(WidgetTester tester) async {
+  final loading = find.descendant(
+    of: find.byKey(const ValueKey('org-chart-canvas')),
+    matching: find.byType(CupertinoActivityIndicator),
+  );
+  final deadline = DateTime.now().add(const Duration(seconds: 40));
+  while (loading.evaluate().isNotEmpty && DateTime.now().isBefore(deadline)) {
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+  }
+  expect(loading, findsNothing);
 }

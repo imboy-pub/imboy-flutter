@@ -12,37 +12,39 @@
 //     --dart-define=SOLIDIFIED_KEY_OVERRIDE=<local-office-key> \
 //     --dart-define=SOLIDIFIED_KEY_IV_OVERRIDE=<local-office-iv> \
 //     --dart-define=NONOA_ACC=<synthetic-owner-account> \
-//     --dart-define=NONOA_PWD=<synthetic-password>
+//     --dart-define=NONOA_PWD=<synthetic-password> \
+//     --dart-define=NONOA_UID=<synthetic-owner-uid>
 //
-// 合成数据前置见 run 证据目录 n2_seed.sql（企业A 60根部门/三层深/3成员；
+// 合成数据前置见 run 证据目录 n2_seed.sql（企业A 103根部门/三层深/3成员；
 // 企业B 单部门；空企业C 无部门）。
 
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
-    show
-        NavigationBar,
-        NavigationDestination,
-        NavigationRail,
-        Theme;
+    show NavigationBar, NavigationDestination, NavigationRail, Slider, Theme;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/main.dart' as app;
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/config/init.dart' show AppInitializer, navigatorKey;
+import 'package:imboy/config/init.dart'
+    show AppInitializer, navigatorKey, currentFontSize;
 import 'package:imboy/service/sqlite.dart' show SqliteService;
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
+
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/font_types.dart' show FontSizeOption;
 
 import 'macos_storage_isolation.dart';
 
 const _api = String.fromEnvironment('API_BASE_URL_OVERRIDE');
 const _account = String.fromEnvironment('NONOA_ACC');
 const _password = String.fromEnvironment('NONOA_PWD');
+const _expectedUid = String.fromEnvironment('NONOA_UID');
 
 const _orgAName = '非OA验收企业A';
 const _orgBDept = '乙端产品部';
@@ -77,7 +79,8 @@ void main() {
       tester,
       find.byWidgetPredicate(
         (widget) =>
-            widget is WelcomePage || widget.key == const Key('login_phone_input'),
+            widget is WelcomePage ||
+            widget.key == const Key('login_phone_input'),
       ),
     );
     if (find.byType(WelcomePage).evaluate().isNotEmpty) {
@@ -143,6 +146,9 @@ void main() {
     );
     await markShot(tester, 'n2_00_after_login');
 
+    expect(_expectedUid, matches(RegExp(r'^[1-9][0-9]+$')));
+    expect(UserRepoLocal.to.currentUid, _expectedUid);
+
     // 组织 id 与部门名 → id 映射（真实 API，授权链路内）。
     final ids = await tester.runAsync(() async {
       final orgs = await OrganizationApi().allMine();
@@ -155,9 +161,7 @@ void main() {
           parentId: parentId,
           limit: 100,
         );
-        return {
-          for (final d in page.list) d.name: d.id.toString(),
-        };
+        return {for (final d in page.list) d.name: d.id.toString()};
       }
 
       final roots = <String, String>{};
@@ -188,6 +192,7 @@ void main() {
         'platform': tech['平台架构组']!,
         'storage': platform['存储小组']!,
         'rootCount': roots.length.toString(),
+        'rootIds': roots.values.join(','),
       };
     });
     expect(ids, isNotNull);
@@ -215,7 +220,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    expect(find.byKey(const Key('org-directory-view-switcher')), findsOneWidget);
+    expect(
+      find.byKey(const Key('org-directory-view-switcher')),
+      findsOneWidget,
+    );
     expect(find.text(t.organization.directory.membersSection), findsWidgets);
     expect(find.text(t.organization.directory.structureSection), findsWidgets);
     await markShot(tester, 'n2_a01_directory_members_view');
@@ -224,15 +232,34 @@ void main() {
     await tester.tap(find.text(t.organization.directory.structureSection));
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 400));
+    for (final id in ids['rootIds']!.split(',')) {
+      await waitFor(tester, find.byKey(ValueKey('org-chart-node-$id')));
+    }
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget.key is ValueKey<String> &&
+            (widget.key as ValueKey<String>).value.startsWith(
+              'org-chart-node-',
+            ),
+      ),
+      findsNWidgets(104),
+    );
     // 真实企业名作为根节点标题。
     expect(find.text(_orgAName), findsWidgets);
     expect(find.text(t.organization.chart.gestureHint), findsOneWidget);
     await markShot(tester, 'n2_a01_chart_root');
 
     // 展开两层：销售中心 → 广州销售组。
-    await tapChartControl(tester, find.byKey(Key('org-chart-expand-${ids['sales']}')));
+    await tapChartControl(
+      tester,
+      find.byKey(Key('org-chart-expand-${ids['sales']}')),
+    );
     await waitFor(tester, find.byKey(Key('org-chart-node-${ids['gz']}')));
-    await tapChartControl(tester, find.byKey(Key('org-chart-expand-${ids['tech']}')));
+    await tapChartControl(
+      tester,
+      find.byKey(Key('org-chart-expand-${ids['tech']}')),
+    );
     await waitFor(tester, find.byKey(Key('org-chart-node-${ids['platform']}')));
     // 只有授权节点：企业B（乙端产品部）不可见。
     expect(find.text(_orgBDept), findsNothing);
@@ -240,11 +267,11 @@ void main() {
     await markShot(tester, 'n2_a01_chart_two_levels');
 
     // 点击子部门 → 成员视图定位到该部门（路径正确）。
-    await tapChartControl(tester, find.byKey(Key('org-chart-node-${ids['gz']}')));
-    await waitFor(
+    await tapChartControl(
       tester,
-      find.byKey(const Key('org_directory_search_input')),
+      find.byKey(Key('org-chart-node-${ids['gz']}')),
     );
+    await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
     await tester.pump(const Duration(milliseconds: 600));
     // 成员视图恢复（图卸载），标题含部门链路。
     expect(find.byKey(const ValueKey('org-chart-canvas')), findsNothing);
@@ -273,11 +300,13 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('org-chart-zoom-in')));
     await tester.pump(const Duration(milliseconds: 200));
     expect(scale(), greaterThan(initialScale));
+    expectScaleLabel(scale());
     final zoomed = scale();
     // 按钮缩小回位。
     await tester.tap(find.byKey(const ValueKey('org-chart-zoom-out')));
     await tester.pump(const Duration(milliseconds: 200));
     expect(scale(), lessThan(zoomed));
+    expectScaleLabel(scale());
     await markShot(tester, 'n2_a02_button_zoom');
 
     // 真实双指张开（两指针背向移动 = 触控板/触屏捏合的事件流）。
@@ -291,6 +320,7 @@ void main() {
     await f2.moveBy(const Offset(60, 0));
     await tester.pump(const Duration(milliseconds: 200));
     expect(scale(), greaterThan(beforePinch));
+    expectScaleLabel(scale());
     await f1.up();
     await f2.up();
     await markShot(tester, 'n2_a02_pinch_zoom');
@@ -302,26 +332,30 @@ void main() {
     await drag.up();
     await tester.pump(const Duration(milliseconds: 300));
     expect(matrix().storage[12], isNot(beforeDrag.storage[12]));
+    expect(matrix().storage[13], isNot(beforeDrag.storage[13]));
     await markShot(tester, 'n2_a02_drag_pan');
 
     // 适应窗口：视图复位、根节点可找回，工具栏始终可操作。
     final beforeFit = scale();
     await tester.tap(find.byKey(const ValueKey('org-chart-fit')));
     await tester.pump(const Duration(seconds: 1));
-    expect(
-      scale(),
-      lessThan(beforeFit),
-      reason: 'fit 之后比例应回落到适配窗口',
-    );
+    expect(scale(), lessThan(beforeFit), reason: 'fit 之后比例应回落到适配窗口');
     expect(
       find.byKey(const ValueKey('org-chart-zoom-in')).hitTestable(),
       findsOneWidget,
     );
-    expect(find.text(_orgAName), findsWidgets);
+    expect(
+      find.byKey(const ValueKey('org-chart-node-')).hitTestable(),
+      findsOneWidget,
+    );
+    expectScaleLabel(scale());
     await markShot(tester, 'n2_a02_fit_reset');
 
     // 折叠：子部门从图中移除。
-    await tapChartControl(tester, find.byKey(Key('org-chart-expand-${ids['sales']}')));
+    await tapChartControl(
+      tester,
+      find.byKey(Key('org-chart-expand-${ids['sales']}')),
+    );
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byKey(Key('org-chart-node-${ids['gz']}')), findsNothing);
     await markShot(tester, 'n2_a02_collapse');
@@ -361,9 +395,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
     }
     // 滚动到暗色项（页面最后一个可点 tile）并整行点击。
-    final darkRow = find
-        .byType(CupertinoListTile)
-        .last;
+    final darkRow = find.byType(CupertinoListTile).last;
     await waitFor(tester, darkRow);
     await tester.ensureVisible(darkRow);
     await tester.pump(const Duration(milliseconds: 400));
@@ -396,10 +428,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     GoRouter.of(navigatorKey.currentContext!).pop();
     await tester.pump(const Duration(milliseconds: 400));
-    debugPrint('NATIVE_N2_A03_PASS');
+    await checkMaximumFontSize(tester);
     debugPrint(
-      'N2_A03_BOUNDARY: 系统级最大字号无法程序化设置（无辅助功能权限），'
-      '字号压力由窄视口(400px)+既有widget层2x textScale测试共同覆盖',
+      'NATIVE_N2_A03_PARTIAL: application maximum font checked; '
+      'physical window/system maximum and visual review remain',
     );
 
     // ============================ N2-A04 ============================
@@ -409,7 +441,10 @@ void main() {
     }
     // 三层深：技术中心 → 平台架构组（A01 已展开，keep-alive 保留）→ 存储小组。
     await waitFor(tester, find.byKey(Key('org-chart-node-${ids['platform']}')));
-    await tapChartControl(tester, find.byKey(Key('org-chart-expand-${ids['platform']}')));
+    await tapChartControl(
+      tester,
+      find.byKey(Key('org-chart-expand-${ids['platform']}')),
+    );
     await waitFor(tester, find.byKey(Key('org-chart-node-${ids['storage']}')));
     await markShot(tester, 'n2_a04_wide_and_deep');
 
@@ -440,7 +475,7 @@ void main() {
     expect(nodeCount, 1, reason: '空企业只应有根节点');
     expect(find.text(_orgCName), findsWidgets);
     await markShot(tester, 'n2_a04_empty_org');
-    debugPrint('NATIVE_N2_A04_PASS');
+    debugPrint('NATIVE_N2_A04_PARTIAL');
     debugPrint(
       'N2_A04_BOUNDARY: 部门加载失败/恢复的原生注入（后端故障注入）未执行；'
       '该状态机由widget层deny/retry测试与N3-A04原生撤权(403)路径覆盖',
@@ -493,7 +528,6 @@ Future<void> openPersonalEnterprisePicker(WidgetTester tester) async {
   await tester.tap(switcher);
 }
 
-
 /// macOS 的 integration_test 平台未实现 captureScreenshot；取证截图由 host
 /// 侧脚本监听 [AI_SCREENSHOT] 标记后经 VM 服务协议 ext.flutter.screenshot
 /// 抓取真实渲染帧（与仓内 Android 采集脚本同一标记协议）。
@@ -510,8 +544,6 @@ Future<void> markShot(WidgetTester tester, String name) async {
     () => Future<void>.delayed(const Duration(milliseconds: 600)),
   );
 }
-
-
 
 /// 超宽树 fit 后视口锚定画布中段，前部节点可能在视口外：按目标全局
 /// 坐标把画布平滑拖到目标居中（真实拖动手势），再命中点击。
@@ -596,4 +628,68 @@ Finder personalTab(String key) {
     matching: find.byType(NavigationRail),
   );
   return find.descendant(of: rail, matching: find.text(label));
+}
+
+void expectScaleLabel(double scale) {
+  final label = '${(scale * 100).toStringAsFixed(scale < .1 ? 1 : 0)}%';
+  expect(find.text(label).hitTestable(), findsOneWidget);
+}
+
+Future<void> setFontSlider(WidgetTester tester, double value) async {
+  final finder = find.byType(Slider);
+  await waitFor(tester, finder);
+  await tester.ensureVisible(finder);
+  await tester.pump(const Duration(milliseconds: 200));
+  final slider = tester.widget<Slider>(finder);
+  final rect = tester.getRect(finder);
+  // Flutter Slider retains 24px horizontal track inset with its 48px target.
+  final x = rect.left + 24 + (rect.width - 48) * value / slider.max;
+  final gesture = await tester.startGesture(Offset(x, rect.center.dy));
+  await gesture.up();
+  final expected = FontSizeOption.values[value.round()].value;
+  final deadline = DateTime.now().add(const Duration(seconds: 20));
+  while (currentFontSize.value != expected &&
+      DateTime.now().isBefore(deadline)) {
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+  }
+  expect(currentFontSize.value, expected);
+  expect(UserRepoLocal.to.setting.fontSize, expected);
+}
+
+Future<void> checkMaximumFontSize(WidgetTester tester) async {
+  final router = GoRouter.of(navigatorKey.currentContext!);
+  router.push('/font_size');
+  await waitFor(tester, find.byType(Slider));
+  final original = tester.widget<Slider>(find.byType(Slider)).value;
+  final maximum = tester.widget<Slider>(find.byType(Slider)).max;
+  var onFontPage = true;
+  try {
+    await setFontSlider(tester, maximum);
+    router.pop();
+    onFontPage = false;
+    await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
+    await tester.binding.setSurfaceSize(const Size(400, 800));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(tester.takeException(), isNull);
+    expect(
+      find.byKey(const ValueKey('org-chart-fit')).hitTestable(),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('org-chart-fit')));
+    await tester.pump();
+    expect(
+      find.byKey(const ValueKey('org-chart-node-')).hitTestable(),
+      findsOneWidget,
+    );
+    await markShot(tester, 'n2_a03_application_maximum_font');
+  } finally {
+    await tester.binding.setSurfaceSize(null);
+    if (!onFontPage) router.push('/font_size');
+    await setFontSlider(tester, original);
+    router.pop();
+    await tester.pump(const Duration(milliseconds: 400));
+  }
 }
