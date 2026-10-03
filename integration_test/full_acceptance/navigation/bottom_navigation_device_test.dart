@@ -109,11 +109,12 @@ Future<void> _switchTabs(
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  const platform = String.fromEnvironment('ACCEPTANCE_PLATFORM');
+  const profile = String.fromEnvironment('ACCEPTANCE_NAV_CHANNEL_PROFILE');
   testWidgets(
-    'bottom navigation: effective channel profile and real tab switching',
+    'bottom navigation: platform=$platform channel=$profile real tabs',
     (tester) async {
       final inputs = _inputs();
-      const profile = String.fromEnvironment('ACCEPTANCE_NAV_CHANNEL_PROFILE');
       expect(validateBillingDeviceInputs(inputs), isEmpty);
       expect(const bool.fromEnvironment('ACCEPTANCE_RUNNER_VERIFIED'), isTrue);
       expect(['enabled', 'disabled'], contains(profile));

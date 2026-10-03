@@ -63,5 +63,11 @@
   "proposed_function_oracles": {
     "fn:bottom_navigation:bottom_navigation_page:006": "Compiled channel capability exists and actual narrow chat shell is mounted. Disabled receipt proves no channel tab, three pages and remaining tabs usable; separate enabled receipt proves four tabs/pages. Both profiles on both platforms are required; one successful run is insufficient."
   },
-  "mapping_status": "UNBOUND_UNTIL_EXECUTABLE_PLATFORM_PROFILE_COMPOSITION_GATE"
+  "mapping_status": "UNBOUND_UNTIL_AUTHENTIC_PLATFORM_PROFILE_EXECUTION_EVIDENCE",
+  "composition_gate": {
+    "command": "acceptance-navigation-profiles",
+    "scope": "NAVIGATION_PROFILE_EXECUTION_INPUTS_ONLY",
+    "case_template": "test/auto_test/case_maps/bottom_navigation_channel_profiles.json",
+    "status": "IMPLEMENTED_NOT_QUALIFIED"
+  }
 }

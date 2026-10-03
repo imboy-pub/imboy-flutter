@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "scope": "REQUIRED_CASE_TEMPLATE_NOT_EXECUTION",
+  "required_cases": [
+    {
+      "case_id": "bottom-navigation-channel",
+      "platform": "android",
+      "profile": "enabled",
+      "role_variant": "primary",
+      "parent_acceptance_ids": [
+        "F14-A02"
+      ],
+      "seed_ids": [
+        "fn:bottom_navigation:bottom_navigation_page:006"
+      ],
+      "oracle": "Actual compiled channel capability; effective profile, visible tabs, page count and navigation; combine all four authentic records.",
+      "applicability": "REQUIRED"
+    },
+    {
+      "case_id": "bottom-navigation-channel",
+      "platform": "android",
+      "profile": "disabled",
+      "role_variant": "primary",
+      "parent_acceptance_ids": [
+        "F14-A02"
+      ],
+      "seed_ids": [
+        "fn:bottom_navigation:bottom_navigation_page:006"
+      ],
+      "oracle": "Actual compiled channel capability; effective profile, visible tabs, page count and navigation; combine all four authentic records.",
+      "applicability": "REQUIRED"
+    },
+    {
+      "case_id": "bottom-navigation-channel",
+      "platform": "macos",
+      "profile": "enabled",
+      "role_variant": "primary",
+      "parent_acceptance_ids": [
+        "F14-A03"
+      ],
+      "seed_ids": [
+        "fn:bottom_navigation:bottom_navigation_page:006"
+      ],
+      "oracle": "Actual compiled channel capability; effective profile, visible tabs, page count and navigation; combine all four authentic records.",
+      "applicability": "REQUIRED"
+    },
+    {
+      "case_id": "bottom-navigation-channel",
+      "platform": "macos",
+      "profile": "disabled",
+      "role_variant": "primary",
+      "parent_acceptance_ids": [
+        "F14-A03"
+      ],
+      "seed_ids": [
+        "fn:bottom_navigation:bottom_navigation_page:006"
+      ],
+      "oracle": "Actual compiled channel capability; effective profile, visible tabs, page count and navigation; combine all four authentic records.",
+      "applicability": "REQUIRED"
+    }
+  ],
+  "case_event_bindings": [
+    {
+      "case_id": "bottom-navigation-channel",
+      "platform": "android",
+      "profile": "enabled",
+      "role_variant": "primary",
+      "test_name": "bottom navigation: platform=android channel=enabled real tabs"
+    },
+    {
+      "case_id": "bottom-navigation-channel",
+      "platform": "android",
+      "profile": "disabled",
+      "role_variant": "primary",
+      "test_name": "bottom navigation: platform=android channel=disabled real tabs"
+    },
+    {
+      "case_id": "bottom-navigation-channel",
+      "platform": "macos",
+      "profile": "enabled",
+      "role_variant": "primary",
+      "test_name": "bottom navigation: platform=macos channel=enabled real tabs"
+    },
+    {
+      "case_id": "bottom-navigation-channel",
+      "platform": "macos",
+      "profile": "disabled",
+      "role_variant": "primary",
+      "test_name": "bottom navigation: platform=macos channel=disabled real tabs"
+    }
+  ],
+  "full_freeze_requirement": "Append to the complete original frozen required set, never replace it; bind four distinct real runs/artifacts/attempts and full candidate/runtime/authorization evidence.",
+  "product_pass": false
+}

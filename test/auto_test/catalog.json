@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "557422d096d4f83d2558562c90f9aae9b3ddcf47",
-    "backend_head": "34a81fcc5dc9329f2db1b0a29b616200136195e6",
+    "app_head": "9b03d28ee6c3899d97b0cfb605d53df11bcf5c9f",
+    "backend_head": "55b0b4f92f098fccb132f5c8d3ecf781f290cb60",
     "integration_test_count": 154,
     "lib_page_count": 166,
     "module_page_count": 22,
@@ -1239,7 +1239,7 @@
     {
       "id": "test:integration_test/full_acceptance/navigation/bottom_navigation_device_test.dart",
       "target": "integration_test/full_acceptance/navigation/bottom_navigation_device_test.dart",
-      "target_sha256": "ae35734cf1e0f5796242bb7b558720e4c733d9712ba9245536a5e5d0472560da",
+      "target_sha256": "636188f33628d32ed9dc54ab31cfb76feb8fb7ab3f5dcf4e3feb7ebe7b043357",
       "sources": [
         "lib/app_core/feature_flags/app_feature_registry.dart"
       ],
