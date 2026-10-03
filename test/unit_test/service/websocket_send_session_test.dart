@@ -9,6 +9,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/message_actions.dart';
+import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
@@ -133,6 +134,83 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_channel, null);
   });
+  for (final stale in [false, true]) {
+    test('edit lookup session changed=$stale', () async {
+      final svc = WebSocketService.to;
+      final fake = _FakeChannel();
+      svc.channelForTest = fake;
+      svc.statusForTest = SocketStatus.connected;
+      final mode = EncryptionModeService.current;
+      final initialized = EncryptionModeService.isInitialized;
+      EncryptionModeService.debugSet(
+        mode: EncryptionMode.plaintext,
+        initialized: true,
+      );
+      SqliteService.setDbForTest(_EmptyRetryDatabase());
+      final entered = Completer<void>();
+      final release = Completer<MessageModel?>();
+      MessageActions.messageLoaderForTest = (type, id) {
+        entered.complete();
+        return release.future;
+      };
+      final requests = <WebSocketMessageSendRequestEvent>[];
+      final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+          .listen((event) {
+            requests.add(event);
+            svc.handleSendRequestForTest(event);
+          });
+      try {
+        final pending = MessageActions.instance.sendEditMessage(
+          '1001',
+          'C2C',
+          'synthetic-edit',
+        );
+        await entered.future;
+        if (stale) {
+          await expectLater(
+            UserRepoLocal.to.loginAfter('synthetic-session', {
+              'uid': '101',
+              'token': 'synthetic-token',
+              'refreshtoken': 'synthetic-refresh',
+            }),
+            throwsA(isA<PlatformException>()),
+          );
+        }
+        release.complete(
+          MessageModel(
+            '1001',
+            autoId: 0,
+            conversationUk3: 'C2C_100_200',
+            type: 'C2C',
+            fromId: 100,
+            toId: 200,
+            msgType: 'text',
+            payload: {'text': 'synthetic'},
+            status: IMBoyMessageStatus.sent,
+            createdAt: DateTime.now().millisecondsSinceEpoch,
+            isAuthor: 1,
+          ),
+        );
+        expect(await pending, !stale);
+        await pumpEventQueue();
+        expect(requests, stale ? isEmpty : hasLength(1));
+        expect(fake._sink.sent, stale ? isEmpty : hasLength(1));
+        if (!stale) {
+          final sent = jsonDecode(requests.single.message) as Map;
+          expect(sent['from'], '100');
+          expect(sent['to'], '200');
+          expect((sent['payload'] as Map)['content'], 'synthetic-edit');
+        }
+      } finally {
+        await subscription.cancel();
+        MessageActions.messageLoaderForTest = null;
+        await MessageRetry.instance.debugWaitForIdle();
+        MessageRetry.instance.dispose();
+        SqliteService.setDbForTest(null);
+        EncryptionModeService.debugSet(mode: mode, initialized: initialized);
+      }
+    });
+  }
   for (final (framing, stale, stage) in [
     (FramingMode.v2, false, 'connected'),
     (FramingMode.v2, true, 'connected'),
@@ -156,7 +234,7 @@ void main() {
         svc.framingForTest = framing;
         final entered = Completer<void>();
         final release = Completer<MessageModel?>();
-        MessageActions.revokeMessageLoaderForTest = (type, id) {
+        MessageActions.messageLoaderForTest = (type, id) {
           expect(type, 'C2C');
           expect(id, '1001');
           entered.complete();
@@ -209,7 +287,7 @@ void main() {
           );
         } finally {
           await subscription.cancel();
-          MessageActions.revokeMessageLoaderForTest = null;
+          MessageActions.messageLoaderForTest = null;
           await MessageRetry.instance.debugWaitForIdle();
           MessageRetry.instance.dispose();
           SqliteService.setDbForTest(null);

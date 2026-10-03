@@ -61,7 +61,7 @@ class MessageActions {
 
   @visibleForTesting
   static Future<MessageModel?> Function(String type, String id)?
-  revokeMessageLoaderForTest;
+  messageLoaderForTest;
 
   final MessageRetry _messageRetry = MessageRetry.instance;
   // 缓存常用仓库实例，避免重复 new。
@@ -775,7 +775,7 @@ class MessageActions {
         !session.isClearingSession;
     if (!current()) return false;
     try {
-      final loader = revokeMessageLoaderForTest;
+      final loader = messageLoaderForTest;
       final msg = await (loader != null
           ? loader(messageType, messageId)
           : MessageService.to.getMessageRepo(messageType).find(messageId));
@@ -854,9 +854,21 @@ class MessageActions {
     String messageType,
     String newContent,
   ) async {
+    final session = UserRepoLocal.to;
+    final currentUid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool current() =>
+        currentUid.isNotEmpty &&
+        session.currentUid == currentUid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (!current()) return false;
     try {
-      final repo = MessageService.to.getMessageRepo(messageType);
-      final msg = await repo.find(messageId);
+      final loader = messageLoaderForTest;
+      final msg = await (loader != null
+          ? loader(messageType, messageId)
+          : MessageService.to.getMessageRepo(messageType).find(messageId));
+      if (!current()) return false;
 
       if (msg == null) {
         iPrint('❌ 未找到要编辑的消息: messageId=$messageId');
@@ -869,7 +881,6 @@ class MessageActions {
         return false;
       }
 
-      final currentUid = UserRepoLocal.to.currentUid;
       // v2.0: msg_type/action 字段提升到顶层
       final editMessage = {
         'id': Xid().toString(),
