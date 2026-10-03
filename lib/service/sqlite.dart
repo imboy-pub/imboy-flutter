@@ -809,17 +809,21 @@ class SqliteService {
   }
 
   /// 执行原始 SQL 更新语句（带重试机制）
-  /// Execute raw update SQL (with retry logic)
+  /// Execute raw update SQL (with retry logic).
+  /// Optional [isCurrent] cancels a stale caller before SQL dispatch, including
+  /// after lock/connection waits and retry delays; started SQL is not undone.
   Future<int> execute(
     String sql, [
     List<Object?>? arguments,
     int retries = 3,
+    bool Function()? isCurrent,
   ]) async {
     return await _dbLock.synchronized(() async {
       for (var attempt = 0; attempt < retries; attempt++) {
+        if (isCurrent != null && !isCurrent()) return 0;
         try {
           final db = await this.db;
-          if (db == null) return 0;
+          if (db == null || (isCurrent != null && !isCurrent())) return 0;
           return await db.rawUpdate(sql, arguments);
         } catch (e) {
           if (_isDatabaseLockedError(e) && attempt < retries - 1) {

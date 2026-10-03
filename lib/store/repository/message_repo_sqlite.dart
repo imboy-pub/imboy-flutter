@@ -27,6 +27,15 @@ import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/store/repository/message_repo_types.dart';
 
 class MessageRepo implements MessageRepository {
+  final _ftsReindexTasks = <Future<void>>{};
+
+  @visibleForTesting
+  Future<void> waitForFtsReindexForTest() async {
+    while (_ftsReindexTasks.isNotEmpty) {
+      await Future.wait(_ftsReindexTasks.toList());
+    }
+  }
+
   // v2.0 表名常量（与服务端保持一致）
   static const String c2cTable = 'msg_c2c';
   static const String c2gTable = 'msg_c2g';
@@ -376,7 +385,9 @@ class MessageRepo implements MessageRepository {
     if (data.containsKey(MessageRepo.payload)) {
       final msgId = data[MessageRepo.id]?.toString() ?? '';
       if (msgId.isNotEmpty) {
-        unawaited(_reindexFtsAfterPayloadUpdate(msgId));
+        final task = _reindexFtsAfterPayloadUpdate(msgId);
+        _ftsReindexTasks.add(task);
+        unawaited(task.whenComplete(() => _ftsReindexTasks.remove(task)));
       }
     }
 
@@ -1457,9 +1468,17 @@ class MessageRepo implements MessageRepository {
   /// update 只有 id+payload，回读一行补齐 conversation_uk3/msg_type
   /// 后复用 [_indexMessageToFts]；索引函数自身幂等（先删后插）。
   Future<void> _reindexFtsAfterPayloadUpdate(String id) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool isCurrent() =>
+        session.currentUid == uid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
     try {
+      if (!isCurrent()) return;
       final row = await find(id);
-      if (row == null) return;
+      if (row == null || !isCurrent()) return;
       final ftsType = tableName == MessageRepo.c2cTable
           ? 'C2C'
           : tableName == MessageRepo.c2gTable

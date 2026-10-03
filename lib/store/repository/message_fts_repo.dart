@@ -14,6 +14,7 @@ library;
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// FTS 搜索结果
 class FtsSearchResult {
@@ -40,14 +41,29 @@ class MessageFtsRepo {
     required String conversationUk3,
     required String textContent,
   }) async {
-    if (textContent.trim().isEmpty) return;
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool isCurrent() =>
+        session.currentUid == uid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (textContent.trim().isEmpty || !isCurrent()) return;
     try {
       // 先删后插保证幂等：FTS5 无唯一约束，裸 INSERT 重复索引会产生
       // 双行（搜索同 id 命中两条）；update 后重索引路径必然重复。
-      await _db.execute('DELETE FROM msg_c2c_fts WHERE id = ?', [id]);
+      await _db.execute(
+        'DELETE FROM msg_c2c_fts WHERE id = ?',
+        [id],
+        3,
+        isCurrent,
+      );
+      if (!isCurrent()) return;
       await _db.execute(
         'INSERT INTO msg_c2c_fts(id, conversation_uk3, text_content) VALUES(?, ?, ?)',
         [id, conversationUk3, textContent],
+        3,
+        isCurrent,
       );
     } catch (e) {
       iPrint('[FTS] C2C 索引写入失败: $e');
@@ -60,13 +76,28 @@ class MessageFtsRepo {
     required String conversationUk3,
     required String textContent,
   }) async {
-    if (textContent.trim().isEmpty) return;
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool isCurrent() =>
+        session.currentUid == uid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (textContent.trim().isEmpty || !isCurrent()) return;
     try {
       // 幂等化，同 indexC2cMessage
-      await _db.execute('DELETE FROM msg_c2g_fts WHERE id = ?', [id]);
+      await _db.execute(
+        'DELETE FROM msg_c2g_fts WHERE id = ?',
+        [id],
+        3,
+        isCurrent,
+      );
+      if (!isCurrent()) return;
       await _db.execute(
         'INSERT INTO msg_c2g_fts(id, conversation_uk3, text_content) VALUES(?, ?, ?)',
         [id, conversationUk3, textContent],
+        3,
+        isCurrent,
       );
     } catch (e) {
       iPrint('[FTS] C2G 索引写入失败: $e');
