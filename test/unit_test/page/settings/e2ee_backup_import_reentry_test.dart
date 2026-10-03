@@ -83,6 +83,10 @@ Future<void> _finish(WidgetTester tester, _ImportProbe probe) async {
 }
 
 void main() {
+  testWidgets(
+    '云端解密等待期间关闭页面不开始写入恢复密钥',
+    (tester) => _assertNoLateKeyWrites(tester, cloudRestore: true),
+  );
   testWidgets('本地恢复等待期间不能弹出云端恢复确认框', _assertLocalBlocksCloud);
   testWidgets('云端恢复等待期间不能启动本地恢复', _assertCloudBlocksLocal);
   testWidgets('解密等待期间关闭页面不开始写入恢复密钥', _assertNoLateKeyWrites);
@@ -145,6 +149,18 @@ Future<void> _assertLocalBlocksCloud(WidgetTester tester) async {
 Future<void> _assertCloudBlocksLocal(WidgetTester tester) async {
   final local = _ImportProbe(), cloud = _ImportProbe();
   final localAction = await _prepare(tester, local, cloud: cloud);
+  await _startCloudRestore(tester);
+  expect(cloud.pending.length, 1);
+  localAction();
+  await tester.pump();
+  final localCalls = local.pending.length;
+  await _finish(tester, cloud);
+  await _finish(tester, local);
+  expect(localCalls, 0);
+  expect(tester.takeException(), isNull);
+}
+
+Future<void> _startCloudRestore(WidgetTester tester) async {
   _cloudAction(tester)();
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
@@ -160,17 +176,12 @@ Future<void> _assertCloudBlocksLocal(WidgetTester tester) async {
   );
   await tester.pump();
   await tester.pump();
-  expect(cloud.pending.length, 1);
-  localAction();
-  await tester.pump();
-  final localCalls = local.pending.length;
-  await _finish(tester, cloud);
-  await _finish(tester, local);
-  expect(localCalls, 0);
-  expect(tester.takeException(), isNull);
 }
 
-Future<void> _assertNoLateKeyWrites(WidgetTester tester) async {
+Future<void> _assertNoLateKeyWrites(
+  WidgetTester tester, {
+  bool cloudRestore = false,
+}) async {
   const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
@@ -185,7 +196,16 @@ Future<void> _assertNoLateKeyWrites(WidgetTester tester) async {
   });
   addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
   final probe = _ImportProbe();
-  (await _prepare(tester, probe))();
+  final localAction = await _prepare(
+    tester,
+    probe,
+    cloud: cloudRestore ? probe : null,
+  );
+  if (cloudRestore) {
+    await _startCloudRestore(tester);
+  } else {
+    localAction();
+  }
   expect(probe.pending.length, 1);
   await tester.pumpWidget(const SizedBox.shrink());
   probe.pending.single.complete({
