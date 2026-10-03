@@ -76,6 +76,8 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
   String _nextAfterId = '';
   bool _loading = false;
   bool _loadingMore = false;
+  int _scopeEpoch = 0;
+  int _readGeneration = 0;
 
   /// 原始异常（catch 直传，分型交给 [csGovernanceErrorToUi]）。
   Object? _errorObj;
@@ -92,6 +94,7 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
     // 切换 Organization 失效重建：orgId 变化即丢弃全部旧 Org 治理数据
     // （额度/列表/游标/错误态），按新 orgId 重新拉取——不残留陈旧事实。
     if (old.orgId != widget.orgId) {
+      _scopeEpoch++;
       _resetState();
       _refresh();
     }
@@ -110,45 +113,63 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
     _errorObj = null;
   }
 
+  bool _currentScope(EntityId orgId, int epoch) =>
+      mounted && widget.orgId == orgId && _scopeEpoch == epoch;
+
+  bool _currentRead(EntityId orgId, int epoch, int generation) =>
+      _currentScope(orgId, epoch) && _readGeneration == generation;
+
   Future<void> _refresh() async {
+    final orgId = widget.orgId;
+    final epoch = _scopeEpoch;
+    final generation = ++_readGeneration;
     setState(() {
       _loading = true;
+      _loadingMore = false;
       _errorObj = null;
     });
     try {
-      final limit = await _api.seatLimitView(widget.orgId);
-      final page = await _api.seatsPage(widget.orgId);
-      if (!mounted) return;
+      final limit = await _api.seatLimitView(orgId);
+      if (!_currentRead(orgId, epoch, generation)) return;
+      final page = await _api.seatsPage(orgId);
+      if (!_currentRead(orgId, epoch, generation)) return;
       setState(() {
         _limit = limit;
         _seats = page.rows;
         _nextAfterId = page.nextAfterId;
       });
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!_currentRead(orgId, epoch, generation)) return;
       setState(() {
         _resetState();
         _errorObj = e;
       });
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (_currentRead(orgId, epoch, generation)) {
+        setState(() => _loading = false);
+      }
     }
   }
 
   Future<void> _loadMore() async {
-    if (_loadingMore || _nextAfterId.isEmpty) return;
+    if (_loading || _loadingMore || _nextAfterId.isEmpty) return;
+    final orgId = widget.orgId;
+    final epoch = _scopeEpoch;
+    final generation = _readGeneration;
     setState(() => _loadingMore = true);
     try {
-      final page = await _api.seatsPage(widget.orgId, afterId: _nextAfterId);
-      if (!mounted) return;
+      final page = await _api.seatsPage(orgId, afterId: _nextAfterId);
+      if (!_currentRead(orgId, epoch, generation)) return;
       setState(() {
         _seats = [..._seats, ...page.rows];
         _nextAfterId = page.nextAfterId;
       });
     } on Object catch (e) {
-      _showError(e);
+      if (_currentRead(orgId, epoch, generation)) _showError(e);
     } finally {
-      if (mounted) setState(() => _loadingMore = false);
+      if (_currentRead(orgId, epoch, generation)) {
+        setState(() => _loadingMore = false);
+      }
     }
   }
 
@@ -253,7 +274,7 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
         if (_nextAfterId.isNotEmpty)
           ListTile(
             key: const ValueKey('cs-governance-seats-more'),
-            enabled: !_loadingMore,
+            enabled: !_loading && !_loadingMore,
             title: Text(t.seatLoadMore),
             trailing: _loadingMore
                 ? const SizedBox(
@@ -262,7 +283,7 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : null,
-            onTap: _loadMore,
+            onTap: _loading || _loadingMore ? null : _loadMore,
           ),
       ],
     );
@@ -302,16 +323,20 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
   // ==================== 动作 ====================
 
   Future<void> _showLimitDialog(BuildContext context) async {
+    final orgId = widget.orgId;
+    final epoch = _scopeEpoch;
     _limitInput.text = _limit?.limitValue?.toString() ?? '';
     final value = await showDialog<String>(
       context: context,
       builder: (ctx) => _LimitDialog(controller: _limitInput),
     );
-    if (value == null || !mounted) return;
+    if (value == null || !_currentScope(orgId, epoch)) return;
     await _applyLimitValue(value.trim());
   }
 
   Future<void> _applyLimitValue(String raw) async {
+    final orgId = widget.orgId;
+    final epoch = _scopeEpoch;
     final t = context.t.customerService.governance;
     final parsed = int.tryParse(raw);
     if (raw.isNotEmpty && (parsed == null || parsed < 1)) {
@@ -319,19 +344,18 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
       return;
     }
     try {
-      final view = await _api.setSeatLimit(
-        widget.orgId,
-        raw.isEmpty ? null : parsed,
-      );
-      if (!mounted) return;
+      final view = await _api.setSeatLimit(orgId, raw.isEmpty ? null : parsed);
+      if (!_currentScope(orgId, epoch)) return;
       setState(() => _limit = view);
       _snack(t.limitSaved);
     } on Object catch (e) {
-      _showError(e);
+      if (_currentScope(orgId, epoch)) _showError(e);
     }
   }
 
   Future<void> _confirmSuspend(CsGovernanceSeatRow row) async {
+    final orgId = widget.orgId;
+    final epoch = _scopeEpoch;
     final t = context.t.customerService.governance;
     final ok = await showDialog<bool>(
       context: context,
@@ -351,10 +375,8 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
         ],
       ),
     );
-    if (ok != true || !mounted) return;
-    await _runSeatAction(
-      () => _api.suspendSeat(widget.orgId, row.businessIdentityId),
-    );
+    if (ok != true || !_currentScope(orgId, epoch)) return;
+    await _runSeatAction(() => _api.suspendSeat(orgId, row.businessIdentityId));
   }
 
   Future<void> _resume(CsGovernanceSeatRow row) async {
@@ -364,14 +386,16 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
   }
 
   Future<void> _runSeatAction(Future<void> Function() action) async {
+    final orgId = widget.orgId;
+    final epoch = _scopeEpoch;
     final t = context.t.customerService.governance;
     try {
       await action();
-      if (!mounted) return;
+      if (!_currentScope(orgId, epoch)) return;
       _snack(t.actionDone);
       await _refresh();
     } on Object catch (e) {
-      _showError(e);
+      if (_currentScope(orgId, epoch)) _showError(e);
     }
   }
 

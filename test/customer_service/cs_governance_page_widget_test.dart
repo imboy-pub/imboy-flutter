@@ -81,9 +81,10 @@ Map<String, dynamic> _seatRow(
 /// 按 `METHOD fragment` 复合键路由的桩（contains 匹配 path）；响应按序
 /// 消耗、耗尽停留最后一个。记录命中序列供路径断言。
 class _GovRouterAdapter implements HttpClientAdapter {
-  _GovRouterAdapter(this.routes);
+  _GovRouterAdapter(this.routes, {this.beforeResponse});
 
   final Map<String, List<(int, Map<String, dynamic>)>> routes;
+  final Future<void> Function(String key)? beforeResponse;
   final List<String> hits = [];
   final Map<String, List<Object?>> bodies = {};
   final Map<String, int> _cursor = {};
@@ -99,6 +100,7 @@ class _GovRouterAdapter implements HttpClientAdapter {
       final fragment = key.substring(key.indexOf(' ') + 1);
       if (options.method == method && options.uri.path.contains(fragment)) {
         hits.add(key);
+        await beforeResponse?.call(key);
         bodies.putIfAbsent(key, () => []).add(options.data);
         final queue = routes[key]!;
         // 按序消费、耗尽停留最后一个（首次 index 0，之后逐帧前进）。
@@ -431,6 +433,149 @@ void main() {
       findsOneWidget,
       reason: '刷新后回显 enabled=false',
     );
+  });
+
+  testWidgets('切换组织后旧额度响应晚到不能覆盖新组织事实', (tester) async {
+    final delayed = Completer<void>();
+    final adapter = _GovRouterAdapter(
+      {
+        'GET /cs/organizations/$orgA/seat-limit': [
+          (200, _limitPayload(orgA, seatLimit: 5, used: 1)),
+        ],
+        'GET /cs/organizations/$orgB/seat-limit': [
+          (200, _limitPayload(orgB, seatLimit: 'unlimited', used: 7)),
+        ],
+        'GET /cs/organizations/$orgB/seats': [
+          (200, _seatsPayload(seats: [_seatRow(orgB, identityB)])),
+        ],
+      },
+      beforeResponse: (key) async {
+        if (key.contains('$orgA/seat-limit')) await delayed.future;
+      },
+    );
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    addTearDown(() {
+      if (!delayed.isCompleted) delayed.complete();
+    });
+    await tester.pumpWidget(_host(orgA));
+    for (var i = 0; i < 30 && adapter.hits.isEmpty; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(adapter.hits, contains('GET /cs/organizations/$orgA/seat-limit'));
+    await tester.pumpWidget(_host(orgB));
+    await pumpUntilUxFound(
+      tester,
+      find.byKey(ValueKey('cs-governance-seat-$identityB')),
+    );
+    expect(find.text('不限'), findsOneWidget);
+    delayed.complete();
+    await settleUx(tester);
+    expect(find.text('不限'), findsOneWidget, reason: '旧组织响应不得覆盖当前组织额度');
+    expect(find.text('1/5 席位'), findsNothing);
+    expect(
+      adapter.hits.where((h) => h.endsWith('$orgB/seats')),
+      hasLength(1),
+      reason: '过期链路不能继续使用新组织 ID 发请求',
+    );
+  });
+
+  testWidgets('旧组织额度写入晚到不能覆盖切换后的组织', (tester) async {
+    final delayed = Completer<void>();
+    final adapter = _GovRouterAdapter(
+      {
+        'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+        'GET /cs/organizations/$orgA/seats': [(200, _seatsPayload())],
+        'PUT /cs/organizations/$orgA/seat-limit': [
+          (200, _limitPayload(orgA, seatLimit: 2)),
+        ],
+        'GET /cs/organizations/$orgB/seat-limit': [
+          (200, _limitPayload(orgB, seatLimit: 'unlimited')),
+        ],
+        'GET /cs/organizations/$orgB/seats': [(200, _seatsPayload())],
+      },
+      beforeResponse: (key) async {
+        if (key.startsWith('PUT ')) await delayed.future;
+      },
+    );
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    addTearDown(() {
+      if (!delayed.isCompleted) delayed.complete();
+    });
+    await tester.pumpWidget(_host(orgA));
+    await pumpUntilUxFound(
+      tester,
+      find.byKey(const ValueKey('cs-governance-limit-adjust')),
+    );
+    await tester.tap(find.byKey(const ValueKey('cs-governance-limit-adjust')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('cs-governance-limit-input')),
+      '2',
+    );
+    await tester.tap(find.byKey(const ValueKey('cs-governance-limit-save')));
+    await settleUx(tester);
+    expect(adapter.hits, contains('PUT /cs/organizations/$orgA/seat-limit'));
+    await tester.pumpWidget(_host(orgB));
+    await pumpUntilUxFound(tester, find.text('不限'));
+    delayed.complete();
+    await settleUx(tester);
+    expect(find.text('不限'), findsOneWidget);
+    expect(find.text('3/2 席位'), findsNothing);
+    expect(
+      adapter.hits.where((h) => h.startsWith('PUT ') && h.contains(orgB)),
+      isEmpty,
+    );
+  });
+
+  testWidgets('刷新期间禁止使用旧游标加载更多', (tester) async {
+    final delayed = Completer<void>();
+    var limitRequests = 0;
+    final adapter = _GovRouterAdapter(
+      {
+        'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+        'GET /cs/organizations/$orgA/seats': [
+          (
+            200,
+            _seatsPayload(
+              seats: [_seatRow(orgA, identityA)],
+              nextAfterId: identityA,
+            ),
+          ),
+          (200, _seatsPayload(seats: [_seatRow(orgA, identityB)])),
+        ],
+      },
+      beforeResponse: (key) async {
+        if (key.endsWith('/seat-limit') && ++limitRequests == 2)
+          await delayed.future;
+      },
+    );
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    addTearDown(() {
+      if (!delayed.isCompleted) delayed.complete();
+    });
+    await tester.pumpWidget(_host(orgA));
+    final more = find.byKey(const ValueKey('cs-governance-seats-more'));
+    await pumpUntilUxFound(tester, more);
+    final refresh = tester
+        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+        .onRefresh();
+    await tester.pump();
+    expect(tester.widget<ListTile>(more).enabled, isFalse);
+    expect(tester.widget<ListTile>(more).onTap, isNull);
+    delayed.complete();
+    await settleUx(tester);
+    await refresh;
+    expect(
+      find.byKey(ValueKey('cs-governance-seat-$identityB')),
+      findsOneWidget,
+    );
+    expect(adapter.hits.where((h) => h.endsWith('/seats')), hasLength(2));
   });
 
   testWidgets('切换 Organization：orgId 变化失效重建（新路径重拉 + 旧数据消失）', (tester) async {
