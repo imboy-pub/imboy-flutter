@@ -2268,6 +2268,7 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get complianceKeyRotationNoPending => 'Aucun changement de clé en attente de confirmation';
 	@override String get e2eeErrDeviceNotReady => 'L\'initialisation de sécurité de cet appareil n\'est pas terminée. Déconnectez-vous, reconnectez-vous puis réessayez';
 	@override String get e2eeErrProtocolMismatch => 'Configuration du protocole de chiffrement anormale. Mettez à jour l\'application puis réessayez';
+	@override String get e2eeErrPeerSuiteUnsupported => 'L\'appareil du destinataire ne prend pas en charge la suite de chiffrement requise, message non envoyé. Demandez-lui de mettre à jour l\'application puis réessayez';
 	@override String get e2eeErrSessionExportFailed => 'Échec de la génération de la clé de session de groupe. Réessayez plus tard';
 	@override String get safetyNumberCopied => 'Copié';
 	@override String get safetyNumberCopy => 'Copier';
@@ -5158,6 +5159,7 @@ extension on TranslationsFrFr {
 			'main.complianceKeyRotationNoPending' => 'Aucun changement de clé en attente de confirmation',
 			'main.e2eeErrDeviceNotReady' => 'L\'initialisation de sécurité de cet appareil n\'est pas terminée. Déconnectez-vous, reconnectez-vous puis réessayez',
 			'main.e2eeErrProtocolMismatch' => 'Configuration du protocole de chiffrement anormale. Mettez à jour l\'application puis réessayez',
+			'main.e2eeErrPeerSuiteUnsupported' => 'L\'appareil du destinataire ne prend pas en charge la suite de chiffrement requise, message non envoyé. Demandez-lui de mettre à jour l\'application puis réessayez',
 			'main.e2eeErrSessionExportFailed' => 'Échec de la génération de la clé de session de groupe. Réessayez plus tard',
 			'main.safetyNumberCopied' => 'Copié',
 			'main.safetyNumberCopy' => 'Copier',
@@ -5225,9 +5227,9 @@ extension on TranslationsFrFr {
 			'organization.home.tabOrg' => 'Organisations',
 			'organization.home.myInvitations' => 'Mes invitations',
 			'organization.home.emptyHint' => 'Vous n\'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite',
-			'organization.detail.leaveOrg' => 'Quitter l’organisation',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.leaveOrg' => 'Quitter l’organisation',
 			'organization.detail.leaveOrgBody' => 'Vous perdrez l’accès à l’annuaire, aux groupes, aux canaux et aux fichiers. Les fichiers restent conservés. Une invitation est nécessaire pour revenir.',
 			'organization.detail.leaveFailed' => 'Impossible de quitter',
 			'organization.detail.leaveOwnerHint' => 'Transférez la propriété de l’organisation avant de quitter',
@@ -5739,9 +5741,9 @@ extension on TranslationsFrFr {
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Déplacé vers « ${status} »',
 			'workspace.taskEmptyTitle' => 'Aucune tâche pour le moment',
 			'workspace.taskEmptySubtitle' => 'Suivez l\'exécution en quatre états : à faire → en cours → en revue → terminé',
-			'workspace.projectsLoadMore' => 'Charger plus',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectsLoadMore' => 'Charger plus',
 			'workspace.projectW2SectionTitle' => 'Collaboration du projet',
 			'workspace.projectMembersEntry' => 'Membres',
 			'workspace.projectMilestonesEntry' => 'Jalons',

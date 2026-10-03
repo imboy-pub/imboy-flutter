@@ -2274,6 +2274,7 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get complianceKeyRotationNoPending => 'Нет ожидающих подтверждения изменений ключа';
 	@override String get e2eeErrDeviceNotReady => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите';
 	@override String get e2eeErrProtocolMismatch => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите';
+	@override String get e2eeErrPeerSuiteUnsupported => 'Устройство собеседника не поддерживает требуемый набор шифрования, сообщение не отправлено. Попросите собеседника обновить приложение и повторите попытку';
 	@override String get e2eeErrSessionExportFailed => 'Не удалось создать сеансовый ключ группы. Повторите позже';
 	@override String get safetyNumberCopied => 'Скопировано';
 	@override String get safetyNumberCopy => 'Копировать';
@@ -5164,6 +5165,7 @@ extension on TranslationsRuRu {
 			'main.complianceKeyRotationNoPending' => 'Нет ожидающих подтверждения изменений ключа',
 			'main.e2eeErrDeviceNotReady' => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите',
 			'main.e2eeErrProtocolMismatch' => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите',
+			'main.e2eeErrPeerSuiteUnsupported' => 'Устройство собеседника не поддерживает требуемый набор шифрования, сообщение не отправлено. Попросите собеседника обновить приложение и повторите попытку',
 			'main.e2eeErrSessionExportFailed' => 'Не удалось создать сеансовый ключ группы. Повторите позже',
 			'main.safetyNumberCopied' => 'Скопировано',
 			'main.safetyNumberCopy' => 'Копировать',
@@ -5231,9 +5233,9 @@ extension on TranslationsRuRu {
 			'organization.home.tabOrg' => 'Организации',
 			'organization.home.myInvitations' => 'Мои приглашения',
 			'organization.home.emptyHint' => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху',
-			'organization.detail.leaveOrg' => 'Покинуть организацию',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.leaveOrg' => 'Покинуть организацию',
 			'organization.detail.leaveOrgBody' => 'Вы потеряете доступ к каталогу, группам, каналам и файлам. Файлы организации сохранятся. Для повторного вступления нужно приглашение.',
 			'organization.detail.leaveFailed' => 'Не удалось выйти',
 			'organization.detail.leaveOwnerHint' => 'Перед выходом передайте права владельца организации',
@@ -5745,9 +5747,9 @@ extension on TranslationsRuRu {
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Переведено в «${status}»',
 			'workspace.taskEmptyTitle' => 'Пока нет задач',
 			'workspace.taskEmptySubtitle' => 'Отслеживайте выполнение по четырём статусам: к выполнению → в процессе → на проверке → завершено',
-			'workspace.projectsLoadMore' => 'Загрузить ещё',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectsLoadMore' => 'Загрузить ещё',
 			'workspace.projectW2SectionTitle' => 'Совместная работа по проекту',
 			'workspace.projectMembersEntry' => 'Участники',
 			'workspace.projectMilestonesEntry' => 'Этапы',

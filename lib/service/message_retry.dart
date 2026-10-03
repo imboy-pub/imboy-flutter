@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+import 'package:imboy/service/e2ee/capability_guard.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/retry_plaintext_guard.dart';
 import 'package:imboy/service/e2ee_service.dart';
@@ -20,6 +21,45 @@ import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart
 /// MessageRetry
 /// 消息重试机制，处理失败消息的重试逻辑
 /// Message retry mechanism for handling failed message retries
+
+/// AC-06：重发路径的**降级密文**闸门（纯函数，与
+/// `retry_plaintext_guard.dart` 的明文闸门互补）。
+///
+/// 明文闸门拦「该加密却是明文」；本闸门拦「加密必需策略下行带 e2ee 元数据、
+/// 但套件不是该 scope 的固定 required 套件」——典型是策略升级前的存量
+/// RSA legacy 密文行：发送侧已不再产生新 RSA 密文（decrypt-only，ADR 02
+/// §5.2），重发路径若原样投递，等于让弱套件密文经重试通道继续出网，
+/// 旁路发送侧的固定套件策略（C02 FixedSuitePolicy）。
+///
+/// fail-closed：元数据在但**无法判读套件**（protocol/e2ee_suite 均缺失）
+/// 一律拦截——无法证明合规 = 不合规。
+bool isDowngradedCipherRetryBlocked({
+  required bool encryptionRequired,
+  required String chatType,
+  required Map<String, dynamic>? e2ee,
+}) {
+  if (!encryptionRequired) return false;
+  if (e2ee == null || e2ee.isEmpty) return false; // 明文行由明文闸门处理
+
+  // 与发送链同源的固定套件判定（C02）：c2c→olm / c2g→megolm。
+  final required = FixedSuitePolicy.requiredSuiteFor(
+    chatType.toUpperCase() == 'C2G' ? 'c2g' : 'c2c',
+  );
+
+  final protocol = e2ee['protocol']?.toString() ?? '';
+  if (protocol.isNotEmpty) {
+    return protocol != required;
+  }
+
+  final suite = e2ee['e2ee_suite']?.toString() ?? '';
+  if (suite.isEmpty) {
+    // 有元数据但无任何套件标识：无法证明合规 → fail-closed。
+    return true;
+  }
+  // legacy wire 形态：'OLM.V1' / 'MEGOLM.V1' / 'RSA-OAEP-256+AES-256-GCM'
+  return suite.toLowerCase() != '$required.v1';
+}
+
 class MessageRetry with EventSubscriptionManager {
   /// 单例实例
   static MessageRetry? _instance;
@@ -443,11 +483,21 @@ class MessageRetry with EventSubscriptionManager {
     } on Object {
       encryptionRequired = true;
     }
-    return shouldBlockPlaintextRetry(
+    if (shouldBlockPlaintextRetry(
       encryptionRequired: encryptionRequired,
       e2ee: msg.e2ee,
       // E2EE-061：带 content key 的行，无论策略怎么说都不得明文重发
       carriesContentKey: AttachmentSealPolicy.carriesContentKey(msg.payload),
+    )) {
+      return true;
+    }
+    // AC-06：降级密文闸门——加密必需下，套件非 scope 固定 required 的密文行
+    // （典型：策略升级前的存量 RSA legacy 密文）不得经重发路径继续出网，
+    // 否则重发通道成为发送侧固定套件策略（C02）的旁路。
+    return isDowngradedCipherRetryBlocked(
+      encryptionRequired: encryptionRequired,
+      chatType: chatType,
+      e2ee: msg.e2ee,
     );
   }
 

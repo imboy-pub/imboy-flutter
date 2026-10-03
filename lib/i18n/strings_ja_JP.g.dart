@@ -2280,6 +2280,7 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get complianceKeyRotationNoPending => '確認待ちのキー変更はありません';
 	@override String get e2eeErrDeviceNotReady => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください';
 	@override String get e2eeErrProtocolMismatch => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください';
+	@override String get e2eeErrPeerSuiteUnsupported => '相手のデバイスが要求された暗号スイートに対応していないため、メッセージは送信されませんでした。相手にアプリの更新を依頼してから再試行してください';
 	@override String get e2eeErrSessionExportFailed => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください';
 	@override String get complianceKeyNotConfigured => 'このデプロイにはコンプライアンス監査キーが設定されていません';
 }
@@ -5170,6 +5171,7 @@ extension on TranslationsJaJp {
 			'main.complianceKeyRotationNoPending' => '確認待ちのキー変更はありません',
 			'main.e2eeErrDeviceNotReady' => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください',
 			'main.e2eeErrProtocolMismatch' => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください',
+			'main.e2eeErrPeerSuiteUnsupported' => '相手のデバイスが要求された暗号スイートに対応していないため、メッセージは送信されませんでした。相手にアプリの更新を依頼してから再試行してください',
 			'main.e2eeErrSessionExportFailed' => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください',
 			'main.complianceKeyNotConfigured' => 'このデプロイにはコンプライアンス監査キーが設定されていません',
 			'mention.mentionAll' => '全員',
@@ -5222,9 +5224,9 @@ extension on TranslationsJaJp {
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '自分の招待',
 			'organization.home.emptyHint' => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください',
-			'organization.detail.leaveOrg' => '組織から退出',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.leaveOrg' => '組織から退出',
 			'organization.detail.leaveOrgBody' => '退出すると組織の連絡先、グループ、チャンネル、ファイルへのアクセス権を失います。組織のファイルは保持されます。再参加には招待が必要です。',
 			'organization.detail.leaveFailed' => '退出できませんでした',
 			'organization.detail.leaveOwnerHint' => '退出する前に組織の所有権を移譲してください',
@@ -5736,9 +5738,9 @@ extension on TranslationsJaJp {
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」に移動しました',
 			'workspace.taskEmptyTitle' => 'タスクはまだありません',
 			'workspace.taskEmptySubtitle' => '4つのステータスで実行を追跡します：TODO → 進行中 → レビュー中 → 完了',
-			'workspace.projectsLoadMore' => 'さらに読み込む',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectsLoadMore' => 'さらに読み込む',
 			'workspace.projectW2SectionTitle' => 'プロジェクトコラボレーション',
 			'workspace.projectMembersEntry' => 'メンバー',
 			'workspace.projectMilestonesEntry' => 'マイルストーン',

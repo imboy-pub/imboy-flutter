@@ -174,6 +174,7 @@ complianceKeyRotationConfirmed: "Rotazione della chiave di conformità confermat
 complianceKeyRotationNoPending: "Nessuna modifica della chiave in attesa di conferma"
 e2eeErrDeviceNotReady: "Questo dispositivo non ha completato l'inizializzazione di sicurezza; esci, accedi di nuovo e riprova"
 e2eeErrProtocolMismatch: "Configurazione del protocollo di cifratura anomala; aggiorna l'app e riprova"
+e2eeErrPeerSuiteUnsupported: "Il dispositivo del destinatario non supporta la suite di cifratura richiesta, messaggio non inviato. Chiedi di aggiornare l'app e riprova"
 e2eeErrSessionExportFailed: "Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi"
 safetyNumberCopied: Copiato
 safetyNumberCopy: Copia

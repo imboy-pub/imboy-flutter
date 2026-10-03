@@ -2283,6 +2283,7 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get complianceKeyRotationNoPending => 'Keine ausstehende Schlüsseländerung zu bestätigen';
 	@override String get e2eeErrDeviceNotReady => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen';
 	@override String get e2eeErrProtocolMismatch => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen';
+	@override String get e2eeErrPeerSuiteUnsupported => 'Das Gerät der Gegenseite unterstützt die erforderliche Verschlüsselungssuite nicht, Nachricht nicht gesendet. Bitte die Gegenseite zum App-Update auffordern und erneut versuchen';
 	@override String get e2eeErrSessionExportFailed => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen';
 	@override String get complianceKeyNotConfigured => 'Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert';
 }
@@ -5173,6 +5174,7 @@ extension on TranslationsDeDe {
 			'main.complianceKeyRotationNoPending' => 'Keine ausstehende Schlüsseländerung zu bestätigen',
 			'main.e2eeErrDeviceNotReady' => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen',
 			'main.e2eeErrProtocolMismatch' => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen',
+			'main.e2eeErrPeerSuiteUnsupported' => 'Das Gerät der Gegenseite unterstützt die erforderliche Verschlüsselungssuite nicht, Nachricht nicht gesendet. Bitte die Gegenseite zum App-Update auffordern und erneut versuchen',
 			'main.e2eeErrSessionExportFailed' => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen',
 			'main.complianceKeyNotConfigured' => 'Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert',
 			'mention.mentionAll' => 'Alle',
@@ -5225,9 +5227,9 @@ extension on TranslationsDeDe {
 			'organization.home.tabOrg' => 'Organisationen',
 			'organization.home.myInvitations' => 'Meine Einladungen',
 			'organization.home.emptyHint' => 'Du bist noch keiner Organisation beigetreten\nZum Aktualisieren nach unten ziehen oder oben rechts erstellen',
-			'organization.detail.leaveOrg' => 'Organisation verlassen',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.leaveOrg' => 'Organisation verlassen',
 			'organization.detail.leaveOrgBody' => 'Der Austritt entzieht den Zugriff auf Verzeichnis, Gruppen, Kanäle und Dateien. Organisationsdateien bleiben erhalten. Für den Wiedereintritt ist eine Einladung erforderlich.',
 			'organization.detail.leaveFailed' => 'Austritt fehlgeschlagen',
 			'organization.detail.leaveOwnerHint' => 'Vor dem Austritt die Organisationsinhaberschaft übertragen',
@@ -5739,9 +5741,9 @@ extension on TranslationsDeDe {
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Verschoben zu „${status}“',
 			'workspace.taskEmptyTitle' => 'Noch keine Aufgaben',
 			'workspace.taskEmptySubtitle' => 'Verfolgen Sie die Ausführung in vier Status: Offen → In Bearbeitung → In Prüfung → Abgeschlossen',
-			'workspace.projectsLoadMore' => 'Mehr laden',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectsLoadMore' => 'Mehr laden',
 			'workspace.projectW2SectionTitle' => 'Projektzusammenarbeit',
 			'workspace.projectMembersEntry' => 'Mitglieder',
 			'workspace.projectMilestonesEntry' => 'Meilensteine',

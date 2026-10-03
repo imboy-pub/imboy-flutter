@@ -2351,6 +2351,7 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get e2eeErrDeviceNotReady => 'Your device hasn\'t finished security initialization, please log out and back in then retry';
 	@override String get e2eeErrSessionExportFailed => 'Group session key generation failed, please try again later';
 	@override String get e2eeErrProtocolMismatch => 'Encryption protocol mismatch, please update the app and retry';
+	@override String get e2eeErrPeerSuiteUnsupported => 'The recipient\'s device does not support the required encryption suite; message not sent. Please ask them to update the app and retry';
 	@override String get complianceKeyInfoTitle => 'Compliance Audit Key';
 	@override String get complianceKeyInfoServerKey => 'Public key from server';
 	@override String get complianceKeyInfoLocalPin => 'Local pin (TOFU)';
@@ -5401,6 +5402,7 @@ extension on TranslationsEnUs {
 			'main.e2eeErrDeviceNotReady' => 'Your device hasn\'t finished security initialization, please log out and back in then retry',
 			'main.e2eeErrSessionExportFailed' => 'Group session key generation failed, please try again later',
 			'main.e2eeErrProtocolMismatch' => 'Encryption protocol mismatch, please update the app and retry',
+			'main.e2eeErrPeerSuiteUnsupported' => 'The recipient\'s device does not support the required encryption suite; message not sent. Please ask them to update the app and retry',
 			'main.complianceKeyInfoTitle' => 'Compliance Audit Key',
 			'main.complianceKeyInfoServerKey' => 'Public key from server',
 			'main.complianceKeyInfoLocalPin' => 'Local pin (TOFU)',
@@ -5878,9 +5880,9 @@ extension on TranslationsEnUs {
 			'workspace.overviewRecentFilesEmpty' => 'Recently uploaded files will appear here; attachments are also available inside each channel',
 			'workspace.membersTitle' => 'Workspace Members',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} members',
-			'workspace.membersEmpty' => 'No workspace members yet',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.membersEmpty' => 'No workspace members yet',
 			'workspace.membersEmptySubtitle' => 'Invite registered users as Workspace Members (Owner / Member / Guest)',
 			'workspace.membersViewAll' => 'View all',
 			'workspace.projectsEmptyTitle' => 'No projects yet',

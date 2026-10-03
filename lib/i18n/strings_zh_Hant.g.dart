@@ -2266,6 +2266,7 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get complianceKeyRotationNoPending => '沒有待確認的金鑰變更';
 	@override String get e2eeErrDeviceNotReady => '目前裝置未完成安全初始化，請登出後重新登入再試';
 	@override String get e2eeErrProtocolMismatch => '加密協定設定異常，請更新應用程式後重試';
+	@override String get e2eeErrPeerSuiteUnsupported => '對方裝置不支援要求的加密套件，訊息未傳送；請讓對方更新應用程式後重試';
 	@override String get e2eeErrSessionExportFailed => '群組會話金鑰產生失敗，請稍後重試';
 	@override String get safetyNumberCopied => '已複製';
 	@override String get safetyNumberCopy => '複製';
@@ -5157,6 +5158,7 @@ extension on TranslationsZhHant {
 			'main.complianceKeyRotationNoPending' => '沒有待確認的金鑰變更',
 			'main.e2eeErrDeviceNotReady' => '目前裝置未完成安全初始化，請登出後重新登入再試',
 			'main.e2eeErrProtocolMismatch' => '加密協定設定異常，請更新應用程式後重試',
+			'main.e2eeErrPeerSuiteUnsupported' => '對方裝置不支援要求的加密套件，訊息未傳送；請讓對方更新應用程式後重試',
 			'main.e2eeErrSessionExportFailed' => '群組會話金鑰產生失敗，請稍後重試',
 			'main.safetyNumberCopied' => '已複製',
 			'main.safetyNumberCopy' => '複製',
@@ -5223,9 +5225,9 @@ extension on TranslationsZhHant {
 			'organization.home.createSubmittedPendingReview' => '已提交，等待營運審核，審核通過後企業可正常使用',
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '我的邀請',
-			'organization.home.emptyHint' => '尚未加入任何組織\n下拉重新整理或點擊右上角建立',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.emptyHint' => '尚未加入任何組織\n下拉重新整理或點擊右上角建立',
 			'organization.detail.leaveOrg' => '退出企業',
 			'organization.detail.leaveOrgBody' => '退出後將失去本企業的通訊錄、群、頻道及資料存取資格；企業資料會保留。重新加入需要邀請。',
 			'organization.detail.leaveFailed' => '退出失敗',
@@ -5737,9 +5739,9 @@ extension on TranslationsZhHant {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 至…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流轉到「${status}」',
 			'workspace.taskEmptyTitle' => '還沒有任務',
-			'workspace.taskEmptySubtitle' => '以四種狀態追蹤執行：待辦 → 進行中 → 審核中 → 已結案',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskEmptySubtitle' => '以四種狀態追蹤執行：待辦 → 進行中 → 審核中 → 已結案',
 			'workspace.projectsLoadMore' => '載入更多',
 			'workspace.projectW2SectionTitle' => '專案協作',
 			'workspace.projectMembersEntry' => '成員',

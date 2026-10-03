@@ -2265,6 +2265,7 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get complianceKeyRotationNoPending => 'لا يوجد تغيير مفتاح في انتظار التأكيد';
 	@override String get e2eeErrDeviceNotReady => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة';
 	@override String get e2eeErrProtocolMismatch => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة';
+	@override String get e2eeErrPeerSuiteUnsupported => 'جهاز الطرف الآخر لا يدعم حزمة التشفير المطلوبة، ولم يتم إرسال الرسالة؛ اطلب منه تحديث التطبيق ثم أعد المحاولة';
 	@override String get e2eeErrSessionExportFailed => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً';
 	@override String get complianceKeyInfoTitle => 'مفتاح تدقيق الامتثال';
 	@override String get complianceKeyInfoServerKey => 'المفتاح العام الصادر من الخادم';
@@ -5155,6 +5156,7 @@ extension on TranslationsArSa {
 			'main.complianceKeyRotationNoPending' => 'لا يوجد تغيير مفتاح في انتظار التأكيد',
 			'main.e2eeErrDeviceNotReady' => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة',
 			'main.e2eeErrProtocolMismatch' => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة',
+			'main.e2eeErrPeerSuiteUnsupported' => 'جهاز الطرف الآخر لا يدعم حزمة التشفير المطلوبة، ولم يتم إرسال الرسالة؛ اطلب منه تحديث التطبيق ثم أعد المحاولة',
 			'main.e2eeErrSessionExportFailed' => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً',
 			'main.complianceKeyInfoTitle' => 'مفتاح تدقيق الامتثال',
 			'main.complianceKeyInfoServerKey' => 'المفتاح العام الصادر من الخادم',
@@ -5234,9 +5236,9 @@ extension on TranslationsArSa {
 			'organization.home.tabOrg' => 'المنظمات',
 			'organization.home.myInvitations' => 'دعواتي',
 			'organization.home.emptyHint' => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين',
-			'organization.detail.leaveOrg' => 'مغادرة المؤسسة',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.leaveOrg' => 'مغادرة المؤسسة',
 			'organization.detail.leaveOrgBody' => 'تُلغي المغادرة الوصول إلى دليل المؤسسة ومجموعاتها وقنواتها وملفاتها. تبقى ملفات المؤسسة محفوظة. يلزم الحصول على دعوة للانضمام مجددًا.',
 			'organization.detail.leaveFailed' => 'تعذرت المغادرة',
 			'organization.detail.leaveOwnerHint' => 'انقل ملكية المؤسسة قبل المغادرة',
@@ -5748,9 +5750,9 @@ extension on TranslationsArSa {
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'تم الانتقال إلى «${status}»',
 			'workspace.taskEmptyTitle' => 'لا توجد مهام بعد',
 			'workspace.taskEmptySubtitle' => 'تتبّع التنفيذ بأربع حالات: قيد الانتظار ← قيد التنفيذ ← قيد المراجعة ← مكتملة',
-			'workspace.projectsLoadMore' => 'تحميل المزيد',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectsLoadMore' => 'تحميل المزيد',
 			'workspace.projectW2SectionTitle' => 'تعاون المشروع',
 			'workspace.projectMembersEntry' => 'الأعضاء',
 			'workspace.projectMilestonesEntry' => 'المعالم',

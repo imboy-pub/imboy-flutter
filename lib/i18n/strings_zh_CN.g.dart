@@ -6502,6 +6502,9 @@ class Translations$main$zh_CN {
 	/// zh-CN: '加密协议配置异常，请更新应用后重试'
 	String get e2eeErrProtocolMismatch => '加密协议配置异常，请更新应用后重试';
 
+	/// zh-CN: '对方设备不支持要求的加密套件，消息未发送；请让对方更新应用后重试'
+	String get e2eeErrPeerSuiteUnsupported => '对方设备不支持要求的加密套件，消息未发送；请让对方更新应用后重试';
+
 	/// zh-CN: '合规审计密钥'
 	String get complianceKeyInfoTitle => '合规审计密钥';
 
@@ -10969,6 +10972,7 @@ extension on Translations {
 			'main.e2eeErrDeviceNotReady' => '当前设备未完成安全初始化，请退出重新登录后重试',
 			'main.e2eeErrSessionExportFailed' => '群会话密钥生成失败，请稍后重试',
 			'main.e2eeErrProtocolMismatch' => '加密协议配置异常，请更新应用后重试',
+			'main.e2eeErrPeerSuiteUnsupported' => '对方设备不支持要求的加密套件，消息未发送；请让对方更新应用后重试',
 			'main.complianceKeyInfoTitle' => '合规审计密钥',
 			'main.complianceKeyInfoServerKey' => '服务端下发的公钥',
 			'main.complianceKeyInfoLocalPin' => '本地固定（TOFU）',
@@ -11425,9 +11429,9 @@ extension on Translations {
 			'workspace.switchToWorkspace' => '切换到工作区',
 			'workspace.switchToPersonal' => '切换到个人',
 			'workspace.createTitle' => '创建工作区',
-			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
 			'workspace.createNameLabel' => '工作区名称',
 			'workspace.createNameHint' => '例如：官网改版项目组',
 			'workspace.createNameRequired' => '工作区名称不能为空',
