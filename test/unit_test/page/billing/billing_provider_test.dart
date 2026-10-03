@@ -318,6 +318,7 @@ void main() {
 
     for (final entry in <String, List<BillingInvoice>>{
       '空账单列表': [],
+      '未知账单状态': [_inv('INV-1', 99)],
       '未付账单缺账单号': [_inv('', BillingInvoiceStatus.unpaid)],
       '已付账单缺账单号': [_inv('', BillingInvoiceStatus.paid)],
       '有效待付后出现缺账单号': [

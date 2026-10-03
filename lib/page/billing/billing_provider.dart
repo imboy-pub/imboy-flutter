@@ -188,7 +188,13 @@ class BillingNotifier extends Notifier<BillingState> {
     if (invoices == null || invoices.isEmpty) {
       return (valid: false, invoiceNo: null);
     }
-    if (invoices.any((invoice) => invoice.invoiceNo.isEmpty)) {
+    if (invoices.any(
+      (invoice) =>
+          invoice.invoiceNo.isEmpty ||
+          (invoice.status != BillingInvoiceStatus.unpaid &&
+              invoice.status != BillingInvoiceStatus.paid &&
+              invoice.status != BillingInvoiceStatus.overdue),
+    )) {
       return (valid: false, invoiceNo: null);
     }
     for (final inv in invoices) {
