@@ -163,6 +163,15 @@ class _FakeLauncher extends PaymentLauncher {
   }
 }
 
+class _DeferredSubscribeApi extends _FakeBillingApi {
+  final request = Completer<int?>();
+  @override
+  Future<int?> subscribe(int planId) {
+    subscribeCalls.add(planId);
+    return request.future;
+  }
+}
+
 class _DeferredPlansApi extends _FakeBillingApi {
   final requests = <Completer<List<BillingPlan>?>>[];
 
@@ -302,6 +311,20 @@ void main() {
   });
 
   group('BillingNotifier.subscribePlan', () {
+    test('订阅请求期间销毁容器不得继续计费或更新销毁状态', () async {
+      final fake = _DeferredSubscribeApi();
+      final container = _containerWith(fake);
+      final pending = container
+          .read(billingProvider.notifier)
+          .subscribePlan(_plan());
+      container.dispose();
+      fake.request.complete(9001);
+      expect(await pending, isFalse);
+      expect(fake.generateCalls, isEmpty);
+      expect(fake.listCalls, isEmpty);
+      expect(fake.payCalls, isEmpty);
+    });
+
     test('账单查询失败不得视为已付清或订阅成功', () async {
       final fake = _FakeBillingApi(subscribeResult: 9001, invoicesResult: null);
       final container = _containerWith(fake);

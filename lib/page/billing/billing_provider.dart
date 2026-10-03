@@ -129,7 +129,7 @@ class BillingNotifier extends Notifier<BillingState> {
     BillingPlan plan, {
     String paymentMethod = 'mock',
   }) async {
-    if (state.paying) return false;
+    if (!ref.mounted || state.paying) return false;
     // 重建 state 清空上一次唤起结果（copyWith 无法置回 null）
     state = BillingState(
       isLoading: state.isLoading,
@@ -140,42 +140,43 @@ class BillingNotifier extends Notifier<BillingState> {
     try {
       // 1. 订阅（后端只回 subscription_id，owner 由 JWT 决定）
       final subId = await _api.subscribe(plan.id);
-      if (subId == null || subId <= 0) return false;
+      if (!ref.mounted || subId == null || subId <= 0) return false;
 
       // 2. 确保当前周期账单存在（幂等；generate 不回 invoice_no）
-      if (!await _api.generateInvoice(subId)) return false;
+      if (!await _api.generateInvoice(subId) || !ref.mounted) return false;
 
       // 3. 从账单列表取待支付账单号
       final pending = await _pendingInvoiceNo(subId);
-      if (!pending.valid) return false;
+      if (!ref.mounted || !pending.valid) return false;
       final invoiceNo = pending.invoiceNo;
       if (invoiceNo == null) {
         // 无待支付账单（重复订阅且已付清）：视为成功，刷新订阅即可
         await loadSubscription();
-        return true;
+        return ref.mounted;
       }
 
       // 4. 支付（mock 即时入账；第三方返回参数供唤起收银台）
       final payResult = await _api.payInvoice(invoiceNo, paymentMethod);
-      if (payResult == null) return false;
+      if (!ref.mounted || payResult == null) return false;
 
       // 5. 第三方：唤起原生收银台，取消/未配置则中止（不轮询）
       if (paymentMethod != 'mock' && paymentMethod != 'wallet') {
         final launched = await _launchThirdParty(paymentMethod, payResult);
-        if (launched != PaymentLaunchResult.success &&
-            launched != PaymentLaunchResult.failed) {
+        if (!ref.mounted ||
+            (launched != PaymentLaunchResult.success &&
+                launched != PaymentLaunchResult.failed)) {
           return false;
         }
       }
 
       // 6. 轮询账单入账，成功后刷新当前订阅
       final paid = await _pollInvoicePaid(subId, invoiceNo);
-      if (paid) {
+      if (paid && ref.mounted) {
         await loadSubscription();
       }
-      return paid;
+      return paid && ref.mounted;
     } finally {
-      state = state.copyWith(paying: false);
+      if (ref.mounted) state = state.copyWith(paying: false);
     }
   }
 
@@ -215,7 +216,7 @@ class BillingNotifier extends Notifier<BillingState> {
       method,
       payParams is Map ? payParams : const <dynamic, dynamic>{},
     );
-    state = state.copyWith(lastLaunchResult: result);
+    if (ref.mounted) state = state.copyWith(lastLaunchResult: result);
     return result;
   }
 
@@ -232,7 +233,9 @@ class BillingNotifier extends Notifier<BillingState> {
     int intervalMs = 800,
   }) async {
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      if (!ref.mounted) return false;
       final invoices = await _api.listInvoices(subscriptionId);
+      if (!ref.mounted) return false;
       if (invoices != null) {
         for (final inv in invoices) {
           if (inv.invoiceNo != invoiceNo) continue;
