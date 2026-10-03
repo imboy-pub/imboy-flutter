@@ -38,6 +38,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
 
   List<Organization> _orgs = const [];
   bool _loading = false;
+  int _refreshGeneration = 0;
   String? _error;
 
   /// 待处理邀请数（P1 触达角标；服务端 target 视角 pending 列表长度）。
@@ -54,12 +55,14 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   }
 
   Future<void> _refresh() async {
+    final generation = ++_refreshGeneration;
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
       final organizations = await _api.allMine();
+      if (!mounted || generation != _refreshGeneration) return;
       // 服务端事实到达后覆盖缓存（缓存永不先于真源）。
       _cache.saveOrgs(organizations);
       if (!mounted) return;
@@ -67,23 +70,24 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
         _orgs = organizations;
       });
     } on OrganizationApiException catch (e) {
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       setState(() {
         _error = '${e.message} (code=${e.code})';
       });
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       setState(() {
         _error = e.toString();
       });
     } finally {
-      if (mounted) {
+      if (mounted && generation == _refreshGeneration) {
         setState(() {
           _loading = false;
         });
       }
     }
     // 触达角标（P1）：失败静默归零——角标是增强信息，不与组织列表竞争报错。
+    if (!mounted || generation != _refreshGeneration) return;
     await _refreshPendingInvites();
   }
 

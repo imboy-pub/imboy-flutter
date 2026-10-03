@@ -24,6 +24,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/modules/organization/presentation/organization_home_page.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/modules/organization/infrastructure/organization_cache.dart';
 
 class _StaticAdapter implements HttpClientAdapter {
   _StaticAdapter(this.statusCode, this.body);
@@ -46,6 +47,44 @@ class _StaticAdapter implements HttpClientAdapter {
     );
   }
 
+  @override
+  void close({bool force = false}) {}
+}
+
+class _DeferredMineAdapter implements HttpClientAdapter {
+  final requests = <Completer<ResponseBody>>[];
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    if (options.path.endsWith('/organizations/mine')) {
+      final result = Completer<ResponseBody>();
+      requests.add(result);
+      return result.future;
+    }
+    return Future.value(response(<dynamic>[]));
+  }
+
+  ResponseBody response(dynamic payload) => ResponseBody.fromString(
+    jsonEncode(okEnvelope(payload: payload)),
+    200,
+    headers: {
+      Headers.contentTypeHeader: [Headers.jsonContentType],
+    },
+  );
+  void complete(int index, String name) => requests[index].complete(
+    response({
+      'list': [
+        {'id': 7001, 'name': name, 'status': 'active', 'member_role': 'member'},
+      ],
+      'page': 1,
+      'size': 100,
+      'total': 1,
+      'total_page': 1,
+    }),
+  );
   @override
   void close({bool force = false}) {}
 }
@@ -95,6 +134,33 @@ void main() {
 
   Widget buildHost() =>
       const MaterialApp(home: OrganizationHomePage(accountKey: '1001'));
+
+  testWidgets('迟到的旧刷新不得覆盖新组织列表及缓存', (tester) async {
+    OrganizationCache.disposeAccount('1001');
+    addTearDown(() => OrganizationCache.disposeAccount('1001'));
+    final adapter = _DeferredMineAdapter();
+    HttpClient.adapterForTest = adapter;
+    await tester.pumpWidget(buildHost());
+    for (var i = 0; i < 30 && adapter.requests.isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 1);
+    final refreshing = tester
+        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+        .onRefresh();
+    for (var i = 0; i < 30 && adapter.requests.length < 2; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 2);
+    adapter.complete(1, '新组织事实');
+    await pumpUntilFound(tester, find.text('新组织事实'));
+    adapter.complete(0, '过时组织事实');
+    await tester.pumpAndSettle();
+    await refreshing;
+    expect(find.text('新组织事实'), findsOneWidget);
+    expect(find.text('过时组织事实'), findsNothing);
+    expect(OrganizationCache.forAccount('1001').org('7001')?.name, '新组织事实');
+  });
 
   testWidgets('空态：未加入任何组织时展示引导文案', (tester) async {
     HttpClient.adapterForTest = _StaticAdapter(
