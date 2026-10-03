@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,6 +47,46 @@ void main() {
       E2EEDecryptFailureMetrics.normalizeReason(_PrivateReason()),
       'unknown',
     );
+  });
+
+  test('真实指标日志不输出原因、历史键或去重标识中的秘密', () async {
+    const canary = 'synthetic-private-user-key';
+    await StorageService.setMap('e2ee_decrypt_fail_metrics', {canary: 2});
+    final logs = <String>[];
+    final previousDebugPrint = debugPrint;
+    debugPrint = (String? message, {int? wrapWidth}) {
+      if (message != null) logs.add(message);
+    };
+    try {
+      await E2EEDecryptFailureMetrics.countAwait(canary, dedupKey: canary);
+      await E2EEDecryptFailureMetrics.countAwait('bounds_$canary');
+      await E2EEDecryptFailureMetrics.countAwait('envelope_$canary');
+      await E2EEDecryptFailureMetrics.countAwait(_PrivateReason());
+      await E2EEDecryptFailureMetrics.countAwait('decrypt_error');
+    } finally {
+      debugPrint = previousDebugPrint;
+    }
+    final metricLogs = logs.where((line) => line.contains('[E2EE_METRICS]'));
+    expect(metricLogs.length, 5);
+    expect(logs.join('\n'), isNot(contains(canary)));
+    expect(
+      metricLogs,
+      contains('📊 [E2EE_METRICS] decrypt failure: unknown total=3'),
+    );
+    expect(
+      metricLogs,
+      contains('📊 [E2EE_METRICS] decrypt failure: bounds_invalid total=1'),
+    );
+    expect(
+      metricLogs,
+      contains('📊 [E2EE_METRICS] decrypt failure: envelope_invalid total=1'),
+    );
+    expect(await E2EEDecryptFailureMetrics.snapshot(), {
+      'unknown': 4,
+      'bounds_invalid': 1,
+      'envelope_invalid': 1,
+      'decrypt_error': 1,
+    });
   });
 
   test('不可信原因只持久化固定分类', () async {
