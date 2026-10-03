@@ -137,6 +137,9 @@ void main() {
     'auto-queued',
     'auto-inflight',
     'auto-clear',
+    'scan-normal',
+    'scan-stale',
+    'scan-clear',
   ]) {
     final stale = !stage.endsWith('normal');
     test('retry stage=$stage', () async {
@@ -181,7 +184,17 @@ void main() {
           expect(repo.currentUid, '100');
         }
 
-        if (stage.startsWith('manual')) {
+        if (stage.startsWith('scan')) {
+          await db.update('msg_c2c', {'status': 10});
+          final scanning = retry.debugScanFailedMessages();
+          if (stage == 'scan-stale') await invalidateSession();
+          if (stage == 'scan-clear') retry.clearRetryQueue();
+          await scanning;
+          expect(
+            retry.getRetryInfo('retry-synthetic'),
+            stale ? isNull : isNotNull,
+          );
+        } else if (stage.startsWith('manual')) {
           final sending = retry.retryMessage('retry-synthetic', 'C2C');
           if (stale) await invalidateSession();
           expect(await sending, !stale);
@@ -196,7 +209,10 @@ void main() {
           await sending;
         }
         await pumpEventQueue();
-        expect(sends, stale ? isEmpty : hasLength(1));
+        expect(
+          sends,
+          stale || stage.startsWith('scan') ? isEmpty : hasLength(1),
+        );
       } finally {
         await retry.debugWaitForIdle();
         retry.dispose();

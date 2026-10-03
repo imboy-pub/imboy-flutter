@@ -94,6 +94,9 @@ class MessageRetry with EventSubscriptionManager {
   /// 两次扫描都在 lastRetryTime 更新前通过间隔检查会各重投一次（双发）。
   bool _isScanning = false;
 
+  // Invalidate in-flight recovery scans when the queue is cleared or disposed.
+  int _queueEpoch = 0;
+
   /// 启动时失败消息扫描的句柄。
   ///
   /// 生产路径保持 fire-and-forget；测试/应用退出路径可以等待它完成，
@@ -166,6 +169,7 @@ class MessageRetry with EventSubscriptionManager {
 
   /// 释放资源
   void dispose() {
+    _queueEpoch++;
     _retryTimer?.cancel();
     _retryTimer = null;
     _retryQueue.clear();
@@ -177,6 +181,7 @@ class MessageRetry with EventSubscriptionManager {
 
   /// 清空重试队列（不影响订阅和定时器）
   void clearRetryQueue() {
+    _queueEpoch++;
     _retryQueue.clear();
   }
 
@@ -214,6 +219,14 @@ class MessageRetry with EventSubscriptionManager {
   /// 【新增】扫描数据库中的失败消息并添加到重试队列
   /// Scan failed messages from database and add to retry queue.
   Future<void> _scanAndRetryFailedMessages() async {
+    final session = UserRepoLocal.to;
+    final generation = session.sessionGeneration;
+    final epoch = _queueEpoch;
+    bool scanCurrent() =>
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession &&
+        epoch == _queueEpoch;
+    if (!scanCurrent()) return;
     try {
       // 测试/早期启动阶段可能尚未初始化 StorageService，跳过扫描避免噪音日志
       if (!_isStorageReadyForRetryScan()) {
@@ -249,9 +262,16 @@ class MessageRetry with EventSubscriptionManager {
       int totalAdded = 0;
 
       for (final table in tables) {
+        if (!scanCurrent()) return;
         try {
           final repo = getMessageRepo(table);
-          final counts = await _scanTable(repo, table, statusesToRetry);
+          final counts = await _scanTable(
+            repo,
+            table,
+            statusesToRetry,
+            scanCurrent,
+          );
+          if (!scanCurrent()) return;
           totalFound += counts.found;
           totalAdded += counts.added;
         } on Object catch (e) {
@@ -277,6 +297,7 @@ class MessageRetry with EventSubscriptionManager {
     MessageRepo repo,
     String table,
     Set<int> statusesToRetry,
+    bool Function() scanCurrent,
   ) async {
     const pageSize = 100;
     int found = 0;
@@ -284,13 +305,14 @@ class MessageRetry with EventSubscriptionManager {
     int? beforeCreatedAt;
     int? beforeAutoId;
 
-    while (true) {
+    while (scanCurrent()) {
       final messages = await repo.pageRetryCandidates(
         statuses: statusesToRetry.toList(growable: false),
         limit: pageSize,
         beforeCreatedAt: beforeCreatedAt,
         beforeAutoId: beforeAutoId,
       );
+      if (!scanCurrent()) break;
       for (final msg in messages) {
         if (msg.id.isEmpty) continue;
         found++;
