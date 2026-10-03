@@ -146,7 +146,9 @@ class BillingNotifier extends Notifier<BillingState> {
       if (!await _api.generateInvoice(subId)) return false;
 
       // 3. 从账单列表取待支付账单号
-      final invoiceNo = await _pendingInvoiceNo(subId);
+      final pending = await _pendingInvoiceNo(subId);
+      if (!pending.fetched) return false;
+      final invoiceNo = pending.invoiceNo;
       if (invoiceNo == null) {
         // 无待支付账单（重复订阅且已付清）：视为成功，刷新订阅即可
         await loadSubscription();
@@ -178,13 +180,17 @@ class BillingNotifier extends Notifier<BillingState> {
   }
 
   /// 取订阅下第一张待支付账单号；全部已付返回 `null`。
-  Future<String?> _pendingInvoiceNo(int subscriptionId) async {
+  Future<({bool fetched, String? invoiceNo})> _pendingInvoiceNo(
+    int subscriptionId,
+  ) async {
     final invoices = await _api.listInvoices(subscriptionId);
-    if (invoices == null) return null;
+    if (invoices == null) return (fetched: false, invoiceNo: null);
     for (final inv in invoices) {
-      if (!inv.isPaid && inv.invoiceNo.isNotEmpty) return inv.invoiceNo;
+      if (!inv.isPaid && inv.invoiceNo.isNotEmpty) {
+        return (fetched: true, invoiceNo: inv.invoiceNo);
+      }
     }
-    return null;
+    return (fetched: true, invoiceNo: null);
   }
 
   /// 唤起第三方收银台并记录结果到 state。

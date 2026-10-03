@@ -302,6 +302,20 @@ void main() {
   });
 
   group('BillingNotifier.subscribePlan', () {
+    test('账单查询失败不得视为已付清或订阅成功', () async {
+      final fake = _FakeBillingApi(subscribeResult: 9001, invoicesResult: null);
+      final container = _containerWith(fake);
+      addTearDown(container.dispose);
+      final ok = await container
+          .read(billingProvider.notifier)
+          .subscribePlan(_plan());
+      expect(ok, isFalse);
+      expect(fake.listCalls, [9001]);
+      expect(fake.payCalls, isEmpty);
+      expect(fake.subscriptionCalls, 0);
+      expect(container.read(billingProvider).paying, isFalse);
+    });
+
     test('BP-2 subscribe 失败 → false，后续步骤不执行', () async {
       final fake = _FakeBillingApi(
         subscribeResult: null,
