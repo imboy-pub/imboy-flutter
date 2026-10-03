@@ -467,6 +467,15 @@ class ChatNetworkService {
 
   /// 直接发送消息（不经过数据库），含 E2EE 加密
   Future<bool> sendMessage(Map<String, dynamic> msg) async {
+    final session = UserRepoLocal.to;
+    final ownerUid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool current() =>
+        ownerUid.isNotEmpty &&
+        session.currentUid == ownerUid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (!current()) return false;
     final String chatType = msg['type']?.toString() ?? '';
     final String msgAction = msg['action']?.toString() ?? '';
     final String? msgId = msg['id']?.toString();
@@ -494,6 +503,7 @@ class ChatNetworkService {
           toId: msg['to']?.toString() ?? '',
           action: msgAction,
         );
+        if (!current()) return false;
       } on E2eeSecurityException catch (e) {
         // 同 sendWsMsg：fail-closed 拒发 + 可见反馈，绝不落到明文分支。
         iPrint('🚫 [E2EE] 策略门拒发: msgId=${msg['id']}, reason=${e.reason}');
@@ -514,6 +524,7 @@ class ChatNetworkService {
             messageType: msg['msg_type']?.toString() ?? '',
             removeKeys: ['msg_type'],
           );
+          if (!current()) return false;
           final protected = _requireEncryptedResult(encrypted);
           final protectedE2ee = Map<String, dynamic>.from(
             (protected['e2ee'] as Map).cast<String, dynamic>(),
@@ -563,10 +574,12 @@ class ChatNetworkService {
       }
     }
 
+    if (!current()) return false;
     AppEventBus.fire(
       WebSocketMessageSendRequestEvent(
         message: json.encode(msg),
         messageId: msg['id']?.toString(),
+        sessionGeneration: generation,
       ),
     );
 
