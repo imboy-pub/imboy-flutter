@@ -20,6 +20,8 @@ const _accountKey = '91001';
 
 class _MineAdapter implements HttpClientAdapter {
   int calls = 0;
+  int previewCalls = 0;
+  int joinCalls = 0;
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
@@ -27,6 +29,20 @@ class _MineAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     calls++;
+    if (options.path.endsWith('/invite_code/preview')) {
+      previewCalls++;
+      return response({
+        'organization_id': 7999,
+        'name': 'old fixture organization',
+      });
+    }
+    if (options.path.endsWith('/invite_code/join')) {
+      joinCalls++;
+      return response({
+        'status': 'joined',
+        'join': {'organization_id': 7999},
+      });
+    }
     return ResponseBody.fromString(
       jsonEncode({
         'code': 0,
@@ -52,6 +68,14 @@ class _MineAdapter implements HttpClientAdapter {
     );
   }
 
+  ResponseBody response(dynamic payload) => ResponseBody.fromString(
+    jsonEncode({'code': 0, 'msg': 'success', 'payload': payload}),
+    200,
+    headers: {
+      Headers.contentTypeHeader: [Headers.jsonContentType],
+    },
+  );
+
   @override
   void close({bool force = false}) {}
 }
@@ -62,6 +86,18 @@ Future<void> pumpUntilFound(WidgetTester tester, Finder finder) async {
   }
   expect(finder, findsOneWidget);
 }
+
+Widget _host(ValueNotifier<String> account) => TranslationProvider(
+  child: ProviderScope(
+    child: MaterialApp(
+      home: ValueListenableBuilder<String>(
+        valueListenable: account,
+        builder: (context, value, child) =>
+            OrganizationPickerPage(accountKey: value),
+      ),
+    ),
+  ),
+);
 
 void main() {
   setUp(() async {
@@ -129,5 +165,49 @@ void main() {
       expect(adapter.calls, callsBeforeResult);
       expect(OrganizationCache.forAccount(account.value).org('7999'), isNull);
     });
+  }
+  for (final previewFirst in [false, true]) {
+    for (final returnToOriginal in [false, true]) {
+      testWidgets(
+        '旧账号${previewFirst ? '确认加入' : '预览'}在${returnToOriginal ? '往返' : '改变'}后不得发请求',
+        (tester) async {
+          final account = ValueNotifier(_accountKey);
+          addTearDown(account.dispose);
+          addTearDown(() => OrganizationCache.disposeAccount('91002'));
+          addTearDown(() => CurrentOrganizationStore.disposeAccount('91002'));
+          final adapter = _MineAdapter();
+          HttpClient.adapterForTest = adapter;
+          await tester.pumpWidget(_host(account));
+          await pumpUntilFound(
+            tester,
+            find.byKey(const ValueKey('org-picker-join-entry')),
+          );
+          await tester.tap(find.byKey(const ValueKey('org-picker-join-entry')));
+          await tester.pumpAndSettle();
+          await tester.enterText(
+            find.byKey(const ValueKey('org-join-code-field')),
+            'ABCD2345',
+          );
+          if (previewFirst) {
+            await tester.tap(find.byKey(const ValueKey('org-join-submit')));
+            await pumpUntilFound(
+              tester,
+              find.byKey(const ValueKey('org-join-org-name')),
+            );
+            expect(adapter.previewCalls, 1);
+          }
+          account.value = '91002';
+          await tester.pumpAndSettle();
+          if (returnToOriginal) {
+            account.value = _accountKey;
+            await tester.pumpAndSettle();
+          }
+          await tester.tap(find.byKey(const ValueKey('org-join-submit')));
+          await tester.pumpAndSettle();
+          expect(adapter.previewCalls, previewFirst ? 1 : 0);
+          expect(adapter.joinCalls, 0);
+        },
+      );
+    }
   }
 }

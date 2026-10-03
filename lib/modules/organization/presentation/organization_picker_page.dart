@@ -331,7 +331,9 @@ class _OrganizationPickerPageState
     final epoch = _accountEpoch;
     final result = await showDialog<OrgJoinDialogResult>(
       context: context,
-      builder: (ctx) => const _OrgJoinCodeDialog(),
+      builder: (ctx) => _OrgJoinCodeDialog(
+        isCurrentAccount: () => _acceptSwitch(account, epoch),
+      ),
     );
     if (result == null || !_acceptSwitch(account, epoch)) return;
     // preview 已持有目标企业事实（id+name）：先播种转场即时渲染，
@@ -463,7 +465,9 @@ class OrgJoinDialogResult {
 /// preview「确认加入 XX 企业」→ code-only join。用户不再输入企业 ID。
 /// 错误态（981/982/透传）页内展示；扫码扫到非邀请码留在扫码页继续扫。
 class _OrgJoinCodeDialog extends StatefulWidget {
-  const _OrgJoinCodeDialog();
+  const _OrgJoinCodeDialog({required this.isCurrentAccount});
+
+  final bool Function() isCurrentAccount;
 
   @override
   State<_OrgJoinCodeDialog> createState() => _OrgJoinCodeDialogState();
@@ -479,6 +483,8 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
   String? _error;
   OrgInvitePreview? _preview;
 
+  bool get _isCurrent => mounted && widget.isCurrentAccount();
+
   @override
   void dispose() {
     _codeCtrl.dispose();
@@ -487,24 +493,25 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
 
   /// 扫码 → 拿到邀请码后自动 preview（用户无需再点一次提交）。
   Future<void> _scanAndPreview() async {
+    if (!_isCurrent) return;
     final code = await Navigator.of(context).push<String>(
       MaterialPageRoute(builder: (_) => const OrgJoinScannerPage()),
     );
-    if (code == null || !mounted || code.isEmpty) return;
+    if (code == null || !_isCurrent || code.isEmpty) return;
     _codeCtrl.text = code;
     await _previewByCode(code);
   }
 
   /// input 态提交：凭码预览目标企业（981/982 在此暴露，不进 confirm）。
   Future<void> _previewByCode(String rawCode) async {
-    if (_submitting) return;
+    if (_submitting || !_isCurrent) return;
     setState(() {
       _submitting = true;
       _error = null;
     });
     try {
       final preview = await _api.previewByCode(rawCode.trim().toUpperCase());
-      if (!mounted) return;
+      if (!_isCurrent) return;
       setState(() {
         _submitting = false;
         _preview = preview;
@@ -513,7 +520,7 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
     } on OrganizationApiException catch (e) {
       _showJoinError(e);
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!_isCurrent) return;
       setState(() {
         _submitting = false;
         _error = e.toString();
@@ -524,14 +531,14 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
   /// confirm 态提交：code-only join（免 orgId），成功回传目标企业事实。
   Future<void> _join() async {
     final preview = _preview;
-    if (preview == null || _submitting) return;
+    if (preview == null || _submitting || !_isCurrent) return;
     setState(() {
       _submitting = true;
       _error = null;
     });
     try {
       await _api.joinByCodeOnly(_codeCtrl.text.trim().toUpperCase());
-      if (!mounted) return;
+      if (!mounted || !widget.isCurrentAccount()) return;
       Navigator.of(context).pop(
         OrgJoinDialogResult(
           organizationId: preview.organizationId,
@@ -541,7 +548,7 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
     } on OrganizationApiException catch (e) {
       _showJoinError(e);
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!_isCurrent) return;
       setState(() {
         _submitting = false;
         _error = e.toString();
@@ -550,7 +557,7 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
   }
 
   void _showJoinError(OrganizationApiException e) {
-    if (!mounted) return;
+    if (!_isCurrent) return;
     final t = context.t;
     setState(() {
       _submitting = false;
