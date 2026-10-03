@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from auto_test_lib import acceptance, acceptance_case_events, acceptance_contract
-from auto_test_lib import acceptance_preflight, acceptance_coverage
+from auto_test_lib import acceptance_preflight, acceptance_coverage, acceptance_journeys
 
 
 def audit_case_event_runs(root: Path, frozen_cases: Any, runs: Any) -> List[str]:
@@ -93,6 +93,8 @@ def audit_execution_inputs(root: Path, frozen_descriptor: Any,
                 report.get('coverage_mappings'), frozen.get('approved_dispositions')))
             result['errors'].extend(audit_run_attempt_links(
                 frozen.get('case_event_runs'), report.get('attempts')))
+            result['errors'].extend(acceptance_journeys.audit_cross_device_journey_set(
+                root, frozen, report.get('cross_device_records')))
     return result
 
 

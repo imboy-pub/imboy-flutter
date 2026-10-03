@@ -6,7 +6,9 @@ import unittest
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
-from auto_test_lib.acceptance_journeys import audit_cross_device_records
+from auto_test_lib.acceptance_journeys import (
+    audit_cross_device_records, audit_cross_device_journey_set,
+)
 
 
 class JourneyRecordsTest(unittest.TestCase):
@@ -106,6 +108,63 @@ class JourneyRecordsTest(unittest.TestCase):
         artifacts['persistence'] = artifacts['sender_ui']
         result = audit_cross_device_records(self.root, self.expected, artifacts)
         self.assertIn('JOURNEY_RECORD_REUSED:persistence', result['errors'])
+
+    def frozen(self):
+        cases = [dict(case_id='case', platform=platform, profile='enabled',
+                      role_variant='participant', parent_acceptance_ids=['F03-A01'],
+                      seed_ids=['seed'], oracle='synthetic', applicability='REQUIRED',
+                      cross_device_journey_ids=['journey'])
+                 for platform in ('android', 'macos')]
+        return dict(required_cases=cases, cross_device_journeys=[self.expected],
+                    run_id='run', fixture_generation='generation', candidates={
+                        'imboyapp': {'head': 'a' * 40}, 'imboy': {'head': 'b' * 40},
+                        'imboyadmin': {'head': 'c' * 40}})
+
+    def test_exact_journey_set(self):
+        self.assertEqual([], audit_cross_device_journey_set(
+            self.root, self.frozen(), {'journey': self.artifacts()}))
+        self.assertIn('JOURNEY_RECORDED_SET_MISMATCH', audit_cross_device_journey_set(
+            self.root, self.frozen(), {}))
+        self.assertIn('JOURNEY_RECORDED_SET_MISMATCH', audit_cross_device_journey_set(
+            self.root, self.frozen(), {'journey': self.artifacts(), 'unknown': {}}))
+
+    def test_missing_or_duplicate_frozen_journey_rejected(self):
+        frozen = self.frozen()
+        frozen['cross_device_journeys'] = []
+        self.assertIn('JOURNEY_REQUIRED_MEMBERSHIP_MISMATCH',
+                      audit_cross_device_journey_set(self.root, frozen, {}))
+        frozen['cross_device_journeys'] = [self.expected, self.expected]
+        self.assertIn('FROZEN_JOURNEY_DUPLICATE',
+                      audit_cross_device_journey_set(self.root, frozen, {}))
+
+    def test_both_case_platforms_mandatory(self):
+        frozen = self.frozen()
+        frozen['required_cases'].pop()
+        self.assertIn('JOURNEY_REQUIRES_BOTH_PLATFORMS',
+                      audit_cross_device_journey_set(self.root, frozen, {}))
+
+    def test_case_declaration_cannot_be_silently_omitted(self):
+        frozen = self.frozen()
+        del frozen['required_cases'][0]['cross_device_journey_ids']
+        self.assertIn('JOURNEY_CASE_DECLARATION_INVALID',
+                      audit_cross_device_journey_set(self.root, frozen, {}))
+
+    def test_frozen_runtime_and_candidates_bind_journey(self):
+        for key in ('run_id', 'fixture_generation'):
+            frozen = self.frozen()
+            frozen[key] = 'different'
+            self.assertIn('JOURNEY_FROZEN_RUNTIME_MISMATCH',
+                          audit_cross_device_journey_set(self.root, frozen, {}))
+        frozen = self.frozen()
+        frozen['candidates']['imboyapp']['head'] = 'e' * 40
+        self.assertIn('JOURNEY_FROZEN_CANDIDATE_MISMATCH',
+                      audit_cross_device_journey_set(self.root, frozen, {}))
+
+    def test_malformed_candidate_container_is_rejected(self):
+        frozen = self.frozen()
+        frozen['candidates'] = None
+        self.assertIn('JOURNEY_FROZEN_CANDIDATE_MISMATCH',
+                      audit_cross_device_journey_set(self.root, frozen, {}))
 
 
 if __name__ == '__main__':

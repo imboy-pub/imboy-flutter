@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 from pathlib import Path
 import re
 
-from auto_test_lib import acceptance
+from auto_test_lib import acceptance, acceptance_contract
 
 _STAGES = ('sender_ui', 'persistence', 'receiver_ui', 'reopened_ui')
 _BINDINGS = ('run_id', 'journey_id', 'message_id', 'fixture_generation',
@@ -76,3 +76,72 @@ def audit_cross_device_records(root: Path, expected: Any, artifacts: Any) -> Dic
         if records['reopened_ui']['launch_generation'] <= records['receiver_ui']['launch_generation']:
             result['errors'].append('JOURNEY_REOPEN_NOT_NEW_LAUNCH')
     return result
+
+
+def _journey_members(frozen: dict) -> tuple:
+    cases = frozen.get('required_cases')
+    if acceptance_contract._case_index(cases) is None:
+        return {}, ['JOURNEY_REQUIRED_CASE_SET_INVALID']
+    members = {}
+    for row in cases:
+        identifiers = row.get('cross_device_journey_ids')
+        if (not isinstance(identifiers, list)
+                or any(not isinstance(i, str) or not i.strip() for i in identifiers)
+                or len(set(identifiers)) != len(identifiers)):
+            return {}, ['JOURNEY_CASE_DECLARATION_INVALID']
+        for identifier in identifiers:
+            members.setdefault(identifier, set()).add(row['platform'])
+    if any(platforms != {'android', 'macos'} for platforms in members.values()):
+        return {}, ['JOURNEY_REQUIRES_BOTH_PLATFORMS']
+    return members, []
+
+
+def _journey_expectations(frozen: dict) -> tuple:
+    members, errors = _journey_members(frozen)
+    rows = frozen.get('cross_device_journeys')
+    if errors or not isinstance(rows, list):
+        return {}, errors or ['FROZEN_JOURNEY_SET_INVALID']
+    indexed = {}
+    for expected in rows:
+        errors = _expected_errors(expected)
+        if errors:
+            return {}, errors
+        identifier = expected['journey_id']
+        if identifier in indexed:
+            return {}, ['FROZEN_JOURNEY_DUPLICATE']
+        indexed[identifier] = expected
+        if any(expected[k] != frozen.get(k) for k in ('run_id', 'fixture_generation')):
+            return {}, ['JOURNEY_FROZEN_RUNTIME_MISMATCH']
+        for repo, key in [('imboyapp', 'app_sha'), ('imboy', 'backend_sha'), ('imboyadmin', 'admin_sha')]:
+            candidates = frozen.get('candidates')
+            candidate = candidates.get(repo) if isinstance(candidates, dict) else None
+            if not isinstance(candidate, dict) or candidate.get('head') != expected[key]:
+                return {}, ['JOURNEY_FROZEN_CANDIDATE_MISMATCH']
+    if set(indexed) != set(members):
+        return {}, ['JOURNEY_REQUIRED_MEMBERSHIP_MISMATCH']
+    return indexed, []
+
+
+def audit_cross_device_journey_set(root: Path, frozen: Any, records: Any) -> List[str]:
+    """Mandatory explicit declarations; exact set, candidate links and no reuse."""
+    if not isinstance(frozen, dict):
+        return ['FROZEN_JOURNEY_SET_INVALID']
+    expected, errors = _journey_expectations(frozen)
+    if errors:
+        return errors
+    if not isinstance(records, dict) or set(records) != set(expected):
+        return ['JOURNEY_RECORDED_SET_MISMATCH']
+    paths, digests = set(), set()
+    for identifier, obligation in expected.items():
+        artifacts = records[identifier]
+        result = audit_cross_device_records(root, obligation, artifacts)
+        errors.extend(result['errors'])
+        if result['errors']:
+            continue
+        for descriptor in artifacts.values():
+            path, digest = descriptor['path'], descriptor['sha256']
+            if path in paths or digest in digests:
+                errors.append('JOURNEY_ARTIFACT_REUSED_ACROSS_JOURNEYS')
+            paths.add(path)
+            digests.add(digest)
+    return errors

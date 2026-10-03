@@ -21,7 +21,7 @@ class PreflightTests(unittest.TestCase):
         case = {'case_id': 'synthetic-1', 'platform': 'android', 'profile': 'enabled',
                 'role_variant': 'sender', 'parent_acceptance_ids': ['F03-A01'],
                 'seed_ids': ['synthetic-seed'], 'oracle': 'synthetic only',
-                'applicability': 'REQUIRED'}
+                'applicability': 'REQUIRED', 'cross_device_journey_ids': []}
         bindings = []
         for kind in ['source', 'config', 'build', 'fixture', 'device']:
             bindings.append({'binding_id': kind, 'kind': kind,
@@ -139,6 +139,8 @@ class PreflightTests(unittest.TestCase):
                 self.descriptor('report.json', self.report), {})
 
     def prepare_event_run(self):
+        self.frozen['cross_device_journeys'] = []
+        self.report['cross_device_records'] = {}
         case = self.frozen['required_cases'][0]
         binding = {key: case[key] for key in
                    ('case_id', 'platform', 'profile', 'role_variant')}
@@ -181,6 +183,33 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(result['errors'], [])
         self.assertIs(result['product_pass'], False)
         self.assertEqual(result['scope'], 'EXECUTION_RECORD_INPUTS_ONLY')
+
+    def test_execution_requires_explicit_journey_obligations_and_records(self):
+        self.prepare_event_run()
+        del self.frozen['cross_device_journeys']
+        self.assertIn('FROZEN_JOURNEY_SET_INVALID', self.execution_audit()['errors'])
+        self.frozen['cross_device_journeys'] = []
+        del self.report['cross_device_records']
+        self.assertIn('JOURNEY_RECORDED_SET_MISMATCH', self.execution_audit()['errors'])
+
+    def test_execution_cli_checks_journey_inputs_without_writing(self):
+        self.prepare_event_run()
+        del self.frozen['cross_device_journeys']
+        frozen = self.descriptor('frozen.json', self.frozen)
+        report = self.descriptor('report.json', self.report)
+        before = {p.name: p.read_bytes() for p in self.root.iterdir()}
+        script = Path(__file__).resolve().parents[3] / 'scripts' / 'auto_test.py'
+        completed = subprocess.run([
+            sys.executable, str(script), 'acceptance-execution-preflight',
+            '--evidence-root', str(self.root), '--frozen-input', 'frozen.json',
+            '--frozen-sha256', frozen['sha256'], '--acceptance-report', 'report.json',
+            '--report-sha256', report['sha256'],
+        ], capture_output=True, text=True, timeout=10)
+        self.assertEqual(2, completed.returncode)
+        result = json.loads(completed.stdout)
+        self.assertIn('FROZEN_JOURNEY_SET_INVALID', result['errors'])
+        self.assertIs(False, result['product_pass'])
+        self.assertEqual(before, {p.name: p.read_bytes() for p in self.root.iterdir()})
 
     def test_execution_composition_rejects_duplicate_case_run_or_log(self):
         self.prepare_event_run()
