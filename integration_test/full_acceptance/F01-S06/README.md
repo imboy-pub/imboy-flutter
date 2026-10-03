@@ -93,3 +93,5 @@ CASE_MAPPED需要非空case_keys；MERGED需要保留用例且整行匹配独立
 组件目前未接组合CLI；仅证明相对于冻结索引的结构覆盖，不证明索引穷尽实际源码、映射语义正确、产品profile已批准或真实行为执行。当前全产品覆盖门仍未关闭。
 
 组合入口现强制执行F00覆盖结构门。schema2冻结输入必含coverage_inputs（六域input_kind/input_id全集）和approved_dispositions（整行独立审批集合，可为空）；report必含coverage_mappings。输入、审批和required集合来自同一独立固定hash冻结文档，报告不能用自签审批替代。旧样本若缺字段按新门拒绝，历史结果不改写。该接线不证明源码全集已完整收集或映射语义正确。
+
+候选三仓核对现同时拒绝已跟踪工作树改动、暂存区改动，以及assume-unchanged/skip-worktree隐藏标记；HEAD正确但源码有未提交变化不再放行。此门不覆盖未跟踪或ignored运行文件的全集证明，不删除或暂存用户WIP，不能据此宣称整个运行源码干净。

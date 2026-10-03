@@ -27,6 +27,8 @@ class CandidateBindingTests(unittest.TestCase):
             self.git(root, 'init', '-q')
             self.git(root, 'commit', '--allow-empty', '-qm', 'ancestor')
             ancestor = self.git(root, 'rev-parse', 'HEAD')
+            (root / 'tracked.txt').write_text('candidate bytes')
+            self.git(root, 'add', 'tracked.txt')
             self.git(root, 'commit', '--allow-empty', '-qm', 'candidate')
             head = self.git(root, 'rev-parse', 'HEAD')
             self.roots[name] = root
@@ -96,6 +98,24 @@ class CandidateBindingTests(unittest.TestCase):
         observed = copy.deepcopy(self.frozen)
         observed['imboy']['required_ancestors'] = []
         self.assertTrue(self.audit(observed=observed))
+
+    def test_tracked_worktree_and_index_changes_cannot_reuse_head(self):
+        root = self.roots['imboyapp']
+        (root / 'tracked.txt').write_text('changed bytes')
+        self.assertIn('CANDIDATE_TRACKED_SOURCE_DIRTY:imboyapp', self.audit())
+        self.git(root, 'add', 'tracked.txt')
+        self.assertIn('CANDIDATE_TRACKED_SOURCE_DIRTY:imboyapp', self.audit())
+        (root / 'tracked.txt').write_text('candidate bytes')
+        self.assertIn('CANDIDATE_TRACKED_SOURCE_DIRTY:imboyapp', self.audit())
+
+    def test_index_flags_cannot_hide_changed_source(self):
+        root = self.roots['imboyapp']
+        for flag in ['assume-unchanged', 'skip-worktree']:
+            self.git(root, 'update-index', '--' + flag, 'tracked.txt')
+            (root / 'tracked.txt').write_text('hidden change')
+            self.assertIn('CANDIDATE_INDEX_HIDES_SOURCE_CHANGES:imboyapp', self.audit())
+            (root / 'tracked.txt').write_text('candidate bytes')
+            self.git(root, 'update-index', '--no-' + flag, 'tracked.txt')
 
 
 if __name__ == '__main__':

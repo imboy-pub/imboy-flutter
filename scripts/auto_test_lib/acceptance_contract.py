@@ -110,6 +110,12 @@ def _audit_repository(root: Any, candidate: dict) -> List[str]:
         head = candidate['head']
         if _git_output(root, 'rev-parse', 'HEAD') != head:
             return ['CANDIDATE_LIVE_HEAD_MISMATCH']
+        if (_git_output(root, 'diff', '--raw', '--no-ext-diff', 'HEAD', '--')
+                or _git_output(root, 'diff', '--cached', '--raw', '--no-ext-diff', 'HEAD', '--')):
+            return ['CANDIDATE_TRACKED_SOURCE_DIRTY']
+        entries = _git_output(root, 'ls-files', '-v', '-z').split('\x00')
+        if any(entry and (entry[0].islower() or entry[0] == 'S') for entry in entries):
+            return ['CANDIDATE_INDEX_HIDES_SOURCE_CHANGES']
         if _git_output(root, 'cat-file', '-t', head) != 'commit':
             return ['CANDIDATE_NOT_COMMIT']
         for ancestor in candidate['required_ancestors']:
@@ -128,8 +134,9 @@ def audit_candidate_repositories(
     """Bind three report candidates to frozen commits and actual Git ancestry.
 
     Paths and frozen candidates must come from the trusted coordinator inputs.
-    This read-only check does not certify clean worktrees, builds or runtime
-    configuration; those are separate gates. No report values appear in errors.
+    Reject tracked/index changes and hidden-index flags. Untracked/ignored
+    source coverage, builds and runtime configuration require separate gates.
+    No report values appear in errors.
     """
     for value in (repository_paths, frozen_candidates, observed_candidates):
         if not isinstance(value, dict) or set(value) != _REPOSITORIES:
