@@ -12,6 +12,7 @@ import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/e2ee_health_check_service.dart';
+import 'package:imboy/service/storage.dart';
 
 import 'message_s2c.dart';
 import 'message.dart';
@@ -72,6 +73,9 @@ class MessageOfflineService {
   /// c2g_last_msg_at、s2c_last_msg_at 参数做增量拉取，返回值中 next_last_msg_at
   /// 字段即为下次请求时应传入的游标值。客户端保存游标并在每次请求时携带，
   /// 避免每次全量拉取带来的性能压力。
+  ///
+  /// 游标通过 StorageService 持久化（Keys.offlineCursor*），应用重启后由
+  /// onInit 恢复，避免冷启动后游标归零触发全量重拉。
   int _c2cLastMsgAt = 0;
   int _c2gLastMsgAt = 0;
   int _s2cLastMsgAt = 0;
@@ -113,6 +117,11 @@ class MessageOfflineService {
 
   /// 初始化服务（订阅事件）
   void onInit() {
+    // 恢复持久化游标：StorageService 未就绪时 readStoredCursor 返回 0，
+    // 退化为一次性全量拉取（与旧行为一致，无正确性风险）
+    _c2cLastMsgAt = readStoredCursor(Keys.offlineCursorC2c);
+    _c2gLastMsgAt = readStoredCursor(Keys.offlineCursorC2g);
+    _s2cLastMsgAt = readStoredCursor(Keys.offlineCursorS2c);
     _pullRequestedSubscription ??=
         AppEventBus.on<OfflineMessagesPullRequestedEvent>().listen((event) {
           // 异步处理，避免阻塞事件总线
@@ -128,7 +137,8 @@ class MessageOfflineService {
     _pullRequestedSubscription = null;
     _inFlightPull = null;
     _hasPendingPullRequest = false;
-    // 重置游标，避免单例重建后使用旧游标（D4 修复）
+    // 只重置内存态游标；持久化游标保留在 StorageService 中，
+    // 单例重建（onInit）时恢复，避免重启/重建后全量重拉（D4 修复）
     _c2cLastMsgAt = 0;
     _c2gLastMsgAt = 0;
     _s2cLastMsgAt = 0;
@@ -334,7 +344,7 @@ class MessageOfflineService {
           overallHasMore = true;
         }
         // 更新 C2C 游标（D4 修复）
-        final nextC2c = _extractNextCursor(payload['c2c']);
+        final nextC2c = extractNextCursor(payload['c2c']);
         if (nextC2c != null && nextC2c > localC2cLastMsgAt) {
           localC2cLastMsgAt = nextC2c;
         }
@@ -349,7 +359,7 @@ class MessageOfflineService {
           overallHasMore = true;
         }
         // 更新 C2G 游标（D4 修复）
-        final nextC2g = _extractNextCursor(payload['c2g']);
+        final nextC2g = extractNextCursor(payload['c2g']);
         if (nextC2g != null && nextC2g > localC2gLastMsgAt) {
           localC2gLastMsgAt = nextC2g;
         }
@@ -364,7 +374,7 @@ class MessageOfflineService {
           overallHasMore = true;
         }
         // 更新 S2C 游标（D4 修复）
-        final nextS2c = _extractNextCursor(payload['s2c']);
+        final nextS2c = extractNextCursor(payload['s2c']);
         if (nextS2c != null && nextS2c > localS2cLastMsgAt) {
           localS2cLastMsgAt = nextS2c;
         }
@@ -392,6 +402,7 @@ class MessageOfflineService {
       if (localS2cLastMsgAt > _s2cLastMsgAt) {
         _s2cLastMsgAt = localS2cLastMsgAt;
       }
+      persistCursors();
 
       _succeededTotal++;
       _fetchedMessagesTotal += totalFetched;
@@ -455,13 +466,50 @@ class MessageOfflineService {
   /// 客户端应在下次拉取时将其作为对应的 *_last_msg_at 参数传入，
   /// 实现增量拉取，避免重复获取已处理的消息。
   ///
+  /// 兼容两种服务端格式：
+  /// - 毫秒整数（当前契约，rest-api-v1-catalog：请求参数即为 ms）；
+  /// - RFC3339 字符串（历史后端实现直接回传行内 created_at；
+  ///   2026-10 后端已修复为毫秒，此分支保留以兼容旧服务端）。
+  ///
   /// 返回 null 表示 section 无效或未携带游标。
-  int? _extractNextCursor(dynamic section) {
+  @visibleForTesting
+  static int? extractNextCursor(dynamic section) {
     if (section is! Map) return null;
     final raw = section['next_last_msg_at'];
     if (raw is int) return raw;
-    if (raw is String) return int.tryParse(raw);
+    if (raw is num) return raw.toInt();
+    if (raw is String) {
+      final asInt = int.tryParse(raw);
+      if (asInt != null) return asInt;
+      final asDateTime = DateTime.tryParse(raw);
+      if (asDateTime != null) {
+        return asDateTime.millisecondsSinceEpoch;
+      }
+    }
     return null;
+  }
+
+  /// 读取持久化游标；存储未就绪或键不存在时返回 0（全量拉取语义）
+  @visibleForTesting
+  static int readStoredCursor(String key) {
+    try {
+      return StorageService.to.getInt(key) ?? 0;
+    } on Object {
+      return 0;
+    }
+  }
+
+  /// 持久化三类游标（只写正值；写失败静默，下次成功拉取会再写）
+  @visibleForTesting
+  static void persistCursor(String key, int value) {
+    if (value <= 0) return;
+    unawaited(StorageService.to.setInt(key, value));
+  }
+
+  void persistCursors() {
+    persistCursor(Keys.offlineCursorC2c, _c2cLastMsgAt);
+    persistCursor(Keys.offlineCursorC2g, _c2gLastMsgAt);
+    persistCursor(Keys.offlineCursorS2c, _s2cLastMsgAt);
   }
 
   void _markPullSuccess({required int totalFetched}) {
@@ -522,25 +570,40 @@ class MessageOfflineService {
           continue;
         }
 
-        final committed = await MessageService.to.persistInboundMessage(msg);
-        if (!committed) {
-          throw StateError('encrypted offline message not committed');
-        }
+        // 毒丸隔离：单条加密消息入库失败只跳过本条（不入 ACK，服务端
+        // 保留 pending 下次重拉重试），不再让整批消息（含已入库的普通
+        // 消息）都卡住不 ACK，避免同批消息每次上线被反复重拉
         final msgId = (msg['msg_id'] ?? msg['id'])?.toString() ?? '';
-        if (msgId.isNotEmpty) encryptedAckIds.add(msgId);
+        try {
+          final committed = await MessageService.to.persistInboundMessage(msg);
+          if (!committed) {
+            throw StateError('encrypted offline message not committed');
+          }
+          if (msgId.isNotEmpty) encryptedAckIds.add(msgId);
+        } on Object catch (e) {
+          iPrint('加密离线消息入库失败已隔离 msgId=$msgId err=${e.runtimeType}');
+        }
       }
 
-      final ordinaryAckIds = ordinaryMessages.isEmpty
-          ? <String>[]
-          : await MessageRepo(tableName: MessageRepo.getTableName(type))
-                    .batchInsertOfflineMessages(
-                      ordinaryMessages,
-                      onS2CMessage: (msgData) async {
-                        // 处理 S2C 消息
-                        await MessageS2CService.switchS2C(msgData);
-                      },
-                    ) ??
-                <String>[];
+      final ordinaryAckIds = <String>[];
+      if (ordinaryMessages.isNotEmpty) {
+        try {
+          final ids =
+              await MessageRepo(tableName: MessageRepo.getTableName(type))
+                  .batchInsertOfflineMessages(
+                    ordinaryMessages,
+                    onS2CMessage: (msgData) async {
+                      // 处理 S2C 消息
+                      await MessageS2CService.switchS2C(msgData);
+                    },
+                  );
+          ordinaryAckIds.addAll(ids ?? <String>[]);
+        } on Object catch (e) {
+          // 批量入库失败：普通消息不入 ACK（服务端保留 pending 下次重拉，
+          // msg_id 幂等兜底重复插入），已入库的加密消息仍正常 ACK
+          iPrint('普通离线消息批量入库失败本批不ACK err=${e.runtimeType}');
+        }
+      }
       final msgIds = {...encryptedAckIds, ...ordinaryAckIds}.toList();
 
       if (msgIds.isNotEmpty) {

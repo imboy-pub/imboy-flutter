@@ -94,6 +94,12 @@ class Keys {
   static String needSetPwd = 'need_set_password';
   static const String groupMembershipSelfHealPrefix =
       'group_membership_self_heal';
+
+  // 离线消息增量拉取游标（毫秒时间戳；MessageOfflineService 持久化，
+  // 应用重启后恢复，避免冷启动全量重拉）
+  static const String offlineCursorC2c = 'offline_cursor_c2c';
+  static const String offlineCursorC2g = 'offline_cursor_c2g';
+  static const String offlineCursorS2c = 'offline_cursor_s2c';
 }
 
 class API {
