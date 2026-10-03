@@ -710,6 +710,8 @@ e2eeRecoveryKeyTitle: 恢复密钥
 e2eeRecoveryKeySaveNote: 请立即保存这串恢复密钥（截图或存入密码管理器）。忘记口令时，它是解密备份的唯一凭据；一旦丢失，备份将永久无法恢复。
 e2eeRecoveryKeyCopiedAutoClear(seconds): 恢复密钥已复制，$seconds 秒后将自动清除剪贴板，请尽快保存
 e2eeErrAttachmentSeal: "加密附件封装失败，文件未上传；请稍后重试"
+e2eeErrForwardPlaintextTarget: "目标会话不是端到端加密，无法转发加密附件"
+e2eeErrForwardUndecryptable: "原加密附件无法在本机解密，转发失败"
 e2eeRetryFailedMessages: "重试解密失败的消息"
 e2eeRetryFailedDone(count): "已重试 $count 条解密失败的消息"
 e2eeRetryFailedNone: "没有需要重试的解密失败消息"

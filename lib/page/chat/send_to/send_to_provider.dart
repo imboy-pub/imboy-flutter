@@ -9,8 +9,16 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/e2ee/attachment_forward.dart';
+import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/group_session_service.dart';
+import 'package:imboy/page/chat/chat/attachment_handler.dart';
 
 import 'package:imboy/service/events/events.dart';
 
@@ -101,23 +109,154 @@ class SendToNotifier extends Notifier<SendToState> {
     return raw.isEmpty ? 'text' : raw;
   }
 
+  /// 目标会话的 payload 会不会被加密——与**真正决定出网加密的那一处**
+  /// （`chat_network_service.encryptPayload`）同一组判据：
+  /// 群级 Megolm 强制门（含 `EncryptionModeService.current.requiresEncryption`
+  /// 硬闸前置，P0-B B4）+ `E2EEService.shouldEncryptOutgoingPayload`（二次
+  /// 复核口径 `interactiveConfirm=false`：转发是批量动作，不触发 AI 首次
+  /// 确认弹窗）。转发重封装的 seal 判定与消息出网加密判定因此完全一致。
+  @visibleForTesting
+  static Future<bool> targetPayloadWillBeEncrypted({
+    required String chatType,
+    required String peerId,
+  }) async {
+    final bool groupMegolm =
+        chatType == 'C2G' &&
+        EncryptionModeService.current.requiresEncryption &&
+        await GroupSessionService.to.isGroupE2EE(peerId);
+    if (groupMegolm) return true;
+    return E2EEService.shouldEncryptOutgoingPayload(chatType, toId: peerId);
+  }
+
+  /// 加密附件转发失败 → 用户可见文案（既有 i18n 机制）。
+  ///
+  /// - 明文目标域拒绝 / 源不可解密 → 专用键（10 locale）；
+  /// - 下载/上传等基础设施失败 → 既有通用 [Translatables.common.sendFailed]
+  ///   （send_to_page 对 failCount 的汇总提示同源）。
+  @visibleForTesting
+  static String forwardFailureToast(String reason) {
+    switch (reason) {
+      case 'attachment_forward_plaintext_target':
+        return t.common.e2eeErrForwardPlaintextTarget;
+      case 'attachment_forward_undecryptable':
+      case 'attachment_forward_open_failed':
+        return t.common.e2eeErrForwardUndecryptable;
+      default:
+        return t.common.sendFailed;
+    }
+  }
+
+  /// 把重封装产物覆盖进转发 payload 的附件字段（纯函数）。
+  ///
+  /// [ForwardedAttachment.objectKey] 覆盖 `uri`（接收侧 toTypeMessage 的
+  /// 下载入口）；descriptor / file_hash256 / size 同步替换；thumb 按
+  /// metadata['thumb'] 的既有形状回填——视频是 map（EntityImage json，
+  /// 更新 `uri`+`file_hash256`），位置是 object_key 字符串（整体替换）。
+  /// 上传侧 `handleVideoUpload`/`handleLocationSelection` 的写入形状是
+  /// 这里的唯一真值源。
+  @visibleForTesting
+  static Map<String, dynamic> applyForwardedAttachment(
+    Map<String, dynamic> base,
+    ForwardedAttachment forwarded,
+  ) {
+    final out = Map<String, dynamic>.from(base)
+      ..['uri'] = forwarded.objectKey
+      ..[AttachmentSealPolicy.descriptorPayloadKey] = forwarded.descriptor
+          .toMap()
+      ..['file_hash256'] = forwarded.fileHash256
+      ..['size'] = forwarded.plainSize;
+    if (forwarded.thumbObjectKey != null) {
+      final thumb = out['thumb'];
+      if (thumb is Map) {
+        out['thumb'] = Map<String, dynamic>.from(thumb)
+          ..['uri'] = forwarded.thumbObjectKey
+          ..['file_hash256'] = forwarded.thumbFileHash256;
+      } else {
+        // 位置消息：thumb 即 object_key 字符串。
+        out['thumb'] = forwarded.thumbObjectKey;
+      }
+    }
+    return out;
+  }
+
   /// 发送消息
   Future<bool> sendMsg(ConversationModel conversation, Message msg) async {
     try {
       // 获取并归一化会话类型，历史脏值统一按 C2C 处理
       final chatType = _normalizeConversationType(conversation.type);
 
-      final payload = buildForwardPayload(
-        sourceMetadata: msg.metadata,
-        text: msg is TextMessage ? msg.text : '',
-        peerId: conversation.peerId,
-        conversationUk3: conversation.uk3,
+      final forwarderUid = UserRepoLocal.to.currentUid;
+      final sourceMetadata = msg.metadata;
+      final sourceChatType = AttachmentForward.chatTypeFromConversationUk3(
+        parseModelString(sourceMetadata?['conversation_uk3']),
       );
-      final msgType = resolveForwardMsgType(msg.metadata);
+      // 只有带 content key 的源才触碰 E2EE 策略判定（PolicyGate 未就绪会
+      // fail-closed 抛出）——纯文本/明文附件路径与旧行为零偏差。
+      final decision = AttachmentSealPolicy.carriesContentKey(sourceMetadata)
+          ? AttachmentForward.decide(
+              sourceMetadata: sourceMetadata,
+              targetPayloadWillBeEncrypted: await targetPayloadWillBeEncrypted(
+                chatType: chatType,
+                peerId: conversation.peerId.toString(),
+              ),
+              sourceMessageId: msg.id,
+              sourceChatType: sourceChatType,
+              sourceFromUid: msg.authorId,
+              sourceToUid: parseModelString(sourceMetadata?['peer_id']),
+            )
+          : const ForwardNotSealed();
 
-      // 创建 MessageModel
+      // 加密附件：按目标会话重封装（本地解密 → 新 key/nonce/绑定 →
+      // 重上传）。成功后新消息 id 即上传锚点（与发送侧同序：先上传拿
+      // meta、再建消息）。失败（含明文目标域/源不可解密）抛
+      // [AttachmentForwardException] —— 在落库**之前**，杜绝半转发状态。
+      final String messageId = Xid().toString();
+      final Map<String, dynamic> payload;
+      switch (decision) {
+        case ForwardNotSealed():
+          payload = buildForwardPayload(
+            sourceMetadata: sourceMetadata,
+            text: msg is TextMessage ? msg.text : '',
+            peerId: conversation.peerId,
+            conversationUk3: conversation.uk3,
+          );
+        case ForwardRejected(:final reason):
+          throw AttachmentForwardException(reason);
+        case ForwardReSeal():
+          final scope = ChatAttachmentHandler.deriveUploadScope(
+            conversationUk3: conversation.uk3,
+            currentUid: forwarderUid,
+            peerId: conversation.peerId.toString(),
+            type: chatType,
+          );
+          final forwarded = await AttachmentForward.reSeal(
+            sourcePayload: Map<String, dynamic>.from(
+              sourceMetadata ?? const {},
+            ),
+            sourceMessageId: msg.id,
+            sourceChatType: sourceChatType,
+            sourceFromUid: msg.authorId,
+            sourceToUid: parseModelString(sourceMetadata?['peer_id']),
+            newMessageId: messageId,
+            targetScope: scope.scope,
+            targetConversationId: scope.scopeRef ?? '',
+            forwarderUid: forwarderUid,
+          );
+          payload = applyForwardedAttachment(
+            buildForwardPayload(
+              sourceMetadata: sourceMetadata,
+              text: msg is TextMessage ? msg.text : '',
+              peerId: conversation.peerId,
+              conversationUk3: conversation.uk3,
+            ),
+            forwarded,
+          );
+      }
+      final msgType = resolveForwardMsgType(sourceMetadata);
+
+      // 创建 MessageModel（id 与重封装上传锚点同值；NotSealed 分支为全新 Xid）
       final msgModel = MessageModel(
-        Xid().toString(),
+        messageId,
         autoId: 0,
         type: chatType,
         status: 10, // 发送中
@@ -145,6 +284,12 @@ class SendToNotifier extends Notifier<SendToState> {
       );
 
       return true;
+    } on AttachmentForwardException catch (e) {
+      // 转发失败（明文目标域 / 源不可解密 / 下载上传失败）：落库前抛出，
+      // 无半转发状态；重试 = 全新消息 id + 全新密钥重封装，幂等。
+      // 日志按 Finding 014 口径只落稳定码，不输出异常对象。
+      debugPrint('[send_to_provider] forward blocked, reason=${e.reason}');
+      AppLoading.showError(forwardFailureToast(e.reason));
     } on Exception catch (e) {
       debugPrint('[send_to_provider] block error: $e');
     }

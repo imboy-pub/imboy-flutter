@@ -894,6 +894,8 @@ e2eeErrPeerNotOnboarded: Die Gegenseite war noch auf keinem Gerät angemeldet, v
 e2eeRecoveryKeyTitle: Wiederherstellungsschlüssel
 e2eeRecoveryKeyCopiedAutoClear(seconds): Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in $seconds Sek. automatisch geleert. Bitte schnellstmöglich sichern
 e2eeErrAttachmentSeal: "Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen"
+e2eeErrForwardPlaintextTarget: "Der Ziel-Chat ist nicht Ende-zu-Ende-verschlüsselt; die verschlüsselte Datei kann nicht weitergeleitet werden"
+e2eeErrForwardUndecryptable: "Die ursprüngliche verschlüsselte Datei kann auf diesem Gerät nicht entschlüsselt werden; Weiterleitung fehlgeschlagen"
 e2eeRetryFailedMessages: "Nachrichten mit Entschlüsselungsfehler erneut versuchen"
 e2eeRetryFailedDone(count): "$count Nachrichten mit Entschlüsselungsfehler erneut versucht"
 e2eeRetryFailedNone: "Keine Nachrichten zum Wiederholen"

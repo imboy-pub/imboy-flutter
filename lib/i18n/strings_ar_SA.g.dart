@@ -1592,6 +1592,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeRecoveryKeyTitle => 'مفتاح الاستعادة';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'تم نسخ مفتاح الاستعادة، وسيُمسَح الحافظة تلقائياً بعد ${seconds} ثانية، يرجى حفظه سريعاً';
 	@override String get e2eeErrAttachmentSeal => 'فشل تغليف المرفق المشفّر، ولم يتم تحميل الملف. حاول مرة أخرى لاحقاً';
+	@override String get e2eeErrForwardPlaintextTarget => 'المحادثة الهدف ليست مشفرة من الطرف إلى الطرف، لا يمكن إعادة توجيه المرفق المشفر';
+	@override String get e2eeErrForwardUndecryptable => 'تعذر فك تشفير المرفق المشفر الأصلي على هذا الجهاز، فشلت إعادة التوجيه';
 	@override String get e2eeRetryFailedMessages => 'إعادة محاولة الرسائل التي فشل فك تشفيرها';
 	@override String e2eeRetryFailedDone({required Object count}) => 'تمت إعادة محاولة ${count} رسالة فشل فك تشفيرها';
 	@override String get e2eeRetryFailedNone => 'لا توجد رسائل لإعادة المحاولة';
@@ -4625,6 +4627,8 @@ extension on TranslationsArSa {
 			'common.e2eeRecoveryKeyTitle' => 'مفتاح الاستعادة',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'تم نسخ مفتاح الاستعادة، وسيُمسَح الحافظة تلقائياً بعد ${seconds} ثانية، يرجى حفظه سريعاً',
 			'common.e2eeErrAttachmentSeal' => 'فشل تغليف المرفق المشفّر، ولم يتم تحميل الملف. حاول مرة أخرى لاحقاً',
+			'common.e2eeErrForwardPlaintextTarget' => 'المحادثة الهدف ليست مشفرة من الطرف إلى الطرف، لا يمكن إعادة توجيه المرفق المشفر',
+			'common.e2eeErrForwardUndecryptable' => 'تعذر فك تشفير المرفق المشفر الأصلي على هذا الجهاز، فشلت إعادة التوجيه',
 			'common.e2eeRetryFailedMessages' => 'إعادة محاولة الرسائل التي فشل فك تشفيرها',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'تمت إعادة محاولة ${count} رسالة فشل فك تشفيرها',
 			'common.e2eeRetryFailedNone' => 'لا توجد رسائل لإعادة المحاولة',
@@ -4720,10 +4724,10 @@ extension on TranslationsArSa {
 			'discovery.momentsVisibilityExclude' => 'إخفاء عن...',
 			'discovery.momentsDraftRestored' => 'تمت استعادة المسودة الأخيرة',
 			'discovery.momentsFeedStale' => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً',
-			'discovery.momentActionLike' => 'إعجاب',
-			'discovery.momentActionCancelLike' => 'إلغاء الإعجاب',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentActionLike' => 'إعجاب',
+			'discovery.momentActionCancelLike' => 'إلغاء الإعجاب',
 			'discovery.momentActionComment' => 'تعليق',
 			'discovery.momentActionDelete' => 'حذف',
 			'discovery.momentActionReport' => 'إبلاغ',
@@ -5234,10 +5238,10 @@ extension on TranslationsArSa {
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'فشل الإنشاء: ${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => 'تم الإرسال. بانتظار مراجعة فريق العمليات؛ يمكن استخدام المؤسسة بشكل طبيعي بعد الموافقة',
 			'organization.home.tabOrg' => 'المنظمات',
-			'organization.home.myInvitations' => 'دعواتي',
-			'organization.home.emptyHint' => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.myInvitations' => 'دعواتي',
+			'organization.home.emptyHint' => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين',
 			'organization.detail.leaveOrg' => 'مغادرة المؤسسة',
 			'organization.detail.leaveOrgBody' => 'تُلغي المغادرة الوصول إلى دليل المؤسسة ومجموعاتها وقنواتها وملفاتها. تبقى ملفات المؤسسة محفوظة. يلزم الحصول على دعوة للانضمام مجددًا.',
 			'organization.detail.leaveFailed' => 'تعذرت المغادرة',
@@ -5748,10 +5752,10 @@ extension on TranslationsArSa {
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'الانتقال إلى «${status}»',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'إعادة ${title} إلى…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'تم الانتقال إلى «${status}»',
-			'workspace.taskEmptyTitle' => 'لا توجد مهام بعد',
-			'workspace.taskEmptySubtitle' => 'تتبّع التنفيذ بأربع حالات: قيد الانتظار ← قيد التنفيذ ← قيد المراجعة ← مكتملة',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskEmptyTitle' => 'لا توجد مهام بعد',
+			'workspace.taskEmptySubtitle' => 'تتبّع التنفيذ بأربع حالات: قيد الانتظار ← قيد التنفيذ ← قيد المراجعة ← مكتملة',
 			'workspace.projectsLoadMore' => 'تحميل المزيد',
 			'workspace.projectW2SectionTitle' => 'تعاون المشروع',
 			'workspace.projectMembersEntry' => 'الأعضاء',

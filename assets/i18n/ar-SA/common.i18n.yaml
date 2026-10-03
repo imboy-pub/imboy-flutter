@@ -872,6 +872,8 @@ e2eeErrPeerNotOnboarded: لم يسجّل الطرف الآخر الدخول عل
 e2eeRecoveryKeyTitle: مفتاح الاستعادة
 e2eeRecoveryKeyCopiedAutoClear(seconds): تم نسخ مفتاح الاستعادة، وسيُمسَح الحافظة تلقائياً بعد $seconds ثانية، يرجى حفظه سريعاً
 e2eeErrAttachmentSeal: "فشل تغليف المرفق المشفّر، ولم يتم تحميل الملف. حاول مرة أخرى لاحقاً"
+e2eeErrForwardPlaintextTarget: "المحادثة الهدف ليست مشفرة من الطرف إلى الطرف، لا يمكن إعادة توجيه المرفق المشفر"
+e2eeErrForwardUndecryptable: "تعذر فك تشفير المرفق المشفر الأصلي على هذا الجهاز، فشلت إعادة التوجيه"
 e2eeRetryFailedMessages: "إعادة محاولة الرسائل التي فشل فك تشفيرها"
 e2eeRetryFailedDone(count): "تمت إعادة محاولة $count رسالة فشل فك تشفيرها"
 e2eeRetryFailedNone: "لا توجد رسائل لإعادة المحاولة"

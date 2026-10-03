@@ -838,6 +838,8 @@ declineCall: 거절
 e2eeErrPeerNotOnboarded: 상대방이 어떤 기기에서도 로그인한 적이 없어 암호화 전송이 일시적으로 불가합니다. 상대방이 로그인한 후 다시 시도해 주세요
 e2eeRecoveryKeyCopiedAutoClear(seconds): 복구 키가 복사되었습니다. $seconds초 후 클립보드에서 자동으로 지워지니 빨리 저장해 주세요
 e2eeErrAttachmentSeal: "암호화 첨부 파일 봉인에 실패하여 파일이 업로드되지 않았습니다. 잠시 후 다시 시도해 주세요"
+e2eeErrForwardPlaintextTarget: "대화 상대가 종단 간 암호화되어 있지 않아 암호화 첨부 파일을 전달할 수 없습니다"
+e2eeErrForwardUndecryptable: "원본 암호화 첨부 파일을 이 기기에서 복호화할 수 없어 전달에 실패했습니다"
 e2eeRetryFailedMessages: "복호화에 실패한 메시지 다시 시도"
 e2eeRetryFailedDone(count): "복호화에 실패한 메시지 $count건을 다시 시도했습니다"
 e2eeRetryFailedNone: "재시도할 메시지가 없습니다"

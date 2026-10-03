@@ -1614,6 +1614,8 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeRecoveryKeyTitle => 'Wiederherstellungsschlüssel';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in ${seconds} Sek. automatisch geleert. Bitte schnellstmöglich sichern';
 	@override String get e2eeErrAttachmentSeal => 'Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen';
+	@override String get e2eeErrForwardPlaintextTarget => 'Der Ziel-Chat ist nicht Ende-zu-Ende-verschlüsselt; die verschlüsselte Datei kann nicht weitergeleitet werden';
+	@override String get e2eeErrForwardUndecryptable => 'Die ursprüngliche verschlüsselte Datei kann auf diesem Gerät nicht entschlüsselt werden; Weiterleitung fehlgeschlagen';
 	@override String get e2eeRetryFailedMessages => 'Nachrichten mit Entschlüsselungsfehler erneut versuchen';
 	@override String e2eeRetryFailedDone({required Object count}) => '${count} Nachrichten mit Entschlüsselungsfehler erneut versucht';
 	@override String get e2eeRetryFailedNone => 'Keine Nachrichten zum Wiederholen';
@@ -4647,6 +4649,8 @@ extension on TranslationsDeDe {
 			'common.e2eeRecoveryKeyTitle' => 'Wiederherstellungsschlüssel',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in ${seconds} Sek. automatisch geleert. Bitte schnellstmöglich sichern',
 			'common.e2eeErrAttachmentSeal' => 'Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen',
+			'common.e2eeErrForwardPlaintextTarget' => 'Der Ziel-Chat ist nicht Ende-zu-Ende-verschlüsselt; die verschlüsselte Datei kann nicht weitergeleitet werden',
+			'common.e2eeErrForwardUndecryptable' => 'Die ursprüngliche verschlüsselte Datei kann auf diesem Gerät nicht entschlüsselt werden; Weiterleitung fehlgeschlagen',
 			'common.e2eeRetryFailedMessages' => 'Nachrichten mit Entschlüsselungsfehler erneut versuchen',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '${count} Nachrichten mit Entschlüsselungsfehler erneut versucht',
 			'common.e2eeRetryFailedNone' => 'Keine Nachrichten zum Wiederholen',
@@ -4711,10 +4715,10 @@ extension on TranslationsDeDe {
 			'discovery.momentsVisibilityExclude' => 'Ausnahmen',
 			'discovery.momentsDraftRestored' => 'Letzter Entwurf wiederhergestellt',
 			'discovery.momentsFeedStale' => 'Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt',
-			'discovery.momentActionLike' => 'Gefällt mir',
-			'discovery.momentActionCancelLike' => 'Gefällt mir nicht mehr',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentActionLike' => 'Gefällt mir',
+			'discovery.momentActionCancelLike' => 'Gefällt mir nicht mehr',
 			'discovery.momentActionComment' => 'Kommentieren',
 			'discovery.momentActionDelete' => 'Löschen',
 			'discovery.momentActionReport' => 'Melden',
@@ -5225,10 +5229,10 @@ extension on TranslationsDeDe {
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Erstellen fehlgeschlagen: ${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => 'Übermittelt. Wartet auf die Prüfung durch das Betreiberteam; das Unternehmen kann nach Genehmigung normal genutzt werden',
 			'organization.home.tabOrg' => 'Organisationen',
-			'organization.home.myInvitations' => 'Meine Einladungen',
-			'organization.home.emptyHint' => 'Du bist noch keiner Organisation beigetreten\nZum Aktualisieren nach unten ziehen oder oben rechts erstellen',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.myInvitations' => 'Meine Einladungen',
+			'organization.home.emptyHint' => 'Du bist noch keiner Organisation beigetreten\nZum Aktualisieren nach unten ziehen oder oben rechts erstellen',
 			'organization.detail.leaveOrg' => 'Organisation verlassen',
 			'organization.detail.leaveOrgBody' => 'Der Austritt entzieht den Zugriff auf Verzeichnis, Gruppen, Kanäle und Dateien. Organisationsdateien bleiben erhalten. Für den Wiedereintritt ist eine Einladung erforderlich.',
 			'organization.detail.leaveFailed' => 'Austritt fehlgeschlagen',
@@ -5739,10 +5743,10 @@ extension on TranslationsDeDe {
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Weiter zu „${status}“',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} zurücksetzen auf…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Verschoben zu „${status}“',
-			'workspace.taskEmptyTitle' => 'Noch keine Aufgaben',
-			'workspace.taskEmptySubtitle' => 'Verfolgen Sie die Ausführung in vier Status: Offen → In Bearbeitung → In Prüfung → Abgeschlossen',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskEmptyTitle' => 'Noch keine Aufgaben',
+			'workspace.taskEmptySubtitle' => 'Verfolgen Sie die Ausführung in vier Status: Offen → In Bearbeitung → In Prüfung → Abgeschlossen',
 			'workspace.projectsLoadMore' => 'Mehr laden',
 			'workspace.projectW2SectionTitle' => 'Projektzusammenarbeit',
 			'workspace.projectMembersEntry' => 'Mitglieder',

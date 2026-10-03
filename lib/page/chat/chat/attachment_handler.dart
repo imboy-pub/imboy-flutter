@@ -146,7 +146,11 @@ class ChatAttachmentHandler {
   /// - C2G → (scope: 'group', scopeRef: group_id == peerId)
   /// - C2C → (scope: 'c2c', scopeRef: `c2c:<minUid>:<maxUid>` 整数归一化顺序)
   /// - C2S/未知 → (scope: 'private', scopeRef: null) 避免误标可见范围（fail-safe）
-  @visibleForTesting
+  ///
+  /// FWDFIX：转发重封装（send_to_provider → AttachmentForward）复用本函数
+  /// 推导目标会话 scope —— 上传 scope 与绑定值 conversation_id 必须同源，
+  /// 两份实现哪怕只在排序回退上分歧都会变成隐性错配（见 [_c2cConvKey]），
+  /// 因此保持 public static。
   static ({String scope, String? scopeRef}) deriveUploadScope({
     required String conversationUk3,
     required String currentUid,

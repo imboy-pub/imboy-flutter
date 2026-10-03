@@ -841,6 +841,8 @@ declineCall: Rifiuta
 e2eeErrPeerNotOnboarded: "L'altro non ha ancora effettuato l'accesso da nessun dispositivo, impossibile inviare in cifratura per ora; attendi che l'altro effettui l'accesso e riprova"
 e2eeRecoveryKeyCopiedAutoClear(seconds): "Chiave di recupero copiata, gli appunti verranno cancellati automaticamente tra $seconds secondi, salvala al più presto"
 e2eeErrAttachmentSeal: "Impossibile sigillare l'allegato crittografato, il file non è stato caricato. Riprova più tardi"
+e2eeErrForwardPlaintextTarget: "La chat di destinazione non è cifrata end-to-end, l'allegato cifrato non può essere inoltrato"
+e2eeErrForwardUndecryptable: "Impossibile decifrare l'allegato cifrato originale su questo dispositivo; inoltro non riuscito"
 e2eeRetryFailedMessages: "Riprova i messaggi non decifrati"
 e2eeRetryFailedDone(count): "Ritentata la decifratura di $count messaggi"
 e2eeRetryFailedNone: "Nessun messaggio da riprovare"

@@ -1561,6 +1561,8 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeErrPeerNotOnboarded => 'Votre correspondant ne s\'est encore connecté sur aucun appareil ; l\'envoi chiffré est impossible pour l\'instant. Réessayez une fois qu\'il sera connecté';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Clé de récupération copiée ; le presse-papiers sera effacé automatiquement dans ${seconds} secondes, enregistrez-la sans tarder';
 	@override String get e2eeErrAttachmentSeal => 'Échec du scellement de la pièce jointe chiffrée ; le fichier n\'a pas été téléversé. Veuillez réessayer plus tard';
+	@override String get e2eeErrForwardPlaintextTarget => 'La conversation cible n\'est pas chiffrée de bout en bout, la pièce jointe chiffrée ne peut pas être transférée';
+	@override String get e2eeErrForwardUndecryptable => 'La pièce jointe chiffrée d\'origine ne peut pas être déchiffrée sur cet appareil ; échec du transfert';
 	@override String get e2eeRetryFailedMessages => 'Réessayer les messages dont le déchiffrement a échoué';
 	@override String e2eeRetryFailedDone({required Object count}) => '${count} messages dont le déchiffrement a échoué ont été réessayés';
 	@override String get e2eeRetryFailedNone => 'Aucun message à réessayer';
@@ -4594,6 +4596,8 @@ extension on TranslationsFrFr {
 			'common.e2eeErrPeerNotOnboarded' => 'Votre correspondant ne s\'est encore connecté sur aucun appareil ; l\'envoi chiffré est impossible pour l\'instant. Réessayez une fois qu\'il sera connecté',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Clé de récupération copiée ; le presse-papiers sera effacé automatiquement dans ${seconds} secondes, enregistrez-la sans tarder',
 			'common.e2eeErrAttachmentSeal' => 'Échec du scellement de la pièce jointe chiffrée ; le fichier n\'a pas été téléversé. Veuillez réessayer plus tard',
+			'common.e2eeErrForwardPlaintextTarget' => 'La conversation cible n\'est pas chiffrée de bout en bout, la pièce jointe chiffrée ne peut pas être transférée',
+			'common.e2eeErrForwardUndecryptable' => 'La pièce jointe chiffrée d\'origine ne peut pas être déchiffrée sur cet appareil ; échec du transfert',
 			'common.e2eeRetryFailedMessages' => 'Réessayer les messages dont le déchiffrement a échoué',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '${count} messages dont le déchiffrement a échoué ont été réessayés',
 			'common.e2eeRetryFailedNone' => 'Aucun message à réessayer',
@@ -4711,10 +4715,10 @@ extension on TranslationsFrFr {
 			'discovery.momentsVisibilityExclude' => 'Exceptions',
 			'discovery.momentsDraftRestored' => 'Brouillon précédent restauré',
 			'discovery.momentsFeedStale' => 'Erreur réseau, affichage du cache',
-			'discovery.momentActionLike' => 'J\'aime',
-			'discovery.momentActionCancelLike' => 'Je n\'aime plus',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentActionLike' => 'J\'aime',
+			'discovery.momentActionCancelLike' => 'Je n\'aime plus',
 			'discovery.momentActionComment' => 'Commenter',
 			'discovery.momentActionDelete' => 'Supprimer',
 			'discovery.momentActionReport' => 'Signaler',
@@ -5225,10 +5229,10 @@ extension on TranslationsFrFr {
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Échec de la création : ${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => 'Envoyé. En attente de validation par l\'équipe des opérations ; l\'entreprise pourra être utilisée normalement une fois validée',
 			'organization.home.tabOrg' => 'Organisations',
-			'organization.home.myInvitations' => 'Mes invitations',
-			'organization.home.emptyHint' => 'Vous n\'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.myInvitations' => 'Mes invitations',
+			'organization.home.emptyHint' => 'Vous n\'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite',
 			'organization.detail.leaveOrg' => 'Quitter l’organisation',
 			'organization.detail.leaveOrgBody' => 'Vous perdrez l’accès à l’annuaire, aux groupes, aux canaux et aux fichiers. Les fichiers restent conservés. Une invitation est nécessaire pour revenir.',
 			'organization.detail.leaveFailed' => 'Impossible de quitter',
@@ -5739,10 +5743,10 @@ extension on TranslationsFrFr {
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Faire avancer vers « ${status} »',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Replacer ${title} à…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Déplacé vers « ${status} »',
-			'workspace.taskEmptyTitle' => 'Aucune tâche pour le moment',
-			'workspace.taskEmptySubtitle' => 'Suivez l\'exécution en quatre états : à faire → en cours → en revue → terminé',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskEmptyTitle' => 'Aucune tâche pour le moment',
+			'workspace.taskEmptySubtitle' => 'Suivez l\'exécution en quatre états : à faire → en cours → en revue → terminé',
 			'workspace.projectsLoadMore' => 'Charger plus',
 			'workspace.projectW2SectionTitle' => 'Collaboration du projet',
 			'workspace.projectMembersEntry' => 'Membres',
