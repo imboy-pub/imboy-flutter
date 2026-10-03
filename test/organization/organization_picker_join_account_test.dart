@@ -2,6 +2,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,9 @@ import 'package:imboy/service/storage.dart';
 const _accountKey = '91001';
 
 class _MineAdapter implements HttpClientAdapter {
+  _MineAdapter({this.deferredStage});
+  final String? deferredStage;
+  final pending = Completer<ResponseBody>();
   int calls = 0;
   int previewCalls = 0;
   int joinCalls = 0;
@@ -31,6 +35,7 @@ class _MineAdapter implements HttpClientAdapter {
     calls++;
     if (options.path.endsWith('/invite_code/preview')) {
       previewCalls++;
+      if (deferredStage == 'preview') return pending.future;
       return response({
         'organization_id': 7999,
         'name': 'old fixture organization',
@@ -38,6 +43,7 @@ class _MineAdapter implements HttpClientAdapter {
     }
     if (options.path.endsWith('/invite_code/join')) {
       joinCalls++;
+      if (deferredStage == 'join') return pending.future;
       return response({
         'status': 'joined',
         'join': {'organization_id': 7999},
@@ -98,6 +104,62 @@ Widget _host(ValueNotifier<String> account) => TranslationProvider(
     ),
   ),
 );
+
+Future<void> _pumpFrames(WidgetTester tester) async {
+  for (var i = 0; i < 10; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
+Future<void> _waitSubmission(
+  WidgetTester tester,
+  Future<void> submission,
+) async {
+  var completed = false;
+  final tracked = submission.whenComplete(() => completed = true);
+  for (var i = 0; i < 30 && !completed; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(completed, isTrue, reason: 'Actual submit callback must finish');
+  await tracked;
+}
+
+Future<void> _submit(WidgetTester tester) {
+  final callback = tester
+      .widget<FilledButton>(find.byKey(const ValueKey('org-join-submit')))
+      .onPressed;
+  expect(callback, isNotNull);
+  // The production widget wires the async _submit tear-off to VoidCallback.
+  final dynamic actualCallback = callback;
+  return actualCallback() as Future<void>;
+}
+
+Future<void> _openJoin(
+  WidgetTester tester,
+  ValueNotifier<String> account,
+) async {
+  await tester.pumpWidget(_host(account));
+  await pumpUntilFound(
+    tester,
+    find.byKey(const ValueKey('org-picker-join-entry')),
+  );
+  await tester.tap(find.byKey(const ValueKey('org-picker-join-entry')));
+  await tester.pumpAndSettle();
+  await tester.enterText(
+    find.byKey(const ValueKey('org-join-code-field')),
+    'ABCD2345',
+  );
+}
+
+Future<void> _roundTrip(
+  WidgetTester tester,
+  ValueNotifier<String> account,
+) async {
+  account.value = '91002';
+  await _pumpFrames(tester);
+  account.value = _accountKey;
+  await _pumpFrames(tester);
+}
 
 void main() {
   setUp(() async {
@@ -206,6 +268,71 @@ void main() {
           await tester.pumpAndSettle();
           expect(adapter.previewCalls, previewFirst ? 1 : 0);
           expect(adapter.joinCalls, 0);
+        },
+      );
+    }
+  }
+  for (final lateJoin in [false, true]) {
+    for (final staleFailure in [false, true]) {
+      testWidgets(
+        '账号往返后旧${lateJoin ? '加入' : '预览'}${staleFailure ? '失败' : '成功'}响应不得更新弹窗',
+        (tester) async {
+          final account = ValueNotifier(_accountKey);
+          addTearDown(account.dispose);
+          addTearDown(() => OrganizationCache.disposeAccount('91002'));
+          addTearDown(() => CurrentOrganizationStore.disposeAccount('91002'));
+          final adapter = _MineAdapter(
+            deferredStage: lateJoin ? 'join' : 'preview',
+          );
+          HttpClient.adapterForTest = adapter;
+          await _openJoin(tester, account);
+          if (lateJoin) {
+            final preview = _submit(tester);
+            await _waitSubmission(tester, preview);
+            await pumpUntilFound(
+              tester,
+              find.byKey(const ValueKey('org-join-org-name')),
+            );
+          }
+          final submission = _submit(tester);
+          await _pumpFrames(tester);
+          expect(adapter.previewCalls, 1);
+          expect(adapter.joinCalls, lateJoin ? 1 : 0);
+          await _roundTrip(tester, account);
+          if (staleFailure) {
+            adapter.pending.completeError(
+              StateError('synthetic stale request failure'),
+            );
+          } else {
+            adapter.pending.complete(
+              adapter.response(
+                lateJoin
+                    ? {
+                        'status': 'joined',
+                        'join': {'organization_id': 7999},
+                      }
+                    : {
+                        'organization_id': 7999,
+                        'name': 'old fixture organization',
+                      },
+              ),
+            );
+          }
+          await _waitSubmission(tester, submission);
+          await _pumpFrames(tester);
+          expect(find.byType(AlertDialog), findsOneWidget);
+          expect(
+            ModalRoute.of(tester.element(find.byType(AlertDialog)))?.isCurrent,
+            isTrue,
+          );
+          expect(find.byKey(const ValueKey('org-join-error')), findsNothing);
+          if (!lateJoin) {
+            expect(
+              find.byKey(const ValueKey('org-join-org-name')),
+              findsNothing,
+            );
+          }
+          expect(adapter.joinCalls, lateJoin ? 1 : 0);
         },
       );
     }
