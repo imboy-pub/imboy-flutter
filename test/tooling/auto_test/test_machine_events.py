@@ -25,6 +25,45 @@ def load_lines(name):
 
 
 class ParseMachineEventsTest(unittest.TestCase):
+    def test_current_reporter_skipped_success_is_not_pass(self):
+        lines = [
+            '{"type":"testDone","testID":1,"result":"success",'
+            '"hidden":false,"skipped":true}',
+            '{"type":"done","success":true}',
+        ]
+        result = parse_machine_events(lines, process_exit_code=0)
+        self.assertEqual(result.skipped, 1)
+        self.assertEqual(result.test_status, 'BLOCKED')
+        self.assertEqual(result.reason_code, 'ALL_SKIPPED')
+
+    def test_current_reporter_mixed_skip_cannot_be_full_pass(self):
+        lines = [
+            '{"type":"testDone","testID":1,"result":"success",'
+            '"hidden":false,"skipped":true}',
+            '{"type":"testDone","testID":2,"result":"success",'
+            '"hidden":false,"skipped":false}',
+            '{"type":"done","success":true}',
+        ]
+        result = parse_machine_events(lines, process_exit_code=0)
+        self.assertEqual(result.test_status, 'PASS_WITH_SKIPS')
+        self.assertEqual(result.skipped, 1)
+
+    def test_done_reports_failure_even_when_visible_test_succeeded(self):
+        lines = [
+            '{"type":"testDone","testID":1,"result":"success"}',
+            '{"type":"done","success":false}',
+        ]
+        self.assertEqual(parse_machine_events(lines, 0).test_status, 'FAIL')
+
+    def test_done_null_is_an_interrupted_runner_not_a_pass(self):
+        lines = [
+            '{"type":"testDone","testID":1,"result":"success"}',
+            '{"type":"done","success":null}',
+        ]
+        parsed = parse_machine_events(lines, 0)
+        self.assertEqual(parsed.test_status, 'BLOCKED')
+        self.assertEqual(parsed.reason_code, 'RUNNER_CRASH')
+
     def test_pass_fixture_maps_pass(self):
         result = parse_machine_events(load_lines("pass.jsonl"), process_exit_code=0)
         self.assertEqual(result.test_status, "PASS")
