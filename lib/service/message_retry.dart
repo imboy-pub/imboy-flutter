@@ -637,6 +637,7 @@ class MessageRetry with EventSubscriptionManager {
         WebSocketMessageSendRequestEvent(
           message: json.encode(messageData),
           messageId: info.messageId,
+          sessionGeneration: info.sessionGeneration,
         ),
       );
 
@@ -746,6 +747,7 @@ class MessageRetry with EventSubscriptionManager {
         WebSocketMessageSendRequestEvent(
           message: json.encode(messageData),
           messageId: messageId,
+          sessionGeneration: generation,
         ),
       );
 

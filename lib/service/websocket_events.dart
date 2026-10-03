@@ -19,6 +19,8 @@
 /// ```
 library;
 
+import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'package:imboy/service/events/base_event.dart';
 
 // ============================================================================
@@ -119,14 +121,19 @@ final class WebSocketMessageSendRequestEvent extends AppEvent {
   /// 优先级（可选）
   final int priority;
 
-  const WebSocketMessageSendRequestEvent({
+  /// 会话代次在创建时冻结，消费时必须仍然有效。
+  final int sessionGeneration;
+
+  WebSocketMessageSendRequestEvent({
     required this.message,
     this.messageId,
     this.priority = 0,
-  });
+    int? sessionGeneration,
+  }) : sessionGeneration =
+           sessionGeneration ?? UserRepoLocal.to.sessionGeneration;
 
   @override
-  List<Object?> get props => [message, messageId, priority];
+  List<Object?> get props => [message, messageId, priority, sessionGeneration];
 }
 
 /// 消息发送成功事件

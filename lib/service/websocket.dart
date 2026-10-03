@@ -97,6 +97,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   @visibleForTesting
   set channelForTest(WebSocketChannel? channel) => _channel = channel;
 
+  @visibleForTesting
+  set statusForTest(SocketStatus status) => _status = status;
+
+  @visibleForTesting
+  void handleSendRequestForTest(WebSocketMessageSendRequestEvent event) =>
+      _handleMessageSendRequest(event);
+
   /// 【测试】暴露 v2 业务帧编码
   @visibleForTesting
   Uint8List encodeV2BusinessFrameForTest(String message) =>
@@ -156,6 +163,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 处理消息发送请求事件
   void _handleMessageSendRequest(WebSocketMessageSendRequestEvent event) {
+    final session = UserRepoLocal.to;
+    if (!session.isCurrentSession(event.sessionGeneration) ||
+        session.isClearingSession) {
+      return;
+    }
     sendMessage(event.message, event.messageId);
   }
 
