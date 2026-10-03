@@ -969,6 +969,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         if (_channel == null || !current()) break;
         final queued = _messageQueue.dequeueByPriority(
           eligible: (entry) =>
+              !entry.quarantined &&
               entry.ownerUid == ownerUid &&
               entry.sessionGeneration == generation,
         );

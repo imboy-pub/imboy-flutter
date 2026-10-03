@@ -15,6 +15,7 @@ class QueuedMessage {
   final DateTime createdAt;
   final String ownerUid;
   final int? sessionGeneration;
+  final bool quarantined;
 
   QueuedMessage({
     required this.id,
@@ -23,6 +24,7 @@ class QueuedMessage {
     DateTime? createdAt,
     this.ownerUid = '',
     this.sessionGeneration,
+    this.quarantined = false,
   }) : createdAt = createdAt ?? DateTime.now();
 
   String get deduplicationKey => jsonEncode([ownerUid, sessionGeneration, id]);
@@ -34,6 +36,7 @@ class QueuedMessage {
     'priority': priority,
     'createdAt': createdAt.toIso8601String(),
     'ownerUid': ownerUid,
+    'quarantined': quarantined,
   };
 
   /// 从 JSON 创建实例
@@ -42,7 +45,10 @@ class QueuedMessage {
     data: json['data'] as String,
     priority: json['priority'] as int? ?? 0,
     ownerUid: json['ownerUid'] as String? ?? '',
-    sessionGeneration: UserRepoLocal.to.sessionGeneration,
+    quarantined: json['quarantined'] == true,
+    sessionGeneration: json['quarantined'] == true
+        ? null
+        : UserRepoLocal.to.sessionGeneration,
     createdAt: json['createdAt'] != null
         ? DateTime.parse(json['createdAt'] as String)
         : null,
@@ -111,17 +117,45 @@ class PersistentMessageQueue {
   Future<PersistentMessageQueue> init() async {
     _prefs = await SharedPreferences.getInstance();
     final jsonList = _prefs?.getStringList(_storageKey) ?? [];
+    final groups = <String, List<QueuedMessage>>{};
     for (final jsonStr in jsonList) {
       try {
         final json = jsonDecode(jsonStr) as Map<String, dynamic>;
         final msg = QueuedMessage.fromJson(json);
-        _priorityQueues[msg.priority]!.addLast(msg);
-        _deduplicationSet.add(msg.deduplicationKey);
+        final key = jsonEncode([msg.ownerUid, msg.id]);
+        groups.putIfAbsent(key, () => []).add(msg);
       } catch (e) {
         iPrint('⚠️ [QUEUE] 恢复消息失败: $e');
       }
     }
+    for (final group in groups.values) {
+      _restoreGroup(group);
+    }
+    final saved = await _prefs?.setStringList(
+      _storageKey,
+      messages.map((entry) => jsonEncode(entry.toJson())).toList(),
+    );
+    if (saved == false) throw StateError('Queue recovery persistence failed');
     return this;
+  }
+
+  void _restoreGroup(List<QueuedMessage> group) {
+    final conflict = group.map((entry) => entry.data).toSet().length > 1;
+    final quarantined = conflict || group.any((entry) => entry.quarantined);
+    for (final entry in conflict ? group : group.take(1)) {
+      final restored = quarantined
+          ? QueuedMessage(
+              id: entry.id,
+              data: entry.data,
+              priority: entry.priority,
+              createdAt: entry.createdAt,
+              ownerUid: entry.ownerUid,
+              quarantined: true,
+            )
+          : entry;
+      _priorityQueues[restored.priority.clamp(0, 2)]!.addLast(restored);
+      _deduplicationSet.add(restored.deduplicationKey);
+    }
   }
 
   /// 获取只读消息列表（所有优先级）
@@ -238,6 +272,7 @@ class PersistentMessageQueue {
           createdAt: msg.createdAt,
           ownerUid: msg.ownerUid,
           sessionGeneration: msg.sessionGeneration,
+          quarantined: msg.quarantined,
         );
         _priorityQueues[newPriority.clamp(0, 2)]!.addLast(updatedMsg);
         _save();

@@ -274,4 +274,67 @@ void main() {
       0,
     );
   });
+  for (final conflict in [false, true]) {
+    test('restore same owner ID conflicting=$conflict', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final rows = ['old', conflict ? 'new' : 'old']
+          .map(
+            (data) => jsonEncode({
+              'id': 'restore-conflict',
+              'ownerUid': '100',
+              'priority': 0,
+              'data': data,
+              'createdAt': DateTime.now().toIso8601String(),
+            }),
+          )
+          .toList();
+      await prefs.setStringList('ws_message_queue', rows);
+      await PersistentMessageQueue.to.init();
+      final svc = WebSocketService.to;
+      final fake = _FakeChannel();
+      svc.channelForTest = fake;
+      svc.statusForTest = SocketStatus.connected;
+      await svc.flushMessageQueueForTest();
+      expect(fake._sink.sent, conflict ? isEmpty : hasLength(1));
+      if (conflict) expect(PersistentMessageQueue.to.messages, hasLength(2));
+    });
+  }
+  test(
+    'conflict remains quarantined after expiry leaves one restored row',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final rows = ['old', 'new']
+          .map(
+            (data) => jsonEncode({
+              'id': 'durable-conflict',
+              'ownerUid': '100',
+              'priority': 0,
+              'data': data,
+              'createdAt':
+                  (data == 'old'
+                          ? DateTime.now().subtract(const Duration(hours: 25))
+                          : DateTime.now())
+                      .toIso8601String(),
+            }),
+          )
+          .toList();
+      await prefs.setStringList('ws_message_queue', rows);
+      final queue = PersistentMessageQueue.to;
+      await queue.init();
+      queue.cleanupExpired();
+      await pumpEventQueue();
+      final survivor = prefs.getStringList('ws_message_queue')!;
+      expect(survivor, hasLength(1));
+      queue.clear();
+      await prefs.setStringList('ws_message_queue', survivor);
+      await queue.init();
+      final svc = WebSocketService.to;
+      final fake = _FakeChannel();
+      svc.channelForTest = fake;
+      svc.statusForTest = SocketStatus.connected;
+      await svc.flushMessageQueueForTest();
+      expect(fake._sink.sent, isEmpty);
+      expect(queue.messages, hasLength(1));
+    },
+  );
 }
