@@ -219,7 +219,20 @@ class MessageActions {
   }
 
   Future<void> _handleReactionAction(Map<String, dynamic> data) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    void requireCurrent() {
+      if (uid.isEmpty ||
+          session.currentUid != uid ||
+          !session.isCurrentSession(generation) ||
+          session.isClearingSession) {
+        throw StateError('reaction action session changed');
+      }
+    }
+
     try {
+      requireCurrent();
       final msgType = parseModelString(data['type']);
       final payload = parseModelJsonMap(data['payload']) ?? {};
 
@@ -235,6 +248,7 @@ class MessageActions {
 
       final repo = MessageService.to.getMessageRepo(msgType);
       final msg = await repo.find(originalMsgId);
+      requireCurrent();
       if (msg == null) throw StateError('reaction target missing');
 
       final newPayload = Map<String, dynamic>.from(msg.payloadMap);
@@ -266,11 +280,15 @@ class MessageActions {
         'id': originalMsgId,
         'payload': json.encode(newPayload),
       });
+      requireCurrent();
       if (updatedRows != 1) throw StateError('reaction target update failed');
 
       final updated = await repo.find(originalMsgId);
+      requireCurrent();
       if (updated == null) throw StateError('updated reaction missing');
-      AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
+      final converted = await updated.toTypeMessage();
+      requireCurrent();
+      AppEventBus.fireData([converted], 'List<Message>');
     } on Object catch (e) {
       iPrint('❌ [_handleReactionAction] 处理消息表情失败: ${e.runtimeType}');
       rethrow;
