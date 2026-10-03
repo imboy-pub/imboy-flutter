@@ -554,6 +554,61 @@ void main() {
   });
 
   group('Organization 两阶段切换', () {
+    test('切换准备期间刷新不作废切换，也不让切换状态卡死', () async {
+      final src = FakeSource();
+      final c = _boot(src);
+      addTearDown(c.dispose);
+      src.pendingDepartments.first.complete(_page([_dept('d1')]));
+      await _tick();
+      final gen = c.generation;
+      final prepared = Completer<void>();
+      var committed = false;
+      final switching = c.switchOrganization(
+        const Organization(id: orgB, name: 'B 企业'),
+        prepare: (_) => prepared.future,
+        commit: (_) async => committed = true,
+      );
+      final refreshing = c.refresh();
+      await _tick();
+      expect(c.generation, gen);
+      expect(src.deptCalls, hasLength(1));
+      prepared.complete();
+      await switching;
+      await refreshing;
+      expect(committed, isTrue);
+      expect(c.switching, isFalse);
+      expect(c.switchTarget, isNull);
+      expect(c.identity!.organizationId, orgB);
+    });
+    test('切换提交期间刷新不干扰指针提交，完成后刷新仍可用', () async {
+      final src = FakeSource();
+      final c = _boot(src);
+      addTearDown(c.dispose);
+      src.pendingDepartments.first.complete(_page([_dept('d1')]));
+      await _tick();
+      final committed = Completer<void>();
+      final switching = c.switchOrganization(
+        const Organization(id: orgB, name: 'B 企业'),
+        prepare: (_) async {},
+        commit: (_) => committed.future,
+      );
+      await _tick();
+      final gen = c.generation;
+      await c.refresh();
+      expect(c.generation, gen);
+      expect(src.deptCalls, hasLength(1));
+      committed.complete();
+      await switching;
+      expect(c.switching, isFalse);
+      expect(c.identity!.organizationId, orgB);
+      src.pendingDepartments.last.complete(_page([_dept('b1')]));
+      await _tick();
+      final refreshing = c.refresh();
+      expect(src.deptCalls.last, '$orgB|p=-|c=-');
+      src.pendingDepartments.last.complete(_page([_dept('b2')]));
+      await refreshing;
+      expect(c.departments.items.single.id, 'b2');
+    });
     test('prepare 失败：完整 rollback（旧 Org/数据保留 + 可重试错误）', () async {
       final src = FakeSource()..membersPage = _page([_member('m1')]);
       final c = _boot(src);

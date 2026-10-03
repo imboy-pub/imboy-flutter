@@ -245,7 +245,9 @@ class HumanDirectoryController extends ChangeNotifier {
   /// 普通错误不清空旧数据；403/404 撤下当前目录并显示错误。
   Future<void> refresh() async {
     final id = _identity;
-    if (id == null || id.accountKey.isEmpty) return;
+    // A refresh must not invalidate an in-flight two-phase switch: its commit
+    // owns the organization pointer until success or rollback completes.
+    if (id == null || id.accountKey.isEmpty || _switching) return;
     final gen = ++_generation;
     final key = id.requestKey;
     final hasData =
