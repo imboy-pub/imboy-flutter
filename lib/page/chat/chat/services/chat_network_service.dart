@@ -520,6 +520,7 @@ class ChatNetworkService {
         );
         if (!current()) return false;
       } on E2eeSecurityException catch (e) {
+        if (!current()) return false;
         // 同 sendWsMsg：fail-closed 拒发 + 可见反馈，绝不落到明文分支。
         iPrint('🚫 [E2EE] 策略门拒发: msgId=${msg['id']}, reason=${e.reason}');
         AppLoading.showToast(getE2EEErrorMessage(e));
@@ -560,6 +561,7 @@ class ChatNetworkService {
             'ChatNetworkService.sendMessage: E2EE v2.0 加密成功 (${msg['id']})',
           );
         } catch (e) {
+          if (!current()) return false;
           // Finding 014：不输出异常对象/stackTrace（加密链异常可能携带明文/密文片段）
           iPrint(
             'ChatNetworkService.sendMessage: E2EE v2.0 加密失败: errType=${e.runtimeType}',
@@ -590,14 +592,17 @@ class ChatNetworkService {
     }
 
     if (!current()) return false;
+    final encoded = json.encode(msg);
+    if (!current()) return false;
     AppEventBus.fire(
       WebSocketMessageSendRequestEvent(
-        message: json.encode(msg),
+        message: encoded,
         messageId: msg['id']?.toString(),
         sessionGeneration: generation,
       ),
     );
 
+    if (!current()) return false;
     if (msgId != null && msgId.isNotEmpty) {
       final String type = msg['type']?.toString() ?? 'C2C';
       MessageRetry.instance.addToRetryQueue(msgId, type);

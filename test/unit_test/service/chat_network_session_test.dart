@@ -129,6 +129,15 @@ class _StatusDatabase extends _EmptyDatabase {
   }
 }
 
+class _ChangeOnSuccessfulEncode {
+  _ChangeOnSuccessfulEncode(this.change);
+  final void Function() change;
+  Object toJson() {
+    change();
+    return {'text': 'synthetic-content'};
+  }
+}
+
 class _ChangeOnEncode {
   _ChangeOnEncode(this.change);
   final void Function() change;
@@ -143,6 +152,63 @@ void main() {
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
   );
+  for (final stale in [false, true]) {
+    test('direct encoding completion session changed=$stale', () async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      SqliteService.setDbForTest(_EmptyDatabase());
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(secureChannel, (call) async {
+            if (call.method == 'write' &&
+                (call.arguments as Map)['key'] == 'secure_token') {
+              throw PlatformException(code: 'synthetic-login-stop');
+            }
+            return null;
+          });
+      final requests = <WebSocketMessageSendRequestEvent>[];
+      final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+          .listen(requests.add);
+      try {
+        await MessageRetry.instance.debugWaitForIdle();
+        Future<void>? changed;
+        final result = await const ChatNetworkService().sendMessage({
+          'id': 'synthetic-direct-encoding',
+          'type': 'C2C',
+          'from': '100',
+          'to': '200',
+          'msg_type': 'text',
+          'payload': _ChangeOnSuccessfulEncode(() {
+            if (stale) {
+              changed = expectLater(
+                UserRepoLocal.to.loginAfter('synthetic-session', {
+                  'uid': '101',
+                  'token': 'synthetic-token',
+                  'refreshtoken': 'synthetic-refresh',
+                }),
+                throwsA(isA<PlatformException>()),
+              );
+            }
+          }),
+        });
+        if (changed != null) await changed;
+        await pumpEventQueue();
+        expect(result, !stale);
+        expect(requests.length, stale ? 0 : 1);
+        expect(MessageRetry.instance.retryQueueSize, stale ? 0 : 1);
+        if (!stale) {
+          final frame = jsonDecode(requests.single.message) as Map;
+          expect((frame['payload'] as Map)['text'], 'synthetic-content');
+        }
+      } finally {
+        await subscription.cancel();
+        await MessageRetry.instance.debugWaitForIdle();
+        MessageRetry.instance.dispose();
+        SqliteService.setDbForTest(null);
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureChannel, null);
+      }
+    });
+  }
   test('anonymous status update starts no database write', () async {
     SharedPreferences.setMockInitialValues({Keys.currentUid: ''});
     await StorageService.init();
