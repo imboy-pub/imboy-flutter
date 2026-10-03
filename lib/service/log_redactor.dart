@@ -63,6 +63,20 @@ class LogRedactor {
     caseSensitive: false,
   );
 
+  // ─── C05：E2EE 密钥材料形态（密钥/pickle 不得进日志/上报） ───────────────
+  // PEM 私钥块（含 PKCS#1/#8、EC、OPENSSH 头）
+  static final RegExp _pemBlock = RegExp(
+    r'-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----',
+  );
+  // SQLCipher rawKey 字面量：x'<64 hex>'
+  static final RegExp _sqlcipherLiteral = RegExp(r"x'[0-9a-fA-F]{64}'");
+  // 256-bit hex 密钥（恰好 64 个 hex 字符；db_cipher_key 的存储形态。
+  // 前后置分隔捕获组避免吞掉相邻字符；不匹配更短的 hex（TSID/摘要误伤
+  // 控制），超长 hex 先截断到 64 位命中再由边界组保证独立段）。
+  static final RegExp _hex256 = RegExp(
+    r'(^|[^0-9a-fA-F])([0-9a-fA-F]{64})(?![0-9a-fA-F])',
+  );
+
   /// 捕获组保持前后分隔符，避免吞掉相邻字符
   static final RegExp _mobile = RegExp(r'(^|[^0-9])1[3-9][0-9]{9}([^0-9]|$)');
   static final RegExp _email = RegExp(
@@ -77,6 +91,9 @@ class LogRedactor {
   static String scrubText(String input) {
     var s = input.replaceAll(_jwt, _redacted);
     s = s.replaceAll(_bearer, _redacted);
+    s = s.replaceAll(_pemBlock, _redacted);
+    s = s.replaceAll(_sqlcipherLiteral, _redacted);
+    s = s.replaceAllMapped(_hex256, (m) => '${m.group(1)}$_redacted');
     s = s.replaceAllMapped(
       _mobile,
       (m) => '${m.group(1)}$_redacted${m.group(2)}',

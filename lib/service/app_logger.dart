@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/base_event.dart';
+import 'package:imboy/service/log_redactor.dart';
 
 /// 错误上报事件
 ///
@@ -102,16 +103,24 @@ class AppLogger {
   }
 
   /// 错误日志（开发和生产环境都输出）
+  ///
+  /// C05：error/fatal 是唯一在生产输出的级别（也是 ErrorReportEvent 的
+  /// 唯一来源），出口统一过 [LogRedactor.scrubText]——PEM 私钥块 /
+  /// 64-hex 密钥 / JWT / Bearer 等形态直接替换为 [REDACTED]，防止异常
+  /// 拼接把密钥材料带进 console / 系统日志 / 未来接入的上报通道。
+  /// error 对象字符串化后再脱敏（保留 runtimeType 前缀便于诊断）。
   static void error(String message, [Object? error, StackTrace? stackTrace]) {
-    _getLogger().e(message, error: error, stackTrace: stackTrace);
+    final safeMessage = LogRedactor.scrubText(message);
+    final safeError = _scrubError(error);
+    _getLogger().e(safeMessage, error: safeError, stackTrace: stackTrace);
 
     // 生产环境发送错误上报事件
-    // 可以在应用启动时监听 ErrorReportEvent 并上报到第三方服务
+    // 可以在应用启动时监听 ErrorReportEvent 并上报到第三方错误监控服务
     if (!_isDebugMode) {
       AppEventBus.fire(
         ErrorReportEvent(
-          message: message,
-          error: error,
+          message: safeMessage,
+          error: safeError,
           stackTrace: stackTrace,
           isFatal: false,
         ),
@@ -121,19 +130,28 @@ class AppLogger {
 
   /// 严重错误日志
   static void fatal(String message, [Object? error, StackTrace? stackTrace]) {
-    _getLogger().f(message, error: error, stackTrace: stackTrace);
+    final safeMessage = LogRedactor.scrubText(message);
+    final safeError = _scrubError(error);
+    _getLogger().f(safeMessage, error: safeError, stackTrace: stackTrace);
 
     // 生产环境发送严重错误上报事件
     if (!_isDebugMode) {
       AppEventBus.fire(
         ErrorReportEvent(
-          message: message,
-          error: error,
+          message: safeMessage,
+          error: safeError,
           stackTrace: stackTrace,
           isFatal: true,
         ),
       );
     }
+  }
+
+  /// 异常对象出口脱敏：`TypeName: scrubText(toString)`。
+  /// 保留类型前缀（finding 014 的诊断形态），只抹负载。
+  static Object? _scrubError(Object? error) {
+    if (error == null) return null;
+    return '${error.runtimeType}: ${LogRedactor.scrubText(error.toString())}';
   }
 
   /// 性能监控日志（用于记录操作耗时）

@@ -10,7 +10,16 @@ import 'package:imboy/service/storage_secure.dart';
 /// 设计决策：
 /// - 密钥不轮换（数据库密钥轮换需要重新加密整个数据库，代价极高）
 /// - 密钥为 32 字节随机数的 hex 编码（SQLCipher 推荐格式）
-/// - 通过 flutter_secure_storage 持久化（iOS Keychain / Android EncryptedSharedPreferences）
+/// - 通过 flutter_secure_storage 持久化。实际保护级别（C05 核查，
+///   与 StorageSecureService 配置一致，不得虚标）：
+///   - iOS：Keychain，kSecAttrAccessibleAfterFirstUnlockThisDevice
+///     （ThisDeviceOnly：不随 iCloud 备份迁移到新设备）
+///   - Android：默认实现 = Android Keystore 生成/保管的 AES 密钥加密
+///     后写入 SharedPreferences（**未启用** EncryptedSharedPreferences，
+///     亦未声明 StrongBox/Secure Enclave 等硬件不可导出属性——密钥
+///     保护上限是 OS Keystore 软件隔离 + 沙箱）
+///   - fail-closed：secure storage 读取/写入抛异常时本服务向上抛，
+///     SqliteService 不会拿到空密码降级打开明文库
 class DbEncryptionKeyService {
   DbEncryptionKeyService._();
 
