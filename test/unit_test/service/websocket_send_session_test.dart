@@ -8,6 +8,11 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/message_actions.dart';
+import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/websocket_events.dart';
@@ -66,6 +71,34 @@ class _FakeChannel implements WebSocketChannel {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _EmptyRetryDatabase implements Database {
+  @override
+  bool get isOpen => true;
+
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) async => [];
+
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) async => [];
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() async {
@@ -100,6 +133,76 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_channel, null);
   });
+  for (final (framing, stale) in [
+    (FramingMode.v2, false),
+    (FramingMode.v2, true),
+    (FramingMode.none, true),
+  ]) {
+    test('revoke lookup framing=$framing session changed=$stale', () async {
+      final svc = WebSocketService.to;
+      final fake = _FakeChannel();
+      svc.channelForTest = fake;
+      svc.statusForTest = SocketStatus.connected;
+      svc.framingForTest = framing;
+      final entered = Completer<void>();
+      final release = Completer<MessageModel?>();
+      MessageActions.revokeMessageLoaderForTest = (type, id) {
+        expect(type, 'C2C');
+        expect(id, '1001');
+        entered.complete();
+        return release.future;
+      };
+      SqliteService.setDbForTest(_EmptyRetryDatabase());
+      final requests = <WebSocketMessageSendRequestEvent>[];
+      final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+          .listen((event) {
+            requests.add(event);
+            svc.handleSendRequestForTest(event);
+          });
+      try {
+        final pending = MessageActions.instance.sendRevokeMessage(
+          '1001',
+          'C2C',
+        );
+        await entered.future;
+        if (stale) {
+          await expectLater(
+            UserRepoLocal.to.loginAfter('synthetic-session', {
+              'uid': '101',
+              'token': 'synthetic-token',
+              'refreshtoken': 'synthetic-refresh',
+            }),
+            throwsA(isA<PlatformException>()),
+          );
+        }
+        release.complete(
+          MessageModel(
+            '1001',
+            autoId: 0,
+            conversationUk3: 'C2C_100_200',
+            type: 'C2C',
+            fromId: 100,
+            toId: 200,
+            msgType: 'text',
+            payload: {'text': 'synthetic'},
+            status: IMBoyMessageStatus.sent,
+            createdAt: DateTime.now().millisecondsSinceEpoch,
+            isAuthor: 1,
+          ),
+        );
+        expect(await pending, !stale);
+        await pumpEventQueue();
+        expect(requests, isEmpty);
+        expect(fake._sink.sent, stale ? isEmpty : hasLength(1));
+      } finally {
+        await subscription.cancel();
+        MessageActions.revokeMessageLoaderForTest = null;
+        await MessageRetry.instance.debugWaitForIdle();
+        MessageRetry.instance.dispose();
+        SqliteService.setDbForTest(null);
+      }
+    });
+  }
   for (final framing in [FramingMode.none, FramingMode.v2]) {
     for (final stale in [false, true]) {
       test('pending ACK retry framing=$framing stale=$stale', () async {

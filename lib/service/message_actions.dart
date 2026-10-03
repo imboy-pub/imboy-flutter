@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message.dart';
@@ -56,6 +58,10 @@ class MessageActions {
     // 消息操作模块初始化
     // Message actions module initialization
   }
+
+  @visibleForTesting
+  static Future<MessageModel?> Function(String type, String id)?
+  revokeMessageLoaderForTest;
 
   final MessageRetry _messageRetry = MessageRetry.instance;
   // 缓存常用仓库实例，避免重复 new。
@@ -759,9 +765,21 @@ class MessageActions {
   /// 发送撤回消息请求
   /// Send revoke message request.
   Future<bool> sendRevokeMessage(String messageId, String messageType) async {
+    final session = UserRepoLocal.to;
+    final currentUid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool current() =>
+        currentUid.isNotEmpty &&
+        session.currentUid == currentUid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (!current()) return false;
     try {
-      final repo = MessageService.to.getMessageRepo(messageType);
-      final msg = await repo.find(messageId);
+      final loader = revokeMessageLoaderForTest;
+      final msg = await (loader != null
+          ? loader(messageType, messageId)
+          : MessageService.to.getMessageRepo(messageType).find(messageId));
+      if (!current()) return false;
 
       if (msg == null) {
         iPrint('❌ 未找到要撤回的消息: messageId=$messageId');
@@ -774,7 +792,6 @@ class MessageActions {
         return false;
       }
 
-      final currentUid = UserRepoLocal.to.currentUid;
       final String toUid = msg.fromId.toString() == currentUid
           ? msg.toId.toString()
           : msg.fromId.toString();
@@ -817,6 +834,7 @@ class MessageActions {
         WebSocketMessageSendRequestEvent(
           message: json.encode(revokeMessage),
           messageId: revokeMessage['id'].toString(),
+          sessionGeneration: generation,
         ),
       );
 
