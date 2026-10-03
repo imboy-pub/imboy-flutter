@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "a3f1e3d0bd2d3090c07aa36a7e3366593773ca7d",
-    "backend_head": "ce31761fbcc8a0d678ba9f73ecf8c070365ae400",
+    "app_head": "0a4a8a30dbf276571b52df7980512104ab71b756",
+    "backend_head": "dea9f3b398d492810b7f3f31e19afa3be0f89cf8",
     "integration_test_count": 154,
     "lib_page_count": 166,
     "module_page_count": 22,
@@ -511,6 +511,7 @@
         "lib/page/contact/people_info/people_info_page.dart"
       ],
       "dependencies": [
+        "lib/component/ui/ios_settings_ui.dart",
         "lib/page/contact/contact/contact_page.dart"
       ],
       "risk": "local-write",

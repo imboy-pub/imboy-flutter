@@ -8,13 +8,17 @@
   "lib/page/contact/people_info/people_info_page.dart"
  ],
  "dependencies": [
+  "lib/component/ui/ios_settings_ui.dart",
   "lib/page/contact/contact/contact_page.dart"
  ],
  "assertions": {
   "functional": [
-   "联系人列表点入好友资料页",
+   "举报面板提供四种理由（提交路径需真实后端，另列）",
+   "删除联系人：破坏性红字入口→二次确认回显备注→取消不删除；确认后服务端失败不离开页面（先API后本地）",
    "备注/标签等资料信息正确渲染",
-   "资料页操作入口（发消息/删除）可达"
+   "联系人列表点入好友资料页",
+   "资料页操作入口（发消息/删除）可达",
+   "黑名单开关：加入/移出确认文案区分、取消不切换、图标红灰联动"
   ],
   "ui": [
    "资料区长昵称与签名字段不溢出",
@@ -44,5 +48,10 @@
   "friend_detail"
  ],
  "safe_to_execute": false,
- "risk_mode": "local-write"
+ "risk_mode": "local-write",
+ "unit_targets": [
+  "test/unit_test/page/contact/confirm_new_friend_button_test.dart",
+  "test/unit_test/page/contact/contact_setting_destructive_flow_test.dart",
+  "test/unit_test/page/contact/people_info_status_change_test.dart"
+ ]
 }
