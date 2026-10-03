@@ -71,3 +71,7 @@ result.py `INFRA_RETRY_LIMIT=3`（3 连 infra 耗尽），而执行合同第 5 �
 `auto_test_lib.acceptance_case_events.audit_case_event_artifact` 读取单个实际hash绑定的Flutter machine日志，校验非隐藏成功测试名称与协调者独立冻结的绑定全集精确相等。绑定行只含case_id、platform、profile、role_variant、test_name；必须覆盖传入的全部冻结required格子，且测试名称唯一。调用方必须先从独立固定hash加载冻结集合，不能根据日志反向生成绑定。
 
 相同数量但不同名称、漏项、未知项、重复名称、hidden/skip required均拒绝。此组件只证明日志身份结构和产物完整性，不能证明日志真实执行、平台配置、业务事实或完整attempt来源；当前未接入最终CLI，不构成F01-S06或产品PASS。
+
+只读入口已注册为 `python3 scripts/auto_test.py acceptance-case-events --evidence-root <run-root> --frozen-input <relative-json> --frozen-sha256 <independently-pinned-hash>`。单目标冻结输入使用schema_version整数1，必含required_cases、case_event_bindings、event_artifact（相对path与sha256）。此结构独立于acceptance-preflight的schema2；任一入口单独成功都不是总验收。
+
+入口始终输出scope=RAW_CASE_IDENTITY_ONLY、product_pass=false及剩余门禁。退出0只表示该冻结集合与日志结构一致；错误返回2。入口不启动测试、不改证据、不根据worker报告生成冻结绑定。不同平台/profile/角色若同目标并发执行，冻结的完整测试名称必须唯一且能区分其格子；仍须另行验证运行时来源和真实业务事实。

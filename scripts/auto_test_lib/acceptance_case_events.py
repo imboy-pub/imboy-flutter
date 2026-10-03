@@ -66,3 +66,33 @@ def audit_case_event_artifact(root: Path, artifact: Any,
         return [] if set(names) == set(expected) else ['CASE_EVENT_COLLECTION_MISMATCH']
     except (OSError, ValueError, TypeError, UnicodeError, RecursionError):
         return ['CASE_EVENT_ARTIFACT_INVALID_OR_UNREADABLE']
+
+
+def register_cli(subparsers: Any) -> None:
+    parser = subparsers.add_parser('acceptance-case-events',
+                                  help='只读原始用例身份核对；不能签发产品 PASS')
+    for option in ('evidence-root', 'frozen-input', 'frozen-sha256'):
+        parser.add_argument('--' + option, required=True)
+
+
+def run_cli(args: Any) -> int:
+    """Load coordinator-pinned bindings and logs without running any tests."""
+    root = Path(args.evidence_root)
+    frozen, errors = acceptance.load_frozen_json(root, {
+        'path': args.frozen_input, 'sha256': args.frozen_sha256})
+    if not errors:
+        if (not isinstance(frozen, dict)
+                or type(frozen.get('schema_version')) is not int
+                or frozen['schema_version'] != 1):
+            errors = ['CASE_EVENT_INPUT_SCHEMA_INVALID']
+        else:
+            errors = audit_case_event_artifact(
+                root, frozen.get('event_artifact'), frozen.get('required_cases'),
+                frozen.get('case_event_bindings'))
+    result = {'scope': 'RAW_CASE_IDENTITY_ONLY', 'product_pass': False,
+              'errors': errors, 'remaining_gates': [
+                  'complete coverage and source/runtime/device provenance',
+                  'authentic complete execution journal and business facts',
+                  'independent review, UX and all final qualification gates']}
+    print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+    return 2 if errors else 0

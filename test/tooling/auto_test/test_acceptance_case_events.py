@@ -3,6 +3,7 @@ import copy
 import hashlib
 import json
 import sys
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -73,3 +74,26 @@ class CaseEventTests(unittest.TestCase):
                          {'path': '../events.jsonl', 'sha256': '0' * 64}]:
             self.assertTrue(audit_case_event_artifact(
                 self.root, artifact, self.cases, self.bindings))
+
+    def test_actual_cli_matches_frozen_identity_without_writing_evidence(self):
+        script = Path(__file__).resolve().parents[3] / 'scripts' / 'auto_test.py'
+        for name, expected_exit in [('synthetic required test', 0), ('other test', 2)]:
+            self.audit([name])
+            event_data = (self.root / 'events.jsonl').read_bytes()
+            frozen = {'schema_version': 1, 'required_cases': self.cases,
+                      'case_event_bindings': self.bindings,
+                      'event_artifact': {'path': 'events.jsonl', 'sha256':
+                                         hashlib.sha256(event_data).hexdigest()}}
+            data = json.dumps(frozen).encode()
+            (self.root / 'frozen.json').write_bytes(data)
+            before = {p.name: p.read_bytes() for p in self.root.iterdir()}
+            result = subprocess.run([sys.executable, str(script), 'acceptance-case-events',
+                '--evidence-root', str(self.root), '--frozen-input', 'frozen.json',
+                '--frozen-sha256', hashlib.sha256(data).hexdigest()],
+                capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, expected_exit)
+            payload = json.loads(result.stdout)
+            self.assertIs(payload['product_pass'], False)
+            self.assertEqual(payload['scope'], 'RAW_CASE_IDENTITY_ONLY')
+            self.assertTrue(payload['remaining_gates'])
+            self.assertEqual(before, {p.name: p.read_bytes() for p in self.root.iterdir()})

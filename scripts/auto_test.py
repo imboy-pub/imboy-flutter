@@ -762,7 +762,11 @@ def main() -> int:
     for option in ('evidence-root', 'frozen-input', 'frozen-sha256',
                    'acceptance-report', 'report-sha256'):
         preparation_parser.add_argument('--' + option, required=True)
+    from auto_test_lib import acceptance_case_events
+    acceptance_case_events.register_cli(sub)
     args = parser.parse_args()
+    if args.command == 'acceptance-case-events':
+        return acceptance_case_events.run_cli(args)
     if args.command == 'acceptance-preflight':
         from auto_test_lib.acceptance_preflight import run_cli
         return run_cli(args, ROOT.parent)
